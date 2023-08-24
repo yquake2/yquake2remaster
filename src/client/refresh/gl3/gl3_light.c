@@ -193,13 +193,13 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 			return 0;
 		}
 
-		ds >>= 4;
-		dt >>= 4;
+		ds >>= surf->lmshift;
+		dt >>= surf->lmshift;
 
 		lightmap = surf->samples;
 		VectorCopy(vec3_origin, pointcolor);
 
-		lightmap += 3 * (dt * ((surf->extents[0] >> 4) + 1) + ds);
+		lightmap += 3 * (dt * ((surf->extents[0] >> surf->lmshift) + 1) + ds);
 
 		for (maps = 0; maps < MAX_LIGHTMAPS_PER_SURFACE && surf->styles[maps] != 255;
 			 maps++)
@@ -218,8 +218,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 				pointcolor[j] += lightmap[j] * scale * (1.0 / 255);
 			}
 
-			lightmap += 3 * ((surf->extents[0] >> 4) + 1) *
-						((surf->extents[1] >> 4) + 1);
+			lightmap += 3 * ((surf->extents[0] >> surf->lmshift) + 1) *
+						((surf->extents[1] >> surf->lmshift) + 1);
 		}
 
 		return 1;
@@ -300,8 +300,8 @@ GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 		ri.Sys_Error(ERR_DROP, "GL3_BuildLightMap called for non-lit surface");
 	}
 
-	smax = (surf->extents[0] >> 4) + 1;
-	tmax = (surf->extents[1] >> 4) + 1;
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 	size = smax * tmax;
 
 	stride -= (smax << 2);
@@ -333,8 +333,8 @@ GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 
 			for (i = 0; i < tmax; i++, dest += stride)
 			{
-				memset(dest, c, 4*smax);
-				dest += 4*smax;
+				memset(dest, c, 4 * smax);
+				dest += 4 * smax;
 			}
 		}
 

@@ -49,7 +49,6 @@ BRUSH MODELS
 //
 
 #define	VERTEXSIZE	7
-#define	DEFAULT_LMSHIFT		4
 
 typedef struct vkpoly_s
 {
