@@ -197,7 +197,7 @@ R_DrawSurface (drawsurf_t *drawsurf)
 	blocksize = 16 >> drawsurf->surfmip;
 	blockdivshift = NUM_MIPS - drawsurf->surfmip;
 
-	r_lightwidth = (drawsurf->surf->extents[0]>>4)+1;
+	r_lightwidth = (drawsurf->surf->extents[0] >> drawsurf->surf->lmshift) + 1;
 
 	r_numhblocks = drawsurf->surfwidth >> blockdivshift;
 	r_numvblocks = drawsurf->surfheight >> blockdivshift;

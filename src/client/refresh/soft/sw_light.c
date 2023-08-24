@@ -141,13 +141,13 @@ RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 		if (!surf->samples)
 			return 0;
 
-		ds >>= 4;
-		dt >>= 4;
+		ds >>= surf->lmshift;
+		dt >>= surf->lmshift;
 
 		lightmap = surf->samples;
 		VectorCopy (vec3_origin, pointcolor);
 
-		lightmap += 3 * (dt * ((surf->extents[0] >> 4) + 1) + ds);
+		lightmap += 3 * (dt * ((surf->extents[0] >> surf->lmshift) + 1) + ds);
 
 		for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
 				maps++)
@@ -166,8 +166,8 @@ RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 				pointcolor[j] += lightmap[j] * scale * (1.0 / 255);
 			}
 
-			lightmap += 3 * ((surf->extents[0] >> 4) + 1) *
-						((surf->extents[1] >> 4) + 1);
+			lightmap += 3 * ((surf->extents[0] >> surf->lmshift) + 1) *
+						((surf->extents[1] >> surf->lmshift) + 1);
 		}
 
 		return 1;
@@ -252,8 +252,8 @@ R_AddDynamicLights (drawsurf_t* drawsurf)
 	mtexinfo_t	*tex;
 
 	surf = drawsurf->surf;
-	smax = (surf->extents[0]>>4)+1;
-	tmax = (surf->extents[1]>>4)+1;
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 	tex = surf->texinfo;
 
 	if (blocklight_max <= blocklights + smax*tmax*3)
@@ -318,24 +318,23 @@ R_AddDynamicLights (drawsurf_t* drawsurf)
 		local[0] -= surf->texturemins[0];
 		local[1] -= surf->texturemins[1];
 
-		for (t = 0 ; t<tmax ; t++)
+		for (t = 0 ; t < tmax ; t++)
 		{
 			int s, td;
-
-			td = local[1] - t*16;
+			td = local[1] - t * (1 << surf->lmshift);
 			if (td < 0)
 				td = -td;
 			for (s=0 ; s<smax ; s++)
 			{
 				int sd;
 
-				sd = local[0] - s*16;
+				sd = local[0] - s * (1 << surf->lmshift);
 				if (sd < 0)
 					sd = -sd;
 				if (sd > td)
-					dist = sd + (td>>1);
+					dist = sd + (td >> 1);
 				else
-					dist = td + (sd>>1);
+					dist = td + (sd >> 1);
 
 				for (i=0; i<3; i++)
 				{
@@ -378,8 +377,8 @@ R_BuildLightMap (drawsurf_t* drawsurf)
 
 	surf = drawsurf->surf;
 
-	smax = (surf->extents[0]>>4)+1;
-	tmax = (surf->extents[1]>>4)+1;
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 	size = smax*tmax*3;
 
 	if (blocklight_max <= blocklights + size)

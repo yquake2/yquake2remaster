@@ -59,6 +59,7 @@ typedef struct msurface_s
 
 	short		texturemins[2];
 	short		extents[2];
+	short		lmshift;
 
 	mtexinfo_t	*texinfo;
 
