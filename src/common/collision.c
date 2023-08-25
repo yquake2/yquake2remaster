@@ -1921,7 +1921,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 				__func__, name, header.ident, IDBSPHEADER);
 	}
 
-	if (header.version != BSPVERSION)
+	if (header.version != BSPVERSION && header.version != BSPDKMVERSION)
 	{
 		Com_Error(ERR_DROP,
 				"%s: %s has wrong version number (%i should be %i)",

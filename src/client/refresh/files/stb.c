@@ -68,7 +68,7 @@ FixFileExt(const char *origname, const char *ext, char *filename, size_t size)
  * type: extension of the type we wanna open ("jpg", "png" or "tga")
  * pic: pointer RGBA pixel data will be assigned to
  */
-static qboolean
+qboolean
 LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *height)
 {
 	char filename[256];
@@ -507,7 +507,7 @@ R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t t
 	{
 		if (!strcmp(ext, "pcx"))
 		{
-			byte *pic = NULL;
+			byte	*pic = NULL;
 			byte	*palette = NULL;
 			int width = 0, height = 0;
 
@@ -607,6 +607,14 @@ GetSkyImage(const char *skyname, const char* surfname, qboolean palettedtexture,
 	if (!image)
 	{
 		Com_sprintf(pathname, sizeof(pathname), "env/%s%s.tga",
+				skyname, surfname);
+		image = find_image(pathname, it_sky);
+	}
+
+	/* Daikatana */
+	if (!image)
+	{
+		Com_sprintf(pathname, sizeof(pathname), "env/%s%s.pcx",
 				skyname, surfname);
 		image = find_image(pathname, it_sky);
 	}

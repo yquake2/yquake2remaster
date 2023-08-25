@@ -459,6 +459,49 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 	LoadPCX(filename, colormap, &pal, NULL, NULL);
 	if (!*colormap || !pal)
 	{
+		int width = 0, height = 0;
+		byte *pic = NULL;
+
+		if (LoadSTB("pics/colormap", "bmp", &pic, &width, &height) &&
+			width == 256 && height == 320)
+		{
+			int i;
+
+			memcpy(d_8to24table, pic, 256 * 4);
+			d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
+
+			/* generate colormap */
+			*colormap = malloc(256 * 320);
+			if (!(*colormap))
+			{
+				ri.Sys_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
+				// code never returns after ERR_FATAL
+				return;
+			}
+
+			for (i = 0; i < (256 * 320); i ++)
+			{
+				int j, rgb[3];
+
+				for(j = 0; j < 3; j++)
+				{
+					rgb[j] = pic[i * 4 + j];
+				}
+				(*colormap)[i] = Convert24to8((byte *)d_8to24table, rgb);
+			}
+
+			free(pic);
+			return;
+		}
+
+		if (pic)
+		{
+			free(pic);
+		}
+	}
+
+	if (!*colormap || !pal)
+	{
 		R_Printf(PRINT_ALL, "%s: Couldn't load %s, use generated palette\n",
 			__func__, filename);
 

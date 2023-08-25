@@ -330,12 +330,30 @@ typedef struct m32tex_s
 	int unused[20];                     // future expansion to maintain compatibility with h2
 } m32tex_t;
 
+/* .WAL Daikana texture file format */
+
+#define DKM_MIP_LEVELS 9
+#define DKM_WAL_VERSION 3
+typedef struct {
+	byte version;
+	byte padding[3];
+	char name[32];
+	unsigned width, height;
+	unsigned offsets[DKM_MIP_LEVELS];   /* nine mip maps stored */
+	char animname[32];                  /* next frame in animation chain */
+	int flags;
+	int contents;
+	rgb_t palette[256];
+	int value;
+} dkmtex_t;
+
 /* .BSP file format */
 
 #define IDBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'I') /* little-endian "IBSP" */
 #define QDBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'Q') /* little-endian "IBSQ" */
 #define BSPXHEADER  (('X' << 24) + ('P' << 16) + ('S' << 8) + 'B') /* little-endian "BSPX" */
 #define BSPVERSION 38
+#define BSPDKMVERSION 41
 
 /* upper design bounds: leaffaces, leafbrushes, planes, and 
  * verts are still bounded by 16 bit short limits */

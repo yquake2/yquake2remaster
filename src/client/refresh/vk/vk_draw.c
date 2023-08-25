@@ -32,6 +32,12 @@ Draw_InitLocal
 void Draw_InitLocal (void)
 {
 	draw_chars = R_FindPic ("conchars", (findimage_t)Vk_FindImage);
+	/* Daikatana */
+	if (!draw_chars)
+	{
+		draw_chars = R_FindPic ("dkchars", (findimage_t)Vk_FindImage);
+	}
+
 	if (!draw_chars)
 	{
 		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
