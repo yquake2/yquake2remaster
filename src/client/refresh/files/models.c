@@ -2007,7 +2007,14 @@ Mod_LoadBSPX(int filesize, const byte *mod_base)
 	// find end of last lump
 	header = (dheader_t*)mod_base;
 	xofs = 0;
-	for (i = 0; i < HEADER_LUMPS; i++) {
+
+	numlumps = HEADER_LUMPS;
+	if (header->version == BSPDKMVERSION)
+	{
+		numlumps = 21;
+	}
+
+	for (i = 0; i < numlumps; i++) {
 		xofs = max(xofs,
 			(header->lumps[i].fileofs + header->lumps[i].filelen + 3) & ~3);
 	}
