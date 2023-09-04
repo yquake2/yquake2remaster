@@ -13,7 +13,7 @@ State:
    * base1: correct wall light, broken model light
    * base2: correct wall light, broken model light, broken lift
    * q64/outpost: no known issies
-   * mguhub: loaded, transparent walls
+   * mguhub: loaded, transparent walls and broken logic for surface fall in next maps
  * GL3/GLES3:
    * base1: broken wall light, broken model light
    * base2: broken wall light, broken model light, broken lift
@@ -28,7 +28,7 @@ State:
    * base1: correct wall light, broken model light
    * base2: correct wall light, broken model light, broken lift
    * q64/outpost: no known issies
-   * mguhub: loaded, transparent walls
+   * mguhub: loaded, transparent walls and broken logic for surface fall in next maps
 
 Goals (none of it finished):
   * Single player support
