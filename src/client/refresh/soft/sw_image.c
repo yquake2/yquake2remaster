@@ -687,30 +687,12 @@ R_InitImages
 void
 R_InitImages (void)
 {
-	unsigned char * table16to8;
 	registration_sequence = 1;
 	image_max = 0;
 
-	d_16to8table = NULL;
-	ri.FS_LoadFile("pics/16to8.dat", (void **)&table16to8);
-
-	if ( !table16to8 )
-	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/16to8.dat", __func__);
-		// code never returns after ERR_FATAL
-		return;
-	}
-
-	d_16to8table = malloc(0x10000);
-	if ( !d_16to8table )
-	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't allocate memory for d_16to8table", __func__);
-		// code never returns after ERR_FATAL
-		return;
-	}
-	memcpy(d_16to8table, table16to8, 0x10000);
-	ri.FS_FreeFile((void *)table16to8);
-
+	GetPCXPalette(&vid_colormap, (unsigned *)d_8to24table);
+	GetPCXPalette24to8(d_8to24table, &d_16to8table);
+	vid_alphamap = vid_colormap + 64*256;
 	R_InitTextures ();
 }
 

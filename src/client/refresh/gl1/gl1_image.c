@@ -223,9 +223,9 @@ R_TextureMode(char *string)
 		if (unfiltered2D && glt->type == it_pic)
 		{
 			// exception to that exception: stuff on the r_lerp_list
-			nolerp = (lerplist== NULL) || (strstr(lerplist, glt->name) == NULL);
+			nolerp = (lerplist == NULL) || Utils_FilenameFiltered(glt->name, lerplist, ' ');
 		}
-		else if(nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
+		else if (nolerplist != NULL && Utils_FilenameFiltered(glt->name, nolerplist, ' '))
 		{
 			nolerp = true;
 		}
@@ -1166,7 +1166,6 @@ R_ImageHasFreeSpace(void)
 void
 R_InitImages(void)
 {
-	byte *colormap;
 	int i, j;
 
 	registration_sequence = 1;
@@ -1181,21 +1180,6 @@ R_InitImages(void)
 	}
 
 	gl_state.inverse_intensity = 1 / intensity->value;
-
-	// FIXME: I think this is redundant - RI_Init() already calls that!
-	GetPCXPalette (&colormap, d_8to24table);
-	free(colormap);
-
-	if (gl_config.palettedtexture)
-	{
-		ri.FS_LoadFile("pics/16to8.dat", (void **)&gl_state.d_16to8table);
-
-		if (!gl_state.d_16to8table)
-		{
-			ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/16to8.pcx",
-				__func__);
-		}
-	}
 
 	for (i = 0; i < 256; i++)
 	{

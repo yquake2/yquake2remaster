@@ -513,12 +513,40 @@ R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t t
 
 			LoadPCX (namewe, &pic, &palette, &width, &height);
 			if (!pic)
+			{
 				return NULL;
+			}
 
-			image = load_image(name, pic,
-				width, width,
-				height, height,
-				width * height, type, 8);
+			if (r_retexturing && palette)
+			{
+				byte *image_buffer = NULL;
+				int i, size;
+
+				size = width * height;
+
+				image_buffer = malloc (size * 4);
+				for(i = 0; i < size; i++)
+				{
+					unsigned char value = pic[i];
+					image_buffer[i * 4 + 0] = palette[value * 3 + 0];
+					image_buffer[i * 4 + 1] = palette[value * 3 + 1];
+					image_buffer[i * 4 + 2] = palette[value * 3 + 2];
+					image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
+				}
+
+				image = load_image(name, image_buffer,
+					width, width,
+					height, height,
+					size, type, 32);
+				free (image_buffer);
+			}
+			else
+			{
+				image = load_image(name, pic,
+					width, width,
+					height, height,
+					width * height, type, 8);
+			}
 
 			if (palette)
 			{
@@ -611,6 +639,13 @@ GetTexImage(const char *name, findimage_t find_image)
 	Com_sprintf(pathname, sizeof(pathname), "textures/%s.wal", name);
 	image = find_image(pathname, it_wall);
 
+	/* Quake2 Re-Release Nintendo 64 */
+	if (!image)
+	{
+		Com_sprintf(pathname, sizeof(pathname), "textures/%s.tga", name);
+		image = find_image(pathname, it_wall);
+	}
+
 	/* Heretic 2 */
 	if (!image)
 	{
@@ -639,6 +674,13 @@ R_FindPic(const char *name, findimage_t find_image)
 		/* Quake 2 */
 		Com_sprintf(pathname, sizeof(pathname), "pics/%s.pcx", name);
 		image = find_image(pathname, it_pic);
+
+		/* Quake 2 Re-Release */
+		if (!image)
+		{
+			Com_sprintf(pathname, sizeof(pathname), "pics/%s.png", name);
+			image = find_image(pathname, it_pic);
+		}
 
 		/* Heretic 2 */
 		if (!image)
