@@ -1,4 +1,16 @@
+# Yamagi Quake II Remaster
+
+This is an experimental fork of Yamagi Quake II with ongoing work to add
+support for Quake II Enhanced aka Q2 Remaster(ed). This enhanced version
+has a lot non trivial changes, adding support isn't easy and takes time.
+Feel free to try this code but you mileage may vary.
+
+Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
+https://github.com/yquake2/yquake2
+
+
 # Yamagi Quake II
+
 
 Yamagi Quake II is an enhanced client for id Software's Quake
 II with focus on offline and coop gameplay. Both the gameplay and the graphics
