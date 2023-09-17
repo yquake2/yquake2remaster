@@ -693,7 +693,9 @@ Mod_LoadMD2 (const char *mod_name, const void *buffer, int modfilelen,
 	// register all skins
 	memcpy ((char *)pheader + pheader->ofs_skins, (char *)pinmodel + pheader->ofs_skins,
 		pheader->num_skins*MAX_SKINNAME);
-	for (i=0 ; i<pheader->num_skins ; i++)
+
+	// Load in our skins.
+	for (i=0; i < pheader->num_skins; i++)
 	{
 		skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
 			it_skin);
@@ -980,8 +982,16 @@ Mod_LoadFlexModel(const char *mod_name, const void *buffer, int modfilelen,
 		src += size;
 	}
 
+	if (pheader->num_skins > MAX_MD2SKINS)
+	{
+		R_Printf(PRINT_ALL, "%s has too many skins (%i > %i), "
+				"extra skins will be ignored\n",
+				mod_name, pheader->num_skins, MAX_MD2SKINS);
+		pheader->num_skins = MAX_MD2SKINS;
+	}
+
 	// Load in our skins.
-	for (i=0 ; i<pheader->num_skins ; i++)
+	for (i=0; i < pheader->num_skins; i++)
 	{
 		skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
 			it_skin);
@@ -1004,9 +1014,9 @@ Mod_LoadDKMModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s **skins, findimage_t find_image,
 	modtype_t *type)
 {
-	dmdl_t dmdlheader, *pheader;
-	dkm_header_t header;
-	void *extradata;
+	dmdl_t dmdlheader, *pheader = NULL;
+	dkm_header_t header = {0};
+	void *extradata = NULL;
 	int i;
 
 	if (sizeof(dkm_header_t) > modfilelen)
@@ -1095,8 +1105,16 @@ Mod_LoadDKMModel(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadDkmTriangleList (pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
+	if (pheader->num_skins > MAX_MD2SKINS)
+	{
+		R_Printf(PRINT_ALL, "%s has too many skins (%i > %i), "
+				"extra skins will be ignored\n",
+				mod_name, pheader->num_skins, MAX_MD2SKINS);
+		pheader->num_skins = MAX_MD2SKINS;
+	}
+
 	// Load in our skins.
-	for (i=0 ; i<pheader->num_skins ; i++)
+	for (i=0; i < pheader->num_skins; i++)
 	{
 		skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
 			it_skin);

@@ -377,12 +377,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk
 
 # ----------
 
@@ -730,6 +730,42 @@ build/ref_soft/%.o: %.c
 
 # ----------
 
+# The vk renderer lib
+
+ifeq ($(YQ2_OSTYPE), Windows)
+
+ref_vk:
+	@echo "===> Building ref_vk.dll"
+	$(MAKE) release/ref_vk.dll
+
+release/ref_vk.dll : LDFLAGS += -shared
+
+else ifeq ($(YQ2_OSTYPE), Darwin)
+
+ref_vk:
+	@echo "===> Building ref_vk.dylib"
+	$(MAKE) release/ref_vk.dylib
+
+release/ref_vk.dylib : LDFLAGS += -shared
+
+else # not Windows or Darwin
+
+ref_vk:
+	@echo "===> Building ref_vk.so"
+	$(MAKE) release/ref_vk.so
+
+release/ref_vk.so : CFLAGS += -fPIC
+release/ref_vk.so : LDFLAGS += -shared
+
+endif # OS specific ref_vk stuff
+
+build/ref_vk/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
+
+# ----------
+
 # The baseq2 game
 ifeq ($(YQ2_OSTYPE), Windows)
 game:
@@ -1025,6 +1061,45 @@ REFSOFT_OBJS_ += \
 endif
 
 # ----------
+REFVK_OBJS_ := \
+	src/client/refresh/vk/vk_buffer.o \
+	src/client/refresh/vk/vk_cmd.o \
+	src/client/refresh/vk/vk_common.o \
+	src/client/refresh/vk/vk_device.o \
+	src/client/refresh/vk/vk_draw.o \
+	src/client/refresh/vk/vk_image.o \
+	src/client/refresh/vk/vk_light.o \
+	src/client/refresh/vk/vk_mesh.o \
+	src/client/refresh/vk/vk_model.o \
+	src/client/refresh/vk/vk_pipeline.o \
+	src/client/refresh/vk/vk_main.o \
+	src/client/refresh/vk/vk_misc.o \
+	src/client/refresh/vk/vk_surf.o \
+	src/client/refresh/vk/vk_shaders.o \
+	src/client/refresh/vk/vk_swapchain.o \
+	src/client/refresh/vk/vk_validation.o \
+	src/client/refresh/vk/vk_warp.o \
+	src/client/refresh/vk/vk_util.o \
+	src/client/refresh/vk/volk/volk.o \
+	src/client/refresh/files/surf.o \
+	src/client/refresh/files/models.o \
+	src/client/refresh/files/pcx.o \
+	src/client/refresh/files/stb.o \
+	src/client/refresh/files/wal.o \
+	src/client/refresh/files/pvs.o \
+	src/common/shared/shared.o \
+	src/common/shared/utils.o \
+	src/common/md4.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+REFVK_OBJS_ += \
+	src/backends/windows/shared/hunk.o
+else # not Windows
+REFVK_OBJS_ += \
+	src/backends/unix/shared/hunk.o
+endif
+
+# ----------
 
 # Used by the server
 SERVER_OBJS_ := \
@@ -1086,6 +1161,7 @@ REFGL3_OBJS += $(patsubst %,build/ref_gl3/%,$(REFGL3_OBJS_GLADE_))
 REFGLES3_OBJS = $(patsubst %,build/ref_gles3/%,$(REFGL3_OBJS_))
 REFGLES3_OBJS += $(patsubst %,build/ref_gles3/%,$(REFGL3_OBJS_GLADEES_))
 REFSOFT_OBJS = $(patsubst %,build/ref_soft/%,$(REFSOFT_OBJS_))
+REFVK_OBJS = $(patsubst %,build/ref_vk/%,$(REFVK_OBJS_))
 SERVER_OBJS = $(patsubst %,build/server/%,$(SERVER_OBJS_))
 GAME_OBJS = $(patsubst %,build/baseq2/%,$(GAME_OBJS_))
 
@@ -1098,6 +1174,7 @@ REFGL1_DEPS= $(REFGL1_OBJS:.o=.d)
 REFGL3_DEPS= $(REFGL3_OBJS:.o=.d)
 REFGLES3_DEPS= $(REFGLES3_OBJS:.o=.d)
 REFSOFT_DEPS= $(REFSOFT_OBJS:.o=.d)
+REFVK_DEPS= $(REFVK_OBJS:.o=.d)
 SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 
 # Suck header dependencies in.
@@ -1106,6 +1183,7 @@ SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 -include $(REFGL1_DEPS)
 -include $(REFGL3_DEPS)
 -include $(REFGLES3_DEPS)
+-include $(REFVK_DEPS)
 -include $(SERVER_DEPS)
 
 # ----------
@@ -1199,6 +1277,21 @@ else
 release/ref_soft.so : $(REFSOFT_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFSOFT_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+endif
+
+# release/ref_vk.so
+ifeq ($(YQ2_OSTYPE), Windows)
+release/ref_vk.dll : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/ref_vk.dylib : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+else
+release/ref_vk.so : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
 endif
 
 # release/baseq2/game.so
