@@ -31,6 +31,9 @@
 #include "input/header/input.h"
 #include "cinema/smacker.h"
 
+#define PL_MPEG_IMPLEMENTATION
+#include "cinema/pl_mpeg.h"
+
 // don't need HDR stuff
 #define STBI_NO_LINEAR
 #define STBI_NO_HDR
@@ -60,6 +63,7 @@ typedef enum
 {
 	video_cin,
 	video_smk,
+	video_mpg
 } cinema_t;
 
 typedef struct
@@ -89,9 +93,14 @@ typedef struct
 
 	/* shared video buffer */
 	void *raw_video;
+	byte *audio_buf;
+	size_t audio_pos;
 
 	/* smacker video */
 	smk smk_video;
+
+	/* mpg video */
+	plm_t *plm_video;
 } cinematics_t;
 
 cinematics_t cin;
@@ -204,6 +213,18 @@ SCR_StopCinematic(void)
 	{
 		smk_close(cin.smk_video);
 		cin.smk_video = NULL;
+	}
+
+	if (cin.plm_video)
+	{
+		plm_destroy(cin.plm_video);
+		cin.plm_video = NULL;
+	}
+
+	if (cin.audio_buf)
+	{
+		Z_Free(cin.audio_buf);
+		cin.audio_buf = NULL;
 	}
 
 	if (cin.raw_video)
@@ -414,6 +435,79 @@ Huff1Decompress(cblock_t in)
 }
 
 static byte *
+SCR_ReadNextMPGFrame(void)
+{
+	size_t count, i;
+	byte *buffer;
+	plm_frame_t *frame;
+
+	if (plm_has_ended(cin.plm_video))
+	{
+		return NULL;
+	}
+
+	count = cin.height * cin.width * cin.color_bits / 8;
+	buffer = Z_Malloc(count);
+	frame = plm_decode_video(cin.plm_video);
+	if (!frame)
+	{
+		Z_Free(buffer);
+		return NULL;
+	}
+	plm_frame_to_rgba(frame, buffer, frame->width * 4);
+
+	/* force untransparent image show */
+	for (i=0; i < count; i += 4)
+	{
+		buffer[i + 3] = 255;
+	}
+
+	if (cin.s_channels > 0)
+	{
+		/* Fix here if audio not in sync */
+		count = cin.s_rate * cin.s_channels * cin.s_width / cin.fps;
+		/* round up to channels and width */
+		count = (count + (cin.s_channels * cin.s_width) - 1) & (~(cin.s_channels * cin.s_width) - 1);
+		/* load enough sound data for single frame*/
+		while (cin.audio_pos < count && cin.s_channels > 0)
+		{
+			plm_samples_t *samples;
+			short *audiobuffer;
+
+			samples = plm_decode_audio(cin.plm_video);
+			if (!samples || samples->count <= 0)
+			{
+				break;
+			}
+
+			audiobuffer = (short *)(cin.audio_buf + cin.audio_pos);
+			for (i=0; i < samples->count * cin.s_channels; i++)
+			{
+				audiobuffer[i] = samples->interleaved[i] * (1 << 15);
+			}
+
+			cin.audio_pos += samples->count * cin.s_channels * cin.s_width;
+		}
+
+		if (count > cin.audio_pos)
+		{
+			count = cin.audio_pos;
+		}
+
+		S_RawSamples(count / (cin.s_width * cin.s_channels), cin.s_rate, cin.s_width, cin.s_channels,
+			cin.audio_buf, Cvar_VariableValue("s_volume"));
+
+		/* cleanup already played buffer part */
+		memmove(cin.audio_buf, cin.audio_buf + count, cin.audio_pos - count);
+		cin.audio_pos -= count;
+	}
+
+	cl.cinematicframe++;
+
+	return buffer;
+}
+
+static byte *
 SCR_ReadNextSMKFrame(void)
 {
 	size_t count;
@@ -583,6 +677,9 @@ SCR_RunCinematic(void)
 			break;
 		case video_smk:
 			cin.pic_pending = SCR_ReadNextSMKFrame();
+			break;
+		case video_mpg:
+			cin.pic_pending = SCR_ReadNextMPGFrame();
 			break;
 	}
 
@@ -820,6 +917,69 @@ SCR_PlayCinematic(char *arg)
 			Z_Free(palette);
 		}
 
+		return;
+	}
+
+	if (dot && !strcmp(dot, ".mpg"))
+	{
+		int len;
+
+		Com_sprintf(name, sizeof(name), "video/%s", arg);
+
+		len = FS_LoadFile(name, &cin.raw_video);
+		if (!cin.raw_video || len <= 0)
+		{
+			cl.cinematictime = 0; /* done */
+			return;
+		}
+
+		cin.plm_video = plm_create_with_memory(cin.raw_video, len, 0);
+		if (!cin.plm_video || !cin.plm_video->demux)
+		{
+			FS_FreeFile(cin.raw_video);
+			cin.raw_video = NULL;
+			cl.cinematictime = 0; /* done */
+			return;
+		}
+
+		SCR_EndLoadingPlaque();
+
+		cin.color_bits = 32;
+		cls.state = ca_active;
+
+		plm_set_loop(cin.plm_video, 0);
+		plm_set_audio_enabled(cin.plm_video, 1);
+		plm_set_audio_stream(cin.plm_video, 0);
+
+		cin.fps = plm_get_framerate(cin.plm_video);
+		cin.width = plm_get_width(cin.plm_video);
+		cin.height = plm_get_height(cin.plm_video);
+
+		if (plm_get_num_audio_streams(cin.plm_video) == 0)
+		{
+			/* No Sound */
+			cin.s_channels = 0;
+		}
+		else
+		{
+			cin.s_rate = plm_get_samplerate(cin.plm_video);
+			/* set to default 2 bytes with 2 channels */
+			cin.s_width = 2;
+			cin.s_channels = 2;
+
+			/* Adjust the audio lead time according to the audio_spec buffer size */
+			plm_set_audio_lead_time(cin.plm_video, 1.0f / cin.fps);
+
+			/* Allocate audio buffer for 2 frames */
+			cin.audio_buf = Z_Malloc(cin.s_channels * cin.s_width * cin.s_rate * 2 / cin.fps);
+			cin.audio_pos = 0;
+		}
+
+		cl.cinematicframe = 0;
+		cin.pic = SCR_ReadNextMPGFrame();
+		cl.cinematictime = Sys_Milliseconds();
+
+		cin.video_type = video_mpg;
 		return;
 	}
 
