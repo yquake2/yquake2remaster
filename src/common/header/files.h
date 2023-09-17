@@ -71,22 +71,22 @@ typedef struct
 #define MDL_VERSION 6
 
 /* Texture coords */
-struct mdl_texcoord_t
+typedef struct mdl_texcoord_s
 {
 	int onseam;
 	int s;
 	int t;
-};
+} mdl_texcoord_t;
 
 /* Triangle info */
-struct mdl_triangle_t
+typedef struct mdl_triangle_s
 {
 	int facesfront;  /* 0 = backface, 1 = frontface */
 	int vertex[3];   /* vertex indices */
-};
+} mdl_triangle_t;
 
 /* MDL header */
-typedef struct mdl_header_t
+typedef struct mdl_header_s
 {
 	int ident;            /* magic number: "IDPO" */
 	int version;          /* version: 6 */
@@ -107,7 +107,7 @@ typedef struct mdl_header_t
 	int synctype;         /* 0 = synchron, 1 = random */
 	int flags;            /* state flag */
 	float size;           /* average size of triangles */
-} dmdlo_t;
+} mdl_header_t;
 
 /* .MD2 triangle model file format */
 
@@ -186,22 +186,60 @@ typedef struct
 
 /* .FM triangle model file format */
 
-#define RAVENFMHEADER		(('d'<<24)+('a'<<16)+('e'<<8)+'h')
+#define RAVENFMHEADER		(('d' << 24) + ('a' << 16) + ('e' << 8) + 'h')
 
-typedef struct
+typedef struct fmheader_s
 {
-	int skinwidth;
-	int skinheight;
-	int framesize;  /* byte size of each frame */
+	int			skinwidth;
+	int			skinheight;
+	int			framesize;		// byte size of each frame
+
+	int			num_skins;
+	int			num_xyz;
+	int			num_st;			// greater than num_xyz for seams
+	int			num_tris;
+	int			num_glcmds;		// dwords in strip/fan command list
+	int			num_frames;
+	int			num_mesh_nodes;
+} fmheader_t;
+
+/* Daikatana dkm format */
+#define DKMHEADER			(('D' << 24) + ('M' << 16) + ('K' << 8) + 'D')
+
+#define DKM1_VERSION		1
+#define DKM2_VERSION		2
+
+typedef struct dkmtriangle_s
+{
+	short extra;         /* no idea */
+	short num_uvframes;  /* no idea */
+	short index_xyz[3];
+	short index_st[3];
+} dkmtriangle_t;
+
+typedef struct dkm_header_s
+{
+	int ident;            /* magic number: "DKMD" */
+	int version;          /* version: 1 or 2 */
+	vec3_t translate;     /* translation vector */
+	int framesize;        /* byte size of each frame */
 
 	int num_skins;
 	int num_xyz;
-	int num_st;     /* greater than num_xyz for seams */
+	int num_st;           /* greater than num_xyz for seams */
 	int num_tris;
-	int num_glcmds; /* dwords in strip/fan command list */
+	int num_glcmds;        /* dwords in strip/fan command list */
 	int num_frames;
-	int num_mesh_nodes;
-} fmheader_t;
+	int num_surf;          /* no idea */
+
+	int ofs_skins;         /* each skin is a MAX_SKINNAME string */
+	int ofs_st;            /* byte offset from start for stverts */
+	int ofs_tris;          /* offset for dtriangles */
+	int ofs_frames;        /* offset for first frame */
+	int ofs_glcmds;
+	int ofs_surf;          /* no idea */
+	int ofs_end;           /* end of file */
+} dkm_header_t;
 
 /* .SP2 sprite file format */
 
