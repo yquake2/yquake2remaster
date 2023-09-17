@@ -1203,6 +1203,13 @@ Mod_LoadSP2 (const char *mod_name, const void *buffer, int modfilelen,
 		memcpy(sprout->frames[i].name, sprin->frames[i].name, MAX_SKINNAME);
 
 		skins[i] = find_image((char *)sprout->frames[i].name, it_sprite);
+		if (!skins[i])
+		{
+			/* heretic2 sprites have no "sprites/" prefix */
+			snprintf(sprout->frames[i].name, MAX_SKINNAME,
+				"sprites/%s", sprin->frames[i].name);
+			skins[i] = find_image(sprout->frames[i].name, it_sprite);
+		}
 	}
 
 	*type = mod_sprite;
