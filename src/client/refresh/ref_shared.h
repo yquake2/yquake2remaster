@@ -178,7 +178,7 @@ typedef struct mleaf_s
 
 /* Shared models func */
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
-extern void *Mod_LoadMD2 (const char *mod_name, const void *buffer, int modfilelen,
+extern void *Mod_LoadAliasModel (const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s **skins,
 	findimage_t find_image, modtype_t *type);
 extern void *Mod_LoadSP2 (const char *mod_name, const void *buffer, int modfilelen,
@@ -217,6 +217,7 @@ extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
 extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,
 	const char *lumpname, int *plumpsize, const byte *mod_base);
 extern const bspx_header_t *Mod_LoadBSPX(int filesize, const byte *mod_base);
+int Mod_LoadFile(char *name, void **buffer);
 
 /* Surface logic */
 #define DLIGHT_CUTOFF 64

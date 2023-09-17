@@ -65,6 +65,50 @@ typedef struct
 	unsigned char data;   /* unbounded */
 } pcx_t;
 
+/* .MDL triangle model file format */
+
+#define IDMDLHEADER (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define MDL_VERSION 6
+
+/* Texture coords */
+struct mdl_texcoord_t
+{
+	int onseam;
+	int s;
+	int t;
+};
+
+/* Triangle info */
+struct mdl_triangle_t
+{
+	int facesfront;  /* 0 = backface, 1 = frontface */
+	int vertex[3];   /* vertex indices */
+};
+
+/* MDL header */
+typedef struct mdl_header_t
+{
+	int ident;            /* magic number: "IDPO" */
+	int version;          /* version: 6 */
+
+	vec3_t scale;         /* scale factor */
+	vec3_t translate;     /* translation vector */
+	float boundingradius;
+	vec3_t eyeposition;   /* eyes' position */
+
+	int num_skins;        /* number of textures */
+	int skinwidth;        /* texture width */
+	int skinheight;       /* texture height */
+
+	int num_xyz;          /* number of vertices */
+	int num_tris;         /* number of triangles */
+	int num_frames;       /* number of frames */
+
+	int synctype;         /* 0 = synchron, 1 = random */
+	int flags;            /* state flag */
+	float size;           /* average size of triangles */
+} dmdlo_t;
+
 /* .MD2 triangle model file format */
 
 #define IDALIASHEADER (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I')

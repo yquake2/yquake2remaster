@@ -211,7 +211,7 @@ Mod_ForName (char *name, model_t *parent_model, qboolean crash)
 	{
 		case IDALIASHEADER:
 			{
-				mod->extradata = Mod_LoadMD2(mod->name, buf, modfilelen,
+				mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
 					(struct image_s **)mod->skins, (findimage_t)R_FindImage,
 					&(mod->type));

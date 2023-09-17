@@ -693,7 +693,7 @@ Mod_ForName (char *name, gl3model_t *parent_model, qboolean crash)
 	{
 		case IDALIASHEADER:
 			{
-				mod->extradata = Mod_LoadMD2(mod->name, buf, modfilelen,
+				mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
 					(struct image_s **)mod->skins, (findimage_t)GL3_FindImage,
 					&(mod->type));
