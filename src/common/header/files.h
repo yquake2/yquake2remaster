@@ -184,6 +184,25 @@ typedef struct
 	int ofs_end;    /* end of file */
 } dmdl_t;
 
+/* .FM triangle model file format */
+
+#define RAVENFMHEADER		(('d'<<24)+('a'<<16)+('e'<<8)+'h')
+
+typedef struct
+{
+	int skinwidth;
+	int skinheight;
+	int framesize;  /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_st;     /* greater than num_xyz for seams */
+	int num_tris;
+	int num_glcmds; /* dwords in strip/fan command list */
+	int num_frames;
+	int num_mesh_nodes;
+} fmheader_t;
+
 /* .SP2 sprite file format */
 
 #define IDSPRITEHEADER (('2' << 24) + ('S' << 16) + ('D' << 8) + 'I') /* little-endian "IDS2" */
