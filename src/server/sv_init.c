@@ -544,7 +544,8 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		--l;
 	}
 
-	if ((l > 4) && !strcmp(level + l - 4, ".cin"))
+	if ((l > 4) && (!strcmp(level + l - 4, ".cin") ||
+					!strcmp(level + l - 4, ".smk")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */

@@ -853,6 +853,7 @@ CLIENT_OBJS_ := \
 	src/client/curl/download.o \
 	src/client/curl/qcurl.o \
 	src/client/input/sdl.o \
+	src/client/cinema/smacker.o \
 	src/client/menu/menu.o \
 	src/client/menu/qmenu.o \
 	src/client/menu/videomenu.o \
