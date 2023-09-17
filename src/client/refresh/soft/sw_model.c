@@ -175,7 +175,7 @@ Mod_ForName (char *name, model_t *parent_model, qboolean crash)
 	//
 	// load the file
 	//
-	modfilelen = ri.FS_LoadFile (mod->name, (void **)&buf);
+	modfilelen = Mod_LoadFile (mod->name, &buf);
 	if (!buf)
 	{
 		if (crash)
@@ -196,7 +196,13 @@ Mod_ForName (char *name, model_t *parent_model, qboolean crash)
 
 	switch (LittleLong(*(unsigned *)buf))
 	{
+	case DKMHEADER:
+		/* fall through */
+	case RAVENFMHEADER:
+		/* fall through */
 	case IDALIASHEADER:
+		/* fall through */
+	case IDMDLHEADER:
 		{
 			mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
 				mod->mins, mod->maxs,

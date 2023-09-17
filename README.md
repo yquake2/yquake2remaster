@@ -8,6 +8,46 @@ Feel free to try this code but you mileage may vary.
 Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 https://github.com/yquake2/yquake2
 
+State:
+ * GL1:
+   * base1: correct wall light, broken model light
+   * base2: correct wall light, broken model light, broken lift
+   * q64/outpost: no known issies
+   * mguhub: loaded, transparent walls
+ * GL3/GLES3:
+   * base1: broken wall light, broken model light
+   * base2: broken wall light, broken model light, broken lift
+   * q64/outpost: no known issies
+   * mguhub: can't be loaded
+ * SOFT:
+   * base1: broken wall light, broken model light
+   * base2: broken wall light, broken model light, broken lift
+   * q64/outpost: no known issies
+   * mguhub: can't be loaded
+ * VK:
+   * base1: correct wall light, broken model light
+   * base2: correct wall light, broken model light, broken lift
+   * q64/outpost: no known issies
+   * mguhub: loaded, transparent walls
+
+Goals (none of it finished):
+  * Single player support
+  * BSPX DECOUPLEDLM light map support (base1)
+  * IBSQ map format support (mguhub)
+  * MD5 model support
+  * modified ReRelease game code support with removed KEX only related code
+  * RoQ and Theora cinematic videos support.
+
+Bonus goals:
+  * MDL/Quake1 model format support
+  * FM/Heretic 2 model format support
+  * Daikatana model/wal/map format support
+  * Cinematic videos support in smk, mpeg format.
+
+Not a goal:
+  * multiplayer protocol support with KEX engine
+  * support KEX engine features (inventary, compass and so on)
+  * KEX game library support
 
 # Yamagi Quake II
 
@@ -33,6 +73,6 @@ version can be found here: [doc/010_index.md](doc/010_index.md)
 ## Releases
 
 The official releases (including Windows binaries) can be found at our
-homepage: https://www.yamagi.org/quake2  
+homepage: https://www.yamagi.org/quake2
 **Unsupported** preview builds for Windows can be found at
 https://deponie.yamagi.org/quake2/misc/

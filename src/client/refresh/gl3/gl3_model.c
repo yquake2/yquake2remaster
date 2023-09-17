@@ -675,7 +675,7 @@ Mod_ForName (char *name, gl3model_t *parent_model, qboolean crash)
 	strcpy(mod->name, name);
 
 	/* load the file */
-	modfilelen = ri.FS_LoadFile(mod->name, (void **)&buf);
+	modfilelen = Mod_LoadFile (mod->name, &buf);
 
 	if (!buf)
 	{
@@ -692,7 +692,13 @@ Mod_ForName (char *name, gl3model_t *parent_model, qboolean crash)
 	/* call the apropriate loader */
 	switch (LittleLong(*(unsigned *)buf))
 	{
+		case DKMHEADER:
+			/* fall through */
+		case RAVENFMHEADER:
+			/* fall through */
 		case IDALIASHEADER:
+			/* fall through */
+		case IDMDLHEADER:
 			{
 				mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
