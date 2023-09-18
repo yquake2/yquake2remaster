@@ -125,22 +125,18 @@ R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframeco
 	/* mark the polygons */
 	surf = r_worldmodel->surfaces + node->firstsurface;
 
-	for (i=0 ; i<node->numsurfaces ; i++, surf++)
+	for (i = 0; i < node->numsurfaces; i++, surf++)
 	{
 		if (surf->dlightframe != r_dlightframecount)
 		{
 			surf->dlightbits = 0;
 			surf->dlightframe = r_dlightframecount;
 		}
+
 		surf->dlightbits |= bit;
 	}
 }
 
-/*
-=============
-R_PushDlights
-=============
-*/
 void
 R_PushDlights(void)
 {
@@ -152,12 +148,14 @@ R_PushDlights(void)
 		return;
 	}
 
-	r_dlightframecount = r_framecount + 1;	// because the count hasn't
-											//  advanced yet for this frame
+	/* because the count hasn't advanced yet for this frame */
+	r_dlightframecount = r_framecount + 1;
+
 	l = r_newrefdef.dlights;
-	for (i=0 ; i<r_newrefdef.num_dlights ; i++, l++)
+
+	for (i = 0; i < r_newrefdef.num_dlights; i++, l++)
 	{
-		R_MarkLights(l, 1<<i, r_worldmodel->nodes, r_dlightframecount,
+		R_MarkLights(l, 1 << i, r_worldmodel->nodes, r_dlightframecount,
 			R_MarkSurfaceLights);
 	}
 }
@@ -191,12 +189,10 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 
 	if (node->contents != CONTENTS_NODE)
 	{
-		return -1;		// didn't hit anything
+		return -1;     /* didn't hit anything */
 	}
 
-// calculate mid point
-
-// FIXME: optimize for axial
+	/* calculate mid point */
 	plane = node->plane;
 	front = DotProduct(start, plane->normal) - plane->dist;
 	back = DotProduct(end, plane->normal) - plane->dist;
@@ -207,7 +203,7 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 		return RecursiveLightPoint(node->children[side], start, end, pointcolor);
 	}
 
-	frac = front / (front-back);
+	frac = front / (front - back);
 	mid[0] = start[0] + (end[0] - start[0]) * frac;
 	mid[1] = start[1] + (end[1] - start[1]) * frac;
 	mid[2] = start[2] + (end[2] - start[2]) * frac;
@@ -216,7 +212,12 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 	r = RecursiveLightPoint(node->children[side], start, mid, pointcolor);
 	if (r >= 0)
 	{
-		return r;		// hit something
+		return r;     /* hit something */
+	}
+
+	if ((back < 0) == side)
+	{
+		return -1;     /* didn't hit anuthing */
 	}
 
 	/* check for impact on this node */
@@ -225,11 +226,9 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 	surf = r_worldmodel->surfaces + node->firstsurface;
 	for (i = 0; i < node->numsurfaces; i++, surf++)
 	{
-		vec3_t scale;
-
 		if (surf->flags & (SURF_DRAWTURB | SURF_DRAWSKY))
 		{
-			continue;	// no lightmaps
+			continue; /* no lightmaps */
 		}
 
 		tex = surf->texinfo;
@@ -237,7 +236,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 		s = DotProduct(mid, tex->vecs[0]) + tex->vecs[0][3];
 		t = DotProduct(mid, tex->vecs[1]) + tex->vecs[1][3];
 
-		if (s < surf->texturemins[0] || t < surf->texturemins[1])
+		if ((s < surf->texturemins[0]) ||
+			(t < surf->texturemins[1]))
 		{
 			continue;
 		}
@@ -245,7 +245,7 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 		ds = s - surf->texturemins[0];
 		dt = t - surf->texturemins[1];
 
-		if (ds > surf->extents[0] || dt > surf->extents[1])
+		if ((ds > surf->extents[0]) || (dt > surf->extents[1]))
 		{
 			continue;
 		}
@@ -265,18 +265,22 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 
 		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
 		{
+			const float *rgb;
 			int j;
 
+			rgb = r_newrefdef.lightstyles[surf->styles[maps]].rgb;
+
+			/* Apply light level to models */
 			for (j = 0; j < 3; j++)
 			{
-				scale[j] = r_modulate->value * r_newrefdef.lightstyles[surf->styles[maps]].rgb[j];
+				float	scale;
+
+				scale = rgb[j] * r_modulate->value;
+				pointcolor[j] += lightmap[j] * scale * (1.0 / 255);
 			}
 
-			pointcolor[0] += lightmap[0] * scale[0] * (1.0/255);
-			pointcolor[1] += lightmap[1] * scale[1] * (1.0/255);
-			pointcolor[2] += lightmap[2] * scale[2] * (1.0/255);
 			lightmap += 3 * ((surf->extents[0] >> surf->lmshift) + 1) *
-					((surf->extents[1] >> surf->lmshift) + 1);
+						((surf->extents[1] >> surf->lmshift) + 1);
 		}
 
 		return 1;
@@ -336,14 +340,6 @@ R_LightPoint(vec3_t p, vec3_t color, entity_t *currententity)
 	VectorScale(color, r_modulate->value, color);
 }
 
-
-//===================================================================
-
-/*
-===============
-R_AddDynamicLights
-===============
-*/
 static void
 R_AddDynamicLights(msurface_t *surf)
 {
@@ -361,11 +357,11 @@ R_AddDynamicLights(msurface_t *surf)
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
-	for (lnum=0 ; lnum<r_newrefdef.num_dlights ; lnum++)
+	for (lnum = 0; lnum < r_newrefdef.num_dlights; lnum++)
 	{
-		if ( !(surf->dlightbits & (1<<lnum) ) )
+		if (!(surf->dlightbits & (1 << lnum)))
 		{
-			continue;		// not lit by this light
+			continue; /* not lit by this light */
 		}
 
 		dl = &r_newrefdef.dlights[lnum];
@@ -373,9 +369,10 @@ R_AddDynamicLights(msurface_t *surf)
 		fdist = DotProduct(dl->origin, surf->plane->normal) -
 				surf->plane->dist;
 		frad -= fabs(fdist);
-		// rad is now the highest intensity on the plane
 
-		fminlight = DLIGHT_CUTOFF;	// FIXME: make configurable?
+		/* rad is now the highest intensity on the plane */
+		fminlight = DLIGHT_CUTOFF;
+
 		if (frad < fminlight)
 		{
 			continue;
@@ -383,37 +380,48 @@ R_AddDynamicLights(msurface_t *surf)
 
 		fminlight = frad - fminlight;
 
-		for (i=0 ; i<3 ; i++)
+		for (i = 0; i < 3; i++)
 		{
 			impact[i] = dl->origin[i] -
-					surf->plane->normal[i]*fdist;
+						surf->plane->normal[i] * fdist;
 		}
 
-		local[0] = DotProduct (impact, surf->lmvecs[0]) + surf->lmvecs[0][3] - surf->texturemins[0];
-		local[1] = DotProduct (impact, surf->lmvecs[1]) + surf->lmvecs[1][3] - surf->texturemins[1];
+		local[0] = DotProduct(impact,
+				   surf->lmvecs[0]) + surf->lmvecs[0][3] - surf->texturemins[0];
+		local[1] = DotProduct(impact,
+				   surf->lmvecs[1]) + surf->lmvecs[1][3] - surf->texturemins[1];
 
 		plightdest = s_blocklights;
 		for (t = 0, ftacc = 0; t < tmax; t++, ftacc += (1 << surf->lmshift))
 		{
 			td = local[1] - ftacc;
+
 			if (td < 0)
+			{
 				td = -td;
+			}
 
 			td *= surf->lmvlen[1];
 
-			for ( s=0, fsacc = 0 ; s<smax ; s++, fsacc += (1 << surf->lmshift), plightdest += 3)
+			for (s = 0, fsacc = 0; s < smax; s++, fsacc += (1 << surf->lmshift), plightdest += 3)
 			{
-				sd = Q_ftol( local[0] - fsacc );
+				sd = Q_ftol(local[0] - fsacc);
 
-				if ( sd < 0 )
+				if (sd < 0)
+				{
 					sd = -sd;
+				}
 
 				sd *= surf->lmvlen[0];
 
 				if (sd > td)
-					fdist = sd + (td>>1);
+				{
+					fdist = sd + (td >> 1);
+				}
 				else
-					fdist = td + (sd>>1);
+				{
+					fdist = td + (sd >> 1);
+				}
 
 				if ((fdist < fminlight) && (plightdest < (s_blocklights_max - 3)))
 				{
@@ -428,30 +436,24 @@ R_AddDynamicLights(msurface_t *surf)
 	}
 }
 
-
-/*
-** R_SetCacheState
-*/
-void R_SetCacheState( msurface_t *surf )
+void
+R_SetCacheState(msurface_t *surf)
 {
 	int maps;
 
-	for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
+	for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255;
 		 maps++)
 	{
-		surf->cached_light[maps] = r_newrefdef.lightstyles[surf->styles[maps]].white;
+		surf->cached_light[maps] =
+			r_newrefdef.lightstyles[surf->styles[maps]].white;
 	}
 }
 
 float *s_blocklights = NULL, *s_blocklights_max = NULL;
 
 /*
-===============
-R_BuildLightMap
-
-Combine and scale multiple lightmaps into the floating format in blocklights
-===============
-*/
+ * Combine and scale multiple lightmaps into the floating format in blocklights
+ */
 void
 R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 {
@@ -463,9 +465,10 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 	int			mapscount;
 	float		*bl;
 
-	if (surf->texinfo->flags & (SURF_SKY|SURF_TRANS33|SURF_TRANS66|SURF_WARP))
+	if (surf->texinfo->flags &
+		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
 	{
-		ri.Sys_Error (ERR_DROP, "R_BuildLightMap called for non-lit surface");
+		ri.Sys_Error(ERR_DROP, "R_BuildLightMap called for non-lit surface");
 	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -491,7 +494,7 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 
 		if (!s_blocklights)
 		{
-			ri.Sys_Error (ERR_DROP, "Can't alloc s_blocklights");
+			ri.Sys_Error(ERR_DROP, "Can't alloc s_blocklights");
 		}
 	}
 
@@ -506,50 +509,51 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 		goto store;
 	}
 
-	// count the # of maps
-	for ( mapscount = 0 ; mapscount < MAXLIGHTMAPS && surf->styles[mapscount] != 255 ;
+	/* count the # of maps */
+	for (mapscount = 0; mapscount < MAXLIGHTMAPS && surf->styles[mapscount] != 255 ;
 		 mapscount++)
 	{
 	}
 
 	lightmap = surf->samples;
 
-	// add all the lightmaps
-	if ( mapscount == 1 )
+	/* add all the lightmaps */
+	if (mapscount == 1)
 	{
 		int maps;
 
-		for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
-			 maps++)
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
 		{
 			bl = s_blocklights;
 
-			for (i=0 ; i<3 ; i++)
+			for (i = 0; i < 3; i++)
 			{
-				scale[i] = r_modulate->value*r_newrefdef.lightstyles[surf->styles[maps]].rgb[i];
+				scale[i] = r_modulate->value *
+						   r_newrefdef.lightstyles[surf->styles[maps]].rgb[i];
 			}
 
-			if ( scale[0] == 1.0F &&
-				 scale[1] == 1.0F &&
-				 scale[2] == 1.0F )
+			if ((scale[0] == 1.0F) &&
+				(scale[1] == 1.0F) &&
+				(scale[2] == 1.0F))
 			{
-				for (i=0 ; i<size ; i++, bl+=3)
+				for (i = 0; i < size; i++, bl += 3)
 				{
-					bl[0] = lightmap[i*3+0];
-					bl[1] = lightmap[i*3+1];
-					bl[2] = lightmap[i*3+2];
+					bl[0] = lightmap[i * 3 + 0];
+					bl[1] = lightmap[i * 3 + 1];
+					bl[2] = lightmap[i * 3 + 2];
 				}
 			}
 			else
 			{
-				for (i=0 ; i<size ; i++, bl+=3)
+				for (i = 0; i < size; i++, bl += 3)
 				{
-					bl[0] = lightmap[i*3+0] * scale[0];
-					bl[1] = lightmap[i*3+1] * scale[1];
-					bl[2] = lightmap[i*3+2] * scale[2];
+					bl[0] = lightmap[i * 3 + 0] * scale[0];
+					bl[1] = lightmap[i * 3 + 1] * scale[1];
+					bl[2] = lightmap[i * 3 + 2] * scale[2];
 				}
 			}
-			lightmap += size*3;		// skip to next lightmap
+
+			lightmap += size * 3; /* skip to next lightmap */
 		}
 	}
 	else
@@ -558,49 +562,50 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 
 		memset(s_blocklights, 0, sizeof(s_blocklights[0]) * size * 3);
 
-		for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
-			 maps++)
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
 		{
 			bl = s_blocklights;
 
-			for (i=0 ; i<3 ; i++)
+			for (i = 0; i < 3; i++)
 			{
-				scale[i] = r_modulate->value*r_newrefdef.lightstyles[surf->styles[maps]].rgb[i];
+				scale[i] = r_modulate->value *
+						   r_newrefdef.lightstyles[surf->styles[maps]].rgb[i];
 			}
 
-			if ( scale[0] == 1.0F &&
-				 scale[1] == 1.0F &&
-				 scale[2] == 1.0F )
+			if ((scale[0] == 1.0F) &&
+				(scale[1] == 1.0F) &&
+				(scale[2] == 1.0F))
 			{
-				for (i=0 ; i<size ; i++, bl+=3 )
+				for (i = 0; i < size; i++, bl += 3)
 				{
-					bl[0] += lightmap[i*3+0];
-					bl[1] += lightmap[i*3+1];
-					bl[2] += lightmap[i*3+2];
+					bl[0] += lightmap[i * 3 + 0];
+					bl[1] += lightmap[i * 3 + 1];
+					bl[2] += lightmap[i * 3 + 2];
 				}
 			}
 			else
 			{
-				for (i=0 ; i<size ; i++, bl+=3)
+				for (i = 0; i < size; i++, bl += 3)
 				{
-					bl[0] += lightmap[i*3+0] * scale[0];
-					bl[1] += lightmap[i*3+1] * scale[1];
-					bl[2] += lightmap[i*3+2] * scale[2];
+					bl[0] += lightmap[i * 3 + 0] * scale[0];
+					bl[1] += lightmap[i * 3 + 1] * scale[1];
+					bl[2] += lightmap[i * 3 + 2] * scale[2];
 				}
 			}
-			lightmap += size * 3;		// skip to next lightmap
+
+			lightmap += size * 3; /* skip to next lightmap */
 		}
 	}
 
-	// add all the dynamic lights
+	/* add all the dynamic lights */
 	if (surf->dlightframe == r_framecount)
 	{
 		R_AddDynamicLights(surf);
 	}
 
 store:
-	// put into texture format
-	stride -= (smax<<2);
+	/* put into texture format */
+	stride -= (smax << 2);
 	bl = s_blocklights;
 
 	for (i = 0; i < tmax; i++, dest += stride)

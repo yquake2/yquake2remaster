@@ -306,9 +306,9 @@ Mod_LoadSubmodels (model_t *loadmodel, const byte *mod_base, const lump_t *l)
 		}
 
 		out->radius = Mod_RadiusFromBounds(out->mins, out->maxs);
-		out->firstnode = LittleLong (in->headnode);
-		out->firstmodelsurface = LittleLong (in->firstface);
-		out->nummodelsurfaces = LittleLong (in->numfaces);
+		out->firstnode = LittleLong(in->headnode);
+		out->firstmodelsurface = LittleLong(in->firstface);
+		out->nummodelsurfaces = LittleLong(in->numfaces);
 		// visleafs
 		out->numleafs = 0;
 		//  check limits
@@ -382,7 +382,7 @@ Mod_CalcSurfaceExtents(model_t *loadmodel, msurface_t *s)
 }
 
 static int
-calcTexinfoAndFacesSize(byte *mod_base, const lump_t *fl, const lump_t *tl)
+calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
 {
 	dface_t* face_in = (void *)(mod_base + fl->fileofs);
 	texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
@@ -458,7 +458,7 @@ calcTexinfoAndFacesSize(byte *mod_base, const lump_t *fl, const lump_t *tl)
 }
 
 static int
-calcTexinfoAndQFacesSize(byte *mod_base, const lump_t *fl, const lump_t *tl)
+calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
 {
 	dqface_t* face_in = (void *)(mod_base + fl->fileofs);
 	texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
@@ -941,7 +941,7 @@ Mod_LoadQLeafs(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 static void
 Mod_LoadMarksurfaces(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
-	int i, j, count;
+	int i, count;
 	short *in;
 	msurface_t **out;
 
@@ -961,6 +961,8 @@ Mod_LoadMarksurfaces(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 
 	for (i = 0; i < count; i++)
 	{
+		int j;
+
 		j = LittleShort(in[i]);
 
 		if ((j < 0) || (j >= loadmodel->numsurfaces))

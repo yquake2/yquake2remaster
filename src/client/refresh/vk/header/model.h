@@ -25,8 +25,8 @@
  * =======================================================================
  */
 
-#ifndef __VK_MODEL_H__
-#define __VK_MODEL_H__
+#ifndef REF_MODEL_H
+#define REF_MODEL_H
 
 /*
 
