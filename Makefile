@@ -377,12 +377,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
 
 # ----------
 
@@ -688,6 +688,38 @@ GLAD_INCLUDE = -Isrc/client/refresh/gl3/glad-gles3/include
 endif # OS specific ref_gl3 stuff
 
 build/ref_gles3/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) $(GLAD_INCLUDE) -o $@ $<
+
+# ----------
+
+# The OpenGL 4.6 renderer lib
+
+ifeq ($(YQ2_OSTYPE), Windows)
+
+ref_gl4:
+	@echo "===> Building ref_gl4.dll"
+	${Q}mkdir -p release
+	$(MAKE) release/ref_gl4.dll
+
+release/ref_gl4.dll : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
+release/ref_gl4.dll : LDFLAGS += -shared
+
+else # not Windows or Darwin - macOS doesn't support OpenGL 4.6
+
+ref_gl4:
+	@echo "===> Building ref_gl4.so"
+	${Q}mkdir -p release
+	$(MAKE) release/ref_gl4.so
+
+release/ref_gl4.so : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
+release/ref_gl4.so : CFLAGS += -fPIC
+release/ref_gl4.so : LDFLAGS += -shared
+
+endif # OS specific ref_gl4 stuff
+
+build/ref_gl4/%.o: %.c
 	@echo "===> CC $<"
 	${Q}mkdir -p $(@D)
 	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) $(GLAD_INCLUDE) -o $@ $<
@@ -1024,6 +1056,41 @@ endif
 
 # ----------
 
+REFGL4_OBJS_ := \
+	src/client/refresh/gl4/gl4_draw.o \
+	src/client/refresh/gl4/gl4_image.o \
+	src/client/refresh/gl4/gl4_light.o \
+	src/client/refresh/gl4/gl4_lightmap.o \
+	src/client/refresh/gl4/gl4_main.o \
+	src/client/refresh/gl4/gl4_mesh.o \
+	src/client/refresh/gl4/gl4_misc.o \
+	src/client/refresh/gl4/gl4_model.o \
+	src/client/refresh/gl4/gl4_sdl.o \
+	src/client/refresh/gl4/gl4_surf.o \
+	src/client/refresh/gl4/gl4_warp.o \
+	src/client/refresh/gl4/gl4_shaders.o \
+	src/client/refresh/files/surf.o \
+	src/client/refresh/files/models.o \
+	src/client/refresh/files/pcx.o \
+	src/client/refresh/files/stb.o \
+	src/client/refresh/files/wal.o \
+	src/client/refresh/files/pvs.o \
+	src/common/shared/shared.o \
+	src/common/md4.o
+
+REFGL4_OBJS_GLADE_ := \
+	src/client/refresh/gl4/glad/src/glad.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+REFGL4_OBJS_ += \
+	src/backends/windows/shared/hunk.o
+else # not Windows
+REFGL4_OBJS_ += \
+	src/backends/unix/shared/hunk.o
+endif
+
+# ----------
+
 REFSOFT_OBJS_ := \
 	src/client/refresh/soft/sw_aclip.o \
 	src/client/refresh/soft/sw_alias.o \
@@ -1061,6 +1128,7 @@ REFSOFT_OBJS_ += \
 endif
 
 # ----------
+
 REFVK_OBJS_ := \
 	src/client/refresh/vk/vk_buffer.o \
 	src/client/refresh/vk/vk_cmd.o \
@@ -1160,6 +1228,8 @@ REFGL3_OBJS = $(patsubst %,build/ref_gl3/%,$(REFGL3_OBJS_))
 REFGL3_OBJS += $(patsubst %,build/ref_gl3/%,$(REFGL3_OBJS_GLADE_))
 REFGLES3_OBJS = $(patsubst %,build/ref_gles3/%,$(REFGL3_OBJS_))
 REFGLES3_OBJS += $(patsubst %,build/ref_gles3/%,$(REFGL3_OBJS_GLADEES_))
+REFGL4_OBJS = $(patsubst %,build/ref_gl4/%,$(REFGL4_OBJS_))
+REFGL4_OBJS += $(patsubst %,build/ref_gl4/%,$(REFGL4_OBJS_GLADE_))
 REFSOFT_OBJS = $(patsubst %,build/ref_soft/%,$(REFSOFT_OBJS_))
 REFVK_OBJS = $(patsubst %,build/ref_vk/%,$(REFVK_OBJS_))
 SERVER_OBJS = $(patsubst %,build/server/%,$(SERVER_OBJS_))
@@ -1173,6 +1243,7 @@ GAME_DEPS= $(GAME_OBJS:.o=.d)
 REFGL1_DEPS= $(REFGL1_OBJS:.o=.d)
 REFGL3_DEPS= $(REFGL3_OBJS:.o=.d)
 REFGLES3_DEPS= $(REFGLES3_OBJS:.o=.d)
+REFGL4_DEPS= $(REFGL4_OBJS:.o=.d)
 REFSOFT_DEPS= $(REFSOFT_OBJS:.o=.d)
 REFVK_DEPS= $(REFVK_OBJS:.o=.d)
 SERVER_DEPS= $(SERVER_OBJS:.o=.d)
@@ -1183,6 +1254,7 @@ SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 -include $(REFGL1_DEPS)
 -include $(REFGL3_DEPS)
 -include $(REFGLES3_DEPS)
+-include $(REFGL4_DEPS)
 -include $(REFVK_DEPS)
 -include $(SERVER_DEPS)
 
@@ -1261,6 +1333,19 @@ else
 release/ref_gles3.so : $(REFGLES3_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGLES3_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+endif
+
+# release/ref_gl4.so
+ifeq ($(YQ2_OSTYPE), Windows)
+release/ref_gl4.dll : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
+	$(Q)strip $@
+
+else
+release/ref_gl4.so : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
 endif
 
 # release/ref_soft.so
