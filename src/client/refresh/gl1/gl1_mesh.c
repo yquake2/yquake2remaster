@@ -80,26 +80,154 @@ R_LerpVerts(entity_t *currententity, int nverts, dtrivertx_t *v, dtrivertx_t *ov
 	}
 }
 
+static void
+R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
+	float alpha, dtrivertx_t *verts)
+{
+#ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
+	int maxCount = 0;
+	const int* tmpOrder = order;
+	while (1)
+	{
+		int c = *tmpOrder++;
+		if (!c)
+			break;
+		if ( c < 0 )
+			c = -c;
+		if ( c > maxCount )
+			maxCount = c;
+
+		tmpOrder += 3 * c;
+	}
+
+	YQ2_VLA( GLfloat, vtx, 3 * maxCount );
+	YQ2_VLA( GLfloat, tex, 2 * maxCount );
+	YQ2_VLA( GLfloat, clr, 4 * maxCount );
+#endif
+
+	while (1)
+	{
+		unsigned short total;
+		GLenum type;
+		int count;
+
+		/* get the vertex count and primitive type */
+		count = *order++;
+
+		if (!count || order >= order_end)
+		{
+			break; /* done */
+		}
+
+		if (count < 0)
+		{
+			count = -count;
+
+			type = GL_TRIANGLE_FAN;
+		}
+		else
+		{
+			type = GL_TRIANGLE_STRIP;
+		}
+
+		total = count;
+
+#ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
+		YQ2_VLA(GLfloat, vtx, 3*total);
+		YQ2_VLA(GLfloat, tex, 2*total);
+		YQ2_VLA(GLfloat, clr, 4*total);
+#endif
+
+		unsigned int index_vtx = 0;
+		unsigned int index_tex = 0;
+		unsigned int index_clr = 0;
+
+		if (currententity->flags &
+			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
+		{
+			do
+			{
+				int index_xyz;
+
+				index_xyz = order[2];
+				order += 3;
+
+				clr[index_clr++] = shadelight[0];
+				clr[index_clr++] = shadelight[1];
+				clr[index_clr++] = shadelight[2];
+				clr[index_clr++] = alpha;
+
+				vtx[index_vtx++] = s_lerped[index_xyz][0];
+				vtx[index_vtx++] = s_lerped[index_xyz][1];
+				vtx[index_vtx++] = s_lerped[index_xyz][2];
+			}
+			while (--count);
+		}
+		else
+		{
+			do
+			{
+				int index_xyz;
+				float l;
+
+				/* texture coordinates come from the draw list */
+				tex[index_tex++] = ((float *) order)[0];
+				tex[index_tex++] = ((float *) order)[1];
+
+				index_xyz = order[2];
+				order += 3;
+
+				/* normals and vertexes come from the frame list */
+				l = shadedots[verts[index_xyz].lightnormalindex];
+
+				clr[index_clr++] = l * shadelight[0];
+				clr[index_clr++] = l * shadelight[1];
+				clr[index_clr++] = l * shadelight[2];
+				clr[index_clr++] = alpha;
+
+				vtx[index_vtx++] = s_lerped[index_xyz][0];
+				vtx[index_vtx++] = s_lerped[index_xyz][1];
+				vtx[index_vtx++] = s_lerped[index_xyz][2];
+			}
+			while (--count);
+		}
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glVertexPointer(3, GL_FLOAT, 0, vtx);
+		glTexCoordPointer(2, GL_FLOAT, 0, tex);
+		glColorPointer(4, GL_FLOAT, 0, clr);
+		glDrawArrays(type, 0, total);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+	}
+
+	YQ2_VLAFREE( vtx );
+	YQ2_VLAFREE( tex );
+	YQ2_VLAFREE( clr );
+}
+
 /*
  * Interpolates between two frames and origins
  */
 static void
 R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 {
-    unsigned short total;
-    GLenum type;
-	float l;
 	daliasframe_t *frame, *oldframe;
 	dtrivertx_t *v, *ov, *verts;
 	int *order;
-	int count;
 	float frontlerp;
 	float alpha;
 	vec3_t move, delta, vectors[3];
 	vec3_t frontv, backv;
 	int i;
-	int index_xyz;
 	float *lerp;
+	int num_mesh_nodes;
+	short *mesh_nodes;
 
 	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
@@ -154,121 +282,26 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 
 	R_LerpVerts(currententity, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
 
-#ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
-	int maxCount = 0;
-	const int* tmpOrder = order;
-	while (1)
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+
+	if (num_mesh_nodes > 0)
 	{
-		int c = *tmpOrder++;
-		if (!c)
-			break;
-		if ( c < 0 )
-			c = -c;
-		if ( c > maxCount )
-			maxCount = c;
-
-		tmpOrder += 3 * c;
-	}
-
-	YQ2_VLA( GLfloat, vtx, 3 * maxCount );
-	YQ2_VLA( GLfloat, tex, 2 * maxCount );
-	YQ2_VLA( GLfloat, clr, 4 * maxCount );
-#endif
-
-		while (1)
+		int i;
+		for (i = 0; i < num_mesh_nodes; i++)
 		{
-			/* get the vertex count and primitive type */
-			count = *order++;
-
-			if (!count)
-			{
-				break; /* done */
-			}
-
-			if (count < 0)
-			{
-				count = -count;
-
-                type = GL_TRIANGLE_FAN;
-			}
-			else
-			{
-                type = GL_TRIANGLE_STRIP;
-			}
-
-			total = count;
-
-#ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
-			YQ2_VLA(GLfloat, vtx, 3*total);
-			YQ2_VLA(GLfloat, tex, 2*total);
-			YQ2_VLA(GLfloat, clr, 4*total);
-#endif
-			unsigned int index_vtx = 0;
-			unsigned int index_tex = 0;
-			unsigned int index_clr = 0;
-
-			if (currententity->flags &
-				(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
-			{
-				do
-				{
-					index_xyz = order[2];
-					order += 3;
-
-					clr[index_clr++] = shadelight[0];
-					clr[index_clr++] = shadelight[1];
-					clr[index_clr++] = shadelight[2];
-					clr[index_clr++] = alpha;
-
-					vtx[index_vtx++] = s_lerped[index_xyz][0];
-					vtx[index_vtx++] = s_lerped[index_xyz][1];
-					vtx[index_vtx++] = s_lerped[index_xyz][2];
-				}
-				while (--count);
-			}
-			else
-			{
-				do
-				{
-					/* texture coordinates come from the draw list */
-					tex[index_tex++] = ((float *) order)[0];
-					tex[index_tex++] = ((float *) order)[1];
-
-					index_xyz = order[2];
-					order += 3;
-
-					/* normals and vertexes come from the frame list */
-					l = shadedots[verts[index_xyz].lightnormalindex];
-
-					clr[index_clr++] = l * shadelight[0];
-					clr[index_clr++] = l * shadelight[1];
-					clr[index_clr++] = l * shadelight[2];
-					clr[index_clr++] = alpha;
-
-					vtx[index_vtx++] = s_lerped[index_xyz][0];
-					vtx[index_vtx++] = s_lerped[index_xyz][1];
-					vtx[index_vtx++] = s_lerped[index_xyz][2];
-				}
-				while (--count);
-			}
-
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glEnableClientState(GL_COLOR_ARRAY);
-
-			glVertexPointer(3, GL_FLOAT, 0, vtx);
-			glTexCoordPointer(2, GL_FLOAT, 0, tex);
-			glColorPointer(4, GL_FLOAT, 0, clr);
-			glDrawArrays(type, 0, total);
-
-			glDisableClientState(GL_VERTEX_ARRAY);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glDisableClientState(GL_COLOR_ARRAY);
+			R_DrawAliasDrawCommands(currententity,
+				order + mesh_nodes[i * 2],
+				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				alpha, verts);
 		}
-
-		YQ2_VLAFREE( vtx );
-		YQ2_VLAFREE( tex );
-		YQ2_VLAFREE( clr )
+	}
+	else
+	{
+		R_DrawAliasDrawCommands(currententity,
+			order, order + paliashdr->num_glcmds,
+			alpha, verts);
+	}
 
 	if (currententity->flags &
 		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE |
@@ -279,28 +312,15 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 }
 
 static void
-R_DrawAliasShadow(entity_t *currententity, dmdl_t *paliashdr, int posenum)
+R_DrawAliasShadowCommand(entity_t *currententity, int *order, int *order_end,
+	float height, float lheight)
 {
-    unsigned short total;
-    GLenum type;
-	int *order;
+	unsigned short total;
 	vec3_t point;
-	float height = 0, lheight;
+	GLenum type;
 	int count;
 
-	lheight = currententity->origin[2] - lightspot[2];
-	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
-	height = -lheight + 0.1f;
-
-	/* stencilbuffer shadows */
-	if (gl_state.stencil && gl1_stencilshadow->value)
-	{
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_EQUAL, 1, 2);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
-	}
-
-#ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
+	#ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 	int maxCount = 0;
 	const int* tmpOrder = order;
 	while (1)
@@ -324,7 +344,7 @@ R_DrawAliasShadow(entity_t *currententity, dmdl_t *paliashdr, int posenum)
 		/* get the vertex count and primitive type */
 		count = *order++;
 
-		if (!count)
+		if (!count || order >= order_end)
 		{
 			break; /* done */
 		}
@@ -333,19 +353,19 @@ R_DrawAliasShadow(entity_t *currententity, dmdl_t *paliashdr, int posenum)
 		{
 			count = -count;
 
-            type = GL_TRIANGLE_FAN;
+			type = GL_TRIANGLE_FAN;
 		}
 		else
 		{
-            type = GL_TRIANGLE_STRIP;
+			type = GL_TRIANGLE_STRIP;
 		}
 
-        total = count;
+		total = count;
 
 #ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
-        YQ2_VLA(GLfloat, vtx, 3*total);
+		YQ2_VLA(GLfloat, vtx, 3*total);
 #endif
-        unsigned int index_vtx = 0;
+		unsigned int index_vtx = 0;
 
 		do
 		{
@@ -356,22 +376,64 @@ R_DrawAliasShadow(entity_t *currententity, dmdl_t *paliashdr, int posenum)
 			point[1] -= shadevector[1] * (point[2] + lheight);
 			point[2] = height;
 
-            vtx[index_vtx++] = point [ 0 ];
-            vtx[index_vtx++] = point [ 1 ];
-            vtx[index_vtx++] = point [ 2 ];
+			vtx[index_vtx++] = point [ 0 ];
+			vtx[index_vtx++] = point [ 1 ];
+			vtx[index_vtx++] = point [ 2 ];
 
 			order += 3;
 		}
 		while (--count);
 
-        glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_VERTEX_ARRAY );
 
-        glVertexPointer( 3, GL_FLOAT, 0, vtx );
-        glDrawArrays( type, 0, total );
+		glVertexPointer( 3, GL_FLOAT, 0, vtx );
+		glDrawArrays( type, 0, total );
 
-        glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_VERTEX_ARRAY );
 	}
 	YQ2_VLAFREE(vtx);
+}
+
+static void
+R_DrawAliasShadow(entity_t *currententity, dmdl_t *paliashdr, int posenum)
+{
+	int *order;
+	float height = 0, lheight;
+	int num_mesh_nodes;
+	short *mesh_nodes;
+
+	lheight = currententity->origin[2] - lightspot[2];
+	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
+	height = -lheight + 0.1f;
+
+	/* stencilbuffer shadows */
+	if (gl_state.stencil && gl1_stencilshadow->value)
+	{
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_EQUAL, 1, 2);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
+	}
+
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+
+	if (num_mesh_nodes > 0)
+	{
+		int i;
+		for (i = 0; i < num_mesh_nodes; i++)
+		{
+			R_DrawAliasShadowCommand(currententity,
+				order + mesh_nodes[i * 2],
+				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				height, lheight);
+		}
+	}
+	else
+	{
+		R_DrawAliasShadowCommand(currententity,
+			order, order + paliashdr->num_glcmds,
+			height, lheight);
+	}
 
 	/* stencilbuffer shadows */
 	if (gl_state.stencil && gl1_stencilshadow->value)
@@ -392,18 +454,24 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 	vec3_t angles;
 
 	paliashdr = (dmdl_t *)currentmodel->extradata;
+	if (!paliashdr)
+	{
+		R_Printf(PRINT_ALL, "%s %s: Model is not fully loaded\n",
+				__func__, currentmodel->name);
+		return true;
+	}
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_CullAliasModel %s: no such frame %d\n",
-				currentmodel->name, e->frame);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such frame %d\n",
+				__func__, currentmodel->name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_CullAliasModel %s: no such oldframe %d\n",
-				currentmodel->name, e->oldframe);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such oldframe %d\n",
+				__func__, currentmodel->name, e->oldframe);
 		e->oldframe = 0;
 	}
 

@@ -311,7 +311,7 @@ R_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 	dlight_t *dl;
 	vec3_t dist;
 
-	if (!r_worldmodel->lightdata || !currententity)
+	if (!r_worldmodel || !r_worldmodel->lightdata || !currententity)
 	{
 		color[0] = color[1] = color[2] = 1.0;
 		return;

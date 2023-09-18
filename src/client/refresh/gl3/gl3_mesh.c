@@ -104,93 +104,11 @@ LerpVerts(qboolean powerUpEffect, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
 	}
 }
 
-/*
- * Interpolates between two frames and origins
- */
 static void
-DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
+DrawAliasFrameLerpCommands(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight,
+	int *order, int *order_end, float* shadedots, float alpha, qboolean colorOnly,
+	dtrivertx_t *verts)
 {
-	GLenum type;
-	float l;
-	daliasframe_t *frame, *oldframe;
-	dtrivertx_t *v, *ov, *verts;
-	int *order;
-	int count;
-	float alpha;
-	vec3_t move, delta, vectors[3];
-	vec3_t frontv, backv;
-	int i;
-	int index_xyz;
-	float backlerp = entity->backlerp;
-	float frontlerp = 1.0 - backlerp;
-	float *lerp;
-	// draw without texture? used for quad damage effect etc, I think
-	qboolean colorOnly = 0 != (entity->flags &
-			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
-			 RF_SHELL_HALF_DAM));
-
-	// TODO: maybe we could somehow store the non-rotated normal and do the dot in shader?
-	float* shadedots = r_avertexnormal_dots[((int)(entity->angles[1] *
-				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
-
-	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-							  + entity->frame * paliashdr->framesize);
-	verts = v = frame->verts;
-
-	oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-				+ entity->oldframe * paliashdr->framesize);
-	ov = oldframe->verts;
-
-	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
-
-	if (entity->flags & RF_TRANSLUCENT)
-	{
-		alpha = entity->alpha * 0.666f;
-	}
-	else
-	{
-		alpha = 1.0;
-	}
-
-	if (colorOnly)
-	{
-		GL3_UseProgram(gl3state.si3DaliasColor.shaderProgram);
-	}
-	else
-	{
-		GL3_UseProgram(gl3state.si3Dalias.shaderProgram);
-	}
-
-	if(gl3_colorlight->value == 0.0f)
-	{
-		float avg = 0.333333f * (shadelight[0]+shadelight[1]+shadelight[2]);
-		shadelight[0] = shadelight[1] = shadelight[2] = avg;
-	}
-
-	/* move should be the delta back to the previous frame * backlerp */
-	VectorSubtract(entity->oldorigin, entity->origin, delta);
-	AngleVectors(entity->angles, vectors[0], vectors[1], vectors[2]);
-
-	move[0] = DotProduct(delta, vectors[0]); /* forward */
-	move[1] = -DotProduct(delta, vectors[1]); /* left */
-	move[2] = DotProduct(delta, vectors[2]); /* up */
-
-	VectorAdd(move, oldframe->translate, move);
-
-	for (i = 0; i < 3; i++)
-	{
-		move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
-
-		frontv[i] = frontlerp * frame->scale[i];
-		backv[i] = backlerp * oldframe->scale[i];
-	}
-
-	lerp = s_lerped[0];
-
-	LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
-
-	YQ2_STATIC_ASSERT(sizeof(gl3_alias_vtx_t) == 9*sizeof(GLfloat), "invalid gl3_alias_vtx_t size");
-
 	// all the triangle fans and triangle strips of this model will be converted to
 	// just triangles: the vertices stay the same and are batched in vtxBuf,
 	// but idxBuf will contain indices to draw them all as GL_TRIANGLE
@@ -205,11 +123,13 @@ DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	while (1)
 	{
 		GLushort nextVtxIdx = da_count(vtxBuf);
+		GLenum type;
+		int count;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
 
-		if (!count)
+		if (!count || order >= order_end)
 		{
 			break; /* done */
 		}
@@ -233,6 +153,7 @@ DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 			for(i=0; i<count; ++i)
 			{
 				int j=0;
+				int index_xyz;
 				gl3_alias_vtx_t* cur = &buf[i];
 				index_xyz = order[2];
 				order += 3;
@@ -250,8 +171,11 @@ DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 			int i;
 			for(i=0; i<count; ++i)
 			{
-				int j=0;
 				gl3_alias_vtx_t* cur = &buf[i];
+				int index_xyz;
+				int j = 0;
+				float l;
+
 				/* texture coordinates come from the draw list */
 				cur->texCoord[0] = ((float *) order)[0];
 				cur->texCoord[1] = ((float *) order)[1];
@@ -325,66 +249,117 @@ DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	glDrawElements(GL_TRIANGLES, da_count(idxBuf), GL_UNSIGNED_SHORT, NULL);
 }
 
+/*
+ * Interpolates between two frames and origins
+ */
 static void
-DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
+DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 {
-	GLenum type;
+	daliasframe_t *frame, *oldframe;
+	dtrivertx_t *v, *ov, *verts;
 	int *order;
-	vec3_t point;
-	float height = 0, lheight;
-	int count;
+	float alpha;
+	vec3_t move, delta, vectors[3];
+	vec3_t frontv, backv;
+	int i;
+	float backlerp = entity->backlerp;
+	float frontlerp = 1.0 - backlerp;
+	float *lerp;
+	int num_mesh_nodes;
+	short *mesh_nodes;
+	// draw without texture? used for quad damage effect etc, I think
+	qboolean colorOnly = 0 != (entity->flags &
+			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
+			 RF_SHELL_HALF_DAM));
 
-	dmdl_t* paliashdr = shadowInfo->paliashdr;
-	entity_t* entity = shadowInfo->entity;
+	// TODO: maybe we could somehow store the non-rotated normal and do the dot in shader?
+	float* shadedots = r_avertexnormal_dots[((int)(entity->angles[1] *
+				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
 
-	vec3_t shadevector;
-	VectorCopy(shadowInfo->shadevector, shadevector);
+	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+							  + entity->frame * paliashdr->framesize);
+	verts = v = frame->verts;
 
-	// all in this scope is to set s_lerped
+	oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+				+ entity->oldframe * paliashdr->framesize);
+	ov = oldframe->verts;
+
+	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
+
+	if (entity->flags & RF_TRANSLUCENT)
 	{
-		daliasframe_t *frame, *oldframe;
-		dtrivertx_t *v, *ov, *verts;
-		float backlerp = entity->backlerp;
-		float frontlerp = 1.0f - backlerp;
-		vec3_t move, delta, vectors[3];
-		vec3_t frontv, backv;
-		int i;
-
-		frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-								  + entity->frame * paliashdr->framesize);
-		verts = v = frame->verts;
-
-		oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-					+ entity->oldframe * paliashdr->framesize);
-		ov = oldframe->verts;
-
-		/* move should be the delta back to the previous frame * backlerp */
-		VectorSubtract(entity->oldorigin, entity->origin, delta);
-		AngleVectors(entity->angles, vectors[0], vectors[1], vectors[2]);
-
-		move[0] = DotProduct(delta, vectors[0]); /* forward */
-		move[1] = -DotProduct(delta, vectors[1]); /* left */
-		move[2] = DotProduct(delta, vectors[2]); /* up */
-
-		VectorAdd(move, oldframe->translate, move);
-
-		for (i = 0; i < 3; i++)
-		{
-			move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
-
-			frontv[i] = frontlerp * frame->scale[i];
-			backv[i] = backlerp * oldframe->scale[i];
-		}
-
-		// false: don't extrude vertices for powerup - this means the powerup shell
-		//  is not seen in the shadow, only the underlying model..
-		LerpVerts(false, paliashdr->num_xyz, v, ov, verts, s_lerped[0], move, frontv, backv);
+		alpha = entity->alpha * 0.666f;
+	}
+	else
+	{
+		alpha = 1.0;
 	}
 
-	lheight = entity->origin[2] - shadowInfo->lightspot[2];
-	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
-	height = -lheight + 0.1f;
+	if (colorOnly)
+	{
+		GL3_UseProgram(gl3state.si3DaliasColor.shaderProgram);
+	}
+	else
+	{
+		GL3_UseProgram(gl3state.si3Dalias.shaderProgram);
+	}
 
+	if(gl3_colorlight->value == 0.0f)
+	{
+		float avg = 0.333333f * (shadelight[0]+shadelight[1]+shadelight[2]);
+		shadelight[0] = shadelight[1] = shadelight[2] = avg;
+	}
+
+	/* move should be the delta back to the previous frame * backlerp */
+	VectorSubtract(entity->oldorigin, entity->origin, delta);
+	AngleVectors(entity->angles, vectors[0], vectors[1], vectors[2]);
+
+	move[0] = DotProduct(delta, vectors[0]); /* forward */
+	move[1] = -DotProduct(delta, vectors[1]); /* left */
+	move[2] = DotProduct(delta, vectors[2]); /* up */
+
+	VectorAdd(move, oldframe->translate, move);
+
+	for (i = 0; i < 3; i++)
+	{
+		move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
+
+		frontv[i] = frontlerp * frame->scale[i];
+		backv[i] = backlerp * oldframe->scale[i];
+	}
+
+	lerp = s_lerped[0];
+
+	LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
+
+	YQ2_STATIC_ASSERT(sizeof(gl3_alias_vtx_t) == 9*sizeof(GLfloat), "invalid gl3_alias_vtx_t size");
+
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+
+	if (num_mesh_nodes > 0)
+	{
+		int i;
+		for (i = 0; i < num_mesh_nodes; i++)
+		{
+			DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
+				order + mesh_nodes[i * 2],
+				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				shadedots, alpha, colorOnly, verts);
+		}
+	}
+	else
+	{
+		DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
+			order, order + paliashdr->num_glcmds,
+			shadedots, alpha, colorOnly, verts);
+	}
+}
+
+static void
+DrawAliasShadowCommands(int *order, int *order_end, vec3_t shadevector,
+	float height, float lheight)
+{
 	// GL1 uses alpha 0.5, but in GL3 0.3 looks better
 	GLfloat color[4] = {0, 0, 0, 0.3};
 
@@ -395,13 +370,14 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 
 	while (1)
 	{
-		int i, j;
+		int i, j, count;
+		GLenum type;
 		GLushort nextVtxIdx = da_count(vtxBuf);
 
 		/* get the vertex count and primitive type */
 		count = *order++;
 
-		if (!count)
+		if (!count || order >= order_end)
 		{
 			break; /* done */
 		}
@@ -421,6 +397,8 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 
 		for(i=0; i<count; ++i)
 		{
+			vec3_t point;
+
 			/* normals and vertexes come from the frame list */
 			VectorCopy(s_lerped[order[2]], point);
 
@@ -484,6 +462,86 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	GL3_BindEBO(gl3state.eboAlias);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, da_count(idxBuf)*sizeof(GLushort), idxBuf.p, GL_STREAM_DRAW);
 	glDrawElements(GL_TRIANGLES, da_count(idxBuf), GL_UNSIGNED_SHORT, NULL);
+}
+
+static void
+DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
+{
+	int *order;
+	float height = 0, lheight;
+	int num_mesh_nodes;
+	short *mesh_nodes;
+
+	dmdl_t* paliashdr = shadowInfo->paliashdr;
+	entity_t* entity = shadowInfo->entity;
+
+	vec3_t shadevector;
+	VectorCopy(shadowInfo->shadevector, shadevector);
+
+	// all in this scope is to set s_lerped
+	{
+		daliasframe_t *frame, *oldframe;
+		dtrivertx_t *v, *ov, *verts;
+		float backlerp = entity->backlerp;
+		float frontlerp = 1.0f - backlerp;
+		vec3_t move, delta, vectors[3];
+		vec3_t frontv, backv;
+		int i;
+
+		frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+								  + entity->frame * paliashdr->framesize);
+		verts = v = frame->verts;
+
+		oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+					+ entity->oldframe * paliashdr->framesize);
+		ov = oldframe->verts;
+
+		/* move should be the delta back to the previous frame * backlerp */
+		VectorSubtract(entity->oldorigin, entity->origin, delta);
+		AngleVectors(entity->angles, vectors[0], vectors[1], vectors[2]);
+
+		move[0] = DotProduct(delta, vectors[0]); /* forward */
+		move[1] = -DotProduct(delta, vectors[1]); /* left */
+		move[2] = DotProduct(delta, vectors[2]); /* up */
+
+		VectorAdd(move, oldframe->translate, move);
+
+		for (i = 0; i < 3; i++)
+		{
+			move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
+
+			frontv[i] = frontlerp * frame->scale[i];
+			backv[i] = backlerp * oldframe->scale[i];
+		}
+
+		// false: don't extrude vertices for powerup - this means the powerup shell
+		//  is not seen in the shadow, only the underlying model..
+		LerpVerts(false, paliashdr->num_xyz, v, ov, verts, s_lerped[0], move, frontv, backv);
+	}
+
+	lheight = entity->origin[2] - shadowInfo->lightspot[2];
+	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
+	height = -lheight + 0.1f;
+
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+
+	if (num_mesh_nodes > 0)
+	{
+		int i;
+		for (i = 0; i < num_mesh_nodes; i++)
+		{
+			DrawAliasShadowCommands(
+				order + mesh_nodes[i * 2],
+				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				shadevector, height, lheight);
+		}
+	}
+	else
+	{
+		DrawAliasShadowCommands(
+			order, order + paliashdr->num_glcmds, shadevector, height, lheight);
+	}
 }
 
 static qboolean
