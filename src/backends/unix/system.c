@@ -303,7 +303,7 @@ static char findpattern[MAX_OSPATH];
 static DIR *fdir;
 
 char *
-Sys_FindFirst(char *path, unsigned musthave, unsigned canhave)
+Sys_FindFirst(const char *path, unsigned musthave, unsigned canhave)
 {
 	struct dirent *d;
 	char *p;

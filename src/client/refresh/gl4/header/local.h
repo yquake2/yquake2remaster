@@ -405,8 +405,8 @@ extern void GL4_SetDefaultState(void);
 extern int registration_sequence;
 extern void GL4_Mod_Init(void);
 extern void GL4_Mod_FreeAll(void);
-extern void GL4_BeginRegistration(char *model);
-extern struct model_s * GL4_RegisterModel(char *name);
+extern void GL4_BeginRegistration(const char *model);
+extern struct model_s * GL4_RegisterModel(const char *name);
 extern void GL4_EndRegistration(void);
 extern void GL4_Mod_Modellist_f(void);
 extern const byte* GL4_Mod_ClusterPVS(int cluster, const gl4model_t *model);
@@ -414,13 +414,13 @@ extern const byte* GL4_Mod_ClusterPVS(int cluster, const gl4model_t *model);
 // gl4_draw.c
 extern void GL4_Draw_InitLocal(void);
 extern void GL4_Draw_ShutdownLocal(void);
-extern gl4image_t * GL4_Draw_FindPic(char *name);
-extern void GL4_Draw_GetPicSize(int *w, int *h, char *pic);
+extern gl4image_t * GL4_Draw_FindPic(const char *name);
+extern void GL4_Draw_GetPicSize(int *w, int *h, const char *pic);
 
-extern void GL4_Draw_PicScaled(int x, int y, char *pic, float factor);
-extern void GL4_Draw_StretchPic(int x, int y, int w, int h, char *pic);
+extern void GL4_Draw_PicScaled(int x, int y, const char *pic, float factor);
+extern void GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void GL4_Draw_CharScaled(int x, int y, int num, float scale);
-extern void GL4_Draw_TileClear(int x, int y, int w, int h, char *pic);
+extern void GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4]);
 extern void GL4_Draw_Fill(int x, int y, int w, int h, int c);
 extern void GL4_Draw_FadeScreen(void);
@@ -446,7 +446,7 @@ extern gl4image_t *GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
                                int height, int realheight, size_t data_size,
                                imagetype_t type, int bits);
 extern gl4image_t *GL4_FindImage(const char *name, imagetype_t type);
-extern gl4image_t *GL4_RegisterSkin(char *name);
+extern gl4image_t *GL4_RegisterSkin(const char *name);
 extern void GL4_ShutdownImages(void);
 extern void GL4_FreeUnusedImages(void);
 extern qboolean GL4_ImageHasFreeSpace(void);

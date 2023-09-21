@@ -602,7 +602,7 @@ VID_Shutdown(void)
 // =========================================================
 
 void
-R_BeginRegistration(char *map)
+R_BeginRegistration(const char *map)
 {
 	if (ref_active)
 	{
@@ -611,7 +611,7 @@ R_BeginRegistration(char *map)
 }
 
 struct model_s*
-R_RegisterModel(char *name)
+R_RegisterModel(const char *name)
 {
 	if (ref_active)
 	{
@@ -622,7 +622,7 @@ R_RegisterModel(char *name)
 }
 
 struct image_s*
-R_RegisterSkin(char *name)
+R_RegisterSkin(const char *name)
 {
 	if (ref_active)
 	{
@@ -660,7 +660,7 @@ R_RenderFrame(refdef_t *fd)
 }
 
 struct image_s*
-Draw_FindPic(char *name)
+Draw_FindPic(const char *name)
 {
 	if (ref_active)
 	{
@@ -672,7 +672,7 @@ Draw_FindPic(char *name)
 
 
 void
-Draw_GetPicSize(int *w, int *h, char *name)
+Draw_GetPicSize(int *w, int *h, const char *name)
 {
 	if (ref_active)
 	{
@@ -681,7 +681,7 @@ Draw_GetPicSize(int *w, int *h, char *name)
 }
 
 void
-Draw_StretchPic(int x, int y, int w, int h, char *name)
+Draw_StretchPic(int x, int y, int w, int h, const char *name)
 {
 	if (ref_active)
 	{
@@ -690,7 +690,7 @@ Draw_StretchPic(int x, int y, int w, int h, char *name)
 }
 
 void
-Draw_PicScaled(int x, int y, char *pic, float factor)
+Draw_PicScaled(int x, int y, const char *pic, float factor)
 {
 	if (ref_active)
 	{
@@ -708,7 +708,7 @@ Draw_CharScaled(int x, int y, int num, float scale)
 }
 
 void
-Draw_TileClear(int x, int y, int w, int h, char *name)
+Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
 	if (ref_active)
 	{

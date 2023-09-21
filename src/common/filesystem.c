@@ -696,7 +696,7 @@ FS_FRead(void *buffer, int size, int count, fileHandle_t f)
  * return the file length without loading.
  */
 int
-FS_LoadFile(char *path, void **buffer)
+FS_LoadFile(const char *path, void **buffer)
 {
 	byte *buf; /* Buffer. */
 	int size; /* File size. */
@@ -949,7 +949,7 @@ FS_LoadPK3(const char *packPath)
  * Allows enumerating all of the directories in the search path.
  */
 char *
-FS_NextPath(char *prevPath)
+FS_NextPath(const char *prevPath)
 {
 	char *prev;
 	fsSearchPath_t *search;
@@ -1084,7 +1084,7 @@ FS_Link_f(void)
  * Create a list of files that match a criteria.
  */
 char **
-FS_ListFiles(char *findname, int *numfiles,
+FS_ListFiles(const char *findname, int *numfiles,
 		unsigned musthave, unsigned canthave)
 {
 	char **list; /* List of files. */
@@ -1211,7 +1211,7 @@ ComparePackFiles(const char *findname, const char *name, unsigned musthave,
  * including .pak and .pk3 files.
  */
 char **
-FS_ListFiles2(char *findname, int *numfiles,
+FS_ListFiles2(const char *findname, int *numfiles,
 		unsigned musthave, unsigned canthave)
 {
 	fsSearchPath_t *search; /* Search path. */
@@ -1868,7 +1868,7 @@ void CL_WriteConfiguration(void);
 #endif
 
 void
-FS_BuildGameSpecificSearchPath(char *dir)
+FS_BuildGameSpecificSearchPath(const char *dir)
 {
 	// We may not use the va() function from shared.c
 	// since it's buffersize is 1024 while most OS have

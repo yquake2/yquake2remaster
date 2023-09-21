@@ -1196,7 +1196,7 @@ Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
  * Specifies the model that will be used as the world
  */
 void
-RE_BeginRegistration (char *model)
+RE_BeginRegistration (const char *model)
 {
 	char fullname[MAX_QPATH];
 	cvar_t *flushmap;
@@ -1227,7 +1227,7 @@ RE_BeginRegistration (char *model)
 }
 
 struct model_s *
-RE_RegisterModel(char *name)
+RE_RegisterModel(const char *name)
 {
 	model_t *mod;
 

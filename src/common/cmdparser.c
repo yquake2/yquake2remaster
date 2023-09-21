@@ -36,7 +36,7 @@
 typedef struct cmd_function_s
 {
 	struct cmd_function_s *next;
-	char *name;
+	const char *name;
 	xcommand_t function;
 } cmd_function_t;
 
@@ -700,7 +700,7 @@ Cmd_TokenizeString(char *text, qboolean macroExpand)
 }
 
 void
-Cmd_AddCommand(char *cmd_name, xcommand_t function)
+Cmd_AddCommand(const char *cmd_name, xcommand_t function)
 {
 	cmd_function_t *cmd;
 	cmd_function_t **pos;
@@ -736,7 +736,7 @@ Cmd_AddCommand(char *cmd_name, xcommand_t function)
 }
 
 void
-Cmd_RemoveCommand(char *cmd_name)
+Cmd_RemoveCommand(const char *cmd_name)
 {
 	cmd_function_t *cmd, **back;
 
@@ -779,14 +779,14 @@ Cmd_Exists(char *cmd_name)
 	return false;
 }
 
-char *
-Cmd_CompleteCommand(char *partial)
+const char *
+Cmd_CompleteCommand(const char *partial)
 {
 	cmd_function_t *cmd;
 	int len, i, o, p;
 	cmdalias_t *a;
 	cvar_t *cvar;
-	char *pmatch[1024];
+	const char *pmatch[1024];
 	qboolean diff = false;
 
 	len = strlen(partial);
@@ -903,8 +903,8 @@ Cmd_CompleteCommand(char *partial)
 	return NULL;
 }
 
-char *
-Cmd_CompleteMapCommand(char *partial)
+const char *
+Cmd_CompleteMapCommand(const char *partial)
 {
 	char **mapNames;
 	int i, j, k, nbMatches, len, nMaps;
@@ -987,7 +987,7 @@ Cmd_CompleteMapCommand(char *partial)
 }
 
 qboolean
-Cmd_IsComplete(char *command)
+Cmd_IsComplete(const char *command)
 {
 	cmd_function_t *cmd;
 	cmdalias_t *a;

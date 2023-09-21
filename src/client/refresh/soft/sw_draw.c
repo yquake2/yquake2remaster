@@ -33,7 +33,7 @@ RE_Draw_FindPic
 ================
 */
 image_t *
-RE_Draw_FindPic (char *name)
+RE_Draw_FindPic (const char *name)
 {
 	return R_FindPic(name, (findimage_t)R_FindImage);
 }
@@ -150,7 +150,7 @@ RE_Draw_GetPicSize
 =============
 */
 void
-RE_Draw_GetPicSize (int *w, int *h, char *name)
+RE_Draw_GetPicSize (int *w, int *h, const char *name)
 {
 	image_t *image;
 
@@ -308,7 +308,7 @@ RE_Draw_StretchPic
 =============
 */
 void
-RE_Draw_StretchPic (int x, int y, int w, int h, char *name)
+RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 {
 	image_t	*pic;
 
@@ -386,7 +386,7 @@ Draw_Pic
 =============
 */
 void
-RE_Draw_PicScaled(int x, int y, char *name, float scale)
+RE_Draw_PicScaled(int x, int y, const char *name, float scale)
 {
 	image_t		*pic;
 
@@ -412,7 +412,7 @@ refresh window.
 =============
 */
 void
-RE_Draw_TileClear (int x, int y, int w, int h, char *name)
+RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 {
 	int			i, j;
 	byte		*psrc;

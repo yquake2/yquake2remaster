@@ -1293,7 +1293,7 @@ Vk_FindImage (const char *name, imagetype_t type)
 RE_RegisterSkin
 ===============
 */
-struct image_s *RE_RegisterSkin (char *name)
+struct image_s *RE_RegisterSkin (const char *name)
 {
 	return Vk_FindImage (name, it_skin);
 }

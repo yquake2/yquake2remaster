@@ -161,13 +161,13 @@ GL4_Draw_CharScaled(int x, int y, int num, float scale)
 }
 
 gl4image_t *
-GL4_Draw_FindPic(char *name)
+GL4_Draw_FindPic(const char *name)
 {
 	return R_FindPic(name, (findimage_t)GL4_FindImage);
 }
 
 void
-GL4_Draw_GetPicSize(int *w, int *h, char *pic)
+GL4_Draw_GetPicSize(int *w, int *h, const char *pic)
 {
 	gl4image_t *gl;
 
@@ -184,7 +184,7 @@ GL4_Draw_GetPicSize(int *w, int *h, char *pic)
 }
 
 void
-GL4_Draw_StretchPic(int x, int y, int w, int h, char *pic)
+GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 {
 	gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 
@@ -201,7 +201,7 @@ GL4_Draw_StretchPic(int x, int y, int w, int h, char *pic)
 }
 
 void
-GL4_Draw_PicScaled(int x, int y, char *pic, float factor)
+GL4_Draw_PicScaled(int x, int y, const char *pic, float factor)
 {
 	gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!gl)
@@ -222,7 +222,7 @@ GL4_Draw_PicScaled(int x, int y, char *pic, float factor)
  * refresh window.
  */
 void
-GL4_Draw_TileClear(int x, int y, int w, int h, char *pic)
+GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	gl4image_t *image = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!image)

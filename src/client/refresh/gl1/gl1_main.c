@@ -1874,9 +1874,9 @@ R_DrawBeam(entity_t *e)
 extern int RI_PrepareForWindow(void);
 extern int RI_InitContext(void* win);
 
-extern void RI_BeginRegistration(char *model);
-extern struct model_s * RI_RegisterModel(char *name);
-extern struct image_s * RI_RegisterSkin(char *name);
+extern void RI_BeginRegistration(const char *model);
+extern struct model_s * RI_RegisterModel(const char *name);
+extern struct image_s * RI_RegisterSkin(const char *name);
 
 extern void RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 extern void RI_EndRegistration(void);

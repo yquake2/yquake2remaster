@@ -664,7 +664,7 @@ GL4_FindImage(const char *name, imagetype_t type)
 }
 
 gl4image_t *
-GL4_RegisterSkin(char *name)
+GL4_RegisterSkin(const char *name)
 {
 	return GL4_FindImage(name, it_skin);
 }

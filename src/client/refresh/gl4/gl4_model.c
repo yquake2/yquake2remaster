@@ -613,7 +613,7 @@ GL4_Mod_FreeAll(void)
  * Loads in a model for the given name
  */
 static gl4model_t *
-Mod_ForName (char *name, gl4model_t *parent_model, qboolean crash)
+Mod_ForName (const char *name, gl4model_t *parent_model, qboolean crash)
 {
 	gl4model_t *mod;
 	void *buf;
@@ -745,7 +745,7 @@ Mod_ForName (char *name, gl4model_t *parent_model, qboolean crash)
  * Specifies the model that will be used as the world
  */
 void
-GL4_BeginRegistration(char *model)
+GL4_BeginRegistration(const char *model)
 {
 	char fullname[MAX_QPATH];
 	cvar_t *flushmap;
@@ -773,7 +773,7 @@ GL4_BeginRegistration(char *model)
 }
 
 struct model_s *
-GL4_RegisterModel(char *name)
+GL4_RegisterModel(const char *name)
 {
 	gl4model_t *mod;
 

@@ -405,8 +405,8 @@ extern void GL3_SetDefaultState(void);
 extern int registration_sequence;
 extern void GL3_Mod_Init(void);
 extern void GL3_Mod_FreeAll(void);
-extern void GL3_BeginRegistration(char *model);
-extern struct model_s * GL3_RegisterModel(char *name);
+extern void GL3_BeginRegistration(const char *model);
+extern struct model_s * GL3_RegisterModel(const char *name);
 extern void GL3_EndRegistration(void);
 extern void GL3_Mod_Modellist_f(void);
 extern const byte* GL3_Mod_ClusterPVS(int cluster, const gl3model_t *model);
@@ -414,13 +414,13 @@ extern const byte* GL3_Mod_ClusterPVS(int cluster, const gl3model_t *model);
 // gl3_draw.c
 extern void GL3_Draw_InitLocal(void);
 extern void GL3_Draw_ShutdownLocal(void);
-extern gl3image_t * GL3_Draw_FindPic(char *name);
-extern void GL3_Draw_GetPicSize(int *w, int *h, char *pic);
+extern gl3image_t * GL3_Draw_FindPic(const char *name);
+extern void GL3_Draw_GetPicSize(int *w, int *h, const char *pic);
 
-extern void GL3_Draw_PicScaled(int x, int y, char *pic, float factor);
-extern void GL3_Draw_StretchPic(int x, int y, int w, int h, char *pic);
+extern void GL3_Draw_PicScaled(int x, int y, const char *pic, float factor);
+extern void GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void GL3_Draw_CharScaled(int x, int y, int num, float scale);
-extern void GL3_Draw_TileClear(int x, int y, int w, int h, char *pic);
+extern void GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4]);
 extern void GL3_Draw_Fill(int x, int y, int w, int h, int c);
 extern void GL3_Draw_FadeScreen(void);
@@ -446,7 +446,7 @@ extern gl3image_t *GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
                                int height, int realheight, size_t data_size,
                                imagetype_t type, int bits);
 extern gl3image_t *GL3_FindImage(const char *name, imagetype_t type);
-extern gl3image_t *GL3_RegisterSkin(char *name);
+extern gl3image_t *GL3_RegisterSkin(const char *name);
 extern void GL3_ShutdownImages(void);
 extern void GL3_FreeUnusedImages(void);
 extern qboolean GL3_ImageHasFreeSpace(void);

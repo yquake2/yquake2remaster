@@ -223,20 +223,20 @@ void R_DrawSkyBox (void);
 void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);
 
-struct image_s	*RE_Draw_FindPic (char *name);
+struct image_s	*RE_Draw_FindPic (const char *name);
 
-void	RE_Draw_GetPicSize (int *w, int *h, char *name);
-void	RE_Draw_PicScaled (int x, int y, char *name, float scale);
-void	RE_Draw_StretchPic (int x, int y, int w, int h, char *name);
+void	RE_Draw_GetPicSize (int *w, int *h, const char *name);
+void	RE_Draw_PicScaled (int x, int y, const char *name, float scale);
+void	RE_Draw_StretchPic (int x, int y, int w, int h, const char *name);
 void	RE_Draw_CharScaled (int x, int y, int num, float scale);
-void	RE_Draw_TileClear (int x, int y, int w, int h, char *name);
+void	RE_Draw_TileClear (int x, int y, int w, int h, const char *name);
 void	RE_Draw_Fill (int x, int y, int w, int h, int c);
 void	RE_Draw_FadeScreen (void);
 void	RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 
 qboolean	RE_EndWorldRenderpass( void );
 
-struct image_s *RE_RegisterSkin (char *name);
+struct image_s *RE_RegisterSkin (const char *name);
 
 image_t *Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		    int height, int realheight, size_t data_size, imagetype_t type,
@@ -256,9 +256,9 @@ void	Vk_ShutdownImages (void);
 void	Vk_FreeUnusedImages (void);
 qboolean Vk_ImageHasFreeSpace(void);
 
-void	RE_BeginRegistration (char *model);
-struct model_s	*RE_RegisterModel (char *name);
-struct image_s	*RE_RegisterSkin (char *name);
+void	RE_BeginRegistration (const char *model);
+struct model_s	*RE_RegisterModel (const char *name);
+struct image_s	*RE_RegisterSkin (const char *name);
 void	RE_SetSky (const char *name, float rotate, int autorotate, const vec3_t axis);
 void	RE_EndRegistration (void);
 

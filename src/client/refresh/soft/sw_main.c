@@ -1757,7 +1757,7 @@ RE_RegisterSkin
 ===============
 */
 static struct image_s *
-RE_RegisterSkin (char *name)
+RE_RegisterSkin (const char *name)
 {
 	return R_FindImage (name, it_skin);
 }
