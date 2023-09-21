@@ -1980,7 +1980,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 }
 
 cmodel_t *
-CM_InlineModel(char *name)
+CM_InlineModel(const char *name)
 {
 	int num;
 

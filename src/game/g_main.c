@@ -104,41 +104,6 @@ ShutdownGame(void)
 }
 
 /*
- * convert function declarations to correct one
- * (warning like from incompatible pointer type)
- * little bit better than cast function before set
- */
-static void
-ReadLevel_f(char *filename)
-{
-	ReadLevel(filename);
-}
-
-static void
-WriteLevel_f(char *filename)
-{
-	WriteLevel(filename);
-}
-
-static void
-ReadGame_f(char *filename)
-{
-	ReadGame(filename);
-}
-
-static void
-WriteGame_f(char *filename, qboolean autosave)
-{
-	WriteGame(filename, autosave);
-}
-
-static void
-SpawnEntities_f(char *mapname, char *entities, char *spawnpoint)
-{
-	SpawnEntities(mapname, entities, spawnpoint);
-}
-
-/*
  * Returns a pointer to the structure
  * with all entry points and global
  * variables
@@ -151,12 +116,12 @@ GetGameAPI(game_import_t *import)
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
-	globals.SpawnEntities = SpawnEntities_f;
+	globals.SpawnEntities = SpawnEntities;
 
-	globals.WriteGame = WriteGame_f;
-	globals.ReadGame = ReadGame_f;
-	globals.WriteLevel = WriteLevel_f;
-	globals.ReadLevel = ReadLevel_f;
+	globals.WriteGame = WriteGame;
+	globals.ReadGame = ReadGame;
+	globals.WriteLevel = WriteLevel;
+	globals.ReadLevel = ReadLevel;
 
 	globals.ClientThink = ClientThink;
 	globals.ClientConnect = ClientConnect;

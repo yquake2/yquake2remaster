@@ -910,7 +910,7 @@ char com_token[MAX_TOKEN_CHARS];
 /*
  * Parse a token out of a string
  */
-char *
+const char *
 COM_Parse(char **data_p)
 {
 	int c;
@@ -1264,7 +1264,7 @@ Info_ValueForKey(char *s, char *key)
 }
 
 void
-Info_RemoveKey(char *s, char *key)
+Info_RemoveKey(char *s, const char *key)
 {
 	char *start;
 	char pkey[512];
@@ -1327,7 +1327,7 @@ Info_RemoveKey(char *s, char *key)
  * because they can mess up the server's parsing
  */
 qboolean
-Info_Validate(char *s)
+Info_Validate(const char *s)
 {
 	if (strstr(s, "\""))
 	{
@@ -1343,7 +1343,7 @@ Info_Validate(char *s)
 }
 
 void
-Info_SetValueForKey(char *s, char *key, char *value)
+Info_SetValueForKey(char *s, const char *key, const char *value)
 {
 	char newi[MAX_INFO_STRING], *v;
 	int c;

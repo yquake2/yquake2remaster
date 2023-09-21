@@ -89,7 +89,7 @@ typedef struct
 typedef enum
 {
 	cs_free,        /* can be reused for a new connection */
-	cs_zombie,      /* client has been disconnected, but don't reuse 
+	cs_zombie,      /* client has been disconnected, but don't reuse
 					   connection for a couple seconds */
 	cs_connected,   /* has been assigned to a client_t, but not in game yet */
 	cs_spawned      /* client is fully in game */
@@ -127,7 +127,7 @@ typedef struct client_s
 	edict_t *edict;                     /* EDICT_NUM(clientnum+1) */
 	char name[32];                      /* extracted from userinfo, high bits masked */
 
-	/* The datagram is written to by sound calls, prints, 
+	/* The datagram is written to by sound calls, prints,
 	   temp ents, etc. It can be harmlessly overflowed. */
 	sizebuf_t datagram;
 	byte datagram_buf[MAX_MSGLEN];
@@ -200,9 +200,9 @@ extern edict_t *sv_player;
 void SV_FinalMessage(char *message, qboolean reconnect);
 void SV_DropClient(client_t *drop);
 
-int SV_ModelIndex(char *name);
-int SV_SoundIndex(char *name);
-int SV_ImageIndex(char *name);
+int SV_ModelIndex(const char *name);
+int SV_SoundIndex(const char *name);
+int SV_ImageIndex(const char *name);
 
 void SV_WriteClientdataToMessage(client_t *client, sizebuf_t *msg);
 
@@ -273,7 +273,7 @@ void SV_LinkEdict(edict_t *ent);
 
 /* Needs to be called any time an entity changes origin, mins, maxs,
    or solid. Automatically unlinks if needed. sets ent->v.absmin and
-   ent->v.absmax sets ent->leafnums[] for pvs determination even if 
+   ent->v.absmax sets ent->leafnums[] for pvs determination even if
    the entity is not solid */
 int SV_AreaEdicts(vec3_t mins, vec3_t maxs, edict_t **list,
 		int maxcount, int areatype);

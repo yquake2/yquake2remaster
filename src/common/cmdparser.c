@@ -83,7 +83,7 @@ Cbuf_Init(void)
  * Adds command text at the end of the buffer
  */
 void
-Cbuf_AddText(char *text)
+Cbuf_AddText(const char *text)
 {
 	int l;
 
@@ -532,7 +532,8 @@ Cmd_MacroExpandString(char *text)
 	char *scan;
 	static char expanded[MAX_STRING_CHARS];
 	char temporary[MAX_STRING_CHARS];
-	char *token, *start;
+	const char *token;
+	char *start;
 
 	inquote = false;
 	scan = text;

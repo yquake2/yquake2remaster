@@ -98,8 +98,8 @@ typedef struct sizebuf_s
 void SZ_Init(sizebuf_t *buf, byte *data, int length);
 void SZ_Clear(sizebuf_t *buf);
 void *SZ_GetSpace(sizebuf_t *buf, int length);
-void SZ_Write(sizebuf_t *buf, void *data, int length);
-void SZ_Print(sizebuf_t *buf, char *data);  /* strcats onto the sizebuf */
+void SZ_Write(sizebuf_t *buf, const void *data, int length);
+void SZ_Print(sizebuf_t *buf, const char *data);  /* strcats onto the sizebuf */
 
 /* ================================================================== */
 
@@ -111,7 +111,7 @@ void MSG_WriteByte(sizebuf_t *sb, int c);
 void MSG_WriteShort(sizebuf_t *sb, int c);
 void MSG_WriteLong(sizebuf_t *sb, int c);
 void MSG_WriteFloat(sizebuf_t *sb, float f);
-void MSG_WriteString(sizebuf_t *sb, char *s);
+void MSG_WriteString(sizebuf_t *sb, const char *s);
 void MSG_WriteCoord(sizebuf_t *sb, float f);
 void MSG_WritePos(sizebuf_t *sb, vec3_t pos);
 void MSG_WriteAngle(sizebuf_t *sb, float f);
@@ -337,7 +337,7 @@ void Cbuf_Init(void);
 
 /* allocates an initial text buffer that will grow as needed */
 
-void Cbuf_AddText(char *text);
+void Cbuf_AddText(const char *text);
 
 /* as new commands are generated from the console or keybindings, */
 /* the text is added to the end of the command buffer. */
@@ -616,7 +616,7 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 #include "files.h"
 
 cmodel_t *CM_LoadMap(char *name, qboolean clientload, unsigned *checksum);
-cmodel_t *CM_InlineModel(char *name);       /* *1, *2, etc */
+cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
 
 int CM_NumClusters(void);
 int CM_NumInlineModels(void);

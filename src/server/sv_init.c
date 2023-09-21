@@ -33,8 +33,8 @@
 server_static_t svs; /* persistant server info */
 server_t sv; /* local server */
 
-int
-SV_FindIndex(char *name, int start, int max, qboolean create)
+static int
+SV_FindIndex(const char *name, int start, int max, qboolean create)
 {
 	int i;
 
@@ -76,19 +76,19 @@ SV_FindIndex(char *name, int start, int max, qboolean create)
 }
 
 int
-SV_ModelIndex(char *name)
+SV_ModelIndex(const char *name)
 {
 	return SV_FindIndex(name, CS_MODELS, MAX_MODELS, true);
 }
 
 int
-SV_SoundIndex(char *name)
+SV_SoundIndex(const char *name)
 {
 	return SV_FindIndex(name, CS_SOUNDS, MAX_SOUNDS, true);
 }
 
 int
-SV_ImageIndex(char *name)
+SV_ImageIndex(const char *name)
 {
 	return SV_FindIndex(name, CS_IMAGES, MAX_IMAGES, true);
 }

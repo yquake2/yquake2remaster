@@ -311,7 +311,7 @@ void COM_FileBase(char *in, char *out);
 void COM_FilePath(const char *in, char *out);
 void COM_DefaultExtension(char *path, const char *extension);
 
-char *COM_Parse(char **data_p);
+const char *COM_Parse(char **data_p);
 
 /* data is an in/out parm, returns a parsed out token */
 void Com_sprintf(char *dest, int size, char *fmt, ...);
@@ -360,9 +360,9 @@ char *va(const char *format, ...)  PRINTF_ATTR(1, 2);
 #define MAX_INFO_STRING 512
 
 char *Info_ValueForKey(char *s, char *key);
-void Info_RemoveKey(char *s, char *key);
-void Info_SetValueForKey(char *s, char *key, char *value);
-qboolean Info_Validate(char *s);
+void Info_RemoveKey(char *s, const char *key);
+void Info_SetValueForKey(char *s, const char *key, const char *value);
+qboolean Info_Validate(const char *s);
 
 /* ============================================= */
 
