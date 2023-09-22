@@ -281,8 +281,6 @@ void R_DrawSkyBox(void);
 void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);
 
-void COM_StripExtension(char *in, char *out);
-
 void R_SwapBuffers(int);
 
 image_t *R_LoadPic(const char *name, byte *pic, int width, int realwidth,

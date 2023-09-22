@@ -93,7 +93,7 @@ RotatePointAroundVector(vec3_t dst, const vec3_t dir,
 }
 
 void
-AngleVectors(vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
+AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 {
 	float angle;
 	static float sr, sp, sy, cr, cp, cy;
@@ -131,7 +131,7 @@ AngleVectors(vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 }
 
 void
-AngleVectors2(vec3_t value1, vec3_t angles)
+AngleVectors2(const vec3_t value1, vec3_t angles)
 {
 	float forward;
 	float yaw, pitch;
@@ -236,7 +236,7 @@ PerpendicularVector(vec3_t dst, const vec3_t src)
 }
 
 void
-R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3])
+R_ConcatRotations(const float in1[3][3], const float in2[3][3], float out[3][3])
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];
@@ -259,7 +259,7 @@ R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3])
 }
 
 void
-R_ConcatTransforms(float in1[3][4], float in2[3][4], float out[3][4])
+R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[3][4])
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];
@@ -325,7 +325,7 @@ anglemod(float a)
  * This is the slow, general version
  */
 int
-BoxOnPlaneSide2(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+BoxOnPlaneSide2(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p)
 {
 	int i;
 	float dist1, dist2;
@@ -367,7 +367,7 @@ BoxOnPlaneSide2(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
  * Returns 1, 2, or 1 + 2
  */
 int
-BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p)
 {
 	float dist1, dist2;
 	int sides;
@@ -467,7 +467,7 @@ ClearBounds(vec3_t mins, vec3_t maxs)
 }
 
 void
-AddPointToBounds(vec3_t v, vec3_t mins, vec3_t maxs)
+AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
 {
 	int i;
 	vec_t val;
@@ -489,7 +489,7 @@ AddPointToBounds(vec3_t v, vec3_t mins, vec3_t maxs)
 }
 
 int
-VectorCompare(vec3_t v1, vec3_t v2)
+VectorCompare(const vec3_t v1, const vec3_t v2)
 {
 	if ((v1[0] != v2[0]) || (v1[1] != v2[1]) || (v1[2] != v2[2]))
 	{
@@ -519,7 +519,7 @@ VectorNormalize(vec3_t v)
 }
 
 vec_t
-VectorNormalize2(vec3_t v, vec3_t out)
+VectorNormalize2(const vec3_t v, vec3_t out)
 {
 	VectorCopy(v, out);
 
@@ -527,7 +527,7 @@ VectorNormalize2(vec3_t v, vec3_t out)
 }
 
 void
-VectorMA(vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
+VectorMA(const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc)
 {
 	vecc[0] = veca[0] + scale * vecb[0];
 	vecc[1] = veca[1] + scale * vecb[1];
@@ -535,13 +535,13 @@ VectorMA(vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
 }
 
 vec_t
-_DotProduct(vec3_t v1, vec3_t v2)
+_DotProduct(const vec3_t v1, const vec3_t v2)
 {
 	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 }
 
 void
-_VectorSubtract(vec3_t veca, vec3_t vecb, vec3_t out)
+_VectorSubtract(const vec3_t veca, const vec3_t vecb, vec3_t out)
 {
 	out[0] = veca[0] - vecb[0];
 	out[1] = veca[1] - vecb[1];
@@ -549,7 +549,7 @@ _VectorSubtract(vec3_t veca, vec3_t vecb, vec3_t out)
 }
 
 void
-_VectorAdd(vec3_t veca, vec3_t vecb, vec3_t out)
+_VectorAdd(const vec3_t veca, const vec3_t vecb, vec3_t out)
 {
 	out[0] = veca[0] + vecb[0];
 	out[1] = veca[1] + vecb[1];
@@ -557,7 +557,7 @@ _VectorAdd(vec3_t veca, vec3_t vecb, vec3_t out)
 }
 
 void
-_VectorCopy(vec3_t in, vec3_t out)
+_VectorCopy(const vec3_t in, vec3_t out)
 {
 	out[0] = in[0];
 	out[1] = in[1];
@@ -565,7 +565,7 @@ _VectorCopy(vec3_t in, vec3_t out)
 }
 
 void
-CrossProduct(vec3_t v1, vec3_t v2, vec3_t cross)
+CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross)
 {
 	cross[0] = v1[1] * v2[2] - v1[2] * v2[1];
 	cross[1] = v1[2] * v2[0] - v1[0] * v2[2];
@@ -575,7 +575,7 @@ CrossProduct(vec3_t v1, vec3_t v2, vec3_t cross)
 double sqrt(double x);
 
 vec_t
-VectorLength(vec3_t v)
+VectorLength(const vec3_t v)
 {
 	int i;
 	float length;
@@ -601,7 +601,7 @@ VectorInverse(vec3_t v)
 }
 
 void
-VectorScale(vec3_t in, vec_t scale, vec3_t out)
+VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 {
 	out[0] = in[0] * scale;
 	out[1] = in[1] * scale;
@@ -623,10 +623,10 @@ Q_log2(int val)
 
 /* ==================================================================================== */
 
-char *
-COM_SkipPath(char *pathname)
+const char *
+COM_SkipPath(const char *pathname)
 {
-	char *last;
+	const char *last;
 
 	last = pathname;
 
@@ -644,7 +644,7 @@ COM_SkipPath(char *pathname)
 }
 
 void
-COM_StripExtension(char *in, char *out)
+COM_StripExtension(const char *in, char *out)
 {
 	while (*in && *in != '.')
 	{
@@ -668,9 +668,9 @@ COM_FileExtension(const char *in)
 }
 
 void
-COM_FileBase(char *in, char *out)
+COM_FileBase(const char *in, char *out)
 {
-	char *s, *s2;
+	const char *s, *s2;
 
 	s = in + strlen(in) - 1;
 
@@ -1002,7 +1002,7 @@ done:
 static int paged_total = 0;
 
 void
-Com_PageInMemory(byte *buffer, int size)
+Com_PageInMemory(const byte *buffer, int size)
 {
 	int i;
 
@@ -1075,7 +1075,7 @@ Q_strcasecmp(const char *s1, const char *s2)
 }
 
 void
-Com_sprintf(char *dest, int size, char *fmt, ...)
+Com_sprintf(char *dest, int size, const char *fmt, ...)
 {
 	int len;
 	va_list argptr;
@@ -1208,7 +1208,7 @@ Q_sort_strcomp(const void *s1, const void *s2)
  * or an empty string.
  */
 char *
-Info_ValueForKey(char *s, char *key)
+Info_ValueForKey(char *s, const char *key)
 {
 	char pkey[512];
 	static char value[2][512]; /* use two buffers so compares
