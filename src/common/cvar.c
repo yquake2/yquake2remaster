@@ -553,7 +553,12 @@ Cvar_Set_f(void)
 	{
 		int flags;
 
-		if (!strcmp(Cmd_Argv(3), "u"))
+		if (!strcmp(Cmd_Argv(3), "a"))
+		{
+			flags = CVAR_ARCHIVE;
+		}
+
+		else if (!strcmp(Cmd_Argv(3), "u"))
 		{
 			flags = CVAR_USERINFO;
 		}
@@ -565,7 +570,7 @@ Cvar_Set_f(void)
 
 		else
 		{
-			Com_Printf("flags can only be 'u' or 's'\n");
+			Com_Printf("flags can only be 'a', 'u' or 's'\n");
 			return;
 		}
 
@@ -864,6 +869,9 @@ Cvar_Init(void)
 	Cmd_AddCommand("reset", Cvar_Reset_f);
 	Cmd_AddCommand("resetall", Cvar_ResetAll_f);
 	Cmd_AddCommand("set", Cvar_Set_f);
+	Cmd_AddCommand("seta", Cvar_Set_f);
+	Cmd_AddCommand("setu", Cvar_Set_f);
+	Cmd_AddCommand("sets", Cvar_Set_f);
 	Cmd_AddCommand("toggle", Cvar_Toggle_f);
 }
 
@@ -891,6 +899,9 @@ Cvar_Fini(void)
 	Cmd_RemoveCommand("reset");
 	Cmd_RemoveCommand("resetall");
 	Cmd_RemoveCommand("set");
+	Cmd_RemoveCommand("seta");
+	Cmd_RemoveCommand("setu");
+	Cmd_RemoveCommand("sets");
 	Cmd_RemoveCommand("toggle");
 }
 
