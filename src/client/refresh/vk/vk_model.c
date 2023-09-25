@@ -97,49 +97,6 @@ Mod_Init(void)
 }
 
 static void
-Mod_Free(model_t *mod)
-{
-	if (!mod->extradata)
-	{
-		// looks as empty model
-		memset (mod, 0, sizeof(*mod));
-		return;
-	}
-
-	if (r_validation->value > 0)
-	{
-		R_Printf(PRINT_ALL, "%s: Unload %s[%d]\n", __func__, mod->name, mod_loaded);
-	}
-
-	Hunk_Free (mod->extradata);
-	memset (mod, 0, sizeof(*mod));
-	mod_loaded --;
-	if (mod_loaded < 0)
-	{
-		ri.Sys_Error (ERR_DROP, "%s: Broken unload", __func__);
-	}
-}
-
-void
-Mod_FreeAll (void)
-{
-	int		i;
-
-	for (i=0 ; i<mod_numknown ; i++)
-	{
-		if (models_known[i].extradatasize)
-			Mod_Free (&models_known[i]);
-	}
-}
-
-void
-Mod_FreeModelsKnown (void)
-{
-	free(models_known);
-	models_known = NULL;
-}
-
-static void
 Mod_LoadSubmodels (model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
 	dmodel_t *in;
@@ -1190,6 +1147,49 @@ Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
 	ri.FS_FreeFile(buf);
 
 	return mod;
+}
+
+static void
+Mod_Free(model_t *mod)
+{
+	if (!mod->extradata)
+	{
+		// looks as empty model
+		memset (mod, 0, sizeof(*mod));
+		return;
+	}
+
+	if (r_validation->value > 0)
+	{
+		R_Printf(PRINT_ALL, "%s: Unload %s[%d]\n", __func__, mod->name, mod_loaded);
+	}
+
+	Hunk_Free (mod->extradata);
+	memset (mod, 0, sizeof(*mod));
+	mod_loaded --;
+	if (mod_loaded < 0)
+	{
+		ri.Sys_Error (ERR_DROP, "%s: Broken unload", __func__);
+	}
+}
+
+void
+Mod_FreeAll (void)
+{
+	int		i;
+
+	for (i=0 ; i<mod_numknown ; i++)
+	{
+		if (models_known[i].extradatasize)
+			Mod_Free (&models_known[i]);
+	}
+}
+
+void
+Mod_FreeModelsKnown (void)
+{
+	free(models_known);
+	models_known = NULL;
 }
 
 /*

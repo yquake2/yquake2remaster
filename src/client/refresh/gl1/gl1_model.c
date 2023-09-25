@@ -35,7 +35,6 @@ static int mod_numknown;
 static int mod_max = 0;
 int registration_sequence;
 
-static void Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen);
 void LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa);
 void LM_CreateSurfaceLightmap(msurface_t *surf);
 void LM_EndBuildingLightmaps(void);
@@ -125,140 +124,6 @@ Mod_Init(void)
 {
 	mod_max = 0;
 	memset(mod_novis, 0xff, sizeof(mod_novis));
-}
-
-/*
- * Loads in a model for the given name
- */
-static model_t *
-Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
-{
-	model_t *mod;
-	void *buf;
-	int i;
-
-	if (!name[0])
-	{
-		ri.Sys_Error(ERR_DROP, "%s: NULL name", __func__);
-	}
-
-	/* inline models are grabbed only from worldmodel */
-	if (name[0] == '*' && parent_model)
-	{
-		i = (int)strtol(name + 1, (char **)NULL, 10);
-
-		if (i < 1 || i >= parent_model->numsubmodels)
-		{
-			ri.Sys_Error(ERR_DROP, "%s: bad inline model number",
-					__func__);
-		}
-
-		return &parent_model->submodels[i];
-	}
-
-	/* search the currently loaded models */
-	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
-	{
-		if (!mod->name[0])
-		{
-			continue;
-		}
-
-		if (!strcmp(mod->name, name))
-		{
-			return mod;
-		}
-	}
-
-	/* find a free model slot spot */
-	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
-	{
-		if (!mod->name[0])
-		{
-			break; /* free spot */
-		}
-	}
-
-	if (i == mod_numknown)
-	{
-		if (mod_numknown == MAX_MOD_KNOWN)
-		{
-			ri.Sys_Error(ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
-		}
-
-		mod_numknown++;
-	}
-
-	strcpy(mod->name, name);
-
-	/* load the file */
-	modfilelen = Mod_LoadFile (mod->name, &buf);
-
-	if (!buf)
-	{
-		if (crash)
-		{
-			ri.Sys_Error(ERR_DROP, "%s: %s not found",
-					__func__, mod->name);
-		}
-
-		memset(mod->name, 0, sizeof(mod->name));
-		return NULL;
-	}
-
-	/* call the apropriate loader */
-	switch (LittleLong(*(unsigned *)buf))
-	{
-		case DKMHEADER:
-			/* fall through */
-		case RAVENFMHEADER:
-			/* fall through */
-		case IDALIASHEADER:
-			/* fall through */
-		case IDMDLHEADER:
-			{
-				mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
-					mod->mins, mod->maxs,
-					(struct image_s **)mod->skins, (findimage_t)R_FindImage,
-					&(mod->type));
-				if (!mod->extradata)
-				{
-					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
-						__func__, mod->name);
-				}
-			};
-			break;
-
-		case IDSPRITEHEADER:
-			{
-				mod->extradata = Mod_LoadSP2(mod->name, buf, modfilelen,
-					(struct image_s **)mod->skins, (findimage_t)R_FindImage,
-					&(mod->type));
-				if (!mod->extradata)
-				{
-					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
-						__func__, mod->name);
-				}
-			}
-			break;
-
-		case IDBSPHEADER:
-			/* fall through */
-		case QDBSPHEADER:
-			Mod_LoadBrushModel(mod, buf, modfilelen);
-			break;
-
-		default:
-			ri.Sys_Error(ERR_DROP, "%s: unknown fileid for %s",
-					__func__, mod->name);
-			break;
-	}
-
-	mod->extradatasize = Hunk_End();
-
-	ri.FS_FreeFile(buf);
-
-	return mod;
 }
 
 static void
@@ -1145,6 +1010,140 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 	Mod_LoadSubmodels (mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->numframes = 2; /* regular and alternate animation */
+}
+
+/*
+ * Loads in a model for the given name
+ */
+static model_t *
+Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
+{
+	model_t *mod;
+	void *buf;
+	int i;
+
+	if (!name[0])
+	{
+		ri.Sys_Error(ERR_DROP, "%s: NULL name", __func__);
+	}
+
+	/* inline models are grabbed only from worldmodel */
+	if (name[0] == '*' && parent_model)
+	{
+		i = (int)strtol(name + 1, (char **)NULL, 10);
+
+		if (i < 1 || i >= parent_model->numsubmodels)
+		{
+			ri.Sys_Error(ERR_DROP, "%s: bad inline model number",
+					__func__);
+		}
+
+		return &parent_model->submodels[i];
+	}
+
+	/* search the currently loaded models */
+	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
+	{
+		if (!mod->name[0])
+		{
+			continue;
+		}
+
+		if (!strcmp(mod->name, name))
+		{
+			return mod;
+		}
+	}
+
+	/* find a free model slot spot */
+	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
+	{
+		if (!mod->name[0])
+		{
+			break; /* free spot */
+		}
+	}
+
+	if (i == mod_numknown)
+	{
+		if (mod_numknown == MAX_MOD_KNOWN)
+		{
+			ri.Sys_Error(ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
+		}
+
+		mod_numknown++;
+	}
+
+	strcpy(mod->name, name);
+
+	/* load the file */
+	modfilelen = Mod_LoadFile (mod->name, &buf);
+
+	if (!buf)
+	{
+		if (crash)
+		{
+			ri.Sys_Error(ERR_DROP, "%s: %s not found",
+					__func__, mod->name);
+		}
+
+		memset(mod->name, 0, sizeof(mod->name));
+		return NULL;
+	}
+
+	/* call the apropriate loader */
+	switch (LittleLong(*(unsigned *)buf))
+	{
+		case DKMHEADER:
+			/* fall through */
+		case RAVENFMHEADER:
+			/* fall through */
+		case IDALIASHEADER:
+			/* fall through */
+		case IDMDLHEADER:
+			{
+				mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
+					mod->mins, mod->maxs,
+					(struct image_s **)mod->skins, (findimage_t)R_FindImage,
+					&(mod->type));
+				if (!mod->extradata)
+				{
+					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
+						__func__, mod->name);
+				}
+			};
+			break;
+
+		case IDSPRITEHEADER:
+			{
+				mod->extradata = Mod_LoadSP2(mod->name, buf, modfilelen,
+					(struct image_s **)mod->skins, (findimage_t)R_FindImage,
+					&(mod->type));
+				if (!mod->extradata)
+				{
+					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
+						__func__, mod->name);
+				}
+			}
+			break;
+
+		case IDBSPHEADER:
+			/* fall through */
+		case QDBSPHEADER:
+			Mod_LoadBrushModel(mod, buf, modfilelen);
+			break;
+
+		default:
+			ri.Sys_Error(ERR_DROP, "%s: unknown fileid for %s",
+					__func__, mod->name);
+			break;
+	}
+
+	mod->extradatasize = Hunk_End();
+
+	ri.FS_FreeFile(buf);
+
+	return mod;
 }
 
 void

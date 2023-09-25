@@ -397,7 +397,29 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 }
 
 static void
-Mod_LoadFaces(gl3model_t *loadmodel, byte *mod_base, lump_t *l)
+SetSurfaceLighting(gl3model_t *loadmodel, msurface_t *out, byte *styles, int lightofs)
+{
+	int i;
+
+	/* lighting info */
+	for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; i++)
+	{
+		out->styles[i] = styles[i];
+	}
+
+	i = LittleLong(lightofs);
+	if (i == -1 || loadmodel->lightdata == NULL)
+	{
+		out->samples = NULL;
+	}
+	else
+	{
+		out->samples = loadmodel->lightdata + i;
+	}
+}
+
+static void
+Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
 	int i, count, surfnum;
 	msurface_t *out;
@@ -462,22 +484,7 @@ Mod_LoadFaces(gl3model_t *loadmodel, byte *mod_base, lump_t *l)
 
 		Mod_CalcSurfaceExtents(loadmodel, out);
 
-		/* lighting info */
-		for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; i++)
-		{
-			out->styles[i] = in->styles[i];
-		}
-
-		i = LittleLong(in->lightofs);
-
-		if (i == -1)
-		{
-			out->samples = NULL;
-		}
-		else
-		{
-			out->samples = loadmodel->lightdata + i;
-		}
+		SetSurfaceLighting(loadmodel, out, in->styles, in->lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -582,22 +589,7 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
 
 		Mod_CalcSurfaceExtents(loadmodel, out);
 
-		/* lighting info */
-		for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; i++)
-		{
-			out->styles[i] = in->styles[i];
-		}
-
-		i = LittleLong(in->lightofs);
-
-		if (i == -1)
-		{
-			out->samples = NULL;
-		}
-		else
-		{
-			out->samples = loadmodel->lightdata + i;
-		}
+		SetSurfaceLighting(loadmodel, out, in->styles, in->lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -936,27 +928,6 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 	mod->numframes = 2; /* regular and alternate animation */
 }
 
-static void
-Mod_Free(gl3model_t *mod)
-{
-	Hunk_Free(mod->extradata);
-	memset(mod, 0, sizeof(*mod));
-}
-
-void
-GL3_Mod_FreeAll(void)
-{
-	int i;
-
-	for (i = 0; i < mod_numknown; i++)
-	{
-		if (mod_known[i].extradatasize)
-		{
-			Mod_Free(&mod_known[i]);
-		}
-	}
-}
-
 /*
  * Loads in a model for the given name
  */
@@ -1089,6 +1060,27 @@ Mod_ForName (const char *name, gl3model_t *parent_model, qboolean crash)
 	ri.FS_FreeFile(buf);
 
 	return mod;
+}
+
+static void
+Mod_Free(gl3model_t *mod)
+{
+	Hunk_Free(mod->extradata);
+	memset(mod, 0, sizeof(*mod));
+}
+
+void
+GL3_Mod_FreeAll(void)
+{
+	int i;
+
+	for (i = 0; i < mod_numknown; i++)
+	{
+		if (mod_known[i].extradatasize)
+		{
+			Mod_Free(&mod_known[i]);
+		}
+	}
 }
 
 /*
