@@ -27,13 +27,15 @@
 
 #include "header/local.h"
 
+static YQ2_ALIGNAS_TYPE(int) byte mod_novis[MAX_MAP_LEAFS / 8];
+
 enum { MAX_MOD_KNOWN = 512 };
 
-YQ2_ALIGNAS_TYPE(int) static byte mod_novis[MAX_MAP_LEAFS / 8];
-gl3model_t mod_known[MAX_MOD_KNOWN];
-static int mod_numknown;
-static int mod_max = 0;
-int registration_sequence;
+gl3model_t	mod_known[MAX_MOD_KNOWN];
+static int	mod_numknown;
+static int	mod_max = 0;
+
+int	registration_sequence;
 
 //===============================================================================
 
@@ -419,7 +421,8 @@ SetSurfaceLighting(gl3model_t *loadmodel, msurface_t *out, byte *styles, int lig
 }
 
 static void
-Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
+Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
+	const bspx_header_t *bspx_header)
 {
 	int i, count, surfnum;
 	msurface_t *out;
@@ -524,7 +527,8 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
 }
 
 static void
-Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
+Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
+	const bspx_header_t *bspx_header)
 {
 	int i, count, surfnum;
 	msurface_t *out;
@@ -800,13 +804,14 @@ Mod_LoadQMarksurfaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t 
 static void
 Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 {
-	int i;
-	dheader_t *header;
-	byte *mod_base;
+	const bspx_header_t	*bspx_header;
+	byte		*mod_base;
+	dheader_t	*header;
+	int			i;
 
 	if (mod != mod_known)
 	{
-		ri.Sys_Error(ERR_DROP, "Loaded a brush model after the world");
+		ri.Sys_Error(ERR_DROP, "%s: Loaded a brush model after the world", __func__);
 	}
 
 	header = (dheader_t *)buffer;
@@ -878,6 +883,10 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 	mod->extradata = Hunk_Begin(hunkSize);
 	mod->type = mod_brush;
 
+
+	/* check for BSPX extensions */
+	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
+
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
 		&header->lumps[LUMP_VERTEXES], 0);
@@ -901,12 +910,12 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 		gl3_notexture, 0);
 	if (header->ident == IDBSPHEADER)
 	{
-		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES]);
+		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 		Mod_LoadMarksurfaces(mod, mod_base, &header->lumps[LUMP_LEAFFACES]);
 	}
 	else
 	{
-		Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES]);
+		Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 		Mod_LoadQMarksurfaces(mod, mod_base, &header->lumps[LUMP_LEAFFACES]);
 	}
 	Mod_LoadVisibility(&mod->vis, mod_base, &header->lumps[LUMP_VISIBILITY]);
@@ -984,7 +993,7 @@ Mod_ForName (const char *name, gl3model_t *parent_model, qboolean crash)
 	{
 		if (mod_numknown == MAX_MOD_KNOWN)
 		{
-			ri.Sys_Error(ERR_DROP, "mod_numknown == MAX_MOD_KNOWN");
+			ri.Sys_Error(ERR_DROP, "%s: mod_numknown == MAX_MOD_KNOWN", __func__);
 		}
 
 		mod_numknown++;
