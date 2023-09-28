@@ -942,7 +942,6 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod->extradata = Hunk_Begin(hunkSize);
 	mod->type = mod_brush;
 
-
 	/* check for BSPX extensions */
 	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
 

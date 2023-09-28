@@ -103,7 +103,7 @@ R_InitSkyBox
 ================
 */
 void
-R_InitSkyBox (model_t *loadmodel)
+R_InitSkyBox(model_t *loadmodel)
 {
 	int		i;
 
@@ -115,13 +115,9 @@ R_InitSkyBox (model_t *loadmodel)
 	loadmodel->numedges += 12;
 	r_skysurfedges = loadmodel->surfedges + loadmodel->numsurfedges;
 	loadmodel->numsurfedges += 24;
-	if (loadmodel->numsurfaces > MAX_MAP_FACES
-		|| loadmodel->numvertexes > MAX_MAP_VERTS
-		|| loadmodel->numedges > MAX_MAP_EDGES)
-		ri.Sys_Error (ERR_DROP, "InitSkyBox: map overflow");
 
-	memset (r_skyfaces, 0, 6*sizeof(*r_skyfaces));
-	for (i=0 ; i<6 ; i++)
+	memset (r_skyfaces, 0, 6 * sizeof(*r_skyfaces));
+	for (i = 0; i < 6; i++)
 	{
 		r_skyplanes[i].normal[skybox_planes[i*2]] = 1;
 		r_skyplanes[i].dist = skybox_planes[i*2+1];
