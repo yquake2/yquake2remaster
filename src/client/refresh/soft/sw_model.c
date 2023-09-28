@@ -189,7 +189,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
  * Fills in s->texturemins[] and s->extents[]
  */
 static void
-CalcSurfaceExtents(model_t *loadmodel, msurface_t *s)
+Mod_CalcSurfaceExtents(model_t *loadmodel, msurface_t *s)
 {
 	float mins[2], maxs[2], val;
 	int i;
@@ -314,7 +314,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		out->texinfo = loadmodel->texinfo + ti;
 		out->lmshift = DEFAULT_LMSHIFT;
 
-		CalcSurfaceExtents (loadmodel, out);
+		Mod_CalcSurfaceExtents (loadmodel, out);
 
 		// lighting is saved as its with 24 bit color
 		for (i=0 ; i<MAXLIGHTMAPS ; i++)
@@ -737,8 +737,9 @@ RE_BeginRegistration(const char *model)
 		Mod_Free(&mod_known[0]);
 	}
 
-	r_worldmodel = RE_RegisterModel(fullname);
-	R_NewMap();
+	r_worldmodel = Mod_ForName(fullname, NULL, true);
+
+	r_viewcluster = -1;
 }
 
 struct model_s *

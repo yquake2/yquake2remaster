@@ -525,17 +525,6 @@ RE_Shutdown (void)
 	RE_ShutdownContext();
 }
 
-/*
-===============
-R_NewMap
-===============
-*/
-void
-R_NewMap (void)
-{
-	r_viewcluster = -1;
-}
-
 static surf_t	*lsurfs;
 
 /*
