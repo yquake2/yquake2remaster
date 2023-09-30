@@ -230,6 +230,37 @@ V_TestLights(void)
 	}
 }
 
+static void
+CL_ClearLine(void)
+{
+	char emptyline[80]; /* clear full 25x80 line*/
+	float scale;
+	int cols;
+
+	scale = SCR_GetConsoleScale();
+	if (scale < 1)
+	{
+		scale = 1;
+	}
+
+	cols = viddef.width / (8 * scale) - 1;
+
+	if (cols > (sizeof(emptyline) - 1))
+	{
+		cols = sizeof(emptyline) - 1;
+	}
+
+	/* go to line start */
+	emptyline[0] = '\r';
+	/* fill all with spaces */
+	memset(emptyline + 1, ' ', cols - 2);
+	/* go to start */
+	emptyline[cols - 1] = '\r';
+	emptyline[cols] = 0;
+
+	Com_Printf(emptyline);
+}
+
 /*
  * Call before entering a new level, or after changing dlls
  */
@@ -259,13 +290,13 @@ CL_PrepRefresh(void)
 	Com_Printf("Map: %s\r", mapname);
 	SCR_UpdateScreen();
 	R_BeginRegistration (mapname);
-	Com_Printf("                                     \r");
+	CL_ClearLine();
 
 	/* precache status bar pics */
 	Com_Printf("pics\r");
 	SCR_UpdateScreen();
 	SCR_TouchPics();
-	Com_Printf("                                     \r");
+	CL_ClearLine();
 
 	CL_RegisterTEntModels();
 
@@ -313,7 +344,7 @@ CL_PrepRefresh(void)
 
 		if (name[0] != '*')
 		{
-			Com_Printf("                                     \r");
+			CL_ClearLine();
 		}
 	}
 
@@ -326,7 +357,7 @@ CL_PrepRefresh(void)
 		IN_Update();
 	}
 
-	Com_Printf("                                     \r");
+	CL_ClearLine();
 
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -339,7 +370,7 @@ CL_PrepRefresh(void)
 		SCR_UpdateScreen();
 		IN_Update();
 		CL_ParseClientinfo(i);
-		Com_Printf("                                     \r");
+		CL_ClearLine();
 	}
 
 	CL_LoadClientinfo(&cl.baseclientinfo, "unnamed\\male/grunt");
@@ -350,7 +381,7 @@ CL_PrepRefresh(void)
 	sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
 	sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
 	R_SetSky(cl.configstrings[CS_SKY], rotate, autorotate, axis);
-	Com_Printf("                                     \r");
+	CL_ClearLine();
 
 	/* the renderer can now free unneeded stuff */
 	R_EndRegistration();
