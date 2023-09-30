@@ -108,8 +108,8 @@ Mod_Modellist_f(void)
 			continue;
 		}
 
-		R_Printf(PRINT_ALL, "%8i : %s %s\n",
-			mod->extradatasize, mod->name, in_use);
+		R_Printf(PRINT_ALL, "%8i : %s %s r: %f #%d\n",
+			 mod->extradatasize, mod->name, in_use, mod->radius, mod->numsubmodels);
 		total += mod->extradatasize;
 	}
 
@@ -799,7 +799,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 			mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
 			&header->lumps[LUMP_NODES]);
 	}
-	Mod_LoadSubmodels (mod, mod_base, &header->lumps[LUMP_MODELS]);
+	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->numframes = 2; /* regular and alternate animation */
 
 	R_InitSkyBox(mod);
@@ -932,6 +932,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			break;
 	}
 
+	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
 	mod->extradatasize = Hunk_End();
 
 	ri.FS_FreeFile(buf);
