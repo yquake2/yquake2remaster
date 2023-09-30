@@ -1806,25 +1806,47 @@ CMod_LoadEntityString(lump_t *l, char *name)
 {
 	if (sv_entfile->value)
 	{
-		char s[MAX_QPATH];
-		char *buffer = NULL;
-		int nameLen, bufLen;
+		char *buffer = NULL, entname[256];
+		int nameLen, bufLen = -1;
 
 		nameLen = strlen(name);
-		strcpy(s, name);
-		s[nameLen-3] = 'e';	s[nameLen-2] = 'n';	s[nameLen-1] = 't';
-		bufLen = FS_LoadFile(s, (void **)&buffer);
+		if (strcmp(name + nameLen - 4, ".bsp") || nameLen > (MAX_QPATH - 1))
+		{
+			Com_Printf("%s: unsupported map format '%s'\n", __func__, name);
+		}
+		else
+		{
+			char namewe[MAX_QPATH];
+
+			int crc = 0;
+
+			if (l->filelen > 0) {
+				crc = CRC_Block(cmod_base + l->fileofs, l->filelen - 1);
+			}
+
+			memset(namewe, 0, sizeof(namewe));
+			memcpy(namewe, name, nameLen - 4);
+
+			snprintf(entname, sizeof(entname) -1, "%s@%04x.ent", namewe, crc);
+
+			bufLen = FS_LoadFile(entname, (void **)&buffer);
+			if (buffer == NULL)
+			{
+				Com_Printf("%s: No fixes found for '%s'\n", __func__, entname);
+			}
+		}
 
 		if (buffer != NULL && bufLen > 1)
 		{
 			if (bufLen + 1 > sizeof(map_entitystring))
 			{
-				Com_Printf("CMod_LoadEntityString: .ent file %s too large: %i > %lu.\n", s, bufLen, (unsigned long)sizeof(map_entitystring));
+				Com_Printf("%s: .ent file %s too large: %i > %lu.\n",
+					__func__, entname, bufLen, (unsigned long)sizeof(map_entitystring));
 				FS_FreeFile(buffer);
 			}
 			else
 			{
-				Com_Printf ("CMod_LoadEntityString: .ent file %s loaded.\n", s);
+				Com_Printf ("%s: .ent file %s loaded.\n", __func__, entname);
 				numentitychars = bufLen;
 				memcpy(map_entitystring, buffer, bufLen);
 				map_entitystring[bufLen] = 0; /* jit entity bug - null terminate the entity string! */
@@ -1835,7 +1857,7 @@ CMod_LoadEntityString(lump_t *l, char *name)
 		else if (bufLen != -1)
 		{
 			/* If the .ent file is too small, don't load. */
-			Com_Printf("CMod_LoadEntityString: .ent file %s too small.\n", s);
+			Com_Printf("%s: .ent file %s too small.\n", __func__, entname);
 			FS_FreeFile(buffer);
 		}
 	}
