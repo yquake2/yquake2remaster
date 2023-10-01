@@ -235,5 +235,6 @@ extern qboolean R_AreaVisible(const byte *areabits, mleaf_t *pleaf);
 extern qboolean R_CullBox(vec3_t mins, vec3_t maxs, cplane_t *frustum);
 extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 	float fov_x, float fov_y, cplane_t *frustum);
+extern void R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

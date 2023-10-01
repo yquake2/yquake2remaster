@@ -184,3 +184,30 @@ R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 		frustum[i].signbits = R_SignbitsForPlane(&frustum[i]);
 	}
 }
+
+void
+R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs)
+{
+	int i, j;
+	float *v;
+
+	mins[0] = mins[1] = mins[2] = 9999;
+	maxs[0] = maxs[1] = maxs[2] = -9999;
+	v = verts;
+
+	for (i = 0; i < numverts; i++)
+	{
+		for (j = 0; j < 3; j++, v++)
+		{
+			if (*v < mins[j])
+			{
+				mins[j] = *v;
+			}
+
+			if (*v > maxs[j])
+			{
+				maxs[j] = *v;
+			}
+		}
+	}
+}

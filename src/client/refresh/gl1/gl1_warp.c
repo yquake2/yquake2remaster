@@ -35,7 +35,6 @@ static float skyrotate;
 static int skyautorotate;
 static vec3_t skyaxis;
 image_t *sky_images[6];
-msurface_t *warpface;
 int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 
 GLfloat vtx_sky[12];
@@ -86,34 +85,7 @@ float skymins[2][6], skymaxs[2][6];
 float sky_min, sky_max;
 
 void
-R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs)
-{
-	int i, j;
-	float *v;
-
-	mins[0] = mins[1] = mins[2] = 9999;
-	maxs[0] = maxs[1] = maxs[2] = -9999;
-	v = verts;
-
-	for (i = 0; i < numverts; i++)
-	{
-		for (j = 0; j < 3; j++, v++)
-		{
-			if (*v < mins[j])
-			{
-				mins[j] = *v;
-			}
-
-			if (*v > maxs[j])
-			{
-				maxs[j] = *v;
-			}
-		}
-	}
-}
-
-void
-R_SubdividePolygon(int numverts, float *verts)
+R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 {
 	int i, j, k;
 	vec3_t mins, maxs;
@@ -200,8 +172,8 @@ R_SubdividePolygon(int numverts, float *verts)
 			}
 		}
 
-		R_SubdividePolygon(f, front[0]);
-		R_SubdividePolygon(b, back[0]);
+		R_SubdividePolygon(f, front[0], warpface);
+		R_SubdividePolygon(b, back[0], warpface);
 		return;
 	}
 
@@ -250,8 +222,6 @@ R_SubdivideSurface(model_t *loadmodel, msurface_t *fa)
 	int lindex;
 	float *vec;
 
-	warpface = fa;
-
 	/* convert edges back to a normal polygon */
 	numverts = 0;
 
@@ -272,7 +242,7 @@ R_SubdivideSurface(model_t *loadmodel, msurface_t *fa)
 		numverts++;
 	}
 
-	R_SubdividePolygon(numverts, verts[0]);
+	R_SubdividePolygon(numverts, verts[0], fa);
 }
 
 /*

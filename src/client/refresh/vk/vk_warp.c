@@ -26,29 +26,10 @@ static int	skyautorotate;
 static vec3_t	skyaxis;
 static image_t	*sky_images[6];
 
-static msurface_t	*warpface;
-
 #define	SUBDIVIDE_SIZE	64
 
-static void BoundPoly (int numverts, float *verts, vec3_t mins, vec3_t maxs)
-{
-	int		i, j;
-	float	*v;
-
-	mins[0] = mins[1] = mins[2] = 9999;
-	maxs[0] = maxs[1] = maxs[2] = -9999;
-	v = verts;
-	for (i=0 ; i<numverts ; i++)
-		for (j=0 ; j<3 ; j++, v++)
-		{
-			if (*v < mins[j])
-				mins[j] = *v;
-			if (*v > maxs[j])
-				maxs[j] = *v;
-		}
-}
-
-static void SubdividePolygon (int numverts, float *verts)
+static void
+R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 {
 	int		i, j, k;
 	vec3_t	mins, maxs;
@@ -64,7 +45,7 @@ static void SubdividePolygon (int numverts, float *verts)
 	if (numverts > 60)
 		ri.Sys_Error (ERR_DROP, "%s: numverts = %i", __func__, numverts);
 
-	BoundPoly (numverts, verts, mins, maxs);
+	R_BoundPoly(numverts, verts, mins, maxs);
 
 	for (i=0 ; i<3 ; i++)
 	{
@@ -114,8 +95,8 @@ static void SubdividePolygon (int numverts, float *verts)
 			}
 		}
 
-		SubdividePolygon (f, front[0]);
-		SubdividePolygon (b, back[0]);
+		R_SubdividePolygon(f, front[0], warpface);
+		R_SubdividePolygon(b, back[0], warpface);
 		return;
 	}
 
@@ -167,8 +148,6 @@ void Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel)
 	int			i;
 	float		*vec;
 
-	warpface = fa;
-
 	//
 	// convert edges back to a normal polygon
 	//
@@ -187,7 +166,7 @@ void Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel)
 		numverts++;
 	}
 
-	SubdividePolygon (numverts, verts[0]);
+	R_SubdividePolygon(numverts, verts[0], fa);
 }
 
 //=========================================================
