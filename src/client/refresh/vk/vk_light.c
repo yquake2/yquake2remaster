@@ -23,6 +23,7 @@
  * Lightmaps and dynamic lighting
  *
  * =======================================================================
+ *
  */
 
 #include "header/local.h"
