@@ -33,8 +33,8 @@ typedef struct
 	float map[MAX_QPATH];
 } clightstyle_t;
 
-clightstyle_t cl_lightstyle[MAX_LIGHTSTYLES];
-int lastofs;
+static clightstyle_t cl_lightstyle[MAX_LIGHTSTYLES];
+static int lastofs;
 
 void
 CL_ClearLightStyles(void)
@@ -108,7 +108,7 @@ CL_AddLightStyles(void)
 	}
 }
 
-cdlight_t cl_dlights[MAX_DLIGHTS];
+static cdlight_t cl_dlights[MAX_DLIGHTS];
 
 void
 CL_ClearDlights(void)
@@ -151,19 +151,6 @@ CL_AllocDlight(int key)
 	dl = &cl_dlights[0];
 	dl->key = key;
 	return dl;
-}
-
-void
-CL_NewDlight(int key, float x, float y, float z, float radius, float time)
-{
-	cdlight_t *dl;
-
-	dl = CL_AllocDlight(key);
-	dl->origin[0] = x;
-	dl->origin[1] = y;
-	dl->origin[2] = z;
-	dl->radius = radius;
-	dl->die = cl.time + time;
 }
 
 void

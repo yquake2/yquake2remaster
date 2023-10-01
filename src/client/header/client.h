@@ -329,7 +329,6 @@ typedef struct
 } cdlight_t;
 
 extern	centity_t	cl_entities[MAX_EDICTS];
-extern	cdlight_t	cl_dlights[MAX_DLIGHTS];
 
 extern	entity_state_t	cl_parse_entities[MAX_PARSE_ENTITIES];
 
