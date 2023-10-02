@@ -373,6 +373,7 @@ Mod_LoadFaces(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
 		}
 
 		out->texinfo = loadmodel->texinfo + ti;
+		out->lmshift = DEFAULT_LMSHIFT;
 
 		Mod_CalcSurfaceExtents(loadmodel, out);
 
