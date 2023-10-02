@@ -91,7 +91,9 @@ replacement_t replacements[] = {
 	{"gl_lightmap", "r_lightmap"},
 	{"gl1_polyblend", "gl_polyblend"},
 	{"gl_cull", "r_cull"},
-	{"intensity", "gl1_intensity"}
+	{"intensity", "gl1_intensity"},
+	{"gl_showtris", "r_showtris"},
+	{"vk_showtris", "r_showtris"}
 };
 
 

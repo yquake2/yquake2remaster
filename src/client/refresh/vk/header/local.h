@@ -142,7 +142,7 @@ extern	cvar_t	*vk_finish;
 extern	cvar_t	*vk_shadows;
 extern	cvar_t	*vk_dynamic;
 extern	cvar_t	*vk_msaa;
-extern	cvar_t	*vk_showtris;
+extern	cvar_t	*r_showtris;
 extern	cvar_t	*r_lightmap;
 extern	cvar_t	*vk_texturemode;
 extern	cvar_t	*vk_lmaptexturemode;

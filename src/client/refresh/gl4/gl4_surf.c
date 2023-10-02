@@ -205,12 +205,12 @@ GL4_DrawGLFlowingPoly(msurface_t *fa)
 static void
 DrawTriangleOutlines(void)
 {
-	STUB_ONCE("TODO: Implement for gl_showtris support!");
+	STUB_ONCE("TODO: Implement for r_showtris support!");
 #if 0
 	int i, j;
 	glpoly_t *p;
 
-	if (!gl_showtris->value)
+	if (!r_showtris->value)
 	{
 		return;
 	}

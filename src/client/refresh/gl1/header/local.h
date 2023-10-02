@@ -209,7 +209,7 @@ extern cvar_t *gl1_dynamic;
 extern cvar_t *gl_nobind;
 extern cvar_t *gl1_round_down;
 extern cvar_t *gl1_picmip;
-extern cvar_t *gl_showtris;
+extern cvar_t *r_showtris;
 extern cvar_t *gl_showbbox;
 extern cvar_t *gl_finish;
 extern cvar_t *gl1_ztrick;

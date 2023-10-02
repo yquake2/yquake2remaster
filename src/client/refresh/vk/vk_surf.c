@@ -187,7 +187,7 @@ static void R_DrawTriangleOutlines (void)
 	int			i, j, k;
 	vkpoly_t	*p;
 
-	if (!vk_showtris->value)
+	if (!r_showtris->value)
 		return;
 
 	VkBuffer vbo;
@@ -702,7 +702,7 @@ static void R_DrawInlineBModel (entity_t *currententity, model_t *currentmodel, 
 				psurf->texturechain = r_alpha_surfaces;
 				r_alpha_surfaces = psurf;
 			}
-			else if (!(psurf->flags & SURF_DRAWTURB) && !vk_showtris->value)
+			else if (!(psurf->flags & SURF_DRAWTURB) && !r_showtris->value)
 			{
 				Vk_RenderLightmappedPoly(psurf, modelMatrix, alpha, currententity);
 			}
@@ -888,7 +888,7 @@ static void R_RecursiveWorldNode (mnode_t *node, entity_t *currententity)
 		}
 		else
 		{
-			if (!(surf->flags & SURF_DRAWTURB) && !vk_showtris->value)
+			if (!(surf->flags & SURF_DRAWTURB) && !r_showtris->value)
 			{
 				Vk_RenderLightmappedPoly(surf, NULL, 1.f, currententity);
 			}

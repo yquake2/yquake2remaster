@@ -108,7 +108,7 @@ R_DrawTriangleOutlines(void)
 	int i, j;
 	glpoly_t *p;
 
-	if (!gl_showtris->value)
+	if (!r_showtris->value)
 	{
 		return;
 	}

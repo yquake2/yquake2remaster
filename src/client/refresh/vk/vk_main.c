@@ -118,7 +118,7 @@ static cvar_t	*vk_custom_particles;
 cvar_t	*vk_postprocess;
 cvar_t	*vk_dynamic;
 cvar_t	*vk_msaa;
-cvar_t	*vk_showtris;
+cvar_t	*r_showtris;
 cvar_t	*r_lightmap;
 cvar_t	*vk_texturemode;
 cvar_t	*vk_lmaptexturemode;
@@ -1157,7 +1157,7 @@ R_Register( void )
 	vk_postprocess = ri.Cvar_Get("vk_postprocess", "1", CVAR_ARCHIVE);
 	vk_dynamic = ri.Cvar_Get("vk_dynamic", "1", 0);
 	vk_msaa = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE);
-	vk_showtris = ri.Cvar_Get("vk_showtris", "0", 0);
+	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	vk_texturemode = ri.Cvar_Get("vk_texturemode", "VK_MIPMAP_LINEAR", CVAR_ARCHIVE);
 	vk_lmaptexturemode = ri.Cvar_Get("vk_lmaptexturemode", "VK_MIPMAP_LINEAR", CVAR_ARCHIVE);

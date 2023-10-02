@@ -114,7 +114,7 @@ cvar_t *r_modulate;
 cvar_t *gl_nobind;
 cvar_t *gl1_round_down;
 cvar_t *gl1_picmip;
-cvar_t *gl_showtris;
+cvar_t *r_showtris;
 cvar_t *gl_showbbox;
 cvar_t *gl1_ztrick;
 cvar_t *gl_zfix;
@@ -1192,7 +1192,7 @@ R_Register(void)
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl1_round_down = ri.Cvar_Get("gl1_round_down", "1", 0);
 	gl1_picmip = ri.Cvar_Get("gl1_picmip", "0", 0);
-	gl_showtris = ri.Cvar_Get("gl_showtris", "0", 0);
+	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	gl_showbbox = ri.Cvar_Get("gl_showbbox", "0", 0);
 	gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0);
 	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
