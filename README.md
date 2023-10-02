@@ -33,7 +33,7 @@ State:
 Goals (none of it finished):
   * Single player support,
   * BSPX DECOUPLEDLM light map support (base1),
-  * IBSQ map format support (mguhub),
+  * QBSP map format support (mguhub),
   * MD5 model support,
   * modified ReRelease game code support with removed KEX only related code,
   * RoQ and Theora cinematic videos support.

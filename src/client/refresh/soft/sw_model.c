@@ -681,7 +681,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	i = LittleLong(header->ident);
 
-	if (i != IDBSPHEADER && i != QDBSPHEADER)
+	if (i != IDBSPHEADER && i != QBSPHEADER)
 	{
 		ri.Sys_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
 				__func__, mod->name, i, IDBSPHEADER);
@@ -921,7 +921,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 
 		case IDBSPHEADER:
 			/* fall through */
-		case QDBSPHEADER:
+		case QBSPHEADER:
 			Mod_LoadBrushModel(mod, buf, modfilelen);
 			break;
 

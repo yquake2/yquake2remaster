@@ -1937,7 +1937,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		((int *)&header)[i] = LittleLong(((int *)&header)[i]);
 	}
 
-	if (header.ident != IDBSPHEADER && header.ident != QDBSPHEADER)
+	if (header.ident != IDBSPHEADER && header.ident != QBSPHEADER)
 	{
 		Com_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
 				__func__, name, header.ident, IDBSPHEADER);
