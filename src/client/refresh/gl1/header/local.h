@@ -273,7 +273,7 @@ void R_RotateForEntity(entity_t *e);
 void R_MarkLeaves(void);
 
 extern int r_dlightframecount;
-glpoly_t *WaterWarpPolyVerts(glpoly_t *p);
+mpoly_t *WaterWarpPolyVerts(mpoly_t *p);
 void R_EmitWaterPolys(msurface_t *fa);
 void R_AddSkySurface(msurface_t *fa);
 void R_ClearSkyBox(void);

@@ -44,7 +44,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	int		f, b;
 	float	dist[64];
 	float	frac;
-	vkpoly_t	*poly;
+	mpoly_t	*poly;
 	vec3_t	total;
 	float	total_s, total_t;
 
@@ -107,7 +107,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	// add a point in the center to help keep warp valid
-	poly = Hunk_Alloc (sizeof(vkpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
+	poly = Hunk_Alloc (sizeof(mpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts+2;
@@ -181,14 +181,14 @@ void Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel)
 =============
 EmitWaterPolys
 
-Does a water warp on the pre-fragmented vkpoly_t chain
+Does a water warp on the pre-fragmented mpoly_t chain
 =============
 */
 void
 EmitWaterPolys (msurface_t *fa, image_t *texture, float *modelMatrix,
 			  const float *color, qboolean solid_surface)
 {
-	vkpoly_t	*p, *bp;
+	mpoly_t	*p, *bp;
 	float		*v;
 	int			i;
 
@@ -511,7 +511,7 @@ void R_AddSkySurface (msurface_t *fa)
 {
 	int			i;
 	vec3_t		verts[MAX_CLIP_VERTS];
-	vkpoly_t	*p;
+	mpoly_t	*p;
 
 	// calculate vertex values for sky box
 	for (p=fa->polys ; p ; p=p->next)

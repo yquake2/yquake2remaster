@@ -220,8 +220,9 @@ GL3_LM_CreateSurfaceLightmap(msurface_t *surf)
 
 		if (!GL3_LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
-			ri.Sys_Error(ERR_FATAL, "Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
-					smax, tmax);
+			ri.Sys_Error(ERR_FATAL,
+				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
+					__func__, smax, tmax);
 		}
 	}
 

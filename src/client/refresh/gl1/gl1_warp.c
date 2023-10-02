@@ -95,7 +95,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	int f, b;
 	float dist[64];
 	float frac;
-	glpoly_t *poly;
+	mpoly_t *poly;
 	float s, t;
 	vec3_t total;
 	float total_s, total_t;
@@ -178,7 +178,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	/* add a point in the center to help keep warp valid */
-	poly = Hunk_Alloc(sizeof(glpoly_t) + ((numverts - 4) + 2) * VERTEXSIZE * sizeof(float));
+	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * VERTEXSIZE * sizeof(float));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts + 2;
@@ -246,12 +246,12 @@ R_SubdivideSurface(model_t *loadmodel, msurface_t *fa)
 }
 
 /*
- * Does a water warp on the pre-fragmented glpoly_t chain
+ * Does a water warp on the pre-fragmented mpoly_t chain
  */
 void
 R_EmitWaterPolys(msurface_t *fa)
 {
-	glpoly_t *p, *bp;
+	mpoly_t *p, *bp;
 	float *v;
 	int i;
 	float s, t, os, ot;
@@ -270,7 +270,7 @@ R_EmitWaterPolys(msurface_t *fa)
 	// workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 #ifdef _MSC_VER
 	int maxNumVerts = 0;
-	for ( glpoly_t* tmp = fa->polys; tmp; tmp = tmp->next )
+	for ( mpoly_t* tmp = fa->polys; tmp; tmp = tmp->next )
 	{
 		if (tmp->numverts > maxNumVerts)
 			maxNumVerts = tmp->numverts;
@@ -549,7 +549,7 @@ R_AddSkySurface(msurface_t *fa)
 {
 	int i;
 	vec3_t verts[MAX_CLIP_VERTS];
-	glpoly_t *p;
+	mpoly_t *p;
 
 	/* calculate vertex values for sky box */
 	for (p = fa->polys; p; p = p->next)

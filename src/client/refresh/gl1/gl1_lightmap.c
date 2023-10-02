@@ -143,7 +143,7 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 	medge_t *pedges, *r_pedge;
 	float *vec;
 	float s, t;
-	glpoly_t *poly;
+	mpoly_t *poly;
 	vec3_t total;
 
 	/* reconstruct the polygon */
@@ -153,7 +153,7 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 	VectorClear(total);
 
 	/* draw texture */
-	poly = Hunk_Alloc(sizeof(glpoly_t) +
+	poly = Hunk_Alloc(sizeof(mpoly_t) +
 		   (lnumverts - 4) * VERTEXSIZE * sizeof(float));
 	poly->next = fa->polys;
 	poly->flags = fa->flags;
@@ -225,8 +225,9 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 
 		if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
-			ri.Sys_Error(ERR_FATAL, "Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
-					smax, tmax);
+			ri.Sys_Error(ERR_FATAL,
+				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
+					__func__, smax, tmax);
 		}
 	}
 

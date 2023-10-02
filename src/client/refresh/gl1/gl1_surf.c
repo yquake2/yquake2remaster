@@ -43,7 +43,7 @@ void R_SetCacheState(msurface_t *surf);
 void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
 
 static void
-R_DrawGLPoly(glpoly_t *p)
+R_DrawGLPoly(mpoly_t *p)
 {
 	float *v;
 
@@ -65,7 +65,7 @@ R_DrawGLFlowingPoly(msurface_t *fa)
 {
 	int i;
 	float *v;
-	glpoly_t *p;
+	mpoly_t *p;
 	float scroll;
 
 	p = fa->polys;
@@ -106,7 +106,7 @@ static void
 R_DrawTriangleOutlines(void)
 {
 	int i, j;
-	glpoly_t *p;
+	mpoly_t *p;
 
 	if (!r_showtris->value)
 	{
@@ -158,7 +158,7 @@ R_DrawTriangleOutlines(void)
 }
 
 static void
-R_DrawGLPolyChain(glpoly_t *p, float soffset, float toffset)
+R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
 {
 	if ((soffset == 0) && (toffset == 0))
 	{
@@ -184,7 +184,7 @@ R_DrawGLPolyChain(glpoly_t *p, float soffset, float toffset)
 		// workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 #ifdef _MSC_VER
 		int maxNumVerts = 0;
-		for (glpoly_t* tmp = p; tmp; tmp = tmp->chain)
+		for (mpoly_t* tmp = p; tmp; tmp = tmp->chain)
 		{
 			if ( tmp->numverts > maxNumVerts )
 				maxNumVerts = tmp->numverts;
@@ -372,8 +372,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				if (!LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
 				{
 					ri.Sys_Error(ERR_FATAL,
-							"Consecutive calls to LM_AllocBlock(%d,%d) failed (dynamic)\n",
-							smax, tmax);
+							"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
+								__func__, smax, tmax);
 				}
 
 				base = gl_lms.lightmap_buffer;

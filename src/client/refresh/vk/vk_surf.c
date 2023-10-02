@@ -74,7 +74,7 @@ static qboolean	LM_AllocBlock (int w, int h, int *x, int *y);
 DrawVkPoly
 ================
 */
-static void DrawVkPoly (vkpoly_t *p, image_t *texture, float *color)
+static void DrawVkPoly (mpoly_t *p, image_t *texture, float *color)
 {
 	int		i;
 	float	*v;
@@ -129,7 +129,7 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 {
 	int		i;
 	float	*v;
-	vkpoly_t *p;
+	mpoly_t *p;
 	float	scroll;
 
 	p = fa->polys;
@@ -185,7 +185,7 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 static void R_DrawTriangleOutlines (void)
 {
 	int			i, j, k;
-	vkpoly_t	*p;
+	mpoly_t	*p;
 
 	if (!r_showtris->value)
 		return;
@@ -429,7 +429,7 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 	image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 	qboolean is_dynamic = false;
 	unsigned lmtex = surf->lightmaptexturenum;
-	vkpoly_t *p;
+	mpoly_t *p;
 
 	struct {
 		float model[16];
@@ -1111,7 +1111,9 @@ static qboolean LM_AllocBlock (int w, int h, int *x, int *y)
 	}
 
 	if (best + h > BLOCK_HEIGHT)
+	{
 		return false;
+	}
 
 	for (i=0 ; i<w ; i++)
 		vk_lms.allocated[*x + i] = best + h;
@@ -1129,7 +1131,7 @@ void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel)
 	int			i, lnumverts;
 	medge_t		*pedges, *r_pedge;
 	float		*vec;
-	vkpoly_t	*poly;
+	mpoly_t	*poly;
 	vec3_t		total;
 
 	// reconstruct the polygon
@@ -1141,9 +1143,8 @@ void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel)
 	//
 	// draw texture
 	//
-	poly = Hunk_Alloc (sizeof(vkpoly_t) + (lnumverts-4) * VERTEXSIZE * sizeof(float));
+	poly = Hunk_Alloc (sizeof(mpoly_t) + (lnumverts-4) * VERTEXSIZE * sizeof(float));
 	poly->next = fa->polys;
-	poly->flags = fa->flags;
 	fa->polys = poly;
 	poly->numverts = lnumverts;
 
@@ -1221,7 +1222,9 @@ void Vk_CreateSurfaceLightmap (msurface_t *surf)
 		LM_InitBlock();
 		if ( !LM_AllocBlock( smax, tmax, &surf->light_s, &surf->light_t ) )
 		{
-			ri.Sys_Error( ERR_FATAL, "%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n", __func__, smax, tmax );
+			ri.Sys_Error(ERR_FATAL,
+				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
+					__func__, smax, tmax);
 		}
 	}
 

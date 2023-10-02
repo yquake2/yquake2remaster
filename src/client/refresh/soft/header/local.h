@@ -250,7 +250,6 @@ typedef struct clipplane_s
 	struct clipplane_s *next;
 	byte	leftedge;
 	byte	rightedge;
-	byte	reserved[2];
 } clipplane_t;
 
 typedef struct surfcache_s
@@ -264,7 +263,7 @@ typedef struct surfcache_s
 	unsigned		height; // DEBUG only needed for debug
 	float			mipscale;
 	image_t			*image;
-	byte			data[4]; // width*height elements
+	byte			data[4]; // width * height elements
 } surfcache_t;
 
 typedef struct espan_s
