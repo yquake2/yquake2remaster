@@ -31,7 +31,6 @@ extern gl4lightmapstate_t gl4_lms;
 
 int r_dlightframecount;
 static vec3_t pointcolor;
-static cplane_t *lightplane; /* used as shadow plane */
 vec3_t lightspot;
 
 void
@@ -108,19 +107,21 @@ GL4_PushDlights(void)
 }
 
 static int
-RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
+R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
+	const lightstyle_t *lightstyles, const vec3_t start, const vec3_t end,
+	vec3_t pointcolor, vec3_t lightspot)
 {
-	float front, back, frac;
-	int side;
-	cplane_t *plane;
-	vec3_t mid;
-	msurface_t *surf;
-	int s, t, ds, dt;
-	int i;
-	mtexinfo_t *tex;
-	byte *lightmap;
-	int maps;
-	int r;
+	float		front, back, frac;
+	int			side;
+	cplane_t	*plane;
+	vec3_t		mid;
+	const msurface_t	*surf;
+	int			s, t, ds, dt;
+	int			i;
+	mtexinfo_t	*tex;
+	byte		*lightmap;
+	int			maps;
+	int			r;
 
 	if (node->contents != CONTENTS_NODE)
 	{
@@ -135,7 +136,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 
 	if ((back < 0) == side)
 	{
-		return RecursiveLightPoint(node->children[side], start, end);
+		return R_RecursiveLightPoint(surfaces, node->children[side],
+			lightstyles, start, end, pointcolor, lightspot);
 	}
 
 	frac = front / (front - back);
@@ -144,8 +146,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 	mid[2] = start[2] + (end[2] - start[2]) * frac;
 
 	/* go down front side */
-	r = RecursiveLightPoint(node->children[side], start, mid);
-
+	r = R_RecursiveLightPoint(surfaces, node->children[side],
+		lightstyles, start, mid, pointcolor, lightspot);
 	if (r >= 0)
 	{
 		return r;     /* hit something */
@@ -158,10 +160,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 
 	/* check for impact on this node */
 	VectorCopy(mid, lightspot);
-	lightplane = plane;
 
-	surf = gl4_worldmodel->surfaces + node->firstsurface;
-
+	surf = surfaces + node->firstsurface;
 	for (i = 0; i < node->numsurfaces; i++, surf++)
 	{
 		if (surf->flags & (SURF_DRAWTURB | SURF_DRAWSKY))
@@ -201,13 +201,12 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 
 		lightmap += 3 * (dt * ((surf->extents[0] >> surf->lmshift) + 1) + ds);
 
-		for (maps = 0; maps < MAX_LIGHTMAPS_PER_SURFACE && surf->styles[maps] != 255;
-			 maps++)
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
 		{
 			const float *rgb;
 			int j;
 
-			rgb = gl4_newrefdef.lightstyles[surf->styles[maps]].rgb;
+			rgb = lightstyles[surf->styles[maps]].rgb;
 
 			/* Apply light level to models */
 			for (j = 0; j < 3; j++)
@@ -226,7 +225,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 	}
 
 	/* go down back side */
-	return RecursiveLightPoint(node->children[!side], mid, end);
+	return R_RecursiveLightPoint(surfaces, node->children[!side],
+		lightstyles, mid, end, pointcolor, lightspot);
 }
 
 void
@@ -251,8 +251,8 @@ GL4_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 
 	// TODO: don't just aggregate the color, but also save position of brightest+nearest light
 	//       for shadow position and maybe lighting on model?
-
-	r = RecursiveLightPoint(gl4_worldmodel->nodes, p, end);
+	r = R_RecursiveLightPoint(gl4_worldmodel->surfaces, gl4_worldmodel->nodes,
+		gl4_newrefdef.lightstyles, p, end, pointcolor, lightspot);
 
 	if (r == -1)
 	{

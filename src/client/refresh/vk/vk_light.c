@@ -174,13 +174,15 @@ LIGHT SAMPLING
 vec3_t	lightspot;
 
 static int
-RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
+R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
+	const lightstyle_t *lightstyles, const vec3_t start, const vec3_t end,
+	vec3_t pointcolor, vec3_t lightspot)
 {
 	float		front, back, frac;
 	int			side;
 	cplane_t	*plane;
 	vec3_t		mid;
-	msurface_t	*surf;
+	const msurface_t	*surf;
 	int			s, t, ds, dt;
 	int			i;
 	mtexinfo_t	*tex;
@@ -201,7 +203,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 
 	if ((back < 0) == side)
 	{
-		return RecursiveLightPoint(node->children[side], start, end, pointcolor);
+		return R_RecursiveLightPoint(surfaces, node->children[side],
+			lightstyles, start, end, pointcolor, lightspot);
 	}
 
 	frac = front / (front - back);
@@ -210,7 +213,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 	mid[2] = start[2] + (end[2] - start[2]) * frac;
 
 	/* go down front side */
-	r = RecursiveLightPoint(node->children[side], start, mid, pointcolor);
+	r = R_RecursiveLightPoint(surfaces, node->children[side],
+		lightstyles, start, mid, pointcolor, lightspot);
 	if (r >= 0)
 	{
 		return r;     /* hit something */
@@ -224,7 +228,7 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 	/* check for impact on this node */
 	VectorCopy(mid, lightspot);
 
-	surf = r_worldmodel->surfaces + node->firstsurface;
+	surf = surfaces + node->firstsurface;
 	for (i = 0; i < node->numsurfaces; i++, surf++)
 	{
 		if (surf->flags & (SURF_DRAWTURB | SURF_DRAWSKY))
@@ -269,7 +273,7 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 			const float *rgb;
 			int j;
 
-			rgb = r_newrefdef.lightstyles[surf->styles[maps]].rgb;
+			rgb = lightstyles[surf->styles[maps]].rgb;
 
 			/* Apply light level to models */
 			for (j = 0; j < 3; j++)
@@ -288,7 +292,8 @@ RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end, vec3_t pointcolor)
 	}
 
 	/* go down back side */
-	return RecursiveLightPoint(node->children[!side], mid, end, pointcolor);
+	return R_RecursiveLightPoint(surfaces, node->children[!side],
+		lightstyles, mid, end, pointcolor, lightspot);
 }
 
 void
@@ -309,7 +314,8 @@ R_LightPoint(vec3_t p, vec3_t color, entity_t *currententity)
 	end[1] = p[1];
 	end[2] = p[2] - 2048;
 
-	r = RecursiveLightPoint(r_worldmodel->nodes, p, end, pointcolor);
+	r = R_RecursiveLightPoint(r_worldmodel->surfaces, r_worldmodel->nodes,
+		r_newrefdef.lightstyles, p, end, pointcolor, lightspot);
 
 	if (r == -1)
 	{
