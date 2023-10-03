@@ -295,7 +295,7 @@ typedef struct
 	uint32_t    triangle_index_count;
 } vkconfig_t;
 
-#define MAX_LIGHTMAPS 128
+#define MAX_LIGHTMAPS 256
 #define DYNLIGHTMAP_OFFSET MAX_LIGHTMAPS
 
 typedef struct

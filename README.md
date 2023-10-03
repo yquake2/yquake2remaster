@@ -119,7 +119,7 @@ Map state:
  | maps/mgu1trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu2m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu2m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu2m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
+ | maps/mgu2m3.bsp                     | B      | N/A       | N/A   | ML     | N/A         |
  | maps/mgu3m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu3m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu3m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
@@ -127,10 +127,10 @@ Map state:
  | maps/mgu3secret.bsp                 | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu4m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu4m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu4m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
+ | maps/mgu4m3.bsp                     | B      | N/A       | N/A   | B      | N/A         |
  | maps/mgu4trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu5m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu5m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
+ | maps/mgu5m2.bsp                     | B      | N/A       | N/A   | B      | N/A         |
  | maps/mgu5m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu5trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu6m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
@@ -138,7 +138,7 @@ Map state:
  | maps/mgu6m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mgu6trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mguboss.bsp                    | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mguhub.bsp                     | G      | G         | B     | G      | G           |
+ | maps/mguhub.bsp                     | ML     | G         | B     | ML     | ML          |
  | maps/mine1.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mine2.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mine3.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |

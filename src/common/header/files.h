@@ -355,13 +355,13 @@ typedef struct {
 #define BSPVERSION 38
 #define BSPDKMVERSION 41
 
-/* upper design bounds: leaffaces, leafbrushes, planes, and 
+/* upper design bounds: leaffaces, leafbrushes, planes, and
  * verts are still bounded by 16 bit short limits */
 #define MAX_MAP_MODELS 1024
 #define MAX_MAP_BRUSHES 16384
 #define MAX_MAP_ENTITIES 2048
 #define MAX_MAP_ENTSTRING 0x40000
-#define MAX_MAP_TEXINFO 32768
+#define MAX_MAP_TEXINFO 65536
 
 #define MAX_MAP_AREAS 256
 #define MAX_MAP_AREAPORTALS 1024
@@ -372,12 +372,12 @@ typedef struct {
 #define MAX_MAP_VERTS 65536
 #define MAX_MAP_FACES 65536
 #define MAX_MAP_LEAFFACES 65536
-#define MAX_MAP_LEAFBRUSHES 65536
+#define MAX_MAP_LEAFBRUSHES 131072
 #define MAX_MAP_PORTALS 65536
 #define MAX_MAP_EDGES 128000
 #define MAX_MAP_SURFEDGES 256000
 #define MAX_MAP_LIGHTING 0x200000
-#define MAX_MAP_VISIBILITY 0x200000
+#define MAX_MAP_VISIBILITY 0x400000
 
 /* key / value pair sizes */
 
@@ -534,12 +534,12 @@ typedef struct texinfo_s
 {
 	float vecs[2][4]; /* [s/t][xyz offset] */
 	int flags;        /* miptex flags + overrides light emission, etc */
-	int value;           
+	int value;
 	char texture[32]; /* texture name (textures*.wal) */
 	int nexttexinfo;  /* for animations, -1 = end of chain */
 } texinfo_t;
 
-/* note that edge 0 is never used, because negative edge 
+/* note that edge 0 is never used, because negative edge
    nums are used for counterclockwise use of the edge in
    a face */
 typedef struct
@@ -644,8 +644,8 @@ typedef struct
 #define ANGLE_UP -1
 #define ANGLE_DOWN -2
 
-/* the visibility lump consists of a header with a count, then 
- * byte offsets for the PVS and PHS of each cluster, then the raw 
+/* the visibility lump consists of a header with a count, then
+ * byte offsets for the PVS and PHS of each cluster, then the raw
  * compressed bit vectors */
 #define DVIS_PVS 0
 #define DVIS_PHS 1

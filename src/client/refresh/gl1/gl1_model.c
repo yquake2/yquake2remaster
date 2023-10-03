@@ -791,8 +791,8 @@ Mod_LoadQLeafs(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 		out->area = LittleLong(in->area);
 
 		// make unsigned long from signed short
-		firstleafface = LittleLong(in->firstleafface) & 0xFFFF;
-		out->nummarksurfaces = LittleLong(in->numleaffaces) & 0xFFFF;
+		firstleafface = LittleLong(in->firstleafface) & 0xFFFFFFFF;
+		out->nummarksurfaces = LittleLong(in->numleaffaces) & 0xFFFFFFFF;
 
 		out->firstmarksurface = loadmodel->marksurfaces + firstleafface;
 		if ((firstleafface + out->nummarksurfaces) > loadmodel->nummarksurfaces)

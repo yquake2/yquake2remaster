@@ -812,6 +812,11 @@ CM_TraceToLeaf(int leafnum)
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
+		if (leaf->firstleafbrush + k > MAX_MAP_LEAFBRUSHES)
+		{
+			Com_Error(ERR_FATAL, "%s: broken leaf!\n", __func__);
+		}
+
 		brushnum = map_leafbrushes[leaf->firstleafbrush + k];
 		b = &map_brushes[brushnum];
 
@@ -1484,8 +1489,8 @@ CMod_LoadQLeafs(lump_t *l)
 		out->contents = LittleLong(in->contents);
 		out->cluster = LittleLong(in->cluster);
 		out->area = LittleLong(in->area);
-		out->firstleafbrush = LittleFloat(in->firstleafbrush);
-		out->numleafbrushes = LittleFloat(in->numleafbrushes);
+		out->firstleafbrush = LittleLong(in->firstleafbrush);
+		out->numleafbrushes = LittleLong(in->numleafbrushes);
 
 		if (out->cluster >= numclusters)
 		{
