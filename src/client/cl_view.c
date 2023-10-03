@@ -267,12 +267,22 @@ V_Listlights_f(void)
 	Com_Printf("DLigths: %d\n", r_numdlights);
 }
 
+/* time relative to */
+static int sec_start = 0;
+
 static void
-CL_ClearLine(void)
+CL_PrintInSameLine(const char *message)
 {
 	char emptyline[80]; /* clear full 25x80 line*/
 	float scale;
-	int cols;
+	int cols, linesize;
+
+	if (developer->value)
+	{
+		Com_Printf("%s: %.2fs:%s\n",
+			__func__, (Sys_Milliseconds() - sec_start) / 1000.0, message);
+		return;
+	}
 
 	scale = SCR_GetConsoleScale();
 	if (scale < 1)
@@ -288,10 +298,10 @@ CL_ClearLine(void)
 	}
 
 	/* go to line start */
-	emptyline[0] = '\r';
+	linesize = snprintf(emptyline, cols - 2, "\r%s", message);
 	/* fill all with spaces */
-	memset(emptyline + 1, ' ', cols - 2);
-	/* go to start */
+	memset(emptyline + linesize, ' ', cols - linesize);
+	/* go to begin after print */
 	emptyline[cols - 1] = '\r';
 	emptyline[cols] = 0;
 
@@ -316,6 +326,7 @@ CL_PrepRefresh(void)
 		return;
 	}
 
+	sec_start = Sys_Milliseconds();
 	SCR_AddDirtyPoint(0, 0);
 	SCR_AddDirtyPoint(viddef.width - 1, viddef.height - 1);
 
@@ -324,22 +335,23 @@ CL_PrepRefresh(void)
 	mapname[strlen(mapname) - 4] = 0; /* cut off ".bsp" */
 
 	/* register models, pics, and skins */
-	Com_Printf("Map: %s\r", mapname);
+	Com_Printf("Map: %s\n", mapname);
 	SCR_UpdateScreen();
-	R_BeginRegistration (mapname);
-	CL_ClearLine();
+	CL_PrintInSameLine("Map is loading...");
+	R_BeginRegistration(mapname);
 
 	/* precache status bar pics */
-	Com_Printf("pics\r");
+	CL_PrintInSameLine("Pics");
 	SCR_UpdateScreen();
 	SCR_TouchPics();
-	CL_ClearLine();
+	CL_PrintInSameLine("Temporary models");
 
 	CL_RegisterTEntModels();
 
 	num_cl_weaponmodels = 1;
 	strcpy(cl_weaponmodels[0], "weapon.md2");
 
+	CL_PrintInSameLine("Models");
 	for (i = 1; i < MAX_MODELS && cl.configstrings[CS_MODELS + i][0]; i++)
 	{
 		strcpy(name, cl.configstrings[CS_MODELS + i]);
@@ -347,7 +359,7 @@ CL_PrepRefresh(void)
 
 		if (name[0] != '*')
 		{
-			Com_Printf("%s\r", name);
+			CL_PrintInSameLine(name);
 		}
 
 		SCR_UpdateScreen();
@@ -378,14 +390,9 @@ CL_PrepRefresh(void)
 				cl.model_clip[i] = NULL;
 			}
 		}
-
-		if (name[0] != '*')
-		{
-			CL_ClearLine();
-		}
 	}
 
-	Com_Printf("images\r");
+	CL_PrintInSameLine("Images");
 	SCR_UpdateScreen();
 
 	for (i = 1; i < MAX_IMAGES && cl.configstrings[CS_IMAGES + i][0]; i++)
@@ -394,7 +401,7 @@ CL_PrepRefresh(void)
 		IN_Update();
 	}
 
-	CL_ClearLine();
+	CL_PrintInSameLine("Clients");
 
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -407,21 +414,22 @@ CL_PrepRefresh(void)
 		SCR_UpdateScreen();
 		IN_Update();
 		CL_ParseClientinfo(i);
-		CL_ClearLine();
+		CL_PrintInSameLine("");
 	}
 
 	CL_LoadClientinfo(&cl.baseclientinfo, "unnamed\\male/grunt");
 
 	/* set sky textures and speed */
-	Com_Printf("sky\r");
+	CL_PrintInSameLine("Sky");
 	SCR_UpdateScreen();
 	sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
 	sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
 	R_SetSky(cl.configstrings[CS_SKY], rotate, autorotate, axis);
-	CL_ClearLine();
+	CL_PrintInSameLine("Cleanup.....");
 
 	/* the renderer can now free unneeded stuff */
 	R_EndRegistration();
+	CL_PrintInSameLine("Map loaded.");
 
 	/* clear any lines of console text */
 	Con_ClearNotify();
