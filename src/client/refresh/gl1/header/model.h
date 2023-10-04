@@ -29,6 +29,41 @@
 
 #include "../../ref_model.h"
 
+typedef struct
+{
+	vec3_t gridscale;
+	unsigned int count[3];
+	vec3_t mins;
+	unsigned int styles;
+
+	unsigned int rootnode;
+
+	unsigned int numnodes;
+	struct bspxlgnode_s
+	{	//this uses an octtree to trim samples.
+		int mid[3];
+		unsigned int child[8];
+#define LGNODE_LEAF		(1u<<31)
+#define LGNODE_MISSING	(1u<<30)
+	} *nodes;
+	unsigned int numleafs;
+	struct bspxlgleaf_s
+	{
+		int mins[3];
+		int size[3];
+		struct bspxlgsamp_s
+		{
+			struct
+			{
+				byte style;
+				byte rgb[3];
+			} map[4];
+		} *rgbvalues;
+	} *leafs;
+} bspxlightgrid_t;
+bspxlightgrid_t* BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base);
+void BSPX_LightGridValue(bspxlightgrid_t *grid, const vec3_t point, vec3_t res_diffuse);
+
 /* Whole model */
 
 typedef struct model_s
@@ -97,6 +132,9 @@ typedef struct model_s
 
 	// submodules
 	vec3_t		origin;	// for sounds or lights
+
+	/* octree  */
+	bspxlightgrid_t *grid;
 } model_t;
 
 void Mod_Init(void);

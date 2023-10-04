@@ -671,7 +671,14 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	}
 	else
 	{
-		R_LightPoint(currententity, currententity->origin, shadelight);
+		if (r_worldmodel->grid)
+		{
+			BSPX_LightGridValue(r_worldmodel->grid, currententity->origin, shadelight);
+		}
+		else
+		{
+			R_LightPoint(currententity, currententity->origin, shadelight);
+		}
 
 		/* player lighting hack for communication back to server */
 		if (currententity->flags & RF_WEAPONMODEL)
