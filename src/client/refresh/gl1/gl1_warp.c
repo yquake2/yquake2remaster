@@ -178,7 +178,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	/* add a point in the center to help keep warp valid */
-	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * VERTEXSIZE * sizeof(float));
+	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(glvk_vtx_t));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts + 2;
@@ -305,7 +305,7 @@ R_EmitWaterPolys(msurface_t *fa)
         glEnableClientState( GL_VERTEX_ARRAY );
         glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-        glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
+        glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
         glTexCoordPointer( 2, GL_FLOAT, 0, tex );
         glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
 

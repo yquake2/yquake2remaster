@@ -107,7 +107,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	// add a point in the center to help keep warp valid
-	poly = Hunk_Alloc (sizeof(mpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
+	poly = Hunk_Alloc (sizeof(mpoly_t) + ((numverts-4)+2) * sizeof(glvk_vtx_t));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts+2;

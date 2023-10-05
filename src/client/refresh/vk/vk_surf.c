@@ -1143,7 +1143,7 @@ void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel)
 	//
 	// draw texture
 	//
-	poly = Hunk_Alloc (sizeof(mpoly_t) + (lnumverts-4) * VERTEXSIZE * sizeof(float));
+	poly = Hunk_Alloc (sizeof(mpoly_t) + (lnumverts-4) * sizeof(glvk_vtx_t));
 	poly->next = fa->polys;
 	fa->polys = poly;
 	poly->numverts = lnumverts;

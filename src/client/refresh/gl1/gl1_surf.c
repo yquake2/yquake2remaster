@@ -52,8 +52,8 @@ R_DrawGLPoly(mpoly_t *p)
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
-    glTexCoordPointer( 2, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v+3 );
+    glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
+    glTexCoordPointer( 2, GL_FLOAT, sizeof(glvk_vtx_t), v+3 );
     glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
 
     glDisableClientState( GL_VERTEX_ARRAY );
@@ -92,7 +92,7 @@ R_DrawGLFlowingPoly(msurface_t *fa)
     glEnableClientState( GL_VERTEX_ARRAY );
     glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
+    glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
     glTexCoordPointer( 2, GL_FLOAT, 0, tex );
     glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
 
@@ -171,8 +171,8 @@ R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
             glEnableClientState( GL_VERTEX_ARRAY );
             glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-            glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
-            glTexCoordPointer( 2, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v+5 );
+            glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
+            glTexCoordPointer( 2, GL_FLOAT, sizeof(glvk_vtx_t), v+5 );
             glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
 
             glDisableClientState( GL_VERTEX_ARRAY );
@@ -216,7 +216,7 @@ R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
             glEnableClientState( GL_VERTEX_ARRAY );
             glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-            glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
+            glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
             glTexCoordPointer( 2, GL_FLOAT, 0, tex );
             glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
 

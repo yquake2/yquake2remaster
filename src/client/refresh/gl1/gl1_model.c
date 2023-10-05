@@ -306,8 +306,8 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 		else
 		{
 			// LM_BuildPolygonFromSurface(out);
-			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * VERTEXSIZE * sizeof(float));
-			int polySize = sizeof(mpoly_t) + (numverts - 4) * VERTEXSIZE * sizeof(float);
+			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(glvk_vtx_t));
+			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(glvk_vtx_t);
 			polySize = (polySize + 31) & ~31;
 			ret += polySize;
 		}
@@ -382,8 +382,8 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 		else
 		{
 			// LM_BuildPolygonFromSurface(out);
-			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * VERTEXSIZE * sizeof(float));
-			int polySize = sizeof(mpoly_t) + (numverts - 4) * VERTEXSIZE * sizeof(float);
+			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(glvk_vtx_t));
+			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(glvk_vtx_t);
 			polySize = (polySize + 31) & ~31;
 			ret += polySize;
 		}
