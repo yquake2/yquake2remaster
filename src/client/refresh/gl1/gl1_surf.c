@@ -45,26 +45,24 @@ void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
 static void
 R_DrawGLPoly(mpoly_t *p)
 {
-	float *v;
+	mvtx_t* vert = p->verts;
 
-	v = p->verts[0];
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), vert->pos);
+	glTexCoordPointer(2, GL_FLOAT, sizeof(mvtx_t), vert->texCoord);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-    glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
-    glTexCoordPointer( 2, GL_FLOAT, sizeof(glvk_vtx_t), v+3 );
-    glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
-
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 static void
 R_DrawGLFlowingPoly(msurface_t *fa)
 {
 	int i;
-	float *v;
+	mvtx_t* vert;
 	mpoly_t *p;
 	float scroll;
 
@@ -77,27 +75,26 @@ R_DrawGLFlowingPoly(msurface_t *fa)
 		scroll = -64.0;
 	}
 
-    YQ2_VLA(GLfloat, tex, 2*p->numverts);
-    unsigned int index_tex = 0;
+	YQ2_VLA(GLfloat, tex, 2*p->numverts);
+	unsigned int index_tex = 0;
 
-    v = p->verts [ 0 ];
+	vert = p->verts;
 
-	for ( i = 0; i < p->numverts; i++, v += VERTEXSIZE )
-    {
-        tex[index_tex++] = v [ 3 ] + scroll;
-        tex[index_tex++] = v [ 4 ];
-    }
-    v = p->verts [ 0 ];
+	for ( i = 0; i < p->numverts; i++, vert++)
+	{
+		tex[index_tex++] = vert->texCoord[0] + scroll;
+		tex[index_tex++] = vert->texCoord[1];
+	}
 
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
-    glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-    glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
+	glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), p->verts->pos);
+	glTexCoordPointer(2, GL_FLOAT, 0, tex);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	YQ2_VLAFREE(tex);
 }
@@ -131,23 +128,23 @@ R_DrawTriangleOutlines(void)
 			{
 				for (j = 2; j < p->numverts; j++)
 				{
-                    GLfloat vtx[12];
-                    unsigned int k;
+					GLfloat vtx[12];
+					unsigned int k;
 
-                    for (k=0; k<3; k++)
-                    {
-                       vtx[0+k] = p->verts [ 0 ][ k ];
-                        vtx[3+k] = p->verts [ j - 1 ][ k ];
-                        vtx[6+k] = p->verts [ j ][ k ];
-                        vtx[9+k] = p->verts [ 0 ][ k ];
-                    }
+					for (k=0; k<3; k++)
+					{
+						vtx[0+k] = p->verts[0    ].pos[k];
+						vtx[3+k] = p->verts[j - 1].pos[k];
+						vtx[6+k] = p->verts[j    ].pos[k];
+						vtx[9+k] = p->verts[0    ].pos[k];
+					}
 
-                    glEnableClientState( GL_VERTEX_ARRAY );
+					glEnableClientState( GL_VERTEX_ARRAY );
 
-                    glVertexPointer( 3, GL_FLOAT, 0, vtx );
-                    glDrawArrays( GL_LINE_STRIP, 0, 4 );
+					glVertexPointer( 3, GL_FLOAT, 0, vtx );
+					glDrawArrays( GL_LINE_STRIP, 0, 4 );
 
-                    glDisableClientState( GL_VERTEX_ARRAY );
+					glDisableClientState( GL_VERTEX_ARRAY );
 				}
 			}
 		}
@@ -164,19 +161,17 @@ R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
 	{
 		for ( ; p != 0; p = p->chain)
 		{
-			float *v;
+			mvtx_t* vert = p->verts;
 
-			v = p->verts[0];
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-            glEnableClientState( GL_VERTEX_ARRAY );
-            glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), vert->pos);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(mvtx_t), vert->lmTexCoord);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-            glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
-            glTexCoordPointer( 2, GL_FLOAT, sizeof(glvk_vtx_t), v+5 );
-            glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
-
-            glDisableClientState( GL_VERTEX_ARRAY );
-            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	}
 	else
@@ -195,36 +190,36 @@ R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
 
 		for ( ; p != 0; p = p->chain)
 		{
-			float *v;
+			mvtx_t* vert;
 			int j;
 
-			v = p->verts[0];
+			vert = p->verts;
 #ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
-            YQ2_VLA(GLfloat, tex, 2*p->numverts);
+			YQ2_VLA(GLfloat, tex, 2*p->numverts);
 #endif
 
-            unsigned int index_tex = 0;
+			unsigned int index_tex = 0;
 
-			for ( j = 0; j < p->numverts; j++, v += VERTEXSIZE )
+			for (j = 0; j < p->numverts; j++, vert++)
 			{
-			    tex[index_tex++] = v [ 5 ] - soffset;
-			    tex[index_tex++] = v [ 6 ] - toffset;
+				tex[index_tex++] = vert->lmTexCoord[0] - soffset;
+				tex[index_tex++] = vert->lmTexCoord[1] - toffset;
 			}
 
-			v = p->verts [ 0 ];
+			vert = p->verts;
 
-            glEnableClientState( GL_VERTEX_ARRAY );
-            glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-            glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
-            glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-            glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
+			glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), vert->pos);
+			glTexCoordPointer(2, GL_FLOAT, 0, tex);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-            glDisableClientState( GL_VERTEX_ARRAY );
-            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 
-		YQ2_VLAFREE( tex );
+		YQ2_VLAFREE(tex);
 	}
 }
 
@@ -637,15 +632,15 @@ R_DrawTextureChains(entity_t *currententity)
 static void
 R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
 {
-	int i, k;
-	cplane_t *pplane;
-	float dot;
+	int i;
 	msurface_t *psurf;
-	dlight_t *lt;
 
 	/* calculate dynamic lighting for bmodel */
 	if (!gl1_flashblend->value)
 	{
+		dlight_t *lt;
+		int	k;
+
 		lt = r_newrefdef.dlights;
 
 		for (k = 0; k < r_newrefdef.num_dlights; k++, lt++)
@@ -668,6 +663,9 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
 	/* draw texture */
 	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
+		cplane_t *pplane;
+		float dot;
+
 		/* find which side of the node we are on */
 		pplane = psurf->plane;
 
@@ -707,7 +705,6 @@ void
 R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 {
 	vec3_t mins, maxs;
-	int i;
 	qboolean rotated;
 
 	if (currentmodel->nummodelsurfaces == 0)
@@ -719,6 +716,8 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (currententity->angles[0] || currententity->angles[1] || currententity->angles[2])
 	{
+		int	i;
+
 		rotated = true;
 
 		for (i = 0; i < 3; i++)
@@ -794,7 +793,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
 	int c, side, sidebit;
 	cplane_t *plane;
-	msurface_t *surf, **mark;
+	msurface_t *surf;
 	mleaf_t *pleaf;
 	float dot;
 	image_t *image;
@@ -817,6 +816,8 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
+		msurface_t	**mark;
+
 		pleaf = (mleaf_t *)node;
 
 		/* check for door connected areas */
@@ -960,9 +961,8 @@ R_MarkLeaves(void)
 	const byte *vis;
 	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS / 8];
 	mnode_t *node;
-	int i, c;
+	int i;
 	mleaf_t *leaf;
-	int cluster;
 
 	if ((r_oldviewcluster == r_viewcluster) &&
 		(r_oldviewcluster2 == r_viewcluster2) &&
@@ -1004,6 +1004,8 @@ R_MarkLeaves(void)
 	/* may have to combine two clusters because of solid water boundaries */
 	if (r_viewcluster2 != r_viewcluster)
 	{
+		int c;
+
 		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
 		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
 		c = (r_worldmodel->numleafs + 31) / 32;
@@ -1020,6 +1022,8 @@ R_MarkLeaves(void)
 		 i < r_worldmodel->numleafs;
 		 i++, leaf++)
 	{
+		int cluster;
+
 		cluster = leaf->cluster;
 
 		if (cluster == -1)

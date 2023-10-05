@@ -1,17 +1,5 @@
-#define	VERTEXSIZE	7
 
 /* in memory representation */
-
-typedef float glvk_vtx_t[VERTEXSIZE];
-
-typedef struct mpoly_s
-{
-	struct  mpoly_s *next;
-	struct  mpoly_s *chain;
-	int numverts;
-	int flags; /* for SURF_UNDERWATER (not needed anymore?) */
-	glvk_vtx_t verts[4]; /* variable sized (xyz s1t1 s2t2) */
-} mpoly_t;
 
 typedef struct msurface_s
 {

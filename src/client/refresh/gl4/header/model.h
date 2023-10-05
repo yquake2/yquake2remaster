@@ -36,15 +36,6 @@ typedef struct gl4_alias_vtx_s {
 
 /* in memory representation */
 
-typedef struct glpoly_s
-{
-	struct  glpoly_s *next;
-	struct  glpoly_s *chain;
-	int numverts;
-	int flags; /* for SURF_UNDERWATER (not needed anymore?) */
-	mvtx_t vertices[4]; /* variable sized */
-} glpoly_t;
-
 typedef struct msurface_s
 {
 	int visframe; /* should be drawn when node is crossed */
@@ -62,7 +53,7 @@ typedef struct msurface_s
 	int light_s, light_t;           /* gl lightmap coordinates */
 	int dlight_s, dlight_t;         /* gl lightmap coordinates for dynamic lightmaps */
 
-	glpoly_t *polys;                /* multiple if warped */
+	mpoly_t *polys;                /* multiple if warped */
 	struct  msurface_s *texturechain;
 	// struct  msurface_s *lightmapchain; not used/needed anymore
 

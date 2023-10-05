@@ -294,7 +294,7 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 
 			// GL3_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():
-			//   sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
+			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
 
 			// this is tricky, how much is allocated depends on the size of the surface
 			// which we don't know (we'd need the vertices etc to know, but we can't load
@@ -306,8 +306,8 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 		else
 		{
 			// GL3_LM_BuildPolygonFromSurface(out);
-			// => poly = Hunk_Alloc(sizeof(glpoly_t) + (numverts - 4) * sizeof(mvtx_t));
-			int polySize = sizeof(glpoly_t) + (numverts - 4) * sizeof(mvtx_t);
+			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t));
+			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t);
 			polySize = (polySize + 31) & ~31;
 			ret += polySize;
 		}
@@ -370,7 +370,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 
 			// GL3_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():
-			//   sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
+			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
 
 			// this is tricky, how much is allocated depends on the size of the surface
 			// which we don't know (we'd need the vertices etc to know, but we can't load
@@ -382,8 +382,8 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 		else
 		{
 			// GL3_LM_BuildPolygonFromSurface(out);
-			// => poly = Hunk_Alloc(sizeof(glpoly_t) + (numverts - 4) * sizeof(mvtx_t));
-			int polySize = sizeof(glpoly_t) + (numverts - 4) * sizeof(mvtx_t);
+			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t));
+			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t);
 			polySize = (polySize + 31) & ~31;
 			ret += polySize;
 		}

@@ -40,7 +40,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	int f, b;
 	float dist[64];
 	float frac;
-	glpoly_t *poly;
+	mpoly_t *poly;
 	float s, t;
 	vec3_t total;
 	float total_s, total_t;
@@ -126,7 +126,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	/* add a point in the center to help keep warp valid */
-	poly = Hunk_Alloc(sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t));
+	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts + 2;
@@ -136,7 +136,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 
 	for (i = 0; i < numverts; i++, verts += 3)
 	{
-		VectorCopy(verts, poly->vertices[i + 1].pos);
+		VectorCopy(verts, poly->verts[i + 1].pos);
 		s = DotProduct(verts, warpface->texinfo->vecs[0]);
 		t = DotProduct(verts, warpface->texinfo->vecs[1]);
 
@@ -144,20 +144,20 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 		total_t += t;
 		VectorAdd(total, verts, total);
 
-		poly->vertices[i + 1].texCoord[0] = s;
-		poly->vertices[i + 1].texCoord[1] = t;
-		VectorCopy(normal, poly->vertices[i + 1].normal);
-		poly->vertices[i + 1].lightFlags = 0;
+		poly->verts[i + 1].texCoord[0] = s;
+		poly->verts[i + 1].texCoord[1] = t;
+		VectorCopy(normal, poly->verts[i + 1].normal);
+		poly->verts[i + 1].lightFlags = 0;
 	}
 
-	VectorScale(total, (1.0 / numverts), poly->vertices[0].pos);
-	poly->vertices[0].texCoord[0] = total_s / numverts;
-	poly->vertices[0].texCoord[1] = total_t / numverts;
-	VectorCopy(normal, poly->vertices[0].normal);
+	VectorScale(total, (1.0 / numverts), poly->verts[0].pos);
+	poly->verts[0].texCoord[0] = total_s / numverts;
+	poly->verts[0].texCoord[1] = total_t / numverts;
+	VectorCopy(normal, poly->verts[0].normal);
 
 	/* copy first vertex to last */
-	//memcpy(poly->vertices[i + 1], poly->vertices[1], sizeof(poly->vertices[0]));
-	poly->vertices[i + 1] = poly->vertices[1];
+	//memcpy(poly->verts[i + 1], poly->verts[1], sizeof(poly->verts[0]));
+	poly->verts[i + 1] = poly->verts[1];
 }
 
 /*
@@ -198,12 +198,12 @@ GL4_SubdivideSurface(msurface_t *fa, gl4model_t* loadmodel)
 }
 
 /*
- * Does a water warp on the pre-fragmented glpoly_t chain
+ * Does a water warp on the pre-fragmented mpoly_t chain
  */
 void
 GL4_EmitWaterPolys(msurface_t *fa)
 {
-	glpoly_t *bp;
+	mpoly_t *bp;
 	float scroll = 0.0f;
 
 	if (fa->texinfo->flags & SURF_FLOWING)
@@ -244,7 +244,7 @@ GL4_EmitWaterPolys(msurface_t *fa)
 
 	for (bp = fa->polys; bp != NULL; bp = bp->next)
 	{
-		GL4_BufferAndDraw3D(bp->vertices, bp->numverts, GL_TRIANGLE_FAN);
+		GL4_BufferAndDraw3D(bp->verts, bp->numverts, GL_TRIANGLE_FAN);
 	}
 }
 
@@ -565,14 +565,14 @@ GL4_AddSkySurface(msurface_t *fa)
 {
 	int i;
 	vec3_t verts[MAX_CLIP_VERTS];
-	glpoly_t *p;
+	mpoly_t *p;
 
 	/* calculate vertex values for sky box */
 	for (p = fa->polys; p; p = p->next)
 	{
 		for (i = 0; i < p->numverts; i++)
 		{
-			VectorSubtract(p->vertices[i].pos, gl4_origin, verts[i]);
+			VectorSubtract(p->verts[i].pos, gl4_origin, verts[i]);
 		}
 
 		ClipSkyPolygon(p->numverts, verts[0], 0);

@@ -20,82 +20,140 @@
  *
  * =======================================================================
  *
- * Sky and water polygons
+ * Warps. Used on water surfaces und for skybox rotation.
  *
  * =======================================================================
  */
 
 #include "header/local.h"
 
-static float	skyrotate;
-static int	skyautorotate;
-static vec3_t	skyaxis;
-static image_t	*sky_images[6];
+#define SUBDIVIDE_SIZE 64
+#define ON_EPSILON 0.1 /* point on plane side epsilon */
+#define MAX_CLIP_VERTS 64
 
-#define	SUBDIVIDE_SIZE	64
+static float skyrotate;
+static int skyautorotate;
+static vec3_t skyaxis;
+static image_t *sky_images[6];
+static int skytexorder[6] = {0, 2, 1, 3, 4, 5};
+
+static vec3_t skyclip[6] = {
+	{1, 1, 0},
+	{1, -1, 0},
+	{0, -1, 1},
+	{0, 1, 1},
+	{1, 0, 1},
+	{-1, 0, 1}
+};
+
+static int st_to_vec[6][3] = {
+	{3, -1, 2},
+	{-3, 1, 2},
+
+	{1, 3, 2},
+	{-1, -3, 2},
+
+	{-2, -1, 3}, /* 0 degrees yaw, look straight up */
+	{2, -1, -3} /* look straight down */
+};
+
+static int vec_to_st[6][3] = {
+	{-2, 3, 1},
+	{2, 3, -1},
+
+	{1, 3, 2},
+	{-1, 3, -2},
+
+	{-2, -1, 3},
+	{-2, 1, -3}
+};
+
+static float skymins[2][6], skymaxs[2][6];
+static float sky_min, sky_max;
 
 static void
 R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 {
-	int		i, j, k;
-	vec3_t	mins, maxs;
-	float	*v;
-	vec3_t	front[64], back[64];
-	int		f, b;
-	float	dist[64];
-	float	frac;
-	mpoly_t	*poly;
-	vec3_t	total;
-	float	total_s, total_t;
+	int i, j, k;
+	vec3_t mins, maxs;
+	float *v;
+	vec3_t front[64], back[64];
+	int f, b;
+	float dist[64];
+	float frac;
+	mpoly_t *poly;
+	vec3_t total;
+	float total_s, total_t;
 
 	if (numverts > 60)
-		ri.Sys_Error (ERR_DROP, "%s: numverts = %i", __func__, numverts);
+	{
+		ri.Sys_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
+	}
 
 	R_BoundPoly(numverts, verts, mins, maxs);
 
-	for (i=0 ; i<3 ; i++)
+	for (i = 0; i < 3; i++)
 	{
-		float	m;
+		float m;
 
 		m = (mins[i] + maxs[i]) * 0.5;
-		m = SUBDIVIDE_SIZE * floor (m/SUBDIVIDE_SIZE + 0.5);
+		m = SUBDIVIDE_SIZE * floor(m / SUBDIVIDE_SIZE + 0.5);
+
 		if (maxs[i] - m < 8)
+		{
 			continue;
+		}
+
 		if (m - mins[i] < 8)
+		{
 			continue;
+		}
 
-		// cut it
+		/* cut it */
 		v = verts + i;
-		for (j=0 ; j<numverts ; j++, v+= 3)
-			dist[j] = *v - m;
 
-		// wrap cases
+		for (j = 0; j < numverts; j++, v += 3)
+		{
+			dist[j] = *v - m;
+		}
+
+		/* wrap cases */
 		dist[j] = dist[0];
-		v-=i;
+		v -= i;
 		VectorCopy(verts, v);
 
 		f = b = 0;
 		v = verts;
-		for (j=0 ; j<numverts ; j++, v+= 3)
+
+		for (j = 0; j < numverts; j++, v += 3)
 		{
 			if (dist[j] >= 0)
 			{
 				VectorCopy(v, front[f]);
 				f++;
 			}
+
 			if (dist[j] <= 0)
 			{
 				VectorCopy(v, back[b]);
 				b++;
 			}
-			if (dist[j] == 0 || dist[j+1] == 0)
-				continue;
-			if ( (dist[j] > 0) != (dist[j+1] > 0) )
+
+			if ((dist[j] == 0) || (dist[j + 1] == 0))
 			{
-				// clip point
-				frac = dist[j] / (dist[j] - dist[j+1]);
-				for (k=0 ; k<3 ; k++)
-					front[f][k] = back[b][k] = v[k] + frac*(v[3+k] - v[k]);
+				continue;
+			}
+
+			if ((dist[j] > 0) != (dist[j + 1] > 0))
+			{
+				/* clip point */
+				frac = dist[j] / (dist[j] - dist[j + 1]);
+
+				for (k = 0; k < 3; k++)
+				{
+					front[f][k] = back[b][k] = v[k] + frac * (v[3 + k] - v[k]);
+				}
+
 				f++;
 				b++;
 			}
@@ -106,68 +164,70 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 		return;
 	}
 
-	// add a point in the center to help keep warp valid
-	poly = Hunk_Alloc (sizeof(mpoly_t) + ((numverts-4)+2) * sizeof(glvk_vtx_t));
+	/* add a point in the center to help keep warp valid */
+	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
-	poly->numverts = numverts+2;
-	VectorClear (total);
+	poly->numverts = numverts + 2;
+	VectorClear(total);
 	total_s = 0;
 	total_t = 0;
-	for (i=0 ; i<numverts ; i++, verts+= 3)
+
+	for (i = 0; i < numverts; i++, verts += 3)
 	{
 		float s, t;
 
-		VectorCopy(verts, poly->verts[i+1]);
+		VectorCopy(verts, poly->verts[i + 1].pos);
 		s = DotProduct(verts, warpface->texinfo->vecs[0]);
 		t = DotProduct(verts, warpface->texinfo->vecs[1]);
 
 		total_s += s;
 		total_t += t;
-		VectorAdd (total, verts, total);
+		VectorAdd(total, verts, total);
 
-		poly->verts[i+1][3] = s;
-		poly->verts[i+1][4] = t;
+		poly->verts[i + 1].texCoord[0] = s;
+		poly->verts[i + 1].texCoord[1] = t;
 	}
 
-	VectorScale(total, (1.0/numverts), poly->verts[0]);
-	poly->verts[0][3] = total_s/numverts;
-	poly->verts[0][4] = total_t/numverts;
+	VectorScale(total, (1.0 / numverts), poly->verts[0].pos);
+	poly->verts[0].texCoord[0] = total_s / numverts;
+	poly->verts[0].texCoord[1] = total_t / numverts;
 
-	// copy first vertex to last
-	memmove (poly->verts[i+1], poly->verts[1], sizeof(poly->verts[0]));
+	/* copy first vertex to last */
+	memcpy(&poly->verts[i + 1], &poly->verts[1], sizeof(mvtx_t));
 }
 
 /*
-================
-Vk_SubdivideSurface
-
-Breaks a polygon up along axial 64 unit
-boundaries so that turbulent and sky warps
-can be done reasonably.
-================
-*/
-void Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel)
+ * Breaks a polygon up along axial 64 unit
+ * boundaries so that turbulent and sky warps
+ * can be done reasonably.
+ */
+void
+Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel)
 {
-	vec3_t		verts[64];
-	int			numverts;
-	int			i;
-	float		*vec;
+	vec3_t verts[64];
+	int numverts;
+	int i;
+	float *vec;
 
-	//
-	// convert edges back to a normal polygon
-	//
+	/* convert edges back to a normal polygon */
 	numverts = 0;
-	for (i=0 ; i<fa->numedges ; i++)
+
+	for (i = 0; i < fa->numedges; i++)
 	{
 		int	lindex;
 
 		lindex = loadmodel->surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
+		{
 			vec = loadmodel->vertexes[loadmodel->edges[lindex].v[0]].position;
+		}
 		else
+		{
 			vec = loadmodel->vertexes[loadmodel->edges[-lindex].v[1]].position;
+		}
+
 		VectorCopy(vec, verts[numverts]);
 		numverts++;
 	}
@@ -175,22 +235,16 @@ void Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel)
 	R_SubdividePolygon(numverts, verts[0], fa);
 }
 
-//=========================================================
-
 /*
-=============
-EmitWaterPolys
-
-Does a water warp on the pre-fragmented mpoly_t chain
-=============
-*/
+ * Does a water warp on the pre-fragmented mpoly_t chain
+ */
 void
-EmitWaterPolys (msurface_t *fa, image_t *texture, float *modelMatrix,
+EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 			  const float *color, qboolean solid_surface)
 {
-	mpoly_t	*p, *bp;
-	float		*v;
-	int			i;
+	mpoly_t *p, *bp;
+	mvtx_t *v;
+	int i;
 
 	struct {
 		float model[16];
@@ -206,9 +260,13 @@ EmitWaterPolys (msurface_t *fa, image_t *texture, float *modelMatrix,
 	polyUbo.time = r_newrefdef.time;
 
 	if (fa->texinfo->flags & SURF_FLOWING)
-		polyUbo.scroll = (-64 * ((r_newrefdef.time*0.5) - (int)(r_newrefdef.time*0.5))) / 64.f;
+	{
+		polyUbo.scroll = (-64 * ((r_newrefdef.time * 0.5) - (int)(r_newrefdef.time * 0.5))) / 64.f;
+	}
 	else
+	{
 		polyUbo.scroll = 0;
+	}
 
 	if (modelMatrix)
 	{
@@ -270,13 +328,11 @@ EmitWaterPolys (msurface_t *fa, image_t *texture, float *modelMatrix,
 			ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
-		for (i = 0, v = p->verts[0]; i < p->numverts; i++, v += VERTEXSIZE)
+		for (i = 0, v = p->verts; i < p->numverts; i++, v++)
 		{
-			verts_buffer[i].vertex[0] = v[0];
-			verts_buffer[i].vertex[1] = v[1];
-			verts_buffer[i].vertex[2] = v[2];
-			verts_buffer[i].texCoord[0] = v[3] / 64.f;
-			verts_buffer[i].texCoord[1] = v[4] / 64.f;
+			VectorCopy(v->pos, verts_buffer[i].vertex);
+			verts_buffer[i].texCoord[0] = v->texCoord[0] / 64.f;
+			verts_buffer[i].texCoord[1] = v->texCoord[1] / 64.f;
 		}
 
 		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(polyvert_t) * p->numverts, &vbo, &vboOffset);
@@ -291,52 +347,8 @@ EmitWaterPolys (msurface_t *fa, image_t *texture, float *modelMatrix,
 
 //===================================================================
 
-
-static vec3_t	skyclip[6] = {
-	{1,1,0},
-	{1,-1,0},
-	{0,-1,1},
-	{0,1,1},
-	{1,0,1},
-	{-1,0,1}
-};
-
-// 1 = s, 2 = t, 3 = 2048
-static int	st_to_vec[6][3] =
-{
-	{3,-1,2},
-	{-3,1,2},
-
-	{1,3,2},
-	{-1,-3,2},
-
-	{-2,-1,3},		// 0 degrees yaw, look straight up
-	{2,-1,-3}		// look straight down
-
-//	{-1,2,3},
-//	{1,2,-3}
-};
-
-// s = [0]/[2], t = [1]/[2]
-static int	vec_to_st[6][3] =
-{
-	{-2,3,1},
-	{2,3,-1},
-
-	{1,3,2},
-	{-1,3,-2},
-
-	{-2,-1,3},
-	{-2,1,-3}
-
-//	{-1,2,3},
-//	{1,2,-3}
-};
-
-static float	skymins[2][6], skymaxs[2][6];
-static float	sky_min, sky_max;
-
-static void DrawSkyPolygon (int nump, vec3_t vecs)
+static void
+DrawSkyPolygon(int nump, vec3_t vecs)
 {
 	int		i;
 	vec3_t	v, av;
@@ -409,25 +421,25 @@ static void DrawSkyPolygon (int nump, vec3_t vecs)
 	}
 }
 
-#define	ON_EPSILON		0.1			// point on plane side epsilon
-#define	MAX_CLIP_VERTS	64
-static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
+static void
+ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 {
-	float	*norm;
-	float	*v;
-	qboolean	front, back;
-	float	d, e;
-	float	dists[MAX_CLIP_VERTS];
-	int		sides[MAX_CLIP_VERTS];
-	vec3_t	newv[2][MAX_CLIP_VERTS];
-	int		newc[2];
-	int		i, j;
+	float *norm;
+	float *v;
+	qboolean front, back;
+	float d, e;
+	float dists[MAX_CLIP_VERTS];
+	int sides[MAX_CLIP_VERTS];
+	vec3_t newv[2][MAX_CLIP_VERTS];
+	int newc[2];
+	int i, j;
 
-	if (nump > MAX_CLIP_VERTS-2)
-		ri.Sys_Error (ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
+	if (nump > MAX_CLIP_VERTS - 2)
+		ri.Sys_Error(ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
 	if (stage == 6)
-	{	// fully clipped, so draw it
-		DrawSkyPolygon (nump, vecs);
+	{
+		/* fully clipped, so draw it */
+		DrawSkyPolygon(nump, vecs);
 		return;
 	}
 
@@ -436,6 +448,7 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 	for (i=0, v = vecs ; i<nump ; i++, v+=3)
 	{
 		d = DotProduct(v, norm);
+
 		if (d > ON_EPSILON)
 		{
 			front = true;
@@ -447,13 +460,16 @@ static void ClipSkyPolygon (int nump, vec3_t vecs, int stage)
 			sides[i] = SIDE_BACK;
 		}
 		else
+		{
 			sides[i] = SIDE_ON;
+		}
+
 		dists[i] = d;
 	}
 
 	if (!front || !back)
 	{	// not clipped
-		ClipSkyPolygon (nump, vecs, stage+1);
+		ClipSkyPolygon(nump, vecs, stage + 1);
 		return;
 	}
 
@@ -516,11 +532,11 @@ void R_AddSkySurface (msurface_t *fa)
 	// calculate vertex values for sky box
 	for (p=fa->polys ; p ; p=p->next)
 	{
-		for (i=0 ; i<p->numverts ; i++)
+		for (i = 0; i < p->numverts; i++)
 		{
-			VectorSubtract(p->verts[i], r_origin, verts[i]);
+			VectorSubtract(p->verts[i].pos, r_origin, verts[i]);
 		}
-		ClipSkyPolygon (p->numverts, verts[0], 0);
+		ClipSkyPolygon(p->numverts, verts[0], 0);
 	}
 }
 
@@ -586,24 +602,26 @@ static void MakeSkyVec (float s, float t, int axis, float *vertexData)
 	vertexData[4] = t;
 }
 
-/*
-==============
-R_DrawSkyBox
-==============
-*/
-static int	skytexorder[6] = {0,2,1,3,4,5};
-void R_DrawSkyBox (void)
+void
+R_DrawSkyBox(void)
 {
-	int		i;
+	int i;
 
 	if (skyrotate)
-	{	// check for no sky at all
-		for (i = 0; i<6; i++)
-			if (skymins[0][i] < skymaxs[0][i]
-				&& skymins[1][i] < skymaxs[1][i])
+	{   /* check for no sky at all */
+		for (i = 0; i < 6; i++)
+		{
+			if ((skymins[0][i] < skymaxs[0][i]) &&
+				(skymins[1][i] < skymaxs[1][i]))
+			{
 				break;
+			}
+		}
+
 		if (i == 6)
-			return;		// nothing visible
+		{
+			return; /* nothing visible */
+		}
 	}
 
 	float model[16];
@@ -622,19 +640,21 @@ void R_DrawSkyBox (void)
 	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(model), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, model, sizeof(model));
 
-	for (i = 0; i<6; i++)
+	for (i = 0; i < 6; i++)
 	{
 		if (skyrotate)
-		{	// hack, forces full sky to draw when rotating
+		{
 			skymins[0][i] = -1;
 			skymins[1][i] = -1;
 			skymaxs[0][i] = 1;
 			skymaxs[1][i] = 1;
 		}
 
-		if (skymins[0][i] >= skymaxs[0][i]
-			|| skymins[1][i] >= skymaxs[1][i])
+		if ((skymins[0][i] >= skymaxs[0][i]) ||
+			(skymins[1][i] >= skymaxs[1][i]))
+		{
 			continue;
+		}
 
 		MakeSkyVec(skymins[0][i], skymins[1][i], i, skyVerts[0].data);
 		MakeSkyVec(skymins[0][i], skymaxs[1][i], i, skyVerts[1].data);

@@ -29,17 +29,19 @@
 
 #include "header/local.h"
 
-static vec3_t	modelorg;		// relative to viewpoint
+int c_visible_lightmaps;
+int c_visible_textures;
+static vec3_t modelorg; /* relative to viewpoint */
+msurface_t *r_alpha_surfaces;
 
-msurface_t	*r_alpha_surfaces;
+static void LM_InitBlock(void);
+static void LM_UploadBlock(qboolean dynamic);
+static qboolean	LM_AllocBlock(int w, int h, int *x, int *y);
 
 #define LIGHTMAP_BYTES 4
 
 #define	BLOCK_WIDTH		128
 #define	BLOCK_HEIGHT	128
-
-int		c_visible_lightmaps;
-int		c_visible_textures;
 
 typedef struct
 {
@@ -56,42 +58,23 @@ typedef struct
 
 static vklightmapstate_t vk_lms;
 
-
-static void		LM_InitBlock( void );
-static void		LM_UploadBlock( qboolean dynamic );
-static qboolean	LM_AllocBlock (int w, int h, int *x, int *y);
-
-/*
-=============================================================
-
-	BRUSH MODELS
-
-=============================================================
-*/
-
-/*
-================
-DrawVkPoly
-================
-*/
-static void DrawVkPoly (mpoly_t *p, image_t *texture, float *color)
+static void
+DrawVkPoly(mpoly_t *p, image_t *texture, float *color)
 {
-	int		i;
-	float	*v;
+	mvtx_t *v;
+	int i;
 
 	if (Mesh_VertsRealloc(p->numverts))
 	{
 		ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
-	v = p->verts[0];
-	for (i = 0; i < p->numverts; i++, v += VERTEXSIZE)
+	v = p->verts;
+	for (i = 0; i < p->numverts; i++, v++)
 	{
-		verts_buffer[i].vertex[0] = v[0];
-		verts_buffer[i].vertex[1] = v[1];
-		verts_buffer[i].vertex[2] = v[2];
-		verts_buffer[i].texCoord[0] = v[3];
-		verts_buffer[i].texCoord[1] = v[4];
+		VectorCopy(v->pos, verts_buffer[i].vertex);
+		verts_buffer[i].texCoord[0] = v->texCoord[0];
+		verts_buffer[i].texCoord[1] = v->texCoord[1];
 	}
 
 	QVk_BindPipeline(&vk_drawPolyPipeline);
@@ -127,8 +110,8 @@ DrawVkFlowingPoly -- version of DrawVkPoly that handles scrolling texture
 */
 static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 {
-	int		i;
-	float	*v;
+	mvtx_t *v;
+	int i;
 	mpoly_t *p;
 	float	scroll;
 
@@ -136,21 +119,21 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 
 	scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
 	if (scroll == 0.0)
+	{
 		scroll = -64.0;
+	}
 
 	if (Mesh_VertsRealloc(p->numverts))
 	{
 		ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
-	v = p->verts[0];
-	for (i = 0; i < p->numverts; i++, v += VERTEXSIZE)
+	v = p->verts;
+	for (i = 0; i < p->numverts; i++, v++)
 	{
-		verts_buffer[i].vertex[0] = v[0];
-		verts_buffer[i].vertex[1] = v[1];
-		verts_buffer[i].vertex[2] = v[2];
-		verts_buffer[i].texCoord[0] = v[3] + scroll;
-		verts_buffer[i].texCoord[1] = v[4];
+		VectorCopy(v->pos, verts_buffer[i].vertex);
+		verts_buffer[i].texCoord[0] = v->texCoord[0] + scroll;
+		verts_buffer[i].texCoord[1] = v->texCoord[1];
 	}
 
 	QVk_BindPipeline(&vk_drawPolyPipeline);
@@ -176,19 +159,17 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((p->numverts - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
 }
-//PGM
-//============
 
-/*
-** R_DrawTriangleOutlines
-*/
-static void R_DrawTriangleOutlines (void)
+static void
+R_DrawTriangleOutlines(void)
 {
 	int			i, j, k;
 	mpoly_t	*p;
 
 	if (!r_showtris->value)
+	{
 		return;
+	}
 
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
@@ -216,24 +197,16 @@ static void R_DrawTriangleOutlines (void)
 			{
 				for (j = 2, k = 0; j < p->numverts; j++, k++)
 				{
-					triVert[0].v[0] = p->verts[0][0];
-					triVert[0].v[1] = p->verts[0][1];
-					triVert[0].v[2] = p->verts[0][2];
+					VectorCopy(p->verts[0].pos, triVert[0].v);
 					memcpy(triVert[0].color, color, sizeof(color));
 
-					triVert[1].v[0] = p->verts[j - 1][0];
-					triVert[1].v[1] = p->verts[j - 1][1];
-					triVert[1].v[2] = p->verts[j - 1][2];
+					VectorCopy(p->verts[j - 1].pos, triVert[1].v);
 					memcpy(triVert[1].color, color, sizeof(color));
 
-					triVert[2].v[0] = p->verts[j][0];
-					triVert[2].v[1] = p->verts[j][1];
-					triVert[2].v[2] = p->verts[j][2];
+					VectorCopy(p->verts[j].pos, triVert[2].v);
 					memcpy(triVert[2].color, color, sizeof(color));
 
-					triVert[3].v[0] = p->verts[0][0];
-					triVert[3].v[1] = p->verts[0][1];
-					triVert[3].v[2] = p->verts[0][2];
+					VectorCopy(p->verts[0].pos, triVert[3].v);
 					memcpy(triVert[3].color, color, sizeof(color));
 
 					uint8_t *vertData = QVk_GetVertexBuffer(sizeof(triVert), &vbo, &vboOffset);
@@ -247,12 +220,8 @@ static void R_DrawTriangleOutlines (void)
 	}
 }
 
-/*
-================
-R_RenderBrushPoly
-================
-*/
-static void R_RenderBrushPoly (msurface_t *fa, float *modelMatrix, float alpha, entity_t *currententity)
+static void
+R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *currententity)
 {
 	int			maps;
 	image_t		*image;
@@ -343,7 +312,8 @@ The BSP tree is waled front to back, so unwinding the chain
 of alpha_surfaces will draw back to front, giving proper ordering.
 ================
 */
-void R_DrawAlphaSurfaces (void)
+void
+R_DrawAlphaSurfaces(void)
 {
 	msurface_t	*s;
 	float		intens;
@@ -357,16 +327,26 @@ void R_DrawAlphaSurfaces (void)
 	{
 		c_brush_polys++;
 		if (s->texinfo->flags & SURF_TRANS33)
+		{
 			color[3] = 0.33f;
+		}
 		else if (s->texinfo->flags & SURF_TRANS66)
+		{
 			color[3] = 0.66f;
+		}
 
 		if (s->flags & SURF_DRAWTURB)
+		{
 			EmitWaterPolys(s, s->texinfo->image, NULL, color, false);
+		}
 		else if (s->texinfo->flags & SURF_FLOWING)			// PGM	9/16/98
+		{
 			DrawVkFlowingPoly(s, s->texinfo->image, color);	// PGM
+		}
 		else
+		{
 			DrawVkPoly(s->polys, s->texinfo->image, color);
+		}
 	}
 
 	r_alpha_surfaces = NULL;
@@ -379,7 +359,8 @@ DrawTextureChains
 Draw world surfaces (mostly solid with alpha == 1.f)
 ================
 */
-static void DrawTextureChains (entity_t *currententity)
+static void
+DrawTextureChains(entity_t *currententity)
 {
 	int		i;
 	msurface_t	*s;
@@ -390,30 +371,45 @@ static void DrawTextureChains (entity_t *currententity)
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		if (!image->registration_sequence)
+		{
 			continue;
+		}
+
 		if (!image->texturechain)
+		{
 			continue;
+		}
+
 		c_visible_textures++;
 
 		for (s = image->texturechain; s; s = s->texturechain)
 		{
 			if (!(s->flags & SURF_DRAWTURB))
+			{
 				R_RenderBrushPoly(s, NULL, 1.f, currententity);
+			}
 		}
 	}
 
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		if (!image->registration_sequence)
+		{
 			continue;
+		}
+
 		s = image->texturechain;
 		if (!s)
+		{
 			continue;
+		}
 
 		for (; s; s = s->texturechain)
 		{
 			if (s->flags & SURF_DRAWTURB)
+			{
 				R_RenderBrushPoly(s, NULL, 1.f, currententity);
+			}
 		}
 
 		image->texturechain = NULL;
@@ -421,11 +417,11 @@ static void DrawTextureChains (entity_t *currententity)
 }
 
 
-static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, float alpha, entity_t *currententity )
+static void
+Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, entity_t *currententity)
 {
 	int		i, nv = surf->polys->numverts;
 	int		map;
-	float	*v;
 	image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 	qboolean is_dynamic = false;
 	unsigned lmtex = surf->lightmaptexturenum;
@@ -460,7 +456,7 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 			goto dynamic;
 	}
 
-	// dynamic this frame or dynamic previously
+	/* dynamic this frame or dynamic previously */
 	if (surf->dlightframe == r_framecount)
 	{
 	dynamic:
@@ -520,16 +516,16 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 
 			for (p = surf->polys; p; p = p->chain)
 			{
-				v = p->verts[0];
-				for (i = 0; i < nv; i++, v += VERTEXSIZE)
+				mvtx_t *v;
+
+				v = p->verts;
+				for (i = 0; i < nv; i++, v++)
 				{
-					lmappolyverts_buffer[i].vertex[0] = v[0];
-					lmappolyverts_buffer[i].vertex[1] = v[1];
-					lmappolyverts_buffer[i].vertex[2] = v[2];
-					lmappolyverts_buffer[i].texCoord[0] = v[3] + scroll;
-					lmappolyverts_buffer[i].texCoord[1] = v[4];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v[5];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v[6];
+					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
+					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0] + scroll;
+					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
+					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
 				}
 
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
@@ -549,16 +545,16 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 
 			for (p = surf->polys; p; p = p->chain)
 			{
-				v = p->verts[0];
-				for (i = 0; i < nv; i++, v += VERTEXSIZE)
+				mvtx_t *v;
+
+				v = p->verts;
+				for (i = 0; i < nv; i++, v++)
 				{
-					lmappolyverts_buffer[i].vertex[0] = v[0];
-					lmappolyverts_buffer[i].vertex[1] = v[1];
-					lmappolyverts_buffer[i].vertex[2] = v[2];
-					lmappolyverts_buffer[i].texCoord[0] = v[3];
-					lmappolyverts_buffer[i].texCoord[1] = v[4];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v[5];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v[6];
+					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
+					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0];
+					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
+					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
 				}
 
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
@@ -588,17 +584,18 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 
 			for (p = surf->polys; p; p = p->chain)
 			{
-				v = p->verts[0];
-				for (i = 0; i < nv; i++, v += VERTEXSIZE)
+				mvtx_t *v;
+
+				v = p->verts;
+				for (i = 0; i < nv; i++, v++)
 				{
-					lmappolyverts_buffer[i].vertex[0] = v[0];
-					lmappolyverts_buffer[i].vertex[1] = v[1];
-					lmappolyverts_buffer[i].vertex[2] = v[2];
-					lmappolyverts_buffer[i].texCoord[0] = v[3] + scroll;
-					lmappolyverts_buffer[i].texCoord[1] = v[4];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v[5];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v[6];
+					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
+					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0] + scroll;
+					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
+					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
 				}
+
 				VkBuffer vbo;
 				VkDeviceSize vboOffset;
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
@@ -617,17 +614,18 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 			//==========
 			for (p = surf->polys; p; p = p->chain)
 			{
-				v = p->verts[0];
-				for (i = 0; i < nv; i++, v += VERTEXSIZE)
+				mvtx_t *v;
+
+				v = p->verts;
+				for (i = 0; i < nv; i++, v++)
 				{
-					lmappolyverts_buffer[i].vertex[0] = v[0];
-					lmappolyverts_buffer[i].vertex[1] = v[1];
-					lmappolyverts_buffer[i].vertex[2] = v[2];
-					lmappolyverts_buffer[i].texCoord[0] = v[3];
-					lmappolyverts_buffer[i].texCoord[1] = v[4];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v[5];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v[6];
+					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
+					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0];
+					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
+					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
 				}
+
 				VkBuffer vbo;
 				VkDeviceSize vboOffset;
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
@@ -647,25 +645,22 @@ static void Vk_RenderLightmappedPoly( msurface_t *surf, float *modelMatrix, floa
 	}
 }
 
-/*
-=================
-R_DrawInlineBModel
-=================
-*/
-static void R_DrawInlineBModel (entity_t *currententity, model_t *currentmodel, float *modelMatrix)
+static void
+R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel, float *modelMatrix)
 {
-	int			i;
-	msurface_t	*psurf;
+	int i;
+	msurface_t *psurf;
 	float		alpha = 1.f;
 
-	// calculate dynamic lighting for bmodel
+	/* calculate dynamic lighting for bmodel */
 	if (!vk_flashblend->value)
 	{
-		dlight_t	*lt;
+		dlight_t *lt;
 		int	k;
 
 		lt = r_newrefdef.dlights;
-		for (k = 0; k<r_newrefdef.num_dlights; k++, lt++)
+
+		for (k = 0; k < r_newrefdef.num_dlights; k++, lt++)
 		{
 			R_MarkLights(lt, 1 << k,
 				currentmodel->nodes + currentmodel->firstnode,
@@ -680,25 +675,24 @@ static void R_DrawInlineBModel (entity_t *currententity, model_t *currentmodel, 
 		alpha = .25f;
 	}
 
-	//
-	// draw texture
-	//
-	for (i = 0; i<currentmodel->nummodelsurfaces; i++, psurf++)
+	/* draw texture */
+	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
-		float	dot;
-		cplane_t	*pplane;
+		cplane_t *pplane;
+		float dot;
 
-		// find which side of the node we are on
+		/* find which side of the node we are on */
 		pplane = psurf->plane;
 
 		dot = DotProduct(modelorg, pplane->normal) - pplane->dist;
 
-		// draw the polygon
+		/* draw the polygon */
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
 			if (psurf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
-			{	// add to the translucent chain
+			{
+				/* add to the translucent chain */
 				psurf->texturechain = r_alpha_surfaces;
 				r_alpha_surfaces = psurf;
 			}
@@ -714,26 +708,25 @@ static void R_DrawInlineBModel (entity_t *currententity, model_t *currentmodel, 
 	}
 }
 
-/*
-=================
-R_DrawBrushModel
-=================
-*/
-void R_DrawBrushModel (entity_t *currententity, model_t *currentmodel)
+void
+R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 {
-	vec3_t		mins, maxs;
-	qboolean	rotated;
+	vec3_t mins, maxs;
+	qboolean rotated;
 	float model[16];
 
 	if (currentmodel->nummodelsurfaces == 0)
+	{
 		return;
+	}
 
 	if (currententity->angles[0] || currententity->angles[1] || currententity->angles[2])
 	{
 		int	i;
 
 		rotated = true;
-		for (i = 0; i<3; i++)
+
+		for (i = 0; i < 3; i++)
 		{
 			mins[i] = currententity->origin[i] - currentmodel->radius;
 			maxs[i] = currententity->origin[i] + currentmodel->radius;
@@ -754,10 +747,11 @@ void R_DrawBrushModel (entity_t *currententity, model_t *currentmodel)
 	memset(vk_lms.lightmap_surfaces, 0, sizeof(vk_lms.lightmap_surfaces));
 
 	VectorSubtract(r_newrefdef.vieworg, currententity->origin, modelorg);
+
 	if (rotated)
 	{
-		vec3_t	temp;
-		vec3_t	forward, right, up;
+		vec3_t temp;
+		vec3_t forward, right, up;
 
 		VectorCopy(modelorg, temp);
 		AngleVectors(currententity->angles, forward, right, up);
@@ -777,45 +771,39 @@ void R_DrawBrushModel (entity_t *currententity, model_t *currentmodel)
 	R_DrawInlineBModel(currententity, currentmodel, model);
 }
 
-/*
-=============================================================
-
-	WORLD MODEL
-
-=============================================================
-*/
-
-/*
-================
-R_RecursiveWorldNode
-================
-*/
-static void R_RecursiveWorldNode (mnode_t *node, entity_t *currententity)
+static void
+R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
-	int			c, side, sidebit;
-	cplane_t	*plane;
-	msurface_t	*surf;
-	mleaf_t		*pleaf;
-	float		dot;
-	image_t		*image;
+	int c, side, sidebit;
+	cplane_t *plane;
+	msurface_t *surf;
+	mleaf_t *pleaf;
+	float dot;
+	image_t *image;
 
 	if (node->contents == CONTENTS_SOLID)
-		return;		// solid
+	{
+		return; /* solid */
+	}
 
 	if (node->visframe != r_visframecount)
+	{
 		return;
+	}
 
-	if (r_cull->value && R_CullBox (node->minmaxs, node->minmaxs+3, frustum))
+	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3, frustum))
+	{
 		return;
+	}
 
-	// if a leaf node, draw stuff
+	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
 		msurface_t	**mark;
 
 		pleaf = (mleaf_t *)node;
 
-		// check for door connected areas
+		/* check for door connected areas */
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
 			return;	// not visible
 
@@ -828,30 +816,31 @@ static void R_RecursiveWorldNode (mnode_t *node, entity_t *currententity)
 			{
 				(*mark)->visframe = r_framecount;
 				mark++;
-			} while (--c);
+			}
+			while (--c);
 		}
 
 		return;
 	}
 
-	// node is just a decision point, so go down the apropriate sides
-	// find which side of the node we are on
+	/* node is just a decision point, so go down the apropriate
+	   sides find which side of the node we are on */
 	plane = node->plane;
 
 	switch (plane->type)
 	{
-	case PLANE_X:
-		dot = modelorg[0] - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = modelorg[1] - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = modelorg[2] - plane->dist;
-		break;
-	default:
-		dot = DotProduct(modelorg, plane->normal) - plane->dist;
-		break;
+		case PLANE_X:
+			dot = modelorg[0] - plane->dist;
+			break;
+		case PLANE_Y:
+			dot = modelorg[1] - plane->dist;
+			break;
+		case PLANE_Z:
+			dot = modelorg[2] - plane->dist;
+			break;
+		default:
+			dot = DotProduct(modelorg, plane->normal) - plane->dist;
+			break;
 	}
 
 	if (dot >= 0)
@@ -865,24 +854,32 @@ static void R_RecursiveWorldNode (mnode_t *node, entity_t *currententity)
 		sidebit = SURF_PLANEBACK;
 	}
 
-	// recurse down the children, front side first
-	R_RecursiveWorldNode (node->children[side], currententity);
+	/* recurse down the children, front side first */
+	R_RecursiveWorldNode(currententity, node->children[side]);
 
-	// draw stuff
-	for ( c = node->numsurfaces, surf = r_worldmodel->surfaces + node->firstsurface; c ; c--, surf++)
+	/* draw stuff */
+	for (c = node->numsurfaces,
+		 surf = r_worldmodel->surfaces + node->firstsurface;
+		 c; c--, surf++)
 	{
 		if (surf->visframe != r_framecount)
+		{
 			continue;
+		}
 
-		if ( (surf->flags & SURF_PLANEBACK) != sidebit )
-			continue;		// wrong side
+		if ((surf->flags & SURF_PLANEBACK) != sidebit)
+		{
+			continue; /* wrong side */
+		}
 
 		if (surf->texinfo->flags & SURF_SKY)
-		{	// just adds to visible sky bounds
-			R_AddSkySurface (surf);
+		{
+			/* just adds to visible sky bounds */
+			R_AddSkySurface(surf);
 		}
-		else if (surf->texinfo->flags & (SURF_TRANS33|SURF_TRANS66))
-		{	// add to the translucent chain
+		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+		{
+			/* add to the translucent chain */
 			surf->texturechain = r_alpha_surfaces;
 			r_alpha_surfaces = surf;
 		}
@@ -904,118 +901,140 @@ static void R_RecursiveWorldNode (mnode_t *node, entity_t *currententity)
 		}
 	}
 
-	// recurse down the back side
-	R_RecursiveWorldNode (node->children[!side], currententity);
+	/* recurse down the back side */
+	R_RecursiveWorldNode(currententity, node->children[!side]);
 }
 
-
-/*
-=============
-R_DrawWorld
-=============
-*/
-void R_DrawWorld (void)
+void
+R_DrawWorld(void)
 {
-	entity_t	ent;
+	entity_t ent;
 
 	if (!r_drawworld->value)
+	{
 		return;
+	}
 
-	if ( r_newrefdef.rdflags & RDF_NOWORLDMODEL )
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	{
 		return;
+	}
 
 	VectorCopy(r_newrefdef.vieworg, modelorg);
 
-	// auto cycle the world frame for texture animation
-	memset (&ent, 0, sizeof(ent));
-	ent.frame = (int)(r_newrefdef.time*2);
+	/* auto cycle the world frame for texture animation */
+	memset(&ent, 0, sizeof(ent));
+	ent.frame = (int)(r_newrefdef.time * 2);
 
-	memset (vk_lms.lightmap_surfaces, 0, sizeof(vk_lms.lightmap_surfaces));
-	R_ClearSkyBox ();
+	memset(vk_lms.lightmap_surfaces, 0, sizeof(vk_lms.lightmap_surfaces));
 
-	R_RecursiveWorldNode (r_worldmodel->nodes, &ent);
+	R_ClearSkyBox();
+	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 
 	/*
 	** theoretically nothing should happen in the next two functions
 	** if multitexture is enabled - in practice, this code renders non-transparent liquids!
 	*/
-	DrawTextureChains (&ent);
-
-	R_DrawSkyBox ();
-
-	R_DrawTriangleOutlines ();
+	DrawTextureChains(&ent);
+	R_DrawSkyBox();
+	R_DrawTriangleOutlines();
 }
 
-
 /*
-===============
-R_MarkLeaves
-
-Mark the leaves and nodes that are in the PVS for the current
-cluster
-===============
-*/
-void R_MarkLeaves (void)
+ * Mark the leaves and nodes that are
+ * in the PVS for the current cluster
+ */
+void
+R_MarkLeaves(void)
 {
-	const byte	*vis;
-	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS/8];
-	mnode_t	*node;
-	int		i;
-	mleaf_t	*leaf;
+	const byte *vis;
+	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS / 8];
+	mnode_t *node;
+	int i;
+	mleaf_t *leaf;
 
-	if (r_oldviewcluster == r_viewcluster && r_oldviewcluster2 == r_viewcluster2 && !r_novis->value && r_viewcluster != -1)
+	if ((r_oldviewcluster == r_viewcluster) &&
+		(r_oldviewcluster2 == r_viewcluster2) &&
+		!r_novis->value &&
+		(r_viewcluster != -1))
+	{
 		return;
+	}
 
-	// development aid to let you run around and see exactly where
-	// the pvs ends
+	/* development aid to let you run around
+	   and see exactly where the pvs ends */
 	if (r_lockpvs->value)
+	{
 		return;
+	}
 
 	r_visframecount++;
 	r_oldviewcluster = r_viewcluster;
 	r_oldviewcluster2 = r_viewcluster2;
 
-	if (r_novis->value || r_viewcluster == -1 || !r_worldmodel->vis)
+	if (r_novis->value || (r_viewcluster == -1) || !r_worldmodel->vis)
 	{
-		// mark everything
-		for (i=0 ; i<r_worldmodel->numleafs ; i++)
+		/* mark everything */
+		for (i = 0; i < r_worldmodel->numleafs; i++)
+		{
 			r_worldmodel->leafs[i].visframe = r_visframecount;
-		for (i=0 ; i<r_worldmodel->numnodes ; i++)
+		}
+
+		for (i = 0; i < r_worldmodel->numnodes; i++)
+		{
 			r_worldmodel->nodes[i].visframe = r_visframecount;
+		}
+
 		return;
 	}
 
-	vis = Mod_ClusterPVS (r_viewcluster, r_worldmodel);
-	// may have to combine two clusters because of solid water boundaries
+	vis = Mod_ClusterPVS(r_viewcluster, r_worldmodel);
+
+	/* may have to combine two clusters because of solid water boundaries */
 	if (r_viewcluster2 != r_viewcluster)
 	{
-		int	c;
+		int c;
 
-		memcpy (fatvis, vis, (r_worldmodel->numleafs+7)/8);
-		vis = Mod_ClusterPVS (r_viewcluster2, r_worldmodel);
-		c = (r_worldmodel->numleafs+31)/32;
-		for (i=0 ; i<c ; i++)
+		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
+		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
+		c = (r_worldmodel->numleafs + 31) / 32;
+
+		for (i = 0; i < c; i++)
+		{
 			((int *)fatvis)[i] |= ((int *)vis)[i];
+		}
+
 		vis = fatvis;
 	}
 
-	for (i=0,leaf=r_worldmodel->leafs ; i<r_worldmodel->numleafs ; i++, leaf++)
+	for (i = 0, leaf = r_worldmodel->leafs;
+		 i < r_worldmodel->numleafs;
+		 i++, leaf++)
 	{
-		int	cluster;
+		int cluster;
 
 		cluster = leaf->cluster;
+
 		if (cluster == -1)
+		{
 			continue;
-		if (vis[cluster>>3] & (1<<(cluster&7)))
+		}
+
+		if (vis[cluster >> 3] & (1 << (cluster & 7)))
 		{
 			node = (mnode_t *)leaf;
+
 			do
 			{
 				if (node->visframe == r_visframecount)
+				{
 					break;
+				}
+
 				node->visframe = r_visframecount;
 				node = node->parent;
-			} while (node);
+			}
+			while (node);
 		}
 	}
 }
@@ -1032,14 +1051,15 @@ void R_MarkLeaves (void)
 
 static void LM_InitBlock( void )
 {
-	memset( vk_lms.allocated, 0, sizeof( vk_lms.allocated ) );
+	memset(vk_lms.allocated, 0, sizeof(vk_lms.allocated));
 }
 
-static void LM_UploadBlock( qboolean dynamic )
+static void
+LM_UploadBlock(qboolean dynamic)
 {
 	int texture;
 
-	if ( dynamic )
+	if (dynamic)
 	{
 		texture = 0;
 	}
@@ -1048,22 +1068,27 @@ static void LM_UploadBlock( qboolean dynamic )
 		texture = vk_lms.current_lightmap_texture;
 	}
 
-	if ( dynamic )
+	if (dynamic)
 	{
 		int i;
 		int height = 0;
 
-		for ( i = 0; i < BLOCK_WIDTH; i++ )
+		for (i = 0; i < BLOCK_WIDTH; i++)
 		{
-			if ( vk_lms.allocated[i] > height )
+			if (vk_lms.allocated[i] > height)
+			{
 				height = vk_lms.allocated[i];
+			}
 		}
+
 		QVk_UpdateTextureData(&vk_state.lightmap_textures[texture], vk_lms.lightmap_buffer, 0, 0, BLOCK_WIDTH, height);
 	}
 	else
 	{
 		if (vk_state.lightmap_textures[texture].resource.image != VK_NULL_HANDLE)
+		{
 			QVk_UpdateTextureData(&vk_state.lightmap_textures[texture], vk_lms.lightmap_buffer, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+		}
 		else
 		{
 			QVVKTEXTURE_CLEAR(vk_state.lightmap_textures[texture]);
@@ -1078,33 +1103,47 @@ static void LM_UploadBlock( qboolean dynamic )
 			QVk_DebugSetObjectName((uint64_t)vk_state.lightmap_textures[texture].resource.memory,
 				VK_OBJECT_TYPE_DEVICE_MEMORY, va("Memory: dynamic lightmap #%d", texture));
 		}
-		if ( ++vk_lms.current_lightmap_texture == MAX_LIGHTMAPS )
-			ri.Sys_Error( ERR_DROP, "%s() - MAX_LIGHTMAPS exceeded\n", __func__);
+
+		if (++vk_lms.current_lightmap_texture == MAX_LIGHTMAPS)
+		{
+			ri.Sys_Error(ERR_DROP,
+					"%s() - MAX_LIGHTMAPS exceeded\n", __func__);
+		}
 	}
 }
 
-// returns a texture number and the position inside it
-static qboolean LM_AllocBlock (int w, int h, int *x, int *y)
+/*
+ * returns a texture number and the position inside it
+ */
+static qboolean
+LM_AllocBlock(int w, int h, int *x, int *y)
 {
-	int		i, best;
+	int i, best;
 
 	best = BLOCK_HEIGHT;
 
-	for (i=0 ; i<BLOCK_WIDTH-w ; i++)
+	for (i = 0; i < BLOCK_WIDTH - w; i++)
 	{
 		int		j, best2;
 
 		best2 = 0;
 
-		for (j=0 ; j<w ; j++)
+		for (j = 0; j < w; j++)
 		{
-			if (vk_lms.allocated[i+j] >= best)
+			if (vk_lms.allocated[i + j] >= best)
+			{
 				break;
-			if (vk_lms.allocated[i+j] > best2)
-				best2 = vk_lms.allocated[i+j];
+			}
+
+			if (vk_lms.allocated[i + j] > best2)
+			{
+				best2 = vk_lms.allocated[i + j];
+			}
 		}
+
 		if (j == w)
-		{	// this is a valid spot
+		{
+			/* this is a valid spot */
 			*x = i;
 			*y = best = best2;
 		}
@@ -1115,43 +1154,54 @@ static qboolean LM_AllocBlock (int w, int h, int *x, int *y)
 		return false;
 	}
 
-	for (i=0 ; i<w ; i++)
+	for (i = 0; i < w; i++)
+	{
 		vk_lms.allocated[*x + i] = best + h;
+	}
 
 	return true;
 }
 
-/*
-================
-Vk_BuildPolygonFromSurface
-================
-*/
-void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel)
+void
+Vk_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 {
-	int			i, lnumverts;
-	medge_t		*pedges, *r_pedge;
-	float		*vec;
-	mpoly_t	*poly;
-	vec3_t		total;
+	int i, lnumverts;
+	medge_t *pedges, *r_pedge;
+	float *vec;
+	mpoly_t *poly;
+	vec3_t total;
+	vec3_t normal;
 
-	// reconstruct the polygon
+	/* reconstruct the polygon */
 	pedges = currentmodel->edges;
 	lnumverts = fa->numedges;
 
-	VectorClear (total);
+	VectorClear(total);
 
-	//
-	// draw texture
-	//
-	poly = Hunk_Alloc (sizeof(mpoly_t) + (lnumverts-4) * sizeof(glvk_vtx_t));
+	/* draw texture */
+	poly = Hunk_Alloc(sizeof(mpoly_t) +
+		   (lnumverts - 4) * sizeof(mvtx_t));
 	poly->next = fa->polys;
+	poly->flags = fa->flags;
 	fa->polys = poly;
 	poly->numverts = lnumverts;
 
-	for (i=0 ; i<lnumverts ; i++)
+	VectorCopy(fa->plane->normal, normal);
+
+	if(fa->flags & SURF_PLANEBACK)
 	{
-		int		lindex;
-		float	s, t;
+		// if for some reason the normal sticks to the back of the plane, invert it
+		// so it's usable for the shader
+		for (i=0; i<3; ++i)  normal[i] = -normal[i];
+	}
+
+	for (i = 0; i < lnumverts; i++)
+	{
+		mvtx_t* vert;
+		float s, t;
+		int lindex;
+
+		vert = &poly->verts[i];
 
 		lindex = currentmodel->surfedges[fa->firstedge + i];
 
@@ -1172,14 +1222,12 @@ void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel)
 		t = DotProduct(vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
 		t /= fa->texinfo->image->height;
 
-		VectorAdd (total, vec, total);
-		VectorCopy(vec, poly->verts[i]);
-		poly->verts[i][3] = s;
-		poly->verts[i][4] = t;
+		VectorAdd(total, vec, total);
+		VectorCopy(vec, vert->pos);
+		vert->texCoord[0] = s;
+		vert->texCoord[1] = t;
 
-		//
-		// lightmap texture coordinates
-		//
+		/* lightmap texture coordinates */
 		s = DotProduct(vec, fa->lmvecs[0]) + fa->lmvecs[0][3];
 		s -= fa->texturemins[0];
 		s += fa->light_s * (1 << fa->lmshift);
@@ -1192,35 +1240,34 @@ void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel)
 		t += (1 << fa->lmshift) * 0.5;
 		t /= BLOCK_HEIGHT * (1 << fa->lmshift);
 
-		poly->verts[i][5] = s;
-		poly->verts[i][6] = t;
+		vert->lmTexCoord[0] = s;
+		vert->lmTexCoord[1] = t;
+
+		VectorCopy(normal, vert->normal);
+		vert->lightFlags = 0;
 	}
-
-	poly->numverts = lnumverts;
-
 }
 
-/*
-========================
-Vk_CreateSurfaceLightmap
-========================
-*/
-void Vk_CreateSurfaceLightmap (msurface_t *surf)
+void
+Vk_CreateSurfaceLightmap(msurface_t *surf)
 {
-	int		smax, tmax;
-	byte	*base;
+	int smax, tmax;
+	byte *base;
 
-	if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB))
+	if (surf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
+	{
 		return;
+	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
-	if ( !LM_AllocBlock( smax, tmax, &surf->light_s, &surf->light_t ) )
+	if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 	{
-		LM_UploadBlock( false );
+		LM_UploadBlock(false);
 		LM_InitBlock();
-		if ( !LM_AllocBlock( smax, tmax, &surf->light_s, &surf->light_t ) )
+
+		if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
 			ri.Sys_Error(ERR_FATAL,
 				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
@@ -1233,30 +1280,23 @@ void Vk_CreateSurfaceLightmap (msurface_t *surf)
 	base = vk_lms.lightmap_buffer;
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
-	R_SetCacheState( surf );
-	R_BuildLightMap (surf, base, BLOCK_WIDTH*LIGHTMAP_BYTES);
+	R_SetCacheState(surf);
+	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
 }
 
-
-/*
-==================
-Vk_BeginBuildingLightmaps
-
-==================
-*/
-void Vk_BeginBuildingLightmaps (model_t *m)
+void
+Vk_BeginBuildingLightmaps(model_t *m)
 {
-	static lightstyle_t	lightstyles[MAX_LIGHTSTYLES];
-	int				i;
+	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
+	int i;
 
 	memset(vk_lms.allocated, 0, sizeof(vk_lms.allocated));
 
-	r_framecount = 1;		// no dlightcache
+	r_framecount = 1; /* no dlightcache */
 
-	/*
-	** setup the base lightstyles so the lightmaps won't have to be regenerated
-	** the first time they're seen
-	*/
+	/* setup the base lightstyles so the lightmaps
+	   won't have to be regenerated the first time
+	   they're seen */
 	for (i = 0; i < MAX_LIGHTSTYLES; i++)
 	{
 		lightstyles[i].rgb[0] = 1;
@@ -1264,6 +1304,7 @@ void Vk_BeginBuildingLightmaps (model_t *m)
 		lightstyles[i].rgb[2] = 1;
 		lightstyles[i].white = 3;
 	}
+
 	r_newrefdef.lightstyles = lightstyles;
 
 	vk_lms.current_lightmap_texture = 0;
@@ -1292,13 +1333,9 @@ void Vk_BeginBuildingLightmaps (model_t *m)
 	}
 }
 
-/*
-=======================
-Vk_EndBuildingLightmaps
-=======================
-*/
-void Vk_EndBuildingLightmaps (void)
+void
+Vk_EndBuildingLightmaps(void)
 {
-	LM_UploadBlock( false );
+	LM_UploadBlock(false);
 }
 

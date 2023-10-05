@@ -141,7 +141,7 @@ SetLightFlags(msurface_t *surf)
 		lightFlags = surf->dlightbits;
 	}
 
-	mvtx_t* verts = surf->polys->vertices;
+	mvtx_t* verts = surf->polys->verts;
 
 	int numVerts = surf->polys->numverts;
 	for(int i=0; i<numVerts; ++i)
@@ -155,7 +155,7 @@ SetAllLightFlags(msurface_t *surf)
 {
 	unsigned int lightFlags = 0xffffffff;
 
-	mvtx_t* verts = surf->polys->vertices;
+	mvtx_t* verts = surf->polys->verts;
 
 	int numVerts = surf->polys->numverts;
 	for(int i=0; i<numVerts; ++i)
@@ -167,18 +167,18 @@ SetAllLightFlags(msurface_t *surf)
 void
 GL4_DrawGLPoly(msurface_t *fa)
 {
-	glpoly_t *p = fa->polys;
+	mpoly_t *p = fa->polys;
 
 	GL4_BindVAO(gl4state.vao3D);
 	GL4_BindVBO(gl4state.vbo3D);
 
-	GL4_BufferAndDraw3D(p->vertices, p->numverts, GL_TRIANGLE_FAN);
+	GL4_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN);
 }
 
 void
 GL4_DrawGLFlowingPoly(msurface_t *fa)
 {
-	glpoly_t *p;
+	mpoly_t *p;
 	float scroll;
 
 	p = fa->polys;
@@ -199,7 +199,7 @@ GL4_DrawGLFlowingPoly(msurface_t *fa)
 	GL4_BindVAO(gl4state.vao3D);
 	GL4_BindVBO(gl4state.vbo3D);
 
-	GL4_BufferAndDraw3D(p->vertices, p->numverts, GL_TRIANGLE_FAN);
+	GL4_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN);
 }
 
 static void
@@ -208,7 +208,7 @@ DrawTriangleOutlines(void)
 	STUB_ONCE("TODO: Implement for r_showtris support!");
 #if 0
 	int i, j;
-	glpoly_t *p;
+	mpoly_t *p;
 
 	if (!r_showtris->value)
 	{
@@ -238,10 +238,10 @@ DrawTriangleOutlines(void)
 
 					for (k=0; k<3; k++)
 					{
-						vtx[0+k] = p->vertices [ 0 ][ k ];
-						vtx[3+k] = p->vertices [ j - 1 ][ k ];
-						vtx[6+k] = p->vertices [ j ][ k ];
-						vtx[9+k] = p->vertices [ 0 ][ k ];
+						vtx[0+k] = p->verts [ 0 ][ k ];
+						vtx[3+k] = p->verts [ j - 1 ][ k ];
+						vtx[6+k] = p->verts [ j ][ k ];
+						vtx[9+k] = p->verts [ 0 ][ k ];
 					}
 
 					glEnableClientState( GL_VERTEX_ARRAY );

@@ -201,20 +201,20 @@ void Vk_ScreenShot_f (void);
 void Vk_Strings_f(void);
 void Vk_Mem_f(void);
 
-void R_DrawAliasModel (entity_t *currententity, model_t *currentmodel);
-void R_DrawBrushModel (entity_t *currententity, model_t *currentmodel);
-void R_DrawSpriteModel (entity_t *currententity, model_t *currentmodel);
-void R_DrawBeam (entity_t *currententity);
-void R_DrawWorld (void);
-void R_RenderDlights (void);
-void R_SetCacheState( msurface_t *surf );
-void R_BuildLightMap (msurface_t *surf, byte *dest, int stride);
-void R_DrawAlphaSurfaces (void);
-void RE_InitParticleTexture (void);
-void Draw_InitLocal (void);
-void Vk_SubdivideSurface (msurface_t *fa, model_t *loadmodel);
-void R_RotateForEntity (entity_t *e, float *mvMatrix);
-void R_MarkLeaves (void);
+void R_DrawAliasModel(entity_t *currententity, model_t *currentmodel);
+void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
+void R_DrawSpriteModel(entity_t *currententity, model_t *currentmodel);
+void R_DrawBeam(entity_t *currententity);
+void R_DrawWorld(void);
+void R_RenderDlights(void);
+void R_SetCacheState(msurface_t *surf );
+void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
+void R_DrawAlphaSurfaces(void);
+void RE_InitParticleTexture(void);
+void Draw_InitLocal(void);
+void Vk_SubdivideSurface(msurface_t *fa, model_t *loadmodel);
+void R_RotateForEntity(entity_t *e, float *mvMatrix);
+void R_MarkLeaves(void);
 
 void EmitWaterPolys (msurface_t *fa, image_t *texture,
 				   float *modelMatrix, const float *color,
@@ -248,7 +248,7 @@ void	Vk_TextureMode( char *string );
 void	Vk_LmapTextureMode( char *string );
 void	Vk_ImageList_f (void);
 
-void Vk_BuildPolygonFromSurface(msurface_t *fa, model_t *currentmodel);
+void Vk_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa);
 void Vk_CreateSurfaceLightmap (msurface_t *surf);
 void Vk_EndBuildingLightmaps (void);
 void Vk_BeginBuildingLightmaps (model_t *m);
@@ -345,7 +345,7 @@ qboolean Vkimp_CreateSurface(SDL_Window *window);
 
 // buffers reallocate
 typedef struct {
-	float vertex[3];
+	vec3_t vertex;
 	float texCoord[2];
 } polyvert_t;
 

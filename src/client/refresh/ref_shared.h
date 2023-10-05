@@ -191,6 +191,15 @@ typedef struct mvtx_s {
 	int lightFlags; /* bit i set means: dynlight i affects surface */
 } mvtx_t;
 
+typedef struct mpoly_s
+{
+	struct  mpoly_s *next;
+	struct  mpoly_s *chain;
+	int numverts;
+	int flags; /* for SURF_UNDERWATER (not needed anymore?) */
+	mvtx_t verts[4]; /* variable sized */
+} mpoly_t;
+
 /* BSPX Light octtree */
 #define LGNODE_LEAF		(1u<<31)
 #define LGNODE_MISSING	(1u<<30)

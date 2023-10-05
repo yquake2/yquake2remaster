@@ -41,7 +41,6 @@ void
 LM_UploadBlock(qboolean dynamic)
 {
 	int texture;
-	int height = 0;
 
 	if (dynamic)
 	{
@@ -59,6 +58,7 @@ LM_UploadBlock(qboolean dynamic)
 	if (dynamic)
 	{
 		int i;
+		int height = 0;
 
 		for (i = 0; i < BLOCK_WIDTH; i++)
 		{
@@ -82,7 +82,7 @@ LM_UploadBlock(qboolean dynamic)
 		if (++gl_lms.current_lightmap_texture == MAX_LIGHTMAPS)
 		{
 			ri.Sys_Error(ERR_DROP,
-					"LM_UploadBlock() - MAX_LIGHTMAPS exceeded\n");
+					"%s() - MAX_LIGHTMAPS exceeded\n", __func__);
 		}
 	}
 }
@@ -93,13 +93,14 @@ LM_UploadBlock(qboolean dynamic)
 qboolean
 LM_AllocBlock(int w, int h, int *x, int *y)
 {
-	int i, j;
-	int best, best2;
+	int i, best;
 
 	best = BLOCK_HEIGHT;
 
 	for (i = 0; i < BLOCK_WIDTH - w; i++)
 	{
+		int		j, best2;
+
 		best2 = 0;
 
 		for (j = 0; j < w; j++)
@@ -139,12 +140,12 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 void
 LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 {
-	int i, lindex, lnumverts;
+	int i, lnumverts;
 	medge_t *pedges, *r_pedge;
 	float *vec;
-	float s, t;
 	mpoly_t *poly;
 	vec3_t total;
+	vec3_t normal;
 
 	/* reconstruct the polygon */
 	pedges = currentmodel->edges;
@@ -154,14 +155,29 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 
 	/* draw texture */
 	poly = Hunk_Alloc(sizeof(mpoly_t) +
-		   (lnumverts - 4) * sizeof(glvk_vtx_t));
+		   (lnumverts - 4) * sizeof(mvtx_t));
 	poly->next = fa->polys;
 	poly->flags = fa->flags;
 	fa->polys = poly;
 	poly->numverts = lnumverts;
 
+	VectorCopy(fa->plane->normal, normal);
+
+	if(fa->flags & SURF_PLANEBACK)
+	{
+		// if for some reason the normal sticks to the back of the plane, invert it
+		// so it's usable for the shader
+		for (i=0; i<3; ++i)  normal[i] = -normal[i];
+	}
+
 	for (i = 0; i < lnumverts; i++)
 	{
+		mvtx_t* vert;
+		float s, t;
+		int lindex;
+
+		vert = &poly->verts[i];
+
 		lindex = currentmodel->surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
@@ -182,9 +198,9 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 		t /= fa->texinfo->image->height;
 
 		VectorAdd(total, vec, total);
-		VectorCopy(vec, poly->verts[i]);
-		poly->verts[i][3] = s;
-		poly->verts[i][4] = t;
+		VectorCopy(vec, vert->pos);
+		vert->texCoord[0] = s;
+		vert->texCoord[1] = t;
 
 		/* lightmap texture coordinates */
 		s = DotProduct(vec, fa->lmvecs[0]) + fa->lmvecs[0][3];
@@ -199,8 +215,11 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 		t += (1 << fa->lmshift) * 0.5;
 		t /= BLOCK_HEIGHT * (1 << fa->lmshift);
 
-		poly->verts[i][5] = s;
-		poly->verts[i][6] = t;
+		vert->lmTexCoord[0] = s;
+		vert->lmTexCoord[1] = t;
+
+		VectorCopy(normal, vert->normal);
+		vert->lightFlags = 0;
 	}
 }
 

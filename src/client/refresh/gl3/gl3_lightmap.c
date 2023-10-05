@@ -124,7 +124,7 @@ GL3_LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa)
 	medge_t *pedges, *r_pedge;
 	float *vec;
 	float s, t;
-	glpoly_t *poly;
+	mpoly_t *poly;
 	vec3_t total;
 	vec3_t normal;
 
@@ -135,7 +135,7 @@ GL3_LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa)
 	VectorClear(total);
 
 	/* draw texture */
-	poly = Hunk_Alloc(sizeof(glpoly_t) +
+	poly = Hunk_Alloc(sizeof(mpoly_t) +
 		   (lnumverts - 4) * sizeof(mvtx_t));
 	poly->next = fa->polys;
 	poly->flags = fa->flags;
@@ -153,7 +153,7 @@ GL3_LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa)
 
 	for (i = 0; i < lnumverts; i++)
 	{
-		mvtx_t* vert = &poly->vertices[i];
+		mvtx_t* vert = &poly->verts[i];
 
 		lindex = currentmodel->surfedges[fa->firstedge + i];
 

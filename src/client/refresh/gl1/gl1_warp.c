@@ -34,8 +34,8 @@
 static float skyrotate;
 static int skyautorotate;
 static vec3_t skyaxis;
-image_t *sky_images[6];
-int skytexorder[6] = {0, 2, 1, 3, 4, 5};
+static image_t *sky_images[6];
+static int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 
 GLfloat vtx_sky[12];
 GLfloat tex_sky[8];
@@ -49,7 +49,7 @@ float r_turbsin[] = {
 #include "../constants/warpsin.h"
 };
 
-vec3_t skyclip[6] = {
+static vec3_t skyclip[6] = {
 	{1, 1, 0},
 	{1, -1, 0},
 	{0, -1, 1},
@@ -59,7 +59,7 @@ vec3_t skyclip[6] = {
 };
 int c_sky;
 
-int st_to_vec[6][3] = {
+static int st_to_vec[6][3] = {
 	{3, -1, 2},
 	{-3, 1, 2},
 
@@ -70,7 +70,7 @@ int st_to_vec[6][3] = {
 	{2, -1, -3} /* look straight down */
 };
 
-int vec_to_st[6][3] = {
+static int vec_to_st[6][3] = {
 	{-2, 3, 1},
 	{2, 3, -1},
 
@@ -81,34 +81,34 @@ int vec_to_st[6][3] = {
 	{-2, 1, -3}
 };
 
-float skymins[2][6], skymaxs[2][6];
-float sky_min, sky_max;
+static float skymins[2][6], skymaxs[2][6];
+static float sky_min, sky_max;
 
 void
 R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 {
 	int i, j, k;
 	vec3_t mins, maxs;
-	float m;
 	float *v;
 	vec3_t front[64], back[64];
 	int f, b;
 	float dist[64];
 	float frac;
 	mpoly_t *poly;
-	float s, t;
 	vec3_t total;
 	float total_s, total_t;
 
 	if (numverts > 60)
 	{
-		ri.Sys_Error(ERR_DROP, "numverts = %i", numverts);
+		ri.Sys_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
 	}
 
 	R_BoundPoly(numverts, verts, mins, maxs);
 
 	for (i = 0; i < 3; i++)
 	{
+		float m;
+
 		m = (mins[i] + maxs[i]) * 0.5;
 		m = SUBDIVIDE_SIZE * floor(m / SUBDIVIDE_SIZE + 0.5);
 
@@ -178,7 +178,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	/* add a point in the center to help keep warp valid */
-	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(glvk_vtx_t));
+	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts + 2;
@@ -188,7 +188,9 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 
 	for (i = 0; i < numverts; i++, verts += 3)
 	{
-		VectorCopy(verts, poly->verts[i + 1]);
+		float s, t;
+
+		VectorCopy(verts, poly->verts[i + 1].pos);
 		s = DotProduct(verts, warpface->texinfo->vecs[0]);
 		t = DotProduct(verts, warpface->texinfo->vecs[1]);
 
@@ -196,16 +198,16 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 		total_t += t;
 		VectorAdd(total, verts, total);
 
-		poly->verts[i + 1][3] = s;
-		poly->verts[i + 1][4] = t;
+		poly->verts[i + 1].texCoord[0] = s;
+		poly->verts[i + 1].texCoord[1] = t;
 	}
 
-	VectorScale(total, (1.0 / numverts), poly->verts[0]);
-	poly->verts[0][3] = total_s / numverts;
-	poly->verts[0][4] = total_t / numverts;
+	VectorScale(total, (1.0 / numverts), poly->verts[0].pos);
+	poly->verts[0].texCoord[0] = total_s / numverts;
+	poly->verts[0].texCoord[1] = total_t / numverts;
 
 	/* copy first vertex to last */
-	memcpy(poly->verts[i + 1], poly->verts[1], sizeof(poly->verts[0]));
+	memcpy(&poly->verts[i + 1], &poly->verts[1], sizeof(mvtx_t));
 }
 
 /*
@@ -219,7 +221,6 @@ R_SubdivideSurface(model_t *loadmodel, msurface_t *fa)
 	vec3_t verts[64];
 	int numverts;
 	int i;
-	int lindex;
 	float *vec;
 
 	/* convert edges back to a normal polygon */
@@ -227,6 +228,8 @@ R_SubdivideSurface(model_t *loadmodel, msurface_t *fa)
 
 	for (i = 0; i < fa->numedges; i++)
 	{
+		int	lindex;
+
 		lindex = loadmodel->surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
@@ -252,7 +255,7 @@ void
 R_EmitWaterPolys(msurface_t *fa)
 {
 	mpoly_t *p, *bp;
-	float *v;
+	mvtx_t *v;
 	int i;
 	float s, t, os, ot;
 	float scroll;
@@ -283,14 +286,14 @@ R_EmitWaterPolys(msurface_t *fa)
 	{
 		p = bp;
 #ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
-        YQ2_VLA(GLfloat, tex, 2*p->numverts);
+		YQ2_VLA(GLfloat, tex, 2 * p->numverts);
 #endif
-        unsigned int index_tex = 0;
+		unsigned int index_tex = 0;
 
-		for ( i = 0, v = p->verts [ 0 ]; i < p->numverts; i++, v += VERTEXSIZE )
+		for ( i = 0, v = p->verts; i < p->numverts; i++, v++)
 		{
-			os = v [ 3 ];
-			ot = v [ 4 ];
+			os = v->texCoord[0];
+			ot = v->texCoord[1];
 
 			s = os + r_turbsin [ (int) ( ( ot * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ];
 			s += scroll;
@@ -300,23 +303,23 @@ R_EmitWaterPolys(msurface_t *fa)
 			tex[index_tex++] = t * ( 1.0 / 64 );
 		}
 
-		v = p->verts [ 0 ];
+		v = p->verts;
 
-        glEnableClientState( GL_VERTEX_ARRAY );
-        glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        glVertexPointer( 3, GL_FLOAT, sizeof(glvk_vtx_t), v );
-        glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-        glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
+		glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), v->pos);
+		glTexCoordPointer(2, GL_FLOAT, 0, tex);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-        glDisableClientState( GL_VERTEX_ARRAY );
-        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
 	YQ2_VLAFREE( tex );
 }
 
-void
+static void
 R_DrawSkyPolygon(int nump, vec3_t vecs)
 {
 	int i, j;
@@ -556,7 +559,7 @@ R_AddSkySurface(msurface_t *fa)
 	{
 		for (i = 0; i < p->numverts; i++)
 		{
-			VectorSubtract(p->verts[i], r_origin, verts[i]);
+			VectorSubtract(p->verts[i].pos, r_origin, verts[i]);
 		}
 
 		R_ClipSkyPolygon(p->numverts, verts[0], 0);
@@ -696,12 +699,12 @@ R_DrawSkyBox(void)
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
 
-        glVertexPointer( 3, GL_FLOAT, 0, vtx_sky );
-        glTexCoordPointer( 2, GL_FLOAT, 0, tex_sky );
-        glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+		glVertexPointer( 3, GL_FLOAT, 0, vtx_sky );
+		glTexCoordPointer( 2, GL_FLOAT, 0, tex_sky );
+		glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
 
-        glDisableClientState( GL_VERTEX_ARRAY );
-        glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_VERTEX_ARRAY );
+        	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	}
 
 	glPopMatrix();
