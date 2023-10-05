@@ -27,16 +27,6 @@
 #ifndef SRC_CLIENT_REFRESH_GL3_HEADER_MODEL_H_
 #define SRC_CLIENT_REFRESH_GL3_HEADER_MODEL_H_
 
-// used for vertex array elements when drawing brushes, sprites, sky and more
-// (ok, it has the layout used for rendering brushes, but is not used there)
-typedef struct gl3_3D_vtx_s {
-	vec3_t pos;
-	float texCoord[2];
-	float lmTexCoord[2]; // lightmap texture coordinate (sometimes unused)
-	vec3_t normal;
-	GLuint lightFlags; // bit i set means: dynlight i affects surface
-} gl3_3D_vtx_t;
-
 // used for vertex array elements when drawing models
 typedef struct gl3_alias_vtx_s {
 	GLfloat pos[3];
@@ -52,7 +42,7 @@ typedef struct glpoly_s
 	struct  glpoly_s *chain;
 	int numverts;
 	int flags; /* for SURF_UNDERWATER (not needed anymore?) */
-	gl3_3D_vtx_t vertices[4]; /* variable sized */
+	mvtx_t vertices[4]; /* variable sized */
 } glpoly_t;
 
 typedef struct msurface_s

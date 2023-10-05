@@ -383,7 +383,7 @@ GL3_BindEBO(GLuint ebo)
 	}
 }
 
-extern void GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode);
+extern void GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode);
 
 extern void GL3_RotateForEntity(entity_t *e);
 

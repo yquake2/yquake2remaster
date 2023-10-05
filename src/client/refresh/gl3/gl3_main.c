@@ -702,14 +702,14 @@ GL3_Shutdown(void)
 }
 
 // assumes gl3state.v[ab]o3D are bound
-// buffers and draws gl3_3D_vtx_t vertices
+// buffers and draws mvtx_t vertices
 // drawMode is something like GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN or whatever
 void
-GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
+GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 {
 	if(!gl3config.useBigVBO)
 	{
-		glBufferData( GL_ARRAY_BUFFER, sizeof(gl3_3D_vtx_t)*numVerts, verts, GL_STREAM_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(mvtx_t)*numVerts, verts, GL_STREAM_DRAW );
 		glDrawArrays( drawMode, 0, numVerts );
 	}
 	else // gl3config.useBigVBO == true
@@ -739,11 +739,11 @@ GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 #if 0
 		// I /think/ doing it with glBufferSubData() didn't really help
 		const int bufSize = gl3state.vbo3Dsize;
-		int neededSize = numVerts*sizeof(gl3_3D_vtx_t);
+		int neededSize = numVerts*sizeof(mvtx_t);
 		int curOffset = gl3state.vbo3DcurOffset;
 		if(curOffset + neededSize > gl3state.vbo3Dsize)
 			curOffset = 0;
-		int curIdx = curOffset / sizeof(gl3_3D_vtx_t);
+		int curIdx = curOffset / sizeof(mvtx_t);
 
 		gl3state.vbo3DcurOffset = curOffset + neededSize;
 
@@ -751,7 +751,7 @@ GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 		glDrawArrays( drawMode, curIdx, numVerts );
 #else
 		int curOffset = gl3state.vbo3DcurOffset;
-		int neededSize = numVerts*sizeof(gl3_3D_vtx_t);
+		int neededSize = numVerts*sizeof(mvtx_t);
 		if(curOffset+neededSize > gl3state.vbo3Dsize)
 		{
 			// buffer is full, need to start again from the beginning
@@ -768,7 +768,7 @@ GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 		memcpy(data, verts, neededSize);
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 
-		glDrawArrays(drawMode, curOffset/sizeof(gl3_3D_vtx_t), numVerts);
+		glDrawArrays(drawMode, curOffset/sizeof(mvtx_t), numVerts);
 
 		gl3state.vbo3DcurOffset = curOffset + neededSize; // TODO: padding or sth needed?
 #endif
@@ -788,7 +788,7 @@ GL3_DrawBeam(entity_t *e)
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	gl3_3D_vtx_t verts[NUM_BEAM_SEGS*4];
+	mvtx_t verts[NUM_BEAM_SEGS*4];
 	unsigned int pointb;
 
 	oldorigin[0] = e->oldorigin[0];
@@ -860,7 +860,7 @@ static void
 GL3_DrawSpriteModel(entity_t *e, gl3model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	gl3_3D_vtx_t verts[4];
+	mvtx_t verts[4];
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
@@ -967,7 +967,7 @@ GL3_DrawNullModel(entity_t *currententity)
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
 
-	gl3_3D_vtx_t vtxA[6] = {
+	mvtx_t vtxA[6] = {
 		{{0, 0, -16}, {0,0}, {0,0}},
 		{{16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0}, {0,0}, {0,0}},
 		{{16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0}, {0,0}, {0,0}},
@@ -978,7 +978,7 @@ GL3_DrawNullModel(entity_t *currententity)
 
 	GL3_BufferAndDraw3D(vtxA, 6, GL_TRIANGLE_FAN);
 
-	gl3_3D_vtx_t vtxB[6] = {
+	mvtx_t vtxB[6] = {
 		{{0, 0, 16}, {0,0}, {0,0}},
 		vtxA[5], vtxA[4], vtxA[3], vtxA[2], vtxA[1]
 	};

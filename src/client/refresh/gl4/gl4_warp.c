@@ -126,7 +126,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	}
 
 	/* add a point in the center to help keep warp valid */
-	poly = Hunk_Alloc(sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(gl4_3D_vtx_t));
+	poly = Hunk_Alloc(sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts + 2;
@@ -592,7 +592,7 @@ GL4_ClearSkyBox(void)
 }
 
 static void
-MakeSkyVec(float s, float t, int axis, gl4_3D_vtx_t* vert)
+MakeSkyVec(float s, float t, int axis, mvtx_t* vert)
 {
 	vec3_t v, b;
 	int j, k;
@@ -693,7 +693,7 @@ GL4_DrawSkyBox(void)
 
 	// TODO: this could all be done in one drawcall.. but.. whatever, it's <= 6 drawcalls/frame
 
-	gl4_3D_vtx_t skyVertices[4];
+	mvtx_t skyVertices[4];
 
 	for (i = 0; i < 6; i++)
 	{

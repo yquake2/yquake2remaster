@@ -2,10 +2,10 @@
 
 /* in memory representation */
 
-typedef struct glpoly_s
+typedef struct mpoly_s
 {
-	struct  glpoly_s *next;
-	struct  glpoly_s *chain;
+	struct  mpoly_s *next;
+	struct  mpoly_s *chain;
 	int numverts;
 	int flags; /* for SURF_UNDERWATER (not needed anymore?) */
 	float verts[4][VERTEXSIZE]; /* variable sized (xyz s1t1 s2t2) */

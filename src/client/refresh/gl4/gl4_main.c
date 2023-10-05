@@ -689,14 +689,14 @@ GL4_Shutdown(void)
 }
 
 // assumes gl4state.v[ab]o3D are bound
-// buffers and draws gl4_3D_vtx_t vertices
+// buffers and draws mvtx_t vertices
 // drawMode is something like GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN or whatever
 void
-GL4_BufferAndDraw3D(const gl4_3D_vtx_t* verts, int numVerts, GLenum drawMode)
+GL4_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 {
 	if(!gl4config.useBigVBO)
 	{
-		glBufferData( GL_ARRAY_BUFFER, sizeof(gl4_3D_vtx_t)*numVerts, verts, GL_STREAM_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(mvtx_t)*numVerts, verts, GL_STREAM_DRAW );
 		glDrawArrays( drawMode, 0, numVerts );
 	}
 	else // gl4config.useBigVBO == true
@@ -726,11 +726,11 @@ GL4_BufferAndDraw3D(const gl4_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 #if 0
 		// I /think/ doing it with glBufferSubData() didn't really help
 		const int bufSize = gl4state.vbo3Dsize;
-		int neededSize = numVerts*sizeof(gl4_3D_vtx_t);
+		int neededSize = numVerts*sizeof(mvtx_t);
 		int curOffset = gl4state.vbo3DcurOffset;
 		if(curOffset + neededSize > gl4state.vbo3Dsize)
 			curOffset = 0;
-		int curIdx = curOffset / sizeof(gl4_3D_vtx_t);
+		int curIdx = curOffset / sizeof(mvtx_t);
 
 		gl4state.vbo3DcurOffset = curOffset + neededSize;
 
@@ -738,7 +738,7 @@ GL4_BufferAndDraw3D(const gl4_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 		glDrawArrays( drawMode, curIdx, numVerts );
 #else
 		int curOffset = gl4state.vbo3DcurOffset;
-		int neededSize = numVerts*sizeof(gl4_3D_vtx_t);
+		int neededSize = numVerts*sizeof(mvtx_t);
 		if(curOffset+neededSize > gl4state.vbo3Dsize)
 		{
 			// buffer is full, need to start again from the beginning
@@ -755,7 +755,7 @@ GL4_BufferAndDraw3D(const gl4_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 		memcpy(data, verts, neededSize);
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 
-		glDrawArrays(drawMode, curOffset/sizeof(gl4_3D_vtx_t), numVerts);
+		glDrawArrays(drawMode, curOffset/sizeof(mvtx_t), numVerts);
 
 		gl4state.vbo3DcurOffset = curOffset + neededSize; // TODO: padding or sth needed?
 #endif
@@ -775,7 +775,7 @@ GL4_DrawBeam(entity_t *e)
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	gl4_3D_vtx_t verts[NUM_BEAM_SEGS*4];
+	mvtx_t verts[NUM_BEAM_SEGS*4];
 	unsigned int pointb;
 
 	oldorigin[0] = e->oldorigin[0];
@@ -847,7 +847,7 @@ static void
 GL4_DrawSpriteModel(entity_t *e, gl4model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	gl4_3D_vtx_t verts[4];
+	mvtx_t verts[4];
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
@@ -954,7 +954,7 @@ GL4_DrawNullModel(entity_t *currententity)
 	GL4_BindVAO(gl4state.vao3D);
 	GL4_BindVBO(gl4state.vbo3D);
 
-	gl4_3D_vtx_t vtxA[6] = {
+	mvtx_t vtxA[6] = {
 		{{0, 0, -16}, {0,0}, {0,0}},
 		{{16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0}, {0,0}, {0,0}},
 		{{16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0}, {0,0}, {0,0}},
@@ -965,7 +965,7 @@ GL4_DrawNullModel(entity_t *currententity)
 
 	GL4_BufferAndDraw3D(vtxA, 6, GL_TRIANGLE_FAN);
 
-	gl4_3D_vtx_t vtxB[6] = {
+	mvtx_t vtxB[6] = {
 		{{0, 0, 16}, {0,0}, {0,0}},
 		vtxA[5], vtxA[4], vtxA[3], vtxA[2], vtxA[1]
 	};

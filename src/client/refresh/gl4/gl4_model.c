@@ -289,7 +289,7 @@ static int calcTexinfoAndFacesSize(byte *mod_base, const lump_t *fl, const lump_
 
 			// GL4_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():
-			//   sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(gl4_3D_vtx_t)
+			//   sizeof(glpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
 
 			// this is tricky, how much is allocated depends on the size of the surface
 			// which we don't know (we'd need the vertices etc to know, but we can't load
@@ -301,8 +301,8 @@ static int calcTexinfoAndFacesSize(byte *mod_base, const lump_t *fl, const lump_
 		else
 		{
 			// GL4_LM_BuildPolygonFromSurface(out);
-			// => poly = Hunk_Alloc(sizeof(glpoly_t) + (numverts - 4) * sizeof(gl4_3D_vtx_t));
-			int polySize = sizeof(glpoly_t) + (numverts - 4) * sizeof(gl4_3D_vtx_t);
+			// => poly = Hunk_Alloc(sizeof(glpoly_t) + (numverts - 4) * sizeof(mvtx_t));
+			int polySize = sizeof(glpoly_t) + (numverts - 4) * sizeof(mvtx_t);
 			polySize = (polySize + 31) & ~31;
 			ret += polySize;
 		}

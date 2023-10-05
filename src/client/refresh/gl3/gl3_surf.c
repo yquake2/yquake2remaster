@@ -61,19 +61,19 @@ void GL3_SurfInit(void)
 	}
 
 	glEnableVertexAttribArray(GL3_ATTRIB_POSITION);
-	qglVertexAttribPointer(GL3_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), 0);
+	qglVertexAttribPointer(GL3_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), 0);
 
 	glEnableVertexAttribArray(GL3_ATTRIB_TEXCOORD);
-	qglVertexAttribPointer(GL3_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, texCoord));
+	qglVertexAttribPointer(GL3_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), offsetof(mvtx_t, texCoord));
 
 	glEnableVertexAttribArray(GL3_ATTRIB_LMTEXCOORD);
-	qglVertexAttribPointer(GL3_ATTRIB_LMTEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, lmTexCoord));
+	qglVertexAttribPointer(GL3_ATTRIB_LMTEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), offsetof(mvtx_t, lmTexCoord));
 
 	glEnableVertexAttribArray(GL3_ATTRIB_NORMAL);
-	qglVertexAttribPointer(GL3_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, normal));
+	qglVertexAttribPointer(GL3_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), offsetof(mvtx_t, normal));
 
 	glEnableVertexAttribArray(GL3_ATTRIB_LIGHTFLAGS);
-	qglVertexAttribIPointer(GL3_ATTRIB_LIGHTFLAGS, 1, GL_UNSIGNED_INT, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, lightFlags));
+	qglVertexAttribIPointer(GL3_ATTRIB_LIGHTFLAGS, 1, GL_UNSIGNED_INT, sizeof(mvtx_t), offsetof(mvtx_t, lightFlags));
 
 
 
@@ -141,7 +141,7 @@ SetLightFlags(msurface_t *surf)
 		lightFlags = surf->dlightbits;
 	}
 
-	gl3_3D_vtx_t* verts = surf->polys->vertices;
+	mvtx_t* verts = surf->polys->vertices;
 
 	int numVerts = surf->polys->numverts;
 	for(int i=0; i<numVerts; ++i)
@@ -155,7 +155,7 @@ SetAllLightFlags(msurface_t *surf)
 {
 	unsigned int lightFlags = 0xffffffff;
 
-	gl3_3D_vtx_t* verts = surf->polys->vertices;
+	mvtx_t* verts = surf->polys->vertices;
 
 	int numVerts = surf->polys->numverts;
 	for(int i=0; i<numVerts; ++i)

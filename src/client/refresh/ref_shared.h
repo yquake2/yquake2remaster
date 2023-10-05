@@ -179,6 +179,18 @@ typedef struct mleaf_s
 	int		key;	/* BSP sequence number for leaf's contents */
 } mleaf_t;
 
+/*
+ * used for vertex array elements when drawing brushes, sprites, sky and more
+ * (ok, it has the layout used for rendering brushes, but is not used there)
+ */
+typedef struct mvtx_s {
+	vec3_t pos;
+	float texCoord[2];
+	float lmTexCoord[2]; /* lightmap texture coordinate (sometimes unused) */
+	vec3_t normal;
+	int lightFlags; /* bit i set means: dynlight i affects surface */
+} mvtx_t;
+
 /* BSPX Light octtree */
 #define LGNODE_LEAF		(1u<<31)
 #define LGNODE_MISSING	(1u<<30)
