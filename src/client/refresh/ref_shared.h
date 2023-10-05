@@ -179,6 +179,50 @@ typedef struct mleaf_s
 	int		key;	/* BSP sequence number for leaf's contents */
 } mleaf_t;
 
+/* BSPX Light octtree */
+#define LGNODE_LEAF		(1u<<31)
+#define LGNODE_MISSING	(1u<<30)
+
+/* this uses an octtree to trim samples. */
+typedef struct bspxlgnode_s
+{
+	int mid[3];
+	unsigned int child[8];
+} bspxlgnode_t;
+
+typedef struct bspxlglightstyle_s
+{
+	byte style;
+	byte rgb[3];
+} bspxlglightstyle_t;
+
+typedef struct bspxlgsamp_s
+{
+	bspxlglightstyle_t map[4];
+} bspxlgsamp_t;
+
+typedef struct bspxlgleaf_s
+{
+		int mins[3];
+		int size[3];
+		bspxlgsamp_t *rgbvalues;
+} bspxlgleaf_t;
+
+typedef struct
+{
+	vec3_t gridscale;
+	unsigned int count[3];
+	vec3_t mins;
+	unsigned int styles;
+
+	unsigned int rootnode;
+
+	unsigned int numnodes;
+	bspxlgnode_t *nodes;
+	unsigned int numleafs;
+	bspxlgleaf_t *leafs;
+} bspxlightgrid_t;
+
 /* Shared models func */
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
 extern void *Mod_LoadAliasModel (const char *mod_name, const void *buffer, int modfilelen,
@@ -236,5 +280,10 @@ extern qboolean R_CullBox(vec3_t mins, vec3_t maxs, cplane_t *frustum);
 extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 	float fov_x, float fov_y, cplane_t *frustum);
 extern void R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs);
+
+/* Lights logic */
+extern bspxlightgrid_t *BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base);
+extern void BSPX_LightGridValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles,
+	const vec3_t point, vec3_t res_diffuse);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

@@ -997,6 +997,7 @@ REFGL1_OBJS_ := \
 	src/client/refresh/gl1/gl1_surf.o \
 	src/client/refresh/gl1/gl1_warp.o \
 	src/client/refresh/gl1/gl1_sdl.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/models.o \
 	src/client/refresh/files/pcx.o \
@@ -1030,6 +1031,7 @@ REFGL3_OBJS_ := \
 	src/client/refresh/gl3/gl3_surf.o \
 	src/client/refresh/gl3/gl3_warp.o \
 	src/client/refresh/gl3/gl3_shaders.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/models.o \
 	src/client/refresh/files/pcx.o \
@@ -1069,6 +1071,7 @@ REFGL4_OBJS_ := \
 	src/client/refresh/gl4/gl4_surf.o \
 	src/client/refresh/gl4/gl4_warp.o \
 	src/client/refresh/gl4/gl4_shaders.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/models.o \
 	src/client/refresh/files/pcx.o \
@@ -1109,6 +1112,7 @@ REFSOFT_OBJS_ := \
 	src/client/refresh/soft/sw_scan.o \
 	src/client/refresh/soft/sw_sprite.o \
 	src/client/refresh/soft/sw_surf.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/models.o \
 	src/client/refresh/files/pcx.o \
@@ -1149,6 +1153,7 @@ REFVK_OBJS_ := \
 	src/client/refresh/vk/vk_warp.o \
 	src/client/refresh/vk/vk_util.o \
 	src/client/refresh/vk/volk/volk.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/models.o \
 	src/client/refresh/files/pcx.o \

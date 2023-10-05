@@ -2054,3 +2054,154 @@ Mod_LoadBSPX(int filesize, const byte *mod_base)
 	// success
 	return xheader;
 }
+
+/* Need to clean */
+struct rctx_s {
+	const byte *data;
+	int ofs, size;
+};
+
+static byte ReadByte(struct rctx_s *ctx)
+{
+	if (ctx->ofs >= ctx->size)
+	{
+		ctx->ofs++;
+		return 0;
+	}
+	return ctx->data[ctx->ofs++];
+}
+
+static int ReadInt(struct rctx_s *ctx)
+{
+	int r = (int)ReadByte(ctx)<<0;
+		r|= (int)ReadByte(ctx)<<8;
+		r|= (int)ReadByte(ctx)<<16;
+		r|= (int)ReadByte(ctx)<<24;
+	return r;
+}
+
+static float ReadFloat(struct rctx_s *ctx)
+{
+	union {float f; int i;} u;
+	u.i = ReadInt(ctx);
+	return u.f;
+}
+
+bspxlightgrid_t*
+BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base)
+{
+	vec3_t step, mins;
+	int size[3];
+	bspxlightgrid_t *grid;
+	unsigned int numstyles, numnodes, numleafs, rootnode;
+	unsigned int nodestart, leafsamps = 0, i, j, k, s;
+	struct bspxlgsamp_s *samp;
+	struct rctx_s ctx = {0};
+
+	ctx.data = Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &ctx.size, mod_base);
+	if (!ctx.data)
+	{
+		return NULL;
+	}
+
+	for (j = 0; j < 3; j++)
+		step[j] = ReadFloat(&ctx);
+	for (j = 0; j < 3; j++)
+		size[j] = ReadInt(&ctx);
+	for (j = 0; j < 3; j++)
+		mins[j] = ReadFloat(&ctx);
+
+	numstyles = ReadByte(&ctx);	//urgh, misaligned the entire thing
+	rootnode = ReadInt(&ctx);
+	numnodes = ReadInt(&ctx);
+	nodestart = ctx.ofs;
+	ctx.ofs += (3+8)*4*numnodes;
+	numleafs = ReadInt(&ctx);
+	for (i = 0; i < numleafs; i++)
+	{
+		unsigned int lsz[3];
+		ctx.ofs += 3*4;
+		for (j = 0; j < 3; j++)
+			lsz[j] = ReadInt(&ctx);
+		j = lsz[0]*lsz[1]*lsz[2];
+		leafsamps += j;
+		while (j --> 0)
+		{	//this loop is annonying, memcpy dreams...
+			s = ReadByte(&ctx);
+			if (s == 255)
+				continue;
+			ctx.ofs += s*4;
+		}
+	}
+
+	grid = Hunk_Alloc(sizeof(*grid) + sizeof(*grid->leafs)*numleafs + sizeof(*grid->nodes)*numnodes + sizeof(struct bspxlgsamp_s)*leafsamps);
+	memset(grid, 0xcc, sizeof(*grid) + sizeof(*grid->leafs)*numleafs + sizeof(*grid->nodes)*numnodes + sizeof(struct bspxlgsamp_s)*leafsamps);
+	grid->leafs = (void*)(grid+1);
+	grid->nodes = (void*)(grid->leafs + numleafs);
+	samp = (void*)(grid->nodes+numnodes);
+
+	for (j = 0; j < 3; j++)
+		grid->gridscale[j] = 1/step[j];	//prefer it as a multiply
+	VectorCopy(mins, grid->mins);
+	VectorCopy(size, grid->count);
+	grid->numnodes = numnodes;
+	grid->numleafs = numleafs;
+	grid->rootnode = rootnode;
+	(void)numstyles;
+
+	//rewind to the nodes. *sigh*
+	ctx.ofs = nodestart;
+	for (i = 0; i < numnodes; i++)
+	{
+		for (j = 0; j < 3; j++)
+			grid->nodes[i].mid[j] = ReadInt(&ctx);
+		for (j = 0; j < 8; j++)
+			grid->nodes[i].child[j] = ReadInt(&ctx);
+	}
+	ctx.ofs += 4;
+	for (i = 0; i < numleafs; i++)
+	{
+		for (j = 0; j < 3; j++)
+			grid->leafs[i].mins[j] = ReadInt(&ctx);
+		for (j = 0; j < 3; j++)
+			grid->leafs[i].size[j] = ReadInt(&ctx);
+
+		grid->leafs[i].rgbvalues = samp;
+
+		j = grid->leafs[i].size[0]*grid->leafs[i].size[1]*grid->leafs[i].size[2];
+		while (j --> 0)
+		{
+			s = ReadByte(&ctx);
+			if (s == 0xff)
+				memset(samp, 0xff, sizeof(*samp));
+			else
+			{
+				for (k = 0; k < s; k++)
+				{
+					if (k >= 4)
+						ReadInt(&ctx);
+					else
+					{
+						samp->map[k].style = ReadByte(&ctx);
+						samp->map[k].rgb[0] = ReadByte(&ctx);
+						samp->map[k].rgb[1] = ReadByte(&ctx);
+						samp->map[k].rgb[2] = ReadByte(&ctx);
+					}
+				}
+				for (; k < 4; k++)
+				{
+					samp->map[k].style = (byte)~0u;
+					samp->map[k].rgb[0] =
+					samp->map[k].rgb[1] =
+					samp->map[k].rgb[2] = 0;
+				}
+			}
+			samp++;
+		}
+	}
+
+	if (ctx.ofs != ctx.size)
+		grid = NULL;
+
+	return grid;
+}

@@ -23,19 +23,18 @@
  * Model loading and caching. Includes the .bsp file format
  *
  * =======================================================================
- *
  */
 
 #include "header/local.h"
 
-YQ2_ALIGNAS_TYPE(int) static byte mod_novis[MAX_MAP_LEAFS/8];
+static YQ2_ALIGNAS_TYPE(int) byte mod_novis[MAX_MAP_LEAFS / 8];
 
-#define	MAX_MOD_KNOWN	512
-static model_t	*models_known;
-static int		mod_numknown = 0;
-static int		mod_loaded = 0;
-static int		mod_max = 0;
-static int 	models_known_max = 0;
+#define MAX_MOD_KNOWN 512
+static model_t *models_known;
+static int	mod_numknown = 0;
+static int	mod_max = 0;
+static int	mod_loaded = 0;
+static int models_known_max = 0;
 
 int		registration_sequence;
 
@@ -160,7 +159,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
  * Fills in s->texturemins[] and s->extents[]
  */
 static void
-CalcSurfaceExtents(model_t *loadmodel, msurface_t *s)
+Mod_CalcSurfaceExtents(model_t *loadmodel, msurface_t *s)
 {
 	float mins[2], maxs[2], val;
 	int i;
@@ -510,7 +509,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->lmvlen[0] = 1.0f;
 			out->lmvlen[1] = 1.0f;
 
-			CalcSurfaceExtents(loadmodel, out);
+			Mod_CalcSurfaceExtents(loadmodel, out);
 
 			lightofs = in->lightofs;
 		}
@@ -633,7 +632,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->lmvlen[0] = 1.0f;
 			out->lmvlen[1] = 1.0f;
 
-			CalcSurfaceExtents(loadmodel, out);
+			Mod_CalcSurfaceExtents(loadmodel, out);
 
 			lightofs = in->lightofs;
 		}
@@ -900,6 +899,9 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		((int *)header)[i] = LittleLong(((int *)header)[i]);
 	}
 
+	/* check for BSPX extensions */
+	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
+
 	// calculate the needed hunksize from the lumps
 	int hunkSize = 0;
 	hunkSize += calcLumpHunkSize(&header->lumps[LUMP_VERTEXES], sizeof(dvertex_t), sizeof(mvertex_t));
@@ -943,8 +945,10 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod->extradata = Hunk_Begin(hunkSize);
 	mod->type = mod_brush;
 
-	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
+	if (bspx_header)
+	{
+		mod->grid = BSPX_LightGridLoad(bspx_header, mod_base);
+	}
 
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
@@ -996,69 +1000,73 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod->numframes = 2; /* regular and alternate animation */
 }
 
-//=============================================================================
-
 /*
-==================
-Mod_ForName
-
-Loads in a model for the given name
-==================
-*/
+ * Loads in a model for the given name
+ */
 static model_t *
-Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
+Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 {
-	model_t	*mod;
-	void	*buf;
-	int		i, modfilelen;
+	model_t *mod;
+	void *buf;
+	int i, modfilelen;
 
 	if (!name[0])
 	{
 		ri.Sys_Error(ERR_DROP, "%s: NULL name", __func__);
 	}
 
-	//
-	// inline models are grabbed only from worldmodel
-	//
+	/* inline models are grabbed only from worldmodel */
 	if (name[0] == '*' && parent_model)
 	{
-		i = atoi(name+1);
+		i = (int)strtol(name + 1, (char **)NULL, 10);
+
 		if (i < 1 || i >= parent_model->numsubmodels)
-			ri.Sys_Error (ERR_DROP, "bad inline model number");
+		{
+			ri.Sys_Error(ERR_DROP, "%s: bad inline model number",
+					__func__);
+		}
+
 		return &parent_model->submodels[i];
 	}
 
-	//
-	// search the currently loaded models
-	//
-	for (i=0 , mod=models_known ; i<mod_numknown ; i++, mod++)
+	/* search the currently loaded models */
+	for (i = 0, mod = models_known; i < mod_numknown; i++, mod++)
 	{
 		if (!mod->name[0])
+		{
 			continue;
-		if (!strcmp (mod->name, name) )
+		}
+
+		if (!strcmp(mod->name, name))
+		{
 			return mod;
+		}
 	}
 
-	//
-	// find a free model slot spot
-	//
-	for (i=0 , mod=models_known ; i<mod_numknown ; i++, mod++)
+	/* find a free model slot spot */
+	for (i = 0, mod = models_known; i < mod_numknown; i++, mod++)
 	{
 		if (!mod->name[0])
-			break;	// free spot
+		{
+			break; /* free spot */
+		}
 	}
+
 	if (i == mod_numknown)
 	{
 		if (mod_numknown == models_known_max)
+		{
 			ri.Sys_Error(ERR_DROP, "%s: mod_numknown == models_known_max", __func__);
+		}
+
 		mod_numknown++;
 	}
-	strcpy (mod->name, name);
 
-	//
-	// load the file
-	//
+	strcpy(mod->name, name);
+
+	/* load the file */
 	modfilelen = Mod_LoadFile (mod->name, &buf);
+
 	if (!buf)
 	{
 		if (crash)
@@ -1071,7 +1079,8 @@ Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
 		{
 			R_Printf(PRINT_ALL, "%s: Can't load %s\n", __func__, mod->name);
 		}
-		memset (mod->name, 0, sizeof(mod->name));
+
+		memset(mod->name, 0, sizeof(mod->name));
 		return NULL;
 	}
 
@@ -1086,59 +1095,58 @@ Mod_ForName (const char *name, model_t *parent_model, qboolean crash)
 	// fill it in
 	//
 
-	// call the apropriate loader
-
+	/* call the apropriate loader */
 	switch (LittleLong(*(unsigned *)buf))
 	{
-	case DKMHEADER:
-		/* fall through */
-	case RAVENFMHEADER:
-		/* fall through */
-	case IDALIASHEADER:
-		/* fall through */
-	case IDMDLHEADER:
-		{
-			mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
-				mod->mins, mod->maxs,
-				(struct image_s **)mod->skins, (findimage_t)Vk_FindImage,
-				&(mod->type));
-			if (!mod->extradata)
+		case DKMHEADER:
+			/* fall through */
+		case RAVENFMHEADER:
+			/* fall through */
+		case IDALIASHEADER:
+			/* fall through */
+		case IDMDLHEADER:
 			{
-				ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
-					__func__, mod->name);
-			}
-		};
-		break;
+				mod->extradata = Mod_LoadAliasModel(mod->name, buf, modfilelen,
+					mod->mins, mod->maxs,
+					(struct image_s **)mod->skins, (findimage_t)Vk_FindImage,
+					&(mod->type));
+				if (!mod->extradata)
+				{
+					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
+						__func__, mod->name);
+				}
+			};
+			break;
 
-	case IDSPRITEHEADER:
-		{
-			mod->extradata = Mod_LoadSP2(mod->name, buf, modfilelen,
-				(struct image_s **)mod->skins, (findimage_t)Vk_FindImage,
-				&(mod->type));
-			if (!mod->extradata)
+		case IDSPRITEHEADER:
 			{
-				ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
-					__func__, mod->name);
+				mod->extradata = Mod_LoadSP2(mod->name, buf, modfilelen,
+					(struct image_s **)mod->skins, (findimage_t)Vk_FindImage,
+					&(mod->type));
+				if (!mod->extradata)
+				{
+					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
+						__func__, mod->name);
+				}
 			}
-		}
-		break;
+			break;
 
-	case IDBSPHEADER:
-		/* fall through */
-	case QBSPHEADER:
-		Mod_LoadBrushModel(mod, buf, modfilelen);
-		break;
+		case IDBSPHEADER:
+			/* fall through */
+		case QBSPHEADER:
+			Mod_LoadBrushModel(mod, buf, modfilelen);
+			break;
 
-	default:
-		ri.Sys_Error(ERR_DROP, "%s: unknown fileid for %s",
-				__func__, mod->name);
-		break;
+		default:
+			ri.Sys_Error(ERR_DROP, "%s: unknown fileid for %s",
+					__func__, mod->name);
+			break;
 	}
 
 	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
 	if (mod->extradata)
 	{
-		mod->extradatasize = Hunk_End ();
+		mod->extradatasize = Hunk_End();
 	}
 	else
 	{
@@ -1165,8 +1173,8 @@ Mod_Free(model_t *mod)
 		R_Printf(PRINT_ALL, "%s: Unload %s[%d]\n", __func__, mod->name, mod_loaded);
 	}
 
-	Hunk_Free (mod->extradata);
-	memset (mod, 0, sizeof(*mod));
+	Hunk_Free(mod->extradata);
+	memset(mod, 0, sizeof(*mod));
 	mod_loaded --;
 	if (mod_loaded < 0)
 	{
@@ -1175,19 +1183,21 @@ Mod_Free(model_t *mod)
 }
 
 void
-Mod_FreeAll (void)
+Mod_FreeAll(void)
 {
-	int		i;
+	int i;
 
-	for (i=0 ; i<mod_numknown ; i++)
+	for (i = 0; i < mod_numknown; i++)
 	{
 		if (models_known[i].extradatasize)
-			Mod_Free (&models_known[i]);
+		{
+			Mod_Free(&models_known[i]);
+		}
 	}
 }
 
 void
-Mod_FreeModelsKnown (void)
+Mod_FreeModelsKnown(void)
 {
 	free(models_known);
 	models_known = NULL;
@@ -1197,7 +1207,7 @@ Mod_FreeModelsKnown (void)
  * Specifies the model that will be used as the world
  */
 void
-RE_BeginRegistration (const char *model)
+RE_BeginRegistration(const char *model)
 {
 	char fullname[MAX_QPATH];
 	cvar_t *flushmap;
@@ -1321,10 +1331,10 @@ Mod_Modellist_f (void)
 }
 
 void
-RE_EndRegistration (void)
+RE_EndRegistration(void)
 {
-	int		i;
-	model_t	*mod;
+	int i;
+	model_t *mod;
 
 	if (Mod_HasFreeSpace() && Vk_ImageHasFreeSpace())
 	{
@@ -1346,5 +1356,5 @@ RE_EndRegistration (void)
 		}
 	}
 
-	Vk_FreeUnusedImages ();
+	Vk_FreeUnusedImages();
 }

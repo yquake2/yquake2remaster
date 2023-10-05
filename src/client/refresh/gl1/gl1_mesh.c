@@ -29,12 +29,12 @@
 #define NUMVERTEXNORMALS 162
 #define SHADEDOT_QUANT 16
 
-float r_avertexnormals[NUMVERTEXNORMALS][3] = {
+static float r_avertexnormals[NUMVERTEXNORMALS][3] = {
 #include "../constants/anorms.h"
 };
 
 /* precalculated dot products for quantized angles */
-float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
+static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
 };
 
@@ -376,9 +376,9 @@ R_DrawAliasShadowCommand(entity_t *currententity, int *order, int *order_end,
 			point[1] -= shadevector[1] * (point[2] + lheight);
 			point[2] = height;
 
-			vtx[index_vtx++] = point [ 0 ];
-			vtx[index_vtx++] = point [ 1 ];
-			vtx[index_vtx++] = point [ 2 ];
+			vtx[index_vtx++] = point[0];
+			vtx[index_vtx++] = point[1];
+			vtx[index_vtx++] = point[2];
 
 			order += 3;
 		}
@@ -673,7 +673,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	{
 		if (r_worldmodel->grid)
 		{
-			BSPX_LightGridValue(r_worldmodel->grid, currententity->origin, shadelight);
+			BSPX_LightGridValue(r_worldmodel->grid, r_newrefdef.lightstyles,
+				currententity->origin, shadelight);
 		}
 		else
 		{
@@ -732,12 +733,13 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	{
 		/* bonus items will pulse with time */
 		float scale;
-		float min;
 
 		scale = 0.1 * sin(r_newrefdef.time * 7);
 
 		for (i = 0; i < 3; i++)
 		{
+			float	min;
+
 			min = shadelight[i] * 0.8;
 			shadelight[i] += scale;
 
@@ -951,4 +953,3 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	glColor4f(1, 1, 1, 1);
 }
-

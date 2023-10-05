@@ -20,23 +20,15 @@
  *
  * =======================================================================
  *
- * Triangle model functions
+ * Mesh handling
  *
  * =======================================================================
- *
  */
 
 #include "header/local.h"
 
-/*
-=============================================================
-
-  ALIAS MODELS
-
-=============================================================
-*/
-
-#define NUMVERTEXNORMALS	162
+#define NUMVERTEXNORMALS 162
+#define SHADEDOT_QUANT 16
 
 static float r_avertexnormals[NUMVERTEXNORMALS][3] = {
 #include "../constants/anorms.h"
@@ -64,20 +56,18 @@ polyvert_t 	*verts_buffer = NULL;
 lmappolyvert_t	*lmappolyverts_buffer = NULL;
 static	drawinfo_t	*drawInfo[2] = {NULL, NULL};
 static	modelvert	*vertList[2] = {NULL, NULL};
-static	vec4_t	*s_lerped = NULL;
 static	vec3_t	*shadowverts = NULL;
 static	int	verts_count = 0;
 
-vec3_t	shadevector;
-float	shadelight[3];
-
-// precalculated dot products for quantized angles
-#define SHADEDOT_QUANT 16
+/* precalculated dot products for quantized angles */
 static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
 };
 
-float	*shadedots = r_avertexnormal_dots[0];
+static vec4_t *s_lerped = NULL;
+vec3_t shadevector;
+float shadelight[3];
+float *shadedots = r_avertexnormal_dots[0];
 
 // correction matrix with "hacked depth" for models with RF_DEPTHHACK flag set
 static float r_vulkan_correction_dh[16] = {
@@ -244,34 +234,39 @@ void Mesh_Free (void)
 }
 
 
-static void Vk_LerpVerts( int nverts, dtrivertx_t *v, dtrivertx_t *ov, dtrivertx_t *verts,
+static void
+Vk_LerpVerts(int nverts, dtrivertx_t *v, dtrivertx_t *ov, dtrivertx_t *verts,
 	float *lerp, const float move[3], const float frontv[3], const float backv[3],
-	entity_t *currententity )
+	entity_t *currententity)
 {
 	int i;
 
-	//PMM -- added RF_SHELL_DOUBLE, RF_SHELL_HALF_DAM
-	if ( currententity->flags & ( RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE | RF_SHELL_HALF_DAM) )
+	if (currententity->flags &
+		(RF_SHELL_RED | RF_SHELL_GREEN |
+		 RF_SHELL_BLUE | RF_SHELL_DOUBLE |
+		 RF_SHELL_HALF_DAM))
 	{
-		for (i=0 ; i < nverts; i++, v++, ov++, lerp+=4 )
+		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
 			float *normal = r_avertexnormals[verts[i].lightnormalindex];
 
-			lerp[0] = move[0] + ov->v[0]*backv[0] + v->v[0]*frontv[0] + normal[0] * POWERSUIT_SCALE;
-			lerp[1] = move[1] + ov->v[1]*backv[1] + v->v[1]*frontv[1] + normal[1] * POWERSUIT_SCALE;
-			lerp[2] = move[2] + ov->v[2]*backv[2] + v->v[2]*frontv[2] + normal[2] * POWERSUIT_SCALE;
+			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0] +
+					  normal[0] * POWERSUIT_SCALE;
+			lerp[1] = move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1] +
+					  normal[1] * POWERSUIT_SCALE;
+			lerp[2] = move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2] +
+					  normal[2] * POWERSUIT_SCALE;
 		}
 	}
 	else
 	{
-		for (i=0 ; i < nverts; i++, v++, ov++, lerp+=4)
+		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
-			lerp[0] = move[0] + ov->v[0]*backv[0] + v->v[0]*frontv[0];
-			lerp[1] = move[1] + ov->v[1]*backv[1] + v->v[1]*frontv[1];
-			lerp[2] = move[2] + ov->v[2]*backv[2] + v->v[2]*frontv[2];
+			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0];
+			lerp[1] = move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1];
+			lerp[2] = move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2];
 		}
 	}
-
 }
 
 static void
@@ -298,10 +293,11 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 
 	while (1)
 	{
-		int	count;
+		int count;
 
-		// get the vertex count and primitive type
+		/* get the vertex count and primitive type */
 		count = *order++;
+
 		if (!count || order >= order_end)
 		{
 			break; /* done */
@@ -325,7 +321,8 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].vertexCount = count;
 		maxTriangleFanIdxCnt = max(maxTriangleFanIdxCnt, ((count - 2) * 3));
 
-		if (currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
+		if (currententity->flags &
+			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
 		{
 			meshUbo.textured = 0;
 			do
@@ -469,57 +466,61 @@ FIXME: batch lerp all vertexes
 =============
 */
 static void
-Vk_DrawAliasFrameLerp (dmdl_t *paliashdr, float backlerp, image_t *skin,
+Vk_DrawAliasFrameLerp(dmdl_t *paliashdr, float backlerp, image_t *skin,
 	float *modelMatrix, int leftHandOffset, int translucentIdx, entity_t *currententity)
 {
-	daliasframe_t	*frame, *oldframe;
-	dtrivertx_t	*v, *ov, *verts;
-	int		*order;
-	float	frontlerp;
-	float	alpha;
-	vec3_t	move, delta, vectors[3];
-	vec3_t	frontv, backv;
-	int		i;
-	float	*lerp;
+	daliasframe_t *frame, *oldframe;
+	dtrivertx_t *v, *ov, *verts;
+	int *order;
+	float frontlerp;
+	float alpha;
+	vec3_t move, delta, vectors[3];
+	vec3_t frontv, backv;
+	int i;
+	float *lerp;
 	int num_mesh_nodes;
 	short *mesh_nodes;
 
 	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-		+ currententity->frame * paliashdr->framesize);
+							  + currententity->frame * paliashdr->framesize);
 	verts = v = frame->verts;
 
 	oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-		+ currententity->oldframe * paliashdr->framesize);
+				+ currententity->oldframe * paliashdr->framesize);
 	ov = oldframe->verts;
 
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
 	if (currententity->flags & RF_TRANSLUCENT)
+	{
 		alpha = currententity->alpha;
+	}
 	else
+	{
 		alpha = 1.0;
+	}
 
 	frontlerp = 1.0 - backlerp;
 
-	// move should be the delta back to the previous frame * backlerp
+	/* move should be the delta back to the previous frame * backlerp */
 	VectorSubtract(currententity->oldorigin, currententity->origin, delta);
-	AngleVectors (currententity->angles, vectors[0], vectors[1], vectors[2]);
+	AngleVectors(currententity->angles, vectors[0], vectors[1], vectors[2]);
 
-	move[0] = DotProduct(delta, vectors[0]);	// forward
-	move[1] = -DotProduct(delta, vectors[1]);	// left
-	move[2] = DotProduct(delta, vectors[2]);	// up
+	move[0] = DotProduct(delta, vectors[0]); /* forward */
+	move[1] = -DotProduct(delta, vectors[1]); /* left */
+	move[2] = DotProduct(delta, vectors[2]); /* up */
 
-	VectorAdd (move, oldframe->translate, move);
+	VectorAdd(move, oldframe->translate, move);
 
-	for (i=0 ; i<3 ; i++)
+	for (i = 0; i < 3; i++)
 	{
-		move[i] = backlerp*move[i] + frontlerp*frame->translate[i];
+		move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
 	}
 
-	for (i=0 ; i<3 ; i++)
+	for (i = 0; i < 3; i++)
 	{
-		frontv[i] = frontlerp*frame->scale[i];
-		backv[i] = backlerp*oldframe->scale[i];
+		frontv[i] = frontlerp * frame->scale[i];
+		backv[i] = backlerp * oldframe->scale[i];
 	}
 
 	if (Mesh_VertsRealloc(paliashdr->num_xyz))
@@ -529,7 +530,7 @@ Vk_DrawAliasFrameLerp (dmdl_t *paliashdr, float backlerp, image_t *skin,
 
 	lerp = s_lerped[0];
 
-	Vk_LerpVerts( paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv, currententity );
+	Vk_LerpVerts(paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv, currententity );
 
 	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
 	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
@@ -554,13 +555,8 @@ Vk_DrawAliasFrameLerp (dmdl_t *paliashdr, float backlerp, image_t *skin,
 	}
 }
 
-
-/*
-=============
-Vk_DrawAliasShadow
-=============
-*/
-static void Vk_DrawAliasShadow (int *order, int *order_end, int posenum,
+static void
+Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 	float *modelMatrix, entity_t *currententity)
 {
 	vec3_t	point;
@@ -579,8 +575,7 @@ static void Vk_DrawAliasShadow (int *order, int *order_end, int posenum,
 
 	while (1)
 	{
-		int	i;
-		int	count;
+		int i, count;
 
 		i = 0;
 		// get the vertex count and primitive type
@@ -612,11 +607,11 @@ static void Vk_DrawAliasShadow (int *order, int *order_end, int posenum,
 				ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 			}
 
-			// normals and vertexes come from the frame list
-			memcpy( point, s_lerped[order[2]], sizeof( point ) );
+			/* normals and vertexes come from the frame list */
+			memcpy(point, s_lerped[order[2]], sizeof(point));
 
-			point[0] -= shadevector[0]*(point[2]+lheight);
-			point[1] -= shadevector[1]*(point[2]+lheight);
+			point[0] -= shadevector[0] * (point[2] + lheight);
+			point[1] -= shadevector[1] * (point[2] + lheight);
 			point[2] = height;
 
 			shadowverts[i][0] = point[0];
@@ -625,7 +620,8 @@ static void Vk_DrawAliasShadow (int *order, int *order_end, int posenum,
 
 			order += 3;
 			i++;
-		} while (--count);
+		}
+		while (--count);
 
 		if (i > 0)
 		{
@@ -653,142 +649,158 @@ static void Vk_DrawAliasShadow (int *order, int *order_end, int posenum,
 	}
 }
 
-
-/*
-** R_CullAliasModel
-*/
-static qboolean R_CullAliasModel( vec3_t bbox[8], entity_t *e, model_t *currentmodel )
+static qboolean
+R_CullAliasModel(vec3_t bbox[8], entity_t *e, model_t *currentmodel )
 {
 	int i;
-	vec3_t		mins, maxs;
-	dmdl_t		*paliashdr;
-	vec3_t		vectors[3];
-	vec3_t		thismins, oldmins, thismaxs, oldmaxs;
+	vec3_t mins, maxs;
+	dmdl_t *paliashdr;
+	vec3_t vectors[3];
+	vec3_t thismins, oldmins, thismaxs, oldmaxs;
 	daliasframe_t *pframe, *poldframe;
 	vec3_t angles;
 
 	paliashdr = (dmdl_t *)currentmodel->extradata;
-
-	if ( ( e->frame >= paliashdr->num_frames ) || ( e->frame < 0 ) )
+	if (!paliashdr)
 	{
-		R_Printf(PRINT_ALL, "%s %s: no such frame %d\n",
-			__func__, currentmodel->name, e->frame);
+		R_Printf(PRINT_ALL, "%s %s: Model is not fully loaded\n",
+				__func__, currentmodel->name);
+		return true;
+	}
+
+	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
+	{
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such frame %d\n",
+				__func__, currentmodel->name, e->frame);
 		e->frame = 0;
 	}
-	if ( ( e->oldframe >= paliashdr->num_frames ) || ( e->oldframe < 0 ) )
+
+	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
-		R_Printf(PRINT_ALL, "%s %s: no such oldframe %d\n",
-			__func__, currentmodel->name, e->oldframe);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such oldframe %d\n",
+				__func__, currentmodel->name, e->oldframe);
 		e->oldframe = 0;
 	}
 
-	pframe = ( daliasframe_t * ) ( ( byte * ) paliashdr +
-		                              paliashdr->ofs_frames +
-									  e->frame * paliashdr->framesize);
+	pframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
+			e->frame * paliashdr->framesize);
 
-	poldframe = ( daliasframe_t * ) ( ( byte * ) paliashdr +
-		                              paliashdr->ofs_frames +
-									  e->oldframe * paliashdr->framesize);
+	poldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
+			e->oldframe * paliashdr->framesize);
 
-	/*
-	** compute axially aligned mins and maxs
-	*/
-	if ( pframe == poldframe )
+	/* compute axially aligned mins and maxs */
+	if (pframe == poldframe)
 	{
-		for ( i = 0; i < 3; i++ )
+		for (i = 0; i < 3; i++)
 		{
 			mins[i] = pframe->translate[i];
-			maxs[i] = mins[i] + pframe->scale[i]*255;
+			maxs[i] = mins[i] + pframe->scale[i] * 255;
 		}
 	}
 	else
 	{
-		for ( i = 0; i < 3; i++ )
+		for (i = 0; i < 3; i++)
 		{
 			thismins[i] = pframe->translate[i];
-			thismaxs[i] = thismins[i] + pframe->scale[i]*255;
+			thismaxs[i] = thismins[i] + pframe->scale[i] * 255;
 
-			oldmins[i]  = poldframe->translate[i];
-			oldmaxs[i]  = oldmins[i] + poldframe->scale[i]*255;
+			oldmins[i] = poldframe->translate[i];
+			oldmaxs[i] = oldmins[i] + poldframe->scale[i] * 255;
 
-			if ( thismins[i] < oldmins[i] )
+			if (thismins[i] < oldmins[i])
+			{
 				mins[i] = thismins[i];
+			}
 			else
+			{
 				mins[i] = oldmins[i];
+			}
 
-			if ( thismaxs[i] > oldmaxs[i] )
+			if (thismaxs[i] > oldmaxs[i])
+			{
 				maxs[i] = thismaxs[i];
+			}
 			else
+			{
 				maxs[i] = oldmaxs[i];
+			}
 		}
 	}
 
-	/*
-	** compute a full bounding box
-	*/
-	for ( i = 0; i < 8; i++ )
-	{
-		vec3_t   tmp;
-
-		if ( i & 1 )
-			tmp[0] = mins[0];
-		else
-			tmp[0] = maxs[0];
-
-		if ( i & 2 )
-			tmp[1] = mins[1];
-		else
-			tmp[1] = maxs[1];
-
-		if ( i & 4 )
-			tmp[2] = mins[2];
-		else
-			tmp[2] = maxs[2];
-
-		VectorCopy( tmp, bbox[i] );
-	}
-
-	/*
-	** rotate the bounding box
-	*/
-	VectorCopy( e->angles, angles );
-	angles[YAW] = -angles[YAW];
-	AngleVectors( angles, vectors[0], vectors[1], vectors[2] );
-
-	for ( i = 0; i < 8; i++ )
+	/* compute a full bounding box */
+	for (i = 0; i < 8; i++)
 	{
 		vec3_t tmp;
 
-		VectorCopy( bbox[i], tmp );
+		if (i & 1)
+		{
+			tmp[0] = mins[0];
+		}
+		else
+		{
+			tmp[0] = maxs[0];
+		}
 
-		bbox[i][0] = DotProduct( vectors[0], tmp );
-		bbox[i][1] = -DotProduct( vectors[1], tmp );
-		bbox[i][2] = DotProduct( vectors[2], tmp );
+		if (i & 2)
+		{
+			tmp[1] = mins[1];
+		}
+		else
+		{
+			tmp[1] = maxs[1];
+		}
 
-		VectorAdd( e->origin, bbox[i], bbox[i] );
+		if (i & 4)
+		{
+			tmp[2] = mins[2];
+		}
+		else
+		{
+			tmp[2] = maxs[2];
+		}
+
+		VectorCopy(tmp, bbox[i]);
+	}
+
+	/* rotate the bounding box */
+	VectorCopy(e->angles, angles);
+	angles[YAW] = -angles[YAW];
+	AngleVectors(angles, vectors[0], vectors[1], vectors[2]);
+
+	for (i = 0; i < 8; i++)
+	{
+		vec3_t tmp;
+
+		VectorCopy(bbox[i], tmp);
+
+		bbox[i][0] = DotProduct(vectors[0], tmp);
+		bbox[i][1] = -DotProduct(vectors[1], tmp);
+		bbox[i][2] = DotProduct(vectors[2], tmp);
+
+		VectorAdd(e->origin, bbox[i], bbox[i]);
 	}
 
 	{
 		int p, f, aggregatemask = ~0;
 
-		for ( p = 0; p < 8; p++ )
+		for (p = 0; p < 8; p++)
 		{
 			int mask = 0;
 
-			for ( f = 0; f < 4; f++ )
+			for (f = 0; f < 4; f++)
 			{
 				float dp = DotProduct( frustum[f].normal, bbox[p] );
 
-				if ( ( dp - frustum[f].dist ) < 0 )
+				if ((dp - frustum[f].dist ) < 0)
 				{
-					mask |= ( 1 << f );
+					mask |= (1 << f);
 				}
 			}
 
 			aggregatemask &= mask;
 		}
 
-		if ( aggregatemask )
+		if (aggregatemask)
 		{
 			return true;
 		}
@@ -797,100 +809,129 @@ static qboolean R_CullAliasModel( vec3_t bbox[8], entity_t *e, model_t *currentm
 	}
 }
 
-/*
-=================
-R_DrawAliasModel
-
-=================
-*/
-void R_DrawAliasModel (entity_t *currententity, model_t *currentmodel)
+void
+R_DrawAliasModel(entity_t *currententity, model_t *currentmodel)
 {
-	int			i;
-	int			leftHandOffset = 0;
-	dmdl_t		*paliashdr;
-	float		an;
-	float		prev_viewproj[16];
+	int i;
+	int leftHandOffset = 0;
+	dmdl_t *paliashdr;
+	float an;
+	float prev_viewproj[16];
 
-	if ( !( currententity->flags & RF_WEAPONMODEL ) )
+	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
-		vec3_t	bbox[8];
+		vec3_t bbox[8];
 
-		if ( R_CullAliasModel( bbox, currententity, currentmodel ) )
+		if (R_CullAliasModel( bbox, currententity, currentmodel))
+		{
 			return;
+		}
 	}
 
-	if ( currententity->flags & RF_WEAPONMODEL )
+	if (currententity->flags & RF_WEAPONMODEL)
 	{
-		if ( r_lefthand->value == 2 )
+		if (r_lefthand->value == 2)
+		{
 			return;
+		}
 	}
 
 	paliashdr = (dmdl_t *)currentmodel->extradata;
 
-	//
-	// get lighting information
-	//
-	// PMM - rewrote, reordered to handle new shells & mixing
-	// PMM - 3.20 code .. replaced with original way of doing it to keep mod authors happy
-	//
-	if ( currententity->flags & ( RF_SHELL_HALF_DAM | RF_SHELL_GREEN | RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE ) )
+	/* get lighting information */
+	if (currententity->flags &
+		(RF_SHELL_HALF_DAM | RF_SHELL_GREEN | RF_SHELL_RED |
+		 RF_SHELL_BLUE | RF_SHELL_DOUBLE))
 	{
-		VectorClear (shadelight);
+		VectorClear(shadelight);
+
 		if (currententity->flags & RF_SHELL_HALF_DAM)
 		{
-				shadelight[0] = 0.56;
-				shadelight[1] = 0.59;
-				shadelight[2] = 0.45;
+			shadelight[0] = 0.56;
+			shadelight[1] = 0.59;
+			shadelight[2] = 0.45;
 		}
-		if ( currententity->flags & RF_SHELL_DOUBLE )
+
+		if (currententity->flags & RF_SHELL_DOUBLE)
 		{
 			shadelight[0] = 0.9;
 			shadelight[1] = 0.7;
 		}
-		if ( currententity->flags & RF_SHELL_RED )
+
+		if (currententity->flags & RF_SHELL_RED)
+		{
 			shadelight[0] = 1.0;
-		if ( currententity->flags & RF_SHELL_GREEN )
+		}
+
+		if (currententity->flags & RF_SHELL_GREEN)
+		{
 			shadelight[1] = 1.0;
-		if ( currententity->flags & RF_SHELL_BLUE )
+		}
+
+		if (currententity->flags & RF_SHELL_BLUE)
+		{
 			shadelight[2] = 1.0;
+		}
 	}
-	else if ( currententity->flags & RF_FULLBRIGHT )
+	else if (currententity->flags & RF_FULLBRIGHT)
 	{
-		for (i=0 ; i<3 ; i++)
+		for (i = 0; i < 3; i++)
+		{
 			shadelight[i] = 1.0;
+		}
 	}
 	else
 	{
-		R_LightPoint(currententity->origin, shadelight, currententity);
-
-		// player lighting hack for communication back to server
-		// big hack!
-		if ( currententity->flags & RF_WEAPONMODEL )
+		if (r_worldmodel->grid)
 		{
-			// pick the greatest component, which should be the same
-			// as the mono value returned by software
+			BSPX_LightGridValue(r_worldmodel->grid, r_newrefdef.lightstyles,
+				currententity->origin, shadelight);
+		}
+		else
+		{
+			R_LightPoint(currententity->origin, shadelight, currententity);
+		}
+
+		/* player lighting hack for communication back to server */
+		if (currententity->flags & RF_WEAPONMODEL)
+		{
+			/* pick the greatest component, which should be
+			   the same as the mono value returned by software */
 			if (shadelight[0] > shadelight[1])
 			{
 				if (shadelight[0] > shadelight[2])
-					r_lightlevel->value = 150*shadelight[0];
+				{
+					r_lightlevel->value = 150 * shadelight[0];
+				}
 				else
-					r_lightlevel->value = 150*shadelight[2];
+				{
+					r_lightlevel->value = 150 * shadelight[2];
+				}
 			}
 			else
 			{
 				if (shadelight[1] > shadelight[2])
-					r_lightlevel->value = 150*shadelight[1];
+				{
+					r_lightlevel->value = 150 * shadelight[1];
+				}
 				else
-					r_lightlevel->value = 150*shadelight[2];
+				{
+					r_lightlevel->value = 150 * shadelight[2];
+				}
 			}
 		}
 	}
 
-	if ( currententity->flags & RF_MINLIGHT )
+	if (currententity->flags & RF_MINLIGHT)
 	{
-		for (i=0 ; i<3 ; i++)
+		for (i = 0; i < 3; i++)
+		{
 			if (shadelight[i] > 0.1)
+			{
 				break;
+			}
+		}
+
 		if (i == 3)
 		{
 			shadelight[0] = 0.1;
@@ -899,50 +940,49 @@ void R_DrawAliasModel (entity_t *currententity, model_t *currentmodel)
 		}
 	}
 
-	if ( currententity->flags & RF_GLOW )
-	{	// bonus items will pulse with time
-		float	scale;
+	if (currententity->flags & RF_GLOW)
+	{
+		/* bonus items will pulse with time */
+		float scale;
 
-		scale = 0.1 * sin(r_newrefdef.time*7);
-		for (i=0 ; i<3 ; i++)
+		scale = 0.1 * sin(r_newrefdef.time * 7);
+
+		for (i = 0; i < 3; i++)
 		{
 			float	min;
 
 			min = shadelight[i] * 0.8;
 			shadelight[i] += scale;
+
 			if (shadelight[i] < min)
+			{
 				shadelight[i] = min;
+			}
 		}
 	}
 
-	// =================
-	// PGM	ir goggles color override
-	if ( r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags & RF_IR_VISIBLE)
+	/* ir goggles color override */
+	if (r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags &
+		RF_IR_VISIBLE)
 	{
 		shadelight[0] = 1.0;
 		shadelight[1] = 0.0;
 		shadelight[2] = 0.0;
 	}
-	// PGM
-	// =================
 
-	shadedots = r_avertexnormal_dots[((int)(currententity->angles[1] * (SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
+	shadedots = r_avertexnormal_dots[((int)(currententity->angles[1] *
+				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
 
-	an = currententity->angles[1]/180*M_PI;
+	an = currententity->angles[1] / 180 * M_PI;
 	shadevector[0] = cos(-an);
 	shadevector[1] = sin(-an);
 	shadevector[2] = 1;
-	VectorNormalize (shadevector);
+	VectorNormalize(shadevector);
 
-	//
-	// locate the proper data
-	//
-
+	/* locate the proper data */
 	c_alias_polys += paliashdr->num_tris;
 
-	//
-	// draw all the triangles
-	//
+	/* draw all the triangles */
 	if (currententity->flags & RF_DEPTHHACK || r_newrefdef.rdflags & RDF_NOWORLDMODEL) { // hack the depth range to prevent view model from poking into walls
 		float r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
 		float r_proj_fovy = r_newrefdef.fov_y;
