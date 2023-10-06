@@ -76,8 +76,8 @@ GL3_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframe
 void
 GL3_PushDlights(void)
 {
-	int i;
 	dlight_t *l;
+	int i;
 
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = gl3_framecount + 1;
@@ -109,12 +109,10 @@ GL3_PushDlights(void)
 void
 GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 {
-	vec3_t end;
+	vec3_t end, dist;
 	float r;
 	int lnum;
 	dlight_t *dl;
-	vec3_t dist;
-	float add;
 
 	if (!gl3_worldmodel->lightdata || !currententity)
 	{
@@ -145,6 +143,8 @@ GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 
 	for (lnum = 0; lnum < gl3_newrefdef.num_dlights; lnum++, dl++)
 	{
+		float	add;
+
 		VectorSubtract(currententity->origin,
 				dl->origin, dist);
 		add = dl->intensity - VectorLength(dist);

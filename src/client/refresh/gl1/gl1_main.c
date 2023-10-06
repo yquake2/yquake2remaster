@@ -32,6 +32,7 @@ viddef_t vid;
 model_t *r_worldmodel;
 
 float gldepthmin, gldepthmax;
+extern vec3_t lightspot;
 
 glconfig_t gl_config;
 glstate_t gl_state;
@@ -250,13 +251,15 @@ R_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT)
+	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		R_LightPoint(currententity, currententity->origin, shadelight);
+		R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
+			r_worldmodel->nodes, currententity->origin, shadelight,
+			r_modulate->value, lightspot);
 	}
 
 	glPushMatrix();
@@ -1122,7 +1125,9 @@ R_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(currententity, r_newrefdef.vieworg, shadelight);
+	R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
+		r_worldmodel->nodes, r_newrefdef.vieworg, shadelight,
+		r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */

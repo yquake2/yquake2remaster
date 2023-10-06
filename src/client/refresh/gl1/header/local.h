@@ -249,7 +249,8 @@ void R_Bind(int texnum);
 
 void R_TexEnv(GLenum value);
 
-void R_LightPoint(entity_t *currententity, vec3_t p, vec3_t color);
+void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
+	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 void R_PushDlights(void);
 
 extern model_t *r_worldmodel;

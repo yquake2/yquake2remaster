@@ -84,7 +84,7 @@ R_LightPoint
 ===============
 */
 void
-R_LightPoint (const entity_t *currententity, vec3_t p, vec3_t color)
+R_LightPoint(const entity_t *currententity, vec3_t p, vec3_t color)
 {
 	vec3_t		end;
 	float		r;

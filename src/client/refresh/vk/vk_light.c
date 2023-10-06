@@ -23,12 +23,12 @@
  * Lightmaps and dynamic lighting
  *
  * =======================================================================
- *
  */
 
 #include "header/local.h"
 
-int	r_dlightframecount;
+int r_dlightframecount;
+vec3_t lightspot;
 
 static void
 R_RenderDlight(dlight_t *light)
@@ -83,39 +83,27 @@ R_RenderDlight(dlight_t *light)
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 48, 1, 0, 0, 0);
 }
 
-/*
-=============
-R_RenderDlights
-=============
-*/
 void
 R_RenderDlights(void)
 {
-	int		i;
-	dlight_t	*l;
+	int i;
+	dlight_t *l;
 
 	if (!vk_flashblend->value)
 	{
 		return;
 	}
 
-	r_dlightframecount = r_framecount + 1;	// because the count hasn't
-											//  advanced yet for this frame
+	/* because the count hasn't advanced yet for this frame */
+	r_dlightframecount = r_framecount + 1;
+
 	l = r_newrefdef.dlights;
+
 	for (i = 0; i < r_newrefdef.num_dlights; i++, l++)
 	{
 		R_RenderDlight(l);
 	}
 }
-
-
-/*
-=============================================================================
-
-DYNAMIC LIGHTS
-
-=============================================================================
-*/
 
 void
 R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount)
@@ -128,6 +116,25 @@ R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframeco
 
 	for (i = 0; i < node->numsurfaces; i++, surf++)
 	{
+		int sidebit;
+		float dist;
+
+		dist = DotProduct(light->origin, surf->plane->normal) - surf->plane->dist;
+
+		if (dist >= 0)
+		{
+			sidebit = 0;
+		}
+		else
+		{
+			sidebit = SURF_PLANEBACK;
+		}
+
+		if ((surf->flags & SURF_PLANEBACK) != sidebit)
+		{
+			continue;
+		}
+
 		if (surf->dlightframe != r_dlightframecount)
 		{
 			surf->dlightbits = 0;
@@ -141,8 +148,8 @@ R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframeco
 void
 R_PushDlights(void)
 {
-	dlight_t	*l;
-	int		i;
+	dlight_t *l;
+	int i;
 
 	if (vk_flashblend->value)
 	{
@@ -161,25 +168,13 @@ R_PushDlights(void)
 	}
 }
 
-
-/*
-=============================================================================
-
-LIGHT SAMPLING
-
-=============================================================================
-*/
-
-
-vec3_t	lightspot;
-
 void
 R_LightPoint(vec3_t p, vec3_t color, entity_t *currententity)
 {
-	vec3_t		end, pointcolor, dist;
-	float		r;
-	int			lnum;
-	dlight_t	*dl;
+	vec3_t end, pointcolor, dist;
+	float r;
+	int lnum;
+	dlight_t *dl;
 
 	if (!r_worldmodel->lightdata || !currententity)
 	{
@@ -227,16 +222,16 @@ R_LightPoint(vec3_t p, vec3_t color, entity_t *currententity)
 static void
 R_AddDynamicLights(msurface_t *surf)
 {
-	int			lnum;
-	int			sd, td;
-	float		fdist, frad, fminlight;
-	vec3_t		impact, local;
-	int			s, t;
-	int			i;
-	int			smax, tmax;
-	dlight_t	*dl;
-	float		*plightdest;
-	float		fsacc, ftacc;
+	int lnum;
+	int sd, td;
+	float fdist, frad, fminlight;
+	vec3_t impact, local;
+	int s, t;
+	int i;
+	int smax, tmax;
+	dlight_t *dl;
+	float *plightdest;
+	float fsacc, ftacc;
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
@@ -270,12 +265,13 @@ R_AddDynamicLights(msurface_t *surf)
 						surf->plane->normal[i] * fdist;
 		}
 
-		local[0] = DotProduct(impact,
-				   surf->lmvecs[0]) + surf->lmvecs[0][3] - surf->texturemins[0];
-		local[1] = DotProduct(impact,
-				   surf->lmvecs[1]) + surf->lmvecs[1][3] - surf->texturemins[1];
+		local[0] = DotProduct(impact, surf->lmvecs[0]) +
+			surf->lmvecs[0][3] - surf->texturemins[0];
+		local[1] = DotProduct(impact, surf->lmvecs[1]) +
+			surf->lmvecs[1][3] - surf->texturemins[1];
 
 		plightdest = s_blocklights;
+
 		for (t = 0, ftacc = 0; t < tmax; t++, ftacc += (1 << surf->lmshift))
 		{
 			td = local[1] - ftacc;
@@ -341,13 +337,13 @@ float *s_blocklights = NULL, *s_blocklights_max = NULL;
 void
 R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 {
-	int			smax, tmax;
-	int			r, g, b, a, max;
-	int			i, j, size;
-	byte		*lightmap;
-	float		scale[4];
-	int			mapscount;
-	float		*bl;
+	int smax, tmax;
+	int r, g, b, a, max;
+	int i, j, size;
+	byte *lightmap;
+	float scale[4];
+	int nummaps;
+	float *bl;
 
 	if (surf->texinfo->flags &
 		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
@@ -394,15 +390,15 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 	}
 
 	/* count the # of maps */
-	for (mapscount = 0; mapscount < MAXLIGHTMAPS && surf->styles[mapscount] != 255 ;
-		 mapscount++)
+	for (nummaps = 0; nummaps < MAXLIGHTMAPS && surf->styles[nummaps] != 255;
+		 nummaps++)
 	{
 	}
 
 	lightmap = surf->samples;
 
 	/* add all the lightmaps */
-	if (mapscount == 1)
+	if (nummaps == 1)
 	{
 		int maps;
 

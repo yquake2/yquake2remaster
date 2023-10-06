@@ -517,7 +517,7 @@ R_DrawSpanlet66Stipple(const int *r_turb_turb)
 ** Throws out the back side
 */
 static int
-R_ClipPolyFace (int nump, clipplane_t *pclipplane)
+R_ClipPolyFace(int nump, clipplane_t *pclipplane)
 {
 	int		i, outcount;
 	float	frac, clipdist, *pclipnormal;
@@ -1045,7 +1045,7 @@ R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentm
 
 	r_polydesc.nump = 0;
 
-	// reconstruct the polygon
+	/* reconstruct the polygon */
 	pedges = currentmodel->edges;
 	lnumverts = fa->numedges;
 
