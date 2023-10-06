@@ -1117,7 +1117,7 @@ GL_GetSpecialBufferModeForStereoMode(enum stereo_modes stereo_mode) {
 static void
 R_SetLightLevel(entity_t *currententity)
 {
-	vec3_t shadelight;
+	vec3_t shadelight = {0};
 
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{

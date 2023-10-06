@@ -107,14 +107,15 @@ GL3_PushDlights(void)
 }
 
 void
-GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
+R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
+	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
 {
 	vec3_t end, dist;
 	float r;
 	int lnum;
 	dlight_t *dl;
 
-	if (!gl3_worldmodel->lightdata || !currententity)
+	if (!currententity)
 	{
 		color[0] = color[1] = color[2] = 1.0;
 		return;
@@ -124,10 +125,8 @@ GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 	end[1] = p[1];
 	end[2] = p[2] - 2048;
 
-	// TODO: don't just aggregate the color, but also save position of brightest+nearest light
-	//       for shadow position and maybe lighting on model?
-	r = R_RecursiveLightPoint(gl3_worldmodel->surfaces, gl3_worldmodel->nodes,
-		gl3_newrefdef.lightstyles, p, end, pointcolor, lightspot, r_modulate->value);
+	r = R_RecursiveLightPoint(surfaces, nodes, refdef->lightstyles,
+		p, end, pointcolor, lightspot, modulate);
 
 	if (r == -1)
 	{
@@ -139,9 +138,9 @@ GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 	}
 
 	/* add dynamic lights */
-	dl = gl3_newrefdef.dlights;
+	dl = refdef->dlights;
 
-	for (lnum = 0; lnum < gl3_newrefdef.num_dlights; lnum++, dl++)
+	for (lnum = 0; lnum < refdef->num_dlights; lnum++, dl++)
 	{
 		float	add;
 
@@ -156,7 +155,7 @@ GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 		}
 	}
 
-	VectorScale(color, r_modulate->value, color);
+	VectorScale(color, modulate, color);
 }
 
 

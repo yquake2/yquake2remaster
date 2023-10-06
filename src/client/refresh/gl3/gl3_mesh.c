@@ -775,7 +775,24 @@ GL3_DrawAliasModel(entity_t *entity)
 	}
 	else
 	{
-		GL3_LightPoint(entity, entity->origin, shadelight);
+		if (gl3_worldmodel->grid)
+		{
+			BSPX_LightGridValue(gl3_worldmodel->grid, gl3_newrefdef.lightstyles,
+				entity->origin, shadelight);
+		}
+		else
+		{
+			if (!gl3_worldmodel || !gl3_worldmodel->lightdata)
+			{
+				shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
+			}
+			else
+			{
+				R_LightPoint(entity, &gl3_newrefdef, gl3_worldmodel->surfaces,
+					gl3_worldmodel->nodes, entity->origin, shadelight,
+					r_modulate->value, lightspot);
+			}
+		}
 
 		/* player lighting hack for communication back to server */
 		if (entity->flags & RF_WEAPONMODEL)
@@ -829,12 +846,13 @@ GL3_DrawAliasModel(entity_t *entity)
 	{
 		/* bonus items will pulse with time */
 		float scale;
-		float min;
 
 		scale = 0.1 * sin(gl3_newrefdef.time * 7);
 
 		for (i = 0; i < 3; i++)
 		{
+			float	min;
+
 			min = shadelight[i] * 0.8;
 			shadelight[i] += scale;
 
