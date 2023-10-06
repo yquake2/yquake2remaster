@@ -153,7 +153,7 @@ R_RotateForEntity(entity_t *e)
 	glRotatef(-e->angles[2], 1, 0, 0);
 }
 
-void
+static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
@@ -245,7 +245,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	glColor4f(1, 1, 1, 1);
 }
 
-void
+static void
 R_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
@@ -304,7 +304,7 @@ R_DrawNullModel(entity_t *currententity)
 	glEnable(GL_TEXTURE_2D);
 }
 
-void
+static void
 R_DrawEntitiesOnList(void)
 {
 	int i;
@@ -396,8 +396,9 @@ R_DrawEntitiesOnList(void)
 					R_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					ri.Sys_Error(ERR_DROP, "Bad modeltype");
-					break;
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
+					return;
 			}
 		}
 	}
@@ -439,7 +440,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 			( p->origin [ 1 ] - r_origin [ 1 ] ) * vpn [ 1 ] +
 			( p->origin [ 2 ] - r_origin [ 2 ] ) * vpn [ 2 ];
 
-		if ( scale < 20 )
+		if (scale < 20)
 		{
 			scale = 1;
 		}
@@ -506,7 +507,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 	YQ2_VLAFREE(clr);
 }
 
-void
+static void
 R_DrawParticles(void)
 {
 	qboolean stereo_split_tb = ((gl_state.stereo_mode == STEREO_SPLIT_VERTICAL) && gl_state.camera_separation);
@@ -574,7 +575,7 @@ R_DrawParticles(void)
 	}
 }
 
-void
+static void
 R_PolyBlend(void)
 {
 	if (!gl_polyblend->value)
@@ -620,7 +621,7 @@ R_PolyBlend(void)
 	glColor4f(1, 1, 1, 1);
 }
 
-void
+static void
 R_SetupFrame(void)
 {
 	int i;
@@ -1075,8 +1076,10 @@ R_RenderView(refdef_t *fd)
 	if (r_speeds->value)
 	{
 		R_Printf(PRINT_ALL, "%4i wpoly %4i epoly %i tex %i lmaps\n",
-				c_brush_polys, c_alias_polys, c_visible_textures,
-				c_visible_lightmaps);
+			c_brush_polys,
+			c_alias_polys,
+			c_visible_textures,
+			c_visible_lightmaps);
 	}
 
 	switch (gl_state.stereo_mode) {
@@ -1165,6 +1168,10 @@ RI_RenderFrame(refdef_t *fd)
 void
 R_Register(void)
 {
+	/* Init default value */
+	s_blocklights = NULL;
+	s_blocklights_max = NULL;
+
 	gl_lefthand = ri.Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 	r_gunfov = ri.Cvar_Get("r_gunfov", "80", CVAR_ARCHIVE);
 	r_farsee = ri.Cvar_Get("r_farsee", "0", CVAR_LATCH | CVAR_ARCHIVE);
@@ -1330,7 +1337,7 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 	return rserr_ok;
 }
 
-qboolean
+static qboolean
 R_SetMode(void)
 {
 	rserr_t err;
@@ -1426,7 +1433,7 @@ RI_Init(void)
 	if (!R_SetMode())
 	{
 		QGL_Shutdown();
-		R_Printf(PRINT_ALL, "ref_gl::R_Init() - could not R_SetMode()\n");
+		R_Printf(PRINT_ALL, "%s() - could not R_SetMode()\n", __func__);
 		return false;
 	}
 
@@ -1590,9 +1597,18 @@ RI_Shutdown(void)
 
 	/* shutdown our QGL subsystem */
 	QGL_Shutdown();
+
+	/* Cleanup buffers */
+	if (s_blocklights)
+	{
+		free(s_blocklights);
+	}
+
+	s_blocklights = NULL;
+	s_blocklights_max = NULL;
 }
 
-void
+static void
 RI_BeginFrame(float camera_separation)
 {
 	gl_state.camera_separation = camera_separation;
@@ -1750,7 +1766,7 @@ RI_BeginFrame(float camera_separation)
 	R_Clear();
 }
 
-void
+static void
 RI_SetPalette(const unsigned char *palette)
 {
 	int i;
@@ -1785,7 +1801,6 @@ RI_SetPalette(const unsigned char *palette)
 	glClearColor(1, 0, 0.5, 0.5);
 }
 
-/* R_DrawBeam */
 void
 R_DrawBeam(entity_t *e)
 {
@@ -1946,9 +1961,9 @@ GetRefAPI(refimport_t imp)
 	re.EndWorldRenderpass = RI_EndWorldRenderpass;
 	re.EndFrame = RI_EndFrame;
 
-    // Tell the client that we're unsing the
+	// Tell the client that we're unsing the
 	// new renderer restart API.
-    ri.Vid_RequestRestart(RESTART_NO);
+	ri.Vid_RequestRestart(RESTART_NO);
 
 	return re;
 }

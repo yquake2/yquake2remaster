@@ -70,15 +70,6 @@
 #define MAX_LIGHTMAPS 256
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
-/* up / down */
-#define PITCH 0
-
-/* left / right */
-#define YAW 1
-
-/* fall over */
-#define ROLL 2
-
 extern viddef_t vid;
 
 
@@ -246,6 +237,7 @@ void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurfac
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 void R_PushDlights(void);
 
+extern float *s_blocklights, *s_blocklights_max;
 extern model_t *r_worldmodel;
 extern unsigned d_8to24table[256];
 extern int registration_sequence;
@@ -255,7 +247,6 @@ void V_AddBlend(float r, float g, float b, float a, float *v_blend);
 void R_ScreenShot(void);
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
-void R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBeam(entity_t *e);
 void R_DrawWorld(void);
 void R_RenderDlights(void);

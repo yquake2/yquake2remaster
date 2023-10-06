@@ -18,13 +18,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
+ * =======================================================================
+ *
+ * Local header for the refresher.
+ *
+ * =======================================================================
  */
 
 #ifndef __VK_LOCAL_H__
 #define __VK_LOCAL_H__
 
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 
 #if defined(__APPLE__)
 #include <SDL.h>
@@ -53,26 +58,17 @@
 	} \
 }
 
-// up / down
-#define	PITCH	0
-
-// left / right
-#define	YAW	1
-
-// fall over
-#define	ROLL	2
-
-extern	viddef_t	vid;
+extern viddef_t vid;
 
 typedef struct image_s
 {
-	char	name[MAX_QPATH];			// game path, including extension
-	imagetype_t	type;
-	int		width, height;				// source image
-	int		upload_width, upload_height;	// after power of two and picmip
-	int		registration_sequence;		// 0 = free
-	struct msurface_s	*texturechain;	// for sort-by-texture world drawing
-	qvktexture_t vk_texture;			// Vulkan texture handle
+	char name[MAX_QPATH];               /* game path, including extension */
+	imagetype_t type;
+	int width, height;                  /* source image */
+	int upload_width, upload_height;    /* after power of two and picmip */
+	int registration_sequence;          /* 0 = free */
+	struct msurface_s *texturechain;    /* for sort-by-texture world drawing */
+	qvktexture_t vk_texture;            /* Vulkan texture handle */
 } image_t;
 
 #define		MAX_VKTEXTURES	1024
@@ -164,9 +160,6 @@ extern	float	r_viewproj_matrix[16];
 
 extern	float *s_blocklights, *s_blocklights_max;
 
-void R_LightPoint (vec3_t p, vec3_t color, entity_t *currententity);
-void R_PushDlights (void);
-
 //====================================================================
 
 extern	model_t	*r_worldmodel;
@@ -192,9 +185,12 @@ void Vk_ScreenShot_f (void);
 void Vk_Strings_f(void);
 void Vk_Mem_f(void);
 
-void R_DrawAliasModel(entity_t *currententity, model_t *currentmodel);
+void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
+	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
+void R_PushDlights(void);
+
+void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
-void R_DrawSpriteModel(entity_t *currententity, model_t *currentmodel);
 void R_DrawBeam(entity_t *currententity);
 void R_DrawWorld(void);
 void R_RenderDlights(void);
@@ -207,12 +203,12 @@ void Vk_SubdivideSurface(msurface_t *fa, model_t *loadmodel);
 void R_RotateForEntity(entity_t *e, float *mvMatrix);
 void R_MarkLeaves(void);
 
-void EmitWaterPolys (msurface_t *fa, image_t *texture,
+void EmitWaterPolys(msurface_t *fa, image_t *texture,
 				   float *modelMatrix, const float *color,
 				   qboolean solid_surface);
-void R_AddSkySurface (msurface_t *fa);
-void R_ClearSkyBox (void);
-void R_DrawSkyBox (void);
+void R_AddSkySurface(msurface_t *fa);
+void R_ClearSkyBox(void);
+void R_DrawSkyBox(void);
 void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);
 
@@ -316,13 +312,13 @@ typedef struct
 	float inverse_intensity;
 	qboolean fullscreen;
 
-	int     prev_mode;
+	int prev_mode;
 
 	unsigned char *d_16to8table;
 
 	qvktexture_t lightmap_textures[MAX_LIGHTMAPS*2];
 
-	int	currenttextures[2];
+	int currenttextures[2];
 	int currenttmu;
 
 	float camera_separation;

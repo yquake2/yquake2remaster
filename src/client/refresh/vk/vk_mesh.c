@@ -235,9 +235,9 @@ void Mesh_Free (void)
 
 
 static void
-Vk_LerpVerts(int nverts, dtrivertx_t *v, dtrivertx_t *ov, dtrivertx_t *verts,
-	float *lerp, const float move[3], const float frontv[3], const float backv[3],
-	entity_t *currententity)
+R_LerpVerts(entity_t *currententity, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
+		dtrivertx_t *verts, float *lerp, const float move[3],
+		const float frontv[3], const float backv[3])
 {
 	int i;
 
@@ -466,8 +466,8 @@ FIXME: batch lerp all vertexes
 =============
 */
 static void
-Vk_DrawAliasFrameLerp(dmdl_t *paliashdr, float backlerp, image_t *skin,
-	float *modelMatrix, int leftHandOffset, int translucentIdx, entity_t *currententity)
+Vk_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp, image_t *skin,
+	float *modelMatrix, int leftHandOffset, int translucentIdx)
 {
 	daliasframe_t *frame, *oldframe;
 	dtrivertx_t *v, *ov, *verts;
@@ -530,7 +530,7 @@ Vk_DrawAliasFrameLerp(dmdl_t *paliashdr, float backlerp, image_t *skin,
 
 	lerp = s_lerped[0];
 
-	Vk_LerpVerts(paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv, currententity );
+	R_LerpVerts(currententity, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
 
 	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
 	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
@@ -650,7 +650,7 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 }
 
 static qboolean
-R_CullAliasModel(vec3_t bbox[8], entity_t *e, model_t *currentmodel )
+R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 {
 	int i;
 	vec3_t mins, maxs;
@@ -810,7 +810,7 @@ R_CullAliasModel(vec3_t bbox[8], entity_t *e, model_t *currentmodel )
 }
 
 void
-R_DrawAliasModel(entity_t *currententity, model_t *currentmodel)
+R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 	int leftHandOffset = 0;
@@ -822,7 +822,7 @@ R_DrawAliasModel(entity_t *currententity, model_t *currentmodel)
 	{
 		vec3_t bbox[8];
 
-		if (R_CullAliasModel( bbox, currententity, currentmodel))
+		if (R_CullAliasModel(currentmodel, bbox, currententity))
 		{
 			return;
 		}
@@ -889,7 +889,16 @@ R_DrawAliasModel(entity_t *currententity, model_t *currentmodel)
 		}
 		else
 		{
-			R_LightPoint(currententity->origin, shadelight, currententity);
+			if (!r_worldmodel || !r_worldmodel->lightdata)
+			{
+				shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
+			}
+			else
+			{
+				R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
+					r_worldmodel->nodes, currententity->origin, shadelight,
+					r_modulate->value, lightspot);
+			}
 		}
 
 		/* player lighting hack for communication back to server */
@@ -1058,7 +1067,7 @@ R_DrawAliasModel(entity_t *currententity, model_t *currentmodel)
 
 		if ( !r_lerpmodels->value )
 			currententity->backlerp = 0;
-		Vk_DrawAliasFrameLerp (paliashdr, currententity->backlerp, skin, model, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0, currententity);
+		Vk_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp, skin, model, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0);
 	}
 
 	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )

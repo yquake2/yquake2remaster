@@ -25,8 +25,6 @@
 
 #include "../volk/volk.h"
 
-#define ROUNDUP(a, b) (((a) + ((b)-1)) & ~((b)-1))
-
 typedef struct BufferResource_s {
 	VkBuffer buffer;
 	// shared memory used for buffer

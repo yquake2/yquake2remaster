@@ -27,11 +27,9 @@
 #include "header/local.h"
 
 int r_dlightframecount;
-cplane_t *lightplane; /* used as shadow plane */
 vec3_t lightspot;
-static float s_blocklights[256 * 256 * 3];
 
-void
+static void
 R_RenderDlight(dlight_t *light)
 {
 	int i, j;
@@ -232,7 +230,7 @@ R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *
 	VectorScale(color, modulate, color);
 }
 
-void
+static void
 R_AddDynamicLights(msurface_t *surf)
 {
 	int lnum;
@@ -243,7 +241,7 @@ R_AddDynamicLights(msurface_t *surf)
 	int i;
 	int smax, tmax;
 	dlight_t *dl;
-	float *pfBL;
+	float *plightdest;
 	float fsacc, ftacc;
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -283,7 +281,7 @@ R_AddDynamicLights(msurface_t *surf)
 		local[1] = DotProduct(impact, surf->lmvecs[1]) +
 			surf->lmvecs[1][3] - surf->texturemins[1];
 
-		pfBL = s_blocklights;
+		plightdest = s_blocklights;
 
 		for (t = 0, ftacc = 0; t < tmax; t++, ftacc += (1 << surf->lmshift))
 		{
@@ -296,7 +294,7 @@ R_AddDynamicLights(msurface_t *surf)
 
 			td *= surf->lmvlen[1];
 
-			for (s = 0, fsacc = 0; s < smax; s++, fsacc += (1 << surf->lmshift), pfBL += 3)
+			for (s = 0, fsacc = 0; s < smax; s++, fsacc += (1 << surf->lmshift), plightdest += 3)
 			{
 				sd = Q_ftol(local[0] - fsacc);
 
@@ -316,13 +314,13 @@ R_AddDynamicLights(msurface_t *surf)
 					fdist = td + (sd >> 1);
 				}
 
-				if (fdist < fminlight)
+				if ((fdist < fminlight) && (plightdest < (s_blocklights_max - 3)))
 				{
 					float diff = frad - fdist;
 
-					pfBL[0] += diff * dl->color[0];
-					pfBL[1] += diff * dl->color[1];
-					pfBL[2] += diff * dl->color[2];
+					plightdest[0] += diff * dl->color[0];
+					plightdest[1] += diff * dl->color[1];
+					plightdest[2] += diff * dl->color[2];
 				}
 			}
 		}
@@ -341,6 +339,8 @@ R_SetCacheState(msurface_t *surf)
 			r_newrefdef.lightstyles[surf->styles[maps]].white;
 	}
 }
+
+float *s_blocklights = NULL, *s_blocklights_max = NULL;
 
 /*
  * Combine and scale multiple lightmaps into the floating format in blocklights
@@ -366,9 +366,27 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 	size = smax * tmax;
 
-	if (size > (sizeof(s_blocklights) >> 4))
+	if (!s_blocklights || (s_blocklights + (size * 3) >= s_blocklights_max))
 	{
-		ri.Sys_Error(ERR_DROP, "Bad s_blocklights size");
+		int new_size = ROUNDUP(size * 3, 1024);
+
+		if (new_size < 4096)
+		{
+			new_size = 4096;
+		}
+
+		if (s_blocklights)
+		{
+			free(s_blocklights);
+		}
+
+		s_blocklights = malloc(new_size * sizeof(float));
+		s_blocklights_max = s_blocklights + new_size;
+
+		if (!s_blocklights)
+		{
+			ri.Sys_Error(ERR_DROP, "Can't alloc s_blocklights");
+		}
 	}
 
 	/* set to full bright if no light data */

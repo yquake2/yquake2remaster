@@ -46,8 +46,8 @@ float *shadedots = r_avertexnormal_dots[0];
 
 static void
 R_LerpVerts(entity_t *currententity, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
-		dtrivertx_t *verts, float *lerp, float move[3],
-		float frontv[3], float backv[3])
+		dtrivertx_t *verts, float *lerp, const float move[3],
+		const float frontv[3], const float backv[3])
 {
 	int i;
 

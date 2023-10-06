@@ -1416,10 +1416,12 @@ RE_RenderFrame (refdef_t *fd)
 	R_DrawAlphaSurfaces(&ent);
 
 	// Save off light value for server to look at (BIG HACK!)
-	R_SetLightLevel (&ent);
+	R_SetLightLevel(&ent);
 
 	if (r_dowarp)
+	{
 		D_WarpScreen ();
+	}
 
 	if (r_dspeeds->value)
 	{

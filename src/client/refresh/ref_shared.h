@@ -46,6 +46,8 @@
 
 #endif
 
+#define ROUNDUP(a, b) (((a) + ((b)-1)) & ~((b)-1))
+
 /*
  * skins will be outline flood filled and mip mapped
  * pics and sprites with alpha will be outline flood filled
