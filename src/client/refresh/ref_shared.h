@@ -121,9 +121,11 @@ enum {
 	SURF_UNDERWATER = 0x80
 };
 
+/* in memory representation */
+
 typedef struct mvertex_s
 {
-	vec3_t		position;
+	vec3_t	position;
 } mvertex_t;
 
 typedef struct medge_s
@@ -184,21 +186,79 @@ typedef struct mleaf_s
  * (ok, it has the layout used for rendering brushes, but is not used there)
  */
 typedef struct mvtx_s {
-	vec3_t pos;
-	float texCoord[2];
-	float lmTexCoord[2]; /* lightmap texture coordinate (sometimes unused) */
-	vec3_t normal;
-	int lightFlags; /* bit i set means: dynlight i affects surface */
+	vec3_t	pos;
+	float	texCoord[2];
+	float	lmTexCoord[2]; /* lightmap texture coordinate (sometimes unused) */
+	vec3_t	normal;
+	int	lightFlags; /* bit i set means: dynlight i affects surface */
 } mvtx_t;
 
 typedef struct mpoly_s
 {
-	struct  mpoly_s *next;
-	struct  mpoly_s *chain;
-	int numverts;
-	int flags; /* for SURF_UNDERWATER (not needed anymore?) */
-	mvtx_t verts[4]; /* variable sized */
+	struct mpoly_s	*next;
+	struct mpoly_s	*chain;
+	int	numverts;
+	int	flags; /* for SURF_UNDERWATER (not needed anymore?) */
+	mvtx_t	verts[4]; /* variable sized */
 } mpoly_t;
+
+/* soft render specific surface cache */
+typedef struct surfcache_s
+{
+	struct surfcache_s	*next;
+	struct surfcache_s	**owner;   /* NULL is an empty chunk of memory */
+	int	lightadj[MAXLIGHTMAPS];    /* checked for strobe flush */
+	int	dlight;
+	int	size;                      /* including header */
+	unsigned	width;
+	unsigned	height;            /* DEBUG only needed for debug */
+	float	mipscale;
+	struct image_s	*image;
+	byte	data[4];               /* width * height elements */
+} surfcache_t;
+
+typedef struct msurface_s
+{
+	int	visframe;                  /* should be drawn when node is crossed */
+
+	cplane_t	*plane;
+	int	flags;
+
+	int	firstedge;                 /* look up in model->surfedges[], negative numbers */
+	int	numedges;                  /* are backwards edges */
+
+	short	texturemins[2];
+	short	extents[2];
+	short	lmshift;
+
+	int	light_s, light_t;           /* lightmap coordinates */
+	int	dlight_s, dlight_t;         /* lightmap coordinates for dynamic lightmaps */
+
+	mpoly_t	*polys;                 /* multiple if warped */
+	struct msurface_s	*texturechain;
+	struct msurface_s	*lightmapchain;
+
+	mtexinfo_t	*texinfo;
+
+	/* decoupled lm */
+	float	lmvecs[2][4];
+	float	lmvlen[2];
+
+	/* lighting info */
+	int	dlightframe;
+	int	dlightbits;
+
+	int	lightmaptexturenum;
+	byte	styles[MAXLIGHTMAPS];
+	byte	*samples;                /* [numstyles*surfsize] */
+
+	/* unused in gl* renders */
+	float	cached_light[MAXLIGHTMAPS];       /* values currently used in lightmap */
+
+	/* used in soft only */
+	struct msurface_s	*nextalphasurface;
+	struct surfcache_s	*cachespots[MIPLEVELS]; /* surface generation data */
+} msurface_t;
 
 /* BSPX Light octtree */
 #define LGNODE_LEAF		(1u<<31)
@@ -306,5 +366,8 @@ extern void R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs);
 extern bspxlightgrid_t *BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base);
 extern void BSPX_LightGridValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles,
 	const vec3_t point, vec3_t res_diffuse);
+extern int R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
+	const lightstyle_t *lightstyles, const vec3_t start, const vec3_t end,
+	vec3_t pointcolor, vec3_t lightspot, float modulate);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

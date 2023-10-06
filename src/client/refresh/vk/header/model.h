@@ -47,8 +47,6 @@ BRUSH MODELS
 // in memory representation
 //
 
-#include "../../ref_model.h"
-
 /* Whole model */
 
 typedef struct model_s

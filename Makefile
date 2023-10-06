@@ -1141,6 +1141,7 @@ REFVK_OBJS_ := \
 	src/client/refresh/vk/vk_draw.o \
 	src/client/refresh/vk/vk_image.o \
 	src/client/refresh/vk/vk_light.o \
+	src/client/refresh/vk/vk_lightmap.o \
 	src/client/refresh/vk/vk_mesh.o \
 	src/client/refresh/vk/vk_model.o \
 	src/client/refresh/vk/vk_pipeline.o \

@@ -27,8 +27,6 @@
 #ifndef REF_MODEL_H
 #define REF_MODEL_H
 
-#include "../../ref_model.h"
-
 /* Whole model */
 
 typedef struct model_s

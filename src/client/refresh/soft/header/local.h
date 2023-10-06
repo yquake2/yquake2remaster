@@ -252,20 +252,6 @@ typedef struct clipplane_s
 	byte	rightedge;
 } clipplane_t;
 
-typedef struct surfcache_s
-{
-	struct surfcache_s	*next;
-	struct surfcache_s	**owner; // NULL is an empty chunk of memory
-	int			lightadj[MAXLIGHTMAPS]; // checked for strobe flush
-	int			dlight;
-	int			size; // including header
-	unsigned		width;
-	unsigned		height; // DEBUG only needed for debug
-	float			mipscale;
-	image_t			*image;
-	byte			data[4]; // width * height elements
-} surfcache_t;
-
 typedef struct espan_s
 {
 	int		u, v, count;

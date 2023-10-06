@@ -42,35 +42,6 @@ BRUSH MODELS
 // in memory representation
 //
 
-typedef struct msurface_s
-{
-	int		visframe;		// should be drawn when node is crossed
-
-	int		dlightframe;
-	int		dlightbits;
-
-	cplane_t	*plane;
-	int		flags;
-
-	int		firstedge;	// look up in model->surfedges[], negative numbers
-	int		numedges;	// are backwards edges
-
-	// surface generation data
-	struct surfcache_s	*cachespots[MIPLEVELS];
-
-	short		texturemins[2];
-	short		extents[2];
-	short		lmshift;
-
-	mtexinfo_t	*texinfo;
-
-	// lighting info
-	byte		styles[MAXLIGHTMAPS];
-	byte		*samples;	// [numstyles*surfsize*3]
-
-	struct msurface_s *nextalphasurface;
-} msurface_t;
-
 //===================================================================
 
 //

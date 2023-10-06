@@ -258,6 +258,10 @@ void	Vk_ShutdownImages (void);
 void	Vk_FreeUnusedImages (void);
 qboolean Vk_ImageHasFreeSpace(void);
 
+void LM_InitBlock(void);
+void LM_UploadBlock(qboolean dynamic);
+qboolean LM_AllocBlock(int w, int h, int *x, int *y);
+
 void	RE_BeginRegistration (const char *model);
 struct model_s	*RE_RegisterModel (const char *name);
 struct image_s	*RE_RegisterSkin (const char *name);
@@ -297,6 +301,24 @@ typedef struct
 
 #define MAX_LIGHTMAPS 256
 #define DYNLIGHTMAP_OFFSET MAX_LIGHTMAPS
+
+#define	BLOCK_WIDTH		128
+#define	BLOCK_HEIGHT	128
+
+typedef struct
+{
+	int	current_lightmap_texture;
+
+	msurface_t	*lightmap_surfaces[MAX_LIGHTMAPS];
+
+	int			allocated[BLOCK_WIDTH];
+
+	// the lightmap texture data needs to be kept in
+	// main memory so texsubimage can update properly
+	byte		lightmap_buffer[4*BLOCK_WIDTH*BLOCK_HEIGHT];
+} vklightmapstate_t;
+
+extern vklightmapstate_t vk_lms;
 
 typedef struct
 {
