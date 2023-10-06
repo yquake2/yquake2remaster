@@ -171,7 +171,7 @@ R_PushDlights(void)
 void
 R_LightPoint(vec3_t p, vec3_t color, entity_t *currententity)
 {
-	vec3_t end, pointcolor, dist;
+	vec3_t end, dist, pointcolor = {0, 0, 0};
 	float r;
 	int lnum;
 	dlight_t *dl;

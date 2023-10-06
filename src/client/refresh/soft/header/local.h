@@ -34,16 +34,6 @@
 
 #define REF_VERSION	"SOFT 0.01"
 
-// up / down
-#define PITCH	0
-
-// left / right
-#define YAW	1
-
-// fall over
-#define ROLL	2
-
-
 /*
 
   skins will be outline flood filled and mip mapped
@@ -83,15 +73,6 @@ typedef int	light3_t[3];
 // xyz-prescale to 16.16 fixed-point
 #define SHIFT16XYZ 16
 #define SHIFT16XYZ_MULT (1 << SHIFT16XYZ)
-
-typedef enum
-{
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-} rserr_t;
 
 /* 64 light grades available */
 #define LIGHTMASK		0xFF00
@@ -536,13 +517,15 @@ extern int r_viewcluster, r_oldviewcluster;
 
 extern int r_clipflags;
 
-extern image_t		 *r_notexture_mip;
-extern model_t		 *r_worldmodel;
+extern image_t		*r_notexture_mip;
+extern model_t		*r_worldmodel;
+extern vec3_t		lightspot;
 
 void R_PrintAliasStats (void);
 void R_PrintTimes (void);
 void R_PrintDSpeeds (void);
-void R_LightPoint (const entity_t *currententity, vec3_t p, vec3_t color);
+void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
+	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 void R_SetupFrame (void);
 
 extern  refdef_t		r_newrefdef;

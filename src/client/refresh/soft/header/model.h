@@ -118,6 +118,9 @@ typedef struct model_s
 
 	// submodules
 	vec3_t		origin;	// for sounds or lights
+
+	/* octree  */
+	bspxlightgrid_t *grid;
 } model_t;
 
 //============================================================================

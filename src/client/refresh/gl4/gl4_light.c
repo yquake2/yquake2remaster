@@ -30,7 +30,6 @@
 extern gl4lightmapstate_t gl4_lms;
 
 int r_dlightframecount;
-static vec3_t pointcolor;
 vec3_t lightspot;
 
 void
@@ -110,7 +109,7 @@ void
 R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
 {
-	vec3_t end, dist;
+	vec3_t end, dist, pointcolor = {0, 0, 0};
 	float r;
 	int lnum;
 	dlight_t *dl;

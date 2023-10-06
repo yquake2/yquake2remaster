@@ -21,6 +21,8 @@
 
 #include "header/local.h"
 
+vec3_t lightspot;
+
 /*
 =============================================================================
 
@@ -78,22 +80,16 @@ LIGHT SAMPLING
 
 vec3_t lightspot;
 
-/*
-===============
-R_LightPoint
-===============
-*/
 void
-R_LightPoint(const entity_t *currententity, vec3_t p, vec3_t color)
+R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
+	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
 {
-	vec3_t		end;
-	float		r;
-	int			lnum;
-	dlight_t	*dl;
-	vec3_t		dist;
-	vec3_t		pointcolor;
+	vec3_t end, dist, pointcolor = {0, 0, 0};
+	float r;
+	int lnum;
+	dlight_t *dl;
 
-	if (!r_worldmodel->lightdata)
+	if (!currententity)
 	{
 		color[0] = color[1] = color[2] = 1.0;
 		return;
@@ -103,36 +99,37 @@ R_LightPoint(const entity_t *currententity, vec3_t p, vec3_t color)
 	end[1] = p[1];
 	end[2] = p[2] - 2048;
 
-	r = R_RecursiveLightPoint(r_worldmodel->surfaces, r_worldmodel->nodes,
-		r_newrefdef.lightstyles, p, end, pointcolor, lightspot, r_modulate->value);
+	r = R_RecursiveLightPoint(surfaces, nodes, refdef->lightstyles,
+		p, end, pointcolor, lightspot, modulate);
 
 	if (r == -1)
 	{
-		VectorCopy (vec3_origin, color);
+		VectorCopy(vec3_origin, color);
 	}
 	else
 	{
-		VectorCopy (pointcolor, color);
+		VectorCopy(pointcolor, color);
 	}
 
-	//
-	// add dynamic lights
-	//
-	for (lnum=0 ; lnum<r_newrefdef.num_dlights ; lnum++)
-	{
-		float add;
+	/* add dynamic lights */
+	dl = refdef->dlights;
 
-		dl = &r_newrefdef.dlights[lnum];
-		VectorSubtract (currententity->origin,
-						dl->origin,
-						dist);
+	for (lnum = 0; lnum < refdef->num_dlights; lnum++, dl++)
+	{
+		float	add;
+
+		VectorSubtract(currententity->origin,
+				dl->origin, dist);
 		add = dl->intensity - VectorLength(dist);
-		add *= (1.0/256);
+		add *= (1.0f / 256.0f);
+
 		if (add > 0)
 		{
-			VectorMA (color, add, dl->color, color);
+			VectorMA(color, add, dl->color, color);
 		}
 	}
+
+	VectorScale(color, modulate, color);
 }
 
 //===================================================================

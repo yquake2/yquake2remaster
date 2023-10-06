@@ -552,20 +552,33 @@ R_AliasSetupLighting(entity_t *currententity)
 	int i;
 
 	// all components of light should be identical in software
-	if ( currententity->flags & RF_FULLBRIGHT )
+	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
 		for (i=0 ; i<3 ; i++)
+		{
 			light[i] = 1.0;
+		}
 	}
 	else
 	{
-		R_LightPoint (currententity, currententity->origin, light);
+		if (r_worldmodel->grid)
+		{
+			BSPX_LightGridValue(r_worldmodel->grid, r_newrefdef.lightstyles,
+				currententity->origin, light);
+		}
+		else
+		{
+			R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
+				r_worldmodel->nodes, currententity->origin, light,
+				r_modulate->value, lightspot);
+		}
 	}
 
 	// save off light value for server to look at (BIG HACK!)
-	if ( currententity->flags & RF_WEAPONMODEL )
+	if (currententity->flags & RF_WEAPONMODEL)
+	{
 		r_lightlevel->value = 150.0 * light[0];
-
+	}
 
 	if ( currententity->flags & RF_MINLIGHT )
 	{

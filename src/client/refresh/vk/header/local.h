@@ -79,15 +79,6 @@ typedef struct image_s
 
 //===================================================================
 
-typedef enum
-{
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-} rserr_t;
-
 #include "model.h"
 
 #define BACKFACE_EPSILON	0.01

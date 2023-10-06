@@ -27,7 +27,6 @@
 #include "header/local.h"
 
 int r_dlightframecount;
-vec3_t pointcolor;
 cplane_t *lightplane; /* used as shadow plane */
 vec3_t lightspot;
 static float s_blocklights[256 * 256 * 3];
@@ -185,7 +184,7 @@ void
 R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
 {
-	vec3_t end, dist;
+	vec3_t end, dist, pointcolor = {0, 0, 0};
 	float r;
 	int lnum;
 	dlight_t *dl;

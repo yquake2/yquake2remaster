@@ -1263,19 +1263,44 @@ R_CalcPalette (void)
 //=======================================================================
 
 static void
-R_SetLightLevel (const entity_t *currententity)
+R_SetLightLevel(const entity_t *currententity)
 {
-	vec3_t		light;
+	vec3_t shadelight = {0};
 
-	if ((r_newrefdef.rdflags & RDF_NOWORLDMODEL) || (!r_drawentities->value) || (!currententity))
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
-		r_lightlevel->value = 150.0;
 		return;
 	}
 
-	// save off light value for server to look at (BIG HACK!)
-	R_LightPoint (currententity, r_newrefdef.vieworg, light);
-	r_lightlevel->value = 150.0 * light[0];
+	/* save off light value for server to look at */
+	R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
+		r_worldmodel->nodes, r_newrefdef.vieworg, shadelight,
+		r_modulate->value, lightspot);
+
+	/* pick the greatest component, which should be the
+	 * same as the mono value returned by software */
+	if (shadelight[0] > shadelight[1])
+	{
+		if (shadelight[0] > shadelight[2])
+		{
+			r_lightlevel->value = 150 * shadelight[0];
+		}
+		else
+		{
+			r_lightlevel->value = 150 * shadelight[2];
+		}
+	}
+	else
+	{
+		if (shadelight[1] > shadelight[2])
+		{
+			r_lightlevel->value = 150 * shadelight[1];
+		}
+		else
+		{
+			r_lightlevel->value = 150 * shadelight[2];
+		}
+	}
 }
 
 static int

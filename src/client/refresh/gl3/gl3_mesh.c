@@ -43,7 +43,6 @@ static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 
 typedef float vec4_t[4];
 static vec4_t s_lerped[MAX_VERTS];
-extern vec3_t lightspot;
 
 typedef struct gl3_shadowinfo_s {
 	vec3_t    lightspot;

@@ -43,7 +43,6 @@ static vec4_t s_lerped[MAX_VERTS];
 vec3_t shadevector;
 float shadelight[3];
 float *shadedots = r_avertexnormal_dots[0];
-extern vec3_t lightspot;
 
 static void
 R_LerpVerts(entity_t *currententity, int nverts, dtrivertx_t *v, dtrivertx_t *ov,

@@ -32,7 +32,6 @@ viddef_t vid;
 model_t *r_worldmodel;
 
 float gldepthmin, gldepthmax;
-extern vec3_t lightspot;
 
 glconfig_t gl_config;
 glstate_t gl_state;

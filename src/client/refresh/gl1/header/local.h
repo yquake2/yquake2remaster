@@ -115,15 +115,6 @@ typedef struct image_s
 	qboolean paletted;
 } image_t;
 
-typedef enum
-{
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-} rserr_t;
-
 #include "model.h"
 
 void GL_BeginRendering(int *x, int *y, int *width, int *height);
@@ -162,6 +153,8 @@ extern refdef_t r_newrefdef;
 extern int r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 extern qboolean IsHighDPIaware;
+
+extern vec3_t lightspot;
 
 extern cvar_t *r_norefresh;
 extern cvar_t *gl_lefthand;

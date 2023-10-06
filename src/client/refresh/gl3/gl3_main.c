@@ -71,8 +71,6 @@ int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
 
-extern vec3_t lightspot;
-
 int gl3_viewcluster, gl3_viewcluster2, gl3_oldviewcluster, gl3_oldviewcluster2;
 
 const hmm_mat4 gl3_identityMat4 = {{
@@ -344,17 +342,6 @@ GL3_Register(void)
 /*
  * Changes the video mode
  */
-
-// the following is only used in the next to functions,
-// no need to put it in a header
-enum
-{
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-};
 
 static int
 SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)

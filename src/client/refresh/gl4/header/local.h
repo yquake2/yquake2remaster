@@ -289,6 +289,8 @@ extern int c_brush_polys, c_alias_polys;
 
 extern qboolean IsHighDPIaware;
 
+extern vec3_t lightspot;
+
 /* NOTE: struct image_s* is what re.RegisterSkin() etc return so no gl4image_s!
  *       (I think the client only passes the pointer around and doesn't know the
  *        definition of this struct, so this being different from struct image_s

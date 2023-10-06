@@ -73,6 +73,13 @@ typedef enum
 	mod_alias
 } modtype_t;
 
+typedef enum
+{
+	rserr_ok,
+	rserr_invalid_mode,
+	rserr_unknown
+} rserr_t;
+
 #define MAX_LBM_HEIGHT 480
 #define DEFAULT_NOLERP_LIST "pics/conchars.* pics/ch1.* pics/ch2. pics/ch3.*"
 #define DEFAULT_LMSHIFT 4

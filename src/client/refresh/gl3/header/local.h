@@ -337,6 +337,8 @@ extern cplane_t frustum[4];
 
 extern vec3_t gl3_origin;
 
+extern vec3_t lightspot;
+
 extern gl3image_t *gl3_notexture; /* use for bad textures */
 extern gl3image_t *gl3_particletexture; /* little dot for particles */
 
