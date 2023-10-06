@@ -71,6 +71,8 @@ int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
 
+extern vec3_t lightspot;
+
 int gl4_viewcluster, gl4_viewcluster2, gl4_oldviewcluster, gl4_oldviewcluster2;
 
 const hmm_mat4 gl4_identityMat4 = {{
@@ -934,13 +936,15 @@ GL4_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT)
+	if (currententity->flags & RF_FULLBRIGHT || !gl4_worldmodel || !gl4_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		GL4_LightPoint(currententity, currententity->origin, shadelight);
+		R_LightPoint(currententity, &gl4_newrefdef, gl4_worldmodel->surfaces,
+			gl4_worldmodel->nodes, currententity->origin, shadelight,
+			r_modulate->value, lightspot);
 	}
 
 	hmm_mat4 origModelMat = gl4state.uni3DData.transModelMat4;
@@ -1715,7 +1719,9 @@ GL4_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	GL4_LightPoint(currententity, gl4_newrefdef.vieworg, shadelight);
+	R_LightPoint(currententity, &gl4_newrefdef, gl4_worldmodel->surfaces,
+		gl4_worldmodel->nodes, gl4_newrefdef.vieworg, shadelight,
+		r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */

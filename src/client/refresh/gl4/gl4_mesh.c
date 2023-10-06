@@ -717,7 +717,24 @@ GL4_DrawAliasModel(entity_t *entity)
 	}
 	else
 	{
-		GL4_LightPoint(entity, entity->origin, shadelight);
+		if (gl4_worldmodel->grid)
+		{
+			BSPX_LightGridValue(gl4_worldmodel->grid, gl4_newrefdef.lightstyles,
+				entity->origin, shadelight);
+		}
+		else
+		{
+			if (!gl4_worldmodel || !gl4_worldmodel->lightdata)
+			{
+				shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
+			}
+			else
+			{
+				R_LightPoint(entity, &gl4_newrefdef, gl4_worldmodel->surfaces,
+					gl4_worldmodel->nodes, entity->origin, shadelight,
+					r_modulate->value, lightspot);
+			}
+		}
 
 		/* player lighting hack for communication back to server */
 		if (entity->flags & RF_WEAPONMODEL)
