@@ -459,8 +459,6 @@ extern int r_dlightframecount;
 extern void GL4_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);
 extern void GL4_PushDlights(void);
-extern void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
-	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 extern void GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride);
 
 // gl4_lightmap.c

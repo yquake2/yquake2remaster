@@ -22,6 +22,7 @@
 #include "header/local.h"
 
 vec3_t lightspot;
+light_t	*blocklights = NULL, *blocklight_max = NULL;
 
 /*
 =============================================================================
@@ -69,81 +70,8 @@ R_PushDlights (const model_t *model)
 	}
 }
 
-
-/*
-=============================================================================
-
-LIGHT SAMPLING
-
-=============================================================================
-*/
-
-vec3_t lightspot;
-
-void
-R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
-	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
-{
-	vec3_t end, dist, pointcolor = {0, 0, 0};
-	float r;
-	int lnum;
-	dlight_t *dl;
-
-	if (!currententity)
-	{
-		color[0] = color[1] = color[2] = 1.0;
-		return;
-	}
-
-	end[0] = p[0];
-	end[1] = p[1];
-	end[2] = p[2] - 2048;
-
-	r = R_RecursiveLightPoint(surfaces, nodes, refdef->lightstyles,
-		p, end, pointcolor, lightspot, modulate);
-
-	if (r == -1)
-	{
-		VectorCopy(vec3_origin, color);
-	}
-	else
-	{
-		VectorCopy(pointcolor, color);
-	}
-
-	/* add dynamic lights */
-	dl = refdef->dlights;
-
-	for (lnum = 0; lnum < refdef->num_dlights; lnum++, dl++)
-	{
-		float	add;
-
-		VectorSubtract(currententity->origin,
-				dl->origin, dist);
-		add = dl->intensity - VectorLength(dist);
-		add *= (1.0f / 256.0f);
-
-		if (add > 0)
-		{
-			VectorMA(color, add, dl->color, color);
-		}
-	}
-
-	VectorScale(color, modulate, color);
-}
-
-//===================================================================
-
-
-light_t	*blocklights = NULL, *blocklight_max = NULL;
-
-/*
-===============
-R_AddDynamicLights
-===============
-*/
 static void
-R_AddDynamicLights (drawsurf_t* drawsurf)
+R_AddDynamicLights(drawsurf_t* drawsurf)
 {
 	msurface_t 	*surf;
 	int		lnum;

@@ -185,8 +185,6 @@ void Vk_ScreenShot_f (void);
 void Vk_Strings_f(void);
 void Vk_Mem_f(void);
 
-void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
-	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 void R_PushDlights(void);
 
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
