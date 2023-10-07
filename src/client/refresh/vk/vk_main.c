@@ -243,9 +243,9 @@ R_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
-			r_worldmodel->nodes, currententity->origin, shadelight,
-			r_modulate->value, lightspot);
+		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
+			shadelight, r_modulate->value, lightspot);
 	}
 
 	float model[16];
@@ -1071,9 +1071,9 @@ R_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
-		r_worldmodel->nodes, r_newrefdef.vieworg, shadelight,
-		r_modulate->value, lightspot);
+	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
+		shadelight, r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */

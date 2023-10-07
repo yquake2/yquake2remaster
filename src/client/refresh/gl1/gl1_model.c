@@ -975,6 +975,10 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	{
 		mod->grid = BSPX_LightGridLoad(bspx_header, mod_base);
 	}
+	else
+	{
+		mod->grid = NULL;
+	}
 
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,

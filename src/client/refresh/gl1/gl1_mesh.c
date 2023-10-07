@@ -670,23 +670,15 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	}
 	else
 	{
-		if (r_worldmodel->grid)
+		if (!r_worldmodel || !r_worldmodel->lightdata)
 		{
-			BSPX_LightGridValue(r_worldmodel->grid, r_newrefdef.lightstyles,
-				currententity->origin, shadelight);
+			shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 		}
 		else
 		{
-			if (!r_worldmodel || !r_worldmodel->lightdata)
-			{
-				shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
-			}
-			else
-			{
-				R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
-					r_worldmodel->nodes, currententity->origin, shadelight,
-					r_modulate->value, lightspot);
-			}
+			R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef, r_worldmodel->surfaces,
+				r_worldmodel->nodes, currententity->origin, shadelight,
+				r_modulate->value, lightspot);
 		}
 
 		/* player lighting hack for communication back to server */

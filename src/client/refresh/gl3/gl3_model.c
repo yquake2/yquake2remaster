@@ -840,6 +840,9 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 		((int *)header)[i] = LittleLong(((int *)header)[i]);
 	}
 
+	/* check for BSPX extensions */
+	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
+
 	// calculate the needed hunksize from the lumps
 	int hunkSize = 0;
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES], sizeof(dvertex_t), sizeof(mvertex_t), 0);
@@ -880,12 +883,27 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 	}
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS], sizeof(dmodel_t), sizeof(gl3model_t), 0);
 
+	{
+		int lightgridsize = 0;
+
+		/* Get size of octree on disk, need to recheck real size */
+		if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
+		{
+			hunkSize += lightgridsize * 4;
+		}
+	}
+
 	mod->extradata = Hunk_Begin(hunkSize);
 	mod->type = mod_brush;
 
-
-	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
+	if (bspx_header)
+	{
+		mod->grid = BSPX_LightGridLoad(bspx_header, mod_base);
+	}
+	else
+	{
+		mod->grid = NULL;
+	}
 
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,

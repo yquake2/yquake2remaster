@@ -929,9 +929,9 @@ GL4_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(currententity, &gl4_newrefdef, gl4_worldmodel->surfaces,
-			gl4_worldmodel->nodes, currententity->origin, shadelight,
-			r_modulate->value, lightspot);
+		R_LightPoint(gl4_worldmodel->grid, currententity, &gl4_newrefdef,
+			gl4_worldmodel->surfaces, gl4_worldmodel->nodes, currententity->origin,
+			shadelight, r_modulate->value, lightspot);
 	}
 
 	hmm_mat4 origModelMat = gl4state.uni3DData.transModelMat4;
@@ -1706,9 +1706,9 @@ GL4_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(currententity, &gl4_newrefdef, gl4_worldmodel->surfaces,
-		gl4_worldmodel->nodes, gl4_newrefdef.vieworg, shadelight,
-		r_modulate->value, lightspot);
+	R_LightPoint(gl4_worldmodel->grid, currententity, &gl4_newrefdef,
+		gl4_worldmodel->surfaces, gl4_worldmodel->nodes, gl4_newrefdef.vieworg,
+		shadelight, r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */

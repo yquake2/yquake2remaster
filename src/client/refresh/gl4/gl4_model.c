@@ -518,9 +518,10 @@ Mod_LoadMarksurfaces(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
 static void
 Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 {
-	int i;
-	dheader_t *header;
-	byte *mod_base;
+	const bspx_header_t	*bspx_header;
+	byte		*mod_base;
+	dheader_t	*header;
+	int			i;
 
 	if (mod != mod_known)
 	{
@@ -545,6 +546,9 @@ Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 		((int *)header)[i] = LittleLong(((int *)header)[i]);
 	}
 
+	/* check for BSPX extensions */
+	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header);
+
 	// calculate the needed hunksize from the lumps
 	int hunkSize = 0;
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES], sizeof(dvertex_t), sizeof(mvertex_t), 0);
@@ -562,8 +566,27 @@ Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES], sizeof(dnode_t), sizeof(mnode_t), 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS], sizeof(dmodel_t), sizeof(gl4model_t), 0);
 
+	{
+		int lightgridsize = 0;
+
+		/* Get size of octree on disk, need to recheck real size */
+		if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
+		{
+			hunkSize += lightgridsize * 4;
+		}
+	}
+
 	mod->extradata = Hunk_Begin(hunkSize);
 	mod->type = mod_brush;
+
+	if (bspx_header)
+	{
+		mod->grid = BSPX_LightGridLoad(bspx_header, mod_base);
+	}
+	else
+	{
+		mod->grid = NULL;
+	}
 
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
@@ -726,6 +749,8 @@ Mod_ForName (const char *name, gl4model_t *parent_model, qboolean crash)
 			break;
 
 		case IDBSPHEADER:
+			/* fall through */
+		case QBSPHEADER:
 			Mod_LoadBrushModel(mod, buf, modfilelen);
 			break;
 
@@ -735,6 +760,7 @@ Mod_ForName (const char *name, gl4model_t *parent_model, qboolean crash)
 			break;
 	}
 
+	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
 	mod->extradatasize = Hunk_End();
 
 	ri.FS_FreeFile(buf);

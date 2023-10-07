@@ -72,8 +72,9 @@ BSPX_LightGridSingleValue(const bspxlightgrid_t *grid, const lightstyle_t *light
 	return 1;
 }
 
-void
-BSPX_LightGridValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles, const vec3_t point, vec3_t res_diffuse)
+static void
+BSPX_LightGridValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles,
+	const vec3_t point, vec3_t res_diffuse)
 {
 	int tile[3];
 	int i;
@@ -217,8 +218,9 @@ R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
 }
 
 void
-R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
-	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
+R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
+	refdef_t *refdef, const msurface_t *surfaces, const mnode_t *nodes,
+	vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
 {
 	vec3_t end, dist, pointcolor = {0, 0, 0};
 	float r;
@@ -228,6 +230,13 @@ R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *
 	if (!currententity)
 	{
 		color[0] = color[1] = color[2] = 1.0;
+		return;
+	}
+
+	if (grid)
+	{
+		BSPX_LightGridValue(grid, refdef->lightstyles,
+			currententity->origin, color);
 		return;
 	}
 

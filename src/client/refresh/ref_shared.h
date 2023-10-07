@@ -373,9 +373,7 @@ extern void R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs);
 
 /* Lights logic */
 extern bspxlightgrid_t *BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base);
-extern void BSPX_LightGridValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles,
-	const vec3_t point, vec3_t res_diffuse);
-extern void R_LightPoint(const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
+extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

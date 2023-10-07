@@ -774,23 +774,15 @@ GL3_DrawAliasModel(entity_t *entity)
 	}
 	else
 	{
-		if (gl3_worldmodel->grid)
+		if (!gl3_worldmodel || !gl3_worldmodel->lightdata)
 		{
-			BSPX_LightGridValue(gl3_worldmodel->grid, gl3_newrefdef.lightstyles,
-				entity->origin, shadelight);
+			shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 		}
 		else
 		{
-			if (!gl3_worldmodel || !gl3_worldmodel->lightdata)
-			{
-				shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
-			}
-			else
-			{
-				R_LightPoint(entity, &gl3_newrefdef, gl3_worldmodel->surfaces,
-					gl3_worldmodel->nodes, entity->origin, shadelight,
-					r_modulate->value, lightspot);
-			}
+			R_LightPoint(gl3_worldmodel->grid, entity, &gl3_newrefdef,
+				gl3_worldmodel->surfaces, gl3_worldmodel->nodes, entity->origin,
+				shadelight, r_modulate->value, lightspot);
 		}
 
 		/* player lighting hack for communication back to server */

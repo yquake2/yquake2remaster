@@ -561,17 +561,9 @@ R_AliasSetupLighting(entity_t *currententity)
 	}
 	else
 	{
-		if (r_worldmodel->grid)
-		{
-			BSPX_LightGridValue(r_worldmodel->grid, r_newrefdef.lightstyles,
-				currententity->origin, light);
-		}
-		else
-		{
-			R_LightPoint(currententity, &r_newrefdef, r_worldmodel->surfaces,
-				r_worldmodel->nodes, currententity->origin, light,
-				r_modulate->value, lightspot);
-		}
+		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef, r_worldmodel->surfaces,
+			r_worldmodel->nodes, currententity->origin, light,
+			r_modulate->value, lightspot);
 	}
 
 	// save off light value for server to look at (BIG HACK!)
