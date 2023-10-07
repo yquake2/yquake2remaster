@@ -328,12 +328,12 @@ extern struct image_s *GetTexImage(const char *name, findimage_t find_image);
 extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
 extern struct image_s* R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, qboolean r_retexturing, loadimage_t load_image);
-extern void Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes,
+extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes,
-	const byte *mod_base, const lump_t *l);
-extern void Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes,
-	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes,
-	const byte *mod_base, const lump_t *l);
+	const byte *mod_base, const lump_t *l, int ident);
+extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
+	msurface_t **marksurfaces, int nummarksurfaces,
+	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadVisibility(dvis_t **vis, const byte *mod_base, const lump_t *l);
@@ -352,9 +352,6 @@ extern void Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 	const byte *mod_base, const lump_t *l, int extra);
-extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
-	msurface_t **marksurfaces, int nummarksurfaces,
-	const byte *mod_base, const lump_t *l, int ident);
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);
 extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
 extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,

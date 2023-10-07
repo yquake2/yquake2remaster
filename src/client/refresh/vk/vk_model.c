@@ -770,18 +770,9 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
 		mod->marksurfaces, mod->nummarksurfaces, mod_base,
 		&header->lumps[LUMP_LEAFS], header->ident);
-	if (header->ident == IDBSPHEADER)
-	{
-		Mod_LoadNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
-			mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
-			&header->lumps[LUMP_NODES]);
-	}
-	else
-	{
-		Mod_LoadQNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
-			mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
-			&header->lumps[LUMP_NODES]);
-	}
+	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
+		mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
+		&header->lumps[LUMP_NODES], header->ident);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->numframes = 2; /* regular and alternate animation */
 }

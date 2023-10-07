@@ -1404,12 +1404,7 @@ Mod_NumberLeafs(mleaf_t *leafs, mnode_t *node, int *r_leaftovis, int *r_vistolea
 		numvisleafs);
 }
 
-/*
-=================
-Mod_LoadNodes
-=================
-*/
-void
+static void
 Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
 	const lump_t *l)
@@ -1491,12 +1486,7 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 	Mod_NumberLeafs(leafs, *nodes, r_leaftovis, r_vistoleaf, &numvisleafs);
 }
 
-/*
-=================
-Mod_LoadQNodes
-=================
-*/
-void
+static void
 Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
 	const lump_t *l)
@@ -1576,6 +1566,23 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 
 	numvisleafs = 0;
 	Mod_NumberLeafs(leafs, *nodes, r_leaftovis, r_vistoleaf, &numvisleafs);
+}
+
+void
+Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
+	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
+	const lump_t *l, int ident)
+{
+	if (ident == IDBSPHEADER)
+	{
+		Mod_LoadNodes(name, planes, numplanes, leafs, numleafs, nodes, numnodes,
+			mod_base, l);
+	}
+	else
+	{
+		Mod_LoadQNodes(name, planes, numplanes, leafs, numleafs, nodes, numnodes,
+			mod_base, l);
+	}
 }
 
 /*
