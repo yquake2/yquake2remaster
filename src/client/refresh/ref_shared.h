@@ -328,6 +328,9 @@ extern struct image_s *GetTexImage(const char *name, findimage_t find_image);
 extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
 extern struct image_s* R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, qboolean r_retexturing, loadimage_t load_image);
+extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
+	int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
+	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes,
 	const byte *mod_base, const lump_t *l, int ident);

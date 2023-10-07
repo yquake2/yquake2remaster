@@ -558,79 +558,6 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 }
 
 static void
-Mod_LoadMarksurfaces(model_t *loadmodel, const byte *mod_base, const lump_t *l)
-{
-	int i, count;
-	short *in;
-	msurface_t **out;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
-
-	loadmodel->marksurfaces = out;
-	loadmodel->nummarksurfaces = count;
-
-	for (i = 0; i < count; i++)
-	{
-		int j;
-
-		j = LittleShort(in[i]);
-
-		if ((j < 0) || (j >= loadmodel->numsurfaces))
-		{
-			ri.Sys_Error(ERR_DROP, "%s: bad surface number",
-					__func__);
-		}
-
-		out[i] = loadmodel->surfaces + j;
-	}
-}
-
-static void
-Mod_LoadQMarksurfaces(model_t *loadmodel, const byte *mod_base, const lump_t *l)
-{
-	int i, count;
-	int *in;
-	msurface_t **out;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
-
-	loadmodel->marksurfaces = out;
-	loadmodel->nummarksurfaces = count;
-
-	for (i = 0; i < count; i++)
-	{
-		int j;
-		j = LittleLong(in[i]);
-
-		if ((j < 0) || (j >= loadmodel->numsurfaces))
-		{
-			ri.Sys_Error(ERR_DROP, "%s: bad surface number",
-					__func__);
-		}
-
-		out[i] = loadmodel->surfaces + j;
-	}
-}
-
-static void
 Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
 	const bspx_header_t	*bspx_header;
@@ -759,13 +686,14 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	if (header->ident == IDBSPHEADER)
 	{
 		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
-		Mod_LoadMarksurfaces(mod, mod_base, &header->lumps[LUMP_LEAFFACES]);
 	}
 	else
 	{
 		Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
-		Mod_LoadQMarksurfaces(mod, mod_base, &header->lumps[LUMP_LEAFFACES]);
 	}
+	Mod_LoadQBSPMarksurfaces(mod->name, &mod->marksurfaces, &mod->nummarksurfaces,
+		mod->surfaces, mod->numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES],
+		header->ident);
 	Mod_LoadVisibility(&mod->vis, mod_base, &header->lumps[LUMP_VISIBILITY]);
 	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
 		mod->marksurfaces, mod->nummarksurfaces, mod_base,

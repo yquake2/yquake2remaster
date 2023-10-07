@@ -2197,6 +2197,97 @@ Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
 }
 
 static void
+Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarksurfaces,
+	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l)
+{
+	int i, count;
+	short *in;
+	msurface_t **out;
+
+	in = (void *)(mod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+				__func__, name);
+	}
+
+	count = l->filelen / sizeof(*in);
+	out = Hunk_Alloc(count * sizeof(*out));
+
+	*marksurfaces = out;
+	*nummarksurfaces = count;
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		j = LittleShort(in[i]);
+
+		if ((j < 0) || (j >= numsurfaces))
+		{
+			ri.Sys_Error(ERR_DROP, "%s: bad surface number",
+					__func__);
+		}
+
+		out[i] = surfaces + j;
+	}
+}
+
+static void
+Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarksurfaces,
+	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l)
+{
+	int i, count;
+	int *in;
+	msurface_t **out;
+
+	in = (void *)(mod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+				__func__, name);
+	}
+
+	count = l->filelen / sizeof(*in);
+	out = Hunk_Alloc(count * sizeof(*out));
+
+	*marksurfaces = out;
+	*nummarksurfaces = count;
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+		j = LittleLong(in[i]);
+
+		if ((j < 0) || (j >= numsurfaces))
+		{
+			ri.Sys_Error(ERR_DROP, "%s: bad surface number",
+					__func__);
+		}
+
+		out[i] = surfaces + j;
+	}
+}
+
+void
+Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarksurfaces,
+	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l, int ident)
+{
+	if (ident == IDBSPHEADER)
+	{
+		Mod_LoadMarksurfaces(name, marksurfaces, nummarksurfaces,
+			surfaces, numsurfaces, mod_base, l);
+	}
+	else
+	{
+		Mod_LoadQMarksurfaces(name, marksurfaces, nummarksurfaces,
+			surfaces, numsurfaces, mod_base, l);
+	}
+}
+
+static void
 Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, int nummarksurfaces,
 	const byte *mod_base, const lump_t *l)

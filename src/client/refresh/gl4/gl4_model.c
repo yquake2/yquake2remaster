@@ -410,40 +410,6 @@ Mod_LoadLeafs(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
 }
 
 static void
-Mod_LoadMarksurfaces(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
-{
-	int i, j, count;
-	short *in;
-	msurface_t **out;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
-
-	loadmodel->marksurfaces = out;
-	loadmodel->nummarksurfaces = count;
-
-	for (i = 0; i < count; i++)
-	{
-		j = LittleShort(in[i]);
-
-		if ((j < 0) || (j >= loadmodel->numsurfaces))
-		{
-			ri.Sys_Error(ERR_DROP, "%s: bad surface number", __func__);
-		}
-
-		out[i] = loadmodel->surfaces + j;
-	}
-}
-
-static void
 Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 {
 	const bspx_header_t	*bspx_header;
@@ -531,7 +497,9 @@ Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)GL4_FindImage,
 		gl4_notexture, 0);
 	Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES]);
-	Mod_LoadMarksurfaces(mod, mod_base, &header->lumps[LUMP_LEAFFACES]);
+	Mod_LoadQBSPMarksurfaces(mod->name, &mod->marksurfaces, &mod->nummarksurfaces,
+		mod->surfaces, mod->numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES],
+		header->ident);
 	Mod_LoadVisibility(&mod->vis, mod_base, &header->lumps[LUMP_VISIBILITY]);
 	Mod_LoadLeafs(mod, mod_base, &header->lumps[LUMP_LEAFS]);
 	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
