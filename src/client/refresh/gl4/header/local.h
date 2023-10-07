@@ -474,7 +474,6 @@ extern void GL4_LM_EndBuildingLightmaps(void);
 
 // gl4_warp.c
 extern void GL4_EmitWaterPolys(msurface_t *fa);
-extern void GL4_SubdivideSurface(msurface_t *fa, gl4model_t* loadmodel);
 
 extern void GL4_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 extern void GL4_DrawSkyBox(void);

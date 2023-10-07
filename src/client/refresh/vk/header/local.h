@@ -197,7 +197,6 @@ void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
 void R_DrawAlphaSurfaces(void);
 void RE_InitParticleTexture(void);
 void Draw_InitLocal(void);
-void Vk_SubdivideSurface(msurface_t *fa, model_t *loadmodel);
 void R_RotateForEntity(entity_t *e, float *mvMatrix);
 void R_MarkLeaves(void);
 

@@ -231,7 +231,7 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 			if (numverts > 60)
 				return 0; // will error out in R_SubdividePolygon()
 
-			// GL3_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
+			// R_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():
 			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(gl3_3D_vtx_t)
 
@@ -307,7 +307,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 			if (numverts > 60)
 				return 0; // will error out in R_SubdividePolygon()
 
-			// GL3_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
+			// R_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():
 			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(gl3_3D_vtx_t)
 
@@ -436,7 +436,8 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 				out->texturemins[i] = -8192;
 			}
 
-			R_SubdivideSurface(loadmodel, out); /* cut up polygon for warps */
+			R_SubdivideSurface(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out); /* cut up polygon for warps */
 		}
 
 		if (r_fixsurfsky->value)
@@ -561,7 +562,8 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 				out->texturemins[i] = -8192;
 			}
 
-			R_SubdivideSurface(loadmodel, out); /* cut up polygon for warps */
+			R_SubdivideSurface(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out); /* cut up polygon for warps */
 		}
 
 		if (r_fixsurfsky->value)

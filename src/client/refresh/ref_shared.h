@@ -374,7 +374,8 @@ extern qboolean R_AreaVisible(const byte *areabits, mleaf_t *pleaf);
 extern qboolean R_CullBox(vec3_t mins, vec3_t maxs, cplane_t *frustum);
 extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 	float fov_x, float fov_y, cplane_t *frustum);
-extern void R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs);
+extern void R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edges,
+	msurface_t *fa);
 
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);

@@ -26,6 +26,8 @@
 
 #include "../ref_shared.h"
 
+#define SUBDIVIDE_SIZE 64.0f
+
 /*
 ===============
 R_TextureAnimation
@@ -185,7 +187,7 @@ R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 	}
 }
 
-void
+static void
 R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs)
 {
 	int i, j;
@@ -210,4 +212,174 @@ R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs)
 			}
 		}
 	}
+}
+
+static void
+R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
+{
+	int i, j, k;
+	vec3_t mins, maxs;
+	float *v;
+	vec3_t front[64], back[64];
+	int f, b;
+	float dist[64];
+	float frac;
+	mpoly_t *poly;
+	vec3_t total;
+	float total_s, total_t;
+	vec3_t normal;
+
+	VectorCopy(warpface->plane->normal, normal);
+
+	if (numverts > 60)
+	{
+		Com_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
+	}
+
+	R_BoundPoly(numverts, verts, mins, maxs);
+
+	for (i = 0; i < 3; i++)
+	{
+		float m;
+
+		m = (mins[i] + maxs[i]) * 0.5;
+		m = SUBDIVIDE_SIZE * floor(m / SUBDIVIDE_SIZE + 0.5);
+
+		if (maxs[i] - m < 8)
+		{
+			continue;
+		}
+
+		if (m - mins[i] < 8)
+		{
+			continue;
+		}
+
+		/* cut it */
+		v = verts + i;
+
+		for (j = 0; j < numverts; j++, v += 3)
+		{
+			dist[j] = *v - m;
+		}
+
+		/* wrap cases */
+		dist[j] = dist[0];
+		v -= i;
+		VectorCopy(verts, v);
+
+		f = b = 0;
+		v = verts;
+
+		for (j = 0; j < numverts; j++, v += 3)
+		{
+			if (dist[j] >= 0)
+			{
+				VectorCopy(v, front[f]);
+				f++;
+			}
+
+			if (dist[j] <= 0)
+			{
+				VectorCopy(v, back[b]);
+				b++;
+			}
+
+			if ((dist[j] == 0) || (dist[j + 1] == 0))
+			{
+				continue;
+			}
+
+			if ((dist[j] > 0) != (dist[j + 1] > 0))
+			{
+				/* clip point */
+				frac = dist[j] / (dist[j] - dist[j + 1]);
+
+				for (k = 0; k < 3; k++)
+				{
+					front[f][k] = back[b][k] = v[k] + frac * (v[3 + k] - v[k]);
+				}
+
+				f++;
+				b++;
+			}
+		}
+
+		R_SubdividePolygon(f, front[0], warpface);
+		R_SubdividePolygon(b, back[0], warpface);
+		return;
+	}
+
+	/* add a point in the center to help keep warp valid */
+	poly = Hunk_Alloc(sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t));
+	poly->next = warpface->polys;
+	warpface->polys = poly;
+	poly->numverts = numverts + 2;
+	VectorClear(total);
+	total_s = 0;
+	total_t = 0;
+
+	for (i = 0; i < numverts; i++, verts += 3)
+	{
+		float s, t;
+
+		VectorCopy(verts, poly->verts[i + 1].pos);
+		s = DotProduct(verts, warpface->texinfo->vecs[0]);
+		t = DotProduct(verts, warpface->texinfo->vecs[1]);
+
+		total_s += s;
+		total_t += t;
+		VectorAdd(total, verts, total);
+
+		poly->verts[i + 1].texCoord[0] = s;
+		poly->verts[i + 1].texCoord[1] = t;
+		VectorCopy(normal, poly->verts[i + 1].normal);
+		poly->verts[i + 1].lightFlags = 0;
+	}
+
+	VectorScale(total, (1.0 / numverts), poly->verts[0].pos);
+	poly->verts[0].texCoord[0] = total_s / numverts;
+	poly->verts[0].texCoord[1] = total_t / numverts;
+	VectorCopy(normal, poly->verts[0].normal);
+
+	/* copy first vertex to last */
+	memcpy(&poly->verts[i + 1], &poly->verts[1], sizeof(mvtx_t));
+}
+
+/*
+ * Breaks a polygon up along axial 64 unit
+ * boundaries so that turbulent and sky warps
+ * can be done reasonably.
+ */
+void
+R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edges, msurface_t *fa)
+{
+	vec3_t verts[64];
+	int numverts;
+	int i;
+	float *vec;
+
+	/* convert edges back to a normal polygon */
+	numverts = 0;
+
+	for (i = 0; i < fa->numedges; i++)
+	{
+		int	lindex;
+
+		lindex = surfedges[fa->firstedge + i];
+
+		if (lindex > 0)
+		{
+			vec = vertexes[edges[lindex].v[0]].position;
+		}
+		else
+		{
+			vec = vertexes[edges[-lindex].v[1]].position;
+		}
+
+		VectorCopy(vec, verts[numverts]);
+		numverts++;
+	}
+
+	R_SubdividePolygon(numverts, verts[0], fa);
 }
