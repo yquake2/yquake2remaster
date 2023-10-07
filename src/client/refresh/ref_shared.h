@@ -337,6 +337,8 @@ extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, int nummarksurfaces,
 	const byte *mod_base, const lump_t *l, int ident);
+extern void Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
+	const byte *mod_base, const lump_t *l, int extra, int ident);
 extern void Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadVisibility(dvis_t **vis, const byte *mod_base, const lump_t *l);
@@ -347,10 +349,6 @@ extern void Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t 
 extern void Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
 	struct image_s *notexture, int extra);
-extern void Mod_LoadEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l, int extra);
-extern void Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
@@ -379,7 +377,7 @@ extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 extern void R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs);
 
 /* Lights logic */
-extern bspxlightgrid_t *BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base);
+extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 

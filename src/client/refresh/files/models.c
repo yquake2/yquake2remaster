@@ -1860,7 +1860,7 @@ Mod_LoadEdges
 extra is used for skybox, which adds 6 surfaces
 =================
 */
-void
+static void
 Mod_LoadEdges(const char *name, medge_t **edges, int *numedges,
 	const byte *mod_base, const lump_t *l, int extra)
 {
@@ -1895,7 +1895,7 @@ Mod_LoadQEdges
 extra is used for skybox, which adds 6 surfaces
 =================
 */
-void
+static void
 Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
 	const byte *mod_base, const lump_t *l, int extra)
 {
@@ -1920,6 +1920,20 @@ Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
 	{
 		out->v[0] = (unsigned int)LittleLong(in->v[0]);
 		out->v[1] = (unsigned int)LittleLong(in->v[1]);
+	}
+}
+
+void
+Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
+	const byte *mod_base, const lump_t *l, int extra, int ident)
+{
+	if (ident == IDBSPHEADER)
+	{
+		Mod_LoadEdges(name, edges, numedges, mod_base, l, extra);
+	}
+	else
+	{
+		Mod_LoadQEdges(name, edges, numedges, mod_base, l, extra);
 	}
 }
 
@@ -2437,7 +2451,7 @@ static float ReadFloat(struct rctx_s *ctx)
 }
 
 bspxlightgrid_t*
-BSPX_LightGridLoad(const bspx_header_t *bspx_header, const byte *mod_base)
+Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 {
 	vec3_t step, mins;
 	int size[3];

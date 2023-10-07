@@ -405,10 +405,10 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 static void
 Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
-	const bspx_header_t	*bspx_header;
-	byte		*mod_base;
-	dheader_t	*header;
-	int			i;
+	const bspx_header_t *bspx_header;
+	int i, lightgridsize = 0;
+	dheader_t *header;
+	byte *mod_base;
 
 	if (mod != mod_known)
 	{
@@ -487,14 +487,10 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	hunkSize += 5000000; // and 5MB extra just in case
 
+	/* Get size of octree on disk, need to recheck real size */
+	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
 	{
-		int lightgridsize = 0;
-
-		/* Get size of octree on disk, need to recheck real size */
-		if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
-		{
-			hunkSize += lightgridsize * 4;
-		}
+		hunkSize += lightgridsize * 4;
 	}
 
 	mod->extradata = Hunk_Begin(hunkSize);
@@ -502,7 +498,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	if (bspx_header)
 	{
-		mod->grid = BSPX_LightGridLoad(bspx_header, mod_base);
+		mod->grid = Mod_LoadBSPXLightGrid(bspx_header, mod_base);
 	}
 	else
 	{
@@ -512,16 +508,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
 		&header->lumps[LUMP_VERTEXES], 8);
-	if (header->ident == IDBSPHEADER)
-	{
-		Mod_LoadEdges(mod->name, &mod->edges, &mod->numedges,
-			mod_base, &header->lumps[LUMP_EDGES], 13);
-	}
-	else
-	{
-		Mod_LoadQEdges(mod->name, &mod->edges, &mod->numedges,
-			mod_base, &header->lumps[LUMP_EDGES], 13);
-	}
+	Mod_LoadQBSPEdges(mod->name, &mod->edges, &mod->numedges,
+		mod_base, &header->lumps[LUMP_EDGES], 13, header->ident);
 	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES], 24);
 	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
