@@ -554,102 +554,6 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 }
 
 static void
-Mod_LoadLeafs(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
-{
-	dleaf_t *in;
-	mleaf_t *out;
-	int i, j, count;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
-
-	loadmodel->leafs = out;
-	loadmodel->numleafs = count;
-
-	for (i = 0; i < count; i++, in++, out++)
-	{
-		unsigned firstleafface;
-
-		for (j = 0; j < 3; j++)
-		{
-			out->minmaxs[j] = LittleShort(in->mins[j]);
-			out->minmaxs[3 + j] = LittleShort(in->maxs[j]);
-		}
-
-		out->contents = LittleLong(in->contents);
-		out->cluster = LittleShort(in->cluster);
-		out->area = LittleShort(in->area);
-
-		// make unsigned long from signed short
-		firstleafface = LittleShort(in->firstleafface) & 0xFFFF;
-		out->nummarksurfaces = LittleShort(in->numleaffaces) & 0xFFFF;
-
-		out->firstmarksurface = loadmodel->marksurfaces + firstleafface;
-		if ((firstleafface + out->nummarksurfaces) > loadmodel->nummarksurfaces)
-		{
-			ri.Sys_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
-				__func__, loadmodel->name);
-		}
-	}
-}
-
-static void
-Mod_LoadQLeafs(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
-{
-	dqleaf_t *in;
-	mleaf_t *out;
-	int i, j, count;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
-
-	loadmodel->leafs = out;
-	loadmodel->numleafs = count;
-
-	for (i = 0; i < count; i++, in++, out++)
-	{
-		unsigned firstleafface;
-
-		for (j = 0; j < 3; j++)
-		{
-			out->minmaxs[j] = LittleFloat(in->mins[j]);
-			out->minmaxs[3 + j] = LittleFloat(in->maxs[j]);
-		}
-
-		out->contents = LittleLong(in->contents);
-		out->cluster = LittleLong(in->cluster);
-		out->area = LittleLong(in->area);
-
-		// make unsigned long from signed short
-		firstleafface = LittleLong(in->firstleafface) & 0xFFFFFFFF;
-		out->nummarksurfaces = LittleLong(in->numleaffaces) & 0xFFFFFFFF;
-
-		out->firstmarksurface = loadmodel->marksurfaces + firstleafface;
-		if ((firstleafface + out->nummarksurfaces) > loadmodel->nummarksurfaces)
-		{
-			ri.Sys_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
-				__func__, loadmodel->name);
-		}
-	}
-}
-
-static void
 Mod_LoadMarksurfaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
 	int i, count;
@@ -859,16 +763,17 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 		Mod_LoadQMarksurfaces(mod, mod_base, &header->lumps[LUMP_LEAFFACES]);
 	}
 	Mod_LoadVisibility(&mod->vis, mod_base, &header->lumps[LUMP_VISIBILITY]);
+	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
+		mod->marksurfaces, mod->nummarksurfaces, mod_base,
+		&header->lumps[LUMP_LEAFS], header->ident);
 	if (header->ident == IDBSPHEADER)
 	{
-		Mod_LoadLeafs(mod, mod_base, &header->lumps[LUMP_LEAFS]);
 		Mod_LoadNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
 			mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
 			&header->lumps[LUMP_NODES]);
 	}
 	else
 	{
-		Mod_LoadQLeafs(mod, mod_base, &header->lumps[LUMP_LEAFS]);
 		Mod_LoadQNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
 			mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
 			&header->lumps[LUMP_NODES]);

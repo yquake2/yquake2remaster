@@ -2189,6 +2189,123 @@ Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
 	return LittleLong(lminfo->lightofs);
 }
 
+static void
+Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
+	msurface_t **marksurfaces, int nummarksurfaces,
+	const byte *mod_base, const lump_t *l)
+{
+	dleaf_t *in;
+	mleaf_t *out;
+	int i, j, count;
+
+	in = (void *)(mod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+				__func__, name);
+	}
+
+	count = l->filelen / sizeof(*in);
+	out = Hunk_Alloc(count * sizeof(*out));
+
+	*leafs = out;
+	*numleafs = count;
+
+	for (i = 0; i < count; i++, in++, out++)
+	{
+		unsigned firstleafface;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->minmaxs[j] = LittleShort(in->mins[j]);
+			out->minmaxs[3 + j] = LittleShort(in->maxs[j]);
+		}
+
+		out->contents = LittleLong(in->contents);
+		out->cluster = LittleShort(in->cluster);
+		out->area = LittleShort(in->area);
+
+		// make unsigned long from signed short
+		firstleafface = LittleShort(in->firstleafface) & 0xFFFF;
+		out->nummarksurfaces = LittleShort(in->numleaffaces) & 0xFFFF;
+
+		out->firstmarksurface = marksurfaces + firstleafface;
+		if ((firstleafface + out->nummarksurfaces) > nummarksurfaces)
+		{
+			ri.Sys_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
+				__func__, name);
+		}
+	}
+}
+
+static void
+Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
+	msurface_t **marksurfaces, int nummarksurfaces,
+	const byte *mod_base, const lump_t *l)
+{
+	dqleaf_t *in;
+	mleaf_t *out;
+	int i, j, count;
+
+	in = (void *)(mod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+				__func__, name);
+	}
+
+	count = l->filelen / sizeof(*in);
+	out = Hunk_Alloc(count * sizeof(*out));
+
+	*leafs = out;
+	*numleafs = count;
+
+	for (i = 0; i < count; i++, in++, out++)
+	{
+		unsigned firstleafface;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->minmaxs[j] = LittleFloat(in->mins[j]);
+			out->minmaxs[3 + j] = LittleFloat(in->maxs[j]);
+		}
+
+		out->contents = LittleLong(in->contents);
+		out->cluster = LittleLong(in->cluster);
+		out->area = LittleLong(in->area);
+
+		// make unsigned long from signed short
+		firstleafface = LittleLong(in->firstleafface) & 0xFFFFFFFF;
+		out->nummarksurfaces = LittleLong(in->numleaffaces) & 0xFFFFFFFF;
+
+		out->firstmarksurface = marksurfaces + firstleafface;
+		if ((firstleafface + out->nummarksurfaces) > nummarksurfaces)
+		{
+			ri.Sys_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
+				__func__, name);
+		}
+	}
+}
+
+void
+Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
+	msurface_t **marksurfaces, int nummarksurfaces,
+	const byte *mod_base, const lump_t *l, int ident)
+{
+	if (ident == IDBSPHEADER)
+	{
+		Mod_LoadLeafs(name, leafs, numleafs, marksurfaces, nummarksurfaces,
+			mod_base, l);
+	}
+	else
+	{
+		Mod_LoadQLeafs(name, leafs, numleafs, marksurfaces, nummarksurfaces,
+			mod_base, l);
+	}
+}
+
 /* Need to clean */
 struct rctx_s {
 	const byte *data;
