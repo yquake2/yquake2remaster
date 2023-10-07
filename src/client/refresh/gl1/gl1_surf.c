@@ -300,7 +300,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	}
 
 	/* render dynamic lightmaps */
-	if (gl1_dynamic->value)
+	if (r_dynamic->value)
 	{
 		LM_InitBlock();
 
@@ -485,7 +485,7 @@ R_RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 	{
 	dynamic:
 
-		if (gl1_dynamic->value)
+		if (r_dynamic->value)
 		{
 			if (!(fa->texinfo->flags &
 				  (SURF_SKY | SURF_TRANS33 |
@@ -636,7 +636,7 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
 	msurface_t *psurf;
 
 	/* calculate dynamic lighting for bmodel */
-	if (!gl1_flashblend->value)
+	if (!r_flashblend->value)
 	{
 		dlight_t *lt;
 		int	k;

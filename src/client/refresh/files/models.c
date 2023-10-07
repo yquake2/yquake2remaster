@@ -1680,7 +1680,7 @@ Mod_LoadLighting(byte **lightdata, int *size, const byte *mod_base, const lump_t
 }
 
 void
-SetSurfaceLighting(byte *lightdata, int size, msurface_t *out, byte *styles, int lightofs)
+Mod_LoadSetSurfaceLighting(byte *lightdata, int size, msurface_t *out, byte *styles, int lightofs)
 {
 	int i;
 

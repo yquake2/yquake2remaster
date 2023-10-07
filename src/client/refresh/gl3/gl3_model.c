@@ -405,7 +405,7 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
 			loadmodel->edges, out);
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
 
 		/* set the drawing flags */
@@ -513,7 +513,7 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
 			loadmodel->edges, out);
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
 
 		/* set the drawing flags */

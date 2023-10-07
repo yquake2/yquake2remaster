@@ -104,12 +104,12 @@ cvar_t *r_customheight;
 cvar_t *r_retexturing;
 cvar_t *r_scale8bittextures;
 
-cvar_t *gl_nolerp_list;
+cvar_t *r_nolerp_list;
 cvar_t *r_lerp_list;
 cvar_t *r_2D_unfiltered;
 cvar_t *r_videos_unfiltered;
 
-cvar_t *gl1_dynamic;
+cvar_t *r_dynamic;
 cvar_t *r_modulate;
 cvar_t *gl_nobind;
 cvar_t *gl1_round_down;
@@ -122,7 +122,7 @@ cvar_t *gl_finish;
 cvar_t *r_clear;
 cvar_t *r_cull;
 cvar_t *gl_polyblend;
-cvar_t *gl1_flashblend;
+cvar_t *r_flashblend;
 cvar_t *gl1_saturatelighting;
 cvar_t *r_vsync;
 cvar_t *gl_texturemode;
@@ -1199,7 +1199,7 @@ R_Register(void)
 	gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	gl_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	gl1_stencilshadow = ri.Cvar_Get("gl1_stencilshadow", "0", CVAR_ARCHIVE);
-	gl1_dynamic = ri.Cvar_Get("gl1_dynamic", "1", 0);
+	r_dynamic = ri.Cvar_Get("r_dynamic", "1", 0);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl1_round_down = ri.Cvar_Get("gl1_round_down", "1", 0);
 	gl1_picmip = ri.Cvar_Get("gl1_picmip", "0", 0);
@@ -1211,7 +1211,7 @@ R_Register(void)
 	r_clear = ri.Cvar_Get("r_clear", "0", 0);
 	r_cull = ri.Cvar_Get("r_cull", "1", 0);
 	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", 0);
-	gl1_flashblend = ri.Cvar_Get("gl1_flashblend", "0", 0);
+	r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
 
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
@@ -1240,7 +1240,7 @@ R_Register(void)
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 
 	/* don't bilerp characters and crosshairs */
-	gl_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
+	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
 	/* textures that should always be filtered, even if r_2D_unfiltered or an unfiltered gl mode is used */
 	r_lerp_list = ri.Cvar_Get("r_lerp_list", "", CVAR_ARCHIVE);
 	/* don't bilerp any 2D elements */
@@ -1732,13 +1732,13 @@ RI_BeginFrame(float camera_separation)
 
 	/* texturemode stuff */
 	if (gl_texturemode->modified || (gl_config.anisotropic && gl_anisotropic->modified)
-	    || gl_nolerp_list->modified || r_lerp_list->modified
+	    || r_nolerp_list->modified || r_lerp_list->modified
 		|| r_2D_unfiltered->modified || r_videos_unfiltered->modified)
 	{
 		R_TextureMode(gl_texturemode->string);
 		gl_texturemode->modified = false;
 		gl_anisotropic->modified = false;
-		gl_nolerp_list->modified = false;
+		r_nolerp_list->modified = false;
 		r_lerp_list->modified = false;
 		r_2D_unfiltered->modified = false;
 		r_videos_unfiltered->modified = false;

@@ -45,7 +45,7 @@ static cvar_t *gl_anisotropic;
 static cvar_t *gl_msaa_samples;
 static cvar_t *gl1_colorlight;
 static cvar_t *gl3_colorlight;
-static cvar_t *vk_dynamic;
+static cvar_t *r_dynamic;
 
 static menuframework_s s_opengl_menu;
 
@@ -63,7 +63,7 @@ static menuslider_s s_gl3_overbrightbits_slider;
 static menuslider_s s_vk_overbrightbits_slider;
 static menulist_s s_gl1_colorlight_list;
 static menulist_s s_gl3_colorlight_list;
-static menulist_s s_vk_dynamic_list;
+static menulist_s s_r_dynamic_list;
 static menulist_s s_fs_box;
 static menulist_s s_vsync_list;
 static menulist_s s_af_list;
@@ -564,13 +564,13 @@ VID_MenuInit(void)
 		s_vk_overbrightbits_slider.minvalue = 0.1f;
 		s_vk_overbrightbits_slider.maxvalue = 5.0f;
 
-		vk_dynamic = Cvar_Get("vk_dynamic", "1", CVAR_ARCHIVE);
-		s_vk_dynamic_list.generic.type = MTYPE_SPINCONTROL;
-		s_vk_dynamic_list.generic.name = "dynamic light";
-		s_vk_dynamic_list.generic.x = 0;
-		s_vk_dynamic_list.generic.y = (y += 10);
-		s_vk_dynamic_list.itemnames = yesno_names;
-		s_vk_dynamic_list.curvalue = (vk_dynamic->value != 0);
+		r_dynamic = Cvar_Get("r_dynamic", "1", CVAR_ARCHIVE);
+		s_r_dynamic_list.generic.type = MTYPE_SPINCONTROL;
+		s_r_dynamic_list.generic.name = "dynamic light";
+		s_r_dynamic_list.generic.x = 0;
+		s_r_dynamic_list.generic.y = (y += 10);
+		s_r_dynamic_list.itemnames = yesno_names;
+		s_r_dynamic_list.curvalue = (r_dynamic->value != 0);
 	}
 	else
 	{
@@ -707,7 +707,7 @@ VID_MenuInit(void)
 	{
 		Menu_AddItem(&s_opengl_menu, (void *)&s_vk_intensity_slider);
 		Menu_AddItem(&s_opengl_menu, (void *)&s_vk_overbrightbits_slider);
-		Menu_AddItem(&s_opengl_menu, (void *)&s_vk_dynamic_list);
+		Menu_AddItem(&s_opengl_menu, (void *)&s_r_dynamic_list);
 	}
 	else if (strcmp(vid_renderer->string, "gl1") == 0)
 	{

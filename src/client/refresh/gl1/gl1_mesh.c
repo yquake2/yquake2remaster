@@ -750,17 +750,14 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-
-    // Apply gl1_overbrightbits to the mesh. If we don't do this they will appear slightly dimmer relative to walls.
-    if (gl1_overbrightbits->value)
-    {
-        for (i = 0; i < 3; ++i)
-        {
-            shadelight[i] *= gl1_overbrightbits->value;
-        }
-    }
-
-
+	// Apply gl1_overbrightbits to the mesh. If we don't do this they will appear slightly dimmer relative to walls.
+	if (gl1_overbrightbits->value)
+	{
+		for (i = 0; i < 3; ++i)
+		{
+			shadelight[i] *= gl1_overbrightbits->value;
+		}
+	}
 
 	/* ir goggles color override */
 	if (r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags &

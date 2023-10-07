@@ -392,7 +392,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			lightofs = in->lightofs;
 		}
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, lightofs);
 
 		/* set the drawing flags */
@@ -517,7 +517,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			lightofs = in->lightofs;
 		}
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, lightofs);
 
 		/* set the drawing flags */

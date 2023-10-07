@@ -101,7 +101,7 @@ cvar_t	*vk_overbrightbits;
 cvar_t	*r_validation;
 cvar_t	*vk_picmip;
 cvar_t	*r_palettedtexture;
-cvar_t	*vk_flashblend;
+cvar_t	*r_flashblend;
 cvar_t	*vk_finish;
 #if defined(__APPLE__)
 cvar_t  *vk_molten_fastmath;
@@ -121,7 +121,7 @@ static cvar_t	*vk_particle_min_size;
 static cvar_t	*vk_particle_max_size;
 static cvar_t	*vk_custom_particles;
 cvar_t	*vk_postprocess;
-cvar_t	*vk_dynamic;
+cvar_t	*r_dynamic;
 cvar_t	*vk_msaa;
 cvar_t	*r_showtris;
 cvar_t	*r_lightmap;
@@ -1143,7 +1143,7 @@ R_Register(void)
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
 	vk_picmip = ri.Cvar_Get("vk_picmip", "0", 0);
 	r_palettedtexture = ri.Cvar_Get("r_palettedtexture", "0", 0);
-	vk_flashblend = ri.Cvar_Get("vk_flashblend", "0", 0);
+	r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 	vk_finish = ri.Cvar_Get("vk_finish", "0", CVAR_ARCHIVE);
 	r_clear = ri.Cvar_Get("r_clear", "0", CVAR_ARCHIVE);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
@@ -1159,7 +1159,7 @@ R_Register(void)
 	vk_particle_max_size = ri.Cvar_Get("vk_particle_max_size", "40", CVAR_ARCHIVE);
 	vk_custom_particles = ri.Cvar_Get("vk_custom_particles", "1", CVAR_ARCHIVE);
 	vk_postprocess = ri.Cvar_Get("vk_postprocess", "1", CVAR_ARCHIVE);
-	vk_dynamic = ri.Cvar_Get("vk_dynamic", "1", 0);
+	r_dynamic = ri.Cvar_Get("r_dynamic", "1", 0);
 	vk_msaa = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE);
 	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);

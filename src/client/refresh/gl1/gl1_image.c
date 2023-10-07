@@ -211,7 +211,7 @@ R_TextureMode(char *string)
 		ri.Cvar_SetValue("r_anisotropic", 0.0);
 	}
 
-	const char* nolerplist = gl_nolerp_list->string;
+	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
 
@@ -247,7 +247,7 @@ R_TextureMode(char *string)
 		{
 			if (nolerp)
 			{
-				// this texture shouldn't be filtered at all (no gl_nolerp_list or r_2D_unfiltered case)
+				// this texture shouldn't be filtered at all (no r_nolerp_list or r_2D_unfiltered case)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
@@ -867,9 +867,9 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		// *unless* the texture is on the r_lerp_list
 		nolerp = (r_lerp_list->string == NULL) || (strstr(r_lerp_list->string, name) == NULL);
 	}
-	else if (gl_nolerp_list != NULL && gl_nolerp_list->string != NULL)
+	else if (r_nolerp_list != NULL && r_nolerp_list->string != NULL)
 	{
-		nolerp = strstr(gl_nolerp_list->string, name) != NULL;
+		nolerp = strstr(r_nolerp_list->string, name) != NULL;
 	}
 
 	/* find a free image_t */

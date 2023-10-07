@@ -240,7 +240,7 @@ R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *cur
 	if (fa->dlightframe == r_framecount)
 	{
 	dynamic:
-		if (vk_dynamic->value)
+		if (r_dynamic->value)
 		{
 			if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)))
 			{
@@ -438,7 +438,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 	if (surf->dlightframe == r_framecount)
 	{
 	dynamic:
-		if (vk_dynamic->value)
+		if (r_dynamic->value)
 		{
 			if (!(surf->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)))
 			{
@@ -631,7 +631,7 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel, float *
 	float		alpha = 1.f;
 
 	/* calculate dynamic lighting for bmodel */
-	if (!vk_flashblend->value)
+	if (!r_flashblend->value)
 	{
 		dlight_t *lt;
 		int	k;

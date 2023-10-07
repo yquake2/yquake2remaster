@@ -249,7 +249,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
 			loadmodel->edges, out);
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
 
 		/* set the drawing flags flag */
@@ -358,7 +358,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
 			loadmodel->edges, out);
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
 
 		if (!out->texinfo->image)

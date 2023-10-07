@@ -319,7 +319,7 @@ Mod_LoadFaces(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
 		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
 			loadmodel->edges, out);
 
-		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
 
 		/* set the drawing flags */

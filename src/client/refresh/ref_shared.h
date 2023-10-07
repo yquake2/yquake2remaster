@@ -343,7 +343,7 @@ extern void Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numver
 	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadVisibility(dvis_t **vis, const byte *mod_base, const lump_t *l);
 extern void Mod_LoadLighting(byte **lightdata, int *size, const byte *mod_base, const lump_t *l);
-extern void SetSurfaceLighting(byte *lightdata, int size, msurface_t *out, byte *styles, int lightofs);
+extern void Mod_LoadSetSurfaceLighting(byte *lightdata, int size, msurface_t *out, byte *styles, int lightofs);
 extern void Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *s);
 extern void Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
