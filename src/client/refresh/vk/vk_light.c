@@ -297,7 +297,7 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 	if (surf->texinfo->flags &
 		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
 	{
-		ri.Sys_Error(ERR_DROP, "R_BuildLightMap called for non-lit surface");
+		Com_Error(ERR_DROP, "R_BuildLightMap called for non-lit surface");
 	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -323,7 +323,7 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 
 		if (!s_blocklights)
 		{
-			ri.Sys_Error(ERR_DROP, "Can't alloc s_blocklights");
+			Com_Error(ERR_DROP, "Can't alloc s_blocklights");
 		}
 	}
 

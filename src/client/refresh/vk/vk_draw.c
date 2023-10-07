@@ -40,7 +40,7 @@ void Draw_InitLocal (void)
 
 	if (!draw_chars)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
+		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
 			__func__);
 	}
 }
@@ -226,7 +226,7 @@ void RE_Draw_Fill (int x, int y, int w, int h, int c)
 		return;
 
 	if ((unsigned)c > 255)
-		ri.Sys_Error(ERR_FATAL, "%s: bad color", __func__);
+		Com_Error(ERR_FATAL, "%s: bad color", __func__);
 
 	color.c = d_8to24table[c];
 

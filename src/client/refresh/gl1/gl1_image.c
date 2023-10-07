@@ -633,7 +633,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 	if (scaled_width * scaled_height > sizeof(scaled) / 4)
 	{
 		// this can't really happen (because they're clamped to 256 above), but whatever
-		ri.Sys_Error(ERR_DROP, "R_Upload32: too big");
+		Com_Error(ERR_DROP, "R_Upload32: too big");
 	}
 
 	/* scan the texture for any non-255 alpha */
@@ -885,7 +885,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	{
 		if (numgltextures == MAX_GLTEXTURES)
 		{
-			ri.Sys_Error(ERR_DROP, "MAX_GLTEXTURES");
+			Com_Error(ERR_DROP, "MAX_GLTEXTURES");
 		}
 
 		numgltextures++;
@@ -895,7 +895,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 	if (strlen(name) >= sizeof(image->name))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
+		Com_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
 	}
 
 	strcpy(image->name, name);

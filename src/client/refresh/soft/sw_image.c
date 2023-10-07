@@ -102,7 +102,7 @@ R_FindFreeImage (void)
 	if (i == numr_images)
 	{
 		if (numr_images == MAX_RIMAGES)
-			ri.Sys_Error(ERR_DROP, "%s: Max images", __func__);
+			Com_Error(ERR_DROP, "%s: Max images", __func__);
 		numr_images++;
 	}
 	image = &r_images[i];
@@ -260,7 +260,7 @@ R_LoadPic8 (char *name, byte *pic, int width, int realwidth, int height, int rea
 
 	image = R_FindFreeImage();
 	if (strlen(name) >= sizeof(image->name))
-		ri.Sys_Error(ERR_DROP, "%s: '%s' is too long", __func__, name);
+		Com_Error(ERR_DROP, "%s: '%s' is too long", __func__, name);
 	strcpy (image->name, name);
 	image->registration_sequence = registration_sequence;
 
@@ -274,7 +274,7 @@ R_LoadPic8 (char *name, byte *pic, int width, int realwidth, int height, int rea
 	image->pixels[0] = malloc(full_size);
 	if (!image->pixels[0])
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
+		Com_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
 		// code never returns after ERR_FATAL
 		return NULL;
 	}
@@ -338,7 +338,7 @@ R_LoadPic (char *name, byte *pic, int width, int realwidth, int height, int real
 		pic8 = malloc(data_size);
 		if (!pic8)
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
+			Com_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
 			// code never returns after ERR_FATAL
 			return NULL;
 		}

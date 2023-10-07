@@ -100,7 +100,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 
 	if (numverts > 60)
 	{
-		ri.Sys_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
+		Com_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
 	}
 
 	R_BoundPoly(numverts, verts, mins, maxs);
@@ -454,7 +454,7 @@ R_ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 
 	if (nump > MAX_CLIP_VERTS - 2)
 	{
-		ri.Sys_Error(ERR_DROP, "R_ClipSkyPolygon: MAX_CLIP_VERTS");
+		Com_Error(ERR_DROP, "R_ClipSkyPolygon: MAX_CLIP_VERTS");
 	}
 
 	if (stage == 6)

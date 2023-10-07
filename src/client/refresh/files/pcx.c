@@ -399,7 +399,7 @@ GetPCXPalette24to8(byte *d_8to24table, byte** d_16to8table)
 	*d_16to8table = malloc(0x10000);
 	if (!(*d_16to8table))
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't allocate memory for d_16to8table", __func__);
+		Com_Error(ERR_FATAL, "%s: Couldn't allocate memory for d_16to8table", __func__);
 		// code never returns after ERR_FATAL
 		return;
 	}
@@ -474,7 +474,7 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 			*colormap = malloc(256 * 320);
 			if (!(*colormap))
 			{
-				ri.Sys_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
+				Com_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
 				// code never returns after ERR_FATAL
 				return;
 			}
@@ -522,7 +522,7 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 		*colormap = malloc(256 * 320);
 		if (!(*colormap))
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
+			Com_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
 			// code never returns after ERR_FATAL
 			return;
 		}

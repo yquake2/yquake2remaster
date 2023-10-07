@@ -46,7 +46,7 @@ GL3_Draw_InitLocal(void)
 
 	if (!draw_chars)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
+		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
 			__func__);
 	}
 
@@ -279,7 +279,7 @@ GL3_Draw_Fill(int x, int y, int w, int h, int c)
 
 	if ((unsigned)c > 255)
 	{
-		ri.Sys_Error(ERR_FATAL, "Draw_Fill: bad color");
+		Com_Error(ERR_FATAL, "Draw_Fill: bad color");
 	}
 
 	color.c = d_8to24table[c];

@@ -366,7 +366,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 				/* try uploading the block now */
 				if (!LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
 				{
-					ri.Sys_Error(ERR_FATAL,
+					Com_Error(ERR_FATAL,
 							"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
 								__func__, smax, tmax);
 				}

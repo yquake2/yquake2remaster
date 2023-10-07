@@ -87,7 +87,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 
 	if (numverts > 60)
 	{
-		ri.Sys_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
+		Com_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
 	}
 
 	R_BoundPoly(numverts, verts, mins, maxs);
@@ -325,7 +325,7 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 
 		if (Mesh_VertsRealloc(p->numverts))
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
 		for (i = 0, v = p->verts; i < p->numverts; i++, v++)
@@ -435,7 +435,7 @@ ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 	int i, j;
 
 	if (nump > MAX_CLIP_VERTS - 2)
-		ri.Sys_Error(ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
+		Com_Error(ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
 	if (stage == 6)
 	{
 		/* fully clipped, so draw it */

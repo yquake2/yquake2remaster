@@ -1418,7 +1418,7 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -1441,7 +1441,7 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 		planenum = LittleLong(in->planenum);
 		if (planenum  < 0 || planenum >= numplanes)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Incorrect %d < %d planenum.",
+			Com_Error(ERR_DROP, "%s: Incorrect %d < %d planenum.",
 					__func__, planenum, numplanes);
 		}
 		out->plane = planes + planenum;
@@ -1460,7 +1460,7 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 			{
 				if (leafnum  < 0 || leafnum >= *numnodes)
 				{
-					ri.Sys_Error(ERR_DROP, "%s: Incorrect %d nodenum as leaf.",
+					Com_Error(ERR_DROP, "%s: Incorrect %d nodenum as leaf.",
 							__func__, leafnum);
 				}
 
@@ -1471,7 +1471,7 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 				leafnum = -1 - leafnum;
 				if (leafnum  < 0 || leafnum >= numleafs)
 				{
-					ri.Sys_Error(ERR_DROP, "%s: Incorrect %d leafnum.",
+					Com_Error(ERR_DROP, "%s: Incorrect %d leafnum.",
 							__func__, leafnum);
 				}
 
@@ -1500,7 +1500,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -1523,7 +1523,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 		planenum = LittleLong(in->planenum);
 		if (planenum  < 0 || planenum >= numplanes)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Incorrect %d < %d planenum.",
+			Com_Error(ERR_DROP, "%s: Incorrect %d < %d planenum.",
 					__func__, planenum, numplanes);
 		}
 		out->plane = planes + planenum;
@@ -1542,7 +1542,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 			{
 				if (leafnum  < 0 || leafnum >= *numnodes)
 				{
-					ri.Sys_Error(ERR_DROP, "%s: Incorrect %d nodenum as leaf.",
+					Com_Error(ERR_DROP, "%s: Incorrect %d nodenum as leaf.",
 							__func__, leafnum);
 				}
 
@@ -1553,7 +1553,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 				leafnum = -1 - leafnum;
 				if (leafnum  < 0 || leafnum >= numleafs)
 				{
-					ri.Sys_Error(ERR_DROP, "%s: Incorrect %d leafnum.",
+					Com_Error(ERR_DROP, "%s: Incorrect %d leafnum.",
 							__func__, leafnum);
 				}
 
@@ -1634,7 +1634,7 @@ Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -1768,7 +1768,7 @@ Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 
 		if (!(tex->flags & (SURF_WARP | SURF_SKY)) && s->extents[i] > 256)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Bad surface extents", __func__);
+			Com_Error(ERR_DROP, "%s: Bad surface extents", __func__);
 		}
 	}
 }
@@ -1793,7 +1793,7 @@ Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -1871,7 +1871,7 @@ Mod_LoadEdges(const char *name, medge_t **edges, int *numedges,
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -1906,7 +1906,7 @@ Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
 	in = (void *)(mod_base + l->fileofs);
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -1957,7 +1957,7 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -2002,7 +2002,7 @@ Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -2054,7 +2054,7 @@ Mod_PointInLeaf(const vec3_t p, mnode_t *node)
 {
 	if (!node)
 	{
-		ri.Sys_Error(ERR_DROP, "%s: bad node.", __func__);
+		Com_Error(ERR_DROP, "%s: bad node.", __func__);
 		return NULL;
 	}
 
@@ -2222,7 +2222,7 @@ Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarks
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -2240,7 +2240,7 @@ Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarks
 
 		if ((j < 0) || (j >= numsurfaces))
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad surface number",
+			Com_Error(ERR_DROP, "%s: bad surface number",
 					__func__);
 		}
 
@@ -2260,7 +2260,7 @@ Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummark
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -2277,7 +2277,7 @@ Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummark
 
 		if ((j < 0) || (j >= numsurfaces))
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad surface number",
+			Com_Error(ERR_DROP, "%s: bad surface number",
 					__func__);
 		}
 
@@ -2314,7 +2314,7 @@ Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -2345,7 +2345,7 @@ Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 		out->firstmarksurface = marksurfaces + firstleafface;
 		if ((firstleafface + out->nummarksurfaces) > nummarksurfaces)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
+			Com_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
 				__func__, name);
 		}
 	}
@@ -2364,7 +2364,7 @@ Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, name);
 	}
 
@@ -2395,7 +2395,7 @@ Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 		out->firstmarksurface = marksurfaces + firstleafface;
 		if ((firstleafface + out->nummarksurfaces) > nummarksurfaces)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
+			Com_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
 				__func__, name);
 		}
 	}

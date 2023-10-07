@@ -1695,7 +1695,7 @@ void QVk_Restart(void)
 {
 	QVk_WaitAndShutdownAll();
 	if (!QVk_Init())
-		ri.Sys_Error(ERR_FATAL, "Unable to restart Vulkan renderer");
+		Com_Error(ERR_FATAL, "Unable to restart Vulkan renderer");
 	QVk_PostInit();
 	ri.Vid_RequestRestart(RESTART_PARTIAL);
 }

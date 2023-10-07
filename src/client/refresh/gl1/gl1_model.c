@@ -137,7 +137,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, loadmodel->name);
 	}
 
@@ -179,7 +179,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 		//  check limits
 		if (out->firstnode >= loadmodel->numnodes)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
+			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
 					__func__, i);
 		}
 	}
@@ -350,7 +350,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, loadmodel->name);
 	}
 
@@ -378,7 +378,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		if (out->numedges < 3)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Surface with %d edges",
+			Com_Error(ERR_DROP, "%s: Surface with %d edges",
 					__func__, out->numedges);
 		}
 		out->flags = 0;
@@ -394,7 +394,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		if (planenum < 0 || planenum >= loadmodel->numplanes)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Incorrect %d planenum.",
+			Com_Error(ERR_DROP, "%s: Incorrect %d planenum.",
 					__func__, planenum);
 		}
 		out->plane = loadmodel->planes + planenum;
@@ -403,7 +403,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		if ((ti < 0) || (ti >= loadmodel->numtexinfo))
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad texinfo number",
+			Com_Error(ERR_DROP, "%s: bad texinfo number",
 					__func__);
 		}
 
@@ -475,7 +475,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	if (l->filelen % sizeof(*in))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: funny lump size in %s",
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, loadmodel->name);
 	}
 
@@ -503,7 +503,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		if (out->numedges < 3)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Surface with %d edges",
+			Com_Error(ERR_DROP, "%s: Surface with %d edges",
 					__func__, out->numedges);
 		}
 		out->flags = 0;
@@ -519,7 +519,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		if (planenum < 0 || planenum >= loadmodel->numplanes)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: Incorrect %d planenum.",
+			Com_Error(ERR_DROP, "%s: Incorrect %d planenum.",
 					__func__, planenum);
 		}
 		out->plane = loadmodel->planes + planenum;
@@ -528,7 +528,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		if ((ti < 0) || (ti >= loadmodel->numtexinfo))
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad texinfo number",
+			Com_Error(ERR_DROP, "%s: bad texinfo number",
 					__func__);
 		}
 
@@ -597,7 +597,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	if (mod != mod_known)
 	{
-		ri.Sys_Error(ERR_DROP, "%s: Loaded a brush model after the world", __func__);
+		Com_Error(ERR_DROP, "%s: Loaded a brush model after the world", __func__);
 	}
 
 	header = (dheader_t *)buffer;
@@ -606,7 +606,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	if (i != IDBSPHEADER && i != QBSPHEADER)
 	{
-		ri.Sys_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
+		Com_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
 				__func__, mod->name, i, IDBSPHEADER);
 	}
 
@@ -614,7 +614,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	if (i != BSPVERSION && i != BSPDKMVERSION)
 	{
-		ri.Sys_Error(ERR_DROP, "%s: %s has wrong version number (%i should be %i)",
+		Com_Error(ERR_DROP, "%s: %s has wrong version number (%i should be %i)",
 				__func__, mod->name, i, BSPVERSION);
 	}
 
@@ -735,7 +735,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 
 	if (!name[0])
 	{
-		ri.Sys_Error(ERR_DROP, "%s: NULL name", __func__);
+		Com_Error(ERR_DROP, "%s: NULL name", __func__);
 	}
 
 	/* inline models are grabbed only from worldmodel */
@@ -745,7 +745,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 
 		if (i < 1 || i >= parent_model->numsubmodels)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad inline model number",
+			Com_Error(ERR_DROP, "%s: bad inline model number",
 					__func__);
 		}
 
@@ -779,7 +779,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	{
 		if (mod_numknown == MAX_MOD_KNOWN)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: mod_numknown == MAX_MOD_KNOWN", __func__);
+			Com_Error(ERR_DROP, "%s: mod_numknown == MAX_MOD_KNOWN", __func__);
 		}
 
 		mod_numknown++;
@@ -794,7 +794,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	{
 		if (crash)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: %s not found",
+			Com_Error(ERR_DROP, "%s: %s not found",
 					__func__, mod->name);
 		}
 
@@ -819,7 +819,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 					&(mod->type));
 				if (!mod->extradata)
 				{
-					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
+					Com_Error(ERR_DROP, "%s: Failed to load %s",
 						__func__, mod->name);
 				}
 			};
@@ -832,7 +832,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 					&(mod->type));
 				if (!mod->extradata)
 				{
-					ri.Sys_Error(ERR_DROP, "%s: Failed to load %s",
+					Com_Error(ERR_DROP, "%s: Failed to load %s",
 						__func__, mod->name);
 				}
 			}
@@ -845,7 +845,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			break;
 
 		default:
-			ri.Sys_Error(ERR_DROP, "%s: unknown fileid for %s",
+			Com_Error(ERR_DROP, "%s: unknown fileid for %s",
 					__func__, mod->name);
 			break;
 	}

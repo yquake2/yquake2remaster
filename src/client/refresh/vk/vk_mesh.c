@@ -168,7 +168,7 @@ void Mesh_Init (void)
 
 	if (Mesh_VertsRealloc(MAX_VERTS))
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 }
 
@@ -280,7 +280,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 
 	if (Mesh_VertsRealloc(1))
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
 	drawInfo[0][0].firstVertex = 0;
@@ -315,7 +315,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 
 		if (Mesh_VertsRealloc(pipeCounters[pipelineIdx]))
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].vertexCount = count;
@@ -332,7 +332,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 
 				if (Mesh_VertsRealloc(vertIdx))
 				{
-					ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+					Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 				}
 
 				// unused in this case, since texturing is disabled
@@ -369,7 +369,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 
 				if (Mesh_VertsRealloc(vertIdx))
 				{
-					ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+					Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 				}
 
 				// texture coordinates come from the draw list
@@ -400,7 +400,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 
 		if (Mesh_VertsRealloc(pipeCounters[pipelineIdx] + 1))
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
 		pipeCounters[pipelineIdx]++;
@@ -525,7 +525,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp
 
 	if (Mesh_VertsRealloc(paliashdr->num_xyz))
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
 	lerp = s_lerped[0];
@@ -597,14 +597,14 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 
 		if (Mesh_VertsRealloc(count))
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
 		do
 		{
 			if (Mesh_VertsRealloc(order[2]))
 			{
-				ri.Sys_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+				Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 			}
 
 			/* normals and vertexes come from the frame list */

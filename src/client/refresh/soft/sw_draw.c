@@ -56,7 +56,7 @@ Draw_InitLocal (void)
 
 	if (!draw_chars)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/conchars", __func__);
+		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars", __func__);
 	}
 }
 
