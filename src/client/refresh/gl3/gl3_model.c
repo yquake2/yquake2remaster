@@ -182,67 +182,6 @@ Mod_LoadSubmodels(gl3model_t *loadmodel, byte *mod_base, lump_t *l)
 	}
 }
 
-/*
- * Fills in s->texturemins[] and s->extents[]
- */
-static void
-Mod_CalcSurfaceExtents(gl3model_t *loadmodel, msurface_t *s)
-{
-	float mins[2], maxs[2], val;
-	int i;
-	mtexinfo_t *tex;
-	int bmins[2], bmaxs[2];
-
-	mins[0] = mins[1] = 999999;
-	maxs[0] = maxs[1] = -99999;
-
-	tex = s->texinfo;
-
-	for (i = 0; i < s->numedges; i++)
-	{
-		int e, j;
-		mvertex_t *v;
-
-		e = loadmodel->surfedges[s->firstedge + i];
-
-		if (e >= 0)
-		{
-			v = &loadmodel->vertexes[loadmodel->edges[e].v[0]];
-		}
-		else
-		{
-			v = &loadmodel->vertexes[loadmodel->edges[-e].v[1]];
-		}
-
-		for (j = 0; j < 2; j++)
-		{
-			val = v->position[0] * tex->vecs[j][0] +
-				  v->position[1] * tex->vecs[j][1] +
-				  v->position[2] * tex->vecs[j][2] +
-				  tex->vecs[j][3];
-
-			if (val < mins[j])
-			{
-				mins[j] = val;
-			}
-
-			if (val > maxs[j])
-			{
-				maxs[j] = val;
-			}
-		}
-	}
-
-	for (i = 0; i < 2; i++)
-	{
-		bmins[i] = floor(mins[i] / 16);
-		bmaxs[i] = ceil(maxs[i] / 16);
-
-		s->texturemins[i] = bmins[i] * 16;
-		s->extents[i] = (bmaxs[i] - bmins[i]) * 16;
-	}
-}
-
 extern void
 GL3_SubdivideSurface(msurface_t *fa, gl3model_t* loadmodel);
 
@@ -463,7 +402,8 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		out->texinfo = loadmodel->texinfo + ti;
 		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents(loadmodel, out);
+		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
+			loadmodel->edges, out);
 
 		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
@@ -570,7 +510,8 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		out->texinfo = loadmodel->texinfo + ti;
 		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents(loadmodel, out);
+		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
+			loadmodel->edges, out);
 
 		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);

@@ -1695,6 +1695,78 @@ SetSurfaceLighting(byte *lightdata, int size, msurface_t *out, byte *styles, int
 }
 
 /*
+ * Fills in s->texturemins[] and s->extents[]
+ */
+void
+Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
+	msurface_t *s)
+{
+	float mins[2], maxs[2], val;
+	int i;
+	mtexinfo_t *tex;
+	int bmins[2], bmaxs[2];
+
+	mins[0] = mins[1] = 999999;
+	maxs[0] = maxs[1] = -99999;
+
+	tex = s->texinfo;
+
+	for (i = 0; i < s->numedges; i++)
+	{
+		int e, j;
+		mvertex_t *v;
+
+		e = surfedges[s->firstedge + i];
+
+		if (e >= 0)
+		{
+			v = &vertexes[edges[e].v[0]];
+		}
+		else
+		{
+			v = &vertexes[edges[-e].v[1]];
+		}
+
+		for (j = 0; j < 2; j++)
+		{
+			val = v->position[0] * tex->vecs[j][0] +
+				  v->position[1] * tex->vecs[j][1] +
+				  v->position[2] * tex->vecs[j][2] +
+				  tex->vecs[j][3];
+
+			if (val < mins[j])
+			{
+				mins[j] = val;
+			}
+
+			if (val > maxs[j])
+			{
+				maxs[j] = val;
+			}
+		}
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		bmins[i] = floor(mins[i] / 16);
+		bmaxs[i] = ceil(maxs[i] / 16);
+
+		s->texturemins[i] = bmins[i] * 16;
+		s->extents[i] = (bmaxs[i] - bmins[i]) * 16;
+		if (s->extents[i] < 16)
+		{
+			/* take at least one cache block */
+			s->extents[i] = 16;
+		}
+
+		if (!(tex->flags & (SURF_WARP | SURF_SKY)) && s->extents[i] > 256)
+		{
+			ri.Sys_Error(ERR_DROP, "%s: Bad surface extents", __func__);
+		}
+	}
+}
+
+/*
 =================
 Mod_LoadTexinfo
 
