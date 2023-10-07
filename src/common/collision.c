@@ -66,7 +66,18 @@ typedef struct
 	int		floodvalid;
 } carea_t;
 
-static byte *cmod_base;
+typedef struct
+{
+	char name[MAX_QPATH];
+
+	char *map_entitystring;
+
+	int extradatasize;
+	void *extradata;
+} model_t;
+
+static model_t cmod = {0};
+
 static byte map_visibility[MAX_MAP_VISIBILITY];
 // DG: is casted to int32_t* in SV_FatPVS() so align accordingly
 static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
@@ -74,46 +85,44 @@ static byte phsrow[MAX_MAP_LEAFS / 8];
 static carea_t	map_areas[MAX_MAP_AREAS];
 static cbrush_t map_brushes[MAX_MAP_BRUSHES];
 static cbrushside_t map_brushsides[MAX_MAP_BRUSHSIDES];
-static char map_name[MAX_QPATH];
-static char map_entitystring[MAX_MAP_ENTSTRING];
 static cbrush_t *box_brush;
-static cleaf_t	*box_leaf;
-static cleaf_t	map_leafs[MAX_MAP_LEAFS];
+static cleaf_t *box_leaf;
+static cleaf_t map_leafs[MAX_MAP_LEAFS];
 static cmodel_t map_cmodels[MAX_MAP_MODELS];
-static cnode_t	map_nodes[MAX_MAP_NODES+6]; /* extra for box hull */
+static cnode_t map_nodes[MAX_MAP_NODES+6]; /* extra for box hull */
 static cplane_t *box_planes;
 static cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
 static cvar_t *map_noareas;
 static dareaportal_t map_areaportals[MAX_MAP_AREAPORTALS];
 static dvis_t *map_vis = (dvis_t *)map_visibility;
 static int box_headnode;
-static int	checkcount;
-static int	emptyleaf, solidleaf;
-static int	floodvalid;
+static int checkcount;
+static int emptyleaf, solidleaf;
+static int floodvalid;
 static float *leaf_mins, *leaf_maxs;
 static int leaf_count, leaf_maxcount;
 static int *leaf_list;
 static int leaf_topnode;
-static int	numareaportals;
+static int numareaportals;
 static int numareas = 1;
-static int	numbrushes;
-static int	numbrushsides;
+static int numbrushes;
+static int numbrushsides;
 static int numclusters = 1;
-static int	numcmodels;
-static int	numentitychars;
-static int	numleafbrushes;
+static int numcmodels;
+static int numentitychars;
+static int numleafbrushes;
 static int numleafs = 1; /* allow leaf funcs to be called without a map */
-static int	numnodes;
-static int	numplanes;
+static int numnodes;
+static int numplanes;
 int	numtexinfo;
-static int	numvisibility;
+static int numvisibility;
 static int trace_contents;
 mapsurface_t map_surfaces[MAX_MAP_TEXINFO];
 static mapsurface_t nullsurface;
 static qboolean portalopen[MAX_MAP_AREAPORTALS];
 static qboolean trace_ispoint; /* optimized case */
-static trace_t trace_trace;
 static unsigned int	map_leafbrushes[MAX_MAP_LEAFBRUSHES];
+static trace_t trace_trace;
 static vec3_t trace_start, trace_end;
 static vec3_t trace_mins, trace_maxs;
 static vec3_t trace_extents;
@@ -1183,7 +1192,7 @@ CM_TransformedBoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 }
 
 static void
-CMod_LoadSubmodels(lump_t *l)
+CMod_LoadSubmodels(const byte *cmod_base, const lump_t *l)
 {
 	dmodel_t *in;
 	cmodel_t *out;
@@ -1227,7 +1236,7 @@ CMod_LoadSubmodels(lump_t *l)
 }
 
 static void
-CMod_LoadSurfaces(lump_t *l)
+CMod_LoadSurfaces(const byte *cmod_base, const lump_t *l)
 {
 	texinfo_t *in;
 	mapsurface_t *out;
@@ -1265,7 +1274,7 @@ CMod_LoadSurfaces(lump_t *l)
 }
 
 static void
-CMod_LoadNodes(lump_t *l)
+CMod_LoadNodes(const byte *cmod_base, const lump_t *l)
 {
 	dnode_t *in;
 	int child;
@@ -1308,7 +1317,7 @@ CMod_LoadNodes(lump_t *l)
 }
 
 static void
-CMod_LoadQNodes(lump_t *l)
+CMod_LoadQNodes(const byte *cmod_base, const lump_t *l)
 {
 	dqnode_t *in;
 	int child;
@@ -1351,7 +1360,7 @@ CMod_LoadQNodes(lump_t *l)
 }
 
 static void
-CMod_LoadBrushes(lump_t *l)
+CMod_LoadBrushes(const byte *cmod_base, const lump_t *l)
 {
 	dbrush_t *in;
 	cbrush_t *out;
@@ -1384,7 +1393,7 @@ CMod_LoadBrushes(lump_t *l)
 }
 
 static void
-CMod_LoadLeafs(lump_t *l)
+CMod_LoadLeafs(const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	cleaf_t *out;
@@ -1453,7 +1462,7 @@ CMod_LoadLeafs(lump_t *l)
 }
 
 static void
-CMod_LoadQLeafs(lump_t *l)
+CMod_LoadQLeafs(const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	cleaf_t *out;
@@ -1522,7 +1531,7 @@ CMod_LoadQLeafs(lump_t *l)
 }
 
 static void
-CMod_LoadPlanes(lump_t *l)
+CMod_LoadPlanes(const byte *cmod_base, const lump_t *l)
 {
 	int i, j;
 	cplane_t *out;
@@ -1574,7 +1583,7 @@ CMod_LoadPlanes(lump_t *l)
 }
 
 static void
-CMod_LoadLeafBrushes(lump_t *l)
+CMod_LoadLeafBrushes(const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	unsigned int *out;
@@ -1611,7 +1620,7 @@ CMod_LoadLeafBrushes(lump_t *l)
 }
 
 static void
-CMod_LoadQLeafBrushes(lump_t *l)
+CMod_LoadQLeafBrushes(const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	unsigned int *out;
@@ -1648,7 +1657,7 @@ CMod_LoadQLeafBrushes(lump_t *l)
 }
 
 static void
-CMod_LoadBrushSides(lump_t *l)
+CMod_LoadBrushSides(const byte *cmod_base, const lump_t *l)
 {
 	int i, j;
 	cbrushside_t *out;
@@ -1689,7 +1698,7 @@ CMod_LoadBrushSides(lump_t *l)
 	}
 }
 static void
-CMod_LoadQBrushSides(lump_t *l)
+CMod_LoadQBrushSides(const byte *cmod_base, const lump_t *l)
 {
 	int i, j;
 	cbrushside_t *out;
@@ -1731,7 +1740,7 @@ CMod_LoadQBrushSides(lump_t *l)
 }
 
 static void
-CMod_LoadAreas(lump_t *l)
+CMod_LoadAreas(const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	carea_t *out;
@@ -1765,7 +1774,7 @@ CMod_LoadAreas(lump_t *l)
 }
 
 static void
-CMod_LoadAreaPortals(lump_t *l)
+CMod_LoadAreaPortals(const byte *cmod_base, const lump_t *l)
 {
 	dareaportal_t *out;
 	dareaportal_t *in;
@@ -1792,7 +1801,7 @@ CMod_LoadAreaPortals(lump_t *l)
 }
 
 static void
-CMod_LoadVisibility(lump_t *l)
+CMod_LoadVisibility(const byte *cmod_base, const lump_t *l)
 {
 	numvisibility = l->filelen;
 
@@ -1807,7 +1816,7 @@ CMod_LoadVisibility(lump_t *l)
 }
 
 static void
-CMod_LoadEntityString(lump_t *l, char *name)
+CMod_LoadEntityString(const char *name, char **map_entitystring, const byte *cmod_base, const lump_t *l)
 {
 	if (sv_entfile->value)
 	{
@@ -1843,21 +1852,15 @@ CMod_LoadEntityString(lump_t *l, char *name)
 
 		if (buffer != NULL && bufLen > 1)
 		{
-			if (bufLen + 1 > sizeof(map_entitystring))
-			{
-				Com_Printf("%s: .ent file %s too large: %i > %lu.\n",
-					__func__, entname, bufLen, (unsigned long)sizeof(map_entitystring));
-				FS_FreeFile(buffer);
-			}
-			else
-			{
-				Com_Printf ("%s: .ent file %s loaded.\n", __func__, entname);
-				numentitychars = bufLen;
-				memcpy(map_entitystring, buffer, bufLen);
-				map_entitystring[bufLen] = 0; /* jit entity bug - null terminate the entity string! */
-				FS_FreeFile(buffer);
-				return;
-			}
+			Com_Printf ("%s: .ent file %s loaded.\n", __func__, entname);
+			numentitychars = bufLen;
+
+			*map_entitystring = Hunk_Alloc(bufLen + 1);
+
+			memcpy(*map_entitystring, buffer, bufLen);
+			(*map_entitystring)[bufLen] = 0; /* jit entity bug - null terminate the entity string! */
+			FS_FreeFile(buffer);
+			return;
 		}
 		else if (bufLen != -1)
 		{
@@ -1869,13 +1872,32 @@ CMod_LoadEntityString(lump_t *l, char *name)
 
 	numentitychars = l->filelen;
 
-	if (l->filelen + 1 > sizeof(map_entitystring))
+	if (l->filelen < 0)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too large entity lump", __func__);
+		Com_Error(ERR_DROP, "%s: Map has too small entity lump", __func__);
 	}
 
-	memcpy(map_entitystring, cmod_base + l->fileofs, l->filelen);
-	map_entitystring[l->filelen] = 0;
+	*map_entitystring = Hunk_Alloc(l->filelen + 1);
+	memcpy(*map_entitystring, cmod_base + l->fileofs, l->filelen);
+	(*map_entitystring)[l->filelen] = 0;
+}
+
+const void
+CM_ModFree(model_t *cmod)
+{
+	if (cmod->extradata && cmod->extradatasize)
+	{
+		Hunk_Free(cmod->extradata);
+		cmod->extradata = NULL;
+		cmod->extradatasize = 0;
+	}
+}
+
+void
+CM_ModFreeAll(void)
+{
+	CM_ModFree(&cmod);
+	Com_Printf("Server models free up\n");
 }
 
 /*
@@ -1889,10 +1911,11 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	dheader_t header;
 	int length;
 	static unsigned last_checksum;
+	byte *cmod_base;
 
 	map_noareas = Cvar_Get("map_noareas", "0", 0);
 
-	if (strcmp(map_name, name) == 0
+	if (strcmp(cmod.name, name) == 0
 		&& (clientload || !Cvar_VariableValue("flushmap")))
 	{
 		*checksum = last_checksum;
@@ -1913,8 +1936,8 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	numcmodels = 0;
 	numvisibility = 0;
 	numentitychars = 0;
-	map_entitystring[0] = 0;
-	map_name[0] = 0;
+	cmod.map_entitystring = NULL;
+	cmod.name[0] = 0;
 
 	if (!name[0])
 	{
@@ -1958,41 +1981,53 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	cmod_base = (byte *)buf;
 
 	/* load into heap */
-	CMod_LoadSurfaces(&header.lumps[LUMP_TEXINFO]);
+	CMod_LoadSurfaces(cmod_base, &header.lumps[LUMP_TEXINFO]);
 	if (header.ident == IDBSPHEADER)
 	{
-		CMod_LoadLeafs(&header.lumps[LUMP_LEAFS]);
-		CMod_LoadLeafBrushes(&header.lumps[LUMP_LEAFBRUSHES]);
+		CMod_LoadLeafs(cmod_base, &header.lumps[LUMP_LEAFS]);
+		CMod_LoadLeafBrushes(cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
 	else
 	{
-		CMod_LoadQLeafs(&header.lumps[LUMP_LEAFS]);
-		CMod_LoadQLeafBrushes(&header.lumps[LUMP_LEAFBRUSHES]);
+		CMod_LoadQLeafs(cmod_base, &header.lumps[LUMP_LEAFS]);
+		CMod_LoadQLeafBrushes(cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
-	CMod_LoadPlanes(&header.lumps[LUMP_PLANES]);
-	CMod_LoadBrushes(&header.lumps[LUMP_BRUSHES]);
+	CMod_LoadPlanes(cmod_base, &header.lumps[LUMP_PLANES]);
+	CMod_LoadBrushes(cmod_base, &header.lumps[LUMP_BRUSHES]);
 	if (header.ident == IDBSPHEADER)
 	{
-		CMod_LoadBrushSides(&header.lumps[LUMP_BRUSHSIDES]);
+		CMod_LoadBrushSides(cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
 	}
 	else
 	{
-		CMod_LoadQBrushSides(&header.lumps[LUMP_BRUSHSIDES]);
+		CMod_LoadQBrushSides(cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
 	}
-	CMod_LoadSubmodels(&header.lumps[LUMP_MODELS]);
+
+	CMod_LoadSubmodels(cmod_base, &header.lumps[LUMP_MODELS]);
 	if (header.ident == IDBSPHEADER)
 	{
-		CMod_LoadNodes(&header.lumps[LUMP_NODES]);
+		CMod_LoadNodes(cmod_base, &header.lumps[LUMP_NODES]);
 	}
 	else
 	{
-		CMod_LoadQNodes(&header.lumps[LUMP_NODES]);
+		CMod_LoadQNodes(cmod_base, &header.lumps[LUMP_NODES]);
 	}
-	CMod_LoadAreas(&header.lumps[LUMP_AREAS]);
-	CMod_LoadAreaPortals(&header.lumps[LUMP_AREAPORTALS]);
-	CMod_LoadVisibility(&header.lumps[LUMP_VISIBILITY]);
+	CMod_LoadAreas(cmod_base, &header.lumps[LUMP_AREAS]);
+	CMod_LoadAreaPortals(cmod_base, &header.lumps[LUMP_AREAPORTALS]);
+	CMod_LoadVisibility(cmod_base, &header.lumps[LUMP_VISIBILITY]);
+
+	strcpy(cmod.name, name);
+
+	CM_ModFree(&cmod);
+
+	int hunkSize = 0;
+	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
+
+	cmod.extradata = Hunk_Begin(hunkSize);
+
 	/* From kmquake2: adding an extra parameter for .ent support. */
-	CMod_LoadEntityString(&header.lumps[LUMP_ENTITIES], name);
+	CMod_LoadEntityString(cmod.name, &cmod.map_entitystring, cmod_base, &header.lumps[LUMP_ENTITIES]);
+	cmod.extradatasize = Hunk_End();
 
 	FS_FreeFile(buf);
 
@@ -2000,8 +2035,6 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	memset(portalopen, 0, sizeof(portalopen));
 	FloodAreaConnections();
-
-	strcpy(map_name, name);
 
 	return &map_cmodels[0];
 }
@@ -2041,7 +2074,7 @@ CM_NumInlineModels(void)
 char *
 CM_EntityString(void)
 {
-	return map_entitystring;
+	return cmod.map_entitystring;
 }
 
 int

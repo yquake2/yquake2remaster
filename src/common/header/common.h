@@ -617,6 +617,7 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 
 cmodel_t *CM_LoadMap(char *name, qboolean clientload, unsigned *checksum);
 cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
+void CM_ModFreeAll(void);
 
 int CM_NumClusters(void);
 int CM_NumInlineModels(void);
@@ -770,8 +771,8 @@ YQ2_ATTR_NORETURN void Com_Quit(void);
 int Com_ServerState(void);              /* this should have just been a cvar... */
 void Com_SetServerState(int state);
 
-unsigned Com_BlockChecksum(void *buffer, int length);
-byte COM_BlockSequenceCRCByte(byte *base, int length, int sequence);
+unsigned Com_BlockChecksum(const void *buffer, int length);
+byte COM_BlockSequenceCRCByte(const byte *base, int length, int sequence);
 
 extern cvar_t *developer;
 extern cvar_t *modder;
