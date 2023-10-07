@@ -307,47 +307,6 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 	return ret;
 }
 
-/* Extension to support lightmaps that aren't tied to texture scale. */
-static int
-Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
-{
-	const dlminfo_t *lminfo;
-	unsigned short lmwidth, lmheight;
-
-	if (lminfos == NULL) {
-		return -1;
-	}
-
-	lminfo = lminfos + surfnum;
-
-	lmwidth = LittleShort(lminfo->lmwidth);
-	lmheight = LittleShort(lminfo->lmheight);
-
-	if (lmwidth <= 0 || lmheight <= 0) {
-		return -1;
-	}
-
-	for (int i = 0; i < 2; i++) {
-		for (int j = 0; j < 4; j++) {
-			out->lmvecs[i][j] = LittleFloat(lminfo->vecs[i][j]);
-		}
-	}
-
-	out->extents[0] = (short)(lmwidth - 1);
-	out->extents[1] = (short)(lmheight - 1);
-	out->lmshift = 0;
-	out->texturemins[0] = 0;
-	out->texturemins[1] = 0;
-
-	float v0 = VectorLength(out->lmvecs[0]);
-	out->lmvlen[0] = v0 > 0.0f ? 1.0f / v0 : 0.0f;
-
-	float v1 = VectorLength(out->lmvecs[1]);
-	out->lmvlen[1] = v1 > 0.0f ? 1.0f / v1 : 0.0f;
-
-	return LittleLong(lminfo->lightofs);
-}
-
 static void
 Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)

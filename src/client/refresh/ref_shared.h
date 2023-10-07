@@ -357,6 +357,7 @@ extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
 extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,
 	const char *lumpname, int *plumpsize, const byte *mod_base);
 extern const bspx_header_t *Mod_LoadBSPX(int filesize, const byte *mod_base);
+extern int Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out);
 extern int Mod_LoadFile(char *name, void **buffer);
 
 /* Surface logic */
