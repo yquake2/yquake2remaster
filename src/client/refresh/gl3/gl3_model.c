@@ -399,28 +399,6 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 }
 
 static void
-SetSurfaceLighting(gl3model_t *loadmodel, msurface_t *out, byte *styles, int lightofs)
-{
-	int i;
-
-	/* lighting info */
-	for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; i++)
-	{
-		out->styles[i] = styles[i];
-	}
-
-	i = LittleLong(lightofs);
-	if (i == -1 || loadmodel->lightdata == NULL)
-	{
-		out->samples = NULL;
-	}
-	else
-	{
-		out->samples = loadmodel->lightdata + i;
-	}
-}
-
-static void
 Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
@@ -487,7 +465,8 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		Mod_CalcSurfaceExtents(loadmodel, out);
 
-		SetSurfaceLighting(loadmodel, out, in->styles, in->lightofs);
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, in->lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -593,7 +572,8 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		Mod_CalcSurfaceExtents(loadmodel, out);
 
-		SetSurfaceLighting(loadmodel, out, in->styles, in->lightofs);
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, in->lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -920,7 +900,8 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 	}
 	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES], 0);
-	Mod_LoadLighting(&mod->lightdata, mod_base, &header->lumps[LUMP_LIGHTING]);
+	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
+		&header->lumps[LUMP_LIGHTING]);
 	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES], 0);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,

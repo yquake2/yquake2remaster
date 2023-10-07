@@ -440,28 +440,6 @@ Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
 }
 
 static void
-SetSurfaceLighting(model_t *loadmodel, msurface_t *out, byte *styles, int lightofs)
-{
-	int i;
-
-	/* lighting info */
-	for (i = 0; i < MAXLIGHTMAPS; i++)
-	{
-		out->styles[i] = styles[i];
-	}
-
-	i = LittleLong(lightofs);
-	if (i == -1 || loadmodel->lightdata == NULL)
-	{
-		out->samples = NULL;
-	}
-	else
-	{
-		out->samples = loadmodel->lightdata + i;
-	}
-}
-
-static void
 Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
@@ -545,7 +523,8 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			lightofs = in->lightofs;
 		}
 
-		SetSurfaceLighting(loadmodel, out, in->styles, lightofs);
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -668,7 +647,8 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			lightofs = in->lightofs;
 		}
 
-		SetSurfaceLighting(loadmodel, out, in->styles, lightofs);
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -995,7 +975,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES], 0);
-	Mod_LoadLighting(&mod->lightdata, mod_base, &header->lumps[LUMP_LIGHTING]);
+	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
+		&header->lumps[LUMP_LIGHTING]);
 	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES], 0);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,

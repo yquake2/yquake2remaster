@@ -377,22 +377,8 @@ Mod_LoadFaces(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
 
 		Mod_CalcSurfaceExtents(loadmodel, out);
 
-		/* lighting info */
-		for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; i++)
-		{
-			out->styles[i] = in->styles[i];
-		}
-
-		i = LittleLong(in->lightofs);
-
-		if (i == -1)
-		{
-			out->samples = NULL;
-		}
-		else
-		{
-			out->samples = loadmodel->lightdata + i;
-		}
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, in->lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -595,7 +581,8 @@ Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 		mod_base, &header->lumps[LUMP_EDGES], 1);
 	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES], 0);
-	Mod_LoadLighting(&mod->lightdata, mod_base, &header->lumps[LUMP_LIGHTING]);
+	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
+		&header->lumps[LUMP_LIGHTING]);
 	Mod_LoadPlanes (mod->name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES], 0);
 	Mod_LoadTexinfo (mod->name, &mod->texinfo, &mod->numtexinfo,

@@ -86,6 +86,7 @@ typedef struct model_s
 	dvis_t *vis;
 
 	byte *lightdata;
+	int numlightdata;
 
 	/* for alias models and skins */
 	image_t *skins[MAX_MD2SKINS];

@@ -313,24 +313,10 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		out->texinfo = loadmodel->texinfo + ti;
 		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents (loadmodel, out);
+		Mod_CalcSurfaceExtents(loadmodel, out);
 
-		// lighting is saved as its with 24 bit color
-		for (i=0 ; i<MAXLIGHTMAPS ; i++)
-		{
-			out->styles[i] = in->styles[i];
-		}
-
-		i = LittleLong(in->lightofs);
-
-		if (i == -1)
-		{
-			out->samples = NULL;
-		}
-		else
-		{
-			out->samples = loadmodel->lightdata + i;
-		}
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, in->lightofs);
 
 		/* set the drawing flags flag */
 		if (!out->texinfo->image)
@@ -437,22 +423,8 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		Mod_CalcSurfaceExtents (loadmodel, out);
 
-		// lighting is saved as its with 24 bit color
-		for (i=0 ; i<MAXLIGHTMAPS ; i++)
-		{
-			out->styles[i] = in->styles[i];
-		}
-
-		i = LittleLong(in->lightofs);
-
-		if (i == -1)
-		{
-			out->samples = NULL;
-		}
-		else
-		{
-			out->samples = loadmodel->lightdata + i;
-		}
+		SetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+			out, in->styles, in->lightofs);
 
 		if (!out->texinfo->image)
 			continue;
@@ -786,7 +758,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES], 24);
-	Mod_LoadLighting(&mod->lightdata, mod_base, &header->lumps[LUMP_LIGHTING]);
+	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
+		&header->lumps[LUMP_LIGHTING]);
 	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES], 6);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,

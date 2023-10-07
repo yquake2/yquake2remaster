@@ -1658,19 +1658,40 @@ Mod_LoadLighting
 =================
 */
 void
-Mod_LoadLighting(byte **lightdata, const byte *mod_base, const lump_t *l)
+Mod_LoadLighting(byte **lightdata, int *size, const byte *mod_base, const lump_t *l)
 {
-	int	size;
-
 	if (!l->filelen)
 	{
 		*lightdata = NULL;
+		*size = 0;
 		return;
 	}
 
-	size = l->filelen;
-	*lightdata = Hunk_Alloc(size);
-	memcpy(*lightdata, mod_base + l->fileofs, size);
+	*size = l->filelen;
+	*lightdata = Hunk_Alloc(*size);
+	memcpy(*lightdata, mod_base + l->fileofs, *size);
+}
+
+void
+SetSurfaceLighting(byte *lightdata, int size, msurface_t *out, byte *styles, int lightofs)
+{
+	int i;
+
+	/* lighting info */
+	for (i = 0; i < MAXLIGHTMAPS; i++)
+	{
+		out->styles[i] = styles[i];
+	}
+
+	i = LittleLong(lightofs);
+	if (i == -1 || lightdata == NULL || i >= size)
+	{
+		out->samples = NULL;
+	}
+	else
+	{
+		out->samples = lightdata + i;
+	}
 }
 
 /*
