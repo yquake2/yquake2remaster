@@ -71,6 +71,12 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
+	cmodel_t map_cmodels[MAX_MAP_MODELS];
+	cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
+
+	cnode_t *map_nodes; /* extra 6 for box hull */
+	int numnodes;
+
 	carea_t	*map_areas;
 	int numareas;
 
@@ -97,10 +103,7 @@ static cbrushside_t map_brushsides[MAX_MAP_BRUSHSIDES];
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
 static cleaf_t map_leafs[MAX_MAP_LEAFS];
-static cmodel_t map_cmodels[MAX_MAP_MODELS];
-static cnode_t map_nodes[MAX_MAP_NODES+6]; /* extra for box hull */
 static cplane_t *box_planes;
-static cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
 static cvar_t *map_noareas;
 static int box_headnode;
 static int checkcount;
@@ -116,7 +119,6 @@ static int numcmodels;
 static int numentitychars;
 static int numleafbrushes;
 static int numleafs = 1; /* allow leaf funcs to be called without a map */
-static int numnodes;
 static int numplanes;
 int	numtexinfo;
 static int trace_contents;
@@ -314,7 +316,7 @@ CM_HeadnodeVisible(int nodenum, byte *visbits)
 		return false;
 	}
 
-	node = &map_nodes[nodenum];
+	node = &cmod.map_nodes[nodenum];
 
 	if (CM_HeadnodeVisible(node->children[0], visbits))
 	{
@@ -337,11 +339,10 @@ CM_InitBoxHull(void)
 	cplane_t *p;
 	cbrushside_t *s;
 
-	box_headnode = numnodes;
-	box_planes = &map_planes[numplanes];
+	box_headnode = cmod.numnodes;
+	box_planes = &cmod.map_planes[numplanes];
 
-	if ((numnodes + 6 > MAX_MAP_NODES) ||
-		(numbrushes + 1 > MAX_MAP_BRUSHES) ||
+	if ((numbrushes + 1 > MAX_MAP_BRUSHES) ||
 		(numleafbrushes + 1 > MAX_MAP_LEAFBRUSHES) ||
 		(numbrushsides + 6 > MAX_MAP_BRUSHSIDES) ||
 		(numplanes + 12 > MAX_MAP_PLANES))
@@ -367,12 +368,12 @@ CM_InitBoxHull(void)
 
 		/* brush sides */
 		s = &map_brushsides[numbrushsides + i];
-		s->plane = map_planes + (numplanes + i * 2 + side);
+		s->plane = cmod.map_planes + (numplanes + i * 2 + side);
 		s->surface = &nullsurface;
 
 		/* nodes */
-		c = &map_nodes[box_headnode + i];
-		c->plane = map_planes + (numplanes + i * 2);
+		c = &cmod.map_nodes[box_headnode + i];
+		c->plane = cmod.map_planes + (numplanes + i * 2);
 		c->children[side] = -1 - emptyleaf;
 
 		if (i != 5)
@@ -430,9 +431,9 @@ CM_PointLeafnum_r(vec3_t p, int num)
 	cnode_t *node;
 	cplane_t *plane;
 
-	while (num >= 0)
+	while (num >= 0 && num < cmod.numnodes)
 	{
-		node = map_nodes + num;
+		node = cmod.map_nodes + num;
 		plane = node->plane;
 
 		if (plane->type < 3)
@@ -466,7 +467,7 @@ CM_PointLeafnum_r(vec3_t p, int num)
 int
 CM_PointLeafnum(vec3_t p)
 {
-	if (!numplanes)
+	if (!numplanes || !cmod.numnodes || !cmod.map_nodes)
 	{
 		return 0; /* sound may call this without map loaded */
 	}
@@ -497,7 +498,7 @@ CM_BoxLeafnums_r(int nodenum)
 			return;
 		}
 
-		node = &map_nodes[nodenum];
+		node = &cmod.map_nodes[nodenum];
 		plane = node->plane;
 		s = BOX_ON_PLANE_SIDE(leaf_mins, leaf_maxs, plane);
 
@@ -551,7 +552,7 @@ int
 CM_BoxLeafnums(vec3_t mins, vec3_t maxs, int *list, int listsize, int *topnode)
 {
 	return CM_BoxLeafnums_headnode(mins, maxs, list,
-			listsize, map_cmodels[0].headnode, topnode);
+			listsize, cmod.map_cmodels[0].headnode, topnode);
 }
 
 int
@@ -559,7 +560,7 @@ CM_PointContents(vec3_t p, int headnode)
 {
 	int l;
 
-	if (!numnodes) /* map not loaded */
+	if (!cmod.numnodes) /* map not loaded */
 	{
 		return 0;
 	}
@@ -923,7 +924,7 @@ CM_RecursiveHullCheck(int num, float p1f, float p2f, vec3_t p1, vec3_t p2)
 
 	/* find the point distances to the seperating plane
 	   and the offset for the size of the box */
-	node = map_nodes + num;
+	node = cmod.map_nodes + num;
 	plane = node->plane;
 
 	if (plane->type < 3)
@@ -1046,7 +1047,7 @@ CM_BoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 	trace_trace.fraction = 1;
 	trace_trace.surface = &(nullsurface.c);
 
-	if (!numnodes)  /* map not loaded */
+	if (!cmod.numnodes)  /* map not loaded */
 	{
 		return trace_trace;
 	}
@@ -1224,7 +1225,7 @@ CMod_LoadSubmodels(const byte *cmod_base, const lump_t *l)
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		out = &map_cmodels[i];
+		out = &cmod.map_cmodels[i];
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1277,7 +1278,8 @@ CMod_LoadSurfaces(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadNodes(const byte *cmod_base, const lump_t *l)
+CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
+	cplane_t *map_planes, const byte *cmod_base, const lump_t *l)
 {
 	dnode_t *in;
 	int child;
@@ -1288,24 +1290,19 @@ CMod_LoadNodes(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size %ld", __func__, sizeof(*in));
+		Com_Error(ERR_DROP, "%s: Map %s has funny lump size %ld",
+			__func__, name, sizeof(*in));
 	}
 
 	count = l->filelen / sizeof(*in);
 
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map has no nodes", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has no nodes", __func__, name);
 	}
 
-	if (count > MAX_MAP_NODES)
-	{
-		Com_Error(ERR_DROP, "%s: Map has too many nodes", __func__);
-	}
-
-	out = map_nodes;
-
-	numnodes = count;
+	out = *map_nodes = Hunk_Alloc(sizeof(cnode_t) * (count + 6));
+	*numnodes = count;
 
 	for (i = 0; i < count; i++, out++, in++)
 	{
@@ -1320,7 +1317,8 @@ CMod_LoadNodes(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadQNodes(const byte *cmod_base, const lump_t *l)
+CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
+	cplane_t *map_planes, const byte *cmod_base, const lump_t *l)
 {
 	dqnode_t *in;
 	int child;
@@ -1331,24 +1329,19 @@ CMod_LoadQNodes(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size %ld", __func__, sizeof(*in));
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size %ld", __func__, name, sizeof(*in));
 	}
 
 	count = l->filelen / sizeof(*in);
 
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map has no nodes", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has no nodes", __func__, name);
 	}
 
-	if (count > MAX_MAP_NODES)
-	{
-		Com_Error(ERR_DROP, "%s: Map has too many nodes", __func__);
-	}
+	out = *map_nodes = Hunk_Alloc(sizeof(cnode_t) * (count + 6));
 
-	out = map_nodes;
-
-	numnodes = count;
+	*numnodes = count;
 
 	for (i = 0; i < count; i++, out++, in++)
 	{
@@ -1562,7 +1555,7 @@ CMod_LoadPlanes(const byte *cmod_base, const lump_t *l)
 		Com_Error(ERR_DROP, "%s: Map has too many planes", __func__);
 	}
 
-	out = map_planes;
+	out = cmod.map_planes;
 	numplanes = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1666,7 +1659,6 @@ CMod_LoadBrushSides(const byte *cmod_base, const lump_t *l)
 	cbrushside_t *out;
 	dbrushside_t *in;
 	int count;
-	int num;
 
 	in = (void *)(cmod_base + l->fileofs);
 
@@ -1688,8 +1680,8 @@ CMod_LoadBrushSides(const byte *cmod_base, const lump_t *l)
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		num = LittleShort(in->planenum);
-		out->plane = &map_planes[num];
+		int num = LittleShort(in->planenum);
+		out->plane = &cmod.map_planes[num];
 		j = LittleShort(in->texinfo);
 
 		if (j >= numtexinfo)
@@ -1707,7 +1699,6 @@ CMod_LoadQBrushSides(const byte *cmod_base, const lump_t *l)
 	cbrushside_t *out;
 	dqbrushside_t *in;
 	int count;
-	int num;
 
 	in = (void *)(cmod_base + l->fileofs);
 
@@ -1729,8 +1720,8 @@ CMod_LoadQBrushSides(const byte *cmod_base, const lump_t *l)
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		num = LittleLong(in->planenum);
-		out->plane = &map_planes[num];
+		int num = LittleLong(in->planenum);
+		out->plane = &cmod.map_planes[num];
 		j = LittleLong(in->texinfo);
 
 		if (j >= numtexinfo)
@@ -1908,6 +1899,9 @@ CM_ModFree(model_t *cmod)
 		cmod->extradatasize = 0;
 	}
 
+	cmod->map_nodes = NULL;
+	cmod->numnodes = 0;
+
 	cmod->map_areas = NULL;
 	cmod->numareas = 1;
 
@@ -1952,12 +1946,11 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 			FloodAreaConnections();
 		}
 
-		return &map_cmodels[0]; /* still have the right version */
+		return &cmod.map_cmodels[0]; /* still have the right version */
 	}
 
 	/* free old stuff */
 	numplanes = 0;
-	numnodes = 0;
 	numleafs = 0;
 	numcmodels = 0;
 	numentitychars = 0;
@@ -1967,7 +1960,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	{
 		numleafs = 1;
 		*checksum = 0;
-		return &map_cmodels[0]; /* cinematic servers won't have anything at all */
+		return &cmod.map_cmodels[0]; /* cinematic servers won't have anything at all */
 	}
 
 	length = FS_LoadFile(name, (void **)&buf);
@@ -2026,18 +2019,21 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	}
 
 	CMod_LoadSubmodels(cmod_base, &header.lumps[LUMP_MODELS]);
-	if (header.ident == IDBSPHEADER)
-	{
-		CMod_LoadNodes(cmod_base, &header.lumps[LUMP_NODES]);
-	}
-	else
-	{
-		CMod_LoadQNodes(cmod_base, &header.lumps[LUMP_NODES]);
-	}
 
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
+
+	if (header.ident == IDBSPHEADER)
+	{
+		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
+			sizeof(dnode_t), sizeof(cnode_t), 6);
+	}
+	else
+	{
+		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
+			sizeof(dqnode_t), sizeof(cnode_t), 6);
+	}
 
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAS],
 		sizeof(darea_t), sizeof(carea_t), 0);
@@ -2047,6 +2043,17 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
+
+	if (header.ident == IDBSPHEADER)
+	{
+		CMod_LoadNodes(cmod.name, &cmod.map_nodes, &cmod.numnodes,
+			cmod.map_planes, cmod_base, &header.lumps[LUMP_NODES]);
+	}
+	else
+	{
+		CMod_LoadQNodes(cmod.name, &cmod.map_nodes, &cmod.numnodes,
+			cmod.map_planes, cmod_base, &header.lumps[LUMP_NODES]);
+	}
 
 	CMod_LoadAreas(cmod.name, &cmod.map_areas, &cmod.numareas, cmod_base,
 		&header.lumps[LUMP_AREAS]);
@@ -2066,7 +2073,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	memset(portalopen, 0, sizeof(portalopen));
 	FloodAreaConnections();
 
-	return &map_cmodels[0];
+	return &cmod.map_cmodels[0];
 }
 
 cmodel_t *
@@ -2086,7 +2093,7 @@ CM_InlineModel(const char *name)
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
 
-	return &map_cmodels[num];
+	return &cmod.map_cmodels[num];
 }
 
 int

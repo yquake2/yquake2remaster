@@ -958,6 +958,8 @@ CL_Shutdown(void)
 
 	isdown = true;
 
+	CM_ModFreeAll();
+
 #ifdef USE_CURL
 	CL_HTTP_Cleanup(true);
 #endif

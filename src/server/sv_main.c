@@ -707,7 +707,5 @@ SV_Shutdown(char *finalmsg, qboolean reconnect)
 	}
 
 	memset(&svs, 0, sizeof(svs));
-
-	CM_ModFreeAll();
 }
 
