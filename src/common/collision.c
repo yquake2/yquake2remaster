@@ -70,6 +70,9 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
+	dareaportal_t *map_areaportals;
+	int numareaportals;
+
 	dvis_t *map_vis;
 	int numclusters;
 	int numvisibility;
@@ -96,7 +99,6 @@ static cnode_t map_nodes[MAX_MAP_NODES+6]; /* extra for box hull */
 static cplane_t *box_planes;
 static cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
 static cvar_t *map_noareas;
-static dareaportal_t map_areaportals[MAX_MAP_AREAPORTALS];
 static int box_headnode;
 static int checkcount;
 static int emptyleaf, solidleaf;
@@ -105,7 +107,6 @@ static float *leaf_mins, *leaf_maxs;
 static int leaf_count, leaf_maxcount;
 static int *leaf_list;
 static int leaf_topnode;
-static int numareaportals;
 static int numareas = 1;
 static int numbrushes;
 static int numbrushsides;
@@ -153,7 +154,7 @@ FloodArea_r(carea_t *area, int floodnum)
 
 	area->floodnum = floodnum;
 	area->floodvalid = floodvalid;
-	p = &map_areaportals[area->firstareaportal];
+	p = &cmod.map_areaportals[area->firstareaportal];
 
 	for (i = 0; i < area->numareaportals; i++, p++)
 	{
@@ -193,7 +194,7 @@ FloodAreaConnections(void)
 void
 CM_SetAreaPortalState(int portalnum, qboolean open)
 {
-	if (portalnum > numareaportals)
+	if (portalnum > cmod.numareaportals)
 	{
 		Com_Error(ERR_DROP, "%s: areaportal > numareaportals", __func__);
 	}
@@ -1774,7 +1775,8 @@ CMod_LoadAreas(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadAreaPortals(const byte *cmod_base, const lump_t *l)
+CMod_LoadAreaPortals(const char *name, dareaportal_t **map_areaportals, int *numareaportals,
+	const byte *cmod_base, const lump_t *l)
 {
 	dareaportal_t *out;
 	dareaportal_t *in;
@@ -1784,18 +1786,18 @@ CMod_LoadAreaPortals(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
-	if (count > MAX_MAP_AREAS)
+	if (count <= 0)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too many areas", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has too small areas", __func__, name);
 	}
 
-	out = map_areaportals;
-	numareaportals = count;
+	out = *map_areaportals = Hunk_Alloc(l->filelen);
+	*numareaportals = count;
 
 	memcpy(out, in, sizeof(dareaportal_t) * count);
 }
@@ -1808,7 +1810,8 @@ CMod_LoadVisibility(const char *name, dvis_t **map_vis, int numclusters,
 
 	if (l->filelen < sizeof(dvis_t))
 	{
-		Com_Error(ERR_DROP, "%s: Map has too small visibility lump", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has too small visibility lump",
+			__func__, name);
 	}
 
 	*map_vis = Hunk_Alloc(l->filelen);
@@ -1817,8 +1820,8 @@ CMod_LoadVisibility(const char *name, dvis_t **map_vis, int numclusters,
 
 	if (numclusters != LittleLong((*map_vis)->numclusters))
 	{
-		Com_Error(ERR_DROP, "%s: Map has incorrect number of clusters %d != %d",
-			__func__, numclusters, LittleLong((*map_vis)->numclusters));
+		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
+			__func__, name, numclusters, LittleLong((*map_vis)->numclusters));
 	}
 	(*map_vis)->numclusters = LittleLong((*map_vis)->numclusters);
 }
@@ -2023,16 +2026,18 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		CMod_LoadQNodes(cmod_base, &header.lumps[LUMP_NODES]);
 	}
 	CMod_LoadAreas(cmod_base, &header.lumps[LUMP_AREAS]);
-	CMod_LoadAreaPortals(cmod_base, &header.lumps[LUMP_AREAPORTALS]);
 
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
-	hunkSize += header.lumps[LUMP_VISIBILITY].filelen + MAX_MAP_ENTSTRING;
+	hunkSize += header.lumps[LUMP_AREAPORTALS].filelen;
+	hunkSize += header.lumps[LUMP_VISIBILITY].filelen;
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
 
+	CMod_LoadAreaPortals(cmod.name, &cmod.map_areaportals, &cmod.numareaportals,
+		cmod_base, &header.lumps[LUMP_AREAPORTALS]);
 	CMod_LoadVisibility(cmod.name, &cmod.map_vis,
 		cmod.numclusters, &cmod.numvisibility, cmod_base, &header.lumps[LUMP_VISIBILITY]);
 
