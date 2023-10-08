@@ -107,7 +107,8 @@ typedef struct model_s
 	int		nummarksurfaces;
 	msurface_t	**marksurfaces;
 
-	dvis_t		*vis;
+	int numvisibility;
+	dvis_t *vis;
 
 	byte *lightdata;
 	int numlightdata;

@@ -53,3 +53,38 @@ Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra)
 	size = (size + 31) & ~31;
 	return size;
 }
+
+/*
+=================
+Mod_LoadVisibility
+=================
+*/
+void
+Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
+	const byte *mod_base, const lump_t *l)
+{
+	dvis_t	*out;
+	int	i;
+
+	if (!l->filelen)
+	{
+		Com_Printf("%s: Map %s has too small visibility lump",
+			__func__, name);
+		*vis = NULL;
+		return;
+	}
+
+	*numvisibility = l->filelen;
+
+	out = Hunk_Alloc(l->filelen);
+	*vis = out;
+	memcpy(out, mod_base + l->fileofs, l->filelen);
+
+	out->numclusters = LittleLong(out->numclusters);
+
+	for (i = 0; i < out->numclusters; i++)
+	{
+		out->bitofs[i][0] = LittleLong(out->bitofs[i][0]);
+		out->bitofs[i][1] = LittleLong(out->bitofs[i][1]);
+	}
+}

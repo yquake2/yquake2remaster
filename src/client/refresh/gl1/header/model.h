@@ -83,6 +83,7 @@ typedef struct model_s
 	int nummarksurfaces;
 	msurface_t **marksurfaces;
 
+	int numvisibility;
 	dvis_t *vis;
 
 	byte *lightdata;

@@ -1587,36 +1587,6 @@ Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *le
 
 /*
 =================
-Mod_LoadVisibility
-=================
-*/
-void
-Mod_LoadVisibility (dvis_t **vis, const byte *mod_base, const lump_t *l)
-{
-	dvis_t	*out;
-	int	i;
-
-	if (!l->filelen)
-	{
-		*vis = NULL;
-		return;
-	}
-
-	out = Hunk_Alloc(l->filelen);
-	*vis = out;
-	memcpy(out, mod_base + l->fileofs, l->filelen);
-
-	out->numclusters = LittleLong(out->numclusters);
-
-	for (i = 0; i < out->numclusters; i++)
-	{
-		out->bitofs[i][0] = LittleLong(out->bitofs[i][0]);
-		out->bitofs[i][1] = LittleLong(out->bitofs[i][1]);
-	}
-}
-
-/*
-=================
 Mod_LoadVertexes
 
 extra for skybox

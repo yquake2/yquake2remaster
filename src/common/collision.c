@@ -1799,30 +1799,6 @@ CMod_LoadAreaPortals(const char *name, dareaportal_t **map_areaportals, int *num
 }
 
 static void
-CMod_LoadVisibility(const char *name, dvis_t **map_vis, int numclusters,
-	int *numvisibility, const byte *cmod_base, const lump_t *l)
-{
-	*numvisibility = l->filelen;
-
-	if (l->filelen < sizeof(dvis_t))
-	{
-		Com_Error(ERR_DROP, "%s: Map %s has too small visibility lump",
-			__func__, name);
-	}
-
-	*map_vis = Hunk_Alloc(l->filelen);
-
-	memcpy((*map_vis), cmod_base + l->fileofs, l->filelen);
-
-	if (numclusters != LittleLong((*map_vis)->numclusters))
-	{
-		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
-			__func__, name, numclusters, LittleLong((*map_vis)->numclusters));
-	}
-	(*map_vis)->numclusters = LittleLong((*map_vis)->numclusters);
-}
-
-static void
 CMod_LoadEntityString(const char *name, char **map_entitystring, const byte *cmod_base, const lump_t *l)
 {
 	if (sv_entfile->value)
@@ -2059,8 +2035,14 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		&header.lumps[LUMP_AREAS]);
 	CMod_LoadAreaPortals(cmod.name, &cmod.map_areaportals, &cmod.numareaportals,
 		cmod_base, &header.lumps[LUMP_AREAPORTALS]);
-	CMod_LoadVisibility(cmod.name, &cmod.map_vis,
-		cmod.numclusters, &cmod.numvisibility, cmod_base, &header.lumps[LUMP_VISIBILITY]);
+	Mod_LoadVisibility(cmod.name, &cmod.map_vis, &cmod.numvisibility,
+		cmod_base, &header.lumps[LUMP_VISIBILITY]);
+
+	if (cmod.numclusters != cmod.map_vis->numclusters)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
+			__func__, name, cmod.numclusters, cmod.map_vis->numclusters);
+	}
 
 	/* From kmquake2: adding an extra parameter for .ent support. */
 	CMod_LoadEntityString(cmod.name, &cmod.map_entitystring, cmod_base, &header.lumps[LUMP_ENTITIES]);
@@ -2205,7 +2187,7 @@ CM_ClusterPVS(int cluster)
 	else
 	{
 		CM_DecompressVis((byte *)cmod.map_vis +
-				LittleLong(cmod.map_vis->bitofs[cluster][DVIS_PVS]), pvsrow);
+				cmod.map_vis->bitofs[cluster][DVIS_PVS], pvsrow);
 	}
 
 	return pvsrow;
@@ -2222,7 +2204,7 @@ CM_ClusterPHS(int cluster)
 	else
 	{
 		CM_DecompressVis((byte *)cmod.map_vis +
-				LittleLong(cmod.map_vis->bitofs[cluster][DVIS_PHS]), phsrow);
+				cmod.map_vis->bitofs[cluster][DVIS_PHS], phsrow);
 	}
 
 	return phsrow;
