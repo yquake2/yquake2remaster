@@ -1367,8 +1367,8 @@ Mod_SetParent(mnode_t *node, mnode_t *parent)
 		return;
 	}
 
-	Mod_SetParent (node->children[0], node);
-	Mod_SetParent (node->children[1], node);
+	Mod_SetParent(node->children[0], node);
+	Mod_SetParent(node->children[1], node);
 }
 
 /*
@@ -1932,13 +1932,12 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	}
 
 	count = l->filelen / sizeof(*in);
-	// FIXME: why double of count
-	out = Hunk_Alloc((count * 2 + extra) * sizeof(*out));
+	out = Hunk_Alloc((count + extra) * sizeof(*out));
 
 	*planes = out;
 	*numplanes = count;
 
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for ( i=0 ; i < count ; i++, in++, out++)
 	{
 		int bits, j;
 

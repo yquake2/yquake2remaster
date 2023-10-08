@@ -128,7 +128,10 @@ SV_ClearWorld(void)
 {
 	memset(sv_areanodes, 0, sizeof(sv_areanodes));
 	sv_numareanodes = 0;
-	SV_CreateAreaNode(0, sv.models[1]->mins, sv.models[1]->maxs);
+	if (sv.models[1])
+	{
+		SV_CreateAreaNode(0, sv.models[1]->mins, sv.models[1]->maxs);
+	}
 }
 
 void

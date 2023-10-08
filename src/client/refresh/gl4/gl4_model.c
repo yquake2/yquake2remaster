@@ -74,6 +74,7 @@ GL4_Mod_ClusterPVS(int cluster, const gl4model_t *model)
 
 	return Mod_DecompressVis((byte *)model->vis +
 			model->vis->bitofs[cluster][DVIS_PVS],
+			(byte *)model->vis + model->numvisibility,
 			(model->vis->numclusters + 7) >> 3);
 }
 

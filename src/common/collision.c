@@ -71,8 +71,11 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
-	cmodel_t map_cmodels[MAX_MAP_MODELS];
 	cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
+
+	/* TODO: big amount code expect static submodels */
+	cmodel_t map_cmodels[MAX_MAP_MODELS];
+	int numcmodels;
 
 	cnode_t *map_nodes; /* extra 6 for box hull */
 	int numnodes;
@@ -115,7 +118,6 @@ static int *leaf_list;
 static int leaf_topnode;
 static int numbrushes;
 static int numbrushsides;
-static int numcmodels;
 static int numentitychars;
 static int numleafbrushes;
 static int numleafs = 1; /* allow leaf funcs to be called without a map */
@@ -551,6 +553,11 @@ CM_BoxLeafnums_headnode(vec3_t mins, vec3_t maxs, int *list,
 int
 CM_BoxLeafnums(vec3_t mins, vec3_t maxs, int *list, int listsize, int *topnode)
 {
+	if (!cmod.numcmodels)
+	{
+		return 0;
+	}
+
 	return CM_BoxLeafnums_headnode(mins, maxs, list,
 			listsize, cmod.map_cmodels[0].headnode, topnode);
 }
@@ -1196,7 +1203,8 @@ CM_TransformedBoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 }
 
 static void
-CMod_LoadSubmodels(const byte *cmod_base, const lump_t *l)
+CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
+	const byte *cmod_base, const lump_t *l)
 {
 	dmodel_t *in;
 	cmodel_t *out;
@@ -1206,14 +1214,14 @@ CMod_LoadSubmodels(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has funny lump size", __func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map with no models", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s with no models", __func__, name);
 	}
 
 	if (count > MAX_MAP_MODELS)
@@ -1221,12 +1229,12 @@ CMod_LoadSubmodels(const byte *cmod_base, const lump_t *l)
 		Com_Error(ERR_DROP, "%s: Map has too many models", __func__);
 	}
 
-	numcmodels = count;
+	*numcmodels = count;
+
+	out = map_cmodels;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		out = &cmod.map_cmodels[i];
-
 		for (j = 0; j < 3; j++)
 		{
 			/* spread the mins / maxs by a pixel */
@@ -1875,18 +1883,10 @@ CM_ModFree(model_t *cmod)
 		cmod->extradatasize = 0;
 	}
 
-	cmod->map_nodes = NULL;
-	cmod->numnodes = 0;
+	memset(cmod, 0, sizeof(model_t));
 
-	cmod->map_areas = NULL;
 	cmod->numareas = 1;
-
-	cmod->map_vis = NULL;
 	cmod->numclusters = 1;
-	cmod->numvisibility = 0;
-
-	cmod->map_entitystring = NULL;
-	cmod->name[0] = 0;
 }
 
 void
@@ -1928,7 +1928,6 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	/* free old stuff */
 	numplanes = 0;
 	numleafs = 0;
-	numcmodels = 0;
 	numentitychars = 0;
 	CM_ModFree(&cmod);
 
@@ -1971,7 +1970,6 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	cmod_base = (byte *)buf;
 
-	/* load into heap */
 	CMod_LoadSurfaces(cmod_base, &header.lumps[LUMP_TEXINFO]);
 	if (header.ident == IDBSPHEADER)
 	{
@@ -1983,6 +1981,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		CMod_LoadQLeafs(&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
 		CMod_LoadQLeafBrushes(cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
+	/* TODO: could be shared? Mod_LoadPlanes */
 	CMod_LoadPlanes(cmod_base, &header.lumps[LUMP_PLANES]);
 	CMod_LoadBrushes(cmod_base, &header.lumps[LUMP_BRUSHES]);
 	if (header.ident == IDBSPHEADER)
@@ -1994,8 +1993,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		CMod_LoadQBrushSides(cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
 	}
 
-	CMod_LoadSubmodels(cmod_base, &header.lumps[LUMP_MODELS]);
-
+	/* load into heap */
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
@@ -2019,6 +2017,9 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
+
+	CMod_LoadSubmodels(cmod.name, cmod.map_cmodels, &cmod.numcmodels,
+		cmod_base, &header.lumps[LUMP_MODELS]);
 
 	if (header.ident == IDBSPHEADER)
 	{
@@ -2055,7 +2056,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	memset(portalopen, 0, sizeof(portalopen));
 	FloodAreaConnections();
 
-	return &cmod.map_cmodels[0];
+	return cmod.map_cmodels;
 }
 
 cmodel_t *
@@ -2070,7 +2071,7 @@ CM_InlineModel(const char *name)
 
 	num = (int)strtol(name + 1, (char **)NULL, 10);
 
-	if ((num < 1) || (num >= numcmodels))
+	if ((num < 1) || (num >= cmod.numcmodels))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
@@ -2087,7 +2088,7 @@ CM_NumClusters(void)
 int
 CM_NumInlineModels(void)
 {
-	return numcmodels;
+	return cmod.numcmodels;
 }
 
 char *
@@ -2180,7 +2181,7 @@ CM_DecompressVis(byte *in, byte *out)
 byte *
 CM_ClusterPVS(int cluster)
 {
-	if (cluster == -1)
+	if (cluster == -1 || !cmod.map_vis)
 	{
 		memset(pvsrow, 0, (cmod.numclusters + 7) >> 3);
 	}

@@ -33,7 +33,7 @@ Mod_DecompressVis
 ===================
 */
 const byte *
-Mod_DecompressVis(const byte *in, int row)
+Mod_DecompressVis(const byte *in, const byte* numvisibility, int row)
 {
 	YQ2_ALIGNAS_TYPE(int) static byte decompressed[MAX_MAP_LEAFS / 8];
 	int c;
@@ -41,7 +41,7 @@ Mod_DecompressVis(const byte *in, int row)
 
 	out = decompressed;
 
-	if (!in)
+	if (!in && !numvisibility)
 	{
 		/* no vis info, so make all visible */
 		while (row)
@@ -55,7 +55,7 @@ Mod_DecompressVis(const byte *in, int row)
 
 	do
 	{
-		if (*in)
+		if (*in && (in + 2) < numvisibility)
 		{
 			*out++ = *in++;
 			continue;
