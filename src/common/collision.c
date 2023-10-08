@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include "header/common.h"
+#include "header/cmodel.h"
 
 typedef struct
 {
@@ -70,6 +71,9 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
+	carea_t	*map_areas;
+	int numareas;
+
 	dareaportal_t *map_areaportals;
 	int numareaportals;
 
@@ -88,7 +92,6 @@ static model_t cmod = {0};
 // DG: is casted to int32_t* in SV_FatPVS() so align accordingly
 static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
 static byte phsrow[MAX_MAP_LEAFS / 8];
-static carea_t	map_areas[MAX_MAP_AREAS];
 static cbrush_t map_brushes[MAX_MAP_BRUSHES];
 static cbrushside_t map_brushsides[MAX_MAP_BRUSHSIDES];
 static cbrush_t *box_brush;
@@ -107,7 +110,6 @@ static float *leaf_mins, *leaf_maxs;
 static int leaf_count, leaf_maxcount;
 static int *leaf_list;
 static int leaf_topnode;
-static int numareas = 1;
 static int numbrushes;
 static int numbrushsides;
 static int numcmodels;
@@ -160,7 +162,7 @@ FloodArea_r(carea_t *area, int floodnum)
 	{
 		if (portalopen[LittleLong(p->portalnum)])
 		{
-			FloodArea_r(&map_areas[LittleLong(p->otherarea)], floodnum);
+			FloodArea_r(&cmod.map_areas[LittleLong(p->otherarea)], floodnum);
 		}
 	}
 }
@@ -177,9 +179,9 @@ FloodAreaConnections(void)
 	floodnum = 0;
 
 	/* area 0 is not used */
-	for (i = 1; i < numareas; i++)
+	for (i = 1; i < cmod.numareas; i++)
 	{
-		area = &map_areas[i];
+		area = &cmod.map_areas[i];
 
 		if (area->floodvalid == floodvalid)
 		{
@@ -211,12 +213,12 @@ CM_AreasConnected(int area1, int area2)
 		return true;
 	}
 
-	if ((area1 > numareas) || (area2 > numareas))
+	if ((area1 > cmod.numareas) || (area2 > cmod.numareas))
 	{
 		Com_Error(ERR_DROP, "%s: area > numareas", __func__);
 	}
 
-	if (map_areas[area1].floodnum == map_areas[area2].floodnum)
+	if (cmod.map_areas[area1].floodnum == cmod.map_areas[area2].floodnum)
 	{
 		return true;
 	}
@@ -237,7 +239,7 @@ CM_WriteAreaBits(byte *buffer, int area)
 	int floodnum;
 	int bytes;
 
-	bytes = (numareas + 7) >> 3;
+	bytes = (cmod.numareas + 7) >> 3;
 
 	if (map_noareas->value)
 	{
@@ -249,11 +251,11 @@ CM_WriteAreaBits(byte *buffer, int area)
 	{
 		memset(buffer, 0, bytes);
 
-		floodnum = map_areas[area].floodnum;
+		floodnum = cmod.map_areas[area].floodnum;
 
-		for (i = 0; i < numareas; i++)
+		for (i = 0; i < cmod.numareas; i++)
 		{
-			if ((map_areas[i].floodnum == floodnum) || !area)
+			if ((cmod.map_areas[i].floodnum == floodnum) || !area)
 			{
 				buffer[i >> 3] |= 1 << (i & 7);
 			}
@@ -1741,7 +1743,8 @@ CMod_LoadQBrushSides(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadAreas(const byte *cmod_base, const lump_t *l)
+CMod_LoadAreas(const char *name, carea_t **map_areas, int *numareas,
+	const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	carea_t *out;
@@ -1752,18 +1755,20 @@ CMod_LoadAreas(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size",
+			__func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
-	if (count > MAX_MAP_AREAS)
+	if (count <= 0)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too many areas", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has too small areas",
+			__func__, name);
 	}
 
-	out = map_areas;
-	numareas = count;
+	out = *map_areas = Hunk_Alloc(sizeof(*out) *  count);
+	*numareas = count;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -1902,10 +1907,15 @@ CM_ModFree(model_t *cmod)
 		cmod->extradata = NULL;
 		cmod->extradatasize = 0;
 	}
+
+	cmod->map_areas = NULL;
+	cmod->numareas = 1;
+
 	cmod->map_vis = NULL;
 	cmod->numclusters = 1;
-	cmod->map_entitystring = NULL;
 	cmod->numvisibility = 0;
+
+	cmod->map_entitystring = NULL;
 	cmod->name[0] = 0;
 }
 
@@ -1956,7 +1966,6 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	if (!name[0])
 	{
 		numleafs = 1;
-		numareas = 1;
 		*checksum = 0;
 		return &map_cmodels[0]; /* cinematic servers won't have anything at all */
 	}
@@ -2025,17 +2034,22 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	{
 		CMod_LoadQNodes(cmod_base, &header.lumps[LUMP_NODES]);
 	}
-	CMod_LoadAreas(cmod_base, &header.lumps[LUMP_AREAS]);
 
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
-	hunkSize += header.lumps[LUMP_AREAPORTALS].filelen;
+
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAS],
+		sizeof(darea_t), sizeof(carea_t), 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAPORTALS],
+		sizeof(dareaportal_t), sizeof(dareaportal_t), 0);
 	hunkSize += header.lumps[LUMP_VISIBILITY].filelen;
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
 
+	CMod_LoadAreas(cmod.name, &cmod.map_areas, &cmod.numareas, cmod_base,
+		&header.lumps[LUMP_AREAS]);
 	CMod_LoadAreaPortals(cmod.name, &cmod.map_areaportals, &cmod.numareaportals,
 		cmod_base, &header.lumps[LUMP_AREAPORTALS]);
 	CMod_LoadVisibility(cmod.name, &cmod.map_vis,

@@ -2017,34 +2017,6 @@ Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 }
 
 /*
-=================
-Mod_LoadSurfedges
-
-calculate the size that Hunk_Alloc(), called by Mod_Load*() from Mod_LoadBrushModel(),
-will use (=> includes its padding), so we'll know how big the hunk needs to be
-extra is used for skybox, which adds 6 surfaces
-=================
-*/
-int
-Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra)
-{
-	if (l->filelen % inSize)
-	{
-		// Mod_Load*() will error out on this because of "funny size"
-		// don't error out here because in Mod_Load*() it can print the functionname
-		// (=> tells us what kind of lump) before shutting down the game
-		return 0;
-	}
-
-	int count = l->filelen / inSize + extra;
-	int size = count * outSize;
-
-	// round to cacheline, like Hunk_Alloc() does
-	size = (size + 31) & ~31;
-	return size;
-}
-
-/*
 ===============
 Mod_PointInLeaf
 ===============

@@ -936,6 +936,7 @@ CLIENT_OBJS_ := \
 	src/common/argproc.o \
 	src/common/clientserver.o \
 	src/common/collision.o \
+	src/common/cmodels.o \
 	src/common/crc.o \
 	src/common/cmdparser.o \
 	src/common/cvar.o \
@@ -1006,6 +1007,7 @@ REFGL1_OBJS_ := \
 	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -1040,6 +1042,7 @@ REFGL3_OBJS_ := \
 	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 REFGL3_OBJS_GLADE_ := \
@@ -1079,6 +1082,7 @@ REFGL4_OBJS_ := \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 REFGL4_OBJS_GLADE_ := \
@@ -1121,6 +1125,7 @@ REFSOFT_OBJS_ := \
 	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -1163,6 +1168,7 @@ REFVK_OBJS_ := \
 	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -1181,6 +1187,7 @@ SERVER_OBJS_ := \
 	src/common/argproc.o \
 	src/common/clientserver.o \
 	src/common/collision.o \
+	src/common/cmodels.o \
 	src/common/crc.o \
 	src/common/cmdparser.o \
 	src/common/cvar.o \
