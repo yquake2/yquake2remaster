@@ -72,6 +72,13 @@ typedef struct
 	char name[MAX_QPATH];
 
 	cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
+	int numplanes;
+
+	cbrushside_t *map_brushsides;
+	int numbrushsides;
+
+	mapsurface_t map_surfaces[MAX_MAP_TEXINFO];
+	int	numtexinfo;
 
 	/* TODO: big amount code expect static submodels */
 	cmodel_t map_cmodels[MAX_MAP_MODELS];
@@ -91,6 +98,7 @@ typedef struct
 	int numvisibility;
 
 	char *map_entitystring;
+	int numentitychars;
 
 	int extradatasize;
 	void *extradata;
@@ -102,7 +110,6 @@ static model_t cmod = {0};
 static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
 static byte phsrow[MAX_MAP_LEAFS / 8];
 static cbrush_t map_brushes[MAX_MAP_BRUSHES];
-static cbrushside_t map_brushsides[MAX_MAP_BRUSHSIDES];
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
 static cleaf_t map_leafs[MAX_MAP_LEAFS];
@@ -117,14 +124,9 @@ static int leaf_count, leaf_maxcount;
 static int *leaf_list;
 static int leaf_topnode;
 static int numbrushes;
-static int numbrushsides;
-static int numentitychars;
 static int numleafbrushes;
 static int numleafs = 1; /* allow leaf funcs to be called without a map */
-static int numplanes;
-int	numtexinfo;
 static int trace_contents;
-mapsurface_t map_surfaces[MAX_MAP_TEXINFO];
 static mapsurface_t nullsurface;
 static qboolean portalopen[MAX_MAP_AREAPORTALS];
 static qboolean trace_ispoint; /* optimized case */
@@ -342,19 +344,20 @@ CM_InitBoxHull(void)
 	cbrushside_t *s;
 
 	box_headnode = cmod.numnodes;
-	box_planes = &cmod.map_planes[numplanes];
+	box_planes = &cmod.map_planes[cmod.numplanes];
 
-	if ((numbrushes + 1 > MAX_MAP_BRUSHES) ||
+	if ((cmod.numnodes <= 0) ||
+		(numbrushes + 1 > MAX_MAP_BRUSHES) ||
 		(numleafbrushes + 1 > MAX_MAP_LEAFBRUSHES) ||
-		(numbrushsides + 6 > MAX_MAP_BRUSHSIDES) ||
-		(numplanes + 12 > MAX_MAP_PLANES))
+		(cmod.numbrushsides <= 0) ||
+		(cmod.numplanes + 12 > MAX_MAP_PLANES))
 	{
 		Com_Error(ERR_DROP, "%s: Not enough room for box tree", __func__);
 	}
 
 	box_brush = &map_brushes[numbrushes];
 	box_brush->numsides = 6;
-	box_brush->firstbrushside = numbrushsides;
+	box_brush->firstbrushside = cmod.numbrushsides;
 	box_brush->contents = CONTENTS_MONSTER;
 
 	box_leaf = &map_leafs[numleafs];
@@ -369,13 +372,13 @@ CM_InitBoxHull(void)
 		side = i & 1;
 
 		/* brush sides */
-		s = &map_brushsides[numbrushsides + i];
-		s->plane = cmod.map_planes + (numplanes + i * 2 + side);
+		s = &cmod.map_brushsides[cmod.numbrushsides + i];
+		s->plane = cmod.map_planes + (cmod.numplanes + i * 2 + side);
 		s->surface = &nullsurface;
 
 		/* nodes */
 		c = &cmod.map_nodes[box_headnode + i];
-		c->plane = cmod.map_planes + (numplanes + i * 2);
+		c->plane = cmod.map_planes + (cmod.numplanes + i * 2);
 		c->children[side] = -1 - emptyleaf;
 
 		if (i != 5)
@@ -469,7 +472,7 @@ CM_PointLeafnum_r(vec3_t p, int num)
 int
 CM_PointLeafnum(vec3_t p)
 {
-	if (!numplanes || !cmod.numnodes || !cmod.map_nodes)
+	if (!cmod.numplanes || !cmod.numnodes || !cmod.map_nodes)
 	{
 		return 0; /* sound may call this without map loaded */
 	}
@@ -643,7 +646,7 @@ CM_ClipBoxToBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 
 	for (i = 0; i < brush->numsides; i++)
 	{
-		side = &map_brushsides[brush->firstbrushside + i];
+		side = &cmod.map_brushsides[brush->firstbrushside + i];
 		plane = side->plane;
 
 		if (!trace_ispoint)
@@ -777,7 +780,7 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 
 	for (i = 0; i < brush->numsides; i++)
 	{
-		side = &map_brushsides[brush->firstbrushside + i];
+		side = &cmod.map_brushsides[brush->firstbrushside + i];
 		plane = side->plane;
 
 		/* general box case
@@ -1273,8 +1276,8 @@ CMod_LoadSurfaces(const byte *cmod_base, const lump_t *l)
 		Com_Error(ERR_DROP, "%s: Map has too many surfaces", __func__);
 	}
 
-	numtexinfo = count;
-	out = map_surfaces;
+	cmod.numtexinfo = count;
+	out = cmod.map_surfaces;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -1344,7 +1347,7 @@ CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s has no nodes", __func__, name);
+		Com_Error(ERR_DROP, "%s: Map %s with no nodes", __func__, name);
 	}
 
 	out = *map_nodes = Hunk_Alloc(sizeof(cnode_t) * (count + 6));
@@ -1564,7 +1567,7 @@ CMod_LoadPlanes(const byte *cmod_base, const lump_t *l)
 	}
 
 	out = cmod.map_planes;
-	numplanes = count;
+	cmod.numplanes = count;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -1661,9 +1664,11 @@ CMod_LoadQLeafBrushes(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadBrushSides(const byte *cmod_base, const lump_t *l)
+CMod_LoadBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbrushsides,
+	cplane_t *map_planes, int numplanes, mapsurface_t *map_surfaces, int numtexinfo,
+	const byte *cmod_base, const lump_t *l)
 {
-	int i, j;
+	int i;
 	cbrushside_t *out;
 	dbrushside_t *in;
 	int count;
@@ -1672,38 +1677,43 @@ CMod_LoadBrushSides(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
 	/* need to save space for box planes */
-	if (count > MAX_MAP_BRUSHSIDES)
+	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too many planes", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = map_brushsides;
-	numbrushsides = count;
+	out = *map_brushsides = Hunk_Alloc((count + 6) * sizeof(*out));
+	*numbrushsides = count;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		int num = LittleShort(in->planenum);
-		out->plane = &cmod.map_planes[num];
-		j = LittleShort(in->texinfo);
+		int j, num;
 
-		if (j >= numtexinfo)
+		num = LittleLong(in->planenum);
+		j = LittleLong(in->texinfo);
+
+		if (j >= numtexinfo || num > numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Bad brushside texinfo", __func__);
 		}
 
+		out->plane = map_planes + num;
 		out->surface = (j >= 0) ? &map_surfaces[j] : &nullsurface;
 	}
 }
+
 static void
-CMod_LoadQBrushSides(const byte *cmod_base, const lump_t *l)
+CMod_LoadQBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbrushsides,
+	cplane_t *map_planes, int numplanes, mapsurface_t *map_surfaces, int numtexinf,
+	const byte *cmod_base, const lump_t *l)
 {
-	int i, j;
+	int i;
 	cbrushside_t *out;
 	dqbrushside_t *in;
 	int count;
@@ -1712,31 +1722,33 @@ CMod_LoadQBrushSides(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
 	/* need to save space for box planes */
-	if (count > MAX_MAP_BRUSHSIDES)
+	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too many planes", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = map_brushsides;
-	numbrushsides = count;
+	out = *map_brushsides = Hunk_Alloc((count + 6) * sizeof(*out));
+	*numbrushsides = count;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		int num = LittleLong(in->planenum);
-		out->plane = &cmod.map_planes[num];
+		int j, num;
+
+		num = LittleLong(in->planenum);
 		j = LittleLong(in->texinfo);
 
-		if (j >= numtexinfo)
+		if (j >= numtexinf || num > numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Bad brushside texinfo", __func__);
 		}
 
+		out->plane = map_planes + num;
 		out->surface = (j >= 0) ? &map_surfaces[j] : &nullsurface;
 	}
 }
@@ -1760,9 +1772,9 @@ CMod_LoadAreas(const char *name, carea_t **map_areas, int *numareas,
 
 	count = l->filelen / sizeof(*in);
 
-	if (count <= 0)
+	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s has too small areas",
+		Com_Error(ERR_DROP, "%s: Map %s has no areas",
 			__func__, name);
 	}
 
@@ -1807,7 +1819,8 @@ CMod_LoadAreaPortals(const char *name, dareaportal_t **map_areaportals, int *num
 }
 
 static void
-CMod_LoadEntityString(const char *name, char **map_entitystring, const byte *cmod_base, const lump_t *l)
+CMod_LoadEntityString(const char *name, char **map_entitystring, int *numentitychars,
+	const byte *cmod_base, const lump_t *l)
 {
 	if (sv_entfile->value)
 	{
@@ -1837,14 +1850,14 @@ CMod_LoadEntityString(const char *name, char **map_entitystring, const byte *cmo
 			bufLen = FS_LoadFile(entname, (void **)&buffer);
 			if (buffer == NULL)
 			{
-				Com_Printf("%s: No fixes found for '%s'\n", __func__, entname);
+				Com_Printf("No fixes found for '%s'\n", entname);
 			}
 		}
 
 		if (buffer != NULL && bufLen > 1)
 		{
-			Com_Printf ("%s: .ent file %s loaded.\n", __func__, entname);
-			numentitychars = bufLen;
+			Com_Printf (".ent file %s loaded.\n", entname);
+			*numentitychars = bufLen;
 
 			*map_entitystring = Hunk_Alloc(bufLen + 1);
 
@@ -1861,7 +1874,7 @@ CMod_LoadEntityString(const char *name, char **map_entitystring, const byte *cmo
 		}
 	}
 
-	numentitychars = l->filelen;
+	*numentitychars = l->filelen;
 
 	if (l->filelen < 0)
 	{
@@ -1926,9 +1939,7 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	}
 
 	/* free old stuff */
-	numplanes = 0;
 	numleafs = 0;
-	numentitychars = 0;
 	CM_ModFree(&cmod);
 
 	if (!name[0])
@@ -1984,14 +1995,6 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	/* TODO: could be shared? Mod_LoadPlanes */
 	CMod_LoadPlanes(cmod_base, &header.lumps[LUMP_PLANES]);
 	CMod_LoadBrushes(cmod_base, &header.lumps[LUMP_BRUSHES]);
-	if (header.ident == IDBSPHEADER)
-	{
-		CMod_LoadBrushSides(cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
-	}
-	else
-	{
-		CMod_LoadQBrushSides(cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
-	}
 
 	/* load into heap */
 	strcpy(cmod.name, name);
@@ -2000,11 +2003,15 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	if (header.ident == IDBSPHEADER)
 	{
+		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHSIDES],
+			sizeof(dbrushside_t), sizeof(cbrushside_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
 			sizeof(dnode_t), sizeof(cnode_t), 6);
 	}
 	else
 	{
+		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHSIDES],
+			sizeof(dqbrushside_t), sizeof(cbrushside_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
 			sizeof(dqnode_t), sizeof(cnode_t), 6);
 	}
@@ -2017,6 +2024,19 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
+
+	if (header.ident == IDBSPHEADER)
+	{
+		CMod_LoadBrushSides(cmod.name, &cmod.map_brushsides, &cmod.numbrushsides,
+			cmod.map_planes, cmod.numplanes, cmod.map_surfaces, cmod.numtexinfo,
+			cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
+	}
+	else
+	{
+		CMod_LoadQBrushSides(cmod.name, &cmod.map_brushsides, &cmod.numbrushsides,
+			cmod.map_planes, cmod.numplanes, cmod.map_surfaces, cmod.numtexinfo,
+			cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
+	}
 
 	CMod_LoadSubmodels(cmod.name, cmod.map_cmodels, &cmod.numcmodels,
 		cmod_base, &header.lumps[LUMP_MODELS]);
@@ -2046,7 +2066,8 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	}
 
 	/* From kmquake2: adding an extra parameter for .ent support. */
-	CMod_LoadEntityString(cmod.name, &cmod.map_entitystring, cmod_base, &header.lumps[LUMP_ENTITIES]);
+	CMod_LoadEntityString(cmod.name, &cmod.map_entitystring, &cmod.numentitychars,
+		cmod_base, &header.lumps[LUMP_ENTITIES]);
 	cmod.extradatasize = Hunk_End();
 
 	FS_FreeFile(buf);
@@ -2128,6 +2149,22 @@ CM_LeafArea(int leafnum)
 	}
 
 	return map_leafs[leafnum].area;
+}
+
+int
+CM_MapSurfacesNum(void)
+{
+	return cmod.numtexinfo;
+}
+
+mapsurface_t*
+CM_MapSurfaces(int surfnum)
+{
+	if (surfnum > cmod.numtexinfo)
+	{
+		return &nullsurface;
+	}
+	return cmod.map_surfaces + surfnum;
 }
 
 static void

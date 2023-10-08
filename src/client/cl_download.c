@@ -72,6 +72,9 @@ static const char *env_suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 #define ENV_CNT (CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT)
 #define TEXTURE_CNT (ENV_CNT + 13)
 
+mapsurface_t* CM_MapSurfaces(int surfnum);
+int CM_MapSurfacesNum(void);
+
 void
 CL_RequestNextDownload(void)
 {
@@ -405,7 +408,6 @@ CL_RequestNextDownload(void)
 		}
 	}
 
-
 #ifdef USE_CURL
 	/* Wait for pending downloads. */
 	if (CL_PendingHTTPDownloads())
@@ -479,8 +481,7 @@ CL_RequestNextDownload(void)
 	/* confirm existance of textures, download any that don't exist */
 	if (precache_check == TEXTURE_CNT + 1)
 	{
-		extern int numtexinfo;
-		extern mapsurface_t map_surfaces[];
+		int numtexinfo = CM_MapSurfacesNum();
 
 		if (allow_download->value && allow_download_maps->value)
 		{
@@ -489,7 +490,7 @@ CL_RequestNextDownload(void)
 				char fn[MAX_OSPATH];
 
 				sprintf(fn, "textures/%s.wal",
-						map_surfaces[precache_tex++].rname);
+						CM_MapSurfaces(precache_tex++)->rname);
 
 				if (!CL_CheckOrDownloadFile(fn))
 				{
