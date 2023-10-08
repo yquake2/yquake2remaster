@@ -70,6 +70,10 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
+	dvis_t *map_vis;
+	int numclusters;
+	int numvisibility;
+
 	char *map_entitystring;
 
 	int extradatasize;
@@ -78,7 +82,6 @@ typedef struct
 
 static model_t cmod = {0};
 
-static byte map_visibility[MAX_MAP_VISIBILITY];
 // DG: is casted to int32_t* in SV_FatPVS() so align accordingly
 static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
 static byte phsrow[MAX_MAP_LEAFS / 8];
@@ -94,7 +97,6 @@ static cplane_t *box_planes;
 static cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
 static cvar_t *map_noareas;
 static dareaportal_t map_areaportals[MAX_MAP_AREAPORTALS];
-static dvis_t *map_vis = (dvis_t *)map_visibility;
 static int box_headnode;
 static int checkcount;
 static int emptyleaf, solidleaf;
@@ -107,7 +109,6 @@ static int numareaportals;
 static int numareas = 1;
 static int numbrushes;
 static int numbrushsides;
-static int numclusters = 1;
 static int numcmodels;
 static int numentitychars;
 static int numleafbrushes;
@@ -115,7 +116,6 @@ static int numleafs = 1; /* allow leaf funcs to be called without a map */
 static int numnodes;
 static int numplanes;
 int	numtexinfo;
-static int numvisibility;
 static int trace_contents;
 mapsurface_t map_surfaces[MAX_MAP_TEXINFO];
 static mapsurface_t nullsurface;
@@ -1393,7 +1393,7 @@ CMod_LoadBrushes(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadLeafs(const byte *cmod_base, const lump_t *l)
+CMod_LoadLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	cleaf_t *out;
@@ -1422,7 +1422,7 @@ CMod_LoadLeafs(const byte *cmod_base, const lump_t *l)
 
 	out = map_leafs;
 	numleafs = count;
-	numclusters = 0;
+	*numclusters = 0;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -1432,9 +1432,9 @@ CMod_LoadLeafs(const byte *cmod_base, const lump_t *l)
 		out->firstleafbrush = LittleShort(in->firstleafbrush);
 		out->numleafbrushes = LittleShort(in->numleafbrushes);
 
-		if (out->cluster >= numclusters)
+		if (out->cluster >= *numclusters)
 		{
-			numclusters = out->cluster + 1;
+			*numclusters = out->cluster + 1;
 		}
 	}
 
@@ -1462,7 +1462,7 @@ CMod_LoadLeafs(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadQLeafs(const byte *cmod_base, const lump_t *l)
+CMod_LoadQLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	cleaf_t *out;
@@ -1491,7 +1491,7 @@ CMod_LoadQLeafs(const byte *cmod_base, const lump_t *l)
 
 	out = map_leafs;
 	numleafs = count;
-	numclusters = 0;
+	*numclusters = 0;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -1501,9 +1501,9 @@ CMod_LoadQLeafs(const byte *cmod_base, const lump_t *l)
 		out->firstleafbrush = LittleLong(in->firstleafbrush);
 		out->numleafbrushes = LittleLong(in->numleafbrushes);
 
-		if (out->cluster >= numclusters)
+		if (out->cluster >= *numclusters)
 		{
-			numclusters = out->cluster + 1;
+			*numclusters = out->cluster + 1;
 		}
 	}
 
@@ -1801,18 +1801,26 @@ CMod_LoadAreaPortals(const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadVisibility(const byte *cmod_base, const lump_t *l)
+CMod_LoadVisibility(const char *name, dvis_t **map_vis, int numclusters,
+	int *numvisibility, const byte *cmod_base, const lump_t *l)
 {
-	numvisibility = l->filelen;
+	*numvisibility = l->filelen;
 
-	if (l->filelen > MAX_MAP_VISIBILITY)
+	if (l->filelen < sizeof(dvis_t))
 	{
-		Com_Error(ERR_DROP, "%s: Map has too large visibility lump", __func__);
+		Com_Error(ERR_DROP, "%s: Map has too small visibility lump", __func__);
 	}
 
-	memcpy(map_visibility, cmod_base + l->fileofs, l->filelen);
+	*map_vis = Hunk_Alloc(l->filelen);
 
-	map_vis->numclusters = LittleLong(map_vis->numclusters);
+	memcpy((*map_vis), cmod_base + l->fileofs, l->filelen);
+
+	if (numclusters != LittleLong((*map_vis)->numclusters))
+	{
+		Com_Error(ERR_DROP, "%s: Map has incorrect number of clusters %d != %d",
+			__func__, numclusters, LittleLong((*map_vis)->numclusters));
+	}
+	(*map_vis)->numclusters = LittleLong((*map_vis)->numclusters);
 }
 
 static void
@@ -1891,6 +1899,11 @@ CM_ModFree(model_t *cmod)
 		cmod->extradata = NULL;
 		cmod->extradatasize = 0;
 	}
+	cmod->map_vis = NULL;
+	cmod->numclusters = 1;
+	cmod->map_entitystring = NULL;
+	cmod->numvisibility = 0;
+	cmod->name[0] = 0;
 }
 
 void
@@ -1934,15 +1947,12 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	numnodes = 0;
 	numleafs = 0;
 	numcmodels = 0;
-	numvisibility = 0;
 	numentitychars = 0;
-	cmod.map_entitystring = NULL;
-	cmod.name[0] = 0;
+	CM_ModFree(&cmod);
 
 	if (!name[0])
 	{
 		numleafs = 1;
-		numclusters = 1;
 		numareas = 1;
 		*checksum = 0;
 		return &map_cmodels[0]; /* cinematic servers won't have anything at all */
@@ -1984,12 +1994,12 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	CMod_LoadSurfaces(cmod_base, &header.lumps[LUMP_TEXINFO]);
 	if (header.ident == IDBSPHEADER)
 	{
-		CMod_LoadLeafs(cmod_base, &header.lumps[LUMP_LEAFS]);
+		CMod_LoadLeafs(&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
 		CMod_LoadLeafBrushes(cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
 	else
 	{
-		CMod_LoadQLeafs(cmod_base, &header.lumps[LUMP_LEAFS]);
+		CMod_LoadQLeafs(&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
 		CMod_LoadQLeafBrushes(cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
 	CMod_LoadPlanes(cmod_base, &header.lumps[LUMP_PLANES]);
@@ -2014,16 +2024,17 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	}
 	CMod_LoadAreas(cmod_base, &header.lumps[LUMP_AREAS]);
 	CMod_LoadAreaPortals(cmod_base, &header.lumps[LUMP_AREAPORTALS]);
-	CMod_LoadVisibility(cmod_base, &header.lumps[LUMP_VISIBILITY]);
 
 	strcpy(cmod.name, name);
 
-	CM_ModFree(&cmod);
-
 	int hunkSize = 0;
+	hunkSize += header.lumps[LUMP_VISIBILITY].filelen + MAX_MAP_ENTSTRING;
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
+
+	CMod_LoadVisibility(cmod.name, &cmod.map_vis,
+		cmod.numclusters, &cmod.numvisibility, cmod_base, &header.lumps[LUMP_VISIBILITY]);
 
 	/* From kmquake2: adding an extra parameter for .ent support. */
 	CMod_LoadEntityString(cmod.name, &cmod.map_entitystring, cmod_base, &header.lumps[LUMP_ENTITIES]);
@@ -2062,7 +2073,7 @@ CM_InlineModel(const char *name)
 int
 CM_NumClusters(void)
 {
-	return numclusters;
+	return cmod.numclusters;
 }
 
 int
@@ -2117,10 +2128,10 @@ CM_DecompressVis(byte *in, byte *out)
 	byte *out_p;
 	int row;
 
-	row = (numclusters + 7) >> 3;
+	row = (cmod.numclusters + 7) >> 3;
 	out_p = out;
 
-	if (!in || !numvisibility)
+	if (!in || !cmod.numvisibility)
 	{
 		/* no vis info, so make all visible */
 		while (row)
@@ -2163,12 +2174,12 @@ CM_ClusterPVS(int cluster)
 {
 	if (cluster == -1)
 	{
-		memset(pvsrow, 0, (numclusters + 7) >> 3);
+		memset(pvsrow, 0, (cmod.numclusters + 7) >> 3);
 	}
 	else
 	{
-		CM_DecompressVis(map_visibility +
-				LittleLong(map_vis->bitofs[cluster][DVIS_PVS]), pvsrow);
+		CM_DecompressVis((byte *)cmod.map_vis +
+				LittleLong(cmod.map_vis->bitofs[cluster][DVIS_PVS]), pvsrow);
 	}
 
 	return pvsrow;
@@ -2179,13 +2190,13 @@ CM_ClusterPHS(int cluster)
 {
 	if (cluster == -1)
 	{
-		memset(phsrow, 0, (numclusters + 7) >> 3);
+		memset(phsrow, 0, (cmod.numclusters + 7) >> 3);
 	}
 
 	else
 	{
-		CM_DecompressVis(map_visibility +
-				LittleLong(map_vis->bitofs[cluster][DVIS_PHS]), phsrow);
+		CM_DecompressVis((byte *)cmod.map_vis +
+				LittleLong(cmod.map_vis->bitofs[cluster][DVIS_PHS]), phsrow);
 	}
 
 	return phsrow;
