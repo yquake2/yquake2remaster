@@ -71,7 +71,7 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
-	cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
+	cplane_t *map_planes; /* extra 6 for box hull */
 	int numplanes;
 
 	cbrush_t *map_brushes;
@@ -351,7 +351,7 @@ CM_InitBoxHull(void)
 		(cmod.numbrushes <= 0) ||
 		(numleafbrushes + 1 > MAX_MAP_LEAFBRUSHES) ||
 		(cmod.numbrushsides <= 0) ||
-		(cmod.numplanes + 12 > MAX_MAP_PLANES))
+		(cmod.numplanes <= 0))
 	{
 		Com_Error(ERR_DROP, "%s: Not enough room for box tree", __func__);
 	}
@@ -1540,58 +1540,6 @@ CMod_LoadQLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 }
 
 static void
-CMod_LoadPlanes(const byte *cmod_base, const lump_t *l)
-{
-	int i, j;
-	cplane_t *out;
-	dplane_t *in;
-	int count;
-	int bits;
-
-	in = (void *)(cmod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
-	}
-
-	count = l->filelen / sizeof(*in);
-
-	if (count < 1)
-	{
-		Com_Error(ERR_DROP, "%s: Map with no planes", __func__);
-	}
-
-	/* need to save space for box planes */
-	if (count > MAX_MAP_PLANES)
-	{
-		Com_Error(ERR_DROP, "%s: Map has too many planes", __func__);
-	}
-
-	out = cmod.map_planes;
-	cmod.numplanes = count;
-
-	for (i = 0; i < count; i++, in++, out++)
-	{
-		bits = 0;
-
-		for (j = 0; j < 3; j++)
-		{
-			out->normal[j] = LittleFloat(in->normal[j]);
-
-			if (out->normal[j] < 0)
-			{
-				bits |= 1 << j;
-			}
-		}
-
-		out->dist = LittleFloat(in->dist);
-		out->type = LittleLong(in->type);
-		out->signbits = bits;
-	}
-}
-
-static void
 CMod_LoadLeafBrushes(const byte *cmod_base, const lump_t *l)
 {
 	int i;
@@ -1994,14 +1942,14 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		CMod_LoadQLeafs(&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
 		CMod_LoadQLeafBrushes(cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
-	/* TODO: could be shared? Mod_LoadPlanes */
-	CMod_LoadPlanes(cmod_base, &header.lumps[LUMP_PLANES]);
 
 	/* load into heap */
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
 
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_PLANES],
+		sizeof(dplane_t), sizeof(cplane_t), 12);
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHES],
 		sizeof(dbrush_t), sizeof(cbrush_t), 1);
 
@@ -2024,11 +1972,15 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 		sizeof(darea_t), sizeof(carea_t), 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAPORTALS],
 		sizeof(dareaportal_t), sizeof(dareaportal_t), 0);
-	hunkSize += header.lumps[LUMP_VISIBILITY].filelen;
-	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_VISIBILITY],
+		1, 1, 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_ENTITIES],
+		1, 1, MAX_MAP_ENTSTRING);
 
 	cmod.extradata = Hunk_Begin(hunkSize);
 
+	Mod_LoadPlanes(cmod.name, &cmod.map_planes, &cmod.numplanes,
+		cmod_base, &header.lumps[LUMP_PLANES]);
 	CMod_LoadBrushes(cmod.name, &cmod.map_brushes, &cmod.numbrushes,
 		cmod_base, &header.lumps[LUMP_BRUSHES]);
 

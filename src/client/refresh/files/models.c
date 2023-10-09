@@ -1909,54 +1909,6 @@ Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
 
 /*
 =================
-Mod_LoadPlanes
-
-extra is used for skybox, which adds 6 surfaces
-=================
-*/
-void
-Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
-	const byte *mod_base, const lump_t *l, int extra)
-{
-	int i;
-	cplane_t	*out;
-	dplane_t 	*in;
-	int			count;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		Com_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, name);
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + extra) * sizeof(*out));
-
-	*planes = out;
-	*numplanes = count;
-
-	for ( i=0 ; i < count ; i++, in++, out++)
-	{
-		int bits, j;
-
-		bits = 0;
-		for (j=0 ; j<3 ; j++)
-		{
-			out->normal[j] = LittleFloat (in->normal[j]);
-			if (out->normal[j] < 0)
-				bits |= 1<<j;
-		}
-
-		out->dist = LittleFloat (in->dist);
-		out->type = LittleLong (in->type);
-		out->signbits = bits;
-	}
-}
-
-/*
-=================
 Mod_LoadSurfedges
 =================
 */

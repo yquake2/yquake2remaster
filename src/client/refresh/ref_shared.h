@@ -350,8 +350,6 @@ extern void Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t 
 extern void Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
 	struct image_s *notexture, int extra);
-extern void Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
-	const byte *mod_base, const lump_t *l, int extra);
 extern void Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 	const byte *mod_base, const lump_t *l, int extra);
 extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
