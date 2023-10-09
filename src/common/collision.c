@@ -87,7 +87,7 @@ typedef struct
 	cbrushside_t *map_brushsides;
 	int numbrushsides;
 
-	mapsurface_t map_surfaces[MAX_MAP_TEXINFO];
+	mapsurface_t *map_surfaces;
 	int	numtexinfo;
 
 	/* TODO: big amount code expect static submodels */
@@ -1259,7 +1259,8 @@ CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
 }
 
 static void
-CMod_LoadSurfaces(const byte *cmod_base, const lump_t *l)
+CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo,
+	const byte *cmod_base, const lump_t *l)
 {
 	texinfo_t *in;
 	mapsurface_t *out;
@@ -1279,13 +1280,8 @@ CMod_LoadSurfaces(const byte *cmod_base, const lump_t *l)
 		Com_Error(ERR_DROP, "%s: Map with no surfaces", __func__);
 	}
 
-	if (count > MAX_MAP_TEXINFO)
-	{
-		Com_Error(ERR_DROP, "%s: Map has too many surfaces", __func__);
-	}
-
-	cmod.numtexinfo = count;
-	out = cmod.map_surfaces;
+	*numtexinfo = count;
+	out = *map_surfaces = Hunk_Alloc(count * sizeof(*out));
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -1914,12 +1910,13 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	cmod_base = (byte *)buf;
 
-	CMod_LoadSurfaces(cmod_base, &header.lumps[LUMP_TEXINFO]);
-
 	/* load into heap */
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
+
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+		sizeof(texinfo_t), sizeof(mapsurface_t), 0);
 
 	if (header.ident == IDBSPHEADER)
 	{
@@ -1967,6 +1964,8 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	cmod.extradata = Hunk_Begin(hunkSize);
 
+	CMod_LoadSurfaces(cmod.name, &cmod.map_surfaces, &cmod.numtexinfo,
+		cmod_base, &header.lumps[LUMP_TEXINFO]);
 	if (header.ident == IDBSPHEADER)
 	{
 		CMod_LoadLeafs(cmod.name, &cmod.map_leafs, &cmod.numleafs, &cmod.emptyleaf,
