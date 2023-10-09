@@ -71,6 +71,10 @@ typedef struct
 {
 	char name[MAX_QPATH];
 
+	cleaf_t *map_leafs;
+	int emptyleaf;
+	int numleafs;
+
 	unsigned int *map_leafbrushes;
 	int numleafbrushes;
 
@@ -117,18 +121,15 @@ static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
 static byte phsrow[MAX_MAP_LEAFS / 8];
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
-static cleaf_t map_leafs[MAX_MAP_LEAFS];
 static cplane_t *box_planes;
 static cvar_t *map_noareas;
 static int box_headnode;
 static int checkcount;
-static int emptyleaf, solidleaf;
 static int floodvalid;
 static float *leaf_mins, *leaf_maxs;
 static int leaf_count, leaf_maxcount;
 static int *leaf_list;
 static int leaf_topnode;
-static int numleafs = 1; /* allow leaf funcs to be called without a map */
 static int trace_contents;
 static mapsurface_t nullsurface;
 static qboolean portalopen[MAX_MAP_AREAPORTALS];
@@ -307,7 +308,7 @@ CM_HeadnodeVisible(int nodenum, byte *visbits)
 	if (nodenum < 0)
 	{
 		leafnum1 = -1 - nodenum;
-		cluster = map_leafs[leafnum1].cluster;
+		cluster = cmod.map_leafs[leafnum1].cluster;
 
 		if (cluster == -1)
 		{
@@ -362,7 +363,7 @@ CM_InitBoxHull(void)
 	box_brush->firstbrushside = cmod.numbrushsides;
 	box_brush->contents = CONTENTS_MONSTER;
 
-	box_leaf = &map_leafs[numleafs];
+	box_leaf = &cmod.map_leafs[cmod.numleafs];
 	box_leaf->contents = CONTENTS_MONSTER;
 	box_leaf->firstleafbrush = cmod.numleafbrushes;
 	box_leaf->numleafbrushes = 1;
@@ -381,7 +382,7 @@ CM_InitBoxHull(void)
 		/* nodes */
 		c = &cmod.map_nodes[box_headnode + i];
 		c->plane = cmod.map_planes + (cmod.numplanes + i * 2);
-		c->children[side] = -1 - emptyleaf;
+		c->children[side] = -1 - cmod.emptyleaf;
 
 		if (i != 5)
 		{
@@ -390,7 +391,7 @@ CM_InitBoxHull(void)
 
 		else
 		{
-			c->children[side ^ 1] = -1 - numleafs;
+			c->children[side ^ 1] = -1 - cmod.numleafs;
 		}
 
 		/* planes */
@@ -579,7 +580,7 @@ CM_PointContents(vec3_t p, int headnode)
 
 	l = CM_PointLeafnum_r(p, headnode);
 
-	return map_leafs[l].contents;
+	return cmod.map_leafs[l].contents;
 }
 
 /*
@@ -612,7 +613,12 @@ CM_TransformedPointContents(vec3_t p, int headnode,
 
 	l = CM_PointLeafnum_r(p_l, headnode);
 
-	return map_leafs[l].contents;
+	if (!cmod.map_leafs || l > cmod.numleafs)
+	{
+		return 0;
+	}
+
+	return cmod.map_leafs[l].contents;
 }
 
 static void
@@ -827,7 +833,7 @@ CM_TraceToLeaf(int leafnum)
 	cleaf_t *leaf;
 	cbrush_t *b;
 
-	leaf = &map_leafs[leafnum];
+	leaf = &cmod.map_leafs[leafnum];
 
 	if (!(leaf->contents & trace_contents))
 	{
@@ -875,7 +881,7 @@ CM_TestInLeaf(int leafnum)
 	cleaf_t *leaf;
 	cbrush_t *b;
 
-	leaf = &map_leafs[leafnum];
+	leaf = &cmod.map_leafs[leafnum];
 
 	if (!(leaf->contents & trace_contents))
 	{
@@ -1403,7 +1409,8 @@ CMod_LoadBrushes(const char* name, cbrush_t **map_brushes, int *numbrushes,
 }
 
 static void
-CMod_LoadLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
+CMod_LoadLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyleaf,
+	int *numclusters, const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	cleaf_t *out;
@@ -1414,24 +1421,18 @@ CMod_LoadLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map with no leafs", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s with no leafs", __func__, name);
 	}
 
-	/* need to save space for box planes */
-	if (count > MAX_MAP_PLANES)
-	{
-		Com_Error(ERR_DROP, "%s: Map has too many planes", __func__);
-	}
-
-	out = map_leafs;
-	numleafs = count;
+	out = *map_leafs = Hunk_Alloc(count * sizeof(*out));
+	*numleafs = count;
 	*numclusters = 0;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1448,31 +1449,31 @@ CMod_LoadLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 		}
 	}
 
-	if (map_leafs[0].contents != CONTENTS_SOLID)
+	if ((*map_leafs)[0].contents != CONTENTS_SOLID)
 	{
 		Com_Error(ERR_DROP, "%s: Map leaf 0 is not CONTENTS_SOLID", __func__);
 	}
 
-	solidleaf = 0;
-	emptyleaf = -1;
+	*emptyleaf = -1;
 
-	for (i = 1; i < numleafs; i++)
+	for (i = 1; i < count; i++)
 	{
-		if (!map_leafs[i].contents)
+		if (!(*map_leafs)[i].contents)
 		{
-			emptyleaf = i;
+			*emptyleaf = i;
 			break;
 		}
 	}
 
-	if (emptyleaf == -1)
+	if (*emptyleaf == -1)
 	{
 		Com_Error(ERR_DROP, "%s: Map does not have an empty leaf", __func__);
 	}
 }
 
 static void
-CMod_LoadQLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
+CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyleaf,
+	int *numclusters, const byte *cmod_base, const lump_t *l)
 {
 	int i;
 	cleaf_t *out;
@@ -1493,14 +1494,8 @@ CMod_LoadQLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 		Com_Error(ERR_DROP, "%s: Map with no leafs", __func__);
 	}
 
-	/* need to save space for box planes */
-	if (count > MAX_MAP_PLANES)
-	{
-		Com_Error(ERR_DROP, "%s: Map has too many planes", __func__);
-	}
-
-	out = map_leafs;
-	numleafs = count;
+	out = *map_leafs = Hunk_Alloc(count * sizeof(*out));
+	*numleafs = count;
 	*numclusters = 0;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1517,24 +1512,23 @@ CMod_LoadQLeafs(int *numclusters, const byte *cmod_base, const lump_t *l)
 		}
 	}
 
-	if (map_leafs[0].contents != CONTENTS_SOLID)
+	if ((*map_leafs)[0].contents != CONTENTS_SOLID)
 	{
 		Com_Error(ERR_DROP, "%s: Map leaf 0 is not CONTENTS_SOLID", __func__);
 	}
 
-	solidleaf = 0;
-	emptyleaf = -1;
+	*emptyleaf = -1;
 
-	for (i = 1; i < numleafs; i++)
+	for (i = 1; i < count; i++)
 	{
-		if (!map_leafs[i].contents)
+		if (!(*map_leafs)[i].contents)
 		{
-			emptyleaf = i;
+			*emptyleaf = i;
 			break;
 		}
 	}
 
-	if (emptyleaf == -1)
+	if (*emptyleaf == -1)
 	{
 		Com_Error(ERR_DROP, "%s: Map does not have an empty leaf", __func__);
 	}
@@ -1880,12 +1874,10 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	}
 
 	/* free old stuff */
-	numleafs = 0;
 	CM_ModFree(&cmod);
 
 	if (!name[0])
 	{
-		numleafs = 1;
 		*checksum = 0;
 		return &cmod.map_cmodels[0]; /* cinematic servers won't have anything at all */
 	}
@@ -1923,14 +1915,6 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	cmod_base = (byte *)buf;
 
 	CMod_LoadSurfaces(cmod_base, &header.lumps[LUMP_TEXINFO]);
-	if (header.ident == IDBSPHEADER)
-	{
-		CMod_LoadLeafs(&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
-	}
-	else
-	{
-		CMod_LoadQLeafs(&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
-	}
 
 	/* load into heap */
 	strcpy(cmod.name, name);
@@ -1939,11 +1923,15 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	if (header.ident == IDBSPHEADER)
 	{
+		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+			sizeof(dleaf_t), sizeof(cleaf_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFBRUSHES],
 			sizeof(short), sizeof(int), 1);
 	}
 	else
 	{
+		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+			sizeof(dqleaf_t), sizeof(cleaf_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFBRUSHES],
 			sizeof(int), sizeof(int), 1);
 	}
@@ -1981,11 +1969,15 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 
 	if (header.ident == IDBSPHEADER)
 	{
+		CMod_LoadLeafs(cmod.name, &cmod.map_leafs, &cmod.numleafs, &cmod.emptyleaf,
+			&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
 		CMod_LoadLeafBrushes(cmod.name, &cmod.map_leafbrushes, &cmod.numleafbrushes,
 			cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
 	else
 	{
+		CMod_LoadQLeafs(cmod.name, &cmod.map_leafs, &cmod.numleafs, &cmod.emptyleaf,
+			&cmod.numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
 		CMod_LoadQLeafBrushes(cmod.name, &cmod.map_leafbrushes, &cmod.numleafbrushes,
 			cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
@@ -2091,34 +2083,34 @@ CM_EntityString(void)
 int
 CM_LeafContents(int leafnum)
 {
-	if ((leafnum < 0) || (leafnum >= numleafs))
+	if ((leafnum < 0) || (leafnum >= cmod.numleafs))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
 
-	return map_leafs[leafnum].contents;
+	return cmod.map_leafs[leafnum].contents;
 }
 
 int
 CM_LeafCluster(int leafnum)
 {
-	if ((leafnum < 0) || (leafnum >= numleafs))
+	if ((leafnum < 0) || (leafnum >= cmod.numleafs))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
 
-	return map_leafs[leafnum].cluster;
+	return cmod.map_leafs[leafnum].cluster;
 }
 
 int
 CM_LeafArea(int leafnum)
 {
-	if ((leafnum < 0) || (leafnum >= numleafs))
+	if ((leafnum < 0) || (leafnum >= cmod.numleafs))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
 
-	return map_leafs[leafnum].area;
+	return cmod.map_leafs[leafnum].area;
 }
 
 int
