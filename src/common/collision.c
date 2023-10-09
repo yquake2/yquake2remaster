@@ -1553,7 +1553,7 @@ CMod_LoadLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = *map_leafbrushes = Hunk_Alloc(count * sizeof(*out));
+	out = *map_leafbrushes = Hunk_Alloc((count + 1) * sizeof(*out));
 	*numleafbrushes = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1585,7 +1585,7 @@ CMod_LoadQLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = *map_leafbrushes = Hunk_Alloc(count * sizeof(*out));
+	out = *map_leafbrushes = Hunk_Alloc((count + 1) * sizeof(*out));
 	*numleafbrushes = count;
 
 	for (i = 0; i < count; i++, in++, out++)
