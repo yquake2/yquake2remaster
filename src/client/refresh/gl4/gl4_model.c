@@ -447,9 +447,7 @@ Mod_LoadBrushModel(gl4model_t *mod, void *buffer, int modfilelen)
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES], sizeof(dvertex_t), sizeof(mvertex_t), 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES], sizeof(dedge_t), sizeof(medge_t), 0);
 	hunkSize += sizeof(medge_t) + 31; // for count+1 in Mod_LoadEdges()
-	int surfEdgeCount = (header->lumps[LUMP_SURFEDGES].filelen+sizeof(int)-1)/sizeof(int);
-	if(surfEdgeCount < MAX_MAP_SURFEDGES) // else it errors out later anyway
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES], sizeof(int), sizeof(int), 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES], sizeof(int), sizeof(int), 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING], 1, 1, 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
 		sizeof(dplane_t), sizeof(cplane_t), 12);

@@ -613,7 +613,7 @@ CM_TransformedPointContents(vec3_t p, int headnode,
 
 	l = CM_PointLeafnum_r(p_l, headnode);
 
-	if (!cmod.map_leafs || l > cmod.numleafs)
+	if (!cmod.map_leafs || l > cmod.numleafs || l < 0)
 	{
 		return 0;
 	}
@@ -1913,7 +1913,8 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	/* load into heap */
 	strcpy(cmod.name, name);
 
-	int hunkSize = 0;
+	/* FIXME: code has some bug in calculation */
+	int hunkSize = 1024 * 1024 * 4;
 
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
 		sizeof(texinfo_t), sizeof(mapsurface_t), 0);

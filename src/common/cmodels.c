@@ -50,7 +50,7 @@ Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra)
 	int size = count * outSize;
 
 	// round to cacheline, like Hunk_Alloc() does
-	size = (size + 31) & ~31;
+	size = (size + 32) & ~31;
 	return size;
 }
 
