@@ -74,6 +74,9 @@ typedef struct
 	cplane_t map_planes[MAX_MAP_PLANES+6]; /* extra for box hull */
 	int numplanes;
 
+	cbrush_t *map_brushes;
+	int numbrushes;
+
 	cbrushside_t *map_brushsides;
 	int numbrushsides;
 
@@ -109,7 +112,6 @@ static model_t cmod = {0};
 // DG: is casted to int32_t* in SV_FatPVS() so align accordingly
 static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
 static byte phsrow[MAX_MAP_LEAFS / 8];
-static cbrush_t map_brushes[MAX_MAP_BRUSHES];
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
 static cleaf_t map_leafs[MAX_MAP_LEAFS];
@@ -123,7 +125,6 @@ static float *leaf_mins, *leaf_maxs;
 static int leaf_count, leaf_maxcount;
 static int *leaf_list;
 static int leaf_topnode;
-static int numbrushes;
 static int numleafbrushes;
 static int numleafs = 1; /* allow leaf funcs to be called without a map */
 static int trace_contents;
@@ -347,7 +348,7 @@ CM_InitBoxHull(void)
 	box_planes = &cmod.map_planes[cmod.numplanes];
 
 	if ((cmod.numnodes <= 0) ||
-		(numbrushes + 1 > MAX_MAP_BRUSHES) ||
+		(cmod.numbrushes <= 0) ||
 		(numleafbrushes + 1 > MAX_MAP_LEAFBRUSHES) ||
 		(cmod.numbrushsides <= 0) ||
 		(cmod.numplanes + 12 > MAX_MAP_PLANES))
@@ -355,7 +356,7 @@ CM_InitBoxHull(void)
 		Com_Error(ERR_DROP, "%s: Not enough room for box tree", __func__);
 	}
 
-	box_brush = &map_brushes[numbrushes];
+	box_brush = &cmod.map_brushes[cmod.numbrushes];
 	box_brush->numsides = 6;
 	box_brush->firstbrushside = cmod.numbrushsides;
 	box_brush->contents = CONTENTS_MONSTER;
@@ -365,7 +366,7 @@ CM_InitBoxHull(void)
 	box_leaf->firstleafbrush = numleafbrushes;
 	box_leaf->numleafbrushes = 1;
 
-	map_leafbrushes[numleafbrushes] = numbrushes;
+	map_leafbrushes[numleafbrushes] = cmod.numbrushes;
 
 	for (i = 0; i < 6; i++)
 	{
@@ -841,7 +842,7 @@ CM_TraceToLeaf(int leafnum)
 		}
 
 		brushnum = map_leafbrushes[leaf->firstleafbrush + k];
-		b = &map_brushes[brushnum];
+		b = &cmod.map_brushes[brushnum];
 
 		if (b->checkcount == checkcount)
 		{
@@ -884,7 +885,7 @@ CM_TestInLeaf(int leafnum)
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
 		brushnum = map_leafbrushes[leaf->firstleafbrush + k];
-		b = &map_brushes[brushnum];
+		b = &cmod.map_brushes[brushnum];
 
 		if (b->checkcount == checkcount)
 		{
@@ -1312,7 +1313,7 @@ CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 		Com_Error(ERR_DROP, "%s: Map %s has no nodes", __func__, name);
 	}
 
-	out = *map_nodes = Hunk_Alloc(sizeof(cnode_t) * (count + 6));
+	out = *map_nodes = Hunk_Alloc((count + 6) * sizeof(*out));
 	*numnodes = count;
 
 	for (i = 0; i < count; i++, out++, in++)
@@ -1350,7 +1351,7 @@ CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 		Com_Error(ERR_DROP, "%s: Map %s with no nodes", __func__, name);
 	}
 
-	out = *map_nodes = Hunk_Alloc(sizeof(cnode_t) * (count + 6));
+	out = *map_nodes = Hunk_Alloc((count + 6) * sizeof(*out));
 
 	*numnodes = count;
 
@@ -1367,7 +1368,8 @@ CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 }
 
 static void
-CMod_LoadBrushes(const byte *cmod_base, const lump_t *l)
+CMod_LoadBrushes(const char* name, cbrush_t **map_brushes, int *numbrushes,
+	const byte *cmod_base, const lump_t *l)
 {
 	dbrush_t *in;
 	cbrush_t *out;
@@ -1377,19 +1379,19 @@ CMod_LoadBrushes(const byte *cmod_base, const lump_t *l)
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: funny lump size", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
 	}
 
 	count = l->filelen / sizeof(*in);
 
-	if (count > MAX_MAP_BRUSHES)
+	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too many brushes", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has no brushes", __func__, name);
 	}
 
-	out = map_brushes;
+	out = *map_brushes = Hunk_Alloc((count + 1) * sizeof(*out));
 
-	numbrushes = count;
+	*numbrushes = count;
 
 	for (i = 0; i < count; i++, out++, in++)
 	{
@@ -1778,7 +1780,7 @@ CMod_LoadAreas(const char *name, carea_t **map_areas, int *numareas,
 			__func__, name);
 	}
 
-	out = *map_areas = Hunk_Alloc(sizeof(*out) *  count);
+	out = *map_areas = Hunk_Alloc(count * sizeof(*out));
 	*numareas = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1994,12 +1996,14 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	}
 	/* TODO: could be shared? Mod_LoadPlanes */
 	CMod_LoadPlanes(cmod_base, &header.lumps[LUMP_PLANES]);
-	CMod_LoadBrushes(cmod_base, &header.lumps[LUMP_BRUSHES]);
 
 	/* load into heap */
 	strcpy(cmod.name, name);
 
 	int hunkSize = 0;
+
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHES],
+		sizeof(dbrush_t), sizeof(cbrush_t), 1);
 
 	if (header.ident == IDBSPHEADER)
 	{
@@ -2024,6 +2028,9 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	hunkSize += header.lumps[LUMP_ENTITIES].filelen + MAX_MAP_ENTSTRING;
 
 	cmod.extradata = Hunk_Begin(hunkSize);
+
+	CMod_LoadBrushes(cmod.name, &cmod.map_brushes, &cmod.numbrushes,
+		cmod_base, &header.lumps[LUMP_BRUSHES]);
 
 	if (header.ident == IDBSPHEADER)
 	{
