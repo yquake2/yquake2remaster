@@ -1913,10 +1913,9 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	/* load into heap */
 	strcpy(cmod.name, name);
 
-	/* FIXME: code has some bug in calculation */
-	int hunkSize = 1024 * 1024 * 4;
+	int hunkSize = 0;
 
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_TEXINFO],
 		sizeof(texinfo_t), sizeof(mapsurface_t), 0);
 
 	if (header.ident == IDBSPHEADER)
