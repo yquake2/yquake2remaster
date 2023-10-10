@@ -27,6 +27,17 @@
 #ifndef COMMON_CMODEL_H
 #define COMMON_CMODEL_H
 
+#define EXTRA_LUMP_VERTEXES 8
+#define EXTRA_LUMP_TEXINFO 6
+#define EXTRA_LUMP_SURFEDGES 24
+#define EXTRA_LUMP_EDGES 13
+#define EXTRA_LUMP_FACES 6
+#define EXTRA_LUMP_PLANES 12
+#define EXTRA_LUMP_LEAFBRUSHES 1
+#define EXTRA_LUMP_BRUSHES 1
+#define EXTRA_LUMP_NODES 6
+#define EXTRA_LUMP_BRUSHSIDES 6
+
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);
 extern void Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 	const byte *mod_base, const lump_t *l);

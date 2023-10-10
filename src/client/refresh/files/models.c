@@ -1423,7 +1423,7 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_NODES) * sizeof(*out));
 
 	*nodes = out;
 	*numnodes = count;
@@ -1505,7 +1505,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_NODES) * sizeof(*out));
 
 	*nodes = out;
 	*numnodes = count;
@@ -1594,7 +1594,7 @@ extra for skybox
 */
 void
 Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
-	const byte *mod_base, const lump_t *l, int extra)
+	const byte *mod_base, const lump_t *l)
 {
 	dvertex_t	*in;
 	mvertex_t	*out;
@@ -1609,14 +1609,14 @@ Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + extra)*sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_VERTEXES) * sizeof(*out));
 
 	/*
 	 * FIXME: Recheck with soft render
 	 * Fix for the problem where the games dumped core
 	 * when changing levels.
 	 */
-	memset(out, 0, (count + extra) * sizeof(*out));
+	memset(out, 0, (count + EXTRA_LUMP_VERTEXES) * sizeof(*out));
 
 	*vertexes = out;
 	*numvertexes = count;
@@ -1753,7 +1753,7 @@ extra for skybox in soft render
 void
 Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
-	struct image_s *notexture, int extra)
+	struct image_s *notexture)
 {
 	texinfo_t *in;
 	mtexinfo_t *out, *step;
@@ -1768,7 +1768,7 @@ Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + extra)*sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_TEXINFO) * sizeof(*out));
 
 	*texinfo = out;
 	*numtexinfo = count;
@@ -1832,7 +1832,7 @@ extra is used for skybox, which adds 6 surfaces
 */
 static void
 Mod_LoadEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l, int extra)
+	const byte *mod_base, const lump_t *l)
 {
 	dedge_t *in;
 	medge_t *out;
@@ -1846,7 +1846,7 @@ Mod_LoadEdges(const char *name, medge_t **edges, int *numedges,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + extra) * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_EDGES) * sizeof(*out));
 
 	*edges = out;
 	*numedges = count;
@@ -1867,7 +1867,7 @@ extra is used for skybox, which adds 6 surfaces
 */
 static void
 Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l, int extra)
+	const byte *mod_base, const lump_t *l)
 {
 	dqedge_t *in;
 	medge_t *out;
@@ -1881,7 +1881,7 @@ Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + extra) * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_EDGES) * sizeof(*out));
 
 	*edges = out;
 	*numedges = count;
@@ -1895,15 +1895,15 @@ Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
 
 void
 Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l, int extra, int ident)
+	const byte *mod_base, const lump_t *l, int ident)
 {
 	if (ident == IDBSPHEADER)
 	{
-		Mod_LoadEdges(name, edges, numedges, mod_base, l, extra);
+		Mod_LoadEdges(name, edges, numedges, mod_base, l);
 	}
 	else
 	{
-		Mod_LoadQEdges(name, edges, numedges, mod_base, l, extra);
+		Mod_LoadQEdges(name, edges, numedges, mod_base, l);
 	}
 }
 
@@ -1914,7 +1914,7 @@ Mod_LoadSurfedges
 */
 void
 Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
-	const byte *mod_base, const lump_t *l, int extra)
+	const byte *mod_base, const lump_t *l)
 {
 	int		i, count;
 	int		*in, *out;
@@ -1928,7 +1928,7 @@ Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + extra)*sizeof(*out));	// extra for skybox
+	out = Hunk_Alloc((count + EXTRA_LUMP_SURFEDGES) * sizeof(*out));	// extra for skybox
 
 	*surfedges = out;
 	*numsurfedges = count;

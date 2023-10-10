@@ -439,7 +439,12 @@ CM_PointLeafnum_r(vec3_t p, int num)
 	cnode_t *node;
 	cplane_t *plane;
 
-	while (num >= 0 && num < cmod.numnodes)
+	if (!cmod.numnodes)
+	{
+		return 0;
+	}
+
+	while (num >= 0 && num < (cmod.numnodes + EXTRA_LUMP_NODES))
 	{
 		node = cmod.map_nodes + num;
 		plane = node->plane;
@@ -835,7 +840,7 @@ CM_TraceToLeaf(int leafnum)
 
 	leaf = &cmod.map_leafs[leafnum];
 
-	if (!(leaf->contents & trace_contents))
+	if (!(leaf->contents & trace_contents) || !cmod.numleafbrushes)
 	{
 		return;
 	}
@@ -843,7 +848,7 @@ CM_TraceToLeaf(int leafnum)
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
-		if (leaf->firstleafbrush + k > cmod.numleafbrushes)
+		if ((leaf->firstleafbrush + k) > (cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES))
 		{
 			Com_Error(ERR_FATAL, "%s: broken leaf!\n", __func__);
 		}
@@ -883,7 +888,7 @@ CM_TestInLeaf(int leafnum)
 
 	leaf = &cmod.map_leafs[leafnum];
 
-	if (!(leaf->contents & trace_contents))
+	if (!(leaf->contents & trace_contents) || !cmod.numleafbrushes)
 	{
 		return;
 	}
@@ -891,6 +896,11 @@ CM_TestInLeaf(int leafnum)
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
+		if ((leaf->firstleafbrush + k) > (cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES))
+		{
+			Com_Error(ERR_FATAL, "%s: broken leaf!\n", __func__);
+		}
+
 		brushnum = cmod.map_leafbrushes[leaf->firstleafbrush + k];
 		b = &cmod.map_brushes[brushnum];
 
@@ -1316,7 +1326,7 @@ CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 		Com_Error(ERR_DROP, "%s: Map %s has no nodes", __func__, name);
 	}
 
-	out = *map_nodes = Hunk_Alloc((count + 6) * sizeof(*out));
+	out = *map_nodes = Hunk_Alloc((count + EXTRA_LUMP_NODES) * sizeof(*out));
 	*numnodes = count;
 
 	for (i = 0; i < count; i++, out++, in++)
@@ -1354,7 +1364,7 @@ CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 		Com_Error(ERR_DROP, "%s: Map %s with no nodes", __func__, name);
 	}
 
-	out = *map_nodes = Hunk_Alloc((count + 6) * sizeof(*out));
+	out = *map_nodes = Hunk_Alloc((count + EXTRA_LUMP_NODES) * sizeof(*out));
 
 	*numnodes = count;
 
@@ -1392,7 +1402,7 @@ CMod_LoadBrushes(const char* name, cbrush_t **map_brushes, int *numbrushes,
 		Com_Error(ERR_DROP, "%s: Map %s has no brushes", __func__, name);
 	}
 
-	out = *map_brushes = Hunk_Alloc((count + 1) * sizeof(*out));
+	out = *map_brushes = Hunk_Alloc((count + EXTRA_LUMP_BRUSHES) * sizeof(*out));
 
 	*numbrushes = count;
 
@@ -1553,7 +1563,7 @@ CMod_LoadLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = *map_leafbrushes = Hunk_Alloc((count + 1) * sizeof(*out));
+	out = *map_leafbrushes = Hunk_Alloc((count + EXTRA_LUMP_LEAFBRUSHES) * sizeof(*out));
 	*numleafbrushes = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1585,7 +1595,7 @@ CMod_LoadQLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = *map_leafbrushes = Hunk_Alloc((count + 1) * sizeof(*out));
+	out = *map_leafbrushes = Hunk_Alloc((count + EXTRA_LUMP_LEAFBRUSHES) * sizeof(*out));
 	*numleafbrushes = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1619,7 +1629,7 @@ CMod_LoadBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbru
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = *map_brushsides = Hunk_Alloc((count + 6) * sizeof(*out));
+	out = *map_brushsides = Hunk_Alloc((count + EXTRA_LUMP_BRUSHSIDES) * sizeof(*out));
 	*numbrushsides = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1664,7 +1674,7 @@ CMod_LoadQBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbr
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = *map_brushsides = Hunk_Alloc((count + 6) * sizeof(*out));
+	out = *map_brushsides = Hunk_Alloc((count + EXTRA_LUMP_BRUSHSIDES) * sizeof(*out));
 	*numbrushsides = count;
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -1916,41 +1926,41 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	int hunkSize = 0;
 
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_TEXINFO],
-		sizeof(texinfo_t), sizeof(mapsurface_t), 0);
+		sizeof(texinfo_t), sizeof(mapsurface_t), EXTRA_LUMP_TEXINFO);
 
 	if (header.ident == IDBSPHEADER)
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
 			sizeof(dleaf_t), sizeof(cleaf_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFBRUSHES],
-			sizeof(short), sizeof(int), 1);
+			sizeof(short), sizeof(int), EXTRA_LUMP_LEAFBRUSHES);
 	}
 	else
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
 			sizeof(dqleaf_t), sizeof(cleaf_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFBRUSHES],
-			sizeof(int), sizeof(int), 1);
+			sizeof(int), sizeof(int), EXTRA_LUMP_LEAFBRUSHES);
 	}
 
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_PLANES],
-		sizeof(dplane_t), sizeof(cplane_t), 12);
+		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHES],
-		sizeof(dbrush_t), sizeof(cbrush_t), 1);
+		sizeof(dbrush_t), sizeof(cbrush_t), EXTRA_LUMP_BRUSHES);
 
 	if (header.ident == IDBSPHEADER)
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHSIDES],
-			sizeof(dbrushside_t), sizeof(cbrushside_t), 0);
+			sizeof(dbrushside_t), sizeof(cbrushside_t), EXTRA_LUMP_BRUSHSIDES);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
-			sizeof(dnode_t), sizeof(cnode_t), 6);
+			sizeof(dnode_t), sizeof(cnode_t), EXTRA_LUMP_NODES);
 	}
 	else
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHSIDES],
-			sizeof(dqbrushside_t), sizeof(cbrushside_t), 0);
+			sizeof(dqbrushside_t), sizeof(cbrushside_t), EXTRA_LUMP_BRUSHSIDES);
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
-			sizeof(dqnode_t), sizeof(cnode_t), 6);
+			sizeof(dqnode_t), sizeof(cnode_t), EXTRA_LUMP_NODES);
 	}
 
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAS],

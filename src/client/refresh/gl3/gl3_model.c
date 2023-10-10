@@ -352,7 +352,7 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
@@ -461,7 +461,7 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
@@ -597,42 +597,56 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 
 	// calculate the needed hunksize from the lumps
 	int hunkSize = 0;
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES], sizeof(dvertex_t), sizeof(mvertex_t), 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES],
+		sizeof(dvertex_t), sizeof(mvertex_t), EXTRA_LUMP_VERTEXES);
 	if (header->ident == IDBSPHEADER)
 	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES], sizeof(dedge_t), sizeof(medge_t), 0);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
+			sizeof(dedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
 	}
 	else
 	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES], sizeof(dqedge_t), sizeof(medge_t), 0);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
+			sizeof(dqedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
 	}
-	hunkSize += sizeof(medge_t) + 31; // for count+1 in Mod_LoadEdges()
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES], sizeof(int), sizeof(int), 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING], 1, 1, 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES],
+		sizeof(int), sizeof(int), EXTRA_LUMP_SURFEDGES);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING],
+		1, 1, 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
-		sizeof(dplane_t), sizeof(cplane_t), 12);
+		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
 	if (header->ident == IDBSPHEADER)
 	{
-		hunkSize += calcTexinfoAndFacesSize(mod_base, &header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES], sizeof(short), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
+		hunkSize += calcTexinfoAndFacesSize(mod_base,
+			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
+			sizeof(short), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
 	}
 	else
 	{
-		hunkSize += calcTexinfoAndQFacesSize(mod_base, &header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES], sizeof(int), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
+		hunkSize += calcTexinfoAndQFacesSize(mod_base,
+			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
+			sizeof(int), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
 	}
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY], 1, 1, 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
+		1, 1, 0);
 	if (header->ident == IDBSPHEADER)
 	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS], sizeof(dleaf_t), sizeof(mleaf_t), 0);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES], sizeof(dnode_t), sizeof(mnode_t), 0);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
+			sizeof(dleaf_t), sizeof(mleaf_t), 0);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
+			sizeof(dnode_t), sizeof(mnode_t), EXTRA_LUMP_NODES);
 	}
 	else
 	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS], sizeof(dqleaf_t), sizeof(mleaf_t), 0);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES], sizeof(dqnode_t), sizeof(mnode_t), 0);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
+			sizeof(dqleaf_t), sizeof(mleaf_t), 0);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
+			sizeof(dqnode_t), sizeof(mnode_t), EXTRA_LUMP_NODES);
 	}
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS], sizeof(dmodel_t), sizeof(gl3model_t), 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
+		sizeof(dmodel_t), sizeof(gl3model_t), 0);
 
 	/* Get size of octree on disk, need to recheck real size */
 	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
@@ -654,18 +668,18 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
-		&header->lumps[LUMP_VERTEXES], 0);
+		&header->lumps[LUMP_VERTEXES]);
 	Mod_LoadQBSPEdges(mod->name, &mod->edges, &mod->numedges,
-		mod_base, &header->lumps[LUMP_EDGES], 1, header->ident);
+		mod_base, &header->lumps[LUMP_EDGES], header->ident);
 	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
-		mod_base, &header->lumps[LUMP_SURFEDGES], 0);
+		mod_base, &header->lumps[LUMP_SURFEDGES]);
 	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
 		&header->lumps[LUMP_LIGHTING]);
 	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES]);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)GL3_FindImage,
-		gl3_notexture, 0);
+		gl3_notexture);
 	if (header->ident == IDBSPHEADER)
 	{
 		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);

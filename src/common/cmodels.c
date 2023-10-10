@@ -25,6 +25,7 @@
  */
 
 #include "header/common.h"
+#include "header/cmodel.h"
 
 /*
 =================
@@ -119,7 +120,7 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
 	}
 
-	out = Hunk_Alloc((count + 12) * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_PLANES) * sizeof(*out));
 
 	*planes = out;
 	*numplanes = count;
