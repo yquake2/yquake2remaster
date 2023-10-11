@@ -723,7 +723,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		if (surf->texinfo->flags & SURF_SKY)
 		{
 			/* just adds to visible sky bounds */
-			GL3_AddSkySurface(surf);
+			R_AddSkySurface(surf);
 		}
 		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
 		{
@@ -780,7 +780,7 @@ GL3_DrawWorld(void)
 
 	gl3state.currenttexture = -1;
 
-	GL3_ClearSkyBox();
+	R_ClearSkyBox();
 	RecursiveWorldNode(&ent, gl3_worldmodel->nodes);
 	DrawTextureChains(&ent);
 	GL3_DrawSkyBox();

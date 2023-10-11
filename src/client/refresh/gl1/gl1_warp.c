@@ -34,7 +34,7 @@ static float skyrotate;
 static int skyautorotate;
 static vec3_t skyaxis;
 static image_t *sky_images[6];
-static int skytexorder[6] = {0, 2, 1, 3, 4, 5};
+static const int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 
 GLfloat vtx_sky[12];
 GLfloat tex_sky[8];
@@ -42,13 +42,13 @@ unsigned int index_vtx = 0;
 unsigned int index_tex = 0;
 
 /* 3dstudio environment map names */
-char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
+static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 
 float r_turbsin[] = {
 #include "../constants/warpsin.h"
 };
 
-static vec3_t skyclip[6] = {
+static const vec3_t skyclip[6] = {
 	{1, 1, 0},
 	{1, -1, 0},
 	{0, -1, 1},
@@ -56,9 +56,8 @@ static vec3_t skyclip[6] = {
 	{1, 0, 1},
 	{-1, 0, 1}
 };
-int c_sky;
 
-static int st_to_vec[6][3] = {
+static const int st_to_vec[6][3] = {
 	{3, -1, 2},
 	{-3, 1, 2},
 
@@ -69,7 +68,7 @@ static int st_to_vec[6][3] = {
 	{2, -1, -3} /* look straight down */
 };
 
-static int vec_to_st[6][3] = {
+static const int vec_to_st[6][3] = {
 	{-2, 3, 1},
 	{2, 3, -1},
 
@@ -157,13 +156,11 @@ R_EmitWaterPolys(msurface_t *fa)
 static void
 R_DrawSkyPolygon(int nump, vec3_t vecs)
 {
-	int i, j;
+	int i;
 	vec3_t v, av;
 	float s, t, dv;
 	int axis;
 	float *vp;
-
-	c_sky++;
 
 	/* decide which face it maps to */
 	VectorCopy(vec3_origin, v);
@@ -214,6 +211,8 @@ R_DrawSkyPolygon(int nump, vec3_t vecs)
 	/* project new texture coords */
 	for (i = 0; i < nump; i++, vecs += 3)
 	{
+		int j;
+
 		j = vec_to_st[axis][2];
 
 		if (j > 0)
@@ -274,10 +273,10 @@ R_DrawSkyPolygon(int nump, vec3_t vecs)
 	}
 }
 
-void
+static void
 R_ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 {
-	float *norm;
+	const float *norm;
 	float *v;
 	qboolean front, back;
 	float d, e;
@@ -289,7 +288,7 @@ R_ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 
 	if (nump > MAX_CLIP_VERTS - 2)
 	{
-		Com_Error(ERR_DROP, "R_ClipSkyPolygon: MAX_CLIP_VERTS");
+		Com_Error(ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
 	}
 
 	if (stage == 6)
@@ -413,27 +412,22 @@ R_ClearSkyBox(void)
 	}
 }
 
-void
+static void
 R_MakeSkyVec(float s, float t, int axis)
 {
 	vec3_t v, b;
-	int j, k;
+	int j;
 
-	if (r_farsee->value == 0)
-	{
-		b[0] = s * 2300;
-		b[1] = t * 2300;
-		b[2] = 2300;
-	}
-	else
-	{
-		b[0] = s * 4096;
-		b[1] = t * 4096;
-		b[2] = 4096;
-	}
+	float dist = (r_farsee->value == 0) ? 2300.0f : 4096.0f;
+
+	b[0] = s * dist;
+	b[1] = t * dist;
+	b[2] = dist;
 
 	for (j = 0; j < 3; j++)
 	{
+		int k;
+
 		k = st_to_vec[axis][j];
 
 		if (k < 0)
@@ -488,7 +482,7 @@ R_DrawSkyBox(void)
 		for (i = 0; i < 6; i++)
 		{
 			if ((skymins[0][i] < skymaxs[0][i]) &&
-				(skymins[1][i] < skymaxs[1][i]))
+			    (skymins[1][i] < skymaxs[1][i]))
 			{
 				break;
 			}
@@ -516,7 +510,7 @@ R_DrawSkyBox(void)
 		}
 
 		if ((skymins[0][i] >= skymaxs[0][i]) ||
-			(skymins[1][i] >= skymaxs[1][i]))
+		    (skymins[1][i] >= skymaxs[1][i]))
 		{
 			continue;
 		}
@@ -576,4 +570,3 @@ RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 	sky_min = 1.0 / 512;
 	sky_max = 511.0 / 512;
 }
-

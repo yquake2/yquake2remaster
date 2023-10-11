@@ -83,21 +83,16 @@ GL4_EmitWaterPolys(msurface_t *fa)
 #define ON_EPSILON 0.1 /* point on plane side epsilon */
 enum { MAX_CLIP_VERTS = 64 };
 
-
-static const int skytexorder[6] = {0, 2, 1, 3, 4, 5};
-
-static float skymins[2][6], skymaxs[2][6];
-static float sky_min, sky_max;
-
 static float skyrotate;
 static int skyautorotate;
 static vec3_t skyaxis;
-static gl4image_t* sky_images[6];
+static gl4image_t *sky_images[6];
+static const int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 
 /* 3dstudio environment map names */
-static const char* suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
+static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 
-vec3_t skyclip[6] = {
+static const vec3_t skyclip[6] = {
 	{1, 1, 0},
 	{1, -1, 0},
 	{0, -1, 1},
@@ -105,9 +100,8 @@ vec3_t skyclip[6] = {
 	{1, 0, 1},
 	{-1, 0, 1}
 };
-int c_sky;
 
-int st_to_vec[6][3] = {
+static const int st_to_vec[6][3] = {
 	{3, -1, 2},
 	{-3, 1, 2},
 
@@ -118,7 +112,7 @@ int st_to_vec[6][3] = {
 	{2, -1, -3} /* look straight down */
 };
 
-int vec_to_st[6][3] = {
+static const int vec_to_st[6][3] = {
 	{-2, 3, 1},
 	{2, 3, -1},
 
@@ -129,6 +123,8 @@ int vec_to_st[6][3] = {
 	{-2, 1, -3}
 };
 
+static float skymins[2][6], skymaxs[2][6];
+static float sky_min, sky_max;
 
 void
 GL4_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
@@ -163,15 +159,13 @@ GL4_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 }
 
 static void
-DrawSkyPolygon(int nump, vec3_t vecs)
+R_DrawSkyPolygon(int nump, vec3_t vecs)
 {
-	int i, j;
+	int i;
 	vec3_t v, av;
 	float s, t, dv;
 	int axis;
 	float *vp;
-
-	c_sky++;
 
 	/* decide which face it maps to */
 	VectorCopy(vec3_origin, v);
@@ -222,6 +216,8 @@ DrawSkyPolygon(int nump, vec3_t vecs)
 	/* project new texture coords */
 	for (i = 0; i < nump; i++, vecs += 3)
 	{
+		int j;
+
 		j = vec_to_st[axis][2];
 
 		if (j > 0)
@@ -283,9 +279,9 @@ DrawSkyPolygon(int nump, vec3_t vecs)
 }
 
 static void
-ClipSkyPolygon(int nump, vec3_t vecs, int stage)
+R_ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 {
-	float *norm;
+	const float *norm;
 	float *v;
 	qboolean front, back;
 	float d, e;
@@ -297,13 +293,13 @@ ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 
 	if (nump > MAX_CLIP_VERTS - 2)
 	{
-		Com_Error(ERR_DROP, "R_ClipSkyPolygon: MAX_CLIP_VERTS");
+		Com_Error(ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
 	}
 
 	if (stage == 6)
 	{
 		/* fully clipped, so draw it */
-		DrawSkyPolygon(nump, vecs);
+		R_DrawSkyPolygon(nump, vecs);
 		return;
 	}
 
@@ -335,7 +331,7 @@ ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 	if (!front || !back)
 	{
 		/* not clipped */
-		ClipSkyPolygon(nump, vecs, stage + 1);
+		R_ClipSkyPolygon(nump, vecs, stage + 1);
 		return;
 	}
 
@@ -386,8 +382,8 @@ ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 	}
 
 	/* continue */
-	ClipSkyPolygon(newc[0], newv[0][0], stage + 1);
-	ClipSkyPolygon(newc[1], newv[1][0], stage + 1);
+	R_ClipSkyPolygon(newc[0], newv[0][0], stage + 1);
+	R_ClipSkyPolygon(newc[1], newv[1][0], stage + 1);
 }
 
 void
@@ -405,12 +401,12 @@ GL4_AddSkySurface(msurface_t *fa)
 			VectorSubtract(p->verts[i].pos, gl4_origin, verts[i]);
 		}
 
-		ClipSkyPolygon(p->numverts, verts[0], 0);
+		R_ClipSkyPolygon(p->numverts, verts[0], 0);
 	}
 }
 
 void
-GL4_ClearSkyBox(void)
+R_ClearSkyBox(void)
 {
 	int i;
 
@@ -425,7 +421,7 @@ static void
 MakeSkyVec(float s, float t, int axis, mvtx_t* vert)
 {
 	vec3_t v, b;
-	int j, k;
+	int j;
 
 	float dist = (r_farsee->value == 0) ? 2300.0f : 4096.0f;
 
@@ -435,6 +431,8 @@ MakeSkyVec(float s, float t, int axis, mvtx_t* vert)
 
 	for (j = 0; j < 3; j++)
 	{
+		int k;
+
 		k = st_to_vec[axis][j];
 
 		if (k < 0)
