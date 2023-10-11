@@ -1735,11 +1735,6 @@ Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 			/* take at least one cache block */
 			s->extents[i] = 16;
 		}
-
-		if (!(tex->flags & (SURF_WARP | SURF_SKY)) && s->extents[i] > 256)
-		{
-			Com_Error(ERR_DROP, "%s: Bad surface extents", __func__);
-		}
 	}
 }
 

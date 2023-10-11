@@ -2529,7 +2529,8 @@ R_ScreenShot_f(void)
 
 	if (!buffer)
 	{
-		R_Printf(PRINT_ALL, "R_ScreenShot: Couldn't malloc %d bytes\n", vid_buffer_width * vid_buffer_height * 3);
+		R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			__func__, vid_buffer_width * vid_buffer_height * 3);
 		return;
 	}
 

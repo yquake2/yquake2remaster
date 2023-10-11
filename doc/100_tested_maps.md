@@ -1,5 +1,6 @@
 # Map state:
 
+ * OK - no known issues,
  * ML - model light issues,
  * WL - wall light issues,
  * MD5 - md5 model load,
@@ -9,7 +10,7 @@
 # Quake2 ReRelease
 
  | map                                 | gl1.4  | gl3/gles3 | gl4.6 | vk     | soft        |
- | ----------------------------------- | ------ | --------- | ----- | ------ | ----        |
+ | ----------------------------------- | ------ | --------- | ----- | ------ | ----------- |
  | maps/badlands.bsp                   | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/base1.bsp                      | ML/MD5 | WL/ML/MD5 | N/A   | ML/MD5 | WL/ML/MD5/G |
  | maps/base2.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
@@ -145,7 +146,7 @@
  | maps/q64/mines.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/q64/orbit.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/q64/organic.bsp                | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/q64/outpost.bsp                | N/A    | N/A       | N/A   | N/A    | N/A         |
+ | maps/q64/outpost.bsp                | OK     | N/A       | N/A   | N/A    | B           |
  | maps/q64/process.bsp                | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/q64/rtest.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/q64/ship.bsp                   | N/A    | N/A       | N/A   | N/A    | N/A         |
