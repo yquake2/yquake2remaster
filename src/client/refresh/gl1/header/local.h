@@ -257,8 +257,8 @@ void R_MarkLeaves(void);
 extern int r_dlightframecount;
 mpoly_t *WaterWarpPolyVerts(mpoly_t *p);
 void R_EmitWaterPolys(msurface_t *fa);
-void R_AddSkySurface(msurface_t *fa);
-void R_ClearSkyBox(void);
+void RE_AddSkySurface(msurface_t *fa);
+void RE_ClearSkyBox(void);
 void R_DrawSkyBox(void);
 void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);

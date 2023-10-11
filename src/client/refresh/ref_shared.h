@@ -380,4 +380,11 @@ extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, 
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 
+/* Warp Sky logic */
+extern void R_ClipSkyPolygon(int nump, vec3_t vecs, int stage,
+	float skymins[2][6], float skymaxs[2][6]);
+extern void R_AddSkySurface(msurface_t *fa,
+	float skymins[2][6], float skymaxs[2][6], vec3_t r_origin);
+extern void R_ClearSkyBox(float skymins[2][6], float skymaxs[2][6]);
+
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

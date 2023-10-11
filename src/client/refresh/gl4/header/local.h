@@ -477,7 +477,7 @@ extern void GL4_EmitWaterPolys(msurface_t *fa);
 
 extern void GL4_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 extern void GL4_DrawSkyBox(void);
-extern void R_ClearSkyBox(void);
+extern void RE_ClearSkyBox(void);
 extern void GL4_AddSkySurface(msurface_t *fa);
 
 

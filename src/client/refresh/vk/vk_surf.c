@@ -853,7 +853,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		if (surf->texinfo->flags & SURF_SKY)
 		{
 			/* just adds to visible sky bounds */
-			R_AddSkySurface(surf);
+			RE_AddSkySurface(surf);
 		}
 		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
 		{
@@ -906,7 +906,7 @@ R_DrawWorld(void)
 
 	memset(vk_lms.lightmap_surfaces, 0, sizeof(vk_lms.lightmap_surfaces));
 
-	R_ClearSkyBox();
+	RE_ClearSkyBox();
 	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 
 	/*

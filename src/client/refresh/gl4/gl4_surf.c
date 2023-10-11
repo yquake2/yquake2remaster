@@ -780,7 +780,7 @@ GL4_DrawWorld(void)
 
 	gl4state.currenttexture = -1;
 
-	R_ClearSkyBox();
+	RE_ClearSkyBox();
 	RecursiveWorldNode(&ent, gl4_worldmodel->nodes);
 	DrawTextureChains(&ent);
 	GL4_DrawSkyBox();

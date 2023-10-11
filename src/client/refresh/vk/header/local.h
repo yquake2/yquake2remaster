@@ -203,8 +203,8 @@ void R_MarkLeaves(void);
 void EmitWaterPolys(msurface_t *fa, image_t *texture,
 				   float *modelMatrix, const float *color,
 				   qboolean solid_surface);
-void R_AddSkySurface(msurface_t *fa);
-void R_ClearSkyBox(void);
+void RE_AddSkySurface(msurface_t *fa);
+void RE_ClearSkyBox(void);
 void R_DrawSkyBox(void);
 void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);
