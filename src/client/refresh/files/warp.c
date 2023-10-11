@@ -39,6 +39,17 @@ static const vec3_t skyclip[6] = {
 	{-1, 0, 1}
 };
 
+static const int st_to_vec[6][3] = {
+	{3, -1, 2},
+	{-3, 1, 2},
+
+	{1, 3, 2},
+	{-1, -3, 2},
+
+	{-2, -1, 3}, /* 0 degrees yaw, look straight up */
+	{2, -1, -3} /* look straight down */
+};
+
 static const int vec_to_st[6][3] = {
 	{-2, 3, 1},
 	{2, 3, -1},
@@ -307,4 +318,65 @@ R_ClearSkyBox(float skymins[2][6], float skymaxs[2][6])
 		skymins[0][i] = skymins[1][i] = 9999;
 		skymaxs[0][i] = skymaxs[1][i] = -9999;
 	}
+}
+
+void
+R_MakeSkyVec(float s, float t, int axis, mvtx_t* vert, qboolean farsee,
+	float sky_min, float sky_max)
+{
+	vec3_t v, b;
+	int j;
+
+	float dist = (farsee) ? 2300.0f : 4096.0f;
+
+	b[0] = s * dist;
+	b[1] = t * dist;
+	b[2] = dist;
+
+	for (j = 0; j < 3; j++)
+	{
+		int k;
+
+		k = st_to_vec[axis][j];
+
+		if (k < 0)
+		{
+			v[j] = -b[-k - 1];
+		}
+		else
+		{
+			v[j] = b[k - 1];
+		}
+	}
+
+	/* avoid bilerp seam */
+	s = (s + 1) * 0.5;
+	t = (t + 1) * 0.5;
+
+	if (s < sky_min)
+	{
+		s = sky_min;
+	}
+	else if (s > sky_max)
+	{
+		s = sky_max;
+	}
+
+	if (t < sky_min)
+	{
+		t = sky_min;
+	}
+	else if (t > sky_max)
+	{
+		t = sky_max;
+	}
+
+	t = 1.0 - t;
+
+	VectorCopy(v, vert->pos);
+
+	vert->texCoord[0] = s;
+	vert->texCoord[1] = t;
+
+	vert->lmTexCoord[0] = vert->lmTexCoord[1] = 0.0f;
 }

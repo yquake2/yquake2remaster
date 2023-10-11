@@ -386,5 +386,7 @@ extern void R_ClipSkyPolygon(int nump, vec3_t vecs, int stage,
 extern void R_AddSkySurface(msurface_t *fa,
 	float skymins[2][6], float skymaxs[2][6], vec3_t r_origin);
 extern void R_ClearSkyBox(float skymins[2][6], float skymaxs[2][6]);
+extern void R_MakeSkyVec(float s, float t, int axis, mvtx_t* vert,
+	qboolean farsee, float sky_min, float sky_max);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

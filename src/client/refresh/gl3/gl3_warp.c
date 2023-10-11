@@ -92,17 +92,6 @@ static const int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 /* 3dstudio environment map names */
 static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 
-static const int st_to_vec[6][3] = {
-	{3, -1, 2},
-	{-3, 1, 2},
-
-	{1, 3, 2},
-	{-1, -3, 2},
-
-	{-2, -1, 3}, /* 0 degrees yaw, look straight up */
-	{2, -1, -3} /* look straight down */
-};
-
 static float skymins[2][6], skymaxs[2][6];
 static float sky_min, sky_max;
 
@@ -150,70 +139,13 @@ RE_ClearSkyBox(void)
 	R_ClearSkyBox(skymins, skymaxs);
 }
 
-static void
-MakeSkyVec(float s, float t, int axis, mvtx_t* vert)
-{
-	vec3_t v, b;
-	int j;
-
-	float dist = (r_farsee->value == 0) ? 2300.0f : 4096.0f;
-
-	b[0] = s * dist;
-	b[1] = t * dist;
-	b[2] = dist;
-
-	for (j = 0; j < 3; j++)
-	{
-		int k;
-
-		k = st_to_vec[axis][j];
-
-		if (k < 0)
-		{
-			v[j] = -b[-k - 1];
-		}
-		else
-		{
-			v[j] = b[k - 1];
-		}
-	}
-
-	/* avoid bilerp seam */
-	s = (s + 1) * 0.5;
-	t = (t + 1) * 0.5;
-
-	if (s < sky_min)
-	{
-		s = sky_min;
-	}
-	else if (s > sky_max)
-	{
-		s = sky_max;
-	}
-
-	if (t < sky_min)
-	{
-		t = sky_min;
-	}
-	else if (t > sky_max)
-	{
-		t = sky_max;
-	}
-
-	t = 1.0 - t;
-
-	VectorCopy(v, vert->pos);
-
-	vert->texCoord[0] = s;
-	vert->texCoord[1] = t;
-
-	vert->lmTexCoord[0] = vert->lmTexCoord[1] = 0.0f;
-}
-
 void
 GL3_DrawSkyBox(void)
 {
 	int i;
+	qboolean farsee;
+
+	farsee = (r_farsee->value == 0);
 
 	if (skyrotate)
 	{   /* check for no sky at all */
@@ -274,10 +206,14 @@ GL3_DrawSkyBox(void)
 
 		GL3_Bind(sky_images[skytexorder[i]]->texnum);
 
-		MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[0] );
-		MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[1] );
-		MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[2] );
-		MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[3] );
+		R_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[0],
+			farsee, sky_min, sky_max);
+		R_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[1],
+			farsee, sky_min, sky_max);
+		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[2],
+			farsee, sky_min, sky_max);
+		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[3],
+			farsee, sky_min, sky_max);
 
 		GL3_BufferAndDraw3D(skyVertices, 4, GL_TRIANGLE_FAN);
 	}

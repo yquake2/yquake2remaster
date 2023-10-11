@@ -146,7 +146,7 @@ RE_ClearSkyBox(void)
 }
 
 static void
-R_MakeSkyVec(float s, float t, int axis)
+RE_MakeSkyVec(float s, float t, int axis)
 {
 	vec3_t v, b;
 	int j;
@@ -256,10 +256,10 @@ R_DrawSkyBox(void)
 		index_vtx = 0;
 		index_tex = 0;
 
-		R_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
-		R_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
-		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
-		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
+		RE_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
+		RE_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
+		RE_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
+		RE_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
 
 		glVertexPointer( 3, GL_FLOAT, 0, vtx_sky );
 		glTexCoordPointer( 2, GL_FLOAT, 0, tex_sky );

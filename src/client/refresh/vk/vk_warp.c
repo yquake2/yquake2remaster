@@ -39,17 +39,6 @@ static const int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 /* 3dstudio environment map names */
 static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 
-static const int st_to_vec[6][3] = {
-	{3, -1, 2},
-	{-3, 1, 2},
-
-	{1, 3, 2},
-	{-1, -3, 2},
-
-	{-2, -1, 3}, /* 0 degrees yaw, look straight up */
-	{2, -1, -3} /* look straight down */
-};
-
 static float skymins[2][6], skymaxs[2][6];
 static float sky_min, sky_max;
 
@@ -174,69 +163,13 @@ RE_ClearSkyBox(void)
 	R_ClearSkyBox(skymins, skymaxs);
 }
 
-static void
-MakeSkyVec(float s, float t, int axis, float *vertexData)
-{
-	vec3_t v, b;
-	int j;
-
-	float dist = (r_farsee->value == 0) ? 2300.0f : 4096.0f;
-
-	b[0] = s * dist;
-	b[1] = t * dist;
-	b[2] = dist;
-
-	for (j = 0; j < 3; j++)
-	{
-		int k;
-
-		k = st_to_vec[axis][j];
-
-		if (k < 0)
-		{
-			v[j] = -b[-k - 1];
-		}
-		else
-		{
-			v[j] = b[k - 1];
-		}
-	}
-
-	/* avoid bilerp seam */
-	s = (s + 1) * 0.5;
-	t = (t + 1) * 0.5;
-
-	if (s < sky_min)
-	{
-		s = sky_min;
-	}
-	else if (s > sky_max)
-	{
-		s = sky_max;
-	}
-
-	if (t < sky_min)
-	{
-		t = sky_min;
-	}
-	else if (t > sky_max)
-	{
-		t = sky_max;
-	}
-
-	t = 1.0 - t;
-
-	vertexData[0] = v[0];
-	vertexData[1] = v[1];
-	vertexData[2] = v[2];
-	vertexData[3] = s;
-	vertexData[4] = t;
-}
-
 void
 R_DrawSkyBox(void)
 {
 	int i;
+	qboolean farsee;
+
+	farsee = (r_farsee->value == 0);
 
 	if (skyrotate)
 	{   /* check for no sky at all */
@@ -261,9 +194,7 @@ R_DrawSkyBox(void)
 		skyaxis[0], skyaxis[1], skyaxis[2]);
 	Mat_Translate(model, r_origin[0], r_origin[1], r_origin[2]);
 
-	struct {
-		float data[5];
-	} skyVerts[4];
+	mvtx_t skyVerts[4];
 
 	QVk_BindPipeline(&vk_drawSkyboxPipeline);
 	uint32_t uboOffset;
@@ -287,18 +218,28 @@ R_DrawSkyBox(void)
 			continue;
 		}
 
-		MakeSkyVec(skymins[0][i], skymins[1][i], i, skyVerts[0].data);
-		MakeSkyVec(skymins[0][i], skymaxs[1][i], i, skyVerts[1].data);
-		MakeSkyVec(skymaxs[0][i], skymaxs[1][i], i, skyVerts[2].data);
-		MakeSkyVec(skymaxs[0][i], skymins[1][i], i, skyVerts[3].data);
+		R_MakeSkyVec(skymins[0][i], skymins[1][i], i, &skyVerts[0],
+			farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymins[0][i], skymaxs[1][i], i, &skyVerts[1],
+			farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[0][i], skymaxs[1][i], i, &skyVerts[2],
+			farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[0][i], skymins[1][i], i, &skyVerts[3],
+			farsee, sky_min, sky_max);
 
 		float verts[] = {
-			skyVerts[0].data[0], skyVerts[0].data[1], skyVerts[0].data[2], skyVerts[0].data[3], skyVerts[0].data[4],
-			skyVerts[1].data[0], skyVerts[1].data[1], skyVerts[1].data[2], skyVerts[1].data[3], skyVerts[1].data[4],
-			skyVerts[2].data[0], skyVerts[2].data[1], skyVerts[2].data[2], skyVerts[2].data[3], skyVerts[2].data[4],
-			skyVerts[0].data[0], skyVerts[0].data[1], skyVerts[0].data[2], skyVerts[0].data[3], skyVerts[0].data[4],
-			skyVerts[2].data[0], skyVerts[2].data[1], skyVerts[2].data[2], skyVerts[2].data[3], skyVerts[2].data[4],
-			skyVerts[3].data[0], skyVerts[3].data[1], skyVerts[3].data[2], skyVerts[3].data[3], skyVerts[3].data[4]
+			skyVerts[0].pos[0], skyVerts[0].pos[1], skyVerts[0].pos[2],
+				skyVerts[0].texCoord[0], skyVerts[0].texCoord[1],
+			skyVerts[1].pos[0], skyVerts[1].pos[1], skyVerts[1].pos[2],
+				skyVerts[1].texCoord[0], skyVerts[1].texCoord[1],
+			skyVerts[2].pos[0], skyVerts[2].pos[1], skyVerts[2].pos[2],
+				skyVerts[2].texCoord[0], skyVerts[2].texCoord[1],
+			skyVerts[0].pos[0], skyVerts[0].pos[1], skyVerts[0].pos[2],
+				skyVerts[0].texCoord[0], skyVerts[0].texCoord[1],
+			skyVerts[2].pos[0], skyVerts[2].pos[1], skyVerts[2].pos[2],
+				skyVerts[2].texCoord[0], skyVerts[2].texCoord[1],
+			skyVerts[3].pos[0], skyVerts[3].pos[1], skyVerts[3].pos[2],
+				skyVerts[3].texCoord[0], skyVerts[3].texCoord[1]
 		};
 
 		VkBuffer vbo;
