@@ -2671,7 +2671,10 @@ void QVk_DrawTexRect(const float *ubo, VkDeviceSize uboSize, qvktexture_t *textu
 
 	QVk_BindPipeline(&vk_drawTexQuadPipeline[vk_state.current_renderpass]);
 	VkDeviceSize offsets = 0;
-	VkDescriptorSet descriptorSets[] = { texture->descriptorSet, uboDescriptorSet };
+	VkDescriptorSet descriptorSets[] = {
+		texture->descriptorSet,
+		uboDescriptorSet
+	};
 
 	float gamma = 2.1F - vid_gamma->value;
 

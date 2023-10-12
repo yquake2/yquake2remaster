@@ -66,7 +66,10 @@ DrawVkPoly(mpoly_t *p, image_t *texture, float *color)
 	memcpy(vertData, verts_buffer, sizeof(polyvert_t) * p->numverts);
 	memcpy(uboData,  color, sizeof(float) * 4);
 
-	VkDescriptorSet descriptorSets[] = { texture->vk_texture.descriptorSet, uboDescriptorSet };
+	VkDescriptorSet descriptorSets[] = {
+		texture->vk_texture.descriptorSet,
+		uboDescriptorSet
+	};
 
 	float gamma = 2.1F - vid_gamma->value;
 
@@ -125,7 +128,10 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 	memcpy(vertData, verts_buffer, sizeof(polyvert_t) * p->numverts);
 	memcpy(uboData,  color, sizeof(float) * 4);
 
-	VkDescriptorSet descriptorSets[] = { texture->vk_texture.descriptorSet, uboDescriptorSet };
+	VkDescriptorSet descriptorSets[] = {
+		texture->vk_texture.descriptorSet,
+		uboDescriptorSet
+	};
 
 	float gamma = 2.1F - vid_gamma->value;
 
@@ -489,7 +495,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 
 			VkBuffer vbo;
 			VkDeviceSize vboOffset;
-			VkDescriptorSet descriptorSets[] = { image->vk_texture.descriptorSet, uboDescriptorSet, vk_state.lightmap_textures[lmtex].descriptorSet };
+			VkDescriptorSet descriptorSets[] = {
+				image->vk_texture.descriptorSet,
+				uboDescriptorSet,
+				vk_state.lightmap_textures[lmtex].descriptorSet
+			};
 			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 
 			for (p = surf->polys; p; p = p->chain)
@@ -502,8 +512,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
 					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0] + scroll;
 					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
+					lmappolyverts_buffer[i].lmTexCoord[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].lmTexCoord[1] = v->lmTexCoord[1];
 				}
 
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
@@ -518,7 +528,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 		{
 			VkBuffer vbo;
 			VkDeviceSize vboOffset;
-			VkDescriptorSet descriptorSets[] = { image->vk_texture.descriptorSet, uboDescriptorSet, vk_state.lightmap_textures[lmtex].descriptorSet };
+			VkDescriptorSet descriptorSets[] = {
+				image->vk_texture.descriptorSet,
+				uboDescriptorSet,
+				vk_state.lightmap_textures[lmtex].descriptorSet
+			};
 			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 
 			for (p = surf->polys; p; p = p->chain)
@@ -531,8 +545,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
 					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0];
 					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
+					lmappolyverts_buffer[i].lmTexCoord[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].lmTexCoord[1] = v->lmTexCoord[1];
 				}
 
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
@@ -570,8 +584,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
 					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0] + scroll;
 					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
+					lmappolyverts_buffer[i].lmTexCoord[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].lmTexCoord[1] = v->lmTexCoord[1];
 				}
 
 				VkBuffer vbo;
@@ -579,7 +593,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
 				memcpy(vertData, lmappolyverts_buffer, sizeof(lmappolyvert_t) * nv);
 
-				VkDescriptorSet descriptorSets[] = { image->vk_texture.descriptorSet, uboDescriptorSet, vk_state.lightmap_textures[lmtex].descriptorSet };
+				VkDescriptorSet descriptorSets[] = {
+					image->vk_texture.descriptorSet,
+					uboDescriptorSet,
+					vk_state.lightmap_textures[lmtex].descriptorSet
+				};
 				vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 				vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 				vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((nv - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
@@ -600,8 +618,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 					VectorCopy(v->pos, lmappolyverts_buffer[i].vertex);
 					lmappolyverts_buffer[i].texCoord[0] = v->texCoord[0];
 					lmappolyverts_buffer[i].texCoord[1] = v->texCoord[1];
-					lmappolyverts_buffer[i].texCoordLmap[0] = v->lmTexCoord[0];
-					lmappolyverts_buffer[i].texCoordLmap[1] = v->lmTexCoord[1];
+					lmappolyverts_buffer[i].lmTexCoord[0] = v->lmTexCoord[0];
+					lmappolyverts_buffer[i].lmTexCoord[1] = v->lmTexCoord[1];
 				}
 
 				VkBuffer vbo;
@@ -609,7 +627,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(lmappolyvert_t) * nv, &vbo, &vboOffset);
 				memcpy(vertData, lmappolyverts_buffer, sizeof(lmappolyvert_t) * nv);
 
-				VkDescriptorSet descriptorSets[] = { image->vk_texture.descriptorSet, uboDescriptorSet, vk_state.lightmap_textures[lmtex].descriptorSet };
+				VkDescriptorSet descriptorSets[] = {
+					image->vk_texture.descriptorSet,
+					uboDescriptorSet,
+					vk_state.lightmap_textures[lmtex].descriptorSet
+				};
 				vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 				vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 				vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((nv - 2) * 3), 0, VK_INDEX_TYPE_UINT16);

@@ -358,7 +358,7 @@ typedef struct {
 typedef struct {
 	float vertex[3];
 	float texCoord[2];
-	float texCoordLmap[2];
+	float lmTexCoord[2];
 } lmappolyvert_t;
 
 extern polyvert_t	*verts_buffer;

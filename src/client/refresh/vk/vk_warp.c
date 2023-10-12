@@ -102,7 +102,10 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
-	VkDescriptorSet descriptorSets[] = { texture->vk_texture.descriptorSet, uboDescriptorSet };
+	VkDescriptorSet descriptorSets[] = {
+		texture->vk_texture.descriptorSet,
+		uboDescriptorSet
+	};
 
 	float gamma = 2.1F - vid_gamma->value;
 
@@ -247,7 +250,10 @@ R_DrawSkyBox(void)
 		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(verts), &vbo, &vboOffset);
 		memcpy(vertData, verts, sizeof(verts));
 
-		VkDescriptorSet descriptorSets[] = { sky_images[skytexorder[i]]->vk_texture.descriptorSet, uboDescriptorSet };
+		VkDescriptorSet descriptorSets[] = {
+			sky_images[skytexorder[i]]->vk_texture.descriptorSet,
+			uboDescriptorSet
+		};
 
 		float gamma = 2.1F - vid_gamma->value;
 

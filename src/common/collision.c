@@ -2040,6 +2040,8 @@ CM_LoadMap(char *name, qboolean clientload, unsigned *checksum)
 	CMod_LoadEntityString(cmod.name, &cmod.map_entitystring, &cmod.numentitychars,
 		cmod_base, &header.lumps[LUMP_ENTITIES]);
 	cmod.extradatasize = Hunk_End();
+	Com_DPrintf("Allocated %d from expected %d hunk size\n",
+		cmod.extradatasize, hunkSize);
 
 	FS_FreeFile(buf);
 
