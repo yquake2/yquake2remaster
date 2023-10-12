@@ -355,14 +355,8 @@ typedef struct {
 	float texCoord[2];
 } polyvert_t;
 
-typedef struct {
-	float vertex[3];
-	float texCoord[2];
-	float lmTexCoord[2];
-} lmappolyvert_t;
-
 extern polyvert_t	*verts_buffer;
-extern lmappolyvert_t	*lmappolyverts_buffer;
+extern mvtx_t	*lmappolyverts_buffer;
 
 void	Mesh_Init (void);
 void	Mesh_Free (void);

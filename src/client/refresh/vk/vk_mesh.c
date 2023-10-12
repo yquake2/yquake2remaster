@@ -53,7 +53,7 @@ typedef struct {
 } drawinfo_t;
 
 polyvert_t 	*verts_buffer = NULL;
-lmappolyvert_t	*lmappolyverts_buffer = NULL;
+mvtx_t	*lmappolyverts_buffer = NULL;
 static	drawinfo_t	*drawInfo[2] = {NULL, NULL};
 static	modelvert	*vertList[2] = {NULL, NULL};
 static	vec3_t	*shadowverts = NULL;

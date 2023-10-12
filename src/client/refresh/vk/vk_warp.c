@@ -50,7 +50,6 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 			  const float *color, qboolean solid_surface)
 {
 	mpoly_t *p, *bp;
-	mvtx_t *v;
 	int i;
 
 	struct {
@@ -131,6 +130,8 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
+		mvtx_t *v;
+
 		p = bp;
 
 		if (Mesh_VertsRealloc(p->numverts))
