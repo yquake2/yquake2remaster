@@ -1412,7 +1412,7 @@ static void CreatePipelines()
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon, basic);
 	vk_drawPolyPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	vk_drawPolyPipeline.blendOpts.blendEnable = VK_TRUE;
-	QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoRGB_RG, &vk_drawPolyPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
+	QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoMEM_VERTEX_T, &vk_drawPolyPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: polygon");
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: polygon");
 
@@ -1428,7 +1428,7 @@ static void CreatePipelines()
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon_warp, basic);
 	vk_drawPolyWarpPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	vk_drawPolyWarpPipeline.blendOpts.blendEnable = VK_TRUE;
-	QVk_CreatePipeline(samplerUboLmapDsLayouts, 2, &vertInfoRGB_RG,
+	QVk_CreatePipeline(samplerUboLmapDsLayouts, 2, &vertInfoMEM_VERTEX_T,
 		&vk_drawPolyWarpPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyWarpPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: warped polygon (liquids)");
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyWarpPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: warped polygon (liquids)");
@@ -1436,7 +1436,7 @@ static void CreatePipelines()
 	// draw solid polygon with warp effect (liquid) pipeline
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon_warp, basic);
 	vk_drawPolySolidWarpPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	QVk_CreatePipeline(samplerUboLmapDsLayouts, 2, &vertInfoRGB_RG,
+	QVk_CreatePipeline(samplerUboLmapDsLayouts, 2, &vertInfoMEM_VERTEX_T,
 		&vk_drawPolySolidWarpPipeline, &vk_renderpasses[RP_WORLD],
 		shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolySolidWarpPipeline.layout,
@@ -1455,7 +1455,7 @@ static void CreatePipelines()
 
 	// draw skybox pipeline
 	VK_LOAD_VERTFRAG_SHADERS(shaders, skybox, basic);
-	QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoRGB_RG, &vk_drawSkyboxPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
+	QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoMEM_VERTEX_T, &vk_drawSkyboxPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawSkyboxPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: skybox");
 	QVk_DebugSetObjectName((uint64_t)vk_drawSkyboxPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: skybox");
 

@@ -130,8 +130,6 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
-		mvtx_t *v;
-
 		p = bp;
 
 		if (Mesh_VertsRealloc(p->numverts))
@@ -139,15 +137,15 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, float *modelMatrix,
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
-		for (i = 0, v = p->verts; i < p->numverts; i++, v++)
+		memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * p->numverts);
+		for (i = 0; i < p->numverts; i++)
 		{
-			VectorCopy(v->pos, verts_buffer[i].vertex);
-			verts_buffer[i].texCoord[0] = v->texCoord[0] / 64.f;
-			verts_buffer[i].texCoord[1] = v->texCoord[1] / 64.f;
+			verts_buffer[i].texCoord[0] /= 64.f;
+			verts_buffer[i].texCoord[1] /= 64.f;
 		}
 
-		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(polyvert_t) * p->numverts, &vbo, &vboOffset);
-		memcpy(vertData, verts_buffer, sizeof(polyvert_t) * p->numverts);
+		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
+		memcpy(vertData, verts_buffer, sizeof(mvtx_t) * p->numverts);
 
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((p->numverts - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
@@ -231,25 +229,15 @@ R_DrawSkyBox(void)
 		R_MakeSkyVec(skymaxs[0][i], skymins[1][i], i, &skyVerts[3],
 			farsee, sky_min, sky_max);
 
-		float verts[] = {
-			skyVerts[0].pos[0], skyVerts[0].pos[1], skyVerts[0].pos[2],
-				skyVerts[0].texCoord[0], skyVerts[0].texCoord[1],
-			skyVerts[1].pos[0], skyVerts[1].pos[1], skyVerts[1].pos[2],
-				skyVerts[1].texCoord[0], skyVerts[1].texCoord[1],
-			skyVerts[2].pos[0], skyVerts[2].pos[1], skyVerts[2].pos[2],
-				skyVerts[2].texCoord[0], skyVerts[2].texCoord[1],
-			skyVerts[0].pos[0], skyVerts[0].pos[1], skyVerts[0].pos[2],
-				skyVerts[0].texCoord[0], skyVerts[0].texCoord[1],
-			skyVerts[2].pos[0], skyVerts[2].pos[1], skyVerts[2].pos[2],
-				skyVerts[2].texCoord[0], skyVerts[2].texCoord[1],
-			skyVerts[3].pos[0], skyVerts[3].pos[1], skyVerts[3].pos[2],
-				skyVerts[3].texCoord[0], skyVerts[3].texCoord[1]
-		};
-
 		VkBuffer vbo;
 		VkDeviceSize vboOffset;
-		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(verts), &vbo, &vboOffset);
-		memcpy(vertData, verts, sizeof(verts));
+		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * 6, &vbo, &vboOffset);
+		memcpy(vertData + sizeof(mvtx_t) * 0, &skyVerts[0], sizeof(mvtx_t));
+		memcpy(vertData + sizeof(mvtx_t) * 1, &skyVerts[1], sizeof(mvtx_t));
+		memcpy(vertData + sizeof(mvtx_t) * 2, &skyVerts[2], sizeof(mvtx_t));
+		memcpy(vertData + sizeof(mvtx_t) * 3, &skyVerts[0], sizeof(mvtx_t));
+		memcpy(vertData + sizeof(mvtx_t) * 4, &skyVerts[2], sizeof(mvtx_t));
+		memcpy(vertData + sizeof(mvtx_t) * 5, &skyVerts[3], sizeof(mvtx_t));
 
 		VkDescriptorSet descriptorSets[] = {
 			sky_images[skytexorder[i]]->vk_texture.descriptorSet,

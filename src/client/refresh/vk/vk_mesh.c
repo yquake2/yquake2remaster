@@ -52,8 +52,7 @@ typedef struct {
 	int firstVertex;
 } drawinfo_t;
 
-polyvert_t 	*verts_buffer = NULL;
-mvtx_t	*lmappolyverts_buffer = NULL;
+mvtx_t 	*verts_buffer = NULL;
 static	drawinfo_t	*drawInfo[2] = {NULL, NULL};
 static	modelvert	*vertList[2] = {NULL, NULL};
 static	vec3_t	*shadowverts = NULL;
@@ -103,19 +102,12 @@ Mesh_VertsRealloc(int count)
 	}
 	shadowverts = ptr;
 
-	ptr = realloc(verts_buffer, verts_count * sizeof(polyvert_t));
+	ptr = realloc(verts_buffer, verts_count * sizeof(mvtx_t));
 	if (!ptr)
 	{
 		return -1;
 	}
 	verts_buffer = ptr;
-
-	ptr = realloc(lmappolyverts_buffer, verts_count * sizeof(polyvert_t));
-	if (!ptr)
-	{
-		return -1;
-	}
-	lmappolyverts_buffer = ptr;
 
 	ptr = realloc(vertList[0], verts_count * sizeof(modelvert));
 	if (!ptr)
@@ -158,7 +150,6 @@ void Mesh_Init (void)
 	s_lerped = NULL;
 	shadowverts = NULL;
 	verts_buffer = NULL;
-	lmappolyverts_buffer = NULL;
 	vertList[0] = NULL;
 	vertList[1] = NULL;
 	drawInfo[0] = NULL;
@@ -203,12 +194,6 @@ void Mesh_Free (void)
 		free(verts_buffer);
 	}
 	verts_buffer = NULL;
-
-	if (lmappolyverts_buffer)
-	{
-		free(lmappolyverts_buffer);
-	}
-	lmappolyverts_buffer = NULL;
 
 	if (vertList[0])
 	{

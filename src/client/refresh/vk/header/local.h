@@ -349,14 +349,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 qboolean Vkimp_CreateSurface(SDL_Window *window);
 
-// buffers reallocate
-typedef struct {
-	vec3_t vertex;
-	float texCoord[2];
-} polyvert_t;
-
-extern polyvert_t	*verts_buffer;
-extern mvtx_t	*lmappolyverts_buffer;
+extern mvtx_t	*verts_buffer;
 
 void	Mesh_Init (void);
 void	Mesh_Free (void);

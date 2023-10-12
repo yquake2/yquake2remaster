@@ -39,31 +39,15 @@ vklightmapstate_t vk_lms;
 static void
 DrawVkPoly(mpoly_t *p, image_t *texture, float *color)
 {
-	mvtx_t *v;
-	int i;
-
-	if (Mesh_VertsRealloc(p->numverts))
-	{
-		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-	}
-
-	v = p->verts;
-	for (i = 0; i < p->numverts; i++, v++)
-	{
-		VectorCopy(v->pos, verts_buffer[i].vertex);
-		verts_buffer[i].texCoord[0] = v->texCoord[0];
-		verts_buffer[i].texCoord[1] = v->texCoord[1];
-	}
-
 	QVk_BindPipeline(&vk_drawPolyPipeline);
 
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(polyvert_t) * p->numverts, &vbo, &vboOffset);
+	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
 	uint8_t *uboData  = QVk_GetUniformBuffer(sizeof(float) * 4, &uboOffset, &uboDescriptorSet);
-	memcpy(vertData, verts_buffer, sizeof(polyvert_t) * p->numverts);
+	memcpy(vertData, p->verts, sizeof(mvtx_t) * p->numverts);
 	memcpy(uboData,  color, sizeof(float) * 4);
 
 	VkDescriptorSet descriptorSets[] = {
@@ -89,12 +73,12 @@ DrawVkPoly(mpoly_t *p, image_t *texture, float *color)
 DrawVkFlowingPoly -- version of DrawVkPoly that handles scrolling texture
 ================
 */
-static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
+static void
+DrawVkFlowingPoly(msurface_t *fa, image_t *texture, float *color)
 {
-	mvtx_t *v;
-	int i;
+	float scroll;
 	mpoly_t *p;
-	float	scroll;
+	int i;
 
 	p = fa->polys;
 
@@ -109,12 +93,10 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
-	v = p->verts;
-	for (i = 0; i < p->numverts; i++, v++)
+	memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * p->numverts);
+	for (i = 0; i < p->numverts; i++)
 	{
-		VectorCopy(v->pos, verts_buffer[i].vertex);
-		verts_buffer[i].texCoord[0] = v->texCoord[0] + scroll;
-		verts_buffer[i].texCoord[1] = v->texCoord[1];
+		verts_buffer[i].texCoord[0] += scroll;
 	}
 
 	QVk_BindPipeline(&vk_drawPolyPipeline);
@@ -123,9 +105,9 @@ static void DrawVkFlowingPoly (msurface_t *fa, image_t *texture, float *color)
 	VkDeviceSize vboOffset;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(polyvert_t) * p->numverts, &vbo, &vboOffset);
+	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
 	uint8_t *uboData  = QVk_GetUniformBuffer(sizeof(float) * 4, &uboOffset, &uboDescriptorSet);
-	memcpy(vertData, verts_buffer, sizeof(polyvert_t) * p->numverts);
+	memcpy(vertData, verts_buffer, sizeof(mvtx_t) * p->numverts);
 	memcpy(uboData,  color, sizeof(float) * 4);
 
 	VkDescriptorSet descriptorSets[] = {
@@ -504,15 +486,15 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 
 			for (p = surf->polys; p; p = p->chain)
 			{
-				memcpy(lmappolyverts_buffer, p->verts, sizeof(mvtx_t) * nv);
+				memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * nv);
 
 				for (i = 0; i < nv; i++)
 				{
-					lmappolyverts_buffer[i].texCoord[0] += scroll;
+					verts_buffer[i].texCoord[0] += scroll;
 				}
 
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * nv, &vbo, &vboOffset);
-				memcpy(vertData, lmappolyverts_buffer, sizeof(mvtx_t) * nv);
+				memcpy(vertData, verts_buffer, sizeof(mvtx_t) * nv);
 
 				vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 				vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((nv - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
@@ -559,17 +541,17 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 
 			for (p = surf->polys; p; p = p->chain)
 			{
-				memcpy(lmappolyverts_buffer, p->verts, sizeof(mvtx_t) * nv);
+				memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * nv);
 
 				for (i = 0; i < nv; i++)
 				{
-					lmappolyverts_buffer[i].texCoord[0] += scroll;
+					verts_buffer[i].texCoord[0] += scroll;
 				}
 
 				VkBuffer vbo;
 				VkDeviceSize vboOffset;
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * nv, &vbo, &vboOffset);
-				memcpy(vertData, lmappolyverts_buffer, sizeof(mvtx_t) * nv);
+				memcpy(vertData, verts_buffer, sizeof(mvtx_t) * nv);
 
 				VkDescriptorSet descriptorSets[] = {
 					image->vk_texture.descriptorSet,
