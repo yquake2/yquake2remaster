@@ -54,8 +54,8 @@ typedef struct
 typedef struct
 {
 	int			contents;
-	int			numsides;
-	int			firstbrushside;
+	unsigned int	numsides;
+	unsigned int	firstbrushside;
 	int			checkcount;	/* to avoid repeated testings */
 } cbrush_t;
 
@@ -644,7 +644,7 @@ CM_ClipBoxToBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 	leavefrac = 1;
 	clipplane = NULL;
 
-	if (!brush->numsides)
+	if (!brush->numsides || !cmod.map_brushsides)
 	{
 		return;
 	}
@@ -659,6 +659,14 @@ CM_ClipBoxToBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 
 	for (i = 0; i < brush->numsides; i++)
 	{
+		if (((brush->firstbrushside + i) < 0) ||
+			((brush->firstbrushside + i) >= (cmod.numbrushsides + EXTRA_LUMP_BRUSHSIDES)))
+		{
+			Com_DPrintf("%s: Incorrect brushside %d\n",
+				__func__, brush->firstbrushside + i);
+			break;
+		}
+
 		side = &cmod.map_brushsides[brush->firstbrushside + i];
 		plane = side->plane;
 
@@ -786,13 +794,21 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 	float d1;
 	cbrushside_t *side;
 
-	if (!brush->numsides)
+	if (!brush->numsides || !cmod.map_brushsides)
 	{
 		return;
 	}
 
 	for (i = 0; i < brush->numsides; i++)
 	{
+		if (((brush->firstbrushside + i) < 0) ||
+			((brush->firstbrushside + i) >= (cmod.numbrushsides + EXTRA_LUMP_BRUSHSIDES)))
+		{
+			Com_DPrintf("%s: Incorrect brushside %d\n",
+				__func__, brush->firstbrushside + i);
+			break;
+		}
+
 		side = &cmod.map_brushsides[brush->firstbrushside + i];
 		plane = side->plane;
 
@@ -1408,8 +1424,8 @@ CMod_LoadBrushes(const char* name, cbrush_t **map_brushes, int *numbrushes,
 
 	for (i = 0; i < count; i++, out++, in++)
 	{
-		out->firstbrushside = LittleLong(in->firstside);
-		out->numsides = LittleLong(in->numsides);
+		out->firstbrushside = LittleLong(in->firstside) & 0xFFFFFFFF;
+		out->numsides = LittleLong(in->numsides) & 0xFFFFFFFF;
 		out->contents = LittleLong(in->contents);
 	}
 }
@@ -1833,14 +1849,9 @@ CM_ModFree(model_t *cmod)
 	if (cmod->extradata && cmod->extradatasize)
 	{
 		Hunk_Free(cmod->extradata);
-		cmod->extradata = NULL;
-		cmod->extradatasize = 0;
 	}
 
 	memset(cmod, 0, sizeof(model_t));
-
-	cmod->numareas = 1;
-	cmod->numclusters = 1;
 }
 
 void

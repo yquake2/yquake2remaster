@@ -39,7 +39,6 @@ void LM_InitBlock(void);
 void LM_UploadBlock(qboolean dynamic);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
 
-void R_SetCacheState(msurface_t *surf);
 void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
 
 static void
@@ -510,7 +509,7 @@ R_RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
 			R_BuildLightMap(fa, (void *)temp, smax * 4);
-			R_SetCacheState(fa);
+			R_SetCacheState(fa, &r_newrefdef);
 
 			R_Bind(gl_state.lightmap_textures + fa->lightmaptexturenum);
 

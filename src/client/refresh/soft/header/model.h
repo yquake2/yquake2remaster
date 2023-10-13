@@ -104,8 +104,8 @@ typedef struct model_s
 	int		numsurfedges;
 	int		*surfedges;
 
-	int		nummarksurfaces;
-	msurface_t	**marksurfaces;
+	unsigned int nummarksurfaces;
+	msurface_t **marksurfaces;
 
 	int numvisibility;
 	dvis_t *vis;

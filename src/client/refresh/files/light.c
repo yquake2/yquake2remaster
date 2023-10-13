@@ -276,3 +276,16 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 
 	VectorScale(color, modulate, color);
 }
+
+void
+R_SetCacheState(msurface_t *surf, refdef_t *refdef)
+{
+	int maps;
+
+	for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255;
+		 maps++)
+	{
+		surf->cached_light[maps] =
+			refdef->lightstyles[surf->styles[maps]].white;
+	}
+}

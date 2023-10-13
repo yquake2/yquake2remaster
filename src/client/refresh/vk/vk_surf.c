@@ -248,7 +248,7 @@ R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *cur
 			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
 			R_BuildLightMap(fa, (void *)temp, smax * 4);
-			R_SetCacheState(fa);
+			R_SetCacheState(fa, &r_newrefdef);
 
 			QVk_UpdateTextureData(&vk_state.lightmap_textures[fa->lightmaptexturenum], (unsigned char*)temp, fa->light_s, fa->light_t, smax, tmax);
 
@@ -452,7 +452,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 
 		if ((surf->styles[map] >= 32 || surf->styles[map] == 0) && (surf->dlightframe != r_framecount))
 		{
-			R_SetCacheState(surf);
+			R_SetCacheState(surf, &r_newrefdef);
 
 			lmtex = surf->lightmaptexturenum;
 			QVk_UpdateTextureData(&vk_state.lightmap_textures[surf->lightmaptexturenum], (unsigned char *)temp, surf->light_s, surf->light_t, smax, tmax);

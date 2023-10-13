@@ -188,7 +188,7 @@ typedef struct mleaf_s
 	int		area;
 
 	struct msurface_s	**firstmarksurface;
-	int		nummarksurfaces;
+	unsigned int nummarksurfaces;
 	int		key;	/* BSP sequence number for leaf's contents */
 } mleaf_t;
 
@@ -331,13 +331,13 @@ extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
 extern struct image_s* R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, qboolean r_retexturing, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
-	int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
+	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
 	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes,
 	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
-	msurface_t **marksurfaces, int nummarksurfaces,
+	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
 	const byte *mod_base, const lump_t *l, int ident);
@@ -379,6 +379,7 @@ extern void R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edg
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
+extern void R_SetCacheState(msurface_t *surf, refdef_t *r_newrefdef);
 
 /* Warp Sky logic */
 extern void R_ClipSkyPolygon(int nump, vec3_t vecs, int stage,

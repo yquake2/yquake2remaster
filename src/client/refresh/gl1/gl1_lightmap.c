@@ -28,7 +28,6 @@
 
 extern gllightmapstate_t gl_lms;
 
-void R_SetCacheState(msurface_t *surf);
 void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
 
 void
@@ -255,7 +254,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 	base = gl_lms.lightmap_buffer;
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
-	R_SetCacheState(surf);
+	R_SetCacheState(surf, &r_newrefdef);
 	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
 }
 

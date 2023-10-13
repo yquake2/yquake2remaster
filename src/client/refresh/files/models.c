@@ -2101,7 +2101,7 @@ Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
 }
 
 static void
-Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarksurfaces,
+Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int *nummarksurfaces,
 	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l)
 {
 	int i, count;
@@ -2139,7 +2139,7 @@ Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarks
 }
 
 static void
-Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarksurfaces,
+Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int *nummarksurfaces,
 	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l)
 {
 	int i, count;
@@ -2176,7 +2176,7 @@ Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummark
 }
 
 void
-Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, int *nummarksurfaces,
+Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int *nummarksurfaces,
 	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l, int ident)
 {
 	if (ident == IDBSPHEADER)
@@ -2193,7 +2193,7 @@ Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, int *numm
 
 static void
 Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
-	msurface_t **marksurfaces, int nummarksurfaces,
+	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	const byte *mod_base, const lump_t *l)
 {
 	dleaf_t *in;
@@ -2216,7 +2216,7 @@ Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		unsigned firstleafface;
+		unsigned int firstleafface;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2243,7 +2243,7 @@ Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 static void
 Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
-	msurface_t **marksurfaces, int nummarksurfaces,
+	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	const byte *mod_base, const lump_t *l)
 {
 	dqleaf_t *in;
@@ -2266,7 +2266,7 @@ Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		unsigned firstleafface;
+		unsigned int firstleafface;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2293,7 +2293,7 @@ Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 void
 Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
-	msurface_t **marksurfaces, int nummarksurfaces,
+	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	const byte *mod_base, const lump_t *l, int ident)
 {
 	if (ident == IDBSPHEADER)
