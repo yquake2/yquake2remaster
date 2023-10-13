@@ -262,7 +262,7 @@ Vk_CreateSurfaceLightmap(msurface_t *surf)
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
 	R_SetCacheState(surf, &r_newrefdef);
-	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
+	RI_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
 }
 
 void

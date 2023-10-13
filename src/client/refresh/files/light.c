@@ -290,7 +290,7 @@ R_SetCacheState(msurface_t *surf, refdef_t *refdef)
 	}
 }
 
-void
+static void
 R_AddDynamicLights(msurface_t *surf, refdef_t *r_newrefdef,
 	float *s_blocklights, const float *s_blocklights_max)
 {
@@ -387,6 +387,209 @@ R_AddDynamicLights(msurface_t *surf, refdef_t *r_newrefdef,
 					plightdest[2] += diff * dl->color[2];
 				}
 			}
+		}
+	}
+}
+
+/*
+ * Combine and scale multiple lightmaps into the floating format in blocklights
+ */
+void
+R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
+	float *s_blocklights, const float *s_blocklights_max, float modulate, int r_framecount)
+{
+	int smax, tmax;
+	int r, g, b, a, max;
+	int i, j, size;
+	byte *lightmap;
+	float scale[4];
+	int nummaps;
+	float *bl;
+
+	if (surf->texinfo->flags &
+		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
+	{
+		Com_Error(ERR_DROP, "RI_BuildLightMap called for non-lit surface");
+	}
+
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
+	size = smax * tmax;
+
+	/* set to full bright if no light data */
+	if (!surf->samples)
+	{
+		for (i = 0; i < size * 3; i++)
+		{
+			s_blocklights[i] = 255;
+		}
+
+		goto store;
+	}
+
+	/* count the # of maps */
+	for (nummaps = 0; nummaps < MAXLIGHTMAPS && surf->styles[nummaps] != 255;
+		 nummaps++)
+	{
+	}
+
+	lightmap = surf->samples;
+
+	/* add all the lightmaps */
+	if (nummaps == 1)
+	{
+		int maps;
+
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
+		{
+			bl = s_blocklights;
+
+			for (i = 0; i < 3; i++)
+			{
+				scale[i] = modulate *
+						   r_newrefdef->lightstyles[surf->styles[maps]].rgb[i];
+			}
+
+			if ((scale[0] == 1.0F) &&
+				(scale[1] == 1.0F) &&
+				(scale[2] == 1.0F))
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] = lightmap[i * 3 + 0];
+					bl[1] = lightmap[i * 3 + 1];
+					bl[2] = lightmap[i * 3 + 2];
+				}
+			}
+			else
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] = lightmap[i * 3 + 0] * scale[0];
+					bl[1] = lightmap[i * 3 + 1] * scale[1];
+					bl[2] = lightmap[i * 3 + 2] * scale[2];
+				}
+			}
+
+			lightmap += size * 3; /* skip to next lightmap */
+		}
+	}
+	else
+	{
+		int maps;
+
+		memset(s_blocklights, 0, sizeof(s_blocklights[0]) * size * 3);
+
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
+		{
+			bl = s_blocklights;
+
+			for (i = 0; i < 3; i++)
+			{
+				scale[i] = modulate *
+						   r_newrefdef->lightstyles[surf->styles[maps]].rgb[i];
+			}
+
+			if ((scale[0] == 1.0F) &&
+				(scale[1] == 1.0F) &&
+				(scale[2] == 1.0F))
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] += lightmap[i * 3 + 0];
+					bl[1] += lightmap[i * 3 + 1];
+					bl[2] += lightmap[i * 3 + 2];
+				}
+			}
+			else
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] += lightmap[i * 3 + 0] * scale[0];
+					bl[1] += lightmap[i * 3 + 1] * scale[1];
+					bl[2] += lightmap[i * 3 + 2] * scale[2];
+				}
+			}
+
+			lightmap += size * 3; /* skip to next lightmap */
+		}
+	}
+
+	/* add all the dynamic lights */
+	if (surf->dlightframe == r_framecount)
+	{
+		R_AddDynamicLights(surf, r_newrefdef, s_blocklights, s_blocklights_max);
+	}
+
+store:
+	/* put into texture format */
+	stride -= (smax << 2);
+	bl = s_blocklights;
+
+	for (i = 0; i < tmax; i++, dest += stride)
+	{
+		for (j = 0; j < smax; j++)
+		{
+			r = Q_ftol(bl[0]);
+			g = Q_ftol(bl[1]);
+			b = Q_ftol(bl[2]);
+
+			/* catch negative lights */
+			if (r < 0)
+			{
+				r = 0;
+			}
+
+			if (g < 0)
+			{
+				g = 0;
+			}
+
+			if (b < 0)
+			{
+				b = 0;
+			}
+
+			/* determine the brightest of the three color components */
+			if (r > g)
+			{
+				max = r;
+			}
+			else
+			{
+				max = g;
+			}
+
+			if (b > max)
+			{
+				max = b;
+			}
+
+			/* alpha is ONLY used for the mono lightmap case. For this
+			   reason we set it to the brightest of the color components
+			   so that things don't get too dim. */
+			a = max;
+
+			/* rescale all the color components if the
+			   intensity of the greatest channel exceeds
+			   1.0 */
+			if (max > 255)
+			{
+				float t = 255.0F / max;
+
+				r = r * t;
+				g = g * t;
+				b = b * t;
+				a = a * t;
+			}
+
+			dest[0] = r;
+			dest[1] = g;
+			dest[2] = b;
+			dest[3] = a;
+
+			bl += 3;
+			dest += 4;
 		}
 	}
 }

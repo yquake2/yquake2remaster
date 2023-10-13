@@ -73,6 +73,7 @@ R_PushDlights(const model_t *model)
 static void
 RI_AddDynamicLights(drawsurf_t* drawsurf)
 {
+	/* TODO: Covert to reuse with shared files/light */
 	msurface_t 	*surf;
 	int lnum;
 	int smax, tmax;
@@ -209,7 +210,7 @@ RI_AddDynamicLights(drawsurf_t* drawsurf)
  * Combine and scale multiple lightmaps into the 8.8 format in blocklights
  */
 void
-R_BuildLightMap(drawsurf_t* drawsurf)
+RI_BuildLightMap(drawsurf_t* drawsurf)
 {
 	int smax, tmax;
 	int size;
