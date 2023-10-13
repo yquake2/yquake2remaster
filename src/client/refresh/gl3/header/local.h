@@ -456,8 +456,6 @@ extern void GL3_ImageList_f(void);
 
 // gl3_light.c
 extern int r_dlightframecount;
-extern void GL3_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
-	int r_dlightframecount);
 extern void GL3_PushDlights(void);
 extern void GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride);
 

@@ -32,25 +32,6 @@ DYNAMIC LIGHTS
 =============================================================================
 */
 
-static void
-R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount)
-{
-	msurface_t	*surf;
-	int			i;
-
-	// mark the polygons
-	surf = r_worldmodel->surfaces + node->firstsurface;
-	for (i = 0; i < node->numsurfaces; i++, surf++)
-	{
-		if (surf->dlightframe != r_dlightframecount)
-		{
-			surf->dlightbits = 0;
-			surf->dlightframe = r_dlightframecount;
-		}
-		surf->dlightbits |= bit;
-	}
-}
-
 /*
 =============
 R_PushDlights
@@ -64,9 +45,9 @@ R_PushDlights(const model_t *model)
 
 	for (i=0, l = r_newrefdef.dlights ; i<r_newrefdef.num_dlights ; i++, l++)
 	{
-		R_MarkLights ( l, 1<<i,
+		R_MarkLights(l, 1<<i,
 			model->nodes + model->firstnode,
-			r_framecount, R_MarkSurfaceLights);
+			r_framecount, model->surfaces);
 	}
 }
 

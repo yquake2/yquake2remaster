@@ -612,7 +612,7 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel, float *
 		{
 			R_MarkLights(lt, 1 << k,
 				currentmodel->nodes + currentmodel->firstnode,
-				r_dlightframecount, R_MarkSurfaceLights);
+				r_dlightframecount, currentmodel->surfaces);
 		}
 	}
 

@@ -260,8 +260,6 @@ void R_EmitWaterPolys(msurface_t *fa);
 void RE_AddSkySurface(msurface_t *fa);
 void RE_ClearSkyBox(void);
 void R_DrawSkyBox(void);
-void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
-	int r_dlightframecount);
 
 void R_SwapBuffers(int);
 

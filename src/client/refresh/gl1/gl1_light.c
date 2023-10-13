@@ -116,46 +116,6 @@ R_RenderDlights(void)
 }
 
 void
-R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount)
-{
-	msurface_t	*surf;
-	int			i;
-
-	/* mark the polygons */
-	surf = r_worldmodel->surfaces + node->firstsurface;
-
-	for (i = 0; i < node->numsurfaces; i++, surf++)
-	{
-		int sidebit;
-		float dist;
-
-		if (surf->dlightframe != r_dlightframecount)
-		{
-			surf->dlightbits = 0;
-			surf->dlightframe = r_dlightframecount;
-		}
-
-		dist = DotProduct(light->origin, surf->plane->normal) - surf->plane->dist;
-
-		if (dist >= 0)
-		{
-			sidebit = 0;
-		}
-		else
-		{
-			sidebit = SURF_PLANEBACK;
-		}
-
-		if ((surf->flags & SURF_PLANEBACK) != sidebit)
-		{
-			continue;
-		}
-
-		surf->dlightbits |= bit;
-	}
-}
-
-void
 R_PushDlights(void)
 {
 	dlight_t *l;
@@ -174,7 +134,7 @@ R_PushDlights(void)
 	for (i = 0; i < r_newrefdef.num_dlights; i++, l++)
 	{
 		R_MarkLights(l, 1 << i, r_worldmodel->nodes, r_dlightframecount,
-			R_MarkSurfaceLights);
+			r_worldmodel->surfaces);
 	}
 }
 

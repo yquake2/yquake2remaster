@@ -593,3 +593,92 @@ store:
 		}
 	}
 }
+
+static void
+R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
+	msurface_t *surfaces)
+{
+	msurface_t	*surf;
+	int			i;
+
+	/* mark the polygons */
+	surf = surfaces + node->firstsurface;
+
+	for (i = 0; i < node->numsurfaces; i++, surf++)
+	{
+		int sidebit;
+		float dist;
+
+		if (surf->dlightframe != r_dlightframecount)
+		{
+			surf->dlightbits = 0;
+			surf->dlightframe = r_dlightframecount;
+		}
+
+		dist = DotProduct(light->origin, surf->plane->normal) - surf->plane->dist;
+
+		if (dist >= 0)
+		{
+			sidebit = 0;
+		}
+		else
+		{
+			sidebit = SURF_PLANEBACK;
+		}
+
+		if ((surf->flags & SURF_PLANEBACK) != sidebit)
+		{
+			continue;
+		}
+
+		surf->dlightbits |= bit;
+	}
+}
+
+/*
+=============
+R_MarkLights
+
+bit: 1 << i for light number i, will be or'ed into msurface_t::dlightbits
+if surface is affected by this light
+=============
+*/
+void
+R_MarkLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
+	msurface_t *surfaces)
+{
+	cplane_t	*splitplane;
+	float		dist;
+	int			intensity;
+
+	if (node->contents != CONTENTS_NODE)
+	{
+		return;
+	}
+
+	splitplane = node->plane;
+	dist = DotProduct(light->origin, splitplane->normal) - splitplane->dist;
+
+	intensity = light->intensity;
+
+	if (dist > (intensity - DLIGHT_CUTOFF))	// (dist > light->intensity)
+	{
+		R_MarkLights(light, bit, node->children[0], r_dlightframecount,
+			surfaces);
+		return;
+	}
+
+	if (dist < (-intensity + DLIGHT_CUTOFF))	// (dist < -light->intensity)
+	{
+		R_MarkLights(light, bit, node->children[1], r_dlightframecount,
+			surfaces);
+		return;
+	}
+
+	R_MarkSurfaceLights(light, bit, node, r_dlightframecount, surfaces);
+
+	R_MarkLights(light, bit, node->children[0], r_dlightframecount,
+		surfaces);
+	R_MarkLights(light, bit, node->children[1], r_dlightframecount,
+		surfaces);
+}

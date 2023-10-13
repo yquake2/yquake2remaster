@@ -492,7 +492,7 @@ DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
 	for (k = 0; k < gl4_newrefdef.num_dlights; k++, lt++)
 	{
 		R_MarkLights(lt, 1 << k, currentmodel->nodes + currentmodel->firstnode,
-			r_dlightframecount, GL4_MarkSurfaceLights);
+			r_dlightframecount, currentmodel->surfaces);
 	}
 
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];

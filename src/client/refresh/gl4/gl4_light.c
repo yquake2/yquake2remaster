@@ -33,46 +33,6 @@ int r_dlightframecount;
 vec3_t lightspot;
 
 void
-GL4_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount)
-{
-	msurface_t	*surf;
-	int			i;
-
-	/* mark the polygons */
-	surf = gl4_worldmodel->surfaces + node->firstsurface;
-
-	for (i = 0; i < node->numsurfaces; i++, surf++)
-	{
-		int sidebit;
-		float dist;
-
-		if (surf->dlightframe != r_dlightframecount)
-		{
-			surf->dlightbits = 0;
-			surf->dlightframe = r_dlightframecount;
-		}
-
-		dist = DotProduct(light->origin, surf->plane->normal) - surf->plane->dist;
-
-		if (dist >= 0)
-		{
-			sidebit = 0;
-		}
-		else
-		{
-			sidebit = SURF_PLANEBACK;
-		}
-
-		if ((surf->flags & SURF_PLANEBACK) != sidebit)
-		{
-			continue;
-		}
-
-		surf->dlightbits |= bit;
-	}
-}
-
-void
 GL4_PushDlights(void)
 {
 	int i;
@@ -88,7 +48,8 @@ GL4_PushDlights(void)
 	for (i = 0; i < gl4_newrefdef.num_dlights; i++, l++)
 	{
 		gl4UniDynLight* udl = &gl4state.uniLightsData.dynLights[i];
-		R_MarkLights(l, 1 << i, gl4_worldmodel->nodes, r_dlightframecount, GL4_MarkSurfaceLights);
+		R_MarkLights(l, 1 << i, gl4_worldmodel->nodes, r_dlightframecount,
+			gl4_worldmodel->surfaces);
 
 		VectorCopy(l->origin, udl->origin);
 		VectorCopy(l->color, udl->color);
@@ -155,8 +116,8 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 
 			for (i = 0; i < tmax; i++, dest += stride)
 			{
-				memset(dest, c, 4*smax);
-				dest += 4*smax;
+				memset(dest, c, 4 * smax);
+				dest += 4 * smax;
 			}
 		}
 
