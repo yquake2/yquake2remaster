@@ -1045,7 +1045,7 @@ R_RenderView(refdef_t *fd)
 		c_alias_polys = 0;
 	}
 
-	R_PushDlights();
+	RI_PushDlights();
 
 	if (gl_finish->value)
 	{

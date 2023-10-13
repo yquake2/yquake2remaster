@@ -637,17 +637,8 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
 	/* calculate dynamic lighting for bmodel */
 	if (!r_flashblend->value)
 	{
-		dlight_t *lt;
-		int	k;
-
-		lt = r_newrefdef.dlights;
-
-		for (k = 0; k < r_newrefdef.num_dlights; k++, lt++)
-		{
-			R_MarkLights(lt, 1 << k,
-				currentmodel->nodes + currentmodel->firstnode,
-				r_dlightframecount, currentmodel->surfaces);
-		}
+		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 	}
 
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];

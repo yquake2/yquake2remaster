@@ -362,8 +362,8 @@ extern int Mod_LoadFile(char *name, void **buffer);
 /* Surface logic */
 #define DLIGHT_CUTOFF 64
 
-extern void R_MarkLights (dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
-	msurface_t	*surfaces);
+extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightframecount,
+	msurface_t *surfaces);
 extern struct image_s *R_TextureAnimation(const entity_t *currententity,
 	const mtexinfo_t *tex);
 extern qboolean R_AreaVisible(const byte *areabits, mleaf_t *pleaf);

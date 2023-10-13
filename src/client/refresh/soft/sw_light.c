@@ -34,21 +34,14 @@ DYNAMIC LIGHTS
 
 /*
 =============
-R_PushDlights
+RI_PushDlights
 =============
 */
 void
-R_PushDlights(const model_t *model)
+RI_PushDlights(const model_t *model)
 {
-	int		i;
-	dlight_t	*l;
-
-	for (i=0, l = r_newrefdef.dlights ; i<r_newrefdef.num_dlights ; i++, l++)
-	{
-		R_MarkLights(l, 1<<i,
-			model->nodes + model->firstnode,
-			r_framecount, model->surfaces);
-	}
+	R_PushDlights(&r_newrefdef, model->nodes + model->firstnode,
+		r_framecount, model->surfaces);
 }
 
 static void

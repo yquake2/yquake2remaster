@@ -643,7 +643,7 @@ bit: 1 << i for light number i, will be or'ed into msurface_t::dlightbits
 if surface is affected by this light
 =============
 */
-void
+static void
 R_MarkLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
 	msurface_t *surfaces)
 {
@@ -681,4 +681,19 @@ R_MarkLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
 		surfaces);
 	R_MarkLights(light, bit, node->children[1], r_dlightframecount,
 		surfaces);
+}
+
+void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightframecount,
+	msurface_t *surfaces)
+{
+	dlight_t *l;
+	int i;
+
+	l = r_newrefdef->dlights;
+
+	for (i = 0; i < r_newrefdef->num_dlights; i++, l++)
+	{
+		R_MarkLights(l, 1 << i, nodes, r_dlightframecount, surfaces);
+	}
+
 }

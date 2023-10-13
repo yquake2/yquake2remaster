@@ -480,20 +480,13 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 static void
 DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
 {
-	int i, k;
+	int i;
 	cplane_t *pplane;
 	float dot;
 	msurface_t *psurf;
-	dlight_t *lt;
 
-	/* calculate dynamic lighting for bmodel */
-	lt = gl4_newrefdef.dlights;
-
-	for (k = 0; k < gl4_newrefdef.num_dlights; k++, lt++)
-	{
-		R_MarkLights(lt, 1 << k, currentmodel->nodes + currentmodel->firstnode,
+	R_PushDlights(&gl4_newrefdef, currentmodel->nodes + currentmodel->firstnode,
 			r_dlightframecount, currentmodel->surfaces);
-	}
 
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 

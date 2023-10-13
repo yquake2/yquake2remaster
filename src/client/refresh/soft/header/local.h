@@ -451,7 +451,7 @@ void R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *
 void R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel);
 void R_BeginEdgeFrame(void);
 void R_ScanEdges(entity_t *currententity, surf_t *surface);
-void R_PushDlights(const model_t *model);
+void RI_PushDlights(const model_t *model);
 void R_RotateBmodel(const entity_t *currententity);
 
 extern int	c_faceclip;

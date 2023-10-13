@@ -116,11 +116,8 @@ R_RenderDlights(void)
 }
 
 void
-R_PushDlights(void)
+RI_PushDlights(void)
 {
-	dlight_t *l;
-	int i;
-
 	if (r_flashblend->value)
 	{
 		return;
@@ -129,13 +126,8 @@ R_PushDlights(void)
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = r_framecount + 1;
 
-	l = r_newrefdef.dlights;
-
-	for (i = 0; i < r_newrefdef.num_dlights; i++, l++)
-	{
-		R_MarkLights(l, 1 << i, r_worldmodel->nodes, r_dlightframecount,
-			r_worldmodel->surfaces);
-	}
+	R_PushDlights(&r_newrefdef, r_worldmodel->nodes, r_dlightframecount,
+		r_worldmodel->surfaces);
 }
 
 float *s_blocklights = NULL, *s_blocklights_max = NULL;

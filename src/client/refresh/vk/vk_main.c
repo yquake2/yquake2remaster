@@ -936,7 +936,7 @@ RE_RenderView(refdef_t *fd)
 
 	vkCmdSetScissor(vk_activeCmdbuffer, 0, 1, &scissor);
 
-	R_PushDlights();
+	RI_PushDlights();
 
 	// added for compatibility sake with OpenGL implementation - don't use it!
 	if (vk_finish->value)
