@@ -289,3 +289,104 @@ R_SetCacheState(msurface_t *surf, refdef_t *refdef)
 			refdef->lightstyles[surf->styles[maps]].white;
 	}
 }
+
+void
+R_AddDynamicLights(msurface_t *surf, refdef_t *r_newrefdef,
+	float *s_blocklights, const float *s_blocklights_max)
+{
+	int lnum;
+	float fdist, frad, fminlight;
+	vec3_t impact, local;
+	int t;
+	int i;
+	int smax, tmax;
+	dlight_t *dl;
+	float *plightdest;
+	float fsacc, ftacc;
+
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
+
+	for (lnum = 0; lnum < r_newrefdef->num_dlights; lnum++)
+	{
+		if (!(surf->dlightbits & (1 << lnum)))
+		{
+			continue; /* not lit by this light */
+		}
+
+		dl = &r_newrefdef->dlights[lnum];
+		frad = dl->intensity;
+		fdist = DotProduct(dl->origin, surf->plane->normal) -
+				surf->plane->dist;
+		frad -= fabs(fdist);
+
+		/* rad is now the highest intensity on the plane */
+		fminlight = DLIGHT_CUTOFF;
+
+		if (frad < fminlight)
+		{
+			continue;
+		}
+
+		fminlight = frad - fminlight;
+
+		for (i = 0; i < 3; i++)
+		{
+			impact[i] = dl->origin[i] -
+						surf->plane->normal[i] * fdist;
+		}
+
+		local[0] = DotProduct(impact, surf->lmvecs[0]) +
+			surf->lmvecs[0][3] - surf->texturemins[0];
+		local[1] = DotProduct(impact, surf->lmvecs[1]) +
+			surf->lmvecs[1][3] - surf->texturemins[1];
+
+		plightdest = s_blocklights;
+
+		for (t = 0, ftacc = 0; t < tmax; t++, ftacc += (1 << surf->lmshift))
+		{
+			int s, td;
+
+			td = local[1] - ftacc;
+
+			if (td < 0)
+			{
+				td = -td;
+			}
+
+			td *= surf->lmvlen[1];
+
+			for (s = 0, fsacc = 0; s < smax; s++, fsacc += (1 << surf->lmshift), plightdest += 3)
+			{
+				int sd;
+
+				sd = Q_ftol(local[0] - fsacc);
+
+				if (sd < 0)
+				{
+					sd = -sd;
+				}
+
+				sd *= surf->lmvlen[0];
+
+				if (sd > td)
+				{
+					fdist = sd + (td >> 1);
+				}
+				else
+				{
+					fdist = td + (sd >> 1);
+				}
+
+				if ((fdist < fminlight) && (plightdest < (s_blocklights_max - 3)))
+				{
+					float diff = frad - fdist;
+
+					plightdest[0] += diff * dl->color[0];
+					plightdest[1] += diff * dl->color[1];
+					plightdest[2] += diff * dl->color[2];
+				}
+			}
+		}
+	}
+}

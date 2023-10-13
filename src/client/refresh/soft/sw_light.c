@@ -57,7 +57,7 @@ R_PushDlights
 =============
 */
 void
-R_PushDlights (const model_t *model)
+R_PushDlights(const model_t *model)
 {
 	int		i;
 	dlight_t	*l;
@@ -71,12 +71,12 @@ R_PushDlights (const model_t *model)
 }
 
 static void
-R_AddDynamicLights(drawsurf_t* drawsurf)
+RI_AddDynamicLights(drawsurf_t* drawsurf)
 {
 	msurface_t 	*surf;
-	int		lnum;
-	int		smax, tmax;
-	mtexinfo_t	*tex;
+	int lnum;
+	int smax, tmax;
+	mtexinfo_t *tex;
 
 	surf = drawsurf->surf;
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -129,39 +129,57 @@ R_AddDynamicLights(drawsurf_t* drawsurf)
 				surf->plane->dist;
 		rad -= fabs(dist);
 		minlight = DLIGHT_CUTOFF;	// dl->minlight;
-		if (rad < minlight)
-			continue;
-		minlight = rad - minlight;
 
-		for (i=0 ; i<3 ; i++)
+		if (rad < minlight)
 		{
-			impact[i] = dl->origin[i] -
-					surf->plane->normal[i]*dist;
+			continue;
 		}
 
-		local[0] = DotProduct (impact, tex->vecs[0]) + tex->vecs[0][3];
-		local[1] = DotProduct (impact, tex->vecs[1]) + tex->vecs[1][3];
+		minlight = rad - minlight;
+
+		for (i = 0; i < 3; i++)
+		{
+			impact[i] = dl->origin[i] -
+						surf->plane->normal[i] * dist;
+		}
+
+		local[0] = DotProduct(impact, tex->vecs[0]) +
+			tex->vecs[0][3];
+		local[1] = DotProduct(impact, tex->vecs[1]) +
+			tex->vecs[1][3];
 
 		local[0] -= surf->texturemins[0];
 		local[1] -= surf->texturemins[1];
 
-		for (t = 0 ; t < tmax ; t++)
+		for (t = 0; t < tmax; t++)
 		{
 			int s, td;
+
 			td = local[1] - t * (1 << surf->lmshift);
 			if (td < 0)
+			{
 				td = -td;
-			for (s=0 ; s<smax ; s++)
+			}
+
+			for (s = 0; s < smax; s++)
 			{
 				int sd;
 
 				sd = local[0] - s * (1 << surf->lmshift);
+
 				if (sd < 0)
+				{
 					sd = -sd;
+				}
+
 				if (sd > td)
+				{
 					dist = sd + (td >> 1);
+				}
 				else
+				{
 					dist = td + (sd >> 1);
+				}
 
 				for (i=0; i<3; i++)
 				{
@@ -188,25 +206,21 @@ R_AddDynamicLights(drawsurf_t* drawsurf)
 }
 
 /*
-===============
-R_BuildLightMap
-
-Combine and scale multiple lightmaps into the 8.8 format in blocklights
-===============
-*/
+ * Combine and scale multiple lightmaps into the 8.8 format in blocklights
+ */
 void
-R_BuildLightMap (drawsurf_t* drawsurf)
+R_BuildLightMap(drawsurf_t* drawsurf)
 {
-	int			smax, tmax;
-	int			size;
-	byte		*lightmap;
-	msurface_t	*surf;
+	int smax, tmax;
+	int size;
+	byte *lightmap;
+	msurface_t *surf;
 
 	surf = drawsurf->surf;
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
-	size = smax*tmax*3;
+	size = smax * tmax * 3;
 
 	if (blocklight_max <= blocklights + size)
 	{
@@ -214,7 +228,7 @@ R_BuildLightMap (drawsurf_t* drawsurf)
 		return;
 	}
 
-	// clear to no light
+	/* clear to no light */
 	memset(blocklights, 0, size * sizeof(light_t));
 
 	if (r_fullbright->value || !r_worldmodel->lightdata)
@@ -222,7 +236,7 @@ R_BuildLightMap (drawsurf_t* drawsurf)
 		return;
 	}
 
-	// add all the lightmaps
+	/* add all the lightmaps */
 	lightmap = surf->samples;
 	if (lightmap)
 	{
@@ -302,7 +316,9 @@ R_BuildLightMap (drawsurf_t* drawsurf)
 
 	// add all the dynamic lights
 	if (surf->dlightframe == r_framecount)
-		R_AddDynamicLights (drawsurf);
+	{
+		RI_AddDynamicLights (drawsurf);
+	}
 
 	// bound, invert, and shift
 	{
