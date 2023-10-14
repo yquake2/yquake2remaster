@@ -7,6 +7,11 @@
  * G - texture glitches,
  * B - can't load.
 
+Notes:
+ * mgu5m1: non transparent flowers
+ * mgu3m2: broken allocation of lightmap
+ * mgu5m2: Too many models 256 (226 inline models)
+
 # Quake2 ReRelease
 
  | map                                 | gl1.4  | gl3/gles3 | gl4.6 | vk     | soft        |
