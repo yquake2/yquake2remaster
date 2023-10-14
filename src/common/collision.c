@@ -618,7 +618,7 @@ CM_TransformedPointContents(vec3_t p, int headnode,
 
 	l = CM_PointLeafnum_r(p_l, headnode);
 
-	if (!cmod.map_leafs || l > cmod.numleafs || l < 0)
+	if (!cmod.map_leafs || l >= (cmod.numleafs + EXTRA_LUMP_LEAFS) || l < 0)
 	{
 		return 0;
 	}
@@ -849,10 +849,14 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 static void
 CM_TraceToLeaf(int leafnum)
 {
-	int k;
-	int brushnum;
+	int k, maxleaf, brushnum;
 	cleaf_t *leaf;
 	cbrush_t *b;
+
+	if (leafnum >= (cmod.numleafs + EXTRA_LUMP_LEAFS) || leafnum < 0)
+	{
+		Com_DPrintf("%s: Incorrect leaf number!\n", __func__);
+	}
 
 	leaf = &cmod.map_leafs[leafnum];
 
@@ -861,15 +865,23 @@ CM_TraceToLeaf(int leafnum)
 		return;
 	}
 
+	maxleaf = leaf->firstleafbrush + leaf->numleafbrushes;
+	if (maxleaf >= (cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES))
+	{
+		Com_Error(ERR_FATAL, "%s: broken leaf! %d > %d\n",
+			__func__, maxleaf, cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES);
+	}
+
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
-		if ((leaf->firstleafbrush + k) > (cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES))
+		brushnum = cmod.map_leafbrushes[leaf->firstleafbrush + k];
+
+		if (brushnum < 0 || brushnum >= (cmod.numbrushes + EXTRA_LUMP_BRUSHES))
 		{
-			Com_Error(ERR_FATAL, "%s: broken leaf!\n", __func__);
+			Com_Error(ERR_FATAL, "%s: incorrect brushnum in leaf!\n", __func__);
 		}
 
-		brushnum = cmod.map_leafbrushes[leaf->firstleafbrush + k];
 		b = &cmod.map_brushes[brushnum];
 
 		if (b->checkcount == checkcount)
@@ -897,10 +909,14 @@ CM_TraceToLeaf(int leafnum)
 static void
 CM_TestInLeaf(int leafnum)
 {
-	int k;
-	int brushnum;
+	int k, maxleaf, brushnum;
 	cleaf_t *leaf;
 	cbrush_t *b;
+
+	if (leafnum > (cmod.numleafs + EXTRA_LUMP_LEAFS) || leafnum < 0)
+	{
+		Com_DPrintf("%s: Incorrect leaf number!\n", __func__);
+	}
 
 	leaf = &cmod.map_leafs[leafnum];
 
@@ -909,15 +925,23 @@ CM_TestInLeaf(int leafnum)
 		return;
 	}
 
+	maxleaf = leaf->firstleafbrush + leaf->numleafbrushes;
+	if (maxleaf >= (cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES))
+	{
+		Com_Error(ERR_FATAL, "%s: broken leaf! %d > %d\n",
+			__func__, maxleaf, cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES);
+	}
+
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
-		if ((leaf->firstleafbrush + k) > (cmod.numleafbrushes + EXTRA_LUMP_LEAFBRUSHES))
+		brushnum = cmod.map_leafbrushes[leaf->firstleafbrush + k];
+
+		if (brushnum < 0 || brushnum >= (cmod.numbrushes + EXTRA_LUMP_BRUSHES))
 		{
-			Com_Error(ERR_FATAL, "%s: broken leaf!\n", __func__);
+			Com_Error(ERR_FATAL, "%s: incorrect brushnum in leaf!\n", __func__);
 		}
 
-		brushnum = cmod.map_leafbrushes[leaf->firstleafbrush + k];
 		b = &cmod.map_brushes[brushnum];
 
 		if (b->checkcount == checkcount)
@@ -1453,7 +1477,7 @@ CMod_LoadLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyl
 		Com_Error(ERR_DROP, "%s: Map %s with no leafs", __func__, name);
 	}
 
-	out = *map_leafs = Hunk_Alloc(count * sizeof(*out));
+	out = *map_leafs = Hunk_Alloc((count + EXTRA_LUMP_LEAFS) * sizeof(*out));
 	*numleafs = count;
 	*numclusters = 0;
 
@@ -1462,8 +1486,8 @@ CMod_LoadLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyl
 		out->contents = LittleLong(in->contents);
 		out->cluster = LittleShort(in->cluster);
 		out->area = LittleShort(in->area);
-		out->firstleafbrush = LittleShort(in->firstleafbrush);
-		out->numleafbrushes = LittleShort(in->numleafbrushes);
+		out->firstleafbrush = LittleShort(in->firstleafbrush) & 0xFFFF;
+		out->numleafbrushes = LittleShort(in->numleafbrushes) & 0xFFFF;
 
 		if (out->cluster >= *numclusters)
 		{
@@ -1516,7 +1540,7 @@ CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *empty
 		Com_Error(ERR_DROP, "%s: Map with no leafs", __func__);
 	}
 
-	out = *map_leafs = Hunk_Alloc(count * sizeof(*out));
+	out = *map_leafs = Hunk_Alloc((count + EXTRA_LUMP_LEAFS) * sizeof(*out));
 	*numleafs = count;
 	*numclusters = 0;
 
@@ -1525,8 +1549,8 @@ CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *empty
 		out->contents = LittleLong(in->contents);
 		out->cluster = LittleLong(in->cluster);
 		out->area = LittleLong(in->area);
-		out->firstleafbrush = LittleLong(in->firstleafbrush);
-		out->numleafbrushes = LittleLong(in->numleafbrushes);
+		out->firstleafbrush = LittleLong(in->firstleafbrush) & 0xFFFFFFFF;
+		out->numleafbrushes = LittleLong(in->numleafbrushes) & 0xFFFFFFFF;
 
 		if (out->cluster >= *numclusters)
 		{
@@ -2105,7 +2129,7 @@ CM_EntityString(void)
 int
 CM_LeafContents(int leafnum)
 {
-	if ((leafnum < 0) || (leafnum >= cmod.numleafs))
+	if ((leafnum < 0) || (leafnum >= (cmod.numleafs + EXTRA_LUMP_LEAFS)))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
@@ -2116,7 +2140,7 @@ CM_LeafContents(int leafnum)
 int
 CM_LeafCluster(int leafnum)
 {
-	if ((leafnum < 0) || (leafnum >= cmod.numleafs))
+	if ((leafnum < 0) || (leafnum >= (cmod.numleafs + EXTRA_LUMP_LEAFS)))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}
@@ -2127,7 +2151,7 @@ CM_LeafCluster(int leafnum)
 int
 CM_LeafArea(int leafnum)
 {
-	if ((leafnum < 0) || (leafnum >= cmod.numleafs))
+	if ((leafnum < 0) || (leafnum >= (cmod.numleafs + EXTRA_LUMP_LEAFS)))
 	{
 		Com_Error(ERR_DROP, "%s: bad number", __func__);
 	}

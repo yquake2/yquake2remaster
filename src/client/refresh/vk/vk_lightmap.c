@@ -68,6 +68,7 @@ LM_UploadBlock(qboolean dynamic)
 	{
 		if (vk_state.lightmap_textures[texture].resource.image != VK_NULL_HANDLE)
 		{
+			/* FIXME: Incorrect lightmap load: mgu3m2 */
 			QVk_UpdateTextureData(&vk_state.lightmap_textures[texture], vk_lms.lightmap_buffer, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
 		}
 		else

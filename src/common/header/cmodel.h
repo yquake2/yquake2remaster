@@ -33,10 +33,11 @@
 #define EXTRA_LUMP_EDGES 13
 #define EXTRA_LUMP_FACES 6
 #define EXTRA_LUMP_PLANES 12
-#define EXTRA_LUMP_LEAFBRUSHES 1
+#define EXTRA_LUMP_LEAFBRUSHES 2
 #define EXTRA_LUMP_BRUSHES 1
 #define EXTRA_LUMP_NODES 6
 #define EXTRA_LUMP_BRUSHSIDES 6
+#define EXTRA_LUMP_LEAFS 1
 
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);
 extern void Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,

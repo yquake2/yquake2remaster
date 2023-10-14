@@ -2126,7 +2126,7 @@ Mod_LoadMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int 
 	{
 		int j;
 
-		j = LittleShort(in[i]);
+		j = LittleShort(in[i]) & 0xFFFF;
 
 		if ((j < 0) || (j >= numsurfaces))
 		{
@@ -2163,7 +2163,7 @@ Mod_LoadQMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int
 	for (i = 0; i < count; i++)
 	{
 		int j;
-		j = LittleLong(in[i]);
+		j = LittleLong(in[i]) & 0xFFFFFFFF;
 
 		if ((j < 0) || (j >= numsurfaces))
 		{
@@ -2209,7 +2209,7 @@ Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_LEAFS) * sizeof(*out));
 
 	*leafs = out;
 	*numleafs = count;
@@ -2259,7 +2259,7 @@ Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
+	out = Hunk_Alloc((count + EXTRA_LUMP_LEAFS) * sizeof(*out));
 
 	*leafs = out;
 	*numleafs = count;
