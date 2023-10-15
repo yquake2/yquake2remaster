@@ -274,8 +274,8 @@ typedef struct msurface_s
 enum {
 	// width and height used to be 128, so now we should be able to get the same lightmap data
 	// that used 32 lightmaps before into one, so 4 lightmaps should be enough
-	BLOCK_WIDTH = 1024,
-	BLOCK_HEIGHT = 512,
+	BLOCK_WIDTH = 128,
+	BLOCK_HEIGHT = 128,
 	LIGHTMAP_BYTES = 4,
 };
 
