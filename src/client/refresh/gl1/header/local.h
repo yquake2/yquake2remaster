@@ -235,7 +235,6 @@ void R_TexEnv(GLenum value);
 
 void RI_PushDlights(void);
 
-extern float *s_blocklights, *s_blocklights_max;
 extern model_t *r_worldmodel;
 extern unsigned d_8to24table[256];
 extern int registration_sequence;

@@ -39,8 +39,6 @@ void LM_InitBlock(void);
 void LM_UploadBlock(qboolean dynamic);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
 
-void RI_BuildLightMap(msurface_t *surf, byte *dest, int stride);
-
 static void
 R_DrawGLPoly(mpoly_t *p)
 {
@@ -328,7 +326,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				base += (surf->dlight_t * BLOCK_WIDTH +
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
-				RI_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
+				R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
+					&r_newrefdef, r_modulate->value, r_framecount);
 			}
 			else
 			{
@@ -374,7 +373,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				base += (surf->dlight_t * BLOCK_WIDTH +
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
-				RI_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
+				RI_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
+					&r_newrefdef, r_modulate->value, r_framecount);
 			}
 		}
 
@@ -508,7 +508,8 @@ R_RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 			smax = (fa->extents[0] >> fa->lmshift) + 1;
 			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
-			RI_BuildLightMap(fa, (void *)temp, smax * 4);
+			RI_BuildLightMap(fa, (void *)temp, smax * 4,
+					&r_newrefdef, r_modulate->value, r_framecount);
 			R_SetCacheState(fa, &r_newrefdef);
 
 			R_Bind(gl_state.lightmap_textures + fa->lightmaptexturenum);

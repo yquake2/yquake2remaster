@@ -35,8 +35,8 @@ LM_InitBlock(void)
 	memset(vk_lms.allocated, 0, sizeof(vk_lms.allocated));
 }
 
-void
-LM_UploadBlock()
+static void
+LM_UploadBlock(void)
 {
 	int texture;
 
@@ -44,7 +44,6 @@ LM_UploadBlock()
 
 	if (vk_state.lightmap_textures[texture].resource.image != VK_NULL_HANDLE)
 	{
-		/* FIXME: Incorrect lightmap load: mgu3m2 */
 		QVk_UpdateTextureData(&vk_state.lightmap_textures[texture], vk_lms.lightmap_buffer, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
 	}
 	else
@@ -238,7 +237,8 @@ Vk_CreateSurfaceLightmap(msurface_t *surf)
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
 	R_SetCacheState(surf, &r_newrefdef);
-	RI_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
+	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
+		&r_newrefdef, r_modulate->value, r_framecount);
 }
 
 void

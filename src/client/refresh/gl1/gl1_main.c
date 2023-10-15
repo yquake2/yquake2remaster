@@ -1169,8 +1169,7 @@ void
 R_Register(void)
 {
 	/* Init default value */
-	s_blocklights = NULL;
-	s_blocklights_max = NULL;
+	R_InitTemporaryLMBuffer();
 
 	gl_lefthand = ri.Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 	r_gunfov = ri.Cvar_Get("r_gunfov", "80", CVAR_ARCHIVE);
@@ -1598,14 +1597,7 @@ RI_Shutdown(void)
 	/* shutdown our QGL subsystem */
 	QGL_Shutdown();
 
-	/* Cleanup buffers */
-	if (s_blocklights)
-	{
-		free(s_blocklights);
-	}
-
-	s_blocklights = NULL;
-	s_blocklights_max = NULL;
+	R_FreeTemporaryLMBuffer();
 }
 
 static void

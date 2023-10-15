@@ -379,7 +379,9 @@ extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currentent
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 extern void R_SetCacheState(msurface_t *surf, refdef_t *r_newrefdef);
 extern void R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
-	float *s_blocklights, const float *s_blocklights_max, float modulate, int r_framecount);
+	float modulate, int r_framecount);
+extern void R_InitTemporaryLMBuffer(void);
+extern void R_FreeTemporaryLMBuffer(void);
 
 /* Warp Sky logic */
 extern void R_ClipSkyPolygon(int nump, vec3_t vecs, int stage,

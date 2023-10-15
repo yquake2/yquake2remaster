@@ -32,7 +32,7 @@ static int		r_numvblocks;
 static unsigned char	*r_source, *r_sourcemax;
 static unsigned		*r_lightptr;
 
-void RI_BuildLightMap (drawsurf_t *drawsurf);
+void RI_BuildLightMap(drawsurf_t *drawsurf);
 
 static int	sc_size;
 static surfcache_t	*sc_rover;
@@ -482,10 +482,10 @@ D_CacheSurface (const entity_t *currententity, msurface_t *surface, int miplevel
 	c_surf++;
 
 	// calculate the lightings
-	RI_BuildLightMap (&r_drawsurf);
+	RI_BuildLightMap(&r_drawsurf);
 
 	// rasterize the surface into the cache
-	R_DrawSurface (&r_drawsurf);
+	R_DrawSurface(&r_drawsurf);
 
 	return cache;
 }

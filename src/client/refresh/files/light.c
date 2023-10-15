@@ -26,6 +26,9 @@
 
 #include "../ref_shared.h"
 
+static float *s_blocklights = NULL, *s_blocklights_max = NULL;
+
+
 static int
 BSPX_LightGridSingleValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles, int x, int y, int z, vec3_t res_diffuse)
 {
@@ -391,12 +394,59 @@ R_AddDynamicLights(msurface_t *surf, refdef_t *r_newrefdef,
 	}
 }
 
+void
+R_InitTemporaryLMBuffer(void)
+{
+	s_blocklights = NULL;
+	s_blocklights_max = NULL;
+}
+
+void
+R_FreeTemporaryLMBuffer(void)
+{
+	/* Cleanup buffers */
+	if (s_blocklights)
+	{
+		free(s_blocklights);
+	}
+
+	s_blocklights = NULL;
+	s_blocklights_max = NULL;
+}
+
+static void
+R_ResizeTemporaryLMBuffer(size_t size)
+{
+	if (!s_blocklights || ((s_blocklights + size) >= s_blocklights_max))
+	{
+		int new_size = ROUNDUP(size, 1024);
+
+		if (new_size < 4096)
+		{
+			new_size = 4096;
+		}
+
+		if (s_blocklights)
+		{
+			free(s_blocklights);
+		}
+
+		s_blocklights = malloc(new_size * sizeof(float));
+		s_blocklights_max = s_blocklights + new_size;
+
+		if (!s_blocklights)
+		{
+			Com_Error(ERR_DROP, "Can't alloc s_blocklights");
+		}
+	}
+}
+
 /*
  * Combine and scale multiple lightmaps into the floating format in blocklights
  */
 void
 R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
-	float *s_blocklights, const float *s_blocklights_max, float modulate, int r_framecount)
+	float modulate, int r_framecount)
 {
 	int smax, tmax;
 	int r, g, b, a, max;
@@ -416,11 +466,7 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 	size = smax * tmax;
 
-	if ((size * 3) >= (s_blocklights_max - s_blocklights))
-	{
-		Com_Error(ERR_DROP, "%s lighmap requires more space %ld < %d",
-			__func__, s_blocklights_max - s_blocklights, size * 3);
-	}
+	R_ResizeTemporaryLMBuffer(size * 3);
 
 	/* set to full bright if no light data */
 	if (!surf->samples)
@@ -701,5 +747,4 @@ void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightframecount
 	{
 		R_MarkLights(l, 1 << i, nodes, r_dlightframecount, surfaces);
 	}
-
 }
