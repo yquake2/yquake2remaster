@@ -450,7 +450,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		/* create lightmaps and polygons */
-		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)))
+		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 		{
 			LM_CreateSurfaceLightmap(out);
 		}
@@ -576,7 +576,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		/* create lightmaps and polygons */
-		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)))
+		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 		{
 			LM_CreateSurfaceLightmap(out);
 		}

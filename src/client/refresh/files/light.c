@@ -502,7 +502,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 	float *bl;
 
 	if (surf->texinfo->flags &
-		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
+		(SURF_SKY | SURF_TRANSPARENT | SURF_WARP))
 	{
 		Com_Error(ERR_DROP, "%s called for non-lit surface", __func__);
 	}

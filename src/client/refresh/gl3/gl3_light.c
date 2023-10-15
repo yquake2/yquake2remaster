@@ -78,7 +78,7 @@ GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 	byte *lightmap;
 
 	if (surf->texinfo->flags &
-		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
+		(SURF_SKY | SURF_TRANSPARENT | SURF_WARP))
 	{
 		Com_Error(ERR_DROP, "GL3_BuildLightMap called for non-lit surface");
 	}

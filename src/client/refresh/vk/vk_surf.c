@@ -230,7 +230,7 @@ R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *cur
 	dynamic:
 		if (r_dynamic->value)
 		{
-			if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)))
+			if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 			{
 				is_dynamic = true;
 			}
@@ -305,6 +305,10 @@ R_DrawAlphaSurfaces(void)
 		else if (s->texinfo->flags & SURF_TRANS66)
 		{
 			color[3] = 0.66f;
+		}
+		else if (s->texinfo->flags & SURF_ALPHATEST)
+		{
+			color[3] = 0.99f;
 		}
 
 		if (s->flags & SURF_DRAWTURB)
@@ -434,7 +438,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 	dynamic:
 		if (r_dynamic->value)
 		{
-			if (!(surf->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)))
+			if (!(surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 			{
 				is_dynamic = true;
 			}
@@ -642,7 +646,7 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel, float *
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
-			if (psurf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+			if (psurf->texinfo->flags & SURF_TRANSPARENT)
 			{
 				/* add to the translucent chain */
 				psurf->texturechain = r_alpha_surfaces;
@@ -835,7 +839,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			/* just adds to visible sky bounds */
 			RE_AddSkySurface(surf);
 		}
-		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+		else if (surf->texinfo->flags & SURF_TRANSPARENT)
 		{
 			/* add to the translucent chain */
 			surf->texturechain = r_alpha_surfaces;

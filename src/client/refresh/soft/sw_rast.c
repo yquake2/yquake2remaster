@@ -532,7 +532,7 @@ R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *
 	qboolean	r_nearzionly;
 
 	// translucent surfaces are not drawn by the edge renderer
-	if (fa->texinfo->flags & (SURF_TRANS33|SURF_TRANS66))
+	if (fa->texinfo->flags & SURF_TRANSPARENT)
 	{
 		fa->nextalphasurface = r_alpha_surfaces;
 		r_alpha_surfaces = fa;
@@ -756,7 +756,7 @@ R_RenderBmodelFace(entity_t *currententity, bedge_t *pedges, msurface_t *psurf, 
 	qboolean	makeleftedge, makerightedge;
 	qboolean	r_nearzionly;
 
-	if (psurf->texinfo->flags & (SURF_TRANS33|SURF_TRANS66))
+	if (psurf->texinfo->flags & SURF_TRANSPARENT)
 	{
 		psurf->nextalphasurface = r_alpha_surfaces;
 		r_alpha_surfaces = psurf;

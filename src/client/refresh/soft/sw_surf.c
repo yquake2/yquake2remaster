@@ -261,18 +261,22 @@ void
 R_InitCaches (void)
 {
 	int		size;
-
 	// calculate size to allocate
 	int pix;
+
 	// surface cache size at 320X240
 	size = 1024*768;
 
 	pix = vid_buffer_width*vid_buffer_height;
 	if (pix > 64000)
-		size += (pix-64000)*3;
+	{
+		size += (pix - 64000) * 3;
+	}
 
 	if (r_farsee->value > 0)
+	{
 		size *= 2;
+	}
 
 	if (sw_surfcacheoverride->value > size)
 	{
@@ -298,7 +302,6 @@ R_InitCaches (void)
 	sc_base->owner = NULL;
 	sc_base->size = sc_size;
 }
-
 
 /*
 ==================
@@ -331,7 +334,7 @@ D_SCAlloc
 =================
 */
 static surfcache_t *
-D_SCAlloc (int width, int size)
+D_SCAlloc(int width, int size)
 {
 	surfcache_t	*new;
 
@@ -345,7 +348,7 @@ D_SCAlloc (int width, int size)
 		Com_Error(ERR_FATAL, "%s: bad cache size %d\n", __func__, size);
 	}
 
-	// Add header size
+	/* Add header size */
 	size += ((char*)sc_base->data - (char*)sc_base);
 	size = (size + 3) & ~3;
 	if (size > sc_size)
@@ -353,27 +356,33 @@ D_SCAlloc (int width, int size)
 		Com_Error(ERR_FATAL, "%s: %i > cache size of %i", __func__, size, sc_size);
 	}
 
-	// if there is not size bytes after the rover, reset to the start
+	/* if there is not size bytes after the rover, reset to the start */
 	if ( !sc_rover || (byte *)sc_rover - (byte *)sc_base > sc_size - size)
 	{
 		sc_rover = sc_base;
 	}
 
-	// colect and free surfcache_t blocks until the rover block is large enough
+	/* colect and free surfcache_t blocks until the rover block is large enough */
 	new = sc_rover;
 	if (sc_rover->owner)
+	{
 		*sc_rover->owner = NULL;
+	}
 
 	while (new->size < size)
 	{
-		// free another
+		/* free another */
 		sc_rover = sc_rover->next;
+
 		if (!sc_rover)
 		{
 			Com_Error(ERR_FATAL, "%s: hit the end of memory", __func__);
 		}
+
 		if (sc_rover->owner)
+		{
 			*sc_rover->owner = NULL;
+		}
 
 		new->size += sc_rover->size;
 		new->next = sc_rover->next;
@@ -391,12 +400,17 @@ D_SCAlloc (int width, int size)
 		new->size = size;
 	}
 	else
+	{
 		sc_rover = new->next;
+	}
 
 	new->width = width;
+
 	// DEBUG
 	if (width > 0)
+	{
 		new->height = (size - sizeof(*new) + sizeof(new->data)) / width;
+	}
 
 	new->owner = NULL; // should be set properly after return
 

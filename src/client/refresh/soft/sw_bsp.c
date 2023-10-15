@@ -394,7 +394,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 
 		pbedge[j-1].pnext = NULL; // mark end of edges
 
-		if ( !( psurf->texinfo->flags & ( SURF_TRANS66 | SURF_TRANS33 ) ))
+		if ( !( psurf->texinfo->flags & SURF_TRANSPARENT ))
 		{
 			// FIXME: Fan broken in borehole
 			// teleport: 1231.000000 770.250000 -579.375000

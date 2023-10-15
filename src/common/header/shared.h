@@ -497,6 +497,9 @@ typedef struct cvar_s
 #define SURF_TRANS66 0x20
 #define SURF_FLOWING 0x40       /* scroll towards angle */
 #define SURF_NODRAW 0x80        /* don't bother referencing the texture */
+#define SURF_ALPHATEST 0x02000000 /* KMQUAKE2 Alpha test flag */
+/* Transparnet but not explicitly warp */
+#define SURF_TRANSPARENT (SURF_TRANS33 | SURF_TRANS66 | SURF_ALPHATEST)
 
 /* content masks */
 #define MASK_ALL (-1)

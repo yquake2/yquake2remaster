@@ -370,6 +370,10 @@ GL3_DrawAlphaSurfaces(void)
 		{
 			alpha = 0.666f;
 		}
+		else if (s->texinfo->flags & SURF_ALPHATEST)
+		{
+			alpha = 0.999f;
+		}
 		if(alpha != gl3state.uni3DData.alpha)
 		{
 			gl3state.uni3DData.alpha = alpha;
@@ -446,7 +450,7 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
 	lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	assert((surf->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)) == 0
+	assert((surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)) == 0
 			&& "RenderLightMappedPoly mustn't be called with transparent, sky or warping surfaces!");
 
 	// Any dynamic lights on this surface?
@@ -512,7 +516,7 @@ DrawInlineBModel(entity_t *currententity, gl3model_t *currentmodel)
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
-			if (psurf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+			if (psurf->texinfo->flags & SURF_TRANSPARENT)
 			{
 				/* add to the translucent chain */
 				psurf->texturechain = gl3_alpha_surfaces;
@@ -725,7 +729,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			/* just adds to visible sky bounds */
 			RE_AddSkySurface(surf);
 		}
-		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+		else if (surf->texinfo->flags & SURF_TRANSPARENT)
 		{
 			/* add to the translucent chain */
 			surf->texturechain = gl3_alpha_surfaces;

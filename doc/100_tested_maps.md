@@ -10,7 +10,6 @@
 ## Quake2 ReRelease
 
 Notes:
- * mgu5m1: gl1,vk: non transparent flowers
  * mgu5m2: server code: Too many models 256 (226 inline models)
 
  | map                            | gl1.4  | gl3/gles3 | gl4.6  | vk     | soft        |
