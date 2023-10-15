@@ -240,7 +240,6 @@ void	Vk_FreeUnusedImages (void);
 qboolean Vk_ImageHasFreeSpace(void);
 
 void LM_InitBlock(void);
-void LM_UploadBlock(qboolean dynamic);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
 
 void	RE_BeginRegistration (const char *model);

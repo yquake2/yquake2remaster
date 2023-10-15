@@ -409,12 +409,18 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
 	if (surf->texinfo->flags &
 		(SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
 	{
-		Com_Error(ERR_DROP, "RI_BuildLightMap called for non-lit surface");
+		Com_Error(ERR_DROP, "%s called for non-lit surface", __func__);
 	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 	size = smax * tmax;
+
+	if ((size * 3) >= (s_blocklights_max - s_blocklights))
+	{
+		Com_Error(ERR_DROP, "%s lighmap requires more space %ld < %d",
+			__func__, s_blocklights_max - s_blocklights, size * 3);
+	}
 
 	/* set to full bright if no light data */
 	if (!surf->samples)

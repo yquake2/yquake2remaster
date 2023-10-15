@@ -138,9 +138,11 @@ float *s_blocklights = NULL, *s_blocklights_max = NULL;
 void
 RI_BuildLightMap(msurface_t *surf, byte *dest, int stride)
 {
-	int size;
+	int size, smax, tmax;
 
-	size = surf->extents[0] * surf->extents[1];
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
+	size = smax * tmax;
 
 	if (!s_blocklights || (s_blocklights + (size * 3) >= s_blocklights_max))
 	{
