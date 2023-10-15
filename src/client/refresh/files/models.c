@@ -1446,8 +1446,8 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 		}
 		out->plane = planes + planenum;
 
-		out->firstsurface = LittleShort(in->firstface);
-		out->numsurfaces = LittleShort(in->numfaces);
+		out->firstsurface = LittleShort(in->firstface) & 0xFFFF;
+		out->numsurfaces = LittleShort(in->numfaces) & 0xFFFF;
 		out->contents = CONTENTS_NODE; /* differentiate from leafs */
 
 		for (j = 0; j < 2; j++)
@@ -1528,8 +1528,8 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 		}
 		out->plane = planes + planenum;
 
-		out->firstsurface = LittleLong(in->firstface);
-		out->numsurfaces = LittleLong(in->numfaces);
+		out->firstsurface = LittleLong(in->firstface) & 0xFFFFFFFF;
+		out->numsurfaces = LittleLong(in->numfaces) & 0xFFFFFFFF;
 		out->contents = CONTENTS_NODE; /* differentiate from leafs */
 
 		for (j = 0; j < 2; j++)

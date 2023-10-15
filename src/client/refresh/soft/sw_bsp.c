@@ -278,7 +278,7 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 
 		if (numbedges >= MAX_BMODEL_EDGES)
 		{
-			R_Printf(PRINT_ALL,"Out of edges for bmodel\n");
+			R_Printf(PRINT_ALL, "Out of edges for bmodel\n");
 			return;
 		}
 	}
@@ -574,6 +574,12 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 
 		// recurse down the children, front side first
 		R_RecursiveWorldNode (currententity, currentmodel, node->children[side], clipflags, insubmodel);
+
+		if ((node->numsurfaces + node->firstsurface) > currentmodel->numsurfaces)
+		{
+			R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+			return;
+		}
 
 		// draw stuff
 		c = node->numsurfaces;

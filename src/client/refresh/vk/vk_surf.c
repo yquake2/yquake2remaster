@@ -809,6 +809,12 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	R_RecursiveWorldNode(currententity, node->children[side]);
 
+	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
+	{
+		R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+		return;
+	}
+
 	/* draw stuff */
 	for (c = node->numsurfaces,
 		 surf = r_worldmodel->surfaces + node->firstsurface;

@@ -699,6 +699,12 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	RecursiveWorldNode(currententity, node->children[side]);
 
+	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->numsurfaces)
+	{
+		R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+		return;
+	}
+
 	/* draw stuff */
 	for (c = node->numsurfaces,
 		 surf = gl3_worldmodel->surfaces + node->firstsurface;
