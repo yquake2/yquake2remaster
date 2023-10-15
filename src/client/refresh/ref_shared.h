@@ -383,6 +383,7 @@ extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, cons
 	const refdef_t *r_newrefdef, float modulate, int r_framecount);
 extern void R_InitTemporaryLMBuffer(void);
 extern void R_FreeTemporaryLMBuffer(void);
+extern byte *R_GetTemporaryLMBuffer(size_t size);
 
 /* Warp Sky logic */
 extern void R_ClipSkyPolygon(int nump, vec3_t vecs, int stage,

@@ -32,7 +32,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#define REF_VERSION	"SOFT 0.01"
+#define REF_VERSION	"Yamagi Quake II Software Refresher"
 
 /*
 

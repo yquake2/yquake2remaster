@@ -504,14 +504,17 @@ R_RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 			 (fa->styles[maps] == 0)) &&
 			  (fa->dlightframe != r_framecount))
 		{
-			unsigned temp[34 * 34];
-			int smax, tmax;
+			int smax, tmax, size;
+			byte *temp;
 
 			smax = (fa->extents[0] >> fa->lmshift) + 1;
 			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
-			R_BuildLightMap(fa, (void *)temp, smax * 4,
-				(byte*)temp + sizeof(temp),
+			size = smax * tmax * LIGHTMAP_BYTES;
+			temp = R_GetTemporaryLMBuffer(size);
+
+			R_BuildLightMap(fa, temp, smax * 4,
+				temp + size,
 				&r_newrefdef, r_modulate->value, r_framecount);
 			R_SetCacheState(fa, &r_newrefdef);
 

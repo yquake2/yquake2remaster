@@ -7,16 +7,17 @@
  * G - texture glitches,
  * B - can't load.
 
+## Quake2 ReRelease
+
 Notes:
+ * mgu2m3: vk: crash
  * mgu5m1: gl1,vk: non transparent flowers
  * mgu5m2: server code: Too many models 256 (226 inline models)
-
-# Quake2 ReRelease
 
  | map                                 | gl1.4  | gl3/gles3 | gl4.6 | vk     | soft        |
  | ----------------------------------- | ------ | --------- | ----- | ------ | ----------- |
  | maps/badlands.bsp                   | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/base1.bsp                      | ML/MD5 | WL/ML/MD5 | N/A   | ML/MD5 | WL/ML/MD5/G |
+ | maps/base1.bsp                      | ML/MD5 | WL/ML/MD5 | N/A   | MD5    | WL/ML/MD5/G |
  | maps/base2.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/base3.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/base64.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
@@ -62,35 +63,35 @@ Notes:
  | maps/jail4.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/jail5.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/lab.bsp                        | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgdm1.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu1m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu1m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu1m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu1m4.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu1m5.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu1trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu2m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu2m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu2m3.bsp                     | B      | N/A       | N/A   | ML     | N/A         |
- | maps/mgu3m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu3m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu3m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu3m4.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu3secret.bsp                 | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu4m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu4m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu4m3.bsp                     | B      | N/A       | N/A   | B      | N/A         |
- | maps/mgu4trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu5m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
+ | maps/mgdm1.bsp                      | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu1m1.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu1m2.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu1m3.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu1m4.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu1m5.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu1trial.bsp                  | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu2m1.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu2m2.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu2m3.bsp                     | B      | N/A       | N/A   | B      | N/A         |
+ | maps/mgu3m1.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu3m2.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu3m3.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu3m4.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu3secret.bsp                 | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu4m1.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu4m2.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu4m3.bsp                     | B      | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu4trial.bsp                  | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu5m1.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
  | maps/mgu5m2.bsp                     | B      | N/A       | N/A   | B      | N/A         |
- | maps/mgu5m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu5trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu6m1.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu6m2.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu6m3.bsp                     | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mgu6trial.bsp                  | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mguboss.bsp                    | N/A    | N/A       | N/A   | N/A    | N/A         |
- | maps/mguhub.bsp                     | ML     | G         | B     | ML     | ML          |
+ | maps/mgu5m3.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu5trial.bsp                  | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu6m1.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu6m2.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu6m3.bsp                     | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mgu6trial.bsp                  | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mguboss.bsp                    | N/A    | N/A       | N/A   | MD5    | N/A         |
+ | maps/mguhub.bsp                     | MD5    | ML/MD5    | ML/MD5| MD5    | ML/MD5      |
  | maps/mine1.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mine2.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |
  | maps/mine3.bsp                      | N/A    | N/A       | N/A   | N/A    | N/A         |

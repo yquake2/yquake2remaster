@@ -27,6 +27,7 @@
 #include "../ref_shared.h"
 
 static float *s_blocklights = NULL, *s_blocklights_max = NULL;
+static byte *s_bufferlights = NULL, *s_bufferlights_max = NULL;
 
 
 static int
@@ -397,8 +398,12 @@ R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 void
 R_InitTemporaryLMBuffer(void)
 {
+	/* buffer for generate light maps */
 	s_blocklights = NULL;
 	s_blocklights_max = NULL;
+	/* buffer for temporary copy light maps */
+	s_bufferlights = NULL;
+	s_bufferlights_max = NULL;
 }
 
 void
@@ -412,6 +417,15 @@ R_FreeTemporaryLMBuffer(void)
 
 	s_blocklights = NULL;
 	s_blocklights_max = NULL;
+
+	/* Cleanup temp buffers */
+	if (s_bufferlights)
+	{
+		free(s_bufferlights);
+	}
+
+	s_bufferlights = NULL;
+	s_bufferlights_max = NULL;
 }
 
 static void
@@ -439,6 +453,37 @@ R_ResizeTemporaryLMBuffer(size_t size)
 			Com_Error(ERR_DROP, "Can't alloc s_blocklights");
 		}
 	}
+}
+
+/* Use this one instead allocate in stack */
+byte*
+R_GetTemporaryLMBuffer(size_t size)
+{
+	if (!s_bufferlights || ((s_bufferlights + size) >= s_bufferlights_max))
+	{
+		int new_size = ROUNDUP(size, 1024);
+
+		if (new_size < 4096)
+		{
+			new_size = 4096;
+		}
+
+		if (s_bufferlights)
+		{
+			free(s_bufferlights);
+		}
+
+		s_bufferlights = malloc(new_size);
+		s_bufferlights_max = s_bufferlights + new_size;
+
+		if (!s_bufferlights)
+		{
+			Com_Error(ERR_DROP, "Can't alloc s_bufferlights");
+		}
+	}
+
+	memset(s_bufferlights, 0, size);
+	return s_bufferlights;
 }
 
 /*
@@ -583,7 +628,7 @@ store:
 	stride -= (smax << 2);
 	bl = s_blocklights;
 
-	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) >= destmax)
+	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) > destmax)
 	{
 		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > %ld",
 			__func__, (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES, destmax - dest);

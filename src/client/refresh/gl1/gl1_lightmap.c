@@ -261,8 +261,11 @@ void
 LM_BeginBuildingLightmaps(model_t *m)
 {
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
-	int i;
-	unsigned dummy[BLOCK_WIDTH * BLOCK_HEIGHT] = {0};
+	int i, size;
+	byte *dummy;
+
+	size = BLOCK_WIDTH * BLOCK_HEIGHT * LIGHTMAP_BYTES;
+	dummy = R_GetTemporaryLMBuffer(size);
 
 	memset(gl_lms.allocated, 0, sizeof(gl_lms.allocated));
 

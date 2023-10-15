@@ -241,14 +241,17 @@ R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *cur
 	{
 		if ((fa->styles[maps] >= 32 || fa->styles[maps] == 0) && (fa->dlightframe != r_framecount))
 		{
-			unsigned	temp[BLOCK_WIDTH * BLOCK_HEIGHT];
-			int			smax, tmax;
+			int smax, tmax, size;
+			byte *temp;
 
 			smax = (fa->extents[0] >> fa->lmshift) + 1;
 			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
-			R_BuildLightMap(fa, (void *)temp, smax * 4,
-				(byte*)temp + sizeof(temp),
+			size = smax * tmax * LIGHTMAP_BYTES;
+			temp = R_GetTemporaryLMBuffer(size);
+
+			R_BuildLightMap(fa, temp, smax * 4,
+				temp + size,
 				&r_newrefdef, r_modulate->value, r_framecount);
 			R_SetCacheState(fa, &r_newrefdef);
 
@@ -445,14 +448,17 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 
 	if (is_dynamic)
 	{
-		unsigned	temp[BLOCK_WIDTH * BLOCK_HEIGHT];
-		int			smax, tmax;
+		int smax, tmax, size;
+		byte *temp;
 
 		smax = (surf->extents[0] >> surf->lmshift) + 1;
 		tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
-		R_BuildLightMap(surf, (void *)temp, smax * 4,
-			(byte*)temp + sizeof(temp),
+		size = smax * tmax * LIGHTMAP_BYTES;
+		temp = R_GetTemporaryLMBuffer(size);
+
+		R_BuildLightMap(surf, temp, smax * 4,
+			temp + size,
 			&r_newrefdef, r_modulate->value, r_framecount);
 
 		if ((surf->styles[map] >= 32 || surf->styles[map] == 0) && (surf->dlightframe != r_framecount))

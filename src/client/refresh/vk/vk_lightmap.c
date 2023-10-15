@@ -270,12 +270,16 @@ Vk_BeginBuildingLightmaps(model_t *m)
 	*/
 	if (vk_state.lightmap_textures[DYNLIGHTMAP_OFFSET].resource.image == VK_NULL_HANDLE)
 	{
-		for (i = DYNLIGHTMAP_OFFSET; i < MAX_LIGHTMAPS*2; i++)
+		for (i = DYNLIGHTMAP_OFFSET; i < MAX_LIGHTMAPS * 2; i++)
 		{
-			unsigned	dummy[BLOCK_WIDTH * BLOCK_HEIGHT];
+			byte *dummy;
+			int size;
+
+			size = BLOCK_WIDTH * BLOCK_HEIGHT * LIGHTMAP_BYTES;
+			dummy = R_GetTemporaryLMBuffer(size);
 
 			QVVKTEXTURE_CLEAR(vk_state.lightmap_textures[i]);
-			QVk_CreateTexture(&vk_state.lightmap_textures[i], (unsigned char*)dummy,
+			QVk_CreateTexture(&vk_state.lightmap_textures[i], dummy,
 				BLOCK_WIDTH, BLOCK_HEIGHT, vk_current_lmap_sampler, false);
 			QVk_DebugSetObjectName((uint64_t)vk_state.lightmap_textures[i].resource.image,
 				VK_OBJECT_TYPE_IMAGE, va("Image: dynamic lightmap #%d", i));
