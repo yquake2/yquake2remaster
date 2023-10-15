@@ -327,6 +327,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
 				R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
+					gl_lms.lightmap_buffer + sizeof(gl_lms.lightmap_buffer),
 					&r_newrefdef, r_modulate->value, r_framecount);
 			}
 			else
@@ -374,6 +375,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
 				R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
+					gl_lms.lightmap_buffer + sizeof(gl_lms.lightmap_buffer),
 					&r_newrefdef, r_modulate->value, r_framecount);
 			}
 		}
@@ -509,7 +511,8 @@ R_RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
 			R_BuildLightMap(fa, (void *)temp, smax * 4,
-					&r_newrefdef, r_modulate->value, r_framecount);
+				(byte*)temp + sizeof(temp),
+				&r_newrefdef, r_modulate->value, r_framecount);
 			R_SetCacheState(fa, &r_newrefdef);
 
 			R_Bind(gl_state.lightmap_textures + fa->lightmaptexturenum);

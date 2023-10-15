@@ -271,14 +271,7 @@ typedef struct msurface_s
 	struct surfcache_s	*cachespots[MIPLEVELS]; /* surface generation data */
 } msurface_t;
 
-enum {
-	// width and height used to be 128, so now we should be able to get the same lightmap data
-	// that used 32 lightmaps before into one, so 4 lightmaps should be enough
-	BLOCK_WIDTH = 128,
-	BLOCK_HEIGHT = 128,
-	LIGHTMAP_BYTES = 4,
-};
-
+#define LIGHTMAP_BYTES	4
 /* BSPX Light octtree */
 #define LGNODE_LEAF		(1u<<31)
 #define LGNODE_MISSING	(1u<<30)
@@ -385,9 +378,9 @@ extern void R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edg
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
-extern void R_SetCacheState(msurface_t *surf, refdef_t *r_newrefdef);
-extern void R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
-	float modulate, int r_framecount);
+extern void R_SetCacheState(msurface_t *surf, const refdef_t *r_newrefdef);
+extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *destmax,
+	const refdef_t *r_newrefdef, float modulate, int r_framecount);
 extern void R_InitTemporaryLMBuffer(void);
 extern void R_FreeTemporaryLMBuffer(void);
 

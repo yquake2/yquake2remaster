@@ -281,7 +281,7 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 }
 
 void
-R_SetCacheState(msurface_t *surf, refdef_t *refdef)
+R_SetCacheState(msurface_t *surf, const refdef_t *refdef)
 {
 	int maps;
 
@@ -294,7 +294,7 @@ R_SetCacheState(msurface_t *surf, refdef_t *refdef)
 }
 
 static void
-R_AddDynamicLights(msurface_t *surf, refdef_t *r_newrefdef,
+R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 	float *s_blocklights, const float *s_blocklights_max)
 {
 	int lnum;
@@ -445,8 +445,8 @@ R_ResizeTemporaryLMBuffer(size_t size)
  * Combine and scale multiple lightmaps into the floating format in blocklights
  */
 void
-R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
-	float modulate, int r_framecount)
+R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *destmax,
+	const refdef_t *r_newrefdef, float modulate, int r_framecount)
 {
 	int smax, tmax;
 	int r, g, b, a, max;
@@ -467,6 +467,11 @@ R_BuildLightMap(msurface_t *surf, byte *dest, int stride, refdef_t *r_newrefdef,
 	size = smax * tmax;
 
 	R_ResizeTemporaryLMBuffer(size * 3);
+
+	if ((s_blocklights + size * 3) >= s_blocklights_max)
+	{
+		Com_Error(ERR_DROP, "%s temporary blocklights too small for lightmap", __func__);
+	}
 
 	/* set to full bright if no light data */
 	if (!surf->samples)
@@ -577,6 +582,12 @@ store:
 	/* put into texture format */
 	stride -= (smax << 2);
 	bl = s_blocklights;
+
+	if ((dest + (stride * (tmax - 1)) + smax * 4) >= destmax)
+	{
+		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > %ld",
+			__func__, (stride * (tmax - 1)) + smax * 4, destmax - dest);
+	}
 
 	for (i = 0; i < tmax; i++, dest += stride)
 	{
