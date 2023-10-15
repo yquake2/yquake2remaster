@@ -56,8 +56,7 @@ GL4_LM_UploadBlock(void)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		gl4_lms.internal_format = GL_LIGHTMAP_FORMAT;
-		glTexImage2D(GL_TEXTURE_2D, 0, gl4_lms.internal_format,
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_LIGHTMAP_FORMAT,
 		             BLOCK_WIDTH, BLOCK_HEIGHT, 0, GL_LIGHTMAP_FORMAT,
 		             GL_UNSIGNED_BYTE, gl4_lms.lightmap_buffers[map]);
 	}
@@ -256,7 +255,6 @@ GL4_LM_BeginBuildingLightmaps(gl4model_t *m)
 	gl4_newrefdef.lightstyles = lightstyles;
 
 	gl4_lms.current_lightmap_texture = 0;
-	gl4_lms.internal_format = GL_LIGHTMAP_FORMAT;
 
 	// Note: the dynamic lightmap used to be initialized here, we don't use that anymore.
 }

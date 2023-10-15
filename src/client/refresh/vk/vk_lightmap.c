@@ -27,8 +27,6 @@
 
 #include "header/local.h"
 
-#define LIGHTMAP_BYTES 4
-
 void
 LM_InitBlock(void)
 {

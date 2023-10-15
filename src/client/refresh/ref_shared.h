@@ -271,6 +271,14 @@ typedef struct msurface_s
 	struct surfcache_s	*cachespots[MIPLEVELS]; /* surface generation data */
 } msurface_t;
 
+enum {
+	// width and height used to be 128, so now we should be able to get the same lightmap data
+	// that used 32 lightmaps before into one, so 4 lightmaps should be enough
+	BLOCK_WIDTH = 1024,
+	BLOCK_HEIGHT = 512,
+	LIGHTMAP_BYTES = 4,
+};
+
 /* BSPX Light octtree */
 #define LGNODE_LEAF		(1u<<31)
 #define LGNODE_MISSING	(1u<<30)

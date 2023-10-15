@@ -279,9 +279,6 @@ typedef struct
 #define MAX_LIGHTMAPS 256
 #define DYNLIGHTMAP_OFFSET MAX_LIGHTMAPS
 
-#define	BLOCK_WIDTH		128
-#define	BLOCK_HEIGHT	128
-
 typedef struct
 {
 	int	current_lightmap_texture;
