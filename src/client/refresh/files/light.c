@@ -583,10 +583,10 @@ store:
 	stride -= (smax << 2);
 	bl = s_blocklights;
 
-	if ((dest + (stride * (tmax - 1)) + smax * 4) >= destmax)
+	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) >= destmax)
 	{
 		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > %ld",
-			__func__, (stride * (tmax - 1)) + smax * 4, destmax - dest);
+			__func__, (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES, destmax - dest);
 	}
 
 	for (i = 0; i < tmax; i++, dest += stride)
@@ -652,7 +652,7 @@ store:
 			dest[3] = a;
 
 			bl += 3;
-			dest += 4;
+			dest += LIGHTMAP_BYTES;
 		}
 	}
 }

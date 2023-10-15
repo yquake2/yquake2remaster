@@ -9,7 +9,6 @@
 
 Notes:
  * mgu5m1: gl1,vk: non transparent flowers
- * mgu3m2: gl1: broken allocation of lightmap
  * mgu5m2: server code: Too many models 256 (226 inline models)
 
 # Quake2 ReRelease

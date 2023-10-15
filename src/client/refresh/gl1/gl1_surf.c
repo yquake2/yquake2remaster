@@ -352,8 +352,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 						}
 
 						R_DrawGLPolyChain(drawsurf->polys,
-								(drawsurf->light_s - drawsurf->dlight_s) * (1.0 / 128.0),
-								(drawsurf->light_t - drawsurf->dlight_t) * (1.0 / 128.0));
+								(drawsurf->light_s - drawsurf->dlight_s) * (1.0 / BLOCK_WIDTH),
+								(drawsurf->light_t - drawsurf->dlight_t) * (1.0 / BLOCK_WIDTH));
 					}
 				}
 
@@ -398,8 +398,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				}
 
 				R_DrawGLPolyChain(surf->polys,
-						(surf->light_s - surf->dlight_s) * (1.0 / 128.0),
-						(surf->light_t - surf->dlight_t) * (1.0 / 128.0));
+						(surf->light_s - surf->dlight_s) * (1.0 / BLOCK_WIDTH),
+						(surf->light_t - surf->dlight_t) * (1.0 / BLOCK_WIDTH));
 			}
 		}
 	}

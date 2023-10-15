@@ -241,7 +241,7 @@ R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *cur
 	{
 		if ((fa->styles[maps] >= 32 || fa->styles[maps] == 0) && (fa->dlightframe != r_framecount))
 		{
-			unsigned	temp[34 * 34];
+			unsigned	temp[BLOCK_WIDTH * BLOCK_HEIGHT];
 			int			smax, tmax;
 
 			smax = (fa->extents[0] >> fa->lmshift) + 1;
@@ -252,7 +252,8 @@ R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *cur
 				&r_newrefdef, r_modulate->value, r_framecount);
 			R_SetCacheState(fa, &r_newrefdef);
 
-			QVk_UpdateTextureData(&vk_state.lightmap_textures[fa->lightmaptexturenum], (unsigned char*)temp, fa->light_s, fa->light_t, smax, tmax);
+			QVk_UpdateTextureData(&vk_state.lightmap_textures[fa->lightmaptexturenum],
+				(byte*)temp, fa->light_s, fa->light_t, smax, tmax);
 
 			fa->lightmapchain = vk_lms.lightmap_surfaces[fa->lightmaptexturenum];
 			vk_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
@@ -444,7 +445,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 
 	if (is_dynamic)
 	{
-		unsigned	temp[128 * 128];
+		unsigned	temp[BLOCK_WIDTH * BLOCK_HEIGHT];
 		int			smax, tmax;
 
 		smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -459,12 +460,14 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, enti
 			R_SetCacheState(surf, &r_newrefdef);
 
 			lmtex = surf->lightmaptexturenum;
-			QVk_UpdateTextureData(&vk_state.lightmap_textures[surf->lightmaptexturenum], (unsigned char *)temp, surf->light_s, surf->light_t, smax, tmax);
+			QVk_UpdateTextureData(&vk_state.lightmap_textures[surf->lightmaptexturenum],
+				(byte*)temp, surf->light_s, surf->light_t, smax, tmax);
 		}
 		else
 		{
 			lmtex = surf->lightmaptexturenum + DYNLIGHTMAP_OFFSET;
-			QVk_UpdateTextureData(&vk_state.lightmap_textures[lmtex], (unsigned char *)temp, surf->light_s, surf->light_t, smax, tmax);
+			QVk_UpdateTextureData(&vk_state.lightmap_textures[lmtex],
+				(byte*)temp, surf->light_s, surf->light_t, smax, tmax);
 		}
 
 		c_brush_polys++;

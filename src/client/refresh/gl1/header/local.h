@@ -62,8 +62,8 @@
 #define TEXNUM_IMAGES 1153
 #define MAX_GLTEXTURES 1024
 #define MAX_SCRAPS 1
-#define BLOCK_WIDTH 128
-#define BLOCK_HEIGHT 128
+#define BLOCK_WIDTH 256
+#define BLOCK_HEIGHT 256
 #define REF_VERSION "Yamagi Quake II OpenGL Refresher"
 #define BACKFACE_EPSILON 0.01
 #define MAX_LIGHTMAPS 256
@@ -341,7 +341,7 @@ typedef struct
 
 	/* the lightmap texture data needs to be kept in
 	   main memory so texsubimage can update properly */
-	byte lightmap_buffer[4 * BLOCK_WIDTH * BLOCK_HEIGHT];
+	byte lightmap_buffer[LIGHTMAP_BYTES * BLOCK_WIDTH * BLOCK_HEIGHT];
 } gllightmapstate_t;
 
 extern glconfig_t gl_config;
