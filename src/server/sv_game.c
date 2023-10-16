@@ -173,7 +173,8 @@ PF_setmodel(edict_t *ent, const char *name)
 
 	if (!name)
 	{
-		Com_Error(ERR_DROP, "%s: NULL", __func__);
+		Com_Printf("%s: Name is NULL\n", __func__);
+		return;
 	}
 
 	i = SV_ModelIndex(name);
