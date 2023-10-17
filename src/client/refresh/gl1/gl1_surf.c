@@ -572,10 +572,6 @@ R_DrawAlphaSurfaces(void)
 		{
 			glColor4f(intens, intens, intens, 0.66);
 		}
-		else if (s->texinfo->flags & SURF_ALPHATEST)
-		{
-			glColor4f(intens, intens, intens, 0.99);
-		}
 		else
 		{
 			glColor4f(intens, intens, intens, 1);

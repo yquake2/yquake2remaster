@@ -306,10 +306,6 @@ R_DrawAlphaSurfaces(void)
 		{
 			color[3] = 0.66f;
 		}
-		else if (s->texinfo->flags & SURF_ALPHATEST)
-		{
-			color[3] = 0.99f;
-		}
 
 		if (s->flags & SURF_DRAWTURB)
 		{

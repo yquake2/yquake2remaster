@@ -370,10 +370,6 @@ GL4_DrawAlphaSurfaces(void)
 		{
 			alpha = 0.666f;
 		}
-		else if (s->texinfo->flags & SURF_ALPHATEST)
-		{
-			alpha = 0.999f;
-		}
 
 		if(alpha != gl4state.uni3DData.alpha)
 		{
