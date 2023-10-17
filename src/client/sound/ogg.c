@@ -185,14 +185,16 @@ OGG_InitTrackList(void)
 
 			char testFileName[MAX_OSPATH];
 
-			// the simple case (like before: $mod/music/02.ogg - 11.ogg or whatever)
+			/* the simple case (like before: $mod/music/02.ogg - 11.ogg or whatever) */
 			snprintf(testFileName, MAX_OSPATH, "%s02.ogg", fullMusicPath);
 
 			if(Sys_IsFile(testFileName))
 			{
+				int i;
+
 				ogg_tracks[2] = strdup(testFileName);
 
-				for(int i=3; i<MAX_NUM_OGGTRACKS; ++i)
+				for(i = 3; i < MAX_NUM_OGGTRACKS; ++i)
 				{
 					snprintf(testFileName, MAX_OSPATH, "%s%02i.ogg", fullMusicPath, i);
 
@@ -206,13 +208,15 @@ OGG_InitTrackList(void)
 				return;
 			}
 
-			// the GOG case: music/Track02.ogg to Track21.ogg
+			/* the GOG case: music/Track02.ogg to Track21.ogg */
 			snprintf(testFileName, MAX_OSPATH, "%sTrack%02i.ogg",
 				fullMusicPath, getMappedGOGtrack(8, gameType));
 
 			if(Sys_IsFile(testFileName))
 			{
-				for(int i=2; i<MAX_NUM_OGGTRACKS; ++i)
+				int i;
+
+				for(i = 2; i < MAX_NUM_OGGTRACKS; ++i)
 				{
 					int gogTrack = getMappedGOGtrack(i, gameType);
 
@@ -227,10 +231,34 @@ OGG_InitTrackList(void)
 
 				return;
 			}
+
+			/* the ReRelease case: music/track02.ogg to track79.ogg */
+			snprintf(testFileName, MAX_OSPATH, "%strack%02i.ogg",
+				fullMusicPath, getMappedGOGtrack(8, gameType));
+
+			if(Sys_IsFile(testFileName))
+			{
+				int i;
+
+				for(i = 2; i < MAX_NUM_OGGTRACKS; ++i)
+				{
+					int gogTrack = getMappedGOGtrack(i, gameType);
+
+					snprintf(testFileName, MAX_OSPATH, "%strack%02i.ogg", fullMusicPath, gogTrack);
+
+					if(Sys_IsFile(testFileName))
+					{
+						ogg_tracks[i] = strdup(testFileName);
+						ogg_maxfileindex = i;
+					}
+				}
+
+				return;
+			}
 		}
 	}
 
-	// if tracks have been found above, we would've returned there
+	/* if tracks have been found above, we would've returned there */
 	Com_Printf("No Ogg Vorbis music tracks have been found, so there will be no music.\n");
 }
 
@@ -439,7 +467,7 @@ OGG_PlayTrack(int trackNo, qboolean cdtrack, qboolean immediate)
 		return;
 	} break;
 	case 2:			// sequential
-	{		
+	{
 		newtrack = (curtrack + 1) % (ogg_maxfileindex + 1) != 0 ? (curtrack + 1) : 2;
 	} break;
 	case 3:			// random
