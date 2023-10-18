@@ -377,12 +377,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4  xatrix
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue
 
 # ----------
 
@@ -1453,7 +1453,7 @@ XATRIX_OBJS_ = \
 	src/xatrix/g_combat.o \
 	src/xatrix/g_func.o \
 	src/xatrix/g_items.o \
-	src/xatrix/g_main.o \
+	src/game/g_main.o \
 	src/xatrix/g_misc.o \
 	src/xatrix/g_monster.o \
 	src/xatrix/g_phys.o \
@@ -1526,6 +1526,132 @@ else
 release/xatrix/game.so : $(XATRIX_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+
+# The rogue game
+ifeq ($(YQ2_OSTYPE), Windows)
+rogue:
+	@echo "===> Building rogue/game.dll"
+	${Q}mkdir -p release/rogue
+	$(MAKE) release/rogue/game.dll
+else ifeq ($(YQ2_OSTYPE), Darwin)
+rogue:
+	@echo "===> Building rogue/game.dylib"
+	${Q}mkdir -p release/rogue
+	$(MAKE) release/rogue/game.dylib
+else
+rogue:
+	@echo "===> Building rogue/game.so"
+	${Q}mkdir -p release/rogue
+	$(MAKE) release/rogue/game.so
+
+release/rogue/game.so : CFLAGS += -fPIC -Wno-unused-result
+release/rogue/game.so : LDFLAGS += -shared
+
+endif
+
+build/rogue/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) -o $@ $<
+
+# ----------
+
+ROGUE_OBJS_ = \
+	src/common/shared/flash.o \
+	src/common/shared/rand.o \
+	src/common/shared/shared.o \
+	src/rogue/g_ai.o \
+	src/rogue/g_chase.o \
+	src/rogue/g_cmds.o \
+	src/rogue/g_combat.o \
+	src/rogue/g_func.o \
+	src/rogue/g_items.o \
+	src/rogue/g_main.o \
+	src/rogue/g_misc.o \
+	src/rogue/g_monster.o \
+	src/rogue/g_newai.o \
+	src/rogue/g_newdm.o \
+	src/rogue/g_newfnc.o \
+	src/rogue/g_newtarg.o \
+	src/rogue/g_newtrig.o \
+	src/rogue/g_newweap.o \
+	src/rogue/g_phys.o \
+	src/rogue/g_spawn.o \
+	src/rogue/g_sphere.o \
+	src/rogue/g_svcmds.o \
+	src/rogue/g_target.o \
+	src/rogue/g_trigger.o \
+	src/rogue/g_turret.o \
+	src/rogue/g_utils.o \
+	src/rogue/g_weapon.o \
+	src/rogue/dm/ball.o \
+	src/rogue/dm/tag.o \
+	src/rogue/monster/berserker/berserker.o \
+	src/rogue/monster/boss2/boss2.o \
+	src/rogue/monster/boss3/boss3.o \
+	src/rogue/monster/boss3/boss31.o \
+	src/rogue/monster/boss3/boss32.o \
+	src/rogue/monster/brain/brain.o \
+	src/rogue/monster/carrier/carrier.o \
+	src/rogue/monster/chick/chick.o \
+	src/rogue/monster/flipper/flipper.o \
+	src/rogue/monster/float/float.o \
+	src/rogue/monster/flyer/flyer.o \
+	src/rogue/monster/gladiator/gladiator.o \
+	src/rogue/monster/gunner/gunner.o \
+	src/rogue/monster/hover/hover.o \
+	src/rogue/monster/infantry/infantry.o \
+	src/rogue/monster/insane/insane.o \
+	src/rogue/monster/medic/medic.o \
+	src/rogue/monster/misc/move.o \
+	src/rogue/monster/mutant/mutant.o \
+	src/rogue/monster/parasite/parasite.o \
+	src/rogue/monster/soldier/soldier.o \
+	src/rogue/monster/stalker/stalker.o \
+	src/rogue/monster/supertank/supertank.o \
+	src/rogue/monster/tank/tank.o \
+	src/rogue/monster/turret/turret.o \
+	src/rogue/monster/widow/widow.o \
+	src/rogue/monster/widow/widow2.o \
+	src/rogue/player/client.o \
+	src/rogue/player/hud.o \
+	src/rogue/player/trail.o \
+	src/rogue/player/view.o \
+	src/rogue/player/weapon.o \
+	src/rogue/savegame/savegame.o
+
+# ----------
+
+# Rewrite paths to our object directory
+ROGUE_OBJS = $(patsubst %,build/rogue/%,$(ROGUE_OBJS_))
+
+# ----------
+
+# Generate header dependencies
+ROGUE_DEPS= $(ROGUE_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in
+-include $(ROGUE_DEPS)
+
+# ----------
+
+ifeq ($(YQ2_OSTYPE), Windows)
+release/rogue/game.dll : $(ROGUE_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/rogue/game.dylib : $(ROGUE_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
+else
+release/rogue/game.so : $(ROGUE_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------

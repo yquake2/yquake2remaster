@@ -629,7 +629,8 @@ mmove_t chick_move_duck =
 };
 
 void
-chick_dodge(edict_t *self, edict_t *attacker, float eta /* unused */)
+chick_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
+	trace_t *tr /* unused */)
 {
 	if (!self || !attacker)
 	{

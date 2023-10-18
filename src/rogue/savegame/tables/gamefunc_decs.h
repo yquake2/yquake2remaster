@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2011 Yamagi Burmeister
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * Prototypes for every function in the game.so.
@@ -29,16 +44,19 @@ extern mmoveList_t * GetMmoveByAddress ( mmove_t * adr ) ;
 extern byte * FindFunctionByName ( char * name ) ;
 extern functionList_t * GetFunctionByAddress ( byte * adr ) ;
 extern void InitGame ( void ) ;
-extern void Info_SetValueForKey ( char * s , char * key , char * value ) ;
-extern qboolean Info_Validate ( char * s ) ;
-extern void Info_RemoveKey ( char * s , char * key ) ;
-extern char * Info_ValueForKey ( char * s , char * key ) ;
-extern void Com_sprintf ( char * dest , int size , char * fmt , ... ) ;
-extern int Q_strcasecmp ( char * s1 , char * s2 ) ;
-extern int Q_strncasecmp ( char * s1 , char * s2 , int n ) ;
+extern void Info_SetValueForKey ( char * s , const char * key , const char * value ) ;
+extern qboolean Info_Validate ( const char * s ) ;
+extern void Info_RemoveKey ( char * s , const char * key ) ;
+extern char * Info_ValueForKey ( char * s , const char * key ) ;
+extern int Q_strlcat ( char * dst , const char * src , int size ) ;
+extern int Q_strlcpy ( char * dst , const char * src , int size ) ;
+extern char * Q_strlwr ( char * s ) ;
+extern void Com_sprintf ( char * dest , int size , const char * fmt , ... ) ;
+extern int Q_strcasecmp ( const char * s1 , const char * s2 ) ;
+extern int Q_strncasecmp ( const char * s1 , const char * s2 , int n ) ;
 extern int Q_stricmp ( const char * s1 , const char * s2 ) ;
-extern void Com_PageInMemory ( byte * buffer , int size ) ;
-extern char * COM_Parse ( char * * data_p ) ;
+extern void Com_PageInMemory ( const byte * buffer , int size ) ;
+extern const char * COM_Parse ( char * * data_p ) ;
 extern char * va ( const char * format , ... ) ;
 extern void Swap_Init ( void ) ;
 extern float FloatNoSwap ( float f ) ;
@@ -55,34 +73,35 @@ extern short LittleShort ( short l ) ;
 extern short BigShort ( short l ) ;
 extern void COM_DefaultExtension ( char * path , const char * extension ) ;
 extern void COM_FilePath ( const char * in , char * out ) ;
-extern void COM_FileBase ( char * in , char * out ) ;
+extern void COM_FileBase ( const char * in , char * out ) ;
 extern const char * COM_FileExtension ( const char * in ) ;
-extern void COM_StripExtension ( char * in , char * out ) ;
-extern char * COM_SkipPath ( char * pathname ) ;
+extern void COM_StripExtension ( const char * in , char * out ) ;
+extern const char * COM_SkipPath ( const char * pathname ) ;
 extern int Q_log2 ( int val ) ;
-extern void VectorScale ( vec3_t in , vec_t scale , vec3_t out ) ;
+extern void VectorScale ( const vec3_t in , vec_t scale , vec3_t out ) ;
 extern void VectorInverse ( vec3_t v ) ;
-extern vec_t VectorLength ( vec3_t v ) ;
-extern void CrossProduct ( vec3_t v1 , vec3_t v2 , vec3_t cross ) ;
-extern void _VectorCopy ( vec3_t in , vec3_t out ) ;
-extern void _VectorAdd ( vec3_t veca , vec3_t vecb , vec3_t out ) ;
-extern void _VectorSubtract ( vec3_t veca , vec3_t vecb , vec3_t out ) ;
-extern vec_t _DotProduct ( vec3_t v1 , vec3_t v2 ) ;
-extern void VectorMA ( vec3_t veca , float scale , vec3_t vecb , vec3_t vecc ) ;
-extern vec_t VectorNormalize2 ( vec3_t v , vec3_t out ) ;
+extern vec_t VectorLength ( const vec3_t v ) ;
+extern void CrossProduct ( const vec3_t v1 , const vec3_t v2 , vec3_t cross ) ;
+extern void _VectorCopy ( const vec3_t in , vec3_t out ) ;
+extern void _VectorAdd ( const vec3_t veca , const vec3_t vecb , vec3_t out ) ;
+extern void _VectorSubtract ( const vec3_t veca , const vec3_t vecb , vec3_t out ) ;
+extern vec_t _DotProduct ( const vec3_t v1 , const vec3_t v2 ) ;
+extern void VectorMA ( const vec3_t veca , float scale , const vec3_t vecb , vec3_t vecc ) ;
+extern vec_t VectorNormalize2 ( const vec3_t v , vec3_t out ) ;
 extern vec_t VectorNormalize ( vec3_t v ) ;
-extern int VectorCompare ( vec3_t v1 , vec3_t v2 ) ;
-extern void AddPointToBounds ( vec3_t v , vec3_t mins , vec3_t maxs ) ;
+extern int VectorCompare ( const vec3_t v1 , const vec3_t v2 ) ;
+extern void AddPointToBounds ( const vec3_t v , vec3_t mins , vec3_t maxs ) ;
 extern void ClearBounds ( vec3_t mins , vec3_t maxs ) ;
 extern int BoxOnPlaneSide2 ( vec3_t emins , vec3_t emaxs , struct cplane_s * p ) ;
 extern float anglemod ( float a ) ;
 extern float LerpAngle ( float a2 , float a1 , float frac ) ;
 extern float Q_fabs ( float f ) ;
-extern void R_ConcatTransforms ( float in1 [ 3 ] [ 4 ] , float in2 [ 3 ] [ 4 ] , float out [ 3 ] [ 4 ] ) ;
-extern void R_ConcatRotations ( float in1 [ 3 ] [ 3 ] , float in2 [ 3 ] [ 3 ] , float out [ 3 ] [ 3 ] ) ;
+extern void R_ConcatTransforms ( const float in1 [ 3 ] [ 4 ] , const float in2 [ 3 ] [ 4 ] , float out [ 3 ] [ 4 ] ) ;
+extern void R_ConcatRotations ( const float in1 [ 3 ] [ 3 ] , const float in2 [ 3 ] [ 3 ] , float out [ 3 ] [ 3 ] ) ;
 extern void PerpendicularVector ( vec3_t dst , const vec3_t src ) ;
 extern void ProjectPointOnPlane ( vec3_t dst , const vec3_t p , const vec3_t normal ) ;
-extern void AngleVectors ( vec3_t angles , vec3_t forward , vec3_t right , vec3_t up ) ;
+extern void AngleVectors2 ( const vec3_t value1 , vec3_t angles ) ;
+extern void AngleVectors ( const vec3_t angles , vec3_t forward , vec3_t right , vec3_t up ) ;
 extern void RotatePointAroundVector ( vec3_t dst , const vec3_t dir , const vec3_t point , float degrees ) ;
 extern void Weapon_Heatbeam ( edict_t * ent ) ;
 extern void Heatbeam_Fire ( edict_t * ent ) ;
@@ -1011,7 +1030,7 @@ extern void tracker_pain_daemon_spawn ( edict_t * owner , edict_t * enemy , int 
 extern void tracker_pain_daemon_think ( edict_t * self ) ;
 extern void fire_blaster2 ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , int effect , qboolean hyper ) ;
 extern void blaster2_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
-extern void fire_heat ( edict_t * self , vec3_t start , vec3_t aimdir , vec3_t offset , int damage , int kick , qboolean monster ) ;
+extern void fire_heatbeam ( edict_t * self , vec3_t start , vec3_t aimdir , vec3_t offset , int damage , int kick , qboolean monster ) ;
 extern void fire_beams ( edict_t * self , vec3_t start , vec3_t aimdir , vec3_t offset , int damage , int kick , int te_beam , int te_impact , int mod ) ;
 extern void fire_tesla ( edict_t * self , vec3_t start , vec3_t aimdir , int damage_multiplier , int speed ) ;
 extern void tesla_lava ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
@@ -1089,7 +1108,7 @@ extern qboolean has_valid_enemy ( edict_t * self ) ;
 extern void monster_duck_up ( edict_t * self ) ;
 extern void monster_duck_hold ( edict_t * self ) ;
 extern void monster_duck_down ( edict_t * self ) ;
-extern void M_MonsterDodge ( edict_t * self , edict_t * attacker , float eta , trace_t * tr ) ;
+extern void M_MonsterDodge ( edict_t * self , edict_t * attacker , float eta, trace_t *tr ) ;
 extern void drawbbox ( edict_t * self ) ;
 extern qboolean below ( edict_t * self , edict_t * other ) ;
 extern void PredictAim ( edict_t * target , vec3_t start , float bolt_speed , qboolean eye_height , float offset , vec3_t aimdir , vec3_t aimpoint ) ;
@@ -1145,7 +1164,7 @@ extern void monster_fire_bfg ( edict_t * self , vec3_t start , vec3_t aimdir , i
 extern void monster_fire_railgun ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int kick , int flashtype ) ;
 extern void monster_fire_rocket ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , int flashtype ) ;
 extern void monster_fire_grenade ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int speed , int flashtype ) ;
-extern void monster_fire_heat ( edict_t * self , vec3_t start , vec3_t dir , vec3_t offset , int damage , int kick , int flashtype ) ;
+extern void monster_fire_heatbeam ( edict_t * self , vec3_t start , vec3_t dir , vec3_t offset , int damage , int kick , int flashtype ) ;
 extern void monster_fire_tracker ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , edict_t * enemy , int flashtype ) ;
 extern void monster_fire_blaster2 ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , int flashtype , int effect ) ;
 extern void monster_fire_blaster ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , int flashtype , int effect ) ;
@@ -1246,8 +1265,8 @@ extern void CheckNeedPass ( void ) ;
 extern void EndDMLevel ( void ) ;
 extern edict_t * CreateTargetChangeLevel ( char * map ) ;
 extern void ClientEndServerFrames ( void ) ;
-extern void Com_Printf ( char * msg , ... ) ;
-extern void Sys_Error ( char * error , ... ) ;
+extern void Com_Printf ( const char * msg , ... ) ;
+extern void Sys_Error ( const char * error , ... ) ;
 extern game_export_t * GetGameAPI ( game_import_t * import ) ;
 extern void ShutdownGame ( void ) ;
 extern void SP_xatrix_item ( edict_t * self ) ;

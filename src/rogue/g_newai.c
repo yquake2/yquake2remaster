@@ -1753,7 +1753,7 @@ monster_jump_finished(edict_t *self)
 }
 
 qboolean
-blind_rocket_ok (edict_t *self, vec3_t start, vec3_t right, vec3_t target, float ofs,
+blind_rocket_ok(edict_t *self, vec3_t start, vec3_t right, vec3_t target, float ofs,
 	vec3_t dir)
 {
 	trace_t	tr;

@@ -1145,7 +1145,7 @@
 {"monster_fire_railgun", (byte *)monster_fire_railgun},
 {"monster_fire_rocket", (byte *)monster_fire_rocket},
 {"monster_fire_grenade", (byte *)monster_fire_grenade},
-{"monster_fire_heat", (byte *)monster_fire_heat},
+{"monster_fire_heatbeam", (byte *)monster_fire_heatbeam},
 {"monster_fire_tracker", (byte *)monster_fire_tracker},
 {"monster_fire_blaster2", (byte *)monster_fire_blaster2},
 {"monster_fire_blaster", (byte *)monster_fire_blaster},

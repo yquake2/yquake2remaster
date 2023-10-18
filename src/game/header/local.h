@@ -462,7 +462,7 @@ typedef struct
 	void (*search)(edict_t *self);
 	void (*walk)(edict_t *self);
 	void (*run)(edict_t *self);
-	void (*dodge)(edict_t *self, edict_t *other, float eta);
+	void (*dodge)(edict_t *self, edict_t *other, float eta, trace_t *tr);
 	void (*attack)(edict_t *self);
 	void (*melee)(edict_t *self);
 	void (*sight)(edict_t *self, edict_t *other);
@@ -839,6 +839,8 @@ void monster_fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
 void monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype);
+void monster_fire_heatbeam(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
+		int damage, int kick, int flashtype);
 void monster_dabeam(edict_t *self);
 void monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
@@ -909,6 +911,8 @@ void fire_ionripper(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect);
 void fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 		float damage_radius, int radius_damage);
+void fire_heatbeam(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
+		int damage, int kick, qboolean monster);
 void fire_blueblaster(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect);
 void fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
@@ -1008,6 +1012,8 @@ void fire_tracker(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, edict_t *enemy);
 
 /* g_newai.c */
+qboolean blind_rocket_ok(edict_t *self, vec3_t start, vec3_t right, vec3_t target, float ofs,
+	vec3_t dir);
 qboolean blocked_checkplat(edict_t *self, float dist);
 qboolean blocked_checkjump(edict_t *self, float dist, float maxDown, float maxUp);
 qboolean blocked_checknewenemy(edict_t *self);

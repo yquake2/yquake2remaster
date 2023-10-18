@@ -1482,7 +1482,7 @@ fire_beams(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
 }
 
 void
-fire_heat(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
+fire_heatbeam(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
 		int damage, int kick, qboolean monster)
 {
 	if (!self)

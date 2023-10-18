@@ -3,8 +3,7 @@
  * Licensed under the GNU General Public License 2.0.
  */
 
-/*
- * =======================================================================
+/* =======================================================================
  *
  * Monster utility functions.
  *
@@ -100,7 +99,7 @@ monster_fire_tracker(edict_t *self, vec3_t start, vec3_t dir, int damage,
 }
 
 void
-monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
+monster_fire_heatbeam(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
 		int damage, int kick, int flashtype)
 {
 	if (!self)
@@ -108,7 +107,7 @@ monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
 		return;
 	}
 
-	fire_heat(self, start, dir, offset, damage, kick, true);
+	fire_heatbeam(self, start, dir, offset, damage, kick, true);
 
 	gi.WriteByte(svc_muzzleflash2);
 	gi.WriteShort(self - g_edicts);

@@ -1033,7 +1033,8 @@ mmove_t soldier_move_duck = {
 };
 
 void
-soldier_dodge(edict_t *self, edict_t *attacker, float eta)
+soldier_dodge(edict_t *self, edict_t *attacker, float eta,
+	trace_t *tr /* unused */)
 {
 	float r;
 
@@ -2760,7 +2761,8 @@ mmove_t soldierh_move_duck = {
 };
 
 void
-soldierh_dodge(edict_t *self, edict_t *attacker, float eta)
+soldierh_dodge(edict_t *self, edict_t *attacker, float eta,
+	trace_t *tr /* unused */)
 {
 	float r;
 

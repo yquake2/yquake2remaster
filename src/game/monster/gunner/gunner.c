@@ -626,7 +626,8 @@ mmove_t gunner_move_duck =
 };
 
 void
-gunner_dodge(edict_t *self, edict_t *attacker, float eta /* unused */)
+gunner_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
+	trace_t *tr /* unused */)
 {
 	if (!self || !attacker)
 	{

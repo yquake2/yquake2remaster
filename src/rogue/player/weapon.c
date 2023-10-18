@@ -2561,7 +2561,7 @@ Heatbeam_Fire(edict_t *ent)
 	/* This offset is the entity offset */
 	VectorSet(offset, 2, 7, -3);
 
-	fire_heat(ent, start, forward, offset, damage, kick, false);
+	fire_heatbeam(ent, start, forward, offset, damage, kick, false);
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);

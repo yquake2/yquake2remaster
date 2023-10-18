@@ -656,7 +656,8 @@ mmove_t medic_move_duck = {
 };
 
 void
-medic_dodge(edict_t *self, edict_t *attacker, float eta /* unused */)
+medic_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
+	trace_t *tr /* unused */)
 {
   	if (!self || !attacker)
 	{

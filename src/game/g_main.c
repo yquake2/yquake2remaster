@@ -182,7 +182,7 @@ ClientEndServerFrames(void)
 	edict_t *ent;
 
 	/* calc the player views now that all
-	   pushing  and damage has been added */
+	   pushing and damage has been added */
 	for (i = 0; i < maxclients->value; i++)
 	{
 		ent = g_edicts + 1 + i;
@@ -287,8 +287,10 @@ EndDMLevel(void)
 		ent = G_Find(NULL, FOFS(classname), "target_changelevel");
 
 		if (!ent)
-		{   /* the map designer didn't include a changelevel,
-			   so create a fake ent that goes back to the same level */
+		{
+			/* the map designer didn't include a changelevel,
+			   so create a fake ent that goes back to the same
+			   level */
 			BeginIntermission(CreateTargetChangeLevel(level.mapname));
 			return;
 		}

@@ -598,7 +598,8 @@ mmove_t infantry_move_duck = {
 };
 
 void
-infantry_dodge(edict_t *self, edict_t *attacker, float eta /* unused */)
+infantry_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
+	trace_t *tr /* unused */)
 {
 	if (!self || !attacker)
 	{

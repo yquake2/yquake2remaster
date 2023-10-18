@@ -1,9 +1,23 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * Jump in into the game.so and support functions.
@@ -28,8 +42,8 @@ edict_t *g_edicts;
 cvar_t *deathmatch;
 cvar_t *coop;
 cvar_t *coop_baseq2;	/* treat spawnflags according to baseq2 rules */
-cvar_t *coop_elevator_delay;
 cvar_t *coop_pickup_weapons;
+cvar_t *coop_elevator_delay;
 cvar_t *dmflags;
 cvar_t *skill;
 cvar_t *fraglimit;
@@ -43,7 +57,9 @@ cvar_t *maxentities;
 cvar_t *g_select_empty;
 cvar_t *dedicated;
 cvar_t *g_footsteps;
+cvar_t *g_monsterfootsteps;
 cvar_t *g_fix_triggered;
+cvar_t *g_commanderbody_nogod;
 
 cvar_t *filterban;
 
@@ -83,7 +99,7 @@ cvar_t *aimfix;
 cvar_t *g_machinegun_norecoil;
 cvar_t *g_swap_speed;
 
-void SpawnEntities(char *mapname, char *entities, char *spawnpoint);
+void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint);
 void ClientThink(edict_t *ent, usercmd_t *cmd);
 qboolean ClientConnect(edict_t *ent, char *userinfo);
 void ClientUserinfoChanged(edict_t *ent, char *userinfo);
@@ -91,10 +107,10 @@ void ClientDisconnect(edict_t *ent);
 void ClientBegin(edict_t *ent);
 void ClientCommand(edict_t *ent);
 void RunEntity(edict_t *ent);
-void WriteGame(char *filename, qboolean autosave);
-void ReadGame(char *filename);
-void WriteLevel(char *filename);
-void ReadLevel(char *filename);
+void WriteGame(const char *filename, qboolean autosave);
+void ReadGame(const char *filename);
+void WriteLevel(const char *filename);
+void ReadLevel(const char *filename);
 void InitGame(void);
 void G_RunFrame(void);
 
@@ -110,10 +126,11 @@ ShutdownGame(void)
 }
 
 /*
- * Returns a pointer to the structure with
- * all entry points and global variables
+ * Returns a pointer to the structure
+ * with all entry points and global
+ * variables
  */
-game_export_t *
+Q2_DLL_EXPORTED game_export_t *
 GetGameAPI(game_import_t *import)
 {
 	gi = *import;
@@ -141,37 +158,37 @@ GetGameAPI(game_import_t *import)
 
 	globals.edict_size = sizeof(edict_t);
 
-	/* Seed the PRNG */
+	/* Initalize the PRNG */
 	randk_seed();
 
 	return &globals;
 }
 
 /*
- * this is only here so the functions in
- * q_shared.c and q_shwin.c can link
+ * this is only here so the functions
+ * in shared source files can link
  */
 void
-Sys_Error(char *error, ...)
+Sys_Error(const char *error, ...)
 {
 	va_list argptr;
 	char text[1024];
 
 	va_start(argptr, error);
-	vsprintf(text, error, argptr);
+	vsnprintf(text, sizeof(text), error, argptr);
 	va_end(argptr);
 
 	gi.error("%s", text);
 }
 
 void
-Com_Printf(char *msg, ...)
+Com_Printf(const char *msg, ...)
 {
 	va_list argptr;
 	char text[1024];
 
 	va_start(argptr, msg);
-	vsprintf(text, msg, argptr);
+	vsnprintf(text, sizeof(text), msg, argptr);
 	va_end(argptr);
 
 	gi.dprintf("%s", text);
@@ -286,7 +303,7 @@ EndDMLevel(void)
 	{
 		BeginIntermission(CreateTargetChangeLevel(level.nextmap));
 	}
-	else /* search for a changelevel */
+	else    /* search for a changelevel */
 	{
 		ent = G_Find(NULL, FOFS(classname), "target_changelevel");
 
@@ -432,8 +449,8 @@ G_RunFrame(void)
 	level.framenum++;
 	level.time = level.framenum * FRAMETIME;
 
-	debristhisframe = 0;
 	gibsthisframe = 0;
+	debristhisframe = 0;
 
 	/* choose a client for monsters to target this frame */
 	AI_SetSightClient();
@@ -445,8 +462,9 @@ G_RunFrame(void)
 		return;
 	}
 
-	/* treat each object in turn  even the
-	   world gets a chance to think */
+	/* treat each object in turn
+	   even the world gets a chance
+	   to think */
 	ent = &g_edicts[0];
 
 	for (i = 0; i < globals.num_edicts; i++, ent++)
