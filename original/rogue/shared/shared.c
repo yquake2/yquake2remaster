@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /*
  * =======================================================================
  *
@@ -507,20 +508,9 @@ VectorNormalize(vec3_t v)
 vec_t
 VectorNormalize2(vec3_t v, vec3_t out)
 {
-	float length, ilength;
+	VectorCopy(v, out);
 
-	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-	length = (float)sqrt(length);
-
-	if (length)
-	{
-		ilength = 1 / length;
-		out[0] = v[0] * ilength;
-		out[1] = v[1] * ilength;
-		out[2] = v[2] * ilength;
-	}
-
-	return length;
+	return VectorNormalize(out);
 }
 
 void
@@ -888,7 +878,7 @@ Swap_Init(void)
  * need to have varargs versions of all text functions.
  */
 char *
-va(char *format, ...)
+va(const char *format, ...)
 {
 	va_list argptr;
 	static char string[1024];

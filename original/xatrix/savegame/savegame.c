@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /*
  * =======================================================================
  *
@@ -255,6 +256,7 @@ InitGame(void)
 	/* others */
 	aimfix = gi.cvar("aimfix", "0", CVAR_ARCHIVE);
 	g_machinegun_norecoil = gi.cvar("g_machinegun_norecoil", "0", CVAR_ARCHIVE);
+	g_swap_speed = gi.cvar("g_swap_speed", "1", 0);
 
 	/* items */
 	InitItems ();

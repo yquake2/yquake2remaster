@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /*
  * =======================================================================
  *
@@ -739,6 +740,7 @@
 {"MakronPrecache", (byte *)MakronPrecache},
 {"Makron_CheckAttack", (byte *)Makron_CheckAttack},
 {"makron_die", (byte *)makron_die},
+{"makron_torso_die", (byte *)makron_torso_die},
 {"makron_dead", (byte *)makron_dead},
 {"makron_torso", (byte *)makron_torso},
 {"makron_torso_think", (byte *)makron_torso_think},

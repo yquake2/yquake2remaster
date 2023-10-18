@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /* =======================================================================
  *
  * Miscellaneos entities, functs and functions.
@@ -207,6 +208,7 @@ ThrowGib(edict_t *self, char *gibname, int damage, int type)
 
 	gi.setmodel(gib, gibname);
 	gib->solid = SOLID_BBOX;
+	gib->svflags = SVF_DEADMONSTER;
 	gib->s.effects |= EF_GIB;
 	gib->flags |= FL_NO_KNOCKBACK;
 	gib->takedamage = DAMAGE_YES;
@@ -831,7 +833,7 @@ SP_info_null(edict_t *self)
 
 /*
  * QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
- * Used as a positional target for lightning.
+ * Used as a positional target for lighting.
  */
 void
 SP_info_notnull(edict_t *self)

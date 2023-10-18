@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /* =======================================================================
  *
  * HUD, deathmatch scoreboard, help computer and intermission stuff.
@@ -117,13 +118,15 @@ BeginIntermission(edict_t *targ)
 				}
 
 				/* strip players of all keys between units */
-				for (n = 0; n < MAX_ITEMS; n++)
+				for (n = 0; n < game.num_items; n++)
 				{
 					if (itemlist[n].flags & IT_KEY)
 					{
 						client->client->pers.inventory[n] = 0;
 					}
 				}
+
+				client->client->pers.power_cubes = 0;
 			}
 		}
 	}
@@ -400,7 +403,7 @@ G_SetStats(edict_t *ent)
 
 	/* health */
 	ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health;
+	ent->client->ps.stats[STAT_HEALTH] = (ent->health < -99) ? -99 : ent->health;
 
 	/* ammo */
 	if (!ent->client->ammo_index)

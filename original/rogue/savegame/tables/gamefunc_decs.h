@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /*
  * =======================================================================
  *
@@ -38,7 +39,7 @@ extern int Q_strncasecmp ( char * s1 , char * s2 , int n ) ;
 extern int Q_stricmp ( const char * s1 , const char * s2 ) ;
 extern void Com_PageInMemory ( byte * buffer , int size ) ;
 extern char * COM_Parse ( char * * data_p ) ;
-extern char * va ( char * format , ... ) ;
+extern char * va ( const char * format , ... ) ;
 extern void Swap_Init ( void ) ;
 extern float FloatNoSwap ( float f ) ;
 extern float FloatSwap ( float f ) ;
@@ -739,6 +740,7 @@ extern void SP_monster_makron ( edict_t * self ) ;
 extern void MakronPrecache ( void ) ;
 extern qboolean Makron_CheckAttack ( edict_t * self ) ;
 extern void makron_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
+extern void makron_torso_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void makron_dead ( edict_t * self ) ;
 extern void makron_torso ( edict_t * ent ) ;
 extern void makron_torso_think ( edict_t * self ) ;

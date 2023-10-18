@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /* =======================================================================
  *
  * Quake IIs legendary physic engine.
@@ -23,7 +24,6 @@ typedef struct
 	edict_t *ent;
 	vec3_t origin;
 	vec3_t angles;
-	float deltayaw;
 } pushed_t;
 pushed_t pushed[MAX_EDICTS], *pushed_p;
 
@@ -57,7 +57,10 @@ SV_TestEntityPosition(edict_t *ent)
 		return NULL;
 	}
 
-	if (ent->clipmask)
+	/* dead bodies are supposed to not be solid so lets
+	   ensure they only collide with BSP during pushmoves
+	*/
+	if (ent->clipmask && !(ent->svflags & SVF_DEADMONSTER))
 	{
 		mask = ent->clipmask;
 	}
@@ -522,6 +525,17 @@ retry:
 
 	trace = gi.trace(start, ent->mins, ent->maxs, end, ent, mask);
 
+	/* startsolid treats different-content volumes
+	   as continuous, like the bbox of a monster/player
+	   and the floor of an elevator. So do another trace
+	   that only collides with BSP so that we make a best
+	   effort to keep these entities inside non-solid space
+	*/
+	if (trace.startsolid && (mask & ~MASK_SOLID))
+	{
+		trace = gi.trace (start, ent->mins, ent->maxs, end, ent, MASK_SOLID);
+	}
+
 	VectorCopy(trace.endpos, ent->s.origin);
 	gi.linkentity(ent);
 
@@ -610,12 +624,6 @@ SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
 	pushed_p->ent = pusher;
 	VectorCopy(pusher->s.origin, pushed_p->origin);
 	VectorCopy(pusher->s.angles, pushed_p->angles);
-
-	if (pusher->client)
-	{
-		pushed_p->deltayaw = pusher->client->ps.pmove.delta_angles[YAW];
-	}
-
 	pushed_p++;
 
 	/* move the pusher to it's final position */
@@ -683,11 +691,6 @@ SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
 			/* try moving the contacted entity */
 			VectorAdd(check->s.origin, move, check->s.origin);
 
-			if (check->client)
-			{
-				check->client->ps.pmove.delta_angles[YAW] += amove[YAW];
-			}
-
 			/* figure movement due to the pusher's amove */
 			VectorSubtract(check->s.origin, pusher->s.origin, org);
 			org2[0] = DotProduct(org, forward);
@@ -735,11 +738,6 @@ SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
 		{
 			VectorCopy(p->origin, p->ent->s.origin);
 			VectorCopy(p->angles, p->ent->s.angles);
-
-			if (p->ent->client)
-			{
-				p->ent->client->ps.pmove.delta_angles[YAW] = p->deltayaw;
-			}
 
 			gi.linkentity(p->ent);
 		}
@@ -994,7 +992,11 @@ SV_Physics_Toss(edict_t *ent)
 
 	if (!wasinwater && isinwater)
 	{
-		gi.positioned_sound(old_origin, g_edicts, CHAN_AUTO, gi.soundindex("misc/h2ohit1.wav"), 1, 1, 0);
+		/* don't play splash sound for entities already in water on level start */
+		if (level.framenum > 3)
+		{
+			gi.positioned_sound(old_origin, g_edicts, CHAN_AUTO, gi.soundindex("misc/h2ohit1.wav"), 1, 1, 0);
+		}
 	}
 	else if (wasinwater && !isinwater)
 	{

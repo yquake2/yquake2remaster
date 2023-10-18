@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /* =======================================================================
  *
  * Wall mounted turrets.
@@ -891,6 +892,7 @@ turret_wake(edict_t *self)
 	self->monsterinfo.sight = turret_sight;
 	self->monsterinfo.search = turret_search;
 	self->monsterinfo.currentmove = &turret_move_stand;
+
 	self->takedamage = DAMAGE_AIM;
 	self->movetype = MOVETYPE_NONE;
 	self->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
@@ -898,6 +900,11 @@ turret_wake(edict_t *self)
 	gi.linkentity(self);
 
 	stationarymonster_start(self);
+
+	if (self->think)
+	{
+		self->think(self);
+	}
 
 	if (self->spawnflags & SPAWN_MACHINEGUN)
 	{
@@ -918,6 +925,11 @@ turret_activate(edict_t *self, edict_t *other, edict_t *activator)
 	vec3_t endpos;
 	vec3_t forward;
 	edict_t *base;
+
+	if (self->movetype == MOVETYPE_PUSH)
+	{
+		return;
+	}
 
 	self->movetype = MOVETYPE_PUSH;
 
@@ -953,6 +965,10 @@ turret_activate(edict_t *self, edict_t *other, edict_t *activator)
 	else if (self->s.angles[1] == 270)
 	{
 		VectorSet(forward, 0, -1, 0);
+	}
+	else
+	{
+		VectorClear(forward);
 	}
 
 	/* start up the turret */

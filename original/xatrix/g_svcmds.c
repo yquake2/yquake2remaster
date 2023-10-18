@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /* =======================================================================
  *
  * Game side of server CMDs. At this time only the ipfilter.

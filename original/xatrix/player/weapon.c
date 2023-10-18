@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /* =======================================================================
  *
  * Player weapons.
@@ -11,6 +12,7 @@
 
 #include "../header/local.h"
 #include "../monster/misc/player.h"
+#include <limits.h>
 
 #define PLAYER_NOISE_SELF 0
 #define PLAYER_NOISE_IMPACT 1
@@ -498,6 +500,31 @@ Think_Weapon(edict_t *ent)
 }
 
 /*
+ * Client (player) animation for changing weapon
+ */
+static void
+Change_Weap_Animation(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->client->anim_priority = ANIM_REVERSE;
+
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+	{
+		ent->s.frame = FRAME_crpain4 + 1;
+		ent->client->anim_end = FRAME_crpain1;
+	}
+	else
+	{
+		ent->s.frame = FRAME_pain304 + 1;
+		ent->client->anim_end = FRAME_pain301;
+	}
+}
+
+/*
  * Make the weapon ready if there is ammo
  */
 void
@@ -664,6 +691,9 @@ Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		int *fire_frames, void (*fire)(edict_t *ent))
 {
 	int n;
+	const unsigned short int change_speed = (g_swap_speed->value > 1)?
+		(g_swap_speed->value < USHRT_MAX)? (unsigned short int)g_swap_speed->value : 1
+		: 1;
 
 	if (!ent || !fire_frames || !fire)
 	{
@@ -677,41 +707,36 @@ Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 
 	if (ent->client->weaponstate == WEAPON_DROPPING)
 	{
-		if (ent->client->ps.gunframe == FRAME_DEACTIVATE_LAST)
+		if (ent->client->ps.gunframe >= FRAME_DEACTIVATE_LAST - change_speed + 1)
 		{
 			ChangeWeapon(ent);
 			return;
 		}
-		else if ((FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe) == 4)
+		else if ( (FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) >= (4 * change_speed) )
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
-
-			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+			unsigned short int remainder = FRAME_DEACTIVATE_LAST - ent->client->ps.gunframe;
+			// "if (remainder == 4)" at change_speed == 1
+			if ( ( remainder <= (4 * change_speed) )
+				&& ( remainder > (3 * change_speed) ) )
 			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
-			}
-			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
+				Change_Weap_Animation(ent);
 			}
 		}
 
-		ent->client->ps.gunframe++;
+		ent->client->ps.gunframe += change_speed;
 		return;
 	}
 
 	if (ent->client->weaponstate == WEAPON_ACTIVATING)
 	{
-		if (ent->client->ps.gunframe == FRAME_ACTIVATE_LAST)
+		if (ent->client->ps.gunframe >= FRAME_ACTIVATE_LAST - change_speed + 1)
 		{
 			ent->client->weaponstate = WEAPON_READY;
 			ent->client->ps.gunframe = FRAME_IDLE_FIRST;
 			return;
 		}
 
-		ent->client->ps.gunframe++;
+		ent->client->ps.gunframe += change_speed;
 		return;
 	}
 
@@ -720,20 +745,9 @@ Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		ent->client->weaponstate = WEAPON_DROPPING;
 		ent->client->ps.gunframe = FRAME_DEACTIVATE_FIRST;
 
-		if ((FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < 4)
+		if ( (FRAME_DEACTIVATE_LAST - FRAME_DEACTIVATE_FIRST) < (4 * change_speed) )
 		{
-			ent->client->anim_priority = ANIM_REVERSE;
-
-			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crpain4 + 1;
-				ent->client->anim_end = FRAME_crpain1;
-			}
-			else
-			{
-				ent->s.frame = FRAME_pain304 + 1;
-				ent->client->anim_end = FRAME_pain301;
-			}
+			Change_Weap_Animation(ent);
 		}
 
 		return;

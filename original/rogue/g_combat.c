@@ -1,7 +1,8 @@
 /*
  * Copyright (c) ZeniMax Media Inc.
  * Licensed under the GNU General Public License 2.0.
-*/
+ */
+
 /*
  * =======================================================================
  *
@@ -130,11 +131,6 @@ Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker,
     if (!targ || !inflictor || !attacker)
 	{
 		return;
-	}
-
-	if (targ->health < -999)
-	{
-		targ->health = -999;
 	}
 
 	/* Reset AI flag for being ducked. This fixes a corner case
@@ -633,6 +629,24 @@ CheckTeamDamage(edict_t *targ, edict_t *attacker)
 	return false;
 }
 
+static void
+apply_knockback(edict_t *targ, vec3_t dir, float knockback, float scale)
+{
+	vec3_t kvel;
+	float mass;
+
+	if (!knockback)
+	{
+		return;
+	}
+
+	mass = (targ->mass < 50) ? 50.0f : (float)targ->mass;
+
+	VectorNormalize2(dir, kvel);
+	VectorScale(kvel, scale * (knockback / mass), kvel);
+	VectorAdd(targ->velocity, kvel, targ->velocity);
+}
+
 void
 T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		vec3_t point, vec3_t normal, int damage, int knockback, int dflags,
@@ -735,8 +749,6 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		te_sparks = TE_SPARKS;
 	}
 
-	VectorNormalize(dir);
-
 	/* bonus damage for suprising a monster */
 	if (!(dflags & DAMAGE_RADIUS) && (targ->svflags & SVF_MONSTER) &&
 		(attacker->client) && (!targ->enemy) && (targ->health > 0))
@@ -750,37 +762,14 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	}
 
 	/* figure momentum add */
-	if (!(dflags & DAMAGE_NO_KNOCKBACK))
+	if (!(dflags & DAMAGE_NO_KNOCKBACK) &&
+		(targ->movetype != MOVETYPE_NONE) &&
+		(targ->movetype != MOVETYPE_BOUNCE) &&
+		(targ->movetype != MOVETYPE_PUSH) &&
+		(targ->movetype != MOVETYPE_STOP))
 	{
-		if ((knockback) && (targ->movetype != MOVETYPE_NONE) &&
-			(targ->movetype != MOVETYPE_BOUNCE) &&
-			(targ->movetype != MOVETYPE_PUSH) &&
-			(targ->movetype != MOVETYPE_STOP))
-		{
-			vec3_t kvel;
-			float mass;
-
-			if (targ->mass < 50)
-			{
-				mass = 50;
-			}
-			else
-			{
-				mass = targ->mass;
-			}
-
-			if (targ->client && (attacker == targ))
-			{
-				/* the rocket jump hack... */
-				VectorScale(dir, 1600.0 * (float)knockback / mass, kvel);
-			}
-			else
-			{
-				VectorScale(dir, 500.0 * (float)knockback / mass, kvel);
-			}
-
-			VectorAdd(targ->velocity, kvel, targ->velocity);
-		}
+		apply_knockback (targ, dir, knockback,
+			((client && attacker == targ) ? 1600.0f : 500.0f));
 	}
 
 	take = damage;
