@@ -2407,7 +2407,7 @@ SWimp_CreateRender(int width, int height)
 	if (!swap_buffers)
 	{
 		Com_Error(ERR_FATAL, "%s: Can't allocate swapbuffer.", __func__);
-		// code never returns after ERR_FATAL
+		/* code never returns after ERR_FATAL */
 		return;
 	}
 	swap_frames[0] = swap_buffers;

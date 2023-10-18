@@ -275,7 +275,7 @@ R_LoadPic8 (char *name, byte *pic, int width, int realwidth, int height, int rea
 	if (!image->pixels[0])
 	{
 		Com_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
-		// code never returns after ERR_FATAL
+		/* code never returns after ERR_FATAL */
 		return NULL;
 	}
 
@@ -339,7 +339,7 @@ R_LoadPic (char *name, byte *pic, int width, int realwidth, int height, int real
 		if (!pic8)
 		{
 			Com_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
-			// code never returns after ERR_FATAL
+			/* code never returns after ERR_FATAL */
 			return NULL;
 		}
 

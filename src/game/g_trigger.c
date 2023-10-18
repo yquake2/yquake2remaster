@@ -349,11 +349,11 @@ trigger_key_use(edict_t *self, edict_t *other /* unused */,
 
 		self->touch_debounce_time = level.time + 5.0;
 		gi.centerprintf(activator, "You need the %s", self->item->pickup_name);
-		gi.sound(activator, CHAN_AUTO, gi.soundindex( "misc/keytry.wav"), 1, ATTN_NORM, 0);
+		gi.sound(activator, CHAN_AUTO, gi.soundindex("misc/keytry.wav"), 1, ATTN_NORM, 0);
 		return;
 	}
 
-	gi.sound(activator, CHAN_AUTO, gi.soundindex( "misc/keyuse.wav"), 1, ATTN_NORM, 0);
+	gi.sound(activator, CHAN_AUTO, gi.soundindex("misc/keyuse.wav"), 1, ATTN_NORM, 0);
 
 	if (coop->value)
 	{

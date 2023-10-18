@@ -1,8 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
-*/
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Misc. utility functions for the game logic.
  *
@@ -13,10 +29,10 @@
 
 #define MAXCHOICES 8
 
-vec3_t VEC_UP = {0, -1, 0};
-vec3_t MOVEDIR_UP = {0, 0, 1};
-vec3_t VEC_DOWN = {0, -2, 0};
-vec3_t MOVEDIR_DOWN = {0, 0, -1};
+static vec3_t VEC_UP = {0, -1, 0};
+static vec3_t MOVEDIR_UP = {0, 0, 1};
+static vec3_t VEC_DOWN = {0, -2, 0};
+static vec3_t MOVEDIR_DOWN = {0, 0, -1};
 
 void
 G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
@@ -24,7 +40,8 @@ G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
 {
 	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1];
 	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1];
-	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] + distance[2];
+	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] +
+				distance[2];
 }
 
 void
@@ -40,14 +57,13 @@ G_ProjectSource2(vec3_t point, vec3_t distance, vec3_t forward,
 }
 
 /*
- * Searches all active entities for the next one that holds
- * the matching string at fieldofs (use the FOFS() macro) in
- * the structure.
+ * Searches all active entities for the next
+ * one that holds the matching string at fieldofs
+ * (use the FOFS() macro) in the structure.
  *
- * Searches beginning at the edict after from, or the beginning
- * if NULL.
- *
- * NULL will be returned if the end of the list is reached.
+ * Searches beginning at the edict after from, or
+ * the beginning. If NULL, NULL will be returned
+ * if the end of the list is reached.
  */
 edict_t *
 G_Find(edict_t *from, int fieldofs, char *match)
@@ -92,7 +108,8 @@ G_Find(edict_t *from, int fieldofs, char *match)
 }
 
 /*
- * Returns entities that have origins within a spherical area
+ * Returns entities that have origins
+ * within a spherical area
  */
 edict_t *
 findradius(edict_t *from, vec3_t org, float rad)
@@ -123,7 +140,8 @@ findradius(edict_t *from, vec3_t org, float rad)
 
 		for (j = 0; j < 3; j++)
 		{
-			eorg[j] = org[j] - (from->s.origin[j] + (from->mins[j] + from->maxs[j]) * 0.5);
+			eorg[j] = org[j] - (from->s.origin[j] +
+					   (from->mins[j] + from->maxs[j]) * 0.5);
 		}
 
 		if (VectorLength(eorg) > rad)
@@ -195,14 +213,14 @@ findradius2(edict_t *from, vec3_t org, float rad)
 }
 
 /*
- * Searches all active entities for the next one that holds
- * the matching string at fieldofs (use the FOFS() macro) in
- * the structure.
+ * Searches all active entities for
+ * the next one that holds the matching
+ * string at fieldofs (use the FOFS() macro)
+ * in the structure.
  *
- * Searches beginning at the edict after from, or the beginning
- * if NULL.
- *
- * NULL will be returned if the end of the list is reached.
+ * Searches beginning at the edict after from,
+ * or the beginning. If NULL, NULL will be
+ * returned if the end of the list is reached.
  */
 edict_t *
 G_PickTarget(char *targetname)
@@ -240,7 +258,7 @@ G_PickTarget(char *targetname)
 		return NULL;
 	}
 
-	return choice[rand() % num_choices];
+	return choice[randk() % num_choices];
 }
 
 void
@@ -256,17 +274,17 @@ Think_Delay(edict_t *ent)
 }
 
 /*
- * the global "activator" should be set to the entity that initiated the firing.
+ * The global "activator" should be set to
+ * the entity that initiated the firing.
  *
- * If self.delay is set, a DelayedUse entity will be created that will actually
- * do the SUB_UseTargets after that many seconds have passed.
+ * If self.delay is set, a DelayedUse entity
+ * will be created that will actually do the
+ * SUB_UseTargets after that many seconds have passed.
  *
  * Centerprints any self.message to the activator.
  *
  * Search for (string)targetname in all entities that
  * match (string)self.target and call their .use function
- *
- * ==============================
  */
 void
 G_UseTargets(edict_t *ent, edict_t *activator)
@@ -289,6 +307,11 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 		t->think = Think_Delay;
 		t->activator = activator;
 
+		if (!activator)
+		{
+			gi.dprintf("Think_Delay with no activator\n");
+		}
+
 		t->message = ent->message;
 		t->target = ent->target;
 		t->killtarget = ent->killtarget;
@@ -306,7 +329,8 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 		}
 		else
 		{
-			gi.sound(activator, CHAN_AUTO, gi.soundindex("misc/talk1.wav"), 1, ATTN_NORM, 0);
+			gi.sound(activator, CHAN_AUTO, gi.soundindex(
+							"misc/talk1.wav"), 1, ATTN_NORM, 0);
 		}
 	}
 
@@ -398,8 +422,9 @@ tv(float x, float y, float z)
 	static vec3_t vecs[8];
 	float *v;
 
-	/* use an array so that multiple tempvectors
-	   won't collide for a while */
+	/* use an array so that multiple
+	   tempvectors won't collide
+	   for a while */
 	v = vecs[index];
 	index = (index + 1) & 7;
 
@@ -469,17 +494,15 @@ vectoyaw(vec3_t vec)
 
 	if (vec[PITCH] == 0)
 	{
-		if (vec[YAW] == 0)
-		{
-			yaw = 0;
-		}
-		else if (vec[YAW] > 0)
+		yaw = 0;
+
+		if (vec[YAW] > 0)
 		{
 			yaw = 90;
 		}
-		else
+		else if (vec[YAW] < 0)
 		{
-			yaw = 270;
+			yaw = -90;
 		}
 	}
 	else
@@ -559,7 +582,7 @@ vectoangles(vec3_t value1, vec3_t angles)
 		}
 		else
 		{
-			yaw = 270;
+			yaw = -90;
 		}
 
 		if (yaw < 0)
@@ -749,9 +772,19 @@ G_FreeEdict(edict_t *ed)
 
 	gi.unlinkentity(ed); /* unlink from world */
 
-	if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE))
+	if (deathmatch->value || coop->value)
 	{
-		return;
+		if ((ed - g_edicts) <= (maxclients->value + BODY_QUEUE_SIZE))
+		{
+			return;
+		}
+	}
+	else
+	{
+		if ((ed - g_edicts) <= maxclients->value)
+		{
+			return;
+		}
 	}
 
 	memset(ed, 0, sizeof(*ed));
@@ -801,8 +834,10 @@ G_TouchTriggers(edict_t *ent)
 }
 
 /*
- * Call after linking a new trigger in during gameplay
- * to force all entities it covers to immediately touch it
+ * Call after linking a new trigger
+ * in during gameplay to force all
+ * entities it covers to immediately
+ * touch it
  */
 void
 G_TouchSolids(edict_t *ent)
@@ -815,7 +850,8 @@ G_TouchSolids(edict_t *ent)
 		return;
 	}
 
-	num = gi.BoxEdicts(ent->absmin, ent->absmax, touch, MAX_EDICTS, AREA_SOLID);
+	num = gi.BoxEdicts(ent->absmin, ent->absmax, touch,
+			MAX_EDICTS, AREA_SOLID);
 
 	/* be careful, it is possible to have an entity in this
 	   list removed before we get to it (killtriggered) */
@@ -841,8 +877,9 @@ G_TouchSolids(edict_t *ent)
 }
 
 /*
- * Kills all entities that would touch the proposed new positioning
- * of ent. Ent should be unlinked before calling this!
+ * Kills all entities that would touch the
+ * proposed new positioning of ent. Ent s
+ * hould be unlinked before calling this!
  */
 qboolean
 KillBox(edict_t *ent)
@@ -856,8 +893,8 @@ KillBox(edict_t *ent)
 
 	while (1)
 	{
-		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs,
-				ent->s.origin, NULL, MASK_PLAYERSOLID);
+		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin,
+				NULL, MASK_PLAYERSOLID);
 
 		if (!tr.ent)
 		{

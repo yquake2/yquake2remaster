@@ -1,8 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
-*/
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Misc. utility functions for the game logic.
  *
@@ -13,13 +29,19 @@
 
 #define MAXCHOICES 8
 
+static vec3_t VEC_UP = {0, -1, 0};
+static vec3_t MOVEDIR_UP = {0, 0, 1};
+static vec3_t VEC_DOWN = {0, -2, 0};
+static vec3_t MOVEDIR_DOWN = {0, 0, -1};
+
 void
 G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
 		vec3_t right, vec3_t result)
 {
 	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1];
 	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1];
-	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] + distance[2];
+	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] +
+				distance[2];
 }
 
 /*
@@ -33,6 +55,11 @@ edict_t *
 G_Find(edict_t *from, int fieldofs, char *match)
 {
 	char *s;
+
+	if (!match)
+	{
+		return NULL;
+	}
 
 	if (!from)
 	{
@@ -67,7 +94,8 @@ G_Find(edict_t *from, int fieldofs, char *match)
 }
 
 /*
- * Returns entities that have origins within a spherical area
+ * Returns entities that have origins
+ * within a spherical area
  */
 edict_t *
 findradius(edict_t *from, vec3_t org, float rad)
@@ -337,11 +365,6 @@ get_normal_vector(const cplane_t *p, vec3_t normal)
 		VectorCopy(vec3_origin, normal);
 	}
 }
-
-vec3_t VEC_UP = {0, -1, 0};
-vec3_t MOVEDIR_UP = {0, 0, 1};
-vec3_t VEC_DOWN = {0, -2, 0};
-vec3_t MOVEDIR_DOWN = {0, 0, -1};
 
 void
 G_SetMovedir(vec3_t angles, vec3_t movedir)

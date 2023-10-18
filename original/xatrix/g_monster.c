@@ -543,7 +543,7 @@ M_WorldEffects(edict_t *ent)
 	{
 		if (ent->flags & FL_INWATER)
 		{
-			gi.sound(ent, CHAN_BODY, gi.soundindex( "player/watr_out.wav"),
+			gi.sound(ent, CHAN_BODY, gi.soundindex("player/watr_out.wav"),
 				   	1, ATTN_NORM, 0);
 			ent->flags &= ~FL_INWATER;
 		}
@@ -579,7 +579,7 @@ M_WorldEffects(edict_t *ent)
 			{
 				if (random() <= 0.5)
 				{
-					gi.sound(ent, CHAN_BODY, gi.soundindex( "player/lava1.wav"),
+					gi.sound(ent, CHAN_BODY, gi.soundindex("player/lava1.wav"),
 						   	1, ATTN_NORM, 0);
 				}
 				else

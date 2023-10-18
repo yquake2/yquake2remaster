@@ -1,8 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
-*/
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Main header file for the game module.
  *
@@ -15,8 +31,8 @@
 #include "shared.h"
 
 /* define GAME_INCLUDE so that game.h does not define the
-  short, server-visible gclient_t and edict_t structures,
-  because we define the full size ones in this file */
+   short, server-visible gclient_t and edict_t structures,
+   because we define the full size ones in this file */
 #define GAME_INCLUDE
 #include "game.h"
 
@@ -147,6 +163,7 @@ typedef enum
 #define AI_COMBAT_POINT 0x00001000
 #define AI_MEDIC 0x00002000
 #define AI_RESURRECTING 0x00004000
+#define AI_IGNORE_PAIN 0x00008000
 
 /* ROGUE */
 #define AI_WALK_WALLS 0x00008000
@@ -216,7 +233,8 @@ typedef enum
 	MOVETYPE_FLY,
 	MOVETYPE_TOSS,      /* gravity */
 	MOVETYPE_FLYMISSILE, /* extra size to monsters */
-	MOVETYPE_BOUNCE,
+	MOVETYPE_BOUNCE, /* added this (the comma at the end of line) */
+	MOVETYPE_WALLBOUNCE,
 	MOVETYPE_NEWTOSS    /* for deathball */
 } movetype_t;
 
@@ -229,6 +247,7 @@ typedef struct
 	int armor;
 } gitem_armor_t;
 
+/* gitem_t->flags */
 #define IT_WEAPON 0x00000001                /* use makes active weapon */
 #define IT_AMMO 0x00000002
 #define IT_ARMOR 0x00000004
@@ -251,12 +270,13 @@ typedef struct
 #define WEAP_HYPERBLASTER 9
 #define WEAP_RAILGUN 10
 #define WEAP_BFG 11
-
-#define WEAP_DISRUPTOR 12
-#define WEAP_ETFRIFLE 13
-#define WEAP_PLASMA 14
-#define WEAP_PROXLAUNCH 15
-#define WEAP_CHAINFIST 16
+#define WEAP_PHALANX 12
+#define WEAP_BOOMER 13
+#define WEAP_DISRUPTOR 14
+#define WEAP_ETFRIFLE 15
+#define WEAP_PLASMA 16
+#define WEAP_PROXLAUNCH 17
+#define WEAP_CHAINFIST 18
 
 typedef struct gitem_s
 {
@@ -299,8 +319,9 @@ typedef struct
 
 	gclient_t *clients;         /* [maxclients] */
 
-	/* can't store spawnpoint in level, because it
-	   would get overwritten by the savegame restore */
+	/* can't store spawnpoint in level, because
+	   it would get overwritten by the savegame
+	   restore */
 	char spawnpoint[512];       /* needed for coop respawns */
 
 	/* store latched cvars here that we want to get at often */
@@ -371,6 +392,7 @@ typedef struct
 	/* world vars */
 	char *sky;
 	float skyrotate;
+	int skyautorotate;
 	vec3_t skyaxis;
 	char *nextmap;
 
@@ -445,7 +467,7 @@ typedef struct
 	void (*search)(edict_t *self);
 	void (*walk)(edict_t *self);
 	void (*run)(edict_t *self);
-	void (*dodge)(edict_t *self, edict_t *other, float eta, trace_t *tr);
+	void (*dodge)(edict_t *self, edict_t *other, float eta);
 	void (*attack)(edict_t *self);
 	void (*melee)(edict_t *self);
 	void (*sight)(edict_t *self, edict_t *other);
@@ -508,10 +530,6 @@ extern spawn_temp_t st;
 extern int sm_meat_index;
 extern int snd_fry;
 
-extern int jacket_armor_index;
-extern int combat_armor_index;
-extern int body_armor_index;
-
 extern int debristhisframe;
 extern int gibsthisframe;
 
@@ -550,6 +568,12 @@ extern int gibsthisframe;
 #define MOD_TRIGGER_HURT 31
 #define MOD_HIT 32
 #define MOD_TARGET_BLASTER 33
+#define MOD_RIPPER 34
+#define MOD_PHALANX 35
+#define MOD_BRAINTENTACLE 36
+#define MOD_BLASTOFF 37
+#define MOD_GEKK 38
+#define MOD_TRAP 39
 #define MOD_FRIENDLY_FIRE 0x8000000
 #define MOD_CHAINFIST 40
 #define MOD_DISINTEGRATOR 41
@@ -589,6 +613,7 @@ extern cvar_t *maxentities;
 extern cvar_t *deathmatch;
 extern cvar_t *coop;
 extern cvar_t *coop_baseq2;	/* treat spawnflags according to baseq2 rules */
+extern cvar_t *coop_pickup_weapons;
 extern cvar_t *coop_elevator_delay;
 extern cvar_t *coop_pickup_weapons;
 extern cvar_t *dmflags;
@@ -597,10 +622,13 @@ extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
 extern cvar_t *password;
 extern cvar_t *spectator_password;
+extern cvar_t *needpass;
 extern cvar_t *g_select_empty;
 extern cvar_t *dedicated;
 extern cvar_t *g_footsteps;
+extern cvar_t *g_monsterfootsteps;
 extern cvar_t *g_fix_triggered;
+extern cvar_t *g_commanderbody_nogod;
 
 extern cvar_t *filterban;
 
@@ -639,6 +667,7 @@ extern cvar_t *g_disruptor;
 
 extern cvar_t *aimfix;
 extern cvar_t *g_machinegun_norecoil;
+extern cvar_t *g_swap_speed;
 
 /* this is for the count of monsters */
 #define ENT_SLOTS_LEFT \
@@ -659,8 +688,8 @@ extern cvar_t *g_machinegun_norecoil;
 #define DROPPED_PLAYER_ITEM 0x00020000
 #define ITEM_TARGETS_USED 0x00040000
 
-/* fields are needed for spawning from the entity string
-   and saving / loading games */
+/* fields are needed for spawning from the entity
+   string and saving / loading games */
 #define FFL_SPAWNTEMP 1
 #define FFL_NOSPAWN 2
 
@@ -692,8 +721,16 @@ typedef struct
 extern field_t fields[];
 extern gitem_t itemlist[];
 
+/* player/client.c */
+void ClientBegin(edict_t *ent);
+void ClientDisconnect(edict_t *ent);
+void ClientUserinfoChanged(edict_t *ent, char *userinfo);
+qboolean ClientConnect(edict_t *ent, char *userinfo);
+void ClientThink(edict_t *ent, usercmd_t *cmd);
+
 /* g_cmds.c */
 void Cmd_Help_f(edict_t *ent);
+void ClientCommand(edict_t *ent);
 
 /* g_items.c */
 void PrecacheItem(gitem_t *it);
@@ -703,6 +740,7 @@ gitem_t *FindItem(char *pickup_name);
 gitem_t *FindItemByClassname(char *classname);
 
 #define ITEM_INDEX(x) ((x) - itemlist)
+
 edict_t *Drop_Item(edict_t *ent, gitem_t *item);
 void SetRespawn(edict_t *ent, float delay);
 void ChangeWeapon(edict_t *ent);
@@ -748,14 +786,18 @@ float vectoyaw2(vec3_t vec);
 void vectoangles2(vec3_t vec, vec3_t angles);
 edict_t *findradius2(edict_t *from, vec3_t org, float rad);
 
+/* g_spawn.c */
+void ED_CallSpawn(edict_t *ent);
+
 /* g_combat.c */
 qboolean OnSameTeam(edict_t *ent1, edict_t *ent2);
 qboolean CanDamage(edict_t *targ, edict_t *inflictor);
-void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
-		vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod);
-void T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage, edict_t *ignore,
-		float radius, int mod);
-
+void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
+		vec3_t dir, vec3_t point, vec3_t normal, int damage,
+		int knockback, int dflags, int mod);
+void T_RadiusDamage(edict_t *inflictor, edict_t *attacker,
+		float damage, edict_t *ignore, float radius,
+		int mod);
 void T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
 		edict_t *ignore, float radius, int mod);
 void T_RadiusClassDamage(edict_t *inflictor, edict_t *attacker, float damage,
@@ -777,24 +819,33 @@ void cleanupHealTarget(edict_t *ent);
 #define DEFAULT_BULLET_VSPREAD 500
 #define DEFAULT_SHOTGUN_HSPREAD 1000
 #define DEFAULT_SHOTGUN_VSPREAD 500
+#define DEFAULT_DEATHMATCH_SHOTGUN_COUNT 12
 #define DEFAULT_SHOTGUN_COUNT 12
 #define DEFAULT_SSHOTGUN_COUNT 20
 
 /* g_monster.c */
 void monster_fire_bullet(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int kick, int hspread, int vspread, int flashtype);
-void monster_fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
-		int kick, int hspread, int vspread, int count, int flashtype);
-void monster_fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+void monster_fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir,
+		int damage, int kick, int hspread, int vspread, int count,
+		int flashtype);
+void monster_fire_blaster(edict_t *self, vec3_t start, vec3_t dir,
+		int damage, int speed, int flashtype, int effect);
+void monster_fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir,
+		int damage, int speed, int flashtype);
+void monster_fire_rocket(edict_t *self, vec3_t start, vec3_t dir,
+		int damage, int speed, int flashtype);
+void monster_fire_railgun(edict_t *self, vec3_t start, vec3_t aimdir,
+		int damage, int kick, int flashtype);
+void monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir,
+		int damage, int speed, int kick, float damage_radius,
+		int flashtype);
+void monster_fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
-void monster_fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
-		int speed, int flashtype);
-void monster_fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
-		int speed, int flashtype);
-void monster_fire_railgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
-		int kick, int flashtype);
-void monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
-		int speed, int kick, float damage_radius, int flashtype);
+void monster_dabeam(edict_t *self);
+void monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+		int speed, int flashtype, int effect);
+
 void M_droptofloor(edict_t *ent);
 void monster_think(edict_t *self);
 void walkmonster_start(edict_t *self);
@@ -811,8 +862,6 @@ void monster_fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
 void monster_fire_tracker(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, edict_t *enemy, int flashtype);
-void monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
-		int damage, int kick, int flashtype);
 void stationarymonster_start(edict_t *self);
 void monster_done_dodge(edict_t *self);
 
@@ -821,6 +870,8 @@ void ThrowHead(edict_t *self, char *gibname, int damage, int type);
 void ThrowClientHead(edict_t *self, int damage);
 void ThrowGib(edict_t *self, char *gibname, int damage, int type);
 void BecomeExplosion1(edict_t *self);
+void ThrowHeadACID(edict_t *self, char *gibname, int damage, int type);
+void ThrowGibACID(edict_t *self, char *gibname, int damage, int type);
 
 /* g_ai.c */
 void AI_SetSightClient(void);
@@ -852,10 +903,19 @@ void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
 void fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
-		int speed, float damage_radius, int radius_damage);
+		int speed, float damage_radius,
+		int radius_damage);
 void fire_rail(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
-void fire_bfg(edict_t *self, vec3_t start, vec3_t dir,
-		int damage, int speed, float damage_radius);
+void fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
+		int speed, float damage_radius);
+void fire_ionripper(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+		int speed, int effect);
+void fire_blueblaster(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+		int speed, int effect);
+void fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
+		float damage_radius, int radius_damage);
+void fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+		int speed, float timer, float damage_radius, qboolean held);
 
 /* g_ptrail.c */
 void PlayerTrail_Init(void);
@@ -918,6 +978,14 @@ void ChaseNext(edict_t *ent);
 void ChasePrev(edict_t *ent);
 void GetChaseTarget(edict_t *ent);
 
+/* savegame */
+void InitGame(void);
+void ReadLevel(const char *filename);
+void WriteLevel(const char *filename);
+void ReadGame(const char *filename);
+void WriteGame(const char *filename, qboolean autosave);
+void SpawnEntities(const char *mapname, char *entities, const char *spawnpoint);
+
 void fire_flechette(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int kick);
 void fire_prox(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
@@ -937,9 +1005,6 @@ void fire_tesla(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed);
 void fire_blaster2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect, qboolean hyper);
-void fire_heat(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
-		int damage, int kick,
-		qboolean monster);
 void fire_tracker(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, edict_t *enemy);
 
@@ -1023,7 +1088,8 @@ typedef struct
 	qboolean connected;             /* a loadgame will leave valid entities that
 	                                   just don't have a connection yet */
 
-	/* values saved and restored from edicts when changing levels */
+	/* values saved and restored from
+	   edicts when changing levels */
 	int health;
 	int max_health;
 	int savedFlags;
@@ -1038,6 +1104,8 @@ typedef struct
 	int max_grenades;
 	int max_cells;
 	int max_slugs;
+	int max_magslug;
+	int max_trap;
 
 	gitem_t *weapon;
 	gitem_t *lastweapon;
@@ -1139,6 +1207,10 @@ struct gclient_s
 
 	qboolean grenade_blew_up;
 	float grenade_time;
+	float quadfire_framenum;
+	qboolean trap_blew_up;
+	float trap_time;
+
 	int silencer_shots;
 	int weapon_sound;
 
@@ -1232,7 +1304,7 @@ struct edict_s
 	float ideal_yaw;
 
 	float nextthink;
-	void (*prethink) (edict_t *ent);
+	void (*prethink)(edict_t *ent);
 	void (*think)(edict_t *self);
 	void (*blocked)(edict_t *self, edict_t *other);         /* move to moveinfo? */
 	void (*touch)(edict_t *self, edict_t *other, cplane_t *plane,
@@ -1242,10 +1314,11 @@ struct edict_s
 	void (*die)(edict_t *self, edict_t *inflictor, edict_t *attacker,
 			int damage, vec3_t point);
 
-	float touch_debounce_time;
+	float touch_debounce_time;		/* now also used by fixbots for timeouts when getting stuck */
 	float pain_debounce_time;
 	float damage_debounce_time;
 	float fly_sound_debounce_time;	/* now also used by insane marines to store pain sound timeout */
+									/* and by fixbots for storing object_repair timeout when getting stuck */
 	float last_move_time;
 
 	int health;
@@ -1296,6 +1369,7 @@ struct edict_s
 	vec3_t move_origin;
 	vec3_t move_angles;
 
+	/* move this to clientinfo? */
 	int light_level;
 	int style;                  /* also used as areaportal number */
 
@@ -1304,6 +1378,8 @@ struct edict_s
 	/* common data blocks */
 	moveinfo_t moveinfo;
 	monsterinfo_t monsterinfo;
+
+	int orders;
 
 	int plat2flags;
 	vec3_t offset;

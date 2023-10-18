@@ -400,7 +400,7 @@ GetPCXPalette24to8(byte *d_8to24table, byte** d_16to8table)
 	if (!(*d_16to8table))
 	{
 		Com_Error(ERR_FATAL, "%s: Couldn't allocate memory for d_16to8table", __func__);
-		// code never returns after ERR_FATAL
+		/* code never returns after ERR_FATAL */
 		return;
 	}
 
@@ -468,14 +468,14 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 			int i;
 
 			memcpy(d_8to24table, pic, 256 * 4);
-			d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
+			d_8to24table[255] &= LittleLong(0xffffff);	/* 255 is transparent */
 
 			/* generate colormap */
 			*colormap = malloc(256 * 320);
 			if (!(*colormap))
 			{
 				Com_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
-				// code never returns after ERR_FATAL
+				/* code never returns after ERR_FATAL */
 				return;
 			}
 
@@ -516,14 +516,14 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 			d_8to24table[i] = LittleLong(v);
 		}
 
-		d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
+		d_8to24table[255] &= LittleLong(0xffffff);	/* 255 is transparent */
 
 		/* generate colormap */
 		*colormap = malloc(256 * 320);
 		if (!(*colormap))
 		{
 			Com_Error(ERR_FATAL, "%s: Couldn't allocate memory for colormap", __func__);
-			// code never returns after ERR_FATAL
+			/* code never returns after ERR_FATAL */
 			return;
 		}
 
@@ -531,9 +531,9 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 		return;
 	}
 
-	for (i=0 ; i<256 ; i++)
+	for (i = 0; i < 256; i++)
 	{
-		unsigned	v;
+		unsigned v;
 		int	r, g, b;
 
 		r = pal[i*3+0];

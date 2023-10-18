@@ -31,6 +31,7 @@
 
 qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
 void Use_Weapon(edict_t *ent, gitem_t *inv);
+void Use_Weapon2(edict_t *ent, gitem_t *inv);
 void Drop_Weapon(edict_t *ent, gitem_t *inv);
 
 void Weapon_Blaster(edict_t *ent);
@@ -56,6 +57,8 @@ static int power_screen_index;
 static int power_shield_index;
 
 void Use_Quad(edict_t *ent, gitem_t *item);
+void Use_QuadFire(edict_t *ent, gitem_t *item);
+
 static int quad_drop_timeout_hack;
 
 /* ====================================================================== */
@@ -587,7 +590,7 @@ Use_Invulnerability(edict_t *ent, gitem_t *item)
 		ent->client->invincible_framenum = level.framenum + 300;
 	}
 
-	gi.sound(ent, CHAN_ITEM, gi.soundindex( "items/protect.wav"), 1, ATTN_NORM, 0);
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/protect.wav"), 1, ATTN_NORM, 0);
 }
 
 /* ====================================================================== */
@@ -2679,6 +2682,28 @@ SP_item_health_mega(edict_t *self)
 	SpawnItem(self, FindItem("Health"));
 	gi.soundindex("items/m_health.wav");
 	self->style = HEALTH_IGNORE_MAX | HEALTH_TIMED;
+}
+
+void
+SP_item_foodcube(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH))
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->model = "models/objects/trapfx/tris.md2";
+	SpawnItem(self, FindItem("Health"));
+	self->spawnflags |= DROPPED_ITEM;
+	self->style = HEALTH_IGNORE_MAX;
+	gi.soundindex("items/s_health.wav");
+	self->classname = "foodcube";
 }
 
 void

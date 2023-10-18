@@ -293,7 +293,7 @@ R_InitCaches (void)
 	if (!sc_base)
 	{
 		Com_Error(ERR_FATAL, "%s: Can't allocate cache.", __func__);
-		// code never returns after ERR_FATAL
+		/* code never returns after ERR_FATAL */
 		return;
 	}
 	sc_rover = sc_base;

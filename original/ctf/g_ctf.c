@@ -1632,7 +1632,7 @@ CTFResetGrapple(edict_t *self)
 		}
 
 		gi.sound(self->owner, CHAN_RELIABLE + CHAN_WEAPON,
-				gi.soundindex( "weapons/grapple/grreset.wav"), volume, ATTN_NORM, 0);
+				gi.soundindex("weapons/grapple/grreset.wav"), volume, ATTN_NORM, 0);
 		cl = self->owner->client;
 		cl->ctf_grapple = NULL;
 		cl->ctf_grapplereleasetime = level.time;

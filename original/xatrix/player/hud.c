@@ -414,7 +414,7 @@ G_SetStats(edict_t *ent)
 		{
 		  	/* ran out of cells for power armor */
 			ent->flags &= ~FL_POWER_ARMOR;
-			gi.sound(ent, CHAN_ITEM, gi.soundindex( "misc/power2.wav"),
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/power2.wav"),
 				   	1, ATTN_NORM, 0);
 			power_armor_type = 0;
 		}

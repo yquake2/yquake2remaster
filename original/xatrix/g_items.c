@@ -40,9 +40,9 @@ gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
 gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
 gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
 
-int jacket_armor_index;
-int combat_armor_index;
-int body_armor_index;
+static int jacket_armor_index;
+static int combat_armor_index;
+static int body_armor_index;
 static int power_screen_index;
 static int power_shield_index;
 
@@ -2927,7 +2927,7 @@ SP_item_health(edict_t *self)
 }
 
 /*
- * QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health_small(edict_t *self)
@@ -2951,7 +2951,7 @@ SP_item_health_small(edict_t *self)
 }
 
 /*
- * QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health_large(edict_t *self)
@@ -2974,7 +2974,7 @@ SP_item_health_large(edict_t *self)
 }
 
 /*
- * QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health_mega(edict_t *self)

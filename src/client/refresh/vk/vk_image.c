@@ -882,8 +882,9 @@ Returns number of mip levels and scales native resolution
 if vk_picmip is set. Does not use power of 2 scaling.
 ===============
 */
-static uint32_t Vk_Upload32Native (byte *data, int width, int height, imagetype_t type,
-							 byte **texBuffer, int *upload_width, int *upload_height)
+static uint32_t
+Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
+	byte **texBuffer, int *upload_width, int *upload_height)
 {
 	int	scaled_width = width, scaled_height = height;
 	int	miplevel = 1;
@@ -1018,8 +1019,9 @@ Returns number of mip levels
 ===============
 */
 
-static uint32_t Vk_Upload8 (const byte *data, int width, int height, imagetype_t type,
-							byte **texBuffer, int *upload_width, int *upload_height)
+static uint32_t
+Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
+	byte **texBuffer, int *upload_width, int *upload_height)
 {
 	unsigned	*trans;
 	int			i, s;
@@ -1043,7 +1045,7 @@ static uint32_t Vk_Upload8 (const byte *data, int width, int height, imagetype_t
 	{
 		for (i = 0; i < s; i++)
 		{
-			int     p;
+			int p;
 
 			p = data[i];
 
@@ -1052,16 +1054,27 @@ static uint32_t Vk_Upload8 (const byte *data, int width, int height, imagetype_t
 				// to avoid alpha fringes
 				// FIXME: do a full flood fill so mips work...
 				if (i > width && data[i - width] != 255)
+				{
 					p = data[i - width];
+				}
 				else if (i < s - width && data[i + width] != 255)
+				{
 					p = data[i + width];
+				}
 				else if (i > 0 && data[i - 1] != 255)
+				{
 					p = data[i - 1];
+				}
 				else if (i < s - 1 && data[i + 1] != 255)
+				{
 					p = data[i + 1];
+				}
 				else
+				{
 					p = 0;
-				// copy rgb components
+				}
+
+				/* copy rgb components */
 				((byte *)&trans[i])[0] = ((byte *)&d_8to24table[p])[0];
 				((byte *)&trans[i])[1] = ((byte *)&d_8to24table[p])[1];
 				((byte *)&trans[i])[2] = ((byte *)&d_8to24table[p])[2];
@@ -1075,11 +1088,14 @@ static uint32_t Vk_Upload8 (const byte *data, int width, int height, imagetype_t
 		SmoothColorImage(trans, s, s >> 7);
 	}
 
-	miplevel = Vk_Upload32Native((byte *)trans, width, height, type, texBuffer, upload_width, upload_height);
+	miplevel = Vk_Upload32Native((byte *)trans, width, height, type, texBuffer,
+		upload_width, upload_height);
 
 	// Only free if *texBuffer isn't the image data we sent
 	if (!texBuffer || *texBuffer != (byte *)trans)
+	{
 		free(trans);
+	}
 
 	return miplevel;
 }
