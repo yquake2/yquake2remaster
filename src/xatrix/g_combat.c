@@ -153,13 +153,13 @@ Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 }
 
 void
-SpawnDamage(int type, vec3_t origin, vec3_t normal, int damage)
+SpawnDamage(int type, vec3_t origin, vec3_t normal)
 {
-	gi.WriteByte (svc_temp_entity);
-	gi.WriteByte (type);
-	gi.WritePosition (origin);
-	gi.WriteDir (normal);
-	gi.multicast (origin, MULTICAST_PVS);
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(type);
+	gi.WritePosition(origin);
+	gi.WriteDir(normal);
+	gi.multicast(origin, MULTICAST_PVS);
 }
 
 /*
@@ -286,7 +286,7 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 		save = damage;
 	}
 
-	SpawnDamage(pa_te_type, point, normal, save);
+	SpawnDamage(pa_te_type, point, normal);
 	ent->powerarmor_time = level.time + 0.2;
 
 	power_used = save / damagePerCell;
@@ -363,7 +363,7 @@ CheckArmor(edict_t *ent, vec3_t point, vec3_t normal,
 	}
 
 	client->pers.inventory[index] -= save;
-	SpawnDamage(te_sparks, point, normal, save);
+	SpawnDamage(te_sparks, point, normal);
 
 	return save;
 }
@@ -601,7 +601,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	{
 		take = 0;
 		save = damage;
-		SpawnDamage(te_sparks, point, normal, save);
+		SpawnDamage(te_sparks, point, normal);
 	}
 
 	/* check for invincibility */
@@ -611,7 +611,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		if (targ->pain_debounce_time < level.time)
 		{
 			gi.sound(targ, CHAN_ITEM, gi.soundindex(
-							"items/protect4.wav"), 1, ATTN_NORM, 0);
+						"items/protect4.wav"), 1, ATTN_NORM, 0);
 			targ->pain_debounce_time = level.time + 2;
 		}
 
@@ -635,16 +635,16 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		{
 			if (strcmp(targ->classname, "monster_gekk") == 0)
 			{
-				SpawnDamage(TE_GREENBLOOD, point, normal, take);
+				SpawnDamage(TE_GREENBLOOD, point, normal);
 			}
 			else
 			{
-				SpawnDamage(TE_BLOOD, point, normal, take);
+				SpawnDamage(TE_BLOOD, point, normal);
 			}
 		}
 		else
 		{
-			SpawnDamage(te_sparks, point, normal, take);
+			SpawnDamage(te_sparks, point, normal);
 		}
 
 		targ->health = targ->health - take;

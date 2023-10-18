@@ -377,12 +377,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4  xatrix
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix
 
 # ----------
 
@@ -1410,6 +1410,122 @@ else
 release/baseq2/game.so : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+
+# The xatrix game
+ifeq ($(YQ2_OSTYPE), Windows)
+xatrix:
+	@echo "===> Building xatrix/game.dll"
+	${Q}mkdir -p release/xatrix
+	${MAKE} release/xatrix/game.dll
+else ifeq ($(YQ2_OSTYPE), Darwin)
+xatrix:
+	@echo "===> Building xatrix/game.dylib"
+	${Q}mkdir -p release/xatrix
+	$(MAKE) release/xatrix/game.dylib
+else
+xatrix:
+	@echo "===> Building xatrix/game.so"
+	${Q}mkdir -p release/xatrix
+	$(MAKE) release/xatrix/game.so
+
+release/xatrix/game.so : CFLAGS += -fPIC -Wno-unused-result
+release/xatrix/game.so : LDFLAGS += -shared
+
+endif
+
+build/xatrix/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) -o $@ $<
+
+# ----------
+
+XATRIX_OBJS_ = \
+	src/common/shared/flash.o \
+	src/common/shared/rand.o \
+	src/common/shared/shared.o \
+	src/xatrix/g_ai.o \
+	src/xatrix/g_chase.o \
+	src/xatrix/g_cmds.o \
+	src/xatrix/g_combat.o \
+	src/xatrix/g_func.o \
+	src/xatrix/g_items.o \
+	src/xatrix/g_main.o \
+	src/xatrix/g_misc.o \
+	src/xatrix/g_monster.o \
+	src/xatrix/g_phys.o \
+	src/xatrix/g_spawn.o \
+	src/xatrix/g_svcmds.o \
+	src/xatrix/g_target.o \
+	src/xatrix/g_trigger.o \
+	src/xatrix/g_turret.o \
+	src/xatrix/g_utils.o \
+	src/xatrix/g_weapon.o \
+	src/xatrix/monster/berserker/berserker.o \
+	src/xatrix/monster/boss2/boss2.o \
+	src/xatrix/monster/boss3/boss3.o \
+	src/xatrix/monster/boss3/boss31.o \
+	src/xatrix/monster/boss3/boss32.o \
+	src/xatrix/monster/boss5/boss5.o \
+	src/xatrix/monster/brain/brain.o \
+	src/xatrix/monster/chick/chick.o \
+	src/xatrix/monster/fixbot/fixbot.o \
+	src/xatrix/monster/flipper/flipper.o \
+	src/xatrix/monster/float/float.o \
+	src/xatrix/monster/flyer/flyer.o \
+	src/xatrix/monster/gekk/gekk.o \
+	src/xatrix/monster/gladiator/gladb.o \
+	src/xatrix/monster/gladiator/gladiator.o \
+	src/xatrix/monster/gunner/gunner.o \
+	src/xatrix/monster/hover/hover.o \
+	src/xatrix/monster/infantry/infantry.o \
+	src/xatrix/monster/insane/insane.o \
+	src/xatrix/monster/medic/medic.o \
+	src/xatrix/monster/misc/move.o \
+	src/xatrix/monster/mutant/mutant.o \
+	src/xatrix/monster/parasite/parasite.o \
+	src/xatrix/monster/soldier/soldier.o \
+	src/xatrix/monster/supertank/supertank.o \
+	src/xatrix/monster/tank/tank.o \
+	src/xatrix/player/client.o \
+	src/xatrix/player/hud.o \
+	src/xatrix/player/trail.o \
+	src/xatrix/player/view.o \
+	src/xatrix/player/weapon.o \
+	src/xatrix/savegame/savegame.o
+
+# ----------
+
+# Rewrite paths to our object directory
+XATRIX_OBJS = $(patsubst %,build/xatrix/%,$(XATRIX_OBJS_))
+
+# ----------
+
+# Generate header dependencies
+XATRIX_DEPS= $(XATRIX_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in
+-include $(XATRIX_DEPS)
+
+# ----------
+
+ifeq ($(YQ2_OSTYPE), Windows)
+release/xatrix/game.dll : $(XATRIX_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/xatrix/game.dylib : $(XATRIX_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
+else
+release/xatrix/game.so : $(XATRIX_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------

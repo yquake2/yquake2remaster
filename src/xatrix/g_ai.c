@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * The basic AI functions like enemy detection, attacking and so on.
  *
@@ -14,7 +29,7 @@
 
 qboolean FindTarget(edict_t *self);
 extern cvar_t *maxclients;
-qboolean ai_checkattack(edict_t *self, float dist);
+qboolean ai_checkattack(edict_t *self);
 qboolean enemy_vis;
 qboolean enemy_infront;
 int enemy_range;
@@ -26,8 +41,9 @@ float enemy_yaw;
  * Called once each frame to set level.sight_client
  * to the player to be checked for in findtarget.
  * If all clients are either dead or in notarget,
- * sight_client will be null. In coop games,
- * sight_client will cycle between the clients.
+ * sight_client will be null.
+ * In coop games, sight_client will cycle
+ * between the clients.
  */
 void
 AI_SetSightClient(void)
@@ -83,13 +99,20 @@ AI_SetSightClient(void)
 void
 ai_move(edict_t *self, float dist)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	M_walkmove(self, self->s.angles[YAW], dist);
 }
 
 /*
- * Used for standing around and looking for
- * players. Distance is for slight position
- * adjustments needed by the animations
+ *
+ * Used for standing around and looking
+ * for players Distance is for slight
+ * position adjustments needed by the
+ * animations
  */
 void
 ai_stand(edict_t *self, float dist)
@@ -116,12 +139,13 @@ ai_stand(edict_t *self, float dist)
 			if ((self->s.angles[YAW] != self->ideal_yaw) &&
 				self->monsterinfo.aiflags & AI_TEMP_STAND_GROUND)
 			{
-				self->monsterinfo.aiflags &= ~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
+				self->monsterinfo.aiflags &=
+					~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
 				self->monsterinfo.run(self);
 			}
 
 			M_ChangeYaw(self);
-			ai_checkattack(self, 0);
+			ai_checkattack(self);
 		}
 		else
 		{
@@ -191,8 +215,8 @@ ai_walk(edict_t *self, float dist)
 }
 
 /*
- * Turns towards target and advances.
- * Use this call with a distnace of 0
+ * Turns towards target and advances
+ * Use this call with a distance of 0
  * to replace ai_face
  */
 void
@@ -220,8 +244,9 @@ ai_charge(edict_t *self, float dist)
 }
 
 /*
- * Don't move, but turn towards ideal_yaw
- * Distance is for slight position adjustments
+ * Don't move, but turn towards
+ * ideal_yaw. Distance is for
+ * slight position adjustments
  * needed by the animations
  */
 void
@@ -244,6 +269,8 @@ ai_turn(edict_t *self, float dist)
 
 	M_ChangeYaw(self);
 }
+
+/* ============================================================================ */
 
 /*
  * .enemy
@@ -270,8 +297,10 @@ ai_turn(edict_t *self, float dist)
  * walkmove(angle, speed) primitive is all or nothing
  */
 
+/* ============================================================================ */
+
 /*
- * returns the range catagorization of an entity reletive to self
+ * returns the range categorization of an entity relative to self
  * 0	melee range, will become hostile even if back is turned
  * 1	visibility and infront, or visibility and show hostile
  * 2	infront and show hostile
@@ -311,7 +340,7 @@ range(edict_t *self, edict_t *other)
 
 /*
  * returns 1 if the entity is visible
- * to self, even if not infront()
+ * to self, even if not infront
  */
 qboolean
 visible(edict_t *self, edict_t *other)
@@ -356,6 +385,7 @@ infront(edict_t *self, edict_t *other)
 	}
 
 	AngleVectors(self->s.angles, forward, NULL, NULL);
+
 	VectorSubtract(other->s.origin, self->s.origin, vec);
 	VectorNormalize(vec);
 	dot = DotProduct(vec, forward);
@@ -439,7 +469,8 @@ FoundTarget(edict_t *self)
 		self->goalentity = self->movetarget = self->enemy;
 		HuntTarget(self);
 		gi.dprintf("%s at %s, combattarget %s not found\n",
-				self->classname, vtos(self->s.origin),
+				self->classname,
+				vtos(self->s.origin),
 				self->combattarget);
 		return;
 	}
@@ -457,15 +488,21 @@ FoundTarget(edict_t *self)
 }
 
 /*
- * Self is currently not attacking anything, so try
- * to find a target. Returns TRUE if an enemy was sighted.
- * When a player fires a missile, the point of impact
- * becomes a fakeplayer so that monsters that see the
- * impact will respond as if they had seen the player.
+ * Self is currently not attacking anything,
+ * so try to find a target
  *
- * To avoid spending too much time, only a single client
- * (or fakeclient) is checked each frame. This means multi
- * player games will have slightly slower noticing monsters.
+ * Returns TRUE if an enemy was sighted
+ *
+ * When a player fires a missile, the point
+ * of impact becomes a fakeplayer so that
+ * monsters that see the impact will respond
+ * as if they had seen the player.
+ *
+ * To avoid spending too much time, only
+ * a single client (or fakeclient) is
+ * checked each frame. This means multi
+ * player games will have slightly
+ * slower noticing monsters.
  */
 qboolean
 FindTarget(edict_t *self)
@@ -490,10 +527,11 @@ FindTarget(edict_t *self)
 		return false;
 	}
 
-	/* if the first spawnflag bit is set, the
-	   monster will only wake up on really seeing
-	   the player, not another monster getting angry
-	   or hearing something */
+	/* if the first spawnflag bit is set, the monster
+	   will only wake up on really seeing the player,
+	   not another monster getting angry or hearing
+	   something */
+
 	heardit = false;
 
 	if ((level.sight_entity_framenum >= (level.framenum - 1)) &&
@@ -734,7 +772,7 @@ M_CheckAttack(edict_t *self)
 	if (enemy_range == RANGE_MELEE)
 	{
 		/* don't always melee in easy mode */
-		if ((skill->value == SKILL_EASY) && (rand() & 3))
+		if ((skill->value == SKILL_EASY) && (randk() & 3))
 		{
 			return false;
 		}
@@ -816,8 +854,8 @@ M_CheckAttack(edict_t *self)
 }
 
 /*
- * Turn and close until within
- * an angle to launch a melee attack
+ * Turn and close until within an
+ * angle to launch a melee attack
  */
 void
 ai_run_melee(edict_t *self)
@@ -841,8 +879,8 @@ ai_run_melee(edict_t *self)
 }
 
 /*
- * Turn in place until within
- * an angle to launch a missile attack
+ * Turn in place until within an
+ * angle to launch a missile attack
  */
 void
 ai_run_missile(edict_t *self)
@@ -865,8 +903,8 @@ ai_run_missile(edict_t *self)
 }
 
 /*
- * Strafe sideways, but stay
- * at aproximately the same range
+ * Strafe sideways, but stay at
+ * approximately the same range
  */
 void
 ai_run_slide(edict_t *self, float distance)
@@ -900,8 +938,9 @@ ai_run_slide(edict_t *self, float distance)
 }
 
 /*
- * Decides if we're going to
- * attack or do something else
+ * Decides if we're going to attack
+ * or do something else used by
+ * ai_run and ai_stand
  */
 static qboolean
 hesDeadJim(const edict_t *self)
@@ -932,7 +971,7 @@ hesDeadJim(const edict_t *self)
 }
 
 qboolean
-ai_checkattack(edict_t *self, float dist)
+ai_checkattack(edict_t *self)
 {
 	vec3_t temp;
 
@@ -972,7 +1011,8 @@ ai_checkattack(edict_t *self, float dist)
 
 				if (self->monsterinfo.aiflags & AI_TEMP_STAND_GROUND)
 				{
-					self->monsterinfo.aiflags &= ~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
+					self->monsterinfo.aiflags &=
+							~(AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
 				}
 			}
 			else
@@ -1018,7 +1058,8 @@ ai_checkattack(edict_t *self, float dist)
 		}
 	}
 
-	self->show_hostile = level.time + 1; /* wake up other monsters */
+	/* wake up other monsters */
+	self->show_hostile = level.time + 1;
 
 	/* check knowledge of enemy */
 	enemy_vis = visible(self, self->enemy);
@@ -1029,6 +1070,7 @@ ai_checkattack(edict_t *self, float dist)
 		VectorCopy(self->enemy->s.origin, self->monsterinfo.last_sighting);
 	}
 
+	/* look for other coop players here */
 	if (coop && coop->value && (self->monsterinfo.search_time < level.time))
 	{
 		if (FindTarget(self))
@@ -1057,8 +1099,8 @@ ai_checkattack(edict_t *self, float dist)
 		return true;
 	}
 
-	/* if enemy is not currently
-	   visible, we will never attack */
+	/* if enemy is not currently visible,
+	   we will never attack */
 	if (!enemy_vis)
 	{
 		return false;
@@ -1068,7 +1110,8 @@ ai_checkattack(edict_t *self, float dist)
 }
 
 /*
- * The monster has an enemy it is trying to kill
+ * The monster has an enemy
+ * it is trying to kill
  */
 void
 ai_run(edict_t *self, float dist)
@@ -1125,7 +1168,7 @@ ai_run(edict_t *self, float dist)
 		}
 	}
 
-	if (ai_checkattack(self, dist))
+	if (ai_checkattack(self))
 	{
 		return;
 	}
@@ -1153,7 +1196,7 @@ ai_run(edict_t *self, float dist)
 		return;
 	}
 
-    tempgoal = G_SpawnOptional();
+	tempgoal = G_SpawnOptional();
 
 	if (!tempgoal)
 	{
@@ -1221,8 +1264,9 @@ ai_run(edict_t *self, float dist)
 
 	if (new)
 	{
-		tr = gi.trace(self->s.origin, self->mins, self->maxs, self->monsterinfo.last_sighting,
-				self, MASK_PLAYERSOLID);
+		tr = gi.trace(self->s.origin, self->mins, self->maxs,
+				self->monsterinfo.last_sighting, self,
+				MASK_PLAYERSOLID);
 
 		if (tr.fraction < 1)
 		{
@@ -1252,8 +1296,8 @@ ai_run(edict_t *self, float dist)
 				if (left < 1)
 				{
 					VectorSet(v, d2 * left * 0.5, -16, 0);
-					G_ProjectSource(self->s.origin, v, v_forward, v_right,
-							left_target);
+					G_ProjectSource(self->s.origin, v, v_forward,
+							v_right, left_target);
 				}
 
 				VectorCopy(self->monsterinfo.last_sighting,
@@ -1269,11 +1313,12 @@ ai_run(edict_t *self, float dist)
 				if (right < 1)
 				{
 					VectorSet(v, d2 * right * 0.5, 16, 0);
-					G_ProjectSource(self->s.origin, v, v_forward,
-							v_right, right_target);
+					G_ProjectSource(self->s.origin, v, v_forward, v_right,
+							right_target);
 				}
 
-				VectorCopy(self->monsterinfo.last_sighting, self->monsterinfo.saved_goal);
+				VectorCopy(self->monsterinfo.last_sighting,
+						self->monsterinfo.saved_goal);
 				self->monsterinfo.aiflags |= AI_PURSUE_TEMP;
 				VectorCopy(right_target, self->goalentity->s.origin);
 				VectorCopy(right_target, self->monsterinfo.last_sighting);

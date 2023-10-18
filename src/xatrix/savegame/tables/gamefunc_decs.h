@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2011 Yamagi Burmeister
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * Prototypes for every function in the game.so.
@@ -29,16 +44,19 @@ extern mmoveList_t * GetMmoveByAddress ( mmove_t * adr ) ;
 extern byte * FindFunctionByName ( char * name ) ;
 extern functionList_t * GetFunctionByAddress ( byte * adr ) ;
 extern void InitGame ( void ) ;
-extern void Info_SetValueForKey ( char * s , char * key , char * value ) ;
-extern qboolean Info_Validate ( char * s ) ;
-extern void Info_RemoveKey ( char * s , char * key ) ;
-extern char * Info_ValueForKey ( char * s , char * key ) ;
-extern void Com_sprintf ( char * dest , int size , char * fmt , ... ) ;
-extern int Q_strcasecmp ( char * s1 , char * s2 ) ;
-extern int Q_strncasecmp ( char * s1 , char * s2 , int n ) ;
+extern void Info_SetValueForKey ( char * s , const char * key , const char * value ) ;
+extern qboolean Info_Validate ( const char * s ) ;
+extern void Info_RemoveKey ( char * s , const char * key ) ;
+extern char * Info_ValueForKey ( char * s , const char * key ) ;
+extern int Q_strlcat ( char * dst , const char * src , int size ) ;
+extern int Q_strlcpy ( char * dst , const char * src , int size ) ;
+extern char * Q_strlwr ( char * s ) ;
+extern void Com_sprintf ( char * dest , int size , const char * fmt , ... ) ;
+extern int Q_strcasecmp ( const char * s1 , const char * s2 ) ;
+extern int Q_strncasecmp ( const char * s1 , const char * s2 , int n ) ;
 extern int Q_stricmp ( const char * s1 , const char * s2 ) ;
-extern void Com_PageInMemory ( byte * buffer , int size ) ;
-extern char * COM_Parse ( char * * data_p ) ;
+extern void Com_PageInMemory ( const byte * buffer , int size ) ;
+extern const char * COM_Parse ( char * * data_p ) ;
 extern char * va ( const char * format , ... ) ;
 extern void Swap_Init ( void ) ;
 extern float FloatNoSwap ( float f ) ;
@@ -55,34 +73,35 @@ extern short LittleShort ( short l ) ;
 extern short BigShort ( short l ) ;
 extern void COM_DefaultExtension ( char * path , const char * extension ) ;
 extern void COM_FilePath ( const char * in , char * out ) ;
-extern void COM_FileBase ( char * in , char * out ) ;
+extern void COM_FileBase ( const char * in , char * out ) ;
 extern const char * COM_FileExtension ( const char * in ) ;
-extern void COM_StripExtension ( char * in , char * out ) ;
-extern char * COM_SkipPath ( char * pathname ) ;
+extern void COM_StripExtension ( const char * in , char * out ) ;
+extern const char * COM_SkipPath ( const char * pathname ) ;
 extern int Q_log2 ( int val ) ;
-extern void VectorScale ( vec3_t in , vec_t scale , vec3_t out ) ;
+extern void VectorScale ( const vec3_t in , vec_t scale , vec3_t out ) ;
 extern void VectorInverse ( vec3_t v ) ;
-extern vec_t VectorLength ( vec3_t v ) ;
-extern void CrossProduct ( vec3_t v1 , vec3_t v2 , vec3_t cross ) ;
-extern void _VectorCopy ( vec3_t in , vec3_t out ) ;
-extern void _VectorAdd ( vec3_t veca , vec3_t vecb , vec3_t out ) ;
-extern void _VectorSubtract ( vec3_t veca , vec3_t vecb , vec3_t out ) ;
-extern vec_t _DotProduct ( vec3_t v1 , vec3_t v2 ) ;
-extern void VectorMA ( vec3_t veca , float scale , vec3_t vecb , vec3_t vecc ) ;
-extern vec_t VectorNormalize2 ( vec3_t v , vec3_t out ) ;
+extern vec_t VectorLength ( const vec3_t v ) ;
+extern void CrossProduct ( const vec3_t v1 , const vec3_t v2 , vec3_t cross ) ;
+extern void _VectorCopy ( const vec3_t in , vec3_t out ) ;
+extern void _VectorAdd ( const vec3_t veca , const vec3_t vecb , vec3_t out ) ;
+extern void _VectorSubtract ( const vec3_t veca , const vec3_t vecb , vec3_t out ) ;
+extern vec_t _DotProduct ( const vec3_t v1 , const vec3_t v2 ) ;
+extern void VectorMA ( const vec3_t veca , float scale , const vec3_t vecb , vec3_t vecc ) ;
+extern vec_t VectorNormalize2 ( const vec3_t v , vec3_t out ) ;
 extern vec_t VectorNormalize ( vec3_t v ) ;
-extern int VectorCompare ( vec3_t v1 , vec3_t v2 ) ;
-extern void AddPointToBounds ( vec3_t v , vec3_t mins , vec3_t maxs ) ;
+extern int VectorCompare ( const vec3_t v1 , const vec3_t v2 ) ;
+extern void AddPointToBounds ( const vec3_t v , vec3_t mins , vec3_t maxs ) ;
 extern void ClearBounds ( vec3_t mins , vec3_t maxs ) ;
 extern int BoxOnPlaneSide2 ( vec3_t emins , vec3_t emaxs , struct cplane_s * p ) ;
 extern float anglemod ( float a ) ;
 extern float LerpAngle ( float a2 , float a1 , float frac ) ;
 extern float Q_fabs ( float f ) ;
-extern void R_ConcatTransforms ( float in1 [ 3 ] [ 4 ] , float in2 [ 3 ] [ 4 ] , float out [ 3 ] [ 4 ] ) ;
-extern void R_ConcatRotations ( float in1 [ 3 ] [ 3 ] , float in2 [ 3 ] [ 3 ] , float out [ 3 ] [ 3 ] ) ;
+extern void R_ConcatTransforms ( const float in1 [ 3 ] [ 4 ] , const float in2 [ 3 ] [ 4 ] , float out [ 3 ] [ 4 ] ) ;
+extern void R_ConcatRotations ( const float in1 [ 3 ] [ 3 ] , const float in2 [ 3 ] [ 3 ] , float out [ 3 ] [ 3 ] ) ;
 extern void PerpendicularVector ( vec3_t dst , const vec3_t src ) ;
 extern void ProjectPointOnPlane ( vec3_t dst , const vec3_t p , const vec3_t normal ) ;
-extern void AngleVectors ( vec3_t angles , vec3_t forward , vec3_t right , vec3_t up ) ;
+extern void AngleVectors2 ( const vec3_t value1 , vec3_t angles ) ;
+extern void AngleVectors ( const vec3_t angles , vec3_t forward , vec3_t right , vec3_t up ) ;
 extern void RotatePointAroundVector ( vec3_t dst , const vec3_t dir , const vec3_t point , float degrees ) ;
 extern void Weapon_Trap ( edict_t * ent ) ;
 extern void weapon_trap_fire ( edict_t * ent , qboolean held ) ;
@@ -122,8 +141,8 @@ extern void NoAmmoWeaponChange ( edict_t * ent ) ;
 extern void ChangeWeapon ( edict_t * ent ) ;
 extern qboolean Pickup_Weapon ( edict_t * ent , edict_t * other ) ;
 extern void PlayerNoise ( edict_t * who , vec3_t where , int type ) ;
+extern void P_ProjectSource ( edict_t * ent , vec3_t distance , vec3_t forward , vec3_t right , vec3_t result ) ;
 extern void ClientEndServerFrame ( edict_t * ent ) ;
-extern void P_ProjectSource(edict_t *ent, vec3_t distance, vec3_t forward, vec3_t right, vec3_t result);
 extern void G_SetClientFrame ( edict_t * ent ) ;
 extern void G_SetClientSound ( edict_t * ent ) ;
 extern void G_SetClientEvent ( edict_t * ent ) ;
@@ -183,10 +202,11 @@ extern void ClientObituary ( edict_t * self , edict_t * inflictor , edict_t * at
 extern qboolean IsNeutral ( edict_t * ent ) ;
 extern qboolean IsFemale ( edict_t * ent ) ;
 extern void player_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
-extern void SP_info_player_intermission ( edict_t *ent );
+extern void SP_info_player_intermission ( edict_t * ent ) ;
 extern void SP_info_player_coop ( edict_t * self ) ;
 extern void SP_info_player_deathmatch ( edict_t * self ) ;
 extern void SP_info_player_start ( edict_t * self ) ;
+extern void SP_CreateUnnamedSpawn ( edict_t * self ) ;
 extern void SP_CreateCoopSpots ( edict_t * self ) ;
 extern void SP_FixCoopSpots ( edict_t * self ) ;
 extern void SP_monster_tank ( edict_t * self ) ;
@@ -268,6 +288,7 @@ extern void SP_monster_soldier_ss ( edict_t * self ) ;
 extern void SP_monster_soldier ( edict_t * self ) ;
 extern void SP_monster_soldier_light ( edict_t * self ) ;
 extern void SP_monster_soldier_x ( edict_t * self ) ;
+extern void soldier_footstep( edict_t *self ) ;
 extern void soldier_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void soldier_dead ( edict_t * self ) ;
 extern void soldier_fire7 ( edict_t * self ) ;
@@ -354,6 +375,7 @@ extern void M_ChangeYaw ( edict_t * ent ) ;
 extern qboolean SV_movestep ( edict_t * ent , vec3_t move , qboolean relink ) ;
 extern qboolean M_CheckBottom ( edict_t * ent ) ;
 extern void SP_monster_medic ( edict_t * self ) ;
+extern void medic_footstep( edict_t *self ) ;
 extern qboolean medic_checkattack ( edict_t * self ) ;
 extern void medic_attack ( edict_t * self ) ;
 extern void medic_hook_retract ( edict_t * self ) ;
@@ -376,6 +398,7 @@ extern void medic_search ( edict_t * self ) ;
 extern void medic_idle ( edict_t * self ) ;
 extern edict_t * medic_FindDeadMonster ( edict_t * self ) ;
 extern void SP_misc_insane ( edict_t * self ) ;
+extern void insane_footstep( edict_t *self ) ;
 extern void insane_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void insane_dead ( edict_t * self ) ;
 extern void insane_stand ( edict_t * self ) ;
@@ -391,6 +414,7 @@ extern void insane_moan ( edict_t * self ) ;
 extern void insane_shake ( edict_t * self ) ;
 extern void insane_fist ( edict_t * self ) ;
 extern void SP_monster_infantry ( edict_t * self ) ;
+extern void infantry_footstep( edict_t *self ) ;
 extern void infantry_attack ( edict_t * self ) ;
 extern void infantry_smack ( edict_t * self ) ;
 extern void infantry_swing ( edict_t * self ) ;
@@ -425,6 +449,7 @@ extern void hover_reattack ( edict_t * self ) ;
 extern void hover_search ( edict_t * self ) ;
 extern void hover_sight ( edict_t * self , edict_t * other ) ;
 extern void SP_monster_gunner ( edict_t * self ) ;
+extern void gunner_footstep( edict_t *self ) ;
 extern void gunner_refire_chain ( edict_t * self ) ;
 extern void gunner_fire_chain ( edict_t * self ) ;
 extern void gunner_attack ( edict_t * self ) ;
@@ -447,6 +472,7 @@ extern void gunner_search ( edict_t * self ) ;
 extern void gunner_sight ( edict_t * self , edict_t * other ) ;
 extern void gunner_idlesound ( edict_t * self ) ;
 extern void SP_monster_gladiator ( edict_t * self ) ;
+extern void gladiator_footstep( edict_t *self ) ;
 extern void gladiator_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void gladiator_dead ( edict_t * self ) ;
 extern void gladiator_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
@@ -605,6 +631,7 @@ extern edict_t * fixbot_FindDeadMonster ( edict_t * self ) ;
 extern float crand ( void ) ;
 extern void SP_monster_chick_heat ( edict_t * self ) ;
 extern void SP_monster_chick ( edict_t * self ) ;
+extern void chick_footstep( edict_t *self ) ;
 extern void chick_sight ( edict_t * self , edict_t * other ) ;
 extern void chick_attack ( edict_t * self ) ;
 extern void chick_melee ( edict_t * self ) ;
@@ -629,6 +656,7 @@ extern void chick_stand ( edict_t * self ) ;
 extern void chick_fidget ( edict_t * self ) ;
 extern void ChickMoan ( edict_t * self ) ;
 extern void SP_monster_brain ( edict_t * self ) ;
+extern void brain_footstep( edict_t *self ) ;
 extern void brain_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void brain_dead ( edict_t * self ) ;
 extern void brain_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
@@ -737,6 +765,7 @@ extern void boss2_firebullet_right ( edict_t * self ) ;
 extern void Boss2Rocket ( edict_t * self ) ;
 extern void boss2_search ( edict_t * self ) ;
 extern void SP_monster_berserk ( edict_t * self ) ;
+extern void berserk_footstep( edict_t *self ) ;
 extern void berserk_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void berserk_dead ( edict_t * self ) ;
 extern void berserk_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
@@ -814,8 +843,8 @@ extern void trigger_monsterjump_touch ( edict_t * self , edict_t * other , cplan
 extern void SP_trigger_gravity ( edict_t * self ) ;
 extern void trigger_gravity_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void SP_trigger_hurt ( edict_t * self ) ;
-extern void hurt_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void hurt_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void hurt_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void SP_trigger_push ( edict_t * self ) ;
 extern void trigger_push_active ( edict_t * self ) ;
 extern void trigger_push_inactive ( edict_t * self ) ;
@@ -986,6 +1015,7 @@ extern void misc_deadsoldier_die ( edict_t * self , edict_t * inflictor , edict_
 extern void SP_misc_banner ( edict_t * ent ) ;
 extern void misc_banner_think ( edict_t * ent ) ;
 extern void SP_monster_commander_body ( edict_t * self ) ;
+extern void commander_body_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void commander_body_drop ( edict_t * self ) ;
 extern void commander_body_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void commander_body_think ( edict_t * self ) ;
@@ -996,6 +1026,7 @@ extern void misc_easterchick_think ( edict_t * self ) ;
 extern void SP_misc_eastertank ( edict_t * ent ) ;
 extern void misc_eastertank_think ( edict_t * self ) ;
 extern void SP_misc_blackhole ( edict_t * ent ) ;
+extern void misc_blackhole_transparent ( edict_t * ent ) ;
 extern void misc_blackhole_think ( edict_t * self ) ;
 extern void misc_blackhole_use ( edict_t * ent , edict_t * other , edict_t * activator ) ;
 extern void SP_misc_explobox ( edict_t * self ) ;
@@ -1045,8 +1076,8 @@ extern void CheckNeedPass ( void ) ;
 extern void EndDMLevel ( void ) ;
 extern edict_t * CreateTargetChangeLevel ( char * map ) ;
 extern void ClientEndServerFrames ( void ) ;
-extern void Com_Printf ( char * msg , ... ) ;
-extern void Sys_Error ( char * error , ... ) ;
+extern void Com_Printf ( const char * msg , ... ) ;
+extern void Sys_Error ( const char * error , ... ) ;
 extern game_export_t * GetGameAPI ( game_import_t * import ) ;
 extern void ShutdownGame ( void ) ;
 extern void SetItemNames ( void ) ;
@@ -1181,7 +1212,7 @@ extern void T_Damage ( edict_t * targ , edict_t * inflictor , edict_t * attacker
 extern void M_ReactToDamage ( edict_t * targ , edict_t * attacker ) ;
 extern int CheckArmor ( edict_t * ent , vec3_t point , vec3_t normal , int damage , int te_sparks , int dflags ) ;
 extern int CheckPowerArmor ( edict_t * ent , vec3_t point , vec3_t normal , int damage , int dflags ) ;
-extern void SpawnDamage ( int type , vec3_t origin , vec3_t normal , int damage ) ;
+extern void SpawnDamage ( int type , vec3_t origin , vec3_t normal ) ;
 extern void Killed ( edict_t * targ , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern qboolean CanDamage ( edict_t * targ , edict_t * inflictor ) ;
 extern void ClientCommand ( edict_t * ent ) ;
@@ -1215,7 +1246,7 @@ extern void ChasePrev ( edict_t * ent ) ;
 extern void ChaseNext ( edict_t * ent ) ;
 extern void UpdateChaseCam ( edict_t * ent ) ;
 extern void ai_run ( edict_t * self , float dist ) ;
-extern qboolean ai_checkattack ( edict_t * self , float dist ) ;
+extern qboolean ai_checkattack ( edict_t * self ) ;
 extern void ai_run_slide ( edict_t * self , float distance ) ;
 extern void ai_run_missile ( edict_t * self ) ;
 extern void ai_run_melee ( edict_t * self ) ;

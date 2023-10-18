@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -88,8 +89,12 @@ AI_SetSightClient(void)
 	}
 }
 
+/* ============================================================================ */
+
 /*
- * Move the specified distance at current facing.
+ * Move the specified distance at current
+ * facing. This replaces the QC functions:
+ * ai_forward, ai_back, ai_pain, and ai_painforward
  */
 void
 ai_move(edict_t *self, float dist)
@@ -288,6 +293,8 @@ ai_turn(edict_t *self, float dist)
  * .pausetime
  * A monster will leave it's stand state and head towards it's .movetarget when
  * time > .pausetime.
+ *
+ * walkmove(angle, speed) primitive is all or nothing
  */
 
 /* ============================================================================ */
@@ -390,7 +397,6 @@ infront(edict_t *self, edict_t *other)
 
 	return false;
 }
-
 
 /* ============================================================================ */
 
@@ -695,6 +701,7 @@ FindTarget(edict_t *self)
 		self->enemy = client;
 	}
 
+	/* got one */
 	FoundTarget(self);
 
 	if (!(self->monsterinfo.aiflags & AI_SOUND_TARGET) &&
@@ -863,7 +870,8 @@ ai_run_melee(edict_t *self)
 
 	if (FacingIdeal(self))
 	{
-		if (self->monsterinfo.melee) {
+		if (self->monsterinfo.melee)
+		{
 			self->monsterinfo.melee(self);
 			self->monsterinfo.attack_state = AS_STRAIGHT;
 		}
@@ -1063,7 +1071,7 @@ ai_checkattack(edict_t *self)
 	}
 
 	/* look for other coop players here */
-	if (coop->value && (self->monsterinfo.search_time < level.time))
+	if (coop && coop->value && (self->monsterinfo.search_time < level.time))
 	{
 		if (FindTarget(self))
 		{

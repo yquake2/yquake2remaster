@@ -114,7 +114,8 @@ typedef enum
 	AMMO_GRENADES,
 	AMMO_CELLS,
 	AMMO_SLUGS,
-
+	AMMO_MAGSLUG,
+	AMMO_TRAP,
 	AMMO_FLECHETTES,
 	AMMO_TESLA,
 	AMMO_PROX,
@@ -836,6 +837,8 @@ void monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir,
 		int flashtype);
 void monster_fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
+void monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage,
+		int speed, int flashtype);
 void monster_dabeam(edict_t *self);
 void monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
@@ -904,6 +907,8 @@ void fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, float damage_radius);
 void fire_ionripper(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect);
+void fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
+		float damage_radius, int radius_damage);
 void fire_blueblaster(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect);
 void fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,

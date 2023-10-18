@@ -204,7 +204,7 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 	gclient_t *client;
 	int save;
 	int power_armor_type;
-	int index;
+	int index = 0;
 	int damagePerCell;
 	int pa_te_type;
 	int power = 0;
@@ -621,7 +621,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 
 	/* check for invincibility */
 	if ((client && (client->invincible_framenum > level.framenum)) &&
-		!(dflags & DAMAGE_NO_PROTECTION))
+		!(dflags & DAMAGE_NO_PROTECTION) && (mod != MOD_TRAP))
 	{
 		if (targ->pain_debounce_time < level.time)
 		{
@@ -648,7 +648,14 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	{
 		if ((targ->svflags & SVF_MONSTER) || (client))
 		{
-			SpawnDamage(TE_BLOOD, point, normal);
+			if (strcmp(targ->classname, "monster_gekk") == 0)
+			{
+				SpawnDamage(TE_GREENBLOOD, point, normal);
+			}
+			else
+			{
+				SpawnDamage(TE_BLOOD, point, normal);
+			}
 		}
 		else
 		{

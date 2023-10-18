@@ -2,6 +2,7 @@
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (C) 2011 Knightmare
  * Copyright (C) 2011 Yamagi Burmeister
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -92,7 +93,7 @@
 #endif
 
 /*
- * Older operating systen and architecture detection
+ * Older operating system and architecture detection
  * macros, implemented by savegame version YQ2-1.
  */
 #if defined(__APPLE__)
@@ -736,6 +737,7 @@ ReadClient(FILE *f, gclient_t *client, short save_ver)
 			ReadField(f, field, (byte *)client);
 		}
 	}
+
 	if (save_ver < 3)
 	{
 		InitClientResp(client);
@@ -847,8 +849,7 @@ ReadGame(const char *filename)
 		fclose(f);
 		gi.error("Savegame from an incompatible version.\n");
 	}
-
-	if (save_ver == 1)
+	else if (save_ver == 1)
 	{
 		if (strcmp(sv.game, GAMEVERSION) != 0)
 		{
