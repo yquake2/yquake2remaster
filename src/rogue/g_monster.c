@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Monster utility functions.
  *
@@ -11,6 +26,10 @@
  */
 
 #include "header/local.h"
+
+void monster_start_go(edict_t *self);
+
+/* Monster weapons */
 
 void
 monster_fire_bullet(edict_t *self, vec3_t start, vec3_t dir, int damage,
@@ -187,6 +206,10 @@ monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir,
 	gi.multicast(start, MULTICAST_PVS);
 }
 
+/* ================================================================== */
+
+/* Monster utility functions */
+
 void
 M_FliesOff(edict_t *self)
 {
@@ -254,13 +277,13 @@ AttackFinished(edict_t *self, float time)
 void
 M_CheckGround(edict_t *ent)
 {
+	vec3_t point;
+	trace_t trace;
+
 	if (!ent)
 	{
 		return;
 	}
-
-	vec3_t point;
-	trace_t trace;
 
 	if (ent->flags & (FL_SWIM | FL_FLY))
 	{
@@ -668,7 +691,8 @@ M_MoveFrame(edict_t *self)
 	{
 		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
 		{
-			move->frame[index].aifunc(self, move->frame[index].dist * self->monsterinfo.scale);
+			move->frame[index].aifunc(self,
+					move->frame[index].dist * self->monsterinfo.scale);
 		}
 		else
 		{
@@ -704,7 +728,8 @@ monster_think(edict_t *self)
 }
 
 /*
- * Using a monster makes it angry at the current activator
+ * Using a monster makes it angry
+ * at the current activator
  */
 void
 monster_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
@@ -739,13 +764,11 @@ monster_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 		return;
 	}
 
-	/* delay reaction so if the monster is teleported,
-	   its sound is still heard */
+	/* delay reaction so if the monster is
+	   teleported, its sound is still heard */
 	self->enemy = activator;
 	FoundTarget(self);
 }
-
-void monster_start_go(edict_t *self);
 
 void
 monster_triggered_spawn(edict_t *self)
@@ -765,6 +788,16 @@ monster_triggered_spawn(edict_t *self)
 	gi.linkentity(self);
 
 	monster_start_go(self);
+
+	if (strcmp(self->classname, "monster_fixbot") == 0)
+	{
+		if (self->spawnflags & 16 || self->spawnflags & 8 || self->spawnflags &
+			4)
+		{
+			self->enemy = NULL;
+			return;
+		}
+	}
 
 	if (self->enemy && !(self->spawnflags & 1) &&
 		!(self->enemy->flags & FL_NOTARGET))
@@ -792,8 +825,8 @@ monster_triggered_spawn_use(edict_t *self, edict_t *other /* unused */, edict_t 
 		return;
 	}
 
-	/* we have a one frame delay here so we don't
-	   telefrag the guy who activated us */
+	/* we have a one frame delay here so we
+	   don't telefrag the guy who activated us */
 	self->think = monster_triggered_spawn;
 	self->nextthink = level.time + FRAMETIME;
 
@@ -821,8 +854,8 @@ monster_triggered_start(edict_t *self)
 }
 
 /*
- * When a monster dies, it fires all of its
- * targets with the current enemy as activator.
+ * When a monster dies, it fires all of its targets
+ * with the current enemy as activator.
  */
 void
 monster_death_use(edict_t *self)
@@ -854,7 +887,7 @@ monster_death_use(edict_t *self)
 	G_UseTargets(self, self->enemy);
 }
 
-/* ============================================================================ */
+/* ================================================================== */
 
 qboolean
 monster_start(edict_t *self)
@@ -932,8 +965,8 @@ monster_start(edict_t *self)
 	if (self->monsterinfo.currentmove)
 	{
 		self->s.frame = self->monsterinfo.currentmove->firstframe +
-						(rand() % (self->monsterinfo.currentmove->lastframe -
-								   self->monsterinfo.currentmove->firstframe + 1));
+			(randk() % (self->monsterinfo.currentmove->lastframe -
+					   self->monsterinfo.currentmove->firstframe + 1));
 	}
 
 	self->monsterinfo.base_height = self->maxs[2];
@@ -968,7 +1001,9 @@ monster_start_go(edict_t *self)
 
 		target = NULL;
 		notcombat = false;
-		fixup = false; while ((target = G_Find(target, FOFS(targetname), self->target)) != NULL)
+		fixup = false;
+
+		while ((target = G_Find(target, FOFS(targetname), self->target)) != NULL)
 		{
 			if (strcmp(target->classname, "point_combat") == 0)
 			{
@@ -1008,7 +1043,8 @@ monster_start_go(edict_t *self)
 				gi.dprintf( "%s at (%i %i %i) has a bad combattarget %s : %s at (%i %i %i)\n",
 						self->classname, (int)self->s.origin[0], (int)self->s.origin[1],
 						(int)self->s.origin[2], self->combattarget, target->classname,
-						(int)target->s.origin[0], (int)target->s.origin[1], (int)target->s.origin[2]);
+						(int)target->s.origin[0], (int)target->s.origin[1],
+						(int)target->s.origin[2]);
 			}
 		}
 	}

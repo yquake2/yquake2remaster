@@ -201,7 +201,7 @@ stalker_idle_noise(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_idle, 0.5, ATTN_IDLE, 0);
 }
 
-mframe_t stalker_frames_idle[] = {
+static mframe_t stalker_frames_idle[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -236,7 +236,7 @@ mmove_t stalker_move_idle = {
    	stalker_stand
 };
 
-mframe_t stalker_frames_idle2[] = {
+static mframe_t stalker_frames_idle2[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -279,7 +279,7 @@ stalker_idle(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_stand[] = {
+static mframe_t stalker_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -332,7 +332,7 @@ stalker_stand(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_run[] = {
+static mframe_t stalker_frames_run[] = {
 	{ai_run, 13, NULL},
 	{ai_run, 17, NULL},
 	{ai_run, 21, NULL},
@@ -364,7 +364,7 @@ stalker_run(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_walk[] = {
+static mframe_t stalker_frames_walk[] = {
 	{ai_walk, 4, NULL},
 	{ai_walk, 6, NULL},
 	{ai_walk, 8, NULL},
@@ -394,7 +394,7 @@ stalker_walk(edict_t *self)
 	self->monsterinfo.currentmove = &stalker_move_walk;
 }
 
-mframe_t stalker_frames_reactivate[] = {
+static mframe_t stalker_frames_reactivate[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -453,7 +453,7 @@ stalker_heal(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_false_death[] = {
+static mframe_t stalker_frames_false_death[] = {
 	{ai_move, 0, stalker_heal},
 	{ai_move, 0, stalker_heal},
 	{ai_move, 0, stalker_heal},
@@ -485,7 +485,7 @@ stalker_false_death(edict_t *self)
 	self->monsterinfo.currentmove = &stalker_move_false_death;
 }
 
-mframe_t stalker_frames_false_death_start[] = {
+static mframe_t stalker_frames_false_death_start[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -520,7 +520,7 @@ stalker_false_death_start(edict_t *self)
 	self->monsterinfo.currentmove = &stalker_move_false_death_start;
 }
 
-mframe_t stalker_frames_pain[] = {
+static mframe_t stalker_frames_pain[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -683,7 +683,7 @@ stalker_shoot_attack2(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_shoot[] = {
+static mframe_t stalker_frames_shoot[] = {
 	{ai_charge, 13, NULL},
 	{ai_charge, 17, stalker_shoot_attack},
 	{ai_charge, 21, NULL},
@@ -753,7 +753,7 @@ stalker_swing_attack(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_swing_l[] = {
+static mframe_t stalker_frames_swing_l[] = {
 	{ai_charge, 2, NULL},
 	{ai_charge, 4, NULL},
 	{ai_charge, 6, NULL},
@@ -771,7 +771,7 @@ mmove_t stalker_move_swing_l = {
    	stalker_run
 };
 
-mframe_t stalker_frames_swing_r[] = {
+static mframe_t stalker_frames_swing_r[] = {
 	{ai_charge, 4, NULL},
 	{ai_charge, 6, NULL},
 	{ai_charge, 6, stalker_swing_attack},
@@ -1090,7 +1090,7 @@ stalker_jump_straightup(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_jump_straightup[] = {
+static mframe_t stalker_frames_jump_straightup[] = {
 	{ai_move, 1, stalker_jump_straightup},
 	{ai_move, 1, stalker_jump_wait_land},
 	{ai_move, -1, NULL},
@@ -1115,7 +1115,7 @@ stalker_dodge_jump(edict_t *self)
 	self->monsterinfo.currentmove = &stalker_move_jump_straightup;
 }
 
-mframe_t stalker_frames_dodge_run[] = {
+static mframe_t stalker_frames_dodge_run[] = {
 	{ai_run, 13, NULL},
 	{ai_run, 17, NULL},
 	{ai_run, 21, NULL},
@@ -1225,7 +1225,7 @@ stalker_jump_wait_land(edict_t *self)
 	}
 }
 
-mframe_t stalker_frames_jump_up[] = {
+static mframe_t stalker_frames_jump_up[] = {
 	{ai_move, -8, NULL},
 	{ai_move, -8, NULL},
 	{ai_move, -8, NULL},
@@ -1243,7 +1243,7 @@ mmove_t stalker_move_jump_up = {
    	stalker_run
 };
 
-mframe_t stalker_frames_jump_down[] = {
+static mframe_t stalker_frames_jump_down[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -1362,7 +1362,7 @@ stalker_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t stalker_frames_death[] = {
+static mframe_t stalker_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, -5, NULL},
 	{ai_move, -10, NULL},

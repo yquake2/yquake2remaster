@@ -26,7 +26,7 @@ static int sound_sight;
 
 void flipper_stand(edict_t *self);
 
-mframe_t flipper_frames_stand[] = {
+static mframe_t flipper_frames_stand[] = {
 	{ai_stand, 0, NULL}
 };
 
@@ -40,7 +40,7 @@ mmove_t flipper_move_stand = {
 void
 flipper_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -48,7 +48,7 @@ flipper_stand(edict_t *self)
 	self->monsterinfo.currentmove = &flipper_move_stand;
 }
 
-mframe_t flipper_frames_run[] = {
+static mframe_t flipper_frames_run[] = {
 	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 6 */
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
@@ -87,7 +87,7 @@ mmove_t flipper_move_run_loop = {
 void
 flipper_run_loop(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -95,7 +95,7 @@ flipper_run_loop(edict_t *self)
 	self->monsterinfo.currentmove = &flipper_move_run_loop;
 }
 
-mframe_t flipper_frames_run_start[] = {
+static mframe_t flipper_frames_run_start[] = {
 	{ai_run, 8, NULL},
 	{ai_run, 8, NULL},
 	{ai_run, 8, NULL},
@@ -114,7 +114,7 @@ mmove_t flipper_move_run_start = {
 void
 flipper_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -123,7 +123,7 @@ flipper_run(edict_t *self)
 }
 
 /* Standard Swimming */
-mframe_t flipper_frames_walk[] = {
+static mframe_t flipper_frames_walk[] = {
 	{ai_walk, 4, NULL},
 	{ai_walk, 4, NULL},
 	{ai_walk, 4, NULL},
@@ -160,7 +160,7 @@ mmove_t flipper_move_walk = {
 void
 flipper_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -168,7 +168,7 @@ flipper_walk(edict_t *self)
 	self->monsterinfo.currentmove = &flipper_move_walk;
 }
 
-mframe_t flipper_frames_start_run[] = {
+static mframe_t flipper_frames_start_run[] = {
 	{ai_run, 8, NULL},
 	{ai_run, 8, NULL},
 	{ai_run, 8, NULL},
@@ -185,7 +185,7 @@ mmove_t flipper_move_start_run = {
 void
 flipper_start_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -193,7 +193,7 @@ flipper_start_run(edict_t *self)
 	self->monsterinfo.currentmove = &flipper_move_start_run;
 }
 
-mframe_t flipper_frames_pain2[] = {
+static mframe_t flipper_frames_pain2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -208,7 +208,7 @@ mmove_t flipper_move_pain2 = {
    	flipper_run
 };
 
-mframe_t flipper_frames_pain1[] = {
+static mframe_t flipper_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -228,7 +228,7 @@ flipper_bite(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -240,7 +240,7 @@ flipper_bite(edict_t *self)
 void
 flipper_preattack(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -248,7 +248,7 @@ flipper_preattack(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_chomp, 1, ATTN_NORM, 0);
 }
 
-mframe_t flipper_frames_attack[] = {
+static mframe_t flipper_frames_attack[] = {
 	{ai_charge, 0, flipper_preattack},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -281,7 +281,7 @@ mmove_t flipper_move_attack = {
 void
 flipper_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -295,7 +295,7 @@ flipper_pain(edict_t *self, edict_t *other /* unused */,
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -337,7 +337,7 @@ flipper_dead(edict_t *self)
 	vec3_t p;
 	trace_t tr;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -358,7 +358,7 @@ flipper_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t flipper_frames_death[] = {
+static mframe_t flipper_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -432,7 +432,7 @@ mmove_t flipper_move_death = {
 void
 flipper_sight(edict_t *self, edict_t *other /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -446,7 +446,7 @@ flipper_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -493,7 +493,7 @@ flipper_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 void
 SP_monster_flipper(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

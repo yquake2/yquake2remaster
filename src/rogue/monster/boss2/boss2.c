@@ -1,11 +1,26 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
  *
- * Boss 2 aka Hornet.
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
+ *
+ * Boss 2 aka Hornet. Found in biggun and inner hangar.
  *
  * =======================================================================
  */
@@ -23,7 +38,8 @@ void boss2_dead(edict_t *self);
 void boss2_attack(edict_t *self);
 void boss2_attack_mg(edict_t *self);
 void boss2_reattack_mg(edict_t *self);
-void boss2_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
+void boss2_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+		int damage, vec3_t point);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -109,10 +125,10 @@ Boss2PredictiveRocket(edict_t *self)
 void
 Boss2Rocket(edict_t *self)
 {
-	vec3_t	forward, right;
-	vec3_t	start;
-	vec3_t	dir;
-	vec3_t	vec;
+	vec3_t forward, right;
+	vec3_t start;
+	vec3_t dir;
+	vec3_t vec;
 
 	if (!self || !self->enemy || !self->enemy->inuse)
 	{
@@ -125,7 +141,7 @@ Boss2Rocket(edict_t *self)
 		return;
 	}
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors(self->s.angles, forward, right, NULL);
 
 //1
 	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
@@ -227,7 +243,7 @@ Boss2MachineGun(edict_t *self)
 	boss2_firebullet_right(self);
 }
 
-mframe_t boss2_frames_stand[] = {
+static mframe_t boss2_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -251,14 +267,15 @@ mframe_t boss2_frames_stand[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t boss2_move_stand = {
+mmove_t boss2_move_stand =
+{
 	FRAME_stand30,
    	FRAME_stand50,
-   	boss2_frames_stand,
-   	NULL
+	boss2_frames_stand,
+	NULL
 };
 
-mframe_t boss2_frames_fidget[] = {
+static mframe_t boss2_frames_fidget[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -291,14 +308,15 @@ mframe_t boss2_frames_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t boss2_move_fidget = {
+mmove_t boss2_move_fidget =
+{
 	FRAME_stand1,
-   	FRAME_stand30,
-   	boss2_frames_fidget,
-   	NULL
+	FRAME_stand30,
+	boss2_frames_fidget,
+	NULL
 };
 
-mframe_t boss2_frames_walk[] = {
+static mframe_t boss2_frames_walk[] = {
 	{ai_walk, 10, NULL},
 	{ai_walk, 10, NULL},
 	{ai_walk, 10, NULL},
@@ -324,11 +342,11 @@ mframe_t boss2_frames_walk[] = {
 mmove_t boss2_move_walk = {
 	FRAME_walk1,
 	FRAME_walk20,
-   	boss2_frames_walk,
-   	NULL
+	boss2_frames_walk,
+	NULL
 };
 
-mframe_t boss2_frames_run[] = {
+static mframe_t boss2_frames_run[] = {
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
@@ -358,7 +376,7 @@ mmove_t boss2_move_run = {
    	NULL
 };
 
-mframe_t boss2_frames_attack_pre_mg[] = {
+static mframe_t boss2_frames_attack_pre_mg[] = {
 	{ai_charge, 2, NULL},
 	{ai_charge, 2, NULL},
 	{ai_charge, 2, NULL},
@@ -378,7 +396,7 @@ mmove_t boss2_move_attack_pre_mg = {
 };
 
 /* Loop this */
-mframe_t boss2_frames_attack_mg[] = {
+static mframe_t boss2_frames_attack_mg[] = {
 	{ai_charge, 2, Boss2MachineGun},
 	{ai_charge, 2, Boss2MachineGun},
 	{ai_charge, 2, Boss2MachineGun},
@@ -387,14 +405,15 @@ mframe_t boss2_frames_attack_mg[] = {
 	{ai_charge, 2, boss2_reattack_mg}
 };
 
-mmove_t boss2_move_attack_mg = {
+mmove_t boss2_move_attack_mg =
+{
 	FRAME_attack10,
    	FRAME_attack15,
    	boss2_frames_attack_mg,
    	NULL
 };
 
-mframe_t boss2_frames_attack_post_mg[] = {
+static mframe_t boss2_frames_attack_post_mg[] = {
 	{ai_charge, 2, NULL},
 	{ai_charge, 2, NULL},
 	{ai_charge, 2, NULL},
@@ -409,7 +428,7 @@ mmove_t boss2_move_attack_post_mg = {
    	boss2_run
 };
 
-mframe_t boss2_frames_attack_rocket[] = {
+static mframe_t boss2_frames_attack_rocket[] = {
 	{ai_charge, 2, NULL},
 	{ai_charge, 2, NULL},
 	{ai_charge, 2, NULL},
@@ -439,7 +458,7 @@ mmove_t boss2_move_attack_rocket = {FRAME_attack20,
    	boss2_run
 };
 
-mframe_t boss2_frames_pain_heavy[] = {
+static mframe_t boss2_frames_pain_heavy[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -467,7 +486,7 @@ mmove_t boss2_move_pain_heavy = {
    	boss2_run
 };
 
-mframe_t boss2_frames_pain_light[] = {
+static mframe_t boss2_frames_pain_light[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -481,7 +500,7 @@ mmove_t boss2_move_pain_light = {
    	boss2_run
 };
 
-mframe_t boss2_frames_death[] = {
+static mframe_t boss2_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -667,6 +686,7 @@ boss2_pain(edict_t *self, edict_t *other /* unused */, float kick, int damage)
 
 	self->pain_debounce_time = level.time + 3;
 
+	/* American wanted these at no attenuation */
 	if (damage < 10)
 	{
 		gi.sound(self, CHAN_VOICE, sound_pain3, 1, ATTN_NONE, 0);

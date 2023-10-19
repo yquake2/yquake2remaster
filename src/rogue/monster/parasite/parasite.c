@@ -100,7 +100,7 @@ parasite_search(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_search, 1, ATTN_IDLE, 0);
 }
 
-mframe_t parasite_frames_start_fidget[] = {
+static mframe_t parasite_frames_start_fidget[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -114,7 +114,7 @@ mmove_t parasite_move_start_fidget = {
 	parasite_do_fidget
 };
 
-mframe_t parasite_frames_fidget[] = {
+static mframe_t parasite_frames_fidget[] = {
 	{ai_stand, 0, parasite_scratch},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -130,7 +130,7 @@ mmove_t parasite_move_fidget = {
    	parasite_refidget
 };
 
-mframe_t parasite_frames_end_fidget[] = {
+static mframe_t parasite_frames_end_fidget[] = {
 	{ai_stand, 0, parasite_scratch},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -199,7 +199,7 @@ parasite_idle(edict_t *self)
 	self->monsterinfo.currentmove = &parasite_move_start_fidget;
 }
 
-mframe_t parasite_frames_stand[] = {
+static mframe_t parasite_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, parasite_tap},
@@ -237,7 +237,7 @@ parasite_stand(edict_t *self)
 	self->monsterinfo.currentmove = &parasite_move_stand;
 }
 
-mframe_t parasite_frames_run[] = {
+static mframe_t parasite_frames_run[] = {
 	{ai_run, 30, NULL},
 	{ai_run, 30, NULL},
 	{ai_run, 22, NULL},
@@ -254,7 +254,7 @@ mmove_t parasite_move_run = {
    	NULL
 };
 
-mframe_t parasite_frames_start_run[] = {
+static mframe_t parasite_frames_start_run[] = {
 	{ai_run, 0, NULL},
 	{ai_run, 30, NULL},
 };
@@ -266,7 +266,7 @@ mmove_t parasite_move_start_run = {
    	parasite_run
 };
 
-mframe_t parasite_frames_stop_run[] = {
+static mframe_t parasite_frames_stop_run[] = {
 	{ai_run, 20, NULL},
 	{ai_run, 20, NULL},
 	{ai_run, 12, NULL},
@@ -318,7 +318,7 @@ parasite_run(edict_t *self)
 	}
 }
 
-mframe_t parasite_frames_walk[] = {
+static mframe_t parasite_frames_walk[] = {
 	{ai_walk, 30, NULL},
 	{ai_walk, 30, NULL},
 	{ai_walk, 22, NULL},
@@ -335,7 +335,7 @@ mmove_t parasite_move_walk = {
    	parasite_walk
 };
 
-mframe_t parasite_frames_start_walk[] = {
+static mframe_t parasite_frames_start_walk[] = {
 	{ai_walk, 0, NULL},
 	{ai_walk, 30, parasite_walk}
 };
@@ -347,7 +347,7 @@ mmove_t parasite_move_start_walk = {
    	NULL
 };
 
-mframe_t parasite_frames_stop_walk[] = {
+static mframe_t parasite_frames_stop_walk[] = {
 	{ai_walk, 20, NULL},
 	{ai_walk, 20, NULL},
 	{ai_walk, 12, NULL},
@@ -385,7 +385,7 @@ parasite_walk(edict_t *self)
 	self->monsterinfo.currentmove = &parasite_move_walk;
 }
 
-mframe_t parasite_frames_pain1[] = {
+static mframe_t parasite_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -553,7 +553,7 @@ parasite_drain_attack(edict_t *self)
 			damage, 0, DAMAGE_NO_KNOCKBACK, MOD_UNKNOWN);
 }
 
-mframe_t parasite_frames_drain[] = {
+static mframe_t parasite_frames_drain[] = {
 	{ai_charge, 0, parasite_launch},
 	{ai_charge, 0, NULL},
 	{ai_charge, 15, parasite_drain_attack},         /* Target hits */
@@ -581,7 +581,7 @@ mmove_t parasite_move_drain = {
    	parasite_start_run
 };
 
-mframe_t parasite_frames_break[] = {
+static mframe_t parasite_frames_break[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, -3, NULL},
 	{ai_charge, 1, NULL},
@@ -691,7 +691,7 @@ parasite_jump_wait_land(edict_t *self)
 	}
 }
 
-mframe_t parasite_frames_jump_up[] = {
+static mframe_t parasite_frames_jump_up[] = {
 	{ai_move, -8, NULL},
 	{ai_move, -8, NULL},
 	{ai_move, -8, NULL},
@@ -709,7 +709,7 @@ mmove_t parasite_move_jump_up = {
    	parasite_run
 };
 
-mframe_t parasite_frames_jump_down[] = {
+static mframe_t parasite_frames_jump_down[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -882,7 +882,7 @@ parasite_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t parasite_frames_death[] = {
+static mframe_t parasite_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},

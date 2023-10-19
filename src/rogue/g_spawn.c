@@ -1,9 +1,23 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * Item spawning.
@@ -180,7 +194,7 @@ void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
 		vec3_t startpos, int hitsound, qboolean fade);
 
-spawn_t spawns[] = {
+static spawn_t spawns[] = {
 	{"item_health", SP_item_health},
 	{"item_health_small", SP_item_health_small},
 	{"item_health_large", SP_item_health_large},
@@ -340,7 +354,8 @@ spawn_t spawns[] = {
 };
 
 /*
- * Finds the spawn function for the entity and calls it
+ * Finds the spawn function for
+ * the entity and calls it
  */
 void
 ED_CallSpawn(edict_t *ent)
@@ -390,7 +405,7 @@ ED_CallSpawn(edict_t *ent)
 
 		if (!strcmp(item->classname, ent->classname))
 		{
-		 	/* found it */
+			/* found it */
 			SpawnItem(ent, item);
 			return;
 		}
@@ -401,7 +416,7 @@ ED_CallSpawn(edict_t *ent)
 	{
 		if (!strcmp(s->name, ent->classname))
 		{
-		 	/* found it */
+			/* found it */
 			s->spawn(ent);
 			return;
 		}
@@ -472,7 +487,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 	{
 		if (!(f->flags & FFL_NOSPAWN) && !Q_strcasecmp(f->name, (char *)key))
 		{
-		 	/* found it */
+			/* found it */
 			if (f->flags & FFL_SPAWNTEMP)
 			{
 				b = (byte *)&st;
@@ -519,7 +534,9 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 }
 
 /*
- * Parses an edict out of the given string, returning the new position
+ * Parses an edict out of the given string,
+ * returning the new position ed should be
+ * a properly initialized empty edict.
  */
 char *
 ED_ParseEdict(char *data, edict_t *ent)
@@ -535,6 +552,7 @@ ED_ParseEdict(char *data, edict_t *ent)
 
 	init = false;
 	memset(&st, 0, sizeof(st));
+	st.skyautorotate = 1;
 
 	/* go through all the dictionary pairs */
 	while (1)
@@ -552,7 +570,7 @@ ED_ParseEdict(char *data, edict_t *ent)
 			gi.error("ED_ParseEntity: EOF without closing brace");
 		}
 
-		strncpy(keyname, com_token, sizeof(keyname) - 1);
+		Q_strlcpy(keyname, com_token, sizeof(keyname));
 
 		/* parse value */
 		com_token = COM_Parse(&data);
@@ -569,9 +587,9 @@ ED_ParseEdict(char *data, edict_t *ent)
 
 		init = true;
 
-		/* keynames with a leading underscore are used for
-		   utility comments, and are immediately discarded
-		   by quake */
+		/* keynames with a leading underscore are
+		   used for utility comments, and are
+		   immediately discarded by quake */
 		if (keyname[0] == '_')
 		{
 			continue;
@@ -594,7 +612,7 @@ ED_ParseEdict(char *data, edict_t *ent)
  * All but the first will have the FL_TEAMSLAVE flag set.
  * All but the last will have the teamchain field set to the next one
  */
-void
+static void
 G_FixTeams(void)
 {
 	edict_t *e, *e2, *chain;
@@ -772,8 +790,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	memset(&level, 0, sizeof(level));
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
 
-	strncpy(level.mapname, mapname, sizeof(level.mapname) - 1);
-	strncpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint) - 1);
+	Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
+	Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
 	/* set client fields on player ents */
 	for (i = 0; i < game.maxclients; i++)
@@ -813,7 +831,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		/* yet another map hack */
 		if (!Q_stricmp(level.mapname, "command") &&
-			!Q_stricmp(ent->classname, "trigger_once") && !Q_stricmp(ent->model, "*27"))
+			!Q_stricmp(ent->classname, "trigger_once") &&
+			!Q_stricmp(ent->model, "*27"))
 		{
 			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
 		}
@@ -931,141 +950,141 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 /* =================================================================== */
 
-char *single_statusbar =
-"yb	-24 "
+static char *single_statusbar =
+	"yb	-24 "
 
 /* health */
-"xv	0 "
-"hnum "
-"xv	50 "
-"pic 0 "
+	"xv	0 "
+	"hnum "
+	"xv	50 "
+	"pic 0 "
 
 /* ammo */
-"if 2 "
-"	xv	100 "
-"	anum "
-"	xv	150 "
-"	pic 2 "
-"endif "
+	"if 2 "
+	"	xv	100 "
+	"	anum "
+	"	xv	150 "
+	"	pic 2 "
+	"endif "
 
 /* armor */
-"if 4 "
-"	xv	200 "
-"	rnum "
-"	xv	250 "
-"	pic 4 "
-"endif "
+	"if 4 "
+	"	xv	200 "
+	"	rnum "
+	"	xv	250 "
+	"	pic 4 "
+	"endif "
 
 /* selected item */
-"if 6 "
-"	xv	296 "
-"	pic 6 "
-"endif "
+	"if 6 "
+	"	xv	296 "
+	"	pic 6 "
+	"endif "
 
-"yb	-50 "
+	"yb	-50 "
 
 /* picked up item */
-"if 7 "
-"	xv	0 "
-"	pic 7 "
-"	xv	26 "
-"	yb	-42 "
-"	stat_string 8 "
-"	yb	-50 "
-"endif "
+	"if 7 "
+	"	xv	0 "
+	"	pic 7 "
+	"	xv	26 "
+	"	yb	-42 "
+	"	stat_string 8 "
+	"	yb	-50 "
+	"endif "
 
 /* timer */
-"if 9 "
-"	xv	262 "
-"	num	2	10 "
-"	xv	296 "
-"	pic	9 "
-"endif "
+	"if 9 "
+	"	xv	262 "
+	"	num	2	10 "
+	"	xv	296 "
+	"	pic	9 "
+	"endif "
 
 /*  help / weapon icon */
-"if 11 "
-"	xv	148 "
-"	pic	11 "
-"endif "
+	"if 11 "
+	"	xv	148 "
+	"	pic	11 "
+	"endif "
 ;
 
-char *dm_statusbar =
-"yb	-24 "
+static char *dm_statusbar =
+	"yb	-24 "
 
 /* health */
-"xv	0 "
-"hnum "
-"xv	50 "
-"pic 0 "
+	"xv	0 "
+	"hnum "
+	"xv	50 "
+	"pic 0 "
 
 /* ammo */
-"if 2 "
-"	xv	100 "
-"	anum "
-"	xv	150 "
-"	pic 2 "
-"endif "
+	"if 2 "
+	"	xv	100 "
+	"	anum "
+	"	xv	150 "
+	"	pic 2 "
+	"endif "
 
 /* armor */
-"if 4 "
-"	xv	200 "
-"	rnum "
-"	xv	250 "
-"	pic 4 "
-"endif "
+	"if 4 "
+	"	xv	200 "
+	"	rnum "
+	"	xv	250 "
+	"	pic 4 "
+	"endif "
 
 /* selected item */
-"if 6 "
-"	xv	296 "
-"	pic 6 "
-"endif "
+	"if 6 "
+	"	xv	296 "
+	"	pic 6 "
+	"endif "
 
-"yb	-50 "
+	"yb	-50 "
 
 /* picked up item */
-"if 7 "
-"	xv	0 "
-"	pic 7 "
-"	xv	26 "
-"	yb	-42 "
-"	stat_string 8 "
-"	yb	-50 "
-"endif "
+	"if 7 "
+	"	xv	0 "
+	"	pic 7 "
+	"	xv	26 "
+	"	yb	-42 "
+	"	stat_string 8 "
+	"	yb	-50 "
+	"endif "
 
 /* timer */
-"if 9 "
-"	xv	246 "
-"	num	2	10 "
-"	xv	296 "
-"	pic	9 "
-"endif "
+	"if 9 "
+	"	xv	246 "
+	"	num	2	10 "
+	"	xv	296 "
+	"	pic	9 "
+	"endif "
 
 /*  help / weapon icon */
-"if 11 "
-"	xv	148 "
-"	pic	11 "
-"endif "
+	"if 11 "
+	"	xv	148 "
+	"	pic	11 "
+	"endif "
 
 /*  frags */
-"xr	-50 "
-"yt 2 "
-"num 3 14 "
+	"xr	-50 "
+	"yt 2 "
+	"num 3 14 "
 
 /* spectator */
-"if 17 "
-"xv 0 "
-"yb -58 "
-"string2 \"SPECTATOR MODE\" "
-"endif "
+	"if 17 "
+	"xv 0 "
+	"yb -58 "
+	"string2 \"SPECTATOR MODE\" "
+	"endif "
 
 /* chase camera */
-"if 16 "
-"xv 0 "
-"yb -68 "
-"string \"Chasing\" "
-"xv 64 "
-"stat_string 16 "
-"endif "
+	"if 16 "
+	"xv 0 "
+	"yb -68 "
+	"string \"Chasing\" "
+	"xv 64 "
+	"stat_string 16 "
+	"endif "
 ;
 
 /*
@@ -1092,8 +1111,10 @@ SP_worldspawn(edict_t *ent)
 	ent->inuse = true; /* since the world doesn't use G_Spawn() */
 	ent->s.modelindex = 1; /* world model is always index 1 */
 
-	/* reserve some spots for dead player
-	   bodies for coop / deathmatch */
+	/* --------------- */
+
+	/* reserve some spots for dead
+	   player bodies for coop / deathmatch */
 	InitBodyQue();
 
 	/* set configstrings for items */
@@ -1124,9 +1145,13 @@ SP_worldspawn(edict_t *ent)
 		gi.configstring(CS_SKY, "unit1_");
 	}
 
-	gi.configstring(CS_SKYROTATE, va("%f", st.skyrotate));
-	gi.configstring(CS_SKYAXIS, va("%f %f %f", st.skyaxis[0], st.skyaxis[1], st.skyaxis[2]));
+	gi.configstring(CS_SKYROTATE, va("%f %d", st.skyrotate, st.skyautorotate));
+
+	gi.configstring(CS_SKYAXIS, va("%f %f %f",
+				st.skyaxis[0], st.skyaxis[1], st.skyaxis[2]));
+
 	gi.configstring(CS_CDTRACK, va("%i", ent->sounds));
+
 	gi.configstring(CS_MAXCLIENTS, va("%i", (int)(maxclients->value)));
 
 	/* status bar program */
@@ -1138,6 +1163,8 @@ SP_worldspawn(edict_t *ent)
 	{
 		gi.configstring(CS_STATUSBAR, single_statusbar);
 	}
+
+	/* --------------- */
 
 	/* help icon for statusbar */
 	gi.imageindex("i_help");
@@ -1244,7 +1271,8 @@ SP_worldspawn(edict_t *ent)
 	gi.modelindex("models/objects/gibs/skull/tris.md2");
 	gi.modelindex("models/objects/gibs/head2/tris.md2");
 
-	/* Setup light animation tables. 'a' is total darkness, 'z' is doublebright. */
+	/* Setup light animation tables. 'a'
+	   is total darkness, 'z' is doublebright. */
 
 	/* 0 normal */
 	gi.configstring(CS_LIGHTS + 0, "m");

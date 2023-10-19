@@ -50,7 +50,7 @@ jorg_search(edict_t *self)
 {
 	float r;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -72,7 +72,7 @@ jorg_search(edict_t *self)
 }
 
 /* stand */
-mframe_t jorg_frames_stand[] = {
+static mframe_t jorg_frames_stand[] = {
 	{ai_stand, 0, jorg_idle},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -136,7 +136,7 @@ mmove_t jorg_move_stand = {
 void
 jorg_idle(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -147,7 +147,7 @@ jorg_idle(edict_t *self)
 void
 jorg_death_hit(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -158,7 +158,7 @@ jorg_death_hit(edict_t *self)
 void
 jorg_step_left(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -169,7 +169,7 @@ jorg_step_left(edict_t *self)
 void
 jorg_step_right(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -180,7 +180,7 @@ jorg_step_right(edict_t *self)
 void
 jorg_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -188,7 +188,7 @@ jorg_stand(edict_t *self)
 	self->monsterinfo.currentmove = &jorg_move_stand;
 }
 
-mframe_t jorg_frames_run[] = {
+static mframe_t jorg_frames_run[] = {
 	{ai_run, 17, jorg_step_left},
 	{ai_run, 0, NULL},
 	{ai_run, 0, NULL},
@@ -213,7 +213,7 @@ mmove_t jorg_move_run = {
 };
 
 /* walk */
-mframe_t jorg_frames_start_walk[] = {
+static mframe_t jorg_frames_start_walk[] = {
 	{ai_walk, 5, NULL},
 	{ai_walk, 6, NULL},
 	{ai_walk, 7, NULL},
@@ -228,7 +228,7 @@ mmove_t jorg_move_start_walk = {
    	NULL
 };
 
-mframe_t jorg_frames_walk[] = {
+static mframe_t jorg_frames_walk[] = {
 	{ai_walk, 17, NULL},
 	{ai_walk, 0, NULL},
 	{ai_walk, 0, NULL},
@@ -252,7 +252,7 @@ mmove_t jorg_move_walk = {
    	NULL
 };
 
-mframe_t jorg_frames_end_walk[] = {
+static mframe_t jorg_frames_end_walk[] = {
 	{ai_walk, 11, NULL},
 	{ai_walk, 0, NULL},
 	{ai_walk, 0, NULL},
@@ -271,7 +271,7 @@ mmove_t jorg_move_end_walk = {
 void
 jorg_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -282,7 +282,7 @@ jorg_walk(edict_t *self)
 void
 jorg_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -297,7 +297,7 @@ jorg_run(edict_t *self)
 	}
 }
 
-mframe_t jorg_frames_pain3[] = {
+static mframe_t jorg_frames_pain3[] = {
 	{ai_move, -28, NULL},
 	{ai_move, -6, NULL},
 	{ai_move, -3, jorg_step_left},
@@ -332,7 +332,7 @@ mmove_t jorg_move_pain3 = {
    	jorg_run
 };
 
-mframe_t jorg_frames_pain2[] = {
+static mframe_t jorg_frames_pain2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
@@ -345,7 +345,7 @@ mmove_t jorg_move_pain2 = {
    	jorg_run
 };
 
-mframe_t jorg_frames_pain1[] = {
+static mframe_t jorg_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
@@ -358,7 +358,7 @@ mmove_t jorg_move_pain1 = {
    	jorg_run
 };
 
-mframe_t jorg_frames_death1[] = {
+static mframe_t jorg_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -418,7 +418,7 @@ mmove_t jorg_move_death = {
    	jorg_dead
 };
 
-mframe_t jorg_frames_attack2[] = {
+static mframe_t jorg_frames_attack2[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -441,7 +441,7 @@ mmove_t jorg_move_attack2 = {
    	jorg_run
 };
 
-mframe_t jorg_frames_start_attack1[] = {
+static mframe_t jorg_frames_start_attack1[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -459,7 +459,7 @@ mmove_t jorg_move_start_attack1 = {
    	jorg_attack1
 };
 
-mframe_t jorg_frames_attack1[] = {
+static mframe_t jorg_frames_attack1[] = {
 	{ai_charge, 0, jorg_firebullet},
 	{ai_charge, 0, jorg_firebullet},
 	{ai_charge, 0, jorg_firebullet},
@@ -475,7 +475,7 @@ mmove_t jorg_move_attack1 = {
    	jorg_reattack1
 };
 
-mframe_t jorg_frames_end_attack1[] = {
+static mframe_t jorg_frames_end_attack1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -492,7 +492,7 @@ mmove_t jorg_move_end_attack1 = {
 void
 jorg_reattack1(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -519,7 +519,7 @@ jorg_reattack1(edict_t *self)
 void
 jorg_attack1(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -531,7 +531,7 @@ void
 jorg_pain(edict_t *self, edict_t *other /* unused */,
 	   	float kick /* unused */, int damage)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -619,7 +619,7 @@ jorgBFG(edict_t *self)
 	vec3_t dir;
 	vec3_t vec;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -642,7 +642,7 @@ jorg_firebullet_right(edict_t *self)
 	vec3_t forward, right, target;
 	vec3_t start;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -666,7 +666,7 @@ jorg_firebullet_left(edict_t *self)
 	vec3_t forward, right, target;
 	vec3_t start;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -687,7 +687,7 @@ jorg_firebullet_left(edict_t *self)
 void
 jorg_firebullet(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -699,7 +699,7 @@ jorg_firebullet(edict_t *self)
 void
 jorg_attack(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -727,7 +727,7 @@ void
 jorg_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
 		int damage /* unused */, vec3_t point /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -750,7 +750,7 @@ Jorg_CheckAttack(edict_t *self)
 	int enemy_range;
 	float enemy_yaw;
 
-  	if (!self)
+	if (!self)
 	{
 		return false;
 	}
@@ -856,7 +856,7 @@ Jorg_CheckAttack(edict_t *self)
 void
 SP_monster_jorg(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

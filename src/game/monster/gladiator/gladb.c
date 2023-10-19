@@ -27,7 +27,7 @@ static int sound_sight;
 void
 gladb_idle(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -38,7 +38,7 @@ gladb_idle(edict_t *self)
 void
 gladb_sight(edict_t *self, edict_t *other /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -49,7 +49,7 @@ gladb_sight(edict_t *self, edict_t *other /* unused */)
 void
 gladb_search(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -60,7 +60,7 @@ gladb_search(edict_t *self)
 void
 gladb_cleaver_swing(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -68,7 +68,7 @@ gladb_cleaver_swing(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_cleaver_swing, 1, ATTN_NORM, 0);
 }
 
-mframe_t gladb_frames_stand[] = {
+static mframe_t gladb_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -88,7 +88,7 @@ mmove_t gladb_move_stand = {
 void
 gladb_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -96,7 +96,7 @@ gladb_stand(edict_t *self)
 	self->monsterinfo.currentmove = &gladb_move_stand;
 }
 
-mframe_t gladb_frames_walk[] = {
+static mframe_t gladb_frames_walk[] = {
 	{ai_walk, 15, NULL},
 	{ai_walk, 7, NULL},
 	{ai_walk, 6, NULL},
@@ -125,7 +125,7 @@ mmove_t gladb_move_walk = {
 void
 gladb_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -133,7 +133,7 @@ gladb_walk(edict_t *self)
 	self->monsterinfo.currentmove = &gladb_move_walk;
 }
 
-mframe_t gladb_frames_run[] = {
+static mframe_t gladb_frames_run[] = {
 	{ai_run, 23, NULL},
 	{ai_run, 14, NULL},
 	{ai_run, 14, NULL},
@@ -152,7 +152,7 @@ mmove_t gladb_move_run = {
 void
 gladb_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -172,7 +172,7 @@ GladbMelee(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -189,7 +189,7 @@ GladbMelee(edict_t *self)
 	}
 }
 
-mframe_t gladb_frames_attack_melee[] = {
+static mframe_t gladb_frames_attack_melee[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -219,7 +219,7 @@ mmove_t gladb_move_attack_melee = {
 void
 gladb_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -234,7 +234,7 @@ gladbGun(edict_t *self)
 	vec3_t dir;
 	vec3_t forward, right;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -253,7 +253,7 @@ gladbGun(edict_t *self)
 void
 gladbGun_check(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -264,7 +264,7 @@ gladbGun_check(edict_t *self)
 	}
 }
 
-mframe_t gladb_frames_attack_gun[] = {
+static mframe_t gladb_frames_attack_gun[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, gladbGun},
@@ -289,7 +289,7 @@ gladb_attack(edict_t *self)
 	float range;
 	vec3_t v;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -316,7 +316,7 @@ gladb_attack(edict_t *self)
 	self->monsterinfo.currentmove = &gladb_move_attack_gun;
 }
 
-mframe_t gladb_frames_pain[] = {
+static mframe_t gladb_frames_pain[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -331,7 +331,7 @@ mmove_t gladb_move_pain = {
    	gladb_frames_pain, gladb_run
 };
 
-mframe_t gladb_frames_pain_air[] = {
+static mframe_t gladb_frames_pain_air[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -352,7 +352,7 @@ void
 gladb_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -397,7 +397,7 @@ gladb_pain(edict_t *self, edict_t *other /* unused */,
 void
 gladb_dead(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -410,7 +410,7 @@ gladb_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t gladb_frames_death[] = {
+static mframe_t gladb_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -449,7 +449,7 @@ gladb_die(edict_t *self, edict_t *inflictor /* unused */,
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

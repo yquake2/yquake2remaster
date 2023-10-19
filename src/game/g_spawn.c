@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +26,12 @@
  */
 
 #include "header/local.h"
+
+#define LEG_WAIT_TIME 1
+#define MAX_LEGSFRAME 23
+
+#define SPAWNGROW_LIFESPAN 0.3
+#define STEPSIZE 18
 
 typedef struct
 {
@@ -147,6 +154,45 @@ void SP_monster_commander_body(edict_t *self);
 void SP_turret_breach(edict_t *self);
 void SP_turret_base(edict_t *self);
 void SP_turret_driver(edict_t *self);
+
+void SP_func_plat2(edict_t *ent);
+void SP_func_door_secret2(edict_t *ent);
+void SP_func_force_wall(edict_t *ent);
+void SP_info_player_coop_lava(edict_t *self);
+void SP_info_teleport_destination(edict_t *self);
+void SP_trigger_teleport(edict_t *self);
+void SP_trigger_disguise(edict_t *self);
+void SP_monster_stalker(edict_t *self);
+void SP_monster_turret(edict_t *self);
+void SP_target_steam(edict_t *self);
+void SP_target_anger(edict_t *self);
+void SP_target_killplayers(edict_t *self);
+
+void SP_target_blacklight(edict_t *self);
+void SP_target_orb(edict_t *self);
+
+void SP_hint_path(edict_t *self);
+void SP_monster_carrier(edict_t *self);
+void SP_monster_widow(edict_t *self);
+void SP_monster_widow2(edict_t *self);
+void SP_dm_tag_token(edict_t *self);
+void SP_dm_dball_goal(edict_t *self);
+void SP_dm_dball_ball(edict_t *self);
+void SP_dm_dball_team1_start(edict_t *self);
+void SP_dm_dball_team2_start(edict_t *self);
+void SP_dm_dball_ball_start(edict_t *self);
+void SP_dm_dball_speed_change(edict_t *self);
+void SP_monster_kamikaze(edict_t *self);
+void SP_turret_invisible_brain(edict_t *self);
+void SP_xatrix_item(edict_t *self);
+void SP_misc_nuke_core(edict_t *self);
+
+void ThrowMoreStuff(edict_t *self, vec3_t point);
+void ThrowSmallStuff(edict_t *self, vec3_t point);
+void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
+		int type, vec3_t startpos, qboolean fade);
+void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+		vec3_t startpos, int hitsound, qboolean fade);
 
 static spawn_t spawns[] = {
 	{"item_health", SP_item_health},
@@ -376,7 +422,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 	float v;
 	vec3_t vec;
 
-	if (!key || !value)
+	if (!ent || !value || !key)
 	{
 		return;
 	}
@@ -510,6 +556,77 @@ ED_ParseEdict(char *data, edict_t *ent)
  * All but the first will have the FL_TEAMSLAVE flag set.
  * All but the last will have the teamchain field set to the next one
  */
+static void
+G_FixTeams(void)
+{
+	edict_t *e, *e2, *chain;
+	int i, j;
+	int c, c2;
+
+	c = 0;
+	c2 = 0;
+
+	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+	{
+		if (!e->inuse)
+		{
+			continue;
+		}
+
+		if (!e->team)
+		{
+			continue;
+		}
+
+		if (!strcmp(e->classname, "func_train"))
+		{
+			if (e->flags & FL_TEAMSLAVE)
+			{
+				chain = e;
+				e->teammaster = e;
+				e->teamchain = NULL;
+				e->flags &= ~FL_TEAMSLAVE;
+				c++;
+				c2++;
+
+				for (j = 1, e2 = g_edicts + j;
+					 j < globals.num_edicts;
+					 j++, e2++)
+				{
+					if (e2 == e)
+					{
+						continue;
+					}
+
+					if (!e2->inuse)
+					{
+						continue;
+					}
+
+					if (!e2->team)
+					{
+						continue;
+					}
+
+					if (!strcmp(e->team, e2->team))
+					{
+						c2++;
+						chain->teamchain = e2;
+						e2->teammaster = e;
+						e2->teamchain = NULL;
+						chain = e2;
+						e2->flags |= FL_TEAMSLAVE;
+						e2->movetype = MOVETYPE_PUSH;
+						e2->speed = e->speed;
+					}
+				}
+			}
+		}
+	}
+
+	gi.dprintf("%i teams repaired\n", c);
+}
+
 void
 G_FindTeams(void)
 {
@@ -569,6 +686,8 @@ G_FindTeams(void)
 			}
 		}
 	}
+
+	G_FixTeams();
 
 	gi.dprintf("%i teams with %i entities.\n", c, c2);
 }
@@ -657,9 +776,31 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		/* yet another map hack */
 		if (!Q_stricmp(level.mapname, "command") &&
 			!Q_stricmp(ent->classname, "trigger_once") &&
-		   	!Q_stricmp(ent->model, "*27"))
+			!Q_stricmp(ent->model, "*27"))
 		{
 			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
+		}
+
+		/* ahh, the joys of map hacks .. */
+		if (!Q_stricmp(level.mapname, "rhangar2") &&
+			!Q_stricmp(ent->classname, "func_door_rotating") &&
+			ent->targetname && !Q_stricmp(ent->targetname, "t265"))
+		{
+			ent->spawnflags &= ~SPAWNFLAG_NOT_COOP;
+		}
+
+		if (!Q_stricmp(level.mapname, "rhangar2") &&
+			!Q_stricmp(ent->classname, "trigger_always") &&
+		   	ent->target && !Q_stricmp(ent->target, "t265"))
+		{
+			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
+		}
+
+		if (!Q_stricmp(level.mapname, "rhangar2") &&
+			!Q_stricmp(ent->classname, "func_wall") &&
+		   	!Q_stricmp(ent->model, "*15"))
+		{
+			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
 		}
 
 		/* remove things (except the world) from
@@ -847,15 +988,16 @@ static char *dm_statusbar =
 	"endif "
 ;
 
-/*QUAKED worldspawn (0 0 0) ?
+/*
+ * QUAKED worldspawn (0 0 0) ?
  *
  * Only used for the world.
- *  "sky"		environment map name
- *  "skyaxis"	vector axis for rotating sky
- *  "skyrotate"	speed of rotation in degrees/second
- *  "sounds"	music cd track number
- *  "gravity"	800 is default gravity
- *  "message"	text to print at user logon
+ * "sky"	environment map name
+ * "skyaxis"	vector axis for rotating sky
+ * "skyrotate"	speed of rotation in degrees/second
+ * "sounds"	music cd track number
+ * "gravity"	800 is default gravity
+ * "message"	text to print at user logon
  */
 void
 SP_worldspawn(edict_t *ent)
@@ -990,26 +1132,32 @@ SP_worldspawn(edict_t *ent)
 		gi.modelindex("#w_hyperblaster.md2");
 		gi.modelindex("#w_railgun.md2");
 		gi.modelindex("#w_bfg.md2");
+		gi.modelindex("#w_disrupt.md2");
+		gi.modelindex("#w_etfrifle.md2");
+		gi.modelindex("#w_plasma.md2");
+		gi.modelindex("#w_plauncher.md2");
+		gi.modelindex("#w_chainfist.md2");
 	}
 
 	/* ------------------- */
 
-	gi.soundindex("player/gasp1.wav"); /* gasping for air */
-	gi.soundindex("player/gasp2.wav"); /* head breaking surface, not gasping */
+	gi.soundindex("player/gasp1.wav");      /* gasping for air */
+	gi.soundindex("player/gasp2.wav");      /* head breaking surface, not gasping */
 
-	gi.soundindex("player/watr_in.wav"); /* feet hitting water */
-	gi.soundindex("player/watr_out.wav"); /* feet leaving water */
+	gi.soundindex("player/watr_in.wav");    /* feet hitting water */
+	gi.soundindex("player/watr_out.wav");   /* feet leaving water */
 
-	gi.soundindex("player/watr_un.wav"); /* head going underwater */
+	gi.soundindex("player/watr_un.wav");    /* head going underwater */
 
 	gi.soundindex("player/u_breath1.wav");
 	gi.soundindex("player/u_breath2.wav");
 
-	gi.soundindex("items/pkup.wav"); /* bonus item pickup */
-	gi.soundindex("world/land.wav"); /* landing thud */
-	gi.soundindex("misc/h2ohit1.wav"); /* landing splash */
+	gi.soundindex("items/pkup.wav");        /* bonus item pickup */
+	gi.soundindex("world/land.wav");        /* landing thud */
+	gi.soundindex("misc/h2ohit1.wav");      /* landing splash */
 
 	gi.soundindex("items/damage.wav");
+	gi.soundindex("misc/ddamage1.wav");
 	gi.soundindex("items/protect.wav");
 	gi.soundindex("items/protect4.wav");
 	gi.soundindex("weapons/noammo.wav");
@@ -1067,4 +1215,529 @@ SP_worldspawn(edict_t *ent)
 
 	/* 63 testing */
 	gi.configstring(CS_LIGHTS + 63, "a");
+}
+
+/*
+ * Monster spawning code:
+ * Used by the carrier, the medic_commander, and the black widow
+ *
+ * The sequence to create a flying monster is:
+ *  FindSpawnPoint - tries to find suitable spot to spawn the monster in
+ *  CreateFlyMonster  - this verifies the point as good and creates the monster
+ *
+ * To create a ground walking monster:
+ *  FindSpawnPoint - same thing
+ *  CreateGroundMonster - this checks the volume and makes sure the floor under the volume is suitable
+ */
+
+edict_t *
+CreateMonster(vec3_t origin, vec3_t angles, char *classname)
+{
+	edict_t *newEnt;
+
+	if (!classname)
+	{
+		return NULL;
+	}
+
+	newEnt = G_Spawn();
+
+	VectorCopy(origin, newEnt->s.origin);
+	VectorCopy(angles, newEnt->s.angles);
+	newEnt->classname = ED_NewString(classname);
+	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
+
+	VectorSet(newEnt->gravityVector, 0, 0, -1);
+	ED_CallSpawn(newEnt);
+	newEnt->s.renderfx |= RF_IR_VISIBLE;
+
+	return newEnt;
+}
+
+edict_t *
+CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
+		vec3_t maxs, char *classname)
+{
+	if (!classname)
+	{
+		return NULL;
+	}
+
+	if (!mins || !maxs ||
+		VectorCompare(mins, vec3_origin) || VectorCompare(maxs, vec3_origin))
+	{
+		DetermineBBox(classname, mins, maxs);
+	}
+
+	if (!CheckSpawnPoint(origin, mins, maxs))
+	{
+		return NULL;
+	}
+
+	return CreateMonster(origin, angles, classname);
+}
+
+edict_t *
+CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t entMins,
+		vec3_t entMaxs, char *classname, int height)
+{
+	edict_t *newEnt;
+	vec3_t mins, maxs;
+
+	if (!classname)
+	{
+		return NULL;
+	}
+
+	/* if they don't provide us a bounding box, figure it out */
+	if (!entMins || !entMaxs || VectorCompare(entMins,
+				vec3_origin) || VectorCompare(entMaxs, vec3_origin))
+	{
+		DetermineBBox(classname, mins, maxs);
+	}
+	else
+	{
+		VectorCopy(entMins, mins);
+		VectorCopy(entMaxs, maxs);
+	}
+
+	/* check the ground to make sure it's there, it's relatively flat, and it's not toxic */
+	if (!CheckGroundSpawnPoint(origin, mins, maxs, height, -1))
+	{
+		return NULL;
+	}
+
+	newEnt = CreateMonster(origin, angles, classname);
+
+	if (!newEnt)
+	{
+		return NULL;
+	}
+
+	return newEnt;
+}
+
+qboolean
+FindSpawnPoint(vec3_t startpoint, vec3_t mins, vec3_t maxs,
+		vec3_t spawnpoint, float maxMoveUp)
+{
+	trace_t tr;
+	vec3_t top;
+
+	tr = gi.trace(startpoint, mins, maxs, startpoint,
+			NULL, MASK_MONSTERSOLID | CONTENTS_PLAYERCLIP);
+
+	if ((tr.startsolid || tr.allsolid) || (tr.ent != world))
+	{
+		VectorCopy(startpoint, top);
+		top[2] += maxMoveUp;
+
+		tr = gi.trace(top, mins, maxs, startpoint, NULL, MASK_MONSTERSOLID);
+
+		if (tr.startsolid || tr.allsolid)
+		{
+			return false;
+		}
+		else
+		{
+			VectorCopy(tr.endpos, spawnpoint);
+			return true;
+		}
+	}
+	else
+	{
+		VectorCopy(startpoint, spawnpoint);
+		return true;
+	}
+}
+
+qboolean
+CheckSpawnPoint(vec3_t origin, vec3_t mins, vec3_t maxs)
+{
+	trace_t tr;
+
+	if (!mins || !maxs ||
+		VectorCompare(mins, vec3_origin) || VectorCompare(maxs, vec3_origin))
+	{
+		return false;
+	}
+
+	tr = gi.trace(origin, mins, maxs, origin, NULL, MASK_MONSTERSOLID);
+
+	if (tr.startsolid || tr.allsolid)
+	{
+		return false;
+	}
+
+	if (tr.ent != world)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+qboolean
+CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
+		float height, float gravity)
+{
+	trace_t tr;
+	vec3_t start, stop;
+	vec3_t mins, maxs;
+	int x, y;
+	float mid, bottom;
+
+	if (!CheckSpawnPoint(origin, entMins, entMaxs))
+	{
+		return false;
+	}
+
+
+	VectorCopy(origin, stop);
+	stop[2] = origin[2] + entMins[2] - height;
+
+	tr = gi.trace(origin, entMins, entMaxs, stop,
+			NULL, MASK_MONSTERSOLID | MASK_WATER);
+
+	if ((tr.fraction < 1) && (tr.contents & MASK_MONSTERSOLID))
+	{
+		/* first, do the midpoint trace */
+		VectorAdd(tr.endpos, entMins, mins);
+		VectorAdd(tr.endpos, entMaxs, maxs);
+
+		/* first, do the easy flat check */
+		if (gravity > 0)
+		{
+			start[2] = maxs[2] + 1;
+		}
+		else
+		{
+			start[2] = mins[2] - 1;
+		}
+
+		for (x = 0; x <= 1; x++)
+		{
+			for (y = 0; y <= 1; y++)
+			{
+				start[0] = x ? maxs[0] : mins[0];
+				start[1] = y ? maxs[1] : mins[1];
+
+				if (gi.pointcontents(start) != CONTENTS_SOLID)
+				{
+					goto realcheck;
+				}
+			}
+		}
+
+		/* if it passed all four above checks, we're done */
+		return true;
+
+	realcheck:
+
+		/* check it for real */
+		start[0] = stop[0] = (mins[0] + maxs[0]) * 0.5;
+		start[1] = stop[1] = (mins[1] + maxs[1]) * 0.5;
+		start[2] = mins[2];
+
+		tr = gi.trace(start, vec3_origin, vec3_origin,
+				stop, NULL, MASK_MONSTERSOLID);
+
+		if (tr.fraction == 1.0)
+		{
+			return false;
+		}
+
+		if (gravity < 0)
+		{
+			start[2] = mins[2];
+			stop[2] = start[2] - STEPSIZE - STEPSIZE;
+			mid = bottom = tr.endpos[2] + entMins[2];
+		}
+		else
+		{
+			start[2] = maxs[2];
+			stop[2] = start[2] + STEPSIZE + STEPSIZE;
+			mid = bottom = tr.endpos[2] - entMaxs[2];
+		}
+
+		for (x = 0; x <= 1; x++)
+		{
+			for (y = 0; y <= 1; y++)
+			{
+				start[0] = stop[0] = x ? maxs[0] : mins[0];
+				start[1] = stop[1] = y ? maxs[1] : mins[1];
+
+				tr = gi.trace(start, vec3_origin, vec3_origin,
+						stop, NULL, MASK_MONSTERSOLID);
+
+				if (gravity > 0)
+				{
+					if ((tr.fraction != 1.0) && (tr.endpos[2] < bottom))
+					{
+						bottom = tr.endpos[2];
+					}
+
+					if ((tr.fraction == 1.0) || (tr.endpos[2] - mid > STEPSIZE))
+					{
+						return false;
+					}
+				}
+				else
+				{
+					if ((tr.fraction != 1.0) && (tr.endpos[2] > bottom))
+					{
+						bottom = tr.endpos[2];
+					}
+
+					if ((tr.fraction == 1.0) || (mid - tr.endpos[2] > STEPSIZE))
+					{
+						return false;
+					}
+				}
+			}
+		}
+
+		return true; /* we can land on it, it's ok */
+	}
+
+	/* otherwise, it's either water (bad) or not
+	 * there (too far) if we're here, it's bad below */
+	return false;
+}
+
+void
+DetermineBBox(char *classname, vec3_t mins, vec3_t maxs)
+{
+	edict_t *newEnt;
+
+	if (!classname)
+	{
+		return;
+	}
+
+	newEnt = G_Spawn();
+
+	VectorCopy(vec3_origin, newEnt->s.origin);
+	VectorCopy(vec3_origin, newEnt->s.angles);
+	newEnt->classname = ED_NewString(classname);
+	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
+
+	ED_CallSpawn(newEnt);
+
+	VectorCopy(newEnt->mins, mins);
+	VectorCopy(newEnt->maxs, maxs);
+
+	G_FreeEdict(newEnt);
+}
+
+
+void
+spawngrow_think(edict_t *self)
+{
+	int i;
+
+	if (!self)
+	{
+		return;
+	}
+
+	for (i = 0; i < 2; i++)
+	{
+		self->s.angles[0] = rand() % 360;
+		self->s.angles[1] = rand() % 360;
+		self->s.angles[2] = rand() % 360;
+	}
+
+	if ((level.time < self->wait) && (self->s.frame < 2))
+	{
+		self->s.frame++;
+	}
+
+	if (level.time >= self->wait)
+	{
+		if (self->s.effects & EF_SPHERETRANS)
+		{
+			G_FreeEdict(self);
+			return;
+		}
+		else if (self->s.frame > 0)
+		{
+			self->s.frame--;
+		}
+		else
+		{
+			G_FreeEdict(self);
+			return;
+		}
+	}
+
+	self->nextthink += FRAMETIME;
+}
+
+void
+SpawnGrow_Spawn(vec3_t startpos, int size)
+{
+	edict_t *ent;
+	int i;
+	float lifespan;
+
+	ent = G_Spawn();
+	VectorCopy(startpos, ent->s.origin);
+
+	for (i = 0; i < 2; i++)
+	{
+		ent->s.angles[0] = rand() % 360;
+		ent->s.angles[1] = rand() % 360;
+		ent->s.angles[2] = rand() % 360;
+	}
+
+	ent->solid = SOLID_NOT;
+	ent->s.renderfx = RF_IR_VISIBLE;
+	ent->movetype = MOVETYPE_NONE;
+	ent->classname = "spawngro";
+
+	if (size <= 1)
+	{
+		lifespan = SPAWNGROW_LIFESPAN;
+		ent->s.modelindex = gi.modelindex("models/items/spawngro2/tris.md2");
+	}
+	else if (size == 2)
+	{
+		ent->s.modelindex = gi.modelindex("models/items/spawngro3/tris.md2");
+		lifespan = 2;
+	}
+	else
+	{
+		ent->s.modelindex = gi.modelindex("models/items/spawngro/tris.md2");
+		lifespan = SPAWNGROW_LIFESPAN;
+	}
+
+	ent->think = spawngrow_think;
+
+	ent->wait = level.time + lifespan;
+	ent->nextthink = level.time + FRAMETIME;
+
+	if (size != 2)
+	{
+		ent->s.effects |= EF_SPHERETRANS;
+	}
+
+	gi.linkentity(ent);
+}
+
+void
+widowlegs_think(edict_t *self)
+{
+	vec3_t offset;
+	vec3_t point;
+	vec3_t f, r, u;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->s.frame == 17)
+	{
+		VectorSet(offset, 11.77, -7.24, 23.31);
+		AngleVectors(self->s.angles, f, r, u);
+		G_ProjectSource2(self->s.origin, offset, f, r, u, point);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_EXPLOSION1);
+		gi.WritePosition(point);
+		gi.multicast(point, MULTICAST_ALL);
+		ThrowSmallStuff(self, point);
+	}
+
+	if (self->s.frame < MAX_LEGSFRAME)
+	{
+		self->s.frame++;
+		self->nextthink = level.time + FRAMETIME;
+		return;
+	}
+	else if (self->wait == 0)
+	{
+		self->wait = level.time + LEG_WAIT_TIME;
+	}
+
+	if (level.time > self->wait)
+	{
+		AngleVectors(self->s.angles, f, r, u);
+
+		VectorSet(offset, -65.6, -8.44, 28.59);
+		G_ProjectSource2(self->s.origin, offset, f, r, u, point);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_EXPLOSION1);
+		gi.WritePosition(point);
+		gi.multicast(point, MULTICAST_ALL);
+		ThrowSmallStuff(self, point);
+
+		ThrowWidowGibSized(self, "models/monsters/blackwidow/gib1/tris.md2",
+				80 + (int)(random() * 20.0), GIB_METALLIC, point, 0, true);
+		ThrowWidowGibSized(self, "models/monsters/blackwidow/gib2/tris.md2",
+				80 + (int)(random() * 20.0), GIB_METALLIC, point, 0, true);
+
+		VectorSet(offset, -1.04, -51.18, 7.04);
+		G_ProjectSource2(self->s.origin, offset, f, r, u, point);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_EXPLOSION1);
+		gi.WritePosition(point);
+		gi.multicast(point, MULTICAST_ALL);
+		ThrowSmallStuff(self, point);
+
+		ThrowWidowGibSized(self, "models/monsters/blackwidow/gib1/tris.md2",
+				80 + (int)(random() * 20.0), GIB_METALLIC, point, 0, true);
+		ThrowWidowGibSized(self, "models/monsters/blackwidow/gib2/tris.md2",
+				80 + (int)(random() * 20.0), GIB_METALLIC, point, 0, true);
+		ThrowWidowGibSized(self, "models/monsters/blackwidow/gib3/tris.md2",
+				80 + (int)(random() * 20.0), GIB_METALLIC, point, 0, true);
+
+		G_FreeEdict(self);
+		return;
+	}
+
+	if ((level.time > (self->wait - 0.5)) && (self->count == 0))
+	{
+		self->count = 1;
+		AngleVectors(self->s.angles, f, r, u);
+
+		VectorSet(offset, 31, -88.7, 10.96);
+		G_ProjectSource2(self->s.origin, offset, f, r, u, point);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_EXPLOSION1);
+		gi.WritePosition(point);
+		gi.multicast(point, MULTICAST_ALL);
+
+		VectorSet(offset, -12.67, -4.39, 15.68);
+		G_ProjectSource2(self->s.origin, offset, f, r, u, point);
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_EXPLOSION1);
+		gi.WritePosition(point);
+		gi.multicast(point, MULTICAST_ALL);
+
+		self->nextthink = level.time + FRAMETIME;
+		return;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
+void
+Widowlegs_Spawn(vec3_t startpos, vec3_t angles)
+{
+	edict_t *ent;
+
+	ent = G_Spawn();
+	VectorCopy(startpos, ent->s.origin);
+	VectorCopy(angles, ent->s.angles);
+	ent->solid = SOLID_NOT;
+	ent->s.renderfx = RF_IR_VISIBLE;
+	ent->movetype = MOVETYPE_NONE;
+	ent->classname = "widowlegs";
+
+	ent->s.modelindex = gi.modelindex("models/monsters/legs/tris.md2");
+	ent->think = widowlegs_think;
+
+	ent->nextthink = level.time + FRAMETIME;
+	gi.linkentity(ent);
 }

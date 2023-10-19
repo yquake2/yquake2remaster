@@ -1,9 +1,25 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2011 Knightmare
+ * Copyright (C) 2011 Yamagi Burmeister
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * The savegame system.
@@ -49,14 +65,19 @@
  * system and architecture are in the hands of the user.
  */
 
+#include "../../common/header/common.h" // YQ2ARCH
 #include "../header/local.h"
-
+#include "savegame.h"
 /*
  * When ever the savegame version is changed, q2 will refuse to
  * load older savegames. This should be bumped if the files
  * in tables/ are changed, otherwise strange things may happen.
  */
-#define SAVEGAMEVER "YQ2-5"
+#define SAVEGAMEVER "YQ2-6"
+
+#ifndef BUILD_DATE
+#define BUILD_DATE __DATE__
+#endif
 
 /*
  * This macros are used to prohibit loading of savegames
@@ -72,64 +93,34 @@
 #endif
 
 /*
- * Older operating systen and architecture detection
- * macros, implemented by savegame version YQ2-2.
+ * Older operating system and architecture detection
+ * macros, implemented by savegame version YQ2-1.
  */
 #if defined(__APPLE__)
-#define YQ2OSTYPE_1 "MacOS X"
+#define OSTYPE_1 "MacOS X"
 #elif defined(__FreeBSD__)
-#define YQ2OSTYPE_1 "FreeBSD"
+#define OSTYPE_1 "FreeBSD"
 #elif defined(__OpenBSD__)
-#define YQ2OSTYPE_1 "OpenBSD"
+#define OSTYPE_1 "OpenBSD"
 #elif defined(__linux__)
- #define YQ2OSTYPE_1 "Linux"
+ #define OSTYPE_1 "Linux"
 #elif defined(_WIN32)
- #define YQ2OSTYPE_1 "Windows"
+ #define OSTYPE_1 "Windows"
 #else
- #define YQ2OSTYPE_1 "Unknown"
+ #define OSTYPE_1 "Unknown"
 #endif
 
 #if defined(__i386__)
-#define YQ2ARCH_1 "i386"
+#define ARCH_1 "i386"
 #elif defined(__x86_64__)
-#define YQ2ARCH_1 "amd64"
+#define ARCH_1 "amd64"
 #elif defined(__sparc__)
-#define YQ2ARCH_1 "sparc64"
+#define ARCH_1 "sparc64"
 #elif defined(__ia64__)
- #define YQ2ARCH_1 "ia64"
+ #define ARCH_1 "ia64"
 #else
- #define YQ2ARCH_1 "unknown"
+ #define ARCH_1 "unknown"
 #endif
-
-/*
- * Connects a human readable
- * function signature with
- * the corresponding pointer
- */
-typedef struct
-{
-	char *funcStr;
-	byte *funcPtr;
-} functionList_t;
-
-/*
- * Connects a human readable
- * mmove_t string with the
- * correspondig pointer
- * */
-typedef struct
-{
-	char	*mmoveStr;
-	mmove_t *mmovePtr;
-} mmoveList_t;
-
-typedef struct
-{
-    char ver[32];
-    char game[32];
-    char os[32];
-    char arch[32];
-} savegameHeader_t;
 
 /* ========================================================= */
 
@@ -145,12 +136,12 @@ typedef struct
  * to each of the functions
  * prototyped above.
  */
-functionList_t functionList[] = {
+static functionList_t functionList[] = {
 	#include "tables/gamefunc_list.h"
 };
 
 /*
- * Prtotypes for forward
+ * Prototypes for forward
  * declaration for all game
  * mmove_t functions.
  */
@@ -162,12 +153,12 @@ functionList_t functionList[] = {
  * functions prototyped
  * above.
  */
-mmoveList_t mmoveList[] = {
+static mmoveList_t mmoveList[] = {
 	#include "tables/gamemmove_list.h"
 };
 
 /*
- * Fields to be saved
+ * Fields to be saved (used in g_spawn.c)
  */
 field_t fields[] = {
 	#include "tables/fields.h"
@@ -177,7 +168,7 @@ field_t fields[] = {
  * Level fields to
  * be saved
  */
-field_t levelfields[] = {
+static field_t levelfields[] = {
 	#include "tables/levelfields.h"
 };
 
@@ -185,7 +176,7 @@ field_t levelfields[] = {
  * Client fields to
  * be saved
  */
-field_t clientfields[] = {
+static field_t clientfields[] = {
 	#include "tables/clientfields.h"
 };
 
@@ -200,67 +191,68 @@ void
 InitGame(void)
 {
 	gi.dprintf("Game is starting up.\n");
-	gi.dprintf("Game is %s built on %s.\n", GAMEVERSION, __DATE__);
+	gi.dprintf("Game is %s built on %s.\n", GAMEVERSION, BUILD_DATE);
 
-	gun_x = gi.cvar ("gun_x", "0", 0);
-	gun_y = gi.cvar ("gun_y", "0", 0);
-	gun_z = gi.cvar ("gun_z", "0", 0);
-	sv_rollspeed = gi.cvar ("sv_rollspeed", "200", 0);
-	sv_rollangle = gi.cvar ("sv_rollangle", "2", 0);
-	sv_maxvelocity = gi.cvar ("sv_maxvelocity", "2000", 0);
-	sv_gravity = gi.cvar ("sv_gravity", "800", 0);
-	sv_stopspeed = gi.cvar ("sv_stopspeed", "100", 0);
-	g_showlogic = gi.cvar ("g_showlogic", "0", 0);
-	huntercam = gi.cvar ("huntercam", "1", CVAR_SERVERINFO|CVAR_LATCH);
-	strong_mines = gi.cvar ("strong_mines", "0", 0);
-	randomrespawn = gi.cvar ("randomrespawn", "0", 0);
+	gun_x = gi.cvar("gun_x", "0", 0);
+	gun_y = gi.cvar("gun_y", "0", 0);
+	gun_z = gi.cvar("gun_z", "0", 0);
+	sv_rollspeed = gi.cvar("sv_rollspeed", "200", 0);
+	sv_rollangle = gi.cvar("sv_rollangle", "2", 0);
+	sv_maxvelocity = gi.cvar("sv_maxvelocity", "2000", 0);
+	sv_gravity = gi.cvar("sv_gravity", "800", 0);
+	sv_stopspeed = gi.cvar("sv_stopspeed", "100", 0);
+	g_showlogic = gi.cvar("g_showlogic", "0", 0);
+	huntercam = gi.cvar("huntercam", "1", CVAR_SERVERINFO|CVAR_LATCH);
+	strong_mines = gi.cvar("strong_mines", "0", 0);
+	randomrespawn = gi.cvar("randomrespawn", "0", 0);
 
 	/* noset vars */
-	dedicated = gi.cvar ("dedicated", "0", CVAR_NOSET);
+	dedicated = gi.cvar("dedicated", "0", CVAR_NOSET);
 
 	/* latched vars */
-	sv_cheats = gi.cvar ("cheats", "0", CVAR_SERVERINFO|CVAR_LATCH);
-	gi.cvar ("gamename", GAMEVERSION , CVAR_SERVERINFO | CVAR_LATCH);
-	gi.cvar ("gamedate", __DATE__ , CVAR_SERVERINFO | CVAR_LATCH);
-	maxclients = gi.cvar ("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
-	maxspectators = gi.cvar ("maxspectators", "4", CVAR_SERVERINFO);
-	deathmatch = gi.cvar ("deathmatch", "0", CVAR_LATCH);
-	coop = gi.cvar ("coop", "0", CVAR_LATCH);
-	coop_baseq2 = gi.cvar ("coop_baseq2", "0", CVAR_LATCH);
+	sv_cheats = gi.cvar("cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);
+	gi.cvar("gamename", GAMEVERSION, CVAR_SERVERINFO | CVAR_LATCH);
+	gi.cvar("gamedate", BUILD_DATE, CVAR_SERVERINFO | CVAR_LATCH);
+	maxclients = gi.cvar("maxclients", "4", CVAR_SERVERINFO | CVAR_LATCH);
+	maxspectators = gi.cvar("maxspectators", "4", CVAR_SERVERINFO);
+	deathmatch = gi.cvar("deathmatch", "0", CVAR_LATCH);
+	coop = gi.cvar("coop", "0", CVAR_LATCH);
+	coop_pickup_weapons = gi.cvar("coop_pickup_weapons", "1", CVAR_ARCHIVE);
+	coop_baseq2 = gi.cvar("coop_baseq2", "0", CVAR_LATCH);
 	coop_elevator_delay = gi.cvar("coop_elevator_delay", "1.0", CVAR_ARCHIVE);
-	coop_pickup_weapons = gi.cvar("coop_pickup_weapons", "0", CVAR_ARCHIVE);
-	skill = gi.cvar ("skill", "1", CVAR_LATCH);
-	maxentities = gi.cvar ("maxentities", "1024", CVAR_LATCH);
-	gamerules = gi.cvar ("gamerules", "0", CVAR_LATCH);			//PGM
-	g_footsteps = gi.cvar ("g_footsteps", "1", CVAR_LATCH);
-	g_fix_triggered = gi.cvar ("g_fix_triggered", "0", 0);
+	skill = gi.cvar("skill", "1", CVAR_LATCH);
+	maxentities = gi.cvar("maxentities", "1024", CVAR_LATCH);
+	gamerules = gi.cvar("gamerules", "0", CVAR_LATCH);			//PGM
+	g_footsteps = gi.cvar("g_footsteps", "1", CVAR_ARCHIVE);
+	g_monsterfootsteps = gi.cvar("g_monsterfootsteps", "0", CVAR_ARCHIVE);
+	g_fix_triggered = gi.cvar("g_fix_triggered", "0", 0);
+	g_commanderbody_nogod = gi.cvar("g_commanderbody_nogod", "0", CVAR_ARCHIVE);
 
 	/* change anytime vars */
-	dmflags = gi.cvar ("dmflags", "0", CVAR_SERVERINFO);
-	fraglimit = gi.cvar ("fraglimit", "0", CVAR_SERVERINFO);
-	timelimit = gi.cvar ("timelimit", "0", CVAR_SERVERINFO);
-	password = gi.cvar ("password", "", CVAR_USERINFO);
-	spectator_password = gi.cvar ("spectator_password", "", CVAR_USERINFO);
-	filterban = gi.cvar ("filterban", "1", 0);
-
-	g_select_empty = gi.cvar ("g_select_empty", "0", CVAR_ARCHIVE);
-
-	run_pitch = gi.cvar ("run_pitch", "0.002", 0);
-	run_roll = gi.cvar ("run_roll", "0.005", 0);
-	bob_up  = gi.cvar ("bob_up", "0.005", 0);
-	bob_pitch = gi.cvar ("bob_pitch", "0.002", 0);
-	bob_roll = gi.cvar ("bob_roll", "0.002", 0);
+	dmflags = gi.cvar("dmflags", "0", CVAR_SERVERINFO);
+	fraglimit = gi.cvar("fraglimit", "0", CVAR_SERVERINFO);
+	timelimit = gi.cvar("timelimit", "0", CVAR_SERVERINFO);
+	password = gi.cvar("password", "", CVAR_USERINFO);
+	spectator_password = gi.cvar("spectator_password", "", CVAR_USERINFO);
+	needpass = gi.cvar("needpass", "0", CVAR_SERVERINFO);
+	filterban = gi.cvar("filterban", "1", 0);
+	g_select_empty = gi.cvar("g_select_empty", "0", CVAR_ARCHIVE);
+	run_pitch = gi.cvar("run_pitch", "0.002", 0);
+	run_roll = gi.cvar("run_roll", "0.005", 0);
+	bob_up = gi.cvar("bob_up", "0.005", 0);
+	bob_pitch = gi.cvar("bob_pitch", "0.002", 0);
+	bob_roll = gi.cvar("bob_roll", "0.002", 0);
 
 	/* flood control */
-	flood_msgs = gi.cvar ("flood_msgs", "4", 0);
-	flood_persecond = gi.cvar ("flood_persecond", "4", 0);
-	flood_waitdelay = gi.cvar ("flood_waitdelay", "10", 0);
+	flood_msgs = gi.cvar("flood_msgs", "4", 0);
+	flood_persecond = gi.cvar("flood_persecond", "4", 0);
+	flood_waitdelay = gi.cvar("flood_waitdelay", "10", 0);
 
 	/* dm map list */
-	sv_maplist = gi.cvar ("sv_maplist", "", 0);
+	sv_maplist = gi.cvar("sv_maplist", "", 0);
 
 	/* disruptor availability */
-	g_disruptor = gi.cvar ("g_disruptor", "0", 0);
+	g_disruptor = gi.cvar("g_disruptor", "0", 0);
 
 	/* others */
 	aimfix = gi.cvar("aimfix", "0", CVAR_ARCHIVE);
@@ -268,21 +260,21 @@ InitGame(void)
 	g_swap_speed = gi.cvar("g_swap_speed", "1", 0);
 
 	/* items */
-	InitItems ();
+	InitItems();
 
 	game.helpmessage1[0] = 0;
 	game.helpmessage2[0] = 0;
 
 	/* initialize all entities for this game */
 	game.maxentities = maxentities->value;
-	g_edicts =  gi.TagMalloc (game.maxentities * sizeof(g_edicts[0]), TAG_GAME);
+	g_edicts = gi.TagMalloc(game.maxentities * sizeof(g_edicts[0]), TAG_GAME);
 	globals.edicts = g_edicts;
 	globals.max_edicts = game.maxentities;
 
 	/* initialize all clients for this game */
 	game.maxclients = maxclients->value;
-	game.clients = gi.TagMalloc (game.maxclients * sizeof(game.clients[0]), TAG_GAME);
-	globals.num_edicts = game.maxclients+1;
+	game.clients = gi.TagMalloc(game.maxclients * sizeof(game.clients[0]), TAG_GAME);
+	globals.num_edicts = game.maxclients + 1;
 
 	if (gamerules)
 	{
@@ -559,7 +551,6 @@ WriteField2(FILE *f, field_t *field, byte *base)
 			if (*(byte **)p)
 			{
 				mmove = GetMmoveByAddress (*(mmove_t **)p);
-
 				if (!mmove)
 				{
 					gi.error ("WriteField2: mmove not in list, can't save game");
@@ -673,7 +664,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 				if (len > sizeof(funcStr))
 				{
 					gi.error ("ReadField: function name is longer than buffer (%i chars)",
-							  (int)sizeof(funcStr));
+							(int)sizeof(funcStr));
 				}
 
 				fread (funcStr, len, 1, f);
@@ -697,7 +688,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 				if (len > sizeof(funcStr))
 				{
 					gi.error ("ReadField: mmove name is longer than buffer (%i chars)",
-							  (int)sizeof(funcStr));
+							(int)sizeof(funcStr));
 				}
 
 				fread (funcStr, len, 1, f);
@@ -762,7 +753,7 @@ ReadClient(FILE *f, gclient_t *client, short save_ver)
 		}
 	}
 
-	if (save_ver < 4)
+	if (save_ver < 3)
 	{
 		InitClientResp(client);
 	}
@@ -772,10 +763,10 @@ ReadClient(FILE *f, gclient_t *client, short save_ver)
 
 /*
  * Writes the game struct into
- * a file. This is called when
- * ever the games goes to e new
- * level or the user saves the
- * game. Saved informations are:
+ * a file. This is called whenever
+ * the game goes to a new level or
+ * the user saves the game. The saved
+ * information consists of:
  * - cross level data
  * - client states
  * - help computer info
@@ -792,7 +783,7 @@ WriteGame(const char *filename, qboolean autosave)
 		SaveClientData();
 	}
 
-	f = fopen(filename, "wb");
+	f = Q_fopen(filename, "wb");
 
 	if (!f)
 	{
@@ -805,7 +796,7 @@ WriteGame(const char *filename, qboolean autosave)
 	Q_strlcpy(sv.ver, SAVEGAMEVER, sizeof(sv.ver) - 1);
 	Q_strlcpy(sv.game, GAMEVERSION, sizeof(sv.game) - 1);
 	Q_strlcpy(sv.os, YQ2OSTYPE, sizeof(sv.os) - 1);
-    	Q_strlcpy(sv.arch, YQ2ARCH, sizeof(sv.arch) - 1);
+	Q_strlcpy(sv.arch, YQ2ARCH, sizeof(sv.arch) - 1);
 
 	fwrite(&sv, sizeof(sv), 1, f);
 
@@ -837,7 +828,7 @@ ReadGame(const char *filename)
 
 	gi.FreeTags(TAG_GAME);
 
-	f = fopen(filename, "rb");
+	f = Q_fopen(filename, "rb");
 
 	if (!f)
 	{
@@ -856,6 +847,7 @@ ReadGame(const char *filename)
 		{"YQ2-3", 3},
 		{"YQ2-4", 4},
 		{"YQ2-5", 5},
+		{"YQ2-6", 6},
 	};
 
 	for (i=0; i < sizeof(version_mappings)/sizeof(version_mappings[0]); ++i)
@@ -867,22 +859,22 @@ ReadGame(const char *filename)
 		}
 	}
 
-	if(save_ver < 2)
+	if (save_ver == 0) // not found in mappings table
 	{
 		fclose(f);
 		gi.error("Savegame from an incompatible version.\n");
 	}
-	else if (save_ver == 2)
+	else if (save_ver == 1)
 	{
-		if (strcmp(sv.game, GAMEVERSION))
+		if (strcmp(sv.game, GAMEVERSION) != 0)
 		{
 			fclose(f);
-			gi.error("Savegame from an other game.so.\n");
+			gi.error("Savegame from another game.so.\n");
 		}
-		else if (strcmp(sv.os, YQ2OSTYPE_1))
+		else if (strcmp(sv.os, OSTYPE_1) != 0)
 		{
 			fclose(f);
-			gi.error("Savegame from an other os.\n");
+			gi.error("Savegame from another os.\n");
 		}
 
 #ifdef _WIN32
@@ -893,7 +885,7 @@ ReadGame(const char *filename)
 			gi.error("Savegame from another architecture.\n");
 		}
 #else
-		if (strcmp(sv.arch, YQ2ARCH_1) != 0)
+		if (strcmp(sv.arch, ARCH_1) != 0)
 		{
 			fclose(f);
 			gi.error("Savegame from another architecture.\n");
@@ -915,11 +907,11 @@ ReadGame(const char *filename)
 		else if (strcmp(sv.arch, YQ2ARCH) != 0)
 		{
 #if defined(_WIN32) && (defined(__i386__) || defined(_M_IX86))
-			// before savegame version "YQ2-5" (and after version 2),
+			// before savegame version "YQ2-4" (and after version 1),
 			// the official Win32 binaries accidentally had the YQ2ARCH "AMD64"
 			// instead of "i386" set due to a bug in the Makefile.
 			// This quirk allows loading those savegames anyway
-			if (save_ver >= 5 || strcmp(sv.arch, "AMD64") != 0)
+			if (save_ver >= 4 || strcmp(sv.arch, "AMD64") != 0)
 #endif
 			{
 				fclose(f);
@@ -976,7 +968,7 @@ WriteEdict(FILE *f, edict_t *ent)
 }
 
 /*
- * Helper fcuntion to write the
+ * Helper function to write the
  * level local data into a file.
  * Called by WriteLevel.
  */
@@ -1016,7 +1008,7 @@ WriteLevel(const char *filename)
 	edict_t *ent;
 	FILE *f;
 
-	f = fopen(filename, "wb");
+	f = Q_fopen(filename, "wb");
 
 	if (!f)
 	{
@@ -1092,10 +1084,10 @@ ReadLevelLocals(FILE *f)
 
 /*
  * Reads a level back into the memory.
- * SpawnEntities were allready called
+ * SpawnEntities were already called
  * in the same way when the level was
  * saved. All world links were cleared
- * befor this function was called. When
+ * before this function was called. When
  * this function is called, no clients
  * are connected to the server.
  */
@@ -1107,7 +1099,7 @@ ReadLevel(const char *filename)
 	int i;
 	edict_t *ent;
 
-	f = fopen(filename, "rb");
+	f = Q_fopen(filename, "rb");
 
 	if (!f)
 	{

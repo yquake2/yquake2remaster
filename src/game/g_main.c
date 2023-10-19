@@ -41,6 +41,7 @@ edict_t *g_edicts;
 
 cvar_t *deathmatch;
 cvar_t *coop;
+cvar_t *coop_baseq2;	/* treat spawnflags according to baseq2 rules */
 cvar_t *coop_pickup_weapons;
 cvar_t *coop_elevator_delay;
 cvar_t *dmflags;
@@ -84,8 +85,16 @@ cvar_t *flood_persecond;
 cvar_t *flood_waitdelay;
 
 cvar_t *sv_maplist;
+cvar_t *sv_stopspeed;
 
 cvar_t *gib_on;
+cvar_t *g_showlogic;
+cvar_t *gamerules;
+cvar_t *huntercam;
+cvar_t *strong_mines;
+cvar_t *randomrespawn;
+
+cvar_t *g_disruptor;
 
 cvar_t *aimfix;
 cvar_t *g_machinegun_norecoil;
@@ -341,6 +350,14 @@ CheckDMRules(void)
 	if (!deathmatch->value)
 	{
 		return;
+	}
+
+	if (gamerules && gamerules->value && DMGame.CheckDMRules)
+	{
+		if (DMGame.CheckDMRules())
+		{
+			return;
+		}
 	}
 
 	if (timelimit->value)

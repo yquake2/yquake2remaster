@@ -59,7 +59,7 @@ supertank_search(edict_t *self)
 	}
 }
 
-mframe_t supertank_frames_stand[] = {
+static mframe_t supertank_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -140,7 +140,7 @@ supertank_stand(edict_t *self)
 	self->monsterinfo.currentmove = &supertank_move_stand;
 }
 
-mframe_t supertank_frames_run[] = {
+static mframe_t supertank_frames_run[] = {
 	{ai_run, 12, TreadSound},
 	{ai_run, 12, NULL},
 	{ai_run, 12, NULL},
@@ -168,7 +168,7 @@ mmove_t supertank_move_run = {
    	NULL
 };
 
-mframe_t supertank_frames_forward[] = {
+static mframe_t supertank_frames_forward[] = {
 	{ai_walk, 4, TreadSound},
 	{ai_walk, 4, NULL},
 	{ai_walk, 4, NULL},
@@ -236,7 +236,7 @@ supertank_run(edict_t *self)
 	}
 }
 
-mframe_t supertank_frames_turn_right[] = {
+static mframe_t supertank_frames_turn_right[] = {
 	{ai_move, 0, TreadSound},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -264,7 +264,7 @@ mmove_t supertank_move_turn_right = {
    	supertank_run
 };
 
-mframe_t supertank_frames_turn_left[] = {
+static mframe_t supertank_frames_turn_left[] = {
 	{ai_move, 0, TreadSound},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -292,7 +292,7 @@ mmove_t supertank_move_turn_left = {
    	supertank_run
 };
 
-mframe_t supertank_frames_pain3[] = {
+static mframe_t supertank_frames_pain3[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -306,7 +306,7 @@ mmove_t supertank_move_pain3 = {
    	supertank_run
 };
 
-mframe_t supertank_frames_pain2[] = {
+static mframe_t supertank_frames_pain2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -320,7 +320,7 @@ mmove_t supertank_move_pain2 = {
    	supertank_run
 };
 
-mframe_t supertank_frames_pain1[] = {
+static mframe_t supertank_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -334,7 +334,7 @@ mmove_t supertank_move_pain1 = {
    	supertank_run
 };
 
-mframe_t supertank_frames_death1[] = {
+static mframe_t supertank_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -368,7 +368,7 @@ mmove_t supertank_move_death = {
    	supertank_dead
 };
 
-mframe_t supertank_frames_backward[] = {
+static mframe_t supertank_frames_backward[] = {
 	{ai_walk, 0, TreadSound},
 	{ai_walk, 0, NULL},
 	{ai_walk, 0, NULL},
@@ -396,7 +396,7 @@ mmove_t supertank_move_backward = {
    	NULL
 };
 
-mframe_t supertank_frames_attack4[] = {
+static mframe_t supertank_frames_attack4[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -412,7 +412,7 @@ mmove_t supertank_move_attack4 = {
    	supertank_run
 };
 
-mframe_t supertank_frames_attack3[] = {
+static mframe_t supertank_frames_attack3[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -449,7 +449,7 @@ mmove_t supertank_move_attack3 = {
    	supertank_run
 };
 
-mframe_t supertank_frames_attack2[] = {
+static mframe_t supertank_frames_attack2[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -486,7 +486,7 @@ mmove_t supertank_move_attack2 = {
    	supertank_run
 };
 
-mframe_t supertank_frames_attack1[] = {
+static mframe_t supertank_frames_attack1[] = {
 	{ai_charge, 0, supertankMachineGun},
 	{ai_charge, 0, supertankMachineGun},
 	{ai_charge, 0, supertankMachineGun},
@@ -502,7 +502,7 @@ mmove_t supertank_move_attack1 = {
    	supertank_reattack1
 };
 
-mframe_t supertank_frames_end_attack1[] = {
+static mframe_t supertank_frames_end_attack1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},

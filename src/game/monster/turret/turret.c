@@ -351,7 +351,7 @@ turret_search(edict_t *self)
 {
 }
 
-mframe_t turret_frames_stand[] = {
+static mframe_t turret_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL}
 };
@@ -374,7 +374,7 @@ turret_stand(edict_t *self)
 	self->monsterinfo.currentmove = &turret_move_stand;
 }
 
-mframe_t turret_frames_ready_gun[] = {
+static mframe_t turret_frames_ready_gun[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -404,7 +404,7 @@ turret_ready_gun(edict_t *self)
 	self->monsterinfo.currentmove = &turret_move_ready_gun;
 }
 
-mframe_t turret_frames_seek[] = {
+static mframe_t turret_frames_seek[] = {
 	{ai_walk, 0, TurretAim},
 	{ai_walk, 0, TurretAim}
 };
@@ -434,7 +434,7 @@ turret_walk(edict_t *self)
 	}
 }
 
-mframe_t turret_frames_run[] = {
+static mframe_t turret_frames_run[] = {
 	{ai_run, 0, TurretAim},
 	{ai_run, 0, TurretAim}
 };
@@ -658,7 +658,7 @@ TurretFireBlind(edict_t *self)
 	}
 }
 
-mframe_t turret_frames_fire[] = {
+static mframe_t turret_frames_fire[] = {
 	{ai_run, 0, TurretFire},
 	{ai_run, 0, TurretAim},
 	{ai_run, 0, TurretAim},
@@ -673,7 +673,7 @@ mmove_t turret_move_fire = {
 };
 
 /* the blind frames need to aim first */
-mframe_t turret_frames_fire_blind[] = {
+static mframe_t turret_frames_fire_blind[] = {
 	{ai_run, 0, TurretAim},
 	{ai_run, 0, TurretAim},
 	{ai_run, 0, TurretAim},

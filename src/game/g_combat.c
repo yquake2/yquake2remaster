@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +26,25 @@
  */
 
 #include "header/local.h"
+
+void M_SetEffects(edict_t *self);
+
+/*
+ * clean up heal targets for medic
+ */
+void
+cleanupHealTarget(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->monsterinfo.healer = NULL;
+	ent->takedamage = DAMAGE_YES;
+	ent->monsterinfo.aiflags &= ~AI_RESURRECTING;
+	M_SetEffects(ent);
+}
 
 /*
  * Returns true if the inflictor can
@@ -196,7 +216,6 @@ SpawnDamage(int type, vec3_t origin, vec3_t normal)
  *      DAMAGE_BULLET			damage is from a bullet (used for ricochets)
  *      DAMAGE_NO_PROTECTION	kills godmode, armor, everything
  */
-
 int
 CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 		int dflags)
@@ -736,6 +755,182 @@ T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
 	while ((ent = findradius(ent, inflictor->s.origin, radius)) != NULL)
 	{
 		if (ent == ignore)
+		{
+			continue;
+		}
+
+		if (!ent->takedamage)
+		{
+			continue;
+		}
+
+		VectorAdd(ent->mins, ent->maxs, v);
+		VectorMA(ent->s.origin, 0.5, v, v);
+		VectorSubtract(inflictor->s.origin, v, v);
+		points = damage - 0.5 * VectorLength(v);
+
+		if (ent == attacker)
+		{
+			points = points * 0.5;
+		}
+
+		if (points > 0)
+		{
+			if (CanDamage(ent, inflictor))
+			{
+				VectorSubtract(ent->s.origin, inflictor->s.origin, dir);
+				T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
+						vec3_origin, (int)points, (int)points, DAMAGE_RADIUS,
+						mod);
+			}
+		}
+	}
+}
+
+void
+T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
+		edict_t *ignore, float radius, int mod)
+{
+	float points;
+	edict_t *ent = NULL;
+	vec3_t v;
+	vec3_t dir;
+	float len;
+	float killzone, killzone2;
+	trace_t tr;
+	float dist;
+
+	killzone = radius;
+	killzone2 = radius * 2.0;
+
+	if (!inflictor || !attacker || !ignore)
+	{
+		return;
+	}
+
+	while ((ent = findradius(ent, inflictor->s.origin, killzone2)) != NULL)
+	{
+		/* ignore nobody */
+		if (ent == ignore)
+		{
+			continue;
+		}
+
+		if (!ent->takedamage)
+		{
+			continue;
+		}
+
+		if (!ent->inuse)
+		{
+			continue;
+		}
+
+		if (!(ent->client || (ent->svflags & SVF_MONSTER) ||
+			  (ent->svflags & SVF_DAMAGEABLE)))
+		{
+			continue;
+		}
+
+		VectorAdd(ent->mins, ent->maxs, v);
+		VectorMA(ent->s.origin, 0.5, v, v);
+		VectorSubtract(inflictor->s.origin, v, v);
+		len = VectorLength(v);
+
+		if (len <= killzone)
+		{
+			if (ent->client)
+			{
+				ent->flags |= FL_NOGIB;
+			}
+
+			points = 10000;
+		}
+		else if (len <= killzone2)
+		{
+			points = (damage / killzone) * (killzone2 - len);
+		}
+		else
+		{
+			points = 0;
+		}
+
+		if (points > 0)
+		{
+			if (ent->client)
+			{
+				ent->client->nuke_framenum = level.framenum + 20;
+			}
+
+			VectorSubtract(ent->s.origin, inflictor->s.origin, dir);
+			T_Damage(ent, inflictor, attacker, dir, inflictor->s.origin,
+					vec3_origin, (int)points, (int)points, DAMAGE_RADIUS,
+					mod);
+		}
+	}
+
+	/* skip the worldspawn */
+	ent = g_edicts + 1;
+
+	/* cycle through players */
+	while (ent)
+	{
+		if ((ent->client) &&
+			(ent->client->nuke_framenum != level.framenum + 20) && (ent->inuse))
+		{
+			tr = gi.trace(inflictor->s.origin, NULL, NULL, ent->s.origin,
+					inflictor, MASK_SOLID);
+
+			if (tr.fraction == 1.0)
+			{
+				ent->client->nuke_framenum = level.framenum + 20;
+			}
+			else
+			{
+				dist = realrange(ent, inflictor);
+
+				if (dist < 2048)
+				{
+					ent->client->nuke_framenum = max(ent->client->nuke_framenum,
+							level.framenum + 15);
+				}
+				else
+				{
+					ent->client->nuke_framenum = max(ent->client->nuke_framenum,
+							level.framenum + 10);
+				}
+			}
+
+			ent++;
+		}
+		else
+		{
+			ent = NULL;
+		}
+	}
+}
+
+/*
+ * Like T_RadiusDamage, but ignores
+ * anything with classname=ignoreClass
+ */
+void
+T_RadiusClassDamage(edict_t *inflictor, edict_t *attacker, float damage,
+		char *ignoreClass, float radius, int mod)
+{
+	float points;
+	edict_t *ent = NULL;
+	vec3_t v;
+	vec3_t dir;
+
+	if (!inflictor || !attacker || !ignoreClass)
+	{
+		return;
+	}
+
+	while ((ent = findradius(ent, inflictor->s.origin, radius)) != NULL)
+	{
+		if (ent->classname && !strcmp(ent->classname, ignoreClass))
 		{
 			continue;
 		}

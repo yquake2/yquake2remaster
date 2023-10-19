@@ -389,7 +389,7 @@ medic_sight(edict_t *self, edict_t *other /* unused */)
 	}
 }
 
-mframe_t medic_frames_stand[] = {
+static mframe_t medic_frames_stand[] = {
 	{ai_stand, 0, medic_idle},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -500,7 +500,7 @@ medic_stand(edict_t *self)
 	self->monsterinfo.currentmove = &medic_move_stand;
 }
 
-mframe_t medic_frames_walk[] = {
+static mframe_t medic_frames_walk[] = {
 	{ai_walk, 6.2, NULL},
 	{ai_walk, 18.1, NULL},
 	{ai_walk, 1, NULL},
@@ -533,7 +533,7 @@ medic_walk(edict_t *self)
 	self->monsterinfo.currentmove = &medic_move_walk;
 }
 
-mframe_t medic_frames_run[] = {
+static mframe_t medic_frames_run[] = {
 	{ai_run, 18, NULL},
 	{ai_run, 22.5, NULL},
 	{ai_run, 25.4, monster_done_dodge},
@@ -586,7 +586,7 @@ medic_run(edict_t *self)
 	}
 }
 
-mframe_t medic_frames_pain1[] = {
+static mframe_t medic_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -604,7 +604,7 @@ mmove_t medic_move_pain1 = {
    	medic_run
 };
 
-mframe_t medic_frames_pain2[] = {
+static mframe_t medic_frames_pain2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -788,7 +788,7 @@ medic_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t medic_frames_death[] = {
+static mframe_t medic_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -880,7 +880,7 @@ medic_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 	self->monsterinfo.currentmove = &medic_move_death;
 }
 
-mframe_t medic_frames_duck[] = {
+static mframe_t medic_frames_duck[] = {
 	{ai_move, -1, NULL},
 	{ai_move, -1, NULL},
 	{ai_move, -1, monster_duck_down},
@@ -906,7 +906,7 @@ mmove_t medic_move_duck = {
    	medic_run
 };
 
-mframe_t medic_frames_attackHyperBlaster[] = {
+static mframe_t medic_frames_attackHyperBlaster[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -949,7 +949,7 @@ medic_continue(edict_t *self)
 	}
 }
 
-mframe_t medic_frames_attackBlaster[] = {
+static mframe_t medic_frames_attackBlaster[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 5, NULL},
 	{ai_charge, 5, NULL},
@@ -1232,7 +1232,7 @@ medic_hook_retract(edict_t *self)
 	}
 }
 
-mframe_t medic_frames_attackCable[] = {
+static mframe_t medic_frames_attackCable[] = {
 	{ai_charge, 2, NULL},                     /* 33 */
 	{ai_charge, 3, NULL},
 	{ai_charge, 5, NULL},
@@ -1611,7 +1611,7 @@ medic_finish_spawn(edict_t *self)
 	}
 }
 
-mframe_t medic_frames_callReinforcements[] = {
+static mframe_t medic_frames_callReinforcements[] = {
 	{ai_charge, 2, NULL},                     /* 33 */
 	{ai_charge, 3, NULL},
 	{ai_charge, 5, NULL},

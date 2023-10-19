@@ -34,7 +34,7 @@ mutant_step(edict_t *self)
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -58,7 +58,7 @@ mutant_step(edict_t *self)
 void
 mutant_sight(edict_t *self, edict_t *other /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -69,7 +69,7 @@ mutant_sight(edict_t *self, edict_t *other /* unused */)
 void
 mutant_search(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -80,7 +80,7 @@ mutant_search(edict_t *self)
 void
 mutant_swing(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -88,7 +88,7 @@ mutant_swing(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_swing, 1, ATTN_NORM, 0);
 }
 
-mframe_t mutant_frames_stand[] = {
+static mframe_t mutant_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -157,7 +157,7 @@ mmove_t mutant_move_stand = {
 void
 mutant_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -168,7 +168,7 @@ mutant_stand(edict_t *self)
 void
 mutant_idle_loop(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -179,7 +179,7 @@ mutant_idle_loop(edict_t *self)
 	}
 }
 
-mframe_t mutant_frames_idle[] = {
+static mframe_t mutant_frames_idle[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -205,7 +205,7 @@ mmove_t mutant_move_idle = {
 void
 mutant_idle(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -214,7 +214,7 @@ mutant_idle(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-mframe_t mutant_frames_walk[] = {
+static mframe_t mutant_frames_walk[] = {
 	{ai_walk, 3, NULL},
 	{ai_walk, 1, NULL},
 	{ai_walk, 5, NULL},
@@ -239,7 +239,7 @@ mmove_t mutant_move_walk = {
 void
 mutant_walk_loop(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -247,7 +247,7 @@ mutant_walk_loop(edict_t *self)
 	self->monsterinfo.currentmove = &mutant_move_walk;
 }
 
-mframe_t mutant_frames_start_walk[] = {
+static mframe_t mutant_frames_start_walk[] = {
 	{ai_walk, 5, NULL},
 	{ai_walk, 5, NULL},
 	{ai_walk, -2, NULL},
@@ -264,7 +264,7 @@ mmove_t mutant_move_start_walk = {
 void
 mutant_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -272,7 +272,7 @@ mutant_walk(edict_t *self)
 	self->monsterinfo.currentmove = &mutant_move_start_walk;
 }
 
-mframe_t mutant_frames_run[] = {
+static mframe_t mutant_frames_run[] = {
 	{ai_run, 40, NULL},
 	{ai_run, 40, mutant_step},
 	{ai_run, 24, NULL},
@@ -291,7 +291,7 @@ mmove_t mutant_move_run = {
 void
 mutant_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -311,7 +311,7 @@ mutant_hit_left(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -333,7 +333,7 @@ mutant_hit_right(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -353,7 +353,7 @@ mutant_hit_right(edict_t *self)
 void
 mutant_check_refire(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -369,7 +369,7 @@ mutant_check_refire(edict_t *self)
 	}
 }
 
-mframe_t mutant_frames_attack[] = {
+static mframe_t mutant_frames_attack[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, mutant_hit_left},
@@ -389,7 +389,7 @@ mmove_t mutant_move_attack = {
 void
 mutant_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -400,7 +400,7 @@ void
 mutant_jump_touch(edict_t *self, edict_t *other,
 		cplane_t *plane /* unused */, csurface_t *surf /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -447,7 +447,7 @@ mutant_jump_takeoff(edict_t *self)
 {
 	vec3_t forward;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -466,7 +466,7 @@ mutant_jump_takeoff(edict_t *self)
 void
 mutant_check_landing(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -489,7 +489,7 @@ mutant_check_landing(edict_t *self)
 	}
 }
 
-mframe_t mutant_frames_jump[] = {
+static mframe_t mutant_frames_jump[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 17, NULL},
 	{ai_charge, 15, mutant_jump_takeoff},
@@ -510,7 +510,7 @@ mmove_t mutant_move_jump = {
 void
 mutant_jump(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -521,7 +521,7 @@ mutant_jump(edict_t *self)
 qboolean
 mutant_check_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return false;
 	}
@@ -540,7 +540,7 @@ mutant_check_jump(edict_t *self)
 	vec3_t v;
 	float distance;
 
-  	if (!self)
+	if (!self)
 	{
 		return false;
 	}
@@ -579,7 +579,7 @@ mutant_check_jump(edict_t *self)
 qboolean
 mutant_checkattack(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return false;
 	}
@@ -604,7 +604,7 @@ mutant_checkattack(edict_t *self)
 	return false;
 }
 
-mframe_t mutant_frames_pain1[] = {
+static mframe_t mutant_frames_pain1[] = {
 	{ai_move, 4, NULL},
 	{ai_move, -3, NULL},
 	{ai_move, -8, NULL},
@@ -619,7 +619,7 @@ mmove_t mutant_move_pain1 = {
    	mutant_run
 };
 
-mframe_t mutant_frames_pain2[] = {
+static mframe_t mutant_frames_pain2[] = {
 	{ai_move, -24, NULL},
 	{ai_move, 11, NULL},
 	{ai_move, 5, NULL},
@@ -635,7 +635,7 @@ mmove_t mutant_move_pain2 = {
    	mutant_run
 };
 
-mframe_t mutant_frames_pain3[] = {
+static mframe_t mutant_frames_pain3[] = {
 	{ai_move, -22, NULL},
 	{ai_move, 3, NULL},
 	{ai_move, 3, NULL},
@@ -662,7 +662,7 @@ mutant_pain(edict_t *self, edict_t *other /* unused */,
 {
 	float r;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -706,7 +706,7 @@ mutant_pain(edict_t *self, edict_t *other /* unused */,
 void
 mutant_dead(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -720,7 +720,7 @@ mutant_dead(edict_t *self)
 	M_FlyCheck(self);
 }
 
-mframe_t mutant_frames_death1[] = {
+static mframe_t mutant_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -739,7 +739,7 @@ mmove_t mutant_move_death1 = {
    	mutant_dead
 };
 
-mframe_t mutant_frames_death2[] = {
+static mframe_t mutant_frames_death2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -766,7 +766,7 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -816,7 +816,7 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 void
 SP_monster_mutant(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

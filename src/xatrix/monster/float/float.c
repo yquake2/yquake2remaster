@@ -31,7 +31,7 @@ void floater_zap(edict_t *self);
 void
 floater_sight(edict_t *self, edict_t *other /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -42,7 +42,7 @@ floater_sight(edict_t *self, edict_t *other /* unused */)
 void
 floater_idle(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -59,7 +59,7 @@ floater_fire_blaster(edict_t *self)
 	vec3_t dir;
 	int effect;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -84,7 +84,7 @@ floater_fire_blaster(edict_t *self)
 	monster_fire_blaster(self, start, dir, 1, 1000, MZ2_FLOAT_BLASTER_1, effect);
 }
 
-mframe_t floater_frames_stand1[] = {
+static mframe_t floater_frames_stand1[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -146,7 +146,7 @@ mmove_t floater_move_stand1 = {
    	NULL
 };
 
-mframe_t floater_frames_stand2[] = {
+static mframe_t floater_frames_stand2[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -211,7 +211,7 @@ mmove_t floater_move_stand2 = {
 void
 floater_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -226,7 +226,7 @@ floater_stand(edict_t *self)
 	}
 }
 
-mframe_t floater_frames_activate[] = {
+static mframe_t floater_frames_activate[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -266,7 +266,7 @@ mmove_t floater_move_activate = {
    	NULL
 };
 
-mframe_t floater_frames_attack1[] = {
+static mframe_t floater_frames_attack1[] = {
 	{ai_charge, 0, NULL}, /* Blaster attack */
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -290,7 +290,7 @@ mmove_t floater_move_attack1 = {
    	floater_run
 };
 
-mframe_t floater_frames_attack2[] = {
+static mframe_t floater_frames_attack2[] = {
 	{ai_charge, 0, NULL}, /* Claws */
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -325,7 +325,7 @@ mmove_t floater_move_attack2 = {
    	floater_run
 };
 
-mframe_t floater_frames_attack3[] = {
+static mframe_t floater_frames_attack3[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -369,7 +369,7 @@ mmove_t floater_move_attack3 = {
    	floater_run
 };
 
-mframe_t floater_frames_death[] = {
+static mframe_t floater_frames_death[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -392,7 +392,7 @@ mmove_t floater_move_death = {
    	floater_dead
 };
 
-mframe_t floater_frames_pain1[] = {
+static mframe_t floater_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -409,7 +409,7 @@ mmove_t floater_move_pain1 = {
    	floater_run
 };
 
-mframe_t floater_frames_pain2[] = {
+static mframe_t floater_frames_pain2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -427,7 +427,7 @@ mmove_t floater_move_pain2 = {
    	floater_run
 };
 
-mframe_t floater_frames_pain3[] = {
+static mframe_t floater_frames_pain3[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -449,7 +449,7 @@ mmove_t floater_move_pain3 = {
    	floater_run
 };
 
-mframe_t floater_frames_walk[] = {
+static mframe_t floater_frames_walk[] = {
 	{ai_walk, 5, NULL},
 	{ai_walk, 5, NULL},
 	{ai_walk, 5, NULL},
@@ -511,7 +511,7 @@ mmove_t floater_move_walk = {
    	NULL
 };
 
-mframe_t floater_frames_run[] = {
+static mframe_t floater_frames_run[] = {
 	{ai_run, 13, NULL},
 	{ai_run, 13, NULL},
 	{ai_run, 13, NULL},
@@ -576,7 +576,7 @@ mmove_t floater_move_run = {
 void
 floater_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -594,7 +594,7 @@ floater_run(edict_t *self)
 void
 floater_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -607,7 +607,7 @@ floater_wham(edict_t *self)
 {
 	static vec3_t aim = {MELEE_DISTANCE, 0, 0};
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -624,7 +624,7 @@ floater_zap(edict_t *self)
 	vec3_t dir;
 	vec3_t offset;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -657,7 +657,7 @@ floater_zap(edict_t *self)
 void
 floater_attack(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -668,7 +668,7 @@ floater_attack(edict_t *self)
 void
 floater_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -689,7 +689,7 @@ floater_pain(edict_t *self, edict_t *other /* unused */,
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -728,7 +728,7 @@ floater_pain(edict_t *self, edict_t *other /* unused */,
 void
 floater_dead(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -745,7 +745,7 @@ void
 floater_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
 		int damage /* unused */, vec3_t point /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -760,7 +760,7 @@ floater_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 void
 SP_monster_floater(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

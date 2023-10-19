@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,9 +28,18 @@
 #include "../../header/local.h"
 #include "boss2.h"
 
-void BossExplode(edict_t *self);
+#define BOSS2_ROCKET_SPEED	750
 
 qboolean infront(edict_t *self, edict_t *other);
+void BossExplode(edict_t *self);
+void boss2_run(edict_t *self);
+void boss2_stand(edict_t *self);
+void boss2_dead(edict_t *self);
+void boss2_attack(edict_t *self);
+void boss2_attack_mg(edict_t *self);
+void boss2_reattack_mg(edict_t *self);
+void boss2_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+		int damage, vec3_t point);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -51,14 +61,66 @@ boss2_search(edict_t *self)
 	}
 }
 
-void boss2_run(edict_t *self);
-void boss2_stand(edict_t *self);
-void boss2_dead(edict_t *self);
-void boss2_attack(edict_t *self);
-void boss2_attack_mg(edict_t *self);
-void boss2_reattack_mg(edict_t *self);
-void boss2_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
+void
+Boss2PredictiveRocket(edict_t *self)
+{
+	vec3_t	forward, right;
+	vec3_t	start;
+	vec3_t	dir;
+	vec3_t	vec;
+	float	time, dist;
+
+	if (!self || !self->enemy || !self->enemy->inuse)
+	{
+		return;
+	}
+
+	AngleVectors(self->s.angles, forward, right, NULL);
+
+//1
+	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
+	VectorSubtract(self->enemy->s.origin, start, dir);
+	dist = VectorLength(dir);
+	time = dist / BOSS2_ROCKET_SPEED;
+	VectorMA(self->enemy->s.origin, time-0.3, self->enemy->velocity, vec);
+
+	VectorSubtract(vec, start, dir);
+	VectorNormalize(dir);
+	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_1);
+
+//2
+	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
+	VectorSubtract(self->enemy->s.origin, start, dir);
+	dist = VectorLength(dir);
+	time = dist / BOSS2_ROCKET_SPEED;
+	VectorMA(self->enemy->s.origin, time-0.15, self->enemy->velocity, vec);
+
+	VectorSubtract(vec, start, dir);
+	VectorNormalize(dir);
+	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_2);
+
+//3
+	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
+	VectorSubtract(self->enemy->s.origin, start, dir);
+	dist = VectorLength(dir);
+	time = dist / BOSS2_ROCKET_SPEED;
+	VectorMA(self->enemy->s.origin, time, self->enemy->velocity, vec);
+
+	VectorSubtract(vec, start, dir);
+	VectorNormalize(dir);
+	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_3);
+
+//4
+	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
+	VectorSubtract(self->enemy->s.origin, start, dir);
+	dist = VectorLength(dir);
+	time = dist / BOSS2_ROCKET_SPEED;
+	VectorMA(self->enemy->s.origin, time+0.15, self->enemy->velocity, vec);
+
+	VectorSubtract(vec, start, dir);
+	VectorNormalize(dir);
+	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_4);
+}
 
 void
 Boss2Rocket(edict_t *self)
@@ -68,8 +130,14 @@ Boss2Rocket(edict_t *self)
 	vec3_t dir;
 	vec3_t vec;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
+		return;
+	}
+
+	if (self->enemy->client && random() < 0.9)
+	{
+		Boss2PredictiveRocket(self);
 		return;
 	}
 
@@ -194,6 +262,7 @@ static mframe_t boss2_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL}
 };
+
 mmove_t boss2_move_stand =
 {
 	FRAME_stand30,
@@ -234,6 +303,7 @@ static mframe_t boss2_frames_fidget[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL}
 };
+
 mmove_t boss2_move_fidget =
 {
 	FRAME_stand1,
@@ -690,7 +760,7 @@ Boss2_CheckAttack(edict_t *self)
 		VectorCopy(self->enemy->s.origin, spot2);
 		spot2[2] += self->enemy->viewheight;
 
-		tr = gi.trace( spot1, NULL, NULL, spot2, self,
+		tr = gi.trace(spot1, NULL, NULL, spot2, self,
 				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_SLIME |
 				CONTENTS_LAVA);
 

@@ -200,6 +200,11 @@ InitGame(void)
 	sv_rollangle = gi.cvar("sv_rollangle", "2", 0);
 	sv_maxvelocity = gi.cvar("sv_maxvelocity", "2000", 0);
 	sv_gravity = gi.cvar("sv_gravity", "800", 0);
+	sv_stopspeed = gi.cvar("sv_stopspeed", "100", 0);
+	g_showlogic = gi.cvar("g_showlogic", "0", 0);
+	huntercam = gi.cvar("huntercam", "1", CVAR_SERVERINFO|CVAR_LATCH);
+	strong_mines = gi.cvar("strong_mines", "0", 0);
+	randomrespawn = gi.cvar("randomrespawn", "0", 0);
 
 	/* noset vars */
 	dedicated = gi.cvar("dedicated", "0", CVAR_NOSET);
@@ -213,12 +218,14 @@ InitGame(void)
 	deathmatch = gi.cvar("deathmatch", "0", CVAR_LATCH);
 	coop = gi.cvar("coop", "0", CVAR_LATCH);
 	coop_pickup_weapons = gi.cvar("coop_pickup_weapons", "1", CVAR_ARCHIVE);
+	coop_baseq2 = gi.cvar("coop_baseq2", "0", CVAR_LATCH);
 	coop_elevator_delay = gi.cvar("coop_elevator_delay", "1.0", CVAR_ARCHIVE);
 	skill = gi.cvar("skill", "1", CVAR_LATCH);
 	maxentities = gi.cvar("maxentities", "1024", CVAR_LATCH);
+	gamerules = gi.cvar("gamerules", "0", CVAR_LATCH);			//PGM
 	g_footsteps = gi.cvar("g_footsteps", "1", CVAR_ARCHIVE);
 	g_monsterfootsteps = gi.cvar("g_monsterfootsteps", "0", CVAR_ARCHIVE);
-	g_fix_triggered = gi.cvar ("g_fix_triggered", "0", 0);
+	g_fix_triggered = gi.cvar("g_fix_triggered", "0", 0);
 	g_commanderbody_nogod = gi.cvar("g_commanderbody_nogod", "0", CVAR_ARCHIVE);
 
 	/* change anytime vars */
@@ -244,6 +251,9 @@ InitGame(void)
 	/* dm map list */
 	sv_maplist = gi.cvar("sv_maplist", "", 0);
 
+	/* disruptor availability */
+	g_disruptor = gi.cvar("g_disruptor", "0", 0);
+
 	/* others */
 	aimfix = gi.cvar("aimfix", "0", CVAR_ARCHIVE);
 	g_machinegun_norecoil = gi.cvar("g_machinegun_norecoil", "0", CVAR_ARCHIVE);
@@ -265,6 +275,11 @@ InitGame(void)
 	game.maxclients = maxclients->value;
 	game.clients = gi.TagMalloc(game.maxclients * sizeof(game.clients[0]), TAG_GAME);
 	globals.num_edicts = game.maxclients + 1;
+
+	if (gamerules)
+	{
+		InitGameRules();
+	}
 }
 
 /* ========================================================= */

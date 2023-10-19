@@ -999,7 +999,6 @@ extern edict_t * CreateMonster ( vec3_t origin , vec3_t angles , char * classnam
 extern void SP_worldspawn ( edict_t * ent ) ;
 extern void SpawnEntities ( const char * mapname , char * entities , const char * spawnpoint ) ;
 extern void G_FindTeams ( void ) ;
-extern void G_FixTeams ( void ) ;
 extern char * ED_ParseEdict ( char * data , edict_t * ent ) ;
 extern void ED_ParseField ( const char * key , const char * value , edict_t * ent ) ;
 extern char * ED_NewString ( const char * string ) ;
@@ -1426,7 +1425,7 @@ extern qboolean CheckTeamDamage ( edict_t * targ , edict_t * attacker ) ;
 extern void M_ReactToDamage ( edict_t * targ , edict_t * attacker , edict_t * inflictor ) ;
 extern int CheckArmor ( edict_t * ent , vec3_t point , vec3_t normal , int damage , int te_sparks , int dflags ) ;
 extern int CheckPowerArmor ( edict_t * ent , vec3_t point , vec3_t normal , int damage , int dflags ) ;
-extern void SpawnDamage ( int type , vec3_t origin , vec3_t normal , int damage ) ;
+extern void SpawnDamage ( int type , vec3_t origin , vec3_t normal ) ;
 extern void Killed ( edict_t * targ , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern qboolean CanDamage ( edict_t * targ , edict_t * inflictor ) ;
 extern void cleanupHealTarget ( edict_t * ent ) ;

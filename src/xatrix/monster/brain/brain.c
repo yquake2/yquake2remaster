@@ -33,7 +33,7 @@ void brain_dead(edict_t *self);
 void
 brain_sight(edict_t *self, edict_t *other /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -44,7 +44,7 @@ brain_sight(edict_t *self, edict_t *other /* unused */)
 void
 brain_search(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -54,7 +54,7 @@ brain_search(edict_t *self)
 
 /* STAND */
 
-mframe_t brain_frames_stand[] = {
+static mframe_t brain_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -99,7 +99,7 @@ mmove_t brain_move_stand = {
 void
 brain_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -109,7 +109,7 @@ brain_stand(edict_t *self)
 
 /* IDLE */
 
-mframe_t brain_frames_idle[] = {
+static mframe_t brain_frames_idle[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -154,7 +154,7 @@ mmove_t brain_move_idle = {
 void
 brain_idle(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -165,7 +165,7 @@ brain_idle(edict_t *self)
 
 /* WALK */
 
-mframe_t brain_frames_walk1[] = {
+static mframe_t brain_frames_walk1[] = {
 	{ai_walk, 7, NULL},
 	{ai_walk, 2, NULL},
 	{ai_walk, 3, NULL},
@@ -189,7 +189,7 @@ mmove_t brain_move_walk1 = {
 void
 brain_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -197,7 +197,7 @@ brain_walk(edict_t *self)
 	self->monsterinfo.currentmove = &brain_move_walk1;
 }
 
-mframe_t brain_frames_defense[] = {
+static mframe_t brain_frames_defense[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -216,7 +216,7 @@ mmove_t brain_move_defense = {
    	NULL
 };
 
-mframe_t brain_frames_pain3[] = {
+static mframe_t brain_frames_pain3[] = {
 	{ai_move, -2, NULL},
 	{ai_move, 2, NULL},
 	{ai_move, 1, NULL},
@@ -232,7 +232,7 @@ mmove_t brain_move_pain3 = {
    	brain_run
 };
 
-mframe_t brain_frames_pain2[] = {
+static mframe_t brain_frames_pain2[] = {
 	{ai_move, -2, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -250,7 +250,7 @@ mmove_t brain_move_pain2 = {
    	brain_run
 };
 
-mframe_t brain_frames_pain1[] = {
+static mframe_t brain_frames_pain1[] = {
 	{ai_move, -6, NULL},
 	{ai_move, -2, NULL},
 	{ai_move, -6, NULL},
@@ -286,7 +286,7 @@ mmove_t brain_move_pain1 = {
 void
 brain_duck_down(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -305,7 +305,7 @@ brain_duck_down(edict_t *self)
 void
 brain_duck_hold(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -323,7 +323,7 @@ brain_duck_hold(edict_t *self)
 void
 brain_duck_up(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -334,7 +334,7 @@ brain_duck_up(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t brain_frames_duck[] = {
+static mframe_t brain_frames_duck[] = {
 	{ai_move, 0, NULL},
 	{ai_move, -2, brain_duck_down},
 	{ai_move, 17, brain_duck_hold},
@@ -376,7 +376,7 @@ brain_dodge(edict_t *self, edict_t *attacker, float eta,
 	self->monsterinfo.currentmove = &brain_move_duck;
 }
 
-mframe_t brain_frames_death2[] = {
+static mframe_t brain_frames_death2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -391,7 +391,7 @@ mmove_t brain_move_death2 = {
    	brain_dead
 };
 
-mframe_t brain_frames_death1[] = {
+static mframe_t brain_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, -2, NULL},
@@ -424,7 +424,7 @@ mmove_t brain_move_death1 = {
 void
 brain_swing_right(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -437,7 +437,7 @@ brain_hit_right(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -453,7 +453,7 @@ brain_hit_right(edict_t *self)
 void
 brain_swing_left(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -466,7 +466,7 @@ brain_hit_left(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -479,7 +479,7 @@ brain_hit_left(edict_t *self)
 	}
 }
 
-mframe_t brain_frames_attack1[] = {
+static mframe_t brain_frames_attack1[] = {
 	{ai_charge, 8, NULL},
 	{ai_charge, 3, NULL},
 	{ai_charge, 5, NULL},
@@ -510,7 +510,7 @@ mmove_t brain_move_attack1 = {
 void
 brain_chest_open(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -525,7 +525,7 @@ brain_tentacle_attack(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -543,7 +543,7 @@ brain_tentacle_attack(edict_t *self)
 void
 brain_chest_closed(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -557,7 +557,7 @@ brain_chest_closed(edict_t *self)
 	}
 }
 
-mframe_t brain_frames_attack2[] = {
+static mframe_t brain_frames_attack2[] = {
 	{ai_charge, 5, NULL},
 	{ai_charge, -4, NULL},
 	{ai_charge, -4, NULL},
@@ -587,7 +587,7 @@ mmove_t brain_move_attack2 = {
 void
 brain_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -638,7 +638,7 @@ brain_tounge_attack(edict_t *self)
 	trace_t tr;
 	int damage;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -742,7 +742,7 @@ brain_laserbeam(edict_t *self)
 	vec3_t dir, angles, end;
 	edict_t *ent;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -795,7 +795,7 @@ brain_laserbeam(edict_t *self)
 void
 brain_laserbeam_reattack(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -812,7 +812,7 @@ brain_laserbeam_reattack(edict_t *self)
 	}
 }
 
-mframe_t brain_frames_attack3[] = {
+static mframe_t brain_frames_attack3[] = {
 	{ai_charge, 5, NULL},
 	{ai_charge, -4, NULL},
 	{ai_charge, -4, NULL},
@@ -839,7 +839,7 @@ mmove_t brain_move_attack3 = {
    	brain_run
 };
 
-mframe_t brain_frames_attack4[] = {
+static mframe_t brain_frames_attack4[] = {
 	{ai_charge, 9, brain_laserbeam},
 	{ai_charge, 2, brain_laserbeam},
 	{ai_charge, 3, brain_laserbeam},
@@ -865,7 +865,7 @@ brain_attack(edict_t *self)
 {
 	int r;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -894,7 +894,7 @@ brain_attack(edict_t *self)
 
 /* RUN */
 
-mframe_t brain_frames_run[] = {
+static mframe_t brain_frames_run[] = {
 	{ai_run, 9, NULL},
 	{ai_run, 2, NULL},
 	{ai_run, 3, NULL},
@@ -918,7 +918,7 @@ mmove_t brain_move_run = {
 void
 brain_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -941,7 +941,7 @@ brain_pain(edict_t *self, edict_t *other /* unused */,
 {
 	float r;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -985,7 +985,7 @@ brain_pain(edict_t *self, edict_t *other /* unused */,
 void
 brain_dead(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -1004,7 +1004,7 @@ brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -1062,7 +1062,7 @@ brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 void
 SP_monster_brain(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

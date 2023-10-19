@@ -698,7 +698,7 @@ M_CheckAttack(edict_t *self)
 		VectorCopy(self->enemy->s.origin, spot2);
 		spot2[2] += self->enemy->viewheight;
 
-		tr = gi.trace( spot1, NULL, NULL, spot2, self,
+		tr = gi.trace(spot1, NULL, NULL, spot2, self,
 				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_SLIME | CONTENTS_LAVA |
 				CONTENTS_WINDOW);
 

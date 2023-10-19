@@ -54,7 +54,7 @@ brain_search(edict_t *self)
 }
 
 /* STAND */
-mframe_t brain_frames_stand[] = {
+static mframe_t brain_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -108,7 +108,7 @@ brain_stand(edict_t *self)
 }
 
 /* IDLE */
-mframe_t brain_frames_idle[] = {
+static mframe_t brain_frames_idle[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -163,7 +163,7 @@ brain_idle(edict_t *self)
 }
 
 /* WALK */
-mframe_t brain_frames_walk1[] = {
+static mframe_t brain_frames_walk1[] = {
 	{ai_walk, 7, NULL},
 	{ai_walk, 2, NULL},
 	{ai_walk, 3, NULL},
@@ -195,7 +195,7 @@ brain_walk(edict_t *self)
 	self->monsterinfo.currentmove = &brain_move_walk1;
 }
 
-mframe_t brain_frames_defense[] = {
+static mframe_t brain_frames_defense[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -214,7 +214,7 @@ mmove_t brain_move_defense = {
    	NULL
 };
 
-mframe_t brain_frames_pain3[] = {
+static mframe_t brain_frames_pain3[] = {
 	{ai_move, -2, NULL},
 	{ai_move, 2, NULL},
 	{ai_move, 1, NULL},
@@ -230,7 +230,7 @@ mmove_t brain_move_pain3 = {
    	brain_run
 };
 
-mframe_t brain_frames_pain2[] = {
+static mframe_t brain_frames_pain2[] = {
 	{ai_move, -2, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -248,7 +248,7 @@ mmove_t brain_move_pain2 = {
    	brain_run
 };
 
-mframe_t brain_frames_pain1[] = {
+static mframe_t brain_frames_pain1[] = {
 	{ai_move, -6, NULL},
 	{ai_move, -2, NULL},
 	{ai_move, -6, NULL},
@@ -279,7 +279,7 @@ mmove_t brain_move_pain1 = {
    	brain_run
 };
 
-mframe_t brain_frames_duck[] = {
+static mframe_t brain_frames_duck[] = {
 	{ai_move, 0, NULL},
 	{ai_move, -2, monster_duck_down},
 	{ai_move, 17, monster_duck_hold},
@@ -297,7 +297,7 @@ mmove_t brain_move_duck = {
    	brain_run
 };
 
-mframe_t brain_frames_death2[] = {
+static mframe_t brain_frames_death2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -312,7 +312,7 @@ mmove_t brain_move_death2 = {
    	brain_dead
 };
 
-mframe_t brain_frames_death1[] = {
+static mframe_t brain_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, -2, NULL},
@@ -399,7 +399,7 @@ brain_hit_left(edict_t *self)
 	}
 }
 
-mframe_t brain_frames_attack1[] = {
+static mframe_t brain_frames_attack1[] = {
 	{ai_charge, 8, NULL},
 	{ai_charge, 3, NULL},
 	{ai_charge, 5, NULL},
@@ -477,7 +477,7 @@ brain_chest_closed(edict_t *self)
 	}
 }
 
-mframe_t brain_frames_attack2[] = {
+static mframe_t brain_frames_attack2[] = {
 	{ai_charge, 5, NULL},
 	{ai_charge, -4, NULL},
 	{ai_charge, -4, NULL},
@@ -523,7 +523,7 @@ brain_melee(edict_t *self)
 }
 
 /* RUN */
-mframe_t brain_frames_run[] = {
+static mframe_t brain_frames_run[] = {
 	{ai_run, 9, NULL},
 	{ai_run, 2, NULL},
 	{ai_run, 3, NULL},

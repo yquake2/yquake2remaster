@@ -40,7 +40,7 @@ static int sound_search;
 void
 ChickMoan(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -55,7 +55,7 @@ ChickMoan(edict_t *self)
 	}
 }
 
-mframe_t chick_frames_fidget[] = {
+static mframe_t chick_frames_fidget[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -98,7 +98,7 @@ mmove_t chick_move_fidget = {
 void
 chick_fidget(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -114,7 +114,7 @@ chick_fidget(edict_t *self)
 	}
 }
 
-mframe_t chick_frames_stand[] = {
+static mframe_t chick_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -157,7 +157,7 @@ mmove_t chick_move_stand = {
 void
 chick_stand(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -165,7 +165,7 @@ chick_stand(edict_t *self)
 	self->monsterinfo.currentmove = &chick_move_stand;
 }
 
-mframe_t chick_frames_start_run[] = {
+static mframe_t chick_frames_start_run[] = {
 	{ai_run, 1, NULL},
 	{ai_run, 0, NULL},
 	{ai_run, 0, NULL},
@@ -185,7 +185,7 @@ mmove_t chick_move_start_run = {
    	chick_run
 };
 
-mframe_t chick_frames_run[] = {
+static mframe_t chick_frames_run[] = {
 	{ai_run, 6, NULL},
 	{ai_run, 8, NULL},
 	{ai_run, 13, NULL},
@@ -205,7 +205,7 @@ mmove_t chick_move_run = {
    	NULL
 };
 
-mframe_t chick_frames_walk[] = {
+static mframe_t chick_frames_walk[] = {
 	{ai_walk, 6, NULL},
 	{ai_walk, 8, NULL},
 	{ai_walk, 13, NULL},
@@ -228,7 +228,7 @@ mmove_t chick_move_walk = {
 void
 chick_walk(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -239,7 +239,7 @@ chick_walk(edict_t *self)
 void
 chick_run(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -261,7 +261,7 @@ chick_run(edict_t *self)
 	}
 }
 
-mframe_t chick_frames_pain1[] = {
+static mframe_t chick_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -276,7 +276,7 @@ mmove_t chick_move_pain1 = {
    	chick_run
 };
 
-mframe_t chick_frames_pain2[] = {
+static mframe_t chick_frames_pain2[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -291,7 +291,7 @@ mmove_t chick_move_pain2 = {
    	chick_run
 };
 
-mframe_t chick_frames_pain3[] = {
+static mframe_t chick_frames_pain3[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, -6, NULL},
@@ -328,7 +328,7 @@ chick_pain(edict_t *self, edict_t *other /* unused */,
 {
 	float r;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -382,7 +382,7 @@ chick_pain(edict_t *self, edict_t *other /* unused */,
 void
 chick_dead(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -395,7 +395,7 @@ chick_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t chick_frames_death2[] = {
+static mframe_t chick_frames_death2[] = {
 	{ai_move, -6, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, -1, NULL},
@@ -428,7 +428,7 @@ mmove_t chick_move_death2 = {
    	chick_dead
 };
 
-mframe_t chick_frames_death1[] = {
+static mframe_t chick_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, -7, NULL},
@@ -457,7 +457,7 @@ chick_die(edict_t *self, edict_t *inflictor /* unused */,
 {
 	int n;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -512,7 +512,7 @@ chick_die(edict_t *self, edict_t *inflictor /* unused */,
 void
 chick_duck_down(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -532,7 +532,7 @@ chick_duck_down(edict_t *self)
 void
 chick_duck_hold(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -550,7 +550,7 @@ chick_duck_hold(edict_t *self)
 void
 chick_duck_up(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -561,7 +561,7 @@ chick_duck_up(edict_t *self)
 	gi.linkentity(self);
 }
 
-mframe_t chick_frames_duck[] = {
+static mframe_t chick_frames_duck[] = {
 	{ai_move, 0, chick_duck_down},
 	{ai_move, 1, NULL},
 	{ai_move, 4, chick_duck_hold},
@@ -606,7 +606,7 @@ ChickSlash(edict_t *self)
 {
 	vec3_t aim;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -624,7 +624,7 @@ ChickRocket(edict_t *self)
 	vec3_t dir;
 	vec3_t vec;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -651,7 +651,7 @@ ChickRocket(edict_t *self)
 void
 Chick_PreAttack1(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -662,7 +662,7 @@ Chick_PreAttack1(edict_t *self)
 void
 ChickReload(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -670,7 +670,7 @@ ChickReload(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_missile_reload, 1, ATTN_NORM, 0);
 }
 
-mframe_t chick_frames_start_attack1[] = {
+static mframe_t chick_frames_start_attack1[] = {
 	{ai_charge, 0, Chick_PreAttack1},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -693,7 +693,7 @@ mmove_t chick_move_start_attack1 = {
    	NULL
 };
 
-mframe_t chick_frames_attack1[] = {
+static mframe_t chick_frames_attack1[] = {
 	{ai_charge, 19, ChickRocket},
 	{ai_charge, -6, NULL},
 	{ai_charge, -5, NULL},
@@ -717,7 +717,7 @@ mmove_t chick_move_attack1 = {
    	NULL
 };
 
-mframe_t chick_frames_end_attack1[] = {
+static mframe_t chick_frames_end_attack1[] = {
 	{ai_charge, -3, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, -6, NULL},
@@ -735,7 +735,7 @@ mmove_t chick_move_end_attack1 = {
 void
 chick_rerocket(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -761,7 +761,7 @@ chick_rerocket(edict_t *self)
 void
 chick_attack1(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -769,7 +769,7 @@ chick_attack1(edict_t *self)
 	self->monsterinfo.currentmove = &chick_move_attack1;
 }
 
-mframe_t chick_frames_slash[] = {
+static mframe_t chick_frames_slash[] = {
 	{ai_charge, 1, NULL},
 	{ai_charge, 7, ChickSlash},
 	{ai_charge, -7, NULL},
@@ -788,7 +788,7 @@ mmove_t chick_move_slash = {
    	NULL
 };
 
-mframe_t chick_frames_end_slash[] = {
+static mframe_t chick_frames_end_slash[] = {
 	{ai_charge, -6, NULL},
 	{ai_charge, -1, NULL},
 	{ai_charge, -6, NULL},
@@ -805,7 +805,7 @@ mmove_t chick_move_end_slash = {
 void
 chick_reslash(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -836,7 +836,7 @@ chick_slash(edict_t *self)
 	self->monsterinfo.currentmove = &chick_move_slash;
 }
 
-mframe_t chick_frames_start_slash[] = {
+static mframe_t chick_frames_start_slash[] = {
 	{ai_charge, 1, NULL},
 	{ai_charge, 8, NULL},
 	{ai_charge, 3, NULL}
@@ -852,7 +852,7 @@ mmove_t chick_move_start_slash = {
 void
 chick_melee(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -863,7 +863,7 @@ chick_melee(edict_t *self)
 void
 chick_attack(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -874,7 +874,7 @@ chick_attack(edict_t *self)
 void
 chick_sight(edict_t *self, edict_t *other /* unused */)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -888,7 +888,7 @@ chick_sight(edict_t *self, edict_t *other /* unused */)
 void
 SP_monster_chick(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -950,7 +950,7 @@ SP_monster_chick(edict_t *self)
 void
 SP_monster_chick_heat(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

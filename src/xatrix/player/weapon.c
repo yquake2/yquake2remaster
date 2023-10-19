@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Player weapons.
  *
@@ -25,16 +40,57 @@
 #define GRENADE_MINSPEED 400
 #define GRENADE_MAXSPEED 800
 
+#define CHAINFIST_REACH 64
+
+#define HEATBEAM_DM_DMG 15
+#define HEATBEAM_SP_DMG 15
+
 #define TRAP_TIMER 5.0
 #define TRAP_MINSPEED 300
 #define TRAP_MAXSPEED 700
 
 static qboolean is_quad;
 static qboolean is_quadfire;
+static byte damage_multiplier;
 static byte is_silenced;
 
 void weapon_grenade_fire(edict_t *ent, qboolean held);
 void weapon_trap_fire(edict_t *ent, qboolean held);
+
+byte
+P_DamageModifier(edict_t *ent)
+{
+	is_quad = 0;
+	damage_multiplier = 1;
+
+	if (!ent)
+	{
+		return 0;
+	}
+
+	if (ent->client->quad_framenum > level.framenum)
+	{
+		damage_multiplier *= 4;
+		is_quad = 1;
+
+		/* if we're quad and DF_NO_STACK_DOUBLE is on, return now. */
+		if (((int)(dmflags->value) & DF_NO_STACK_DOUBLE))
+		{
+			return damage_multiplier;
+		}
+	}
+
+	if (ent->client->double_framenum > level.framenum)
+	{
+		if ((deathmatch->value) || (damage_multiplier == 1))
+		{
+			damage_multiplier *= 2;
+			is_quad = 1;
+		}
+	}
+
+	return damage_multiplier;
+}
 
 void
 P_ProjectSource(edict_t *ent, vec3_t distance,
@@ -44,7 +100,7 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 	float     *point  = ent->s.origin;
 	vec3_t     _distance;
 
-  	if (!client)
+	if (!client)
 	{
 		return;
 	}
@@ -61,6 +117,47 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 	}
 
 	G_ProjectSource(point, _distance, forward, right, result);
+
+	// Berserker: fix - now the projectile hits exactly where the scope is pointing.
+	if (aimfix->value)
+	{
+		vec3_t start, end;
+		VectorSet(start, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] + ent->viewheight);
+		VectorMA(start, 8192, forward, end);
+
+		trace_t	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
+		if (tr.fraction < 1)
+		{
+			VectorSubtract(tr.endpos, result, forward);
+			VectorNormalize(forward);
+		}
+	}
+}
+
+void
+P_ProjectSource2(edict_t *ent, vec3_t point, vec3_t distance, vec3_t forward,
+		vec3_t right, vec3_t up, vec3_t result)
+{
+	gclient_t *client = ent->client;
+	vec3_t     _distance;
+
+	if (!client)
+	{
+		return;
+	}
+
+	VectorCopy(distance, _distance);
+
+	if (client->pers.hand == LEFT_HANDED)
+	{
+		_distance[1] *= -1;
+	}
+	else if (client->pers.hand == CENTER_HANDED)
+	{
+		_distance[1] = 0;
+	}
+
+	G_ProjectSource2(point, _distance, forward, right, up, result);
 
 	// Berserker: fix - now the projectile hits exactly where the scope is pointing.
 	if (aimfix->value)
@@ -214,6 +311,19 @@ PlayerNoise(edict_t *who, vec3_t where, int type)
 		return;
 	}
 
+	if (who->flags & FL_DISGUISED)
+	{
+		if (type == PNOISE_WEAPON)
+		{
+			level.disguise_violator = who;
+			level.disguise_violation_framenum = level.framenum + 5;
+		}
+		else
+		{
+			return;
+		}
+	}
+
 	PlayerNoise_Verify(who);
 
 	if ((type == PNOISE_SELF) || (type == PNOISE_WEAPON))
@@ -330,15 +440,15 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 }
 
 /*
- * The old weapon has been dropped all the
- * way, so make the new one current
+ * The old weapon has been dropped all
+ * the way, so make the new one current
  */
 void
 ChangeWeapon(edict_t *ent)
 {
 	int i;
 
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}
@@ -468,7 +578,7 @@ NoAmmoWeaponChange(edict_t *ent)
 void
 Think_Weapon(edict_t *ent)
 {
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}
@@ -683,7 +793,8 @@ Drop_Weapon(edict_t *ent, gitem_t *item)
 }
 
 /*
- * A generic function to handle the basics of weapon thinking
+ * A generic function to handle
+ * the basics of weapon thinking
  */
 void
 Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
@@ -849,6 +960,10 @@ Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	}
 }
 
+/* ====================================================================== */
+
+/* GRENADE */
+
 void
 weapon_grenade_fire(edict_t *ent, qboolean held)
 {
@@ -860,7 +975,7 @@ weapon_grenade_fire(edict_t *ent, qboolean held)
 	int speed;
 	float radius;
 
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}
@@ -918,7 +1033,7 @@ weapon_grenade_fire(edict_t *ent, qboolean held)
 void
 Weapon_Grenade(edict_t *ent)
 {
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}
@@ -969,7 +1084,7 @@ Weapon_Grenade(edict_t *ent)
 			(ent->client->ps.gunframe == 39) ||
 			(ent->client->ps.gunframe == 48))
 		{
-			if (rand() & 15)
+			if (randk() & 15)
 			{
 				return;
 			}
@@ -1049,6 +1164,8 @@ Weapon_Grenade(edict_t *ent)
 	}
 }
 
+/* ====================================================================== */
+
 /* GRENADE LAUNCHER */
 
 void
@@ -1060,7 +1177,7 @@ weapon_grenadelauncher_fire(edict_t *ent)
 	int damage = 120;
 	float radius;
 
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}
@@ -1112,6 +1229,8 @@ Weapon_GrenadeLauncher(edict_t *ent)
 	}
 }
 
+/* ====================================================================== */
+
 /* ROCKET */
 
 void
@@ -1123,7 +1242,7 @@ Weapon_RocketLauncher_Fire(edict_t *ent)
 	float damage_radius;
 	int radius_damage;
 
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}
@@ -2033,7 +2152,7 @@ weapon_ionripper_fire(edict_t *ent)
 	vec3_t tempang;
 	int damage;
 
-  	if (!ent)
+	if (!ent)
 	{
 		return;
 	}

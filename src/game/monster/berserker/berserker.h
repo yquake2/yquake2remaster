@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -269,4 +270,13 @@
 #define FRAME_deathc7 242
 #define FRAME_deathc8 243
 
+#define FRAME_jump1				244
+#define FRAME_jump2				245
+#define FRAME_jump3				246
+#define FRAME_jump4				247
+#define FRAME_jump5				248
+#define FRAME_jump6				249
+#define FRAME_jump7				250
+#define FRAME_jump8				251
+#define FRAME_jump9				252
 #define MODEL_SCALE 1.000000

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,10 +40,57 @@
 #define GRENADE_MINSPEED 400
 #define GRENADE_MAXSPEED 800
 
+#define CHAINFIST_REACH 64
+
+#define HEATBEAM_DM_DMG 15
+#define HEATBEAM_SP_DMG 15
+
+#define TRAP_TIMER 5.0
+#define TRAP_MINSPEED 300
+#define TRAP_MAXSPEED 700
+
 static qboolean is_quad;
+static qboolean is_quadfire;
+static byte damage_multiplier;
 static byte is_silenced;
 
 void weapon_grenade_fire(edict_t *ent, qboolean held);
+void weapon_trap_fire(edict_t *ent, qboolean held);
+
+byte
+P_DamageModifier(edict_t *ent)
+{
+	is_quad = 0;
+	damage_multiplier = 1;
+
+	if (!ent)
+	{
+		return 0;
+	}
+
+	if (ent->client->quad_framenum > level.framenum)
+	{
+		damage_multiplier *= 4;
+		is_quad = 1;
+
+		/* if we're quad and DF_NO_STACK_DOUBLE is on, return now. */
+		if (((int)(dmflags->value) & DF_NO_STACK_DOUBLE))
+		{
+			return damage_multiplier;
+		}
+	}
+
+	if (ent->client->double_framenum > level.framenum)
+	{
+		if ((deathmatch->value) || (damage_multiplier == 1))
+		{
+			damage_multiplier *= 2;
+			is_quad = 1;
+		}
+	}
+
+	return damage_multiplier;
+}
 
 void
 P_ProjectSource(edict_t *ent, vec3_t distance,
@@ -69,6 +117,47 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 	}
 
 	G_ProjectSource(point, _distance, forward, right, result);
+
+	// Berserker: fix - now the projectile hits exactly where the scope is pointing.
+	if (aimfix->value)
+	{
+		vec3_t start, end;
+		VectorSet(start, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] + ent->viewheight);
+		VectorMA(start, 8192, forward, end);
+
+		trace_t	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
+		if (tr.fraction < 1)
+		{
+			VectorSubtract(tr.endpos, result, forward);
+			VectorNormalize(forward);
+		}
+	}
+}
+
+void
+P_ProjectSource2(edict_t *ent, vec3_t point, vec3_t distance, vec3_t forward,
+		vec3_t right, vec3_t up, vec3_t result)
+{
+	gclient_t *client = ent->client;
+	vec3_t     _distance;
+
+	if (!client)
+	{
+		return;
+	}
+
+	VectorCopy(distance, _distance);
+
+	if (client->pers.hand == LEFT_HANDED)
+	{
+		_distance[1] *= -1;
+	}
+	else if (client->pers.hand == CENTER_HANDED)
+	{
+		_distance[1] = 0;
+	}
+
+	G_ProjectSource2(point, _distance, forward, right, up, result);
 
 	// Berserker: fix - now the projectile hits exactly where the scope is pointing.
 	if (aimfix->value)
@@ -222,6 +311,19 @@ PlayerNoise(edict_t *who, vec3_t where, int type)
 		return;
 	}
 
+	if (who->flags & FL_DISGUISED)
+	{
+		if (type == PNOISE_WEAPON)
+		{
+			level.disguise_violator = who;
+			level.disguise_violation_framenum = level.framenum + 5;
+		}
+		else
+		{
+			return;
+		}
+	}
+
 	PlayerNoise_Verify(who);
 
 	if ((type == PNOISE_SELF) || (type == PNOISE_WEAPON))
@@ -294,7 +396,9 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 		/* give them some ammo with it */
 		ammo = FindItem(ent->item->ammo);
 
-		if ((int)dmflags->value & DF_INFINITE_AMMO)
+		/* Don't get infinite ammo with trap */
+		if (((int)dmflags->value & DF_INFINITE_AMMO) &&
+			Q_stricmp(ent->item->pickup_name, "ammo_trap"))
 		{
 			Add_Ammo(other, ammo, 1000);
 		}
@@ -423,6 +527,13 @@ NoAmmoWeaponChange(edict_t *ent)
 		return;
 	}
 
+	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("cells"))] > 1 &&
+		ent->client->pers.inventory[ITEM_INDEX(FindItem("ionripper"))])
+	{
+		ent->client->newweapon = FindItem("ionripper");
+		return;
+	}
+
 	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("cells"))] &&
 		ent->client->pers.inventory[ITEM_INDEX(FindItem("hyperblaster"))])
 	{
@@ -483,6 +594,7 @@ Think_Weapon(edict_t *ent)
 	if (ent->client->pers.weapon && ent->client->pers.weapon->weaponthink)
 	{
 		is_quad = (ent->client->quad_framenum > level.framenum);
+		is_quadfire = (ent->client->quadfire_framenum > level.framenum);
 
 		if (ent->client->silencer_shots)
 		{
@@ -1925,4 +2037,514 @@ Weapon_BFG(edict_t *ent)
 
 	Weapon_Generic(ent, 8, 32, 55, 58, pause_frames,
 			fire_frames, weapon_bfg_fire);
+
+	if (is_quadfire)
+	{
+		Weapon_Generic(ent, 8, 32, 55, 58, pause_frames,
+				fire_frames, weapon_bfg_fire);
+	}
+}
+
+/* CHAINFIST */
+
+void
+weapon_chainfist_fire(edict_t *ent)
+{
+	vec3_t offset;
+	vec3_t forward, right, up;
+	vec3_t start;
+	int damage;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	damage = 15;
+
+	if (deathmatch->value)
+	{
+		damage = 30;
+	}
+
+	if (is_quad)
+	{
+		damage *= damage_multiplier;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, up);
+
+	/* kick back */
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+
+	/* set start point */
+	VectorSet(offset, 0, 8, ent->viewheight - 4);
+	P_ProjectSource(ent, offset, forward, right, start);
+
+	fire_player_melee(ent, start, forward, CHAINFIST_REACH, damage,
+			100, 1, MOD_CHAINFIST);
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	ent->client->ps.gunframe++;
+	ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+}
+
+/*
+ * this spits out some smoke from the motor. it's a two-stroke, you know.
+ */
+void
+chainfist_smoke(edict_t *ent)
+{
+	vec3_t tempVec, forward, right, up;
+	vec3_t offset;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, up);
+	VectorSet(offset, 8, 8, ent->viewheight - 4);
+	P_ProjectSource(ent, offset, forward, right, tempVec);
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_CHAINFIST_SMOKE);
+	gi.WritePosition(tempVec);
+	gi.unicast(ent, 0);
+}
+
+void
+Weapon_ChainFist(edict_t *ent)
+{
+	static int pause_frames[] = {0};
+	static int fire_frames[] = {8, 9, 16, 17, 18, 30, 31, 0};
+
+	/* these are caches for the sound index. there's probably a better way to do this. */
+	float chance;
+	int last_sequence;
+
+	last_sequence = 0;
+
+	if ((ent->client->ps.gunframe == 13) ||
+		(ent->client->ps.gunframe == 23)) /* end of attack, go idle */
+	{
+		ent->client->ps.gunframe = 32;
+	}
+
+	/* holds for idle sequence */
+	else if ((ent->client->ps.gunframe == 42) && (rand() & 7))
+	{
+		if ((ent->client->pers.hand != CENTER_HANDED) && (random() < 0.4))
+		{
+			chainfist_smoke(ent);
+		}
+	}
+	else if ((ent->client->ps.gunframe == 51) && (rand() & 7))
+	{
+		if ((ent->client->pers.hand != CENTER_HANDED) && (random() < 0.4))
+		{
+			chainfist_smoke(ent);
+		}
+	}
+
+	/* set the appropriate weapon sound. */
+	if (ent->client->weaponstate == WEAPON_FIRING)
+	{
+		ent->client->weapon_sound = gi.soundindex("weapons/sawhit.wav");
+	}
+	else if (ent->client->weaponstate == WEAPON_DROPPING)
+	{
+		ent->client->weapon_sound = 0;
+	}
+	else
+	{
+		ent->client->weapon_sound = gi.soundindex("weapons/sawidle.wav");
+	}
+
+	Weapon_Generic(ent, 4, 32, 57, 60, pause_frames,
+			fire_frames, weapon_chainfist_fire);
+
+	if ((ent->client->buttons) & BUTTON_ATTACK)
+	{
+		if ((ent->client->ps.gunframe == 13) ||
+			(ent->client->ps.gunframe == 23) ||
+			(ent->client->ps.gunframe == 32))
+		{
+			last_sequence = ent->client->ps.gunframe;
+			ent->client->ps.gunframe = 6;
+		}
+	}
+
+	if (ent->client->ps.gunframe == 6)
+	{
+		chance = random();
+
+		if (last_sequence == 13) /* if we just did sequence 1, do 2 or 3. */
+		{
+			chance -= 0.34;
+		}
+		else if (last_sequence == 23) /* if we just did sequence 2, do 1 or 3 */
+		{
+			chance += 0.33;
+		}
+		else if (last_sequence == 32) /* if we just did sequence 3, do 1 or 2 */
+		{
+			if (chance >= 0.33)
+			{
+				chance += 0.34;
+			}
+		}
+
+		if (chance < 0.33)
+		{
+			ent->client->ps.gunframe = 14;
+		}
+		else if (chance < 0.66)
+		{
+			ent->client->ps.gunframe = 24;
+		}
+	}
+}
+
+/* Disintegrator */
+
+void
+weapon_tracker_fire(edict_t *self)
+{
+	vec3_t forward, right;
+	vec3_t start;
+	vec3_t end;
+	vec3_t offset;
+	edict_t *enemy;
+	trace_t tr;
+	int damage;
+	vec3_t mins, maxs;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		damage = 30;
+	}
+	else
+	{
+		damage = 45;
+	}
+
+	if (is_quad)
+	{
+		damage *= damage_multiplier;
+	}
+
+	VectorSet(mins, -16, -16, -16);
+	VectorSet(maxs, 16, 16, 16);
+	AngleVectors(self->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 24, 8, self->viewheight - 8);
+	P_ProjectSource(self, offset, forward, right, start);
+
+	VectorMA(start, 8192, forward, end);
+	enemy = NULL;
+	tr = gi.trace(start, vec3_origin, vec3_origin, end, self, MASK_SHOT);
+
+	if (tr.ent != world)
+	{
+		if (tr.ent->svflags & SVF_MONSTER || tr.ent->client || tr.ent->svflags & SVF_DAMAGEABLE)
+		{
+			if (tr.ent->health > 0)
+			{
+				enemy = tr.ent;
+			}
+		}
+	}
+	else
+	{
+		tr = gi.trace(start, mins, maxs, end, self, MASK_SHOT);
+
+		if (tr.ent != world)
+		{
+			if (tr.ent->svflags & SVF_MONSTER || tr.ent->client ||
+				tr.ent->svflags & SVF_DAMAGEABLE)
+			{
+				if (tr.ent->health > 0)
+				{
+					enemy = tr.ent;
+				}
+			}
+		}
+	}
+
+	VectorScale(forward, -2, self->client->kick_origin);
+	self->client->kick_angles[0] = -1;
+
+	fire_tracker(self, start, forward, damage, 1000, enemy);
+
+	/* send muzzle flash */
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(self - g_edicts);
+	gi.WriteByte(MZ_TRACKER);
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
+	PlayerNoise(self, start, PNOISE_WEAPON);
+
+	self->client->ps.gunframe++;
+	self->client->pers.inventory[self->client->ammo_index] -= self->client->pers.weapon->quantity;
+}
+
+void
+Weapon_Disintegrator(edict_t *ent)
+{
+	static int pause_frames[] = {14, 19, 23, 0};
+	static int fire_frames[] = {5, 0};
+
+	Weapon_Generic(ent, 4, 9, 29, 34, pause_frames,
+			fire_frames, weapon_tracker_fire);
+}
+
+/*
+ * ======================================================================
+ *
+ * ETF RIFLE
+ *
+ * ======================================================================
+ */
+void
+weapon_etf_rifle_fire(edict_t *ent)
+{
+	vec3_t forward, right, up;
+	vec3_t start, tempPt;
+	int damage = 10;
+	int kick = 3;
+	int i;
+	vec3_t offset;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	if (ent->client->pers.inventory[ent->client->ammo_index] < ent->client->pers.weapon->quantity)
+	{
+		VectorClear(ent->client->kick_origin);
+		VectorClear(ent->client->kick_angles);
+		ent->client->ps.gunframe = 8;
+
+		if (level.time >= ent->pain_debounce_time)
+		{
+			gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1;
+		}
+
+		NoAmmoWeaponChange(ent);
+		return;
+	}
+
+	if (is_quad)
+	{
+		damage *= damage_multiplier;
+		kick *= damage_multiplier;
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		ent->client->kick_origin[i] = crandom() * 0.85;
+		ent->client->kick_angles[i] = crandom() * 0.85;
+	}
+
+	/* get start / end positions */
+	AngleVectors(ent->client->v_angle, forward, right, up);
+
+	if (ent->client->ps.gunframe == 6) /* right barrel */
+	{
+		VectorSet(offset, 15, 8, -8);
+	}
+	else /* left barrel */
+	{
+		VectorSet(offset, 15, 6, -8);
+	}
+
+	VectorCopy(ent->s.origin, tempPt);
+	tempPt[2] += ent->viewheight;
+	P_ProjectSource2(ent, tempPt, offset, forward, right, up, start);
+	fire_flechette(ent, start, forward, damage, 750, kick);
+
+	/* send muzzle flash */
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_ETF_RIFLE);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	ent->client->ps.gunframe++;
+
+	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+	{
+		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+	}
+
+	ent->client->anim_priority = ANIM_ATTACK;
+
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+	{
+		ent->s.frame = FRAME_crattak1 - 1;
+		ent->client->anim_end = FRAME_crattak9;
+	}
+	else
+	{
+		ent->s.frame = FRAME_attack1 - 1;
+		ent->client->anim_end = FRAME_attack8;
+	}
+}
+
+void
+Weapon_ETF_Rifle(edict_t *ent)
+{
+	static int pause_frames[] = {18, 28, 0};
+	static int fire_frames[] = {6, 7, 0};
+
+	if (!ent)
+	{
+		return;
+	}
+
+	if (ent->client->weaponstate == WEAPON_FIRING)
+	{
+		if (ent->client->pers.inventory[ent->client->ammo_index] <= 0)
+		{
+			ent->client->ps.gunframe = 8;
+		}
+	}
+
+	Weapon_Generic(ent, 4, 7, 37, 41, pause_frames,
+			fire_frames, weapon_etf_rifle_fire);
+
+	if ((ent->client->ps.gunframe == 8) &&
+		(ent->client->buttons & BUTTON_ATTACK))
+	{
+		ent->client->ps.gunframe = 6;
+	}
+}
+
+void
+Heatbeam_Fire(edict_t *ent)
+{
+	vec3_t start;
+	vec3_t forward, right, up;
+	vec3_t offset;
+	int damage;
+	int kick;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		damage = HEATBEAM_DM_DMG;
+		kick = 75;	/* really knock 'em around in deathmatch */
+	}
+	else
+	{
+		damage = HEATBEAM_SP_DMG;
+		kick = 30;
+	}
+
+	ent->client->ps.gunframe++;
+	ent->client->ps.gunindex = gi.modelindex("models/weapons/v_beamer2/tris.md2");
+
+	if (is_quad)
+	{
+		damage *= damage_multiplier;
+		kick *= damage_multiplier;
+	}
+
+	VectorClear(ent->client->kick_origin);
+	VectorClear(ent->client->kick_angles);
+
+	/* get start / end positions */
+	AngleVectors(ent->client->v_angle, forward, right, up);
+
+	/* This offset is the "view" offset for the beam start (used by trace) */
+	VectorSet(offset, 7, 2, ent->viewheight - 3);
+	P_ProjectSource(ent, offset, forward, right, start);
+
+	/* This offset is the entity offset */
+	VectorSet(offset, 2, 7, -3);
+
+	fire_heatbeam(ent, start, forward, offset, damage, kick, false);
+
+	/* send muzzle flash */
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_HEATBEAM | is_silenced);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+	{
+		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+	}
+
+	ent->client->anim_priority = ANIM_ATTACK;
+
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+	{
+		ent->s.frame = FRAME_crattak1 - 1;
+		ent->client->anim_end = FRAME_crattak9;
+	}
+	else
+	{
+		ent->s.frame = FRAME_attack1 - 1;
+		ent->client->anim_end = FRAME_attack8;
+	}
+}
+
+void
+Weapon_Heatbeam(edict_t *ent)
+{
+	static int pause_frames[] = {35, 0};
+	static int fire_frames[] = {9, 10, 11, 12, 0};
+
+	if (!ent)
+	{
+		return;
+	}
+
+	if (ent->client->weaponstate == WEAPON_FIRING)
+	{
+		ent->client->weapon_sound = gi.soundindex("weapons/bfg__l1a.wav");
+
+		if ((ent->client->pers.inventory[ent->client->ammo_index] >= 2) &&
+			((ent->client->buttons) & BUTTON_ATTACK))
+		{
+			if (ent->client->ps.gunframe >= 13)
+			{
+				ent->client->ps.gunframe = 9;
+				ent->client->ps.gunindex = gi.modelindex("models/weapons/v_beamer2/tris.md2");
+			}
+			else
+			{
+				ent->client->ps.gunindex = gi.modelindex("models/weapons/v_beamer2/tris.md2");
+			}
+		}
+		else
+		{
+			ent->client->ps.gunframe = 13;
+			ent->client->ps.gunindex = gi.modelindex("models/weapons/v_beamer/tris.md2");
+		}
+	}
+	else
+	{
+		ent->client->ps.gunindex = gi.modelindex("models/weapons/v_beamer/tris.md2");
+		ent->client->weapon_sound = 0;
+	}
+
+	Weapon_Generic(ent, 8, 12, 39, 44, pause_frames, fire_frames, Heatbeam_Fire);
 }
