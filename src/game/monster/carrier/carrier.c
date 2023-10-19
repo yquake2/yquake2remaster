@@ -657,9 +657,9 @@ static mframe_t carrier_frames_stand[] = {
 
 mmove_t carrier_move_stand = {
 	FRAME_search01,
-   	FRAME_search13,
-   	carrier_frames_stand,
-   	NULL
+	FRAME_search13,
+	carrier_frames_stand,
+	NULL
 };
 
 static mframe_t carrier_frames_walk[] = {
@@ -680,9 +680,9 @@ static mframe_t carrier_frames_walk[] = {
 
 mmove_t carrier_move_walk = {
 	FRAME_search01,
-   	FRAME_search13,
-   	carrier_frames_walk,
-   	NULL
+	FRAME_search13,
+	carrier_frames_walk,
+	NULL
 };
 
 static mframe_t carrier_frames_run[] = {
@@ -703,9 +703,9 @@ static mframe_t carrier_frames_run[] = {
 
 mmove_t carrier_move_run = {
 	FRAME_search01,
-   	FRAME_search13,
-   	carrier_frames_run,
-   	NULL
+	FRAME_search13,
+	carrier_frames_run,
+	NULL
 };
 
 static mframe_t carrier_frames_attack_pre_mg[] = {
@@ -721,9 +721,9 @@ static mframe_t carrier_frames_attack_pre_mg[] = {
 
 mmove_t carrier_move_attack_pre_mg = {
 	FRAME_firea01,
-   	FRAME_firea08,
-   	carrier_frames_attack_pre_mg,
-   	NULL
+	FRAME_firea08,
+	carrier_frames_attack_pre_mg,
+	NULL
 };
 
 /* Loop this */
@@ -735,9 +735,9 @@ static mframe_t carrier_frames_attack_mg[] = {
 
 mmove_t carrier_move_attack_mg = {
 	FRAME_firea09,
-   	FRAME_firea11,
-   	carrier_frames_attack_mg,
-   	NULL
+	FRAME_firea11,
+	carrier_frames_attack_mg,
+	NULL
 };
 
 static mframe_t carrier_frames_attack_post_mg[] = {
@@ -749,9 +749,9 @@ static mframe_t carrier_frames_attack_post_mg[] = {
 
 mmove_t carrier_move_attack_post_mg = {
 	FRAME_firea12,
-   	FRAME_firea15,
-   	carrier_frames_attack_post_mg,
-   	carrier_run
+	FRAME_firea15,
+	carrier_frames_attack_post_mg,
+	carrier_run
 };
 
 static mframe_t carrier_frames_attack_pre_gren[] = {
@@ -765,9 +765,9 @@ static mframe_t carrier_frames_attack_pre_gren[] = {
 
 mmove_t carrier_move_attack_pre_gren = {
 	FRAME_fireb01,
-   	FRAME_fireb06,
-   	carrier_frames_attack_pre_gren,
-   	NULL
+	FRAME_fireb06,
+	carrier_frames_attack_pre_gren,
+	NULL
 };
 
 static mframe_t carrier_frames_attack_gren[] = {
@@ -779,9 +779,9 @@ static mframe_t carrier_frames_attack_gren[] = {
 
 mmove_t carrier_move_attack_gren = {
 	FRAME_fireb07,
-   	FRAME_fireb10,
-   	carrier_frames_attack_gren,
-   	NULL
+	FRAME_fireb10,
+	carrier_frames_attack_gren,
+	NULL
 };
 
 static mframe_t carrier_frames_attack_post_gren[] = {
@@ -795,9 +795,9 @@ static mframe_t carrier_frames_attack_post_gren[] = {
 
 mmove_t carrier_move_attack_post_gren = {
 	FRAME_fireb11,
-   	FRAME_fireb16,
-   	carrier_frames_attack_post_gren,
-   	carrier_run
+	FRAME_fireb16,
+	carrier_frames_attack_post_gren,
+	carrier_run
 };
 
 static mframe_t carrier_frames_attack_rocket[] = {
@@ -806,9 +806,9 @@ static mframe_t carrier_frames_attack_rocket[] = {
 
 mmove_t carrier_move_attack_rocket = {
 	FRAME_fireb01,
-   	FRAME_fireb01,
-   	carrier_frames_attack_rocket,
-   	carrier_run
+	FRAME_fireb01,
+	carrier_frames_attack_rocket,
+	carrier_run
 };
 
 void
@@ -863,9 +863,9 @@ static mframe_t carrier_frames_attack_rail[] = {
 
 mmove_t carrier_move_attack_rail = {
 	FRAME_search01,
-   	FRAME_search09,
-   	carrier_frames_attack_rail,
-   	carrier_run
+	FRAME_search09,
+	carrier_frames_attack_rail,
+	carrier_run
 };
 
 static mframe_t carrier_frames_spawn[] = {
@@ -891,9 +891,9 @@ static mframe_t carrier_frames_spawn[] = {
 
 mmove_t carrier_move_spawn = {
 	FRAME_spawn01,
-   	FRAME_spawn18,
-   	carrier_frames_spawn,
-   	NULL
+	FRAME_spawn18,
+	carrier_frames_spawn,
+	NULL
 };
 
 static mframe_t carrier_frames_pain_heavy[] = {
@@ -911,9 +911,9 @@ static mframe_t carrier_frames_pain_heavy[] = {
 
 mmove_t carrier_move_pain_heavy = {
 	FRAME_death01,
-   	FRAME_death10,
-   	carrier_frames_pain_heavy,
-   	carrier_run
+	FRAME_death10,
+	carrier_frames_pain_heavy,
+	carrier_run
 };
 
 static mframe_t carrier_frames_pain_light[] = {
@@ -925,9 +925,9 @@ static mframe_t carrier_frames_pain_light[] = {
 
 mmove_t carrier_move_pain_light = {
 	FRAME_spawn01,
-   	FRAME_spawn04,
-   	carrier_frames_pain_light,
-   	carrier_run
+	FRAME_spawn04,
+	carrier_frames_pain_light,
+	carrier_run
 };
 
 static mframe_t carrier_frames_death[] = {
@@ -951,9 +951,9 @@ static mframe_t carrier_frames_death[] = {
 
 mmove_t carrier_move_death = {
 	FRAME_death01,
-   	FRAME_death16,
-   	carrier_frames_death,
-   	carrier_dead
+	FRAME_death16,
+	carrier_frames_death,
+	carrier_dead
 };
 
 void

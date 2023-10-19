@@ -289,9 +289,9 @@ static mframe_t medic_frames_stand[] = {
 mmove_t medic_move_stand =
 {
 	FRAME_wait1,
-   	FRAME_wait90,
-   	medic_frames_stand,
-   	NULL
+	FRAME_wait90,
+	medic_frames_stand,
+	NULL
 };
 
 void
@@ -323,9 +323,9 @@ static mframe_t medic_frames_walk[] = {
 mmove_t medic_move_walk =
 {
 	FRAME_walk1,
-   	FRAME_walk12,
-   	medic_frames_walk,
-   	NULL
+	FRAME_walk12,
+	medic_frames_walk,
+	NULL
 };
 
 void
@@ -353,7 +353,7 @@ mmove_t medic_move_run =
 	FRAME_run1,
 	FRAME_run6,
 	medic_frames_run,
-   	NULL
+	NULL
 };
 
 void
@@ -406,8 +406,8 @@ mmove_t medic_move_pain1 =
 {
 	FRAME_paina1,
 	FRAME_paina8,
-   	medic_frames_pain1,
-   	medic_run
+	medic_frames_pain1,
+	medic_run
 };
 
 static mframe_t medic_frames_pain2[] = {
@@ -431,9 +431,9 @@ static mframe_t medic_frames_pain2[] = {
 mmove_t medic_move_pain2 =
 {
 	FRAME_painb1,
-   	FRAME_painb15,
-   	medic_frames_pain2,
-   	medic_run
+	FRAME_painb15,
+	medic_frames_pain2,
+	medic_run
 };
 
 void
@@ -567,9 +567,9 @@ static mframe_t medic_frames_death[] = {
 mmove_t medic_move_death =
 {
 	FRAME_death1,
-   	FRAME_death30,
-   	medic_frames_death,
-   	medic_dead
+	FRAME_death30,
+	medic_frames_death,
+	medic_dead
 };
 
 void
@@ -700,9 +700,9 @@ static mframe_t medic_frames_duck[] = {
 mmove_t medic_move_duck =
 {
 	FRAME_duck1,
-   	FRAME_duck16,
-   	medic_frames_duck,
-   	medic_run
+	FRAME_duck16,
+	medic_frames_duck,
+	medic_run
 };
 
 void
@@ -750,9 +750,9 @@ static mframe_t medic_frames_attackHyperBlaster[] = {
 mmove_t medic_move_attackHyperBlaster =
 {
 	FRAME_attack15,
-   	FRAME_attack30,
-   	medic_frames_attackHyperBlaster,
-   	medic_run
+	FRAME_attack30,
+	medic_frames_attackHyperBlaster,
+	medic_run
 };
 
 void
@@ -966,9 +966,9 @@ static mframe_t medic_frames_attackCable[] = {
 mmove_t medic_move_attackCable =
 {
 	FRAME_attack33,
-   	FRAME_attack60,
-   	medic_frames_attackCable,
-   	medic_run
+	FRAME_attack60,
+	medic_frames_attackCable,
+	medic_run
 };
 
 void

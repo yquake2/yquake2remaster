@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * boss 5, only found in xatrix
  *
@@ -123,9 +138,9 @@ static mframe_t boss5_frames_stand[] = {
 
 mmove_t boss5_move_stand = {
 	FRAME_stand_1,
-   	FRAME_stand_60,
-   	boss5_frames_stand,
-   	NULL
+	FRAME_stand_60,
+	boss5_frames_stand,
+	NULL
 };
 
 void
@@ -162,9 +177,9 @@ static mframe_t boss5_frames_run[] = {
 
 mmove_t boss5_move_run = {
 	FRAME_forwrd_1,
-   	FRAME_forwrd_18,
-   	boss5_frames_run,
-   	NULL
+	FRAME_forwrd_18,
+	boss5_frames_run,
+	NULL
 };
 
 /* walk */
@@ -191,9 +206,9 @@ static mframe_t boss5_frames_forward[] = {
 
 mmove_t boss5_move_forward = {
 	FRAME_forwrd_1,
-   	FRAME_forwrd_18,
-   	boss5_frames_forward,
-   	NULL
+	FRAME_forwrd_18,
+	boss5_frames_forward,
+	NULL
 };
 
 void
@@ -259,9 +274,9 @@ static mframe_t boss5_frames_turn_right[] = {
 
 mmove_t boss5_move_turn_right = {
 	FRAME_right_1,
-   	FRAME_right_18,
-   	boss5_frames_turn_right,
-   	boss5_run
+	FRAME_right_18,
+	boss5_frames_turn_right,
+	boss5_run
 };
 
 static mframe_t boss5_frames_turn_left[] = {
@@ -287,9 +302,9 @@ static mframe_t boss5_frames_turn_left[] = {
 
 mmove_t boss5_move_turn_left = {
 	FRAME_left_1,
-   	FRAME_left_18,
-   	boss5_frames_turn_left,
-   	boss5_run
+	FRAME_left_18,
+	boss5_frames_turn_left,
+	boss5_run
 };
 
 static mframe_t boss5_frames_pain3[] = {
@@ -301,9 +316,9 @@ static mframe_t boss5_frames_pain3[] = {
 
 mmove_t boss5_move_pain3 = {
 	FRAME_pain3_9,
-   	FRAME_pain3_12,
-   	boss5_frames_pain3,
-   	boss5_run
+	FRAME_pain3_12,
+	boss5_frames_pain3,
+	boss5_run
 };
 
 static mframe_t boss5_frames_pain2[] = {
@@ -315,9 +330,9 @@ static mframe_t boss5_frames_pain2[] = {
 
 mmove_t boss5_move_pain2 = {
 	FRAME_pain2_5,
-   	FRAME_pain2_8,
-   	boss5_frames_pain2,
-   	boss5_run
+	FRAME_pain2_8,
+	boss5_frames_pain2,
+	boss5_run
 };
 
 static mframe_t boss5_frames_pain1[] = {
@@ -329,9 +344,9 @@ static mframe_t boss5_frames_pain1[] = {
 
 mmove_t boss5_move_pain1 = {
 	FRAME_pain1_1,
-   	FRAME_pain1_4,
-   	boss5_frames_pain1,
-   	boss5_run
+	FRAME_pain1_4,
+	boss5_frames_pain1,
+	boss5_run
 };
 
 static mframe_t boss5_frames_death1[] = {
@@ -363,9 +378,9 @@ static mframe_t boss5_frames_death1[] = {
 
 mmove_t boss5_move_death = {
 	FRAME_death_1,
-   	FRAME_death_24,
-   	boss5_frames_death1,
-   	boss5_dead
+	FRAME_death_24,
+	boss5_frames_death1,
+	boss5_dead
 };
 
 static mframe_t boss5_frames_backward[] = {
@@ -391,9 +406,9 @@ static mframe_t boss5_frames_backward[] = {
 
 mmove_t boss5_move_backward = {
 	FRAME_backwd_1,
-   	FRAME_backwd_18,
-   	boss5_frames_backward,
-   	NULL
+	FRAME_backwd_18,
+	boss5_frames_backward,
+	NULL
 };
 
 static mframe_t boss5_frames_attack4[] = {
@@ -407,9 +422,9 @@ static mframe_t boss5_frames_attack4[] = {
 
 mmove_t boss5_move_attack4 = {
 	FRAME_attak4_1,
-   	FRAME_attak4_6,
-   	boss5_frames_attack4,
-   	boss5_run
+	FRAME_attak4_6,
+	boss5_frames_attack4,
+	boss5_run
 };
 
 static mframe_t boss5_frames_attack3[] = {
@@ -444,9 +459,9 @@ static mframe_t boss5_frames_attack3[] = {
 
 mmove_t boss5_move_attack3 = {
 	FRAME_attak3_1,
-   	FRAME_attak3_27,
-   	boss5_frames_attack3,
-   	boss5_run
+	FRAME_attak3_27,
+	boss5_frames_attack3,
+	boss5_run
 };
 
 static mframe_t boss5_frames_attack2[] = {
@@ -481,9 +496,9 @@ static mframe_t boss5_frames_attack2[] = {
 
 mmove_t boss5_move_attack2 = {
 	FRAME_attak2_1,
-   	FRAME_attak2_27,
-   	boss5_frames_attack2,
-   	boss5_run
+	FRAME_attak2_27,
+	boss5_frames_attack2,
+	boss5_run
 };
 
 static mframe_t boss5_frames_attack1[] = {
@@ -497,9 +512,9 @@ static mframe_t boss5_frames_attack1[] = {
 
 mmove_t boss5_move_attack1 = {
 	FRAME_attak1_1,
-   	FRAME_attak1_6,
-   	boss5_frames_attack1,
-   	boss5_reattack1
+	FRAME_attak1_6,
+	boss5_frames_attack1,
+	boss5_reattack1
 };
 
 static mframe_t boss5_frames_end_attack1[] = {
@@ -521,9 +536,9 @@ static mframe_t boss5_frames_end_attack1[] = {
 
 mmove_t boss5_move_end_attack1 = {
 	FRAME_attak1_7,
-   	FRAME_attak1_20,
-   	boss5_frames_end_attack1,
-   	boss5_run
+	FRAME_attak1_20,
+	boss5_frames_end_attack1,
+	boss5_run
 };
 
 void

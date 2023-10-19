@@ -156,9 +156,9 @@ static mframe_t floater_frames_stand1[] = {
 mmove_t floater_move_stand1 =
 {
 	FRAME_stand101,
-   	FRAME_stand152,
-   	floater_frames_stand1,
-   	NULL
+	FRAME_stand152,
+	floater_frames_stand1,
+	NULL
 };
 
 static mframe_t floater_frames_stand2[] = {
@@ -304,7 +304,7 @@ mmove_t floater_move_attack1 =
 {
 	FRAME_attak101,
 	FRAME_attak114,
-   	floater_frames_attack1,
+	floater_frames_attack1,
 	floater_run
 };
 
@@ -384,9 +384,9 @@ static mframe_t floater_frames_attack3[] = {
 mmove_t floater_move_attack3 =
 {
 	FRAME_attak301,
-   	FRAME_attak334,
-   	floater_frames_attack3,
-   	floater_run};
+	FRAME_attak334,
+	floater_frames_attack3,
+	floater_run};
 
 static mframe_t floater_frames_death[] = {
 	{ai_move, 0, NULL},

@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Tank and Tank Commander.
  *
@@ -118,9 +133,9 @@ static mframe_t tank_frames_stand[] = {
 
 mmove_t tank_move_stand = {
 	FRAME_stand01,
-   	FRAME_stand30,
-   	tank_frames_stand,
-   	NULL
+	FRAME_stand30,
+	tank_frames_stand,
+	NULL
 };
 
 void
@@ -143,9 +158,9 @@ static mframe_t tank_frames_start_walk[] = {
 
 mmove_t tank_move_start_walk = {
 	FRAME_walk01,
-   	FRAME_walk04,
-   	tank_frames_start_walk,
-   	tank_walk
+	FRAME_walk04,
+	tank_frames_start_walk,
+	tank_walk
 };
 
 static mframe_t tank_frames_walk[] = {
@@ -169,9 +184,9 @@ static mframe_t tank_frames_walk[] = {
 
 mmove_t tank_move_walk = {
 	FRAME_walk05,
-   	FRAME_walk20,
-   	tank_frames_walk,
-   	NULL
+	FRAME_walk20,
+	tank_frames_walk,
+	NULL
 };
 
 static mframe_t tank_frames_stop_walk[] = {
@@ -184,9 +199,9 @@ static mframe_t tank_frames_stop_walk[] = {
 
 mmove_t tank_move_stop_walk = {
 	FRAME_walk21,
-   	FRAME_walk25,
-   	tank_frames_stop_walk,
-   	tank_stand
+	FRAME_walk25,
+	tank_frames_stop_walk,
+	tank_stand
 };
 
 void
@@ -209,9 +224,9 @@ static mframe_t tank_frames_start_run[] = {
 
 mmove_t tank_move_start_run = {
 	FRAME_walk01,
-   	FRAME_walk04,
-   	tank_frames_start_run,
-   	tank_run
+	FRAME_walk04,
+	tank_frames_start_run,
+	tank_run
 };
 
 static mframe_t tank_frames_run[] = {
@@ -235,9 +250,9 @@ static mframe_t tank_frames_run[] = {
 
 mmove_t tank_move_run = {
 	FRAME_walk05,
-   	FRAME_walk20,
-   	tank_frames_run,
-   	NULL
+	FRAME_walk20,
+	tank_frames_run,
+	NULL
 };
 
 static mframe_t tank_frames_stop_run[] = {
@@ -250,9 +265,9 @@ static mframe_t tank_frames_stop_run[] = {
 
 mmove_t tank_move_stop_run = {
 	FRAME_walk21,
-   	FRAME_walk25,
-   	tank_frames_stop_run,
-   	tank_walk
+	FRAME_walk25,
+	tank_frames_stop_run,
+	tank_walk
 };
 
 void
@@ -298,9 +313,9 @@ static mframe_t tank_frames_pain1[] = {
 
 mmove_t tank_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain104,
-   	tank_frames_pain1,
-   	tank_run
+	FRAME_pain104,
+	tank_frames_pain1,
+	tank_run
 };
 
 static mframe_t tank_frames_pain2[] = {
@@ -313,9 +328,9 @@ static mframe_t tank_frames_pain2[] = {
 
 mmove_t tank_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain205,
-   	tank_frames_pain2,
-   	tank_run
+	FRAME_pain205,
+	tank_frames_pain2,
+	tank_run
 };
 
 static mframe_t tank_frames_pain3[] = {
@@ -339,9 +354,9 @@ static mframe_t tank_frames_pain3[] = {
 
 mmove_t tank_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain316,
-   	tank_frames_pain3,
-   	tank_run
+	FRAME_pain316,
+	tank_frames_pain3,
+	tank_run
 };
 
 void
@@ -573,8 +588,8 @@ static mframe_t tank_frames_attack_blast[] = {
 
 mmove_t tank_move_attack_blast = {
 	FRAME_attak101,
-   	FRAME_attak116,
-   	tank_frames_attack_blast,
+	FRAME_attak116,
+	tank_frames_attack_blast,
 	tank_reattack_blaster
 };
 
@@ -589,9 +604,9 @@ static mframe_t tank_frames_reattack_blast[] = {
 
 mmove_t tank_move_reattack_blast = {
 	FRAME_attak111,
-   	FRAME_attak116,
-   	tank_frames_reattack_blast,
-   	tank_reattack_blaster
+	FRAME_attak116,
+	tank_frames_reattack_blast,
+	tank_reattack_blaster
 };
 
 static mframe_t tank_frames_attack_post_blast[] = {
@@ -605,9 +620,9 @@ static mframe_t tank_frames_attack_post_blast[] = {
 
 mmove_t tank_move_attack_post_blast = {
 	FRAME_attak117,
-   	FRAME_attak122,
-   	tank_frames_attack_post_blast,
-   	tank_run
+	FRAME_attak122,
+	tank_frames_attack_post_blast,
+	tank_run
 };
 
 void
@@ -686,9 +701,9 @@ static mframe_t tank_frames_attack_strike[] = {
 
 mmove_t tank_move_attack_strike = {
 	FRAME_attak201,
-   	FRAME_attak238,
-   	tank_frames_attack_strike,
-   	tank_poststrike
+	FRAME_attak238,
+	tank_frames_attack_strike,
+	tank_poststrike
 };
 
 static mframe_t tank_frames_attack_pre_rocket[] = {
@@ -719,9 +734,9 @@ static mframe_t tank_frames_attack_pre_rocket[] = {
 
 mmove_t tank_move_attack_pre_rocket = {
 	FRAME_attak301,
-   	FRAME_attak321,
-   	tank_frames_attack_pre_rocket,
-   	tank_doattack_rocket
+	FRAME_attak321,
+	tank_frames_attack_pre_rocket,
+	tank_doattack_rocket
 };
 
 static mframe_t tank_frames_attack_fire_rocket[] = {
@@ -738,9 +753,9 @@ static mframe_t tank_frames_attack_fire_rocket[] = {
 
 mmove_t tank_move_attack_fire_rocket = {
 	FRAME_attak322,
-   	FRAME_attak330,
-   	tank_frames_attack_fire_rocket,
-   	tank_refire_rocket
+	FRAME_attak330,
+	tank_frames_attack_fire_rocket,
+	tank_refire_rocket
 };
 
 static mframe_t tank_frames_attack_post_rocket[] = {
@@ -773,9 +788,9 @@ static mframe_t tank_frames_attack_post_rocket[] = {
 
 mmove_t tank_move_attack_post_rocket = {
 	FRAME_attak331,
-   	FRAME_attak353,
-   	tank_frames_attack_post_rocket,
-   	tank_run
+	FRAME_attak353,
+	tank_frames_attack_post_rocket,
+	tank_run
 };
 
 static mframe_t tank_frames_attack_chain[] = {
@@ -812,9 +827,9 @@ static mframe_t tank_frames_attack_chain[] = {
 
 mmove_t tank_move_attack_chain = {
 	FRAME_attak401,
-   	FRAME_attak429,
-   	tank_frames_attack_chain,
-   	tank_run
+	FRAME_attak429,
+	tank_frames_attack_chain,
+	tank_run
 };
 
 void
@@ -972,9 +987,9 @@ static mframe_t tank_frames_death1[] = {
 
 mmove_t tank_move_death = {
 	FRAME_death101,
-   	FRAME_death132,
-   	tank_frames_death1,
-   	tank_dead
+	FRAME_death132,
+	tank_frames_death1,
+	tank_dead
 };
 
 void

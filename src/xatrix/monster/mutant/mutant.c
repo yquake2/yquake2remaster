@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Mutant.
  *
@@ -149,9 +164,9 @@ static mframe_t mutant_frames_stand[] = {
 
 mmove_t mutant_move_stand = {
 	FRAME_stand101,
-   	FRAME_stand151,
-   	mutant_frames_stand,
-   	NULL
+	FRAME_stand151,
+	mutant_frames_stand,
+	NULL
 };
 
 void
@@ -197,9 +212,9 @@ static mframe_t mutant_frames_idle[] = {
 
 mmove_t mutant_move_idle = {
 	FRAME_stand152,
-   	FRAME_stand164,
-   	mutant_frames_idle,
-   	mutant_stand
+	FRAME_stand164,
+	mutant_frames_idle,
+	mutant_stand
 };
 
 void
@@ -231,9 +246,9 @@ static mframe_t mutant_frames_walk[] = {
 
 mmove_t mutant_move_walk = {
 	FRAME_walk05,
-   	FRAME_walk16,
-   	mutant_frames_walk,
-   	NULL
+	FRAME_walk16,
+	mutant_frames_walk,
+	NULL
 };
 
 void
@@ -256,9 +271,9 @@ static mframe_t mutant_frames_start_walk[] = {
 
 mmove_t mutant_move_start_walk = {
 	FRAME_walk01,
-   	FRAME_walk04,
-   	mutant_frames_start_walk,
-   	mutant_walk_loop
+	FRAME_walk04,
+	mutant_frames_start_walk,
+	mutant_walk_loop
 };
 
 void
@@ -283,9 +298,9 @@ static mframe_t mutant_frames_run[] = {
 
 mmove_t mutant_move_run = {
 	FRAME_run03,
-   	FRAME_run08,
-   	mutant_frames_run,
-   	NULL
+	FRAME_run08,
+	mutant_frames_run,
+	NULL
 };
 
 void
@@ -381,9 +396,9 @@ static mframe_t mutant_frames_attack[] = {
 
 mmove_t mutant_move_attack = {
 	FRAME_attack09,
-   	FRAME_attack15,
-   	mutant_frames_attack,
-   	mutant_run
+	FRAME_attack15,
+	mutant_frames_attack,
+	mutant_run
 };
 
 void
@@ -502,9 +517,9 @@ static mframe_t mutant_frames_jump[] = {
 
 mmove_t mutant_move_jump = {
 	FRAME_attack01,
-   	FRAME_attack08,
-   	mutant_frames_jump,
-   	mutant_run
+	FRAME_attack08,
+	mutant_frames_jump,
+	mutant_run
 };
 
 void
@@ -614,9 +629,9 @@ static mframe_t mutant_frames_pain1[] = {
 
 mmove_t mutant_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain105,
-   	mutant_frames_pain1,
-   	mutant_run
+	FRAME_pain105,
+	mutant_frames_pain1,
+	mutant_run
 };
 
 static mframe_t mutant_frames_pain2[] = {
@@ -630,9 +645,9 @@ static mframe_t mutant_frames_pain2[] = {
 
 mmove_t mutant_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain206,
-   	mutant_frames_pain2,
-   	mutant_run
+	FRAME_pain206,
+	mutant_frames_pain2,
+	mutant_run
 };
 
 static mframe_t mutant_frames_pain3[] = {
@@ -651,9 +666,9 @@ static mframe_t mutant_frames_pain3[] = {
 
 mmove_t mutant_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain311,
-   	mutant_frames_pain3,
-   	mutant_run
+	FRAME_pain311,
+	mutant_frames_pain3,
+	mutant_run
 };
 
 void
@@ -734,9 +749,9 @@ static mframe_t mutant_frames_death1[] = {
 
 mmove_t mutant_move_death1 = {
 	FRAME_death101,
-   	FRAME_death109,
-   	mutant_frames_death1,
-   	mutant_dead
+	FRAME_death109,
+	mutant_frames_death1,
+	mutant_dead
 };
 
 static mframe_t mutant_frames_death2[] = {
@@ -754,9 +769,9 @@ static mframe_t mutant_frames_death2[] = {
 
 mmove_t mutant_move_death2 = {
 	FRAME_death201,
-   	FRAME_death210,
-   	mutant_frames_death2,
-   	mutant_dead
+	FRAME_death210,
+	mutant_frames_death2,
+	mutant_dead
 };
 
 void

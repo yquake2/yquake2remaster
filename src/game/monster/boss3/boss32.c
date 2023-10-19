@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,6 +79,7 @@ makron_taunt(edict_t *self)
 	}
 }
 
+/* stand */
 static mframe_t makron_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
@@ -138,7 +140,7 @@ static mframe_t makron_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}  /* 60 */
+	{ai_stand, 0, NULL} /* 60 */
 };
 
 mmove_t makron_move_stand =
@@ -330,9 +332,9 @@ static mframe_t makron_frames_pain6[] = {
 mmove_t makron_move_pain6 =
 {
 	FRAME_pain601,
-   	FRAME_pain627,
-   	makron_frames_pain6,
-   	makron_run
+	FRAME_pain627,
+	makron_frames_pain6,
+	makron_run
 };
 
 static mframe_t makron_frames_pain5[] = {
@@ -460,15 +462,15 @@ static mframe_t makron_frames_death2[] = {
 	{ai_move, 26, NULL},
 	{ai_move, 0, makron_brainsplorch},
 	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}  /* 95 */
+	{ai_move, 0, NULL} /* 95 */
 };
 
 mmove_t makron_move_death2 =
 {
 	FRAME_death201,
 	FRAME_death295,
-   	makron_frames_death2,
-   	makron_dead
+	makron_frames_death2,
+	makron_dead
 };
 
 static mframe_t makron_frames_death3[] = {
@@ -497,8 +499,8 @@ static mframe_t makron_frames_death3[] = {
 mmove_t makron_move_death3 =
 {
 	FRAME_death301,
-   	FRAME_death320,
-   	makron_frames_death3,
+	FRAME_death320,
+	makron_frames_death3,
 	NULL
 };
 
@@ -602,9 +604,9 @@ static mframe_t makron_frames_attack4[] = {
 mmove_t makron_move_attack4 =
 {
 	FRAME_attak401,
-   	FRAME_attak426,
-   	makron_frames_attack4,
-   	makron_run
+	FRAME_attak426,
+	makron_frames_attack4,
+	makron_run
 };
 
 static mframe_t makron_frames_attack5[] = {
@@ -738,7 +740,8 @@ makron_pain(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
-	/* Lessen the chance of him going into his pain frames */
+	/* Lessen the chance of him
+	   going into his pain frames */
 	if (damage <= 25)
 	{
 		if (random() < 0.2)
@@ -840,6 +843,17 @@ makron_torso_think(edict_t *self)
 		return;
 	}
 
+	if (self->owner && (self->owner->monsterinfo.aiflags & AI_RESURRECTING))
+	{
+		self->s.effects |= EF_COLOR_SHELL;
+		self->s.renderfx |= RF_SHELL_RED;
+	}
+	else
+	{
+		self->s.effects &= ~EF_COLOR_SHELL;
+		self->s.renderfx &= ~RF_SHELL_RED;
+	}
+
 	if (++self->s.frame >= FRAME_death320)
 	{
 		self->s.frame = FRAME_death301;
@@ -928,6 +942,7 @@ makron_torso(edict_t *self)
 	gi.linkentity(torso);
 }
 
+/* death */
 void
 makron_dead(edict_t *self)
 {
@@ -962,8 +977,11 @@ makron_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-				damage, GIB_ORGANIC);
+		for (n = 0; n < 1 /*4*/; n++)
+		{
+			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
+					damage, GIB_ORGANIC);
+		}
 
 		for (n = 0; n < 4; n++)
 		{
@@ -1106,6 +1124,8 @@ Makron_CheckAttack(edict_t *self)
 	return false;
 }
 
+/* monster_makron */
+
 void
 MakronPrecache(void)
 {
@@ -1164,7 +1184,7 @@ SP_monster_makron(edict_t *self)
 	self->monsterinfo.dodge = NULL;
 	self->monsterinfo.attack = makron_attack;
 	self->monsterinfo.melee = NULL;
-	self->monsterinfo.sight = NULL;
+	self->monsterinfo.sight = makron_sight;
 	self->monsterinfo.checkattack = Makron_CheckAttack;
 
 	gi.linkentity(self);

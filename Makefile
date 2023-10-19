@@ -1491,13 +1491,13 @@ XATRIX_OBJS_ = \
 	src/game/g_utils.o \
 	src/xatrix/g_weapon.o \
 	src/game/monster/berserker/berserker.o \
-	src/xatrix/monster/boss2/boss2.o \
-	src/xatrix/monster/boss3/boss3.o \
-	src/xatrix/monster/boss3/boss31.o \
-	src/xatrix/monster/boss3/boss32.o \
+	src/game/monster/boss2/boss2.o \
+	src/game/monster/boss3/boss3.o \
+	src/game/monster/boss3/boss31.o \
+	src/game/monster/boss3/boss32.o \
 	src/game/monster/boss5/boss5.o \
-	src/xatrix/monster/brain/brain.o \
-	src/xatrix/monster/chick/chick.o \
+	src/game/monster/brain/brain.o \
+	src/game/monster/chick/chick.o \
 	src/game/monster/fixbot/fixbot.o \
 	src/xatrix/monster/flipper/flipper.o \
 	src/xatrix/monster/float/float.o \

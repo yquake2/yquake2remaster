@@ -205,9 +205,9 @@ static mframe_t mutant_frames_idle[] = {
 mmove_t mutant_move_idle =
 {
 	FRAME_stand152,
-   	FRAME_stand164,
-   	mutant_frames_idle,
-   	mutant_stand
+	FRAME_stand164,
+	mutant_frames_idle,
+	mutant_stand
 };
 
 void
@@ -243,8 +243,8 @@ mmove_t mutant_move_walk =
 {
 	FRAME_walk05,
 	FRAME_walk16,
-   	mutant_frames_walk,
-   	NULL
+	mutant_frames_walk,
+	NULL
 };
 
 void
@@ -270,7 +270,7 @@ mmove_t mutant_move_start_walk =
 	FRAME_walk01,
 	FRAME_walk04,
 	mutant_frames_start_walk,
-   	mutant_walk_loop
+	mutant_walk_loop
 };
 
 void
@@ -296,9 +296,9 @@ static mframe_t mutant_frames_run[] = {
 mmove_t mutant_move_run =
 {
 	FRAME_run03,
-   	FRAME_run08,
-   	mutant_frames_run,
-   	NULL
+	FRAME_run08,
+	mutant_frames_run,
+	NULL
 };
 
 void
@@ -396,9 +396,9 @@ static mframe_t mutant_frames_attack[] = {
 mmove_t mutant_move_attack =
 {
 	FRAME_attack09,
-   	FRAME_attack15,
-   	mutant_frames_attack,
-   	mutant_run
+	FRAME_attack15,
+	mutant_frames_attack,
+	mutant_run
 };
 
 void
@@ -520,8 +520,8 @@ mmove_t mutant_move_jump =
 {
 	FRAME_attack01,
 	FRAME_attack08,
-   	mutant_frames_jump,
-   	mutant_run
+	mutant_frames_jump,
+	mutant_run
 };
 
 void
@@ -633,8 +633,8 @@ mmove_t mutant_move_pain1 =
 {
 	FRAME_pain101,
 	FRAME_pain105,
-   	mutant_frames_pain1,
-   	mutant_run
+	mutant_frames_pain1,
+	mutant_run
 };
 
 static mframe_t mutant_frames_pain2[] = {
@@ -649,9 +649,9 @@ static mframe_t mutant_frames_pain2[] = {
 mmove_t mutant_move_pain2 =
 {
 	FRAME_pain201,
-   	FRAME_pain206,
-   	mutant_frames_pain2,
-   	mutant_run
+	FRAME_pain206,
+	mutant_frames_pain2,
+	mutant_run
 };
 
 static mframe_t mutant_frames_pain3[] = {
@@ -750,9 +750,9 @@ static mframe_t mutant_frames_death1[] = {
 mmove_t mutant_move_death1 =
 {
 	FRAME_death101,
-   	FRAME_death109,
-   	mutant_frames_death1,
-   	mutant_dead
+	FRAME_death109,
+	mutant_frames_death1,
+	mutant_dead
 };
 
 static mframe_t mutant_frames_death2[] = {

@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Baracuda Shark.
  *
@@ -32,9 +47,9 @@ static mframe_t flipper_frames_stand[] = {
 
 mmove_t flipper_move_stand = {
 	FRAME_flphor01,
-   	FRAME_flphor01,
-   	flipper_frames_stand,
-   	NULL
+	FRAME_flphor01,
+	flipper_frames_stand,
+	NULL
 };
 
 void
@@ -79,9 +94,9 @@ static mframe_t flipper_frames_run[] = {
 
 mmove_t flipper_move_run_loop = {
 	FRAME_flpver06,
-   	FRAME_flpver29,
-   	flipper_frames_run,
-   	NULL
+	FRAME_flpver29,
+	flipper_frames_run,
+	NULL
 };
 
 void
@@ -106,9 +121,9 @@ static mframe_t flipper_frames_run_start[] = {
 
 mmove_t flipper_move_run_start = {
 	FRAME_flpver01,
-   	FRAME_flpver06,
-   	flipper_frames_run_start,
-   	flipper_run_loop
+	FRAME_flpver06,
+	flipper_frames_run_start,
+	flipper_run_loop
 };
 
 void
@@ -152,9 +167,9 @@ static mframe_t flipper_frames_walk[] = {
 
 mmove_t flipper_move_walk = {
 	FRAME_flphor01,
-   	FRAME_flphor24,
-   	flipper_frames_walk,
-   	NULL
+	FRAME_flphor24,
+	flipper_frames_walk,
+	NULL
 };
 
 void
@@ -178,9 +193,9 @@ static mframe_t flipper_frames_start_run[] = {
 
 mmove_t flipper_move_start_run = {
 	FRAME_flphor01,
-   	FRAME_flphor05,
-   	flipper_frames_start_run,
-   	NULL
+	FRAME_flphor05,
+	flipper_frames_start_run,
+	NULL
 };
 
 void
@@ -204,9 +219,9 @@ static mframe_t flipper_frames_pain2[] = {
 
 mmove_t flipper_move_pain2 = {
 	FRAME_flppn101,
-   	FRAME_flppn105,
-   	flipper_frames_pain2,
-   	flipper_run
+	FRAME_flppn105,
+	flipper_frames_pain2,
+	flipper_run
 };
 
 static mframe_t flipper_frames_pain1[] = {
@@ -219,9 +234,9 @@ static mframe_t flipper_frames_pain1[] = {
 
 mmove_t flipper_move_pain1 = {
 	FRAME_flppn201,
-   	FRAME_flppn205,
-   	flipper_frames_pain1,
-   	flipper_run
+	FRAME_flppn205,
+	flipper_frames_pain1,
+	flipper_run
 };
 
 void
@@ -274,9 +289,9 @@ static mframe_t flipper_frames_attack[] = {
 
 mmove_t flipper_move_attack = {
 	FRAME_flpbit01,
-   	FRAME_flpbit20,
-   	flipper_frames_attack,
-   	flipper_run
+	FRAME_flpbit20,
+	flipper_frames_attack,
+	flipper_run
 };
 
 void
@@ -424,9 +439,9 @@ static mframe_t flipper_frames_death[] = {
 
 mmove_t flipper_move_death = {
 	FRAME_flpdth01,
-   	FRAME_flpdth56,
-   	flipper_frames_death,
-   	flipper_dead
+	FRAME_flpdth56,
+	flipper_frames_death,
+	flipper_dead
 };
 
 void

@@ -134,8 +134,8 @@ mmove_t parasite_move_start_fidget =
 {
 	FRAME_stand18,
 	FRAME_stand21,
-   	parasite_frames_start_fidget,
-   	parasite_do_fidget
+	parasite_frames_start_fidget,
+	parasite_do_fidget
 };
 
 static mframe_t parasite_frames_fidget[] = {
@@ -150,9 +150,9 @@ static mframe_t parasite_frames_fidget[] = {
 mmove_t parasite_move_fidget =
 {
 	FRAME_stand22,
-   	FRAME_stand27,
-   	parasite_frames_fidget,
-   	parasite_refidget
+	FRAME_stand27,
+	parasite_frames_fidget,
+	parasite_refidget
 };
 
 static mframe_t parasite_frames_end_fidget[] = {
@@ -169,9 +169,9 @@ static mframe_t parasite_frames_end_fidget[] = {
 mmove_t parasite_move_end_fidget =
 {
 	FRAME_stand28,
-   	FRAME_stand35,
-   	parasite_frames_end_fidget,
-   	parasite_stand
+	FRAME_stand35,
+	parasite_frames_end_fidget,
+	parasite_stand
 };
 
 void
@@ -249,8 +249,8 @@ mmove_t parasite_move_stand =
 {
 	FRAME_stand01,
 	FRAME_stand17,
-   	parasite_frames_stand,
-   	parasite_stand
+	parasite_frames_stand,
+	parasite_stand
 };
 
 void
@@ -291,8 +291,8 @@ mmove_t parasite_move_start_run =
 {
 	FRAME_run01,
 	FRAME_run02,
-   	parasite_frames_start_run,
-   	parasite_run
+	parasite_frames_start_run,
+	parasite_run
 };
 
 static mframe_t parasite_frames_stop_run[] = {
@@ -375,8 +375,8 @@ mmove_t parasite_move_start_walk =
 {
 	FRAME_run01,
 	FRAME_run02,
-   	parasite_frames_start_walk,
-   	NULL
+	parasite_frames_start_walk,
+	NULL
 };
 
 static mframe_t parasite_frames_stop_walk[] = {
@@ -391,9 +391,9 @@ static mframe_t parasite_frames_stop_walk[] = {
 mmove_t parasite_move_stop_walk =
 {
 	FRAME_run10,
-   	FRAME_run15,
-   	parasite_frames_stop_walk,
-   	NULL
+	FRAME_run15,
+	parasite_frames_stop_walk,
+	NULL
 };
 
 void
@@ -436,8 +436,8 @@ mmove_t parasite_move_pain1 =
 {
 	FRAME_pain101,
 	FRAME_pain111,
-   	parasite_frames_pain1,
-   	parasite_start_run
+	parasite_frames_pain1,
+	parasite_start_run
 };
 
 void
@@ -600,9 +600,9 @@ static mframe_t parasite_frames_drain[] = {
 mmove_t parasite_move_drain =
 {
 	FRAME_drain01,
-   	FRAME_drain18,
-   	parasite_frames_drain,
-   	parasite_start_run
+	FRAME_drain18,
+	parasite_frames_drain,
+	parasite_start_run
 };
 
 static mframe_t parasite_frames_break[] = {
@@ -645,7 +645,7 @@ mmove_t parasite_move_break =
 	FRAME_break01,
 	FRAME_break32,
 	parasite_frames_break,
-   	parasite_start_run
+	parasite_start_run
 };
 
 void
@@ -688,9 +688,9 @@ static mframe_t parasite_frames_death[] = {
 mmove_t parasite_move_death =
 {
 	FRAME_death101,
-   	FRAME_death107,
-   	parasite_frames_death,
-   	parasite_dead
+	FRAME_death107,
+	parasite_frames_death,
+	parasite_dead
 };
 
 void

@@ -270,7 +270,7 @@ static mframe_t boss2_frames_stand[] = {
 mmove_t boss2_move_stand =
 {
 	FRAME_stand30,
-   	FRAME_stand50,
+	FRAME_stand50,
 	boss2_frames_stand,
 	NULL
 };
@@ -371,9 +371,9 @@ static mframe_t boss2_frames_run[] = {
 
 mmove_t boss2_move_run = {
 	FRAME_walk1,
-   	FRAME_walk20,
-   	boss2_frames_run,
-   	NULL
+	FRAME_walk20,
+	boss2_frames_run,
+	NULL
 };
 
 static mframe_t boss2_frames_attack_pre_mg[] = {
@@ -390,9 +390,9 @@ static mframe_t boss2_frames_attack_pre_mg[] = {
 
 mmove_t boss2_move_attack_pre_mg = {
 	FRAME_attack1,
-   	FRAME_attack9,
-   	boss2_frames_attack_pre_mg,
-   	NULL
+	FRAME_attack9,
+	boss2_frames_attack_pre_mg,
+	NULL
 };
 
 /* Loop this */
@@ -408,9 +408,9 @@ static mframe_t boss2_frames_attack_mg[] = {
 mmove_t boss2_move_attack_mg =
 {
 	FRAME_attack10,
-   	FRAME_attack15,
-   	boss2_frames_attack_mg,
-   	NULL
+	FRAME_attack15,
+	boss2_frames_attack_mg,
+	NULL
 };
 
 static mframe_t boss2_frames_attack_post_mg[] = {
@@ -423,9 +423,9 @@ static mframe_t boss2_frames_attack_post_mg[] = {
 
 mmove_t boss2_move_attack_post_mg = {
 	FRAME_attack16,
-   	FRAME_attack19,
-   	boss2_frames_attack_post_mg,
-   	boss2_run
+	FRAME_attack19,
+	boss2_frames_attack_post_mg,
+	boss2_run
 };
 
 static mframe_t boss2_frames_attack_rocket[] = {
@@ -453,9 +453,9 @@ static mframe_t boss2_frames_attack_rocket[] = {
 };
 
 mmove_t boss2_move_attack_rocket = {FRAME_attack20,
-   	FRAME_attack40,
-   	boss2_frames_attack_rocket,
-   	boss2_run
+	FRAME_attack40,
+	boss2_frames_attack_rocket,
+	boss2_run
 };
 
 static mframe_t boss2_frames_pain_heavy[] = {
@@ -481,9 +481,9 @@ static mframe_t boss2_frames_pain_heavy[] = {
 
 mmove_t boss2_move_pain_heavy = {
 	FRAME_pain2,
-   	FRAME_pain19,
-   	boss2_frames_pain_heavy,
-   	boss2_run
+	FRAME_pain19,
+	boss2_frames_pain_heavy,
+	boss2_run
 };
 
 static mframe_t boss2_frames_pain_light[] = {
@@ -495,9 +495,9 @@ static mframe_t boss2_frames_pain_light[] = {
 
 mmove_t boss2_move_pain_light = {
 	FRAME_pain20,
-   	FRAME_pain23,
-   	boss2_frames_pain_light,
-   	boss2_run
+	FRAME_pain23,
+	boss2_frames_pain_light,
+	boss2_run
 };
 
 static mframe_t boss2_frames_death[] = {
@@ -554,9 +554,9 @@ static mframe_t boss2_frames_death[] = {
 
 mmove_t boss2_move_death = {
 	FRAME_death2,
-   	FRAME_death50,
-   	boss2_frames_death,
-   	boss2_dead
+	FRAME_death50,
+	boss2_frames_death,
+	boss2_dead
 };
 
 void

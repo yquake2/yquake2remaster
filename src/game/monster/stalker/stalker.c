@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Stalker.
  *
@@ -231,9 +246,9 @@ static mframe_t stalker_frames_idle[] = {
 
 mmove_t stalker_move_idle = {
 	FRAME_idle01,
-   	FRAME_idle21,
-   	stalker_frames_idle,
-   	stalker_stand
+	FRAME_idle21,
+	stalker_frames_idle,
+	stalker_stand
 };
 
 static mframe_t stalker_frames_idle2[] = {
@@ -256,9 +271,9 @@ static mframe_t stalker_frames_idle2[] = {
 
 mmove_t stalker_move_idle2 = {
 	FRAME_idle201,
-   	FRAME_idle213,
-   	stalker_frames_idle2,
-   	stalker_stand
+	FRAME_idle213,
+	stalker_frames_idle2,
+	stalker_stand
 };
 
 void
@@ -309,9 +324,9 @@ static mframe_t stalker_frames_stand[] = {
 
 mmove_t stalker_move_stand = {
 	FRAME_idle01,
-   	FRAME_idle21,
-   	stalker_frames_stand,
-   	stalker_stand
+	FRAME_idle21,
+	stalker_frames_stand,
+	stalker_stand
 };
 
 void
@@ -341,9 +356,9 @@ static mframe_t stalker_frames_run[] = {
 
 mmove_t stalker_move_run = {
 	FRAME_run01,
-   	FRAME_run04,
-   	stalker_frames_run,
-   	NULL
+	FRAME_run04,
+	stalker_frames_run,
+	NULL
 };
 
 void
@@ -378,9 +393,9 @@ static mframe_t stalker_frames_walk[] = {
 
 mmove_t stalker_move_walk = {
 	FRAME_walk01,
-   	FRAME_walk08,
-   	stalker_frames_walk,
-   	stalker_walk
+	FRAME_walk08,
+	stalker_frames_walk,
+	stalker_walk
 };
 
 void
@@ -403,9 +418,9 @@ static mframe_t stalker_frames_reactivate[] = {
 
 mmove_t stalker_move_false_death_end = {
 	FRAME_reactive01,
-   	FRAME_reactive04,
-   	stalker_frames_reactivate,
-   	stalker_run
+	FRAME_reactive04,
+	stalker_frames_reactivate,
+	stalker_run
 };
 
 void
@@ -469,8 +484,8 @@ static mframe_t stalker_frames_false_death[] = {
 
 mmove_t stalker_move_false_death = {
 	FRAME_twitch01,
-   	FRAME_twitch10,
-   	stalker_frames_false_death,
+	FRAME_twitch10,
+	stalker_frames_false_death,
 	stalker_false_death
 };
 
@@ -500,8 +515,8 @@ static mframe_t stalker_frames_false_death_start[] = {
 
 mmove_t stalker_move_false_death_start = {
 	FRAME_death01,
-   	FRAME_death09,
-   	stalker_frames_false_death_start,
+	FRAME_death09,
+	stalker_frames_false_death_start,
 	stalker_false_death
 };
 
@@ -529,9 +544,9 @@ static mframe_t stalker_frames_pain[] = {
 
 mmove_t stalker_move_pain = {
 	FRAME_pain01,
-   	FRAME_pain04,
-   	stalker_frames_pain,
-   	stalker_run
+	FRAME_pain04,
+	stalker_frames_pain,
+	stalker_run
 };
 
 void
@@ -692,9 +707,9 @@ static mframe_t stalker_frames_shoot[] = {
 
 mmove_t stalker_move_shoot = {
 	FRAME_run01,
-   	FRAME_run04,
-   	stalker_frames_shoot,
-   	stalker_run
+	FRAME_run04,
+	stalker_frames_shoot,
+	stalker_run
 };
 
 void
@@ -766,9 +781,9 @@ static mframe_t stalker_frames_swing_l[] = {
 
 mmove_t stalker_move_swing_l = {
 	FRAME_attack01,
-   	FRAME_attack08,
-   	stalker_frames_swing_l,
-   	stalker_run
+	FRAME_attack08,
+	stalker_frames_swing_l,
+	stalker_run
 };
 
 static mframe_t stalker_frames_swing_r[] = {
@@ -781,9 +796,9 @@ static mframe_t stalker_frames_swing_r[] = {
 
 mmove_t stalker_move_swing_r = {
 	FRAME_attack11,
-   	FRAME_attack15,
-   	stalker_frames_swing_r,
-   	stalker_run
+	FRAME_attack15,
+	stalker_frames_swing_r,
+	stalker_run
 };
 
 void
@@ -1099,9 +1114,9 @@ static mframe_t stalker_frames_jump_straightup[] = {
 
 mmove_t stalker_move_jump_straightup = {
 	FRAME_jump04,
-   	FRAME_jump07,
-   	stalker_frames_jump_straightup,
-   	stalker_run
+	FRAME_jump07,
+	stalker_frames_jump_straightup,
+	stalker_run
 };
 
 void
@@ -1124,9 +1139,9 @@ static mframe_t stalker_frames_dodge_run[] = {
 
 mmove_t stalker_move_dodge_run = {
 	FRAME_run01,
-   	FRAME_run04,
-   	stalker_frames_dodge_run,
-   	NULL
+	FRAME_run04,
+	stalker_frames_dodge_run,
+	NULL
 };
 
 void
@@ -1238,9 +1253,9 @@ static mframe_t stalker_frames_jump_up[] = {
 
 mmove_t stalker_move_jump_up = {
 	FRAME_jump01,
-   	FRAME_jump07,
-   	stalker_frames_jump_up,
-   	stalker_run
+	FRAME_jump07,
+	stalker_frames_jump_up,
+	stalker_run
 };
 
 static mframe_t stalker_frames_jump_down[] = {
@@ -1256,9 +1271,9 @@ static mframe_t stalker_frames_jump_down[] = {
 
 mmove_t stalker_move_jump_down = {
 	FRAME_jump01,
-   	FRAME_jump07,
-   	stalker_frames_jump_down,
-   	stalker_run
+	FRAME_jump07,
+	stalker_frames_jump_down,
+	stalker_run
 };
 
 void
@@ -1378,9 +1393,9 @@ static mframe_t stalker_frames_death[] = {
 
 mmove_t stalker_move_death = {
 	FRAME_death01,
-   	FRAME_death09,
-   	stalker_frames_death,
-   	stalker_dead
+	FRAME_death09,
+	stalker_frames_death,
+	stalker_dead
 };
 
 void

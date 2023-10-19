@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Gladiator B. (Special variant of gladiator only found in Xatrix)
  *
@@ -80,9 +95,9 @@ static mframe_t gladb_frames_stand[] = {
 
 mmove_t gladb_move_stand = {
 	FRAME_stand1,
-   	FRAME_stand7,
-   	gladb_frames_stand,
-   	NULL
+	FRAME_stand7,
+	gladb_frames_stand,
+	NULL
 };
 
 void
@@ -117,9 +132,9 @@ static mframe_t gladb_frames_walk[] = {
 
 mmove_t gladb_move_walk = {
 	FRAME_walk1,
-   	FRAME_walk16,
-   	gladb_frames_walk,
-   	NULL
+	FRAME_walk16,
+	gladb_frames_walk,
+	NULL
 };
 
 void
@@ -144,9 +159,9 @@ static mframe_t gladb_frames_run[] = {
 
 mmove_t gladb_move_run = {
 	FRAME_run1,
-   	FRAME_run6,
-   	gladb_frames_run,
-   	NULL
+	FRAME_run6,
+	gladb_frames_run,
+	NULL
 };
 
 void
@@ -211,9 +226,9 @@ static mframe_t gladb_frames_attack_melee[] = {
 
 mmove_t gladb_move_attack_melee = {
 	FRAME_melee1,
-   	FRAME_melee17,
-   	gladb_frames_attack_melee,
-   	gladb_run
+	FRAME_melee17,
+	gladb_frames_attack_melee,
+	gladb_run
 };
 
 void
@@ -278,9 +293,9 @@ static mframe_t gladb_frames_attack_gun[] = {
 
 mmove_t gladb_move_attack_gun = {
 	FRAME_attack1,
-   	FRAME_attack9,
-   	gladb_frames_attack_gun,
-   	gladb_run
+	FRAME_attack9,
+	gladb_frames_attack_gun,
+	gladb_run
 };
 
 void
@@ -327,8 +342,8 @@ static mframe_t gladb_frames_pain[] = {
 
 mmove_t gladb_move_pain = {
 	FRAME_pain1,
-   	FRAME_pain6,
-   	gladb_frames_pain, gladb_run
+	FRAME_pain6,
+	gladb_frames_pain, gladb_run
 };
 
 static mframe_t gladb_frames_pain_air[] = {
@@ -343,9 +358,9 @@ static mframe_t gladb_frames_pain_air[] = {
 
 mmove_t gladb_move_pain_air = {
 	FRAME_painup1,
-   	FRAME_painup7,
-   	gladb_frames_pain_air,
-   	gladb_run
+	FRAME_painup7,
+	gladb_frames_pain_air,
+	gladb_run
 };
 
 void
@@ -437,9 +452,9 @@ static mframe_t gladb_frames_death[] = {
 
 mmove_t gladb_move_death = {
 	FRAME_death1,
-   	FRAME_death22,
-   	gladb_frames_death,
-   	gladb_dead
+	FRAME_death22,
+	gladb_frames_death,
+	gladb_dead
 };
 
 void

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +29,8 @@
 #include "boss32.h"
 
 void
-Use_Boss3(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused */)
+Use_Boss3(edict_t *ent, edict_t *other /* unused */,
+		edict_t *activator /* unused */)
 {
 	if (!ent)
 	{

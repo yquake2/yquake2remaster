@@ -319,7 +319,7 @@ mmove_t berserk_move_attack_club =
 	FRAME_att_c9,
 	FRAME_att_c20,
 	berserk_frames_attack_club,
-   	berserk_run
+	berserk_run
 };
 
 void
@@ -349,8 +349,8 @@ static mframe_t berserk_frames_attack_strike[] = {
 mmove_t berserk_move_attack_strike =
 {
 	FRAME_att_c21,
-   	FRAME_att_c34,
-   	berserk_frames_attack_strike,
+	FRAME_att_c34,
+	berserk_frames_attack_strike,
 	berserk_run
 };
 
@@ -513,7 +513,7 @@ static mframe_t berserk_frames_death2[] = {
 mmove_t berserk_move_death2 =
 {
 	FRAME_deathc1,
-   	FRAME_deathc8,
+	FRAME_deathc8,
 	berserk_frames_death2,
 	berserk_dead
 };

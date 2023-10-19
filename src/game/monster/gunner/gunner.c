@@ -162,9 +162,9 @@ static mframe_t gunner_frames_fidget[] = {
 mmove_t gunner_move_fidget =
 {
 	FRAME_stand31,
-   	FRAME_stand70,
+	FRAME_stand70,
 	gunner_frames_fidget,
-   	gunner_stand
+	gunner_stand
 };
 
 void
@@ -294,7 +294,7 @@ static mframe_t gunner_frames_run[] = {
 mmove_t gunner_move_run =
 {
 	FRAME_run01,
-   	FRAME_run08,
+	FRAME_run08,
 	gunner_frames_run,
 	NULL
 };
@@ -330,7 +330,7 @@ mmove_t gunner_move_runandshoot =
 {
 	FRAME_runs01,
 	FRAME_runs06,
-   	gunner_frames_runandshoot,
+	gunner_frames_runandshoot,
 	NULL
 };
 

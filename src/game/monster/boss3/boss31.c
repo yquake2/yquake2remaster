@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +48,17 @@ static int sound_death_hit;
 
 void BossExplode(edict_t *self);
 void MakronToss(edict_t *self);
+void MakronPrecache(void);
+void jorg_dead(edict_t *self);
+void jorgBFG(edict_t *self);
+void jorgMachineGun(edict_t *self);
+void jorg_firebullet(edict_t *self);
+void jorg_reattack1(edict_t *self);
+void jorg_attack1(edict_t *self);
+void jorg_idle(edict_t *self);
+void jorg_step_left(edict_t *self);
+void jorg_step_right(edict_t *self);
+void jorg_death_hit(edict_t *self);
 
 void
 jorg_search(edict_t *self)
@@ -74,17 +86,7 @@ jorg_search(edict_t *self)
 	}
 }
 
-void jorg_dead(edict_t *self);
-void jorgBFG(edict_t *self);
-void jorgMachineGun(edict_t *self);
-void jorg_firebullet(edict_t *self);
-void jorg_reattack1(edict_t *self);
-void jorg_attack1(edict_t *self);
-void jorg_idle(edict_t *self);
-void jorg_step_left(edict_t *self);
-void jorg_step_right(edict_t *self);
-void jorg_death_hit(edict_t *self);
-
+/* stand */
 static mframe_t jorg_frames_stand[] = {
 	{ai_stand, 0, jorg_idle},
 	{ai_stand, 0, NULL},
@@ -136,7 +138,7 @@ static mframe_t jorg_frames_stand[] = {
 	{ai_stand, -17, jorg_step_left},
 	{ai_stand, 0, NULL},
 	{ai_stand, -12, NULL}, /* 50 */
-	{ai_stand, -14, jorg_step_right}
+	{ai_stand, -14, jorg_step_right} /* 51 */
 };
 
 mmove_t jorg_move_stand =
@@ -224,9 +226,10 @@ mmove_t jorg_move_run =
 	FRAME_walk06,
 	FRAME_walk19,
 	jorg_frames_run,
-   	NULL
+	NULL
 };
 
+/* walk */
 static mframe_t jorg_frames_start_walk[] = {
 	{ai_walk, 5, NULL},
 	{ai_walk, 6, NULL},
@@ -876,8 +879,6 @@ Jorg_CheckAttack(edict_t *self)
 
 	return false;
 }
-
-void MakronPrecache(void);
 
 /*
  * QUAKED monster_jorg (1 .5 0) (-80 -80 0) (90 90 140) Ambush Trigger_Spawn Sight

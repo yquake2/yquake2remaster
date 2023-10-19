@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Gekk (only found in Xatrix).
  *
@@ -378,9 +393,9 @@ static mframe_t gekk_frames_stand[] = {
 
 mmove_t gekk_move_stand = {
 	FRAME_stand_01,
-   	FRAME_stand_39,
-   	gekk_frames_stand,
-   	NULL
+	FRAME_stand_39,
+	gekk_frames_stand,
+	NULL
 };
 
 static mframe_t gekk_frames_standunderwater[] = {
@@ -393,9 +408,9 @@ static mframe_t gekk_frames_standunderwater[] = {
 
 mmove_t gekk_move_standunderwater = {
 	FRAME_amb_01,
-   	FRAME_amb_04,
-   	gekk_frames_standunderwater,
-   	NULL
+	FRAME_amb_04,
+	gekk_frames_standunderwater,
+	NULL
 };
 
 void
@@ -420,9 +435,9 @@ static mframe_t gekk_frames_swim[] = {
 
 mmove_t gekk_move_swim_loop = {
 	FRAME_amb_01,
-   	FRAME_amb_04,
-   	gekk_frames_swim,
-   	gekk_swim_loop
+	FRAME_amb_04,
+	gekk_frames_swim,
+	gekk_swim_loop
 };
 
 static mframe_t gekk_frames_swim_start[] = {
@@ -465,9 +480,9 @@ static mframe_t gekk_frames_swim_start[] = {
 
 mmove_t gekk_move_swim_start = {
 	FRAME_swim_01,
-   	FRAME_swim_32,
-   	gekk_frames_swim_start,
-   	gekk_swim_loop
+	FRAME_swim_32,
+	gekk_frames_swim_start,
+	gekk_swim_loop
 };
 
 void
@@ -561,16 +576,16 @@ static mframe_t gekk_frames_idle[] = {
 
 mmove_t gekk_move_idle = {
 	FRAME_idle_01,
-   	FRAME_idle_32,
-   	gekk_frames_idle,
-   	gekk_stand
+	FRAME_idle_32,
+	gekk_frames_idle,
+	gekk_stand
 };
 
 mmove_t gekk_move_idle2 = {
 	FRAME_idle_01,
-   	FRAME_idle_32,
-   	gekk_frames_idle,
-   	gekk_face
+	FRAME_idle_32,
+	gekk_frames_idle,
+	gekk_face
 };
 
 void
@@ -602,9 +617,9 @@ static mframe_t gekk_frames_walk[] = {
 
 mmove_t gekk_move_walk = {
 	FRAME_run_01,
-   	FRAME_run_06,
-   	gekk_frames_walk,
-   	NULL
+	FRAME_run_06,
+	gekk_frames_walk,
+	NULL
 };
 
 void
@@ -673,9 +688,9 @@ static mframe_t gekk_frames_run[] = {
 
 mmove_t gekk_move_run = {
 	FRAME_run_01,
-   	FRAME_run_06,
-   	gekk_frames_run,
-   	NULL
+	FRAME_run_06,
+	gekk_frames_run,
+	NULL
 };
 
 static mframe_t gekk_frames_run_st[] = {
@@ -685,9 +700,9 @@ static mframe_t gekk_frames_run_st[] = {
 
 mmove_t gekk_move_run_start = {
 	FRAME_stand_01,
-   	FRAME_stand_02,
-   	gekk_frames_run_st,
-   	gekk_run
+	FRAME_stand_02,
+	gekk_frames_run_st,
+	gekk_run
 };
 
 void
@@ -913,9 +928,9 @@ static mframe_t gekk_frames_spit[] = {
 
 mmove_t gekk_move_spit = {
 	FRAME_spit_01,
-   	FRAME_spit_07,
-   	gekk_frames_spit,
-   	gekk_run_start
+	FRAME_spit_07,
+	gekk_frames_spit,
+	gekk_run_start
 };
 
 static mframe_t gekk_frames_attack1[] = {
@@ -934,9 +949,9 @@ static mframe_t gekk_frames_attack1[] = {
 
 mmove_t gekk_move_attack1 = {
 	FRAME_clawatk3_01,
-   	FRAME_clawatk3_09,
-   	gekk_frames_attack1,
-   	gekk_run_start
+	FRAME_clawatk3_09,
+	gekk_frames_attack1,
+	gekk_run_start
 };
 
 static mframe_t gekk_frames_attack2[] = {
@@ -955,9 +970,9 @@ static mframe_t gekk_frames_attack2[] = {
 
 mmove_t gekk_move_attack2 = {
 	FRAME_clawatk5_01,
-   	FRAME_clawatk5_09,
-   	gekk_frames_attack2,
-   	gekk_run_start
+	FRAME_clawatk5_09,
+	gekk_frames_attack2,
+	gekk_run_start
 };
 
 void
@@ -999,9 +1014,9 @@ static mframe_t gekk_frames_leapatk[] = {
 
 mmove_t gekk_move_leapatk = {
 	FRAME_leapatk_01,
-   	FRAME_leapatk_19,
-   	gekk_frames_leapatk,
-   	gekk_run_start
+	FRAME_leapatk_19,
+	gekk_frames_leapatk,
+	gekk_run_start
 };
 
 static mframe_t gekk_frames_leapatk2[] = {
@@ -1029,9 +1044,9 @@ static mframe_t gekk_frames_leapatk2[] = {
 
 mmove_t gekk_move_leapatk2 = {
 	FRAME_leapatk_01,
-   	FRAME_leapatk_19,
-   	gekk_frames_leapatk2,
-   	gekk_run_start
+	FRAME_leapatk_19,
+	gekk_frames_leapatk2,
+	gekk_run_start
 };
 
 void
@@ -1082,9 +1097,9 @@ static mframe_t gekk_frames_attack[] = {
 
 mmove_t gekk_move_attack = {
 	FRAME_attack_01,
-   	FRAME_attack_21,
-   	gekk_frames_attack,
-   	gekk_run_start
+	FRAME_attack_21,
+	gekk_frames_attack,
+	gekk_run_start
 };
 
 void
@@ -1312,9 +1327,9 @@ static mframe_t gekk_frames_pain[] = {
 
 mmove_t gekk_move_pain = {
 	FRAME_pain_01,
-   	FRAME_pain_06,
-   	gekk_frames_pain,
-   	gekk_run_start
+	FRAME_pain_06,
+	gekk_frames_pain,
+	gekk_run_start
 };
 
 static mframe_t gekk_frames_pain1[] = {
@@ -1334,9 +1349,9 @@ static mframe_t gekk_frames_pain1[] = {
 
 mmove_t gekk_move_pain1 = {
 	FRAME_pain3_01,
-   	FRAME_pain3_11,
-   	gekk_frames_pain1,
-   	gekk_run_start
+	FRAME_pain3_11,
+	gekk_frames_pain1,
+	gekk_run_start
 };
 
 static mframe_t gekk_frames_pain2[] = {
@@ -1358,9 +1373,9 @@ static mframe_t gekk_frames_pain2[] = {
 
 mmove_t gekk_move_pain2 = {
 	FRAME_pain4_01,
-   	FRAME_pain4_13,
-   	gekk_frames_pain2,
-   	gekk_run_start
+	FRAME_pain4_13,
+	gekk_frames_pain2,
+	gekk_run_start
 };
 
 void
@@ -1500,9 +1515,9 @@ static mframe_t gekk_frames_death1[] = {
 
 mmove_t gekk_move_death1 = {
 	FRAME_death1_01,
-   	FRAME_death1_10,
-   	gekk_frames_death1,
-   	gekk_dead
+	FRAME_death1_10,
+	gekk_frames_death1,
+	gekk_dead
 };
 
 static mframe_t gekk_frames_death3[] = {
@@ -1517,9 +1532,9 @@ static mframe_t gekk_frames_death3[] = {
 
 mmove_t gekk_move_death3 = {
 	FRAME_death3_01,
-   	FRAME_death3_07,
-   	gekk_frames_death3,
-   	gekk_dead
+	FRAME_death3_07,
+	gekk_frames_death3,
+	gekk_dead
 };
 
 static mframe_t gekk_frames_death4[] = {
@@ -1562,9 +1577,9 @@ static mframe_t gekk_frames_death4[] = {
 
 mmove_t gekk_move_death4 = {
 	FRAME_death4_01,
-   	FRAME_death4_35,
-   	gekk_frames_death4,
-   	gekk_dead
+	FRAME_death4_35,
+	gekk_frames_death4,
+	gekk_dead
 };
 
 static mframe_t gekk_frames_wdeath[] = {
@@ -1617,9 +1632,9 @@ static mframe_t gekk_frames_wdeath[] = {
 
 mmove_t gekk_move_wdeath = {
 	FRAME_wdeath_01,
-   	FRAME_wdeath_45,
-   	gekk_frames_wdeath,
-   	gekk_dead
+	FRAME_wdeath_45,
+	gekk_frames_wdeath,
+	gekk_dead
 };
 
 void
@@ -1754,9 +1769,9 @@ static mframe_t gekk_frames_lduck[] = {
 
 mmove_t gekk_move_lduck = {
 	FRAME_lduck_01,
-   	FRAME_lduck_13,
-   	gekk_frames_lduck,
-   	gekk_run_start
+	FRAME_lduck_13,
+	gekk_frames_lduck,
+	gekk_run_start
 };
 
 static mframe_t gekk_frames_rduck[] = {
@@ -1777,9 +1792,9 @@ static mframe_t gekk_frames_rduck[] = {
 
 mmove_t gekk_move_rduck = {
 	FRAME_rduck_01,
-   	FRAME_rduck_13,
-   	gekk_frames_rduck,
-   	gekk_run_start
+	FRAME_rduck_13,
+	gekk_frames_rduck,
+	gekk_run_start
 };
 
 void

@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Gunner.
  *
@@ -119,9 +134,9 @@ static mframe_t gunner_frames_fidget[] = {
 
 mmove_t gunner_move_fidget = {
 	FRAME_stand31,
-   	FRAME_stand70,
-   	gunner_frames_fidget,
-   	gunner_stand
+	FRAME_stand70,
+	gunner_frames_fidget,
+	gunner_stand
 };
 
 void
@@ -185,9 +200,9 @@ static mframe_t gunner_frames_stand[] = {
 
 mmove_t gunner_move_stand = {
 	FRAME_stand01,
-   	FRAME_stand30,
-   	gunner_frames_stand,
-   	NULL
+	FRAME_stand30,
+	gunner_frames_stand,
+	NULL
 };
 
 void
@@ -219,9 +234,9 @@ static mframe_t gunner_frames_walk[] = {
 
 mmove_t gunner_move_walk = {
 	FRAME_walk07,
-   	FRAME_walk19,
-   	gunner_frames_walk,
-   	NULL
+	FRAME_walk19,
+	gunner_frames_walk,
+	NULL
 };
 
 void
@@ -248,9 +263,9 @@ static mframe_t gunner_frames_run[] = {
 
 mmove_t gunner_move_run = {
 	FRAME_run01,
-   	FRAME_run08,
-   	gunner_frames_run,
-   	NULL
+	FRAME_run08,
+	gunner_frames_run,
+	NULL
 };
 
 void
@@ -282,9 +297,9 @@ static mframe_t gunner_frames_runandshoot[] = {
 
 mmove_t gunner_move_runandshoot = {
 	FRAME_runs01,
-   	FRAME_runs06,
-   	gunner_frames_runandshoot,
-   	NULL
+	FRAME_runs06,
+	gunner_frames_runandshoot,
+	NULL
 };
 
 void
@@ -308,9 +323,9 @@ static mframe_t gunner_frames_pain3[] = {
 
 mmove_t gunner_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain305,
-   	gunner_frames_pain3,
-   	gunner_run
+	FRAME_pain305,
+	gunner_frames_pain3,
+	gunner_run
 };
 
 static mframe_t gunner_frames_pain2[] = {
@@ -326,9 +341,9 @@ static mframe_t gunner_frames_pain2[] = {
 
 mmove_t gunner_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain208,
-   	gunner_frames_pain2,
-   	gunner_run
+	FRAME_pain208,
+	gunner_frames_pain2,
+	gunner_run
 };
 
 static mframe_t gunner_frames_pain1[] = {
@@ -354,9 +369,9 @@ static mframe_t gunner_frames_pain1[] = {
 
 mmove_t gunner_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain118,
-   	gunner_frames_pain1,
-   	gunner_run
+	FRAME_pain118,
+	gunner_frames_pain1,
+	gunner_run
 };
 
 void
@@ -440,9 +455,9 @@ static mframe_t gunner_frames_death[] = {
 
 mmove_t gunner_move_death = {
 	FRAME_death01,
-   	FRAME_death11,
-   	gunner_frames_death,
-   	gunner_dead
+	FRAME_death11,
+	gunner_frames_death,
+	gunner_dead
 };
 
 void
@@ -565,7 +580,7 @@ mmove_t gunner_move_duck = {
 	FRAME_duck01,
 	FRAME_duck08,
 	gunner_frames_duck,
-   	gunner_run
+	gunner_run
 };
 
 void
@@ -682,9 +697,9 @@ static mframe_t gunner_frames_attack_chain[] = {
 
 mmove_t gunner_move_attack_chain = {
 	FRAME_attak209,
-   	FRAME_attak215,
-   	gunner_frames_attack_chain,
-   	gunner_fire_chain
+	FRAME_attak215,
+	gunner_frames_attack_chain,
+	gunner_fire_chain
 };
 
 static mframe_t gunner_frames_fire_chain[] = {
@@ -700,9 +715,9 @@ static mframe_t gunner_frames_fire_chain[] = {
 
 mmove_t gunner_move_fire_chain = {
 	FRAME_attak216,
-   	FRAME_attak223,
-   	gunner_frames_fire_chain,
-   	gunner_refire_chain
+	FRAME_attak223,
+	gunner_frames_fire_chain,
+	gunner_refire_chain
 };
 
 static mframe_t gunner_frames_endfire_chain[] = {
@@ -717,9 +732,9 @@ static mframe_t gunner_frames_endfire_chain[] = {
 
 mmove_t gunner_move_endfire_chain = {
 	FRAME_attak224,
-   	FRAME_attak230,
-   	gunner_frames_endfire_chain,
-   	gunner_run
+	FRAME_attak230,
+	gunner_frames_endfire_chain,
+	gunner_run
 };
 
 static mframe_t gunner_frames_attack_grenade[] = {
@@ -748,9 +763,9 @@ static mframe_t gunner_frames_attack_grenade[] = {
 
 mmove_t gunner_move_attack_grenade = {
 	FRAME_attak101,
-   	FRAME_attak121,
-   	gunner_frames_attack_grenade,
-   	gunner_run
+	FRAME_attak121,
+	gunner_frames_attack_grenade,
+	gunner_run
 };
 
 void

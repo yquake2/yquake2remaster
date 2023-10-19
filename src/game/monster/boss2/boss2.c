@@ -266,7 +266,7 @@ static mframe_t boss2_frames_stand[] = {
 mmove_t boss2_move_stand =
 {
 	FRAME_stand30,
-   	FRAME_stand50,
+	FRAME_stand50,
 	boss2_frames_stand,
 	NULL
 };
@@ -369,7 +369,8 @@ mmove_t boss2_move_run = {
 	FRAME_walk1,
 	FRAME_walk20,
 	boss2_frames_run,
-	NULL};
+	NULL
+};
 
 static mframe_t boss2_frames_attack_pre_mg[] = {
 	{ai_charge, 1, NULL},
@@ -451,7 +452,7 @@ static mframe_t boss2_frames_attack_rocket[] = {
 mmove_t boss2_move_attack_rocket =
 {
 	FRAME_attack20,
-   	FRAME_attack40,
+	FRAME_attack40,
 	boss2_frames_attack_rocket,
 	boss2_run
 };
@@ -482,7 +483,8 @@ mmove_t boss2_move_pain_heavy =
 	FRAME_pain2,
 	FRAME_pain19,
 	boss2_frames_pain_heavy,
-	boss2_run};
+	boss2_run
+};
 
 static mframe_t boss2_frames_pain_light[] = {
 	{ai_move, 0, NULL},
@@ -494,9 +496,9 @@ static mframe_t boss2_frames_pain_light[] = {
 mmove_t boss2_move_pain_light =
 {
 	FRAME_pain20,
-   	FRAME_pain23,
-   	boss2_frames_pain_light,
-   	boss2_run
+	FRAME_pain23,
+	boss2_frames_pain_light,
+	boss2_run
 };
 
 static mframe_t boss2_frames_death[] = {

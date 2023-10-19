@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Soldier aka "Guard". This is the most complex enemy in Quake 2, since
  * it uses all AI features (dodging, sight, crouching, etc) and comes
@@ -124,9 +139,9 @@ static mframe_t soldier_frames_stand1[] = {
 
 mmove_t soldier_move_stand1 = {
 	FRAME_stand101,
-   	FRAME_stand130,
-   	soldier_frames_stand1,
-   	soldier_stand
+	FRAME_stand130,
+	soldier_frames_stand1,
+	soldier_stand
 };
 
 static mframe_t soldier_frames_stand3[] = {
@@ -176,9 +191,9 @@ static mframe_t soldier_frames_stand3[] = {
 
 mmove_t soldier_move_stand3 = {
 	FRAME_stand301,
-   	FRAME_stand339,
-   	soldier_frames_stand3,
-   	soldier_stand
+	FRAME_stand339,
+	soldier_frames_stand3,
+	soldier_stand
 };
 
 void
@@ -252,9 +267,9 @@ static mframe_t soldier_frames_walk1[] = {
 
 mmove_t soldier_move_walk1 = {
 	FRAME_walk101,
-   	FRAME_walk133,
-   	soldier_frames_walk1,
-   	NULL
+	FRAME_walk133,
+	soldier_frames_walk1,
+	NULL
 };
 
 static mframe_t soldier_frames_walk2[] = {
@@ -272,9 +287,9 @@ static mframe_t soldier_frames_walk2[] = {
 
 mmove_t soldier_move_walk2 = {
 	FRAME_walk209,
-   	FRAME_walk218,
-   	soldier_frames_walk2,
-   	NULL
+	FRAME_walk218,
+	soldier_frames_walk2,
+	NULL
 };
 
 void
@@ -302,9 +317,9 @@ static mframe_t soldier_frames_start_run[] = {
 
 mmove_t soldier_move_start_run = {
 	FRAME_run01,
-   	FRAME_run02,
-   	soldier_frames_start_run,
-   	soldier_run
+	FRAME_run02,
+	soldier_frames_start_run,
+	soldier_run
 };
 
 void
@@ -332,9 +347,9 @@ static mframe_t soldier_frames_run[] = {
 
 mmove_t soldier_move_run = {
 	FRAME_run03,
-   	FRAME_run08,
-   	soldier_frames_run,
-   	NULL
+	FRAME_run08,
+	soldier_frames_run,
+	NULL
 };
 
 void
@@ -375,9 +390,9 @@ static mframe_t soldier_frames_pain1[] = {
 
 mmove_t soldier_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain105,
-   	soldier_frames_pain1,
-   	soldier_run
+	FRAME_pain105,
+	soldier_frames_pain1,
+	soldier_run
 };
 
 static mframe_t soldier_frames_pain2[] = {
@@ -392,9 +407,9 @@ static mframe_t soldier_frames_pain2[] = {
 
 mmove_t soldier_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain207,
-   	soldier_frames_pain2,
-   	soldier_run
+	FRAME_pain207,
+	soldier_frames_pain2,
+	soldier_run
 };
 
 static mframe_t soldier_frames_pain3[] = {
@@ -420,9 +435,9 @@ static mframe_t soldier_frames_pain3[] = {
 
 mmove_t soldier_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain318,
-   	soldier_frames_pain3,
-   	soldier_run
+	FRAME_pain318,
+	soldier_frames_pain3,
+	soldier_run
 };
 
 static mframe_t soldier_frames_pain4[] = {
@@ -447,9 +462,9 @@ static mframe_t soldier_frames_pain4[] = {
 
 mmove_t soldier_move_pain4 = {
 	FRAME_pain401,
-   	FRAME_pain417,
-   	soldier_frames_pain4,
-   	soldier_run
+	FRAME_pain417,
+	soldier_frames_pain4,
+	soldier_run
 };
 
 void
@@ -801,9 +816,9 @@ static mframe_t soldier_frames_attack1[] = {
 
 mmove_t soldier_move_attack1 = {
 	FRAME_attak101,
-   	FRAME_attak112,
-   	soldier_frames_attack1,
-   	soldier_run
+	FRAME_attak112,
+	soldier_frames_attack1,
+	soldier_run
 };
 
 void
@@ -902,9 +917,9 @@ static mframe_t soldier_frames_attack2[] = {
 
 mmove_t soldier_move_attack2 = {
 	FRAME_attak201,
-   	FRAME_attak218,
-   	soldier_frames_attack2,
-   	soldier_run
+	FRAME_attak218,
+	soldier_frames_attack2,
+	soldier_run
 };
 
 void
@@ -947,9 +962,9 @@ static mframe_t soldier_frames_attack3[] = {
 
 mmove_t soldier_move_attack3 = {
 	FRAME_attak301,
-   	FRAME_attak309,
-   	soldier_frames_attack3,
-   	soldier_run
+	FRAME_attak309,
+	soldier_frames_attack3,
+	soldier_run
 };
 
 void
@@ -974,9 +989,9 @@ static mframe_t soldier_frames_attack4[] = {
 
 mmove_t soldier_move_attack4 = {
 	FRAME_attak401,
-   	FRAME_attak406,
-   	soldier_frames_attack4,
-   	soldier_run
+	FRAME_attak406,
+	soldier_frames_attack4,
+	soldier_run
 };
 
 void
@@ -1042,9 +1057,9 @@ static mframe_t soldier_frames_attack6[] = {
 
 mmove_t soldier_move_attack6 = {
 	FRAME_runs01,
-   	FRAME_runs14,
-   	soldier_frames_attack6,
-   	soldier_run
+	FRAME_runs14,
+	soldier_frames_attack6,
+	soldier_run
 };
 
 void
@@ -1167,9 +1182,9 @@ static mframe_t soldier_frames_duck[] = {
 
 mmove_t soldier_move_duck = {
 	FRAME_duck01,
-   	FRAME_duck05,
-   	soldier_frames_duck,
-   	soldier_run
+	FRAME_duck05,
+	soldier_frames_duck,
+	soldier_run
 };
 
 qboolean
@@ -1317,9 +1332,9 @@ static mframe_t soldier_frames_death1[] = {
 
 mmove_t soldier_move_death1 = {
 	FRAME_death101,
-   	FRAME_death136,
-   	soldier_frames_death1,
-   	soldier_dead
+	FRAME_death136,
+	soldier_frames_death1,
+	soldier_dead
 };
 
 static mframe_t soldier_frames_death2[] = {
@@ -1365,9 +1380,9 @@ static mframe_t soldier_frames_death2[] = {
 
 mmove_t soldier_move_death2 = {
 	FRAME_death201,
-   	FRAME_death235,
-   	soldier_frames_death2,
-   	soldier_dead
+	FRAME_death235,
+	soldier_frames_death2,
+	soldier_dead
 };
 
 static mframe_t soldier_frames_death3[] = {
@@ -1424,9 +1439,9 @@ static mframe_t soldier_frames_death3[] = {
 
 mmove_t soldier_move_death3 = {
 	FRAME_death301,
-   	FRAME_death345,
-   	soldier_frames_death3,
-   	soldier_dead
+	FRAME_death345,
+	soldier_frames_death3,
+	soldier_dead
 };
 
 static mframe_t soldier_frames_death4[] = {
@@ -1492,9 +1507,9 @@ static mframe_t soldier_frames_death4[] = {
 
 mmove_t soldier_move_death4 = {
 	FRAME_death401,
-   	FRAME_death453,
-   	soldier_frames_death4,
-   	soldier_dead2
+	FRAME_death453,
+	soldier_frames_death4,
+	soldier_dead2
 };
 
 static mframe_t soldier_frames_death5[] = {
@@ -1528,9 +1543,9 @@ static mframe_t soldier_frames_death5[] = {
 
 mmove_t soldier_move_death5 = {
 	FRAME_death501,
-   	FRAME_death524,
-   	soldier_frames_death5,
-   	soldier_dead
+	FRAME_death524,
+	soldier_frames_death5,
+	soldier_dead
 };
 
 static mframe_t soldier_frames_death6[] = {
@@ -1548,9 +1563,9 @@ static mframe_t soldier_frames_death6[] = {
 
 mmove_t soldier_move_death6 = {
 	FRAME_death601,
-   	FRAME_death610,
-   	soldier_frames_death6,
-   	soldier_dead
+	FRAME_death610,
+	soldier_frames_death6,
+	soldier_dead
 };
 
 void
@@ -1729,9 +1744,9 @@ static mframe_t soldier_frames_blind[] = {
 
 mmove_t soldier_move_blind = {
 	FRAME_stand101,
-   	FRAME_stand130,
-   	soldier_frames_blind,
-   	soldier_blind
+	FRAME_stand130,
+	soldier_frames_blind,
+	soldier_blind
 };
 
 void

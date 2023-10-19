@@ -764,9 +764,9 @@ static mframe_t fixbot_frames_landing[] = {
 
 mmove_t fixbot_move_landing = {
 	FRAME_landing_01,
-   	FRAME_landing_58,
-   	fixbot_frames_landing,
-   	NULL
+	FRAME_landing_58,
+	fixbot_frames_landing,
+	NULL
 };
 
 /*  generic ambient stand */
@@ -795,9 +795,9 @@ static mframe_t fixbot_frames_stand[] = {
 
 mmove_t fixbot_move_stand = {
 	FRAME_ambient_01,
-   	FRAME_ambient_19,
-   	fixbot_frames_stand,
-   	NULL
+	FRAME_ambient_19,
+	fixbot_frames_stand,
+	NULL
 };
 
 static mframe_t fixbot_frames_stand2[] = {
@@ -825,9 +825,9 @@ static mframe_t fixbot_frames_stand2[] = {
 
 mmove_t fixbot_move_stand2 = {
 	FRAME_ambient_01,
-   	FRAME_ambient_19,
-   	fixbot_frames_stand2,
-   	NULL
+	FRAME_ambient_19,
+	fixbot_frames_stand2,
+	NULL
 };
 
 /*
@@ -870,9 +870,9 @@ static mframe_t fixbot_frames_pickup[] = {
 
 mmove_t fixbot_move_pickup = {
 	FRAME_pickup_01,
-   	FRAME_pickup_27,
-   	fixbot_frames_pickup,
-   	NULL
+	FRAME_pickup_27,
+	fixbot_frames_pickup,
+	NULL
 };
 
 /*  generic frame to move bot */
@@ -882,9 +882,9 @@ static mframe_t fixbot_frames_roamgoal[] = {
 
 mmove_t fixbot_move_roamgoal = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_roamgoal,
-   	NULL
+	FRAME_freeze_01,
+	fixbot_frames_roamgoal,
+	NULL
 };
 
 void
@@ -915,9 +915,9 @@ static mframe_t fixbot_frames_turn[] = {
 
 mmove_t fixbot_move_turn = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_turn,
-   	NULL
+	FRAME_freeze_01,
+	fixbot_frames_turn,
+	NULL
 };
 
 void
@@ -954,9 +954,9 @@ static mframe_t fixbot_frames_takeoff[] = {
 
 mmove_t fixbot_move_takeoff = {
 	FRAME_takeoff_01,
-   	FRAME_takeoff_16,
-   	fixbot_frames_takeoff,
-   	NULL
+	FRAME_takeoff_16,
+	fixbot_frames_takeoff,
+	NULL
 };
 
 /* findout what this is */
@@ -971,9 +971,9 @@ static mframe_t fixbot_frames_paina[] = {
 
 mmove_t fixbot_move_paina = {
 	FRAME_paina_01,
-   	FRAME_paina_06,
-   	fixbot_frames_paina,
-   	fixbot_run
+	FRAME_paina_06,
+	fixbot_frames_paina,
+	fixbot_run
 };
 
 /* findout what this is */
@@ -990,9 +990,9 @@ static mframe_t fixbot_frames_painb[] = {
 
 mmove_t fixbot_move_painb = {
 	FRAME_painb_01,
-   	FRAME_painb_08,
-   	fixbot_frames_painb,
-   	fixbot_run
+	FRAME_painb_08,
+	fixbot_frames_painb,
+	fixbot_run
 };
 
 /*
@@ -1006,9 +1006,9 @@ static mframe_t fixbot_frames_pain3[] = {
 
 mmove_t fixbot_move_pain3 = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_pain3,
-   	fixbot_run
+	FRAME_freeze_01,
+	fixbot_frames_pain3,
+	fixbot_run
 };
 
 /*
@@ -1023,9 +1023,9 @@ static mframe_t fixbot_frames_land[] = {
 
 mmove_t fixbot_move_land = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_land,
-   	NULL
+	FRAME_freeze_01,
+	fixbot_frames_land,
+	NULL
 };
 
 void
@@ -1045,9 +1045,9 @@ static mframe_t fixbot_frames_forward[] = {
 
 mmove_t fixbot_move_forward = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_forward,
-   	NULL
+	FRAME_freeze_01,
+	fixbot_frames_forward,
+	NULL
 };
 
 static mframe_t fixbot_frames_walk[] = {
@@ -1056,8 +1056,8 @@ static mframe_t fixbot_frames_walk[] = {
 
 mmove_t fixbot_move_walk = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_walk,
+	FRAME_freeze_01,
+	fixbot_frames_walk,
 	NULL
 };
 
@@ -1067,9 +1067,9 @@ static mframe_t fixbot_frames_run[] = {
 
 mmove_t fixbot_move_run = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_run,
-   	NULL
+	FRAME_freeze_01,
+	fixbot_frames_run,
+	NULL
 };
 
 static mframe_t fixbot_frames_death1[] = {
@@ -1078,9 +1078,9 @@ static mframe_t fixbot_frames_death1[] = {
 };
 mmove_t fixbot_move_death1 = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_death1,
-   	fixbot_dead
+	FRAME_freeze_01,
+	fixbot_frames_death1,
+	fixbot_dead
 };
 
 static mframe_t fixbot_frames_backward[] = {
@@ -1089,9 +1089,9 @@ static mframe_t fixbot_frames_backward[] = {
 
 mmove_t fixbot_move_backward = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_backward,
-   	NULL
+	FRAME_freeze_01,
+	fixbot_frames_backward,
+	NULL
 };
 
 static mframe_t fixbot_frames_start_attack[] = {
@@ -1100,9 +1100,9 @@ static mframe_t fixbot_frames_start_attack[] = {
 
 mmove_t fixbot_move_start_attack = {
 	FRAME_freeze_01,
-   	FRAME_freeze_01,
-   	fixbot_frames_start_attack,
-   	fixbot_attack
+	FRAME_freeze_01,
+	fixbot_frames_start_attack,
+	fixbot_attack
 };
 
 static mframe_t fixbot_frames_attack1[] = {
@@ -1116,9 +1116,9 @@ static mframe_t fixbot_frames_attack1[] = {
 
 mmove_t fixbot_move_attack1 = {
 	FRAME_shoot_01,
-   	FRAME_shoot_06,
-   	fixbot_frames_attack1,
-   	NULL
+	FRAME_shoot_06,
+	fixbot_frames_attack1,
+	NULL
 };
 
 int
@@ -1234,9 +1234,9 @@ static mframe_t fixbot_frames_laserattack[] = {
 
 mmove_t fixbot_move_laserattack = {
 	FRAME_shoot_01,
-   	FRAME_shoot_06,
-   	fixbot_frames_laserattack,
-   	NULL
+	FRAME_shoot_06,
+	fixbot_frames_laserattack,
+	NULL
 };
 
 /* need to get forward translation
@@ -1280,9 +1280,9 @@ static mframe_t fixbot_frames_attack2[] = {
 
 mmove_t fixbot_move_attack2 = {
 	FRAME_charging_01,
-   	FRAME_charging_31,
-   	fixbot_frames_attack2,
-   	fixbot_run
+	FRAME_charging_31,
+	fixbot_frames_attack2,
+	fixbot_run
 };
 
 void
@@ -1351,9 +1351,9 @@ static mframe_t fixbot_frames_weld_start[] = {
 
 mmove_t fixbot_move_weld_start = {
 	FRAME_weldstart_01,
-   	FRAME_weldstart_10,
-   	fixbot_frames_weld_start,
-   	NULL
+	FRAME_weldstart_10,
+	fixbot_frames_weld_start,
+	NULL
 };
 
 static mframe_t fixbot_frames_weld[] = {
@@ -1368,9 +1368,9 @@ static mframe_t fixbot_frames_weld[] = {
 
 mmove_t fixbot_move_weld = {
 	FRAME_weldmiddle_01,
-   	FRAME_weldmiddle_07,
-   	fixbot_frames_weld,
-   	NULL
+	FRAME_weldmiddle_07,
+	fixbot_frames_weld,
+	NULL
 };
 
 static mframe_t fixbot_frames_weld_end[] = {
@@ -1385,9 +1385,9 @@ static mframe_t fixbot_frames_weld_end[] = {
 
 mmove_t fixbot_move_weld_end = {
 	FRAME_weldend_01,
-   	FRAME_weldend_07,
-   	fixbot_frames_weld_end,
-   	NULL
+	FRAME_weldend_07,
+	fixbot_frames_weld_end,
+	NULL
 };
 
 void

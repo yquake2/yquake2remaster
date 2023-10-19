@@ -95,9 +95,9 @@ static mframe_t flipper_frames_run[] = {
 mmove_t flipper_move_run_loop =
 {
 	FRAME_flpver06,
-   	FRAME_flpver29,
-   	flipper_frames_run,
-   	NULL
+	FRAME_flpver29,
+	flipper_frames_run,
+	NULL
 };
 
 void
@@ -123,9 +123,9 @@ static mframe_t flipper_frames_run_start[] = {
 mmove_t flipper_move_run_start =
 {
 	FRAME_flpver01,
-   	FRAME_flpver06,
+	FRAME_flpver06,
 	flipper_frames_run_start,
-   	flipper_run_loop
+	flipper_run_loop
 };
 
 void
@@ -197,9 +197,9 @@ static mframe_t flipper_frames_start_run[] = {
 mmove_t flipper_move_start_run =
 {
 	FRAME_flphor01,
-   	FRAME_flphor05,
-   	flipper_frames_start_run,
-   	NULL
+	FRAME_flphor05,
+	flipper_frames_start_run,
+	NULL
 };
 
 void
@@ -224,9 +224,9 @@ static mframe_t flipper_frames_pain2[] = {
 mmove_t flipper_move_pain2 =
 {
 	FRAME_flppn101,
-   	FRAME_flppn105,
-   	flipper_frames_pain2,
-   	flipper_run
+	FRAME_flppn105,
+	flipper_frames_pain2,
+	flipper_run
 };
 
 static mframe_t flipper_frames_pain1[] = {
@@ -239,7 +239,7 @@ static mframe_t flipper_frames_pain1[] = {
 mmove_t flipper_move_pain1 =
 {
 	FRAME_flppn201,
-   	FRAME_flppn205,
+	FRAME_flppn205,
 	flipper_frames_pain1,
 	flipper_run
 };

@@ -136,9 +136,9 @@ static mframe_t flyer_frames_stand[] = {
 mmove_t flyer_move_stand =
 {
 	FRAME_stand01,
-   	FRAME_stand45,
-   	flyer_frames_stand,
-   	NULL
+	FRAME_stand45,
+	flyer_frames_stand,
+	NULL
 };
 
 static mframe_t flyer_frames_walk[] = {
@@ -192,9 +192,9 @@ static mframe_t flyer_frames_walk[] = {
 mmove_t flyer_move_walk =
 {
 	FRAME_stand01,
-   	FRAME_stand45,
-   	flyer_frames_walk,
-   	NULL
+	FRAME_stand45,
+	flyer_frames_walk,
+	NULL
 };
 
 static mframe_t flyer_frames_run[] = {
@@ -263,9 +263,9 @@ static mframe_t flyer_frames_kamizake[] = {
 
 mmove_t flyer_move_kamikaze = {
 	FRAME_rollr02,
-   	FRAME_rollr06,
+	FRAME_rollr06,
 	flyer_frames_kamizake,
-   	flyer_kamikaze
+	flyer_kamikaze
 };
 
 void
@@ -471,7 +471,7 @@ mmove_t flyer_move_rollright =
 	FRAME_rollr01,
 	FRAME_rollr09,
 	flyer_frames_rollright,
-   	NULL
+	NULL
 };
 
 static mframe_t flyer_frames_rollleft[] = {
@@ -713,9 +713,9 @@ static mframe_t flyer_frames_attack3[] =
 
 mmove_t flyer_move_attack3 = {
 	FRAME_attak201,
-   	FRAME_attak217,
-   	flyer_frames_attack3,
-   	flyer_run
+	FRAME_attak217,
+	flyer_frames_attack3,
+	flyer_run
 };
 
 void

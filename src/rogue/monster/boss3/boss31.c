@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Final boss, stage 1 (jorg).
  *
@@ -126,9 +141,9 @@ static mframe_t jorg_frames_stand[] = {
 
 mmove_t jorg_move_stand = {
 	FRAME_stand01,
-   	FRAME_stand51,
-   	jorg_frames_stand,
-   	NULL
+	FRAME_stand51,
+	jorg_frames_stand,
+	NULL
 };
 
 void
@@ -205,9 +220,9 @@ static mframe_t jorg_frames_run[] = {
 
 mmove_t jorg_move_run = {
 	FRAME_walk06,
-   	FRAME_walk19,
-   	jorg_frames_run,
-   	NULL
+	FRAME_walk19,
+	jorg_frames_run,
+	NULL
 };
 
 /* walk */
@@ -221,9 +236,9 @@ static mframe_t jorg_frames_start_walk[] = {
 
 mmove_t jorg_move_start_walk = {
 	FRAME_walk01,
-   	FRAME_walk05,
-   	jorg_frames_start_walk,
-   	NULL
+	FRAME_walk05,
+	jorg_frames_start_walk,
+	NULL
 };
 
 static mframe_t jorg_frames_walk[] = {
@@ -245,9 +260,9 @@ static mframe_t jorg_frames_walk[] = {
 
 mmove_t jorg_move_walk = {
 	FRAME_walk06,
-   	FRAME_walk19,
-   	jorg_frames_walk,
-   	NULL
+	FRAME_walk19,
+	jorg_frames_walk,
+	NULL
 };
 
 static mframe_t jorg_frames_end_walk[] = {
@@ -261,9 +276,9 @@ static mframe_t jorg_frames_end_walk[] = {
 
 mmove_t jorg_move_end_walk = {
 	FRAME_walk20,
-   	FRAME_walk25,
-   	jorg_frames_end_walk,
-   	NULL
+	FRAME_walk25,
+	jorg_frames_end_walk,
+	NULL
 };
 
 void
@@ -325,9 +340,9 @@ static mframe_t jorg_frames_pain3[] = {
 
 mmove_t jorg_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain325,
-   	jorg_frames_pain3,
-   	jorg_run
+	FRAME_pain325,
+	jorg_frames_pain3,
+	jorg_run
 };
 
 static mframe_t jorg_frames_pain2[] = {
@@ -338,9 +353,9 @@ static mframe_t jorg_frames_pain2[] = {
 
 mmove_t jorg_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain203,
-   	jorg_frames_pain2,
-   	jorg_run
+	FRAME_pain203,
+	jorg_frames_pain2,
+	jorg_run
 };
 
 static mframe_t jorg_frames_pain1[] = {
@@ -351,9 +366,9 @@ static mframe_t jorg_frames_pain1[] = {
 
 mmove_t jorg_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain103,
-   	jorg_frames_pain1,
-   	jorg_run
+	FRAME_pain103,
+	jorg_frames_pain1,
+	jorg_run
 };
 
 static mframe_t jorg_frames_death1[] = {
@@ -411,9 +426,9 @@ static mframe_t jorg_frames_death1[] = {
 
 mmove_t jorg_move_death = {
 	FRAME_death01,
-   	FRAME_death50,
-   	jorg_frames_death1,
-   	jorg_dead
+	FRAME_death50,
+	jorg_frames_death1,
+	jorg_dead
 };
 
 static mframe_t jorg_frames_attack2[] = {
@@ -434,9 +449,9 @@ static mframe_t jorg_frames_attack2[] = {
 
 mmove_t jorg_move_attack2 = {
 	FRAME_attak201,
-   	FRAME_attak213,
-   	jorg_frames_attack2,
-   	jorg_run
+	FRAME_attak213,
+	jorg_frames_attack2,
+	jorg_run
 };
 
 static mframe_t jorg_frames_start_attack1[] = {
@@ -452,9 +467,9 @@ static mframe_t jorg_frames_start_attack1[] = {
 
 mmove_t jorg_move_start_attack1 = {
 	FRAME_attak101,
-   	FRAME_attak108,
-   	jorg_frames_start_attack1,
-   	jorg_attack1
+	FRAME_attak108,
+	jorg_frames_start_attack1,
+	jorg_attack1
 };
 
 static mframe_t jorg_frames_attack1[] = {
@@ -468,9 +483,9 @@ static mframe_t jorg_frames_attack1[] = {
 
 mmove_t jorg_move_attack1 = {
 	FRAME_attak109,
-   	FRAME_attak114,
-   	jorg_frames_attack1,
-   	jorg_reattack1
+	FRAME_attak114,
+	jorg_frames_attack1,
+	jorg_reattack1
 };
 
 static mframe_t jorg_frames_end_attack1[] = {
@@ -482,9 +497,9 @@ static mframe_t jorg_frames_end_attack1[] = {
 
 mmove_t jorg_move_end_attack1 = {
 	FRAME_attak115,
-   	FRAME_attak118,
-   	jorg_frames_end_attack1,
-   	jorg_run
+	FRAME_attak118,
+	jorg_frames_end_attack1,
+	jorg_run
 };
 
 void

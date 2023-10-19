@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +42,8 @@ static int sound_search;
 static int sound_melee1;
 static int sound_melee2;
 static int sound_melee3;
+void brain_run(edict_t *self);
+void brain_dead(edict_t *self);
 
 static int  sound_step;
 static int  sound_step2;
@@ -91,8 +94,7 @@ brain_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void brain_run(edict_t *self);
-void brain_dead(edict_t *self);
+/* STAND */
 
 static mframe_t brain_frames_stand[] = {
 	{ai_stand, 0, NULL},
@@ -147,6 +149,8 @@ brain_stand(edict_t *self)
 
 	self->monsterinfo.currentmove = &brain_move_stand;
 }
+
+/* IDLE */
 
 static mframe_t brain_frames_idle[] = {
 	{ai_stand, 0, NULL},
@@ -203,6 +207,8 @@ brain_idle(edict_t *self)
 	self->monsterinfo.currentmove = &brain_move_idle;
 }
 
+/* WALK */
+
 static mframe_t brain_frames_walk1[] = {
 	{ai_walk, 7, NULL},
 	{ai_walk, 2, NULL},
@@ -220,7 +226,7 @@ static mframe_t brain_frames_walk1[] = {
 mmove_t brain_move_walk1 =
 {
 	FRAME_walk101,
-   	FRAME_walk111,
+	FRAME_walk111,
 	brain_frames_walk1,
 	NULL
 };
@@ -287,9 +293,9 @@ static mframe_t brain_frames_pain2[] = {
 mmove_t brain_move_pain2 =
 {
 	FRAME_pain201,
-   	FRAME_pain208,
-   	brain_frames_pain2,
-   	brain_run
+	FRAME_pain208,
+	brain_frames_pain2,
+	brain_run
 };
 
 static mframe_t brain_frames_pain1[] = {
@@ -323,6 +329,8 @@ mmove_t brain_move_pain1 =
 	brain_frames_pain1,
 	brain_run
 };
+
+/* DUCK */
 
 void
 brain_duck_down(edict_t *self)
@@ -389,9 +397,9 @@ static mframe_t brain_frames_duck[] = {
 mmove_t brain_move_duck =
 {
 	FRAME_duck01,
-   	FRAME_duck08,
-   	brain_frames_duck,
-   	brain_run
+	FRAME_duck08,
+	brain_frames_duck,
+	brain_run
 };
 
 void
@@ -429,8 +437,8 @@ static mframe_t brain_frames_death2[] = {
 mmove_t brain_move_death2 =
 {
 	FRAME_death201,
-   	FRAME_death205,
-   	brain_frames_death2,
+	FRAME_death205,
+	brain_frames_death2,
 	brain_dead
 };
 
@@ -458,10 +466,12 @@ static mframe_t brain_frames_death1[] = {
 mmove_t brain_move_death1 =
 {
 	FRAME_death101,
-   	FRAME_death118,
-   	brain_frames_death1,
-   	brain_dead
+	FRAME_death118,
+	brain_frames_death1,
+	brain_dead
 };
+
+/* MELEE */
 
 void
 brain_swing_right(edict_t *self)
@@ -646,6 +656,298 @@ brain_melee(edict_t *self)
 	}
 }
 
+qboolean
+brain_tounge_attack_ok(vec3_t start, vec3_t end)
+{
+	vec3_t dir, angles;
+
+	/* check for max distance */
+	VectorSubtract(start, end, dir);
+
+	if (VectorLength(dir) > 512)
+	{
+		return false;
+	}
+
+	/* check for min/max pitch */
+	vectoangles(dir, angles);
+
+	if (angles[0] < -180)
+	{
+		angles[0] += 360;
+	}
+
+	if (fabs(angles[0]) > 30)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+void
+brain_tounge_attack(edict_t *self)
+{
+	vec3_t offset, start, f, r, end, dir;
+	trace_t tr;
+	int damage;
+
+	if (!self)
+	{
+		return;
+	}
+
+	AngleVectors(self->s.angles, f, r, NULL);
+	VectorSet(offset, 24, 0, 16);
+	G_ProjectSource(self->s.origin, offset, f, r, start);
+
+	VectorCopy(self->enemy->s.origin, end);
+
+	if (!brain_tounge_attack_ok(start, end))
+	{
+		end[2] = self->enemy->s.origin[2] + self->enemy->maxs[2] - 8;
+
+		if (!brain_tounge_attack_ok(start, end))
+		{
+			end[2] = self->enemy->s.origin[2] + self->enemy->mins[2] + 8;
+
+			if (!brain_tounge_attack_ok(start, end))
+			{
+				return;
+			}
+		}
+	}
+
+	VectorCopy(self->enemy->s.origin, end);
+
+	tr = gi.trace(start, NULL, NULL, end, self, MASK_SHOT);
+
+	if (tr.ent != self->enemy)
+	{
+		return;
+	}
+
+	damage = 5;
+	gi.sound(self, CHAN_WEAPON, sound_tentacles_retract, 1, ATTN_NORM, 0);
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_PARASITE_ATTACK);
+	gi.WriteShort(self - g_edicts);
+	gi.WritePosition(start);
+	gi.WritePosition(end);
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
+	VectorSubtract(start, end, dir);
+	T_Damage(self->enemy, self, self, dir, self->enemy->s.origin,
+			vec3_origin, damage, 0, DAMAGE_NO_KNOCKBACK, MOD_BRAINTENTACLE);
+
+	/* pull the enemy in */
+	vec3_t forward;
+	self->s.origin[2] += 1;
+	AngleVectors(self->s.angles, forward, NULL, NULL);
+	VectorScale(forward, -1200, self->enemy->velocity);
+}
+
+/* Brian right eye center */
+struct r_eyeball
+{
+	float x;
+	float y;
+	float z;
+} brain_reye[11] = {
+	{0.746700, 0.238370, 34.167690},
+	{-1.076390, 0.238370, 33.386372},
+	{-1.335500, 5.334300, 32.177170},
+	{-0.175360, 8.846370, 30.635479},
+	{-2.757590, 7.804610, 30.150860},
+	{-5.575090, 5.152840, 30.056160},
+	{-7.017550, 3.262470, 30.552521},
+	{-7.915740, 0.638800, 33.176189},
+	{-3.915390, 8.285730, 33.976349},
+	{-0.913540, 10.933030, 34.141811},
+	{-0.369900, 8.923900, 34.189079}
+};
+
+/* Brain left eye center */
+struct l_eyeball
+{
+	float x;
+	float y;
+	float z;
+} brain_leye[11] = {
+	{-3.364710, 0.327750, 33.938381},
+	{-5.140450, 0.493480, 32.659851},
+	{-5.341980, 5.646980, 31.277901},
+	{-4.134480, 9.277440, 29.925621},
+	{-6.598340, 6.815090, 29.322620},
+	{-8.610840, 2.529650, 29.251591},
+	{-9.231360, 0.093280, 29.747959},
+	{-11.004110, 1.936930, 32.395260},
+	{-7.878310, 7.648190, 33.148151},
+	{-4.947370, 11.430050, 33.313610},
+	{-4.332820, 9.444570, 33.526340}
+};
+
+void
+brain_laserbeam(edict_t *self)
+{
+	vec3_t forward, right, up;
+	vec3_t tempang, start;
+	vec3_t dir, angles, end;
+	edict_t *ent;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (random() > 0.8)
+	{
+		gi.sound(self, CHAN_AUTO, gi.soundindex("misc/lasfly.wav"),
+			   	1, ATTN_STATIC, 0);
+	}
+
+	/* check for max distance */
+	VectorCopy(self->s.origin, start);
+	VectorCopy(self->enemy->s.origin, end);
+	VectorSubtract(end, start, dir);
+	vectoangles(dir, angles);
+
+	/* dis is my right eye */
+	ent = G_Spawn();
+	VectorCopy(self->s.origin, ent->s.origin);
+	VectorCopy(angles, tempang);
+	AngleVectors(tempang, forward, right, up);
+	VectorCopy(tempang, ent->s.angles);
+	VectorCopy(ent->s.origin, start);
+	VectorMA(start, brain_reye[self->s.frame - FRAME_walk101].x, right, start);
+	VectorMA(start, brain_reye[self->s.frame - FRAME_walk101].y, forward, start);
+	VectorMA(start, brain_reye[self->s.frame - FRAME_walk101].z, up, start);
+	VectorCopy(start, ent->s.origin);
+	ent->enemy = self->enemy;
+	ent->owner = self;
+	ent->dmg = 1;
+	monster_dabeam(ent);
+
+	/* dis is me left eye */
+	ent = G_Spawn();
+	VectorCopy(self->s.origin, ent->s.origin);
+	VectorCopy(angles, tempang);
+	AngleVectors(tempang, forward, right, up);
+	VectorCopy(tempang, ent->s.angles);
+	VectorCopy(ent->s.origin, start);
+	VectorMA(start, brain_leye[self->s.frame - FRAME_walk101].x, right, start);
+	VectorMA(start, brain_leye[self->s.frame - FRAME_walk101].y, forward, start);
+	VectorMA(start, brain_leye[self->s.frame - FRAME_walk101].z, up, start);
+	VectorCopy(start, ent->s.origin);
+	ent->enemy = self->enemy;
+	ent->owner = self;
+	ent->dmg = 1;
+	monster_dabeam(ent);
+}
+
+void
+brain_laserbeam_reattack(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (random() < 0.5)
+	{
+		if (visible(self, self->enemy))
+		{
+			if (self->enemy->health > 0)
+			{
+				self->s.frame = FRAME_walk101;
+			}
+		}
+	}
+}
+
+static mframe_t brain_frames_attack3[] = {
+	{ai_charge, 5, NULL},
+	{ai_charge, -4, NULL},
+	{ai_charge, -4, NULL},
+	{ai_charge, -3, NULL},
+	{ai_charge, 0, brain_chest_open},
+	{ai_charge, 0, brain_tounge_attack},
+	{ai_charge, 13, NULL},
+	{ai_charge, 0, brain_tentacle_attack},
+	{ai_charge, 2, NULL},
+	{ai_charge, 0, brain_tounge_attack},
+	{ai_charge, -9, brain_chest_closed},
+	{ai_charge, 0, NULL},
+	{ai_charge, 4, NULL},
+	{ai_charge, 3, NULL},
+	{ai_charge, 2, NULL},
+	{ai_charge, -3, NULL},
+	{ai_charge, -6, NULL}
+};
+
+mmove_t brain_move_attack3 = {
+	FRAME_attak201,
+	FRAME_attak217,
+	brain_frames_attack3,
+	brain_run
+};
+
+static mframe_t brain_frames_attack4[] = {
+	{ai_charge, 9, brain_laserbeam},
+	{ai_charge, 2, brain_laserbeam},
+	{ai_charge, 3, brain_laserbeam},
+	{ai_charge, 3, brain_laserbeam},
+	{ai_charge, 1, brain_laserbeam},
+	{ai_charge, 0, brain_laserbeam},
+	{ai_charge, 0, brain_laserbeam},
+	{ai_charge, 10, brain_laserbeam},
+	{ai_charge, -4, brain_laserbeam},
+	{ai_charge, -1, brain_laserbeam},
+	{ai_charge, 2, brain_laserbeam_reattack}
+};
+
+mmove_t brain_move_attack4 = {
+	FRAME_walk101,
+	FRAME_walk111,
+	brain_frames_attack4,
+	brain_run
+};
+
+void
+brain_attack(edict_t *self)
+{
+	int r;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (random() < 0.8)
+	{
+		r = range(self, self->enemy);
+
+		if (r == RANGE_NEAR)
+		{
+			if (random() < 0.5)
+			{
+				self->monsterinfo.currentmove = &brain_move_attack3;
+			}
+			else
+			{
+				self->monsterinfo.currentmove = &brain_move_attack4;
+			}
+		}
+		else if (r > RANGE_NEAR)
+		{
+			self->monsterinfo.currentmove = &brain_move_attack4;
+		}
+	}
+}
+
+/* RUN */
+
 static mframe_t brain_frames_run[] = {
 	{ai_run, 9, NULL},
 	{ai_run, 2, NULL},
@@ -664,8 +966,8 @@ mmove_t brain_move_run =
 {
 	FRAME_walk101,
 	FRAME_walk111,
-   	brain_frames_run,
-   	NULL
+	brain_frames_run,
+	NULL
 };
 
 void
@@ -768,7 +1070,8 @@ brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
+			   	1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{
@@ -861,6 +1164,7 @@ SP_monster_brain(edict_t *self)
 	self->monsterinfo.stand = brain_stand;
 	self->monsterinfo.walk = brain_walk;
 	self->monsterinfo.run = brain_run;
+	self->monsterinfo.attack = brain_attack;
 	self->monsterinfo.dodge = brain_dodge;
 	self->monsterinfo.melee = brain_melee;
 	self->monsterinfo.sight = brain_sight;

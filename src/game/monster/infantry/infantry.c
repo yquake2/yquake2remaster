@@ -98,8 +98,8 @@ mmove_t infantry_move_stand =
 {
 	FRAME_stand50,
 	FRAME_stand71,
-   	infantry_frames_stand,
-   	NULL
+	infantry_frames_stand,
+	NULL
 };
 
 void
@@ -205,7 +205,7 @@ mmove_t infantry_move_walk =
 	FRAME_walk03,
 	FRAME_walk14,
 	infantry_frames_walk,
-   	NULL
+	NULL
 };
 
 void
@@ -235,7 +235,7 @@ mmove_t infantry_move_run =
 	FRAME_run01,
 	FRAME_run08,
 	infantry_frames_run,
-   	NULL
+	NULL
 };
 
 void
@@ -267,9 +267,9 @@ static mframe_t infantry_frames_pain1[] = {
 mmove_t infantry_move_pain1 =
 {
 	FRAME_pain101,
-   	FRAME_pain110,
-   	infantry_frames_pain1,
-   	infantry_run
+	FRAME_pain110,
+	infantry_frames_pain1,
+	infantry_run
 };
 
 static mframe_t infantry_frames_pain2[] = {
@@ -488,8 +488,8 @@ mmove_t infantry_move_death2 =
 {
 	FRAME_death201,
 	FRAME_death225,
-   	infantry_frames_death2,
-   	infantry_dead
+	infantry_frames_death2,
+	infantry_dead
 };
 
 static mframe_t infantry_frames_death3[] = {
@@ -507,9 +507,9 @@ static mframe_t infantry_frames_death3[] = {
 mmove_t infantry_move_death3 =
 {
 	FRAME_death301,
-   	FRAME_death309,
-   	infantry_frames_death3,
-   	infantry_dead
+	FRAME_death309,
+	infantry_frames_death3,
+	infantry_dead
 };
 
 void
@@ -723,9 +723,9 @@ static mframe_t infantry_frames_attack1[] = {
 mmove_t infantry_move_attack1 =
 {
 	FRAME_attak101,
-   	FRAME_attak115,
+	FRAME_attak115,
 	infantry_frames_attack1,
-   	infantry_run
+	infantry_run
 };
 
 void
@@ -771,7 +771,7 @@ static mframe_t infantry_frames_attack2[] = {
 mmove_t infantry_move_attack2 =
 {
 	FRAME_attak201,
-   	FRAME_attak208,
+	FRAME_attak208,
 	infantry_frames_attack2,
 	infantry_run
 };

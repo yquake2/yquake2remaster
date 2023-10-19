@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -133,9 +134,9 @@ static mframe_t chick_frames_fidget[] = {
 mmove_t chick_move_fidget =
 {
 	FRAME_stand201,
-   	FRAME_stand230,
-   	chick_frames_fidget,
-   	chick_stand
+	FRAME_stand230,
+	chick_frames_fidget,
+	chick_stand
 };
 
 void
@@ -193,9 +194,9 @@ static mframe_t chick_frames_stand[] = {
 mmove_t chick_move_stand =
 {
 	FRAME_stand101,
-   	FRAME_stand130,
-   	chick_frames_stand,
-   	NULL
+	FRAME_stand130,
+	chick_frames_stand,
+	NULL
 };
 
 void
@@ -225,9 +226,9 @@ static mframe_t chick_frames_start_run[] = {
 mmove_t chick_move_start_run =
 {
 	FRAME_walk01,
-   	FRAME_walk10,
-   	chick_frames_start_run,
-   	chick_run
+	FRAME_walk10,
+	chick_frames_start_run,
+	chick_run
 };
 
 static mframe_t chick_frames_run[] = {
@@ -246,9 +247,9 @@ static mframe_t chick_frames_run[] = {
 mmove_t chick_move_run =
 {
 	FRAME_walk11,
-   	FRAME_walk20,
-   	chick_frames_run,
-   	NULL
+	FRAME_walk20,
+	chick_frames_run,
+	NULL
 };
 
 static mframe_t chick_frames_walk[] = {
@@ -267,9 +268,9 @@ static mframe_t chick_frames_walk[] = {
 mmove_t chick_move_walk =
 {
 	FRAME_walk11,
-   	FRAME_walk20,
-   	chick_frames_walk,
-   	NULL
+	FRAME_walk20,
+	chick_frames_walk,
+	NULL
 };
 
 void
@@ -319,9 +320,9 @@ static mframe_t chick_frames_pain1[] = {
 mmove_t chick_move_pain1 =
 {
 	FRAME_pain101,
-   	FRAME_pain105,
-   	chick_frames_pain1,
-   	chick_run
+	FRAME_pain105,
+	chick_frames_pain1,
+	chick_run
 };
 
 static mframe_t chick_frames_pain2[] = {
@@ -335,9 +336,9 @@ static mframe_t chick_frames_pain2[] = {
 mmove_t chick_move_pain2 =
 {
 	FRAME_pain201,
-   	FRAME_pain205,
+	FRAME_pain205,
 	chick_frames_pain2,
-   	chick_run
+	chick_run
 };
 
 static mframe_t chick_frames_pain3[] = {
@@ -367,9 +368,9 @@ static mframe_t chick_frames_pain3[] = {
 mmove_t chick_move_pain3 =
 {
 	FRAME_pain301,
-   	FRAME_pain321,
+	FRAME_pain321,
 	chick_frames_pain3,
-   	chick_run
+	chick_run
 };
 
 void
@@ -474,9 +475,9 @@ static mframe_t chick_frames_death2[] = {
 mmove_t chick_move_death2 =
 {
 	FRAME_death201,
-   	FRAME_death223,
-   	chick_frames_death2,
-   	chick_dead
+	FRAME_death223,
+	chick_frames_death2,
+	chick_dead
 };
 
 static mframe_t chick_frames_death1[] = {
@@ -517,7 +518,8 @@ chick_die(edict_t *self, edict_t *inflictor /* unused */,
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
+				1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{
@@ -688,7 +690,14 @@ ChickRocket(edict_t *self)
 	VectorSubtract(vec, start, dir);
 	VectorNormalize(dir);
 
-	monster_fire_rocket(self, start, dir, 50, 500, MZ2_CHICK_ROCKET_1);
+	if (!strcmp(self->classname, "monster_chick_heat"))
+	{
+		monster_fire_heat(self, start, dir, 50, 500, MZ2_CHICK_ROCKET_1);
+	}
+	else
+	{
+		monster_fire_rocket(self, start, dir, 50, 500, MZ2_CHICK_ROCKET_1);
+	}
 }
 
 void
@@ -732,9 +741,10 @@ static mframe_t chick_frames_start_attack1[] = {
 mmove_t chick_move_start_attack1 =
 {
 	FRAME_attak101,
-   	FRAME_attak113,
+	FRAME_attak113,
 	chick_frames_start_attack1,
-   	NULL};
+	NULL
+};
 
 static mframe_t chick_frames_attack1[] = {
 	{ai_charge, 19, ChickRocket},
@@ -772,8 +782,8 @@ static mframe_t chick_frames_end_attack1[] = {
 mmove_t chick_move_end_attack1 =
 {
 	FRAME_attak128,
-   	FRAME_attak132,
-   	chick_frames_end_attack1,
+	FRAME_attak132,
+	chick_frames_end_attack1,
 	chick_run
 };
 
@@ -844,9 +854,9 @@ static mframe_t chick_frames_end_slash[] = {
 mmove_t chick_move_end_slash =
 {
 	FRAME_attak213,
-   	FRAME_attak216,
+	FRAME_attak216,
 	chick_frames_end_slash,
-   	chick_run
+	chick_run
 };
 
 void
@@ -897,8 +907,8 @@ static mframe_t chick_frames_start_slash[] = {
 mmove_t chick_move_start_slash =
 {
 	FRAME_attak201,
-   	FRAME_attak203,
-   	chick_frames_start_slash,
+	FRAME_attak203,
+	chick_frames_start_slash,
 	chick_slash
 };
 
@@ -1000,4 +1010,24 @@ SP_monster_chick(edict_t *self)
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	walkmonster_start(self);
+}
+
+/*
+ * QUAKED monster_chick_heat (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ */
+void
+SP_monster_chick_heat(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	SP_monster_chick(self);
+
+	/* have to check this since the regular spawn function can free the entity */
+	if (self->inuse)
+	{
+		self->s.skinnum = 3;
+	}
 }

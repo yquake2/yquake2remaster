@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Iron Maiden.
  *
@@ -92,9 +107,9 @@ static mframe_t chick_frames_fidget[] = {
 
 mmove_t chick_move_fidget = {
 	FRAME_stand201,
-   	FRAME_stand230,
-   	chick_frames_fidget,
-   	chick_stand
+	FRAME_stand230,
+	chick_frames_fidget,
+	chick_stand
 };
 
 void
@@ -151,9 +166,9 @@ static mframe_t chick_frames_stand[] = {
 
 mmove_t chick_move_stand = {
 	FRAME_stand101,
-   	FRAME_stand130,
-   	chick_frames_stand,
-   	NULL
+	FRAME_stand130,
+	chick_frames_stand,
+	NULL
 };
 
 void
@@ -182,9 +197,9 @@ static mframe_t chick_frames_start_run[] = {
 
 mmove_t chick_move_start_run = {
 	FRAME_walk01,
-   	FRAME_walk10,
-   	chick_frames_start_run,
-   	chick_run
+	FRAME_walk10,
+	chick_frames_start_run,
+	chick_run
 };
 
 static mframe_t chick_frames_run[] = {
@@ -202,9 +217,9 @@ static mframe_t chick_frames_run[] = {
 
 mmove_t chick_move_run = {
 	FRAME_walk11,
-   	FRAME_walk20,
-   	chick_frames_run,
-   	NULL
+	FRAME_walk20,
+	chick_frames_run,
+	NULL
 };
 
 static mframe_t chick_frames_walk[] = {
@@ -222,9 +237,9 @@ static mframe_t chick_frames_walk[] = {
 
 mmove_t chick_move_walk = {
 	FRAME_walk11,
-   	FRAME_walk20,
-   	chick_frames_walk,
-   	NULL
+	FRAME_walk20,
+	chick_frames_walk,
+	NULL
 };
 
 void
@@ -275,8 +290,8 @@ static mframe_t chick_frames_pain1[] = {
 
 mmove_t chick_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain105,
-   	chick_frames_pain1, chick_run
+	FRAME_pain105,
+	chick_frames_pain1, chick_run
 };
 
 static mframe_t chick_frames_pain2[] = {
@@ -289,9 +304,9 @@ static mframe_t chick_frames_pain2[] = {
 
 mmove_t chick_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain205,
-   	chick_frames_pain2,
-   	chick_run
+	FRAME_pain205,
+	chick_frames_pain2,
+	chick_run
 };
 
 static mframe_t chick_frames_pain3[] = {
@@ -320,9 +335,9 @@ static mframe_t chick_frames_pain3[] = {
 
 mmove_t chick_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain321,
-   	chick_frames_pain3,
-   	chick_run
+	FRAME_pain321,
+	chick_frames_pain3,
+	chick_run
 };
 
 void
@@ -436,9 +451,9 @@ static mframe_t chick_frames_death2[] = {
 
 mmove_t chick_move_death2 = {
 	FRAME_death201,
-   	FRAME_death223,
-   	chick_frames_death2,
-   	chick_dead
+	FRAME_death223,
+	chick_frames_death2,
+	chick_dead
 };
 
 static mframe_t chick_frames_death1[] = {
@@ -458,9 +473,9 @@ static mframe_t chick_frames_death1[] = {
 
 mmove_t chick_move_death1 = {
 	FRAME_death101,
-   	FRAME_death112,
-   	chick_frames_death1,
-   	chick_dead
+	FRAME_death112,
+	chick_frames_death1,
+	chick_dead
 };
 
 void
@@ -530,9 +545,9 @@ static mframe_t chick_frames_duck[] = {
 
 mmove_t chick_move_duck = {
 	FRAME_duck01,
-   	FRAME_duck07,
-   	chick_frames_duck,
-   	chick_run
+	FRAME_duck07,
+	chick_frames_duck,
+	chick_run
 };
 
 void
@@ -692,9 +707,9 @@ static mframe_t chick_frames_start_attack1[] = {
 
 mmove_t chick_move_start_attack1 = {
 	FRAME_attak101,
-   	FRAME_attak113,
-   	chick_frames_start_attack1,
-   	NULL
+	FRAME_attak113,
+	chick_frames_start_attack1,
+	NULL
 };
 
 static mframe_t chick_frames_attack1[] = {
@@ -716,9 +731,9 @@ static mframe_t chick_frames_attack1[] = {
 
 mmove_t chick_move_attack1 = {
 	FRAME_attak114,
-   	FRAME_attak127,
-   	chick_frames_attack1,
-   	NULL
+	FRAME_attak127,
+	chick_frames_attack1,
+	NULL
 };
 
 static mframe_t chick_frames_end_attack1[] = {
@@ -731,9 +746,9 @@ static mframe_t chick_frames_end_attack1[] = {
 
 mmove_t chick_move_end_attack1 = {
 	FRAME_attak128,
-   	FRAME_attak132,
-   	chick_frames_end_attack1,
-   	chick_run
+	FRAME_attak132,
+	chick_frames_end_attack1,
+	chick_run
 };
 
 void
@@ -794,9 +809,9 @@ static mframe_t chick_frames_slash[] = {
 
 mmove_t chick_move_slash = {
 	FRAME_attak204,
-   	FRAME_attak212,
-   	chick_frames_slash,
-   	NULL
+	FRAME_attak212,
+	chick_frames_slash,
+	NULL
 };
 
 static mframe_t chick_frames_end_slash[] = {
@@ -808,9 +823,9 @@ static mframe_t chick_frames_end_slash[] = {
 
 mmove_t chick_move_end_slash = {
 	FRAME_attak213,
-   	FRAME_attak216,
-   	chick_frames_end_slash,
-   	chick_run
+	FRAME_attak216,
+	chick_frames_end_slash,
+	chick_run
 };
 
 void
@@ -860,9 +875,9 @@ static mframe_t chick_frames_start_slash[] = {
 
 mmove_t chick_move_start_slash = {
 	FRAME_attak201,
-   	FRAME_attak203,
-   	chick_frames_start_slash,
-   	chick_slash
+	FRAME_attak203,
+	chick_frames_start_slash,
+	chick_slash
 };
 
 void

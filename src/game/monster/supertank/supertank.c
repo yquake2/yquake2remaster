@@ -180,9 +180,9 @@ static mframe_t supertank_frames_run[] = {
 mmove_t supertank_move_run =
 {
 	FRAME_forwrd_1,
-   	FRAME_forwrd_18,
+	FRAME_forwrd_18,
 	supertank_frames_run,
-   	NULL
+	NULL
 };
 
 static mframe_t supertank_frames_forward[] = {
@@ -278,7 +278,7 @@ static mframe_t supertank_frames_turn_right[] = {
 mmove_t supertank_move_turn_right =
 {
 	FRAME_right_1,
-   	FRAME_right_18,
+	FRAME_right_18,
 	supertank_frames_turn_right,
 	supertank_run
 };
@@ -309,7 +309,7 @@ mmove_t supertank_move_turn_left =
 	FRAME_left_1,
 	FRAME_left_18,
 	supertank_frames_turn_left,
-   	supertank_run
+	supertank_run
 };
 
 static mframe_t supertank_frames_pain3[] = {
@@ -322,9 +322,9 @@ static mframe_t supertank_frames_pain3[] = {
 mmove_t supertank_move_pain3 =
 {
 	FRAME_pain3_9,
-   	FRAME_pain3_12,
-   	supertank_frames_pain3,
-   	supertank_run
+	FRAME_pain3_12,
+	supertank_frames_pain3,
+	supertank_run
 };
 
 static mframe_t supertank_frames_pain2[] = {
@@ -337,9 +337,9 @@ static mframe_t supertank_frames_pain2[] = {
 mmove_t supertank_move_pain2 =
 {
 	FRAME_pain2_5,
-   	FRAME_pain2_8,
-   	supertank_frames_pain2,
-   	supertank_run
+	FRAME_pain2_8,
+	supertank_frames_pain2,
+	supertank_run
 };
 
 static mframe_t supertank_frames_pain1[] = {
@@ -352,9 +352,9 @@ static mframe_t supertank_frames_pain1[] = {
 mmove_t supertank_move_pain1 =
 {
 	FRAME_pain1_1,
-   	FRAME_pain1_4,
-   	supertank_frames_pain1,
-   	supertank_run
+	FRAME_pain1_4,
+	supertank_frames_pain1,
+	supertank_run
 };
 
 static mframe_t supertank_frames_death1[] = {
@@ -388,8 +388,8 @@ mmove_t supertank_move_death =
 {
 	FRAME_death_1,
 	FRAME_death_24,
-   	supertank_frames_death1,
-   	supertank_dead
+	supertank_frames_death1,
+	supertank_dead
 };
 
 static mframe_t supertank_frames_backward[] = {
@@ -416,9 +416,9 @@ static mframe_t supertank_frames_backward[] = {
 mmove_t supertank_move_backward =
 {
 	FRAME_backwd_1,
-   	FRAME_backwd_18,
-   	supertank_frames_backward,
-   	NULL
+	FRAME_backwd_18,
+	supertank_frames_backward,
+	NULL
 };
 
 static mframe_t supertank_frames_attack4[] = {
@@ -433,9 +433,9 @@ static mframe_t supertank_frames_attack4[] = {
 mmove_t supertank_move_attack4 =
 {
 	FRAME_attak4_1,
-   	FRAME_attak4_6,
-   	supertank_frames_attack4,
-   	supertank_run
+	FRAME_attak4_6,
+	supertank_frames_attack4,
+	supertank_run
 };
 
 static mframe_t supertank_frames_attack3[] = {
@@ -471,9 +471,9 @@ static mframe_t supertank_frames_attack3[] = {
 mmove_t supertank_move_attack3 =
 {
 	FRAME_attak3_1,
-   	FRAME_attak3_27,
-   	supertank_frames_attack3,
-   	supertank_run
+	FRAME_attak3_27,
+	supertank_frames_attack3,
+	supertank_run
 };
 
 static mframe_t supertank_frames_attack2[] = {
@@ -509,9 +509,9 @@ static mframe_t supertank_frames_attack2[] = {
 mmove_t supertank_move_attack2 =
 {
 	FRAME_attak2_1,
-   	FRAME_attak2_27,
-   	supertank_frames_attack2,
-   	supertank_run
+	FRAME_attak2_27,
+	supertank_frames_attack2,
+	supertank_run
 };
 
 static mframe_t supertank_frames_attack1[] = {
@@ -528,7 +528,7 @@ mmove_t supertank_move_attack1 =
 	FRAME_attak1_1,
 	FRAME_attak1_6,
 	supertank_frames_attack1,
-   	supertank_reattack1
+	supertank_reattack1
 };
 
 static mframe_t supertank_frames_end_attack1[] = {
@@ -552,8 +552,8 @@ mmove_t supertank_move_end_attack1 =
 {
 	FRAME_attak1_7,
 	FRAME_attak1_20,
-   	supertank_frames_end_attack1,
-   	supertank_run
+	supertank_frames_end_attack1,
+	supertank_run
 };
 
 void

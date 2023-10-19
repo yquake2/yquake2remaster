@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Black Window (stage 1).
  *
@@ -473,9 +488,9 @@ static mframe_t widow_frames_stand[] = {
 
 mmove_t widow_move_stand = {
 	FRAME_idle01,
-   	FRAME_idle11,
-   	widow_frames_stand,
-   	NULL
+	FRAME_idle11,
+	widow_frames_stand,
+	NULL
 };
 
 static mframe_t widow_frames_walk[] = {
@@ -497,9 +512,9 @@ static mframe_t widow_frames_walk[] = {
 
 mmove_t widow_move_walk = {
 	FRAME_walk01,
-   	FRAME_walk13,
-   	widow_frames_walk,
-   	NULL
+	FRAME_walk13,
+	widow_frames_walk,
+	NULL
 };
 
 static mframe_t widow_frames_run[] = {
@@ -520,9 +535,9 @@ static mframe_t widow_frames_run[] = {
 
 mmove_t widow_move_run = {
 	FRAME_walk01,
-   	FRAME_walk13,
-   	widow_frames_run,
-   	NULL
+	FRAME_walk13,
+	widow_frames_run,
+	NULL
 };
 
 void
@@ -550,9 +565,9 @@ static mframe_t widow_frames_run_attack[] = {
 
 mmove_t widow_move_run_attack = {
 	FRAME_run01,
-   	FRAME_run08,
-   	widow_frames_run_attack,
-   	widow_run
+	FRAME_run08,
+	widow_frames_run_attack,
+	widow_run
 };
 
 /* These three allow specific entry into the run sequence */
@@ -601,9 +616,9 @@ static mframe_t widow_frames_attack_pre_blaster[] = {
 
 mmove_t widow_move_attack_pre_blaster = {
 	FRAME_fired01,
-   	FRAME_fired02a,
-   	widow_frames_attack_pre_blaster,
-   	NULL
+	FRAME_fired02a,
+	widow_frames_attack_pre_blaster,
+	NULL
 };
 
 static mframe_t widow_frames_attack_blaster[] = {
@@ -630,9 +645,9 @@ static mframe_t widow_frames_attack_blaster[] = {
 
 mmove_t widow_move_attack_blaster = {
 	FRAME_fired02a,
-   	FRAME_fired20,
-   	widow_frames_attack_blaster,
-   	NULL
+	FRAME_fired20,
+	widow_frames_attack_blaster,
+	NULL
 };
 
 static mframe_t widow_frames_attack_post_blaster[] = {
@@ -642,9 +657,9 @@ static mframe_t widow_frames_attack_post_blaster[] = {
 
 mmove_t widow_move_attack_post_blaster = {
 	FRAME_fired21,
-   	FRAME_fired22,
-   	widow_frames_attack_post_blaster,
-   	widow_run
+	FRAME_fired22,
+	widow_frames_attack_post_blaster,
+	widow_run
 };
 
 static mframe_t widow_frames_attack_post_blaster_r[] = {
@@ -657,9 +672,9 @@ static mframe_t widow_frames_attack_post_blaster_r[] = {
 
 mmove_t widow_move_attack_post_blaster_r = {
 	FRAME_transa01,
-   	FRAME_transa05,
-   	widow_frames_attack_post_blaster_r,
-   	NULL
+	FRAME_transa05,
+	widow_frames_attack_post_blaster_r,
+	NULL
 };
 
 static mframe_t widow_frames_attack_post_blaster_l[] = {
@@ -672,9 +687,9 @@ static mframe_t widow_frames_attack_post_blaster_l[] = {
 
 mmove_t widow_move_attack_post_blaster_l = {
 	FRAME_transb01,
-   	FRAME_transb05,
-   	widow_frames_attack_post_blaster_l,
-   	NULL
+	FRAME_transb05,
+	widow_frames_attack_post_blaster_l,
+	NULL
 };
 
 void
@@ -760,9 +775,9 @@ static mframe_t widow_frames_attack_pre_rail[] = {
 
 mmove_t widow_move_attack_pre_rail = {
 	FRAME_transc01,
-   	FRAME_transc04,
-   	widow_frames_attack_pre_rail,
-   	NULL
+	FRAME_transc04,
+	widow_frames_attack_pre_rail,
+	NULL
 };
 
 static mframe_t widow_frames_attack_rail[] = {
@@ -779,9 +794,9 @@ static mframe_t widow_frames_attack_rail[] = {
 
 mmove_t widow_move_attack_rail = {
 	FRAME_firea01,
-   	FRAME_firea09,
-   	widow_frames_attack_rail,
-   	widow_run
+	FRAME_firea09,
+	widow_frames_attack_rail,
+	widow_run
 };
 
 static mframe_t widow_frames_attack_rail_r[] = {
@@ -797,9 +812,9 @@ static mframe_t widow_frames_attack_rail_r[] = {
 };
 mmove_t widow_move_attack_rail_r = {
 	FRAME_fireb01,
-   	FRAME_fireb09,
-   	widow_frames_attack_rail_r,
-   	widow_run
+	FRAME_fireb09,
+	widow_frames_attack_rail_r,
+	widow_run
 };
 
 static mframe_t widow_frames_attack_rail_l[] = {
@@ -816,9 +831,9 @@ static mframe_t widow_frames_attack_rail_l[] = {
 
 mmove_t widow_move_attack_rail_l = {
 	FRAME_firec01,
-   	FRAME_firec09,
-   	widow_frames_attack_rail_l,
-   	widow_run
+	FRAME_firec09,
+	widow_frames_attack_rail_l,
+	widow_run
 };
 
 void
@@ -892,9 +907,9 @@ static mframe_t widow_frames_spawn[] = {
 
 mmove_t widow_move_spawn = {
 	FRAME_spawn01,
-   	FRAME_spawn18,
-   	widow_frames_spawn,
-   	widow_run
+	FRAME_spawn18,
+	widow_frames_spawn,
+	widow_run
 };
 
 static mframe_t widow_frames_pain_heavy[] = {
@@ -915,9 +930,9 @@ static mframe_t widow_frames_pain_heavy[] = {
 
 mmove_t widow_move_pain_heavy = {
 	FRAME_pain01,
-   	FRAME_pain13,
-   	widow_frames_pain_heavy,
-   	widow_run
+	FRAME_pain13,
+	widow_frames_pain_heavy,
+	widow_run
 };
 
 static mframe_t widow_frames_pain_light[] = {
@@ -928,9 +943,9 @@ static mframe_t widow_frames_pain_light[] = {
 
 mmove_t widow_move_pain_light = {
 	FRAME_pain201,
-   	FRAME_pain203,
-   	widow_frames_pain_light,
-   	widow_run
+	FRAME_pain203,
+	widow_frames_pain_light,
+	widow_run
 };
 
 void
@@ -1036,8 +1051,8 @@ static mframe_t widow_frames_death[] = {
 mmove_t widow_move_death = {
 	FRAME_death01,
  	FRAME_death31,
-   	widow_frames_death,
-   	NULL
+	widow_frames_death,
+	NULL
 };
 
 void
@@ -1075,9 +1090,9 @@ static mframe_t widow_frames_attack_kick[] = {
 
 mmove_t widow_move_attack_kick = {
 	FRAME_kick01,
-   	FRAME_kick08,
-   	widow_frames_attack_kick,
-   	widow_run
+	FRAME_kick08,
+	widow_frames_attack_kick,
+	widow_run
 };
 
 void

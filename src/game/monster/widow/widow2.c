@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Black Window (stage 2).
  *
@@ -303,9 +318,9 @@ static mframe_t widow2_frames_stand[] = {
 
 mmove_t widow2_move_stand = {
 	FRAME_blackwidow3,
-   	FRAME_blackwidow3,
-   	widow2_frames_stand,
-   	NULL
+	FRAME_blackwidow3,
+	widow2_frames_stand,
+	NULL
 };
 
 static mframe_t widow2_frames_walk[] = {
@@ -322,9 +337,9 @@ static mframe_t widow2_frames_walk[] = {
 
 mmove_t widow2_move_walk = {
 	FRAME_walk01,
-   	FRAME_walk09,
-   	widow2_frames_walk,
-   	NULL
+	FRAME_walk09,
+	widow2_frames_walk,
+	NULL
 };
 
 static mframe_t widow2_frames_run[] = {
@@ -341,9 +356,9 @@ static mframe_t widow2_frames_run[] = {
 
 mmove_t widow2_move_run = {
 	FRAME_walk01,
-   	FRAME_walk09,
-   	widow2_frames_run,
-   	NULL
+	FRAME_walk09,
+	widow2_frames_run,
+	NULL
 };
 
 static mframe_t widow2_frames_attack_pre_beam[] = {
@@ -355,9 +370,9 @@ static mframe_t widow2_frames_attack_pre_beam[] = {
 
 mmove_t widow2_move_attack_pre_beam = {
 	FRAME_fireb01,
-   	FRAME_fireb04,
-   	widow2_frames_attack_pre_beam,
-   	NULL
+	FRAME_fireb04,
+	widow2_frames_attack_pre_beam,
+	NULL
 };
 
 /* Loop this */
@@ -371,9 +386,9 @@ static mframe_t widow2_frames_attack_beam[] = {
 
 mmove_t widow2_move_attack_beam = {
 	FRAME_fireb05,
-   	FRAME_fireb09,
-   	widow2_frames_attack_beam,
-   	NULL
+	FRAME_fireb09,
+	widow2_frames_attack_beam,
+	NULL
 };
 
 static mframe_t widow2_frames_attack_post_beam[] = {
@@ -384,9 +399,9 @@ static mframe_t widow2_frames_attack_post_beam[] = {
 
 mmove_t widow2_move_attack_post_beam = {
 	FRAME_fireb06,
-   	FRAME_fireb07,
-   	widow2_frames_attack_post_beam,
-   	widow2_run
+	FRAME_fireb07,
+	widow2_frames_attack_post_beam,
+	widow2_run
 };
 
 void
@@ -472,9 +487,9 @@ static mframe_t widow2_frames_attack_disrupt[] = {
 
 mmove_t widow2_move_attack_disrupt = {
 	FRAME_firea01,
-   	FRAME_firea07,
-   	widow2_frames_attack_disrupt,
-   	widow2_run
+	FRAME_firea07,
+	widow2_frames_attack_disrupt,
+	widow2_run
 };
 
 void
@@ -543,9 +558,9 @@ static mframe_t widow2_frames_spawn[] = {
 
 mmove_t widow2_move_spawn = {
 	FRAME_spawn01,
-   	FRAME_spawn18,
-   	widow2_frames_spawn,
-   	NULL
+	FRAME_spawn18,
+	widow2_frames_spawn,
+	NULL
 };
 
 qboolean
@@ -743,9 +758,9 @@ static mframe_t widow2_frames_tongs[] = {
 
 mmove_t widow2_move_tongs = {
 	FRAME_tongs01,
-   	FRAME_tongs08,
-   	widow2_frames_tongs,
-   	widow2_run
+	FRAME_tongs08,
+	widow2_frames_tongs,
+	widow2_run
 };
 
 static mframe_t widow2_frames_pain[] = {
@@ -758,9 +773,9 @@ static mframe_t widow2_frames_pain[] = {
 
 mmove_t widow2_move_pain = {
 	FRAME_pain01,
-   	FRAME_pain05,
-   	widow2_frames_pain,
-   	widow2_run
+	FRAME_pain05,
+	widow2_frames_pain,
+	widow2_run
 };
 
 static mframe_t widow2_frames_death[] = {
@@ -820,9 +835,9 @@ static mframe_t widow2_frames_death[] = {
 
 mmove_t widow2_move_death = {
 	FRAME_death01,
-   	FRAME_death44,
-   	widow2_frames_death,
-   	NULL
+	FRAME_death44,
+	widow2_frames_death,
+	NULL
 };
 
 static mframe_t widow2_frames_dead[] = {
@@ -847,9 +862,9 @@ static mframe_t widow2_frames_dead[] = {
 
 mmove_t widow2_move_dead = {
 	FRAME_dthsrh01,
-   	FRAME_dthsrh15,
-   	widow2_frames_dead,
-   	NULL
+	FRAME_dthsrh15,
+	widow2_frames_dead,
+	NULL
 };
 
 static mframe_t widow2_frames_really_dead[] = {
@@ -865,9 +880,9 @@ static mframe_t widow2_frames_really_dead[] = {
 
 mmove_t widow2_move_really_dead = {
 	FRAME_dthsrh16,
-   	FRAME_dthsrh22,
+	FRAME_dthsrh22,
 	widow2_frames_really_dead,
-   	NULL
+	NULL
 };
 
 void

@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Final boss, stage 2 (makron).
  *
@@ -130,9 +145,9 @@ static mframe_t makron_frames_stand[] = {
 
 mmove_t makron_move_stand = {
 	FRAME_stand201,
-   	FRAME_stand260,
-   	makron_frames_stand,
-   	NULL
+	FRAME_stand260,
+	makron_frames_stand,
+	NULL
 };
 
 void
@@ -161,9 +176,9 @@ static mframe_t makron_frames_run[] = {
 
 mmove_t makron_move_run = {
 	FRAME_walk204,
-   	FRAME_walk213,
-   	makron_frames_run,
-   	NULL
+	FRAME_walk213,
+	makron_frames_run,
+	NULL
 };
 
 void
@@ -247,9 +262,9 @@ static mframe_t makron_frames_walk[] = {
 
 mmove_t makron_move_walk = {
 	FRAME_walk204,
-   	FRAME_walk213,
-   	makron_frames_run,
-   	NULL
+	FRAME_walk213,
+	makron_frames_walk,
+	NULL
 };
 
 void
@@ -313,9 +328,9 @@ static mframe_t makron_frames_pain6[] = {
 
 mmove_t makron_move_pain6 = {
 	FRAME_pain601,
-   	FRAME_pain627,
-   	makron_frames_pain6,
-   	makron_run
+	FRAME_pain627,
+	makron_frames_pain6,
+	makron_run
 };
 
 static mframe_t makron_frames_pain5[] = {
@@ -327,9 +342,9 @@ static mframe_t makron_frames_pain5[] = {
 
 mmove_t makron_move_pain5 = {
 	FRAME_pain501,
-   	FRAME_pain504,
-   	makron_frames_pain5,
-   	makron_run
+	FRAME_pain504,
+	makron_frames_pain5,
+	makron_run
 };
 
 static mframe_t makron_frames_pain4[] = {
@@ -341,9 +356,9 @@ static mframe_t makron_frames_pain4[] = {
 
 mmove_t makron_move_pain4 = {
 	FRAME_pain401,
-   	FRAME_pain404,
-   	makron_frames_pain4,
-   	makron_run
+	FRAME_pain404,
+	makron_frames_pain4,
+	makron_run
 };
 
 static mframe_t makron_frames_death2[] = {
@@ -446,9 +461,9 @@ static mframe_t makron_frames_death2[] = {
 
 mmove_t makron_move_death2 = {
 	FRAME_death201,
-   	FRAME_death295,
-   	makron_frames_death2,
-   	makron_dead
+	FRAME_death295,
+	makron_frames_death2,
+	makron_dead
 };
 
 static mframe_t makron_frames_death3[] = {
@@ -476,9 +491,9 @@ static mframe_t makron_frames_death3[] = {
 
 mmove_t makron_move_death3 = {
 	FRAME_death301,
-   	FRAME_death320,
-   	makron_frames_death3,
-   	NULL
+	FRAME_death320,
+	makron_frames_death3,
+	NULL
 };
 
 static mframe_t makron_frames_sight[] = {
@@ -499,9 +514,9 @@ static mframe_t makron_frames_sight[] = {
 
 mmove_t makron_move_sight = {
 	FRAME_active01,
-   	FRAME_active13,
-   	makron_frames_sight,
-   	makron_run
+	FRAME_active13,
+	makron_frames_sight,
+	makron_run
 };
 
 void
@@ -542,9 +557,9 @@ static mframe_t makron_frames_attack3[] = {
 
 mmove_t makron_move_attack3 = {
 	FRAME_attak301,
-   	FRAME_attak308,
-   	makron_frames_attack3,
-   	makron_run
+	FRAME_attak308,
+	makron_frames_attack3,
+	makron_run
 };
 
 static mframe_t makron_frames_attack4[] = {
@@ -578,9 +593,9 @@ static mframe_t makron_frames_attack4[] = {
 
 mmove_t makron_move_attack4 = {
 	FRAME_attak401,
-   	FRAME_attak426,
-   	makron_frames_attack4,
-   	makron_run
+	FRAME_attak426,
+	makron_frames_attack4,
+	makron_run
 };
 
 static mframe_t makron_frames_attack5[] = {
@@ -604,9 +619,9 @@ static mframe_t makron_frames_attack5[] = {
 
 mmove_t makron_move_attack5 = {
 	FRAME_attak501,
-   	FRAME_attak516,
-   	makron_frames_attack5,
-   	makron_run
+	FRAME_attak516,
+	makron_frames_attack5,
+	makron_run
 };
 
 void
@@ -855,7 +870,7 @@ makron_torso_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attack
 		return;
 	}
 
-	gi.sound(self, CHAN_VOICE, gi.soundindex( "misc/udeath.wav"), 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 	ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
 			damage, GIB_ORGANIC);
@@ -1089,6 +1104,8 @@ Makron_CheckAttack(edict_t *self)
 	return false;
 }
 
+/* monster_makron */
+
 void
 MakronPrecache(void)
 {
@@ -1215,7 +1232,9 @@ MakronSpawn(edict_t *self)
 		VectorNormalize(vec);
 	}
 	else
+	{
 		AngleVectors(self->s.angles, vec, NULL, NULL);
+	}
 
 	VectorScale(vec, 400, self->velocity);
 	/* the jump frames are fixed length so best to normalize the up speed */

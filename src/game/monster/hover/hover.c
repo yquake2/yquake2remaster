@@ -147,8 +147,8 @@ mmove_t hover_move_stop2 =
 {
 	FRAME_stop201,
 	FRAME_stop208,
-   	hover_frames_stop2,
-   	NULL
+	hover_frames_stop2,
+	NULL
 };
 
 static mframe_t hover_frames_takeoff[] = {
@@ -187,9 +187,9 @@ static mframe_t hover_frames_takeoff[] = {
 mmove_t hover_move_takeoff =
 {
 	FRAME_takeof01,
-   	FRAME_takeof30,
-   	hover_frames_takeoff,
-   	NULL
+	FRAME_takeof30,
+	hover_frames_takeoff,
+	NULL
 };
 
 static mframe_t hover_frames_pain3[] = {
@@ -207,9 +207,9 @@ static mframe_t hover_frames_pain3[] = {
 mmove_t hover_move_pain3 =
 {
 	FRAME_pain301,
-   	FRAME_pain309,
+	FRAME_pain309,
 	hover_frames_pain3,
-   	hover_run
+	hover_run
 };
 
 static mframe_t hover_frames_pain2[] = {
@@ -231,8 +231,8 @@ mmove_t hover_move_pain2 =
 {
 	FRAME_pain201,
 	FRAME_pain212,
-   	hover_frames_pain2,
-   	hover_run
+	hover_frames_pain2,
+	hover_run
 };
 
 static mframe_t hover_frames_pain1[] = {
@@ -269,9 +269,9 @@ static mframe_t hover_frames_pain1[] = {
 mmove_t hover_move_pain1 =
 {
 	FRAME_pain101,
-   	FRAME_pain128,
-   	hover_frames_pain1,
-   	hover_run
+	FRAME_pain128,
+	hover_frames_pain1,
+	hover_run
 };
 
 static mframe_t hover_frames_land[] = {
@@ -421,7 +421,7 @@ mmove_t hover_move_run =
 	FRAME_forwrd01,
 	FRAME_forwrd35,
 	hover_frames_run,
-   	NULL
+	NULL
 };
 
 static mframe_t hover_frames_death1[] = {
@@ -441,9 +441,9 @@ static mframe_t hover_frames_death1[] = {
 mmove_t hover_move_death1 =
 {
 	FRAME_death101,
-   	FRAME_death111,
-   	hover_frames_death1,
-   	hover_dead
+	FRAME_death111,
+	hover_frames_death1,
+	hover_dead
 };
 
 static mframe_t hover_frames_backward[] = {
@@ -476,9 +476,9 @@ static mframe_t hover_frames_backward[] = {
 mmove_t hover_move_backward =
 {
 	FRAME_backwd01,
-   	FRAME_backwd24,
+	FRAME_backwd24,
 	hover_frames_backward,
-   	NULL
+	NULL
 };
 
 static mframe_t hover_frames_start_attack[] = {

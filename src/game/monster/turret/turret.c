@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Wall mounted turrets.
  *
@@ -358,9 +373,9 @@ static mframe_t turret_frames_stand[] = {
 
 mmove_t turret_move_stand = {
 	FRAME_stand01,
-   	FRAME_stand02,
-   	turret_frames_stand,
-   	NULL
+	FRAME_stand02,
+	turret_frames_stand,
+	NULL
 };
 
 void
@@ -388,9 +403,9 @@ static mframe_t turret_frames_ready_gun[] = {
 
 mmove_t turret_move_ready_gun = {
 	FRAME_active01,
-   	FRAME_run01,
-   	turret_frames_ready_gun,
-   	turret_run
+	FRAME_run01,
+	turret_frames_ready_gun,
+	turret_run
 };
 
 void
@@ -411,9 +426,9 @@ static mframe_t turret_frames_seek[] = {
 
 mmove_t turret_move_seek = {
 	FRAME_run01,
-   	FRAME_run02,
-   	turret_frames_seek,
-   	NULL
+	FRAME_run02,
+	turret_frames_seek,
+	NULL
 };
 
 void
@@ -441,9 +456,9 @@ static mframe_t turret_frames_run[] = {
 
 mmove_t turret_move_run = {
 	FRAME_run01,
-   	FRAME_run02,
-   	turret_frames_run,
-   	turret_run
+	FRAME_run02,
+	turret_frames_run,
+	turret_run
 };
 
 void
@@ -667,9 +682,9 @@ static mframe_t turret_frames_fire[] = {
 
 mmove_t turret_move_fire = {
 	FRAME_pow01,
-   	FRAME_pow04,
-   	turret_frames_fire,
-   	turret_run
+	FRAME_pow04,
+	turret_frames_fire,
+	turret_run
 };
 
 /* the blind frames need to aim first */
@@ -682,9 +697,9 @@ static mframe_t turret_frames_fire_blind[] = {
 
 mmove_t turret_move_fire_blind = {
 	FRAME_pow01,
-   	FRAME_pow04,
-   	turret_frames_fire_blind,
-   	turret_run
+	FRAME_pow04,
+	turret_frames_fire_blind,
+	turret_run
 };
 
 void

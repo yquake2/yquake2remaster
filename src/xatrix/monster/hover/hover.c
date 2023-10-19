@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Icarus.
  *
@@ -95,9 +110,9 @@ static mframe_t hover_frames_stand[] = {
 
 mmove_t hover_move_stand = {
 	FRAME_stand01,
-   	FRAME_stand30,
-   	hover_frames_stand,
-   	NULL
+	FRAME_stand30,
+	hover_frames_stand,
+	NULL
 };
 
 static mframe_t hover_frames_stop1[] = {
@@ -114,9 +129,9 @@ static mframe_t hover_frames_stop1[] = {
 
 mmove_t hover_move_stop1 = {
 	FRAME_stop101,
-   	FRAME_stop109,
-   	hover_frames_stop1,
-   	NULL
+	FRAME_stop109,
+	hover_frames_stop1,
+	NULL
 };
 
 static mframe_t hover_frames_stop2[] = {
@@ -132,9 +147,9 @@ static mframe_t hover_frames_stop2[] = {
 
 mmove_t hover_move_stop2 = {
 	FRAME_stop201,
-   	FRAME_stop208,
-   	hover_frames_stop2,
-   	NULL
+	FRAME_stop208,
+	hover_frames_stop2,
+	NULL
 };
 
 static mframe_t hover_frames_takeoff[] = {
@@ -172,9 +187,9 @@ static mframe_t hover_frames_takeoff[] = {
 
 mmove_t hover_move_takeoff = {
 	FRAME_takeof01,
-   	FRAME_takeof30,
-   	hover_frames_takeoff,
-   	NULL
+	FRAME_takeof30,
+	hover_frames_takeoff,
+	NULL
 };
 
 static mframe_t hover_frames_pain3[] = {
@@ -191,9 +206,9 @@ static mframe_t hover_frames_pain3[] = {
 
 mmove_t hover_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain309,
-   	hover_frames_pain3,
-   	hover_run
+	FRAME_pain309,
+	hover_frames_pain3,
+	hover_run
 };
 
 static mframe_t hover_frames_pain2[] = {
@@ -213,9 +228,9 @@ static mframe_t hover_frames_pain2[] = {
 
 mmove_t hover_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain212,
-   	hover_frames_pain2,
-   	hover_run
+	FRAME_pain212,
+	hover_frames_pain2,
+	hover_run
 };
 
 static mframe_t hover_frames_pain1[] = {
@@ -251,9 +266,9 @@ static mframe_t hover_frames_pain1[] = {
 
 mmove_t hover_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain128,
-   	hover_frames_pain1,
-   	hover_run
+	FRAME_pain128,
+	hover_frames_pain1,
+	hover_run
 };
 
 static mframe_t hover_frames_land[] = {
@@ -262,9 +277,9 @@ static mframe_t hover_frames_land[] = {
 
 mmove_t hover_move_land = {
 	FRAME_land01,
-   	FRAME_land01,
-   	hover_frames_land,
-   	NULL
+	FRAME_land01,
+	hover_frames_land,
+	NULL
 };
 
 static mframe_t hover_frames_forward[] = {
@@ -307,9 +322,9 @@ static mframe_t hover_frames_forward[] = {
 
 mmove_t hover_move_forward = {
 	FRAME_forwrd01,
-   	FRAME_forwrd35,
-   	hover_frames_forward,
-   	NULL
+	FRAME_forwrd35,
+	hover_frames_forward,
+	NULL
 };
 
 static mframe_t hover_frames_walk[] = {
@@ -352,9 +367,9 @@ static mframe_t hover_frames_walk[] = {
 
 mmove_t hover_move_walk = {
 	FRAME_forwrd01,
-   	FRAME_forwrd35,
-   	hover_frames_walk,
-   	NULL
+	FRAME_forwrd35,
+	hover_frames_walk,
+	NULL
 };
 
 static mframe_t hover_frames_run[] = {
@@ -397,9 +412,9 @@ static mframe_t hover_frames_run[] = {
 
 mmove_t hover_move_run = {
 	FRAME_forwrd01,
-   	FRAME_forwrd35,
-   	hover_frames_run,
-   	NULL
+	FRAME_forwrd35,
+	hover_frames_run,
+	NULL
 };
 
 static mframe_t hover_frames_death1[] = {
@@ -418,9 +433,9 @@ static mframe_t hover_frames_death1[] = {
 
 mmove_t hover_move_death1 = {
 	FRAME_death101,
-   	FRAME_death111,
-   	hover_frames_death1,
-   	hover_dead
+	FRAME_death111,
+	hover_frames_death1,
+	hover_dead
 };
 
 static mframe_t hover_frames_backward[] = {
@@ -452,9 +467,9 @@ static mframe_t hover_frames_backward[] = {
 
 mmove_t hover_move_backward = {
 	FRAME_backwd01,
-   	FRAME_backwd24,
-   	hover_frames_backward,
-   	NULL
+	FRAME_backwd24,
+	hover_frames_backward,
+	NULL
 };
 
 static mframe_t hover_frames_start_attack[] = {
@@ -465,9 +480,9 @@ static mframe_t hover_frames_start_attack[] = {
 
 mmove_t hover_move_start_attack = {
 	FRAME_attak101,
-   	FRAME_attak103,
-   	hover_frames_start_attack,
-   	hover_attack
+	FRAME_attak103,
+	hover_frames_start_attack,
+	hover_attack
 };
 
 static mframe_t hover_frames_attack1[] = {
@@ -478,9 +493,9 @@ static mframe_t hover_frames_attack1[] = {
 
 mmove_t hover_move_attack1 = {
 	FRAME_attak104,
-   	FRAME_attak106,
-   	hover_frames_attack1,
-   	NULL
+	FRAME_attak106,
+	hover_frames_attack1,
+	NULL
 };
 
 static mframe_t hover_frames_end_attack[] = {
@@ -490,8 +505,8 @@ static mframe_t hover_frames_end_attack[] = {
 
 mmove_t hover_move_end_attack = {
 	FRAME_attak107,
-   	FRAME_attak108,
-   	hover_frames_end_attack,
+	FRAME_attak108,
+	hover_frames_end_attack,
 	hover_run
 };
 

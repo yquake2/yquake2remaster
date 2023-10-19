@@ -131,9 +131,9 @@ static mframe_t tank_frames_stand[] = {
 mmove_t tank_move_stand =
 {
 	FRAME_stand01,
-   	FRAME_stand30,
-   	tank_frames_stand,
-   	NULL
+	FRAME_stand30,
+	tank_frames_stand,
+	NULL
 };
 
 void
@@ -160,8 +160,8 @@ mmove_t tank_move_start_walk =
 {
 	FRAME_walk01,
 	FRAME_walk04,
-   	tank_frames_start_walk,
-   	tank_walk
+	tank_frames_start_walk,
+	tank_walk
 };
 
 static mframe_t tank_frames_walk[] = {
@@ -188,7 +188,7 @@ mmove_t tank_move_walk =
 	FRAME_walk05,
 	FRAME_walk20,
 	tank_frames_walk,
-   	NULL
+	NULL
 };
 
 static mframe_t tank_frames_stop_walk[] = {
@@ -202,9 +202,9 @@ static mframe_t tank_frames_stop_walk[] = {
 mmove_t tank_move_stop_walk =
 {
 	FRAME_walk21,
-   	FRAME_walk25,
+	FRAME_walk25,
 	tank_frames_stop_walk,
-   	tank_stand
+	tank_stand
 };
 
 void
@@ -230,8 +230,8 @@ static mframe_t tank_frames_start_run[] = {
 mmove_t tank_move_start_run =
 {
 	FRAME_walk01,
-   	FRAME_walk04,
-   	tank_frames_start_run,
+	FRAME_walk04,
+	tank_frames_start_run,
 	tank_run
 };
 
@@ -257,9 +257,9 @@ static mframe_t tank_frames_run[] = {
 mmove_t tank_move_run =
 {
 	FRAME_walk05,
-   	FRAME_walk20,
-   	tank_frames_run,
-   	NULL
+	FRAME_walk20,
+	tank_frames_run,
+	NULL
 };
 
 static mframe_t tank_frames_stop_run[] = {
@@ -273,9 +273,9 @@ static mframe_t tank_frames_stop_run[] = {
 mmove_t tank_move_stop_run =
 {
 	FRAME_walk21,
-   	FRAME_walk25,
-   	tank_frames_stop_run,
-   	tank_walk
+	FRAME_walk25,
+	tank_frames_stop_run,
+	tank_walk
 };
 
 void
@@ -322,9 +322,9 @@ static mframe_t tank_frames_pain1[] = {
 mmove_t tank_move_pain1 =
 {
 	FRAME_pain101,
-   	FRAME_pain104,
-   	tank_frames_pain1,
-   	tank_run
+	FRAME_pain104,
+	tank_frames_pain1,
+	tank_run
 };
 
 static mframe_t tank_frames_pain2[] = {
@@ -338,9 +338,9 @@ static mframe_t tank_frames_pain2[] = {
 mmove_t tank_move_pain2 =
 {
 	FRAME_pain201,
-   	FRAME_pain205,
-   	tank_frames_pain2,
-   	tank_run
+	FRAME_pain205,
+	tank_frames_pain2,
+	tank_run
 };
 
 static mframe_t tank_frames_pain3[] = {
@@ -717,9 +717,9 @@ static mframe_t tank_frames_attack_strike[] = {
 mmove_t tank_move_attack_strike =
 {
 	FRAME_attak201,
-   	FRAME_attak238,
-   	tank_frames_attack_strike,
-   	tank_poststrike
+	FRAME_attak238,
+	tank_frames_attack_strike,
+	tank_poststrike
 };
 
 static mframe_t tank_frames_attack_pre_rocket[] = {
@@ -807,9 +807,9 @@ static mframe_t tank_frames_attack_post_rocket[] = {
 mmove_t tank_move_attack_post_rocket =
 {
 	FRAME_attak331,
-   	FRAME_attak353,
-   	tank_frames_attack_post_rocket,
-   	tank_run
+	FRAME_attak353,
+	tank_frames_attack_post_rocket,
+	tank_run
 };
 
 static mframe_t tank_frames_attack_chain[] = {
@@ -847,7 +847,7 @@ static mframe_t tank_frames_attack_chain[] = {
 mmove_t tank_move_attack_chain =
 {
 	FRAME_attak401,
-   	FRAME_attak429,
+	FRAME_attak429,
 	tank_frames_attack_chain,
 	tank_run
 };
@@ -1009,9 +1009,9 @@ static mframe_t tank_frames_death1[] = {
 mmove_t tank_move_death =
 {
 	FRAME_death101,
-   	FRAME_death132,
+	FRAME_death132,
 	tank_frames_death1,
-   	tank_dead
+	tank_dead
 };
 
 void

@@ -1,9 +1,24 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/* =======================================================================
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
  *
  * Mechanic.
  *
@@ -141,9 +156,9 @@ static mframe_t floater_frames_stand1[] = {
 
 mmove_t floater_move_stand1 = {
 	FRAME_stand101,
-   	FRAME_stand152,
-   	floater_frames_stand1,
-   	NULL
+	FRAME_stand152,
+	floater_frames_stand1,
+	NULL
 };
 
 static mframe_t floater_frames_stand2[] = {
@@ -203,9 +218,9 @@ static mframe_t floater_frames_stand2[] = {
 
 mmove_t floater_move_stand2 = {
 	FRAME_stand201,
-   	FRAME_stand252,
-   	floater_frames_stand2,
-   	NULL
+	FRAME_stand252,
+	floater_frames_stand2,
+	NULL
 };
 
 void
@@ -261,9 +276,9 @@ static mframe_t floater_frames_activate[] = {
 
 mmove_t floater_move_activate = {
 	FRAME_actvat01,
-   	FRAME_actvat31,
-   	floater_frames_activate,
-   	NULL
+	FRAME_actvat31,
+	floater_frames_activate,
+	NULL
 };
 
 static mframe_t floater_frames_attack1[] = {
@@ -285,9 +300,9 @@ static mframe_t floater_frames_attack1[] = {
 
 mmove_t floater_move_attack1 = {
 	FRAME_attak101,
-   	FRAME_attak114,
-   	floater_frames_attack1,
-   	floater_run
+	FRAME_attak114,
+	floater_frames_attack1,
+	floater_run
 };
 
 /* circle strafe frames */
@@ -345,9 +360,9 @@ static mframe_t floater_frames_attack2[] = {
 
 mmove_t floater_move_attack2 = {
 	FRAME_attak201,
-   	FRAME_attak225,
-   	floater_frames_attack2,
-   	floater_run
+	FRAME_attak225,
+	floater_frames_attack2,
+	floater_run
 };
 
 static mframe_t floater_frames_attack3[] = {
@@ -389,9 +404,9 @@ static mframe_t floater_frames_attack3[] = {
 
 mmove_t floater_move_attack3 = {
 	FRAME_attak301,
-   	FRAME_attak334,
-   	floater_frames_attack3,
-   	floater_run
+	FRAME_attak334,
+	floater_frames_attack3,
+	floater_run
 };
 
 static mframe_t floater_frames_death[] = {
@@ -412,9 +427,9 @@ static mframe_t floater_frames_death[] = {
 
 mmove_t floater_move_death = {
 	FRAME_death01,
-   	FRAME_death13,
-   	floater_frames_death,
-   	floater_dead
+	FRAME_death13,
+	floater_frames_death,
+	floater_dead
 };
 
 static mframe_t floater_frames_pain1[] = {
@@ -429,9 +444,9 @@ static mframe_t floater_frames_pain1[] = {
 
 mmove_t floater_move_pain1 = {
 	FRAME_pain101,
-   	FRAME_pain107,
-   	floater_frames_pain1,
-   	floater_run
+	FRAME_pain107,
+	floater_frames_pain1,
+	floater_run
 };
 
 static mframe_t floater_frames_pain2[] = {
@@ -447,9 +462,9 @@ static mframe_t floater_frames_pain2[] = {
 
 mmove_t floater_move_pain2 = {
 	FRAME_pain201,
-   	FRAME_pain208,
-   	floater_frames_pain2,
-   	floater_run
+	FRAME_pain208,
+	floater_frames_pain2,
+	floater_run
 };
 
 static mframe_t floater_frames_pain3[] = {
@@ -469,9 +484,9 @@ static mframe_t floater_frames_pain3[] = {
 
 mmove_t floater_move_pain3 = {
 	FRAME_pain301,
-   	FRAME_pain312,
-   	floater_frames_pain3,
-   	floater_run
+	FRAME_pain312,
+	floater_frames_pain3,
+	floater_run
 };
 
 static mframe_t floater_frames_walk[] = {
@@ -531,9 +546,9 @@ static mframe_t floater_frames_walk[] = {
 
 mmove_t floater_move_walk = {
 	FRAME_stand101,
-   	FRAME_stand152,
-   	floater_frames_walk,
-   	NULL
+	FRAME_stand152,
+	floater_frames_walk,
+	NULL
 };
 
 static mframe_t floater_frames_run[] = {
@@ -594,8 +609,8 @@ static mframe_t floater_frames_run[] = {
 mmove_t floater_move_run = {
 	FRAME_stand101,
 	FRAME_stand152,
-   	floater_frames_run,
-   	NULL
+	floater_frames_run,
+	NULL
 };
 
 void
