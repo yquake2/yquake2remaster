@@ -40,6 +40,11 @@ RI_PushDlights
 void
 RI_PushDlights(const model_t *model)
 {
+	if (!model)
+	{
+		return;
+	}
+
 	R_PushDlights(&r_newrefdef, model->nodes + model->firstnode,
 		r_framecount, model->surfaces);
 }

@@ -108,7 +108,7 @@ R_RenderDlights(void)
 void
 RI_PushDlights(void)
 {
-	if (r_flashblend->value)
+	if (r_flashblend->value || !r_worldmodel)
 	{
 		return;
 	}
