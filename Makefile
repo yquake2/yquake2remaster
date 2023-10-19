@@ -1617,9 +1617,9 @@ ROGUE_OBJS_ = \
 	src/game/dm/tag.o \
 	src/game/monster/berserker/berserker.o \
 	src/rogue/monster/boss2/boss2.o \
-	src/rogue/monster/boss3/boss3.o \
-	src/rogue/monster/boss3/boss31.o \
-	src/rogue/monster/boss3/boss32.o \
+	src/game/monster/boss3/boss3.o \
+	src/game/monster/boss3/boss31.o \
+	src/game/monster/boss3/boss32.o \
 	src/rogue/monster/brain/brain.o \
 	src/game/monster/carrier/carrier.o \
 	src/rogue/monster/chick/chick.o \

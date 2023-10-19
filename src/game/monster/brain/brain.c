@@ -1035,6 +1035,12 @@ brain_pain(edict_t *self, edict_t *other /* unused */,
 		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 		self->monsterinfo.currentmove = &brain_move_pain3;
 	}
+
+	/* clear duck flag */
+	if (self->monsterinfo.aiflags & AI_DUCKED)
+	{
+		monster_duck_up(self);
+	}
 }
 
 void
@@ -1111,6 +1117,32 @@ brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 	}
 }
 
+void
+brain_duck(edict_t *self, float eta)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	/* has to be done immediately otherwise he can get stuck */
+	monster_duck_down(self);
+
+	if (skill->value == SKILL_EASY)
+	{
+		/* PMM - stupid dodge */
+		self->monsterinfo.duck_wait_time = level.time + eta + 1;
+	}
+	else
+	{
+		self->monsterinfo.duck_wait_time = level.time + eta + (0.1 * (3 - skill->value));
+	}
+
+	self->monsterinfo.currentmove = &brain_move_duck;
+	self->monsterinfo.nextframe = FRAME_duck01;
+	return;
+}
+
 /*
  * QUAKED monster_brain (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */
@@ -1166,6 +1198,8 @@ SP_monster_brain(edict_t *self)
 	self->monsterinfo.run = brain_run;
 	self->monsterinfo.attack = brain_attack;
 	self->monsterinfo.dodge = brain_dodge;
+	self->monsterinfo.duck = brain_duck;
+	self->monsterinfo.unduck = monster_duck_up;
 	self->monsterinfo.melee = brain_melee;
 	self->monsterinfo.sight = brain_sight;
 	self->monsterinfo.search = brain_search;

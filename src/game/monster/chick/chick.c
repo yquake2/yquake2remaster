@@ -28,6 +28,8 @@
 #include "../../header/local.h"
 #include "chick.h"
 
+#define LEAD_TARGET 1
+
 qboolean visible(edict_t *self, edict_t *other);
 
 void chick_stand(edict_t *self);
@@ -292,6 +294,8 @@ chick_run(edict_t *self)
 		return;
 	}
 
+	monster_done_dodge(self);
+
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
 		self->monsterinfo.currentmove = &chick_move_stand;
@@ -384,6 +388,8 @@ chick_pain(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
+	monster_done_dodge(self);
+
 	if (self->health < (self->max_health / 2))
 	{
 		self->s.skinnum = 1;
@@ -416,6 +422,9 @@ chick_pain(edict_t *self, edict_t *other /* unused */,
 		return; /* no pain anims in nightmare */
 	}
 
+	/* clear this from blindfire */
+	self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+
 	if (damage <= 10)
 	{
 		self->monsterinfo.currentmove = &chick_move_pain1;
@@ -427,6 +436,12 @@ chick_pain(edict_t *self, edict_t *other /* unused */,
 	else
 	{
 		self->monsterinfo.currentmove = &chick_move_pain3;
+	}
+
+	/* clear duck flag */
+	if (self->monsterinfo.aiflags & AI_DUCKED)
+	{
+		monster_duck_up(self);
 	}
 }
 
@@ -671,15 +686,15 @@ ChickSlash(edict_t *self)
 void
 ChickRocket(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
 	vec3_t forward, right;
 	vec3_t start;
 	vec3_t dir;
 	vec3_t vec;
+
+	if (!self)
+	{
+		return;
+	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
 	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CHICK_ROCKET_1],
@@ -795,13 +810,20 @@ chick_rerocket(edict_t *self)
 		return;
 	}
 
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &chick_move_end_attack1;
+		return;
+	}
+
 	if (self->enemy->health > 0)
 	{
 		if (range(self, self->enemy) > RANGE_MELEE)
 		{
 			if (visible(self, self->enemy))
 			{
-				if (random() <= 0.6)
+				if (random() <= (0.6 + (0.05 * ((float)skill->value))))
 				{
 					self->monsterinfo.currentmove = &chick_move_attack1;
 					return;
@@ -926,8 +948,52 @@ chick_melee(edict_t *self)
 void
 chick_attack(edict_t *self)
 {
+	float r, chance;
+
 	if (!self)
 	{
+		return;
+	}
+
+	monster_done_dodge(self);
+
+	if (self->monsterinfo.attack_state == AS_BLIND)
+	{
+		/* setup shot probabilities */
+		if (self->monsterinfo.blind_fire_delay < 1.0)
+		{
+			chance = 1.0;
+		}
+		else if (self->monsterinfo.blind_fire_delay < 7.5)
+		{
+			chance = 0.4;
+		}
+		else
+		{
+			chance = 0.1;
+		}
+
+		r = random();
+
+		/* minimum of 2 seconds, plus 0-3, after the shots are done */
+		self->monsterinfo.blind_fire_delay += 4.0 + 1.5 + random();
+
+		/* don't shoot at the origin */
+		if (VectorCompare(self->monsterinfo.blind_fire_target, vec3_origin))
+		{
+			return;
+		}
+
+		/* don't shoot if the dice say not to */
+		if (r > chance)
+		{
+			return;
+		}
+
+		/* turn on manual steering to signal both manual steering and blindfire */
+		self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &chick_move_start_attack1;
+		self->monsterinfo.attack_finished = level.time + 2 * random();
 		return;
 	}
 
@@ -943,6 +1009,84 @@ chick_sight(edict_t *self, edict_t *other /* unused */)
 	}
 
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+}
+
+qboolean
+chick_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void
+chick_duck(edict_t *self, float eta)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if ((self->monsterinfo.currentmove == &chick_move_start_attack1) ||
+		(self->monsterinfo.currentmove == &chick_move_attack1))
+	{
+		/* if we're shooting, and not on easy, don't dodge */
+		if (skill->value)
+		{
+			self->monsterinfo.aiflags &= ~AI_DUCKED;
+			return;
+		}
+	}
+
+	if (skill->value == SKILL_EASY)
+	{
+		/* stupid dodge */
+		self->monsterinfo.duck_wait_time = level.time + eta + 1;
+	}
+	else
+	{
+		self->monsterinfo.duck_wait_time = level.time + eta + (0.1 * (3 - skill->value));
+	}
+
+	/* has to be done immediately otherwise she can get stuck */
+	monster_duck_down(self);
+
+	self->monsterinfo.nextframe = FRAME_duck01;
+	self->monsterinfo.currentmove = &chick_move_duck;
+	return;
+}
+
+void
+chick_sidestep(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if ((self->monsterinfo.currentmove == &chick_move_start_attack1) ||
+		(self->monsterinfo.currentmove == &chick_move_attack1))
+	{
+		/* if we're shooting, and not on easy, don't dodge */
+		if (skill->value > SKILL_EASY)
+		{
+			self->monsterinfo.aiflags &= ~AI_DODGING;
+			return;
+		}
+	}
+
+	if (self->monsterinfo.currentmove != &chick_move_run)
+	{
+		self->monsterinfo.currentmove = &chick_move_run;
+	}
 }
 
 /*
@@ -1000,9 +1144,13 @@ SP_monster_chick(edict_t *self)
 	self->monsterinfo.walk = chick_walk;
 	self->monsterinfo.run = chick_run;
 	self->monsterinfo.dodge = chick_dodge;
+	self->monsterinfo.duck = chick_duck;
+	self->monsterinfo.unduck = monster_duck_up;
+	self->monsterinfo.sidestep = chick_sidestep;
 	self->monsterinfo.attack = chick_attack;
 	self->monsterinfo.melee = chick_melee;
 	self->monsterinfo.sight = chick_sight;
+	self->monsterinfo.blocked = chick_blocked;
 
 	gi.linkentity(self);
 

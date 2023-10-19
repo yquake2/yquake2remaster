@@ -769,7 +769,11 @@ Boss2_CheckAttack(edict_t *self)
 		/* do we have a clear shot? */
 		if (tr.ent != self->enemy)
 		{
-			return false;
+			/* we want them to go ahead and shoot at info_notnulls if they can */
+			if (self->enemy->solid != SOLID_NOT || tr.fraction < 1.0)
+			{
+				return false;
+			}
 		}
 	}
 
@@ -827,7 +831,7 @@ Boss2_CheckAttack(edict_t *self)
 		return false;
 	}
 
-	if (random() < chance)
+	if ((random() < chance) || (self->enemy->solid == SOLID_NOT))
 	{
 		self->monsterinfo.attack_state = AS_MISSILE;
 		self->monsterinfo.attack_finished = level.time + 2 * random();

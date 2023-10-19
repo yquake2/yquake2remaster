@@ -30,6 +30,19 @@
 
 extern void SP_monster_makron(edict_t *self);
 qboolean visible(edict_t *self, edict_t *other);
+void BossExplode(edict_t *self);
+void MakronToss(edict_t *self);
+void MakronPrecache(void);
+void jorg_dead(edict_t *self);
+void jorgBFG(edict_t *self);
+void jorgMachineGun(edict_t *self);
+void jorg_firebullet(edict_t *self);
+void jorg_reattack1(edict_t *self);
+void jorg_attack1(edict_t *self);
+void jorg_idle(edict_t *self);
+void jorg_step_left(edict_t *self);
+void jorg_step_right(edict_t *self);
+void jorg_death_hit(edict_t *self);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -45,20 +58,6 @@ static int sound_firegun;
 static int sound_step_left;
 static int sound_step_right;
 static int sound_death_hit;
-
-void BossExplode(edict_t *self);
-void MakronToss(edict_t *self);
-void MakronPrecache(void);
-void jorg_dead(edict_t *self);
-void jorgBFG(edict_t *self);
-void jorgMachineGun(edict_t *self);
-void jorg_firebullet(edict_t *self);
-void jorg_reattack1(edict_t *self);
-void jorg_attack1(edict_t *self);
-void jorg_idle(edict_t *self);
-void jorg_step_left(edict_t *self);
-void jorg_step_right(edict_t *self);
-void jorg_death_hit(edict_t *self);
 
 void
 jorg_search(edict_t *self)
