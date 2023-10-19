@@ -35,6 +35,13 @@ static int sound_pain1;
 static int sound_pain2;
 static int sound_sight;
 
+void floater_dead(edict_t *self);
+void floater_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+		int damage, vec3_t point);
+void floater_run(edict_t *self);
+void floater_wham(edict_t *self);
+void floater_zap(edict_t *self);
+
 void
 floater_sight(edict_t *self, edict_t *other /* unused */)
 {
@@ -56,13 +63,6 @@ floater_idle(edict_t *self)
 
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
-
-void floater_dead(edict_t *self);
-void floater_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
-void floater_run(edict_t *self);
-void floater_wham(edict_t *self);
-void floater_zap(edict_t *self);
 
 void
 floater_fire_blaster(edict_t *self)
@@ -386,7 +386,8 @@ mmove_t floater_move_attack3 =
 	FRAME_attak301,
 	FRAME_attak334,
 	floater_frames_attack3,
-	floater_run};
+	floater_run
+};
 
 static mframe_t floater_frames_death[] = {
 	{ai_move, 0, NULL},
@@ -631,6 +632,11 @@ void
 floater_wham(edict_t *self)
 {
 	static vec3_t aim = {MELEE_DISTANCE, 0, 0};
+
+	if (!self)
+	{
+		return;
+	}
 
 	gi.sound(self, CHAN_WEAPON, sound_attack3, 1, ATTN_NORM, 0);
 	fire_hit(self, aim, 5 + randk() % 6, -50);

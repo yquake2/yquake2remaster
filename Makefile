@@ -1499,8 +1499,8 @@ XATRIX_OBJS_ = \
 	src/game/monster/brain/brain.o \
 	src/game/monster/chick/chick.o \
 	src/game/monster/fixbot/fixbot.o \
-	src/xatrix/monster/flipper/flipper.o \
-	src/xatrix/monster/float/float.o \
+	src/game/monster/flipper/flipper.o \
+	src/game/monster/float/float.o \
 	src/game/monster/flyer/flyer.o \
 	src/game/monster/gekk/gekk.o \
 	src/game/monster/gladiator/gladb.o \

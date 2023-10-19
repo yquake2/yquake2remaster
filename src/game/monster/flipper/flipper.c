@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,11 +65,11 @@ flipper_stand(edict_t *self)
 }
 
 static mframe_t flipper_frames_run[] = {
-	{ai_run, FLIPPER_RUN_SPEED, NULL},  /* 6 */
+	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 6 */
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
-	{ai_run, FLIPPER_RUN_SPEED, NULL},  /* 10 */
+	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 10 */
 
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
@@ -79,7 +80,7 @@ static mframe_t flipper_frames_run[] = {
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
-	{ai_run, FLIPPER_RUN_SPEED, NULL},  /* 20 */
+	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 20 */
 
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
@@ -236,6 +237,7 @@ static mframe_t flipper_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
+
 mmove_t flipper_move_pain1 =
 {
 	FRAME_flppn201,
@@ -477,7 +479,8 @@ flipper_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
+				1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{
