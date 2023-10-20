@@ -1516,11 +1516,11 @@ XATRIX_OBJS_ = \
 	src/game/monster/soldier/soldier.o \
 	src/game/monster/supertank/supertank.o \
 	src/game/monster/tank/tank.o \
-	src/xatrix/player/client.o \
-	src/xatrix/player/hud.o \
-	src/xatrix/player/trail.o \
-	src/xatrix/player/view.o \
-	src/xatrix/player/weapon.o \
+	src/game/player/client.o \
+	src/game/player/hud.o \
+	src/game/player/trail.o \
+	src/game/player/view.o \
+	src/game/player/weapon.o \
 	src/xatrix/savegame/savegame.o
 
 # ----------

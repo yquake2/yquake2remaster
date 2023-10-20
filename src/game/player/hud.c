@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,6 +57,9 @@ MoveClientToIntermission(edict_t *ent)
 	ent->client->enviro_framenum = 0;
 	ent->client->grenade_blew_up = false;
 	ent->client->grenade_time = 0;
+	ent->client->quadfire_framenum = 0;
+	ent->client->trap_blew_up = false;
+	ent->client->trap_time = 0;
 
 	ent->viewheight = 0;
 	ent->s.modelindex = 0;
@@ -390,21 +394,20 @@ HelpComputerMessage(edict_t *ent)
 void
 InventoryMessage(edict_t *ent)
 {
-        int i;
+	int i;
 
-        if (!ent)
-        {
-                return;
-        }
+	if (!ent)
+	{
+		return;
+	}
 
-        gi.WriteByte(svc_inventory);
+	gi.WriteByte(svc_inventory);
 
-        for (i = 0; i < MAX_ITEMS; i++)
-        {
-                gi.WriteShort(ent->client->pers.inventory[i]);
-        }
+	for (i = 0; i < MAX_ITEMS; i++)
+	{
+		gi.WriteShort(ent->client->pers.inventory[i]);
+	}
 }
-
 
 /* ======================================================================= */
 
@@ -437,6 +440,8 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_AMMO] =
 			ent->client->pers.inventory[ent->client->ammo_index];
 	}
+
+	cells = 0;
 
 	/* armor */
 	power_armor_type = PowerArmorType(ent);
@@ -488,6 +493,12 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quad");
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->quad_framenum - level.framenum) / 10;
+	}
+	else if (ent->client->quadfire_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quadfire");
+		ent->client->ps.stats[STAT_TIMER] = (ent->client->quadfire_framenum
+			   	- level.framenum) / 10;
 	}
 	else if (ent->client->invincible_framenum > level.framenum)
 	{

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,6 +262,8 @@ P_DamageFeedback(edict_t *player)
 }
 
 /*
+ * Auto pitching on slopes?
+ *
  * fall from 128: 400 = 160000
  * fall from 256: 580 = 336400
  * fall from 384: 720 = 518400
@@ -560,6 +563,21 @@ SV_CalcBlend(edict_t *ent)
 			SV_AddBlend(0, 0, 1, 0.08, ent->client->ps.blend);
 		}
 	}
+	else if (ent->client->quadfire_framenum > level.framenum)
+	{
+		remaining = ent->client->quadfire_framenum - level.framenum;
+
+		if (remaining == 30) /* beginning to fade */
+		{
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("items/quadfire2.wav"),
+				   	1, ATTN_NORM, 0);
+		}
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			SV_AddBlend(1, 0.2, 0.5, 0.08, ent->client->ps.blend);
+		}
+	}
 	else if (ent->client->invincible_framenum > level.framenum)
 	{
 		remaining = ent->client->invincible_framenum - level.framenum;
@@ -807,7 +825,7 @@ P_WorldEffects(void)
 		current_player->flags &= ~FL_INWATER;
 	}
 
-	/* check for head just going under moove^^water */
+	/* check for head just going under water */
 	if ((old_waterlevel != 3) && (waterlevel == 3))
 	{
 		gi.sound(current_player, CHAN_BODY, gi.soundindex(
@@ -910,7 +928,8 @@ P_WorldEffects(void)
 	}
 
 	/* check for sizzle damage */
-	if (waterlevel && (current_player->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
+	if (waterlevel &&
+		(current_player->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
 		if (current_player->watertype & CONTENTS_LAVA)
 		{
@@ -997,6 +1016,16 @@ G_SetClientEffects(edict_t *ent)
 	if (ent->client->quad_framenum > level.framenum)
 	{
 		remaining = ent->client->quad_framenum - level.framenum;
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			ent->s.effects |= EF_QUAD;
+		}
+	}
+
+	if (ent->client->quadfire_framenum > level.framenum)
+	{
+		remaining = ent->client->quadfire_framenum - level.framenum;
 
 		if ((remaining > 30) || (remaining & 4))
 		{
@@ -1114,6 +1143,10 @@ G_SetClientSound(edict_t *ent)
 	else if (strcmp(weap, "weapon_bfg") == 0)
 	{
 		ent->s.sound = gi.soundindex("weapons/bfg_hum.wav");
+	}
+	else if (strcmp(weap, "weapon_phalanx") == 0)
+	{
+		ent->s.sound = gi.soundindex("weapons/phaloop.wav");
 	}
 	else if (ent->client->weapon_sound)
 	{

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +51,22 @@ SP_FixCoopSpots(edict_t *self)
 	if (!self)
 	{
 		return;
+	}
+
+	/* Entity number 292 is an unnamed info_player_start
+	   next to a named info_player_start. Delete it, if
+	   we're in coop since it screws up the spawnpoint
+	   selection heuristic in SelectCoopSpawnPoint().
+	   This unnamed info_player_start is selected as
+	   spawnpoint for player 0, therefor none of the
+	   named info_coop_start() matches... */
+	if(Q_stricmp(level.mapname, "xware") == 0)
+	{
+		if (self->s.number == 292)
+		{
+			G_FreeEdict(self);
+			self = NULL;
+		}
 	}
 
 	spot = NULL;
@@ -303,6 +320,9 @@ SP_info_player_start(edict_t *self)
 		self->think = SP_CreateCoopSpots;
 		self->nextthink = level.time + FRAMETIME;
 	}
+
+	/* Fix coop spawn points */
+	SP_FixCoopSpots(self);
 }
 
 /*
@@ -378,7 +398,7 @@ SP_info_player_coop(edict_t *self)
 void
 SP_info_player_intermission(edict_t *self)
 {
-	/* Thus function cannot be removed
+	/* This function cannot be removed
 	 * since the info_player_intermission
 	 * needs a callback function. Like
 	 * every entity. */
@@ -522,6 +542,10 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 			case MOD_TRIGGER_HURT:
 				message = "was in the wrong place";
 				break;
+			case MOD_GEKK:
+			case MOD_BRAINTENTACLE:
+				message = "that's gotta hurt";
+				break;
 		}
 
 		if (attacker == self)
@@ -566,6 +590,9 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 					break;
 				case MOD_BFG_BLAST:
 					message = "should have used a smaller gun";
+					break;
+				case MOD_TRAP:
+					message = "sucked into his own trap";
 					break;
 				default:
 
@@ -675,6 +702,16 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 					message = "tried to invade";
 					message2 = "'s personal space";
 					break;
+				case MOD_RIPPER:
+					message = "ripped to shreds by";
+					message2 = "'s ripper gun";
+					break;
+				case MOD_PHALANX:
+					message = "was evaporated by";
+					break;
+				case MOD_TRAP:
+					message = "caught in trap by";
+					break;
 			}
 
 			if (message)
@@ -715,6 +752,7 @@ TossClientWeapon(edict_t *self)
 	gitem_t *item;
 	edict_t *drop;
 	qboolean quad;
+	qboolean quadfire;
 	float spread;
 
 	if (!self)
@@ -748,9 +786,22 @@ TossClientWeapon(edict_t *self)
 		quad = (self->client->quad_framenum > (level.framenum + 10));
 	}
 
+	if (!((int)(dmflags->value) & DF_QUADFIRE_DROP))
+	{
+		quadfire = false;
+	}
+	else
+	{
+		quadfire = (self->client->quadfire_framenum > (level.framenum + 10));
+	}
+
 	if (item && quad)
 	{
 		spread = 22.5;
+	}
+	else if (item && quadfire)
+	{
+		spread = 12.5;
 	}
 	else
 	{
@@ -774,7 +825,20 @@ TossClientWeapon(edict_t *self)
 
 		drop->touch = Touch_Item;
 		drop->nextthink = level.time +
-						  (self->client->quad_framenum -
+						(self->client->quad_framenum -
+						   level.framenum) * FRAMETIME;
+		drop->think = G_FreeEdict;
+	}
+
+	if (quadfire)
+	{
+		self->client->v_angle[YAW] += spread;
+		drop = Drop_Item(self, FindItemByClassname("item_quadfire"));
+		self->client->v_angle[YAW] -= spread;
+		drop->spawnflags |= DROPPED_PLAYER_ITEM;
+
+		drop->touch = Touch_Item;
+		drop->nextthink = level.time + (self->client->quadfire_framenum -
 						   level.framenum) * FRAMETIME;
 		drop->think = G_FreeEdict;
 	}
@@ -890,6 +954,8 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	self->client->enviro_framenum = 0;
 	self->flags &= ~FL_POWER_ARMOR;
 
+	self->client->quadfire_framenum = 0;
+
 	if (self->health < -40)
 	{
 		/* gib (sound is played at end of server frame) */
@@ -989,6 +1055,9 @@ InitClientPersistant(gclient_t *client)
 	client->pers.max_grenades = 50;
 	client->pers.max_cells = 200;
 	client->pers.max_slugs = 50;
+
+	client->pers.max_magslug = 50;
+	client->pers.max_trap = 5;
 
 	client->pers.connected = true;
 }
@@ -1290,6 +1359,7 @@ SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 {
 	edict_t *spot = NULL;
 	edict_t *coopspot = NULL;
+	int dist;
 	int index;
 	int counter = 0;
 	vec3_t d;
@@ -1366,7 +1436,19 @@ SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 
 				VectorSubtract(coopspot->s.origin, spot->s.origin, d);
 
-				if ((VectorLength(d) < 550))
+				/* In xship the coop spawnpoints are farther
+				   away than in other maps. Quirk around this.
+				   Oh well... */
+				if (Q_stricmp(level.mapname, "xship") == 0)
+				{
+					dist = 2500;
+				}
+				else
+				{
+					dist = 550;
+				}
+
+				if ((VectorLength(d) < dist))
 				{
 					if (index == counter)
 					{
@@ -1622,13 +1704,6 @@ spectator_respawn(edict_t *ent)
 void
 PutClientInServer(edict_t *ent)
 {
-	char userinfo[MAX_INFO_STRING];
-
-	if (!ent)
-	{
-		return;
-	}
-
 	vec3_t mins = {-16, -16, -24};
 	vec3_t maxs = {16, 16, 32};
 	int index;
@@ -1637,6 +1712,12 @@ PutClientInServer(edict_t *ent)
 	int i;
 	client_persistant_t saved;
 	client_respawn_t resp;
+
+	if (!ent)
+	{
+		return;
+	}
+
 
 	/* find a spawn point do it before setting
 	   health back up, so farthest ranging
@@ -1649,6 +1730,8 @@ PutClientInServer(edict_t *ent)
 	/* deathmatch wipes most client data every spawn */
 	if (deathmatch->value)
 	{
+		char userinfo[MAX_INFO_STRING];
+
 		resp = client->resp;
 		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
 		InitClientPersistant(client);
@@ -1656,6 +1739,8 @@ PutClientInServer(edict_t *ent)
 	}
 	else if (coop->value)
 	{
+		char userinfo[MAX_INFO_STRING];
+
 		resp = client->resp;
 		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
 		resp.coop_respawn.game_helpchanged = client->pers.game_helpchanged;
@@ -1672,9 +1757,6 @@ PutClientInServer(edict_t *ent)
 	{
 		memset(&resp, 0, sizeof(resp));
 	}
-
-	memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
-	ClientUserinfoChanged(ent, userinfo);
 
 	/* clear everything but the persistant data */
 	saved = client->pers;
