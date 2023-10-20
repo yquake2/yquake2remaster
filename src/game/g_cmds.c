@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -228,7 +229,7 @@ Cmd_Give_f(edict_t *ent)
 
 	if ((deathmatch->value || coop->value) && !sv_cheats->value)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -362,6 +363,11 @@ Cmd_Give_f(edict_t *ent)
 				continue;
 			}
 
+			if (it->flags & IT_NOT_GIVEABLE)
+			{
+				continue;
+			}
+
 			if (it->flags & (IT_ARMOR | IT_WEAPON | IT_AMMO))
 			{
 				continue;
@@ -393,6 +399,12 @@ Cmd_Give_f(edict_t *ent)
 		return;
 	}
 
+	if (it->flags & IT_NOT_GIVEABLE)
+	{
+		gi.dprintf("item cannot be given\n");
+		return;
+	}
+
 	index = ITEM_INDEX(it);
 
 	if (it->flags & IT_AMMO)
@@ -411,6 +423,13 @@ Cmd_Give_f(edict_t *ent)
 		it_ent = G_Spawn();
 		it_ent->classname = it->classname;
 		SpawnItem(it_ent, it);
+
+		/* since some items don't actually spawn when you say to .. */
+		if (!it_ent->inuse)
+		{
+			return;
+		}
+
 		Touch_Item(it_ent, ent, NULL, NULL);
 
 		if (it_ent->inuse)
@@ -435,7 +454,7 @@ Cmd_God_f(edict_t *ent)
 
 	if ((deathmatch->value || coop->value) && !sv_cheats->value)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -469,7 +488,7 @@ Cmd_Notarget_f(edict_t *ent)
 
 	if ((deathmatch->value || coop->value) && !sv_cheats->value)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -503,7 +522,7 @@ Cmd_Noclip_f(edict_t *ent)
 
 	if ((deathmatch->value || coop->value) && !sv_cheats->value)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -556,8 +575,33 @@ Cmd_Use_f(edict_t *ent)
 
 	if (!ent->client->pers.inventory[index])
 	{
-		gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
-		return;
+		if (strcmp(it->pickup_name, "HyperBlaster") == 0)
+		{
+			it = FindItem("Ionripper");
+			index = ITEM_INDEX(it);
+
+			if (!ent->client->pers.inventory[index])
+			{
+				gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
+				return;
+			}
+		}
+		else if (strcmp(it->pickup_name, "Railgun") == 0)
+		{
+			it = FindItem("Phalanx");
+			index = ITEM_INDEX(it);
+
+			if (!ent->client->pers.inventory[index])
+			{
+				gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
+				return;
+			}
+		}
+		else
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
+			return;
+		}
 	}
 
 	it->use(ent, it);
@@ -597,8 +641,33 @@ Cmd_Drop_f(edict_t *ent)
 
 	if (!ent->client->pers.inventory[index])
 	{
-		gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
-		return;
+		if (strcmp(it->pickup_name, "HyperBlaster") == 0)
+		{
+			it = FindItem("Ionripper");
+			index = ITEM_INDEX(it);
+
+			if (!ent->client->pers.inventory[index])
+			{
+				gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
+				return;
+			}
+		}
+		else if (strcmp(it->pickup_name, "Railgun") == 0)
+		{
+			it = FindItem("Phalanx");
+			index = ITEM_INDEX(it);
+
+			if (!ent->client->pers.inventory[index])
+			{
+				gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
+				return;
+			}
+		}
+		else
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Out of item: %s\n", s);
+			return;
+		}
 	}
 
 	it->drop(ent, it);
@@ -742,7 +811,8 @@ Cmd_WeapPrev_f(edict_t *ent)
 	/* scan  for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
-		index = (selected_weapon + i) % MAX_ITEMS;
+		/* prevent scrolling through ALL weapons */
+		index = (selected_weapon + MAX_ITEMS - i) % MAX_ITEMS;
 
 		if (!cl->pers.inventory[index])
 		{
@@ -763,9 +833,10 @@ Cmd_WeapPrev_f(edict_t *ent)
 
 		it->use(ent, it);
 
-		if (cl->pers.weapon == it)
+		/* prevent scrolling through ALL weapons */
+		if (cl->newweapon == it)
 		{
-			return; /* successful */
+			return;
 		}
 	}
 }
@@ -795,7 +866,8 @@ Cmd_WeapNext_f(edict_t *ent)
 	/* scan  for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
-		index = (selected_weapon + MAX_ITEMS - i) % MAX_ITEMS;
+		/* prevent scrolling through ALL weapons */
+		index = (selected_weapon + i) % MAX_ITEMS;
 
 		if (!cl->pers.inventory[index])
 		{
@@ -816,9 +888,10 @@ Cmd_WeapNext_f(edict_t *ent)
 
 		it->use(ent, it);
 
-		if (cl->pers.weapon == it)
+		/* prevent scrolling through ALL weapons */
+		if (cl->newweapon == it)
 		{
-			return; /* successful */
+			return;
 		}
 	}
 }
@@ -910,6 +983,19 @@ Cmd_Kill_f(edict_t *ent)
 	ent->flags &= ~FL_GODMODE;
 	ent->health = 0;
 	meansOfDeath = MOD_SUICIDE;
+
+	/* make sure no trackers are still hurting us. */
+	if (ent->client->tracker_pain_framenum)
+	{
+		RemoveAttackingPainDaemons(ent);
+	}
+
+	if (ent->client->owned_sphere)
+	{
+		G_FreeEdict(ent->client->owned_sphere);
+		ent->client->owned_sphere = NULL;
+	}
+
 	player_die(ent, ent, ent, 100000, vec3_origin);
 }
 
@@ -1225,6 +1311,30 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 }
 
 void
+Cmd_Ent_Count_f(edict_t *ent)
+{
+	int x;
+	edict_t *e;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	x = 0;
+
+	for (e = g_edicts; e < &g_edicts[globals.num_edicts]; e++)
+	{
+		if (e->inuse)
+		{
+			x++;
+		}
+	}
+
+	gi.dprintf("%d entites active\n", x);
+}
+
+void
 Cmd_PlayerList_f(edict_t *ent)
 {
 	int i;
@@ -1242,6 +1352,8 @@ Cmd_PlayerList_f(edict_t *ent)
 
 	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
 	{
+		int text_len;
+
 		if (!e2->inuse)
 		{
 			continue;
@@ -1255,9 +1367,11 @@ Cmd_PlayerList_f(edict_t *ent)
 				e2->client->pers.netname,
 				e2->client->resp.spectator ? " (spectator)" : "");
 
-		if (strlen(text) + strlen(st) > sizeof(text) - 50)
+		text_len = strlen(text);
+
+		if ((text_len + strlen(st)) > (sizeof(text) - 50))
 		{
-			strcpy(text + strlen(text), "And more...\n");
+			snprintf(text + text_len, sizeof(text) - text_len, "And more...\n");
 			gi.cprintf(ent, PRINT_HIGH, "%s", text);
 			return;
 		}
@@ -1961,6 +2075,14 @@ ClientCommand(edict_t *ent)
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 	{
 		Cmd_PlayerList_f(ent);
+	}
+	else if (Q_stricmp(cmd, "entcount") == 0)
+	{
+		Cmd_Ent_Count_f(ent);
+	}
+	else if (Q_stricmp(cmd, "disguise") == 0)
+	{
+		ent->flags |= FL_DISGUISED;
 	}
 	else if (Q_stricmp(cmd, "teleport") == 0)
 	{

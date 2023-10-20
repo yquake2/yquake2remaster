@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -260,7 +261,7 @@ turret_breach_think(edict_t *self)
 		ent->avelocity[1] = self->avelocity[1];
 	}
 
-	/* if we have adriver, adjust his velocities */
+	/* if we have a driver, adjust his velocities */
 	if (self->owner)
 	{
 		float angle;
@@ -387,7 +388,6 @@ SP_turret_breach(edict_t *self)
  * This portion of the turret changes yaw only.
  * MUST be teamed with a turret_breach.
  */
-
 void
 SP_turret_base(edict_t *self)
 {

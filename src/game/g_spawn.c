@@ -155,6 +155,23 @@ void SP_turret_breach(edict_t *self);
 void SP_turret_base(edict_t *self);
 void SP_turret_driver(edict_t *self);
 
+void SP_monster_soldier_hypergun(edict_t *self);
+void SP_monster_soldier_lasergun(edict_t *self);
+void SP_monster_soldier_ripper(edict_t *self);
+void SP_monster_fixbot(edict_t *self);
+void SP_monster_gekk(edict_t *self);
+void SP_monster_chick_heat(edict_t *self);
+void SP_monster_gladb(edict_t *self);
+void SP_monster_boss5(edict_t *self);
+void SP_rotating_light(edict_t *self);
+void SP_object_repair(edict_t *self);
+void SP_misc_crashviper(edict_t *ent);
+void SP_misc_viper_missile(edict_t *self);
+void SP_misc_amb4(edict_t *ent);
+void SP_target_mal_laser(edict_t *ent);
+void SP_misc_transport(edict_t *ent);
+
+void SP_misc_nuke(edict_t *ent);
 void SP_func_plat2(edict_t *ent);
 void SP_func_door_secret2(edict_t *ent);
 void SP_func_force_wall(edict_t *ent);
@@ -222,6 +239,9 @@ static spawn_t spawns[] = {
 	{"func_explosive", SP_func_explosive},
 	{"func_killbox", SP_func_killbox},
 
+	{"func_object_repair", SP_object_repair},
+	{"rotating_light", SP_rotating_light},
+
 	{"trigger_always", SP_trigger_always},
 	{"trigger_once", SP_trigger_once},
 	{"trigger_multiple", SP_trigger_multiple},
@@ -251,6 +271,7 @@ static spawn_t spawns[] = {
 	{"target_earthquake", SP_target_earthquake},
 	{"target_character", SP_target_character},
 	{"target_string", SP_target_string},
+	{"target_mal_laser", SP_target_mal_laser},
 
 	{"worldspawn", SP_worldspawn},
 	{"viewthing", SP_viewthing},
@@ -282,6 +303,11 @@ static spawn_t spawns[] = {
 	{"misc_eastertank", SP_misc_eastertank},
 	{"misc_easterchick", SP_misc_easterchick},
 	{"misc_easterchick2", SP_misc_easterchick2},
+	{"misc_crashviper", SP_misc_crashviper},
+	{"misc_viper_missile", SP_misc_viper_missile},
+	{"misc_amb4", SP_misc_amb4},
+	{"misc_transport", SP_misc_transport},
+	{"misc_nuke", SP_misc_nuke},
 
 	{"monster_berserk", SP_monster_berserk},
 	{"monster_gladiator", SP_monster_gladiator},
@@ -306,8 +332,15 @@ static spawn_t spawns[] = {
 	{"monster_boss3_stand", SP_monster_boss3_stand},
 	{"monster_makron", SP_monster_makron},
 	{"monster_jorg", SP_monster_jorg},
-
 	{"monster_commander_body", SP_monster_commander_body},
+	{"monster_soldier_hypergun", SP_monster_soldier_hypergun},
+	{"monster_soldier_lasergun", SP_monster_soldier_lasergun},
+	{"monster_soldier_ripper", SP_monster_soldier_ripper},
+	{"monster_fixbot", SP_monster_fixbot},
+	{"monster_gekk", SP_monster_gekk},
+	{"monster_chick_heat", SP_monster_chick_heat},
+	{"monster_gladb", SP_monster_gladb},
+	{"monster_boss5", SP_monster_boss5},
 
 	{"turret_breach", SP_turret_breach},
 	{"turret_base", SP_turret_base},
@@ -315,6 +348,35 @@ static spawn_t spawns[] = {
 
 	{NULL, NULL}
 };
+
+qboolean Spawn_CheckCoop_MapHacks (edict_t *ent)
+{
+	if(!coop->value || !ent)
+	{
+		return false;
+	}
+
+	if(!Q_stricmp(level.mapname, "xsewer1"))
+	{
+		if(ent->classname && !Q_stricmp(ent->classname, "trigger_relay") && ent->target && !Q_stricmp(ent->target, "t3") && ent->targetname && !Q_stricmp(ent->targetname, "t2"))
+		{
+			return true;
+		}
+		if(ent->classname && !Q_stricmp(ent->classname, "func_button") && ent->target && !Q_stricmp(ent->target, "t16") && ent->model && !Q_stricmp(ent->model, "*71"))
+		{
+			ent->message = "Overflow valve maintenance\nhatch A opened.";
+			return false;
+		}
+
+		if(ent->classname && !Q_stricmp(ent->classname, "trigger_once") && ent->model && !Q_stricmp(ent->model, "*3"))
+		{
+			ent->message = "Overflow valve maintenance\nhatch B opened.";
+			return false;
+		}
+	}
+
+	return false;
+}
 
 /*
  * Finds the spawn function for
@@ -479,7 +541,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 
 /*
  * Parses an edict out of the given string,
- * returning the new position ed should be
+ * returning the new position. ed should be
  * a properly initialized empty edict.
  */
 char *
@@ -818,13 +880,14 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 			}
 			else
 			{
-				if (((skill->value == SKILL_EASY) &&
+				if (Spawn_CheckCoop_MapHacks(ent) || (
+					((skill->value == SKILL_EASY) &&
 					 (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
 					((skill->value == SKILL_MEDIUM) &&
 					 (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
 					(((skill->value == SKILL_HARD) ||
 					  (skill->value == SKILL_HARDPLUS)) &&
-					 (ent->spawnflags & SPAWNFLAG_NOT_HARD))
+					 (ent->spawnflags & SPAWNFLAG_NOT_HARD)))
 					)
 				{
 					G_FreeEdict(ent);
@@ -1137,6 +1200,9 @@ SP_worldspawn(edict_t *ent)
 		gi.modelindex("#w_plasma.md2");
 		gi.modelindex("#w_plauncher.md2");
 		gi.modelindex("#w_chainfist.md2");
+
+		gi.modelindex("#w_phalanx.md2");
+		gi.modelindex("#w_ripper.md2");
 	}
 
 	/* ------------------- */

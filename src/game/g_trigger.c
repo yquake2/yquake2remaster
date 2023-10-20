@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,8 @@
 #include "header/local.h"
 
 #define PUSH_ONCE 1
+
+void trigger_push_active(edict_t *self);
 
 static int windsound;
 
@@ -184,7 +187,6 @@ trigger_enable(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
-
 	self->solid = SOLID_TRIGGER;
 	self->use = Use_Multi;
 	gi.linkentity(self);
@@ -208,7 +210,7 @@ SP_trigger_multiple(edict_t *ent)
 	}
 	else if (ent->sounds == 3)
 	{
-		ent->noise_index = gi.soundindex ("misc/trigger1.wav");
+		ent->noise_index = gi.soundindex("misc/trigger1.wav");
 	}
 
 	if (!ent->wait)
@@ -592,6 +594,77 @@ trigger_push_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
  * "speed"		defaults to 1000
  */
 void
+trigger_effect(edict_t *self)
+{
+	vec3_t origin;
+	vec3_t size;
+	int i;
+
+  	if (!self)
+	{
+		return;
+	}
+
+	VectorScale(self->size, 0.5, size);
+	VectorAdd(self->absmin, size, origin);
+
+	for (i = 0; i < 10; i++)
+	{
+		origin[2] += (self->speed * 0.01) * (i + random());
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_TUNNEL_SPARKS);
+		gi.WriteByte(1);
+		gi.WritePosition(origin);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0x74 + (rand() & 7));
+		gi.multicast(self->s.origin, MULTICAST_PVS);
+	}
+}
+
+void
+trigger_push_inactive(edict_t *self)
+{
+  	if (!self)
+	{
+		return;
+	}
+
+	if (self->delay > level.time)
+	{
+		self->nextthink = level.time + 0.1;
+	}
+	else
+	{
+		self->touch = trigger_push_touch;
+		self->think = trigger_push_active;
+		self->nextthink = level.time + 0.1;
+		self->delay = self->nextthink + self->wait;
+	}
+}
+
+void
+trigger_push_active(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->delay > level.time)
+	{
+		self->nextthink = level.time + 0.1;
+		trigger_effect(self);
+	}
+	else
+	{
+		self->touch = NULL;
+		self->think = trigger_push_inactive;
+		self->nextthink = level.time + 0.1;
+		self->delay = self->nextthink + self->wait;
+	}
+}
+
+void
 SP_trigger_push(edict_t *self)
 {
 	if (!self)
@@ -602,6 +675,18 @@ SP_trigger_push(edict_t *self)
 	InitTrigger(self);
 	windsound = gi.soundindex("misc/windfly.wav");
 	self->touch = trigger_push_touch;
+
+	if (self->spawnflags & 2)
+	{
+		if (!self->wait)
+		{
+			self->wait = 10;
+		}
+
+		self->think = trigger_push_active;
+		self->nextthink = level.time + 0.1;
+		self->delay = self->nextthink + self->wait;
+	}
 
 	if (!self->speed)
 	{
@@ -623,9 +708,10 @@ SP_trigger_push(edict_t *self)
  *
  * "dmg"			default 5 (whole numbers only)
  */
+
 void
 hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	int dflags;
 
@@ -633,7 +719,6 @@ hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	{
 		return;
 	}
-
 
 	if (!other->takedamage)
 	{
@@ -755,7 +840,6 @@ SP_trigger_hurt(edict_t *self)
  * the value of "gravity".  1.0 is standard
  * gravity for the level.
  */
-
 void
 trigger_gravity_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
@@ -796,7 +880,6 @@ SP_trigger_gravity(edict_t *self)
  * "speed"  default to 200, the speed thrown forward
  * "height" default to 200, the speed thrown upwards
  */
-
 void
 trigger_monsterjump_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)

@@ -200,7 +200,7 @@ SpawnDamage(int type, vec3_t origin, vec3_t normal)
  * targ			entity that is being damaged
  * inflictor	entity that is causing the damage
  * attacker		entity that caused the inflictor to damage targ
- *      example: targ=monster, inflictor=rocket, attacker=player
+ *  example: targ=monster, inflictor=rocket, attacker=player
  *
  * dir			direction of the attack
  * point		point at which the damage is being inflicted
@@ -217,8 +217,8 @@ SpawnDamage(int type, vec3_t origin, vec3_t normal)
  *      DAMAGE_NO_PROTECTION	kills godmode, armor, everything
  */
 int
-CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
-		int dflags)
+CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
+		int damage, int dflags)
 {
 	gclient_t *client;
 	int save;
@@ -441,7 +441,7 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker)
 		targ->monsterinfo.aiflags &= ~AI_SOUND_TARGET;
 
 		/* this can only happen in coop (both new and old
-		   enemies are clients)  only switch if can't see
+		   enemies are clients) only switch if can't see
 		   the current enemy */
 		if (targ->enemy && targ->enemy->client)
 		{
@@ -533,9 +533,9 @@ apply_knockback(edict_t *targ, vec3_t dir, float knockback, float scale)
 
 	mass = (targ->mass < 50) ? 50.0f : (float)targ->mass;
 
-	VectorNormalize2 (dir, kvel);
-	VectorScale (kvel, scale * (knockback / mass), kvel);
-	VectorAdd (targ->velocity, kvel, targ->velocity);
+	VectorNormalize2(dir, kvel);
+	VectorScale(kvel, scale * (knockback / mass), kvel);
+	VectorAdd(targ->velocity, kvel, targ->velocity);
 }
 
 void
@@ -564,7 +564,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	   can't hurt teammates (but you can hurt
 	   yourself) knockback still occurs */
 	if ((targ != attacker) && ((deathmatch->value &&
-		  ((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS))) ||
+		((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS))) ||
 		 coop->value))
 	{
 		if (OnSameTeam(targ, attacker))
@@ -699,7 +699,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	{
 		M_ReactToDamage(targ, attacker);
 
-		if (!(targ->monsterinfo.aiflags & AI_DUCKED) && (take))
+		if (!(targ->monsterinfo.aiflags & (AI_DUCKED|AI_IGNORE_PAIN)) && (take))
 		{
 			targ->pain(targ, attacker, knockback, take);
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -176,8 +177,10 @@ Move_Calc(edict_t *ent, vec3_t dest, void (*func)(edict_t *))
 	}
 }
 
-/* Support routines for angular movement (changes in angle using avelocity) */
-
+/*
+ * Support routines for angular movement
+ * (changes in angle using avelocity)
+ */
 void
 AngleMove_Done(edict_t *ent)
 {
@@ -288,6 +291,11 @@ AngleMove_Calc(edict_t *ent, void (*func)(edict_t *))
 		ent->think = AngleMove_Begin;
 	}
 }
+
+/*
+ * The team has completed a frame of movement, so
+ * change the speed for the next frame
+ */
 
 #define AccelerationDistance(target, rate) (target * ((target / rate) + 1) / 2)
 
@@ -691,7 +699,6 @@ plat_spawn_inside_trigger(edict_t *ent)
 
 	tmin[0] = ent->mins[0] + 25;
 	tmin[1] = ent->mins[1] + 25;
-	// tmin[2] = ent->mins[2];
 
 	tmax[0] = ent->maxs[0] - 25;
 	tmax[1] = ent->maxs[1] - 25;
@@ -1648,8 +1655,9 @@ door_blocked(edict_t *self, edict_t *other)
 		return;
 	}
 
-	/* if a door has a negative wait, it would never come back if blocked,
-	   so let it just squash the object to death real fast */
+	/* if a door has a negative wait, it would never
+	   come back if blocked, so let it just squash the
+	   object to death real fast */
 	if (self->moveinfo.wait >= 0)
 	{
 		if (self->moveinfo.state == STATE_DOWN)
@@ -2452,8 +2460,8 @@ SP_func_train(edict_t *self)
 
 	if (self->target)
 	{
-		/* start trains on the second frame, to make sure
-		   their targets have had a chance to spawn */
+		/* start trains on the second frame, to make
+		 * sure their targets have had a chance to spawn */
 		self->nextthink = level.time + FRAMETIME;
 		self->think = func_train_find;
 	}
@@ -3009,4 +3017,232 @@ SP_func_killbox(edict_t *ent)
 	gi.setmodel(ent, ent->model);
 	ent->use = use_killbox;
 	ent->svflags = SVF_NOCLIENT;
+}
+
+/*
+ * QUAKED rotating_light (0 .5 .8) (-8 -8 -8) (8 8 8) START_OFF ALARM
+ * "health"	if set, the light may be killed.
+ */
+
+#define START_OFF 1
+
+void
+rotating_light_alarm(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->think = NULL;
+		self->nextthink = 0;
+	}
+	else
+	{
+		gi.sound(self, CHAN_NO_PHS_ADD + CHAN_VOICE,
+				self->moveinfo.sound_start, 1,
+				ATTN_STATIC, 0);
+		self->nextthink = level.time + 1;
+	}
+}
+
+void
+rotating_light_killed(edict_t *self, edict_t *inflictor /* unused */,
+		edict_t *attacker /* unused */, int damage /* unused */,
+		vec3_t point /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WELDING_SPARKS);
+	gi.WriteByte(30);
+	gi.WritePosition(self->s.origin);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0xe0 + (rand() & 7));
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
+	self->s.effects &= ~EF_SPINNINGLIGHTS;
+	self->use = NULL;
+
+	self->think = G_FreeEdict;
+	self->nextthink = level.time + 0.1;
+}
+
+void
+rotating_light_use(edict_t *self, edict_t *other /* unused */,
+	   	edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->spawnflags &= ~START_OFF;
+		self->s.effects |= EF_SPINNINGLIGHTS;
+
+		if (self->spawnflags & 2)
+		{
+			self->think = rotating_light_alarm;
+			self->nextthink = level.time + 0.1;
+		}
+	}
+	else
+	{
+		self->spawnflags |= START_OFF;
+		self->s.effects &= ~EF_SPINNINGLIGHTS;
+	}
+}
+
+void
+SP_rotating_light(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->movetype = MOVETYPE_STOP;
+	self->solid = SOLID_BBOX;
+
+	self->s.modelindex = gi.modelindex("models/objects/light/tris.md2");
+
+	self->s.frame = 0;
+
+	self->use = rotating_light_use;
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->s.effects &= ~EF_SPINNINGLIGHTS;
+	}
+	else
+	{
+		self->s.effects |= EF_SPINNINGLIGHTS;
+	}
+
+	if (!self->speed)
+	{
+		self->speed = 32;
+	}
+
+	if (!self->health)
+	{
+		self->health = 10;
+		self->max_health = self->health;
+		self->die = rotating_light_killed;
+		self->takedamage = DAMAGE_YES;
+	}
+	else
+	{
+		self->max_health = self->health;
+		self->die = rotating_light_killed;
+		self->takedamage = DAMAGE_YES;
+	}
+
+	if (self->spawnflags & 2)
+	{
+		self->moveinfo.sound_start = gi.soundindex("misc/alarm.wav");
+	}
+
+	gi.linkentity(self);
+}
+
+/*
+ * QUAKED func_object_repair (1 .5 0) (-8 -8 -8) (8 8 8)
+ * object to be repaired.
+ * The default delay is 1 second
+ * "delay" the delay in seconds for spark to occur
+ */
+void
+object_repair_fx(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->nextthink = level.time + ent->delay;
+
+	if (ent->health <= 100)
+	{
+		ent->health++;
+	}
+	else
+	{
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_WELDING_SPARKS);
+		gi.WriteByte(10);
+		gi.WritePosition(ent->s.origin);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0xe0 + (rand() & 7));
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
+}
+
+void
+object_repair_dead(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	G_UseTargets(ent, ent);
+	ent->nextthink = level.time + 0.1;
+	ent->think = object_repair_fx;
+}
+
+void
+object_repair_sparks(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	if (ent->health < 0)
+	{
+		ent->nextthink = level.time + 0.1;
+		ent->think = object_repair_dead;
+		return;
+	}
+
+	ent->nextthink = level.time + ent->delay;
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WELDING_SPARKS);
+	gi.WriteByte(10);
+	gi.WritePosition(ent->s.origin);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0xe0 + (rand() & 7));
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+}
+
+void
+SP_object_repair(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->movetype = MOVETYPE_NONE;
+	ent->solid = SOLID_BBOX;
+	ent->classname = "object_repair";
+	ent->think = object_repair_sparks;
+	ent->nextthink = level.time + 1.0;
+	ent->health = 100;
+
+	if (!ent->delay)
+	{
+		ent->delay = 1.0;
+	}
+
+	gi.linkentity(ent);
 }

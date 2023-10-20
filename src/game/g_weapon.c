@@ -1526,7 +1526,16 @@ plasma_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 			ent->dmg_radius, MOD_PHALANX);
 
 	gi.WriteByte(svc_temp_entity);
-	gi.WriteByte(TE_PLASMA_EXPLOSION);
+
+	if (ent->waterlevel)
+	{
+		gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
+	}
+	else
+	{
+		gi.WriteByte(TE_PLASMA_EXPLOSION);
+	}
+
 	gi.WritePosition(origin);
 	gi.multicast(ent->s.origin, MULTICAST_PVS);
 
