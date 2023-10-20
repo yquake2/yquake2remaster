@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +31,8 @@
 void tank_refire_rocket(edict_t *self);
 void tank_doattack_rocket(edict_t *self);
 void tank_reattack_blaster(edict_t *self);
+void tank_walk(edict_t *self);
+void tank_run(edict_t *self);
 
 static int sound_thud;
 static int sound_pain;
@@ -41,7 +44,7 @@ static int sound_windup;
 static int sound_strike;
 
 void
-tank_sight(edict_t *self, edict_t *other)
+tank_sight(edict_t *self, edict_t *other /* unused */)
 {
 	if (!self)
 	{
@@ -147,8 +150,6 @@ tank_stand(edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_stand;
 }
 
-void tank_walk(edict_t *self);
-
 static mframe_t tank_frames_start_walk[] = {
 	{ai_walk, 0, NULL},
 	{ai_walk, 6, NULL},
@@ -217,8 +218,6 @@ tank_walk(edict_t *self)
 
 	self->monsterinfo.currentmove = &tank_move_walk;
 }
-
-void tank_run(edict_t *self);
 
 static mframe_t tank_frames_start_run[] = {
 	{ai_run, 0, NULL},
@@ -481,6 +480,11 @@ TankBlaster(edict_t *self)
 void
 TankStrike(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_WEAPON, sound_strike, 1, ATTN_NORM, 0);
 }
 
@@ -1031,8 +1035,11 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-				damage, GIB_ORGANIC);
+		for (n = 0; n < 1 /*4*/; n++)
+		{
+			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
+					damage, GIB_ORGANIC);
+		}
 
 		for (n = 0; n < 4; n++)
 		{
@@ -1063,7 +1070,6 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 
 /*
  * QUAKED monster_tank (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
-
  * QUAKED monster_tank_commander (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
  */
 void

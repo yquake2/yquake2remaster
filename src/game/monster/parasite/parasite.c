@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,7 +79,7 @@ parasite_sight(edict_t *self, edict_t *other /* unused */)
 		return;
 	}
 
-	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void
@@ -89,7 +90,7 @@ parasite_tap(edict_t *self)
 		return;
 	}
 
-	gi.sound(self, CHAN_BODY, sound_tap, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_tap, 1, ATTN_IDLE, 0);
 }
 
 void
@@ -109,7 +110,7 @@ parasite_scratch(edict_t *self)
 		return;
 	}
 
-	gi.sound(self, CHAN_BODY, sound_scratch, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_scratch, 1, ATTN_IDLE, 0);
 }
 
 void
@@ -120,7 +121,7 @@ parasite_search(edict_t *self)
 		return;
 	}
 
-	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_search, 1, ATTN_IDLE, 0);
 }
 
 static mframe_t parasite_frames_start_fidget[] = {
@@ -699,6 +700,11 @@ parasite_die(edict_t *self, edict_t *inflictor /* unused */,
 		vec3_t point /* unused */)
 {
 	int n;
+
+	if (!self)
+	{
+		return;
+	}
 
 	/* check for gib */
 	if (self->health <= self->gib_health)

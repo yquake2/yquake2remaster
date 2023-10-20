@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +42,8 @@ static int sound_step2;
 static int sound_step3;
 static int sound_thud;
 
+void mutant_walk(edict_t *self);
+
 void
 mutant_step(edict_t *self)
 {
@@ -81,6 +84,11 @@ mutant_sight(edict_t *self, edict_t *other /* unused */)
 void
 mutant_search(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
@@ -158,7 +166,8 @@ mmove_t mutant_move_stand =
 {
 	FRAME_stand101,
 	FRAME_stand151,
-	mutant_frames_stand, NULL
+	mutant_frames_stand,
+	NULL
 };
 
 void
@@ -221,8 +230,6 @@ mutant_idle(edict_t *self)
 	self->monsterinfo.currentmove = &mutant_move_idle;
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
-
-void mutant_walk(edict_t *self);
 
 static mframe_t mutant_frames_walk[] = {
 	{ai_walk, 3, mutant_step},
@@ -681,6 +688,11 @@ mutant_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage /* unused */)
 {
 	float r;
+
+	if (!self)
+	{
+		return;
+	}
 
 	if (self->health < (self->max_health / 2))
 	{

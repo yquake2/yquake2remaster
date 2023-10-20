@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@
 #include "../../header/local.h"
 #include "insane.h"
 
-#define SPAWNFLAG_CRUSIFIED		8
+#define SPAWNFLAG_CRUSIFIED	8
 
 static int sound_fist;
 static int sound_shake;
@@ -38,6 +39,15 @@ static int  sound_step;
 static int  sound_step2;
 static int  sound_step3;
 static int  sound_step4;
+
+void insane_stand(edict_t *self);
+void insane_dead(edict_t *self);
+void insane_cross(edict_t *self);
+void insane_walk(edict_t *self);
+void insane_run(edict_t *self);
+void insane_checkdown(edict_t *self);
+void insane_checkup(edict_t *self);
+void insane_onground(edict_t *self);
 
 void
 insane_footstep(edict_t *self)
@@ -131,15 +141,6 @@ insane_scream(edict_t *self)
 
 	gi.sound(self, CHAN_VOICE, sound_scream[randk() % 8], 1, ATTN_IDLE, 0);
 }
-
-void insane_stand(edict_t *self);
-void insane_dead(edict_t *self);
-void insane_cross(edict_t *self);
-void insane_walk(edict_t *self);
-void insane_run(edict_t *self);
-void insane_checkdown(edict_t *self);
-void insane_checkup(edict_t *self);
-void insane_onground(edict_t *self);
 
 static mframe_t insane_frames_stand_normal[] = {
 	{ai_stand, 0, NULL},
@@ -392,7 +393,8 @@ mmove_t insane_move_walk_normal =
 	FRAME_walk27,
 	FRAME_walk39,
 	insane_frames_walk_normal,
-	insane_walk};
+	insane_walk
+};
 
 mmove_t insane_move_run_normal =
 {
@@ -641,7 +643,7 @@ insane_walk(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 16)
+	if (self->spawnflags & 16) /* Hold Ground? */
 	{
 		if (self->s.frame == FRAME_cr_pain10)
 		{
@@ -673,7 +675,7 @@ insane_run(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 16)
+	if (self->spawnflags & 16) /* Hold Ground? */
 	{
 		if (self->s.frame == FRAME_cr_pain10)
 		{
@@ -682,7 +684,7 @@ insane_run(edict_t *self)
 		}
 	}
 
-	if (self->spawnflags & 4)
+	if (self->spawnflags & 4) /* Crawling? */
 	{
 		self->monsterinfo.currentmove = &insane_move_runcrawl;
 	}

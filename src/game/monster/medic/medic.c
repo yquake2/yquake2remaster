@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,6 +43,8 @@ static int sound_hook_retract;
 
 static int  sound_step;
 static int  sound_step2;
+
+void ED_CallSpawn(edict_t *ent);
 
 void
 medic_footstep(edict_t *self)
@@ -788,8 +791,14 @@ static mframe_t medic_frames_attackBlaster[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, medic_continue}
 };
+
 mmove_t medic_move_attackBlaster =
-{FRAME_attack1, FRAME_attack14, medic_frames_attackBlaster, medic_run};
+{
+	FRAME_attack1,
+	FRAME_attack14,
+	medic_frames_attackBlaster,
+	medic_run
+};
 
 void
 medic_hook_launch(edict_t *self)

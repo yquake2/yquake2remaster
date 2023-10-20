@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +38,13 @@ static int sound_sight;
 
 static int  sound_step;
 static int  sound_step2;
+
+qboolean visible(edict_t *self, edict_t *other);
+void GunnerGrenade(edict_t *self);
+void GunnerFire(edict_t *self);
+void gunner_fire_chain(edict_t *self);
+void gunner_refire_chain(edict_t *self);
+void gunner_stand(edict_t *self);
 
 void
 gunner_footstep(edict_t *self)
@@ -94,14 +102,6 @@ gunner_search(edict_t *self)
 
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
-
-qboolean visible(edict_t *self, edict_t *other);
-void GunnerGrenade(edict_t *self);
-void GunnerFire(edict_t *self);
-void gunner_fire_chain(edict_t *self);
-void gunner_refire_chain(edict_t *self);
-
-void gunner_stand(edict_t *self);
 
 static mframe_t gunner_frames_fidget[] = {
 	{ai_stand, 0, NULL},

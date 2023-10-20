@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +20,8 @@
  *
  * =======================================================================
  *
- * Supertank aka "Boss1".
+ * Supertank aka "Boss1". This enhanced version features a nice
+ * powershield.
  *
  * =======================================================================
  */
@@ -28,7 +30,6 @@
 #include "supertank.h"
 
 qboolean visible(edict_t *self, edict_t *other);
-
 static int sound_pain1;
 static int sound_pain2;
 static int sound_pain3;
@@ -39,6 +40,10 @@ static int sound_search2;
 static int tread_sound;
 
 void BossExplode(edict_t *self);
+void supertank_dead(edict_t *self);
+void supertankRocket(edict_t *self);
+void supertankMachineGun(edict_t *self);
+void supertank_reattack1(edict_t *self);
 
 void
 TreadSound(edict_t *self)
@@ -68,11 +73,6 @@ supertank_search(edict_t *self)
 		gi.sound(self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
 	}
 }
-
-void supertank_dead(edict_t *self);
-void supertankRocket(edict_t *self);
-void supertankMachineGun(edict_t *self);
-void supertank_reattack1(edict_t *self);
 
 static mframe_t supertank_frames_stand[] = {
 	{ai_stand, 0, NULL},
@@ -866,7 +866,7 @@ supertank_die(edict_t *self, edict_t *inflictor /* unused */,
 }
 
 /*
- * QUAKED monster_supertank (1 .5 0) (-64 -64 0) (64 64 72) Ambush Trigger_Spawn Sight
+ * QUAKED monster_supertank (1 .5 0) (-64 -64 0) (64 64 72) Ambush Trigger_Spawn Sight Powershield
  */
 void
 SP_monster_supertank(edict_t *self)
@@ -916,6 +916,12 @@ SP_monster_supertank(edict_t *self)
 
 	self->monsterinfo.currentmove = &supertank_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
+
+	if (self->spawnflags & 8)
+	{
+		self->monsterinfo.power_armor_type = POWER_ARMOR_SHIELD;
+		self->monsterinfo.power_armor_power = 400;
+	}
 
 	walkmonster_start(self);
 }

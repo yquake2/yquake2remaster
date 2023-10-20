@@ -1504,18 +1504,18 @@ XATRIX_OBJS_ = \
 	src/game/monster/flyer/flyer.o \
 	src/game/monster/gekk/gekk.o \
 	src/game/monster/gladiator/gladb.o \
-	src/xatrix/monster/gladiator/gladiator.o \
-	src/xatrix/monster/gunner/gunner.o \
-	src/xatrix/monster/hover/hover.o \
-	src/xatrix/monster/infantry/infantry.o \
-	src/xatrix/monster/insane/insane.o \
-	src/xatrix/monster/medic/medic.o \
-	src/xatrix/monster/misc/move.o \
-	src/xatrix/monster/mutant/mutant.o \
-	src/xatrix/monster/parasite/parasite.o \
-	src/xatrix/monster/soldier/soldier.o \
-	src/xatrix/monster/supertank/supertank.o \
-	src/xatrix/monster/tank/tank.o \
+	src/game/monster/gladiator/gladiator.o \
+	src/game/monster/gunner/gunner.o \
+	src/game/monster/hover/hover.o \
+	src/game/monster/infantry/infantry.o \
+	src/game/monster/insane/insane.o \
+	src/game/monster/medic/medic.o \
+	src/game/monster/misc/move.o \
+	src/game/monster/mutant/mutant.o \
+	src/game/monster/parasite/parasite.o \
+	src/game/monster/soldier/soldier.o \
+	src/game/monster/supertank/supertank.o \
+	src/game/monster/tank/tank.o \
 	src/xatrix/player/client.o \
 	src/xatrix/player/hud.o \
 	src/xatrix/player/trail.o \
@@ -1629,7 +1629,7 @@ ROGUE_OBJS_ = \
 	src/rogue/monster/gladiator/gladiator.o \
 	src/rogue/monster/gunner/gunner.o \
 	src/rogue/monster/hover/hover.o \
-	src/rogue/monster/infantry/infantry.o \
+	src/game/monster/infantry/infantry.o \
 	src/rogue/monster/insane/insane.o \
 	src/rogue/monster/medic/medic.o \
 	src/rogue/monster/misc/move.o \

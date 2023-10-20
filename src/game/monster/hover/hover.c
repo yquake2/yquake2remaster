@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +38,15 @@ static int sound_sight;
 static int sound_search1;
 static int sound_search2;
 
+void hover_run(edict_t *self);
+void hover_stand(edict_t *self);
+void hover_dead(edict_t *self);
+void hover_attack(edict_t *self);
+void hover_reattack(edict_t *self);
+void hover_fire_blaster(edict_t *self);
+void hover_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+		int damage, vec3_t point);
+
 void
 hover_sight(edict_t *self, edict_t *other /* unused */)
 {
@@ -50,8 +60,12 @@ hover_sight(edict_t *self, edict_t *other /* unused */)
 
 void
 hover_search(edict_t *self)
-
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (random() < 0.5)
 	{
 		gi.sound(self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
@@ -61,15 +75,6 @@ hover_search(edict_t *self)
 		gi.sound(self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
 	}
 }
-
-void hover_run(edict_t *self);
-void hover_stand(edict_t *self);
-void hover_dead(edict_t *self);
-void hover_attack(edict_t *self);
-void hover_reattack(edict_t *self);
-void hover_fire_blaster(edict_t *self);
-void hover_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
 
 static mframe_t hover_frames_stand[] = {
 	{ai_stand, 0, NULL},
