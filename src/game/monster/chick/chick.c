@@ -690,8 +690,27 @@ ChickRocket(edict_t *self)
 	vec3_t start;
 	vec3_t dir;
 	vec3_t vec;
+	trace_t trace; /* check target */
+	int rocketSpeed;
+	float dist;
+	vec3_t target;
+	qboolean blindfire = false;
 
 	if (!self)
+	{
+		return;
+	}
+
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		blindfire = true;
+	}
+	else
+	{
+		blindfire = false;
+	}
+
+	if (!self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -700,18 +719,76 @@ ChickRocket(edict_t *self)
 	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CHICK_ROCKET_1],
 			forward, right, start);
 
-	VectorCopy(self->enemy->s.origin, vec);
-	vec[2] += self->enemy->viewheight;
-	VectorSubtract(vec, start, dir);
-	VectorNormalize(dir);
+	rocketSpeed = 500 + (100 * skill->value); /* rock & roll.... :) */
 
-	if (!strcmp(self->classname, "monster_chick_heat"))
+	if (blindfire)
 	{
-		monster_fire_heat(self, start, dir, 50, 500, MZ2_CHICK_ROCKET_1);
+		VectorCopy(self->monsterinfo.blind_fire_target, target);
 	}
 	else
 	{
-		monster_fire_rocket(self, start, dir, 50, 500, MZ2_CHICK_ROCKET_1);
+		VectorCopy(self->enemy->s.origin, target);
+	}
+
+	/* blindfire shooting */
+	if (blindfire)
+	{
+		VectorCopy(target, vec);
+		VectorSubtract(vec, start, dir);
+	}
+	/* don't shoot at feet if they're above where i'm shooting from. */
+	else if ((random() < 0.33) || (start[2] < self->enemy->absmin[2]))
+	{
+		VectorCopy(target, vec);
+		vec[2] += self->enemy->viewheight;
+		VectorSubtract(vec, start, dir);
+	}
+	else
+	{
+		VectorCopy(target, vec);
+		vec[2] = self->enemy->absmin[2];
+		VectorSubtract(vec, start, dir);
+	}
+
+	/* lead target (not when blindfiring) */
+	if ((!blindfire) && ((random() < (0.2 + ((3 - skill->value) * 0.15)))))
+	{
+		float time;
+
+		dist = VectorLength(dir);
+		time = dist / rocketSpeed;
+		VectorMA(vec, time, self->enemy->velocity, vec);
+		VectorSubtract(vec, start, dir);
+	}
+
+	VectorNormalize(dir);
+
+	if (blindfire)
+	{
+		/* blindfire has different fail criteria for the trace */
+		if (!blind_rocket_ok(self, start, right, target, 10.0f, dir))
+		{
+			return;
+		}
+	}
+	else
+	{
+		trace = gi.trace(start, vec3_origin, vec3_origin, vec, self, MASK_SHOT);
+
+		if (((trace.ent != self->enemy) && (trace.ent != world)) ||
+			((trace.fraction <= 0.5f) && !trace.ent->client))
+		{
+			return;
+		}
+	}
+
+	if (!strcmp(self->classname, "monster_chick_heat"))
+	{
+		monster_fire_heat(self, start, dir, 50, rocketSpeed, MZ2_CHICK_ROCKET_1);
+	}
+	else
+	{
+		monster_fire_rocket(self, start, dir, 50, rocketSpeed, MZ2_CHICK_ROCKET_1);
 	}
 }
 
@@ -1157,6 +1234,7 @@ SP_monster_chick(edict_t *self)
 	self->monsterinfo.currentmove = &chick_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
 
+	self->monsterinfo.blindfire = true;
 	walkmonster_start(self);
 }
 

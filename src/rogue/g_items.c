@@ -1,9 +1,23 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * Item handling and item definitions.
@@ -40,18 +54,25 @@ void Weapon_Prox(edict_t *ent);
 void Weapon_Tesla(edict_t *ent);
 void Weapon_ProxLauncher(edict_t *ent);
 
-gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
-gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
-gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
+void Weapon_Ionripper(edict_t *ent);
+void Weapon_Phalanx(edict_t *ent);
+void Weapon_Trap(edict_t *ent);
 
-int jacket_armor_index;
-int combat_armor_index;
-int body_armor_index;
+static gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
+static gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
+static gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
+
+static int jacket_armor_index;
+static int combat_armor_index;
+static int body_armor_index;
 static int power_screen_index;
 static int power_shield_index;
 
 void Use_Quad(edict_t *ent, gitem_t *item);
+void Use_QuadFire(edict_t *ent, gitem_t *item);
+
 static int quad_drop_timeout_hack;
+static int quad_fire_drop_timeout_hack;
 
 /* ====================================================================== */
 
@@ -199,7 +220,7 @@ Pickup_Powerup(edict_t *ent, edict_t *other)
 {
 	int quantity;
 
-    if (!ent || !other)
+	if (!ent || !other)
 	{
 		return false;
 	}
@@ -237,6 +258,7 @@ Drop_General(edict_t *ent, gitem_t *item)
 	{
 		return;
 	}
+
 	Drop_Item(ent, item);
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
 	ValidateSelectedItem(ent);
@@ -273,7 +295,7 @@ Pickup_Adrenaline(edict_t *ent, edict_t *other)
 qboolean
 Pickup_AncientHead(edict_t *ent, edict_t *other)
 {
- 	if (!ent || !other)
+	if (!ent || !other)
 	{
 		return false;
 	}
@@ -291,13 +313,13 @@ Pickup_AncientHead(edict_t *ent, edict_t *other)
 qboolean
 Pickup_Bandolier(edict_t *ent, edict_t *other)
 {
- 	if (!ent || !other)
+	gitem_t *item;
+	int index;
+
+	if (!ent || !other)
 	{
 		return false;
 	}
-
-	gitem_t *item;
-	int index;
 
 	if (other->client->pers.max_bullets < 250)
 	{
@@ -317,6 +339,11 @@ Pickup_Bandolier(edict_t *ent, edict_t *other)
 	if (other->client->pers.max_slugs < 75)
 	{
 		other->client->pers.max_slugs = 75;
+	}
+
+	if (other->client->pers.max_magslug < 75)
+	{
+		other->client->pers.max_magslug = 75;
 	}
 
 	if (other->client->pers.max_flechettes < 250)
@@ -376,7 +403,7 @@ Pickup_Pack(edict_t *ent, edict_t *other)
 	gitem_t *item;
 	int index;
 
- 	if (!ent || !other)
+	if (!ent || !other)
 	{
 		return false;
 	}
@@ -409,6 +436,11 @@ Pickup_Pack(edict_t *ent, edict_t *other)
 	if (other->client->pers.max_slugs < 100)
 	{
 		other->client->pers.max_slugs = 100;
+	}
+
+	if (other->client->pers.max_magslug < 100)
+	{
+		other->client->pers.max_magslug = 100;
 	}
 
 	if (other->client->pers.max_flechettes < 200)
@@ -514,6 +546,21 @@ Pickup_Pack(edict_t *ent, edict_t *other)
 		}
 	}
 
+	item = FindItem("Mag Slug");
+
+	if (item)
+	{
+		index = ITEM_INDEX(item);
+		other->client->pers.inventory[index] += item->quantity;
+
+		if (other->client->pers.inventory[index] >
+			other->client->pers.max_magslug)
+		{
+			other->client->pers.inventory[index] =
+				other->client->pers.max_magslug;
+		}
+	}
+
 	item = FindItem("Flechettes");
 
 	if (item)
@@ -551,6 +598,8 @@ Pickup_Pack(edict_t *ent, edict_t *other)
 
 	return true;
 }
+
+/* ====================================================================== */
 
 qboolean
 Pickup_Nuke(edict_t *ent, edict_t *other)
@@ -872,8 +921,44 @@ Use_Quad(edict_t *ent, gitem_t *item)
 		ent->client->quad_framenum = level.framenum + timeout;
 	}
 
-	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM,
-			0);
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM, 0);
+}
+
+/* ===================================================================== */
+
+void
+Use_QuadFire(edict_t *ent, gitem_t *item)
+{
+	int timeout;
+
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	if (quad_fire_drop_timeout_hack)
+	{
+		timeout = quad_fire_drop_timeout_hack;
+		quad_fire_drop_timeout_hack = 0;
+	}
+	else
+	{
+		timeout = 300;
+	}
+
+	if (ent->client->quadfire_framenum > level.framenum)
+	{
+		ent->client->quadfire_framenum += timeout;
+	}
+	else
+	{
+		ent->client->quadfire_framenum = level.framenum + timeout;
+	}
+
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/quadfire1.wav"), 1, ATTN_NORM, 0);
 }
 
 /* ====================================================================== */
@@ -1021,7 +1106,6 @@ Add_Ammo(edict_t *ent, gitem_t *item, int count)
 		return false;
 	}
 
-
 	if (item->tag == AMMO_BULLETS)
 	{
 		max = ent->client->pers.max_bullets;
@@ -1045,6 +1129,14 @@ Add_Ammo(edict_t *ent, gitem_t *item, int count)
 	else if (item->tag == AMMO_SLUGS)
 	{
 		max = ent->client->pers.max_slugs;
+	}
+	else if (item->tag == AMMO_MAGSLUG)
+	{
+		max = ent->client->pers.max_magslug;
+	}
+	else if (item->tag == AMMO_TRAP)
+	{
+		max = ent->client->pers.max_trap;
 	}
 	else if (item->tag == AMMO_FLECHETTES)
 	{
@@ -1130,7 +1222,8 @@ Pickup_Ammo(edict_t *ent, edict_t *other)
 		}
 	}
 
-	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) && (deathmatch->value))
+	if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)) &&
+		(deathmatch->value))
 	{
 		SetRespawn(ent, 30);
 	}
@@ -1333,7 +1426,7 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 		{
 			oldinfo = &combatarmor_info;
 		}
-		else
+		else /* (old_armor_index == body_armor_index) */
 		{
 			oldinfo = &bodyarmor_info;
 		}
@@ -1342,7 +1435,8 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 		{
 			/* calc new armor values */
 			salvage = oldinfo->normal_protection / newinfo->normal_protection;
-			salvagecount = salvage * other->client->pers.inventory[old_armor_index];
+			salvagecount = salvage *
+						   other->client->pers.inventory[old_armor_index];
 			newcount = newinfo->base_count + salvagecount;
 
 			if (newcount > newinfo->max_count)
@@ -1361,7 +1455,8 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 			/* calc new armor values */
 			salvage = newinfo->normal_protection / oldinfo->normal_protection;
 			salvagecount = salvage * newinfo->base_count;
-			newcount = other->client->pers.inventory[old_armor_index] + salvagecount;
+			newcount = other->client->pers.inventory[old_armor_index] +
+					   salvagecount;
 
 			if (newcount > oldinfo->max_count)
 			{
@@ -1425,10 +1520,16 @@ Use_PowerArmor(edict_t *ent, gitem_t *item)
 {
 	int index;
 
+	if (!ent || !item)
+	{
+		return;
+	}
+
 	if (ent->flags & FL_POWER_ARMOR)
 	{
 		ent->flags &= ~FL_POWER_ARMOR;
-		gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/power2.wav"), 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_AUTO, gi.soundindex(
+						"misc/power2.wav"), 1, ATTN_NORM, 0);
 	}
 	else
 	{
@@ -1441,7 +1542,8 @@ Use_PowerArmor(edict_t *ent, gitem_t *item)
 		}
 
 		ent->flags |= FL_POWER_ARMOR;
-		gi.sound(ent, CHAN_AUTO, gi.soundindex("misc/power1.wav"), 1, ATTN_NORM, 0);
+		gi.sound(ent, CHAN_AUTO, gi.soundindex(
+						"misc/power1.wav"), 1, ATTN_NORM, 0);
 	}
 }
 
@@ -1528,39 +1630,47 @@ Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_
 		other->client->bonus_alpha = 0.25;
 
 		/* show icon and name on status bar */
-		other->client->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(ent->item->icon);
-		other->client->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(ent->item);
+		other->client->ps.stats[STAT_PICKUP_ICON] =
+			gi.imageindex(ent->item->icon);
+		other->client->ps.stats[STAT_PICKUP_STRING] =
+		   	CS_ITEMS + ITEM_INDEX(ent->item);
 		other->client->pickup_msg_time = level.time + 3.0;
 
 		/* change selected item */
 		if (ent->item->use)
 		{
 			other->client->pers.selected_item =
-				other->client->ps.stats[STAT_SELECTED_ITEM] = ITEM_INDEX(ent->item);
+				other->client->ps.stats[STAT_SELECTED_ITEM] =
+			   	ITEM_INDEX(ent->item);
 		}
 
 		if (ent->item->pickup == Pickup_Health)
 		{
 			if (ent->count == 2)
 			{
-				gi.sound(other, CHAN_ITEM, gi.soundindex("items/s_health.wav"), 1, ATTN_NORM, 0);
+				gi.sound(other, CHAN_ITEM, gi.soundindex(
+								"items/s_health.wav"), 1, ATTN_NORM, 0);
 			}
 			else if (ent->count == 10)
 			{
-				gi.sound(other, CHAN_ITEM, gi.soundindex("items/n_health.wav"), 1, ATTN_NORM, 0);
+				gi.sound(other, CHAN_ITEM, gi.soundindex(
+								"items/n_health.wav"), 1, ATTN_NORM, 0);
 			}
 			else if (ent->count == 25)
 			{
-				gi.sound(other, CHAN_ITEM, gi.soundindex("items/l_health.wav"), 1, ATTN_NORM, 0);
+				gi.sound(other, CHAN_ITEM, gi.soundindex(
+								"items/l_health.wav"), 1, ATTN_NORM, 0);
 			}
 			else /* (ent->count == 100) */
 			{
-				gi.sound(other, CHAN_ITEM, gi.soundindex("items/m_health.wav"), 1, ATTN_NORM, 0);
+				gi.sound(other, CHAN_ITEM, gi.soundindex(
+								"items/m_health.wav"), 1, ATTN_NORM, 0);
 			}
 		}
 		else if (ent->item->pickup_sound)
 		{
-			gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
+			gi.sound(other, CHAN_ITEM, gi.soundindex(
+							ent->item->pickup_sound), 1, ATTN_NORM, 0);
 		}
 
 		/* activate item instantly if appropriate */
@@ -1602,7 +1712,8 @@ Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_
 		return;
 	}
 
-	if (!((coop->value) && (ent->item->flags & IT_STAY_COOP)) ||
+	if (!((coop->value) &&
+		  (ent->item->flags & IT_STAY_COOP)) ||
 		(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
 	{
 		if (ent->flags & FL_RESPAWN)
@@ -1631,6 +1742,10 @@ drop_temp_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 		return;
 	}
 
+	/* plane and surf are unused in Touch_Item
+	   but since the function is part of the
+	   game <-> client interface dropping
+	   them is too much pain. */
 	Touch_Item(ent, other, plane, surf);
 }
 
@@ -1684,7 +1799,8 @@ Drop_Item(edict_t *ent, gitem_t *item)
 
 		AngleVectors(ent->client->v_angle, forward, right, NULL);
 		VectorSet(offset, 24, 0, -16);
-		G_ProjectSource(ent->s.origin, offset, forward, right, dropped->s.origin);
+		G_ProjectSource(ent->s.origin, offset, forward, right,
+				dropped->s.origin);
 		trace = gi.trace(ent->s.origin, dropped->mins, dropped->maxs,
 				dropped->s.origin, ent, CONTENTS_SOLID);
 		VectorCopy(trace.endpos, dropped->s.origin);
@@ -1736,14 +1852,14 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 void
 droptofloor(edict_t *ent)
 {
+	trace_t tr;
+	vec3_t dest;
+	float *v;
+
 	if (!ent)
 	{
 		return;
 	}
-
-	trace_t tr;
-	vec3_t dest;
-	float *v;
 
 	v = tv(-15, -15, -15);
 	VectorCopy(v, ent->mins);
@@ -1770,10 +1886,19 @@ droptofloor(edict_t *ent)
 
 	if (tr.startsolid)
 	{
-		gi.dprintf("droptofloor: %s startsolid at %s\n", ent->classname,
-				vtos(ent->s.origin));
-		G_FreeEdict(ent);
-		return;
+		if (strcmp(ent->classname, "foodcube") == 0)
+		{
+			VectorCopy(ent->s.origin, tr.endpos);
+			ent->velocity[2] = 0;
+		}
+		else
+		{
+			gi.dprintf("droptofloor: %s startsolid at %s\n",
+					ent->classname,
+					vtos(ent->s.origin));
+			G_FreeEdict(ent);
+			return;
+		}
 	}
 
 	VectorCopy(tr.endpos, ent->s.origin);
@@ -2127,12 +2252,15 @@ SpawnItem(edict_t *ent, gitem_t *item)
 
 /* ====================================================================== */
 
-gitem_t itemlist[] = {
+static const gitem_t gameitemlist[] = {
 	{
 		NULL
 	}, /* leave index 0 alone */
 
-	/* QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN */
+
+	/*
+	 * QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
 	{
 		"item_armor_body",
 		Pickup_Armor,
@@ -3497,6 +3625,8 @@ gitem_t itemlist[] = {
 	{NULL}
 };
 
+gitem_t itemlist[MAX_ITEMS];
+
 /*
  * QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
@@ -3616,7 +3746,9 @@ SP_item_foodcube(edict_t *self)
 void
 InitItems(void)
 {
-	game.num_items = sizeof(itemlist) / sizeof(itemlist[0]) - 1;
+	memset(itemlist, 0, sizeof(itemlist));
+	memcpy(itemlist, gameitemlist, sizeof(gameitemlist));
+	game.num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
 }
 
 /*

@@ -475,7 +475,7 @@ M_CheckGround(edict_t *ent)
 		return;
 	}
 
-	if (ent->velocity[2] > 100)
+	if ((ent->velocity[2] * ent->gravityVector[2]) < -100)
 	{
 		ent->groundentity = NULL;
 		return;
@@ -485,7 +485,7 @@ M_CheckGround(edict_t *ent)
 	   is solid the entity is on ground */
 	point[0] = ent->s.origin[0];
 	point[1] = ent->s.origin[1];
-	point[2] = ent->s.origin[2] - 0.25;
+	point[2] = ent->s.origin[2] + (0.25 * ent->gravityVector[2]);
 
 	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, point,
 			ent, MASK_MONSTERSOLID);
@@ -689,9 +689,18 @@ M_droptofloor(edict_t *ent)
 		return;
 	}
 
-	ent->s.origin[2] += 1;
-	VectorCopy(ent->s.origin, end);
-	end[2] -= 256;
+	if (ent->gravityVector[2] < 0)
+	{
+		ent->s.origin[2] += 1;
+		VectorCopy(ent->s.origin, end);
+		end[2] -= 256;
+	}
+	else
+	{
+		ent->s.origin[2] -= 1;
+		VectorCopy(ent->s.origin, end);
+		end[2] += 256;
+	}
 
 	trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, end,
 			ent, MASK_MONSTERSOLID);
@@ -1139,6 +1148,11 @@ monster_start(edict_t *self)
 			(randk() % (self->monsterinfo.currentmove->lastframe -
 					   self->monsterinfo.currentmove->firstframe + 1));
 	}
+
+	self->monsterinfo.base_height = self->maxs[2];
+	self->monsterinfo.quad_framenum = 0;
+	self->monsterinfo.double_framenum = 0;
+	self->monsterinfo.invincible_framenum = 0;
 
 	return true;
 }

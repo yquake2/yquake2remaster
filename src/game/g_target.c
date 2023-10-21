@@ -27,11 +27,22 @@
 
 #include "header/local.h"
 
+#define LASER_ON 0x0001
+#define LASER_RED 0x0002
+#define LASER_GREEN 0x0004
+#define LASER_BLUE 0x0008
+#define LASER_YELLOW 0x0010
+#define LASER_ORANGE 0x0020
+#define LASER_FAT 0x0040
+#define LASER_STOPWINDOW 0x0080
+
+void ED_CallSpawn(edict_t *ent);
+
 /*
  * QUAKED target_temp_entity (1 0 0) (-8 -8 -8) (8 8 8)
- * Fire an origin based temp entity event to the clients.
  *
- *  "style"	type byte
+ * Fire an origin based temp entity event to the clients.
+ * "style"		type byte
  */
 void
 Use_Target_Tent(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused */)
@@ -199,6 +210,7 @@ Use_Target_Help(edict_t *ent, edict_t *other /* unused */, edict_t *activator /*
 
 /*
  * QUAKED target_help (1 0 1) (-16 -16 -24) (16 16 24) help1
+ *
  * When fired, the "message" key becomes the current personal computer string,
  * and the message light will be set on all clients status bars.
  */
@@ -411,6 +423,7 @@ SP_target_explosion(edict_t *ent)
 
 /*
  * QUAKED target_changelevel (1 0 0) (-8 -8 -8) (8 8 8)
+ *
  * Changes level to "map" when fired
  */
 void
@@ -588,6 +601,8 @@ use_target_spawner(edict_t *self, edict_t *other /* unused */, edict_t *activato
 	{
 		VectorCopy(self->movedir, ent->velocity);
 	}
+
+	ent->s.renderfx |= RF_IR_VISIBLE; /* PGM */
 }
 
 void
@@ -672,10 +687,11 @@ SP_target_blaster(edict_t *self)
 
 /*
  * QUAKED target_crosslevel_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
- * Once this trigger is touched/used, any trigger_crosslevel_target with
- * the same trigger number is automatically used when a level is started
- * within the same unit.  It is OK to check multiple triggers. Message,
- * delay, target, and killtarget also work.
+ *
+ * Once this trigger is touched/used, any trigger_crosslevel_target
+ * with the same trigger number is automatically used when a level
+ * is started within the same unit. It is OK to check multiple triggers.
+ * Message, delay, target, and killtarget also work.
  */
 void
 trigger_crosslevel_trigger_use(edict_t *self, edict_t *other /* unused */,
@@ -705,6 +721,7 @@ SP_target_crosslevel_trigger(edict_t *self)
 
 /*
  * QUAKED target_crosslevel_target (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
+ *
  * Triggered by a trigger_crosslevel elsewhere within a unit.
  * If multiple triggers are checked, all must be true. Delay,
  * target and killtarget also work.
@@ -750,9 +767,11 @@ SP_target_crosslevel_target(edict_t *self)
 /* ========================================================== */
 
 /*
- * QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON RED GREEN BLUE YELLOW ORANGE FAT
+ * QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON RED GREEN BLUE YELLOW ORANGE FAT WINDOWSTOP
  * When triggered, fires a laser.  You can either set a target
  * or a direction.
+ *
+ * WINDOWSTOP - stops at CONTENTS_WINDOW
  */
 void
 target_laser_think(edict_t *self)
@@ -798,8 +817,15 @@ target_laser_think(edict_t *self)
 
 	while (1)
 	{
-		tr = gi.trace(start, NULL, NULL, end, ignore,
-				CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+		if (self->spawnflags & LASER_STOPWINDOW)
+		{
+			tr = gi.trace(start, NULL, NULL, end, ignore, MASK_SHOT);
+		}
+		else
+		{
+			tr = gi.trace(start, NULL, NULL, end, ignore,
+					CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_DEADMONSTER);
+		}
 
 		if (!tr.ent)
 		{
@@ -823,7 +849,8 @@ target_laser_think(edict_t *self)
 
 		/* if we hit something that's not a monster
 		   or player or is immune to lasers, we're done */
-		if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client))
+		if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client) &&
+			!(tr.ent->svflags & SVF_DAMAGEABLE))
 		{
 			if (self->spawnflags & 0x80000000)
 			{
@@ -1156,9 +1183,11 @@ SP_target_mal_laser(edict_t *self)
 
 /*
  * QUAKED target_lightramp (0 .5 .8) (-8 -8 -8) (8 8 8) TOGGLE
- *  speed		How many seconds the ramping will take
- *  message		two letters; starting lightlevel and ending lightlevel
+ *
+ * speed		How many seconds the ramping will take
+ * message		two letters; starting lightlevel and ending lightlevel
  */
+
 void
 target_lightramp_think(edict_t *self)
 {
@@ -1285,11 +1314,12 @@ SP_target_lightramp(edict_t *self)
 /* ========================================================== */
 
 /*
- * QUAKED target_earthquake (1 0 0) (-8 -8 -8) (8 8 8)
+ * QUAKED target_earthquake (1 0 0) (-8 -8 -8) (8 8 8) SILENT
+ *
  * When triggered, this initiates a level-wide earthquake.
  * All players and monsters are affected.
- *  "speed"		severity of the quake (default:200)
- *  "count"		duration of the quake (default:5)
+ * "speed"		severity of the quake (default:200)
+ * "count"		duration of the quake (default:5)
  */
 void
 target_earthquake_think(edict_t *self)
@@ -1302,16 +1332,19 @@ target_earthquake_think(edict_t *self)
 		return;
 	}
 
-	if (self->last_move_time < level.time)
+	if (!(self->spawnflags & 1))
 	{
-		gi.positioned_sound(self->s.origin,
-				self,
-				CHAN_AUTO,
-				self->noise_index,
-				1.0,
-				ATTN_NONE,
-				0);
-		self->last_move_time = level.time + 0.5;
+		if (self->last_move_time < level.time)
+		{
+			gi.positioned_sound(self->s.origin,
+					self,
+					CHAN_AUTO,
+					self->noise_index,
+					1.0,
+					ATTN_NONE,
+					0);
+			self->last_move_time = level.time + 0.5;
+		}
 	}
 
 	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
@@ -1385,5 +1418,8 @@ SP_target_earthquake(edict_t *self)
 	self->think = target_earthquake_think;
 	self->use = target_earthquake_use;
 
-	self->noise_index = gi.soundindex("world/quake.wav");
+	if (!(self->spawnflags & 1))
+	{
+		self->noise_index = gi.soundindex("world/quake.wav");
+	}
 }

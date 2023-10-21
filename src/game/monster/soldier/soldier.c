@@ -22,8 +22,9 @@
  *
  * Soldier aka "Guard". This is the most complex enemy in Quake 2, since
  * it uses all AI features (dodging, sight, crouching, etc) and comes
- * in a myriad of variants. In Xatrix it's even more complex due to
- * another 4 variants added.
+ * in a myriad of variants.
+ * In Rogue it's even more complex due to the blindfire stuff.
+ * In Xatrix it's even more complex due to another 4 variants added.
  *
  * =======================================================================
  */
@@ -47,8 +48,11 @@ static int sound_step2;
 static int sound_step3;
 static int sound_step4;
 
+void soldier_duck_up(edict_t *self);
 void soldier_stand(edict_t *self);
 void soldier_run(edict_t *self);
+void soldier_fire(edict_t *self, int);
+void soldier_blind(edict_t *self);
 void soldierh_stand(edict_t *self);
 void soldierh_run(edict_t *self);
 extern void brain_dabeam(edict_t *self);
@@ -89,6 +93,27 @@ soldier_footstep(edict_t *self)
 	}
 }
 
+void
+soldier_start_charge(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.aiflags |= AI_CHARGING;
+}
+
+void
+soldier_stop_charge(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.aiflags &= ~AI_CHARGING;
+}
 
 void
 soldier_idle(edict_t *self)
@@ -347,6 +372,20 @@ mmove_t soldier_move_start_run =
 	soldier_run
 };
 
+void
+soldier_fire_run(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if ((self->s.skinnum <= 1) && (self->enemy) && visible(self, self->enemy))
+	{
+		soldier_fire(self, 0);
+	}
+}
+
 static mframe_t soldier_frames_run[] = {
 	{ai_run, 10, NULL},
 	{ai_run, 11, soldier_footstep},
@@ -371,6 +410,8 @@ soldier_run(edict_t *self)
 	{
 		return;
 	}
+
+	monster_done_dodge(self);
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
@@ -498,6 +539,12 @@ soldier_pain(edict_t *self, edict_t *other /* unused */,
 		self->s.skinnum |= 1;
 	}
 
+	monster_done_dodge(self);
+	soldier_stop_charge(self);
+
+	/* if we're blind firing, this needs to be turned off here */
+	self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+
 	if (level.time < self->pain_debounce_time)
 	{
 		if ((self->velocity[2] > 100) &&
@@ -505,6 +552,12 @@ soldier_pain(edict_t *self, edict_t *other /* unused */,
 			 (self->monsterinfo.currentmove == &soldier_move_pain2) ||
 			 (self->monsterinfo.currentmove == &soldier_move_pain3)))
 		{
+			/* clear duck flag */
+			if (self->monsterinfo.aiflags & AI_DUCKED)
+			{
+				monster_duck_up(self);
+			}
+
 			self->monsterinfo.currentmove = &soldier_move_pain4;
 		}
 
@@ -530,6 +583,12 @@ soldier_pain(edict_t *self, edict_t *other /* unused */,
 
 	if (self->velocity[2] > 100)
 	{
+		/* clear duck flag */
+		if (self->monsterinfo.aiflags & AI_DUCKED)
+		{
+			monster_duck_up(self);
+		}
+
 		self->monsterinfo.currentmove = &soldier_move_pain4;
 		return;
 	}
@@ -552,6 +611,12 @@ soldier_pain(edict_t *self, edict_t *other /* unused */,
 	else
 	{
 		self->monsterinfo.currentmove = &soldier_move_pain3;
+	}
+
+	/* clear duck flag */
+	if (self->monsterinfo.aiflags & AI_DUCKED)
+	{
+		monster_duck_up(self);
 	}
 }
 
@@ -592,7 +657,7 @@ static int machinegun_flash[] =
 };
 
 void
-soldier_fire(edict_t *self, int flash_number)
+soldier_fire(edict_t *self, int in_flash_number)
 {
 	vec3_t start;
 	vec3_t forward, right, up;
@@ -601,10 +666,31 @@ soldier_fire(edict_t *self, int flash_number)
 	vec3_t end;
 	float r, u;
 	int flash_index;
+	int flash_number;
 
 	if (!self)
 	{
 		return;
+	}
+
+	vec3_t aim_norm;
+	float angle;
+	trace_t tr;
+	vec3_t aim_good;
+
+	if ((!self->enemy) || (!self->enemy->inuse))
+	{
+		self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
+		return;
+	}
+
+	if (in_flash_number < 0)
+	{
+		flash_number = -1 * in_flash_number;
+	}
+	else
+	{
+		flash_number = in_flash_number;
 	}
 
 	if (self->s.skinnum < 2)
@@ -624,7 +710,7 @@ soldier_fire(edict_t *self, int flash_number)
 	G_ProjectSource(self->s.origin, monster_flash_offset[flash_index],
 			forward, right, start);
 
-	if ((flash_number == 5) || (flash_number == 6))
+	if ((flash_number == 5) || (flash_number == 6)) /* he's dead */
 	{
 		VectorCopy(forward, aim);
 	}
@@ -633,17 +719,50 @@ soldier_fire(edict_t *self, int flash_number)
 		VectorCopy(self->enemy->s.origin, end);
 		end[2] += self->enemy->viewheight;
 		VectorSubtract(end, start, aim);
+		VectorCopy(end, aim_good);
+
+		if (in_flash_number < 0)
+		{
+			VectorCopy(aim, aim_norm);
+			VectorNormalize(aim_norm);
+			angle = DotProduct(aim_norm, forward);
+
+			if (angle < 0.9)  /* ~25 degree angle */
+			{
+				return;
+			}
+		}
+
 		vectoangles(aim, dir);
 		AngleVectors(dir, forward, right, up);
 
-		r = crandom() * 1000;
-		u = crandom() * 500;
+		if (skill->value < SKILL_HARD)
+		{
+			r = crandom() * 1000;
+			u = crandom() * 500;
+		}
+		else
+		{
+			r = crandom() * 500;
+			u = crandom() * 250;
+		}
+
 		VectorMA(start, 8192, forward, end);
 		VectorMA(end, r, right, end);
 		VectorMA(end, u, up, end);
 
 		VectorSubtract(end, start, aim);
 		VectorNormalize(aim);
+	}
+
+	if (!((flash_number == 5) || (flash_number == 6))) /* he's dead */
+	{
+		tr = gi.trace(start, NULL, NULL, aim_good, self, MASK_SHOT);
+
+		if ((tr.ent != self->enemy) && (tr.ent != world))
+		{
+			return;
+		}
 	}
 
 	if (self->s.skinnum <= 1)
@@ -658,6 +777,7 @@ soldier_fire(edict_t *self, int flash_number)
 	}
 	else
 	{
+		/* changed to wait from pausetime to not interfere with dodge code */
 		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
 		{
 			self->monsterinfo.pausetime = level.time + (3 + randk() % 8) * FRAMETIME;
@@ -698,6 +818,17 @@ soldier_attack1_refire1(edict_t *self)
 		return;
 	}
 
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+		return;
+	}
+
+	if (!self->enemy)
+	{
+		return;
+	}
+
 	if (self->s.skinnum > 1)
 	{
 		return;
@@ -723,6 +854,11 @@ void
 soldier_attack1_refire2(edict_t *self)
 {
 	if (!self)
+	{
+		return;
+	}
+
+	if (!self->enemy)
 	{
 		return;
 	}
@@ -787,6 +923,11 @@ soldier_attack2_refire1(edict_t *self)
 		return;
 	}
 
+	if (!self->enemy)
+	{
+		return;
+	}
+
 	if (self->s.skinnum > 1)
 	{
 		return;
@@ -812,6 +953,11 @@ void
 soldier_attack2_refire2(edict_t *self)
 {
 	if (!self)
+	{
+		return;
+	}
+
+	if (!self->enemy)
 	{
 		return;
 	}
@@ -992,24 +1138,33 @@ soldier_attack6_refire(edict_t *self)
 		return;
 	}
 
+	/* make sure dodge & charge bits are cleared */
+	monster_done_dodge(self);
+	soldier_stop_charge(self);
+
+	if (!self->enemy)
+	{
+		return;
+	}
+
 	if (self->enemy->health <= 0)
 	{
 		return;
 	}
 
-	if (range(self, self->enemy) < RANGE_MID)
+	if (range(self, self->enemy) < RANGE_NEAR)
 	{
 		return;
 	}
 
-	if (skill->value == SKILL_HARDPLUS)
+	if ((skill->value == SKILL_HARDPLUS) || ((random() < (0.25 * ((float)skill->value)))))
 	{
 		self->monsterinfo.nextframe = FRAME_runs03;
 	}
 }
 
 static mframe_t soldier_frames_attack6[] = {
-	{ai_charge, 10, NULL},
+	{ai_charge, 10, soldier_start_charge},
 	{ai_charge, 4, NULL},
 	{ai_charge, 12, soldier_footstep},
 	{ai_charge, 11, soldier_fire8},
@@ -1036,25 +1191,82 @@ mmove_t soldier_move_attack6 =
 void
 soldier_attack(edict_t *self)
 {
+	float r, chance;
+
 	if (!self)
 	{
 		return;
 	}
 
-	if (self->s.skinnum < 4)
+	monster_done_dodge(self);
+
+	/* blindfire! */
+	if (self->monsterinfo.attack_state == AS_BLIND)
 	{
-		if (random() < 0.5)
+		/* setup shot probabilities */
+		if (self->monsterinfo.blind_fire_delay < 1.0)
 		{
-			self->monsterinfo.currentmove = &soldier_move_attack1;
+			chance = 1.0;
+		}
+		else if (self->monsterinfo.blind_fire_delay < 7.5)
+		{
+			chance = 0.4;
 		}
 		else
 		{
-			self->monsterinfo.currentmove = &soldier_move_attack2;
+			chance = 0.1;
 		}
+
+		r = random();
+
+		/* minimum of 2 seconds, plus 0-3, after the shots are done */
+		self->monsterinfo.blind_fire_delay += 2.1 + 2.0 + random() * 3.0;
+
+		/* don't shoot at the origin */
+		if (VectorCompare(self->monsterinfo.blind_fire_target, vec3_origin))
+		{
+			return;
+		}
+
+		/* don't shoot if the dice say not to */
+		if (r > chance)
+		{
+			return;
+		}
+
+		/* turn on manual steering to signal both manual steering and blindfire */
+		self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &soldier_move_attack1;
+		self->monsterinfo.attack_finished = level.time + 1.5 + random();
+		return;
+	}
+
+	r = random();
+
+	if ((!(self->monsterinfo.aiflags & (AI_BLOCKED | AI_STAND_GROUND))) &&
+		(range(self, self->enemy) >= RANGE_NEAR) &&
+		((r < (skill->value * 0.25)) &&
+		 (self->s.skinnum <= 3)))
+	{
+		self->monsterinfo.currentmove = &soldier_move_attack6;
 	}
 	else
 	{
-		self->monsterinfo.currentmove = &soldier_move_attack4;
+		if (self->s.skinnum < 4)
+		{
+			if (random() < 0.5)
+			{
+				self->monsterinfo.currentmove = &soldier_move_attack1;
+			}
+			else
+			{
+				self->monsterinfo.currentmove = &soldier_move_attack2;
+			}
+		}
+		else
+		{
+			self->monsterinfo.currentmove = &soldier_move_attack4;
+		}
 	}
 }
 
@@ -1075,9 +1287,11 @@ soldier_sight(edict_t *self, edict_t *other /* unused */)
 		gi.sound(self, CHAN_VOICE, sound_sight2, 1, ATTN_NORM, 0);
 	}
 
-	if ((skill->value > SKILL_EASY) && (range(self, self->enemy) >= RANGE_MID))
+	if ((skill->value > SKILL_EASY) && (self->enemy) &&
+		(range(self, self->enemy) >= RANGE_NEAR))
 	{
-		if (random() > 0.5)
+		/*	don't let machinegunners run & shoot */
+		if ((random() > 0.75) && (self->s.skinnum <= 3))
 		{
 			self->monsterinfo.currentmove = &soldier_move_attack6;
 		}
@@ -1117,6 +1331,29 @@ mmove_t soldier_move_duck =
 	soldier_frames_duck,
 	soldier_run
 };
+
+qboolean
+soldier_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	/* don't do anything if you're dodging */
+	if ((self->monsterinfo.aiflags & AI_DODGING) ||
+		(self->monsterinfo.aiflags & AI_DUCKED))
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
+}
 
 void
 soldier_dodge(edict_t *self, edict_t *attacker, float eta,
@@ -1214,6 +1451,46 @@ soldier_dead(edict_t *self)
 
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
+	self->movetype = MOVETYPE_TOSS;
+	self->svflags |= SVF_DEADMONSTER;
+	self->nextthink = 0;
+	gi.linkentity(self);
+}
+
+void
+soldier_dead2(edict_t *self)
+{
+	vec3_t tempmins, tempmaxs, temporg;
+	trace_t tr;
+
+	if (!self)
+	{
+		return;
+	}
+
+	VectorCopy(self->s.origin, temporg);
+	/* this is because location traces done at the
+	   floor are guaranteed to hit the floor (inside
+	   the sv_trace code it grows the bbox by 1 in
+	   all directions) */
+	temporg[2] += 1;
+
+	VectorSet(tempmins, -32, -32, -24);
+	VectorSet(tempmaxs, 32, 32, -8);
+
+	tr = gi.trace(temporg, tempmins, tempmaxs, temporg, self, MASK_SOLID);
+
+	if (tr.startsolid || tr.allsolid)
+	{
+		VectorSet(self->mins, -16, -16, -24);
+		VectorSet(self->maxs, 16, 16, -8);
+	}
+	else
+	{
+		VectorCopy(tempmins, self->mins);
+		VectorCopy(tempmaxs, self->maxs);
+	}
+
 	self->movetype = MOVETYPE_TOSS;
 	self->svflags |= SVF_DEADMONSTER;
 	self->nextthink = 0;
@@ -1445,7 +1722,7 @@ mmove_t soldier_move_death4 =
 	FRAME_death401,
 	FRAME_death453,
 	soldier_frames_death4,
-	soldier_dead
+	soldier_dead2
 };
 
 static mframe_t soldier_frames_death5[] = {
@@ -1592,6 +1869,117 @@ soldier_die(edict_t *self, edict_t *inflictor /* unused */,
 }
 
 void
+soldier_sidestep(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->s.skinnum <= 3)
+	{
+		if (self->monsterinfo.currentmove != &soldier_move_attack6)
+		{
+			self->monsterinfo.currentmove = &soldier_move_attack6;
+		}
+	}
+	else
+	{
+		if (self->monsterinfo.currentmove != &soldier_move_start_run)
+		{
+			self->monsterinfo.currentmove = &soldier_move_start_run;
+		}
+	}
+}
+
+void
+soldier_duck(edict_t *self, float eta)
+{
+	float r;
+
+	if (!self)
+	{
+		return;
+	}
+
+	/* has to be done immediately otherwise he can get stuck */
+	monster_duck_down(self);
+
+	if (skill->value == SKILL_EASY)
+	{
+		self->monsterinfo.currentmove = &soldier_move_duck;
+		self->monsterinfo.duck_wait_time = level.time + eta + 1;
+		return;
+	}
+
+	r = random();
+
+	if (r > (skill->value * 0.3))
+	{
+		self->monsterinfo.currentmove = &soldier_move_duck;
+		self->monsterinfo.duck_wait_time = level.time + eta + (0.1 * (3 - skill->value));
+	}
+	else
+	{
+		self->monsterinfo.currentmove = &soldier_move_attack3;
+		self->monsterinfo.duck_wait_time = level.time + eta + 1;
+	}
+}
+
+static mframe_t soldier_frames_blind[] = {
+	{ai_move, 0, soldier_idle},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
+};
+
+mmove_t soldier_move_blind = {
+	FRAME_stand101,
+	FRAME_stand130,
+	soldier_frames_blind,
+	soldier_blind
+};
+
+void
+soldier_blind(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = &soldier_move_blind;
+}
+
+void
 SP_monster_soldier_x(edict_t *self)
 {
 	if (!self)
@@ -1631,6 +2019,16 @@ SP_monster_soldier_x(edict_t *self)
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = soldier_sight;
 
+	self->monsterinfo.blocked = soldier_blocked;
+	self->monsterinfo.duck = soldier_duck;
+	self->monsterinfo.unduck = monster_duck_up;
+	self->monsterinfo.sidestep = soldier_sidestep;
+
+	if (self->spawnflags & 8) /* blind */
+	{
+		self->monsterinfo.stand = soldier_blind;
+	}
+
 	gi.linkentity(self);
 
 	self->monsterinfo.stand(self);
@@ -1639,7 +2037,9 @@ SP_monster_soldier_x(edict_t *self)
 }
 
 /*
- * QUAKED monster_soldier_light (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ * QUAKED monster_soldier_light (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ *
+ * Blind - monster will just stand there until triggered
  */
 void
 SP_monster_soldier_light(edict_t *self)
@@ -1671,10 +2071,13 @@ SP_monster_soldier_light(edict_t *self)
 	gi.soundindex("soldier/solatck2.wav");
 
 	self->s.skinnum = 0;
+	self->monsterinfo.blindfire = true;
 }
 
 /*
- * QUAKED monster_soldier (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ * QUAKED monster_soldier (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ *
+ * Blind - monster will just stand there until triggered
  */
 void
 SP_monster_soldier(edict_t *self)
@@ -1707,7 +2110,9 @@ SP_monster_soldier(edict_t *self)
 }
 
 /*
- * QUAKED monster_soldier_ss (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ * QUAKED monster_soldier_ss (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ *
+ * Blind - monster will just stand there until triggered
  */
 void
 SP_monster_soldier_ss(edict_t *self)

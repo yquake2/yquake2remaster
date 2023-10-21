@@ -346,6 +346,43 @@ static spawn_t spawns[] = {
 	{"turret_base", SP_turret_base},
 	{"turret_driver", SP_turret_driver},
 
+	{"func_plat2", SP_func_plat2},
+	{"func_door_secret2", SP_func_door_secret2},
+	{"func_force_wall", SP_func_force_wall},
+	{"trigger_teleport", SP_trigger_teleport},
+	{"trigger_disguise", SP_trigger_disguise},
+	{"info_teleport_destination", SP_info_teleport_destination},
+	{"info_player_coop_lava", SP_info_player_coop_lava},
+	{"monster_stalker", SP_monster_stalker},
+	{"monster_turret", SP_monster_turret},
+	{"target_steam", SP_target_steam},
+	{"target_anger", SP_target_anger},
+	{"target_killplayers", SP_target_killplayers},
+	{"target_blacklight", SP_target_blacklight},
+	{"target_orb", SP_target_orb},
+	{"monster_daedalus", SP_monster_hover},
+	{"hint_path", SP_hint_path},
+	{"monster_carrier", SP_monster_carrier},
+	{"monster_widow", SP_monster_widow},
+	{"monster_widow2", SP_monster_widow2},
+	{"monster_medic_commander", SP_monster_medic},
+	{"dm_tag_token", SP_dm_tag_token},
+	{"dm_dball_goal", SP_dm_dball_goal},
+	{"dm_dball_ball", SP_dm_dball_ball},
+	{"dm_dball_team1_start", SP_dm_dball_team1_start},
+	{"dm_dball_team2_start", SP_dm_dball_team2_start},
+	{"dm_dball_ball_start", SP_dm_dball_ball_start},
+	{"dm_dball_speed_change", SP_dm_dball_speed_change},
+	{"monster_kamikaze", SP_monster_kamikaze},
+	{"turret_invisible_brain", SP_turret_invisible_brain},
+	{"misc_nuke_core", SP_misc_nuke_core},
+
+	{"ammo_magslug", SP_xatrix_item},
+	{"ammo_trap", SP_xatrix_item},
+	{"item_quadfire", SP_xatrix_item},
+	{"weapon_boomer", SP_xatrix_item},
+	{"weapon_phalanx", SP_xatrix_item},
+
 	{NULL, NULL}
 };
 
@@ -399,6 +436,25 @@ ED_CallSpawn(edict_t *ent)
 		gi.dprintf("ED_CallSpawn: NULL classname\n");
 		G_FreeEdict(ent);
 		return;
+	}
+
+	ent->gravityVector[0] = 0.0;
+	ent->gravityVector[1] = 0.0;
+	ent->gravityVector[2] = -1.0;
+
+	if (!strcmp(ent->classname, "weapon_nailgun"))
+	{
+		ent->classname = (FindItem("ETF Rifle"))->classname;
+	}
+
+	if (!strcmp(ent->classname, "ammo_nails"))
+	{
+		ent->classname = (FindItem("Flechettes"))->classname;
+	}
+
+	if (!strcmp(ent->classname, "weapon_heatbeam"))
+	{
+		ent->classname = (FindItem("Plasma Beam"))->classname;
 	}
 
 	/* check item spawn functions */
@@ -878,6 +934,30 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 					continue;
 				}
 			}
+			else if (coop->value && !coop_baseq2->value)
+			{
+				if (ent->spawnflags & SPAWNFLAG_NOT_COOP)
+				{
+					G_FreeEdict(ent);
+					inhibit++;
+					continue;
+				}
+
+				/* stuff marked !easy & !med & !hard are coop only, all levels */
+				if (!((ent->spawnflags & SPAWNFLAG_NOT_EASY) &&
+					  (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM) &&
+					  (ent->spawnflags & SPAWNFLAG_NOT_HARD)))
+				{
+					if (((skill->value == SKILL_EASY) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
+						((skill->value == SKILL_MEDIUM) && (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
+						(((skill->value == SKILL_HARD) || (skill->value == SKILL_HARDPLUS)) && (ent->spawnflags & SPAWNFLAG_NOT_HARD)))
+					{
+						G_FreeEdict(ent);
+						inhibit++;
+						continue;
+					}
+				}
+			}
 			else
 			{
 				if (Spawn_CheckCoop_MapHacks(ent) || (
@@ -902,7 +982,13 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 				  SPAWNFLAG_NOT_COOP | SPAWNFLAG_NOT_DEATHMATCH);
 		}
 
+		ent->gravityVector[0] = 0.0;
+		ent->gravityVector[1] = 0.0;
+		ent->gravityVector[2] = -1.0;
+
 		ED_CallSpawn(ent);
+
+		ent->s.renderfx |= RF_IR_VISIBLE;
 	}
 
 	gi.dprintf("%i entities inhibited.\n", inhibit);
@@ -910,6 +996,26 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	G_FindTeams();
 
 	PlayerTrail_Init();
+
+	if (deathmatch->value)
+	{
+		if (randomrespawn && randomrespawn->value)
+		{
+			PrecacheForRandomRespawn();
+		}
+	}
+	else
+	{
+		InitHintPaths();
+	}
+
+	if (deathmatch->value && gamerules && gamerules->value)
+	{
+		if (DMGame.PostInitSetup)
+		{
+			DMGame.PostInitSetup();
+		}
+	}
 }
 
 /* =================================================================== */

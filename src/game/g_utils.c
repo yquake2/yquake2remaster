@@ -290,6 +290,7 @@ void
 G_UseTargets(edict_t *ent, edict_t *activator)
 {
 	edict_t *t;
+	edict_t *master;
 
 	if (!ent)
 	{
@@ -345,6 +346,7 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 			{
 				level.total_secrets--;
 			}
+
 			/* same deal with target_goal, but also turn off CD music if applicable */
 			else if (!Q_stricmp(t->classname,"target_goal"))
 			{
@@ -354,6 +356,30 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 				{
 					gi.configstring (CS_CDTRACK, "0");
 				}
+			}
+
+			/* if this entity is part of a train, cleanly remove it */
+			if (t->flags & FL_TEAMSLAVE)
+			{
+				master = t->teammaster;
+
+				while (master)
+				{
+					if (master->teamchain == t)
+					{
+						master->teamchain = t->teamchain;
+						break;
+					}
+
+					master = master->teamchain;
+				}
+			}
+
+			/* correct killcounter if a living monster gets killtargeted */
+			if ((t->monsterinfo.checkattack || strcmp (t->classname, "turret_driver") == 0) &&
+				!(t->monsterinfo.aiflags & (AI_GOOD_GUY|AI_DO_NOT_COUNT)) && t->deadflag != DEAD_DEAD)
+			{
+				level.killed_monsters++;
 			}
 
 			G_FreeEdict(t);

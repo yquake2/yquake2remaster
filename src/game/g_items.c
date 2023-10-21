@@ -46,6 +46,13 @@ void Weapon_Grenade(edict_t *ent);
 void Weapon_GrenadeLauncher(edict_t *ent);
 void Weapon_Railgun(edict_t *ent);
 void Weapon_BFG(edict_t *ent);
+void Weapon_ChainFist(edict_t *ent);
+void Weapon_Disintegrator(edict_t *ent);
+void Weapon_ETF_Rifle(edict_t *ent);
+void Weapon_Heatbeam(edict_t *ent);
+void Weapon_Prox(edict_t *ent);
+void Weapon_Tesla(edict_t *ent);
+void Weapon_ProxLauncher(edict_t *ent);
 
 void Weapon_Ionripper(edict_t *ent);
 void Weapon_Phalanx(edict_t *ent);
@@ -164,6 +171,21 @@ DoRespawn(edict_t *ent)
 
 		for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
 		{
+		}
+	}
+
+	if (randomrespawn && randomrespawn->value)
+	{
+		edict_t *newEnt;
+
+		newEnt = DoRandomRespawn(ent);
+
+		/* if we've changed entities, then do some sleight
+		 * of hand. otherwise, the old entity will respawn */
+		if (newEnt)
+		{
+			G_FreeEdict(ent);
+			ent = newEnt;
 		}
 	}
 
@@ -324,6 +346,19 @@ Pickup_Bandolier(edict_t *ent, edict_t *other)
 		other->client->pers.max_magslug = 75;
 	}
 
+	if (other->client->pers.max_flechettes < 250)
+	{
+		other->client->pers.max_flechettes = 250;
+	}
+
+	if (g_disruptor->value)
+	{
+		if (other->client->pers.max_rounds < 150)
+		{
+			other->client->pers.max_rounds = 150;
+		}
+	}
+
 	item = FindItem("Bullets");
 
 	if (item)
@@ -406,6 +441,19 @@ Pickup_Pack(edict_t *ent, edict_t *other)
 	if (other->client->pers.max_magslug < 100)
 	{
 		other->client->pers.max_magslug = 100;
+	}
+
+	if (other->client->pers.max_flechettes < 200)
+	{
+		other->client->pers.max_flechettes = 200;
+	}
+
+	if (g_disruptor->value)
+	{
+		if (other->client->pers.max_rounds < 200)
+		{
+			other->client->pers.max_rounds = 200;
+		}
 	}
 
 	item = FindItem("Bullets");
@@ -513,12 +561,330 @@ Pickup_Pack(edict_t *ent, edict_t *other)
 		}
 	}
 
+	item = FindItem("Flechettes");
+
+	if (item)
+	{
+		index = ITEM_INDEX(item);
+		other->client->pers.inventory[index] += item->quantity;
+
+		if (other->client->pers.inventory[index] >
+			other->client->pers.max_flechettes)
+		{
+			other->client->pers.inventory[index] =
+				other->client->pers.max_flechettes;
+		}
+	}
+
+	item = FindItem("Rounds");
+
+	if (item)
+	{
+		index = ITEM_INDEX(item);
+		other->client->pers.inventory[index] += item->quantity;
+
+		if (other->client->pers.inventory[index] >
+				other->client->pers.max_rounds)
+		{
+			other->client->pers.inventory[index] =
+				other->client->pers.max_rounds;
+		}
+	}
+
 	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
 	{
 		SetRespawn(ent, ent->item->quantity);
 	}
 
 	return true;
+}
+
+/* ====================================================================== */
+
+qboolean
+Pickup_Nuke(edict_t *ent, edict_t *other)
+{
+	int quantity;
+
+	if (!ent || !other)
+	{
+		return false;
+	}
+
+	quantity = other->client->pers.inventory[ITEM_INDEX(ent->item)];
+
+	if (quantity >= 1)
+	{
+		return false;
+	}
+
+	if ((coop->value) && (ent->item->flags & IT_STAY_COOP))
+	{
+		return false;
+	}
+
+	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
+
+	if (deathmatch->value)
+	{
+		if (!(ent->spawnflags & DROPPED_ITEM))
+		{
+			SetRespawn(ent, ent->item->quantity);
+		}
+	}
+
+	return true;
+}
+
+void
+Use_IR(edict_t *ent, gitem_t *item)
+{
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	if (ent->client->ir_framenum > level.framenum)
+	{
+		ent->client->ir_framenum += 600;
+	}
+	else
+	{
+		ent->client->ir_framenum = level.framenum + 600;
+	}
+
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ir_start.wav"), 1, ATTN_NORM, 0);
+}
+
+void
+Use_Double(edict_t *ent, gitem_t *item)
+{
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	if (ent->client->double_framenum > level.framenum)
+	{
+		ent->client->double_framenum += 300;
+	}
+	else
+	{
+		ent->client->double_framenum = level.framenum + 300;
+	}
+
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ddamage1.wav"), 1, ATTN_NORM, 0);
+}
+
+void
+Use_Compass(edict_t *ent, gitem_t *item)
+{
+	int ang;
+
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	ang = (int)(ent->client->v_angle[1]);
+
+	if (ang < 0)
+	{
+		ang += 360;
+	}
+
+	gi.cprintf(ent, PRINT_HIGH, "Origin: %0.0f,%0.0f,%0.0f    Dir: %d\n",
+			ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], ang);
+}
+
+void
+Use_Nuke(edict_t *ent, gitem_t *item)
+{
+	vec3_t forward, right, start;
+	float speed;
+
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorCopy(ent->s.origin, start);
+	speed = 100;
+	fire_nuke(ent, start, forward, speed);
+}
+
+void
+Use_Doppleganger(edict_t *ent, gitem_t *item)
+{
+	vec3_t forward, right;
+	vec3_t createPt, spawnPt;
+	vec3_t ang;
+
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	VectorClear(ang);
+	ang[YAW] = ent->client->v_angle[YAW];
+	AngleVectors(ang, forward, right, NULL);
+
+	VectorMA(ent->s.origin, 48, forward, createPt);
+
+	if (!FindSpawnPoint(createPt, ent->mins, ent->maxs, spawnPt, 32))
+	{
+		return;
+	}
+
+	if (!CheckGroundSpawnPoint(spawnPt, ent->mins, ent->maxs, 64, -1))
+	{
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	SpawnGrow_Spawn(spawnPt, 0);
+	fire_doppleganger(ent, spawnPt, forward);
+}
+
+qboolean
+Pickup_Doppleganger(edict_t *ent, edict_t *other)
+{
+	int quantity;
+
+	if (!ent || !other)
+	{
+		return false;
+	}
+
+	if (!(deathmatch->value))
+	{
+		return false;
+	}
+
+	quantity = other->client->pers.inventory[ITEM_INDEX(ent->item)];
+
+	if (quantity >= 1)
+	{
+		return false;
+	}
+
+	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
+
+	if (!(ent->spawnflags & DROPPED_ITEM))
+	{
+		SetRespawn(ent, ent->item->quantity);
+	}
+
+	return true;
+}
+
+qboolean
+Pickup_Sphere(edict_t *ent, edict_t *other)
+{
+	int quantity;
+
+	if (!ent || !other)
+	{
+		return false;
+	}
+
+	if (other->client && other->client->owned_sphere)
+	{
+		return false;
+	}
+
+	quantity = other->client->pers.inventory[ITEM_INDEX(ent->item)];
+
+	if (((skill->value == SKILL_MEDIUM) &&
+		 (quantity >= 2)) || ((skill->value >= SKILL_HARD) && (quantity >= 1)))
+	{
+		return false;
+	}
+
+	if ((coop->value) && (ent->item->flags & IT_STAY_COOP) && (quantity > 0))
+	{
+		return false;
+	}
+
+	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
+
+	if (deathmatch->value)
+	{
+		if (!(ent->spawnflags & DROPPED_ITEM))
+		{
+			SetRespawn(ent, ent->item->quantity);
+		}
+	}
+
+	return true;
+}
+
+void
+Use_Defender(edict_t *ent, gitem_t *item)
+{
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	if (ent->client && ent->client->owned_sphere)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Only one sphere at a time!\n");
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	Defender_Launch(ent);
+}
+
+void
+Use_Hunter(edict_t *ent, gitem_t *item)
+{
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	if (ent->client && ent->client->owned_sphere)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Only one sphere at a time!\n");
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	Hunter_Launch(ent);
+}
+
+void
+Use_Vengeance(edict_t *ent, gitem_t *item)
+{
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	if (ent->client && ent->client->owned_sphere)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Only one sphere at a time!\n");
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	Vengeance_Launch(ent);
 }
 
 /* ====================================================================== */
@@ -555,7 +921,8 @@ Use_Quad(edict_t *ent, gitem_t *item)
 		ent->client->quad_framenum = level.framenum + timeout;
 	}
 
-	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM, 0);
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM,
+			0);
 }
 
 /* ===================================================================== */
@@ -772,8 +1139,25 @@ Add_Ammo(edict_t *ent, gitem_t *item, int count)
 	{
 		max = ent->client->pers.max_trap;
 	}
+	else if (item->tag == AMMO_FLECHETTES)
+	{
+		max = ent->client->pers.max_flechettes;
+	}
+	else if (item->tag == AMMO_PROX)
+	{
+		max = ent->client->pers.max_prox;
+	}
+	else if (item->tag == AMMO_TESLA)
+	{
+		max = ent->client->pers.max_tesla;
+	}
+	else if (item->tag == AMMO_DISRUPTOR)
+	{
+		max = ent->client->pers.max_rounds;
+	}
 	else
 	{
+		gi.dprintf("undefined ammo type\n");
 		return false;
 	}
 
@@ -830,9 +1214,10 @@ Pickup_Ammo(edict_t *ent, edict_t *other)
 
 	if (weapon && !oldcount)
 	{
+		/* don't switch to tesla */
 		if ((other->client->pers.weapon != ent->item) &&
-			(!deathmatch->value ||
-			 (other->client->pers.weapon == FindItem("blaster"))))
+			(!deathmatch->value || (other->client->pers.weapon == FindItem("blaster"))) &&
+			(strcmp(ent->classname, "ammo_tesla")))
 		{
 			other->client->newweapon = ent->item;
 		}
@@ -1316,6 +1701,10 @@ Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_
 				{
 					ent->item->use(other, ent->item);
 				}
+				else
+				{
+					gi.dprintf("Powerup has no use function!\n");
+				}
 			}
 		}
 	}
@@ -1499,7 +1888,7 @@ droptofloor(edict_t *ent)
 	{
 		gi.setmodel(ent, ent->model);
 	}
-	else
+	else if (ent->item->world_model)
 	{
 		gi.setmodel(ent, ent->item->world_model);
 	}
@@ -1669,6 +2058,47 @@ PrecacheItem(gitem_t *it)
 }
 
 /*
+ * Create the item marked for spawn creation
+ */
+void
+Item_TriggeredSpawn(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
+{
+	self->svflags &= ~SVF_NOCLIENT;
+	self->use = NULL;
+
+	if (strcmp(self->classname, "key_power_cube"))
+	{
+		self->spawnflags = 0;
+	}
+
+	droptofloor(self);
+}
+
+/*
+ * Set up an item to spawn in later.
+ */
+void
+SetTriggeredSpawn(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	/* don't do anything on key_power_cubes. */
+	if (!strcmp(ent->classname, "key_power_cube"))
+	{
+		return;
+	}
+
+	ent->think = NULL;
+	ent->nextthink = 0;
+	ent->use = Item_TriggeredSpawn;
+	ent->svflags |= SVF_NOCLIENT;
+	ent->solid = SOLID_NOT;
+}
+
+/*
  * ============
  * Sets the clipping size and
  * plants the object on the floor.
@@ -1718,6 +2148,18 @@ SpawnItem(edict_t *ent, gitem_t *item)
 				G_FreeEdict(ent);
 				return;
 			}
+
+			if (item->pickup == Pickup_Sphere)
+			{
+				G_FreeEdict(ent);
+				return;
+			}
+
+			if (item->pickup == Pickup_Doppleganger)
+			{
+				G_FreeEdict(ent);
+				return;
+			}
 		}
 
 		if ((int)dmflags->value & DF_NO_HEALTH)
@@ -1735,6 +2177,34 @@ SpawnItem(edict_t *ent, gitem_t *item)
 		{
 			if ((item->flags == IT_AMMO) ||
 				(strcmp(ent->classname, "weapon_bfg") == 0))
+			{
+				G_FreeEdict(ent);
+				return;
+			}
+		}
+
+		if ((int)dmflags->value & DF_NO_MINES)
+		{
+			if (!strcmp(ent->classname, "ammo_prox") ||
+				!strcmp(ent->classname, "ammo_tesla"))
+			{
+				G_FreeEdict(ent);
+				return;
+			}
+		}
+
+		if ((int)dmflags->value & DF_NO_NUKES)
+		{
+			if (!strcmp(ent->classname, "ammo_nuke"))
+			{
+				G_FreeEdict(ent);
+				return;
+			}
+		}
+
+		if ((int)dmflags->value & DF_NO_SPHERES)
+		{
+			if (item->pickup == Pickup_Sphere)
 			{
 				G_FreeEdict(ent);
 				return;
@@ -1764,6 +2234,11 @@ SpawnItem(edict_t *ent, gitem_t *item)
 	{
 		gi.modelindex(ent->model);
 	}
+
+	if (ent->spawnflags & 1)
+	{
+		SetTriggeredSpawn(ent);
+	}
 }
 
 /* ====================================================================== */
@@ -1775,7 +2250,7 @@ static const gitem_t gameitemlist[] = {
 
 
 	/*
-	 * QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_armor_body",
@@ -2931,7 +3406,7 @@ static const gitem_t gameitemlist[] = {
 gitem_t itemlist[MAX_ITEMS];
 
 /*
- * QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health(edict_t *self)
@@ -3074,4 +3549,74 @@ SetItemNames(void)
 	body_armor_index = ITEM_INDEX(FindItem("Body Armor"));
 	power_screen_index = ITEM_INDEX(FindItem("Power Screen"));
 	power_shield_index = ITEM_INDEX(FindItem("Power Shield"));
+}
+
+void
+SP_xatrix_item(edict_t *self)
+{
+	gitem_t *item;
+	int i;
+	char *spawnClass = NULL;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (!self->classname)
+	{
+		return;
+	}
+
+	if (!strcmp(self->classname, "ammo_magslug"))
+	{
+		spawnClass = "ammo_flechettes";
+	}
+	else if (!strcmp(self->classname, "ammo_trap"))
+	{
+		spawnClass = "weapon_proxlauncher";
+	}
+	else if (!strcmp(self->classname, "item_quadfire"))
+	{
+		float chance;
+
+		chance = random();
+
+		if (chance < 0.2)
+		{
+			spawnClass = "item_sphere_hunter";
+		}
+		else if (chance < 0.6)
+		{
+			spawnClass = "item_sphere_vengeance";
+		}
+		else
+		{
+			spawnClass = "item_sphere_defender";
+		}
+	}
+	else if (!strcmp(self->classname, "weapon_boomer"))
+	{
+		spawnClass = "weapon_etf_rifle";
+	}
+	else if (!strcmp(self->classname, "weapon_phalanx"))
+	{
+		spawnClass = "weapon_plasmabeam";
+	}
+
+	/* check item spawn functions */
+	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
+	{
+		if (!item->classname)
+		{
+			continue;
+		}
+
+		if (!strcmp(item->classname, spawnClass))
+		{
+			/* found it */
+			SpawnItem(self, item);
+			return;
+		}
+	}
 }

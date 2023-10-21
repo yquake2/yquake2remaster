@@ -1,9 +1,23 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
- */
-
-/*
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
  * =======================================================================
  *
  * Level functions. Platforms, buttons, dooors and so on.
@@ -138,12 +152,12 @@ Move_Final(edict_t *ent)
 void
 Move_Begin(edict_t *ent)
 {
+	float frames;
+
 	if (!ent)
 	{
 		return;
 	}
-
-	float frames;
 
 	if ((ent->moveinfo.speed * FRAMETIME) >= ent->moveinfo.remaining_distance)
 	{
@@ -152,9 +166,11 @@ Move_Begin(edict_t *ent)
 	}
 
 	VectorScale(ent->moveinfo.dir, ent->moveinfo.speed, ent->velocity);
-	frames = floor( (ent->moveinfo.remaining_distance /
+	frames = floor(
+			(ent->moveinfo.remaining_distance /
 			 ent->moveinfo.speed) / FRAMETIME);
-	ent->moveinfo.remaining_distance -= frames * ent->moveinfo.speed * FRAMETIME;
+	ent->moveinfo.remaining_distance -= frames * ent->moveinfo.speed *
+										FRAMETIME;
 	ent->nextthink = level.time + (frames * FRAMETIME);
 	ent->think = Move_Final;
 }
@@ -195,8 +211,10 @@ Move_Calc(edict_t *ent, vec3_t dest, void (*func)(edict_t *))
 	}
 }
 
-/* Support routines for angular movement
-  (changes in angle using avelocity) */
+/*
+ * Support routines for angular movement
+ * (changes in angle using avelocity)
+ */
 void
 AngleMove_Done(edict_t *ent)
 {
@@ -366,8 +384,12 @@ plat_CalcAcceleratedMove(moveinfo_t *moveinfo)
 	{
 		float f;
 
-		f = (moveinfo->accel + moveinfo->decel) / (moveinfo->accel * moveinfo->decel);
-		moveinfo->move_speed = (-2 + sqrt(4 - 4 * f * (-2 * moveinfo->remaining_distance))) / (2 * f);
+		f =
+			(moveinfo->accel +
+			 moveinfo->decel) / (moveinfo->accel * moveinfo->decel);
+		moveinfo->move_speed =
+			(-2 +
+			 sqrt(4 - 4 * f * (-2 * moveinfo->remaining_distance))) / (2 * f);
 		decel_dist = AccelerationDistance(moveinfo->move_speed, moveinfo->decel);
 	}
 
@@ -458,8 +480,10 @@ plat_Accelerate(moveinfo_t *moveinfo)
 		p1_speed = (old_speed + moveinfo->move_speed) / 2.0;
 		p2_distance = moveinfo->move_speed * (1.0 - (p1_distance / p1_speed));
 		distance = p1_distance + p2_distance;
-		moveinfo->current_speed = (p1_speed * (p1_distance /
-		  distance)) + (moveinfo->move_speed * (p2_distance / distance));
+		moveinfo->current_speed =
+			(p1_speed *
+			 (p1_distance /
+		 distance)) + (moveinfo->move_speed * (p2_distance / distance));
 		moveinfo->next_speed = moveinfo->move_speed - moveinfo->decel *
 							   (p2_distance / distance);
 		return;
@@ -469,6 +493,10 @@ plat_Accelerate(moveinfo_t *moveinfo)
 	return;
 }
 
+/*
+ * The team has completed a frame of movement,
+ * so change the speed for the next frame
+ */
 void
 Think_AccelMove(edict_t *ent)
 {
@@ -478,7 +506,12 @@ Think_AccelMove(edict_t *ent)
 	}
 
 	ent->moveinfo.remaining_distance -= ent->moveinfo.current_speed;
-	plat_CalcAcceleratedMove(&ent->moveinfo);
+
+	if (ent->moveinfo.current_speed == 0) /* starting or blocked */
+	{
+		plat_CalcAcceleratedMove(&ent->moveinfo);
+	}
+
 	plat_Accelerate(&ent->moveinfo);
 
 	/* will the entire move complete on next frame? */
@@ -506,8 +539,8 @@ plat_hit_top(edict_t *ent)
 	{
 		if (ent->moveinfo.sound_end)
 		{
-			gi.sound(ent, CHAN_NO_PHS_ADD + CHAN_VOICE, ent->moveinfo.sound_end,
-					1, ATTN_STATIC, 0);
+			gi.sound(ent, CHAN_NO_PHS_ADD + CHAN_VOICE,
+					ent->moveinfo.sound_end, 1, ATTN_STATIC, 0);
 		}
 
 		ent->s.sound = 0;
@@ -698,7 +731,6 @@ wait_and_change(edict_t* ent, void (*afterwaitfunc)(edict_t *))
 	else
 	{
 		afterwaitfunc(ent);
-
 	}
 }
 
@@ -729,7 +761,8 @@ Touch_Plat_Center(edict_t *ent, edict_t *other, cplane_t *plane /* unsed */,
 	}
 	else if (ent->moveinfo.state == STATE_TOP)
 	{
-		ent->nextthink = level.time + 1; /* the player is still on the plat, so delay going down */
+		/* the player is still on the plat, so delay going down */
+		ent->nextthink = level.time + 1;
 	}
 }
 
@@ -1472,12 +1505,13 @@ SP_func_plat2(edict_t *ent)
 
 /* ==================================================================== */
 
-/* QUAKED func_rotating (0 .5 .8) ? START_ON REVERSE X_AXIS Y_AXIS TOUCH_PAIN STOP ANIMATED ANIMATED_FAST EAST MED HARD DM COOP ACCEL
+/*
+ * QUAKED func_rotating (0 .5 .8) ? START_ON REVERSE X_AXIS Y_AXIS TOUCH_PAIN STOP ANIMATED ANIMATED_FAST EAST MED HARD DM COOP ACCEL
  *
- * You need to have an origin brush as part of this entity. The center
- * of that brush will bethe point around which it is rotated. It will
- * rotate around the Z axis by default.  You can check either the
- * X_AXIS or Y_AXIS box to change that.
+ * You need to have an origin brush as part of this entity.
+ * The center of that brush will be the point around which it
+ * is rotated. It will rotate around the Z axis by default.
+ * You can check either the X_AXIS or Y_AXIS box to change that.
  *
  * func_rotating will use it's targets when it stops and starts.
  *
@@ -1667,7 +1701,6 @@ SP_func_rotating(edict_t *ent)
 	}
 
 	ent->use = rotating_use;
-
 	ent->blocked = rotating_blocked;
 
 	if (ent->spawnflags & 1)
@@ -1948,7 +1981,6 @@ SP_func_button(edict_t *ent)
 
 	gi.linkentity(ent);
 }
-
 
 /* ==================================================================== */
 
@@ -2501,9 +2533,9 @@ door_blocked(edict_t *self, edict_t *other)
 		return;
 	}
 
-	/* if a door has a negative wait, it would never come
-	   back if blocked, so let it just squash the object
-	   to death real fast */
+	/* if a door has a negative wait, it would never
+	   come back if blocked, so let it just squash the
+	   object to death real fast */
 	if (self->moveinfo.wait >= 0)
 	{
 		if (self->moveinfo.state == STATE_DOWN)
@@ -2762,6 +2794,7 @@ Door_Activate(edict_t *self, edict_t *other /* unused */,
  *    3)	medium
  *    4)	heavy
  */
+
 void
 SP_func_door_rotating(edict_t *ent)
 {
@@ -3014,7 +3047,8 @@ SP_func_water(edict_t *self)
 		self->speed = 25;
 	}
 
-	self->moveinfo.accel = self->moveinfo.decel = self->moveinfo.speed = self->speed;
+	self->moveinfo.accel = self->moveinfo.decel =
+		self->moveinfo.speed = self->speed;
 
 	if (self->spawnflags & 2)   /* smart water */
 	{
@@ -3044,6 +3078,8 @@ SP_func_water(edict_t *self)
 
 	gi.linkentity(self);
 }
+
+/* ==================================================================== */
 
 /*
  * QUAKED func_train (0 .5 .8) ? START_ON TOGGLE BLOCK_STOPS
@@ -3135,6 +3171,7 @@ train_wait(edict_t *self)
 		else if (self->spawnflags & TRAIN_TOGGLE)
 		{
 			self->target_ent = NULL;
+			train_next(self);
 			self->spawnflags &= ~TRAIN_START_ON;
 			VectorClear(self->velocity);
 			self->nextthink = 0;
@@ -3145,8 +3182,8 @@ train_wait(edict_t *self)
 			if (self->moveinfo.sound_end)
 			{
 				gi.sound(self, CHAN_NO_PHS_ADD + CHAN_VOICE,
-						self->moveinfo.sound_end,
-						1, ATTN_STATIC, 0);
+						self->moveinfo.sound_end, 1,
+						ATTN_STATIC, 0);
 			}
 
 			self->s.sound = 0;
@@ -3178,6 +3215,7 @@ train_next(edict_t *self)
 	first = true;
 
 again:
+
 	if (!self->target)
 	{
 		return;
@@ -3430,7 +3468,7 @@ SP_func_train(edict_t *self)
 	if (self->target)
 	{
 		/* start trains on the second frame, to make
-		   sure their targets have had a chance to spawn */
+		 * sure their targets have had a chance to spawn */
 		self->nextthink = level.time + FRAMETIME;
 		self->think = func_train_find;
 	}
@@ -3439,6 +3477,8 @@ SP_func_train(edict_t *self)
 		gi.dprintf("func_train without a target at %s\n", vtos(self->absmin));
 	}
 }
+
+/* ==================================================================== */
 
 /*
  * QUAKED trigger_elevator (0.3 0.1 0.6) (-8 -8 -8) (8 8 8)
@@ -3554,7 +3594,7 @@ func_timer_think(edict_t *self)
 void
 func_timer_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 {
-	if (!self)
+	if (!self || !activator)
 	{
 		return;
 	}
@@ -3853,15 +3893,15 @@ door_secret_die(edict_t *self, edict_t *inflictor /* unused */,
 void
 SP_func_door_secret(edict_t *ent)
 {
-	if (!ent)
-	{
-		return;
-	}
-
 	vec3_t forward, right, up;
 	float side;
 	float width;
 	float length;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	ent->moveinfo.sound_start = gi.soundindex("doors/dr1_strt.wav");
 	ent->moveinfo.sound_middle = gi.soundindex("doors/dr1_mid.wav");
@@ -3978,4 +4018,232 @@ SP_func_killbox(edict_t *ent)
 	gi.setmodel(ent, ent->model);
 	ent->use = use_killbox;
 	ent->svflags = SVF_NOCLIENT;
+}
+
+/*
+ * QUAKED rotating_light (0 .5 .8) (-8 -8 -8) (8 8 8) START_OFF ALARM
+ * "health"	if set, the light may be killed.
+ */
+
+#define START_OFF 1
+
+void
+rotating_light_alarm(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->think = NULL;
+		self->nextthink = 0;
+	}
+	else
+	{
+		gi.sound(self, CHAN_NO_PHS_ADD + CHAN_VOICE,
+				self->moveinfo.sound_start, 1,
+				ATTN_STATIC, 0);
+		self->nextthink = level.time + 1;
+	}
+}
+
+void
+rotating_light_killed(edict_t *self, edict_t *inflictor /* unused */,
+		edict_t *attacker /* unused */, int damage /* unused */,
+		vec3_t point /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WELDING_SPARKS);
+	gi.WriteByte(30);
+	gi.WritePosition(self->s.origin);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0xe0 + (rand() & 7));
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
+	self->s.effects &= ~EF_SPINNINGLIGHTS;
+	self->use = NULL;
+
+	self->think = G_FreeEdict;
+	self->nextthink = level.time + 0.1;
+}
+
+void
+rotating_light_use(edict_t *self, edict_t *other /* unused */,
+	   	edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->spawnflags &= ~START_OFF;
+		self->s.effects |= EF_SPINNINGLIGHTS;
+
+		if (self->spawnflags & 2)
+		{
+			self->think = rotating_light_alarm;
+			self->nextthink = level.time + 0.1;
+		}
+	}
+	else
+	{
+		self->spawnflags |= START_OFF;
+		self->s.effects &= ~EF_SPINNINGLIGHTS;
+	}
+}
+
+void
+SP_rotating_light(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->movetype = MOVETYPE_STOP;
+	self->solid = SOLID_BBOX;
+
+	self->s.modelindex = gi.modelindex("models/objects/light/tris.md2");
+
+	self->s.frame = 0;
+
+	self->use = rotating_light_use;
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->s.effects &= ~EF_SPINNINGLIGHTS;
+	}
+	else
+	{
+		self->s.effects |= EF_SPINNINGLIGHTS;
+	}
+
+	if (!self->speed)
+	{
+		self->speed = 32;
+	}
+
+	if (!self->health)
+	{
+		self->health = 10;
+		self->max_health = self->health;
+		self->die = rotating_light_killed;
+		self->takedamage = DAMAGE_YES;
+	}
+	else
+	{
+		self->max_health = self->health;
+		self->die = rotating_light_killed;
+		self->takedamage = DAMAGE_YES;
+	}
+
+	if (self->spawnflags & 2)
+	{
+		self->moveinfo.sound_start = gi.soundindex("misc/alarm.wav");
+	}
+
+	gi.linkentity(self);
+}
+
+/*
+ * QUAKED func_object_repair (1 .5 0) (-8 -8 -8) (8 8 8)
+ * object to be repaired.
+ * The default delay is 1 second
+ * "delay" the delay in seconds for spark to occur
+ */
+void
+object_repair_fx(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->nextthink = level.time + ent->delay;
+
+	if (ent->health <= 100)
+	{
+		ent->health++;
+	}
+	else
+	{
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_WELDING_SPARKS);
+		gi.WriteByte(10);
+		gi.WritePosition(ent->s.origin);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0xe0 + (rand() & 7));
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
+}
+
+void
+object_repair_dead(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	G_UseTargets(ent, ent);
+	ent->nextthink = level.time + 0.1;
+	ent->think = object_repair_fx;
+}
+
+void
+object_repair_sparks(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	if (ent->health < 0)
+	{
+		ent->nextthink = level.time + 0.1;
+		ent->think = object_repair_dead;
+		return;
+	}
+
+	ent->nextthink = level.time + ent->delay;
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WELDING_SPARKS);
+	gi.WriteByte(10);
+	gi.WritePosition(ent->s.origin);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0xe0 + (rand() & 7));
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+}
+
+void
+SP_object_repair(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->movetype = MOVETYPE_NONE;
+	ent->solid = SOLID_BBOX;
+	ent->classname = "object_repair";
+	ent->think = object_repair_sparks;
+	ent->nextthink = level.time + 1.0;
+	ent->health = 100;
+
+	if (!ent->delay)
+	{
+		ent->delay = 1.0;
+	}
+
+	gi.linkentity(ent);
 }

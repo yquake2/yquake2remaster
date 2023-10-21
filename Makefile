@@ -1469,11 +1469,11 @@ ROGUE_OBJS_ = \
 	src/rogue/g_chase.o \
 	src/game/g_cmds.o \
 	src/rogue/g_combat.o \
-	src/rogue/g_func.o \
+	src/game/g_func.o \
 	src/rogue/g_items.o \
 	src/game/g_main.o \
-	src/rogue/g_misc.o \
-	src/rogue/g_monster.o \
+	src/game/g_misc.o \
+	src/game/g_monster.o \
 	src/game/g_newai.o \
 	src/game/g_newdm.o \
 	src/game/g_newfnc.o \
@@ -1481,13 +1481,13 @@ ROGUE_OBJS_ = \
 	src/game/g_newtrig.o \
 	src/game/g_newweap.o \
 	src/game/g_phys.o \
-	src/rogue/g_spawn.o \
+	src/game/g_spawn.o \
 	src/game/g_sphere.o \
-	src/rogue/g_svcmds.o \
-	src/rogue/g_target.o \
-	src/rogue/g_trigger.o \
-	src/rogue/g_turret.o \
-	src/rogue/g_utils.o \
+	src/game/g_svcmds.o \
+	src/game/g_target.o \
+	src/game/g_trigger.o \
+	src/game/g_turret.o \
+	src/game/g_utils.o \
 	src/game/g_weapon.o \
 	src/game/dm/ball.o \
 	src/game/dm/tag.o \
@@ -1496,17 +1496,21 @@ ROGUE_OBJS_ = \
 	src/game/monster/boss3/boss3.o \
 	src/game/monster/boss3/boss31.o \
 	src/game/monster/boss3/boss32.o \
+	src/game/monster/boss5/boss5.o \
 	src/rogue/monster/brain/brain.o \
 	src/game/monster/carrier/carrier.o \
-	src/rogue/monster/chick/chick.o \
+	src/game/monster/chick/chick.o \
 	src/rogue/monster/flipper/flipper.o \
 	src/rogue/monster/float/float.o \
 	src/game/monster/flyer/flyer.o \
 	src/rogue/monster/gladiator/gladiator.o \
+	src/game/monster/gladiator/gladb.o \
+	src/game/monster/gekk/gekk.o \
 	src/rogue/monster/gunner/gunner.o \
 	src/rogue/monster/hover/hover.o \
 	src/game/monster/infantry/infantry.o \
 	src/rogue/monster/insane/insane.o \
+	src/game/monster/fixbot/fixbot.o \
 	src/rogue/monster/medic/medic.o \
 	src/rogue/monster/misc/move.o \
 	src/rogue/monster/mutant/mutant.o \

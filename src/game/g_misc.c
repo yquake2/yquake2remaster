@@ -30,6 +30,8 @@
 int debristhisframe;
 int gibsthisframe;
 
+extern void M_WorldEffects(edict_t *ent);
+
 /*
  * QUAKED func_group (0 0 0) ?
  * Used to group brushes together just for editor convenience.
@@ -254,6 +256,7 @@ ThrowGib(edict_t *self, char *gibname, int damage, int type)
 
 	gib->think = G_FreeEdict;
 	gib->nextthink = level.time + 10 + random() * 10;
+	gib->s.renderfx |= RF_IR_VISIBLE;
 
 	gi.linkentity(gib);
 }
@@ -591,6 +594,7 @@ BecomeExplosion2(edict_t *self)
 
 /*
  * QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8) TELEPORT
+ *
  * Target: next path corner
  * Pathtarget: gets used when an entity that has
  *  this path_corner targeted touches it
@@ -802,6 +806,7 @@ SP_point_combat(edict_t *self)
 
 /*
  * QUAKED viewthing (0 .5 .8) (-8 -8 -8) (8 8 8)
+ *
  * Just for the debugging level.  Don't use
  */
 void
@@ -842,6 +847,7 @@ SP_viewthing(edict_t *ent)
 
 /*
  * QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+ *
  * Used as a positional target for spotlights, etc.
  */
 void
@@ -857,6 +863,7 @@ SP_info_null(edict_t *self)
 
 /*
  * QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
+ *
  * Used as a positional target for lighting.
  */
 void
@@ -875,6 +882,7 @@ SP_info_notnull(edict_t *self)
 
 /*
  * QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
+ *
  * Non-displayed light.
  * Default light value is 300.
  * Default style is 0.
@@ -947,6 +955,7 @@ SP_light(edict_t *self)
  * START_ON		only valid for TRIGGER_SPAWN walls
  *              the wall will initially be present
  */
+
 void
 func_wall_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
 {
@@ -1039,8 +1048,10 @@ SP_func_wall(edict_t *self)
 
 /*
  * QUAKED func_object (0 .5 .8) ? TRIGGER_SPAWN ANIMATED ANIMATED_FAST
+ *
  * This is solid bmodel that will fall if it's support it removed.
  */
+
 void
 func_object_touch(edict_t *self, edict_t *other, cplane_t *plane,
 		csurface_t *surf /* unused */)
@@ -1052,7 +1063,8 @@ func_object_touch(edict_t *self, edict_t *other, cplane_t *plane,
 		return;
 	}
 
-	if (plane->normal[2] < 1.0)
+	/* only squash thing we fall on top of */
+	if (plane && plane->normal[2] < 1.0)
 	{
 		return;
 	}
@@ -1148,12 +1160,16 @@ SP_func_object(edict_t *self)
 /* ===================================================== */
 
 /*
- * QUAKED func_explosive (0 .5 .8) ? Trigger_Spawn ANIMATED ANIMATED_FAST
- * Any brush that you want to explode or break apart. If you want an
+ * QUAKED func_explosive (0 .5 .8) ? Trigger_Spawn ANIMATED ANIMATED_FAST INACTIVE
+ *
+ * Any brush that you want to explode or break apart.  If you want an
  * explosion, set dmg and it will do a radius explosion of that amount
  * at the center of the bursh.
  *
  * If targeted it will not be shootable.
+ *
+ * INACTIVE - specifies that the entity is not explodable until triggered. If you use this you must
+ * target the entity you want to trigger it. This is the only entity approved to activate it.
  *
  * health defaults to 100.
  *
@@ -1170,6 +1186,7 @@ func_explosive_explode(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	vec3_t size;
 	int count;
 	int mass;
+	edict_t *master;
 
 	if (!self || !inflictor || !attacker)
 	{
@@ -1238,6 +1255,23 @@ func_explosive_explode(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		ThrowDebris(self, "models/objects/debris2/tris.md2", 2, chunkorigin);
 	}
 
+	if (self->flags & FL_TEAMSLAVE)
+	{
+		master = self->teammaster;
+
+		/* because mappers (other than jim (usually)) are stupid.... */
+		while (master)
+		{
+			if (master->teamchain == self)
+			{
+				master->teamchain = self->teamchain;
+				break;
+			}
+
+			master = master->teamchain;
+		}
+	}
+
 	G_UseTargets(self, attacker);
 
 	if (self->dmg)
@@ -1251,14 +1285,43 @@ func_explosive_explode(edict_t *self, edict_t *inflictor, edict_t *attacker,
 }
 
 void
-func_explosive_use(edict_t *self, edict_t *other, edict_t *activator)
+func_explosive_use(edict_t *self, edict_t *other, edict_t *activator /* unused */)
 {
+	if (!self || !other)
+	{
+		return;
+	}
+
 	func_explosive_explode(self, self, other, self->health, vec3_origin);
+}
+
+void
+func_explosive_activate(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->use = func_explosive_use;
+
+	if (!self->health)
+	{
+		self->health = 100;
+	}
+
+	self->die = func_explosive_explode;
+	self->takedamage = DAMAGE_YES;
 }
 
 void
 func_explosive_spawn(edict_t *self, edict_t *other, edict_t *activator)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	self->solid = SOLID_BSP;
 	self->svflags &= ~SVF_NOCLIENT;
 	self->use = NULL;
@@ -1294,6 +1357,15 @@ SP_func_explosive(edict_t *self)
 		self->solid = SOLID_NOT;
 		self->use = func_explosive_spawn;
 	}
+	else if (self->spawnflags & 8)
+	{
+		self->solid = SOLID_BSP;
+
+		if (self->targetname)
+		{
+			self->use = func_explosive_activate;
+		}
+	}
 	else
 	{
 		self->solid = SOLID_BSP;
@@ -1314,7 +1386,8 @@ SP_func_explosive(edict_t *self)
 		self->s.effects |= EF_ANIM_ALLFAST;
 	}
 
-	if (self->use != func_explosive_use)
+	if ((self->use != func_explosive_use) &&
+		(self->use != func_explosive_activate))
 	{
 		if (!self->health)
 		{
@@ -1332,6 +1405,7 @@ SP_func_explosive(edict_t *self)
 
 /*
  * QUAKED misc_explobox (0 .5 .8) (-16 -16 0) (16 16 40)
+ *
  * Large exploding box.  You can override its mass (100),
  * health (80), and dmg (150).
  */
@@ -1401,7 +1475,7 @@ barrel_explode(edict_t *self)
 	ThrowDebris(self, "models/objects/debris3/tris.md2", spd, org);
 
 	/* a bunch of little chunks */
-	spd = 2 * self->dmg / 200;
+	spd = 2.0 * (float)self->dmg / 200.0;
 	org[0] = self->s.origin[0] + crandom() * self->size[0];
 	org[1] = self->s.origin[1] + crandom() * self->size[1];
 	org[2] = self->s.origin[2] + crandom() * self->size[2];
@@ -1463,6 +1537,37 @@ barrel_delay(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker,
 }
 
 void
+barrel_think(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	/* the think needs to be first since later stuff may override. */
+	self->think = barrel_think;
+	self->nextthink = level.time + FRAMETIME;
+
+	M_CatagorizePosition(self);
+	self->flags |= FL_IMMUNE_SLIME;
+	self->air_finished = level.time + 100;
+	M_WorldEffects(self);
+}
+
+void
+barrel_start(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	M_droptofloor(self);
+	self->think = barrel_think;
+	self->nextthink = level.time + FRAMETIME;
+}
+
+void
 SP_misc_explobox(edict_t *self)
 {
 	if (!self)
@@ -1509,8 +1614,7 @@ SP_misc_explobox(edict_t *self)
 	self->monsterinfo.aiflags = AI_NOSTEP;
 
 	self->touch = barrel_touch;
-
-	self->think = M_droptofloor;
+	self->think = barrel_start;
 	self->nextthink = level.time + 2 * FRAMETIME;
 
 	gi.linkentity(self);
@@ -1575,7 +1679,7 @@ SP_misc_blackhole(edict_t *ent)
 	ent->s.renderfx = RF_TRANSLUCENT;
 	ent->use = misc_blackhole_use;
 	ent->think = misc_blackhole_think;
-    ent->prethink = misc_blackhole_transparent;
+	ent->prethink = misc_blackhole_transparent;
 	ent->nextthink = level.time + 2 * FRAMETIME;
 	gi.linkentity(ent);
 }
@@ -1711,6 +1815,7 @@ SP_misc_easterchick2(edict_t *ent)
 
 /*
  * QUAKED monster_commander_body (1 .5 0) (-32 -32 0) (32 32 48)
+ *
  * Not really a monster, this is the Tank Commander's decapitated body.
  * There should be a item_commander_head that has this as it's target.
  */
@@ -1836,6 +1941,7 @@ SP_monster_commander_body(edict_t *self)
 
 /*
  * QUAKED misc_banner (1 .5 0) (-4 -4 -4) (4 4 4)
+ *
  * The origin is the bottom of the banner.
  * The banner is 128 tall.
  */
@@ -1873,6 +1979,7 @@ SP_misc_banner(edict_t *ent)
 
 /*
  * QUAKED misc_deadsoldier (1 .5 0) (-16 -16 0) (16 16 16) ON_BACK ON_STOMACH BACK_DECAP FETAL_POS SIT_DECAP IMPALED
+ *
  * This is the dead player model. Comes in 6 exciting different poses!
  */
 void
@@ -1891,7 +1998,8 @@ misc_deadsoldier_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *at
 		return;
 	}
 
-	gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_BODY, gi.soundindex(
+		"misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 	for (n = 0; n < 4; n++)
 	{
@@ -1964,6 +2072,7 @@ SP_misc_deadsoldier(edict_t *ent)
 
 /*
  * QUAKED misc_viper (1 .5 0) (-16 -16 0) (16 16 32)
+ *
  * This is the Viper for the flyby bombing.
  * It is trigger_spawned, so you must have something use it for it to show up.
  * There must be a path for it to follow once it is activated.
@@ -2064,11 +2173,17 @@ SP_misc_crashviper(edict_t *ent)
 
 /*
  * QUAKED misc_bigviper (1 .5 0) (-176 -120 -24) (176 120 72)
+ *
  * This is a large stationary viper as seen in Paul's intro
  */
 void
 SP_misc_bigviper(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	ent->movetype = MOVETYPE_NONE;
 	ent->solid = SOLID_BBOX;
 	VectorSet(ent->mins, -176, -120, -24);
@@ -2081,6 +2196,7 @@ SP_misc_bigviper(edict_t *ent)
 
 /*
  * QUAKED misc_viper_bomb (1 0 0) (-8 -8 -8) (8 8 8)
+ *
  * "dmg"	how much boom should the bomb make?
  */
 void
@@ -2240,6 +2356,7 @@ SP_misc_viper_missile(edict_t *self)
 
 /*
  * QUAKED misc_strogg_ship (1 .5 0) (-16 -16 0) (16 16 32)
+ *
  * This is a Storgg ship for the flybys.
  * It is trigger_spawned, so you must have something use it for it to show up.
  * There must be a path for it to follow once it is activated.
@@ -2412,7 +2529,8 @@ SP_light_mine1(edict_t *ent)
 
 	ent->movetype = MOVETYPE_NONE;
 	ent->solid = SOLID_BBOX;
-	ent->s.modelindex = gi.modelindex("models/objects/minelite/light1/tris.md2");
+	ent->s.modelindex =
+		gi.modelindex("models/objects/minelite/light1/tris.md2");
 	gi.linkentity(ent);
 }
 
@@ -2429,7 +2547,8 @@ SP_light_mine2(edict_t *ent)
 
 	ent->movetype = MOVETYPE_NONE;
 	ent->solid = SOLID_BBOX;
-	ent->s.modelindex = gi.modelindex("models/objects/minelite/light2/tris.md2");
+	ent->s.modelindex =
+		gi.modelindex("models/objects/minelite/light2/tris.md2");
 	gi.linkentity(ent);
 }
 
@@ -2437,6 +2556,7 @@ SP_light_mine2(edict_t *ent)
 
 /*
  * QUAKED misc_gib_arm (1 0 0) (-8 -8 -8) (8 8 8)
+ *
  * Intended for use with the target_spawner
  */
 void
@@ -2523,9 +2643,11 @@ SP_misc_gib_head(edict_t *ent)
 
 /*
  * QUAKED target_character (0 0 1) ?
+ *
  * used with target_string (must be on same "team")
  * "count" is position in the string (starts at 1)
  */
+
 void
 SP_target_character(edict_t *self)
 {
@@ -2600,6 +2722,11 @@ target_string_use(edict_t *self, edict_t *other /* unused */, edict_t *activator
 void
 SP_target_string(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (!self->message)
 	{
 		self->message = "";
@@ -2612,6 +2739,7 @@ SP_target_string(edict_t *self)
 
 /*
  * QUAKED func_clock (0 0 1) (-8 -8 -8) (8 8 8) TIMER_UP TIMER_DOWN START_OFF MULTI_USE
+ *
  * target a target_string with this
  *
  * The default is to be a time of day clock
@@ -2936,6 +3064,7 @@ teleporter_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 
 /*
  * QUAKED misc_teleporter (1 0 0) (-32 -32 -24) (32 32 -16)
+ *
  * Stepping onto this disc will teleport players to the targeted misc_teleporter_dest object.
  */
 void
@@ -2978,6 +3107,7 @@ SP_misc_teleporter(edict_t *ent)
 
 /*
  * QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
+ *
  * Point teleporters at these.
  */
 void
@@ -3071,4 +3201,41 @@ SP_misc_nuke(edict_t *ent)
 	}
 
 	ent->use = use_nuke;
+}
+
+void
+misc_nuke_core_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->svflags & SVF_NOCLIENT)
+	{
+		self->svflags &= ~SVF_NOCLIENT;
+	}
+	else
+	{
+		self->svflags |= SVF_NOCLIENT;
+	}
+}
+
+/*
+ * QUAKED misc_nuke_core (1 0 0) (-16 -16 -16) (16 16 16)
+ *
+ * toggles visible/not visible. starts visible.
+ */
+void
+SP_misc_nuke_core(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	gi.setmodel(ent, "models/objects/core/tris.md2");
+	gi.linkentity(ent);
+
+	ent->use = misc_nuke_core_use;
 }

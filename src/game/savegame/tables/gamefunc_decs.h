@@ -1188,7 +1188,7 @@ extern void rotating_use ( edict_t * self , edict_t * other , edict_t * activato
 extern void rotating_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void rotating_blocked ( edict_t * self , edict_t * other ) ;
 extern void SP_func_plat ( edict_t * ent ) ;
-extern void plat_spawn_inside_trigger ( edict_t * ent ) ;
+extern edict_t * plat_spawn_inside_trigger ( edict_t * ent ) ;
 extern void Touch_Plat_Center ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void Use_Plat ( edict_t * ent , edict_t * other , edict_t * activator ) ;
 extern void plat_blocked ( edict_t * self , edict_t * other ) ;
