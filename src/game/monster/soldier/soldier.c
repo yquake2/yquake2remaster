@@ -1063,7 +1063,7 @@ soldier_attack3_refire(edict_t *self)
 		return;
 	}
 
-	if ((level.time + 0.4) < self->monsterinfo.pausetime)
+	if ((level.time + 0.4) < self->monsterinfo.duck_wait_time)
 	{
 		self->monsterinfo.nextframe = FRAME_attak303;
 	}
@@ -1164,20 +1164,20 @@ soldier_attack6_refire(edict_t *self)
 }
 
 static mframe_t soldier_frames_attack6[] = {
-	{ai_charge, 10, soldier_start_charge},
-	{ai_charge, 4, NULL},
-	{ai_charge, 12, soldier_footstep},
-	{ai_charge, 11, soldier_fire8},
-	{ai_charge, 13, NULL},
-	{ai_charge, 18, NULL},
-	{ai_charge, 15, soldier_footstep},
-	{ai_charge, 14, NULL},
-	{ai_charge, 11, NULL},
-	{ai_charge, 8, soldier_footstep},
-	{ai_charge, 11, NULL},
-	{ai_charge, 12, NULL},
-	{ai_charge, 12, soldier_footstep},
-	{ai_charge, 17, soldier_attack6_refire}
+	{ai_run, 10, soldier_start_charge},
+	{ai_run, 4, NULL},
+	{ai_run, 12, soldier_footstep},
+	{ai_run, 11, soldier_fire8},
+	{ai_run, 13, monster_done_dodge},
+	{ai_run, 18, NULL},
+	{ai_run, 15, soldier_footstep},
+	{ai_run, 14, NULL},
+	{ai_run, 11, NULL},
+	{ai_run, 8, soldier_footstep},
+	{ai_run, 11, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, soldier_footstep},
+	{ai_run, 17, soldier_attack6_refire}
 };
 
 mmove_t soldier_move_attack6 =

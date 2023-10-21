@@ -1515,7 +1515,7 @@ ROGUE_OBJS_ = \
 	src/rogue/monster/misc/move.o \
 	src/rogue/monster/mutant/mutant.o \
 	src/rogue/monster/parasite/parasite.o \
-	src/rogue/monster/soldier/soldier.o \
+	src/game/monster/soldier/soldier.o \
 	src/game/monster/stalker/stalker.o \
 	src/rogue/monster/supertank/supertank.o \
 	src/rogue/monster/tank/tank.o \

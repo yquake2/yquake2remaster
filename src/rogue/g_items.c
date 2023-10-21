@@ -921,7 +921,8 @@ Use_Quad(edict_t *ent, gitem_t *item)
 		ent->client->quad_framenum = level.framenum + timeout;
 	}
 
-	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM, 0);
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM,
+			0);
 }
 
 /* ===================================================================== */
