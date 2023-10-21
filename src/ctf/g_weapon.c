@@ -22,7 +22,7 @@
  * Weapon support functions.
  *
  * =======================================================================
- */ 
+ */
 
 #include "header/local.h"
 
@@ -56,7 +56,7 @@ check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed)
 	{
 		VectorSubtract(tr.endpos, start, v);
 		eta = (VectorLength(v) - tr.ent->maxs[0]) / speed;
-		tr.ent->monsterinfo.dodge(tr.ent, self, eta);
+		tr.ent->monsterinfo.dodge(tr.ent, self, eta, &tr);
 	}
 }
 
@@ -84,13 +84,13 @@ fire_hit(edict_t *self, vec3_t aim, int damage, int kick)
 
 	if ((aim[1] > self->mins[0]) && (aim[1] < self->maxs[0]))
 	{
-		/* the hit is straight on so back the 
+		/* the hit is straight on so back the
 		   range up to the edge of their bbox */
 		range -= self->enemy->maxs[0];
 	}
 	else
 	{
-		/* this is a side hit so adjust the "right" 
+		/* this is a side hit so adjust the "right"
 		   value out to the edge of their bbox */
 		if (aim[1] < 0)
 		{
@@ -150,7 +150,7 @@ fire_hit(edict_t *self, vec3_t aim, int damage, int kick)
 }
 
 /*
- * This is an internal support routine 
+ * This is an internal support routine
  * used for bullet/pellet based weapons.
  */
 static void
@@ -279,7 +279,7 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		}
 	}
 
-	/* if went through water, determine where 
+	/* if went through water, determine where
 	   the end and make a bubble trail */
 	if (water)
 	{
@@ -310,7 +310,7 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 }
 
 /*
- * Fires a single round.  Used for machinegun and 
+ * Fires a single round.  Used for machinegun and
  * chaingun.  Would be fine for pistols, rifles, etc....
  */
 void
@@ -322,7 +322,7 @@ fire_bullet(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 }
 
 /*
- * Shoots shotgun pellets. Used by 
+ * Shoots shotgun pellets. Used by
  * shotgun and super shotgun.
  */
 void
@@ -339,7 +339,7 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 }
 
 /*
- * Fires a single blaster bolt. Used 
+ * Fires a single blaster bolt. Used
  * by the blaster and hyper blaster.
  */
 void

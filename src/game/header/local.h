@@ -54,6 +54,8 @@
 #define FALL_TIME 0.3
 
 /* these are set with checkboxes on each entity in the map editor */
+
+/* edict->spawnflags */
 #define SPAWNFLAG_NOT_EASY 0x00000100
 #define SPAWNFLAG_NOT_MEDIUM 0x00000200
 #define SPAWNFLAG_NOT_HARD 0x00000400
@@ -89,6 +91,7 @@
 #define TAG_LEVEL 766       /* clear when loading a new level */
 
 #define MELEE_DISTANCE 80
+
 #define BODY_QUEUE_SIZE 8
 
 typedef enum
@@ -252,6 +255,7 @@ typedef struct
 #define IT_MELEE 0x00000040
 #define IT_NOT_GIVEABLE 0x00000080      /* item can not be given */
 #define IT_INSTANT_USE 0x000000100		/* item is insta-used on pickup if dmflag is set */
+#define IT_TECH 0x000000200 /* CTF */
 
 /* gitem_t->weapmodel for weapons indicates model index */
 #define WEAP_BLASTER 1
@@ -272,6 +276,7 @@ typedef struct
 #define WEAP_PLASMA 16
 #define WEAP_PROXLAUNCH 17
 #define WEAP_CHAINFIST 18
+#define WEAP_GRAPPLE 19
 
 typedef struct gitem_s
 {
@@ -342,6 +347,7 @@ typedef struct
 	char level_name[MAX_QPATH];         /* the descriptive name (Outer Base, etc) */
 	char mapname[MAX_QPATH];            /* the server name (base1, etc) */
 	char nextmap[MAX_QPATH];            /* go here when fraglimit is hit */
+	char forcemap[MAX_QPATH];           /* go here */
 
 	/* intermission state */
 	float intermissiontime;             /* time the intermission was started */
@@ -569,6 +575,7 @@ extern int gibsthisframe;
 #define MOD_BLASTOFF 37
 #define MOD_GEKK 38
 #define MOD_TRAP 39
+#define MOD_GRAPPLE 40
 #define MOD_FRIENDLY_FIRE 0x8000000
 #define MOD_CHAINFIST 40
 #define MOD_DISINTEGRATOR 41
@@ -615,6 +622,8 @@ extern cvar_t *dmflags;
 extern cvar_t *skill;
 extern cvar_t *fraglimit;
 extern cvar_t *timelimit;
+extern cvar_t *capturelimit;
+extern cvar_t *instantweap;
 extern cvar_t *password;
 extern cvar_t *spectator_password;
 extern cvar_t *needpass;
@@ -724,8 +733,10 @@ qboolean ClientConnect(edict_t *ent, char *userinfo);
 void ClientThink(edict_t *ent, usercmd_t *cmd);
 
 /* g_cmds.c */
+qboolean CheckFlood(edict_t *ent);
 void Cmd_Help_f(edict_t *ent);
 void ClientCommand(edict_t *ent);
+void Cmd_Score_f(edict_t *ent);
 
 /* g_items.c */
 void PrecacheItem(gitem_t *it);
@@ -787,6 +798,7 @@ void ED_CallSpawn(edict_t *ent);
 /* g_combat.c */
 qboolean OnSameTeam(edict_t *ent1, edict_t *ent2);
 qboolean CanDamage(edict_t *targ, edict_t *inflictor);
+qboolean CheckTeamDamage(edict_t *targ, edict_t *attacker);
 void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 		vec3_t dir, vec3_t point, vec3_t normal, int damage,
 		int knockback, int dflags, int mod);
@@ -936,6 +948,7 @@ void InitClientPersistant(gclient_t *client);
 void InitClientResp(gclient_t *client);
 void InitBodyQue(void);
 void ClientBeginServerFrame(edict_t *ent);
+void ClientUserinfoChanged(edict_t *ent, char *userinfo);
 
 /* g_player.c */
 void player_pain(edict_t *self, edict_t *other, float kick, int damage);
@@ -961,6 +974,11 @@ void InventoryMessage(edict_t *client);
 
 /* g_pweapon.c */
 void PlayerNoise(edict_t *who, vec3_t where, int type);
+void P_ProjectSource(edict_t *ent, vec3_t distance,
+		vec3_t forward, vec3_t right, vec3_t result);
+void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
+		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
+		int *fire_frames, void (*fire)(edict_t *ent));
 
 /* m_move.c */
 qboolean M_CheckBottom(edict_t *ent);
@@ -974,6 +992,7 @@ void G_RunEntity(edict_t *ent);
 /* g_main.c */
 void SaveClientData(void);
 void FetchClientEntData(edict_t *ent);
+void EndDMLevel(void);
 
 /* g_chase.c */
 void UpdateChaseCam(edict_t *ent);
@@ -1136,10 +1155,34 @@ typedef struct
 	client_persistant_t coop_respawn;   /* what to set client->pers to on a respawn */
 	int enterframe;                 /* level.framenum the client entered the game */
 	int score;                      /* frags, etc */
+	int ctf_team;                   /* CTF team */
+	int ctf_state;
+	float ctf_lasthurtcarrier;
+	float ctf_lastreturnedflag;
+	float ctf_flagsince;
+	float ctf_lastfraggedcarrier;
+	qboolean id_state;
+	float lastidtime;
+	qboolean voted;    /* for elections */
+	qboolean ready;
+	qboolean admin;
+	struct ghost_s *ghost; /* for ghost codes */
 	vec3_t cmd_angles;              /* angles sent over in the last command */
-
+	int game_helpchanged;
+	int helpchanged;
 	qboolean spectator;             /* client is a spectator */
 } client_respawn_t;
+
+/*
+ * CTF menu
+ */
+typedef struct pmenuhnd_s
+{
+	struct pmenu_s *entries;
+	int cur;
+	int num;
+	void *arg;
+} pmenuhnd_t;
 
 /* this structure is cleared on each
    PutClientInServer(), except for 'client->pers' */
@@ -1155,6 +1198,8 @@ struct gclient_s
 	pmove_state_t old_pmove;        /* for detecting out-of-pmove changes */
 
 	qboolean showscores;            /* set layout stat */
+	qboolean inmenu;                /* in menu */
+	pmenuhnd_t *menu;               /* current menu */
 	qboolean showinventory;         /* set layout stat */
 	qboolean showhelp;
 	qboolean showhelpicon;
@@ -1229,6 +1274,15 @@ struct gclient_s
 
 	edict_t *chase_target;          /* player we are chasing */
 	qboolean update_chase;          /* need to update chase info? */
+
+	void *ctf_grapple;              /* entity of grapple */
+	int ctf_grapplestate;               /* true if pulling */
+	float ctf_grapplereleasetime;       /* time of grapple release */
+	float ctf_regentime;            /* regen tech */
+	float ctf_techsndtime;
+	float ctf_lasttechmsg;
+	float menutime;                 /* time to update menu */
+	qboolean menudirty;
 
 	float double_framenum;
 	float ir_framenum;
@@ -1376,6 +1430,7 @@ struct edict_s
 
 	/* move this to clientinfo? */
 	int light_level;
+
 	int style;                  /* also used as areaportal number */
 
 	gitem_t *item;              /* for bonus items */
@@ -1443,6 +1498,220 @@ int DBall_ChangeKnockback(edict_t *targ, edict_t *attacker, int knockback, int m
 int DBall_ChangeDamage(edict_t *targ, edict_t *attacker, int damage, int mod);
 void DBall_PostInitSetup(void);
 int DBall_CheckDMRules(void);
+
+/*
+ * CTF Menu
+ */
+enum
+{
+	PMENU_ALIGN_LEFT,
+	PMENU_ALIGN_CENTER,
+	PMENU_ALIGN_RIGHT
+};
+
+typedef void (*SelectFunc_t)(edict_t *ent, pmenuhnd_t *hnd);
+
+typedef struct pmenu_s
+{
+	char *text;
+	int align;
+	SelectFunc_t SelectFunc;
+} pmenu_t;
+
+pmenuhnd_t *PMenu_Open(edict_t *ent,
+		pmenu_t *entries,
+		int cur,
+		int num,
+		void *arg);
+void PMenu_Close(edict_t *ent);
+void PMenu_UpdateEntry(pmenu_t *entry,
+		const char *text,
+		int align,
+		SelectFunc_t SelectFunc);
+void PMenu_Do_Update(edict_t *ent);
+void PMenu_Update(edict_t *ent);
+void PMenu_Next(edict_t *ent);
+void PMenu_Prev(edict_t *ent);
+void PMenu_Select(edict_t *ent);
+
+/*
+ * CTF specific stuff.
+ */
+
+#define CTF_VERSION 1.52
+#define CTF_VSTRING2(x) # x
+#define CTF_VSTRING(x) CTF_VSTRING2(x)
+#define CTF_STRING_VERSION CTF_VSTRING(CTF_VERSION)
+
+#define STAT_CTF_TEAM1_PIC 17
+#define STAT_CTF_TEAM1_CAPS 18
+#define STAT_CTF_TEAM2_PIC 19
+#define STAT_CTF_TEAM2_CAPS 20
+#define STAT_CTF_FLAG_PIC 21
+#define STAT_CTF_JOINED_TEAM1_PIC 22
+#define STAT_CTF_JOINED_TEAM2_PIC 23
+#define STAT_CTF_TEAM1_HEADER 24
+#define STAT_CTF_TEAM2_HEADER 25
+#define STAT_CTF_TECH 26
+#define STAT_CTF_ID_VIEW 27
+#define STAT_CTF_MATCH 28
+#define STAT_CTF_ID_VIEW_COLOR 29
+#define STAT_CTF_TEAMINFO 30
+
+#define CONFIG_CTF_MATCH (CS_AIRACCEL - 1)
+#define CONFIG_CTF_TEAMINFO (CS_AIRACCEL - 2)
+
+typedef enum
+{
+	CTF_NOTEAM,
+	CTF_TEAM1,
+	CTF_TEAM2
+} ctfteam_t;
+
+typedef enum
+{
+	CTF_GRAPPLE_STATE_FLY,
+	CTF_GRAPPLE_STATE_PULL,
+	CTF_GRAPPLE_STATE_HANG
+} ctfgrapplestate_t;
+
+typedef struct ghost_s
+{
+	char netname[16];
+	int number;
+
+	/* stats */
+	int deaths;
+	int kills;
+	int caps;
+	int basedef;
+	int carrierdef;
+
+	int code; /* ghost code */
+	int team; /* team */
+	int score; /* frags at time of disconnect */
+	edict_t *ent;
+} ghost_t;
+
+extern cvar_t *ctf;
+
+#define CTF_TEAM1_SKIN "ctf_r"
+#define CTF_TEAM2_SKIN "ctf_b"
+
+#define DF_CTF_FORCEJOIN 131072
+#define DF_ARMOR_PROTECT 262144
+#define DF_CTF_NO_TECH 524288
+
+#define CTF_CAPTURE_BONUS 15        /* what you get for capture */
+#define CTF_TEAM_BONUS 10           /* what your team gets for capture */
+#define CTF_RECOVERY_BONUS 1        /* what you get for recovery */
+#define CTF_FLAG_BONUS 0            /* what you get for picking up enemy flag */
+#define CTF_FRAG_CARRIER_BONUS 2    /* what you get for fragging enemy flag carrier */
+#define CTF_FLAG_RETURN_TIME 40     /* seconds until auto return */
+
+#define CTF_CARRIER_DANGER_PROTECT_BONUS 2      /* bonus for fraggin someone who has recently hurt your flag carrier */
+#define CTF_CARRIER_PROTECT_BONUS 1             /* bonus for fraggin someone while either you or your target are near your flag carrier */
+#define CTF_FLAG_DEFENSE_BONUS 1                /* bonus for fraggin someone while either you or your target are near your flag */
+#define CTF_RETURN_FLAG_ASSIST_BONUS 1          /* awarded for returning a flag that causes a capture to happen almost immediately */
+#define CTF_FRAG_CARRIER_ASSIST_BONUS 2         /* award for fragging a flag carrier if a capture happens almost immediately */
+
+#define CTF_TARGET_PROTECT_RADIUS 400           /* the radius around an object being defended where a target will be worth extra frags */
+#define CTF_ATTACKER_PROTECT_RADIUS 400         /* the radius around an object being defended where an attacker will get extra frags when making kills */
+
+#define CTF_CARRIER_DANGER_PROTECT_TIMEOUT 8
+#define CTF_FRAG_CARRIER_ASSIST_TIMEOUT 10
+#define CTF_RETURN_FLAG_ASSIST_TIMEOUT 10
+
+#define CTF_AUTO_FLAG_RETURN_TIMEOUT 30         /* number of seconds before dropped flag auto-returns */
+
+#define CTF_TECH_TIMEOUT 60                     /* seconds before techs spawn again */
+
+#define CTF_GRAPPLE_SPEED 650                   /* speed of grapple in flight */
+#define CTF_GRAPPLE_PULL_SPEED 650              /* speed player is pulled at */
+
+void CTFInit(void);
+void CTFSpawn(void);
+void CTFPrecache(void);
+
+void SP_info_player_team1(edict_t *self);
+void SP_info_player_team2(edict_t *self);
+
+char *CTFTeamName(int team);
+char *CTFOtherTeamName(int team);
+void CTFAssignSkin(edict_t *ent, char *s);
+void CTFAssignTeam(gclient_t *who);
+edict_t *SelectCTFSpawnPoint(edict_t *ent);
+qboolean CTFPickup_Flag(edict_t *ent, edict_t *other);
+void CTFDrop_Flag(edict_t *ent, gitem_t *item);
+void CTFEffects(edict_t *player);
+void CTFCalcScores(void);
+void SetCTFStats(edict_t *ent);
+void CTFDeadDropFlag(edict_t *self);
+void CTFScoreboardMessage(edict_t *ent, edict_t *killer);
+void CTFTeam_f(edict_t *ent);
+void CTFID_f(edict_t *ent);
+void CTFSay_Team(edict_t *who, char *msg);
+void CTFFlagSetup(edict_t *ent);
+void CTFResetFlag(int ctf_team);
+void CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker);
+void CTFCheckHurtCarrier(edict_t *targ, edict_t *attacker);
+
+/* GRAPPLE */
+void CTFWeapon_Grapple(edict_t *ent);
+void CTFPlayerResetGrapple(edict_t *ent);
+void CTFGrapplePull(edict_t *self);
+void CTFResetGrapple(edict_t *self);
+
+/* TECH */
+gitem_t *CTFWhat_Tech(edict_t *ent);
+qboolean CTFPickup_Tech(edict_t *ent, edict_t *other);
+void CTFDrop_Tech(edict_t *ent, gitem_t *item);
+void CTFDeadDropTech(edict_t *ent);
+void CTFSetupTechSpawn(void);
+int CTFApplyResistance(edict_t *ent, int dmg);
+int CTFApplyStrength(edict_t *ent, int dmg);
+qboolean CTFApplyStrengthSound(edict_t *ent);
+qboolean CTFApplyHaste(edict_t *ent);
+void CTFApplyHasteSound(edict_t *ent);
+void CTFApplyRegeneration(edict_t *ent);
+qboolean CTFHasRegeneration(edict_t *ent);
+void CTFRespawnTech(edict_t *ent);
+void CTFResetTech(void);
+
+void CTFOpenJoinMenu(edict_t *ent);
+qboolean CTFStartClient(edict_t *ent);
+void CTFVoteYes(edict_t *ent);
+void CTFVoteNo(edict_t *ent);
+void CTFReady(edict_t *ent);
+void CTFNotReady(edict_t *ent);
+qboolean CTFNextMap(void);
+qboolean CTFMatchSetup(void);
+qboolean CTFMatchOn(void);
+void CTFGhost(edict_t *ent);
+void CTFAdmin(edict_t *ent);
+qboolean CTFInMatch(void);
+void CTFStats(edict_t *ent);
+void CTFWarp(edict_t *ent);
+void CTFBoot(edict_t *ent);
+void CTFPlayerList(edict_t *ent);
+
+qboolean CTFCheckRules(void);
+
+void SP_misc_ctf_banner(edict_t *ent);
+void SP_misc_ctf_small_banner(edict_t *ent);
+
+extern char *ctf_statusbar;
+
+void UpdateChaseCam(edict_t *ent);
+void ChaseNext(edict_t *ent);
+void ChasePrev(edict_t *ent);
+
+void CTFObserver(edict_t *ent);
+
+void SP_trigger_teleport(edict_t *ent);
+void SP_info_teleport_destination(edict_t *ent);
+
+void CTFSetPowerUpEffect(edict_t *ent, int def);
 
 /*
  * Uncomment for check that exported functions declarations are same as in

@@ -377,12 +377,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 rogue
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 rogue ctf
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 rogue
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 rogue ctf
 
 # ----------
 
@@ -1558,6 +1558,98 @@ else
 release/rogue/game.so : $(ROGUE_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+
+# The ctf game
+ifeq ($(YQ2_OSTYPE), Windows)
+ctf:
+	@echo "===> Building ctf/game.dll"
+	${Q}mkdir -p release/ctf
+	$(MAKE) release/ctf/game.dll
+else ifeq ($(YQ2_OSTYPE), Darwin)
+ctf:
+	@echo "===> Building ctf/game.dylib"
+	${Q}mkdir -p release/ctf
+	$(MAKE) release/ctf/game.dylib
+else
+ctf:
+	@echo "===> Building ctf/game.so"
+	${Q}mkdir -p release/ctf
+	$(MAKE) release/ctf/game.so
+
+release/ctf/game.so : CFLAGS += -fPIC -Wno-unused-result
+release/ctf/game.so : LDFLAGS += -shared
+
+endif
+
+build/ctf/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) -o $@ $<
+
+# ----------
+
+CTF_OBJS_ = \
+	src/common/shared/flash.o \
+	src/common/shared/rand.o \
+	src/common/shared/shared.o \
+	src/ctf/g_ai.o \
+	src/ctf/g_chase.o \
+	src/ctf/g_cmds.o \
+	src/ctf/g_combat.o \
+	src/ctf/g_ctf.o \
+	src/ctf/g_func.o \
+	src/ctf/g_items.o \
+	src/ctf/g_main.o \
+	src/ctf/g_misc.o \
+	src/ctf/g_monster.o \
+	src/ctf/g_phys.o \
+	src/ctf/g_save.o \
+	src/ctf/g_spawn.o \
+	src/ctf/g_svcmds.o \
+	src/ctf/g_target.o \
+	src/ctf/g_trigger.o \
+	src/ctf/g_utils.o \
+	src/ctf/g_weapon.o \
+	src/ctf/menu/menu.o \
+	src/ctf/monster/move.o \
+	src/ctf/player/client.o \
+	src/ctf/player/hud.o \
+	src/ctf/player/trail.o \
+	src/ctf/player/view.o \
+	src/ctf/player/weapon.o
+
+# ----------
+
+# Rewrite paths to our object directory
+CTF_OBJS = $(patsubst %,build/ctf/%,$(CTF_OBJS_))
+
+# ----------
+
+# Generate header dependencies
+CTF_DEPS= $(CTF_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in
+-include $(CTF_DEPS)
+
+# ----------
+
+ifeq ($(YQ2_OSTYPE), Windows)
+release/ctf/game.dll : $(CTF_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/ctf/game.dylib : $(CTF_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
+else
+release/ctf/game.so : $(CTF_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------

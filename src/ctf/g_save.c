@@ -20,11 +20,11 @@
  * =======================================================================
  *
  * The savegame system. Unused by the CTF game but nevertheless called
- * during game initialization. Therefor no new savegame code ist 
+ * during game initialization. Therefor no new savegame code ist
  * imported.
  *
  * =======================================================================
- */ 
+ */
 
 #include "header/local.h"
 
@@ -425,7 +425,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 /* ========================================================= */
 
 /*
- * All pointer variables (except function 
+ * All pointer variables (except function
  * pointers) must be handled specially.
  */
 void
@@ -481,7 +481,7 @@ ReadClient(FILE *f, gclient_t *client)
  * last save position.
  */
 void
-WriteGame(char *filename, qboolean autosave)
+WriteGame(const char *filename, qboolean autosave)
 {
 	FILE *f;
 	int i;
@@ -516,7 +516,7 @@ WriteGame(char *filename, qboolean autosave)
 }
 
 void
-ReadGame(char *filename)
+ReadGame(const char *filename)
 {
 	FILE *f;
 	int i;
@@ -556,7 +556,7 @@ ReadGame(char *filename)
 /* ========================================================== */
 
 /*
- * All pointer variables (except function 
+ * All pointer variables (except function
  * pointers) must be handled specially.
  */
 void
@@ -648,7 +648,7 @@ ReadLevelLocals(FILE *f)
 }
 
 void
-WriteLevel(char *filename)
+WriteLevel(const char *filename)
 {
 	int i;
 	edict_t *ent;
@@ -706,7 +706,7 @@ WriteLevel(char *filename)
  * No clients are connected yet.
  */
 void
-ReadLevel(char *filename)
+ReadLevel(const char *filename)
 {
 	int entnum;
 	FILE *f;

@@ -270,7 +270,7 @@ ED_CallSpawn(edict_t *ent)
 		}
 
 		if (!strcmp(item->classname, ent->classname))
-		{   
+		{
 			/* found it */
 			SpawnItem(ent, item);
 			return;
@@ -281,7 +281,7 @@ ED_CallSpawn(edict_t *ent)
 	for (s = spawns; s->name; s++)
 	{
 		if (!strcmp(s->name, ent->classname))
-		{   
+		{
 			/* found it */
 			s->spawn(ent);
 			return;
@@ -342,7 +342,7 @@ ED_ParseField(char *key, char *value, edict_t *ent)
 	for (f = fields; f->name; f++)
 	{
 		if (!Q_stricmp(f->name, key))
-		{   
+		{
 			/* found it */
 			if (f->flags & FFL_SPAWNTEMP)
 			{
@@ -530,7 +530,7 @@ G_FindTeams(void)
  * parsing textual entity definitions out of an ent file.
  */
 void
-SpawnEntities(char *mapname, char *entities, char *spawnpoint)
+SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 {
 	edict_t *ent;
 	int inhibit;
@@ -609,7 +609,7 @@ SpawnEntities(char *mapname, char *entities, char *spawnpoint)
 			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
 		}
 
-		/* remove things (except the world) from 
+		/* remove things (except the world) from
 		   different skill levels or deathmatch */
 		if (ent != g_edicts)
 		{

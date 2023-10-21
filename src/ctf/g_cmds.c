@@ -27,6 +27,8 @@
 #include "header/local.h"
 #include "monster/player.h"
 
+gitem_t *CTFWhat_Tech(edict_t *ent);
+
 static char *
 ClientTeam(edict_t *ent, char* value)
 {
@@ -229,7 +231,7 @@ Cmd_Give_f(edict_t *ent)
 		if (gi.argc() == 3)
 		{
 			ent->health = atoi(gi.argv(2));
-		    ent->health = ent->health < 1 ? 1 : ent->health; 
+		    ent->health = ent->health < 1 ? 1 : ent->health;
 		}
 		else
 		{
@@ -896,7 +898,7 @@ Cmd_Players_f(edict_t *ent)
 				game.clients[index[i]].pers.netname);
 
 		if (strlen(small) + strlen(large) > sizeof(large) - 100)
-		{   
+		{
 			/* can't print all of them in one packet */
 			strcat(large, "...\n");
 			break;
