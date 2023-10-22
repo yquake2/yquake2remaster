@@ -20,7 +20,9 @@
  *
  * =======================================================================
  *
- * Monster movement support functions.
+ * Monster movement support functions. While unused by the CTF code
+ * these functions must be here since they're referenced at several
+ * points inside the game.so.
  *
  * =======================================================================
  */

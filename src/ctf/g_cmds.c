@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,7 +26,7 @@
  */
 
 #include "header/local.h"
-#include "monster/player.h"
+#include "monster/misc/player.h"
 
 gitem_t *CTFWhat_Tech(edict_t *ent);
 
@@ -35,6 +36,11 @@ ClientTeam(edict_t *ent, char* value)
 	char *p;
 
 	value[0] = 0;
+
+	if (!ent)
+	{
+		return value;
+	}
 
 	if (!ent->client)
 	{
@@ -64,6 +70,11 @@ OnSameTeam(edict_t *ent1, edict_t *ent2)
 	char ent1Team[512];
 	char ent2Team[512];
 
+	if (!ent1 || !ent2)
+	{
+		return false;
+	}
+
 	if (!((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS)))
 	{
 		return false;
@@ -86,6 +97,11 @@ SelectNextItem(edict_t *ent, int itflags)
 	gclient_t *cl;
 	int i, index;
 	gitem_t *it;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	cl = ent->client;
 
@@ -136,6 +152,11 @@ SelectPrevItem(edict_t *ent, int itflags)
 	int i, index;
 	gitem_t *it;
 
+	if (!ent)
+	{
+		return;
+	}
+
 	cl = ent->client;
 
 	if (cl->menu)
@@ -149,7 +170,7 @@ SelectPrevItem(edict_t *ent, int itflags)
 		return;
 	}
 
-	/* scan  for the next valid one */
+	/* scan for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
 		index = (cl->pers.selected_item + MAX_ITEMS - i) % MAX_ITEMS;
@@ -183,6 +204,11 @@ ValidateSelectedItem(edict_t *ent)
 {
 	gclient_t *cl;
 
+	if (!ent)
+	{
+		return;
+	}
+
 	cl = ent->client;
 
 	if (cl->pers.inventory[cl->pers.selected_item])
@@ -208,9 +234,14 @@ Cmd_Give_f(edict_t *ent)
 	qboolean give_all;
 	edict_t *it_ent;
 
-	if (deathmatch->value && !sv_cheats->value)
+	if (!ent)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		return;
+	}
+
+	if ((deathmatch->value || coop->value) && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -230,8 +261,8 @@ Cmd_Give_f(edict_t *ent)
 	{
 		if (gi.argc() == 3)
 		{
-			ent->health = atoi(gi.argv(2));
-		    ent->health = ent->health < 1 ? 1 : ent->health;
+			ent->health = (int)strtol(gi.argv(2), (char **)NULL, 10);
+			ent->health = ent->health < 1 ? 1 : ent->health;
 		}
 		else
 		{
@@ -344,6 +375,11 @@ Cmd_Give_f(edict_t *ent)
 				continue;
 			}
 
+			if (it->flags & IT_NOT_GIVEABLE)
+			{
+				continue;
+			}
+
 			if (it->flags & (IT_ARMOR | IT_WEAPON | IT_AMMO))
 			{
 				continue;
@@ -375,13 +411,19 @@ Cmd_Give_f(edict_t *ent)
 		return;
 	}
 
+	if (it->flags & IT_NOT_GIVEABLE)
+	{
+		gi.dprintf("item cannot be given\n");
+		return;
+	}
+
 	index = ITEM_INDEX(it);
 
 	if (it->flags & IT_AMMO)
 	{
 		if (gi.argc() == 3)
 		{
-			ent->client->pers.inventory[index] = atoi(gi.argv(2));
+			ent->client->pers.inventory[index] = (int)strtol(gi.argv(2), (char **)NULL, 10);
 		}
 		else
 		{
@@ -393,6 +435,13 @@ Cmd_Give_f(edict_t *ent)
 		it_ent = G_Spawn();
 		it_ent->classname = it->classname;
 		SpawnItem(it_ent, it);
+
+		/* since some items don't actually spawn when you say to .. */
+		if (!it_ent->inuse)
+		{
+			return;
+		}
+
 		Touch_Item(it_ent, ent, NULL, NULL);
 
 		if (it_ent->inuse)
@@ -410,9 +459,14 @@ Cmd_God_f(edict_t *ent)
 {
 	char *msg;
 
-	if (deathmatch->value && !sv_cheats->value)
+	if (!ent)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		return;
+	}
+
+	if ((deathmatch->value || coop->value) && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -439,6 +493,11 @@ Cmd_Notarget_f(edict_t *ent)
 {
 	char *msg;
 
+	if (!ent)
+	{
+		return;
+	}
+
 	if (deathmatch->value && !sv_cheats->value)
 	{
 		gi.cprintf( ent, PRINT_HIGH,
@@ -460,6 +519,9 @@ Cmd_Notarget_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, msg);
 }
 
+/*
+ * argv(0) noclip
+ */
 void
 Cmd_Noclip_f(edict_t *ent)
 {
@@ -1282,4 +1344,3 @@ ClientCommand(edict_t *ent)
 		Cmd_Say_f(ent, false, true);
 	}
 }
-

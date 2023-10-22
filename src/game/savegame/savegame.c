@@ -22,7 +22,9 @@
  *
  * =======================================================================
  *
- * The savegame system.
+ * The savegame system. Unused by the CTF game but nevertheless called
+ * during game initialization. Therefor no new savegame code ist
+ * imported.
  *
  * =======================================================================
  */
@@ -232,6 +234,8 @@ InitGame(void)
 	dmflags = gi.cvar("dmflags", "0", CVAR_SERVERINFO);
 	fraglimit = gi.cvar("fraglimit", "0", CVAR_SERVERINFO);
 	timelimit = gi.cvar("timelimit", "0", CVAR_SERVERINFO);
+	capturelimit = gi.cvar("capturelimit", "0", CVAR_SERVERINFO);
+	instantweap = gi.cvar("instantweap", "0", CVAR_SERVERINFO);
 	password = gi.cvar("password", "", CVAR_USERINFO);
 	spectator_password = gi.cvar("spectator_password", "", CVAR_USERINFO);
 	needpass = gi.cvar("needpass", "0", CVAR_SERVERINFO);

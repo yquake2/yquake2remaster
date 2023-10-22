@@ -1465,6 +1465,7 @@ CTF_OBJS_ = \
 	src/common/shared/flash.o \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
+	src/game/g_newai.o \
 	src/ctf/g_ai.o \
 	src/ctf/g_chase.o \
 	src/ctf/g_cmds.o \
@@ -1484,7 +1485,7 @@ CTF_OBJS_ = \
 	src/ctf/g_utils.o \
 	src/ctf/g_weapon.o \
 	src/ctf/menu/menu.o \
-	src/ctf/monster/move.o \
+	src/game/monster/misc/move.o \
 	src/ctf/player/client.o \
 	src/ctf/player/hud.o \
 	src/ctf/player/trail.o \

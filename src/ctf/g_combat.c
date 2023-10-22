@@ -27,6 +27,25 @@
 
 #include "header/local.h"
 
+void M_SetEffects(edict_t *self);
+
+/*
+ * clean up heal targets for medic
+ */
+void
+cleanupHealTarget(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->monsterinfo.healer = NULL;
+	ent->takedamage = DAMAGE_YES;
+	ent->monsterinfo.aiflags &= ~AI_RESURRECTING;
+	M_SetEffects(ent);
+}
+
 /*
  * Returns true if the inflictor can
  * directly damage the target. Used for

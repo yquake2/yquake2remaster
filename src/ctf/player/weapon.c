@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,10 +23,12 @@
  * Player weapons.
  *
  * =======================================================================
- */ 
+ */
 
 #include "../header/local.h"
-#include "../monster/player.h"
+#include "../monster/misc/player.h"
+#include <limits.h>
+
 
 static qboolean is_quad;
 static byte is_silenced;
@@ -39,6 +42,11 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 	gclient_t *client = ent->client;
 	float     *point  = ent->s.origin;
 	vec3_t     _distance;
+
+	if (!client)
+	{
+		return;
+	}
 
 	VectorCopy(distance, _distance);
 

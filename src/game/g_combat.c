@@ -48,7 +48,7 @@ cleanupHealTarget(edict_t *ent)
 
 /*
  * Returns true if the inflictor can
- * directly damage the target.  Used for
+ * directly damage the target. Used for
  * explosions and melee attacks.
  */
 qboolean

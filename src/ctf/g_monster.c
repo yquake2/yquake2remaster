@@ -889,3 +889,14 @@ swimmonster_start(edict_t *self)
 	monster_start(self);
 }
 
+
+void
+monster_done_dodge(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.aiflags &= ~AI_DODGING;
+}

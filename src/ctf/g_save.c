@@ -188,6 +188,8 @@ InitGame(void)
 	capturelimit = gi.cvar("capturelimit", "0", CVAR_SERVERINFO);
 	instantweap = gi.cvar("instantweap", "0", CVAR_SERVERINFO);
 	password = gi.cvar("password", "", CVAR_USERINFO);
+	spectator_password = gi.cvar("spectator_password", "", CVAR_USERINFO);
+	needpass = gi.cvar("needpass", "0", CVAR_SERVERINFO);
 	filterban = gi.cvar("filterban", "1", 0);
 	g_select_empty = gi.cvar("g_select_empty", "0", CVAR_ARCHIVE);
 	run_pitch = gi.cvar("run_pitch", "0.002", 0);
@@ -807,4 +809,3 @@ ReadLevel(const char *filename)
 		}
 	}
 }
-
