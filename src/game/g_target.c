@@ -1423,3 +1423,70 @@ SP_target_earthquake(edict_t *self)
 		self->noise_index = gi.soundindex("world/quake.wav");
 	}
 }
+
+void
+target_music_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	gi.configstring(CS_CDTRACK, va("%i", self->sounds));
+}
+
+void
+SP_target_music(edict_t* self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->use = target_music_use;
+}
+
+void
+target_sky_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	float rotate;
+	int32_t autorotate;
+
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->map && self->map[0])
+	{
+		gi.configstring(CS_SKY, self->map);
+	}
+
+	rotate = self->accel;
+	autorotate = self->style;
+	gi.configstring(CS_SKYROTATE, va("%f %d", rotate, autorotate));
+
+	gi.configstring(CS_SKYAXIS, va("%f %f %f",
+		self->movedir[0], self->movedir[1], self->movedir[2]));
+}
+
+void
+SP_target_sky(edict_t* self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->use = target_sky_use;
+
+	if (st.sky && st.sky[0])
+	{
+		self->map = st.sky;
+	}
+
+	VectorCopy(st.skyaxis, self->movedir);
+	self->accel = st.skyrotate;
+	self->style = st.skyautorotate;
+}

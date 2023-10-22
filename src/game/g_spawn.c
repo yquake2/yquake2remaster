@@ -93,6 +93,8 @@ void SP_target_laser(edict_t *self);
 void SP_target_help(edict_t *ent);
 void SP_target_lightramp(edict_t *self);
 void SP_target_earthquake(edict_t *ent);
+void SP_target_music(edict_t *ent);
+void SP_target_sky(edict_t *ent);
 void SP_target_character(edict_t *ent);
 void SP_target_string(edict_t *ent);
 
@@ -269,6 +271,8 @@ static spawn_t spawns[] = {
 	{"target_help", SP_target_help},
 	{"target_lightramp", SP_target_lightramp},
 	{"target_earthquake", SP_target_earthquake},
+	{"target_music", SP_target_music},
+	{"target_sky", SP_target_sky},
 	{"target_character", SP_target_character},
 	{"target_string", SP_target_string},
 	{"target_mal_laser", SP_target_mal_laser},
