@@ -277,7 +277,9 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void AngleVectors2(const vec3_t value1, vec3_t angles);
 int BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
 float anglemod(float a);
+float Q_fabs(float f);
 float LerpAngle(float a1, float a2, float frac);
+int BoxOnPlaneSide2(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p);
 
 #define BOX_ON_PLANE_SIDE(emins, emaxs, p) \
 	(((p)->type < 3) ? \

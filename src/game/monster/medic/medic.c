@@ -37,7 +37,7 @@ void M_SetEffects(edict_t *ent);
 qboolean FindTarget(edict_t *self);
 void HuntTarget(edict_t *self);
 void FoundTarget(edict_t *self);
-char *ED_NewString(char *string);
+char *ED_NewString(const char *string);
 void spawngrow_think(edict_t *self);
 void SpawnGrow_Spawn(vec3_t startpos, int size);
 void ED_CallSpawn(edict_t *ent);
@@ -1908,7 +1908,7 @@ medic_checkattack(edict_t *self)
 	return M_CheckAttack(self);
 }
 
-void
+static void
 MedicCommanderCache(void)
 {
 	edict_t *newEnt;

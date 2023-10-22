@@ -750,12 +750,12 @@ qboolean bigendien;
 
 /* can't just use function pointers, or dll linkage can
    mess up when qcommon is included in multiple places */
-short (*_BigShort)(short l);
-short (*_LittleShort)(short l);
-int (*_BigLong)(int l);
-int (*_LittleLong)(int l);
-float (*_BigFloat)(float l);
-float (*_LittleFloat)(float l);
+static short (*_BigShort)(short l);
+static short (*_LittleShort)(short l);
+static int (*_BigLong)(int l);
+static int (*_LittleLong)(int l);
+static float (*_BigFloat)(float l);
+static float (*_LittleFloat)(float l);
 
 short
 BigShort(short l)
@@ -793,7 +793,7 @@ LittleFloat(float l)
 	return _LittleFloat(l);
 }
 
-short
+static short
 ShortSwap(short l)
 {
 	byte b1, b2;
@@ -804,13 +804,13 @@ ShortSwap(short l)
 	return (b1 << 8) + b2;
 }
 
-short
+static short
 ShortNoSwap(short l)
 {
 	return l;
 }
 
-int
+static int
 LongSwap(int l)
 {
 	byte b1, b2, b3, b4;
@@ -823,13 +823,13 @@ LongSwap(int l)
 	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
 
-int
+static int
 LongNoSwap(int l)
 {
 	return l;
 }
 
-float
+static float
 FloatSwap(float f)
 {
 	union
@@ -846,7 +846,7 @@ FloatSwap(float f)
 	return dat2.f;
 }
 
-float
+static float
 FloatNoSwap(float f)
 {
 	return f;

@@ -22,7 +22,7 @@
  * Item handling and item definitions.
  *
  * =======================================================================
- */ 
+ */
 
 #include "header/local.h"
 
@@ -1125,7 +1125,7 @@ Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 /* ====================================================================== */
 
-static void
+void
 drop_temp_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)
@@ -1136,7 +1136,7 @@ drop_temp_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 	Touch_Item(ent, other, plane, surf);
 }
 
-static void
+void
 drop_make_touchable(edict_t *ent)
 {
 	ent->touch = Touch_Item;
@@ -1651,7 +1651,7 @@ gitem_t itemlist[] = {
 		"misc/power2.wav misc/power1.wav"
 	},
 
-	/* 
+	/*
 	 * weapon_grapple (.3 .3 1) (-16 -16 -16) (16 16 16)
 	 * always owned, never in the world
 	 */
@@ -1677,7 +1677,7 @@ gitem_t itemlist[] = {
 		"weapons/grapple/grfire.wav weapons/grapple/grpull.wav weapons/grapple/grhang.wav weapons/grapple/grreset.wav weapons/grapple/grhit.wav"
 	},
 
-	/* 
+	/*
 	 * weapon_blaster (.3 .3 1) (-16 -16 -16) (16 16 16)
 	 * always owned, never in the world
 	 */
@@ -2263,7 +2263,7 @@ gitem_t itemlist[] = {
 		""
 	},
 
-	/* 
+	/*
 	 * QUAKED item_pack (.3 .3 1) (-16 -16 -16) (16 16 16)
 	 */
 	{

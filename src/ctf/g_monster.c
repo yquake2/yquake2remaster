@@ -23,7 +23,7 @@
  * persist here since most of the other game codes has ties to it.
  *
  * =======================================================================
- */ 
+ */
 
 #include "header/local.h"
 
@@ -117,14 +117,14 @@ monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir,
 
 /* Monster utility functions */
 
-static void
+void
 M_FliesOff(edict_t *self)
 {
 	self->s.effects &= ~EF_FLIES;
 	self->s.sound = 0;
 }
 
-static void
+void
 M_FliesOn(edict_t *self)
 {
 	if (self->waterlevel)
@@ -256,7 +256,7 @@ M_WorldEffects(edict_t *ent)
 				ent->air_finished = level.time + 12;
 			}
 			else if (ent->air_finished < level.time)
-			{   
+			{
 				/* drown! */
 				if (ent->pain_debounce_time < level.time)
 				{
@@ -280,7 +280,7 @@ M_WorldEffects(edict_t *ent)
 				ent->air_finished = level.time + 9;
 			}
 			else if (ent->air_finished < level.time)
-			{   
+			{
 				/* suffocate! */
 				if (ent->pain_debounce_time < level.time)
 				{
@@ -574,7 +574,7 @@ monster_triggered_spawn(edict_t *self)
 void
 monster_triggered_spawn_use(edict_t *self, edict_t *other, edict_t *activator)
 {
-	/* we have a one frame delay here so we 
+	/* we have a one frame delay here so we
 	   don't telefrag the guy who activated us */
 	self->think = monster_triggered_spawn;
 	self->nextthink = level.time + FRAMETIME;
@@ -598,7 +598,7 @@ monster_triggered_start(edict_t *self)
 }
 
 /*
- * When a monster dies, it fires all of its 
+ * When a monster dies, it fires all of its
  * targets with the current enemy as activator.
  */
 void

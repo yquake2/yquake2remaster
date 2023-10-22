@@ -623,7 +623,7 @@ SP_info_notnull(edict_t *self)
 
 #define START_OFF 1
 
-static void
+void
 light_use(edict_t *self, edict_t *other, edict_t *activator)
 {
 	if (self->spawnflags & START_OFF)
@@ -1893,7 +1893,7 @@ SP_target_string(edict_t *self)
 
 #define CLOCK_MESSAGE_SIZE 16
 
-static void
+void
 func_clock_reset(edict_t *self)
 {
 	self->activator = NULL;
@@ -1910,7 +1910,7 @@ func_clock_reset(edict_t *self)
 	}
 }
 
-static void
+void
 func_clock_format_countdown(edict_t *self)
 {
 	if (self->style == 0)

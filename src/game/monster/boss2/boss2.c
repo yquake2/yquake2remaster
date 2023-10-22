@@ -61,7 +61,7 @@ boss2_search(edict_t *self)
 	}
 }
 
-void
+static void
 Boss2PredictiveRocket(edict_t *self)
 {
 	vec3_t	forward, right;

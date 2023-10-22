@@ -351,8 +351,8 @@ plat_Accelerate(moveinfo_t *moveinfo)
 			return;
 		}
 
-		/* during this move we will accelrate from current_speed to move_speed 
-		   and cross over the decel_distance; figure the average speed for the 
+		/* during this move we will accelrate from current_speed to move_speed
+		   and cross over the decel_distance; figure the average speed for the
 		   entire move */
 		p1_distance = moveinfo->remaining_distance - moveinfo->decel_distance;
 		p1_speed = (old_speed + moveinfo->move_speed) / 2.0;
@@ -541,7 +541,7 @@ Touch_Plat_Center(edict_t *ent, edict_t *other, cplane_t *plane,
 	}
 }
 
-void
+edict_t *
 plat_spawn_inside_trigger(edict_t *ent)
 {
 	edict_t *trigger;
@@ -585,13 +585,15 @@ plat_spawn_inside_trigger(edict_t *ent)
 	VectorCopy(tmax, trigger->maxs);
 
 	gi.linkentity(trigger);
+
+	return NULL;
 }
 
 /*
  * QUAKED func_plat (0 .5 .8) ? PLAT_LOW_TRIGGER
  * speed	default 150
  *
- * Plats are always drawn in the extended position, 
+ * Plats are always drawn in the extended position,
  * so they will light correctly.
  *
  * If the plat is the target of another trigger or button,
@@ -704,7 +706,7 @@ SP_func_plat(edict_t *ent)
 
 /*
  * QUAKED func_rotating (0 .5 .8) ? START_ON REVERSE X_AXIS Y_AXIS TOUCH_PAIN STOP ANIMATED ANIMATED_FAST
- * 
+ *
  * You need to have an origin brush as part of this entity. The center of that brush will be
  * the point around which it is rotated. It will rotate around the Z axis by default.  You can
  * check either the X_AXIS or Y_AXIS box to change that.
@@ -836,8 +838,8 @@ SP_func_rotating(edict_t *ent)
 
 /*
  * QUAKED func_button (0 .5 .8) ?
- * When a button is touched, it moves some distance in the 
- * direction of it's angle, triggers all of it's targets, 
+ * When a button is touched, it moves some distance in the
+ * direction of it's angle, triggers all of it's targets,
  * waits some time, then returns to it's original position
  * where it can be triggered again.
  *
@@ -1042,7 +1044,7 @@ SP_func_button(edict_t *ent)
  * QUAKED func_door (0 .5 .8) ? START_OPEN x CRUSHER NOMONSTER ANIMATED TOGGLE ANIMATED_FAST
  * TOGGLE		wait in both the start and end states for a trigger event.
  * START_OPEN	the door to moves to its destination when spawned, and operate in reverse.
- *              It is used to temporarily or permanently close off an area when triggered 
+ *              It is used to temporarily or permanently close off an area when triggered
  *              (not useful for touch or takedamage doors).
  * NOMONSTER	monsters will not trigger this door
  *
@@ -1172,7 +1174,7 @@ door_go_up(edict_t *self, edict_t *activator)
 	}
 
 	if (self->moveinfo.state == STATE_TOP)
-	{   
+	{
 		/* reset top wait time */
 		if (self->moveinfo.wait >= 0)
 		{
@@ -1590,8 +1592,8 @@ SP_func_door(edict_t *ent)
 /*
  * QUAKED func_door_rotating (0 .5 .8) ? START_OPEN REVERSE CRUSHER NOMONSTER ANIMATED TOGGLE X_AXIS Y_AXIS
  * TOGGLE     causes the door to wait in both the start and end states for a trigger event.
- * START_OPEN the door to moves to its destination when spawned, and operate in reverse.  
- *            It is used to temporarily or permanently close off an area when triggered 
+ * START_OPEN the door to moves to its destination when spawned, and operate in reverse.
+ *            It is used to temporarily or permanently close off an area when triggered
  *            (not useful for touch or takedamage doors).
  * NOMONSTER  monsters will not trigger this door
  *
@@ -2141,7 +2143,7 @@ SP_func_train(edict_t *self)
 
 	if (self->target)
 	{
-		/* start trains on the second frame, to make 
+		/* start trains on the second frame, to make
 		   sure their targets have had a chance to spawn */
 		self->nextthink = level.time + FRAMETIME;
 		self->think = func_train_find;

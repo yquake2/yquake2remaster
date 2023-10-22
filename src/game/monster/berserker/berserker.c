@@ -570,7 +570,7 @@ berserk_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 	}
 }
 
-void
+static void
 berserk_jump_now(edict_t *self)
 {
 	vec3_t forward, up;
@@ -587,7 +587,7 @@ berserk_jump_now(edict_t *self)
 	VectorMA(self->velocity, 300, up, self->velocity);
 }
 
-void
+static void
 berserk_jump2_now(edict_t *self)
 {
 	vec3_t forward,up;
@@ -604,7 +604,7 @@ berserk_jump2_now(edict_t *self)
 	VectorMA(self->velocity, 400, up, self->velocity);
 }
 
-void
+static void
 berserk_jump_wait_land(edict_t *self)
 {
 	if (!self)
@@ -665,7 +665,7 @@ mmove_t berserk_move_jump2 = {
 	berserk_run
 };
 
-void
+static void
 berserk_jump(edict_t *self)
 {
 	if (!self || !self->enemy)

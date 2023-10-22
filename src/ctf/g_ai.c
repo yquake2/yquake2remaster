@@ -32,7 +32,7 @@ qboolean FindTarget(edict_t *self);
 
 extern cvar_t *maxclients;
 
-qboolean ai_checkattack(edict_t *self, float dist);
+qboolean ai_checkattack(edict_t *self);
 
 qboolean enemy_vis;
 qboolean enemy_infront;
@@ -42,10 +42,10 @@ float enemy_yaw;
 /* ============================================================================ */
 
 /*
- * Called once each frame to set level.sight_client 
+ * Called once each frame to set level.sight_client
  * to theplayer to be checked for in findtarget.
  * If all clients are either dead or in notarget,
- * sight_client will be null. In coop games, 
+ * sight_client will be null. In coop games,
  * sight_client will cycle between the clients.
  */
 void
@@ -96,8 +96,8 @@ AI_SetSightClient(void)
 
 /*
  * Move the specified distance at
- * current facing. This replaces the 
- * QC functions: ai_forward, ai_back, 
+ * current facing. This replaces the
+ * QC functions: ai_forward, ai_back,
  * ai_pain, and ai_painforward
  */
 void
@@ -107,9 +107,9 @@ ai_move(edict_t *self, float dist)
 }
 
 /*
- * Used for standing around and looking 
- * for players. Distance is for slight 
- * position adjustments needed by the 
+ * Used for standing around and looking
+ * for players. Distance is for slight
+ * position adjustments needed by the
  * animations
  */
 void
@@ -138,7 +138,7 @@ ai_stand(edict_t *self, float dist)
 			}
 
 			M_ChangeYaw(self);
-			ai_checkattack(self, 0);
+			ai_checkattack(self);
 		}
 		else
 		{
@@ -250,7 +250,7 @@ ai_turn(edict_t *self, float dist)
  *
  * .movetarget
  * The next path spot to walk toward.  If .enemy,
- * ignore .movetarget. When an enemy is killed, 
+ * ignore .movetarget. When an enemy is killed,
  * the monster will try to return to it's path.
  *
  * .hunt_time
@@ -262,7 +262,7 @@ ai_turn(edict_t *self, float dist)
  * .ideal_yaw
  * A yaw angle of the intended direction, which will be
  * turned towards at up to 45 deg / state. If the enemy
- * is in view and hunt_time is not active, this will be 
+ * is in view and hunt_time is not active, this will be
  * the exact line towards the enemy.
  *
  * .pausetime
@@ -441,14 +441,14 @@ FoundTarget(edict_t *self)
 }
 
 /*
- * Self is currently not attacking anything, 
+ * Self is currently not attacking anything,
  * so try to find a target
  *
  * Returns TRUE if an enemy was sighted
  *
  * When a player fires a missile, the point of
- * impact becomes a fakeplayer so that monsters 
- * that see the impact will respond as if they 
+ * impact becomes a fakeplayer so that monsters
+ * that see the impact will respond as if they
  * had seen the player.
  *
  * To avoid spending too much time, only a single
@@ -474,10 +474,10 @@ FindTarget(edict_t *self)
 		return false;
 	}
 
-	/* if the first spawnflag bit is set, 
-	   the monster will only wake up on 
+	/* if the first spawnflag bit is set,
+	   the monster will only wake up on
 	   really seeing the player, not another
-	   monster getting angry or hearing 
+	   monster getting angry or hearing
 	   something */
 	heardit = false;
 
@@ -799,7 +799,7 @@ M_CheckAttack(edict_t *self)
 }
 
 /*
- * Turn and close until within an 
+ * Turn and close until within an
  * angle to launch a melee attack
  */
 void
@@ -839,7 +839,7 @@ ai_run_missile(edict_t *self)
 }
 
 /*
- * Strafe sideways, but stay at 
+ * Strafe sideways, but stay at
  * aproximately the same range
  */
 void
@@ -869,12 +869,12 @@ ai_run_slide(edict_t *self, float distance)
 }
 
 /*
- * Decides if we're going to attack or 
+ * Decides if we're going to attack or
  * do something else * used by ai_run
  * and ai_stand
  */
 qboolean
-ai_checkattack(edict_t *self, float dist)
+ai_checkattack(edict_t *self)
 {
 	vec3_t temp;
 	qboolean hesDeadJim;
@@ -974,9 +974,9 @@ ai_checkattack(edict_t *self, float dist)
 			}
 			else
 			{
-				/* we need the pausetime otherwise the stand code 
-				   will just revert to walking with no target and 
-				   the monsters will wonder around aimlessly trying 
+				/* we need the pausetime otherwise the stand code
+				   will just revert to walking with no target and
+				   the monsters will wonder around aimlessly trying
 				   to hunt the world entity */
 				self->monsterinfo.pausetime = level.time + 100000000;
 				self->monsterinfo.stand(self);
@@ -1068,7 +1068,7 @@ ai_run(edict_t *self, float dist)
 		}
 	}
 
-	if (ai_checkattack(self, dist))
+	if (ai_checkattack(self))
 	{
 		return;
 	}

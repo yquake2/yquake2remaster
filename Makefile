@@ -377,12 +377,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 rogue ctf
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 ctf
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 rogue ctf
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 ctf
 
 # ----------
 
@@ -1428,136 +1428,6 @@ else
 release/baseq2/game.so : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
-endif
-
-# ----------
-
-# The rogue game
-ifeq ($(YQ2_OSTYPE), Windows)
-rogue:
-	@echo "===> Building rogue/game.dll"
-	${Q}mkdir -p release/rogue
-	$(MAKE) release/rogue/game.dll
-else ifeq ($(YQ2_OSTYPE), Darwin)
-rogue:
-	@echo "===> Building rogue/game.dylib"
-	${Q}mkdir -p release/rogue
-	$(MAKE) release/rogue/game.dylib
-else
-rogue:
-	@echo "===> Building rogue/game.so"
-	${Q}mkdir -p release/rogue
-	$(MAKE) release/rogue/game.so
-
-release/rogue/game.so : CFLAGS += -fPIC -Wno-unused-result
-release/rogue/game.so : LDFLAGS += -shared
-
-endif
-
-build/rogue/%.o: %.c
-	@echo "===> CC $<"
-	${Q}mkdir -p $(@D)
-	${Q}$(CC) -c $(CFLAGS) -o $@ $<
-
-# ----------
-
-ROGUE_OBJS_ = \
-	src/common/shared/flash.o \
-	src/common/shared/rand.o \
-	src/common/shared/shared.o \
-	src/game/g_ai.o \
-	src/game/g_chase.o \
-	src/game/g_cmds.o \
-	src/game/g_combat.o \
-	src/game/g_func.o \
-	src/game/g_items.o \
-	src/game/g_main.o \
-	src/game/g_misc.o \
-	src/game/g_monster.o \
-	src/game/g_newai.o \
-	src/game/g_newdm.o \
-	src/game/g_newfnc.o \
-	src/game/g_newtarg.o \
-	src/game/g_newtrig.o \
-	src/game/g_newweap.o \
-	src/game/g_phys.o \
-	src/game/g_spawn.o \
-	src/game/g_sphere.o \
-	src/game/g_svcmds.o \
-	src/game/g_target.o \
-	src/game/g_trigger.o \
-	src/game/g_turret.o \
-	src/game/g_utils.o \
-	src/game/g_weapon.o \
-	src/game/dm/ball.o \
-	src/game/dm/tag.o \
-	src/game/monster/berserker/berserker.o \
-	src/game/monster/boss2/boss2.o \
-	src/game/monster/boss3/boss3.o \
-	src/game/monster/boss3/boss31.o \
-	src/game/monster/boss3/boss32.o \
-	src/game/monster/boss5/boss5.o \
-	src/game/monster/brain/brain.o \
-	src/game/monster/carrier/carrier.o \
-	src/game/monster/chick/chick.o \
-	src/game/monster/flipper/flipper.o \
-	src/game/monster/float/float.o \
-	src/game/monster/flyer/flyer.o \
-	src/game/monster/gladiator/gladiator.o \
-	src/game/monster/gladiator/gladb.o \
-	src/game/monster/gekk/gekk.o \
-	src/game/monster/gunner/gunner.o \
-	src/game/monster/hover/hover.o \
-	src/game/monster/infantry/infantry.o \
-	src/game/monster/insane/insane.o \
-	src/game/monster/fixbot/fixbot.o \
-	src/game/monster/medic/medic.o \
-	src/game/monster/misc/move.o \
-	src/game/monster/mutant/mutant.o \
-	src/game/monster/parasite/parasite.o \
-	src/game/monster/soldier/soldier.o \
-	src/game/monster/stalker/stalker.o \
-	src/game/monster/supertank/supertank.o \
-	src/game/monster/tank/tank.o \
-	src/game/monster/turret/turret.o \
-	src/game/monster/widow/widow.o \
-	src/game/monster/widow/widow2.o \
-	src/game/player/client.o \
-	src/game/player/hud.o \
-	src/game/player/trail.o \
-	src/game/player/view.o \
-	src/game/player/weapon.o \
-	src/rogue/savegame/savegame.o
-
-# ----------
-
-# Rewrite paths to our object directory
-ROGUE_OBJS = $(patsubst %,build/rogue/%,$(ROGUE_OBJS_))
-
-# ----------
-
-# Generate header dependencies
-ROGUE_DEPS= $(ROGUE_OBJS:.o=.d)
-
-# ----------
-
-# Suck header dependencies in
--include $(ROGUE_DEPS)
-
-# ----------
-
-ifeq ($(YQ2_OSTYPE), Windows)
-release/rogue/game.dll : $(ROGUE_OBJS)
-	@echo "===> LD $@"
-	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
-else ifeq ($(YQ2_OSTYPE), Darwin)
-release/rogue/game.dylib : $(ROGUE_OBJS)
-	@echo "===> LD $@"
-	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
-else
-release/rogue/game.so : $(ROGUE_OBJS)
-	@echo "===> LD $@"
-	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------

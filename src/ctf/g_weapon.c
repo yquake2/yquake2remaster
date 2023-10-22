@@ -31,7 +31,7 @@
  * a non-instant attack weapon.  It checks to see if a
  * monster's dodge function should be called.
  */
-static void
+void
 check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed)
 {
 	vec3_t end;
@@ -153,7 +153,7 @@ fire_hit(edict_t *self, vec3_t aim, int damage, int kick)
  * This is an internal support routine
  * used for bullet/pellet based weapons.
  */
-static void
+void
 fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int kick, int te_impact, int hspread, int vspread, int mod)
 {
@@ -449,7 +449,7 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	}
 }
 
-static void
+void
 Grenade_Explode(edict_t *ent)
 {
 	vec3_t origin;
@@ -532,7 +532,7 @@ Grenade_Explode(edict_t *ent)
 	G_FreeEdict(ent);
 }
 
-static void
+void
 Grenade_Touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)

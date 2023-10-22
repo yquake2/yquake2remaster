@@ -458,7 +458,7 @@ WriteClient(FILE *f, gclient_t *client)
  * pointers) must be handled specially.
  */
 void
-ReadClient(FILE *f, gclient_t *client)
+ReadClient(FILE *f, gclient_t *client, short save_ver )
 {
 	field_t *field;
 
@@ -547,7 +547,7 @@ ReadGame(const char *filename)
 
 	for (i = 0; i < game.maxclients; i++)
 	{
-		ReadClient(f, &game.clients[i]);
+		ReadClient(f, &game.clients[i], 0);
 	}
 
 	fclose(f);

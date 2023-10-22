@@ -842,7 +842,7 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 	}
 }
 
-void
+static void
 mutant_jump_down(edict_t *self)
 {
 	vec3_t forward, up;
@@ -857,7 +857,7 @@ mutant_jump_down(edict_t *self)
 	VectorMA(self->velocity, 300, up, self->velocity);
 }
 
-void
+static void
 mutant_jump_up(edict_t *self)
 {
 	vec3_t forward, up;
@@ -872,7 +872,7 @@ mutant_jump_up(edict_t *self)
 	VectorMA(self->velocity, 450, up, self->velocity);
 }
 
-void
+static void
 mutant_jump_wait_land(edict_t *self)
 {
 	if (self->groundentity == NULL)
@@ -915,7 +915,7 @@ mmove_t mutant_move_jump_down = {
 	mutant_run
 };
 
-void
+static void
 mutant_jump_updown(edict_t *self)
 {
 	if (!self || !self->enemy)

@@ -93,7 +93,7 @@ parasite_tap(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_tap, 1, ATTN_IDLE, 0);
 }
 
-void
+static void
 parasite_footstep(edict_t *self)
 {
 	if (g_monsterfootsteps->value)

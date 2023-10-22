@@ -154,7 +154,7 @@ BeginIntermission(edict_t *targ)
 	ent = G_Find(NULL, FOFS(classname), "info_player_intermission");
 
 	if (!ent)
-	{   
+	{
 		/* the map creator forgot to put in an intermission point... */
 		ent = G_Find(NULL, FOFS(classname), "info_player_start");
 
@@ -363,7 +363,7 @@ Cmd_Score_f(edict_t *ent)
 /*
  * Draw help computer.
  */
-void
+static void
 HelpComputer(edict_t *ent)
 {
 	char string[1024];
@@ -474,7 +474,7 @@ G_SetStats(edict_t *ent)
 		cells = ent->client->pers.inventory[ITEM_INDEX(FindItem("cells"))];
 
 		if (cells == 0)
-		{   
+		{
 			/* ran out of cells for power armor */
 			ent->flags &= ~FL_POWER_ARMOR;
 			gi.sound(ent, CHAN_ITEM, gi.soundindex(
@@ -486,7 +486,7 @@ G_SetStats(edict_t *ent)
 	index = ArmorIndex(ent);
 
 	if (power_armor_type && (!index || (level.framenum & 8)))
-	{   
+	{
 		/* flash between power armor and other armor icon */
 		ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex("i_powershield");
 		ent->client->ps.stats[STAT_ARMOR] = cells;

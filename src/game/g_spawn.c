@@ -386,7 +386,8 @@ static spawn_t spawns[] = {
 	{NULL, NULL}
 };
 
-qboolean Spawn_CheckCoop_MapHacks (edict_t *ent)
+static qboolean
+Spawn_CheckCoop_MapHacks(edict_t *ent)
 {
 	if(!coop->value || !ent)
 	{
