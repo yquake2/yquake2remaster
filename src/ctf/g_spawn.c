@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -292,10 +293,15 @@ ED_CallSpawn(edict_t *ent)
 }
 
 char *
-ED_NewString(char *string)
+ED_NewString(const char *string)
 {
 	char *newb, *new_p;
 	int i, l;
+
+	if (!string)
+	{
+		return NULL;
+	}
 
 	l = strlen(string) + 1;
 
@@ -332,16 +338,21 @@ ED_NewString(char *string)
  * the binary values in an edict
  */
 void
-ED_ParseField(char *key, char *value, edict_t *ent)
+ED_ParseField(const char *key, const char *value, edict_t *ent)
 {
 	field_t *f;
 	byte *b;
 	float v;
 	vec3_t vec;
 
+	if (!ent || !value || !key)
+	{
+		return;
+	}
+
 	for (f = fields; f->name; f++)
 	{
-		if (!Q_stricmp(f->name, key))
+		if (!(f->flags & FFL_NOSPAWN) && !Q_strcasecmp(f->name, (char *)key))
 		{
 			/* found it */
 			if (f->flags & FFL_SPAWNTEMP)
@@ -365,13 +376,13 @@ ED_ParseField(char *key, char *value, edict_t *ent)
 					((float *)(b + f->ofs))[2] = vec[2];
 					break;
 				case F_INT:
-					*(int *)(b + f->ofs) = atoi(value);
+					*(int *)(b + f->ofs) = (int)strtol(value, (char **)NULL, 10);
 					break;
 				case F_FLOAT:
-					*(float *)(b + f->ofs) = atof(value);
+					*(float *)(b + f->ofs) = (float)strtod(value, (char **)NULL);
 					break;
 				case F_ANGLEHACK:
-					v = atof(value);
+					v = (float)strtod(value, (char **)NULL);
 					((float *)(b + f->ofs))[0] = 0;
 					((float *)(b + f->ofs))[1] = v;
 					((float *)(b + f->ofs))[2] = 0;
@@ -391,7 +402,7 @@ ED_ParseField(char *key, char *value, edict_t *ent)
 
 /*
  * Parses an edict out of the given string,
- * returning the new position ed should be
+ * returning the new position. ed should be
  * a properly initialized empty edict.
  */
 char *
@@ -399,10 +410,16 @@ ED_ParseEdict(char *data, edict_t *ent)
 {
 	qboolean init;
 	char keyname[256];
-	char *com_token;
+	const char *com_token;
+
+	if (!ent)
+	{
+		return NULL;
+	}
 
 	init = false;
 	memset(&st, 0, sizeof(st));
+	st.skyautorotate = 1;
 
 	/* go through all the dictionary pairs */
 	while (1)
@@ -420,7 +437,7 @@ ED_ParseEdict(char *data, edict_t *ent)
 			gi.error("ED_ParseEntity: EOF without closing brace");
 		}
 
-		strncpy(keyname, com_token, sizeof(keyname) - 1);
+		Q_strlcpy(keyname, com_token, sizeof(keyname));
 
 		/* parse value */
 		com_token = COM_Parse(&data);
@@ -437,9 +454,9 @@ ED_ParseEdict(char *data, edict_t *ent)
 
 		init = true;
 
-		/* keynames with a leading underscore are used
-		   for utility comments, and are immediately
-		   discarded by quake */
+		/* keynames with a leading underscore are
+		   used for utility comments, and are
+		   immediately discarded by quake */
 		if (keyname[0] == '_')
 		{
 			continue;
@@ -462,6 +479,77 @@ ED_ParseEdict(char *data, edict_t *ent)
  * All but the first will have the FL_TEAMSLAVE flag set.
  * All but the last will have the teamchain field set to the next one
  */
+static void
+G_FixTeams(void)
+{
+	edict_t *e, *e2, *chain;
+	int i, j;
+	int c, c2;
+
+	c = 0;
+	c2 = 0;
+
+	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
+	{
+		if (!e->inuse)
+		{
+			continue;
+		}
+
+		if (!e->team)
+		{
+			continue;
+		}
+
+		if (!strcmp(e->classname, "func_train"))
+		{
+			if (e->flags & FL_TEAMSLAVE)
+			{
+				chain = e;
+				e->teammaster = e;
+				e->teamchain = NULL;
+				e->flags &= ~FL_TEAMSLAVE;
+				c++;
+				c2++;
+
+				for (j = 1, e2 = g_edicts + j;
+					 j < globals.num_edicts;
+					 j++, e2++)
+				{
+					if (e2 == e)
+					{
+						continue;
+					}
+
+					if (!e2->inuse)
+					{
+						continue;
+					}
+
+					if (!e2->team)
+					{
+						continue;
+					}
+
+					if (!strcmp(e->team, e2->team))
+					{
+						c2++;
+						chain->teamchain = e2;
+						e2->teammaster = e;
+						e2->teamchain = NULL;
+						chain = e2;
+						e2->flags |= FL_TEAMSLAVE;
+						e2->movetype = MOVETYPE_PUSH;
+						e2->speed = e->speed;
+					}
+				}
+			}
+		}
+	}
+
+	gi.dprintf("%i teams repaired\n", c);
+}
+
 void
 G_FindTeams(void)
 {
@@ -522,6 +610,8 @@ G_FindTeams(void)
 		}
 	}
 
+	G_FixTeams();
+
 	gi.dprintf("%i teams with %i entities.\n", c, c2);
 }
 
@@ -534,9 +624,14 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 {
 	edict_t *ent;
 	int inhibit;
-	char *com_token;
+	const char *com_token;
 	int i;
 	float skill_level;
+
+	if (!mapname || !entities || !spawnpoint)
+	{
+		return;
+	}
 
 	skill_level = floor(skill->value);
 
@@ -562,8 +657,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	memset(&level, 0, sizeof(level));
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
 
-	strncpy(level.mapname, mapname, sizeof(level.mapname) - 1);
-	strncpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint) - 1);
+	Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
+	Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
 	/* set client fields on player ents */
 	for (i = 0; i < game.maxclients; i++)
@@ -603,10 +698,32 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		/* yet another map hack */
 		if (!Q_stricmp(level.mapname, "command") &&
-				!Q_stricmp(ent->classname,
-					"trigger_once") && !Q_stricmp(ent->model, "*27"))
+			!Q_stricmp(ent->classname, "trigger_once") &&
+			!Q_stricmp(ent->model, "*27"))
 		{
 			ent->spawnflags &= ~SPAWNFLAG_NOT_HARD;
+		}
+
+		/* ahh, the joys of map hacks .. */
+		if (!Q_stricmp(level.mapname, "rhangar2") &&
+			!Q_stricmp(ent->classname, "func_door_rotating") &&
+			ent->targetname && !Q_stricmp(ent->targetname, "t265"))
+		{
+			ent->spawnflags &= ~SPAWNFLAG_NOT_COOP;
+		}
+
+		if (!Q_stricmp(level.mapname, "rhangar2") &&
+			!Q_stricmp(ent->classname, "trigger_always") &&
+		   	ent->target && !Q_stricmp(ent->target, "t265"))
+		{
+			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
+		}
+
+		if (!Q_stricmp(level.mapname, "rhangar2") &&
+			!Q_stricmp(ent->classname, "func_wall") &&
+		   	!Q_stricmp(ent->model, "*15"))
+		{
+			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
 		}
 
 		/* remove things (except the world) from

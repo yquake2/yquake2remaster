@@ -1523,9 +1523,9 @@ ROGUE_OBJS_ = \
 	src/game/monster/widow/widow.o \
 	src/game/monster/widow/widow2.o \
 	src/game/player/client.o \
-	src/rogue/player/hud.o \
-	src/rogue/player/trail.o \
-	src/rogue/player/view.o \
+	src/game/player/hud.o \
+	src/game/player/trail.o \
+	src/game/player/view.o \
 	src/game/player/weapon.o \
 	src/rogue/savegame/savegame.o
 

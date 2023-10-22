@@ -60,6 +60,12 @@ MoveClientToIntermission(edict_t *ent)
 	ent->client->quadfire_framenum = 0;
 	ent->client->trap_blew_up = false;
 	ent->client->trap_time = 0;
+	ent->client->ir_framenum = 0;
+	ent->client->nuke_framenum = 0;
+	ent->client->double_framenum = 0;
+
+	ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
+
 
 	ent->viewheight = 0;
 	ent->s.modelindex = 0;
@@ -307,6 +313,15 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 			tag = NULL;
 		}
 
+		/* allow new DM games to override the tag picture */
+		if (gamerules && gamerules->value)
+		{
+			if (DMGame.DogTag)
+			{
+				DMGame.DogTag(cl_ent, killer, &tag);
+			}
+		}
+
 		if (tag)
 		{
 			Com_sprintf(entry, sizeof(entry),
@@ -342,6 +357,9 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	gi.WriteString(string);
 }
 
+/*
+ * Draw help computer.
+ */
 void
 HelpComputerMessage(edict_t *ent)
 {
@@ -391,6 +409,9 @@ HelpComputerMessage(edict_t *ent)
 	gi.WriteString(string);
 }
 
+/*
+ * Display the current help message
+ */
 void
 InventoryMessage(edict_t *ent)
 {
@@ -494,6 +515,12 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->quad_framenum - level.framenum) / 10;
 	}
+	else if (ent->client->double_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_double");
+		ent->client->ps.stats[STAT_TIMER] =
+			(ent->client->double_framenum - level.framenum) / 10;
+	}
 	else if (ent->client->quadfire_framenum > level.framenum)
 	{
 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quadfire");
@@ -519,6 +546,35 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->breather_framenum - level.framenum) / 10;
 	}
+	else if (ent->client->owned_sphere)
+	{
+		if (ent->client->owned_sphere->spawnflags == 1) /* defender */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] =
+				gi.imageindex("p_defender");
+		}
+		else if (ent->client->owned_sphere->spawnflags == 2) /* hunter */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_hunter");
+		}
+		else if (ent->client->owned_sphere->spawnflags == 4) /* vengeance */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] =
+				gi.imageindex("p_vengeance");
+		}
+		else /* error case */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("i_fixme");
+		}
+
+		ent->client->ps.stats[STAT_TIMER] =
+			(int)(ent->client->owned_sphere->wait - level.time);
+	}
+	else if (ent->client->ir_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_ir");
+		ent->client->ps.stats[STAT_TIMER] =
+			(ent->client->ir_framenum - level.framenum) / 10; }
 	else
 	{
 		ent->client->ps.stats[STAT_TIMER_ICON] = 0;
