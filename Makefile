@@ -1465,12 +1465,12 @@ ROGUE_OBJS_ = \
 	src/common/shared/flash.o \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
-	src/rogue/g_ai.o \
-	src/rogue/g_chase.o \
+	src/game/g_ai.o \
+	src/game/g_chase.o \
 	src/game/g_cmds.o \
-	src/rogue/g_combat.o \
+	src/game/g_combat.o \
 	src/game/g_func.o \
-	src/rogue/g_items.o \
+	src/game/g_items.o \
 	src/game/g_main.o \
 	src/game/g_misc.o \
 	src/game/g_monster.o \
@@ -1526,7 +1526,7 @@ ROGUE_OBJS_ = \
 	src/rogue/player/hud.o \
 	src/rogue/player/trail.o \
 	src/rogue/player/view.o \
-	src/rogue/player/weapon.o \
+	src/game/player/weapon.o \
 	src/rogue/savegame/savegame.o
 
 # ----------

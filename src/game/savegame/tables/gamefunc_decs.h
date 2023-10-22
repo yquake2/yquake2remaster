@@ -1209,7 +1209,7 @@ extern void Move_Final ( edict_t * ent ) ;
 extern void Move_Done ( edict_t * ent ) ;
 extern void T_RadiusDamage ( edict_t * inflictor , edict_t * attacker , float damage , edict_t * ignore , float radius , int mod ) ;
 extern void T_Damage ( edict_t * targ , edict_t * inflictor , edict_t * attacker , vec3_t dir , vec3_t point , vec3_t normal , int damage , int knockback , int dflags , int mod ) ;
-extern void M_ReactToDamage ( edict_t * targ , edict_t * attacker ) ;
+extern void M_ReactToDamage ( edict_t * targ , edict_t * attacker, edict_t *inflictor ) ;
 extern int CheckArmor ( edict_t * ent , vec3_t point , vec3_t normal , int damage , int te_sparks , int dflags ) ;
 extern int CheckPowerArmor ( edict_t * ent , vec3_t point , vec3_t normal , int damage , int dflags ) ;
 extern void SpawnDamage ( int type , vec3_t origin , vec3_t normal ) ;

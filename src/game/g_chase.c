@@ -60,7 +60,6 @@ UpdateChaseCam(edict_t *ent)
 	targ = ent->client->chase_target;
 
 	VectorCopy(targ->s.origin, ownerv);
-
 	ownerv[2] += targ->viewheight;
 
 	VectorCopy(targ->client->v_angle, angles);

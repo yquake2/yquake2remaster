@@ -1459,7 +1459,7 @@ extern void ChasePrev ( edict_t * ent ) ;
 extern void ChaseNext ( edict_t * ent ) ;
 extern void UpdateChaseCam ( edict_t * ent ) ;
 extern void ai_run ( edict_t * self , float dist ) ;
-extern qboolean ai_checkattack ( edict_t * self , float dist ) ;
+extern qboolean ai_checkattack ( edict_t * self ) ;
 extern void ai_run_slide ( edict_t * self , float distance ) ;
 extern void ai_run_missile ( edict_t * self ) ;
 extern void ai_run_melee ( edict_t * self ) ;

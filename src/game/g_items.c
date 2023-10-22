@@ -1792,7 +1792,7 @@ Drop_Item(edict_t *ent, gitem_t *item)
 	dropped->item = item;
 	dropped->spawnflags = DROPPED_ITEM;
 	dropped->s.effects = item->world_model_flags;
-	dropped->s.renderfx = RF_GLOW;
+	dropped->s.renderfx = RF_GLOW | RF_IR_VISIBLE;
 
 	if (frandk() > 0.5)
 	{
@@ -1803,8 +1803,8 @@ Drop_Item(edict_t *ent, gitem_t *item)
 		dropped->s.angles[1] -= frandk()*45;
 	}
 
-	VectorSet (dropped->mins, -16, -16, -16);
-	VectorSet (dropped->maxs, 16, 16, 16);
+	VectorSet(dropped->mins, -15, -15, -15);
+	VectorSet(dropped->maxs, 15, 15, 15);
 	gi.setmodel(dropped, dropped->item->world_model);
 	dropped->solid = SOLID_TRIGGER;
 	dropped->movetype = MOVETYPE_TOSS;
@@ -2116,9 +2116,17 @@ SpawnItem(edict_t *ent, gitem_t *item)
 		return;
 	}
 
-	PrecacheItem(item);
+	if (!g_disruptor->value)
+	{
+		if ((!strcmp(ent->classname, "ammo_disruptor")) ||
+				(!strcmp(ent->classname, "weapon_disintegrator")))
+		{
+			G_FreeEdict(ent);
+			return;
+		}
+	}
 
-	if (ent->spawnflags)
+	if (ent->spawnflags > 1)
 	{
 		if (strcmp(ent->classname, "key_power_cube") != 0)
 		{
@@ -2212,6 +2220,25 @@ SpawnItem(edict_t *ent, gitem_t *item)
 		}
 	}
 
+	/* DM only items */
+	if (!deathmatch->value)
+	{
+		if ((item->pickup == Pickup_Doppleganger) ||
+			(item->pickup == Pickup_Nuke))
+		{
+			G_FreeEdict(ent);
+			return;
+		}
+
+		if ((item->use == Use_Vengeance) || (item->use == Use_Hunter))
+		{
+			G_FreeEdict(ent);
+			return;
+		}
+	}
+
+	PrecacheItem(item);
+
 	if (coop->value && !(ent->spawnflags & ITEM_NO_TOUCH) && (strcmp(ent->classname, "key_power_cube") == 0))
 	{
 		ent->spawnflags |= (1 << (8 + level.power_cubes));
@@ -2274,7 +2301,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_armor_combat (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_armor_combat (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_armor_combat",
@@ -2298,7 +2325,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_armor_jacket (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_armor_jacket (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_armor_jacket",
@@ -2322,7 +2349,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_armor_shard (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_armor_shard (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_armor_shard",
@@ -2346,7 +2373,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_power_screen (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_power_screen (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_power_screen",
@@ -2370,7 +2397,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_power_shield (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_power_shield (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_power_shield",
@@ -2419,7 +2446,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_shotgun",
@@ -2443,7 +2470,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_supershotgun (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_supershotgun (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_supershotgun",
@@ -2467,7 +2494,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_machinegun",
@@ -2492,7 +2519,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_chaingun (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_chaingun",
@@ -2517,7 +2544,31 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_etf_rifle (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"weapon_etf_rifle",
+		Pickup_Weapon,
+		Use_Weapon,
+		Drop_Weapon,
+		Weapon_ETF_Rifle,
+		"misc/w_pkup.wav",
+		"models/weapons/g_etf_rifle/tris.md2", EF_ROTATE,
+		"models/weapons/v_etf_rifle/tris.md2",
+		"w_etf_rifle",
+		"ETF Rifle",
+		0,
+		1,
+		"Flechettes",
+		IT_WEAPON,
+		WEAP_ETFRIFLE,
+		NULL,
+		0,
+		"weapons/nail1.wav models/proj/flechette/tris.md2",
+	},
+
+	/*
+	 * QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"ammo_grenades",
@@ -2567,7 +2618,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_grenadelauncher",
@@ -2592,7 +2643,31 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_rocketlauncher (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_proxlauncher (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"weapon_proxlauncher",
+		Pickup_Weapon,
+		Use_Weapon,
+		Drop_Weapon,
+		Weapon_ProxLauncher,
+		"misc/w_pkup.wav",
+		"models/weapons/g_plaunch/tris.md2", EF_ROTATE,
+		"models/weapons/v_plaunch/tris.md2",
+		"w_proxlaunch",
+		"Prox Launcher",
+		0,
+		1,
+		"Prox",
+		IT_WEAPON,
+		WEAP_PROXLAUNCH,
+		NULL,
+		AMMO_PROX,
+		"weapons/grenlf1a.wav weapons/grenlr1b.wav weapons/grenlb1b.wav weapons/proxwarn.wav weapons/proxopen.wav",
+	},
+
+	/*
+	 * QUAKED weapon_rocketlauncher (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_rocketlauncher",
@@ -2617,7 +2692,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_hyperblaster (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_hyperblaster (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_hyperblaster",
@@ -2639,6 +2714,30 @@ static const gitem_t gameitemlist[] = {
 		0,
 
 		"weapons/hyprbu1a.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav weapons/hyprbd1a.wav misc/lasfly.wav"
+	},
+
+	/*
+	 * QUAKED weapon_plasmabeam (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"weapon_plasmabeam",
+		Pickup_Weapon,
+		Use_Weapon,
+		Drop_Weapon,
+		Weapon_Heatbeam,
+		"misc/w_pkup.wav",
+		"models/weapons/g_beamer/tris.md2", EF_ROTATE,
+		"models/weapons/v_beamer/tris.md2",
+		"w_heatbeam",
+		"Plasma Beam",
+		0,
+		2,
+		"Cells",
+		IT_WEAPON,
+		WEAP_PLASMA,
+		NULL,
+		0,
+		"models/weapons/v_beamer2/tris.md2 weapons/bfg__l1a.wav",
 	},
 
 	/*
@@ -2666,7 +2765,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_railgun",
@@ -2715,7 +2814,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED weapon_bfg (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"weapon_bfg",
@@ -2740,7 +2839,55 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED weapon_chainfist (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"weapon_chainfist",
+		Pickup_Weapon,
+		Use_Weapon,
+		Drop_Weapon,
+		Weapon_ChainFist,
+		"misc/w_pkup.wav",
+		"models/weapons/g_chainf/tris.md2", EF_ROTATE,
+		"models/weapons/v_chainf/tris.md2",
+		"w_chainfist",
+		"Chainfist",
+		0,
+		0,
+		NULL,
+		IT_WEAPON | IT_MELEE,
+		WEAP_CHAINFIST,
+		NULL,
+		1,
+		"weapons/sawidle.wav weapons/sawhit.wav",
+	},
+
+	/*
+	 * QUAKED weapon_disintegrator (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"weapon_disintegrator",
+		Pickup_Weapon,
+		Use_Weapon,
+		Drop_Weapon,
+		Weapon_Disintegrator,
+		"misc/w_pkup.wav",
+		"models/weapons/g_dist/tris.md2", EF_ROTATE,
+		"models/weapons/v_dist/tris.md2",
+		"w_disintegrator",
+		"Disruptor",
+		0,
+		1,
+		"Rounds",
+		IT_WEAPON,
+		WEAP_DISRUPTOR,
+		NULL,
+		1,
+		"models/items/spawngro/tris.md2 models/proj/disintegrator/tris.md2 weapons/disrupt.wav weapons/disint2.wav weapons/disrupthit.wav",
+	},
+
+	/*
+	 * QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"ammo_shells",
@@ -2764,7 +2911,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"ammo_bullets",
@@ -2788,7 +2935,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED ammo_cells (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED ammo_cells (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"ammo_cells",
@@ -2812,7 +2959,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"ammo_rockets",
@@ -2836,7 +2983,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED ammo_slugs (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED ammo_slugs (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"ammo_slugs",
@@ -2857,6 +3004,124 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		AMMO_SLUGS,
 		""
+	},
+
+	/*
+	 * QUAKED ammo_flechettes (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"ammo_flechettes",
+		Pickup_Ammo,
+		NULL,
+		Drop_Ammo,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/ammo/am_flechette/tris.md2", 0,
+		NULL,
+		"a_flechettes",
+		"Flechettes",
+		3,
+		50,
+		NULL,
+		IT_AMMO,
+		0,
+		NULL,
+		AMMO_FLECHETTES
+	},
+
+	/*
+	 * QUAKED ammo_prox (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"ammo_prox",
+		Pickup_Ammo,
+		NULL,
+		Drop_Ammo,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/ammo/am_prox/tris.md2", 0,
+		NULL,
+		"a_prox",
+		"Prox",
+		3,
+		5,
+		NULL,
+		IT_AMMO,
+		0,
+		NULL,
+		AMMO_PROX,
+		"models/weapons/g_prox/tris.md2 weapons/proxwarn.wav"
+	},
+
+	/*
+	 * QUAKED ammo_tesla (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"ammo_tesla",
+		Pickup_Ammo,
+		Use_Weapon,
+		Drop_Ammo,
+		Weapon_Tesla,
+		"misc/am_pkup.wav",
+		"models/ammo/am_tesl/tris.md2", 0,
+		"models/weapons/v_tesla/tris.md2",
+		"a_tesla",
+		"Tesla",
+		3,
+		5,
+		"Tesla",
+		IT_AMMO | IT_WEAPON,
+		0,
+		NULL,
+		AMMO_TESLA,
+		"models/weapons/v_tesla2/tris.md2 weapons/teslaopen.wav weapons/hgrenb1a.wav weapons/hgrenb2a.wav models/weapons/g_tesla/tris.md2"
+	},
+
+	/*
+	 * QUAKED ammo_nuke (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"ammo_nuke",
+		Pickup_Nuke,
+		Use_Nuke,
+		Drop_Ammo,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/weapons/g_nuke/tris.md2", EF_ROTATE,
+		NULL,
+		"p_nuke",
+		"A-M Bomb",
+		3,
+		300,
+		"A-M Bomb",
+		IT_POWERUP,
+		0,
+		NULL,
+		0,
+		"weapons/nukewarn2.wav world/rumble.wav"
+	},
+
+	/*
+	 * QUAKED ammo_disruptor (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"ammo_disruptor",
+		Pickup_Ammo,
+		NULL,
+		Drop_Ammo,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/ammo/am_disr/tris.md2", 0,
+		NULL,
+		"a_disruptor",
+		"Rounds",
+		3,
+		15,
+		NULL,
+		IT_AMMO,
+		0,
+		NULL,
+		AMMO_DISRUPTOR
 	},
 
 	/*
@@ -2884,7 +3149,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_quad (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_quad (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_quad",
@@ -2933,7 +3198,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_invulnerability (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_invulnerability (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_invulnerability",
@@ -2957,7 +3222,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_silencer (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_silencer (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_silencer",
@@ -2981,7 +3246,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_breather (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_breather (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_breather",
@@ -3005,7 +3270,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_enviro (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_enviro (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_enviro",
@@ -3029,7 +3294,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_ancient_head (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_ancient_head (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * Special item that gives +2 to maximum health
 	 */
 	{
@@ -3054,7 +3319,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_adrenaline (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_adrenaline (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * gives +1 to maximum health
 	 */
 	{
@@ -3079,7 +3344,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_bandolier (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_bandolier (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_bandolier",
@@ -3103,7 +3368,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED item_pack (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_pack (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_pack",
@@ -3127,7 +3392,197 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_data_cd (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_ir_goggles (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_ir_goggles",
+		Pickup_Powerup,
+		Use_IR,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/goggles/tris.md2", EF_ROTATE,
+		NULL,
+		"p_ir",
+		"IR Goggles",
+		2,
+		60,
+		NULL,
+		IT_POWERUP | IT_INSTANT_USE,
+		0,
+		NULL,
+		0,
+		"misc/ir_start.wav"
+	},
+
+	/*
+	 * QUAKED item_double (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_double",
+		Pickup_Powerup,
+		Use_Double,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/ddamage/tris.md2", EF_ROTATE,
+		NULL,
+		"p_double",
+		"Double Damage",
+		2,
+		60,
+		NULL,
+		IT_POWERUP | IT_INSTANT_USE,
+		0,
+		NULL,
+		0,
+		"misc/ddamage1.wav misc/ddamage2.wav misc/ddamage3.wav"
+	},
+
+	/*
+	 * QUAKED item_compass (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_compass",
+		Pickup_Powerup,
+		Use_Compass,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/objects/fire/tris.md2", EF_ROTATE,
+		NULL,
+		"p_compass",
+		"compass",
+		2,
+		60,
+		NULL,
+		IT_POWERUP,
+		0,
+		NULL,
+		0,
+	},
+
+	/*
+	 * QUAKED item_sphere_vengeance (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_sphere_vengeance",
+		Pickup_Sphere,
+		Use_Vengeance,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/vengnce/tris.md2", EF_ROTATE,
+		NULL,
+		"p_vengeance",
+		"vengeance sphere",
+		2,
+		60,
+		NULL,
+		IT_POWERUP | IT_INSTANT_USE,
+		0,
+		NULL,
+		0,
+		"spheres/v_idle.wav"
+	},
+
+	/*
+	 * QUAKED item_sphere_hunter (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_sphere_hunter",
+		Pickup_Sphere,
+		Use_Hunter,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/hunter/tris.md2", EF_ROTATE,
+		NULL,
+		"p_hunter",
+		"hunter sphere",
+		2,
+		120,
+		NULL,
+		IT_POWERUP | IT_INSTANT_USE,
+		0,
+		NULL,
+		0,
+		"spheres/h_idle.wav spheres/h_active.wav spheres/h_lurk.wav"
+	},
+
+	/*
+	 * QUAKED item_sphere_defender (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_sphere_defender",
+		Pickup_Sphere,
+		Use_Defender,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/defender/tris.md2", EF_ROTATE,
+		NULL,
+		"p_defender",
+		"defender sphere",
+		2,
+		60,
+		NULL,
+		IT_POWERUP | IT_INSTANT_USE,
+		0,
+		NULL,
+		0,
+		"models/proj/laser2/tris.md2 models/items/shell/tris.md2 spheres/d_idle.wav"
+	},
+
+	/*
+	 * QUAKED item_doppleganger (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"item_doppleganger",
+		Pickup_Doppleganger,
+		Use_Doppleganger,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/dopple/tris.md2",
+		EF_ROTATE,
+		NULL,
+		"p_doppleganger",
+		"Doppleganger",
+		0,
+		90,
+		NULL,
+		IT_POWERUP,
+		0,
+		NULL,
+		0,
+		"models/objects/dopplebase/tris.md2 models/items/spawngro2/tris.md2 models/items/hunter/tris.md2 models/items/vengnce/tris.md2",
+	},
+
+	{
+		NULL,
+		Tag_PickupToken,
+		NULL,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/tagtoken/tris.md2",
+		EF_ROTATE | EF_TAGTRAIL,
+		NULL,
+		"i_tagtoken",
+		"Tag Token",
+		0,
+		0,
+		NULL,
+		IT_POWERUP | IT_NOT_GIVEABLE,
+		0,
+		NULL,
+		1,
+		NULL,
+	},
+
+	/*
+	 * QUAKED key_data_cd (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * key for computer centers
 	 */
 	{
@@ -3177,7 +3632,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_pyramid (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_pyramid (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * key for the entrance of jail3
 	 */
 	{
@@ -3202,7 +3657,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_data_spinner (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_data_spinner (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * key for the city computer
 	 */
 	{
@@ -3227,7 +3682,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_pass (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_pass (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * security pass for the security level
 	 */
 	{
@@ -3252,7 +3707,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_blue_key (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_blue_key (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * normal door key - blue
 	 */
 	{
@@ -3277,7 +3732,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_red_key (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_red_key (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * normal door key - red
 	 */
 	{
@@ -3300,7 +3755,6 @@ static const gitem_t gameitemlist[] = {
 		0,
 		""
 	},
-
 
 	/*
 	 * QUAKED key_green_key (0 .5 .8) (-16 -16 -16) (16 16 16)
@@ -3328,7 +3782,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_commander_head (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_commander_head (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * tank commander's head
 	 */
 	{
@@ -3353,7 +3807,7 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
-	 * QUAKED key_airstrike_target (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * QUAKED key_airstrike_target (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 * tank commander's head
 	 */
 	{
@@ -3375,6 +3829,56 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		0,
 		""
+	},
+
+	/*
+	 * QUAKED key_nuke_container (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"key_nuke_container",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/weapons/g_nuke/tris.md2",
+		EF_ROTATE,
+		NULL,
+		"i_contain",
+		"Antimatter Pod",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		NULL,
+	},
+
+	/*
+	 * QUAKED key_nuke (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"key_nuke",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/weapons/g_nuke/tris.md2",
+		EF_ROTATE,
+		NULL,
+		"i_nuke",
+		"Antimatter Bomb",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		NULL,
 	},
 
 	{

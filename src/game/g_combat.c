@@ -147,11 +147,72 @@ Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 		return;
 	}
 
-	targ->enemy = attacker;
+	/* Reset AI flag for being ducked. This fixes a corner case
+	   were the monster is ressurected by a medic and get's stuck
+	   in the next frame for mmove_t not matching the AI state. */
+	if (targ->monsterinfo.aiflags & AI_DUCKED)
+	{
+		targ->monsterinfo.aiflags &= ~AI_DUCKED;
+	}
+
+	if (targ->monsterinfo.aiflags & AI_MEDIC)
+	{
+		if (targ->enemy)
+		{
+			cleanupHealTarget(targ->enemy);
+		}
+
+		/* clean up self */
+		targ->monsterinfo.aiflags &= ~AI_MEDIC;
+		targ->enemy = attacker;
+	}
+	else
+	{
+		targ->enemy = attacker;
+	}
 
 	if ((targ->svflags & SVF_MONSTER) && (targ->deadflag != DEAD_DEAD))
 	{
-		if (!(targ->monsterinfo.aiflags & AI_GOOD_GUY))
+		/* free up slot for spawned monster if it's spawned */
+		if (targ->monsterinfo.aiflags & AI_SPAWNED_CARRIER)
+		{
+			if (targ->monsterinfo.commander &&
+				targ->monsterinfo.commander->inuse &&
+				!strcmp(targ->monsterinfo.commander->classname, "monster_carrier"))
+			{
+				targ->monsterinfo.commander->monsterinfo.monster_slots++;
+			}
+		}
+
+		if (targ->monsterinfo.aiflags & AI_SPAWNED_MEDIC_C)
+		{
+			if (targ->monsterinfo.commander)
+			{
+				if (targ->monsterinfo.commander->inuse &&
+					!strcmp(targ->monsterinfo.commander->classname, "monster_medic_commander"))
+				{
+					targ->monsterinfo.commander->monsterinfo.monster_slots++;
+				}
+			}
+		}
+
+		if (targ->monsterinfo.aiflags & AI_SPAWNED_WIDOW)
+		{
+			/* need to check this because we can
+			   have variable numbers of coop players */
+			if (targ->monsterinfo.commander &&
+				targ->monsterinfo.commander->inuse &&
+				!strncmp(targ->monsterinfo.commander->classname, "monster_widow", 13))
+			{
+				if (targ->monsterinfo.commander->monsterinfo.monster_used > 0)
+				{
+					targ->monsterinfo.commander->monsterinfo.monster_used--;
+				}
+			}
+		}
+
+		if ((!(targ->monsterinfo.aiflags & AI_GOOD_GUY)) &&
+			(!(targ->monsterinfo.aiflags & AI_DO_NOT_COUNT)))
 		{
 			level.killed_monsters++;
 
@@ -243,7 +304,7 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 
 	client = ent->client;
 
-	if (dflags & DAMAGE_NO_ARMOR)
+	if (dflags & (DAMAGE_NO_ARMOR | DAMAGE_NO_POWER_ARMOR))
 	{
 		return 0;
 	}
@@ -307,7 +368,15 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 		damage = (2 * damage) / 3;
 	}
 
-	save = power * damagePerCell;
+	/* etf rifle */
+	if (dflags & DAMAGE_NO_REG_ARMOR)
+	{
+		save = (power * damagePerCell) / 2;
+	}
+	else
+	{
+		save = power * damagePerCell;
+	}
 
 	if (!save)
 	{
@@ -322,7 +391,14 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 	SpawnDamage(pa_te_type, point, normal);
 	ent->powerarmor_time = level.time + 0.2;
 
-	power_used = save / damagePerCell;
+	if (dflags & DAMAGE_NO_REG_ARMOR)
+	{
+		power_used = (save / damagePerCell) * 2;
+	}
+	else
+	{
+		power_used = save / damagePerCell;
+	}
 
 	if (client)
 	{
@@ -362,7 +438,7 @@ CheckArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 		return 0;
 	}
 
-	if (dflags & DAMAGE_NO_ARMOR)
+	if (dflags & (DAMAGE_NO_ARMOR | DAMAGE_NO_REG_ARMOR))
 	{
 		return 0;
 	}
@@ -402,9 +478,11 @@ CheckArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 }
 
 void
-M_ReactToDamage(edict_t *targ, edict_t *attacker)
+M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 {
-	if (!targ || !attacker)
+	qboolean new_tesla;
+
+	if (!targ || !attacker || !inflictor)
 	{
 		return;
 	}
@@ -419,13 +497,30 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker)
 		return;
 	}
 
+	/* logic for tesla - if you are hit by a tesla,
+	   and can't see who you should be mad at (attacker)
+	   attack the tesla also, target the tesla if it's
+	   a "new" tesla */
+	if (!strcmp(inflictor->classname, "tesla"))
+	{
+		new_tesla = MarkTeslaArea(targ, inflictor);
+
+		if (new_tesla || !targ->enemy)
+		{
+			TargetTesla(targ, inflictor);
+		}
+
+		return;
+	}
+
 	if ((attacker == targ) || (attacker == targ->enemy))
 	{
 		return;
 	}
 
-	/* if we are a good guy monster and our attacker is a player
-	   or another good guy, do not get mad at them */
+	/* if we are a good guy monster and
+	   our attacker is a player or another
+	   good guy, do not get mad at them */
 	if (targ->monsterinfo.aiflags & AI_GOOD_GUY)
 	{
 		if (attacker->client || (attacker->monsterinfo.aiflags & AI_GOOD_GUY))
@@ -434,15 +529,55 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker)
 		}
 	}
 
+	/* if we're currently mad at something
+	   a target_anger made us mad at, ignore
+	   damage */
+	if (targ->enemy && targ->monsterinfo.aiflags & AI_TARGET_ANGER)
+	{
+		float percentHealth;
+
+		/* make sure whatever we were pissed at is still around. */
+		if (targ->enemy->inuse)
+		{
+			percentHealth = (float)(targ->health) / (float)(targ->max_health);
+
+			if (percentHealth > 0.33)
+			{
+				return;
+			}
+		}
+
+		/* remove the target anger flag */
+		targ->monsterinfo.aiflags &= ~AI_TARGET_ANGER;
+	}
+
+	/* if we're healing someone, do like above and try to stay with them */
+	if ((targ->enemy) && (targ->monsterinfo.aiflags & AI_MEDIC))
+	{
+		float percentHealth;
+
+		percentHealth = (float)(targ->health) / (float)(targ->max_health);
+
+		/* ignore it some of the time */
+		if (targ->enemy->inuse && (percentHealth > 0.25))
+		{
+			return;
+		}
+
+		/* remove the medic flag */
+		targ->monsterinfo.aiflags &= ~AI_MEDIC;
+		cleanupHealTarget(targ->enemy);
+	}
+
 	/* if attacker is a client, get mad at
 	   them because he's good and we're not */
 	if (attacker->client)
 	{
 		targ->monsterinfo.aiflags &= ~AI_SOUND_TARGET;
 
-		/* this can only happen in coop (both new and old
-		   enemies are clients) only switch if can't see
-		   the current enemy */
+		/* this can only happen in coop (both new and
+		   old enemies are clients) only switch if can't
+		   see the current enemy */
 		if (targ->enemy && targ->enemy->client)
 		{
 			if (visible(targ, targ->enemy))
@@ -473,7 +608,9 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker)
 		(strcmp(attacker->classname, "monster_tank") != 0) &&
 		(strcmp(attacker->classname, "monster_supertank") != 0) &&
 		(strcmp(attacker->classname, "monster_makron") != 0) &&
-		(strcmp(attacker->classname, "monster_jorg") != 0))
+		(strcmp(attacker->classname, "monster_jorg") != 0) &&
+		!(attacker->monsterinfo.aiflags & AI_IGNORE_SHOTS) &&
+		!(targ->monsterinfo.aiflags & AI_IGNORE_SHOTS))
 	{
 		if (targ->enemy && targ->enemy->client)
 		{
@@ -520,6 +657,12 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker)
 	}
 }
 
+qboolean
+CheckTeamDamage(edict_t *targ, edict_t *attacker)
+{
+	return false;
+}
+
 static void
 apply_knockback(edict_t *targ, vec3_t dir, float knockback, float scale)
 {
@@ -539,9 +682,9 @@ apply_knockback(edict_t *targ, vec3_t dir, float knockback, float scale)
 }
 
 void
-T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
-		vec3_t dir, vec3_t point, vec3_t normal, int damage,
-		int knockback, int dflags, int mod)
+T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
+		vec3_t point, vec3_t normal, int damage, int knockback, int dflags,
+		int mod)
 {
 	gclient_t *client;
 	int take;
@@ -549,6 +692,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	int asave;
 	int psave;
 	int te_sparks;
+	int sphere_notified;
 
 	if (!targ || !inflictor || !attacker)
 	{
@@ -560,16 +704,20 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 		return;
 	}
 
-	/* friendly fire avoidance if enabled you
-	   can't hurt teammates (but you can hurt
-	   yourself) knockback still occurs */
+	sphere_notified = false;
+
+	/* friendly fire avoidance. If enabled you can't
+	   hurt teammates (but you can hurt yourself)
+	   knockback still occurs */
 	if ((targ != attacker) && ((deathmatch->value &&
 		((int)(dmflags->value) & (DF_MODELTEAMS | DF_SKINTEAMS))) ||
 		 coop->value))
 	{
 		if (OnSameTeam(targ, attacker))
 		{
-			if ((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE)
+			/* nukes kill everyone */
+			if (((int)(dmflags->value) & DF_NO_FRIENDLY_FIRE) &&
+				(mod != MOD_NUKE))
 			{
 				damage = 0;
 			}
@@ -581,6 +729,25 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	}
 
 	meansOfDeath = mod;
+
+	/* allow the deathmatch game to change values */
+	if (deathmatch->value && gamerules && gamerules->value)
+	{
+		if (DMGame.ChangeDamage)
+		{
+			damage = DMGame.ChangeDamage(targ, attacker, damage, mod);
+		}
+
+		if (DMGame.ChangeKnockback)
+		{
+			knockback = DMGame.ChangeKnockback(targ, attacker, knockback, mod);
+		}
+
+		if (!damage)
+		{
+			return;
+		}
+	}
 
 	/* easy mode takes half damage */
 	if ((skill->value == SKILL_EASY) && (deathmatch->value == 0) && targ->client)
@@ -594,6 +761,18 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	}
 
 	client = targ->client;
+
+	/* defender sphere takes half damage */
+	if ((client) && (client->owned_sphere) &&
+		(client->owned_sphere->spawnflags == 1))
+	{
+		damage *= 0.5;
+
+		if (!damage)
+		{
+			damage = 1;
+		}
+	}
 
 	if (dflags & DAMAGE_BULLET)
 	{
@@ -639,13 +818,30 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	}
 
 	/* check for invincibility */
-	if ((client && (client->invincible_framenum > level.framenum)) &&
+	if ((client &&
+		 (client->invincible_framenum > level.framenum)) &&
 		!(dflags & DAMAGE_NO_PROTECTION) && (mod != MOD_TRAP))
 	{
 		if (targ->pain_debounce_time < level.time)
 		{
 			gi.sound(targ, CHAN_ITEM, gi.soundindex(
 						"items/protect4.wav"), 1, ATTN_NORM, 0);
+			targ->pain_debounce_time = level.time + 2;
+		}
+
+		take = 0;
+		save = damage;
+	}
+
+	/* check for monster invincibility */
+	if (((targ->svflags & SVF_MONSTER) &&
+		 (targ->monsterinfo.invincible_framenum > level.framenum)) &&
+		!(dflags & DAMAGE_NO_PROTECTION))
+	{
+		if (targ->pain_debounce_time < level.time)
+		{
+			gi.sound(targ, CHAN_ITEM, gi.soundindex(
+				"items/protect4.wav"), 1, ATTN_NORM, 0);
 			targ->pain_debounce_time = level.time + 2;
 		}
 
@@ -662,14 +858,34 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	/* treat cheat/powerup savings the same as armor */
 	asave += save;
 
+	/* this option will do damage both to the armor
+	   and person. originally for DPU rounds */
+	if (dflags & DAMAGE_DESTROY_ARMOR)
+	{
+		if (!(targ->flags & FL_GODMODE) && !(dflags & DAMAGE_NO_PROTECTION) &&
+			!(client && (client->invincible_framenum > level.framenum)))
+		{
+			take = damage;
+		}
+	}
+
 	/* do the damage */
 	if (take)
 	{
-		if ((targ->svflags & SVF_MONSTER) || (client))
+		/* need more blood for chainfist. */
+		if (targ->flags & FL_MECHANICAL)
+		{
+			SpawnDamage(TE_ELECTRIC_SPARKS, point, normal);
+		}
+		else if ((targ->svflags & SVF_MONSTER) || (client))
 		{
 			if (strcmp(targ->classname, "monster_gekk") == 0)
 			{
 				SpawnDamage(TE_GREENBLOOD, point, normal);
+			}
+			else if (mod == MOD_CHAINFIST)
+			{
+				SpawnDamage(TE_MOREBLOOD, point, normal);
 			}
 			else
 			{
@@ -683,6 +899,17 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 
 		targ->health = targ->health - take;
 
+		/* spheres need to know who to shoot at */
+		if (client && client->owned_sphere)
+		{
+			sphere_notified = true;
+
+			if (client->owned_sphere->pain)
+			{
+				client->owned_sphere->pain(client->owned_sphere, attacker, 0, 0);
+			}
+		}
+
 		if (targ->health <= 0)
 		{
 			if ((targ->svflags & SVF_MONSTER) || (client))
@@ -695,11 +922,24 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 		}
 	}
 
+	/* spheres need to know who to shoot at */
+	if (!sphere_notified)
+	{
+		if (client && client->owned_sphere)
+		{
+			if (client->owned_sphere->pain)
+			{
+				client->owned_sphere->pain(client->owned_sphere, attacker, 0,
+						0);
+			}
+		}
+	}
+
 	if (targ->svflags & SVF_MONSTER)
 	{
-		M_ReactToDamage(targ, attacker);
+		M_ReactToDamage(targ, attacker, inflictor);
 
-		if (!(targ->monsterinfo.aiflags & (AI_DUCKED|AI_IGNORE_PAIN)) && (take))
+		if (!(targ->monsterinfo.aiflags & (AI_DUCKED | AI_IGNORE_PAIN)) && (take))
 		{
 			targ->pain(targ, attacker, knockback, take);
 
