@@ -42,6 +42,7 @@ static int sound_search;
 static int sound_melee1;
 static int sound_melee2;
 static int sound_melee3;
+
 void brain_run(edict_t *self);
 void brain_dead(edict_t *self);
 

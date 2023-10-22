@@ -425,6 +425,8 @@ tank_pain(edict_t *self, edict_t *other /* other */,
 		return; /* no pain anims in nightmare */
 	}
 
+	self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+
 	if (damage <= 30)
 	{
 		self->monsterinfo.currentmove = &tank_move_pain1;
@@ -496,10 +498,23 @@ TankRocket(edict_t *self)
 	vec3_t dir;
 	vec3_t vec;
 	int flash_number;
+	trace_t trace;
+	int rocketSpeed;
+	vec3_t target;
+	qboolean blindfire = false;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
+	}
+
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		blindfire = true;
+	}
+	else
+	{
+		blindfire = false;
 	}
 
 	if (self->s.frame == FRAME_attak324)
@@ -519,12 +534,71 @@ TankRocket(edict_t *self)
 	G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
 			forward, right, start);
 
-	VectorCopy(self->enemy->s.origin, vec);
-	vec[2] += self->enemy->viewheight;
-	VectorSubtract(vec, start, dir);
+	rocketSpeed = 500 + (100 * skill->value);
+
+	if (blindfire)
+	{
+		VectorCopy (self->monsterinfo.blind_fire_target, target);
+	}
+	else
+	{
+		VectorCopy (self->enemy->s.origin, target);
+	}
+
+	if (blindfire)
+	{
+		VectorCopy(target, vec);
+		VectorSubtract(vec, start, dir);
+	}
+	else if(random() < 0.66 || (start[2] < self->enemy->absmin[2]))
+	{
+		// Don't shoot at the feed if enemy is above.
+		VectorCopy(self->enemy->s.origin, vec);
+		vec[2] += self->enemy->viewheight;
+		VectorSubtract(vec, start, dir);
+	}
+	else
+	{
+		// Shoot at the feed.
+		VectorCopy(self->enemy->s.origin, vec);
+		vec[2] = self->enemy->absmin[2];
+		VectorSubtract(vec, start, dir);
+	}
+
+	// Lead target: 20, 35, 50, 65 chance of leading.
+	if ((!blindfire) && ((random() < (0.2 + ((3 - skill->value) * 0.15)))))
+	{
+		float dist;
+		float time;
+
+		dist = VectorLength(dir);
+		time = dist/rocketSpeed;
+		VectorMA(vec, time, self->enemy->velocity, vec);
+		VectorSubtract(vec, start, dir);
+	}
+
 	VectorNormalize(dir);
 
-	monster_fire_rocket(self, start, dir, 50, 550, flash_number);
+	if (blindfire)
+	{
+		/* blindfire has different fail criteria for the trace */
+		if (!blind_rocket_ok(self, start, right, target, 20.0f, dir))
+		{
+			return;
+		}
+	}
+	else
+	{
+		trace = gi.trace(start, vec3_origin, vec3_origin, vec, self, MASK_SHOT);
+
+		if (((trace.ent != self->enemy) && (trace.ent != world)) ||
+			((trace.fraction <= 0.5f) && !trace.ent->client))
+		{
+			return;
+		}
+	}
+
+	monster_fire_rocket(self, start, dir, 50, rocketSpeed, flash_number);
 }
 
 void
@@ -536,7 +610,7 @@ TankMachineGun(edict_t *self)
 	vec3_t forward, right;
 	int flash_number;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -864,6 +938,13 @@ tank_refire_rocket(edict_t *self)
 		return;
 	}
 
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &tank_move_attack_post_rocket;
+		return;
+	}
+
 	/* Only on hard or nightmare */
 	if (skill->value >= SKILL_HARD)
 	{
@@ -901,8 +982,9 @@ tank_attack(edict_t *self)
 	vec3_t vec;
 	float range;
 	float r;
+	float chance;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -911,6 +993,45 @@ tank_attack(edict_t *self)
 	{
 		self->monsterinfo.currentmove = &tank_move_attack_strike;
 		self->monsterinfo.aiflags &= ~AI_BRUTAL;
+		return;
+	}
+
+	if (self->monsterinfo.attack_state == AS_BLIND)
+	{
+		if (self->monsterinfo.blind_fire_delay < 1.0)
+		{
+			chance = 1.0;
+		}
+		else if (self->monsterinfo.blind_fire_delay < 7.5)
+		{
+			chance = 0.4;
+		}
+		else
+		{
+			chance = 0.1;
+		}
+
+		r = random();
+
+		self->monsterinfo.blind_fire_delay += 3.2 + 2.0 + random() * 3.0;
+
+		// Don't shoot at the origin.
+		if (VectorCompare (self->monsterinfo.blind_fire_target, vec3_origin))
+		{
+			return;
+		}
+
+		// Don't shoot if the dice say not to.
+		if (r > chance)
+		{
+			return;
+		}
+
+		// turn on manual steering to signal both manual steering and blindfire
+		self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &tank_move_attack_fire_rocket;
+		self->monsterinfo.attack_finished = level.time + 3.0 + 2*random();
+		self->pain_debounce_time = level.time + 5.0; // no pain for a while
 		return;
 	}
 
@@ -1068,8 +1189,27 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &tank_move_death;
 }
 
+qboolean
+tank_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /*
  * QUAKED monster_tank (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
+ */
+
+/*
  * QUAKED monster_tank_commander (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
  */
 void
@@ -1132,6 +1272,7 @@ SP_monster_tank(edict_t *self)
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = tank_sight;
 	self->monsterinfo.idle = tank_idle;
+	self->monsterinfo.blocked = tank_blocked;
 
 	gi.linkentity(self);
 
@@ -1139,6 +1280,9 @@ SP_monster_tank(edict_t *self)
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	walkmonster_start(self);
+
+	self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
+	self->monsterinfo.blindfire = true;
 
 	if (strcmp(self->classname, "monster_tank_commander") == 0)
 	{

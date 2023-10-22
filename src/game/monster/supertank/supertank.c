@@ -30,6 +30,7 @@
 #include "supertank.h"
 
 qboolean visible(edict_t *self, edict_t *other);
+
 static int sound_pain1;
 static int sound_pain2;
 static int sound_pain3;
@@ -652,7 +653,7 @@ supertankRocket(edict_t *self)
 	vec3_t vec;
 	int flash_number;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -696,7 +697,13 @@ supertankMachineGun(edict_t *self)
 		return;
 	}
 
-	flash_number = MZ2_SUPERTANK_MACHINEGUN_1 + (self->s.frame - FRAME_attak1_1);
+	if (!self->enemy || !self->enemy->inuse)
+	{
+		return;
+	}
+
+	flash_number = MZ2_SUPERTANK_MACHINEGUN_1 +
+				   (self->s.frame - FRAME_attak1_1);
 
 	dir[0] = 0;
 	dir[1] = self->s.angles[1];
@@ -865,6 +872,22 @@ supertank_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &supertank_move_death;
 }
 
+qboolean
+supertank_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /*
  * QUAKED monster_supertank (1 .5 0) (-64 -64 0) (64 64 72) Ambush Trigger_Spawn Sight Powershield
  */
@@ -911,6 +934,7 @@ SP_monster_supertank(edict_t *self)
 	self->monsterinfo.search = supertank_search;
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = NULL;
+	self->monsterinfo.blocked = supertank_blocked;
 
 	gi.linkentity(self);
 
@@ -924,4 +948,6 @@ SP_monster_supertank(edict_t *self)
 	}
 
 	walkmonster_start(self);
+
+	self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
 }

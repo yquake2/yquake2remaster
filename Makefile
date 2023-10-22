@@ -1492,33 +1492,33 @@ ROGUE_OBJS_ = \
 	src/game/dm/ball.o \
 	src/game/dm/tag.o \
 	src/game/monster/berserker/berserker.o \
-	src/rogue/monster/boss2/boss2.o \
+	src/game/monster/boss2/boss2.o \
 	src/game/monster/boss3/boss3.o \
 	src/game/monster/boss3/boss31.o \
 	src/game/monster/boss3/boss32.o \
 	src/game/monster/boss5/boss5.o \
-	src/rogue/monster/brain/brain.o \
+	src/game/monster/brain/brain.o \
 	src/game/monster/carrier/carrier.o \
 	src/game/monster/chick/chick.o \
-	src/rogue/monster/flipper/flipper.o \
-	src/rogue/monster/float/float.o \
+	src/game/monster/flipper/flipper.o \
+	src/game/monster/float/float.o \
 	src/game/monster/flyer/flyer.o \
-	src/rogue/monster/gladiator/gladiator.o \
+	src/game/monster/gladiator/gladiator.o \
 	src/game/monster/gladiator/gladb.o \
 	src/game/monster/gekk/gekk.o \
-	src/rogue/monster/gunner/gunner.o \
-	src/rogue/monster/hover/hover.o \
+	src/game/monster/gunner/gunner.o \
+	src/game/monster/hover/hover.o \
 	src/game/monster/infantry/infantry.o \
-	src/rogue/monster/insane/insane.o \
+	src/game/monster/insane/insane.o \
 	src/game/monster/fixbot/fixbot.o \
-	src/rogue/monster/medic/medic.o \
-	src/rogue/monster/misc/move.o \
-	src/rogue/monster/mutant/mutant.o \
-	src/rogue/monster/parasite/parasite.o \
+	src/game/monster/medic/medic.o \
+	src/game/monster/misc/move.o \
+	src/game/monster/mutant/mutant.o \
+	src/game/monster/parasite/parasite.o \
 	src/game/monster/soldier/soldier.o \
 	src/game/monster/stalker/stalker.o \
-	src/rogue/monster/supertank/supertank.o \
-	src/rogue/monster/tank/tank.o \
+	src/game/monster/supertank/supertank.o \
+	src/game/monster/tank/tank.o \
 	src/game/monster/turret/turret.o \
 	src/game/monster/widow/widow.o \
 	src/game/monster/widow/widow2.o \

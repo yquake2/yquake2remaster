@@ -533,6 +533,22 @@ gladiator_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &gladiator_move_death;
 }
 
+qboolean
+gladiator_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 /*
  * QUAKED monster_gladiator (1 .5 0) (-32 -32 -24) (32 32 64) Ambush Trigger_Spawn Sight
  */
@@ -588,6 +604,7 @@ SP_monster_gladiator(edict_t *self)
 	self->monsterinfo.sight = gladiator_sight;
 	self->monsterinfo.idle = gladiator_idle;
 	self->monsterinfo.search = gladiator_search;
+	self->monsterinfo.blocked = gladiator_blocked;
 
 	gi.linkentity(self);
 	self->monsterinfo.currentmove = &gladiator_move_stand;

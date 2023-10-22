@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -73,7 +74,7 @@ floater_fire_blaster(edict_t *self)
 	vec3_t dir;
 	int effect;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -305,6 +306,33 @@ mmove_t floater_move_attack1 =
 	FRAME_attak101,
 	FRAME_attak114,
 	floater_frames_attack1,
+	floater_run
+};
+
+/* circle strafe frames */
+static mframe_t floater_frames_attack1a[] =
+{
+	{ai_charge, 10, NULL},			// Blaster attack
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, floater_fire_blaster},			// BOOM (0, -25.8, 32.5)	-- LOOP Starts
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL}			//							-- LOOP Ends
+};
+
+mmove_t floater_move_attack1a = 
+{
+	FRAME_attak101,
+	FRAME_attak114,
+	floater_frames_attack1a,
 	floater_run
 };
 
@@ -683,12 +711,41 @@ floater_zap(edict_t *self)
 void
 floater_attack(edict_t *self)
 {
+	float chance;
+
 	if (!self)
 	{
 		return;
 	}
 
-	self->monsterinfo.currentmove = &floater_move_attack1;
+	// 0% chance of circle in easy
+	// 50% chance in normal
+	// 75% chance in hard
+	// 86.67% chance in nightmare
+	if (skill->value == SKILL_EASY)
+	{
+		chance = 0;
+	}
+	else
+	{
+		chance = 1.0 - (0.5/(float)(skill->value));
+	}
+
+	if (random() > chance)
+	{
+		self->monsterinfo.attack_state = AS_STRAIGHT;
+		self->monsterinfo.currentmove = &floater_move_attack1;
+	}
+	else // circle strafe
+	{
+		if (random () <= 0.5) // switch directions
+		{
+			self->monsterinfo.lefty = 1 - self->monsterinfo.lefty;
+		}
+
+		self->monsterinfo.attack_state = AS_SLIDING;
+		self->monsterinfo.currentmove = &floater_move_attack1a;
+	}
 }
 
 void
@@ -778,6 +835,12 @@ floater_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 
 	gi.sound(self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
 	BecomeExplosion1(self);
+}
+
+qboolean
+floater_blocked(edict_t *self, float dist)
+{
+	return false;
 }
 
 /*

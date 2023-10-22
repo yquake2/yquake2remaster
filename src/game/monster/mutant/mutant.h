@@ -174,5 +174,10 @@
 #define FRAME_walk21 146
 #define FRAME_walk22 147
 #define FRAME_walk23 148
+#define FRAME_jump01 149
+#define FRAME_jump02 150
+#define FRAME_jump03 151
+#define FRAME_jump04 152
+#define FRAME_jump05 153
 
 #define MODEL_SCALE 1.000000

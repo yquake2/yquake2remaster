@@ -890,7 +890,8 @@ insane_die(edict_t *self, edict_t *inflictor /* unused */,
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_IDLE, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex(
+						"misc/udeath.wav"), 1, ATTN_IDLE, 0);
 
 		for (n = 0; n < 2; n++)
 		{
