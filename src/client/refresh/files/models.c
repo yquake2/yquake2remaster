@@ -1138,7 +1138,7 @@ Mod_LoadAliasModel
 =================
 */
 void *
-Mod_LoadAliasModel (const char *mod_name, const void *buffer, int modfilelen,
+Mod_LoadAliasModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s **skins, findimage_t find_image,
 	modtype_t *type)
 {
@@ -1235,17 +1235,76 @@ Mod_LoadSP2 (const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+static int
+Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
+{
+	char newname[256];
+	size_t tlen;
+
+	*buffer = NULL;
+
+	tlen = strlen(namewe);
+
+	if (!strcmp(ext, "fm") ||
+		!strcmp(ext, "dkm") ||
+		!strcmp(ext, "md2") ||
+		!strcmp(ext, "mdl"))
+	{
+		int filesize, len;
+
+		/* Check Heretic2 model */
+		Q_strlcpy(newname, namewe, sizeof(newname));
+		Q_strlcat(newname, ".fm", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+
+		/* Check Quake 2 model */
+		Q_strlcpy(newname + tlen, ".md2", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+
+		/* Check Daikatana model */
+		Q_strlcpy(newname + tlen, ".dkm", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+
+		/* Check Quake model */
+		Q_strlcpy(newname + tlen, ".mdl", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+	}
+
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcat(newname, ".", sizeof(newname));
+	Q_strlcat(newname, ext, sizeof(newname));
+
+	return ri.FS_LoadFile(newname, buffer);
+}
+
 /*
 =================
 Mod_LoadFile
 =================
 */
 int
-Mod_LoadFile(char *name, void **buffer)
+Mod_LoadFile(const char *name, void **buffer)
 {
+	char namewe[256];
 	const char* ext;
-
-	*buffer = NULL;
+	int filesize, len;
+	size_t tlen;
 
 	if (!name)
 	{
@@ -1259,59 +1318,46 @@ Mod_LoadFile(char *name, void **buffer)
 		return -1;
 	}
 
-	if (!strcmp(ext, "fm") ||
-		!strcmp(ext, "dkm") ||
-		!strcmp(ext, "md2") ||
-		!strcmp(ext, "mdl"))
+	len = strlen(name);
+	if (len < 5)
 	{
-		char namewe[256], newname[256];
-		int filesize, len;
-
-		len = strlen(name);
-		if (len < 5)
-		{
-			return -1;
-		}
-
-		/* Remove the extension */
-		size_t tlen = len - (strlen(ext) + 1);
-		memset(namewe, 0, 256);
-		memcpy(namewe, name, tlen);
-
-		/* Check Heretic2 model */
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcat(newname, ".fm", sizeof(newname));
-		filesize = ri.FS_LoadFile (newname, buffer);
-		if (filesize > 0)
-		{
-			return filesize;
-		}
-
-		/* Check Quake 2 model */
-		Q_strlcpy(newname + tlen, ".md2", sizeof(newname));
-		filesize = ri.FS_LoadFile (newname, buffer);
-		if (filesize > 0)
-		{
-			return filesize;
-		}
-
-		/* Check Daikatana model */
-		Q_strlcpy(newname + tlen, ".dkm", sizeof(newname));
-		filesize = ri.FS_LoadFile (newname, buffer);
-		if (filesize > 0)
-		{
-			return filesize;
-		}
-
-		/* Check Quake model */
-		Q_strlcpy(newname + tlen, ".mdl", sizeof(newname));
-		filesize = ri.FS_LoadFile (newname, buffer);
-		if (filesize > 0)
-		{
-			return filesize;
-		}
+		return -1;
 	}
-	return ri.FS_LoadFile (name, buffer);
+
+	/* Remove the extension */
+	tlen = len - (strlen(ext) + 1);
+	memset(namewe, 0, 256);
+	memcpy(namewe, name, tlen);
+
+	filesize = Mod_LoadFileWithoutExt(namewe, buffer, ext);
+	if (filesize > 0)
+	{
+		return filesize;
+	}
+
+	/* Replacement of ReRelease models */
+	if (!strcmp(namewe, "models/monsters/soldierh/tris"))
+	{
+		filesize = Mod_LoadFileWithoutExt("models/monsters/soldier/tris",
+			buffer, ext);
+	}
+	else if (!strcmp(namewe, "models/monsters/gladb/tris"))
+	{
+		filesize = Mod_LoadFileWithoutExt("models/monsters/gladiatr/tris",
+			buffer, ext);
+	}
+	else if (!strcmp(namewe, "models/monsters/boss5/tris"))
+	{
+		filesize = Mod_LoadFileWithoutExt("models/monsters/boss1/tris",
+			buffer, ext);
+	}
+	else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
+	{
+		filesize = Mod_LoadFileWithoutExt("models/monsters/bitch/tris",
+			buffer, ext);
+	}
+
+	return filesize;
 }
 
 /*

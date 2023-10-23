@@ -639,6 +639,7 @@ extern void hover_reattack ( edict_t * self ) ;
 extern void hover_search ( edict_t * self ) ;
 extern void hover_sight ( edict_t * self , edict_t * other ) ;
 extern void SP_monster_gunner ( edict_t * self ) ;
+extern void SP_monster_guncmdr ( edict_t * self ) ;
 extern void gunner_footstep( edict_t *self ) ;
 extern void gunner_sidestep ( edict_t * self ) ;
 extern void gunner_duck ( edict_t * self , float eta ) ;

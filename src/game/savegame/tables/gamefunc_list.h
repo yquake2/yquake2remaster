@@ -641,6 +641,7 @@
 {"hover_search", (byte *)hover_search},
 {"hover_sight", (byte *)hover_sight},
 {"SP_monster_gunner", (byte *)SP_monster_gunner},
+{"SP_monster_guncmdr", (byte *)SP_monster_guncmdr},
 {"gunner_footstep", (byte *)gunner_footstep},
 {"gunner_sidestep", (byte *)gunner_sidestep},
 {"gunner_duck", (byte *)gunner_duck},

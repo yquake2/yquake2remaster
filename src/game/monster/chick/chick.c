@@ -1206,7 +1206,7 @@ SP_monster_chick(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/bitch/tris.md2");
+	self->s.modelindex = gi.modelindex("models/monsters/bitch2/tris.md2");
 	VectorSet(self->mins, -16, -16, 0);
 	VectorSet(self->maxs, 16, 16, 56);
 
