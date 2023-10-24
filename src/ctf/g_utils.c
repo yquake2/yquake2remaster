@@ -340,6 +340,19 @@ vec3_t VEC_DOWN = {0, -2, 0};
 vec3_t MOVEDIR_DOWN = {0, 0, -1};
 
 void
+get_normal_vector(const cplane_t *p, vec3_t normal)
+{
+	if (p)
+	{
+		VectorCopy(p->normal, normal);
+	}
+	else
+	{
+		VectorCopy(vec3_origin, normal);
+	}
+}
+
+void
 G_SetMovedir(vec3_t angles, vec3_t movedir)
 {
 	if (VectorCompare(angles, VEC_UP))

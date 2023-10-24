@@ -1486,7 +1486,7 @@ CTF_OBJS_ = \
 	src/ctf/g_target.o \
 	src/ctf/g_trigger.o \
 	src/ctf/g_utils.o \
-	src/ctf/g_weapon.o \
+	src/game/g_weapon.o \
 	src/game/menu/menu.o \
 	src/game/monster/misc/move.o \
 	src/ctf/player/client.o \

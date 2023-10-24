@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2746,6 +2747,28 @@ SP_item_health_mega(edict_t *self)
 	SpawnItem(self, FindItem("Health"));
 	gi.soundindex("items/m_health.wav");
 	self->style = HEALTH_IGNORE_MAX | HEALTH_TIMED;
+}
+
+void
+SP_item_foodcube(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH))
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->model = "models/objects/trapfx/tris.md2";
+	SpawnItem(self, FindItem("Health"));
+	self->spawnflags |= DROPPED_ITEM;
+	self->style = HEALTH_IGNORE_MAX;
+	gi.soundindex("items/s_health.wav");
+	self->classname = "foodcube";
 }
 
 void
