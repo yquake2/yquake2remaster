@@ -335,6 +335,7 @@ extern void SP_CreateUnnamedSpawn ( edict_t * self ) ;
 extern void SP_CreateCoopSpots ( edict_t * self ) ;
 extern void SP_FixCoopSpots ( edict_t * self ) ;
 extern void SP_monster_tank ( edict_t * self ) ;
+extern void tank_stand_think ( edict_t * self ) ;
 extern void tank_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void tank_dead ( edict_t * self ) ;
 extern void tank_attack ( edict_t * self ) ;

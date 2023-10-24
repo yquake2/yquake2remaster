@@ -33,6 +33,7 @@ void tank_doattack_rocket(edict_t *self);
 void tank_reattack_blaster(edict_t *self);
 void tank_walk(edict_t *self);
 void tank_run(edict_t *self);
+void Use_Boss3(edict_t * ent, edict_t * other, edict_t * activator);
 
 static int sound_thud;
 static int sound_pain;
@@ -1205,6 +1206,26 @@ tank_blocked(edict_t *self, float dist)
 	return false;
 }
 
+void
+tank_stand_think(edict_t * self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->s.frame == FRAME_stand30)
+	{
+		self->s.frame = FRAME_stand01;
+	}
+	else
+	{
+		self->s.frame++;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
 /*
  * QUAKED monster_tank (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
  */
@@ -1212,6 +1233,13 @@ tank_blocked(edict_t *self, float dist)
 /*
  * QUAKED monster_tank_commander (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
  */
+
+/*QUAKED monster_tank_stand (1 .5 0) (-32 -32 0) (32 32 90)
+
+Just stands and cycles in one place until targeted, then teleports away.
+N64 edition!
+*/
+
 void
 SP_monster_tank(edict_t *self)
 {
@@ -1279,7 +1307,17 @@ SP_monster_tank(edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
 
-	walkmonster_start(self);
+	if (strcmp(self->classname, "monster_tank_stand") == 0)
+	{
+		self->monsterinfo.scale = MODEL_SCALE * 1.5f;
+		self->use = Use_Boss3;
+		self->think = tank_stand_think;
+		self->nextthink = level.time + FRAMETIME;
+	}
+	else
+	{
+		walkmonster_start(self);
+	}
 
 	self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
 	self->monsterinfo.blindfire = true;

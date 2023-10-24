@@ -334,6 +334,7 @@
 {"turret_sight", (byte *)turret_sight},
 {"TurretAim", (byte *)TurretAim},
 {"SP_monster_tank", (byte *)SP_monster_tank},
+{"tank_stand_think", (byte *)tank_stand_think},
 {"tank_die", (byte *)tank_die},
 {"tank_dead", (byte *)tank_dead},
 {"tank_attack", (byte *)tank_attack},

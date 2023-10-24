@@ -324,6 +324,7 @@ static spawn_t spawns[] = {
 	{"monster_soldier_ss", SP_monster_soldier_ss},
 	{"monster_tank", SP_monster_tank},
 	{"monster_tank_commander", SP_monster_tank},
+	{"monster_tank_stand", SP_monster_tank},
 	{"monster_medic", SP_monster_medic},
 	{"monster_flipper", SP_monster_flipper},
 	{"monster_chick", SP_monster_chick},
