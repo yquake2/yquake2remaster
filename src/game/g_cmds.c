@@ -673,6 +673,9 @@ Cmd_Drop_f(edict_t *ent)
 	it->drop(ent, it);
 }
 
+/*
+ * Display the scoreboard
+ */
 void
 Cmd_Score_f(edict_t *ent)
 {
@@ -683,6 +686,11 @@ Cmd_Score_f(edict_t *ent)
 
 	ent->client->showinventory = false;
 	ent->client->showhelp = false;
+
+	if (ent->client->menu)
+	{
+		PMenu_Close(ent);
+	}
 
 	if (!deathmatch->value && !coop->value)
 	{
@@ -808,7 +816,7 @@ Cmd_WeapPrev_f(edict_t *ent)
 
 	selected_weapon = ITEM_INDEX(cl->pers.weapon);
 
-	/* scan  for the next valid one */
+	/* scan for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
 		/* prevent scrolling through ALL weapons */
@@ -1147,8 +1155,8 @@ Cmd_Wave_f(edict_t *ent)
 	}
 }
 
-static qboolean
-flooded(edict_t *ent)
+qboolean
+CheckFlood(edict_t *ent)
 {
 	gclient_t *cl;
 	int i;
@@ -1233,7 +1241,7 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 		return;
 	}
 
-	if (flooded(ent))
+	if (CheckFlood(ent))
 	{
 		return;
 	}

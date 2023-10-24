@@ -853,6 +853,7 @@ GAME_OBJS_ = \
 	src/game/g_ai.o \
 	src/game/g_chase.o \
 	src/game/g_cmds.o \
+	src/game/g_ctf.o \
 	src/game/g_combat.o \
 	src/game/g_func.o \
 	src/game/g_items.o \
@@ -876,6 +877,7 @@ GAME_OBJS_ = \
 	src/game/g_weapon.o \
 	src/game/dm/ball.o \
 	src/game/dm/tag.o \
+	src/game/menu/menu.o \
 	src/game/monster/berserker/berserker.o \
 	src/game/monster/boss2/boss2.o \
 	src/game/monster/boss3/boss3.o \
@@ -1466,11 +1468,12 @@ CTF_OBJS_ = \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
 	src/game/g_newai.o \
+	src/game/g_newtrig.o \
 	src/ctf/g_ai.o \
 	src/ctf/g_chase.o \
 	src/ctf/g_cmds.o \
 	src/ctf/g_combat.o \
-	src/ctf/g_ctf.o \
+	src/game/g_ctf.o \
 	src/ctf/g_func.o \
 	src/ctf/g_items.o \
 	src/ctf/g_main.o \
@@ -1484,7 +1487,7 @@ CTF_OBJS_ = \
 	src/ctf/g_trigger.o \
 	src/ctf/g_utils.o \
 	src/ctf/g_weapon.o \
-	src/ctf/menu/menu.o \
+	src/game/menu/menu.o \
 	src/game/monster/misc/move.o \
 	src/ctf/player/client.o \
 	src/ctf/player/hud.o \

@@ -498,9 +498,9 @@ Cmd_Notarget_f(edict_t *ent)
 		return;
 	}
 
-	if (deathmatch->value && !sv_cheats->value)
+	if ((deathmatch->value || coop->value) && !sv_cheats->value)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -527,9 +527,14 @@ Cmd_Noclip_f(edict_t *ent)
 {
 	char *msg;
 
-	if (deathmatch->value && !sv_cheats->value)
+	if (!ent)
 	{
-		gi.cprintf( ent, PRINT_HIGH,
+		return;
+	}
+
+	if ((deathmatch->value || coop->value) && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH,
 				"You must run the server with '+set cheats 1' to enable this command.\n");
 		return;
 	}
@@ -557,6 +562,11 @@ Cmd_Use_f(edict_t *ent)
 	int index;
 	gitem_t *it;
 	char *s;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	s = gi.args();
 	it = FindItem(s);
@@ -594,6 +604,11 @@ Cmd_Drop_f(edict_t *ent)
 	gitem_t *it;
 	char *s;
 
+	if (!ent)
+	{
+		return;
+	}
+
 	if ((Q_stricmp(gi.args(), "tech") == 0) && ((it = CTFWhat_Tech(ent)) != NULL))
 	{
 		it->drop(ent, it);
@@ -626,11 +641,80 @@ Cmd_Drop_f(edict_t *ent)
 	it->drop(ent, it);
 }
 
+/*
+ * Display the scoreboard
+ */
+void
+Cmd_Score_f(edict_t *ent)
+{
+	if (!ent)
+	{
+		return;
+	}
+
+	ent->client->showinventory = false;
+	ent->client->showhelp = false;
+
+	if (ent->client->menu)
+	{
+		PMenu_Close(ent);
+	}
+
+	if (!deathmatch->value && !coop->value)
+	{
+		return;
+	}
+
+	if (ent->client->showscores)
+	{
+		ent->client->showscores = false;
+		ent->client->update_chase = true;
+		return;
+	}
+
+	ent->client->showscores = true;
+	DeathmatchScoreboardMessage(ent, ent->enemy);
+	gi.unicast(ent, true);
+}
+
+/*
+ * Display the current help message
+ */
+void
+Cmd_Help_f(edict_t *ent)
+{
+	/* this is for backwards compatability */
+	if (deathmatch->value)
+	{
+		Cmd_Score_f(ent);
+		return;
+	}
+
+	ent->client->showinventory = false;
+	ent->client->showscores = false;
+
+	if (ent->client->showhelp &&
+		(ent->client->resp.game_helpchanged == game.helpchanged))
+	{
+		ent->client->showhelp = false;
+		return;
+	}
+
+	ent->client->showhelp = true;
+	ent->client->resp.helpchanged = 0;
+	HelpComputerMessage(ent);
+}
+
 void
 Cmd_Inven_f(edict_t *ent)
 {
 	int i;
 	gclient_t *cl;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	cl = ent->client;
 
@@ -769,6 +853,11 @@ Cmd_WeapNext_f(edict_t *ent)
 	gitem_t *it;
 	int selected_weapon;
 
+	if (!ent)
+	{
+		return;
+	}
+
 	cl = ent->client;
 
 	if (!cl->pers.weapon)
@@ -816,6 +905,11 @@ Cmd_WeapLast_f(edict_t *ent)
 	int index;
 	gitem_t *it;
 
+	if (!ent)
+	{
+		return;
+	}
+
 	cl = ent->client;
 
 	if (!cl->pers.weapon || !cl->pers.lastweapon)
@@ -849,6 +943,11 @@ void
 Cmd_InvDrop_f(edict_t *ent)
 {
 	gitem_t *it;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	ValidateSelectedItem(ent);
 
@@ -908,6 +1007,11 @@ PlayerSort(void const *a, void const *b)
 {
 	int anum, bnum;
 
+	if (!a || !b)
+	{
+		return 0;
+	}
+
 	anum = *(int *)a;
 	bnum = *(int *)b;
 
@@ -935,6 +1039,11 @@ Cmd_Players_f(edict_t *ent)
 	char small[64];
 	char large[1280];
 	int index[256];
+
+	if (!ent)
+	{
+		return;
+	}
 
 	count = 0;
 
@@ -977,7 +1086,12 @@ Cmd_Wave_f(edict_t *ent)
 {
 	int i;
 
-	i = atoi(gi.argv(1));
+	if (!ent)
+	{
+		return;
+	}
+
+	i = (int)strtol(gi.argv(1), (char **)NULL, 10);
 
 	/* can't wave when ducked */
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)

@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2011 Knightmare
+ * Copyright (C) 2011 Yamagi Burmeister
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -206,8 +209,13 @@ InitGame(void)
 	/* dm map list */
 	sv_maplist = gi.cvar("sv_maplist", "", 0);
 
+	/* disruptor availability */
+	g_disruptor = gi.cvar("g_disruptor", "0", 0);
+
 	/* others */
 	aimfix = gi.cvar("aimfix", "0", CVAR_ARCHIVE);
+	g_machinegun_norecoil = gi.cvar("g_machinegun_norecoil", "0", CVAR_ARCHIVE);
+	g_swap_speed = gi.cvar("g_swap_speed", "1", 0);
 
 	/* items */
 	InitItems();

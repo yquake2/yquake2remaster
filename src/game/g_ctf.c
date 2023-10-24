@@ -86,7 +86,7 @@ cvar_t *warp_list;
 cvar_t *warn_unbalanced;
 
 /* Index for various CTF pics, this saves us
- * from calling gi.imageindex all the time 
+ * from calling gi.imageindex all the time
  * and saves a few CPU cycles since we don't
  * have to do a bunch of string compares all
  * the time. * These are set in CTFPrecache()
@@ -250,7 +250,7 @@ stuffcmd(edict_t *ent, char *s)
 /*--------------------------------------------------------------------------*/
 
 /*
- * Returns entities that have 
+ * Returns entities that have
  * origins within a spherical area
  */
 static edict_t *
@@ -641,7 +641,7 @@ SelectCTFSpawnPoint(edict_t *ent)
 /*
  * Calculate the bonuses for flag defense,
  * flag carrier defense, etc. Note that b
- * onuses are not cumaltive. You get one, 
+ * onuses are not cumaltive. You get one,
  * they are in importance order.
  */
 void
@@ -706,7 +706,7 @@ CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 				CTF_FRAG_CARRIER_BONUS);
 
 		/* the target had the flag, clear
-		   the hurt carrier field on the 
+		   the hurt carrier field on the
 		   other team */
 		for (i = 1; i <= maxclients->value; i++)
 		{
@@ -726,8 +726,8 @@ CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 		 CTF_CARRIER_DANGER_PROTECT_TIMEOUT) &&
 		!attacker->client->pers.inventory[ITEM_INDEX(flag_item)])
 	{
-		/* attacker is on the same team 
-		   as the flag carrier and 
+		/* attacker is on the same team
+		   as the flag carrier and
 		   fragged a guy who hurt our
 		   flag carrier */
 		attacker->client->resp.score += CTF_CARRIER_DANGER_PROTECT_BONUS;
@@ -744,8 +744,8 @@ CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 		return;
 	}
 
-	/* flag and flag carrier area defense bonuses 
-	   we have to find the flag and carrier entities 
+	/* flag and flag carrier area defense bonuses
+	   we have to find the flag and carrier entities
 	   find the flag */
 	switch (attacker->client->resp.ctf_team)
 	{
@@ -941,7 +941,7 @@ CTFPickup_Flag(edict_t *ent, edict_t *other)
 		return false;
 	}
 
-	/* same team, if the flag at base, 
+	/* same team, if the flag at base,
 	   check to he has the enemy flag */
 	if (ctf_team == CTF_TEAM1)
 	{
@@ -1059,9 +1059,9 @@ CTFPickup_Flag(edict_t *ent, edict_t *other)
 	other->client->pers.inventory[ITEM_INDEX(flag_item)] = 1;
 	other->client->resp.ctf_flagsince = level.time;
 
-	/* pick up the flag 
-	   if it's not a dropped flag, 
-	   we just make is disappear 
+	/* pick up the flag
+	   if it's not a dropped flag,
+	   we just make is disappear
 	   if it's dropped, it will be
 	   removed by the pickup caller */
 	if (!(ent->spawnflags & DROPPED_ITEM))
@@ -1091,8 +1091,8 @@ CTFDropFlagTouch(edict_t *ent, edict_t *other,
 static void
 CTFDropFlagThink(edict_t *ent)
 {
-	/* auto return the flag 
-	   reset flag will remove 
+	/* auto return the flag
+	   reset flag will remove
 	   ourselves */
 	if (strcmp(ent->classname, "item_flag_team1") == 0)
 	{
@@ -1108,7 +1108,7 @@ CTFDropFlagThink(edict_t *ent)
 	}
 }
 
-/* 
+/*
  * Called from PlayerDie, to drop
  * the flag from a dying player
  */
@@ -1242,8 +1242,8 @@ CTFEffects(edict_t *player)
 	}
 }
 
-/* 
- * Called when we enter the intermission 
+/*
+ * Called when we enter the intermission
  */
 void
 CTFCalcScores(void)
@@ -1407,7 +1407,7 @@ SetCTFStats(edict_t *ent)
 	/* if during intermission, we must blink
 	   the team header of the winning team */
 	if (level.intermissiontime && (level.framenum & 8))   /* blink 1/8th second */
-	{   
+	{
 		/* note that ctfgame.total[12] is
 		   set when we go to intermission */
 		if (ctfgame.team1 > ctfgame.team2)
@@ -1450,9 +1450,9 @@ SetCTFStats(edict_t *ent)
 	}
 
 	/* figure out what icon to display for team logos
-	   three states: 
+	   three states:
 	     flag at base
-	     flag taken 
+	     flag taken
 	     flag dropped */
 	p1 = imageindex_i_ctf1;
 	e = G_Find(NULL, FOFS(classname), "item_flag_team1");
@@ -1463,7 +1463,7 @@ SetCTFStats(edict_t *ent)
 		{
 			int i;
 
-			/* not at base 
+			/* not at base
 			  check if on player */
 			p1 = imageindex_i_ctf1d; /* default to dropped */
 
@@ -1493,7 +1493,7 @@ SetCTFStats(edict_t *ent)
 		{
 			int i;
 
-			/* not at base 
+			/* not at base
 			   check if on player */
 			p2 = imageindex_i_ctf2d; /* default to dropped */
 
@@ -1707,8 +1707,8 @@ CTFGrappleTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 	gi.multicast(self->s.origin, MULTICAST_PVS);
 }
 
-/* 
- * Draw beam between grapple and self 
+/*
+ * Draw beam between grapple and self
  */
 void
 CTFGrappleDrawCable(edict_t *self)
@@ -1746,8 +1746,8 @@ CTFGrappleDrawCable(edict_t *self)
 
 void SV_AddGravity(edict_t *ent);
 
-/* 
- * pull the player toward the grapple 
+/*
+ * pull the player toward the grapple
  */
 void
 CTFGrapplePull(edict_t *self)
@@ -1812,10 +1812,10 @@ CTFGrapplePull(edict_t *self)
 
 	if (self->owner->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY)
 	{
-		/* pull player toward grapple 
+		/* pull player toward grapple
 		   this causes icky stuff with prediction, we need to extend/
 		   the prediction layer to include two new fields in the player/
-		   move stuff: a point and a velocity. The client should add 
+		   move stuff: a point and a velocity. The client should add
 		   that velociy in the direction of the point */
 		vec3_t forward, up;
 
@@ -2041,7 +2041,7 @@ CTFTeam_f(edict_t *ent)
 
 		/* add a teleportation effect */
 		ent->s.event = EV_PLAYER_TELEPORT;
-		
+
 		/* hold in place briefly */
 		ent->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 		ent->client->ps.pmove.pm_time = 14;
@@ -2128,7 +2128,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 		total[team]++;
 	}
 
-	/* print level name and exit rules 
+	/* print level name and exit rules
 	   add the clients in sorted order */
 	*string = 0;
 	len = 0;
@@ -2483,8 +2483,8 @@ SpawnTechs(edict_t *ent)
 	}
 }
 
-/* 
- * frees the passed edict! 
+/*
+ * frees the passed edict!
  */
 void
 CTFRespawnTech(edict_t *ent)
@@ -2764,10 +2764,10 @@ CTFHasRegeneration(edict_t *ent)
  * ======================================================================
  */
 
-/* 
+/*
  * This array is in 'importance order',
- * it indicates what items are more 
- * important when reporting their names. 
+ * it indicates what items are more
+ * important when reporting their names.
  */
 struct
 {
@@ -2876,7 +2876,7 @@ CTFSay_Team_Location(edict_t *who, char *buf)
 	}
 
 	/* we now have the closest item
-	   see if there's more than one 
+	   see if there's more than one
 	   in the map, if so we need to
 	   determine what team is closest */
 	what = NULL;
@@ -2888,8 +2888,8 @@ CTFSay_Team_Location(edict_t *who, char *buf)
 			continue;
 		}
 
-		/* if we are here, there is more 
-		   than one, find out if hot is 
+		/* if we are here, there is more
+		   than one, find out if hot is
 		   closer to red flag or blue flag */
 		if (((flag1 = G_Find(NULL, FOFS(classname), "item_flag_team1")) != NULL) &&
 			((flag2 = G_Find(NULL, FOFS(classname), "item_flag_team2")) != NULL))
@@ -3969,7 +3969,7 @@ CTFJoinTeam(edict_t *ent, int desired_team)
 
 	/* add a teleportation effect */
 	ent->s.event = EV_PLAYER_TELEPORT;
-	
+
 	/* hold in place briefly */
 	ent->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
 	ent->client->ps.pmove.pm_time = 14;
@@ -4507,119 +4507,6 @@ CTFCheckRules(void)
 	}
 
 	return false;
-}
-
-/*--------------------------------------------------------------------------
- * just here to help old map conversions
- *--------------------------------------------------------------------------*/
-
-static void
-old_teleporter_touch(edict_t *self, edict_t *other, cplane_t *plane,
-		csurface_t *surf)
-{
-	edict_t *dest;
-	int i;
-	vec3_t forward;
-
-	if (!other->client)
-	{
-		return;
-	}
-
-	dest = G_Find(NULL, FOFS(targetname), self->target);
-
-	if (!dest)
-	{
-		gi.dprintf("Couldn't find destination\n");
-		return;
-	}
-
-	CTFPlayerResetGrapple(other);
-
-	/* unlink to make sure it can't possibly interfere with KillBox */
-	gi.unlinkentity(other);
-
-	VectorCopy(dest->s.origin, other->s.origin);
-	VectorCopy(dest->s.origin, other->s.old_origin);
-
-	/* clear the velocity and hold them in place briefly */
-	VectorClear(other->velocity);
-	other->client->ps.pmove.pm_time = 160 >> 3; /* hold time */
-	other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
-
-	/* draw the teleport splash at source and on the player */
-	self->enemy->s.event = EV_PLAYER_TELEPORT;
-	other->s.event = EV_PLAYER_TELEPORT;
-
-	/* set angles */
-	for (i = 0; i < 3; i++)
-	{
-		other->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(
-				dest->s.angles[i] - other->client->resp.cmd_angles[i]);
-	}
-
-	other->s.angles[PITCH] = 0;
-	other->s.angles[YAW] = dest->s.angles[YAW];
-	other->s.angles[ROLL] = 0;
-	VectorCopy(dest->s.angles, other->client->ps.viewangles);
-	VectorCopy(dest->s.angles, other->client->v_angle);
-
-	/* give a little forward velocity */
-	AngleVectors(other->client->v_angle, forward, NULL, NULL);
-	VectorScale(forward, 200, other->velocity);
-
-	/* kill anything at the destination */
-	if (!KillBox(other))
-	{
-	}
-
-	gi.linkentity(other);
-}
-
-/*
- * QUAKED trigger_teleport (0.5 0.5 0.5) ?
- * Players touching this will be teleported
- */
-void
-SP_trigger_teleport(edict_t *ent)
-{
-	edict_t *s;
-	int i;
-
-	if (!ent->target)
-	{
-		gi.dprintf("teleporter without a target.\n");
-		G_FreeEdict(ent);
-		return;
-	}
-
-	ent->svflags |= SVF_NOCLIENT;
-	ent->solid = SOLID_TRIGGER;
-	ent->touch = old_teleporter_touch;
-	gi.setmodel(ent, ent->model);
-	gi.linkentity(ent);
-
-	/* noise maker and splash effect dude */
-	s = G_Spawn();
-	ent->enemy = s;
-
-	for (i = 0; i < 3; i++)
-	{
-		s->s.origin[i] = ent->mins[i] + (ent->maxs[i] - ent->mins[i]) / 2;
-	}
-
-	s->s.sound = gi.soundindex("world/hum1.wav");
-	gi.linkentity(s);
-}
-
-/*
- * QUAKED info_teleport_destination (0.5 0.5 0.5) (-16 -16 -24) (16 16 32)
- * Point trigger_teleports at these.
- */
-void
-SP_info_teleport_destination(edict_t *ent)
-{
-	ent->s.origin[2] += 16;
 }
 
 /*----------------------------------------------------------------------------------*/

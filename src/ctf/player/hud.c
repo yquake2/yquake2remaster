@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +38,11 @@
 void
 MoveClientToIntermission(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	if (deathmatch->value || coop->value)
 	{
 		ent->client->showscores = true;
@@ -59,6 +65,15 @@ MoveClientToIntermission(edict_t *ent)
 	ent->client->enviro_framenum = 0;
 	ent->client->grenade_blew_up = false;
 	ent->client->grenade_time = 0;
+	ent->client->quadfire_framenum = 0;
+	ent->client->trap_blew_up = false;
+	ent->client->trap_time = 0;
+	ent->client->ir_framenum = 0;
+	ent->client->nuke_framenum = 0;
+	ent->client->double_framenum = 0;
+
+	ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
+
 
 	ent->viewheight = 0;
 	ent->s.modelindex = 0;
@@ -69,8 +84,9 @@ MoveClientToIntermission(edict_t *ent)
 	ent->s.sound = 0;
 	ent->solid = SOLID_NOT;
 
-	/* add the layout */
+	gi.linkentity(ent);
 
+	/* add the layout */
 	if (deathmatch->value || coop->value)
 	{
 		DeathmatchScoreboardMessage(ent, NULL);
@@ -81,8 +97,8 @@ MoveClientToIntermission(edict_t *ent)
 void
 BeginIntermission(edict_t *targ)
 {
-	int i, n;
-	edict_t *ent, *client;
+	int i;
+	edict_t *ent;
 
 	if (level.intermissiontime)
 	{
@@ -99,6 +115,8 @@ BeginIntermission(edict_t *targ)
 	/* respawn any dead clients */
 	for (i = 0; i < maxclients->value; i++)
 	{
+		edict_t *client;
+
 		client = g_edicts + 1 + i;
 
 		if (!client->inuse)
@@ -121,6 +139,9 @@ BeginIntermission(edict_t *targ)
 		{
 			for (i = 0; i < maxclients->value; i++)
 			{
+				int n;
+				edict_t *client;
+
 				client = g_edicts + 1 + i;
 
 				if (!client->inuse)
@@ -166,7 +187,7 @@ BeginIntermission(edict_t *targ)
 	else
 	{
 		/* chose one of four spots */
-		i = rand() & 3;
+		i = randk() & 3;
 
 		while (i--)
 		{
@@ -185,6 +206,8 @@ BeginIntermission(edict_t *targ)
 	/* move all clients to the intermission point */
 	for (i = 0; i < maxclients->value; i++)
 	{
+		edict_t *client;
+
 		client = g_edicts + 1 + i;
 
 		if (!client->inuse)
@@ -210,6 +233,12 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	gclient_t *cl;
 	edict_t *cl_ent;
 	char *tag;
+
+
+	if (!ent) /* killer can be NULL */
+	{
+		return;
+	}
 
 	if (ctf->value)
 	{
@@ -299,7 +328,8 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 		}
 
 		/* send the layout */
-		Com_sprintf(entry, sizeof(entry), "client %i %i %i %i %i %i ",
+		Com_sprintf(entry, sizeof(entry),
+				"client %i %i %i %i %i %i ",
 				x, y, sorted[i], cl->resp.score, cl->ping,
 				(level.framenum - cl->resp.enterframe) / 600);
 		j = strlen(entry);
@@ -330,54 +360,28 @@ DeathmatchScoreboard(edict_t *ent)
 }
 
 /*
- * Display the scoreboard
- */
-void
-Cmd_Score_f(edict_t *ent)
-{
-	ent->client->showinventory = false;
-	ent->client->showhelp = false;
-
-	if (ent->client->menu)
-	{
-		PMenu_Close(ent);
-	}
-
-	if (!deathmatch->value && !coop->value)
-	{
-		return;
-	}
-
-	if (ent->client->showscores)
-	{
-		ent->client->showscores = false;
-		ent->client->update_chase = true;
-		return;
-	}
-
-	ent->client->showscores = true;
-
-	DeathmatchScoreboard(ent);
-}
-
-/*
  * Draw help computer.
  */
-static void
-HelpComputer(edict_t *ent)
+void
+HelpComputerMessage(edict_t *ent)
 {
 	char string[1024];
 	char *sk;
 
-	if (skill->value == 0)
+	if (!ent)
+	{
+		return;
+	}
+
+	if (skill->value == SKILL_EASY)
 	{
 		sk = "easy";
 	}
-	else if (skill->value == 1)
+	else if (skill->value == SKILL_MEDIUM)
 	{
 		sk = "medium";
 	}
-	else if (skill->value == 2)
+	else if (skill->value == SKILL_HARD)
 	{
 		sk = "hard";
 	}
@@ -412,28 +416,21 @@ HelpComputer(edict_t *ent)
  * Display the current help message
  */
 void
-Cmd_Help_f(edict_t *ent)
+InventoryMessage(edict_t *ent)
 {
-	/* this is for backwards compatability */
-	if (deathmatch->value)
+	int i;
+
+	if (!ent)
 	{
-		Cmd_Score_f(ent);
 		return;
 	}
 
-	ent->client->showinventory = false;
-	ent->client->showscores = false;
+	gi.WriteByte(svc_inventory);
 
-	if (ent->client->showhelp &&
-		(ent->client->resp.game_helpchanged == game.helpchanged))
+	for (i = 0; i < MAX_ITEMS; i++)
 	{
-		ent->client->showhelp = false;
-		return;
+		gi.WriteShort(ent->client->pers.inventory[i]);
 	}
-
-	ent->client->showhelp = true;
-	ent->client->resp.helpchanged = 0;
-	HelpComputer(ent);
 }
 
 /* ======================================================================= */
@@ -442,13 +439,17 @@ void
 G_SetStats(edict_t *ent)
 {
 	gitem_t *item;
-	int index, cells;
+	int index, cells = 0;
 	int power_armor_type;
 
+	if (!ent)
+	{
+		return;
+	}
 
 	/* health */
 	ent->client->ps.stats[STAT_HEALTH_ICON] = level.pic_health;
-	ent->client->ps.stats[STAT_HEALTH] = ent->health;
+	ent->client->ps.stats[STAT_HEALTH] = (ent->health < -99) ? -99 : ent->health;
 
 	/* ammo */
 	if (!ent->client->ammo_index)
