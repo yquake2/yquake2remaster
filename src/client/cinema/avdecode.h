@@ -20,6 +20,7 @@ typedef struct cinavdecode
 	uint8_t *video_res;
 	long video_buffsize;
 	long video_pos;
+	long video_curr;
 	long video_frame_size;
 	double video_timestamp;
 
@@ -256,7 +257,7 @@ cinavdecode_open(const char *name)
 static int
 next_frame_ready(const cinavdecode_t *state)
 {
-	if (state->video_pos < state->video_frame_size)
+	if ((state->video_pos - state->video_curr) < state->video_frame_size)
 	{
 		/* need more frames */
 		return 0;
@@ -371,6 +372,19 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 				);
 
 				required_space = state->video_frame_size;
+
+				/* compact frame */
+				if ((state->video_pos + required_space) > state->video_buffsize &&
+					(state->video_curr > 0))
+				{
+					memmove(state->video_res,
+						state->video_res + state->video_curr,
+						state->video_pos - state->video_curr);
+					state->video_pos -= state->video_curr;
+					state->video_curr = 0;
+				}
+
+				/* realloc memory */
 				if ((state->video_pos + required_space) > state->video_buffsize)
 				{
 					uint8_t *new_buffer;
@@ -411,8 +425,9 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 
 		/* use 2.5 second of audio buffering and 1.5 video buffer for async in
 		 * media stream */
-		if ((state->audio_pos / state->audio_frame_size) > (state->fps * 2.5)||
-			(state->video_pos / state->video_frame_size) > (state->fps * 1.5))
+		if ((state->audio_pos / state->audio_frame_size) > (state->fps * 2.5) ||
+			((state->video_pos - state->video_curr) / state->video_frame_size) >
+				(state->fps * 1.5))
 		{
 			/* flush buffer if more than 1.5 second async in video stream */
 			break;
@@ -431,19 +446,15 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 		state->audio_pos = 0;
 	}
 
-	memcpy(video, state->video_res, state->video_frame_size);
-	if (state->video_pos >= state->video_frame_size)
+	memcpy(video, state->video_res + state->video_curr, state->video_frame_size);
+	state->video_curr += state->video_frame_size;
+	if (state->video_curr >= state->video_pos)
 	{
-		memmove(state->video_res, state->video_res + state->video_frame_size,
-			state->video_pos - state->video_frame_size);
-	}
-	state->video_pos -= state->video_frame_size;
-	if (state->video_pos < 0)
-	{
+		state->video_curr = 0;
 		state->video_pos = 0;
 	}
 
-	if (!state->eof || state->video_pos || state->audio_pos)
+	if (!state->eof || ((state->video_pos - state->video_curr) > 0) || state->audio_pos)
 	{
 		return 1;
 	}

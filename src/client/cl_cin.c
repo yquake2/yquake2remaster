@@ -663,7 +663,8 @@ SCR_ReadNextAVFrame(void)
 	Com_DPrintf("Audio %.2f (%.2f): Video %.2f (%.2f)\n",
 		(float)cin.av_video->audio_pos / cin.av_video->audio_frame_size,
 		cin.av_video->audio_timestamp,
-		(float)cin.av_video->video_pos / cin.av_video->video_frame_size,
+		(float)(cin.av_video->video_pos - cin.av_video->video_curr) /
+			cin.av_video->video_frame_size,
 		cin.av_video->video_timestamp);
 
 	/* force untransparent image show */
