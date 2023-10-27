@@ -48,6 +48,9 @@ WITH_CURL:=yes
 # installed
 WITH_OPENAL:=yes
 
+# Use avcodec for decode ogv videos
+WITH_AVCODEC:=yes
+
 # Sets an RPATH to $ORIGIN/lib. It can be used to
 # inject custom libraries, e.g. a patches libSDL.so
 # or libopenal.so. Not supported on Windows.
@@ -442,6 +445,11 @@ ifeq ($(WITH_CURL),yes)
 release/yquake2.exe : CFLAGS += -DUSE_CURL
 endif
 
+ifeq ($(WITH_AVCODEC),yes)
+release/yquake2.exe : CFLAGS += -DAVMEDIADECODE
+release/yquake2.exe : LDLIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil
+endif
+
 ifeq ($(WITH_OPENAL),yes)
 release/yquake2.exe : CFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"openal32.dll"'
 endif
@@ -469,6 +477,11 @@ release/quake2 : CFLAGS += -Wno-unused-result
 
 ifeq ($(WITH_CURL),yes)
 release/quake2 : CFLAGS += -DUSE_CURL
+endif
+
+ifeq ($(WITH_AVCODEC),yes)
+release/quake2 : CFLAGS += -DAVMEDIADECODE
+release/quake2 : LDLIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil
 endif
 
 ifeq ($(WITH_OPENAL),yes)

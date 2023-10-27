@@ -1,0 +1,509 @@
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
+#include <stdint.h>
+
+typedef struct cinavdecode
+{
+	AVFormatContext *demuxer;
+	AVCodecContext **dec_ctx;
+	AVFrame *dec_frame;
+	AVPacket *packet;
+	struct SwsContext *swsctx_image;
+	SwrContext *swr_audio;
+	int eof;
+
+	/* video */
+	float fps;
+	int width, height;
+	uint8_t *video_res;
+	long video_buffsize;
+	long video_pos;
+	long video_frame_size;
+	double video_timestamp;
+
+	/* audio */
+	int channels, rate;
+	uint8_t *audio_res;
+	long audio_buffsize;
+	long audio_pos;
+	long audio_frame_size;
+	double audio_timestamp;
+} cinavdecode_t;
+
+static void
+cinavdecode_close(cinavdecode_t *state)
+{
+	if (!state)
+	{
+		return;
+	}
+
+	if (state->video_res)
+	{
+		free(state->video_res);
+	}
+
+	if (state->audio_res)
+	{
+		free(state->audio_res);
+	}
+
+	if (state->packet)
+	{
+		av_packet_free(&state->packet);
+		//av_packet_unref(state->packet);
+	}
+
+	if (state->dec_frame)
+	{
+		av_frame_free(&state->dec_frame);
+	}
+
+	if (state->swsctx_image)
+	{
+		sws_freeContext(state->swsctx_image);
+	}
+
+	if (state->swr_audio)
+	{
+		swr_free(&state->swr_audio);
+	}
+
+	if (state->demuxer)
+	{
+		int i;
+
+		for (i = 0; i < state->demuxer->nb_streams; i++)
+		{
+			if (state->dec_ctx)
+			{
+				avcodec_free_context(&state->dec_ctx[i]);
+			}
+		}
+
+		avformat_close_input(&state->demuxer);
+	}
+
+	av_free(state);
+}
+
+/*
+ * Rewrite to use callback?
+ */
+static cinavdecode_t *
+cinavdecode_open(const char *name)
+{
+	cinavdecode_t *state = NULL;
+	int ret, i, count;
+
+	state = av_calloc(1, sizeof(cinavdecode_t));
+	memset(state, 0, sizeof(cinavdecode_t));
+
+	ret = avformat_open_input(&state->demuxer, name, NULL, NULL);
+	if (ret < 0)
+	{
+		/* can't open file */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	if ((ret = avformat_find_stream_info(state->demuxer, NULL)) < 0)
+	{
+		/* Can't get steam info */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	state->dec_ctx = av_calloc(state->demuxer->nb_streams, sizeof(AVCodecContext *));
+	if (!state->dec_ctx)
+	{
+		/* can't allocate streams */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	for (i = 0; i < state->demuxer->nb_streams; i++)
+	{
+		AVStream *stream = state->demuxer->streams[i];
+		const AVCodec *dec = avcodec_find_decoder(stream->codecpar->codec_id);
+		AVCodecContext *codec_ctx;
+		if (!dec)
+		{
+			/* Has no decoder */
+			cinavdecode_close(state);
+			return NULL;
+		}
+
+		codec_ctx = avcodec_alloc_context3(dec);
+		if (!codec_ctx)
+		{
+			/* Failed alloc context */
+			cinavdecode_close(state);
+			return NULL;
+		}
+		ret = avcodec_parameters_to_context(codec_ctx, stream->codecpar);
+		if (ret < 0) {
+			/* Set parameters to contex */
+			cinavdecode_close(state);
+			return NULL;
+		}
+
+		/* Inform the decoder about the timebase for the packet timestamps.
+		 * This is highly recommended, but not mandatory. */
+		codec_ctx->pkt_timebase = stream->time_base;
+
+		/* Reencode video & audio and remux subtitles etc. */
+		if (codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO ||
+			codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO)
+		{
+			if (codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
+			{
+				codec_ctx->framerate = av_guess_frame_rate(
+					state->demuxer, stream, NULL);
+
+				state->fps = (float)codec_ctx->framerate.num / codec_ctx->framerate.den;
+				state->width = codec_ctx->width;
+				state->height = codec_ctx->height;
+
+				printf("frame per second: %f\n", state->fps);
+				printf("format: %d size: %dx%d\n",
+					codec_ctx->pix_fmt, state->width, state->height);
+
+				state->swsctx_image = sws_getContext(
+					codec_ctx->width, codec_ctx->height, codec_ctx->pix_fmt,
+					codec_ctx->width, codec_ctx->height, AV_PIX_FMT_RGBA, 0, 0, 0, 0);
+			}
+			else
+			{
+				state->channels = codec_ctx->ch_layout.nb_channels;
+				state->rate = codec_ctx->sample_rate;
+
+				printf("channels: %d, rate; %d\n", state->channels, state->rate);
+
+				printf("Audio format: ");
+				switch (codec_ctx->sample_fmt)
+				{
+					case AV_SAMPLE_FMT_NONE: printf("None\n"); break;
+					case AV_SAMPLE_FMT_U8: printf("unsigned 8 bits\n"); break;
+					case AV_SAMPLE_FMT_S16: printf("signed 16 bits\n"); break;
+					case AV_SAMPLE_FMT_S32: printf("signed 32 bits\n"); break;
+					case AV_SAMPLE_FMT_FLT: printf("float\n"); break;
+					case AV_SAMPLE_FMT_DBL: printf("double\n"); break;
+					case AV_SAMPLE_FMT_U8P: printf("unsigned 8 bits, planar\n"); break;
+					case AV_SAMPLE_FMT_S16P: printf("signed 16 bits, planar\n"); break;
+					case AV_SAMPLE_FMT_S32P: printf("signed 32 bits, planar\n"); break;
+					case AV_SAMPLE_FMT_FLTP: printf("float, planar\n"); break;
+					case AV_SAMPLE_FMT_DBLP: printf("double, planar\n"); break;
+					case AV_SAMPLE_FMT_S64: printf("signed 64 bits\n"); break;
+					case AV_SAMPLE_FMT_S64P: printf("signed 64 bits, planar\n"); break;
+					default: printf("unknow\n"); break;
+				}
+
+				printf("rate: %d\n", codec_ctx->sample_rate);
+
+				ret = swr_alloc_set_opts2(&state->swr_audio,
+					&codec_ctx->ch_layout, AV_SAMPLE_FMT_S16, codec_ctx->sample_rate,
+					&codec_ctx->ch_layout, codec_ctx->sample_fmt, codec_ctx->sample_rate,
+					0, NULL);
+
+				if (ret < 0)
+				{
+					/* Can't open format sound convert */
+					cinavdecode_close(state);
+					return NULL;
+				}
+
+				ret = swr_init(state->swr_audio);
+				if (ret < 0)
+				{
+					/* Can't open format sound convert */
+					cinavdecode_close(state);
+					return NULL;
+				}
+			}
+
+			/* Open decoder */
+			ret = avcodec_open2(codec_ctx, dec, NULL);
+			if (ret < 0)
+			{
+				/* Can't open decoder */
+				cinavdecode_close(state);
+				return NULL;
+			}
+
+			state->dec_ctx[i] = codec_ctx;
+		}
+	}
+
+	av_dump_format(state->demuxer, 0, name, 0);
+
+	state->dec_frame = av_frame_alloc();
+	if (!state->dec_frame)
+	{
+		/* Can't allocate frame */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	state->packet = av_packet_alloc();
+	if (!state->packet)
+	{
+		/* Can't allocate frame */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	if (state->fps < 1 || state->rate < 5500)
+	{
+		/* too rare update */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	/* Fix here if audio not in sync */
+	count = state->rate * state->channels / state->fps;
+
+	/* round up to channels and width */
+	count = (count + (state->channels) - 1) & (~(state->channels) - 1);
+	state->audio_frame_size = count * 2;
+
+	/* buffer 1 second of sound */
+	state->audio_buffsize = state->audio_frame_size * (state->fps + 1);
+	state->audio_res = malloc(state->audio_buffsize);
+
+	/* buffer half second of video */
+	state->video_frame_size = 4 * state->width * state->height;
+	state->video_buffsize = state->video_frame_size * (state->fps / 2 + 1);
+	state->video_res = malloc(state->video_buffsize);
+
+	return state;
+}
+
+static int
+next_frame_ready(const cinavdecode_t *state)
+{
+	if (state->video_pos < state->video_frame_size)
+	{
+		/* need more frames */
+		return 0;
+	}
+
+	if (state->audio_pos < state->audio_frame_size)
+	{
+		/* need more audio */
+		return 0;
+	}
+
+	return 1;
+}
+
+/*
+ * Caller should alloacate buffer enough for single frame
+ */
+static int
+cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
+{
+	/* read all packets */
+	while (!next_frame_ready(state) && !state->eof)
+	{
+		int stream_index, ret;
+
+		if ((ret = av_read_frame(state->demuxer, state->packet)) < 0)
+		{
+			state->eof = 1;
+			break;
+		}
+
+		stream_index = state->packet->stream_index;
+
+		/* send the packet with the compressed data to the decoder */
+		ret = avcodec_send_packet(state->dec_ctx[stream_index], state->packet);
+		if (ret < 0)
+		{
+			state->eof = 1;
+			/* can't send packet for decode */
+			break;
+		}
+
+		/* read all the output frames (in general there may be any number of them */
+		while (ret >= 0)
+		{
+			ret = avcodec_receive_frame(state->dec_ctx[stream_index], state->dec_frame);
+			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+			{
+				/* End of package */
+				break;
+			}
+			else if (ret < 0)
+			{
+				state->eof = 1;
+				/* Decode error */
+				break;
+			}
+
+			if (state->dec_ctx[stream_index]->codec_type == AVMEDIA_TYPE_AUDIO)
+			{
+				uint8_t *out[1];
+				int ret, required_space;
+
+				state->audio_timestamp = (
+					(double)state->dec_frame->pts *
+					state->dec_ctx[stream_index]->pkt_timebase.num /
+					state->dec_ctx[stream_index]->pkt_timebase.den
+				);
+
+				required_space = state->dec_frame->nb_samples * 2 * state->channels;
+				if ((state->audio_pos + required_space) > state->audio_buffsize)
+				{
+					uint8_t *new_buffer;
+
+					/* add current frame size */
+					state->audio_buffsize += required_space;
+					/* double buffer */
+					state->audio_buffsize *= 2;
+					/* realloacate buffer */
+					new_buffer = realloc(state->audio_res, state->audio_buffsize);
+					if (!new_buffer)
+					{
+						/* Memalloc error */
+						state->eof = 1;
+						break;
+					}
+					state->audio_res = new_buffer;
+					printf("new audio buffer %.2f:%.2f\n",
+						(float)state->audio_pos / state->audio_frame_size,
+						(float)state->audio_buffsize / state->audio_frame_size);
+				}
+
+				out[0] = state->audio_res + state->audio_pos;
+				ret = swr_convert(state->swr_audio, out, state->dec_frame->nb_samples,
+					(const uint8_t **)state->dec_frame->data, state->dec_frame->nb_samples);
+				if (ret < 0)
+				{
+					/* Decode error */
+					state->eof = 1;
+					break;
+				}
+				/*
+				printf("Audio %.2f: samples: %d, channels %d --> %d\n",
+					(float)state->audio_pos / state->audio_frame_size,
+					state->dec_frame->nb_samples,
+					state->dec_ctx[stream_index]->ch_layout.nb_channels, ret);
+				*/
+				/* move current pos */
+				state->audio_pos += required_space;
+			}
+			else if (state->dec_ctx[stream_index]->codec_type == AVMEDIA_TYPE_VIDEO)
+			{
+				uint8_t *out[1];
+				int linesize[1], ret, required_space;
+
+				state->video_timestamp = (
+					(double)state->dec_frame->pts *
+					state->dec_ctx[stream_index]->pkt_timebase.num /
+					state->dec_ctx[stream_index]->pkt_timebase.den
+				);
+
+				required_space = state->video_frame_size;
+				if ((state->video_pos + required_space) > state->video_buffsize)
+				{
+					uint8_t *new_buffer;
+					/* add current frame size */
+					state->video_buffsize += required_space;
+					/* double buffer */
+					state->video_buffsize *= 2;
+					/* realloacate buffer */
+					new_buffer = realloc(state->video_res, state->video_buffsize);
+					if (!new_buffer)
+					{
+						/* Memalloc error */
+						state->eof = 1;
+						break;
+					}
+					state->video_res = new_buffer;
+					printf("new video buffer %.2f:%.2f\n",
+						(float)state->video_pos / state->video_frame_size,
+						(float)state->video_buffsize / state->video_frame_size);
+				}
+
+				/* RGB stride */
+				linesize[0] = 4 * state->dec_frame->width;
+				/* RGB24 have one plane */
+				out[0] = state->video_res + state->video_pos;
+
+				ret = sws_scale(state->swsctx_image,
+					(const uint8_t * const*)state->dec_frame->data,
+					state->dec_frame->linesize, 0,
+					state->dec_frame->height, out, linesize);
+
+				if (ret < 0)
+				{
+					/* Decode error */
+					state->eof = 1;
+					break;
+				}
+				/*
+				printf("video %.2f: %p, stride: %d, width: %d, height: %d, format: %d\n",
+					(float)state->video_pos / state->video_frame_size,
+					state->dec_frame->data[0], state->dec_frame->linesize[0],
+					state->dec_frame->width, state->dec_frame->height,
+					state->dec_frame->format);
+				*/
+				state->video_pos += required_space;
+			}
+		}
+		av_packet_unref(state->packet);
+
+		/* use 2.5 second of audio buffering and 1.5 video buffer for async in
+		 * media stream */
+		if ((state->audio_pos / state->audio_frame_size) > (state->fps * 2.5)||
+			(state->video_pos / state->video_frame_size) > (state->fps * 1.5))
+		{
+			/* flush buffer if more than 1.5 second async in video stream */
+			break;
+		}
+	};
+
+	/*printf("Audio %.2f (%.2f): Video %.2f (%.2f)\n",
+		(float)state->audio_pos / state->audio_frame_size,
+		state->audio_timestamp,
+		(float)state->video_pos / state->video_frame_size,
+		state->video_timestamp);*/
+
+	memcpy(audio, state->audio_res, state->audio_frame_size);
+	if (state->audio_pos >= state->audio_frame_size)
+	{
+		memmove(state->audio_res, state->audio_res + state->audio_frame_size,
+			state->audio_pos - state->audio_frame_size);
+	}
+	state->audio_pos -= state->audio_frame_size;
+	if (state->audio_pos < 0)
+	{
+		state->audio_pos = 0;
+	}
+
+	memcpy(video, state->video_res, state->video_frame_size);
+	if (state->video_pos >= state->video_frame_size)
+	{
+		memmove(state->video_res, state->video_res + state->video_frame_size,
+			state->video_pos - state->video_frame_size);
+	}
+	state->video_pos -= state->video_frame_size;
+	if (state->video_pos < 0)
+	{
+		state->video_pos = 0;
+	}
+
+	if (!state->eof || state->video_pos || state->audio_pos)
+	{
+		return 1;
+	}
+	else
+	{
+		/* no frames any more */
+		return -1;
+	}
+}
+

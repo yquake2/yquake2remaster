@@ -31,6 +31,10 @@
 #include "input/header/input.h"
 #include "cinema/smacker.h"
 
+#ifdef AVMEDIADECODE
+#include "cinema/avdecode.h"
+#endif
+
 #define PL_MPEG_IMPLEMENTATION
 #include "cinema/pl_mpeg.h"
 
@@ -62,6 +66,7 @@ typedef struct
 typedef enum
 {
 	video_cin,
+	video_av,
 	video_smk,
 	video_mpg
 } cinema_t;
@@ -101,6 +106,11 @@ typedef struct
 
 	/* mpg video */
 	plm_t *plm_video;
+
+#ifdef AVMEDIADECODE
+	/* ffmpeg avideo */
+	cinavdecode_t *av_video;
+#endif
 } cinematics_t;
 
 cinematics_t cin;
@@ -208,6 +218,12 @@ void
 SCR_StopCinematic(void)
 {
 	cl.cinematictime = 0; /* done */
+
+	if (cin.av_video)
+	{
+		cinavdecode_close(cin.av_video);
+		cin.av_video = NULL;
+	}
 
 	if (cin.smk_video)
 	{
@@ -627,6 +643,74 @@ SCR_ReadNextFrame(void)
 	return pic;
 }
 
+
+#ifdef AVMEDIADECODE
+
+static byte *
+SCR_ReadNextAVFrame(void)
+{
+	size_t count, i;
+	byte *buffer;
+
+	count = cin.height * cin.width * cin.color_bits / 8;
+	buffer = Z_Malloc(count);
+	if (cinavdecode_next_frame(cin.av_video, buffer, cin.audio_buf) < 0)
+	{
+		Z_Free(buffer);
+		return NULL;
+	}
+
+	/* force untransparent image show */
+	for (i=0; i < count; i += 4)
+	{
+		buffer[i + 3] = 255;
+	}
+
+	if (cin.s_channels > 0)
+	{
+		S_RawSamples(cin.av_video->audio_frame_size / (cin.s_width * cin.s_channels),
+			cin.s_rate, cin.s_width, cin.s_channels,
+			cin.audio_buf, Cvar_VariableValue("s_volume"));
+	}
+
+	cl.cinematicframe++;
+
+	return buffer;
+}
+
+static qboolean
+SCR_LoadAVcodec(const char *arg, const char *dot)
+{
+	char name[MAX_OSPATH], *path = NULL;
+
+	while (1)
+	{
+		path = FS_NextPath(path);
+
+		if (!path)
+		{
+			printf("can't decode or open %s\n", path);
+			break;
+		}
+
+		Com_sprintf(name, sizeof(name), "%s/video/%s", path, arg);
+		cin.av_video = cinavdecode_open(name);
+		if (cin.av_video)
+		{
+			break;
+		}
+	}
+
+	if (!cin.av_video)
+	{
+		/* Can't open file */
+		return false;
+	}
+
+	return true;
+}
+#endif
+
 void
 SCR_RunCinematic(void)
 {
@@ -669,7 +753,6 @@ SCR_RunCinematic(void)
 	}
 
 	cin.pic = cin.pic_pending;
-	cin.pic_pending = NULL;
 	switch (cin.video_type)
 	{
 		case video_cin:
@@ -681,6 +764,13 @@ SCR_RunCinematic(void)
 		case video_mpg:
 			cin.pic_pending = SCR_ReadNextMPGFrame();
 			break;
+#ifdef AVMEDIADECODE
+		case video_av:
+			cin.pic_pending = SCR_ReadNextAVFrame();
+			break;
+#endif
+		default:
+			cin.pic_pending = NULL;
 	}
 
 	if (!cin.pic_pending)
@@ -830,7 +920,7 @@ SCR_LoadHiColor(const char* namewe, const char *ext, int *width, int *height)
 
 	if (!rawdata || len <=0)
 	{
-			return NULL;
+		return NULL;
 	}
 
 	data = stbi_load_from_memory(rawdata, len, width, height,
@@ -1046,6 +1136,39 @@ SCR_PlayCinematic(char *arg)
 		return;
 	}
 
+#ifdef AVMEDIADECODE
+	if (dot && !strcmp(dot, ".ogv"))
+	{
+		if (!SCR_LoadAVcodec(arg, dot))
+		{
+			cin.av_video = NULL;
+			cl.cinematictime = 0; /* done */
+			return;
+		}
+
+		SCR_EndLoadingPlaque();
+
+		cin.color_bits = 32;
+		cls.state = ca_active;
+
+		cin.s_rate = cin.av_video->rate;
+		cin.s_width = 2;
+		cin.s_channels = cin.av_video->channels;
+		cin.audio_buf = Z_Malloc(cin.av_video->audio_frame_size);
+
+		cin.width = cin.av_video->width;
+		cin.height = cin.av_video->height;
+		cin.fps = cin.av_video->fps;
+
+		cl.cinematicframe = 0;
+		cin.pic = SCR_ReadNextAVFrame();
+		cl.cinematictime = Sys_Milliseconds();
+
+		cin.video_type = video_av;
+		return;
+	}
+#endif
+
 	Com_sprintf(name, sizeof(name), "video/%s", arg);
 	FS_FOpenFile(name, &cl.cinematic_file, false);
 
@@ -1082,4 +1205,3 @@ SCR_PlayCinematic(char *arg)
 
 	cin.video_type = video_cin;
 }
-

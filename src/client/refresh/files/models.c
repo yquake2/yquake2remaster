@@ -1250,7 +1250,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		!strcmp(ext, "md2") ||
 		!strcmp(ext, "mdl"))
 	{
-		int filesize, len;
+		int filesize;
 
 		/* Check Heretic2 model */
 		Q_strlcpy(newname, namewe, sizeof(newname));

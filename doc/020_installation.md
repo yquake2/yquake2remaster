@@ -299,7 +299,8 @@ The build dependencies can be installed with:
 * On Arch Linux based distributions: `pacman -S base-devel mesa openal
   curl sdl2`
 * On Debian based distributions: `apt install build-essential
-  libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev`
+  libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev
+  libavformat-dev libvulkan-dev`
 * On FreeBSD: `pkg install gmake libGL sdl2 openal-soft curl`
 * On NetBSD: `pkgin install gmake SDL2 openal-soft curl`
 * On OpenBSD: `pkg_add gmake sdl2 openal curl`
@@ -330,26 +331,26 @@ is copied to the corresponding directory in the Quake II installation.
 
 ### Compiling on Windows with Visual Studio (2015 and newer)
 
-To compile with Visual Studio, CMake is required.  
+To compile with Visual Studio, CMake is required.
 We only support VS2015 and newer, though VS2019 version 16.8 or newer is recommended.
 
-Furthermore you'll need **SDL2**, **openal-soft** and **libcurl** to link against.  
+Furthermore you'll need **SDL2**, **openal-soft** and **libcurl** to link against.
 The easiest way to get those dependencies is using the
 [dhewm3-libs](https://github.com/dhewm/dhewm3-libs/) together with the
-`YQUAKE2LIBS` CMake variable.  
+`YQUAKE2LIBS` CMake variable.
 It might also be possible to manually install the dependencies or to use
 [vcpkg](https://vcpkg.io) or similar to install them, but that's untested.
 
 Create a build directory outside the yquake2 directory, open a terminal,
 change to that directory and use CMake to generate a Visual Studio solution.
 
-For Win32 (32bit x86) and VS2019 the commandline should look like:  
-`cmake -G "Visual Studio 16 2019" -A Win32 -DYQUAKE2LIBS="C:/dev/dhewm3-libs/i686-w64-mingw32" path/to/yquake2`  
+For Win32 (32bit x86) and VS2019 the commandline should look like:
+`cmake -G "Visual Studio 16 2019" -A Win32 -DYQUAKE2LIBS="C:/dev/dhewm3-libs/i686-w64-mingw32" path/to/yquake2`
 Of course you need to adjust `C:/dev/dhewm3-libs/` to the directory you
 put the *dhewm3-libs* in, and `path/to/yquake2` to your Yamagi Quake II
 source checkout (the directory the `CMakeLists.txt` is in).
 
-For x64/Win64 (64bit x86) it should look like:  
+For x64/Win64 (64bit x86) it should look like:
 `cmake -G "Visual Studio 16 2019" -A x64 -DYQUAKE2LIBS="C:/dev/dhewm3-libs/x86_64-w64-mingw32" path/to/yquake2`
 
 After successfully running this command, there should be a `yquake2.sln`
