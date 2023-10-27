@@ -53,7 +53,6 @@ cinavdecode_close(cinavdecode_t *state)
 	if (state->packet)
 	{
 		av_packet_free(&state->packet);
-		//av_packet_unref(state->packet);
 	}
 
 	if (state->dec_frame)
@@ -116,6 +115,8 @@ cinavdecode_open(const char *name)
 		return NULL;
 	}
 
+	/* Check video info by av_dump_format(state->demuxer, 0, name, 0); */
+
 	state->dec_ctx = av_calloc(state->demuxer->nb_streams, sizeof(AVCodecContext *));
 	if (!state->dec_ctx)
 	{
@@ -167,10 +168,6 @@ cinavdecode_open(const char *name)
 				state->width = codec_ctx->width;
 				state->height = codec_ctx->height;
 
-				printf("frame per second: %f\n", state->fps);
-				printf("format: %d size: %dx%d\n",
-					codec_ctx->pix_fmt, state->width, state->height);
-
 				state->swsctx_image = sws_getContext(
 					codec_ctx->width, codec_ctx->height, codec_ctx->pix_fmt,
 					codec_ctx->width, codec_ctx->height, AV_PIX_FMT_RGBA, 0, 0, 0, 0);
@@ -179,29 +176,6 @@ cinavdecode_open(const char *name)
 			{
 				state->channels = codec_ctx->ch_layout.nb_channels;
 				state->rate = codec_ctx->sample_rate;
-
-				printf("channels: %d, rate; %d\n", state->channels, state->rate);
-
-				printf("Audio format: ");
-				switch (codec_ctx->sample_fmt)
-				{
-					case AV_SAMPLE_FMT_NONE: printf("None\n"); break;
-					case AV_SAMPLE_FMT_U8: printf("unsigned 8 bits\n"); break;
-					case AV_SAMPLE_FMT_S16: printf("signed 16 bits\n"); break;
-					case AV_SAMPLE_FMT_S32: printf("signed 32 bits\n"); break;
-					case AV_SAMPLE_FMT_FLT: printf("float\n"); break;
-					case AV_SAMPLE_FMT_DBL: printf("double\n"); break;
-					case AV_SAMPLE_FMT_U8P: printf("unsigned 8 bits, planar\n"); break;
-					case AV_SAMPLE_FMT_S16P: printf("signed 16 bits, planar\n"); break;
-					case AV_SAMPLE_FMT_S32P: printf("signed 32 bits, planar\n"); break;
-					case AV_SAMPLE_FMT_FLTP: printf("float, planar\n"); break;
-					case AV_SAMPLE_FMT_DBLP: printf("double, planar\n"); break;
-					case AV_SAMPLE_FMT_S64: printf("signed 64 bits\n"); break;
-					case AV_SAMPLE_FMT_S64P: printf("signed 64 bits, planar\n"); break;
-					default: printf("unknow\n"); break;
-				}
-
-				printf("rate: %d\n", codec_ctx->sample_rate);
 
 				ret = swr_alloc_set_opts2(&state->swr_audio,
 					&codec_ctx->ch_layout, AV_SAMPLE_FMT_S16, codec_ctx->sample_rate,
@@ -236,8 +210,6 @@ cinavdecode_open(const char *name)
 			state->dec_ctx[i] = codec_ctx;
 		}
 	}
-
-	av_dump_format(state->demuxer, 0, name, 0);
 
 	state->dec_frame = av_frame_alloc();
 	if (!state->dec_frame)
@@ -372,9 +344,6 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 						break;
 					}
 					state->audio_res = new_buffer;
-					printf("new audio buffer %.2f:%.2f\n",
-						(float)state->audio_pos / state->audio_frame_size,
-						(float)state->audio_buffsize / state->audio_frame_size);
 				}
 
 				out[0] = state->audio_res + state->audio_pos;
@@ -386,12 +355,7 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 					state->eof = 1;
 					break;
 				}
-				/*
-				printf("Audio %.2f: samples: %d, channels %d --> %d\n",
-					(float)state->audio_pos / state->audio_frame_size,
-					state->dec_frame->nb_samples,
-					state->dec_ctx[stream_index]->ch_layout.nb_channels, ret);
-				*/
+
 				/* move current pos */
 				state->audio_pos += required_space;
 			}
@@ -423,14 +387,10 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 						break;
 					}
 					state->video_res = new_buffer;
-					printf("new video buffer %.2f:%.2f\n",
-						(float)state->video_pos / state->video_frame_size,
-						(float)state->video_buffsize / state->video_frame_size);
 				}
 
-				/* RGB stride */
+				/* RGB stride with single plane */
 				linesize[0] = 4 * state->dec_frame->width;
-				/* RGB24 have one plane */
 				out[0] = state->video_res + state->video_pos;
 
 				ret = sws_scale(state->swsctx_image,
@@ -444,13 +404,6 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 					state->eof = 1;
 					break;
 				}
-				/*
-				printf("video %.2f: %p, stride: %d, width: %d, height: %d, format: %d\n",
-					(float)state->video_pos / state->video_frame_size,
-					state->dec_frame->data[0], state->dec_frame->linesize[0],
-					state->dec_frame->width, state->dec_frame->height,
-					state->dec_frame->format);
-				*/
 				state->video_pos += required_space;
 			}
 		}
@@ -465,12 +418,6 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 			break;
 		}
 	};
-
-	/*printf("Audio %.2f (%.2f): Video %.2f (%.2f)\n",
-		(float)state->audio_pos / state->audio_frame_size,
-		state->audio_timestamp,
-		(float)state->video_pos / state->video_frame_size,
-		state->video_timestamp);*/
 
 	memcpy(audio, state->audio_res, state->audio_frame_size);
 	if (state->audio_pos >= state->audio_frame_size)

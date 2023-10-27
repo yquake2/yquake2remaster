@@ -546,6 +546,7 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 
 	if ((l > 4) && (!strcmp(level + l - 4, ".cin") ||
 					!strcmp(level + l - 4, ".ogv") ||
+					!strcmp(level + l - 4, ".roq") ||
 					!strcmp(level + l - 4, ".mpg") ||
 					!strcmp(level + l - 4, ".smk")))
 	{

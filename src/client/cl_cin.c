@@ -660,6 +660,12 @@ SCR_ReadNextAVFrame(void)
 		return NULL;
 	}
 
+	Com_DPrintf("Audio %.2f (%.2f): Video %.2f (%.2f)\n",
+		(float)cin.av_video->audio_pos / cin.av_video->audio_frame_size,
+		cin.av_video->audio_timestamp,
+		(float)cin.av_video->video_pos / cin.av_video->video_frame_size,
+		cin.av_video->video_timestamp);
+
 	/* force untransparent image show */
 	for (i=0; i < count; i += 4)
 	{
@@ -1010,6 +1016,44 @@ SCR_PlayCinematic(char *arg)
 		return;
 	}
 
+#ifdef AVMEDIADECODE
+	if (dot && (!strcmp(dot, ".ogv") ||
+				!strcmp(dot, ".mpg") ||
+				!strcmp(dot, ".smk") ||
+				!strcmp(dot, ".roq")))
+	{
+		if (!SCR_LoadAVcodec(arg, dot))
+		{
+			cin.av_video = NULL;
+			cl.cinematictime = 0; /* done */
+			return;
+		}
+
+		SCR_EndLoadingPlaque();
+
+		cin.color_bits = 32;
+		cls.state = ca_active;
+
+		cin.s_rate = cin.av_video->rate;
+		cin.s_width = 2;
+		cin.s_channels = cin.av_video->channels;
+		cin.audio_buf = Z_Malloc(cin.av_video->audio_frame_size);
+
+		cin.width = cin.av_video->width;
+		cin.height = cin.av_video->height;
+		cin.fps = cin.av_video->fps;
+
+		cl.cinematicframe = 0;
+		cin.pic = SCR_ReadNextAVFrame();
+		cl.cinematictime = Sys_Milliseconds();
+
+		cin.video_type = video_av;
+		return;
+	}
+
+#else
+
+	/* buildin decoders */
 	if (dot && !strcmp(dot, ".mpg"))
 	{
 		int len;
@@ -1133,38 +1177,6 @@ SCR_PlayCinematic(char *arg)
 		cl.cinematictime = Sys_Milliseconds();
 
 		cin.video_type = video_smk;
-		return;
-	}
-
-#ifdef AVMEDIADECODE
-	if (dot && !strcmp(dot, ".ogv"))
-	{
-		if (!SCR_LoadAVcodec(arg, dot))
-		{
-			cin.av_video = NULL;
-			cl.cinematictime = 0; /* done */
-			return;
-		}
-
-		SCR_EndLoadingPlaque();
-
-		cin.color_bits = 32;
-		cls.state = ca_active;
-
-		cin.s_rate = cin.av_video->rate;
-		cin.s_width = 2;
-		cin.s_channels = cin.av_video->channels;
-		cin.audio_buf = Z_Malloc(cin.av_video->audio_frame_size);
-
-		cin.width = cin.av_video->width;
-		cin.height = cin.av_video->height;
-		cin.fps = cin.av_video->fps;
-
-		cl.cinematicframe = 0;
-		cin.pic = SCR_ReadNextAVFrame();
-		cl.cinematictime = Sys_Milliseconds();
-
-		cin.video_type = video_av;
 		return;
 	}
 #endif
