@@ -694,7 +694,7 @@ SCR_LoadAVcodec(const char *arg, const char *dot)
 			break;
 		}
 
-		Com_sprintf(name, sizeof(name), "%s/video/%s", path, arg);
+		Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg, dot);
 		cin.av_video = cinavdecode_open(name);
 		if (cin.av_video)
 		{
@@ -1012,38 +1012,49 @@ SCR_PlayCinematic(char *arg)
 	}
 
 #ifdef AVMEDIADECODE
-	if (dot && (!strcmp(dot, ".ogv") ||
+	if (dot && (!strcmp(dot, ".cin") ||
+				!strcmp(dot, ".ogv") ||
 				!strcmp(dot, ".mpg") ||
 				!strcmp(dot, ".smk") ||
 				!strcmp(dot, ".roq")))
 	{
-		if (!SCR_LoadAVcodec(arg, dot))
+		char namewe[256];
+
+		/* Remove the extension */
+		memset(namewe, 0, 256);
+		memcpy(namewe, arg, strlen(arg) - strlen(dot));
+
+		if (SCR_LoadAVcodec(namewe, ".ogv") ||
+			SCR_LoadAVcodec(namewe, ".roq") ||
+			SCR_LoadAVcodec(namewe, ".mpg") ||
+			SCR_LoadAVcodec(namewe, dot))
+		{
+			SCR_EndLoadingPlaque();
+
+			cin.color_bits = 32;
+			cls.state = ca_active;
+
+			cin.s_rate = cin.av_video->rate;
+			cin.s_width = 2;
+			cin.s_channels = cin.av_video->channels;
+			cin.audio_buf = Z_Malloc(cin.av_video->audio_frame_size);
+
+			cin.width = cin.av_video->width;
+			cin.height = cin.av_video->height;
+			cin.fps = cin.av_video->fps;
+
+			cl.cinematicframe = 0;
+			cin.pic = SCR_ReadNextAVFrame();
+			cl.cinematictime = Sys_Milliseconds();
+
+			cin.video_type = video_av;
+			return;
+		}
+		else
 		{
 			cin.av_video = NULL;
 			cl.cinematictime = 0; /* done */
-			return;
 		}
-
-		SCR_EndLoadingPlaque();
-
-		cin.color_bits = 32;
-		cls.state = ca_active;
-
-		cin.s_rate = cin.av_video->rate;
-		cin.s_width = 2;
-		cin.s_channels = cin.av_video->channels;
-		cin.audio_buf = Z_Malloc(cin.av_video->audio_frame_size);
-
-		cin.width = cin.av_video->width;
-		cin.height = cin.av_video->height;
-		cin.fps = cin.av_video->fps;
-
-		cl.cinematicframe = 0;
-		cin.pic = SCR_ReadNextAVFrame();
-		cl.cinematictime = Sys_Milliseconds();
-
-		cin.video_type = video_av;
-		return;
 	}
 
 #else

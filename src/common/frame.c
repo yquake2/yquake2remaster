@@ -154,6 +154,12 @@ Qcommon_Buildstring(void)
 #else
 	printf(" - Systemwide installation\n");
 #endif
+
+#ifdef AVMEDIADECODE
+	printf(" + AVcodec decode\n");
+#else
+	printf(" - AVcodec decode\n");
+#endif
 #endif
 
 	printf("Platform: %s\n", YQ2OSTYPE);
