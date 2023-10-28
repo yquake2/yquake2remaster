@@ -29,6 +29,7 @@ typedef struct cinavdecode
 	uint8_t *audio_res;
 	long audio_buffsize;
 	long audio_pos;
+	long audio_curr;
 	long audio_frame_size;
 	double audio_timestamp;
 } cinavdecode_t;
@@ -282,7 +283,7 @@ next_frame_ready(const cinavdecode_t *state)
 		return 0;
 	}
 
-	if (state->audio_pos < state->audio_frame_size)
+	if ((state->audio_pos - state->audio_curr) < state->audio_frame_size)
 	{
 		/* need more audio */
 		return 0;
@@ -345,6 +346,18 @@ cinavdecode_parse_next(cinavdecode_t *state)
 				);
 
 				required_space = state->dec_frame->nb_samples * 2 * state->channels;
+
+				/* compact frame */
+				if ((state->audio_pos + required_space) > state->audio_buffsize &&
+					(state->audio_curr > 0))
+				{
+					memmove(state->audio_res,
+						state->audio_res + state->audio_curr,
+						state->audio_pos - state->audio_curr);
+					state->audio_pos -= state->audio_curr;
+					state->audio_curr = 0;
+				}
+
 				if ((state->audio_pos + required_space) > state->audio_buffsize)
 				{
 					uint8_t *new_buffer;
@@ -442,7 +455,8 @@ cinavdecode_parse_next(cinavdecode_t *state)
 
 		/* use 2.5 second of audio buffering and 1.5 video buffer for async in
 		 * media stream */
-		if ((state->audio_pos / state->audio_frame_size) > (state->fps * 2.5) ||
+		if (((state->audio_pos - state->audio_curr) / state->audio_frame_size) >
+				(state->fps * 3.0) ||
 			((state->video_pos - state->video_curr) / state->video_frame_size) >
 				(state->fps * 1.5))
 		{
@@ -465,15 +479,11 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 		cinavdecode_parse_next(state);
 	};
 
-	memcpy(audio, state->audio_res, state->audio_frame_size);
-	if (state->audio_pos >= state->audio_frame_size)
+	memcpy(audio, state->audio_res + state->audio_curr, state->audio_frame_size);
+	state->audio_curr += state->audio_frame_size;
+	if (state->audio_curr >= state->audio_pos)
 	{
-		memmove(state->audio_res, state->audio_res + state->audio_frame_size,
-			state->audio_pos - state->audio_frame_size);
-	}
-	state->audio_pos -= state->audio_frame_size;
-	if (state->audio_pos < 0)
-	{
+		state->audio_curr = 0;
 		state->audio_pos = 0;
 	}
 
@@ -485,7 +495,9 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 		state->video_pos = 0;
 	}
 
-	if (!state->eof || ((state->video_pos - state->video_curr) > 0) || state->audio_pos)
+	if (!state->eof ||
+		((state->video_pos - state->video_curr) > 0) ||
+		((state->audio_pos - state->audio_curr) > 0))
 	{
 		return 1;
 	}
