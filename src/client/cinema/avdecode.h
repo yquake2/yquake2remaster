@@ -83,31 +83,21 @@ cinavdecode_close(cinavdecode_t *state)
 			}
 		}
 
+		if (state->dec_ctx)
+		{
+			av_free(state->dec_ctx);
+		}
+
 		avformat_close_input(&state->demuxer);
 	}
 
 	av_free(state);
 }
 
-/*
- * Rewrite to use callback?
- */
 static cinavdecode_t *
-cinavdecode_open(const char *name)
+cinavdecode_init(cinavdecode_t *state)
 {
-	cinavdecode_t *state = NULL;
 	int ret, i, count;
-
-	state = av_calloc(1, sizeof(cinavdecode_t));
-	memset(state, 0, sizeof(cinavdecode_t));
-
-	ret = avformat_open_input(&state->demuxer, name, NULL, NULL);
-	if (ret < 0)
-	{
-		/* can't open file */
-		cinavdecode_close(state);
-		return NULL;
-	}
 
 	if ((ret = avformat_find_stream_info(state->demuxer, NULL)) < 0)
 	{
@@ -254,9 +244,38 @@ cinavdecode_open(const char *name)
 	return state;
 }
 
+/*
+ * Rewrite to use callback?
+ */
+static cinavdecode_t *
+cinavdecode_open(const char *name)
+{
+	cinavdecode_t *state = NULL;
+	int ret;
+
+	state = av_calloc(1, sizeof(cinavdecode_t));
+	memset(state, 0, sizeof(cinavdecode_t));
+
+	ret = avformat_open_input(&state->demuxer, name, NULL, NULL);
+	if (ret < 0)
+	{
+		/* can't open file */
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	return cinavdecode_init(state);
+}
+
 static int
 next_frame_ready(const cinavdecode_t *state)
 {
+	if (state->eof)
+	{
+		/* nothing to parse */
+		return 1;
+	}
+
 	if ((state->video_pos - state->video_curr) < state->video_frame_size)
 	{
 		/* need more frames */
@@ -272,14 +291,10 @@ next_frame_ready(const cinavdecode_t *state)
 	return 1;
 }
 
-/*
- * Caller should alloacate buffer enough for single frame
- */
-static int
-cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
+static void
+cinavdecode_parse_next(cinavdecode_t *state)
 {
-	/* read all packets */
-	while (!next_frame_ready(state) && !state->eof)
+	do
 	{
 		int stream_index, ret;
 
@@ -300,9 +315,11 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 			break;
 		}
 
-		/* read all the output frames (in general there may be any number of them */
+		/* read all the output frames (in general there may be any number of them) */
 		while (ret >= 0)
 		{
+			/* unroll of loop doesn't help with speed as internally
+			 * decoded several frames */
 			ret = avcodec_receive_frame(state->dec_ctx[stream_index], state->dec_frame);
 			if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
 			{
@@ -432,6 +449,20 @@ cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
 			/* flush buffer if more than 1.5 second async in video stream */
 			break;
 		}
+	}
+	while (!next_frame_ready(state));
+}
+
+/*
+ * Caller should alloacate buffer enough for single frame
+ */
+static int
+cinavdecode_next_frame(cinavdecode_t *state, uint8_t *video, uint8_t *audio)
+{
+	/* read all packets */
+	if (!state->eof)
+	{
+		cinavdecode_parse_next(state);
 	};
 
 	memcpy(audio, state->audio_res, state->audio_frame_size);

@@ -690,7 +690,6 @@ SCR_LoadAVcodec(const char *arg, const char *dot)
 
 		if (!path)
 		{
-			printf("can't decode or open %s\n", path);
 			break;
 		}
 
