@@ -649,7 +649,7 @@ SCR_ReadNextFrame(void)
 static byte *
 SCR_ReadNextAVFrame(void)
 {
-	size_t count, i;
+	size_t count;
 	byte *buffer;
 
 	count = cin.height * cin.width * cin.color_bits / 8;
@@ -666,12 +666,6 @@ SCR_ReadNextAVFrame(void)
 		(float)(cin.av_video->video_pos - cin.av_video->video_curr) /
 			cin.av_video->video_frame_size,
 		cin.av_video->video_timestamp);
-
-	/* force untransparent image show */
-	for (i=0; i < count; i += 4)
-	{
-		buffer[i + 3] = 255;
-	}
 
 	if (cin.s_channels > 0)
 	{
