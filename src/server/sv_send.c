@@ -331,8 +331,8 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 		flags |= SND_ATTENUATION;
 	}
 
-	/* the client doesn't know that bmodels have 
-	   weird origins the origin can also be 
+	/* the client doesn't know that bmodels have
+	   weird origins the origin can also be
 	   explicitly set */
 	if ((entity->svflags & SVF_NOCLIENT) ||
 		(entity->solid == SOLID_BSP) ||
@@ -580,8 +580,8 @@ SV_SendClientMessages(void)
 			continue;
 		}
 
-		/* if the reliable message 
-		   overflowed, drop the 
+		/* if the reliable message
+		   overflowed, drop the
 		   client */
 		if (c->netchan.message.overflowed)
 		{

@@ -2447,7 +2447,7 @@ Options_MenuInit(void)
     s_options_crosshair_box.generic.name = "crosshair";
     s_options_crosshair_box.generic.callback = CrosshairFunc;
     s_options_crosshair_box.itemnames = crosshair_names;
-	
+
     s_options_pauseonfocus_box.generic.type = MTYPE_SPINCONTROL;
     s_options_pauseonfocus_box.generic.x = 0;
     s_options_pauseonfocus_box.generic.y = (y += 10);
@@ -5515,11 +5515,11 @@ PlayerDirectoryList(void)
         char* t = list[i];
 
         YQ2_COM_CHECK_OOM(s, "malloc()", MAX_QPATH * sizeof(char))
-        
+
         Q_strlcpy(s, t, MAX_QPATH);
         data[i] = s;
     }
-    
+
     // free file list
     FS_FreeList(list, num);
 
@@ -5570,7 +5570,7 @@ PlayerModelList(void)
 
         // contains triangle .md2 model
         s = s_directory.data[i];
-        
+
         if (ContainsFile(s, "tris.md2") == false)
         {
             continue;            // invalid player model
@@ -5607,7 +5607,7 @@ PlayerModelList(void)
         data = (char**)malloc((s_skinnames[mdl].num + 1) * sizeof(char*));
         YQ2_COM_CHECK_OOM(data, "malloc()", (s_skinnames[mdl].num + 1) * sizeof(char*))
         memset(data, 0, (s_skinnames[mdl].num + 1) * sizeof(char*));
-        
+
         s_skinnames[mdl].data = data;
         s_skinnames[mdl].num = 0;
 

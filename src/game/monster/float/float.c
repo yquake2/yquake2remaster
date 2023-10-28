@@ -328,7 +328,7 @@ static mframe_t floater_frames_attack1a[] =
 	{ai_charge, 10, NULL}			//							-- LOOP Ends
 };
 
-mmove_t floater_move_attack1a = 
+mmove_t floater_move_attack1a =
 {
 	FRAME_attak101,
 	FRAME_attak114,

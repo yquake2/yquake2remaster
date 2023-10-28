@@ -145,7 +145,7 @@ qboolean qcurlInit(void)
 		var = Sys_GetProcAddress(curlhandle, sym); \
 		if (!var) goto error; \
 	} while(0)
-	
+
 	CONCURL(qcurl_easy_cleanup, "curl_easy_cleanup");
 	CONCURL(qcurl_easy_init, "curl_easy_init");
 	CONCURL(qcurl_easy_getinfo, "curl_easy_getinfo");

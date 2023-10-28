@@ -87,7 +87,7 @@ typedef struct
 typedef struct
 {
 	menucommon_s    generic;
-	char *          focuspic;	
+	char *          focuspic;
 	char *          errorpic;
 	int             width;
 	int             height;

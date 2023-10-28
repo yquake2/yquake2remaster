@@ -22,7 +22,7 @@
  * The player trail, used by monsters to locate the player.
  *
  * =======================================================================
- */ 
+ */
 
 #include "../header/local.h"
 

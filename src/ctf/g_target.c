@@ -22,7 +22,7 @@
  * Targets.
  *
  * =======================================================================
- */ 
+ */
 
 #include "header/local.h"
 
@@ -57,10 +57,10 @@ SP_target_temp_entity(edict_t *ent)
  *   1 = normal fighting sounds
  *   2 = idle sound level
  *   3 = ambient sound level
- * 
+ *
  * "volume"	0.0 to 1.0
  *
- * Normal sounds play each time the target is used. The reliable flag 
+ * Normal sounds play each time the target is used. The reliable flag
  * can be set for crucial voiceovers.
  *
  * Looped sounds are allways atten 3 / vol 1, and the use function toggles
@@ -73,7 +73,7 @@ Use_Target_Speaker(edict_t *ent, edict_t *other, edict_t *activator)
 	int chan;
 
 	if (ent->spawnflags & 3)
-	{   
+	{
 		/* looping sound toggles */
 		if (ent->s.sound)
 		{
@@ -148,7 +148,7 @@ SP_target_speaker(edict_t *ent)
 
 	ent->use = Use_Target_Speaker;
 
-	/* must link the entity so we get areas and clusters so 
+	/* must link the entity so we get areas and clusters so
 	   the server can determine who to send updates to */
 	gi.linkentity(ent);
 }
@@ -172,14 +172,14 @@ Use_Target_Help(edict_t *ent, edict_t *other, edict_t *activator)
 
 /*
  * QUAKED target_help (1 0 1) (-16 -16 -24) (16 16 24) help1
- * When fired, the "message" key becomes the current personal computer 
+ * When fired, the "message" key becomes the current personal computer
  * string, and the message light will be set on all clients status bars.
  */
 void
 SP_target_help(edict_t *ent)
 {
 	if (deathmatch->value)
-	{   
+	{
 		/* auto-remove for deathmatch */
 		G_FreeEdict(ent);
 		return;
@@ -218,7 +218,7 @@ void
 SP_target_secret(edict_t *ent)
 {
 	if (deathmatch->value)
-	{   
+	{
 		/* auto-remove for deathmatch */
 		G_FreeEdict(ent);
 		return;
@@ -271,7 +271,7 @@ void
 SP_target_goal(edict_t *ent)
 {
 	if (deathmatch->value)
-	{   
+	{
 		/* auto-remove for deathmatch */
 		G_FreeEdict(ent);
 		return;
@@ -552,9 +552,9 @@ SP_target_blaster(edict_t *self)
 
 /*
  * QUAKED target_crosslevel_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
- * 
- * Once this trigger is touched/used, any trigger_crosslevel_target with the 
- * same trigger number is automatically used when a level is started within 
+ *
+ * Once this trigger is touched/used, any trigger_crosslevel_target with the
+ * same trigger number is automatically used when a level is started within
  * the same unit. It is OK to check multiple triggers. Message, delay, target,
  * and killtarget also work.
  */

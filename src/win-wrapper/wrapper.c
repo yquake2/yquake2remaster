@@ -13,7 +13,7 @@
  *   $ gcc -Wall -o quake2.exe wrapper.c
  * in our mingw build environment, will only depend on kernel32.dll and MSVCRT.DLL then,
  * which should be available on every Windows installation.
- * 
+ *
  * (C) 2017 Daniel Gibson
  * License:
  *  This software is dual-licensed to the public domain and under the following

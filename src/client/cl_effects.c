@@ -558,7 +558,7 @@ CL_AddMuzzleFlash2(void)
 			CL_SmokeAndFlash(origin);
 			Com_sprintf(soundname, sizeof(soundname), "tank/tnkatk2%c.wav",
 				'a' + (char)(randk() % 5));
-			S_StartSound(NULL, ent, CHAN_WEAPON, 
+			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound(soundname), 1, ATTN_NORM, 0);
 			break;
 
@@ -1316,7 +1316,7 @@ MakeNormalVectors(vec3_t forward, vec3_t right, vec3_t up)
 {
 	float d;
 
-	/* this rotate and negate guarantees a 
+	/* this rotate and negate guarantees a
 	   vector not colinear with the original */
 	right[1] = -forward[0];
 	right[2] = forward[1];
@@ -1981,7 +1981,7 @@ CL_TeleportParticles(vec3_t org)
 }
 
 /*
- * An entity has just been parsed that has an 
+ * An entity has just been parsed that has an
  * event value. the female events are there for
  * backwards compatability
  */

@@ -214,7 +214,7 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 }
 
 /*
- * The old weapon has been dropped all the 
+ * The old weapon has been dropped all the
  * way, so make the new one current
  */
 void
@@ -1523,9 +1523,9 @@ weapon_supershotgun_fire(edict_t *ent)
 	v[YAW] = ent->client->v_angle[YAW] - 5;
 	v[ROLL] = ent->client->v_angle[ROLL];
 	AngleVectors(v, forward, NULL, NULL);
-	
+
 	if (aimfix->value)
-	{	
+	{
 		AngleVectors(v, forward, right, NULL);
 
 		VectorScale(forward, -2, ent->client->kick_origin);
@@ -1533,16 +1533,16 @@ weapon_supershotgun_fire(edict_t *ent)
 
 		VectorSet(offset, 0, 8, ent->viewheight - 8);
 		P_ProjectSource(ent, offset, forward, right, start);
-	}	
-	
+	}
+
 	fire_shotgun(ent, start, forward, damage, kick, DEFAULT_SHOTGUN_HSPREAD,
 			DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
-	
+
 	v[YAW] = ent->client->v_angle[YAW] + 5;
 	AngleVectors(v, forward, NULL, NULL);
-	
+
 	if (aimfix->value)
-	{	
+	{
 		AngleVectors(v, forward, right, NULL);
 
 		VectorScale(forward, -2, ent->client->kick_origin);
@@ -1550,8 +1550,8 @@ weapon_supershotgun_fire(edict_t *ent)
 
 		VectorSet(offset, 0, 8, ent->viewheight - 8);
 		P_ProjectSource(ent, offset, forward, right, start);
-	}	
-	
+	}
+
 	fire_shotgun(ent, start, forward, damage, kick,
 			DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD,
 			DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
@@ -1599,7 +1599,7 @@ weapon_railgun_fire(edict_t *ent)
 	int kick;
 
 	if (deathmatch->value)
-	{   
+	{
 		/* normal damage is too extreme in dm */
 		damage = 100;
 		kick = 200;
@@ -1689,7 +1689,7 @@ weapon_bfg_fire(edict_t *ent)
 		return;
 	}
 
-	/* cells can go down during windup (from power armor hits), so 
+	/* cells can go down during windup (from power armor hits), so
 	   check again and abort firing if we don't have enough now */
 	if (ent->client->pers.inventory[ent->client->ammo_index] < 50)
 	{

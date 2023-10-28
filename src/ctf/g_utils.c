@@ -189,8 +189,8 @@ Think_Delay(edict_t *ent)
  * The global "activator" should be set to the entity
  * that initiated the firing.
  *
- * If self.delay is set, a DelayedUse entity will be 
- * created that will actually do the SUB_UseTargets 
+ * If self.delay is set, a DelayedUse entity will be
+ * created that will actually do the SUB_UseTargets
  * after that many seconds have passed.
  *
  * Centerprints any self.message to the activator.
@@ -563,7 +563,7 @@ G_Spawn(void)
 
 	for (i = maxclients->value + 1; i < globals.num_edicts; i++, e++)
 	{
-		/* the first couple seconds of server time can involve a lot of 
+		/* the first couple seconds of server time can involve a lot of
 		   freeing and allocating, so relax the replacement policy */
 		if (!e->inuse && ((e->freetime < 2) || (level.time - e->freetime > 0.5)))
 		{
@@ -616,7 +616,7 @@ G_TouchTriggers(edict_t *ent)
 	num = gi.BoxEdicts(ent->absmin, ent->absmax, touch,
 			MAX_EDICTS, AREA_TRIGGERS);
 
-	/* be careful, it is possible to have an entity in this 
+	/* be careful, it is possible to have an entity in this
 	   list removed before we get to it (killtriggered) */
 	for (i = 0; i < num; i++)
 	{
@@ -649,7 +649,7 @@ G_TouchSolids(edict_t *ent)
 	num = gi.BoxEdicts(ent->absmin, ent->absmax, touch,
 			MAX_EDICTS, AREA_SOLID);
 
-	/* be careful, it is possible to have an entity in this 
+	/* be careful, it is possible to have an entity in this
 	   list removed before we get to it (killtriggered) */
 	for (i = 0; i < num; i++)
 	{

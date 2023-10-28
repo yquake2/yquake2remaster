@@ -26,9 +26,9 @@
 
 #include "../header/local.h"
 
-/* Note that the pmenu entries are duplicated 
-   this is so that a static set of pmenu entries can be used 
-   for multiple clients and changed without interference 
+/* Note that the pmenu entries are duplicated
+   this is so that a static set of pmenu entries can be used
+   for multiple clients and changed without interference
    note that arg will be freed when the menu is closed, it
     must be allocated memory */
 pmenuhnd_t *
@@ -133,8 +133,8 @@ PMenu_Close(edict_t *ent)
 	ent->client->showscores = false;
 }
 
-/* 
- * Only use on pmenu's that have been called with PMenu_Open 
+/*
+ * Only use on pmenu's that have been called with PMenu_Open
  */
 void
 PMenu_UpdateEntry(pmenu_t *entry, const char *text, int align,

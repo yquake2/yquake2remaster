@@ -43,19 +43,19 @@ Svcmd_Test_f(void)
  * addip <ip>
  * removeip <ip>
  *
- * The ip address is specified in dot format, and any unspecified 
+ * The ip address is specified in dot format, and any unspecified
  * digits will match any value, so you can specify an entire class C
  * network with "addip 192.246.40".
  *
- * Removeip will only remove an address specified exactly the same way. 
+ * Removeip will only remove an address specified exactly the same way.
  * You cannot addip a subnet, then removeip a single host.
  *
  * listip
  * Prints the current list of filters.
  *
  * writeip
- * Dumps "addip <ip>" commands to listip.cfg so it can be execed at a 
- * later date. The filter lists are not saved and restored by default, 
+ * Dumps "addip <ip>" commands to listip.cfg so it can be execed at a
+ * later date. The filter lists are not saved and restored by default,
  * because I beleive it would cause too much confusion.
  *
  * filterban <0 or 1>
@@ -64,7 +64,7 @@ Svcmd_Test_f(void)
  * be prohibited from entering the game. This is the default setting.
  *
  * If 0, then only addresses matching the list will be allowed. This lets
- * you easily set up a private game, or a game that only allows players 
+ * you easily set up a private game, or a game that only allows players
  * from your local network.
  *
  *

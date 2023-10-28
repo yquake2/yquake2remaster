@@ -266,7 +266,7 @@ static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 		uniform sampler2D tex;
 
 		uniform float time;
-		
+
 		uniform vec4 v_blend;
 
 		out vec4 outColor;
@@ -286,7 +286,7 @@ static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 			uv = clamp(uv, vec2(0.0, 0.0), vec2(1.0, 1.0));
 
 			vec4 res = texture(tex, uv);
-			
+
 			// apply the v_blend, usually blended as a colored quad with:
 			res.rgb = v_blend.a * v_blend.rgb + (1.0 - v_blend.a) * res.rgb;
 			outColor =  res;
@@ -1331,11 +1331,11 @@ updateUBO(GLuint ubo, GLsizeiptr size, void* data)
 		we don't need to use glBindBufferRange and we can leave that alone for now.
 	*/
 	glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STREAM_DRAW); // atsb: GL_STREAM_DRAW
-	
+
 	/*
 		atsb: we use GL_MAP_WRITE_BIT here to ensure synchronisation between CPU/GPU
 		and to prevent any possible data races in cases of sync loss.
-		
+
 		we don't use the persistent mapping feature yet as that would require
 		a bit more work with how the buffers are created and mapped.
 	*/
