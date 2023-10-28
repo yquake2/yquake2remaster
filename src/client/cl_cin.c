@@ -219,11 +219,13 @@ SCR_StopCinematic(void)
 {
 	cl.cinematictime = 0; /* done */
 
+#ifdef AVMEDIADECODE
 	if (cin.av_video)
 	{
 		cinavdecode_close(cin.av_video);
 		cin.av_video = NULL;
 	}
+#endif
 
 	if (cin.smk_video)
 	{
