@@ -27,7 +27,7 @@
 
 #include "header/local.h"
 
-#include "header/DG_dynarr.h"
+#include "../files/DG_dynarr.h"
 
 #define NUMVERTEXNORMALS 162
 #define SHADEDOT_QUANT 16

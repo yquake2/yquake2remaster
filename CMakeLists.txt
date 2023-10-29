@@ -625,8 +625,8 @@ set(GL3-Header
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
-	${REF_SRC_DIR}/gl3/header/DG_dynarr.h
-	${REF_SRC_DIR}/gl3/header/HandmadeMath.h
+	${REF_SRC_DIR}/files/DG_dynarr.h
+	${REF_SRC_DIR}/files/HandmadeMath.h
 	${REF_SRC_DIR}/gl3/header/local.h
 	${REF_SRC_DIR}/gl3/header/model.h
 	${COMMON_SRC_DIR}/header/shared.h

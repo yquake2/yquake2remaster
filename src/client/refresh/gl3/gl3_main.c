@@ -30,10 +30,10 @@
 #include "header/local.h"
 
 #define HANDMADE_MATH_IMPLEMENTATION
-#include "header/HandmadeMath.h"
+#include "../files/HandmadeMath.h"
 
 #define DG_DYNARR_IMPLEMENTATION
-#include "header/DG_dynarr.h"
+#include "../files/DG_dynarr.h"
 
 #ifdef YQ2_GL3_GLES3
   #define REF_VERSION "Yamagi Quake II OpenGL ES3 Refresher"
