@@ -559,7 +559,7 @@ SV_SendClientMessages(void)
 			if (msglen > MAX_MSGLEN)
 			{
 				Com_Error(ERR_DROP,
-						"SV_SendClientMessages: msglen > MAX_MSGLEN");
+						"%s: msglen > MAX_MSGLEN", __func__);
 			}
 
 			r = FS_FRead(msgbuf, msglen, 1, sv.demofile);

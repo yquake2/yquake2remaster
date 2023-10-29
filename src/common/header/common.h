@@ -175,7 +175,16 @@ void Info_Print(char *s);
 
 /* PROTOCOL */
 
+/* Quake 2 Release Demos */
+#define PROTOCOL_RELEASE_VERSION 26
+/* Quake 2 Demo */
+#define PROTOCOL_DEMO_VERSION 31
+/* Quake 2 Network Release */
 #define PROTOCOL_VERSION 34
+/* ReRelease demo files */
+#define PROTOCOL_RR22_VERSION 2022
+/* ReRelease network protocol */
+#define PROTOCOL_RR23_VERSION 2023
 
 /* ========================================= */
 
