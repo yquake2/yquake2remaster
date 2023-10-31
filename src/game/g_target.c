@@ -1450,7 +1450,7 @@ void
 target_sky_use(edict_t *self, edict_t *other, edict_t *activator)
 {
 	float rotate;
-	int32_t autorotate;
+	int autorotate;
 
 
 	if (!self)

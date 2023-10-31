@@ -326,7 +326,7 @@ static char findpath[MAX_OSPATH];
 static HANDLE findhandle;
 
 char *
-Sys_FindFirst(char *path, unsigned musthave, unsigned canthave)
+Sys_FindFirst(const char *path, unsigned musthave, unsigned canthave)
 {
 	if (findhandle)
 	{
