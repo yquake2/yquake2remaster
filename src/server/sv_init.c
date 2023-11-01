@@ -98,7 +98,7 @@ SV_ImageIndex(const char *name)
  * to the clients -- only the fields that differ from the
  * baseline will be transmitted
  */
-void
+static void
 SV_CreateBaseline(void)
 {
 	edict_t *svent;
@@ -126,7 +126,7 @@ SV_CreateBaseline(void)
 	}
 }
 
-void
+static void
 SV_CheckForSavegame(qboolean isautosave)
 {
 	char name[MAX_OSPATH];
@@ -181,7 +181,7 @@ SV_CheckForSavegame(qboolean isautosave)
  * Change the server to a new map, taking all connected
  * clients along with it.
  */
-void
+static void
 SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 		qboolean attractloop, qboolean loadgame, qboolean isautosave)
 {
@@ -502,6 +502,11 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 
 	/* if there is a + in the map, set nextserver to the remainder */
 	ch = strstr(level, "+");
+	/* Loki Games Heretic 2 hack */
+	if (!ch && strstr(level, "@"))
+	{
+		ch = strstr(level, "@");
+	}
 
 	if (ch)
 	{
