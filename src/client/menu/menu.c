@@ -5571,7 +5571,10 @@ PlayerModelList(void)
         // contains triangle .md2 model
         s = s_directory.data[i];
 
-        if (ContainsFile(s, "tris.md2") == false)
+        if (ContainsFile(s, "tris.fm") == false &&
+            ContainsFile(s, "tris.dkm") == false &&
+            ContainsFile(s, "tris.md2") == false &&
+            ContainsFile(s, "tris.mdl") == false)
         {
             continue;            // invalid player model
         }
