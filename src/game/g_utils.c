@@ -736,7 +736,7 @@ G_FindFreeEdict(int policy)
 		*/
 		if (!e->inuse && (policy == POLICY_DESPERATE || e->freetime < 2.0f || (level.time - e->freetime) > 0.5f))
 		{
-			G_InitEdict (e);
+			G_InitEdict(e);
 			return e;
 		}
 	}
