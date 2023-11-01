@@ -386,7 +386,7 @@ range(edict_t *self, edict_t *other)
 	vec3_t v;
 	float len;
 
- 	if (!self || !other)
+	if (!self || !other)
 	{
 		return 0;
 	}

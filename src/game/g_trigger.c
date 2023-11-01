@@ -342,6 +342,14 @@ SP_trigger_relay(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_key
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_key (.5 .5 .5) (-8 -8 -8) (8 8 8)
  * A relay trigger that only fires it's targets if player
  * has the proper key. Use "item" to specify the required key,
@@ -490,6 +498,14 @@ SP_trigger_key(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_counter
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_counter (.5 .5 .5) ? nomessage
  *
  * Acts as an intermediary for an action that takes multiple inputs.
@@ -559,6 +575,14 @@ SP_trigger_counter(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_always
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
  *
  * This trigger will always fire. It is activated by the world.
@@ -580,6 +604,14 @@ SP_trigger_always(edict_t *ent)
 
 	G_UseTargets(ent, ent);
 }
+
+/*
+ * ==============================================================================
+ *
+ * trigger_push
+ *
+ * ==============================================================================
+ */
 
 void
 trigger_push_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
@@ -632,7 +664,7 @@ trigger_effect(edict_t *self)
 	vec3_t size;
 	int i;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -656,7 +688,7 @@ trigger_effect(edict_t *self)
 void
 trigger_push_inactive(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -777,6 +809,14 @@ SP_trigger_push(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_hurt
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_hurt (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW
  *
  * Any entity that touches this will be hurt.
@@ -805,7 +845,7 @@ hurt_use(edict_t *self, edict_t *other /* unused */,
 		edict_t	*touch[MAX_EDICTS], *hurtme;
 
 		self->solid = SOLID_TRIGGER;
-		num = gi.BoxEdicts (self->absmin, self->absmax,
+		num = gi.BoxEdicts(self->absmin, self->absmax,
 			   	touch, MAX_EDICTS, AREA_SOLID);
 
 		/* Check for idle monsters in
@@ -915,6 +955,14 @@ SP_trigger_hurt(edict_t *self)
 	gi.linkentity(self);
 }
 
+/*
+ * ==============================================================================
+ *
+ * trigger_gravity
+ *
+ * ==============================================================================
+ */
+
 void
 trigger_gravity_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
 {
@@ -995,6 +1043,14 @@ SP_trigger_gravity(edict_t *self)
 	self->touch = trigger_gravity_touch;
 	gi.linkentity(self);
 }
+
+/*
+ * ==============================================================================
+ *
+ * trigger_monsterjump
+ *
+ * ==============================================================================
+ */
 
 /*
  * QUAKED trigger_monsterjump (.5 .5 .5) ?

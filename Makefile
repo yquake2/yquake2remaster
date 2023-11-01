@@ -1500,9 +1500,9 @@ CTF_OBJS_ = \
 	src/ctf/g_save.o \
 	src/game/g_sphere.o \
 	src/ctf/g_spawn.o \
-	src/ctf/g_svcmds.o \
-	src/ctf/g_target.o \
-	src/ctf/g_trigger.o \
+	src/game/g_svcmds.o \
+	src/game/g_target.o \
+	src/game/g_trigger.o \
 	src/game/g_utils.o \
 	src/game/g_weapon.o \
 	src/game/menu/menu.o \

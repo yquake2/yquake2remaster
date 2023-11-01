@@ -1139,13 +1139,13 @@ static char *dm_statusbar =
 	"	pic	9 "
 	"endif "
 
-/*  help / weapon icon */
+/* help / weapon icon */
 	"if 11 "
 	"	xv	148 "
 	"	pic	11 "
 	"endif "
 
-/*  frags */
+/* frags */
 	"xr	-50 "
 	"yt 2 "
 	"num 3 14 "

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,21 +28,20 @@
 #include "header/local.h"
 
 /*
- * pushmove objects do not obey gravity, and do not interact with
- * each other or trigger fields, but block normal movement and push
- * normal objects when they move.
+ * pushmove objects do not obey gravity, and do not interact with each other or
+ * trigger fields, but block normal movement and push normal objects when they move.
  *
- * onground is set for toss objects when they come to a complete rest.
- * It is set for steping or walking objects.
+ * onground is set for toss objects when they come to a complete rest. it is set for
+ * steping or walking objects
  *
- * doors, plats, etc are SOLID_BSP, and MOVETYPE_PUSH
- * bonus items are SOLID_TRIGGER touch, and MOVETYPE_TOSS
- * corpses are SOLID_NOT and MOVETYPE_TOSS
- * crates are SOLID_BBOX and MOVETYPE_TOSS
- * walking monsters are SOLID_SLIDEBOX and MOVETYPE_STEP
- * flying/floating monsters are SOLID_SLIDEBOX and MOVETYPE_FLY
+ *  - doors, plats, etc are SOLID_BSP, and MOVETYPE_PUSH
+ *  - bonus items are SOLID_TRIGGER touch, and MOVETYPE_TOSS
+ *  - corpses are SOLID_NOT and MOVETYPE_TOSS
+ *  - crates are SOLID_BBOX and MOVETYPE_TOSS
+ *  - walking monsters are SOLID_SLIDEBOX and MOVETYPE_STEP
+ *  - flying/floating monsters are SOLID_SLIDEBOX and MOVETYPE_FLY
+ *  - solid_edge items only clip against bsp models.
  *
- * solid_edge items only clip against bsp models.
  */
 
 edict_t *
@@ -50,7 +50,15 @@ SV_TestEntityPosition(edict_t *ent)
 	trace_t trace;
 	int mask;
 
-	if (ent->clipmask)
+	if (!ent)
+	{
+		return NULL;
+	}
+
+	/* dead bodies are supposed to not be solid so lets
+	   ensure they only collide with BSP during pushmoves
+	*/
+	if (ent->clipmask && !(ent->svflags & SVF_DEADMONSTER))
 	{
 		mask = ent->clipmask;
 	}
@@ -90,12 +98,18 @@ SV_CheckVelocity(edict_t *ent)
 }
 
 /*
- * Runs thinking code for this frame if necessary
+ * Runs thinking code for
+ * this frame if necessary
  */
 qboolean
 SV_RunThink(edict_t *ent)
 {
 	float thinktime;
+
+	if (!ent)
+	{
+		return false;
+	}
 
 	thinktime = ent->nextthink;
 
@@ -122,12 +136,18 @@ SV_RunThink(edict_t *ent)
 }
 
 /*
- * Two entities have touched, so run their touch functions
+ * Two entities have touched, so
+ * run their touch functions
  */
 void
 SV_Impact(edict_t *e1, trace_t *trace)
 {
 	edict_t *e2;
+
+	if (!e1 || !trace)
+	{
+		return;
+	}
 
 	e2 = trace->ent;
 

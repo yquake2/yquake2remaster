@@ -94,6 +94,8 @@ void SP_target_help(edict_t *ent);
 void SP_target_actor(edict_t *ent);
 void SP_target_lightramp(edict_t *self);
 void SP_target_earthquake(edict_t *ent);
+void SP_target_music(edict_t *ent);
+void SP_target_sky(edict_t *ent);
 void SP_target_character(edict_t *ent);
 void SP_target_string(edict_t *ent);
 
@@ -149,6 +151,7 @@ void SP_monster_mutant(edict_t *self);
 void SP_monster_supertank(edict_t *self);
 void SP_monster_boss2(edict_t *self);
 void SP_monster_jorg(edict_t *self);
+void SP_monster_makron(edict_t *self);
 void SP_monster_boss3_stand(edict_t *self);
 
 void SP_monster_commander_body(edict_t *self);
@@ -156,6 +159,62 @@ void SP_monster_commander_body(edict_t *self);
 void SP_turret_breach(edict_t *self);
 void SP_turret_base(edict_t *self);
 void SP_turret_driver(edict_t *self);
+
+void SP_monster_soldier_hypergun(edict_t *self);
+void SP_monster_soldier_lasergun(edict_t *self);
+void SP_monster_soldier_ripper(edict_t *self);
+void SP_monster_fixbot(edict_t *self);
+void SP_monster_gekk(edict_t *self);
+void SP_monster_chick_heat(edict_t *self);
+void SP_monster_gladb(edict_t *self);
+void SP_monster_boss5(edict_t *self);
+void SP_rotating_light(edict_t *self);
+void SP_object_repair(edict_t *self);
+void SP_misc_crashviper(edict_t *ent);
+void SP_misc_viper_missile(edict_t *self);
+void SP_misc_amb4(edict_t *ent);
+void SP_target_mal_laser(edict_t *ent);
+void SP_misc_transport(edict_t *ent);
+
+void SP_misc_nuke(edict_t *ent);
+void SP_func_plat2(edict_t *ent);
+void SP_func_door_secret2(edict_t *ent);
+void SP_func_force_wall(edict_t *ent);
+void SP_info_player_coop_lava(edict_t *self);
+void SP_info_teleport_destination(edict_t *self);
+void SP_trigger_teleport(edict_t *self);
+void SP_trigger_disguise(edict_t *self);
+void SP_monster_stalker(edict_t *self);
+void SP_monster_turret(edict_t *self);
+void SP_target_steam(edict_t *self);
+void SP_target_anger(edict_t *self);
+void SP_target_killplayers(edict_t *self);
+
+void SP_target_blacklight(edict_t *self);
+void SP_target_orb(edict_t *self);
+
+void SP_hint_path(edict_t *self);
+void SP_monster_carrier(edict_t *self);
+void SP_monster_widow(edict_t *self);
+void SP_monster_widow2(edict_t *self);
+void SP_dm_tag_token(edict_t *self);
+void SP_dm_dball_goal(edict_t *self);
+void SP_dm_dball_ball(edict_t *self);
+void SP_dm_dball_team1_start(edict_t *self);
+void SP_dm_dball_team2_start(edict_t *self);
+void SP_dm_dball_ball_start(edict_t *self);
+void SP_dm_dball_speed_change(edict_t *self);
+void SP_monster_kamikaze(edict_t *self);
+void SP_turret_invisible_brain(edict_t *self);
+void SP_xatrix_item(edict_t *self);
+void SP_misc_nuke_core(edict_t *self);
+
+void ThrowMoreStuff(edict_t *self, vec3_t point);
+void ThrowSmallStuff(edict_t *self, vec3_t point);
+void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
+		int type, vec3_t startpos, qboolean fade);
+void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+		vec3_t startpos, int hitsound, qboolean fade);
 
 static spawn_t spawns[] = {
 	{"item_health", SP_item_health},
@@ -843,128 +902,129 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 /* =================================================================== */
 
-char *single_statusbar =
-"yb	-24 "
+static char *single_statusbar =
+	"yb	-24 "
 
 /* health */
-"xv	0 "
-"hnum "
-"xv	50 "
-"pic 0 "
+	"xv	0 "
+	"hnum "
+	"xv	50 "
+	"pic 0 "
 
 /* ammo */
-"if 2 "
-"	xv	100 "
-"	anum "
-"	xv	150 "
-"	pic 2 "
-"endif "
+	"if 2 "
+	"	xv	100 "
+	"	anum "
+	"	xv	150 "
+	"	pic 2 "
+	"endif "
 
 /* armor */
-"if 4 "
-"	xv	200 "
-"	rnum "
-"	xv	250 "
-"	pic 4 "
-"endif "
+	"if 4 "
+	"	xv	200 "
+	"	rnum "
+	"	xv	250 "
+	"	pic 4 "
+	"endif "
 
 /* selected item */
-"if 6 "
-"	xv	296 "
-"	pic 6 "
-"endif "
+	"if 6 "
+	"	xv	296 "
+	"	pic 6 "
+	"endif "
 
-"yb	-50 "
+	"yb	-50 "
 
 /* picked up item */
-"if 7 "
-"	xv	0 "
-"	pic 7 "
-"	xv	26 "
-"	yb	-42 "
-"	stat_string 8 "
-"	yb	-50 "
-"endif "
+	"if 7 "
+	"	xv	0 "
+	"	pic 7 "
+	"	xv	26 "
+	"	yb	-42 "
+	"	stat_string 8 "
+	"	yb	-50 "
+	"endif "
 
 /* timer */
-"if 9 "
-"	xv	262 "
-"	num	2	10 "
-"	xv	296 "
-"	pic	9 "
-"endif "
+	"if 9 "
+	"	xv	262 "
+	"	num	2	10 "
+	"	xv	296 "
+	"	pic	9 "
+	"endif "
 
 /*  help / weapon icon */
-"if 11 "
-"	xv	148 "
-"	pic	11 "
-"endif "
+	"if 11 "
+	"	xv	148 "
+	"	pic	11 "
+	"endif "
 ;
 
-char *dm_statusbar =
-"yb	-24 "
+static char *dm_statusbar =
+	"yb	-24 "
 
 /* health */
-"xv	0 "
-"hnum "
-"xv	50 "
-"pic 0 "
+	"xv	0 "
+	"hnum "
+	"xv	50 "
+	"pic 0 "
 
 /* ammo */
-"if 2 "
-"	xv	100 "
-"	anum "
-"	xv	150 "
-"	pic 2 "
-"endif "
+	"if 2 "
+	"	xv	100 "
+	"	anum "
+	"	xv	150 "
+	"	pic 2 "
+	"endif "
 
 /* armor */
-"if 4 "
-"	xv	200 "
-"	rnum "
-"	xv	250 "
-"	pic 4 "
-"endif "
+	"if 4 "
+	"	xv	200 "
+	"	rnum "
+	"	xv	250 "
+	"	pic 4 "
+	"endif "
 
 /* selected item */
-"if 6 "
-"	xv	296 "
-"	pic 6 "
-"endif "
+	"if 6 "
+	"	xv	296 "
+	"	pic 6 "
+	"endif "
 
-"yb	-50 "
+	"yb	-50 "
 
 /* picked up item */
-"if 7 "
-"	xv	0 "
-"	pic 7 "
-"	xv	26 "
-"	yb	-42 "
-"	stat_string 8 "
-"	yb	-50 "
-"endif "
+	"if 7 "
+	"	xv	0 "
+	"	pic 7 "
+	"	xv	26 "
+	"	yb	-42 "
+	"	stat_string 8 "
+	"	yb	-50 "
+	"endif "
 
 /* timer */
-"if 9 "
-"	xv	246 "
-"	num	2	10 "
-"	xv	296 "
-"	pic	9 "
-"endif "
+	"if 9 "
+	"	xv	246 "
+	"	num	2	10 "
+	"	xv	296 "
+	"	pic	9 "
+	"endif "
 
 /* help / weapon icon */
-"if 11 "
-"	xv	148 "
-"	pic	11 "
-"endif "
+	"if 11 "
+	"	xv	148 "
+	"	pic	11 "
+	"endif "
 
 /* frags */
-"xr	-50 "
-"yt 2 "
-"num 3 14"
+	"xr	-50 "
+	"yt 2 "
+	"num 3 14"
 ;
 
-/*QUAKED worldspawn (0 0 0) ?
+/*
+ * QUAKED worldspawn (0 0 0) ?
  *
  * Only used for the world.
  * "sky"	environment map name

@@ -290,7 +290,8 @@ SP_target_secret(edict_t *ent)
 
 	/* Map quirk for mine3 */
 	if (!Q_stricmp(level.mapname, "mine3") && (ent->s.origin[0] == 280) &&
-		(ent->s.origin[1] == -2048) && (ent->s.origin[2] == -624))
+		(ent->s.origin[1] == -2048) &&
+		(ent->s.origin[2] == -624))
 	{
 		ent->message = "You have found a secret area.";
 	}
@@ -1036,7 +1037,7 @@ SP_target_laser(edict_t *self)
 void
 target_mal_laser_on(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -1054,7 +1055,7 @@ target_mal_laser_on(edict_t *self)
 void
 target_mal_laser_off(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -1087,7 +1088,7 @@ target_mal_laser_use(edict_t *self, edict_t *other /* unused */, edict_t *activa
 void
 mal_laser_think(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -1100,7 +1101,7 @@ mal_laser_think(edict_t *self)
 void
 SP_target_mal_laser(edict_t *self)
 {
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}

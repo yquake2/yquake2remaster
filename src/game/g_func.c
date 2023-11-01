@@ -1152,7 +1152,7 @@ plat2_operate(edict_t *ent, edict_t *other)
 	float platCenter;
 	edict_t *trigger;
 
-  	if (!ent || !other)
+	if (!ent || !other)
 	{
 		return;
 	}

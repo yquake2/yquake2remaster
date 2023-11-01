@@ -122,7 +122,7 @@ void
 monster_fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect)
 {
- 	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -139,7 +139,7 @@ void
 monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype)
 {
- 	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -194,7 +194,7 @@ dabeam_hit(edict_t *self)
 	vec3_t end;
 	trace_t tr;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
@@ -266,7 +266,7 @@ monster_dabeam(edict_t *self)
 	vec3_t last_movedir;
 	vec3_t point;
 
-  	if (!self)
+	if (!self)
 	{
 		return;
 	}
