@@ -27,8 +27,12 @@
 
 #include "header/local.h"
 
+#define HEALTH_IGNORE_MAX 1
+#define HEALTH_TIMED 2
+
 qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
 void Use_Weapon(edict_t *ent, gitem_t *inv);
+void Use_Weapon2(edict_t *ent, gitem_t *inv);
 void Drop_Weapon(edict_t *ent, gitem_t *inv);
 
 void Weapon_Blaster(edict_t *ent);
@@ -42,10 +46,21 @@ void Weapon_Grenade(edict_t *ent);
 void Weapon_GrenadeLauncher(edict_t *ent);
 void Weapon_Railgun(edict_t *ent);
 void Weapon_BFG(edict_t *ent);
+void Weapon_ChainFist(edict_t *ent);
+void Weapon_Disintegrator(edict_t *ent);
+void Weapon_ETF_Rifle(edict_t *ent);
+void Weapon_Heatbeam(edict_t *ent);
+void Weapon_Prox(edict_t *ent);
+void Weapon_Tesla(edict_t *ent);
+void Weapon_ProxLauncher(edict_t *ent);
 
-gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
-gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
-gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
+void Weapon_Ionripper(edict_t *ent);
+void Weapon_Phalanx(edict_t *ent);
+void Weapon_Trap(edict_t *ent);
+
+static gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
+static gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
+static gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
 
 static int jacket_armor_index;
 static int combat_armor_index;
@@ -57,6 +72,7 @@ static int power_shield_index;
 #define HEALTH_TIMED 2
 
 void Use_Quad(edict_t *ent, gitem_t *item);
+void Use_QuadFire(edict_t *ent, gitem_t *item);
 
 static int quad_drop_timeout_hack;
 
@@ -1503,13 +1519,14 @@ SpawnItem(edict_t *ent, gitem_t *item)
 
 /* ====================================================================== */
 
-gitem_t itemlist[] = {
+static const gitem_t gameitemlist[] = {
 	{
 		NULL
-	},
+	}, /* leave index 0 alone */
+
 
 	/*
-	 * QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{
 		"item_armor_body",
@@ -2675,12 +2692,19 @@ gitem_t itemlist[] = {
 	{NULL}
 };
 
+gitem_t itemlist[MAX_ITEMS];
+
 /*
- * QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH))
 	{
 		G_FreeEdict(self);
@@ -2694,11 +2718,16 @@ SP_item_health(edict_t *self)
 }
 
 /*
- * QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health_small (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health_small(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH))
 	{
 		G_FreeEdict(self);
@@ -2713,11 +2742,16 @@ SP_item_health_small(edict_t *self)
 }
 
 /*
- * QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health_large(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH))
 	{
 		G_FreeEdict(self);
@@ -2731,11 +2765,16 @@ SP_item_health_large(edict_t *self)
 }
 
 /*
- * QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16)
+ * QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
 void
 SP_item_health_mega(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (deathmatch->value && ((int)dmflags->value & DF_NO_HEALTH))
 	{
 		G_FreeEdict(self);
@@ -2774,7 +2813,9 @@ SP_item_foodcube(edict_t *self)
 void
 InitItems(void)
 {
-	game.num_items = sizeof(itemlist) / sizeof(itemlist[0]) - 1;
+	memset(itemlist, 0, sizeof(itemlist));
+	memcpy(itemlist, gameitemlist, sizeof(gameitemlist));
+	game.num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
 }
 
 /*
@@ -2799,3 +2840,72 @@ SetItemNames(void)
 	power_shield_index = ITEM_INDEX(FindItem("Power Shield"));
 }
 
+void
+SP_xatrix_item(edict_t *self)
+{
+	gitem_t *item;
+	int i;
+	char *spawnClass = NULL;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (!self->classname)
+	{
+		return;
+	}
+
+	if (!strcmp(self->classname, "ammo_magslug"))
+	{
+		spawnClass = "ammo_flechettes";
+	}
+	else if (!strcmp(self->classname, "ammo_trap"))
+	{
+		spawnClass = "weapon_proxlauncher";
+	}
+	else if (!strcmp(self->classname, "item_quadfire"))
+	{
+		float chance;
+
+		chance = random();
+
+		if (chance < 0.2)
+		{
+			spawnClass = "item_sphere_hunter";
+		}
+		else if (chance < 0.6)
+		{
+			spawnClass = "item_sphere_vengeance";
+		}
+		else
+		{
+			spawnClass = "item_sphere_defender";
+		}
+	}
+	else if (!strcmp(self->classname, "weapon_boomer"))
+	{
+		spawnClass = "weapon_etf_rifle";
+	}
+	else if (!strcmp(self->classname, "weapon_phalanx"))
+	{
+		spawnClass = "weapon_plasmabeam";
+	}
+
+	/* check item spawn functions */
+	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
+	{
+		if (!item->classname)
+		{
+			continue;
+		}
+
+		if (!strcmp(item->classname, spawnClass))
+		{
+			/* found it */
+			SpawnItem(self, item);
+			return;
+		}
+	}
+}

@@ -760,7 +760,7 @@ G_SpawnOptional(void)
 	}
 
 	e = &g_edicts[globals.num_edicts++];
-	G_InitEdict (e);
+	G_InitEdict(e);
 
 	return e;
 }
@@ -892,6 +892,14 @@ G_TouchSolids(edict_t *ent)
 		}
 	}
 }
+
+/*
+ * ==============================================================================
+ *
+ * Kill box
+ *
+ * ==============================================================================
+ */
 
 /*
  * Kills all entities that would touch the

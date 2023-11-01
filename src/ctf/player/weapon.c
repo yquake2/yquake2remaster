@@ -29,11 +29,77 @@
 #include "../monster/misc/player.h"
 #include <limits.h>
 
+#define PLAYER_NOISE_SELF 0
+#define PLAYER_NOISE_IMPACT 1
+
+#define FRAME_FIRE_FIRST (FRAME_ACTIVATE_LAST + 1)
+#define FRAME_IDLE_FIRST (FRAME_FIRE_LAST + 1)
+#define FRAME_DEACTIVATE_FIRST (FRAME_IDLE_LAST + 1)
+
+#define GRENADE_TIMER 3.0
+#define GRENADE_MINSPEED 400
+#define GRENADE_MAXSPEED 800
+
+#define CHAINFIST_REACH 64
+
+#define HEATBEAM_DM_DMG 15
+#define HEATBEAM_SP_DMG 15
+
+#define TRAP_TIMER 5.0
+#define TRAP_MINSPEED 300
+#define TRAP_MAXSPEED 700
 
 static qboolean is_quad;
+static qboolean is_quadfire;
+static byte damage_multiplier;
 static byte is_silenced;
 
 void weapon_grenade_fire(edict_t *ent, qboolean held);
+void weapon_trap_fire(edict_t *ent, qboolean held);
+
+byte
+P_DamageModifier(edict_t *ent)
+{
+	is_quad = 0;
+	damage_multiplier = 1;
+
+	if (!ent)
+	{
+		return 0;
+	}
+
+	if (ent->client->quad_framenum > level.framenum)
+	{
+		damage_multiplier *= 4;
+		is_quad = 1;
+
+		/* if we're quad and DF_NO_STACK_DOUBLE is on, return now. */
+		if (((int)(dmflags->value) & DF_NO_STACK_DOUBLE))
+		{
+			return damage_multiplier;
+		}
+	}
+
+	if (ent->client->double_framenum > level.framenum)
+	{
+		if ((deathmatch->value) || (damage_multiplier == 1))
+		{
+			damage_multiplier *= 2;
+			is_quad = 1;
+		}
+	}
+
+	if (ent->client->quadfire_framenum > level.framenum)
+	{
+		if ((deathmatch->value) || (damage_multiplier == 1))
+		{
+			damage_multiplier *= 2;
+			is_quadfire = 1;
+		}
+	}
+
+	return damage_multiplier;
+}
 
 void
 P_ProjectSource(edict_t *ent, vec3_t distance,
@@ -77,6 +143,47 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 	}
 }
 
+void
+P_ProjectSource2(edict_t *ent, vec3_t point, vec3_t distance, vec3_t forward,
+		vec3_t right, vec3_t up, vec3_t result)
+{
+	gclient_t *client = ent->client;
+	vec3_t     _distance;
+
+	if (!client)
+	{
+		return;
+	}
+
+	VectorCopy(distance, _distance);
+
+	if (client->pers.hand == LEFT_HANDED)
+	{
+		_distance[1] *= -1;
+	}
+	else if (client->pers.hand == CENTER_HANDED)
+	{
+		_distance[1] = 0;
+	}
+
+	G_ProjectSource2(point, _distance, forward, right, up, result);
+
+	// Berserker: fix - now the projectile hits exactly where the scope is pointing.
+	if (aimfix->value)
+	{
+		vec3_t start, end;
+		VectorSet(start, ent->s.origin[0], ent->s.origin[1], ent->s.origin[2] + ent->viewheight);
+		VectorMA(start, 8192, forward, end);
+
+		trace_t	tr = gi.trace(start, NULL, NULL, end, ent, MASK_SHOT);
+		if (tr.fraction < 1)
+		{
+			VectorSubtract(tr.endpos, result, forward);
+			VectorNormalize(forward);
+		}
+	}
+}
+
 /*
  * Each player can have two noise objects associated with it:
  * a personal noise (jumping, pain, weapon firing), and a weapon
@@ -85,10 +192,114 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
  * Monsters that don't directly see the player can move
  * to a noise in hopes of seeing the player from there.
  */
+static edict_t *
+PlayerNoise_Spawn(edict_t *who, int type)
+{
+	edict_t *noise;
+
+	if (!who)
+	{
+		return NULL;
+	}
+
+	noise = G_SpawnOptional();
+	if (!noise)
+	{
+		return NULL;
+	}
+
+	noise->classname = "player_noise";
+	noise->spawnflags = type;
+	VectorSet (noise->mins, -8, -8, -8);
+	VectorSet (noise->maxs, 8, 8, 8);
+	noise->owner = who;
+	noise->svflags = SVF_NOCLIENT;
+
+	return noise;
+}
+
+static void
+PlayerNoise_Verify(edict_t *who)
+{
+	edict_t *e;
+	edict_t *n1;
+	edict_t *n2;
+
+	if (!who)
+	{
+		return;
+	}
+
+	n1 = who->mynoise;
+	n2 = who->mynoise2;
+
+	if (n1 && !n1->inuse)
+	{
+		n1 = NULL;
+	}
+
+	if (n2 && !n2->inuse)
+	{
+		n2 = NULL;
+	}
+
+	if (n1 && n2)
+	{
+		return;
+	}
+
+	for (e = g_edicts + 1 + game.maxclients; e < &g_edicts[globals.num_edicts]; e++)
+	{
+		if (!e->inuse || strcmp(e->classname, "player_noise") != 0)
+		{
+			continue;
+		}
+
+		if (e->owner && e->owner != who)
+		{
+			continue;
+		}
+
+		e->owner = who;
+
+		if (!n2 && (e->spawnflags == PLAYER_NOISE_IMPACT || n1))
+		{
+			n2 = e;
+		}
+		else
+		{
+			n1 = e;
+		}
+
+		if (n1 && n2)
+		{
+			break;
+		}
+	}
+
+	if (!n1)
+	{
+		n1 = PlayerNoise_Spawn(who, PLAYER_NOISE_SELF);
+	}
+
+	if (!n2)
+	{
+		n2 = PlayerNoise_Spawn(who, PLAYER_NOISE_IMPACT);
+	}
+
+	who->mynoise = n1;
+	who->mynoise2 = n2;
+}
+
 void
 PlayerNoise(edict_t *who, vec3_t where, int type)
 {
 	edict_t *noise;
+
+	if (!who || !who->client)
+	{
+		return;
+	}
 
 	if (type == PNOISE_WEAPON)
 	{
@@ -154,6 +365,11 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 	int index;
 	gitem_t *ammo;
 
+	if (!ent || !other)
+	{
+		return false;
+	}
+
 	index = ITEM_INDEX(ent->item);
 
 	if ((((int)(dmflags->value) & DF_WEAPONS_STAY) || coop->value) &&
@@ -198,6 +414,7 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 			if (coop->value)
 			{
 				ent->flags |= FL_RESPAWN;
+				ent->flags |= FL_COOP_TAKEN;
 			}
 		}
 	}
@@ -221,6 +438,11 @@ void
 ChangeWeapon(edict_t *ent)
 {
 	int i;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	if (ent->client->grenade_time)
 	{
@@ -262,6 +484,7 @@ ChangeWeapon(edict_t *ent)
 
 	if (!ent->client->pers.weapon)
 	{
+		/* dead */
 		ent->client->ps.gunindex = 0;
 		return;
 	}
@@ -288,10 +511,36 @@ ChangeWeapon(edict_t *ent)
 void
 NoAmmoWeaponChange(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("slugs"))] &&
 		ent->client->pers.inventory[ITEM_INDEX(FindItem("railgun"))])
 	{
 		ent->client->newweapon = FindItem("railgun");
+		return;
+	}
+
+	if ((ent->client->pers.inventory[ITEM_INDEX(FindItem("cells"))] >= 2) &&
+		ent->client->pers.inventory[ITEM_INDEX(FindItem("Plasma Beam"))])
+	{
+		ent->client->newweapon = FindItem("Plasma Beam");
+		return;
+	}
+
+	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("flechettes"))] &&
+		ent->client->pers.inventory[ITEM_INDEX(FindItem("etf rifle"))])
+	{
+		ent->client->newweapon = FindItem("etf rifle");
+		return;
+	}
+
+	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("cells"))] > 1 &&
+		ent->client->pers.inventory[ITEM_INDEX(FindItem("ionripper"))])
+	{
+		ent->client->newweapon = FindItem("ionripper");
 		return;
 	}
 
@@ -339,6 +588,11 @@ NoAmmoWeaponChange(edict_t *ent)
 void
 Think_Weapon(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	/* if just died, put the weapon away */
 	if (ent->health < 1)
 	{
@@ -373,6 +627,11 @@ Use_Weapon(edict_t *ent, gitem_t *item)
 	int ammo_index;
 	gitem_t *ammo_item;
 
+	if (!ent || !item)
+	{
+		return;
+	}
+
 	/* see if we're already using it */
 	if (item == ent->client->pers.weapon)
 	{
@@ -404,9 +663,98 @@ Use_Weapon(edict_t *ent, gitem_t *item)
 }
 
 void
+Use_Weapon2(edict_t *ent, gitem_t *item)
+{
+	int ammo_index;
+	gitem_t *ammo_item;
+	gitem_t *nextitem;
+	int index;
+
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	if (strcmp(item->pickup_name, "HyperBlaster") == 0)
+	{
+		if (item == ent->client->pers.weapon)
+		{
+			item = FindItem("Ionripper");
+			index = ITEM_INDEX(item);
+
+			if (!ent->client->pers.inventory[index])
+			{
+				item = FindItem("HyperBlaster");
+			}
+		}
+	}
+
+	else if (strcmp(item->pickup_name, "Railgun") == 0)
+	{
+		ammo_item = FindItem(item->ammo);
+		ammo_index = ITEM_INDEX(ammo_item);
+
+		if (!ent->client->pers.inventory[ammo_index])
+		{
+			nextitem = FindItem("Phalanx");
+			ammo_item = FindItem(nextitem->ammo);
+			ammo_index = ITEM_INDEX(ammo_item);
+
+			if (ent->client->pers.inventory[ammo_index])
+			{
+				item = FindItem("Phalanx");
+				index = ITEM_INDEX(item);
+
+				if (!ent->client->pers.inventory[index])
+				{
+					item = FindItem("Railgun");
+				}
+			}
+		}
+		else if (item == ent->client->pers.weapon)
+		{
+			item = FindItem("Phalanx");
+			index = ITEM_INDEX(item);
+
+			if (!ent->client->pers.inventory[index])
+			{
+				item = FindItem("Railgun");
+			}
+		}
+	}
+
+	/* see if we're already using it */
+	if (item == ent->client->pers.weapon)
+	{
+		return;
+	}
+
+	if (item->ammo)
+	{
+		ammo_item = FindItem(item->ammo);
+		ammo_index = ITEM_INDEX(ammo_item);
+
+		if (!ent->client->pers.inventory[ammo_index] && !g_select_empty->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "No %s for %s.\n",
+					ammo_item->pickup_name, item->pickup_name);
+			return;
+		}
+	}
+
+	/* change to this weapon when down */
+	ent->client->newweapon = item;
+}
+
+void
 Drop_Weapon(edict_t *ent, gitem_t *item)
 {
 	int index;
+
+	if (!ent || !item)
+	{
+		return;
+	}
 
 	if ((int)(dmflags->value) & DF_WEAPONS_STAY)
 	{

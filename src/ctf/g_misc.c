@@ -1,11 +1,36 @@
 /*
+ * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) ZeniMax Media Inc.
- * Licensed under the GNU General Public License 2.0.
-*/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
+ *
+ * Miscellaneos entities, functs and functions.
+ *
+ * =======================================================================
+ */
+
 #include "header/local.h"
 
 int debristhisframe;
 int gibsthisframe;
+
+extern void M_WorldEffects(edict_t *ent);
 
 /*
  * QUAKED func_group (0 0 0) ?
@@ -15,8 +40,13 @@ int gibsthisframe;
 /* ===================================================== */
 
 void
-Use_Areaportal(edict_t *ent, edict_t *other, edict_t *activator)
+Use_Areaportal(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused */)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	ent->count ^= 1; /* toggle state */
 	gi.SetAreaPortalState(ent->style, ent->count);
 }
@@ -31,8 +61,13 @@ Use_Areaportal(edict_t *ent, edict_t *other, edict_t *activator)
 void
 SP_func_areaportal(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	ent->use = Use_Areaportal;
-	ent->count = 0;     /* allways start closed; */
+	ent->count = 0; /* always start closed; */
 }
 
 /* ===================================================== */
@@ -57,6 +92,11 @@ VelocityForDamage(int damage, vec3_t v)
 void
 ClipGibVelocity(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	if (ent->velocity[0] < -300)
 	{
 		ent->velocity[0] = -300;
@@ -85,9 +125,16 @@ ClipGibVelocity(edict_t *ent)
 	}
 }
 
+/* ===================================================== */
+
 void
 gib_think(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	self->s.frame++;
 	self->nextthink = level.time + FRAMETIME;
 
@@ -99,9 +146,14 @@ gib_think(edict_t *self)
 }
 
 void
-gib_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+gib_touch(edict_t *self, edict_t *other /* unused */, cplane_t *plane, csurface_t *surf /* unused */)
 {
 	vec3_t normal_angles, right;
+
+	if (!self)
+	{
+		return;
+	}
 
 	if (!self->groundentity)
 	{
@@ -112,7 +164,8 @@ gib_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (plane)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/fhit3.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex(
+						"misc/fhit3.wav"), 1, ATTN_NORM, 0);
 
 		vectoangles(plane->normal, normal_angles);
 		AngleVectors(normal_angles, NULL, right, NULL);
@@ -128,9 +181,14 @@ gib_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 }
 
 void
-gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point)
+gib_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
+		int damage /* unused */, vec3_t point /* unused */)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	G_FreeEdict(self);
 }
 
@@ -238,12 +296,140 @@ ThrowHead(edict_t *self, char *gibname, int damage, int type)
 }
 
 void
+ThrowGibACID(edict_t *self, char *gibname, int damage, int type)
+{
+	edict_t *gib;
+	vec3_t vd;
+	vec3_t origin;
+	vec3_t size;
+	float vscale;
+
+	if (!self || !gibname)
+	{
+		return;
+	}
+
+	gibsthisframe++;
+
+	if (gibsthisframe > MAX_GIBS)
+	{
+		return;
+	}
+
+	gib = G_Spawn();
+
+	VectorScale(self->size, 0.5, size);
+	VectorAdd(self->absmin, size, origin);
+	gib->s.origin[0] = origin[0] + crandom() * size[0];
+	gib->s.origin[1] = origin[1] + crandom() * size[1];
+	gib->s.origin[2] = origin[2] + crandom() * size[2];
+
+	/* gi.setmodel (gib, gibname); */
+	gib->s.modelindex = gi.modelindex(gibname);
+
+	gib->clipmask = MASK_SHOT;
+	gib->solid = SOLID_BBOX;
+
+	gib->s.effects |= EF_GREENGIB;
+	/* note to self check this */
+	gib->s.renderfx |= RF_FULLBRIGHT;
+	gib->flags |= FL_NO_KNOCKBACK;
+	gib->takedamage = DAMAGE_YES;
+	gib->die = gib_die;
+	gib->dmg = 2;
+	gib->health = 250;
+
+	if (type == GIB_ORGANIC)
+	{
+		gib->movetype = MOVETYPE_TOSS;
+		vscale = 3.0;
+	}
+	else
+	{
+		gib->movetype = MOVETYPE_BOUNCE;
+		vscale = 1.0;
+	}
+
+	VelocityForDamage(damage, vd);
+	VectorMA(self->velocity, vscale, vd, gib->velocity);
+	ClipGibVelocity(gib);
+	gib->avelocity[0] = random() * 600;
+	gib->avelocity[1] = random() * 600;
+	gib->avelocity[2] = random() * 600;
+
+	gib->think = G_FreeEdict;
+	gib->nextthink = level.time + 10 + random() * 10;
+
+	gi.linkentity(gib);
+}
+
+void
+ThrowHeadACID(edict_t *self, char *gibname, int damage, int type)
+{
+	vec3_t vd;
+	float vscale;
+
+    if (!self || !gibname)
+	{
+		return;
+	}
+
+	self->s.skinnum = 0;
+	self->s.frame = 0;
+	VectorClear(self->mins);
+	VectorClear(self->maxs);
+
+	self->s.modelindex2 = 0;
+	gi.setmodel(self, gibname);
+
+	self->clipmask = MASK_SHOT;
+	self->solid = SOLID_BBOX;
+
+	self->s.effects |= EF_GREENGIB;
+	self->s.effects &= ~EF_FLIES;
+	self->s.effects |= RF_FULLBRIGHT;
+	self->s.sound = 0;
+	self->flags |= FL_NO_KNOCKBACK;
+	self->svflags &= ~SVF_MONSTER;
+	self->takedamage = DAMAGE_YES;
+	self->die = gib_die;
+	self->dmg = 2;
+
+	if (type == GIB_ORGANIC)
+	{
+		self->movetype = MOVETYPE_TOSS;
+		vscale = 0.5;
+	}
+	else
+	{
+		self->movetype = MOVETYPE_BOUNCE;
+		vscale = 1.0;
+	}
+
+	VelocityForDamage(damage, vd);
+	VectorMA(self->velocity, vscale, vd, self->velocity);
+	ClipGibVelocity(self);
+
+	self->avelocity[YAW] = crandom() * 600;
+
+	self->think = G_FreeEdict;
+	self->nextthink = level.time + 10 + random() * 10;
+
+	gi.linkentity(self);
+}
+
+void
 ThrowClientHead(edict_t *self, int damage)
 {
 	vec3_t vd;
 	char *gibname;
 
-	if (rand() & 1)
+	if (!self)
+	{
+		return;
+	}
+
+	if (randk() & 1)
 	{
 		gibname = "models/objects/gibs/head2/tris.md2";
 		self->s.skinnum = 1; /* second skin is player */
@@ -275,14 +461,26 @@ ThrowClientHead(edict_t *self, int damage)
 		self->client->anim_priority = ANIM_DEATH;
 		self->client->anim_end = self->s.frame;
 	}
+	else
+	{
+		self->think = NULL;
+		self->nextthink = 0;
+	}
 
 	gi.linkentity(self);
 }
 
+/* ===================================================== */
+
 void
-debris_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point)
+debris_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
+		int damage /* unused */, vec3_t point /* unused */)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	G_FreeEdict(self);
 }
 
@@ -325,6 +523,11 @@ ThrowDebris(edict_t *self, char *modelname, float speed, vec3_t origin)
 void
 BecomeExplosion1(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	/* flags are important */
 	if (strcmp(self->classname, "item_flag_team1") == 0)
 	{
@@ -360,6 +563,11 @@ BecomeExplosion1(edict_t *self)
 void
 BecomeExplosion2(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_EXPLOSION2);
 	gi.WritePosition(self->s.origin);
@@ -367,20 +575,26 @@ BecomeExplosion2(edict_t *self)
 
 	G_FreeEdict(self);
 }
+/* ===================================================== */
 
 /*
  * QUAKED path_corner (.5 .3 0) (-8 -8 -8) (8 8 8) TELEPORT
+ *
  * Target: next path corner
  * Pathtarget: gets used when an entity that has
  *  this path_corner targeted touches it
  */
-
 void
-path_corner_touch(edict_t *self, edict_t *other, cplane_t *plane,
-		csurface_t *surf)
+path_corner_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
 {
 	vec3_t v;
 	edict_t *next;
+
+	if (!self || !other)
+	{
+		return;
+	}
 
 	if (other->movetarget != self)
 	{
@@ -418,6 +632,7 @@ path_corner_touch(edict_t *self, edict_t *other, cplane_t *plane,
 		v[2] -= other->mins[2];
 		VectorCopy(v, other->s.origin);
 		next = G_PickTarget(next->target);
+		other->s.event = EV_OTHER_TELEPORT;
 	}
 
 	other->goalentity = other->movetarget = next;
@@ -444,6 +659,11 @@ path_corner_touch(edict_t *self, edict_t *other, cplane_t *plane,
 void
 SP_path_corner(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (!self->targetname)
 	{
 		gi.dprintf("path_corner with no targetname at %s\n",
@@ -460,17 +680,25 @@ SP_path_corner(edict_t *self)
 	gi.linkentity(self);
 }
 
+/* ===================================================== */
+
 /*
  * QUAKED point_combat (0.5 0.3 0) (-8 -8 -8) (8 8 8) Hold
+ *
  * Makes this the target of a monster and it will head here
  * when first activated before going after the activator.  If
  * hold is selected, it will stay here.
  */
 void
-point_combat_touch(edict_t *self, edict_t *other, cplane_t *plane,
-		csurface_t *surf)
+point_combat_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
 {
 	edict_t *activator;
+
+	if (!self || !other)
+	{
+		return;
+	}
 
 	if (other->movetarget != self)
 	{
@@ -484,8 +712,10 @@ point_combat_touch(edict_t *self, edict_t *other, cplane_t *plane,
 
 		if (!other->goalentity)
 		{
-			gi.dprintf("%s at %s target %s does not exist\n", self->classname,
-					vtos(self->s.origin), self->target);
+			gi.dprintf("%s at %s target %s does not exist\n",
+					self->classname,
+					vtos(self->s.origin),
+					self->target);
 			other->movetarget = self;
 		}
 
@@ -538,6 +768,11 @@ point_combat_touch(edict_t *self, edict_t *other, cplane_t *plane,
 void
 SP_point_combat(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (deathmatch->value)
 	{
 		G_FreeEdict(self);
@@ -552,8 +787,11 @@ SP_point_combat(edict_t *self)
 	gi.linkentity(self);
 }
 
+/* ===================================================== */
+
 /*
  * QUAKED viewthing (0 .5 .8) (-8 -8 -8) (8 8 8)
+ *
  * Just for the debugging level.  Don't use
  */
 static int robotron[4];
@@ -577,6 +815,11 @@ TH_viewthing(edict_t *ent)
 void
 SP_viewthing(edict_t *ent)
 {
+	if (!ent)
+	{
+		return;
+	}
+
 	gi.dprintf("viewthing spawned\n");
 
 	ent->movetype = MOVETYPE_NONE;
@@ -591,41 +834,60 @@ SP_viewthing(edict_t *ent)
 	return;
 }
 
+/* ===================================================== */
+
 /*
  * QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
+ *
  * Used as a positional target for spotlights, etc.
  */
 void
 SP_info_null(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	G_FreeEdict(self);
 }
 
 /*
  * QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
- * Used as a positional target for lightning.
+ *
+ * Used as a positional target for lighting.
  */
 void
 SP_info_notnull(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	VectorCopy(self->s.origin, self->absmin);
 	VectorCopy(self->s.origin, self->absmax);
 }
 
+#define START_OFF 1
+
 /*
  * QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
+ *
  * Non-displayed light.
  * Default light value is 300.
  * Default style is 0.
  * If targeted, will toggle between on and off.
  * Default _cone value is 10 (used to set size of light for spotlights)
  */
-
-#define START_OFF 1
-
 void
-light_use(edict_t *self, edict_t *other, edict_t *activator)
+light_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (self->spawnflags & START_OFF)
 	{
 		gi.configstring(CS_LIGHTS + self->style, "m");
@@ -641,6 +903,11 @@ light_use(edict_t *self, edict_t *other, edict_t *activator)
 void
 SP_light(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	/* no targeted lights in deathmatch, because they cause global messages */
 	if (!self->targetname || deathmatch->value)
 	{
@@ -662,6 +929,8 @@ SP_light(edict_t *self)
 		}
 	}
 }
+
+/* ===================================================== */
 
 /*
  * QUAKED func_wall (0 .5 .8) ? TRIGGER_SPAWN TOGGLE START_ON ANIMATED ANIMATED_FAST
