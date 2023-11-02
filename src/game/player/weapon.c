@@ -824,8 +824,8 @@ Change_Weap_Animation(edict_t *ent)
  * A generic function to handle
  * the basics of weapon thinking
  */
-void
-Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
+static void
+Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
 		int *fire_frames, void (*fire)(edict_t *ent))
 {
@@ -965,16 +965,21 @@ Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		{
 			if (ent->client->ps.gunframe == fire_frames[n])
 			{
-				if (ent->client->quad_framenum > level.framenum)
+				if (!CTFApplyStrengthSound(ent))
 				{
-					gi.sound(ent, CHAN_ITEM, gi.soundindex(
-								"items/damage3.wav"), 1, ATTN_NORM, 0);
+					if (ent->client->quad_framenum > level.framenum)
+					{
+						gi.sound(ent, CHAN_ITEM, gi.soundindex(
+									"items/damage3.wav"), 1, ATTN_NORM, 0);
+					}
+					else if (ent->client->double_framenum > level.framenum)
+					{
+						gi.sound(ent, CHAN_ITEM, gi.soundindex(
+									"misc/ddamage3.wav"), 1, ATTN_NORM, 0);
+					}
 				}
-				else if (ent->client->double_framenum > level.framenum)
-				{
-					gi.sound(ent, CHAN_ITEM, gi.soundindex(
-								"misc/ddamage3.wav"), 1, ATTN_NORM, 0);
-				}
+
+				CTFApplyHasteSound(ent);
 
 				fire(ent);
 				break;
@@ -990,6 +995,35 @@ Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		{
 			ent->client->weaponstate = WEAPON_READY;
 		}
+	}
+}
+
+void
+Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
+		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
+		int *fire_frames, void (*fire)(edict_t *ent))
+{
+	int oldstate = ent->client->weaponstate;
+
+	Weapon_Generic2(ent, FRAME_ACTIVATE_LAST, FRAME_FIRE_LAST,
+			FRAME_IDLE_LAST, FRAME_DEACTIVATE_LAST, pause_frames,
+			fire_frames, fire);
+
+	/* run the weapon frame again if hasted */
+	if ((Q_stricmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0) &&
+		(ent->client->weaponstate == WEAPON_FIRING))
+	{
+		return;
+	}
+
+	if ((CTFApplyHaste(ent) ||
+		 ((Q_stricmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0) &&
+		  (ent->client->weaponstate != WEAPON_FIRING))) &&
+		(oldstate == ent->client->weaponstate))
+	{
+		Weapon_Generic2(ent, FRAME_ACTIVATE_LAST, FRAME_FIRE_LAST,
+				FRAME_IDLE_LAST, FRAME_DEACTIVATE_LAST, pause_frames,
+				fire_frames, fire);
 	}
 }
 

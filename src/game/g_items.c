@@ -163,14 +163,25 @@ DoRespawn(edict_t *ent)
 
 		master = ent->teammaster;
 
-		for (count = 0, ent = master; ent; ent = ent->chain, count++)
+		/* in ctf, when we are weapons stay, only the master
+		   of a team of weapons is spawned */
+		if (ctf->value &&
+			((int)dmflags->value & DF_WEAPONS_STAY) &&
+			master->item && (master->item->flags & IT_WEAPON))
 		{
+			ent = master;
 		}
-
-		choice = count ? randk() % count : 0;
-
-		for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
+		else
 		{
+			for (count = 0, ent = master; ent; ent = ent->chain, count++)
+			{
+			}
+
+			choice = count ? randk() % count : 0;
+
+			for (count = 0, ent = master; count < choice; ent = ent->chain, count++)
+			{
+			}
 		}
 	}
 
@@ -245,6 +256,20 @@ Pickup_Powerup(edict_t *ent, edict_t *other)
 		if (!(ent->spawnflags & DROPPED_ITEM))
 		{
 			SetRespawn(ent, ent->item->quantity);
+		}
+
+		if (((int)dmflags->value & DF_INSTANT_ITEMS) ||
+			((ent->item->use == Use_Quad) &&
+			 (ent->spawnflags & DROPPED_PLAYER_ITEM)))
+		{
+			if ((ent->item->use == Use_Quad) &&
+				(ent->spawnflags & DROPPED_PLAYER_ITEM))
+			{
+				quad_drop_timeout_hack =
+					(ent->nextthink - level.time) / FRAMETIME;
+			}
+
+			ent->item->use(other, ent->item);
 		}
 	}
 
@@ -1030,7 +1055,8 @@ Use_Invulnerability(edict_t *ent, gitem_t *item)
 		ent->client->invincible_framenum = level.framenum + 300;
 	}
 
-	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/protect.wav"), 1, ATTN_NORM, 0);
+	gi.sound(ent, CHAN_ITEM, gi.soundindex(
+					"items/protect.wav"), 1, ATTN_NORM, 0);
 }
 
 /* ====================================================================== */
@@ -1279,7 +1305,8 @@ MegaHealth_think(edict_t *self)
 		return;
 	}
 
-	if (self->owner->health > self->owner->max_health)
+	if ((self->owner->health > self->owner->max_health)
+		&& !CTFHasRegeneration(self->owner))
 	{
 		self->nextthink = level.time + 1;
 		self->owner->health -= 1;
@@ -1312,7 +1339,17 @@ Pickup_Health(edict_t *ent, edict_t *other)
 		}
 	}
 
+	if ((other->health >= 250) && (ent->count > 25))
+	{
+		return false;
+	}
+
 	other->health += ent->count;
+
+	if ((other->health > 250) && (ent->count > 25))
+	{
+		other->health = 250;
+	}
 
 	if (!(ent->style & HEALTH_IGNORE_MAX))
 	{
@@ -1322,7 +1359,7 @@ Pickup_Health(edict_t *ent, edict_t *other)
 		}
 	}
 
-	if (ent->style & HEALTH_TIMED)
+	if ((ent->style & HEALTH_TIMED) && !CTFHasRegeneration(other))
 	{
 		ent->think = MegaHealth_think;
 		ent->nextthink = level.time + 5;
@@ -1621,6 +1658,11 @@ Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_
 	if (!ent->item->pickup)
 	{
 		return; /* not a grabbable item? */
+	}
+
+	if (CTFMatchSetup())
+	{
+		return; /* can't pick stuff up right now */
 	}
 
 	taken = ent->item->pickup(ent, other);
@@ -2251,6 +2293,14 @@ SpawnItem(edict_t *ent, gitem_t *item)
 		item->drop = NULL;
 	}
 
+	/* Don't spawn the flags unless enabled */
+	if (!ctf->value && ((strcmp(ent->classname, "item_flag_team1") == 0) ||
+				(strcmp(ent->classname, "item_flag_team2") == 0)))
+	{
+		G_FreeEdict(ent);
+		return;
+	}
+
 	ent->item = item;
 	ent->nextthink = level.time + 2 * FRAMETIME; /* items start after other solids */
 	ent->think = droptofloor;
@@ -2260,6 +2310,13 @@ SpawnItem(edict_t *ent, gitem_t *item)
 	if (ent->model)
 	{
 		gi.modelindex(ent->model);
+	}
+
+	/* flags are server animated and have special handling */
+	if ((strcmp(ent->classname, "item_flag_team1") == 0) ||
+		(strcmp(ent->classname, "item_flag_team2") == 0))
+	{
+		ent->think = CTFFlagSetup;
 	}
 
 	if (ent->spawnflags & 1)
@@ -2418,6 +2475,32 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		0,
 		"misc/power2.wav misc/power1.wav"
+	},
+
+	/*
+	 * weapon_grapple (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 * always owned, never in the world
+	 */
+	{
+		"weapon_grapple",
+		NULL,
+		Use_Weapon,
+		NULL,
+		CTFWeapon_Grapple,
+		"misc/w_pkup.wav",
+		NULL, 0,
+		"models/weapons/grapple/tris.md2",
+		"w_grapple",
+		"Grapple",
+		0,
+		0,
+		NULL,
+		IT_WEAPON,
+		WEAP_GRAPPLE,
+		NULL,
+		0,
+
+		"weapons/grapple/grfire.wav weapons/grapple/grpull.wav weapons/grapple/grhang.wav weapons/grapple/grreset.wav weapons/grapple/grhit.wav"
 	},
 
 	/*
@@ -3901,6 +3984,142 @@ static const gitem_t gameitemlist[] = {
 		0,
 
 		"items/s_health.wav items/n_health.wav items/l_health.wav items/m_health.wav"
+	},
+
+	/*
+	 * QUAKED item_flag_team1 (1 0.2 0) (-16 -16 -24) (16 16 32)
+	 */
+	{
+		"item_flag_team1",
+		CTFPickup_Flag,
+		NULL,
+		CTFDrop_Flag,
+		NULL,
+		"ctf/flagtk.wav",
+		"players/male/flag1.md2", EF_FLAG1,
+		NULL,
+		"i_ctf1",
+		"Red Flag",
+		2,
+		0,
+		NULL,
+		0,
+		0,
+		NULL,
+		0,
+		"ctf/flagcap.wav"
+	},
+
+	/*
+	 * QUAKED item_flag_team2 (1 0.2 0) (-16 -16 -24) (16 16 32)
+	 */
+	{
+		"item_flag_team2",
+		CTFPickup_Flag,
+		NULL,
+		CTFDrop_Flag,
+		NULL,
+		"ctf/flagtk.wav",
+		"players/male/flag2.md2", EF_FLAG2,
+		NULL,
+		"i_ctf2",
+		"Blue Flag",
+		2,
+		0,
+		NULL,
+		0,
+		0,
+		NULL,
+		0,
+		"ctf/flagcap.wav"
+	},
+
+	/* Resistance Tech */
+	{
+		"item_tech1",
+		CTFPickup_Tech,
+		NULL,
+		CTFDrop_Tech,
+		NULL,
+		"items/pkup.wav",
+		"models/ctf/resistance/tris.md2", EF_ROTATE,
+		NULL,
+		"tech1",
+		"Disruptor Shield",
+		2,
+		0,
+		NULL,
+		IT_TECH,
+		0,
+		NULL,
+		0,
+		"ctf/tech1.wav"
+	},
+
+	/* Strength Tech */
+	{
+		"item_tech2",
+		CTFPickup_Tech,
+		NULL,
+		CTFDrop_Tech,
+		NULL,
+		"items/pkup.wav",
+		"models/ctf/strength/tris.md2", EF_ROTATE,
+		NULL,
+		"tech2",
+		"Power Amplifier",
+		2,
+		0,
+		NULL,
+		IT_TECH,
+		0,
+		NULL,
+		0,
+		"ctf/tech2.wav ctf/tech2x.wav"
+	},
+
+	/* Haste Tech */
+	{
+		"item_tech3",
+		CTFPickup_Tech,
+		NULL,
+		CTFDrop_Tech,
+		NULL,
+		"items/pkup.wav",
+		"models/ctf/haste/tris.md2", EF_ROTATE,
+		NULL,
+		"tech3",
+		"Time Accel",
+		2,
+		0,
+		NULL,
+		IT_TECH,
+		0,
+		NULL,
+		0,
+		"ctf/tech3.wav"
+	},
+
+	/* Regeneration Tech */
+	{
+		"item_tech4",
+		CTFPickup_Tech,
+		NULL,
+		CTFDrop_Tech,
+		NULL,
+		"items/pkup.wav",
+		"models/ctf/regeneration/tris.md2", EF_ROTATE,
+		NULL,
+		"tech4",
+		"AutoDoc",
+		2,
+		0,
+		NULL,
+		IT_TECH,
+		0,
+		NULL,
+		0,
+		"ctf/tech4.wav"
 	},
 
 	/* end of list marker */

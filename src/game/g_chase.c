@@ -143,6 +143,20 @@ UpdateChaseCam(edict_t *ent)
 	ent->viewheight = 0;
 	ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
 	gi.linkentity(ent);
+
+	if ((!ent->client->showscores && !ent->client->menu &&
+		 !ent->client->showinventory && !ent->client->showhelp &&
+		 !(level.framenum & 31)) || ent->client->update_chase)
+	{
+		char s[1024];
+
+		ent->client->update_chase = false;
+		sprintf(s, "xv 0 yb -68 string2 \"Chasing %s\"",
+				targ->client->pers.netname);
+		gi.WriteByte(svc_layout);
+		gi.WriteString(s);
+		gi.unicast(ent, false);
+	}
 }
 
 void
@@ -177,6 +191,11 @@ ChaseNext(edict_t *ent)
 		if (!e->inuse)
 		{
 			continue;
+		}
+
+		if (e->solid != SOLID_NOT)
+		{
+			break;
 		}
 
 		if (!e->client->resp.spectator)
@@ -224,11 +243,17 @@ ChasePrev(edict_t *ent)
 			continue;
 		}
 
+		if (e->solid != SOLID_NOT)
+		{
+			break;
+		}
+
 		if (!e->client->resp.spectator)
 		{
 			break;
 		}
 	}
+
 	while (e != ent->client->chase_target);
 
 	ent->client->chase_target = e;

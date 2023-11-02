@@ -567,6 +567,30 @@ BecomeExplosion1(edict_t *self)
 		return;
 	}
 
+	/* flags are important */
+	if (strcmp(self->classname, "item_flag_team1") == 0)
+	{
+		CTFResetFlag(CTF_TEAM1); /* this will free self! */
+		gi.bprintf(PRINT_HIGH, "The %s flag has returned!\n",
+				CTFTeamName(CTF_TEAM1));
+		return;
+	}
+
+	if (strcmp(self->classname, "item_flag_team2") == 0)
+	{
+		CTFResetFlag(CTF_TEAM2); /* this will free self! */
+		gi.bprintf(PRINT_HIGH, "The %s flag has returned!\n",
+				CTFTeamName(CTF_TEAM2));
+		return;
+	}
+
+	/* techs are important too */
+	if (self->item && (self->item->flags & IT_TECH))
+	{
+		CTFRespawnTech(self); /* this frees self! */
+		return;
+	}
+
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_EXPLOSION1);
 	gi.WritePosition(self->s.origin);
@@ -819,6 +843,14 @@ TH_viewthing(edict_t *ent)
 
 	ent->s.frame = (ent->s.frame + 1) % 7;
 	ent->nextthink = level.time + FRAMETIME;
+
+	if (ent->spawnflags)
+	{
+		if (ent->s.frame == 0)
+		{
+			ent->spawnflags = (ent->spawnflags + 1) % 4 + 1;
+		}
+	}
 }
 
 void
@@ -3028,6 +3060,8 @@ teleporter_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		gi.dprintf("Couldn't find destination\n");
 		return;
 	}
+
+	CTFPlayerResetGrapple(other);
 
 	/* unlink to make sure it can't possibly interfere with KillBox */
 	gi.unlinkentity(other);

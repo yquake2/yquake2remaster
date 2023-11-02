@@ -786,6 +786,7 @@ plat_spawn_inside_trigger(edict_t *ent)
 
 	tmin[0] = ent->mins[0] + 25;
 	tmin[1] = ent->mins[1] + 25;
+	tmin[2] = ent->mins[2];
 
 	tmax[0] = ent->maxs[0] - 25;
 	tmax[1] = ent->maxs[1] - 25;
@@ -1701,7 +1702,11 @@ SP_func_rotating(edict_t *ent)
 	}
 
 	ent->use = rotating_use;
-	ent->blocked = rotating_blocked;
+
+	if (ent->dmg)
+	{
+		ent->blocked = rotating_blocked;
+	}
 
 	if (ent->spawnflags & 1)
 	{

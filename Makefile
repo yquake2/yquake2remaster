@@ -1481,12 +1481,12 @@ CTF_OBJS_ = \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
 	src/ctf/g_ai.o \
-	src/ctf/g_chase.o \
+	src/game/g_chase.o \
 	src/ctf/g_cmds.o \
 	src/ctf/g_combat.o \
 	src/game/g_ctf.o \
-	src/ctf/g_func.o \
-	src/ctf/g_items.o \
+	src/game/g_func.o \
+	src/game/g_items.o \
 	src/game/g_newai.o \
 	src/game/g_newdm.o \
 	src/game/g_newfnc.o \
@@ -1494,8 +1494,8 @@ CTF_OBJS_ = \
 	src/game/g_newtrig.o \
 	src/game/g_newweap.o \
 	src/ctf/g_main.o \
-	src/ctf/g_misc.o \
-	src/ctf/g_monster.o \
+	src/game/g_misc.o \
+	src/game/g_monster.o \
 	src/ctf/g_phys.o \
 	src/ctf/g_save.o \
 	src/game/g_sphere.o \
@@ -1543,7 +1543,7 @@ CTF_OBJS_ = \
 	src/ctf/player/hud.o \
 	src/ctf/player/trail.o \
 	src/ctf/player/view.o \
-	src/ctf/player/weapon.o
+	src/game/player/weapon.o
 
 # ----------
 
