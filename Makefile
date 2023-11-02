@@ -1496,13 +1496,14 @@ CTF_OBJS_ = \
 	src/ctf/g_main.o \
 	src/game/g_misc.o \
 	src/game/g_monster.o \
-	src/ctf/g_phys.o \
+	src/game/g_phys.o \
 	src/ctf/g_save.o \
 	src/game/g_sphere.o \
-	src/ctf/g_spawn.o \
+	src/game/g_spawn.o \
 	src/game/g_svcmds.o \
 	src/game/g_target.o \
 	src/game/g_trigger.o \
+	src/game/g_turret.o \
 	src/game/g_utils.o \
 	src/game/g_weapon.o \
 	src/game/menu/menu.o \

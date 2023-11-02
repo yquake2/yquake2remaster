@@ -745,6 +745,10 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 					message = "tried to invade";
 					message2 = "'s personal space";
 					break;
+				case MOD_GRAPPLE:
+					message = "was caught by";
+					message2 = "'s grapple";
+					break;
 				case MOD_RIPPER:
 					message = "ripped to shreds by";
 					message2 = "'s ripper gun";

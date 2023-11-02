@@ -29,6 +29,268 @@
 #include "../monster/misc/player.h"
 
 void SP_misc_teleporter_dest(edict_t *ent);
+void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
+
+/*
+ * The ugly as hell coop spawnpoint fixup function.
+ * While coop was planed by id, it wasn't part of
+ * the initial release and added later with patch
+ * to version 2.00. The spawnpoints in some maps
+ * were SNAFU, some have wrong targets and some
+ * no name at all. Fix this by matching the coop
+ * spawnpoint target names to the nearest named
+ * single player spot.
+ */
+void
+SP_FixCoopSpots(edict_t *self)
+{
+	edict_t *spot;
+	vec3_t d;
+
+	if (!self)
+	{
+		return;
+	}
+
+	/* Entity number 292 is an unnamed info_player_start
+	   next to a named info_player_start. Delete it, if
+	   we're in coop since it screws up the spawnpoint
+	   selection heuristic in SelectCoopSpawnPoint().
+	   This unnamed info_player_start is selected as
+	   spawnpoint for player 0, therefor none of the
+	   named info_coop_start() matches... */
+	if(Q_stricmp(level.mapname, "xware") == 0)
+	{
+		if (self->s.number == 292)
+		{
+			G_FreeEdict(self);
+			self = NULL;
+		}
+	}
+
+	spot = NULL;
+
+	while (1)
+	{
+		spot = G_Find(spot, FOFS(classname), "info_player_start");
+
+		if (!spot)
+		{
+			return;
+		}
+
+		if (!spot->targetname)
+		{
+			continue;
+		}
+
+		VectorSubtract(self->s.origin, spot->s.origin, d);
+
+		if (VectorLength(d) < 550)
+		{
+			if ((!self->targetname) || (Q_stricmp(self->targetname, spot->targetname) != 0))
+			{
+				self->targetname = spot->targetname;
+			}
+
+			return;
+		}
+	}
+}
+
+/*
+ * Some maps have no coop spawnpoints at
+ * all. Add these by injecting entities
+ * into the map where they should have
+ * been
+ */
+void
+SP_CreateCoopSpots(edict_t *self)
+{
+	edict_t *spot;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (Q_stricmp(level.mapname, "security") == 0)
+	{
+		spot = G_Spawn();
+		spot->classname = "info_player_coop";
+		spot->s.origin[0] = 188 - 64;
+		spot->s.origin[1] = -164;
+		spot->s.origin[2] = 80;
+		spot->targetname = "jail3";
+		spot->s.angles[1] = 90;
+
+		spot = G_Spawn();
+		spot->classname = "info_player_coop";
+		spot->s.origin[0] = 188 + 64;
+		spot->s.origin[1] = -164;
+		spot->s.origin[2] = 80;
+		spot->targetname = "jail3";
+		spot->s.angles[1] = 90;
+
+		spot = G_Spawn();
+		spot->classname = "info_player_coop";
+		spot->s.origin[0] = 188 + 128;
+		spot->s.origin[1] = -164;
+		spot->s.origin[2] = 80;
+		spot->targetname = "jail3";
+		spot->s.angles[1] = 90;
+
+		return;
+	}
+}
+
+/*
+ * Some maps have no unnamed (e.g. generic)
+ * info_player_start. This is no problem in
+ * normal gameplay, but if the map is loaded
+ * via console there is a huge chance that
+ * the player will spawn in the wrong point.
+ * Therefore create an unnamed info_player_start
+ * at the correct point.
+ */
+void
+SP_CreateUnnamedSpawn(edict_t *self)
+{
+	edict_t *spot = G_Spawn();
+
+	if (!self)
+	{
+		return;
+	}
+
+	/* mine1 */
+    if (Q_stricmp(level.mapname, "mine1") == 0)
+	{
+		if (Q_stricmp(self->targetname, "mintro") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+	/* mine2 */
+    if (Q_stricmp(level.mapname, "mine2") == 0)
+	{
+		if (Q_stricmp(self->targetname, "mine1") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+	/* mine3 */
+    if (Q_stricmp(level.mapname, "mine3") == 0)
+	{
+		if (Q_stricmp(self->targetname, "mine2a") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+	/* mine4 */
+    if (Q_stricmp(level.mapname, "mine4") == 0)
+	{
+		if (Q_stricmp(self->targetname, "mine3") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+ 	/* power2 */
+    if (Q_stricmp(level.mapname, "power2") == 0)
+	{
+		if (Q_stricmp(self->targetname, "power1") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+	/* waste1 */
+    if (Q_stricmp(level.mapname, "waste1") == 0)
+	{
+		if (Q_stricmp(self->targetname, "power2") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+	/* waste2 */
+    if (Q_stricmp(level.mapname, "waste2") == 0)
+	{
+		if (Q_stricmp(self->targetname, "waste1") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+
+	/* city3 */
+    if (Q_stricmp(level.mapname, "city2") == 0)
+	{
+		if (Q_stricmp(self->targetname, "city2NL") == 0)
+		{
+			spot->classname = self->classname;
+			spot->s.origin[0] = self->s.origin[0];
+			spot->s.origin[1] = self->s.origin[1];
+			spot->s.origin[2] = self->s.origin[2];
+			spot->s.angles[1] = self->s.angles[1];
+			spot->targetname = NULL;
+
+			return;
+		}
+	}
+}
 
 /*
  * QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
@@ -63,10 +325,59 @@ SP_info_player_deathmatch(edict_t *self)
  * QUAKED info_player_coop (1 0 1) (-16 -16 -24) (16 16 32)
  * potential spawning position for coop games
  */
-
 void
 SP_info_player_coop(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
+	if (!coop->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if ((Q_stricmp(level.mapname, "jail2") == 0) ||
+		(Q_stricmp(level.mapname, "jail4") == 0) ||
+		(Q_stricmp(level.mapname, "mintro") == 0) ||
+		(Q_stricmp(level.mapname, "mine1") == 0) ||
+		(Q_stricmp(level.mapname, "mine2") == 0) ||
+		(Q_stricmp(level.mapname, "mine3") == 0) ||
+		(Q_stricmp(level.mapname, "mine4") == 0) ||
+		(Q_stricmp(level.mapname, "lab") == 0) ||
+		(Q_stricmp(level.mapname, "boss1") == 0) ||
+		(Q_stricmp(level.mapname, "fact1") == 0) ||
+		(Q_stricmp(level.mapname, "fact3") == 0) ||
+		(Q_stricmp(level.mapname, "waste1") == 0) || /* really? */
+		(Q_stricmp(level.mapname, "biggun") == 0) ||
+		(Q_stricmp(level.mapname, "space") == 0) ||
+		(Q_stricmp(level.mapname, "command") == 0) ||
+		(Q_stricmp(level.mapname, "power2") == 0) ||
+		(Q_stricmp(level.mapname, "strike") == 0) ||
+		(Q_stricmp(level.mapname, "city2") == 0))
+	{
+		/* invoke one of our gross, ugly, disgusting hacks */
+		self->think = SP_FixCoopSpots;
+		self->nextthink = level.time + FRAMETIME;
+	}
+}
+
+/*
+ * QUAKED info_player_coop_lava (1 0 1) (-16 -16 -24) (16 16 32)
+ *
+ * potential spawning position for coop games on rmine2 where lava level
+ * needs to be checked
+ */
+void
+SP_info_player_coop_lava(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
 	if (!coop->value)
 	{
 		G_FreeEdict(self);
@@ -76,22 +387,31 @@ SP_info_player_coop(edict_t *self)
 
 /*
  * QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32)
+ *
  * The deathmatch intermission point will be at one of these
  * Use 'angles' instead of 'angle', so you can set pitch or
  * roll as well as yaw.  'pitch yaw roll'
  */
 void
-SP_info_player_intermission(edict_t *ent)
+SP_info_player_intermission(edict_t *self)
 {
+	/* This function cannot be removed
+	 * since the info_player_intermission
+	 * needs a callback function. Like
+	 * every entity. */
 }
 
 /* ======================================================================= */
 
 void
-player_pain(edict_t *self, edict_t *other, float kick, int damage)
+player_pain(edict_t *self /* unused */, edict_t *other /* unused */,
+	   	float kick /* unused */, int damage /* unused */)
 {
-	/* player pain is handled at the
-	   end of the frame in P_DamageFeedback */
+	/* Player pain is handled at the end
+	 * of the frame in P_DamageFeedback.
+	 * This function is still here since
+	 * the player is an entity and needs
+	 * a pain callback */
 }
 
 qboolean
@@ -99,12 +419,22 @@ IsFemale(edict_t *ent)
 {
 	char *info;
 
+	if (!ent)
+	{
+		return false;
+	}
+
 	if (!ent->client)
 	{
 		return false;
 	}
 
-	info = Info_ValueForKey(ent->client->pers.userinfo, "skin");
+	info = Info_ValueForKey(ent->client->pers.userinfo, "gender");
+
+	if (strstr(info, "crakhor"))
+	{
+		return true;
+	}
 
 	if ((info[0] == 'f') || (info[0] == 'F'))
 	{
@@ -114,15 +444,52 @@ IsFemale(edict_t *ent)
 	return false;
 }
 
+qboolean
+IsNeutral(edict_t *ent)
+{
+	char *info;
+
+	if (!ent)
+	{
+		return false;
+	}
+
+	if (!ent->client)
+	{
+		return false;
+	}
+
+	info = Info_ValueForKey(ent->client->pers.userinfo, "gender");
+
+	if (strstr(info, "crakhor"))
+	{
+		return false;
+	}
+
+	if ((info[0] != 'f') && (info[0] != 'F') && (info[0] != 'm') &&
+		(info[0] != 'M'))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void
-ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
+ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
+	   	edict_t *attacker)
 {
 	int mod;
 	char *message;
 	char *message2;
 	qboolean ff;
 
-	if (coop->value && attacker->client)
+	if (!self || !attacker || !inflictor)
+	{
+		return;
+	}
+
+	if (coop->value && attacker && attacker->client)
 	{
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
 	}
@@ -172,6 +539,12 @@ ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
 			case MOD_TRIGGER_HURT:
 				message = "was in the wrong place";
 				break;
+			case MOD_GEKK:
+			case MOD_BRAINTENTACLE:
+				message = "that's gotta hurt";
+				break;
+			default:
+				break;
 		}
 
 		if (attacker == self)
@@ -184,7 +557,11 @@ ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
 				case MOD_HG_SPLASH:
 				case MOD_G_SPLASH:
 
-					if (IsFemale(self))
+					if (IsNeutral(self))
+					{
+						message = "tripped on its own grenade";
+					}
+					else if (IsFemale(self))
 					{
 						message = "tripped on her own grenade";
 					}
@@ -196,7 +573,11 @@ ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
 					break;
 				case MOD_R_SPLASH:
 
-					if (IsFemale(self))
+					if (IsNeutral(self))
+					{
+						message = "blew itself up";
+					}
+					else if (IsFemale(self))
 					{
 						message = "blew herself up";
 					}
@@ -209,9 +590,31 @@ ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
 				case MOD_BFG_BLAST:
 					message = "should have used a smaller gun";
 					break;
+				case MOD_DOPPLE_EXPLODE:
+
+					if (IsNeutral(self))
+					{
+						message = "got caught in it's own trap";
+					}
+					else if (IsFemale(self))
+					{
+						message = "got caught in her own trap";
+					}
+					else
+					{
+						message = "got caught in his own trap";
+					}
+
+				case MOD_TRAP:
+					message = "sucked into his own trap";
+					break;
 				default:
 
-					if (IsFemale(self))
+					if (IsNeutral(self))
+					{
+						message = "killed itself";
+					}
+					else if (IsFemale(self))
 					{
 						message = "killed herself";
 					}
@@ -317,12 +720,98 @@ ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
 					message = "was caught by";
 					message2 = "'s grapple";
 					break;
+				case MOD_RIPPER:
+					message = "ripped to shreds by";
+					message2 = "'s ripper gun";
+					break;
+				case MOD_PHALANX:
+					message = "was evaporated by";
+					break;
+				case MOD_TRAP:
+					message = "caught in trap by";
+					break;
+				case MOD_CHAINFIST:
+					message = "was shredded by";
+					message2 = "'s ripsaw";
+					break;
+				case MOD_DISINTEGRATOR:
+					message = "lost his grip courtesy of";
+					message2 = "'s disintegrator";
+					break;
+				case MOD_ETF_RIFLE:
+					message = "was perforated by";
+					break;
+				case MOD_HEATBEAM:
+					message = "was scorched by";
+					message2 = "'s plasma beam";
+					break;
+				case MOD_TESLA:
+					message = "was enlightened by";
+					message2 = "'s tesla mine";
+					break;
+				case MOD_PROX:
+					message = "got too close to";
+					message2 = "'s proximity mine";
+					break;
+				case MOD_NUKE:
+					message = "was nuked by";
+					message2 = "'s antimatter bomb";
+					break;
+				case MOD_VENGEANCE_SPHERE:
+					message = "was purged by";
+					message2 = "'s vengeance sphere";
+					break;
+				case MOD_DEFENDER_SPHERE:
+					message = "had a blast with";
+					message2 = "'s defender sphere";
+					break;
+				case MOD_HUNTER_SPHERE:
+					message = "was killed like a dog by";
+					message2 = "'s hunter sphere";
+					break;
+				case MOD_TRACKER:
+					message = "was annihilated by";
+					message2 = "'s disruptor";
+					break;
+				case MOD_DOPPLE_EXPLODE:
+					message = "was blown up by";
+					message2 = "'s doppleganger";
+					break;
+				case MOD_DOPPLE_VENGEANCE:
+					message = "was purged by";
+					message2 = "'s doppleganger";
+					break;
+				case MOD_DOPPLE_HUNTER:
+					message = "was hunted down by";
+					message2 = "'s doppleganger";
+					break;
+				default:
+					break;
 			}
 
 			if (message)
 			{
-				gi.bprintf(PRINT_MEDIUM, "%s %s %s%s\n", self->client->pers.netname,
-						message, attacker->client->pers.netname, message2);
+				gi.bprintf(PRINT_MEDIUM, "%s %s %s%s\n",
+						self->client->pers.netname,
+						message, attacker->client->pers.netname,
+						message2);
+
+				if (gamerules && gamerules->value)
+				{
+					if (DMGame.Score)
+					{
+						if (ff)
+						{
+							DMGame.Score(attacker, self, -1);
+						}
+						else
+						{
+							DMGame.Score(attacker, self, 1);
+						}
+					}
+
+					return;
+				}
 
 				if (deathmatch->value)
 				{
@@ -345,11 +834,21 @@ ClientObituary(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 	if (deathmatch->value)
 	{
-		self->client->resp.score--;
+		if (gamerules && gamerules->value)
+		{
+			if (DMGame.Score)
+			{
+				DMGame.Score(self, self, -1);
+			}
+
+			return;
+		}
+		else
+		{
+			self->client->resp.score--;
+		}
 	}
 }
-
-void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
 
 void
 TossClientWeapon(edict_t *self)
@@ -357,7 +856,13 @@ TossClientWeapon(edict_t *self)
 	gitem_t *item;
 	edict_t *drop;
 	qboolean quad;
+	qboolean quadfire;
 	float spread;
+
+	if (!self)
+	{
+		return;
+	}
 
 	if (!deathmatch->value)
 	{
@@ -385,9 +890,22 @@ TossClientWeapon(edict_t *self)
 		quad = (self->client->quad_framenum > (level.framenum + 10));
 	}
 
+	if (!((int)(dmflags->value) & DF_QUADFIRE_DROP))
+	{
+		quadfire = false;
+	}
+	else
+	{
+		quadfire = (self->client->quadfire_framenum > (level.framenum + 10));
+	}
+
 	if (item && quad)
 	{
 		spread = 22.5;
+	}
+	else if (item && quadfire)
+	{
+		spread = 12.5;
 	}
 	else
 	{
@@ -410,7 +928,21 @@ TossClientWeapon(edict_t *self)
 		drop->spawnflags |= DROPPED_PLAYER_ITEM;
 
 		drop->touch = Touch_Item;
-		drop->nextthink = level.time + (self->client->quad_framenum -
+		drop->nextthink = level.time +
+						(self->client->quad_framenum -
+						   level.framenum) * FRAMETIME;
+		drop->think = G_FreeEdict;
+	}
+
+	if (quadfire)
+	{
+		self->client->v_angle[YAW] += spread;
+		drop = Drop_Item(self, FindItemByClassname("item_quadfire"));
+		self->client->v_angle[YAW] -= spread;
+		drop->spawnflags |= DROPPED_PLAYER_ITEM;
+
+		drop->touch = Touch_Item;
+		drop->nextthink = level.time + (self->client->quadfire_framenum -
 						   level.framenum) * FRAMETIME;
 		drop->think = G_FreeEdict;
 	}
@@ -420,6 +952,11 @@ void
 LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker)
 {
 	vec3_t dir;
+
+	if (!self)
+	{
+		return;
+	}
 
 	if (attacker && (attacker != world) && (attacker != self))
 	{

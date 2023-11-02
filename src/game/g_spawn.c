@@ -226,6 +226,8 @@ static spawn_t spawns[] = {
 	{"info_player_deathmatch", SP_info_player_deathmatch},
 	{"info_player_coop", SP_info_player_coop},
 	{"info_player_intermission", SP_info_player_intermission},
+	{"info_player_team1", SP_info_player_team1},
+	{"info_player_team2", SP_info_player_team2},
 
 	{"func_plat", SP_func_plat},
 	{"func_button", SP_func_button},
@@ -294,6 +296,8 @@ static spawn_t spawns[] = {
 
 	{"misc_explobox", SP_misc_explobox},
 	{"misc_banner", SP_misc_banner},
+	{"misc_ctf_banner", SP_misc_ctf_banner},
+	{"misc_ctf_small_banner", SP_misc_ctf_small_banner},
 	{"misc_satellite_dish", SP_misc_satellite_dish},
 	{"misc_gib_arm", SP_misc_gib_arm},
 	{"misc_gib_leg", SP_misc_gib_leg},
@@ -1026,6 +1030,11 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 			DMGame.PostInitSetup();
 		}
 	}
+
+	if (ctf->value)
+	{
+		CTFSpawn();
+	}
 }
 
 /* =================================================================== */
@@ -1237,7 +1246,15 @@ SP_worldspawn(edict_t *ent)
 	/* status bar program */
 	if (deathmatch->value)
 	{
-		gi.configstring(CS_STATUSBAR, dm_statusbar);
+		if (ctf->value)
+		{
+			gi.configstring(CS_STATUSBAR, ctf_statusbar);
+			CTFPrecache();
+		}
+		else
+		{
+			gi.configstring(CS_STATUSBAR, dm_statusbar);
+		}
 	}
 	else
 	{
@@ -1298,7 +1315,7 @@ SP_worldspawn(edict_t *ent)
 	/* sexed models: THIS ORDER MUST MATCH THE DEFINES IN g_local.h
 	   you can add more, max 19 (pete change)these models are only
 	   loaded in coop or deathmatch. not singleplayer. */
-	if (coop->value || deathmatch->value)
+	if (coop->value || deathmatch->value || ctf->value)
 	{
 		gi.modelindex("#w_blaster.md2");
 		gi.modelindex("#w_shotgun.md2");
