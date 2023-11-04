@@ -110,6 +110,11 @@ BeginIntermission(edict_t *targ)
 		return; /* already activated */
 	}
 
+	if (deathmatch->value && ctf->value)
+	{
+		CTFCalcScores();
+	}
+
 	game.autosaved = false;
 
 	/* respawn any dead clients */
@@ -244,6 +249,12 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 
 	if (!ent) /* killer can be NULL */
 	{
+		return;
+	}
+
+	if (ctf->value)
+	{
+		CTFScoreboardMessage(ent, killer);
 		return;
 	}
 
@@ -674,7 +685,14 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_HELPICON] = 0;
 	}
 
-	ent->client->ps.stats[STAT_SPECTATOR] = 0;
+	if (ctf->value)
+	{
+		SetCTFStats(ent);
+	}
+	else
+	{
+		ent->client->ps.stats[STAT_SPECTATOR] = 0;
+	}
 }
 
 void

@@ -1541,8 +1541,8 @@ CTF_OBJS_ = \
 	src/game/monster/widow/widow2.o \
 	src/game/monster/widow/widow.o \
 	src/ctf/player/client.o \
-	src/ctf/player/hud.o \
-	src/ctf/player/trail.o \
+	src/game/player/hud.o \
+	src/game/player/trail.o \
 	src/ctf/player/view.o \
 	src/game/player/weapon.o
 

@@ -32,11 +32,11 @@ static edict_t *current_player;
 static gclient_t *current_client;
 
 static vec3_t forward, right, up;
-float xyspeed;
+static float xyspeed;
 
-float bobmove;
-int bobcycle; /* odd cycles are right foot going forward */
-float bobfracsin; /* sin(bobfrac*M_PI) */
+static float bobmove;
+static int bobcycle; /* odd cycles are right foot going forward */
+static float bobfracsin; /* sin(bobfrac*M_PI) */
 
 float
 SV_CalcRoll(vec3_t angles, vec3_t velocity)
@@ -77,6 +77,18 @@ P_DamageFeedback(edict_t *player)
 	static vec3_t power_color = {0.0, 1.0, 0.0};
 	static vec3_t acolor = {1.0, 1.0, 1.0};
 	static vec3_t bcolor = {1.0, 0.0, 0.0};
+
+	if (!player)
+	{
+		return;
+	}
+
+	/* death/gib sound is now aggregated and played here */
+	if (player->sounds)
+	{
+		gi.sound (player, CHAN_VOICE, player->sounds, 1, ATTN_NORM, 0);
+		player->sounds = 0;
+	}
 
 	client = player->client;
 
@@ -1263,7 +1275,8 @@ ClientEndServerFrame(edict_t *ent)
 
 	/* calculate speed and cycle to be used for
 	   all cyclic walking effects */
-	xyspeed = sqrt(ent->velocity[0] * ent->velocity[0] + ent->velocity[1] *
+	xyspeed = sqrt(
+			ent->velocity[0] * ent->velocity[0] + ent->velocity[1] *
 			ent->velocity[1]);
 
 	if (xyspeed < 5)
@@ -1336,12 +1349,10 @@ ClientEndServerFrame(edict_t *ent)
 		break;
 	}
 
+	G_CheckChaseStats(ent);
 	G_SetClientEvent(ent);
-
 	G_SetClientEffects(ent);
-
 	G_SetClientSound(ent);
-
 	G_SetClientFrame(ent);
 
 	VectorCopy(ent->velocity, ent->client->oldvelocity);
@@ -1368,4 +1379,3 @@ ClientEndServerFrame(edict_t *ent)
 		gi.unicast(ent, false);
 	}
 }
-
