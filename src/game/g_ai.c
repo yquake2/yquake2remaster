@@ -21,6 +21,8 @@
  * =======================================================================
  *
  * The basic AI functions like enemy detection, attacking and so on.
+ * While mostly unused by the CTF code the functions must be here since
+ * big parts of the game logic rely on them.
  *
  * =======================================================================
  */
@@ -111,7 +113,7 @@ ai_move(edict_t *self, float dist)
 /*
  *
  * Used for standing around and looking
- * for players Distance is for slight
+ * for players. Distance is for slight
  * position adjustments needed by the
  * animations
  */
@@ -347,26 +349,30 @@ ai_turn(edict_t *self, float dist)
 /* ============================================================================ */
 
 /*
+ *
  * .enemy
  * Will be world if not currently angry at anyone.
  *
  * .movetarget
- * The next path spot to walk toward.  If .enemy, ignore .movetarget.
- * When an enemy is killed, the monster will try to return to it's path.
+ * The next path spot to walk toward.  If .enemy,
+ * ignore .movetarget. When an enemy is killed,
+ * the monster will try to return to it's path.
  *
  * .hunt_time
- * Set to time + something when the player is in sight, but movement straight for
- * him is blocked.  This causes the monster to use wall following code for
+ * Set to time + something when the player is in
+ * sight, but movement straight for him is blocked.
+ * This causes the monster to use wall following code for
  * movement direction instead of sighting on the player.
  *
  * .ideal_yaw
- * A yaw angle of the intended direction, which will be turned towards at up
- * to 45 deg / state.  If the enemy is in view and hunt_time is not active,
- * this will be the exact line towards the enemy.
+ * A yaw angle of the intended direction, which will be
+ * turned towards at up to 45 deg / state. If the enemy
+ * is in view and hunt_time is not active, this will be
+ * the exact line towards the enemy.
  *
  * .pausetime
- * A monster will leave it's stand state and head towards it's .movetarget when
- * time > .pausetime.
+ * A monster will leave it's stand state and head towards
+ * it's .movetarget when time > .pausetime.
  *
  * walkmove(angle, speed) primitive is all or nothing
  */
@@ -645,6 +651,11 @@ FindTarget(edict_t *self)
 	else
 	{
 		client = level.sight_client;
+
+		if (!client)
+		{
+			return false; /* no clients to get mad at */
+		}
 	}
 
 	/* if the entity went away, forget it */
@@ -961,6 +972,10 @@ M_CheckAttack(edict_t *self)
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
 		chance = 0.4;
+	}
+	else if (enemy_range == RANGE_MELEE)
+	{
+		chance = 0.2;
 	}
 	else if (enemy_range == RANGE_NEAR)
 	{

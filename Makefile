@@ -1480,7 +1480,7 @@ CTF_OBJS_ = \
 	src/common/shared/flash.o \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
-	src/ctf/g_ai.o \
+	src/game/g_ai.o \
 	src/game/g_chase.o \
 	src/game/g_cmds.o \
 	src/ctf/g_combat.o \
