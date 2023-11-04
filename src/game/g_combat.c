@@ -812,6 +812,9 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		damage *= 2;
 	}
 
+	/* strength tech */
+	damage = CTFApplyStrength(attacker, damage);
+
 	if (targ->flags & FL_NO_KNOCKBACK)
 	{
 		knockback = 0;
@@ -900,6 +903,17 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 			take = damage;
 		}
 	}
+
+	/* resistance tech */
+	take = CTFApplyResistance(targ, take);
+
+	/* team damage avoidance */
+	if (!(dflags & DAMAGE_NO_PROTECTION) && CheckTeamDamage(targ, attacker))
+	{
+		return;
+	}
+
+	CTFCheckHurtCarrier(targ, attacker);
 
 	/* do the damage */
 	if (take)

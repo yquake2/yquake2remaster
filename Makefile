@@ -380,12 +380,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 ctf
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 ctf
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
 
 # ----------
 
@@ -1443,138 +1443,6 @@ else
 release/baseq2/game.so : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
-endif
-
-# ----------
-
-# The ctf game
-ifeq ($(YQ2_OSTYPE), Windows)
-ctf:
-	@echo "===> Building ctf/game.dll"
-	${Q}mkdir -p release/ctf
-	$(MAKE) release/ctf/game.dll
-else ifeq ($(YQ2_OSTYPE), Darwin)
-ctf:
-	@echo "===> Building ctf/game.dylib"
-	${Q}mkdir -p release/ctf
-	$(MAKE) release/ctf/game.dylib
-else
-ctf:
-	@echo "===> Building ctf/game.so"
-	${Q}mkdir -p release/ctf
-	$(MAKE) release/ctf/game.so
-
-release/ctf/game.so : CFLAGS += -fPIC -Wno-unused-result
-release/ctf/game.so : LDFLAGS += -shared
-
-endif
-
-build/ctf/%.o: %.c
-	@echo "===> CC $<"
-	${Q}mkdir -p $(@D)
-	${Q}$(CC) -c $(CFLAGS) -o $@ $<
-
-# ----------
-
-CTF_OBJS_ = \
-	src/common/shared/flash.o \
-	src/common/shared/rand.o \
-	src/common/shared/shared.o \
-	src/game/g_ai.o \
-	src/game/g_chase.o \
-	src/game/g_cmds.o \
-	src/ctf/g_combat.o \
-	src/game/g_ctf.o \
-	src/game/g_func.o \
-	src/game/g_items.o \
-	src/game/g_newai.o \
-	src/game/g_newdm.o \
-	src/game/g_newfnc.o \
-	src/game/g_newtarg.o \
-	src/game/g_newtrig.o \
-	src/game/g_newweap.o \
-	src/ctf/g_main.o \
-	src/game/g_misc.o \
-	src/game/g_monster.o \
-	src/game/g_phys.o \
-	src/game/g_sphere.o \
-	src/game/g_spawn.o \
-	src/game/g_svcmds.o \
-	src/game/g_target.o \
-	src/game/g_trigger.o \
-	src/game/g_turret.o \
-	src/game/g_utils.o \
-	src/game/g_weapon.o \
-	src/game/menu/menu.o \
-	src/game/dm/ball.o \
-	src/game/dm/tag.o \
-	src/game/monster/berserker/berserker.o \
-	src/game/monster/boss2/boss2.o \
-	src/game/monster/boss3/boss3.o \
-	src/game/monster/boss3/boss31.o \
-	src/game/monster/boss3/boss32.o \
-	src/game/monster/boss5/boss5.o \
-	src/game/monster/brain/brain.o \
-	src/game/monster/carrier/carrier.o \
-	src/game/monster/chick/chick.o \
-	src/game/monster/fixbot/fixbot.o \
-	src/game/monster/flipper/flipper.o \
-	src/game/monster/float/float.o \
-	src/game/monster/flyer/flyer.o \
-	src/game/monster/gekk/gekk.o \
-	src/game/monster/gladiator/gladb.o \
-	src/game/monster/gladiator/gladiator.o \
-	src/game/monster/gunner/gunner.o \
-	src/game/monster/hover/hover.o \
-	src/game/monster/infantry/infantry.o \
-	src/game/monster/insane/insane.o \
-	src/game/monster/medic/medic.o \
-	src/game/monster/misc/move.o \
-	src/game/monster/mutant/mutant.o \
-	src/game/monster/parasite/parasite.o \
-	src/game/monster/soldier/soldier.o \
-	src/game/monster/stalker/stalker.o \
-	src/game/monster/supertank/supertank.o \
-	src/game/monster/tank/tank.o \
-	src/game/monster/turret/turret.o \
-	src/game/monster/widow/widow2.o \
-	src/game/monster/widow/widow.o \
-	src/game/player/client.o \
-	src/game/player/hud.o \
-	src/game/player/trail.o \
-	src/game/player/view.o \
-	src/game/player/weapon.o \
-	src/game/savegame/savegame.o
-
-# ----------
-
-# Rewrite paths to our object directory
-CTF_OBJS = $(patsubst %,build/ctf/%,$(CTF_OBJS_))
-
-# ----------
-
-# Generate header dependencies
-CTF_DEPS= $(CTF_OBJS:.o=.d)
-
-# ----------
-
-# Suck header dependencies in
--include $(CTF_DEPS)
-
-# ----------
-
-ifeq ($(YQ2_OSTYPE), Windows)
-release/ctf/game.dll : $(CTF_OBJS)
-	@echo "===> LD $@"
-	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
-else ifeq ($(YQ2_OSTYPE), Darwin)
-release/ctf/game.dylib : $(CTF_OBJS)
-	@echo "===> LD $@"
-	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
-else
-release/ctf/game.so : $(CTF_OBJS)
-	@echo "===> LD $@"
-	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------
