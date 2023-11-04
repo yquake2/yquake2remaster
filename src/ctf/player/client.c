@@ -28,6 +28,9 @@
 #include "../header/local.h"
 #include "../monster/misc/player.h"
 
+edict_t *pm_passent;
+
+void ClientUserinfoChanged(edict_t *ent, char *userinfo);
 void SP_misc_teleporter_dest(edict_t *ent);
 void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf);
 
@@ -2370,3 +2373,34 @@ ClientBeginServerFrame(edict_t *ent)
 	client->latched_buttons = 0;
 }
 
+/*
+ * This is called to clean up the pain daemons that
+ * the disruptor attaches to clients to damage them.
+ */
+void
+RemoveAttackingPainDaemons(edict_t *self)
+{
+	edict_t *tracker;
+
+	if (!self)
+	{
+		return;
+	}
+
+	tracker = G_Find(NULL, FOFS(classname), "pain daemon");
+
+	while (tracker)
+	{
+		if (tracker->enemy == self)
+		{
+			G_FreeEdict(tracker);
+		}
+
+		tracker = G_Find(tracker, FOFS(classname), "pain daemon");
+	}
+
+	if (self->client)
+	{
+		self->client->tracker_pain_framenum = 0;
+	}
+}

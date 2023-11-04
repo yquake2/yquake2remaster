@@ -28,6 +28,8 @@
 #include "header/local.h"
 #include "monster/misc/player.h"
 
+gitem_t *CTFWhat_Tech(edict_t *ent);
+
 static char *
 ClientTeam(edict_t *ent, char* value)
 {
@@ -103,7 +105,12 @@ SelectNextItem(edict_t *ent, int itflags)
 
 	cl = ent->client;
 
-	if (cl->chase_target)
+	if (cl->menu)
+	{
+		PMenu_Next(ent);
+		return;
+	}
+	else if (cl->chase_target)
 	{
 		ChaseNext(ent);
 		return;
@@ -152,7 +159,12 @@ SelectPrevItem(edict_t *ent, int itflags)
 
 	cl = ent->client;
 
-	if (cl->chase_target)
+	if (cl->menu)
+	{
+		PMenu_Prev(ent);
+		return;
+	}
+	else if (cl->chase_target)
 	{
 		ChasePrev(ent);
 		return;
@@ -622,6 +634,12 @@ Cmd_Drop_f(edict_t *ent)
 		return;
 	}
 
+	if ((Q_stricmp(gi.args(), "tech") == 0) && ((it = CTFWhat_Tech(ent)) != NULL))
+	{
+		it->drop(ent, it);
+		return;
+	}
+
 	s = gi.args();
 	it = FindItem(s);
 
@@ -700,6 +718,7 @@ Cmd_Score_f(edict_t *ent)
 	if (ent->client->showscores)
 	{
 		ent->client->showscores = false;
+		ent->client->update_chase = true;
 		return;
 	}
 
@@ -708,6 +727,9 @@ Cmd_Score_f(edict_t *ent)
 	gi.unicast(ent, true);
 }
 
+/*
+ * Display the current help message
+ */
 void
 Cmd_Help_f(edict_t *ent)
 {
@@ -726,7 +748,8 @@ Cmd_Help_f(edict_t *ent)
 	ent->client->showinventory = false;
 	ent->client->showscores = false;
 
-	if (ent->client->showhelp)
+	if (ent->client->showhelp &&
+		(ent->client->resp.game_helpchanged == game.helpchanged))
 	{
 		ent->client->showhelp = false;
 		return;
@@ -753,9 +776,22 @@ Cmd_Inven_f(edict_t *ent)
 	cl->showscores = false;
 	cl->showhelp = false;
 
+	if (ent->client->menu)
+	{
+		PMenu_Close(ent);
+		ent->client->update_chase = true;
+		return;
+	}
+
 	if (cl->showinventory)
 	{
 		cl->showinventory = false;
+		return;
+	}
+
+	if (ctf->value && (cl->resp.ctf_team == CTF_NOTEAM))
+	{
+		CTFOpenJoinMenu(ent);
 		return;
 	}
 
@@ -772,6 +808,12 @@ Cmd_InvUse_f(edict_t *ent)
 
 	if (!ent)
 	{
+		return;
+	}
+
+	if (ent->client->menu)
+	{
+		PMenu_Select(ent);
 		return;
 	}
 
@@ -792,6 +834,21 @@ Cmd_InvUse_f(edict_t *ent)
 	}
 
 	it->use(ent, it);
+}
+
+void
+Cmd_LastWeap_f(edict_t *ent)
+{
+	gclient_t *cl;
+
+	cl = ent->client;
+
+	if (!cl->pers.weapon || !cl->pers.lastweapon)
+	{
+		return;
+	}
+
+	cl->pers.lastweapon->use(ent, cl->pers.lastweapon);
 }
 
 void
@@ -982,6 +1039,11 @@ Cmd_Kill_f(edict_t *ent)
 		return;
 	}
 
+	if (ent->solid == SOLID_NOT)
+	{
+		return;
+	}
+
 	if (((level.time - ent->client->respawn_time) < 5) ||
 		(ent->client->resp.spectator))
 	{
@@ -1018,6 +1080,13 @@ Cmd_PutAway_f(edict_t *ent)
 	ent->client->showscores = false;
 	ent->client->showhelp = false;
 	ent->client->showinventory = false;
+
+	if (ent->client->menu)
+	{
+		PMenu_Close(ent);
+	}
+
+	ent->client->update_chase = true;
 }
 
 int
@@ -1973,9 +2042,9 @@ ClientCommand(edict_t *ent)
 		return;
 	}
 
-	if (Q_stricmp(cmd, "say_team") == 0)
+	if ((Q_stricmp(cmd, "say_team") == 0) || (Q_stricmp(cmd, "steam") == 0))
 	{
-		Cmd_Say_f(ent, true, false);
+		CTFSay_Team(ent, gi.args());
 		return;
 	}
 
@@ -2080,9 +2149,61 @@ ClientCommand(edict_t *ent)
 	{
 		Cmd_Wave_f(ent);
 	}
+	/* ZOID */
+	else if (Q_stricmp(cmd, "team") == 0)
+	{
+		CTFTeam_f(ent);
+	}
+	else if (Q_stricmp(cmd, "id") == 0)
+	{
+		CTFID_f(ent);
+	}
+	else if (Q_stricmp(cmd, "yes") == 0)
+	{
+		CTFVoteYes(ent);
+	}
+	else if (Q_stricmp(cmd, "no") == 0)
+	{
+		CTFVoteNo(ent);
+	}
+	else if (Q_stricmp(cmd, "ready") == 0)
+	{
+		CTFReady(ent);
+	}
+	else if (Q_stricmp(cmd, "notready") == 0)
+	{
+		CTFNotReady(ent);
+	}
+	else if (Q_stricmp(cmd, "ghost") == 0)
+	{
+		CTFGhost(ent);
+	}
+	else if (Q_stricmp(cmd, "admin") == 0)
+	{
+		CTFAdmin(ent);
+	}
+	else if (Q_stricmp(cmd, "stats") == 0)
+	{
+		CTFStats(ent);
+	}
+	else if (Q_stricmp(cmd, "warp") == 0)
+	{
+		CTFWarp(ent);
+	}
+	else if (Q_stricmp(cmd, "boot") == 0)
+	{
+		CTFBoot(ent);
+	}
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 	{
-		Cmd_PlayerList_f(ent);
+		if (ctf->value)
+		{
+			CTFPlayerList(ent);
+		}
+		else
+		{
+			Cmd_PlayerList_f(ent);
+		}
 	}
 	else if (Q_stricmp(cmd, "entcount") == 0)
 	{
@@ -2115,6 +2236,10 @@ ClientCommand(edict_t *ent)
 	else if (Q_stricmp(cmd, "prefweap") == 0)
 	{
 		Cmd_PrefWeap_f(ent);
+	}
+	else if (Q_stricmp(cmd, "observer") == 0)
+	{
+		CTFObserver(ent);
 	}
 	else /* anything that doesn't match a command will be a chat */
 	{

@@ -1482,7 +1482,7 @@ CTF_OBJS_ = \
 	src/common/shared/shared.o \
 	src/ctf/g_ai.o \
 	src/game/g_chase.o \
-	src/ctf/g_cmds.o \
+	src/game/g_cmds.o \
 	src/ctf/g_combat.o \
 	src/game/g_ctf.o \
 	src/game/g_func.o \

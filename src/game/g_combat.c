@@ -368,7 +368,15 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 	}
 	else
 	{
-		damagePerCell = 2;
+		if (ctf->value)
+		{
+			/* power armor is weaker in CTF */
+			damagePerCell = 1;
+		}
+		else
+		{
+			damagePerCell = 2;
+		}
 		pa_te_type = TE_SHIELD_SPARKS;
 		damage = (2 * damage) / 3;
 	}
@@ -863,11 +871,21 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		save = damage;
 	}
 
-	psave = CheckPowerArmor(targ, point, normal, take, dflags);
-	take -= psave;
+	/* team armor protect */
+	if (ctf->value && targ->client && attacker->client &&
+		(targ->client->resp.ctf_team == attacker->client->resp.ctf_team) &&
+		(targ != attacker) && ((int)dmflags->value & DF_ARMOR_PROTECT))
+	{
+		psave = asave = 0;
+	}
+	else
+	{
+		psave = CheckPowerArmor(targ, point, normal, take, dflags);
+		take -= psave;
 
-	asave = CheckArmor(targ, point, normal, take, te_sparks, dflags);
-	take -= asave;
+		asave = CheckArmor(targ, point, normal, take, te_sparks, dflags);
+		take -= asave;
+	}
 
 	/* treat cheat/powerup savings the same as armor */
 	asave += save;
@@ -911,7 +929,10 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 			SpawnDamage(te_sparks, point, normal);
 		}
 
-		targ->health = targ->health - take;
+		if (!CTFMatchSetup())
+		{
+			targ->health = targ->health - take;
+		}
 
 		/* spheres need to know who to shoot at */
 		if (client && client->owned_sphere)
@@ -966,7 +987,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 	}
 	else if (client)
 	{
-		if (!(targ->flags & FL_GODMODE) && (take))
+		if (!(targ->flags & FL_GODMODE) && (take) && !CTFMatchSetup())
 		{
 			targ->pain(targ, attacker, knockback, take);
 		}
@@ -979,9 +1000,11 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 		}
 	}
 
-	/* add to the damage inflicted on a player this frame
-	   the total will be turned into screen blends and view
-	   angle kicks at the end of the frame */
+	/* add to the damage inflicted on a
+	   player this frame the total will
+	   be turned into screen blends and
+	   view angle kicks at the end of
+	   the frame */
 	if (client)
 	{
 		client->damage_parmor += psave;
