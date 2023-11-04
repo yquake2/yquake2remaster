@@ -2653,11 +2653,12 @@ static const char *idcredits[] = {
 	"trademark of Activision, Inc. All",
 	"other trademarks and trade names are",
 	"properties of their respective owners.",
-	0
-};
-
-static const char *xatcredits[] =
-{
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
 	"+QUAKE II MISSION PACK: THE RECKONING",
 	"+BY",
 	"+XATRIX ENTERTAINMENT, INC.",
@@ -2794,11 +2795,12 @@ static const char *xatcredits[] =
 	"Inc. All other trademarks and trade",
 	"names are properties of their",
 	"respective owners.",
-	0
-};
-
-static const char *roguecredits[] =
-{
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
 	"+QUAKE II MISSION PACK 2: GROUND ZERO",
 	"+BY",
 	"+ROGUE ENTERTAINMENT, INC.",
@@ -3038,20 +3040,7 @@ M_Menu_Credits_f(void)
 	}
 	else
 	{
-		if (M_IsGame("xatrix")) /* Xatrix - The Reckoning */
-		{
-			credits = xatcredits;
-		}
-
-		else if (M_IsGame("rogue")) /* Rogue - Ground Zero */
-		{
-			credits = roguecredits;
-		}
-
-		else
-		{
-			credits = idcredits;
-		}
+		credits = idcredits;
 	}
 
 	credits_start_time = cls.realtime;
