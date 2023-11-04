@@ -772,6 +772,16 @@ P_FallingDamage(edict_t *ent)
 
 	delta = delta * delta * 0.0001;
 
+	/* never take damage if just release grapple or on grapple */
+	if (ctf->value && (
+		(level.time - ent->client->ctf_grapplereleasetime <= FRAMETIME * 2) ||
+		(ent->client->ctf_grapple &&
+		 (ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
+	))
+	{
+		return;
+	}
+
 	/* never take falling damage if completely underwater */
 	if (ent->waterlevel == 3)
 	{
@@ -1104,13 +1114,18 @@ G_SetClientEffects(edict_t *ent)
 		}
 	}
 
+	if (ctf->value)
+	{
+		CTFEffects(ent);
+	}
+
 	if (ent->client->quad_framenum > level.framenum)
 	{
 		remaining = ent->client->quad_framenum - level.framenum;
 
 		if ((remaining > 30) || (remaining & 4))
 		{
-			ent->s.effects |= EF_QUAD;
+			CTFSetPowerUpEffect(ent, EF_QUAD);
 		}
 	}
 
@@ -1151,7 +1166,7 @@ G_SetClientEffects(edict_t *ent)
 
 		if ((remaining > 30) || (remaining & 4))
 		{
-			ent->s.effects |= EF_PENT;
+			CTFSetPowerUpEffect(ent, EF_PENT);
 		}
 	}
 
@@ -1364,14 +1379,24 @@ newanim:
 
 	if (!ent->groundentity)
 	{
-		client->anim_priority = ANIM_JUMP;
-
-		if (ent->s.frame != FRAME_jump2)
+		/* if on grapple, don't go into jump
+		   frame, go into standing frame */
+		if (client->ctf_grapple)
 		{
-			ent->s.frame = FRAME_jump1;
+			ent->s.frame = FRAME_stand01;
+			client->anim_end = FRAME_stand40;
 		}
+		else
+		{
+			client->anim_priority = ANIM_JUMP;
 
-		client->anim_end = FRAME_jump2;
+			if (ent->s.frame != FRAME_jump2)
+			{
+				ent->s.frame = FRAME_jump1;
+			}
+
+			client->anim_end = FRAME_jump2;
+		}
 	}
 	else if (run)
 	{
@@ -1522,9 +1547,25 @@ ClientEndServerFrame(edict_t *ent)
 	{
 		G_SetSpectatorStats(ent);
 	}
-	else
+	else if (!ent->client->chase_target)
 	{
 		G_SetStats(ent);
+	}
+
+	/* update chasecam follower stats */
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		edict_t *e = g_edicts + i;
+
+		if (!e->inuse || (e->client->chase_target != ent))
+		{
+			continue;
+		}
+
+		memcpy(e->client->ps.stats, ent->client->ps.stats,
+				sizeof(ent->client->ps.stats));
+		e->client->ps.stats[STAT_LAYOUTS] = 1;
+		break;
 	}
 
 	G_CheckChaseStats(ent);
@@ -1545,7 +1586,18 @@ ClientEndServerFrame(edict_t *ent)
 		/* if the scoreboard is up, update it */
 		if (ent->client->showscores)
 		{
-			DeathmatchScoreboardMessage(ent, ent->enemy);
+
+			if (ent->client->menu)
+			{
+				PMenu_Do_Update(ent);
+				ent->client->menudirty = false;
+				ent->client->menutime = level.time;
+			}
+			else
+			{
+				DeathmatchScoreboardMessage(ent, ent->enemy);
+			}
+
 			gi.unicast(ent, false);
 		}
 

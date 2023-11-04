@@ -1050,6 +1050,7 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	self->movetype = MOVETYPE_TOSS;
 
 	self->s.modelindex2 = 0; /* remove linked weapon model */
+	self->s.modelindex3 = 0; /* remove linked ctf flag */
 
 	self->s.angles[0] = 0;
 	self->s.angles[2] = 0;
@@ -1069,7 +1070,22 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		ClientObituary(self, inflictor, attacker);
 		TossClientWeapon(self);
 
-		if (deathmatch->value)
+		/* if at start and same team, clear */
+		if (ctf->value && (meansOfDeath == MOD_TELEFRAG) &&
+			(self->client->resp.ctf_state < 2) &&
+			(self->client->resp.ctf_team == attacker->client->resp.ctf_team))
+		{
+			attacker->client->resp.score--;
+			self->client->resp.ctf_state = 0;
+		}
+
+		CTFFragBonuses(self, inflictor, attacker);
+		TossClientWeapon(self);
+		CTFPlayerResetGrapple(self);
+		CTFDeadDropFlag(self);
+		CTFDeadDropTech(self);
+
+		if (deathmatch->value && !self->client->showscores)
 		{
 			Cmd_Help_f(self); /* show scores */
 		}
@@ -1113,6 +1129,9 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		sphere = self->client->owned_sphere;
 		sphere->die(sphere, self, self, 0, vec3_origin);
 	}
+
+	/* clear inventory */
+	memset(self->client->pers.inventory, 0, sizeof(self->client->pers.inventory));
 
 	/* if we've been killed by the tracker, GIB! */
 	if ((meansOfDeath & ~MOD_FRIENDLY_FIRE) == MOD_TRACKER)
@@ -1158,7 +1177,8 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 
 		self->flags &= ~FL_NOGIB;
 		ThrowClientHead(self, damage);
-
+		self->client->anim_priority = ANIM_DEATH;
+		self->client->anim_end = 0;
 		self->takedamage = DAMAGE_NO;
 	}
 	else
@@ -1235,6 +1255,10 @@ InitClientPersistant(gclient_t *client)
 	client->pers.inventory[client->pers.selected_item] = 1;
 
 	client->pers.weapon = item;
+	client->pers.lastweapon = item;
+
+	item = FindItem("Grapple");
+	client->pers.inventory[ITEM_INDEX(item)] = 1;
 
 	client->pers.health = 100;
 	client->pers.max_health = 100;
@@ -1264,9 +1288,21 @@ InitClientResp(gclient_t *client)
 		return;
 	}
 
+	int ctf_team = client->resp.ctf_team;
+	qboolean id_state = client->resp.id_state;
+
 	memset(&client->resp, 0, sizeof(client->resp));
+
+	client->resp.ctf_team = ctf_team;
+	client->resp.id_state = id_state;
+
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
+
+	if (ctf->value && (client->resp.ctf_team < CTF_TEAM1))
+	{
+		CTFAssignTeam(client);
+	}
 }
 
 /*
@@ -1676,7 +1712,14 @@ SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 
 	if (deathmatch->value)
 	{
-		spot = SelectDeathmatchSpawnPoint();
+		if (ctf->value)
+		{
+			spot = SelectCTFSpawnPoint(ent);
+		}
+		else
+		{
+			spot = SelectDeathmatchSpawnPoint();
+		}
 	}
 	else if (coop->value)
 	{
@@ -2050,12 +2093,23 @@ PutClientInServer(edict_t *ent)
 	}
 	else if (coop->value)
 	{
+		int n;
 		char userinfo[MAX_INFO_STRING];
 
 		resp = client->resp;
 		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
 		resp.coop_respawn.game_helpchanged = client->pers.game_helpchanged;
 		resp.coop_respawn.helpchanged = client->pers.helpchanged;
+
+		/* this is kind of ugly, but it's how we want to handle keys in coop */
+		for (n = 0; n < MAX_ITEMS; n++)
+		{
+			if (itemlist[n].flags & IT_KEY)
+			{
+				resp.coop_respawn.inventory[n] = client->pers.inventory[n];
+			}
+		}
+
 		client->pers = resp.coop_respawn;
 		ClientUserinfoChanged(ent, userinfo);
 
@@ -2103,7 +2157,7 @@ PutClientInServer(edict_t *ent)
 	ent->waterlevel = 0;
 	ent->watertype = 0;
 	ent->flags &= ~FL_NO_KNOCKBACK;
-	ent->svflags = 0;
+	ent->svflags &= ~SVF_DEADMONSTER;
 
 	VectorCopy(mins, ent->mins);
 	VectorCopy(maxs, ent->maxs);
@@ -2115,6 +2169,7 @@ PutClientInServer(edict_t *ent)
 	client->ps.pmove.origin[0] = spawn_origin[0] * 8;
 	client->ps.pmove.origin[1] = spawn_origin[1] * 8;
 	client->ps.pmove.origin[2] = spawn_origin[2] * 8;
+	client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 
 	if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
 	{
@@ -2146,6 +2201,7 @@ PutClientInServer(edict_t *ent)
 
 	/* clear entity state values */
 	ent->s.effects = 0;
+	ent->s.skinnum = ent - g_edicts - 1;
 	ent->s.modelindex = 255; /* will use the skin specified model */
 	ent->s.modelindex2 = 255; /* custom gun model */
 
@@ -2170,6 +2226,11 @@ PutClientInServer(edict_t *ent)
 	ent->s.angles[ROLL] = 0;
 	VectorCopy(ent->s.angles, client->ps.viewangles);
 	VectorCopy(ent->s.angles, client->v_angle);
+
+	if (CTFStartClient(ent))
+	{
+		return;
+	}
 
 	/* spawn a spectator */
 	if (client->pers.spectator)
@@ -2376,8 +2437,18 @@ ClientUserinfoChanged(edict_t *ent, char *userinfo)
 	playernum = ent - g_edicts - 1;
 
 	/* combine name and skin into a configstring */
-	gi.configstring(CS_PLAYERSKINS + playernum,
-			va("%s\\%s", ent->client->pers.netname, s));
+	if (ctf->value)
+	{
+		CTFAssignSkin(ent, s);
+	}
+	else
+	{
+		gi.configstring(CS_PLAYERSKINS + playernum,
+				va("%s\\%s", ent->client->pers.netname, s));
+	}
+
+	/* set player name field (used in id_state view) */
+	gi.configstring(CS_GENERAL + playernum, ent->client->pers.netname);
 
 	/* fov */
 	if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
@@ -2490,6 +2561,9 @@ ClientConnect(edict_t *ent, char *userinfo)
 	if (ent->inuse == false)
 	{
 		/* clear the respawning variables */
+		ent->client->resp.ctf_team = -1;
+		ent->client->resp.id_state = true;
+
 		InitClientResp(ent->client);
 
 		if (!game.autosaved || !ent->client->pers.weapon)
@@ -2530,6 +2604,12 @@ ClientDisconnect(edict_t *ent)
 	}
 
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
+
+	if (ctf->value)
+	{
+		CTFDeadDropFlag(ent);
+		CTFDeadDropTech(ent);
+	}
 
 	/* make sure no trackers are still hurting us. */
 	if (ent->client->tracker_pain_framenum)
@@ -2770,6 +2850,11 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 			VectorCopy(pm.viewangles, client->ps.viewangles);
 		}
 
+		if (client->ctf_grapple)
+		{
+			CTFGrapplePull(client->ctf_grapple);
+		}
+
 		gi.linkentity(ent);
 
 		ent->gravity = 1.0;
@@ -2815,7 +2900,8 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	ent->light_level = ucmd->lightlevel;
 
 	/* fire weapon from final position if needed */
-	if (client->latched_buttons & BUTTON_ATTACK)
+	if (client->latched_buttons & BUTTON_ATTACK
+		&& (ent->movetype != MOVETYPE_NOCLIP))
 	{
 		if (client->resp.spectator)
 		{
@@ -2836,6 +2922,12 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 			client->weapon_thunk = true;
 			Think_Weapon(ent);
 		}
+	}
+
+	if (ctf->value)
+	{
+		/* regen tech */
+		CTFApplyRegeneration(ent);
 	}
 
 	if (client->resp.spectator)
@@ -2872,6 +2964,14 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 			UpdateChaseCam(other);
 		}
 	}
+
+	if (ctf->value && client->menudirty && (client->menutime <= level.time))
+	{
+		PMenu_Do_Update(ent);
+		gi.unicast(ent, true);
+		client->menutime = level.time;
+		client->menudirty = false;
+	}
 }
 
 /*
@@ -2906,7 +3006,8 @@ ClientBeginServerFrame(edict_t *ent)
 	}
 
 	/* run weapon animations if it hasn't been done by a ucmd_t */
-	if (!client->weapon_thunk && !client->resp.spectator)
+	if (!client->weapon_thunk && !client->resp.spectator
+		&& (ent->movetype != MOVETYPE_NOCLIP))
 	{
 		Think_Weapon(ent);
 	}
@@ -2931,7 +3032,9 @@ ClientBeginServerFrame(edict_t *ent)
 			}
 
 			if ((client->latched_buttons & buttonMask) ||
-				(deathmatch->value && ((int)dmflags->value & DF_FORCE_RESPAWN)))
+				(deathmatch->value &&
+				 ((int)dmflags->value & DF_FORCE_RESPAWN)) ||
+				CTFMatchOn())
 			{
 				respawn(ent);
 				client->latched_buttons = 0;

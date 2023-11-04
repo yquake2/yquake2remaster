@@ -1497,7 +1497,6 @@ CTF_OBJS_ = \
 	src/game/g_misc.o \
 	src/game/g_monster.o \
 	src/game/g_phys.o \
-	src/ctf/g_save.o \
 	src/game/g_sphere.o \
 	src/game/g_spawn.o \
 	src/game/g_svcmds.o \
@@ -1540,11 +1539,12 @@ CTF_OBJS_ = \
 	src/game/monster/turret/turret.o \
 	src/game/monster/widow/widow2.o \
 	src/game/monster/widow/widow.o \
-	src/ctf/player/client.o \
+	src/game/player/client.o \
 	src/game/player/hud.o \
 	src/game/player/trail.o \
-	src/ctf/player/view.o \
-	src/game/player/weapon.o
+	src/game/player/view.o \
+	src/game/player/weapon.o \
+	src/game/savegame/savegame.o
 
 # ----------
 
