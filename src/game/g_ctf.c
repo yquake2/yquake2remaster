@@ -377,7 +377,7 @@ CTFSpawn(void)
 void
 CTFInit(void)
 {
-	ctf = gi.cvar("ctf", "1", CVAR_SERVERINFO);
+	ctf = gi.cvar("ctf", "0", CVAR_SERVERINFO);
 	ctf_forcejoin = gi.cvar("ctf_forcejoin", "", 0);
 	competition = gi.cvar("competition", "0", CVAR_SERVERINFO);
 	matchlock = gi.cvar("matchlock", "1", CVAR_SERVERINFO);
@@ -1214,6 +1214,11 @@ void
 CTFEffects(edict_t *player)
 {
 	player->s.effects &= ~(EF_FLAG1 | EF_FLAG2);
+
+	if (!flag1_item || !flag2_item)
+	{
+		return;
+	}
 
 	if (player->health > 0)
 	{
@@ -4236,6 +4241,11 @@ CTFCredits(edict_t *ent, pmenuhnd_t *p)
 qboolean
 CTFStartClient(edict_t *ent)
 {
+	if (!ctf->value)
+	{
+		return false;
+	}
+
 	if (ent->client->resp.ctf_team != CTF_NOTEAM)
 	{
 		return false;
