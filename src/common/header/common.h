@@ -624,7 +624,7 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 
 #include "files.h"
 
-cmodel_t *CM_LoadMap(char *name, qboolean clientload, unsigned *checksum);
+cmodel_t *CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum);
 cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
 void CM_ModFreeAll(void);
 

@@ -1087,42 +1087,42 @@ SCR_ExecuteLayoutString(char *s)
 		if (!strcmp(token, "xl"))
 		{
 			token = COM_Parse(&s);
-			x = scale*(int)strtol(token, (char **)NULL, 10);
+			x = scale * (int)strtol(token, (char **)NULL, 10);
 			continue;
 		}
 
 		if (!strcmp(token, "xr"))
 		{
 			token = COM_Parse(&s);
-			x = viddef.width + scale*(int)strtol(token, (char **)NULL, 10);
+			x = viddef.width + scale * (int)strtol(token, (char **)NULL, 10);
 			continue;
 		}
 
 		if (!strcmp(token, "xv"))
 		{
 			token = COM_Parse(&s);
-			x = viddef.width / 2 - scale*160 + scale*(int)strtol(token, (char **)NULL, 10);
+			x = viddef.width / 2 - scale * 160 + scale * (int)strtol(token, (char **)NULL, 10);
 			continue;
 		}
 
 		if (!strcmp(token, "yt"))
 		{
 			token = COM_Parse(&s);
-			y = scale*(int)strtol(token, (char **)NULL, 10);
+			y = scale * (int)strtol(token, (char **)NULL, 10);
 			continue;
 		}
 
 		if (!strcmp(token, "yb"))
 		{
 			token = COM_Parse(&s);
-			y = viddef.height + scale*(int)strtol(token, (char **)NULL, 10);
+			y = viddef.height + scale * (int)strtol(token, (char **)NULL, 10);
 			continue;
 		}
 
 		if (!strcmp(token, "yv"))
 		{
 			token = COM_Parse(&s);
-			y = viddef.height / 2 - scale*120 + scale*(int)strtol(token, (char **)NULL, 10);
+			y = viddef.height / 2 - scale * 120 + scale * (int)strtol(token, (char **)NULL, 10);
 			continue;
 		}
 
@@ -1254,7 +1254,7 @@ SCR_ExecuteLayoutString(char *s)
 			/* draw a pic from a name */
 			token = COM_Parse(&s);
 			SCR_AddDirtyPoint(x, y);
-			SCR_AddDirtyPoint(x + scale*23, y + scale*23);
+			SCR_AddDirtyPoint(x + scale * 23, y + scale * 23);
 			Draw_PicScaled(x, y, (char *)token, scale);
 			continue;
 		}

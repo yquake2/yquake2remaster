@@ -29,7 +29,6 @@
 
 static YQ2_ALIGNAS_TYPE(int) byte mod_novis[MAX_MAP_LEAFS / 8];
 
-#define MAX_MOD_KNOWN 512
 static model_t *models_known;
 static int	mod_numknown = 0;
 static int	mod_max = 0;
