@@ -857,6 +857,11 @@ CTFCheckHurtCarrier(edict_t *targ, edict_t *attacker)
 		return;
 	}
 
+	if (!flag1_item || !flag2_item)
+	{
+		return;
+	}
+
 	if (targ->client->resp.ctf_team == CTF_TEAM1)
 	{
 		flag_item = flag2_item;
@@ -1116,6 +1121,11 @@ void
 CTFDeadDropFlag(edict_t *self)
 {
 	edict_t *dropped = NULL;
+
+	if (!flag1_item || !flag2_item)
+	{
+		return;
+	}
 
 	if (self->client->pers.inventory[ITEM_INDEX(flag1_item)])
 	{

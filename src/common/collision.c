@@ -116,7 +116,7 @@ typedef struct
 	void *extradata;
 } model_t;
 
-#define MAX_MOD_KNOWN 4
+#define MAX_MOD_KNOWN 8
 
 static model_t models[MAX_MOD_KNOWN];
 static int model_num = 0;
@@ -2089,7 +2089,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 cmodel_t *
 CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 {
-	int i;
+	int i, sec_start;
 
 	map_noareas = Cvar_Get("map_noareas", "0", 0);
 
@@ -2114,6 +2114,7 @@ CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 		return &cmod->map_cmodels[0]; /* still have the right version */
 	}
 
+	sec_start = Sys_Milliseconds();
 	cmod = NULL;
 	/* search already loaded */
 	for (i = 0; i < MAX_MOD_KNOWN; i++)
@@ -2122,8 +2123,8 @@ CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 		{
 			model_num = i;
 			cmod = &models[model_num];
-			Com_DPrintf("%s: Loaded cached map: %s\n",
-				__func__, name);
+			Com_DPrintf("%s: Loaded cached map: %s: %d Kb\n",
+				__func__, name, cmod->extradatasize / 1024);
 			break;
 		}
 	}
@@ -2149,10 +2150,10 @@ CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 	{
 		model_num = (model_num + 1) % MAX_MOD_KNOWN;
 		cmod = &models[model_num];
+		Com_DPrintf("%s: No free space. Clean up random for map: %s: %d Kb\n",
+			__func__, name, cmod->extradatasize / 1024);
 		/* free old stuff */
 		CM_ModFree(cmod);
-		Com_DPrintf("%s: No free space. Clean up random for map: %s\n",
-			__func__, name);
 	}
 
 	/* need to load map */
@@ -2168,6 +2169,9 @@ CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 	memset(cmod->portalopen, 0, sizeof(qboolean) * cmod->numareaportals);
 	FloodAreaConnections();
 
+	Com_DPrintf("%s: Loaded map: %s: %d Kb in %.2fs\n",
+		__func__, name, cmod->extradatasize / 1024,
+		(Sys_Milliseconds() - sec_start) / 1000.0);
 	return cmod->map_cmodels;
 }
 
