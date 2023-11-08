@@ -130,6 +130,7 @@ void SP_misc_eastertank(edict_t *self);
 void SP_misc_easterchick(edict_t *self);
 void SP_misc_easterchick2(edict_t *self);
 
+void SP_monster_arachnid(edict_t *self);
 void SP_monster_berserk(edict_t *self);
 void SP_monster_gladiator(edict_t *self);
 void SP_monster_gunner(edict_t *self);
@@ -320,6 +321,7 @@ static spawn_t spawns[] = {
 	{"misc_transport", SP_misc_transport},
 	{"misc_nuke", SP_misc_nuke},
 
+	{"monster_arachnid", SP_monster_arachnid},
 	{"monster_berserk", SP_monster_berserk},
 	{"monster_gladiator", SP_monster_gladiator},
 	{"monster_gunner", SP_monster_gunner},

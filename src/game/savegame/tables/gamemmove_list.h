@@ -482,4 +482,13 @@
 {"berserk_move_walk", &berserk_move_walk},
 {"berserk_move_stand_fidget", &berserk_move_stand_fidget},
 {"berserk_move_stand", &berserk_move_stand},
+{"arachnid_move_stand", &arachnid_move_stand},
+{"arachnid_move_walk", &arachnid_move_walk},
+{"arachnid_move_run", &arachnid_move_run},
+{"arachnid_move_pain1", &arachnid_move_pain1},
+{"arachnid_move_pain2", &arachnid_move_pain2},
+{"arachnid_attack1", &arachnid_attack1},
+{"arachnid_attack_up1", &arachnid_attack_up1},
+{"arachnid_melee", &arachnid_melee},
+{"arachnid_move_death", &arachnid_move_death},
 {0, 0}
