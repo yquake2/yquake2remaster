@@ -891,6 +891,7 @@ GAME_OBJS_ = \
 	src/game/dm/ball.o \
 	src/game/dm/tag.o \
 	src/game/menu/menu.o \
+	src/game/monster/actor/actor.o \
 	src/game/monster/arachnid/arachnid.o \
 	src/game/monster/berserker/berserker.o \
 	src/game/monster/boss2/boss2.o \
