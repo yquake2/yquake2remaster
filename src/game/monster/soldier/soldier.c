@@ -2630,7 +2630,7 @@ soldierh_laserbeam(edict_t *self, int flash_index)
 	VectorCopy(tempang, ent->s.angles);
 	VectorCopy(ent->s.origin, start);
 
-	if (flash_index == 85)
+	if (flash_index == MZ2_SOLDIER_MACHINEGUN_3)
 	{
 		VectorMA(start, tempvec[0] - 14, right, start);
 		VectorMA(start, tempvec[2] + 8, up, start);

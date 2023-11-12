@@ -237,6 +237,7 @@
 {"ThrowWidowGib", (byte *)ThrowWidowGib},
 {"widow_gib_touch", (byte *)widow_gib_touch},
 {"WidowVelocityForDamage", (byte *)WidowVelocityForDamage},
+{"SP_monster_guardian", (byte *)SP_monster_guardian},
 {"SP_monster_widow2", (byte *)SP_monster_widow2},
 {"Widow2Precache", (byte *)Widow2Precache},
 {"Widow2_CheckAttack", (byte *)Widow2_CheckAttack},

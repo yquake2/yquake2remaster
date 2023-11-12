@@ -909,6 +909,7 @@ GAME_OBJS_ = \
 	src/game/monster/gekk/gekk.o \
 	src/game/monster/gladiator/gladb.o \
 	src/game/monster/gladiator/gladiator.o \
+	src/game/monster/guardian/guardian.o \
 	src/game/monster/gunner/gunner.o \
 	src/game/monster/hover/hover.o \
 	src/game/monster/infantry/infantry.o \

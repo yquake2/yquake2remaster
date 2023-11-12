@@ -878,12 +878,12 @@ void stationarymonster_start(edict_t *self);
 void monster_done_dodge(edict_t *self);
 
 /* g_misc.c */
-void ThrowHead(edict_t *self, char *gibname, int damage, int type);
+void ThrowHead(edict_t *self, const char *gibname, int damage, int type);
 void ThrowClientHead(edict_t *self, int damage);
-void ThrowGib(edict_t *self, char *gibname, int damage, int type);
+void ThrowGib(edict_t *self, const char *gibname, int damage, int type);
 void BecomeExplosion1(edict_t *self);
-void ThrowHeadACID(edict_t *self, char *gibname, int damage, int type);
-void ThrowGibACID(edict_t *self, char *gibname, int damage, int type);
+void ThrowHeadACID(edict_t *self, const char *gibname, int damage, int type);
+void ThrowGibACID(edict_t *self, const char *gibname, int damage, int type);
 
 /* g_ai.c */
 void AI_SetSightClient(void);
