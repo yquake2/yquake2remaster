@@ -33,6 +33,7 @@ State:
 Monsters:
   * incorrect weapon effect for Shambler
   * incorrect dead animation for Arachnoid
+  * broken fire effect for Guardian
 
 Goals (none of it finished):
   * Single player support,
