@@ -162,6 +162,7 @@ void SP_turret_breach(edict_t *self);
 void SP_turret_base(edict_t *self);
 void SP_turret_driver(edict_t *self);
 
+void SP_monster_shambler(edict_t *self);
 void SP_monster_soldier_hypergun(edict_t *self);
 void SP_monster_soldier_lasergun(edict_t *self);
 void SP_monster_soldier_ripper(edict_t *self);
@@ -352,6 +353,7 @@ static spawn_t spawns[] = {
 	{"monster_makron", SP_monster_makron},
 	{"monster_jorg", SP_monster_jorg},
 	{"monster_commander_body", SP_monster_commander_body},
+	{"monster_shambler", SP_monster_shambler},
 	{"monster_soldier_hypergun", SP_monster_soldier_hypergun},
 	{"monster_soldier_lasergun", SP_monster_soldier_lasergun},
 	{"monster_soldier_ripper", SP_monster_soldier_ripper},

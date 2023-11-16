@@ -921,6 +921,7 @@ GAME_OBJS_ = \
 	src/game/monster/soldier/soldier.o \
 	src/game/monster/stalker/stalker.o \
 	src/game/monster/supertank/supertank.o \
+	src/game/monster/shambler/shambler.o \
 	src/game/monster/tank/tank.o \
 	src/game/monster/turret/turret.o \
 	src/game/monster/widow/widow2.o \
