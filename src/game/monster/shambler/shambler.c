@@ -86,7 +86,8 @@ shambler_lightning_update(edict_t *self)
 	gi.linkentity(lightning);
 }
 
-void shambler_windup(edict_t* self)
+void
+shambler_windup(edict_t* self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_windup, 1, ATTN_NORM, 0);
 
@@ -398,12 +399,14 @@ shambler_attack(edict_t* self)
 // melee
 //
 
-void shambler_melee1(edict_t* self)
+void
+shambler_melee1(edict_t* self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_melee1, 1, ATTN_NORM, 0);
 }
 
-void shambler_melee2(edict_t* self)
+void
+shambler_melee2(edict_t* self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_melee2, 1, ATTN_NORM, 0);
 }
@@ -411,7 +414,8 @@ void shambler_melee2(edict_t* self)
 void sham_swingl9(edict_t* self);
 void sham_swingr9(edict_t* self);
 
-void sham_smash10(edict_t* self)
+void
+sham_smash10(edict_t* self)
 {
 	if (!self->enemy)
 		return;
@@ -429,7 +433,8 @@ void sham_smash10(edict_t* self)
 	}
 };
 
-void ShamClaw(edict_t* self)
+void
+ShamClaw(edict_t* self)
 {
 	if (!self->enemy)
 		return;
@@ -595,7 +600,7 @@ shambler_dead(edict_t* self)
 	gi.linkentity(self);
 }
 
-static void
+void
 shambler_shrink(edict_t* self)
 {
 	self->maxs[2] = 0;
@@ -648,9 +653,11 @@ shambler_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /
 	}
 
 	if (self->deadflag)
+	{
 		return;
+	}
 
-	// regular death
+	/* regular death */
 	gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	self->deadflag = true;
 	self->takedamage = true;
@@ -658,7 +665,8 @@ shambler_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /
 	self->monsterinfo.currentmove = &shambler_move_death;
 }
 
-void SP_monster_shambler(edict_t* self)
+void
+SP_monster_shambler(edict_t* self)
 {
 	if (!self)
 	{

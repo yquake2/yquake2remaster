@@ -118,7 +118,8 @@ guardian_stand(edict_t *self)
 
 static int sound_step;
 
-void guardian_footstep(edict_t *self)
+void
+guardian_footstep(edict_t *self)
 {
 	gi.sound(self, CHAN_BODY, sound_step, 1.f, ATTN_NORM, 0.0f);
 }
@@ -240,7 +241,7 @@ mmove_t guardian_move_pain1 =
 
 void
 guardian_pain(edict_t *self, edict_t *other /* other */,
-	   	float kick /* other */, int damage)
+		float kick /* other */, int damage)
 {
 	if (!self)
 	{
@@ -386,7 +387,8 @@ mmove_t guardian_move_atk1_spin =
 	guardian_atk1_finish
 };
 
-void guardian_atk1(edict_t *self)
+void
+guardian_atk1(edict_t *self)
 {
 	if (!self)
 	{
@@ -443,8 +445,8 @@ guardian_atk2_out(edict_t *self)
 static int sound_laser;
 
 static vec3_t laser_positions[] = {
-	{ 125.0f, -70.f, 60.f},
-	{ 112.0f, -62.f, 60.f }
+	{125.0f, -70.f, 60.f},
+	{112.0f, -62.f, 60.f}
 };
 
 void
@@ -509,7 +511,8 @@ mmove_t guardian_move_atk2_fire =
 	guardian_atk2_out
 };
 
-void guardian_atk2(edict_t *self)
+void
+guardian_atk2(edict_t *self)
 {
 	if (!self)
 	{
@@ -604,7 +607,8 @@ guardian_attack(edict_t *self)
 // death
 //
 
-void guardian_explode(edict_t *self)
+void
+guardian_explode(edict_t *self)
 {
 	vec3_t start, pos;
 	int i;
@@ -635,7 +639,8 @@ static const char *gibs[] = {
 	"models/monsters/guardian/gib7.md2"
 };
 
-void guardian_dead(edict_t *self)
+void
+guardian_dead(edict_t *self)
 {
 	int i, n;
 
