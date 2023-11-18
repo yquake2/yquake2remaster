@@ -17,10 +17,15 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
+ * =======================================================================
+ *
+ * Local header for the refresher.
+ *
+ * =======================================================================
  */
 
-#ifndef __R_LOCAL__
-#define __R_LOCAL__
+#ifndef REF_LOCAL_H
+#define REF_LOCAL_H
 
 #include <stdio.h>
 #include <ctype.h>
@@ -311,6 +316,7 @@ extern affinetridesc_t	r_affinetridesc;
 
 void D_WarpScreen(void);
 void R_PolysetUpdateTables(void);
+void RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 
 //=======================================================================//
 
@@ -395,6 +401,7 @@ extern cvar_t	*sw_gunzposition;
 extern cvar_t	*r_validation;
 extern cvar_t	*r_retexturing;
 extern cvar_t	*r_scale8bittextures;
+extern cvar_t	*r_palettedtexture;
 
 extern cvar_t	*r_fullbright;
 extern cvar_t	*r_lefthand;
