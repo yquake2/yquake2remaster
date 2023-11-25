@@ -47,8 +47,10 @@
 extern "C" {
 #endif
 
-#include "miniz.h"
-#include "minizconf.h"
+#ifndef _ZLIB_H
+#include "miniz/miniz.h"
+#include "miniz/minizconf.h"
+#endif
 
 #ifndef  _ZLIBIOAPI_H
 #include "ioapi.h"

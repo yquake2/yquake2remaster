@@ -991,8 +991,10 @@ CLIENT_OBJS_ := \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
 	src/common/unzip/ioapi.o \
-	src/common/unzip/miniz.o \
 	src/common/unzip/unzip.o \
+	src/common/unzip/miniz/miniz.o \
+	src/common/unzip/miniz/miniz_tdef.o \
+	src/common/unzip/miniz/miniz_tinfl.o \
 	src/server/sv_cmd.o \
 	src/server/sv_conless.o \
 	src/server/sv_entities.o \
@@ -1246,8 +1248,10 @@ SERVER_OBJS_ := \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
 	src/common/unzip/ioapi.o \
-	src/common/unzip/miniz.o \
 	src/common/unzip/unzip.o \
+	src/common/unzip/miniz/miniz.o \
+	src/common/unzip/miniz/miniz_tdef.o \
+	src/common/unzip/miniz/miniz_tinfl.o \
 	src/server/sv_cmd.o \
 	src/server/sv_conless.o \
 	src/server/sv_entities.o \
