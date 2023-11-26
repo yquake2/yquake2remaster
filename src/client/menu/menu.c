@@ -5278,14 +5278,16 @@ ModelCallback(void *unused)
 
 // returns true if icon .pcx exists for skin .pcx
 static qboolean
-IconOfSkinExists(char* skin, char** pcxfiles, int npcxfiles)
+IconOfSkinExists(char* skin, char** pcxfiles, int npcxfiles,
+	const char *ext)
 {
 	int i;
 	char scratch[1024];
 
 	strcpy(scratch, skin);
 	*strrchr(scratch, '.') = 0;
-	strcat(scratch, "_i.pcx");
+	strcat(scratch, "_i.");
+	strcat(scratch, ext);
 
 	for (i = 0; i < npcxfiles; i++)
 	{
@@ -5474,9 +5476,10 @@ PlayerModelFree()
 	s_directory.num = 0;
 }
 
-// list all player model directories.
-// directory names are stored players/<modelname>.
-// directory number never exceeds MAX_PLAYERMODELS
+/* list all player model directories.
+ * directory names are stored players/<modelname>.
+ * directory number never exceeds MAX_PLAYERMODELS
+ */
 static qboolean
 PlayerDirectoryList(void)
 {
@@ -5484,8 +5487,8 @@ PlayerDirectoryList(void)
 	char** list = 0;
 	int num = 0;
 
-	// get a list of "players" subdirectories
-	if ((list = FS_ListFiles2(findname, &num, 0, 0)) == 0)
+	/* get a list of "players" subdirectories */
+	if ((list = FS_ListFiles2(findname, &num, 0, 0)) == NULL)
 	{
 		return false;
 	}
@@ -5530,15 +5533,29 @@ PlayerDirectoryList(void)
 	return true;
 }
 
-// list all valid player models.
-// call PlayerDirectoryList first.
-// model names is always allocated MAX_PLAYERMODELS
+static char**
+HasSkinInDir(const char *dirname, const char *ext, int *num)
+{
+	char findname[MAX_QPATH];
+
+	strcpy(findname, dirname);
+	strcat(findname, "/*.");
+	strcat(findname, ext);
+
+	return FS_ListFiles2(findname, num, 0, 0);
+}
+
+
+/*
+ * list all valid player models.
+ * call PlayerDirectoryList first.
+ * model names is always allocated MAX_PLAYERMODELS
+ */
 static qboolean
 PlayerModelList(void)
 {
-	char findname[MAX_QPATH];
-	char** list = 0;
-	char** data = 0;
+	char** list = NULL;
+	char** data = NULL;
 	char* s = 0;
 	char* t = 0;
 	int num = 0;
@@ -5552,7 +5569,7 @@ PlayerModelList(void)
 	s_modelname.data = data;
 	s_modelname.num = 0;
 
-	// verify the existence of at least one pcx skin
+	/* verify the existence of at least one pcx skin */
 	for (int i = 0; i < s_directory.num; ++i)
 	{
 		if (s_directory.data[i] == 0)
@@ -5560,16 +5577,16 @@ PlayerModelList(void)
 			continue;
 		}
 
-		strcpy(findname, s_directory.data[i]);
-		strcat(findname, "/*.pcx");
-
-		// get a list of pcx files
-		if ((list = FS_ListFiles2(findname, &num, 0, 0)) == 0)
+		/* get a list of pcx files */
+		if (
+			(list = HasSkinInDir(s_directory.data[i], "png", &num)) == NULL &&
+			(list = HasSkinInDir(s_directory.data[i], "pcx", &num)) == NULL &&
+			(list = HasSkinInDir(s_directory.data[i], "m8", &num)) == NULL)
 		{
 			continue;
 		}
 
-		// contains triangle .md2 model
+		/* contains triangle .md2 model */
 		s = s_directory.data[i];
 
 		if (ContainsFile(s, "tris.fm") == false &&
@@ -5577,23 +5594,28 @@ PlayerModelList(void)
 			ContainsFile(s, "tris.md2") == false &&
 			ContainsFile(s, "tris.mdl") == false)
 		{
-			continue;			// invalid player model
+			/* invalid player model */
+			continue;
 		}
 
-		// count valid skins, which consist of a skin with a matching "_i" icon
+		/* count valid skins, which consist of a skin with a matching "_i" icon */
 		s_skinnames[mdl].num = 0;
 
 		for (int j = 0; j < num; j++)
 		{
-			// last element of FS_FileList maybe null
+			/* last element of FS_FileList maybe null */
 			if (list[j] == 0)
 			{
 				break;
 			}
 
-			if (!strstr(list[j], "_i.pcx"))
+			if (!strstr(list[j], "_i.png") ||
+				!strstr(list[j], "_i.pcx") ||
+				!strstr(list[j], "_i.m8"))
 			{
-				if (IconOfSkinExists(list[j], list, num - 1))
+				if (IconOfSkinExists(list[j], list, num - 1, "png") ||
+					IconOfSkinExists(list[j], list, num - 1, "pcx") ||
+					IconOfSkinExists(list[j], list, num - 1, "m8"))
 				{
 					s_skinnames[mdl].num++;
 				}
@@ -5607,7 +5629,7 @@ PlayerModelList(void)
 			continue;
 		}
 
-		// malloc skinnames
+		/* malloc skinnames */
 		data = (char**)malloc((s_skinnames[mdl].num + 1) * sizeof(char*));
 		YQ2_COM_CHECK_OOM(data, "malloc()", (s_skinnames[mdl].num + 1) * sizeof(char*))
 		memset(data, 0, (s_skinnames[mdl].num + 1) * sizeof(char*));
@@ -5615,18 +5637,22 @@ PlayerModelList(void)
 		s_skinnames[mdl].data = data;
 		s_skinnames[mdl].num = 0;
 
-		// duplicate strings
+		/* duplicate strings */
 		for (int k = 0; k < num; ++k)
 		{
-			// last element of FS_FileList maybe null
+			/* last element of FS_FileList maybe null */
 			if (list[k] == 0)
 			{
 				break;
 			}
 
-			if (!strstr(list[k], "_i.pcx"))
+			if (!strstr(list[k], "_i.png") ||
+				!strstr(list[k], "_i.pcx") ||
+				!strstr(list[k], "_i.m8"))
 			{
-				if (IconOfSkinExists(list[k], list, num - 1))
+				if (IconOfSkinExists(list[k], list, num - 1, "png") ||
+					IconOfSkinExists(list[k], list, num - 1, "pcx") ||
+					IconOfSkinExists(list[k], list, num - 1, "m8"))
 				{
 					ReplaceCharacters(list[k], '\\', '/');
 
@@ -5643,10 +5669,10 @@ PlayerModelList(void)
 			}
 		}
 
-		// sort skin names alphabetically
+		/* sort skin names alphabetically */
 		qsort(s_skinnames[mdl].data, s_skinnames[mdl].num, sizeof(char**), Q_sort_strcomp);
 
-		// at this point we have a valid player model
+		/* at this point we have a valid player model */
 		s = (char*)malloc(MAX_DISPLAYNAME);
 		t = strrchr(s_directory.data[i], '/');
 
@@ -5657,7 +5683,7 @@ PlayerModelList(void)
 		s_modelname.data[s_modelname.num++] = s;
 		mdl = s_modelname.num;
 
-		// free file list
+		/* free file list */
 		FS_FreeList(list, num);
 	}
 
@@ -5925,6 +5951,7 @@ PlayerConfig_MenuDraw(void)
 	{
 		entity_t entity;
 		char scratch[MAX_QPATH];
+		struct image_s *skin;
 		char* mdlname = s_modelname.data[s_player_model_box.curvalue];
 		char* imgname = s_skinnames[s_player_model_box.curvalue].data[s_player_skin_box.curvalue];
 
@@ -5932,9 +5959,24 @@ PlayerConfig_MenuDraw(void)
 
 		Com_sprintf(scratch, sizeof(scratch), "players/%s/tris.md2", mdlname);
 		entity.model = R_RegisterModel(scratch);
-		Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
+
+		Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.png", mdlname,
 			imgname);
-		entity.skin = R_RegisterSkin(scratch);
+		skin = R_RegisterSkin(scratch);
+		if (!skin)
+		{
+			Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
+				imgname);
+			skin = R_RegisterSkin(scratch);
+		}
+		if (!skin)
+		{
+			Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.m8", mdlname,
+				imgname);
+			skin = R_RegisterSkin(scratch);
+		}
+		entity.skin = skin;
+
 		entity.flags = RF_FULLBRIGHT;
 		entity.origin[0] = 80;
 		entity.origin[1] = 0;

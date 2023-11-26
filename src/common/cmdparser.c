@@ -913,7 +913,7 @@ Cmd_CompleteMapCommand(const char *partial)
 	char *pmatch[1024];
 	qboolean partialFillContinue = true;
 
-	if ((mapNames = FS_ListFiles2("maps/*.bsp", &nMaps, 0, 0)) != 0)
+	if ((mapNames = FS_ListFiles2("maps/*.bsp", &nMaps, 0, 0)) != NULL)
 	{
 		len = strlen(partial);
 		nbMatches = 0;
