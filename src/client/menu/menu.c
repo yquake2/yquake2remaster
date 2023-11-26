@@ -5951,7 +5951,6 @@ PlayerConfig_MenuDraw(void)
 	{
 		entity_t entity;
 		char scratch[MAX_QPATH];
-		struct image_s *skin;
 		char* mdlname = s_modelname.data[s_player_model_box.curvalue];
 		char* imgname = s_skinnames[s_player_model_box.curvalue].data[s_player_skin_box.curvalue];
 
@@ -5960,22 +5959,9 @@ PlayerConfig_MenuDraw(void)
 		Com_sprintf(scratch, sizeof(scratch), "players/%s/tris.md2", mdlname);
 		entity.model = R_RegisterModel(scratch);
 
-		Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.png", mdlname,
+		Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
 			imgname);
-		skin = R_RegisterSkin(scratch);
-		if (!skin)
-		{
-			Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
-				imgname);
-			skin = R_RegisterSkin(scratch);
-		}
-		if (!skin)
-		{
-			Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.m8", mdlname,
-				imgname);
-			skin = R_RegisterSkin(scratch);
-		}
-		entity.skin = skin;
+		entity.skin = R_RegisterSkin(scratch);
 
 		entity.flags = RF_FULLBRIGHT;
 		entity.origin[0] = 80;

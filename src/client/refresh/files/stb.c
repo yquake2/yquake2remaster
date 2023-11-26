@@ -491,8 +491,8 @@ LoadHiColorImage(const char *name, const char* namewe, const char *ext,
 	return image;
 }
 
-struct image_s *
-R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t type,
+static struct image_s *
+LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t type,
 	qboolean r_retexturing, loadimage_t load_image)
 {
 	struct image_s	*image = NULL;
@@ -556,15 +556,15 @@ R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t t
 		}
 		else if (!strcmp(ext, "wal"))
 		{
-			image = LoadWal(namewe, type, load_image);
+			image = LoadWal(name, namewe, type, load_image);
 		}
 		else if (!strcmp(ext, "m8"))
 		{
-			image = LoadM8(namewe, type, load_image);
+			image = LoadM8(name, namewe, type, load_image);
 		}
 		else if (!strcmp(ext, "m32"))
 		{
-			image = LoadM32(namewe, type, load_image);
+			image = LoadM32(name, namewe, type, load_image);
 		}
 		else if (!strcmp(ext, "tga") ||
 		         !strcmp(ext, "png") ||
@@ -584,6 +584,38 @@ R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t t
 				free(pic);
 			}
 		}
+	}
+
+	return image;
+}
+
+struct image_s *
+R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t type,
+	qboolean r_retexturing, loadimage_t load_image)
+{
+	struct image_s	*image = NULL;
+
+	/* original name */
+	image = LoadImage_Ext(name, namewe, ext, type, r_retexturing, load_image);
+	/* pcx check */
+	if (!image)
+	{
+		image = LoadImage_Ext(name, namewe, "pcx", type, r_retexturing, load_image);
+	}
+	/* png check */
+	if (!image)
+	{
+		image = LoadImage_Ext(name, namewe, "png", type, r_retexturing, load_image);
+	}
+	/* m32 check */
+	if (!image)
+	{
+		image = LoadImage_Ext(name, namewe, "m32", type, r_retexturing, load_image);
+	}
+	/* m8 check */
+	if (!image)
+	{
+		image = LoadImage_Ext(name, namewe, "m8", type, r_retexturing, load_image);
 	}
 
 	return image;

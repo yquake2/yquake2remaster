@@ -2054,7 +2054,7 @@ Mod_LoadBSPX(int filesize, const byte *mod_base)
 	int i, numlumps, xofs;
 	bspx_lump_t *lump;
 
-	// find end of last lump
+	/* find end of last lump */
 	header = (dheader_t*)mod_base;
 	xofs = 0;
 

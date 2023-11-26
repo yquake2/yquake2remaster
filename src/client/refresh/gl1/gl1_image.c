@@ -863,8 +863,10 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	qboolean nolerp = false;
 	if (r_2D_unfiltered->value && type == it_pic)
 	{
-		// if r_2D_unfiltered is true(ish), nolerp should usually be true,
-		// *unless* the texture is on the r_lerp_list
+		/*
+		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
+		 * *unless* the texture is on the r_lerp_list
+		 */
 		nolerp = (r_lerp_list->string == NULL) || (strstr(r_lerp_list->string, name) == NULL);
 	}
 	else if (r_nolerp_list != NULL && r_nolerp_list->string != NULL)
@@ -885,7 +887,8 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	{
 		if (numgltextures == MAX_GLTEXTURES)
 		{
-			Com_Error(ERR_DROP, "MAX_GLTEXTURES");
+			Com_Error(ERR_DROP, "%s: load %s is failed MAX_GLTEXTURES",
+				__func__, name);
 		}
 
 		numgltextures++;

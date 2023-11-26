@@ -949,7 +949,8 @@ Returns number of mip levels and scales to nearest power of 2.
 ===============
 */
 #if 0
-static uint32_t Vk_Upload32 (byte *data, int width, int height, imagetype_t type,
+static uint32_t
+Vk_Upload32(byte *data, int width, int height, imagetype_t type,
 							 byte **texBuffer, int *upload_width, int *upload_height)
 {
 	int	scaled_width, scaled_height;
@@ -1018,7 +1019,6 @@ Vk_Upload8
 Returns number of mip levels
 ===============
 */
-
 static uint32_t
 Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 	byte **texBuffer, int *upload_width, int *upload_height)
@@ -1246,7 +1246,7 @@ Finds or loads the given image or NULL
 ===============
 */
 image_t	*
-Vk_FindImage (const char *name, imagetype_t type)
+Vk_FindImage(const char *name, imagetype_t type)
 {
 	image_t	*image;
 	int	i, len;
@@ -1282,7 +1282,7 @@ Vk_FindImage (const char *name, imagetype_t type)
 		*ptr = '/';
 	}
 
-	// look for it
+	/* look for it */
 	for (i=0, image=vktextures ; i<numvktextures ; i++,image++)
 	{
 		if (!strcmp(name, image->name))
@@ -1292,9 +1292,9 @@ Vk_FindImage (const char *name, imagetype_t type)
 		}
 	}
 
-	//
-	// load the pic from disk
-	//
+	/*
+	 * load the pic from disk
+	 */
 	image = (image_t *)R_LoadImage(name, namewe, ext, type,
 		r_retexturing->value, (loadimage_t)Vk_LoadPic);
 
@@ -1311,12 +1311,14 @@ Vk_FindImage (const char *name, imagetype_t type)
 RE_RegisterSkin
 ===============
 */
-struct image_s *RE_RegisterSkin (const char *name)
+struct image_s *
+RE_RegisterSkin (const char *name)
 {
 	return Vk_FindImage (name, it_skin);
 }
 
-qboolean Vk_ImageHasFreeSpace(void)
+qboolean
+Vk_ImageHasFreeSpace(void)
 {
 	int		i, used;
 	image_t	*image;
@@ -1338,7 +1340,7 @@ qboolean Vk_ImageHasFreeSpace(void)
 		image_max = used;
 	}
 
-	// should same size of free slots as currently used
+	/* should same size of free slots as currently used */
 	return (img_loaded + used) < MAX_VKTEXTURES;
 }
 
@@ -1357,11 +1359,11 @@ void Vk_FreeUnusedImages (void)
 
 	if (Vk_ImageHasFreeSpace())
 	{
-		// should be enough space for load next images
+		/* should be enough space for load next images */
 		return;
 	}
 
-	// never free r_notexture or particle texture
+	/* never free r_notexture or particle texture */
 	r_notexture->registration_sequence = registration_sequence;
 	r_particletexture->registration_sequence = registration_sequence;
 	r_squaretexture->registration_sequence = registration_sequence;
@@ -1369,18 +1371,24 @@ void Vk_FreeUnusedImages (void)
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		if (image->registration_sequence == registration_sequence)
+		{
 			continue;		// used this sequence
+		}
 		if (!image->registration_sequence)
+		{
 			continue;		// free image_t slot
+		}
 		if (image->type == it_pic)
+		{
 			continue;		// don't free pics
+		}
 
 		if (r_validation->value > 0)
 		{
 			R_Printf(PRINT_ALL, "%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
 		}
 
-		// free it
+		/* free it */
 		QVk_ReleaseTexture(&image->vk_texture);
 		memset(image, 0, sizeof(*image));
 
@@ -1391,7 +1399,7 @@ void Vk_FreeUnusedImages (void)
 		}
 	}
 
-	// free all unused blocks
+	/* free all unused blocks */
 	vulkan_memory_free_unused();
 }
 

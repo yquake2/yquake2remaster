@@ -27,7 +27,8 @@
 #include "../ref_shared.h"
 
 struct image_s *
-LoadWalQ2(const char *name, const byte *data, size_t size, imagetype_t type, loadimage_t load_image)
+LoadWalQ2(const char *origname, const char *name, const byte *data, size_t size,
+	imagetype_t type, loadimage_t load_image)
 {
 	int	width, height, ofs;
 	miptex_t	*mt;
@@ -51,14 +52,15 @@ LoadWalQ2(const char *name, const byte *data, size_t size, imagetype_t type, loa
 		return NULL;
 	}
 
-	return load_image(name, (byte *)data + ofs,
+	return load_image(origname, (byte *)data + ofs,
 		width, 0,
 		height, 0,
 		(size - ofs), type, 8);
 }
 
 struct image_s *
-LoadWalDKM(const char *name, const byte *data, size_t size, imagetype_t type, loadimage_t load_image)
+LoadWalDKM(const char *origname, const char *name, const byte *data, size_t size,
+	imagetype_t type, loadimage_t load_image)
 {
 	byte	*image_buffer = NULL;
 	int	width, height, ofs, i;
@@ -100,7 +102,7 @@ LoadWalDKM(const char *name, const byte *data, size_t size, imagetype_t type, lo
 		image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
 	}
 
-	image = load_image(name, image_buffer,
+	image = load_image(origname, image_buffer,
 		width, 0,
 		height, 0,
 		(size - ofs), type, 32);
@@ -110,14 +112,15 @@ LoadWalDKM(const char *name, const byte *data, size_t size, imagetype_t type, lo
 }
 
 struct image_s *
-LoadWal(const char *origname, imagetype_t type, loadimage_t load_image)
+LoadWal(const char *origname, const char *namewe, imagetype_t type,
+	loadimage_t load_image)
 {
 	struct image_s	*image;
 	char	name[256];
 	byte	*data;
 	size_t	size;
 
-	FixFileExt(origname, "wal", name, sizeof(name));
+	FixFileExt(namewe, "wal", name, sizeof(name));
 
 	size = ri.FS_LoadFile(name, (void **)&data);
 
@@ -128,11 +131,11 @@ LoadWal(const char *origname, imagetype_t type, loadimage_t load_image)
 
 	if (*data == DKM_WAL_VERSION)
 	{
-		image = LoadWalDKM(name, data, size, type, load_image);
+		image = LoadWalDKM(origname, name, data, size, type, load_image);
 	}
 	else
 	{
-		image = LoadWalQ2(name, data, size, type, load_image);
+		image = LoadWalQ2(origname, name, data, size, type, load_image);
 	}
 
 	ri.FS_FreeFile((void *)data);
@@ -141,7 +144,8 @@ LoadWal(const char *origname, imagetype_t type, loadimage_t load_image)
 }
 
 struct image_s *
-LoadM8(const char *origname, imagetype_t type, loadimage_t load_image)
+LoadM8(const char *origname, const char *namewe, imagetype_t type,
+	loadimage_t load_image)
 {
 	int	width, height, ofs, size, i;
 	byte	*image_buffer = NULL;
@@ -149,7 +153,7 @@ LoadM8(const char *origname, imagetype_t type, loadimage_t load_image)
 	char	name[256];
 	m8tex_t	*mt;
 
-	FixFileExt(origname, "m8", name, sizeof(name));
+	FixFileExt(namewe, "m8", name, sizeof(name));
 
 	size = ri.FS_LoadFile(name, (void **)&mt);
 
@@ -194,7 +198,7 @@ LoadM8(const char *origname, imagetype_t type, loadimage_t load_image)
 		image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
 	}
 
-	image = load_image(name, image_buffer,
+	image = load_image(origname, image_buffer,
 		width, 0,
 		height, 0,
 		(size - ofs), type, 32);
@@ -206,14 +210,15 @@ LoadM8(const char *origname, imagetype_t type, loadimage_t load_image)
 }
 
 struct image_s *
-LoadM32(const char *origname, imagetype_t type, loadimage_t load_image)
+LoadM32(const char *origname, const char *namewe, imagetype_t type,
+	loadimage_t load_image)
 {
 	m32tex_t	*mt;
 	int		width, height, ofs, size;
 	struct image_s	*image;
 	char name[256];
 
-	FixFileExt(origname, "m32", name, sizeof(name));
+	FixFileExt(namewe, "m32", name, sizeof(name));
 
 	size = ri.FS_LoadFile(name, (void **)&mt);
 
@@ -248,7 +253,7 @@ LoadM32(const char *origname, imagetype_t type, loadimage_t load_image)
 		return NULL;
 	}
 
-	image = load_image(name, (byte *)mt + ofs,
+	image = load_image(origname, (byte *)mt + ofs,
 		width, 0,
 		height, 0,
 		(size - ofs) / 4, type, 32);
