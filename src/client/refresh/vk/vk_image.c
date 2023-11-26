@@ -858,15 +858,16 @@ Scale up the pixel values in a texture to increase the
 lighting range
 ================
 */
-static void Vk_LightScaleTexture (byte *in, int inwidth, int inheight)
+static void
+Vk_LightScaleTexture(byte *in, int inwidth, int inheight)
 {
 	int		i, c;
 	byte	*p;
 
 	p = (byte *)in;
 
-	c = inwidth*inheight;
-	for (i=0 ; i<c ; i++, p+=4)
+	c = inwidth * inheight;
+	for (i = 0; i < c; i++, p+=4)
 	{
 		p[0] = overbrightable[intensitytable[p[0]]];
 		p[1] = overbrightable[intensitytable[p[1]]];
@@ -940,77 +941,6 @@ Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
 
 	return miplevel;
 }
-
-/*
-===============
-Vk_Upload32
-
-Returns number of mip levels and scales to nearest power of 2.
-===============
-*/
-#if 0
-static uint32_t
-Vk_Upload32(byte *data, int width, int height, imagetype_t type,
-							 byte **texBuffer, int *upload_width, int *upload_height)
-{
-	int	scaled_width, scaled_height;
-	int	miplevel = 1;
-
-	*texBuffer = NULL;
-
-	for (scaled_width = 1; scaled_width < width; scaled_width <<= 1)
-		;
-	for (scaled_height = 1; scaled_height < height; scaled_height <<= 1)
-		;
-	if (type != it_pic)
-	{
-		// let people sample down the world textures for speed
-		scaled_width >>= (int)vk_picmip->value;
-		scaled_height >>= (int)vk_picmip->value;
-	}
-
-	if (scaled_width < 1)
-		scaled_width = 1;
-	if (scaled_height < 1)
-		scaled_height = 1;
-
-	*texBuffer = malloc(scaled_width * scaled_height * 4);
-	if (!*texBuffer)
-		Com_Error(ERR_DROP, "%s: too big", __func__);
-
-	*upload_width = scaled_width;
-	*upload_height = scaled_height;
-
-	if (scaled_width == width && scaled_height == height)
-	{
-		memcpy(*texBuffer, data, scaled_width * scaled_height * 4);
-	}
-	else
-	{
-		ResizeSTB(data, width, height,
-				  *texBuffer, scaled_width, scaled_height);
-	}
-
-	// world textures
-	if (type != it_pic && type != it_sky)
-	{
-		Vk_LightScaleTexture(*texBuffer, scaled_width, scaled_height);
-	}
-
-	while (scaled_width > 1 || scaled_height > 1)
-	{
-		scaled_width >>= 1;
-		scaled_height >>= 1;
-		if (scaled_width < 1)
-			scaled_width = 1;
-		if (scaled_height < 1)
-			scaled_height = 1;
-		miplevel++;
-	}
-
-	return miplevel;
-}
-#endif
 
 /*
 ===============
