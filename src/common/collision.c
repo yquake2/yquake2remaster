@@ -1895,7 +1895,7 @@ CMod_LoadEntityString(const char *name, char **map_entitystring, int *numentityc
 	(*map_entitystring)[l->filelen] = 0;
 }
 
-const void
+static void
 CM_ModFree(model_t *cmod)
 {
 	if (cmod->extradata && cmod->extradatasize)

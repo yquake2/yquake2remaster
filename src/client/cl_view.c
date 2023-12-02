@@ -305,7 +305,7 @@ CL_PrintInSameLine(const char *message)
 	emptyline[cols - 1] = '\r';
 	emptyline[cols] = 0;
 
-	Com_Printf(emptyline);
+	Com_Printf("%s", emptyline);
 }
 
 /*
