@@ -179,17 +179,21 @@ VkResult QVk_CreateSwapchain()
 	VkExtent2D extent = surfaceCaps.currentExtent;
 	if(extent.width == UINT32_MAX || extent.height == UINT32_MAX)
 	{
-		extent.width = max(surfaceCaps.minImageExtent.width, min(surfaceCaps.maxImageExtent.width, vid.width));
-		extent.height = max(surfaceCaps.minImageExtent.height, min(surfaceCaps.maxImageExtent.height, vid.height));
+		extent.width = Q_max(surfaceCaps.minImageExtent.width,
+			Q_min(surfaceCaps.maxImageExtent.width, vid.width));
+		extent.height = Q_max(surfaceCaps.minImageExtent.height,
+			Q_min(surfaceCaps.maxImageExtent.height, vid.height));
 	}
 
 	// request at least 2 images - this fixes fullscreen crashes on AMD when launching the game in fullscreen
-	uint32_t imageCount = max(2, surfaceCaps.minImageCount);
+	uint32_t imageCount = Q_max(2, surfaceCaps.minImageCount);
 	if (swapPresentMode != VK_PRESENT_MODE_FIFO_KHR)
-		imageCount = max(3, surfaceCaps.minImageCount);
+		imageCount = Q_max(3, surfaceCaps.minImageCount);
 
 	if (surfaceCaps.maxImageCount > 0)
-		imageCount = min(imageCount, surfaceCaps.maxImageCount);
+	{
+		imageCount = Q_min(imageCount, surfaceCaps.maxImageCount);
+	}
 
 	VkImageUsageFlags imgUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 

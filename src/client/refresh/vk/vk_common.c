@@ -874,7 +874,8 @@ static void CreateSamplersHelper(VkSampler *samplers, VkSamplerAddressMode addre
 	assert((vk_device.properties.limits.maxSamplerAnisotropy > 1.f) && "maxSamplerAnisotropy is 1");
 	if (vk_device.features.samplerAnisotropy && vk_aniso->value > 0.f)
 	{
-		const float maxAniso = min(max(vk_aniso->value, 1.f), vk_device.properties.limits.maxSamplerAnisotropy);
+		const float maxAniso = Q_min(Q_max(vk_aniso->value, 1.f),
+			vk_device.properties.limits.maxSamplerAnisotropy);
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		samplerInfo.maxAnisotropy = maxAniso;
 	}
@@ -1973,8 +1974,10 @@ qboolean QVk_Init(void)
 	if (vid_fullscreen->value == 2)
 	{
 		// Center viewport in "keep resolution mode".
-		vk_viewport.x = max(0.f, (float)(vk_swapchain.extent.width - (uint32_t)(vid.width)) / 2.0f);
-		vk_viewport.y = max(0.f, (float)(vk_swapchain.extent.height - (uint32_t)(vid.height)) / 2.0f);
+		vk_viewport.x = Q_max(
+			0.f, (float)(vk_swapchain.extent.width - (uint32_t)(vid.width)) / 2.0f);
+		vk_viewport.y = Q_max(
+			0.f, (float)(vk_swapchain.extent.height - (uint32_t)(vid.height)) / 2.0f);
 	}
 	else
 	{
@@ -1983,8 +1986,10 @@ qboolean QVk_Init(void)
 	}
 	vk_viewport.minDepth = 0.f;
 	vk_viewport.maxDepth = 1.f;
-	vk_viewport.width = min((float)vid.width, (float)(vk_swapchain.extent.width) - vk_viewport.x);
-	vk_viewport.height = min((float)vid.height, (float)(vk_swapchain.extent.height) - vk_viewport.y);
+	vk_viewport.width = Q_min(
+		(float)vid.width, (float)(vk_swapchain.extent.width) - vk_viewport.x);
+	vk_viewport.height = Q_min(
+		(float)vid.height, (float)(vk_swapchain.extent.height) - vk_viewport.y);
 	vk_scissor.offset.x = 0;
 	vk_scissor.offset.y = 0;
 	vk_scissor.extent = vk_swapchain.extent;
@@ -2387,16 +2392,21 @@ uint8_t *QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSiz
 {
 	if (vk_dynVertexBuffers[vk_activeDynBufferIdx].currentOffset + size > vk_config.vertex_buffer_size)
 	{
-		vk_config.vertex_buffer_size = max(vk_config.vertex_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
+		vk_config.vertex_buffer_size = Q_max(
+			vk_config.vertex_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
 		R_Printf(PRINT_ALL, "Resizing dynamic vertex buffer to %ukB\n", vk_config.vertex_buffer_size / 1024);
 		int swapBufferOffset = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
 		vk_swapBuffersCnt[vk_activeSwapBufferIdx] += NUM_DYNBUFFERS;
 
 		if (vk_swapBuffers[vk_activeSwapBufferIdx] == NULL)
+		{
 			vk_swapBuffers[vk_activeSwapBufferIdx] = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		}
 		else
+		{
 			vk_swapBuffers[vk_activeSwapBufferIdx] = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		}
 
 		for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 		{
@@ -2433,7 +2443,8 @@ static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, i
 
 	if (vk_dynIndexBuffers[currentBufferIdx].currentOffset + aligned_size > vk_config.index_buffer_size)
 	{
-		vk_config.index_buffer_size = max(vk_config.index_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
+		vk_config.index_buffer_size = Q_max(
+			vk_config.index_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
 		R_Printf(PRINT_ALL, "Resizing dynamic index buffer to %ukB\n", vk_config.index_buffer_size / 1024);
 		int swapBufferOffset = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
@@ -2478,7 +2489,8 @@ uint8_t *QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescript
 
 	if (vk_dynUniformBuffers[vk_activeDynBufferIdx].currentOffset + UNIFORM_ALLOC_SIZE > vk_config.uniform_buffer_size)
 	{
-		vk_config.uniform_buffer_size = max(vk_config.uniform_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
+		vk_config.uniform_buffer_size = Q_max(
+			vk_config.uniform_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
 		R_Printf(PRINT_ALL, "Resizing dynamic uniform buffer to %ukB\n", vk_config.uniform_buffer_size / 1024);
 		int swapBufferOffset   = vk_swapBuffersCnt[vk_activeSwapBufferIdx];

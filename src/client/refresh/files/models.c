@@ -2065,7 +2065,7 @@ Mod_LoadBSPX(int filesize, const byte *mod_base)
 	}
 
 	for (i = 0; i < numlumps; i++) {
-		xofs = max(xofs,
+		xofs = Q_max(xofs,
 			(header->lumps[i].fileofs + header->lumps[i].filelen + 3) & ~3);
 	}
 

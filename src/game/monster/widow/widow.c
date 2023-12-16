@@ -1815,7 +1815,8 @@ WidowCalcSlots(edict_t *self)
 
 	if (coop->value)
 	{
-		self->monsterinfo.monster_slots = min(6, self->monsterinfo.monster_slots + ((skill->value) * (CountPlayers() - 1)));
+		self->monsterinfo.monster_slots = Q_min(
+			6, self->monsterinfo.monster_slots + ((skill->value) * (CountPlayers() - 1)));
 	}
 }
 

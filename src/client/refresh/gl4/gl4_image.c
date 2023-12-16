@@ -116,7 +116,8 @@ GL4_TextureMode(char *string)
 			/* Set anisotropic filter if supported and enabled */
 			if (gl4config.anisotropic && gl_anisotropic->value)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, max(gl_anisotropic->value, 1.f));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY,
+					Q_max(gl_anisotropic->value, 1.f));
 			}
 		}
 		else /* texture has no mipmaps */
@@ -227,7 +228,7 @@ GL4_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 
 	if (mipmap && gl4config.anisotropic && gl_anisotropic->value)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, max(gl_anisotropic->value, 1.f));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Q_max(gl_anisotropic->value, 1.f));
 	}
 
 	return res;

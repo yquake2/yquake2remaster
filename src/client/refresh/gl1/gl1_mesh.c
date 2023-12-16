@@ -291,7 +291,8 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 		{
 			R_DrawAliasDrawCommands(currententity,
 				order + mesh_nodes[i * 2],
-				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				order + Q_min(
+					paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
 				alpha, verts);
 		}
 	}
@@ -423,7 +424,7 @@ R_DrawAliasShadow(entity_t *currententity, dmdl_t *paliashdr, int posenum)
 		{
 			R_DrawAliasShadowCommand(currententity,
 				order + mesh_nodes[i * 2],
-				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				order + Q_min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
 				height, lheight);
 		}
 	}

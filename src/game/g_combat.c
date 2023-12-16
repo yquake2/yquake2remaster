@@ -1182,12 +1182,12 @@ T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
 
 				if (dist < 2048)
 				{
-					ent->client->nuke_framenum = max(ent->client->nuke_framenum,
+					ent->client->nuke_framenum = Q_max(ent->client->nuke_framenum,
 							level.framenum + 15);
 				}
 				else
 				{
-					ent->client->nuke_framenum = max(ent->client->nuke_framenum,
+					ent->client->nuke_framenum = Q_max(ent->client->nuke_framenum,
 							level.framenum + 10);
 				}
 			}

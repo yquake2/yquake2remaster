@@ -1251,7 +1251,7 @@ widow2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
-		clipped = min(damage, 100);
+		clipped = Q_min(damage, 100);
 
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
@@ -1704,7 +1704,7 @@ ThrowWidowGibReal(edict_t *self, char *gibname, int damage, int type,
 		gib->velocity[0] *= 2;
 		gib->velocity[1] *= 2;
 		ClipGibVelocity(gib);
-		gib->velocity[2] = max((350 + (random() * 100.0)), gib->velocity[2]);
+		gib->velocity[2] = Q_max((350 + (random() * 100.0)), gib->velocity[2]);
 		gib->gravity = 0.25;
 		gib->touch = widow_gib_touch;
 		gib->owner = self;

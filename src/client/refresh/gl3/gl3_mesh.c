@@ -343,7 +343,8 @@ DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 		{
 			DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
 				order + mesh_nodes[i * 2],
-				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				order + Q_min(paliashdr->num_glcmds,
+					mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
 				shadedots, alpha, colorOnly, verts);
 		}
 	}
@@ -532,7 +533,8 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 		{
 			DrawAliasShadowCommands(
 				order + mesh_nodes[i * 2],
-				order + min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				order + Q_min(
+					paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
 				shadevector, height, lheight);
 		}
 	}
