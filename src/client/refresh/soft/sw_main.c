@@ -43,7 +43,8 @@ pixel_t		*vid_alphamap = NULL;
 light_t		vid_lightthreshold = 0;
 static int	vid_minu, vid_minv, vid_maxu, vid_maxv;
 static int	vid_zminu, vid_zminv, vid_zmaxu, vid_zmaxv;
-static qboolean IsHighDPIaware;
+static qboolean IsHighDPIaware = false;
+static qboolean is_render_flushed = false;
 
 // last position  on map
 static vec3_t	lastvieworg;
@@ -1484,6 +1485,8 @@ RE_BeginFrame( float camera_separation )
 	palette_changed = false;
 	// run without speed optimization
 	fastmoving = false;
+	/* window could redraw */
+	is_render_flushed = false;
 
 	while (r_vsync->modified)
 	{
@@ -2166,11 +2169,24 @@ RE_FlushFrame(int vmin, int vmax)
 	int pitch;
 	Uint32 *pixels;
 
+	if (vmin > vmax)
+	{
+		/* Looks like we already updated everything */
+		return;
+	}
+
+	if (is_render_flushed)
+	{
+		Com_Printf("%s: Render is already flushed\n", __func__);
+		return;
+	}
+
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
 	{
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;
 	}
+
 	if (sw_partialrefresh->value)
 	{
 		RE_CopyFrame (pixels, pitch / sizeof(Uint32), vmin, vmax);
@@ -2196,8 +2212,11 @@ RE_FlushFrame(int vmin, int vmax)
 	swap_current ++;
 	vid_buffer = swap_frames[swap_current&1];
 
-	// All changes flushed
+	/* All changes flushed */
 	VID_NoDamageBuffer();
+
+	/* new draw is not required */
+	is_render_flushed = true;
 }
 
 static void
@@ -2212,6 +2231,13 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 	{
 		/* Not full screen update */
 		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
+		return;
+	}
+
+	if (is_render_flushed)
+	{
+		/* TODO: fix show fps */
+		Com_Printf("%s: Render is already flushed\n", __func__);
 		return;
 	}
 
@@ -2237,6 +2263,8 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
 	SDL_RenderPresent(renderer);
+
+	is_render_flushed = true;
 }
 
 /*
@@ -2255,14 +2283,17 @@ RE_EndFrame (void)
 	{
 		vid_minu = 0;
 	}
+
 	if (vid_minv < 0)
 	{
 		vid_minv = 0;
 	}
+
 	if (vid_maxu > vid_buffer_width)
 	{
 		vid_maxu = vid_buffer_width;
 	}
+
 	if (vid_maxv > vid_buffer_height)
 	{
 		vid_maxv = vid_buffer_height;
