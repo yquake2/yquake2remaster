@@ -326,7 +326,7 @@ RE_Draw_StretchRaw
 =============
 */
 void
-RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
 	image_t	pic;
 	byte	*image_scaled;

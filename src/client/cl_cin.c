@@ -845,15 +845,16 @@ SCR_DrawCinematic(void)
 		return true;
 	}
 
-	if (cin_force43->value)
+	if (cin_force43->value && cin.height && cin.width)
 	{
-		w = viddef.height * 4 / 3;
+		/* Try to left original aspect ratio */
+		w = viddef.height * cin.width / cin.height;
 		if (w > viddef.width)
 		{
 			w = viddef.width;
 		}
 		w &= ~3;
-		h = w * 3 / 4;
+		h = w * cin.height / cin.width;
 		x = (viddef.width - w) / 2;
 		y = (viddef.height - h) / 2;
 	}

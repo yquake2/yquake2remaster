@@ -110,7 +110,10 @@ ResizeSTB(const byte *input_pixels, int input_width, int input_height,
 {
 	if (stbir_resize_uint8_linear(input_pixels, input_width, input_height, 0,
 			       output_pixels, output_width, output_height, 0, STBIR_RGBA))
+	{
 		return true;
+	}
+
 	return false;
 }
 

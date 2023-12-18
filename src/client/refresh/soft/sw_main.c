@@ -211,12 +211,14 @@ int		cachewidth;
 pixel_t		*d_viewbuffer;
 zvalue_t	*d_pzbuffer;
 
-static void RE_BeginFrame( float camera_separation );
+static void RE_BeginFrame(float camera_separation);
 static void Draw_BuildGammaTable(void);
 static void RE_FlushFrame(int vmin, int vmax);
 static void RE_CleanFrame(void);
 static void RE_EndFrame(void);
 static void R_DrawBeam(const entity_t *e);
+static void RE_Draw_StretchDirectRaw(int x, int y, int w, int h,
+	int cols, int rows, const byte *data, int bits);
 
 /*
 ================
@@ -1812,7 +1814,7 @@ GetRefAPI(refimport_t imp)
 	refexport.DrawFill = RE_Draw_Fill;
 	refexport.DrawFadeScreen = RE_Draw_FadeScreen;
 
-	refexport.DrawStretchRaw = RE_Draw_StretchRaw;
+	refexport.DrawStretchRaw = RE_Draw_StretchDirectRaw;
 
 	refexport.Init = RE_Init;
 	refexport.IsVSyncActive = RE_IsVsyncActive;
@@ -2196,6 +2198,45 @@ RE_FlushFrame(int vmin, int vmax)
 
 	// All changes flushed
 	VID_NoDamageBuffer();
+}
+
+static void
+RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+{
+	int pitch;
+	Uint32 *pixels;
+
+	if (bits != 32 || x || y ||
+		w != vid_buffer_width || h != vid_buffer_height ||
+		cols != vid_buffer_width || rows != vid_buffer_height)
+	{
+		/* Not full screen update */
+		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
+		return;
+	}
+
+	/* Full screen update should be faster */
+	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+	{
+		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
+		return;
+	}
+
+	if (pitch != (vid_buffer_width * sizeof(Uint32)))
+	{
+		/* Oops: different texture format? */
+		SDL_UnlockTexture(texture);
+		/* Failback full image convert */
+		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
+		return;
+	}
+
+	memcpy(pixels, data, vid_buffer_width * vid_buffer_height * sizeof(Uint32));
+
+	SDL_UnlockTexture(texture);
+
+	SDL_RenderCopy(renderer, texture, NULL, NULL);
+	SDL_RenderPresent(renderer);
 }
 
 /*
