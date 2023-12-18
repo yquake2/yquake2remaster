@@ -96,7 +96,7 @@ cinavdecode_close(cinavdecode_t *state)
 }
 
 static cinavdecode_t *
-cinavdecode_init(cinavdecode_t *state)
+cinavdecode_init(cinavdecode_t *state, int max_width, int max_height)
 {
 	int ret, i, count;
 
@@ -136,6 +136,7 @@ cinavdecode_init(cinavdecode_t *state)
 			cinavdecode_close(state);
 			return NULL;
 		}
+
 		ret = avcodec_parameters_to_context(codec_ctx, stream->codecpar);
 		if (ret < 0) {
 			/* Set parameters to contex */
@@ -153,16 +154,35 @@ cinavdecode_init(cinavdecode_t *state)
 		{
 			if (codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO)
 			{
+				int width, height;
+
 				codec_ctx->framerate = av_guess_frame_rate(
 					state->demuxer, stream, NULL);
 
+				width = codec_ctx->width;
+				height = codec_ctx->height;
+
+				/* smaller by width */
+				if (width > max_width)
+				{
+					height = height * max_width / width;
+					width = max_width;
+				}
+
+				/* smaller by height */
+				if (height > max_height)
+				{
+					width = width * max_height / height;
+					height = max_height;
+				}
+
 				state->fps = (float)codec_ctx->framerate.num / codec_ctx->framerate.den;
-				state->width = codec_ctx->width;
-				state->height = codec_ctx->height;
+				state->width = width;
+				state->height = height;
 
 				state->swsctx_image = sws_getContext(
 					codec_ctx->width, codec_ctx->height, codec_ctx->pix_fmt,
-					codec_ctx->width, codec_ctx->height, AV_PIX_FMT_RGBA, 0, 0, 0, 0);
+					width, height, AV_PIX_FMT_RGBA, 0, 0, 0, 0);
 			}
 			else
 			{
@@ -249,7 +269,7 @@ cinavdecode_init(cinavdecode_t *state)
  * Rewrite to use callback?
  */
 static cinavdecode_t *
-cinavdecode_open(const char *name)
+cinavdecode_open(const char *name, int max_width, int max_height)
 {
 	cinavdecode_t *state = NULL;
 	int ret;
@@ -265,7 +285,7 @@ cinavdecode_open(const char *name)
 		return NULL;
 	}
 
-	return cinavdecode_init(state);
+	return cinavdecode_init(state, max_width, max_height);
 }
 
 static int
@@ -434,7 +454,7 @@ cinavdecode_parse_next(cinavdecode_t *state)
 				}
 
 				/* RGB stride with single plane */
-				linesize[0] = 4 * state->dec_frame->width;
+				linesize[0] = 4 * state->width;
 				out[0] = state->video_res + state->video_pos;
 
 				ret = sws_scale(state->swsctx_image,

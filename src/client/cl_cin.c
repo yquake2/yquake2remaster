@@ -697,7 +697,7 @@ SCR_LoadAVcodec(const char *arg, const char *dot)
 		}
 
 		Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg, dot);
-		cin.av_video = cinavdecode_open(name);
+		cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
 		if (cin.av_video)
 		{
 			break;
