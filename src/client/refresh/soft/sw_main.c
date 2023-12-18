@@ -2225,9 +2225,14 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 	int pitch;
 	Uint32 *pixels;
 
+	if (!cols || !rows || !data)
+	{
+		return;
+	}
+
 	if (bits != 32 || x || y ||
 		w != vid_buffer_width || h != vid_buffer_height ||
-		cols != vid_buffer_width || rows != vid_buffer_height)
+		cols > vid_buffer_width || rows > vid_buffer_height)
 	{
 		/* Not full screen update */
 		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
@@ -2257,11 +2262,39 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 		return;
 	}
 
-	memcpy(pixels, data, vid_buffer_width * vid_buffer_height * sizeof(Uint32));
+	if (cols == vid_buffer_width && rows == vid_buffer_height)
+	{
+		memcpy(pixels, data, vid_buffer_width * vid_buffer_height * sizeof(Uint32));
+	}
+	else
+	{
+		int i;
+
+		for (i = 0; i < rows; i++)
+		{
+			memcpy(pixels + i * vid_buffer_width,
+				data + i * cols * sizeof(Uint32),
+				cols * sizeof(Uint32)
+			);
+		}
+	}
 
 	SDL_UnlockTexture(texture);
 
-	SDL_RenderCopy(renderer, texture, NULL, NULL);
+	if (cols == vid_buffer_width && rows == vid_buffer_height)
+	{
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
+	}
+	else
+	{
+		SDL_Rect srcrect;
+		srcrect.x = 0;
+		srcrect.y = 0;
+		srcrect.w = cols;
+		srcrect.h = rows;
+		SDL_RenderCopy(renderer, texture, &srcrect, NULL);
+	}
+
 	SDL_RenderPresent(renderer);
 
 	is_render_flushed = true;
