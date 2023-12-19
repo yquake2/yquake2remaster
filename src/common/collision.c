@@ -118,6 +118,9 @@ typedef struct
 
 #define MAX_MOD_KNOWN 8
 
+/* Just empty model for cinematic */
+static model_t empty_model;
+/* Loaded models */
 static model_t models[MAX_MOD_KNOWN];
 static int model_num = 0;
 static model_t *cmod = models;
@@ -2095,8 +2098,9 @@ CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 
 	if (!name[0])
 	{
+		memset(&empty_model, 0, sizeof(empty_model));
 		*checksum = 0;
-		cmod = models;
+		cmod = &empty_model;
 		return &cmod->map_cmodels[0]; /* cinematic servers won't have anything at all */
 	}
 
