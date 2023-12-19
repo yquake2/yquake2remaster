@@ -1857,6 +1857,7 @@ GetRefAPI(refimport_t imp)
 
 static SDL_Window	*window = NULL;
 static SDL_Texture	*texture = NULL;
+static SDL_Texture	*texture_rgba = NULL;
 static SDL_Renderer	*renderer = NULL;
 
 int vid_buffer_height = 0;
@@ -1917,6 +1918,9 @@ RE_InitContext(void *win)
 		vid_buffer_width = vid.width;
 	}
 
+	/* do not create by default buffer for HUD/2D/Direct cinema*/
+	texture_rgba = NULL;
+	/* just buffer for 8bit -> 32bit covert and render */
 	texture = SDL_CreateTexture(renderer,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				    SDL_PIXELFORMAT_BGRA8888,
@@ -2048,6 +2052,12 @@ RE_ShutdownContext(void)
 		SDL_DestroyTexture(texture);
 	}
 	texture = NULL;
+
+	if (texture_rgba)
+	{
+		SDL_DestroyTexture(texture_rgba);
+	}
+	texture_rgba = NULL;
 
 	if (renderer)
 	{
@@ -2246,17 +2256,26 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 		return;
 	}
 
+	if (!texture_rgba)
+	{
+		/* texture for direct rendering */
+		texture_rgba = SDL_CreateTexture(renderer,
+					    SDL_PIXELFORMAT_ABGR8888,
+					    SDL_TEXTUREACCESS_STREAMING,
+					    vid_buffer_width, vid_buffer_height);
+	}
+
 	/* Full screen update should be faster */
-	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+	if (SDL_LockTexture(texture_rgba, NULL, (void**)&pixels, &pitch))
 	{
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;
 	}
 
-	if (pitch != (vid_buffer_width * sizeof(Uint32)))
+	if (pitch < (cols * sizeof(Uint32)))
 	{
 		/* Oops: different texture format? */
-		SDL_UnlockTexture(texture);
+		SDL_UnlockTexture(texture_rgba);
 		/* Failback full image convert */
 		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
 		return;
@@ -2279,11 +2298,11 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 		}
 	}
 
-	SDL_UnlockTexture(texture);
+	SDL_UnlockTexture(texture_rgba);
 
 	if (cols == vid_buffer_width && rows == vid_buffer_height)
 	{
-		SDL_RenderCopy(renderer, texture, NULL, NULL);
+		SDL_RenderCopy(renderer, texture_rgba, NULL, NULL);
 	}
 	else
 	{
@@ -2292,7 +2311,7 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 		srcrect.y = 0;
 		srcrect.w = cols;
 		srcrect.h = rows;
-		SDL_RenderCopy(renderer, texture, &srcrect, NULL);
+		SDL_RenderCopy(renderer, texture_rgba, &srcrect, NULL);
 	}
 
 	SDL_RenderPresent(renderer);
