@@ -117,7 +117,7 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 }
 
 void
-Vk_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
+LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 {
 	int i, lnumverts;
 	medge_t *pedges, *r_pedge;
@@ -203,7 +203,7 @@ Vk_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 }
 
 void
-Vk_CreateSurfaceLightmap(msurface_t *surf)
+LM_CreateSurfaceLightmap(msurface_t *surf)
 {
 	int smax, tmax;
 	byte *base;
@@ -241,7 +241,7 @@ Vk_CreateSurfaceLightmap(msurface_t *surf)
 }
 
 void
-Vk_BeginBuildingLightmaps(model_t *m)
+LM_BeginBuildingLightmaps(model_t *m)
 {
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
 	int i;
@@ -294,7 +294,7 @@ Vk_BeginBuildingLightmaps(model_t *m)
 }
 
 void
-Vk_EndBuildingLightmaps(void)
+LM_EndBuildingLightmaps(void)
 {
 	LM_UploadBlock();
 }

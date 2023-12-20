@@ -240,7 +240,7 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 		}
 		else
 		{
-			// GL3_LM_BuildPolygonFromSurface(out);
+			// LM_BuildPolygonFromSurface(out);
 			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t));
 			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t);
 			polySize = (polySize + 31) & ~31;
@@ -316,7 +316,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 		}
 		else
 		{
-			// GL3_LM_BuildPolygonFromSurface(out);
+			// LM_BuildPolygonFromSurface(out);
 			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t));
 			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t);
 			polySize = (polySize + 31) & ~31;
@@ -355,7 +355,7 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
 
-	GL3_LM_BeginBuildingLightmaps(loadmodel);
+	LM_BeginBuildingLightmaps(loadmodel);
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
@@ -430,16 +430,16 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		/* create lightmaps and polygons */
 		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 		{
-			GL3_LM_CreateSurfaceLightmap(out);
+			LM_CreateSurfaceLightmap(out);
 		}
 
 		if (!(out->texinfo->flags & SURF_WARP))
 		{
-			GL3_LM_BuildPolygonFromSurface(loadmodel, out);
+			LM_BuildPolygonFromSurface(loadmodel, out);
 		}
 	}
 
-	GL3_LM_EndBuildingLightmaps();
+	LM_EndBuildingLightmaps();
 }
 
 static void
@@ -464,7 +464,7 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
 
-	GL3_LM_BeginBuildingLightmaps(loadmodel);
+	LM_BeginBuildingLightmaps(loadmodel);
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
@@ -539,16 +539,16 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		/* create lightmaps and polygons */
 		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 		{
-			GL3_LM_CreateSurfaceLightmap(out);
+			LM_CreateSurfaceLightmap(out);
 		}
 
 		if (!(out->texinfo->flags & SURF_WARP))
 		{
-			GL3_LM_BuildPolygonFromSurface(loadmodel, out);
+			LM_BuildPolygonFromSurface(loadmodel, out);
 		}
 	}
 
-	GL3_LM_EndBuildingLightmaps();
+	LM_EndBuildingLightmaps();
 }
 
 static void
@@ -705,7 +705,7 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
  * Loads in a model for the given name
  */
 static gl3model_t *
-Mod_ForName (const char *name, gl3model_t *parent_model, qboolean crash)
+Mod_ForName(const char *name, gl3model_t *parent_model, qboolean crash)
 {
 	gl3model_t *mod;
 	void *buf;

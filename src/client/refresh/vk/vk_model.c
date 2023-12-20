@@ -279,7 +279,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 
 			// R_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():
-			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(gl3_3D_vtx_t)
+			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
 
 			// this is tricky, how much is allocated depends on the size of the surface
 			// which we don't know (we'd need the vertices etc to know, but we can't load
@@ -337,7 +337,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		lminfos = NULL;
 	}
 
-	Vk_BeginBuildingLightmaps(loadmodel);
+	LM_BeginBuildingLightmaps(loadmodel);
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
@@ -421,16 +421,16 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		/* create lightmaps and polygons */
 		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 		{
-			Vk_CreateSurfaceLightmap(out);
+			LM_CreateSurfaceLightmap(out);
 		}
 
 		if (!(out->texinfo->flags & SURF_WARP))
 		{
-			Vk_BuildPolygonFromSurface(loadmodel, out);
+			LM_BuildPolygonFromSurface(loadmodel, out);
 		}
 	}
 
-	Vk_EndBuildingLightmaps();
+	LM_EndBuildingLightmaps();
 }
 
 static void
@@ -463,7 +463,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		lminfos = NULL;
 	}
 
-	Vk_BeginBuildingLightmaps(loadmodel);
+	LM_BeginBuildingLightmaps(loadmodel);
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
@@ -533,7 +533,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			}
 
 			R_SubdivideSurface(loadmodel->surfedges, loadmodel->vertexes,
-				loadmodel->edges, out);	// cut up polygon for warps
+				loadmodel->edges, out); /* cut up polygon for warps */
 		}
 
 		if (r_fixsurfsky->value)
@@ -547,16 +547,16 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		/* create lightmaps and polygons */
 		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 		{
-			Vk_CreateSurfaceLightmap(out);
+			LM_CreateSurfaceLightmap(out);
 		}
 
 		if (!(out->texinfo->flags & SURF_WARP))
 		{
-			Vk_BuildPolygonFromSurface(loadmodel, out);
+			LM_BuildPolygonFromSurface(loadmodel, out);
 		}
 	}
 
-	Vk_EndBuildingLightmaps();
+	LM_EndBuildingLightmaps();
 }
 
 static void

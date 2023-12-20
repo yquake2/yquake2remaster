@@ -201,7 +201,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));	// extra for skybox
+	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
@@ -310,7 +310,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	}
 
 	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));	// extra for skybox
+	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
@@ -623,7 +623,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	strcpy(mod->name, name);
 
 	/* load the file */
-	modfilelen = Mod_LoadFile (mod->name, &buf);
+	modfilelen = Mod_LoadFile(mod->name, &buf);
 
 	if (!buf)
 	{

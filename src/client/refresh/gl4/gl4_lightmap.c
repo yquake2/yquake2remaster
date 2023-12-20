@@ -33,13 +33,13 @@
 extern gl4lightmapstate_t gl4_lms;
 
 void
-GL4_LM_InitBlock(void)
+LM_InitBlock(void)
 {
 	memset(gl4_lms.allocated, 0, sizeof(gl4_lms.allocated));
 }
 
 void
-GL4_LM_UploadBlock(void)
+LM_UploadBlock(void)
 {
 	int map;
 
@@ -71,7 +71,7 @@ GL4_LM_UploadBlock(void)
  * returns a texture number and the position inside it
  */
 qboolean
-GL4_LM_AllocBlock(int w, int h, int *x, int *y)
+LM_AllocBlock(int w, int h, int *x, int *y)
 {
 	int i, j;
 	int best, best2;
@@ -117,7 +117,7 @@ GL4_LM_AllocBlock(int w, int h, int *x, int *y)
 }
 
 void
-GL4_LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
+LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 {
 	int i, lindex, lnumverts;
 	medge_t *pedges, *r_pedge;
@@ -200,7 +200,7 @@ GL4_LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 }
 
 void
-GL4_LM_CreateSurfaceLightmap(msurface_t *surf)
+LM_CreateSurfaceLightmap(msurface_t *surf)
 {
 	int smax, tmax;
 
@@ -212,12 +212,12 @@ GL4_LM_CreateSurfaceLightmap(msurface_t *surf)
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
-	if (!GL4_LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
+	if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 	{
-		GL4_LM_UploadBlock();
-		GL4_LM_InitBlock();
+		LM_UploadBlock();
+		LM_InitBlock();
 
-		if (!GL4_LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
+		if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
 			Com_Error(ERR_FATAL,
 				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
@@ -231,7 +231,7 @@ GL4_LM_CreateSurfaceLightmap(msurface_t *surf)
 }
 
 void
-GL4_LM_BeginBuildingLightmaps(gl4model_t *m)
+LM_BeginBuildingLightmaps(gl4model_t *m)
 {
 
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
@@ -260,8 +260,8 @@ GL4_LM_BeginBuildingLightmaps(gl4model_t *m)
 }
 
 void
-GL4_LM_EndBuildingLightmaps(void)
+LM_EndBuildingLightmaps(void)
 {
-	GL4_LM_UploadBlock();
+	LM_UploadBlock();
 }
 

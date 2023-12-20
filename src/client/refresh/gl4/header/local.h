@@ -460,13 +460,13 @@ extern void GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride);
 // gl4_lightmap.c
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
-extern void GL4_LM_InitBlock(void);
-extern void GL4_LM_UploadBlock(void);
-extern qboolean GL4_LM_AllocBlock(int w, int h, int *x, int *y);
-extern void GL4_LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa);
-extern void GL4_LM_CreateSurfaceLightmap(msurface_t *surf);
-extern void GL4_LM_BeginBuildingLightmaps(gl4model_t *m);
-extern void GL4_LM_EndBuildingLightmaps(void);
+extern void LM_InitBlock(void);
+extern void LM_UploadBlock(void);
+extern qboolean LM_AllocBlock(int w, int h, int *x, int *y);
+extern void LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa);
+extern void LM_CreateSurfaceLightmap(msurface_t *surf);
+extern void LM_BeginBuildingLightmaps(gl4model_t *m);
+extern void LM_EndBuildingLightmaps(void);
 
 // gl4_warp.c
 extern void GL4_EmitWaterPolys(msurface_t *fa);
