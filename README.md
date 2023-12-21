@@ -10,47 +10,54 @@ https://github.com/yquake2/yquake2
 
 State:
  * GL1:
-   * base1: correct wall light, broken model light
-   * base2: correct wall light, broken model light, broken lift
+   * base1: no known issies
+   * base2: no known issies
    * q64/outpost: no known issies
-   * mguhub: loaded, transparent walls and broken logic for surface fall in next maps
+   * mguhub: loaded, sometimes broken logic for surface fall in next maps
  * GL3/GLES3:
-   * base1: broken wall light, broken model light
-   * base2: broken wall light, broken model light, broken lift
+   * base1: no known issies
+   * base2: no known issies
    * q64/outpost: no known issies
-   * mguhub: loaded, transparent walls and broken logic for surface fall in next maps
+   * mguhub: loaded, sometimes broken logic for surface fall in next maps
+ * GL4:
+   * base1: unchecked
+   * base2: unchecked
+   * q64/outpost: unchecked
+   * mguhub: unchecked
  * SOFT:
-   * base1: broken wall light, broken model light
-   * base2: broken wall light, broken model light, broken lift
+   * base1: broken wall light
+   * base2: broken wall light
    * q64/outpost: no known issies
-   * mguhub: loaded, transparent walls and sky and broken logic for surface fall in next maps
+   * mguhub: broken wall light, sometimes broken logic for surface fall in next maps
  * VK:
-   * base1: correct wall light, broken model light
-   * base2: correct wall light, broken model light, broken lift
+   * base1: no known issies
+   * base2: no known issies
    * q64/outpost: no known issies
-   * mguhub: loaded, transparent walls and broken logic for surface fall in next maps
+   * mguhub: loaded, sometimes broken logic for surface fall in next maps
 
 Monsters:
   * incorrect weapon effect for Shambler
   * incorrect dead animation for Arachnoid
   * broken fire effect for Guardian
 
-Goals (none of it finished):
-  * Single player support,
+Goals (finished):
   * BSPX DECOUPLEDLM light map support (base1),
   * QBSP map format support (mguhub),
+  * RoQ and Theora cinematic videos support.
+  * FM/Heretic 2 model format support,
+  * Cinematic videos support in smk, mpeg, ogv format,
+  * Use ffmpeg for load any video,
+
+Goals (none of it finished):
+  * Single player support,
   * MD5 model support,
   * modified ReRelease game code support with removed KEX only related code,
-  * RoQ and Theora cinematic videos support.
 
 Bonus goals:
   * MDL/Quake1 model format support,
-  * FM/Heretic 2 model format support,
   * Daikatana model/wal/map format support,
-  * Cinematic videos support in smk, mpeg format,
-  * Use ffmpeg for load any video,
   * Load colormap as 24bit color,
-  * Use shared model chache in client code insted reimplemnet in each render,
+  * Use shared model cache in client code insted reimplemnet in each render,
   * Add debug progress loading code.
 
 Not a goal:
