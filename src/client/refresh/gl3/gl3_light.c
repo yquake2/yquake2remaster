@@ -89,7 +89,7 @@ GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 
 	stride -= (smax << 2);
 
-	if (size > 34*34*3)
+	if (size > BLOCK_WIDTH * BLOCK_HEIGHT * 3)
 	{
 		Com_Error(ERR_DROP, "Bad s_blocklights size");
 	}

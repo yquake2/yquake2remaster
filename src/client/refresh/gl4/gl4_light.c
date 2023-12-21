@@ -35,8 +35,8 @@ vec3_t lightspot;
 void
 GL4_PushDlights(void)
 {
-	int i;
 	dlight_t *l;
+	int i;
 
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = gl4_framecount + 1;
@@ -89,7 +89,7 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 
 	stride -= (smax << 2);
 
-	if (size > 34*34*3)
+	if (size > BLOCK_WIDTH * BLOCK_HEIGHT * 3)
 	{
 		Com_Error(ERR_DROP, "Bad s_blocklights size");
 	}

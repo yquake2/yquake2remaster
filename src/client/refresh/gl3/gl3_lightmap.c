@@ -73,13 +73,14 @@ LM_UploadBlock(void)
 qboolean
 LM_AllocBlock(int w, int h, int *x, int *y)
 {
-	int i, j;
-	int best, best2;
+	int i, best;
 
 	best = BLOCK_HEIGHT;
 
 	for (i = 0; i < BLOCK_WIDTH - w; i++)
 	{
+		int		j, best2;
+
 		best2 = 0;
 
 		for (j = 0; j < w; j++)
@@ -119,10 +120,9 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 void
 LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa)
 {
-	int i, lindex, lnumverts;
+	int i, lnumverts;
 	medge_t *pedges, *r_pedge;
 	float *vec;
-	float s, t;
 	mpoly_t *poly;
 	vec3_t total;
 	vec3_t normal;
@@ -152,7 +152,11 @@ LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa)
 
 	for (i = 0; i < lnumverts; i++)
 	{
-		mvtx_t* vert = &poly->verts[i];
+		mvtx_t* vert;
+		float s, t;
+		int lindex;
+
+		vert = &poly->verts[i];
 
 		lindex = currentmodel->surfedges[fa->firstedge + i];
 
@@ -179,13 +183,13 @@ LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa)
 		vert->texCoord[1] = t;
 
 		/* lightmap texture coordinates */
-		s = DotProduct(vec, fa->texinfo->vecs[0]) + fa->texinfo->vecs[0][3];
+		s = DotProduct(vec, fa->lmvecs[0]) + fa->lmvecs[0][3];
 		s -= fa->texturemins[0];
 		s += fa->light_s * (1 << fa->lmshift);
 		s += (1 << fa->lmshift) * 0.5;
 		s /= BLOCK_WIDTH * (1 << fa->lmshift);
 
-		t = DotProduct(vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
+		t = DotProduct(vec, fa->lmvecs[1]) + fa->lmvecs[1][3];
 		t -= fa->texturemins[1];
 		t += fa->light_t * (1 << fa->lmshift);
 		t += (1 << fa->lmshift) * 0.5;
@@ -233,7 +237,6 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 void
 LM_BeginBuildingLightmaps(gl3model_t *m)
 {
-
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
 	int i;
 

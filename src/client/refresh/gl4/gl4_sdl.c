@@ -134,7 +134,7 @@ qboolean GL4_IsVsyncActive(void)
 }
 
 /*
- * Enables or disabes the vsync.
+ * Enables or disables the vsync.
  */
 void GL4_SetVsync(void)
 {

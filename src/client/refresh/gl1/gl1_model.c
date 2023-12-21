@@ -34,11 +34,6 @@ static int	mod_max = 0;
 
 int	registration_sequence;
 
-void LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa);
-void LM_CreateSurfaceLightmap(msurface_t *surf);
-void LM_EndBuildingLightmaps(void);
-void LM_BeginBuildingLightmaps(model_t *m);
-
 //===============================================================================
 
 static qboolean
@@ -130,7 +125,7 @@ static void
 Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
 	dmodel_t *in;
-	model_t	*out;
+	model_t *out;
 	int i, j, count;
 
 	in = (void *)(mod_base + l->fileofs);

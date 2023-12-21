@@ -123,7 +123,7 @@ GL3_Mod_Init(void)
 }
 
 static void
-Mod_LoadSubmodels(gl3model_t *loadmodel, byte *mod_base, lump_t *l)
+Mod_LoadSubmodels(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
 	dmodel_t *in;
 	gl3model_t *out;
@@ -337,7 +337,8 @@ static void
 Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
-	int i, count, surfnum;
+	int i, count, surfnum, lminfosize, lightofs;
+	const dlminfo_t *lminfos;
 	msurface_t *out;
 	dface_t *in;
 
@@ -354,6 +355,13 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
+
+	lminfos = Mod_LoadBSPXFindLump(bspx_header, "DECOUPLED_LM", &lminfosize, mod_base);
+	if (lminfos != NULL && lminfosize / sizeof(dlminfo_t) != loadmodel->numsurfaces) {
+		R_Printf(PRINT_ALL, "%s: [%s] decoupled_lm size %ld does not match surface count %d\n",
+			__func__, loadmodel->name, lminfosize / sizeof(dlminfo_t), loadmodel->numsurfaces);
+		lminfos = NULL;
+	}
 
 	LM_BeginBuildingLightmaps(loadmodel);
 
@@ -396,13 +404,22 @@ Mod_LoadFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		out->texinfo = loadmodel->texinfo + ti;
-		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
-			loadmodel->edges, out);
+		lightofs = Mod_LoadBSPXDecoupledLM(lminfos, surfnum, out);
+		if (lightofs < 0) {
+			memcpy(out->lmvecs, out->texinfo->vecs, sizeof(out->lmvecs));
+			out->lmshift = DEFAULT_LMSHIFT;
+			out->lmvlen[0] = 1.0f;
+			out->lmvlen[1] = 1.0f;
+
+			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out);
+
+			lightofs = in->lightofs;
+		}
 
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
-			out, in->styles, in->lightofs);
+			out, in->styles, lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
@@ -446,7 +463,8 @@ static void
 Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
-	int i, count, surfnum;
+	int i, count, surfnum, lminfosize, lightofs;
+	const dlminfo_t *lminfos;
 	msurface_t *out;
 	dqface_t *in;
 
@@ -463,6 +481,13 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	loadmodel->surfaces = out;
 	loadmodel->numsurfaces = count;
+
+	lminfos = Mod_LoadBSPXFindLump(bspx_header, "DECOUPLED_LM", &lminfosize, mod_base);
+	if (lminfos != NULL && lminfosize / sizeof(dlminfo_t) != loadmodel->numsurfaces) {
+		R_Printf(PRINT_ALL, "%s: [%s] decoupled_lm size %ld does not match surface count %d\n",
+			__func__, loadmodel->name, lminfosize / sizeof(dlminfo_t), loadmodel->numsurfaces);
+		lminfos = NULL;
+	}
 
 	LM_BeginBuildingLightmaps(loadmodel);
 
@@ -505,13 +530,22 @@ Mod_LoadQFaces(gl3model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		out->texinfo = loadmodel->texinfo + ti;
-		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
-			loadmodel->edges, out);
+		lightofs = Mod_LoadBSPXDecoupledLM(lminfos, surfnum, out);
+		if (lightofs < 0) {
+			memcpy(out->lmvecs, out->texinfo->vecs, sizeof(out->lmvecs));
+			out->lmshift = DEFAULT_LMSHIFT;
+			out->lmvlen[0] = 1.0f;
+			out->lmvlen[1] = 1.0f;
+
+			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out);
+
+			lightofs = in->lightofs;
+		}
 
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
-			out, in->styles, in->lightofs);
+			out, in->styles, lightofs);
 
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
