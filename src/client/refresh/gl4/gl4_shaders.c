@@ -36,11 +36,7 @@ CompileShader(GLenum shaderType, const char* shaderSrc, const char* shaderSrc2)
 {
 	GLuint shader = glCreateShader(shaderType);
 
-#ifdef YQ2_GL3_GLES3
-	const char* version = "#version 300 es\nprecision mediump float;\n";
-#else // Desktop GL
 	const char* version = "#version 460\n";
-#endif
 	const char* sources[3] = { version, shaderSrc, shaderSrc2 };
 	int numSources = shaderSrc2 != NULL ? 3 : 2;
 
