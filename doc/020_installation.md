@@ -278,6 +278,7 @@ To compile Yamagi Quake II from source the following dependencies
 * An OpenAL implementation, *openal-soft* is highly recommended.
 * libcurl.
 * SDL 2.0.
+* FFmpeg-6.x.
 
 
 ### Prerequisites on Windows when using MinGW
@@ -291,6 +292,27 @@ The environment can be extracted anywhere. Either the 32 bit version can
 be started through *C:\MSYS2\msys32.exe* or the 64 bit version through
 *C:\MSYS2\msys64.exe*.
 
+Additionally should be installed/updated:
+ * for msys32:
+   * git
+   * make
+   * mingw-w64-i686-curl
+   * mingw-w64-i686-ffmpeg
+   * mingw-w64-i686-gcc
+   * mingw-w64-i686-make
+   * mingw-w64-i686-openal
+   * mingw-w64-i686-SDL2
+   * mingw-w64-i686-vulkan-headers
+ * for msys64:
+   * git
+   * make
+   * mingw-w64-x86_64-curl
+   * mingw-w64-x86_64-ffmpeg
+   * mingw-w64-x86_64-gcc
+   * mingw-w64-x86_64-make
+   * mingw-w64-x86_64-openal
+   * mingw-w64-x86_64-SDL2
+   * mingw-w64-x86_64-vulkan-headers
 
 ### Prerequisites on Unixoid Platforms
 
