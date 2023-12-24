@@ -9,12 +9,7 @@ Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 https://github.com/yquake2/yquake2
 
 State:
- * GL1:
-   * base1: no known issies
-   * base2: no known issies
-   * q64/outpost: no known issies
-   * mguhub: loaded, sometimes broken logic for surface fall in next maps
- * GL3/GLES3:
+ * GL1/GL3/GLES3/VK:
    * base1: no known issies
    * base2: no known issies
    * q64/outpost: no known issies
@@ -29,11 +24,6 @@ State:
    * base2: broken wall light
    * q64/outpost: no known issies
    * mguhub: broken wall light, sometimes broken logic for surface fall in next maps
- * VK:
-   * base1: no known issies
-   * base2: no known issies
-   * q64/outpost: no known issies
-   * mguhub: loaded, sometimes broken logic for surface fall in next maps
 
 Monsters:
   * incorrect weapon effect for Shambler

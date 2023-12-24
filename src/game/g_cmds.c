@@ -1748,7 +1748,8 @@ Cmd_ListEntities_f(edict_t *ent)
 		if (print)
 		{
 			/* We use dprintf() because cprintf() may flood the server... */
-			gi.dprintf("%s: %f %f %f\n", cur->classname, cur->s.origin[0], cur->s.origin[1], cur->s.origin[2]);
+			gi.dprintf("%s: %.3f %.3f %.3f\n",
+				cur->classname, cur->s.origin[0], cur->s.origin[1], cur->s.origin[2]);
 		}
 	}
 }

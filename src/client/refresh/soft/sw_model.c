@@ -107,7 +107,7 @@ Mod_Modellist_f(void)
 			continue;
 		}
 
-		R_Printf(PRINT_ALL, "%8i : %s %s r: %f #%d\n",
+		R_Printf(PRINT_ALL, "%8i : %s %s r: %.2f #%d\n",
 			 mod->extradatasize, mod->name, in_use, mod->radius, mod->numsubmodels);
 		total += mod->extradatasize;
 	}
