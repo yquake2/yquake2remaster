@@ -926,6 +926,7 @@ GAME_OBJS_ = \
 	src/game/monster/turret/turret.o \
 	src/game/monster/widow/widow2.o \
 	src/game/monster/widow/widow.o \
+	src/game/player/chase.o \
 	src/game/player/client.o \
 	src/game/player/hud.o \
 	src/game/player/trail.o \

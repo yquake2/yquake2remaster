@@ -1768,6 +1768,7 @@
 {"ChasePrev", (byte *)ChasePrev},
 {"ChaseNext", (byte *)ChaseNext},
 {"UpdateChaseCam", (byte *)UpdateChaseCam},
+{"ChasecamTrack", (byte *)ChasecamTrack},
 {"ai_run", (byte *)ai_run},
 {"ai_checkattack", (byte *)ai_checkattack},
 {"ai_run_slide", (byte *)ai_run_slide},

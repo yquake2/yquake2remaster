@@ -1044,6 +1044,16 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		return;
 	}
 
+	if (self->client->chasetoggle)
+	{
+		ChasecamRemove(self);
+		self->client->pers.chasetoggle = 1;
+	}
+	else
+	{
+		self->client->pers.chasetoggle = 0;
+	}
+
 	VectorClear(self->avelocity);
 
 	self->takedamage = DAMAGE_YES;
@@ -1278,6 +1288,9 @@ InitClientPersistant(gclient_t *client)
 	client->pers.max_rounds = 100;
 
 	client->pers.connected = true;
+
+	/* Default chasecam to off */
+	client->pers.chasetoggle = 0;
 }
 
 void
@@ -1326,6 +1339,7 @@ SaveClientData(void)
 			continue;
 		}
 
+		game.clients[i].pers.chasetoggle = ent->client->chasetoggle;
 		game.clients[i].pers.health = ent->health;
 		game.clients[i].pers.max_health = ent->max_health;
 		game.clients[i].pers.savedFlags =
@@ -1910,6 +1924,18 @@ respawn(edict_t *self)
 		return;
 	}
 
+	if (self->client->oldplayer)
+	{
+			G_FreeEdict (self->client->oldplayer);
+	}
+	self->client->oldplayer = NULL;
+
+	if (self->client->chasecam)
+	{
+			G_FreeEdict (self->client->chasecam);
+	}
+	self->client->chasecam = NULL;
+
 	if (deathmatch->value || coop->value)
 	{
 		/* spectator's don't leave bodies */
@@ -1990,6 +2016,17 @@ spectator_respawn(edict_t *ent)
 			gi.unicast(ent, true);
 			return;
 		}
+
+		/* Third person view */
+		if (ent->client->chasetoggle)
+		{
+			ChasecamRemove(ent);
+			ent->client->pers.chasetoggle = 1;
+		}
+		else
+		{
+			ent->client->pers.chasetoggle = 0;
+		}
 	}
 	else
 	{
@@ -2057,7 +2094,7 @@ PutClientInServer(edict_t *ent)
 	int index;
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;
-	int i;
+	int i, chasetoggle;
 	client_persistant_t saved;
 	client_respawn_t resp;
 
@@ -2080,6 +2117,7 @@ PutClientInServer(edict_t *ent)
 
 	index = ent - g_edicts - 1;
 	client = ent->client;
+	chasetoggle = client->pers.chasetoggle;
 
 	/* deathmatch wipes most client data every spawn */
 	if (deathmatch->value)
@@ -2120,7 +2158,11 @@ PutClientInServer(edict_t *ent)
 	}
 	else
 	{
+		char userinfo[MAX_INFO_STRING];
+
 		memset(&resp, 0, sizeof(resp));
+		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
+		ClientUserinfoChanged (ent, userinfo);
 	}
 
 	/* clear everything but the persistant data */
@@ -2134,6 +2176,7 @@ PutClientInServer(edict_t *ent)
 	}
 
 	client->resp = resp;
+	client->pers.chasetoggle = chasetoggle;
 
 	/* copy some data from the client to the entity */
 	FetchClientEntData(ent);
@@ -2158,6 +2201,10 @@ PutClientInServer(edict_t *ent)
 	ent->watertype = 0;
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
+	/* Third person view */
+	ent->svflags &= ~SVF_NOCLIENT;
+	/* Turn off prediction */
+	ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 
 	VectorCopy(mins, ent->mins);
 	VectorCopy(maxs, ent->maxs);
@@ -2257,6 +2304,13 @@ PutClientInServer(edict_t *ent)
 	}
 
 	gi.linkentity(ent);
+
+	ent->client->chasetoggle = 0;
+	/* If chasetoggle set then turn on (delayed start of 5 frames - 0.5s) */
+	if (ent->client->pers.chasetoggle && !ent->client->chasetoggle)
+	{
+		ent->client->delayedstart = 5;
+	}
 
 	/* my tribute to cash's level-specific hacks. I hope
 	 *   live up to his trailblazing cheese. */
@@ -2603,6 +2657,11 @@ ClientDisconnect(edict_t *ent)
 		return;
 	}
 
+	if(ent->client->chasetoggle)
+	{
+		ChasecamRemove(ent);
+	}
+
 	gi.bprintf(PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
 
 	if (ctf->value)
@@ -2728,6 +2787,11 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 	if (level.intermissiontime)
 	{
+		if (client->chasetoggle)
+		{
+			ChasecamRemove(ent);
+		}
+
 		client->ps.pmove.pm_type = PM_FREEZE;
 
 		/* can exit intermission after five seconds */
@@ -2738,6 +2802,44 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		}
 
 		return;
+	}
+
+	if (client->chasetoggle)
+	{
+		ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+	}
+	else
+	{
+		ent->client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
+	}
+
+	/* +use now does the cool look around stuff but only in SP games */
+	if ((ucmd->buttons & BUTTON_USE) && (!deathmatch->value))
+	{
+		client->use = 1;
+		if ((ucmd->forwardmove < 0) && (client->zoom < 60))
+		{
+			client->zoom++;
+		}
+		else if ((ucmd->forwardmove > 0) && (client->zoom > -40))
+		{
+			client->zoom--;
+		}
+		ucmd->forwardmove = 0;
+		ucmd->sidemove = 0;
+	}
+	else if (client->use)
+	{
+		if (client->oldplayer)
+		{
+			// set angles
+			for (i=0 ; i<3 ; i++)
+			{
+				ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(
+					ent->client->oldplayer->s.angles[i] - ent->client->resp.cmd_angles[i]);
+			}
+		}
+		client->use = 0;
 	}
 
 	pm_passent = ent;
@@ -2996,6 +3098,16 @@ ClientBeginServerFrame(edict_t *ent)
 	}
 
 	client = ent->client;
+
+	if (client->delayedstart > 0)
+	{
+		client->delayedstart--;
+	}
+
+	if (client->delayedstart == 1)
+	{
+		ChasecamStart(ent);
+	}
 
 	if (deathmatch->value &&
 		(client->pers.spectator != client->resp.spectator) &&

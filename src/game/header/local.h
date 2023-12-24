@@ -1143,6 +1143,7 @@ typedef struct
 	int helpchanged;
 
 	qboolean spectator;         /* client is a spectator */
+	int chasetoggle;       /* Chasetoggle */
 
 	int max_tesla;
 	int max_prox;
@@ -1292,6 +1293,14 @@ struct gclient_s
 	float tracker_pain_framenum;
 
 	edict_t *owned_sphere;          /* this points to the player's sphere */
+
+	/* Third person view */
+	int chasetoggle;
+	edict_t *chasecam;
+	edict_t *oldplayer;
+	int use;
+	int zoom;
+	int delayedstart;
 };
 
 struct edict_s
@@ -1452,6 +1461,10 @@ struct edict_s
 	edict_t *target_hint_chain;
 	int hint_chain_id;
 	float lastMoveTime;
+
+	/* Third person view */
+	int chasedist1;
+	int chasedist2;
 };
 
 #define SPHERE_DEFENDER 0x0001
@@ -1596,6 +1609,7 @@ typedef struct ghost_s
 } ghost_t;
 
 extern cvar_t *ctf;
+extern char *ctf_statusbar;
 
 #define CTF_TEAM1_SKIN "ctf_r"
 #define CTF_TEAM2_SKIN "ctf_b"
@@ -1702,11 +1716,11 @@ qboolean CTFCheckRules(void);
 void SP_misc_ctf_banner(edict_t *ent);
 void SP_misc_ctf_small_banner(edict_t *ent);
 
-extern char *ctf_statusbar;
-
-void UpdateChaseCam(edict_t *ent);
-void ChaseNext(edict_t *ent);
-void ChasePrev(edict_t *ent);
+void Cmd_Chasecam_Toggle(edict_t *ent);
+void ChasecamStart(edict_t *ent);
+void ChasecamRemove(edict_t *ent);
+void CheckChasecam_Viewent(edict_t *ent);
+void ChasecamTrack(edict_t *ent);
 
 void CTFObserver(edict_t *ent);
 

@@ -510,8 +510,16 @@ ChangeWeapon(edict_t *ent)
 
 	ent->client->weaponstate = WEAPON_ACTIVATING;
 	ent->client->ps.gunframe = 0;
-	ent->client->ps.gunindex = gi.modelindex(
-			ent->client->pers.weapon->view_model);
+	/* Don't display weapon if chasetoggle is on */
+	if (ent->client->chasetoggle)
+	{
+		ent->client->ps.gunindex = 0;
+	}
+	else
+	{
+		ent->client->ps.gunindex = gi.modelindex(
+				ent->client->pers.weapon->view_model);
+	}
 
 	ent->client->anim_priority = ANIM_PAIN;
 
@@ -1069,7 +1077,14 @@ weapon_grenade_fire(edict_t *ent, qboolean held)
 		}
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, up);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, up);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, up);
+	}
 
 	if (ent->client->pers.weapon->tag == AMMO_TESLA)
 	{
@@ -1360,7 +1375,16 @@ weapon_grenadelauncher_fire(edict_t *ent)
 	}
 
 	VectorSet(offset, 8, 8, ent->viewheight - 8);
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
+
 	P_ProjectSource(ent, offset, forward, right, start);
 
 	VectorScale(forward, -2, ent->client->kick_origin);
@@ -1377,9 +1401,26 @@ weapon_grenadelauncher_fire(edict_t *ent)
 	}
 
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte(MZ_GRENADE | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast (ent->s.origin, MULTICAST_PVS);
+	}
 
 	ent->client->ps.gunframe++;
 
@@ -1459,7 +1500,14 @@ Weapon_RocketLauncher_Fire(edict_t *ent)
 		radius_damage *= damage_multiplier;
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
 
 	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
@@ -1470,9 +1518,26 @@ Weapon_RocketLauncher_Fire(edict_t *ent)
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte(MZ_ROCKET | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	ent->client->ps.gunframe++;
 
@@ -1531,7 +1596,15 @@ Blaster_Fire(edict_t *ent, vec3_t g_offset, int damage,
 		damage *= damage_multiplier;
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
+
 	VectorSet(offset, 24, 8, ent->viewheight - 8);
 	VectorAdd(offset, g_offset, offset);
 	P_ProjectSource(ent, offset, forward, right, start);
@@ -1543,7 +1616,15 @@ Blaster_Fire(edict_t *ent, vec3_t g_offset, int damage,
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
 
 	if (hyper)
 	{
@@ -1554,7 +1635,14 @@ Blaster_Fire(edict_t *ent, vec3_t g_offset, int damage,
 		gi.WriteByte(MZ_BLASTER | is_silenced);
 	}
 
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+	if (ent->client->oldplayer)
+	{
+		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 }
@@ -1802,7 +1890,15 @@ Machinegun_Fire(edict_t *ent)
 	}
 
 	/* get start / end positions */
-	VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		VectorAdd (ent->client->oldplayer->s.angles, ent->client->kick_angles, angles);
+	}
+	else
+	{
+		VectorAdd(ent->client->v_angle, ent->client->kick_angles, angles);
+	}
+
 	AngleVectors(angles, forward, right, NULL);
 	VectorSet(offset, 0, 8, ent->viewheight - 8);
 	P_ProjectSource(ent, offset, forward, right, start);
@@ -1810,9 +1906,26 @@ Machinegun_Fire(edict_t *ent)
 			DEFAULT_BULLET_VSPREAD, MOD_MACHINEGUN);
 
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte(MZ_MACHINEGUN | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
@@ -1983,7 +2096,15 @@ Chaingun_Fire(edict_t *ent)
 	for (i = 0; i < shots; i++)
 	{
 		/* get start / end positions */
-		AngleVectors(ent->client->v_angle, forward, right, up);
+		if ((ent->client->use) && (ent->client->oldplayer))
+		{
+			AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+		}
+		else
+		{
+			AngleVectors(ent->client->v_angle, forward, right, up);
+		}
+
 		r = 7 + crandom() * 4;
 		u = crandom() * 4;
 		VectorSet(offset, 0, r, u + ent->viewheight - 8);
@@ -1997,9 +2118,26 @@ Chaingun_Fire(edict_t *ent)
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte((MZ_CHAINGUN1 + shots - 1) | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
@@ -2057,7 +2195,14 @@ weapon_shotgun_fire(edict_t *ent)
 		return;
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
 
 	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -2;
@@ -2086,9 +2231,26 @@ weapon_shotgun_fire(edict_t *ent)
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte(MZ_SHOTGUN | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
@@ -2135,7 +2297,14 @@ weapon_supershotgun_fire(edict_t *ent)
 		return;
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
 
 	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -2;
@@ -2149,9 +2318,19 @@ weapon_supershotgun_fire(edict_t *ent)
 		kick *= damage_multiplier;
 	}
 
-	v[PITCH] = ent->client->v_angle[PITCH];
-	v[YAW] = ent->client->v_angle[YAW] - 5;
-	v[ROLL] = ent->client->v_angle[ROLL];
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		v[PITCH] = ent->client->oldplayer->s.angles[PITCH];
+		v[YAW] = ent->client->oldplayer->s.angles[YAW] - 5;
+		v[ROLL] = ent->client->oldplayer->s.angles[ROLL];
+	}
+	else
+	{
+		v[PITCH] = ent->client->v_angle[PITCH];
+		v[YAW] = ent->client->v_angle[YAW] - 5;
+		v[ROLL] = ent->client->v_angle[ROLL];
+	}
+
 	AngleVectors(v, forward, NULL, NULL);
 
 	if (aimfix->value)
@@ -2169,7 +2348,15 @@ weapon_supershotgun_fire(edict_t *ent)
 			DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD,
 			DEFAULT_SSHOTGUN_COUNT / 2, MOD_SSHOTGUN);
 
-	v[YAW] = ent->client->v_angle[YAW] + 5;
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		v[YAW] = ent->client->oldplayer->s.angles[YAW] + 5;
+	}
+	else
+	{
+		v[YAW] = ent->client->v_angle[YAW] + 5;
+	}
+
 	AngleVectors(v, forward, NULL, NULL);
 
 	if (aimfix->value)
@@ -2189,9 +2376,26 @@ weapon_supershotgun_fire(edict_t *ent)
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte(MZ_SSHOTGUN | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
@@ -2263,7 +2467,14 @@ weapon_railgun_fire(edict_t *ent)
 		kick *= damage_multiplier;
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
 
 	VectorScale(forward, -3, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -3;
@@ -2274,9 +2485,26 @@ weapon_railgun_fire(edict_t *ent)
 
 	/* send muzzle flash */
 	gi.WriteByte(svc_muzzleflash);
-	gi.WriteShort(ent - g_edicts);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
 	gi.WriteByte(MZ_RAILGUN | is_silenced);
-	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
 
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
@@ -2342,9 +2570,26 @@ weapon_bfg_fire(edict_t *ent)
 	{
 		/* send muzzle flash */
 		gi.WriteByte(svc_muzzleflash);
-		gi.WriteShort(ent - g_edicts);
+
+		if (ent->client->oldplayer)
+		{
+			gi.WriteShort(ent->client->oldplayer - g_edicts);
+		}
+		else
+		{
+			gi.WriteShort(ent - g_edicts);
+		}
+
 		gi.WriteByte(MZ_BFG | is_silenced);
-		gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+		if (ent->client->oldplayer)
+		{
+			gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+		}
+		else
+		{
+			gi.multicast(ent->s.origin, MULTICAST_PVS);
+		}
 
 		ent->client->ps.gunframe++;
 
@@ -2365,7 +2610,14 @@ weapon_bfg_fire(edict_t *ent)
 		damage *= damage_multiplier;
 	}
 
-	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	if ((ent->client->use) && (ent->client->oldplayer))
+	{
+		AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+	}
+	else
+	{
+		AngleVectors(ent->client->v_angle, forward, right, NULL);
+	}
 
 	VectorScale(forward, -2, ent->client->kick_origin);
 

@@ -401,31 +401,44 @@ SV_CalcViewOffset(edict_t *ent)
 	/* absolutely bound offsets
 	   so the view can never be
 	   outside the player box */
-	if (v[0] < -14)
+	if (!ent->client->chasetoggle)
 	{
-		v[0] = -14;
-	}
-	else if (v[0] > 14)
-	{
-		v[0] = 14;
-	}
+		if (v[0] < -14)
+		{
+			v[0] = -14;
+		}
+		else if (v[0] > 14)
+		{
+			v[0] = 14;
+		}
 
-	if (v[1] < -14)
-	{
-		v[1] = -14;
-	}
-	else if (v[1] > 14)
-	{
-		v[1] = 14;
-	}
+		if (v[1] < -14)
+		{
+			v[1] = -14;
+		}
+		else if (v[1] > 14)
+		{
+			v[1] = 14;
+		}
 
-	if (v[2] < -22)
-	{
-		v[2] = -22;
+		if (v[2] < -22)
+		{
+			v[2] = -22;
+		}
+		else if (v[2] > 30)
+		{
+			v[2] = 30;
+		}
 	}
-	else if (v[2] > 30)
+	else
 	{
-		v[2] = 30;
+		VectorSet (v, 0, 0, 0);
+		if (ent->client->chasecam)
+		{
+			ent->client->ps.pmove.origin[0] = ent->client->chasecam->s.origin[0] * 8;
+			ent->client->ps.pmove.origin[1] = ent->client->chasecam->s.origin[1] * 8;
+			ent->client->ps.pmove.origin[2] = ent->client->chasecam->s.origin[2] * 8;
+		}
 	}
 
 	VectorCopy(v, ent->client->ps.viewoffset);
@@ -557,7 +570,16 @@ SV_CalcBlend(edict_t *ent)
 		ent->client->ps.blend[2] = ent->client->ps.blend[3] = 0;
 
 	/* add for contents */
-	VectorAdd(ent->s.origin, ent->client->ps.viewoffset, vieworg);
+	if (ent->client->chasetoggle)
+	{
+		/* if always on then do shading to camera not player */
+		VectorCopy(ent->client->chasecam->s.origin, vieworg);
+	}
+	else
+	{
+		VectorAdd(ent->s.origin, ent->client->ps.viewoffset, vieworg);
+	}
+
 	contents = gi.pointcontents(vieworg);
 
 	if (contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER))
@@ -1615,5 +1637,10 @@ ClientEndServerFrame(edict_t *ent)
 	{
 		InventoryMessage(ent);
 		gi.unicast(ent, false);
+	}
+
+	if (ent->client->chasetoggle == 1)
+	{
+		CheckChasecam_Viewent(ent);
 	}
 }

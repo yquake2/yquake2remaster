@@ -2255,6 +2255,10 @@ ClientCommand(edict_t *ent)
 	{
 		CTFObserver(ent);
 	}
+	else if (Q_stricmp(cmd, "thirdperson") == 0)
+	{
+		Cmd_Chasecam_Toggle(ent);
+	}
 	else /* anything that doesn't match a command will be a chat */
 	{
 		Cmd_Say_f(ent, false, true);

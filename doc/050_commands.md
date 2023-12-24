@@ -46,3 +46,5 @@ original clients (Vanilla Quake II) commands are still in place.
 * **set** / **seta** / **setu** / **sets**: set cvar valu with different flags.
 
 * **listlights**: Show lights style and dlights list.
+
+* **thirdperson**: Third person view.

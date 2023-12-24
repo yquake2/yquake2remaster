@@ -133,6 +133,9 @@ BeginIntermission(edict_t *targ)
 		{
 			respawn(client);
 		}
+
+		/* Save third person view */
+		client->client->pers.chasetoggle = client->client->chasetoggle;
 	}
 
 	level.intermissiontime = level.time;
@@ -664,7 +667,8 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex("i_help");
 	}
 	else if (((ent->client->pers.hand == CENTER_HANDED) ||
-			  (ent->client->ps.fov > 91)) &&
+			  (ent->client->ps.fov > 91) ||
+			  (ent->client->chasetoggle)) &&
 			 ent->client->pers.weapon)
 	{
 		cvar_t *gun;
