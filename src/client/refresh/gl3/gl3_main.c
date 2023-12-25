@@ -853,7 +853,7 @@ GL3_DrawSpriteModel(entity_t *e, gl3model_t *currentmodel)
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
-	gl3image_t *skin;
+	gl3image_t *skin = NULL;
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */

@@ -47,7 +47,11 @@ R_DrawSprite(entity_t *currententity, const model_t *currentmodel)
 
 	s_psprframe = &s_psprite->frames[currententity->frame];
 
-	skin = currentmodel->skins[currententity->frame];
+	if (currententity->frame < currentmodel->numskins)
+	{
+		skin = currentmodel->skins[currententity->frame];
+	}
+
 	if (!skin)
 	{
 		skin = r_notexture_mip;

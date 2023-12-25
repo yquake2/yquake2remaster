@@ -114,7 +114,9 @@ typedef struct model_s
 	int numlightdata;
 
 	// for alias models and sprites
-	image_t		*skins[MAX_MD2SKINS];
+	struct image_s **skins;
+	int numskins;
+
 	void		*extradata;
 	int		extradatasize;
 

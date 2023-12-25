@@ -167,7 +167,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
-	image_t *skin;
+	image_t *skin = NULL;
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -219,7 +219,11 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
 		VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
 
-	skin = currentmodel->skins[currententity->frame];
+	if (currententity->frame < currentmodel->numskins)
+	{
+		skin = currentmodel->skins[currententity->frame];
+	}
+
 	if (!skin)
 	{
 		skin = r_notexture;

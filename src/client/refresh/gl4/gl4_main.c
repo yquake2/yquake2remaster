@@ -836,7 +836,7 @@ GL4_DrawSpriteModel(entity_t *e, gl4model_t *currentmodel)
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
-	gl4image_t *skin;
+	gl4image_t *skin = NULL;
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */

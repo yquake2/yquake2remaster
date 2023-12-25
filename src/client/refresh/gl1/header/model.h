@@ -90,7 +90,8 @@ typedef struct model_s
 	int numlightdata;
 
 	/* for alias models and skins */
-	image_t *skins[MAX_MD2SKINS];
+	struct image_s **skins;
+	int numskins;
 
 	int extradatasize;
 	void *extradata;

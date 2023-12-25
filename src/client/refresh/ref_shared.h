@@ -322,18 +322,16 @@ typedef struct
 
 /* Shared models func */
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
-extern void *Mod_LoadAliasModel (const char *mod_name, const void *buffer, int modfilelen,
-	vec3_t mins, vec3_t maxs, struct image_s **skins,
+extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
+	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type);
-extern void *Mod_LoadSP2 (const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s **skins, findimage_t find_image, modtype_t *type);
 extern int Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image,
 	void *extradata, modtype_t type);
 extern struct image_s *GetSkyImage(const char *skyname, const char* surfname,
 	qboolean palettedtexture, findimage_t find_image);
 extern struct image_s *GetTexImage(const char *name, findimage_t find_image);
 extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
-extern struct image_s* R_LoadImage(const char *name, const char* namewe, const char *ext,
+extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, qboolean r_retexturing, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
 	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,

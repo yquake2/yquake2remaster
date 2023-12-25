@@ -607,7 +607,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	dmdl_t *paliashdr;
 	float an;
 	vec3_t bbox[8];
-	image_t *skin;
+	image_t *skin = NULL;
 
 	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
@@ -832,18 +832,14 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	}
 	else
 	{
-		if (currententity->skinnum >= MAX_MD2SKINS)
-		{
-			skin = currentmodel->skins[0];
-		}
-		else
+		if (currententity->skinnum < currentmodel->numskins)
 		{
 			skin = currentmodel->skins[currententity->skinnum];
+		}
 
-			if (!skin)
-			{
-				skin = currentmodel->skins[0];
-			}
+		if (!skin)
+		{
+			skin = currentmodel->skins[0];
 		}
 	}
 

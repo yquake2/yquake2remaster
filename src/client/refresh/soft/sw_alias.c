@@ -514,7 +514,8 @@ R_AliasSetupSkin(const entity_t *currententity, const model_t *currentmodel)
 		int skinnum;
 
 		skinnum = currententity->skinnum;
-		if ((skinnum >= s_pmdl->num_skins) || (skinnum < 0))
+		if ((skinnum >= s_pmdl->num_skins) || (skinnum < 0) ||
+			(skinnum >= currentmodel->numskins))
 		{
 			R_Printf(PRINT_ALL, "%s %s: no such skin # %d\n",
 				__func__, currentmodel->name, skinnum);

@@ -1004,7 +1004,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	currententity->angles[PITCH] = -currententity->angles[PITCH];	// sigh.
 	{
 		float model[16];
-		image_t	*skin;
+		image_t *skin = NULL;
 		Mat_Identity(model);
 		R_RotateForEntity (currententity, model);
 
@@ -1012,16 +1012,19 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		// select skin
 		if (currententity->skin)
+		{
 			skin = currententity->skin;	// custom player skin
+		}
 		else
 		{
-			if (currententity->skinnum >= MAX_MD2SKINS)
-				skin = currentmodel->skins[0];
-			else
+			if (currententity->skinnum < currentmodel->numskins)
 			{
 				skin = currentmodel->skins[currententity->skinnum];
-				if (!skin)
-					skin = currentmodel->skins[0];
+			}
+
+			if (!skin)
+			{
+				skin = currentmodel->skins[0];
 			}
 		}
 		if (!skin)

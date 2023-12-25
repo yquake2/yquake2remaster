@@ -648,7 +648,7 @@ GL4_DrawAliasModel(entity_t *entity)
 	vec3_t bbox[8];
 	vec3_t shadelight;
 	vec3_t shadevector;
-	gl4image_t *skin;
+	gl4image_t *skin = NULL;
 	hmm_mat4 origProjViewMat = {0}; // use for left-handed rendering
 	// used to restore ModelView matrix after changing it for this entities position/rotation
 	hmm_mat4 origModelMat = {0};
@@ -872,18 +872,14 @@ GL4_DrawAliasModel(entity_t *entity)
 	}
 	else
 	{
-		if (entity->skinnum >= MAX_MD2SKINS)
-		{
-			skin = model->skins[0];
-		}
-		else
+		if (entity->skinnum < model->numskins)
 		{
 			skin = model->skins[entity->skinnum];
+		}
 
-			if (!skin)
-			{
-				skin = model->skins[0];
-			}
+		if (!skin)
+		{
+			skin = model->skins[0];
 		}
 	}
 
