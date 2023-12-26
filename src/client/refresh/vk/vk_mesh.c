@@ -414,7 +414,7 @@ FIXME: batch lerp all vertexes
 =============
 */
 static void
-Vk_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp, image_t *skin,
+Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp, image_t *skin,
 	float *modelMatrix, int leftHandOffset, int translucentIdx)
 {
 	daliasframe_t *frame, *oldframe;
@@ -483,8 +483,8 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp
 
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
 
 	if (num_mesh_nodes > 0)
 	{
@@ -606,13 +606,13 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 {
 	int i;
 	vec3_t mins, maxs;
-	dmdl_t *paliashdr;
+	dmdx_t *paliashdr;
 	vec3_t vectors[3];
 	vec3_t thismins, oldmins, thismaxs, oldmaxs;
 	daliasframe_t *pframe, *poldframe;
 	vec3_t angles;
 
-	paliashdr = (dmdl_t *)currentmodel->extradata;
+	paliashdr = (dmdx_t *)currentmodel->extradata;
 	if (!paliashdr)
 	{
 		R_Printf(PRINT_ALL, "%s %s: Model is not fully loaded\n",
@@ -766,7 +766,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 	int leftHandOffset = 0;
-	dmdl_t *paliashdr;
+	dmdx_t *paliashdr;
 	float an;
 	float prev_viewproj[16];
 
@@ -788,7 +788,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-	paliashdr = (dmdl_t *)currentmodel->extradata;
+	paliashdr = (dmdx_t *)currentmodel->extradata;
 
 	/* get lighting information */
 	if (currententity->flags &
@@ -1041,8 +1041,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
-		num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
-		mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+		num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
+		mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
 
 		if (num_mesh_nodes > 0)
 		{

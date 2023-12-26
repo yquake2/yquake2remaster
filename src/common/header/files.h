@@ -244,6 +244,30 @@ typedef struct dkm_header_s
 	int ofs_end;           /* end of file */
 } dkm_header_t;
 
+/* Internal model render format */
+typedef struct
+{
+	int skinwidth;
+	int skinheight;
+	int framesize;  /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_st;     /* greater than num_xyz for seams */
+	int num_tris;
+	int num_glcmds; /* dwords in strip/fan command list */
+	int num_frames;
+	int num_meshes;
+
+	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
+	int ofs_st;     /* byte offset from start for stverts */
+	int ofs_tris;   /* offset for dtriangles */
+	int ofs_frames; /* offset for first frame */
+	int ofs_glcmds;
+	int ofs_meshes;
+	int ofs_end;    /* end of file */
+} dmdx_t;
+
 /* .SP2 sprite file format */
 
 #define IDSPRITEHEADER (('2' << 24) + ('S' << 16) + ('D' << 8) + 'I') /* little-endian "IDS2" */

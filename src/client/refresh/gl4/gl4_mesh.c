@@ -43,7 +43,7 @@ static vec4_t s_lerped[MAX_VERTS];
 typedef struct gl4_shadowinfo_s {
 	vec3_t    lightspot;
 	vec3_t    shadevector;
-	dmdl_t*   paliashdr;
+	dmdx_t*   paliashdr;
 	entity_t* entity;
 } gl4_shadowinfo_t;
 
@@ -71,7 +71,7 @@ GL4_ShutdownMeshes(void)
  * Interpolates between two frames and origins
  */
 static void
-DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
+DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 {
 	GLenum type;
 	float l;
@@ -297,7 +297,7 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 	float height = 0, lheight;
 	int count;
 
-	dmdl_t* paliashdr = shadowInfo->paliashdr;
+	dmdx_t* paliashdr = shadowInfo->paliashdr;
 	entity_t* entity = shadowInfo->entity;
 
 	vec3_t shadevector;
@@ -454,7 +454,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 {
 	int i;
 	vec3_t mins, maxs;
-	dmdl_t *paliashdr;
+	dmdx_t *paliashdr;
 	vec3_t vectors[3];
 	vec3_t thismins, oldmins, thismaxs, oldmaxs;
 	daliasframe_t *pframe, *poldframe;
@@ -462,7 +462,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 
 	gl4model_t* model = e->model;
 
-	paliashdr = (dmdl_t *)model->extradata;
+	paliashdr = (dmdx_t *)model->extradata;
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
@@ -607,7 +607,7 @@ void
 GL4_DrawAliasModel(entity_t *entity)
 {
 	int i;
-	dmdl_t *paliashdr;
+	dmdx_t *paliashdr;
 	float an;
 	vec3_t bbox[8];
 	vec3_t shadelight;
@@ -634,7 +634,7 @@ GL4_DrawAliasModel(entity_t *entity)
 	}
 
 	gl4model_t* model = entity->model;
-	paliashdr = (dmdl_t *)model->extradata;
+	paliashdr = (dmdx_t *)model->extradata;
 
 	/* get lighting information */
 	if (entity->flags &

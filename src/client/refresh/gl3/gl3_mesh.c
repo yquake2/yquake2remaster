@@ -43,7 +43,7 @@ static vec4_t s_lerped[MAX_VERTS];
 typedef struct gl3_shadowinfo_s {
 	vec3_t    lightspot;
 	vec3_t    shadevector;
-	dmdl_t*   paliashdr;
+	dmdx_t*   paliashdr;
 	entity_t* entity;
 } gl3_shadowinfo_t;
 
@@ -68,7 +68,7 @@ GL3_ShutdownMeshes(void)
 }
 
 static void
-DrawAliasFrameLerpCommands(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight,
+DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 	int *order, int *order_end, float* shadedots, float alpha, qboolean colorOnly,
 	dtrivertx_t *verts)
 {
@@ -216,7 +216,7 @@ DrawAliasFrameLerpCommands(dmdl_t *paliashdr, entity_t* entity, vec3_t shadeligh
  * Interpolates between two frames and origins
  */
 static void
-DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
+DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 {
 	daliasframe_t *frame, *oldframe;
 	dtrivertx_t *v, *ov, *verts;
@@ -297,8 +297,8 @@ DrawAliasFrameLerp(dmdl_t *paliashdr, entity_t* entity, vec3_t shadelight)
 
 	YQ2_STATIC_ASSERT(sizeof(gl3_alias_vtx_t) == 9*sizeof(GLfloat), "invalid gl3_alias_vtx_t size");
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
 
 	if (num_mesh_nodes > 0)
 	{
@@ -436,7 +436,7 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	int num_mesh_nodes;
 	short *mesh_nodes;
 
-	dmdl_t* paliashdr = shadowInfo->paliashdr;
+	dmdx_t* paliashdr = shadowInfo->paliashdr;
 	entity_t* entity = shadowInfo->entity;
 
 	vec3_t shadevector;
@@ -487,8 +487,8 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 	height = -lheight + 0.1f;
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
+	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
+	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
 
 	if (num_mesh_nodes > 0)
 	{
@@ -514,7 +514,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 {
 	int i;
 	vec3_t mins, maxs;
-	dmdl_t *paliashdr;
+	dmdx_t *paliashdr;
 	vec3_t vectors[3];
 	vec3_t thismins, oldmins, thismaxs, oldmaxs;
 	daliasframe_t *pframe, *poldframe;
@@ -522,7 +522,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 
 	gl3model_t* model = e->model;
 
-	paliashdr = (dmdl_t *)model->extradata;
+	paliashdr = (dmdx_t *)model->extradata;
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
@@ -667,7 +667,7 @@ void
 GL3_DrawAliasModel(entity_t *entity)
 {
 	int i;
-	dmdl_t *paliashdr;
+	dmdx_t *paliashdr;
 	float an;
 	vec3_t bbox[8];
 	vec3_t shadelight;
@@ -694,7 +694,7 @@ GL3_DrawAliasModel(entity_t *entity)
 	}
 
 	gl3model_t* model = entity->model;
-	paliashdr = (dmdl_t *)model->extradata;
+	paliashdr = (dmdx_t *)model->extradata;
 
 	/* get lighting information */
 	if (entity->flags &

@@ -43,7 +43,7 @@ static vec3_t		r_shadelight;
 
 
 static daliasframe_t	*r_thisframe, *r_lastframe;
-static dmdl_t	*s_pmdl;
+static dmdx_t	*s_pmdl;
 
 static float	aliastransform[3][4];
 static float	aliasworldtransform[3][4];
@@ -645,7 +645,7 @@ R_AliasSetupFrames
 =================
 */
 static void
-R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, dmdl_t *pmdl)
+R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, dmdx_t *pmdl)
 {
 	int thisframe = currententity->frame;
 	int lastframe = currententity->oldframe;
@@ -676,7 +676,7 @@ R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, d
 ** Precomputes lerp coefficients used for the whole frame.
 */
 static void
-R_AliasSetUpLerpData(entity_t *currententity, dmdl_t *pmdl, float backlerp)
+R_AliasSetUpLerpData(entity_t *currententity, dmdx_t *pmdl, float backlerp)
 {
 	float	frontlerp;
 	vec3_t	translation, vectors[3];
@@ -732,7 +732,7 @@ R_AliasDrawModel
 void
 R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel)
 {
-	s_pmdl = (dmdl_t *)currentmodel->extradata;
+	s_pmdl = (dmdx_t *)currentmodel->extradata;
 
 	if ( r_lerpmodels->value == 0 )
 		currententity->backlerp = 0;
