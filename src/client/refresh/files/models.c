@@ -79,11 +79,11 @@ Mod_LoadCmdList (const char *mod_name, dmdl_t *pheader, int *pincmd)
 =================
 Mod_LoadFrames
 
-Load the frames
+Load the Quake2 md2 default format frames
 =================
 */
 static void
-Mod_LoadFrames (dmdl_t *pheader, byte *src, vec3_t translate)
+Mod_LoadFrames_MD2(dmdl_t *pheader, byte *src, vec3_t translate)
 {
 	int i;
 
@@ -220,11 +220,11 @@ Mod_LoadDKMCmdList (const char *mod_name, dmdl_t *pheader, int *pincmd)
 =================
 Mod_DkmLoadFrames
 
-Load the Dkm v2 frames
+Load the DKM v2 frames
 =================
 */
 static void
-Mod_LoadDkmFrames (dmdl_t *pheader, const byte *src, size_t infamesize, vec3_t translate)
+Mod_LoadFrames_DKM2(dmdl_t *pheader, const byte *src, size_t infamesize, vec3_t translate)
 {
 	int i;
 
@@ -271,11 +271,11 @@ Mod_LoadDkmFrames (dmdl_t *pheader, const byte *src, size_t infamesize, vec3_t t
 
 /*
 =================
-Mod_LoadMDL
+Mod_LoadModel_MDL
 =================
 */
 static void *
-Mod_LoadMDL(const char *mod_name, const void *buffer, int modfilelen,
+Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type)
 {
@@ -577,11 +577,11 @@ Mod_LoadMDL(const char *mod_name, const void *buffer, int modfilelen,
 
 /*
 =================
-Mod_LoadMD2
+Mod_LoadModel_MD2
 =================
 */
 static void *
-Mod_LoadMD2(const char *mod_name, const void *buffer, int modfilelen,
+Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type)
 {
@@ -687,7 +687,7 @@ Mod_LoadMD2(const char *mod_name, const void *buffer, int modfilelen,
 	//
 	// load the frames
 	//
-	Mod_LoadFrames (pheader, (byte *)pinmodel + pheader->ofs_frames, translate);
+	Mod_LoadFrames_MD2(pheader, (byte *)pinmodel + pheader->ofs_frames, translate);
 
 	//
 	// load the glcmds
@@ -721,11 +721,11 @@ Mod_LoadMD2(const char *mod_name, const void *buffer, int modfilelen,
 
 /*
 =============
-Mod_LoadFlexModel
+Mod_LoadModel_Flex
 =============
 */
 static void *
-Mod_LoadFlexModel(const char *mod_name, const void *buffer, int modfilelen,
+Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type)
 {
@@ -910,7 +910,7 @@ Mod_LoadFlexModel(const char *mod_name, const void *buffer, int modfilelen,
 					return NULL;
 				}
 
-				Mod_LoadFrames (pheader, (byte *)src, translate);
+				Mod_LoadFrames_MD2(pheader, (byte *)src, translate);
 			}
 			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
 			{
@@ -1009,7 +1009,7 @@ Mod_LoadFlexModel(const char *mod_name, const void *buffer, int modfilelen,
 }
 
 static void *
-Mod_LoadDKMModel(const char *mod_name, const void *buffer, int modfilelen,
+Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type)
 {
@@ -1095,12 +1095,12 @@ Mod_LoadDKMModel(const char *mod_name, const void *buffer, int modfilelen,
 		(int *)((byte *)buffer + header.ofs_glcmds));
 	if (header.version == DKM1_VERSION)
 	{
-		Mod_LoadFrames (pheader, (byte *)buffer + header.ofs_frames,
+		Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
 			header.translate);
 	}
 	else
 	{
-		Mod_LoadDkmFrames (pheader, (byte *)buffer + header.ofs_frames,
+		Mod_LoadFrames_DKM2(pheader, (byte *)buffer + header.ofs_frames,
 			header.framesize, header.translate);
 	}
 
@@ -1128,13 +1128,13 @@ Mod_LoadDKMModel(const char *mod_name, const void *buffer, int modfilelen,
 
 /*
 =================
-Mod_LoadSP2
+Mod_LoadSprite_SP2
 
 support for .sp2 sprites
 =================
 */
 static void *
-Mod_LoadSP2 (const char *mod_name, const void *buffer, int modfilelen,
+Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type)
 {
@@ -1198,23 +1198,23 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	switch (LittleLong(*(unsigned *)buffer))
 	{
 		case DKMHEADER:
-			return Mod_LoadDKMModel(mod_name, buffer, modfilelen, mins, maxs,
+			return Mod_LoadModel_DKM(mod_name, buffer, modfilelen, mins, maxs,
 				skins, numskins, find_image, type);
 
 		case RAVENFMHEADER:
-			return Mod_LoadFlexModel(mod_name, buffer, modfilelen, mins, maxs,
+			return Mod_LoadModel_Flex(mod_name, buffer, modfilelen, mins, maxs,
 				skins, numskins, find_image, type);
 
 		case IDALIASHEADER:
-			return Mod_LoadMD2(mod_name, buffer, modfilelen, mins, maxs,
+			return Mod_LoadModel_MD2(mod_name, buffer, modfilelen, mins, maxs,
 				skins, numskins, find_image, type);
 
 		case IDMDLHEADER:
-			return Mod_LoadMDL(mod_name, buffer, modfilelen, mins, maxs,
+			return Mod_LoadModel_MDL(mod_name, buffer, modfilelen, mins, maxs,
 				skins, numskins, find_image, type);
 
 		case IDSPRITEHEADER:
-			return Mod_LoadSP2(mod_name, buffer, modfilelen,
+			return Mod_LoadSprite_SP2(mod_name, buffer, modfilelen,
 				skins, numskins, find_image, type);
 	}
 
@@ -1234,9 +1234,19 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 	if (!strcmp(ext, "fm") ||
 		!strcmp(ext, "dkm") ||
 		!strcmp(ext, "md2") ||
+		!strcmp(ext, "md5mesh") ||
 		!strcmp(ext, "mdl"))
 	{
 		int filesize;
+
+		/* Check ReRelease / Doom 3 / Quake 4 model */
+		Q_strlcpy(newname, namewe, sizeof(newname));
+		Q_strlcat(newname, ".md5mesh", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
 
 		/* Check Heretic2 model */
 		Q_strlcpy(newname, namewe, sizeof(newname));

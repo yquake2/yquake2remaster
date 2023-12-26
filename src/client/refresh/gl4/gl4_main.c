@@ -1084,7 +1084,8 @@ GL4_DrawEntitiesOnList(void)
 					GL4_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					Com_Error(ERR_DROP, "Bad modeltype");
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -1130,7 +1131,8 @@ GL4_DrawEntitiesOnList(void)
 					GL4_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					Com_Error(ERR_DROP, "Bad modeltype");
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
 					break;
 			}
 		}
