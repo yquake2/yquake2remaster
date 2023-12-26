@@ -1362,6 +1362,24 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 			return filesize;
 		}
 
+		/* Check ReRelease / Doom 3/ Quake 4 model overwrite */
+		{
+			const char *model_name;
+			char model_path[256];
+
+			model_name = COM_SkipPath(namewe);
+			memset(model_path, 0, sizeof(model_path));
+			memcpy(model_path, namewe, strlen(namewe) - strlen(model_name));
+
+			Q_strlcpy(newname, model_path, sizeof(newname));
+			Q_strlcat(newname, "md5/", sizeof(newname));
+			Q_strlcat(newname, model_name, sizeof(newname));
+			Q_strlcat(newname, ".md5mesh", sizeof(newname));
+
+			R_Printf(PRINT_ALL, "%s: MD5 file should be loaded from %s\n",
+				__func__, newname);
+		}
+
 		/* Check Heretic2 model */
 		Q_strlcpy(newname, namewe, sizeof(newname));
 		Q_strlcat(newname, ".fm", sizeof(newname));
