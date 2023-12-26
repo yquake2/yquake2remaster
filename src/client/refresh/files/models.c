@@ -1239,6 +1239,34 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 /*
 =================
+Mod_LoadModel_MD5
+=================
+*/
+static void *
+Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
+	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
+	findimage_t find_image, modtype_t *type)
+{
+	dmdl_t *pheader = NULL;
+	void *extradata = NULL;
+
+	*numskins = 0;
+	extradata = Hunk_Begin(1024 + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	pheader = Hunk_Alloc(1024);
+
+	*type = mod_md5;
+
+	mins[0] = -32;
+	mins[1] = -32;
+	mins[2] = -32;
+	maxs[0] = 32;
+	maxs[1] = 32;
+	maxs[2] = 32;
+
+	return extradata;
+}
+/*
+=================
 Mod_LoadSprite_SP2
 
 support for .sp2 sprites
@@ -1320,6 +1348,10 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen, mins, maxs,
 				skins, numskins, type);
 			break;
+
+		case IDMD5HEADER:
+			return Mod_LoadModel_MD5(mod_name, buffer, modfilelen, mins, maxs,
+				skins, numskins, find_image, type);
 
 		case IDSPRITEHEADER:
 			extradata = Mod_LoadSprite_SP2(mod_name, buffer, modfilelen,

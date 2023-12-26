@@ -73,7 +73,8 @@ typedef enum
 	mod_bad,
 	mod_brush,
 	mod_sprite,
-	mod_alias
+	mod_alias,
+	mod_md5
 } modtype_t;
 
 typedef enum
