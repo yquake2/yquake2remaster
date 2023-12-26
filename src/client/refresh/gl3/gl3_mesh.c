@@ -229,7 +229,7 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	float frontlerp = 1.0 - backlerp;
 	float *lerp;
 	int num_mesh_nodes;
-	short *mesh_nodes;
+	dmdxmesh_t *mesh_nodes;
 	// draw without texture? used for quad damage effect etc, I think
 	qboolean colorOnly = 0 != (entity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
@@ -297,8 +297,8 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 
 	YQ2_STATIC_ASSERT(sizeof(gl3_alias_vtx_t) == 9*sizeof(GLfloat), "invalid gl3_alias_vtx_t size");
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
+	num_mesh_nodes = paliashdr->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 	if (num_mesh_nodes > 0)
 	{
@@ -306,9 +306,9 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
-				order + mesh_nodes[i * 2],
+				order + mesh_nodes[i].start,
 				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+					mesh_nodes[i].start + mesh_nodes[i].num),
 				shadedots, alpha, colorOnly, verts);
 		}
 	}
@@ -434,7 +434,7 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	int *order;
 	float height = 0, lheight;
 	int num_mesh_nodes;
-	short *mesh_nodes;
+	dmdxmesh_t *mesh_nodes;
 
 	dmdx_t* paliashdr = shadowInfo->paliashdr;
 	entity_t* entity = shadowInfo->entity;
@@ -487,8 +487,8 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 	height = -lheight + 0.1f;
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
+	num_mesh_nodes = paliashdr->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 	if (num_mesh_nodes > 0)
 	{
@@ -496,9 +496,9 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			DrawAliasShadowCommands(
-				order + mesh_nodes[i * 2],
-				order + Q_min(
-					paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				order + mesh_nodes[i].start,
+				order + Q_min(paliashdr->num_glcmds,
+					mesh_nodes[i].start + mesh_nodes[i].num),
 				shadevector, height, lheight);
 		}
 	}

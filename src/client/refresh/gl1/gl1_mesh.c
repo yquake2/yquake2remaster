@@ -187,7 +187,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp)
 	int i;
 	float *lerp;
 	int num_mesh_nodes;
-	short *mesh_nodes;
+	dmdxmesh_t *mesh_nodes;
 	qboolean colorOnly = 0 != (currententity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 			 RF_SHELL_HALF_DAM));
@@ -243,8 +243,8 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp)
 
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
+	num_mesh_nodes = paliashdr->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 	if (num_mesh_nodes > 0)
 	{
@@ -252,9 +252,9 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp)
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			R_DrawAliasDrawCommands(currententity,
-				order + mesh_nodes[i * 2],
+				order + mesh_nodes[i].start,
 				order + Q_min(
-					paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+					paliashdr->num_glcmds, mesh_nodes[i].start + mesh_nodes[i].num),
 				alpha, verts);
 		}
 	}
@@ -360,7 +360,7 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum)
 	int *order;
 	float height = 0, lheight;
 	int num_mesh_nodes;
-	short *mesh_nodes;
+	dmdxmesh_t *mesh_nodes;
 
 	lheight = currententity->origin[2] - lightspot[2];
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
@@ -374,8 +374,8 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum)
 		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 	}
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
+	num_mesh_nodes = paliashdr->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 	if (num_mesh_nodes > 0)
 	{
@@ -383,8 +383,8 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum)
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			R_DrawAliasShadowCommand(currententity,
-				order + mesh_nodes[i * 2],
-				order + Q_min(paliashdr->num_glcmds, mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+				order + mesh_nodes[i].start,
+				order + Q_min(paliashdr->num_glcmds, mesh_nodes[i].start + mesh_nodes[i].num),
 				height, lheight);
 		}
 	}

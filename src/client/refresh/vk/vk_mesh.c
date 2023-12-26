@@ -427,7 +427,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	int i;
 	float *lerp;
 	int num_mesh_nodes;
-	short *mesh_nodes;
+	dmdxmesh_t *mesh_nodes;
 	qboolean colorOnly = 0 != (currententity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 			 RF_SHELL_HALF_DAM));
@@ -483,8 +483,8 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
 
-	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
-	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
+	num_mesh_nodes = paliashdr->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 	if (num_mesh_nodes > 0)
 	{
@@ -492,9 +492,9 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			Vk_DrawAliasFrameLerpCommands(currententity,
-				order + mesh_nodes[i * 2],
+				order + mesh_nodes[i].start,
 				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+					mesh_nodes[i].start + mesh_nodes[i].num),
 				alpha, skin,
 				modelMatrix, leftHandOffset, translucentIdx, verts);
 		}
@@ -1032,7 +1032,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	if (vk_shadows->value && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL)))
 	{
 		int num_mesh_nodes;
-		short *mesh_nodes;
+		dmdxmesh_t *mesh_nodes;
 		float model[16];
 		int *order;
 
@@ -1041,8 +1041,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
-		num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdx_t)) / sizeof(short) / 2;
-		mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdx_t));
+		num_mesh_nodes = paliashdr->num_meshes;
+		mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 		if (num_mesh_nodes > 0)
 		{
@@ -1050,9 +1050,9 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			for (i = 0; i < num_mesh_nodes; i++)
 			{
 				Vk_DrawAliasShadow (
-					order + mesh_nodes[i * 2],
+					order + mesh_nodes[i].start,
 					order + Q_min(paliashdr->num_glcmds,
-						mesh_nodes[i * 2] + mesh_nodes[i * 2 + 1]),
+						mesh_nodes[i].start + mesh_nodes[i].num),
 					currententity->frame, model, currententity);
 			}
 		}

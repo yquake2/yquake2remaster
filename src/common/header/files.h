@@ -245,6 +245,13 @@ typedef struct dkm_header_s
 } dkm_header_t;
 
 /* Internal model render format */
+
+typedef struct
+{
+	short start;
+	short num;
+} dmdxmesh_t;
+
 typedef struct
 {
 	int skinwidth;

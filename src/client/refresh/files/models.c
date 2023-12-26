@@ -801,9 +801,11 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			dmdxheader.num_tris = LittleLong(header->num_tris);
 			dmdxheader.num_glcmds = LittleLong(header->num_glcmds);
 			dmdxheader.num_frames = LittleLong(header->num_frames);
+			dmdxheader.num_meshes = LittleLong(header->num_mesh_nodes);
 
 			// just skip header and meshes
-			dmdxheader.ofs_skins = sizeof(dmdxheader) + sizeof(short) * 2 * LittleLong(header->num_mesh_nodes);
+			dmdxheader.ofs_meshes = sizeof(dmdxheader);
+			dmdxheader.ofs_skins = dmdxheader.ofs_meshes + sizeof(dmdxmesh_t) * dmdxheader.num_meshes;
 			dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
 			dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
 			dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
@@ -974,11 +976,11 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 
 				if (num_mesh_nodes > 0)
 				{
-					short *mesh_nodes;
+					dmdxmesh_t *mesh_nodes;
 					char *in_mesh = src;
 					int i;
 
-					mesh_nodes = (short *)((char*)pheader + sizeof(*pheader));
+					mesh_nodes = (dmdxmesh_t *)((char*)pheader + sizeof(*pheader));
 					for (i = 0; i < num_mesh_nodes; i++)
 					{
 						/* 256 bytes of tri data */
@@ -986,9 +988,9 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 						/* 2 bytes of start */
 						/* 2 bytes of number commands */
 						in_mesh += 512;
-						mesh_nodes[i * 2] = LittleShort(*(short *)in_mesh);
+						mesh_nodes[i].start = LittleShort(*(short *)in_mesh);
 						in_mesh += 2;
-						mesh_nodes[i * 2 + 1] = LittleShort(*(short *)in_mesh);
+						mesh_nodes[i].num = LittleShort(*(short *)in_mesh);
 						in_mesh += 2;
 					}
 				}
