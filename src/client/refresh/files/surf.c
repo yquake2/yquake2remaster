@@ -41,10 +41,14 @@ R_TextureAnimation(const entity_t *currententity, const mtexinfo_t *tex)
 	int c;
 
 	if (!tex->next)
+	{
 		return tex->image;
+	}
 
 	if (!currententity)
+	{
 		return tex->image;
+	}
 
 	c = currententity->frame % tex->numframes;
 	while (c && tex)
@@ -63,12 +67,16 @@ R_AreaVisible(const byte *areabits, mleaf_t *pleaf)
 
 	// check for door connected areas
 	if (!areabits)
+	{
 		return true;
+	}
 
 	area = pleaf->area;
 
 	if ((areabits[area >> 3] & (1 << (area & 7))))
+	{
 		return true;
+	}
 
 	return false; // not visible
 }

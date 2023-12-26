@@ -29,10 +29,6 @@
 #define NUMVERTEXNORMALS 162
 #define SHADEDOT_QUANT 16
 
-static float r_avertexnormals[NUMVERTEXNORMALS][3] = {
-#include "../constants/anorms.h"
-};
-
 /* precalculated dot products for quantized angles */
 static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
@@ -43,41 +39,6 @@ static vec4_t s_lerped[MAX_VERTS];
 vec3_t shadevector;
 float shadelight[3];
 float *shadedots = r_avertexnormal_dots[0];
-
-static void
-R_LerpVerts(entity_t *currententity, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
-		dtrivertx_t *verts, float *lerp, const float move[3],
-		const float frontv[3], const float backv[3])
-{
-	int i;
-
-	if (currententity->flags &
-		(RF_SHELL_RED | RF_SHELL_GREEN |
-		 RF_SHELL_BLUE | RF_SHELL_DOUBLE |
-		 RF_SHELL_HALF_DAM))
-	{
-		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
-		{
-			float *normal = r_avertexnormals[verts[i].lightnormalindex];
-
-			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0] +
-					  normal[0] * POWERSUIT_SCALE;
-			lerp[1] = move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1] +
-					  normal[1] * POWERSUIT_SCALE;
-			lerp[2] = move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2] +
-					  normal[2] * POWERSUIT_SCALE;
-		}
-	}
-	else
-	{
-		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
-		{
-			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0];
-			lerp[1] = move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1];
-			lerp[2] = move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2];
-		}
-	}
-}
 
 static void
 R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
@@ -227,6 +188,9 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 	float *lerp;
 	int num_mesh_nodes;
 	short *mesh_nodes;
+	qboolean colorOnly = 0 != (currententity->flags &
+			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
+			 RF_SHELL_HALF_DAM));
 
 	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
@@ -247,9 +211,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 		alpha = 1.0;
 	}
 
-	if (currententity->flags &
-		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
-		 RF_SHELL_HALF_DAM))
+	if (colorOnly)
 	{
 		glDisable(GL_TEXTURE_2D);
 	}
@@ -279,7 +241,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 
 	lerp = s_lerped[0];
 
-	R_LerpVerts(currententity, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
 
 	num_mesh_nodes = (paliashdr->ofs_skins - sizeof(dmdl_t)) / sizeof(short) / 2;
 	mesh_nodes = (short *)((char*)paliashdr + sizeof(dmdl_t));
@@ -303,9 +265,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdl_t *paliashdr, float backlerp)
 			alpha, verts);
 	}
 
-	if (currententity->flags &
-		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE |
-		 RF_SHELL_DOUBLE | RF_SHELL_HALF_DAM))
+	if (colorOnly)
 	{
 		glEnable(GL_TEXTURE_2D);
 	}

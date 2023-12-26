@@ -376,6 +376,11 @@ extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 extern void R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *fa);
 
+/* Mesh logic */
+extern void R_LerpVerts(qboolean powerUpEffect, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
+		dtrivertx_t *verts, float *lerp, const float move[3],
+		const float frontv[3], const float backv[3]);
+
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
