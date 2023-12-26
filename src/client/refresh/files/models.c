@@ -283,11 +283,13 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	int		version;
 	dmdx_t		*pheader;
 	void	*extradata;
+	dmdxmesh_t *mesh_nodes;
+
 
 	/* local copy of all values */
 	int skinwidth, skinheight, framesize;
-	int num_skins, num_xyz, num_st, num_tris, num_glcmds, num_frames;
-	int ofs_skins, ofs_st, ofs_tris, ofs_frames, ofs_glcmds, ofs_end;
+	int num_meshes, num_skins, num_xyz, num_st, num_tris, num_glcmds, num_frames;
+	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_frames, ofs_glcmds, ofs_end;
 
 	pinmodel = (mdl_header_t *)buffer;
 
@@ -300,6 +302,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	}
 
 	/* generate all offsets and sizes */
+	num_meshes = 1;
 	num_skins = LittleLong(pinmodel->num_skins);
 	skinwidth = LittleLong(pinmodel->skinwidth);
 	skinheight = LittleLong(pinmodel->skinheight);
@@ -313,7 +316,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	num_frames = LittleLong(pinmodel->num_frames);
 	framesize = sizeof(daliasframe_t) + sizeof (dtrivertx_t) * (num_xyz - 1);
 
-	ofs_skins = sizeof(*pheader); // just skip header and go
+	ofs_meshes = sizeof(*pheader); // just skip header and go
+	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
 	ofs_st = ofs_skins + num_skins * MAX_SKINNAME;
 	ofs_tris = ofs_st + num_st * sizeof(dstvert_t);
 	ofs_glcmds = ofs_tris + num_tris * sizeof(dtriangle_t);
@@ -381,6 +385,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->skinheight = skinheight;
 	pheader->framesize = framesize;
 
+	pheader->num_meshes = num_meshes;
 	pheader->num_skins = num_skins;
 	pheader->num_xyz = num_xyz;
 	pheader->num_st = num_st;
@@ -388,12 +393,18 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_glcmds = num_glcmds;
 	pheader->num_frames = num_frames;
 
+	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
 	pheader->ofs_st = ofs_st;
 	pheader->ofs_tris = ofs_tris;
 	pheader->ofs_frames = ofs_frames;
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
+
+	/* create single mesh */
+	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
+	mesh_nodes[0].start = 0;
+	mesh_nodes[0].num = num_glcmds;
 
 	{
 		int i;
@@ -410,7 +421,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			char *out_pos;
 			int skin_type;
 
-			out_pos = (char*)pheader + sizeof(*pheader);
+			out_pos = (char*)pheader + pheader->ofs_skins;
 			snprintf(out_pos + MAX_SKINNAME * i, MAX_SKINNAME, "%s#%d.tga", mod_name, i);
 
 			/* skip type / int */
@@ -588,12 +599,13 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	dmdx_t		*pheader;
 	dtriangle_t	*pintri;
 	dstvert_t	*pinst;
+	dmdxmesh_t *mesh_nodes;
 	int		*pincmd, header_diff;
 	void	*extradata;
 	int		i;
 
 	/* fix for offset */
-	header_diff = sizeof(*pheader) - sizeof(pinmodel);
+	header_diff = sizeof(*pheader) - sizeof(pinmodel) + sizeof(dmdxmesh_t);
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -639,21 +651,26 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->skinheight = pinmodel.skinheight;
 	pheader->framesize = pinmodel.framesize;
 
+	pheader->num_meshes = 1;
 	pheader->num_skins = pinmodel.num_skins;
 	pheader->num_xyz = pinmodel.num_xyz;
 	pheader->num_st = pinmodel.num_st;
 	pheader->num_tris = pinmodel.num_tris;
 	pheader->num_glcmds = pinmodel.num_glcmds;
 	pheader->num_frames = pinmodel.num_frames;
-	pheader->num_meshes = 0;
 
-	pheader->ofs_skins = header_diff + pinmodel.ofs_skins;
-	pheader->ofs_st = header_diff + pinmodel.ofs_st;
-	pheader->ofs_tris = header_diff + pinmodel.ofs_tris;
-	pheader->ofs_frames = header_diff + pinmodel.ofs_frames;
-	pheader->ofs_glcmds = header_diff + pinmodel.ofs_glcmds;
-	pheader->ofs_meshes = 0;
-	pheader->ofs_end = header_diff + pinmodel.ofs_end;
+	pheader->ofs_meshes = sizeof(*pheader); // just skip header and go
+	pheader->ofs_skins = pheader->ofs_meshes + pheader->num_meshes * sizeof(dmdxmesh_t);
+	pheader->ofs_st = pheader->ofs_skins + pheader->num_skins * MAX_SKINNAME;
+	pheader->ofs_tris = pheader->ofs_st + pheader->num_st * sizeof(dstvert_t);
+	pheader->ofs_glcmds = pheader->ofs_tris + pheader->num_tris * sizeof(dtriangle_t);
+	pheader->ofs_frames = pheader->ofs_glcmds + pheader->num_glcmds * sizeof(int);
+	pheader->ofs_end = pheader->ofs_frames + pheader->framesize * pheader->num_frames;
+
+	/* create single mesh */
+	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
+	mesh_nodes[0].start = 0;
+	mesh_nodes[0].num = pheader->num_glcmds;
 
 	if (pheader->skinheight > MAX_LBM_HEIGHT)
 	{
@@ -1041,6 +1058,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	dmdx_t dmdxheader, *pheader = NULL;
 	dkm_header_t header = {0};
 	void *extradata = NULL;
+	dmdxmesh_t *mesh_nodes;
 	int i;
 
 	if (sizeof(dkm_header_t) > modfilelen)
@@ -1088,6 +1106,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 		dmdxheader.framesize += header.num_xyz * sizeof(dtrivertx_t);
 	}
 
+	dmdxheader.num_meshes = 1;
 	dmdxheader.num_skins = header.num_skins;
 	dmdxheader.num_xyz = header.num_xyz;
 	dmdxheader.num_st = header.num_st;
@@ -1096,7 +1115,8 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	dmdxheader.num_frames = header.num_frames;
 
 	/* just skip header */
-	dmdxheader.ofs_skins = sizeof(dmdxheader);
+	dmdxheader.ofs_meshes = sizeof(dmdxheader);
+	dmdxheader.ofs_skins = dmdxheader.ofs_meshes + dmdxheader.num_meshes * sizeof(dmdxmesh_t);
 	dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
 	dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
 	dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
@@ -1109,6 +1129,11 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
+
+	/* create single mesh */
+	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
+	mesh_nodes[0].start = 0;
+	mesh_nodes[0].num = pheader->num_glcmds;
 
 	memcpy ((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);

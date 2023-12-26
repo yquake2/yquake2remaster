@@ -486,23 +486,13 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-	if (num_mesh_nodes > 0)
-	{
-		int i;
-		for (i = 0; i < num_mesh_nodes; i++)
-		{
-			Vk_DrawAliasFrameLerpCommands(currententity,
-				order + mesh_nodes[i].start,
-				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i].start + mesh_nodes[i].num),
-				alpha, skin,
-				modelMatrix, leftHandOffset, translucentIdx, verts);
-		}
-	}
-	else
+	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		Vk_DrawAliasFrameLerpCommands(currententity,
-			order, order + paliashdr->num_glcmds, alpha, skin,
+			order + mesh_nodes[i].start,
+			order + Q_min(paliashdr->num_glcmds,
+				mesh_nodes[i].start + mesh_nodes[i].num),
+			alpha, skin,
 			modelMatrix, leftHandOffset, translucentIdx, verts);
 	}
 }
@@ -1031,7 +1021,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (vk_shadows->value && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL)))
 	{
-		int num_mesh_nodes;
+		int num_mesh_nodes, i;
 		dmdxmesh_t *mesh_nodes;
 		float model[16];
 		int *order;
@@ -1044,21 +1034,12 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		num_mesh_nodes = paliashdr->num_meshes;
 		mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-		if (num_mesh_nodes > 0)
+		for (i = 0; i < num_mesh_nodes; i++)
 		{
-			int i;
-			for (i = 0; i < num_mesh_nodes; i++)
-			{
-				Vk_DrawAliasShadow (
-					order + mesh_nodes[i].start,
-					order + Q_min(paliashdr->num_glcmds,
-						mesh_nodes[i].start + mesh_nodes[i].num),
-					currententity->frame, model, currententity);
-			}
-		}
-		else
-		{
-			Vk_DrawAliasShadow (order, order + paliashdr->num_glcmds,
+			Vk_DrawAliasShadow (
+				order + mesh_nodes[i].start,
+				order + Q_min(paliashdr->num_glcmds,
+					mesh_nodes[i].start + mesh_nodes[i].num),
 				currententity->frame, model, currententity);
 		}
 	}

@@ -300,22 +300,12 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-	if (num_mesh_nodes > 0)
-	{
-		int i;
-		for (i = 0; i < num_mesh_nodes; i++)
-		{
-			DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
-				order + mesh_nodes[i].start,
-				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i].start + mesh_nodes[i].num),
-				shadedots, alpha, colorOnly, verts);
-		}
-	}
-	else
+	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
-			order, order + paliashdr->num_glcmds,
+			order + mesh_nodes[i].start,
+			order + Q_min(paliashdr->num_glcmds,
+				mesh_nodes[i].start + mesh_nodes[i].num),
 			shadedots, alpha, colorOnly, verts);
 	}
 }
@@ -431,7 +421,7 @@ DrawAliasShadowCommands(int *order, int *order_end, vec3_t shadevector,
 static void
 DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 {
-	int *order;
+	int *order, i;
 	float height = 0, lheight;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
@@ -450,7 +440,6 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 		float frontlerp = 1.0f - backlerp;
 		vec3_t move, delta, vectors[3];
 		vec3_t frontv, backv;
-		int i;
 
 		frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 								  + entity->frame * paliashdr->framesize);
@@ -490,22 +479,13 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-	if (num_mesh_nodes > 0)
-	{
-		int i;
-		for (i = 0; i < num_mesh_nodes; i++)
-		{
-			DrawAliasShadowCommands(
-				order + mesh_nodes[i].start,
-				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i].start + mesh_nodes[i].num),
-				shadevector, height, lheight);
-		}
-	}
-	else
+	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		DrawAliasShadowCommands(
-			order, order + paliashdr->num_glcmds, shadevector, height, lheight);
+			order + mesh_nodes[i].start,
+			order + Q_min(paliashdr->num_glcmds,
+				mesh_nodes[i].start + mesh_nodes[i].num),
+			shadevector, height, lheight);
 	}
 }
 

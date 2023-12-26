@@ -246,22 +246,12 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp)
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-	if (num_mesh_nodes > 0)
-	{
-		int i;
-		for (i = 0; i < num_mesh_nodes; i++)
-		{
-			R_DrawAliasDrawCommands(currententity,
-				order + mesh_nodes[i].start,
-				order + Q_min(
-					paliashdr->num_glcmds, mesh_nodes[i].start + mesh_nodes[i].num),
-				alpha, verts);
-		}
-	}
-	else
+	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		R_DrawAliasDrawCommands(currententity,
-			order, order + paliashdr->num_glcmds,
+			order + mesh_nodes[i].start,
+			order + Q_min(paliashdr->num_glcmds,
+				mesh_nodes[i].start + mesh_nodes[i].num),
 			alpha, verts);
 	}
 
@@ -357,9 +347,8 @@ R_DrawAliasShadowCommand(entity_t *currententity, int *order, int *order_end,
 static void
 R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum)
 {
-	int *order;
+	int *order, i, num_mesh_nodes;
 	float height = 0, lheight;
-	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
 
 	lheight = currententity->origin[2] - lightspot[2];
@@ -377,21 +366,12 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum)
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-	if (num_mesh_nodes > 0)
-	{
-		int i;
-		for (i = 0; i < num_mesh_nodes; i++)
-		{
-			R_DrawAliasShadowCommand(currententity,
-				order + mesh_nodes[i].start,
-				order + Q_min(paliashdr->num_glcmds, mesh_nodes[i].start + mesh_nodes[i].num),
-				height, lheight);
-		}
-	}
-	else
+	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		R_DrawAliasShadowCommand(currententity,
-			order, order + paliashdr->num_glcmds,
+			order + mesh_nodes[i].start,
+			order + Q_min(paliashdr->num_glcmds,
+				mesh_nodes[i].start + mesh_nodes[i].num),
 			height, lheight);
 	}
 
