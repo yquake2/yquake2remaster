@@ -495,10 +495,9 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 {
 	int smax, tmax;
 	int r, g, b, a, max;
-	int i, j, size;
+	int i, j, size, nummaps;
 	byte *lightmap;
 	float scale[4];
-	int nummaps;
 	float *bl;
 
 	if (surf->texinfo->flags &

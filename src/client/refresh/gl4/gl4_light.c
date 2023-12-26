@@ -74,13 +74,13 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 {
 	int smax, tmax;
 	int r, g, b, a, max;
-	int i, j, size, map, numMaps;
+	int i, j, size, map, nummaps;
 	byte *lightmap;
 
 	if (surf->texinfo->flags &
 		(SURF_SKY | SURF_TRANSPARENT | SURF_WARP))
 	{
-		Com_Error(ERR_DROP, "GL4_BuildLightMap called for non-lit surface");
+		Com_Error(ERR_DROP, "%s called for non-lit surface", __func__);
 	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -95,23 +95,23 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 	}
 
 	// count number of lightmaps surf actually has
-	for (numMaps = 0; numMaps < MAX_LIGHTMAPS_PER_SURFACE && surf->styles[numMaps] != 255; ++numMaps)
+	for (nummaps = 0; nummaps < MAX_LIGHTMAPS_PER_SURFACE && surf->styles[nummaps] != 255; ++nummaps)
 	{}
 
 	if (!surf->samples)
 	{
 		// no lightmap samples? set at least one lightmap to fullbright, rest to 0 as normal
 
-		if (numMaps == 0)  numMaps = 1; // make sure at least one lightmap is set to fullbright
+		if (nummaps == 0)  nummaps = 1; // make sure at least one lightmap is set to fullbright
 
 		for (map = 0; map < MAX_LIGHTMAPS_PER_SURFACE; ++map)
 		{
 			// we always create 4 (MAX_LIGHTMAPS_PER_SURFACE) lightmaps.
-			// if surf has less (numMaps < 4), the remaining ones are zeroed out.
+			// if surf has less (nummaps < 4), the remaining ones are zeroed out.
 			// this makes sure that all 4 lightmap textures in gl4state.lightmap_textureIDs[i] have the same layout
 			// and the shader can use the same texture coordinates for all of them
 
-			int c = (map < numMaps) ? 255 : 0;
+			int c = (map < nummaps) ? 255 : 0;
 			byte* dest = gl4_lms.lightmap_buffers[map] + offsetInLMbuf;
 
 			for (i = 0; i < tmax; i++, dest += stride)
@@ -128,13 +128,13 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 
 	// Note: dynamic lights aren't handled here anymore, they're handled in the shader
 
-	// as we don't apply scale here anymore, nor blend the numMaps lightmaps together,
+	// as we don't apply scale here anymore, nor blend the nummaps lightmaps together,
 	// the code has gotten a lot easier and we can copy directly from surf->samples to dest
 	// without converting to float first etc
 
 	lightmap = surf->samples;
 
-	for(map=0; map<numMaps; ++map)
+	for(map=0; map<nummaps; ++map)
 	{
 		byte* dest = gl4_lms.lightmap_buffers[map] + offsetInLMbuf;
 		int idxInLightmap = 0;
