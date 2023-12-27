@@ -65,9 +65,6 @@ typedef struct
 	unsigned char data;   /* unbounded */
 } pcx_t;
 
-/* .MD5 model file format */
-#define IDMD5HEADER (('V' << 24) + ('5' << 16) + ('D' << 8) + 'M')
-
 /* .MDL triangle model file format */
 
 #define IDMDLHEADER (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I')
@@ -243,6 +240,9 @@ typedef struct dkm_header_s
 	int ofs_surf;          /* no idea */
 	int ofs_end;           /* end of file */
 } dkm_header_t;
+
+/* .MD5 model file format */
+#define IDMD5HEADER (('V' << 24) + ('5' << 16) + ('D' << 8) + 'M')
 
 /* Internal model render format */
 
