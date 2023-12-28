@@ -38,6 +38,11 @@ GL4_PushDlights(void)
 	dlight_t *l;
 	int i;
 
+	if (!gl4_worldmodel)
+	{
+		return;
+	}
+
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = gl4_framecount + 1;
 

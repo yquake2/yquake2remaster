@@ -38,6 +38,11 @@ GL3_PushDlights(void)
 	dlight_t *l;
 	int i;
 
+	if (!gl3_worldmodel)
+	{
+		return;
+	}
+
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = gl3_framecount + 1;
 
