@@ -277,7 +277,7 @@ Mod_LoadModel_MDL
 static void *
 Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, modtype_t *type)
+	modtype_t *type)
 {
 	const mdl_header_t		*pinmodel;
 	int		version;
@@ -593,7 +593,7 @@ Mod_LoadModel_MD2
 static void *
 Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, modtype_t *type)
+	modtype_t *type)
 {
 	vec3_t		translate = {0, 0, 0};
 	dmdl_t		pinmodel;
@@ -742,13 +742,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	memcpy ((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
 		pheader->num_skins*MAX_SKINNAME);
 
-	// Load in our skins.
-	for (i=0; i < pheader->num_skins; i++)
-	{
-		(*skins)[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
-			it_skin);
-	}
-
 	*type = mod_alias;
 
 	mins[0] = -32;
@@ -770,10 +763,10 @@ Mod_LoadModel_Flex
 static void *
 Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, modtype_t *type)
+	modtype_t *type)
 {
 	char *src = (char *)buffer;
-	int version, size, i;
+	int version, size;
 	void *extradata = NULL;
 	dmdx_t *pheader = NULL;
 
@@ -1032,13 +1025,6 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 		src += size;
 	}
 
-	// Load in our skins.
-	for (i=0; i < pheader->num_skins; i++)
-	{
-		(*skins)[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
-			it_skin);
-	}
-
 	*type = mod_alias;
 
 	mins[0] = -32;
@@ -1054,7 +1040,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 static void *
 Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, modtype_t *type)
+	modtype_t *type)
 {
 	dmdx_t dmdxheader, *pheader = NULL;
 	dkm_header_t header = {0};
@@ -1156,13 +1142,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadDkmTriangleList (pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
-	/* Load in our skins. */
-	for (i=0; i < pheader->num_skins; i++)
-	{
-		(*skins)[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
-			it_skin);
-	}
-
 	*type = mod_alias;
 
 	mins[0] = -32;
@@ -1185,7 +1164,7 @@ support for .sp2 sprites
 static void *
 Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins,
-	findimage_t find_image, modtype_t *type)
+	modtype_t *type)
 {
 	dsprite_t *sprin, *sprout;
 	void	*extradata;
@@ -1218,15 +1197,6 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 		sprout->frames[i].origin_x = LittleLong(sprin->frames[i].origin_x);
 		sprout->frames[i].origin_y = LittleLong(sprin->frames[i].origin_y);
 		memcpy(sprout->frames[i].name, sprin->frames[i].name, MAX_SKINNAME);
-
-		(*skins)[i] = find_image((char *)sprout->frames[i].name, it_sprite);
-		if (!(*skins)[i])
-		{
-			/* heretic2 sprites have no "sprites/" prefix */
-			snprintf(sprout->frames[i].name, MAX_SKINNAME,
-				"sprites/%s", sprin->frames[i].name);
-			(*skins)[i] = find_image(sprout->frames[i].name, it_sprite);
-		}
 	}
 
 	*type = mod_sprite;
@@ -1244,30 +1214,42 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, modtype_t *type)
 {
+	void *extradata = NULL;
+
 	switch (LittleLong(*(unsigned *)buffer))
 	{
 		case DKMHEADER:
-			return Mod_LoadModel_DKM(mod_name, buffer, modfilelen, mins, maxs,
-				skins, numskins, find_image, type);
+			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen, mins, maxs,
+				skins, numskins, type);
+			break;
 
 		case RAVENFMHEADER:
-			return Mod_LoadModel_Flex(mod_name, buffer, modfilelen, mins, maxs,
-				skins, numskins, find_image, type);
+			extradata = Mod_LoadModel_Flex(mod_name, buffer, modfilelen, mins, maxs,
+				skins, numskins, type);
+			break;
 
 		case IDALIASHEADER:
-			return Mod_LoadModel_MD2(mod_name, buffer, modfilelen, mins, maxs,
-				skins, numskins, find_image, type);
+			extradata = Mod_LoadModel_MD2(mod_name, buffer, modfilelen, mins, maxs,
+				skins, numskins, type);
+			break;
 
 		case IDMDLHEADER:
-			return Mod_LoadModel_MDL(mod_name, buffer, modfilelen, mins, maxs,
-				skins, numskins, find_image, type);
+			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen, mins, maxs,
+				skins, numskins, type);
+			break;
 
 		case IDSPRITEHEADER:
-			return Mod_LoadSprite_SP2(mod_name, buffer, modfilelen,
-				skins, numskins, find_image, type);
+			extradata = Mod_LoadSprite_SP2(mod_name, buffer, modfilelen,
+				skins, numskins, type);
+			break;
 	}
 
-	return NULL;
+	if (extradata)
+	{
+		Mod_ReLoadSkins(*skins, find_image, extradata, *type);
+	}
+
+	return extradata;
 }
 
 static int
@@ -1425,6 +1407,15 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, void *extradata,
 		for (i=0; i < sprout->numframes; i++)
 		{
 			skins[i] = find_image(sprout->frames[i].name, it_sprite);
+			if (!skins[i])
+			{
+				char newname[MAX_SKINNAME];
+
+				/* heretic2 sprites have no "sprites/" prefix */
+				snprintf(newname, MAX_SKINNAME,
+					"sprites/%s", sprout->frames[i].name);
+				skins[i] = find_image(newname, it_sprite);
+			}
 		}
 		return sprout->numframes;
 	}
