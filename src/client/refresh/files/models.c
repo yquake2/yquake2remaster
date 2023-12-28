@@ -83,29 +83,39 @@ Load the Quake2 md2 default format frames
 =================
 */
 static void
-Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, vec3_t translate)
+Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t translate)
 {
 	int i;
 
 	for (i=0 ; i < pheader->num_frames ; i++)
 	{
-		daliasframe_t *pinframe, *poutframe;
+		daliasframe_t *pinframe;
+		daliasxframe_t *poutframe;
 		int j;
 
-		pinframe = (daliasframe_t *) (src + i * pheader->framesize);
-		poutframe = (daliasframe_t *) ((byte *)pheader
+		pinframe = (daliasframe_t *) (src + i * inframesize);
+		poutframe = (daliasxframe_t *) ((byte *)pheader
 			+ pheader->ofs_frames + i * pheader->framesize);
 
 		memcpy (poutframe->name, pinframe->name, sizeof(poutframe->name));
 		for (j=0 ; j<3 ; j++)
 		{
-			poutframe->scale[j] = LittleFloat (pinframe->scale[j]);
+			poutframe->scale[j] = LittleFloat (pinframe->scale[j]) / 0xFF;
 			poutframe->translate[j] = LittleFloat (pinframe->translate[j]);
 			poutframe->translate[j] += translate[j];
 		}
 		// verts are all 8 bit, so no swapping needed
-		memcpy (poutframe->verts, pinframe->verts,
-			pheader->num_xyz * sizeof(dtrivertx_t));
+		for (j=0; j < pheader->num_xyz; j ++)
+		{
+			int k;
+
+			for (k=0; k < 3; k++)
+			{
+				poutframe->verts[j].v[k] = pinframe->verts[j].v[k] * 0xFF;
+			}
+
+			poutframe->verts[j].lightnormalindex = pinframe->verts[j].lightnormalindex;
+		}
 	}
 }
 
@@ -224,20 +234,23 @@ Load the DKM v2 frames
 =================
 */
 static void
-Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t infamesize, vec3_t translate)
+Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t translate)
 {
-	int i;
+	int i, outframesize;
+
+	outframesize = sizeof(daliasxframe_t) + (pheader->num_xyz - 1) * sizeof(dxtrivertx_t);
 
 	for (i=0 ; i<pheader->num_frames ; i++)
 	{
-		daliasframe_t	*pinframe, *poutframe;
-		dtrivertx_t	*outverts;
-		byte	*inverts;
+		daliasframe_t *pinframe;
+		daliasxframe_t *poutframe;
 		int j;
+		dxtrivertx_t	*outverts;
+		byte	*inverts;
 
-		pinframe = (daliasframe_t *) (src + i * infamesize);
-		poutframe = (daliasframe_t *) ((byte *)pheader
-			+ pheader->ofs_frames + i * pheader->framesize);
+		pinframe = (daliasframe_t *) (src + i * inframesize);
+		poutframe = (daliasxframe_t *) ((byte *)pheader
+			+ pheader->ofs_frames + i * outframesize);
 
 		memcpy (poutframe->name, pinframe->name, sizeof(poutframe->name));
 		for (j=0 ; j<3 ; j++)
@@ -247,9 +260,9 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t infamesize, vec3_t 
 			poutframe->translate[j] += translate[j];
 		}
 
-		poutframe->scale[0] *= 8;
-		poutframe->scale[1] *= 4;
-		poutframe->scale[2] *= 8;
+		poutframe->scale[0] *= (0x7FF / (float)0xFFFF);
+		poutframe->scale[1] *= (0x3FF / (float)0xFFFF);
+		poutframe->scale[2] *= (0x7FF / (float)0xFFFF);
 
 		inverts = (byte *)&pinframe->verts;
 		outverts = poutframe->verts;
@@ -259,9 +272,12 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t infamesize, vec3_t 
 			int xyz;
 
 			xyz = LittleLong(*((int *)inverts));
-			outverts[j].v[0] = ((xyz & 0xFFE00000) >> (21 + 3)) & 0xFF;
-			outverts[j].v[1] = ((xyz & 0x1FF800) >> (11 + 2)) & 0xFF;
-			outverts[j].v[2] = ((xyz & 0x7FF) >> 3) & 0xFF;
+			outverts[j].v[0] = ((xyz & 0xFFE00000) >> 21) & 0x7FF;
+			outverts[j].v[0] *= ((float)0xFFFF / 0x7FF);
+			outverts[j].v[1] = ((xyz & 0x1FF800) >> 11) & 0x3FF;
+			outverts[j].v[1] *= ((float)0xFFFF / 0x3FF);
+			outverts[j].v[2] = xyz & 0x7FF;
+			outverts[j].v[2] *= ((float)0xFFFF / 0x7FF);
 			inverts += sizeof(int);
 			outverts[j].lightnormalindex = *inverts;
 			inverts ++;
@@ -315,7 +331,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		(num_tris * sizeof(int)) + /* triangles count */
 		sizeof(int) /* final zero */) / sizeof(int);
 	num_frames = LittleLong(pinmodel->num_frames);
-	framesize = sizeof(daliasframe_t) + sizeof(dtrivertx_t) * (num_xyz - 1);
+
+	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * (num_xyz - 1);
 
 	ofs_meshes = sizeof(*pheader); // just skip header and go
 	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
@@ -536,12 +553,15 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		for (i = 0; i < num_frames; ++i)
 		{
 			daliasframe_t *frame;
-			int frame_type;
+			int frame_type, j;
+			dxtrivertx_t* poutvertx;
+			dtrivertx_t *pinvertx;
+
 
 			frame = (daliasframe_t *) ((byte *)pheader + ofs_frames + i * framesize);
-			frame->scale[0] = LittleFloat (pinmodel->scale[0]);
-			frame->scale[1] = LittleFloat (pinmodel->scale[1]);
-			frame->scale[2] = LittleFloat (pinmodel->scale[2]);
+			frame->scale[0] = LittleFloat (pinmodel->scale[0]) / 0xFF;
+			frame->scale[1] = LittleFloat (pinmodel->scale[1]) / 0xFF;
+			frame->scale[2] = LittleFloat (pinmodel->scale[2]) / 0xFF;
 
 			frame->translate[0] = LittleFloat (pinmodel->translate[0]);
 			frame->translate[1] = LittleFloat (pinmodel->translate[1]);
@@ -568,8 +588,20 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			memcpy(&frame->name, curr_pos, sizeof(char) * 16);
 			curr_pos += sizeof(char) * 16;
 
-			memcpy(&frame->verts[0], curr_pos,
-				sizeof(dtrivertx_t) * num_xyz);
+			poutvertx = (dxtrivertx_t*)&frame->verts[0];
+			pinvertx = (dtrivertx_t*)curr_pos;
+			// verts are all 8 bit, so no swapping needed
+			for (j=0; j < num_xyz; j ++)
+			{
+				int k;
+
+				for (k=0; k < 3; k++)
+				{
+					poutvertx[j].v[k] = pinvertx[j].v[k] * 0xFF;
+				}
+
+				poutvertx[j].lightnormalindex = pinvertx[j].lightnormalindex;
+			}
 			curr_pos += sizeof(dtrivertx_t) * num_xyz;
 		}
 	}
@@ -602,12 +634,10 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	dtriangle_t	*pintri;
 	dstvert_t	*pinst;
 	dmdxmesh_t *mesh_nodes;
-	int		*pincmd, header_diff;
+	int		*pincmd;
 	void	*extradata;
-	int		i;
-
-	/* fix for offset */
-	header_diff = sizeof(*pheader) - sizeof(pinmodel) + sizeof(dmdxmesh_t);
+	int		i, framesize;
+	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds, ofs_frames, ofs_end;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -642,17 +672,35 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
+	if (pinmodel.framesize != (
+		sizeof(daliasframe_t) + (pinmodel.num_xyz - 1) * sizeof(dtrivertx_t)))
+	{
+		R_Printf(PRINT_ALL, "%s: model %s has incorrect framesize",
+				__func__, mod_name);
+		return NULL;
+	}
+
+	framesize = sizeof(daliasxframe_t) +
+		(pinmodel.num_xyz - 1) * sizeof(dxtrivertx_t);
+	ofs_meshes = sizeof(*pheader); // just skip header and go
+	ofs_skins = ofs_meshes + 1 * sizeof(dmdxmesh_t);
+	ofs_st = ofs_skins + pinmodel.num_skins * MAX_SKINNAME;
+	ofs_tris = ofs_st + pinmodel.num_st * sizeof(dstvert_t);
+	ofs_glcmds = ofs_tris + pinmodel.num_tris * sizeof(dtriangle_t);
+	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
+	ofs_end = ofs_frames + framesize * pinmodel.num_frames;
+
 	*numskins = pinmodel.num_skins;
-	extradata = Hunk_Begin(header_diff + pinmodel.ofs_end +
+	extradata = Hunk_Begin(ofs_end +
 		Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
-	pheader = Hunk_Alloc(header_diff + pinmodel.ofs_end);
+	pheader = Hunk_Alloc(ofs_end);
 	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	/* Copy values as we have mostly same data format */
 	memset(pheader, 0, sizeof(*pheader));
 	pheader->skinwidth = pinmodel.skinwidth;
 	pheader->skinheight = pinmodel.skinheight;
-	pheader->framesize = pinmodel.framesize;
+	pheader->framesize = framesize;
 
 	pheader->num_meshes = 1;
 	pheader->num_skins = pinmodel.num_skins;
@@ -662,13 +710,13 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_glcmds = pinmodel.num_glcmds;
 	pheader->num_frames = pinmodel.num_frames;
 
-	pheader->ofs_meshes = sizeof(*pheader); // just skip header and go
-	pheader->ofs_skins = pheader->ofs_meshes + pheader->num_meshes * sizeof(dmdxmesh_t);
-	pheader->ofs_st = pheader->ofs_skins + pheader->num_skins * MAX_SKINNAME;
-	pheader->ofs_tris = pheader->ofs_st + pheader->num_st * sizeof(dstvert_t);
-	pheader->ofs_glcmds = pheader->ofs_tris + pheader->num_tris * sizeof(dtriangle_t);
-	pheader->ofs_frames = pheader->ofs_glcmds + pheader->num_glcmds * sizeof(int);
-	pheader->ofs_end = pheader->ofs_frames + pheader->framesize * pheader->num_frames;
+	pheader->ofs_meshes = ofs_meshes;
+	pheader->ofs_skins = ofs_skins;
+	pheader->ofs_st = ofs_st;
+	pheader->ofs_tris = ofs_tris;
+	pheader->ofs_glcmds = ofs_glcmds;
+	pheader->ofs_frames = ofs_frames;
+	pheader->ofs_end = ofs_end;
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
@@ -732,7 +780,8 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	//
 	// load the frames
 	//
-	Mod_LoadFrames_MD2(pheader, (byte *)buffer + pinmodel.ofs_frames, translate);
+	Mod_LoadFrames_MD2(pheader, (byte *)buffer + pinmodel.ofs_frames,
+		pinmodel.framesize, translate);
 
 	//
 	// load the glcmds
@@ -741,7 +790,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadCmdList(mod_name, pheader, pincmd);
 
 	// register all skins
-	memcpy ((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
+	memcpy((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
 		pheader->num_skins*MAX_SKINNAME);
 
 	*type = mod_alias;
@@ -768,7 +817,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
 	char *src = (char *)buffer;
-	int version, size;
+	int version, size, inframesize = 0;
 	void *extradata = NULL;
 	dmdx_t *pheader = NULL;
 
@@ -787,6 +836,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 
 		if (Q_strncasecmp(blockname, "header", sizeof(blockname)) == 0)
 		{
+			int framesize;
 			dmdx_t dmdxheader;
 			fmheader_t *header = (fmheader_t *)src;
 
@@ -803,11 +853,24 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 				return NULL;
 			}
 
+			inframesize = LittleLong(header->framesize);
+			/* has same frame structure */
+			if (inframesize < (
+				sizeof(daliasframe_t) + (LittleLong(header->num_xyz) - 1) * sizeof(dtrivertx_t)))
+			{
+				R_Printf(PRINT_ALL, "%s: model %s has incorrect framesize",
+						__func__, mod_name);
+				return NULL;
+			}
+
+			framesize = sizeof(daliasxframe_t) +
+				(LittleLong(header->num_xyz) - 1) * sizeof(dxtrivertx_t);
+
 			/* copy back all values */
 			memset(&dmdxheader, 0, sizeof(dmdxheader));
 			dmdxheader.skinwidth = LittleLong(header->skinwidth);
 			dmdxheader.skinheight = LittleLong(header->skinheight);
-			dmdxheader.framesize = LittleLong(header->framesize);
+			dmdxheader.framesize = framesize;
 
 			dmdxheader.num_skins = LittleLong(header->num_skins);
 			dmdxheader.num_xyz = LittleLong(header->num_xyz);
@@ -942,14 +1005,16 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 						__func__, blockname, version);
 					return NULL;
 				}
-				if (size != (pheader->num_frames * pheader->framesize))
+
+				if (size < (pheader->num_frames *
+					(sizeof(daliasframe_t) + (pheader->num_xyz - 1) * sizeof(dtrivertx_t))))
 				{
 					R_Printf(PRINT_ALL, "%s: Invalid %s size",
 						__func__, blockname);
 					return NULL;
 				}
 
-				Mod_LoadFrames_MD2(pheader, (byte *)src, translate);
+				Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
 			}
 			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
 			{
@@ -1089,13 +1154,27 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	if (header.version != DKM2_VERSION)
 	{
 		/* has same frame structure */
-		dmdxheader.framesize = header.framesize;
+		if (header.framesize < (
+			sizeof(daliasframe_t) + (header.num_xyz - 1) * sizeof(dtrivertx_t)))
+		{
+			R_Printf(PRINT_ALL, "%s: model %s has incorrect framesize",
+					__func__, mod_name);
+			return NULL;
+		}
 	}
 	else
 	{
-		dmdxheader.framesize = sizeof(daliasframe_t) - sizeof(dtrivertx_t);
-		dmdxheader.framesize += header.num_xyz * sizeof(dtrivertx_t);
+		if (header.framesize < (
+			sizeof(daliasframe_t) + (header.num_xyz - 1) * (sizeof(int) + sizeof(byte))))
+		{
+			R_Printf(PRINT_ALL, "%s: model %s has incorrect framesize",
+					__func__, mod_name);
+			return NULL;
+		}
 	}
+
+	dmdxheader.framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
+	dmdxheader.framesize += header.num_xyz * sizeof(dxtrivertx_t);
 
 	dmdxheader.num_meshes = 1;
 	dmdxheader.num_skins = header.num_skins;
@@ -1135,7 +1214,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	if (header.version == DKM1_VERSION)
 	{
 		Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
-			header.translate);
+			header.framesize, header.translate);
 	}
 	else
 	{

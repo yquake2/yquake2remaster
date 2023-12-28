@@ -245,6 +245,19 @@ typedef struct dkm_header_s
 #define IDMD5HEADER (('V' << 24) + ('5' << 16) + ('D' << 8) + 'M')
 
 /* Internal model render format */
+typedef struct
+{
+	unsigned short v[3]; /* scaled short to fit in frame mins/maxs */
+	byte lightnormalindex;
+} dxtrivertx_t;
+
+typedef struct
+{
+	float scale[3];       /* multiply short verts by this */
+	float translate[3];   /* then add this */
+	char name[16];        /* frame name from grabbing */
+	dxtrivertx_t verts[1]; /* variable sized */
+} daliasxframe_t;
 
 typedef struct
 {

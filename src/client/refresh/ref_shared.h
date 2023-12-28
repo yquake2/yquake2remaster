@@ -377,8 +377,8 @@ extern void R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edg
 	msurface_t *fa);
 
 /* Mesh logic */
-extern void R_LerpVerts(qboolean powerUpEffect, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
-		dtrivertx_t *verts, float *lerp, const float move[3],
+extern void R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *ov,
+		dxtrivertx_t *verts, float *lerp, const float move[3],
 		const float frontv[3], const float backv[3]);
 
 /* Lights logic */

@@ -75,8 +75,8 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 {
 	GLenum type;
 	float l;
-	daliasframe_t *frame, *oldframe;
-	dtrivertx_t *v, *ov, *verts;
+	daliasxframe_t *frame, *oldframe;
+	dxtrivertx_t *v, *ov, *verts;
 	int *order;
 	int count;
 	float alpha;
@@ -96,11 +96,11 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	float* shadedots = r_avertexnormal_dots[((int)(entity->angles[1] *
 				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
 
-	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + entity->frame * paliashdr->framesize);
 	verts = v = frame->verts;
 
-	oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 				+ entity->oldframe * paliashdr->framesize);
 	ov = oldframe->verts;
 
@@ -305,19 +305,19 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 
 	// all in this scope is to set s_lerped
 	{
-		daliasframe_t *frame, *oldframe;
-		dtrivertx_t *v, *ov, *verts;
+		daliasxframe_t *frame, *oldframe;
+		dxtrivertx_t *v, *ov, *verts;
 		float backlerp = entity->backlerp;
 		float frontlerp = 1.0f - backlerp;
 		vec3_t move, delta, vectors[3];
 		vec3_t frontv, backv;
 		int i;
 
-		frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+		frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 								  + entity->frame * paliashdr->framesize);
 		verts = v = frame->verts;
 
-		oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+		oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 					+ entity->oldframe * paliashdr->framesize);
 		ov = oldframe->verts;
 
@@ -457,7 +457,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 	dmdx_t *paliashdr;
 	vec3_t vectors[3];
 	vec3_t thismins, oldmins, thismaxs, oldmaxs;
-	daliasframe_t *pframe, *poldframe;
+	daliasxframe_t *pframe, *poldframe;
 	vec3_t angles;
 
 	gl4model_t* model = e->model;
@@ -478,10 +478,10 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 		e->oldframe = 0;
 	}
 
-	pframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
+	pframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
 			e->frame * paliashdr->framesize);
 
-	poldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
+	poldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
 			e->oldframe * paliashdr->framesize);
 
 	/* compute axially aligned mins and maxs */
@@ -490,7 +490,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 		for (i = 0; i < 3; i++)
 		{
 			mins[i] = pframe->translate[i];
-			maxs[i] = mins[i] + pframe->scale[i] * 255;
+			maxs[i] = mins[i] + pframe->scale[i] * 0xFFFF;
 		}
 	}
 	else
@@ -498,10 +498,10 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 		for (i = 0; i < 3; i++)
 		{
 			thismins[i] = pframe->translate[i];
-			thismaxs[i] = thismins[i] + pframe->scale[i] * 255;
+			thismaxs[i] = thismins[i] + pframe->scale[i] * 0xFFFF;
 
 			oldmins[i] = poldframe->translate[i];
-			oldmaxs[i] = oldmins[i] + poldframe->scale[i] * 255;
+			oldmaxs[i] = oldmins[i] + poldframe->scale[i] * 0xFFFF;
 
 			if (thismins[i] < oldmins[i])
 			{

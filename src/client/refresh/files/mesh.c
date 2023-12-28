@@ -31,8 +31,8 @@ static float r_avertexnormals[NUMVERTEXNORMALS][3] = {
 };
 
 void
-R_LerpVerts(qboolean powerUpEffect, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
-		dtrivertx_t *verts, float *lerp, const float move[3],
+R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *ov,
+		dxtrivertx_t *verts, float *lerp, const float move[3],
 		const float frontv[3], const float backv[3])
 {
 	int i;

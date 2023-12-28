@@ -427,7 +427,7 @@ D_CacheSurface
 ================
 */
 surfcache_t *
-D_CacheSurface (const entity_t *currententity, msurface_t *surface, int miplevel)
+D_CacheSurface(const entity_t *currententity, msurface_t *surface, int miplevel)
 {
 	surfcache_t	*cache;
 	float		surfscale;
@@ -457,7 +457,7 @@ D_CacheSurface (const entity_t *currententity, msurface_t *surface, int miplevel
 	//
 	// determine shape of surface
 	//
-	surfscale = 1.0 / (1<<miplevel);
+	surfscale = 1.0 / (1 << miplevel);
 	r_drawsurf.surfmip = miplevel;
 	r_drawsurf.surfwidth = surface->extents[0] >> miplevel;
 	r_drawsurf.rowbytes = r_drawsurf.surfwidth;

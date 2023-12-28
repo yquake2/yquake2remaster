@@ -42,7 +42,7 @@ float *shadedots = r_avertexnormal_dots[0];
 
 static void
 R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
-	float alpha, dtrivertx_t *verts)
+	float alpha, dxtrivertx_t *verts)
 {
 #ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 	int maxCount = 0;
@@ -177,8 +177,8 @@ R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
 static void
 R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp)
 {
-	daliasframe_t *frame, *oldframe;
-	dtrivertx_t *v, *ov, *verts;
+	daliasxframe_t *frame, *oldframe;
+	dxtrivertx_t *v, *ov, *verts;
 	int *order;
 	float frontlerp;
 	float alpha;
@@ -192,11 +192,11 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp)
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 			 RF_SHELL_HALF_DAM));
 
-	frame = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
 	verts = v = frame->verts;
 
-	oldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
+	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 				+ currententity->oldframe * paliashdr->framesize);
 	ov = oldframe->verts;
 
@@ -390,7 +390,7 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 	dmdx_t *paliashdr;
 	vec3_t vectors[3];
 	vec3_t thismins, oldmins, thismaxs, oldmaxs;
-	daliasframe_t *pframe, *poldframe;
+	daliasxframe_t *pframe, *poldframe;
 	vec3_t angles;
 
 	paliashdr = (dmdx_t *)currentmodel->extradata;
@@ -415,10 +415,10 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 		e->oldframe = 0;
 	}
 
-	pframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
+	pframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
 			e->frame * paliashdr->framesize);
 
-	poldframe = (daliasframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
+	poldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
 			e->oldframe * paliashdr->framesize);
 
 	/* compute axially aligned mins and maxs */
@@ -427,7 +427,7 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 		for (i = 0; i < 3; i++)
 		{
 			mins[i] = pframe->translate[i];
-			maxs[i] = mins[i] + pframe->scale[i] * 255;
+			maxs[i] = mins[i] + pframe->scale[i] * 0xFFFF;
 		}
 	}
 	else
@@ -435,10 +435,10 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 		for (i = 0; i < 3; i++)
 		{
 			thismins[i] = pframe->translate[i];
-			thismaxs[i] = thismins[i] + pframe->scale[i] * 255;
+			thismaxs[i] = thismins[i] + pframe->scale[i] * 0xFFFF;
 
 			oldmins[i] = poldframe->translate[i];
-			oldmaxs[i] = oldmins[i] + poldframe->scale[i] * 255;
+			oldmaxs[i] = oldmins[i] + poldframe->scale[i] * 0xFFFF;
 
 			if (thismins[i] < oldmins[i])
 			{

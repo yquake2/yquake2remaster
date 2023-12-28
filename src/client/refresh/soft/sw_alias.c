@@ -42,7 +42,7 @@ int		r_aliasblendcolor;
 static vec3_t		r_shadelight;
 
 
-static daliasframe_t	*r_thisframe, *r_lastframe;
+static daliasxframe_t	*r_thisframe, *r_lastframe;
 static dmdx_t	*s_pmdl;
 
 static float	aliastransform[3][4];
@@ -61,7 +61,7 @@ static const float	r_avertexnormals[NUMVERTEXNORMALS][3] = {
 
 
 static void R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4]);
-static void R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dtrivertx_t *oldv, dtrivertx_t *newv );
+static void R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv );
 
 void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
 
@@ -83,7 +83,7 @@ R_AliasCheckBBox
 ** Checks a specific alias frame bounding box
 */
 static unsigned long
-R_AliasCheckFrameBBox( daliasframe_t *frame, float worldxf[3][4] )
+R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
 {
 	// FIXME: should this really be using long and not int32_t or sth?
 	unsigned long aggregate_and_clipcode = ~0U,
@@ -395,7 +395,7 @@ R_AliasTransformFinalVerts
 ================
 */
 static void
-R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dtrivertx_t *oldv, dtrivertx_t *newv )
+R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv )
 {
 	int i;
 
@@ -663,10 +663,10 @@ R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, d
 		lastframe = 0;
 	}
 
-	r_thisframe = (daliasframe_t *)((byte *)pmdl + pmdl->ofs_frames
+	r_thisframe = (daliasxframe_t *)((byte *)pmdl + pmdl->ofs_frames
 		+ thisframe * pmdl->framesize);
 
-	r_lastframe = (daliasframe_t *)((byte *)pmdl + pmdl->ofs_frames
+	r_lastframe = (daliasxframe_t *)((byte *)pmdl + pmdl->ofs_frames
 		+ lastframe * pmdl->framesize);
 }
 
