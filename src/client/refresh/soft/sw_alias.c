@@ -78,9 +78,11 @@ R_AliasCheckBBox
 #define BBOX_TRIVIAL_REJECT 8
 
 /*
-** R_AliasCheckFrameBBox
-**
-** Checks a specific alias frame bounding box
+ * R_AliasCheckFrameBBox
+ *
+ * Checks a specific alias frame bounding box
+ *
+ * TODO: Combine with R_CullAliasMeshModel
 */
 static unsigned long
 R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
@@ -99,7 +101,7 @@ R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
 	for (i=0 ; i<3 ; i++)
 	{
 		mins[i] = frame->translate[i];
-		maxs[i] = mins[i] + frame->scale[i]*255;
+		maxs[i] = mins[i] + frame->scale[i] * 0xFFFF;
 	}
 
 	/*
@@ -109,9 +111,14 @@ R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
 	R_AliasTransformVector( maxs, transformed_max, aliastransform );
 
 	if ( transformed_min[2] >= ALIAS_Z_CLIP_PLANE )
+	{
 		zfullyclipped = false;
+	}
+
 	if ( transformed_max[2] >= ALIAS_Z_CLIP_PLANE )
+	{
 		zfullyclipped = false;
+	}
 
 	if ( zfullyclipped )
 	{
@@ -128,19 +135,31 @@ R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
 		unsigned long clipcode = 0;
 
 		if ( i & 1 )
+		{
 			tmp[0] = mins[0];
+		}
 		else
+		{
 			tmp[0] = maxs[0];
+		}
 
 		if ( i & 2 )
+		{
 			tmp[1] = mins[1];
+		}
 		else
+		{
 			tmp[1] = maxs[1];
+		}
 
 		if ( i & 4 )
+		{
 			tmp[2] = mins[2];
+		}
 		else
+		{
 			tmp[2] = maxs[2];
+		}
 
 		R_AliasTransformVector( tmp, transformed, worldxf );
 
@@ -149,7 +168,9 @@ R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
 			float dp = DotProduct( transformed, view_clipplanes[j].normal );
 
 			if ( ( dp - view_clipplanes[j].dist ) < 0.0F )
+			{
 				clipcode |= 1 << j;
+			}
 		}
 
 		aggregate_and_clipcode &= clipcode;
@@ -392,12 +413,17 @@ R_AliasSetUpTransform(const entity_t *currententity)
 /*
 ================
 R_AliasTransformFinalVerts
+
+TODO: Combine with R_LerpVerts
 ================
 */
 static void
 R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv )
 {
 	int i;
+	qboolean colorOnly = 0 != (currententity->flags &
+			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
+			 RF_SHELL_HALF_DAM));
 
 	for ( i = 0; i < numpoints; i++, fv++, oldv++, newv++ )
 	{
@@ -405,14 +431,14 @@ R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalve
 		const float	*plightnormal;
 		vec3_t  lerped_vert;
 
-		lerped_vert[0] = r_lerp_move[0] + oldv->v[0]*r_lerp_backv[0] + newv->v[0]*r_lerp_frontv[0];
-		lerped_vert[1] = r_lerp_move[1] + oldv->v[1]*r_lerp_backv[1] + newv->v[1]*r_lerp_frontv[1];
-		lerped_vert[2] = r_lerp_move[2] + oldv->v[2]*r_lerp_backv[2] + newv->v[2]*r_lerp_frontv[2];
+		lerped_vert[0] = r_lerp_move[0] + oldv->v[0] * r_lerp_backv[0] + newv->v[0] * r_lerp_frontv[0];
+		lerped_vert[1] = r_lerp_move[1] + oldv->v[1] * r_lerp_backv[1] + newv->v[1] * r_lerp_frontv[1];
+		lerped_vert[2] = r_lerp_move[2] + oldv->v[2] * r_lerp_backv[2] + newv->v[2] * r_lerp_frontv[2];
 
 		plightnormal = r_avertexnormals[newv->lightnormalindex];
 
 		// added double damage shell
-		if ( currententity->flags & ( RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE | RF_SHELL_HALF_DAM) )
+		if ( colorOnly )
 		{
 			lerped_vert[0] += plightnormal[0] * POWERSUIT_SCALE;
 			lerped_vert[1] += plightnormal[1] * POWERSUIT_SCALE;

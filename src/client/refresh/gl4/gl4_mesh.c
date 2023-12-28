@@ -37,7 +37,6 @@ static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
 };
 
-typedef float vec4_t[4];
 static vec4_t s_lerped[MAX_VERTS];
 
 typedef struct gl4_shadowinfo_s {
@@ -73,12 +72,9 @@ GL4_ShutdownMeshes(void)
 static void
 DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 {
-	GLenum type;
-	float l;
 	daliasxframe_t *frame, *oldframe;
 	dxtrivertx_t *v, *ov, *verts;
 	int *order;
-	int count;
 	float alpha;
 	vec3_t move, delta, vectors[3];
 	vec3_t frontv, backv;
@@ -168,6 +164,8 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	while (1)
 	{
 		GLushort nextVtxIdx = da_count(vtxBuf);
+		GLenum type;
+		int count;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
@@ -213,8 +211,11 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 			int i;
 			for(i=0; i<count; ++i)
 			{
-				int j=0;
 				gl4_alias_vtx_t* cur = &buf[i];
+				int index_xyz;
+				int j = 0;
+				float l;
+
 				/* texture coordinates come from the draw list */
 				cur->texCoord[0] = ((float *) order)[0];
 				cur->texCoord[1] = ((float *) order)[1];
@@ -293,7 +294,6 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 {
 	GLenum type;
 	int *order;
-	vec3_t point;
 	float height = 0, lheight;
 	int count;
 
@@ -384,6 +384,8 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 
 		for(i=0; i<count; ++i)
 		{
+			vec3_t point;
+
 			/* normals and vertexes come from the frame list */
 			VectorCopy(s_lerped[order[2]], point);
 
@@ -452,13 +454,7 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 static qboolean
 CullAliasModel(vec3_t bbox[8], entity_t *e)
 {
-	int i;
-	vec3_t mins, maxs;
 	dmdx_t *paliashdr;
-	vec3_t vectors[3];
-	vec3_t thismins, oldmins, thismaxs, oldmaxs;
-	daliasxframe_t *pframe, *poldframe;
-	vec3_t angles;
 
 	gl4model_t* model = e->model;
 
@@ -466,141 +462,20 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_CullAliasModel %s: no such frame %d\n",
-				model->name, e->frame);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such frame %d\n",
+				__func__, model->name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_CullAliasModel %s: no such oldframe %d\n",
-				model->name, e->oldframe);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such oldframe %d\n",
+				__func__, model->name, e->oldframe);
 		e->oldframe = 0;
 	}
 
-	pframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
-			e->frame * paliashdr->framesize);
-
-	poldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames +
-			e->oldframe * paliashdr->framesize);
-
-	/* compute axially aligned mins and maxs */
-	if (pframe == poldframe)
-	{
-		for (i = 0; i < 3; i++)
-		{
-			mins[i] = pframe->translate[i];
-			maxs[i] = mins[i] + pframe->scale[i] * 0xFFFF;
-		}
-	}
-	else
-	{
-		for (i = 0; i < 3; i++)
-		{
-			thismins[i] = pframe->translate[i];
-			thismaxs[i] = thismins[i] + pframe->scale[i] * 0xFFFF;
-
-			oldmins[i] = poldframe->translate[i];
-			oldmaxs[i] = oldmins[i] + poldframe->scale[i] * 0xFFFF;
-
-			if (thismins[i] < oldmins[i])
-			{
-				mins[i] = thismins[i];
-			}
-			else
-			{
-				mins[i] = oldmins[i];
-			}
-
-			if (thismaxs[i] > oldmaxs[i])
-			{
-				maxs[i] = thismaxs[i];
-			}
-			else
-			{
-				maxs[i] = oldmaxs[i];
-			}
-		}
-	}
-
-	/* compute a full bounding box */
-	for (i = 0; i < 8; i++)
-	{
-		vec3_t tmp;
-
-		if (i & 1)
-		{
-			tmp[0] = mins[0];
-		}
-		else
-		{
-			tmp[0] = maxs[0];
-		}
-
-		if (i & 2)
-		{
-			tmp[1] = mins[1];
-		}
-		else
-		{
-			tmp[1] = maxs[1];
-		}
-
-		if (i & 4)
-		{
-			tmp[2] = mins[2];
-		}
-		else
-		{
-			tmp[2] = maxs[2];
-		}
-
-		VectorCopy(tmp, bbox[i]);
-	}
-
-	/* rotate the bounding box */
-	VectorCopy(e->angles, angles);
-	angles[YAW] = -angles[YAW];
-	AngleVectors(angles, vectors[0], vectors[1], vectors[2]);
-
-	for (i = 0; i < 8; i++)
-	{
-		vec3_t tmp;
-
-		VectorCopy(bbox[i], tmp);
-
-		bbox[i][0] = DotProduct(vectors[0], tmp);
-		bbox[i][1] = -DotProduct(vectors[1], tmp);
-		bbox[i][2] = DotProduct(vectors[2], tmp);
-
-		VectorAdd(e->origin, bbox[i], bbox[i]);
-	}
-
-	int p, f, aggregatemask = ~0;
-
-	for (p = 0; p < 8; p++)
-	{
-		int mask = 0;
-
-		for (f = 0; f < 4; f++)
-		{
-			float dp = DotProduct(frustum[f].normal, bbox[p]);
-
-			if ((dp - frustum[f].dist) < 0)
-			{
-				mask |= (1 << f);
-			}
-		}
-
-		aggregatemask &= mask;
-	}
-
-	if (aggregatemask)
-	{
-		return true;
-	}
-
-	return false;
+	return R_CullAliasMeshModel(paliashdr, frustum, e->frame, e->oldframe,
+		e->angles, e->origin, bbox);
 }
 
 void
@@ -743,12 +618,13 @@ GL4_DrawAliasModel(entity_t *entity)
 	{
 		/* bonus items will pulse with time */
 		float scale;
-		float min;
 
 		scale = 0.1 * sin(gl4_newrefdef.time * 7);
 
 		for (i = 0; i < 3; i++)
 		{
+			float	min;
+
 			min = shadelight[i] * 0.8;
 			shadelight[i] += scale;
 
@@ -967,4 +843,3 @@ void GL4_DrawAliasShadows(void)
 	gl4state.uni3DData.transModelMat4 = oldMat;
 	GL4_UpdateUBO3D();
 }
-
