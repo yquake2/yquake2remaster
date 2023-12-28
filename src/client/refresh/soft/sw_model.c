@@ -655,7 +655,8 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 				mod->extradata = Mod_LoadModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
-					(findimage_t)R_FindImage, &(mod->type));
+					(findimage_t)R_FindImage, (loadimage_t)R_LoadPic,
+					&(mod->type));
 				if (!mod->extradata)
 				{
 					Com_Error(ERR_DROP, "%s: Failed to load %s",
@@ -761,7 +762,8 @@ RE_RegisterModel(const char *name)
 		{
 			/* numframes is unused for SP2 but lets set it also  */
 			mod->numframes = Mod_ReLoadSkins((struct image_s **)mod->skins,
-				(findimage_t)R_FindImage, mod->extradata, mod->type);
+				(findimage_t)R_FindImage, (loadimage_t)R_LoadPic,
+				mod->extradata, mod->type);
 		}
 	}
 

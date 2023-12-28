@@ -376,6 +376,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	/* copy back all values */
+	memset(pheader, 0, sizeof(*pheader));
 	pheader->skinwidth = skinwidth;
 	pheader->skinheight = skinheight;
 	pheader->framesize = framesize;
@@ -648,6 +649,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	/* Copy values as we have mostly same data format */
+	memset(pheader, 0, sizeof(*pheader));
 	pheader->skinwidth = pinmodel.skinwidth;
 	pheader->skinheight = pinmodel.skinheight;
 	pheader->framesize = pinmodel.framesize;
@@ -802,6 +804,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			}
 
 			/* copy back all values */
+			memset(&dmdxheader, 0, sizeof(dmdxheader));
 			dmdxheader.skinwidth = LittleLong(header->skinwidth);
 			dmdxheader.skinheight = LittleLong(header->skinheight);
 			dmdxheader.framesize = LittleLong(header->framesize);
@@ -1080,6 +1083,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	}
 
 	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
 	dmdxheader.skinwidth = 256;
 	dmdxheader.skinheight = 256;
 	if (header.version != DKM2_VERSION)
@@ -1212,7 +1216,7 @@ Mod_LoadModel
 void *
 Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, modtype_t *type)
+	findimage_t find_image, loadimage_t load_image, modtype_t *type)
 {
 	void *extradata = NULL;
 
@@ -1246,7 +1250,7 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (extradata)
 	{
-		Mod_ReLoadSkins(*skins, find_image, extradata, *type);
+		Mod_ReLoadSkins(*skins, find_image, load_image, extradata, *type);
 	}
 
 	return extradata;
@@ -1395,8 +1399,8 @@ Reload images in SP2/MD2 (mark registration_sequence)
 =================
 */
 int
-Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, void *extradata,
-	modtype_t type)
+Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load_image,
+	void *extradata, modtype_t type)
 {
 	if (type == mod_sprite)
 	{
@@ -1425,9 +1429,26 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, void *extradata,
 		int	i;
 
 		pheader = (dmdx_t *)extradata;
-		for (i=0; i < pheader->num_skins; i++)
+		if (pheader->ofs_imgbit && load_image)
 		{
-			skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME, it_skin);
+			byte* images = (byte *)pheader + pheader->ofs_imgbit;
+			for (i = 0; i < pheader->num_skins; i++)
+			{
+				skins[i] = load_image(
+					(char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
+					images, pheader->skinwidth, pheader->skinwidth,
+					pheader->skinheight, pheader->skinheight,
+					pheader->skinheight * pheader->skinwidth,
+					it_skin, pheader->num_imgbit);
+				images += (pheader->skinheight * pheader->skinwidth * pheader->ofs_imgbit / 8);
+			}
+		}
+		else
+		{
+			for (i=0; i < pheader->num_skins; i++)
+			{
+				skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME, it_skin);
+			}
 		}
 		return  pheader->num_frames;
 	}

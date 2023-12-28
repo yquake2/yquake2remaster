@@ -402,6 +402,13 @@ GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
 		{
 			break;
 		}
+
+		if (!strcmp(image->name, name))
+		{
+			/* we already have such image */
+			image->registration_sequence = registration_sequence;
+			return image;
+		}
 	}
 
 	if (i == numgl4textures)

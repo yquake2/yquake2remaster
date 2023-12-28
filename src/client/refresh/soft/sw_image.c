@@ -88,7 +88,7 @@ R_ImageList_f (void)
 //=======================================================
 
 static image_t *
-R_FindFreeImage (void)
+R_FindFreeImage(char *name)
 {
 	image_t		*image;
 	int			i;
@@ -97,8 +97,18 @@ R_FindFreeImage (void)
 	for (i=0, image=r_images ; i<numr_images ; i++,image++)
 	{
 		if (!image->registration_sequence)
+		{
 			break;
+		}
+
+		if (!strcmp(image->name, name))
+		{
+			/* we already have such image */
+			image->registration_sequence = registration_sequence;
+			return image;
+		}
 	}
+
 	if (i == numr_images)
 	{
 		if (numr_images == MAX_RIMAGES)
@@ -241,7 +251,7 @@ R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
 
 /*
 ================
-R_LoadPic
+R_LoadPic8
 
 ================
 */
@@ -256,11 +266,17 @@ R_LoadPic8 (char *name, byte *pic, int width, int realwidth, int height, int rea
 
 	/* data_size/size are unsigned */
 	if (!pic || data_size == 0 || width <= 0 || height <= 0 || size == 0)
+	{
 		return NULL;
+	}
 
-	image = R_FindFreeImage();
+	image = R_FindFreeImage(name);
+
 	if (strlen(name) >= sizeof(image->name))
+	{
 		Com_Error(ERR_DROP, "%s: '%s' is too long", __func__, name);
+	}
+
 	strcpy (image->name, name);
 	image->registration_sequence = registration_sequence;
 
@@ -314,8 +330,8 @@ R_LoadPic8 (char *name, byte *pic, int width, int realwidth, int height, int rea
 	return image;
 }
 
-static image_t *
-R_LoadPic (char *name, byte *pic, int width, int realwidth, int height, int realheight,
+image_t *
+R_LoadPic(char *name, byte *pic, int width, int realwidth, int height, int realheight,
 	size_t data_size, imagetype_t type, int bits)
 {
 	if (!realwidth || !realheight)

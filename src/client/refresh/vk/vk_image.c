@@ -1067,8 +1067,18 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		for (i = 0, image = vktextures; i<numvktextures; i++, image++)
 		{
 			if (image->vk_texture.resource.image == VK_NULL_HANDLE)
+			{
 				break;
+			}
+
+			if (!strcmp(image->name, name))
+			{
+				/* we already have such image */
+				image->registration_sequence = registration_sequence;
+				return image;
+			}
 		}
+
 		if (i == numvktextures)
 		{
 			if (numvktextures == MAX_VKTEXTURES)
