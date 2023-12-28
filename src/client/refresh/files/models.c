@@ -285,11 +285,12 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	void	*extradata;
 	dmdxmesh_t *mesh_nodes;
 
-
 	/* local copy of all values */
 	int skinwidth, skinheight, framesize;
-	int num_meshes, num_skins, num_xyz, num_st, num_tris, num_glcmds, num_frames;
-	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_frames, ofs_glcmds, ofs_end;
+	int num_meshes, num_skins, num_xyz, num_st, num_tris, num_glcmds,
+		num_frames;
+	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_frames, ofs_glcmds,
+		ofs_imgbit, ofs_end;
 
 	pinmodel = (mdl_header_t *)buffer;
 
@@ -314,7 +315,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		(num_tris * sizeof(int)) + /* triangles count */
 		sizeof(int) /* final zero */) / sizeof(int);
 	num_frames = LittleLong(pinmodel->num_frames);
-	framesize = sizeof(daliasframe_t) + sizeof (dtrivertx_t) * (num_xyz - 1);
+	framesize = sizeof(daliasframe_t) + sizeof(dtrivertx_t) * (num_xyz - 1);
 
 	ofs_meshes = sizeof(*pheader); // just skip header and go
 	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
@@ -322,8 +323,9 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_tris = ofs_st + num_st * sizeof(dstvert_t);
 	ofs_glcmds = ofs_tris + num_tris * sizeof(dtriangle_t);
 	ofs_frames = ofs_glcmds + num_glcmds * sizeof(int);
+	ofs_imgbit = ofs_frames + framesize * num_frames;
 	/* one less as single vertx in frame by default */
-	ofs_end = ofs_frames + framesize * num_frames;
+	ofs_end = ofs_imgbit + (skinwidth * skinheight * num_skins);
 
 	/* validate */
 	if (skinheight > MAX_LBM_HEIGHT)
@@ -368,13 +370,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
-	if (modfilelen < ofs_end)
-	{
-		R_Printf(PRINT_ALL, "%s: model %s is too big.",
-				__func__, mod_name);
-		return NULL;
-	}
-
 	*numskins = num_skins;
 	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
 	pheader = Hunk_Alloc(ofs_end);
@@ -391,6 +386,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_st = num_st;
 	pheader->num_tris = num_tris;
 	pheader->num_glcmds = num_glcmds;
+	pheader->num_imgbit = 8;
 	pheader->num_frames = num_frames;
 
 	pheader->ofs_meshes = ofs_meshes;
@@ -399,6 +395,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_tris = ofs_tris;
 	pheader->ofs_frames = ofs_frames;
 	pheader->ofs_glcmds = ofs_glcmds;
+	pheader->ofs_imgbit = ofs_imgbit;
 	pheader->ofs_end = ofs_end;
 
 	/* create single mesh */
@@ -413,7 +410,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		mdl_triangle_t *triangles;
 		mdl_texcoord_t *texcoords;
 
-		curr_pos = (byte*)buffer + sizeof (mdl_header_t);
+		curr_pos = (byte*)buffer + sizeof(mdl_header_t);
 
 		// register all skins
 		for (i = 0; i < num_skins; ++i)
@@ -436,7 +433,11 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 				return NULL;
 			}
 
-			/* skip 8bit image */
+			/* copy 8bit image */
+			memcpy((byte*)pheader + pheader->ofs_imgbit +
+					(skinwidth * skinheight * i),
+					curr_pos,
+					skinwidth * skinheight);
 			curr_pos += skinwidth * skinheight;
 		}
 
@@ -445,7 +446,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			dstvert_t *poutst = (dstvert_t *) ((byte *)pheader + ofs_st);
 
 			texcoords = (mdl_texcoord_t *)curr_pos;
-			curr_pos += sizeof (mdl_texcoord_t) * num_st;
+			curr_pos += sizeof(mdl_texcoord_t) * num_st;
 
 			for(i = 0; i < num_st; i++)
 			{
@@ -469,7 +470,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			dtriangle_t *pouttri = (dtriangle_t *) ((byte *)pheader + ofs_tris);
 
 			triangles = (mdl_triangle_t *) curr_pos;
-			curr_pos += sizeof (mdl_triangle_t) * num_tris;
+			curr_pos += sizeof(mdl_triangle_t) * num_tris;
 
 			for (i=0 ; i<num_tris ; i++)
 			{
@@ -550,7 +551,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			/* 0 = simple, !0 = group */
 			/* this program can't read models composed of group frames! */
 			frame_type = LittleLong(((int *)curr_pos)[0]);
-			curr_pos += sizeof (frame_type);
+			curr_pos += sizeof(frame_type);
 
 			if (frame_type)
 			{
@@ -563,12 +564,12 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			/* skip bboxmax, bouding box max */
 			curr_pos += sizeof(dtrivertx_t);
 
-			memcpy(&frame->name, curr_pos, sizeof (char) * 16);
-			curr_pos += sizeof (char) * 16;
+			memcpy(&frame->name, curr_pos, sizeof(char) * 16);
+			curr_pos += sizeof(char) * 16;
 
 			memcpy(&frame->verts[0], curr_pos,
-				sizeof (dtrivertx_t) * num_xyz);
-			curr_pos += sizeof (dtrivertx_t) * num_xyz;
+				sizeof(dtrivertx_t) * num_xyz);
+			curr_pos += sizeof(dtrivertx_t) * num_xyz;
 		}
 	}
 
