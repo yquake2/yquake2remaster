@@ -308,8 +308,6 @@ Cmd_Chasecam_Toggle(edict_t *ent)
 void
 CheckChasecam_Viewent(edict_t *ent)
 {
-	vec3_t angles;
-
 	/*
 	 Oldplayer is the fake player that everyone else sees.
 	 Assign the same client as the ent we're following so the game
@@ -323,6 +321,8 @@ CheckChasecam_Viewent(edict_t *ent)
 	 * Even though people can't see us we still have all this stuff */
 	if ((ent->client->chasetoggle == 1) && (ent->client->oldplayer))
 	{
+		vec3_t angles = {0};
+
 		if (ent->client->use)
 		{
 			VectorCopy(ent->client->oldplayer->s.angles, angles);

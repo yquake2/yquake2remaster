@@ -606,6 +606,17 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		}
 	}
 
+	{
+		int i;
+
+		for (i = 0; i < pheader->num_skins; i++)
+		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load internal '%s'\n",
+				__func__, mod_name, i,
+				(char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME);
+		}
+	}
+
 	*type = mod_alias;
 
 	mins[0] = -32;
@@ -789,9 +800,16 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	pincmd = (int *)((byte *)buffer + pinmodel.ofs_glcmds);
 	Mod_LoadCmdList(mod_name, pheader, pincmd);
 
-	// register all skins
+	/* register all skins */
 	memcpy((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
-		pheader->num_skins*MAX_SKINNAME);
+		pheader->num_skins * MAX_SKINNAME);
+
+	for (i = 0; i < pheader->num_skins; i++)
+	{
+		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
+			__func__, mod_name, i,
+			(char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME);
+	}
 
 	*type = mod_alias;
 
@@ -1093,6 +1111,17 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 		src += size;
 	}
 
+	{
+		int i;
+
+		for (i = 0; i < pheader->num_skins; i++)
+		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
+				__func__, mod_name, i,
+				(char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME);
+		}
+	}
+
 	*type = mod_alias;
 
 	mins[0] = -32;
@@ -1225,6 +1254,13 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadDkmTriangleList (pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
+	for (i = 0; i < pheader->num_skins; i++)
+	{
+		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
+			__func__, mod_name, i,
+			(char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME);
+	}
+
 	*type = mod_alias;
 
 	mins[0] = -32;
@@ -1280,6 +1316,13 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 		sprout->frames[i].origin_x = LittleLong(sprin->frames[i].origin_x);
 		sprout->frames[i].origin_y = LittleLong(sprin->frames[i].origin_y);
 		memcpy(sprout->frames[i].name, sprin->frames[i].name, MAX_SKINNAME);
+	}
+
+	for (i = 0; i < sprout->numframes; i++)
+	{
+		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
+			__func__, mod_name, i,
+			sprout->frames[i].name);
 	}
 
 	*type = mod_sprite;

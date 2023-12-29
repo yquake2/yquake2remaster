@@ -40,7 +40,7 @@ R_DrawSprite(entity_t *currententity, const model_t *currentmodel)
 	vec3_t		left, up, right, down;
 	dsprite_t	*s_psprite;
 	dsprframe_t	*s_psprframe;
-	image_t		*skin;
+	image_t		*skin = NULL;
 
 	s_psprite = (dsprite_t *)currentmodel->extradata;
 	currententity->frame %= s_psprite->numframes;
