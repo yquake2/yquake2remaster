@@ -292,8 +292,7 @@ Mod_LoadModel_MDL
 */
 static void *
 Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
-	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	modtype_t *type)
+	struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	const mdl_header_t		*pinmodel;
 	int		version;
@@ -619,13 +618,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 	*type = mod_alias;
 
-	mins[0] = -32;
-	mins[1] = -32;
-	mins[2] = -32;
-	maxs[0] = 32;
-	maxs[1] = 32;
-	maxs[2] = 32;
-
 	return extradata;
 }
 
@@ -636,8 +628,7 @@ Mod_LoadModel_MD2
 */
 static void *
 Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
-	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	modtype_t *type)
+	struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	vec3_t		translate = {0, 0, 0};
 	dmdl_t		pinmodel;
@@ -813,13 +804,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	*type = mod_alias;
 
-	mins[0] = -32;
-	mins[1] = -32;
-	mins[2] = -32;
-	maxs[0] = 32;
-	maxs[1] = 32;
-	maxs[2] = 32;
-
 	return extradata;
 }
 
@@ -831,7 +815,7 @@ Mod_LoadModel_Flex
 */
 static void *
 Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
-	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
+	struct image_s ***skins, int *numskins,
 	modtype_t *type)
 {
 	char *src = (char *)buffer;
@@ -1124,20 +1108,12 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 
 	*type = mod_alias;
 
-	mins[0] = -32;
-	mins[1] = -32;
-	mins[2] = -32;
-	maxs[0] = 32;
-	maxs[1] = 32;
-	maxs[2] = 32;
-
 	return extradata;
 }
 
 static void *
 Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
-	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	modtype_t *type)
+	struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	dmdx_t dmdxheader, *pheader = NULL;
 	dkm_header_t header = {0};
@@ -1263,13 +1239,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 	*type = mod_alias;
 
-	mins[0] = -32;
-	mins[1] = -32;
-	mins[2] = -32;
-	maxs[0] = 32;
-	maxs[1] = 32;
-	maxs[2] = 32;
-
 	return extradata;
 }
 
@@ -1345,22 +1314,22 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	switch (LittleLong(*(unsigned *)buffer))
 	{
 		case DKMHEADER:
-			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen, mins, maxs,
+			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen,
 				skins, numskins, type);
 			break;
 
 		case RAVENFMHEADER:
-			extradata = Mod_LoadModel_Flex(mod_name, buffer, modfilelen, mins, maxs,
+			extradata = Mod_LoadModel_Flex(mod_name, buffer, modfilelen,
 				skins, numskins, type);
 			break;
 
 		case IDALIASHEADER:
-			extradata = Mod_LoadModel_MD2(mod_name, buffer, modfilelen, mins, maxs,
+			extradata = Mod_LoadModel_MD2(mod_name, buffer, modfilelen,
 				skins, numskins, type);
 			break;
 
 		case IDMDLHEADER:
-			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen, mins, maxs,
+			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen,
 				skins, numskins, type);
 			break;
 
@@ -1372,6 +1341,18 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (extradata)
 	{
+		if (type == mod_alias)
+		{
+			/* Not fully correct hardcoded value,
+			 * but if use real values objects will fly */
+			mins[0] = -32;
+			mins[1] = -32;
+			mins[2] = -32;
+			maxs[0] = 32;
+			maxs[1] = 32;
+			maxs[2] = 32;
+		}
+
 		Mod_ReLoadSkins(*skins, find_image, load_image, extradata, *type);
 	}
 
