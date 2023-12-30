@@ -1341,7 +1341,7 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (extradata)
 	{
-		if (type == mod_alias)
+		if (*type == mod_alias)
 		{
 			/* Not fully correct hardcoded value,
 			 * but if use real values objects will fly */
