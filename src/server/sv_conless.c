@@ -28,18 +28,17 @@
 
 extern cvar_t *hostname;
 extern cvar_t *rcon_password;
-char *SV_StatusString(void);
 
 /*
  * Responds with all the info that qplug or qspy can see
  */
-void
+static void
 SVC_Status(void)
 {
 	Netchan_OutOfBandPrint(NS_SERVER, net_from, "print\n%s", SV_StatusString());
 }
 
-void
+static void
 SVC_Ack(void)
 {
 	Com_Printf("Ping acknowledge from %s\n", NET_AdrToString(net_from));
@@ -49,7 +48,7 @@ SVC_Ack(void)
  * Responds with short info for broadcast scans
  * The second parameter should be the current protocol version number.
  */
-void
+static void
 SVC_Info(void)
 {
 	char string[64];
@@ -91,7 +90,7 @@ SVC_Info(void)
 /*
  * SVC_Ping
  */
-void
+static void
 SVC_Ping(void)
 {
 	Netchan_OutOfBandPrint(NS_SERVER, net_from, "ack");
@@ -104,7 +103,7 @@ SVC_Ping(void)
  * flood the server with invalid connection IPs.  With a
  * challenge, they must give a valid IP address.
  */
-void
+static void
 SVC_GetChallenge(void)
 {
 	int i;
@@ -146,7 +145,7 @@ SVC_GetChallenge(void)
 /*
  * A connection request that did not come from the master
  */
-void
+static void
 SVC_DirectConnect(void)
 {
 	char userinfo[MAX_INFO_STRING];
@@ -321,7 +320,7 @@ gotnewcl:
 	newcl->lastconnect = svs.realtime;
 }
 
-int
+static int
 Rcon_Validate(void)
 {
 	if (!strlen(rcon_password->string))
@@ -342,7 +341,7 @@ Rcon_Validate(void)
  * Shift down the remaining args
  * Redirect all printfs
  */
-void
+static void
 SVC_RemoteCommand(void)
 {
 	int i;

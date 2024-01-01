@@ -428,7 +428,7 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 	}
 }
 
-qboolean
+static qboolean
 SV_SendClientDatagram(client_t *client)
 {
 	byte msg_buf[MAX_MSGLEN];
@@ -490,7 +490,7 @@ SV_DemoCompleted(void)
  * Returns true if the client is over its current
  * bandwidth estimation and should not be sent another packet
  */
-qboolean
+static qboolean
 SV_RateDrop(client_t *c)
 {
 	int total;

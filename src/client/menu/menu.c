@@ -31,6 +31,7 @@
 
 #include <ctype.h>
 #include "../header/client.h"
+#include "../header/console.h"
 #include "../sound/header/local.h"
 #include "header/qmenu.h"
 
@@ -2266,8 +2267,6 @@ EnableOGGMusic(void *unused)
 		OGG_Shutdown();
 	}
 }
-
-extern void Key_ClearTyping(void);
 
 static void
 ConsoleFunc(void *unused)

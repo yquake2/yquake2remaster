@@ -52,9 +52,6 @@ cvar_t *public_server; /* should heartbeats be sent */
 cvar_t *sv_entfile; /* External entity files. */
 cvar_t *sv_downloadserver; /* Download server. */
 
-void Master_Shutdown(void);
-void SV_ConnectionlessPacket(void);
-
 /*
  * Called when the player is totally leaving the server, either willingly
  * or unwillingly.  This is NOT called if the entire server is quiting
@@ -126,7 +123,7 @@ SV_StatusString(void)
 /*
  * Updates the cl->ping variables
  */
-void
+static void
 SV_CalcPings(void)
 {
 	int i, j;
@@ -172,7 +169,7 @@ SV_CalcPings(void)
  * Every few frames, gives all clients an allotment of milliseconds
  * for their command moves. If they exceed it, assume cheating.
  */
-void
+static void
 SV_GiveMsec(void)
 {
 	int i;
@@ -196,7 +193,7 @@ SV_GiveMsec(void)
 	}
 }
 
-void
+static void
 SV_ReadPackets(void)
 {
 	int i;
@@ -239,7 +236,7 @@ SV_ReadPackets(void)
 
 			if (cl->netchan.remote_address.port != net_from.port)
 			{
-				Com_Printf("SV_ReadPackets: fixing up a translated port\n");
+				Com_Printf("%s: fixing up a translated port\n", __func__);
 				cl->netchan.remote_address.port = net_from.port;
 			}
 
@@ -276,7 +273,7 @@ SV_ReadPackets(void)
  * for a few seconds to make sure any final reliable message gets resent
  * if necessary
  */
-void
+static void
 SV_CheckTimeouts(void)
 {
 	int i;
@@ -331,7 +328,7 @@ SV_PrepWorldFrame(void)
 	}
 }
 
-void
+static void
 SV_RunGameFrame(void)
 {
 #ifndef DEDICATED_ONLY
@@ -489,7 +486,7 @@ Master_Heartbeat(void)
 /*
  * Informs all masters that this server is going down
  */
-void
+static void
 Master_Shutdown(void)
 {
 	int i;

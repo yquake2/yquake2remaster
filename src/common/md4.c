@@ -7,6 +7,7 @@
  */
 
 #include <inttypes.h>
+#include "header/common.h"
 
 #define ROTATELEFT32(x, s) (((x) << (s)) | ((x) >> (32 - (s))))
 

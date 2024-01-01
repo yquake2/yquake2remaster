@@ -669,7 +669,7 @@ OGG_HelpMsg(void)
 /*
  * The 'ogg' cmd. Gives some control and information about the playback state.
  */
-void
+static void
 OGG_Cmd(void)
 {
 	if (Cmd_Argc() < 2)

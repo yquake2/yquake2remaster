@@ -241,7 +241,8 @@ void SV_Nextserver(void);
 void SV_ExecuteClientMessage(client_t *cl);
 
 void SV_ReadLevelFile(void);
-void SV_Status_f(void);
+char *SV_StatusString(void);
+void SV_ConnectionlessPacket(void);
 
 void SV_WriteFrameToClient(client_t *client, sizebuf_t *msg);
 void SV_RecordDemoMessage(void);

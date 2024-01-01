@@ -36,7 +36,7 @@ static YQ2_ALIGNAS_TYPE(int32_t) byte fatpvs[65536 / 8];
 /*
  * Writes a delta update of an entity_state_t list to the message.
  */
-void
+static void
 SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 {
 	entity_state_t *oldent, *newent;
@@ -146,7 +146,7 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 	MSG_WriteShort(msg, 0);
 }
 
-void
+static void
 SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		sizebuf_t *msg)
 {
@@ -439,7 +439,7 @@ SV_WriteFrameToClient(client_t *client, sizebuf_t *msg)
  * The client will interpolate the view position,
  * so we can't use a single PVS point
  */
-void
+static void
 SV_FatPVS(vec3_t org)
 {
 	int leafs[64];

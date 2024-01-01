@@ -82,25 +82,6 @@ ChasecamStart(edict_t *ent)
 	CheckChasecam_Viewent(ent);
 }
 
-/* ent = chasecam */
-void
-ChasecamRestart(edict_t *ent)
-{
-	/* Keep thinking this function to check all the time whether the
-	 * player is out of the water */
-	/* If the player is dead, the camera is not wanted... Kill me and stop
-	 * the function. (return;) */
-	if (ent->owner->health <= 0)
-	{
-		G_FreeEdict(ent);
-		return;
-	}
-	// Put camera back
-	ChasecamStart(ent->owner);
-	// Remove this temporary ent
-	G_FreeEdict(ent);
-}
-
 /* Here, the "ent" is referring to the client, the player that owns the
  * chasecam, and the "opt" integer is telling the function whether to
  * totally get rid of the camera, or to put it into the background while

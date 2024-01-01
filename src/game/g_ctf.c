@@ -239,14 +239,6 @@ static char *tnames[] = {
 	NULL
 };
 
-void
-stuffcmd(edict_t *ent, char *s)
-{
-	gi.WriteByte(11);
-	gi.WriteString(s);
-	gi.unicast(ent, true);
-}
-
 /*--------------------------------------------------------------------------*/
 
 /*
@@ -437,7 +429,7 @@ CTFOtherTeamName(int team)
 	return "UNKNOWN";
 }
 
-int
+static int
 CTFOtherTeam(int team)
 {
 	switch (team)
@@ -916,7 +908,7 @@ CTFResetFlag(int ctf_team)
 	}
 }
 
-void
+static void
 CTFResetFlags(void)
 {
 	CTFResetFlag(CTF_TEAM1);
@@ -1658,7 +1650,7 @@ CTFResetGrapple(edict_t *self)
 	}
 }
 
-void
+static void
 CTFGrappleTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	float volume = 1.0;
@@ -1725,7 +1717,7 @@ CTFGrappleTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 /*
  * Draw beam between grapple and self
  */
-void
+static void
 CTFGrappleDrawCable(edict_t *self)
 {
 	vec3_t offset, start, end, f, r;
@@ -1865,7 +1857,7 @@ CTFGrapplePull(edict_t *self)
 	}
 }
 
-void
+static void
 CTFFireGrapple(edict_t *self, vec3_t start, vec3_t dir,
 		int damage, int speed, int effect)
 {
@@ -1902,7 +1894,7 @@ CTFFireGrapple(edict_t *self, vec3_t start, vec3_t dir,
 	}
 }
 
-void
+static void
 CTFGrappleFire(edict_t *ent, vec3_t g_offset, int damage, int effect)
 {
 	vec3_t forward, right;
@@ -1934,7 +1926,7 @@ CTFGrappleFire(edict_t *ent, vec3_t g_offset, int damage, int effect)
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 }
 
-void
+static void
 CTFWeapon_Grapple_Fire(edict_t *ent)
 {
 	int damage;
@@ -2298,7 +2290,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 /* TECH																	  */
 /*------------------------------------------------------------------------*/
 
-void
+static void
 CTFHasTech(edict_t *who)
 {
 	if (level.time - who->client->ctf_lasttechmsg > 2)
@@ -3344,7 +3336,7 @@ SetLevelName(pmenu_t *p)
 
 /* ELECTIONS */
 
-qboolean
+static qboolean
 CTFBeginElection(edict_t *ent, elect_t type, char *msg)
 {
 	int i;
@@ -3402,7 +3394,7 @@ CTFBeginElection(edict_t *ent, elect_t type, char *msg)
 
 void DoRespawn(edict_t *ent);
 
-void
+static void
 CTFResetAllPlayers(void)
 {
 	int i;
@@ -3457,7 +3449,7 @@ CTFResetAllPlayers(void)
 	}
 }
 
-void
+static void
 CTFAssignGhost(edict_t *ent)
 {
 	int ghost, i;
@@ -3509,7 +3501,7 @@ CTFAssignGhost(edict_t *ent)
 }
 
 /* start a match */
-void
+static void
 CTFStartMatch(void)
 {
 	int i;
@@ -3560,7 +3552,7 @@ CTFStartMatch(void)
 	}
 }
 
-void
+static void
 CTFEndMatch(void)
 {
 	ctfgame.match = MATCH_POST;
@@ -3614,7 +3606,7 @@ CTFNextMap(void)
 	return false;
 }
 
-void
+static void
 CTFWinElection(void)
 {
 	switch (ctfgame.election)
@@ -3955,7 +3947,7 @@ pmenu_t nochasemenu[] = {
 	{"Return to Main Menu", PMENU_ALIGN_LEFT, CTFReturnToMain}
 };
 
-void
+static void
 CTFJoinTeam(edict_t *ent, int desired_team)
 {
 	char *s;
@@ -4054,7 +4046,7 @@ CTFReturnToMain(edict_t *ent, pmenuhnd_t *p)
 	CTFOpenJoinMenu(ent);
 }
 
-void
+static void
 CTFRequestMatch(edict_t *ent, pmenuhnd_t *p)
 {
 	char text[1024];
@@ -4066,9 +4058,7 @@ CTFRequestMatch(edict_t *ent, pmenuhnd_t *p)
 	CTFBeginElection(ent, ELECT_MATCH, text);
 }
 
-void DeathmatchScoreboard(edict_t *ent);
-
-void
+static void
 CTFShowScores(edict_t *ent, pmenu_t *p)
 {
 	PMenu_Close(ent);
@@ -4078,7 +4068,7 @@ CTFShowScores(edict_t *ent, pmenu_t *p)
 	DeathmatchScoreboard(ent);
 }
 
-int
+static int
 CTFUpdateJoinMenu(edict_t *ent)
 {
 	static char team1players[32];
@@ -4546,10 +4536,10 @@ typedef struct admin_settings_s
 
 #define SETMENU_SIZE (7 + 5)
 
-void CTFAdmin_UpdateSettings(edict_t *ent, pmenuhnd_t *setmenu);
+static void CTFAdmin_UpdateSettings(edict_t *ent, pmenuhnd_t *setmenu);
 void CTFOpenAdminMenu(edict_t *ent);
 
-void
+static void
 CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4683,14 +4673,14 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 	CTFOpenAdminMenu(ent);
 }
 
-void
+static void
 CTFAdmin_SettingsCancel(edict_t *ent, pmenuhnd_t *p)
 {
 	PMenu_Close(ent);
 	CTFOpenAdminMenu(ent);
 }
 
-void
+static void
 CTFAdmin_ChangeMatchLen(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4705,7 +4695,7 @@ CTFAdmin_ChangeMatchLen(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeMatchSetupLen(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4720,7 +4710,7 @@ CTFAdmin_ChangeMatchSetupLen(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeMatchStartLen(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4735,7 +4725,7 @@ CTFAdmin_ChangeMatchStartLen(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeWeapStay(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4744,7 +4734,7 @@ CTFAdmin_ChangeWeapStay(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeInstantItems(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4753,7 +4743,7 @@ CTFAdmin_ChangeInstantItems(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeQuadDrop(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4762,7 +4752,7 @@ CTFAdmin_ChangeQuadDrop(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeInstantWeap(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4771,7 +4761,7 @@ CTFAdmin_ChangeInstantWeap(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_ChangeMatchLock(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
@@ -4780,7 +4770,7 @@ CTFAdmin_ChangeMatchLock(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, p);
 }
 
-void
+static void
 CTFAdmin_UpdateSettings(edict_t *ent, pmenuhnd_t *setmenu)
 {
 	int i = 2;
@@ -4846,7 +4836,7 @@ pmenu_t def_setmenu[] = {
 	{"Cancel", PMENU_ALIGN_LEFT, CTFAdmin_SettingsCancel}
 };
 
-void
+static void
 CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings;
@@ -4872,7 +4862,7 @@ CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *p)
 	CTFAdmin_UpdateSettings(ent, menu);
 }
 
-void
+static void
 CTFAdmin_MatchSet(edict_t *ent, pmenuhnd_t *p)
 {
 	PMenu_Close(ent);
@@ -4897,7 +4887,7 @@ CTFAdmin_MatchSet(edict_t *ent, pmenuhnd_t *p)
 	}
 }
 
-void
+static void
 CTFAdmin_MatchMode(edict_t *ent, pmenuhnd_t *p)
 {
 	PMenu_Close(ent);
@@ -4914,7 +4904,7 @@ CTFAdmin_MatchMode(edict_t *ent, pmenuhnd_t *p)
 	}
 }
 
-void
+static void
 CTFAdmin_Reset(edict_t *ent, pmenuhnd_t *p)
 {
 	PMenu_Close(ent);
@@ -4926,7 +4916,7 @@ CTFAdmin_Reset(edict_t *ent, pmenuhnd_t *p)
 	CTFResetAllPlayers();
 }
 
-void
+static void
 CTFAdmin_Cancel(edict_t *ent, pmenuhnd_t *p)
 {
 	PMenu_Close(ent);

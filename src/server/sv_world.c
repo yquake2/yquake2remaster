@@ -50,23 +50,23 @@ edict_t **area_list;
 int area_count, area_maxcount;
 int area_type;
 
-int SV_HullForEntity(edict_t *ent);
+static int SV_HullForEntity(edict_t *ent);
 
 /* ClearLink is used for new headnodes */
-void
+static void
 ClearLink(link_t *l)
 {
 	l->prev = l->next = l;
 }
 
-void
+static void
 RemoveLink(link_t *l)
 {
 	l->next->prev = l->prev;
 	l->prev->next = l->next;
 }
 
-void
+static void
 InsertLinkBefore(link_t *l, link_t *before)
 {
 	l->next = before;
@@ -78,7 +78,7 @@ InsertLinkBefore(link_t *l, link_t *before)
 /*
  * Builds a uniformly subdivided tree for the given world size
  */
-areanode_t *
+static areanode_t *
 SV_CreateAreaNode(int depth, vec3_t mins, vec3_t maxs)
 {
 	areanode_t *anode;
@@ -403,7 +403,7 @@ SV_LinkEdict(edict_t *ent)
 	}
 }
 
-void
+static void
 SV_AreaEdicts_r(areanode_t *node)
 {
 	link_t *l, *next, *start;
@@ -534,7 +534,7 @@ typedef struct
  * adjustment that must be added to the testing object's origin
  * to get a point to use with the returned hull.
  */
-int
+static int
 SV_HullForEntity(edict_t *ent)
 {
 	/* decide which clipping hull to use, based on the size */
@@ -557,7 +557,7 @@ SV_HullForEntity(edict_t *ent)
 	return CM_HeadnodeForBox(ent->mins, ent->maxs);
 }
 
-void
+static void
 SV_ClipMoveToEntities(moveclip_t *clip)
 {
 	int i, num;
@@ -649,7 +649,7 @@ SV_ClipMoveToEntities(moveclip_t *clip)
 	}
 }
 
-void
+static void
 SV_TraceBounds(vec3_t start, vec3_t mins, vec3_t maxs,
 		vec3_t end, vec3_t boxmins, vec3_t boxmaxs)
 {

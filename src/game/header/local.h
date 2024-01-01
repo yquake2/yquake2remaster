@@ -1728,6 +1728,7 @@ void SP_trigger_teleport(edict_t *ent);
 void SP_info_teleport_destination(edict_t *ent);
 
 void CTFSetPowerUpEffect(edict_t *ent, int def);
+void DeathmatchScoreboard(edict_t *ent);
 
 /*
  * Uncomment for check that exported functions declarations are same as in

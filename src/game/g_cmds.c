@@ -837,21 +837,6 @@ Cmd_InvUse_f(edict_t *ent)
 }
 
 void
-Cmd_LastWeap_f(edict_t *ent)
-{
-	gclient_t *cl;
-
-	cl = ent->client;
-
-	if (!cl->pers.weapon || !cl->pers.lastweapon)
-	{
-		return;
-	}
-
-	cl->pers.lastweapon->use(ent, cl->pers.lastweapon);
-}
-
-void
 Cmd_WeapPrev_f(edict_t *ent)
 {
 	gclient_t *cl;
