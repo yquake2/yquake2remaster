@@ -1299,6 +1299,73 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+static void
+Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extradata, modtype_t type)
+{
+	if (type == mod_alias)
+	{
+		daliasxframe_t *frame;
+		dmdx_t *pheader;
+		int i;
+
+		pheader = (dmdx_t *)extradata;
+		if (!pheader->num_frames)
+		{
+			mins[0] = -32;
+			mins[1] = -32;
+			mins[2] = -32;
+
+			maxs[0] = 32;
+			maxs[1] = 32;
+			maxs[2] = 32;
+
+			return;
+		}
+
+		mins[0] = 9999;
+		mins[1] = 9999;
+		mins[2] = 9999;
+
+		maxs[0] = -9999;
+		maxs[1] = -9999;
+		maxs[2] = -9999;
+
+		frame = (daliasxframe_t *)((char*)extradata + pheader->ofs_frames);
+
+		for (i = 0; i < pheader->num_frames; i++)
+		{
+			int j;
+
+			frame = (daliasxframe_t *) ((byte *)extradata
+				+ pheader->ofs_frames + i * pheader->framesize);
+
+			for (j = 0; j < 3; j++)
+			{
+				float curr;
+
+				curr = frame->translate[j];
+
+				if (mins[j] > curr)
+				{
+					mins[j] = curr;
+				}
+
+				curr += frame->scale[j] * 0xFFFF;
+
+				if (maxs[j] < curr)
+				{
+					maxs[j] = curr;
+				}
+			}
+		}
+
+		R_Printf(PRINT_DEVELOPER, "Model %s: %.1fx%.1fx%.1f -> %.1fx%.1fx%.1f\n",
+			mod_name,
+			mins[0], mins[1], mins[2],
+			maxs[0], maxs[1], maxs[2]);
+	}
+}
+
 /*
 =================
 Mod_LoadModel
@@ -1341,18 +1408,7 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (extradata)
 	{
-		if (*type == mod_alias)
-		{
-			/* Not fully correct hardcoded value,
-			 * but if use real values objects will fly */
-			mins[0] = -32;
-			mins[1] = -32;
-			mins[2] = -32;
-			maxs[0] = 32;
-			maxs[1] = 32;
-			maxs[2] = 32;
-		}
-
+		Mod_LoadMinMaxUpdate(mod_name, mins, maxs, extradata, *type);
 		Mod_ReLoadSkins(*skins, find_image, load_image, extradata, *type);
 	}
 
