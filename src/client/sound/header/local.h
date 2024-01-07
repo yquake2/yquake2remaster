@@ -289,8 +289,8 @@ void SDL_Spatialize(channel_t *ch);
 
  /* Only begin attenuating sound volumes
     when outside the FULLVOLUME range */
- #define     SOUND_FULLVOLUME 1.0
- #define     SOUND_LOOPATTENUATE 0.003
+#define     SOUND_FULLVOLUME 1.0
+#define     SOUND_LOOPATTENUATE 0.003
 
 /* number of buffers in flight (needed for ogg) */
 extern int active_buffers;
@@ -356,6 +356,8 @@ void AL_RawSamples(int samples, int rate, int width,
  */
 void AL_UnqueueRawSamples();
 
+void AL_Underwater();
+void AL_Overwater();
+
 #endif /* USE_OPENAL */
 #endif /* CL_SOUND_LOCAL_H */
-

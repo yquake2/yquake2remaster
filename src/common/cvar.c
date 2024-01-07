@@ -295,7 +295,7 @@ Cvar_Get(const char *var_name, const char *var_value, int flags)
 	return var;
 }
 
-cvar_t *
+static cvar_t *
 Cvar_Set2(const char *var_name, const char *value, qboolean force)
 {
 	cvar_t *var;
@@ -530,7 +530,7 @@ Cvar_Command(void)
 /*
  * Allows setting and defining of arbitrary cvars from console
  */
-void
+static void
 Cvar_Set_f(void)
 {
 	char *firstarg;
@@ -615,7 +615,7 @@ Cvar_WriteVariables(const char *path)
 	fclose(f);
 }
 
-void
+static void
 Cvar_List_f(void)
 {
 	cvar_t *var;
@@ -678,7 +678,7 @@ Cvar_List_f(void)
 
 qboolean userinfo_modified;
 
-char *
+static char *
 Cvar_BitInfo(int bit)
 {
 	static char info[MAX_INFO_STRING];
@@ -721,146 +721,150 @@ Cvar_Serverinfo(void)
  * Increments the given cvar by 1 or adds the
  * optional given float value to it.
  */
-void Cvar_Inc_f(void)
+static void
+Cvar_Inc_f(void)
 {
 	char string[MAX_QPATH];
-    cvar_t *var;
-    float value;
+	cvar_t *var;
+	float value;
 
-    if (Cmd_Argc() < 2)
+	if (Cmd_Argc() < 2)
 	{
-        Com_Printf("Usage: %s <cvar> [value]\n", Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("Usage: %s <cvar> [value]\n", Cmd_Argv(0));
+		return;
+	}
 
-    var = Cvar_FindVar(Cmd_Argv(1));
+	var = Cvar_FindVar(Cmd_Argv(1));
 
-    if (!var)
+	if (!var)
 	{
-        Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
-        return;
-    }
+		Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
+		return;
+	}
 
-    if (!Cvar_IsFloat(var->string))
+	if (!Cvar_IsFloat(var->string))
 	{
-        Com_Printf("\"%s\" is \"%s\", can't %s\n", var->name, var->string, Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("\"%s\" is \"%s\", can't %s\n", var->name, var->string, Cmd_Argv(0));
+		return;
+	}
 
-    value = 1;
+	value = 1;
 
-    if (Cmd_Argc() > 2) {
-        value = atof(Cmd_Argv(2));
-    }
+	if (Cmd_Argc() > 2) {
+		value = atof(Cmd_Argv(2));
+	}
 
-    if (!strcmp(Cmd_Argv(0), "dec")) {
-        value = -value;
-    }
+	if (!strcmp(Cmd_Argv(0), "dec")) {
+		value = -value;
+	}
 
 	Com_sprintf(string, sizeof(string), "%f", var->value + value);
-    Cvar_Set(var->name, string);
+	Cvar_Set(var->name, string);
 }
 
 /*
  * Resets a cvar to its default value.
  */
-void Cvar_Reset_f(void)
+static void
+Cvar_Reset_f(void)
 {
-    cvar_t *var;
+	cvar_t *var;
 
-    if (Cmd_Argc() < 2)
+	if (Cmd_Argc() < 2)
 	{
-        Com_Printf("Usage: %s <cvar>\n", Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("Usage: %s <cvar>\n", Cmd_Argv(0));
+		return;
+	}
 
-    var = Cvar_FindVar(Cmd_Argv(1));
+	var = Cvar_FindVar(Cmd_Argv(1));
 
-    if (!var)
+	if (!var)
 	{
-        Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
-        return;
-    }
+		Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
+		return;
+	}
 
 	Com_Printf("%s: %s\n", var->name, var->default_string);
-    Cvar_Set(var->name, var->default_string);
+	Cvar_Set(var->name, var->default_string);
 }
 
 /*
  * Resets all known cvar (with the exception of `game') to
  * their default values.
  */
-void Cvar_ResetAll_f(void)
+static void
+Cvar_ResetAll_f(void)
 {
-    cvar_t *var;
+	cvar_t *var;
 
-    for (var = cvar_vars; var; var = var->next)
+	for (var = cvar_vars; var; var = var->next)
 	{
-        if ((var->flags & CVAR_NOSET))
+		if ((var->flags & CVAR_NOSET))
 		{
-            continue;
+			continue;
 		}
 		else if (strcmp(var->name, "game") == 0)
 		{
-            continue;
+			continue;
 		}
 
-        Cvar_Set(var->name, var->default_string);
-    }
+		Cvar_Set(var->name, var->default_string);
+	}
 }
 
 /*
  * Toggles a cvar between 0 and 1 or the given values.
  */
-void Cvar_Toggle_f(void)
+static void
+Cvar_Toggle_f(void)
 {
-    cvar_t *var;
-    int i, argc = Cmd_Argc();
+	cvar_t *var;
+	int i, argc = Cmd_Argc();
 
-    if (argc < 2)
+	if (argc < 2)
 	{
-        Com_Printf("Usage: %s <cvar> [values]\n", Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("Usage: %s <cvar> [values]\n", Cmd_Argv(0));
+		return;
+	}
 
-    var = Cvar_FindVar(Cmd_Argv(1));
+	var = Cvar_FindVar(Cmd_Argv(1));
 
-    if (!var)
+	if (!var)
 	{
-        Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
-        return;
-    }
+		Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
+		return;
+	}
 
-    if (argc < 3)
+	if (argc < 3)
 	{
-        if (!strcmp(var->string, "0"))
+		if (!strcmp(var->string, "0"))
 		{
-            Cvar_Set(var->name, "1");
-        }
+			Cvar_Set(var->name, "1");
+		}
 		else if (!strcmp(var->string, "1"))
 		{
-            Cvar_Set(var->name, "0");
-        }
+			Cvar_Set(var->name, "0");
+		}
 		else
 		{
-            Com_Printf("\"%s\" is \"%s\", can't toggle\n", var->name, var->string);
-        }
+			Com_Printf("\"%s\" is \"%s\", can't toggle\n", var->name, var->string);
+		}
 
-        return;
-    }
+		return;
+	}
 
-    for (i = 0; i < argc - 2; i++)
+	for (i = 0; i < argc - 2; i++)
 	{
-        if (!Q_stricmp(var->string, Cmd_Argv(2 + i)))
+		if (!Q_stricmp(var->string, Cmd_Argv(2 + i)))
 		{
-            i = (i + 1) % (argc - 2);
-            Cvar_Set(var->name, Cmd_Argv(2 + i));
+			i = (i + 1) % (argc - 2);
+			Cvar_Set(var->name, Cmd_Argv(2 + i));
 
-            return;
-        }
-    }
+			return;
+		}
+	}
 
-    Com_Printf("\"%s\" is \"%s\", can't cycle\n", var->name, var->string);
+	Com_Printf("\"%s\" is \"%s\", can't cycle\n", var->name, var->string);
 }
 
 /*
@@ -896,7 +900,7 @@ Cvar_Fini(void)
 		Z_Free(var->name);
 		Z_Free(var->default_string);
 		Z_Free(var);
-        var = c;
+		var = c;
 	}
 
 	Cmd_RemoveCommand("cvarlist");

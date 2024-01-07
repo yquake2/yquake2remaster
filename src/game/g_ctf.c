@@ -4058,16 +4058,6 @@ CTFRequestMatch(edict_t *ent, pmenuhnd_t *p)
 	CTFBeginElection(ent, ELECT_MATCH, text);
 }
 
-static void
-CTFShowScores(edict_t *ent, pmenu_t *p)
-{
-	PMenu_Close(ent);
-
-	ent->client->showscores = true;
-	ent->client->showinventory = false;
-	DeathmatchScoreboard(ent);
-}
-
 static int
 CTFUpdateJoinMenu(edict_t *ent)
 {

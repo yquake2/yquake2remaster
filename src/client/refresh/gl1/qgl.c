@@ -45,7 +45,7 @@ void (APIENTRY *qglColorTableEXT)(GLenum, GLenum, GLsizei, GLenum, GLenum,
 
 /* ========================================================================= */
 
-void QGL_EXT_Reset ( void )
+static void QGL_EXT_Reset ( void )
 {
 	qglPointParameterfARB     = NULL;
 	qglPointParameterfvARB    = NULL;

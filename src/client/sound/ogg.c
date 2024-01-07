@@ -654,7 +654,7 @@ OGG_TogglePlayback(void)
 /*
  * Prints a help message for the 'ogg' cmd.
  */
-void
+static void
 OGG_HelpMsg(void)
 {
 	Com_Printf("Unknown sub command %s\n\n", Cmd_Argv(1));

@@ -29,11 +29,6 @@
 #include "../client/sound/header/local.h"
 #include "../client/header/client.h"
 
-#if !defined(DEDICATED_ONLY) && defined(USE_OPENAL)
-void AL_Underwater();
-void AL_Overwater();
-#endif
-
 #define STEPSIZE 18
 
 /* all of the locals will be zeroed before each
@@ -74,7 +69,7 @@ float pm_waterspeed = 400;
 #define MIN_STEP_NORMAL 0.7 /* can't step up onto very steep slopes */
 #define MAX_CLIP_PLANES 5
 
-void
+static void
 PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
 	float backoff;
@@ -102,7 +97,7 @@ PM_ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
  * Returns a new origin, velocity, and contact entity
  * Does not modify any world state?
  */
-void
+static void
 PM_StepSlideMove_(void)
 {
 	int bumpcount, numbumps;
@@ -226,7 +221,7 @@ PM_StepSlideMove_(void)
 	}
 }
 
-void
+static void
 PM_StepSlideMove(void)
 {
 	vec3_t start_o, start_v;
@@ -290,7 +285,7 @@ PM_StepSlideMove(void)
 /*
  * Handles both ground friction and water friction
  */
-void
+static void
 PM_Friction(void)
 {
 	float *vel;
@@ -344,7 +339,7 @@ PM_Friction(void)
 /*
  * Handles user intended acceleration
  */
-void
+static void
 PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 {
 	int i;
@@ -371,7 +366,7 @@ PM_Accelerate(vec3_t wishdir, float wishspeed, float accel)
 	}
 }
 
-void
+static void
 PM_AirAccelerate(vec3_t wishdir, float wishspeed, float accel)
 {
 	int i;
@@ -403,7 +398,7 @@ PM_AirAccelerate(vec3_t wishdir, float wishspeed, float accel)
 	}
 }
 
-void
+static void
 PM_AddCurrents(vec3_t wishvel)
 {
 	vec3_t v;
@@ -537,7 +532,7 @@ PM_AddCurrents(vec3_t wishvel)
 	}
 }
 
-void
+static void
 PM_WaterMove(void)
 {
 	int i;
@@ -579,7 +574,7 @@ PM_WaterMove(void)
 	PM_StepSlideMove();
 }
 
-void
+static void
 PM_AirMove(void)
 {
 	int i;
@@ -681,7 +676,7 @@ PM_AirMove(void)
 	}
 }
 
-void
+static void
 PM_CatagorizePosition(void)
 {
 	vec3_t point;
@@ -788,7 +783,7 @@ PM_CatagorizePosition(void)
 	}
 }
 
-void
+static void
 PM_CheckJump(void)
 {
 	if (pm->s.pm_flags & PMF_TIME_LAND)
@@ -857,7 +852,7 @@ PM_CheckJump(void)
 	}
 }
 
-void
+static void
 PM_CheckSpecialMovement(void)
 {
 	vec3_t spot;
@@ -917,7 +912,7 @@ PM_CheckSpecialMovement(void)
 	pm->s.pm_time = 255;
 }
 
-void
+static void
 PM_FlyMove(qboolean doclip)
 {
 	float speed, drop, friction, control, newspeed;
@@ -1025,7 +1020,7 @@ PM_FlyMove(qboolean doclip)
 /*
  * Sets mins, maxs, and pm->viewheight
  */
-void
+static void
 PM_CheckDuck(void)
 {
 	trace_t trace;
@@ -1083,7 +1078,7 @@ PM_CheckDuck(void)
 	}
 }
 
-void
+static void
 PM_DeadMove(void)
 {
 	float forward;
@@ -1108,7 +1103,7 @@ PM_DeadMove(void)
 	}
 }
 
-qboolean
+static qboolean
 PM_GoodPosition(void)
 {
 	trace_t trace;
@@ -1134,7 +1129,7 @@ PM_GoodPosition(void)
  * On exit, the origin will have a value that is pre-quantized to the 0.125
  * precision of the network channel and in a valid position.
  */
-void
+static void
 PM_SnapPosition(void)
 {
 	int sign[3];
@@ -1194,7 +1189,7 @@ PM_SnapPosition(void)
 	VectorCopy(pml.previous_origin, pm->s.origin);
 }
 
-void
+static void
 PM_InitialSnapPosition(void)
 {
 	int x, y, z;
@@ -1230,7 +1225,7 @@ PM_InitialSnapPosition(void)
 	Com_DPrintf("Bad InitialSnapPosition\n");
 }
 
-void
+static void
 PM_ClampAngles(void)
 {
 	short temp;
@@ -1267,7 +1262,8 @@ PM_ClampAngles(void)
 }
 
 #if !defined(DEDICATED_ONLY)
-void PM_CalculateViewHeightForDemo()
+static void
+PM_CalculateViewHeightForDemo()
 {
 	if (pm->s.pm_type == PM_GIB)
 		pm->viewheight = 8;
@@ -1279,7 +1275,8 @@ void PM_CalculateViewHeightForDemo()
 	}
 }
 
-void PM_CalculateWaterLevelForDemo()
+static void
+PM_CalculateWaterLevelForDemo()
 {
 	vec3_t point;
 	int cont;
@@ -1299,7 +1296,8 @@ void PM_CalculateWaterLevelForDemo()
 	}
 }
 
-void PM_UpdateUnderwaterSfx()
+static void
+PM_UpdateUnderwaterSfx()
 {
 	static int underwater;
 
@@ -1309,7 +1307,9 @@ void PM_UpdateUnderwaterSfx()
 
 #ifdef USE_OPENAL
 		if (snd_is_underwater_enabled)
+		{
 			AL_Underwater();
+		}
 #endif
 	}
 

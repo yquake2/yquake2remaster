@@ -493,15 +493,15 @@ char *Key_KeynumToString (int keynum);
 
 void CL_WriteDemoMessage (void);
 void CL_Stop_f (void);
-void CL_Record_f (void);
-
-extern	char *svc_strings[256];
+void CL_ParseStatusMessage(void);
 
 void CL_ParseServerMessage (void);
 void CL_LoadClientinfo (clientinfo_t *ci, char *s);
 void SHOWNET(char *s);
 void CL_ParseClientinfo (int player);
 void CL_Download_f (void);
+void CL_DownloadFileName(char *dest, int destlen, char *fn);
+void CL_ParseDownload(void);
 
 extern	int			gun_frame;
 

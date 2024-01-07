@@ -26,7 +26,7 @@
 
 #include "../ref_shared.h"
 
-struct image_s *
+static struct image_s *
 LoadWalQ2(const char *origname, const char *name, const byte *data, size_t size,
 	imagetype_t type, loadimage_t load_image)
 {
@@ -58,7 +58,7 @@ LoadWalQ2(const char *origname, const char *name, const byte *data, size_t size,
 		(size - ofs), type, 8);
 }
 
-struct image_s *
+static struct image_s *
 LoadWalDKM(const char *origname, const char *name, const byte *data, size_t size,
 	imagetype_t type, loadimage_t load_image)
 {

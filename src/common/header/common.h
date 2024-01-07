@@ -626,6 +626,9 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 
 cmodel_t *CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum);
 cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
+int CM_MapSurfacesNum(void);
+mapsurface_t* CM_MapSurfaces(int surfnum);
+
 void CM_ModFreeAll(void);
 
 int CM_NumClusters(void);
@@ -706,6 +709,8 @@ int FS_FOpenFile(const char *name, fileHandle_t *f, qboolean gamedir_only);
 void FS_FCloseFile(fileHandle_t f);
 int FS_Read(void *buffer, int size, fileHandle_t f);
 int FS_FRead(void *buffer, int size, int count, fileHandle_t f);
+void CM_ReadPortalState(fileHandle_t f);
+void CL_WriteConfiguration(void);
 
 // returns the filename used to open f, but (if opened from pack) in correct case
 // returns NULL if f is no valid handle

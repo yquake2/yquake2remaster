@@ -1572,10 +1572,11 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load
 			skins[i] = find_image(sprout->frames[i].name, it_sprite);
 			if (!skins[i])
 			{
-				char newname[MAX_SKINNAME];
+				/* SKIN NAME + sprites prefix */
+				char newname[MAX_QPATH + 16];
 
 				/* heretic2 sprites have no "sprites/" prefix */
-				snprintf(newname, MAX_SKINNAME,
+				snprintf(newname, sizeof(newname) - 1,
 					"sprites/%s", sprout->frames[i].name);
 				skins[i] = find_image(newname, it_sprite);
 			}

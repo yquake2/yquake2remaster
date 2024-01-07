@@ -26,8 +26,6 @@
 
 #include "header/server.h"
 
-void CM_ReadPortalState(fileHandle_t f);
-
 /*
  * Delete save/<XXX>/
  */

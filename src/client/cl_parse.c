@@ -27,12 +27,9 @@
 #include "header/client.h"
 #include "input/header/input.h"
 
-void CL_DownloadFileName(char *dest, int destlen, char *fn);
-void CL_ParseDownload(void);
+static int bitcounts[32]; /* just for protocol profiling */
 
-int bitcounts[32]; /* just for protocol profiling */
-
-char *svc_strings[256] = {
+static char *svc_strings[256] = {
 	"svc_bad",
 
 	"svc_muzzleflash",

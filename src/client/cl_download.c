@@ -72,9 +72,6 @@ static const char *env_suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
 #define ENV_CNT (CS_PLAYERSKINS + MAX_CLIENTS * PLAYER_MULT)
 #define TEXTURE_CNT (ENV_CNT + 13)
 
-mapsurface_t* CM_MapSurfaces(int surfnum);
-int CM_MapSurfacesNum(void);
-
 void
 CL_RequestNextDownload(void)
 {
