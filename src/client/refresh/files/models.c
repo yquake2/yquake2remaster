@@ -1039,7 +1039,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			{
 				int num_mesh_nodes;
 
-				num_mesh_nodes = (pheader->ofs_skins - sizeof(*pheader)) / sizeof(short) / 2;
+				num_mesh_nodes = (pheader->ofs_skins - sizeof(*pheader)) / sizeof(dmdxmesh_t);
 
 				if (version != 3)
 				{
