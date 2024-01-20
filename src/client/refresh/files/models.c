@@ -461,10 +461,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 				{
 					poutst[i].s += skinwidth * 0.5f; /* Backface */
 				}
-
-				/* Scale s and t to range from 0.0 to 1.0 */
-				poutst[i].s = (poutst[i].s + 0.5) / skinwidth;
-				poutst[i].t = (poutst[i].t + 0.5) / skinheight;
 			}
 		}
 
@@ -502,7 +498,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 				/* Draw each vertex */
 				for (j = 0; j < 3; ++j)
 				{
-					float s,t;
+					float s, t;
 					int index;
 
 					index = triangles[i].vertex[j];
