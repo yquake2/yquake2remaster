@@ -344,20 +344,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_end = ofs_imgbit + (skinwidth * skinheight * num_skins);
 
 	/* validate */
-	if (skinheight > MAX_LBM_HEIGHT)
-	{
-		R_Printf(PRINT_ALL, "%s: model %s has a skin taller than %d",
-				__func__, mod_name, MAX_LBM_HEIGHT);
-		return NULL;
-	}
-
-	if (skinwidth > MAX_LBM_HEIGHT)
-	{
-		R_Printf(PRINT_ALL, "%s: model %s has a skin wider than %d",
-				__func__, mod_name, MAX_LBM_HEIGHT);
-		return NULL;
-	}
-
 	if (num_xyz <= 0)
 	{
 		R_Printf(PRINT_ALL, "%s: model %s has no vertices",
@@ -725,13 +711,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	mesh_nodes[0].start = 0;
 	mesh_nodes[0].num = pheader->num_glcmds;
 
-	if (pheader->skinheight > MAX_LBM_HEIGHT)
-	{
-		R_Printf(PRINT_ALL, "%s: model %s has a skin taller than %d",
-				__func__, mod_name, MAX_LBM_HEIGHT);
-		return NULL;
-	}
-
 	if (pheader->num_xyz <= 0)
 	{
 		R_Printf(PRINT_ALL, "%s: model %s has no vertices",
@@ -890,13 +869,6 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
 			dmdxheader.ofs_glcmds = dmdxheader.ofs_frames + dmdxheader.num_frames * dmdxheader.framesize;
 			dmdxheader.ofs_end = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
-
-			if (dmdxheader.skinheight > MAX_LBM_HEIGHT)
-			{
-				R_Printf(PRINT_ALL, "%s: model %s has a skin taller than %d",
-						__func__, mod_name, MAX_LBM_HEIGHT);
-				return NULL;
-			}
 
 			if (dmdxheader.num_xyz <= 0)
 			{
@@ -1300,6 +1272,30 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 }
 
 static void
+Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
+{
+	if (type == mod_alias)
+	{
+		dmdx_t *pheader;
+
+		pheader = (dmdx_t *)extradata;
+
+		if (pheader->skinheight > MAX_LBM_HEIGHT)
+		{
+			R_Printf(PRINT_ALL, "%s: model %s has a skin taller %d than %d",
+					__func__, mod_name, pheader->skinheight, MAX_LBM_HEIGHT);
+		}
+
+		if (pheader->skinwidth > MAX_LBM_HEIGHT)
+		{
+			R_Printf(PRINT_ALL, "%s: model %s has a skin wider %d than %d",
+					__func__, mod_name, pheader->skinwidth, MAX_LBM_HEIGHT);
+		}
+
+	}
+}
+
+static void
 Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extradata, modtype_t type)
 {
 	if (type == mod_alias)
@@ -1410,6 +1406,7 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	{
 		Mod_LoadMinMaxUpdate(mod_name, mins, maxs, extradata, *type);
 		Mod_ReLoadSkins(*skins, find_image, load_image, extradata, *type);
+		Mod_LoadLimits(mod_name, extradata, *type);
 	}
 
 	return extradata;

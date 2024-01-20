@@ -80,6 +80,7 @@ static light3_t	d_lightbasestep, d_lightextrastep;
 static int	d_sfracbasestep, d_tfracbasestep;
 static zvalue_t	d_ziextrastep, d_zibasestep;
 
+/* TODO: remove hard limit */
 static byte	*skintable[MAX_LBM_HEIGHT];
 int		skinwidth;
 static pixel_t	*skinstart;
@@ -152,8 +153,10 @@ R_PolysetUpdateTables (void)
 		skinwidth = r_affinetridesc.skinwidth;
 		skinstart = r_affinetridesc.pskin;
 		s = skinstart;
-		for (i=0 ; i<MAX_LBM_HEIGHT ; i++, s+=skinwidth)
+		for (i = 0; i < MAX_LBM_HEIGHT; i++, s+=skinwidth)
+		{
 			skintable[i] = s;
+		}
 	}
 }
 
