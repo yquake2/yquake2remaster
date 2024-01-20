@@ -189,7 +189,7 @@ int GL4_PrepareForWindow(void)
 					__func__, SDL_GetError());
 				R_Printf(PRINT_ALL, "Retrying with default...\n");
 
-				ri.Cvar_Set("gl3_libgl", "");
+				ri.Cvar_Set("gl4_libgl", "");
 				libgl = NULL;
 			}
 		}
