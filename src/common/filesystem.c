@@ -197,35 +197,6 @@ static voidpf ZCALLBACK fopen_file_func_utf(voidpf opaque, const char *filename,
  *
  */
 
-/*
- * Returns the path up to, but not including the last '/'.
- */
-static void
-Com_FilePath(const char *path, char *dst, int dstSize)
-{
-	char *pos; /* Position of the last '/'. */
-
-	if ((pos = strrchr(path, '/')) != NULL)
-	{
-		pos--;
-
-		if ((pos - path) < dstSize)
-		{
-			memcpy(dst, path, pos - path);
-			dst[pos - path] = '\0';
-		}
-		else
-		{
-			Com_Printf("Com_FilePath: not enough space.\n");
-			return;
-		}
-	}
-	else
-	{
-		Q_strlcpy(dst, path, dstSize);
-	}
-}
-
 static int
 FS_FileLength(FILE *f)
 {
