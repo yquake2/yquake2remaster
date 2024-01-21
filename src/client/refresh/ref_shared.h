@@ -382,6 +382,7 @@ extern qboolean R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum,
 extern void R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *ov,
 		dxtrivertx_t *verts, float *lerp, const float move[3],
 		const float frontv[3], const float backv[3]);
+extern byte R_CompressNormalMDL(const float *normal);
 
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);

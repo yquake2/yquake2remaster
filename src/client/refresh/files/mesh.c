@@ -26,9 +26,37 @@
 
 #include "../ref_shared.h"
 
-static float r_avertexnormals[NUMVERTEXNORMALS][3] = {
+static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
 #include "../constants/anorms.h"
 };
+
+/* compressed vertex normals used by mdl and md2 model formats */
+byte
+R_CompressNormalMDL(const float *normal)
+{
+	byte i, besti;
+	float dot, bestdot;
+
+	bestdot = normal[0] * r_avertexnormals[0][0] +
+		normal[1] * r_avertexnormals[0][1] +
+		normal[2] * r_avertexnormals[0][2];
+	besti = 0;
+
+	for (i = 1; i < NUMVERTEXNORMALS; i++)
+	{
+		dot = normal[0] * r_avertexnormals[i][0] +
+			normal[1] * r_avertexnormals[i][1] +
+			normal[2] * r_avertexnormals[i][2];
+
+		if (dot > bestdot)
+		{
+			bestdot = dot;
+			besti = i;
+		}
+	}
+
+	return besti;
+}
 
 void
 R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *ov,
@@ -41,7 +69,7 @@ R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *o
 	{
 		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
-			float *normal = r_avertexnormals[verts[i].lightnormalindex];
+			const float *normal = r_avertexnormals[verts[i].lightnormalindex];
 
 			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0] +
 					  normal[0] * POWERSUIT_SCALE;
