@@ -310,7 +310,7 @@ AllocateFrames(md5_model_t *anim)
 		anim->num_tris += anim->meshes[i].num_tris;
 	}
 
-	R_Printf(PRINT_ALL, "mesh num tris %d / num vert %d\n",
+	R_Printf(PRINT_DEVELOPER, "mesh num tris %d / num vert %d\n",
 		anim->num_tris, anim->num_verts);
 
 	anim->vertexIndices = (int *)
@@ -398,7 +398,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	{
 		curr_buff = get_line(buff, curr_buff, true);
 
-		if (sscanf (buff, "MD5Version %d", &version) == 1)
+		if (sscanf(buff, "MD5Version %d", &version) == 1)
 		{
 			if (version != 10)
 				{
@@ -409,7 +409,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					return;
 				}
 		}
-		else if (sscanf (buff, "numFrames %d", &anim->num_frames) == 1)
+		else if (sscanf(buff, "numFrames %d", &anim->num_frames) == 1)
 		{
 			/* Allocate memory for skeleton frames and bounding boxes */
 			if (anim->num_frames > 0)
@@ -418,7 +418,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					malloc(sizeof(md5_frame_t) * anim->num_frames);
 			}
 		}
-		else if (sscanf (buff, "numJoints %d", &anim->num_joints) == 1)
+		else if (sscanf(buff, "numJoints %d", &anim->num_joints) == 1)
 		{
 			if (anim->num_joints > 0)
 			{
@@ -432,11 +432,11 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
 			}
 		}
-		else if (sscanf (buff, "frameRate %d", &anim->frameRate) == 1)
+		else if (sscanf(buff, "frameRate %d", &anim->frameRate) == 1)
 		{
-			R_Printf(PRINT_ALL, "md5anim: animation's frame rate is %d\n", anim->frameRate);
+			R_Printf(PRINT_DEVELOPER, "md5anim: animation's frame rate is %d\n", anim->frameRate);
 		}
-		else if (sscanf (buff, "numAnimatedComponents %d", &numAnimatedComponents) == 1)
+		else if (sscanf(buff, "numAnimatedComponents %d", &numAnimatedComponents) == 1)
 		{
 			if (numAnimatedComponents > 0)
 			{
@@ -451,7 +451,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				curr_buff = get_line(buff, curr_buff, true);
 
 				/* Read joint info */
-				sscanf (buff, "%s %d %d %d", jointInfos[i].name, &jointInfos[i].parent,
+				sscanf(buff, "%s %d %d %d", jointInfos[i].name, &jointInfos[i].parent,
 					&jointInfos[i].flags, &jointInfos[i].startIndex);
 			}
 		}
@@ -462,7 +462,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				curr_buff = get_line(buff, curr_buff, true);
 
 				/* Read bounding box */
-				sscanf (buff, "( %f %f %f ) ( %f %f %f )",
+				sscanf(buff, "( %f %f %f ) ( %f %f %f )",
 					&anim->skelFrames[i].bbox.min[0],
 					&anim->skelFrames[i].bbox.min[1],
 					&anim->skelFrames[i].bbox.min[2],
@@ -478,7 +478,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				curr_buff = get_line(buff, curr_buff, true);
 
 				/* Read base frame joint */
-				if (sscanf (buff, "( %f %f %f ) ( %f %f %f )",
+				if (sscanf(buff, "( %f %f %f ) ( %f %f %f )",
 					&baseFrame[i].pos[0], &baseFrame[i].pos[1],
 					&baseFrame[i].pos[2], &baseFrame[i].orient[0],
 					&baseFrame[i].orient[1], &baseFrame[i].orient[2]) == 6)
@@ -488,7 +488,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				}
 			}
 		}
-		else if (sscanf (buff, "frame %d", &frame_index) == 1)
+		else if (sscanf(buff, "frame %d", &frame_index) == 1)
 		{
 			/* Read frame data */
 			for (i = 0; i < numAnimatedComponents; ++i)
@@ -558,7 +558,7 @@ ReadMD5Model(const char *buffer, size_t size)
 	{
 		curr_buff = get_line(buff, curr_buff, true);
 
-		if (sscanf (buff, "MD5Version %d", &version) == 1)
+		if (sscanf(buff, "MD5Version %d", &version) == 1)
 		{
 			if (version != 10)
 			{
@@ -569,7 +569,7 @@ ReadMD5Model(const char *buffer, size_t size)
 				return NULL;
 			}
 		}
-		else if (sscanf (buff, "numJoints %d", &mdl->num_joints) == 1)
+		else if (sscanf(buff, "numJoints %d", &mdl->num_joints) == 1)
 		{
 			if (mdl->num_joints > 0)
 			{
@@ -578,7 +578,7 @@ ReadMD5Model(const char *buffer, size_t size)
 					calloc (mdl->num_joints, sizeof(md5_joint_t));
 			}
 		}
-		else if (sscanf (buff, "numMeshes %d", &mdl->num_meshes) == 1)
+		else if (sscanf(buff, "numMeshes %d", &mdl->num_meshes) == 1)
 		{
 			if (mdl->num_meshes > 0)
 			{
@@ -598,7 +598,7 @@ ReadMD5Model(const char *buffer, size_t size)
 
 				curr_buff = get_line(buff, curr_buff, true);
 
-				if (sscanf (buff, "%s %d ( %f %f %f ) ( %f %f %f )",
+				if (sscanf(buff, "%s %d ( %f %f %f ) ( %f %f %f )",
 					joint->name, &joint->parent, &joint->pos[0],
 					&joint->pos[1], &joint->pos[2], &joint->orient[0],
 					&joint->orient[1], &joint->orient[2]) == 8)
@@ -621,7 +621,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			{
 				curr_buff = get_line(buff, curr_buff, true);
 
-				if (strstr (buff, "shader "))
+				if (strstr(buff, "shader "))
 				{
 					int quote = 0, j = 0, i;
 
@@ -640,7 +640,7 @@ ReadMD5Model(const char *buffer, size_t size)
 						}
 					}
 				}
-				else if (sscanf (buff, "numverts %d", &mesh->num_verts) == 1)
+				else if (sscanf(buff, "numverts %d", &mesh->num_verts) == 1)
 				{
 					if (mesh->num_verts > 0)
 					{
@@ -649,7 +649,7 @@ ReadMD5Model(const char *buffer, size_t size)
 							malloc(sizeof(md5_vertex_t) * mesh->num_verts);
 					}
 				}
-				else if (sscanf (buff, "numtris %d", &mesh->num_tris) == 1)
+				else if (sscanf(buff, "numtris %d", &mesh->num_tris) == 1)
 				{
 					if (mesh->num_tris > 0)
 					{
@@ -658,7 +658,7 @@ ReadMD5Model(const char *buffer, size_t size)
 							malloc(sizeof(md5_triangle_t) * mesh->num_tris);
 					}
 				}
-				else if (sscanf (buff, "numweights %d", &mesh->num_weights) == 1)
+				else if (sscanf(buff, "numweights %d", &mesh->num_weights) == 1)
 				{
 					if (mesh->num_weights > 0)
 					{
@@ -667,7 +667,7 @@ ReadMD5Model(const char *buffer, size_t size)
 							malloc(sizeof(md5_weight_t) * mesh->num_weights);
 					}
 				}
-				else if (sscanf (buff, "vert %d ( %f %f ) %d %d", &vert_index,
+				else if (sscanf(buff, "vert %d ( %f %f ) %d %d", &vert_index,
 						 &fdata[0], &fdata[1], &idata[0], &idata[1]) == 5)
 				{
 					/* Copy vertex data */
@@ -676,7 +676,7 @@ ReadMD5Model(const char *buffer, size_t size)
 					mesh->vertices[vert_index].start = idata[0];
 					mesh->vertices[vert_index].count = idata[1];
 				}
-				else if (sscanf (buff, "tri %d %d %d %d", &tri_index,
+				else if (sscanf(buff, "tri %d %d %d %d", &tri_index,
 						 &idata[0], &idata[1], &idata[2]) == 4)
 				{
 					/* Copy triangle data */
@@ -684,7 +684,7 @@ ReadMD5Model(const char *buffer, size_t size)
 					mesh->triangles[tri_index ].index[1] = idata[1];
 					mesh->triangles[tri_index ].index[2] = idata[2];
 				}
-				else if (sscanf (buff, "weight %d %d %f ( %f %f %f )",
+				else if (sscanf(buff, "weight %d %d %f ( %f %f %f )",
 						 &weight_index, &idata[0], &fdata[3],
 						 &fdata[0], &fdata[1], &fdata[2]) == 6)
 				{

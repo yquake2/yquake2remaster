@@ -1416,6 +1416,68 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 }
 
 static int
+Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
+{
+	int fullsize, filesize_anim, filesize;
+	char *final_buffer = NULL;
+	void *anim_buffer = NULL;
+	char newname[256];
+
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcat(newname, ".md5mesh", sizeof(newname));
+	filesize = ri.FS_LoadFile(newname, buffer);
+
+#if 0
+	if (filesize <= 0)
+	{
+		const char *model_name;
+		char model_path[256];
+
+		model_name = COM_SkipPath(namewe);
+		memset(model_path, 0, sizeof(model_path));
+		memcpy(model_path, namewe, strlen(namewe) - strlen(model_name));
+
+		Q_strlcpy(newname, model_path, sizeof(newname));
+		Q_strlcat(newname, "md5/", sizeof(newname));
+		Q_strlcat(newname, model_name, sizeof(newname));
+		Q_strlcat(newname, ".md5mesh", sizeof(newname));
+
+		filesize = ri.FS_LoadFile(newname, buffer);
+		/* no replace file */
+		if (filesize <= 0)
+		{
+			return filesize;
+		}
+	}
+#endif
+
+	memcpy(newname + strlen(newname) - strlen("mesh"), "anim", strlen("anim"));
+	filesize_anim = ri.FS_LoadFile(newname, &anim_buffer);
+	if (filesize_anim <= 0)
+	{
+		ri.FS_FreeFile(*buffer);
+		return filesize;
+	}
+
+	fullsize = filesize + filesize_anim + 1;
+
+	/* allocate new buffer, ERR_FATAL on alloc fail */
+	final_buffer = ri.FS_AllocFile(fullsize);
+
+	/* copy combined information */
+	memcpy(final_buffer, *buffer, filesize);
+	final_buffer[filesize] = 0;
+	memcpy(final_buffer + filesize + 1, anim_buffer, filesize_anim);
+
+	/* Remove old buffers */
+	ri.FS_FreeFile(anim_buffer);
+	ri.FS_FreeFile(*buffer);
+
+	*buffer = final_buffer;
+	return fullsize;
+}
+
+static int
 Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 {
 	char newname[256];
@@ -1434,40 +1496,10 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		int filesize;
 
 		/* Check ReRelease / Doom 3 / Quake 4 model */
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcat(newname, ".md5mesh", sizeof(newname));
-		filesize = ri.FS_LoadFile(newname, buffer);
+		filesize = Mod_LoadFileMD5Merge(namewe, buffer);
 		if (filesize > 0)
 		{
-			int fullsize, filesize_anim;
-			char *final_buffer = NULL;
-			void *anim_buffer = NULL;
-
-			Q_strlcpy(newname, namewe, sizeof(newname));
-			Q_strlcat(newname, ".md5anim", sizeof(newname));
-			filesize_anim = ri.FS_LoadFile(newname, &anim_buffer);
-
-			if (filesize_anim <= 0)
-			{
-				return filesize;
-			}
-
-			fullsize = filesize + filesize_anim + 1;
-
-			/* allocate new buffer, ERR_FATAL on alloc fail */
-			final_buffer = ri.FS_AllocFile(fullsize);
-
-			/* copy combined information */
-			memcpy(final_buffer, *buffer, filesize);
-			final_buffer[filesize] = 0;
-			memcpy(final_buffer + filesize + 1, anim_buffer, filesize_anim);
-
-			/* Remove old buffers */
-			ri.FS_FreeFile(anim_buffer);
-			ri.FS_FreeFile(*buffer);
-
-			*buffer = final_buffer;
-			return fullsize;
+			return filesize;
 		}
 
 		/* Check Heretic2 model */
