@@ -40,12 +40,12 @@ Mod_LoadSTvertList(dmdx_t *pheader, dstvert_t *pinst)
 	dstvert_t *poutst;
 	int i;
 
-	poutst = (dstvert_t *) ((byte *)pheader + pheader->ofs_st);
+	poutst = (dstvert_t *)((byte *)pheader + pheader->ofs_st);
 
-	for (i=0 ; i<pheader->num_st ; i++)
+	for (i = 0; i < pheader->num_st; i++)
 	{
-		poutst[i].s = LittleShort (pinst[i].s);
-		poutst[i].t = LittleShort (pinst[i].t);
+		poutst[i].s = LittleShort(pinst[i].s);
+		poutst[i].t = LittleShort(pinst[i].t);
 	}
 }
 
@@ -97,11 +97,11 @@ Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t transl
 		poutframe = (daliasxframe_t *) ((byte *)pheader
 			+ pheader->ofs_frames + i * pheader->framesize);
 
-		memcpy (poutframe->name, pinframe->name, sizeof(poutframe->name));
+		memcpy(poutframe->name, pinframe->name, sizeof(poutframe->name));
 		for (j=0 ; j<3 ; j++)
 		{
-			poutframe->scale[j] = LittleFloat (pinframe->scale[j]) / 0xFF;
-			poutframe->translate[j] = LittleFloat (pinframe->translate[j]);
+			poutframe->scale[j] = LittleFloat(pinframe->scale[j]) / 0xFF;
+			poutframe->translate[j] = LittleFloat(pinframe->translate[j]);
 			poutframe->translate[j] += translate[j];
 		}
 		// verts are all 8 bit, so no swapping needed
@@ -140,8 +140,8 @@ Mod_LoadDTriangleList(dmdx_t *pheader, dtriangle_t *pintri)
 
 		for (j=0 ; j<3 ; j++)
 		{
-			pouttri[i].index_xyz[j] = LittleShort (pintri[i].index_xyz[j]);
-			pouttri[i].index_st[j] = LittleShort (pintri[i].index_st[j]);
+			pouttri[i].index_xyz[j] = LittleShort(pintri[i].index_xyz[j]);
+			pouttri[i].index_st[j] = LittleShort(pintri[i].index_st[j]);
 		}
 	}
 }
@@ -161,14 +161,14 @@ Mod_LoadDkmTriangleList(dmdx_t *pheader, dkmtriangle_t *pintri)
 
 	pouttri = (dtriangle_t *) ((char *)pheader + pheader->ofs_tris);
 
-	for (i=0 ; i<pheader->num_tris ; i++)
+	for (i = 0; i < pheader->num_tris; i++)
 	{
 		int j;
 
-		for (j=0 ; j<3 ; j++)
+		for (j = 0; j < 3; j++)
 		{
-			pouttri[i].index_xyz[j] = LittleShort (pintri[i].index_xyz[j]);
-			pouttri[i].index_st[j] = LittleShort (pintri[i].index_st[j]);
+			pouttri[i].index_xyz[j] = LittleShort(pintri[i].index_xyz[j]);
+			pouttri[i].index_st[j] = LittleShort(pintri[i].index_st[j]);
 		}
 	}
 }
@@ -223,6 +223,7 @@ Mod_LoadDKMCmdList(const char *mod_name, dmdx_t *pheader, int *pincmd)
 			break;
 		}
 	}
+
 	memset (poutcmd, 0, (pendcmd - poutcmd) * sizeof(int));
 }
 
@@ -248,15 +249,15 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 		dxtrivertx_t	*outverts;
 		byte	*inverts;
 
-		pinframe = (daliasframe_t *) (src + i * inframesize);
-		poutframe = (daliasxframe_t *) ((byte *)pheader
+		pinframe = (daliasframe_t *)(src + i * inframesize);
+		poutframe = (daliasxframe_t *)((byte *)pheader
 			+ pheader->ofs_frames + i * outframesize);
 
-		memcpy (poutframe->name, pinframe->name, sizeof(poutframe->name));
-		for (j=0 ; j<3 ; j++)
+		memcpy(poutframe->name, pinframe->name, sizeof(poutframe->name));
+		for (j = 0; j < 3; j++)
 		{
-			poutframe->scale[j] = LittleFloat (pinframe->scale[j]);
-			poutframe->translate[j] = LittleFloat (pinframe->translate[j]);
+			poutframe->scale[j] = LittleFloat(pinframe->scale[j]);
+			poutframe->translate[j] = LittleFloat(pinframe->translate[j]);
 			poutframe->translate[j] += translate[j];
 		}
 
@@ -266,6 +267,7 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 
 		inverts = (byte *)&pinframe->verts;
 		outverts = poutframe->verts;
+
 		/* dkm vert version 2 has unalligned by int size struct */
 		for(j=0; j < pheader->num_xyz; j++)
 		{
@@ -540,13 +542,13 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 
 			frame = (daliasframe_t *) ((byte *)pheader + ofs_frames + i * framesize);
-			frame->scale[0] = LittleFloat (pinmodel->scale[0]) / 0xFF;
-			frame->scale[1] = LittleFloat (pinmodel->scale[1]) / 0xFF;
-			frame->scale[2] = LittleFloat (pinmodel->scale[2]) / 0xFF;
+			frame->scale[0] = LittleFloat(pinmodel->scale[0]) / 0xFF;
+			frame->scale[1] = LittleFloat(pinmodel->scale[1]) / 0xFF;
+			frame->scale[2] = LittleFloat(pinmodel->scale[2]) / 0xFF;
 
-			frame->translate[0] = LittleFloat (pinmodel->translate[0]);
-			frame->translate[1] = LittleFloat (pinmodel->translate[1]);
-			frame->translate[2] = LittleFloat (pinmodel->translate[2]);
+			frame->translate[0] = LittleFloat(pinmodel->translate[0]);
+			frame->translate[1] = LittleFloat(pinmodel->translate[1]);
+			frame->translate[2] = LittleFloat(pinmodel->translate[2]);
 
 			/* Read frame data */
 			/* skip type / int */
@@ -946,7 +948,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 					return NULL;
 				}
 
-				Mod_LoadSTvertList (pheader, (dstvert_t *)src);
+				Mod_LoadSTvertList(pheader, (dstvert_t *)src);
 			}
 			else if (Q_strncasecmp(blockname, "tris", sizeof(blockname)) == 0)
 			{
@@ -1178,11 +1180,11 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	mesh_nodes[0].start = 0;
 	mesh_nodes[0].num = pheader->num_glcmds;
 
-	memcpy ((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
+	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
-	Mod_LoadSTvertList (pheader,
+	Mod_LoadSTvertList(pheader,
 		(dstvert_t *)((byte *)buffer + header.ofs_st));
-	Mod_LoadDKMCmdList (mod_name, pheader,
+	Mod_LoadDKMCmdList(mod_name, pheader,
 		(int *)((byte *)buffer + header.ofs_glcmds));
 	if (header.version == DKM1_VERSION)
 	{
@@ -1195,7 +1197,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 			header.framesize, header.translate);
 	}
 
-	Mod_LoadDkmTriangleList (pheader,
+	Mod_LoadDkmTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
 	for (i = 0; i < pheader->num_skins; i++)
@@ -1389,6 +1391,11 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 		case IDMDLHEADER:
 			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen,
+				skins, numskins, type);
+			break;
+
+		case IDMD5HEADER:
+			extradata = Mod_LoadModel_MD5(mod_name, buffer, modfilelen,
 				skins, numskins, type);
 			break;
 

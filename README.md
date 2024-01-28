@@ -37,18 +37,24 @@ Goals (finished):
   * FM/Heretic 2 model format support,
   * Cinematic videos support in smk, mpeg, ogv format,
   * Use ffmpeg for load any video,
+  * MDL/Quake1 model format support,
+  * Daikatana model/wal/map format support,
+  * MD5 model support,
+  * Add debug progress loading code for maps.
 
 Goals (none of it finished):
   * Single player support,
-  * MD5 model support,
-  * modified ReRelease game code support with removed KEX only related code,
+  * modified ReRelease game code support with removed KEX only related code.
 
 Bonus goals:
-  * MDL/Quake1 model format support,
-  * Daikatana model/wal/map format support,
-  * Load colormap as 24bit color,
   * Use shared model cache in client code insted reimplemnet in each render,
-  * Add debug progress loading code.
+  * Check load soft colormap as 24bit color,
+  * Use separete texture hi-color buffer for ui in soft render,
+  * Convert map surface flag by game type,
+  * Cleanup function declarations in game save code,
+  * Support scalled textures for models and walls in soft render and fix
+
+    lighting with remastered maps.
 
 Not a goal:
   * multiplayer protocol support with KEX engine,
