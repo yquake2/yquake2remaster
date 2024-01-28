@@ -1439,7 +1439,35 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
-			return filesize;
+			int fullsize, filesize_anim;
+			char *final_buffer = NULL;
+			void *anim_buffer = NULL;
+
+			Q_strlcpy(newname, namewe, sizeof(newname));
+			Q_strlcat(newname, ".md5anim", sizeof(newname));
+			filesize_anim = ri.FS_LoadFile(newname, &anim_buffer);
+
+			if (filesize_anim <= 0)
+			{
+				return filesize;
+			}
+
+			fullsize = filesize + filesize_anim + 1;
+
+			/* allocate new buffer, ERR_FATAL on alloc fail */
+			final_buffer = ri.FS_AllocFile(fullsize);
+
+			/* copy combined information */
+			memcpy(final_buffer, *buffer, filesize);
+			final_buffer[filesize] = 0;
+			memcpy(final_buffer + filesize + 1, anim_buffer, filesize_anim);
+
+			/* Remove old buffers */
+			ri.FS_FreeFile(anim_buffer);
+			ri.FS_FreeFile(*buffer);
+
+			*buffer = final_buffer;
+			return fullsize;
 		}
 
 		/* Check Heretic2 model */
