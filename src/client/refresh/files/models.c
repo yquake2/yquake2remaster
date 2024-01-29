@@ -774,9 +774,13 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	for (i = 0; i < pheader->num_skins; i++)
 	{
+		char *skin;
+
+		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+		skin[MAX_SKINNAME - 1] = 0;
+
 		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-			__func__, mod_name, i,
-			(char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME);
+			__func__, mod_name, i, skin);
 	}
 
 	*type = mod_alias;
@@ -784,6 +788,48 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+static void
+Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
+	char **skins, int *numskins)
+{
+	dmdl_t pinmodel;
+	int i;
+
+	if (modfilelen < sizeof(pinmodel))
+	{
+		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be %ld)",
+				__func__, mod_name, modfilelen, sizeof(pinmodel));
+	}
+
+	for (i=0 ; i<sizeof(dmdl_t)/sizeof(int) ; i++)
+	{
+		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
+	}
+
+	if (pinmodel.version != ALIAS_VERSION)
+	{
+		R_Printf(PRINT_ALL, "%s: %s has wrong version number (%i should be %i)",
+				__func__, mod_name, pinmodel.version, ALIAS_VERSION);
+	}
+
+	if (pinmodel.ofs_end < 0 || pinmodel.ofs_end > modfilelen)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file size(%d) too small, should be %d",
+				__func__, mod_name, modfilelen, pinmodel.ofs_end);
+	}
+
+	if (pinmodel.num_skins < 0)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file has incorrect skins count %d",
+				__func__, mod_name, pinmodel.num_skins);
+	}
+
+	*numskins = pinmodel.num_skins;
+	*skins = malloc(pinmodel.num_skins * MAX_SKINNAME);
+
+	memcpy(*skins, (char *)buffer + pinmodel.ofs_skins,
+		pinmodel.num_skins * MAX_SKINNAME);
+}
 
 /*
 =============
@@ -1360,6 +1406,19 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 	}
 }
 
+static void
+Mod_LoadSkinList(const char *mod_name, const void *buffer, int modfilelen,
+	char **skins, int *numskins)
+{
+	switch (LittleLong(*(unsigned *)buffer))
+	{
+		case IDALIASHEADER:
+			Mod_LoadSkinList_MD2(mod_name, buffer, modfilelen,
+				skins, numskins);
+			break;
+	}
+}
+
 /*
 =================
 Mod_LoadModel
@@ -1415,42 +1474,52 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+/* Add md5 to full file name */
+static void
+Mod_LoadFileInsertMD5(char *newname, const char *oldname, int size)
+{
+	const char *filename;
+
+	filename = COM_SkipPath(oldname);
+	memset(newname, 0, size);
+	memcpy(newname, oldname, strlen(oldname) - strlen(filename));
+	Q_strlcat(newname, "md5/", size);
+	Q_strlcat(newname, filename, size);
+}
+
 static int
 Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 {
-	int fullsize, filesize_anim, filesize;
-	char *final_buffer = NULL;
-	void *anim_buffer = NULL;
+	int fullsize, filesize_anim, filesize, filesize_skins;
+	char *final_buffer = NULL, *skins_list = NULL;
+	void *anim_buffer = NULL, *skins_buffer = NULL;
+	qboolean md5path = false;
 	char newname[256];
 
+	/* search mesh file */
 	Q_strlcpy(newname, namewe, sizeof(newname));
 	Q_strlcat(newname, ".md5mesh", sizeof(newname));
 	filesize = ri.FS_LoadFile(newname, buffer);
 
-#if 0
+	/* check overwrite file */
 	if (filesize <= 0)
 	{
-		const char *model_name;
-		char model_path[256];
+		char md5modelname[256];
 
-		model_name = COM_SkipPath(namewe);
-		memset(model_path, 0, sizeof(model_path));
-		memcpy(model_path, namewe, strlen(namewe) - strlen(model_name));
+		Mod_LoadFileInsertMD5(md5modelname, newname, sizeof(md5modelname));
 
-		Q_strlcpy(newname, model_path, sizeof(newname));
-		Q_strlcat(newname, "md5/", sizeof(newname));
-		Q_strlcat(newname, model_name, sizeof(newname));
-		Q_strlcat(newname, ".md5mesh", sizeof(newname));
-
-		filesize = ri.FS_LoadFile(newname, buffer);
+		filesize = ri.FS_LoadFile(md5modelname, buffer);
 		/* no replace file */
 		if (filesize <= 0)
 		{
 			return filesize;
 		}
-	}
-#endif
 
+		md5path = true;
+		strcpy(newname, md5modelname);
+	}
+
+	/* search animation file */
 	memcpy(newname + strlen(newname) - strlen("mesh"), "anim", strlen("anim"));
 	filesize_anim = ri.FS_LoadFile(newname, &anim_buffer);
 	if (filesize_anim <= 0)
@@ -1459,13 +1528,63 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 		return filesize;
 	}
 
+	/* search skins list */
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcat(newname, ".md2", sizeof(newname));
+	filesize_skins = ri.FS_LoadFile(newname, &skins_buffer);
+	if (filesize_skins > 0)
+	{
+		char *skins = NULL;
+		int numskins = 0, i;
+
+		Mod_LoadSkinList(newname, skins_buffer, filesize_skins,
+			&skins, &numskins);
+		ri.FS_FreeFile(skins_buffer);
+
+		/*
+		 * 20 -> numskins <num> | skin <num> "MAX_SKINNAME" + md5
+		 */
+		skins_list = malloc((numskins + 1) * (MAX_SKINNAME + 20));
+		sprintf(skins_list, "\nnumskins %d\n", numskins);
+		for(i = 0; i < numskins; i++)
+		{
+			char *skinname = skins + MAX_SKINNAME * i;
+
+			if (!md5path)
+			{
+				sprintf(skins_list + strlen(skins_list), "skin %d \"%s\"\n",
+					i, skinname);
+			}
+			else
+			{
+				char md5skinname[256];
+
+				Mod_LoadFileInsertMD5(md5skinname, skinname, sizeof(md5skinname));
+
+				sprintf(skins_list + strlen(skins_list), "skin %d \"%s\"\n",
+					i, md5skinname);
+			}
+		}
+	}
+
+	/* prepare final file */
 	fullsize = filesize + filesize_anim + 1;
+	if (skins_list)
+	{
+		fullsize += strlen(skins_list);
+	}
 
 	/* allocate new buffer, ERR_FATAL on alloc fail */
 	final_buffer = ri.FS_AllocFile(fullsize);
 
 	/* copy combined information */
 	memcpy(final_buffer, *buffer, filesize);
+	if (skins_list)
+	{
+		memcpy(final_buffer + filesize, skins_list, strlen(skins_list));
+		filesize += strlen(skins_list);
+		free(skins_list);
+	}
 	final_buffer[filesize] = 0;
 	memcpy(final_buffer + filesize + 1, anim_buffer, filesize_anim);
 

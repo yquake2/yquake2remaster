@@ -143,7 +143,7 @@ LoadPCX(const char *origname, byte **pic, byte **palette, int *width, int *heigh
 
 	if (!raw || len < sizeof(pcx_t))
 	{
-		R_Printf(PRINT_DEVELOPER, "Bad pcx file %s\n", filename);
+		R_Printf(PRINT_DEVELOPER, "Bad pcx file %s, length %d\n", filename, len);
 		return;
 	}
 
