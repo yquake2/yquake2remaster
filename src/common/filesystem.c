@@ -98,9 +98,9 @@ typedef struct
 } fsPackTypes_t;
 
 fsHandle_t fs_handles[MAX_HANDLES];
-fsLink_t *fs_links;
-fsSearchPath_t *fs_searchPaths;
-fsSearchPath_t *fs_baseSearchPaths;
+fsLink_t *fs_links = NULL;
+fsSearchPath_t *fs_searchPaths = NULL;
+fsSearchPath_t *fs_baseSearchPaths = NULL;
 
 /* Pack formats / suffixes. */
 fsPackTypes_t fs_packtypes[] = {
@@ -422,7 +422,10 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 		// TODO: A flag to ignore paks would be better
 		if ((strcmp(fs_gamedirvar->string, "") == 0) && search->pack) {
 			if ((strcmp(name, "maps.lst") == 0) || (strncmp(name, "players/", 8) == 0)) {
-				continue;
+				if (FS_FileInGamedir(name))
+				{
+					continue;
+				}
 			}
 		}
 
@@ -877,7 +880,7 @@ FS_LoadPK3(const char *packPath)
 	if (unzGetGlobalInfo(handle, &global) != UNZ_OK)
 	{
 		unzClose(handle);
-		Com_Error(ERR_FATAL, "FS_LoadPK3: '%s' is not a pack file", packPath);
+		Com_Error(ERR_FATAL, "%s: '%s' is not a pack file", __func__, packPath);
 	}
 
 	numFiles = global.number_entry;
