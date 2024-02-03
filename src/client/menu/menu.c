@@ -5492,9 +5492,10 @@ PlayerModelFree()
 static qboolean
 PlayerDirectoryList(void)
 {
-	char* findname = "players/*";
+	const char* findname = "players/*";
 	char** list = 0;
 	int num = 0, dirnum = 0;
+	size_t listoff = strlen(findname);
 
 	/* get a list of "players" subdirectories or files */
 	if ((list = FS_ListFiles2(findname, &num, 0, 0)) == NULL)
@@ -5526,7 +5527,7 @@ PlayerDirectoryList(void)
 
 		ReplaceCharacters(list[i], '\\', '/');
 
-		dirsize = strchr(list[i] + strlen(findname), '/');
+		dirsize = strchr(list[i] + listoff, '/');
 		if (dirsize)
 		{
 			dirnamelen = dirsize - list[i];
