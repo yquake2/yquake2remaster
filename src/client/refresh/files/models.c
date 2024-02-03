@@ -25,7 +25,7 @@
  * =======================================================================
  */
 
-#include "../ref_shared.h"
+#include "models.h"
 
 /*
 =================
@@ -632,7 +632,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
-	for (i=0 ; i<sizeof(dmdl_t)/sizeof(int) ; i++)
+	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
 	{
 		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
 	}
@@ -801,7 +801,7 @@ Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
 				__func__, mod_name, modfilelen, sizeof(pinmodel));
 	}
 
-	for (i=0 ; i<sizeof(dmdl_t)/sizeof(int) ; i++)
+	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
 	{
 		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
 	}
@@ -1430,6 +1430,11 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	findimage_t find_image, loadimage_t load_image, modtype_t *type)
 {
 	void *extradata = NULL;
+
+	if (!buffer || modfilelen < sizeof(unsigned))
+	{
+		return NULL;
+	}
 
 	switch (LittleLong(*(unsigned *)buffer))
 	{
