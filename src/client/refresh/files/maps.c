@@ -352,10 +352,9 @@ void
 Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *s)
 {
-	float mins[2], maxs[2], val;
-	int i;
+	double mins[2], maxs[2];
 	mtexinfo_t *tex;
-	int bmins[2], bmaxs[2];
+	int i;
 
 	mins[0] = mins[1] = 999999;
 	maxs[0] = maxs[1] = -99999;
@@ -380,10 +379,12 @@ Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 
 		for (j = 0; j < 2; j++)
 		{
-			val = v->position[0] * tex->vecs[j][0] +
-				  v->position[1] * tex->vecs[j][1] +
-				  v->position[2] * tex->vecs[j][2] +
-				  tex->vecs[j][3];
+			float val;
+
+			val = (double)v->position[0] * tex->vecs[j][0] +
+				  (double)v->position[1] * tex->vecs[j][1] +
+				  (double)v->position[2] * tex->vecs[j][2] +
+				  (double)tex->vecs[j][3];
 
 			if (val < mins[j])
 			{
@@ -399,6 +400,8 @@ Mod_CalcSurfaceExtents(int *surfedges, mvertex_t *vertexes, medge_t *edges,
 
 	for (i = 0; i < 2; i++)
 	{
+		int bmins[2], bmaxs[2];
+
 		bmins[i] = floor(mins[i] / (1 << s->lmshift));
 		bmaxs[i] = ceil(maxs[i] / (1 << s->lmshift));
 
