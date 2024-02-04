@@ -895,7 +895,7 @@ PrepareMeshVertex(const md5_mesh_t *mesh, const md5_joint_t *skeleton,
 	}
 }
 
-static void
+void
 PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *frame_out)
 {
 	int i;

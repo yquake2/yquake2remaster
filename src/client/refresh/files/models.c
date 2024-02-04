@@ -607,6 +607,251 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 /*
 =================
+Mod_LoadModel_MD3
+=================
+*/
+static void *
+Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
+	struct image_s ***skins, int *numskins, modtype_t *type)
+{
+	md3_header_t pinmodel;
+	void	*extradata;
+	int i;
+
+	if (modfilelen < sizeof(pinmodel))
+	{
+		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be %ld)",
+				__func__, mod_name, modfilelen, sizeof(pinmodel));
+		return NULL;
+	}
+
+	for (i=0 ; i < sizeof(pinmodel) / sizeof(int) ; i++)
+	{
+		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
+	}
+
+	if (pinmodel.version != ID3_VERSION)
+	{
+		R_Printf(PRINT_ALL, "%s: %s has wrong version number (%i should be %i)",
+				__func__, mod_name, pinmodel.version, ID3_VERSION);
+		return NULL;
+	}
+
+	if (pinmodel.ofs_end < 0 || pinmodel.ofs_end > modfilelen)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file size(%d) too small, should be %d",
+				__func__, mod_name, modfilelen, pinmodel.ofs_end);
+		return NULL;
+	}
+
+	if (pinmodel.num_meshes < 0)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file has incorrect meshes count %d",
+				__func__, mod_name, pinmodel.num_meshes);
+		return NULL;
+	}
+
+	if (pinmodel.num_frames < 0)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file has incorrect frames count %d",
+				__func__, mod_name, pinmodel.num_frames);
+		return NULL;
+	}
+
+	int num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0;
+
+	byte * meshofs = (byte*)buffer + pinmodel.ofs_meshes;
+	for (i = 0; i < pinmodel.num_meshes; i++)
+	{
+		md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
+
+		num_xyz += LittleLong(md3_mesh->num_xyz);
+		num_tris += LittleLong(md3_mesh->num_tris);
+		num_skins += LittleLong(md3_mesh->num_shaders);
+
+		/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+		num_glcmds += (10 * md3_mesh->num_tris) + 1;
+
+		if (pinmodel.num_frames != LittleLong(md3_mesh->num_frames))
+		{
+			R_Printf(PRINT_ALL, "%s: model %s broken mesh %d",
+					__func__, mod_name, i);
+			return NULL;
+		}
+
+		meshofs += md3_mesh->ofs_end;
+	}
+
+	int framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_xyz;
+	int ofs_skins = sizeof(dmdx_t);
+	int ofs_frames = ofs_skins + num_skins * MAX_SKINNAME;
+	int ofs_glcmds = ofs_frames + framesize * pinmodel.num_frames;
+	int ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int);
+	int ofs_tris = ofs_meshes + pinmodel.num_meshes * sizeof(dmdxmesh_t);
+	int ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
+	int ofs_end = ofs_st + num_tris * 3 * sizeof(dstvert_t);
+
+	dmdx_t *pheader = NULL;
+
+	*numskins = num_skins;
+	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	pheader = Hunk_Alloc(ofs_end);
+	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
+
+	pheader->framesize = framesize;
+	pheader->skinheight = 256;
+	pheader->skinwidth = 256;
+	pheader->num_skins = *numskins;
+	pheader->num_glcmds = num_glcmds;
+	pheader->num_frames = pinmodel.num_frames;
+	pheader->num_xyz = num_xyz;
+	pheader->num_meshes = pinmodel.num_meshes;
+	pheader->num_st = num_tris * 3;
+	pheader->num_tris = num_tris;
+	pheader->ofs_meshes = ofs_meshes;
+	pheader->ofs_skins = ofs_skins;
+	pheader->ofs_st = ofs_st;
+	pheader->ofs_tris = ofs_tris;
+	pheader->ofs_frames = ofs_frames;
+	pheader->ofs_glcmds = ofs_glcmds;
+	pheader->ofs_end = ofs_end;
+
+	meshofs = (byte*)buffer + pinmodel.ofs_meshes;
+	num_xyz = 0;
+	num_tris = 0;
+
+	int *pglcmds, *baseglcmds;
+
+	pglcmds = baseglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
+	dmdxmesh_t *mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
+	dtriangle_t *tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
+	dstvert_t *st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
+	dmdx_vert_t * vertx = malloc(pinmodel.num_frames * pheader->num_xyz * sizeof(dmdx_vert_t));
+	char *skin = (char *)pheader + pheader->ofs_skins;
+
+	meshofs = (byte*)buffer + pinmodel.ofs_meshes;
+	for (i = 0; i < pinmodel.num_meshes; i++)
+	{
+		int j;
+		md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
+		const float *fst = (const float*)(meshofs + md3_mesh->ofs_st);
+
+		/* load shaders */
+		for (j = 0; j < md3_mesh->num_shaders; j++)
+		{
+			md3_shader_t *md3_shader = (md3_shader_t*)(meshofs + md3_mesh->ofs_shaders) + j;
+
+			strncpy(skin, md3_shader->name, MAX_SKINNAME - 1);
+			skin += MAX_SKINNAME;
+		}
+
+		for (j = 0; j < md3_mesh->num_xyz; j++)
+		{
+			st[j + num_xyz].s = LittleFloat(fst[j * 2 + 0])  * pheader->skinwidth;
+			st[j + num_xyz].t = LittleFloat(fst[j * 2 + 1])  * pheader->skinheight;
+		}
+
+		/* load triangles */
+		const int *p = (const int*)(meshofs + md3_mesh->ofs_tris);
+
+		mesh_nodes[i].start = pglcmds - baseglcmds;
+
+		for (j = 0; j < md3_mesh->num_tris * 3; j++)
+		{
+			int vert_id;
+			vec2_t st;
+
+			/* count */
+			if ((j % 3) == 0)
+			{
+				*pglcmds = 3;
+				pglcmds++;
+			}
+
+			/* st */
+			st[0] = LittleFloat(fst[LittleLong(p[j]) * 2 + 0]);
+			st[1] = LittleFloat(fst[LittleLong(p[j]) * 2 + 1]);
+			memcpy(pglcmds, &st, sizeof(st));
+			pglcmds += 2;
+			/* index */
+			vert_id = LittleLong(p[j]) + num_xyz;
+			*pglcmds = vert_id;
+			tris[num_tris + j / 3].index_xyz[j % 3] = vert_id;
+			tris[num_tris + j / 3].index_st[j % 3] = vert_id;
+
+			pglcmds++;
+		}
+
+		/* final zero */
+		*pglcmds = 0;
+		pglcmds++;
+
+		mesh_nodes[i].num = pglcmds - baseglcmds - mesh_nodes[i].start;
+
+		md3_vertex_t *md3_vertex = (md3_vertex_t*)(meshofs + md3_mesh->ofs_verts);
+		int k;
+
+		for (k = 0; k < pinmodel.num_frames; k ++)
+		{
+			for (j = 0; j < md3_mesh->num_xyz; j++, md3_vertex++)
+			{
+				double npitch, nyaw;
+				short normalpitchyaw;
+				int vert_pos = num_xyz + k * pheader->num_xyz;
+
+				vertx[vert_pos + j].xyz[0] = (signed short)LittleShort(md3_vertex->origin[0]) * (1.0f / 64.0f);
+				vertx[vert_pos + j].xyz[1] = (signed short)LittleShort(md3_vertex->origin[1]) * (1.0f / 64.0f);
+				vertx[vert_pos + j].xyz[2] = (signed short)LittleShort(md3_vertex->origin[2]) * (1.0f / 64.0f);
+
+				/* decompress the vertex normal */
+				normalpitchyaw = LittleShort(md3_vertex->normalpitchyaw);
+				npitch = (normalpitchyaw & 255) * (2 * M_PI) / 256.0;
+				nyaw = ((normalpitchyaw >> 8) & 255) * (2 * M_PI) / 256.0;
+
+				vertx[vert_pos + j].norm[0] = (float)(sin(npitch) * cos(nyaw));
+				vertx[vert_pos + j].norm[1] = (float)(sin(npitch) * sin(nyaw));
+				vertx[vert_pos + j].norm[2] = (float)cos(npitch);
+			}
+		}
+
+		meshofs += md3_mesh->ofs_end;
+		num_xyz += LittleLong(md3_mesh->num_xyz);
+		num_tris += LittleLong(md3_mesh->num_tris);
+	}
+
+	byte *inframe = (unsigned char*)buffer + pinmodel.ofs_frames;
+	for (i = 0; i < pheader->num_frames; i ++)
+	{
+		daliasxframe_t *frame = (daliasxframe_t *)(
+			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
+		md3_frameinfo_t *md3_frameinfo = (md3_frameinfo_t*)inframe;
+
+		strncpy(frame->name, md3_frameinfo->name, sizeof(frame->name) - 1);
+		PrepareFrameVertex(vertx + i * pheader->num_xyz,
+			pheader->num_xyz, frame);
+
+		inframe += sizeof(md3_frameinfo_t);
+	}
+	free(vertx);
+
+	for (i = 0; i < pheader->num_skins; i++)
+	{
+		char *skin;
+
+		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+		skin[MAX_SKINNAME - 1] = 0;
+
+		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
+			__func__, mod_name, i, skin);
+	}
+
+	*type = mod_alias;
+
+	return extradata;
+}
+
+/*
+=================
 Mod_LoadModel_MD2
 =================
 */
@@ -1458,6 +1703,11 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 				skins, numskins, type);
 			break;
 
+		case ID3HEADER:
+			extradata = Mod_LoadModel_MD3(mod_name, buffer, modfilelen,
+				skins, numskins, type);
+			break;
+
 		case IDMD5HEADER:
 			extradata = Mod_LoadModel_MD5(mod_name, buffer, modfilelen,
 				skins, numskins, type);
@@ -1614,6 +1864,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 	if (!strcmp(ext, "fm") ||
 		!strcmp(ext, "dkm") ||
 		!strcmp(ext, "md2") ||
+		!strcmp(ext, "md3") ||
 		!strcmp(ext, "md5mesh") ||
 		!strcmp(ext, "mdl"))
 	{
@@ -1621,6 +1872,15 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 
 		/* Check ReRelease / Doom 3 / Quake 4 model */
 		filesize = Mod_LoadFileMD5Merge(namewe, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+
+		/* Check Quake 3 model */
+		Q_strlcpy(newname, namewe, sizeof(newname));
+		Q_strlcpy(newname + tlen, ".md3", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
 			return filesize;
