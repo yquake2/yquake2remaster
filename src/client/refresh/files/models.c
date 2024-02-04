@@ -35,7 +35,7 @@ load base s and t vertices (not used in gl version)
 =================
 */
 static void
-Mod_LoadSTvertList(dmdx_t *pheader, dstvert_t *pinst)
+Mod_LoadSTvertList(dmdx_t *pheader, const dstvert_t *pinst)
 {
 	dstvert_t *poutst;
 	int i;
@@ -57,7 +57,7 @@ Load the glcmds
 =================
 */
 static void
-Mod_LoadCmdList(const char *mod_name, dmdx_t *pheader, int *pincmd)
+Mod_LoadCmdList(const char *mod_name, dmdx_t *pheader, const int *pincmd)
 {
 	int *poutcmd;
 	int i;
@@ -127,7 +127,7 @@ Load triangle lists
 =================
 */
 static void
-Mod_LoadDTriangleList(dmdx_t *pheader, dtriangle_t *pintri)
+Mod_LoadDTriangleList(dmdx_t *pheader, const dtriangle_t *pintri)
 {
 	dtriangle_t *pouttri;
 	int i;
@@ -154,7 +154,7 @@ Load DKM triangle lists
 =================
 */
 static void
-Mod_LoadDkmTriangleList(dmdx_t *pheader, dkmtriangle_t *pintri)
+Mod_LoadDkmTriangleList(dmdx_t *pheader, const dkmtriangle_t *pintri)
 {
 	dtriangle_t *pouttri;
 	int i;
@@ -183,7 +183,8 @@ Load the DKM glcmds
 static void
 Mod_LoadDKMCmdList(const char *mod_name, dmdx_t *pheader, int *pincmd)
 {
-	int *poutcmd, *pendcmd;
+	const int *pendcmd;
+	int *poutcmd;
 	int i;
 
 	poutcmd = (int *)((char*)pheader + pheader->ofs_glcmds);
@@ -413,7 +414,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		const byte *curr_pos;
 
 		mdl_triangle_t *triangles;
-		mdl_texcoord_t *texcoords;
+		const mdl_texcoord_t *texcoords;
 
 		curr_pos = (byte*)buffer + sizeof(mdl_header_t);
 
@@ -614,8 +615,11 @@ static void *
 Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins, modtype_t *type)
 {
+	dmdx_t *pheader = NULL;
+	const int *baseglcmds;
 	md3_header_t pinmodel;
-	void	*extradata;
+	void *extradata;
+	int *pglcmds;
 	int i;
 
 	if (modfilelen < sizeof(pinmodel))
@@ -663,7 +667,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	byte * meshofs = (byte*)buffer + pinmodel.ofs_meshes;
 	for (i = 0; i < pinmodel.num_meshes; i++)
 	{
-		md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
+		const md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
 
 		num_xyz += LittleLong(md3_mesh->num_xyz);
 		num_tris += LittleLong(md3_mesh->num_tris);
@@ -691,8 +695,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	int ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
 	int ofs_end = ofs_st + num_tris * 3 * sizeof(dstvert_t);
 
-	dmdx_t *pheader = NULL;
-
 	*numskins = num_skins;
 	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
 	pheader = Hunk_Alloc(ofs_end);
@@ -716,13 +718,10 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
 
-	meshofs = (byte*)buffer + pinmodel.ofs_meshes;
 	num_xyz = 0;
 	num_tris = 0;
 
-	int *pglcmds, *baseglcmds;
-
-	pglcmds = baseglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
+	baseglcmds = pglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
 	dmdxmesh_t *mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	dtriangle_t *tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
 	dstvert_t *st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
@@ -732,14 +731,14 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	meshofs = (byte*)buffer + pinmodel.ofs_meshes;
 	for (i = 0; i < pinmodel.num_meshes; i++)
 	{
-		int j;
-		md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
+		const md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
 		const float *fst = (const float*)(meshofs + md3_mesh->ofs_st);
+		int j;
 
 		/* load shaders */
 		for (j = 0; j < md3_mesh->num_shaders; j++)
 		{
-			md3_shader_t *md3_shader = (md3_shader_t*)(meshofs + md3_mesh->ofs_shaders) + j;
+			const md3_shader_t *md3_shader = (md3_shader_t*)(meshofs + md3_mesh->ofs_shaders) + j;
 
 			strncpy(skin, md3_shader->name, MAX_SKINNAME - 1);
 			skin += MAX_SKINNAME;
@@ -759,7 +758,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		for (j = 0; j < md3_mesh->num_tris * 3; j++)
 		{
 			int vert_id;
-			vec2_t st;
+			vec2_t cmdst;
 
 			/* count */
 			if ((j % 3) == 0)
@@ -769,9 +768,9 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 			}
 
 			/* st */
-			st[0] = LittleFloat(fst[LittleLong(p[j]) * 2 + 0]);
-			st[1] = LittleFloat(fst[LittleLong(p[j]) * 2 + 1]);
-			memcpy(pglcmds, &st, sizeof(st));
+			cmdst[0] = LittleFloat(fst[LittleLong(p[j]) * 2 + 0]);
+			cmdst[1] = LittleFloat(fst[LittleLong(p[j]) * 2 + 1]);
+			memcpy(pglcmds, &cmdst, sizeof(cmdst));
 			pglcmds += 2;
 			/* index */
 			vert_id = LittleLong(p[j]) + num_xyz;
@@ -824,7 +823,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	{
 		daliasxframe_t *frame = (daliasxframe_t *)(
 			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
-		md3_frameinfo_t *md3_frameinfo = (md3_frameinfo_t*)inframe;
+		const md3_frameinfo_t *md3_frameinfo = (md3_frameinfo_t*)inframe;
 
 		strncpy(frame->name, md3_frameinfo->name, sizeof(frame->name) - 1);
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,
@@ -834,15 +833,16 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	}
 	free(vertx);
 
+	/* TODO: make separate function */
 	for (i = 0; i < pheader->num_skins; i++)
 	{
-		char *skin;
+		char *skinname;
 
-		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-		skin[MAX_SKINNAME - 1] = 0;
+		skinname = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+		skinname[MAX_SKINNAME - 1] = 0;
 
 		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-			__func__, mod_name, i, skin);
+			__func__, mod_name, i, skinname);
 	}
 
 	*type = mod_alias;
@@ -859,16 +859,16 @@ static void *
 Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins, modtype_t *type)
 {
-	vec3_t		translate = {0, 0, 0};
-	dmdl_t		pinmodel;
-	dmdx_t		*pheader;
-	dtriangle_t	*pintri;
-	dstvert_t	*pinst;
-	dmdxmesh_t *mesh_nodes;
-	int		*pincmd;
-	void	*extradata;
-	int		i, framesize;
 	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds, ofs_frames, ofs_end;
+	vec3_t translate = {0, 0, 0};
+	const dtriangle_t *pintri;
+	const dstvert_t *pinst;
+	const int *pincmd;
+	dmdl_t pinmodel;
+	dmdx_t *pheader;
+	dmdxmesh_t *mesh_nodes;
+	void *extradata;
+	int i, framesize;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -1087,13 +1087,14 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
 	char *src = (char *)buffer;
-	int version, size, inframesize = 0;
+	int inframesize = 0;
 	void *extradata = NULL;
 	dmdx_t *pheader = NULL;
 
 	while (modfilelen > 0)
 	{
 		char blockname[32];
+		int version, size;
 
 		memcpy(blockname, src, sizeof(blockname));
 
@@ -1106,9 +1107,9 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 
 		if (Q_strncasecmp(blockname, "header", sizeof(blockname)) == 0)
 		{
-			int framesize;
+			const fmheader_t *header = (fmheader_t *)src;
 			dmdx_t dmdxheader;
-			fmheader_t *header = (fmheader_t *)src;
+			int framesize;
 
 			if (sizeof(fmheader_t) > size)
 			{
@@ -1515,9 +1516,10 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins,
 	modtype_t *type)
 {
-	dsprite_t *sprin, *sprout;
-	void	*extradata;
+	const dsprite_t *sprin;
+	dsprite_t *sprout;
 	int i, numframes;
+	void *extradata;
 
 	sprin = (dsprite_t *)buffer;
 	numframes = LittleLong(sprin->numframes);
@@ -1590,7 +1592,7 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 	if (type == mod_alias)
 	{
 		daliasxframe_t *frame;
-		dmdx_t *pheader;
+		const dmdx_t *pheader;
 		int i;
 
 		pheader = (dmdx_t *)extradata;
@@ -1614,8 +1616,6 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 		maxs[0] = -9999;
 		maxs[1] = -9999;
 		maxs[2] = -9999;
-
-		frame = (daliasxframe_t *)((char*)extradata + pheader->ofs_frames);
 
 		for (i = 0; i < pheader->num_frames; i++)
 		{
@@ -1803,7 +1803,7 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 		sprintf(skins_list, "\nnumskins %d\n", numskins);
 		for(i = 0; i < numskins; i++)
 		{
-			char *skinname = skins + MAX_SKINNAME * i;
+			const char *skinname = skins + MAX_SKINNAME * i;
 
 			if (!md5path)
 			{

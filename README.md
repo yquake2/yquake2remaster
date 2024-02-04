@@ -43,6 +43,8 @@ Goals (finished):
   * Add debug progress loading code for maps.
 
 Goals (none of it finished):
+  * md5 improve load speed,
+  * md3 fix possible memory coruption,
   * Single player support,
   * modified ReRelease game code support with removed KEX only related code.
 

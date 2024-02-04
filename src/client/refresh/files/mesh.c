@@ -35,7 +35,7 @@ byte
 R_CompressNormalMDL(const float *normal)
 {
 	byte i, besti;
-	float dot, bestdot;
+	float bestdot;
 
 	bestdot = normal[0] * r_avertexnormals[0][0] +
 		normal[1] * r_avertexnormals[0][1] +
@@ -44,6 +44,8 @@ R_CompressNormalMDL(const float *normal)
 
 	for (i = 1; i < NUMVERTEXNORMALS; i++)
 	{
+		float dot;
+
 		dot = normal[0] * r_avertexnormals[i][0] +
 			normal[1] * r_avertexnormals[i][1] +
 			normal[2] * r_avertexnormals[i][2];

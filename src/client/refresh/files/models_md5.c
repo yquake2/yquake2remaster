@@ -223,37 +223,37 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 		if (jointInfos[i].flags & 1) /* Tx */
 		{
 			animatedPos[0] = animFrameData[jointInfos[i].startIndex + j];
-			++j;
+			j++;
 		}
 
 		if (jointInfos[i].flags & 2) /* Ty */
 		{
 			animatedPos[1] = animFrameData[jointInfos[i].startIndex + j];
-			++j;
+			j++;
 		}
 
 		if (jointInfos[i].flags & 4) /* Tz */
 		{
 			animatedPos[2] = animFrameData[jointInfos[i].startIndex + j];
-			++j;
+			j++;
 		}
 
 		if (jointInfos[i].flags & 8) /* Qx */
 		{
 			animatedOrient[0] = animFrameData[jointInfos[i].startIndex + j];
-			++j;
+			j++;
 		}
 
 		if (jointInfos[i].flags & 16) /* Qy */
 		{
 			animatedOrient[1] = animFrameData[jointInfos[i].startIndex + j];
-			++j;
+			j++;
 		}
 
 		if (jointInfos[i].flags & 32) /* Qz */
 		{
 			animatedOrient[2] = animFrameData[jointInfos[i].startIndex + j];
-			++j;
+			j++;
 		}
 
 		/* Compute orient quaternion's w value */
@@ -976,7 +976,7 @@ MD5_ComputeNormals(md5_model_t *md5file)
 
 	for(i = 0; i < md5file->num_frames; ++i)
 	{
-		md5_frame_t *frame_in;
+		const md5_frame_t *frame_in;
 		int k, vert_step = 0;
 
 		frame_in = md5file->skelFrames + i;
@@ -1033,11 +1033,13 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	int mesh_size, anim_size;
 	md5_model_t *md5file;
 	void *extradata = NULL;
-	byte *startbuffer, *endbuffer;
+	const byte *endbuffer;
+	byte *startbuffer;
 	int i, num_verts = 0, num_tris = 0, num_glcmds = 0;
 	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris, ofs_st, ofs_end;
 	dmdx_t *pheader = NULL;
-	int *pglcmds, *baseglcmds;
+	const int *baseglcmds;
+	int *pglcmds;
 	dmdxmesh_t *mesh_nodes;
 	dtriangle_t *tris;
 	dstvert_t *st;
@@ -1064,9 +1066,9 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
-	if (md5file && anim_size > 0)
+	if (anim_size > 0)
 	{
-		ReadMD5Anim(md5file, buffer + mesh_size + 1, anim_size);
+		ReadMD5Anim(md5file, (char*)buffer + mesh_size + 1, anim_size);
 	}
 
 	if (!md5file->num_frames)
@@ -1150,7 +1152,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 
 	num_tris = 0;
 
-	pglcmds = baseglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
+	baseglcmds = pglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
 	mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
 	st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
@@ -1211,11 +1213,9 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 			__func__, mod_name, i, skin);
 	}
 
-	if (md5file)
-	{
-		FreeModelMd5(md5file);
-		free(md5file);
-	}
+
+	FreeModelMd5(md5file);
+	free(md5file);
 
 	*type = mod_alias;
 

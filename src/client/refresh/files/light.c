@@ -33,9 +33,7 @@ static byte *s_bufferlights = NULL, *s_bufferlights_max = NULL;
 static int
 BSPX_LightGridSingleValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles, int x, int y, int z, vec3_t res_diffuse)
 {
-	int i;
 	unsigned int node;
-	struct bspxlgsamp_s *samp;
 
 	node = grid->rootnode;
 	while (!(node & LGNODE_LEAF))
@@ -52,6 +50,9 @@ BSPX_LightGridSingleValue(const bspxlightgrid_t *grid, const lightstyle_t *light
 
 	{
 		struct bspxlgleaf_s *leaf = &grid->leafs[node & ~LGNODE_LEAF];
+		struct bspxlgsamp_s *samp;
+		int i;
+
 		x -= leaf->mins[0];
 		y -= leaf->mins[1];
 		z -= leaf->mins[2];
@@ -495,7 +496,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 {
 	int smax, tmax;
 	int r, g, b, a, max;
-	int i, j, size, nummaps;
+	int i, j, size, numlightmaps;
 	byte *lightmap;
 	float scale[4];
 	float *bl;
@@ -529,15 +530,15 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 	}
 
 	/* count the # of maps */
-	for (nummaps = 0; nummaps < MAXLIGHTMAPS && surf->styles[nummaps] != 255;
-		 nummaps++)
+	for (numlightmaps = 0; numlightmaps < MAXLIGHTMAPS && surf->styles[numlightmaps] != 255;
+		 numlightmaps++)
 	{
 	}
 
 	lightmap = surf->samples;
 
 	/* add all the lightmaps */
-	if (nummaps == 1)
+	if (numlightmaps == 1)
 	{
 		int maps;
 
@@ -702,7 +703,7 @@ store:
 }
 
 static void
-R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
+R_MarkSurfaceLights(dlight_t *light, int bit, const mnode_t *node, int r_dlightframecount,
 	msurface_t *surfaces)
 {
 	msurface_t	*surf;
