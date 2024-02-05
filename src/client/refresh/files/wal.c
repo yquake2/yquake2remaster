@@ -31,7 +31,7 @@ LoadWalQ2(const char *origname, const char *name, const byte *data, size_t size,
 	imagetype_t type, loadimage_t load_image)
 {
 	int	width, height, ofs;
-	miptex_t	*mt;
+	const miptex_t *mt;
 
 	mt = (miptex_t *)data;
 
@@ -280,7 +280,7 @@ GetWalInfo(const char *origname, int *width, int *height)
 
 	if (size > sizeof(dkmtex_t) && *data == DKM_WAL_VERSION)
 	{
-		dkmtex_t *mt;
+		const dkmtex_t *mt;
 
 		mt = (dkmtex_t *)data;
 
@@ -289,7 +289,7 @@ GetWalInfo(const char *origname, int *width, int *height)
 	}
 	else
 	{
-		miptex_t *mt;
+		const miptex_t *mt;
 
 		mt = (miptex_t *)data;
 

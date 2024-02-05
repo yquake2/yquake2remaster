@@ -289,7 +289,7 @@ LoadPCX(const char *origname, byte **pic, byte **palette, int *width, int *heigh
 void
 GetPCXInfo(const char *origname, int *width, int *height)
 {
-	pcx_t *pcx;
+	const pcx_t *pcx;
 	byte *raw;
 	char filename[256];
 
@@ -383,7 +383,7 @@ GenerateColormap(const byte *palette, byte *out_colormap)
 }
 
 void
-GetPCXPalette24to8(byte *d_8to24table, byte** d_16to8table)
+GetPCXPalette24to8(const byte *d_8to24table, byte** d_16to8table)
 {
 	unsigned char * table16to8;
 	char tablefile[] = "pics/16to8.dat";
@@ -453,7 +453,6 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 {
 	char	filename[] = "pics/colormap.pcx";
 	byte	*pal;
-	int		i;
 
 	/* get the palette and colormap */
 	LoadPCX(filename, colormap, &pal, NULL, NULL);
@@ -502,11 +501,13 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 
 	if (!*colormap || !pal)
 	{
+		int i;
+
 		R_Printf(PRINT_ALL, "%s: Couldn't load %s, use generated palette\n",
 			__func__, filename);
 
 		/* palette r:2bit, g:3bit, b:3bit */
-		for (i=0 ; i < 256; i++)
+		for (i = 0; i < 256; i++)
 		{
 			unsigned v;
 
@@ -530,21 +531,25 @@ GetPCXPalette(byte **colormap, unsigned *d_8to24table)
 		GenerateColormap((const byte *)d_8to24table, *colormap);
 		return;
 	}
-
-	for (i = 0; i < 256; i++)
+	else
 	{
-		unsigned v;
-		int	r, g, b;
+		int i;
 
-		r = pal[i*3+0];
-		g = pal[i*3+1];
-		b = pal[i*3+2];
+		for (i = 0; i < 256; i++)
+		{
+			unsigned v;
+			int	r, g, b;
 
-		v = (255U<<24) + (r<<0) + (g<<8) + (b<<16);
-		d_8to24table[i] = LittleLong(v);
+			r = pal[i*3+0];
+			g = pal[i*3+1];
+			b = pal[i*3+2];
+
+			v = (255U<<24) + (r<<0) + (g<<8) + (b<<16);
+			d_8to24table[i] = LittleLong(v);
+		}
+
+		d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
+
+		free(pal);
 	}
-
-	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
-
-	free (pal);
 }

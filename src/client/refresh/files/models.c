@@ -288,6 +288,24 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 	}
 }
 
+static void
+Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
+{
+	int i;
+
+	for (i = 0; i < pheader->num_skins; i++)
+	{
+		char *skin;
+
+		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+		skin[MAX_SKINNAME - 1] = 0;
+
+		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load %s '%s'\n",
+			__func__, mod_name, i, internal ? "internal": "external", skin);
+	}
+
+}
+
 /*
 =================
 Mod_LoadModel_MDL
@@ -590,16 +608,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		}
 	}
 
-	{
-		int i;
-
-		for (i = 0; i < pheader->num_skins; i++)
-		{
-			R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load internal '%s'\n",
-				__func__, mod_name, i,
-				(char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME);
-		}
-	}
+	Mod_LoadFixImages(mod_name, pheader, true);
 
 	*type = mod_alias;
 
@@ -833,17 +842,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	}
 	free(vertx);
 
-	/* TODO: make separate function */
-	for (i = 0; i < pheader->num_skins; i++)
-	{
-		char *skinname;
-
-		skinname = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-		skinname[MAX_SKINNAME - 1] = 0;
-
-		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-			__func__, mod_name, i, skinname);
-	}
+	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
 
@@ -1017,16 +1016,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	memcpy((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
 
-	for (i = 0; i < pheader->num_skins; i++)
-	{
-		char *skin;
-
-		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-		skin[MAX_SKINNAME - 1] = 0;
-
-		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-			__func__, mod_name, i, skin);
-	}
+	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
 
@@ -1357,16 +1347,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 		src += size;
 	}
 
-	{
-		int i;
-
-		for (i = 0; i < pheader->num_skins; i++)
-		{
-			R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-				__func__, mod_name, i,
-				(char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME);
-		}
-	}
+	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
 
@@ -1492,12 +1473,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadDkmTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
-	for (i = 0; i < pheader->num_skins; i++)
-	{
-		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-			__func__, mod_name, i,
-			(char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME);
-	}
+	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
 

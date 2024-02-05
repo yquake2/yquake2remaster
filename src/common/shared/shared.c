@@ -133,7 +133,6 @@ AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 void
 AngleVectors2(const vec3_t value1, vec3_t angles)
 {
-	float forward;
 	float yaw, pitch;
 
 	if ((value1[1] == 0) && (value1[0] == 0))
@@ -152,6 +151,8 @@ AngleVectors2(const vec3_t value1, vec3_t angles)
 	}
 	else
 	{
+		float forward;
+
 		if (value1[0])
 		{
 			yaw = ((float)atan2(value1[1], value1[0]) * 180 / M_PI);
@@ -470,10 +471,11 @@ void
 AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
 {
 	int i;
-	vec_t val;
 
 	for (i = 0; i < 3; i++)
 	{
+		vec_t val;
+
 		val = v[i];
 
 		if (val < mins[i])
@@ -502,13 +504,15 @@ VectorCompare(const vec3_t v1, const vec3_t v2)
 vec_t
 VectorNormalize(vec3_t v)
 {
-	float length, ilength;
+	float length;
 
 	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
 	length = (float)sqrt(length);
 
 	if (length)
 	{
+		float ilength;
+
 		ilength = 1 / length;
 		v[0] *= ilength;
 		v[1] *= ilength;
@@ -1033,10 +1037,12 @@ Q_stricmp(const char *s1, const char *s2)
 int
 Q_strncasecmp(const char *s1, const char *s2, int n)
 {
-	int c1, c2;
+	int c1;
 
 	do
 	{
+		int c2;
+
 		c1 = *s1++;
 		c2 = *s2++;
 
@@ -1272,10 +1278,7 @@ Info_ValueForKey(char *s, const char *key)
 void
 Info_RemoveKey(char *s, const char *key)
 {
-	char *start;
-	char pkey[512];
-	char value[512];
-	char *o;
+	char pkey[512], value[512];
 
 	if (strstr(key, "\\"))
 	{
@@ -1284,6 +1287,8 @@ Info_RemoveKey(char *s, const char *key)
 
 	while (1)
 	{
+		char *start, *o;
+
 		start = s;
 
 		if (*s == '\\')
@@ -1351,9 +1356,9 @@ Info_Validate(const char *s)
 void
 Info_SetValueForKey(char *s, const char *key, const char *value)
 {
-	char newi[MAX_INFO_STRING], *v;
-	int c;
 	int maxsize = MAX_INFO_STRING;
+	char newi[MAX_INFO_STRING];
+	const char *v;
 
 	if (!key)
 	{
@@ -1405,6 +1410,8 @@ Info_SetValueForKey(char *s, const char *key, const char *value)
 
 	while (*v)
 	{
+		int c;
+
 		c = *v++;
 		c &= 127; /* strip high bits */
 

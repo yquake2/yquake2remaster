@@ -765,7 +765,7 @@ Cmd_RemoveCommand(const char *cmd_name)
 }
 
 qboolean
-Cmd_Exists(char *cmd_name)
+Cmd_Exists(const char *cmd_name)
 {
 	cmd_function_t *cmd;
 

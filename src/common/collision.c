@@ -196,9 +196,7 @@ FloodArea_r(carea_t *area, int floodnum)
 static void
 FloodAreaConnections(void)
 {
-	int i;
-	carea_t *area;
-	int floodnum;
+	int i, floodnum;
 
 	/* all current floods are now invalid */
 	floodvalid++;
@@ -207,6 +205,8 @@ FloodAreaConnections(void)
 	/* area 0 is not used */
 	for (i = 1; i < cmod->numareas; i++)
 	{
+		carea_t *area;
+
 		area = &cmod->map_areas[i];
 
 		if (area->floodvalid == floodvalid)
@@ -263,8 +263,6 @@ CM_AreasConnected(int area1, int area2)
 int
 CM_WriteAreaBits(byte *buffer, int area)
 {
-	int i;
-	int floodnum;
 	int bytes;
 
 	bytes = (cmod->numareas + 7) >> 3;
@@ -274,9 +272,10 @@ CM_WriteAreaBits(byte *buffer, int area)
 		/* for debugging, send everything */
 		memset(buffer, 255, bytes);
 	}
-
 	else
 	{
+		int floodnum, i;
+
 		memset(buffer, 0, bytes);
 
 		floodnum = cmod->map_areas[area].floodnum;
@@ -320,12 +319,13 @@ CM_ReadPortalState(fileHandle_t f)
 qboolean
 CM_HeadnodeVisible(int nodenum, byte *visbits)
 {
-	int leafnum1;
-	int cluster;
-	cnode_t *node;
+	const cnode_t *node;
 
 	if (nodenum < 0)
 	{
+		int leafnum1;
+		int cluster;
+
 		leafnum1 = -1 - nodenum;
 		cluster = cmod->map_leafs[leafnum1].cluster;
 
@@ -359,11 +359,8 @@ CM_HeadnodeVisible(int nodenum, byte *visbits)
 static void
 CM_InitBoxHull(void)
 {
-	int i;
-	int side;
-	cnode_t *c;
 	cplane_t *p;
-	cbrushside_t *s;
+	int i;
 
 	box_headnode = cmod->numnodes;
 	box_planes = &cmod->map_planes[cmod->numplanes];
@@ -391,6 +388,10 @@ CM_InitBoxHull(void)
 
 	for (i = 0; i < 6; i++)
 	{
+		cbrushside_t *s;
+		cnode_t *c;
+		int side;
+
 		side = i & 1;
 
 		/* brush sides */
@@ -514,12 +515,12 @@ static void
 CM_BoxLeafnums_r(int nodenum, vec3_t leaf_mins, vec3_t leaf_maxs,
 	int *leaf_list, int *leaf_count, int leaf_maxcount)
 {
-	cplane_t *plane;
-	cnode_t *node;
-	int s;
-
 	while (1)
 	{
+		const cplane_t *plane;
+		cnode_t *node;
+		int s;
+
 		if (nodenum < 0)
 		{
 			if ((*leaf_count) >= leaf_maxcount)
@@ -544,12 +545,10 @@ CM_BoxLeafnums_r(int nodenum, vec3_t leaf_mins, vec3_t leaf_maxs,
 		{
 			nodenum = node->children[0];
 		}
-
 		else if (s == 2)
 		{
 			nodenum = node->children[1];
 		}
-
 		else
 		{
 			/* go down both */
@@ -651,17 +650,18 @@ CM_TransformedPointContents(vec3_t p, int headnode,
 
 static void
 CM_ClipBoxToBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
-		vec3_t p2, trace_t *trace, cbrush_t *brush)
+		vec3_t p2, trace_t *trace, const cbrush_t *brush)
 {
-	int i, j;
-	cplane_t *plane, *clipplane;
-	float dist;
-	float enterfrac, leavefrac;
-	vec3_t ofs;
-	float d1, d2;
-	qboolean getout, startout;
-	float f;
 	cbrushside_t *side, *leadside;
+	float enterfrac, leavefrac;
+	const cplane_t *clipplane;
+	qboolean getout, startout;
+	cplane_t *plane;
+	float d1, d2;
+	float dist;
+	vec3_t ofs;
+	int i, j;
+	float f;
 
 	enterfrac = -1;
 	leavefrac = 1;
@@ -808,13 +808,11 @@ CM_ClipBoxToBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 
 static void
 CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
-		trace_t *trace, cbrush_t *brush)
+		trace_t *trace, const cbrush_t *brush)
 {
 	int i, j;
 	cplane_t *plane;
-	float dist;
 	vec3_t ofs;
-	float d1;
 	cbrushside_t *side;
 
 	if (!brush->numsides || !cmod->map_brushsides)
@@ -824,6 +822,8 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 
 	for (i = 0; i < brush->numsides; i++)
 	{
+		float d1, dist;
+
 		if (((brush->firstbrushside + i) < 0) ||
 			((brush->firstbrushside + i) >= (cmod->numbrushsides + EXTRA_LUMP_BRUSHSIDES)))
 		{
@@ -844,7 +844,6 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 			{
 				ofs[j] = maxs[j];
 			}
-
 			else
 			{
 				ofs[j] = mins[j];
@@ -872,9 +871,8 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 static void
 CM_TraceToLeaf(int leafnum)
 {
-	int k, maxleaf, brushnum;
-	cleaf_t *leaf;
-	cbrush_t *b;
+	const cleaf_t *leaf;
+	int k, maxleaf;
 
 	if (leafnum >= (cmod->numleafs + EXTRA_LUMP_LEAFS) || leafnum < 0)
 	{
@@ -898,6 +896,9 @@ CM_TraceToLeaf(int leafnum)
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
+		int brushnum;
+		cbrush_t *b;
+
 		brushnum = cmod->map_leafbrushes[leaf->firstleafbrush + k];
 
 		if (brushnum < 0 || brushnum >= (cmod->numbrushes + EXTRA_LUMP_BRUSHES))
@@ -932,9 +933,8 @@ CM_TraceToLeaf(int leafnum)
 static void
 CM_TestInLeaf(int leafnum)
 {
-	int k, maxleaf, brushnum;
-	cleaf_t *leaf;
-	cbrush_t *b;
+	const cleaf_t *leaf;
+	int k, maxleaf;
 
 	if (leafnum > (cmod->numleafs + EXTRA_LUMP_LEAFS) || leafnum < 0)
 	{
@@ -958,6 +958,9 @@ CM_TestInLeaf(int leafnum)
 	/* trace line against all brushes in the leaf */
 	for (k = 0; k < leaf->numleafbrushes; k++)
 	{
+		int brushnum;
+		cbrush_t *b;
+
 		brushnum = cmod->map_leafbrushes[leaf->firstleafbrush + k];
 
 		if (brushnum < 0 || brushnum >= (cmod->numbrushes + EXTRA_LUMP_BRUSHES))
@@ -1131,8 +1134,6 @@ trace_t
 CM_BoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 		int headnode, int brushmask)
 {
-	int i;
-
 	checkcount++; /* for multi-check avoidance */
 
 #ifndef DEDICATED_ONLY
@@ -1212,9 +1213,10 @@ CM_BoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 	{
 		VectorCopy(end, trace_trace.endpos);
 	}
-
 	else
 	{
+		int i;
+
 		for (i = 0; i < 3; i++)
 		{
 			trace_trace.endpos[i] = start[i] + trace_trace.fraction *
@@ -1233,12 +1235,11 @@ trace_t
 CM_TransformedBoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 		int headnode, int brushmask, vec3_t origin, vec3_t angles)
 {
-	trace_t trace;
-	vec3_t start_l, end_l;
-	vec3_t a;
 	vec3_t forward, right, up;
-	vec3_t temp;
+	vec3_t start_l, end_l;
 	qboolean rotated;
+	trace_t trace;
+	vec3_t temp;
 
 	/* subtract origin offset */
 	VectorSubtract(start, origin, start_l);
@@ -1250,7 +1251,6 @@ CM_TransformedBoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 	{
 		rotated = true;
 	}
-
 	else
 	{
 		rotated = false;
@@ -1276,6 +1276,8 @@ CM_TransformedBoxTrace(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs,
 
 	if (rotated && (trace.fraction != 1.0))
 	{
+		vec3_t a;
+
 		VectorNegate(angles, a);
 		AngleVectors(a, forward, right, up);
 
@@ -1804,8 +1806,8 @@ static void
 CMod_LoadAreaPortals(const char *name, dareaportal_t **map_areaportals, qboolean **portalopen,
 	int *numareaportals, const byte *cmod_base, const lump_t *l)
 {
+	const dareaportal_t *in;
 	dareaportal_t *out;
-	dareaportal_t *in;
 	int count;
 
 	in = (void *)(cmod_base + l->fileofs);
@@ -1925,9 +1927,9 @@ static void
 CM_LoadCachedMap(const char *name, model_t *mod)
 {
 	int i, length, hunkSize = 0;
+	const byte *cmod_base;
 	dheader_t header;
 	unsigned *buf;
-	byte *cmod_base;
 
 	length = FS_LoadFile(name, (void **)&buf);
 

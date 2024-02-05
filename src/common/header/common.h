@@ -405,7 +405,7 @@ void Cmd_AddCommand(const char *cmd_name, xcommand_t function);
 /* as a clc_stringcmd instead of executed locally */
 void Cmd_RemoveCommand(const char *cmd_name);
 
-qboolean Cmd_Exists(char *cmd_name);
+qboolean Cmd_Exists(const char *cmd_name);
 
 /* used by the cvar code to check for cvar / command name overlap */
 

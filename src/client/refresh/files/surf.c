@@ -61,7 +61,7 @@ R_TextureAnimation(const entity_t *currententity, const mtexinfo_t *tex)
 }
 
 qboolean
-R_AreaVisible(const byte *areabits, mleaf_t *pleaf)
+R_AreaVisible(const byte *areabits, const mleaf_t *pleaf)
 {
 	int area;
 
@@ -85,7 +85,7 @@ R_AreaVisible(const byte *areabits, mleaf_t *pleaf)
  * Returns true if the box is completely outside the frustom
  */
 qboolean
-R_CullBox(vec3_t mins, vec3_t maxs, cplane_t *frustum)
+R_CullBox(vec3_t mins, vec3_t maxs, const cplane_t *frustum)
 {
 	int i;
 
@@ -101,7 +101,7 @@ R_CullBox(vec3_t mins, vec3_t maxs, cplane_t *frustum)
 }
 
 static int
-R_SignbitsForPlane(cplane_t *out)
+R_SignbitsForPlane(const cplane_t *out)
 {
 	int bits, j;
 
@@ -314,12 +314,13 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
  * can be done reasonably.
  */
 void
-R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edges, msurface_t *fa)
+R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_t *edges,
+	msurface_t *fa)
 {
+	const float *vec;
 	vec3_t verts[64];
 	int numverts;
 	int i;
-	float *vec;
 
 	/* convert edges back to a normal polygon */
 	numverts = 0;

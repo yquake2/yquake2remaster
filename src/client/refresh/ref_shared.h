@@ -101,7 +101,7 @@ extern struct image_s* LoadM32(const char *origname, const char *namewe, imagety
 	loadimage_t load_image);
 extern void FixFileExt(const char *origname, const char *ext, char *filename, size_t size);
 extern void GetPCXPalette(byte **colormap, unsigned *d_8to24table);
-extern void GetPCXPalette24to8(byte *d_8to24table, byte** d_16to8table);
+extern void GetPCXPalette24to8(const byte *d_8to24table, byte** d_16to8table);
 extern void LoadPCX(const char *origname, byte **pic, byte **palette, int *width, int *height);
 extern void GetPCXInfo(const char *origname, int *width, int *height);
 extern void GetWalInfo(const char *name, int *width, int *height);
@@ -370,11 +370,11 @@ extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightfra
 	msurface_t *surfaces);
 extern struct image_s *R_TextureAnimation(const entity_t *currententity,
 	const mtexinfo_t *tex);
-extern qboolean R_AreaVisible(const byte *areabits, mleaf_t *pleaf);
-extern qboolean R_CullBox(vec3_t mins, vec3_t maxs, cplane_t *frustum);
+extern qboolean R_AreaVisible(const byte *areabits, const mleaf_t *pleaf);
+extern qboolean R_CullBox(vec3_t mins, vec3_t maxs, const cplane_t *frustum);
 extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 	float fov_x, float fov_y, cplane_t *frustum);
-extern void R_SubdivideSurface(int *surfedges, mvertex_t *vertexes, medge_t *edges,
+extern void R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *fa);
 
 /* Mesh logic */

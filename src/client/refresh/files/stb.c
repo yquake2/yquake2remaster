@@ -123,7 +123,7 @@ ResizeSTB(const byte *input_pixels, int input_width, int input_height,
 void
 SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 {
-	unsigned *full_size;
+	const unsigned *full_size;
 	unsigned last_color;
 	unsigned *last_diff;
 
@@ -253,7 +253,8 @@ scale2x(const byte *src, byte *dst, int width, int height)
 	{
 		const byte *in_buff = src;
 		byte *out_buff = dst;
-		byte *out_buff_full = dst + ((width * height) << 2);
+		const byte *out_buff_full = dst + ((width * height) << 2);
+
 		while (out_buff < out_buff_full)
 		{
 			int x;
@@ -340,7 +341,8 @@ scale3x(const byte *src, byte *dst, int width, int height)
 	{
 		const byte *in_buff = src;
 		byte *out_buff = dst;
-		byte *out_buff_full = dst + ((width * height) * 9);
+		const byte *out_buff_full = dst + ((width * height) * 9);
+
 		while (out_buff < out_buff_full)
 		{
 			int x;
