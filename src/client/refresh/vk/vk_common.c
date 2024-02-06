@@ -1699,6 +1699,7 @@ void QVk_WaitAndShutdownAll (void)
 	Mod_FreeModelsKnown();
 	Vk_ShutdownImages();
 	Mesh_Free();
+	R_VertBufferFree();
 	QVk_Shutdown();
 
 	vk_frameStarted = false;
@@ -1716,6 +1717,7 @@ void QVk_Restart(void)
 
 void QVk_PostInit(void)
 {
+	R_VertBufferInit();
 	Mesh_Init();
 	Vk_InitImages();
 	Mod_Init();

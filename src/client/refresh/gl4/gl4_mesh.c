@@ -37,8 +37,6 @@ static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
 };
 
-static vec4_t s_lerped[MAX_VERTS];
-
 typedef struct gl4_shadowinfo_s {
 	vec3_t    lightspot;
 	vec3_t    shadevector;
@@ -83,6 +81,8 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	float backlerp = entity->backlerp;
 	float frontlerp = 1.0 - backlerp;
 	float *lerp;
+	vec4_t *s_lerped;
+
 	// draw without texture? used for quad damage effect etc, I think
 	qboolean colorOnly = 0 != (entity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
@@ -143,6 +143,9 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 		frontv[i] = frontlerp * frame->scale[i];
 		backv[i] = backlerp * oldframe->scale[i];
 	}
+
+	/* buffer for scalled vert from frame */
+	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
 
 	lerp = s_lerped[0];
 
@@ -296,12 +299,16 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 	int *order;
 	float height = 0, lheight;
 	int count;
+	vec4_t *s_lerped;
 
 	dmdx_t* paliashdr = shadowInfo->paliashdr;
 	entity_t* entity = shadowInfo->entity;
 
 	vec3_t shadevector;
 	VectorCopy(shadowInfo->shadevector, shadevector);
+
+	/* buffer for scalled vert from frame */
+	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
 
 	// all in this scope is to set s_lerped
 	{
@@ -696,14 +703,12 @@ GL4_DrawAliasModel(entity_t *entity)
 		gl4state.uni3DData.transProjViewMat4 = HMM_MultiplyMat4(projMat, gl4state.viewMat3D);
 	}
 
-
 	//glPushMatrix();
 	origModelMat = gl4state.uni3DData.transModelMat4;
 
 	entity->angles[PITCH] = -entity->angles[PITCH];
 	GL4_RotateForEntity(entity);
 	entity->angles[PITCH] = -entity->angles[PITCH];
-
 
 	/* select skin */
 	if (entity->skin)

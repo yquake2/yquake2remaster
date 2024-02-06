@@ -376,7 +376,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	{
 		R_Printf(PRINT_ALL, "%s: model %s has too many vertices",
 				__func__, mod_name);
-		return NULL;
 	}
 
 	if (num_tris <= 0)
@@ -672,11 +671,11 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	}
 
 	int num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0;
+	int meshofs = pinmodel.ofs_meshes;
 
-	byte * meshofs = (byte*)buffer + pinmodel.ofs_meshes;
 	for (i = 0; i < pinmodel.num_meshes; i++)
 	{
-		const md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
+		const md3_mesh_t *md3_mesh = (md3_mesh_t*)((byte*)buffer + meshofs);
 
 		num_xyz += LittleLong(md3_mesh->num_xyz);
 		num_tris += LittleLong(md3_mesh->num_tris);
@@ -737,17 +736,17 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	dmdx_vert_t * vertx = malloc(pinmodel.num_frames * pheader->num_xyz * sizeof(dmdx_vert_t));
 	char *skin = (char *)pheader + pheader->ofs_skins;
 
-	meshofs = (byte*)buffer + pinmodel.ofs_meshes;
+	meshofs = pinmodel.ofs_meshes;
 	for (i = 0; i < pinmodel.num_meshes; i++)
 	{
-		const md3_mesh_t *md3_mesh = (md3_mesh_t*)meshofs;
-		const float *fst = (const float*)(meshofs + md3_mesh->ofs_st);
+		const md3_mesh_t *md3_mesh = (md3_mesh_t*)((byte*)buffer + meshofs);
+		const float *fst = (const float*)((byte*)buffer + meshofs + md3_mesh->ofs_st);
 		int j;
 
 		/* load shaders */
 		for (j = 0; j < md3_mesh->num_shaders; j++)
 		{
-			const md3_shader_t *md3_shader = (md3_shader_t*)(meshofs + md3_mesh->ofs_shaders) + j;
+			const md3_shader_t *md3_shader = (md3_shader_t*)((byte*)buffer + meshofs + md3_mesh->ofs_shaders) + j;
 
 			strncpy(skin, md3_shader->name, MAX_SKINNAME - 1);
 			skin += MAX_SKINNAME;
@@ -760,7 +759,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		}
 
 		/* load triangles */
-		const int *p = (const int*)(meshofs + md3_mesh->ofs_tris);
+		const int *p = (const int*)((byte*)buffer + meshofs + md3_mesh->ofs_tris);
 
 		mesh_nodes[i].start = pglcmds - baseglcmds;
 
@@ -796,7 +795,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 
 		mesh_nodes[i].num = pglcmds - baseglcmds - mesh_nodes[i].start;
 
-		md3_vertex_t *md3_vertex = (md3_vertex_t*)(meshofs + md3_mesh->ofs_verts);
+		md3_vertex_t *md3_vertex = (md3_vertex_t*)((byte*)buffer + meshofs + md3_mesh->ofs_verts);
 		int k;
 
 		for (k = 0; k < pinmodel.num_frames; k ++)
@@ -964,7 +963,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	{
 		R_Printf(PRINT_ALL, "%s: model %s has too many vertices",
 				__func__, mod_name);
-		return NULL;
 	}
 
 	if (pheader->num_st <= 0)
@@ -1161,7 +1159,6 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			{
 				R_Printf(PRINT_ALL, "%s: model %s has too many vertices",
 						__func__, mod_name);
-				return NULL;
 			}
 
 			if (dmdxheader.num_st <= 0)

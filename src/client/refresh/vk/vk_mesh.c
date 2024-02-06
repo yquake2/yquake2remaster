@@ -57,7 +57,6 @@ static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
 };
 
-static vec4_t *s_lerped = NULL;
 vec3_t shadevector;
 float shadelight[3];
 float *shadedots = r_avertexnormal_dots[0];
@@ -81,13 +80,6 @@ Mesh_VertsRealloc(int count)
 	}
 
 	verts_count = ROUNDUP(count * 2, 256);
-
-	ptr = realloc(s_lerped, verts_count * sizeof(vec4_t));
-	if (!ptr)
-	{
-		return -1;
-	}
-	s_lerped = ptr;
 
 	ptr = realloc(shadowverts, verts_count * sizeof(vec3_t));
 	if (!ptr)
@@ -139,9 +131,9 @@ Mesh_VertsRealloc(int count)
 Mesh_Init
 ===============
 */
-void Mesh_Init (void)
+void
+Mesh_Init(void)
 {
-	s_lerped = NULL;
 	shadowverts = NULL;
 	verts_buffer = NULL;
 	vertList[0] = NULL;
@@ -162,7 +154,8 @@ void Mesh_Init (void)
 Mesh_Free
 ================
 */
-void Mesh_Free (void)
+void
+Mesh_Free(void)
 {
 	if (r_validation->value > 1)
 	{
@@ -176,12 +169,6 @@ void Mesh_Free (void)
 		free(shadowverts);
 	}
 	shadowverts = NULL;
-
-	if (s_lerped)
-	{
-		free(s_lerped);
-	}
-	s_lerped = NULL;
 
 	if (verts_buffer)
 	{
@@ -215,13 +202,13 @@ void Mesh_Free (void)
 static void
 Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_end,
 	float alpha, image_t *skin, float *modelMatrix, int leftHandOffset, int translucentIdx,
-	dxtrivertx_t *verts)
+	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count)
 {
 	int vertCounts[2] = { 0, 0 };
 	int pipeCounters[2] = { 0, 0 };
 	VkDeviceSize maxTriangleFanIdxCnt = 0;
 
-	if (Mesh_VertsRealloc(1))
+	if (Mesh_VertsRealloc(verts_count))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
@@ -287,7 +274,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 				vertList[pipelineIdx][vertIdx].color[2] = shadelight[2];
 				vertList[pipelineIdx][vertIdx].color[3] = alpha;
 
-				if (verts_count < index_xyz)
+				if (verts_count <= index_xyz)
 				{
 					R_Printf(PRINT_ALL, "%s: Model has issues with lerped index\n", __func__);
 					return;
@@ -327,7 +314,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 				vertList[pipelineIdx][vertIdx].color[2] = l * shadelight[2];
 				vertList[pipelineIdx][vertIdx].color[3] = alpha;
 
-				if (verts_count < index_xyz)
+				if (verts_count <= index_xyz)
 				{
 					R_Printf(PRINT_ALL, "%s: Model has issues with lerped index\n", __func__);
 					return;
@@ -413,7 +400,7 @@ FIXME: batch lerp all vertexes
 */
 static void
 Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp, image_t *skin,
-	float *modelMatrix, int leftHandOffset, int translucentIdx)
+	float *modelMatrix, int leftHandOffset, int translucentIdx, vec4_t *s_lerped)
 {
 	daliasxframe_t *frame, *oldframe;
 	dxtrivertx_t *v, *ov, *verts;
@@ -423,7 +410,6 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	vec3_t move, delta, vectors[3];
 	vec3_t frontv, backv;
 	int i;
-	float *lerp;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
 	qboolean colorOnly = 0 != (currententity->flags &
@@ -469,14 +455,8 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 		backv[i] = backlerp * oldframe->scale[i];
 	}
 
-	if (Mesh_VertsRealloc(paliashdr->num_xyz))
-	{
-		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-	}
-
-	lerp = s_lerped[0];
-
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, (float*)s_lerped,
+		move, frontv, backv);
 
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
@@ -488,13 +468,14 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].start + mesh_nodes[i].num),
 			alpha, skin,
-			modelMatrix, leftHandOffset, translucentIdx, verts);
+			modelMatrix, leftHandOffset, translucentIdx, verts,
+			s_lerped, paliashdr->num_xyz);
 	}
 }
 
 static void
 Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
-	float *modelMatrix, entity_t *currententity)
+	float *modelMatrix, entity_t *currententity, vec4_t *s_lerped)
 {
 	vec3_t	point;
 	float	height, lheight;
@@ -620,11 +601,10 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
-	int i;
-	int leftHandOffset = 0;
+	int leftHandOffset = 0, i;
+	float prev_viewproj[16], an;
 	dmdx_t *paliashdr;
-	float an;
-	float prev_viewproj[16];
+	vec4_t *s_lerped;
 
 	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
@@ -821,6 +801,9 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	}
 
 	currententity->angles[PITCH] = -currententity->angles[PITCH];	// sigh.
+	/* buffer for scalled vert from frame */
+	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
+
 	{
 		float model[16];
 		image_t *skin = NULL;
@@ -846,8 +829,11 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				skin = currentmodel->skins[0];
 			}
 		}
+
 		if (!skin)
+		{
 			skin = r_notexture;	// fallback...
+		}
 
 		// draw it
 		if ( (currententity->frame >= paliashdr->num_frames)
@@ -869,8 +855,13 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 
 		if ( !r_lerpmodels->value )
+		{
 			currententity->backlerp = 0;
-		Vk_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp, skin, model, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0);
+		}
+
+		Vk_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp,
+			skin, model, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0,
+			s_lerped);
 	}
 
 	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
@@ -906,7 +897,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				order + mesh_nodes[i].start,
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].start + mesh_nodes[i].num),
-				currententity->frame, model, currententity);
+				currententity->frame, model, currententity,
+				s_lerped);
 		}
 	}
 }

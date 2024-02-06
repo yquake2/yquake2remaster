@@ -380,10 +380,14 @@ extern void R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_
 /* Mesh logic */
 extern qboolean R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum,
 	int frame, int oldframe, vec3_t e_angles, vec3_t e_origin, vec3_t bbox[8]);
-extern void R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *ov,
-		dxtrivertx_t *verts, float *lerp, const float move[3],
+extern void R_LerpVerts(qboolean powerUpEffect, int nverts,
+		const dxtrivertx_t *v, const dxtrivertx_t *ov,
+		const dxtrivertx_t *verts, float *lerp, const float move[3],
 		const float frontv[3], const float backv[3]);
 extern byte R_CompressNormalMDL(const float *normal);
+extern vec4_t *R_VertBufferRealloc(int num);
+extern void R_VertBufferInit(void);
+extern void R_VertBufferFree(void);
 
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);

@@ -30,6 +30,52 @@ static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
 #include "../constants/anorms.h"
 };
 
+static vec4_t *lerpbuff = NULL;
+static int lerpbuffnum = 0;
+
+vec4_t *
+R_VertBufferRealloc(int num)
+{
+	void *ptr;
+
+	if (num < lerpbuffnum)
+	{
+		return lerpbuff;
+	}
+
+	lerpbuffnum = num * 2;
+	ptr = realloc(lerpbuff, lerpbuffnum * sizeof(vec4_t));
+	if (!ptr)
+	{
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+
+		return NULL;
+	}
+
+	lerpbuff = ptr;
+
+	return lerpbuff;
+}
+
+void
+R_VertBufferInit(void)
+{
+	lerpbuff = NULL;
+	lerpbuffnum = 0;
+	R_VertBufferRealloc(MAX_VERTS);
+}
+
+void
+R_VertBufferFree(void)
+{
+	if (lerpbuff)
+	{
+		free(lerpbuff);
+		lerpbuff = NULL;
+	}
+	lerpbuffnum = 0;
+}
+
 /* compressed vertex normals used by mdl and md2 model formats */
 byte
 R_CompressNormalMDL(const float *normal)
@@ -61,9 +107,10 @@ R_CompressNormalMDL(const float *normal)
 }
 
 void
-R_LerpVerts(qboolean powerUpEffect, int nverts, dxtrivertx_t *v, dxtrivertx_t *ov,
-		dxtrivertx_t *verts, float *lerp, const float move[3],
-		const float frontv[3], const float backv[3])
+R_LerpVerts(qboolean powerUpEffect, int nverts,
+		const dxtrivertx_t *v, const dxtrivertx_t *ov,
+		const dxtrivertx_t *verts, float *lerp,
+		const float move[3], const float frontv[3], const float backv[3])
 {
 	int i;
 

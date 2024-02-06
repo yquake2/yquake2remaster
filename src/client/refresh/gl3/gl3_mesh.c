@@ -37,8 +37,6 @@ static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
 #include "../constants/anormtab.h"
 };
 
-static vec4_t s_lerped[MAX_VERTS];
-
 typedef struct gl3_shadowinfo_s {
 	vec3_t    lightspot;
 	vec3_t    shadevector;
@@ -69,7 +67,7 @@ GL3_ShutdownMeshes(void)
 static void
 DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 	int *order, int *order_end, float* shadedots, float alpha, qboolean colorOnly,
-	dxtrivertx_t *verts)
+	dxtrivertx_t *verts, vec4_t *s_lerped)
 {
 	// all the triangle fans and triangle strips of this model will be converted to
 	// just triangles: the vertices stay the same and are batched in vtxBuf,
@@ -229,6 +227,8 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	float *lerp;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
+	vec4_t *s_lerped;
+
 	// draw without texture? used for quad damage effect etc, I think
 	qboolean colorOnly = 0 != (entity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
@@ -290,6 +290,9 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 		backv[i] = backlerp * oldframe->scale[i];
 	}
 
+	/* buffer for scalled vert from frame */
+	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
+
 	lerp = s_lerped[0];
 
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
@@ -305,13 +308,13 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 			order + mesh_nodes[i].start,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].start + mesh_nodes[i].num),
-			shadedots, alpha, colorOnly, verts);
+			shadedots, alpha, colorOnly, verts, s_lerped);
 	}
 }
 
 static void
 DrawAliasShadowCommands(int *order, int *order_end, vec3_t shadevector,
-	float height, float lheight)
+	float height, float lheight, vec4_t *s_lerped)
 {
 	// GL1 uses alpha 0.5, but in GL3 0.3 looks better
 	GLfloat color[4] = {0, 0, 0, 0.3};
@@ -424,12 +427,16 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	float height = 0, lheight;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
+	vec4_t *s_lerped;
 
 	dmdx_t* paliashdr = shadowInfo->paliashdr;
 	entity_t* entity = shadowInfo->entity;
 
 	vec3_t shadevector;
 	VectorCopy(shadowInfo->shadevector, shadevector);
+
+	/* buffer for scalled vert from frame */
+	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
 
 	// all in this scope is to set s_lerped
 	{
@@ -484,7 +491,7 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 			order + mesh_nodes[i].start,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].start + mesh_nodes[i].num),
-			shadevector, height, lheight);
+			shadevector, height, lheight, s_lerped);
 	}
 }
 
@@ -733,14 +740,12 @@ GL3_DrawAliasModel(entity_t *entity)
 		gl3state.uni3DData.transProjViewMat4 = HMM_MultiplyMat4(projMat, gl3state.viewMat3D);
 	}
 
-
 	//glPushMatrix();
 	origModelMat = gl3state.uni3DData.transModelMat4;
 
 	entity->angles[PITCH] = -entity->angles[PITCH];
 	GL3_RotateForEntity(entity);
 	entity->angles[PITCH] = -entity->angles[PITCH];
-
 
 	/* select skin */
 	if (entity->skin)
@@ -827,12 +832,14 @@ GL3_DrawAliasModel(entity_t *entity)
 	}
 }
 
-void GL3_ResetShadowAliasModels(void)
+void
+GL3_ResetShadowAliasModels(void)
 {
 	da_clear(shadowModels);
 }
 
-void GL3_DrawAliasShadows(void)
+void
+GL3_DrawAliasShadows(void)
 {
 	size_t numShadowModels = da_count(shadowModels);
 	if(numShadowModels == 0)

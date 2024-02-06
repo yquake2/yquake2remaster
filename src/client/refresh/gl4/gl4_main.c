@@ -25,7 +25,6 @@
  * =======================================================================
  */
 
-
 #include "../ref_shared.h"
 #include "header/local.h"
 
@@ -621,6 +620,8 @@ GL4_Init(void)
 
 	registration_sequence = 1; // from R_InitImages() (everything else from there shouldn't be needed anymore)
 
+	R_VertBufferInit();
+
 	GL4_Mod_Init();
 
 	GL4_InitParticleTexture();
@@ -653,6 +654,7 @@ GL4_Shutdown(void)
 		GL4_Mod_FreeAll();
 		GL4_ShutdownMeshes();
 		GL4_ShutdownImages();
+		R_VertBufferFree();
 		GL4_SurfShutdown();
 		GL4_Draw_ShutdownLocal();
 		GL4_ShutdownShaders();
