@@ -220,9 +220,18 @@ Mod_LoadFrames_MD2Anox(dmdx_t *pheader, byte *src, size_t inframesize,
 				/* verts are 32 bit and swap are inside vonvert code*/
 				for (j=0; j < pheader->num_xyz; j ++)
 				{
+					short tmp;
+
 					Mod_LoadFrames_VertDKM2(poutframe->verts + j, *((int *)inverts));
+
 					/* int vert + 2 bytes */
 					inverts += 6;
+
+					/* DKM2 has opposite vert list in packed format */
+					tmp = poutframe->verts[j].v[0];
+					poutframe->verts[j].v[0] = poutframe->verts[j].v[2];
+					poutframe->verts[j].v[2] = tmp;
+
 					/* norm convert logic is unknown */
 					poutframe->verts[j].lightnormalindex = 0;
 				}
