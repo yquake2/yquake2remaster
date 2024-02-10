@@ -217,8 +217,8 @@ void Master_Packet(void);
 
 void SV_InitGame(void);
 void SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isautosave);
-void SV_SendInitBuffers();
-void SV_SendFreeBuffers();
+void SV_SendInitBuffers(void);
+void SV_SendFreeBuffers(void);
 
 void SV_PrepWorldFrame(void);
 
@@ -228,7 +228,6 @@ extern char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 
 void SV_FlushRedirect(int sv_redirected, char *outputbuf);
 
-void SV_DemoCompleted(void);
 void SV_SendClientMessages(void);
 
 void SV_Multicast(vec3_t origin, multicast_t to);
