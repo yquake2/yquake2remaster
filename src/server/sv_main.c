@@ -569,6 +569,7 @@ SV_UserinfoChanged(client_t *cl)
 void
 SV_Init(void)
 {
+	SV_SendInitBuffers();
 	SV_InitOperatorCommands();
 
 	rcon_password = Cvar_Get("rcon_password", "", 0);
@@ -704,5 +705,7 @@ SV_Shutdown(char *finalmsg, qboolean reconnect)
 	}
 
 	memset(&svs, 0, sizeof(svs));
+
+	SV_SendFreeBuffers();
 }
 

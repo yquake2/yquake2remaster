@@ -428,15 +428,65 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 	}
 }
 
+static int msgbuff_size = 0;
+static byte *msgbuff_cache = NULL;
+
+static byte *
+SV_SendReallocBuffers(int num)
+{
+	void *ptr;
+
+	if (num < msgbuff_size)
+	{
+		return msgbuff_cache;
+	}
+
+	msgbuff_size = num * 2;
+	ptr = realloc(msgbuff_cache, msgbuff_size);
+	if (!ptr)
+	{
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		return NULL;
+	}
+
+	msgbuff_cache = ptr;
+
+	Com_DPrintf("%s: Realloc send buffer: %d\n", __func__, msgbuff_size);
+
+	return msgbuff_cache;
+}
+
+void
+SV_SendInitBuffers()
+{
+	msgbuff_size = 0;
+	msgbuff_cache = NULL;
+
+	SV_SendReallocBuffers(MAX_MSGLEN);
+}
+
+void
+SV_SendFreeBuffers()
+{
+	if (msgbuff_cache)
+	{
+		free(msgbuff_cache);
+		msgbuff_cache = NULL;
+	}
+	msgbuff_size = 0;
+}
+
 static qboolean
 SV_SendClientDatagram(client_t *client)
 {
-	byte msg_buf[MAX_MSGLEN];
+	byte *msg_buf;
 	sizebuf_t msg;
+
+	msg_buf = SV_SendReallocBuffers(MAX_MSGLEN);
 
 	SV_BuildClientFrame(client);
 
-	SZ_Init(&msg, msg_buf, sizeof(msg_buf));
+	SZ_Init(&msg, msg_buf, MAX_MSGLEN);
 	msg.allowoverflow = true;
 
 	/* send over all the relevant entity_state_t
@@ -525,7 +575,7 @@ SV_SendClientMessages(void)
 	int i;
 	client_t *c;
 	int msglen;
-	byte msgbuf[MAX_MSGLEN];
+	byte *msgbuf;
 	size_t r;
 
 	msglen = 0;
@@ -556,10 +606,11 @@ SV_SendClientMessages(void)
 				return;
 			}
 
+			msgbuf = SV_SendReallocBuffers(Q_max(msglen, MAX_MSGLEN));
+
 			if (msglen > MAX_MSGLEN)
 			{
-				Com_Error(ERR_DROP,
-						"%s: msglen > MAX_MSGLEN", __func__);
+				Com_Printf("%s: msglen %d > MAX_MSGLEN\n", __func__, msglen);
 			}
 
 			r = FS_FRead(msgbuf, msglen, 1, sv.demofile);

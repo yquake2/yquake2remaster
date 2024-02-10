@@ -33,6 +33,7 @@ Monsters:
 Models support:
 
 | Format | Original Game   | Comments                                          |
+| ------ | --------------- | ------------------------------------------------- |
 | mdl    | Quake 1         | could be issues with textures                     |
 | md2    | Quake 2         | full support                                      |
 | md2    | Anachronox      | incorrect normals, does no suport tagged surfaces |
@@ -47,6 +48,7 @@ All models support only single texture for all meshes and only up to 255 frames.
 Texture supported
 
 | Format | Original Game  | Comments |
+| ------ | -------------- | -------- |
 | wal    | Quake 2        | 8 bit    |
 | wal    | Daikatana      | 8 bit    |
 | m8     | Heretic 2      | 8 bit    |

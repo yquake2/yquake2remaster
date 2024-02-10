@@ -217,6 +217,8 @@ void Master_Packet(void);
 
 void SV_InitGame(void);
 void SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isautosave);
+void SV_SendInitBuffers();
+void SV_SendFreeBuffers();
 
 void SV_PrepWorldFrame(void);
 
