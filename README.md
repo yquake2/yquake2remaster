@@ -30,22 +30,47 @@ Monsters:
   * incorrect dead animation for Arachnoid
   * broken fire effect for Guardian
 
+Models support:
+
+| Format | Original Game   | Comments                                          |
+| mdl    | Quake 1         | could be issues with textures                     |
+| md2    | Quake 2         | full support                                      |
+| md2    | Anachronox      | incorrect normals, does no suport tagged surfaces |
+| fm     | Heretic 2       | show all meshes,                                  |
+| dkm    | Daikatana DKM1  | unchecked with game                               |
+| dkm    | Daikatana DKM2  | unchecked with game, incorrect normals            |
+| md3    | Quake 3         | show all meshes, no tags support, unchecked, slow |
+| md5    | Doom 3/Quake 4  | requires md2 for skins, show all meshes, slow     |
+
+All models support only single texture for all meshes and only up to 255 frames.
+
+Texture supported
+
+| Format | Original Game  | Comments |
+| wal    | Quake 2        | 8 bit    |
+| wal    | Daikatana      | 8 bit    |
+| m8     | Heretic 2      | 8 bit    |
+| m32    | Heretic 2      | 24 bit   |
+| pcx    | Quake2         | 24 bit   |
+| tga    | Quake2         | 24 bit   |
+| png    | retexturing    | 24 bit   |
+| jpg    | retexturing    | 24 bit   |
+| bmp    | Daikatana      | 24 bit   |
+
 Goals (finished):
   * BSPX DECOUPLEDLM light map support (base1),
   * QBSP map format support (mguhub),
-  * RoQ and Theora cinematic videos support.
-  * FM/Heretic 2 model format support,
-  * Cinematic videos support in smk, mpeg, ogv format,
   * Use ffmpeg for load any video,
-  * MDL/Quake1 model format support,
-  * Daikatana model/wal/map format support,
-  * MD5 model support,
+  * RoQ and Theora cinematic videos support.
+  * Cinematic videos support in smk, mpeg, ogv format,
+  * Daikatana/Heretic map partial format support,
   * Add debug progress loading code for maps.
+
 
 Goals (none of it finished):
   * md5 improve load speed,
-  * md3 fix possible memory coruption,
   * Single player support,
+  * support surface flags for Daikatana, Heretic 2, Anachronox,
   * modified ReRelease game code support with removed KEX only related code.
 
 Bonus goals:
@@ -55,7 +80,6 @@ Bonus goals:
   * Convert map surface flag by game type,
   * Cleanup function declarations in game save code,
   * Support scalled textures for models and walls in soft render and fix
-
     lighting with remastered maps.
 
 Not a goal:
