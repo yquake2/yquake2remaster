@@ -380,12 +380,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 infighter
 
 # ----------
 
 # Builds everything
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 infighter
 
 # ----------
 
@@ -808,6 +808,121 @@ build/ref_vk/%.o: %.c
 	@echo "===> CC $<"
 	${Q}mkdir -p $(@D)
 	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
+
+# ----------
+
+# The infighter infighter
+ifeq ($(YQ2_OSTYPE), Windows)
+infighter:
+	@echo "===> Building infighter/game.dll"
+	${Q}mkdir -p release/infighter
+	$(MAKE) release/infighter/game.dll
+
+build/infighter/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+
+release/infighter/game.dll : LDFLAGS += -shared
+
+else ifeq ($(YQ2_OSTYPE), Darwin)
+
+infighter:
+	@echo "===> Building infighter/game.dylib"
+	${Q}mkdir -p release/infighter
+	$(MAKE) release/infighter/game.dylib
+
+build/infighter/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+
+release/infighter/game.dylib : CFLAGS += -fPIC
+release/infighter/game.dylib : LDFLAGS += -shared
+
+else # not Windows or Darwin
+
+infighter:
+	@echo "===> Building infighter/game.so"
+	${Q}mkdir -p release/infighter
+	$(MAKE) release/infighter/game.so
+
+build/infighter/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+
+release/infighter/game.so : CFLAGS += -fPIC -Wno-unused-result
+release/infighter/game.so : LDFLAGS += -shared
+endif
+
+# ----------
+
+# Used by the infighter
+INFIGHTER_OBJS_ = \
+	src/common/shared/flash.o \
+	src/common/shared/rand.o \
+	src/common/shared/shared.o \
+	src/infighter/g_svcmds.o \
+	src/infighter/g_main.o \
+	src/infighter/g_utils.o \
+	src/infighter/g_spawn.o \
+	src/infighter/g_misc.o \
+	src/infighter/g_items.o \
+	src/infighter/g_chase.o \
+	src/infighter/g_func.o \
+	src/infighter/savegame/savegame.o \
+	src/infighter/g_target.o \
+	src/infighter/g_trigger.o \
+	src/infighter/players/g_cmds.o \
+	src/infighter/players/p_trail.o \
+	src/infighter/players/p_view.o \
+	src/infighter/players/p_client.o \
+	src/infighter/players/p_hud.o \
+	src/infighter/players/p_menu.o \
+	src/infighter/g_weapon.o \
+	src/infighter/g_phys.o \
+	src/infighter/combat/m_move.o \
+	src/infighter/player/weapon.o \
+	src/infighter/g_combat.o \
+	src/infighter/g_ai.o \
+	src/infighter/g_monster.o \
+	src/infighter/monster/boss3/boss3.o \
+	src/infighter/monster/gladiator/gladiator.o \
+	src/infighter/monster/flipper/flipper.o \
+	src/infighter/monster/soldier/soldier.o \
+	src/infighter/monster/mutant/mutant.o \
+	src/infighter/monster/parasite/parasite.o \
+	src/infighter/monster/medic/medic.o \
+	src/infighter/monster/hover/hover.o \
+	src/infighter/monster/boss2/boss2.o \
+	src/infighter/monster/flyer/flyer.o \
+	src/infighter/monster/supertank/supertank.o \
+	src/infighter/monster/boss3/boss32.o \
+	src/infighter/monster/infantry/infantry.o \
+	src/infighter/monster/float/float.o \
+	src/infighter/monster/gunner/gunner.o \
+	src/infighter/monster/tank/tank.o \
+	src/infighter/monster/boss3/boss31.o \
+	src/infighter/monster/insane/insane.o \
+	src/infighter/monster/brain/brain.o \
+	src/infighter/monster/chick/chick.o \
+	src/infighter/monster/berserker/berserker.o \
+	src/infighter/monster/fish/fish.o \
+	src/infighter/monster/wizard/wizard.o \
+	src/infighter/monster/dog/dog.o \
+	src/infighter/monster/zombie/zombie.o \
+	src/infighter/monster/enforcer/enforcer.o \
+	src/infighter/monster/ogre/ogre.o \
+	src/infighter/monster/knight/knight.o \
+	src/infighter/monster/tarbaby/tarbaby.o \
+	src/infighter/monster/shalrath/shalrath.o \
+	src/infighter/monster/army/army.o \
+	src/infighter/monster/demon/demon.o \
+	src/infighter/monster/shambler/shambler.o \
+	src/infighter/monster/hknight/hknight.o \
+	src/infighter/monster/turret/turret.o \
+	src/infighter/monster/actor/actor.o
 
 # ----------
 
@@ -1320,12 +1435,14 @@ REFSOFT_OBJS = $(patsubst %,build/ref_soft/%,$(REFSOFT_OBJS_))
 REFVK_OBJS = $(patsubst %,build/ref_vk/%,$(REFVK_OBJS_))
 SERVER_OBJS = $(patsubst %,build/server/%,$(SERVER_OBJS_))
 GAME_OBJS = $(patsubst %,build/baseq2/%,$(GAME_OBJS_))
+INFIGHTER_OBJS = $(patsubst %,build/infighter/%,$(INFIGHTER_OBJS_))
 
 # ----------
 
 # Generate header dependencies.
 CLIENT_DEPS= $(CLIENT_OBJS:.o=.d)
 GAME_DEPS= $(GAME_OBJS:.o=.d)
+INFIGHTER_DEPS= $(INFIGHTER_OBJS:.o=.d)
 REFGL1_DEPS= $(REFGL1_OBJS:.o=.d)
 REFGL3_DEPS= $(REFGL3_OBJS:.o=.d)
 REFGLES3_DEPS= $(REFGLES3_OBJS:.o=.d)
@@ -1336,6 +1453,7 @@ SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 
 # Suck header dependencies in.
 -include $(CLIENT_DEPS)
+-include $(INFIGHTER_DEPS)
 -include $(GAME_DEPS)
 -include $(REFGL1_DEPS)
 -include $(REFGL3_DEPS)
@@ -1479,6 +1597,24 @@ else
 release/baseq2/game.so : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+
+# release/infighter/game.so
+ifeq ($(YQ2_OSTYPE), Windows)
+release/infighter/game.dll : $(INFIGHTER_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(INFIGHTER_OBJS) $(LDLIBS) -o $@
+	$(Q)strip $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/infighter/game.dylib : $(INFIGHTER_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(INFIGHTER_OBJS) $(LDLIBS) -o $@
+else
+release/infighter/game.so : $(INFIGHTER_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(INFIGHTER_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------

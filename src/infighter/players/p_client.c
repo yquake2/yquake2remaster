@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -17,12 +17,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "../game/g_local.h"
+#include "../header/local.h"
 #include "m_player.h"
 
 void ClientUserinfoChanged (edict_t *ent, char *userinfo);
-
 void SP_misc_teleporter_dest (edict_t *ent);
+
+static char *team_string[MAX_MONSTER_TEAMS] =
+{
+	"Red",
+	"Yellow",
+	"Green",
+	"Blue"
+};
+
+extern *skill_string[MAX_DIFFICULTIES];
 
 //
 // Gross, ugly, disgustuing hack section
@@ -489,7 +498,7 @@ void LookAtKiller (edict_t *self, edict_t *inflictor, edict_t *attacker)
 	}
 	if (self->client->killer_yaw < 0)
 		self->client->killer_yaw += 360;
-	
+
 
 }
 
@@ -641,7 +650,7 @@ void InitClientResp (gclient_t *client)
 ==================
 SaveClientData
 
-Some information that should be persistant, like health, 
+Some information that should be persistant, like health,
 is still stored in the edict structure, so it needs to
 be mirrored out to the client structure before all the
 edicts are wiped.
@@ -780,25 +789,21 @@ edict_t *SelectRandomDeathmatchSpawnPoint (void)
 	return spot;
 }
 
-/*
-================
-SelectFarthestDeathmatchSpawnPoint
-
-================
-*/
-edict_t *SelectFarthestDeathmatchSpawnPoint (void)
+edict_t *
+SelectFarthestDeathmatchSpawnPoint(void)
 {
-	edict_t	*bestspot;
-	float	bestdistance, bestplayerdistance;
-	edict_t	*spot;
-
+	edict_t *bestspot;
+	float bestdistance, bestplayerdistance;
+	edict_t *spot;
 
 	spot = NULL;
 	bestspot = NULL;
 	bestdistance = 0;
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL)
+
+	while ((spot = G_Find(spot, FOFS(classname),
+					"info_player_deathmatch")) != NULL)
 	{
-		bestplayerdistance = PlayersRangeFromSpot (spot);
+		bestplayerdistance = PlayersRangeFromSpot(spot);
 
 		if (bestplayerdistance > bestdistance)
 		{
@@ -812,19 +817,24 @@ edict_t *SelectFarthestDeathmatchSpawnPoint (void)
 		return bestspot;
 	}
 
-	// if there is a player just spawned on each and every start spot
-	// we have no choice to turn one into a telefrag meltdown
-	spot = G_Find (NULL, FOFS(classname), "info_player_deathmatch");
+	/* if there is a player just spawned on each and every start spot/
+	   we have no choice to turn one into a telefrag meltdown */
+	spot = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
 
 	return spot;
 }
 
-edict_t *SelectDeathmatchSpawnPoint (void)
+edict_t *
+SelectDeathmatchSpawnPoint(void)
 {
-	if ( (int)(dmflags->value) & DF_SPAWN_FARTHEST)
-		return SelectFarthestDeathmatchSpawnPoint ();
+	if ((int)(dmflags->value) & DF_SPAWN_FARTHEST)
+	{
+		return SelectFarthestDeathmatchSpawnPoint();
+	}
 	else
-		return SelectRandomDeathmatchSpawnPoint ();
+	{
+		return SelectRandomDeathmatchSpawnPoint();
+	}
 }
 
 
@@ -1003,7 +1013,7 @@ void respawn (edict_t *self)
 	gi.AddCommandString ("menu_loadgame\n");
 }
 
-/* 
+/*
  * only called when pers.spectator changes
  * note that resp.spectator should be the opposite of pers.spectator here
  */
@@ -1016,8 +1026,8 @@ void spectator_respawn (edict_t *ent)
 
 	if (ent->client->pers.spectator) {
 		char *value = Info_ValueForKey (ent->client->pers.userinfo, "spectator");
-		if (*spectator_password->string && 
-			strcmp(spectator_password->string, "none") && 
+		if (*spectator_password->string &&
+			strcmp(spectator_password->string, "none") &&
 			strcmp(spectator_password->string, value)) {
 			gi.cprintf(ent, PRINT_HIGH, "Spectator password incorrect.\n");
 			ent->client->pers.spectator = false;
@@ -1045,7 +1055,7 @@ void spectator_respawn (edict_t *ent)
 		// he was a spectator and wants to join the game
 		// he must have the right password
 		char *value = Info_ValueForKey (ent->client->pers.userinfo, "password");
-		if (*password->string && strcmp(password->string, "none") && 
+		if (*password->string && strcmp(password->string, "none") &&
 			strcmp(password->string, value)) {
 			gi.cprintf(ent, PRINT_HIGH, "Password incorrect.\n");
 			ent->client->pers.spectator = true;
@@ -1077,7 +1087,7 @@ void spectator_respawn (edict_t *ent)
 
 	ent->client->respawn_time = level.time;
 
-	if (ent->client->pers.spectator) 
+	if (ent->client->pers.spectator)
 		gi.bprintf (PRINT_HIGH, "%s has moved to the sidelines\n", ent->client->pers.netname);
 	else
 		gi.bprintf (PRINT_HIGH, "%s joined the game\n", ent->client->pers.netname);
@@ -1260,7 +1270,7 @@ void PutClientInServer (edict_t *ent)
 =====================
 ClientBeginDeathmatch
 
-A client has just connected to the server in 
+A client has just connected to the server in
 deathmatch mode, so clear everything out before starting them.
 =====================
 */
@@ -1446,8 +1456,8 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 	if (deathmatch->value && *value && strcmp(value, "0")) {
 		int i, numspec;
 
-		if (*spectator_password->string && 
-			strcmp(spectator_password->string, "none") && 
+		if (*spectator_password->string &&
+			strcmp(spectator_password->string, "none") &&
 			strcmp(spectator_password->string, value)) {
 			Info_SetValueForKey(userinfo, "rejmsg", "Spectator password required or incorrect.");
 			return false;
@@ -1465,7 +1475,7 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 	} else {
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
-		if (*password->string && strcmp(password->string, "none") && 
+		if (*password->string && strcmp(password->string, "none") &&
 			strcmp(password->string, value)) {
 			Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
 			return false;
@@ -1607,19 +1617,19 @@ void SelectMonster(edict_t *self, int selected_monster)
 		case 24: self->classname = "misc_insane";				SP_misc_insane(self);				break; // 100
 
 		// Quake 1 monsters
-		case 25: self->classname = "monster_q1_dog";			SP_monster_q1_dog(self);			break; // 25
-		case 26: self->classname = "monster_q1_fish";			SP_monster_q1_fish(self);			break; // 25
-		case 27: self->classname = "monster_q1_army";			SP_monster_q1_army(self);			break; // 30
-		case 28: self->classname = "monster_q1_zombie";			SP_monster_q1_zombie(self);			break; // 60
-		case 29: self->classname = "monster_q1_knight";			SP_monster_q1_knight(self);			break; // 75
-		case 30: self->classname = "monster_q1_enforcer";		SP_monster_q1_enforcer(self);		break; // 80
-		case 31: self->classname = "monster_q1_tarbaby";		SP_monster_q1_tarbaby(self);		break; // 80
-		case 32: self->classname = "monster_q1_wizard";			SP_monster_q1_wizard(self);			break; // 80
-		case 33: self->classname = "monster_q1_ogre";			SP_monster_q1_ogre(self);			break; // 200
-		case 34: self->classname = "monster_q1_hknight";		SP_monster_q1_hknight(self);		break; // 250
-		case 35: self->classname = "monster_q1_demon";			SP_monster_q1_demon(self);			break; // 300
-		case 36: self->classname = "monster_q1_shalrath";		SP_monster_q1_shalrath(self);		break; // 400
-		case 37: self->classname = "monster_q1_shambler";		SP_monster_q1_shambler(self);		break; // 600
+		case 25: self->classname = "monster_dog";			SP_monster_dog(self);			break; // 25
+		case 26: self->classname = "monster_fish";			SP_monster_fish(self);			break; // 25
+		case 27: self->classname = "monster_army";			SP_monster_army(self);			break; // 30
+		case 28: self->classname = "monster_zombie";			SP_monster_zombie(self);			break; // 60
+		case 29: self->classname = "monster_knight";			SP_monster_knight(self);			break; // 75
+		case 30: self->classname = "monster_enforcer";		SP_monster_enforcer(self);		break; // 80
+		case 31: self->classname = "monster_tarbaby";		SP_monster_tarbaby(self);		break; // 80
+		case 32: self->classname = "monster_wizard";			SP_monster_wizard(self);			break; // 80
+		case 33: self->classname = "monster_ogre";			SP_monster_ogre(self);			break; // 200
+		case 34: self->classname = "monster_hknight";		SP_monster_hknight(self);		break; // 250
+		case 35: self->classname = "monster_demon";			SP_monster_demon(self);			break; // 300
+		case 36: self->classname = "monster_shalrath";		SP_monster_shalrath(self);		break; // 400
+		case 37: self->classname = "monster_shambler";		SP_monster_shambler(self);		break; // 600
 
 		default: self->classname = "misc_insane";				SP_misc_insane(self);				break;
 	}
@@ -1653,7 +1663,7 @@ void MonsterPreviewThink(edict_t *self)
 	}
 	AngleVectors(self->owner->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 8, 8, self->owner->viewheight - 8);
-	P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+	P_ProjectSource(self->owner, offset, forward, right, start);
 	VectorMA(start, 256, forward, end);
 
 	tr = gi.trace(start, self->mins, self->maxs, end, self->owner, MASK_SHOT);
@@ -1733,7 +1743,7 @@ void fire_death(edict_t *ent, vec3_t start, vec3_t forward)
 	VectorCopy(start, from);
 
 	tr = gi.trace(from, NULL, NULL, end, ent, (MASK_SHOT | CONTENTS_SLIME |CONTENTS_LAVA));
- 
+
 	if ((tr.ent != ent) && (tr.ent->takedamage || tr.ent->zombie_state == 2))
 	{
 		int damage = 10000;
@@ -1741,7 +1751,7 @@ void fire_death(edict_t *ent, vec3_t start, vec3_t forward)
 		if (tr.ent->deadflag != DEAD_DEAD)
 		{
 			// decino: Tiny hack for zombies
-			if (strcmp(tr.ent->classname, "monster_q1_zombie") == 0)
+			if (strcmp(tr.ent->classname, "monster_zombie") == 0)
 			{
 				if (tr.ent->zombie_state == 2)
 					tr.ent->takedamage = DAMAGE_YES;
@@ -1775,7 +1785,7 @@ void FireDeathBeam(edict_t *ent)
 		return;
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 0, 0,  ent->viewheight - 8);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent, offset, forward, right, start);
 
 	fire_death(ent, start, forward);
 
@@ -1796,7 +1806,7 @@ void TraceMonster(edict_t *ent)
 
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 0, 0,  ent->viewheight - 8);
-	P_ProjectSource(ent->client, ent->s.origin, offset, forward, right, start);
+	P_ProjectSource(ent, offset, forward, right, start);
 
 	VectorMA(start, 8192, forward, end);
 	VectorCopy(start, from);
@@ -1867,7 +1877,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	{
 		client->ps.pmove.pm_type = PM_FREEZE;
 		// can exit intermission after five seconds
-		if (level.time > level.intermissiontime + 5.0 
+		if (level.time > level.intermissiontime + 5.0
 			&& (ucmd->buttons & BUTTON_ANY) )
 			level.exitintermission = true;
 		return;
@@ -2040,7 +2050,7 @@ void ClientBeginServerFrame (edict_t *ent)
 		spectator_respawn(ent);
 		return;
 	}
-	
+
 	// run weapon animations if it hasn't been done by a ucmd_t
 	if (!client->weapon_thunk && !client->resp.spectator)
 		Think_Weapon (ent);

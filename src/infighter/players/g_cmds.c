@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -17,8 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "../game/g_local.h"
+#include "../header/local.h"
 #include "m_player.h"
+
+// decino: Infighter array constants
+char *skill_string[MAX_DIFFICULTIES] =
+{
+	"Easy",
+	"Medium",
+	"Hard",
+	"Nightmare"
+};
 
 void MenuSelectStartFight(edict_t *ent, pmenuhnd_t *p);
 
@@ -71,7 +80,7 @@ void SelectNextItem (edict_t *ent, int itflags)
 	if (ent->selected_monster >= MAX_SELECTED_MONSTERS)
 		ent->selected_monster = 0;*/
 
-	if (ent->client->menu) 
+	if (ent->client->menu)
 	{
 		PMenu_Next(ent);
 		return;
@@ -114,7 +123,7 @@ void SelectPrevItem (edict_t *ent, int itflags)
 	if (ent->selected_monster < 0)
 		ent->selected_monster = MAX_SELECTED_MONSTERS - 1;*/
 
-	if (ent->client->menu) 
+	if (ent->client->menu)
 	{
 		PMenu_Prev(ent);
 		return;
@@ -483,7 +492,7 @@ void Cmd_Drop_f (edict_t *ent)
 	it->drop (ent, it);
 }
 
-pmenu_t mainmenu[] = 
+pmenu_t mainmenu[] =
 {
 	{ "*\x0d inf_fight",				PMENU_ALIGN_LEFT, NULL },
 	{ "Init/pause monster fights",		PMENU_ALIGN_LEFT, NULL },
@@ -520,7 +529,7 @@ void Cmd_Inven_f (edict_t *ent)
 	/*int			i;
 	gclient_t	*cl;*/
 
-	if (ent->client->menu) 
+	if (ent->client->menu)
 	{
 		PMenu_Close(ent);
 		return;
@@ -555,7 +564,7 @@ Cmd_InvUse_f
 */
 void Cmd_InvUse_f (edict_t *ent)
 {
-	if (ent->client->menu) 
+	if (ent->client->menu)
 	{
 		PMenu_Select(ent);
 		return;
@@ -903,7 +912,7 @@ void Cmd_Say_f (edict_t *ent, qboolean team, qboolean arg0)
         i = cl->flood_whenhead - flood_msgs->value + 1;
         if (i < 0)
             i = (sizeof(cl->flood_when)/sizeof(cl->flood_when[0])) + i;
-		if (cl->flood_when[i] && 
+		if (cl->flood_when[i] &&
 			level.time - cl->flood_when[i] < flood_persecond->value) {
 			cl->flood_locktill = level.time + flood_waitdelay->value;
 			gi.cprintf(ent, PRINT_CHAT, "Flood protection:  You can't talk for %d seconds.\n",
@@ -964,6 +973,18 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
+static qboolean
+RemoveMonsterPreview(edict_t *ent)
+{
+	if (ent->monster_preview)
+	{
+		G_FreeEdict(ent->monster_preview);
+		ent->monster_preview = NULL;
+		return true;
+	}
+	return false;
+}
+
 void Cmd_MonsterFight_f(edict_t *ent)
 {
 	level.ready = !level.ready;
@@ -1020,17 +1041,6 @@ qboolean RemoveDummy(edict_t *ent)
 		ent->dummy = NULL;
 		return true;
 	}
-	return false;
-}
-
-qboolean RemoveMonsterPreview(edict_t *ent)
-{
-	if (ent->monster_preview)
-	{
-		G_FreeEdict(ent->monster_preview);
-		ent->monster_preview = NULL;
-		return true;
-	}	
 	return false;
 }
 
@@ -1111,7 +1121,7 @@ void DummyThink(edict_t *self)
 	{
 		AngleVectors(self->owner->client->v_angle, forward, right, NULL);
 		VectorSet(offset, 8, 8, self->owner->viewheight - 8);
-		P_ProjectSource(self->owner->client, self->owner->s.origin, offset, forward, right, start);
+		P_ProjectSource(self->owner, offset, forward, right, start);
 		VectorMA(start, 256, forward, end);
 
 		tr = gi.trace(start, self->mins, self->maxs, end, self->owner, CONTENTS_SOLID);
