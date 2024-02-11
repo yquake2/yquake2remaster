@@ -155,13 +155,7 @@ void SP_monster_boss2(edict_t *self);
 void SP_monster_jorg(edict_t *self);
 void SP_monster_makron(edict_t *self);
 void SP_monster_boss3_stand(edict_t *self);
-
 void SP_monster_commander_body(edict_t *self);
-
-void SP_turret_breach(edict_t *self);
-void SP_turret_base(edict_t *self);
-void SP_turret_driver(edict_t *self);
-
 void SP_monster_shambler(edict_t *self);
 void SP_monster_soldier_hypergun(edict_t *self);
 void SP_monster_soldier_lasergun(edict_t *self);
@@ -171,6 +165,24 @@ void SP_monster_gekk(edict_t *self);
 void SP_monster_chick_heat(edict_t *self);
 void SP_monster_gladb(edict_t *self);
 void SP_monster_boss5(edict_t *self);
+void SP_monster_army(edict_t *self);
+void SP_monster_demon(edict_t *self);
+void SP_monster_dog(edict_t *self);
+void SP_monster_enforcer(edict_t *self);
+void SP_monster_fish(edict_t *self);
+void SP_monster_hknight(edict_t *self);
+void SP_monster_knight(edict_t *self);
+void SP_monster_ogre(edict_t *self);
+void SP_monster_shalrath(edict_t *self);
+void SP_monster_tarbaby(edict_t *self);
+void SP_monster_wizard(edict_t *self);
+void SP_monster_zombie(edict_t *self);
+
+void SP_turret_breach(edict_t *self);
+void SP_turret_base(edict_t *self);
+void SP_turret_driver(edict_t *self);
+
+
 void SP_rotating_light(edict_t *self);
 void SP_object_repair(edict_t *self);
 void SP_misc_crashviper(edict_t *ent);
@@ -362,6 +374,18 @@ static spawn_t spawns[] = {
 	{"monster_chick_heat", SP_monster_chick_heat},
 	{"monster_gladb", SP_monster_gladb},
 	{"monster_boss5", SP_monster_boss5},
+	{"monster_army", SP_monster_army},
+	{"monster_demon", SP_monster_demon},
+	{"monster_dog", SP_monster_dog},
+	{"monster_enforcer", SP_monster_enforcer},
+	{"monster_fish", SP_monster_fish},
+	{"monster_hknight", SP_monster_hknight},
+	{"monster_knight", SP_monster_knight},
+	{"monster_ogre", SP_monster_ogre},
+	{"monster_shalrath", SP_monster_shalrath},
+	{"monster_tarbaby", SP_monster_tarbaby},
+	{"monster_wizard", SP_monster_wizard},
+	{"monster_zombie", SP_monster_zombie},
 
 	{"turret_breach", SP_turret_breach},
 	{"turret_base", SP_turret_base},

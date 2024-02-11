@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_shalrath.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_death;
 static int sound_search;
@@ -29,9 +29,9 @@ static int sound_fire;
 static int sound_sight;
 
 // Stand
-mframe_t shalrath_frames_stand [] =
+static mframe_t shalrath_frames_stand [] =
 {
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
 };
 mmove_t shalrath_move_stand = {0, 0, shalrath_frames_stand, NULL};
 
@@ -41,22 +41,22 @@ void shalrath_stand(edict_t *self)
 }
 
 // Run
-mframe_t shalrath_frames_run [] =
+static mframe_t shalrath_frames_run [] =
 {
-	ai_run, 6, NULL,
-	ai_run, 4, NULL,
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
+	{ai_run, 6, NULL},
+	{ai_run, 4, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
 
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
-	ai_run, 5, NULL,
-	ai_run, 6, NULL,
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 5, NULL},
+	{ai_run, 6, NULL},
 
-	ai_run, 5, NULL,
-	ai_run, 0, NULL,
-	ai_run, 4, NULL,
-	ai_run, 5, NULL
+	{ai_run, 5, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 4, NULL},
+	{ai_run, 5, NULL}
 };
 mmove_t shalrath_move_run = {23, 34, shalrath_frames_run, NULL};
 
@@ -74,7 +74,7 @@ void shalrath_pod_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface
 {
 	if (other == self->owner)
 		return;
-	if (strcmp(other->classname, "monster_q1_zombie") == 0) // decino: According to shalrath.qc
+	if (strcmp(other->classname, "monster_zombie") == 0) // decino: According to shalrath.qc
 		T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 110, 0, 0, 0);
 	T_RadiusDamage(self, self->owner, self->dmg, NULL, self->dmg + 40, 0);
 
@@ -102,7 +102,7 @@ void shalrath_pod_home(edict_t *self)
 			{
 				G_FreeEdict(self);
 				return;
-			}*/				
+			}*/
 		}
 		if (self->owner->enemy)
 		{
@@ -111,7 +111,7 @@ void shalrath_pod_home(edict_t *self)
 			end[2] += self->enemy->viewheight;
 			VectorSubtract(end, self->s.origin, dir);
 			VectorNormalize(dir);
-			VectorScale(dir, (skill->value >= 3) ? 350 : 250, self->velocity);
+			VectorScale(dir, (skill->value >= SKILL_HARDPLUS) ? 350 : 250, self->velocity);
 		}
 	}
 
@@ -133,12 +133,10 @@ void fire_shalrath_pod(edict_t *self, vec3_t start, vec3_t dir, int damage, int 
 {
 	edict_t	*pod;
 
-	// decino: No enemies left, so stop shooting
-	if (!self->enemy || self->enemy == self)
+	if (!self)
+	{
 		return;
-	// decino: Don't make impossible shots
-	VectorCopy(SightEndtToDir(self, dir)[0], dir);
-	VectorNormalize(dir);
+	}
 
 	pod = G_Spawn();
 	VectorCopy(start, pod->s.origin);
@@ -185,21 +183,21 @@ void FireShalrathPod(edict_t *self)
 }
 
 // Attack
-mframe_t shalrath_frames_attack [] =
+static mframe_t shalrath_frames_attack [] =
 {
-	ai_charge, 0, shalrath_roar,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
+	{ai_charge, 0, shalrath_roar},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0, FireShalrathPod,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL
+	{ai_charge, 0, FireShalrathPod},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL}
 };
 mmove_t shalrath_move_attack = {0, 10, shalrath_frames_attack, shalrath_run};
 
@@ -209,21 +207,22 @@ void shalrath_attack(edict_t *self)
 }
 
 // Pain
-mframe_t shalrath_frames_pain [] =
+static mframe_t shalrath_frames_pain [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL
+	{ai_move, 0, NULL}
 };
 mmove_t shalrath_move_pain = {11, 15, shalrath_frames_pain, shalrath_run};
 
-void shalrath_pain(edict_t *self)
+void shalrath_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (level.time < self->pain_debounce_time)
 		return;
@@ -244,16 +243,16 @@ void shalrath_dead(edict_t *self)
 }
 
 // Death
-mframe_t shalrath_frames_death [] =
+static mframe_t shalrath_frames_death [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t shalrath_move_death = {16, 22, shalrath_frames_death, shalrath_dead};
 
@@ -283,7 +282,7 @@ void shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 }
 
 // Sight
-void shalrath_sight(edict_t *self)
+void shalrath_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -294,22 +293,19 @@ void shalrath_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_q1_shalrath(edict_t *self)
+void SP_monster_shalrath(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/shalrath/tris.md2");
-	VectorSet (self->mins, -32, -32, -24);
-	VectorSet (self->maxs, 32, 32, 48);
+	self->s.modelindex = gi.modelindex("models/monsters/shalrath/tris.md2");
+	VectorSet(self->mins, -32, -32, -24);
+	VectorSet(self->maxs, 32, 32, 48);
 	self->health = 400;
-	self->monster_name = "Vore";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_death = gi.soundindex("quake1/shalrath/death.wav");
-	sound_search = gi.soundindex("quake1/shalrath/idle.wav");
-	sound_pain = gi.soundindex("quake1/shalrath/pain.wav");
-	sound_attack = gi.soundindex("quake1/shalrath/attack.wav");
-	sound_fire = gi.soundindex("quake1/shalrath/attack2.wav");
-	sound_sight = gi.soundindex("quake1/shalrath/sight.wav");
+	sound_death = gi.soundindex("shalrath/death.wav");
+	sound_search = gi.soundindex("shalrath/idle.wav");
+	sound_pain = gi.soundindex("shalrath/pain.wav");
+	sound_attack = gi.soundindex("shalrath/attack.wav");
+	sound_fire = gi.soundindex("shalrath/attack2.wav");
+	sound_sight = gi.soundindex("shalrath/sight.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

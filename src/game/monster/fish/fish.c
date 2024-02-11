@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,37 +19,37 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_fish.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_search;
 static int sound_death;
 static int sound_melee;
 
 // Stand
-mframe_t fish_frames_stand [] =
+static mframe_t fish_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 };
 mmove_t fish_move_stand = {39, 56, fish_frames_stand, NULL};
 
@@ -59,30 +59,30 @@ void fish_stand(edict_t *self)
 }
 
 // Run
-mframe_t fish_frames_run [] =
+static mframe_t fish_frames_run [] =
 {
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
 
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
 
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
 
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
-	ai_run, 12, NULL,
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL},
 
-	ai_run, 12, NULL,
-	ai_run, 12, NULL
+	{ai_run, 12, NULL},
+	{ai_run, 12, NULL}
 };
 mmove_t fish_move_run = {39, 56, fish_frames_run, NULL};
 
@@ -111,30 +111,30 @@ void FishBite(edict_t *self)
 }
 
 // Melee
-mframe_t fish_frames_melee [] =
+static mframe_t fish_frames_melee [] =
 {
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
-	ai_run, 0,  FishBite,
-	ai_run, 10, NULL,
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 0,  FishBite},
+	{ai_run, 10, NULL},
 
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
 
-	ai_run, 0,  FishBite,
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
+	{ai_run, 0,  FishBite},
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
 
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
-	ai_run, 0,  FishBite,
-	ai_run, 10, NULL,
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 0,  FishBite},
+	{ai_run, 10, NULL},
 
-	ai_run, 10, NULL,
-	ai_run, 10, NULL
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL}
 };
 mmove_t fish_move_melee = {0, 17, fish_frames_melee, fish_run};
 
@@ -160,34 +160,34 @@ void fish_dead(edict_t *self)
 }
 
 // Death
-mframe_t fish_frames_death [] =
+static mframe_t fish_frames_death [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL
+	{ai_move, 0, NULL}
 };
 mmove_t fish_move_death = {18, 38, fish_frames_death, fish_dead};
 
@@ -217,58 +217,56 @@ void fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 }
 
 // Pain
-mframe_t fish_frames_pain [] =
+static mframe_t fish_frames_pain [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t fish_move_pain = {57, 65, fish_frames_pain, fish_run};
 
-void fish_pain(edict_t *self)
+void fish_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
 		return;
 	self->pain_debounce_time = level.time + 3;
 
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	self->monsterinfo.currentmove = &fish_move_pain;
 }
 
-void SP_monster_q1_fish(edict_t *self)
+void SP_monster_fish(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/fish/tris.md2");
+	self->s.modelindex = gi.modelindex("models/monsters/fish/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 24);
 	self->health = 25;
-	self->monster_name = "Rotfish";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_search = gi.soundindex("quake1/fish/idle.wav");
-	sound_death = gi.soundindex("quake1/fish/death.wav");
-	sound_melee = gi.soundindex("quake1/fish/bite.wav");
+	sound_search = gi.soundindex("fish/idle.wav");
+	sound_death = gi.soundindex("fish/death.wav");
+	sound_melee = gi.soundindex("fish/bite.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

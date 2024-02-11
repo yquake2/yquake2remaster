@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_tarbaby.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_death;
 static int sound_hit;
@@ -34,9 +34,9 @@ void tarbaby_unbounce(edict_t *self)
 }
 
 // Stand
-mframe_t tarbaby_frames_stand [] =
+static mframe_t tarbaby_frames_stand [] =
 {
-	ai_stand, 0, tarbaby_unbounce
+	{ai_stand, 0, tarbaby_unbounce}
 };
 mmove_t tarbaby_move_stand = {0, 0, tarbaby_frames_stand, NULL};
 
@@ -46,39 +46,39 @@ void tarbaby_stand(edict_t *self)
 }
 
 // Run
-mframe_t tarbaby_frames_run [] =
+static mframe_t tarbaby_frames_run [] =
 {
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
 
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
 
-	ai_run, 0, NULL,
-	ai_run, 0, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
+	{ai_run, 0, NULL},
+	{ai_run, 0, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
 
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
 
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
 
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
-	ai_run, 2, NULL,
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
+	{ai_run, 2, NULL},
 
-	ai_run, 2, NULL
+	{ai_run, 2, NULL}
 };
 mmove_t tarbaby_move_run = {25, 49, tarbaby_frames_run, NULL};
 
@@ -88,14 +88,14 @@ void tarbaby_run(edict_t *self)
 }
 
 // Sight
-void tarbaby_sight(edict_t *self)
+void tarbaby_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	if (other->takedamage && other->monster_team != self->monster_team)
+	if (other->takedamage)
 	{
 		if (VectorLength(self->velocity) > 400)
 		{
@@ -135,12 +135,12 @@ void TarBabyJump(edict_t *self)
 }
 
 // Fly
-mframe_t tarbaby_frames_fly [] =
+static mframe_t tarbaby_frames_fly [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t tarbaby_move_fly = {56, 59, tarbaby_frames_fly, tarbaby_rejump};
 
@@ -150,15 +150,15 @@ void tarbaby_fly(edict_t *self)
 }
 
 // Jump
-mframe_t tarbaby_frames_jump [] =
+static mframe_t tarbaby_frames_jump [] =
 {
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0, TarBabyJump,
-	ai_charge, 0, NULL
+	{ai_charge, 0, TarBabyJump},
+	{ai_charge, 0, NULL}
 };
 mmove_t tarbaby_move_jump = {50, 55, tarbaby_frames_jump, tarbaby_fly};
 
@@ -193,7 +193,9 @@ void tarbaby_explode(edict_t *self)
 }
 
 // Death
-void tarbaby_die(edict_t *self)
+void tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
+		edict_t *attacker /* unused */, int damage,
+		vec3_t point /* unused */)
 {
 	if (self->deadflag == DEAD_DEAD)
 		return;
@@ -204,26 +206,24 @@ void tarbaby_die(edict_t *self)
 }
 
 // Pain
-void tarbaby_pain(edict_t *self)
+void tarbaby_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 
 }
 
 
-void SP_monster_q1_tarbaby(edict_t *self)
+void SP_monster_tarbaby(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/tarbaby/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 40);
+	self->s.modelindex = gi.modelindex("models/monsters/tarbaby/tris.md2");
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 40);
 	self->health = 80;
-	self->monster_name = "Spawn";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_death = gi.soundindex("quake1/tarbaby/death1.wav");
-	sound_hit = gi.soundindex("quake1/tarbaby/hit1.wav");
-	sound_land = gi.soundindex("quake1/tarbaby/land1.wav");
-	sound_sight = gi.soundindex("quake1/tarbaby/sight1.wav");
+	sound_death = gi.soundindex("tarbaby/death1.wav");
+	sound_hit = gi.soundindex("tarbaby/hit1.wav");
+	sound_land = gi.soundindex("tarbaby/land1.wav");
+	sound_sight = gi.soundindex("tarbaby/sight1.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

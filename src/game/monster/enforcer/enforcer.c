@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_enforcer.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_death;
 static int sound_hit;
@@ -33,16 +33,16 @@ static int sound_sight3;
 static int sound_sight4;
 
 // Stand
-mframe_t enforcer_frames_stand [] =
+static mframe_t enforcer_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 };
 mmove_t enforcer_move_stand = {0, 6, enforcer_frames_stand, NULL};
 
@@ -52,17 +52,17 @@ void enforcer_stand(edict_t *self)
 }
 
 // Run
-mframe_t enforcer_frames_run [] =
+static mframe_t enforcer_frames_run [] =
 {
-	ai_run, 18, NULL,
-	ai_run, 14, NULL,
-	ai_run, 7,	NULL,
-	ai_run, 12, NULL,
+	{ai_run, 18, NULL},
+	{ai_run, 14, NULL},
+	{ai_run, 7, NULL},
+	{ai_run, 12, NULL},
 
-	ai_run, 14,	NULL,
-	ai_run, 14, NULL,
-	ai_run, 7,	NULL,
-	ai_run, 11,	NULL
+	{ai_run, 14, NULL},
+	{ai_run, 14, NULL},
+	{ai_run, 7, NULL},
+	{ai_run, 11, NULL}
 };
 mmove_t enforcer_move_run = {23, 30, enforcer_frames_run, NULL};
 
@@ -73,17 +73,21 @@ void enforcer_run(edict_t *self)
 
 void enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	int	mod;
-
 	if (other == self->owner)
+	{
 		return;
+	}
+
 	if (surf && (surf->flags & SURF_SKY))
 	{
 		G_FreeEdict (self);
 		return;
 	}
+
 	if (other->takedamage)
+	{
 		T_Damage (other, self, self->owner, self->velocity, self->s.origin, plane->normal, self->dmg, 1, DAMAGE_ENERGY, 0);
+	}
 	else
 	{
 		gi.WriteByte(svc_temp_entity);
@@ -96,6 +100,7 @@ void enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 
 		gi.sound (self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
 	}
+
 	G_FreeEdict(self);
 }
 
@@ -104,12 +109,10 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	edict_t	*bolt;
 	trace_t	tr;
 
-	// decino: No enemies left, so stop shooting
-	if (!self->enemy || self->enemy == self)
+	if (!self)
+	{
 		return;
-	// decino: Don't make impossible shots
-	VectorCopy(SightEndtToDir(self, dir)[0], dir);
-	VectorNormalize (dir);
+	}
 
 	bolt = G_Spawn();
 	bolt->svflags = SVF_DEADMONSTER;
@@ -125,7 +128,7 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	VectorClear(bolt->mins);
 	VectorClear(bolt->maxs);
 
-	bolt->s.modelindex = gi.modelindex ("models/objects/laser/tris.md2");
+	bolt->s.modelindex = gi.modelindex("models/monsters/objects/laser/tris.md2");
 	bolt->owner = self;
 	bolt->touch = enfbolt_touch;
 	bolt->nextthink = level.time + 5;
@@ -142,7 +145,7 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 		bolt->touch(bolt, tr.ent, NULL, NULL);
 	}
 	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
-}	
+}
 
 void FireEnforcerBolt(edict_t *self)
 {
@@ -164,14 +167,14 @@ void FireEnforcerBolt(edict_t *self)
 }
 
 // Attack (second half)
-mframe_t enforcer_frames_attack2 [] =
+static mframe_t enforcer_frames_attack2 [] =
 {
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	FireEnforcerBolt,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, FireEnforcerBolt},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0,	NULL
+	{ai_charge, 0, NULL}
 };
 mmove_t enforcer_move_attack2 = {35, 40, enforcer_frames_attack2, enforcer_run};
 
@@ -182,17 +185,17 @@ void enforcer_attack_again(edict_t *self)
 }
 
 // Attack (first half)
-mframe_t enforcer_frames_attack1 [] =
+static mframe_t enforcer_frames_attack1 [] =
 {
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	FireEnforcerBolt,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, FireEnforcerBolt},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL}
 };
 mmove_t enforcer_move_attack1 = {31, 38, enforcer_frames_attack1, enforcer_attack_again};
 
@@ -202,7 +205,7 @@ void enforcer_attack(edict_t *self)
 }
 
 // Sight
-void enforcer_sight(edict_t *self)
+void enforcer_sight(edict_t *self, edict_t *other /* unused */)
 {
 	int r = (int)(random() * 4);
 
@@ -223,83 +226,84 @@ void enforcer_search(edict_t *self)
 }
 
 // Pain (1)
-mframe_t enforcer_frames_pain1 [] =
+static mframe_t enforcer_frames_pain1 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t enforcer_move_pain1 = {66, 69, enforcer_frames_pain1, enforcer_run};
 
 // Pain (2)
-mframe_t enforcer_frames_pain2 [] =
+static mframe_t enforcer_frames_pain2 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL
+	{ai_move, 0, NULL}
 };
 mmove_t enforcer_move_pain2 = {70, 74, enforcer_frames_pain2, enforcer_run};
 
 // Pain (3)
-mframe_t enforcer_frames_pain3 [] =
+static mframe_t enforcer_frames_pain3 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t enforcer_move_pain3 = {75, 82, enforcer_frames_pain3, enforcer_run};
 
 // Pain (4)
-mframe_t enforcer_frames_pain4 [] =
+static mframe_t enforcer_frames_pain4 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 2, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 2, NULL},
 
-	ai_move, 1, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 1, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 1, NULL,
-	ai_move, 1, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 1, NULL},
+	{ai_move, 1, NULL},
 
-	ai_move, 1, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 1, NULL,
+	{ai_move, 1, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 1, NULL},
 
-	ai_move, 1, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 1, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t enforcer_move_pain4 = {83, 101, enforcer_frames_pain4, enforcer_run};
 
 // Pain
-void enforcer_pain(edict_t *self)
+void enforcer_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 	float r;
 
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (level.time < self->pain_debounce_time)
 		return;
 	r = random();
-	
+
 	if (r < 0.5)
 		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 	else
@@ -337,44 +341,44 @@ void enforcer_dead(edict_t *self)
 }
 
 // Death (1)
-mframe_t enforcer_frames_death1 [] =
+static mframe_t enforcer_frames_death1 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 14, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 14, NULL},
 
-	ai_move, 2, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 2, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 3, NULL,
-	ai_move, 5, NULL,
-	ai_move, 5, NULL,
-	ai_move, 5, NULL,
+	{ai_move, 3, NULL},
+	{ai_move, 5, NULL},
+	{ai_move, 5, NULL},
+	{ai_move, 5, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t enforcer_move_death1 = {41, 54, enforcer_frames_death1, enforcer_dead};
 
 // Death (2)
-mframe_t enforcer_frames_death2 [] =
+static mframe_t enforcer_frames_death2 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t enforcer_move_death2 = {55, 65, enforcer_frames_death2, enforcer_dead};
 
@@ -408,26 +412,23 @@ void enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 		self->monsterinfo.currentmove = &enforcer_move_death2;
 }
 
-void SP_monster_q1_enforcer(edict_t *self)
+void SP_monster_enforcer(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/enforcer/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 40);
+	self->s.modelindex = gi.modelindex("models/monsters/enforcer/tris.md2");
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 40);
 	self->health = 80;
-	self->monster_name = "Enforcer";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_death = gi.soundindex("quake1/enforcer/death1.wav");
-	sound_hit = gi.soundindex("quake1/enforcer/enfstop.wav");
-	sound_attack = gi.soundindex("quake1/enforcer/enfire.wav");
-	sound_search = gi.soundindex("quake1/enforcer/idle1.wav");
-	sound_pain1 = gi.soundindex("quake1/enforcer/pain1.wav");
-	sound_pain2 = gi.soundindex("quake1/enforcer/pain2.wav");
-	sound_sight1 = gi.soundindex("quake1/enforcer/sight1.wav");
-	sound_sight2 = gi.soundindex("quake1/enforcer/sight2.wav");
-	sound_sight3 = gi.soundindex("quake1/enforcer/sight3.wav");
-	sound_sight4 = gi.soundindex("quake1/enforcer/sight4.wav");
+	sound_death = gi.soundindex("enforcer/death1.wav");
+	sound_hit = gi.soundindex("enforcer/enfstop.wav");
+	sound_attack = gi.soundindex("enforcer/enfire.wav");
+	sound_search = gi.soundindex("enforcer/idle1.wav");
+	sound_pain1 = gi.soundindex("enforcer/pain1.wav");
+	sound_pain2 = gi.soundindex("enforcer/pain2.wav");
+	sound_sight1 = gi.soundindex("enforcer/sight1.wav");
+	sound_sight2 = gi.soundindex("enforcer/sight2.wav");
+	sound_sight3 = gi.soundindex("enforcer/sight3.wav");
+	sound_sight4 = gi.soundindex("enforcer/sight4.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

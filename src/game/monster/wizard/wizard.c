@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_wizard.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_proj_hit;
 static int sound_attack;
@@ -30,26 +30,26 @@ static int sound_pain;
 static int sound_sight;
 
 // Stand
-mframe_t wizard_frames_stand [] =
+static mframe_t wizard_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 };
 mmove_t wizard_move_stand = {0, 14, wizard_frames_stand, NULL};
 
@@ -59,28 +59,33 @@ void wizard_stand(edict_t *self)
 }
 
 // Run
-mframe_t wizard_frames_run [] =
+static mframe_t wizard_frames_run [] =
 {
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
 
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
 
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
 
-	ai_run, 16, NULL,
-	ai_run, 16, NULL,
-	ai_run, 16, NULL
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL},
+	{ai_run, 16, NULL}
 };
-mmove_t wizard_move_run = {15, 28, wizard_frames_run, NULL};
+mmove_t wizard_move_run = {
+	15,
+	28,
+	wizard_frames_run,
+	NULL
+};
 
 void wizard_run(edict_t *self)
 {
@@ -95,18 +100,20 @@ void wizard_frame(edict_t *self)
 	frame++;
 
 	if (frame > 5)
+	{
 		frame = 0;
+	}
 }
 
 // decino: Quake plays this animation backwards, so we'll have to do some hacking
-mframe_t wizard_frames_finish [] =
+static mframe_t wizard_frames_finish [] =
 {
-	ai_charge, 0, wizard_frame,
-	ai_charge, 0, wizard_frame,
-	ai_charge, 0, wizard_frame,
-	ai_charge, 0, wizard_frame,
+	{ai_charge, 0, wizard_frame},
+	{ai_charge, 0, wizard_frame},
+	{ai_charge, 0, wizard_frame},
+	{ai_charge, 0, wizard_frame},
 
-	ai_charge, 0, wizard_frame
+	{ai_charge, 0, wizard_frame}
 };
 mmove_t wizard_move_finish = {29, 33, wizard_frames_finish, wizard_run};
 
@@ -117,10 +124,11 @@ void wizard_finish_attack(edict_t *self)
 
 void spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	int	mod;
-
 	if (other == self->owner)
+	{
 		return;
+	}
+
 	if (surf && (surf->flags & SURF_SKY))
 	{
 		G_FreeEdict (self);
@@ -148,12 +156,10 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	edict_t	*spit;
 	trace_t	tr;
 
-	// decino: No enemies left, so stop shooting
-	if (!self->enemy || self->enemy == self)
+	if (!self)
+	{
 		return;
-	// decino: Don't make impossible shots
-	VectorCopy(SightEndtToDir(self, dir)[0], dir);
-	VectorNormalize (dir);
+	}
 
 	spit = G_Spawn();
 	spit->svflags = SVF_DEADMONSTER;
@@ -169,7 +175,7 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	VectorClear(spit->mins);
 	VectorClear(spit->maxs);
 
-	spit->s.modelindex = gi.modelindex ("models/proj/spit/tris.md2");
+	spit->s.modelindex = gi.modelindex("models/proj/spit/tris.md2");
 	spit->owner = self;
 	spit->touch = spit_touch;
 	spit->nextthink = level.time + 2;
@@ -185,7 +191,7 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 		VectorMA(spit->s.origin, -10, dir, spit->s.origin);
 		spit->touch(spit, tr.ent, NULL, NULL);
 	}
-}	
+}
 
 void WizardSpit(edict_t *self)
 {
@@ -212,15 +218,15 @@ void wizard_prespit(edict_t *self)
 }
 
 // Attack
-mframe_t wizard_frames_attack [] =
+static mframe_t wizard_frames_attack [] =
 {
-	ai_charge, 0, wizard_prespit,
-	ai_charge, 0, WizardSpit,
-	ai_charge, 0, NULL,
-	ai_charge, 0, NULL,
+	{ai_charge, 0, wizard_prespit},
+	{ai_charge, 0, WizardSpit},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0, WizardSpit,
-	ai_charge, 0, NULL
+	{ai_charge, 0, WizardSpit},
+	{ai_charge, 0, NULL}
 };
 mmove_t wizard_move_attack = {29, 34, wizard_frames_attack, wizard_finish_attack};
 
@@ -230,16 +236,17 @@ void wizard_attack(edict_t *self)
 }
 
 // Pain
-mframe_t wizard_frames_pain [] =
+static mframe_t wizard_frames_pain [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t wizard_move_pain = {42, 45, wizard_frames_pain, wizard_run};
 
-void wizard_pain(edict_t *self)
+void wizard_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
 		return;
@@ -247,7 +254,7 @@ void wizard_pain(edict_t *self)
 	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	self->monsterinfo.currentmove = &wizard_move_pain;
 }
@@ -272,17 +279,17 @@ void wizard_dead(edict_t *self)
 }
 
 // Death
-mframe_t wizard_frames_death [] =
+static mframe_t wizard_frames_death [] =
 {
-	ai_move, 0, wizard_fling,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, wizard_fling},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t wizard_move_death = {46, 53, wizard_frames_death, wizard_dead};
 
@@ -311,7 +318,7 @@ void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->monsterinfo.currentmove = &wizard_move_death;
 }
 
-void wizard_sight(edict_t *self)
+void wizard_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -327,23 +334,20 @@ void wizard_search(edict_t *self)
 		gi.sound(self, CHAN_VOICE, sound_idle2, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_q1_wizard(edict_t *self)
+void SP_monster_wizard(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/wizard/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 40);
+	self->s.modelindex = gi.modelindex("models/monsters/wizard/tris.md2");
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 40);
 	self->health = 80;
-	self->monster_name = "Scrag";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_proj_hit = gi.soundindex("quake1/wizard/hit.wav");
-	sound_attack = gi.soundindex("quake1/wizard/wattack.wav");
-	sound_death = gi.soundindex("quake1/wizard/wdeath.wav");
-	sound_idle1 = gi.soundindex("quake1/wizard/widle1.wav");
-	sound_idle2 = gi.soundindex("quake1/wizard/widle2.wav");
-	sound_pain = gi.soundindex("quake1/wizard/wpain.wav");
-	sound_sight = gi.soundindex("quake1/wizard/wsight.wav");
+	sound_proj_hit = gi.soundindex("wizard/hit.wav");
+	sound_attack = gi.soundindex("wizard/wattack.wav");
+	sound_death = gi.soundindex("wizard/wdeath.wav");
+	sound_idle1 = gi.soundindex("wizard/widle1.wav");
+	sound_idle2 = gi.soundindex("wizard/widle2.wav");
+	sound_pain = gi.soundindex("wizard/wpain.wav");
+	sound_sight = gi.soundindex("wizard/wsight.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

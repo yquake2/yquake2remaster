@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_ogre.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_death;
 static int sound_attack;
@@ -36,19 +36,19 @@ void ogre_idle(edict_t *self)
 }
 
 // Stand
-mframe_t ogre_frames_stand [] =
+static mframe_t ogre_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, ogre_idle,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, ogre_idle},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
 };
 mmove_t ogre_move_stand = {0, 8, ogre_frames_stand, NULL};
 
@@ -58,19 +58,24 @@ void ogre_stand(edict_t *self)
 }
 
 // Run
-mframe_t ogre_frames_run [] =
+static mframe_t ogre_frames_run [] =
 {
-	ai_run, 9,	NULL,
-	ai_run, 12,	NULL,
-	ai_run, 8,	NULL,
-	ai_run, 22,	NULL,
-	ai_run, 16,	NULL,
+	{ai_run, 9, NULL},
+	{ai_run, 12, NULL},
+	{ai_run, 8, NULL},
+	{ai_run, 22, NULL},
+	{ai_run, 16, NULL},
 
-	ai_run, 4,	NULL,
-	ai_run, 13,	NULL,
-	ai_run, 24,	NULL
+	{ai_run, 4, NULL},
+	{ai_run, 13, NULL},
+	{ai_run, 24, NULL}
 };
-mmove_t ogre_move_run = {25, 32, ogre_frames_run, NULL};
+mmove_t ogre_move_run = {
+	25,
+	32,
+	ogre_frames_run,
+	NULL
+};
 
 void ogre_run(edict_t *self)
 {
@@ -95,48 +100,53 @@ void OgreChainsaw(edict_t *self)
 }
 
 // Smash
-mframe_t ogre_frames_smash [] =
+static mframe_t ogre_frames_smash [] =
 {
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 1,	NULL,
-	ai_charge, 4,	NULL,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 1, NULL},
+	{ai_charge, 4, NULL},
 
-	ai_charge, 14,	OgreChainsaw,
-	ai_charge, 14,	OgreChainsaw,
-	ai_charge, 20,	OgreChainsaw,
-	ai_charge, 23,	OgreChainsaw,
+	{ai_charge, 14, OgreChainsaw},
+	{ai_charge, 14, OgreChainsaw},
+	{ai_charge, 20, OgreChainsaw},
+	{ai_charge, 23, OgreChainsaw},
 
-	ai_charge, 10,	OgreChainsaw,
-	ai_charge, 12,	OgreChainsaw,
-	ai_charge, 1,	NULL,
-	ai_charge, 4,	NULL,
+	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 12, OgreChainsaw},
+	{ai_charge, 1, NULL},
+	{ai_charge, 4, NULL},
 
-	ai_charge, 12,	NULL,
-	ai_charge, 0,	NULL
+	{ai_charge, 12, NULL},
+	{ai_charge, 0, NULL}
 };
-mmove_t ogre_move_smash = {47, 60, ogre_frames_smash, ogre_run};
+mmove_t ogre_move_smash = {
+	47,
+	60,
+	ogre_frames_smash,
+	ogre_run
+};
 
 // Swing
-mframe_t ogre_frames_swing [] =
+static mframe_t ogre_frames_swing [] =
 {
-	ai_charge, 11,	NULL,
-	ai_charge, 1,	NULL,
-	ai_charge, 4,	NULL,
-	ai_charge, 19,	OgreChainsaw,
+	{ai_charge, 11, NULL},
+	{ai_charge, 1, NULL},
+	{ai_charge, 4, NULL},
+	{ai_charge, 19, OgreChainsaw},
 
-	ai_charge, 13,	OgreChainsaw,
-	ai_charge, 10,	OgreChainsaw,
-	ai_charge, 10,	OgreChainsaw,
-	ai_charge, 10,	OgreChainsaw,
+	{ai_charge, 13, OgreChainsaw},
+	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 10, OgreChainsaw},
 
-	ai_charge, 10,	OgreChainsaw,
-	ai_charge, 10,	OgreChainsaw,
-	ai_charge, 3,	NULL,
-	ai_charge, 8,	NULL,
+	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 3, NULL},
+	{ai_charge, 8, NULL},
 
-	ai_charge, 9,	NULL,
-	ai_charge, 0,	NULL
+	{ai_charge, 9, NULL},
+	{ai_charge, 0, NULL}
 };
 mmove_t ogre_move_swing = {33, 46, ogre_frames_swing, ogre_run};
 
@@ -165,15 +175,15 @@ void FireOgreGrenade(edict_t *self)
 }
 
 // Grenade
-mframe_t ogre_frames_attack [] =
+static mframe_t ogre_frames_attack [] =
 {
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	FireOgreGrenade,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, FireOgreGrenade},
 
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL}
 };
 mmove_t ogre_move_attack = {61, 66, ogre_frames_attack, ogre_run};
 
@@ -183,101 +193,107 @@ void ogre_attack(edict_t *self)
 }
 
 // Pain (1)
-mframe_t ogre_frames_pain1 [] =
+static mframe_t ogre_frames_pain1 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL}
 };
 mmove_t ogre_move_pain1 = {67, 71, ogre_frames_pain1, ogre_run};
 
 // Pain (2)
-mframe_t ogre_frames_pain2 [] =
+static mframe_t ogre_frames_pain2 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t ogre_move_pain2 = {72, 74, ogre_frames_pain2, ogre_run};
 
 // Pain (3)
-mframe_t ogre_frames_pain3 [] =
+static mframe_t ogre_frames_pain3 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t ogre_move_pain3 = {75, 80, ogre_frames_pain3, ogre_run};
 
 // Pain (4)
-mframe_t ogre_frames_pain4 [] =
+static mframe_t ogre_frames_pain4 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 10,	NULL,
-	ai_move, 9,		NULL,
-	ai_move, 4,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 10, NULL},
+	{ai_move, 9, NULL},
+	{ai_move, 4, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t ogre_move_pain4 = {81, 96, ogre_frames_pain4, ogre_run};
 
 // Pain (5)
-mframe_t ogre_frames_pain5 [] =
+static mframe_t ogre_frames_pain5 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 10,	NULL,
-	ai_move, 9,		NULL,
-	ai_move, 4,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 10, NULL},
+	{ai_move, 9, NULL},
+	{ai_move, 4, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_pain5 = {97, 111, ogre_frames_pain5, ogre_run};
+mmove_t ogre_move_pain5 = {
+	97,
+	111,
+	ogre_frames_pain5,
+	ogre_run
+};
 
 // Pain
-void ogre_pain(edict_t *self)
+void ogre_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 	float r;
 
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (self->pain_debounce_time > level.time)
 		return;
 	r = random();
 	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
-	
+
 	if (r < 0.25)
 	{
 		self->monsterinfo.currentmove = &ogre_move_pain1;
@@ -316,43 +332,43 @@ void ogre_dead(edict_t *self)
 }
 
 // Death (1)
-mframe_t ogre_frames_death1 [] =
+static mframe_t ogre_frames_death1 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t ogre_move_death1 = {112, 125, ogre_frames_death1, ogre_dead};
 
 // Death (2)
-mframe_t ogre_frames_death2 [] =
+static mframe_t ogre_frames_death2 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 5,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 1,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 5, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 1, NULL},
 
-	ai_move, 3,		NULL,
-	ai_move, 7,		NULL,
-	ai_move, 25,	NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 3, NULL},
+	{ai_move, 7, NULL},
+	{ai_move, 25, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t ogre_move_death2 = {126, 135, ogre_frames_death2, ogre_dead};
 
@@ -387,7 +403,7 @@ void ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 }
 
 // Sight
-void ogre_sight(edict_t *self)
+void ogre_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -398,23 +414,20 @@ void ogre_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_q1_ogre(edict_t *self)
+void SP_monster_ogre(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/ogre/tris.md2");
-	VectorSet (self->mins, -32, -32, -24);
-	VectorSet (self->maxs, 32, 32, 64);
+	self->s.modelindex = gi.modelindex("models/monsters/ogre/tris.md2");
+	VectorSet(self->mins, -32, -32, -24);
+	VectorSet(self->maxs, 32, 32, 64);
 	self->health = 200;
-	self->monster_name = "Ogre";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_death = gi.soundindex("quake1/ogre/ogdth.wav");
-	sound_attack = gi.soundindex("quake1/ogre/grenade.wav");
-	sound_melee = gi.soundindex("quake1/ogre/ogsawatk.wav");
-	sound_sight = gi.soundindex("quake1/ogre/ogwake.wav");
-	sound_search = gi.soundindex("quake1/ogre/ogidle2.wav");
-	sound_idle = gi.soundindex("quake1/ogre/ogidle.wav");
-	sound_pain = gi.soundindex("quake1/ogre/ogpain1.wav");
+	sound_death = gi.soundindex("ogre/ogdth.wav");
+	sound_attack = gi.soundindex("ogre/grenade.wav");
+	sound_melee = gi.soundindex("ogre/ogsawatk.wav");
+	sound_sight = gi.soundindex("ogre/ogwake.wav");
+	sound_search = gi.soundindex("ogre/ogidle2.wav");
+	sound_idle = gi.soundindex("ogre/ogidle.wav");
+	sound_pain = gi.soundindex("ogre/ogpain1.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_army.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_death;
 static int sound_search;
@@ -29,17 +29,17 @@ static int sound_attack;
 static int sound_sight;
 
 // Stand
-mframe_t army_frames_stand [] =
+static mframe_t army_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 };
 mmove_t army_move_stand = {0, 7, army_frames_stand, NULL};
 
@@ -49,17 +49,17 @@ void army_stand(edict_t *self)
 }
 
 // Run
-mframe_t army_frames_run [] =
+static mframe_t army_frames_run [] =
 {
-	ai_run, 11, NULL,
-	ai_run, 15, NULL,
-	ai_run, 10, NULL,
-	ai_run, 10, NULL,
+	{ai_run, 11, NULL},
+	{ai_run, 15, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 10, NULL},
 
-	ai_run, 8,	NULL,
-	ai_run, 15, NULL,
-	ai_run, 10, NULL,
-	ai_run, 8,	NULL
+	{ai_run, 8, NULL},
+	{ai_run, 15, NULL},
+	{ai_run, 10, NULL},
+	{ai_run, 8, NULL}
 };
 mmove_t army_move_run = {73, 80, army_frames_run, NULL};
 
@@ -85,19 +85,19 @@ void FireArmy(edict_t *self)
 }
 
 // Attack
-mframe_t army_frames_attack [] =
+static mframe_t army_frames_attack [] =
 {
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0,	FireArmy,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
+	{ai_charge, 0, FireArmy},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
-	ai_charge, 0,	NULL
+	{ai_charge, 0, NULL}
 };
 mmove_t army_move_attack = {81, 89, army_frames_attack, army_run};
 
@@ -107,7 +107,7 @@ void army_attack(edict_t *self)
 }
 
 // Sight
-void army_sight(edict_t *self)
+void army_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -119,69 +119,70 @@ void army_search(edict_t *self)
 }
 
 // Pain (1)
-mframe_t army_frames_pain1 [] =
+static mframe_t army_frames_pain1 [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,	NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t army_move_pain1 = {40, 45, army_frames_pain1, army_run};
 
 // Pain (2)
-mframe_t army_frames_pain2 [] =
+static mframe_t army_frames_pain2 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 13,	NULL,
-	ai_move, 9,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 13, NULL},
+	{ai_move, 9, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 2,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 2, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t army_move_pain2 = {46, 59, army_frames_pain2, army_run};
 
 // Pain (3)
-mframe_t army_frames_pain3 [] =
+static mframe_t army_frames_pain3 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 1,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 1, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 1,		NULL,
-	ai_move, 1,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 1,		NULL,
+	{ai_move, 1, NULL},
+	{ai_move, 1, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 1, NULL},
 
-	ai_move, 4,		NULL,
-	ai_move, 3,		NULL,
-	ai_move, 6,		NULL,
-	ai_move, 8,		NULL,
+	{ai_move, 4, NULL},
+	{ai_move, 3, NULL},
+	{ai_move, 6, NULL},
+	{ai_move, 8, NULL},
 
-	ai_move, 2,		NULL
+	{ai_move, 2, NULL}
 };
 mmove_t army_move_pain3 = {60, 72, army_frames_pain3, army_run};
 
-void army_pain(edict_t *self)
+void army_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
 {
 	float r;
-	
+
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (level.time < self->pain_debounce_time)
 		return;
@@ -218,39 +219,39 @@ void army_dead(edict_t *self)
 }
 
 // Death (1)
-mframe_t army_frames_death1 [] =
+static mframe_t army_frames_death1 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t army_move_death1 = {8, 17, army_frames_death1, army_dead};
 
 // Death (2)
-mframe_t army_frames_death2 [] =
+static mframe_t army_frames_death2 [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, -5,	NULL,
-	ai_move, -4,	NULL,
-	ai_move, -13,	NULL,
+	{ai_move, 0, NULL},
+	{ai_move, -5, NULL},
+	{ai_move, -4, NULL},
+	{ai_move, -13, NULL},
 
-	ai_move, -3,	NULL,
-	ai_move, -4,	NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, -3, NULL},
+	{ai_move, -4, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t army_move_death2 = {18, 28, army_frames_death2, army_dead};
 
@@ -283,22 +284,19 @@ void army_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 		self->monsterinfo.currentmove = &army_move_death2;
 }
 
-void SP_monster_q1_army(edict_t *self)
+void SP_monster_army(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/army/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 40);
+	self->s.modelindex = gi.modelindex("models/monsters/army/tris.md2");
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 40);
 	self->health = 30;
-	self->monster_name = "Grunt";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_death = gi.soundindex("quake1/army/death1.wav");
-	sound_search = gi.soundindex("quake1/army/idle.wav");
-	sound_pain1 = gi.soundindex("quake1/army/pain1.wav");
-	sound_pain2 = gi.soundindex("quake1/army/pain2.wav");
-	sound_attack = gi.soundindex("quake1/army/sattck1.wav");
-	sound_sight = gi.soundindex("quake1/army/sight1.wav");
+	sound_death = gi.soundindex("army/death1.wav");
+	sound_search = gi.soundindex("army/idle.wav");
+	sound_pain1 = gi.soundindex("army/pain1.wav");
+	sound_pain2 = gi.soundindex("army/pain2.wav");
+	sound_attack = gi.soundindex("army/sattck1.wav");
+	sound_sight = gi.soundindex("army/sight1.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;

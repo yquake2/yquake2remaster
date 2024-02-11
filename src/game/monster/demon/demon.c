@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // m_demon.c
 
-#include "../../game/g_local.h"
+#include "../../header/local.h"
 
 static int sound_death;
 static int sound_hit;
@@ -30,24 +30,24 @@ static int sound_sight;
 static int sound_search;
 
 // Stand
-mframe_t demon_frames_stand [] =
+static mframe_t demon_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
 };
 mmove_t demon_move_stand = {0, 12, demon_frames_stand, NULL};
 
@@ -57,15 +57,15 @@ void demon_stand(edict_t *self)
 }
 
 // Run
-mframe_t demon_frames_run [] =
+static mframe_t demon_frames_run [] =
 {
-	ai_run, 20, NULL,
-	ai_run, 15, NULL,
-	ai_run, 36, NULL,
-	ai_run, 20, NULL,
+	{ai_run, 20, NULL},
+	{ai_run, 15, NULL},
+	{ai_run, 36, NULL},
+	{ai_run, 20, NULL},
 
-	ai_run, 15, NULL,
-	ai_run, 36, NULL
+	{ai_run, 15, NULL},
+	{ai_run, 36, NULL}
 };
 mmove_t demon_move_run = {21, 26, demon_frames_run, NULL};
 
@@ -85,14 +85,14 @@ qboolean CheckDemonJump(edict_t *self)
 		return false;
 	if (self->s.origin[2] + self->mins[2] < self->enemy->s.origin[2] + self->enemy->mins[2] + 0.25 * self->enemy->size[2])
 		return false;
-		
+
 	VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
 	dir[2] = 0;
 	distance = VectorLength(dir);
-	
+
 	if (distance < 100)
 		return false;
-		
+
 	if (distance > 200)
 	{
 		if (random() < 0.9)
@@ -105,7 +105,7 @@ void DemonJumpTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 {
 	if (self->health < 1)
 		return;
-	if (other->takedamage && other->monster_team != self->monster_team)
+	if (other->takedamage)
 	{
 		if (VectorLength(self->velocity) > 400)
 		{
@@ -148,22 +148,22 @@ void demon_roar(edict_t *self)
 }
 
 // Attack
-mframe_t demon_frames_jump [] =
+static mframe_t demon_frames_jump [] =
 {
-	ai_charge,	0,	demon_roar,
-	ai_charge,	0,	NULL,
-	ai_charge,	0,	NULL,
-	ai_charge,	0,	DemonJump,
+	{ai_charge, 0, demon_roar},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, DemonJump},
 
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t demon_move_jump = {27, 38, demon_frames_jump, demon_run};
 
@@ -192,26 +192,26 @@ void DemonMelee(edict_t *self)
 }
 
 // Melee
-mframe_t demon_frames_melee [] =
+static mframe_t demon_frames_melee [] =
 {
-	ai_charge, 4,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 1,	NULL,
+	{ai_charge, 4, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 1, NULL},
 
-	ai_charge, 14,	DemonMelee,
-	ai_charge, 1,	NULL,
-	ai_charge, 6,	NULL,
-	ai_charge, 8,	NULL,
+	{ai_charge, 14, DemonMelee},
+	{ai_charge, 1, NULL},
+	{ai_charge, 6, NULL},
+	{ai_charge, 8, NULL},
 
-	ai_charge, 4,	NULL,
-	ai_charge, 2,	NULL,
-	ai_charge, 12,	DemonMelee,
-	ai_charge, 5,	NULL,
+	{ai_charge, 4, NULL},
+	{ai_charge, 2, NULL},
+	{ai_charge, 12, DemonMelee},
+	{ai_charge, 5, NULL},
 
-	ai_charge, 8,	NULL,
-	ai_charge, 4,	NULL,
-	ai_charge, 4,	NULL
+	{ai_charge, 8, NULL},
+	{ai_charge, 4, NULL},
+	{ai_charge, 4, NULL}
 };
 mmove_t demon_move_melee = {54, 68, demon_frames_melee, demon_run};
 
@@ -221,22 +221,22 @@ void demon_melee(edict_t *self)
 }
 
 // Pain
-mframe_t demon_frames_pain [] =
+static mframe_t demon_frames_pain [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t demon_move_pain = {39, 44, demon_frames_pain, demon_run};
 
 void demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (self->touch == DemonJumpTouch)
 		return;
@@ -261,19 +261,19 @@ void demon_dead(edict_t *self)
 }
 
 // Death
-mframe_t demon_frames_die [] =
+static mframe_t demon_frames_die [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL}
 };
 mmove_t demon_move_die = {45, 53, demon_frames_die, demon_dead};
 
@@ -304,7 +304,7 @@ void demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 }
 
 // Sight
-void demon_sight(edict_t *self)
+void demon_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
@@ -315,23 +315,20 @@ void demon_search(edict_t *self)
 	gi.sound (self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_q1_demon(edict_t *self)
+void SP_monster_demon(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/quake1/demon/tris.md2");
+	self->s.modelindex = gi.modelindex("models/monsters/demon/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
 	self->health = 300;
-	self->monster_name = "Fiend";
 
-	if (self->solid == SOLID_NOT)
-		return;
-	sound_death = gi.soundindex("quake1/demon/ddeath.wav");
-	sound_hit = gi.soundindex("quake1/demon/dhit2.wav");
-	sound_jump = gi.soundindex("quake1/demon/djump.wav");
-	sound_land = gi.soundindex("quake1/demon/dland2.wav");
-	sound_pain = gi.soundindex("quake1/demon/dpain1.wav");
-	sound_search = gi.soundindex("quake1/demon/idle1.wav");
-	sound_sight = gi.soundindex("quake1/demon/sight2.wav");
+	sound_death = gi.soundindex("demon/ddeath.wav");
+	sound_hit = gi.soundindex("demon/dhit2.wav");
+	sound_jump = gi.soundindex("demon/djump.wav");
+	sound_land = gi.soundindex("demon/dland2.wav");
+	sound_pain = gi.soundindex("demon/dpain1.wav");
+	sound_search = gi.soundindex("demon/idle1.wav");
+	sound_sight = gi.soundindex("demon/sight2.wav");
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
