@@ -41,12 +41,12 @@ void berserk_run2_cycle(edict_t *self);
 
 void berserk_sight (edict_t *self, edict_t *other)
 {
-	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void berserk_search (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
 
@@ -99,7 +99,7 @@ void berserk_fidget (edict_t *self)
 		return;
 
 	self->monsterinfo.currentmove = &berserk_move_stand_fidget;
-	gi.sound (self, CHAN_WEAPON, sound_idle, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_idle, 1, ATTN_IDLE, 0);
 }
 
 
@@ -162,7 +162,7 @@ mmove_t berserk_move_run1 = {FRAME_run1, FRAME_run6, berserk_frames_run1, NULL};
 
 void berserk_swing (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_punch, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_punch, 1, ATTN_NORM, 0);
 }
 
 void berserk_attack_club (edict_t *self)
@@ -208,7 +208,7 @@ mmove_t berserk_move_run2 = {FRAME_r_att13, FRAME_r_att18, berserk_frames_run2, 
 
 void berserk_run2_cycle(edict_t *self)
 {
-	if (skill->value < 3 || !(self->enemy) || (self->enemy && self->enemy == self) || !visible(self, self->enemy) || CheckDistance(self, self->enemy) > (MELEE_DISTANCE * 4))
+	if (skill->value < SKILL_HARDPLUS || !(self->enemy) || (self->enemy && self->enemy == self) || !visible(self, self->enemy) || CheckDistance(self, self->enemy) > (MELEE_DISTANCE * 4))
 	{
 		self->monsterinfo.currentmove = &berserk_move_run1;
 		return;
@@ -219,7 +219,7 @@ void berserk_run2_cycle(edict_t *self)
 
 void berserk_growl (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_growl, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_growl, 1, ATTN_NORM, 0);
 }
 
 void berserk_run (edict_t *self)
@@ -369,7 +369,7 @@ void berserk_pain (edict_t *self, edict_t *other, float kick, int damage)
 		return;
 
 	self->pain_debounce_time = level.time + 3;
-	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	if (skill->value == 3)
 		return;		// no pain anims in nightmare
@@ -432,7 +432,7 @@ void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -445,7 +445,7 @@ void berserk_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 	if (self->deadflag == DEAD_DEAD)
 		return;
 
-	gi.sound (self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 

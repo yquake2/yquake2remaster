@@ -94,7 +94,7 @@ void enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 		gi.WriteByte(226);
 		gi.multicast(self->s.origin, MULTICAST_PVS);
 
-		gi.sound (self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
 	}
 	G_FreeEdict(self);
 }

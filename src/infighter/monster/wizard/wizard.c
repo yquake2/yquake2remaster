@@ -138,7 +138,7 @@ void spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 		gi.WriteByte(209);
 		gi.multicast(self->s.origin, MULTICAST_PVS);
 
-		gi.sound (self, CHAN_WEAPON, sound_proj_hit, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_proj_hit, 1, ATTN_NORM, 0);
 	}
 	G_FreeEdict(self);
 }
@@ -244,7 +244,7 @@ void wizard_pain(edict_t *self)
 	if (level.time < self->pain_debounce_time)
 		return;
 	self->pain_debounce_time = level.time + 3;
-	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == 3)
@@ -292,7 +292,7 @@ void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);

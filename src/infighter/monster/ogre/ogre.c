@@ -276,7 +276,7 @@ void ogre_pain(edict_t *self)
 	if (self->pain_debounce_time > level.time)
 		return;
 	r = random();
-	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	if (r < 0.25)
 	{

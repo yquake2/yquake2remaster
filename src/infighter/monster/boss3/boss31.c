@@ -57,11 +57,11 @@ void jorg_search (edict_t *self)
 	r = random();
 
 	if (r <= 0.3)
-		gi.sound (self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
 	else if (r <= 0.6)
-		gi.sound (self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_VOICE, sound_search3, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_search3, 1, ATTN_NORM, 0);
 }
 
 
@@ -138,23 +138,23 @@ mmove_t	jorg_move_stand = {FRAME_stand01, FRAME_stand51, jorg_frames_stand, NULL
 
 void jorg_idle (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_NORM,0);
+	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_NORM,0);
 }
 
 void jorg_death_hit (edict_t *self)
 {
-	gi.sound (self, CHAN_BODY, sound_death_hit, 1, ATTN_NORM,0);
+	gi.sound(self, CHAN_BODY, sound_death_hit, 1, ATTN_NORM,0);
 }
 
 
 void jorg_step_left (edict_t *self)
 {
-	gi.sound (self, CHAN_BODY, sound_step_left, 1, ATTN_NORM,0);
+	gi.sound(self, CHAN_BODY, sound_step_left, 1, ATTN_NORM,0);
 }
 
 void jorg_step_right (edict_t *self)
 {
-	gi.sound (self, CHAN_BODY, sound_step_right, 1, ATTN_NORM,0);
+	gi.sound(self, CHAN_BODY, sound_step_right, 1, ATTN_NORM,0);
 }
 
 
@@ -454,19 +454,19 @@ void jorg_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	if (damage <= 50)
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM,0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM,0);
 		self->monsterinfo.currentmove = &jorg_move_pain1;
 	}
 	else if (damage <= 100)
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM,0);
+		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM,0);
 		self->monsterinfo.currentmove = &jorg_move_pain2;
 	}
 	else
 	{
 		if (random() <= 0.3)
 		{
-			gi.sound (self, CHAN_VOICE, sound_pain3, 1, ATTN_NORM,0);
+			gi.sound(self, CHAN_VOICE, sound_pain3, 1, ATTN_NORM,0);
 			self->monsterinfo.currentmove = &jorg_move_pain3;
 		}
 	}
@@ -486,7 +486,7 @@ void jorgBFG (edict_t *self)
 	vec[2] += self->enemy->viewheight;
 	VectorSubtract (vec, start, dir);
 	VectorNormalize (dir);
-	gi.sound (self, CHAN_VOICE, sound_attack2, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_attack2, 1, ATTN_NORM, 0);
 	/*void monster_fire_bfg (edict_t *self,
 							 vec3_t start,
 							 vec3_t aimdir,
@@ -546,13 +546,13 @@ void jorg_attack(edict_t *self)
 
 	if (random() <= 0.75)
 	{
-		gi.sound (self, CHAN_VOICE, sound_attack1, 1, ATTN_NORM,0);
+		gi.sound(self, CHAN_VOICE, sound_attack1, 1, ATTN_NORM,0);
 		self->s.sound = gi.soundindex ("boss3/w_loop.wav");
 		self->monsterinfo.currentmove = &jorg_move_start_attack1;
 	}
 	else
 	{
-		gi.sound (self, CHAN_VOICE, sound_attack2, 1, ATTN_NORM,0);
+		gi.sound(self, CHAN_VOICE, sound_attack2, 1, ATTN_NORM,0);
 		self->monsterinfo.currentmove = &jorg_move_attack2;
 	}
 }
@@ -588,7 +588,7 @@ void jorg_dead (edict_t *self)
 
 void jorg_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
-	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_NO;
 	self->s.sound = 0;

@@ -48,15 +48,15 @@ static int	sound_cock;
 void soldier_idle (edict_t *self)
 {
 	if (random() > 0.8)
-		gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
+		gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
 void soldier_cock (edict_t *self)
 {
 	if (self->s.frame == FRAME_stand322)
-		gi.sound (self, CHAN_WEAPON, sound_cock, 1, ATTN_IDLE, 0);
+		gi.sound(self, CHAN_WEAPON, sound_cock, 1, ATTN_IDLE, 0);
 	else
-		gi.sound (self, CHAN_WEAPON, sound_cock, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_cock, 1, ATTN_NORM, 0);
 }
 
 
@@ -429,11 +429,11 @@ void soldier_pain (edict_t *self, edict_t *other, float kick, int damage)
 
 	n = self->s.skinnum | 1;
 	if (n == 1)
-		gi.sound (self, CHAN_VOICE, sound_pain_light, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain_light, 1, ATTN_NORM, 0);
 	else if (n == 3)
-		gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_VOICE, sound_pain_ss, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain_ss, 1, ATTN_NORM, 0);
 
 	if (self->velocity[2] > 100)
 	{
@@ -796,9 +796,9 @@ void soldier_attack(edict_t *self)
 void soldier_sight(edict_t *self, edict_t *other)
 {
 	if (random() < 0.5)
-		gi.sound (self, CHAN_VOICE, sound_sight1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_sight1, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_VOICE, sound_sight2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_sight2, 1, ATTN_NORM, 0);
 
 	if ((skill->value > 0) && (range(self, self->enemy) >= RANGE_MID))
 	{
@@ -1152,7 +1152,7 @@ void soldier_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 // check for gib
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 3; n++)
 			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
 		ThrowGib (self, "models/objects/gibs/chest/tris.md2", damage, GIB_ORGANIC);
@@ -1170,11 +1170,11 @@ void soldier_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 	self->s.skinnum |= 1;
 
 	if (self->s.skinnum == 1)
-		gi.sound (self, CHAN_VOICE, sound_death_light, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_death_light, 1, ATTN_NORM, 0);
 	else if (self->s.skinnum == 3)
-		gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	else // (self->s.skinnum == 5)
-		gi.sound (self, CHAN_VOICE, sound_death_ss, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_death_ss, 1, ATTN_NORM, 0);
 
 	if (fabs((self->s.origin[2] + self->viewheight) - point[2]) <= 4)
 	{
