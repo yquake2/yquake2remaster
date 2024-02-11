@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-#include "../game/g_local.h"
+#include "../header/local.h"
 
 
 /*
@@ -63,32 +63,36 @@ void PlayerTrail_Init (void)
 	trail_active = true;
 }
 
-
-void PlayerTrail_Add (vec3_t spot)
+void
+PlayerTrail_Add(vec3_t spot)
 {
-	vec3_t	temp;
+	vec3_t temp;
 
 	if (!trail_active)
+	{
 		return;
+	}
 
-	VectorCopy (spot, trail[trail_head]->s.origin);
+	VectorCopy(spot, trail[trail_head]->s.origin);
 
 	trail[trail_head]->timestamp = level.time;
 
-	VectorSubtract (spot, trail[PREV(trail_head)]->s.origin, temp);
-	trail[trail_head]->s.angles[1] = vectoyaw (temp);
+	VectorSubtract(spot, trail[PREV(trail_head)]->s.origin, temp);
+	trail[trail_head]->s.angles[1] = vectoyaw(temp);
 
 	trail_head = NEXT(trail_head);
 }
 
-
-void PlayerTrail_New (vec3_t spot)
+void
+PlayerTrail_New(vec3_t spot)
 {
 	if (!trail_active)
+	{
 		return;
+	}
 
-	PlayerTrail_Init ();
-	PlayerTrail_Add (spot);
+	PlayerTrail_Init();
+	PlayerTrail_Add(spot);
 }
 
 
@@ -140,7 +144,8 @@ edict_t *PlayerTrail_PickNext (edict_t *self)
 	return trail[marker];
 }
 
-edict_t *PlayerTrail_LastSpot (void)
+edict_t *
+PlayerTrail_LastSpot(void)
 {
 	return trail[PREV(trail_head)];
 }
