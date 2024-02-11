@@ -38,12 +38,12 @@ static int sound_sight;
 
 void floater_sight (edict_t *self, edict_t *other)
 {
-	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void floater_idle (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
 
@@ -513,7 +513,7 @@ void floater_walk (edict_t *self)
 void floater_wham (edict_t *self)
 {
 	static	vec3_t	aim = {MELEE_DISTANCE, 0, 0};
-	gi.sound (self, CHAN_WEAPON, sound_attack3, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_attack3, 1, ATTN_NORM, 0);
 	fire_hit (self, aim, 5 + rand() % 6, -50);
 }
 
@@ -532,7 +532,7 @@ void floater_zap (edict_t *self)
 	G_ProjectSource (self->s.origin, offset, forward, right, origin);
 //	G_ProjectSource (self->s.origin, monster_flash_offset[flash_number], forward, right, origin);
 
-	gi.sound (self, CHAN_WEAPON, sound_attack2, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_attack2, 1, ATTN_NORM, 0);
 
 	//FIXME use the flash, Luke
 	gi.WriteByte (svc_temp_entity);
@@ -578,12 +578,12 @@ void floater_pain (edict_t *self, edict_t *other, float kick, int damage)
 	n = (rand() + 1) % 3;
 	if (n == 0)
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 		self->monsterinfo.currentmove = &floater_move_pain1;
 	}
 	else
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 		self->monsterinfo.currentmove = &floater_move_pain2;
 	}
 }
@@ -600,7 +600,7 @@ void floater_dead (edict_t *self)
 
 void floater_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
-	gi.sound (self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
 	BecomeExplosion1(self);
 }
 

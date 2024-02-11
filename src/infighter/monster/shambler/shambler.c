@@ -27,7 +27,7 @@
 
 #include "../../header/local.h"
 
-static int sound_attack;
+static int sound_boom;
 static int sound_lightning;
 static int sound_death;
 static int sound_pain;
@@ -98,10 +98,10 @@ void CastLightning(edict_t *self)
 	if (!infront(self, self->enemy))
 		return;
 	if (self->s.frame == 72)
-		gi.sound (self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_boom, 1, ATTN_NORM, 0);
 
 	// decino: Shambler has an extra lightning frame on Nightmare mode
-	if (self->s.frame == 75 && skill->value < 3)
+	if (self->s.frame == 75 && skill->value < SKILL_HARDPLUS)
 		return;
 	VectorCopy(self->s.origin, start);
 	VectorCopy(self->enemy->s.origin, end);
@@ -130,7 +130,7 @@ void CastLightning(edict_t *self)
 
 void shambler_prepare(edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_lightning, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_lightning, 1, ATTN_NORM, 0);
 }
 
 void shambler_sparks(edict_t *self)
@@ -289,12 +289,12 @@ void shambler_melee(edict_t *self)
 
 void shambler_search(edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_NORM, 0);
 }
 
 void shambler_sight(edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Pain
@@ -315,7 +315,7 @@ void shambler_pain(edict_t *self)
 	if (level.time < self->pain_debounce_time)
 		return;
 	self->pain_debounce_time = level.time + 3;
-	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == 3)
@@ -358,7 +358,7 @@ void shambler_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
@@ -399,7 +399,7 @@ SP_monster_shambler(edict_t* self)
 
 	if (self->solid == SOLID_NOT)
 		return;
-	sound_attack = gi.soundindex("shambler/sboom.wav");
+	sound_boom = gi.soundindex("shambler/sboom.wav");
 	sound_lightning = gi.soundindex("shambler/sattck1.wav");
 	sound_death = gi.soundindex("shambler/sdeath.wav");
 	sound_pain = gi.soundindex("shambler/shurt2.wav");

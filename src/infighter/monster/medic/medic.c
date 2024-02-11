@@ -108,7 +108,7 @@ void medic_check_for_corpses(edict_t *self)
 
 void medic_idle (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_idle1, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_VOICE, sound_idle1, 1, ATTN_IDLE, 0);
 	medic_check_for_corpses(self);
 }
 
@@ -116,7 +116,7 @@ void medic_search (edict_t *self)
 {
 	edict_t	*ent;
 
-	gi.sound (self, CHAN_VOICE, sound_search, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_IDLE, 0);
 
 	if (!self->oldenemy)
 	{
@@ -134,7 +134,7 @@ void medic_search (edict_t *self)
 
 void medic_sight (edict_t *self, edict_t *other)
 {
-	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 
@@ -351,12 +351,12 @@ void medic_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (random() < 0.5)
 	{
 		self->monsterinfo.currentmove = &medic_move_pain1;
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 	}
 	else
 	{
 		self->monsterinfo.currentmove = &medic_move_pain2;
-		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 	}
 }
 
@@ -442,7 +442,7 @@ void medic_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 // check for gib
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -456,7 +456,7 @@ void medic_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 		return;
 
 // regular death
-	gi.sound (self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 
@@ -575,7 +575,7 @@ mmove_t medic_move_attackBlaster = {FRAME_attack1, FRAME_attack14, medic_frames_
 
 void medic_hook_launch (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_hook_launch, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_hook_launch, 1, ATTN_NORM, 0);
 }
 
 void ED_CallSpawn (edict_t *ent);
@@ -652,7 +652,7 @@ void medic_cable_attack (edict_t *self)
 
 	if (self->s.frame == FRAME_attack43)
 	{
-		gi.sound (self->enemy, CHAN_AUTO, sound_hook_hit, 1, ATTN_NORM, 0);
+		gi.sound(self->enemy, CHAN_AUTO, sound_hook_hit, 1, ATTN_NORM, 0);
 		self->enemy->monsterinfo.aiflags |= AI_RESURRECTING;
 	}
 	else if (self->s.frame == FRAME_attack50)
@@ -684,7 +684,7 @@ void medic_cable_attack (edict_t *self)
 	{
 		if (self->s.frame == FRAME_attack44)
 		{
-			gi.sound (self, CHAN_WEAPON, sound_hook_heal, 1, ATTN_NORM, 0);
+			gi.sound(self, CHAN_WEAPON, sound_hook_heal, 1, ATTN_NORM, 0);
 		}
 	}
 
@@ -705,7 +705,7 @@ void medic_cable_attack (edict_t *self)
 
 void medic_hook_retract (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_hook_retract, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_hook_retract, 1, ATTN_NORM, 0);
 	self->enemy->monsterinfo.aiflags &= ~AI_RESURRECTING;
 	self->enemy = NULL; // decino: Forget enemy after healing so we can quickly heal another ally
 	self->oldenemy = NULL;

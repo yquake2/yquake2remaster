@@ -582,7 +582,7 @@ SV_SendClientMessages(void)
 	int i;
 	client_t *c;
 	int msglen;
-	byte *msgbuf;
+	byte *msgbuf = NULL;
 	size_t r;
 
 	msglen = 0;
@@ -609,7 +609,7 @@ SV_SendClientMessages(void)
 
 			msglen = LittleLong(msglen);
 
-			if (msglen == -1)
+			if (msglen < 0)
 			{
 				SV_DemoCompleted();
 				return;

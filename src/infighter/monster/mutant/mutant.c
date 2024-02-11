@@ -47,26 +47,26 @@ void mutant_step (edict_t *self)
 	int		n;
 	n = (rand() + 1) % 3;
 	if (n == 0)
-		gi.sound (self, CHAN_VOICE, sound_step1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_step1, 1, ATTN_NORM, 0);
 	else if (n == 1)
-		gi.sound (self, CHAN_VOICE, sound_step2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_step2, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_VOICE, sound_step3, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_step3, 1, ATTN_NORM, 0);
 }
 
 void mutant_sight (edict_t *self, edict_t *other)
 {
-	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void mutant_search (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
 void mutant_swing (edict_t *self)
 {
-	gi.sound (self, CHAN_VOICE, sound_swing, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_swing, 1, ATTN_NORM, 0);
 }
 
 
@@ -172,7 +172,7 @@ mmove_t mutant_move_idle = {FRAME_stand152, FRAME_stand164, mutant_frames_idle, 
 void mutant_idle (edict_t *self)
 {
 	self->monsterinfo.currentmove = &mutant_move_idle;
-	gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
 
@@ -253,9 +253,9 @@ void mutant_hit_left (edict_t *self)
 
 	VectorSet (aim, MELEE_DISTANCE, self->mins[0], 8);
 	if (fire_hit (self, aim, (10 + (rand() %5)), 100))
-		gi.sound (self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_WEAPON, sound_swing, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_swing, 1, ATTN_NORM, 0);
 }
 
 void mutant_hit_right (edict_t *self)
@@ -264,9 +264,9 @@ void mutant_hit_right (edict_t *self)
 
 	VectorSet (aim, MELEE_DISTANCE, self->maxs[0], 8);
 	if (fire_hit (self, aim, (10 + (rand() %5)), 100))
-		gi.sound (self, CHAN_WEAPON, sound_hit2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_hit2, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_WEAPON, sound_swing, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_swing, 1, ATTN_NORM, 0);
 }
 
 void mutant_check_refire (edict_t *self)
@@ -341,7 +341,7 @@ void mutant_jump_takeoff (edict_t *self)
 {
 	vec3_t	forward;
 
-	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 	AngleVectors (self->s.angles, forward, NULL, NULL);
 	self->s.origin[2] += 1;
 	VectorScale (forward, 600, self->velocity);
@@ -356,7 +356,7 @@ void mutant_check_landing (edict_t *self)
 {
 	if (self->groundentity)
 	{
-		gi.sound (self, CHAN_WEAPON, sound_thud, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_thud, 1, ATTN_NORM, 0);
 		self->monsterinfo.attack_finished = 0;
 		self->monsterinfo.aiflags &= ~AI_DUCKED;
 		return;
@@ -418,7 +418,7 @@ qboolean mutant_check_jump (edict_t *self)
 		return false;
 	if (distance > 100)
 	{
-		if (random() < 0.9 && skill->value < 3)
+		if (random() < 0.9 && skill->value < SKILL_HARDPLUS)
 			return false;
 	}
 
@@ -506,17 +506,17 @@ void mutant_pain (edict_t *self, edict_t *other, float kick, int damage)
 	r = random();
 	if (r < 0.33)
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 		self->monsterinfo.currentmove = &mutant_move_pain1;
 	}
 	else if (r < 0.66)
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 		self->monsterinfo.currentmove = &mutant_move_pain2;
 	}
 	else
 	{
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 		self->monsterinfo.currentmove = &mutant_move_pain3;
 	}
 }
@@ -572,7 +572,7 @@ void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -585,7 +585,7 @@ void mutant_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	if (self->deadflag == DEAD_DEAD)
 		return;
 
-	gi.sound (self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 	self->s.skinnum = 1;

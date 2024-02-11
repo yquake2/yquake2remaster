@@ -135,7 +135,7 @@ mmove_t infantry_move_fidget = {FRAME_stand01, FRAME_stand49, infantry_frames_fi
 void infantry_fidget (edict_t *self)
 {
 	self->monsterinfo.currentmove = &infantry_move_fidget;
-	gi.sound (self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
 static mframe_t infantry_frames_walk [] =
@@ -231,12 +231,12 @@ void infantry_pain (edict_t *self, edict_t *other, float kick, int damage)
 	if (n == 0)
 	{
 		self->monsterinfo.currentmove = &infantry_move_pain1;
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 	}
 	else
 	{
 		self->monsterinfo.currentmove = &infantry_move_pain2;
-		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 	}
 }
 
@@ -298,7 +298,7 @@ void InfantryMachineGun (edict_t *self)
 
 void infantry_sight (edict_t *self, edict_t *other)
 {
-	gi.sound (self, CHAN_BODY, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_BODY, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void infantry_dead (edict_t *self)
@@ -390,7 +390,7 @@ void infantry_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 // check for gib
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -411,17 +411,17 @@ void infantry_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 	if (n == 0)
 	{
 		self->monsterinfo.currentmove = &infantry_move_death1;
-		gi.sound (self, CHAN_VOICE, sound_die2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_die2, 1, ATTN_NORM, 0);
 	}
 	else if (n == 1)
 	{
 		self->monsterinfo.currentmove = &infantry_move_death2;
-		gi.sound (self, CHAN_VOICE, sound_die1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_die1, 1, ATTN_NORM, 0);
 	}
 	else
 	{
 		self->monsterinfo.currentmove = &infantry_move_death3;
-		gi.sound (self, CHAN_VOICE, sound_die2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_die2, 1, ATTN_NORM, 0);
 	}
 }
 
@@ -479,7 +479,7 @@ void infantry_cock_gun (edict_t *self)
 {
 	int		n;
 
-	gi.sound (self, CHAN_WEAPON, sound_weapon_cock, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_weapon_cock, 1, ATTN_NORM, 0);
 	n = (rand() & 15) + 3 + 7;
 	self->monsterinfo.pausetime = level.time + n * FRAMETIME;
 }
@@ -517,7 +517,7 @@ mmove_t infantry_move_attack1 = {FRAME_attak101, FRAME_attak115, infantry_frames
 
 void infantry_swing (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_punch_swing, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_punch_swing, 1, ATTN_NORM, 0);
 }
 
 void infantry_smack (edict_t *self)
@@ -526,7 +526,7 @@ void infantry_smack (edict_t *self)
 
 	VectorSet (aim, MELEE_DISTANCE, 0, 0);
 	if (fire_hit (self, aim, (5 + (rand() % 5)), 50))
-		gi.sound (self, CHAN_WEAPON, sound_punch_hit, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_punch_hit, 1, ATTN_NORM, 0);
 }
 
 static mframe_t infantry_frames_attack2 [] =

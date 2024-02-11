@@ -52,32 +52,32 @@ void parasite_refidget (edict_t *self);
 
 void parasite_launch (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_launch, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_launch, 1, ATTN_NORM, 0);
 }
 
 void parasite_reel_in (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_reelin, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_reelin, 1, ATTN_NORM, 0);
 }
 
 void parasite_sight (edict_t *self, edict_t *other)
 {
-	gi.sound (self, CHAN_WEAPON, sound_sight, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_WEAPON, sound_sight, 1, ATTN_NORM, 0);
 }
 
 void parasite_tap (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_tap, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_tap, 1, ATTN_IDLE, 0);
 }
 
 void parasite_scratch (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_scratch, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_scratch, 1, ATTN_IDLE, 0);
 }
 
 void parasite_search (edict_t *self)
 {
-	gi.sound (self, CHAN_WEAPON, sound_search, 1, ATTN_IDLE, 0);
+	gi.sound(self, CHAN_WEAPON, sound_search, 1, ATTN_IDLE, 0);
 }
 
 
@@ -284,9 +284,9 @@ void parasite_pain (edict_t *self, edict_t *other, float kick, int damage)
 		return;		// no pain anims in nightmare
 
 	if (random() < 0.5)
-		gi.sound (self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 	else
-		gi.sound (self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 
 	self->monsterinfo.currentmove = &parasite_move_pain1;
 }
@@ -341,12 +341,12 @@ void parasite_drain_attack (edict_t *self)
 	if (self->s.frame == FRAME_drain03)
 	{
 		damage = 5;
-		gi.sound (self->enemy, CHAN_AUTO, sound_impact, 1, ATTN_NORM, 0);
+		gi.sound(self->enemy, CHAN_AUTO, sound_impact, 1, ATTN_NORM, 0);
 	}
 	else
 	{
 		if (self->s.frame == FRAME_drain04)
-			gi.sound (self, CHAN_WEAPON, sound_suck, 1, ATTN_NORM, 0);
+			gi.sound(self, CHAN_WEAPON, sound_suck, 1, ATTN_NORM, 0);
 		damage = 2;
 	}
 
@@ -473,7 +473,7 @@ void parasite_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 // check for gib
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n= 0; n < 4; n++)
@@ -487,7 +487,7 @@ void parasite_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 		return;
 
 // regular death
-	gi.sound (self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 	self->monsterinfo.currentmove = &parasite_move_death;
