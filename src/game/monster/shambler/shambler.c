@@ -335,30 +335,57 @@ ShamblerSaveLoc(edict_t* self)
 void
 ShamblerCastLightning(edict_t* self)
 {
-	vec3_t start;
-	vec3_t forward, right, target;
-	vec3_t offset = {0, 0, 60.f};
+	vec3_t			start, dir, end;
+	trace_t			tr;
 
 	if (!self->enemy)
 	{
 		return;
 	}
 
-	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, offset, forward, right, start);
-	VectorCopy(self->enemy->s.origin, target);
-	target[2] += self->enemy->viewheight;
-	for (int i = 0; i < 3; i++)
+	if (!infront(self, self->enemy))
 	{
-		target[i] += (randk() % 10) - 5.f;
+		return;
 	}
 
-	/* calc direction to where we targeted */
-	VectorSubtract(target, start, forward);
-	VectorNormalize(forward);
+	if (self->s.frame == FRAME_magic07)
+	{
+		gi.sound(self, CHAN_WEAPON, sound_boom, 1, ATTN_NORM, 0);
+	}
 
-	/* TODO should be tesla effect */
-	monster_fire_railgun(self, start, forward, 2, 1000, MZ2_WIDOW_RAIL);
+	/* decino: Shambler has an extra lightning frame on Nightmare mode */
+	if ((self->s.frame == FRAME_magic10) && (skill->value < SKILL_HARDPLUS))
+	{
+		return;
+	}
+
+	VectorCopy(self->s.origin, start);
+	VectorCopy(self->enemy->s.origin, end);
+
+	start[2] += 40;
+	end[2] += 16;
+
+	VectorSubtract(end, start, dir);
+	VectorNormalize(dir);
+	VectorMA(start, 600, dir, end);
+
+	tr = gi.trace(start, NULL, NULL, end, self,
+		(MASK_SHOT | CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_WATER));
+
+	if (!tr.ent)
+	{
+		return;
+	}
+
+	T_Damage(tr.ent, self, self, dir, tr.endpos, tr.plane.normal, 10, 1, 0, 0);
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_LIGHTNING);
+	gi.WriteShort(tr.ent - g_edicts);
+	gi.WriteShort(self - g_edicts);
+	gi.WritePosition(end);
+	gi.WritePosition(start);
+	gi.multicast(start, MULTICAST_PVS);
 }
 
 static mframe_t shambler_frames_magic[] = {

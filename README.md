@@ -26,7 +26,6 @@ State:
    * mguhub: broken wall light, sometimes broken logic for surface fall in next maps
 
 Monsters:
-  * incorrect weapon effect for Shambler
   * incorrect dead animation for Arachnoid
   * broken fire effect for Guardian
 

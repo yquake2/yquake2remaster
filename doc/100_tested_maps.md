@@ -240,7 +240,7 @@ Additionally supported models:
 
  | source Quake 1 Path        | destination Quake 2 Path          | md5 hash                         |
  | -------------------------- | --------------------------------- | -------------------------------- |
- | progs/progs/soldier.mdl    | models/monsters/army/tris.mdl     | 5b6c30a984872b4273dd5861412d35c5 |
+ | progs/soldier.mdl          | models/monsters/army/tris.mdl     | 5b6c30a984872b4273dd5861412d35c5 |
  | progs/demon.mdl            | models/monsters/demon/tris.mdl    | 4c73786e7cfb2083ca38cbc983cd6c4b |
  | progs/dog.mdl              | models/monsters/dog/tris.mdl      | e727fbc39acc652f812972612ce37565 |
  | progs/enforcer.mdl         | models/monsters/enforcer/tris.mdl | 136c265f96d6077ee3312c52e134529f |
