@@ -32,22 +32,22 @@ static int sound_search;
 // Stand
 static mframe_t demon_frames_stand [] =
 {
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
-	ai_stand, 0, NULL,
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
+	{ai_stand, 0, NULL},
 
-	ai_stand, 0, NULL
+	{ai_stand, 0, NULL},
 };
 mmove_t demon_move_stand = {0, 12, demon_frames_stand, NULL};
 
@@ -59,13 +59,13 @@ void demon_stand(edict_t *self)
 // Run
 static mframe_t demon_frames_run [] =
 {
-	ai_run, 20, NULL,
-	ai_run, 15, NULL,
-	ai_run, 36, NULL,
-	ai_run, 20, NULL,
+	{ai_run, 20, NULL},
+	{ai_run, 15, NULL},
+	{ai_run, 36, NULL},
+	{ai_run, 20, NULL},
 
-	ai_run, 15, NULL,
-	ai_run, 36, NULL
+	{ai_run, 15, NULL},
+	{ai_run, 36, NULL}
 };
 mmove_t demon_move_run = {21, 26, demon_frames_run, NULL};
 
@@ -150,20 +150,20 @@ void demon_roar(edict_t *self)
 // Attack
 static mframe_t demon_frames_jump [] =
 {
-	ai_charge,	0,	demon_roar,
-	ai_charge,	0,	NULL,
-	ai_charge,	0,	NULL,
-	ai_charge,	0,	DemonJump,
+	{ai_charge, 0, demon_roar},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, DemonJump},
 
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL,
-	ai_move,	0,	NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t demon_move_jump = {27, 38, demon_frames_jump, demon_run};
 
@@ -194,24 +194,24 @@ void DemonMelee(edict_t *self)
 // Melee
 static mframe_t demon_frames_melee [] =
 {
-	ai_charge, 4,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 0,	NULL,
-	ai_charge, 1,	NULL,
+	{ai_charge, 4, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 1, NULL},
 
-	ai_charge, 14,	DemonMelee,
-	ai_charge, 1,	NULL,
-	ai_charge, 6,	NULL,
-	ai_charge, 8,	NULL,
+	{ai_charge, 14, DemonMelee},
+	{ai_charge, 1, NULL},
+	{ai_charge, 6, NULL},
+	{ai_charge, 8, NULL},
 
-	ai_charge, 4,	NULL,
-	ai_charge, 2,	NULL,
-	ai_charge, 12,	DemonMelee,
-	ai_charge, 5,	NULL,
+	{ai_charge, 4, NULL},
+	{ai_charge, 2, NULL},
+	{ai_charge, 12, DemonMelee},
+	{ai_charge, 5, NULL},
 
-	ai_charge, 8,	NULL,
-	ai_charge, 4,	NULL,
-	ai_charge, 4,	NULL
+	{ai_charge, 8, NULL},
+	{ai_charge, 4, NULL},
+	{ai_charge, 4, NULL}
 };
 mmove_t demon_move_melee = {54, 68, demon_frames_melee, demon_run};
 
@@ -223,20 +223,20 @@ void demon_melee(edict_t *self)
 // Pain
 static mframe_t demon_frames_pain [] =
 {
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
-	ai_move, 0, NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0, NULL,
-	ai_move, 0, NULL
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
 };
 mmove_t demon_move_pain = {39, 44, demon_frames_pain, demon_run};
 
 void demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	// decino: No pain animations in Nightmare mode
-	if (skill->value == 3)
+	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (self->touch == DemonJumpTouch)
 		return;
@@ -263,17 +263,17 @@ void demon_dead(edict_t *self)
 // Death
 static mframe_t demon_frames_die [] =
 {
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
-	ai_move, 0,		NULL,
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL},
 
-	ai_move, 0,		NULL
+	{ai_move, 0, NULL}
 };
 mmove_t demon_move_die = {45, 53, demon_frames_die, demon_dead};
 
@@ -304,7 +304,7 @@ void demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 }
 
 // Sight
-void demon_sight(edict_t *self)
+void demon_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
