@@ -633,6 +633,14 @@ SV_SendClientMessages(void)
 		}
 	}
 
+	if (msglen > MAX_MSGLEN)
+	{
+		if (msglen > 5)
+		{
+			Com_Printf("Network protocol: %d\n", ((int*)(msgbuf + 1))[0]);
+		}
+	}
+
 	/* send a message to each connected client */
 	for (i = 0, c = svs.clients; i < maxclients->value; i++, c++)
 	{
