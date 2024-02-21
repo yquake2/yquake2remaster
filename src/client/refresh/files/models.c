@@ -682,11 +682,10 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		/* register all frames */
 		for (i = 0; i < num_frames; ++i)
 		{
+			int frame_type, j, frames_skip;
 			daliasframe_t *frame;
-			int frame_type, j;
 			dxtrivertx_t* poutvertx;
 			dtrivertx_t *pinvertx;
-
 
 			frame = (daliasframe_t *) ((byte *)pheader + ofs_frames + i * framesize);
 			frame->scale[0] = LittleFloat(pinmodel->scale[0]) / 0xFF;
@@ -702,14 +701,28 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			/* 0 = simple, !0 = group */
 			/* this program can't read models composed of group frames! */
 			frame_type = LittleLong(((int *)curr_pos)[0]);
-			curr_pos += sizeof(frame_type);
+			curr_pos += sizeof(int);
+
+			frames_skip = 1;
 
 			if (frame_type)
 			{
-				R_Printf(PRINT_ALL, "%s: model %s has unsupported frame type %d",
-						__func__, mod_name, frame_type);
-				return NULL;
+				frames_skip = LittleLong(((int *)curr_pos)[0]);
+				/* skip count of frames */
+				curr_pos += sizeof(int);
+				/* skip bboxmin, bouding box min */
+				curr_pos += sizeof(dtrivertx_t);
+				/* skip bboxmax, bouding box max */
+				curr_pos += sizeof(dtrivertx_t);
+
+				/* skip intervals */
+				curr_pos += frames_skip * sizeof(float);
+
+				R_Printf(PRINT_DEVELOPER,
+					"%s: model %s have used first one of %d subframes\n",
+					__func__, mod_name, frames_skip);
 			}
+
 			/* skip bboxmin, bouding box min */
 			curr_pos += sizeof(dtrivertx_t);
 			/* skip bboxmax, bouding box max */
@@ -723,16 +736,20 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			// verts are all 8 bit, so no swapping needed
 			for (j=0; j < num_xyz; j ++)
 			{
-				int k;
-
-				for (k=0; k < 3; k++)
-				{
-					poutvertx[j].v[k] = pinvertx[j].v[k] * 0xFF;
-				}
-
+				Mod_LoadFrames_VertMD2(poutvertx + j, pinvertx[j].v);
 				poutvertx[j].lightnormalindex = pinvertx[j].lightnormalindex;
 			}
 			curr_pos += sizeof(dtrivertx_t) * num_xyz;
+
+			/* next frames in frame group is unsupported */
+			curr_pos += (frames_skip - 1) * (
+				/* bouding box */
+				sizeof(dtrivertx_t) * 2 +
+				/* name */
+				16 +
+				/* verts */
+				sizeof(dtrivertx_t) * num_xyz
+			);
 		}
 	}
 
@@ -2329,12 +2346,12 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load
 			for (i = 0; i < pheader->num_skins; i++)
 			{
 				skins[i] = load_image(
-					(char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME,
+					(char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME,
 					images, pheader->skinwidth, pheader->skinwidth,
 					pheader->skinheight, pheader->skinheight,
 					pheader->skinheight * pheader->skinwidth,
 					it_skin, pheader->num_imgbit);
-				images += (pheader->skinheight * pheader->skinwidth * pheader->ofs_imgbit / 8);
+				images += (pheader->skinheight * pheader->skinwidth * pheader->num_imgbit / 8);
 			}
 		}
 		else
