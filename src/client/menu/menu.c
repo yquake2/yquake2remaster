@@ -90,10 +90,26 @@ int m_menudepth;
 static qboolean
 M_IsGame(const char *gamename)
 {
-	cvar_t *game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
+	cvar_t *game, *gametype;
+	const char* current_game;
 
-	if (strcmp(game->string, gamename) == 0
-		|| (strcmp(gamename, BASEDIRNAME) == 0 && strcmp(game->string, "") == 0))
+	game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
+	gametype = Cvar_Get("gametype", "", CVAR_LATCH | CVAR_SERVERINFO);
+
+	current_game = gametype->string;
+
+	/* copy game to gametype */
+	if (strcmp(game->string, gametype->string) && (
+			!strcmp(game->string, "ctf") ||
+			!strcmp(game->string, "rogue")
+	))
+	{
+		Cvar_Set("gametype", game->string);
+		current_game = game->string;
+	}
+
+	if (strcmp(current_game, gamename) == 0
+		|| (strcmp(gamename, BASEDIRNAME) == 0 && strcmp(current_game, "") == 0))
 	{
 		return true;
 	}
@@ -3117,6 +3133,13 @@ ModsApplyActionFunc(void *unused)
 
 		// called via command buffer so that any running server has time to shutdown
 		Cbuf_AddText(va("game %s\n", modnames[s_mods_list.curvalue]));
+
+		/* replace game type only if game changed to ctf/rogue */
+		if (!strcmp("ctf", modnames[s_mods_list.curvalue]) ||
+			!strcmp("rogue", modnames[s_mods_list.curvalue]))
+		{
+			Cbuf_AddText(va("gametype %s\n", modnames[s_mods_list.curvalue]));
+		}
 
 		// start the demo cycle in the new game directory
 		menu_startdemoloop = true;

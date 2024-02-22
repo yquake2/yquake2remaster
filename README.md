@@ -31,16 +31,16 @@ Monsters:
 
 Models support:
 
-| Format | Original Game   | Comments                                          |
-| ------ | --------------- | ------------------------------------------------- |
-| mdl    | Quake 1         | could be issues with textures                     |
-| md2    | Quake 2         | full support                                      |
-| md2    | Anachronox      | incorrect normals, does no suport tagged surfaces |
-| fm     | Heretic 2       | show all meshes,                                  |
-| dkm    | Daikatana DKM1  | unchecked with game                               |
-| dkm    | Daikatana DKM2  | unchecked with game, incorrect normals            |
-| md3    | Quake 3         | show all meshes, no tags support, unchecked, slow |
-| md5    | Doom 3/Quake 4  | requires md2 for skins, show all meshes, slow     |
+| Format | Original Game   | Frame vertex | Comments                                          |
+| ------ | --------------- | ------------ | ------------------------------------------------- |
+| mdl    | Quake 1         | 8 bit        | could be issues with textures                     |
+| md2    | Quake 2         | 8 bit        | full support                                      |
+| md2    | Anachronox      | 8/10/16 bit  | incorrect normals, does no suport tagged surfaces |
+| fm     | Heretic 2       | 8 bit        | show all meshes,                                  |
+| dkm    | Daikatana DKM1  | 8 bit        | unchecked with game                               |
+| dkm    | Daikatana DKM2  | 10 bit       | unchecked with game, incorrect normals            |
+| md3    | Quake 3         | 16 bit       | show all meshes, no tags support, unchecked, slow |
+| md5    | Doom 3/Quake 4  | float        | requires md2 for skins, show all meshes, slow     |
 
 All models support only single texture for all meshes and only up to 255 frames.
 
@@ -80,6 +80,7 @@ Bonus goals:
   * Use separete texture hi-color buffer for ui in soft render,
   * Convert map surface flag by game type,
   * Cleanup function declarations in game save code,
+  * Use 3 bytes vertex normal,
   * Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps.
 

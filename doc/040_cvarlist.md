@@ -247,6 +247,10 @@ Set `0` by default.
   spawned in maps (in fact, some official Ground Zero maps contain
   these entities). This cvar is set to 0 by default.
 
+* **game**: current game value, mod name and directory.
+
+* **gametype**: replace menu to different mod type without change mod name in game variable.
+
 * **nextdemo**: Defines the next command to run after maps from the
   `nextserver` list. By default this is set to the empty string.
 

@@ -43,7 +43,7 @@ CL_AddPacketEntities(frame_t *frame)
 	unsigned int effects, renderfx;
 
 	/* To distinguish baseq2, xatrix and rogue. */
-	cvar_t *game = Cvar_Get("game",  "", CVAR_LATCH | CVAR_SERVERINFO);
+	cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
 
 	/* bonus items rotate at a fixed rate */
 	autorotate = anglemod(cl.time * 0.1f);
@@ -314,7 +314,7 @@ CL_AddPacketEntities(frame_t *frame)
 			   something special */
 			if (renderfx & RF_SHELL_HALF_DAM)
 			{
-				if (strcmp(game->string, "rogue") == 0)
+				if (strcmp(gametype->string, "rogue") == 0)
 				{
 					/* ditch the half damage shell if any of red, blue, or double are on */
 					if (renderfx & (RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE))
@@ -326,7 +326,7 @@ CL_AddPacketEntities(frame_t *frame)
 
 			if (renderfx & RF_SHELL_DOUBLE)
 			{
-				if (strcmp(game->string, "rogue") == 0)
+				if (strcmp(gametype->string, "rogue") == 0)
 				{
 					/* lose the yellow shell if we have a red, blue, or green shell */
 					if (renderfx & (RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_GREEN))
