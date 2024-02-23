@@ -171,11 +171,15 @@ typedef unsigned char byte;
 
 /* per-level limits */
 #define MAX_CLIENTS 256             /* absolute limit */
-#define MAX_EDICTS 1024             /* must change protocol to increase more */
+#define MAX_EDICTS_OLD 1024
+#define MAX_EDICTS 8192             /* must change protocol to increase more */
 #define MAX_LIGHTSTYLES 256
-#define MAX_MODELS 256              /* these are sent over the net as bytes */
-#define MAX_SOUNDS 256              /* so they cannot be blindly increased */
-#define MAX_IMAGES 256
+#define MAX_MODELS_OLD 256
+#define MAX_MODELS 8192              /* these are sent over the net as bytes */
+#define MAX_SOUNDS_OLD 256
+#define MAX_SOUNDS 2048              /* so they cannot be blindly increased */
+#define MAX_IMAGES_OLD 256
+#define MAX_IMAGES 512
 #define MAX_ITEMS 256
 #define MAX_GENERAL (MAX_CLIENTS * 2)       /* general config strings */
 

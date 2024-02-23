@@ -35,7 +35,7 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 
-#define GAME_API_VERSION 3
+#define GAME_API_VERSION 4
 
 /* edict->svflags */
 #define SVF_NOCLIENT 0x00000001             /* don't send entity to clients, even if it has effects */
