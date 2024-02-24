@@ -8,6 +8,8 @@ Feel free to try this code but you mileage may vary.
 Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 https://github.com/yquake2/yquake2
 
+Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/releases).
+
 State:
  * GL1/GL3/GLES3/VK:
    * base1: no known issies
@@ -26,7 +28,7 @@ State:
    * mguhub: broken wall light, sometimes broken logic for surface fall in next maps
 
 Monsters:
-  * incorrect dead animation for Arachnoid
+  * incorrect dead animation for Arachnid
   * broken fire effect for Guardian
 
 Models support:
