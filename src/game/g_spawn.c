@@ -646,7 +646,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
  * returning the new position. ed should be
  * a properly initialized empty edict.
  */
-char *
+static char *
 ED_ParseEdict(char *data, edict_t *ent)
 {
 	qboolean init;

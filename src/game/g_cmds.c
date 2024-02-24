@@ -91,7 +91,7 @@ OnSameTeam(edict_t *ent1, edict_t *ent2)
 	return false;
 }
 
-void
+static void
 SelectNextItem(edict_t *ent, int itflags)
 {
 	gclient_t *cl;
@@ -145,7 +145,7 @@ SelectNextItem(edict_t *ent, int itflags)
 	cl->pers.selected_item = -1;
 }
 
-void
+static void
 SelectPrevItem(edict_t *ent, int itflags)
 {
 	gclient_t *cl;
@@ -1088,7 +1088,7 @@ Cmd_PutAway_f(edict_t *ent)
 	ent->client->update_chase = true;
 }
 
-int
+static int
 PlayerSort(void const *a, void const *b)
 {
 	int anum, bnum;

@@ -72,7 +72,7 @@ SP_func_areaportal(edict_t *ent)
 
 /* ===================================================== */
 
-void
+static void
 VelocityForDamage(int damage, vec3_t v)
 {
 	v[0] = 100.0 * crandom();

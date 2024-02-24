@@ -65,7 +65,7 @@ InitGameRules(void)
 	}
 }
 
-char *
+static char *
 FindSubstituteItem(edict_t *ent)
 {
 	int i;

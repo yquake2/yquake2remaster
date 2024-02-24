@@ -29,7 +29,7 @@
 
 #define MAX_IPFILTERS 1024
 
-void
+static void
 Svcmd_Test_f(void)
 {
 	gi.cprintf(NULL, PRINT_HIGH, "Svcmd_Test_f()\n");
@@ -186,7 +186,7 @@ SV_FilterPacket(char *from)
 	return (int)!filterban->value;
 }
 
-void
+static void
 SVCmd_AddIP_f(void)
 {
 	int i;
@@ -222,7 +222,7 @@ SVCmd_AddIP_f(void)
 	}
 }
 
-void
+static void
 SVCmd_RemoveIP_f(void)
 {
 	ipfilter_t f;
@@ -258,7 +258,7 @@ SVCmd_RemoveIP_f(void)
 	gi.cprintf(NULL, PRINT_HIGH, "Didn't find %s.\n", gi.argv(2));
 }
 
-void
+static void
 SVCmd_ListIP_f(void)
 {
 	int i;
@@ -275,7 +275,7 @@ SVCmd_ListIP_f(void)
 	}
 }
 
-void
+static void
 SVCmd_WriteIP_f(void)
 {
 	FILE *f;

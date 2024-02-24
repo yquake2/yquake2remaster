@@ -62,7 +62,7 @@ static edict_t *obstacle;
  *
  */
 
-edict_t *
+static edict_t *
 SV_TestEntityPosition(edict_t *ent)
 {
 	trace_t trace;
@@ -182,7 +182,7 @@ SV_Impact(edict_t *e1, trace_t *trace)
  *  1 = floor
  *  2 = step / wall
  */
-int
+static int
 ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
 	float backoff;
@@ -411,7 +411,7 @@ SV_AddGravity(edict_t *ent)
  * This leads to a lot of false block tests in SV_Push
  * if another bmodel is in the vicinity.
  */
-void
+static void
 RealBoundingBox(edict_t *ent, vec3_t mins, vec3_t maxs)
 {
 	vec3_t forward, left, up, f1, l1, u1;

@@ -252,7 +252,7 @@ Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 	targ->die(targ, inflictor, attacker, damage, point);
 }
 
-void
+static void
 SpawnDamage(int type, vec3_t origin, vec3_t normal)
 {
 	gi.WriteByte(svc_temp_entity);
@@ -282,7 +282,7 @@ SpawnDamage(int type, vec3_t origin, vec3_t normal)
  *      DAMAGE_BULLET			damage is from a bullet (used for ricochets)
  *      DAMAGE_NO_PROTECTION	kills godmode, armor, everything
  */
-int
+static int
 CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 		int damage, int dflags)
 {
@@ -425,7 +425,7 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 	return save;
 }
 
-int
+static int
 CheckArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 		int te_sparks, int dflags)
 {

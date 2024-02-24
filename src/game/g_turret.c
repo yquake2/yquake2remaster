@@ -34,7 +34,7 @@ void monster_use(edict_t *self, edict_t *other, edict_t *activator);
 qboolean FindTarget(edict_t *self);
 void SpawnTargetingSystem(edict_t *turret);
 
-void
+static void
 AnglesNormalize(vec3_t vec)
 {
 	while (vec[0] > 360)
@@ -58,7 +58,7 @@ AnglesNormalize(vec3_t vec)
 	}
 }
 
-float
+static float
 SnapToEights(float x)
 {
 	x *= 8.0;

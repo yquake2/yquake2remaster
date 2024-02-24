@@ -358,7 +358,7 @@ AngleMove_Calc(edict_t *ent, void (*func)(edict_t *))
  * change the speed for the next frame
  */
 
-void
+static void
 plat_CalcAcceleratedMove(moveinfo_t *moveinfo)
 {
 	float accel_dist;
@@ -396,7 +396,7 @@ plat_CalcAcceleratedMove(moveinfo_t *moveinfo)
 	moveinfo->decel_distance = decel_dist;
 }
 
-void
+static void
 plat_Accelerate(moveinfo_t *moveinfo)
 {
 	if (!moveinfo)
@@ -766,7 +766,7 @@ Touch_Plat_Center(edict_t *ent, edict_t *other, cplane_t *plane /* unsed */,
 	}
 }
 
-edict_t *
+static edict_t *
 plat_spawn_inside_trigger(edict_t *ent)
 {
 	edict_t *trigger;

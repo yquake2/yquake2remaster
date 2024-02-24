@@ -103,11 +103,11 @@ cvar_t *g_machinegun_norecoil;
 cvar_t *g_quick_weap;
 cvar_t *g_swap_speed;
 
-void G_RunFrame(void);
+static void G_RunFrame(void);
 
 /* =================================================================== */
 
-void
+static void
 ShutdownGame(void)
 {
 	gi.dprintf("==== ShutdownGame ====\n");
@@ -187,7 +187,7 @@ Com_Printf(const char *msg, ...)
 
 /* ====================================================================== */
 
-void
+static void
 ClientEndServerFrames(void)
 {
 	int i;
@@ -211,7 +211,7 @@ ClientEndServerFrames(void)
 /*
  * Returns the created target changelevel
  */
-edict_t *
+static edict_t *
 CreateTargetChangeLevel(char *map)
 {
 	edict_t *ent;
@@ -317,7 +317,7 @@ EndDMLevel(void)
 	}
 }
 
-void
+static void
 CheckNeedPass(void)
 {
 	int need;
@@ -411,7 +411,7 @@ CheckDMRules(void)
 	}
 }
 
-void
+static void
 ExitLevel(void)
 {
 	int i;
@@ -456,7 +456,7 @@ ExitLevel(void)
 /*
  * Advances the world by 0.1 seconds
  */
-void
+static void
 G_RunFrame(void)
 {
 	int i;
