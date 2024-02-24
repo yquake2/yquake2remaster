@@ -44,11 +44,51 @@ static mframe_t enforcer_frames_stand [] =
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 };
-mmove_t enforcer_move_stand = {0, 6, enforcer_frames_stand, NULL};
+mmove_t enforcer_move_stand = {
+	FRAME_stand1,
+	FRAME_stand7,
+	enforcer_frames_stand,
+	NULL
+};
 
-void enforcer_stand(edict_t *self)
+void
+enforcer_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &enforcer_move_stand;
+}
+
+// Walk
+static mframe_t enforcer_frames_walk [] =
+{
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL}
+};
+
+mmove_t enforcer_move_walk = {
+	FRAME_walk1,
+	FRAME_walk16,
+	enforcer_frames_walk,
+	NULL
+};
+
+void
+enforcer_walk(edict_t *self)
+{
+	self->monsterinfo.currentmove = &enforcer_move_walk;
 }
 
 // Run
@@ -64,14 +104,21 @@ static mframe_t enforcer_frames_run [] =
 	{ai_run, 7, NULL},
 	{ai_run, 11, NULL}
 };
-mmove_t enforcer_move_run = {23, 30, enforcer_frames_run, NULL};
+mmove_t enforcer_move_run = {
+	FRAME_run1,
+	FRAME_run8,
+	enforcer_frames_run,
+	NULL
+};
 
-void enforcer_run(edict_t *self)
+void
+enforcer_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &enforcer_move_run;
 }
 
-void enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == self->owner)
 	{
@@ -104,7 +151,8 @@ void enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	G_FreeEdict(self);
 }
 
-void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+static void
+fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t	*bolt;
 	trace_t	tr;
@@ -147,7 +195,8 @@ void fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed
 	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 }
 
-void FireEnforcerBolt(edict_t *self)
+static void
+FireEnforcerBolt(edict_t *self)
 {
 	vec3_t	forward, right;
 	vec3_t	start;
@@ -173,12 +222,18 @@ static mframe_t enforcer_frames_attack2 [] =
 	{ai_charge, 0, FireEnforcerBolt},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
-
+	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t enforcer_move_attack2 = {35, 40, enforcer_frames_attack2, enforcer_run};
+mmove_t enforcer_move_attack2 = {
+	FRAME_attack5,
+	FRAME_attack10,
+	enforcer_frames_attack2,
+	enforcer_run
+};
 
-void enforcer_attack_again(edict_t *self)
+static void
+enforcer_attack_again(edict_t *self)
 {
 	self->s.frame = 34;
 	self->monsterinfo.currentmove = &enforcer_move_attack2;
@@ -197,15 +252,22 @@ static mframe_t enforcer_frames_attack1 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t enforcer_move_attack1 = {31, 38, enforcer_frames_attack1, enforcer_attack_again};
+mmove_t enforcer_move_attack1 = {
+	FRAME_attack1,
+	FRAME_attack8,
+	enforcer_frames_attack1,
+	enforcer_attack_again
+};
 
-void enforcer_attack(edict_t *self)
+void
+enforcer_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &enforcer_move_attack1;
 }
 
 // Sight
-void enforcer_sight(edict_t *self, edict_t *other /* unused */)
+void
+enforcer_sight(edict_t *self, edict_t *other /* unused */)
 {
 	int r = (int)(random() * 4);
 
@@ -220,7 +282,8 @@ void enforcer_sight(edict_t *self, edict_t *other /* unused */)
 }
 
 // Search
-void enforcer_search(edict_t *self)
+void
+enforcer_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
@@ -233,7 +296,12 @@ static mframe_t enforcer_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain1 = {66, 69, enforcer_frames_pain1, enforcer_run};
+mmove_t enforcer_move_pain1 = {
+	FRAME_paina1,
+	FRAME_paina4,
+	enforcer_frames_pain1,
+	enforcer_run
+};
 
 // Pain (2)
 static mframe_t enforcer_frames_pain2 [] =
@@ -245,7 +313,12 @@ static mframe_t enforcer_frames_pain2 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain2 = {70, 74, enforcer_frames_pain2, enforcer_run};
+mmove_t enforcer_move_pain2 = {
+	FRAME_painb1,
+	FRAME_painb5,
+	enforcer_frames_pain2,
+	enforcer_run
+};
 
 // Pain (3)
 static mframe_t enforcer_frames_pain3 [] =
@@ -260,7 +333,12 @@ static mframe_t enforcer_frames_pain3 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain3 = {75, 82, enforcer_frames_pain3, enforcer_run};
+mmove_t enforcer_move_pain3 = {
+	FRAME_painc1,
+	FRAME_painc8,
+	enforcer_frames_pain3,
+	enforcer_run
+};
 
 // Pain (4)
 static mframe_t enforcer_frames_pain4 [] =
@@ -289,10 +367,16 @@ static mframe_t enforcer_frames_pain4 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain4 = {83, 101, enforcer_frames_pain4, enforcer_run};
+mmove_t enforcer_move_pain4 = {
+	FRAME_paind1,
+	FRAME_paind19,
+	enforcer_frames_pain4,
+	enforcer_run
+};
 
 // Pain
-void enforcer_pain(edict_t *self, edict_t *other /* unused */,
+void
+enforcer_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	float r;
@@ -330,7 +414,8 @@ void enforcer_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void enforcer_dead(edict_t *self)
+static void
+enforcer_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
@@ -361,7 +446,12 @@ static mframe_t enforcer_frames_death1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_death1 = {41, 54, enforcer_frames_death1, enforcer_dead};
+mmove_t enforcer_move_death1 = {
+	FRAME_death1,
+	FRAME_death14,
+	enforcer_frames_death1,
+	enforcer_dead
+};
 
 // Death (2)
 static mframe_t enforcer_frames_death2 [] =
@@ -380,10 +470,16 @@ static mframe_t enforcer_frames_death2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_death2 = {55, 65, enforcer_frames_death2, enforcer_dead};
+mmove_t enforcer_move_death2 = {
+	FRAME_fdeath1,
+	FRAME_fdeath11,
+	enforcer_frames_death2,
+	enforcer_dead
+};
 
 // Death
-void enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -412,7 +508,8 @@ void enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 		self->monsterinfo.currentmove = &enforcer_move_death2;
 }
 
-void SP_monster_enforcer(edict_t *self)
+void
+SP_monster_enforcer(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/enforcer/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -437,7 +534,7 @@ void SP_monster_enforcer(edict_t *self)
 	self->mass = 80;
 
 	self->monsterinfo.stand = enforcer_stand;
-	self->monsterinfo.walk = enforcer_run;
+	self->monsterinfo.walk = enforcer_walk;
 	self->monsterinfo.run = enforcer_run;
 	self->monsterinfo.attack = enforcer_attack;
 	self->monsterinfo.sight = enforcer_sight;
