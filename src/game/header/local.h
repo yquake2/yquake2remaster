@@ -1730,6 +1730,20 @@ void SP_info_teleport_destination(edict_t *ent);
 void CTFSetPowerUpEffect(edict_t *ent, int def);
 void DeathmatchScoreboard(edict_t *ent);
 
+qboolean Pickup_Adrenaline(edict_t * ent, edict_t * other);
+qboolean Pickup_Ammo(edict_t * ent , edict_t * other);
+qboolean Pickup_AncientHead(edict_t * ent, edict_t * other);
+qboolean Pickup_Armor(edict_t * ent, edict_t * other);
+qboolean Pickup_Bandolier(edict_t * ent, edict_t * other);
+qboolean Pickup_Doppleganger(edict_t * ent, edict_t * other);
+qboolean Pickup_Health(edict_t * ent, edict_t * other);
+qboolean Pickup_Key(edict_t * ent, edict_t * other);
+qboolean Pickup_Nuke(edict_t * ent, edict_t * other);
+qboolean Pickup_Pack(edict_t * ent, edict_t * other);
+qboolean Pickup_PowerArmor(edict_t * ent, edict_t * other);
+qboolean Pickup_Powerup(edict_t * ent, edict_t * other);
+qboolean Pickup_Sphere(edict_t * ent, edict_t * other);
+
 /*
  * Uncomment for check that exported functions declarations are same as in
  * implementation. (-Wmissing-prototypes )

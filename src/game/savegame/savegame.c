@@ -298,7 +298,7 @@ InitGame(void)
  * Called by WriteField1 and
  * WriteField2.
  */
-functionList_t *
+static functionList_t *
 GetFunctionByAddress(byte *adr)
 {
 	int i;
@@ -321,7 +321,7 @@ GetFunctionByAddress(byte *adr)
  * Called by WriteField1 and
  * WriteField2.
  */
-byte *
+static byte *
 FindFunctionByName(char *name)
 {
 	int i;
@@ -342,7 +342,7 @@ FindFunctionByName(char *name)
  * human readable definition of
  * a mmove_t struct by a pointer.
  */
-mmoveList_t *
+static mmoveList_t *
 GetMmoveByAddress(mmove_t *adr)
 {
 	int i;
@@ -363,7 +363,7 @@ GetMmoveByAddress(mmove_t *adr)
  * pointer to a mmove_t struct
  * by a human readable definition.
  */
-mmove_t *
+static mmove_t *
 FindMmoveByName(char *name)
 {
 	int i;
@@ -582,7 +582,7 @@ WriteField2(FILE *f, field_t *field, byte *base)
  * data is done in the functions
  * below
  */
-void
+static void
 ReadField(FILE *f, field_t *field, byte *base)
 {
 	void *p;
@@ -745,7 +745,7 @@ WriteClient(FILE *f, gclient_t *client)
 /*
  * Read the client struct from a file
  */
-void
+static void
 ReadClient(FILE *f, gclient_t *client, short save_ver)
 {
 	field_t *field;
@@ -1057,7 +1057,7 @@ WriteLevel(const char *filename)
  * into the memory. Called
  * by ReadLevel.
  */
-void
+static void
 ReadEdict(FILE *f, edict_t *ent)
 {
 	field_t *field;
@@ -1076,7 +1076,7 @@ ReadEdict(FILE *f, edict_t *ent)
  * data from a file.
  * Called by ReadLevel.
  */
-void
+static void
 ReadLevelLocals(FILE *f)
 {
 	field_t *field;
