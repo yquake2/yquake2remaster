@@ -28,7 +28,6 @@ int hint_paths_present;
 int num_hint_paths;
 
 qboolean face_wall(edict_t *self);
-qboolean monsterlost_checkhint2(edict_t *self);
 void HuntTarget(edict_t *self);
 
 qboolean
@@ -228,130 +227,6 @@ qboolean
 blocked_checknewenemy(edict_t *self)
 {
 	return false;
-}
-
-edict_t *
-hintpath_findstart(edict_t *ent)
-{
-	edict_t *e;
-	edict_t *last;
-	int field;
-
-	if (!ent)
-	{
-		return NULL;
-	}
-
-	if (ent->target) /* starting point */
-	{
-		last = world;
-		field = FOFS(targetname);
-		e = G_Find(NULL, field, ent->target);
-
-		while (e)
-		{
-			last = e;
-
-			if (!e->target)
-			{
-				break;
-			}
-
-			e = G_Find(NULL, field, e->target);
-		}
-	}
-	else /* end point */
-	{
-		last = world;
-		field = FOFS(target);
-		e = G_Find(NULL, field, ent->targetname);
-
-		while (e)
-		{
-			last = e;
-
-			if (!e->targetname)
-			{
-				break;
-			}
-
-			e = G_Find(NULL, field, e->targetname);
-		}
-	}
-
-	if (!(last->spawnflags & HINT_ENDPOINT))
-	{
-		return NULL;
-	}
-
-	if (last == world)
-	{
-		last = NULL;
-	}
-
-	return last;
-}
-
-edict_t *
-hintpath_other_end(edict_t *ent)
-{
-	edict_t *e;
-	edict_t *last;
-	int field;
-
-	if (!ent)
-	{
-		return NULL;
-	}
-
-	if (ent->target) /* starting point */
-	{
-		last = world;
-		field = FOFS(targetname);
-		e = G_Find(NULL, field, ent->target);
-
-		while (e)
-		{
-			last = e;
-
-			if (!e->target)
-			{
-				break;
-			}
-
-			e = G_Find(NULL, field, e->target);
-		}
-	}
-	else /* end point */
-	{
-		last = world;
-		field = FOFS(target);
-		e = G_Find(NULL, field, ent->targetname);
-
-		while (e)
-		{
-			last = e;
-
-			if (!e->targetname)
-			{
-				break;
-			}
-
-			e = G_Find(NULL, field, e->targetname);
-		}
-	}
-
-	if (!(last->spawnflags & HINT_ENDPOINT))
-	{
-		return NULL;
-	}
-
-	if (last == world)
-	{
-		last = NULL;
-	}
-
-	return last;
 }
 
 void

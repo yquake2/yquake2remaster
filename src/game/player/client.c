@@ -1527,7 +1527,7 @@ SelectFarthestDeathmatchSpawnPoint(void)
 	return spot;
 }
 
-edict_t *
+static edict_t *
 SelectDeathmatchSpawnPoint(void)
 {
 	if ((int)(dmflags->value) & DF_SPAWN_FARTHEST)
@@ -1540,7 +1540,7 @@ SelectDeathmatchSpawnPoint(void)
 	}
 }
 
-edict_t *
+static edict_t *
 SelectLavaCoopSpawnPoint(edict_t *ent)
 {
 	int index;
@@ -1646,7 +1646,7 @@ SelectLavaCoopSpawnPoint(edict_t *ent)
 	return NULL;
 }
 
-edict_t *
+static edict_t *
 SelectCoopSpawnPoint(edict_t *ent)
 {
 	int index;
@@ -2717,7 +2717,7 @@ ClientDisconnect(edict_t *ent)
  * pmove doesn't need to know
  * about passent and contentmask
  */
-trace_t
+static trace_t
 PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 {
 	if (pm_passent->health > 0)
@@ -2728,41 +2728,6 @@ PM_trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end)
 	{
 		return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID);
 	}
-}
-
-unsigned
-CheckBlock(void *b, int c)
-{
-	int v, i;
-
-	if (!b)
-	{
-		return 0;
-	}
-
-	v = 0;
-
-	for (i = 0; i < c; i++)
-	{
-		v += ((byte *)b)[i];
-	}
-
-	return v;
-}
-
-void
-PrintPmove(pmove_t *pm)
-{
-	unsigned c1, c2;
-
-	if (!pm)
-	{
-		return;
-	}
-
-	c1 = CheckBlock(&pm->s, sizeof(pm->s));
-	c2 = CheckBlock(&pm->cmd, sizeof(pm->cmd));
-	gi.dprintf("sv %3i:%i %i\n", pm->cmd.impulse, c1, c2);
 }
 
 /*
