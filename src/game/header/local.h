@@ -987,10 +987,10 @@ void M_ChangeYaw(edict_t *ent);
 
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);
+void SV_AddGravity(edict_t *ent);
 
 /* g_main.c */
 void SaveClientData(void);
-void FetchClientEntData(edict_t *ent);
 void EndDMLevel(void);
 
 /* g_chase.c */
@@ -1073,7 +1073,6 @@ void Tag_PlayerDeath(edict_t *targ, edict_t *inflictor, edict_t *attacker);
 void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 
 /* g_spawn.c */
-edict_t *CreateMonster(vec3_t origin, vec3_t angles, char *classname);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
 edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t mins,
@@ -1727,7 +1726,6 @@ void SP_trigger_teleport(edict_t *ent);
 void SP_info_teleport_destination(edict_t *ent);
 
 void CTFSetPowerUpEffect(edict_t *ent, int def);
-void DeathmatchScoreboard(edict_t *ent);
 
 qboolean Pickup_Adrenaline(edict_t * ent, edict_t * other);
 qboolean Pickup_Ammo(edict_t * ent , edict_t * other);

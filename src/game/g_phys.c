@@ -525,7 +525,7 @@ RealBoundingBox(edict_t *ent, vec3_t mins, vec3_t maxs)
 /*
  * Does not change the entities velocity at all
  */
-trace_t
+static trace_t
 SV_PushEntity(edict_t *ent, vec3_t push)
 {
 	trace_t trace;
@@ -608,7 +608,7 @@ retry:
  * Objects need to be moved back on a failed push,
  * otherwise riders would continue to slide.
  */
-qboolean
+static qboolean
 SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
 {
 	int i, e;

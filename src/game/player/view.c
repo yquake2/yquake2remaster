@@ -66,7 +66,7 @@ SV_CalcRoll(vec3_t angles, vec3_t velocity)
 /*
  * Handles color blends and view kicks
  */
-void
+static void
 P_DamageFeedback(edict_t *player)
 {
 	gclient_t *client;
@@ -530,7 +530,7 @@ SV_CalcGunOffset(edict_t *ent)
 	}
 }
 
-void
+static void
 SV_AddBlend(float r, float g, float b, float a, float *v_blend)
 {
 	float a2, a3;
@@ -755,7 +755,7 @@ SV_CalcBlend(edict_t *ent)
 	}
 }
 
-void
+static void
 P_FallingDamage(edict_t *ent)
 {
 	float delta;
@@ -877,7 +877,7 @@ P_FallingDamage(edict_t *ent)
 	}
 }
 
-void
+static void
 P_WorldEffects(void)
 {
 	qboolean breather;

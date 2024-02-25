@@ -191,7 +191,7 @@ ED_NewString(const char *string)
  * Takes a key/value pair and sets
  * the binary values in an edict
  */
-void
+static void
 ED_ParseField(const char *key, const char *value, edict_t *ent)
 {
 	field_t *f;
@@ -1075,7 +1075,7 @@ SP_worldspawn(edict_t *ent)
  *  CreateGroundMonster - this checks the volume and makes sure the floor under the volume is suitable
  */
 
-edict_t *
+static edict_t *
 CreateMonster(vec3_t origin, vec3_t angles, char *classname)
 {
 	edict_t *newEnt;

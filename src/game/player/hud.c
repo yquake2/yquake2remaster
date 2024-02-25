@@ -380,18 +380,6 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 }
 
 /*
- * Draw instead of help message.
- * Note that it isn't that hard to
- * overflow the 1400 byte message limit!
- */
-void
-DeathmatchScoreboard(edict_t *ent)
-{
-	DeathmatchScoreboardMessage(ent, ent->enemy);
-	gi.unicast(ent, true);
-}
-
-/*
  * Draw help computer.
  */
 void

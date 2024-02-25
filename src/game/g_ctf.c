@@ -1751,8 +1751,6 @@ CTFGrappleDrawCable(edict_t *self)
 	gi.multicast(self->s.origin, MULTICAST_PVS);
 }
 
-void SV_AddGravity(edict_t *ent);
-
 /*
  * pull the player toward the grapple
  */

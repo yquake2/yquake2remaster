@@ -1352,7 +1352,7 @@ SaveClientData(void)
 	}
 }
 
-void
+static void
 FetchClientEntData(edict_t *ent)
 {
 	if (!ent)
@@ -1880,7 +1880,7 @@ body_die(edict_t *self, edict_t *inflictor /* unused */,
 	}
 }
 
-void
+static void
 CopyToBodyQue(edict_t *ent)
 {
 	edict_t *body;
