@@ -1089,6 +1089,9 @@ qboolean CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 void DetermineBBox(char *classname, vec3_t mins, vec3_t maxs);
 void SpawnGrow_Spawn(vec3_t startpos, int size);
 void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
+void ThrowSmallStuff(edict_t *self, vec3_t point);
+void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+		vec3_t startpos, int hitsound, qboolean fade);
 
 /* p_client.c */
 void RemoveAttackingPainDaemons(edict_t *self);

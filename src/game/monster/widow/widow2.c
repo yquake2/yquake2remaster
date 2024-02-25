@@ -79,7 +79,7 @@ void ThrowWidowGibReal(edict_t *self, char *gibname, int damage, int type,
 		vec3_t startpos, qboolean large, int hitsound, qboolean fade);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
 		vec3_t startpos, int hitsound, qboolean fade);
-void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage, int type,
+static void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage, int type,
 		vec3_t startpos, qboolean fade);
 void WidowExplosion1(edict_t *self);
 void WidowExplosion2(edict_t *self);
@@ -1579,7 +1579,7 @@ ThrowWidowGib(edict_t *self, char *gibname, int damage, int type)
 	ThrowWidowGibReal(self, gibname, damage, type, NULL, false, 0, true);
 }
 
-void
+static void
 ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
 		int type, vec3_t startpos, qboolean fade)
 {
@@ -1754,7 +1754,7 @@ ThrowSmallStuff(edict_t *self, vec3_t point)
 			100, GIB_METALLIC, point, false);
 }
 
-void
+static void
 ThrowMoreStuff(edict_t *self, vec3_t point)
 {
 	int n;
