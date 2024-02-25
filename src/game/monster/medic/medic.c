@@ -242,7 +242,7 @@ medic_footstep(edict_t *self)
 }
 
 
-edict_t *
+static edict_t *
 medic_FindDeadMonster(edict_t *self)
 {
 	float radius;

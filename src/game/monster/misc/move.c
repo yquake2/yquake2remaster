@@ -207,7 +207,7 @@ IsBadAhead(edict_t *self, edict_t *bad, vec3_t move)
  * returned, and pr_global_struct->trace_normal
  * is set to the normal of the blocking wall
  */
-qboolean
+static qboolean
 SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 {
 	float dz;

@@ -64,7 +64,7 @@ crand(void)
 	return (rand() & 32767) * (2.0 / 32767) - 1;
 }
 
-edict_t *
+static edict_t *
 fixbot_FindDeadMonster(edict_t *self)
 {
 	edict_t *ent = NULL;

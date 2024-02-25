@@ -148,7 +148,7 @@ target_angle(edict_t *self)
 	return enemy_yaw;
 }
 
-int
+static int
 WidowTorso(edict_t *self)
 {
 	float enemy_yaw;

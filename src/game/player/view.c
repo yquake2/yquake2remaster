@@ -38,7 +38,7 @@ static float bobmove;
 static int bobcycle; /* odd cycles are right foot going forward */
 static float bobfracsin; /* sin(bobfrac*M_PI) */
 
-float
+static float
 SV_CalcRoll(vec3_t angles, vec3_t velocity)
 {
 	float sign;

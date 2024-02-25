@@ -320,7 +320,7 @@ shambler_pain(edict_t *self, edict_t *other /* unused */,
  * attacks
  */
 
-void
+static void
 ShamblerSaveLoc(edict_t* self)
 {
 	/* save for aiming the shot */
@@ -332,7 +332,7 @@ ShamblerSaveLoc(edict_t* self)
 	shambler_lightning_update(self);
 }
 
-void
+static void
 ShamblerCastLightning(edict_t* self)
 {
 	vec3_t			start, dir, end;
@@ -460,7 +460,7 @@ sham_smash10(edict_t* self)
 	}
 };
 
-void
+static void
 ShamClaw(edict_t* self)
 {
 	if (!self->enemy)
