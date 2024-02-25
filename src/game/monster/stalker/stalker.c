@@ -824,7 +824,7 @@ stalker_attack_melee(edict_t *self)
 	}
 }
 
-void
+static void
 calcJumpAngle(vec3_t start, vec3_t end, float velocity, vec3_t angles)
 {
 	float distV, distH;

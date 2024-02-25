@@ -834,7 +834,7 @@ SP_point_combat(edict_t *self)
  * Just for the debugging level.  Don't use
  */
 void
-TH_viewthing(edict_t *ent)
+viewthing_think(edict_t *ent)
 {
 	if (!ent)
 	{
@@ -871,7 +871,7 @@ SP_viewthing(edict_t *ent)
 	ent->s.modelindex = gi.modelindex("models/objects/banner/tris.md2");
 	gi.linkentity(ent);
 	ent->nextthink = level.time + 0.5;
-	ent->think = TH_viewthing;
+	ent->think = viewthing_think;
 	return;
 }
 

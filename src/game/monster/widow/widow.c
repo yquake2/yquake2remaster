@@ -1820,7 +1820,7 @@ WidowCalcSlots(edict_t *self)
 	}
 }
 
-void
+static void
 WidowPrecache(void)
 {
 	/* cache in all of the stalker stuff, widow stuff, spawngro stuff, gibs */

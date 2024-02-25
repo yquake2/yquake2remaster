@@ -808,8 +808,6 @@ void T_RadiusDamage(edict_t *inflictor, edict_t *attacker,
 		int mod);
 void T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
 		edict_t *ignore, float radius, int mod);
-void T_RadiusClassDamage(edict_t *inflictor, edict_t *attacker, float damage,
-		char *ignoreClass, float radius, int mod);
 void cleanupHealTarget(edict_t *ent);
 
 /* damage flags */
@@ -858,7 +856,6 @@ void monster_dabeam(edict_t *self);
 void monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
 
-void Widow2Precache(void);
 void M_droptofloor(edict_t *ent);
 void monster_think(edict_t *self);
 void walkmonster_start(edict_t *self);

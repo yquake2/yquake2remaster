@@ -1436,7 +1436,7 @@ Widow2_CheckAttack(edict_t *self)
 	return false;
 }
 
-void
+static void
 Widow2Precache(void)
 {
 	/* cache in all of the stalker stuff, widow stuff, spawngro stuff, gibs */
@@ -1539,7 +1539,7 @@ SP_monster_widow2(edict_t *self)
 	walkmonster_start(self);
 }
 
-void
+static void
 WidowVelocityForDamage(int damage, vec3_t v)
 {
 	v[0] = damage * crandom();
