@@ -27,8 +27,6 @@
  */
 
 extern byte P_DamageModifier ( edict_t * ent ) ;
-extern edict_t * CreateFlyMonster ( vec3_t origin , vec3_t angles , vec3_t mins , vec3_t maxs , char * classname ) ;
-extern edict_t * CreateGroundMonster ( vec3_t origin , vec3_t angles , vec3_t entMins , vec3_t entMaxs , char * classname , int height ) ;
 extern edict_t * CreateMonster ( vec3_t origin , vec3_t angles , char * classname ) ;
 extern edict_t * DoRandomRespawn ( edict_t * ent ) ;
 extern edict_t * Drop_Item ( edict_t * ent , gitem_t * item ) ;
@@ -208,7 +206,6 @@ extern void DBall_SpeedTouch ( edict_t * self , edict_t * other , cplane_t * pla
 extern void DeathmatchScoreboard(edict_t *ent) ;
 extern void DeathmatchScoreboardMessage ( edict_t * ent , edict_t * killer ) ;
 extern void Defender_Launch ( edict_t * self ) ;
-extern void DetermineBBox ( char * classname , vec3_t mins , vec3_t maxs ) ;
 extern void DoRespawn ( edict_t * ent ) ;
 extern void Door_Activate ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void Drop_Ammo ( edict_t * ent , gitem_t * item ) ;

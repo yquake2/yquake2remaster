@@ -1083,7 +1083,6 @@ qboolean FindSpawnPoint(vec3_t startpoint, vec3_t mins, vec3_t maxs,
 qboolean CheckSpawnPoint(vec3_t origin, vec3_t mins, vec3_t maxs);
 qboolean CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 		float height, float gravity);
-void DetermineBBox(char *classname, vec3_t mins, vec3_t maxs);
 void SpawnGrow_Spawn(vec3_t startpos, int size);
 void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
 void ThrowSmallStuff(edict_t *self, vec3_t point);

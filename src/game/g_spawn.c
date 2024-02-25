@@ -1099,6 +1099,31 @@ CreateMonster(vec3_t origin, vec3_t angles, char *classname)
 	return newEnt;
 }
 
+static void
+DetermineBBox(char *classname, vec3_t mins, vec3_t maxs)
+{
+	edict_t *newEnt;
+
+	if (!classname)
+	{
+		return;
+	}
+
+	newEnt = G_Spawn();
+
+	VectorCopy(vec3_origin, newEnt->s.origin);
+	VectorCopy(vec3_origin, newEnt->s.angles);
+	newEnt->classname = ED_NewString(classname);
+	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
+
+	ED_CallSpawn(newEnt);
+
+	VectorCopy(newEnt->mins, mins);
+	VectorCopy(newEnt->maxs, maxs);
+
+	G_FreeEdict(newEnt);
+}
+
 edict_t *
 CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname)
@@ -1349,32 +1374,6 @@ CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 	 * there (too far) if we're here, it's bad below */
 	return false;
 }
-
-void
-DetermineBBox(char *classname, vec3_t mins, vec3_t maxs)
-{
-	edict_t *newEnt;
-
-	if (!classname)
-	{
-		return;
-	}
-
-	newEnt = G_Spawn();
-
-	VectorCopy(vec3_origin, newEnt->s.origin);
-	VectorCopy(vec3_origin, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname);
-	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
-
-	ED_CallSpawn(newEnt);
-
-	VectorCopy(newEnt->mins, mins);
-	VectorCopy(newEnt->maxs, maxs);
-
-	G_FreeEdict(newEnt);
-}
-
 
 void
 spawngrow_think(edict_t *self)

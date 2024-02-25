@@ -467,11 +467,13 @@ CarrierSpawn(edict_t *self)
 		/* the second flier should be a kamikaze flyer */
 		if (mytime != 2)
 		{
-			ent = CreateMonster(spawnpoint, self->s.angles, "monster_flyer");
+			ent = CreateFlyMonster(spawnpoint, self->s.angles,
+				flyer_mins, flyer_maxs, "monster_flyer");
 		}
 		else
 		{
-			ent = CreateMonster(spawnpoint, self->s.angles, "monster_kamikaze");
+			ent = CreateFlyMonster(spawnpoint, self->s.angles,
+				flyer_mins, flyer_maxs, "monster_kamikaze");
 		}
 
 		if (!ent)
