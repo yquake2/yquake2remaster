@@ -30,10 +30,10 @@ static int sound_fall;
 static int sound_miss;
 static int sound_hit;
 
-void zombie_down(edict_t *self);
-void zombie_get_up_attempt(edict_t *self);
+static void zombie_down(edict_t *self);
+static void zombie_get_up_attempt(edict_t *self);
 
-// Stand
+/* Stand */
 static mframe_t zombie_frames_stand [] =
 {
 	{ai_stand, 0, NULL},
@@ -56,18 +56,19 @@ static mframe_t zombie_frames_stand [] =
 	{ai_stand, 0, NULL},
 };
 mmove_t zombie_move_stand = {
-	0,
-	14,
+	FRAME_stand1,
+	FRAME_stand15,
 	zombie_frames_stand,
 	NULL
 };
 
-void zombie_stand(edict_t *self)
+void
+zombie_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &zombie_move_stand;
 }
 
-// Run
+/* Run */
 static mframe_t zombie_frames_run[] =
 {
 	{ai_run, 1, NULL},
@@ -95,29 +96,74 @@ static mframe_t zombie_frames_run[] =
 };
 
 mmove_t zombie_move_run = {
-	34,
-	51,
+	FRAME_run1,
+	FRAME_run18,
 	zombie_frames_run,
 	NULL
 };
 
-void zombie_run(edict_t *self)
+void
+zombie_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &zombie_move_run;
 }
 
-// Sight
-void zombie_sight(edict_t *self, edict_t *other /* unused */)
+/* Walk */
+static mframe_t zombie_frames_walk[] =
+{
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL},
+	{ai_walk, 0, NULL}
+};
+
+mmove_t zombie_move_walk = {
+	FRAME_walk1,
+	FRAME_walk19,
+	zombie_frames_walk,
+	NULL
+};
+
+void
+zombie_walk(edict_t *self)
+{
+	self->monsterinfo.currentmove = &zombie_move_walk;
+}
+
+/* Sight */
+void
+zombie_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-void zombie_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+zombie_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	G_FreeEdict(ent);
 }
 
-void zombie_gib_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+zombie_gib_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == ent->owner)
 		return;
@@ -139,7 +185,8 @@ void zombie_gib_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t 
 	ent->touch = zombie_touch;
 }
 
-void fire_zombie_gib(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed)
+static void
+fire_zombie_gib(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed)
 {
 	edict_t	*gib;
 	vec3_t	dir;
@@ -177,7 +224,8 @@ void fire_zombie_gib(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int
 	gi.sound(self, CHAN_WEAPON, sound_fling, 1, ATTN_NORM, 0);
 }
 
-void FireZombieGib(edict_t *self)
+static void
+FireZombieGib(edict_t *self)
 {
 	vec3_t	start;
 	vec3_t	forward, right;
@@ -191,7 +239,7 @@ void FireZombieGib(edict_t *self)
 	fire_zombie_gib(self, start, aim, 10, 600);
 }
 
-// Attack (1)
+/* Attack (1) */
 static mframe_t zombie_frames_attack1 [] =
 {
 	{ai_charge, 0, NULL},
@@ -211,9 +259,15 @@ static mframe_t zombie_frames_attack1 [] =
 
 	{ai_charge, 0, FireZombieGib}
 };
-mmove_t zombie_move_attack1 = {52, 64, zombie_frames_attack1, zombie_run};
+mmove_t zombie_move_attack1 =
+{
+	FRAME_atta1,
+	FRAME_atta13,
+	zombie_frames_attack1,
+	zombie_run
+};
 
-// Attack (2)
+/* Attack (2) */
 static mframe_t zombie_frames_attack2 [] =
 {
 	{ai_charge, 0, NULL},
@@ -234,14 +288,15 @@ static mframe_t zombie_frames_attack2 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, FireZombieGib}
 };
-mmove_t zombie_move_attack2 = {
-	65,
-	78,
+mmove_t zombie_move_attack2 =
+{
+	FRAME_attb1,
+	FRAME_attb14,
 	zombie_frames_attack2,
 	zombie_run
 };
 
-// Attack (3)
+/* Attack (3) */
 static mframe_t zombie_frames_attack3 [] =
 {
 	{ai_charge, 0, NULL},
@@ -259,15 +314,17 @@ static mframe_t zombie_frames_attack3 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, FireZombieGib},
 };
-mmove_t zombie_move_attack3 = {
-	79,
-	90,
+mmove_t zombie_move_attack3 =
+{
+	FRAME_attc1,
+	FRAME_attc12,
 	zombie_frames_attack3,
 	zombie_run
 };
 
-// Attack
-void zombie_attack(edict_t *self)
+/* Attack */
+void
+zombie_attack(edict_t *self)
 {
 	float r = random();
 
@@ -311,29 +368,34 @@ static mframe_t zombie_frames_get_up [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_get_up = {
-	173,
-	191,
+mmove_t zombie_move_get_up =
+{
+	FRAME_paine12,
+	FRAME_paine30,
 	zombie_frames_get_up,
 	zombie_run
 };
 
-void zombie_pain1(edict_t *self)
+static void
+zombie_pain1(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 }
 
-void zombie_pain2(edict_t *self)
+static void
+zombie_pain2(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
 }
 
-void zombie_hit_floor(edict_t *self)
+static void
+zombie_hit_floor(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_fall, 1, ATTN_NORM, 0);
 }
 
-void zombie_get_up(edict_t *self)
+static void
+zombie_get_up(edict_t *self)
 {
 	VectorSet(self->maxs, 16, 16, 40);
 	self->takedamage = DAMAGE_YES;
@@ -348,26 +410,34 @@ void zombie_get_up(edict_t *self)
 	self->monsterinfo.currentmove = &zombie_move_get_up;
 }
 
-void zombie_start_fall(edict_t *self)
+static void
+zombie_start_fall(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
 }
 
-// Down
+/* Down */
 static mframe_t zombie_frames_get_up_attempt [] =
 {
 	{ai_move, 0, zombie_get_up_attempt}
 };
 
-mmove_t zombie_move_get_up_attempt = {173, 173, zombie_frames_get_up_attempt, NULL};
+mmove_t zombie_move_get_up_attempt =
+{
+	FRAME_paine12,
+	FRAME_paine12,
+	zombie_frames_get_up_attempt,
+	NULL
+};
 
-void zombie_get_up_attempt(edict_t *self)
+static void
+zombie_get_up_attempt(edict_t *self)
 {
 	static int down = 0;
 
 	zombie_down(self);
 
-	// Try getting up in 5 seconds
+	/* Try getting up in 5 seconds */
 	if (down >= 50)
 	{
 		down = 0;
@@ -380,14 +450,15 @@ void zombie_get_up_attempt(edict_t *self)
 	down++;
 }
 
-void zombie_down(edict_t *self)
+static void
+zombie_down(edict_t *self)
 {
 	self->takedamage = DAMAGE_NO;
 	self->health = 60;
 	VectorSet(self->maxs, 16, 16, 0);
 }
 
-// Pain (1)
+/* Pain (1) */
 static mframe_t zombie_frames_pain1 [] =
 {
 	{ai_move, 0, zombie_pain1},
@@ -405,9 +476,15 @@ static mframe_t zombie_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain1 = {91, 102, zombie_frames_pain1, zombie_run};
+mmove_t zombie_move_pain1 =
+{
+	FRAME_paina1,
+	FRAME_paina12,
+	zombie_frames_pain1,
+	zombie_run
+};
 
-// Pain (2)
+/* Pain (2) */
 static mframe_t zombie_frames_pain2 [] =
 {
 	{ai_move, 0, zombie_pain2},
@@ -445,9 +522,15 @@ static mframe_t zombie_frames_pain2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain2 = {103, 130, zombie_frames_pain2, zombie_run};
+mmove_t zombie_move_pain2 =
+{
+	FRAME_painb1,
+	FRAME_painb28,
+	zombie_frames_pain2,
+	zombie_run
+};
 
-// Pain (3)
+/* Pain (3) */
 static mframe_t zombie_frames_pain3 [] =
 {
 	{ai_move, 0, zombie_pain2},
@@ -473,9 +556,15 @@ static mframe_t zombie_frames_pain3 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain3 = {131, 148, zombie_frames_pain3, zombie_run};
+mmove_t zombie_move_pain3 =
+{
+	FRAME_painc1,
+	FRAME_painc18,
+	zombie_frames_pain3,
+	zombie_run
+};
 
-// Pain (4)
+/* Pain (4) */
 static mframe_t zombie_frames_pain4 [] =
 {
 	{ai_move, 0, zombie_pain1},
@@ -495,9 +584,15 @@ static mframe_t zombie_frames_pain4 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain4 = {149, 161, zombie_frames_pain4, zombie_run};
+mmove_t zombie_move_pain4 =
+{
+	FRAME_paind1,
+	FRAME_paind13,
+	zombie_frames_pain4,
+	zombie_run
+};
 
-// Pain (5)
+/* Pain (5) */
 static mframe_t zombie_frames_fall_start [] =
 {
 	{ai_move, 0, zombie_start_fall},
@@ -514,15 +609,17 @@ static mframe_t zombie_frames_fall_start [] =
 	{ai_move, 0, zombie_hit_floor},
 	{ai_move, 0, zombie_down}
 };
-mmove_t zombie_move_fall_start = {
-	162,
-	172,
+mmove_t zombie_move_fall_start =
+{
+	FRAME_paine1,
+	FRAME_paine11,
 	zombie_frames_fall_start,
 	zombie_get_up_attempt
 };
 
-// Pain
-void zombie_pain(edict_t *self, edict_t *other, float kick, int damage)
+/* Pain */
+void
+zombie_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	float r;
 	self->health = 60;
@@ -560,46 +657,70 @@ void zombie_pain(edict_t *self, edict_t *other, float kick, int damage)
 		return;
 	}
 
-	// decino: No pain animations in Nightmare mode
+	/* decino: No pain animations in Nightmare mode */
 	if (skill->value >= SKILL_HARDPLUS)
+	{
 		return;
+	}
+
 	r = random();
 
 	if (r < 0.25)
+	{
 		self->monsterinfo.currentmove = &zombie_move_pain1;
+	}
 	else if (r <  0.5)
+	{
 		self->monsterinfo.currentmove = &zombie_move_pain2;
+	}
 	else if (r <  0.75)
+	{
 		self->monsterinfo.currentmove = &zombie_move_pain3;
+	}
 	else
+	{
 		self->monsterinfo.currentmove = &zombie_move_pain4;
+	}
 }
 
 // Death
-void zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int n;
 
 	gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 	for (n = 0; n < 2; n++)
+	{
 		ThrowGib(self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
+	}
+
 	for (n = 0; n < 4; n++)
+	{
 		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+	}
+
 	ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
 	self->deadflag = DEAD_DEAD;
 }
 
-// Search
-void zombie_search(edict_t *self)
+/* Search */
+void
+zombie_search(edict_t *self)
 {
 	if (random() < 0.2)
+	{
 		gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	}
 	else
+	{
 		gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
+	}
 }
 
-void SP_monster_zombie(edict_t *self)
+void
+SP_monster_zombie(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/zombie/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -622,7 +743,7 @@ void SP_monster_zombie(edict_t *self)
 	self->mass = 60;
 
 	self->monsterinfo.stand = zombie_stand;
-	self->monsterinfo.walk = zombie_run;
+	self->monsterinfo.walk = zombie_walk;
 	self->monsterinfo.run = zombie_run;
 	self->monsterinfo.attack = zombie_attack;
 	self->monsterinfo.sight = zombie_sight;
