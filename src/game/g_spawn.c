@@ -404,7 +404,7 @@ G_FixTeams(void)
 	gi.dprintf("%i teams repaired\n", c);
 }
 
-void
+static void
 G_FindTeams(void)
 {
 	edict_t *e, *e2, *chain;

@@ -49,7 +49,6 @@ void stalker_jump_straightup(edict_t *self);
 void stalker_jump_wait_land(edict_t *self);
 void stalker_false_death(edict_t *self);
 void stalker_false_death_start(edict_t *self);
-qboolean stalker_ok_to_transition(edict_t *self);
 
 #define STALKER_ON_CEILING(ent) (ent->gravityVector[2] > 0 ? 1 : 0)
 
@@ -61,7 +60,7 @@ qboolean stalker_ok_to_transition(edict_t *self);
 extern qboolean SV_PointCloseEnough(edict_t *ent, vec3_t goal, float dist);
 extern void drawbbox(edict_t *self);
 
-qboolean
+static qboolean
 stalker_ok_to_transition(edict_t *self)
 {
 	trace_t trace;

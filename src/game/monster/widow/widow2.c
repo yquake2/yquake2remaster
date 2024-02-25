@@ -563,7 +563,7 @@ mmove_t widow2_move_spawn = {
 	NULL
 };
 
-qboolean
+static qboolean
 widow2_tongue_attack_ok(vec3_t start, vec3_t end, float range)
 {
 	vec3_t dir, angles;

@@ -479,7 +479,7 @@ parasite_pain(edict_t *self, edict_t *other /* unused */,
 	self->monsterinfo.currentmove = &parasite_move_pain1;
 }
 
-qboolean
+static qboolean
 parasite_drain_attack_ok(vec3_t start, vec3_t end)
 {
 	vec3_t dir, angles;
