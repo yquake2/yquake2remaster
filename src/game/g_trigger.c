@@ -42,7 +42,7 @@ void trigger_push_active(edict_t *self);
 void hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */);
 
-void
+static void
 InitTrigger(edict_t *self)
 {
 	if (!self)
