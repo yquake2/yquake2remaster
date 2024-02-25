@@ -51,6 +51,16 @@ InitGameRules(void)
 				DMGame.ChangeDamage = Tag_ChangeDamage;
 				break;
 
+			case RDM_DEATHBALL:
+				DMGame.GameInit = DBall_GameInit;
+				DMGame.ChangeKnockback = DBall_ChangeKnockback;
+				DMGame.ChangeDamage = DBall_ChangeDamage;
+				DMGame.ClientBegin = DBall_ClientBegin;
+				DMGame.SelectSpawnPoint = DBall_SelectSpawnPoint;
+				DMGame.PostInitSetup = DBall_PostInitSetup;
+				DMGame.CheckDMRules = DBall_CheckDMRules;
+				break;
+
 			/* reset gamerules if it's not a valid number */
 			default:
 				gamerules->value = 0;
