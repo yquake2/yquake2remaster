@@ -1030,7 +1030,9 @@ SCR_PlayCinematic(char *arg)
 		}
 
 		cin.plm_video = plm_create_with_memory(cin.raw_video, len, 0);
-		if (!cin.plm_video || !cin.plm_video->demux)
+		if (!cin.plm_video ||
+			!plm_probe(cin.plm_video, len) ||
+			!cin.plm_video->demux)
 		{
 			FS_FreeFile(cin.raw_video);
 			cin.raw_video = NULL;
