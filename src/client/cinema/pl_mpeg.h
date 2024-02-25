@@ -1785,8 +1785,6 @@ int plm_demux_has_headers(plm_demux_t *self) {
 		plm_buffer_skip(self->buffer, 5); // misc flags
 		self->num_video_streams = plm_buffer_read(self->buffer, 5);
 
-		/* hack for heretic2 */
-		self->num_video_streams = 1;
 		self->has_system_header = TRUE;
 	}
 
