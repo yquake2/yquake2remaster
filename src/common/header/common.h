@@ -120,7 +120,7 @@ void MSG_WriteDeltaUsercmd(sizebuf_t *sb, struct usercmd_s *from,
 		struct usercmd_s *cmd);
 void MSG_WriteDeltaEntity(struct entity_state_s *from,
 		struct entity_state_s *to, sizebuf_t *msg,
-		qboolean force, qboolean newentity);
+		qboolean force, qboolean newentity, int protocol);
 void MSG_WriteDir(sizebuf_t *sb, vec3_t vector);
 
 void MSG_BeginReading(sizebuf_t *sb);
@@ -180,11 +180,13 @@ void Info_Print(char *s);
 /* Quake 2 Demo */
 #define PROTOCOL_DEMO_VERSION 31
 /* Quake 2 Network Release */
-#define PROTOCOL_VERSION 34
+#define PROTOCOL_RR97_VERSION 34
 /* ReRelease demo files */
 #define PROTOCOL_RR22_VERSION 2022
 /* ReRelease network protocol */
 #define PROTOCOL_RR23_VERSION 2023
+/* Quake 2 Customized Network Release */
+#define PROTOCOL_VERSION 2024
 
 /* ========================================= */
 

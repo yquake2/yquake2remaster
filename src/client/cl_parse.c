@@ -143,24 +143,51 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
-	if (bits & U_MODEL)
+	if ((cls.serverProtocol == PROTOCOL_RELEASE_VERSION) ||
+		(cls.serverProtocol == PROTOCOL_DEMO_VERSION) ||
+		(cls.serverProtocol == PROTOCOL_RR97_VERSION))
 	{
-		to->modelindex = MSG_ReadByte(&net_message);
-	}
+		if (bits & U_MODEL)
+		{
+			to->modelindex = MSG_ReadByte(&net_message);
+		}
 
-	if (bits & U_MODEL2)
-	{
-		to->modelindex2 = MSG_ReadByte(&net_message);
-	}
+		if (bits & U_MODEL2)
+		{
+			to->modelindex2 = MSG_ReadByte(&net_message);
+		}
 
-	if (bits & U_MODEL3)
-	{
-		to->modelindex3 = MSG_ReadByte(&net_message);
-	}
+		if (bits & U_MODEL3)
+		{
+			to->modelindex3 = MSG_ReadByte(&net_message);
+		}
 
-	if (bits & U_MODEL4)
+		if (bits & U_MODEL4)
+		{
+			to->modelindex4 = MSG_ReadByte(&net_message);
+		}
+	}
+	else
 	{
-		to->modelindex4 = MSG_ReadByte(&net_message);
+		if (bits & U_MODEL)
+		{
+			to->modelindex = MSG_ReadShort(&net_message);
+		}
+
+		if (bits & U_MODEL2)
+		{
+			to->modelindex2 = MSG_ReadShort(&net_message);
+		}
+
+		if (bits & U_MODEL3)
+		{
+			to->modelindex3 = MSG_ReadShort(&net_message);
+		}
+
+		if (bits & U_MODEL4)
+		{
+			to->modelindex4 = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (bits & U_FRAME8)
@@ -689,7 +716,7 @@ CL_ParseFrame(void)
 	cl.frame.servertime = cl.frame.serverframe * 100;
 
 	/* BIG HACK to let old demos continue to work */
-	if (cls.serverProtocol != 26)
+	if (cls.serverProtocol != PROTOCOL_RELEASE_VERSION)
 	{
 		cl.surpressCount = MSG_ReadByte(&net_message);
 	}
@@ -843,9 +870,10 @@ CL_ParseServerData(void)
 	if (Com_ServerState() && (
 		(i == PROTOCOL_RELEASE_VERSION) ||
 		(i == PROTOCOL_DEMO_VERSION) ||
-		(i == PROTOCOL_VERSION) ||
+		(i == PROTOCOL_RR97_VERSION) ||
 		(i == PROTOCOL_RR22_VERSION) ||
-		(i == PROTOCOL_RR23_VERSION)))
+		(i == PROTOCOL_RR23_VERSION) ||
+		(i == PROTOCOL_VERSION)))
 	{
 		Com_Printf("Network protocol: ");
 		switch (i)
@@ -856,7 +884,7 @@ CL_ParseServerData(void)
 			case PROTOCOL_DEMO_VERSION:
 				Com_Printf("Quake 2 Release Demo\n");
 				break;
-			case PROTOCOL_VERSION:
+			case PROTOCOL_RR97_VERSION:
 				Com_Printf("Quake 2\n");
 				break;
 			case PROTOCOL_RR22_VERSION:
@@ -864,6 +892,9 @@ CL_ParseServerData(void)
 				break;
 			case PROTOCOL_RR23_VERSION:
 				Com_Printf("ReRelease Quake 2\n");
+				break;
+			case PROTOCOL_VERSION:
+				Com_Printf("ReRelease Quake 2 Custom version\n");
 				break;
 			default:
 				Com_Printf("Unknown protocol version\n");

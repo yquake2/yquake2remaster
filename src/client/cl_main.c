@@ -247,7 +247,7 @@ CL_Record_f(void)
 		MSG_WriteByte(&buf, svc_spawnbaseline);
 
 		MSG_WriteDeltaEntity(&nullstate, &cl_entities[i].baseline,
-				&buf, true, true);
+				&buf, true, true, PROTOCOL_VERSION);
 	}
 
 	MSG_WriteByte(&buf, svc_stufftext);

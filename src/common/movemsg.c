@@ -433,7 +433,8 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		entity_state_t *to,
 		sizebuf_t *msg,
 		qboolean force,
-		qboolean newentity)
+		qboolean newentity,
+		int protocol)
 {
 	int bits;
 
@@ -644,24 +645,51 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		MSG_WriteByte(msg, to->number);
 	}
 
-	if (bits & U_MODEL)
+	if ((protocol == PROTOCOL_RELEASE_VERSION) ||
+		(protocol == PROTOCOL_DEMO_VERSION) ||
+		(protocol == PROTOCOL_RR97_VERSION))
 	{
-		MSG_WriteByte(msg, to->modelindex);
-	}
+		if (bits & U_MODEL)
+		{
+			MSG_WriteByte(msg, to->modelindex);
+		}
 
-	if (bits & U_MODEL2)
-	{
-		MSG_WriteByte(msg, to->modelindex2);
-	}
+		if (bits & U_MODEL2)
+		{
+			MSG_WriteByte(msg, to->modelindex2);
+		}
 
-	if (bits & U_MODEL3)
-	{
-		MSG_WriteByte(msg, to->modelindex3);
-	}
+		if (bits & U_MODEL3)
+		{
+			MSG_WriteByte(msg, to->modelindex3);
+		}
 
-	if (bits & U_MODEL4)
+		if (bits & U_MODEL4)
+		{
+			MSG_WriteByte(msg, to->modelindex4);
+		}
+	}
+	else
 	{
-		MSG_WriteByte(msg, to->modelindex4);
+		if (bits & U_MODEL)
+		{
+			MSG_WriteShort(msg, to->modelindex);
+		}
+
+		if (bits & U_MODEL2)
+		{
+			MSG_WriteShort(msg, to->modelindex2);
+		}
+
+		if (bits & U_MODEL3)
+		{
+			MSG_WriteShort(msg, to->modelindex3);
+		}
+
+		if (bits & U_MODEL4)
+		{
+			MSG_WriteShort(msg, to->modelindex4);
+		}
 	}
 
 	if (bits & U_FRAME8)
