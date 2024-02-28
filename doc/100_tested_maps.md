@@ -8,9 +8,6 @@
 
 ## Quake2 ReRelease
 
-Notes:
- * mgu5m2: server code: Too many models 256 (226 inline models)
-
  | map                            | gl1.4  | gl3/gles3 | gl4.6  | vk     | soft        |
  | ------------------------------ | ------ | --------- | ------ | ------ | ----------- |
  | badlands.bsp                   | OK     | N/A       | N/A    | OK     | N/A         |
@@ -80,7 +77,7 @@ Notes:
  | mgu4m3.bsp                     | OK     | N/A       | N/A    | OK     | N/A         |
  | mgu4trial.bsp                  | OK     | N/A       | N/A    | OK     | N/A         |
  | mgu5m1.bsp                     | OK     | N/A       | N/A    | OK     | N/A         |
- | mgu5m2.bsp                     | B      | N/A       | N/A    | B      | N/A         |
+ | mgu5m2.bsp                     | OK     | N/A       | N/A    | OK     | N/A         |
  | mgu5m3.bsp                     | OK     | N/A       | N/A    | OK     | N/A         |
  | mgu5trial.bsp                  | OK     | N/A       | N/A    | OK     | N/A         |
  | mgu6m1.bsp                     | OK     | N/A       | N/A    | OK     | N/A         |
