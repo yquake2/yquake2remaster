@@ -75,6 +75,7 @@ SV_New_f(void)
 	gamedir = (char *)Cvar_VariableString("gamedir");
 
 	/* send the serverdata */
+	sv_client->protocol = PROTOCOL_VERSION;
 	MSG_WriteByte(&sv_client->netchan.message, svc_serverdata);
 	MSG_WriteLong(&sv_client->netchan.message, PROTOCOL_VERSION);
 	MSG_WriteLong(&sv_client->netchan.message, svs.spawncount);
@@ -201,7 +202,7 @@ SV_Baselines_f(void)
 			MSG_WriteByte(&sv_client->netchan.message, svc_spawnbaseline);
 			MSG_WriteDeltaEntity(&nullstate, base,
 					&sv_client->netchan.message,
-					true, true);
+					true, true, sv_client->protocol);
 		}
 
 		start++;

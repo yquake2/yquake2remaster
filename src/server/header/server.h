@@ -144,6 +144,7 @@ typedef struct client_s
 	int challenge;                      /* challenge of this user, randomly generated */
 
 	netchan_t netchan;
+	int protocol;
 } client_t;
 
 typedef struct

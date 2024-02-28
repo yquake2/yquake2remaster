@@ -28,8 +28,9 @@ State:
    * mguhub: broken wall light, sometimes broken logic for surface fall in next maps
 
 Monsters:
-  * incorrect dead animation for Arachnid
-  * broken fire effect for Guardian
+  * incorrect dead animation for Arachnid,
+  * broken fire effect for Guardian,
+  * incorrect skin in soft render for Wizard mdl model.
 
 Models support:
 
@@ -74,6 +75,7 @@ Goals (none of it finished):
   * md5 improve load speed,
   * Single player support,
   * support surface flags for Daikatana, Heretic 2, Anachronox,
+  * support Anachronox pak format,
   * modified ReRelease game code support with removed KEX only related code.
 
 Bonus goals:

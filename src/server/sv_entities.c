@@ -37,7 +37,8 @@ static YQ2_ALIGNAS_TYPE(int32_t) byte fatpvs[65536 / 8];
  * Writes a delta update of an entity_state_t list to the message.
  */
 static void
-SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
+SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
+	int protocol)
 {
 	entity_state_t *oldent, *newent;
 	int oldindex, newindex;
@@ -98,7 +99,7 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 			   note that players are always 'newentities', this
 			   updates their oldorigin always and prevents warping */
 			MSG_WriteDeltaEntity(oldent, newent, msg,
-					false, newent->number <= maxclients->value);
+					false, newent->number <= maxclients->value, protocol);
 			oldindex++;
 			newindex++;
 			continue;
@@ -107,7 +108,8 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 		if (newnum < oldnum)
 		{
 			/* this is a new entity, send it from the baseline */
-			MSG_WriteDeltaEntity(&sv.baselines[newnum], newent, msg, true, true);
+			MSG_WriteDeltaEntity(&sv.baselines[newnum], newent, msg,
+				true, true, protocol);
 			newindex++;
 			continue;
 		}
@@ -432,7 +434,7 @@ SV_WriteFrameToClient(client_t *client, sizebuf_t *msg)
 	SV_WritePlayerstateToClient(oldframe, frame, msg);
 
 	/* delta encode the entities */
-	SV_EmitPacketEntities(oldframe, frame, msg);
+	SV_EmitPacketEntities(oldframe, frame, msg, client->protocol);
 }
 
 /*
@@ -705,7 +707,8 @@ SV_RecordDemoMessage(void)
 			(ent->s.modelindex || ent->s.effects || ent->s.sound ||
 			 ent->s.event) && !(ent->svflags & SVF_NOCLIENT))
 		{
-			MSG_WriteDeltaEntity(&nostate, &ent->s, &buf, false, true);
+			MSG_WriteDeltaEntity(&nostate, &ent->s, &buf,
+				false, true, PROTOCOL_VERSION);
 		}
 
 		e++;

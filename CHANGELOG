@@ -1,3 +1,13 @@
+Quake 2 8.31RR5:
+- md3 models support,
+- initial md2 Anachronox models support,
+- add quake 1 monsters support: army, demon, dog, enforcer, fish, hknight,
+  knight, ogre, shalrath, tarbaby, wizard, zombie,
+- fix for Shambler weapon,
+- mdl model load fix for grouped frames,
+- fix optional embeded mpeg decoder,
+- initial cleanup game functions export list.
+
 Quake 2 8.31RR4:
 - remove modle skin count limit,
 - use short instead byte in frame verts
