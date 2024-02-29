@@ -26,7 +26,7 @@
 
 #include "header/local.h"
 
-image_t gltextures[MAX_GLTEXTURES];
+image_t gltextures[MAX_TEXTURES];
 int numgltextures;
 static int image_max = 0;
 int base_textureid; /* gltextures[i] = base_textureid+i */
@@ -367,7 +367,8 @@ R_ImageList_f(void)
 			"Total texel count (not counting mipmaps): %i\n",
 			texels);
 	freeup = R_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
 /*
@@ -892,9 +893,9 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 	if (i == numgltextures)
 	{
-		if (numgltextures == MAX_GLTEXTURES)
+		if (numgltextures == MAX_TEXTURES)
 		{
-			Com_Error(ERR_DROP, "%s: load %s is failed MAX_GLTEXTURES",
+			Com_Error(ERR_DROP, "%s: load %s is failed MAX_TEXTURES",
 				__func__, name);
 		}
 
@@ -1170,7 +1171,7 @@ R_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numgltextures + used) < MAX_GLTEXTURES;
+	return (numgltextures + used) < MAX_TEXTURES;
 }
 
 void

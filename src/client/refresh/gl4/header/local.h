@@ -301,8 +301,6 @@ typedef struct image_s
 
 } gl4image_t;
 
-enum {MAX_GL4TEXTURES = 1024};
-
 // include this down here so it can use gl4image_t
 #include "model.h"
 

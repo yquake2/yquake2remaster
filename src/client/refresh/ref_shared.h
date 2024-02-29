@@ -86,7 +86,10 @@ typedef enum
 #define MAX_LBM_HEIGHT 480
 #define DEFAULT_NOLERP_LIST "pics/conchars.* pics/ch1.* pics/ch2. pics/ch3.*"
 #define DEFAULT_LMSHIFT 4
-#define MAX_MOD_KNOWN 512
+#define BACKFACE_EPSILON	0.01
+
+#define MAX_MOD_KNOWN (MAX_MODELS * 2)
+#define MAX_TEXTURES (MAX_IMAGES * 4)
 
 extern void R_Printf(int level, const char* msg, ...) PRINTF_ATTR(2, 3);
 
@@ -300,9 +303,9 @@ typedef struct bspxlgsamp_s
 
 typedef struct bspxlgleaf_s
 {
-		int mins[3];
-		int size[3];
-		bspxlgsamp_t *rgbvalues;
+	int mins[3];
+	int size[3];
+	bspxlgsamp_t *rgbvalues;
 } bspxlgleaf_t;
 
 typedef struct

@@ -45,7 +45,7 @@ glmode_t modes[] = {
 int gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int gl_filter_max = GL_LINEAR;
 
-gl4image_t gl4textures[MAX_GL4TEXTURES];
+gl4image_t gl4textures[MAX_TEXTURES];
 int numgl4textures = 0;
 static int image_max = 0;
 
@@ -413,9 +413,9 @@ GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
 
 	if (i == numgl4textures)
 	{
-		if (numgl4textures == MAX_GL4TEXTURES)
+		if (numgl4textures == MAX_TEXTURES)
 		{
-			Com_Error(ERR_DROP, "MAX_GLTEXTURES");
+			Com_Error(ERR_DROP, "MAX_TEXTURES");
 		}
 
 		numgl4textures++;
@@ -739,7 +739,7 @@ GL4_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numgl4textures + used) < MAX_GL4TEXTURES;
+	return (numgl4textures + used) < MAX_TEXTURES;
 }
 
 void
@@ -849,5 +849,6 @@ GL4_ImageList_f(void)
 
 	R_Printf(PRINT_ALL, "Total texel count (not counting mipmaps): %i\n", texels);
 	freeup = GL4_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }

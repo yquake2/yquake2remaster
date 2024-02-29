@@ -28,7 +28,7 @@
 #include "header/local.h"
 
 YQ2_ALIGNAS_TYPE(int) static byte mod_novis[MAX_MAP_LEAFS / 8];
-gl4model_t mod_known[MAX_MOD_KNOWN];
+static gl4model_t mod_known[MAX_MOD_KNOWN];
 static int mod_numknown;
 static int mod_max = 0;
 int registration_sequence;

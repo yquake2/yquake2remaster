@@ -22,7 +22,7 @@
 
 #include "header/local.h"
 
-image_t		vktextures[MAX_VKTEXTURES];
+image_t		vktextures[MAX_TEXTURES];
 int		numvktextures = 0;
 static int		img_loaded = 0;
 static int		image_max = 0;
@@ -631,7 +631,8 @@ void	Vk_ImageList_f (void)
 	}
 	R_Printf(PRINT_ALL, "Total texel count (not counting mipmaps): %i in %d images\n", texels, img_loaded);
 	freeup = Vk_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
 typedef struct
@@ -1081,8 +1082,8 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (i == numvktextures)
 		{
-			if (numvktextures == MAX_VKTEXTURES)
-				Com_Error(ERR_DROP, "%s: MAX_VKTEXTURES", __func__);
+			if (numvktextures == MAX_TEXTURES)
+				Com_Error(ERR_DROP, "%s: MAX_TEXTURES", __func__);
 			numvktextures++;
 		}
 		image = &vktextures[i];
@@ -1281,7 +1282,7 @@ Vk_ImageHasFreeSpace(void)
 	}
 
 	/* should same size of free slots as currently used */
-	return (img_loaded + used) < MAX_VKTEXTURES;
+	return (img_loaded + used) < MAX_TEXTURES;
 }
 
 /*

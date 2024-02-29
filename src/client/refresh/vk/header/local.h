@@ -71,18 +71,13 @@ typedef struct image_s
 	qvktexture_t vk_texture;            /* Vulkan texture handle */
 } image_t;
 
-#define		MAX_VKTEXTURES	1024
-
 //===================================================================
 
 #include "model.h"
 
-#define BACKFACE_EPSILON	0.01
-
-
 //====================================================
 
-extern	image_t		vktextures[MAX_VKTEXTURES];
+extern	image_t		vktextures[MAX_TEXTURES];
 extern	int			numvktextures;
 
 extern	image_t		*r_notexture;

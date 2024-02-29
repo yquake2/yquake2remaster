@@ -21,9 +21,8 @@
 
 #include "header/local.h"
 
-#define	MAX_RIMAGES	1024
 static image_t		*r_whitetexture_mip = NULL;
-static image_t		r_images[MAX_RIMAGES];
+static image_t		r_images[MAX_TEXTURES];
 static int		numr_images;
 static int		image_max = 0;
 
@@ -82,7 +81,8 @@ R_ImageList_f (void)
 	}
 	R_Printf(PRINT_ALL, "Total texel count: %i\n", texels);
 	freeup = R_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
 //=======================================================
@@ -111,7 +111,7 @@ R_FindFreeImage(char *name)
 
 	if (i == numr_images)
 	{
-		if (numr_images == MAX_RIMAGES)
+		if (numr_images == MAX_TEXTURES)
 			Com_Error(ERR_DROP, "%s: Max images", __func__);
 		numr_images++;
 	}
@@ -627,7 +627,7 @@ R_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numr_images + used) < MAX_RIMAGES;
+	return (numr_images + used) < MAX_TEXTURES;
 }
 
 static struct texture_buffer {

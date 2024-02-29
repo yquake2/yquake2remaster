@@ -60,12 +60,10 @@
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS 1152
 #define TEXNUM_IMAGES 1153
-#define MAX_GLTEXTURES 1024
 #define MAX_SCRAPS 1
 #define BLOCK_WIDTH 256
 #define BLOCK_HEIGHT 256
 #define REF_VERSION "Yamagi Quake II OpenGL Refresher"
-#define BACKFACE_EPSILON 0.01
 #define MAX_LIGHTMAPS 256
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
@@ -121,7 +119,7 @@ typedef struct
 	float r, g, b;
 } glvert_t;
 
-extern image_t gltextures[MAX_GLTEXTURES];
+extern image_t gltextures[MAX_TEXTURES];
 extern int numgltextures;
 
 extern image_t *r_notexture;

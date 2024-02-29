@@ -309,8 +309,6 @@ typedef struct image_s
 
 } gl3image_t;
 
-enum {MAX_GL3TEXTURES = 1024};
-
 // include this down here so it can use gl3image_t
 #include "model.h"
 

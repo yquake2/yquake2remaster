@@ -160,8 +160,6 @@ extern oldrefdef_t	r_refdef;
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
 
-#define BACKFACE_EPSILON	0.01
-
 #define NEAR_CLIP	0.01
 
 #define ALIAS_Z_CLIP_PLANE	4

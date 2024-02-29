@@ -37,9 +37,7 @@ static msurface_t *gl4_alpha_surfaces;
 
 gl4lightmapstate_t gl4_lms;
 
-#define BACKFACE_EPSILON 0.01
-
-extern gl4image_t gl4textures[MAX_GL4TEXTURES];
+extern gl4image_t gl4textures[MAX_TEXTURES];
 extern int numgl4textures;
 
 void GL4_SurfInit(void)
