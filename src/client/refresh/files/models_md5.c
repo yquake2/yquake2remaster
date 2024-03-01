@@ -328,10 +328,10 @@ AllocateFrames(md5_model_t *anim)
 	}
 }
 
-static const char *
-get_line(char *buff, const char *curr_buff, qboolean newline)
+static char *
+get_line(char **buff, char *curr_buff, qboolean newline)
 {
-	const char *startline, *endline;
+	char *startline, *endline;
 
 	curr_buff += strspn(curr_buff, " \t\n");
 
@@ -359,8 +359,8 @@ get_line(char *buff, const char *curr_buff, qboolean newline)
 		curr_buff += len;
 	}
 
-	memcpy(buff, startline, endline - startline);
-	buff[endline - startline] = 0;
+	*buff = startline;
+	(*buff)[endline - startline] = 0;
 
 	return curr_buff;
 }
@@ -371,9 +371,8 @@ get_line(char *buff, const char *curr_buff, qboolean newline)
 static void
 ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 {
-	const char *curr_buff, *end_buff;
-	char *safe_buffer;
-	char buff[512];
+	const char *end_buff;
+	char *curr_buff, *safe_buffer;
 	md5_joint_info_t *jointInfos = NULL;
 	md5_baseframe_joint_t *baseFrame = NULL;
 	float *animFrameData = NULL;
@@ -392,7 +391,9 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 
 	while (curr_buff < end_buff)
 	{
-		curr_buff = get_line(buff, curr_buff, true);
+		char *buff;
+
+		curr_buff = get_line(&buff, curr_buff, true);
 
 		if (sscanf(buff, "MD5Version %d", &version) == 1)
 		{
@@ -458,7 +459,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		{
 			for (i = 0; i < anim->num_joints; ++i)
 			{
-				curr_buff = get_line(buff, curr_buff, true);
+				curr_buff = get_line(&buff, curr_buff, true);
 
 				/* Read joint info */
 				sscanf(buff, "%s %d %d %d", jointInfos[i].name, &jointInfos[i].parent,
@@ -469,7 +470,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		{
 			for (i = 0; i < anim->num_frames; ++i)
 			{
-				curr_buff = get_line(buff, curr_buff, true);
+				curr_buff = get_line(&buff, curr_buff, true);
 
 				/* Read bounding box */
 				sscanf(buff, "( %f %f %f ) ( %f %f %f )",
@@ -485,7 +486,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		{
 			for (i = 0; i < anim->num_joints; ++i)
 			{
-				curr_buff = get_line(buff, curr_buff, true);
+				curr_buff = get_line(&buff, curr_buff, true);
 
 				/* Read base frame joint */
 				if (sscanf(buff, "( %f %f %f ) ( %f %f %f )",
@@ -503,7 +504,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			/* Read frame data */
 			for (i = 0; i < numAnimatedComponents; ++i)
 			{
-				curr_buff = get_line(buff, curr_buff, false);
+				curr_buff = get_line(&buff, curr_buff, false);
 				sscanf(buff, "%f", &animFrameData[i]);
 			}
 
@@ -538,10 +539,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 static md5_model_t *
 ReadMD5Model(const char *buffer, size_t size)
 {
-	const char *curr_buff, *end_buff;
-	char *safe_buffer;
-	char buff[512];
-	int version;
+	char *curr_buff, *safe_buffer;
+	const char *end_buff;
 	int curr_mesh = 0;
 
 	md5_model_t *mdl = calloc(1, sizeof(*mdl));
@@ -556,7 +555,10 @@ ReadMD5Model(const char *buffer, size_t size)
 
 	while (curr_buff < end_buff)
 	{
-		curr_buff = get_line(buff, curr_buff, true);
+		int version;
+		char *buff;
+
+		curr_buff = get_line(&buff, curr_buff, true);
 
 		if (sscanf(buff, "MD5Version %d", &version) == 1)
 		{
@@ -648,7 +650,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			{
 				md5_joint_t *joint = &mdl->baseSkel[i];
 
-				curr_buff = get_line(buff, curr_buff, true);
+				curr_buff = get_line(&buff, curr_buff, true);
 
 				if (sscanf(buff, "%s %d ( %f %f %f ) ( %f %f %f )",
 					joint->name, &joint->parent, &joint->pos[0],
@@ -671,7 +673,7 @@ ReadMD5Model(const char *buffer, size_t size)
 
 			while ((buff[0] != '}') && (curr_buff < end_buff))
 			{
-				curr_buff = get_line(buff, curr_buff, true);
+				curr_buff = get_line(&buff, curr_buff, true);
 
 				if (strstr(buff, "shader "))
 				{
