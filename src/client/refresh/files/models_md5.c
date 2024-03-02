@@ -397,13 +397,27 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		if (sscanf(buff, "MD5Version %d", &version) == 1)
 		{
 			if (version != 10)
+			{
+				/* Bad version */
+				R_Printf(PRINT_ALL, "Error: bad animation version\n");
+				free(safe_buffer);
+				if (animFrameData)
 				{
-					/* Bad version */
-					R_Printf(PRINT_ALL, "Error: bad animation version\n");
-					free(safe_buffer);
-
-					return;
+					free(animFrameData);
 				}
+
+				if (baseFrame)
+				{
+					free(baseFrame);
+				}
+
+				if (jointInfos)
+				{
+					free(jointInfos);
+				}
+
+				return;
+			}
 		}
 		else if (sscanf(buff, "numFrames %d", &anim->num_frames) == 1)
 		{
@@ -518,16 +532,6 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	free(safe_buffer);
 }
 
-static md5_model_t *
-AllocModel(void)
-{
-	md5_model_t *mdl;
-
-	mdl = (md5_model_t *)malloc(sizeof(*mdl));
-	memset(mdl, 0, sizeof(*mdl));
-	return mdl;
-}
-
 /**
  * Load an MD5 model from file.
  */
@@ -540,7 +544,7 @@ ReadMD5Model(const char *buffer, size_t size)
 	int version;
 	int curr_mesh = 0;
 
-	md5_model_t *mdl = AllocModel();
+	md5_model_t *mdl = calloc(1, sizeof(*mdl));
 
 	/* buffer has not always had final zero */
 	safe_buffer = malloc(size + 1);
@@ -561,6 +565,7 @@ ReadMD5Model(const char *buffer, size_t size)
 				/* Bad version */
 				R_Printf(PRINT_ALL, "Error: bad model version\n");
 				free(safe_buffer);
+				free(mdl);
 
 				return NULL;
 			}
@@ -569,8 +574,7 @@ ReadMD5Model(const char *buffer, size_t size)
 		{
 			if (mdl->num_skins > 0)
 			{
-				mdl->skins = malloc(mdl->num_skins * MAX_SKINNAME);
-				memset(mdl->skins, 0, mdl->num_skins * MAX_SKINNAME);
+				mdl->skins = calloc(mdl->num_skins, MAX_SKINNAME);
 			}
 		}
 		else if (strncmp (buff, "skin ", 5) == 0)
