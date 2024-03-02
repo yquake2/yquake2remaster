@@ -105,7 +105,7 @@ typedef struct md5_model_s
 	int num_verts;
 	int num_tris;
 	int num_skins;
-	int frameRate;
+	float frameRate;
 } md5_model_t;
 
 /* Joint info */
@@ -359,6 +359,37 @@ get_line(char **buff, char *curr_buff)
 }
 
 /**
+ * Free frames allocated for the model.
+ */
+static void
+FreeModelMd5Frames(md5_model_t *mdl)
+{
+	int i;
+
+	if (mdl->skelFrames)
+	{
+		for (i = 0; i < mdl->num_frames; ++i)
+		{
+			if (mdl->skelFrames[i].vertexArray)
+			{
+				free(mdl->skelFrames[i].vertexArray);
+				mdl->skelFrames[i].vertexArray = NULL;
+			}
+
+			if (mdl->skelFrames[i].skelJoints)
+			{
+				free(mdl->skelFrames[i].skelJoints);
+				mdl->skelFrames[i].skelJoints = NULL;
+			}
+		}
+
+		free(mdl->skelFrames);
+		mdl->skelFrames = NULL;
+		mdl->num_frames = 0;
+	}
+}
+
+/**
  * Load an MD5 animation from file.
  */
 static void
@@ -400,8 +431,56 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				/* Bad version */
 				R_Printf(PRINT_ALL, "Error: bad animation version\n");
 				/* broken file */
-				anim->num_frames = 0;
+				FreeModelMd5Frames(anim);
 				break;
+			}
+		}
+		else if (!strcmp(token, "numFrames"))
+		{
+			token = COM_Parse(&curr_buff);
+			anim->num_frames = (int)strtol(token, (char **)NULL, 10);
+
+			/* Allocate memory for skeleton frames and bounding boxes */
+			if (anim->num_frames > 0)
+			{
+				anim->skelFrames = (md5_frame_t *)
+					malloc(sizeof(md5_frame_t) * anim->num_frames);
+			}
+		}
+		else if (!strcmp(token, "numJoints"))
+		{
+			token = COM_Parse(&curr_buff);
+			anim->num_joints = (int)strtol(token, (char **)NULL, 10);
+
+			if (anim->num_joints > 0)
+			{
+				AllocateFrames(anim);
+
+				/* Allocate temporary memory for building skeleton frames */
+				jointInfos = (md5_joint_info_t *)
+					malloc(sizeof(md5_joint_info_t) * anim->num_joints);
+
+				baseFrame = (md5_baseframe_joint_t *)
+					malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
+			}
+		}
+		else if (!strcmp(token, "frameRate"))
+		{
+			token = COM_Parse(&curr_buff);
+			anim->frameRate = (float)strtod(token, (char **)NULL);
+
+			R_Printf(PRINT_DEVELOPER, "%s: animation's frame rate is %f\n",
+				__func__, anim->frameRate);
+		}
+		else if (!strcmp(token, "numAnimatedComponents"))
+		{
+			token = COM_Parse(&curr_buff);
+			numAnimatedComponents = (int)strtol(token, (char **)NULL, 10);
+
+			if (numAnimatedComponents > 0)
+			{
+				/* Allocate memory for animation frame data */
+				animFrameData = (float *)malloc(sizeof(float) * numAnimatedComponents);
 			}
 		}
 		else
@@ -409,54 +488,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			/* get end of string */
 			curr_buff = get_line(&buff, curr_buff);
 
-			if (!strcmp(token, "numFrames"))
-			{
-				if (sscanf(buff, "%d", &anim->num_frames) == 1)
-				{
-					/* Allocate memory for skeleton frames and bounding boxes */
-					if (anim->num_frames > 0)
-					{
-						anim->skelFrames = (md5_frame_t *)
-							malloc(sizeof(md5_frame_t) * anim->num_frames);
-					}
-				}
-			}
-			else if (!strcmp(token, "numJoints"))
-			{
-				if (sscanf(buff, "%d", &anim->num_joints) == 1)
-				{
-					if (anim->num_joints > 0)
-					{
-						AllocateFrames(anim);
-
-						/* Allocate temporary memory for building skeleton frames */
-						jointInfos = (md5_joint_info_t *)
-							malloc(sizeof(md5_joint_info_t) * anim->num_joints);
-
-						baseFrame = (md5_baseframe_joint_t *)
-							malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
-					}
-				}
-			}
-			else if (!strcmp(token, "frameRate"))
-			{
-				if (sscanf(buff, "%d", &anim->frameRate) == 1)
-				{
-					R_Printf(PRINT_DEVELOPER, "md5anim: animation's frame rate is %d\n", anim->frameRate);
-				}
-			}
-			else if (!strcmp(token, "numAnimatedComponents"))
-			{
-				if (sscanf(buff, "%d", &numAnimatedComponents) == 1)
-				{
-					if (numAnimatedComponents > 0)
-					{
-						/* Allocate memory for animation frame data */
-						animFrameData = (float *)malloc(sizeof(float) * numAnimatedComponents);
-					}
-				}
-			}
-			else if (!strcmp(token, "hierarchy"))
+			if (!strcmp(token, "hierarchy"))
 			{
 				if (buff[0] == '{')
 				{
@@ -474,7 +506,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					{
 						R_Printf(PRINT_ALL, "Error: expected block close\n");
 						/* broken file */
-						anim->num_frames = 0;
+						FreeModelMd5Frames(anim);
 						break;
 					}
 				}
@@ -502,7 +534,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					{
 						R_Printf(PRINT_ALL, "Error: expected block close\n");
 						/* broken file */
-						anim->num_frames = 0;
+						FreeModelMd5Frames(anim);
 						break;
 					}
 				}
@@ -531,7 +563,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					{
 						R_Printf(PRINT_ALL, "Error: expected block close\n");
 						/* broken file */
-						anim->num_frames = 0;
+						FreeModelMd5Frames(anim);
 						break;
 					}
 				}
@@ -548,10 +580,10 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 						{
 							R_Printf(PRINT_ALL, "Error: expected frame close\n");
 							/* broken file */
-							anim->num_frames = 0;
+							FreeModelMd5Frames(anim);
 							break;
 						}
-						sscanf(token, "%f", &animFrameData[i]);
+						animFrameData[i] = (float)strtod(token, (char **)NULL);
 					}
 
 					/* Build frame skeleton from the collected data */
@@ -563,7 +595,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					{
 						R_Printf(PRINT_ALL, "Error: expected block close\n");
 						/* broken file */
-						anim->num_frames = 0;
+						FreeModelMd5Frames(anim);
 						break;
 					}
 				}
@@ -598,26 +630,7 @@ FreeModelMd5(md5_model_t *mdl)
 {
 	int i;
 
-	if (mdl->skelFrames)
-	{
-		for (i = 0; i < mdl->num_frames; ++i)
-		{
-			if (mdl->skelFrames[i].vertexArray)
-			{
-				free(mdl->skelFrames[i].vertexArray);
-				mdl->skelFrames[i].vertexArray = NULL;
-			}
-
-			if (mdl->skelFrames[i].skelJoints)
-			{
-				free(mdl->skelFrames[i].skelJoints);
-				mdl->skelFrames[i].skelJoints = NULL;
-			}
-		}
-
-		free(mdl->skelFrames);
-		mdl->skelFrames = NULL;
-	}
+	FreeModelMd5Frames(mdl);
 
 	if (mdl->vertexIndices)
 	{
@@ -718,90 +731,63 @@ ReadMD5Model(const char *buffer, size_t size)
 				return NULL;
 			}
 		}
+		else if (!strcmp(token, "numSkins"))
+		{
+			token = COM_Parse(&curr_buff);
+			mdl->num_skins = (int)strtol(token, (char **)NULL, 10);
+
+			if (mdl->num_skins > 0)
+			{
+				mdl->skins = malloc(mdl->num_skins * MAX_SKINNAME);
+				memset(mdl->skins, 0, mdl->num_skins * MAX_SKINNAME);
+			}
+		}
+		else if (!strcmp(token, "numJoints"))
+		{
+			token = COM_Parse(&curr_buff);
+			mdl->num_joints = (int)strtol(token, (char **)NULL, 10);
+
+			if (mdl->num_joints > 0)
+			{
+				/* Allocate memory for base skeleton joints */
+				mdl->baseSkel = (md5_joint_t *)
+					calloc (mdl->num_joints, sizeof(md5_joint_t));
+			}
+		}
+		else if (!strcmp(token, "numMeshes"))
+		{
+			token = COM_Parse(&curr_buff);
+			mdl->num_meshes = (int)strtol(token, (char **)NULL, 10);
+
+			if (mdl->num_meshes > 0)
+			{
+				/* Allocate memory for meshes */
+				mdl->meshes = (md5_mesh_t *)
+					calloc (mdl->num_meshes, sizeof(md5_mesh_t));
+			}
+		}
+		else if (!strcmp(token, "skin"))
+		{
+			int pos;
+
+			token = COM_Parse(&curr_buff);
+			pos = (int)strtol(token, (char **)NULL, 10);
+			token = COM_Parse(&curr_buff);
+
+			if (pos >= 0 && pos < mdl->num_skins)
+			{
+				char *skinname;
+
+				skinname = mdl->skins + pos * MAX_SKINNAME;
+				strncpy(skinname, token, MAX_SKINNAME - 1);
+			}
+		}
 		else
 		{
 			/* get end of string */
 			curr_buff = get_line(&buff, curr_buff);
 
-			if (!strcmp(token, "numskins"))
-			{
-				if (sscanf(buff, "%d", &mdl->num_skins) == 1)
-				{
-					if (mdl->num_skins > 0)
-					{
-						mdl->skins = malloc(mdl->num_skins * MAX_SKINNAME);
-						memset(mdl->skins, 0, mdl->num_skins * MAX_SKINNAME);
-					}
-				}
-			}
-			else if (!strcmp(token, "skin"))
-			{
-				char *line;
-				int pos;
-
-				line = buff;
-
-				token = COM_Parse(&line);
-				pos = (int)strtol(token, (char **)NULL, 10);
-				if (pos < mdl->num_skins)
-				{
-					int quote = 0, j = 0;
-					char *skinname;
-
-					skinname = mdl->skins + pos * MAX_SKINNAME;
-
-					/* Copy the shader name whithout the quote marks */
-					while (*line)
-					{
-						if (*line == '"')
-						{
-							quote++;
-
-							if (quote >= 2)
-							{
-								break;
-							}
-						}
-						else if (quote == 1)
-						{
-							if ((j >= (MAX_SKINNAME - 1)))
-							{
-								break;
-							}
-
-							skinname[j] = *line;
-							j ++;
-						}
-
-						line ++;
-					}
-				}
-			}
-			else if (!strcmp(token, "numJoints"))
-			{
-				if (sscanf(buff, "%d", &mdl->num_joints) == 1)
-				{
-					if (mdl->num_joints > 0)
-					{
-						/* Allocate memory for base skeleton joints */
-						mdl->baseSkel = (md5_joint_t *)
-							calloc (mdl->num_joints, sizeof(md5_joint_t));
-					}
-				}
-			}
-			else if (!strcmp(token, "numMeshes"))
-			{
-				if (sscanf(buff, "%d", &mdl->num_meshes) == 1)
-				{
-					if (mdl->num_meshes > 0)
-					{
-						/* Allocate memory for meshes */
-						mdl->meshes = (md5_mesh_t *)
-							calloc (mdl->num_meshes, sizeof(md5_mesh_t));
-					}
-				}
-			}
-			else if (!strcmp(token, "joints"))
+			if (!strcmp(token, "joints"))
 			{
 				if (buff[0] == '{')
 				{
