@@ -2181,6 +2181,8 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = Mod_LoadFileMD5Merge(namewe, buffer);
 		if (filesize > 0)
 		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as md5 (Doom 3)\n",
+				__func__, namewe);
 			return filesize;
 		}
 
@@ -2190,6 +2192,8 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as md3 (Quake 3)\n",
+				__func__, namewe);
 			return filesize;
 		}
 
@@ -2199,6 +2203,8 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as fm (Heretic 2)\n",
+				__func__, namewe);
 			return filesize;
 		}
 
@@ -2207,6 +2213,8 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as md2 (Quake 2/Anachronox)\n",
+				__func__, namewe);
 			return filesize;
 		}
 
@@ -2215,6 +2223,8 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as dkm (Daikatana)\n",
+				__func__, namewe);
 			return filesize;
 		}
 
@@ -2223,6 +2233,8 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		filesize = ri.FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as mdl (Quake 1)\n",
+				__func__, namewe);
 			return filesize;
 		}
 	}

@@ -333,7 +333,7 @@ get_line(char **buff, char *curr_buff, qboolean newline)
 {
 	char *startline, *endline;
 
-	curr_buff += strspn(curr_buff, " \t\n");
+	curr_buff += strspn(curr_buff, " \r\t\n");
 
 	startline = curr_buff;
 	if (newline)
@@ -345,7 +345,7 @@ get_line(char **buff, char *curr_buff, qboolean newline)
 		endline = curr_buff + strcspn(curr_buff, " \t\n");
 	}
 
-	if (endline)
+	if (endline && *endline)
 	{
 		curr_buff = endline + 1;
 	}
@@ -371,8 +371,7 @@ get_line(char **buff, char *curr_buff, qboolean newline)
 static void
 ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 {
-	const char *end_buff;
-	char *curr_buff, *safe_buffer;
+	char *curr_buff, *end_buff, *safe_buffer;
 	md5_joint_info_t *jointInfos = NULL;
 	md5_baseframe_joint_t *baseFrame = NULL;
 	float *animFrameData = NULL;
@@ -391,126 +390,192 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 
 	while (curr_buff < end_buff)
 	{
+		const char *token;
 		char *buff;
 
+		token = COM_Parse(&curr_buff);
+		if (!curr_buff)
+		{
+			/* end of buffer */
+			break;
+		}
+
+		/* get end of string */
 		curr_buff = get_line(&buff, curr_buff, true);
 
-		if (sscanf(buff, "MD5Version %d", &version) == 1)
+		if (!strcmp(token, "MD5Version"))
 		{
-			if (version != 10)
+			if (sscanf(buff, "%d", &version) == 1)
 			{
-				/* Bad version */
-				R_Printf(PRINT_ALL, "Error: bad animation version\n");
-				free(safe_buffer);
-				if (animFrameData)
+				if (version != 10)
 				{
-					free(animFrameData);
-				}
-
-				if (baseFrame)
-				{
-					free(baseFrame);
-				}
-
-				if (jointInfos)
-				{
-					free(jointInfos);
-				}
-
-				return;
-			}
-		}
-		else if (sscanf(buff, "numFrames %d", &anim->num_frames) == 1)
-		{
-			/* Allocate memory for skeleton frames and bounding boxes */
-			if (anim->num_frames > 0)
-			{
-				anim->skelFrames = (md5_frame_t *)
-					malloc(sizeof(md5_frame_t) * anim->num_frames);
-			}
-		}
-		else if (sscanf(buff, "numJoints %d", &anim->num_joints) == 1)
-		{
-			if (anim->num_joints > 0)
-			{
-				AllocateFrames(anim);
-
-				/* Allocate temporary memory for building skeleton frames */
-				jointInfos = (md5_joint_info_t *)
-					malloc(sizeof(md5_joint_info_t) * anim->num_joints);
-
-				baseFrame = (md5_baseframe_joint_t *)
-					malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
-			}
-		}
-		else if (sscanf(buff, "frameRate %d", &anim->frameRate) == 1)
-		{
-			R_Printf(PRINT_DEVELOPER, "md5anim: animation's frame rate is %d\n", anim->frameRate);
-		}
-		else if (sscanf(buff, "numAnimatedComponents %d", &numAnimatedComponents) == 1)
-		{
-			if (numAnimatedComponents > 0)
-			{
-				/* Allocate memory for animation frame data */
-				animFrameData = (float *)malloc(sizeof(float) * numAnimatedComponents);
-			}
-		}
-		else if (strncmp (buff, "hierarchy {", 11) == 0)
-		{
-			for (i = 0; i < anim->num_joints; ++i)
-			{
-				curr_buff = get_line(&buff, curr_buff, true);
-
-				/* Read joint info */
-				sscanf(buff, "%s %d %d %d", jointInfos[i].name, &jointInfos[i].parent,
-					&jointInfos[i].flags, &jointInfos[i].startIndex);
-			}
-		}
-		else if (strncmp (buff, "bounds {", 8) == 0)
-		{
-			for (i = 0; i < anim->num_frames; ++i)
-			{
-				curr_buff = get_line(&buff, curr_buff, true);
-
-				/* Read bounding box */
-				sscanf(buff, "( %f %f %f ) ( %f %f %f )",
-					&anim->skelFrames[i].bbox.min[0],
-					&anim->skelFrames[i].bbox.min[1],
-					&anim->skelFrames[i].bbox.min[2],
-					&anim->skelFrames[i].bbox.max[0],
-					&anim->skelFrames[i].bbox.max[1],
-					&anim->skelFrames[i].bbox.max[2]);
-			}
-		}
-		else if (strncmp (buff, "baseframe {", 10) == 0)
-		{
-			for (i = 0; i < anim->num_joints; ++i)
-			{
-				curr_buff = get_line(&buff, curr_buff, true);
-
-				/* Read base frame joint */
-				if (sscanf(buff, "( %f %f %f ) ( %f %f %f )",
-					&baseFrame[i].pos[0], &baseFrame[i].pos[1],
-					&baseFrame[i].pos[2], &baseFrame[i].orient[0],
-					&baseFrame[i].orient[1], &baseFrame[i].orient[2]) == 6)
-				{
-					/* Compute the w component */
-					Quat_computeW(baseFrame[i].orient);
+					/* Bad version */
+					R_Printf(PRINT_ALL, "Error: bad animation version\n");
+					/* broken file */
+					curr_buff = end_buff;
+					anim->num_frames = 0;
+					break;
 				}
 			}
 		}
-		else if (sscanf(buff, "frame %d", &frame_index) == 1)
+		else if (!strcmp(token, "numFrames"))
 		{
-			/* Read frame data */
-			for (i = 0; i < numAnimatedComponents; ++i)
+			if (sscanf(buff, "%d", &anim->num_frames) == 1)
 			{
-				curr_buff = get_line(&buff, curr_buff, false);
-				sscanf(buff, "%f", &animFrameData[i]);
+				/* Allocate memory for skeleton frames and bounding boxes */
+				if (anim->num_frames > 0)
+				{
+					anim->skelFrames = (md5_frame_t *)
+						malloc(sizeof(md5_frame_t) * anim->num_frames);
+				}
 			}
+		}
+		else if (!strcmp(token, "numJoints"))
+		{
+			if (sscanf(buff, "%d", &anim->num_joints) == 1)
+			{
+				if (anim->num_joints > 0)
+				{
+					AllocateFrames(anim);
 
-			/* Build frame skeleton from the collected data */
-			BuildFrameSkeleton(jointInfos, baseFrame, animFrameData,
-							anim->skelFrames[frame_index].skelJoints, anim->num_joints);
+					/* Allocate temporary memory for building skeleton frames */
+					jointInfos = (md5_joint_info_t *)
+						malloc(sizeof(md5_joint_info_t) * anim->num_joints);
+
+					baseFrame = (md5_baseframe_joint_t *)
+						malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
+				}
+			}
+		}
+		else if (!strcmp(token, "frameRate"))
+		{
+			if (sscanf(buff, "%d", &anim->frameRate) == 1)
+			{
+				R_Printf(PRINT_DEVELOPER, "md5anim: animation's frame rate is %d\n", anim->frameRate);
+			}
+		}
+		else if (!strcmp(token, "numAnimatedComponents"))
+		{
+			if (sscanf(buff, "%d", &numAnimatedComponents) == 1)
+			{
+				if (numAnimatedComponents > 0)
+				{
+					/* Allocate memory for animation frame data */
+					animFrameData = (float *)malloc(sizeof(float) * numAnimatedComponents);
+				}
+			}
+		}
+		else if (!strcmp(token, "hierarchy"))
+		{
+			if (buff[0] == '{')
+			{
+				for (i = 0; i < anim->num_joints; ++i)
+				{
+					curr_buff = get_line(&buff, curr_buff, true);
+
+					/* Read joint info */
+					sscanf(buff, "%s %d %d %d", jointInfos[i].name, &jointInfos[i].parent,
+						&jointInfos[i].flags, &jointInfos[i].startIndex);
+				}
+
+				token = COM_Parse(&curr_buff);
+				if (token[0] != '}' || !curr_buff)
+				{
+					R_Printf(PRINT_ALL, "Error: expected block close\n");
+					/* broken file */
+					anim->num_frames = 0;
+					break;
+				}
+			}
+		}
+		else if (!strcmp(token, "bounds"))
+		{
+			if (buff[0] == '{')
+			{
+				for (i = 0; i < anim->num_frames; ++i)
+				{
+					curr_buff = get_line(&buff, curr_buff, true);
+
+					/* Read bounding box */
+					sscanf(buff, "( %f %f %f ) ( %f %f %f )",
+						&anim->skelFrames[i].bbox.min[0],
+						&anim->skelFrames[i].bbox.min[1],
+						&anim->skelFrames[i].bbox.min[2],
+						&anim->skelFrames[i].bbox.max[0],
+						&anim->skelFrames[i].bbox.max[1],
+						&anim->skelFrames[i].bbox.max[2]);
+				}
+
+				token = COM_Parse(&curr_buff);
+				if (token[0] != '}' || !curr_buff)
+				{
+					R_Printf(PRINT_ALL, "Error: expected block close\n");
+					/* broken file */
+					anim->num_frames = 0;
+					break;
+				}
+			}
+		}
+		else if (!strcmp(token, "baseframe"))
+		{
+			if (buff[0] == '{')
+			{
+				for (i = 0; i < anim->num_joints; ++i)
+				{
+					curr_buff = get_line(&buff, curr_buff, true);
+
+					/* Read base frame joint */
+					if (sscanf(buff, "( %f %f %f ) ( %f %f %f )",
+						&baseFrame[i].pos[0], &baseFrame[i].pos[1],
+						&baseFrame[i].pos[2], &baseFrame[i].orient[0],
+						&baseFrame[i].orient[1], &baseFrame[i].orient[2]) == 6)
+					{
+						/* Compute the w component */
+						Quat_computeW(baseFrame[i].orient);
+					}
+				}
+
+				token = COM_Parse(&curr_buff);
+				if (token[0] != '}' || !curr_buff)
+				{
+					R_Printf(PRINT_ALL, "Error: expected block close\n");
+					/* broken file */
+					anim->num_frames = 0;
+					break;
+				}
+			}
+		}
+		else if (!strcmp(token, "frame"))
+		{
+			if (sscanf(buff, "%d", &frame_index) == 1)
+			{
+				/* Read frame data */
+				for (i = 0; i < numAnimatedComponents; ++i)
+				{
+					token = COM_Parse(&curr_buff);
+					if (!token[0] || !curr_buff)
+					{
+						R_Printf(PRINT_ALL, "Error: expected frame close\n");
+						/* broken file */
+						anim->num_frames = 0;
+						break;
+					}
+					sscanf(token, "%f", &animFrameData[i]);
+				}
+
+				/* Build frame skeleton from the collected data */
+				BuildFrameSkeleton(jointInfos, baseFrame, animFrameData,
+								anim->skelFrames[frame_index].skelJoints, anim->num_joints);
+
+				token = COM_Parse(&curr_buff);
+				if (token[0] != '}' || !curr_buff)
+				{
+					R_Printf(PRINT_ALL, "Error: expected block close\n");
+					/* broken file */
+					anim->num_frames = 0;
+					break;
+				}
+			}
 		}
 	}
 
