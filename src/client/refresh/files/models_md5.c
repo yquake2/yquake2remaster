@@ -328,36 +328,6 @@ AllocateFrames(md5_model_t *anim)
 	}
 }
 
-static char *
-get_line(char **buff, char *curr_buff)
-{
-	char *startline, *endline;
-
-	curr_buff += strspn(curr_buff, " \r\t\n");
-
-	startline = curr_buff;
-	endline = strchr(curr_buff, '\n');
-
-	if (endline && *endline)
-	{
-		curr_buff = endline + 1;
-	}
-	else
-	{
-		int len;
-
-		len = strlen(curr_buff);
-		endline = curr_buff + len;
-
-		curr_buff += len;
-	}
-
-	*buff = startline;
-	(*buff)[endline - startline] = 0;
-
-	return curr_buff;
-}
-
 /**
  * Free frames allocated for the model.
  */
@@ -433,8 +403,6 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	md5_baseframe_joint_t *baseFrame = NULL;
 	float *animFrameData = NULL;
 	int numAnimatedComponents;
-	int frame_index;
-	int i;
 
 	/* buffer has not always had final zero */
 	safe_buffer = malloc(size + 1);
@@ -447,7 +415,6 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	while (curr_buff && (curr_buff < end_buff))
 	{
 		const char *token;
-		char *buff;
 
 		token = COM_Parse(&curr_buff);
 		if (!curr_buff)
@@ -516,122 +483,149 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				animFrameData = (float *)malloc(sizeof(float) * numAnimatedComponents);
 			}
 		}
-		else
+		else if (!strcmp(token, "hierarchy"))
 		{
-			/* get end of string */
-			curr_buff = get_line(&buff, curr_buff);
+			int i;
 
-			if (!strcmp(token, "hierarchy"))
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "{"))
 			{
-				if (buff[0] == '{')
+				R_Printf(PRINT_ALL, "Error: expected hierarchy block open\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+
+			for (i = 0; i < anim->num_joints; ++i)
+			{
+				/* Read joint info */
+				token = COM_Parse(&curr_buff);
+				strncpy(jointInfos[i].name, token, sizeof(jointInfos[i].name) - 1);
+
+				token = COM_Parse(&curr_buff);
+				jointInfos[i].parent = (int)strtol(token, (char **)NULL, 10);
+
+				token = COM_Parse(&curr_buff);
+				jointInfos[i].flags = (int)strtol(token, (char **)NULL, 10);
+
+				token = COM_Parse(&curr_buff);
+				jointInfos[i].startIndex = (int)strtol(token, (char **)NULL, 10);
+			}
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "}"))
+			{
+				R_Printf(PRINT_ALL, "Error: expected hierarchy block close\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+		}
+		else if (!strcmp(token, "bounds"))
+		{
+			int i;
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "{"))
+			{
+				R_Printf(PRINT_ALL, "Error: expected hierarchy bounds open\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+
+			for (i = 0; i < anim->num_frames; ++i)
+			{
+				if (!ParseFloatBlock(&curr_buff, 3, anim->skelFrames[i].bbox.min) ||
+					!ParseFloatBlock(&curr_buff, 3, anim->skelFrames[i].bbox.max))
 				{
-					for (i = 0; i < anim->num_joints; ++i)
-					{
-						curr_buff = get_line(&buff, curr_buff);
-
-						/* Read joint info */
-						sscanf(buff, "%s %d %d %d", jointInfos[i].name, &jointInfos[i].parent,
-							&jointInfos[i].flags, &jointInfos[i].startIndex);
-					}
-
-					token = COM_Parse(&curr_buff);
-					if (token[0] != '}' || !curr_buff)
-					{
-						R_Printf(PRINT_ALL, "Error: expected block close\n");
-						/* broken file */
-						FreeModelMd5Frames(anim);
-						break;
-					}
+					R_Printf(PRINT_ALL, "Error: unexpected bounds format\n");
+					break;
 				}
 			}
-			else if (!strcmp(token, "bounds"))
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "}"))
 			{
-				if (buff[0] == '{')
-				{
-					for (i = 0; i < anim->num_frames; ++i)
-					{
-						curr_buff = get_line(&buff, curr_buff);
-
-						/* Read bounding box */
-						sscanf(buff, "( %f %f %f ) ( %f %f %f )",
-							&anim->skelFrames[i].bbox.min[0],
-							&anim->skelFrames[i].bbox.min[1],
-							&anim->skelFrames[i].bbox.min[2],
-							&anim->skelFrames[i].bbox.max[0],
-							&anim->skelFrames[i].bbox.max[1],
-							&anim->skelFrames[i].bbox.max[2]);
-					}
-
-					token = COM_Parse(&curr_buff);
-					if (token[0] != '}' || !curr_buff)
-					{
-						R_Printf(PRINT_ALL, "Error: expected block close\n");
-						/* broken file */
-						FreeModelMd5Frames(anim);
-						break;
-					}
-				}
+				R_Printf(PRINT_ALL, "Error: expected block close\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
 			}
-			else if (!strcmp(token, "baseframe"))
+		}
+		else if (!strcmp(token, "baseframe"))
+		{
+			int i;
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "{"))
 			{
-				if (buff[0] == '{')
-				{
-					for (i = 0; i < anim->num_joints; ++i)
-					{
-						curr_buff = get_line(&buff, curr_buff);
-
-						/* Read base frame joint */
-						if (sscanf(buff, "( %f %f %f ) ( %f %f %f )",
-							&baseFrame[i].pos[0], &baseFrame[i].pos[1],
-							&baseFrame[i].pos[2], &baseFrame[i].orient[0],
-							&baseFrame[i].orient[1], &baseFrame[i].orient[2]) == 6)
-						{
-							/* Compute the w component */
-							Quat_computeW(baseFrame[i].orient);
-						}
-					}
-
-					token = COM_Parse(&curr_buff);
-					if (token[0] != '}' || !curr_buff)
-					{
-						R_Printf(PRINT_ALL, "Error: expected block close\n");
-						/* broken file */
-						FreeModelMd5Frames(anim);
-						break;
-					}
-				}
+				R_Printf(PRINT_ALL, "Error: expected baseframe block open\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
 			}
-			else if (!strcmp(token, "frame"))
+
+			for (i = 0; i < anim->num_joints; ++i)
 			{
-				if (sscanf(buff, "%d", &frame_index) == 1)
+				/* Read base frame joint */
+				if (!ParseFloatBlock(&curr_buff, 3, baseFrame[i].pos) ||
+					!ParseFloatBlock(&curr_buff, 3, baseFrame[i].orient))
 				{
-					/* Read frame data */
-					for (i = 0; i < numAnimatedComponents; ++i)
-					{
-						token = COM_Parse(&curr_buff);
-						if (!token[0] || !curr_buff)
-						{
-							R_Printf(PRINT_ALL, "Error: expected frame close\n");
-							/* broken file */
-							FreeModelMd5Frames(anim);
-							break;
-						}
-						animFrameData[i] = (float)strtod(token, (char **)NULL);
-					}
-
-					/* Build frame skeleton from the collected data */
-					BuildFrameSkeleton(jointInfos, baseFrame, animFrameData,
-									anim->skelFrames[frame_index].skelJoints, anim->num_joints);
-
-					token = COM_Parse(&curr_buff);
-					if (token[0] != '}' || !curr_buff)
-					{
-						R_Printf(PRINT_ALL, "Error: expected block close\n");
-						/* broken file */
-						FreeModelMd5Frames(anim);
-						break;
-					}
+					R_Printf(PRINT_ALL, "Error: unexpected baseframe format\n");
+					break;
 				}
+
+				/* Compute the w component */
+				Quat_computeW(baseFrame[i].orient);
+			}
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "}"))
+			{
+				R_Printf(PRINT_ALL, "Error: expected baseframe block close\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+		}
+		else if (!strcmp(token, "frame"))
+		{
+			int i, frame_index;
+
+			token = COM_Parse(&curr_buff);
+			frame_index = (int)strtol(token, (char **)NULL, 10);
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "{"))
+			{
+				R_Printf(PRINT_ALL, "Error: expected frame bounds open\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+
+			/* Read frame data */
+			for (i = 0; i < numAnimatedComponents; ++i)
+			{
+				token = COM_Parse(&curr_buff);
+				animFrameData[i] = (float)strtod(token, (char **)NULL);
+			}
+
+			if (frame_index < anim->num_frames)
+			{
+				/* Build frame skeleton from the collected data */
+				BuildFrameSkeleton(jointInfos, baseFrame, animFrameData,
+					anim->skelFrames[frame_index].skelJoints, anim->num_joints);
+			}
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "}"))
+			{
+				R_Printf(PRINT_ALL, "Error: expected frame block close\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
 			}
 		}
 	}
