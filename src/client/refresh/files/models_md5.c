@@ -389,6 +389,39 @@ FreeModelMd5Frames(md5_model_t *mdl)
 	}
 }
 
+/*
+ * Parse float block
+ */
+static qboolean
+ParseFloatBlock(char **curr_buff, int count, float *v)
+{
+	const char *token;
+	int j;
+
+	token = COM_Parse(curr_buff);
+	if (strcmp(token, "("))
+	{
+		R_Printf(PRINT_ALL, "Error: expected float block open\n");
+		return false;
+	}
+
+	for (j = 0; j < count; j ++)
+	{
+		token = COM_Parse(curr_buff);
+		v[j] = (float)strtod(token, (char **)NULL);
+	}
+
+	token = COM_Parse(curr_buff);
+	if (strcmp(token, ")"))
+	{
+		R_Printf(PRINT_ALL, "Error: expected float block close\n");
+		return false;
+	}
+
+	return true;
+}
+
+
 /**
  * Load an MD5 animation from file.
  */
@@ -709,7 +742,6 @@ ReadMD5Model(const char *buffer, size_t size)
 	while (curr_buff && (curr_buff < end_buff))
 	{
 		const char *token;
-		char *buff;
 
 		token = COM_Parse(&curr_buff);
 		if (!curr_buff)
@@ -782,140 +814,180 @@ ReadMD5Model(const char *buffer, size_t size)
 				strncpy(skinname, token, MAX_SKINNAME - 1);
 			}
 		}
-		else
+		else if (!strcmp(token, "joints"))
 		{
-			/* get end of string */
-			curr_buff = get_line(&buff, curr_buff);
+			int i;
 
-			if (!strcmp(token, "joints"))
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "{"))
 			{
-				if (buff[0] == '{')
-				{
-					int i;
+				R_Printf(PRINT_ALL, "Error: expected joints block open\n");
+				FreeModelMd5(mdl);
+				free(safe_buffer);
 
-					/* Read each joint */
-					for (i = 0; i < mdl->num_joints; ++i)
-					{
-						md5_joint_t *joint = &mdl->baseSkel[i];
+				return NULL;
+			}
 
-						curr_buff = get_line(&buff, curr_buff);
-
-						if (sscanf(buff, "%s %d ( %f %f %f ) ( %f %f %f )",
-							joint->name, &joint->parent, &joint->pos[0],
-							&joint->pos[1], &joint->pos[2], &joint->orient[0],
-							&joint->orient[1], &joint->orient[2]) == 8)
-						{
-							/* Compute the w component */
-							Quat_computeW(joint->orient);
-						}
-					}
-				}
+			/* Read each joint */
+			for (i = 0; i < mdl->num_joints; ++i)
+			{
+				md5_joint_t *joint = &mdl->baseSkel[i];
 
 				token = COM_Parse(&curr_buff);
-				if (token[0] != '}' || !curr_buff)
+				strncpy(joint->name, token, sizeof(joint->name) - 1);
+
+				token = COM_Parse(&curr_buff);
+				joint->parent = (int)strtol(token, (char **)NULL, 10);
+
+				if (!ParseFloatBlock(&curr_buff, 3, joint->pos) ||
+					!ParseFloatBlock(&curr_buff, 3, joint->orient))
 				{
-					/* Bad version */
-					R_Printf(PRINT_ALL, "Error: expected block close\n");
 					FreeModelMd5(mdl);
 					free(safe_buffer);
 
 					return NULL;
 				}
+
+				/* Compute the w component */
+				Quat_computeW(joint->orient);
 			}
-			else if (!strcmp(token, "mesh"))
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "}"))
 			{
-				if (buff[0] == '{')
+				R_Printf(PRINT_ALL, "Error: expected joints block close\n");
+				FreeModelMd5(mdl);
+				free(safe_buffer);
+
+				return NULL;
+			}
+		}
+		else if (!strcmp(token, "mesh"))
+		{
+			md5_mesh_t *mesh;
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "{"))
+			{
+				R_Printf(PRINT_ALL, "Error: expected mesh block open\n");
+				FreeModelMd5(mdl);
+				free(safe_buffer);
+
+				return NULL;
+			}
+
+			mesh = &mdl->meshes[curr_mesh];
+
+			while (curr_buff)
+			{
+				token = COM_Parse(&curr_buff);
+
+				if (!strcmp(token, "}"))
 				{
-					md5_mesh_t *mesh = &mdl->meshes[curr_mesh];
-					int vert_index = 0;
-					int tri_index = 0;
-					int weight_index = 0;
-					float fdata[4];
-					int idata[3];
+					break;
+				}
+				else if (!strcmp(token, "shader"))
+				{
+					token = COM_Parse(&curr_buff);
+					strncpy(mesh->shader, token, sizeof(mesh->shader) - 1);
+				}
+				else if (!strcmp(token, "numverts"))
+				{
+					token = COM_Parse(&curr_buff);
+					mesh->num_verts = (int)strtol(token, (char **)NULL, 10);
 
-					while ((buff[0] != '}') && (curr_buff < end_buff))
+					if (mesh->num_verts > 0)
 					{
-						curr_buff = get_line(&buff, curr_buff);
+						/* Allocate memory for vertices */
+						mesh->vertices = (md5_vertex_t *)
+							malloc(sizeof(md5_vertex_t) * mesh->num_verts);
+					}
+				}
+				else if (!strcmp(token, "numtris"))
+				{
+					token = COM_Parse(&curr_buff);
+					mesh->num_tris = (int)strtol(token, (char **)NULL, 10);
 
-						if (strstr(buff, "shader "))
-						{
-							int quote = 0, j = 0, i;
+					if (mesh->num_tris > 0)
+					{
+						/* Allocate memory for triangles */
+						mesh->triangles = (md5_triangle_t *)
+							malloc(sizeof(md5_triangle_t) * mesh->num_tris);
+					}
+				}
+				else if (!strcmp(token, "numweights"))
+				{
+					token = COM_Parse(&curr_buff);
+					mesh->num_weights = (int)strtol(token, (char **)NULL, 10);
 
-							/* Copy the shader name whithout the quote marks */
-							for (i = 0; i < sizeof(buff) && (quote < 2); ++i)
-							{
-								if (buff[i] == '\"')
-								{
-									quote++;
-								}
+					if (mesh->num_weights > 0)
+					{
+						/* Allocate memory for vertex weights */
+						mesh->weights = (md5_weight_t *)
+							malloc(sizeof(md5_weight_t) * mesh->num_weights);
+					}
+				}
+				else if (!strcmp(token, "vert"))
+				{
+					int index;
 
-								if ((quote == 1) && (buff[i] != '\"'))
-								{
-									mesh->shader[j] = buff[i];
-									j++;
-								}
-							}
-						}
-						else if (sscanf(buff, "numverts %d", &mesh->num_verts) == 1)
-						{
-							if (mesh->num_verts > 0)
-							{
-								/* Allocate memory for vertices */
-								mesh->vertices = (md5_vertex_t *)
-									malloc(sizeof(md5_vertex_t) * mesh->num_verts);
-							}
-						}
-						else if (sscanf(buff, "numtris %d", &mesh->num_tris) == 1)
-						{
-							if (mesh->num_tris > 0)
-							{
-								/* Allocate memory for triangles */
-								mesh->triangles = (md5_triangle_t *)
-									malloc(sizeof(md5_triangle_t) * mesh->num_tris);
-							}
-						}
-						else if (sscanf(buff, "numweights %d", &mesh->num_weights) == 1)
-						{
-							if (mesh->num_weights > 0)
-							{
-								/* Allocate memory for vertex weights */
-								mesh->weights = (md5_weight_t *)
-									malloc(sizeof(md5_weight_t) * mesh->num_weights);
-							}
-						}
-						else if (sscanf(buff, "vert %d ( %f %f ) %d %d", &vert_index,
-								 &fdata[0], &fdata[1], &idata[0], &idata[1]) == 5)
-						{
-							/* Copy vertex data */
-							mesh->vertices[vert_index].st[0] = fdata[0];
-							mesh->vertices[vert_index].st[1] = fdata[1];
-							mesh->vertices[vert_index].start = idata[0];
-							mesh->vertices[vert_index].count = idata[1];
-						}
-						else if (sscanf(buff, "tri %d %d %d %d", &tri_index,
-								 &idata[0], &idata[1], &idata[2]) == 4)
-						{
-							/* Copy triangle data */
-							mesh->triangles[tri_index ].index[0] = idata[0];
-							mesh->triangles[tri_index ].index[1] = idata[1];
-							mesh->triangles[tri_index ].index[2] = idata[2];
-						}
-						else if (sscanf(buff, "weight %d %d %f ( %f %f %f )",
-								 &weight_index, &idata[0], &fdata[3],
-								 &fdata[0], &fdata[1], &fdata[2]) == 6)
-						{
-							/* Copy vertex data */
-							mesh->weights[weight_index].joint = idata[0];
-							mesh->weights[weight_index].bias = fdata[3];
-							mesh->weights[weight_index].pos[0] = fdata[0];
-							mesh->weights[weight_index].pos[1] = fdata[1];
-							mesh->weights[weight_index].pos[2] = fdata[2];
-						}
+					token = COM_Parse(&curr_buff);
+					index = (int)strtol(token, (char **)NULL, 10);
+
+					/* Copy vertex data */
+					if (!ParseFloatBlock(&curr_buff, 2, mesh->vertices[index].st))
+					{
+						FreeModelMd5(mdl);
+						free(safe_buffer);
+
+						return NULL;
 					}
 
-					curr_mesh++;
+					token = COM_Parse(&curr_buff);
+					mesh->vertices[index].start = (int)strtol(token, (char **)NULL, 10);
+
+					token = COM_Parse(&curr_buff);
+					mesh->vertices[index].count = (int)strtol(token, (char **)NULL, 10);
+				}
+				else if (!strcmp(token, "tri"))
+				{
+					int j, index;
+
+					token = COM_Parse(&curr_buff);
+					index = (int)strtol(token, (char **)NULL, 10);
+
+					/* Copy triangle data */
+					for (j = 0; j < 3; j++)
+					{
+						token = COM_Parse(&curr_buff);
+						mesh->triangles[index].index[j] = (int)strtol(token, (char **)NULL, 10);
+					}
+				}
+				else if (!strcmp(token, "weight"))
+				{
+					int index;
+
+					token = COM_Parse(&curr_buff);
+					index = (int)strtol(token, (char **)NULL, 10);
+
+					token = COM_Parse(&curr_buff);
+					mesh->weights[index].joint = (int)strtol(token, (char **)NULL, 10);
+
+					token = COM_Parse(&curr_buff);
+					mesh->weights[index].bias = (float)strtod(token, (char **)NULL);
+
+					/* Copy vertex data */
+					if (!ParseFloatBlock(&curr_buff, 3, mesh->weights[index].pos))
+					{
+						FreeModelMd5(mdl);
+						free(safe_buffer);
+
+						return NULL;
+					}
 				}
 			}
+
+			curr_mesh++;
 		}
 	}
 

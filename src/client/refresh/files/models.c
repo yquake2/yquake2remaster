@@ -2104,10 +2104,10 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 		ri.FS_FreeFile(skins_buffer);
 
 		/*
-		 * 20 -> numskins <num> | skin <num> "MAX_SKINNAME" + md5
+		 * 20 -> numSkins <num> | skin <num> "MAX_SKINNAME" + md5
 		 */
 		skins_list = malloc((numskins + 1) * (MAX_SKINNAME + 20));
-		sprintf(skins_list, "\nnumskins %d\n", numskins);
+		sprintf(skins_list, "\nnumSkins %d\n", numskins);
 		for(i = 0; i < numskins; i++)
 		{
 			const char *skinname = skins + MAX_SKINNAME * i;
