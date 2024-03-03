@@ -876,6 +876,17 @@ ReadMD5Model(const char *buffer, size_t size)
 				return NULL;
 			}
 
+			/* more meshes than originally provided */
+			if (curr_mesh >= mdl->num_meshes)
+			{
+				mdl->num_meshes = curr_mesh + 1;
+
+				/* Allocate memory for meshes */
+				mdl->meshes = (md5_mesh_t *)
+					realloc(mdl->meshes, mdl->num_meshes * sizeof(md5_mesh_t));
+				memset(mdl->meshes + curr_mesh, 0, sizeof(md5_mesh_t));
+			}
+
 			mesh = &mdl->meshes[curr_mesh];
 
 			while (curr_buff)
@@ -934,6 +945,15 @@ ReadMD5Model(const char *buffer, size_t size)
 					token = COM_Parse(&curr_buff);
 					index = (int)strtol(token, (char **)NULL, 10);
 
+					if (index >= mesh->num_verts)
+					{
+						R_Printf(PRINT_ALL, "Error: incorrect vert index\n");
+						FreeModelMd5(mdl);
+						free(safe_buffer);
+
+						return NULL;
+					}
+
 					/* Copy vertex data */
 					if (!ParseFloatBlock(&curr_buff, 2, mesh->vertices[index].st))
 					{
@@ -956,6 +976,15 @@ ReadMD5Model(const char *buffer, size_t size)
 					token = COM_Parse(&curr_buff);
 					index = (int)strtol(token, (char **)NULL, 10);
 
+					if (index >= mesh->num_tris)
+					{
+						R_Printf(PRINT_ALL, "Error: incorrect tri index\n");
+						FreeModelMd5(mdl);
+						free(safe_buffer);
+
+						return NULL;
+					}
+
 					/* Copy triangle data */
 					for (j = 0; j < 3; j++)
 					{
@@ -969,6 +998,15 @@ ReadMD5Model(const char *buffer, size_t size)
 
 					token = COM_Parse(&curr_buff);
 					index = (int)strtol(token, (char **)NULL, 10);
+
+					if (index >= mesh->num_weights)
+					{
+						R_Printf(PRINT_ALL, "Error: incorrect weight index\n");
+						FreeModelMd5(mdl);
+						free(safe_buffer);
+
+						return NULL;
+					}
 
 					token = COM_Parse(&curr_buff);
 					mesh->weights[index].joint = (int)strtol(token, (char **)NULL, 10);
