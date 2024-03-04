@@ -469,7 +469,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			anim->frameRate = (float)strtod(token, (char **)NULL);
 
-			R_Printf(PRINT_DEVELOPER, "%s: animation's frame rate is %f\n",
+			R_Printf(PRINT_DEVELOPER, "%s: animation's frame rate is %.2f\n",
 				__func__, anim->frameRate);
 		}
 		else if (!strcmp(token, "numAnimatedComponents"))
@@ -1134,10 +1134,10 @@ PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *fram
 			frame_out->verts[i].v[j] = (
 				vertexArray[i].xyz[j] - frame_out->translate[j]
 			) / frame_out->scale[j];
-
-			frame_out->verts[i].lightnormalindex =
-				R_CompressNormalMDL(vertexArray[i].norm);
 		}
+
+		frame_out->verts[i].lightnormalindex =
+			R_CompressNormalMDL(vertexArray[i].norm);
 	}
 }
 
