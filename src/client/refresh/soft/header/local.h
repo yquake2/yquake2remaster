@@ -526,6 +526,7 @@ extern image_t		*r_notexture_mip;
 extern model_t		*r_worldmodel;
 extern vec3_t		lightspot;
 
+void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
 void R_PrintAliasStats (void);
 void R_PrintTimes (void);
 void R_PrintDSpeeds (void);

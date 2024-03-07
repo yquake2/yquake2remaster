@@ -19,7 +19,7 @@
  *
  */
 
-// sw_alias.c: routines for setting up to draw alias models
+/* sw_alias.c: routines for setting up to draw alias models */
 
 /*
 ** use a real variable to control lerping
@@ -59,11 +59,6 @@ static const float	r_avertexnormals[NUMVERTEXNORMALS][3] = {
 #include "../constants/anorms.h"
 };
 
-
-static void R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4]);
-void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
-
-
 /*
 ================
 R_AliasCheckBBox
@@ -74,6 +69,19 @@ R_AliasCheckBBox
 #define BBOX_MUST_CLIP_XY   1
 #define BBOX_MUST_CLIP_Z    2
 #define BBOX_TRIVIAL_REJECT 8
+
+/*
+================
+R_AliasTransformVector
+================
+*/
+static void
+R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4] )
+{
+	out[0] = DotProduct(in, xf[0]) + xf[0][3];
+	out[1] = DotProduct(in, xf[1]) + xf[1][3];
+	out[2] = DotProduct(in, xf[2]) + xf[2][3];
+}
 
 /*
  * R_AliasCheckFrameBBox
@@ -192,43 +200,84 @@ R_AliasCheckBBox (const entity_t *currententity)
 {
 	unsigned long ccodes[2] = { 0, 0 };
 
-	ccodes[0] = R_AliasCheckFrameBBox( r_thisframe, aliasworldtransform );
+	ccodes[0] = R_AliasCheckFrameBBox(r_thisframe, aliasworldtransform);
 
 	/*
 	** non-lerping model
 	*/
 	if ( currententity->backlerp == 0 )
 	{
-		if ( ccodes[0] == BBOX_TRIVIAL_ACCEPT )
+		if (ccodes[0] == BBOX_TRIVIAL_ACCEPT)
+		{
 			return BBOX_TRIVIAL_ACCEPT;
-		else if ( ccodes[0] & BBOX_TRIVIAL_REJECT )
+		}
+		else if (ccodes[0] & BBOX_TRIVIAL_REJECT)
+		{
 			return BBOX_TRIVIAL_REJECT;
+		}
 		else
-			return ( ccodes[0] & ~BBOX_TRIVIAL_REJECT );
+		{
+			return (ccodes[0] & ~BBOX_TRIVIAL_REJECT);
+		}
 	}
 
-	ccodes[1] = R_AliasCheckFrameBBox( r_lastframe, aliasoldworldtransform );
+	ccodes[1] = R_AliasCheckFrameBBox(r_lastframe, aliasoldworldtransform);
 
-	if ( ( ccodes[0] | ccodes[1] ) == BBOX_TRIVIAL_ACCEPT )
+	if ((ccodes[0] | ccodes[1]) == BBOX_TRIVIAL_ACCEPT)
+	{
 		return BBOX_TRIVIAL_ACCEPT;
-	else if ( ( ccodes[0] & ccodes[1] ) & BBOX_TRIVIAL_REJECT )
+	}
+	else if ((ccodes[0] & ccodes[1]) & BBOX_TRIVIAL_REJECT)
+	{
 		return BBOX_TRIVIAL_REJECT;
+	}
 	else
-		return ( ccodes[0] | ccodes[1] ) & ~BBOX_TRIVIAL_REJECT;
+	{
+		return (ccodes[0] | ccodes[1]) & ~BBOX_TRIVIAL_REJECT;
+	}
 }
-
 
 /*
 ================
-R_AliasTransformVector
+R_AliasProjectAndClipTestFinalVert
 ================
 */
-static void
-R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4] )
+void
+R_AliasProjectAndClipTestFinalVert(finalvert_t *fv)
 {
-	out[0] = DotProduct(in, xf[0]) + xf[0][3];
-	out[1] = DotProduct(in, xf[1]) + xf[1][3];
-	out[2] = DotProduct(in, xf[2]) + xf[2][3];
+	float	zi;
+	float	x, y, z;
+
+	// project points
+	x = fv->xyz[0];
+	y = fv->xyz[1];
+	z = fv->xyz[2];
+	zi = 1.0 / z;
+
+	fv->cv.zi = zi * s_ziscale;
+
+	fv->cv.u = (x * aliasxscale * zi) + aliasxcenter;
+	fv->cv.v = (y * aliasyscale * zi) + aliasycenter;
+
+	if (fv->cv.u < r_refdef.aliasvrect.x)
+	{
+		fv->flags |= ALIAS_LEFT_CLIP;
+	}
+
+	if (fv->cv.v < r_refdef.aliasvrect.y)
+	{
+		fv->flags |= ALIAS_TOP_CLIP;
+	}
+
+	if (fv->cv.u > r_refdef.aliasvrectright)
+	{
+		fv->flags |= ALIAS_RIGHT_CLIP;
+	}
+
+	if (fv->cv.v > r_refdef.aliasvrectbottom)
+	{
+		fv->flags |= ALIAS_BOTTOM_CLIP;
+	}
 }
 
 /*
@@ -238,23 +287,11 @@ R_AliasTransformFinalVerts
 ================
 */
 static void
-R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints,
-	finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv, vec4_t *s_lerped)
+R_AliasTransformFinalVerts(int numpoints, finalvert_t *fv, dxtrivertx_t *newv, float *lerp)
 {
-	qboolean colorOnly;
-	float *lerp;
 	int i;
 
-	colorOnly = 0 != (currententity->flags &
-		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
-		 RF_SHELL_HALF_DAM));
-
-	lerp = s_lerped[0];
-
-	R_LerpVerts(colorOnly, numpoints, newv, oldv, lerp, r_lerp_move,
-		r_lerp_frontv, r_lerp_backv);
-
-	for ( i = 0; i < numpoints; i++, fv++, newv++, lerp += 4)
+	for (i = 0; i < numpoints; i++, fv++, newv++, lerp += 4)
 	{
 		float	lightcos;
 		const float	*plightnormal;
@@ -268,7 +305,7 @@ R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints,
 		fv->flags = 0;
 
 		// lighting
-		lightcos = DotProduct (plightnormal, r_plightvec);
+		lightcos = DotProduct(plightnormal, r_plightvec);
 
 		if (lightcos < 0)
 		{
@@ -285,7 +322,9 @@ R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints,
 				// clamp; because we limited the minimum ambient and shading light, we
 				// don't have to clamp low light, just bright
 				if (temp < 0)
+				{
 					temp = 0;
+				}
 
 				fv->cv.l[j] = temp;
 			}
@@ -295,13 +334,13 @@ R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints,
 			memcpy(fv->cv.l, r_ambientlight, sizeof(light3_t));
 		}
 
-		if ( fv->xyz[2] < ALIAS_Z_CLIP_PLANE )
+		if (fv->xyz[2] < ALIAS_Z_CLIP_PLANE)
 		{
 			fv->flags |= ALIAS_Z_CLIP;
 		}
 		else
 		{
-			R_AliasProjectAndClipTestFinalVert( fv );
+			R_AliasProjectAndClipTestFinalVert(fv);
 		}
 	}
 }
@@ -323,6 +362,7 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 	dtriangle_t	*ptri;
 	finalvert_t	*pfv[3];
 	vec4_t *s_lerped;
+	qboolean colorOnly;
 
 	if ((verts + s_pmdl->num_xyz) >= verts_max)
 	{
@@ -332,13 +372,17 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 
 	/* buffer for scalled vert from frame */
 	s_lerped = R_VertBufferRealloc(s_pmdl->num_xyz);
+	colorOnly = 0 != (currententity->flags &
+		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
+		 RF_SHELL_HALF_DAM));
 
-	R_AliasTransformFinalVerts(currententity,
-		s_pmdl->num_xyz,
+	R_LerpVerts(colorOnly, s_pmdl->num_xyz, r_thisframe->verts, r_lastframe->verts,
+		s_lerped[0], r_lerp_move, r_lerp_frontv, r_lerp_backv);
+
+	R_AliasTransformFinalVerts(s_pmdl->num_xyz,
 		verts,	/* destination for transformed verts */
-		r_lastframe->verts,	/* verts from the last frame */
 		r_thisframe->verts,	/* verts from this frame */
-		s_lerped);
+		s_lerped[0]);
 
 	// clip and draw all triangles
 	//
@@ -484,38 +528,6 @@ R_AliasSetUpTransform(const entity_t *currententity)
 	aliasoldworldtransform[0][3] = currententity->oldorigin[0];
 	aliasoldworldtransform[1][3] = currententity->oldorigin[1];
 	aliasoldworldtransform[2][3] = currententity->oldorigin[2];
-}
-
-/*
-================
-R_AliasProjectAndClipTestFinalVert
-================
-*/
-void
-R_AliasProjectAndClipTestFinalVert( finalvert_t *fv )
-{
-	float	zi;
-	float	x, y, z;
-
-	// project points
-	x = fv->xyz[0];
-	y = fv->xyz[1];
-	z = fv->xyz[2];
-	zi = 1.0 / z;
-
-	fv->cv.zi = zi * s_ziscale;
-
-	fv->cv.u = (x * aliasxscale * zi) + aliasxcenter;
-	fv->cv.v = (y * aliasyscale * zi) + aliasycenter;
-
-	if (fv->cv.u < r_refdef.aliasvrect.x)
-		fv->flags |= ALIAS_LEFT_CLIP;
-	if (fv->cv.v < r_refdef.aliasvrect.y)
-		fv->flags |= ALIAS_TOP_CLIP;
-	if (fv->cv.u > r_refdef.aliasvrectright)
-		fv->flags |= ALIAS_RIGHT_CLIP;
-	if (fv->cv.v > r_refdef.aliasvrectbottom)
-		fv->flags |= ALIAS_BOTTOM_CLIP;
 }
 
 /*
