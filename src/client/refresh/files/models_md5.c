@@ -402,7 +402,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	md5_joint_info_t *jointInfos = NULL;
 	md5_baseframe_joint_t *baseFrame = NULL;
 	float *animFrameData = NULL;
-	int numAnimatedComponents;
+	int numAnimatedComponents = 0;
 
 	/* buffer has not always had final zero */
 	safe_buffer = malloc(size + 1);
@@ -612,12 +612,25 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				animFrameData[i] = (float)strtod(token, (char **)NULL);
 			}
 
-			if (frame_index < anim->num_frames)
+			if (frame_index < 0 || frame_index >= anim->num_frames)
 			{
-				/* Build frame skeleton from the collected data */
-				BuildFrameSkeleton(jointInfos, baseFrame, animFrameData,
-					anim->skelFrames[frame_index].skelJoints, anim->num_joints);
+				R_Printf(PRINT_ALL, "Error: unknown frame number\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
 			}
+
+			if (!jointInfos || !baseFrame || !animFrameData)
+			{
+				R_Printf(PRINT_ALL, "Error: unknown size of frame\n");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+
+			/* Build frame skeleton from the collected data */
+			BuildFrameSkeleton(jointInfos, baseFrame, animFrameData,
+				anim->skelFrames[frame_index].skelJoints, anim->num_joints);
 
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "}"))

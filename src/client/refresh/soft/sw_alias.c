@@ -61,8 +61,6 @@ static const float	r_avertexnormals[NUMVERTEXNORMALS][3] = {
 
 
 static void R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4]);
-static void R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv );
-
 void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
 
 
@@ -233,6 +231,81 @@ R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4] )
 	out[2] = DotProduct(in, xf[2]) + xf[2][3];
 }
 
+/*
+================
+R_AliasTransformFinalVerts
+
+================
+*/
+static void
+R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints,
+	finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv, vec4_t *s_lerped)
+{
+	qboolean colorOnly;
+	float *lerp;
+	int i;
+
+	colorOnly = 0 != (currententity->flags &
+		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
+		 RF_SHELL_HALF_DAM));
+
+	lerp = s_lerped[0];
+
+	R_LerpVerts(colorOnly, numpoints, newv, oldv, lerp, r_lerp_move,
+		r_lerp_frontv, r_lerp_backv);
+
+	for ( i = 0; i < numpoints; i++, fv++, newv++, lerp += 4)
+	{
+		float	lightcos;
+		const float	*plightnormal;
+
+		plightnormal = r_avertexnormals[newv->lightnormalindex];
+
+		fv->xyz[0] = DotProduct(lerp, aliastransform[0]) + aliastransform[0][3];
+		fv->xyz[1] = DotProduct(lerp, aliastransform[1]) + aliastransform[1][3];
+		fv->xyz[2] = DotProduct(lerp, aliastransform[2]) + aliastransform[2][3];
+
+		fv->flags = 0;
+
+		// lighting
+		lightcos = DotProduct (plightnormal, r_plightvec);
+
+		if (lightcos < 0)
+		{
+			int		j;
+
+			for(j=0; j<3; j++)
+			{
+				int temp;
+
+				temp = r_ambientlight[j];
+
+				temp += (r_shadelight[j] * lightcos);
+
+				// clamp; because we limited the minimum ambient and shading light, we
+				// don't have to clamp low light, just bright
+				if (temp < 0)
+					temp = 0;
+
+				fv->cv.l[j] = temp;
+			}
+		}
+		else
+		{
+			memcpy(fv->cv.l, r_ambientlight, sizeof(light3_t));
+		}
+
+		if ( fv->xyz[2] < ALIAS_Z_CLIP_PLANE )
+		{
+			fv->flags |= ALIAS_Z_CLIP;
+		}
+		else
+		{
+			R_AliasProjectAndClipTestFinalVert( fv );
+		}
+	}
+}
+
 
 /*
 ================
@@ -243,12 +316,13 @@ General clipped case
 */
 
 static void
-R_AliasPreparePoints (const entity_t *currententity, finalvert_t *verts, const finalvert_t *verts_max)
+R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const finalvert_t *verts_max)
 {
 	int		i;
 	dstvert_t	*pstverts;
 	dtriangle_t	*ptri;
 	finalvert_t	*pfv[3];
+	vec4_t *s_lerped;
 
 	if ((verts + s_pmdl->num_xyz) >= verts_max)
 	{
@@ -256,12 +330,15 @@ R_AliasPreparePoints (const entity_t *currententity, finalvert_t *verts, const f
 		return;
 	}
 
+	/* buffer for scalled vert from frame */
+	s_lerped = R_VertBufferRealloc(s_pmdl->num_xyz);
+
 	R_AliasTransformFinalVerts(currententity,
-				   s_pmdl->num_xyz,
-				   verts,	// destination for transformed verts
-				   r_lastframe->verts,	// verts from the last frame
-				   r_thisframe->verts	// verts from this frame
-				);
+		s_pmdl->num_xyz,
+		verts,	/* destination for transformed verts */
+		r_lastframe->verts,	/* verts from the last frame */
+		r_thisframe->verts,	/* verts from this frame */
+		s_lerped);
 
 	// clip and draw all triangles
 	//
@@ -407,86 +484,6 @@ R_AliasSetUpTransform(const entity_t *currententity)
 	aliasoldworldtransform[0][3] = currententity->oldorigin[0];
 	aliasoldworldtransform[1][3] = currententity->oldorigin[1];
 	aliasoldworldtransform[2][3] = currententity->oldorigin[2];
-}
-
-
-/*
-================
-R_AliasTransformFinalVerts
-
-TODO: Combine with R_LerpVerts
-================
-*/
-static void
-R_AliasTransformFinalVerts(const entity_t *currententity, int numpoints, finalvert_t *fv, dxtrivertx_t *oldv, dxtrivertx_t *newv )
-{
-	int i;
-	qboolean colorOnly = 0 != (currententity->flags &
-			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
-			 RF_SHELL_HALF_DAM));
-
-	for ( i = 0; i < numpoints; i++, fv++, oldv++, newv++ )
-	{
-		float	lightcos;
-		const float	*plightnormal;
-		vec3_t  lerped_vert;
-
-		lerped_vert[0] = r_lerp_move[0] + oldv->v[0] * r_lerp_backv[0] + newv->v[0] * r_lerp_frontv[0];
-		lerped_vert[1] = r_lerp_move[1] + oldv->v[1] * r_lerp_backv[1] + newv->v[1] * r_lerp_frontv[1];
-		lerped_vert[2] = r_lerp_move[2] + oldv->v[2] * r_lerp_backv[2] + newv->v[2] * r_lerp_frontv[2];
-
-		plightnormal = r_avertexnormals[newv->lightnormalindex];
-
-		// added double damage shell
-		if ( colorOnly )
-		{
-			lerped_vert[0] += plightnormal[0] * POWERSUIT_SCALE;
-			lerped_vert[1] += plightnormal[1] * POWERSUIT_SCALE;
-			lerped_vert[2] += plightnormal[2] * POWERSUIT_SCALE;
-		}
-
-		fv->xyz[0] = DotProduct(lerped_vert, aliastransform[0]) + aliastransform[0][3];
-		fv->xyz[1] = DotProduct(lerped_vert, aliastransform[1]) + aliastransform[1][3];
-		fv->xyz[2] = DotProduct(lerped_vert, aliastransform[2]) + aliastransform[2][3];
-
-		fv->flags = 0;
-
-		// lighting
-		lightcos = DotProduct (plightnormal, r_plightvec);
-
-		if (lightcos < 0)
-		{
-			int		j;
-
-			for(j=0; j<3; j++)
-			{
-				int temp;
-
-				temp = r_ambientlight[j];
-
-				temp += (r_shadelight[j] * lightcos);
-
-				// clamp; because we limited the minimum ambient and shading light, we
-				// don't have to clamp low light, just bright
-				if (temp < 0)
-					temp = 0;
-
-				fv->cv.l[j] = temp;
-			}
-		}
-		else
-			memcpy(fv->cv.l, r_ambientlight, sizeof(light3_t));
-
-		if ( fv->xyz[2] < ALIAS_Z_CLIP_PLANE )
-		{
-			fv->flags |= ALIAS_Z_CLIP;
-		}
-		else
-		{
-			R_AliasProjectAndClipTestFinalVert( fv );
-		}
-	}
-
 }
 
 /*

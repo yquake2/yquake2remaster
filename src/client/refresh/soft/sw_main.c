@@ -456,6 +456,7 @@ static qboolean
 RE_Init(void)
 {
 	R_RegisterVariables ();
+	R_VertBufferInit();
 	R_InitImages ();
 	Mod_Init ();
 	Draw_InitLocal ();
@@ -522,6 +523,7 @@ RE_Shutdown (void)
 	R_UnRegister ();
 	Mod_FreeAll ();
 	R_ShutdownImages ();
+	R_VertBufferFree();
 
 	RE_ShutdownContext();
 }

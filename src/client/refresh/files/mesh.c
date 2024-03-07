@@ -109,8 +109,8 @@ R_CompressNormalMDL(const float *normal)
 void
 R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
-		const dxtrivertx_t *verts, float *lerp,
-		const float move[3], const float frontv[3], const float backv[3])
+		float *lerp, const float move[3],
+		const float frontv[3], const float backv[3])
 {
 	int i;
 
@@ -118,7 +118,7 @@ R_LerpVerts(qboolean powerUpEffect, int nverts,
 	{
 		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
-			const float *normal = r_avertexnormals[verts[i].lightnormalindex];
+			const float *normal = r_avertexnormals[v->lightnormalindex];
 
 			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0] +
 					  normal[0] * POWERSUIT_SCALE;

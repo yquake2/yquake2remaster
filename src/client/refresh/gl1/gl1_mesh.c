@@ -177,7 +177,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 	vec4_t *s_lerped)
 {
 	daliasxframe_t *frame, *oldframe;
-	dxtrivertx_t *v, *ov, *verts;
+	dxtrivertx_t *ov, *verts;
 	int *order;
 	float frontlerp;
 	float alpha;
@@ -193,7 +193,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
-	verts = v = frame->verts;
+	verts = frame->verts;
 
 	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 				+ currententity->oldframe * paliashdr->framesize);
@@ -237,7 +237,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 
 	lerp = s_lerped[0];
 
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp, move, frontv, backv);
 
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
