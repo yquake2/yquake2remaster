@@ -334,10 +334,10 @@ AllocateFrames(md5_model_t *anim)
 static void
 FreeModelMd5Frames(md5_model_t *mdl)
 {
-	int i;
-
 	if (mdl->skelFrames)
 	{
+		int i;
+
 		for (i = 0; i < mdl->num_frames; ++i)
 		{
 			if (mdl->skelFrames[i].vertexArray)
@@ -398,11 +398,12 @@ ParseFloatBlock(char **curr_buff, int count, float *v)
 static void
 ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 {
-	char *curr_buff, *end_buff, *safe_buffer;
-	md5_joint_info_t *jointInfos = NULL;
 	md5_baseframe_joint_t *baseFrame = NULL;
-	float *animFrameData = NULL;
+	md5_joint_info_t *jointInfos = NULL;
 	int numAnimatedComponents = 0;
+	char *curr_buff,*safe_buffer;
+	float *animFrameData = NULL;
+	const char *end_buff;
 
 	/* buffer has not always had final zero */
 	safe_buffer = malloc(size + 1);
@@ -668,8 +669,6 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 static void
 FreeModelMd5(md5_model_t *mdl)
 {
-	int i;
-
 	FreeModelMd5Frames(mdl);
 
 	if (mdl->vertexIndices)
@@ -698,6 +697,8 @@ FreeModelMd5(md5_model_t *mdl)
 
 	if (mdl->meshes)
 	{
+		int i;
+
 		/* Free mesh data */
 		for (i = 0; i < mdl->num_meshes; ++i)
 		{

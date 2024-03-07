@@ -1005,17 +1005,17 @@ static void *
 Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins, modtype_t *type)
 {
-	vec3_t		translate = {0, 0, 0};
-	dmdla_t		pinmodel;
-	dmdx_t		*pheader;
-	dtriangle_t	*pintri;
-	dstvert_t	*pinst;
-	dmdxmesh_t *mesh_nodes;
-	int		*pincmd;
-	void	*extradata;
-	int		i;
 	int framesize, ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds,
 		ofs_frames, ofs_end;
+	vec3_t translate = {0, 0, 0};
+	const dtriangle_t *pintri;
+	const dstvert_t *pinst;
+	dmdxmesh_t *mesh_nodes;
+	const int *pincmd;
+	dmdla_t pinmodel;
+	void *extradata;
+	dmdx_t *pheader;
+	int i;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
