@@ -39,7 +39,7 @@ float shadelight[3];
 float *shadedots = r_avertexnormal_dots[0];
 
 static void
-R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
+R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *order_end,
 	float alpha, dxtrivertx_t *verts, vec4_t *s_lerped)
 {
 #ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
@@ -96,13 +96,12 @@ R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
 		YQ2_VLA(GLfloat, clr, 4*total);
 #endif
 
-		unsigned int index_vtx = 0;
-		unsigned int index_tex = 0;
-		unsigned int index_clr = 0;
-
 		if (currententity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
 		{
+			unsigned int index_vtx = 0;
+			unsigned int index_clr = 0;
+
 			do
 			{
 				int index_xyz;
@@ -123,6 +122,10 @@ R_DrawAliasDrawCommands(entity_t *currententity, int *order, int *order_end,
 		}
 		else
 		{
+			unsigned int index_vtx = 0;
+			unsigned int index_tex = 0;
+			unsigned int index_clr = 0;
+
 			do
 			{
 				int index_xyz;
@@ -177,7 +180,8 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 	vec4_t *s_lerped)
 {
 	daliasxframe_t *frame, *oldframe;
-	dxtrivertx_t *ov, *verts;
+	const dxtrivertx_t *ov;
+	dxtrivertx_t *verts;
 	int *order;
 	float frontlerp;
 	float alpha;
@@ -258,7 +262,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 }
 
 static void
-R_DrawAliasShadowCommand(entity_t *currententity, int *order, int *order_end,
+R_DrawAliasShadowCommand(const entity_t *currententity, int *order, const int *order_end,
 	float height, float lheight, vec4_t *s_lerped)
 {
 	unsigned short total;
@@ -417,7 +421,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	dmdx_t *paliashdr;
 	float an;
 	vec3_t bbox[8];
-	image_t *skin = NULL;
+	const image_t *skin = NULL;
 	vec4_t *s_lerped;
 
 	if (!(currententity->flags & RF_WEAPONMODEL))

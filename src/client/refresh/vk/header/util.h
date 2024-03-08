@@ -56,8 +56,8 @@ VkResult buffer_create(BufferResource_t *buf,
 VkResult buffer_destroy(BufferResource_t *buf);
 void buffer_unmap(BufferResource_t *buf);
 void *buffer_map(BufferResource_t *buf);
-VkResult buffer_flush(BufferResource_t *buf);
-VkResult buffer_invalidate(BufferResource_t *buf);
+VkResult buffer_flush(const BufferResource_t *buf);
+VkResult buffer_invalidate(const BufferResource_t *buf);
 
 VkResult image_create(ImageResource_t *img,
 		VkImageCreateInfo img_create_info,

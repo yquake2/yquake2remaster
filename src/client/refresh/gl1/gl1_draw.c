@@ -119,7 +119,7 @@ RDraw_FindPic(const char *name)
 void
 RDraw_GetPicSize(int *w, int *h, const char *pic)
 {
-	image_t *gl;
+	const image_t *gl;
 
 	gl = R_FindPic(pic, (findimage_t)R_FindImage);
 
@@ -231,7 +231,7 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor)
 void
 RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 {
-	image_t *image;
+	const image_t *image;
 
 	image = R_FindPic(pic, (findimage_t)R_FindImage);
 
@@ -396,8 +396,6 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 
 	if (!gl_config.palettedtexture || bits == 32)
 	{
-		unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
-
 		/* .. because now if non-power-of-2 textures are supported, we just load
 		 * the data into a texture in the original format, without skipping any
 		 * pixels to fit into a 256x256 texture.
@@ -411,6 +409,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		}
 		else if(gl_config.npottextures || rows <= 256)
 		{
+			unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
 			unsigned* img = image32;
 
 			if(cols*rows > 320*240)
@@ -442,11 +441,11 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		else
 		{
 			unsigned int image32[320*240];
-			unsigned *dest;
 
 			for (i = 0; i < trows; i++)
 			{
 				const byte *source;
+				unsigned *dest;
 
 				row = (int)(i * hscale);
 
@@ -475,10 +474,10 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	else
 	{
 		unsigned char image8[256 * 256];
-		unsigned char *dest;
 
 		for (i = 0; i < trows; i++)
 		{
+			unsigned char *dest;
 			const byte *source;
 
 			row = (int)(i * hscale);

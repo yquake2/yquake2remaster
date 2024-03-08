@@ -192,7 +192,7 @@ void R_RotateForEntity(entity_t *e, float *mvMatrix);
 void R_MarkLeaves(void);
 
 void EmitWaterPolys(msurface_t *fa, image_t *texture,
-				   float *modelMatrix, const float *color,
+				   const float *modelMatrix, const float *color,
 				   qboolean solid_surface);
 void RE_AddSkySurface(msurface_t *fa);
 void RE_ClearSkyBox(void);

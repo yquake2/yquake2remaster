@@ -33,7 +33,6 @@ static void
 R_RenderDlight(dlight_t *light)
 {
 	int i, j;
-	float a;
 	float rad;
 
 	rad = light->intensity * 0.35;
@@ -59,6 +58,8 @@ R_RenderDlight(dlight_t *light)
 
 	for ( i = 16; i >= 0; i-- )
 	{
+		float a;
+
 		clr[index_clr++] = 0;
 		clr[index_clr++] = 0;
 		clr[index_clr++] = 0;

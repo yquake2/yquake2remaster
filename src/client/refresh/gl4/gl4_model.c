@@ -28,8 +28,9 @@
 #include "header/local.h"
 
 YQ2_ALIGNAS_TYPE(int) static byte mod_novis[MAX_MAP_LEAFS / 8];
+
 static gl4model_t mod_known[MAX_MOD_KNOWN];
-static int mod_numknown;
+static int mod_numknown = 0;
 static int mod_max = 0;
 int registration_sequence;
 
@@ -62,7 +63,7 @@ Mod_HasFreeSpace(void)
 	return (mod_numknown + mod_max) < MAX_MOD_KNOWN;
 }
 
-const byte*
+const byte *
 GL4_Mod_ClusterPVS(int cluster, const gl4model_t *model)
 {
 	if ((cluster == -1) || !model->vis)
@@ -183,7 +184,7 @@ static int
 calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
 {
 	dface_t* face_in = (void *)(mod_base + fl->fileofs);
-	texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
+	const texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
 
 	if (fl->filelen % sizeof(*face_in) || tl->filelen % sizeof(*texinfo_in))
 	{
@@ -259,7 +260,7 @@ static int
 calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
 {
 	dqface_t* face_in = (void *)(mod_base + fl->fileofs);
-	texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
+	const texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
 
 	if (fl->filelen % sizeof(*face_in) || tl->filelen % sizeof(*texinfo_in))
 	{
@@ -335,7 +336,7 @@ static void
 Mod_LoadFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
-	int i, count, surfnum, lminfosize, lightofs;
+	int i, count, surfnum, lminfosize;
 	const dlminfo_t *lminfos;
 	msurface_t *out;
 	dface_t *in;
@@ -365,7 +366,7 @@ Mod_LoadFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
-		int	side, ti, planenum;
+		int	side, ti, planenum, lightofs;
 
 		out->firstedge = LittleLong(in->firstedge);
 		out->numedges = LittleShort(in->numedges);
@@ -461,7 +462,7 @@ static void
 Mod_LoadQFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
-	int i, count, surfnum, lminfosize, lightofs;
+	int i, count, surfnum, lminfosize;
 	const dlminfo_t *lminfos;
 	msurface_t *out;
 	dqface_t *in;
@@ -491,7 +492,7 @@ Mod_LoadQFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
-		int	side, ti, planenum;
+		int	side, ti, planenum, lightofs;
 
 		out->firstedge = LittleLong(in->firstedge);
 		out->numedges = LittleLong(in->numedges);
@@ -808,6 +809,11 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 					__func__, mod->name);
 		}
 
+		if (r_validation->value > 0)
+		{
+			R_Printf(PRINT_ALL, "%s: Can't load %s\n", __func__, mod->name);
+		}
+
 		memset(mod->name, 0, sizeof(mod->name));
 		return NULL;
 	}
@@ -855,7 +861,14 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 	}
 
 	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
-	mod->extradatasize = Hunk_End();
+	if (mod->extradata)
+	{
+		mod->extradatasize = Hunk_End();
+	}
+	else
+	{
+		mod->extradatasize = 0;
+	}
 
 	ri.FS_FreeFile(buf);
 
@@ -865,6 +878,18 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 static void
 Mod_Free(gl4model_t *mod)
 {
+	if (!mod->extradata)
+	{
+		/* looks as empty model */
+		memset (mod, 0, sizeof(*mod));
+		return;
+	}
+
+	if (r_validation->value > 0)
+	{
+		R_Printf(PRINT_ALL, "%s: Unload %s\n", __func__, mod->name);
+	}
+
 	Hunk_Free(mod->extradata);
 	memset(mod, 0, sizeof(*mod));
 }
@@ -890,7 +915,7 @@ void
 GL4_BeginRegistration(const char *model)
 {
 	char fullname[MAX_QPATH];
-	cvar_t *flushmap;
+	const cvar_t *flushmap;
 
 	registration_sequence++;
 	gl4_oldviewcluster = -1; /* force markleafs */

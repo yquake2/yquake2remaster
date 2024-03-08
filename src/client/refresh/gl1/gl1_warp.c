@@ -38,8 +38,6 @@ static const int skytexorder[6] = {0, 2, 1, 3, 4, 5};
 
 GLfloat vtx_sky[12];
 GLfloat tex_sky[8];
-unsigned int index_vtx = 0;
-unsigned int index_tex = 0;
 
 /* 3dstudio environment map names */
 static const char *suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
@@ -146,7 +144,7 @@ RE_ClearSkyBox(void)
 }
 
 static void
-RE_MakeSkyVec(float s, float t, int axis)
+RE_MakeSkyVec(float s, float t, int axis, unsigned int *index_tex, unsigned int *index_vtx)
 {
 	vec3_t v, b;
 	int j;
@@ -197,12 +195,12 @@ RE_MakeSkyVec(float s, float t, int axis)
 
 	t = 1.0 - t;
 
-    tex_sky[index_tex++] = s;
-    tex_sky[index_tex++] = t;
+	tex_sky[(*index_tex)++] = s;
+	tex_sky[(*index_tex)++] = t;
 
-    vtx_sky[index_vtx++] = v[ 0 ];
-    vtx_sky[index_vtx++] = v[ 1 ];
-    vtx_sky[index_vtx++] = v[ 2 ];
+	vtx_sky[(*index_vtx)++] = v[ 0 ];
+	vtx_sky[(*index_vtx)++] = v[ 1 ];
+	vtx_sky[(*index_vtx)++] = v[ 2 ];
 }
 
 void
@@ -234,6 +232,8 @@ R_DrawSkyBox(void)
 
 	for (i = 0; i < 6; i++)
 	{
+		unsigned int index_vtx = 0, index_tex = 0;
+
 		if (skyrotate)
 		{
 			skymins[0][i] = -1;
@@ -253,20 +253,17 @@ R_DrawSkyBox(void)
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-		index_vtx = 0;
-		index_tex = 0;
-
-		RE_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
-		RE_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
-		RE_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i );
-		RE_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i );
+		RE_MakeSkyVec(skymins[ 0 ][ i ], skymins[ 1 ] [ i ], i, &index_tex, &index_vtx);
+		RE_MakeSkyVec(skymins[ 0 ][ i ], skymaxs[ 1 ] [ i ], i, &index_tex, &index_vtx);
+		RE_MakeSkyVec(skymaxs[ 0 ][ i ], skymaxs[ 1 ] [ i ], i, &index_tex, &index_vtx);
+		RE_MakeSkyVec(skymaxs[ 0 ][ i ], skymins[ 1 ] [ i ], i, &index_tex, &index_vtx);
 
 		glVertexPointer( 3, GL_FLOAT, 0, vtx_sky );
 		glTexCoordPointer( 2, GL_FLOAT, 0, tex_sky );
 		glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
 
 		glDisableClientState( GL_VERTEX_ARRAY );
-        	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
 	}
 
 	glPopMatrix();

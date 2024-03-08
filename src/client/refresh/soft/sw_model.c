@@ -33,7 +33,7 @@
 static YQ2_ALIGNAS_TYPE(int) byte mod_novis[MAX_MAP_LEAFS / 8];
 
 static model_t	mod_known[MAX_MOD_KNOWN];
-static int	mod_numknown;
+static int	mod_numknown = 0;
 static int	mod_max = 0;
 
 int	registration_sequence;
@@ -129,7 +129,7 @@ static void
 Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 {
 	dmodel_t *in;
-	model_t	*out;
+	model_t *out;
 	int i, j, count;
 
 	in = (void *)(mod_base + l->fileofs);
@@ -633,6 +633,11 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 					__func__, mod->name);
 		}
 
+		if (r_validation->value > 0)
+		{
+			R_Printf(PRINT_ALL, "%s: Can't load %s\n", __func__, mod->name);
+		}
+
 		memset(mod->name, 0, sizeof(mod->name));
 		return NULL;
 	}
@@ -680,16 +685,35 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	}
 
 	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
-	mod->extradatasize = Hunk_End();
+	if (mod->extradata)
+	{
+		mod->extradatasize = Hunk_End();
+	}
+	else
+	{
+		mod->extradatasize = 0;
+	}
 
 	ri.FS_FreeFile(buf);
 
 	return mod;
 }
 
-void
+static void
 Mod_Free(model_t *mod)
 {
+	if (!mod->extradata)
+	{
+		/* looks as empty model */
+		memset (mod, 0, sizeof(*mod));
+		return;
+	}
+
+	if (r_validation->value > 0)
+	{
+		R_Printf(PRINT_ALL, "%s: Unload %s\n", __func__, mod->name);
+	}
+
 	Hunk_Free(mod->extradata);
 	memset(mod, 0, sizeof(*mod));
 }
@@ -715,7 +739,7 @@ void
 RE_BeginRegistration(const char *model)
 {
 	char fullname[MAX_QPATH];
-	cvar_t *flushmap;
+	const cvar_t *flushmap;
 
 	registration_sequence++;
 	r_oldviewcluster = -1; /* force markleafs */

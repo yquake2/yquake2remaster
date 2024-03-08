@@ -228,7 +228,7 @@ static void
 R_BlendLightmaps(const model_t *currentmodel)
 {
 	int i;
-	msurface_t *surf, *newdrawsurf = 0;
+	msurface_t *surf;
 
 	/* don't bother if we're set to fullbright */
 	if (r_fullbright->value)
@@ -299,6 +299,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 	/* render dynamic lightmaps */
 	if (r_dynamic->value)
 	{
+		msurface_t *newdrawsurf;
+
 		LM_InitBlock();
 
 		R_Bind(gl_state.lightmap_textures + 0);
@@ -411,11 +413,11 @@ R_BlendLightmaps(const model_t *currentmodel)
 }
 
 static void
-R_RenderBrushPoly(entity_t *currententity, msurface_t *fa)
+R_RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 {
-	int maps;
-	image_t *image;
 	qboolean is_dynamic = false;
+	const image_t *image;
+	int maps;
 
 	c_brush_polys++;
 
@@ -599,7 +601,7 @@ R_DrawAlphaSurfaces(void)
 }
 
 static void
-R_DrawTextureChains(entity_t *currententity)
+R_DrawTextureChains(const entity_t *currententity)
 {
 	int i;
 	msurface_t *s;
@@ -635,7 +637,7 @@ R_DrawTextureChains(entity_t *currententity)
 }
 
 static void
-R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
+R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 	msurface_t *psurf;
