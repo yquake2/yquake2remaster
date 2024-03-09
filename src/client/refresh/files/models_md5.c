@@ -1344,9 +1344,6 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
 
-	R_Printf(PRINT_DEVELOPER, "mesh num tris %d / num vert %d / commands %d\n",
-		pheader->num_tris, pheader->num_xyz, pheader->num_glcmds);
-
 	for(i = 0; i < md5file->num_frames; i ++)
 	{
 		daliasxframe_t *frame = (daliasxframe_t *)(

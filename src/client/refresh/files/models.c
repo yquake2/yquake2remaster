@@ -1106,9 +1106,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
 
-	R_Printf(PRINT_DEVELOPER, "mesh num tris %d / num vert %d / commands %d\n",
-		pheader->num_tris, pheader->num_xyz, pheader->num_glcmds);
-
 	num_xyz = 0;
 	num_tris = 0;
 
@@ -2119,6 +2116,8 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 {
 	if (type == mod_alias)
 	{
+		dmdxmesh_t *mesh_nodes;
+		int num_mesh_nodes, i;
 		dmdx_t *pheader;
 
 		pheader = (dmdx_t *)extradata;
@@ -2135,6 +2134,17 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 					__func__, mod_name, pheader->skinwidth, MAX_LBM_HEIGHT);
 		}
 
+		R_Printf(PRINT_DEVELOPER, "%s: model %s num tris %d / num vert %d / commands %d\n",
+			__func__, mod_name, pheader->num_tris, pheader->num_xyz, pheader->num_glcmds);
+
+		num_mesh_nodes = pheader->num_meshes;
+		mesh_nodes = (dmdxmesh_t *)((char*)pheader + pheader->ofs_meshes);
+
+		for (i = 0; i < num_mesh_nodes; i++)
+		{
+			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands\n",
+				__func__, mod_name, i, mesh_nodes[i].num);
+		}
 	}
 }
 
