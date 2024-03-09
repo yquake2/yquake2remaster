@@ -872,6 +872,9 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
 
+	R_Printf(PRINT_DEVELOPER, "mesh num tris %d / num vert %d / commands %d\n",
+		pheader->num_tris, pheader->num_xyz, pheader->num_glcmds);
+
 	num_xyz = 0;
 	num_tris = 0;
 

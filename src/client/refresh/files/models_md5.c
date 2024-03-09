@@ -306,9 +306,6 @@ AllocateFrames(md5_model_t *anim)
 		anim->num_tris += anim->meshes[i].num_tris;
 	}
 
-	R_Printf(PRINT_DEVELOPER, "mesh num tris %d / num vert %d\n",
-		anim->num_tris, anim->num_verts);
-
 	anim->vertexIndices = (int *)
 		malloc(sizeof(int) * anim->num_tris * 3);
 	anim->st = (vec2_t *)
@@ -1346,6 +1343,9 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_frames = ofs_frames;
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
+
+	R_Printf(PRINT_DEVELOPER, "mesh num tris %d / num vert %d / commands %d\n",
+		pheader->num_tris, pheader->num_xyz, pheader->num_glcmds);
 
 	for(i = 0; i < md5file->num_frames; i ++)
 	{
