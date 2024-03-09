@@ -760,6 +760,240 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+/* md2 glcmds generation, taken from quake2 source (models.c) */
+static int *used;
+
+static int strip_xyz[128];
+static int strip_st[128];
+static int strip_tris[128];
+static int stripcount;
+
+static int
+md2_strip_length(int starttri, int startv, dtriangle_t *triangles, int num_tris)
+{
+	int m1, m2;
+	int st1, st2;
+	int j;
+	dtriangle_t *last, *check;
+	int k;
+
+	used[starttri] = 2;
+
+	last = &triangles[starttri];
+
+	strip_xyz[0] = last->index_xyz[(startv  )%3];
+	strip_xyz[1] = last->index_xyz[(startv+1)%3];
+	strip_xyz[2] = last->index_xyz[(startv+2)%3];
+	strip_st[0] = last->index_st[(startv  )%3];
+	strip_st[1] = last->index_st[(startv+1)%3];
+	strip_st[2] = last->index_st[(startv+2)%3];
+
+	strip_tris[0] = starttri;
+	stripcount = 1;
+
+	m1 = last->index_xyz[(startv+2)%3];
+	st1 = last->index_st[(startv+2)%3];
+	m2 = last->index_xyz[(startv+1)%3];
+	st2 = last->index_st[(startv+1)%3];
+
+/* look for a matching triangle */
+nexttri:
+	for (j = starttri + 1, check = &triangles[starttri + 1]; j < num_tris; j++, check++)
+	{
+		for (k = 0; k < 3; k++)
+		{
+			if (check->index_xyz[k] != m1)
+				continue;
+			if (check->index_st[k] != st1)
+				continue;
+			if (check->index_xyz[(k+1)%3] != m2)
+				continue;
+			if (check->index_st[(k+1)%3] != st2)
+				continue;
+
+		/* this is the next part of the fan */
+
+		/* if we can't use this triangle, this tristrip is done */
+			if (used[j])
+				goto done;
+
+		/* the new edge */
+			if (stripcount & 1)
+			{
+				m2 = check->index_xyz[(k+2)%3];
+				st2 = check->index_st[(k+2)%3];
+			}
+			else
+			{
+				m1 = check->index_xyz[(k+2)%3];
+				st1 = check->index_st[(k+2)%3];
+			}
+
+			strip_xyz[stripcount+2] = check->index_xyz[(k+2)%3];
+			strip_st[stripcount+2] = check->index_st[(k+2)%3];
+			strip_tris[stripcount] = j;
+			stripcount++;
+
+			used[j] = 2;
+			goto nexttri;
+		}
+	}
+done:
+
+/* clear the temp used flags */
+	for (j = starttri + 1; j < num_tris; j++)
+		if (used[j] == 2)
+			used[j] = 0;
+
+	return stripcount;
+}
+
+static int
+md2_fan_length(int starttri, int startv, dtriangle_t *triangles, int num_tris)
+{
+	int m1, m2;
+	int st1, st2;
+	int j;
+	dtriangle_t *last, *check;
+	int k;
+
+	used[starttri] = 2;
+
+	last = &triangles[starttri];
+
+	strip_xyz[0] = last->index_xyz[(startv  )%3];
+	strip_xyz[1] = last->index_xyz[(startv+1)%3];
+	strip_xyz[2] = last->index_xyz[(startv+2)%3];
+	strip_st[0] = last->index_st[(startv  )%3];
+	strip_st[1] = last->index_st[(startv+1)%3];
+	strip_st[2] = last->index_st[(startv+2)%3];
+
+	strip_tris[0] = starttri;
+	stripcount = 1;
+
+	m1 = last->index_xyz[(startv+0)%3];
+	st1 = last->index_st[(startv+0)%3];
+	m2 = last->index_xyz[(startv+2)%3];
+	st2 = last->index_st[(startv+2)%3];
+
+
+/* look for a matching triangle */
+nexttri:
+	for (j = starttri + 1, check = &triangles[starttri + 1]; j < num_tris; j++, check++)
+	{
+		for (k = 0; k < 3; k++)
+		{
+			if (check->index_xyz[k] != m1)
+				continue;
+			if (check->index_st[k] != st1)
+				continue;
+			if (check->index_xyz[(k+1)%3] != m2)
+				continue;
+			if (check->index_st[(k+1)%3] != st2)
+				continue;
+
+		/* this is the next part of the fan */
+
+		/* if we can't use this triangle, this tristrip is done */
+			if (used[j])
+				goto done;
+
+		/* the new edge */
+			m2 = check->index_xyz[(k+2)%3];
+			st2 = check->index_st[(k+2)%3];
+
+			strip_xyz[stripcount+2] = m2;
+			strip_st[stripcount+2] = st2;
+			strip_tris[stripcount] = j;
+			stripcount++;
+
+			used[j] = 2;
+			goto nexttri;
+		}
+	}
+done:
+
+/* clear the temp used flags */
+	for (j = starttri + 1; j < num_tris; j++)
+		if (used[j] == 2)
+			used[j] = 0;
+
+	return stripcount;
+}
+
+static int
+md2_build_glcmds(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tris,
+	int *commands, int skinwidth, int skinheight)
+{
+	int i, j, numcommands;
+	int startv;
+	int len, bestlen, besttype = -1;
+	int best_xyz[1024];
+	int best_st[1024];
+	int best_tris[1024];
+	int type;
+
+	numcommands = 0;
+	used = (int*)malloc(sizeof(int) * num_tris);
+	memset(used, 0, sizeof(int) * num_tris);
+	for (i = 0; i < num_tris; i++)
+	{
+		/* pick an unused triangle and start the trifan */
+		if (used[i])
+			continue;
+
+		bestlen = 0;
+		for (type = 0; type < 2; type++)
+		{
+			for (startv = 0; startv < 3; startv++)
+			{
+				if (type == 1)
+					len = md2_strip_length(i, startv, triangles, num_tris);
+				else
+					len = md2_fan_length(i, startv, triangles, num_tris);
+
+				if (len > bestlen)
+				{
+					besttype = type;
+					bestlen = len;
+					for (j = 0; j < bestlen + 2; j++)
+					{
+						best_st[j] = strip_st[j];
+						best_xyz[j] = strip_xyz[j];
+					}
+					for (j = 0; j < bestlen; j++)
+						best_tris[j] = strip_tris[j];
+				}
+			}
+		}
+
+		/* mark the tris on the best strip/fan as used */
+		for (j = 0; j < bestlen; j++)
+			used[best_tris[j]] = 1;
+
+		if (besttype == 1)
+			commands[numcommands++] = (bestlen+2);
+		else
+			commands[numcommands++] = -(bestlen+2);
+
+		for (j = 0; j < bestlen + 2; j++)
+		{
+			union { float f; int i; } u;
+			u.f = (texcoords[best_st[j]].s + 0.5f) / skinwidth;
+			commands[numcommands++] = u.i;
+			u.f = (texcoords[best_st[j]].t + 0.5f) / skinheight;
+			commands[numcommands++] = u.i;
+			commands[numcommands++] = best_xyz[j];
+		}
+	}
+
+	commands[numcommands++] = 0; /* end of list marker */
+
+	free(used);
+
+	return numcommands;
+}
+
 /*
 =================
 Mod_LoadModel_MD3
@@ -770,7 +1004,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	dmdx_t *pheader = NULL;
-	const int *baseglcmds;
+	int *baseglcmds;
 	md3_header_t pinmodel;
 	void *extradata;
 	int *pglcmds;
@@ -828,7 +1062,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		num_skins += LittleLong(md3_mesh->num_shaders);
 
 		/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
-		num_glcmds += (10 * md3_mesh->num_tris) + 1;
+		num_glcmds += (10 * LittleLong(md3_mesh->num_tris)) + 1;
 
 		if (pinmodel.num_frames != LittleLong(md3_mesh->num_frames))
 		{
@@ -837,14 +1071,14 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 			return NULL;
 		}
 
-		meshofs += md3_mesh->ofs_end;
+		meshofs += LittleLong(md3_mesh->ofs_end);
 	}
 
 	int framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_xyz;
 	int ofs_skins = sizeof(dmdx_t);
 	int ofs_frames = ofs_skins + num_skins * MAX_SKINNAME;
 	int ofs_glcmds = ofs_frames + framesize * pinmodel.num_frames;
-	int ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int);
+	int ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int) * pinmodel.num_meshes;
 	int ofs_tris = ofs_meshes + pinmodel.num_meshes * sizeof(dmdxmesh_t);
 	int ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
 	int ofs_end = ofs_st + num_tris * 3 * sizeof(dstvert_t);
@@ -889,67 +1123,90 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	for (i = 0; i < pinmodel.num_meshes; i++)
 	{
 		const md3_mesh_t *md3_mesh = (md3_mesh_t*)((byte*)buffer + meshofs);
-		const float *fst = (const float*)((byte*)buffer + meshofs + md3_mesh->ofs_st);
+		const float *fst = (const float*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_st));
 		int j;
 
 		/* load shaders */
-		for (j = 0; j < md3_mesh->num_shaders; j++)
+		for (j = 0; j < LittleLong(md3_mesh->num_shaders); j++)
 		{
-			const md3_shader_t *md3_shader = (md3_shader_t*)((byte*)buffer + meshofs + md3_mesh->ofs_shaders) + j;
+			const md3_shader_t *md3_shader = (md3_shader_t*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_shaders)) + j;
 
 			strncpy(skin, md3_shader->name, MAX_SKINNAME - 1);
 			skin += MAX_SKINNAME;
 		}
 
-		for (j = 0; j < md3_mesh->num_xyz; j++)
+		for (j = 0; j < LittleLong(md3_mesh->num_xyz); j++)
 		{
 			st[j + num_xyz].s = LittleFloat(fst[j * 2 + 0])  * pheader->skinwidth;
 			st[j + num_xyz].t = LittleFloat(fst[j * 2 + 1])  * pheader->skinheight;
 		}
 
 		/* load triangles */
-		const int *p = (const int*)((byte*)buffer + meshofs + md3_mesh->ofs_tris);
+		const int *p = (const int*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_tris));
 
 		mesh_nodes[i].start = pglcmds - baseglcmds;
 
-		for (j = 0; j < md3_mesh->num_tris * 3; j++)
+		for (j = 0; j < LittleLong(md3_mesh->num_tris) * 3; j++)
 		{
 			int vert_id;
-			vec2_t cmdst;
 
-			/* count */
-			if ((j % 3) == 0)
+			/* index */
+			vert_id = LittleLong(p[j]) + num_xyz;
+			tris[num_tris + j / 3].index_xyz[j % 3] = vert_id;
+			tris[num_tris + j / 3].index_st[j % 3] = vert_id;
+		}
+
+		if (1)
+		{
+			for (j = 0; j < LittleLong(md3_mesh->num_tris) * 3; j++)
 			{
-				*pglcmds = 3;
+				int vert_id;
+				vec2_t cmdst;
+
+				/* count */
+				if ((j % 3) == 0)
+				{
+					*pglcmds = 3;
+					pglcmds++;
+				}
+
+				/* st */
+				cmdst[0] = LittleFloat(fst[LittleLong(p[j]) * 2 + 0]);
+				cmdst[1] = LittleFloat(fst[LittleLong(p[j]) * 2 + 1]);
+				memcpy(pglcmds, &cmdst, sizeof(cmdst));
+				pglcmds += 2;
+				/* index */
+				vert_id = LittleLong(p[j]) + num_xyz;
+				*pglcmds = vert_id;
+
 				pglcmds++;
 			}
 
-			/* st */
-			cmdst[0] = LittleFloat(fst[LittleLong(p[j]) * 2 + 0]);
-			cmdst[1] = LittleFloat(fst[LittleLong(p[j]) * 2 + 1]);
-			memcpy(pglcmds, &cmdst, sizeof(cmdst));
-			pglcmds += 2;
-			/* index */
-			vert_id = LittleLong(p[j]) + num_xyz;
-			*pglcmds = vert_id;
-			tris[num_tris + j / 3].index_xyz[j % 3] = vert_id;
-			tris[num_tris + j / 3].index_st[j % 3] = vert_id;
-
+			/* final zero */
+			*pglcmds = 0;
 			pglcmds++;
+
+			mesh_nodes[i].num = pglcmds - baseglcmds - mesh_nodes[i].start;
+		}
+		else
+		{
+			/* write glcmds */
+			mesh_nodes[i].num = md2_build_glcmds(
+				(dstvert_t*)((byte *)pheader + pheader->ofs_st),
+				(dtriangle_t*)((byte *)pheader + pheader->ofs_tris),
+				num_tris + LittleLong(md3_mesh->num_tris),
+				baseglcmds + mesh_nodes[i].start,
+				pheader->skinwidth, pheader->skinheight);
+
+			pglcmds = baseglcmds + mesh_nodes[i].start + mesh_nodes[i].num;
 		}
 
-		/* final zero */
-		*pglcmds = 0;
-		pglcmds++;
-
-		mesh_nodes[i].num = pglcmds - baseglcmds - mesh_nodes[i].start;
-
-		md3_vertex_t *md3_vertex = (md3_vertex_t*)((byte*)buffer + meshofs + md3_mesh->ofs_verts);
+		md3_vertex_t *md3_vertex = (md3_vertex_t*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_verts));
 		int k;
 
 		for (k = 0; k < pinmodel.num_frames; k ++)
 		{
-			for (j = 0; j < md3_mesh->num_xyz; j++, md3_vertex++)
+			for (j = 0; j < LittleLong(md3_mesh->num_xyz); j++, md3_vertex++)
 			{
 				double npitch, nyaw;
 				short normalpitchyaw;
@@ -970,7 +1227,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 			}
 		}
 
-		meshofs += md3_mesh->ofs_end;
+		meshofs += LittleLong(md3_mesh->ofs_end);
 		num_xyz += LittleLong(md3_mesh->num_xyz);
 		num_tris += LittleLong(md3_mesh->num_tris);
 	}
