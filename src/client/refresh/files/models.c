@@ -767,7 +767,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 /* glcmds generation */
 static int
-md2_strip_length(int starttri, int startv, dtriangle_t *triangles, int num_tris,
+Mod_LoadCmdStripLength(int starttri, int startv, dtriangle_t *triangles, int num_tris,
 	byte *used, int *strip_xyz, int *strip_st, int *strip_tris)
 {
 	int m1, m2;
@@ -854,7 +854,7 @@ done:
 }
 
 static int
-md2_fan_length(int starttri, int startv, dtriangle_t *triangles, int num_tris,
+Mod_LoadCmdFanLength(int starttri, int startv, dtriangle_t *triangles, int num_tris,
 	byte *used, int *strip_xyz, int *strip_st, int *strip_tris)
 {
 	int m1, m2;
@@ -933,8 +933,8 @@ done:
 	return stripcount;
 }
 
-static int
-md2_build_glcmds(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tris,
+int
+Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tris,
 	int *commands, int skinwidth, int skinheight)
 {
 	int i, j, numcommands = 0, startv, len, bestlen, type, besttype = -1;
@@ -965,12 +965,12 @@ md2_build_glcmds(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tri
 			{
 				if (type == 1)
 				{
-					len = md2_strip_length(i, startv, triangles, num_tris,
+					len = Mod_LoadCmdStripLength(i, startv, triangles, num_tris,
 						used, strip_xyz, strip_st, strip_tris);
 				}
 				else
 				{
-					len = md2_fan_length(i, startv, triangles, num_tris,
+					len = Mod_LoadCmdFanLength(i, startv, triangles, num_tris,
 						used, strip_xyz, strip_st, strip_tris);
 				}
 
@@ -1206,7 +1206,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		}
 
 		/* write glcmds */
-		mesh_nodes[i].num = md2_build_glcmds(
+		mesh_nodes[i].num = Mod_LoadCmdCompress(
 			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
 			(dtriangle_t*)((byte *)pheader + pheader->ofs_tris) + num_tris,
 			LittleLong(md3_mesh->num_tris),
