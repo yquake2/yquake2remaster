@@ -357,7 +357,8 @@ General clipped case
 static void
 R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const finalvert_t *verts_max)
 {
-	int		i;
+	int		i, m, num_mesh_nodes;
+	dmdxmesh_t *mesh_nodes;
 	dstvert_t	*pstverts;
 	dtriangle_t	*ptri;
 	finalvert_t	*pfv[3];
@@ -389,67 +390,78 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 	pstverts = (dstvert_t *)((byte *)s_pmdl + s_pmdl->ofs_st);
 	ptri = (dtriangle_t *)((byte *)s_pmdl + s_pmdl->ofs_tris);
 
-	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
+	num_mesh_nodes = s_pmdl->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)s_pmdl + s_pmdl->ofs_meshes);
+
+	for (m = 0; m < num_mesh_nodes; m++)
 	{
-		for (i=0 ; i<s_pmdl->num_tris ; i++, ptri++)
+		int ofs_tris, num_tris;
+
+		ofs_tris = Q_max(mesh_nodes[m].ofs_tris, 0);
+		num_tris = Q_min(ofs_tris + mesh_nodes[m].num_tris, s_pmdl->num_tris);
+
+		if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
 		{
-			pfv[0] = &verts[ptri->index_xyz[0]];
-			pfv[1] = &verts[ptri->index_xyz[1]];
-			pfv[2] = &verts[ptri->index_xyz[2]];
-
-			if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
-				continue;	// completely clipped
-
-			// insert s/t coordinates
-			pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
-			pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
-
-			pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
-			pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
-
-			pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
-			pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
-
-			if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
+			for (i = ofs_tris; i < num_tris; i++, ptri++)
 			{
-				// totally unclipped
-				R_DrawTriangle(currententity, pfv[2], pfv[1], pfv[0]);
-			}
-			else
-			{
-				R_AliasClipTriangle(currententity, pfv[2], pfv[1], pfv[0]);
+				pfv[0] = &verts[ptri->index_xyz[0]];
+				pfv[1] = &verts[ptri->index_xyz[1]];
+				pfv[2] = &verts[ptri->index_xyz[2]];
+
+				if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
+					continue;	// completely clipped
+
+				// insert s/t coordinates
+				pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
+				pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
+
+				pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
+				pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
+
+				pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
+				pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
+
+				if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
+				{
+					// totally unclipped
+					R_DrawTriangle(currententity, pfv[2], pfv[1], pfv[0]);
+				}
+				else
+				{
+					R_AliasClipTriangle(currententity, pfv[2], pfv[1], pfv[0]);
+				}
 			}
 		}
-	}
-	else
-	{
-		for (i=0 ; i<s_pmdl->num_tris ; i++, ptri++)
+		else
 		{
-			pfv[0] = &verts[ptri->index_xyz[0]];
-			pfv[1] = &verts[ptri->index_xyz[1]];
-			pfv[2] = &verts[ptri->index_xyz[2]];
-
-			if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
-				continue;	// completely clipped
-
-			// insert s/t coordinates
-			pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
-			pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
-
-			pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
-			pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
-
-			pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
-			pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
-
-			if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
+			for (i = ofs_tris; i < num_tris; i++, ptri++)
 			{
-				// totally unclipped
-				R_DrawTriangle(currententity, pfv[0], pfv[1], pfv[2]);
-			}
-			else
-			{	// partially clipped
-				R_AliasClipTriangle(currententity, pfv[0], pfv[1], pfv[2]);
+				pfv[0] = &verts[ptri->index_xyz[0]];
+				pfv[1] = &verts[ptri->index_xyz[1]];
+				pfv[2] = &verts[ptri->index_xyz[2]];
+
+				if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
+					continue;	// completely clipped
+
+				// insert s/t coordinates
+				pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
+				pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
+
+				pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
+				pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
+
+				pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
+				pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
+
+				if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
+				{
+					// totally unclipped
+					R_DrawTriangle(currententity, pfv[0], pfv[1], pfv[2]);
+				}
+				else
+				{	// partially clipped
+					R_AliasClipTriangle(currententity, pfv[0], pfv[1], pfv[2]);
+				}
 			}
 		}
 	}

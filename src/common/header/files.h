@@ -375,8 +375,12 @@ typedef struct
 
 typedef struct
 {
-	unsigned int start;
-	unsigned int num;
+	/* Used gl commands */
+	unsigned int ofs_glcmds;
+	unsigned int num_glcmds;
+	/* Used triangles in mesh */
+	unsigned int ofs_tris;
+	unsigned int num_tris;
 } dmdxmesh_t;
 
 typedef struct

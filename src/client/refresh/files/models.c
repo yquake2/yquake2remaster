@@ -557,8 +557,10 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
-	mesh_nodes[0].start = 0;
-	mesh_nodes[0].num = num_glcmds;
+	mesh_nodes[0].ofs_tris = 0;
+	mesh_nodes[0].num_tris = num_tris;
+	mesh_nodes[0].ofs_glcmds = 0;
+	mesh_nodes[0].num_glcmds = num_glcmds;
 
 	{
 		int i;
@@ -625,7 +627,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			triangles = (mdl_triangle_t *) curr_pos;
 			curr_pos += sizeof(mdl_triangle_t) * num_tris;
 
-			for (i=0 ; i<num_tris ; i++)
+			for (i = 0; i < num_tris; i++)
 			{
 				int j;
 
@@ -1188,7 +1190,9 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		/* load triangles */
 		p = (const int*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_tris));
 
-		mesh_nodes[i].start = pglcmds - baseglcmds;
+		mesh_nodes[i].ofs_glcmds = pglcmds - baseglcmds;
+		mesh_nodes[i].ofs_tris = num_tris;
+		mesh_nodes[i].num_tris = num_tris + LittleLong(md3_mesh->num_tris);
 
 		for (j = 0; j < LittleLong(md3_mesh->num_tris); j++)
 		{
@@ -1206,14 +1210,14 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		}
 
 		/* write glcmds */
-		mesh_nodes[i].num = Mod_LoadCmdCompress(
+		mesh_nodes[i].num_glcmds = Mod_LoadCmdCompress(
 			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
 			(dtriangle_t*)((byte *)pheader + pheader->ofs_tris) + num_tris,
 			LittleLong(md3_mesh->num_tris),
 			pglcmds,
 			pheader->skinwidth, pheader->skinheight);
 
-		pglcmds += mesh_nodes[i].num;
+		pglcmds += mesh_nodes[i].num_glcmds;
 
 		md3_vertex = (md3_vertex_t*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_verts));
 
@@ -1404,8 +1408,10 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
-	mesh_nodes[0].start = 0;
-	mesh_nodes[0].num = pheader->num_glcmds;
+	mesh_nodes[0].ofs_tris = 0;
+	mesh_nodes[0].num_tris = pheader->num_tris;
+	mesh_nodes[0].ofs_glcmds = 0;
+	mesh_nodes[0].num_glcmds = pheader->num_glcmds;
 
 	//
 	// load base s and t vertices (not used in gl version)
@@ -1541,8 +1547,10 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
-	mesh_nodes[0].start = 0;
-	mesh_nodes[0].num = pheader->num_glcmds;
+	mesh_nodes[0].ofs_tris = 0;
+	mesh_nodes[0].num_tris = pheader->num_tris;
+	mesh_nodes[0].ofs_glcmds = 0;
+	mesh_nodes[0].num_glcmds = pheader->num_glcmds;
 
 	if (pheader->num_xyz <= 0)
 	{
@@ -1905,14 +1913,58 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 					mesh_nodes = (dmdxmesh_t *)((char*)pheader + sizeof(*pheader));
 					for (i = 0; i < num_mesh_nodes; i++)
 					{
+						int j, min = 256 * 8, max = 0;
+
+						for (j = 0; j < 256; j++)
+						{
+							if (in_mesh[j])
+							{
+								if (min > (j * 8))
+								{
+									int k, v = in_mesh[j];
+
+									for (k = 0; k < 8; k ++)
+									{
+										if ((v & 1))
+										{
+											min = j * 8 + k;
+											break;
+										}
+										v >>= 1;
+									}
+								}
+								break;
+							}
+						}
+
+						for (j = (min / 8) - 1; j < 256; j++)
+						{
+							if (in_mesh[j])
+							{
+								int v = in_mesh[j];
+
+								max = j * 8;
+
+								while (v)
+								{
+									max ++;
+									v >>= 1;
+								}
+							}
+						}
+
+						/* save mesh triangle */
+						mesh_nodes[i].ofs_tris = min;
+						mesh_nodes[i].num_tris = max - min;
+
 						/* 256 bytes of tri data */
 						/* 256 bytes of vert data */
 						/* 2 bytes of start */
 						/* 2 bytes of number commands */
 						in_mesh += 512;
-						mesh_nodes[i].start = LittleShort(*(short *)in_mesh);
+						mesh_nodes[i].ofs_glcmds = LittleShort(*(short *)in_mesh);
 						in_mesh += 2;
-						mesh_nodes[i].num = LittleShort(*(short *)in_mesh);
+						mesh_nodes[i].num_glcmds = LittleShort(*(short *)in_mesh);
 						in_mesh += 2;
 					}
 				}
@@ -2039,8 +2091,10 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
-	mesh_nodes[0].start = 0;
-	mesh_nodes[0].num = pheader->num_glcmds;
+	mesh_nodes[0].ofs_tris = 0;
+	mesh_nodes[0].num_tris = pheader->num_tris;
+	mesh_nodes[0].ofs_glcmds = 0;
+	mesh_nodes[0].num_glcmds = pheader->num_glcmds;
 
 	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
@@ -2155,9 +2209,9 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
-			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands\n",
-				__func__, mod_name, i, mesh_nodes[i].num);
-			num_glcmds += mesh_nodes[i].num;
+			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands, %d tris\n",
+				__func__, mod_name, i, mesh_nodes[i].num_glcmds, mesh_nodes[i].num_tris);
+			num_glcmds += mesh_nodes[i].num_tris;
 		}
 		R_Printf(PRINT_DEVELOPER,
 			"%s: model %s num tris %d / num vert %d / commands %d of %d\n",

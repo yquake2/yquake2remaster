@@ -249,9 +249,9 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		R_DrawAliasDrawCommands(currententity,
-			order + mesh_nodes[i].start,
+			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
-				mesh_nodes[i].start + mesh_nodes[i].num),
+				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, verts, s_lerped);
 	}
 
@@ -370,9 +370,9 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		R_DrawAliasShadowCommand(currententity,
-			order + mesh_nodes[i].start,
+			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
-				mesh_nodes[i].start + mesh_nodes[i].num),
+				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			height, lheight, s_lerped);
 	}
 

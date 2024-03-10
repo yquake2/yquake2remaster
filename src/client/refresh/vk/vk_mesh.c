@@ -464,9 +464,9 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		Vk_DrawAliasFrameLerpCommands(currententity,
-			order + mesh_nodes[i].start,
+			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
-				mesh_nodes[i].start + mesh_nodes[i].num),
+				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, skin,
 			modelMatrix, leftHandOffset, translucentIdx, verts,
 			s_lerped, paliashdr->num_xyz);
@@ -894,9 +894,9 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			Vk_DrawAliasShadow (
-				order + mesh_nodes[i].start,
+				order + mesh_nodes[i].ofs_glcmds,
 				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i].start + mesh_nodes[i].num),
+					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 				currententity->frame, model, currententity,
 				s_lerped);
 		}
