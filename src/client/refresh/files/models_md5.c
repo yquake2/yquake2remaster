@@ -95,7 +95,6 @@ typedef struct md5_model_s
 	md5_joint_t *baseSkel;
 	md5_mesh_t *meshes;
 	md5_frame_t *skelFrames;
-	int *vertexIndices;
 	vec2_t *st;
 	char *skins;
 
@@ -306,8 +305,6 @@ AllocateFrames(md5_model_t *anim)
 		anim->num_tris += anim->meshes[i].num_tris;
 	}
 
-	anim->vertexIndices = (int *)
-		malloc(sizeof(int) * anim->num_tris * 3);
 	anim->st = (vec2_t *)
 		malloc(sizeof(vec2_t) * anim->num_tris * 3);
 
@@ -667,12 +664,6 @@ static void
 FreeModelMd5(md5_model_t *mdl)
 {
 	FreeModelMd5Frames(mdl);
-
-	if (mdl->vertexIndices)
-	{
-		free(mdl->vertexIndices);
-		mdl->vertexIndices = NULL;
-	}
 
 	if (mdl->st)
 	{
@@ -1045,7 +1036,7 @@ ReadMD5Model(const char *buffer, size_t size)
  * Put the vertices in vertex arrays.
  */
 static void
-PrepareMeshIndices(const md5_mesh_t *mesh, int *vertexIndices, vec2_t *st, int vertex_index, int tris_index)
+PrepareMeshIndices(const md5_mesh_t *mesh, vec2_t *st, int vertex_index, int tris_index)
 {
 	int i, k;
 
@@ -1056,7 +1047,6 @@ PrepareMeshIndices(const md5_mesh_t *mesh, int *vertexIndices, vec2_t *st, int v
 
 		for (j = 0; j < 3; ++j, ++k)
 		{
-			vertexIndices[k] = mesh->triangles[i].index[j] + vertex_index;
 			st[k][0] = mesh->vertices[mesh->triangles[i].index[j]].st[0];
 			st[k][1] = mesh->vertices[mesh->triangles[i].index[j]].st[1];
 		}
@@ -1152,7 +1142,7 @@ PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *fram
 	}
 }
 
-void
+static void
 MD5_ComputeNormals(md5_model_t *md5file)
 {
 	int i;
@@ -1300,7 +1290,6 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 		}
 
 		PrepareMeshIndices(md5file->meshes + i,
-			md5file->vertexIndices,
 			md5file->st,
 			num_verts, num_tris);
 
@@ -1353,8 +1342,6 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 			num_verts, frame);
 	}
 
-	num_tris = 0;
-
 	baseglcmds = pglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
 	mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
@@ -1366,14 +1353,36 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 		st[i].t = md5file->st[i][1] * pheader->skinheight;
 	}
 
+
+	num_tris = 0;
+	num_verts = 0;
+
 	for (i = 0; i < md5file->num_meshes; ++i)
 	{
 		int j;
 
 		mesh_nodes[i].start = pglcmds - baseglcmds;
 
+		for (j = 0; j < md5file->meshes[i].num_tris; j++)
+		{
+			int k;
+
+			for (k = 0; k < 3; k++)
+			{
+				int vert_id;
+
+				vert_id = num_verts + md5file->meshes[i].triangles[j].index[k];
+				tris[num_tris + j].index_xyz[k] = vert_id;
+				tris[num_tris + j].index_st[k] = (num_tris + j) * 3 + k;
+			}
+		}
+
+		/* write glcmds */
 		for (j = 0; j < md5file->meshes[i].num_tris * 3; j++)
 		{
+			int vert_id;
+
+			vert_id = num_verts + md5file->meshes[i].triangles[j / 3].index[j % 3];
 			/* count */
 			if ((j % 3) == 0)
 			{
@@ -1385,10 +1394,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 			memcpy(pglcmds, &md5file->st[num_tris * 3 + j], sizeof(vec2_t));
 			pglcmds += 2;
 			/* index */
-			*pglcmds = md5file->vertexIndices[num_tris * 3 + j];
-			tris[num_tris + j / 3].index_xyz[j % 3] = *pglcmds;
-			tris[num_tris + j / 3].index_st[j % 3] = num_tris * 3 + j;
-
+			*pglcmds = vert_id;
 			pglcmds++;
 		}
 
@@ -1398,7 +1404,20 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 
 		mesh_nodes[i].num = pglcmds - baseglcmds - mesh_nodes[i].start;
 
-		num_tris += md5file->meshes[i].num_tris; // vertexIndices
+		/*
+		Comressed version is much slower
+		mesh_nodes[i].num = Mod_LoadCmdCompress(
+			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
+			(dtriangle_t*)((byte *)pheader + pheader->ofs_tris) + num_tris,
+			md5file->meshes[i].num_tris,
+			pglcmds,
+			pheader->skinwidth, pheader->skinheight);
+
+		pglcmds += mesh_nodes[i].num;
+		*/
+
+		num_verts += md5file->meshes[i].num_verts;
+		num_tris += md5file->meshes[i].num_tris;
 	}
 
 	/* register all skins */
