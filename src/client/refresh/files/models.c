@@ -765,15 +765,10 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
-/* md2 glcmds generation, taken from quake2 source (models.c) */
-static int *used;
-
-static int strip_xyz[128];
-static int strip_st[128];
-static int strip_tris[128];
-
+/* glcmds generation */
 static int
-md2_strip_length(int starttri, int startv, dtriangle_t *triangles, int num_tris)
+md2_strip_length(int starttri, int startv, dtriangle_t *triangles, int num_tris,
+	byte *used, int *strip_xyz, int *strip_st, int *strip_tris)
 {
 	int m1, m2;
 	int st1, st2;
@@ -859,7 +854,8 @@ done:
 }
 
 static int
-md2_fan_length(int starttri, int startv, dtriangle_t *triangles, int num_tris)
+md2_fan_length(int starttri, int startv, dtriangle_t *triangles, int num_tris,
+	byte *used, int *strip_xyz, int *strip_st, int *strip_tris)
 {
 	int m1, m2;
 	int st1, st2;
@@ -941,17 +937,19 @@ static int
 md2_build_glcmds(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tris,
 	int *commands, int skinwidth, int skinheight)
 {
-	int i, j, numcommands;
-	int startv;
-	int len, bestlen, besttype = -1;
-	int best_xyz[1024];
-	int best_st[1024];
-	int best_tris[1024];
-	int type;
+	int i, j, numcommands = 0, startv, len, bestlen, type, besttype = -1;
+	int *strip_xyz, *strip_st, *strip_tris;
+	int *best_xyz, *best_st, *best_tris;
+	byte *used;
 
-	numcommands = 0;
-	used = (int*)malloc(sizeof(int) * num_tris);
-	memset(used, 0, sizeof(int) * num_tris);
+	used = (byte*)calloc(num_tris, sizeof(*used));
+	best_xyz = (int*)calloc(num_tris * 3, sizeof(*best_xyz));
+	best_st = (int*)calloc(num_tris * 3, sizeof(*best_xyz));
+	best_tris = (int*)calloc(num_tris * 3, sizeof(*best_xyz));
+	strip_xyz = (int*)calloc(num_tris * 3, sizeof(*strip_xyz));
+	strip_st = (int*)calloc(num_tris * 3, sizeof(*strip_xyz));
+	strip_tris = (int*)calloc(num_tris * 3, sizeof(*strip_xyz));
+
 	for (i = 0; i < num_tris; i++)
 	{
 		/* pick an unused triangle and start the trifan */
@@ -967,11 +965,13 @@ md2_build_glcmds(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tri
 			{
 				if (type == 1)
 				{
-					len = md2_strip_length(i, startv, triangles, num_tris);
+					len = md2_strip_length(i, startv, triangles, num_tris,
+						used, strip_xyz, strip_st, strip_tris);
 				}
 				else
 				{
-					len = md2_fan_length(i, startv, triangles, num_tris);
+					len = md2_fan_length(i, startv, triangles, num_tris,
+						used, strip_xyz, strip_st, strip_tris);
 				}
 
 				if (len > bestlen)
@@ -1025,6 +1025,12 @@ md2_build_glcmds(const dstvert_t *texcoords, dtriangle_t *triangles, int num_tri
 
 	commands[numcommands++] = 0; /* end of list marker */
 
+	free(best_xyz);
+	free(best_st);
+	free(best_tris);
+	free(strip_xyz);
+	free(strip_st);
+	free(strip_tris);
 	free(used);
 
 	return numcommands;
@@ -1175,8 +1181,8 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 
 		for (j = 0; j < LittleLong(md3_mesh->num_xyz); j++)
 		{
-			st[j + num_xyz].s = LittleFloat(fst[j * 2 + 0])  * pheader->skinwidth;
-			st[j + num_xyz].t = LittleFloat(fst[j * 2 + 1])  * pheader->skinheight;
+			st[j + num_xyz].s = LittleFloat(fst[j * 2 + 0]) * pheader->skinwidth;
+			st[j + num_xyz].t = LittleFloat(fst[j * 2 + 1]) * pheader->skinheight;
 		}
 
 		/* load triangles */
@@ -1184,14 +1190,19 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 
 		mesh_nodes[i].start = pglcmds - baseglcmds;
 
-		for (j = 0; j < LittleLong(md3_mesh->num_tris) * 3; j++)
+		for (j = 0; j < LittleLong(md3_mesh->num_tris); j++)
 		{
-			int vert_id;
+			int k;
 
-			/* index */
-			vert_id = LittleLong(p[j]) + num_xyz;
-			tris[num_tris + j / 3].index_xyz[j % 3] = vert_id;
-			tris[num_tris + j / 3].index_st[j % 3] = vert_id;
+			for (k = 0; k < 3; k++)
+			{
+				int vert_id;
+
+				/* index */
+				vert_id = LittleLong(p[j * 3 + k]) + num_xyz;
+				tris[num_tris + j].index_xyz[k] = vert_id;
+				tris[num_tris + j].index_st[k] = vert_id;
+			}
 		}
 
 		/* write glcmds */
@@ -2122,7 +2133,7 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 	if (type == mod_alias)
 	{
 		dmdxmesh_t *mesh_nodes;
-		int num_mesh_nodes, i;
+		int num_mesh_nodes, i, num_glcmds = 0;
 		dmdx_t *pheader;
 
 		pheader = (dmdx_t *)extradata;
@@ -2139,9 +2150,6 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 					__func__, mod_name, pheader->skinwidth, MAX_LBM_HEIGHT);
 		}
 
-		R_Printf(PRINT_DEVELOPER, "%s: model %s num tris %d / num vert %d / commands %d\n",
-			__func__, mod_name, pheader->num_tris, pheader->num_xyz, pheader->num_glcmds);
-
 		num_mesh_nodes = pheader->num_meshes;
 		mesh_nodes = (dmdxmesh_t *)((char*)pheader + pheader->ofs_meshes);
 
@@ -2149,7 +2157,11 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands\n",
 				__func__, mod_name, i, mesh_nodes[i].num);
+			num_glcmds += mesh_nodes[i].num;
 		}
+		R_Printf(PRINT_DEVELOPER,
+			"%s: model %s num tris %d / num vert %d / commands %d of %d\n",
+			__func__, mod_name, pheader->num_tris, pheader->num_xyz, num_glcmds, pheader->num_glcmds);
 	}
 }
 
