@@ -345,6 +345,90 @@ R_AliasTransformFinalVerts(int numpoints, finalvert_t *fv, dxtrivertx_t *newv, f
 	}
 }
 
+static void
+R_AliasPrepareMeshPoints(const entity_t *currententity, const dstvert_t *pstverts, finalvert_t *verts, const dtriangle_t *ptri, const dtriangle_t *ptri_end)
+{
+	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
+	{
+		while(ptri < ptri_end)
+		{
+			finalvert_t	*pfv[3];
+
+			pfv[0] = &verts[ptri->index_xyz[0]];
+			pfv[1] = &verts[ptri->index_xyz[1]];
+			pfv[2] = &verts[ptri->index_xyz[2]];
+
+			if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
+			{
+				ptri++;
+
+				continue;	/* completely clipped */
+			}
+
+			/* insert s/t coordinates */
+			pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
+			pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
+
+			pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
+			pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
+
+			pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
+			pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
+
+			if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
+			{
+				/* totally unclipped */
+				R_DrawTriangle(currententity, pfv[2], pfv[1], pfv[0]);
+			}
+			else
+			{
+				R_AliasClipTriangle(currententity, pfv[2], pfv[1], pfv[0]);
+			}
+
+			ptri++;
+		}
+	}
+	else
+	{
+		while(ptri < ptri_end)
+		{
+			finalvert_t	*pfv[3];
+
+			pfv[0] = &verts[ptri->index_xyz[0]];
+			pfv[1] = &verts[ptri->index_xyz[1]];
+			pfv[2] = &verts[ptri->index_xyz[2]];
+
+			if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
+			{
+				ptri++;
+
+				continue;	/* completely clipped */
+			}
+
+			/* insert s/t coordinates */
+			pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
+			pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
+
+			pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
+			pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
+
+			pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
+			pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
+
+			if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
+			{
+				/* totally unclipped */
+				R_DrawTriangle(currententity, pfv[0], pfv[1], pfv[2]);
+			}
+			else
+			{	/* partially clipped */
+				R_AliasClipTriangle(currententity, pfv[0], pfv[1], pfv[2]);
+			}
+
+			ptri++;
+		}
+	}
+}
 
 /*
 ================
@@ -357,13 +441,11 @@ General clipped case
 static void
 R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const finalvert_t *verts_max)
 {
-	int		i, m, num_mesh_nodes;
+	const dstvert_t *pstverts;
 	dmdxmesh_t *mesh_nodes;
-	dstvert_t	*pstverts;
-	dtriangle_t	*ptri;
-	finalvert_t	*pfv[3];
-	vec4_t *s_lerped;
+	int i, num_mesh_nodes;
 	qboolean colorOnly;
+	vec4_t *s_lerped;
 
 	if ((verts + s_pmdl->num_xyz) >= verts_max)
 	{
@@ -388,82 +470,19 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 	// clip and draw all triangles
 	//
 	pstverts = (dstvert_t *)((byte *)s_pmdl + s_pmdl->ofs_st);
-	ptri = (dtriangle_t *)((byte *)s_pmdl + s_pmdl->ofs_tris);
 
 	num_mesh_nodes = s_pmdl->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)s_pmdl + s_pmdl->ofs_meshes);
 
-	for (m = 0; m < num_mesh_nodes; m++)
+	for (i = 0; i < num_mesh_nodes; i++)
 	{
-		int ofs_tris, num_tris;
+		dtriangle_t	*ptri;
+		int num_tris;
 
-		ofs_tris = Q_max(mesh_nodes[m].ofs_tris, 0);
-		num_tris = Q_min(ofs_tris + mesh_nodes[m].num_tris, s_pmdl->num_tris);
+		num_tris = Q_min(s_pmdl->num_tris - mesh_nodes[i].ofs_tris, mesh_nodes[i].num_tris);
+		ptri = (dtriangle_t *)((byte *)s_pmdl + s_pmdl->ofs_tris) + mesh_nodes[i].ofs_tris;
 
-		if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
-		{
-			for (i = ofs_tris; i < num_tris; i++, ptri++)
-			{
-				pfv[0] = &verts[ptri->index_xyz[0]];
-				pfv[1] = &verts[ptri->index_xyz[1]];
-				pfv[2] = &verts[ptri->index_xyz[2]];
-
-				if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
-					continue;	// completely clipped
-
-				// insert s/t coordinates
-				pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
-				pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
-
-				pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
-				pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
-
-				pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
-				pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
-
-				if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
-				{
-					// totally unclipped
-					R_DrawTriangle(currententity, pfv[2], pfv[1], pfv[0]);
-				}
-				else
-				{
-					R_AliasClipTriangle(currententity, pfv[2], pfv[1], pfv[0]);
-				}
-			}
-		}
-		else
-		{
-			for (i = ofs_tris; i < num_tris; i++, ptri++)
-			{
-				pfv[0] = &verts[ptri->index_xyz[0]];
-				pfv[1] = &verts[ptri->index_xyz[1]];
-				pfv[2] = &verts[ptri->index_xyz[2]];
-
-				if ( pfv[0]->flags & pfv[1]->flags & pfv[2]->flags )
-					continue;	// completely clipped
-
-				// insert s/t coordinates
-				pfv[0]->cv.s = pstverts[ptri->index_st[0]].s << SHIFT16XYZ;
-				pfv[0]->cv.t = pstverts[ptri->index_st[0]].t << SHIFT16XYZ;
-
-				pfv[1]->cv.s = pstverts[ptri->index_st[1]].s << SHIFT16XYZ;
-				pfv[1]->cv.t = pstverts[ptri->index_st[1]].t << SHIFT16XYZ;
-
-				pfv[2]->cv.s = pstverts[ptri->index_st[2]].s << SHIFT16XYZ;
-				pfv[2]->cv.t = pstverts[ptri->index_st[2]].t << SHIFT16XYZ;
-
-				if ( ! (pfv[0]->flags | pfv[1]->flags | pfv[2]->flags) )
-				{
-					// totally unclipped
-					R_DrawTriangle(currententity, pfv[0], pfv[1], pfv[2]);
-				}
-				else
-				{	// partially clipped
-					R_AliasClipTriangle(currententity, pfv[0], pfv[1], pfv[2]);
-				}
-			}
-		}
+		R_AliasPrepareMeshPoints(currententity, pstverts, verts, ptri, ptri + num_tris);
 	}
 }
 
@@ -602,7 +621,7 @@ R_AliasSetupLighting(entity_t *currententity)
 	// all components of light should be identical in software
 	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
-		for (i=0 ; i<3 ; i++)
+		for (i = 0; i < 3; i++)
 		{
 			light[i] = 1.0;
 		}
