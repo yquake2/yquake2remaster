@@ -80,7 +80,7 @@ CL_RegisterSounds(void)
 /*
  * Returns the entity number and the header bits
  */
-int
+static int
 CL_ParseEntityBits(unsigned *bits)
 {
 	unsigned b, total;
@@ -134,7 +134,7 @@ CL_ParseEntityBits(unsigned *bits)
 /*
  * Can go from either a baseline or a previous packet_entity
  */
-void
+static void
 CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 {
 	/* set everything to the state we are delta'ing from */
@@ -299,7 +299,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
  * Parses deltas from the given base and adds the resulting entity to
  * the current frame
  */
-void
+static void
 CL_DeltaEntity(frame_t *frame, int newnum, entity_state_t *old, int bits)
 {
 	centity_t *ent;
@@ -363,7 +363,7 @@ CL_DeltaEntity(frame_t *frame, int newnum, entity_state_t *old, int bits)
  * parsed, deal with the rest of the
  * data stream.
  */
-void
+static void
 CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 {
 	unsigned int newnum;
@@ -541,13 +541,51 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 	}
 }
 
-void
+static int
+CL_ConvertConfigStringFrom(int i)
+{
+	if (cls.serverProtocol == PROTOCOL_RELEASE_VERSION ||
+		cls.serverProtocol == PROTOCOL_DEMO_VERSION ||
+		cls.serverProtocol == PROTOCOL_RR97_VERSION)
+	{
+		if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
+		{
+			i += CS_MODELS - CS_MODELS_Q2DEMO;
+		}
+		else if (i >= CS_SOUNDS_Q2DEMO && i < CS_IMAGES_Q2DEMO)
+		{
+			i += CS_SOUNDS - CS_SOUNDS_Q2DEMO;
+		}
+		else if (i >= CS_IMAGES_Q2DEMO && i < CS_LIGHTS_Q2DEMO)
+		{
+			i += CS_IMAGES - CS_IMAGES_Q2DEMO;
+		}
+		else if (i >= CS_LIGHTS_Q2DEMO && i < CS_ITEMS_Q2DEMO)
+		{
+			i += CS_LIGHTS - CS_LIGHTS_Q2DEMO;
+		}
+		else if (i >= CS_ITEMS_Q2DEMO && i < CS_PLAYERSKINS_Q2DEMO)
+		{
+			i += CS_ITEMS - CS_ITEMS_Q2DEMO;
+		}
+		else if (i >= CS_PLAYERSKINS_Q2DEMO && i < CS_GENERAL_Q2DEMO)
+		{
+			i += CS_PLAYERSKINS - CS_PLAYERSKINS_Q2DEMO;
+		}
+		else if (i >= CS_GENERAL_Q2DEMO && i < MAX_CONFIGSTRINGS_Q2DEMO)
+		{
+			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
+		}
+	}
+
+	return i;
+}
+
+static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 {
-	int flags;
+	int flags, i, statbits;
 	player_state_t *state;
-	int i;
-	int statbits;
 
 	state = &newframe->playerstate;
 
@@ -675,11 +713,16 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 		if (statbits & (1u << i))
 		{
 			state->stats[i] = MSG_ReadShort(&net_message);
+
+			if (i == STAT_PICKUP_STRING)
+			{
+				state->stats[i] = CL_ConvertConfigStringFrom(state->stats[i]);
+			}
 		}
 	}
 }
 
-void
+static void
 CL_FireEntityEvents(frame_t *frame)
 {
 	entity_state_t *s1;
@@ -703,6 +746,15 @@ CL_FireEntityEvents(frame_t *frame)
 }
 
 void
+SHOWNET(char *s)
+{
+	if (cl_shownet->value >= 2)
+	{
+		Com_Printf("%3i:%s\n", net_message.readcount - 1, s);
+	}
+}
+
+static void
 CL_ParseFrame(void)
 {
 	int cmd;
@@ -846,7 +898,7 @@ CL_ParseFrame(void)
 	}
 }
 
-void
+static void
 CL_ParseServerData(void)
 {
 	extern cvar_t *fs_gamedirvar;
@@ -946,7 +998,7 @@ CL_ParseServerData(void)
 	}
 }
 
-void
+static void
 CL_ParseBaseline(void)
 {
 	entity_state_t *es;
@@ -1116,7 +1168,7 @@ CL_ParseClientinfo(int player)
 	CL_LoadClientinfo(ci, s);
 }
 
-void
+static void
 CL_ParseConfigString(void)
 {
 	int i, length;
@@ -1125,39 +1177,7 @@ CL_ParseConfigString(void)
 
 	i = MSG_ReadShort(&net_message);
 
-	if (cls.serverProtocol == PROTOCOL_RELEASE_VERSION ||
-		cls.serverProtocol == PROTOCOL_DEMO_VERSION ||
-		cls.serverProtocol == PROTOCOL_RR97_VERSION)
-	{
-		if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
-		{
-			i += CS_MODELS - CS_MODELS_Q2DEMO;
-		}
-		else if (i >= CS_SOUNDS_Q2DEMO && i < CS_IMAGES_Q2DEMO)
-		{
-			i += CS_SOUNDS - CS_SOUNDS_Q2DEMO;
-		}
-		else if (i >= CS_IMAGES_Q2DEMO && i < CS_LIGHTS_Q2DEMO)
-		{
-			i += CS_IMAGES - CS_IMAGES_Q2DEMO;
-		}
-		else if (i >= CS_LIGHTS_Q2DEMO && i < CS_ITEMS_Q2DEMO)
-		{
-			i += CS_LIGHTS - CS_LIGHTS_Q2DEMO;
-		}
-		else if (i >= CS_ITEMS_Q2DEMO && i < CS_PLAYERSKINS_Q2DEMO)
-		{
-			i += CS_ITEMS - CS_ITEMS_Q2DEMO;
-		}
-		else if (i >= CS_PLAYERSKINS_Q2DEMO && i < CS_GENERAL_Q2DEMO)
-		{
-			i += CS_PLAYERSKINS - CS_PLAYERSKINS_Q2DEMO;
-		}
-		else if (i >= CS_GENERAL_Q2DEMO && i < MAX_CONFIGSTRINGS_Q2DEMO)
-		{
-			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
-		}
-	}
+	i = CL_ConvertConfigStringFrom(i);
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{
@@ -1231,7 +1251,7 @@ CL_ParseConfigString(void)
 	}
 }
 
-void
+static void
 CL_ParseStartSoundPacket(void)
 {
 	vec3_t pos_v;
@@ -1315,15 +1335,6 @@ CL_ParseStartSoundPacket(void)
 
 	S_StartSound(pos, ent, channel, cl.sound_precache[sound_num],
 			volume, attenuation, ofs);
-}
-
-void
-SHOWNET(char *s)
-{
-	if (cl_shownet->value >= 2)
-	{
-		Com_Printf("%3i:%s\n", net_message.readcount - 1, s);
-	}
 }
 
 void
