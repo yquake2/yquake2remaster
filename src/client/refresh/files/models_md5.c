@@ -1353,17 +1353,12 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 		st[i].t = md5file->st[i][1] * pheader->skinheight;
 	}
 
-
 	num_tris = 0;
 	num_verts = 0;
 
 	for (i = 0; i < md5file->num_meshes; ++i)
 	{
 		int j;
-
-		mesh_nodes[i].ofs_glcmds = pglcmds - baseglcmds;
-		mesh_nodes[i].ofs_tris = num_tris;
-		mesh_nodes[i].num_tris = num_tris + md5file->meshes[i].num_tris;
 
 		for (j = 0; j < md5file->meshes[i].num_tris; j++)
 		{
@@ -1378,36 +1373,21 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 				tris[num_tris + j].index_st[k] = (num_tris + j) * 3 + k;
 			}
 		}
+		num_verts += md5file->meshes[i].num_verts;
+		num_tris += md5file->meshes[i].num_tris;
+	}
 
-		/* write glcmds */
-		for (j = 0; j < md5file->meshes[i].num_tris * 3; j++)
-		{
-			int vert_id;
+	Mod_LoadTrisCompress(pheader);
 
-			vert_id = num_verts + md5file->meshes[i].triangles[j / 3].index[j % 3];
-			/* count */
-			if ((j % 3) == 0)
-			{
-				*pglcmds = 3;
-				pglcmds++;
-			}
+	num_tris = 0;
+	num_verts = 0;
 
-			/* st */
-			memcpy(pglcmds, &md5file->st[num_tris * 3 + j], sizeof(vec2_t));
-			pglcmds += 2;
-			/* index */
-			*pglcmds = vert_id;
-			pglcmds++;
-		}
+	for (i = 0; i < md5file->num_meshes; ++i)
+	{
+		mesh_nodes[i].ofs_glcmds = pglcmds - baseglcmds;
+		mesh_nodes[i].ofs_tris = num_tris;
+		mesh_nodes[i].num_tris = num_tris + md5file->meshes[i].num_tris;
 
-		/* final zero */
-		*pglcmds = 0;
-		pglcmds++;
-
-		mesh_nodes[i].num_glcmds = pglcmds - baseglcmds - mesh_nodes[i].ofs_glcmds;
-
-		/*
-		Comressed version is much slower
 		mesh_nodes[i].num_glcmds = Mod_LoadCmdCompress(
 			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
 			(dtriangle_t*)((byte *)pheader + pheader->ofs_tris) + num_tris,
@@ -1416,7 +1396,6 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 			pheader->skinwidth, pheader->skinheight);
 
 		pglcmds += mesh_nodes[i].num_glcmds;
-		*/
 
 		num_verts += md5file->meshes[i].num_verts;
 		num_tris += md5file->meshes[i].num_tris;
@@ -1426,18 +1405,9 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	memcpy((char *)pheader + pheader->ofs_skins, md5file->skins,
 		pheader->num_skins * MAX_SKINNAME);
 
-	for (i = 0; i < pheader->num_skins; i++)
-	{
-		char *skin;
-
-		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-		skin[MAX_SKINNAME - 1] = 0;
-
-		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load external '%s'\n",
-			__func__, mod_name, i, skin);
-	}
-
 	FreeModelMd5(md5file);
+
+	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
 

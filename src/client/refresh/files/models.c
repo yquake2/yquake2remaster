@@ -417,7 +417,7 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 	}
 }
 
-static void
+void
 Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 {
 	int i;
@@ -1036,6 +1036,118 @@ Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles, int num_
 	free(used);
 
 	return numcommands;
+}
+
+static int *
+Mod_LoadSTLookup(dmdx_t *pheader)
+{
+	const dstvert_t* st;
+	int *st_lookup;
+	int k;
+
+	st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
+
+	st_lookup = calloc(pheader->num_st, sizeof(int));
+
+	for(k = 1; k < pheader->num_st; k++)
+	{
+		int j;
+
+		st_lookup[k] = k;
+
+		for(j = 0; j < k; j++)
+		{
+			if ((st[j].s == st[k].s) && (st[j].t == st[k].t))
+			{
+				/* same value */
+				st_lookup[k] = j;
+				break;
+			}
+		}
+	}
+	return st_lookup;
+}
+
+static qboolean
+Mod_LoadFrameVertSame(dmdx_t *pheader, int k, int j)
+{
+	int i;
+
+	for(i = 0; i < pheader->num_frames; i ++)
+	{
+		daliasxframe_t *frame;
+
+		frame = (daliasxframe_t *)(
+			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
+
+		if ((frame->verts[k].v[0] != frame->verts[j].v[0]) ||
+			(frame->verts[k].v[1] != frame->verts[j].v[1]) ||
+			(frame->verts[k].v[2] != frame->verts[j].v[2]) ||
+			(frame->verts[k].lightnormalindex != frame->verts[j].lightnormalindex))
+		{
+			continue;
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+static int *
+Mod_LoadVectLookup(dmdx_t *pheader)
+{
+	int *vect_lookup;
+	int k;
+
+	vect_lookup = calloc(pheader->num_xyz, sizeof(int));
+
+	for(k = 1; k < pheader->num_xyz; k++)
+	{
+		int j;
+
+		vect_lookup[k] = k;
+
+		for(j = 0; j < k; j++)
+		{
+			if (Mod_LoadFrameVertSame(pheader, k, j))
+			{
+				/* same value */
+				vect_lookup[k] = j;
+				break;
+			}
+		}
+	}
+
+	return vect_lookup;
+}
+
+void
+Mod_LoadTrisCompress(dmdx_t *pheader)
+{
+	int *st_lookup, *vect_lookup;
+	dtriangle_t *tris;
+	int i;
+
+	st_lookup = Mod_LoadSTLookup(pheader);
+	vect_lookup = Mod_LoadVectLookup(pheader);
+
+	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
+	for (i = 0; i < pheader->num_tris; i++)
+	{
+		int k;
+
+		for (k = 0; k < 3; k++)
+		{
+			tris->index_xyz[k] = vect_lookup[tris->index_xyz[k]];
+			tris->index_st[k] = st_lookup[tris->index_st[k]];
+		}
+
+		tris++;
+	}
+
+	free(vect_lookup);
+	free(st_lookup);
 }
 
 /*
@@ -2211,7 +2323,7 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands, %d tris\n",
 				__func__, mod_name, i, mesh_nodes[i].num_glcmds, mesh_nodes[i].num_tris);
-			num_glcmds += mesh_nodes[i].num_tris;
+			num_glcmds += mesh_nodes[i].num_glcmds;
 		}
 		R_Printf(PRINT_DEVELOPER,
 			"%s: model %s num tris %d / num vert %d / commands %d of %d\n",
