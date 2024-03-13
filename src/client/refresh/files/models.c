@@ -1068,69 +1068,14 @@ Mod_LoadSTLookup(dmdx_t *pheader)
 	return st_lookup;
 }
 
-static qboolean
-Mod_LoadFrameVertSame(dmdx_t *pheader, int k, int j)
-{
-	int i;
-
-	for(i = 0; i < pheader->num_frames; i ++)
-	{
-		daliasxframe_t *frame;
-
-		frame = (daliasxframe_t *)(
-			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
-
-		if ((frame->verts[k].v[0] != frame->verts[j].v[0]) ||
-			(frame->verts[k].v[1] != frame->verts[j].v[1]) ||
-			(frame->verts[k].v[2] != frame->verts[j].v[2]) ||
-			(frame->verts[k].lightnormalindex != frame->verts[j].lightnormalindex))
-		{
-			continue;
-		}
-
-		return true;
-	}
-
-	return false;
-}
-
-static int *
-Mod_LoadVectLookup(dmdx_t *pheader)
-{
-	int *vect_lookup;
-	int k;
-
-	vect_lookup = calloc(pheader->num_xyz, sizeof(int));
-
-	for(k = 1; k < pheader->num_xyz; k++)
-	{
-		int j;
-
-		vect_lookup[k] = k;
-
-		for(j = 0; j < k; j++)
-		{
-			if (Mod_LoadFrameVertSame(pheader, k, j))
-			{
-				/* same value */
-				vect_lookup[k] = j;
-				break;
-			}
-		}
-	}
-
-	return vect_lookup;
-}
-
 void
 Mod_LoadTrisCompress(dmdx_t *pheader)
 {
-	int *st_lookup, *vect_lookup;
+	int *st_lookup;
 	dtriangle_t *tris;
 	int i;
 
 	st_lookup = Mod_LoadSTLookup(pheader);
-	vect_lookup = Mod_LoadVectLookup(pheader);
 
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
 	for (i = 0; i < pheader->num_tris; i++)
@@ -1139,14 +1084,12 @@ Mod_LoadTrisCompress(dmdx_t *pheader)
 
 		for (k = 0; k < 3; k++)
 		{
-			tris->index_xyz[k] = vect_lookup[tris->index_xyz[k]];
 			tris->index_st[k] = st_lookup[tris->index_st[k]];
 		}
 
 		tris++;
 	}
 
-	free(vect_lookup);
 	free(st_lookup);
 }
 
