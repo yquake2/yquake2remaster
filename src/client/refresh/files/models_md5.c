@@ -1380,13 +1380,12 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadTrisCompress(pheader);
 
 	num_tris = 0;
-	num_verts = 0;
 
 	for (i = 0; i < md5file->num_meshes; ++i)
 	{
 		mesh_nodes[i].ofs_glcmds = pglcmds - baseglcmds;
 		mesh_nodes[i].ofs_tris = num_tris;
-		mesh_nodes[i].num_tris = num_tris + md5file->meshes[i].num_tris;
+		mesh_nodes[i].num_tris = md5file->meshes[i].num_tris;
 
 		mesh_nodes[i].num_glcmds = Mod_LoadCmdCompress(
 			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
@@ -1397,7 +1396,6 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 
 		pglcmds += mesh_nodes[i].num_glcmds;
 
-		num_verts += md5file->meshes[i].num_verts;
 		num_tris += md5file->meshes[i].num_tris;
 	}
 

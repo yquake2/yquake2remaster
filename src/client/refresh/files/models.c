@@ -1262,9 +1262,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_end = ofs_end;
 
-	num_xyz = 0;
-	num_tris = 0;
-
 	baseglcmds = pglcmds = (int *)((byte *)pheader + pheader->ofs_glcmds);
 	dmdxmesh_t *mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	dtriangle_t *tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
@@ -1272,6 +1269,8 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	dmdx_vert_t * vertx = malloc(pinmodel.num_frames * pheader->num_xyz * sizeof(dmdx_vert_t));
 	char *skin = (char *)pheader + pheader->ofs_skins;
 
+	num_xyz = 0;
+	num_tris = 0;
 	meshofs = pinmodel.ofs_meshes;
 	for (i = 0; i < pinmodel.num_meshes; i++)
 	{
@@ -1302,9 +1301,8 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		/* load triangles */
 		p = (const int*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_tris));
 
-		mesh_nodes[i].ofs_glcmds = pglcmds - baseglcmds;
 		mesh_nodes[i].ofs_tris = num_tris;
-		mesh_nodes[i].num_tris = num_tris + LittleLong(md3_mesh->num_tris);
+		mesh_nodes[i].num_tris = LittleLong(md3_mesh->num_tris);
 
 		for (j = 0; j < LittleLong(md3_mesh->num_tris); j++)
 		{
@@ -1320,16 +1318,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 				tris[num_tris + j].index_st[k] = vert_id;
 			}
 		}
-
-		/* write glcmds */
-		mesh_nodes[i].num_glcmds = Mod_LoadCmdCompress(
-			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
-			(dtriangle_t*)((byte *)pheader + pheader->ofs_tris) + num_tris,
-			LittleLong(md3_mesh->num_tris),
-			pglcmds,
-			pheader->skinwidth, pheader->skinheight);
-
-		pglcmds += mesh_nodes[i].num_glcmds;
 
 		md3_vertex = (md3_vertex_t*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_verts));
 
@@ -1375,6 +1363,32 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		inframe += sizeof(md3_frameinfo_t);
 	}
 	free(vertx);
+
+	Mod_LoadTrisCompress(pheader);
+
+	num_tris = 0;
+	meshofs = pinmodel.ofs_meshes;
+	for (i = 0; i < pinmodel.num_meshes; i++)
+	{
+		const md3_mesh_t *md3_mesh;
+
+		md3_mesh = (md3_mesh_t*)((byte*)buffer + meshofs);
+
+		mesh_nodes[i].ofs_glcmds = pglcmds - baseglcmds;
+
+		/* write glcmds */
+		mesh_nodes[i].num_glcmds = Mod_LoadCmdCompress(
+			(dstvert_t*)((byte *)pheader + pheader->ofs_st),
+			(dtriangle_t*)((byte *)pheader + pheader->ofs_tris) + num_tris,
+			LittleLong(md3_mesh->num_tris),
+			pglcmds,
+			pheader->skinwidth, pheader->skinheight);
+
+		pglcmds += mesh_nodes[i].num_glcmds;
+
+		meshofs += LittleLong(md3_mesh->ofs_end);
+		num_tris += LittleLong(md3_mesh->num_tris);
+	}
 
 	Mod_LoadFixImages(mod_name, pheader, false);
 
