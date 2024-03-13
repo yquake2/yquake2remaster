@@ -42,7 +42,7 @@ extern void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,
 	int modfilelen, struct image_s ***skins, int *numskins, modtype_t *type);
 extern int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,
 	int num_tris, int *commands, int skinwidth, int skinheight);
-extern void Mod_LoadTrisCompress(dmdx_t *pheader);
+extern void Mod_LoadCmdGenerate(dmdx_t *pheader);
 extern void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
 
 #endif /* SRC_CLIENT_REFRESH_FILES_MODELS_H_ */
