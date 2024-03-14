@@ -559,8 +559,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
 	mesh_nodes[0].ofs_tris = 0;
 	mesh_nodes[0].num_tris = num_tris;
-	mesh_nodes[0].ofs_glcmds = 0;
-	mesh_nodes[0].num_glcmds = num_glcmds;
 
 	{
 		int i;
@@ -639,53 +637,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			}
 		}
 
-		{
-			int *glcmds = (int *) ((byte *)pheader + ofs_glcmds);
-
-			/* commands */
-			int j, *curr_com = glcmds;
-
-			/* Draw each triangle */
-			for (i = 0; i < num_tris; ++i)
-			{
-				*curr_com = 3;
-				curr_com++;
-
-				/* Draw each vertex */
-				for (j = 0; j < 3; ++j)
-				{
-					float s, t;
-					int index;
-
-					index = triangles[i].vertex[j];
-
-					/* Compute texture coordinates */
-					s = LittleLong(texcoords[index].s);
-					t = LittleLong(texcoords[index].t);
-
-					if (!triangles[i].facesfront &&
-						texcoords[index].onseam)
-					{
-						s += skinwidth * 0.5f; /* Backface */
-					}
-
-					/* Scale s and t to range from 0.0 to 1.0 */
-					s = (s + 0.5) / skinwidth;
-					t = (t + 0.5) / skinheight;
-
-					memcpy(curr_com, &s, sizeof(s));
-					curr_com++;
-					memcpy(curr_com, &t, sizeof(t));
-					curr_com++;
-					memcpy(curr_com, &index, sizeof(index));
-					curr_com++;
-				}
-			}
-
-			*curr_com = 0;
-			curr_com++;
-		}
-
 		/* register all frames */
 		for (i = 0; i < num_frames; ++i)
 		{
@@ -759,6 +710,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			);
 		}
 	}
+
+	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, true);
 
