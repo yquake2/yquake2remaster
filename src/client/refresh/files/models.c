@@ -458,7 +458,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	/* local copy of all values */
 	int skinwidth, skinheight, framesize;
 	int num_meshes, num_skins, num_xyz, num_st, num_tris, num_glcmds,
-		num_frames;
+		num_frames, frame_count;
 	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_frames, ofs_glcmds,
 		ofs_imgbit, ofs_end;
 
@@ -488,16 +488,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * (num_xyz - 1);
 
-	ofs_meshes = sizeof(*pheader); // just skip header and go
-	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
-	ofs_st = ofs_skins + num_skins * MAX_SKINNAME;
-	ofs_tris = ofs_st + num_st * sizeof(dstvert_t);
-	ofs_glcmds = ofs_tris + num_tris * sizeof(dtriangle_t);
-	ofs_frames = ofs_glcmds + num_glcmds * sizeof(int);
-	ofs_imgbit = ofs_frames + framesize * num_frames;
-	/* one less as single vertx in frame by default */
-	ofs_end = ofs_imgbit + (skinwidth * skinheight * num_skins);
-
 	/* validate */
 	if (num_xyz <= 0)
 	{
@@ -526,6 +516,103 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
+	/* get full count of frames */
+	{
+		const byte *curr_pos;
+		int i;
+
+		curr_pos = (byte*)buffer + sizeof(mdl_header_t);
+
+		// register all skins
+		for (i = 0; i < num_skins; ++i)
+		{
+			int skin_type;
+
+			/* skip type / int */
+			/* 0 = simple, !0 = group */
+			/* this program can't read models composed of group frames! */
+			skin_type = LittleLong(((int *)curr_pos)[0]);
+			curr_pos += sizeof(int);
+			if (skin_type)
+			{
+				R_Printf(PRINT_ALL, "%s: model %s has unsupported skin type %d",
+						__func__, mod_name, skin_type);
+				return NULL;
+			}
+
+			curr_pos += skinwidth * skinheight;
+		}
+
+		/* texcoordinates */
+		curr_pos += sizeof(mdl_texcoord_t) * num_st;
+
+		/* triangles */
+		curr_pos += sizeof(mdl_triangle_t) * num_tris;
+
+		frame_count = 0;
+
+		/* register all frames */
+		for (i = 0; i < num_frames; ++i)
+		{
+			int frame_type, frames_skip;
+
+			/* Read frame data */
+			/* skip type / int */
+			/* 0 = simple, !0 = group */
+			/* this program can't read models composed of group frames! */
+			frame_type = LittleLong(((int *)curr_pos)[0]);
+			curr_pos += sizeof(int);
+
+			frames_skip = 1;
+
+			if (frame_type)
+			{
+				frames_skip = LittleLong(((int *)curr_pos)[0]);
+				/* skip count of frames */
+				curr_pos += sizeof(int);
+				/* skip bboxmin, bouding box min */
+				curr_pos += sizeof(dtrivertx_t);
+				/* skip bboxmax, bouding box max */
+				curr_pos += sizeof(dtrivertx_t);
+
+				/* skip intervals */
+				curr_pos += frames_skip * sizeof(float);
+			}
+
+			/* skip bboxmin, bouding box min */
+			curr_pos += sizeof(dtrivertx_t);
+			/* skip bboxmax, bouding box max */
+			curr_pos += sizeof(dtrivertx_t);
+			/* name */
+			curr_pos += sizeof(char) * 16;
+			/* first vertex list */
+			curr_pos += sizeof(dtrivertx_t) * num_xyz;
+
+			/* next frames in frame group is unsupported */
+			curr_pos += (frames_skip - 1) * (
+				/* bouding box */
+				sizeof(dtrivertx_t) * 2 +
+				/* name */
+				16 +
+				/* verts */
+				sizeof(dtrivertx_t) * num_xyz
+			);
+
+			frame_count += frames_skip;
+		}
+	}
+
+	/* generate offsets */
+	ofs_meshes = sizeof(*pheader); // just skip header and go
+	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
+	ofs_st = ofs_skins + num_skins * MAX_SKINNAME;
+	ofs_tris = ofs_st + num_st * sizeof(dstvert_t);
+	ofs_glcmds = ofs_tris + num_tris * sizeof(dtriangle_t);
+	ofs_frames = ofs_glcmds + num_glcmds * sizeof(int);
+	ofs_imgbit = ofs_frames + framesize * frame_count;
+	/* one less as single vertx in frame by default */
+	ofs_end = ofs_imgbit + (skinwidth * skinheight * num_skins);
+
 	*numskins = num_skins;
 	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
 	pheader = Hunk_Alloc(ofs_end);
@@ -544,7 +631,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_tris = num_tris;
 	pheader->num_glcmds = num_glcmds;
 	pheader->num_imgbit = 8;
-	pheader->num_frames = num_frames;
+	pheader->num_frames = frame_count;
 
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
@@ -637,27 +724,28 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			}
 		}
 
+		frame_count = 0;
+
 		/* register all frames */
 		for (i = 0; i < num_frames; ++i)
 		{
-			int frame_type, j, frames_skip;
+			int frame_type, j, k, frames_skip;
 			daliasframe_t *frame;
 			dxtrivertx_t* poutvertx;
 			dtrivertx_t *pinvertx;
+			vec3_t scale, translate;
 
-			frame = (daliasframe_t *) ((byte *)pheader + ofs_frames + i * framesize);
-			frame->scale[0] = LittleFloat(pinmodel->scale[0]) / 0xFF;
-			frame->scale[1] = LittleFloat(pinmodel->scale[1]) / 0xFF;
-			frame->scale[2] = LittleFloat(pinmodel->scale[2]) / 0xFF;
+			scale[0] = LittleFloat(pinmodel->scale[0]) / 0xFF;
+			scale[1] = LittleFloat(pinmodel->scale[1]) / 0xFF;
+			scale[2] = LittleFloat(pinmodel->scale[2]) / 0xFF;
 
-			frame->translate[0] = LittleFloat(pinmodel->translate[0]);
-			frame->translate[1] = LittleFloat(pinmodel->translate[1]);
-			frame->translate[2] = LittleFloat(pinmodel->translate[2]);
+			translate[0] = LittleFloat(pinmodel->translate[0]);
+			translate[1] = LittleFloat(pinmodel->translate[1]);
+			translate[2] = LittleFloat(pinmodel->translate[2]);
 
 			/* Read frame data */
 			/* skip type / int */
 			/* 0 = simple, !0 = group */
-			/* this program can't read models composed of group frames! */
 			frame_type = LittleLong(((int *)curr_pos)[0]);
 			curr_pos += sizeof(int);
 
@@ -675,39 +763,38 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 				/* skip intervals */
 				curr_pos += frames_skip * sizeof(float);
-
-				R_Printf(PRINT_DEVELOPER,
-					"%s: model %s have used first one of %d subframes\n",
-					__func__, mod_name, frames_skip);
 			}
 
-			/* skip bboxmin, bouding box min */
-			curr_pos += sizeof(dtrivertx_t);
-			/* skip bboxmax, bouding box max */
-			curr_pos += sizeof(dtrivertx_t);
-
-			memcpy(&frame->name, curr_pos, sizeof(char) * 16);
-			curr_pos += sizeof(char) * 16;
-
-			poutvertx = (dxtrivertx_t*)&frame->verts[0];
-			pinvertx = (dtrivertx_t*)curr_pos;
-			// verts are all 8 bit, so no swapping needed
-			for (j=0; j < num_xyz; j ++)
+			for (k = 0; k < frames_skip; k ++)
 			{
-				Mod_LoadFrames_VertMD2(poutvertx + j, pinvertx[j].v);
-				poutvertx[j].lightnormalindex = pinvertx[j].lightnormalindex;
-			}
-			curr_pos += sizeof(dtrivertx_t) * num_xyz;
+				frame = (daliasframe_t *) ((byte *)pheader + ofs_frames + frame_count * framesize);
+				frame->scale[0] = scale[0];
+				frame->scale[1] = scale[1];
+				frame->scale[2] = scale[2];
 
-			/* next frames in frame group is unsupported */
-			curr_pos += (frames_skip - 1) * (
-				/* bouding box */
-				sizeof(dtrivertx_t) * 2 +
-				/* name */
-				16 +
-				/* verts */
-				sizeof(dtrivertx_t) * num_xyz
-			);
+				frame->translate[0] = translate[0];
+				frame->translate[1] = translate[1];
+				frame->translate[2] = translate[2];
+
+				/* skip bboxmin, bouding box min */
+				curr_pos += sizeof(dtrivertx_t);
+				/* skip bboxmax, bouding box max */
+				curr_pos += sizeof(dtrivertx_t);
+
+				memcpy(&frame->name, curr_pos, sizeof(char) * 16);
+				curr_pos += sizeof(char) * 16;
+
+				poutvertx = (dxtrivertx_t*)&frame->verts[0];
+				pinvertx = (dtrivertx_t*)curr_pos;
+				// verts are all 8 bit, so no swapping needed
+				for (j=0; j < num_xyz; j ++)
+				{
+					Mod_LoadFrames_VertMD2(poutvertx + j, pinvertx[j].v);
+					poutvertx[j].lightnormalindex = pinvertx[j].lightnormalindex;
+				}
+				curr_pos += sizeof(dtrivertx_t) * num_xyz;
+				frame_count++;
+			}
 		}
 	}
 
@@ -2251,8 +2338,9 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 			num_glcmds += mesh_nodes[i].num_glcmds;
 		}
 		R_Printf(PRINT_DEVELOPER,
-			"%s: model %s num tris %d / num vert %d / commands %d of %d\n",
-			__func__, mod_name, pheader->num_tris, pheader->num_xyz, num_glcmds, pheader->num_glcmds);
+			"%s: model %s num tris %d / num vert %d / commands %d of %d / frames %d\n",
+			__func__, mod_name, pheader->num_tris, pheader->num_xyz, num_glcmds,
+			pheader->num_glcmds, pheader->num_frames);
 	}
 }
 
