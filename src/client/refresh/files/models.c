@@ -442,7 +442,7 @@ Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 
 /* get full count of frames */
 static int
-Mod_LoadModel_MDLCountFrames(const char *mod_name, const byte *buffer,
+Mod_LoadMDLCountFrames(const char *mod_name, const byte *buffer,
 	int num_skins, int skinwidth, int skinheight, int num_st, int num_tris,
 	int num_frames, int num_xyz)
 {
@@ -523,6 +523,43 @@ Mod_LoadModel_MDLCountFrames(const char *mod_name, const byte *buffer,
 	return frame_count;
 }
 
+const byte *
+Mod_LoadMDLSkins(const char *mod_name, dmdx_t *pheader, const byte *curr_pos)
+{
+	int i;
+
+	/* register all skins */
+	for (i = 0; i < pheader->num_skins; ++i)
+	{
+		char *out_pos;
+		int skin_type;
+
+		out_pos = (char*)pheader + pheader->ofs_skins;
+		snprintf(out_pos + MAX_SKINNAME * i, MAX_SKINNAME, "%s#%d.tga", mod_name, i);
+
+		/* skip type / int */
+		/* 0 = simple, !0 = group */
+		/* this program can't read models composed of group frames! */
+		skin_type = LittleLong(((int *)curr_pos)[0]);
+		curr_pos += sizeof(int);
+		if (skin_type)
+		{
+			R_Printf(PRINT_ALL, "%s: model %s has unsupported skin type %d",
+					__func__, mod_name, skin_type);
+			return NULL;
+		}
+
+		/* copy 8bit image */
+		memcpy((byte*)pheader + pheader->ofs_imgbit +
+				(pheader->skinwidth * pheader->skinheight * i),
+				curr_pos,
+				pheader->skinwidth * pheader->skinheight);
+		curr_pos += pheader->skinwidth * pheader->skinheight;
+	}
+
+	return curr_pos;
+}
+
 /*
 =================
 Mod_LoadModel_MDL
@@ -599,7 +636,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
-	frame_count = Mod_LoadModel_MDLCountFrames(mod_name, buffer, num_skins,
+	frame_count = Mod_LoadMDLCountFrames(mod_name, buffer, num_skins,
 		skinwidth, skinheight, num_st, num_tris, num_frames, num_xyz);
 
 	if (frame_count <= 0)
@@ -660,33 +697,10 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 		curr_pos = (byte*)buffer + sizeof(mdl_header_t);
 
-		// register all skins
-		for (i = 0; i < num_skins; ++i)
+		curr_pos = Mod_LoadMDLSkins(mod_name, pheader, curr_pos);
+		if (!curr_pos)
 		{
-			char *out_pos;
-			int skin_type;
-
-			out_pos = (char*)pheader + pheader->ofs_skins;
-			snprintf(out_pos + MAX_SKINNAME * i, MAX_SKINNAME, "%s#%d.tga", mod_name, i);
-
-			/* skip type / int */
-			/* 0 = simple, !0 = group */
-			/* this program can't read models composed of group frames! */
-			skin_type = LittleLong(((int *)curr_pos)[0]);
-			curr_pos += sizeof(int);
-			if (skin_type)
-			{
-				R_Printf(PRINT_ALL, "%s: model %s has unsupported skin type %d",
-						__func__, mod_name, skin_type);
-				return NULL;
-			}
-
-			/* copy 8bit image */
-			memcpy((byte*)pheader + pheader->ofs_imgbit +
-					(skinwidth * skinheight * i),
-					curr_pos,
-					skinwidth * skinheight);
-			curr_pos += skinwidth * skinheight;
+			return NULL;
 		}
 
 		/* texcoordinates */
