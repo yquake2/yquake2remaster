@@ -650,7 +650,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_meshes = sizeof(*pheader); // just skip header and go
 	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
 	ofs_st = ofs_skins + num_skins * MAX_SKINNAME;
-	ofs_tris = ofs_st + num_st * sizeof(dstvert_t);
+	ofs_tris = ofs_st + num_st * sizeof(dstvert_t) * 2;
 	ofs_glcmds = ofs_tris + num_tris * sizeof(dtriangle_t);
 	ofs_frames = ofs_glcmds + num_glcmds * sizeof(int);
 	ofs_imgbit = ofs_frames + framesize * frame_count;
@@ -671,7 +671,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_meshes = num_meshes;
 	pheader->num_skins = num_skins;
 	pheader->num_xyz = num_xyz;
-	pheader->num_st = num_st;
+	pheader->num_st = num_st * 2;
 	pheader->num_tris = num_tris;
 	pheader->num_glcmds = num_glcmds;
 	pheader->num_imgbit = 8;
@@ -715,13 +715,21 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 			for(i = 0; i < num_st; i++)
 			{
+				int s, t;
+
 				/* Compute texture coordinates */
-				poutst[i].s = LittleLong(texcoords[i].s);
-				poutst[i].t = LittleLong(texcoords[i].t);
+				s = LittleLong(texcoords[i].s);
+				t = LittleLong(texcoords[i].t);
+
+				poutst[i * 2].s = s;
+				poutst[i * 2].t = t;
+				poutst[i * 2 + 1].s = s;
+				poutst[i * 2 + 1].t = t;
 
 				if (texcoords[i].onseam)
 				{
-					poutst[i].s += skinwidth * 0.5f; /* Backface */
+					/* Backface */
+					poutst[i * 2 + 1].s += skinwidth >> 1;
 				}
 			}
 		}
@@ -742,8 +750,16 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 
 				for (j = 0; j < 3; j++)
 				{
-					pouttri[i].index_xyz[j] = LittleLong(triangles[i].vertex[j]);
-					pouttri[i].index_st[j] = pouttri[i].index_xyz[j];
+					int index;
+
+					index = LittleLong(triangles[i].vertex[j]);
+					pouttri[i].index_xyz[j] = index;
+					pouttri[i].index_st[j] = index * 2;
+
+					if (!triangles[i].facesfront)
+					{
+						pouttri[i].index_st[j] ++;
+					}
 				}
 			}
 		}
