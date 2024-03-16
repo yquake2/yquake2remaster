@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2005-2015 David HENRY
+ * Copyright (c) 2011 Sajt (https://icculus.org/qshed/qwalk/)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1674,11 +1675,11 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds, ofs_frames, ofs_end;
 	vec3_t translate = {0, 0, 0};
 	const dtriangle_t *pintri;
+	dmdxmesh_t *mesh_nodes;
 	const dstvert_t *pinst;
 	const int *pincmd;
 	dmdl_t pinmodel;
 	dmdx_t *pheader;
-	dmdxmesh_t *mesh_nodes;
 	void *extradata;
 	int i, framesize;
 
@@ -2230,13 +2231,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	for (i=0 ; i<sizeof(dkm_header_t)/sizeof(int) ; i++)
 		((int *)&header)[i] = LittleLong(((int *)buffer)[i]);
 
-	if (header.ident != DKMHEADER)
-	{
-		R_Printf(PRINT_ALL, "%s: %s has wrong ident (%i should be %i)",
-				__func__, mod_name, header.ident, DKMHEADER);
-		return NULL;
-	}
-
 	if (header.version != DKM1_VERSION && header.version != DKM2_VERSION)
 	{
 		R_Printf(PRINT_ALL, "%s: %s has wrong version number (%i should be %i)",
@@ -2325,6 +2319,103 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixNormals(pheader);
+	Mod_LoadFixImages(mod_name, pheader, false);
+
+	*type = mod_alias;
+
+	return extradata;
+}
+
+static void *
+Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
+	struct image_s ***skins, int *numskins, modtype_t *type)
+{
+	dmdx_t dmdxheader, *pheader = NULL;
+	vec3_t translate = {0, 0, 0};
+	mdx_header_t header = {0};
+	dmdxmesh_t *mesh_nodes;
+	void *extradata = NULL;
+	int i;
+
+	if (sizeof(mdx_header_t) > modfilelen)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file size(%d) too small",
+				__func__, mod_name, modfilelen);
+	}
+
+	/* byte swap the header fields and sanity check */
+	for (i=0 ; i<sizeof(mdx_header_t)/sizeof(int) ; i++)
+		((int *)&header)[i] = LittleLong(((int *)buffer)[i]);
+
+	if (header.version != MDX_VERSION)
+	{
+		R_Printf(PRINT_ALL, "%s: %s has wrong version number (%i should be %i)",
+				__func__, mod_name, header.version, MDX_VERSION);
+		return NULL;
+	}
+
+	if (header.ofs_end < 0 || header.ofs_end > modfilelen)
+	{
+		R_Printf(PRINT_ALL, "%s: model %s file size(%d) too small, should be %d",
+				__func__, mod_name, modfilelen, header.ofs_end);
+		return NULL;
+	}
+
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = header.skinwidth;
+	dmdxheader.skinheight = header.skinwidth;
+	/* has same frame structure */
+	if (header.framesize < (
+		sizeof(daliasframe_t) + (header.num_xyz - 1) * sizeof(dtrivertx_t)))
+	{
+		R_Printf(PRINT_ALL, "%s: model %s has incorrect framesize",
+				__func__, mod_name);
+		return NULL;
+	}
+
+	dmdxheader.framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
+	dmdxheader.framesize += header.num_xyz * sizeof(dxtrivertx_t);
+
+	dmdxheader.num_meshes = 1;
+	dmdxheader.num_skins = header.num_skins;
+	dmdxheader.num_xyz = header.num_xyz;
+	dmdxheader.num_st = header.num_xyz;
+	dmdxheader.num_tris = header.num_tris;
+	dmdxheader.num_frames = header.num_frames;
+	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
+
+	/* just skip header */
+	dmdxheader.ofs_meshes = sizeof(dmdxheader);
+	dmdxheader.ofs_skins = dmdxheader.ofs_meshes + dmdxheader.num_meshes * sizeof(dmdxmesh_t);
+	dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
+	dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
+	dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
+	dmdxheader.ofs_glcmds = dmdxheader.ofs_frames + dmdxheader.num_frames * dmdxheader.framesize;
+	dmdxheader.ofs_end = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
+
+	*numskins = dmdxheader.num_skins;
+	extradata = Hunk_Begin(dmdxheader.ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	pheader = Hunk_Alloc(dmdxheader.ofs_end);
+	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
+
+	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
+
+	/* create single mesh */
+	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
+	mesh_nodes[0].ofs_tris = 0;
+	mesh_nodes[0].num_tris = pheader->num_tris;
+
+	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
+		pheader->num_skins * MAX_SKINNAME);
+	Mod_LoadSTvertList(pheader,
+		(dstvert_t *)((byte *)buffer + header.ofs_st));
+	Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
+		header.framesize, translate);
+	Mod_LoadMD2TriangleList(pheader,
+		(dtriangle_t *)((byte *)buffer + header.ofs_tris));
+	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
@@ -2527,6 +2618,11 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 	switch (LittleLong(*(unsigned *)buffer))
 	{
+		case MDXHEADER:
+			extradata = Mod_LoadModel_MDX(mod_name, buffer, modfilelen,
+				skins, numskins, type);
+			break;
+
 		case DKMHEADER:
 			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen,
 				skins, numskins, type);

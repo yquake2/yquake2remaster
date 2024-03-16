@@ -230,17 +230,17 @@ typedef struct
 
 typedef struct fmheader_s
 {
-	int			skinwidth;
-	int			skinheight;
-	int			framesize;		// byte size of each frame
+	int skinwidth;
+	int skinheight;
+	int framesize;		// byte size of each frame
 
-	int			num_skins;
-	int			num_xyz;
-	int			num_st;			// greater than num_xyz for seams
-	int			num_tris;
-	int			num_glcmds;		// dwords in strip/fan command list
-	int			num_frames;
-	int			num_mesh_nodes;
+	int num_skins;
+	int num_xyz;
+	int num_st;			// greater than num_xyz for seams
+	int num_tris;
+	int num_glcmds;		// dwords in strip/fan command list
+	int num_frames;
+	int num_mesh_nodes;
 } fmheader_t;
 
 /* Daikatana dkm format */
@@ -270,7 +270,7 @@ typedef struct dkm_header_s
 	int num_tris;
 	int num_glcmds;        /* dwords in strip/fan command list */
 	int num_frames;
-	int num_surf;          /* no idea */
+	int num_surf;          /* num meshes */
 
 	int ofs_skins;         /* each skin is a MAX_SKINNAME string */
 	int ofs_st;            /* byte offset from start for stverts */
@@ -278,9 +278,44 @@ typedef struct dkm_header_s
 	int ofs_frames;        /* offset for first frame */
 	int ofs_glcmds;
 	/* has 52 * num_surf and additional 24 * x structures */
-	int ofs_surf;          /* no idea */
+	int ofs_surf;          /* meshes */
 	int ofs_end;           /* end of file */
 } dkm_header_t;
+
+/* Kingpin mdx format */
+#define MDXHEADER			 (('X' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define MDX_VERSION		4
+
+typedef struct mdx_header_s
+{
+	int ident;            /* magic number: "DKMD" */
+	int version;          /* version: 1 or 2 */
+
+	int skinwidth;
+	int skinheight;
+
+	int framesize;        /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_tris;
+	int num_glcmds;        /* dwords in strip/fan command list */
+	int num_frames;
+	int num_sfxdef;
+	int num_sfxent;
+	int num_subobj;
+
+	int ofs_skins;         /* each skin is a MAX_SKINNAME string */
+	int ofs_tris;          /* offset for dtriangles */
+	int ofs_frames;        /* offset for first frame */
+	int ofs_glcmds;
+	int ofs_st;
+	int ofs_sfxdef;
+	int ofs_sfxent;
+	int ofs_bbox;
+	int ofs_dummyend;
+	int ofs_end;
+} mdx_header_t;
 
 /* .MD3 mesh/anim files */
 #define ID3HEADER (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I')
