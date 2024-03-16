@@ -258,13 +258,13 @@ Mod_LoadFrames_MD2Anox(dmdx_t *pheader, byte *src, size_t inframesize,
 
 /*
 =================
-Mod_LoadDTriangleList
+Mod_LoadMD2TriangleList
 
 Load triangle lists
 =================
 */
 static void
-Mod_LoadDTriangleList(dmdx_t *pheader, const dtriangle_t *pintri)
+Mod_LoadMD2TriangleList(dmdx_t *pheader, const dtriangle_t *pintri)
 {
 	dtriangle_t *pouttri;
 	int i;
@@ -285,13 +285,13 @@ Mod_LoadDTriangleList(dmdx_t *pheader, const dtriangle_t *pintri)
 
 /*
 =================
-Mod_LoadDTriangleList
+Mod_LoadMD2TriangleList
 
 Load DKM triangle lists
 =================
 */
 static void
-Mod_LoadDkmTriangleList(dmdx_t *pheader, const dkmtriangle_t *pintri)
+Mod_LoadDKMTriangleList(dmdx_t *pheader, const dkmtriangle_t *pintri)
 {
 	dtriangle_t *pouttri;
 	int i;
@@ -338,6 +338,7 @@ Mod_LoadDKMCmdList(const char *mod_name, dmdx_t *pheader, int *pincmd)
 		}
 
 		/* skip unused surf_id and skin index */
+		/* TODO: what about use surf_id as mesh_id */
 		pincmd += 2;
 
 		while (i)
@@ -379,13 +380,13 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 
 	outframesize = sizeof(daliasxframe_t) + (pheader->num_xyz - 1) * sizeof(dxtrivertx_t);
 
-	for (i=0 ; i<pheader->num_frames ; i++)
+	for (i = 0; i < pheader->num_frames; i ++)
 	{
-		daliasframe_t *pinframe;
 		daliasxframe_t *poutframe;
+		daliasframe_t *pinframe;
+		dxtrivertx_t *outverts;
+		byte *inverts;
 		int j;
-		dxtrivertx_t	*outverts;
-		byte	*inverts;
 
 		pinframe = (daliasframe_t *)(src + i * inframesize);
 		poutframe = (daliasxframe_t *)((byte *)pheader
@@ -407,14 +408,94 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 		outverts = poutframe->verts;
 
 		/* dkm vert version 2 has unalligned by int size struct */
-		for(j=0; j < pheader->num_xyz; j++)
+		for(j = 0; j < pheader->num_xyz; j++)
 		{
 			Mod_LoadFrames_VertDKM2(outverts + j, *((int *)inverts));
 			inverts += sizeof(int);
-			outverts[j].lightnormalindex = *inverts;
+			/* norm convert logic is unknown */
+			outverts[j].lightnormalindex = 0;
 			inverts ++;
 		}
 	}
+}
+
+/* Genetate normals based on MD5_ComputeNormals code */
+static void
+Mod_LoadFixNormals(dmdx_t *pheader)
+{
+	int i, outframesize;
+	vec3_t *normals;
+	dtriangle_t *pouttri;
+
+	pouttri = (dtriangle_t *) ((byte *)pheader + pheader->ofs_tris);
+	outframesize = sizeof(daliasxframe_t) + (pheader->num_xyz - 1) * sizeof(dxtrivertx_t);
+	normals = calloc(pheader->num_xyz, sizeof(vec3_t));
+
+	for (i = 0; i < pheader->num_frames; i ++)
+	{
+		daliasxframe_t *poutframe;
+		dxtrivertx_t *outverts;
+		int t;
+
+		poutframe = (daliasxframe_t *)((byte *)pheader
+			+ pheader->ofs_frames + i * outframesize);
+		outverts = poutframe->verts;
+
+		for(t = 0; t < pheader->num_tris; t ++)
+		{
+			vec3_t v[3], d1, d2, norm;
+			int j;
+
+			/* get verts */
+			for (j = 0; j < 3; j ++)
+			{
+				dxtrivertx_t *dv;
+				int k;
+
+				dv = outverts + pouttri[t].index_xyz[j];
+
+				/* convert to vec3 */
+				for (k = 0; k < 3; k++)
+				{
+					v[j][k] = dv->v[k];
+				}
+			}
+
+			VectorSubtract(v[1], v[0], d1);
+			VectorSubtract(v[2], v[0], d2);
+
+			/* scale result before cross product */
+			for (j = 0; j < 3; j++)
+			{
+				d1[j] *= poutframe->scale[j];
+				d2[j] *= poutframe->scale[j];
+			}
+
+			CrossProduct(d1, d2, norm);
+			VectorNormalize(norm);
+
+			/* FIXME: this should be weighted by each vertex angle. */
+			for (j = 0; j < 3; j++)
+			{
+				int index;
+
+				index = pouttri[t].index_xyz[j];
+				VectorAdd(normals[index], norm, normals[index]);
+			}
+		}
+
+		/* save normals */
+		for(t = 0; t < pheader->num_xyz; t++)
+		{
+			VectorNormalize(normals[t]);
+			/* FIXME: QSS does not have such invert */
+			VectorInverse(normals[t]);
+
+			poutframe->verts[t].lightnormalindex =
+				R_CompressNormalMDL(normals[t]);
+		}
+	}
+	free(normals);
 }
 
 void
@@ -1590,13 +1671,15 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	// load triangle lists
 	//
 	pintri = (dtriangle_t *)((byte *)buffer + pinmodel.ofs_tris);
-	Mod_LoadDTriangleList(pheader, pintri);
+	Mod_LoadMD2TriangleList(pheader, pintri);
 
 	//
 	// load the frames
 	//
 	Mod_LoadFrames_MD2Anox(pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate, pinmodel.resolution);
+
+	Mod_LoadFixNormals(pheader);
 
 	//
 	// load the glcmds
@@ -1606,7 +1689,7 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 
 	// register all skins
 	memcpy((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
-		pheader->num_skins*MAX_SKINNAME);
+		pheader->num_skins * MAX_SKINNAME);
 
 	*type = mod_alias;
 
@@ -1763,7 +1846,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	// load triangle lists
 	//
 	pintri = (dtriangle_t *)((byte *)buffer + pinmodel.ofs_tris);
-	Mod_LoadDTriangleList(pheader, pintri);
+	Mod_LoadMD2TriangleList(pheader, pintri);
 
 	//
 	// load the frames
@@ -2011,7 +2094,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 					return NULL;
 				}
 
-				Mod_LoadDTriangleList (pheader, (dtriangle_t *) src);
+				Mod_LoadMD2TriangleList(pheader, (dtriangle_t *) src);
 			}
 			else if (Q_strncasecmp(blockname, "frames", sizeof(blockname)) == 0)
 			{
@@ -2280,9 +2363,10 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 			header.framesize, header.translate);
 	}
 
-	Mod_LoadDkmTriangleList(pheader,
+	Mod_LoadDKMTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
+	Mod_LoadFixNormals(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
 	*type = mod_alias;
