@@ -645,6 +645,8 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	/* call the apropriate loader */
 	switch (LittleLong(*(unsigned *)buf))
 	{
+		case MDXHEADER:
+			/* fall through */
 		case DKMHEADER:
 			/* fall through */
 		case RAVENFMHEADER:

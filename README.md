@@ -39,7 +39,8 @@ Models support:
 | mdl    | Quake 1         | 8 bit        | unsupported grouped textures                      |
 | md2    | Quake 2         | 8 bit        | full support                                      |
 | md2    | Anachronox      | 8/10/16 bit  | does no suport tagged surfaces                    |
-| fm     | Heretic 2       | 8 bit        | show all meshes,                                  |
+| mdx    | Kingpin         | 8 bit        | unchecked with game                               |
+| fm     | Heretic 2       | 8 bit        | show all meshes                                   |
 | dkm    | Daikatana DKM1  | 8 bit        | unchecked with game                               |
 | dkm    | Daikatana DKM2  | 10 bit       | unchecked with game                               |
 | md3    | Quake 3         | 16 bit       | show all meshes, no tags support, unchecked       |

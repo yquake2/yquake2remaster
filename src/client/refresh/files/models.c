@@ -2820,6 +2820,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		!strcmp(ext, "md2") ||
 		!strcmp(ext, "md3") ||
 		!strcmp(ext, "md5mesh") ||
+		!strcmp(ext, "mdx") ||
 		!strcmp(ext, "mdl"))
 	{
 		int filesize;
@@ -2861,6 +2862,16 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		if (filesize > 0)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as md2 (Quake 2/Anachronox)\n",
+				__func__, namewe);
+			return filesize;
+		}
+
+		/* Check Kingpin model */
+		Q_strlcpy(newname + tlen, ".mdx", sizeof(newname));
+		filesize = ri.FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s loaded as mdx (Kingpin)\n",
 				__func__, namewe);
 			return filesize;
 		}
