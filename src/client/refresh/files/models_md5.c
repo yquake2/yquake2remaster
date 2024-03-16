@@ -1293,9 +1293,10 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 
 		num_verts += md5file->meshes[i].num_verts;
 		num_tris += md5file->meshes[i].num_tris * 3;
-		/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
-		num_glcmds += (10 * md5file->meshes[i].num_tris) + 1;
 	}
+
+	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+	num_glcmds = (10 * md5file->num_tris) + 1 * md5file->num_meshes;
 
 	MD5_ComputeNormals(md5file);
 

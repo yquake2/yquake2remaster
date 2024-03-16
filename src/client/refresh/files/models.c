@@ -293,77 +293,37 @@ Load DKM triangle lists
 static void
 Mod_LoadDKMTriangleList(dmdx_t *pheader, const dkmtriangle_t *pintri)
 {
+	const dtriangle_t *pouttriofs;
+	dmdxmesh_t *mesh_nodes;
 	dtriangle_t *pouttri;
-	int i;
+	int m;
 
-	pouttri = (dtriangle_t *) ((char *)pheader + pheader->ofs_tris);
+	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
+	pouttriofs = pouttri = (dtriangle_t *) ((char *)pheader + pheader->ofs_tris);
 
-	for (i = 0; i < pheader->num_tris; i++)
+	for (m = 0; m < pheader->num_meshes; m++)
 	{
-		int j;
+		int i;
 
-		for (j = 0; j < 3; j++)
+		mesh_nodes[m].ofs_tris = pouttri - pouttriofs;
+
+		for (i = 0; i < pheader->num_tris; i++)
 		{
-			pouttri[i].index_xyz[j] = LittleShort(pintri[i].index_xyz[j]);
-			pouttri[i].index_st[j] = LittleShort(pintri[i].index_st[j]);
+			int j;
+
+			if (pintri[i].mesh_id == m)
+			{
+				for (j = 0; j < 3; j++)
+				{
+					pouttri->index_xyz[j] = LittleShort(pintri[i].index_xyz[j]);
+					pouttri->index_st[j] = LittleShort(pintri[i].index_st[j]);
+				}
+				pouttri++;
+			}
 		}
+
+		mesh_nodes[m].num_tris = pouttri - pouttriofs - mesh_nodes[m].ofs_tris;
 	}
-}
-
-/*
-=================
-Mod_LoadDKMCmdList
-
-Load the DKM glcmds
-=================
-*/
-static void
-Mod_LoadDKMCmdList(const char *mod_name, dmdx_t *pheader, int *pincmd)
-{
-	const int *pendcmd;
-	int *poutcmd;
-	int i;
-
-	poutcmd = (int *)((char*)pheader + pheader->ofs_glcmds);
-	pendcmd = poutcmd + pheader->num_glcmds;
-	/* read command count */
-	i = LittleLong(*pincmd++);
-	*poutcmd++ = i;
-
-	while (i != 0)
-	{
-		if (i < 0)
-		{
-			i = -i;
-		}
-
-		/* skip unused surf_id and skin index */
-		/* TODO: what about use surf_id as mesh_id */
-		pincmd += 2;
-
-		while (i)
-		{
-			poutcmd[0] = LittleLong(pincmd[1]);
-			poutcmd[1] = LittleLong(pincmd[2]);
-			poutcmd[2] = LittleLong(pincmd[0]);
-			poutcmd += 3;
-			pincmd += 3;
-			i --;
-		}
-
-		/* read command count */
-		i = LittleLong(*pincmd++);
-		*poutcmd++ = i;
-
-		if (pendcmd < poutcmd)
-		{
-			R_Printf(PRINT_ALL, "%s: Entity %s has possible broken glcmd.\n",
-				__func__, mod_name);
-			break;
-		}
-	}
-
-	memset (poutcmd, 0, (pendcmd - poutcmd) * sizeof(int));
 }
 
 /*
@@ -681,10 +641,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	num_xyz = LittleLong(pinmodel->num_xyz);
 	num_st = num_xyz;
 	num_tris = LittleLong(pinmodel->num_tris);
-	num_glcmds = (
-		(3 * num_tris) * sizeof(int) * 3 + /* 3 vert */
-		(num_tris * sizeof(int)) + /* triangles count */
-		sizeof(int) /* final zero */) / sizeof(int);
+	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+	num_glcmds = (10 * num_tris) + 1;
 	num_frames = LittleLong(pinmodel->num_frames);
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * (num_xyz - 1);
@@ -1361,9 +1319,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		num_tris += LittleLong(md3_mesh->num_tris);
 		num_skins += LittleLong(md3_mesh->num_shaders);
 
-		/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
-		num_glcmds += (10 * LittleLong(md3_mesh->num_tris)) + 1;
-
 		if (pinmodel.num_frames != LittleLong(md3_mesh->num_frames))
 		{
 			R_Printf(PRINT_ALL, "%s: model %s broken mesh %d",
@@ -1373,6 +1328,9 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 
 		meshofs += LittleLong(md3_mesh->ofs_end);
 	}
+
+	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+	num_glcmds = (10 * num_tris) + 1 * pinmodel.num_meshes;
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_xyz;
 	ofs_skins = sizeof(dmdx_t);
@@ -1502,7 +1460,15 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
 		const md3_frameinfo_t *md3_frameinfo = (md3_frameinfo_t*)inframe;
 
-		strncpy(frame->name, md3_frameinfo->name, sizeof(frame->name) - 1);
+		if (md3_frameinfo->name[0])
+		{
+			strncpy(frame->name, md3_frameinfo->name, sizeof(frame->name) - 1);
+		}
+		else
+		{
+			snprintf(frame->name, 15, "%d", i);
+		}
+
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,
 			pheader->num_xyz, frame);
 
@@ -2252,7 +2218,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	dmdx_t dmdxheader, *pheader = NULL;
 	dkm_header_t header = {0};
 	void *extradata = NULL;
-	dmdxmesh_t *mesh_nodes;
 	int i;
 
 	if (sizeof(dkm_header_t) > modfilelen)
@@ -2315,13 +2280,14 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	dmdxheader.framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
 	dmdxheader.framesize += header.num_xyz * sizeof(dxtrivertx_t);
 
-	dmdxheader.num_meshes = 1;
+	dmdxheader.num_meshes = header.num_surf;
 	dmdxheader.num_skins = header.num_skins;
 	dmdxheader.num_xyz = header.num_xyz;
 	dmdxheader.num_st = header.num_st;
 	dmdxheader.num_tris = header.num_tris;
-	dmdxheader.num_glcmds = header.num_glcmds;
 	dmdxheader.num_frames = header.num_frames;
+	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
 
 	/* just skip header */
 	dmdxheader.ofs_meshes = sizeof(dmdxheader);
@@ -2339,19 +2305,10 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
 
-	/* create single mesh */
-	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
-	mesh_nodes[0].ofs_tris = 0;
-	mesh_nodes[0].num_tris = pheader->num_tris;
-	mesh_nodes[0].ofs_glcmds = 0;
-	mesh_nodes[0].num_glcmds = pheader->num_glcmds;
-
 	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
 	Mod_LoadSTvertList(pheader,
 		(dstvert_t *)((byte *)buffer + header.ofs_st));
-	Mod_LoadDKMCmdList(mod_name, pheader,
-		(int *)((byte *)buffer + header.ofs_glcmds));
 	if (header.version == DKM1_VERSION)
 	{
 		Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
@@ -2366,6 +2323,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	Mod_LoadDKMTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 
+	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixNormals(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
