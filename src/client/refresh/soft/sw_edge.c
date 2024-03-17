@@ -598,7 +598,7 @@ Each surface has a linked list of its visible spans
 ==============
 */
 void
-R_ScanEdges (entity_t *currententity, surf_t *surface)
+R_ScanEdges (entity_t *currententity, const surf_t *surface)
 {
 	shift20_t	iv, bottom;
 	surf_t		*s;

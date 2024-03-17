@@ -519,10 +519,11 @@ R_DrawSpanlet66Stipple(const int *r_turb_turb)
 static int
 R_ClipPolyFace(int nump, clipplane_t *pclipplane)
 {
-	int		i, outcount;
-	float	frac, clipdist, *pclipnormal;
-	float	*in, *instep, *outstep, *vert2;
-	float	dists[MAXWORKINGVERTS+3] = {0};
+	float dists[MAXWORKINGVERTS+3] = {0};
+	const float *vert2, *pclipnormal;
+	float *in, *instep, *outstep;
+	float frac, clipdist;
+	int i, outcount;
 
 	clipdist = pclipplane->dist;
 	pclipnormal = pclipplane->normal;

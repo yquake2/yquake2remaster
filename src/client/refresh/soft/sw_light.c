@@ -225,8 +225,9 @@ RI_BuildLightMap(drawsurf_t* drawsurf)
 		for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
 			 maps++)
 		{
+			const light_t *max_light;
+			light_t *curr_light;
 			unsigned scale;
-			light_t  *curr_light, *max_light;
 
 			curr_light = blocklights;
 			max_light = blocklights + size;
@@ -277,8 +278,9 @@ RI_BuildLightMap(drawsurf_t* drawsurf)
 		for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
 			 maps++)
 		{
+			const light_t *max_light;
+			light_t *curr_light;
 			unsigned scale;
-			light_t  *curr_light, *max_light;
 
 			curr_light = blocklights;
 			max_light = blocklights + size;
@@ -302,7 +304,8 @@ RI_BuildLightMap(drawsurf_t* drawsurf)
 
 	// bound, invert, and shift
 	{
-		light_t  *curr_light, *max_light;
+		const light_t *max_light;
+		light_t *curr_light;
 
 		curr_light = blocklights;
 		max_light = blocklights + size;

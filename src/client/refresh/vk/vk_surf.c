@@ -37,7 +37,7 @@ msurface_t *r_alpha_surfaces;
 vklightmapstate_t vk_lms;
 
 static void
-DrawVkPoly(mpoly_t *p, image_t *texture, float *color)
+DrawVkPoly(mpoly_t *p, image_t *texture, const float *color)
 {
 	QVk_BindPipeline(&vk_drawPolyPipeline);
 
@@ -74,7 +74,7 @@ DrawVkFlowingPoly -- version of DrawVkPoly that handles scrolling texture
 ================
 */
 static void
-DrawVkFlowingPoly(msurface_t *fa, image_t *texture, float *color)
+DrawVkFlowingPoly(msurface_t *fa, image_t *texture, const float *color)
 {
 	float scroll;
 	mpoly_t *p;
@@ -187,7 +187,8 @@ R_DrawTriangleOutlines(void)
 }
 
 static void
-R_RenderBrushPoly(msurface_t *fa, float *modelMatrix, float alpha, entity_t *currententity)
+R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
+	const entity_t *currententity)
 {
 	int			maps;
 	image_t		*image;
@@ -390,7 +391,8 @@ DrawTextureChains(entity_t *currententity)
 
 
 static void
-Vk_RenderLightmappedPoly(msurface_t *surf, float *modelMatrix, float alpha, entity_t *currententity)
+Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha,
+	const entity_t *currententity)
 {
 	int		i, nv = surf->polys->numverts;
 	int		map;

@@ -64,11 +64,10 @@ pixel_t		*r_warpbuffer;
 
 typedef struct swstate_s
 {
-	qboolean	fullscreen;
-	int		prev_mode; // last valid SW mode
+	int prev_mode; /* last valid SW mode */
 
-	unsigned char	gammatable[256];
-	unsigned char	currentpalette[1024];
+	unsigned char gammatable[256];
+	unsigned char currentpalette[1024];
 } swstate_t;
 
 static swstate_t sw_state;
@@ -928,7 +927,7 @@ R_BmodelCheckBBox
 =============
 */
 static int
-R_BmodelCheckBBox (const float *minmaxs)
+R_BmodelCheckBBox(const float *minmaxs)
 {
 	int i, clipflags;
 
@@ -937,7 +936,7 @@ R_BmodelCheckBBox (const float *minmaxs)
 	for (i=0 ; i<4 ; i++)
 	{
 		vec3_t acceptpt, rejectpt;
-		int *pindex;
+		const int *pindex;
 		float d;
 
 		// generate accept and reject points
@@ -986,7 +985,7 @@ R_FindTopnode (vec3_t mins, vec3_t maxs)
 
 	while (1)
 	{
-		cplane_t *splitplane;
+		const cplane_t *splitplane;
 		int sides;
 
 		if (node->visframe != r_visframecount)
@@ -2085,7 +2084,7 @@ char shift_size;
 static void
 RE_CopyFrame (Uint32 * pixels, int pitch, int vmin, int vmax)
 {
-	Uint32 *sdl_palette = (Uint32 *)sw_state.currentpalette;
+	const Uint32 *sdl_palette = (Uint32 *)sw_state.currentpalette;
 
 	// no gaps between images rows
 	if (pitch == vid_buffer_width)
@@ -2130,7 +2129,8 @@ RE_CopyFrame (Uint32 * pixels, int pitch, int vmin, int vmax)
 static int
 RE_BufferDifferenceStart(int vmin, int vmax)
 {
-	int *front_buffer, *back_buffer, *back_max;
+	int *front_buffer, *back_buffer;
+	const int *back_max;
 
 	back_buffer = (int*)(swap_frames[0] + vmin);
 	front_buffer = (int*)(swap_frames[1] + vmin);
@@ -2146,7 +2146,8 @@ RE_BufferDifferenceStart(int vmin, int vmax)
 static int
 RE_BufferDifferenceEnd(int vmin, int vmax)
 {
-	int *front_buffer, *back_buffer, *back_min;
+	int *front_buffer, *back_buffer;
+	const int *back_min;
 
 	back_buffer = (int*)(swap_frames[0] + vmax);
 	front_buffer = (int*)(swap_frames[1] + vmax);
@@ -2197,7 +2198,7 @@ RE_FlushFrame(int vmin, int vmax)
 
 	if (is_render_flushed)
 	{
-		Com_Printf("%s: Render is already flushed\n", __func__);
+		R_Printf(PRINT_DEVELOPER, "%s: Render is already flushed\n", __func__);
 		return;
 	}
 

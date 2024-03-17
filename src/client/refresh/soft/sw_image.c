@@ -331,7 +331,7 @@ R_LoadPic8(const char *name, const byte *pic, int width, int realwidth, int heig
 }
 
 image_t *
-R_LoadPic(char *name, byte *pic, int width, int realwidth, int height, int realheight,
+R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int height, int realheight,
 	size_t data_size, imagetype_t type, int bits)
 {
 	if (!realwidth || !realheight)
