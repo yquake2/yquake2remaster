@@ -259,7 +259,6 @@ SV_GameMap_f(void)
 		}
 	}
 
-
 	/* start up the next map */
 	SV_Map(false, map, false, false);
 

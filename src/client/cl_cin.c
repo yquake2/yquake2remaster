@@ -912,7 +912,10 @@ SCR_PlayCinematic(char *arg)
 	dot = strstr(arg, ".");
 
 	/* static pcx image */
-	if (dot && !strcmp(dot, ".pcx"))
+	if (dot && (!strcmp(dot, ".pcx") ||
+				!strcmp(dot, ".tga") ||
+				!strcmp(dot, ".jpg") ||
+				!strcmp(dot, ".png")))
 	{
 		cvar_t	*r_retexturing;
 

@@ -371,7 +371,8 @@ CM_InitBoxHull(void)
 		(cmod->numbrushsides <= 0) ||
 		(cmod->numplanes <= 0))
 	{
-		Com_Error(ERR_DROP, "%s: Not enough room for box tree", __func__);
+		Com_Printf("%s: Not enough room for box tree\n", __func__);
+		return;
 	}
 
 	box_brush = &cmod->map_brushes[cmod->numbrushes];
@@ -1933,9 +1934,10 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	length = FS_LoadFile(name, (void **)&buf);
 
-	if (!buf)
+	if (!buf || length <= 0)
 	{
-		Com_Error(ERR_DROP, "%s: Couldn't load %s", name, __func__);
+		Com_Printf("%s: Couldn't load %s\n", __func__, name);
+		return;
 	}
 
 	mod->checksum = LittleLong(Com_BlockChecksum(buf, length));

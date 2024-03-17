@@ -569,7 +569,10 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		SV_BroadcastCommand("changing\n");
 		SV_SpawnServer(level, spawnpoint, ss_demo, attractloop, loadgame, isautosave);
 	}
-	else if ((l > 4) && !strcmp(level + l - 4, ".pcx"))
+	else if ((l > 4) && (!strcmp(level + l - 4, ".pcx") ||
+						!strcmp(level + l - 4, ".tga") ||
+						!strcmp(level + l - 4, ".jpg") ||
+						!strcmp(level + l - 4, ".png")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */
