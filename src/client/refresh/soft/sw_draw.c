@@ -72,10 +72,10 @@ smoothly scrolled off.
 void
 RE_Draw_CharScaled(int x, int y, int c, float scale)
 {
-	pixel_t	*dest;
-	byte	*source, *pic_pixels;
-	int	drawline;
-	int	row, col, v, iscale, sscale, width, height;
+	int	drawline, row, col, v, iscale, sscale, width, height;
+	const byte *source;
+	byte *pic_pixels;
+	pixel_t *dest;
 
 	iscale = (int) scale;
 
@@ -149,9 +149,9 @@ RE_Draw_GetPicSize
 =============
 */
 void
-RE_Draw_GetPicSize (int *w, int *h, const char *name)
+RE_Draw_GetPicSize(int *w, int *h, const char *name)
 {
-	image_t *image;
+	const image_t *image;
 
 	image = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!image)
@@ -159,6 +159,7 @@ RE_Draw_GetPicSize (int *w, int *h, const char *name)
 		*w = *h = -1;
 		return;
 	}
+
 	*w = image->asset_width;
 	*h = image->asset_height;
 }
@@ -237,11 +238,14 @@ RE_Draw_StretchPicImplementation (int x, int y, int w, int h, const image_t *pic
 					dest[u] = source[f>>16];
 					f += fstep;
 				}
+
 				if (picupscale > 1)
 				{
-					int i;
-					int pu = Q_min(height-v, picupscale);
-					pixel_t	*dest_orig = dest;
+					const pixel_t *dest_orig;
+					int pu, i;
+
+					pu = Q_min(height-v, picupscale);
+					dest_orig = dest;
 
 					// copy first line to fill whole sector
 					for (i=1; i < pu; i++)
@@ -309,7 +313,7 @@ RE_Draw_StretchPic
 void
 RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 {
-	image_t	*pic;
+	const image_t *pic;
 
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
@@ -317,6 +321,7 @@ RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", name);
 		return;
 	}
+
 	RE_Draw_StretchPicImplementation (x, y, w, h, pic);
 }
 
@@ -387,7 +392,7 @@ Draw_Pic
 void
 RE_Draw_PicScaled(int x, int y, const char *name, float scale)
 {
-	image_t		*pic;
+	const image_t *pic;
 
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
@@ -413,11 +418,10 @@ refresh window.
 void
 RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 {
-	int			i, j;
-	byte		*psrc;
-	pixel_t		*pdest;
-	image_t		*pic;
-	int			x2;
+	const byte *psrc;
+	pixel_t *pdest;
+	int i, j, x2;
+	image_t *pic;
 
 	if (x < 0)
 	{

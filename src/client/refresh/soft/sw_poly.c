@@ -768,10 +768,10 @@ R_PolygonDrawSpans(espan_t *pspan, int iswater, float d_ziorigin, float d_zistep
 static void
 R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 {
-	int		i, lmaxindex;
-	emitpoint_t	*pvert, *pnext;
-	espan_t		*pspan;
-	float		du, dv, vtop, u_step;
+	const emitpoint_t *pvert, *pnext;
+	float du, dv, vtop, u_step;
+	int i, lmaxindex;
+	espan_t *pspan;
 
 	pspan = s_polygon_spans;
 	i = s_minindex;
@@ -837,10 +837,11 @@ R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 static void
 R_PolygonScanRightEdge(espan_t *s_polygon_spans)
 {
-	int		i;
-	emitpoint_t	*pvert, *pnext;
-	espan_t		*pspan;
-	float		du, dv, vtop, u_step, uvert, unext, vvert;
+	float du, dv, vtop, u_step, uvert, unext, vvert;
+	const emitpoint_t *pnext;
+	emitpoint_t *pvert;
+	espan_t *pspan;
+	int i;
 
 	pspan = s_polygon_spans;
 	i = s_minindex;
@@ -1037,11 +1038,11 @@ R_ClipAndDrawPoly ( float alpha, int isturbulent, qboolean textured )
 static void
 R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentmodel, msurface_t *fa)
 {
-	int		i, lnumverts;
-	medge_t		*pedges, *r_pedge;
-	float		*vec;
-	vec5_t     *pverts;
-	float       tmins[2] = { 0, 0 };
+	medge_t *pedges, *r_pedge;
+	float tmins[2] = { 0, 0 };
+	int i, lnumverts;
+	const float *vec;
+	vec5_t *pverts;
 
 	r_polydesc.nump = 0;
 

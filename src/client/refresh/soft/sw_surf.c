@@ -71,7 +71,8 @@ R_DrawSurfaceBlock_Light (pixel_t *prowdest, pixel_t *psource, size_t size,
 	// Full same light from both side
 	if (light_masked_right != LIGHTMASK && light_masked_left == light_masked_right)
 	{
-		pixel_t *dest, *dest_max, *src;
+		const pixel_t *dest_max;
+		pixel_t *dest, *src;
 
 		dest = prowdest;
 		dest_max = prowdest + size;

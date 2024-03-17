@@ -415,10 +415,10 @@ Mod_LoadDKMTriangleList(dmdx_t *pheader, const dkmtriangle_t *pintri)
 
 		for (i = 0; i < pheader->num_tris; i++)
 		{
-			int j;
-
 			if (pintri[i].mesh_id == m)
 			{
+				int j;
+
 				for (j = 0; j < 3; j++)
 				{
 					pouttri->index_xyz[j] = LittleShort(pintri[i].index_xyz[j]);

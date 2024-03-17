@@ -88,7 +88,7 @@ R_ImageList_f (void)
 //=======================================================
 
 static image_t *
-R_FindFreeImage(char *name)
+R_FindFreeImage(const char *name)
 {
 	image_t		*image;
 	int			i;
@@ -256,7 +256,7 @@ R_LoadPic8
 ================
 */
 static image_t *
-R_LoadPic8 (char *name, byte *pic, int width, int realwidth, int height, int realheight,
+R_LoadPic8(const char *name, const byte *pic, int width, int realwidth, int height, int realheight,
 	size_t data_size, imagetype_t type)
 {
 	image_t	*image;
@@ -340,7 +340,7 @@ R_LoadPic(char *name, byte *pic, int width, int realwidth, int height, int realh
 		realheight = height;
 	}
 
-	if (data_size <= 0 || !width || !height)
+	if (!data_size || !width || !height)
 	{
 		return NULL;
 	}

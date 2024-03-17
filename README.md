@@ -29,22 +29,21 @@ State:
 
 Monsters:
   * incorrect dead animation for Arachnid,
-  * broken fire effect for Guardian,
-  * incorrect skin in soft render for Wizard mdl model.
+  * broken fire effect for Guardian.
 
 Models support:
 
-| Format | Original Game   | Frame vertex | Comments                                          |
-| ------ | --------------- | ------------ | ------------------------------------------------- |
-| mdl    | Quake 1         | 8 bit        | unsupported grouped textures                      |
-| md2    | Quake 2         | 8 bit        | full support                                      |
-| md2    | Anachronox      | 8/10/16 bit  | does no suport tagged surfaces                    |
-| mdx    | Kingpin         | 8 bit        | unchecked with game                               |
-| fm     | Heretic 2       | 8 bit        | show all meshes                                   |
-| dkm    | Daikatana DKM1  | 8 bit        | unchecked with game                               |
-| dkm    | Daikatana DKM2  | 10 bit       | unchecked with game                               |
-| md3    | Quake 3         | 16 bit       | show all meshes, no tags support, unchecked       |
-| md5    | Doom 3/Quake 4  | float        | requires md2 for skins, show all meshes           |
+| Format | Original Game   | Frame vertex | Meshes | Comments                                |
+| ------ | --------------- | ------------ | ------ | --------------------------------------- |
+| mdl    | Quake 1         | 8 bit        | Single | Unsupported grouped textures            |
+| md2    | Quake 2         | 8 bit        | Single |                                         |
+| md2    | Anachronox      | 8/10/16 bit  | Single | No tagged surfaces, unchecked with game |
+| mdx    | Kingpin         | 8 bit        | Many   | No sfx support, unchecked with game     |
+| fm     | Heretic 2       | 8 bit        | Many   |                                         |
+| dkm    | Daikatana DKM1  | 8 bit        | Many   | Unchecked with game                     |
+| dkm    | Daikatana DKM2  | 10 bit       | Many   | Unchecked with game                     |
+| md3    | Quake 3         | 16 bit       | Many   | No tags support                         |
+| md5    | Doom 3/Quake 4  | float        | Many   | Requires md2 for skins                  |
 
 All models support only single texture for all meshes and only up to 255 frames.
 

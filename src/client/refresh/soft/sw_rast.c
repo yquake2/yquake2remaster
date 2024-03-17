@@ -205,14 +205,11 @@ R_EmitEdge
 static void
 R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1, medge_t *r_pedge, qboolean r_nearzionly)
 {
-	edge_t	*edge, *pcheck;
-	int	u_check;
-	float	u, u_step;
-	vec3_t	local, transformed;
-	float	*world;
-	int		v, v2, ceilv0;
-	float	scale, lzi0, u0, v0;
-	int		side;
+	float u, u_step, scale, lzi0, u0, v0;
+	int u_check, v, v2, ceilv0, side;
+	vec3_t local, transformed;
+	edge_t *edge, *pcheck;
+	const float *world;
 
 	if (r_lastvertvalid)
 	{

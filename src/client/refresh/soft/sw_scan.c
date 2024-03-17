@@ -40,11 +40,10 @@ the sine warp, to keep the edges from wrapping
 void
 D_WarpScreen (void)
 {
-	int	w, h;
-	int	u,v;
-	pixel_t	*dest;
-	int	*turb;
-	byte	**row;
+	const int *turb;
+	int w, h, u,v;
+	pixel_t *dest;
+	byte **row;
 
 	static int	cached_width, cached_height;
 
@@ -79,7 +78,7 @@ D_WarpScreen (void)
 
 	for (v=0 ; v<h ; v++, dest += vid_buffer_width)
 	{
-		int *col;
+		const int *col;
 
 		col = warp_column + turb[v];
 		row = warp_rowptr + v;
@@ -184,13 +183,13 @@ TurbulentPow2
 =============
 */
 void
-TurbulentPow2 (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
+TurbulentPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
 {
-	float	spancountminus1;
-	float	sdivzpow2stepu, tdivzpow2stepu, zipow2stepu;
-	pixel_t	*r_turb_pbase;
-	int	*r_turb_turb;
-	int	spanstep_shift, spanstep_value;
+	float sdivzpow2stepu, tdivzpow2stepu, zipow2stepu;
+	int spanstep_shift, spanstep_value;
+	const pixel_t *r_turb_pbase;
+	const int *r_turb_turb;
+	float spancountminus1;
 
 	spanstep_shift = D_DrawSpanGetStep(d_zistepu, d_zistepv);
 	spanstep_value = (1 << spanstep_shift);
@@ -340,11 +339,11 @@ NonTurbulentPow2 - this is for drawing scrolling textures. they're warping water
 void
 NonTurbulentPow2 (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
 {
-	float spancountminus1;
 	float sdivzpow2stepu, tdivzpow2stepu, zipow2stepu;
-	pixel_t	*r_turb_pbase;
-	int	*r_turb_turb;
-	int	spanstep_shift, spanstep_value;
+	int spanstep_shift, spanstep_value;
+	const pixel_t *r_turb_pbase;
+	const int *r_turb_turb;
+	float spancountminus1;
 
 	spanstep_shift = D_DrawSpanGetStep(d_zistepu, d_zistepv);
 	spanstep_value = (1 << spanstep_shift);
