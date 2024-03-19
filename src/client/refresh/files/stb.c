@@ -672,6 +672,14 @@ GetSkyImage(const char *skyname, const char* surfname, qboolean palettedtexture,
 		image = find_image(pathname, it_sky);
 	}
 
+	/* Anachronox */
+	if (!image)
+	{
+		Com_sprintf(pathname, sizeof(pathname), "graphics/sky/%s%s.tga",
+			skyname, surfname);
+		image = find_image(pathname, it_sky);
+	}
+
 	return image;
 }
 

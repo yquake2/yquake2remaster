@@ -543,7 +543,7 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 }
 
 static int
-FS_DecompressFile(void *buffer, int size, fsHandle_t *handle)
+FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 {
 	if (handle->compressed_size)
 	{
@@ -895,12 +895,25 @@ FS_LoadDAT(const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
+		char* p;
+
 		Q_strlcpy(files[i].name, prefix, sizeof(files[i].name));
 		strncat(files[i].name, "/", sizeof(files[i].name) - 1);
-		strncat(files[i].name, info[i].name, sizeof(files[i].name) - i);
+		strncat(files[i].name, info[i].name, sizeof(files[i].name) - 1);
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = LittleLong(info[i].compressedlen);
+
+		/* fix naming */
+		p = files[i].name;
+		while (*p)
+		{
+			if (*p == '\\')
+			{
+				*p = '/';
+			}
+			p ++;
+		}
 	}
 	free(info);
 
