@@ -27,6 +27,28 @@
 #ifndef CO_FILES_H
 #define CO_FILES_H
 
+/* The .dat files are just a linear collapse of a directory tree */
+
+#define IDDATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A')
+#define IDDATVERSION 9
+
+typedef struct
+{
+	char name[128];
+	int filepos;
+	int filelen;
+	int compressedlen;
+	int checksum;
+} ddatfile_t;
+
+typedef struct
+{
+	int ident; /* == IDDATHEADER */
+	int dirofs;
+	int dirlen;
+	int version; /* == IDPAKVERSION */
+} ddatheader_t;
+
 /* The .pak files are just a linear collapse of a directory tree */
 
 #define IDPAKHEADER (('K' << 24) + ('C' << 16) + ('A' << 8) + 'P')
