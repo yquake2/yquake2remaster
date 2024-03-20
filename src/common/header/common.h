@@ -179,6 +179,8 @@ void Info_Print(char *s);
 #define PROTOCOL_RELEASE_VERSION 26
 /* Quake 2 Demo */
 #define PROTOCOL_DEMO_VERSION 31
+/* Quake 2 Xatrix Demo */
+#define PROTOCOL_XATRIX_VERSION 32
 /* Quake 2 Network Release */
 #define PROTOCOL_RR97_VERSION 34
 /* ReRelease demo files */
