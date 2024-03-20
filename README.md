@@ -68,14 +68,15 @@ Goals (finished):
   * RoQ and Theora cinematic videos support.
   * Cinematic videos support in smk, mpeg, ogv format,
   * Daikatana/Heretic map partial format support,
+  * md5 improve load speed,
+  * support Anachronox .dat format,
   * Add debug progress loading code for maps.
 
 
 Goals (none of it finished):
-  * md5 improve load speed,
+
   * Single player support,
   * support surface flags for Daikatana, Heretic 2, Anachronox,
-  * support Anachronox pak format,
   * modified ReRelease game code support with removed KEX only related code.
 
 Bonus goals:

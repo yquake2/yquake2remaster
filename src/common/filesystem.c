@@ -36,6 +36,7 @@
 #include "../client/sound/header/vorbis.h"
 
 #define MAX_HANDLES 512
+#define MAX_FILENAME 128
 #define MAX_MODS 32
 #define MAX_PAKS 100
 
@@ -47,7 +48,7 @@
 
 typedef struct
 {
-	char name[MAX_QPATH];
+	char name[MAX_FILENAME];
 	fsMode_t mode;
 	FILE *file;           /* Only one will be used. */
 	unzFile *zip;        /* (file or zip) */
@@ -64,7 +65,7 @@ typedef struct fsLink_s
 
 typedef struct
 {
-	char name[MAX_QPATH];
+	char name[MAX_FILENAME];
 	int size;
 	int offset;     /* Ignored in PK3 files. */
 	int compressed_size; /* Should be zero for original PAK files */
@@ -830,6 +831,7 @@ FS_LoadDAT(const char *packPath)
 	ddatfile_t *info = NULL; /* DAT info. */
 	const char *prefixpos, *pos;
 	char prefix[MAX_QPATH];
+	int prefix_size;
 
 	handle = Q_fopen(packPath, "rb");
 
@@ -892,17 +894,21 @@ FS_LoadDAT(const char *packPath)
 	strncpy(prefix, prefixpos + 1,
 		Q_min(strlen(prefixpos) - 5, sizeof(prefix) - 1));
 
+	prefix_size = strlen(prefix);
+
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
+		int name_len;
 		char* p;
 
-		Q_strlcpy(files[i].name, prefix, sizeof(files[i].name));
-		strncat(files[i].name, "/", sizeof(files[i].name) - 1);
-		strncat(files[i].name, info[i].name, sizeof(files[i].name) - 1);
-		files[i].offset = LittleLong(info[i].filepos);
-		files[i].size = LittleLong(info[i].filelen);
-		files[i].compressed_size = LittleLong(info[i].compressedlen);
+		/* name */
+		memcpy(files[i].name, prefix, prefix_size);
+		files[i].name[prefix_size] = '/';
+		name_len = strlen(info[i].name);
+		name_len = Q_min(name_len, sizeof(files[i].name) - prefix_size - 2);
+		memcpy(files[i].name + prefix_size + 1, info[i].name, name_len);
+		files[i].name[prefix_size + name_len + 1] = 0;
 
 		/* fix naming */
 		p = files[i].name;
@@ -914,6 +920,11 @@ FS_LoadDAT(const char *packPath)
 			}
 			p ++;
 		}
+
+		/* copy length */
+		files[i].offset = LittleLong(info[i].filepos);
+		files[i].size = LittleLong(info[i].filelen);
+		files[i].compressed_size = LittleLong(info[i].compressedlen);
 	}
 	free(info);
 
@@ -1022,7 +1033,7 @@ FS_LoadPAK(const char *packPath)
 static fsPack_t *
 FS_LoadPK3(const char *packPath)
 {
-	char fileName[MAX_QPATH]; /* File name. */
+	char fileName[MAX_FILENAME]; /* File name. */
 	int i = 0; /* Loop counter. */
 	int numFiles; /* Number of files in PK3. */
 	int status; /* Error indicator. */
@@ -1066,7 +1077,7 @@ FS_LoadPK3(const char *packPath)
 	while (status == UNZ_OK)
 	{
 		fileName[0] = '\0';
-		unzGetCurrentFileInfo(handle, &info, fileName, MAX_QPATH,
+		unzGetCurrentFileInfo(handle, &info, fileName, sizeof(fileName),
 				NULL, 0, NULL, 0);
 		Q_strlcpy(files[i].name, fileName, sizeof(files[i].name));
 		files[i].offset = -1; /* Not used in ZIP files */
