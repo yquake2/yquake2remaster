@@ -425,7 +425,7 @@ VID_MenuInit(void)
 		"on",
 		0
 	};
-	
+
 	static const char *yesno_names[] = {
 		"no",
 		"yes",
@@ -721,7 +721,7 @@ VID_MenuInit(void)
 				pow(2, s_msaa_list.curvalue) <= gl_msaa_samples->value);
 		s_msaa_list.curvalue--;
 	}
-	
+
 	s_filter_list.generic.type = MTYPE_SPINCONTROL;
 	s_filter_list.generic.name = "texture filter";
 	s_filter_list.curvalue = 0;
@@ -729,14 +729,14 @@ VID_MenuInit(void)
 
 	const char* filter = NULL;
 	int mode = 0;
-	
+
 	if (Q_stricmp(vid_renderer->string, "gl3") == 0 || Q_stricmp(vid_renderer->string, "gles3") == 0 ||
 		Q_stricmp(vid_renderer->string, "gl1") == 0)
-	{	
+	{
 		s_filter_list.generic.x = 0;
 		s_filter_list.generic.y = (y += 10);
 		s_filter_list.itemnames = filter_names;
-		
+
 		filter = Cvar_VariableString("gl_texturemode");
 		mode = 3;
 
@@ -765,7 +765,7 @@ VID_MenuInit(void)
 		if (Q_stricmp(filter, "1") == 0)
 		{
 			mode = 1;
-		}	
+		}
 	}
 
 	s_filter_list.curvalue = mode;

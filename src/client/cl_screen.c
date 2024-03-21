@@ -67,7 +67,7 @@ int crosshair_width, crosshair_height;
 extern cvar_t *cl_showfps;
 extern cvar_t *crosshair_scale;
 extern cvar_t *cl_showspeed;
-extern float GetPlayerSpeed(); 
+extern float GetPlayerSpeed();
 
 void SCR_TimeRefresh_f(void);
 void SCR_Loading_f(void);
@@ -1450,8 +1450,8 @@ SCR_DrawLayout(void)
 
 // ----
 
-void 
-SCR_DrawSpeed(void) 
+void
+SCR_DrawSpeed(void)
 {
 	if (cl_showspeed->value < 1)  //Disabled, do nothing
 		return;
@@ -1460,11 +1460,11 @@ SCR_DrawSpeed(void)
 	float speed, speedxy;
 	float scale = SCR_GetConsoleScale();
 	int str_len, xPos, yPos = 0;
-	
+
 	GetPlayerSpeed(&speed, &speedxy);
 	snprintf(spd_str, sizeof(spd_str), "%6.2f (%6.2f) QU/s", speed, speedxy);
 	str_len = scale * (strlen(spd_str) * 8 + 2);
-	
+
 	if (cl_showspeed->value == 1) //Draw speed and xy speed at top right
 	{
 		xPos = viddef.width - str_len;
@@ -1494,7 +1494,7 @@ SCR_DrawSpeed(void)
 		str_len = scale * (strlen(spd_str) * 8 + 2);
 		yPos = scr_vrect.y + (scr_vrect.height / 2) + (scale * 10);
 		xPos = scr_vrect.x + (scr_vrect.width / 2) - (str_len / 2);
-		
+
 		DrawStringScaled(xPos, yPos, spd_str, scale);
 		SCR_AddDirtyPoint(xPos, yPos);
 		SCR_AddDirtyPoint(xPos + str_len, yPos);
