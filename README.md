@@ -47,7 +47,7 @@ Models support:
 
 All models support only single texture for all meshes and only up to 255 frames.
 
-Texture supported
+Texture support:
 
 | Format | Original Game  | Comments |
 | ------ | -------------- | -------- |
@@ -61,16 +61,31 @@ Texture supported
 | jpg    | retexturing    | 24 bit   |
 | bmp    | Daikatana      | 24 bit   |
 
+Maps support:
+
+| Format | Version | Game                                       |
+| ------ | ------- | ------------------------------------------ |
+| IBSP   | 39      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
+| IBSP   | 41      | Daikatana                                  |
+| QBSP   | 39      | Quake 2 ReRelease                          |
+| BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
+
+Note:
+ * SiN Gold has IBSP/41 format but has different size of lump and is
+   unsupported.
+ * Not Quake 2 maps are limmited mostly view only, and could have issues
+   with tranparency or some animations flags and properties.
+
 Goals (finished):
   * BSPX DECOUPLEDLM light map support (base1),
   * QBSP map format support (mguhub),
   * Use ffmpeg for load any video,
   * RoQ and Theora cinematic videos support.
   * Cinematic videos support in smk, mpeg, ogv format,
-  * Daikatana/Heretic map partial format support,
+  * Daikatana/Heretic 2 map partial format support,
   * md5 improve load speed,
   * support Anachronox .dat format,
-  * Add debug progress loading code for maps.
+  * add debug progress loading code for maps.
 
 
 Goals (none of it finished):

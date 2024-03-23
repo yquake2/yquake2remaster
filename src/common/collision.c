@@ -1962,6 +1962,14 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 				__func__, name, header.version, BSPVERSION);
 	}
 
+	Com_DPrintf("%s: Map %s ident %c%c%c%c version %d\n",
+				__func__, name,
+				(header.ident >> 0) & 0xFF,
+				(header.ident >> 8) & 0xFF,
+				(header.ident >> 16) & 0xFF,
+				(header.ident >> 24) & 0xFF,
+				header.version);
+
 	cmod_base = (byte *)buf;
 
 	/* load into heap */
