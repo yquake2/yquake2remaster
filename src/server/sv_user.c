@@ -142,7 +142,9 @@ SV_Configstrings_f(void)
 		if (sv.configstrings[start][0])
 		{
 			MSG_WriteByte(&sv_client->netchan.message, svc_configstring);
-			MSG_WriteShort(&sv_client->netchan.message, start);
+			/* start in native server range */
+			MSG_WriteShort(&sv_client->netchan.message,
+					P_ConvertConfigStringTo(start, sv_client->protocol));
 			MSG_WriteString(&sv_client->netchan.message,
 					sv.configstrings[start]);
 		}

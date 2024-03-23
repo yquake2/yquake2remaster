@@ -192,6 +192,7 @@ PF_setmodel(edict_t *ent, const char *name)
 	}
 }
 
+/* Direct set value for config string, index in library range */
 static void
 PF_Configstring(int index, const char *val)
 {
@@ -206,13 +207,14 @@ PF_Configstring(int index, const char *val)
 	}
 
 	/* change the string in sv */
-	strcpy(sv.configstrings[index], val);
+	strcpy(sv.configstrings[P_ConvertConfigStringFrom(index, sv_client->protocol)], val);
 
 	if (sv.state != ss_loading)
 	{
 		/* send the update to everyone */
 		SZ_Clear(&sv.multicast);
 		MSG_WriteChar(&sv.multicast, svc_configstring);
+		/* index in library range */
 		MSG_WriteShort(&sv.multicast, index);
 		MSG_WriteString(&sv.multicast, val);
 

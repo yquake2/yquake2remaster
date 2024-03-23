@@ -677,7 +677,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 			if (i == STAT_PICKUP_STRING)
 			{
-				state->stats[i] = P_ConvertConfigStringFrom(state->stats[i], 
+				state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
 					cls.serverProtocol);
 			}
 		}

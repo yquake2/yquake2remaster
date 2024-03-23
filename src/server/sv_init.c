@@ -67,7 +67,9 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 	{
 		/* send the update to everyone */
 		MSG_WriteChar(&sv.multicast, svc_configstring);
-		MSG_WriteShort(&sv.multicast, start + i);
+		/* i in native server range */
+		MSG_WriteShort(&sv.multicast,
+				P_ConvertConfigStringTo(start + i, sv_client->protocol));
 		MSG_WriteString(&sv.multicast, name);
 		SV_Multicast(vec3_origin, MULTICAST_ALL_R);
 	}
