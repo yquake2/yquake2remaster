@@ -700,7 +700,7 @@ store:
 }
 
 static void
-R_MarkSurfaceLights(dlight_t *light, int bit, const mnode_t *node, int r_dlightframecount,
+R_MarkSurfaceLights(dlight_t *light, int bit, const mnode_t *node, int lightframecount,
 	msurface_t *surfaces)
 {
 	msurface_t	*surf;
@@ -714,10 +714,10 @@ R_MarkSurfaceLights(dlight_t *light, int bit, const mnode_t *node, int r_dlightf
 		int sidebit;
 		float dist;
 
-		if (surf->dlightframe != r_dlightframecount)
+		if (surf->dlightframe != lightframecount)
 		{
 			surf->dlightbits = 0;
-			surf->dlightframe = r_dlightframecount;
+			surf->dlightframe = lightframecount;
 		}
 
 		dist = DotProduct(light->origin, surf->plane->normal) - surf->plane->dist;
@@ -749,7 +749,7 @@ if surface is affected by this light
 =============
 */
 static void
-R_MarkLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
+R_MarkLights(dlight_t *light, int bit, mnode_t *node, int lightframecount,
 	msurface_t *surfaces)
 {
 	cplane_t	*splitplane;
@@ -768,27 +768,27 @@ R_MarkLights(dlight_t *light, int bit, mnode_t *node, int r_dlightframecount,
 
 	if (dist > (intensity - DLIGHT_CUTOFF))	// (dist > light->intensity)
 	{
-		R_MarkLights(light, bit, node->children[0], r_dlightframecount,
+		R_MarkLights(light, bit, node->children[0], lightframecount,
 			surfaces);
 		return;
 	}
 
 	if (dist < (-intensity + DLIGHT_CUTOFF))	// (dist < -light->intensity)
 	{
-		R_MarkLights(light, bit, node->children[1], r_dlightframecount,
+		R_MarkLights(light, bit, node->children[1], lightframecount,
 			surfaces);
 		return;
 	}
 
-	R_MarkSurfaceLights(light, bit, node, r_dlightframecount, surfaces);
+	R_MarkSurfaceLights(light, bit, node, lightframecount, surfaces);
 
-	R_MarkLights(light, bit, node->children[0], r_dlightframecount,
+	R_MarkLights(light, bit, node->children[0], lightframecount,
 		surfaces);
-	R_MarkLights(light, bit, node->children[1], r_dlightframecount,
+	R_MarkLights(light, bit, node->children[1], lightframecount,
 		surfaces);
 }
 
-void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightframecount,
+void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframecount,
 	msurface_t *surfaces)
 {
 	dlight_t *l;
@@ -798,6 +798,6 @@ void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightframecount
 
 	for (i = 0; i < r_newrefdef->num_dlights; i++, l++)
 	{
-		R_MarkLights(l, 1 << i, nodes, r_dlightframecount, surfaces);
+		R_MarkLights(l, 1 << i, nodes, lightframecount, surfaces);
 	}
 }
