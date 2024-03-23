@@ -997,6 +997,7 @@ CLIENT_OBJS_ := \
 	src/common/frame.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
+	src/common/protocol.o \
 	src/common/szone.o \
 	src/common/zone.o \
 	src/common/shared/flash.o \
@@ -1270,6 +1271,7 @@ SERVER_OBJS_ := \
 	src/common/movemsg.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
+	src/common/protocol.o \
 	src/common/szone.o \
 	src/common/zone.o \
 	src/common/shared/rand.o \

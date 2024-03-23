@@ -73,7 +73,7 @@ Maps support:
 Note:
  * SiN Gold has IBSP/41 format but has different size of lump and is
    unsupported.
- * Not Quake 2 maps are limmited mostly view only, and could have issues
+ * Non Quake 2 maps are limmited mostly view only, and could have issues
    with tranparency or some animations flags and properties.
 
 Goals (finished):

@@ -542,47 +542,6 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 	}
 }
 
-static int
-CL_ConvertConfigStringFrom(int i)
-{
-	if (cls.serverProtocol == PROTOCOL_RELEASE_VERSION ||
-		cls.serverProtocol == PROTOCOL_DEMO_VERSION ||
-		cls.serverProtocol == PROTOCOL_XATRIX_VERSION ||
-		cls.serverProtocol == PROTOCOL_RR97_VERSION)
-	{
-		if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
-		{
-			i += CS_MODELS - CS_MODELS_Q2DEMO;
-		}
-		else if (i >= CS_SOUNDS_Q2DEMO && i < CS_IMAGES_Q2DEMO)
-		{
-			i += CS_SOUNDS - CS_SOUNDS_Q2DEMO;
-		}
-		else if (i >= CS_IMAGES_Q2DEMO && i < CS_LIGHTS_Q2DEMO)
-		{
-			i += CS_IMAGES - CS_IMAGES_Q2DEMO;
-		}
-		else if (i >= CS_LIGHTS_Q2DEMO && i < CS_ITEMS_Q2DEMO)
-		{
-			i += CS_LIGHTS - CS_LIGHTS_Q2DEMO;
-		}
-		else if (i >= CS_ITEMS_Q2DEMO && i < CS_PLAYERSKINS_Q2DEMO)
-		{
-			i += CS_ITEMS - CS_ITEMS_Q2DEMO;
-		}
-		else if (i >= CS_PLAYERSKINS_Q2DEMO && i < CS_GENERAL_Q2DEMO)
-		{
-			i += CS_PLAYERSKINS - CS_PLAYERSKINS_Q2DEMO;
-		}
-		else if (i >= CS_GENERAL_Q2DEMO && i < MAX_CONFIGSTRINGS_Q2DEMO)
-		{
-			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
-		}
-	}
-
-	return i;
-}
-
 static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 {
@@ -718,7 +677,8 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 			if (i == STAT_PICKUP_STRING)
 			{
-				state->stats[i] = CL_ConvertConfigStringFrom(state->stats[i]);
+				state->stats[i] = P_ConvertConfigStringFrom(state->stats[i], 
+					cls.serverProtocol);
 			}
 		}
 	}
@@ -1187,7 +1147,7 @@ CL_ParseConfigString(void)
 
 	i = MSG_ReadShort(&net_message);
 
-	i = CL_ConvertConfigStringFrom(i);
+	i = P_ConvertConfigStringFrom(i, cls.serverProtocol);
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{

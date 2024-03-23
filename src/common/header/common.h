@@ -852,6 +852,10 @@ void SV_Init(void);
 void SV_Shutdown(char *finalmsg, qboolean reconnect);
 void SV_Frame(int usec);
 
+/* Convert protocol */
+int P_ConvertConfigStringFrom(int i, int protocol);
+int P_ConvertConfigStringTo(int i, int protocol);
+
 /* ======================================================================= */
 
 // Platform specific functions.
