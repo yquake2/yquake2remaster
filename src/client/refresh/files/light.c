@@ -484,6 +484,94 @@ R_GetTemporaryLMBuffer(size_t size)
 	return s_bufferlights;
 }
 
+static void
+R_StoreLightMap(byte *dest, int stride, const byte *destmax, int smax, int tmax)
+{
+	float *bl;
+	int i;
+
+	/* put into texture format */
+	stride -= (smax << 2);
+	bl = s_blocklights;
+
+	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) > destmax)
+	{
+		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > %ld",
+			__func__, (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES, destmax - dest);
+	}
+
+	for (i = 0; i < tmax; i++, dest += stride)
+	{
+		int j;
+
+		for (j = 0; j < smax; j++)
+		{
+			int r, g, b, a, max;
+
+			r = Q_ftol(bl[0]);
+			g = Q_ftol(bl[1]);
+			b = Q_ftol(bl[2]);
+
+			/* catch negative lights */
+			if (r < 0)
+			{
+				r = 0;
+			}
+
+			if (g < 0)
+			{
+				g = 0;
+			}
+
+			if (b < 0)
+			{
+				b = 0;
+			}
+
+			/* determine the brightest of the three color components */
+			if (r > g)
+			{
+				max = r;
+			}
+			else
+			{
+				max = g;
+			}
+
+			if (b > max)
+			{
+				max = b;
+			}
+
+			/* alpha is ONLY used for the mono lightmap case. For this
+			   reason we set it to the brightest of the color components
+			   so that things don't get too dim. */
+			a = max;
+
+			/* rescale all the color components if the
+			   intensity of the greatest channel exceeds
+			   1.0 */
+			if (max > 255)
+			{
+				float t = 255.0F / max;
+
+				r = r * t;
+				g = g * t;
+				b = b * t;
+				a = a * t;
+			}
+
+			dest[0] = r;
+			dest[1] = g;
+			dest[2] = b;
+			dest[3] = a;
+
+			bl += 3;
+			dest += LIGHTMAP_BYTES;
+		}
+	}
+}
+
 /*
  * Combine and scale multiple lightmaps into the floating format in blocklights
  */
@@ -492,8 +580,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 	const refdef_t *r_newrefdef, float modulate, int r_framecount)
 {
 	int smax, tmax;
-	int r, g, b, a, max;
-	int i, j, size, numlightmaps;
+	int i, size, numlightmaps;
 	byte *lightmap;
 	float scale[4];
 	float *bl;
@@ -523,7 +610,8 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 			s_blocklights[i] = 255;
 		}
 
-		goto store;
+		R_StoreLightMap(dest, stride, destmax, smax, tmax);
+		return;
 	}
 
 	/* count the # of maps */
@@ -620,83 +708,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 		R_AddDynamicLights(surf, r_newrefdef, s_blocklights, s_blocklights_max);
 	}
 
-store:
-	/* put into texture format */
-	stride -= (smax << 2);
-	bl = s_blocklights;
-
-	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) > destmax)
-	{
-		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > %ld",
-			__func__, (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES, destmax - dest);
-	}
-
-	for (i = 0; i < tmax; i++, dest += stride)
-	{
-		for (j = 0; j < smax; j++)
-		{
-			r = Q_ftol(bl[0]);
-			g = Q_ftol(bl[1]);
-			b = Q_ftol(bl[2]);
-
-			/* catch negative lights */
-			if (r < 0)
-			{
-				r = 0;
-			}
-
-			if (g < 0)
-			{
-				g = 0;
-			}
-
-			if (b < 0)
-			{
-				b = 0;
-			}
-
-			/* determine the brightest of the three color components */
-			if (r > g)
-			{
-				max = r;
-			}
-			else
-			{
-				max = g;
-			}
-
-			if (b > max)
-			{
-				max = b;
-			}
-
-			/* alpha is ONLY used for the mono lightmap case. For this
-			   reason we set it to the brightest of the color components
-			   so that things don't get too dim. */
-			a = max;
-
-			/* rescale all the color components if the
-			   intensity of the greatest channel exceeds
-			   1.0 */
-			if (max > 255)
-			{
-				float t = 255.0F / max;
-
-				r = r * t;
-				g = g * t;
-				b = b * t;
-				a = a * t;
-			}
-
-			dest[0] = r;
-			dest[1] = g;
-			dest[2] = b;
-			dest[3] = a;
-
-			bl += 3;
-			dest += LIGHTMAP_BYTES;
-		}
-	}
+	R_StoreLightMap(dest, stride, destmax, smax, tmax);
 }
 
 static void

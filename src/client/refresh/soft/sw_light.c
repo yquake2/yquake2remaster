@@ -50,24 +50,22 @@ RI_PushDlights(const model_t *model)
 }
 
 static void
-RI_AddDynamicLights(drawsurf_t* drawsurf)
+RI_AddDynamicLights(const msurface_t *surf)
 {
 	/* TODO: Covert to reuse with shared files/light */
-	msurface_t 	*surf;
 	int lnum;
 	int smax, tmax;
 	mtexinfo_t *tex;
 
-	surf = drawsurf->surf;
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
-	tex = surf->texinfo;
-
 	if (blocklight_max <= blocklights + smax*tmax*3)
 	{
 		r_outoflights = true;
 		return;
 	}
+
+	tex = surf->texinfo;
 
 	for (lnum=0; lnum < r_newrefdef.num_dlights; lnum++)
 	{
@@ -299,7 +297,7 @@ RI_BuildLightMap(drawsurf_t* drawsurf)
 	// add all the dynamic lights
 	if (surf->dlightframe == r_framecount)
 	{
-		RI_AddDynamicLights (drawsurf);
+		RI_AddDynamicLights(drawsurf->surf);
 	}
 
 	// bound, invert, and shift
