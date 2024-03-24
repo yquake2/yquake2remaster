@@ -208,7 +208,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
-		int	side, ti, planenum;
+		int	side, ti, planenum, lightofs;
 
 		out->firstedge = LittleLong(in->firstedge);
 		out->numedges = LittleShort(in->numedges);
@@ -244,13 +244,22 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		out->texinfo = loadmodel->texinfo + ti;
-		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
-			loadmodel->edges, out);
+		lightofs = -1;
+		if (lightofs < 0) {
+			memcpy(out->lmvecs, out->texinfo->vecs, sizeof(out->lmvecs));
+			out->lmshift = DEFAULT_LMSHIFT;
+			out->lmvlen[0] = 1.0f;
+			out->lmvlen[1] = 1.0f;
+
+			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out);
+
+			lightofs = in->lightofs;
+		}
 
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
-			out, in->styles, in->lightofs);
+			out, in->styles, lightofs);
 
 		/* set the drawing flags flag */
 		if (!out->texinfo->image)
@@ -317,7 +326,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
-		int	side, ti, planenum;
+		int	side, ti, planenum, lightofs;
 
 		out->firstedge = LittleLong(in->firstedge);
 		out->numedges = LittleLong(in->numedges);
@@ -353,10 +362,19 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		out->texinfo = loadmodel->texinfo + ti;
-		out->lmshift = DEFAULT_LMSHIFT;
 
-		Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
-			loadmodel->edges, out);
+		lightofs = -1;
+		if (lightofs < 0) {
+			memcpy(out->lmvecs, out->texinfo->vecs, sizeof(out->lmvecs));
+			out->lmshift = DEFAULT_LMSHIFT;
+			out->lmvlen[0] = 1.0f;
+			out->lmvlen[1] = 1.0f;
+
+			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out);
+
+			lightofs = in->lightofs;
+		}
 
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, in->lightofs);
