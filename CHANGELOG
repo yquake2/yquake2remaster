@@ -1,3 +1,15 @@
+Quake 2 8.31RR6:
+- renders: fix BSPX lightmaps (by BraXi)
+- Rename functions r_dlightframecount parameter to lightframecount (by BraXi)
+- models_md5 few memory related fixes (by David Carlier)
+- use custom protocol with extended limits (by Denis Pauk)
+- improve mdl support, and add Kingpin .mdx models support (by Denis Pauk)
+- support Anachronox DAT archive format (by Denis Pauk)
+- Added a speedometer that displays the player's speed in QU/s. (by Feels Duck Manby)
+- berserker: slam attack, running club attack (by Guilherme Nemeth)
+- models: add gl command compress code from qwalk (by Sajt)
+- Texture filtering options for OpenGL and Software video modes (by apartfromtime)
+
 Quake 2 8.31RR5:
 - md3 models support,
 - initial md2 Anachronox models support,
