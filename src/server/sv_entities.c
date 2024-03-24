@@ -150,7 +150,7 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
 
 static void
 SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
-		sizebuf_t *msg)
+		sizebuf_t *msg, int protocol)
 {
 	int i;
 	int pflags;
@@ -338,12 +338,27 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_WEAPONINDEX)
 	{
-		MSG_WriteByte(msg, ps->gunindex);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteByte(msg, ps->gunindex);
+		}
+		else
+		{
+			MSG_WriteShort(msg, ps->gunindex);
+		}
 	}
 
 	if (pflags & PS_WEAPONFRAME)
 	{
-		MSG_WriteByte(msg, ps->gunframe);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteByte(msg, ps->gunframe);
+		}
+		else
+		{
+			MSG_WriteShort(msg, ps->gunframe);
+		}
+
 		MSG_WriteChar(msg, ps->gunoffset[0] * 4);
 		MSG_WriteChar(msg, ps->gunoffset[1] * 4);
 		MSG_WriteChar(msg, ps->gunoffset[2] * 4);
@@ -431,7 +446,7 @@ SV_WriteFrameToClient(client_t *client, sizebuf_t *msg)
 	SZ_Write(msg, frame->areabits, frame->areabytes);
 
 	/* delta encode the playerstate */
-	SV_WritePlayerstateToClient(oldframe, frame, msg);
+	SV_WritePlayerstateToClient(oldframe, frame, msg, client->protocol);
 
 	/* delta encode the entities */
 	SV_EmitPacketEntities(oldframe, frame, msg, client->protocol);

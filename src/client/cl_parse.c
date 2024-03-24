@@ -631,12 +631,27 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 	if (flags & PS_WEAPONINDEX)
 	{
-		state->gunindex = MSG_ReadByte(&net_message);
+		if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		{
+			state->gunindex = MSG_ReadByte(&net_message);
+		}
+		else
+		{
+			state->gunindex = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (flags & PS_WEAPONFRAME)
 	{
-		state->gunframe = MSG_ReadByte(&net_message);
+		if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		{
+			state->gunframe = MSG_ReadByte(&net_message);
+		}
+		else
+		{
+			state->gunframe = MSG_ReadShort(&net_message);
+		}
+
 		state->gunoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
 		state->gunoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
 		state->gunoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
