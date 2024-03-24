@@ -29,25 +29,25 @@ State:
 
 Monsters:
   * incorrect dead animation for Arachnid,
-  * broken fire effect for Guardian,
-  * incorrect skin in soft render for Wizard mdl model.
+  * broken fire effect for Guardian.
 
 Models support:
 
-| Format | Original Game   | Frame vertex | Comments                                          |
-| ------ | --------------- | ------------ | ------------------------------------------------- |
-| mdl    | Quake 1         | 8 bit        | could be issues with textures                     |
-| md2    | Quake 2         | 8 bit        | full support                                      |
-| md2    | Anachronox      | 8/10/16 bit  | incorrect normals, does no suport tagged surfaces |
-| fm     | Heretic 2       | 8 bit        | show all meshes,                                  |
-| dkm    | Daikatana DKM1  | 8 bit        | unchecked with game                               |
-| dkm    | Daikatana DKM2  | 10 bit       | unchecked with game, incorrect normals            |
-| md3    | Quake 3         | 16 bit       | show all meshes, no tags support, unchecked, slow |
-| md5    | Doom 3/Quake 4  | float        | requires md2 for skins, show all meshes, slow     |
+| Format | Original Game   | Frame vertex | Meshes | Comments                                |
+| ------ | --------------- | ------------ | ------ | --------------------------------------- |
+| mdl    | Quake 1         | 8 bit        | Single | Unsupported grouped textures            |
+| md2    | Quake 2         | 8 bit        | Single |                                         |
+| md2    | Anachronox      | 8/10/16 bit  | Single | No tagged surfaces, unchecked with game |
+| mdx    | Kingpin         | 8 bit        | Many   | No sfx support, unchecked with game     |
+| fm     | Heretic 2       | 8 bit        | Many   |                                         |
+| dkm    | Daikatana DKM1  | 8 bit        | Many   | Unchecked with game                     |
+| dkm    | Daikatana DKM2  | 10 bit       | Many   | Unchecked with game                     |
+| md3    | Quake 3         | 16 bit       | Many   | No tags support                         |
+| md5    | Doom 3/Quake 4  | float        | Many   | Requires md2 for skins                  |
 
 All models support only single texture for all meshes and only up to 255 frames.
 
-Texture supported
+Texture support:
 
 | Format | Original Game  | Comments |
 | ------ | -------------- | -------- |
@@ -61,21 +61,37 @@ Texture supported
 | jpg    | retexturing    | 24 bit   |
 | bmp    | Daikatana      | 24 bit   |
 
+Maps support:
+
+| Format | Version | Game                                       |
+| ------ | ------- | ------------------------------------------ |
+| IBSP   | 39      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
+| IBSP   | 41      | Daikatana                                  |
+| QBSP   | 39      | Quake 2 ReRelease                          |
+| BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
+
+Note:
+ * SiN Gold has IBSP/41 format but has different size of lump and is
+   unsupported.
+ * Non Quake 2 maps are limmited mostly view only, and could have issues
+   with tranparency or some animations flags and properties.
+
 Goals (finished):
   * BSPX DECOUPLEDLM light map support (base1),
   * QBSP map format support (mguhub),
   * Use ffmpeg for load any video,
   * RoQ and Theora cinematic videos support.
   * Cinematic videos support in smk, mpeg, ogv format,
-  * Daikatana/Heretic map partial format support,
-  * Add debug progress loading code for maps.
+  * Daikatana/Heretic 2 map partial format support,
+  * md5 improve load speed,
+  * support Anachronox .dat format,
+  * add debug progress loading code for maps.
 
 
 Goals (none of it finished):
-  * md5 improve load speed,
+
   * Single player support,
   * support surface flags for Daikatana, Heretic 2, Anachronox,
-  * support Anachronox pak format,
   * modified ReRelease game code support with removed KEX only related code.
 
 Bonus goals:

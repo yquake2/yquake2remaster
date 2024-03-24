@@ -71,7 +71,7 @@ static void
 DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 {
 	daliasxframe_t *frame, *oldframe;
-	dxtrivertx_t *v, *ov, *verts;
+	dxtrivertx_t *ov, *verts;
 	int *order;
 	float alpha;
 	vec3_t move, delta, vectors[3];
@@ -94,7 +94,7 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + entity->frame * paliashdr->framesize);
-	verts = v = frame->verts;
+	verts = frame->verts;
 
 	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 				+ entity->oldframe * paliashdr->framesize);
@@ -149,7 +149,7 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 
 	lerp = s_lerped[0];
 
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, lerp, move, frontv, backv);
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp, move, frontv, backv);
 
 	YQ2_STATIC_ASSERT(sizeof(gl4_alias_vtx_t) == 9*sizeof(GLfloat), "invalid gl4_alias_vtx_t size");
 
@@ -313,7 +313,7 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 	// all in this scope is to set s_lerped
 	{
 		daliasxframe_t *frame, *oldframe;
-		dxtrivertx_t *v, *ov, *verts;
+		dxtrivertx_t *ov, *verts;
 		float backlerp = entity->backlerp;
 		float frontlerp = 1.0f - backlerp;
 		vec3_t move, delta, vectors[3];
@@ -322,7 +322,7 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 
 		frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 								  + entity->frame * paliashdr->framesize);
-		verts = v = frame->verts;
+		verts = frame->verts;
 
 		oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 					+ entity->oldframe * paliashdr->framesize);
@@ -348,7 +348,7 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 
 		// false: don't extrude vertices for powerup - this means the powerup shell
 		//  is not seen in the shadow, only the underlying model..
-		R_LerpVerts(false, paliashdr->num_xyz, v, ov, verts, s_lerped[0], move, frontv, backv);
+		R_LerpVerts(false, paliashdr->num_xyz, verts, ov, s_lerped[0], move, frontv, backv);
 	}
 
 	lheight = entity->origin[2] - shadowInfo->lightspot[2];

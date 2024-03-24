@@ -26,7 +26,7 @@
 
 #include "header/local.h"
 
-image_t gltextures[MAX_GLTEXTURES];
+image_t gltextures[MAX_TEXTURES];
 int numgltextures;
 static int image_max = 0;
 int base_textureid; /* gltextures[i] = base_textureid+i */
@@ -125,13 +125,13 @@ int upload_width, upload_height;
 qboolean uploaded_paletted;
 
 void
-R_SetTexturePalette(unsigned palette[256])
+R_SetTexturePalette(const unsigned palette[256])
 {
-	int i;
-	unsigned char temptable[768];
-
 	if (gl_config.palettedtexture)
 	{
+		unsigned char temptable[768];
+		int i;
+
 		for (i = 0; i < 256; i++)
 		{
 			temptable[i * 3 + 0] = (palette[i] >> 0) & 0xff;
@@ -176,7 +176,7 @@ R_Bind(int texnum)
 }
 
 void
-R_TextureMode(char *string)
+R_TextureMode(const char *string)
 {
 	int i;
 	image_t *glt;
@@ -263,7 +263,7 @@ R_TextureMode(char *string)
 }
 
 void
-R_TextureAlphaMode(char *string)
+R_TextureAlphaMode(const char *string)
 {
 	int i;
 
@@ -285,7 +285,7 @@ R_TextureAlphaMode(char *string)
 }
 
 void
-R_TextureSolidMode(char *string)
+R_TextureSolidMode(const char *string)
 {
 	int i;
 
@@ -367,7 +367,8 @@ R_ImageList_f(void)
 			"Total texel count (not counting mipmaps): %i\n",
 			texels);
 	freeup = R_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
 /*
@@ -858,7 +859,6 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		int height, int realheight, size_t data_size, imagetype_t type, int bits)
 {
 	image_t *image;
-	int i;
 
 	qboolean nolerp = false;
 	if (r_2D_unfiltered->value && type == it_pic)
@@ -874,34 +874,38 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		nolerp = strstr(r_nolerp_list->string, name) != NULL;
 	}
 
-	/* find a free image_t */
-	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 	{
-		if (!image->texnum)
+		int i;
+
+		/* find a free image_t */
+		for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 		{
-			break;
+			if (!image->texnum)
+			{
+				break;
+			}
+
+			if (!strcmp(image->name, name))
+			{
+				/* we already have such image */
+				image->registration_sequence = registration_sequence;
+				return image;
+			}
 		}
 
-		if (!strcmp(image->name, name))
+		if (i == numgltextures)
 		{
-			/* we already have such image */
-			image->registration_sequence = registration_sequence;
-			return image;
+			if (numgltextures == MAX_TEXTURES)
+			{
+				Com_Error(ERR_DROP, "%s: load %s is failed MAX_TEXTURES",
+					__func__, name);
+			}
+
+			numgltextures++;
 		}
+
+		image = &gltextures[i];
 	}
-
-	if (i == numgltextures)
-	{
-		if (numgltextures == MAX_GLTEXTURES)
-		{
-			Com_Error(ERR_DROP, "%s: load %s is failed MAX_GLTEXTURES",
-				__func__, name);
-		}
-
-		numgltextures++;
-	}
-
-	image = &gltextures[i];
 
 	if (strlen(name) >= sizeof(image->name))
 	{
@@ -925,7 +929,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		(image->width < 64) && (image->height < 64))
 	{
 		int x, y;
-		int i, j, k;
+		int i, k;
 		int texnum;
 
 		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y);
@@ -942,6 +946,8 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		for (i = 0; i < image->height; i++)
 		{
+			int j;
+
 			for (j = 0; j < image->width; j++, k++)
 			{
 				scrap_texels[texnum][(y + i) * BLOCK_WIDTH + x + j] = pic[k];
@@ -1103,7 +1109,7 @@ R_FindImage(const char *name, imagetype_t type)
 }
 
 struct image_s *
-RI_RegisterSkin(char *name)
+RI_RegisterSkin(const char *name)
 {
 	return R_FindImage(name, it_skin);
 }
@@ -1170,13 +1176,13 @@ R_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numgltextures + used) < MAX_GLTEXTURES;
+	return (numgltextures + used) < MAX_TEXTURES;
 }
 
 void
 R_InitImages(void)
 {
-	int i, j;
+	int i;
 
 	registration_sequence = 1;
 	image_max = 0;
@@ -1198,6 +1204,8 @@ R_InitImages(void)
 
 	for (i = 0; i < 256; i++)
 	{
+		int j;
+
 		j = i * intensity->value;
 
 		if (j > 255)

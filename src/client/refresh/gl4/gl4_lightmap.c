@@ -63,7 +63,7 @@ LM_UploadBlock(void)
 
 	if (++gl4_lms.current_lightmap_texture == MAX_LIGHTMAPS)
 	{
-		Com_Error(ERR_DROP, "LM_UploadBlock() - MAX_LIGHTMAPS exceeded\n");
+		Com_Error(ERR_DROP, "%s: MAX_LIGHTMAPS exceeded\n", __func__);
 	}
 }
 

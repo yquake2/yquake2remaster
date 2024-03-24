@@ -67,7 +67,9 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 	{
 		/* send the update to everyone */
 		MSG_WriteChar(&sv.multicast, svc_configstring);
-		MSG_WriteShort(&sv.multicast, start + i);
+		/* i in native server range */
+		MSG_WriteShort(&sv.multicast,
+				P_ConvertConfigStringTo(start + i, sv_client->protocol));
 		MSG_WriteString(&sv.multicast, name);
 		SV_Multicast(vec3_origin, MULTICAST_ALL_R);
 	}
@@ -569,7 +571,10 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		SV_BroadcastCommand("changing\n");
 		SV_SpawnServer(level, spawnpoint, ss_demo, attractloop, loadgame, isautosave);
 	}
-	else if ((l > 4) && !strcmp(level + l - 4, ".pcx"))
+	else if ((l > 4) && (!strcmp(level + l - 4, ".pcx") ||
+						!strcmp(level + l - 4, ".tga") ||
+						!strcmp(level + l - 4, ".jpg") ||
+						!strcmp(level + l - 4, ".png")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */

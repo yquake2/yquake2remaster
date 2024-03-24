@@ -179,14 +179,22 @@ void Info_Print(char *s);
 #define PROTOCOL_RELEASE_VERSION 26
 /* Quake 2 Demo */
 #define PROTOCOL_DEMO_VERSION 31
+/* Quake 2 Xatrix Demo */
+#define PROTOCOL_XATRIX_VERSION 32
 /* Quake 2 Network Release */
-#define PROTOCOL_RR97_VERSION 34
+#define PROTOCOL_R97_VERSION 34
 /* ReRelease demo files */
 #define PROTOCOL_RR22_VERSION 2022
 /* ReRelease network protocol */
 #define PROTOCOL_RR23_VERSION 2023
 /* Quake 2 Customized Network Release */
 #define PROTOCOL_VERSION 2024
+
+#define IS_QII97_PROTOCOL(x) ( \
+	((x) == PROTOCOL_RELEASE_VERSION) || \
+	((x) == PROTOCOL_DEMO_VERSION) || \
+	((x) == PROTOCOL_XATRIX_VERSION) || \
+	((x) == PROTOCOL_R97_VERSION))
 
 /* ========================================= */
 
@@ -849,6 +857,10 @@ void SCR_BeginLoadingPlaque(void);
 void SV_Init(void);
 void SV_Shutdown(char *finalmsg, qboolean reconnect);
 void SV_Frame(int usec);
+
+/* Convert protocol */
+int P_ConvertConfigStringFrom(int i, int protocol);
+int P_ConvertConfigStringTo(int i, int protocol);
 
 /* ======================================================================= */
 

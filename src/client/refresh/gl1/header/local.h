@@ -60,12 +60,10 @@
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS 1152
 #define TEXNUM_IMAGES 1153
-#define MAX_GLTEXTURES 1024
 #define MAX_SCRAPS 1
 #define BLOCK_WIDTH 256
 #define BLOCK_HEIGHT 256
 #define REF_VERSION "Yamagi Quake II OpenGL Refresher"
-#define BACKFACE_EPSILON 0.01
 #define MAX_LIGHTMAPS 256
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
@@ -121,7 +119,7 @@ typedef struct
 	float r, g, b;
 } glvert_t;
 
-extern image_t gltextures[MAX_GLTEXTURES];
+extern image_t gltextures[MAX_TEXTURES];
 extern int numgltextures;
 
 extern image_t *r_notexture;
@@ -264,10 +262,10 @@ void R_SwapBuffers(int);
 image_t *R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		int height, int realheight, size_t data_size, imagetype_t type, int bits);
 image_t *R_FindImage(const char *name, imagetype_t type);
-void R_TextureMode(char *string);
+void R_TextureMode(const char *string);
 void R_ImageList_f(void);
 
-void R_SetTexturePalette(unsigned palette[256]);
+void R_SetTexturePalette(const unsigned palette[256]);
 
 void R_InitImages(void);
 void R_ShutdownImages(void);
@@ -275,8 +273,8 @@ void R_ShutdownImages(void);
 void R_FreeUnusedImages(void);
 qboolean R_ImageHasFreeSpace(void);
 
-void R_TextureAlphaMode(char *string);
-void R_TextureSolidMode(char *string);
+void R_TextureAlphaMode(const char *string);
+void R_TextureSolidMode(const char *string);
 int Scrap_AllocBlock(int w, int h, int *x, int *y);
 
 #ifdef DEBUG
@@ -437,5 +435,16 @@ extern void RDraw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void RDraw_Fill(int x, int y, int w, int h, int c);
 extern void RDraw_FadeScreen(void);
 extern void RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
+
+/* public interface funtions */
+extern int RI_PrepareForWindow(void);
+extern int RI_InitContext(void* win);
+extern void RI_BeginRegistration(const char *model);
+extern struct model_s * RI_RegisterModel(const char *name);
+extern struct image_s * RI_RegisterSkin(const char *name);
+extern void RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
+extern void RI_EndRegistration(void);
+extern qboolean RI_IsVSyncActive(void);
+extern void RI_EndFrame(void);
 
 #endif

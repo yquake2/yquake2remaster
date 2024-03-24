@@ -26,7 +26,6 @@
 #include <limits.h>
 
 typedef struct {
-	int	isflattop;
 	int	numleftedges;
 	compactvert_t	*pleftedgevert0;
 	compactvert_t	*pleftedgevert1;
@@ -46,18 +45,18 @@ static int	d_xdenom;
 static edgetable *pedgetable;
 
 static edgetable edgetables[12] = {
-	{0, 1, &r_p0, &r_p2, NULL, 2, &r_p0, &r_p1, &r_p2},
-	{0, 2, &r_p1, &r_p0, &r_p2, 1, &r_p1, &r_p2, NULL},
-	{1, 1, &r_p0, &r_p2, NULL, 1, &r_p1, &r_p2, NULL},
-	{0, 1, &r_p1, &r_p0, NULL, 2, &r_p1, &r_p2, &r_p0},
-	{0, 2, &r_p0, &r_p2, &r_p1, 1, &r_p0, &r_p1, NULL},
-	{0, 1, &r_p2, &r_p1, NULL, 1, &r_p2, &r_p0, NULL},
-	{0, 1, &r_p2, &r_p1, NULL, 2, &r_p2, &r_p0, &r_p1},
-	{0, 2, &r_p2, &r_p1, &r_p0, 1, &r_p2, &r_p0, NULL},
-	{0, 1, &r_p1, &r_p0, NULL, 1, &r_p1, &r_p2, NULL},
-	{1, 1, &r_p2, &r_p1, NULL, 1, &r_p0, &r_p1, NULL},
-	{1, 1, &r_p1, &r_p0, NULL, 1, &r_p2, &r_p0, NULL},
-	{0, 1, &r_p0, &r_p2, NULL, 1, &r_p0, &r_p1, NULL},
+	{1, &r_p0, &r_p2, NULL, 2, &r_p0, &r_p1, &r_p2},
+	{2, &r_p1, &r_p0, &r_p2, 1, &r_p1, &r_p2, NULL},
+	{1, &r_p0, &r_p2, NULL, 1, &r_p1, &r_p2, NULL},
+	{1, &r_p1, &r_p0, NULL, 2, &r_p1, &r_p2, &r_p0},
+	{2, &r_p0, &r_p2, &r_p1, 1, &r_p0, &r_p1, NULL},
+	{1, &r_p2, &r_p1, NULL, 1, &r_p2, &r_p0, NULL},
+	{1, &r_p2, &r_p1, NULL, 2, &r_p2, &r_p0, &r_p1},
+	{2, &r_p2, &r_p1, &r_p0, 1, &r_p2, &r_p0, NULL},
+	{1, &r_p1, &r_p0, NULL, 1, &r_p1, &r_p2, NULL},
+	{1, &r_p2, &r_p1, NULL, 1, &r_p0, &r_p1, NULL},
+	{1, &r_p1, &r_p0, NULL, 1, &r_p2, &r_p0, NULL},
+	{1, &r_p0, &r_p2, NULL, 1, &r_p0, &r_p1, NULL},
 };
 
 // FIXME: some of these can become statics
@@ -778,12 +777,12 @@ R_RasterizeAliasPolySmooth
 static void
 R_RasterizeAliasPolySmooth(const entity_t *currententity)
 {
-	int	initialleftheight, initialrightheight;
-	compactvert_t	*plefttop, *prighttop, *pleftbottom, *prightbottom;
-	light3_t	working_lstepx;
-	int originalcount;
-	int	u, v;
-	pixel_t	*d_ptex;
+	const compactvert_t *pleftbottom, *prightbottom;
+	int initialleftheight, initialrightheight;
+	const compactvert_t *plefttop, *prighttop;
+	light3_t working_lstepx;
+	int originalcount, u, v;
+	pixel_t *d_ptex;
 
 	plefttop = pedgetable->pleftedgevert0;
 	prighttop = pedgetable->prightedgevert0;
@@ -995,7 +994,7 @@ R_PolysetSetEdgeTable
 ================
 */
 static void
-R_PolysetSetEdgeTable (void)
+R_PolysetSetEdgeTable(void)
 {
 	int			edgetableindex;
 

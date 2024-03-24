@@ -91,11 +91,11 @@ int RI_PrepareForWindow(void)
 		gl_state.stencil = false;
 	}
 
-	// Let's see if the driver supports MSAA.
-	int msaa_samples = 0;
-
 	if (gl_msaa_samples->value)
 	{
+		/* Let's see if the driver supports MSAA. */
+		int msaa_samples;
+
 		msaa_samples = gl_msaa_samples->value;
 
 		if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) < 0)

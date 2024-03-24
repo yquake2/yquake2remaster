@@ -35,6 +35,7 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 
+#define GAME_API_R97_VERSION 3
 #define GAME_API_VERSION 4
 
 /* edict->svflags */

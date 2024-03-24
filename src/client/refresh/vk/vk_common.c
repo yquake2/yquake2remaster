@@ -947,7 +947,7 @@ static void CreateDescriptorPool()
 		// sampler
 		{
 			.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			.descriptorCount = MAX_VKTEXTURES + 1
+			.descriptorCount = MAX_TEXTURES + 1
 		}
 	};
 
@@ -955,7 +955,7 @@ static void CreateDescriptorPool()
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		.pNext = NULL,
 		.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-		.maxSets = MAX_VKTEXTURES + 32,
+		.maxSets = MAX_TEXTURES + 32,
 		.poolSizeCount = sizeof(poolSizes) / sizeof(poolSizes[0]),
 		.pPoolSizes = poolSizes,
 	};

@@ -180,7 +180,7 @@ enum {
 	// that used 32 lightmaps before into one, so 4 lightmaps should be enough
 	BLOCK_WIDTH = 1024,
 	BLOCK_HEIGHT = 512,
-	MAX_LIGHTMAPS = 4,
+	MAX_LIGHTMAPS = 8,
 	MAX_LIGHTMAPS_PER_SURFACE = MAXLIGHTMAPS // 4
 };
 
@@ -300,8 +300,6 @@ typedef struct image_s
 	qboolean is_lava; // DG: added for lava brightness hack
 
 } gl4image_t;
-
-enum {MAX_GL4TEXTURES = 1024};
 
 // include this down here so it can use gl4image_t
 #include "model.h"

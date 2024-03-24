@@ -71,18 +71,13 @@ typedef struct image_s
 	qvktexture_t vk_texture;            /* Vulkan texture handle */
 } image_t;
 
-#define		MAX_VKTEXTURES	1024
-
 //===================================================================
 
 #include "model.h"
 
-#define BACKFACE_EPSILON	0.01
-
-
 //====================================================
 
-extern	image_t		vktextures[MAX_VKTEXTURES];
+extern	image_t		vktextures[MAX_TEXTURES];
 extern	int			numvktextures;
 
 extern	image_t		*r_notexture;
@@ -197,7 +192,7 @@ void R_RotateForEntity(entity_t *e, float *mvMatrix);
 void R_MarkLeaves(void);
 
 void EmitWaterPolys(msurface_t *fa, image_t *texture,
-				   float *modelMatrix, const float *color,
+				   const float *modelMatrix, const float *color,
 				   qboolean solid_surface);
 void RE_AddSkySurface(msurface_t *fa);
 void RE_ClearSkyBox(void);

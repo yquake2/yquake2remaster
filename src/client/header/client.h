@@ -418,12 +418,7 @@ void CL_Widowbeamout (cl_sustain_t *self);
 void CL_Nukeblast (cl_sustain_t *self);
 void CL_WidowSplash (vec3_t org);
 
-int CL_ParseEntityBits (unsigned *bits);
-void CL_ParseDelta (entity_state_t *from, entity_state_t *to, int number, int bits);
-void CL_ParseFrame (void);
-
 void CL_ParseTEnt (void);
-void CL_ParseConfigString (void);
 void CL_AddMuzzleFlash (void);
 void CL_AddMuzzleFlash2 (void);
 void SmokeAndFlash(vec3_t origin);
@@ -497,7 +492,6 @@ void CL_ParseStatusMessage(void);
 
 void CL_ParseServerMessage (void);
 void CL_LoadClientinfo (clientinfo_t *ci, char *s);
-void SHOWNET(char *s);
 void CL_ParseClientinfo (int player);
 void CL_Download_f (void);
 void CL_DownloadFileName(char *dest, int destlen, char *fn);

@@ -156,12 +156,12 @@ R_RotateForEntity(entity_t *e)
 static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
+	const dsprframe_t *frame;
+	const image_t *skin;
+	dsprite_t *psprite;
 	float alpha = 1.0F;
 	vec3_t point[4];
-	dsprframe_t *frame;
 	float *up, *right;
-	dsprite_t *psprite;
-	image_t *skin;
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -414,7 +414,6 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 	const particle_t *p;
 	int i;
 	vec3_t up, right;
-	float scale;
 	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 
 	YQ2_VLA(GLfloat, vtx, 3 * num_particles * 3);
@@ -436,6 +435,8 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 
 	for ( p = particles, i = 0; i < num_particles; i++, p++ )
 	{
+		float scale;
+
 		/* hack a scale up to keep particles from disapearing */
 		scale = ( p->origin [ 0 ] - r_origin [ 0 ] ) * vpn [ 0 ] +
 			( p->origin [ 1 ] - r_origin [ 1 ] ) * vpn [ 1 ] +
@@ -625,8 +626,8 @@ R_PolyBlend(void)
 static void
 R_SetupFrame(void)
 {
+	const mleaf_t *leaf;
 	int i;
-	mleaf_t *leaf;
 
 	r_framecount++;
 
@@ -917,7 +918,7 @@ R_SetGL2D(void)
  * r_newrefdef must be set before the first call
  */
 static void
-R_RenderView(refdef_t *fd)
+R_RenderView(const refdef_t *fd)
 {
 	if ((gl_state.stereo_mode != STEREO_MODE_NONE) && gl_state.camera_separation) {
 
@@ -930,10 +931,10 @@ R_RenderView(refdef_t *fd)
 					int anaglyph_colours[] = { 0x4, 0x3 }; // Left = red, right = cyan.
 
 					if (strlen(gl1_stereo_anaglyph_colors->string) == 2) {
-						int eye, colour, missing_bits;
+						int eye, missing_bits;
 						// Decode the colour name from its character.
 						for (eye = 0; eye < 2; ++eye) {
-							colour = 0;
+							int colour = 0;
 							switch (toupper((unsigned char)gl1_stereo_anaglyph_colors->string[eye])) {
 								case 'B': ++colour; // 001 Blue
 								case 'G': ++colour; // 010 Green
@@ -1118,7 +1119,7 @@ GL_GetSpecialBufferModeForStereoMode(enum stereo_modes stereo_mode) {
 }
 
 static void
-R_SetLightLevel(entity_t *currententity)
+R_SetLightLevel(const entity_t *currententity)
 {
 	vec3_t shadelight = {0};
 
@@ -1162,7 +1163,7 @@ static void
 RI_RenderFrame(refdef_t *fd)
 {
 	R_RenderView(fd);
-	R_SetLightLevel (NULL);
+	R_SetLightLevel(NULL);
 	R_SetGL2D();
 }
 
@@ -1373,7 +1374,7 @@ R_SetMode(void)
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
 				gl_msaa_samples->modified = false;
 
-				if ((err = SetMode_impl(&vid.width, &vid.height, r_mode->value, 0)) == rserr_ok)
+				if (SetMode_impl(&vid.width, &vid.height, r_mode->value, 0) == rserr_ok)
 				{
 					return true;
 				}
@@ -1389,7 +1390,7 @@ R_SetMode(void)
 		}
 
 		/* try setting it back to something safe */
-		if ((err = SetMode_impl(&vid.width, &vid.height, gl_state.prev_mode, 0)) != rserr_ok)
+		if (SetMode_impl(&vid.width, &vid.height, gl_state.prev_mode, 0) != rserr_ok)
 		{
 			R_Printf(PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n");
 			return false;
@@ -1821,7 +1822,6 @@ R_DrawBeam(entity_t *e)
 
 	GLfloat vtx[3*NUM_BEAM_SEGS*4];
 	unsigned int index_vtx = 0;
-	unsigned int pointb;
 
 	oldorigin[0] = e->oldorigin[0];
 	oldorigin[1] = e->oldorigin[1];
@@ -1867,6 +1867,8 @@ R_DrawBeam(entity_t *e)
 
 	for ( i = 0; i < NUM_BEAM_SEGS; i++ )
 	{
+		unsigned int pointb;
+
 		vtx[index_vtx++] = start_points [ i ][ 0 ];
 		vtx[index_vtx++] = start_points [ i ][ 1 ];
 		vtx[index_vtx++] = start_points [ i ][ 2 ];
@@ -1897,22 +1899,6 @@ R_DrawBeam(entity_t *e)
 	glDepthMask(GL_TRUE);
 }
 
-extern int RI_PrepareForWindow(void);
-extern int RI_InitContext(void* win);
-
-extern void RI_BeginRegistration(const char *model);
-extern struct model_s * RI_RegisterModel(const char *name);
-extern struct image_s * RI_RegisterSkin(const char *name);
-
-extern void RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
-extern void RI_EndRegistration(void);
-
-extern void RI_RenderFrame(refdef_t *fd);
-
-extern void RI_SetPalette(const unsigned char *palette);
-extern qboolean RI_IsVSyncActive(void);
-extern void RI_EndFrame(void);
-
 /*
 =====================
 RI_EndWorldRenderpass
@@ -1927,52 +1913,50 @@ RI_EndWorldRenderpass( void )
 Q2_DLL_EXPORTED refexport_t
 GetRefAPI(refimport_t imp)
 {
-	refexport_t re = {0};
+	refexport_t refexport = {0};
 
 	ri = imp;
 
-	re.api_version = API_VERSION;
+	refexport.api_version = API_VERSION;
 
-	re.Init = RI_Init;
-	re.Shutdown = RI_Shutdown;
-	re.PrepareForWindow = RI_PrepareForWindow;
-	re.InitContext = RI_InitContext;
-	re.GetDrawableSize = RI_GetDrawableSize;
-	re.ShutdownContext = RI_ShutdownContext;
-	re.IsVSyncActive = RI_IsVSyncActive;
-	re.BeginRegistration = RI_BeginRegistration;
-	re.RegisterModel = RI_RegisterModel;
-	re.RegisterSkin = RI_RegisterSkin;
+	refexport.Init = RI_Init;
+	refexport.Shutdown = RI_Shutdown;
+	refexport.PrepareForWindow = RI_PrepareForWindow;
+	refexport.InitContext = RI_InitContext;
+	refexport.GetDrawableSize = RI_GetDrawableSize;
+	refexport.ShutdownContext = RI_ShutdownContext;
+	refexport.IsVSyncActive = RI_IsVSyncActive;
+	refexport.BeginRegistration = RI_BeginRegistration;
+	refexport.RegisterModel = RI_RegisterModel;
+	refexport.RegisterSkin = RI_RegisterSkin;
 
-	re.SetSky = RI_SetSky;
-	re.EndRegistration = RI_EndRegistration;
+	refexport.SetSky = RI_SetSky;
+	refexport.EndRegistration = RI_EndRegistration;
 
-	re.RenderFrame = RI_RenderFrame;
+	refexport.RenderFrame = RI_RenderFrame;
 
-	re.DrawFindPic = RDraw_FindPic;
+	refexport.DrawFindPic = RDraw_FindPic;
 
-	re.DrawGetPicSize = RDraw_GetPicSize;
-	//re.DrawPic = Draw_Pic;
-	re.DrawPicScaled = RDraw_PicScaled;
-	re.DrawStretchPic = RDraw_StretchPic;
-	//re.DrawChar = Draw_Char;
-	re.DrawCharScaled = RDraw_CharScaled;
-	re.DrawTileClear = RDraw_TileClear;
-	re.DrawFill = RDraw_Fill;
-	re.DrawFadeScreen = RDraw_FadeScreen;
+	refexport.DrawGetPicSize = RDraw_GetPicSize;
+	refexport.DrawPicScaled = RDraw_PicScaled;
+	refexport.DrawStretchPic = RDraw_StretchPic;
+	refexport.DrawCharScaled = RDraw_CharScaled;
+	refexport.DrawTileClear = RDraw_TileClear;
+	refexport.DrawFill = RDraw_Fill;
+	refexport.DrawFadeScreen = RDraw_FadeScreen;
 
-	re.DrawStretchRaw = RDraw_StretchRaw;
+	refexport.DrawStretchRaw = RDraw_StretchRaw;
 
-	re.SetPalette = RI_SetPalette;
-	re.BeginFrame = RI_BeginFrame;
-	re.EndWorldRenderpass = RI_EndWorldRenderpass;
-	re.EndFrame = RI_EndFrame;
+	refexport.SetPalette = RI_SetPalette;
+	refexport.BeginFrame = RI_BeginFrame;
+	refexport.EndWorldRenderpass = RI_EndWorldRenderpass;
+	refexport.EndFrame = RI_EndFrame;
 
 	// Tell the client that we're unsing the
 	// new renderer restart API.
 	ri.Vid_RequestRestart(RESTART_NO);
 
-	return re;
+	return refexport;
 }
 
 void R_Printf(int level, const char* msg, ...)

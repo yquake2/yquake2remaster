@@ -23,8 +23,6 @@
 
 #include "header/local.h"
 
-void R_AliasProjectAndClipTestFinalVert (finalvert_t *fv);
-
 /*
 ================
 R_Alias_clip_z

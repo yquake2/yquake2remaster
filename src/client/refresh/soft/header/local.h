@@ -160,8 +160,6 @@ extern oldrefdef_t	r_refdef;
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
 
-#define BACKFACE_EPSILON	0.01
-
 #define NEAR_CLIP	0.01
 
 #define ALIAS_Z_CLIP_PLANE	4
@@ -457,7 +455,7 @@ void R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *
 
 void R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel);
 void R_BeginEdgeFrame(void);
-void R_ScanEdges(entity_t *currententity, surf_t *surface);
+void R_ScanEdges(entity_t *currententity, const surf_t *surface);
 void RI_PushDlights(const model_t *model);
 void R_RotateBmodel(const entity_t *currententity);
 
@@ -528,6 +526,7 @@ extern image_t		*r_notexture_mip;
 extern model_t		*r_worldmodel;
 extern vec3_t		lightspot;
 
+void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
 void R_PrintAliasStats (void);
 void R_PrintTimes (void);
 void R_PrintDSpeeds (void);
@@ -564,7 +563,7 @@ extern byte d_8to24table[256 * 4];
 void	R_InitImages(void);
 void	R_ShutdownImages(void);
 image_t	*R_FindImage(const char *name, imagetype_t type);
-image_t	*R_LoadPic(char *name, byte *pic, int width, int realwidth, int height, int realheight,
+image_t	*R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int height, int realheight,
 	size_t data_size, imagetype_t type, int bits);
 byte	*Get_BestImageSize(const image_t *image, int *req_width, int *req_height);
 void	R_FreeUnusedImages(void);

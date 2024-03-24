@@ -37,9 +37,8 @@ static msurface_t *gl3_alpha_surfaces;
 
 gl3lightmapstate_t gl3_lms;
 
-#define BACKFACE_EPSILON 0.01
 
-extern gl3image_t gl3textures[MAX_GL3TEXTURES];
+extern gl3image_t gl3textures[MAX_TEXTURES];
 extern int numgl3textures;
 
 void GL3_SurfInit(void)

@@ -396,6 +396,7 @@ config:
 	@echo "YQ2_ARCH = $(YQ2_ARCH) COMPILER = $(COMPILER)"
 	@echo "WITH_CURL = $(WITH_CURL)"
 	@echo "WITH_OPENAL = $(WITH_OPENAL)"
+	@echo "WITH_AVCODEC = $(WITH_AVCODEC)"
 	@echo "WITH_RPATH = $(WITH_RPATH)"
 	@echo "WITH_SYSTEMWIDE = $(WITH_SYSTEMWIDE)"
 	@echo "WITH_SYSTEMDIR = $(WITH_SYSTEMDIR)"
@@ -996,6 +997,7 @@ CLIENT_OBJS_ := \
 	src/common/frame.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
+	src/common/protocol.o \
 	src/common/szone.o \
 	src/common/zone.o \
 	src/common/shared/flash.o \
@@ -1269,6 +1271,7 @@ SERVER_OBJS_ := \
 	src/common/movemsg.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
+	src/common/protocol.o \
 	src/common/szone.o \
 	src/common/zone.o \
 	src/common/shared/rand.o \

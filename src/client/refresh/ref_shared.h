@@ -86,7 +86,10 @@ typedef enum
 #define MAX_LBM_HEIGHT 480
 #define DEFAULT_NOLERP_LIST "pics/conchars.* pics/ch1.* pics/ch2. pics/ch3.*"
 #define DEFAULT_LMSHIFT 4
-#define MAX_MOD_KNOWN 512
+#define BACKFACE_EPSILON	0.01
+
+#define MAX_MOD_KNOWN (MAX_MODELS * 2)
+#define MAX_TEXTURES (MAX_IMAGES * 4)
 
 extern void R_Printf(int level, const char* msg, ...) PRINTF_ATTR(2, 3);
 
@@ -300,9 +303,9 @@ typedef struct bspxlgsamp_s
 
 typedef struct bspxlgleaf_s
 {
-		int mins[3];
-		int size[3];
-		bspxlgsamp_t *rgbvalues;
+	int mins[3];
+	int size[3];
+	bspxlgsamp_t *rgbvalues;
 } bspxlgleaf_t;
 
 typedef struct
@@ -366,7 +369,7 @@ extern int Mod_LoadFile(const char *name, void **buffer);
 /* Surface logic */
 #define DLIGHT_CUTOFF 64
 
-extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int r_dlightframecount,
+extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframecount,
 	msurface_t *surfaces);
 extern struct image_s *R_TextureAnimation(const entity_t *currententity,
 	const mtexinfo_t *tex);
@@ -382,7 +385,7 @@ extern qboolean R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum,
 	int frame, int oldframe, vec3_t e_angles, vec3_t e_origin, vec3_t bbox[8]);
 extern void R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
-		const dxtrivertx_t *verts, float *lerp, const float move[3],
+		float *lerp, const float move[3],
 		const float frontv[3], const float backv[3]);
 extern byte R_CompressNormalMDL(const float *normal);
 extern vec4_t *R_VertBufferRealloc(int num);

@@ -57,7 +57,7 @@ R_TextureAnimation(const entity_t *currententity, const mtexinfo_t *tex)
 		c--;
 	}
 
-	return tex->image;
+	return tex ? tex->image : NULL;
 }
 
 qboolean

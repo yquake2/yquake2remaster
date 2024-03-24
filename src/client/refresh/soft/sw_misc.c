@@ -336,7 +336,7 @@ R_SetupFrame (void)
 	// current viewleaf
 	if ( !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
-		mleaf_t	*r_viewleaf;
+		const mleaf_t *r_viewleaf;
 
 		if (!r_worldmodel)
 		{

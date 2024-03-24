@@ -56,6 +56,7 @@ extern mmove_t army_move_pain3;
 extern mmove_t army_move_run;
 extern mmove_t army_move_stand;
 extern mmove_t berserk_move_attack_club;
+extern mmove_t berserk_move_attack_running_club;
 extern mmove_t berserk_move_attack_spike;
 extern mmove_t berserk_move_attack_strike;
 extern mmove_t berserk_move_death1;

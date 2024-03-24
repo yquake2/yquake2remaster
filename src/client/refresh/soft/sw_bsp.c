@@ -486,10 +486,13 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 		int i;
 		for (i=0 ; i<4 ; i++)
 		{
-			int *pindex;
+			const int *pindex;
 			float d;
-			if (! (clipflags & (1<<i)) )
+
+			if (!(clipflags & (1<<i)))
+			{
 				continue;	// don't need to clip against it
+			}
 
 			// generate accept and reject points
 			// FIXME: do with fast look-ups or integer tests based on the sign bit

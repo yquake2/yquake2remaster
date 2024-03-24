@@ -403,7 +403,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	float *modelMatrix, int leftHandOffset, int translucentIdx, vec4_t *s_lerped)
 {
 	daliasxframe_t *frame, *oldframe;
-	dxtrivertx_t *v, *ov, *verts;
+	dxtrivertx_t *ov, *verts;
 	int *order;
 	float frontlerp;
 	float alpha;
@@ -418,7 +418,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
-	verts = v = frame->verts;
+	verts = frame->verts;
 
 	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 				+ currententity->oldframe * paliashdr->framesize);
@@ -455,7 +455,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 		backv[i] = backlerp * oldframe->scale[i];
 	}
 
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, v, ov, verts, (float*)s_lerped,
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, (float*)s_lerped,
 		move, frontv, backv);
 
 	num_mesh_nodes = paliashdr->num_meshes;
@@ -464,9 +464,9 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		Vk_DrawAliasFrameLerpCommands(currententity,
-			order + mesh_nodes[i].start,
+			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
-				mesh_nodes[i].start + mesh_nodes[i].num),
+				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, skin,
 			modelMatrix, leftHandOffset, translucentIdx, verts,
 			s_lerped, paliashdr->num_xyz);
@@ -894,9 +894,9 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			Vk_DrawAliasShadow (
-				order + mesh_nodes[i].start,
+				order + mesh_nodes[i].ofs_glcmds,
 				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i].start + mesh_nodes[i].num),
+					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 				currententity->frame, model, currententity,
 				s_lerped);
 		}

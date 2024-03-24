@@ -80,7 +80,7 @@ CL_RegisterSounds(void)
 /*
  * Returns the entity number and the header bits
  */
-int
+static int
 CL_ParseEntityBits(unsigned *bits)
 {
 	unsigned b, total;
@@ -134,7 +134,7 @@ CL_ParseEntityBits(unsigned *bits)
 /*
  * Can go from either a baseline or a previous packet_entity
  */
-void
+static void
 CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 {
 	/* set everything to the state we are delta'ing from */
@@ -143,9 +143,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
-	if ((cls.serverProtocol == PROTOCOL_RELEASE_VERSION) ||
-		(cls.serverProtocol == PROTOCOL_DEMO_VERSION) ||
-		(cls.serverProtocol == PROTOCOL_RR97_VERSION))
+	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
 		if (bits & U_MODEL)
 		{
@@ -299,7 +297,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
  * Parses deltas from the given base and adds the resulting entity to
  * the current frame
  */
-void
+static void
 CL_DeltaEntity(frame_t *frame, int newnum, entity_state_t *old, int bits)
 {
 	centity_t *ent;
@@ -363,7 +361,7 @@ CL_DeltaEntity(frame_t *frame, int newnum, entity_state_t *old, int bits)
  * parsed, deal with the rest of the
  * data stream.
  */
-void
+static void
 CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 {
 	unsigned int newnum;
@@ -541,13 +539,11 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 	}
 }
 
-void
+static void
 CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 {
-	int flags;
+	int flags, i, statbits;
 	player_state_t *state;
-	int i;
-	int statbits;
 
 	state = &newframe->playerstate;
 
@@ -635,12 +631,27 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 	if (flags & PS_WEAPONINDEX)
 	{
-		state->gunindex = MSG_ReadByte(&net_message);
+		if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		{
+			state->gunindex = MSG_ReadByte(&net_message);
+		}
+		else
+		{
+			state->gunindex = MSG_ReadShort(&net_message);
+		}
 	}
 
 	if (flags & PS_WEAPONFRAME)
 	{
-		state->gunframe = MSG_ReadByte(&net_message);
+		if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		{
+			state->gunframe = MSG_ReadByte(&net_message);
+		}
+		else
+		{
+			state->gunframe = MSG_ReadShort(&net_message);
+		}
+
 		state->gunoffset[0] = MSG_ReadChar(&net_message) * 0.25f;
 		state->gunoffset[1] = MSG_ReadChar(&net_message) * 0.25f;
 		state->gunoffset[2] = MSG_ReadChar(&net_message) * 0.25f;
@@ -675,11 +686,17 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 		if (statbits & (1u << i))
 		{
 			state->stats[i] = MSG_ReadShort(&net_message);
+
+			if (i == STAT_PICKUP_STRING)
+			{
+				state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
+					cls.serverProtocol);
+			}
 		}
 	}
 }
 
-void
+static void
 CL_FireEntityEvents(frame_t *frame)
 {
 	entity_state_t *s1;
@@ -703,6 +720,15 @@ CL_FireEntityEvents(frame_t *frame)
 }
 
 void
+SHOWNET(char *s)
+{
+	if (cl_shownet->value >= 2)
+	{
+		Com_Printf("%3i:%s\n", net_message.readcount - 1, s);
+	}
+}
+
+static void
 CL_ParseFrame(void)
 {
 	int cmd;
@@ -846,7 +872,7 @@ CL_ParseFrame(void)
 	}
 }
 
-void
+static void
 CL_ParseServerData(void)
 {
 	extern cvar_t *fs_gamedirvar;
@@ -868,9 +894,7 @@ CL_ParseServerData(void)
 
 	/* another demo hack */
 	if (Com_ServerState() && (
-		(i == PROTOCOL_RELEASE_VERSION) ||
-		(i == PROTOCOL_DEMO_VERSION) ||
-		(i == PROTOCOL_RR97_VERSION) ||
+		IS_QII97_PROTOCOL(i) ||
 		(i == PROTOCOL_RR22_VERSION) ||
 		(i == PROTOCOL_RR23_VERSION) ||
 		(i == PROTOCOL_VERSION)))
@@ -881,18 +905,25 @@ CL_ParseServerData(void)
 			case PROTOCOL_RELEASE_VERSION:
 				Com_Printf("Quake 2 Demo\n");
 				break;
+			case PROTOCOL_XATRIX_VERSION:
+				Com_Printf("Quake 2 Xatrix Demo\n");
+				break;
 			case PROTOCOL_DEMO_VERSION:
 				Com_Printf("Quake 2 Release Demo\n");
 				break;
-			case PROTOCOL_RR97_VERSION:
+			/* Network protocol */
+			case PROTOCOL_R97_VERSION:
 				Com_Printf("Quake 2\n");
 				break;
+			/* ReRelease Demo */
 			case PROTOCOL_RR22_VERSION:
 				Com_Printf("ReRelease Quake 2 Demo\n");
 				break;
+			/* ReRelease network protocol */
 			case PROTOCOL_RR23_VERSION:
 				Com_Printf("ReRelease Quake 2\n");
 				break;
+			/* Our new protocol */
 			case PROTOCOL_VERSION:
 				Com_Printf("ReRelease Quake 2 Custom version\n");
 				break;
@@ -946,7 +977,7 @@ CL_ParseServerData(void)
 	}
 }
 
-void
+static void
 CL_ParseBaseline(void)
 {
 	entity_state_t *es;
@@ -1116,7 +1147,7 @@ CL_ParseClientinfo(int player)
 	CL_LoadClientinfo(ci, s);
 }
 
-void
+static void
 CL_ParseConfigString(void)
 {
 	int i, length;
@@ -1125,39 +1156,7 @@ CL_ParseConfigString(void)
 
 	i = MSG_ReadShort(&net_message);
 
-	if (cls.serverProtocol == PROTOCOL_RELEASE_VERSION ||
-		cls.serverProtocol == PROTOCOL_DEMO_VERSION ||
-		cls.serverProtocol == PROTOCOL_RR97_VERSION)
-	{
-		if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
-		{
-			i += CS_MODELS - CS_MODELS_Q2DEMO;
-		}
-		else if (i >= CS_SOUNDS_Q2DEMO && i < CS_IMAGES_Q2DEMO)
-		{
-			i += CS_SOUNDS - CS_SOUNDS_Q2DEMO;
-		}
-		else if (i >= CS_IMAGES_Q2DEMO && i < CS_LIGHTS_Q2DEMO)
-		{
-			i += CS_IMAGES - CS_IMAGES_Q2DEMO;
-		}
-		else if (i >= CS_LIGHTS_Q2DEMO && i < CS_ITEMS_Q2DEMO)
-		{
-			i += CS_LIGHTS - CS_LIGHTS_Q2DEMO;
-		}
-		else if (i >= CS_ITEMS_Q2DEMO && i < CS_PLAYERSKINS_Q2DEMO)
-		{
-			i += CS_ITEMS - CS_ITEMS_Q2DEMO;
-		}
-		else if (i >= CS_PLAYERSKINS_Q2DEMO && i < CS_GENERAL_Q2DEMO)
-		{
-			i += CS_PLAYERSKINS - CS_PLAYERSKINS_Q2DEMO;
-		}
-		else if (i >= CS_GENERAL_Q2DEMO && i < MAX_CONFIGSTRINGS_Q2DEMO)
-		{
-			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
-		}
-	}
+	i = P_ConvertConfigStringFrom(i, cls.serverProtocol);
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{
@@ -1169,7 +1168,7 @@ CL_ParseConfigString(void)
 	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
 
 	length = strlen(s);
-	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0])*i - 1)
+	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0]) * i - 1)
 	{
 		Com_Error(ERR_DROP, "%s: oversize configstring", __func__);
 	}
@@ -1231,7 +1230,7 @@ CL_ParseConfigString(void)
 	}
 }
 
-void
+static void
 CL_ParseStartSoundPacket(void)
 {
 	vec3_t pos_v;
@@ -1244,7 +1243,14 @@ CL_ParseStartSoundPacket(void)
 	float ofs;
 
 	flags = MSG_ReadByte(&net_message);
-	sound_num = MSG_ReadByte(&net_message);
+	if (IS_QII97_PROTOCOL(cls.serverProtocol))
+	{
+		sound_num = MSG_ReadByte(&net_message);
+	}
+	else
+	{
+		sound_num = MSG_ReadShort(&net_message);
+	}
 
 	if (flags & SND_VOLUME)
 	{
@@ -1315,15 +1321,6 @@ CL_ParseStartSoundPacket(void)
 
 	S_StartSound(pos, ent, channel, cl.sound_precache[sound_num],
 			volume, attenuation, ofs);
-}
-
-void
-SHOWNET(char *s)
-{
-	if (cl_shownet->value >= 2)
-	{
-		Com_Printf("%3i:%s\n", net_message.readcount - 1, s);
-	}
 }
 
 void
