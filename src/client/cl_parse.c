@@ -1228,7 +1228,14 @@ CL_ParseStartSoundPacket(void)
 	float ofs;
 
 	flags = MSG_ReadByte(&net_message);
-	sound_num = MSG_ReadByte(&net_message);
+	if (IS_QII97_PROTOCOL(cls.serverProtocol))
+	{
+		sound_num = MSG_ReadByte(&net_message);
+	}
+	else
+	{
+		sound_num = MSG_ReadShort(&net_message);
+	}
 
 	if (flags & SND_VOLUME)
 	{
