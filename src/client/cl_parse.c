@@ -1159,7 +1159,7 @@ CL_ParseConfigString(void)
 	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
 
 	length = strlen(s);
-	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0])*i - 1)
+	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0]) * i - 1)
 	{
 		Com_Error(ERR_DROP, "%s: oversize configstring", __func__);
 	}

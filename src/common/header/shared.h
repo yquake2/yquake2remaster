@@ -169,16 +169,6 @@ typedef unsigned char byte;
  #define PRINTF_ATTR(FMT, VARGS) __attribute__((format(printf, FMT , VARGS )))
 #endif
 
-/* per-level limits Quake 2 Protocol version 26 */
-#define MAX_CLIENTS_Q2DEMO 256             /* absolute limit */
-#define MAX_EDICTS_Q2DEMO 1024             /* must change protocol to increase more */
-#define MAX_LIGHTSTYLES_Q2DEMO 256
-#define MAX_MODELS_Q2DEMO 256              /* these are sent over the net as bytes */
-#define MAX_SOUNDS_Q2DEMO 256              /* so they cannot be blindly increased */
-#define MAX_IMAGES_Q2DEMO 256
-#define MAX_ITEMS_Q2DEMO 256
-#define MAX_GENERAL_Q2DEMO (MAX_CLIENTS_Q2DEMO * 2)       /* general config strings */
-
 /* per-level limits */
 #define MAX_CLIENTS 256             /* absolute limit */
 #define MAX_EDICTS 1024             /* must change protocol to increase more */
@@ -1163,16 +1153,6 @@ typedef enum
 #define CS_AIRACCEL 29              /* air acceleration control */
 #define CS_MAXCLIENTS 30
 #define CS_MAPCHECKSUM 31           /* for catching cheater maps */
-
-/* CS structure Quake 2 Protocol version 26 */
-#define CS_MODELS_Q2DEMO 32
-#define CS_SOUNDS_Q2DEMO (CS_MODELS_Q2DEMO + MAX_MODELS_Q2DEMO)
-#define CS_IMAGES_Q2DEMO (CS_SOUNDS_Q2DEMO + MAX_SOUNDS_Q2DEMO)
-#define CS_LIGHTS_Q2DEMO (CS_IMAGES_Q2DEMO + MAX_IMAGES_Q2DEMO)
-#define CS_ITEMS_Q2DEMO (CS_LIGHTS_Q2DEMO + MAX_LIGHTSTYLES_Q2DEMO)
-#define CS_PLAYERSKINS_Q2DEMO (CS_ITEMS_Q2DEMO + MAX_ITEMS_Q2DEMO)
-#define CS_GENERAL_Q2DEMO (CS_PLAYERSKINS_Q2DEMO + MAX_CLIENTS_Q2DEMO)
-#define MAX_CONFIGSTRINGS_Q2DEMO (CS_GENERAL_Q2DEMO + MAX_GENERAL_Q2DEMO)
 
 #define CS_MODELS 32
 #define CS_SOUNDS (CS_MODELS + MAX_MODELS)

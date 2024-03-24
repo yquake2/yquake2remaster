@@ -75,9 +75,18 @@ SV_New_f(void)
 	gamedir = (char *)Cvar_VariableString("gamedir");
 
 	/* send the serverdata */
-	sv_client->protocol = PROTOCOL_VERSION;
+	if (ge->apiversion == GAME_API_R97_VERSION)
+	{
+		/* backward compatibility */
+		sv_client->protocol = PROTOCOL_RR97_VERSION;
+	}
+	else
+	{
+		sv_client->protocol = PROTOCOL_VERSION;
+	}
+
 	MSG_WriteByte(&sv_client->netchan.message, svc_serverdata);
-	MSG_WriteLong(&sv_client->netchan.message, PROTOCOL_VERSION);
+	MSG_WriteLong(&sv_client->netchan.message, sv_client->protocol);
 	MSG_WriteLong(&sv_client->netchan.message, svs.spawncount);
 	MSG_WriteByte(&sv_client->netchan.message, sv.attractloop);
 	MSG_WriteString(&sv_client->netchan.message, gamedir);
