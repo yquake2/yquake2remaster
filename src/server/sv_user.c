@@ -78,7 +78,7 @@ SV_New_f(void)
 	if (ge->apiversion == GAME_API_R97_VERSION)
 	{
 		/* backward compatibility */
-		sv_client->protocol = PROTOCOL_RR97_VERSION;
+		sv_client->protocol = PROTOCOL_R97_VERSION;
 	}
 	else
 	{

@@ -143,10 +143,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
-	if ((cls.serverProtocol == PROTOCOL_RELEASE_VERSION) ||
-		(cls.serverProtocol == PROTOCOL_DEMO_VERSION) ||
-		(cls.serverProtocol == PROTOCOL_XATRIX_VERSION) ||
-		(cls.serverProtocol == PROTOCOL_RR97_VERSION))
+	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
 		if (bits & U_MODEL)
 		{
@@ -882,10 +879,7 @@ CL_ParseServerData(void)
 
 	/* another demo hack */
 	if (Com_ServerState() && (
-		(i == PROTOCOL_RELEASE_VERSION) ||
-		(i == PROTOCOL_DEMO_VERSION) ||
-		(i == PROTOCOL_XATRIX_VERSION) ||
-		(i == PROTOCOL_RR97_VERSION) ||
+		IS_QII97_PROTOCOL(i) ||
 		(i == PROTOCOL_RR22_VERSION) ||
 		(i == PROTOCOL_RR23_VERSION) ||
 		(i == PROTOCOL_VERSION)))
@@ -903,7 +897,7 @@ CL_ParseServerData(void)
 				Com_Printf("Quake 2 Release Demo\n");
 				break;
 			/* Network protocol */
-			case PROTOCOL_RR97_VERSION:
+			case PROTOCOL_R97_VERSION:
 				Com_Printf("Quake 2\n");
 				break;
 			/* ReRelease Demo */

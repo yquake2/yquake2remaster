@@ -51,10 +51,7 @@
 int
 P_ConvertConfigStringFrom(int i, int protocol)
 {
-	if (protocol == PROTOCOL_RELEASE_VERSION ||
-		protocol == PROTOCOL_DEMO_VERSION ||
-		protocol == PROTOCOL_XATRIX_VERSION ||
-		protocol == PROTOCOL_RR97_VERSION)
+	if (IS_QII97_PROTOCOL(protocol))
 	{
 		if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
 		{
@@ -93,10 +90,7 @@ P_ConvertConfigStringFrom(int i, int protocol)
 int
 P_ConvertConfigStringTo(int i, int protocol)
 {
-	if (protocol == PROTOCOL_RELEASE_VERSION ||
-		protocol == PROTOCOL_DEMO_VERSION ||
-		protocol == PROTOCOL_XATRIX_VERSION ||
-		protocol == PROTOCOL_RR97_VERSION)
+	if (IS_QII97_PROTOCOL(protocol))
 	{
 		if (i >= CS_MODELS && i < CS_SOUNDS)
 		{
