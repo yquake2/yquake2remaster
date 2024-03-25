@@ -297,20 +297,19 @@ R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 	float *s_blocklights, const float *s_blocklights_max)
 {
 	int lnum;
-	float fdist, frad, fminlight;
-	vec3_t impact, local;
-	int t;
-	int i;
 	int smax, tmax;
-	dlight_t *dl;
-	float *plightdest;
-	float fsacc, ftacc;
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
 	for (lnum = 0; lnum < r_newrefdef->num_dlights; lnum++)
 	{
+		float ftacc, fdist, frad, fminlight;
+		vec3_t impact, local;
+		float *plightdest;
+		dlight_t *dl;
+		int t, i;
+
 		if (!(surf->dlightbits & (1 << lnum)))
 		{
 			continue; /* not lit by this light */
@@ -347,6 +346,7 @@ R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 
 		for (t = 0, ftacc = 0; t < tmax; t++, ftacc += (1 << surf->lmshift))
 		{
+			float fsacc;
 			int s, td;
 
 			td = local[1] - ftacc;
@@ -358,7 +358,7 @@ R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 
 			td *= surf->lmvlen[1];
 
-			for (s = 0, fsacc = 0; s < smax; s++, fsacc += (1 << surf->lmshift), plightdest += 3)
+			for (s = 0, fsacc = 0; s < smax; s++, fsacc += (1 << surf->lmshift))
 			{
 				int sd;
 
@@ -383,10 +383,17 @@ R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 				if ((fdist < fminlight) && (plightdest < (s_blocklights_max - 3)))
 				{
 					float diff = frad - fdist;
+					int j;
 
-					plightdest[0] += diff * dl->color[0];
-					plightdest[1] += diff * dl->color[1];
-					plightdest[2] += diff * dl->color[2];
+					for (j = 0; j < 3; j++)
+					{
+						*plightdest += diff * dl->color[j];
+						plightdest ++;
+					}
+				}
+				else
+				{
+					plightdest += 3;
 				}
 			}
 		}
