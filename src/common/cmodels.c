@@ -144,3 +144,94 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 		out->signbits = bits;
 	}
 }
+
+static const size_t idbsplumps[HEADER_LUMPS] = {
+	sizeof(char), // LUMP_ENTITIES
+	sizeof(dplane_t), // LUMP_PLANES
+	sizeof(dvertex_t), // LUMP_VERTEXES
+	sizeof(char), // LUMP_VISIBILITY
+	sizeof(dnode_t), // LUMP_NODES
+	sizeof(texinfo_t), // LUMP_TEXINFO
+	sizeof(dface_t), // LUMP_FACES
+	sizeof(char), // LUMP_LIGHTING
+	sizeof(dleaf_t), // LUMP_LEAFS
+	sizeof(short), // LUMP_LEAFFACES
+	sizeof(short), // LUMP_LEAFBRUSHES
+	sizeof(dedge_t), // LUMP_EDGES
+	sizeof(int), // LUMP_SURFEDGES
+	sizeof(dmodel_t), // LUMP_MODELS
+	sizeof(dbrush_t), // LUMP_BRUSHES
+	sizeof(dbrushside_t), // LUMP_BRUSHSIDES
+	0, // LUMP_POP
+	sizeof(darea_t), // LUMP_AREAS
+	sizeof(dareaportal_t), // LUMP_AREAPORTALS
+};
+
+static const size_t qbsplumps[HEADER_LUMPS] = {
+	sizeof(char), // LUMP_ENTITIES
+	sizeof(dplane_t), // LUMP_PLANES
+	sizeof(dvertex_t), // LUMP_VERTEXES
+	sizeof(char), // LUMP_VISIBILITY
+	sizeof(dqnode_t), // LUMP_NODES
+	sizeof(texinfo_t), // LUMP_TEXINFO
+	sizeof(dqface_t), // LUMP_FACES
+	sizeof(char), // LUMP_LIGHTING
+	sizeof(dqleaf_t), // LUMP_LEAFS
+	sizeof(int), // LUMP_LEAFFACES
+	sizeof(int), // LUMP_LEAFBRUSHES
+	sizeof(dqedge_t), // LUMP_EDGES
+	sizeof(int), // LUMP_SURFEDGES
+	sizeof(dmodel_t), // LUMP_MODELS
+	sizeof(dbrush_t), // LUMP_BRUSHES
+	sizeof(dqbrushside_t), // LUMP_BRUSHSIDES
+	0, // LUMP_POP
+	sizeof(darea_t), // LUMP_AREAS
+	sizeof(dareaportal_t), // LUMP_AREAPORTALS
+};
+
+void
+Mod_LoadValidateLumps(const char *name, const dheader_t *header)
+{
+	const size_t *rules = NULL;
+	qboolean error = false;
+	int s;
+
+	if (header->ident == IDBSPHEADER)
+	{
+		rules = idbsplumps;
+	}
+	else if (header->ident == QBSPHEADER)
+	{
+		rules = qbsplumps;
+	}
+	else
+	{
+		return;
+	}
+
+	for (s = 0; s < HEADER_LUMPS; s++)
+	{
+		if (rules[s])
+		{
+			if (header->lumps[s].filelen % rules[s])
+			{
+				Com_Printf("%s: lump #%d: incorrect size %d / %zd\n",
+					__func__, s, header->lumps[s].filelen, rules[s]);
+				error = true;
+			}
+#ifdef DEBUG
+			else
+			{
+				Com_Printf("%s: lump #%d: correct size %d / %zd\n",
+					__func__, s, header->lumps[s].filelen, rules[s]);
+			}
+#endif
+		}
+	}
+
+	if (error)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
+			__func__, name);
+	}
+}
