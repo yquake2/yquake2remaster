@@ -196,18 +196,23 @@ PF_setmodel(edict_t *ent, const char *name)
 static void
 PF_Configstring(int index, const char *val)
 {
-	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
-	{
-		Com_Error(ERR_DROP, "configstring: bad index %i\n", index);
-	}
-
 	if (!val)
 	{
 		val = "";
 	}
 
+	if (sv_client)
+	{
+		index = P_ConvertConfigStringFrom(index, sv_client->protocol);
+	}
+
+	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
+	{
+		Com_Error(ERR_DROP, "configstring: bad index %i\n", index);
+	}
+
 	/* change the string in sv */
-	strcpy(sv.configstrings[P_ConvertConfigStringFrom(index, sv_client->protocol)], val);
+	strcpy(sv.configstrings[index], val);
 
 	if (sv.state != ss_loading)
 	{
