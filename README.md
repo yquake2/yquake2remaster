@@ -77,22 +77,21 @@ Note:
    with tranparency or some animations flags and properties.
 
 Games:
-
-# Quake 2
- * SDK: https://github.com/id-Software/quake2-rerelease-dll
- * Tech info: https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii
-# Anachronox
- * SDK: https://github.com/hogsy/chronon
- * Tech info: https://anachrodox.talonbrave.info/
-# Kingpin
- * SDK: https://github.com/QuakeTools/Kingpin-SDK-v1.21
- * Tech info: https://www.kingpin.info/
-# Heretic 2
- * SDK: https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe
- * Tech info: http://h2vault.infinityfreeapp.com/index.html
-# SiN:
- * Tools: https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff
- * SDK: https://github.com/NightDive-Studio/sin-ex-game
+ * Quake 2:
+   * SDK: https://github.com/id-Software/quake2-rerelease-dll
+   * Tech info: https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii
+ * Anachronox:
+   * SDK: https://github.com/hogsy/chronon
+   * Tech info: https://anachrodox.talonbrave.info/
+ * Kingpin:
+   * SDK: https://github.com/QuakeTools/Kingpin-SDK-v1.21
+   * Tech info: https://www.kingpin.info/
+ * Heretic 2:
+   * SDK: https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe
+   * Tech info: http://h2vault.infinityfreeapp.com/index.html
+ * SiN:
+   * Tools: https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff
+   * SDK: https://github.com/NightDive-Studio/sin-ex-game
 
 Goals (finished):
   * BSPX DECOUPLEDLM light map support (base1),
