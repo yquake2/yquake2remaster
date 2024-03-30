@@ -975,6 +975,14 @@ FS_LoadPAK(const char *packPath)
 	header.dirofs = LittleLong(header.dirofs);
 	header.dirlen = LittleLong(header.dirlen);
 
+	if ((header.dirlen % sizeof(dpackfile_t)) != 0)
+	{
+		fclose(handle);
+		Com_Printf("WARNING: '%s' looks as Daikatana pak. Skipped it!\n",
+				packPath);
+		return NULL;
+	}
+
 	numFiles = header.dirlen / sizeof(dpackfile_t);
 
 	if ((numFiles == 0) || (header.dirlen < 0) || (header.dirofs < 0))
