@@ -39,6 +39,15 @@
 #define EXTRA_LUMP_BRUSHSIDES 6
 #define EXTRA_LUMP_LEAFS 1
 
+typedef enum
+{
+	map_quake2 = 0,
+	map_heretic2 = 1,
+	map_daikatana = 2,
+	map_kingpin = 3,
+	map_anachronox = 4,
+} maptype_t;
+
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);
 extern void Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 	const byte *mod_base, const lump_t *l);

@@ -710,7 +710,7 @@ Mod_LoadBrushModel(gl4model_t *mod, const void *buffer, int modfilelen)
 		mod_base, &header->lumps[LUMP_PLANES]);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)GL4_FindImage,
-		gl4_notexture);
+		gl4_notexture, r_maptype->value);
 	if (header->ident == IDBSPHEADER)
 	{
 		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);

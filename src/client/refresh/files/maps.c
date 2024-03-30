@@ -26,6 +26,7 @@
  */
 
 #include "../ref_shared.h"
+#include "maps.h"
 
 /*
 =================
@@ -416,6 +417,38 @@ Mod_CalcSurfaceExtents(const int *surfedges, mvertex_t *vertexes, medge_t *edges
 	}
 }
 
+static int
+Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
+{
+	const int *convert;
+	int sflags = 0;
+	int i;
+
+	switch (maptype)
+	{
+		case map_heretic2: convert = heretic2_flags; break;
+		case map_daikatana: convert = daikatana_flags; break;
+		case map_kingpin: convert = kingpin_flags; break;
+		case map_anachronox: convert = anachronox_flags; break;
+		default: convert = NULL; break;
+	}
+
+	if (!convert)
+	{
+		return flags;
+	}
+
+	for (i = 0; i < 32; i++)
+	{
+		if (flags & (1 << i))
+		{
+			sflags |= convert[i];
+		}
+	}
+
+	return sflags;
+}
+
 /*
 =================
 Mod_LoadTexinfo
@@ -426,7 +459,7 @@ extra for skybox in soft render
 void
 Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
-	struct image_s *notexture)
+	struct image_s *notexture, maptype_t maptype)
 {
 	texinfo_t *in;
 	mtexinfo_t *out, *step;
@@ -457,7 +490,8 @@ Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 			out->vecs[1][j] = LittleFloat(in->vecs[1][j]);
 		}
 
-		out->flags = LittleLong(in->flags);
+		/* Convert flags for game type */
+		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 
 		next = LittleLong(in->nexttexinfo);
 		if (next > 0)

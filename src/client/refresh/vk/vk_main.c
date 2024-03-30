@@ -132,6 +132,7 @@ cvar_t	*vk_mip_nearfilter;
 cvar_t	*vk_sampleshading;
 cvar_t	*vk_device_idx;
 cvar_t	*r_retexturing;
+cvar_t	*r_maptype;
 cvar_t	*r_scale8bittextures;
 static cvar_t	*vk_underwater;
 cvar_t	*r_nolerp_list;
@@ -1177,6 +1178,7 @@ R_Register(void)
 	vk_molten_metalbuffers = ri.Cvar_Get("vk_molten_metalbuffer", "0", CVAR_ARCHIVE);
 #endif
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
+	r_maptype = ri.Cvar_Get("maptype", "0", CVAR_ARCHIVE);
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 	vk_underwater = ri.Cvar_Get("vk_underwater", "1", CVAR_ARCHIVE);
 	/* don't bilerp characters and crosshairs */

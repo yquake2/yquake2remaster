@@ -48,7 +48,7 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 * **aimfix**: Fix aiming. When set to to `0` (the default) aiming is
   slightly inaccurate, bullets and the like have a little drift. When
   set to `1` they hit exactly were the crosshair is.
-  
+
 * **busywait**: By default this is set to `1`, causing Quake II to spin
   in a very tight loop until it's time to process the next frame. This
   is a very accurate way to determine the internal timing, but comes with
@@ -59,42 +59,42 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **cl_maxfps**: The approximate framerate for client/server ("packet")
   frames if *cl_async* is `1`. If set to `-1` (the default), the engine
-  will choose a packet framerate appropriate for the render framerate.  
+  will choose a packet framerate appropriate for the render framerate.
   See `cl_async` for more information.
 
-* **cl_async**: Run render frames independently of client/server frames.  
+* **cl_async**: Run render frames independently of client/server frames.
   If set to `0`, client, server (gamecode) and the renderer run synchronous,
   (like Quake2 originally did) which means that for every rendered frame
   a client- and server-frame is executed, which includes the gamecode and
   physics/movement-simulation etc. At higher framerates (above 95 or so)
   this leads to movement bugs, like being able to jump higher than expected
-  (kind of like the infamous Quake 3 125Hz bug).  
+  (kind of like the infamous Quake 3 125Hz bug).
   For `cl_async 0`, *vid_maxfps* (or, if vsync is enabled, the display
   refresh rate) is used and *cl_maxfps* is ignored.
-  
+
   If *cl_async* is set to `1` (the default) the client is asynchronous,
   which means that there can be multiple render frames between client-
   and server-frames. This makes it possible to renderer as many frames
-  as desired without physics and movement problems. 
+  as desired without physics and movement problems.
   The client framerate is controlled by *cl_maxfps*,
-  the renderer framerate is controlled by *vid_maxfps*.  
-  
+  the renderer framerate is controlled by *vid_maxfps*.
+
   As client/server frames ("packet frames") are only run together with
   a render frame, the *real* client/server framerate is always rounded to
-  a fraction of the renderframerate that's closest to *cl_maxfps*.  
+  a fraction of the renderframerate that's closest to *cl_maxfps*.
   So if for example *vid_maxfps* is `60` and *cl_maxfps* is `50`, it will
-  be rounded to `60` and every renderframe is also a packet frame.  
+  be rounded to `60` and every renderframe is also a packet frame.
   If *vid_maxfps* is `60` and *cl_maxfps* is `40`, it will be rounded to
   `30` and every second render frame is also a packet frame.
-  
+
   It seems like the best working packet framerate is `60` (which means that
   the render framerate should be a multiple of that), otherwise values
   between `45` and `90` seem to work ok, lower and higher values can lead
-  to buggy movement, jittering and other issues.  
+  to buggy movement, jittering and other issues.
   Setting *cl_maxfps* to `-1` (the default since 8.02) will automatically
   choose a packet framerate that's *both* a fraction of *vid_maxfps*
   (or display refreshrate if vsync is on) *and* between 45 and 90.
-  
+
 * **cl_http_downloads**: Allow HTTP download. Set to `1` by default, set
   to `0` to disable.
 
@@ -142,12 +142,12 @@ Set `0` by default.
 
 * **cl_showfps**: Shows the framecounter. Set to `2` for more and to
   `3` for even more informations.
-  
+
 * **cl_showspeed**:  Shows the players speed.  Set to `1` to display both
   overall speed and (horizontal speed) in Quake Units (QU) respectfully at
-  the top right corner of the screen.  Set to `2` to show only the horizontal 
+  the top right corner of the screen.  Set to `2` to show only the horizontal
   speed under the crosshair.
-  
+
 * **cl_model_preview_start**: start frame value in multiplayer model preview.
   `-1` - don't show animation. Defaults to `84` for show salute animation.
 
@@ -221,8 +221,8 @@ Set `0` by default.
   The Reckoning. This cvar is disabled by default to maintain the
   original gameplay experience.
 
-* **g_machinegun_norecoil**: Disable machine gun recoil in single player. 
-  By default this is set to `0`, this keeps the original machine gun 
+* **g_machinegun_norecoil**: Disable machine gun recoil in single player.
+  By default this is set to `0`, this keeps the original machine gun
   recoil in single player. When set to `1` the recoil is disabled in
   single player, the same way as in multiplayer.
   This cvar only works if the game.dll implements this behaviour.
@@ -255,6 +255,13 @@ Set `0` by default.
 * **game**: current game value, mod name and directory.
 
 * **gametype**: replace menu to different mod type without change mod name in game variable.
+
+* **maptype**: convert surface map flags from different game on load:
+  * 0: Quake2,
+  * 1: Heretic2,
+  * 2: Daikatana,
+  * 3: Kingpin,
+  * 4: Anachronox.
 
 * **nextdemo**: Defines the next command to run after maps from the
   `nextserver` list. By default this is set to the empty string.
@@ -415,16 +422,16 @@ Set `0` by default.
   and scales the window (and thus the requested resolution) by the
   scaling factor of the underlying display. Example: The displays
   scaling factor is 1.25 and the user requests 1920x1080. The client
-  will render at 1920\*1.25x1080\*1.25=2400x1350.  
+  will render at 1920\*1.25x1080\*1.25=2400x1350.
   When set to `0` (the default) the client leaves the decision if the
   window should be scaled to the underlying compositor. Scaling applied
-  by the compositor may introduce blur and sluggishness.  
+  by the compositor may introduce blur and sluggishness.
   Currently high dpi awareness is only supported under Wayland.
 
-* **vid_maxfps**: The maximum framerate. *Note* that vsync (`r_vsync`) 
+* **vid_maxfps**: The maximum framerate. *Note* that vsync (`r_vsync`)
   also restricts the framerate to the monitor refresh rate, so if vsync
   is enabled, the game won't render more than frame than the display can
-  show. Defaults to `300`.  
+  show. Defaults to `300`.
   Related to this: *cl_maxfps* and *cl_async*.
 
 * **vid_pauseonfocuslost**: When set to `1` the game is paused as soon
@@ -453,7 +460,7 @@ Set `0` by default.
   - `GL_LINEAR`: Bilinear filtering, mipmaps not used
   - `GL_LINEAR_MIPMAP_NEAREST`: The default - Bilinear filtering when
     scaling up, using mipmaps with nearest/no filtering when scaling down
-  
+
   Other supported values: `GL_NEAREST_MIPMAP_NEAREST`,
   `GL_NEAREST_MIPMAP_LINEAR`, `GL_LINEAR_MIPMAP_LINEAR`
 

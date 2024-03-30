@@ -137,6 +137,7 @@ extern  cvar_t  *vk_molten_fastmath;
 extern  cvar_t  *vk_molten_metalbuffers;
 #endif
 extern	cvar_t	*r_retexturing;
+extern	cvar_t	*r_maptype;
 extern	cvar_t	*r_scale8bittextures;
 extern	cvar_t	*r_nolerp_list;
 extern	cvar_t	*r_lerp_list;

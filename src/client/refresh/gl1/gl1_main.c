@@ -102,6 +102,7 @@ cvar_t *r_customwidth;
 cvar_t *r_customheight;
 
 cvar_t *r_retexturing;
+cvar_t *r_maptype;
 cvar_t *r_scale8bittextures;
 
 cvar_t *r_nolerp_list;
@@ -1239,6 +1240,7 @@ R_Register(void)
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
+	r_maptype = ri.Cvar_Get("maptype", "0", CVAR_ARCHIVE);
 
 	/* don't bilerp characters and crosshairs */
 	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
