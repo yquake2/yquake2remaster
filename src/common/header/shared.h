@@ -561,7 +561,6 @@ typedef struct csurface_s
 {
 	char name[16];
 	int flags; /* SURF_* */
-	int value; /* unused */
 } csurface_t;
 
 typedef struct mapsurface_s  /* used internally due to name len probs */

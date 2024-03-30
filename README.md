@@ -87,14 +87,13 @@ Goals (finished):
   * support Anachronox .dat format,
   * add debug progress loading code for maps.
 
-
 Goals (none of it finished):
-
   * Single player support,
-  * support surface flags for Daikatana, Heretic 2, Anachronox,
-  * modified ReRelease game code support with removed KEX only related code.
+  * Support effects and additional flags for ReRelease when possible.
 
 Bonus goals:
+  * Port SiN/Daikatana pack support from pakextract,
+  * support surface flags and content types for Daikatana, Heretic 2, Anachronox,
   * Use shared model cache in client code insted reimplemnet in each render,
   * Check load soft colormap as 24bit color,
   * Use separete texture hi-color buffer for ui in soft render,
@@ -102,7 +101,8 @@ Bonus goals:
   * Cleanup function declarations in game save code,
   * Use 3 bytes vertex normal,
   * Support scalled textures for models and walls in soft render and fix
-    lighting with remastered maps.
+    lighting with remastered maps,
+  * modified ReRelease game code support with removed KEX only related code.
 
 Not a goal:
   * multiplayer protocol support with KEX engine,

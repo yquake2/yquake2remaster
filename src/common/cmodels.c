@@ -215,15 +215,15 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 		{
 			if (header->lumps[s].filelen % rules[s])
 			{
-				Com_Printf("%s: lump #%d: incorrect size %d / %zd\n",
-					__func__, s, header->lumps[s].filelen, rules[s]);
+				Com_Printf("%s: Map %s lump #%d: incorrect size %d / %zd\n",
+					__func__, name, s, header->lumps[s].filelen, rules[s]);
 				error = true;
 			}
 #ifdef DEBUG
 			else
 			{
-				Com_Printf("%s: lump #%d: correct size %d / %zd\n",
-					__func__, s, header->lumps[s].filelen, rules[s]);
+				Com_Printf("%s: Map %s lump #%d: correct size %d / %zd\n",
+					__func__, name, s, header->lumps[s].filelen, rules[s]);
 			}
 #endif
 		}
