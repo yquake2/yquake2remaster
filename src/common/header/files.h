@@ -832,6 +832,7 @@ typedef struct {
 	float	vecs[2][4];
 } dlminfo_t;
 
+/* Quake2 Leafs struct */
 typedef struct
 {
 	int contents; /* OR of all brushes (not needed?) */
@@ -848,6 +849,26 @@ typedef struct
 	unsigned short firstleafbrush;
 	unsigned short numleafbrushes;
 } dleaf_t;
+
+/* Daikatana Leafs struct */
+typedef struct
+{
+	int contents; /* OR of all brushes (not needed?) */
+
+	short cluster;
+	short area;
+
+	short mins[3]; /* for frustum culling */
+	short maxs[3];
+
+	unsigned short firstleafface;
+	unsigned short numleaffaces;
+
+	unsigned short firstleafbrush;
+	unsigned short numleafbrushes;
+
+	int unknow; /* some unused additional field */
+} ddkleaf_t;
 
 typedef struct
 {

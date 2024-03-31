@@ -53,6 +53,6 @@ extern void Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibilit
 	const byte *mod_base, const lump_t *l);
 extern void Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	const byte *mod_base, const lump_t *l);
-extern void Mod_LoadValidateLumps(const char *name, const dheader_t *header);
+extern maptype_t Mod_LoadValidateLumps(const char *name, const dheader_t *header);
 
 #endif

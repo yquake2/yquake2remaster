@@ -425,6 +425,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
 	const bspx_header_t *bspx_header;
 	int i, lightgridsize = 0;
+	maptype_t maptype;
 	dheader_t *header;
 	byte *mod_base;
 
@@ -457,6 +458,13 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	for (i = 0; i < sizeof(dheader_t) / 4; i++)
 	{
 		((int *)header)[i] = LittleLong(((int *)header)[i]);
+	}
+
+	maptype = Mod_LoadValidateLumps(mod->name, header);
+	if (maptype == map_quake2)
+	{
+		/* Can't detect use provided */
+		maptype = r_maptype->value;
 	}
 
 	/* check for BSPX extensions */
@@ -502,8 +510,18 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		1, 1, 0);
 	if (header->ident == IDBSPHEADER)
 	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
-			sizeof(dleaf_t), sizeof(mleaf_t), 0);
+		if ((maptype == map_daikatana) &&
+			(header->lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
+		{
+			hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
+				sizeof(ddkleaf_t), sizeof(mleaf_t), 0);
+		}
+		else
+		{
+			hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
+				sizeof(dleaf_t), sizeof(mleaf_t), 0);
+		}
+
 		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
 			sizeof(dnode_t), sizeof(mnode_t), EXTRA_LUMP_NODES);
 	}
@@ -550,7 +568,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		mod_base, &header->lumps[LUMP_PLANES]);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)R_FindImage,
-		r_notexture_mip, r_maptype->value);
+		r_notexture_mip, maptype);
 	if (header->ident == IDBSPHEADER)
 	{
 		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
@@ -566,7 +584,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		&header->lumps[LUMP_VISIBILITY]);
 	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
 		mod->marksurfaces, mod->nummarksurfaces, mod_base,
-		&header->lumps[LUMP_LEAFS], header->ident);
+		&header->lumps[LUMP_LEAFS], header->ident, maptype);
 	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
 		mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
 		&header->lumps[LUMP_NODES], header->ident);

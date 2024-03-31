@@ -961,6 +961,56 @@ Mod_LoadLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 }
 
 static void
+Mod_LoadDKLeafs(const char *name, mleaf_t **leafs, int *numleafs,
+	msurface_t **marksurfaces, unsigned int nummarksurfaces,
+	const byte *mod_base, const lump_t *l)
+{
+	ddkleaf_t *in;
+	mleaf_t *out;
+	int i, j, count;
+
+	in = (void *)(mod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
+				__func__, name);
+	}
+
+	count = l->filelen / sizeof(*in);
+	out = Hunk_Alloc((count + EXTRA_LUMP_LEAFS) * sizeof(*out));
+
+	*leafs = out;
+	*numleafs = count;
+
+	for (i = 0; i < count; i++, in++, out++)
+	{
+		unsigned int firstleafface;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->minmaxs[j] = LittleShort(in->mins[j]);
+			out->minmaxs[3 + j] = LittleShort(in->maxs[j]);
+		}
+
+		out->contents = LittleLong(in->contents);
+		out->cluster = LittleShort(in->cluster);
+		out->area = LittleShort(in->area);
+
+		// make unsigned long from signed short
+		firstleafface = LittleShort(in->firstleafface) & 0xFFFF;
+		out->nummarksurfaces = LittleShort(in->numleaffaces) & 0xFFFF;
+
+		out->firstmarksurface = marksurfaces + firstleafface;
+		if ((firstleafface + out->nummarksurfaces) > nummarksurfaces)
+		{
+			Com_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
+				__func__, name);
+		}
+	}
+}
+
+static void
 Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	const byte *mod_base, const lump_t *l)
@@ -1013,12 +1063,21 @@ Mod_LoadQLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 void
 Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
-	const byte *mod_base, const lump_t *l, int ident)
+	const byte *mod_base, const lump_t *l, int ident, maptype_t maptype)
 {
 	if (ident == IDBSPHEADER)
 	{
-		Mod_LoadLeafs(name, leafs, numleafs, marksurfaces, nummarksurfaces,
-			mod_base, l);
+		if ((maptype == map_daikatana) &&
+			(l->filelen % sizeof(ddkleaf_t) == 0))
+		{
+			Mod_LoadDKLeafs(name, leafs, numleafs, marksurfaces, nummarksurfaces,
+				mod_base, l);
+		}
+		else
+		{
+			Mod_LoadLeafs(name, leafs, numleafs, marksurfaces, nummarksurfaces,
+				mod_base, l);
+		}
 	}
 	else
 	{

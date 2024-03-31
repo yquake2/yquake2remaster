@@ -189,49 +189,93 @@ static const size_t qbsplumps[HEADER_LUMPS] = {
 	sizeof(dareaportal_t), // LUMP_AREAPORTALS
 };
 
-void
+static const char*
+Mod_MaptypeName(maptype_t maptype)
+{
+	const char* maptypename;
+
+	switch(maptype)
+	{
+		case map_quake2: maptypename = "Quake2"; break;
+		case map_heretic2: maptypename = "Heretic 2"; break;
+		case map_daikatana: maptypename = "Daikatana"; break;
+		case map_kingpin: maptypename = "Kingpin"; break;
+		case map_anachronox: maptypename = "Anachronox"; break;
+		default: maptypename = "Unknown"; break;
+	}
+
+	return maptypename;
+}
+
+maptype_t
 Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 {
 	const size_t *rules = NULL;
 	qboolean error = false;
-	int s;
+	maptype_t maptype;
 
 	if (header->ident == IDBSPHEADER)
 	{
 		rules = idbsplumps;
+		if (header->version == BSPDKMVERSION)
+		{
+			maptype = map_daikatana;
+		}
+		else
+		{
+			maptype = map_quake2;
+		}
 	}
 	else if (header->ident == QBSPHEADER)
 	{
 		rules = qbsplumps;
+		maptype = map_quake2;
 	}
 	else
 	{
-		return;
+		rules = NULL;
+		maptype = map_quake2;
 	}
 
-	for (s = 0; s < HEADER_LUMPS; s++)
+	if (rules)
 	{
-		if (rules[s])
+		int s;
+		for (s = 0; s < HEADER_LUMPS; s++)
 		{
-			if (header->lumps[s].filelen % rules[s])
+			if (rules[s])
 			{
-				Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
-					__func__, name, s, header->lumps[s].filelen, rules[s]);
-				error = true;
+				if ((maptype == map_daikatana) &&
+					(s == LUMP_LEAFS) &&
+					(header->lumps[s].filelen % sizeof(ddkleaf_t) == 0))
+				{
+					/* Small hack for daikatana,
+					 * bsp could have two different sizes of LUMP_LEAFS
+					 */
+					continue;
+				}
+				else if (header->lumps[s].filelen % rules[s])
+				{
+					Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
+						__func__, name, s, header->lumps[s].filelen, rules[s]);
+					error = true;
+				}
 			}
-#ifdef DEBUG
-			else
-			{
-				Com_Printf("%s: Map %s lump #%d: correct size %d / " YQ2_COM_PRIdS "\n",
-					__func__, name, s, header->lumps[s].filelen, rules[s]);
-			}
-#endif
 		}
 	}
+
+	Com_Printf("Map %s %c%c%c%c with version %d (%s)\n",
+				name,
+				(header->ident >> 0) & 0xFF,
+				(header->ident >> 8) & 0xFF,
+				(header->ident >> 16) & 0xFF,
+				(header->ident >> 24) & 0xFF,
+				header->version, Mod_MaptypeName(maptype));
 
 	if (error)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
 			__func__, name);
 	}
+
+	return maptype;
 }

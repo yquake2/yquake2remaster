@@ -1550,6 +1550,69 @@ CMod_LoadLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyl
 }
 
 static void
+CMod_LoadDKLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyleaf,
+	int *numclusters, const byte *cmod_base, const lump_t *l)
+{
+	int i;
+	cleaf_t *out;
+	ddkleaf_t *in;
+	int count;
+
+	in = (void *)(cmod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
+	}
+
+	count = l->filelen / sizeof(*in);
+
+	if (count < 1)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s with no leafs", __func__, name);
+	}
+
+	out = *map_leafs = Hunk_Alloc((count + EXTRA_LUMP_LEAFS) * sizeof(*out));
+	*numleafs = count;
+	*numclusters = 0;
+
+	for (i = 0; i < count; i++, in++, out++)
+	{
+		out->contents = LittleLong(in->contents);
+		out->cluster = LittleShort(in->cluster);
+		out->area = LittleShort(in->area);
+		out->firstleafbrush = LittleShort(in->firstleafbrush) & 0xFFFF;
+		out->numleafbrushes = LittleShort(in->numleafbrushes) & 0xFFFF;
+
+		if (out->cluster >= *numclusters)
+		{
+			*numclusters = out->cluster + 1;
+		}
+	}
+
+	if ((*map_leafs)[0].contents != CONTENTS_SOLID)
+	{
+		Com_Error(ERR_DROP, "%s: Map leaf 0 is not CONTENTS_SOLID", __func__);
+	}
+
+	*emptyleaf = -1;
+
+	for (i = 1; i < count; i++)
+	{
+		if (!(*map_leafs)[i].contents)
+		{
+			*emptyleaf = i;
+			break;
+		}
+	}
+
+	if (*emptyleaf == -1)
+	{
+		Com_Error(ERR_DROP, "%s: Map does not have an empty leaf", __func__);
+	}
+}
+
+static void
 CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyleaf,
 	int *numclusters, const byte *cmod_base, const lump_t *l)
 {
@@ -1929,6 +1992,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 {
 	int i, length, hunkSize = 0;
 	const byte *cmod_base;
+	maptype_t maptype;
 	dheader_t header;
 	unsigned *buf;
 
@@ -1972,15 +2036,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 				__func__, name, header.version, BSPVERSION);
 	}
 
-	Com_DPrintf("%s: Map %s ident %c%c%c%c version %d\n",
-				__func__, name,
-				(header.ident >> 0) & 0xFF,
-				(header.ident >> 8) & 0xFF,
-				(header.ident >> 16) & 0xFF,
-				(header.ident >> 24) & 0xFF,
-				header.version);
-
-	Mod_LoadValidateLumps(name, &header);
+	maptype = Mod_LoadValidateLumps(name, &header);
 
 	cmod_base = (byte *)buf;
 
@@ -1992,8 +2048,18 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	if (header.ident == IDBSPHEADER)
 	{
-		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
-			sizeof(dleaf_t), sizeof(cleaf_t), 0);
+		if ((maptype == map_daikatana) &&
+			(header.lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
+		{
+			hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+				sizeof(ddkleaf_t), sizeof(cleaf_t), 0);
+		}
+		else
+		{
+			hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+				sizeof(dleaf_t), sizeof(cleaf_t), 0);
+		}
+
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFBRUSHES],
 			sizeof(short), sizeof(int), EXTRA_LUMP_LEAFBRUSHES);
 	}
@@ -2042,8 +2108,17 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		cmod_base, &header.lumps[LUMP_TEXINFO]);
 	if (header.ident == IDBSPHEADER)
 	{
-		CMod_LoadLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
-			&mod->numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
+		if ((maptype == map_daikatana) &&
+			(header.lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
+		{
+			CMod_LoadDKLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
+				&mod->numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
+		}
+		else
+		{
+			CMod_LoadLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
+				&mod->numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
+		}
 		CMod_LoadLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
 			cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
 	}
