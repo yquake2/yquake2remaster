@@ -100,6 +100,7 @@ typedef struct fsSearchPath_s
 typedef enum
 {
 	DAT,
+	SIN,
 	PAK,
 	PK3
 } fsPackFormat_t;
@@ -118,6 +119,7 @@ fsSearchPath_t *fs_baseSearchPaths = NULL;
 /* Pack formats / suffixes. */
 fsPackTypes_t fs_packtypes[] = {
 	{"dat", DAT},
+	{"sin", SIN},
 	{"pak", PAK},
 	{"pk2", PK3},
 	{"pk3", PK3},
@@ -911,12 +913,6 @@ FS_FreeSearchPaths(fsSearchPath_t *start, fsSearchPath_t *end)
 	return cur;
 }
 
-/*
- * Takes an explicit (not game tree related) path to a pak file.
- *
- * Loads the header and directory, adding the files at the beginning of the
- * list so they override previous pack files.
- */
 static fsPack_t *
 FS_LoadDAT(const char *packPath)
 {
@@ -940,8 +936,8 @@ FS_LoadDAT(const char *packPath)
 
 	fread(&header, 1, sizeof(ddatheader_t), handle);
 
-	if (LittleLong(header.ident) != IDDATHEADER ||
-		LittleLong(header.version) != IDDATVERSION)
+	if (LittleLong(header.ident) != DATHEADER ||
+		LittleLong(header.version) != DATVERSION)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is not a dat file", __func__, packPath);
@@ -950,7 +946,7 @@ FS_LoadDAT(const char *packPath)
 	header.dirofs = LittleLong(header.dirofs);
 	header.dirlen = LittleLong(header.dirlen);
 
-	numFiles = header.dirlen / sizeof(ddatfile_t);
+	numFiles = header.dirlen / sizeof(*info);
 
 	if ((numFiles == 0) || (header.dirlen < 0) || (header.dirofs < 0))
 	{
@@ -1039,6 +1035,95 @@ FS_LoadDAT(const char *packPath)
 	return pack;
 }
 
+fsPack_t *
+FS_LoadSIN(const char *packPath)
+{
+	int i; /* Loop counter. */
+	int numFiles; /* Number of files in SIN. */
+	FILE *handle; /* File handle. */
+	fsPackFile_t *files; /* List of files in PAK. */
+	fsPack_t *pack; /* SIN file. */
+	dpackheader_t header; /* SIN file header. */
+	dsinfile_t *info = NULL; /* SIN info. */
+
+	handle = Q_fopen(packPath, "rb");
+
+	if (handle == NULL)
+	{
+		return NULL;
+	}
+
+	fread(&header, 1, sizeof(dpackheader_t), handle);
+
+	if (LittleLong(header.ident) != SINHEADER)
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' is not a pack file", __func__, packPath);
+	}
+
+	header.dirofs = LittleLong(header.dirofs);
+	header.dirlen = LittleLong(header.dirlen);
+
+	if ((header.dirlen <= 0) ||
+		(header.dirofs < 0) ||
+		((header.dirlen % sizeof(*info)) != 0))
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
+				__func__, packPath);
+	}
+
+	numFiles = header.dirlen / sizeof(*info);
+
+	if (numFiles > MAX_FILES_IN_PACK)
+	{
+		Com_Printf("%s: '%s' has %i > %i files\n",
+				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
+	}
+
+	info = malloc(header.dirlen);
+	if (!info)
+	{
+		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
+				__func__, packPath, header.dirlen);
+	}
+
+	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
+
+	fseek(handle, header.dirofs, SEEK_SET);
+	fread(info, 1, header.dirlen, handle);
+
+	/* Parse the directory. */
+	for (i = 0; i < numFiles; i++)
+	{
+		Q_strlcpy(files[i].name, info[i].name,
+			Q_min(sizeof(files[i].name), sizeof(files[i].name)));
+		files[i].offset = LittleLong(info[i].filepos);
+		files[i].size = LittleLong(info[i].filelen);
+		files[i].compressed_size = 0;
+		files[i].format = PAK_MODE_Q2;
+		printf("sin: %s:%d\n", files[i].name, files[i].size);
+	}
+	free(info);
+
+	pack = Z_Malloc(sizeof(fsPack_t));
+	Q_strlcpy(pack->name, packPath, sizeof(pack->name));
+	pack->pak = handle;
+	pack->pk3 = NULL;
+	pack->numFiles = numFiles;
+	pack->files = files;
+
+	Com_Printf("Added sinfile '%s' (%i files).\n", pack->name, numFiles);
+
+	return pack;
+}
+
+/*
+ * Takes an explicit (not game tree related) path to a pak file.
+ *
+ * Loads the header and directory, adding the files at the beginning of the
+ * list so they override previous pack files.
+ */
 static fsPack_t *
 FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 {
@@ -1048,7 +1133,7 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	fsPack_t *pack; /* PAK file. */
 	dpackfile_t *info = NULL; /* PAK info. */
 
-	numFiles = header->dirlen / sizeof(dpackfile_t);
+	numFiles = header->dirlen / sizeof(*info);
 
 	if (numFiles == 0)
 	{
@@ -1078,7 +1163,8 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		Q_strlcpy(files[i].name, info[i].name, sizeof(files[i].name));
+		Q_strlcpy(files[i].name, info[i].name,
+			Q_min(sizeof(files[i].name), sizeof(files[i].name)));
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
@@ -1107,7 +1193,7 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	fsPack_t *pack; /* PAK file. */
 	dpackdkfile_t *info = NULL; /* PAK info. */
 
-	numFiles = header->dirlen / sizeof(dpackdkfile_t);
+	numFiles = header->dirlen / sizeof(*info);
 
 	if (numFiles == 0)
 	{
@@ -1137,7 +1223,8 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		Q_strlcpy(files[i].name, info[i].name, sizeof(files[i].name));
+		Q_strlcpy(files[i].name, info[i].name,
+			Q_min(sizeof(files[i].name), sizeof(files[i].name)));
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		if (info[i].is_compressed)
@@ -1953,6 +2040,9 @@ FS_AddPAKFromGamedir(const char *pak)
 			case DAT:
 				pakfile = FS_LoadDAT(path);
 				break;
+			case SIN:
+				pakfile = FS_LoadSIN(path);
+				break;
 			case PAK:
 				pakfile = FS_LoadPAK(path);
 				break;
@@ -2079,6 +2169,16 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 						pack->isProtectedPak = true;
 					}
 
+					break;
+				case SIN:
+					pack = FS_LoadSIN(path);
+
+					if (pack)
+					{
+						pack->isProtectedPak = true;
+					}
+
+					break;
 				case PAK:
 					pack = FS_LoadPAK(path);
 
@@ -2161,6 +2261,9 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 			{
 				case DAT:
 					pack = FS_LoadDAT(list[j]);
+					break;
+				case SIN:
+					pack = FS_LoadSIN(list[j]);
 					break;
 				case PAK:
 					pack = FS_LoadPAK(list[j]);

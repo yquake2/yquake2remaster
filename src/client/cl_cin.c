@@ -973,6 +973,7 @@ SCR_PlayCinematic(char *arg)
 #ifdef AVMEDIADECODE
 	if (dot && (!strcmp(dot, ".cin") ||
 				!strcmp(dot, ".ogv") ||
+				!strcmp(dot, ".avi") ||
 				!strcmp(dot, ".mpg") ||
 				!strcmp(dot, ".smk") ||
 				!strcmp(dot, ".roq")))
@@ -986,6 +987,7 @@ SCR_PlayCinematic(char *arg)
 		if (SCR_LoadAVcodec(namewe, ".ogv") ||
 			SCR_LoadAVcodec(namewe, ".roq") ||
 			SCR_LoadAVcodec(namewe, ".mpg") ||
+			SCR_LoadAVcodec(namewe, ".avi") ||
 			SCR_LoadAVcodec(namewe, dot))
 		{
 			SCR_EndLoadingPlaque();

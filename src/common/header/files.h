@@ -29,8 +29,8 @@
 
 /* The .dat files are just a linear collapse of a directory tree */
 
-#define IDDATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A')
-#define IDDATVERSION 9
+#define DATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A')
+#define DATVERSION 9
 
 typedef struct
 {
@@ -43,11 +43,21 @@ typedef struct
 
 typedef struct
 {
-	int ident; /* == IDDATHEADER */
+	int ident; /* == DATHEADER */
 	int dirofs;
 	int dirlen;
 	int version; /* == IDPAKVERSION */
 } ddatheader_t;
+
+/* The .sin files are just a linear collapse of a directory tree */
+
+#define SINHEADER (('K' << 24) + ('A' << 16) + ('P' << 8) + 'S')
+
+typedef struct
+{
+	char name[120];
+	int filepos, filelen;
+} dsinfile_t;
 
 /* The .pak files are just a linear collapse of a directory tree */
 
