@@ -46,6 +46,13 @@
  #endif
 #endif
 
+typedef enum
+{
+	PAK_MODE_Q2,
+	PAK_MODE_DK,
+	PAK_MODE_DAT,
+} fsPackCompress_t;
+
 typedef struct
 {
 	char name[MAX_FILENAME];
@@ -53,6 +60,7 @@ typedef struct
 	FILE *file;           /* Only one will be used. */
 	unzFile *zip;        /* (file or zip) */
 	int compressed_size; /* Should be zero for original PAK files */
+	fsPackCompress_t format;
 } fsHandle_t;
 
 typedef struct fsLink_s
@@ -69,6 +77,7 @@ typedef struct
 	int size;
 	int offset;     /* Ignored in PK3 files. */
 	int compressed_size; /* Should be zero for original PAK files */
+	fsPackCompress_t format;
 } fsPackFile_t;
 
 typedef struct
@@ -455,6 +464,7 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 					//  because it's from pak, but save/bla/MAPname.sav/sv2 will have wrong case and can't be found then)
 					Q_strlcpy(handle->name, pack->files[i].name, sizeof(handle->name));
 					handle->compressed_size = 0;
+					handle->format = PAK_MODE_Q2;
 
 					if (pack->pak)
 					{
@@ -469,6 +479,7 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 						if (handle->file)
 						{
 							handle->compressed_size = pack->files[i].compressed_size;
+							handle->format = pack->files[i].format;
 							fseek(handle->file, pack->files[i].offset, SEEK_SET);
 							return pack->files[i].size;
 						}
@@ -550,21 +561,108 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 	{
 		unsigned long uncomressed_size;
 		byte *comressed_buffer;
-		int status;
 
 		comressed_buffer = malloc(handle->compressed_size);
 		uncomressed_size = size;
 
 		memcpy(comressed_buffer, buffer, handle->compressed_size);
 
-		status = uncompress(buffer, &uncomressed_size, comressed_buffer, handle->compressed_size);
-
-		free(comressed_buffer);
-
-		if (status != MZ_OK)
+		if (handle->format == PAK_MODE_DAT)
 		{
-			Com_Error(ERR_FATAL, "%s: can't decompress file '%s'", __func__, handle->name);
-			return 0;
+			int status;
+
+			status = uncompress(buffer, &uncomressed_size, comressed_buffer,
+				handle->compressed_size);
+
+			free(comressed_buffer);
+
+			if (status != MZ_OK)
+			{
+				Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
+					__func__, handle->name);
+				return 0;
+			}
+		}
+		else if (handle->format == PAK_MODE_DK)
+		{
+			int read = 0;
+			int written = 0;
+
+			while ((read < handle->compressed_size) || (written < size))
+			{
+				byte x;
+
+				x = comressed_buffer[read];
+				++read;
+
+				/* x + 1 bytes of uncompressed data */
+				if (x < 64)
+				{
+					if ((written + x + 1) > size)
+					{
+						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
+							__func__, handle->name);
+						return 0;
+					}
+
+					memmove(buffer + written, comressed_buffer + read, x + 1);
+
+					read += x + 1;
+					written += x + 1;
+				}
+				/* x - 62 zeros */
+				else if (x < 128)
+				{
+					if ((written + x - 62) > size)
+					{
+						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
+							__func__, handle->name);
+						return 0;
+					}
+
+					memset(buffer + written, 0, x - 62);
+
+					written += x - 62;
+				}
+				/* x - 126 times the next byte */
+				else if (x < 192)
+				{
+					if ((written + x - 126) > size)
+					{
+						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
+							__func__, handle->name);
+						return 0;
+					}
+
+					memset(buffer + written, comressed_buffer[read], x - 126);
+
+					++read;
+					written += x - 126;
+				}
+				/* Reference previously uncompressed data */
+				else if (x < 254)
+				{
+					if ((written + x - 190) > size)
+					{
+						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
+							__func__, handle->name);
+						return 0;
+					}
+
+					memmove(buffer + written, (buffer + written) - (
+						(int)comressed_buffer[read] + 2), x - 190);
+
+					++read;
+					written += x - 190;
+				}
+				/* Terminate */
+				else if (x == 255)
+				{
+					break;
+				}
+			}
+
+			free(comressed_buffer);
 		}
 	}
 
@@ -924,7 +1022,8 @@ FS_LoadDAT(const char *packPath)
 		/* copy length */
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
-		files[i].compressed_size = LittleLong(info[i].compressedlen);
+		files[i].compressed_size = LittleLong(info[i].compressed_size);
+		files[i].format = files[i].compressed_size ? PAK_MODE_DAT : PAK_MODE_Q2;
 	}
 	free(info);
 
@@ -951,7 +1050,7 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 
 	numFiles = header->dirlen / sizeof(dpackfile_t);
 
-	if ((numFiles == 0) || (header->dirlen < 0) || (header->dirofs < 0))
+	if (numFiles == 0)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
@@ -983,6 +1082,74 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
+		files[i].format = PAK_MODE_Q2;
+	}
+	free(info);
+
+	pack = Z_Malloc(sizeof(fsPack_t));
+	Q_strlcpy(pack->name, packPath, sizeof(pack->name));
+	pack->pak = handle;
+	pack->pk3 = NULL;
+	pack->numFiles = numFiles;
+	pack->files = files;
+
+	Com_Printf("Added packfile '%s' (%i files).\n", pack->name, numFiles);
+
+	return pack;
+}
+
+static fsPack_t *
+FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
+{
+	int i; /* Loop counter. */
+	int numFiles; /* Number of files in PAK. */
+	fsPackFile_t *files; /* List of files in PAK. */
+	fsPack_t *pack; /* PAK file. */
+	dpackdkfile_t *info = NULL; /* PAK info. */
+
+	numFiles = header->dirlen / sizeof(dpackdkfile_t);
+
+	if (numFiles == 0)
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
+				__func__, packPath);
+	}
+
+	if (numFiles > MAX_FILES_IN_PACK)
+	{
+		Com_Printf("%s: '%s' has %i > %i files\n",
+				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
+	}
+
+	info = malloc(header->dirlen);
+	if (!info)
+	{
+		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
+				__func__, packPath, header->dirlen);
+	}
+
+	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
+
+	fseek(handle, header->dirofs, SEEK_SET);
+	fread(info, 1, header->dirlen, handle);
+
+	/* Parse the directory. */
+	for (i = 0; i < numFiles; i++)
+	{
+		Q_strlcpy(files[i].name, info[i].name, sizeof(files[i].name));
+		files[i].offset = LittleLong(info[i].filepos);
+		files[i].size = LittleLong(info[i].filelen);
+		if (info[i].is_compressed)
+		{
+			files[i].compressed_size = LittleLong(info[i].compressed_size);
+			files[i].format = PAK_MODE_DK;
+		}
+		else
+		{
+			files[i].compressed_size = 0;
+			files[i].format = PAK_MODE_Q2;
+		}
 	}
 	free(info);
 
@@ -1022,19 +1189,32 @@ FS_LoadPAK(const char *packPath)
 	if (LittleLong(header.ident) != IDPAKHEADER)
 	{
 		fclose(handle);
-		Com_Error(ERR_FATAL, "%s: '%s' is not a pack file", __func__, packPath);
+		Com_Error(ERR_FATAL, "%s: '%s' is not a pack file",
+			__func__, packPath);
 	}
 
 	header.dirofs = LittleLong(header.dirofs);
 	header.dirlen = LittleLong(header.dirlen);
+
+	if((header.dirlen <= 0) || (header.dirofs < 0))
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
+				__func__, packPath);
+	}
 
 	if ((header.dirlen % sizeof(dpackfile_t)) == 0)
 	{
 		return FS_LoadPAKQ2(&header, handle, packPath);
 	}
 
+	if ((header.dirlen % sizeof(dpackdkfile_t)) == 0)
+	{
+		return FS_LoadPAKDK(&header, handle, packPath);
+	}
+
 	fclose(handle);
-	Com_Printf("WARNING: '%s' looks as Daikatana pak. Skipped it!\n",
+	Com_Printf("WARNING: skipped unsupported '%s' PAK format.\n",
 			packPath);
 	return NULL;
 }

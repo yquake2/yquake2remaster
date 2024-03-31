@@ -37,7 +37,7 @@ typedef struct
 	char name[128];
 	int filepos;
 	int filelen;
-	int compressedlen;
+	int compressed_size;
 	int checksum;
 } ddatfile_t;
 
@@ -58,6 +58,12 @@ typedef struct
 	char name[56];
 	int filepos, filelen;
 } dpackfile_t;
+
+typedef struct
+{
+	char name[56];
+	int filepos, filelen, compressed_size, is_compressed;
+} dpackdkfile_t;
 
 typedef struct
 {
