@@ -940,52 +940,18 @@ FS_LoadDAT(const char *packPath)
 	return pack;
 }
 
-/*
- * Takes an explicit (not game tree related) path to a pak file.
- *
- * Loads the header and directory, adding the files at the beginning of the
- * list so they override previous pack files.
- */
 static fsPack_t *
-FS_LoadPAK(const char *packPath)
+FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 {
 	int i; /* Loop counter. */
 	int numFiles; /* Number of files in PAK. */
-	FILE *handle; /* File handle. */
 	fsPackFile_t *files; /* List of files in PAK. */
 	fsPack_t *pack; /* PAK file. */
-	dpackheader_t header; /* PAK file header. */
 	dpackfile_t *info = NULL; /* PAK info. */
 
-	handle = Q_fopen(packPath, "rb");
+	numFiles = header->dirlen / sizeof(dpackfile_t);
 
-	if (handle == NULL)
-	{
-		return NULL;
-	}
-
-	fread(&header, 1, sizeof(dpackheader_t), handle);
-
-	if (LittleLong(header.ident) != IDPAKHEADER)
-	{
-		fclose(handle);
-		Com_Error(ERR_FATAL, "%s: '%s' is not a pack file", __func__, packPath);
-	}
-
-	header.dirofs = LittleLong(header.dirofs);
-	header.dirlen = LittleLong(header.dirlen);
-
-	if ((header.dirlen % sizeof(dpackfile_t)) != 0)
-	{
-		fclose(handle);
-		Com_Printf("WARNING: '%s' looks as Daikatana pak. Skipped it!\n",
-				packPath);
-		return NULL;
-	}
-
-	numFiles = header.dirlen / sizeof(dpackfile_t);
-
-	if ((numFiles == 0) || (header.dirlen < 0) || (header.dirofs < 0))
+	if ((numFiles == 0) || (header->dirlen < 0) || (header->dirofs < 0))
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
@@ -998,17 +964,17 @@ FS_LoadPAK(const char *packPath)
 				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
-	info = malloc(header.dirlen);
+	info = malloc(header->dirlen);
 	if (!info)
 	{
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
-				__func__, packPath, header.dirlen);
+				__func__, packPath, header->dirlen);
 	}
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
-	fseek(handle, header.dirofs, SEEK_SET);
-	fread(info, 1, header.dirlen, handle);
+	fseek(handle, header->dirofs, SEEK_SET);
+	fread(info, 1, header->dirlen, handle);
 
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
@@ -1030,6 +996,47 @@ FS_LoadPAK(const char *packPath)
 	Com_Printf("Added packfile '%s' (%i files).\n", pack->name, numFiles);
 
 	return pack;
+}
+
+/*
+ * Takes an explicit (not game tree related) path to a pak file.
+ *
+ * Loads the header and directory, adding the files at the beginning of the
+ * list so they override previous pack files.
+ */
+static fsPack_t *
+FS_LoadPAK(const char *packPath)
+{
+	FILE *handle; /* File handle. */
+	dpackheader_t header; /* PAK file header. */
+
+	handle = Q_fopen(packPath, "rb");
+
+	if (handle == NULL)
+	{
+		return NULL;
+	}
+
+	fread(&header, 1, sizeof(dpackheader_t), handle);
+
+	if (LittleLong(header.ident) != IDPAKHEADER)
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' is not a pack file", __func__, packPath);
+	}
+
+	header.dirofs = LittleLong(header.dirofs);
+	header.dirlen = LittleLong(header.dirlen);
+
+	if ((header.dirlen % sizeof(dpackfile_t)) == 0)
+	{
+		return FS_LoadPAKQ2(&header, handle, packPath);
+	}
+
+	fclose(handle);
+	Com_Printf("WARNING: '%s' looks as Daikatana pak. Skipped it!\n",
+			packPath);
+	return NULL;
 }
 
 /*
