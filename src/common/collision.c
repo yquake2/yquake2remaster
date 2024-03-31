@@ -1386,7 +1386,7 @@ CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: Map %s has funny lump size %ld",
+		Com_Error(ERR_DROP, "%s: Map %s has funny lump size " YQ2_COM_PRIdS,
 			__func__, name, sizeof(*in));
 	}
 
@@ -1425,7 +1425,8 @@ CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 
 	if (l->filelen % sizeof(*in))
 	{
-		Com_Error(ERR_DROP, "%s: Map %s funny lump size %ld", __func__, name, sizeof(*in));
+		Com_Error(ERR_DROP, "%s: Map %s funny lump size " YQ2_COM_PRIdS,
+			__func__, name, sizeof(*in));
 	}
 
 	count = l->filelen / sizeof(*in);

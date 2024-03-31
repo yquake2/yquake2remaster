@@ -503,7 +503,7 @@ R_StoreLightMap(byte *dest, int stride, const byte *destmax, int smax, int tmax)
 
 	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) > destmax)
 	{
-		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > %ld",
+		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > " YQ2_COM_PRIdS,
 			__func__, (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES, destmax - dest);
 	}
 

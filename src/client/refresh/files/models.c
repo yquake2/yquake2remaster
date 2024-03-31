@@ -1377,7 +1377,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (modfilelen < sizeof(pinmodel))
 	{
-		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be %ld)\n",
+		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
 				__func__, mod_name, modfilelen, sizeof(pinmodel));
 		return NULL;
 	}
@@ -1616,7 +1616,7 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (modfilelen < sizeof(pinmodel))
 	{
-		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be %ld)\n",
+		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
 				__func__, mod_name, modfilelen, sizeof(pinmodel));
 		return NULL;
 	}
@@ -1790,7 +1790,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (modfilelen < sizeof(pinmodel))
 	{
-		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be %ld)\n",
+		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
 				__func__, mod_name, modfilelen, sizeof(pinmodel));
 		return NULL;
 	}
@@ -1952,7 +1952,7 @@ Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	if (modfilelen < sizeof(pinmodel))
 	{
-		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be %ld)\n",
+		R_Printf(PRINT_ALL, "%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
 				__func__, mod_name, modfilelen, sizeof(pinmodel));
 		return;
 	}
