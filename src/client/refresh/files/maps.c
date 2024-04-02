@@ -1236,3 +1236,178 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 
 	return grid;
 }
+
+static int
+calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
+{
+	dface_t* face_in = (void *)(mod_base + fl->fileofs);
+	const texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
+
+	if (fl->filelen % sizeof(*face_in) || tl->filelen % sizeof(*texinfo_in))
+	{
+		// will error out when actually loading it
+		return 0;
+	}
+
+	int ret = 0;
+
+	int face_count = fl->filelen / sizeof(*face_in);
+	int texinfo_count = tl->filelen / sizeof(*texinfo_in);
+
+	{
+		// out = Hunk_Alloc(count * sizeof(*out));
+		int baseSize = face_count * sizeof(msurface_t);
+		baseSize = (baseSize + 31) & ~31;
+		ret += baseSize;
+
+		int ti_size = texinfo_count * sizeof(mtexinfo_t);
+		ti_size = (ti_size + 31) & ~31;
+		ret += ti_size;
+	}
+
+	int numWarpFaces = 0;
+
+	for (int surfnum = 0; surfnum < face_count; surfnum++, face_in++)
+	{
+		int numverts = LittleShort(face_in->numedges);
+		int ti = LittleShort(face_in->texinfo);
+		if ((ti < 0) || (ti >= texinfo_count))
+		{
+			return 0; // will error out
+		}
+		int texFlags = LittleLong(texinfo_in[ti].flags);
+
+		/* set the drawing flags */
+		if (texFlags & SURF_WARP)
+		{
+			if (numverts > 60)
+				return 0; // will error out in R_SubdividePolygon()
+
+			// R_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
+			// for each (pot. recursive) call to R_SubdividePolygon():
+			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
+
+			// this is tricky, how much is allocated depends on the size of the surface
+			// which we don't know (we'd need the vertices etc to know, but we can't load
+			// those without allocating...)
+			// so we just count warped faces and use a generous estimate below
+
+			++numWarpFaces;
+		}
+		else
+		{
+			// LM_BuildPolygonFromSurface(out);
+			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t));
+			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t);
+			polySize = (polySize + 31) & ~31;
+			ret += polySize;
+		}
+	}
+
+	// yeah, this is a bit hacky, but it looks like for each warped face
+	// 256-55000 bytes are allocated (usually on the lower end),
+	// so just assume 48k per face to be safe
+	ret += numWarpFaces * 49152;
+
+	return ret;
+}
+
+static int
+calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
+{
+	dqface_t* face_in = (void *)(mod_base + fl->fileofs);
+	const texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
+
+	if (fl->filelen % sizeof(*face_in) || tl->filelen % sizeof(*texinfo_in))
+	{
+		// will error out when actually loading it
+		return 0;
+	}
+
+	int ret = 0;
+
+	int face_count = fl->filelen / sizeof(*face_in);
+	int texinfo_count = tl->filelen / sizeof(*texinfo_in);
+
+	{
+		// out = Hunk_Alloc(count * sizeof(*out));
+		int baseSize = face_count * sizeof(msurface_t);
+		baseSize = (baseSize + 31) & ~31;
+		ret += baseSize;
+
+		int ti_size = texinfo_count * sizeof(mtexinfo_t);
+		ti_size = (ti_size + 31) & ~31;
+		ret += ti_size;
+	}
+
+	int numWarpFaces = 0;
+
+	for (int surfnum = 0; surfnum < face_count; surfnum++, face_in++)
+	{
+		int numverts = LittleLong(face_in->numedges);
+		int ti = LittleLong(face_in->texinfo);
+		if ((ti < 0) || (ti >= texinfo_count))
+		{
+			return 0; // will error out
+		}
+		int texFlags = LittleLong(texinfo_in[ti].flags);
+
+		/* set the drawing flags */
+		if (texFlags & SURF_WARP)
+		{
+			if (numverts > 60)
+				return 0; // will error out in R_SubdividePolygon()
+
+			// R_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
+			// for each (pot. recursive) call to R_SubdividePolygon():
+			//   sizeof(mpoly_t) + ((numverts - 4) + 2) * sizeof(mvtx_t)
+
+			// this is tricky, how much is allocated depends on the size of the surface
+			// which we don't know (we'd need the vertices etc to know, but we can't load
+			// those without allocating...)
+			// so we just count warped faces and use a generous estimate below
+
+			++numWarpFaces;
+		}
+		else
+		{
+			// LM_BuildPolygonFromSurface(out);
+			// => poly = Hunk_Alloc(sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t));
+			int polySize = sizeof(mpoly_t) + (numverts - 4) * sizeof(mvtx_t);
+			polySize = (polySize + 31) & ~31;
+			ret += polySize;
+		}
+	}
+
+	// yeah, this is a bit hacky, but it looks like for each warped face
+	// 256-55000 bytes are allocated (usually on the lower end),
+	// so just assume 48k per face to be safe
+	ret += numWarpFaces * 49152;
+
+	return ret;
+}
+
+int
+calcTexinfoFacesLeafsSize(const byte *mod_base, const dheader_t *header)
+{
+	int hunkSize = 0;
+
+	if (header->ident == IDBSPHEADER)
+	{
+		hunkSize += calcTexinfoAndFacesSize(mod_base,
+			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
+			sizeof(short), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
+	}
+	else
+	{
+		hunkSize += calcTexinfoAndQFacesSize(mod_base,
+			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
+			sizeof(int), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
+	}
+
+	hunkSize += 5000000; // and 5MB extra just in case
+
+	return hunkSize;
+}

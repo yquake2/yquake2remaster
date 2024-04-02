@@ -365,6 +365,7 @@ extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,
 extern const bspx_header_t *Mod_LoadBSPX(int filesize, const byte *mod_base);
 extern int Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out);
 extern int Mod_LoadFile(const char *name, void **buffer);
+extern int calcTexinfoFacesLeafsSize(const byte *mod_base, const dheader_t *header);
 
 /* Surface logic */
 #define DLIGHT_CUTOFF 64
