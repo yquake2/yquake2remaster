@@ -1255,8 +1255,7 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 	int texinfo_count = tl->filelen / sizeof(*texinfo_in);
 
 	{
-		// out = Hunk_Alloc(count * sizeof(*out));
-		int baseSize = face_count * sizeof(msurface_t);
+		int baseSize = (face_count + EXTRA_LUMP_FACES) * sizeof(msurface_t);
 		baseSize = (baseSize + 31) & ~31;
 		ret += baseSize;
 
@@ -1330,8 +1329,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 	int texinfo_count = tl->filelen / sizeof(*texinfo_in);
 
 	{
-		// out = Hunk_Alloc(count * sizeof(*out));
-		int baseSize = face_count * sizeof(msurface_t);
+		int baseSize = (face_count + EXTRA_LUMP_FACES) * sizeof(msurface_t);
 		baseSize = (baseSize + 31) & ~31;
 		ret += baseSize;
 

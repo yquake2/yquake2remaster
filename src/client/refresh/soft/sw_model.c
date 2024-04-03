@@ -492,20 +492,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		1, 1, 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
 		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
-	if (header->ident == IDBSPHEADER)
-	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_FACES],
-			sizeof(dface_t), sizeof(msurface_t), EXTRA_LUMP_FACES);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
-			sizeof(short), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
-	}
-	else
-	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_FACES],
-			sizeof(dqface_t), sizeof(msurface_t), EXTRA_LUMP_FACES);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
-			sizeof(int), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
-	}
+	hunkSize += calcTexinfoFacesLeafsSize(mod_base, header);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
 		1, 1, 0);
 	if (header->ident == IDBSPHEADER)
