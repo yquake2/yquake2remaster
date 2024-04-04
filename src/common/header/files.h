@@ -594,7 +594,6 @@ typedef struct {
 #define QBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'Q') /* little-endian "QBSP" */
 #define BSPXHEADER (('X' << 24) + ('P' << 16) + ('S' << 8) + 'B') /* little-endian "BSPX" */
 #define BSPVERSION 38
-#define BSPDKMVERSION 41
 
 /* upper design bounds: leaffaces, leafbrushes, planes, and
  * verts are still bounded by 16 bit short limits,
@@ -850,26 +849,6 @@ typedef struct
 	unsigned short numleafbrushes;
 } dleaf_t;
 
-/* Daikatana Leafs struct */
-typedef struct
-{
-	int contents; /* OR of all brushes (not needed?) */
-
-	short cluster;
-	short area;
-
-	short mins[3]; /* for frustum culling */
-	short maxs[3];
-
-	unsigned short firstleafface;
-	unsigned short numleaffaces;
-
-	unsigned short firstleafbrush;
-	unsigned short numleafbrushes;
-
-	int unknow; /* some unused additional field */
-} ddkleaf_t;
-
 typedef struct
 {
 	int contents; /* OR of all brushes (not needed?) */
@@ -934,6 +913,29 @@ typedef struct
 	int numareaportals;
 	int firstareaportal;
 } darea_t;
+
+/* Daikatana */
+#define BSPDKMVERSION 41
+
+/* Leafs struct */
+typedef struct
+{
+	int contents; /* OR of all brushes (not needed?) */
+
+	short cluster;
+	short area;
+
+	short mins[3]; /* for frustum culling */
+	short maxs[3];
+
+	unsigned short firstleafface;
+	unsigned short numleaffaces;
+
+	unsigned short firstleafbrush;
+	unsigned short numleafbrushes;
+
+	int unknow; /* some unused additional field */
+} ddkleaf_t;
 
 #endif
 

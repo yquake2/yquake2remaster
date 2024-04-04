@@ -681,7 +681,7 @@ Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header, const char *lumpname,
 }
 
 const bspx_header_t *
-Mod_LoadBSPX(int filesize, const byte *mod_base)
+Mod_LoadBSPX(int filesize, const byte *mod_base, maptype_t maptype)
 {
 	const bspx_header_t *xheader;
 	const dheader_t *header;
@@ -693,7 +693,7 @@ Mod_LoadBSPX(int filesize, const byte *mod_base)
 	xofs = 0;
 
 	numlumps = HEADER_LUMPS;
-	if (header->version == BSPDKMVERSION)
+	if (maptype == map_daikatana)
 	{
 		numlumps = 21;
 	}

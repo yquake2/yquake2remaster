@@ -66,7 +66,7 @@ Maps support:
 | Format | Version | Game                                       |
 | ------ | ------- | ------------------------------------------ |
 | IBSP   | 39      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
-| IBSP   | 41      | Daikatana                                  |
+| IBSP   | 41      | Daikatana / SIN                            |
 | QBSP   | 39      | Quake 2 ReRelease                          |
 | BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
 
@@ -85,6 +85,7 @@ Goals (finished):
   * Daikatana/Heretic 2 map partial format support,
   * md5 improve load speed,
   * support Anachronox .dat format,
+  * suport Daikatana/SiN .pak/.sin format from pakextract,
   * add debug progress loading code for maps.
 
 Goals (none of it finished):
@@ -92,7 +93,6 @@ Goals (none of it finished):
   * Support effects and additional flags for ReRelease when possible.
 
 Bonus goals:
-  * Port SiN/Daikatana pack support from pakextract,
   * support surface flags and content types for Daikatana, Heretic 2, Anachronox,
   * Use shared model cache in client code insted reimplemnet in each render,
   * Check load soft colormap as 24bit color,
