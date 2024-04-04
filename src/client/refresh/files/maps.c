@@ -26,7 +26,6 @@
  */
 
 #include "../ref_shared.h"
-#include "maps.h"
 
 /*
 =================
@@ -415,38 +414,6 @@ Mod_CalcSurfaceExtents(const int *surfedges, mvertex_t *vertexes, medge_t *edges
 			s->extents[i] = 16;
 		}
 	}
-}
-
-static int
-Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
-{
-	const int *convert;
-	int sflags = 0;
-	int i;
-
-	switch (maptype)
-	{
-		case map_heretic2: convert = heretic2_flags; break;
-		case map_daikatana: convert = daikatana_flags; break;
-		case map_kingpin: convert = kingpin_flags; break;
-		case map_anachronox: convert = anachronox_flags; break;
-		default: convert = NULL; break;
-	}
-
-	if (!convert)
-	{
-		return flags;
-	}
-
-	for (i = 0; i < 32; i++)
-	{
-		if (flags & (1 << i))
-		{
-			sflags |= convert[i];
-		}
-	}
-
-	return sflags;
 }
 
 /*

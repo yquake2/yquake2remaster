@@ -1342,7 +1342,7 @@ CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
 
 static void
 CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo,
-	const byte *cmod_base, const lump_t *l)
+	const byte *cmod_base, const lump_t *l, maptype_t maptype)
 {
 	texinfo_t *in;
 	mapsurface_t *out;
@@ -1369,7 +1369,7 @@ CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo
 	{
 		Q_strlcpy(out->c.name, in->texture, sizeof(out->c.name));
 		Q_strlcpy(out->rname, in->texture, sizeof(out->rname));
-		out->c.flags = LittleLong(in->flags);
+		out->c.flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 	}
 }
 
@@ -2105,7 +2105,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	mod->extradata = Hunk_Begin(hunkSize);
 
 	CMod_LoadSurfaces(mod->name, &mod->map_surfaces, &mod->numtexinfo,
-		cmod_base, &header.lumps[LUMP_TEXINFO]);
+		cmod_base, &header.lumps[LUMP_TEXINFO], maptype);
 	if (header.ident == IDBSPHEADER)
 	{
 		if ((maptype == map_daikatana) &&

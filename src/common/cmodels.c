@@ -26,6 +26,7 @@
 
 #include "header/common.h"
 #include "header/cmodel.h"
+#include "header/flags.h"
 
 /*
 =================
@@ -278,4 +279,39 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 	}
 
 	return maptype;
+}
+
+/*
+ * Convert Other games flags to Quake 2 surface flags
+ */
+int
+Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
+{
+	const int *convert;
+	int sflags = 0;
+	int i;
+
+	switch (maptype)
+	{
+		case map_heretic2: convert = heretic2_flags; break;
+		case map_daikatana: convert = daikatana_flags; break;
+		case map_kingpin: convert = kingpin_flags; break;
+		case map_anachronox: convert = anachronox_flags; break;
+		default: convert = NULL; break;
+	}
+
+	if (!convert)
+	{
+		return flags;
+	}
+
+	for (i = 0; i < 32; i++)
+	{
+		if (flags & (1 << i))
+		{
+			sflags |= convert[i];
+		}
+	}
+
+	return sflags;
 }

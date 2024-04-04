@@ -48,6 +48,7 @@ typedef enum
 	map_anachronox = 4,
 } maptype_t;
 
+extern int Mod_LoadSurfConvertFlags(int flags, maptype_t maptype);
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);
 extern void Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 	const byte *mod_base, const lump_t *l);
