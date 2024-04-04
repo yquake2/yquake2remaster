@@ -251,7 +251,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 		}
 	}
 
-	gi.dprintf("%s is not a field. (value is %s)\n", key, value);
+	gi.dprintf("%s is not a field. Value is %s\n", key, value);
 }
 
 /*
@@ -884,7 +884,14 @@ SP_worldspawn(edict_t *ent)
 	gi.configstring(CS_SKYAXIS, va("%f %f %f",
 				st.skyaxis[0], st.skyaxis[1], st.skyaxis[2]));
 
-	gi.configstring(CS_CDTRACK, va("%i", ent->sounds));
+	if (st.music && st.music[0])
+	{
+		gi.configstring(CS_CDTRACK, st.music);
+	}
+	else
+	{
+		gi.configstring(CS_CDTRACK, va("%i", ent->sounds));
+	}
 
 	gi.configstring(CS_MAXCLIENTS, va("%i", (int)(maxclients->value)));
 

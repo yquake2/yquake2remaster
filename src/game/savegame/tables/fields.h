@@ -74,6 +74,7 @@
 {"maxyaw", STOFS(maxyaw), F_FLOAT, FFL_SPAWNTEMP},
 {"melee", FOFS(monsterinfo.melee), F_FUNCTION, FFL_NOSPAWN},
 {"message", FOFS(message), F_LSTRING},
+{"music", STOFS(music), F_LSTRING, FFL_SPAWNTEMP},
 {"minpitch", STOFS(minpitch), F_FLOAT, FFL_SPAWNTEMP},
 {"minyaw", STOFS(minyaw), F_FLOAT, FFL_SPAWNTEMP},
 {"model", FOFS(model), F_LSTRING},
