@@ -588,6 +588,34 @@ typedef struct {
 	int value;
 } dkmtex_t;
 
+/* .SWL Daikana texture file format */
+
+#define SIN_PALETTE_SIZE 256 * 4
+
+typedef struct
+{
+	char name[64];
+	int width, height;
+	byte palette[SIN_PALETTE_SIZE];
+	short palcrc;
+	int offsets[MIPLEVELS];		// four mip maps stored
+	char animname[64];			// next frame in animation chain
+	int flags;
+	int contents;
+	short value;
+	short direct;
+	float animtime;
+	float nonlit;
+	short directangle;
+	short trans_angle;
+	float directstyle;
+	float translucence;
+	float friction;
+	float restitution;
+	float trans_mag;
+	float color[3];
+} sinmiptex_t;
+
 /* .BSP file format */
 
 #define IDBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'I') /* little-endian "IBSP" */

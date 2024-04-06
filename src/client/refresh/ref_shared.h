@@ -102,6 +102,8 @@ extern struct image_s* LoadM8(const char *origname, const char *namewe, imagetyp
 	loadimage_t load_image);
 extern struct image_s* LoadM32(const char *origname, const char *namewe, imagetype_t type,
 	loadimage_t load_image);
+extern struct image_s* LoadSWL(const char *origname, const char *namewe, imagetype_t type,
+	loadimage_t load_image);
 extern void FixFileExt(const char *origname, const char *ext, char *filename, size_t size);
 extern void GetPCXPalette(byte **colormap, unsigned *d_8to24table);
 extern void GetPCXPalette24to8(const byte *d_8to24table, byte** d_16to8table);
@@ -110,6 +112,7 @@ extern void GetPCXInfo(const char *origname, int *width, int *height);
 extern void GetWalInfo(const char *name, int *width, int *height);
 extern void GetM8Info(const char *name, int *width, int *height);
 extern void GetM32Info(const char *name, int *width, int *height);
+extern void GetSWLInfo(const char *name, int *width, int *height);
 
 extern qboolean LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *height);
 extern qboolean ResizeSTB(const byte *input_pixels, int input_width, int input_height,

@@ -466,6 +466,10 @@ LoadHiColorImage(const char *name, const char* namewe, const char *ext,
 	{
 		GetM32Info(name, &realwidth, &realheight);
 	}
+	else if (strcmp(ext, "swl") == 0)
+	{
+		GetSWLInfo(name, &realwidth, &realheight);
+	}
 
 	/* try to load a tga, png or jpg (in that order/priority) */
 	if (  LoadSTB(namewe, "tga", &pic, &width, &height)
@@ -571,6 +575,10 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 		{
 			image = LoadM32(name, namewe, type, load_image);
 		}
+		else if (!strcmp(ext, "swl"))
+		{
+			image = LoadSWL(name, namewe, type, load_image);
+		}
 		else if (!strcmp(ext, "tga") ||
 		         !strcmp(ext, "png") ||
 		         !strcmp(ext, "jpg"))
@@ -631,6 +639,12 @@ R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t t
 	if (!image)
 	{
 		image = LoadImage_Ext(name, namewe, "m8", type, r_retexturing, load_image);
+	}
+
+	/* swl check */
+	if (!image)
+	{
+		image = LoadImage_Ext(name, namewe, "swl", type, r_retexturing, load_image);
 	}
 
 	/* png check */
