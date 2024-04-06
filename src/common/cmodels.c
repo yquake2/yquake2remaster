@@ -202,6 +202,7 @@ Mod_MaptypeName(maptype_t maptype)
 		case map_daikatana: maptypename = "Daikatana"; break;
 		case map_kingpin: maptypename = "Kingpin"; break;
 		case map_anachronox: maptypename = "Anachronox"; break;
+		case map_sin: maptypename = "SiN"; break;
 		default: maptypename = "Unknown"; break;
 	}
 
@@ -215,7 +216,8 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 	qboolean error = false;
 	maptype_t maptype;
 
-	if (header->ident == IDBSPHEADER)
+	if ((header->ident == IDBSPHEADER) ||
+		(header->ident == RBSPHEADER))
 	{
 		rules = idbsplumps;
 		if (header->version == BSPDKMVERSION)

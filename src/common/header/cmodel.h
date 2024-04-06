@@ -46,6 +46,7 @@ typedef enum
 	map_daikatana = 2,
 	map_kingpin = 3,
 	map_anachronox = 4,
+	map_sin = 5,
 } maptype_t;
 
 extern int Mod_LoadSurfConvertFlags(int flags, maptype_t maptype);

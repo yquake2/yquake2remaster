@@ -2013,7 +2013,9 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		((int *)&header)[i] = LittleLong(((int *)&header)[i]);
 	}
 
-	if (header.ident != IDBSPHEADER && header.ident != QBSPHEADER)
+	if ((header.ident != IDBSPHEADER) &&
+		(header.ident != RBSPHEADER) &&
+		(header.ident != QBSPHEADER))
 	{
 		Com_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
 				__func__, name, header.ident, IDBSPHEADER);
@@ -2036,6 +2038,14 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 				__func__, name, header.version, BSPVERSION);
 	}
 
+	if ((header.ident == RBSPHEADER) &&
+		(header.version != BSPSINVERSION))
+	{
+		Com_Error(ERR_DROP,
+				"%s: %s has wrong version number (%i should be %i)",
+				__func__, name, header.version, BSPSINVERSION);
+	}
+
 	maptype = Mod_LoadValidateLumps(name, &header);
 
 	cmod_base = (byte *)buf;
@@ -2046,7 +2056,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_TEXINFO],
 		sizeof(texinfo_t), sizeof(mapsurface_t), EXTRA_LUMP_TEXINFO);
 
-	if (header.ident == IDBSPHEADER)
+	if ((header.ident == IDBSPHEADER) ||
+		(header.ident == RBSPHEADER))
 	{
 		if ((maptype == map_daikatana) &&
 			(header.lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
@@ -2076,7 +2087,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHES],
 		sizeof(dbrush_t), sizeof(cbrush_t), EXTRA_LUMP_BRUSHES);
 
-	if (header.ident == IDBSPHEADER)
+	if ((header.ident == IDBSPHEADER) ||
+		(header.ident == RBSPHEADER))
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHSIDES],
 			sizeof(dbrushside_t), sizeof(cbrushside_t), EXTRA_LUMP_BRUSHSIDES);
@@ -2106,7 +2118,9 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	CMod_LoadSurfaces(mod->name, &mod->map_surfaces, &mod->numtexinfo,
 		cmod_base, &header.lumps[LUMP_TEXINFO], maptype);
-	if (header.ident == IDBSPHEADER)
+
+	if ((header.ident == IDBSPHEADER) ||
+		(header.ident == RBSPHEADER))
 	{
 		if ((maptype == map_daikatana) &&
 			(header.lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
@@ -2135,7 +2149,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	CMod_LoadBrushes(mod->name, &mod->map_brushes, &mod->numbrushes,
 		cmod_base, &header.lumps[LUMP_BRUSHES]);
 
-	if (header.ident == IDBSPHEADER)
+	if ((header.ident == IDBSPHEADER) ||
+		(header.ident == RBSPHEADER))
 	{
 		CMod_LoadBrushSides(mod->name, &mod->map_brushsides, &mod->numbrushsides,
 			mod->map_planes, mod->numplanes, mod->map_surfaces, mod->numtexinfo,
@@ -2151,7 +2166,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	CMod_LoadSubmodels(mod->name, mod->map_cmodels, &mod->numcmodels,
 		cmod_base, &header.lumps[LUMP_MODELS]);
 
-	if (header.ident == IDBSPHEADER)
+	if ((header.ident == IDBSPHEADER) ||
+		(header.ident == RBSPHEADER))
 	{
 		CMod_LoadNodes(mod->name, &mod->map_nodes, &mod->numnodes,
 			mod->map_planes, cmod_base, &header.lumps[LUMP_NODES]);

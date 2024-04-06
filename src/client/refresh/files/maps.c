@@ -247,7 +247,8 @@ Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *le
 	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
 	const lump_t *l, int ident)
 {
-	if (ident == IDBSPHEADER)
+	if ((ident == IDBSPHEADER) ||
+		(ident == RBSPHEADER))
 	{
 		Mod_LoadNodes(name, planes, numplanes, leafs, numleafs, nodes, numnodes,
 			mod_base, l);
@@ -571,7 +572,8 @@ void
 Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
 	const byte *mod_base, const lump_t *l, int ident)
 {
-	if (ident == IDBSPHEADER)
+	if ((ident == IDBSPHEADER) ||
+		(ident == RBSPHEADER))
 	{
 		Mod_LoadEdges(name, edges, numedges, mod_base, l);
 	}
@@ -693,7 +695,8 @@ Mod_LoadBSPX(int filesize, const byte *mod_base, maptype_t maptype)
 	xofs = 0;
 
 	numlumps = HEADER_LUMPS;
-	if (maptype == map_daikatana)
+	if ((header->version == BSPDKMVERSION) &&
+		(maptype == map_daikatana))
 	{
 		numlumps = 21;
 	}
@@ -865,7 +868,8 @@ void
 Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int *nummarksurfaces,
 	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l, int ident)
 {
-	if (ident == IDBSPHEADER)
+	if ((ident == IDBSPHEADER) ||
+		(ident == RBSPHEADER))
 	{
 		Mod_LoadMarksurfaces(name, marksurfaces, nummarksurfaces,
 			surfaces, numsurfaces, mod_base, l);
@@ -1032,7 +1036,8 @@ Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	const byte *mod_base, const lump_t *l, int ident, maptype_t maptype)
 {
-	if (ident == IDBSPHEADER)
+	if ((ident == IDBSPHEADER) ||
+		(ident == RBSPHEADER))
 	{
 		if ((maptype == map_daikatana) &&
 			(l->filelen % sizeof(ddkleaf_t) == 0))
@@ -1357,7 +1362,8 @@ calcTexinfoFacesLeafsSize(const byte *mod_base, const dheader_t *header)
 {
 	int hunkSize = 0;
 
-	if (header->ident == IDBSPHEADER)
+	if ((header->ident == IDBSPHEADER) ||
+		(header->ident == RBSPHEADER))
 	{
 		hunkSize += calcTexinfoAndFacesSize(mod_base,
 			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);

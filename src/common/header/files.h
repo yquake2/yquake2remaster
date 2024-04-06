@@ -588,7 +588,7 @@ typedef struct {
 	int value;
 } dkmtex_t;
 
-/* .SWL Daikana texture file format */
+/* .SWL SiN texture file format */
 
 #define SIN_PALETTE_SIZE 256 * 4
 
@@ -964,6 +964,10 @@ typedef struct
 
 	int unknow; /* some unused additional field */
 } ddkleaf_t;
+
+/* SiN structures */
+#define RBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'R') /* little-endian "RBSP" */
+#define BSPSINVERSION 1
 
 #endif
 

@@ -438,7 +438,9 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	i = LittleLong(header->ident);
 
-	if (i != IDBSPHEADER && i != QBSPHEADER)
+	if ((i != IDBSPHEADER) &&
+		(i != RBSPHEADER) &&
+		(i != QBSPHEADER))
 	{
 		Com_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
 				__func__, mod->name, i, IDBSPHEADER);
@@ -446,7 +448,9 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	i = LittleLong(header->version);
 
-	if (i != BSPVERSION && i != BSPDKMVERSION)
+	if ((i != BSPVERSION) &&
+		(i != BSPSINVERSION) &&
+		(i != BSPDKMVERSION))
 	{
 		Com_Error(ERR_DROP, "%s: %s has wrong version number (%i should be %i)",
 				__func__, mod->name, i, BSPVERSION);
@@ -474,7 +478,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	int hunkSize = 0;
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES],
 		sizeof(dvertex_t), sizeof(mvertex_t), EXTRA_LUMP_VERTEXES);
-	if (header->ident == IDBSPHEADER)
+	if ((header->ident == IDBSPHEADER) ||
+		(header->ident == RBSPHEADER))
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
 			sizeof(dedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
@@ -495,7 +500,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	hunkSize += calcTexinfoFacesLeafsSize(mod_base, header);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
 		1, 1, 0);
-	if (header->ident == IDBSPHEADER)
+	if ((header->ident == IDBSPHEADER) ||
+		(header->ident == RBSPHEADER))
 	{
 		if ((maptype == map_daikatana) &&
 			(header->lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
@@ -556,7 +562,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)R_FindImage,
 		r_notexture_mip, maptype);
-	if (header->ident == IDBSPHEADER)
+	if ((header->ident == IDBSPHEADER) ||
+		(header->ident == RBSPHEADER))
 	{
 		Mod_LoadFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 	}
@@ -698,6 +705,8 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			break;
 
 		case IDBSPHEADER:
+			/* fall through */
+		case RBSPHEADER:
 			/* fall through */
 		case QBSPHEADER:
 			Mod_LoadBrushModel(mod, buf, modfilelen);
