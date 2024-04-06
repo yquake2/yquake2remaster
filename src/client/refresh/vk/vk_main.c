@@ -1575,7 +1575,11 @@ RE_InitContext(void *win)
 #if SDL_VERSION_ATLEAST(2, 26, 0)
 	// Figure out if we are high dpi aware.
 	int flags = SDL_GetWindowFlags(window);
+#ifdef USE_SDL3
+	RE_IsHighDPIaware = (flags & SDL_WINDOW_HIGH_PIXEL_DENSITY) ? true : false;
+#else
 	RE_IsHighDPIaware = (flags & SDL_WINDOW_ALLOW_HIGHDPI) ? true : false;
+#endif
 	if (RE_IsHighDPIaware)
 	{
 		R_Printf(PRINT_ALL, "%s() - HighDPI is enabled\n", __func__);
@@ -1595,7 +1599,11 @@ RE_InitContext(void *win)
 
 qboolean Vkimp_CreateSurface(SDL_Window *window)
 {
+#ifdef USE_SDL3
+	if (!SDL_Vulkan_CreateSurface(window, vk_instance, NULL, &vk_surface))
+#else
 	if (!SDL_Vulkan_CreateSurface(window, vk_instance, &vk_surface))
+#endif
 	{
 		R_Printf(PRINT_ALL, "%s() SDL_Vulkan_CreateSurface failed: %s",
 				__func__, SDL_GetError());
@@ -1667,7 +1675,12 @@ static int RE_PrepareForWindow(void)
 		R_Printf(PRINT_ALL, "%s() Loader import failed: %s", __func__, SDL_GetError());
 	}
 
+#ifdef USE_SDL3
+	volkInitializeCustom((void *)SDL_Vulkan_GetVkGetInstanceProcAddr());
+#else
 	volkInitializeCustom(SDL_Vulkan_GetVkGetInstanceProcAddr());
+#endif
+
 #if defined(__APPLE__)
 	void *molten = dlopen("libMoltenVK.dylib", RTLD_LOCAL | RTLD_NOW);
 	if (!molten)
@@ -1696,9 +1709,18 @@ GetRefAPI(refimport_t imp)
 {
 	refexport_t refexport = {0};
 
+	// Need to communicate the SDL major version to the client.
+#ifdef USE_SDL3
+	SDL_Version ver;
+#else
+	SDL_version ver;
+#endif
+	SDL_VERSION(&ver);
+
 	ri = imp;
 
 	refexport.api_version = API_VERSION;
+	refexport.framework_version = ver.major;
 
 	refexport.BeginRegistration = RE_BeginRegistration;
 	refexport.RegisterModel = RE_RegisterModel;
