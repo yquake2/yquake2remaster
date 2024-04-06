@@ -425,8 +425,8 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 static void
 Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
+	int i, lightgridsize = 0, hunkSize;
 	const bspx_header_t *bspx_header;
-	int i, lightgridsize = 0;
 	maptype_t maptype;
 	dheader_t *header;
 	byte *mod_base;
@@ -477,27 +477,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)header, maptype);
 
 	// calculate the needed hunksize from the lumps
-	int hunkSize = 0;
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES],
-		sizeof(dvertex_t), sizeof(mvertex_t), EXTRA_LUMP_VERTEXES);
-	if ((header->ident == IDBSPHEADER) ||
-		(header->ident == RBSPHEADER))
-	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
-			sizeof(dedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
-	}
-	else
-	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
-			sizeof(dqedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
-	}
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES],
-		sizeof(int), sizeof(int), EXTRA_LUMP_SURFEDGES);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING],
-		1, 1, 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
-		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
-	hunkSize += calcTexinfoFacesLeafsSize(mod_base, header, maptype);
+	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header, maptype);
 
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
 		sizeof(dmodel_t), sizeof(model_t), 0);

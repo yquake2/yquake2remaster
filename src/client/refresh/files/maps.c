@@ -1358,10 +1358,32 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 }
 
 int
-calcTexinfoFacesLeafsSize(const byte *mod_base, const dheader_t *header,
+Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header,
 	maptype_t maptype)
 {
 	int hunkSize = 0;
+
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VERTEXES],
+		sizeof(dvertex_t), sizeof(mvertex_t), EXTRA_LUMP_VERTEXES);
+
+	if ((header->ident == IDBSPHEADER) ||
+		(header->ident == RBSPHEADER))
+	{
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
+			sizeof(dedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
+	}
+	else
+	{
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
+			sizeof(dqedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
+	}
+
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES],
+		sizeof(int), sizeof(int), EXTRA_LUMP_SURFEDGES);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING],
+		1, 1, 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
+		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
 
 	if ((header->ident == IDBSPHEADER) ||
 		(header->ident == RBSPHEADER))
