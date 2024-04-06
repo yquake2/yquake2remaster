@@ -219,6 +219,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 					__func__, out->numedges);
 		}
 		out->flags = 0;
+		out->polys = NULL;
 
 		planenum = LittleShort(in->planenum);
 		side = LittleShort(in->side);
@@ -261,7 +262,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, lightofs);
 
-		/* set the drawing flags flag */
+		/* set the drawing flags */
 		if (!out->texinfo->image)
 			continue;
 
@@ -337,6 +338,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 					__func__, out->numedges);
 		}
 		out->flags = 0;
+		out->polys = NULL;
 
 		planenum = LittleLong(in->planenum);
 		side = LittleLong(in->side);
@@ -491,8 +493,6 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES],
 		sizeof(int), sizeof(int), EXTRA_LUMP_SURFEDGES);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_TEXINFO],
-		sizeof(texinfo_t), sizeof(mtexinfo_t), EXTRA_LUMP_TEXINFO);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING],
 		1, 1, 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
@@ -527,8 +527,6 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
 		sizeof(dmodel_t), sizeof(model_t), 0);
-
-	hunkSize += 5000000; // and 5MB extra just in case
 
 	/* Get size of octree on disk, need to recheck real size */
 	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
