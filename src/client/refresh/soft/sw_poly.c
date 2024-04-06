@@ -517,7 +517,7 @@ R_DrawSpanlet66Stipple(const int *r_turb_turb)
 ** Throws out the back side
 */
 static int
-R_ClipPolyFace(int nump, clipplane_t *pclipplane)
+R_ClipPolyFace(int nump, const clipplane_t *pclipplane)
 {
 	float dists[MAXWORKINGVERTS+3] = {0};
 	const float *vert2, *pclipnormal;

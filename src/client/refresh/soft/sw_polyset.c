@@ -305,27 +305,41 @@ FloorDivMod(int numer, int denom, int *quo, int *rem)
 #if defined(__i386__) || defined(__amd64__)
 	q = numer / denom;
 	r = numer - q * denom;
+
 	if (-1/2 || 1/-2 || -1/-2) {
 		// long live C89
 		if (r < 0 && r < denom) {
 			q += 1;
 			r -= denom;
 		}
-	} else {
+	}
+	else
+	{
 		// C99 always truncates to 0
-		if ((numer ^ denom) < 0 && r != 0) {
+		if ((numer ^ denom) < 0 && r != 0)
+		{
 			q -= 1;
 			r += denom;
 		}
 	}
+
 	if ((numer < 0) ^ (denom < 0))
+	{
 		assert(q <= 0);
+	}
 	else
+	{
 		assert(q >= 0);
+	}
+
 	if (denom < 0)
+	{
 		assert(r > denom && r <= 0);
+	}
 	else
+	{
 		assert(r >= 0 && r < denom);
+	}
 #else
 	float num = numer, den = denom;
 	float	x;
@@ -786,8 +800,8 @@ R_PolysetDrawSpans8_Opaque (const entity_t *currententity, spanpackage_t *pspanp
 }
 
 static void
-R_ProcessLeftEdge(compactvert_t *plefttop, compactvert_t *prighttop,
-		compactvert_t *pleftbottom)
+R_ProcessLeftEdge(const compactvert_t *plefttop, const compactvert_t *prighttop,
+		const compactvert_t *pleftbottom)
 {
 	light3_t working_lstepx;
 	pixel_t	*d_ptex;
@@ -826,7 +840,9 @@ R_ProcessLeftEdge(compactvert_t *plefttop, compactvert_t *prighttop,
 	// ceil (), but plus a little bit)
 	t = ubasestep < 0;
 	for (i = 0; i < 3; i++)
+	{
 		working_lstepx[i] = r_lstepx[i] - t;
+	}
 
 	// base steps for drawers
 	s = r_sstepy + r_sstepx * ubasestep;
@@ -837,7 +853,9 @@ R_ProcessLeftEdge(compactvert_t *plefttop, compactvert_t *prighttop,
 	d_tfracbasestep = t & 0xFFFF;
 
 	for (i = 0; i < 3; i++)
+	{
 		d_lightbasestep[i] = r_lstepy[i] + working_lstepx[i] * ubasestep;
+	}
 
 	d_zibasestep = r_zistepy + r_zistepx * ubasestep;
 
@@ -850,7 +868,9 @@ R_ProcessLeftEdge(compactvert_t *plefttop, compactvert_t *prighttop,
 	d_tfracextrastep = t & 0xFFFF;
 
 	for (i = 0; i < 3; i++)
+	{
 		d_lightextrastep[i] = d_lightbasestep[i] + working_lstepx[i];
+	}
 
 	d_ziextrastep = d_zibasestep + r_zistepx;
 

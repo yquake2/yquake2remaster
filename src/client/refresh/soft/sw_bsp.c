@@ -246,8 +246,11 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 				ptedge->v[1] = ptvert;
 
 				prevclipvert = NULL;
-			} else
+			}
+			else
+			{
 				prevclipvert = ptvert;
+			}
 
 			// inside: clip vert, current vert
 			ptedge = &bedges[numbedges++];

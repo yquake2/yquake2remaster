@@ -685,8 +685,10 @@ R_ReallocateMapBuffers (void)
 		}
 
 		// one more for the terminator
-		if (r_numallocatedtriangles < vid.height+1)
-			r_numallocatedtriangles = vid.height+1;
+		if (r_numallocatedtriangles < vid.height + 1)
+		{
+			r_numallocatedtriangles = vid.height + 1;
+		}
 
 		triangle_spans  = malloc(r_numallocatedtriangles * sizeof(spanpackage_t));
 		if (!triangle_spans)
