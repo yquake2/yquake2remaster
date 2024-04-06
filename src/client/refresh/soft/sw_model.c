@@ -497,34 +497,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		1, 1, 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
 		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
-	hunkSize += calcTexinfoFacesLeafsSize(mod_base, header);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
-		1, 1, 0);
-	if ((header->ident == IDBSPHEADER) ||
-		(header->ident == RBSPHEADER))
-	{
-		if ((maptype == map_daikatana) &&
-			(header->lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
-		{
-			hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
-				sizeof(ddkleaf_t), sizeof(mleaf_t), 0);
-		}
-		else
-		{
-			hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
-				sizeof(dleaf_t), sizeof(mleaf_t), 0);
-		}
+	hunkSize += calcTexinfoFacesLeafsSize(mod_base, header, maptype);
 
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
-			sizeof(dnode_t), sizeof(mnode_t), EXTRA_LUMP_NODES);
-	}
-	else
-	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
-			sizeof(dqleaf_t), sizeof(mleaf_t), 0);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
-			sizeof(dqnode_t), sizeof(mnode_t), EXTRA_LUMP_NODES);
-	}
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
 		sizeof(dmodel_t), sizeof(model_t), 0);
 
