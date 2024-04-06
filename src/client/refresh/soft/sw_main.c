@@ -588,10 +588,7 @@ R_ReallocateMapBuffers (void)
 
 	if (!r_numallocatedlights || r_outoflights)
 	{
-		if (!blocklights)
-		{
-			free(blocklights);
-		}
+		free(blocklights);
 
 		if (r_outoflights)
 		{
@@ -618,10 +615,7 @@ R_ReallocateMapBuffers (void)
 
 	if (!r_numallocatededges || r_outofedges)
 	{
-		if (!r_edges)
-		{
-			free(r_edges);
-		}
+		free(r_edges);
 
 		if (r_outofedges)
 		{
@@ -690,8 +684,9 @@ R_ReallocateMapBuffers (void)
 			r_outoftriangles = false;
 		}
 
-		if (r_numallocatedtriangles < vid.height)
-			r_numallocatedtriangles = vid.height;
+		// one more for the terminator
+		if (r_numallocatedtriangles < vid.height+1)
+			r_numallocatedtriangles = vid.height+1;
 
 		triangle_spans  = malloc(r_numallocatedtriangles * sizeof(spanpackage_t));
 		if (!triangle_spans)
@@ -702,7 +697,7 @@ R_ReallocateMapBuffers (void)
 		}
 		triangles_max = &triangle_spans[r_numallocatedtriangles];
 
-		R_Printf(PRINT_ALL, "Allocated %d triangles.\n", r_numallocatedtriangles);
+		R_Printf(PRINT_ALL, "Allocated %d triangle spans.\n", r_numallocatedtriangles);
 	}
 
 	if (!r_numallocatededgebasespans || r_outedgebasespans)
