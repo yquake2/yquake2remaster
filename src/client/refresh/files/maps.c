@@ -1371,41 +1371,11 @@ Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header,
 	{
 		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
 			sizeof(dedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
-	}
-	else
-	{
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
-			sizeof(dqedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
-	}
-
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES],
-		sizeof(int), sizeof(int), EXTRA_LUMP_SURFEDGES);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING],
-		1, 1, 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
-		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
-
-	if ((header->ident == IDBSPHEADER) ||
-		(header->ident == RBSPHEADER))
-	{
 		hunkSize += calcTexinfoAndFacesSize(mod_base,
 			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
 		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
 			sizeof(short), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
-	}
-	else
-	{
-		hunkSize += calcTexinfoAndQFacesSize(mod_base,
-			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
-		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
-			sizeof(int), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
-	}
 
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
-		1, 1, 0);
-	if ((header->ident == IDBSPHEADER) ||
-		(header->ident == RBSPHEADER))
-	{
 		if ((maptype == map_daikatana) &&
 			(header->lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0))
 		{
@@ -1423,11 +1393,27 @@ Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header,
 	}
 	else
 	{
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_EDGES],
+			sizeof(dqedge_t), sizeof(medge_t), EXTRA_LUMP_EDGES);
+		hunkSize += calcTexinfoAndQFacesSize(mod_base,
+			&header->lumps[LUMP_FACES], &header->lumps[LUMP_TEXINFO]);
+		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFFACES],
+			sizeof(int), sizeof(msurface_t *), 0); // yes, out is indeed a pointer!
 		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
 			sizeof(dqleaf_t), sizeof(mleaf_t), 0);
 		hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
 			sizeof(dqnode_t), sizeof(mnode_t), EXTRA_LUMP_NODES);
 	}
+
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_SURFEDGES],
+		sizeof(int), sizeof(int), EXTRA_LUMP_SURFEDGES);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LIGHTING],
+		1, 1, 0);
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
+		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
+
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
+		1, 1, 0);
 
 	hunkSize += 5000000; // and 5MB extra just in case
 
