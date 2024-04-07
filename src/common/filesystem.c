@@ -353,6 +353,54 @@ FS_FCloseFile(fileHandle_t f)
 	memset(handle, 0, sizeof(*handle));
 }
 
+static int
+FS_SortPackCompare(const void *p1, const void *p2)
+{
+	fsPackFile_t *file1, *file2;
+
+	file1 = (fsPackFile_t*)p1;
+	file2 = (fsPackFile_t*)p2;
+	return Q_stricmp(file1->name, file2->name);
+}
+
+static void
+FS_SortPack(fsPack_t *pak)
+{
+	qsort(pak->files, pak->numFiles, sizeof(fsPackFile_t), FS_SortPackCompare);
+}
+
+static int
+FS_PackQuickSearch(const fsPack_t *pak, const char *name)
+{
+	int start, end;
+
+	start = 0;
+	end = pak->numFiles;
+
+	while (start <= end)
+	{
+		int i, res;
+
+		i = start + (end - start) / 2;
+
+		res = Q_stricmp(pak->files[i].name, name);
+		if (res == 0)
+		{
+			return i;
+		}
+		else if (res < 0)
+		{
+			start = i + 1;
+		}
+		else
+		{
+			end = i - 1;
+		}
+	}
+
+	return -1;
+}
+
 /*
  * Finds the file in the search path. Returns filesize and an open FILE *. Used
  * for streaming data out of either a pak file or a seperate file.
@@ -364,14 +412,14 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 	fsHandle_t *handle;
 	fsPack_t *pack;
 	fsSearchPath_t *search;
-	int i;
+	int input, output;
 
 	// Remove self references and empty dirs from the requested path.
 	// ZIPs and PAKs don't support them, but they may be hardcoded in
 	// some custom maps or models.
 	char name[MAX_QPATH] = {0};
 	size_t namelen = strlen(rawname);
-	for (int input = 0, output = 0; input < namelen; input++)
+	for (input = 0, output = 0; input < namelen; input++)
 	{
 		// Remove self reference.
 		if (rawname[input] == '.')
@@ -448,74 +496,74 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 		/* Search inside a pack file. */
 		if (search->pack)
 		{
+			int i;
+
 			pack = search->pack;
+			i = FS_PackQuickSearch(pack, handle->name);
 
-			for (i = 0; i < pack->numFiles; i++)
+			if (i >= 0)
 			{
-				if (Q_stricmp(pack->files[i].name, handle->name) == 0)
+				/* Found it! */
+				if (fs_debug->value)
 				{
-					/* Found it! */
-					if (fs_debug->value)
+					Com_Printf("FS_FOpenFile: '%s' (found in '%s').\n",
+					           handle->name, pack->name);
+				}
+
+				// save the name with *correct case* in the handle
+				// (relevant for savegames, when starting map with wrong case but it's still found
+				//  because it's from pak, but save/bla/MAPname.sav/sv2 will have wrong case and can't be found then)
+				Q_strlcpy(handle->name, pack->files[i].name, sizeof(handle->name));
+				handle->compressed_size = 0;
+				handle->format = PAK_MODE_Q2;
+
+				if (pack->pak)
+				{
+					/* PAK and DAT */
+					if (pack->isProtectedPak)
 					{
-						Com_Printf("FS_FOpenFile: '%s' (found in '%s').\n",
-						           handle->name, pack->name);
+						file_from_protected_pak = true;
 					}
 
-					// save the name with *correct case* in the handle
-					// (relevant for savegames, when starting map with wrong case but it's still found
-					//  because it's from pak, but save/bla/MAPname.sav/sv2 will have wrong case and can't be found then)
-					Q_strlcpy(handle->name, pack->files[i].name, sizeof(handle->name));
-					handle->compressed_size = 0;
-					handle->format = PAK_MODE_Q2;
+					handle->file = Q_fopen(pack->name, "rb");
 
-					if (pack->pak)
+					if (handle->file)
 					{
-						/* PAK and DAT */
-						if (pack->isProtectedPak)
-						{
-							file_from_protected_pak = true;
-						}
-
-						handle->file = Q_fopen(pack->name, "rb");
-
-						if (handle->file)
-						{
-							handle->compressed_size = pack->files[i].compressed_size;
-							handle->format = pack->files[i].format;
-							fseek(handle->file, pack->files[i].offset, SEEK_SET);
-							return pack->files[i].size;
-						}
+						handle->compressed_size = pack->files[i].compressed_size;
+						handle->format = pack->files[i].format;
+						fseek(handle->file, pack->files[i].offset, SEEK_SET);
+						return pack->files[i].size;
 					}
-					else if (pack->pk3)
+				}
+				else if (pack->pk3)
+				{
+					/* PK3 */
+					if (pack->isProtectedPak)
 					{
-						/* PK3 */
-						if (pack->isProtectedPak)
-						{
-							file_from_protected_pak = true;
-						}
+						file_from_protected_pak = true;
+					}
 
 #ifdef _WIN32
-						handle->zip = unzOpen2(pack->name, &zlib_file_api);
+					handle->zip = unzOpen2(pack->name, &zlib_file_api);
 #else
-						handle->zip = unzOpen(pack->name);
+					handle->zip = unzOpen(pack->name);
 #endif
 
-						if (handle->zip)
+					if (handle->zip)
+					{
+						if (unzLocateFile(handle->zip, handle->name, 2) == UNZ_OK)
 						{
-							if (unzLocateFile(handle->zip, handle->name, 2) == UNZ_OK)
+							if (unzOpenCurrentFile(handle->zip) == UNZ_OK)
 							{
-								if (unzOpenCurrentFile(handle->zip) == UNZ_OK)
-								{
-									return pack->files[i].size;
-								}
+								return pack->files[i].size;
 							}
-
-							unzClose(handle->zip);
 						}
-					}
 
-					Com_Error(ERR_FATAL, "Couldn't reopen '%s'", pack->name);
+						unzClose(handle->zip);
+					}
 				}
+
+				Com_Error(ERR_FATAL, "Couldn't reopen '%s'", pack->name);
 			}
 		}
 		else
@@ -1301,8 +1349,10 @@ FS_LoadPAK(const char *packPath)
 	}
 
 	fclose(handle);
+
 	Com_Printf("WARNING: skipped unsupported '%s' PAK format.\n",
 			packPath);
+
 	return NULL;
 }
 
@@ -2058,8 +2108,12 @@ FS_AddPAKFromGamedir(const char *pak)
 		}
 		else
 		{
+			fsSearchPath_t *search;
+
+			FS_SortPack(pakfile);
+
 			// Add it.
-			fsSearchPath_t *search = Z_Malloc(sizeof(fsSearchPath_t));
+			search = Z_Malloc(sizeof(fsSearchPath_t));
 			search->pack = pakfile;
 			search->next = fs_searchPaths;
 			fs_searchPaths = search;
@@ -2204,6 +2258,8 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 				continue;
 			}
 
+			FS_SortPack(pack);
+
 			search = Z_Malloc(sizeof(fsSearchPath_t));
 			search->pack = pack;
 			search->next = fs_searchPaths;
@@ -2277,6 +2333,8 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 			{
 				continue;
 			}
+
+			FS_SortPack(pack);
 
 			pack->isProtectedPak = false;
 
