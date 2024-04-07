@@ -29,7 +29,11 @@
 
 #include "header/local.h"
 
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#else
 #include <SDL2/SDL.h>
+#endif
 
 static SDL_Window* window = NULL;
 static SDL_GLContext context = NULL;
@@ -162,7 +166,20 @@ void GL3_SetVsync(void)
 		}
 	}
 
+#ifdef USE_SDL3
+	int vsyncState;
+       if (SDL_GL_GetSwapInterval(&vsyncState) != 0)
+       {
+               R_Printf(PRINT_ALL, "Failed to get vsync state, assuming vsync inactive.\n");
+               vsyncActive = false;
+       }
+       else
+       {
+               vsyncActive = vsyncState ? true : false;
+       }
+#else
 	vsyncActive = SDL_GL_GetSwapInterval() != 0;
+#endif
 }
 
 /*
@@ -345,9 +362,9 @@ int GL3_InitContext(void* win)
 
 	// Load GL pointers through GLAD and check context.
 #ifdef YQ2_GL3_GLES
-	if( !gladLoadGLES2Loader(SDL_GL_GetProcAddress))
+	if( !gladLoadGLES2Loader((void *)SDL_GL_GetProcAddress))
 #else // Desktop GL
-	if( !gladLoadGLLoader(SDL_GL_GetProcAddress))
+	if( !gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
 #endif
 	{
 		R_Printf(PRINT_ALL, "GL3_InitContext(): ERROR: loading OpenGL function pointers failed!\n");
@@ -406,7 +423,11 @@ int GL3_InitContext(void* win)
 #if SDL_VERSION_ATLEAST(2, 26, 0)
 	// Figure out if we are high dpi aware.
 	int flags = SDL_GetWindowFlags(win);
+#ifdef USE_SDL3
+	IsHighDPIaware = (flags & SDL_WINDOW_HIGH_PIXEL_DENSITY) ? true : false;
+#else
 	IsHighDPIaware = (flags & SDL_WINDOW_ALLOW_HIGHDPI) ? true : false;
+#endif
 #endif
 
 	return true;
@@ -417,7 +438,11 @@ int GL3_InitContext(void* win)
  */
 void GL3_GetDrawableSize(int* width, int* height)
 {
+#ifdef USE_SDL3
+	SDL_GetWindowSizeInPixels(window, width, height);
+#else
 	SDL_GL_GetDrawableSize(window, width, height);
+#endif
 }
 
 /*
@@ -433,4 +458,22 @@ void GL3_ShutdownContext()
 			context = NULL;
 		}
 	}
+}
+
+/*
+ * Returns the SDL major version. Implemented
+ * here to not polute gl3_main.c with the SDL
+ * headers.
+ */
+int GL3_GetSDLVersion()
+{
+#ifdef USE_SDL3
+	SDL_Version ver;
+#else
+	SDL_version ver;
+#endif
+
+	SDL_VERSION(&ver);
+
+	return ver.major;
 }

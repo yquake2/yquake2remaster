@@ -22,8 +22,12 @@
 #include <stdint.h>
 #include <limits.h>
 
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#else
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_video.h>
+#endif
 
 #include "header/local.h"
 
@@ -1802,10 +1806,19 @@ GetRefAPI(refimport_t imp)
 	// used different variable name for prevent confusion and cppcheck warnings
 	refexport_t	refexport;
 
+	// Need to communicate the SDL major version to the client.
+#ifdef USE_SDL3
+	SDL_Version ver;
+#else
+	SDL_version ver;
+#endif
+	SDL_VERSION(&ver);
+
 	memset(&refexport, 0, sizeof(refexport_t));
 	ri = imp;
 
 	refexport.api_version = API_VERSION;
+	refexport.framework_version = ver.major;
 
 	refexport.BeginRegistration = RE_BeginRegistration;
 	refexport.RegisterModel = RE_RegisterModel;
@@ -1890,11 +1903,19 @@ RE_InitContext(void *win)
 
 	if (r_vsync->value)
 	{
+#ifdef USE_SDL3
+		renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+#else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+#endif
 	}
 	else
 	{
+#ifdef USE_SDL3
+		renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_ACCELERATED);
+#else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+#endif
 	}
 
 	/* Select the color for drawing. It is set to black here. */
@@ -1910,7 +1931,11 @@ RE_InitContext(void *win)
 #if SDL_VERSION_ATLEAST(2, 26, 0)
 	// Figure out if we are high dpi aware.
 	int flags = SDL_GetWindowFlags(win);
+#ifdef USE_SDL3
+	IsHighDPIaware = (flags & SDL_WINDOW_HIGH_PIXEL_DENSITY) ? true : false;
+#else
 	IsHighDPIaware = (flags & SDL_WINDOW_ALLOW_HIGHDPI) ? true : false;
+#endif
 #endif
 
 	/* We can't rely on vid, because the context is created
@@ -1949,7 +1974,11 @@ RE_InitContext(void *win)
  */
 void RE_GetDrawableSize(int* width, int* height)
 {
+#ifdef USE_SDL3
+	SDL_GetCurrentRenderOutputSize(renderer, width, height);
+#else
 	SDL_GetRendererOutputSize(renderer, width, height);
+#endif
 }
 
 
@@ -2225,7 +2254,12 @@ RE_FlushFrame(int vmin, int vmax)
 
 	SDL_UnlockTexture(texture);
 
+#ifdef USE_SDL3
+	SDL_RenderTexture(renderer, texture, NULL, NULL);
+#else
 	SDL_RenderCopy(renderer, texture, NULL, NULL);
+#endif
+
 	SDL_RenderPresent(renderer);
 
 	// replace use next buffer

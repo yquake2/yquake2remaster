@@ -1920,6 +1920,7 @@ GetRefAPI(refimport_t imp)
 	ri = imp;
 
 	refexport.api_version = API_VERSION;
+	refexport.framework_version = RI_GetSDLVersion();
 
 	refexport.Init = RI_Init;
 	refexport.Shutdown = RI_Shutdown;
