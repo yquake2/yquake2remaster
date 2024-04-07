@@ -53,6 +53,7 @@ Texture support:
 | ------ | -------------- | -------- |
 | wal    | Quake 2        | 8 bit    |
 | wal    | Daikatana      | 8 bit    |
+| swl    | SiN            | 8 bit    |
 | m8     | Heretic 2      | 8 bit    |
 | m32    | Heretic 2      | 24 bit   |
 | pcx    | Quake2         | 24 bit   |
@@ -66,8 +67,8 @@ Maps support:
 | Format | Version | Game                                       |
 | ------ | ------- | ------------------------------------------ |
 | IBSP   | 39      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
-| IBSP   | 41      | Daikatana / SIN                            |
-| RBSP   | 1       | SIN                                        |
+| IBSP   | 41      | Daikatana / SIN (Unfinished)               |
+| RBSP   | 1       | SIN (Unfinished)                           |
 | QBSP   | 39      | Quake 2 ReRelease                          |
 | BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
 
