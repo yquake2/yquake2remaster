@@ -2185,6 +2185,12 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	Mod_LoadVisibility(mod->name, &mod->map_vis, &mod->numvisibility,
 		cmod_base, &header.lumps[LUMP_VISIBILITY]);
 
+	if (!mod->map_vis)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s has visual clusters.",
+			__func__, name);
+	}
+
 	if (mod->numclusters != mod->map_vis->numclusters)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
