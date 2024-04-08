@@ -2274,8 +2274,7 @@ EnableOGGMusic(void *unused)
 
 		if (cls.state == ca_active)
 		{
-			int track = (int)strtol(cl.configstrings[CS_CDTRACK], (char **)NULL, 10);
-			OGG_PlayTrack(track, true, true);
+			OGG_PlayTrack(cl.configstrings[CS_CDTRACK], true, true);
 		}
 	}
 	else

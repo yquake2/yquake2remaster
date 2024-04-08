@@ -439,9 +439,7 @@ CL_PrepRefresh(void)
 	cl.force_refdef = true; /* make sure we have a valid refdef */
 
 	/* start the cd track */
-	int track = (int)strtol(cl.configstrings[CS_CDTRACK], (char **)NULL, 10);
-
-	OGG_PlayTrack(track, true, true);
+	OGG_PlayTrack(cl.configstrings[CS_CDTRACK], true, true);
 }
 
 float
