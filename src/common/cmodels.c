@@ -168,6 +168,28 @@ static const size_t idbsplumps[HEADER_LUMPS] = {
 	sizeof(dareaportal_t), // LUMP_AREAPORTALS
 };
 
+static const size_t rbsplumps[HEADER_LUMPS] = {
+	sizeof(char), // LUMP_ENTITIES
+	sizeof(dplane_t), // LUMP_PLANES
+	sizeof(dvertex_t), // LUMP_VERTEXES
+	sizeof(char), // LUMP_VISIBILITY
+	sizeof(dnode_t), // LUMP_NODES
+	sizeof(texrinfo_t), // LUMP_TEXINFO
+	sizeof(drface_t), // LUMP_FACES
+	sizeof(char), // LUMP_LIGHTING
+	sizeof(dleaf_t), // LUMP_LEAFS
+	sizeof(short), // LUMP_LEAFFACES
+	sizeof(short), // LUMP_LEAFBRUSHES
+	sizeof(dedge_t), // LUMP_EDGES
+	sizeof(int), // LUMP_SURFEDGES
+	sizeof(dmodel_t), // LUMP_MODELS
+	sizeof(dbrush_t), // LUMP_BRUSHES
+	sizeof(drbrushside_t), // LUMP_BRUSHSIDES
+	0, // LUMP_POP
+	sizeof(darea_t), // LUMP_AREAS
+	sizeof(dareaportal_t), // LUMP_AREAPORTALS
+};
+
 static const size_t qbsplumps[HEADER_LUMPS] = {
 	sizeof(char), // LUMP_ENTITIES
 	sizeof(dplane_t), // LUMP_PLANES
@@ -216,16 +238,26 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 	qboolean error = false;
 	maptype_t maptype;
 
-	if ((header->ident == IDBSPHEADER) ||
-		(header->ident == RBSPHEADER))
+	if (header->ident == IDBSPHEADER)
 	{
-		rules = idbsplumps;
 		if (header->version == BSPDKMVERSION)
 		{
-			maptype = map_daikatana;
+			/* SiN demos used same version ids as Daikatana */
+			if ((header->lumps[LUMP_TEXINFO].filelen % sizeof(texrinfo_t) == 0) &&
+				(header->lumps[LUMP_FACES].filelen % sizeof(drface_t) == 0))
+			{
+				rules = rbsplumps;
+				maptype = map_sin;
+			}
+			else
+			{
+				rules = idbsplumps;
+				maptype = map_daikatana;
+			}
 		}
 		else
 		{
+			rules = idbsplumps;
 			maptype = map_quake2;
 		}
 	}
@@ -233,6 +265,11 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 	{
 		rules = qbsplumps;
 		maptype = map_quake2;
+	}
+	else if (header->ident == RBSPHEADER)
+	{
+		rules = rbsplumps;
+		maptype = map_sin;
 	}
 	else
 	{

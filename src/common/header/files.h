@@ -969,5 +969,37 @@ typedef struct
 #define RBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'R') /* little-endian "RBSP" */
 #define BSPSINVERSION 1
 
+typedef struct texsininfo_s
+{
+	float vecs[2][4]; /* [s/t][xyz offset] */
+	int flags;        /* miptex flags + overrides light emission, etc */
+	char texture[64]; /* texture name (textures*.wal) */
+	int nexttexinfo;  /* for animations, -1 = end of chain */
+	char unknown[76]; /* no idea what is it */
+} texrinfo_t;
+
+#define MAXSINLIGHTMAPS 16
+typedef struct
+{
+	unsigned short planenum;
+	short side;
+
+	int firstedge; /* we must support > 64k edges */
+	short numedges;
+	short texinfo;
+
+	/* lighting info */
+	byte styles[MAXSINLIGHTMAPS];
+	int lightofs; /* start of [numstyles*surfsize] samples */
+	int unknown;  /* no idea what is it */
+} drface_t;
+
+typedef struct
+{
+	unsigned short planenum; /* facing out of the leaf */
+	short texinfo;
+	int unknown;  /* no idea what is it */
+} drbrushside_t;
+
 #endif
 
