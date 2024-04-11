@@ -83,10 +83,9 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
 	const lump_t *l)
 {
-	int	r_leaftovis[MAX_MAP_LEAFS], r_vistoleaf[MAX_MAP_LEAFS];
-	int	i, count, numvisleafs;
-	dnode_t	*in;
-	mnode_t	*out;
+	dnode_t *in;
+	mnode_t *out;
+	int i, count;
 
 	in = (void *)(mod_base + l->fileofs);
 
@@ -153,11 +152,6 @@ Mod_LoadNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
 			}
 		}
 	}
-
-	Mod_SetParent(*nodes, NULL); /* sets nodes and leafs */
-
-	numvisleafs = 0;
-	Mod_NumberLeafs(leafs, *nodes, r_leaftovis, r_vistoleaf, &numvisleafs);
 }
 
 static void
@@ -165,10 +159,9 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
 	const lump_t *l)
 {
-	int	r_leaftovis[MAX_MAP_LEAFS], r_vistoleaf[MAX_MAP_LEAFS];
-	int	i, count, numvisleafs;
-	dqnode_t	*in;
-	mnode_t	*out;
+	dqnode_t *in;
+	mnode_t *out;
+	int i, count;
 
 	in = (void *)(mod_base + l->fileofs);
 
@@ -235,11 +228,6 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 			}
 		}
 	}
-
-	Mod_SetParent(*nodes, NULL); /* sets nodes and leafs */
-
-	numvisleafs = 0;
-	Mod_NumberLeafs(leafs, *nodes, r_leaftovis, r_vistoleaf, &numvisleafs);
 }
 
 void
@@ -247,6 +235,9 @@ Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *le
 	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
 	const lump_t *l, int ident)
 {
+	int r_leaftovis[MAX_MAP_LEAFS], r_vistoleaf[MAX_MAP_LEAFS];
+	int numvisleafs;
+
 	if ((ident == IDBSPHEADER) ||
 		(ident == RBSPHEADER))
 	{
@@ -258,6 +249,11 @@ Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *le
 		Mod_LoadQNodes(name, planes, numplanes, leafs, numleafs, nodes, numnodes,
 			mod_base, l);
 	}
+
+	Mod_SetParent(*nodes, NULL); /* sets nodes and leafs */
+
+	numvisleafs = 0;
+	Mod_NumberLeafs(leafs, *nodes, r_leaftovis, r_vistoleaf, &numvisleafs);
 }
 
 /*
@@ -423,8 +419,8 @@ Mod_LoadTexinfoRBSP(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	struct image_s *notexture, maptype_t maptype)
 {
 	texrinfo_t *in;
-	mtexinfo_t *out, *step;
-	int 	i, count;
+	mtexinfo_t *out;
+	int i, count;
 
 	in = (void *)(mod_base + l->fileofs);
 
@@ -478,17 +474,6 @@ Mod_LoadTexinfoRBSP(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 		}
 
 		out->image = image;
-	}
-
-	// count animation frames
-	for (i=0 ; i<count ; i++)
-	{
-		out = (*texinfo) + i;
-		out->numframes = 1;
-		for (step = out->next ; step && step != out ; step=step->next)
-		{
-			out->numframes++;
-		}
 	}
 }
 
@@ -498,8 +483,8 @@ Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	struct image_s *notexture, maptype_t maptype)
 {
 	texinfo_t *in;
-	mtexinfo_t *out, *step;
-	int 	i, count;
+	mtexinfo_t *out;
+	int i, count;
 
 	in = (void *)(mod_base + l->fileofs);
 
@@ -553,17 +538,6 @@ Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 		}
 
 		out->image = image;
-	}
-
-	// count animation frames
-	for (i=0 ; i<count ; i++)
-	{
-		out = (*texinfo) + i;
-		out->numframes = 1;
-		for (step = out->next ; step && step != out ; step=step->next)
-		{
-			out->numframes++;
-		}
 	}
 }
 
@@ -579,6 +553,8 @@ Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
 	struct image_s *notexture, maptype_t maptype)
 {
+	int i;
+
 	if (maptype == map_sin)
 	{
 		Mod_LoadTexinfoRBSP(name, texinfo, numtexinfo, mod_base, l, find_image,
@@ -588,6 +564,20 @@ Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	{
 		Mod_LoadTexinfoQ2(name, texinfo, numtexinfo, mod_base, l, find_image,
 			notexture, maptype);
+	}
+
+	// count animation frames
+	for (i = 0; i < *numtexinfo; i++)
+	{
+		mtexinfo_t *out, *step;
+
+		out = (*texinfo) + i;
+		out->numframes = 1;
+
+		for (step = out->next; step && step != out; step = step->next)
+		{
+			out->numframes++;
+		}
 	}
 }
 
@@ -619,7 +609,7 @@ Mod_LoadEdges(const char *name, medge_t **edges, int *numedges,
 	*edges = out;
 	*numedges = count;
 
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for (i = 0; i < count; i++, in++, out++)
 	{
 		out->v[0] = (unsigned short)LittleShort(in->v[0]);
 		out->v[1] = (unsigned short)LittleShort(in->v[1]);
@@ -654,7 +644,7 @@ Mod_LoadQEdges(const char *name, medge_t **edges, int *numedges,
 	*edges = out;
 	*numedges = count;
 
-	for ( i=0 ; i<count ; i++, in++, out++)
+	for (i = 0; i < count; i++, in++, out++)
 	{
 		out->v[0] = (unsigned int)LittleLong(in->v[0]);
 		out->v[1] = (unsigned int)LittleLong(in->v[1]);
@@ -703,7 +693,7 @@ Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 	*surfedges = out;
 	*numsurfedges = count;
 
-	for ( i=0 ; i<count ; i++)
+	for (i = 0; i < count; i++)
 	{
 		out[i] = LittleLong(in[i]);
 	}
@@ -763,11 +753,15 @@ Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header, const char *lumpname,
 	numlumps = LittleLong(bspx_header->numlumps);
 
 	lump = (bspx_lump_t*)(bspx_header + 1);
-	for (i = 0; i < numlumps; i++, lump++) {
-		if (!strncmp(lump->lumpname, lumpname, sizeof(lump->lumpname))) {
-			if (plumpsize) {
+	for (i = 0; i < numlumps; i++, lump++)
+	{
+		if (!strncmp(lump->lumpname, lumpname, sizeof(lump->lumpname)))
+		{
+			if (plumpsize)
+			{
 				*plumpsize = LittleLong(lump->filelen);
 			}
+
 			return mod_base + LittleLong(lump->fileofs);
 		}
 	}
@@ -794,12 +788,14 @@ Mod_LoadBSPX(int filesize, const byte *mod_base, maptype_t maptype)
 		numlumps = 21;
 	}
 
-	for (i = 0; i < numlumps; i++) {
+	for (i = 0; i < numlumps; i++)
+	{
 		xofs = Q_max(xofs,
 			(header->lumps[i].fileofs + header->lumps[i].filelen + 3) & ~3);
 	}
 
-	if (xofs + sizeof(bspx_header_t) > filesize) {
+	if (xofs + sizeof(bspx_header_t) > filesize)
+	{
 		return NULL;
 	}
 
@@ -826,7 +822,8 @@ Mod_LoadBSPX(int filesize, const byte *mod_base, maptype_t maptype)
 
 		fileofs = LittleLong(lump->fileofs);
 		filelen = LittleLong(lump->filelen);
-		if (fileofs < 0 || filelen < 0 || (fileofs + filelen) > filesize) {
+		if (fileofs < 0 || filelen < 0 || (fileofs + filelen) > filesize)
+		{
 			return NULL;
 		}
 	}
@@ -853,7 +850,8 @@ Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
 	lmwidth = LittleShort(lminfo->lmwidth);
 	lmheight = LittleShort(lminfo->lmheight);
 
-	if (lmwidth <= 0 || lmheight <= 0) {
+	if (lmwidth <= 0 || lmheight <= 0)
+	{
 		return -1;
 	}
 
@@ -1201,11 +1199,19 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	}
 
 	for (j = 0; j < 3; j++)
+	{
 		step[j] = ReadFloat(&ctx);
+	}
+
 	for (j = 0; j < 3; j++)
+	{
 		size[j] = ReadInt(&ctx);
+	}
+
 	for (j = 0; j < 3; j++)
+	{
 		mins[j] = ReadFloat(&ctx);
+	}
 
 	numstyles = ReadByte(&ctx);	//urgh, misaligned the entire thing
 	rootnode = ReadInt(&ctx);
@@ -1218,7 +1224,10 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 		unsigned int lsz[3];
 		ctx.ofs += 3*4;
 		for (j = 0; j < 3; j++)
+		{
 			lsz[j] = ReadInt(&ctx);
+		}
+
 		j = lsz[0]*lsz[1]*lsz[2];
 		leafsamps += j;
 		while (j --> 0)
@@ -1230,14 +1239,19 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 		}
 	}
 
-	grid = Hunk_Alloc(sizeof(*grid) + sizeof(*grid->leafs)*numleafs + sizeof(*grid->nodes)*numnodes + sizeof(struct bspxlgsamp_s)*leafsamps);
-	memset(grid, 0xcc, sizeof(*grid) + sizeof(*grid->leafs)*numleafs + sizeof(*grid->nodes)*numnodes + sizeof(struct bspxlgsamp_s)*leafsamps);
+	grid = Hunk_Alloc(sizeof(*grid) + sizeof(*grid->leafs)*numleafs +
+		sizeof(*grid->nodes)*numnodes + sizeof(struct bspxlgsamp_s)*leafsamps);
+	memset(grid, 0xcc, sizeof(*grid) + sizeof(*grid->leafs)*numleafs +
+		sizeof(*grid->nodes)*numnodes + sizeof(struct bspxlgsamp_s)*leafsamps);
 	grid->leafs = (void*)(grid+1);
 	grid->nodes = (void*)(grid->leafs + numleafs);
 	samp = (void*)(grid->nodes+numnodes);
 
 	for (j = 0; j < 3; j++)
-		grid->gridscale[j] = 1/step[j];	//prefer it as a multiply
+	{
+		grid->gridscale[j] = 1 / step[j];	//prefer it as a multiply
+	}
+
 	VectorCopy(mins, grid->mins);
 	VectorCopy(size, grid->count);
 	grid->numnodes = numnodes;
@@ -1250,32 +1264,47 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	for (i = 0; i < numnodes; i++)
 	{
 		for (j = 0; j < 3; j++)
+		{
 			grid->nodes[i].mid[j] = ReadInt(&ctx);
+		}
+
 		for (j = 0; j < 8; j++)
+		{
 			grid->nodes[i].child[j] = ReadInt(&ctx);
+		}
 	}
+
 	ctx.ofs += 4;
 	for (i = 0; i < numleafs; i++)
 	{
 		for (j = 0; j < 3; j++)
+		{
 			grid->leafs[i].mins[j] = ReadInt(&ctx);
+		}
+
 		for (j = 0; j < 3; j++)
+		{
 			grid->leafs[i].size[j] = ReadInt(&ctx);
+		}
 
 		grid->leafs[i].rgbvalues = samp;
 
-		j = grid->leafs[i].size[0]*grid->leafs[i].size[1]*grid->leafs[i].size[2];
+		j = grid->leafs[i].size[0] * grid->leafs[i].size[1] * grid->leafs[i].size[2];
 		while (j --> 0)
 		{
 			s = ReadByte(&ctx);
 			if (s == 0xff)
+			{
 				memset(samp, 0xff, sizeof(*samp));
+			}
 			else
 			{
 				for (k = 0; k < s; k++)
 				{
 					if (k >= 4)
+					{
 						ReadInt(&ctx);
+					}
 					else
 					{
 						samp->map[k].style = ReadByte(&ctx);
@@ -1284,6 +1313,7 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 						samp->map[k].rgb[2] = ReadByte(&ctx);
 					}
 				}
+
 				for (; k < 4; k++)
 				{
 					samp->map[k].style = (byte)~0u;
@@ -1297,7 +1327,9 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	}
 
 	if (ctx.ofs != ctx.size)
+	{
 		grid = NULL;
+	}
 
 	return grid;
 }
@@ -1335,11 +1367,12 @@ calcTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl
 	{
 		int numverts = LittleShort(face_in->numedges);
 		int ti = LittleShort(face_in->texinfo);
+		int texFlags = LittleLong(texinfo_in[ti].flags);
+
 		if ((ti < 0) || (ti >= texinfo_count))
 		{
 			return 0; // will error out
 		}
-		int texFlags = LittleLong(texinfo_in[ti].flags);
 
 		/* set the drawing flags */
 		if (texFlags & SURF_WARP)
@@ -1409,11 +1442,12 @@ calcRBSPTexinfoAndFacesSize(const byte *mod_base, const lump_t *fl, const lump_t
 	{
 		int numverts = LittleShort(face_in->numedges);
 		int ti = LittleShort(face_in->texinfo);
+		int texFlags = LittleLong(texinfo_in[ti].flags);
+
 		if ((ti < 0) || (ti >= texinfo_count))
 		{
 			return 0; // will error out
 		}
-		int texFlags = LittleLong(texinfo_in[ti].flags);
 
 		/* set the drawing flags */
 		if (texFlags & SURF_WARP)
@@ -1483,11 +1517,11 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 	{
 		int numverts = LittleLong(face_in->numedges);
 		int ti = LittleLong(face_in->texinfo);
+		int texFlags = LittleLong(texinfo_in[ti].flags);
 		if ((ti < 0) || (ti >= texinfo_count))
 		{
 			return 0; // will error out
 		}
-		int texFlags = LittleLong(texinfo_in[ti].flags);
 
 		/* set the drawing flags */
 		if (texFlags & SURF_WARP)
