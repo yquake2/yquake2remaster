@@ -295,7 +295,8 @@ int GL4_InitContext(void* win)
 	// Coders are stupid.
 	if (win == NULL)
 	{
-		Com_Error(ERR_FATAL, "R_InitContext() must not be called with NULL argument!");
+		Com_Error(ERR_FATAL, "%s() must not be called with NULL argument!",
+			__func__);
 
 		return false;
 	}
@@ -307,7 +308,8 @@ int GL4_InitContext(void* win)
 
 	if(context == NULL)
 	{
-		R_Printf(PRINT_ALL, "GL4_InitContext(): Creating OpenGL Context failed: %s\n", SDL_GetError());
+		R_Printf(PRINT_ALL, "%s(): Creating OpenGL Context failed: %s\n",
+			__func__, SDL_GetError());
 
 		window = NULL;
 
@@ -342,13 +344,15 @@ int GL4_InitContext(void* win)
 	// Load GL pointrs through GLAD and check context.
 	if( !gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
 	{
-		R_Printf(PRINT_ALL, "GL4_InitContext(): ERROR: loading OpenGL function pointers failed!\n");
+		R_Printf(PRINT_ALL, "%s(): ERROR: loading OpenGL function pointers failed!\n",
+			__func__);
 
 		return false;
 	}
 	else if (GLVersion.major < 4 || (GLVersion.major == 4 && GLVersion.minor < 6))
 	{
-		R_Printf(PRINT_ALL, "GL4_InitContext(): ERROR: glad only got GL version %d.%d!\n", GLVersion.major, GLVersion.minor);
+		R_Printf(PRINT_ALL, "%s(): ERROR: glad only got GL version %d.%d!\n",
+			__func__, GLVersion.major, GLVersion.minor);
 
 		return false;
 	}

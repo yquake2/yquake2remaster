@@ -206,7 +206,8 @@ int RI_InitContext(void* win)
 	// Coders are stupid.
 	if (win == NULL)
 	{
-		Com_Error(ERR_FATAL, "R_InitContext() must not be called with NULL argument!");
+		Com_Error(ERR_FATAL, "%s() must not be called with NULL argument!",
+			__func__);
 
 		return false;
 	}
@@ -218,7 +219,8 @@ int RI_InitContext(void* win)
 
 	if (context == NULL)
 	{
-		R_Printf(PRINT_ALL, "R_InitContext(): Creating OpenGL Context failed: %s\n", SDL_GetError());
+		R_Printf(PRINT_ALL, "%s(): Creating OpenGL Context failed: %s\n",
+			__func__, SDL_GetError());
 
 		window = NULL;
 
@@ -231,7 +233,8 @@ int RI_InitContext(void* win)
 
 	if (gl_config.major_version < 1 || (gl_config.major_version == 1 && gl_config.minor_version < 4))
 	{
-		R_Printf(PRINT_ALL, "R_InitContext(): Got an OpenGL version %d.%d context - need (at least) 1.4!\n", gl_config.major_version, gl_config.minor_version);
+		R_Printf(PRINT_ALL, "%s(): Got an OpenGL version %d.%d context - need (at least) 1.4!\n",
+			__func__, gl_config.major_version, gl_config.minor_version);
 
 		return false;
 	}
