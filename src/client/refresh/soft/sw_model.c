@@ -32,11 +32,10 @@
 
 static YQ2_ALIGNAS_TYPE(int) byte mod_novis[MAX_MAP_LEAFS / 8];
 
-static model_t	mod_known[MAX_MOD_KNOWN];
-static int	mod_numknown = 0;
-static int	mod_max = 0;
-
-int	registration_sequence;
+static model_t mod_known[MAX_MOD_KNOWN];
+static int mod_numknown = 0;
+static int mod_max = 0;
+int registration_sequence;
 
 //===============================================================================
 
@@ -330,7 +329,7 @@ Mod_LoadRFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		int	side, ti, planenum, lightofs;
 
 		out->firstedge = LittleLong(in->firstedge);
-		out->numedges = LittleLong(in->numedges);
+		out->numedges = LittleShort(in->numedges);
 
 		if (out->numedges < 3)
 		{
@@ -340,8 +339,8 @@ Mod_LoadRFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		out->flags = 0;
 		out->polys = NULL;
 
-		planenum = LittleLong(in->planenum);
-		side = LittleLong(in->side);
+		planenum = LittleShort(in->planenum);
+		side = LittleShort(in->side);
 
 		if (side)
 		{
@@ -355,7 +354,7 @@ Mod_LoadRFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 		out->plane = loadmodel->planes + planenum;
 
-		ti = LittleLong(in->texinfo);
+		ti = LittleShort(in->texinfo);
 
 		if ((ti < 0) || (ti >= loadmodel->numtexinfo))
 		{

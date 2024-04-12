@@ -163,7 +163,10 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 	{
 		// if for some reason the normal sticks to the back of the plane, invert it
 		// so it's usable for the shader
-		for (i=0; i<3; ++i)  normal[i] = -normal[i];
+		for (i=0; i<3; ++i)
+		{
+			normal[i] = -normal[i];
+		}
 	}
 
 	for (i = 0; i < lnumverts; i++)
