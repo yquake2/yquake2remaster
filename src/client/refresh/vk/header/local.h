@@ -227,10 +227,9 @@ void	Vk_TextureMode( char *string );
 void	Vk_LmapTextureMode( char *string );
 void	Vk_ImageList_f (void);
 
-void LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa);
-void LM_CreateSurfaceLightmap (msurface_t *surf);
-void LM_EndBuildingLightmaps (void);
-void LM_BeginBuildingLightmaps (model_t *m);
+void LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa);
+void LM_EndBuildingLightmaps(void);
+void LM_BeginBuildingLightmaps(model_t *m);
 
 void	Vk_InitImages (void);
 void	Vk_ShutdownImages (void);

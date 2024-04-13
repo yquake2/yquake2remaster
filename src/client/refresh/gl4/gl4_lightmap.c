@@ -120,9 +120,9 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 void
 LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 {
-	int i, lnumverts;
 	medge_t *pedges, *r_pedge;
-	float *vec;
+	int i, lnumverts;
+	const float *vec;
 	mpoly_t *poly;
 	vec3_t total;
 	vec3_t normal;
@@ -147,7 +147,10 @@ LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 	{
 		// if for some reason the normal sticks to the back of the plane, invert it
 		// so it's usable for the shader
-		for (i=0; i<3; ++i)  normal[i] = -normal[i];
+		for (i=0; i<3; ++i)
+		{
+			normal[i] = -normal[i];
+		}
 	}
 
 	for (i = 0; i < lnumverts; i++)
@@ -203,7 +206,7 @@ LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 	}
 }
 
-void
+static void
 LM_CreateSurfaceLightmap(msurface_t *surf)
 {
 	int smax, tmax;
@@ -232,6 +235,21 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 	surf->lightmaptexturenum = gl4_lms.current_lightmap_texture;
 
 	GL4_BuildLightMap(surf, (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES, BLOCK_WIDTH * LIGHTMAP_BYTES);
+}
+
+void
+LM_CreateLightmapsPoligon(gl4model_t *currentmodel, msurface_t *fa)
+{
+	/* create lightmaps and polygons */
+	if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
+	{
+		LM_CreateSurfaceLightmap(fa);
+	}
+
+	if (!(fa->texinfo->flags & SURF_WARP))
+	{
+		LM_BuildPolygonFromSurface(currentmodel, fa);
+	}
 }
 
 void

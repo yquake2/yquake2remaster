@@ -133,7 +133,7 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 	return true;
 }
 
-void
+static void
 LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 {
 	medge_t *pedges, *r_pedge;
@@ -222,7 +222,7 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 	}
 }
 
-void
+static void
 LM_CreateSurfaceLightmap(msurface_t *surf)
 {
 	int smax, tmax;
@@ -258,6 +258,21 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
 		gl_lms.lightmap_buffer + sizeof(gl_lms.lightmap_buffer),
 		&r_newrefdef, r_modulate->value, r_framecount);
+}
+
+void
+LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa)
+{
+	/* create lightmaps and polygons */
+	if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
+	{
+		LM_CreateSurfaceLightmap(fa);
+	}
+
+	if (!(fa->texinfo->flags & SURF_WARP))
+	{
+		LM_BuildPolygonFromSurface(currentmodel, fa);
+	}
 }
 
 void

@@ -290,16 +290,7 @@ Mod_LoadFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			}
 		}
 
-		/* create lightmaps and polygons */
-		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
-		{
-			LM_CreateSurfaceLightmap(out);
-		}
-
-		if (!(out->texinfo->flags & SURF_WARP))
-		{
-			LM_BuildPolygonFromSurface(loadmodel, out);
-		}
+		LM_CreateLightmapsPoligon(loadmodel, out);
 	}
 }
 
@@ -414,16 +405,7 @@ Mod_LoadRFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			}
 		}
 
-		/* create lightmaps and polygons */
-		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
-		{
-			LM_CreateSurfaceLightmap(out);
-		}
-
-		if (!(out->texinfo->flags & SURF_WARP))
-		{
-			LM_BuildPolygonFromSurface(loadmodel, out);
-		}
+		LM_CreateLightmapsPoligon(loadmodel, out);
 	}
 }
 
@@ -538,16 +520,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			}
 		}
 
-		/* create lightmaps and polygons */
-		if (!(out->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
-		{
-			LM_CreateSurfaceLightmap(out);
-		}
-
-		if (!(out->texinfo->flags & SURF_WARP))
-		{
-			LM_BuildPolygonFromSurface(loadmodel, out);
-		}
+		LM_CreateLightmapsPoligon(loadmodel, out);
 	}
 }
 
