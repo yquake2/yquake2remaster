@@ -473,6 +473,14 @@ Set `0` by default.
   Other supported values: `GL_NEAREST_MIPMAP_NEAREST`,
   `GL_NEAREST_MIPMAP_LINEAR`, `GL_LINEAR_MIPMAP_LINEAR`
 
+* **gl_version_override**: Override required by render OpenGL version,
+  should be used only for debug purpose and useful if OpenGL implementation
+  does not report required version and implements required by render extensions.
+  - `0`: check required version of OpenGL,
+  - `1`: render will try to run with OpenGL 1.0,
+  - `2`: render will try to run with OpenGL 2.0,
+  - `3`: render will try to run with OpenGL 3.0,
+  - `4`: render will try to run with OpenGL 4.0.
 
 ## Graphics (OpenGL 1.4 only)
 

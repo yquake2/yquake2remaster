@@ -35,8 +35,7 @@ static GLuint
 CompileShader(GLenum shaderType, const char* shaderSrc, const char* shaderSrc2)
 {
 	GLuint shader = glCreateShader(shaderType);
-
-	const char* version = "#version 460\n";
+	const char* version = glshader_version(gl4config.major_version, gl4config.minor_version);
 	const char* sources[3] = { version, shaderSrc, shaderSrc2 };
 	int numSources = shaderSrc2 != NULL ? 3 : 2;
 

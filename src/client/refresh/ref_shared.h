@@ -418,4 +418,7 @@ extern void R_ClearSkyBox(float skymins[2][6], float skymaxs[2][6]);
 extern void R_MakeSkyVec(float s, float t, int axis, mvtx_t* vert,
 	qboolean farsee, float sky_min, float sky_max);
 
+/* GL only code */
+extern const char* glshader_version(int major_version, int minor_version);
+
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

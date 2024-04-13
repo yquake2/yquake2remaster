@@ -184,6 +184,7 @@ extern cvar_t *r_lerp_list;
 extern cvar_t *r_2D_unfiltered;
 extern cvar_t *r_videos_unfiltered;
 
+extern cvar_t *gl_version_override;
 extern cvar_t *gl_lightmap;
 extern cvar_t *gl_shadows;
 extern cvar_t *gl1_stencilshadow;

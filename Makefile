@@ -1115,6 +1115,7 @@ REFGL3_OBJS_ := \
 	src/client/refresh/gl3/gl3_surf.o \
 	src/client/refresh/gl3/gl3_warp.o \
 	src/client/refresh/gl3/gl3_shaders.o \
+	src/client/refresh/files/glshaders.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
@@ -1160,6 +1161,7 @@ REFGL4_OBJS_ := \
 	src/client/refresh/gl4/gl4_surf.o \
 	src/client/refresh/gl4/gl4_warp.o \
 	src/client/refresh/gl4/gl4_shaders.o \
+	src/client/refresh/files/glshaders.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \

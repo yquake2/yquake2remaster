@@ -233,10 +233,22 @@ int RI_InitContext(void* win)
 
 	if (gl_config.major_version < 1 || (gl_config.major_version == 1 && gl_config.minor_version < 4))
 	{
-		R_Printf(PRINT_ALL, "%s(): Got an OpenGL version %d.%d context - need (at least) 1.4!\n",
-			__func__, gl_config.major_version, gl_config.minor_version);
+		if ((!gl_version_override->value) ||
+			(gl_config.major_version < gl_version_override->value))
+		{
+			R_Printf(PRINT_ALL, "%s(): Got an OpenGL version %d.%d context - need (at least) 1.4!\n",
+				__func__, gl_config.major_version, gl_config.minor_version);
 
-		return false;
+			return false;
+		}
+		else
+		{
+			R_Printf(PRINT_ALL, "%s(): Warning: glad only got GL version %d.%d.\n"
+				"Some functionality could be broken.\n",
+				__func__, gl_config.major_version, gl_config.minor_version);
+
+		}
+
 	}
 
 	// Check if we've got the requested MSAA.

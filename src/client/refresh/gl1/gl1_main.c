@@ -79,6 +79,7 @@ cvar_t *r_validation;
 
 cvar_t *r_lightlevel;
 cvar_t *gl1_overbrightbits;
+cvar_t *gl_version_override;
 
 cvar_t *gl1_particle_min_size;
 cvar_t *gl1_particle_max_size;
@@ -1196,6 +1197,7 @@ R_Register(void)
 	gl1_particle_att_c = ri.Cvar_Get("gl1_particle_att_c", "0.01", CVAR_ARCHIVE);
 	gl1_particle_square = ri.Cvar_Get("gl1_particle_square", "0", CVAR_ARCHIVE);
 
+	gl_version_override = ri.Cvar_Get("gl_version_override", "0", CVAR_ARCHIVE);
 	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
 	r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);
 	gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
