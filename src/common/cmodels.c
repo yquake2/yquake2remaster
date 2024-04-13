@@ -168,6 +168,28 @@ static const size_t idbsplumps[HEADER_LUMPS] = {
 	sizeof(dareaportal_t), // LUMP_AREAPORTALS
 };
 
+static const size_t dkbsplumps[HEADER_LUMPS] = {
+	sizeof(char), // LUMP_ENTITIES
+	sizeof(dplane_t), // LUMP_PLANES
+	sizeof(dvertex_t), // LUMP_VERTEXES
+	sizeof(char), // LUMP_VISIBILITY
+	sizeof(dnode_t), // LUMP_NODES
+	sizeof(texinfo_t), // LUMP_TEXINFO
+	sizeof(dface_t), // LUMP_FACES
+	sizeof(char), // LUMP_LIGHTING
+	sizeof(ddkleaf_t), // LUMP_LEAFS
+	sizeof(short), // LUMP_LEAFFACES
+	sizeof(short), // LUMP_LEAFBRUSHES
+	sizeof(dedge_t), // LUMP_EDGES
+	sizeof(int), // LUMP_SURFEDGES
+	sizeof(dmodel_t), // LUMP_MODELS
+	sizeof(dbrush_t), // LUMP_BRUSHES
+	sizeof(dbrushside_t), // LUMP_BRUSHSIDES
+	0, // LUMP_POP
+	sizeof(darea_t), // LUMP_AREAS
+	sizeof(dareaportal_t), // LUMP_AREAPORTALS
+};
+
 static const size_t rbsplumps[HEADER_LUMPS] = {
 	sizeof(char), // LUMP_ENTITIES
 	sizeof(dplane_t), // LUMP_PLANES
@@ -232,12 +254,8 @@ Mod_MaptypeName(maptype_t maptype)
 }
 
 maptype_t
-Mod_LoadValidateLumps(const char *name, const dheader_t *header)
+Mod_LoadGetRules(const dheader_t *header, const size_t **rules)
 {
-	const size_t *rules = NULL;
-	qboolean error = false;
-	maptype_t maptype;
-
 	if (header->ident == IDBSPHEADER)
 	{
 		if (header->version == BSPDKMVERSION)
@@ -246,36 +264,54 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 			if ((header->lumps[LUMP_TEXINFO].filelen % sizeof(texrinfo_t) == 0) &&
 				(header->lumps[LUMP_FACES].filelen % sizeof(drface_t) == 0))
 			{
-				rules = rbsplumps;
-				maptype = map_sin;
+				*rules = rbsplumps;
+				return map_sin;
 			}
 			else
 			{
-				rules = idbsplumps;
-				maptype = map_daikatana;
+				if (header->lumps[LUMP_LEAFS].filelen % sizeof(ddkleaf_t) == 0)
+				{
+					*rules = dkbsplumps;
+				}
+				else
+				{
+					*rules = idbsplumps;
+				}
+
+				return map_daikatana;
 			}
 		}
 		else
 		{
-			rules = idbsplumps;
-			maptype = map_quake2;
+			*rules = idbsplumps;
+			return map_quake2;
 		}
 	}
 	else if (header->ident == QBSPHEADER)
 	{
-		rules = qbsplumps;
-		maptype = map_quake2;
+		*rules = qbsplumps;
+		return map_quake2;
 	}
 	else if (header->ident == RBSPHEADER)
 	{
-		rules = rbsplumps;
-		maptype = map_sin;
+		*rules = rbsplumps;
+		return map_sin;
 	}
 	else
 	{
-		rules = NULL;
-		maptype = map_quake2;
+		*rules = NULL;
+		return map_quake2;
 	}
+}
+
+maptype_t
+Mod_LoadValidateLumps(const char *name, const dheader_t *header)
+{
+	const size_t *rules = NULL;
+	qboolean error = false;
+	maptype_t maptype;
+
+	maptype = Mod_LoadGetRules(header, &rules);
 
 	if (rules)
 	{
@@ -284,16 +320,7 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 		{
 			if (rules[s])
 			{
-				if ((maptype == map_daikatana) &&
-					(s == LUMP_LEAFS) &&
-					(header->lumps[s].filelen % sizeof(ddkleaf_t) == 0))
-				{
-					/* Small hack for daikatana,
-					 * bsp could have two different sizes of LUMP_LEAFS
-					 */
-					continue;
-				}
-				else if (header->lumps[s].filelen % rules[s])
+				if (header->lumps[s].filelen % rules[s])
 				{
 					Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
 						__func__, name, s, header->lumps[s].filelen, rules[s]);
@@ -311,7 +338,7 @@ Mod_LoadValidateLumps(const char *name, const dheader_t *header)
 				(header->ident >> 24) & 0xFF,
 				header->version, Mod_MaptypeName(maptype));
 
-	if (error)
+	if (error || !rules)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
 			__func__, name);
