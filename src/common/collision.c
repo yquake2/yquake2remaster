@@ -1341,7 +1341,7 @@ CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
 
 static void
 CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo,
-	const byte *cmod_base, const lump_t *l, maptype_t maptype)
+	const byte *cmod_base, const lump_t *l)
 {
 	texinfo_t *in;
 	mapsurface_t *out;
@@ -1368,12 +1368,12 @@ CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo
 	{
 		Q_strlcpy(out->c.name, in->texture, sizeof(out->c.name));
 		Q_strlcpy(out->rname, in->texture, sizeof(out->rname));
-		out->c.flags = Mod_LoadSurfConvertFlags(in->flags, maptype);
+		out->c.flags = in->flags;
 	}
 }
 
 static void
-CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
+CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 	cplane_t *map_planes, const byte *cmod_base, const lump_t *l)
 {
 	dqnode_t *in;
@@ -1447,7 +1447,7 @@ CMod_LoadBrushes(const char* name, cbrush_t **map_brushes, int *numbrushes,
 }
 
 static void
-CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyleaf,
+CMod_LoadLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *emptyleaf,
 	int *numclusters, const byte *cmod_base, const lump_t *l)
 {
 	int i;
@@ -1510,7 +1510,7 @@ CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *empty
 }
 
 static void
-CMod_LoadQLeafBrushes(const char *name, unsigned int **map_leafbrushes,
+CMod_LoadLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 	int *numleafbrushes, const byte *cmod_base, const lump_t *l)
 {
 	unsigned int *out, *in;
@@ -1537,7 +1537,7 @@ CMod_LoadQLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 }
 
 static void
-CMod_LoadQBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbrushsides,
+CMod_LoadBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbrushsides,
 	cplane_t *map_planes, int numplanes, mapsurface_t *map_surfaces, int numtexinf,
 	const byte *cmod_base, const lump_t *l)
 {
@@ -1792,21 +1792,21 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	mod->extradata = Hunk_Begin(hunkSize);
 
 	CMod_LoadSurfaces(mod->name, &mod->map_surfaces, &mod->numtexinfo,
-		cmod_base, &header->lumps[LUMP_TEXINFO], maptype);
-	CMod_LoadQLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
+		cmod_base, &header->lumps[LUMP_TEXINFO]);
+	CMod_LoadLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
 		&mod->numclusters, cmod_base, &header->lumps[LUMP_LEAFS]);
-	CMod_LoadQLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
+	CMod_LoadLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
 		cmod_base, &header->lumps[LUMP_LEAFBRUSHES]);
 	Mod_LoadPlanes(mod->name, &mod->map_planes, &mod->numplanes,
 		cmod_base, &header->lumps[LUMP_PLANES]);
 	CMod_LoadBrushes(mod->name, &mod->map_brushes, &mod->numbrushes,
 		cmod_base, &header->lumps[LUMP_BRUSHES]);
-	CMod_LoadQBrushSides(mod->name, &mod->map_brushsides, &mod->numbrushsides,
+	CMod_LoadBrushSides(mod->name, &mod->map_brushsides, &mod->numbrushsides,
 		mod->map_planes, mod->numplanes, mod->map_surfaces, mod->numtexinfo,
 		cmod_base, &header->lumps[LUMP_BRUSHSIDES]);
 	CMod_LoadSubmodels(mod->name, mod->map_cmodels, &mod->numcmodels,
 		cmod_base, &header->lumps[LUMP_MODELS]);
-	CMod_LoadQNodes(mod->name, &mod->map_nodes, &mod->numnodes,
+	CMod_LoadNodes(mod->name, &mod->map_nodes, &mod->numnodes,
 		mod->map_planes, cmod_base, &header->lumps[LUMP_NODES]);
 	CMod_LoadAreas(mod->name, &mod->map_areas, &mod->numareas, cmod_base,
 		&header->lumps[LUMP_AREAS]);

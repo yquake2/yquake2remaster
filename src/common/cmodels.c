@@ -133,22 +133,22 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 		bits = 0;
 		for (j = 0; j < 3; j++)
 		{
-			out->normal[j] = LittleFloat(in->normal[j]);
+			out->normal[j] = in->normal[j];
 			if (out->normal[j] < 0)
 			{
 				bits |= 1<<j;
 			}
 		}
 
-		out->dist = LittleFloat(in->dist);
-		out->type = LittleLong(in->type);
+		out->dist = in->dist;
+		out->type = in->type;
 		out->signbits = bits;
 	}
 }
 
 static void
 Mod_Load2QBSP_IBSP_ENTITIES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	memcpy(outbuf + outheader->lumps[LUMP_ENTITIES].fileofs,
 		inbuf + inheader->lumps[LUMP_ENTITIES].fileofs,
@@ -157,7 +157,7 @@ Mod_Load2QBSP_IBSP_ENTITIES(byte *outbuf, dheader_t *outheader, const byte *inbu
 
 static void
 Mod_Load2QBSP_IBSP_PLANES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dplane_t *in, *out;
 	int i, count;
@@ -185,7 +185,7 @@ Mod_Load2QBSP_IBSP_PLANES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_VERTEXES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dvertex_t *in, *out;
 	int i, count;
@@ -210,7 +210,7 @@ Mod_Load2QBSP_IBSP_VERTEXES(byte *outbuf, dheader_t *outheader, const byte *inbu
 
 static void
 Mod_Load2QBSP_IBSP_VISIBILITY(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	memcpy(outbuf + outheader->lumps[LUMP_VISIBILITY].fileofs,
 		inbuf + inheader->lumps[LUMP_VISIBILITY].fileofs,
@@ -219,7 +219,7 @@ Mod_Load2QBSP_IBSP_VISIBILITY(byte *outbuf, dheader_t *outheader, const byte *in
 
 static void
 Mod_Load2QBSP_IBSP_NODES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dqnode_t *out;
 	dnode_t *in;
@@ -255,7 +255,7 @@ Mod_Load2QBSP_IBSP_NODES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_QBSP_NODES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dqnode_t *in, *out;
 	int i, count;
@@ -290,7 +290,7 @@ Mod_Load2QBSP_QBSP_NODES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	texinfo_t *in, *out;
 	int i, count;
@@ -309,7 +309,7 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 			out->vecs[1][j] = LittleFloat(in->vecs[1][j]);
 		}
 
-		out->flags = LittleLong(in->flags);
+		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
@@ -321,7 +321,7 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 
 static void
 Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	texrinfo_t *in;
 	texinfo_t *out;
@@ -341,7 +341,7 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 			out->vecs[1][j] = LittleFloat(in->vecs[1][j]);
 		}
 
-		out->flags = LittleLong(in->flags);
+		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
@@ -353,7 +353,7 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 
 static void
 Mod_Load2QBSP_IBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	dface_t *in;
@@ -380,7 +380,7 @@ Mod_Load2QBSP_IBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_RBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	drface_t *in;
@@ -407,7 +407,7 @@ Mod_Load2QBSP_RBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_QBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	dqface_t *in;
@@ -434,7 +434,7 @@ Mod_Load2QBSP_QBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_LIGHTING(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	memcpy(outbuf + outheader->lumps[LUMP_LIGHTING].fileofs,
 		inbuf + inheader->lumps[LUMP_LIGHTING].fileofs,
@@ -443,7 +443,7 @@ Mod_Load2QBSP_IBSP_LIGHTING(byte *outbuf, dheader_t *outheader, const byte *inbu
 
 static void
 Mod_Load2QBSP_IBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	dleaf_t *in;
@@ -480,7 +480,7 @@ Mod_Load2QBSP_IBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_DKBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	ddkleaf_t *in;
@@ -517,7 +517,7 @@ Mod_Load2QBSP_DKBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	dqleaf_t *in;
@@ -554,7 +554,7 @@ Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	short *in;
@@ -575,7 +575,7 @@ Mod_Load2QBSP_IBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inb
 
 static void
 Mod_Load2QBSP_QBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	int *in, *out;
@@ -595,7 +595,7 @@ Mod_Load2QBSP_QBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inb
 
 static void
 Mod_Load2QBSP_IBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	short *in;
@@ -616,7 +616,7 @@ Mod_Load2QBSP_IBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *i
 
 static void
 Mod_Load2QBSP_QBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	int *in, *out;
@@ -636,7 +636,7 @@ Mod_Load2QBSP_QBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *i
 
 static void
 Mod_Load2QBSP_IBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dedge_t *in;
 	dqedge_t *out;
@@ -658,7 +658,7 @@ Mod_Load2QBSP_IBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_QBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dqedge_t *in, *out;
 	int i, count;
@@ -679,7 +679,7 @@ Mod_Load2QBSP_QBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_SURFEDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	int i, count;
 	int *in, *out;
@@ -699,7 +699,7 @@ Mod_Load2QBSP_IBSP_SURFEDGES(byte *outbuf, dheader_t *outheader, const byte *inb
 
 static void
 Mod_Load2QBSP_IBSP_MODELS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dmodel_t *in, *out;
 	int i, count;
@@ -730,7 +730,7 @@ Mod_Load2QBSP_IBSP_MODELS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_BRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dbrush_t *in, *out;
 	int i, count;
@@ -752,7 +752,7 @@ Mod_Load2QBSP_IBSP_BRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf
 
 static void
 Mod_Load2QBSP_IBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dbrushside_t *in;
 	dqbrushside_t *out;
@@ -774,7 +774,7 @@ Mod_Load2QBSP_IBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *in
 
 static void
 Mod_Load2QBSP_RBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	drbrushside_t *in;
 	dqbrushside_t *out;
@@ -796,7 +796,7 @@ Mod_Load2QBSP_RBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *in
 
 static void
 Mod_Load2QBSP_QBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dqbrushside_t *in, *out;
 	int i, count;
@@ -817,7 +817,7 @@ Mod_Load2QBSP_QBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *in
 
 static void
 Mod_Load2QBSP_IBSP_AREAS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	darea_t *in, *out;
 	int i, count;
@@ -838,7 +838,7 @@ Mod_Load2QBSP_IBSP_AREAS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 
 static void
 Mod_Load2QBSP_IBSP_AREAPORTALS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, size_t rule_size)
+	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	dareaportal_t *in, *out;
 	int count;
@@ -850,7 +850,7 @@ Mod_Load2QBSP_IBSP_AREAPORTALS(byte *outbuf, dheader_t *outheader, const byte *i
 }
 
 typedef void (*funcrule_t)(byte *outbuf, dheader_t *outheader, const byte *inbuf,
-	const dheader_t *inheader, const size_t size);
+	const dheader_t *inheader, const size_t size, maptype_t maptype);
 
 typedef struct
 {
@@ -1228,7 +1228,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 				__func__, name, s);
 		}
 
-		rules[s].func(outbuf, outheader, inbuf, &header, rules[s].size);
+		rules[s].func(outbuf, outheader, inbuf, &header, rules[s].size, *maptype);
 	}
 
 	*out_len = result_size;
