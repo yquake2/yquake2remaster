@@ -375,7 +375,7 @@ FS_PackQuickSearch(const fsPack_t *pak, const char *name)
 	int start, end;
 
 	start = 0;
-	end = pak->numFiles;
+	end = pak->numFiles - 1;
 
 	while (start <= end)
 	{
