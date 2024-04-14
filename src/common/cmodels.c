@@ -595,6 +595,26 @@ Mod_Load2QBSP_IBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *i
 }
 
 static void
+Mod_Load2QBSP_QBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, size_t rule_size)
+{
+	int i, count;
+	int *in, *out;
+
+	count = inheader->lumps[LUMP_LEAFBRUSHES].filelen / rule_size;
+	in = (int *)(inbuf + inheader->lumps[LUMP_LEAFBRUSHES].fileofs);
+	out = (int *)(outbuf + outheader->lumps[LUMP_LEAFBRUSHES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		*out = LittleLong(*in);
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, size_t rule_size)
 {
@@ -874,7 +894,7 @@ static const rule_t qbsplumps[HEADER_LUMPS] = {
 	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
 	{sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
 	{sizeof(int), NULL}, // LUMP_LEAFFACES
-	{sizeof(int), NULL}, // LUMP_LEAFBRUSHES
+	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES}, // LUMP_LEAFBRUSHES
 	{sizeof(dqedge_t), NULL}, // LUMP_EDGES
 	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
 	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},

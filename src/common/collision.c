@@ -1330,12 +1330,12 @@ CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
 		for (j = 0; j < 3; j++)
 		{
 			/* spread the mins / maxs by a pixel */
-			out->mins[j] = LittleFloat(in->mins[j]) - 1;
-			out->maxs[j] = LittleFloat(in->maxs[j]) + 1;
-			out->origin[j] = LittleFloat(in->origin[j]);
+			out->mins[j] = in->mins[j] - 1;
+			out->maxs[j] = in->maxs[j] + 1;
+			out->origin[j] = in->origin[j];
 		}
 
-		out->headnode = LittleLong(in->headnode);
+		out->headnode = in->headnode;
 	}
 }
 
@@ -1368,7 +1368,7 @@ CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo
 	{
 		Q_strlcpy(out->c.name, in->texture, sizeof(out->c.name));
 		Q_strlcpy(out->rname, in->texture, sizeof(out->rname));
-		out->c.flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
+		out->c.flags = Mod_LoadSurfConvertFlags(in->flags, maptype);
 	}
 }
 
@@ -1402,11 +1402,11 @@ CMod_LoadQNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 
 	for (i = 0; i < count; i++, out++, in++)
 	{
-		out->plane = map_planes + LittleLong(in->planenum);
+		out->plane = map_planes + in->planenum;
 
 		for (j = 0; j < 2; j++)
 		{
-			child = LittleLong(in->children[j]);
+			child = in->children[j];
 			out->children[j] = child;
 		}
 	}
@@ -1440,9 +1440,9 @@ CMod_LoadBrushes(const char* name, cbrush_t **map_brushes, int *numbrushes,
 
 	for (i = 0; i < count; i++, out++, in++)
 	{
-		out->firstbrushside = LittleLong(in->firstside) & 0xFFFFFFFF;
-		out->numsides = LittleLong(in->numsides) & 0xFFFFFFFF;
-		out->contents = LittleLong(in->contents);
+		out->firstbrushside = in->firstside;
+		out->numsides = in->numsides;
+		out->contents = in->contents;
 	}
 }
 
@@ -1475,11 +1475,11 @@ CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *empty
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		out->contents = LittleLong(in->contents);
-		out->cluster = LittleLong(in->cluster);
-		out->area = LittleLong(in->area);
-		out->firstleafbrush = LittleLong(in->firstleafbrush) & 0xFFFFFFFF;
-		out->numleafbrushes = LittleLong(in->numleafbrushes) & 0xFFFFFFFF;
+		out->contents = in->contents;
+		out->cluster = in->cluster;
+		out->area = in->area;
+		out->firstleafbrush = in->firstleafbrush;
+		out->numleafbrushes = in->numleafbrushes;
 
 		if (out->cluster >= *numclusters)
 		{
@@ -1510,44 +1510,10 @@ CMod_LoadQLeafs(const char *name, cleaf_t **map_leafs, int *numleafs, int *empty
 }
 
 static void
-CMod_LoadLeafBrushes(const char *name, unsigned int **map_leafbrushes,
-	int *numleafbrushes, const byte *cmod_base, const lump_t *l)
-{
-	int i;
-	unsigned int *out;
-	unsigned short *in;
-	int count;
-
-	in = (void *)(cmod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		Com_Error(ERR_DROP, "%s: Map %s funny lump size", __func__, name);
-	}
-
-	count = l->filelen / sizeof(*in);
-
-	if (count < 1)
-	{
-		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
-	}
-
-	out = *map_leafbrushes = Hunk_Alloc((count + EXTRA_LUMP_LEAFBRUSHES) * sizeof(*out));
-	*numleafbrushes = count;
-
-	for (i = 0; i < count; i++, in++, out++)
-	{
-		*out = LittleShort(*in);
-	}
-}
-
-static void
 CMod_LoadQLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 	int *numleafbrushes, const byte *cmod_base, const lump_t *l)
 {
-	int i;
-	unsigned int *out;
-	unsigned int *in;
+	unsigned int *out, *in;
 	int count;
 
 	in = (void *)(cmod_base + l->fileofs);
@@ -1567,10 +1533,7 @@ CMod_LoadQLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 	out = *map_leafbrushes = Hunk_Alloc((count + EXTRA_LUMP_LEAFBRUSHES) * sizeof(*out));
 	*numleafbrushes = count;
 
-	for (i = 0; i < count; i++, in++, out++)
-	{
-		*out = LittleLong(*in);
-	}
+	memcpy(out, in, count * sizeof(*out));
 }
 
 static void
@@ -1605,8 +1568,8 @@ CMod_LoadQBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbr
 	{
 		int j, num;
 
-		num = LittleLong(in->planenum);
-		j = LittleLong(in->texinfo);
+		num = in->planenum;
+		j = in->texinfo;
 
 		if (j >= numtexinf || num > numplanes)
 		{
@@ -1648,8 +1611,8 @@ CMod_LoadAreas(const char *name, carea_t **map_areas, int *numareas,
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		out->numareaportals = LittleLong(in->numareaportals);
-		out->firstareaportal = LittleLong(in->firstareaportal);
+		out->numareaportals = in->numareaportals;
+		out->firstareaportal = in->firstareaportal;
 		out->floodvalid = 0;
 		out->floodnum = 0;
 	}
@@ -1780,11 +1743,10 @@ static void
 CM_LoadCachedMap(const char *name, model_t *mod)
 {
 	int filelen, hunkSize = 0;
-	const byte *cmod_base;
+	byte *cmod_base, *filebuf;
 	maptype_t maptype;
-	dheader_t header;
+	dheader_t *header;
 	size_t length;
-	byte *buf, *filebuf;
 
 	filelen = FS_LoadFile(name, (void **)&filebuf);
 
@@ -1796,108 +1758,63 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	mod->checksum = LittleLong(Com_BlockChecksum(filebuf, filelen));
 
-	buf = Mod_Load2QBSP(name, (byte *)filebuf, filelen, &length, &maptype);
-
-	header = *(dheader_t *)buf;
-
-	if ((header.ident != IDBSPHEADER) &&
-		(header.ident != RBSPHEADER) &&
-		(header.ident != QBSPHEADER))
-	{
-		Com_Error(ERR_DROP, "%s: %s has wrong ident (%i should be %i)",
-				__func__, name, header.ident, IDBSPHEADER);
-	}
-
-	if ((header.ident == IDBSPHEADER) &&
-		(header.version != BSPVERSION) &&
-		(header.version != BSPDKMVERSION))
-	{
-		Com_Error(ERR_DROP,
-				"%s: %s has wrong version number (%i should be %i)",
-				__func__, name, header.version, BSPVERSION);
-	}
-
-	if ((header.ident == QBSPHEADER) &&
-		(header.version != BSPVERSION))
-	{
-		Com_Error(ERR_DROP,
-				"%s: %s has wrong version number (%i should be %i)",
-				__func__, name, header.version, BSPVERSION);
-	}
-
-	if ((header.ident == RBSPHEADER) &&
-		(header.version != BSPSINVERSION))
-	{
-		Com_Error(ERR_DROP,
-				"%s: %s has wrong version number (%i should be %i)",
-				__func__, name, header.version, BSPSINVERSION);
-	}
-
-	cmod_base = (byte *)buf;
+	cmod_base = Mod_Load2QBSP(name, (byte *)filebuf, filelen, &length, &maptype);
+	header = (dheader_t *)cmod_base;
 
 	/* load into heap */
 	strcpy(mod->name, name);
 
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_TEXINFO],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_TEXINFO],
 		sizeof(texinfo_t), sizeof(mapsurface_t), EXTRA_LUMP_TEXINFO);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFS],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
 		sizeof(dqleaf_t), sizeof(cleaf_t), 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_LEAFBRUSHES],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFBRUSHES],
 		sizeof(int), sizeof(int), EXTRA_LUMP_LEAFBRUSHES);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_PLANES],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_PLANES],
 		sizeof(dplane_t), sizeof(cplane_t), EXTRA_LUMP_PLANES);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHES],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_BRUSHES],
 		sizeof(dbrush_t), sizeof(cbrush_t), EXTRA_LUMP_BRUSHES);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_BRUSHSIDES],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_BRUSHSIDES],
 		sizeof(dqbrushside_t), sizeof(cbrushside_t), EXTRA_LUMP_BRUSHSIDES);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_NODES],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_NODES],
 		sizeof(dqnode_t), sizeof(cnode_t), EXTRA_LUMP_NODES);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAS],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_AREAS],
 		sizeof(darea_t), sizeof(carea_t), 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAPORTALS],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_AREAPORTALS],
 		sizeof(dareaportal_t), sizeof(dareaportal_t), 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_AREAPORTALS],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_AREAPORTALS],
 		sizeof(dareaportal_t), sizeof(qboolean), 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_VISIBILITY],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_VISIBILITY],
 		1, 1, 0);
-	hunkSize += Mod_CalcLumpHunkSize(&header.lumps[LUMP_ENTITIES],
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_ENTITIES],
 		1, 1, MAX_MAP_ENTSTRING);
 
 	mod->extradata = Hunk_Begin(hunkSize);
 
 	CMod_LoadSurfaces(mod->name, &mod->map_surfaces, &mod->numtexinfo,
-		cmod_base, &header.lumps[LUMP_TEXINFO], maptype);
-
+		cmod_base, &header->lumps[LUMP_TEXINFO], maptype);
 	CMod_LoadQLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
-		&mod->numclusters, cmod_base, &header.lumps[LUMP_LEAFS]);
-	if ((header.ident == IDBSPHEADER) ||
-		(header.ident == RBSPHEADER))
-	{
-		CMod_LoadLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
-			cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
-	}
-	else
-	{
-		CMod_LoadQLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
-			cmod_base, &header.lumps[LUMP_LEAFBRUSHES]);
-	}
+		&mod->numclusters, cmod_base, &header->lumps[LUMP_LEAFS]);
+	CMod_LoadQLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
+		cmod_base, &header->lumps[LUMP_LEAFBRUSHES]);
 	Mod_LoadPlanes(mod->name, &mod->map_planes, &mod->numplanes,
-		cmod_base, &header.lumps[LUMP_PLANES]);
+		cmod_base, &header->lumps[LUMP_PLANES]);
 	CMod_LoadBrushes(mod->name, &mod->map_brushes, &mod->numbrushes,
-		cmod_base, &header.lumps[LUMP_BRUSHES]);
+		cmod_base, &header->lumps[LUMP_BRUSHES]);
 	CMod_LoadQBrushSides(mod->name, &mod->map_brushsides, &mod->numbrushsides,
 		mod->map_planes, mod->numplanes, mod->map_surfaces, mod->numtexinfo,
-		cmod_base, &header.lumps[LUMP_BRUSHSIDES]);
+		cmod_base, &header->lumps[LUMP_BRUSHSIDES]);
 	CMod_LoadSubmodels(mod->name, mod->map_cmodels, &mod->numcmodels,
-		cmod_base, &header.lumps[LUMP_MODELS]);
+		cmod_base, &header->lumps[LUMP_MODELS]);
 	CMod_LoadQNodes(mod->name, &mod->map_nodes, &mod->numnodes,
-		mod->map_planes, cmod_base, &header.lumps[LUMP_NODES]);
+		mod->map_planes, cmod_base, &header->lumps[LUMP_NODES]);
 	CMod_LoadAreas(mod->name, &mod->map_areas, &mod->numareas, cmod_base,
-		&header.lumps[LUMP_AREAS]);
-	CMod_LoadAreaPortals(mod->name, &mod->map_areaportals, &mod->portalopen, &mod->numareaportals,
-		cmod_base, &header.lumps[LUMP_AREAPORTALS]);
+		&header->lumps[LUMP_AREAS]);
+	CMod_LoadAreaPortals(mod->name, &mod->map_areaportals,
+		&mod->portalopen, &mod->numareaportals,
+		cmod_base, &header->lumps[LUMP_AREAPORTALS]);
 	Mod_LoadVisibility(mod->name, &mod->map_vis, &mod->numvisibility,
-		cmod_base, &header.lumps[LUMP_VISIBILITY]);
+		cmod_base, &header->lumps[LUMP_VISIBILITY]);
 
 	if (!mod->map_vis)
 	{
@@ -1913,12 +1830,12 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	/* From kmquake2: adding an extra parameter for .ent support. */
 	CMod_LoadEntityString(mod->name, &mod->map_entitystring, &mod->numentitychars,
-		cmod_base, &header.lumps[LUMP_ENTITIES]);
+		cmod_base, &header->lumps[LUMP_ENTITIES]);
 	mod->extradatasize = Hunk_End();
 	Com_DPrintf("Allocated %d from expected %d hunk size\n",
 		mod->extradatasize, hunkSize);
 
-	free(buf);
+	free(cmod_base);
 	FS_FreeFile(filebuf);
 }
 
