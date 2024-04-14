@@ -2067,28 +2067,26 @@ CM_ModFreeAll(void)
 static void
 CM_LoadCachedMap(const char *name, model_t *mod)
 {
-	int i, length, hunkSize = 0;
+	int filelen, hunkSize = 0;
 	const byte *cmod_base;
 	maptype_t maptype;
 	dheader_t header;
-	unsigned *buf;
+	size_t length;
+	byte *buf, *filebuf;
 
-	length = FS_LoadFile(name, (void **)&buf);
+	filelen = FS_LoadFile(name, (void **)&filebuf);
 
-	if (!buf || length <= 0)
+	if (!filebuf || filelen <= 0)
 	{
 		Com_Printf("%s: Couldn't load %s\n", __func__, name);
 		return;
 	}
 
-	mod->checksum = LittleLong(Com_BlockChecksum(buf, length));
+	mod->checksum = LittleLong(Com_BlockChecksum(filebuf, filelen));
+
+	buf = Mod_Load2QBSP(name, (byte *)filebuf, filelen, &length, &maptype);
 
 	header = *(dheader_t *)buf;
-
-	for (i = 0; i < sizeof(dheader_t) / 4; i++)
-	{
-		((int *)&header)[i] = LittleLong(((int *)&header)[i]);
-	}
 
 	if ((header.ident != IDBSPHEADER) &&
 		(header.ident != RBSPHEADER) &&
@@ -2122,8 +2120,6 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 				"%s: %s has wrong version number (%i should be %i)",
 				__func__, name, header.version, BSPSINVERSION);
 	}
-
-	maptype = Mod_LoadValidateLumps(name, &header);
 
 	cmod_base = (byte *)buf;
 
@@ -2297,7 +2293,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	if (!mod->map_vis)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s has visual clusters.",
+		Com_Error(ERR_DROP, "%s: Map %s has no visual clusters.",
 			__func__, name);
 	}
 
@@ -2314,7 +2310,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	Com_DPrintf("Allocated %d from expected %d hunk size\n",
 		mod->extradatasize, hunkSize);
 
-	FS_FreeFile(buf);
+	free(buf);
+	FS_FreeFile(filebuf);
 }
 
 /*
