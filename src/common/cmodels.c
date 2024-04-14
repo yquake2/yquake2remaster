@@ -574,6 +574,26 @@ Mod_Load2QBSP_IBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inb
 }
 
 static void
+Mod_Load2QBSP_QBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, size_t rule_size)
+{
+	int i, count;
+	int *in, *out;
+
+	count = inheader->lumps[LUMP_LEAFFACES].filelen / rule_size;
+	in = (int *)(inbuf + inheader->lumps[LUMP_LEAFFACES].fileofs);
+	out = (int *)(outbuf + outheader->lumps[LUMP_LEAFFACES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		*out = LittleLong(*in) & 0xFFFFFFFF;
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_LEAFBRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, size_t rule_size)
 {
@@ -630,6 +650,27 @@ Mod_Load2QBSP_IBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	{
 		out->v[0] = (unsigned short)LittleShort(in->v[0]);
 		out->v[1] = (unsigned short)LittleShort(in->v[1]);
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_QBSP_EDGES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, size_t rule_size)
+{
+	dqedge_t *in, *out;
+	int i, count;
+
+	count = inheader->lumps[LUMP_EDGES].filelen / rule_size;
+	in = (dqedge_t *)(inbuf + inheader->lumps[LUMP_EDGES].fileofs);
+	out = (dqedge_t *)(outbuf + outheader->lumps[LUMP_EDGES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		out->v[0] = (unsigned int)LittleLong(in->v[0]);
+		out->v[1] = (unsigned int)LittleLong(in->v[1]);
 
 		out++;
 		in++;
@@ -893,9 +934,9 @@ static const rule_t qbsplumps[HEADER_LUMPS] = {
 	{sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
 	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
 	{sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
-	{sizeof(int), NULL}, // LUMP_LEAFFACES
-	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES}, // LUMP_LEAFBRUSHES
-	{sizeof(dqedge_t), NULL}, // LUMP_EDGES
+	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFFACES},
+	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES},
+	{sizeof(dqedge_t), Mod_Load2QBSP_QBSP_EDGES},
 	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
 	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
 	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
@@ -1176,10 +1217,18 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	/* convert lumps to QBSP for all lumps */
 	for (s = 0; s < HEADER_LUMPS; s++)
 	{
-		if (rules[s].size && rules[s].func)
+		if (!rules[s].size)
 		{
-			rules[s].func(outbuf, outheader, inbuf, &header, rules[s].size);
+			continue;
 		}
+
+		if (!rules[s].func)
+		{
+			Com_Error(ERR_DROP, "%s: Map %s does not have convert function for %d",
+				__func__, name, s);
+		}
+
+		rules[s].func(outbuf, outheader, inbuf, &header, rules[s].size);
 	}
 
 	*out_len = result_size;
