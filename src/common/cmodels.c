@@ -488,6 +488,41 @@ Mod_Load2QBSP_IBSP_NODES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 }
 
 static void
+Mod_Load2QBSP_QBSP_NODES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, const size_t *rules)
+{
+	dqnode_t *in, *out;
+	int i, count;
+
+	count = inheader->lumps[LUMP_NODES].filelen / rules[LUMP_NODES];
+	in = (dqnode_t *)(inbuf + inheader->lumps[LUMP_NODES].fileofs);
+	out = (dqnode_t *)(outbuf + outheader->lumps[LUMP_NODES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleFloat(in->mins[j]);
+			out->maxs[j] = LittleFloat(in->maxs[j]);
+		}
+
+		out->planenum = LittleLong(in->planenum);
+		out->firstface = LittleLong(in->firstface) & 0xFFFFFFFF;
+		out->numfaces = LittleLong(in->numfaces) & 0xFFFFFFFF;
+
+		for (j = 0; j < 2; j++)
+		{
+			out->children[j] = LittleLong(in->children[j]);
+		}
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, const size_t *rules)
 {
@@ -496,6 +531,38 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 
 	count = inheader->lumps[LUMP_TEXINFO].filelen / rules[LUMP_TEXINFO];
 	in = (texinfo_t *)(inbuf + inheader->lumps[LUMP_TEXINFO].fileofs);
+	out = (texinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 4; j++)
+		{
+			out->vecs[0][j] = LittleFloat(in->vecs[0][j]);
+			out->vecs[1][j] = LittleFloat(in->vecs[1][j]);
+		}
+
+		out->flags = LittleLong(in->flags);
+		out->nexttexinfo = LittleLong(in->nexttexinfo);
+		strncpy(out->texture, in->texture,
+			Q_min(sizeof(out->texture), sizeof(in->texture)));
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, const size_t *rules)
+{
+	texrinfo_t *in;
+	texinfo_t *out;
+	int i, count;
+
+	count = inheader->lumps[LUMP_TEXINFO].filelen / rules[LUMP_TEXINFO];
+	in = (texrinfo_t *)(inbuf + inheader->lumps[LUMP_TEXINFO].fileofs);
 	out = (texinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
 
 	for (i = 0; i < count; i++)
@@ -537,6 +604,60 @@ Mod_Load2QBSP_IBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 		out->firstedge = LittleLong(in->firstedge);
 		out->numedges = LittleShort(in->numedges);
 		out->texinfo = LittleShort(in->texinfo);
+		memcpy(out->styles, in->styles, Q_min(sizeof(out->styles), sizeof(in->styles)));
+		out->lightofs = LittleLong(in->lightofs);
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_RBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, const size_t *rules)
+{
+	int i, count;
+	drface_t *in;
+	dqface_t *out;
+
+	count = inheader->lumps[LUMP_FACES].filelen / rules[LUMP_FACES];
+	in = (drface_t *)(inbuf + inheader->lumps[LUMP_FACES].fileofs);
+	out = (dqface_t *)(outbuf + outheader->lumps[LUMP_FACES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		out->planenum = LittleShort(in->planenum);
+		out->side = LittleShort(in->side);
+		out->firstedge = LittleLong(in->firstedge);
+		out->numedges = LittleShort(in->numedges);
+		out->texinfo = LittleShort(in->texinfo);
+		memcpy(out->styles, in->styles, Q_min(sizeof(out->styles), sizeof(in->styles)));
+		out->lightofs = LittleLong(in->lightofs);
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_QBSP_FACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, const size_t *rules)
+{
+	int i, count;
+	dqface_t *in;
+	dqface_t *out;
+
+	count = inheader->lumps[LUMP_FACES].filelen / rules[LUMP_FACES];
+	in = (dqface_t *)(inbuf + inheader->lumps[LUMP_FACES].fileofs);
+	out = (dqface_t *)(outbuf + outheader->lumps[LUMP_FACES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		out->planenum = LittleLong(in->planenum);
+		out->side = LittleLong(in->side);
+		out->firstedge = LittleLong(in->firstedge);
+		out->numedges = LittleLong(in->numedges);
+		out->texinfo = LittleLong(in->texinfo);
 		memcpy(out->styles, in->styles, Q_min(sizeof(out->styles), sizeof(in->styles)));
 		out->lightofs = LittleLong(in->lightofs);
 
@@ -751,6 +872,49 @@ Mod_Load2QBSP_IBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *in
 }
 
 static void
+Mod_Load2QBSP_RBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, const size_t *rules)
+{
+	drbrushside_t *in;
+	dqbrushside_t *out;
+	int i, count;
+
+	count = inheader->lumps[LUMP_BRUSHSIDES].filelen / rules[LUMP_BRUSHSIDES];
+	in = (drbrushside_t *)(inbuf + inheader->lumps[LUMP_BRUSHSIDES].fileofs);
+	out = (dqbrushside_t *)(outbuf + outheader->lumps[LUMP_BRUSHSIDES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		out->planenum = LittleShort(in->planenum);
+		out->texinfo = LittleShort(in->texinfo);
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_QBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, const size_t *rules)
+{
+	dqbrushside_t *in, *out;
+	int i, count;
+
+	count = inheader->lumps[LUMP_BRUSHSIDES].filelen / rules[LUMP_BRUSHSIDES];
+	in = (dqbrushside_t *)(inbuf + inheader->lumps[LUMP_BRUSHSIDES].fileofs);
+	out = (dqbrushside_t *)(outbuf + outheader->lumps[LUMP_BRUSHSIDES].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		out->planenum = LittleLong(in->planenum);
+		out->texinfo = LittleLong(in->texinfo);
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_AREAS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, const size_t *rules)
 {
@@ -910,9 +1074,39 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	Mod_Load2QBSP_IBSP_PLANES(outbuf, outheader, inbuf, &header, rules);
 	Mod_Load2QBSP_IBSP_VERTEXES(outbuf, outheader, inbuf, &header, rules);
 	Mod_Load2QBSP_IBSP_VISIBILITY(outbuf, outheader, inbuf, &header);
-	Mod_Load2QBSP_IBSP_NODES(outbuf, outheader, inbuf, &header, rules);
-	Mod_Load2QBSP_IBSP_TEXINFO(outbuf, outheader, inbuf, &header, rules);
-	Mod_Load2QBSP_IBSP_FACES(outbuf, outheader, inbuf, &header, rules);
+	if ((rules == idbsplumps) ||
+		(rules == dkbsplumps) ||
+		(rules == rbsplumps))
+	{
+		Mod_Load2QBSP_IBSP_NODES(outbuf, outheader, inbuf, &header, rules);
+	}
+	else if (rules == qbsplumps)
+	{
+		Mod_Load2QBSP_QBSP_NODES(outbuf, outheader, inbuf, &header, rules);
+	}
+	if ((rules == idbsplumps) ||
+		(rules == dkbsplumps) ||
+		(rules == qbsplumps))
+	{
+		Mod_Load2QBSP_IBSP_TEXINFO(outbuf, outheader, inbuf, &header, rules);
+	}
+	else if (rules == rbsplumps)
+	{
+		Mod_Load2QBSP_RBSP_TEXINFO(outbuf, outheader, inbuf, &header, rules);
+	}
+	if ((rules == idbsplumps) ||
+		(rules == dkbsplumps))
+	{
+		Mod_Load2QBSP_IBSP_FACES(outbuf, outheader, inbuf, &header, rules);
+	}
+	else if (rules == rbsplumps)
+	{
+		Mod_Load2QBSP_RBSP_FACES(outbuf, outheader, inbuf, &header, rules);
+	}
+	else if (rules == qbsplumps)
+	{
+		Mod_Load2QBSP_QBSP_FACES(outbuf, outheader, inbuf, &header, rules);
+	}
 	Mod_Load2QBSP_IBSP_LIGHTING(outbuf, outheader, inbuf, &header);
 	Mod_Load2QBSP_IBSP_LEAFS(outbuf, outheader, inbuf, &header, rules);
 	Mod_Load2QBSP_IBSP_LEAFFACES(outbuf, outheader, inbuf, &header, rules);
@@ -921,7 +1115,19 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	Mod_Load2QBSP_IBSP_SURFEDGES(outbuf, outheader, inbuf, &header, rules);
 	Mod_Load2QBSP_IBSP_MODELS(outbuf, outheader, inbuf, &header, rules);
 	Mod_Load2QBSP_IBSP_BRUSHES(outbuf, outheader, inbuf, &header, rules);
-	Mod_Load2QBSP_IBSP_BRUSHSIDES(outbuf, outheader, inbuf, &header, rules);
+	if ((rules == idbsplumps) ||
+		(rules == dkbsplumps))
+	{
+		Mod_Load2QBSP_IBSP_BRUSHSIDES(outbuf, outheader, inbuf, &header, rules);
+	}
+	else if (rules == rbsplumps)
+	{
+		Mod_Load2QBSP_RBSP_BRUSHSIDES(outbuf, outheader, inbuf, &header, rules);
+	}
+	else if (rules == qbsplumps)
+	{
+		Mod_Load2QBSP_QBSP_BRUSHSIDES(outbuf, outheader, inbuf, &header, rules);
+	}
 	Mod_Load2QBSP_IBSP_AREAS(outbuf, outheader, inbuf, &header, rules);
 	Mod_Load2QBSP_IBSP_AREAPORTALS(outbuf, outheader, inbuf, &header, rules);
 
