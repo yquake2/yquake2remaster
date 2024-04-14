@@ -479,6 +479,80 @@ Mod_Load2QBSP_IBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 }
 
 static void
+Mod_Load2QBSP_DKBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, size_t rule_size)
+{
+	int i, count;
+	ddkleaf_t *in;
+	dqleaf_t *out;
+
+	count = inheader->lumps[LUMP_LEAFS].filelen / rule_size;
+	in = (ddkleaf_t *)(inbuf + inheader->lumps[LUMP_LEAFS].fileofs);
+	out = (dqleaf_t *)(outbuf + outheader->lumps[LUMP_LEAFS].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleShort(in->mins[j]);
+			out->maxs[j] = LittleShort(in->maxs[j]);
+		}
+
+		out->contents = LittleLong(in->contents);
+		out->cluster = LittleShort(in->cluster);
+		out->area = LittleShort(in->area);
+
+		/* make unsigned long from signed short */
+		out->firstleafface = LittleShort(in->firstleafface) & 0xFFFF;
+		out->numleaffaces = LittleShort(in->numleaffaces) & 0xFFFF;
+		out->firstleafbrush = LittleShort(in->firstleafbrush) & 0xFFFF;
+		out->numleafbrushes = LittleShort(in->numleafbrushes) & 0xFFFF;
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
+	const dheader_t *inheader, size_t rule_size)
+{
+	int i, count;
+	dqleaf_t *in;
+	dqleaf_t *out;
+
+	count = inheader->lumps[LUMP_LEAFS].filelen / rule_size;
+	in = (dqleaf_t *)(inbuf + inheader->lumps[LUMP_LEAFS].fileofs);
+	out = (dqleaf_t *)(outbuf + outheader->lumps[LUMP_LEAFS].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleFloat(in->mins[j]);
+			out->maxs[j] = LittleFloat(in->maxs[j]);
+		}
+
+		out->contents = LittleLong(in->contents);
+		out->cluster = LittleLong(in->cluster);
+		out->area = LittleLong(in->area);
+
+		/* make unsigned long */
+		out->firstleafface = LittleLong(in->firstleafface) & 0xFFFFFFFF;
+		out->numleaffaces = LittleLong(in->numleaffaces) & 0xFFFFFFFF;
+		out->firstleafbrush = LittleLong(in->firstleafbrush) & 0xFFFFFFFF;
+		out->numleafbrushes = LittleLong(in->numleafbrushes) & 0xFFFFFFFF;
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_LEAFFACES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, size_t rule_size)
 {
@@ -754,7 +828,7 @@ static const rule_t dkbsplumps[HEADER_LUMPS] = {
 	{sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
 	{sizeof(dface_t), Mod_Load2QBSP_IBSP_FACES},
 	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(ddkleaf_t), NULL}, // LUMP_LEAFS
+	{sizeof(ddkleaf_t), Mod_Load2QBSP_DKBSP_LEAFS},
 	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
 	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
 	{sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
@@ -798,7 +872,7 @@ static const rule_t qbsplumps[HEADER_LUMPS] = {
 	{sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
 	{sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
 	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(dqleaf_t), NULL}, // LUMP_LEAFS
+	{sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
 	{sizeof(int), NULL}, // LUMP_LEAFFACES
 	{sizeof(int), NULL}, // LUMP_LEAFBRUSHES
 	{sizeof(dqedge_t), NULL}, // LUMP_EDGES
