@@ -908,8 +908,8 @@ typedef struct
 
 typedef struct
 {
-	int firstside;
-	int numsides;
+	unsigned int firstside;
+	unsigned int numsides;
 	int contents;
 } dbrush_t;
 

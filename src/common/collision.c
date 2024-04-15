@@ -683,8 +683,7 @@ CM_ClipBoxToBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 
 	for (i = 0; i < brush->numsides; i++)
 	{
-		if (((brush->firstbrushside + i) < 0) ||
-			((brush->firstbrushside + i) >= (cmod->numbrushsides + EXTRA_LUMP_BRUSHSIDES)))
+		if ((brush->firstbrushside + i) >= (cmod->numbrushsides + EXTRA_LUMP_BRUSHSIDES))
 		{
 			Com_DPrintf("%s: Incorrect brushside %d\n",
 				__func__, brush->firstbrushside + i);
