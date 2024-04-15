@@ -1159,29 +1159,33 @@ struct rctx_s {
 	int ofs, size;
 };
 
-static byte ReadByte(struct rctx_s *ctx)
+static byte
+Mod_LoadBSPXReadByte(struct rctx_s *ctx)
 {
-	if (ctx->ofs >= ctx->size)
+	if ((ctx->ofs < 0) || (ctx->ofs >= ctx->size))
 	{
-		ctx->ofs++;
-		return 0;
+		Com_Error(ERR_DROP, "%s: Read from outside %d\n",
+			__func__, ctx->ofs);
 	}
+
 	return ctx->data[ctx->ofs++];
 }
 
-static int ReadInt(struct rctx_s *ctx)
+static int
+Mod_LoadBSPXReadInt(struct rctx_s *ctx)
 {
-	int r = (int)ReadByte(ctx)<<0;
-		r|= (int)ReadByte(ctx)<<8;
-		r|= (int)ReadByte(ctx)<<16;
-		r|= (int)ReadByte(ctx)<<24;
+	int r = (int)Mod_LoadBSPXReadByte(ctx)<<0;
+		r|= (int)Mod_LoadBSPXReadByte(ctx)<<8;
+		r|= (int)Mod_LoadBSPXReadByte(ctx)<<16;
+		r|= (int)Mod_LoadBSPXReadByte(ctx)<<24;
 	return r;
 }
 
-static float ReadFloat(struct rctx_s *ctx)
+static float
+Mod_LoadBSPXReadFloat(struct rctx_s *ctx)
 {
 	union {float f; int i;} u;
-	u.i = ReadInt(ctx);
+	u.i = Mod_LoadBSPXReadInt(ctx);
 	return u.f;
 }
 
@@ -1204,42 +1208,43 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 
 	for (j = 0; j < 3; j++)
 	{
-		step[j] = ReadFloat(&ctx);
+		step[j] = Mod_LoadBSPXReadFloat(&ctx);
 	}
 
 	for (j = 0; j < 3; j++)
 	{
-		size[j] = ReadInt(&ctx);
+		size[j] = Mod_LoadBSPXReadInt(&ctx);
 	}
 
 	for (j = 0; j < 3; j++)
 	{
-		mins[j] = ReadFloat(&ctx);
+		mins[j] = Mod_LoadBSPXReadFloat(&ctx);
 	}
 
-	numstyles = ReadByte(&ctx);	//urgh, misaligned the entire thing
-	rootnode = ReadInt(&ctx);
-	numnodes = ReadInt(&ctx);
+	numstyles = Mod_LoadBSPXReadByte(&ctx);	//urgh, misaligned the entire thing
+	rootnode = Mod_LoadBSPXReadInt(&ctx);
+	numnodes = Mod_LoadBSPXReadInt(&ctx);
 	nodestart = ctx.ofs;
-	ctx.ofs += (3+8)*4*numnodes;
-	numleafs = ReadInt(&ctx);
+	ctx.ofs += (3 + 8) * 4 * numnodes;
+	numleafs = Mod_LoadBSPXReadInt(&ctx);
 	for (i = 0; i < numleafs; i++)
 	{
 		unsigned int lsz[3];
-		ctx.ofs += 3*4;
+		ctx.ofs += 3 * 4;
 		for (j = 0; j < 3; j++)
 		{
-			lsz[j] = ReadInt(&ctx);
+			lsz[j] = Mod_LoadBSPXReadInt(&ctx);
 		}
 
-		j = lsz[0]*lsz[1]*lsz[2];
+		j = lsz[0] * lsz[1] * lsz[2];
 		leafsamps += j;
 		while (j --> 0)
-		{	//this loop is annonying, memcpy dreams...
-			s = ReadByte(&ctx);
+		{
+			// this loop is annonying, memcpy dreams...
+			s = Mod_LoadBSPXReadByte(&ctx);
 			if (s == 255)
 				continue;
-			ctx.ofs += s*4;
+			ctx.ofs += s * 4;
 		}
 	}
 
@@ -1269,12 +1274,12 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	{
 		for (j = 0; j < 3; j++)
 		{
-			grid->nodes[i].mid[j] = ReadInt(&ctx);
+			grid->nodes[i].mid[j] = Mod_LoadBSPXReadInt(&ctx);
 		}
 
 		for (j = 0; j < 8; j++)
 		{
-			grid->nodes[i].child[j] = ReadInt(&ctx);
+			grid->nodes[i].child[j] = Mod_LoadBSPXReadInt(&ctx);
 		}
 	}
 
@@ -1283,12 +1288,12 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	{
 		for (j = 0; j < 3; j++)
 		{
-			grid->leafs[i].mins[j] = ReadInt(&ctx);
+			grid->leafs[i].mins[j] = Mod_LoadBSPXReadInt(&ctx);
 		}
 
 		for (j = 0; j < 3; j++)
 		{
-			grid->leafs[i].size[j] = ReadInt(&ctx);
+			grid->leafs[i].size[j] = Mod_LoadBSPXReadInt(&ctx);
 		}
 
 		grid->leafs[i].rgbvalues = samp;
@@ -1296,7 +1301,7 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 		j = grid->leafs[i].size[0] * grid->leafs[i].size[1] * grid->leafs[i].size[2];
 		while (j --> 0)
 		{
-			s = ReadByte(&ctx);
+			s = Mod_LoadBSPXReadByte(&ctx);
 			if (s == 0xff)
 			{
 				memset(samp, 0xff, sizeof(*samp));
@@ -1307,14 +1312,14 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 				{
 					if (k >= 4)
 					{
-						ReadInt(&ctx);
+						Mod_LoadBSPXReadInt(&ctx);
 					}
 					else
 					{
-						samp->map[k].style = ReadByte(&ctx);
-						samp->map[k].rgb[0] = ReadByte(&ctx);
-						samp->map[k].rgb[1] = ReadByte(&ctx);
-						samp->map[k].rgb[2] = ReadByte(&ctx);
+						samp->map[k].style = Mod_LoadBSPXReadByte(&ctx);
+						samp->map[k].rgb[0] = Mod_LoadBSPXReadByte(&ctx);
+						samp->map[k].rgb[1] = Mod_LoadBSPXReadByte(&ctx);
+						samp->map[k].rgb[2] = Mod_LoadBSPXReadByte(&ctx);
 					}
 				}
 
