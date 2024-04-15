@@ -505,6 +505,7 @@ Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	{
 		struct image_s *image;
 		int j, next;
+		char imagename[sizeof(in->texture) + 1];
 
 		for (j = 0; j < 4; j++)
 		{
@@ -529,11 +530,14 @@ Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 			out->next = NULL;
 		}
 
-		image = GetTexImage(in->texture, find_image);
+		memcpy(imagename, in->texture, sizeof(in->texture));
+		/* add last zero if name is too long */
+		imagename[sizeof(in->texture)] = 0;
+		image = GetTexImage(imagename, find_image);
 		if (!image)
 		{
 			R_Printf(PRINT_ALL, "%s: Couldn't load %s\n",
-				__func__, in->texture);
+				__func__, imagename);
 			image = notexture;
 		}
 
