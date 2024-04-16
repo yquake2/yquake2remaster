@@ -1014,49 +1014,6 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
 	return map_quake2;
 }
 
-maptype_t
-Mod_LoadValidateLumps(const char *name, const dheader_t *header)
-{
-	const rule_t *rules = NULL;
-	qboolean error = false;
-	maptype_t maptype;
-
-	maptype = Mod_LoadGetRules(header, &rules);
-
-	if (rules)
-	{
-		int s;
-		for (s = 0; s < HEADER_LUMPS; s++)
-		{
-			if (rules[s].size)
-			{
-				if (header->lumps[s].filelen % rules[s].size)
-				{
-					Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
-						__func__, name, s, header->lumps[s].filelen, rules[s].size);
-					error = true;
-				}
-			}
-		}
-	}
-
-	Com_Printf("Map %s %c%c%c%c with version %d (%s)\n",
-				name,
-				(header->ident >> 0) & 0xFF,
-				(header->ident >> 8) & 0xFF,
-				(header->ident >> 16) & 0xFF,
-				(header->ident >> 24) & 0xFF,
-				header->version, Mod_MaptypeName(maptype));
-
-	if (error || !rules)
-	{
-		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
-			__func__, name);
-	}
-
-	return maptype;
-}
-
 /*
  * Convert Other games flags to Quake 2 surface flags
  */
@@ -1102,6 +1059,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	int s, xofs, numlumps;
 	qboolean error = false;
 	byte *outbuf;
+	maptype_t detected_maptype;
 
 	for (s = 0; s < sizeof(dheader_t) / 4; s++)
 	{
@@ -1110,7 +1068,12 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	result_size = sizeof(dheader_t);
 
-	*maptype = Mod_LoadGetRules(&header, &rules);
+	detected_maptype = Mod_LoadGetRules(&header, &rules);
+	if (detected_maptype != map_quake2)
+	{
+		/* Use detected maptype only if for sure know */
+		*maptype  = detected_maptype;
+	}
 
 	if (rules)
 	{

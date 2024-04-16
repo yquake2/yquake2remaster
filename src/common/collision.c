@@ -1744,7 +1744,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 {
 	int filelen, hunkSize = 0;
 	byte *cmod_base, *filebuf;
-	maptype_t maptype;
+	maptype_t maptype = map_quake2;
 	dheader_t *header;
 	size_t length;
 
