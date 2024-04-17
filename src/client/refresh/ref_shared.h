@@ -341,15 +341,15 @@ extern struct image_s *R_LoadImage(const char *name, const char* namewe, const c
 	imagetype_t type, qboolean r_retexturing, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
 	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
-	const byte *mod_base, const lump_t *l, int ident);
+	const byte *mod_base, const lump_t *lMod_LoadQBSPMarksurfaces);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes,
 	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
-	const byte *mod_base, const lump_t *l, int ident, maptype_t maptype);
+	const byte *mod_base, const lump_t *l);
 extern void Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l, int ident);
+	const byte *mod_base, const lump_t *l);
 extern void Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 	const byte *mod_base, const lump_t *l);
 extern void Mod_LoadLighting(byte **lightdata, int *size, const byte *mod_base, const lump_t *l);
@@ -359,7 +359,7 @@ extern void Mod_CalcSurfaceExtents(const int *surfedges, mvertex_t *vertexes,
 	medge_t *edges, msurface_t *s);
 extern void Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
-	struct image_s *notexture, maptype_t maptype);
+	struct image_s *notexture);
 extern void Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 	const byte *mod_base, const lump_t *l);
 extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
