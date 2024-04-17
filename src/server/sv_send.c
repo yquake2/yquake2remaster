@@ -370,7 +370,7 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 
 	MSG_WriteByte(&sv.multicast, svc_sound);
 	MSG_WriteByte(&sv.multicast, flags);
-	if (IS_QII97_PROTOCOL(sv_client->protocol))
+	if (sv_client && IS_QII97_PROTOCOL(sv_client->protocol))
 	{
 		MSG_WriteByte(&sv.multicast, soundindex);
 	}

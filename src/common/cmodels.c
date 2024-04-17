@@ -1127,12 +1127,24 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (xofs + sizeof(bspx_header_t) < filesize)
 	{
-		result_size += (filesize - xofs);
+		bspx_header_t* xheader;
+
+		xheader = (bspx_header_t*)(inbuf + xofs);
+		if (LittleLong(xheader->ident) == BSPXHEADER)
+		{
+			result_size += (filesize - xofs);
+			result_size += 4;
+		}
+		else
+		{
+			/* Have some other data at the end of file, just skip it */
+			xofs = filesize;
+		}
 	}
 
-	result_size += 4;
 	outbuf = malloc(result_size);
 	outheader = (dheader_t*)outbuf;
+	memset(outheader, 0, sizeof(dheader_t));
 	outheader->ident = QBSPHEADER;
 	outheader->version = BSPVERSION;
 	int ofs = sizeof(dheader_t);
