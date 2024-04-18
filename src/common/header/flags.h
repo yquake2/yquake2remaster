@@ -64,6 +64,41 @@ static const int heretic2_flags[32] = {
 	0,              /* 31: Unused */
 };
 
+static const int heretic2_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: Default for all brushes */
+	CONTENTS_WINDOW,       /* 1: Brush is a window (not really used) */
+	0,                     /* 2: pushpull / Purpose unknown */
+	CONTENTS_LAVA,         /* 3: The brush is lava */
+	CONTENTS_SLIME,        /* 4: The brush is slime */
+	CONTENTS_WATER,        /* 5: The brush is water */
+	CONTENTS_MIST,         /* 6: The brush is non-solid */
+	0,                     /* 7: Unused */
+	0,                     /* 8: Unused */
+	0,                     /* 9: Unused */
+	0,                     /* 10: Unused */
+	0,                     /* 11: Unused */
+	0,                     /* 12: Unused */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	CONTENTS_AREAPORTAL,   /* 15: Area portal */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	CONTENTS_CURRENT_0,    /* 18: Brush has a current in direction of 0 degrees */
+	CONTENTS_CURRENT_90,   /* 19: Brush has a current in direction of 90 degrees */
+	CONTENTS_CURRENT_180,  /* 20: Brush has a current in direction of 180 degrees */
+	CONTENTS_CURRENT_270,  /* 21: Brush has a current in direction of 270 degrees */
+	CONTENTS_CURRENT_UP,   /* 22: Brush has a current in the up direction */
+	CONTENTS_CURRENT_DOWN, /* 23: Brush has a current in the down direction */
+	CONTENTS_ORIGIN,       /* 24: Special brush used for specifying origin of rotation for rotating brushes*/
+	CONTENTS_MONSTER,      /* 25: Purpose unknown / monster */
+	CONTENTS_DEADMONSTER,  /* 26: Purpose unknown / deadmonster */
+	CONTENTS_DETAIL,       /* 27: Detail brush */
+	CONTENTS_TRANSLUCENT,  /* 28: Use for opaque water that does not block vis */
+	CONTENTS_LADDER,       /* 29: Brushes with this flag allow a player to move up and down a vertical surface */
+	0,                     /* 30: Doesn't block camera */
+	0,                     /* 31: Unused */
+};
+
 static const int daikatana_flags[32] = {
 	SURF_LIGHT,     /* 0: Emit light from the surface, brightness is
 				     *    specified in the 'value' field" */
@@ -100,6 +135,41 @@ static const int daikatana_flags[32] = {
 	0,              /* 29: Unused */
 	0,              /* 30: Unused */
 	0,              /* 31: Unused */
+};
+
+static const int daikatana_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: Default for all brushes */
+	CONTENTS_WINDOW,       /* 1: Brush is a window (not really used) */
+	0,                     /* 2: Unused by the Dk's engine? */
+	CONTENTS_LAVA,         /* 3: The brush is lava */
+	CONTENTS_SLIME,        /* 4: The brush is slime */
+	CONTENTS_WATER,        /* 5: The brush is water */
+	CONTENTS_MIST,         /* 6: The brush is non-solid */
+	0,                     /* 7: clear */
+	0,                     /* 8: notsolid */
+	0,                     /* 9: noshoot */
+	0,                     /* 10: fog */
+	0,                     /* 11: nitro */
+	0,                     /* 12: Unused */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	0,                     /* 15: Unused */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	CONTENTS_CURRENT_0,    /* 18: Brush has a current in direction of 0 degrees */
+	CONTENTS_CURRENT_90,   /* 19: Brush has a current in direction of 90 degrees */
+	CONTENTS_CURRENT_180,  /* 20: Brush has a current in direction of 180 degrees */
+	CONTENTS_CURRENT_270,  /* 21: Brush has a current in direction of 270 degrees */
+	CONTENTS_CURRENT_UP,   /* 22: Brush has a current in the up direction */
+	CONTENTS_CURRENT_DOWN, /* 23: Brush has a current in the down direction */
+	CONTENTS_ORIGIN,       /* 24: Special brush used for specifying origin of rotation for rotating brushes */
+	CONTENTS_MONSTER,      /* 25: Purpose unknown / Monster */
+	CONTENTS_DEADMONSTER,  /* 26: Purpose unknown / Corpse */
+	CONTENTS_DETAIL,       /* 27: Detail */
+	CONTENTS_TRANSLUCENT,  /* 28: Use for opaque water that does not block vis */
+	CONTENTS_LADDER,       /* 29: Brushes with this flag allow a player to move up and down a vertical surface */
+	0,                     /* 30: NPC clip */
+	0,                     /* 31: Unused */
 };
 
 static const int kingpin_flags[32] = {
@@ -140,6 +210,41 @@ static const int kingpin_flags[32] = {
 	0,              /* 31: Unused */
 };
 
+static const int kingpin_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: An eye is never valid in a solid */
+	CONTENTS_WINDOW,       /* 1: translucent, but not watery */
+	0,                     /* 2: Unused by the engine */
+	CONTENTS_LAVA,         /* 3: The brush is lava */
+	CONTENTS_SLIME,        /* 4: The brush is slime" */
+	CONTENTS_WATER,        /* 5: Water */
+	CONTENTS_MIST,         /* 6: The brush is non-solid */
+	0,                     /* 7: The brush is solid / fence */
+	0,                     /* 8: Unused */
+	0,                     /* 9: Unused */
+	0,                     /* 10: Unused */
+	0,                     /* 11: Unused */
+	0,                     /* 12: Unused */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	0,                     /* 15: Unused */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	CONTENTS_CURRENT_0,    /* 18: Brush has a current in direction of 0 degrees */
+	CONTENTS_CURRENT_90,   /* 19: Brush has a current in direction of 90 degrees */
+	CONTENTS_CURRENT_180,  /* 20: Brush has a current in direction of 180 degrees */
+	CONTENTS_CURRENT_270,  /* 21: Brush has a current in direction of 270 degrees */
+	CONTENTS_CURRENT_UP,   /* 22: Brush has a current in the up direction */
+	CONTENTS_CURRENT_DOWN, /* 23: Brush has a current in the down direction */
+	CONTENTS_ORIGIN,       /* 24: Removed before bsping an entity */
+	CONTENTS_MONSTER,      /* 25: should never be on a brush, only in game */
+	CONTENTS_DEADMONSTER,  /* 26: Corpse */
+	CONTENTS_DETAIL,       /* 27: brushes to be added after vis leafs */
+	CONTENTS_TRANSLUCENT,  /* 28: auto set if any surface has trans */
+	CONTENTS_LADDER,       /* 29: Brushes with this flag allow a player to move up and down a vertical surface */
+	0,                     /* 30: Unused */
+	0,                     /* 31: Unused */
+};
+
 /*
  * Based on https://anachrodox.talonbrave.info/
  */
@@ -176,4 +281,112 @@ static const int anachronox_flags[32] = {
 	0,              /* 29: Quarter Scroll */
 	0,              /* 30: Surface Fog */
 	0,              /* 31: Surface Curve */
+};
+
+static const int anachronox_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: An eye is never valid in a solid */
+	CONTENTS_WINDOW,       /* 1: translucent, but not watery */
+	0,                     /* 2: Unused */
+	0,                     /* 3: Unused */
+	0,                     /* 4: Unused */
+	CONTENTS_WATER,        /* 5: Water */
+	CONTENTS_MIST,         /* 6: Mist */
+	0,                     /* 7: Unused */
+	0,                     /* 8: Unused */
+	0,                     /* 9: Unused */
+	0,                     /* 10: Unused */
+	0,                     /* 11: Unused */
+	0,                     /* 12: Unused */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	CONTENTS_AREAPORTAL,   /* 15: Area portal */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	CONTENTS_CURRENT_0,    /* 18: Brush has a current in direction of 0 degrees */
+	CONTENTS_CURRENT_90,   /* 19: Brush has a current in direction of 90 degrees */
+	CONTENTS_CURRENT_180,  /* 20: Brush has a current in direction of 180 degrees */
+	CONTENTS_CURRENT_270,  /* 21: Brush has a current in direction of 270 degrees */
+	CONTENTS_CURRENT_UP,   /* 22: Brush has a current in the up direction */
+	CONTENTS_CURRENT_DOWN, /* 23: Brush has a current in the down direction */
+	CONTENTS_ORIGIN,       /* 24: Removed before bsping an entity */
+	CONTENTS_MONSTER,      /* 25: should never be on a brush, only in game */
+	0,                     /* 26: */
+	CONTENTS_DETAIL,       /* 27: brushes to be added after vis leafs */
+	CONTENTS_TRANSLUCENT,  /* 28: auto set if any surface has trans */
+	0,                     /* 29: Unused */
+	0,                     /* 30: Unused */
+	0,                     /* 31: Unused */
+};
+
+/*
+ * Based on https://github.com/NightDive-Studio/sin-ex-game/
+ */
+static const int sin_flags[32] = {
+	SURF_LIGHT,     /* 0: Value will hold the light strength */
+	SURF_SLICK,     /* 1: Effects game physics */
+	SURF_SKY,       /* 2: Don't draw, but add to skybox */
+	SURF_WARP,      /* 3: Turbulent water warp */
+	0,              /* 4: Surface is not lit  (SiN: was SURF_TRANS33) */
+	0,              /* 5: Surface is not filtered (SiN: was SURF_TRANS66) */
+	0,              /* 6: SiN: was SURF_FLOWING */
+	SURF_NODRAW,    /* 7: Don't bother referencing the texture */
+	0,              /* 8: Unused */
+	0,              /* 9: Unused */
+	0,              /* 10: Surface has waves */
+	0,              /* 11: Projectiles bounce literally bounce off this surface */
+	0,              /* 12: Surface has intensity information for pre-lighting */
+	0,              /* 13: Unused */
+	0,              /* 14: Surface has a console on it */
+	0,              /* 15: Unused */
+	0,              /* 16: Surface should only do things in hardware */
+	0,              /* 17: Surface can be damaged */
+	0,              /* 18: Surface has weak hit points */
+	0,              /* 19: Surface has normal hit points */
+	0,              /* 20: Surface will be additive */
+	0,              /* 21: Surface is envmapped */
+	0,              /* 22: Surface start animating on a random frame */
+	0,              /* 23: Surface animates */
+	0,              /* 24: Time between animations is random */
+	0,              /* 25: Surface translates */
+	0,              /* 26: Surface is not merged in csg phase */
+	0,              /* 27: 0 bit of surface type */
+	0,              /* 28: 1 bit of surface type */
+	0,              /* 29: 2 bit of surface type */
+	0,              /* 30: 3 bit of surface type */
+	0,              /* 31: Unused */
+};
+
+static const int sin_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: An eye is never valid in a solid */
+	CONTENTS_WINDOW,       /* 1: translucent, but not watery */
+	0,                     /* 2: SiN: formerly CONTENTS_AUX */
+	CONTENTS_LAVA,         /* 3: Lava */
+	0,                     /* 4: SiN: light volume, formerly CONTENTS_SLIME */
+	CONTENTS_WATER,        /* 5: Water */
+	CONTENTS_MIST,         /* 6: Mist */
+	0,                     /* 7: Unused */
+	0,                     /* 8: Unused */
+	0,                     /* 9: Unused */
+	0,                     /* 10: Unused */
+	0,                     /* 11: Unused */
+	0,                     /* 12: Dummy fence */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	CONTENTS_AREAPORTAL,   /* 15: Area portal */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	CONTENTS_CURRENT_0,    /* 18: Brush has a current in direction of 0 degrees */
+	CONTENTS_CURRENT_90,   /* 19: Brush has a current in direction of 90 degrees */
+	CONTENTS_CURRENT_180,  /* 20: Brush has a current in direction of 180 degrees */
+	CONTENTS_CURRENT_270,  /* 21: Brush has a current in direction of 270 degrees */
+	CONTENTS_CURRENT_UP,   /* 22: Brush has a current in the up direction */
+	CONTENTS_CURRENT_DOWN, /* 23: Brush has a current in the down direction */
+	CONTENTS_ORIGIN,       /* 24: Removed before bsping an entity */
+	CONTENTS_MONSTER,      /* 25: should never be on a brush, only in game */
+	CONTENTS_DEADMONSTER,  /* 26: */
+	CONTENTS_DETAIL,       /* 27: brushes to be added after vis leafs */
+	CONTENTS_TRANSLUCENT,  /* 28: auto set if any surface has trans */
+	CONTENTS_LADDER,       /* 29: */
+	0,                     /* 30: Is shootable, but may not be blocking */
+	0,                     /* 31: Unused */
 };

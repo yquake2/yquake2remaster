@@ -146,6 +146,73 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	}
 }
 
+/*
+ * Convert Other games flags to Quake 2 flags
+ */
+static int
+Mod_LoadConvertFlags(int flags, const int *convert)
+{
+	int sflags = 0;
+	int i;
+
+	if (!convert)
+	{
+		return flags;
+	}
+
+	for (i = 0; i < 32; i++)
+	{
+		if (flags & (1 << i))
+		{
+			sflags |= convert[i];
+		}
+	}
+
+	return sflags;
+}
+
+/*
+ * Convert other games flags to Quake 2 surface flags
+ */
+static int
+Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
+{
+	const int *convert;
+
+	switch (maptype)
+	{
+		case map_heretic2: convert = heretic2_flags; break;
+		case map_daikatana: convert = daikatana_flags; break;
+		case map_kingpin: convert = kingpin_flags; break;
+		case map_anachronox: convert = anachronox_flags; break;
+		case map_sin: convert = sin_flags; break;
+		default: convert = NULL; break;
+	}
+
+	return Mod_LoadConvertFlags(flags, convert);
+}
+
+/*
+ * Convert other games flags to Quake 2 context flags
+ */
+static int
+Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
+{
+	const int *convert;
+
+	switch (maptype)
+	{
+		case map_heretic2: convert = heretic2_contents_flags; break;
+		case map_daikatana: convert = daikatana_contents_flags; break;
+		case map_kingpin: convert = kingpin_contents_flags; break;
+		case map_anachronox: convert = anachronox_contents_flags; break;
+		case map_sin: convert = sin_contents_flags; break;
+		default: convert = NULL; break;
+	}
+
+	return Mod_LoadConvertFlags(flags, convert);
+}
+
 static void
 Mod_Load2QBSP_IBSP_ENTITIES(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
@@ -343,6 +410,7 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
+		/* TODO: Need to use longer texture path */
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
 
@@ -463,7 +531,7 @@ Mod_Load2QBSP_IBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 			out->maxs[j] = LittleShort(in->maxs[j]);
 		}
 
-		out->contents = LittleLong(in->contents);
+		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
 		out->cluster = LittleShort(in->cluster);
 		out->area = LittleShort(in->area);
 
@@ -500,7 +568,7 @@ Mod_Load2QBSP_DKBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 			out->maxs[j] = LittleShort(in->maxs[j]);
 		}
 
-		out->contents = LittleLong(in->contents);
+		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
 		out->cluster = LittleShort(in->cluster);
 		out->area = LittleShort(in->area);
 
@@ -537,7 +605,7 @@ Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 			out->maxs[j] = LittleFloat(in->maxs[j]);
 		}
 
-		out->contents = LittleLong(in->contents);
+		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
 		out->cluster = LittleLong(in->cluster);
 		out->area = LittleLong(in->area);
 
@@ -743,7 +811,7 @@ Mod_Load2QBSP_IBSP_BRUSHES(byte *outbuf, dheader_t *outheader, const byte *inbuf
 	{
 		out->firstside = LittleLong(in->firstside) & 0xFFFFFFFF;
 		out->numsides = LittleLong(in->numsides) & 0xFFFFFFFF;
-		out->contents = LittleLong(in->contents);
+		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
 
 		out++;
 		in++;
@@ -1012,41 +1080,6 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
 
 	*rules = NULL;
 	return map_quake2;
-}
-
-/*
- * Convert Other games flags to Quake 2 surface flags
- */
-int
-Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
-{
-	const int *convert;
-	int sflags = 0;
-	int i;
-
-	switch (maptype)
-	{
-		case map_heretic2: convert = heretic2_flags; break;
-		case map_daikatana: convert = daikatana_flags; break;
-		case map_kingpin: convert = kingpin_flags; break;
-		case map_anachronox: convert = anachronox_flags; break;
-		default: convert = NULL; break;
-	}
-
-	if (!convert)
-	{
-		return flags;
-	}
-
-	for (i = 0; i < 32; i++)
-	{
-		if (flags & (1 << i))
-		{
-			sflags |= convert[i];
-		}
-	}
-
-	return sflags;
 }
 
 byte *
