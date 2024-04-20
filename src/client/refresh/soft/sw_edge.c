@@ -815,12 +815,13 @@ D_CalcGradients (msurface_t *pface, float d_ziorigin, float d_zistepu, float d_z
 			+ pface->texinfo->vecs[1][3]*t;
 
 	// changing flow speed for non-warping textures.
-	if (pface->texinfo->flags & SURF_FLOWING)
+	if (pface->texinfo->flags & SURF_SCROLL)
 	{
-		if(pface->texinfo->flags & SURF_WARP)
-			sadjust += SHIFT16XYZ_MULT * (-128 * ( (r_newrefdef.time * 0.25) - (int)(r_newrefdef.time * 0.25) ));
-		else
-			sadjust += SHIFT16XYZ_MULT * (-128 * ( (r_newrefdef.time * 0.77) - (int)(r_newrefdef.time * 0.77) ));
+		float sscroll, tscroll;
+
+		R_FlowingScroll(&r_newrefdef, pface->texinfo->flags, &sscroll, &tscroll);
+		sadjust += SHIFT16XYZ_MULT * 2 * sscroll;
+		tadjust += SHIFT16XYZ_MULT * 2 * tscroll;
 	}
 
 	//

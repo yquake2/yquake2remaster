@@ -148,14 +148,15 @@ typedef struct
 	hmm_mat4 transProjViewMat4; // gl4state.projMat3D * gl4state.viewMat3D - so we don't have to do this in the shader
 	hmm_mat4 transModelMat4;
 
-	GLfloat scroll; // for SURF_FLOWING
+	GLfloat sscroll; // for SURF_FLOWING
+	GLfloat tscroll; // for SURF_FLOWING
 	GLfloat time; // for warping surfaces like water & possibly other things
 	GLfloat alpha; // for translucent surfaces (water, glass, ..)
 	GLfloat overbrightbits; // gl4_overbrightbits, applied to lightmaps (and elsewhere to models)
 	GLfloat particleFadeFactor; // gl4_particle_fade_factor, higher => less fading out towards edges
 
 	GLfloat lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
-		GLfloat _padding[2]; // again, some padding to ensure this has right size
+	GLfloat _padding; // again, some padding to ensure this has right size, round up to 16 bytes?
 } gl4Uni3D_t;
 
 extern const hmm_mat4 gl4_identityMat4;

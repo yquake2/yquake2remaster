@@ -508,6 +508,8 @@ typedef struct cvar_s
 #define SURF_N64_SCROLL_FLIP 0x80000000 /* ReRelease Flip direction of texture scroll. */
 /* Transparnet but not explicitly warp */
 #define SURF_TRANSPARENT (SURF_TRANS33 | SURF_TRANS66 | SURF_ALPHATEST)
+/* Different flowing settings */
+#define SURF_SCROLL (SURF_FLOWING | SURF_N64_SCROLL_X | SURF_N64_SCROLL_Y)
 
 /* content masks */
 #define MASK_ALL (-1)

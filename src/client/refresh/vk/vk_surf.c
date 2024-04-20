@@ -76,17 +76,13 @@ DrawVkFlowingPoly -- version of DrawVkPoly that handles scrolling texture
 static void
 DrawVkFlowingPoly(msurface_t *fa, image_t *texture, const float *color)
 {
-	float scroll;
+	float sscroll, tscroll;
 	mpoly_t *p;
 	int i;
 
 	p = fa->polys;
 
-	scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
-	if (scroll == 0.0)
-	{
-		scroll = -64.0;
-	}
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	if (Mesh_VertsRealloc(p->numverts))
 	{
@@ -96,7 +92,8 @@ DrawVkFlowingPoly(msurface_t *fa, image_t *texture, const float *color)
 	memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * p->numverts);
 	for (i = 0; i < p->numverts; i++)
 	{
-		verts_buffer[i].texCoord[0] += scroll;
+		verts_buffer[i].texCoord[0] += sscroll;
+		verts_buffer[i].texCoord[1] += tscroll;
 	}
 
 	QVk_BindPipeline(&vk_drawPolyPipeline);
@@ -209,7 +206,7 @@ R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 
 	//======
 	//PGM
-	if (fa->texinfo->flags & SURF_FLOWING)
+	if (fa->texinfo->flags & SURF_SCROLL)
 		DrawVkFlowingPoly(fa, image, color);
 	else
 		DrawVkPoly(fa->polys, image, color);
@@ -312,7 +309,7 @@ R_DrawAlphaSurfaces(void)
 		{
 			EmitWaterPolys(s, s->texinfo->image, NULL, color, false);
 		}
-		else if (s->texinfo->flags & SURF_FLOWING)			// PGM	9/16/98
+		else if (s->texinfo->flags & SURF_SCROLL)			// PGM	9/16/98
 		{
 			DrawVkFlowingPoly(s, s->texinfo->image, color);	// PGM
 		}
@@ -482,13 +479,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 
 		//==========
 		//PGM
-		if (surf->texinfo->flags & SURF_FLOWING)
+		if (surf->texinfo->flags & SURF_SCROLL)
 		{
-			float scroll;
+			float sscroll, tscroll;
 
-			scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
-			if (scroll == 0.0)
-				scroll = -64.0;
+			R_FlowingScroll(&r_newrefdef, surf->texinfo->flags, &sscroll, &tscroll);
 
 			VkBuffer vbo;
 			VkDeviceSize vboOffset;
@@ -505,7 +500,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 
 				for (i = 0; i < nv; i++)
 				{
-					verts_buffer[i].texCoord[0] += scroll;
+					verts_buffer[i].texCoord[0] += sscroll;
+					verts_buffer[i].texCoord[1] += tscroll;
 				}
 
 				uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * nv, &vbo, &vboOffset);
@@ -546,13 +542,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 
 		//==========
 		//PGM
-		if (surf->texinfo->flags & SURF_FLOWING)
+		if (surf->texinfo->flags & SURF_SCROLL)
 		{
-			float scroll;
+			float sscroll, tscroll;
 
-			scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
-			if (scroll == 0.0)
-				scroll = -64.0;
+			R_FlowingScroll(&r_newrefdef, surf->texinfo->flags, &sscroll, &tscroll);
 
 			for (p = surf->polys; p; p = p->chain)
 			{
@@ -560,7 +554,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 
 				for (i = 0; i < nv; i++)
 				{
-					verts_buffer[i].texCoord[0] += scroll;
+					verts_buffer[i].texCoord[0] += sscroll;
+					verts_buffer[i].texCoord[1] += tscroll;
 				}
 
 				VkBuffer vbo;

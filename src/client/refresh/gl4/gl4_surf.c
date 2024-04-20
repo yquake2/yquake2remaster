@@ -177,20 +177,16 @@ void
 GL4_DrawGLFlowingPoly(msurface_t *fa)
 {
 	mpoly_t *p;
-	float scroll;
+	float sscroll, tscroll;
 
 	p = fa->polys;
 
-	scroll = -64.0f * ((gl4_newrefdef.time / 40.0f) - (int)(gl4_newrefdef.time / 40.0f));
+	R_FlowingScroll(&gl4_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	if (scroll == 0.0f)
+	if((gl4state.uni3DData.sscroll != sscroll) || (gl4state.uni3DData.tscroll != tscroll))
 	{
-		scroll = -64.0f;
-	}
-
-	if(gl4state.uni3DData.scroll != scroll)
-	{
-		gl4state.uni3DData.scroll = scroll;
+		gl4state.uni3DData.sscroll = sscroll;
+		gl4state.uni3DData.tscroll = tscroll;
 		GL4_UpdateUBO3D();
 	}
 
@@ -323,7 +319,7 @@ RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 		lmScales[map].A = 1.0f;
 	}
 
-	if (fa->texinfo->flags & SURF_FLOWING)
+	if (fa->texinfo->flags & SURF_SCROLL)
 	{
 		GL4_UseProgram(gl4state.si3DlmFlow.shaderProgram);
 		UpdateLMscales(lmScales, &gl4state.si3DlmFlow);
@@ -379,7 +375,7 @@ GL4_DrawAlphaSurfaces(void)
 		{
 			GL4_EmitWaterPolys(s);
 		}
-		else if (s->texinfo->flags & SURF_FLOWING)
+		else if (s->texinfo->flags & SURF_SCROLL)
 		{
 			GL4_UseProgram(gl4state.si3DtransFlow.shaderProgram);
 			GL4_DrawGLFlowingPoly(s);
@@ -462,7 +458,7 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 	GL4_Bind(image->texnum);
 	GL4_BindLightmap(surf->lightmaptexturenum);
 
-	if (surf->texinfo->flags & SURF_FLOWING)
+	if (surf->texinfo->flags & SURF_SCROLL)
 	{
 		GL4_UseProgram(gl4state.si3DlmFlow.shaderProgram);
 		UpdateLMscales(lmScales, &gl4state.si3DlmFlow);

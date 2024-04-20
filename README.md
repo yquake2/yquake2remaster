@@ -12,13 +12,13 @@ Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/relea
 
 State:
  * GL1/GLES3/GL3/GL4/VK:
-   * base1: no known issies
-   * base2: no known issies
+   * base1: no known issues,
+   * base2: no known issues,
    * q64/outpost: flow surface and scale textures unsupported,
    * mguhub: loaded, sometimes broken logic for surface fall in next maps.
  * SOFT:
-   * base1: broken wall light
-   * base2: broken wall light
+   * base1: broken wall light and wall glitch,
+   * base2: broken wall light and wall glitch,
    * q64/outpost: flow surface and scale textures unsupported,
    * mguhub: broken wall light, sometimes broken logic for surface fall
      in next maps.

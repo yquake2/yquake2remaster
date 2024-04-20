@@ -288,10 +288,10 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 		//==============
 		// this marks flowing surfaces as turbulent.
-		if (out->texinfo->flags & SURF_FLOWING)
+		if (out->texinfo->flags & SURF_SCROLL)
 		{
 			out->flags |= SURF_DRAWTURB;
-			for (i=0 ; i<2 ; i++)
+			for (i = 0; i < 2; i++)
 			{
 				out->extents[i] = 16384;
 				out->texturemins[i] = -8192;

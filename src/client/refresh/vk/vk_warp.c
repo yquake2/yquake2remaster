@@ -56,7 +56,8 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 		float model[16];
 		float color[4];
 		float time;
-		float scroll;
+		float sscroll;
+		float tscroll;
 	} polyUbo;
 
 	polyUbo.color[0] = color[0];
@@ -65,14 +66,9 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 	polyUbo.color[3] = color[3];
 	polyUbo.time = r_newrefdef.time;
 
-	if (fa->texinfo->flags & SURF_FLOWING)
-	{
-		polyUbo.scroll = (-64 * ((r_newrefdef.time * 0.5) - (int)(r_newrefdef.time * 0.5))) / 64.f;
-	}
-	else
-	{
-		polyUbo.scroll = 0;
-	}
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &polyUbo.sscroll, &polyUbo.tscroll);
+	polyUbo.sscroll /= 64.f;
+	polyUbo.tscroll /= 64.f;
 
 	if (modelMatrix)
 	{

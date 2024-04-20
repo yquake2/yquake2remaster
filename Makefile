@@ -1218,6 +1218,7 @@ REFSOFT_OBJS_ := \
 	src/client/refresh/files/pcx.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
+	src/client/refresh/files/warp.o \
 	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \

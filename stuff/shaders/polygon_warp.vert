@@ -17,7 +17,8 @@ layout(set = 1, binding = 0) uniform UniformBufferObject
     mat4 model;
     vec4 color;
     float time;
-    float scroll;
+    float sscroll;
+    float tscroll;
 } ubo;
 
 layout(location = 0) out vec2 texCoord;
@@ -31,7 +32,8 @@ out gl_PerVertex {
 void main() {
     gl_Position = pc.vpMatrix * ubo.model * vec4(inVertex, 1.0);
     texCoord = inTexCoord + vec2(sin(2.0 * ubo.time + inTexCoord.y * 3.28), sin(2.0 * ubo.time + inTexCoord.x * 3.28)) * 0.05;
-    texCoord.x += ubo.scroll;
+    texCoord.x += ubo.sscroll;
+    texCoord.y += ubo.tscroll;
     color = ubo.color;
     aTreshold = 0.0;
 }

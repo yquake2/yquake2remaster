@@ -70,17 +70,9 @@ R_EmitWaterPolys(msurface_t *fa)
 	mvtx_t *v;
 	int i;
 	float s, t, os, ot;
-	float scroll;
-	float rdt = r_newrefdef.time;
+	float sscroll, tscroll;
 
-	if (fa->texinfo->flags & SURF_FLOWING)
-	{
-		scroll = -64 * ((r_newrefdef.time * 0.5) - (int)(r_newrefdef.time * 0.5));
-	}
-	else
-	{
-		scroll = 0;
-	}
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	// workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 #ifdef _MSC_VER
@@ -108,10 +100,11 @@ R_EmitWaterPolys(msurface_t *fa)
 			ot = v->texCoord[1];
 
 			s = os + r_turbsin [ (int) ( ( ot * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ];
-			s += scroll;
+			s += sscroll;
 			tex[index_tex++] = s * ( 1.0 / 64 );
 
-			t = ot + r_turbsin [ (int) ( ( os * 0.125 + rdt ) * TURBSCALE ) & 255 ];
+			t = ot + r_turbsin [ (int) ( ( os * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ];
+			t += tscroll;
 			tex[index_tex++] = t * ( 1.0 / 64 );
 		}
 

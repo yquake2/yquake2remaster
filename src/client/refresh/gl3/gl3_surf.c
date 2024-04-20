@@ -178,22 +178,19 @@ void
 GL3_DrawGLFlowingPoly(msurface_t *fa)
 {
 	mpoly_t *p;
-	float scroll;
+	float sscroll, tscroll;
 
 	p = fa->polys;
 
-	scroll = -64.0f * ((gl3_newrefdef.time / 40.0f) - (int)(gl3_newrefdef.time / 40.0f));
+	R_FlowingScroll(&gl3_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	if (scroll == 0.0f)
+	if((gl3state.uni3DData.sscroll != sscroll) || (gl3state.uni3DData.tscroll != tscroll))
 	{
-		scroll = -64.0f;
-	}
-
-	if(gl3state.uni3DData.scroll != scroll)
-	{
-		gl3state.uni3DData.scroll = scroll;
+		gl3state.uni3DData.sscroll = sscroll;
+		gl3state.uni3DData.tscroll = tscroll;
 		GL3_UpdateUBO3D();
 	}
+
 
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
@@ -324,7 +321,7 @@ RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 		lmScales[map].A = 1.0f;
 	}
 
-	if (fa->texinfo->flags & SURF_FLOWING)
+	if (fa->texinfo->flags & SURF_SCROLL)
 	{
 		GL3_UseProgram(gl3state.si3DlmFlow.shaderProgram);
 		UpdateLMscales(lmScales, &gl3state.si3DlmFlow);
@@ -380,7 +377,7 @@ GL3_DrawAlphaSurfaces(void)
 		{
 			GL3_EmitWaterPolys(s);
 		}
-		else if (s->texinfo->flags & SURF_FLOWING)
+		else if (s->texinfo->flags & SURF_SCROLL)
 		{
 			GL3_UseProgram(gl3state.si3DtransFlow.shaderProgram);
 			GL3_DrawGLFlowingPoly(s);
@@ -463,7 +460,7 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 	GL3_Bind(image->texnum);
 	GL3_BindLightmap(surf->lightmaptexturenum);
 
-	if (surf->texinfo->flags & SURF_FLOWING)
+	if (surf->texinfo->flags & SURF_SCROLL)
 	{
 		GL3_UseProgram(gl3state.si3DlmFlow.shaderProgram);
 		UpdateLMscales(lmScales, &gl3state.si3DlmFlow);

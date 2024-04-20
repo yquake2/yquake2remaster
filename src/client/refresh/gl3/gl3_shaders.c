@@ -357,14 +357,14 @@ static const char* vertexCommon3D = MULTILINE_STRING(
 			mat4 transProjView;
 			mat4 transModel;
 
-			float scroll; // for SURF_FLOWING
+			float sscroll; // for SURF_FLOWING
+			float tscroll; // for SURF_FLOWING
 			float time;
 			float alpha;
 			float overbrightbits;
 			float particleFadeFactor;
 			float lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
-			float _pad_1; // AMDs legacy windows driver needs this, otherwise uni3D has wrong size
-			float _pad_2;
+			float _pad_1; // AMDs legacy windows driver needs this, otherwise uni3D has wrong size, round up to 16 bytes?
 		};
 );
 
@@ -389,14 +389,14 @@ static const char* fragmentCommon3D = MULTILINE_STRING(
 			mat4 transProjView;
 			mat4 transModel;
 
-			float scroll; // for SURF_FLOWING
+			float sscroll; // for SURF_FLOWING
+			float tscroll; // for SURF_FLOWING
 			float time;
 			float alpha;
 			float overbrightbits;
 			float particleFadeFactor;
 			float lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
-			float _pad_1; // AMDs legacy windows driver needs this, otherwise uni3D has wrong size
-			float _pad_2;
+			float _pad_1; // AMDs legacy windows driver needs this, otherwise uni3D has wrong size, round up to 16 bytes?
 		};
 );
 
@@ -417,7 +417,7 @@ static const char* vertexSrc3Dflow = MULTILINE_STRING(
 
 		void main()
 		{
-			passTexCoord = texCoord + vec2(scroll, 0.0);
+			passTexCoord = texCoord + vec2(sscroll, tscroll);
 			gl_Position = transProjView * transModel * vec4(position, 1.0);
 		}
 );
@@ -456,7 +456,7 @@ static const char* vertexSrc3DlmFlow = MULTILINE_STRING(
 
 		void main()
 		{
-			passTexCoord = texCoord + vec2(scroll, 0.0);
+			passTexCoord = texCoord + vec2(sscroll, tscroll);
 			passLMcoord = lmTexCoord;
 			vec4 worldCoord = transModel * vec4(position, 1.0);
 			passWorldCoord = worldCoord.xyz;
@@ -495,8 +495,9 @@ static const char* fragmentSrc3Dwater = MULTILINE_STRING(
 		{
 			vec2 tc = passTexCoord;
 			tc.s += sin( passTexCoord.t*0.125 + time ) * 4.0;
-			tc.s += scroll;
+			tc.s += sscroll;
 			tc.t += sin( passTexCoord.s*0.125 + time ) * 4.0;
+			tc.s += tscroll;
 			tc *= 1.0/64.0; // do this last
 
 			vec4 texel = texture(tex, tc);
@@ -1161,7 +1162,8 @@ static void initUBOs(void)
 	// the matrices will be set to something more useful later, before being used
 	gl3state.uni3DData.transProjViewMat4 = HMM_Mat4();
 	gl3state.uni3DData.transModelMat4 = gl3_identityMat4;
-	gl3state.uni3DData.scroll = 0.0f;
+	gl3state.uni3DData.sscroll = 0.0f;
+	gl3state.uni3DData.tscroll = 0.0f;
 	gl3state.uni3DData.time = 0.0f;
 	gl3state.uni3DData.alpha = 1.0f;
 	// gl3_overbrightbits 0 means "no scaling" which is equivalent to multiplying with 1

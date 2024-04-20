@@ -61,26 +61,21 @@ R_DrawGLFlowingPoly(msurface_t *fa)
 	int i;
 	mvtx_t* vert;
 	mpoly_t *p;
-	float scroll;
+	float sscroll, tscroll;
 
 	p = fa->polys;
 
-	scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	if (scroll == 0.0)
-	{
-		scroll = -64.0;
-	}
-
-	YQ2_VLA(GLfloat, tex, 2*p->numverts);
+	YQ2_VLA(GLfloat, tex, 2 * p->numverts);
 	unsigned int index_tex = 0;
 
 	vert = p->verts;
 
 	for ( i = 0; i < p->numverts; i++, vert++)
 	{
-		tex[index_tex++] = vert->texCoord[0] + scroll;
-		tex[index_tex++] = vert->texCoord[1];
+		tex[index_tex++] = vert->texCoord[0] + sscroll;
+		tex[index_tex++] = vert->texCoord[1] + tscroll;
 	}
 
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -464,7 +459,7 @@ R_RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 		R_TexEnv(GL_REPLACE);
 	}
 
-	if (fa->texinfo->flags & SURF_FLOWING)
+	if (fa->texinfo->flags & SURF_SCROLL)
 	{
 		R_DrawGLFlowingPoly(fa);
 	}
@@ -583,7 +578,7 @@ R_DrawAlphaSurfaces(void)
 		{
 			R_EmitWaterPolys(s);
 		}
-		else if (s->texinfo->flags & SURF_FLOWING)
+		else if (s->texinfo->flags & SURF_SCROLL)
 		{
 			R_DrawGLFlowingPoly(s);
 		}

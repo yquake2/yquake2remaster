@@ -34,21 +34,15 @@ void
 GL3_EmitWaterPolys(msurface_t *fa)
 {
 	mpoly_t *bp;
-	float scroll = 0.0f;
+	float sscroll, tscroll = 0.0f;
 
-	if (fa->texinfo->flags & SURF_FLOWING)
-	{
-		scroll = -64.0f * ((gl3_newrefdef.time * 0.5) - (int)(gl3_newrefdef.time * 0.5));
-		if (scroll == 0.0f) // this is done in GL3_DrawGLFlowingPoly() TODO: keep?
-		{
-			scroll = -64.0f;
-		}
-	}
+	R_FlowingScroll(&gl3_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	qboolean updateUni3D = false;
-	if(gl3state.uni3DData.scroll != scroll)
+	if((gl3state.uni3DData.sscroll != sscroll) || (gl3state.uni3DData.tscroll != tscroll))
 	{
-		gl3state.uni3DData.scroll = scroll;
+		gl3state.uni3DData.sscroll = sscroll;
+		gl3state.uni3DData.tscroll = tscroll;
 		updateUni3D = true;
 	}
 	// these surfaces (mostly water and lava, I think?) don't have a lightmap.

@@ -1083,7 +1083,7 @@ R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentm
 		VectorSubtract( vec3_origin, r_polydesc.vpn, r_polydesc.vpn );
 	}
 
-	if ( fa->texinfo->flags & (SURF_WARP|SURF_FLOWING) )
+	if ( fa->texinfo->flags & (SURF_WARP | SURF_SCROLL) )
 	{
 		r_polydesc.pixels       = fa->texinfo->image->pixels[0];
 		r_polydesc.pixel_width  = fa->texinfo->image->width;
@@ -1109,9 +1109,14 @@ R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentm
 	r_polydesc.t_offset = fa->texinfo->vecs[1][3] - tmins[1];
 
 	// scrolling texture addition
-	if (fa->texinfo->flags & SURF_FLOWING)
+	if (fa->texinfo->flags & SURF_SCROLL)
 	{
-		r_polydesc.s_offset += -128 * ( (r_newrefdef.time*0.25) - (int)(r_newrefdef.time*0.25) );
+		float sscroll, tscroll;
+
+		R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
+
+		r_polydesc.s_offset += 2 * sscroll;
+		r_polydesc.t_offset += 2 * tscroll;
 	}
 
 	r_polydesc.nump = lnumverts;
@@ -1238,9 +1243,9 @@ R_DrawAlphaSurfaces(const entity_t *currententity)
 
 		// pass down all the texinfo flags, not just SURF_WARP.
 		if (s->texinfo->flags & SURF_TRANS66)
-			R_ClipAndDrawPoly( 0.60f, (s->texinfo->flags & (SURF_WARP | SURF_FLOWING)), true );
+			R_ClipAndDrawPoly( 0.60f, (s->texinfo->flags & (SURF_WARP | SURF_SCROLL)), true );
 		else
-			R_ClipAndDrawPoly( 0.30f, (s->texinfo->flags & (SURF_WARP | SURF_FLOWING)), true );
+			R_ClipAndDrawPoly( 0.30f, (s->texinfo->flags & (SURF_WARP | SURF_SCROLL)), true );
 
 		s = s->nextalphasurface;
 	}

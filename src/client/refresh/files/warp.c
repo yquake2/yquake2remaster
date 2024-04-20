@@ -380,3 +380,38 @@ R_MakeSkyVec(float s, float t, int axis, mvtx_t* vert, qboolean farsee,
 
 	vert->lmTexCoord[0] = vert->lmTexCoord[1] = 0.0f;
 }
+
+void
+R_FlowingScroll(const refdef_t *r_newrefdef, int flags, float *sscroll, float *tscroll)
+{
+	float multiply = 0.0;
+
+	*sscroll = 0;
+	*tscroll = 0;
+
+	if (flags & SURF_DRAWTURB)
+	{
+		if (flags & SURF_FLOWING)
+		{
+			multiply = 0.5; // mod 2
+		}
+	}
+	else if (flags & SURF_FLOWING)
+	{
+		if (flags & SURF_WARP)
+		{
+			multiply = 0.25; // mod 4
+		}
+		else
+		{
+			multiply = 0.77; // mod 100
+		}
+	}
+
+	*sscroll = -64.0f * ((r_newrefdef->time * multiply) - (int)(r_newrefdef->time * multiply));
+
+	if (*sscroll == 0.0)
+	{
+		*sscroll = -64.0;
+	}
+}
