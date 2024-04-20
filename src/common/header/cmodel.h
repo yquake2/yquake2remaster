@@ -41,12 +41,13 @@
 
 typedef enum
 {
-	map_quake2 = 0,
+	map_quake2rr = 0,
 	map_heretic2 = 1,
 	map_daikatana = 2,
 	map_kingpin = 3,
 	map_anachronox = 4,
 	map_sin = 5,
+	map_quake2 = 6,
 } maptype_t;
 
 extern int Mod_CalcLumpHunkSize(const lump_t *l, int inSize, int outSize, int extra);

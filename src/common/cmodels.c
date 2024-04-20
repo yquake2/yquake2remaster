@@ -202,6 +202,7 @@ Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
 
 	switch (maptype)
 	{
+		case map_quake2: convert = quake2_contents_flags; break;
 		case map_heretic2: convert = heretic2_contents_flags; break;
 		case map_daikatana: convert = daikatana_contents_flags; break;
 		case map_kingpin: convert = kingpin_contents_flags; break;
@@ -1045,6 +1046,7 @@ Mod_MaptypeName(maptype_t maptype)
 
 	switch(maptype)
 	{
+		case map_quake2rr: maptypename = "Quake2 ReRelease"; break;
 		case map_quake2: maptypename = "Quake2"; break;
 		case map_heretic2: maptypename = "Heretic 2"; break;
 		case map_daikatana: maptypename = "Daikatana"; break;
@@ -1088,13 +1090,13 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
 		else if (header->version == BSPVERSION)
 		{
 			*rules = idbsplumps;
-			return map_quake2;
+			return map_quake2rr;
 		}
 	}
 	else if (header->ident == QBSPHEADER && header->version == BSPVERSION)
 	{
 		*rules = qbsplumps;
-		return map_quake2;
+		return map_quake2rr;
 	}
 	else if (header->ident == RBSPHEADER && header->version == BSPSINVERSION)
 	{
@@ -1103,7 +1105,7 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
 	}
 
 	*rules = NULL;
-	return map_quake2;
+	return map_quake2rr;
 }
 
 byte *
@@ -1126,7 +1128,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	result_size = sizeof(dheader_t);
 
 	detected_maptype = Mod_LoadGetRules(&header, &rules);
-	if (detected_maptype != map_quake2)
+	if (detected_maptype != map_quake2rr)
 	{
 		/* Use detected maptype only if for sure know */
 		*maptype  = detected_maptype;

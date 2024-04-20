@@ -317,10 +317,10 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int filelen)
 	header = (dheader_t *)mod_base;
 
 	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)mod_base, map_quake2);
+	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)mod_base, map_quake2rr);
 
 	// calculate the needed hunksize from the lumps
-	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header, map_quake2);
+	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header, map_quake2rr);
 
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
 		sizeof(dmodel_t), sizeof(gl3model_t), 0);

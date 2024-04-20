@@ -27,6 +27,80 @@
 /*
  * Based on https://github.com/TrenchBroom/
 */
+static const int quake2_flags[32] = {
+	SURF_LIGHT,     /* 0: value will hold the light strength */
+	SURF_SLICK,     /* 1: effects game physics */
+	SURF_SKY,       /* 2: don't draw, but add to skybox */
+	SURF_WARP,      /* 3: The surface warps (like water textures do) */
+	SURF_TRANS33,   /* 4: The surface is 33% transparent */
+	SURF_TRANS66,   /* 5: The surface is 66% transparent */
+	SURF_FLOWING,   /* 6: The texture wraps in a downward 'flowing' pattern
+				     *    (warp must also be set) */
+	SURF_NODRAW,    /* 7: Used for non-fixed-size brush triggers and clip brushes */
+	0,              /* 8: Unused */
+	0,              /* 9: Unused */
+	0,              /* 10: Unused */
+	0,              /* 11: Unused */
+	0,              /* 12: Unused */
+	0,              /* 13: Unused */
+	0,              /* 14: Unused */
+	0,              /* 15: Unused */
+	0,              /* 16: Unused */
+	0,              /* 17: Unused */
+	0,              /* 18: Unused */
+	0,              /* 19: Unused */
+	0,              /* 20: Unused */
+	0,              /* 21: Unused */
+	0,              /* 22: Unused */
+	0,              /* 23: Unused */
+	0,              /* 24: Unused */
+	0,              /* 25: Unused */
+	0,              /* 26: Unused */
+	0,              /* 27: Unused */
+	0,              /* 28: Unused */
+	0,              /* 29: Unused */
+	0,              /* 30: Unused */
+	0,              /* 31: Unused */
+};
+
+static const int quake2_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: Default for all brushes */
+	CONTENTS_WINDOW,       /* 1: translucent, but not watery */
+	CONTENTS_AUX,          /* 2: Unused by the engine */
+	CONTENTS_LAVA,         /* 3: The brush is lava */
+	CONTENTS_SLIME,        /* 4: The brush is slime */
+	CONTENTS_WATER,        /* 5: The brush is water */
+	CONTENTS_MIST,         /* 6: The brush is non-solid */
+	0,                     /* 7: Unused */
+	0,                     /* 8: Unused */
+	0,                     /* 9: Unused */
+	0,                     /* 10: Unused */
+	0,                     /* 11: Unused */
+	0,                     /* 12: Unused */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	CONTENTS_AREAPORTAL,   /* 15: Area portal */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	CONTENTS_CURRENT_0,    /* 18: Brush has a current in direction of 0 degrees */
+	CONTENTS_CURRENT_90,   /* 19: Brush has a current in direction of 90 degrees */
+	CONTENTS_CURRENT_180,  /* 20: Brush has a current in direction of 180 degrees */
+	CONTENTS_CURRENT_270,  /* 21: Brush has a current in direction of 270 degrees */
+	CONTENTS_CURRENT_UP,   /* 22: Brush has a current in the up direction */
+	CONTENTS_CURRENT_DOWN, /* 23: Brush has a current in the down direction */
+	CONTENTS_ORIGIN,       /* 24: Special brush used for specifying origin of rotation for rotating brushes*/
+	CONTENTS_MONSTER,      /* 25: Purpose unknown / monster */
+	CONTENTS_DEADMONSTER,  /* 26: Purpose unknown / deadmonster */
+	CONTENTS_DETAIL,       /* 27: Detail brush */
+	CONTENTS_TRANSLUCENT,  /* 28: Use for opaque water that does not block vis */
+	CONTENTS_LADDER,       /* 29: Brushes with this flag allow a player to move up and down a vertical surface */
+	0,                     /* 30: Doesn't block camera */
+	0,                     /* 31: Unused */
+};
+
+/*
+ * Based on https://github.com/TrenchBroom/
+*/
 static const int heretic2_flags[32] = {
 	SURF_LIGHT,     /* 0: Emit light from the surface, brightness is specified in the 'value' field */
 	SURF_SLICK,     /* 1: The surface is slippery */
