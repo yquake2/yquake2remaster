@@ -801,7 +801,7 @@ typedef struct
 	unsigned int numfaces; /* counting both sides */
 } dqnode_t;
 
-typedef struct texinfo_s
+typedef struct
 {
 	float vecs[2][4]; /* [s/t][xyz offset] */
 	int flags;        /* miptex flags + overrides light emission, etc */
@@ -809,6 +809,16 @@ typedef struct texinfo_s
 	char texture[32]; /* texture name (textures*.wal) */
 	int nexttexinfo;  /* for animations, -1 = end of chain */
 } texinfo_t;
+
+/* custom extended textinfo */
+typedef struct
+{
+	float vecs[2][4]; /* [s/t][xyz offset] */
+	int flags;        /* miptex flags + overrides light emission, etc */
+	int value;        /* used with some flags, unused in Quake2 */
+	char texture[64]; /* texture name (textures*.wal) */
+	int nexttexinfo;  /* for animations, -1 = end of chain */
+} xtexinfo_t;
 
 /* note that edge 0 is never used, because negative edge
    nums are used for counterclockwise use of the edge in

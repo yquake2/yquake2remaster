@@ -332,7 +332,7 @@ Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
 	struct image_s *notexture)
 {
-	texinfo_t *in;
+	xtexinfo_t *in;
 	mtexinfo_t *out;
 	int i, count;
 
@@ -946,7 +946,7 @@ static int
 calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *tl)
 {
 	dqface_t* face_in = (void *)(mod_base + fl->fileofs);
-	const texinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
+	const xtexinfo_t* texinfo_in = (void *)(mod_base + tl->fileofs);
 
 	if (fl->filelen % sizeof(*face_in) || tl->filelen % sizeof(*texinfo_in))
 	{

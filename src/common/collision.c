@@ -1343,7 +1343,7 @@ static void
 CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo,
 	const byte *cmod_base, const lump_t *l)
 {
-	texinfo_t *in;
+	xtexinfo_t *in;
 	mapsurface_t *out;
 	int i, count;
 
@@ -1765,7 +1765,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	strcpy(mod->name, name);
 
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_TEXINFO],
-		sizeof(texinfo_t), sizeof(mapsurface_t), EXTRA_LUMP_TEXINFO);
+		sizeof(xtexinfo_t), sizeof(mapsurface_t), EXTRA_LUMP_TEXINFO);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
 		sizeof(dqleaf_t), sizeof(cleaf_t), 0);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFBRUSHES],

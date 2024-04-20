@@ -359,12 +359,13 @@ static void
 Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf,
 	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
-	texinfo_t *in, *out;
+	texinfo_t *in;
+	xtexinfo_t *out;
 	int i, count;
 
 	count = inheader->lumps[LUMP_TEXINFO].filelen / rule_size;
 	in = (texinfo_t *)(inbuf + inheader->lumps[LUMP_TEXINFO].fileofs);
-	out = (texinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
+	out = (xtexinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
 
 	for (i = 0; i < count; i++)
 	{
@@ -391,12 +392,12 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader, const byte *inbuf
 	const dheader_t *inheader, size_t rule_size, maptype_t maptype)
 {
 	texrinfo_t *in;
-	texinfo_t *out;
+	xtexinfo_t *out;
 	int i, count;
 
 	count = inheader->lumps[LUMP_TEXINFO].filelen / rule_size;
 	in = (texrinfo_t *)(inbuf + inheader->lumps[LUMP_TEXINFO].fileofs);
-	out = (texinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
+	out = (xtexinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
 
 	for (i = 0; i < count; i++)
 	{
@@ -1014,6 +1015,29 @@ static const rule_t qbsplumps[HEADER_LUMPS] = {
 	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
 };
 
+/* custom format with extended texture name */
+static const rule_t xbsplumps[HEADER_LUMPS] = {
+	{sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
+	{sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
+	{sizeof(dqnode_t), Mod_Load2QBSP_QBSP_NODES},
+	{sizeof(xtexinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
+	{sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
+	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
+	{sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
+	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFFACES},
+	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES},
+	{sizeof(dqedge_t), Mod_Load2QBSP_QBSP_EDGES},
+	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
+	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
+	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
+	{sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
+	{0, NULL}, // LUMP_POP
+	{sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
+	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
+};
+
 static const char*
 Mod_MaptypeName(maptype_t maptype)
 {
@@ -1122,7 +1146,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 				}
 
 				result_size += (
-					qbsplumps[s].size * header.lumps[s].filelen / rules[s].size
+					xbsplumps[s].size * header.lumps[s].filelen / rules[s].size
 				);
 			}
 		}
@@ -1189,13 +1213,13 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		{
 			outheader->lumps[s].fileofs = ofs;
 			outheader->lumps[s].filelen = (
-				qbsplumps[s].size * header.lumps[s].filelen / rules[s].size
+				xbsplumps[s].size * header.lumps[s].filelen / rules[s].size
 			);
 			ofs += outheader->lumps[s].filelen;
 		}
 	}
 
-	if ((filesize - xofs) > 0)
+	if (filesize > xofs)
 	{
 		bspx_header_t *bspx_header;
 		bspx_lump_t *lump;
@@ -1209,6 +1233,11 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 		/* fix positions */
 		numlumps = LittleLong(bspx_header->numlumps);
+		if ((numlumps * sizeof(*lump)) >= (filesize - xofs))
+		{
+			Com_Error(ERR_DROP, "%s: Map %s has incorrect bspx lumps",
+				__func__, name);
+		}
 
 		lump = (bspx_lump_t*)(bspx_header + 1);
 		for (i = 0; i < numlumps; i++, lump++)
