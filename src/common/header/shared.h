@@ -502,6 +502,10 @@ typedef struct cvar_s
 #define SURF_FLOWING 0x40       /* scroll towards angle */
 #define SURF_NODRAW 0x80        /* don't bother referencing the texture */
 #define SURF_ALPHATEST 0x02000000 /* KMQUAKE2 Alpha test flag */
+#define SURF_N64_UV 0x10000000    /* ReRelease Stretches texture UVs. */
+#define SURF_N64_SCROLL_X 0x20000000 /* ReRelease Texture scroll X-axis. */
+#define SURF_N64_SCROLL_Y 0x40000000 /* ReRelease Texture scroll Y-axis. */
+#define SURF_N64_SCROLL_FLIP 0x80000000 /* ReRelease Flip direction of texture scroll. */
 /* Transparnet but not explicitly warp */
 #define SURF_TRANSPARENT (SURF_TRANS33 | SURF_TRANS66 | SURF_ALPHATEST)
 

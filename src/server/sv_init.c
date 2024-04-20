@@ -132,8 +132,11 @@ static void
 SV_CheckForSavegame(qboolean isautosave)
 {
 	char name[MAX_OSPATH];
+	char savename[MAX_OSPATH];
 	FILE *f;
 	int i;
+
+	Com_DPrintf("%s()\n", __func__);
 
 	if (sv_noreload->value)
 	{
@@ -145,8 +148,12 @@ SV_CheckForSavegame(qboolean isautosave)
 		return;
 	}
 
+	strncpy(savename, sv.name, sizeof(savename));
+	savename[sizeof(savename) - 1] = 0;
+	SV_CleanLevelFileName(savename);
+
 	Com_sprintf(name, sizeof(name), "%s/save/current/%s.sav",
-			FS_Gamedir(), sv.name);
+			FS_Gamedir(), savename);
 	f = Q_fopen(name, "rb");
 
 	if (!f)

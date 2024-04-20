@@ -157,16 +157,37 @@ SV_CopySaveGame(char *src, char *dst)
 }
 
 void
+SV_CleanLevelFileName(char *savename)
+{
+	char *pos;
+
+	pos = savename;
+	while(*pos)
+	{
+		if (*pos == '/' || *pos == '\\')
+		{
+			*pos = '_';
+		}
+		pos ++;
+	}
+}
+
+void
 SV_WriteLevelFile(void)
 {
 	char name[MAX_OSPATH];
+	char savename[MAX_OSPATH];
 	char workdir[MAX_OSPATH];
 	FILE *f;
 
-	Com_DPrintf("SV_WriteLevelFile()\n");
+	Com_DPrintf("%s()\n", __func__);
+
+	strncpy(savename, sv.name, sizeof(savename));
+	savename[sizeof(savename) - 1] = 0;
+	SV_CleanLevelFileName(savename);
 
 	Com_sprintf(name, sizeof(name), "%s/save/current/%s.sv2",
-				FS_Gamedir(), sv.name);
+				FS_Gamedir(), savename);
 	f = Q_fopen(name, "wb");
 
 	if (!f)
@@ -190,7 +211,7 @@ SV_WriteLevelFile(void)
 		return;
 	}
 
-	Com_sprintf(name, sizeof(name), "%s.sav", sv.name);
+	Com_sprintf(name, sizeof(name), "%s.sav", savename);
 	ge->WriteLevel(name);
 
 	Sys_SetWorkDir(workdir);
@@ -200,12 +221,17 @@ void
 SV_ReadLevelFile(void)
 {
 	char name[MAX_OSPATH];
+	char savename[MAX_OSPATH];
 	char workdir[MAX_OSPATH];
 	fileHandle_t f;
 
-	Com_DPrintf("SV_ReadLevelFile()\n");
+	Com_DPrintf("%s()\n", __func__);
 
-	Com_sprintf(name, sizeof(name), "save/current/%s.sv2", sv.name);
+	strncpy(savename, sv.name, sizeof(savename));
+	savename[sizeof(savename) - 1] = 0;
+	SV_CleanLevelFileName(savename);
+
+	Com_sprintf(name, sizeof(name), "save/current/%s.sv2", savename);
 	FS_FOpenFile(name, &f, true);
 
 	if (!f)
@@ -228,7 +254,7 @@ SV_ReadLevelFile(void)
 		return;
 	}
 
-	Com_sprintf(name, sizeof(name), "%s.sav", sv.name);
+	Com_sprintf(name, sizeof(name), "%s.sav", savename);
 	ge->ReadLevel(name);
 
 	Sys_SetWorkDir(workdir);
