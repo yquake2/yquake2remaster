@@ -11,21 +11,17 @@ https://github.com/yquake2/yquake2
 Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/releases).
 
 State:
- * GL1/GL3/GLES3/VK:
+ * GL1/GLES3/GL3/GL4/VK:
    * base1: no known issies
    * base2: no known issies
-   * q64/outpost: no known issies
-   * mguhub: loaded, sometimes broken logic for surface fall in next maps
- * GL4:
-   * base1: unchecked
-   * base2: unchecked
-   * q64/outpost: unchecked
-   * mguhub: unchecked
+   * q64/outpost: flow surface and scale textures unsupported,
+   * mguhub: loaded, sometimes broken logic for surface fall in next maps.
  * SOFT:
    * base1: broken wall light
    * base2: broken wall light
-   * q64/outpost: no known issies
-   * mguhub: broken wall light, sometimes broken logic for surface fall in next maps
+   * q64/outpost: flow surface and scale textures unsupported,
+   * mguhub: broken wall light, sometimes broken logic for surface fall
+     in next maps.
 
 Monsters:
   * incorrect dead animation for Arachnid,
@@ -67,16 +63,33 @@ Maps support:
 | Format | Version | Game                                       |
 | ------ | ------- | ------------------------------------------ |
 | IBSP   | 39      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
-| IBSP   | 41      | Daikatana / SIN (Unfinished)               |
-| RBSP   | 1       | SIN (Unfinished)                           |
+| IBSP   | 41      | Daikatana / SIN                            |
+| RBSP   | 1       | SIN                                        |
 | QBSP   | 39      | Quake 2 ReRelease                          |
 | BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
 
 Note:
- * SiN Gold has IBSP/41 format but has different size of lump and is
-   unsupported.
  * Non Quake 2 maps are limmited mostly view only, and could have issues
    with tranparency or some animations flags and properties.
+
+Games:
+ * Quake 2:
+   * SDK: https://github.com/id-Software/quake2-rerelease-dll
+   * Tech info: https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii
+ * Anachronox:
+   * SDK: https://github.com/hogsy/chronon
+   * Tech info: https://anachrodox.talonbrave.info/
+ * Kingpin:
+   * SDK: https://github.com/QuakeTools/Kingpin-SDK-v1.21
+   * Tech info: https://www.kingpin.info/
+ * Daikatana:
+   * Info: http://daikatananews.net/
+ * Heretic 2:
+   * SDK: https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe
+   * Tech info: http://h2vault.infinityfreeapp.com/index.html
+ * SiN:
+   * Tools: https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff
+   * SDK: https://github.com/NightDive-Studio/sin-ex-game
 
 Goals (finished):
   * BSPX DECOUPLEDLM light map support (base1),
@@ -95,16 +108,17 @@ Goals (none of it finished):
   * Support effects and additional flags for ReRelease when possible.
 
 Bonus goals:
-  * support surface flags and content types for Daikatana, Heretic 2, Anachronox,
   * Use shared model cache in client code insted reimplemnet in each render,
   * Check load soft colormap as 24bit color,
+  * Fix transparent textures in Daikatana maps,
+  * Support flow/scale flags for Q64 maps,
   * Use separete texture hi-color buffer for ui in soft render,
-  * Convert map surface flag by game type,
   * Cleanup function declarations in game save code,
+  * Fix broken base3 with sorted fields names,
   * Use 3 bytes vertex normal,
   * Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
-  * modified ReRelease game code support with removed KEX only related code.
+  * Modified ReRelease game code support with removed KEX only related code.
 
 Not a goal:
   * multiplayer protocol support with KEX engine,
