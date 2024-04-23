@@ -44,6 +44,21 @@ SV_BeginDemoserver(void)
 	}
 }
 
+int
+SV_GetRecomendedProtocol(void)
+{
+	if (ge->apiversion == GAME_API_R97_VERSION)
+	{
+		/* backward compatibility */
+		return PROTOCOL_R97_VERSION;
+	}
+	else
+	{
+		return PROTOCOL_VERSION;
+	}
+
+}
+
 /*
  * Sends the first message from the server to a connected client.
  * This will be sent on the initial connection and upon each server load.
@@ -75,16 +90,7 @@ SV_New_f(void)
 	gamedir = (char *)Cvar_VariableString("gamedir");
 
 	/* send the serverdata */
-	if (ge->apiversion == GAME_API_R97_VERSION)
-	{
-		/* backward compatibility */
-		sv_client->protocol = PROTOCOL_R97_VERSION;
-	}
-	else
-	{
-		sv_client->protocol = PROTOCOL_VERSION;
-	}
-
+	sv_client->protocol = SV_GetRecomendedProtocol();
 	MSG_WriteByte(&sv_client->netchan.message, svc_serverdata);
 	MSG_WriteLong(&sv_client->netchan.message, sv_client->protocol);
 	MSG_WriteLong(&sv_client->netchan.message, svs.spawncount);

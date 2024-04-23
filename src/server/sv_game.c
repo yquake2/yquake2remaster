@@ -201,10 +201,7 @@ PF_Configstring(int index, const char *val)
 		val = "";
 	}
 
-	if (sv_client)
-	{
-		index = P_ConvertConfigStringFrom(index, sv_client->protocol);
-	}
+	index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
 
 	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
 	{

@@ -238,6 +238,7 @@ void SV_StartSound(vec3_t origin, edict_t *entity, int channel,
 void SV_ClientPrintf(client_t *cl, int level, const char *fmt, ...);
 void SV_BroadcastPrintf(int level, const char *fmt, ...);
 void SV_BroadcastCommand(const char *fmt, ...);
+int SV_GetRecomendedProtocol(void);
 
 void SV_Nextserver(void);
 void SV_ExecuteClientMessage(client_t *cl);

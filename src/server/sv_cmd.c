@@ -186,7 +186,7 @@ SV_GameMap_f(void)
 		return;
 	}
 
-	Com_DPrintf("SV_GameMap(%s)\n", Cmd_Argv(1));
+	Com_DPrintf("%s(%s)\n", __func__, Cmd_Argv(1));
 
 	FS_CreatePath(va("%s/save/current/", FS_Gamedir()));
 
@@ -595,7 +595,7 @@ SV_ServerRecord_f(void)
 	/* serverdata needs to go over for all types of servers
 	   to make sure the protocol is right, and to set the gamedir */
 	MSG_WriteByte(&buf, svc_serverdata);
-	MSG_WriteLong(&buf, PROTOCOL_VERSION);
+	MSG_WriteLong(&buf, SV_GetRecomendedProtocol());
 	MSG_WriteLong(&buf, svs.spawncount);
 
 	/* 2 means server demo */
