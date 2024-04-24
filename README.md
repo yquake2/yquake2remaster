@@ -14,12 +14,12 @@ State:
  * GL1/GLES3/GL3/GL4/VK:
    * base1: no known issues,
    * base2: no known issues,
-   * q64/outpost: flow surface and scale textures unsupported,
-   * mguhub: loaded, sometimes broken logic for surface fall in next maps.
+   * q64/outpost: broken level change,
+   * mguhub: sometimes broken logic for surface fall in next maps.
  * SOFT:
    * base1: broken wall light and wall glitch,
    * base2: broken wall light and wall glitch,
-   * q64/outpost: flow surface and scale textures unsupported,
+   * q64/outpost: broken level change, scale textures unsupported,
    * mguhub: broken wall light, sometimes broken logic for surface fall
      in next maps.
 
@@ -91,39 +91,36 @@ Games:
    * Tools: https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff
    * SDK: https://github.com/NightDive-Studio/sin-ex-game
 
-Goals (finished):
-  * BSPX DECOUPLEDLM light map support (base1),
-  * QBSP map format support (mguhub),
-  * Use ffmpeg for load any video,
-  * RoQ and Theora cinematic videos support.
-  * Cinematic videos support in smk, mpeg, ogv format,
-  * Daikatana/Heretic 2 map partial format support,
-  * md5 improve load speed,
-  * support Anachronox .dat format,
-  * suport Daikatana/SiN .pak/.sin format from pakextract,
-  * add debug progress loading code for maps.
-
-Goals (none of it finished):
-  * Single player support,
-  * Support effects and additional flags for ReRelease when possible.
-
-Bonus goals:
-  * Use shared model cache in client code insted reimplemnet in each render,
-  * Check load soft colormap as 24bit color,
-  * Fix transparent textures in Daikatana maps,
-  * Support flow/scale flags for Q64 maps,
-  * Use separete texture hi-color buffer for ui in soft render,
-  * Cleanup function declarations in game save code,
-  * Fix broken base3 with sorted fields names,
-  * Use 3 bytes vertex normal,
-  * Support scalled textures for models and walls in soft render and fix
+Goals:
+  * [x] BSPX DECOUPLEDLM light map support (base1),
+  * [x] QBSP map format support (mguhub),
+  * [x] Use ffmpeg for load any video,
+  * [x] RoQ and Theora cinematic videos support.
+  * [x] Cinematic videos support in smk, mpeg, ogv format,
+  * [x] Daikatana/Heretic 2 map partial format support,
+  * [x] md5 improve load speed,
+  * [x] support Anachronox .dat format,
+  * [x] suport Daikatana/SiN .pak/.sin format from pakextract,
+  * [x] Support flow/scale flags for Q64 maps,
+  * [x] Add debug progress loading code for maps,
+  * [ ] Broken maps groups from base2 to next,
+  * [ ] Single player support,
+  * [ ] Support effects and additional flags for ReRelease when possible.
+  * [ ] Use shared model cache in client code insted reimplemnet in each render,
+  * [ ] Check load soft colormap as 24bit color,
+  * [ ] Fix transparent textures in Daikatana/SiN maps,
+  * [ ] Use separete texture hi-color buffer for ui in soft render,
+  * [ ] Cleanup function declarations in game save code,
+  * [ ] Fix broken base3 with sorted fields names,
+  * [ ] Use 3 bytes vertex normal,
+  * [ ] Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
-  * Modified ReRelease game code support with removed KEX only related code.
+  * [ ] Modified ReRelease game code support with removed KEX only related code.
 
 Not a goal:
-  * multiplayer protocol support with KEX engine,
-  * support KEX engine features (inventary, compass and so on),
-  * [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
+  * [ ] Multiplayer protocol support with KEX engine,
+  * [ ] Support KEX engine features (inventary, compass and so on),
+  * [ ] [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
 
 Code tested with such [maps](doc/100_tested_maps.md).
 
