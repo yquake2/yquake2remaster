@@ -180,6 +180,12 @@ LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 		t = DotProduct(vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
 		t /= fa->texinfo->image->height;
 
+		if (fa->texinfo->flags & SURF_N64_UV)
+		{
+			s *= 0.5;
+			t *= 0.5;
+		}
+
 		VectorAdd(total, vec, total);
 		VectorCopy(vec, vert->pos);
 		vert->texCoord[0] = s;
