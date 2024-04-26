@@ -1,3 +1,13 @@
+Quake 2 8.31RR7:
+- Rework map load logic,
+- Support SiN map load,
+- Support track music names,
+- Support N64 render flags,
+- SDL3 build support (by Yamagi),
+- Fixes for sort render (by dkoreshkov),
+- Added cvar cl_laseralpha (by BjossiAlfreds),
+- VectorLength reduces complexity (by devnexen),
+- Sync with latest yquake 2 code.
 Quake 2 8.31RR6:
 - renders: fix BSPX lightmaps (by BraXi)
 - Rename functions r_dlightframecount parameter to lightframecount (by BraXi)
