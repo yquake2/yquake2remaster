@@ -1011,5 +1011,72 @@ typedef struct
 	int unknown;  /* no idea what is it */
 } drbrushside_t;
 
+#define SDEFHEADER (('F' << 24) + ('E' << 16) + ('D' << 8) + 'S') /* little-endian "SDEF" */
+
+typedef struct
+{
+	unsigned char x,y,z,normal_index;
+} trivertx_t;
+
+typedef struct
+{
+	float s,t;
+} st_vert_t;
+
+typedef struct
+{
+	short index_xyz[3];
+	short index_st[3];
+	int id;
+} sin_triangle_t;
+
+typedef struct
+{
+	int id;
+	int num_tris;
+	int num_glcmds;		// dwords in strip/fan command list
+	int ofs_glcmds;
+	int ofs_tris;
+	int ofs_end;
+} sin_trigroup_t;
+
+typedef struct
+{
+	int ident;
+	int version;
+
+	int num_xyz;
+	int num_st;			// greater than num_xyz for seams
+	int num_groups;		// groups should be exactly after it as sin_trigroup_t
+
+	int ofs_st;			// byte offset from start for stverts
+	int ofs_end;		// end of file
+} sin_sbm_header_t;
+
+typedef struct
+{
+	float movedelta[3]; // used for driving the model around
+	float frametime;
+	float scale[3];	// multiply byte verts by this
+	float translate[3];	// then add this
+	int ofs_verts;
+} sin_frame_t;
+
+typedef struct
+{
+	int ident;
+	int version;
+	char name[64];
+	float scale[3]; // multiply byte verts by this
+	float translate[3]; // then add this
+	float totaldelta[3]; // total displacement of this animation
+	float totaltime;
+	int num_xyz;
+	int num_frames;
+	int ofs_frames;
+	int ofs_end; // end of file
+} sin_sam_header_t;
+
+
 #endif
 
