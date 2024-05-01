@@ -2114,3 +2114,11 @@ CM_ClusterPHS(int cluster)
 	return phsrow;
 }
 
+/*
+ * Return file content for most case but could cache converted file in future
+ */
+int
+CM_LoadFile(const char *path, void **buffer)
+{
+	return -1;
+}

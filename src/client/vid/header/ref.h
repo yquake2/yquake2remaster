@@ -258,6 +258,9 @@ typedef struct
 	qboolean	(IMPORT *GLimp_GetDesktopMode)(int *pwidth, int *pheight);
 
 	void		(IMPORT *Vid_RequestRestart)(ref_restart_t rs);
+
+	/* Rerelease: Get file from cache/converted */
+	int (IMPORT *Mod_LoadFile)(const char *path, void **buffer);
 } refimport_t;
 
 // this is the only function actually exported at the linker level

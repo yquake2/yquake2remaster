@@ -444,7 +444,7 @@ Mod_ForName(const char *name, gl3model_t *parent_model, qboolean crash)
 	strcpy(mod->name, name);
 
 	/* load the file */
-	modfilelen = Mod_LoadFile(mod->name, &buf);
+	modfilelen = ri.Mod_LoadFile(mod->name, &buf);
 
 	if (!buf)
 	{
