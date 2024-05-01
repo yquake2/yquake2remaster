@@ -71,7 +71,7 @@ typedef struct
 {
 	char name[MAX_QPATH];
 	unsigned checksum;
-	char *cache; /* raw converted map */
+	byte *cache; /* raw converted map */
 	int cache_size;
 
 	cleaf_t *map_leafs;
@@ -104,7 +104,7 @@ typedef struct
 	int numareas;
 
 	qboolean *portalopen;
-	dareaportal_t *map_areaportals;
+	const dareaportal_t *map_areaportals;
 	int numareaportals;
 
 	dvis_t *map_vis;
@@ -159,7 +159,7 @@ static void
 FloodArea_r(carea_t *area, int floodnum)
 {
 	int i;
-	dareaportal_t *p;
+	const dareaportal_t *p;
 
 	if (area->floodvalid == floodvalid)
 	{
@@ -1622,11 +1622,10 @@ CMod_LoadAreas(const char *name, carea_t **map_areas, int *numareas,
 }
 
 static void
-CMod_LoadAreaPortals(const char *name, dareaportal_t **map_areaportals, qboolean **portalopen,
+CMod_LoadAreaPortals(const char *name, const dareaportal_t **map_areaportals, qboolean **portalopen,
 	int *numareaportals, const byte *cmod_base, const lump_t *l)
 {
 	const dareaportal_t *in;
-	dareaportal_t *out;
 	int count;
 
 	in = (void *)(cmod_base + l->fileofs);
@@ -1643,11 +1642,11 @@ CMod_LoadAreaPortals(const char *name, dareaportal_t **map_areaportals, qboolean
 		Com_Error(ERR_DROP, "%s: Map %s has too small areas", __func__, name);
 	}
 
-	out = *map_areaportals = Hunk_Alloc(l->filelen);
+	*map_areaportals = in;
+
 	*portalopen = Hunk_Alloc(count * sizeof(qboolean));
 	*numareaportals = count;
 
-	memcpy(out, in, sizeof(dareaportal_t) * count);
 	memset(*portalopen, 0, count * sizeof(qboolean));
 }
 
@@ -1802,29 +1801,29 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	mod->cache_size = length;
 
 	CMod_LoadSurfaces(mod->name, &mod->map_surfaces, &mod->numtexinfo,
-		cmod_base, &header->lumps[LUMP_TEXINFO]);
+		mod->cache, &header->lumps[LUMP_TEXINFO]);
 	CMod_LoadLeafs(mod->name, &mod->map_leafs, &mod->numleafs, &mod->emptyleaf,
-		&mod->numclusters, cmod_base, &header->lumps[LUMP_LEAFS]);
+		&mod->numclusters, mod->cache, &header->lumps[LUMP_LEAFS]);
 	CMod_LoadLeafBrushes(mod->name, &mod->map_leafbrushes, &mod->numleafbrushes,
-		cmod_base, &header->lumps[LUMP_LEAFBRUSHES]);
+		mod->cache, &header->lumps[LUMP_LEAFBRUSHES]);
 	Mod_LoadPlanes(mod->name, &mod->map_planes, &mod->numplanes,
-		cmod_base, &header->lumps[LUMP_PLANES]);
+		mod->cache, &header->lumps[LUMP_PLANES]);
 	CMod_LoadBrushes(mod->name, &mod->map_brushes, &mod->numbrushes,
-		cmod_base, &header->lumps[LUMP_BRUSHES]);
+		mod->cache, &header->lumps[LUMP_BRUSHES]);
 	CMod_LoadBrushSides(mod->name, &mod->map_brushsides, &mod->numbrushsides,
 		mod->map_planes, mod->numplanes, mod->map_surfaces, mod->numtexinfo,
-		cmod_base, &header->lumps[LUMP_BRUSHSIDES]);
+		mod->cache, &header->lumps[LUMP_BRUSHSIDES]);
 	CMod_LoadSubmodels(mod->name, mod->map_cmodels, &mod->numcmodels,
-		cmod_base, &header->lumps[LUMP_MODELS]);
+		mod->cache, &header->lumps[LUMP_MODELS]);
 	CMod_LoadNodes(mod->name, &mod->map_nodes, &mod->numnodes,
-		mod->map_planes, cmod_base, &header->lumps[LUMP_NODES]);
-	CMod_LoadAreas(mod->name, &mod->map_areas, &mod->numareas, cmod_base,
+		mod->map_planes, mod->cache, &header->lumps[LUMP_NODES]);
+	CMod_LoadAreas(mod->name, &mod->map_areas, &mod->numareas, mod->cache,
 		&header->lumps[LUMP_AREAS]);
 	CMod_LoadAreaPortals(mod->name, &mod->map_areaportals,
 		&mod->portalopen, &mod->numareaportals,
-		cmod_base, &header->lumps[LUMP_AREAPORTALS]);
+		mod->cache, &header->lumps[LUMP_AREAPORTALS]);
 	Mod_LoadVisibility(mod->name, &mod->map_vis, &mod->numvisibility,
-		cmod_base, &header->lumps[LUMP_VISIBILITY]);
+		mod->cache, &header->lumps[LUMP_VISIBILITY]);
 
 	if (!mod->map_vis)
 	{
@@ -1840,7 +1839,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	/* From kmquake2: adding an extra parameter for .ent support. */
 	CMod_LoadEntityString(mod->name, &mod->map_entitystring, &mod->numentitychars,
-		cmod_base, &header->lumps[LUMP_ENTITIES]);
+		mod->cache, &header->lumps[LUMP_ENTITIES]);
 	mod->extradatasize = Hunk_End();
 	Com_DPrintf("Allocated %d from expected %d hunk size\n",
 		mod->extradatasize, hunkSize);
