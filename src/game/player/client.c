@@ -1706,6 +1706,31 @@ SelectCoopSpawnPoint(edict_t *ent)
 	return spot;
 }
 
+static edict_t *
+SelectSpawnPointByTarget(const char *spawnpoint)
+{
+	edict_t *spot = NULL;
+	while ((spot = G_Find(spot, FOFS(classname), "info_player_start")) != NULL)
+	{
+		if (!spawnpoint[0] && !spot->targetname)
+		{
+			break;
+		}
+
+		if (!spawnpoint[0] || !spot->targetname)
+		{
+			continue;
+		}
+
+		if (Q_stricmp(spawnpoint, spot->targetname) == 0)
+		{
+			break;
+		}
+	}
+
+	return spot;
+}
+
 /*
  * Chooses a player start, deathmatch start, coop start, etc
  */
@@ -1743,36 +1768,21 @@ SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 	/* find a single player start spot */
 	if (!spot)
 	{
-		while ((spot = G_Find(spot, FOFS(classname), "info_player_start")) != NULL)
+		spot = SelectSpawnPointByTarget(game.spawnpoint);
+
+		if (!spot)
 		{
-			if (!game.spawnpoint[0] && !spot->targetname)
-			{
-				break;
-			}
-
-			if (!game.spawnpoint[0] || !spot->targetname)
-			{
-				continue;
-			}
-
-			if (Q_stricmp(game.spawnpoint, spot->targetname) == 0)
-			{
-				break;
-			}
+			/* previous map use incorrect target, use default */
+			spot = SelectSpawnPointByTarget("");
 		}
 
 		if (!spot)
 		{
-			if (!game.spawnpoint[0])
-			{
-				/* there wasn't a spawnpoint without a target, so use any */
-				spot = G_Find(spot, FOFS(classname), "info_player_start");
-			}
+			/* still no spawnpoint? use any */
+			gi.dprintf("Couldn't find spawn point '%s'\n", game.spawnpoint);
 
-			if (!spot)
-			{
-				gi.error("Couldn't find spawn point '%s'\n", game.spawnpoint);
-			}
+			/* there wasn't a spawnpoint without a target, so use any */
+			spot = G_Find(spot, FOFS(classname), "info_player_start");
 		}
 	}
 
