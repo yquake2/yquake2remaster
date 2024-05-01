@@ -83,7 +83,6 @@ cvar_t *gl_msaa_samples;
 cvar_t *gl_version_override;
 cvar_t *r_vsync;
 cvar_t *r_retexturing;
-cvar_t *r_maptype;
 cvar_t *r_scale8bittextures;
 cvar_t *vid_fullscreen;
 cvar_t *r_mode;
@@ -212,7 +211,6 @@ GL3_Register(void)
 	gl_msaa_samples = ri.Cvar_Get ( "r_msaa_samples", "0", CVAR_ARCHIVE );
 	gl_version_override = ri.Cvar_Get ( "gl_version_override", "0", CVAR_ARCHIVE );
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
-	r_maptype = ri.Cvar_Get("maptype", "0", CVAR_ARCHIVE);
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 	gl3_debugcontext = ri.Cvar_Get("gl3_debugcontext", "0", 0);
 	r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);

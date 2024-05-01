@@ -295,12 +295,10 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 }
 
 static void
-Mod_LoadBrushModel(model_t *mod, const void *buffer, int filelen)
+Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
 	int lightgridsize = 0, hunkSize;
 	const bspx_header_t *bspx_header;
-	size_t modfilelen;
-	maptype_t maptype;
 	dheader_t *header;
 	byte *mod_base;
 
@@ -309,10 +307,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int filelen)
 		Com_Error(ERR_DROP, "%s: Loaded a brush model after the world", __func__);
 	}
 
-	/* Can't detect will use provided */
-	maptype = r_maptype->value;
-
-	mod_base = Mod_Load2QBSP(mod->name, (byte *)buffer, filelen, &modfilelen, &maptype);
+	mod_base = (byte *)buffer;
 	header = (dheader_t *)mod_base;
 
 	/* check for BSPX extensions */
@@ -373,9 +368,6 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int filelen)
 		&header->lumps[LUMP_NODES], header->ident);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->numframes = 2; /* regular and alternate animation */
-
-	/* Free QBSP temporary info */
-	free(mod_base);
 }
 
 /*
@@ -494,10 +486,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			};
 			break;
 
-		case IDBSPHEADER:
-			/* fall through */
-		case RBSPHEADER:
-			/* fall through */
+		/* should have only preloaded formats for maps */
 		case QBSPHEADER:
 			Mod_LoadBrushModel(mod, buf, modfilelen);
 			break;

@@ -71,6 +71,8 @@ typedef struct
 {
 	char name[MAX_QPATH];
 	unsigned checksum;
+	char *cache; /* raw converted map */
+	int cache_size;
 
 	cleaf_t *map_leafs;
 	int emptyleaf;
@@ -1743,7 +1745,7 @@ CM_ModFreeAll(void)
 static void
 CM_LoadCachedMap(const char *name, model_t *mod)
 {
-	int filelen, hunkSize = 0;
+	int filelen, hunkSize;
 	byte *cmod_base, *filebuf;
 	maptype_t maptype;
 	dheader_t *header;
@@ -1767,6 +1769,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	/* load into heap */
 	strcpy(mod->name, name);
 
+	hunkSize = length; /* allocate memory for future maps cache */
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_TEXINFO],
 		sizeof(xtexinfo_t), sizeof(mapsurface_t), EXTRA_LUMP_TEXINFO);
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_LEAFS],
@@ -1793,6 +1796,10 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		1, 1, MAX_MAP_ENTSTRING);
 
 	mod->extradata = Hunk_Begin(hunkSize);
+
+	mod->cache = Hunk_Alloc(length);
+	memcpy(mod->cache, cmod_base, length);
+	mod->cache_size = length;
 
 	CMod_LoadSurfaces(mod->name, &mod->map_surfaces, &mod->numtexinfo,
 		cmod_base, &header->lumps[LUMP_TEXINFO]);
@@ -2120,5 +2127,22 @@ CM_ClusterPHS(int cluster)
 int
 CM_LoadFile(const char *path, void **buffer)
 {
+	int i;
+
+	for (i = 0; i < MAX_MOD_KNOWN; i++)
+	{
+		/* we have already cached */
+		if (!strcmp(path, models[i].name) &&
+			models[i].cache &&
+			models[i].extradatasize)
+		{
+			*buffer = Z_Malloc(models[i].cache_size);
+			memcpy(*buffer, models[i].cache, models[i].cache_size);
+			return models[i].cache_size;
+		}
+	}
+
+	Com_Printf("%s: render asked about '%s' but have loaded it yet?\n",
+		__func__, path);
 	return -1;
 }

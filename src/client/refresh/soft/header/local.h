@@ -398,7 +398,6 @@ extern cvar_t	*sw_waterwarp;
 extern cvar_t	*sw_gunzposition;
 extern cvar_t	*r_validation;
 extern cvar_t	*r_retexturing;
-extern cvar_t	*r_maptype;
 extern cvar_t	*r_scale8bittextures;
 extern cvar_t	*r_palettedtexture;
 
