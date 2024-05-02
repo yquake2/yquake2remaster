@@ -57,6 +57,8 @@
 #define TRAIN_START_ON 1
 #define TRAIN_TOGGLE 2
 #define TRAIN_BLOCK_STOPS 4
+#define TRAIN_FIX_OFFSET 16
+#define TRAIN_USE_ORIGIN 32
 
 #define SECRET_ALWAYS_SHOOT 1
 #define SECRET_1ST_LEFT 2
@@ -3247,7 +3249,23 @@ again:
 		}
 
 		first = false;
-		VectorSubtract(ent->s.origin, self->mins, self->s.origin);
+
+		if (self->spawnflags & TRAIN_USE_ORIGIN)
+		{
+			VectorCopy(ent->s.origin, self->s.origin);
+		}
+		else
+		{
+			VectorSubtract(ent->s.origin, self->mins, self->s.origin);
+
+			if (self->spawnflags & TRAIN_FIX_OFFSET)
+			{
+				vec3_t diff = {1.f, 1.f, 1.f};
+
+				VectorSubtract(self->s.origin, diff, self->s.origin);
+			}
+		}
+
 		VectorCopy(self->s.origin, self->s.old_origin);
 		self->s.event = EV_OTHER_TELEPORT;
 		gi.linkentity(self);
@@ -3295,7 +3313,22 @@ again:
 		self->s.sound = self->moveinfo.sound_middle;
 	}
 
-	VectorSubtract(ent->s.origin, self->mins, dest);
+	if (self->spawnflags & TRAIN_USE_ORIGIN)
+	{
+		VectorCopy(ent->s.origin, dest);
+	}
+	else
+	{
+		VectorSubtract(ent->s.origin, self->mins, dest);
+
+		if (self->spawnflags & TRAIN_FIX_OFFSET)
+		{
+			vec3_t diff = {1.f, 1.f, 1.f};
+
+			VectorSubtract(dest, diff, dest);
+		}
+	}
+
 	self->moveinfo.state = STATE_TOP;
 	VectorCopy(self->s.origin, self->moveinfo.start_origin);
 	VectorCopy(dest, self->moveinfo.end_origin);
@@ -3339,7 +3372,22 @@ train_resume(edict_t *self)
 
 	ent = self->target_ent;
 
-	VectorSubtract(ent->s.origin, self->mins, dest);
+	if (self->spawnflags & TRAIN_USE_ORIGIN)
+	{
+		VectorCopy(ent->s.origin, dest);
+	}
+	else
+	{
+		VectorSubtract(ent->s.origin, self->mins, dest);
+
+		if (self->spawnflags & TRAIN_FIX_OFFSET)
+		{
+			vec3_t diff = {1.f, 1.f, 1.f};
+
+			VectorSubtract(dest, diff, dest);
+		}
+	}
+
 	self->moveinfo.state = STATE_TOP;
 	VectorCopy(self->s.origin, self->moveinfo.start_origin);
 	VectorCopy(dest, self->moveinfo.end_origin);
@@ -3373,7 +3421,22 @@ func_train_find(edict_t *self)
 
 	self->target = ent->target;
 
-	VectorSubtract(ent->s.origin, self->mins, self->s.origin);
+	if (self->spawnflags & TRAIN_USE_ORIGIN)
+	{
+		VectorCopy(ent->s.origin, self->s.origin);
+	}
+	else
+	{
+		VectorSubtract(ent->s.origin, self->mins, self->s.origin);
+
+		if (self->spawnflags & TRAIN_FIX_OFFSET)
+		{
+			vec3_t diff = {1.f, 1.f, 1.f};
+
+			VectorSubtract(self->s.origin, diff, self->s.origin);
+		}
+	}
+
 	gi.linkentity(self);
 
 	/* if not triggered, start immediately */
