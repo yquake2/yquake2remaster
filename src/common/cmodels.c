@@ -1060,8 +1060,12 @@ Mod_MaptypeName(maptype_t maptype)
 }
 
 static maptype_t
-Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
+Mod_LoadGetRules(const dheader_t *header, const rule_t **rules, int *numlumps, int *numrules)
 {
+	/*
+	 * numlumps is count lumps in format,
+	 * numrules is what could checked and converted
+	 */
 	if (header->ident == IDBSPHEADER)
 	{
 		if (header->version == BSPDKMVERSION)
@@ -1071,6 +1075,7 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
 				(header->lumps[LUMP_FACES].filelen % sizeof(drface_t) == 0))
 			{
 				*rules = rbsplumps;
+				*numrules = *numlumps = HEADER_LUMPS;
 				return map_sin;
 			}
 			else
@@ -1084,23 +1089,28 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules)
 					*rules = idbsplumps;
 				}
 
+				*numrules = HEADER_LUMPS;
+				*numlumps = HEADER_DKLUMPS;
 				return map_daikatana;
 			}
 		}
 		else if (header->version == BSPVERSION)
 		{
 			*rules = idbsplumps;
+			*numrules = *numlumps = HEADER_LUMPS;
 			return map_quake2rr;
 		}
 	}
 	else if (header->ident == QBSPHEADER && header->version == BSPVERSION)
 	{
 		*rules = qbsplumps;
+		*numrules = *numlumps = HEADER_LUMPS;
 		return map_quake2rr;
 	}
 	else if (header->ident == RBSPHEADER && header->version == BSPSINVERSION)
 	{
 		*rules = rbsplumps;
+		*numrules = *numlumps = HEADER_LUMPS;
 		return map_sin;
 	}
 
@@ -1112,22 +1122,25 @@ byte *
 Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	maptype_t *maptype)
 {
+	/* max lump count * lumps + ident + version */
+	int headermem[64];
 	const rule_t *rules = NULL;
 	size_t result_size;
-	dheader_t header, *outheader;
-	int s, xofs, numlumps;
+	dheader_t *header, *outheader;
+	int s, xofs, numlumps, numrules;
 	qboolean error = false;
 	byte *outbuf;
 	maptype_t detected_maptype;
 
-	for (s = 0; s < sizeof(dheader_t) / 4; s++)
+	for (s = 0; s < sizeof(headermem) / sizeof(int); s++)
 	{
-		((int *)&header)[s] = LittleLong(((int *)inbuf)[s]);
+		headermem[s] = LittleLong(((int *)inbuf)[s]);
 	}
+	header = (dheader_t *)&headermem;
 
 	result_size = sizeof(dheader_t);
 
-	detected_maptype = Mod_LoadGetRules(&header, &rules);
+	detected_maptype = Mod_LoadGetRules(header, &rules, &numlumps, &numrules);
 	if (detected_maptype != map_quake2rr)
 	{
 		/* Use detected maptype only if for sure know */
@@ -1136,19 +1149,19 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (rules)
 	{
-		for (s = 0; s < HEADER_LUMPS; s++)
+		for (s = 0; s < numrules; s++)
 		{
 			if (rules[s].size)
 			{
-				if (header.lumps[s].filelen % rules[s].size)
+				if (header->lumps[s].filelen % rules[s].size)
 				{
 					Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
-						__func__, name, s, header.lumps[s].filelen, rules[s].size);
+						__func__, name, s, header->lumps[s].filelen, rules[s].size);
 					error = true;
 				}
 
 				result_size += (
-					xbsplumps[s].size * header.lumps[s].filelen / rules[s].size
+					xbsplumps[s].size * header->lumps[s].filelen / rules[s].size
 				);
 			}
 		}
@@ -1156,11 +1169,11 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	Com_Printf("Map %s %c%c%c%c with version %d (%s)\n",
 				name,
-				(header.ident >> 0) & 0xFF,
-				(header.ident >> 8) & 0xFF,
-				(header.ident >> 16) & 0xFF,
-				(header.ident >> 24) & 0xFF,
-				header.version, Mod_MaptypeName(*maptype));
+				(header->ident >> 0) & 0xFF,
+				(header->ident >> 8) & 0xFF,
+				(header->ident >> 16) & 0xFF,
+				(header->ident >> 24) & 0xFF,
+				header->version, Mod_MaptypeName(*maptype));
 
 	if (error || !rules)
 	{
@@ -1170,18 +1183,10 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	/* find end of last lump */
 	xofs = 0;
-
-	numlumps = HEADER_LUMPS;
-	if ((header.version == BSPDKMVERSION) &&
-		(*maptype == map_daikatana))
-	{
-		numlumps = 21;
-	}
-
 	for (s = 0; s < numlumps; s++)
 	{
 		xofs = Q_max(xofs,
-			(header.lumps[s].fileofs + header.lumps[s].filelen + 3) & ~3);
+			(header->lumps[s].fileofs + header->lumps[s].filelen + 3) & ~3);
 	}
 
 	if (xofs + sizeof(bspx_header_t) < filesize)
@@ -1209,13 +1214,13 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	int ofs = sizeof(dheader_t);
 
 	/* mark offsets for all lumps */
-	for (s = 0; s < HEADER_LUMPS; s++)
+	for (s = 0; s < numrules; s++)
 	{
 		if (rules[s].size)
 		{
 			outheader->lumps[s].fileofs = ofs;
 			outheader->lumps[s].filelen = (
-				xbsplumps[s].size * header.lumps[s].filelen / rules[s].size
+				xbsplumps[s].size * header->lumps[s].filelen / rules[s].size
 			);
 			ofs += outheader->lumps[s].filelen;
 		}
@@ -1254,7 +1259,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	}
 
 	/* convert lumps to QBSP for all lumps */
-	for (s = 0; s < HEADER_LUMPS; s++)
+	for (s = 0; s < numrules; s++)
 	{
 		if (!rules[s].size)
 		{
@@ -1267,7 +1272,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 				__func__, name, s);
 		}
 
-		rules[s].func(outbuf, outheader, inbuf, &header, rules[s].size, *maptype);
+		rules[s].func(outbuf, outheader, inbuf, header, rules[s].size, *maptype);
 	}
 
 	*out_len = result_size;

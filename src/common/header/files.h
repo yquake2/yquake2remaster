@@ -681,6 +681,7 @@ typedef struct
 #define LUMP_AREAS 17
 #define LUMP_AREAPORTALS 18
 #define HEADER_LUMPS 19
+#define HEADER_DKLUMPS 21
 
 typedef struct
 {
