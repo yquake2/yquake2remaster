@@ -681,7 +681,6 @@ typedef struct
 #define LUMP_AREAS 17
 #define LUMP_AREAPORTALS 18
 #define HEADER_LUMPS 19
-#define HEADER_DKLUMPS 21
 
 typedef struct
 {
@@ -955,6 +954,7 @@ typedef struct
 
 /* Daikatana */
 #define BSPDKMVERSION 41
+#define HEADER_DKLUMPS 21
 
 /* Leafs struct */
 typedef struct
@@ -1077,7 +1077,6 @@ typedef struct
 	int ofs_frames;
 	int ofs_end; // end of file
 } sin_sam_header_t;
-
 
 #endif
 

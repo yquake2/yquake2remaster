@@ -2141,7 +2141,7 @@ CM_LoadFile(const char *path, void **buffer)
 		}
 	}
 
-	Com_Printf("%s: render asked about '%s' but have loaded it yet?\n",
+	Com_Printf("%s: render asked about '%s' but have not loaded it yet?\n",
 		__func__, path);
 	return -1;
 }

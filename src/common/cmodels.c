@@ -924,119 +924,120 @@ typedef void (*funcrule_t)(byte *outbuf, dheader_t *outheader, const byte *inbuf
 
 typedef struct
 {
+	int pos; /* Lump position in relation to Q2 in final size */
 	size_t size;
 	funcrule_t func;
 } rule_t;
 
-static const rule_t idbsplumps[HEADER_LUMPS] = {
-	{sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
-	{sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
-	{sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
-	{sizeof(dnode_t), Mod_Load2QBSP_IBSP_NODES},
-	{sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
-	{sizeof(dface_t), Mod_Load2QBSP_IBSP_FACES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(dleaf_t), Mod_Load2QBSP_IBSP_LEAFS},
-	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
-	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
-	{sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
-	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
-	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
-	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
-	{sizeof(dbrushside_t), Mod_Load2QBSP_IBSP_BRUSHSIDES},
-	{0, NULL}, // LUMP_POP
-	{sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
-	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
+static const rule_t idq2bsplumps[HEADER_LUMPS] = {
+	{0, sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
+	{1, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{2, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{3, sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
+	{4, sizeof(dnode_t), Mod_Load2QBSP_IBSP_NODES},
+	{5, sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
+	{6, sizeof(dface_t), Mod_Load2QBSP_IBSP_FACES},
+	{7, sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
+	{8, sizeof(dleaf_t), Mod_Load2QBSP_IBSP_LEAFS},
+	{9, sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
+	{10, sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
+	{11, sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
+	{12, sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
+	{13, sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
+	{14, sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
+	{15, sizeof(dbrushside_t), Mod_Load2QBSP_IBSP_BRUSHSIDES},
+	{-1, 0, NULL}, // LUMP_POP
+	{17, sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
+	{18, sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
 };
 
 static const rule_t dkbsplumps[HEADER_LUMPS] = {
-	{sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
-	{sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
-	{sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
-	{sizeof(dnode_t), Mod_Load2QBSP_IBSP_NODES},
-	{sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
-	{sizeof(dface_t), Mod_Load2QBSP_IBSP_FACES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(ddkleaf_t), Mod_Load2QBSP_DKBSP_LEAFS},
-	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
-	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
-	{sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
-	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
-	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
-	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
-	{sizeof(dbrushside_t), Mod_Load2QBSP_IBSP_BRUSHSIDES},
-	{0, NULL}, // LUMP_POP
-	{sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
-	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
+	{0, sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
+	{1, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{2, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{3, sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
+	{4, sizeof(dnode_t), Mod_Load2QBSP_IBSP_NODES},
+	{5, sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
+	{6, sizeof(dface_t), Mod_Load2QBSP_IBSP_FACES},
+	{7, sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
+	{8, sizeof(ddkleaf_t), Mod_Load2QBSP_DKBSP_LEAFS},
+	{9, sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
+	{10, sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
+	{11, sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
+	{12, sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
+	{13, sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
+	{14, sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
+	{15, sizeof(dbrushside_t), Mod_Load2QBSP_IBSP_BRUSHSIDES},
+	{-1, 0, NULL}, // LUMP_POP
+	{17, sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
+	{18, sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
 };
 
 static const rule_t rbsplumps[HEADER_LUMPS] = {
-	{sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
-	{sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
-	{sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
-	{sizeof(dnode_t), Mod_Load2QBSP_IBSP_NODES},
-	{sizeof(texrinfo_t), Mod_Load2QBSP_RBSP_TEXINFO},
-	{sizeof(drface_t), Mod_Load2QBSP_RBSP_FACES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(dleaf_t), Mod_Load2QBSP_IBSP_LEAFS},
-	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
-	{sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
-	{sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
-	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
-	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
-	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
-	{sizeof(drbrushside_t), Mod_Load2QBSP_RBSP_BRUSHSIDES},
-	{0, NULL}, // LUMP_POP
-	{sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
-	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
+	{0, sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
+	{1, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{2, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{3, sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
+	{4, sizeof(dnode_t), Mod_Load2QBSP_IBSP_NODES},
+	{5, sizeof(texrinfo_t), Mod_Load2QBSP_RBSP_TEXINFO},
+	{6, sizeof(drface_t), Mod_Load2QBSP_RBSP_FACES},
+	{7, sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
+	{8, sizeof(dleaf_t), Mod_Load2QBSP_IBSP_LEAFS},
+	{9, sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
+	{10, sizeof(short), Mod_Load2QBSP_IBSP_LEAFBRUSHES},
+	{11, sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
+	{12, sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
+	{13, sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
+	{14, sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
+	{15, sizeof(drbrushside_t), Mod_Load2QBSP_RBSP_BRUSHSIDES},
+	{-1, 0, NULL}, // LUMP_POP
+	{17, sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
+	{18, sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
 };
 
 static const rule_t qbsplumps[HEADER_LUMPS] = {
-	{sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
-	{sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
-	{sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
-	{sizeof(dqnode_t), Mod_Load2QBSP_QBSP_NODES},
-	{sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
-	{sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
-	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFFACES},
-	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES},
-	{sizeof(dqedge_t), Mod_Load2QBSP_QBSP_EDGES},
-	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
-	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
-	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
-	{sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
-	{0, NULL}, // LUMP_POP
-	{sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
-	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
+	{0, sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
+	{1, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{2, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{3, sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
+	{4, sizeof(dqnode_t), Mod_Load2QBSP_QBSP_NODES},
+	{5, sizeof(texinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
+	{6, sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
+	{7, sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
+	{8, sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
+	{9, sizeof(int), Mod_Load2QBSP_QBSP_LEAFFACES},
+	{10, sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES},
+	{11, sizeof(dqedge_t), Mod_Load2QBSP_QBSP_EDGES},
+	{12, sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
+	{13, sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
+	{14, sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
+	{15, sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
+	{-1, 0, NULL}, // LUMP_POP
+	{17, sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
+	{18, sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
 };
 
 /* custom format with extended texture name */
 static const rule_t xbsplumps[HEADER_LUMPS] = {
-	{sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
-	{sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
-	{sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
-	{sizeof(dqnode_t), Mod_Load2QBSP_QBSP_NODES},
-	{sizeof(xtexinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
-	{sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
-	{sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
-	{sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
-	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFFACES},
-	{sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES},
-	{sizeof(dqedge_t), Mod_Load2QBSP_QBSP_EDGES},
-	{sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
-	{sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
-	{sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
-	{sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
-	{0, NULL}, // LUMP_POP
-	{sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
-	{sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
+	{0, sizeof(char), Mod_Load2QBSP_IBSP_ENTITIES},
+	{1, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{2, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{3, sizeof(char), Mod_Load2QBSP_IBSP_VISIBILITY},
+	{4, sizeof(dqnode_t), Mod_Load2QBSP_QBSP_NODES},
+	{5, sizeof(xtexinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
+	{6, sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
+	{7, sizeof(char), Mod_Load2QBSP_IBSP_LIGHTING},
+	{8, sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
+	{9, sizeof(int), Mod_Load2QBSP_QBSP_LEAFFACES},
+	{10, sizeof(int), Mod_Load2QBSP_QBSP_LEAFBRUSHES},
+	{11, sizeof(dqedge_t), Mod_Load2QBSP_QBSP_EDGES},
+	{12, sizeof(int), Mod_Load2QBSP_IBSP_SURFEDGES},
+	{13, sizeof(dmodel_t), Mod_Load2QBSP_IBSP_MODELS},
+	{14, sizeof(dbrush_t), Mod_Load2QBSP_IBSP_BRUSHES},
+	{15, sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
+	{-1, 0, NULL}, // LUMP_POP
+	{17, sizeof(darea_t), Mod_Load2QBSP_IBSP_AREAS},
+	{18, sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_AREAPORTALS},
 };
 
 static const char*
@@ -1086,7 +1087,7 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules, int *numlumps, i
 				}
 				else
 				{
-					*rules = idbsplumps;
+					*rules = idq2bsplumps;
 				}
 
 				*numrules = HEADER_LUMPS;
@@ -1096,7 +1097,7 @@ Mod_LoadGetRules(const dheader_t *header, const rule_t **rules, int *numlumps, i
 		}
 		else if (header->version == BSPVERSION)
 		{
-			*rules = idbsplumps;
+			*rules = idq2bsplumps;
 			*numrules = *numlumps = HEADER_LUMPS;
 			return map_quake2rr;
 		}
@@ -1160,20 +1161,24 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 					error = true;
 				}
 
-				result_size += (
-					xbsplumps[s].size * header->lumps[s].filelen / rules[s].size
-				);
+				if (rules[s].pos >= 0)
+				{
+					result_size += (
+						xbsplumps[rules[s].pos].size * header->lumps[s].filelen / rules[s].size
+					);
+				}
 			}
 		}
 	}
 
-	Com_Printf("Map %s %c%c%c%c with version %d (%s)\n",
+	Com_Printf("Map %s %c%c%c%c with version %d (%s): " YQ2_COM_PRIdS " bytes\n",
 				name,
 				(header->ident >> 0) & 0xFF,
 				(header->ident >> 8) & 0xFF,
 				(header->ident >> 16) & 0xFF,
 				(header->ident >> 24) & 0xFF,
-				header->version, Mod_MaptypeName(*maptype));
+				header->version, Mod_MaptypeName(*maptype),
+				result_size);
 
 	if (error || !rules)
 	{
