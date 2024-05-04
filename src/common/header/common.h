@@ -643,7 +643,7 @@ void CM_ModFreeAll(void);
 
 int CM_NumClusters(void);
 int CM_NumInlineModels(void);
-char *CM_EntityString(void);
+const char *CM_EntityString(int *size);
 
 /* creates a clipping hull for an arbitrary box */
 int CM_HeadnodeForBox(vec3_t mins, vec3_t maxs);

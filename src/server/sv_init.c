@@ -194,8 +194,10 @@ static void
 SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 		qboolean attractloop, qboolean loadgame, qboolean isautosave)
 {
-	int i;
+	const char *entity_orig;
 	unsigned checksum;
+	char *entity;
+	int i, entitysize;
 
 	if (attractloop)
 	{
@@ -286,8 +288,21 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 	sv.state = ss_loading;
 	Com_SetServerState(sv.state);
 
+	/* copy original entities string */
+	entity_orig = CM_EntityString(&entitysize);
+	if (entitysize < 0)
+	{
+		entitysize = 0;
+	}
+	entity = malloc(entitysize + 1);
+	if (entitysize)
+	{
+		memcpy(entity, entity_orig, entitysize);
+	}
+	entity[entitysize] = 0; /* jit entity bug - null terminate the entity string! */
 	/* load and spawn all other entities */
-	ge->SpawnEntities(sv.name, CM_EntityString(), spawnpoint);
+	ge->SpawnEntities(sv.name, entity, spawnpoint);
+	free(entity);
 
 	/* run two frames to allow everything to settle */
 	ge->RunFrame();

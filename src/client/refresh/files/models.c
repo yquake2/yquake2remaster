@@ -1495,7 +1495,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		{
 			const md3_shader_t *md3_shader = (md3_shader_t*)((byte*)buffer + meshofs + LittleLong(md3_mesh->ofs_shaders)) + j;
 
-			strncpy(skin, md3_shader->name, Q_min(sizeof(md3_shader->name), MAX_SKINNAME) - 1);
+			memcpy(skin, md3_shader->name, Q_min(sizeof(md3_shader->name), MAX_SKINNAME));
 			skin += MAX_SKINNAME;
 		}
 

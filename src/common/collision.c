@@ -111,7 +111,7 @@ typedef struct
 	int numclusters;
 	int numvisibility;
 
-	char *map_entitystring;
+	const char *map_entitystring;
 	int numentitychars;
 
 	int extradatasize;
@@ -1651,7 +1651,7 @@ CMod_LoadAreaPortals(const char *name, const dareaportal_t **map_areaportals, qb
 }
 
 static void
-CMod_LoadEntityString(const char *name, char **map_entitystring, int *numentitychars,
+CMod_LoadEntityString(const char *name, const char **map_entitystring, int *numentitychars,
 	const byte *cmod_base, const lump_t *l)
 {
 	if (sv_entfile->value)
@@ -1688,14 +1688,15 @@ CMod_LoadEntityString(const char *name, char **map_entitystring, int *numentityc
 
 		if (buffer != NULL && bufLen > 1)
 		{
-			Com_Printf (".ent file %s loaded.\n", entname);
+			char *entity;
 			*numentitychars = bufLen;
 
-			*map_entitystring = Hunk_Alloc(bufLen + 1);
-
-			memcpy(*map_entitystring, buffer, bufLen);
-			(*map_entitystring)[bufLen] = 0; /* jit entity bug - null terminate the entity string! */
+			entity = Hunk_Alloc(bufLen);
+			memcpy(entity, buffer, bufLen);
 			FS_FreeFile(buffer);
+
+			Com_Printf (".ent file %s loaded.\n", entname);
+			*map_entitystring = entity;
 			return;
 		}
 		else if (bufLen != -1)
@@ -1713,9 +1714,7 @@ CMod_LoadEntityString(const char *name, char **map_entitystring, int *numentityc
 		Com_Error(ERR_DROP, "%s: Map has too small entity lump", __func__);
 	}
 
-	*map_entitystring = Hunk_Alloc(l->filelen + 1);
-	memcpy(*map_entitystring, cmod_base + l->fileofs, l->filelen);
-	(*map_entitystring)[l->filelen] = 0;
+	*map_entitystring = (const char *)cmod_base + l->fileofs;
 }
 
 static void
@@ -1974,9 +1973,10 @@ CM_NumInlineModels(void)
 	return cmod->numcmodels;
 }
 
-char *
-CM_EntityString(void)
+const char *
+CM_EntityString(int *size)
 {
+	*size = cmod->numentitychars;
 	return cmod->map_entitystring;
 }
 
