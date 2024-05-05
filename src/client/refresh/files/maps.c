@@ -739,7 +739,6 @@ Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 		out->cluster = in->cluster;
 		out->area = in->area;
 
-		// make unsigned long from signed short
 		firstleafface = in->firstleafface;
 		out->nummarksurfaces = in->numleaffaces;
 

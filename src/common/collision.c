@@ -1530,7 +1530,7 @@ CMod_LoadLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
+		Com_Error(ERR_DROP, "%s: Map %s with no leaf brushes", __func__, name);
 	}
 
 	out = *map_leafbrushes = Hunk_Alloc((count + EXTRA_LUMP_LEAFBRUSHES) * sizeof(*out));
@@ -1561,7 +1561,7 @@ CMod_LoadBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbru
 	/* need to save space for box planes */
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
+		Com_Error(ERR_DROP, "%s: Map %s with no brush sides", __func__, name);
 	}
 
 	out = *map_brushsides = Hunk_Alloc((count + EXTRA_LUMP_BRUSHSIDES) * sizeof(*out));
