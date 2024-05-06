@@ -1150,7 +1150,6 @@ FS_LoadSIN(const char *packPath)
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
 		files[i].format = PAK_MODE_Q2;
-		printf("sin: %s:%d\n", files[i].name, files[i].size);
 	}
 	free(info);
 

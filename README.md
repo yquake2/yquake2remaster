@@ -9,6 +9,7 @@ Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 https://github.com/yquake2/yquake2
 
 Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/releases).
+Saves format is unstabled and could change between alpha releases.
 
 State:
  * GL1/GLES3/GL3/GL4/VK:
@@ -29,20 +30,20 @@ Monsters:
 
 Models support:
 
-| Format | Original Game   | Frame vertex | Meshes | Comments                                |
-| ------ | --------------- | ------------ | ------ | --------------------------------------- |
-| mdl    | Quake 1         | 8 bit        | Single | Unsupported grouped textures            |
-| md2    | Quake 2         | 8 bit        | Single |                                         |
-| md2    | Anachronox      | 8/10/16 bit  | Single | No tagged surfaces, unchecked with game |
-| mdx    | Kingpin         | 8 bit        | Many   | No sfx support, unchecked with game     |
-| fm     | Heretic 2       | 8 bit        | Many   |                                         |
-| def    | SiN             | Part of sam  | Many   | Unchecked with game                     |
-| dkm    | Daikatana DKM1  | 8 bit        | Many   | Unchecked with game                     |
-| dkm    | Daikatana DKM2  | 10 bit       | Many   | Unchecked with game                     |
-| md3    | Quake 3         | 16 bit       | Many   | No tags support                         |
-| md5    | Doom 3/Quake 4  | float        | Many   | Requires md2 for skins                  |
-| sbm    | SiN             | Part of sam  | Many   | Unchecked with game                     |
-| sam    | SiN             | 8 bit        | Many   | Unchecked with game                     |
+| Format | Original Game   | Frame vertex | Meshes   | Comments                                |
+| ------ | --------------- | ------------ | -------- | --------------------------------------- |
+| mdl    | Quake 1         | 8 bit        | Single   | Unsupported grouped textures            |
+| md2    | Quake 2         | 8 bit        | Single   |                                         |
+| md2    | Anachronox      | 8/10/16 bit  | Single   | No tagged surfaces, unchecked with game |
+| mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game     |
+| fm     | Heretic 2       | 8 bit        | Multiple |                                         |
+| def    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
+| dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                     |
+| dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                     |
+| md3    | Quake 3         | 16 bit       | Multiple | No tags support                         |
+| md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins                  |
+| sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
+| sam    | SiN             | 8 bit        | Multiple | Unchecked with game                     |
 
 All models support only single texture for all meshes and frames limit based on game protocol.
 
@@ -74,6 +75,8 @@ Maps support:
 Note:
  * Non Quake 2 maps are limmited mostly view only, and could have issues
    with tranparency or some animations flags and properties.
+ * If you like support some other maps type, create pull request for Mod_Load2QBSP
+   function and provide a link to demo maps.
 
 Games:
  * Quake 2:

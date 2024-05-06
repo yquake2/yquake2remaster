@@ -217,6 +217,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 	tlen = strlen(namewe);
 
 	if (!strcmp(ext, "fm") ||
+		!strcmp(ext, "def") ||
 		!strcmp(ext, "dkm") ||
 		!strcmp(ext, "md2") ||
 		!strcmp(ext, "md3") ||
@@ -253,6 +254,16 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		if (filesize > 0)
 		{
 			Com_DPrintf("%s: %s loaded as fm (Heretic 2)\n",
+				__func__, namewe);
+			return filesize;
+		}
+
+		/* Check SiN model def with include sbm/sam files */
+		Q_strlcpy(newname + tlen, ".def", sizeof(newname));
+		filesize = FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			Com_DPrintf("%s: %s loaded as def/sbm/sam (SiN)\n",
 				__func__, namewe);
 			return filesize;
 		}
