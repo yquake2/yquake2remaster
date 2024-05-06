@@ -2,6 +2,7 @@
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (c) 2005-2015 David HENRY
  * Copyright (c) 2011 Sajt (https://icculus.org/qshed/qwalk/)
+ * Copyright (c) 1998 Trey Harrison (SiN View)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2536,10 +2537,9 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	struct image_s ***skins, int *numskins)
 {
 	char models_path[MAX_QPATH];
-	char base_model[MAX_QPATH];
+	char base_model[MAX_QPATH * 2];
 	char skinnames[255][MAX_SKINNAME];
-	char animations[255][MAX_QPATH];
-	char fullbasename[MAX_QPATH * 2];
+	char animations[255][MAX_QPATH * 2];
 	int actions_num, skinnames_num, i, base_size;
 	sin_sbm_header_t *base;
 	sin_sam_header_t *anim[255];
@@ -2637,13 +2637,27 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		return NULL;
 	}
 
+	/* Convert from LittleLong */
+	for (i = 0; i < sizeof(sin_sbm_header_t) / 4; i ++)
+	{
+		((int *)base)[i] = LittleLong(((int *)base)[i]);
+	}
+
+	if ((base->ident != SBMHEADER) || (base->version != MDSINVERSION))
+	{
+		free(base);
+		R_Printf(PRINT_DEVELOPER, "%s: %s, Incorrect ident or version for %s\n",
+			__func__, mod_name, base_model);
+		return NULL;
+	}
+
 	int num_tris = 0;
 	{
 		sin_trigroup_t *trigroup = (sin_trigroup_t *)((char*)base + sizeof(sin_sbm_header_t));
 
 		for(i = 0; i < base->num_groups; i ++)
 		{
-			num_tris += trigroup[i].num_tris;
+			num_tris += LittleLong(trigroup[i].num_tris);
 		}
 	}
 
@@ -2652,7 +2666,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 
 	for (i = 0; i < actions_num; i++)
 	{
-		int anim_size;
+		int anim_size, j;
 
 		anim[animation_num] = (sin_sam_header_t*)read_file(animations[i], &anim_size);
 		if (anim_size <= 0)
@@ -2661,11 +2675,28 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 				__func__, mod_name, animations[i]);
 			continue;
 		}
+
 		if (anim[animation_num]->num_xyz != base->num_xyz)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s, incorrect count tris in animation in %s\n",
 				__func__, mod_name, animations[i]);
 			continue;
+		}
+
+		/* Convert from LittleLong */
+		for (j = 0; j < sizeof(sin_sam_header_t) / 4; j ++)
+		{
+			((int *)anim[animation_num])[j] = LittleLong(
+				((int *)anim[animation_num])[j]);
+		}
+
+		if ((anim[animation_num]->ident != SAMHEADER) ||
+			(anim[animation_num]->version != MDSINVERSION))
+		{
+			free(base);
+			R_Printf(PRINT_DEVELOPER, "%s: %s, Incorrect ident or version for %s\n",
+				__func__, mod_name, base_model);
+			return NULL;
 		}
 
 		animation_num ++;
@@ -2720,8 +2751,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	dstvert_t *st_out = (dstvert_t *)((char *)pheader + pheader->ofs_st);
 	for (i = 0; i < pheader->num_st; i ++)
 	{
-		st_out[i].s = (int)(st_in[i].s * pheader->skinwidth + 256) % 256;
-		st_out[i].t = (int)(st_in[i].t * pheader->skinheight + 256) % 256;
+		st_out[i].s = (int)(LittleFloat(st_in[i].s) * pheader->skinwidth + 256) % 256;
+		st_out[i].t = (int)(LittleFloat(st_in[i].t) * pheader->skinheight + 256) % 256;
 	}
 
 	/* tris and mesh */
@@ -2736,11 +2767,11 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		int j;
 
 		mesh_nodes[i].ofs_tris = tris_ofs;
-		mesh_nodes[i].num_tris = trigroup_in[i].num_tris;
+		mesh_nodes[i].num_tris = LittleLong(trigroup_in[i].num_tris);
 
 		/* offset from current group */
-		tri_in = (sin_triangle_t *)((char*)(trigroup_in + i) + trigroup_in[i].ofs_tris);
-		for (j = 0; j < trigroup_in[i].num_tris; j++)
+		tri_in = (sin_triangle_t *)((char*)(trigroup_in + i) + LittleLong(trigroup_in[i].ofs_tris));
+		for (j = 0; j < mesh_nodes[i].num_tris; j++)
 		{
 			int k;
 
