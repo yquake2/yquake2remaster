@@ -1013,11 +1013,9 @@ typedef struct
 } drbrushside_t;
 
 #define SDEFHEADER (('F' << 24) + ('E' << 16) + ('D' << 8) + 'S') /* little-endian "SDEF" */
-
-typedef struct
-{
-	unsigned char x,y,z,normal_index;
-} trivertx_t;
+#define SBMHEADER ((' ' << 24) + ('M' << 16) + ('B' << 8) + 'S') /* little-endian "SBM " */
+#define SAMHEADER ((' ' << 24) + ('M' << 16) + ('A' << 8) + 'S') /* little-endian "SAM " */
+#define MDSINVERSION 1
 
 typedef struct
 {

@@ -36,12 +36,15 @@ Models support:
 | md2    | Anachronox      | 8/10/16 bit  | Single | No tagged surfaces, unchecked with game |
 | mdx    | Kingpin         | 8 bit        | Many   | No sfx support, unchecked with game     |
 | fm     | Heretic 2       | 8 bit        | Many   |                                         |
+| def    | SiN             | Part of sam  | Many   | Unchecked with game                     |
 | dkm    | Daikatana DKM1  | 8 bit        | Many   | Unchecked with game                     |
 | dkm    | Daikatana DKM2  | 10 bit       | Many   | Unchecked with game                     |
 | md3    | Quake 3         | 16 bit       | Many   | No tags support                         |
 | md5    | Doom 3/Quake 4  | float        | Many   | Requires md2 for skins                  |
+| sbm    | SiN             | Part of sam  | Many   | Unchecked with game                     |
+| sam    | SiN             | 8 bit        | Many   | Unchecked with game                     |
 
-All models support only single texture for all meshes and only up to 255 frames.
+All models support only single texture for all meshes and frames limit based on game protocol.
 
 Texture support:
 
@@ -88,6 +91,7 @@ Games:
    * SDK: https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe
    * Tech info: http://h2vault.infinityfreeapp.com/index.html
  * SiN:
+   * Tools: [SiNview](https://web.archive.org/web/20001212060900/http://starbase.neosoft.com:80/~otaku/program.html)
    * Tools: https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff
    * SDK: https://github.com/NightDive-Studio/sin-ex-game
 

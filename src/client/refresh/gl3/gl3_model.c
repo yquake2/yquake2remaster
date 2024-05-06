@@ -371,6 +371,23 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 	mod->numframes = 2; /* regular and alternate animation */
 }
 
+/* Temporary solution, need to use load file dirrectly */
+static char *
+Mod_ReadFile(const char *name, int *size)
+{
+	char *buffer, *data;
+
+	*size = ri.FS_LoadFile(name, (void **)&buffer);
+	if (*size <= 0)
+	{
+		return NULL;
+	}
+
+	data = malloc(*size);
+	memcpy(data, buffer, *size);
+	return data;
+}
+
 /*
  * Loads in a model for the given name
  */
@@ -477,7 +494,7 @@ Mod_ForName(const char *name, gl3model_t *parent_model, qboolean crash)
 				mod->extradata = Mod_LoadModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
-					(findimage_t)GL3_FindImage, (loadimage_t)GL3_LoadPic,
+					(findimage_t)GL3_FindImage, (loadimage_t)GL3_LoadPic, Mod_ReadFile,
 					&(mod->type));
 				if (!mod->extradata)
 				{
