@@ -2566,6 +2566,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		{
 			continue;
 		}
+
 		/* found start of comment */
 		else if (!strncmp(token, "/*", 2))
 		{
@@ -2594,7 +2595,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		{
 			/* Just skipped for now */
 			curr_buff = strchr(curr_buff, '\n');
-			if (*curr_buff == '\n')
+			if (curr_buff && *curr_buff == '\n')
 			{
 				curr_buff ++;
 			}
@@ -2604,27 +2605,34 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 			const char *ext;
 
 			ext = COM_FileExtension(token);
-			if (!strcmp(ext, "sbm"))
+			if (!Q_stricmp(ext, "sbm"))
 			{
 				snprintf(base_model, sizeof(base_model),
 					"%s/%s", models_path, token);
 			}
-			else
+			else if (!Q_stricmp(ext, "sam"))
 			{
-				token = COM_Parse(&curr_buff);
-				ext = COM_FileExtension(token);
-				if (!strcmp(ext, "sam"))
+				if (actions_num >= 255)
 				{
-					snprintf(animations[actions_num], sizeof(animations[actions_num]),
-						"%s/%s", models_path, token);
-					actions_num ++;
+					R_Printf(PRINT_DEVELOPER, "%s: %s has huge list of animations %s\n",
+						__func__, mod_name, base_model);
+					continue;
 				}
-				if (!strcmp(ext, "tga"))
+				snprintf(animations[actions_num], sizeof(animations[actions_num]),
+					"%s/%s", models_path, token);
+				actions_num ++;
+			}
+			else if (!Q_stricmp(ext, "tga"))
+			{
+				if (skinnames_num >= 255)
 				{
-					snprintf(skinnames[skinnames_num], sizeof(skinnames[skinnames_num]),
-						"%s/%s", models_path, token);
-					skinnames_num ++;
+					R_Printf(PRINT_DEVELOPER, "%s: %s has huge list of skinss %s\n",
+						__func__, mod_name, base_model);
+					continue;
 				}
+				snprintf(skinnames[skinnames_num], sizeof(skinnames[skinnames_num]),
+					"%s/%s", models_path, token);
+				skinnames_num ++;
 			}
 		}
 	}
@@ -2632,7 +2640,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	base = (sin_sbm_header_t*)read_file(base_model, &base_size);
 	if (base_size <= 0)
 	{
-		R_Printf(PRINT_DEVELOPER, "%s: %s, No base model for animation for %s\n",
+		R_Printf(PRINT_DEVELOPER, "%s: %s No base model for %s\n",
 			__func__, mod_name, base_model);
 		return NULL;
 	}
@@ -2699,13 +2707,13 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 			return NULL;
 		}
 
+		framescount += anim[animation_num]->num_frames;
 		animation_num ++;
-		framescount += anim[i]->num_frames;
 	}
 
 	if (!animation_num)
 	{
-		R_Printf(PRINT_DEVELOPER, "%s: %s no aanimation found\n",
+		R_Printf(PRINT_DEVELOPER, "%s: %s no animation found\n",
 			__func__, mod_name);
 		free(base);
 		return NULL;
