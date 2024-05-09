@@ -1076,5 +1076,8 @@ typedef struct
 	int ofs_end; // end of file
 } sin_sam_header_t;
 
+/* Quake 1 BSP */
+#define BSPQ1VERSION 29
+
 #endif
 
