@@ -281,8 +281,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 					// Apply overbright bits to the static lightmaps
 					if (gl1_overbrightbits->value)
 					{
-						R_TexEnv(GL_COMBINE_EXT);
-						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, gl1_overbrightbits->value);
+						R_TexEnv(GL_COMBINE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, gl1_overbrightbits->value);
 					}
 
 					R_DrawGLPolyChain(surf->polys, 0, 0);
@@ -344,8 +344,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 						// Apply overbright bits to the dynamic lightmaps
 						if (gl1_overbrightbits->value)
 						{
-							R_TexEnv(GL_COMBINE_EXT);
-							glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, gl1_overbrightbits->value);
+							R_TexEnv(GL_COMBINE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, gl1_overbrightbits->value);
 						}
 
 						R_DrawGLPolyChain(drawsurf->polys,
@@ -390,8 +390,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				// Apply overbright bits to the remainder lightmaps
 				if (gl1_overbrightbits->value)
 				{
-					R_TexEnv(GL_COMBINE_EXT);
-					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, gl1_overbrightbits->value);
+					R_TexEnv(GL_COMBINE);
+					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, gl1_overbrightbits->value);
 				}
 
 				R_DrawGLPolyChain(surf->polys,
@@ -411,17 +411,12 @@ static void
 R_RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 {
 	qboolean is_dynamic = false;
-	const image_t *image;
 	int maps;
 
 	c_brush_polys++;
 
-	image = R_TextureAnimation(currententity, fa->texinfo);
-
 	if (fa->flags & SURF_DRAWTURB)
 	{
-		R_Bind(image->texnum);
-
 		/* This is a hack ontop of a hack. Warping surfaces like those generated
 		   by R_EmitWaterPolys() don't have a lightmap. Original Quake II therefore
 		   negated the global intensity on those surfaces, because otherwise they
@@ -437,8 +432,8 @@ R_RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 		        They oversaturate otherwise. */
 		if (gl1_overbrightbits->value)
 		{
-			R_TexEnv(GL_COMBINE_EXT);
-			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE_EXT, 1);
+			R_TexEnv(GL_COMBINE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 		}
 		else
 		{
@@ -452,12 +447,8 @@ R_RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 
 		return;
 	}
-	else
-	{
-		R_Bind(image->texnum);
 
-		R_TexEnv(GL_REPLACE);
-	}
+	R_TexEnv(GL_REPLACE);
 
 	if (fa->texinfo->flags & SURF_SCROLL)
 	{
@@ -622,6 +613,7 @@ R_DrawTextureChains(const entity_t *currententity)
 
 		for ( ; s; s = s->texturechain)
 		{
+			R_Bind(image->texnum);  // may reset because of dynamic lighting in R_RenderBrushPoly
 			R_RenderBrushPoly(currententity, s);
 		}
 
@@ -636,6 +628,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 	msurface_t *psurf;
+	image_t *image;
 
 	/* calculate dynamic lighting for bmodel */
 	if (!r_flashblend->value)
@@ -676,6 +669,8 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 			}
 			else
 			{
+				image = R_TextureAnimation(currententity, psurf->texinfo);
+				R_Bind(image->texnum);
 				R_RenderBrushPoly(currententity, psurf);
 			}
 		}
@@ -683,7 +678,6 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 
 	if (!(currententity->flags & RF_TRANSLUCENT))
 	{
-
 		R_BlendLightmaps(currentmodel);
 	}
 	else
@@ -759,8 +753,6 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 	R_RotateForEntity(currententity);
 	currententity->angles[0] = -currententity->angles[0];
 	currententity->angles[2] = -currententity->angles[2];
-
-	R_TexEnv(GL_REPLACE);
 
 	if (gl_lightmap->value)
 	{
@@ -917,7 +909,6 @@ void
 R_DrawWorld(void)
 {
 	entity_t ent;
-	const model_t *currentmodel;
 
 	if (!r_drawworld->value)
 	{
@@ -928,8 +919,6 @@ R_DrawWorld(void)
 	{
 		return;
 	}
-
-	currentmodel = r_worldmodel;
 
 	VectorCopy(r_newrefdef.vieworg, modelorg);
 
@@ -945,7 +934,7 @@ R_DrawWorld(void)
 	RE_ClearSkyBox();
 	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 	R_DrawTextureChains(&ent);
-	R_BlendLightmaps(currentmodel);
+	R_BlendLightmaps(r_worldmodel);
 	R_DrawSkyBox();
 	R_DrawTriangleOutlines();
 }
@@ -1048,4 +1037,3 @@ R_MarkLeaves(void)
 		}
 	}
 }
-
