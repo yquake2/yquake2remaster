@@ -43,10 +43,13 @@
 #define DOOR_REVERSE 2
 #define DOOR_CRUSHER 4
 #define DOOR_NOMONSTER 8
+#define DOOR_ANIMATED 16
 #define DOOR_TOGGLE 32
+#define DOOR_ANIMATED_FAST 64
 #define DOOR_X_AXIS 64
 #define DOOR_Y_AXIS 128
 #define DOOR_INACTIVE 8192
+#define DOOR_SAFE_OPEN 0x20000
 
 #define AccelerationDistance(target, rate) (target * ((target / rate) + 1) / 2)
 
@@ -1715,7 +1718,7 @@ SP_func_rotating(edict_t *ent)
 		ent->use(ent, NULL, NULL);
 	}
 
-	if (ent->spawnflags & 64)
+	if (ent->spawnflags & DOOR_ANIMATED_FAST)
 	{
 		ent->s.effects |= EF_ANIM_ALL;
 	}
@@ -2709,12 +2712,12 @@ SP_func_door(edict_t *ent)
 	VectorCopy(ent->pos2, ent->moveinfo.end_origin);
 	VectorCopy(ent->s.angles, ent->moveinfo.end_angles);
 
-	if (ent->spawnflags & 16)
+	if (ent->spawnflags & DOOR_ANIMATED)
 	{
 		ent->s.effects |= EF_ANIM_ALL;
 	}
 
-	if (ent->spawnflags & 64)
+	if (ent->spawnflags & DOOR_ANIMATED_FAST)
 	{
 		ent->s.effects |= EF_ANIM_ALLFAST;
 	}
@@ -2916,7 +2919,7 @@ SP_func_door_rotating(edict_t *ent)
 	VectorCopy(ent->s.origin, ent->moveinfo.end_origin);
 	VectorCopy(ent->pos2, ent->moveinfo.end_angles);
 
-	if (ent->spawnflags & 16)
+	if (ent->spawnflags & DOOR_ANIMATED)
 	{
 		ent->s.effects |= EF_ANIM_ALL;
 	}
