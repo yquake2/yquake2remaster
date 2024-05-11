@@ -41,7 +41,13 @@ static mframe_t army_frames_stand [] =
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 };
-mmove_t army_move_stand = {0, 7, army_frames_stand, NULL};
+mmove_t army_move_stand =
+{
+	FRAME_stand1,
+	FRAME_stand8,
+	army_frames_stand,
+	NULL
+};
 
 void army_stand(edict_t *self)
 {
@@ -61,7 +67,13 @@ static mframe_t army_frames_run [] =
 	{ai_run, 10, NULL},
 	{ai_run, 8, NULL}
 };
-mmove_t army_move_run = {73, 80, army_frames_run, NULL};
+mmove_t army_move_run =
+{
+	FRAME_run1,
+	FRAME_run8,
+	army_frames_run,
+	NULL
+};
 
 void army_run(edict_t *self)
 {
@@ -99,7 +111,13 @@ static mframe_t army_frames_attack [] =
 
 	{ai_charge, 0, NULL}
 };
-mmove_t army_move_attack = {81, 89, army_frames_attack, army_run};
+mmove_t army_move_attack =
+{
+	FRAME_shoot1,
+	FRAME_shoot9,
+	army_frames_attack,
+	army_run
+};
 
 void army_attack(edict_t *self)
 {
@@ -129,7 +147,13 @@ static mframe_t army_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_pain1 = {40, 45, army_frames_pain1, army_run};
+mmove_t army_move_pain1 =
+{
+	FRAME_pain1,
+	FRAME_pain6,
+	army_frames_pain1,
+	army_run
+};
 
 // Pain (2)
 static mframe_t army_frames_pain2 [] =
@@ -152,7 +176,13 @@ static mframe_t army_frames_pain2 [] =
 	{ai_move, 2, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_pain2 = {46, 59, army_frames_pain2, army_run};
+mmove_t army_move_pain2 =
+{
+	FRAME_painb1,
+	FRAME_painb14,
+	army_frames_pain2,
+	army_run
+};
 
 // Pain (3)
 static mframe_t army_frames_pain3 [] =
@@ -174,7 +204,13 @@ static mframe_t army_frames_pain3 [] =
 
 	{ai_move, 2, NULL}
 };
-mmove_t army_move_pain3 = {60, 72, army_frames_pain3, army_run};
+mmove_t army_move_pain3 =
+{
+	FRAME_painc1,
+	FRAME_painc13,
+	army_frames_pain3,
+	army_run
+};
 
 void army_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -234,7 +270,13 @@ static mframe_t army_frames_death1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_death1 = {8, 17, army_frames_death1, army_dead};
+mmove_t army_move_death1 =
+{
+	FRAME_death1,
+	FRAME_death10,
+	army_frames_death1,
+	army_dead
+};
 
 // Death (2)
 static mframe_t army_frames_death2 [] =
@@ -253,7 +295,13 @@ static mframe_t army_frames_death2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_death2 = {18, 28, army_frames_death2, army_dead};
+mmove_t army_move_death2 =
+{
+	FRAME_deathc1,
+	FRAME_deathc11,
+	army_frames_death2,
+	army_dead
+};
 
 void army_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
@@ -264,24 +312,38 @@ void army_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n= 0; n < 2; n++)
+		{
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
+		}
+
 		for (n= 0; n < 4; n++)
+		{
 			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+		}
+
 		ThrowHead (self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
+
 	if (self->deadflag == DEAD_DEAD)
+	{
 		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 
 	if (random() < 0.5)
+	{
 		self->monsterinfo.currentmove = &army_move_death1;
+	}
 	else
+	{
 		self->monsterinfo.currentmove = &army_move_death2;
+	}
 }
 
 void SP_monster_army(edict_t *self)

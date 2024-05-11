@@ -33,7 +33,14 @@ static mframe_t shalrath_frames_stand [] =
 {
 	{ai_stand, 0, NULL},
 };
-mmove_t shalrath_move_stand = {0, 0, shalrath_frames_stand, NULL};
+
+mmove_t shalrath_move_stand =
+{
+	FRAME_attack1,
+	FRAME_attack1,
+	shalrath_frames_stand,
+	NULL
+};
 
 void shalrath_stand(edict_t *self)
 {
@@ -58,7 +65,13 @@ static mframe_t shalrath_frames_run [] =
 	{ai_run, 4, NULL},
 	{ai_run, 5, NULL}
 };
-mmove_t shalrath_move_run = {23, 34, shalrath_frames_run, NULL};
+mmove_t shalrath_move_run =
+{
+	FRAME_walk1,
+	FRAME_walk12,
+	shalrath_frames_run,
+	NULL
+};
 
 void shalrath_run(edict_t *self)
 {
@@ -199,7 +212,13 @@ static mframe_t shalrath_frames_attack [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t shalrath_move_attack = {0, 10, shalrath_frames_attack, shalrath_run};
+mmove_t shalrath_move_attack =
+{
+	FRAME_attack1,
+	FRAME_attack11,
+	shalrath_frames_attack,
+	shalrath_run
+};
 
 void shalrath_attack(edict_t *self)
 {
@@ -216,7 +235,13 @@ static mframe_t shalrath_frames_pain [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t shalrath_move_pain = {11, 15, shalrath_frames_pain, shalrath_run};
+mmove_t shalrath_move_pain =
+{
+	FRAME_pain1,
+	FRAME_pain5,
+	shalrath_frames_pain,
+	shalrath_run
+};
 
 void shalrath_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -254,7 +279,13 @@ static mframe_t shalrath_frames_death [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t shalrath_move_death = {16, 22, shalrath_frames_death, shalrath_dead};
+mmove_t shalrath_move_death =
+{
+	FRAME_death1,
+	FRAME_death7,
+	shalrath_frames_death,
+	shalrath_dead
+};
 
 void shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {

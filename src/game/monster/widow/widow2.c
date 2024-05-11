@@ -92,7 +92,6 @@ void WidowExplosionLeg(edict_t *self);
 void ThrowArm1(edict_t *self);
 void ThrowArm2(edict_t *self);
 void ClipGibVelocity(edict_t *ent);
-void showme(edict_t *self);
 
 /* these offsets used by the tongue */
 static vec3_t offsets[] = {

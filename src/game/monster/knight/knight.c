@@ -45,7 +45,13 @@ static mframe_t knight_frames_stand [] =
 
 	{ai_stand, 0, NULL},
 };
-mmove_t knight_move_stand = {0, 8, knight_frames_stand, NULL};
+mmove_t knight_move_stand =
+{
+	FRAME_stand1,
+	FRAME_stand9,
+	knight_frames_stand,
+	NULL
+};
 
 void knight_stand(edict_t *self)
 {
@@ -65,7 +71,13 @@ static mframe_t knight_frames_run [] =
 	{ai_run, 14, NULL},
 	{ai_run, 6, knight_attack}
 };
-mmove_t knight_move_run = {9, 16, knight_frames_run, NULL};
+mmove_t knight_move_run =
+{
+	FRAME_runb1,
+	FRAME_runb8,
+	knight_frames_run,
+	NULL
+};
 
 void knight_run(edict_t *self)
 {
@@ -124,9 +136,10 @@ static mframe_t knight_frames_attack [] =
 	{ai_charge, 10, NULL},
 	{ai_charge, 7, NULL}
 };
-mmove_t knight_move_attack = {
-	17,
-	27,
+mmove_t knight_move_attack =
+{
+	FRAME_runattack1,
+	FRAME_runattack11,
 	knight_frames_attack,
 	knight_run
 };
@@ -155,6 +168,7 @@ static mframe_t knight_frames_melee [] =
 	{ai_charge, 7, NULL},
 	{ai_charge, 4, NULL},
 	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
 
 	{ai_charge, 4, SwingSword},
 	{ai_charge, 4, SwingSword},
@@ -164,7 +178,13 @@ static mframe_t knight_frames_melee [] =
 	{ai_charge, 1, NULL},
 	{ai_charge, 5, NULL}
 };
-mmove_t knight_move_melee = {43, 52, knight_frames_melee, knight_run};
+mmove_t knight_move_melee =
+{
+	FRAME_attackb1,
+	FRAME_attackb11,
+	knight_frames_melee,
+	knight_run
+};
 
 void knight_melee(edict_t *self)
 {
@@ -178,7 +198,13 @@ static mframe_t knight_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t knight_move_pain1 = {28, 30, knight_frames_pain1, knight_run};
+mmove_t knight_move_pain1 =
+{
+	FRAME_pain1,
+	FRAME_pain3,
+	knight_frames_pain1,
+	knight_run
+};
 
 // Pain (2)
 static mframe_t knight_frames_pain2 [] =
@@ -197,7 +223,13 @@ static mframe_t knight_frames_pain2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t knight_move_pain2 = {31, 41, knight_frames_pain2, knight_run};
+mmove_t knight_move_pain2 =
+{
+	FRAME_painb1,
+	FRAME_painb11,
+	knight_frames_pain2,
+	knight_run
+};
 
 void knight_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -241,7 +273,13 @@ static mframe_t knight_frames_die1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t knight_move_die1 = {76, 85, knight_frames_die1, knight_dead};
+mmove_t knight_move_die1 =
+{
+	FRAME_death1,
+	FRAME_death10,
+	knight_frames_die1,
+	knight_dead
+};
 
 // Death (2)
 static mframe_t knight_frames_die2 [] =
@@ -260,7 +298,13 @@ static mframe_t knight_frames_die2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t knight_move_die2 = {86, 96, knight_frames_die2, knight_dead};
+mmove_t knight_move_die2 =
+{
+	FRAME_deathb1,
+	FRAME_deathb11,
+	knight_frames_die2,
+	knight_dead
+};
 
 void knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {

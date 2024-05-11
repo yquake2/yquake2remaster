@@ -51,7 +51,13 @@ static mframe_t wizard_frames_stand [] =
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 };
-mmove_t wizard_move_stand = {0, 14, wizard_frames_stand, NULL};
+mmove_t wizard_move_stand =
+{
+	FRAME_hover1,
+	FRAME_hover15,
+	wizard_frames_stand,
+	NULL
+};
 
 void wizard_stand(edict_t *self)
 {
@@ -80,9 +86,10 @@ static mframe_t wizard_frames_run [] =
 	{ai_run, 16, NULL},
 	{ai_run, 16, NULL}
 };
-mmove_t wizard_move_run = {
-	15,
-	28,
+mmove_t wizard_move_run =
+{
+	FRAME_fly1,
+	FRAME_fly14,
 	wizard_frames_run,
 	NULL
 };
@@ -96,7 +103,7 @@ void wizard_frame(edict_t *self)
 {
 	static int frame = 0;
 
-	self->s.frame = (33 - frame);
+	self->s.frame = (FRAME_magatt5 - frame);
 	frame++;
 
 	if (frame > 5)
@@ -115,7 +122,13 @@ static mframe_t wizard_frames_finish [] =
 
 	{ai_charge, 0, wizard_frame}
 };
-mmove_t wizard_move_finish = {29, 33, wizard_frames_finish, wizard_run};
+mmove_t wizard_move_finish =
+{
+	FRAME_magatt1,
+	FRAME_magatt5,
+	wizard_frames_finish,
+	wizard_run
+};
 
 void wizard_finish_attack(edict_t *self)
 {
@@ -228,7 +241,13 @@ static mframe_t wizard_frames_attack [] =
 	{ai_charge, 0, WizardSpit},
 	{ai_charge, 0, NULL}
 };
-mmove_t wizard_move_attack = {29, 34, wizard_frames_attack, wizard_finish_attack};
+mmove_t wizard_move_attack =
+{
+	FRAME_magatt1,
+	FRAME_magatt6,
+	wizard_frames_attack,
+	wizard_finish_attack
+};
 
 void wizard_attack(edict_t *self)
 {
@@ -243,7 +262,13 @@ static mframe_t wizard_frames_pain [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t wizard_move_pain = {42, 45, wizard_frames_pain, wizard_run};
+mmove_t wizard_move_pain =
+{
+	FRAME_pain1,
+	FRAME_pain4,
+	wizard_frames_pain,
+	wizard_run
+};
 
 void wizard_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -291,7 +316,13 @@ static mframe_t wizard_frames_death [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t wizard_move_death = {46, 53, wizard_frames_death, wizard_dead};
+mmove_t wizard_move_death =
+{
+	FRAME_death1,
+	FRAME_death8,
+	wizard_frames_death,
+	wizard_dead
+};
 
 void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {

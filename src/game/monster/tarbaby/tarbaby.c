@@ -38,7 +38,13 @@ static mframe_t tarbaby_frames_stand [] =
 {
 	{ai_stand, 0, tarbaby_unbounce}
 };
-mmove_t tarbaby_move_stand = {0, 0, tarbaby_frames_stand, NULL};
+mmove_t tarbaby_move_stand =
+{
+	FRAME_walk1,
+	FRAME_walk1,
+	tarbaby_frames_stand,
+	NULL
+};
 
 void tarbaby_stand(edict_t *self)
 {
@@ -80,7 +86,13 @@ static mframe_t tarbaby_frames_run [] =
 
 	{ai_run, 2, NULL}
 };
-mmove_t tarbaby_move_run = {25, 49, tarbaby_frames_run, NULL};
+mmove_t tarbaby_move_run =
+{
+	FRAME_run1,
+	FRAME_run25,
+	tarbaby_frames_run,
+	NULL
+};
 
 void tarbaby_run(edict_t *self)
 {
@@ -142,7 +154,13 @@ static mframe_t tarbaby_frames_fly [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t tarbaby_move_fly = {56, 59, tarbaby_frames_fly, tarbaby_rejump};
+mmove_t tarbaby_move_fly =
+{
+	FRAME_fly1,
+	FRAME_fly4,
+	tarbaby_frames_fly,
+	tarbaby_rejump
+};
 
 void tarbaby_fly(edict_t *self)
 {
@@ -160,7 +178,13 @@ static mframe_t tarbaby_frames_jump [] =
 	{ai_charge, 0, TarBabyJump},
 	{ai_charge, 0, NULL}
 };
-mmove_t tarbaby_move_jump = {50, 55, tarbaby_frames_jump, tarbaby_fly};
+mmove_t tarbaby_move_jump =
+{
+	FRAME_jump1,
+	FRAME_jump6,
+	tarbaby_frames_jump,
+	tarbaby_fly
+};
 
 void tarbaby_rejump(edict_t *self)
 {
@@ -199,7 +223,7 @@ void tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
 {
 	if (self->deadflag == DEAD_DEAD)
 		return;
-	self->s.frame = 60;
+	self->s.frame = FRAME_exp;
 	self->deadflag = DEAD_DEAD;
 	self->think = tarbaby_explode;
 	self->nextthink = level.time + 0.1;

@@ -51,7 +51,13 @@ static mframe_t fish_frames_stand [] =
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 };
-mmove_t fish_move_stand = {39, 56, fish_frames_stand, NULL};
+mmove_t fish_move_stand =
+{
+	FRAME_swim1,
+	FRAME_swim18,
+	fish_frames_stand,
+	NULL
+};
 
 void fish_stand(edict_t *self)
 {
@@ -84,7 +90,13 @@ static mframe_t fish_frames_run [] =
 	{ai_run, 12, NULL},
 	{ai_run, 12, NULL}
 };
-mmove_t fish_move_run = {39, 56, fish_frames_run, NULL};
+mmove_t fish_move_run =
+{
+	FRAME_swim1,
+	FRAME_swim18,
+	fish_frames_run,
+	NULL
+};
 
 void fish_run(edict_t *self)
 {
@@ -136,7 +148,13 @@ static mframe_t fish_frames_melee [] =
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL}
 };
-mmove_t fish_move_melee = {0, 17, fish_frames_melee, fish_run};
+mmove_t fish_move_melee =
+{
+	FRAME_attack1,
+	FRAME_attack18,
+	fish_frames_melee,
+	fish_run
+};
 
 void fish_melee(edict_t *self)
 {
@@ -189,7 +207,13 @@ static mframe_t fish_frames_death [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t fish_move_death = {18, 38, fish_frames_death, fish_dead};
+mmove_t fish_move_death =
+{
+	FRAME_death1,
+	FRAME_death21,
+	fish_frames_death,
+	fish_dead
+};
 
 void fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
@@ -242,7 +266,13 @@ static mframe_t fish_frames_pain [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t fish_move_pain = {57, 65, fish_frames_pain, fish_run};
+mmove_t fish_move_pain =
+{
+	FRAME_pain1,
+	FRAME_pain9,
+	fish_frames_pain,
+	fish_run
+};
 
 void fish_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)

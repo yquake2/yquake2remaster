@@ -47,7 +47,13 @@ static mframe_t hknight_frames_stand [] =
 
 	{ai_stand, 0, NULL},
 };
-mmove_t hknight_move_stand = {0, 8, hknight_frames_stand, NULL};
+mmove_t hknight_move_stand =
+{
+	FRAME_stand1,
+	FRAME_stand9,
+	hknight_frames_stand,
+	NULL
+};
 
 void hknight_stand(edict_t *self)
 {
@@ -77,7 +83,13 @@ static mframe_t hknight_frames_charge [] =
 	{ai_charge, 25,	NULL},
 	{ai_charge, 21,	NULL},
 };
-mmove_t hknight_move_charge = {63, 78, hknight_frames_charge, hknight_run};
+mmove_t hknight_move_charge =
+{
+	FRAME_char_a1,
+	FRAME_char_a16,
+	hknight_frames_charge,
+	hknight_run
+};
 
 qboolean CheckForCharge(edict_t *self)
 {
@@ -105,7 +117,13 @@ static mframe_t hknight_frames_run [] =
 	{ai_run, 21, NULL},
 	{ai_run, 13, NULL}
 };
-mmove_t hknight_move_run = {29, 36, hknight_frames_run, NULL};
+mmove_t hknight_move_run =
+{
+	FRAME_run1,
+	FRAME_run8,
+	hknight_frames_run,
+	NULL
+};
 
 void hknight_run(edict_t *self)
 {
@@ -223,7 +241,13 @@ static mframe_t hknight_frames_attack [] =
 	{ai_charge, 0, FireMagic},
 	{ai_charge, 0, FireMagic}
 };
-mmove_t hknight_move_attack = {155, 165, hknight_frames_attack, hknight_run};
+mmove_t hknight_move_attack =
+{
+	FRAME_magicc1,
+	FRAME_magicc11,
+	hknight_frames_attack,
+	hknight_run
+};
 
 void hknight_attack(edict_t *self)
 {
@@ -251,7 +275,13 @@ static mframe_t hknight_frames_slice [] =
 	{ai_charge, 0, SwingSword},
 	{ai_charge, 3, NULL}
 };
-mmove_t hknight_move_slice = {112, 121, hknight_frames_slice, hknight_run};
+mmove_t hknight_move_slice =
+{
+	FRAME_slice1,
+	FRAME_slice10,
+	hknight_frames_slice,
+	hknight_run
+};
 
 // Smash
 static mframe_t hknight_frames_smash [] =
@@ -270,7 +300,13 @@ static mframe_t hknight_frames_smash [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t hknight_move_smash = {122, 132, hknight_frames_smash, hknight_run};
+mmove_t hknight_move_smash =
+{
+	FRAME_smash1,
+	FRAME_smash11,
+	hknight_frames_smash,
+	hknight_run
+};
 
 // Watk
 static mframe_t hknight_frames_watk [] =
@@ -304,7 +340,13 @@ static mframe_t hknight_frames_watk [] =
 	{ai_charge, 3, NULL},
 
 };
-mmove_t hknight_move_watk = {133, 154, hknight_frames_watk, hknight_run};
+mmove_t hknight_move_watk =
+{
+	FRAME_w_attack1,
+	FRAME_w_attack22,
+	hknight_frames_watk,
+	hknight_run
+};
 
 // Melee
 void hknight_melee(edict_t *self)
@@ -333,7 +375,13 @@ static mframe_t hknight_frames_pain [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t hknight_move_pain = {37, 41, hknight_frames_pain, hknight_run};
+mmove_t hknight_move_pain =
+{
+	FRAME_pain1,
+	FRAME_pain5,
+	hknight_frames_pain,
+	hknight_run
+};
 
 void hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
@@ -385,7 +433,13 @@ static mframe_t hknight_frames_die1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t hknight_move_die1 = {42, 53, hknight_frames_die1, hknight_dead};
+mmove_t hknight_move_die1 =
+{
+	FRAME_death1,
+	FRAME_death12,
+	hknight_frames_die1,
+	hknight_dead
+};
 
 // Death (2)
 static mframe_t hknight_frames_die2 [] =
@@ -402,7 +456,13 @@ static mframe_t hknight_frames_die2 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t hknight_move_die2 = {54, 62, hknight_frames_die2, hknight_dead};
+mmove_t hknight_move_die2 =
+{
+	FRAME_deathb1,
+	FRAME_deathb9,
+	hknight_frames_die2,
+	hknight_dead
+};
 
 void hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {

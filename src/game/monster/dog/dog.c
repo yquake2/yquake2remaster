@@ -44,7 +44,13 @@ static mframe_t dog_frames_stand [] =
 
 	{ai_stand, 0, NULL},
 };
-mmove_t dog_move_stand = {69, 77, dog_frames_stand, NULL};
+mmove_t dog_move_stand =
+{
+	FRAME_stand1,
+	FRAME_stand9,
+	dog_frames_stand,
+	NULL
+};
 
 void dog_stand(edict_t *self)
 {
@@ -69,7 +75,13 @@ static mframe_t dog_frames_run [] =
 	{ai_run, 64, NULL},
 	{ai_run, 32, dog_leap}
 };
-mmove_t dog_move_run = {48, 59, dog_frames_run, NULL};
+mmove_t dog_move_run =
+{
+	FRAME_run1,
+	FRAME_run12,
+	dog_frames_run,
+	NULL
+};
 
 void dog_run(edict_t *self)
 {
@@ -130,7 +142,13 @@ static mframe_t dog_frames_leap [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t dog_move_leap = {60, 68, dog_frames_leap, dog_run};
+mmove_t dog_move_leap =
+{
+	FRAME_leap1,
+	FRAME_leap9,
+	dog_frames_leap,
+	dog_run
+};
 
 void dog_leap(edict_t *self)
 {
@@ -169,7 +187,13 @@ static mframe_t dog_frames_melee [] =
 	{ai_charge, 10, NULL},
 	{ai_charge, 10,	NULL}
 };
-mmove_t dog_move_melee = {0, 7, dog_frames_melee, dog_run};
+mmove_t dog_move_melee =
+{
+	FRAME_attack1,
+	FRAME_attack8,
+	dog_frames_melee,
+	dog_run
+};
 
 void dog_melee(edict_t *self)
 {
@@ -199,7 +223,13 @@ static mframe_t dog_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t dog_move_pain1 = {26, 31, dog_frames_pain1, dog_run};
+mmove_t dog_move_pain1 =
+{
+	FRAME_pain1,
+	FRAME_pain6,
+	dog_frames_pain1,
+	dog_run
+};
 
 // Pain (2)
 static mframe_t dog_frames_pain2 [] =
@@ -224,7 +254,13 @@ static mframe_t dog_frames_pain2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t dog_move_pain2 = {32, 47, dog_frames_pain2, dog_run};
+mmove_t dog_move_pain2 =
+{
+	FRAME_painb1,
+	FRAME_painb16,
+	dog_frames_pain2,
+	dog_run
+};
 
 void dog_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -264,7 +300,13 @@ static mframe_t dog_frames_die1 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t dog_move_die1 = {8, 16, dog_frames_die1, dog_dead};
+mmove_t dog_move_die1 =
+{
+	FRAME_death1,
+	FRAME_death9,
+	dog_frames_die1,
+	dog_dead
+};
 
 // Death (2)
 static mframe_t dog_frames_die2 [] =
@@ -281,7 +323,13 @@ static mframe_t dog_frames_die2 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t dog_move_die2 = {17, 25, dog_frames_die2, dog_dead};
+mmove_t dog_move_die2 =
+{
+	FRAME_deathb1,
+	FRAME_deathb9,
+	dog_frames_die2,
+	dog_dead
+};
 
 void dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {

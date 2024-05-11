@@ -50,7 +50,13 @@ static mframe_t ogre_frames_stand [] =
 
 	{ai_stand, 0, NULL},
 };
-mmove_t ogre_move_stand = {0, 8, ogre_frames_stand, NULL};
+mmove_t ogre_move_stand =
+{
+	FRAME_stand1,
+	FRAME_stand9,
+	ogre_frames_stand,
+	NULL
+};
 
 void ogre_stand(edict_t *self)
 {
@@ -70,9 +76,10 @@ static mframe_t ogre_frames_run [] =
 	{ai_run, 13, NULL},
 	{ai_run, 24, NULL}
 };
-mmove_t ogre_move_run = {
-	25,
-	32,
+mmove_t ogre_move_run =
+{
+	FRAME_run1,
+	FRAME_run8,
 	ogre_frames_run,
 	NULL
 };
@@ -120,9 +127,10 @@ static mframe_t ogre_frames_smash [] =
 	{ai_charge, 12, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t ogre_move_smash = {
-	47,
-	60,
+mmove_t ogre_move_smash =
+{
+	FRAME_smash1,
+	FRAME_smash14,
 	ogre_frames_smash,
 	ogre_run
 };
@@ -148,7 +156,13 @@ static mframe_t ogre_frames_swing [] =
 	{ai_charge, 9, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t ogre_move_swing = {33, 46, ogre_frames_swing, ogre_run};
+mmove_t ogre_move_swing =
+{
+	FRAME_swing1,
+	FRAME_swing14,
+	ogre_frames_swing,
+	ogre_run
+};
 
 // Melee
 void ogre_melee(edict_t *self)
@@ -185,7 +199,13 @@ static mframe_t ogre_frames_attack [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t ogre_move_attack = {61, 66, ogre_frames_attack, ogre_run};
+mmove_t ogre_move_attack =
+{
+	FRAME_shoot1,
+	FRAME_shoot6,
+	ogre_frames_attack,
+	ogre_run
+};
 
 void ogre_attack(edict_t *self)
 {
@@ -202,7 +222,13 @@ static mframe_t ogre_frames_pain1 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_pain1 = {67, 71, ogre_frames_pain1, ogre_run};
+mmove_t ogre_move_pain1 =
+{
+	FRAME_pain1,
+	FRAME_pain5,
+	ogre_frames_pain1,
+	ogre_run
+};
 
 // Pain (2)
 static mframe_t ogre_frames_pain2 [] =
@@ -211,7 +237,13 @@ static mframe_t ogre_frames_pain2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_pain2 = {72, 74, ogre_frames_pain2, ogre_run};
+mmove_t ogre_move_pain2 =
+{
+	FRAME_painb1,
+	FRAME_painb3,
+	ogre_frames_pain2,
+	ogre_run
+};
 
 // Pain (3)
 static mframe_t ogre_frames_pain3 [] =
@@ -224,7 +256,13 @@ static mframe_t ogre_frames_pain3 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_pain3 = {75, 80, ogre_frames_pain3, ogre_run};
+mmove_t ogre_move_pain3 =
+{
+	FRAME_painc1,
+	FRAME_painc6,
+	ogre_frames_pain3,
+	ogre_run
+};
 
 // Pain (4)
 static mframe_t ogre_frames_pain4 [] =
@@ -249,7 +287,13 @@ static mframe_t ogre_frames_pain4 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_pain4 = {81, 96, ogre_frames_pain4, ogre_run};
+mmove_t ogre_move_pain4 =
+{
+	FRAME_paind1,
+	FRAME_paind16,
+	ogre_frames_pain4,
+	ogre_run
+};
 
 // Pain (5)
 static mframe_t ogre_frames_pain5 [] =
@@ -273,9 +317,10 @@ static mframe_t ogre_frames_pain5 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_pain5 = {
-	97,
-	111,
+mmove_t ogre_move_pain5 =
+{
+	FRAME_paine1,
+	FRAME_paine15,
 	ogre_frames_pain5,
 	ogre_run
 };
@@ -352,7 +397,13 @@ static mframe_t ogre_frames_death1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_death1 = {112, 125, ogre_frames_death1, ogre_dead};
+mmove_t ogre_move_death1 =
+{
+	FRAME_death1,
+	FRAME_death14,
+	ogre_frames_death1,
+	ogre_dead
+};
 
 // Death (2)
 static mframe_t ogre_frames_death2 [] =
@@ -370,7 +421,13 @@ static mframe_t ogre_frames_death2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t ogre_move_death2 = {126, 135, ogre_frames_death2, ogre_dead};
+mmove_t ogre_move_death2 =
+{
+	FRAME_bdeath1,
+	FRAME_bdeath10,
+	ogre_frames_death2,
+	ogre_dead
+};
 
 // Death
 void ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)

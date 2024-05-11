@@ -49,7 +49,13 @@ static mframe_t demon_frames_stand [] =
 
 	{ai_stand, 0, NULL},
 };
-mmove_t demon_move_stand = {0, 12, demon_frames_stand, NULL};
+mmove_t demon_move_stand =
+{
+	FRAME_stand1,
+	FRAME_stand13,
+	demon_frames_stand,
+	NULL
+};
 
 void demon_stand(edict_t *self)
 {
@@ -67,7 +73,13 @@ static mframe_t demon_frames_run [] =
 	{ai_run, 15, NULL},
 	{ai_run, 36, NULL}
 };
-mmove_t demon_move_run = {21, 26, demon_frames_run, NULL};
+mmove_t demon_move_run =
+{
+	FRAME_run1,
+	FRAME_run6,
+	demon_frames_run,
+	NULL
+};
 
 void demon_run(edict_t *self)
 {
@@ -165,7 +177,13 @@ static mframe_t demon_frames_jump [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t demon_move_jump = {27, 38, demon_frames_jump, demon_run};
+mmove_t demon_move_jump =
+{
+	FRAME_leap1,
+	FRAME_leap12,
+	demon_frames_jump,
+	demon_run
+};
 
 void demon_attack(edict_t *self)
 {
@@ -213,7 +231,13 @@ static mframe_t demon_frames_melee [] =
 	{ai_charge, 4, NULL},
 	{ai_charge, 4, NULL}
 };
-mmove_t demon_move_melee = {54, 68, demon_frames_melee, demon_run};
+mmove_t demon_move_melee =
+{
+	FRAME_attacka1,
+	FRAME_attacka15,
+	demon_frames_melee,
+	demon_run
+};
 
 void demon_melee(edict_t *self)
 {
@@ -231,7 +255,13 @@ static mframe_t demon_frames_pain [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t demon_move_pain = {39, 44, demon_frames_pain, demon_run};
+mmove_t demon_move_pain =
+{
+	FRAME_pain1,
+	FRAME_pain6,
+	demon_frames_pain,
+	demon_run
+};
 
 void demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
@@ -275,7 +305,13 @@ static mframe_t demon_frames_die [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t demon_move_die = {45, 53, demon_frames_die, demon_dead};
+mmove_t demon_move_die =
+{
+	FRAME_death1,
+	FRAME_death9,
+	demon_frames_die,
+	demon_dead
+};
 
 void demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {

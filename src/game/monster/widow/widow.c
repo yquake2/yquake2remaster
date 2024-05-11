@@ -98,17 +98,6 @@ void WidowCalcSlots(edict_t *self);
 void drawbbox(edict_t *self);
 
 void
-showme(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	gi.dprintf("frame %d\n", self->s.frame);
-}
-
-void
 widow_search(edict_t *self)
 {
 }

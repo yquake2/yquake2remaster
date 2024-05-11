@@ -55,7 +55,8 @@ static mframe_t zombie_frames_stand [] =
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL},
 };
-mmove_t zombie_move_stand = {
+mmove_t zombie_move_stand =
+{
 	FRAME_stand1,
 	FRAME_stand15,
 	zombie_frames_stand,
@@ -95,7 +96,8 @@ static mframe_t zombie_frames_run[] =
 	{ai_run, 8, NULL}
 };
 
-mmove_t zombie_move_run = {
+mmove_t zombie_move_run =
+{
 	FRAME_run1,
 	FRAME_run18,
 	zombie_frames_run,
@@ -136,7 +138,8 @@ static mframe_t zombie_frames_walk[] =
 	{ai_walk, 0, NULL}
 };
 
-mmove_t zombie_move_walk = {
+mmove_t zombie_move_walk =
+{
 	FRAME_walk1,
 	FRAME_walk19,
 	zombie_frames_walk,
@@ -444,7 +447,7 @@ zombie_get_up_attempt(edict_t *self)
 		zombie_get_up(self);
 		return;
 	}
-	self->s.frame = 172;
+	self->s.frame = FRAME_paine11;
 	self->monsterinfo.currentmove = &zombie_move_get_up_attempt;
 
 	down++;
