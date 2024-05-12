@@ -249,7 +249,6 @@ R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 			temp = R_GetTemporaryLMBuffer(size);
 
 			R_BuildLightMap(fa, temp, smax * 4,
-				temp + size,
 				&r_newrefdef, r_modulate->value, r_framecount);
 			R_SetCacheState(fa, &r_newrefdef);
 
@@ -457,7 +456,6 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 		temp = R_GetTemporaryLMBuffer(size);
 
 		R_BuildLightMap(surf, temp, smax * 4,
-			temp + size,
 			&r_newrefdef, r_modulate->value, r_framecount);
 
 		if ((surf->styles[map] >= 32 || surf->styles[map] == 0) && (surf->dlightframe != r_framecount))

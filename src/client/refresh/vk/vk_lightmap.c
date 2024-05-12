@@ -245,7 +245,6 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 
 	R_SetCacheState(surf, &r_newrefdef);
 	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
-		vk_lms.lightmap_buffer + sizeof(vk_lms.lightmap_buffer),
 		&r_newrefdef, r_modulate->value, r_framecount);
 }
 

@@ -404,7 +404,7 @@ extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, 
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
 	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
 extern void R_SetCacheState(msurface_t *surf, const refdef_t *r_newrefdef);
-extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *destmax,
+extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride,
 	const refdef_t *r_newrefdef, float modulate, int r_framecount);
 extern void R_InitTemporaryLMBuffer(void);
 extern void R_FreeTemporaryLMBuffer(void);

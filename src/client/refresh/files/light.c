@@ -294,7 +294,7 @@ R_SetCacheState(msurface_t *surf, const refdef_t *refdef)
 
 static void
 R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
-	float *s_blocklights, const float *s_blocklights_max)
+	float *s_blocklights)
 {
 	int lnum;
 	int smax, tmax;
@@ -380,7 +380,7 @@ R_AddDynamicLights(const msurface_t *surf, const refdef_t *r_newrefdef,
 					fdist = td + (sd >> 1);
 				}
 
-				if ((fdist < fminlight) && (plightdest < (s_blocklights_max - 3)))
+				if (fdist < fminlight)
 				{
 					float diff = frad - fdist;
 					int j;
@@ -492,7 +492,7 @@ R_GetTemporaryLMBuffer(size_t size)
 }
 
 static void
-R_StoreLightMap(byte *dest, int stride, const byte *destmax, int smax, int tmax)
+R_StoreLightMap(byte *dest, int stride, int smax, int tmax)
 {
 	float *bl;
 	int i;
@@ -500,12 +500,6 @@ R_StoreLightMap(byte *dest, int stride, const byte *destmax, int smax, int tmax)
 	/* put into texture format */
 	stride -= (smax << 2);
 	bl = s_blocklights;
-
-	if ((dest + (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES) > destmax)
-	{
-		Com_Error(ERR_DROP, "%s destination too small for lightmap %d > " YQ2_COM_PRIdS,
-			__func__, (stride * (tmax - 1)) + smax * LIGHTMAP_BYTES, destmax - dest);
-	}
 
 	for (i = 0; i < tmax; i++, dest += stride)
 	{
@@ -583,8 +577,8 @@ R_StoreLightMap(byte *dest, int stride, const byte *destmax, int smax, int tmax)
  * Combine and scale multiple lightmaps into the floating format in blocklights
  */
 void
-R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *destmax,
-	const refdef_t *r_newrefdef, float modulate, int r_framecount)
+R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *r_newrefdef,
+	float modulate, int r_framecount)
 {
 	int smax, tmax;
 	int i, size, numlightmaps;
@@ -604,11 +598,6 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 
 	R_ResizeTemporaryLMBuffer(size * 3);
 
-	if ((s_blocklights + size * 3) >= s_blocklights_max)
-	{
-		Com_Error(ERR_DROP, "%s temporary blocklights too small for lightmap", __func__);
-	}
-
 	/* set to full bright if no light data */
 	if (!surf->samples)
 	{
@@ -617,7 +606,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 			s_blocklights[i] = 255;
 		}
 
-		R_StoreLightMap(dest, stride, destmax, smax, tmax);
+		R_StoreLightMap(dest, stride, smax, tmax);
 		return;
 	}
 
@@ -712,10 +701,10 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const byte *dest
 	/* add all the dynamic lights */
 	if (surf->dlightframe == r_framecount)
 	{
-		R_AddDynamicLights(surf, r_newrefdef, s_blocklights, s_blocklights_max);
+		R_AddDynamicLights(surf, r_newrefdef, s_blocklights);
 	}
 
-	R_StoreLightMap(dest, stride, destmax, smax, tmax);
+	R_StoreLightMap(dest, stride, smax, tmax);
 }
 
 static void
