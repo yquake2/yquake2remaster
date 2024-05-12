@@ -377,7 +377,7 @@ typedef struct
 
 	/* the lightmap texture data needs to be kept in
 	   main memory so texsubimage can update properly */
-	byte lightmap_buffer[LIGHTMAP_BYTES * BLOCK_WIDTH * BLOCK_HEIGHT];
+	byte *lightmap_buffer[MAX_LIGHTMAPS];
 } gllightmapstate_t;
 
 void LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa);

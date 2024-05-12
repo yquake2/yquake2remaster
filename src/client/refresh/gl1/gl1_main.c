@@ -145,6 +145,8 @@ cvar_t *gl1_stereo_convergence;
 
 refimport_t ri;
 
+void LM_FreeLightmapBuffers(void);
+
 void
 R_RotateForEntity(entity_t *e)
 {
@@ -165,6 +167,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	vec3_t point[4];
 	float *up, *right;
 
+	R_EnableMultitexture(false);
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
 	psprite = (dsprite_t *)currentmodel->extradata;
@@ -263,6 +266,7 @@ R_DrawNullModel(entity_t *currententity)
 			shadelight, r_modulate->value, lightspot);
 	}
 
+	R_EnableMultitexture(false);
 	glPushMatrix();
 	R_RotateForEntity(currententity);
 
@@ -1669,6 +1673,7 @@ RI_Shutdown(void)
 	ri.Cmd_RemoveCommand("imagelist");
 	ri.Cmd_RemoveCommand("gl_strings");
 
+	LM_FreeLightmapBuffers();
 	Mod_FreeAll();
 
 	R_ShutdownImages();
@@ -1926,6 +1931,7 @@ R_DrawBeam(entity_t *e)
 		VectorAdd(start_points[i], direction, end_points[i]);
 	}
 
+	R_EnableMultitexture(false);
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);

@@ -268,6 +268,7 @@ typedef struct msurface_s
 	/* lighting info */
 	int	dlightframe;
 	int	dlightbits;
+	qboolean dirty_lightmap;	// lightmap has dynamic lights from previous frame (mtex only)
 
 	int	lightmaptexturenum;
 	byte	styles[MAXLIGHTMAPS];
