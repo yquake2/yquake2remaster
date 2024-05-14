@@ -49,7 +49,8 @@ mmove_t army_move_stand =
 	NULL
 };
 
-void army_stand(edict_t *self)
+void
+army_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &army_move_stand;
 }
@@ -75,12 +76,14 @@ mmove_t army_move_run =
 	NULL
 };
 
-void army_run(edict_t *self)
+void
+army_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &army_move_run;
 }
 
-void FireArmy(edict_t *self)
+static void
+army_fire(edict_t *self)
 {
 	vec3_t	start;
 	vec3_t	end;
@@ -104,7 +107,7 @@ static mframe_t army_frames_attack [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 
-	{ai_charge, 0, FireArmy},
+	{ai_charge, 0, army_fire},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -119,19 +122,22 @@ mmove_t army_move_attack =
 	army_run
 };
 
-void army_attack(edict_t *self)
+void
+army_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &army_move_attack;
 }
 
 // Sight
-void army_sight(edict_t *self, edict_t *other /* unused */)
+void
+army_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Search
-void army_search(edict_t *self)
+void
+army_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
@@ -212,7 +218,8 @@ mmove_t army_move_pain3 =
 	army_run
 };
 
-void army_pain(edict_t *self, edict_t *other /* unused */,
+void
+army_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	float r;
@@ -244,7 +251,8 @@ void army_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void army_dead(edict_t *self)
+void
+army_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
@@ -303,7 +311,8 @@ mmove_t army_move_death2 =
 	army_dead
 };
 
-void army_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+army_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -346,7 +355,8 @@ void army_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 	}
 }
 
-void SP_monster_army(edict_t *self)
+void
+SP_monster_army(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/army/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -376,7 +386,7 @@ void SP_monster_army(edict_t *self)
 	self->pain = army_pain;
 	self->die = army_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

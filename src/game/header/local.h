@@ -1747,7 +1747,7 @@ qboolean Pickup_Sphere(edict_t * ent, edict_t * other);
  * implementation. (-Wmissing-prototypes )
  *
  */
-#if 0
+#if 1
 #include "../savegame/savegame.h"
 #include "../savegame/tables/gamefunc_decs.h"
 #endif

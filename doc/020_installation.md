@@ -322,7 +322,7 @@ The build dependencies can be installed with:
   curl sdl2`
 * On Debian based distributions: `apt install build-essential
   libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev
-  libavformat-dev libvulkan-dev`
+  libavformat-dev libswscale-dev libvulkan-dev`
 * On FreeBSD: `pkg install gmake libGL sdl2 openal-soft curl`
 * On NetBSD: `pkgin install gmake SDL2 openal-soft curl`
 * On OpenBSD: `pkg_add gmake sdl2 openal curl`

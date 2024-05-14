@@ -199,7 +199,7 @@ fire_enfbolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 }
 
 static void
-FireEnforcerBolt(edict_t *self)
+enforcer_fire_bolt(edict_t *self)
 {
 	vec3_t	forward, right;
 	vec3_t	start;
@@ -222,7 +222,7 @@ FireEnforcerBolt(edict_t *self)
 static mframe_t enforcer_frames_attack2 [] =
 {
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, FireEnforcerBolt},
+	{ai_charge, 0, enforcer_fire_bolt},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -252,7 +252,7 @@ static mframe_t enforcer_frames_attack1 [] =
 	{ai_charge, 0, NULL},
 
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, FireEnforcerBolt},
+	{ai_charge, 0, enforcer_fire_bolt},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
@@ -554,7 +554,7 @@ SP_monster_enforcer(edict_t *self)
 	self->pain = enforcer_pain;
 	self->die = enforcer_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

@@ -52,7 +52,8 @@ mmove_t dog_move_stand =
 	NULL
 };
 
-void dog_stand(edict_t *self)
+void
+dog_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &dog_move_stand;
 }
@@ -83,12 +84,14 @@ mmove_t dog_move_run =
 	NULL
 };
 
-void dog_run(edict_t *self)
+void
+dog_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &dog_move_run;
 }
 
-void DogLeapTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+dog_leap_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (self->health < 1)
 		return;
@@ -114,7 +117,8 @@ void DogLeapTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *su
 	}
 }
 
-void DogLeap(edict_t *self)
+static void
+dog_leap_step(edict_t *self)
 {
 	vec3_t forward;
 
@@ -124,14 +128,14 @@ void DogLeap(edict_t *self)
 	self->velocity[2] = 200;
 
 	self->groundentity = NULL;
-	self->touch = DogLeapTouch;
+	self->touch = dog_leap_touch;
 }
 
 // Leap
 static mframe_t dog_frames_leap [] =
 {
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, DogLeap},
+	{ai_charge, 0, dog_leap_step},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 
@@ -150,12 +154,14 @@ mmove_t dog_move_leap =
 	dog_run
 };
 
-void dog_leap(edict_t *self)
+void
+dog_leap(edict_t *self)
 {
 	self->monsterinfo.currentmove = &dog_move_leap;
 }
 
-void DogBite(edict_t *self)
+static void
+dogbite_step(edict_t *self)
 {
 	vec3_t dir;
 	static vec3_t aim = {100, 0, -24};
@@ -180,7 +186,7 @@ static mframe_t dog_frames_melee [] =
 	{ai_charge, 10, NULL},
 	{ai_charge, 10, NULL},
 	{ai_charge, 10, NULL},
-	{ai_charge, 10,	DogBite},
+	{ai_charge, 10, dogbite_step},
 
 	{ai_charge, 10, NULL},
 	{ai_charge, 10, NULL},
@@ -195,19 +201,22 @@ mmove_t dog_move_melee =
 	dog_run
 };
 
-void dog_melee(edict_t *self)
+void
+dog_melee(edict_t *self)
 {
 	self->monsterinfo.currentmove = &dog_move_melee;
 }
 
 // Sight
-void dog_sight(edict_t *self, edict_t *other /* unused */)
+void
+dog_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Search
-void dog_search(edict_t *self)
+void
+dog_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
@@ -262,7 +271,8 @@ mmove_t dog_move_pain2 =
 	dog_run
 };
 
-void dog_pain(edict_t *self, edict_t *other /* unused */,
+void
+dog_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	// decino: No pain animations in Nightmare mode
@@ -275,7 +285,8 @@ void dog_pain(edict_t *self, edict_t *other /* unused */,
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void dog_dead(edict_t *self)
+void
+dog_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, -8);
@@ -331,7 +342,8 @@ mmove_t dog_move_die2 =
 	dog_dead
 };
 
-void dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -360,7 +372,8 @@ void dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, v
 		self->monsterinfo.currentmove = &dog_move_die2;
 }
 
-void SP_monster_dog(edict_t *self)
+void
+SP_monster_dog(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/dog/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
@@ -382,7 +395,7 @@ void SP_monster_dog(edict_t *self)
 	self->monsterinfo.stand = dog_stand;
 	self->monsterinfo.walk = dog_run;
 	self->monsterinfo.run = dog_run;
-	//self->monsterinfo.attack = dog_leap;
+	self->monsterinfo.attack = dog_leap;
 	self->monsterinfo.melee = dog_melee;
 	self->monsterinfo.sight = dog_sight;
 	self->monsterinfo.search = dog_search;
@@ -390,7 +403,7 @@ void SP_monster_dog(edict_t *self)
 	self->pain = dog_pain;
 	self->die = dog_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

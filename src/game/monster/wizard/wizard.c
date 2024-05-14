@@ -59,7 +59,8 @@ mmove_t wizard_move_stand =
 	NULL
 };
 
-void wizard_stand(edict_t *self)
+void
+wizard_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &wizard_move_stand;
 }
@@ -94,12 +95,14 @@ mmove_t wizard_move_run =
 	NULL
 };
 
-void wizard_run(edict_t *self)
+void
+wizard_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &wizard_move_run;
 }
 
-void wizard_frame(edict_t *self)
+static void
+wizard_frame(edict_t *self)
 {
 	static int frame = 0;
 
@@ -130,12 +133,14 @@ mmove_t wizard_move_finish =
 	wizard_run
 };
 
-void wizard_finish_attack(edict_t *self)
+void
+wizard_finish_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &wizard_move_finish;
 }
 
-void spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == self->owner)
 	{
@@ -164,7 +169,8 @@ void spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 	G_FreeEdict(self);
 }
 
-void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+static void
+spit_fire(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t	*spit;
 	trace_t	tr;
@@ -206,7 +212,8 @@ void fire_spit(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	}
 }
 
-void WizardSpit(edict_t *self)
+static void
+wizard_spit(edict_t *self)
 {
 	vec3_t	forward, right;
 	vec3_t	start;
@@ -222,10 +229,11 @@ void WizardSpit(edict_t *self)
 	VectorSubtract(vec, start, dir);
 	VectorNormalize(dir);
 
-	fire_spit(self, start, dir, 9, 600);
+	spit_fire(self, start, dir, 9, 600);
 }
 
-void wizard_prespit(edict_t *self)
+static void
+wizard_prespit(edict_t *self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 }
@@ -234,11 +242,11 @@ void wizard_prespit(edict_t *self)
 static mframe_t wizard_frames_attack [] =
 {
 	{ai_charge, 0, wizard_prespit},
-	{ai_charge, 0, WizardSpit},
+	{ai_charge, 0, wizard_spit},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 
-	{ai_charge, 0, WizardSpit},
+	{ai_charge, 0, wizard_spit},
 	{ai_charge, 0, NULL}
 };
 mmove_t wizard_move_attack =
@@ -249,7 +257,8 @@ mmove_t wizard_move_attack =
 	wizard_finish_attack
 };
 
-void wizard_attack(edict_t *self)
+void
+wizard_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &wizard_move_attack;
 }
@@ -270,7 +279,8 @@ mmove_t wizard_move_pain =
 	wizard_run
 };
 
-void wizard_pain(edict_t *self, edict_t *other /* unused */,
+void
+wizard_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
@@ -284,7 +294,8 @@ void wizard_pain(edict_t *self, edict_t *other /* unused */,
 	self->monsterinfo.currentmove = &wizard_move_pain;
 }
 
-void wizard_fling(edict_t *self)
+static void
+wizard_fling(edict_t *self)
 {
 	self->velocity[0] = -200 + 400 * random();
 	self->velocity[1] = -200 + 400 * random();
@@ -297,7 +308,8 @@ void wizard_fling(edict_t *self)
 	self->svflags |= SVF_DEADMONSTER;
 }
 
-void wizard_dead(edict_t *self)
+void
+wizard_dead(edict_t *self)
 {
 	self->nextthink = 0;
 	gi.linkentity(self);
@@ -324,7 +336,8 @@ mmove_t wizard_move_death =
 	wizard_dead
 };
 
-void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -349,12 +362,14 @@ void wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 	self->monsterinfo.currentmove = &wizard_move_death;
 }
 
-void wizard_sight(edict_t *self, edict_t *other /* unused */)
+void
+wizard_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-void wizard_search(edict_t *self)
+void
+wizard_search(edict_t *self)
 {
 	float r;
 	r = random() * 5;
@@ -365,7 +380,8 @@ void wizard_search(edict_t *self)
 		gi.sound(self, CHAN_VOICE, sound_idle2, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_wizard(edict_t *self)
+void
+SP_monster_wizard(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/wizard/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -396,7 +412,7 @@ void SP_monster_wizard(edict_t *self)
 	self->pain = wizard_pain;
 	self->die = wizard_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	flymonster_start(self);

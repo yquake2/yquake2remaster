@@ -53,7 +53,8 @@ mmove_t knight_move_stand =
 	NULL
 };
 
-void knight_stand(edict_t *self)
+void
+knight_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &knight_move_stand;
 }
@@ -79,12 +80,14 @@ mmove_t knight_move_run =
 	NULL
 };
 
-void knight_run(edict_t *self)
+void
+knight_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &knight_move_run;
 }
 
-void knight_attack_swing(edict_t *self)
+static void
+knight_attack_swing(edict_t *self)
 {
 	if (random() > 0.5)
 	{
@@ -96,7 +99,8 @@ void knight_attack_swing(edict_t *self)
 	}
 }
 
-void SwingSword(edict_t *self)
+void
+swing_sword_step(edict_t *self)
 {
 	vec3_t dir;
 	static vec3_t aim = {100, 0, -24};
@@ -127,12 +131,12 @@ static mframe_t knight_frames_attack [] =
 	{ai_charge, 13, NULL},
 	{ai_charge, 7, NULL},
 
-	{ai_charge, 16, SwingSword},
-	{ai_charge, 20, SwingSword},
-	{ai_charge, 14, SwingSword},
-	{ai_charge, 6, SwingSword},
+	{ai_charge, 16, swing_sword_step},
+	{ai_charge, 20, swing_sword_step},
+	{ai_charge, 14, swing_sword_step},
+	{ai_charge, 6, swing_sword_step},
 
-	{ai_charge, 14, SwingSword},
+	{ai_charge, 14, swing_sword_step},
 	{ai_charge, 10, NULL},
 	{ai_charge, 7, NULL}
 };
@@ -144,7 +148,8 @@ mmove_t knight_move_attack =
 	knight_run
 };
 
-void knight_attack(edict_t *self)
+void
+knight_attack(edict_t *self)
 {
 	if (self->enemy && realrange(self, self->enemy) < (MELEE_DISTANCE * 4))
 	{
@@ -156,7 +161,8 @@ void knight_attack(edict_t *self)
 	}
 }
 
-void knight_melee_swing(edict_t *self)
+static void
+knight_melee_swing(edict_t *self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_melee1, 1, ATTN_NORM, 0);
 }
@@ -170,9 +176,9 @@ static mframe_t knight_frames_melee [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 
-	{ai_charge, 4, SwingSword},
-	{ai_charge, 4, SwingSword},
-	{ai_charge, 1, SwingSword},
+	{ai_charge, 4, swing_sword_step},
+	{ai_charge, 4, swing_sword_step},
+	{ai_charge, 1, swing_sword_step},
 	{ai_charge, 3, NULL},
 
 	{ai_charge, 1, NULL},
@@ -186,7 +192,8 @@ mmove_t knight_move_melee =
 	knight_run
 };
 
-void knight_melee(edict_t *self)
+void
+knight_melee(edict_t *self)
 {
 	self->monsterinfo.currentmove = &knight_move_melee;
 }
@@ -231,7 +238,8 @@ mmove_t knight_move_pain2 =
 	knight_run
 };
 
-void knight_pain(edict_t *self, edict_t *other /* unused */,
+void
+knight_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	// decino: No pain animations in Nightmare mode
@@ -247,7 +255,8 @@ void knight_pain(edict_t *self, edict_t *other /* unused */,
 	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void knight_dead(edict_t *self)
+void
+knight_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
@@ -306,7 +315,8 @@ mmove_t knight_move_die2 =
 	knight_dead
 };
 
-void knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -336,18 +346,21 @@ void knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 }
 
 // Search
-void knight_search(edict_t *self)
+void
+knight_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
 // Sight
-void knight_sight(edict_t *self, edict_t *other /* unused */)
+void
+knight_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_knight(edict_t *self)
+void
+SP_monster_knight(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/knight/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -370,7 +383,7 @@ void SP_monster_knight(edict_t *self)
 	self->monsterinfo.stand = knight_stand;
 	self->monsterinfo.walk = knight_run;
 	self->monsterinfo.run = knight_run;
-	//self->monsterinfo.attack = knight_attack;
+	self->monsterinfo.attack = knight_attack;
 	self->monsterinfo.melee = knight_melee;
 	self->monsterinfo.sight = knight_sight;
 	self->monsterinfo.search = knight_search;
@@ -378,7 +391,7 @@ void SP_monster_knight(edict_t *self)
 	self->pain = knight_pain;
 	self->die = knight_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

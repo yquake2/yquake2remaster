@@ -42,7 +42,8 @@ mmove_t shalrath_move_stand =
 	NULL
 };
 
-void shalrath_stand(edict_t *self)
+void
+shalrath_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &shalrath_move_stand;
 }
@@ -73,17 +74,20 @@ mmove_t shalrath_move_run =
 	NULL
 };
 
-void shalrath_run(edict_t *self)
+void
+shalrath_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &shalrath_move_run;
 }
 
-void shalrath_roar(edict_t *self)
+static void
+shalrath_roar(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_attack, 1, ATTN_NORM, 0);
 }
 
-void shalrath_pod_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+shalrath_pod_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == self->owner)
 		return;
@@ -99,7 +103,8 @@ void shalrath_pod_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface
 	G_FreeEdict(self);
 }
 
-void shalrath_pod_home(edict_t *self)
+void
+shalrath_pod_home(edict_t *self)
 {
 	static qboolean think = false;
 	vec3_t			end;
@@ -142,7 +147,8 @@ void shalrath_pod_home(edict_t *self)
 	think = !think;
 }
 
-void fire_shalrath_pod(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+static void
+fire_shalrath_pod(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t	*pod;
 
@@ -176,7 +182,8 @@ void fire_shalrath_pod(edict_t *self, vec3_t start, vec3_t dir, int damage, int 
 	gi.sound(self, CHAN_WEAPON, sound_fire, 1, ATTN_NORM, 0);
 }
 
-void FireShalrathPod(edict_t *self)
+static void
+FireShalrathPod(edict_t *self)
 {
 	vec3_t	forward, right;
 	vec3_t	start;
@@ -220,7 +227,8 @@ mmove_t shalrath_move_attack =
 	shalrath_run
 };
 
-void shalrath_attack(edict_t *self)
+void
+shalrath_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &shalrath_move_attack;
 }
@@ -243,7 +251,8 @@ mmove_t shalrath_move_pain =
 	shalrath_run
 };
 
-void shalrath_pain(edict_t *self, edict_t *other /* unused */,
+void
+shalrath_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	// decino: No pain animations in Nightmare mode
@@ -257,7 +266,8 @@ void shalrath_pain(edict_t *self, edict_t *other /* unused */,
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void shalrath_dead(edict_t *self)
+void
+shalrath_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, -8);
@@ -287,7 +297,8 @@ mmove_t shalrath_move_death =
 	shalrath_dead
 };
 
-void shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -313,18 +324,21 @@ void shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int dama
 }
 
 // Sight
-void shalrath_sight(edict_t *self, edict_t *other /* unused */)
+void
+shalrath_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Search
-void shalrath_search(edict_t *self)
+void
+shalrath_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_shalrath(edict_t *self)
+void
+SP_monster_shalrath(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/shalrath/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
@@ -354,7 +368,7 @@ void SP_monster_shalrath(edict_t *self)
 	self->pain = shalrath_pain;
 	self->die = shalrath_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

@@ -29,7 +29,8 @@ static int sound_search;
 static int sound_idle;
 static int sound_pain;
 
-void ogre_idle(edict_t *self)
+static void
+ogre_idle(edict_t *self)
 {
 	if (random() < 0.2)
 		gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_NORM, 0);
@@ -58,7 +59,8 @@ mmove_t ogre_move_stand =
 	NULL
 };
 
-void ogre_stand(edict_t *self)
+void
+ogre_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &ogre_move_stand;
 }
@@ -84,12 +86,14 @@ mmove_t ogre_move_run =
 	NULL
 };
 
-void ogre_run(edict_t *self)
+void
+ogre_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &ogre_move_run;
 }
 
-void OgreChainsaw(edict_t *self)
+static void
+OgreChainsaw(edict_t *self)
 {
 	vec3_t dir;
 	static vec3_t aim = {100, 0, -24};
@@ -165,7 +169,8 @@ mmove_t ogre_move_swing =
 };
 
 // Melee
-void ogre_melee(edict_t *self)
+void
+ogre_melee(edict_t *self)
 {
 	if (random() > 0.5)
 		self->monsterinfo.currentmove = &ogre_move_smash;
@@ -174,7 +179,8 @@ void ogre_melee(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_melee, 1, ATTN_NORM, 0);
 }
 
-void FireOgreGrenade(edict_t *self)
+static void
+FireOgreGrenade(edict_t *self)
 {
 	vec3_t	start;
 	vec3_t	forward, right;
@@ -207,7 +213,8 @@ mmove_t ogre_move_attack =
 	ogre_run
 };
 
-void ogre_attack(edict_t *self)
+void
+ogre_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &ogre_move_attack;
 }
@@ -326,7 +333,8 @@ mmove_t ogre_move_pain5 =
 };
 
 // Pain
-void ogre_pain(edict_t *self, edict_t *other /* unused */,
+void
+ogre_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	float r;
@@ -366,7 +374,8 @@ void ogre_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void ogre_dead(edict_t *self)
+void
+ogre_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, -8);
@@ -430,7 +439,8 @@ mmove_t ogre_move_death2 =
 };
 
 // Death
-void ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -460,18 +470,21 @@ void ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, 
 }
 
 // Sight
-void ogre_sight(edict_t *self, edict_t *other /* unused */)
+void
+ogre_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Search
-void ogre_search(edict_t *self)
+void
+ogre_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_ogre(edict_t *self)
+void
+SP_monster_ogre(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/ogre/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
@@ -503,7 +516,7 @@ void SP_monster_ogre(edict_t *self)
 	self->pain = ogre_pain;
 	self->die = ogre_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

@@ -57,7 +57,8 @@ mmove_t demon_move_stand =
 	NULL
 };
 
-void demon_stand(edict_t *self)
+void
+demon_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &demon_move_stand;
 }
@@ -81,12 +82,14 @@ mmove_t demon_move_run =
 	NULL
 };
 
-void demon_run(edict_t *self)
+void
+demon_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &demon_move_run;
 }
 
-qboolean CheckDemonJump(edict_t *self)
+static qboolean
+check_demon_jump(edict_t *self)
 {
 	vec3_t	dir;
 	float	distance;
@@ -113,7 +116,8 @@ qboolean CheckDemonJump(edict_t *self)
 	return true;
 };
 
-void DemonJumpTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+demon_jump_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (self->health < 1)
 		return;
@@ -141,7 +145,8 @@ void DemonJumpTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *
 	}
 }
 
-void DemonJump(edict_t *self)
+static void
+demon_jump(edict_t *self)
 {
 	vec3_t forward;
 
@@ -151,10 +156,11 @@ void DemonJump(edict_t *self)
 	self->velocity[2] = 250;
 
 	self->groundentity = NULL;
-	self->touch = DemonJumpTouch;
+	self->touch = demon_jump_touch;
 }
 
-void demon_roar(edict_t *self)
+static void
+demon_roar(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_jump, 1, ATTN_NORM, 0);
 }
@@ -165,7 +171,7 @@ static mframe_t demon_frames_jump [] =
 	{ai_charge, 0, demon_roar},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, DemonJump},
+	{ai_charge, 0, demon_jump},
 
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -185,13 +191,17 @@ mmove_t demon_move_jump =
 	demon_run
 };
 
-void demon_attack(edict_t *self)
+void
+demon_attack(edict_t *self)
 {
-	//if (CheckDemonJump(self))
-	self->monsterinfo.currentmove = &demon_move_jump;
+	if (check_demon_jump(self))
+	{
+		self->monsterinfo.currentmove = &demon_move_jump;
+	}
 }
 
-void DemonMelee(edict_t *self)
+static void
+demon_melee_step(edict_t *self)
 {
 	vec3_t dir;
 	static vec3_t aim = {100, 0, -24};
@@ -217,14 +227,14 @@ static mframe_t demon_frames_melee [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 1, NULL},
 
-	{ai_charge, 14, DemonMelee},
+	{ai_charge, 14, demon_melee_step},
 	{ai_charge, 1, NULL},
 	{ai_charge, 6, NULL},
 	{ai_charge, 8, NULL},
 
 	{ai_charge, 4, NULL},
 	{ai_charge, 2, NULL},
-	{ai_charge, 12, DemonMelee},
+	{ai_charge, 12, demon_melee_step},
 	{ai_charge, 5, NULL},
 
 	{ai_charge, 8, NULL},
@@ -239,7 +249,8 @@ mmove_t demon_move_melee =
 	demon_run
 };
 
-void demon_melee(edict_t *self)
+void
+demon_melee(edict_t *self)
 {
 	self->monsterinfo.currentmove = &demon_move_melee;
 }
@@ -263,12 +274,13 @@ mmove_t demon_move_pain =
 	demon_run
 };
 
-void demon_pain(edict_t *self, edict_t *other, float kick, int damage)
+void
+demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == SKILL_HARDPLUS)
 		return;
-	if (self->touch == DemonJumpTouch)
+	if (self->touch == demon_jump_touch)
 		return;
 	if (self->pain_debounce_time > level.time)
 		return;
@@ -280,7 +292,8 @@ void demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 	self->monsterinfo.currentmove = &demon_move_pain;
 }
 
-void demon_dead(edict_t *self)
+void
+demon_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, -8);
@@ -313,7 +326,8 @@ mmove_t demon_move_die =
 	demon_dead
 };
 
-void demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -340,18 +354,21 @@ void demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 }
 
 // Sight
-void demon_sight(edict_t *self, edict_t *other /* unused */)
+void
+demon_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound (self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Search
-void demon_search(edict_t *self)
+void
+demon_search(edict_t *self)
 {
 	gi.sound (self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_demon(edict_t *self)
+void
+SP_monster_demon(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/demon/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
@@ -383,7 +400,7 @@ void SP_monster_demon(edict_t *self)
 	self->pain = demon_pain;
 	self->die = demon_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

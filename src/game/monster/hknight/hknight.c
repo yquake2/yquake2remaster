@@ -30,7 +30,7 @@ static int sound_search;
 static int sound_pain;
 
 void hknight_run(edict_t *self);
-void SwingSword(edict_t *self);
+void swing_sword_step(edict_t *self);
 
 // Stand
 static mframe_t hknight_frames_stand [] =
@@ -55,7 +55,8 @@ mmove_t hknight_move_stand =
 	NULL
 };
 
-void hknight_stand(edict_t *self)
+void
+hknight_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &hknight_move_stand;
 }
@@ -69,13 +70,13 @@ static mframe_t hknight_frames_charge [] =
 	{ai_charge, 16,	NULL},
 
 	{ai_charge, 14,	NULL},
-	{ai_charge, 20,	SwingSword},
-	{ai_charge, 21,	SwingSword},
-	{ai_charge, 13,	SwingSword},
+	{ai_charge, 20,	swing_sword_step},
+	{ai_charge, 21,	swing_sword_step},
+	{ai_charge, 13,	swing_sword_step},
 
-	{ai_charge, 20,	SwingSword},
-	{ai_charge, 20,	SwingSword},
-	{ai_charge, 18,	SwingSword},
+	{ai_charge, 20,	swing_sword_step},
+	{ai_charge, 20,	swing_sword_step},
+	{ai_charge, 18,	swing_sword_step},
 	{ai_charge, 16,	NULL},
 
 	{ai_charge, 20,	NULL},
@@ -91,7 +92,8 @@ mmove_t hknight_move_charge =
 	hknight_run
 };
 
-qboolean CheckForCharge(edict_t *self)
+static qboolean
+check_for_charge(edict_t *self)
 {
 	if (!self->enemy)
 		return false;
@@ -125,12 +127,14 @@ mmove_t hknight_move_run =
 	NULL
 };
 
-void hknight_run(edict_t *self)
+void
+hknight_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &hknight_move_run;
 }
 
-void hknight_reset_magic(edict_t *self)
+static void
+hknight_reset_magic(edict_t *self)
 {
 	self->radius_dmg = -2;
 
@@ -140,7 +144,8 @@ void hknight_reset_magic(edict_t *self)
 	}
 }
 
-void magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other == self->owner)
 	{
@@ -169,7 +174,8 @@ void magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *sur
 	G_FreeEdict(self);
 }
 
-void fire_magic(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+static void
+fire_magic(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t	*magic;
 	trace_t	tr;
@@ -212,7 +218,8 @@ void fire_magic(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	gi.sound(self, CHAN_WEAPON, sound_attack, 1, ATTN_NORM, 0);
 }
 
-void FireMagic(edict_t *self)
+static void
+fire_magic_step(edict_t *self)
 {
 	vec3_t dir;
 
@@ -233,13 +240,13 @@ static mframe_t hknight_frames_attack [] =
 	{ai_charge, 0, NULL},
 
 	{ai_charge, 0, hknight_reset_magic},
-	{ai_charge, 0, FireMagic},
-	{ai_charge, 0, FireMagic},
-	{ai_charge, 0, FireMagic},
+	{ai_charge, 0, fire_magic_step},
+	{ai_charge, 0, fire_magic_step},
+	{ai_charge, 0, fire_magic_step},
 
-	{ai_charge, 0, FireMagic},
-	{ai_charge, 0, FireMagic},
-	{ai_charge, 0, FireMagic}
+	{ai_charge, 0, fire_magic_step},
+	{ai_charge, 0, fire_magic_step},
+	{ai_charge, 0, fire_magic_step}
 };
 mmove_t hknight_move_attack =
 {
@@ -249,9 +256,10 @@ mmove_t hknight_move_attack =
 	hknight_run
 };
 
-void hknight_attack(edict_t *self)
+void
+hknight_attack(edict_t *self)
 {
-	if (CheckForCharge(self))
+	if (check_for_charge(self))
 		self->monsterinfo.currentmove = &hknight_move_charge;
 	else if (self->monsterinfo.attack_finished < level.time)
 		self->monsterinfo.currentmove = &hknight_move_attack;
@@ -267,12 +275,12 @@ static mframe_t hknight_frames_slice [] =
 	{ai_charge, 13, NULL},
 	{ai_charge, 4, NULL},
 
-	{ai_charge, 7, SwingSword},
-	{ai_charge, 15, SwingSword},
-	{ai_charge, 8, SwingSword},
-	{ai_charge, 2, SwingSword},
+	{ai_charge, 7, swing_sword_step},
+	{ai_charge, 15, swing_sword_step},
+	{ai_charge, 8, swing_sword_step},
+	{ai_charge, 2, swing_sword_step},
 
-	{ai_charge, 0, SwingSword},
+	{ai_charge, 0, swing_sword_step},
 	{ai_charge, 3, NULL}
 };
 mmove_t hknight_move_slice =
@@ -291,12 +299,12 @@ static mframe_t hknight_frames_smash [] =
 	{ai_charge, 9, NULL},
 	{ai_charge, 11, NULL},
 
-	{ai_charge, 10, SwingSword},
-	{ai_charge, 7, SwingSword},
-	{ai_charge, 12, SwingSword},
-	{ai_charge, 2, SwingSword},
+	{ai_charge, 10, swing_sword_step},
+	{ai_charge, 7, swing_sword_step},
+	{ai_charge, 12, swing_sword_step},
+	{ai_charge, 2, swing_sword_step},
 
-	{ai_charge, 3, SwingSword},
+	{ai_charge, 3, swing_sword_step},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
@@ -314,26 +322,26 @@ static mframe_t hknight_frames_watk [] =
 	{ai_charge, 2, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, SwingSword},
+	{ai_charge, 0, swing_sword_step},
 
-	{ai_charge, 0, SwingSword},
-	{ai_charge, 0, SwingSword},
+	{ai_charge, 0, swing_sword_step},
+	{ai_charge, 0, swing_sword_step},
 	{ai_charge, 1, NULL},
 	{ai_charge, 4, NULL},
 
 	{ai_charge, 5, NULL},
-	{ai_charge, 3, SwingSword},
-	{ai_charge, 2, SwingSword},
-	{ai_charge, 2, SwingSword},
+	{ai_charge, 3, swing_sword_step},
+	{ai_charge, 2, swing_sword_step},
+	{ai_charge, 2, swing_sword_step},
 
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 1, NULL},
 
-	{ai_charge, 1, SwingSword},
-	{ai_charge, 3, SwingSword},
-	{ai_charge, 4, SwingSword},
+	{ai_charge, 1, swing_sword_step},
+	{ai_charge, 3, swing_sword_step},
+	{ai_charge, 4, swing_sword_step},
 	{ai_charge, 6, NULL},
 
 	{ai_charge, 7, NULL},
@@ -349,7 +357,8 @@ mmove_t hknight_move_watk =
 };
 
 // Melee
-void hknight_melee(edict_t *self)
+void
+hknight_melee(edict_t *self)
 {
 	self->dmg_radius++;
 
@@ -383,7 +392,8 @@ mmove_t hknight_move_pain =
 	hknight_run
 };
 
-void hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
+void
+hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == SKILL_HARDPLUS)
@@ -405,7 +415,8 @@ void hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void hknight_dead(edict_t *self)
+void
+hknight_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
@@ -464,7 +475,8 @@ mmove_t hknight_move_die2 =
 	hknight_dead
 };
 
-void hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -494,18 +506,21 @@ void hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 }
 
 // Sight
-void hknight_sight(edict_t *self, edict_t *other /* unused */)
+void
+hknight_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
 // Search
-void hknight_search(edict_t *self)
+void
+hknight_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void SP_monster_hknight(edict_t *self)
+void
+SP_monster_hknight(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/hknight/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -537,7 +552,7 @@ void SP_monster_hknight(edict_t *self)
 	self->pain = hknight_pain;
 	self->die = hknight_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

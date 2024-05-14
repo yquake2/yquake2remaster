@@ -28,7 +28,8 @@ static int sound_sight;
 
 void tarbaby_rejump(edict_t *self);
 
-void tarbaby_unbounce(edict_t *self)
+static void
+tarbaby_unbounce(edict_t *self)
 {
 	self->movetype = MOVETYPE_STEP;
 }
@@ -46,7 +47,8 @@ mmove_t tarbaby_move_stand =
 	NULL
 };
 
-void tarbaby_stand(edict_t *self)
+void
+tarbaby_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_stand;
 }
@@ -94,18 +96,21 @@ mmove_t tarbaby_move_run =
 	NULL
 };
 
-void tarbaby_run(edict_t *self)
+void
+tarbaby_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_run;
 }
 
 // Sight
-void tarbaby_sight(edict_t *self, edict_t *other /* unused */)
+void
+tarbaby_sight(edict_t *self, edict_t *other /* unused */)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-void tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+void
+tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (other->takedamage)
 	{
@@ -132,7 +137,8 @@ void tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	}
 }
 
-void TarBabyJump(edict_t *self)
+static void
+tarbaby_jump_step(edict_t *self)
 {
 	vec3_t forward;
 
@@ -162,7 +168,8 @@ mmove_t tarbaby_move_fly =
 	tarbaby_rejump
 };
 
-void tarbaby_fly(edict_t *self)
+void
+tarbaby_fly(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_fly;
 }
@@ -175,7 +182,7 @@ static mframe_t tarbaby_frames_jump [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 
-	{ai_charge, 0, TarBabyJump},
+	{ai_charge, 0, tarbaby_jump_step},
 	{ai_charge, 0, NULL}
 };
 mmove_t tarbaby_move_jump =
@@ -186,19 +193,22 @@ mmove_t tarbaby_move_jump =
 	tarbaby_fly
 };
 
-void tarbaby_rejump(edict_t *self)
+void
+tarbaby_rejump(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_jump;
 	self->monsterinfo.nextframe = 54;
 }
 
 // Attack
-void tarbaby_attack(edict_t *self)
+void
+tarbaby_attack(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_jump;
 }
 
-void tarbaby_explode(edict_t *self)
+void
+tarbaby_explode(edict_t *self)
 {
 	T_RadiusDamage(self, self, 120, NULL, 160, 0);
 	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
@@ -217,9 +227,9 @@ void tarbaby_explode(edict_t *self)
 }
 
 // Death
-void tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
-		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+void
+tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
+	edict_t *attacker /* unused */, int damage, vec3_t point /* unused */)
 {
 	if (self->deadflag == DEAD_DEAD)
 		return;
@@ -230,14 +240,15 @@ void tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
 }
 
 // Pain
-void tarbaby_pain(edict_t *self, edict_t *other /* unused */,
+void
+tarbaby_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 
 }
 
-
-void SP_monster_tarbaby(edict_t *self)
+void
+SP_monster_tarbaby(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/tarbaby/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -264,7 +275,7 @@ void SP_monster_tarbaby(edict_t *self)
 	self->die = tarbaby_die;
 	self->pain = tarbaby_pain;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

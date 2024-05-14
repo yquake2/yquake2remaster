@@ -228,7 +228,7 @@ fire_zombie_gib(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int spee
 }
 
 static void
-FireZombieGib(edict_t *self)
+zombie_fire_gib_step(edict_t *self)
 {
 	vec3_t	start;
 	vec3_t	forward, right;
@@ -260,7 +260,7 @@ static mframe_t zombie_frames_attack1 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 
-	{ai_charge, 0, FireZombieGib}
+	{ai_charge, 0, zombie_fire_gib_step}
 };
 mmove_t zombie_move_attack1 =
 {
@@ -289,7 +289,7 @@ static mframe_t zombie_frames_attack2 [] =
 	{ai_charge, 0, NULL},
 
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, FireZombieGib}
+	{ai_charge, 0, zombie_fire_gib_step}
 };
 mmove_t zombie_move_attack2 =
 {
@@ -315,7 +315,7 @@ static mframe_t zombie_frames_attack3 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, FireZombieGib},
+	{ai_charge, 0, zombie_fire_gib_step},
 };
 mmove_t zombie_move_attack3 =
 {
@@ -755,7 +755,7 @@ SP_monster_zombie(edict_t *self)
 	self->pain = zombie_pain;
 	self->die = zombie_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	walkmonster_start(self);

@@ -59,7 +59,8 @@ mmove_t fish_move_stand =
 	NULL
 };
 
-void fish_stand(edict_t *self)
+void
+fish_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &fish_move_stand;
 }
@@ -98,12 +99,14 @@ mmove_t fish_move_run =
 	NULL
 };
 
-void fish_run(edict_t *self)
+void
+fish_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &fish_move_run;
 }
 
-void FishBite(edict_t *self)
+static void
+fish_bite_step(edict_t *self)
 {
 	vec3_t dir;
 	static vec3_t aim = {100, 0, 0};
@@ -127,7 +130,7 @@ static mframe_t fish_frames_melee [] =
 {
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
-	{ai_run, 0,  FishBite},
+	{ai_run, 0,  fish_bite_step},
 	{ai_run, 10, NULL},
 
 	{ai_run, 10, NULL},
@@ -135,14 +138,14 @@ static mframe_t fish_frames_melee [] =
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 
-	{ai_run, 0,  FishBite},
+	{ai_run, 0,  fish_bite_step},
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
-	{ai_run, 0,  FishBite},
+	{ai_run, 0,  fish_bite_step},
 	{ai_run, 10, NULL},
 
 	{ai_run, 10, NULL},
@@ -156,18 +159,21 @@ mmove_t fish_move_melee =
 	fish_run
 };
 
-void fish_melee(edict_t *self)
+void
+fish_melee(edict_t *self)
 {
 	self->monsterinfo.currentmove = &fish_move_melee;
 }
 
 // Search
-void fish_search(edict_t *self)
+void
+fish_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void fish_dead(edict_t *self)
+void
+fish_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
@@ -215,7 +221,8 @@ mmove_t fish_move_death =
 	fish_dead
 };
 
-void fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+void
+fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -274,7 +281,8 @@ mmove_t fish_move_pain =
 	fish_run
 };
 
-void fish_pain(edict_t *self, edict_t *other /* unused */,
+void
+fish_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
@@ -287,7 +295,8 @@ void fish_pain(edict_t *self, edict_t *other /* unused */,
 	self->monsterinfo.currentmove = &fish_move_pain;
 }
 
-void SP_monster_fish(edict_t *self)
+void
+SP_monster_fish(edict_t *self)
 {
 	self->s.modelindex = gi.modelindex("models/monsters/fish/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
@@ -313,7 +322,7 @@ void SP_monster_fish(edict_t *self)
 	self->pain = fish_pain;
 	self->die = fish_die;
 
-	self->monsterinfo.scale = 1.000000;
+	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
 	flymonster_start(self);

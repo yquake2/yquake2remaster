@@ -438,11 +438,11 @@ shambler_melee2(edict_t* self)
 	gi.sound(self, CHAN_WEAPON, sound_melee2, 1, ATTN_NORM, 0);
 }
 
-void sham_swingl9(edict_t* self);
-void sham_swingr9(edict_t* self);
+static void sham_swingl9_step(edict_t* self);
+static void sham_swingr9_step(edict_t* self);
 
-void
-sham_smash10(edict_t* self)
+static void
+sham_smash10_step(edict_t* self)
 {
 	if (!self->enemy)
 		return;
@@ -489,7 +489,7 @@ static mframe_t shambler_frames_smash[] = {
 	{ai_charge, 0},
 	{ai_charge, 0},
 	{ai_charge, 0},
-	{ai_charge, 0, sham_smash10},
+	{ai_charge, 0, sham_smash10_step},
 	{ai_charge, 5},
 	{ai_charge, 4},
 };
@@ -511,7 +511,7 @@ static mframe_t shambler_frames_swingl[] = {
 	{ai_charge, 9},
 	{ai_charge, 5, ShamClaw},
 	{ai_charge, 4},
-	{ai_charge, 8, sham_swingl9},
+	{ai_charge, 8, sham_swingl9_step},
 };
 
 mmove_t shambler_attack_swingl =
@@ -531,7 +531,7 @@ static mframe_t shambler_frames_swingr[] = {
 	{ai_charge, 6},
 	{ai_charge, 6, ShamClaw},
 	{ai_charge, 3},
-	{ai_charge, 8, sham_swingr9},
+	{ai_charge, 8, sham_swingr9_step},
 };
 
 mmove_t shambler_attack_swingr =
@@ -542,8 +542,8 @@ mmove_t shambler_attack_swingr =
 	shambler_run
 };
 
-void
-sham_swingl9(edict_t* self)
+static void
+sham_swingl9_step(edict_t* self)
 {
 	if (!self)
 	{
@@ -565,8 +565,8 @@ sham_swingl9(edict_t* self)
 	}
 }
 
-void
-sham_swingr9(edict_t* self)
+static void
+sham_swingr9_step(edict_t* self)
 {
 	if (!self)
 	{
@@ -627,7 +627,7 @@ shambler_dead(edict_t* self)
 	gi.linkentity(self);
 }
 
-void
+static void
 shambler_shrink(edict_t* self)
 {
 	self->maxs[2] = 0;
