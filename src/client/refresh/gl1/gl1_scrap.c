@@ -19,7 +19,7 @@
  *
  * =======================================================================
  *
- * Allocate all the little status bar obejcts into a single texture
+ * Allocate all the little status bar objects into a single texture
  * to crutch up inefficient hardware / drivers.
  *
  * =======================================================================
@@ -27,10 +27,9 @@
 
 #include "header/local.h"
 
-int scrap_allocated[MAX_SCRAPS][BLOCK_WIDTH];
-byte scrap_texels[MAX_SCRAPS][BLOCK_WIDTH * BLOCK_HEIGHT];
+int *scrap_allocated[MAX_SCRAPS];
+byte *scrap_texels[MAX_SCRAPS];
 qboolean scrap_dirty;
-int scrap_uploads;
 
 qboolean R_Upload8(byte *data,
 		int width,
@@ -43,14 +42,16 @@ int
 Scrap_AllocBlock(int w, int h, int *x, int *y)
 {
 	int texnum;
+	w += 2;	// add an empty border to all sides
+	h += 2;
 
 	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
 		int best, i;
 
-		best = BLOCK_HEIGHT;
+		best = gl_state.scrap_height;
 
-		for (i = 0; i < BLOCK_WIDTH - w; i++)
+		for (i = 0; i < gl_state.scrap_width - w; i++)
 		{
 			int best2, j;
 
@@ -76,7 +77,7 @@ Scrap_AllocBlock(int w, int h, int *x, int *y)
 			}
 		}
 
-		if (best + h > BLOCK_HEIGHT)
+		if (best + h > gl_state.scrap_height)
 		{
 			continue;
 		}
@@ -85,6 +86,8 @@ Scrap_AllocBlock(int w, int h, int *x, int *y)
 		{
 			scrap_allocated[texnum][*x + i] = best + h;
 		}
+		(*x)++;	// jump the border
+		(*y)++;
 
 		return texnum;
 	}
@@ -95,9 +98,58 @@ Scrap_AllocBlock(int w, int h, int *x, int *y)
 void
 Scrap_Upload(void)
 {
-	scrap_uploads++;
 	R_Bind(TEXNUM_SCRAPS);
-	R_Upload8(scrap_texels[0], BLOCK_WIDTH, BLOCK_HEIGHT, false, false);
+	R_Upload8(scrap_texels[0], gl_state.scrap_width,
+			gl_state.scrap_height, false, false);
 	scrap_dirty = false;
+}
+
+void
+Scrap_Free(void)
+{
+	for (int i = 0; i < MAX_SCRAPS; i++)
+	{
+		if (scrap_allocated[i])
+		{
+			free(scrap_allocated[i]);
+		}
+		scrap_allocated[i] = NULL;
+
+		if (scrap_texels[i])
+		{
+			free(scrap_texels[i]);
+		}
+		scrap_texels[i] = NULL;
+	}
+}
+
+void
+Scrap_Init(void)
+{
+	const unsigned int allocd_size = gl_state.scrap_width * sizeof(int);
+	const unsigned int texels_size = gl_state.scrap_width
+			* gl_state.scrap_height * sizeof(byte);
+	int i;
+
+	Scrap_Free();
+
+	for (i = 0; i < MAX_SCRAPS; i++)
+	{
+		if (!scrap_allocated[i])
+		{
+			scrap_allocated[i] = malloc (allocd_size) ;
+		}
+		if (!scrap_texels[i])
+		{
+			scrap_texels[i] = malloc (texels_size) ;
+		}
+
+		if (!scrap_allocated[i] || !scrap_texels[i])
+		{
+			ri.Sys_Error(ERR_FATAL, "Could not allocate scrap memory.\n");
+		}
+		memset (scrap_allocated[i], 0, allocd_size);	// empty
+		memset (scrap_texels[i], 255, texels_size);	// transparent
+	}
 }
 

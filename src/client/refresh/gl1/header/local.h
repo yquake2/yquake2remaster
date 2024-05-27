@@ -43,7 +43,7 @@
 #define TEXNUM_SCRAPS 1152
 #define TEXNUM_IMAGES 1153
 #define MAX_SCRAPS 1
-#define BLOCK_WIDTH 256
+#define BLOCK_WIDTH 256		// default values; now defined in glstate_t
 #define BLOCK_HEIGHT 256
 #define REF_VERSION "Yamagi Quake II OpenGL Refresher"
 #define MAX_LIGHTMAPS 256
@@ -144,6 +144,7 @@ extern cvar_t *gl1_overbrightbits;
 extern cvar_t *gl1_palettedtexture;
 extern cvar_t *gl1_pointparameters;
 extern cvar_t *gl1_multitexture;
+extern cvar_t *gl1_biglightmaps;
 
 extern cvar_t *gl1_particle_min_size;
 extern cvar_t *gl1_particle_max_size;
@@ -365,6 +366,12 @@ typedef struct
 	enum stereo_modes stereo_mode;
 
 	qboolean stencil;
+
+	int	block_width,	// replaces BLOCK_WIDTH
+		block_height,	// replaces BLOCK_HEIGHT
+		max_lightmaps,	// the larger the lightmaps, the fewer the max lightmaps
+		scrap_width,	// size for scrap (atlas of 2D elements)
+		scrap_height;
 } glstate_t;
 
 typedef struct
@@ -373,7 +380,7 @@ typedef struct
 
 	msurface_t *lightmap_surfaces[MAX_LIGHTMAPS];
 
-	int allocated[BLOCK_WIDTH];
+	int *allocated;		// formerly allocated[BLOCK_WIDTH];
 
 	/* the lightmap texture data needs to be kept in
 	   main memory so texsubimage can update properly */
