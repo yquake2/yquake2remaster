@@ -1,3 +1,12 @@
+Quake 2 8.31RR8:
+- GL1 multitexture support (by Jaime Moreira),
+- GL1 big lightmap support (by Jaime Moreira),
+- Cache QBSP in collision map,
+- Update SDL 3 support (by Yamagi),
+- Port train code from ReRelease code,
+- Fix multimesh models in gl4 render,
+- Fix quake 1 monsters save,
+- Improve SiN model support.
 Quake 2 8.31RR7:
 - Rework map load logic,
 - Support SiN map load,
