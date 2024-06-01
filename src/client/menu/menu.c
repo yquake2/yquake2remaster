@@ -6064,7 +6064,7 @@ extern float CalcFov(float fov_x, float w, float h);
  * Model animation
  */
 static void
-PlayerConfig_AnimateModel(entity_t *entity, int curTime)
+PlayerConfig_AnimateModel(entity_t *entity, int count, int curTime)
 {
 	const cvar_t *cl_start_frame, *cl_end_frame;
 	int startFrame, endFrame;
@@ -6076,8 +6076,13 @@ PlayerConfig_AnimateModel(entity_t *entity, int curTime)
 
 	if (startFrame >= 0 && endFrame > startFrame)
 	{
-		/* salute male 84..94 frame */
-		entity->frame = (curTime / 100) % (endFrame - startFrame) + startFrame;
+		int i;
+
+		for (i = 0; i < count; i ++)
+		{
+			/* salute male 84..94 frame */
+			entity[i].frame = (curTime / 100) % (endFrame - startFrame) + startFrame;
+		}
 	}
 }
 
@@ -6102,38 +6107,67 @@ PlayerConfig_MenuDraw(void)
 		&& (s_player_skin_box.curvalue >= 0
 		&& s_player_skin_box.curvalue < s_skinnames[s_player_model_box.curvalue].num))
 	{
-		entity_t entity;
+		entity_t entities[2];
 		char scratch[MAX_QPATH];
 		char* mdlname = s_modelname.data[s_player_model_box.curvalue];
 		char* imgname = s_skinnames[s_player_model_box.curvalue].data[s_player_skin_box.curvalue];
+		int i, curTime;
 
-		memset(&entity, 0, sizeof(entity));
+		memset(&entities, 0, sizeof(entities));
 
 		Com_sprintf(scratch, sizeof(scratch), "players/%s/tris.md2", mdlname);
-		entity.model = R_RegisterModel(scratch);
+		entities[0].model = R_RegisterModel(scratch);
 
 		Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
 			imgname);
-		entity.skin = R_RegisterSkin(scratch);
+		entities[0].skin = R_RegisterSkin(scratch);
 
-		entity.flags = RF_FULLBRIGHT;
-		entity.origin[0] = 80;
-		entity.origin[1] = 0;
-		entity.origin[2] = 0;
-		VectorCopy(entity.origin, entity.oldorigin);
-		entity.frame = 0;
-		entity.oldframe = 0;
-		entity.backlerp = 0.0;
+		curTime = Sys_Milliseconds();
 
-		int curTime = Sys_Milliseconds();
-		PlayerConfig_AnimateModel(&entity, curTime);
-		// one full turn is 3s = 3000ms => 3000/360 deg per millisecond
+		/* multiplayer weapons loaded */
+		if (num_cl_weaponmodels)
+		{
+			int weapon_id;
+
+			/* change weapon every 3 rounds */
+			weapon_id = curTime / 9000;
+
+			weapon_id = weapon_id % num_cl_weaponmodels;
+			/* show weapon also */
+			Com_sprintf(scratch, sizeof(scratch),
+				"players/%s/%s", mdlname, cl_weaponmodels[weapon_id]);
+			entities[1].model = R_RegisterModel(scratch);
+		}
+
+		/* no such weapon model */
+		if (!entities[1].model)
+		{
+			/* show weapon also */
+			Com_sprintf(scratch, sizeof(scratch),
+				"players/%s/weapon.md2", mdlname);
+			entities[1].model = R_RegisterModel(scratch);
+		}
+
 		curTime = curTime % 3000;
-		entity.angles[1] = (float)curTime/(3000.0f/360.0f);
+		for (i = 0; i < 2; i++)
+		{
+			entities[i].flags = RF_FULLBRIGHT;
+			entities[i].origin[0] = 80;
+			entities[i].origin[1] = 0;
+			entities[i].origin[2] = 0;
+			VectorCopy(entities[i].origin, entities[i].oldorigin);
+			entities[i].frame = 0;
+			entities[i].oldframe = 0;
+			entities[i].backlerp = 0.0;
+			// one full turn is 3s = 3000ms => 3000/360 deg per millisecond
+			entities[i].angles[1] = (float)curTime/(3000.0f/360.0f);
+		}
+
+		PlayerConfig_AnimateModel(entities, 2, curTime);
 
 		refdef.areabits = 0;
-		refdef.num_entities = 1;
-		refdef.entities = &entity;
+		refdef.num_entities = (entities[1].model) ? 2 : 1;
+		refdef.entities = entities;
 		refdef.lightstyles = 0;
 		refdef.rdflags = RDF_NOWORLDMODEL;
 
