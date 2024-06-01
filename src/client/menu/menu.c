@@ -5261,7 +5261,6 @@ static menuseparator_s s_player_hand_title;
 static menuseparator_s s_player_rate_title;
 static menuaction_s s_player_download_action;
 
-#define MAX_DISPLAYNAME 16
 #define MAX_PLAYERMODELS 1024
 
 typedef struct _stringlist
@@ -5436,7 +5435,7 @@ dircmp_func(const void* _a, const void* _b)
 static void
 PlayerModelFree()
 {
-	char* s = 0;
+	char* s = NULL;
 
 	// there should be no valid skin names if there is no valid model
 	if (s_modelname.num != 0)
@@ -5527,6 +5526,7 @@ PlayerDirectoryList(void)
 
 	if (num > MAX_PLAYERMODELS)
 	{
+		Com_Printf("Too many player models (%d)!\n", num);
 		num = MAX_PLAYERMODELS - 1;
 	}
 
@@ -5705,8 +5705,7 @@ PlayerModelList(void)
 {
 	char** list = NULL;
 	char** data = NULL;
-	char* s = 0;
-	char* t = 0;
+	int i;
 	int num = 0;
 	int mdl = 0;
 	qboolean result = true;
@@ -5719,8 +5718,12 @@ PlayerModelList(void)
 	s_modelname.num = 0;
 
 	/* verify the existence of at least one pcx skin */
-	for (int i = 0; i < s_directory.num; ++i)
+	for (i = 0; i < s_directory.num; ++i)
 	{
+		char* s = NULL;
+		char* t = NULL;
+		int l;
+
 		if (s_directory.data[i] == 0)
 		{
 			continue;
@@ -5807,13 +5810,15 @@ PlayerModelList(void)
 				{
 					ReplaceCharacters(list[k], '\\', '/');
 
-					s = (char*)malloc(MAX_DISPLAYNAME);
 					t = strrchr(list[k], '/');
 
-					YQ2_COM_CHECK_OOM(s, "malloc()", MAX_DISPLAYNAME * sizeof(char))
+					l = strlen(t) + 1;
+					s = (char*)malloc(l);
+
+					YQ2_COM_CHECK_OOM(s, "malloc()", l * sizeof(char))
 
 					StripExtension(t);
-					Q_strlcpy(s, t + 1, MAX_DISPLAYNAME);
+					Q_strlcpy(s, t + 1, l);
 
 					data[s_skinnames[mdl].num++] = s;
 				}
@@ -5824,12 +5829,13 @@ PlayerModelList(void)
 		qsort(s_skinnames[mdl].data, s_skinnames[mdl].num, sizeof(char**), Q_sort_stricmp);
 
 		/* at this point we have a valid player model */
-		s = (char*)malloc(MAX_DISPLAYNAME);
 		t = strrchr(s_directory.data[i], '/');
+		l = strlen(t) + 1;
+		s = (char*)malloc(l);
 
-		YQ2_COM_CHECK_OOM(s, "malloc()", MAX_DISPLAYNAME * sizeof(char))
+		YQ2_COM_CHECK_OOM(s, "malloc()", l * sizeof(char))
 
-		Q_strlcpy(s, t + 1, MAX_DISPLAYNAME);
+		Q_strlcpy(s, t + 1, l);
 
 		s_modelname.data[s_modelname.num++] = s;
 		mdl = s_modelname.num;
@@ -5893,8 +5899,8 @@ PlayerConfig_MenuInit(void)
 	extern cvar_t *skin;
 	cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	static const char *handedness[] = { "right", "left", "center", 0 };
-	char mdlname[MAX_DISPLAYNAME * 2];
-	char imgname[MAX_DISPLAYNAME];
+	char mdlname[MAX_QPATH];
+	char imgname[MAX_QPATH];
 	int mdlindex = 0;
 	int imgindex = 0;
 	int i = 0;
@@ -5905,12 +5911,12 @@ PlayerConfig_MenuInit(void)
 		return false;
 	}
 
-	Q_strlcpy(mdlname, skin->string, MAX_DISPLAYNAME * 2);
+	Q_strlcpy(mdlname, skin->string, sizeof(mdlname));
 	ReplaceCharacters(mdlname, '\\', '/' );
 
 	if (strchr(mdlname, '/'))
 	{
-		Q_strlcpy(imgname, strchr(mdlname, '/') + 1, MAX_DISPLAYNAME);
+		Q_strlcpy(imgname, strchr(mdlname, '/') + 1, sizeof(imgname));
 		*strchr(mdlname, '/') = 0;
 	}
 	else
