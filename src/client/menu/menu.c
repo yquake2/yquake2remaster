@@ -84,13 +84,13 @@ typedef struct
 	const char *(*key)(int k);
 } menulayer_t;
 
-menulayer_t m_layers[MAX_MENU_DEPTH];
-int m_menudepth;
+static menulayer_t m_layers[MAX_MENU_DEPTH];
+static int m_menudepth;
 
 static qboolean
 M_IsGame(const char *gamename)
 {
-	cvar_t *game, *gametype;
+	const cvar_t *game, *gametype;
 	const char* current_game;
 
 	game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
@@ -118,7 +118,7 @@ M_IsGame(const char *gamename)
 }
 
 static void
-M_Banner(char *name)
+M_Banner(const char *name)
 {
 	int w, h;
 	float scale = SCR_GetMenuScale();
@@ -423,16 +423,6 @@ M_Print(int x, int y, char *str)
 		}
 		str++;
 	}
-}
-
-/* Unsused, left for backward compability */
-void
-M_DrawPic(int x, int y, char *pic)
-{
-	float scale = SCR_GetMenuScale();
-
-	Draw_PicScaled((x + ((viddef.width - 320) >> 1)) * scale,
-			   (y + ((viddef.height - 240) >> 1)) * scale, pic, scale);
 }
 
 /*
@@ -743,7 +733,7 @@ InitMainMenu(void)
 static void
 M_Main_Draw(void)
 {
-	menucommon_s * item = 0;
+	const menucommon_s * item = NULL;
 	int x = 0;
 	int y = 0;
 
@@ -769,13 +759,13 @@ M_Main_Key(int key)
 void
 M_Menu_Main_f(void)
 {
-	menucommon_s * item = 0;
-
 	InitMainMenu();
 
 	// force first available item to have focus
 	while (s_main.cursor >= 0 && s_main.cursor < s_main.nitems)
 	{
+		const menucommon_s * item = NULL;
+
 		item = ( menucommon_s * )s_main.items[s_main.cursor];
 
 		if ((item->flags & (QMF_INACTIVE)))
@@ -953,7 +943,7 @@ M_UnbindCommand(char *command, int scope)
 
 	for (j = begin; j < end; j++)
 	{
-		char *b;
+		const char *b;
 		b = keybindings[j];
 
 		if (!b)
@@ -992,7 +982,7 @@ M_FindKeysForCommand(char *command, int *twokeys, int scope)
 
 	for (j = begin; j < end; j++)
 	{
-		char *b;
+		const char *b;
 		b = keybindings[j];
 
 		if (!b)
@@ -3469,7 +3459,7 @@ static qboolean menukeyitem_delete = false;
 static void
 PromptDeleteSaveFunc(menuframework_s *m)
 {
-	menucommon_s *item = Menu_ItemAtCursor(m);
+	const menucommon_s *item = Menu_ItemAtCursor(m);
 	if (item == NULL || item->type != MTYPE_ACTION)
 	{
 		return;
@@ -3526,8 +3516,6 @@ Create_Savestrings(void)
 {
 	int i;
 	fileHandle_t f;
-	char name[MAX_OSPATH];
-	char tmp[32]; // Same length as m_quicksavestring-
 
 	// The quicksave slot...
 	FS_FOpenFile("save/quick/server.ssv", &f, true);
@@ -3539,6 +3527,8 @@ Create_Savestrings(void)
 	}
 	else
 	{
+		char tmp[32]; // Same length as m_quicksavestring-
+
 		FS_Read(tmp, sizeof(tmp), f);
 		FS_FCloseFile(f);
 
@@ -3561,6 +3551,8 @@ Create_Savestrings(void)
 	// ... and everything else.
 	for (i = 0; i < MAX_SAVESLOTS; i++)
 	{
+		char name[MAX_OSPATH];
+
 		Com_sprintf(name, sizeof(name), "save/save%i/server.ssv", m_loadsave_page * MAX_SAVESLOTS + i);
 		FS_FOpenFile(name, &f, true);
 
@@ -3938,7 +3930,7 @@ static char local_server_netadr_strings[MAX_LOCAL_SERVERS][80];
 void
 M_AddToServerList(netadr_t adr, char *info)
 {
-	char *s;
+	const char *s;
 	int i;
 
 	if (m_num_servers == MAX_LOCAL_SERVERS)
@@ -4165,7 +4157,6 @@ StartServerActionFunc(void *self)
 	char startmap[1024];
 	float timelimit;
 	float fraglimit;
-	float capturelimit;
 	float maxclients;
 	char *spot;
 
@@ -4177,6 +4168,8 @@ StartServerActionFunc(void *self)
 
 	if (M_IsGame("ctf"))
 	{
+		float capturelimit;
+
 		capturelimit = (float)strtod(s_capturelimit_field.buffer, (char **)NULL);
 		Cvar_SetValue("capturelimit", ClampCvar(0, capturelimit, capturelimit));
 		Cvar_SetValue("ctf", 1);
@@ -4549,7 +4542,7 @@ static menulist_s s_no_spheres_box;
 static void
 DMFlagCallback(void *self)
 {
-	menulist_s *f = (menulist_s *)self;
+	const menulist_s *f = (menulist_s *)self;
 	int flags;
 	int bit = 0;
 
@@ -5024,7 +5017,7 @@ static menulist_s s_allow_download_sounds_box;
 static void
 DownloadCallback(void *self)
 {
-	menulist_s *f = (menulist_s *)self;
+	const menulist_s *f = (menulist_s *)self;
 
 	if (f == &s_allow_download_box)
 	{
@@ -5189,7 +5182,7 @@ AddressBook_MenuInit(void)
 
 	for (i = 0; i < NUM_ADDRESSBOOK_ENTRIES; i++)
 	{
-		cvar_t *adr;
+		const cvar_t *adr;
 		char buffer[20];
 
 		Com_sprintf(buffer, sizeof(buffer), "adr%d", i);
@@ -5308,7 +5301,7 @@ ModelCallback(void *unused)
 
 // returns true if icon .pcx exists for skin .pcx
 static qboolean
-IconOfSkinExists(char* skin, char** pcxfiles, int npcxfiles,
+IconOfSkinExists(const char* skin, char** pcxfiles, int npcxfiles,
 	const char *ext)
 {
 	int i;
@@ -5358,13 +5351,14 @@ StripExtension(char* path)
 static qboolean
 ContainsFile(char* path, char* file)
 {
-	char pathname[MAX_QPATH];
 	int handle = 0;
-	int length = 0;
 	qboolean result = false;
 
 	if (path != 0 && file != 0)
 	{
+		char pathname[MAX_QPATH];
+		int length = 0;
+
 		Com_sprintf(pathname, MAX_QPATH, "%s/%s", path, file);
 
 		length = FS_FOpenFile(pathname, &handle, false);
@@ -5446,19 +5440,19 @@ PlayerModelFree()
 			while (s_skinnames[s_modelname.num].num-- > 0)
 			{
 				s = s_skinnames[s_modelname.num].data[s_skinnames[s_modelname.num].num];
-				if (s != 0)
+				if (s != NULL)
 				{
 					free(s);
-					s = 0;
+					s = NULL;
 				}
 			}
 
 			s = (char*)s_skinnames[s_modelname.num].data;
 
-			if (s != 0)
+			if (s != NULL)
 			{
 				free(s);
-				s = 0;
+				s = NULL;
 			}
 
 			s_skinnames[s_modelname.num].data = 0;
@@ -5466,19 +5460,19 @@ PlayerModelFree()
 
 			// models
 			s = s_modelname.data[s_modelname.num];
-			if (s != 0)
+			if (s != NULL)
 			{
 				free(s);
-				s = 0;
+				s = NULL;
 			}
 		}
 	}
 
 	s = (char*)s_modelname.data;
-	if (s != 0)
+	if (s != NULL)
 	{
 		free(s);
-		s = 0;
+		s = NULL;
 	}
 
 	s_modelname.data = 0;
@@ -5488,18 +5482,17 @@ PlayerModelFree()
 	while (s_directory.num-- > 0)
 	{
 		s = s_directory.data[s_directory.num];
-		if (s != 0)
+		if (s != NULL)
 		{
 			free(s);
-			s = 0;
+			s = NULL;
 		}
 	}
 
 	s = (char*)s_directory.data;
-	if (s != 0)
+	if (s != NULL)
 	{
 		free(s);
-		s = 0;
 	}
 
 	s_directory.data = 0;
@@ -5538,8 +5531,9 @@ PlayerDirectoryList(void)
 
 	for (int i = 0; i < num; ++i)
 	{
-		char dirname[MAX_QPATH], *dirsize;
-		int dirnamelen = 0, j;
+		char dirname[MAX_QPATH];
+		const char *dirsize;
+		int j;
 
 		// last element of FS_FileList maybe null
 		if (list[i] == 0)
@@ -5552,6 +5546,8 @@ PlayerDirectoryList(void)
 		dirsize = strchr(list[i] + listoff, '/');
 		if (dirsize)
 		{
+			int dirnamelen = 0;
+
 			dirnamelen = dirsize - list[i];
 			memcpy(dirname, list[i], dirnamelen);
 			dirname[dirnamelen] = 0;
@@ -5896,7 +5892,7 @@ static qboolean
 PlayerConfig_MenuInit(void)
 {
 	extern cvar_t *name;
-	extern cvar_t *skin;
+	const extern cvar_t *skin;
 	cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	static const char *handedness[] = { "right", "left", "center", 0 };
 	char mdlname[MAX_QPATH];
@@ -5936,7 +5932,7 @@ PlayerConfig_MenuInit(void)
 
 	for (i = 0; i < s_skinnames[mdlindex].num; i++)
 	{
-		char* names = s_skinnames[mdlindex].data[i];
+		const char* names = s_skinnames[mdlindex].data[i];
 		if (Q_stricmp(names, imgname) == 0)
 		{
 			imgindex = i;
@@ -6070,7 +6066,7 @@ extern float CalcFov(float fov_x, float w, float h);
 static void
 PlayerConfig_AnimateModel(entity_t *entity, int curTime)
 {
-	cvar_t *cl_start_frame, *cl_end_frame;
+	const cvar_t *cl_start_frame, *cl_end_frame;
 	int startFrame, endFrame;
 
 	cl_start_frame = Cvar_Get("cl_model_preview_start", "84", CVAR_ARCHIVE);
@@ -6164,10 +6160,10 @@ PlayerConfig_MenuKey(int key)
 	key = Key_GetMenuKey(key);
 	if (key == K_ESCAPE)
 	{
+		const char* name = NULL;
 		char skin[MAX_QPATH];
-		char* name = 0;
-		char* mdl = 0;
-		char* img = 0;
+		char* mdl = NULL;
+		char* img = NULL;
 
 		name = s_player_name_field.buffer;
 		mdl = s_modelname.data[s_player_model_box.curvalue];
