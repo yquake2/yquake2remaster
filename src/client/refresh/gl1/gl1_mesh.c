@@ -27,20 +27,15 @@
 #include "header/local.h"
 
 #define NUMVERTEXNORMALS 162
-#define SHADEDOT_QUANT 16
 
-/* precalculated dot products for quantized angles */
-static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
-#include "../constants/anormtab.h"
+static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
+#include "../constants/anorms.h"
 };
-
-vec3_t shadevector;
-float shadelight[3];
-float *shadedots = r_avertexnormal_dots[0];
 
 static void
 R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *order_end,
-	float alpha, dxtrivertx_t *verts, vec4_t *s_lerped)
+	float alpha, dxtrivertx_t *verts, vec4_t *s_lerped, const float *shadelight,
+	const float *shadevector)
 {
 #ifdef _MSC_VER // workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 	int maxCount = 0;
@@ -129,6 +124,7 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 			do
 			{
 				int index_xyz;
+				const float *norm;
 				float l;
 
 				/* texture coordinates come from the draw list */
@@ -139,7 +135,9 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				order += 3;
 
 				/* normals and vertexes come from the frame list */
-				l = shadedots[verts[index_xyz].lightnormalindex];
+				/* shadevector is set above according to rotation (around Z axis I think) */
+				norm = r_avertexnormals[verts[index_xyz].lightnormalindex];
+				l = DotProduct(norm, shadevector) + 1;
 
 				clr[index_clr++] = l * shadelight[0];
 				clr[index_clr++] = l * shadelight[1];
@@ -177,7 +175,7 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
  */
 static void
 R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
-	vec4_t *s_lerped)
+	vec4_t *s_lerped, const float *shadelight, const float *shadevector)
 {
 	daliasxframe_t *frame, *oldframe;
 	const dxtrivertx_t *ov;
@@ -241,7 +239,8 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 
 	lerp = s_lerped[0];
 
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp, move, frontv, backv);
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp,
+		move, frontv, backv);
 
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
@@ -252,7 +251,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			alpha, verts, s_lerped);
+			alpha, verts, s_lerped, shadelight, shadevector);
 	}
 
 	if (colorOnly)
@@ -263,7 +262,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 
 static void
 R_DrawAliasShadowCommand(const entity_t *currententity, int *order, const int *order_end,
-	float height, float lheight, vec4_t *s_lerped)
+	float height, float lheight, vec4_t *s_lerped, const float *shadevector)
 {
 	unsigned short total;
 	vec3_t point;
@@ -346,7 +345,7 @@ R_DrawAliasShadowCommand(const entity_t *currententity, int *order, const int *o
 
 static void
 R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
-	vec4_t *s_lerped)
+	vec4_t *s_lerped, vec3_t shadevector)
 {
 	int *order, i, num_mesh_nodes;
 	float height = 0, lheight;
@@ -373,7 +372,7 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			height, lheight, s_lerped);
+			height, lheight, s_lerped, shadevector);
 	}
 
 	/* stencilbuffer shadows */
@@ -418,10 +417,11 @@ void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
-	dmdx_t *paliashdr;
 	float an;
-	vec3_t bbox[8];
 	const image_t *skin = NULL;
+	vec3_t bbox[8];
+	vec3_t shadevector, shadelight;
+	dmdx_t *paliashdr;
 	vec4_t *s_lerped;
 
 	if (!(currententity->flags & RF_WEAPONMODEL))
@@ -585,9 +585,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		shadelight[2] = 0.0;
 	}
 
-	shadedots = r_avertexnormal_dots[((int)(currententity->angles[1] *
-				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
-
 	an = currententity->angles[1] / 180 * M_PI;
 	shadevector[0] = cos(-an);
 	shadevector[1] = sin(-an);
@@ -703,7 +700,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
 
 	R_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp,
-		s_lerped);
+		s_lerped, shadelight, shadevector);
 
 	R_TexEnv(GL_REPLACE);
 	glShadeModel(GL_FLAT);
@@ -760,7 +757,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		glEnable(GL_BLEND);
 		glColor4f(0, 0, 0, 0.5f);
 		R_DrawAliasShadow(currententity, paliashdr, currententity->frame,
-			s_lerped);
+			s_lerped, shadevector);
 		glEnable(GL_TEXTURE_2D);
 		glDisable(GL_BLEND);
 		glPopMatrix();

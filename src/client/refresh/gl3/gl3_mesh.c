@@ -30,11 +30,9 @@
 #include "../files/DG_dynarr.h"
 
 #define NUMVERTEXNORMALS 162
-#define SHADEDOT_QUANT 16
 
-/* precalculated dot products for quantized angles */
-static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
-#include "../constants/anormtab.h"
+static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
+#include "../constants/anorms.h"
 };
 
 typedef struct gl3_shadowinfo_s {
@@ -66,8 +64,8 @@ GL3_ShutdownMeshes(void)
 
 static void
 DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
-	int *order, int *order_end, float* shadedots, float alpha, qboolean colorOnly,
-	dxtrivertx_t *verts, vec4_t *s_lerped)
+	int *order, int *order_end, float alpha, qboolean colorOnly,
+	dxtrivertx_t *verts, vec4_t *s_lerped, const float *shadevector)
 {
 	// all the triangle fans and triangle strips of this model will be converted to
 	// just triangles: the vertices stay the same and are batched in vtxBuf,
@@ -132,6 +130,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 			for(i=0; i<count; ++i)
 			{
 				gl3_alias_vtx_t* cur = &buf[i];
+				const float *norm;
 				int index_xyz;
 				int j = 0;
 				float l;
@@ -145,9 +144,9 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				order += 3;
 
 				/* normals and vertexes come from the frame list */
-				// shadedots is set above according to rotation (around Z axis I think)
-				// to one of 16 (SHADEDOT_QUANT) presets in r_avertexnormal_dots
-				l = shadedots[verts[index_xyz].lightnormalindex];
+				/* shadevector is set above according to rotation (around Z axis I think) */
+				norm = r_avertexnormals[verts[index_xyz].lightnormalindex];
+				l = DotProduct(norm, shadevector) + 1;
 
 				for(j=0; j<3; ++j)
 				{
@@ -213,7 +212,8 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
  * Interpolates between two frames and origins
  */
 static void
-DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
+DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
+	const float *shadevector)
 {
 	daliasxframe_t *frame, *oldframe;
 	dxtrivertx_t *ov, *verts;
@@ -233,10 +233,6 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 	qboolean colorOnly = 0 != (entity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 			 RF_SHELL_HALF_DAM));
-
-	// TODO: maybe we could somehow store the non-rotated normal and do the dot in shader?
-	float* shadedots = r_avertexnormal_dots[((int)(entity->angles[1] *
-				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + entity->frame * paliashdr->framesize);
@@ -308,12 +304,12 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight)
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			shadedots, alpha, colorOnly, verts, s_lerped);
+			alpha, colorOnly, verts, s_lerped, shadevector);
 	}
 }
 
 static void
-DrawAliasShadowCommands(int *order, int *order_end, vec3_t shadevector,
+DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 	float height, float lheight, vec4_t *s_lerped)
 {
 	// GL1 uses alpha 0.5, but in GL3 0.3 looks better
@@ -606,8 +602,8 @@ GL3_DrawAliasModel(entity_t *entity)
 		else
 		{
 			R_LightPoint(gl3_worldmodel->grid, entity, &gl3_newrefdef,
-				gl3_worldmodel->surfaces, gl3_worldmodel->nodes, entity->origin,
-				shadelight, r_modulate->value, lightspot);
+				gl3_worldmodel->surfaces, gl3_worldmodel->nodes,
+				entity->origin, shadelight, r_modulate->value, lightspot);
 		}
 
 		/* player lighting hack for communication back to server */
@@ -796,7 +792,7 @@ GL3_DrawAliasModel(entity_t *entity)
 		entity->oldframe = 0;
 	}
 
-	DrawAliasFrameLerp(paliashdr, entity, shadelight);
+	DrawAliasFrameLerp(paliashdr, entity, shadelight, shadevector);
 
 	//glPopMatrix();
 	gl3state.uni3DData.transModelMat4 = origModelMat;

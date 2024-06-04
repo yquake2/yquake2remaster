@@ -28,7 +28,6 @@
 #include "header/local.h"
 
 #define NUMVERTEXNORMALS 162
-#define SHADEDOT_QUANT 16
 
 enum {
 	TRIANGLE_STRIP = 0,
@@ -52,14 +51,9 @@ static	modelvert	*vertList[2] = {NULL, NULL};
 static	vec3_t	*shadowverts = NULL;
 static	int	verts_count = 0;
 
-/* precalculated dot products for quantized angles */
-static float r_avertexnormal_dots[SHADEDOT_QUANT][256] = {
-#include "../constants/anormtab.h"
+static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
+#include "../constants/anorms.h"
 };
-
-vec3_t shadevector;
-float shadelight[3];
-float *shadedots = r_avertexnormal_dots[0];
 
 // correction matrix with "hacked depth" for models with RF_DEPTHHACK flag set
 static float r_vulkan_correction_dh[16] = {
@@ -200,9 +194,10 @@ Mesh_Free(void)
 }
 
 static void
-Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_end,
+Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_end,
 	float alpha, image_t *skin, float *modelMatrix, int leftHandOffset, int translucentIdx,
-	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count)
+	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count, const float *shadelight,
+	const float *shadevector)
 {
 	int vertCounts[2] = { 0, 0 };
 	int pipeCounters[2] = { 0, 0 };
@@ -295,6 +290,7 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 			{
 				int vertIdx = vertCounts[pipelineIdx];
 				int index_xyz = order[2];
+				const float *norm;
 				float l;
 
 				if (Mesh_VertsRealloc(vertIdx))
@@ -306,8 +302,10 @@ Vk_DrawAliasFrameLerpCommands (entity_t *currententity, int *order, int *order_e
 				vertList[pipelineIdx][vertIdx].texCoord[0] = ((float *)order)[0];
 				vertList[pipelineIdx][vertIdx].texCoord[1] = ((float *)order)[1];
 
-				// normals and vertexes come from the frame list
-				l = shadedots[verts[index_xyz].lightnormalindex];
+				/* normals and vertexes come from the frame list */
+				/* shadevector is set above according to rotation (around Z axis I think) */
+				norm = r_avertexnormals[verts[index_xyz].lightnormalindex];
+				l = DotProduct(norm, shadevector) + 1;
 
 				vertList[pipelineIdx][vertIdx].color[0] = l * shadelight[0];
 				vertList[pipelineIdx][vertIdx].color[1] = l * shadelight[1];
@@ -400,7 +398,8 @@ FIXME: batch lerp all vertexes
 */
 static void
 Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp, image_t *skin,
-	float *modelMatrix, int leftHandOffset, int translucentIdx, vec4_t *s_lerped)
+	float *modelMatrix, int leftHandOffset, int translucentIdx, vec4_t *s_lerped,
+	const float *shadelight, const float *shadevector)
 {
 	daliasxframe_t *frame, *oldframe;
 	dxtrivertx_t *ov, *verts;
@@ -469,13 +468,14 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, skin,
 			modelMatrix, leftHandOffset, translucentIdx, verts,
-			s_lerped, paliashdr->num_xyz);
+			s_lerped, paliashdr->num_xyz, shadelight, shadevector);
 	}
 }
 
 static void
 Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
-	float *modelMatrix, entity_t *currententity, vec4_t *s_lerped)
+	float *modelMatrix, entity_t *currententity, vec4_t *s_lerped,
+	const float *shadevector)
 {
 	vec3_t	point;
 	float	height, lheight;
@@ -603,6 +603,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int leftHandOffset = 0, i;
 	float prev_viewproj[16], an;
+	vec3_t shadevector, shadelight;
 	dmdx_t *paliashdr;
 	vec4_t *s_lerped;
 
@@ -759,9 +760,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		shadelight[2] = 0.0;
 	}
 
-	shadedots = r_avertexnormal_dots[((int)(currententity->angles[1] *
-				(SHADEDOT_QUANT / 360.0))) & (SHADEDOT_QUANT - 1)];
-
 	an = currententity->angles[1] / 180 * M_PI;
 	shadevector[0] = cos(-an);
 	shadevector[1] = sin(-an);
@@ -861,7 +859,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		Vk_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp,
 			skin, model, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0,
-			s_lerped);
+			s_lerped, shadelight, shadevector);
 	}
 
 	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
@@ -898,7 +896,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 				currententity->frame, model, currententity,
-				s_lerped);
+				s_lerped, shadevector);
 		}
 	}
 }
