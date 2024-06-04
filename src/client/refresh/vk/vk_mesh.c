@@ -27,8 +27,6 @@
 
 #include "header/local.h"
 
-#define NUMVERTEXNORMALS 162
-
 enum {
 	TRIANGLE_STRIP = 0,
 	TRIANGLE_FAN = 1
@@ -50,10 +48,6 @@ static	drawinfo_t	*drawInfo[2] = {NULL, NULL};
 static	modelvert	*vertList[2] = {NULL, NULL};
 static	vec3_t	*shadowverts = NULL;
 static	int	verts_count = 0;
-
-static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
-#include "../constants/anorms.h"
-};
 
 // correction matrix with "hacked depth" for models with RF_DEPTHHACK flag set
 static float r_vulkan_correction_dh[16] = {
@@ -289,8 +283,8 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 			do
 			{
 				int vertIdx = vertCounts[pipelineIdx];
-				int index_xyz = order[2];
-				const float *norm;
+				int i, index_xyz = order[2];
+				vec3_t normal;
 				float l;
 
 				if (Mesh_VertsRealloc(vertIdx))
@@ -302,10 +296,15 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 				vertList[pipelineIdx][vertIdx].texCoord[0] = ((float *)order)[0];
 				vertList[pipelineIdx][vertIdx].texCoord[1] = ((float *)order)[1];
 
+				/* unpack normal */
+				for(i = 0; i < 3; i++)
+				{
+					normal[i] = verts[index_xyz].normal[i] / 127.f;
+				}
+
 				/* normals and vertexes come from the frame list */
 				/* shadevector is set above according to rotation (around Z axis I think) */
-				norm = r_avertexnormals[verts[index_xyz].lightnormalindex];
-				l = DotProduct(norm, shadevector) + 1;
+				l = DotProduct(normal, shadevector) + 1;
 
 				vertList[pipelineIdx][vertIdx].color[0] = l * shadelight[0];
 				vertList[pipelineIdx][vertIdx].color[1] = l * shadelight[1];

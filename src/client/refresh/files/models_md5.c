@@ -1135,10 +1135,9 @@ PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts, daliasxframe_t *fram
 			frame_out->verts[i].v[j] = (
 				vertexArray[i].xyz[j] - frame_out->translate[j]
 			) / frame_out->scale[j];
-		}
 
-		frame_out->verts[i].lightnormalindex =
-			R_CompressNormalMDL(vertexArray[i].norm);
+			frame_out->verts[i].normal[j] = vertexArray[i].norm[j] * 127.f;
+		}
 	}
 }
 

@@ -436,7 +436,7 @@ typedef struct md3_header_s
 typedef struct
 {
 	unsigned short v[3]; /* scaled short to fit in frame mins/maxs */
-	byte lightnormalindex;
+	signed char normal[3];
 } dxtrivertx_t;
 
 typedef struct

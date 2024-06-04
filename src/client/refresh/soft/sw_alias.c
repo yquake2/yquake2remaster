@@ -52,13 +52,6 @@ static float	aliasoldworldtransform[3][4];
 static float	s_ziscale;
 static vec3_t	s_alias_forward, s_alias_right, s_alias_up;
 
-
-#define NUMVERTEXNORMALS	162
-
-static const float	r_avertexnormals[NUMVERTEXNORMALS][3] = {
-#include "../constants/anorms.h"
-};
-
 /*
 ================
 R_AliasCheckBBox
@@ -293,10 +286,14 @@ R_AliasTransformFinalVerts(int numpoints, finalvert_t *fv, dxtrivertx_t *newv, f
 
 	for (i = 0; i < numpoints; i++, fv++, newv++, lerp += 4)
 	{
+		vec3_t plightnormal;
 		float	lightcos;
-		const float	*plightnormal;
+		int n;
 
-		plightnormal = r_avertexnormals[newv->lightnormalindex];
+		for (n = 0; n < 3; n++)
+		{
+			plightnormal[n] = newv->normal[n] / 127.f;
+		}
 
 		fv->xyz[0] = DotProduct(lerp, aliastransform[0]) + aliastransform[0][3];
 		fv->xyz[1] = DotProduct(lerp, aliastransform[1]) + aliastransform[1][3];

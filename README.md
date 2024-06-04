@@ -119,7 +119,7 @@ Goals:
   * [ ] Use separete texture hi-color buffer for ui in soft render,
   * [ ] Cleanup function declarations in game save code,
   * [ ] Fix broken base3 with sorted fields names,
-  * [ ] Use 3 bytes vertex normal,
+  * [x] Use 3 bytes vertex normal,
   * [ ] Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
   * [ ] Modified ReRelease game code support with removed KEX only related code.

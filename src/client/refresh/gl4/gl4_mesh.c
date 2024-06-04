@@ -29,12 +29,6 @@
 
 #include "../files/DG_dynarr.h"
 
-#define NUMVERTEXNORMALS 162
-
-static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
-#include "../constants/anorms.h"
-};
-
 typedef struct gl4_shadowinfo_s {
 	vec3_t    lightspot;
 	vec3_t    shadevector;
@@ -130,9 +124,8 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 			for(i=0; i<count; ++i)
 			{
 				gl4_alias_vtx_t* cur = &buf[i];
-				const float *norm;
-				int index_xyz;
-				int j = 0;
+				int index_xyz, i, j = 0;
+				vec3_t normal;
 				float l;
 
 				/* texture coordinates come from the draw list */
@@ -143,10 +136,15 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 
 				order += 3;
 
+				/* unpack normal */
+				for(i = 0; i < 3; i++)
+				{
+					normal[i] = verts[index_xyz].normal[i] / 127.f;
+				}
+
 				/* normals and vertexes come from the frame list */
 				/* shadevector is set above according to rotation (around Z axis I think) */
-				norm = r_avertexnormals[verts[index_xyz].lightnormalindex];
-				l = DotProduct(norm, shadevector) + 1;
+				l = DotProduct(normal, shadevector) + 1;
 
 				for(j=0; j<3; ++j)
 				{

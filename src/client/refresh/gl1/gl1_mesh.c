@@ -26,12 +26,6 @@
 
 #include "header/local.h"
 
-#define NUMVERTEXNORMALS 162
-
-static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
-#include "../constants/anorms.h"
-};
-
 static void
 R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *order_end,
 	float alpha, dxtrivertx_t *verts, vec4_t *s_lerped, const float *shadelight,
@@ -123,8 +117,8 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 
 			do
 			{
-				int index_xyz;
-				const float *norm;
+				int i, index_xyz;
+				vec3_t normal;
 				float l;
 
 				/* texture coordinates come from the draw list */
@@ -134,10 +128,15 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				index_xyz = order[2];
 				order += 3;
 
+				/* unpack normal */
+				for(i = 0; i < 3; i++)
+				{
+					normal[i] = verts[index_xyz].normal[i] / 127.f;
+				}
+
 				/* normals and vertexes come from the frame list */
 				/* shadevector is set above according to rotation (around Z axis I think) */
-				norm = r_avertexnormals[verts[index_xyz].lightnormalindex];
-				l = DotProduct(norm, shadevector) + 1;
+				l = DotProduct(normal, shadevector) + 1;
 
 				clr[index_clr++] = l * shadelight[0];
 				clr[index_clr++] = l * shadelight[1];

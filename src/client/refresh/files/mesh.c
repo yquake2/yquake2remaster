@@ -77,33 +77,18 @@ R_VertBufferFree(void)
 }
 
 /* compressed vertex normals used by mdl and md2 model formats */
-byte
-R_CompressNormalMDL(const float *normal)
+void
+R_ConvertNormalMDL(byte in_normal, signed char *normal)
 {
-	byte i, besti;
-	float bestdot;
+	const float *norm;
+	int n;
 
-	bestdot = normal[0] * r_avertexnormals[0][0] +
-		normal[1] * r_avertexnormals[0][1] +
-		normal[2] * r_avertexnormals[0][2];
-	besti = 0;
+	norm = r_avertexnormals[in_normal];
 
-	for (i = 1; i < NUMVERTEXNORMALS; i++)
+	for (n = 0; n < 3; n ++)
 	{
-		float dot;
-
-		dot = normal[0] * r_avertexnormals[i][0] +
-			normal[1] * r_avertexnormals[i][1] +
-			normal[2] * r_avertexnormals[i][2];
-
-		if (dot > bestdot)
-		{
-			bestdot = dot;
-			besti = i;
-		}
+		normal[n] = norm[n] * 127.f;
 	}
-
-	return besti;
 }
 
 void
@@ -118,14 +103,17 @@ R_LerpVerts(qboolean powerUpEffect, int nverts,
 	{
 		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
-			const float *normal = r_avertexnormals[v->lightnormalindex];
+			int n;
 
-			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0] +
-					  normal[0] * POWERSUIT_SCALE;
-			lerp[1] = move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1] +
-					  normal[1] * POWERSUIT_SCALE;
-			lerp[2] = move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2] +
-					  normal[2] * POWERSUIT_SCALE;
+			for (n = 0; n < 3; n ++)
+			{
+				float normal;
+
+				normal = v->normal[n] / 127.f;
+
+				lerp[n] = move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n] +
+						  normal * POWERSUIT_SCALE;
+			}
 		}
 	}
 	else
