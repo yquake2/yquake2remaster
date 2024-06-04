@@ -1095,7 +1095,7 @@ GL4_DrawEntitiesOnList(void)
 	/* draw transparent entities
 	   we could sort these if it ever
 	   becomes a problem... */
-	glDepthMask(0);
+	glDepthMask(GL_FALSE);
 
 	for (i = 0; i < gl4_newrefdef.num_entities; i++)
 	{
@@ -1141,8 +1141,7 @@ GL4_DrawEntitiesOnList(void)
 
 	GL4_DrawAliasShadows();
 
-	glDepthMask(1); /* back to writing */
-
+	glDepthMask(GL_TRUE); /* back to writing */
 }
 
 static void
@@ -1757,7 +1756,7 @@ GL4_Clear(void)
 	GLbitfield stencilFlags = 0;
 #if 0 // TODO: stereo stuff
 	if (gl4state.stereo_mode >= STEREO_MODE_ROW_INTERLEAVED && gl_state.stereo_mode <= STEREO_MODE_PIXEL_INTERLEAVED) {
-		glClearStencil(0);
+		glClearStencil(GL_FALSE);
 		stencilFlags |= GL_STENCIL_BUFFER_BIT;
 	}
 #endif // 0
@@ -1793,7 +1792,7 @@ GL4_Clear(void)
 	/* stencilbuffer shadows */
 	if (gl_shadows->value && gl4config.stencil)
 	{
-		glClearStencil(1);
+		glClearStencil(GL_TRUE);
 		glClear(GL_STENCIL_BUFFER_BIT);
 	}
 }

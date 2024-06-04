@@ -369,7 +369,7 @@ R_DrawEntitiesOnList(void)
 	/* draw transparent entities
 	   we could sort these if it ever
 	   becomes a problem... */
-	glDepthMask(0);
+	glDepthMask(GL_FALSE);
 
 	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
@@ -413,7 +413,7 @@ R_DrawEntitiesOnList(void)
 		}
 	}
 
-	glDepthMask(1); /* back to writing */
+	glDepthMask(GL_TRUE); /* back to writing */
 }
 
 void
@@ -510,7 +510,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 
 	glDisable(GL_BLEND);
 	glColor4f(1, 1, 1, 1);
-	glDepthMask(1); /* back to normal Z buffering */
+	glDepthMask(GL_TRUE); /* back to normal Z buffering */
 	R_TexEnv(GL_REPLACE);
 
 	YQ2_VLAFREE(vtx);
@@ -814,7 +814,7 @@ R_Clear(void)
 	// Check whether the stencil buffer needs clearing, and do so if need be.
 	GLbitfield stencilFlags = 0;
 	if (gl_state.stereo_mode >= STEREO_MODE_ROW_INTERLEAVED && gl_state.stereo_mode <= STEREO_MODE_PIXEL_INTERLEAVED) {
-		glClearStencil(0);
+		glClearStencil(GL_FALSE);
 		stencilFlags |= GL_STENCIL_BUFFER_BIT;
 	}
 
@@ -875,7 +875,7 @@ R_Clear(void)
 	/* stencilbuffer shadows */
 	if (gl_shadows->value && gl_state.stencil && gl1_stencilshadow->value)
 	{
-		glClearStencil(1);
+		glClearStencil(GL_TRUE);
 		glClear(GL_STENCIL_BUFFER_BIT);
 	}
 }

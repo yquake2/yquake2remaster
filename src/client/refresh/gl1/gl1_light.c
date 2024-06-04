@@ -96,7 +96,7 @@ R_RenderDlights(void)
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = r_framecount + 1;
 
-	glDepthMask(0);
+	glDepthMask(GL_FALSE);
 	glDisable(GL_TEXTURE_2D);
 	glShadeModel(GL_SMOOTH);
 	glEnable(GL_BLEND);
@@ -113,7 +113,7 @@ R_RenderDlights(void)
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(1);
+	glDepthMask(GL_TRUE);
 }
 
 void

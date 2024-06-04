@@ -232,7 +232,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	}
 
 	/* don't bother writing Z */
-	glDepthMask(0);
+	glDepthMask(GL_FALSE);
 
 	/* set the appropriate blending mode unless
 	   we're only looking at the lightmaps. */
@@ -397,7 +397,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	/* restore state */
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDepthMask(1);
+	glDepthMask(GL_TRUE);
 }
 
 static void
