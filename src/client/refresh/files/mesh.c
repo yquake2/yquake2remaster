@@ -83,7 +83,7 @@ R_ConvertNormalMDL(byte in_normal, signed char *normal)
 	const float *norm;
 	int n;
 
-	norm = r_avertexnormals[in_normal];
+	norm = r_avertexnormals[in_normal % NUMVERTEXNORMALS];
 
 	for (n = 0; n < 3; n ++)
 	{

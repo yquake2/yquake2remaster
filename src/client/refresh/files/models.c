@@ -129,9 +129,10 @@ Mod_LoadFrames
 Load the Quake2 md2 default format frames
 =================
 */
-static void
+static qboolean
 Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t translate)
 {
+	qboolean normalfix = true;
 	int i;
 
 	for (i=0 ; i < pheader->num_frames ; i++)
@@ -156,10 +157,19 @@ Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t transl
 		for (j=0; j < pheader->num_xyz; j ++)
 		{
 			Mod_LoadFrames_VertMD2(poutframe->verts + j, pinframe->verts[j].v);
+
+			if (pinframe->verts[j].lightnormalindex)
+			{
+				/* normal is set? */
+				normalfix = false;
+			}
+
 			R_ConvertNormalMDL(pinframe->verts[j].lightnormalindex,
 				poutframe->verts[j].normal);
 		}
 	}
+
+	return normalfix;
 }
 
 /*
@@ -1847,6 +1857,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	const dtriangle_t *pintri;
 	dmdxmesh_t *mesh_nodes;
 	const dstvert_t *pinst;
+	qboolean normalfix;
 	const int *pincmd;
 	dmdl_t pinmodel;
 	dmdx_t *pheader;
@@ -1988,7 +1999,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	//
 	// load the frames
 	//
-	Mod_LoadFrames_MD2(pheader, (byte *)buffer + pinmodel.ofs_frames,
+	normalfix = Mod_LoadFrames_MD2(pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate);
 
 	//
@@ -2000,6 +2011,12 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	/* register all skins */
 	memcpy((char *)pheader + pheader->ofs_skins, (char *)buffer + pinmodel.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
+
+	if (normalfix)
+	{
+		/* look like normals is zero, lets fix it */
+		Mod_LoadFixNormals(pheader);
+	}
 
 	Mod_LoadFixImages(mod_name, pheader, false);
 
