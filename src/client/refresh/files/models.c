@@ -2257,6 +2257,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 						__func__, blockname, version);
 					return NULL;
 				}
+
 				/* 516 mesh node size */
 				if (size != (num_mesh_nodes * 516))
 				{

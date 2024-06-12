@@ -314,11 +314,6 @@ void glCheckError_(const char *file, const char *function, int line);
 #define glEnd() glEnd(); glCheckError_(__FILE__, __func__, __LINE__)
 #endif
 
-/* GL extension emulation functions */
-void R_DrawParticles2(int n,
-		const particle_t particles[],
-		const unsigned *colortable);
-
 /*
  * GL config stuff
  */

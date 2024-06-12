@@ -562,7 +562,7 @@ Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header, const char *lumpname,
 }
 
 const bspx_header_t *
-Mod_LoadBSPX(int filesize, const byte *mod_base, maptype_t maptype)
+Mod_LoadBSPX(int filesize, const byte *mod_base)
 {
 	const bspx_header_t *xheader;
 	const dheader_t *header;
@@ -1016,8 +1016,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 }
 
 int
-Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header,
-	maptype_t maptype)
+Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header)
 {
 	int hunkSize = 0;
 

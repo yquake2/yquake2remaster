@@ -368,11 +368,9 @@ extern void Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedg
 extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
 extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,
 	const char *lumpname, int *plumpsize, const byte *mod_base);
-extern const bspx_header_t *Mod_LoadBSPX(int filesize, const byte *mod_base,
-	maptype_t maptype);
+extern const bspx_header_t *Mod_LoadBSPX(int filesize, const byte *mod_base);
 extern int Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out);
-extern int Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header,
-	maptype_t maptype);
+extern int Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header);
 
 /* Surface logic */
 #define DLIGHT_CUTOFF 64
