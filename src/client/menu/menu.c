@@ -5518,7 +5518,7 @@ static qboolean
 PlayerDirectoryList(void)
 {
 	const char* findname = "players/*";
-	char** list = 0;
+	char** list = NULL;
 	int num = 0, dirnum = 0;
 	size_t listoff = strlen(findname);
 
