@@ -89,7 +89,8 @@ LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *hei
 	data = stbi_load_from_memory(rawdata, rawsize, &w, &h, &bytesPerPixel, STBI_rgb_alpha);
 	if (data == NULL)
 	{
-		R_Printf(PRINT_ALL, "%s couldn't load data from %s: %s!\n", __func__, filename, stbi_failure_reason());
+		R_Printf(PRINT_ALL, "%s couldn't load data from %s: %s!\n",
+			__func__, filename, stbi_failure_reason());
 		ri.FS_FreeFile(rawdata);
 		return false;
 	}

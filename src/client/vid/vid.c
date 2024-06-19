@@ -69,7 +69,8 @@ compress_for_stbiw(unsigned char *data, int data_len, int *out_len, int quality)
  * RGB or RGBA. The pixels must be given row-wise, stating at the top
  * left.
  */
-void VID_WriteScreenshot(int width, int height, int comp, const void* data)
+static void
+VID_WriteScreenshot(int width, int height, int comp, const void* data)
 {
 	char picname[80];
 	char checkname[MAX_OSPATH];

@@ -37,20 +37,6 @@
 #define PL_MPEG_IMPLEMENTATION
 #include "cinema/pl_mpeg.h"
 
-// don't need HDR stuff
-#define STBI_NO_LINEAR
-#define STBI_NO_HDR
-// make sure STB_image uses standard malloc(), as we'll use standard free() to deallocate
-#define STBI_MALLOC(sz)    malloc(sz)
-#define STBI_REALLOC(p,sz) realloc(p,sz)
-#define STBI_FREE(p)       free(p)
-// Switch of the thread local stuff. Breaks mingw under Windows.
-#define STBI_NO_THREAD_LOCALS
-// include implementation part of stb_image into this file
-#define STB_IMAGE_IMPLEMENTATION
-#include "refresh/files/stb_image.h"
-
-
 extern cvar_t *vid_renderer;
 
 cvar_t *cin_force43;
@@ -111,102 +97,33 @@ typedef struct
 cinematics_t cin;
 
 static void
-SCR_LoadPCX(char *filename, byte **pic, byte **palette, int *width, int *height)
+SCR_LoadPCX(char *filename, byte **pic, byte **palette, int *width, int *height,
+	int *bytesPerPixel)
 {
-	byte *raw;
-	pcx_t *pcx;
-	int x, y;
-	int len, full_size;
-	int dataByte, runLength;
-	byte *out, *pix;
+	byte *data, *palette_in;
 
 	*pic = NULL;
+	*palette = NULL;
 
-	/* load the file */
-	len = FS_LoadFile(filename, (void **)&raw);
+	VID_ImageDecode(filename, &data, &palette_in, width, height, bytesPerPixel);
 
-	if (!raw || len < sizeof(pcx_t))
+	if (data)
 	{
-		return;
+		*pic = Z_Malloc((*width) * (*height) * (*bytesPerPixel));
+		memcpy(*pic, data, (*height) * (*width) * (*bytesPerPixel));
+		free(data);
 	}
-
-	/* parse the PCX file */
-	pcx = (pcx_t *)raw;
-	raw = &pcx->data;
-
-	if ((pcx->manufacturer != 0x0a) ||
-		(pcx->version != 5) ||
-		(pcx->encoding != 1) ||
-		(pcx->bits_per_pixel != 8) ||
-		(pcx->xmax >= 640) ||
-		(pcx->ymax >= 480))
+	else
 	{
 		Com_Printf("Bad pcx file %s\n", filename);
-		return;
 	}
 
-	full_size = (pcx->ymax + 1) * (pcx->xmax + 1);
-	out = Z_Malloc(full_size);
-
-	*pic = out;
-
-	pix = out;
-
-	if (palette)
+	if (palette_in)
 	{
 		*palette = Z_Malloc(768);
-		memcpy(*palette, (byte *)pcx + len - 768, 768);
+		memcpy(*palette, palette_in, 768);
+		free(palette_in);
 	}
-
-	if (width)
-	{
-		*width = pcx->xmax + 1;
-	}
-
-	if (height)
-	{
-		*height = pcx->ymax + 1;
-	}
-
-	for (y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1)
-	{
-		for (x = 0; x <= pcx->xmax; )
-		{
-			dataByte = *raw++;
-
-			if ((dataByte & 0xC0) == 0xC0)
-			{
-				runLength = dataByte & 0x3F;
-				dataByte = *raw++;
-			}
-			else
-			{
-				runLength = 1;
-			}
-
-			while (runLength-- > 0)
-			{
-				if ((*pic + full_size) <= (pix + x))
-				{
-					x += runLength;
-					runLength = 0;
-				}
-				else
-				{
-					pix[x++] = dataByte;
-				}
-			}
-		}
-	}
-
-	if (raw - (byte *)pcx > len)
-	{
-		Com_Printf("PCX file %s was malformed", filename);
-		Z_Free(*pic);
-		*pic = NULL;
-	}
-
-	FS_FreeFile(pcx);
 }
 
 void
@@ -863,29 +780,25 @@ SCR_DrawCinematic(void)
 static byte *
 SCR_LoadHiColor(const char* namewe, const char *ext, int *width, int *height)
 {
+	byte *pic, *data = NULL, *palette = NULL;
 	char filename[256];
 	int bytesPerPixel;
-	byte *pic, *data = NULL;
-	void *rawdata;
-	size_t len;
 
 	Q_strlcpy(filename, namewe, sizeof(filename));
 	Q_strlcat(filename, ".", sizeof(filename));
 	Q_strlcat(filename, ext, sizeof(filename));
 
-	len = FS_LoadFile(filename, &rawdata);
-
-	if (!rawdata || len <=0)
+	VID_ImageDecode(filename, &data, &palette,
+		width, height, &bytesPerPixel);
+	if (data == NULL)
 	{
 		return NULL;
 	}
 
-	data = stbi_load_from_memory(rawdata, len, width, height,
-		&bytesPerPixel, STBI_rgb_alpha);
-	if (data == NULL)
+	if (palette)
 	{
-		FS_FreeFile(rawdata);
-		return NULL;
+		/* strange, here should be no palleted image */
+		free(palette);
 	}
 
 	pic = Z_Malloc(cin.height * cin.width * 4);
@@ -946,8 +859,11 @@ SCR_PlayCinematic(char *arg)
 
 		if (!cin.pic)
 		{
-			SCR_LoadPCX(name, &cin.pic, &palette, &cin.width, &cin.height);
-			cin.color_bits = 8;
+			int bytesPerPixel;
+
+			SCR_LoadPCX(name, &cin.pic, &palette, &cin.width, &cin.height,
+				&bytesPerPixel);
+			cin.color_bits = 8 * bytesPerPixel;
 		}
 
 		cl.cinematicframe = -1;

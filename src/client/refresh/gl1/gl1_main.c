@@ -220,27 +220,27 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		1, 1
 	};
 
-	VectorMA( currententity->origin, -frame->origin_y, up, point[0] );
-	VectorMA( point[0], -frame->origin_x, right, point[0] );
+	VectorMA(currententity->origin, -frame->origin_y, up, point[0]);
+	VectorMA(point[0], -frame->origin_x, right, point[0]);
 
-	VectorMA( currententity->origin, frame->height - frame->origin_y, up, point[1] );
-	VectorMA( point[1], -frame->origin_x, right, point[1] );
+	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point[1]);
+	VectorMA(point[1], -frame->origin_x, right, point[1]);
 
-	VectorMA( currententity->origin, frame->height - frame->origin_y, up, point[2] );
-	VectorMA( point[2], frame->width - frame->origin_x, right, point[2] );
+	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point[2]);
+	VectorMA(point[2], frame->width - frame->origin_x, right, point[2]);
 
-	VectorMA( currententity->origin, -frame->origin_y, up, point[3] );
-	VectorMA( point[3], frame->width - frame->origin_x, right, point[3] );
+	VectorMA(currententity->origin, -frame->origin_y, up, point[3]);
+	VectorMA(point[3], frame->width - frame->origin_x, right, point[3]);
 
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glVertexPointer( 3, GL_FLOAT, 0, point );
-	glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-	glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+	glVertexPointer(3, GL_FLOAT, 0, point);
+	glTexCoordPointer(2, GL_FLOAT, 0, tex);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glDisable(GL_ALPHA_TEST);
 	R_TexEnv(GL_REPLACE);

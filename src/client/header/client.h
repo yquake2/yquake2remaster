@@ -508,6 +508,8 @@ void V_AddEntity (entity_t *ent);
 void V_AddParticle (vec3_t org, unsigned int color, float alpha);
 void V_AddLight (vec3_t org, float intensity, float r, float g, float b);
 void V_AddLightStyle (int style, float r, float g, float b);
+void VID_ImageDecode(const char *filename, byte **pic, byte **palette,
+	int *width, int *height, int *bytesPerPixel);
 
 void CL_RegisterTEntSounds (void);
 void CL_RegisterTEntModels (void);
