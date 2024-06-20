@@ -30,19 +30,6 @@
 
 #include "../ref_shared.h"
 
-// don't need HDR stuff
-#define STBI_NO_LINEAR
-#define STBI_NO_HDR
-// make sure STB_image uses standard malloc(), as we'll use standard free() to deallocate
-#define STBI_MALLOC(sz)    malloc(sz)
-#define STBI_REALLOC(p,sz) realloc(p,sz)
-#define STBI_FREE(p)       free(p)
-// Switch of the thread local stuff. Breaks mingw under Windows.
-#define STBI_NO_THREAD_LOCALS
-// include implementation part of stb_image into this file
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
 // include resize implementation
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
@@ -71,31 +58,29 @@ FixFileExt(const char *origname, const char *ext, char *filename, size_t size)
 qboolean
 LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *height)
 {
+	int w, h, bytesPerPixel;
 	char filename[256];
+	byte* data = NULL;
 
 	FixFileExt(origname, type, filename, sizeof(filename));
 
 	*pic = NULL;
 
-	byte* rawdata = NULL;
-	int rawsize = ri.FS_LoadFile(filename, (void **)&rawdata);
-	if (rawdata == NULL)
-	{
-		return false;
-	}
-
-	int w, h, bytesPerPixel;
-	byte* data = NULL;
-	data = stbi_load_from_memory(rawdata, rawsize, &w, &h, &bytesPerPixel, STBI_rgb_alpha);
+	ri.VID_ImageDecode(filename, &data, NULL, &w, &h, &bytesPerPixel);
 	if (data == NULL)
 	{
-		R_Printf(PRINT_ALL, "%s couldn't load data from %s: %s!\n",
-			__func__, filename, stbi_failure_reason());
-		ri.FS_FreeFile(rawdata);
 		return false;
 	}
 
-	ri.FS_FreeFile(rawdata);
+	if (bytesPerPixel != 4)
+	{
+		free(data);
+
+		R_Printf(PRINT_ALL, "%s unexpected file format of %s with %d bytes per pixel!\n",
+			__func__, filename, bytesPerPixel);
+
+		return false;
+	}
 
 	R_Printf(PRINT_DEVELOPER, "%s() loaded: %s\n", __func__, filename);
 

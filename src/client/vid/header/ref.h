@@ -253,6 +253,9 @@ typedef struct
 	// called with image data of width*height pixel which comp bytes per pixel (must be 3 or 4 for RGB or RGBA)
 	// expects the pixels data to be row-wise, starting at top left
 	void		(IMPORT *Vid_WriteScreenshot)( int width, int height, int comp, const void* data );
+	/* load image from file */
+	void		(IMPORT *VID_ImageDecode)( const char *filename, byte **pic, byte **palette,
+				int *width, int *height, int *bytesPerPixel);
 
 	qboolean	(IMPORT *GLimp_InitGraphics)(int fullscreen, int *pwidth, int *pheight);
 	qboolean	(IMPORT *GLimp_GetDesktopMode)(int *pwidth, int *pheight);

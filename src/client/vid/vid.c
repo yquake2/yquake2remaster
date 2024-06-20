@@ -447,6 +447,7 @@ VID_LoadRenderer(void)
 	ri.Vid_GetModeInfo = VID_GetModeInfo;
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_WriteScreenshot = VID_WriteScreenshot;
+	ri.VID_ImageDecode = VID_ImageDecode;
 	ri.Vid_RequestRestart = VID_RequestRestart;
 
 	// Exchange our export struct with the renderers import struct.
