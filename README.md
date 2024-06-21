@@ -6,27 +6,29 @@ has a lot non trivial changes, adding support isn't easy and takes time.
 Feel free to try this code but you mileage may vary.
 
 Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
-https://github.com/yquake2/yquake2
+<https://github.com/yquake2/yquake2>
 
 Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/releases).
 Saves format is unstabled and could change between alpha releases.
 
 State:
- * GL1/GLES3/GL3/GL4/VK:
-   * base1: no known issues,
-   * base2: no known issues,
-   * q64/outpost: broken level change,
-   * mguhub: sometimes broken logic for surface fall in next maps.
- * SOFT:
-   * base1: broken wall light and wall glitch,
-   * base2: broken wall light and wall glitch,
-   * q64/outpost: broken level change, scale textures unsupported,
-   * mguhub: broken wall light, sometimes broken logic for surface fall
+
+* GL1/GLES3/GL3/GL4/VK:
+  * base1: no known issues,
+  * base2: no known issues,
+  * q64/outpost: broken level change,
+  * mguhub: sometimes broken logic for surface fall in next maps.
+* SOFT:
+  * base1: broken wall light and wall glitch,
+  * base2: broken wall light and wall glitch,
+  * q64/outpost: broken level change, scale textures unsupported,
+  * mguhub: broken wall light, sometimes broken logic for surface fall
      in next maps.
 
 Monsters:
-  * incorrect dead animation for Arachnid,
-  * broken fire effect for Guardian.
+
+* incorrect dead animation for Arachnid,
+* broken fire effect for Guardian.
 
 Models support:
 
@@ -73,66 +75,69 @@ Maps support:
 | BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
 
 Note:
- * Non Quake 2 maps are limmited mostly view only, and could have issues
+
+* Non Quake 2 maps are limmited mostly view only, and could have issues
    with tranparency or some animations flags and properties.
- * If you like support some other maps type, create pull request for Mod_Load2QBSP
+* If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
 
 Games:
- * Quake 2:
-   * SDK: https://github.com/id-Software/quake2-rerelease-dll
-   * Tech info: https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii
- * Anachronox:
-   * SDK: https://github.com/hogsy/chronon
-   * Tech info: https://anachrodox.talonbrave.info/
- * Kingpin:
-   * SDK: https://github.com/QuakeTools/Kingpin-SDK-v1.21
-   * Tech info: https://www.kingpin.info/
- * Daikatana:
-   * Info: http://daikatananews.net/
- * Heretic 2:
-   * SDK: https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe
-   * Tech info: http://h2vault.infinityfreeapp.com/index.html
- * SiN:
-   * Tools: [SiNview](https://web.archive.org/web/20001212060900/http://starbase.neosoft.com:80/~otaku/program.html)
-   * Tools: https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff
-   * SDK: https://github.com/NightDive-Studio/sin-ex-game
+
+* Quake 2:
+  * SDK: <https://github.com/id-Software/quake2-rerelease-dll>
+  * Tech info: <https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii>
+* Anachronox:
+  * SDK: <https://github.com/hogsy/chronon>
+  * Tech info: <https://anachrodox.talonbrave.info/>
+* Kingpin:
+  * SDK: <https://github.com/QuakeTools/Kingpin-SDK-v1.21>
+  * Tech info: <https://www.kingpin.info/>
+* Daikatana:
+  * Info: <http://daikatananews.net/>
+* Heretic 2:
+  * SDK: <https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe>
+  * Tech info: <http://h2vault.infinityfreeapp.com/index.html>
+* SiN:
+  * Tools: [SiNview](https://web.archive.org/web/20001212060900/http://starbase.neosoft.com:80/~otaku/program.html)
+  * Tools: <https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff>
+  * SDK: <https://github.com/NightDive-Studio/sin-ex-game>
 
 Goals:
-  * [x] BSPX DECOUPLEDLM light map support (base1),
-  * [x] QBSP map format support (mguhub),
-  * [x] Use ffmpeg for load any video,
-  * [x] RoQ and Theora cinematic videos support.
-  * [x] Cinematic videos support in smk, mpeg, ogv format,
-  * [x] Daikatana/Heretic 2 map partial format support,
-  * [x] md5 improve load speed,
-  * [x] support Anachronox .dat format,
-  * [x] suport Daikatana/SiN .pak/.sin format from pakextract,
-  * [x] Support flow/scale flags for Q64 maps,
-  * [x] Add debug progress loading code for maps,
-  * [ ] Broken maps groups from base2 to next,
-  * [ ] Single player support,
-  * [ ] Support effects and additional flags for ReRelease when possible.
-  * [ ] Use shared model cache in client code insted reimplemnet in each render,
-  * [ ] Check load soft colormap as 24bit color,
-  * [ ] Fix transparent textures in Daikatana/SiN maps,
-  * [ ] Use separete texture hi-color buffer for ui in soft render,
-  * [ ] Cleanup function declarations in game save code,
-  * [ ] Fix broken base3 with sorted fields names,
-  * [x] Use 3 bytes vertex normal,
-  * [ ] Support scalled textures for models and walls in soft render and fix
+
+* [x] BSPX DECOUPLEDLM light map support (base1),
+* [x] QBSP map format support (mguhub),
+* [x] Use ffmpeg for load any video,
+* [x] RoQ and Theora cinematic videos support.
+* [x] Cinematic videos support in smk, mpeg, ogv format,
+* [x] Daikatana/Heretic 2 map partial format support,
+* [x] md5 improve load speed,
+* [x] support Anachronox .dat format,
+* [x] suport Daikatana/SiN .pak/.sin format from pakextract,
+* [x] Support flow/scale flags for Q64 maps,
+* [x] Add debug progress loading code for maps,
+* [ ] Broken maps groups from base2 to next,
+* [ ] Single player support,
+* [ ] Support effects and additional flags for ReRelease when possible.
+* [ ] Use shared model cache in client code insted reimplemnet in each render,
+* [ ] Check load soft colormap as 24bit color,
+* [ ] Fix transparent textures in Daikatana/SiN maps,
+* [ ] Use separete texture hi-color buffer for ui in soft render,
+* [ ] Cleanup function declarations in game save code,
+* [ ] Fix broken base3 with sorted fields names,
+* [x] Use 3 bytes vertex normal,
+* [ ] Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
-  * [ ] Modified ReRelease game code support with removed KEX only related code.
+* [ ] Modified ReRelease game code support with removed KEX only related code.
 
 Not a goal:
-  * [ ] Multiplayer protocol support with KEX engine,
-  * [ ] Support KEX engine features (inventary, compass and so on),
-  * [ ] [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
+
+* [ ] Multiplayer protocol support with KEX engine,
+* [ ] Support KEX engine features (inventary, compass and so on),
+* [ ] [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
 
 Code tested with such [maps](doc/100_tested_maps.md).
 
 # Yamagi Quake II
-
 
 Yamagi Quake II is an enhanced client for id Software's Quake
 II with focus on offline and coop gameplay. Both the gameplay and the graphics
@@ -155,6 +160,6 @@ version can be found here: [doc/010_index.md](doc/010_index.md)
 ## Releases
 
 The official releases (including Windows binaries) can be found at our
-homepage: https://www.yamagi.org/quake2
+homepage: <https://www.yamagi.org/quake2>
 **Unsupported** preview builds for Windows can be found at
-https://deponie.yamagi.org/quake2/misc/
+<https://deponie.yamagi.org/quake2/misc/>

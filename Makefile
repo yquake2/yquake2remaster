@@ -303,7 +303,8 @@ INCLUDE ?= -I/usr/local/include
 else ifeq ($(YQ2_OSTYPE),Windows)
 INCLUDE ?= -I/usr/include
 else ifeq ($(YQ2_OSTYPE),Darwin)
-INCLUDE ?= -I/usr/local/include -I/opt/homebrew/include
+MOLTENVK_PATH ?= $(shell brew --prefix molten-vk)
+INCLUDE ?= -I/usr/local/include -I/opt/homebrew/include -I$(MOLTENVK_PATH)/libexec/include
 endif
 
 # ----------
