@@ -448,6 +448,8 @@ VID_LoadRenderer(void)
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_WriteScreenshot = VID_WriteScreenshot;
 	ri.VID_ImageDecode = VID_ImageDecode;
+	ri.VID_GetPalette = VID_GetPalette;
+	ri.VID_GetPalette24to8 = VID_GetPalette24to8;
 	ri.Vid_RequestRestart = VID_RequestRestart;
 
 	// Exchange our export struct with the renderers import struct.

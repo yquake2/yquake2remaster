@@ -1434,8 +1434,8 @@ RI_Init(void)
 	R_Printf(PRINT_ALL, "ref_gl1::R_Init() - DEBUG mode enabled\n");
 #endif
 
-	GetPCXPalette(&colormap, d_8to24table);
-	GetPCXPalette24to8((byte *)d_8to24table, &gl_state.d_16to8table);
+	ri.VID_GetPalette(&colormap, d_8to24table);
+	ri.VID_GetPalette24to8((byte *)d_8to24table, &gl_state.d_16to8table);
 	free(colormap);
 
 	R_Register();

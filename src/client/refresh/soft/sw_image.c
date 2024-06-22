@@ -707,8 +707,8 @@ R_InitImages (void)
 	registration_sequence = 1;
 	image_max = 0;
 
-	GetPCXPalette(&vid_colormap, (unsigned *)d_8to24table);
-	GetPCXPalette24to8(d_8to24table, &d_16to8table);
+	ri.VID_GetPalette(&vid_colormap, (unsigned *)d_8to24table);
+	ri.VID_GetPalette24to8(d_8to24table, &d_16to8table);
 	vid_alphamap = vid_colormap + 64*256;
 	R_InitTextures ();
 }

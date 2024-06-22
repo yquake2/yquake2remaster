@@ -256,6 +256,8 @@ typedef struct
 	/* load image from file */
 	void		(IMPORT *VID_ImageDecode)( const char *filename, byte **pic, byte **palette,
 				int *width, int *height, int *bytesPerPixel);
+	void		(IMPORT *VID_GetPalette)(byte **colormap, unsigned *d_8to24table);
+	void		(IMPORT *VID_GetPalette24to8)(const byte *d_8to24table, byte** d_16to8table);
 
 	qboolean	(IMPORT *GLimp_InitGraphics)(int fullscreen, int *pwidth, int *pheight);
 	qboolean	(IMPORT *GLimp_GetDesktopMode)(int *pwidth, int *pheight);

@@ -498,7 +498,7 @@ GL4_Init(void)
 		return false;
 	}
 
-	GetPCXPalette (&colormap, d_8to24table);
+	ri.VID_GetPalette(&colormap, d_8to24table);
 	free(colormap);
 
 	GL4_Register();

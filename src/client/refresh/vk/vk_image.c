@@ -1378,7 +1378,7 @@ void	Vk_InitImages (void)
 		intensitytable[i] = j;
 	}
 
-	GetPCXPalette (&colormap, d_8to24table);
+	ri.VID_GetPalette(&colormap, d_8to24table);
 	free(colormap);
 
 	overbright = vk_overbrightbits->value;
