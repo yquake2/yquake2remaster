@@ -1064,6 +1064,20 @@ Q_strncasecmp(const char *s1, const char *s2, int n)
 	return 0; /* strings are equal */
 }
 
+char *Q_strcasestr(const char *haystack, const char *needle)
+{
+	size_t len = strlen(needle);
+
+	for (; *haystack; haystack++)
+	{
+		if (!Q_strncasecmp(haystack, needle, len))
+		{
+			return (char *)haystack;
+		}
+	}
+	return 0;
+}
+
 int
 Q_strcasecmp(const char *s1, const char *s2)
 {

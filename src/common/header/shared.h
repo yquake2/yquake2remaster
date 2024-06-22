@@ -325,6 +325,7 @@ void Com_PageInMemory(const byte *buffer, int size);
 int Q_stricmp(const char *s1, const char *s2);
 int Q_strcasecmp(const char *s1, const char *s2);
 int Q_strncasecmp(const char *s1, const char *s2, int n);
+char *Q_strcasestr(const char *s1, const char *s2);
 
 /* portable string lowercase */
 char *Q_strlwr(char *s);
