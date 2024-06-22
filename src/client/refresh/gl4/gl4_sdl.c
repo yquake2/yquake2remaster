@@ -240,7 +240,11 @@ int GL4_PrepareForWindow(void)
 	else
 	{
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+#if !defined(__APPLE__)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+#else
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+#endif
 	}
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -359,6 +363,7 @@ int GL4_InitContext(void* win)
 	}
 	else if (GLVersion.major < 4 || (GLVersion.major == 4 && GLVersion.minor < 6))
 	{
+#if !defined(__APPLE__)
 		if ((!gl_version_override->value) ||
 			(GLVersion.major < gl_version_override->value))
 		{
@@ -368,6 +373,7 @@ int GL4_InitContext(void* win)
 			return false;
 		}
 		else
+#endif
 		{
 			R_Printf(PRINT_ALL, "%s(): Warning: glad only got GL version %d.%d.\n"
 				"Some functionality could be broken.\n",

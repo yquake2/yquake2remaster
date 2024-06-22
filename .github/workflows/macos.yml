@@ -1,0 +1,38 @@
+name: Build macos application
+run-name: macos
+on:
+  push:
+    tags:
+      - "*"
+jobs:
+  build64:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: macos
+    steps:
+    - name: Install build libraries
+      run: |
+        brew update
+        brew install sdl2 openal-soft make ffmpeg molten-vk
+        brew upgrade
+    - name: Check out repository code
+      uses: actions/checkout@v4
+    - name: Build Release code
+      run: |
+        make
+    - name: Create release package
+      run: |
+        # copy docs
+        cp -rv stuff/mapfixes/* LICENSE README.md doc release/
+        # create archive
+        mkdir yquake2remaster-${{matrix.env}}-${{github.ref_name}}
+        cp -rv release/* yquake2remaster-${{matrix.env}}-${{github.ref_name}}
+        zip -9r yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip yquake2remaster-${{matrix.env}}-${{github.ref_name}}
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip

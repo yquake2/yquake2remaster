@@ -743,6 +743,15 @@ ref_gl4:
 release/ref_gl4.dll : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
 release/ref_gl4.dll : LDFLAGS += -shared
 
+else ifeq ($(YQ2_OSTYPE), Darwin)
+
+ref_gl4:
+	@echo "===> Building ref_gl4.dylib"
+	$(MAKE) release/ref_gl4.dylib
+
+release/ref_gl4.dylib : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
+release/ref_gl4.dylib : LDFLAGS += -shared
+
 else # not Windows or Darwin - macOS doesn't support OpenGL 4.6
 
 ref_gl4:
@@ -1469,7 +1478,10 @@ release/ref_gl4.dll : $(REFGL4_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
 	$(Q)strip $@
-
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/ref_gl4.dylib : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
 else
 release/ref_gl4.so : $(REFGL4_OBJS)
 	@echo "===> LD $@"

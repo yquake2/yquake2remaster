@@ -64,7 +64,7 @@ jobs:
         cp -rv release/* yquake2remaster-${{matrix.env}}-${{github.ref_name}}
         zip -9r yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip yquake2remaster-${{matrix.env}}-${{github.ref_name}}
     - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip
@@ -122,7 +122,7 @@ jobs:
         cp -rv release/* yquake2remaster-${{matrix.env}}-${{github.ref_name}}
         zip -9r yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip yquake2remaster-${{matrix.env}}-${{github.ref_name}}
     - name: Upload Release Asset
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: |
           yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip

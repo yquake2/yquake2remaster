@@ -329,7 +329,7 @@ The build dependencies can be installed with:
 * On Solaris/Illumos: `pkg install sdl2 openal curl`
 * On Haiku: `pkgman libsdl2_devel openal_devel curl_devel`
 * On MacOS the dependencies can be installed with Homebrew (from
-  https://brew.sh): `brew install sdl2 openal-soft`
+  https://brew.sh): `brew install sdl2 openal-soft make ffmpeg molten-vk`
 
 Other distributions or platforms often have package named similar to the
 Debian or FreeBSD packages.
