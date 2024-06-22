@@ -112,6 +112,10 @@ static unsigned char quitscreenfix[] = {
 	1,40,4,4,40,4,29,28,31,45,47,28,47,47,4,40,28,28
 };
 
+static byte *colormap_cache = NULL;
+static unsigned d_8to24table_cache[256];
+
+
 static void
 fixQuitScreen(byte* px)
 {
@@ -353,13 +357,8 @@ GenerateColormap(const byte *palette, byte *out_colormap)
 	}
 }
 
-/*
-===============
-VID_GetPalette
-===============
-*/
-void
-VID_GetPalette(byte **colormap, unsigned *d_8to24table)
+static void
+LoadPalette(byte **colormap, unsigned *d_8to24table)
 {
 	const char * filename;
 	int bytesPerPixel;
@@ -467,6 +466,44 @@ VID_GetPalette(byte **colormap, unsigned *d_8to24table)
 		d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
 
 		free(pal);
+	}
+}
+
+/*
+===============
+VID_GetPalette
+===============
+*/
+void
+VID_GetPalette(byte **colormap, unsigned *d_8to24table)
+{
+	if (!colormap_cache)
+	{
+		LoadPalette(&colormap_cache, d_8to24table_cache);
+	}
+
+	if (!colormap_cache)
+	{
+		return;
+	}
+
+	*colormap = malloc(256 * 320);
+	memcpy(*colormap, colormap_cache, 256 * 320);
+	memcpy(d_8to24table, d_8to24table_cache, sizeof(d_8to24table_cache));
+}
+
+void
+VID_ImageInit(void)
+{
+	colormap_cache = NULL;
+}
+
+void
+VID_ImageDestroy(void)
+{
+	if (colormap_cache)
+	{
+		free(colormap_cache);
 	}
 }
 

@@ -602,6 +602,8 @@ VID_Init(void)
 		Com_Error(ERR_FATAL, "Couldn't initialize the graphics subsystem!\n");
 	}
 
+	VID_ImageInit();
+
 	// Load the renderer and get things going.
 	VID_CheckChanges();
 }
@@ -613,6 +615,9 @@ void
 VID_Shutdown(void)
 {
 	VID_ShutdownRenderer();
+
+	VID_ImageDestroy();
+
 	GLimp_Shutdown();
 }
 
