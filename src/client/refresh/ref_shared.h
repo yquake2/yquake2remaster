@@ -326,7 +326,7 @@ typedef struct
 } bspxlightgrid_t;
 
 /* Shared models func */
-typedef char* (*readfile_t)(const char *name, int *size);
+typedef int (*readfile_t)(const char *path, void **buffer);
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
 extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,

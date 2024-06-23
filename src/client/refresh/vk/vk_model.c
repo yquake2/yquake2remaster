@@ -346,20 +346,23 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 }
 
 /* Temporary solution, need to use load file dirrectly */
-static char *
-Mod_ReadFile(const char *name, int *size)
+static int
+Mod_ReadFile(const char *path, void **buffer)
 {
-	char *buffer, *data;
+	char *data;
+	int size;
 
-	*size = ri.FS_LoadFile(name, (void **)&buffer);
-	if (*size <= 0)
+	size = ri.FS_LoadFile(path, (void **)&data);
+	if (size <= 0)
 	{
-		return NULL;
+		return size;
 	}
 
-	data = malloc(*size);
-	memcpy(data, buffer, *size);
-	return data;
+	*buffer = malloc(size);
+	memcpy(*buffer, data, size);
+	ri.FS_FreeFile((void *)data);
+
+	return size;
 }
 
 /*
