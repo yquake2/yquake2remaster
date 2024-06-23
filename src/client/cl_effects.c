@@ -797,7 +797,7 @@ CL_TeleporterParticles(entity_state_t *ent)
 		active_particles = p;
 
 		p->time = time;
-		p->color = 0xdb;
+		p->color = VID_PaletteColor(0xdb);
 
 		for (j = 0; j < 2; j++)
 		{
@@ -841,17 +841,17 @@ CL_LogoutEffect(vec3_t org, int type)
 
 		if (type == MZ_LOGIN)
 		{
-			p->color = 0xd0 + (randk() & 7);
+			p->color = VID_PaletteColor(0xd0 + (randk() & 7));
 		}
 
 		else if (type == MZ_LOGOUT)
 		{
-			p->color = 0x40 + (randk() & 7);
+			p->color = VID_PaletteColor(0x40 + (randk() & 7));
 		}
 
 		else
 		{
-			p->color = 0xe0 + (randk() & 7);
+			p->color = VID_PaletteColor(0xe0 + (randk() & 7));
 		}
 
 		p->org[0] = org[0] - 16 + frandk() * 32;
@@ -893,7 +893,7 @@ CL_ItemRespawnParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = 0xd4 + (randk() & 3);
+		p->color = VID_PaletteColor(0xd4 + (randk() & 3));
 		p->org[0] = org[0] + crandk() * 8;
 		p->org[1] = org[1] + crandk() * 8;
 		p->org[2] = org[2] + crandk() * 8;
@@ -933,7 +933,7 @@ CL_ExplosionParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = 0xe0 + (randk() & 7);
+		p->color = VID_PaletteColor(0xe0 + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -973,7 +973,7 @@ CL_BigTeleportParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = colortable[randk() & 3];
+		p->color = VID_PaletteColor(colortable[randk() & 3]);
 
 		angle = M_PI * 2 * (randk() & 1023) / 1023.0f;
 		dist = (float)(randk() & 31);
@@ -1023,7 +1023,7 @@ CL_BlasterParticles(vec3_t org, vec3_t dir)
 		active_particles = p;
 
 		p->time = time;
-		p->color = 0xe0 + (randk() & 7);
+		p->color = VID_PaletteColor(0xe0 + (randk() & 7));
 		d = randk() & 15;
 
 		for (j = 0; j < 3; j++)
@@ -1079,7 +1079,7 @@ CL_BlasterTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.3f + frandk() * 0.2f);
-		p->color = 0xe0;
+		p->color = VID_PaletteColor(0xe0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1131,7 +1131,7 @@ CL_QuadTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.8f + frandk() * 0.2f);
-		p->color = 115;
+		p->color = VID_PaletteColor(115);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1183,7 +1183,7 @@ CL_FlagTrail(vec3_t start, vec3_t end, int color)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.8f + frandk() * 0.2f);
-		p->color = color;
+		p->color = VID_PaletteColor(color);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1258,7 +1258,7 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.4f);
-				p->color = 0xe8 + (randk() & 7);
+				p->color = VID_PaletteColor(0xe8 + (randk() & 7));
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1273,7 +1273,7 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.4f);
-				p->color = 0xdb + (randk() & 7);
+				p->color = VID_PaletteColor(0xdb + (randk() & 7));
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1288,7 +1288,7 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-				p->color = 4 + (randk() & 7);
+				p->color = VID_PaletteColor(4 + (randk() & 7));
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1373,7 +1373,7 @@ CL_RocketTrail(vec3_t start, vec3_t end, centity_t *old)
 
 			p->alpha = 1.0;
 			p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-			p->color = 0xdc + (randk() & 3);
+			p->color = VID_PaletteColor(0xdc + (randk() & 3));
 
 			for (j = 0; j < 3; j++)
 			{
@@ -1436,7 +1436,7 @@ CL_RailTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-		p->color = clr + (randk() & 7);
+		p->color = VID_PaletteColor(clr + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1470,7 +1470,7 @@ CL_RailTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.6f + frandk() * 0.2f);
-		p->color = 0x0 + (randk() & 15);
+		p->color = VID_PaletteColor(0x0 + (randk() & 15));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1522,7 +1522,7 @@ CL_IonripperTrail(vec3_t start, vec3_t ent)
 		p->time = time;
 		p->alpha = 0.5;
 		p->alphavel = -1.0f / (0.3f + frandk() * 0.2f);
-		p->color = 0xe4 + (randk() & 3);
+		p->color = VID_PaletteColor(0xe4 + (randk() & 3));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1585,7 +1585,7 @@ CL_BubbleTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-		p->color = 4 + (randk() & 7);
+		p->color = VID_PaletteColor(4 + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1663,8 +1663,7 @@ CL_FlyParticles(vec3_t origin, int count)
 		VectorClear(p->vel);
 		VectorClear(p->accel);
 
-		p->color = 0;
-		p->colorvel = 0;
+		p->color = VID_PaletteColor(0);
 		p->alpha = 1;
 		p->alphavel = -100;
 	}
@@ -1774,8 +1773,7 @@ CL_BfgParticles(entity_t *ent)
 
 		VectorSubtract(p->org, ent->origin, v);
 		dist = VectorLength(v) / 90.0f;
-		p->color = (int)floor(0xd0 + dist * 7);
-		p->colorvel = 0;
+		p->color = VID_PaletteColor((int)floor(0xd0 + dist * 7));
 		p->alpha = 1.0f - dist;
 		p->alphavel = -100;
 	}
@@ -1826,7 +1824,7 @@ CL_TrapParticles(entity_t *ent)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.3f + frandk() * 0.2f);
-		p->color = 0xe0;
+		p->color = VID_PaletteColor(0xe0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1867,7 +1865,7 @@ CL_TrapParticles(entity_t *ent)
 					active_particles = p;
 
 					p->time = time;
-					p->color = 0xe0 + (randk() & 3);
+					p->color = VID_PaletteColor(0xe0 + (randk() & 3));
 					p->alpha = 1.0;
 					p->alphavel = -1.0f / (0.3f + (randk() & 7) * 0.02f);
 
@@ -1913,7 +1911,7 @@ CL_BFGExplosionParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = 0xd0 + (randk() & 7);
+		p->color = VID_PaletteColor(0xd0 + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1957,7 +1955,7 @@ CL_TeleportParticles(vec3_t org)
 				active_particles = p;
 
 				p->time = time;
-				p->color = 7 + (randk() & 7);
+				p->color = VID_PaletteColor(7 + (randk() & 7));
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (0.3f + (randk() & 7) * 0.02f);
 
@@ -2103,7 +2101,7 @@ CL_DebugTrail(vec3_t start, vec3_t end)
 		VectorClear(p->vel);
 		p->alpha = 1.0;
 		p->alphavel = -0.1f;
-		p->color = 0x74 + (randk() & 7);
+		p->color = VID_PaletteColor(0x74 + (randk() & 7));
 		VectorCopy(move, p->org);
 		VectorAdd(move, vec, move);
 	}
@@ -2146,7 +2144,7 @@ CL_SmokeTrail(vec3_t start, vec3_t end, int colorStart,
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.5f);
-		p->color = colorStart + (float)(randk() % colorRun);
+		p->color = VID_PaletteColor(colorStart + (float)(randk() % colorRun));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2199,7 +2197,7 @@ CL_ForceWall(vec3_t start, vec3_t end, int color8)
 
 			p->alpha = 1.0;
 			p->alphavel = -1.0f / (3.0 + frandk() * 0.5f);
-			p->color = color8;
+			p->color = VID_PaletteColor(color8);
 
 			for (j = 0; j < 3; j++)
 			{
@@ -2255,7 +2253,7 @@ CL_BubbleTrail2(vec3_t start, vec3_t end, int dist)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.1f);
-		p->color = 4 + (randk() & 7);
+		p->color = VID_PaletteColor(4 + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2350,7 +2348,7 @@ CL_Heatbeam(vec3_t start, vec3_t forward)
 
 			p->alpha = 0.5;
 			p->alphavel = -1000.0;
-			p->color = 223 - (randk() & 7);
+			p->color = VID_PaletteColor(223 - (randk() & 7));
 
 			for (j = 0; j < 3; j++)
 			{
@@ -2391,7 +2389,7 @@ CL_ParticleSteamEffect(vec3_t org, vec3_t dir, int color,
 		active_particles = p;
 
 		p->time = time;
-		p->color = color + (randk() & 7);
+		p->color = VID_PaletteColor(color + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2437,7 +2435,7 @@ CL_ParticleSteamEffect2(cl_sustain_t *self)
 		active_particles = p;
 
 		p->time = cl.time;
-		p->color = self->color + (randk() & 7);
+		p->color = VID_PaletteColor(self->color + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2504,7 +2502,7 @@ CL_TrackerTrail(vec3_t start, vec3_t end, int particleColor)
 
 		p->alpha = 1.0;
 		p->alphavel = -2.0;
-		p->color = particleColor;
+		p->color = VID_PaletteColor(particleColor);
 		dist = DotProduct(move, forward);
 		VectorMA(move, 8 * cos(dist), up, p->org);
 
@@ -2547,7 +2545,7 @@ CL_Tracker_Shell(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = 0;
+		p->color = VID_PaletteColor(0);
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2584,7 +2582,7 @@ CL_MonsterPlasma_Shell(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = 0xe0;
+		p->color = VID_PaletteColor(0xe0);
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2624,7 +2622,7 @@ CL_Widowbeamout(cl_sustain_t *self)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = colortable[randk() & 3];
+		p->color = VID_PaletteColor(colortable[randk() & 3]);
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2664,7 +2662,7 @@ CL_Nukeblast(cl_sustain_t *self)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = colortable[randk() & 3];
+		p->color = VID_PaletteColor(colortable[randk() & 3]);
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2698,7 +2696,7 @@ CL_WidowSplash(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = colortable[randk() & 3];
+		p->color = VID_PaletteColor(colortable[randk() & 3]);
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2740,7 +2738,7 @@ CL_Tracker_Explode(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0;
-		p->color = 0;
+		p->color = VID_PaletteColor(0);
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2791,7 +2789,7 @@ CL_TagTrail(vec3_t start, vec3_t end, int color)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.8f + frandk() * 0.2f);
-		p->color = color;
+		p->color = VID_PaletteColor(color);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2827,7 +2825,7 @@ CL_ColorExplosionParticles(vec3_t org, int color, int run)
 		active_particles = p;
 
 		p->time = time;
-		p->color = color + (randk() % run);
+		p->color = VID_PaletteColor(color + (randk() % run));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2873,7 +2871,7 @@ CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, int color,
 		active_particles = p;
 
 		p->time = time;
-		p->color = color + (randk() & 7);
+		p->color = VID_PaletteColor(color + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2922,7 +2920,7 @@ CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int color)
 		active_particles = p;
 
 		p->time = time;
-		p->color = color + (randk() & 7);
+		p->color = VID_PaletteColor(color + (randk() & 7));
 		d = (float)(randk() & 15);
 
 		for (j = 0; j < 3; j++)
