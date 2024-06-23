@@ -492,10 +492,32 @@ VID_GetPalette(byte **colormap, unsigned *d_8to24table)
 	memcpy(d_8to24table, d_8to24table_cache, sizeof(d_8to24table_cache));
 }
 
+/*
+ * Get rgb color from palette
+ */
+unsigned
+VID_PaletteColor(byte color)
+{
+	if (!colormap_cache)
+	{
+		LoadPalette(&colormap_cache, d_8to24table_cache);
+	}
+
+	return d_8to24table_cache[color & 0xFF];
+}
+
 void
 VID_ImageInit(void)
 {
+	int i;
+
 	colormap_cache = NULL;
+
+	for (i = 0; i < 256; i++)
+	{
+		/* fake grey colors */
+		d_8to24table_cache[i] = (255U<<24) + (i << 16) + (i << 8) + (i << 0);
+	}
 }
 
 void

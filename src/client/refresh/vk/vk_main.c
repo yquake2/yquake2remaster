@@ -409,7 +409,7 @@ R_DrawEntitiesOnList(void)
 }
 
 static void
-Vk_DrawParticles(int num_particles, const particle_t particles[], const unsigned *colortable)
+Vk_DrawParticles(int num_particles, const particle_t particles[])
 {
 	typedef struct {
 		float x,y,z,r,g,b,a,u,v;
@@ -418,11 +418,12 @@ Vk_DrawParticles(int num_particles, const particle_t particles[], const unsigned
 	const particle_t *p;
 	int				i;
 	vec3_t			up, right;
-	YQ2_ALIGNAS_TYPE(unsigned) byte	color[4];
 	pvertex*	currentvertex;
 
 	if (!num_particles)
+	{
 		return;
+	}
 
 	VectorScale(vup, 1.5, up);
 	VectorScale(vright, 1.5, right);
@@ -437,6 +438,7 @@ Vk_DrawParticles(int num_particles, const particle_t particles[], const unsigned
 	currentvertex = visibleParticles;
 	for (p = particles, i = 0; i < num_particles; i++, p++)
 	{
+		YQ2_ALIGNAS_TYPE(unsigned) byte	color[4];
 		float	scale;
 
 		// hack a scale up to keep particles from disapearing
@@ -453,7 +455,7 @@ Vk_DrawParticles(int num_particles, const particle_t particles[], const unsigned
 			scale = 1 + scale * 0.004;
 		}
 
-		*(int *)color = colortable[p->color];
+		*(int *)color = p->color;
 
 		float r = color[0] / 255.f;
 		float g = color[1] / 255.f;
@@ -562,7 +564,7 @@ R_DrawParticles(void)
 
 		for (i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++)
 		{
-			*(int *)color = d_8to24table[p->color];
+			*(int *)color = p->color;
 
 			float r = color[0] / 255.f;
 			float g = color[1] / 255.f;
@@ -593,7 +595,7 @@ R_DrawParticles(void)
 	}
 	else
 	{
-		Vk_DrawParticles(r_newrefdef.num_particles, r_newrefdef.particles, d_8to24table);
+		Vk_DrawParticles(r_newrefdef.num_particles, r_newrefdef.particles);
 	}
 }
 

@@ -35,7 +35,7 @@ CL_ClearParticles(void)
 {
 	if (cl_numparticles == 0)
 		return;
-		
+
 	int i;
 
 	free_particles = &particles[0];
@@ -175,7 +175,6 @@ CL_AddParticles(void)
 	float alpha;
 	float time, time2;
 	vec3_t org;
-	int color;
 	cparticle_t *active, *tail;
 
 	active = NULL;
@@ -183,6 +182,8 @@ CL_AddParticles(void)
 
 	for (p = active_particles; p; p = next)
 	{
+		unsigned color;
+
 		next = p->next;
 
 		if (p->alphavel != INSTANT_PARTICLE)
@@ -222,7 +223,7 @@ CL_AddParticles(void)
 			alpha = 1;
 		}
 
-		color = p->color;
+		color = VID_PaletteColor(p->color);
 		time2 = time * time;
 
 		org[0] = p->org[0] + p->vel[0] * time + p->accel[0] * time2;

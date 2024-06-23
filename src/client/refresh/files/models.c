@@ -2670,7 +2670,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		}
 	}
 
-	base_size = read_file(base_model, &base);
+	base_size = read_file(base_model, (void **)&base);
 	if (base_size <= 0)
 	{
 		R_Printf(PRINT_DEVELOPER, "%s: %s No base model for %s\n",
@@ -2709,7 +2709,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	{
 		int anim_size, j;
 
-		anim_size = read_file(animations[i], &anim[animation_num]);
+		anim_size = read_file(animations[i], (void **)&anim[animation_num]);
 		if (anim_size <= 0)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s empty animation %s\n",

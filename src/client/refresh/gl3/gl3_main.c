@@ -1034,7 +1034,7 @@ GL3_DrawParticles(void)
 
 		for ( i = 0, p = gl3_newrefdef.particles; i < numParticles; i++, p++ )
 		{
-			*(int *) color = d_8to24table [ p->color & 0xFF ];
+			*(int *) color = p->color;
 			part_vtx* cur = &buf[i];
 			vec3_t offset; // between viewOrg and particle position
 			VectorSubtract(viewOrg, p->origin, offset);

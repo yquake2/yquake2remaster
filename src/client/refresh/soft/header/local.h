@@ -567,9 +567,10 @@ image_t	*R_LoadPic(const char *name, const byte *pic, int width, int realwidth, 
 	size_t data_size, imagetype_t type, int bits);
 byte	*Get_BestImageSize(const image_t *image, int *req_width, int *req_height);
 void	R_FreeUnusedImages(void);
-qboolean R_ImageHasFreeSpace(void);
+qboolean	R_ImageHasFreeSpace(void);
 pixel_t	R_ApplyLight(pixel_t pix, const light3_t light);
 void	R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size, qboolean transparent);
+int	R_ConvertRGBColor(unsigned color);
 
 void R_InitSkyBox(model_t *loadmodel);
 void R_IMFlatShadedQuad( const vec3_t a, const vec3_t b, const vec3_t c, const vec3_t d, int color, float alpha );

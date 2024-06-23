@@ -84,7 +84,7 @@ typedef struct {
 
 typedef struct {
 	vec3_t	origin;
-	int		color;
+	unsigned	color;
 	float	alpha;
 } particle_t;
 

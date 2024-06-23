@@ -418,8 +418,7 @@ R_DrawEntitiesOnList(void)
 }
 
 static void
-R_DrawParticles2(int num_particles, const particle_t particles[],
-		const unsigned *colortable)
+R_DrawParticles2(int num_particles, const particle_t particles[])
 {
 	const particle_t *p;
 	int i;
@@ -461,7 +460,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 			scale = 1 + scale * 0.004;
 		}
 
-		*(unsigned *) color = colortable [ p->color ];
+		*(unsigned *) color = p->color;
 
 		for (j=0; j<3; j++) // Copy the color for each point
 		{
@@ -551,7 +550,7 @@ R_DrawParticles(void)
 
 		for ( i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++ )
 		{
-			*(int *) color = d_8to24table [ p->color & 0xFF ];
+			*(int *) color = p->color;
 			clr[index_clr++] = color[0]/255.0f;
 			clr[index_clr++] = color[1]/255.0f;
 			clr[index_clr++] = color[2]/255.0f;
@@ -583,7 +582,7 @@ R_DrawParticles(void)
 	else
 	{
 		R_DrawParticles2(r_newrefdef.num_particles,
-				r_newrefdef.particles, d_8to24table);
+				r_newrefdef.particles);
 	}
 }
 

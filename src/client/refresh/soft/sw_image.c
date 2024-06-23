@@ -217,6 +217,22 @@ Get_BestImageSize(const image_t *image, int *req_width, int *req_height)
 
 static byte *d_16to8table = NULL; // 16 to 8 bit conversion table
 
+int
+R_ConvertRGBColor(unsigned color)
+{
+	YQ2_ALIGNAS_TYPE(unsigned) byte rgbcolor[4];
+	unsigned int r, g, b, c;
+
+	*(int *)rgbcolor = color;
+	r = ( rgbcolor[0] >> 3 ) & 31;
+	g = ( rgbcolor[1] >> 2 ) & 63;
+	b = ( rgbcolor[2] >> 3 ) & 31;
+
+	c = r | ( g << 5 ) | ( b << 11 );
+
+	return d_16to8table[c & 0xFFFF];
+}
+
 void
 R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
 	qboolean transparent)
