@@ -38,6 +38,13 @@ GL3_Draw_InitLocal(void)
 {
 	/* load console characters */
 	draw_chars = R_FindPic("conchars", (findimage_t)GL3_FindImage);
+
+	/* Anachronox */
+	if (!draw_chars)
+	{
+		draw_chars = R_FindPic ("fonts/conchars", (findimage_t)GL3_FindImage);
+	}
+
 	/* Daikatana */
 	if (!draw_chars)
 	{

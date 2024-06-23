@@ -1036,6 +1036,7 @@ FS_LoadDAT(const char *packPath)
 	strncpy(prefix, prefixpos + 1,
 		Q_min(strlen(prefixpos) - 5, sizeof(prefix) - 1));
 
+	Q_strlwr(prefix);
 	prefix_size = strlen(prefix);
 
 	/* Parse the directory. */

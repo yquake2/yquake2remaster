@@ -32,6 +32,13 @@ Draw_InitLocal
 void Draw_InitLocal (void)
 {
 	draw_chars = R_FindPic ("conchars", (findimage_t)Vk_FindImage);
+
+	/* Anachronox */
+	if (!draw_chars)
+	{
+		draw_chars = R_FindPic ("fonts/conchars", (findimage_t)Vk_FindImage);
+	}
+
 	/* Daikatana */
 	if (!draw_chars)
 	{
