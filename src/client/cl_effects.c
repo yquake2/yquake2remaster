@@ -797,7 +797,7 @@ CL_TeleporterParticles(entity_state_t *ent)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(0xdb);
+		p->color = 0xff53ffff;
 
 		for (j = 0; j < 2; j++)
 		{
@@ -1079,7 +1079,7 @@ CL_BlasterTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.3f + frandk() * 0.2f);
-		p->color = VID_PaletteColor(0xe0);
+		p->color = 0xff07abff;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1131,7 +1131,7 @@ CL_QuadTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.8f + frandk() * 0.2f);
-		p->color = VID_PaletteColor(115);
+		p->color = 0xff7f672f;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1288,7 +1288,7 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-				p->color = VID_PaletteColor(4 + (randk() & 7));
+				p->color = VID_PaletteColor(0x04 + (randk() & 7));
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1585,7 +1585,7 @@ CL_BubbleTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-		p->color = VID_PaletteColor(4 + (randk() & 7));
+		p->color = VID_PaletteColor(0x04 + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1663,7 +1663,7 @@ CL_FlyParticles(vec3_t origin, int count)
 		VectorClear(p->vel);
 		VectorClear(p->accel);
 
-		p->color = VID_PaletteColor(0);
+		p->color = 0xff000000; /* black */
 		p->alpha = 1;
 		p->alphavel = -100;
 	}
@@ -1824,7 +1824,7 @@ CL_TrapParticles(entity_t *ent)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.3f + frandk() * 0.2f);
-		p->color = VID_PaletteColor(0xe0);
+		p->color = 0xff07abff;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1955,7 +1955,7 @@ CL_TeleportParticles(vec3_t org)
 				active_particles = p;
 
 				p->time = time;
-				p->color = VID_PaletteColor(7 + (randk() & 7));
+				p->color = VID_PaletteColor(0x07 + (randk() & 7));
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (0.3f + (randk() & 7) * 0.02f);
 
@@ -2253,7 +2253,7 @@ CL_BubbleTrail2(vec3_t start, vec3_t end, int dist)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.1f);
-		p->color = VID_PaletteColor(4 + (randk() & 7));
+		p->color = VID_PaletteColor(0x04 + (randk() & 7));
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2348,7 +2348,7 @@ CL_Heatbeam(vec3_t start, vec3_t forward)
 
 			p->alpha = 0.5;
 			p->alphavel = -1000.0;
-			p->color = VID_PaletteColor(223 - (randk() & 7));
+			p->color = VID_PaletteColor(0xdf - (randk() & 7));
 
 			for (j = 0; j < 3; j++)
 			{
@@ -2545,7 +2545,7 @@ CL_Tracker_Shell(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = VID_PaletteColor(0);
+		p->color = 0xff000000; /* black */
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2582,7 +2582,7 @@ CL_MonsterPlasma_Shell(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = VID_PaletteColor(0xe0);
+		p->color = 0xff07abff;
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2738,7 +2738,7 @@ CL_Tracker_Explode(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0;
-		p->color = VID_PaletteColor(0);
+		p->color = 0xff000000; /* black */
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
