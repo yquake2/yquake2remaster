@@ -22,7 +22,7 @@ jobs:
       uses: actions/checkout@v4
     - name: Build Release code
       run: |
-        make
+        gmake
     - name: Create release package
       run: |
         # copy docs
