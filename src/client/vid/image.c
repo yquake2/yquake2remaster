@@ -487,8 +487,11 @@ VID_GetPalette(byte **colormap, unsigned *d_8to24table)
 		return;
 	}
 
-	*colormap = malloc(256 * 320);
-	memcpy(*colormap, colormap_cache, 256 * 320);
+	if (colormap)
+	{
+		*colormap = malloc(256 * 320);
+		memcpy(*colormap, colormap_cache, 256 * 320);
+	}
 	memcpy(d_8to24table, d_8to24table_cache, sizeof(d_8to24table_cache));
 }
 

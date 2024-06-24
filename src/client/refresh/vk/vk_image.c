@@ -1353,7 +1353,6 @@ void	Vk_InitImages (void)
 {
 	int	i;
 	float	overbright;
-	byte	*colormap;
 
 	numvktextures = 0;
 	img_loaded = 0;
@@ -1378,8 +1377,7 @@ void	Vk_InitImages (void)
 		intensitytable[i] = j;
 	}
 
-	ri.VID_GetPalette(&colormap, d_8to24table);
-	free(colormap);
+	ri.VID_GetPalette(NULL, d_8to24table);
 
 	overbright = vk_overbrightbits->value;
 

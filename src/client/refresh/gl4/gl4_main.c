@@ -482,8 +482,6 @@ enum { QGL_POINT_SPRITE = 0x8861 };
 static qboolean
 GL4_Init(void)
 {
-	byte *colormap;
-
 	Swap_Init(); // FIXME: for fucks sake, this doesn't have to be done at runtime!
 
 	R_Printf(PRINT_ALL, "Refresh: " REF_VERSION "\n");
@@ -498,8 +496,7 @@ GL4_Init(void)
 		return false;
 	}
 
-	ri.VID_GetPalette(&colormap, d_8to24table);
-	free(colormap);
+	ri.VID_GetPalette(NULL, d_8to24table);
 
 	GL4_Register();
 
