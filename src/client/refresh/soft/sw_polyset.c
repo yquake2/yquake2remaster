@@ -784,8 +784,8 @@ R_ProcessLeftEdge(const compactvert_t *plefttop, const compactvert_t *prighttop,
 	v = plefttop->v;
 	d_aspancount = plefttop->u - prighttop->u;
 
-	s = plefttop->s;
-	t = plefttop->t;
+	s = plefttop->s * r_affinetridesc.scalewidth;
+	t = plefttop->t * r_affinetridesc.scaleheight;
 	i = (s >> SHIFT16XYZ) + (t >> SHIFT16XYZ) * r_affinetridesc.skinwidth;
 	d_ptex = &r_affinetridesc.pskin[i];
 	d_sfrac = s & 0xFFFF;
