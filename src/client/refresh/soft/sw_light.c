@@ -55,17 +55,15 @@ RI_AddDynamicLights(const msurface_t *surf)
 	/* TODO: Covert to reuse with shared files/light */
 	int lnum;
 	int smax, tmax;
-	mtexinfo_t *tex;
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
 	tmax = (surf->extents[1] >> surf->lmshift) + 1;
+
 	if (blocklight_max <= blocklights + smax*tmax*3)
 	{
 		r_outoflights = true;
 		return;
 	}
-
-	tex = surf->texinfo;
 
 	for (lnum=0; lnum < r_newrefdef.num_dlights; lnum++)
 	{
@@ -118,16 +116,13 @@ RI_AddDynamicLights(const msurface_t *surf)
 		for (i = 0; i < 3; i++)
 		{
 			impact[i] = dl->origin[i] -
-						surf->plane->normal[i] * dist;
+				surf->plane->normal[i] * dist;
 		}
 
-		local[0] = DotProduct(impact, tex->vecs[0]) +
-			tex->vecs[0][3];
-		local[1] = DotProduct(impact, tex->vecs[1]) +
-			tex->vecs[1][3];
-
-		local[0] -= surf->texturemins[0];
-		local[1] -= surf->texturemins[1];
+		local[0] = DotProduct(impact, surf->lmvecs[0]) +
+			surf->lmvecs[0][3] - surf->texturemins[0];
+		local[1] = DotProduct(impact, surf->lmvecs[1]) +
+			surf->lmvecs[1][3] - surf->texturemins[1];
 
 		for (t = 0; t < tmax; t++)
 		{
@@ -139,6 +134,8 @@ RI_AddDynamicLights(const msurface_t *surf)
 				td = -td;
 			}
 
+			td *= surf->lmvlen[1];
+
 			for (s = 0; s < smax; s++)
 			{
 				int sd;
@@ -149,6 +146,8 @@ RI_AddDynamicLights(const msurface_t *surf)
 				{
 					sd = -sd;
 				}
+
+				sd *= surf->lmvlen[0];
 
 				if (sd > td)
 				{
