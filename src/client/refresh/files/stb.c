@@ -500,13 +500,21 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 	if (!image)
 	{
-		if (!strcmp(ext, "pcx"))
+		if (!strcmp(ext, "pcx") || !strcmp(ext, "swl"))
 		{
 			int width = 0, height = 0, realwidth = 0, realheight = 0;
 			byte	*pic = NULL;
 			byte	*palette = NULL;
 
-			LoadPCX (namewe, &pic, &palette, &width, &height);
+			if (!strcmp(ext, "pcx"))
+			{
+				LoadPCX (namewe, &pic, &palette, &width, &height);
+			}
+			else if (!strcmp(ext, "swl"))
+			{
+				LoadSWL (namewe, &pic, &palette, &width, &height);
+			}
+
 			if (!pic)
 			{
 				return NULL;
@@ -580,10 +588,6 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 		else if (!strcmp(ext, "m32"))
 		{
 			image = LoadM32(name, namewe, type, load_image);
-		}
-		else if (!strcmp(ext, "swl"))
-		{
-			image = LoadSWL(name, namewe, type, load_image);
 		}
 		else if (!strcmp(ext, "tga") ||
 		         !strcmp(ext, "png") ||

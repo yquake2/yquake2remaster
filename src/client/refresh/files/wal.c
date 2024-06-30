@@ -209,60 +209,55 @@ LoadM8(const char *origname, const char *namewe, imagetype_t type,
 	return image;
 }
 
-struct image_s *
-LoadSWL(const char *origname, const char *namewe, imagetype_t type,
-	loadimage_t load_image)
+void
+LoadSWL(const char *origname, byte **pic, byte **palette, int *width, int *height)
 {
-	int	width, height, ofs, size, i;
-	byte	*image_buffer = NULL;
-	struct	image_s *image;
+	int	ofs, size, i;
 	char	name[256];
 	sinmiptex_t	*mt;
 
-	FixFileExt(namewe, "swl", name, sizeof(name));
+	FixFileExt(origname, "swl", name, sizeof(name));
 
 	size = ri.FS_LoadFile(name, (void **)&mt);
 
+	*pic = NULL;
+
 	if (!mt)
 	{
-		return NULL;
+		return;
 	}
 
 	if (size < sizeof(*mt))
 	{
 		R_Printf(PRINT_ALL, "%s: can't load %s, small header\n", __func__, name);
 		ri.FS_FreeFile((void *)mt);
-		return NULL;
+		return;
 	}
 
-	width = LittleLong(mt->width);
-	height = LittleLong(mt->height);
+	*width = LittleLong(mt->width);
+	*height = LittleLong(mt->height);
 	ofs = LittleLong(mt->offsets[0]);
 
-	if ((ofs <= 0) || (width <= 0) || (height <= 0) ||
-	    (((size - ofs) / height) < width))
+	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
+	    (((size - ofs) / *height) < *width))
 	{
 		R_Printf(PRINT_ALL, "%s: can't load %s, small body\n", __func__, name);
 		ri.FS_FreeFile((void *)mt);
-		return NULL;
+		return;
 	}
 
-	image_buffer = malloc ((size - ofs) * 4);
-	for(i=0; i<(size - ofs); i++)
+	*pic = malloc (size - ofs);
+	memcpy(*pic, (byte *)mt + ofs, size - ofs);
+
+	*palette = malloc(768);
+	for (i = 0; i < 256; i ++)
 	{
-		byte value = *((byte *)mt + ofs + i);
-		memcpy(image_buffer + i * 4, mt->palette + value * 4, 4);
+		(*palette)[i * 3 + 0] =  mt->palette[i * 4 + 0];
+		(*palette)[i * 3 + 1] =  mt->palette[i * 4 + 1];
+		(*palette)[i * 3 + 2] =  mt->palette[i * 4 + 2];
 	}
-
-	image = load_image(origname, image_buffer,
-		width, 0,
-		height, 0,
-		(size - ofs), type, 32);
-	free(image_buffer);
 
 	ri.FS_FreeFile((void *)mt);
-
-	return image;
 }
 
 struct image_s *
