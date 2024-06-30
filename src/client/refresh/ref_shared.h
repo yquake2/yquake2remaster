@@ -339,7 +339,7 @@ extern struct image_s *GetSkyImage(const char *skyname, const char* surfname,
 extern struct image_s *GetTexImage(const char *name, findimage_t find_image);
 extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
 extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
-	imagetype_t type, qboolean r_retexturing, loadimage_t load_image);
+	imagetype_t type, int r_retexturing, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
 	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
 	const byte *mod_base, const lump_t *lMod_LoadQBSPMarksurfaces);
