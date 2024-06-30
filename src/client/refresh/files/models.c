@@ -2925,16 +2925,16 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 
 		pheader = (dmdx_t *)extradata;
 
-		if (pheader->skinheight > MAX_LBM_HEIGHT)
+		if (pheader->skinheight > MAX_LBM_WIDTH)
 		{
 			R_Printf(PRINT_ALL, "%s: model %s has a skin taller %d than %d\n",
-					__func__, mod_name, pheader->skinheight, MAX_LBM_HEIGHT);
+					__func__, mod_name, pheader->skinheight, MAX_LBM_WIDTH);
 		}
 
-		if (pheader->skinwidth > MAX_LBM_HEIGHT)
+		if (pheader->skinwidth > MAX_LBM_WIDTH)
 		{
 			R_Printf(PRINT_ALL, "%s: model %s has a skin wider %d than %d\n",
-					__func__, mod_name, pheader->skinwidth, MAX_LBM_HEIGHT);
+					__func__, mod_name, pheader->skinwidth, MAX_LBM_WIDTH);
 		}
 
 		num_mesh_nodes = pheader->num_meshes;
