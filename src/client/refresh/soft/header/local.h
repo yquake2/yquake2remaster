@@ -313,7 +313,6 @@ extern qboolean	r_dowarp;
 extern affinetridesc_t	r_affinetridesc;
 
 void D_WarpScreen(void);
-void R_PolysetUpdateTables(void);
 void RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 
 //=======================================================================//

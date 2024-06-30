@@ -115,6 +115,8 @@ Goals:
 * [x] suport Daikatana/SiN .pak/.sin format from pakextract,
 * [x] Support flow/scale flags for Q64 maps,
 * [x] Add debug progress loading code for maps,
+* [ ] MDR model format in Star Trek: Voyager – Elite Force,
+* [ ] RGB particles support instead palette based one,
 * [ ] Broken maps groups from base2 to next,
 * [ ] Single player support,
 * [ ] Support effects and additional flags for ReRelease when possible.
