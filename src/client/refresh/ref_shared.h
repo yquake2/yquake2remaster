@@ -100,8 +100,6 @@ extern struct image_s* LoadWal(const char *origname, const char *namewe, imagety
 	loadimage_t load_image);
 extern struct image_s* LoadM8(const char *origname, const char *namewe, imagetype_t type,
 	loadimage_t load_image);
-extern struct image_s* LoadM32(const char *origname, const char *namewe, imagetype_t type,
-	loadimage_t load_image);
 extern void LoadSWL(const char *origname, byte **pic, byte **palette, int *width, int *height);
 extern void FixFileExt(const char *origname, const char *ext, char *filename, size_t size);
 extern void LoadPCX(const char *origname, byte **pic, byte **palette, int *width, int *height);

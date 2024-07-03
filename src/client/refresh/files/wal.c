@@ -230,59 +230,6 @@ LoadSWL(const char *origname, byte **pic, byte **palette, int *width, int *heigh
 	}
 }
 
-struct image_s *
-LoadM32(const char *origname, const char *namewe, imagetype_t type,
-	loadimage_t load_image)
-{
-	m32tex_t	*mt;
-	int		width, height, ofs, size;
-	struct image_s	*image;
-	char name[256];
-
-	FixFileExt(namewe, "m32", name, sizeof(name));
-
-	size = ri.FS_LoadFile(name, (void **)&mt);
-
-	if (!mt)
-	{
-		return NULL;
-	}
-
-	if (size < sizeof(m32tex_t))
-	{
-		R_Printf(PRINT_ALL, "%s: can't load %s, small header\n", __func__, name);
-		ri.FS_FreeFile((void *)mt);
-		return NULL;
-	}
-
-	if (LittleLong (mt->version) != M32_VERSION)
-	{
-		R_Printf(PRINT_ALL, "%s: can't load %s, wrong magic value.\n", __func__, name);
-		ri.FS_FreeFile ((void *)mt);
-		return NULL;
-	}
-
-	width = LittleLong (mt->width[0]);
-	height = LittleLong (mt->height[0]);
-	ofs = LittleLong (mt->offsets[0]);
-
-	if ((ofs <= 0) || (width <= 0) || (height <= 0) ||
-	    (((size - ofs) / height) < (width * 4)))
-	{
-		R_Printf(PRINT_ALL, "%s: can't load %s, small body\n", __func__, name);
-		ri.FS_FreeFile((void *)mt);
-		return NULL;
-	}
-
-	image = load_image(origname, (byte *)mt + ofs,
-		width, 0,
-		height, 0,
-		(size - ofs) / 4, type, 32);
-	ri.FS_FreeFile ((void *)mt);
-
-	return image;
-}
-
 void
 GetWalInfo(const char *origname, int *width, int *height)
 {

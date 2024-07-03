@@ -271,6 +271,45 @@ SWL_Decode(const byte *raw, int len, byte **pic, byte **palette,
 	}
 }
 
+static void
+M32_Decode(const byte *raw, int len, byte **pic, int *width, int *height)
+{
+	m32tex_t *mt;
+	int ofs;
+
+	mt = (m32tex_t *)raw;
+
+	if (!mt)
+	{
+		return;
+	}
+
+	if (len < sizeof(m32tex_t))
+	{
+		Com_DPrintf("%s: can't load, small header\n", __func__);
+		return;
+	}
+
+	if (LittleLong (mt->version) != M32_VERSION)
+	{
+		Com_DPrintf("%s: can't load, wrong magic value.\n", __func__);
+		return;
+	}
+
+	*width = LittleLong (mt->width[0]);
+	*height = LittleLong (mt->height[0]);
+	ofs = LittleLong (mt->offsets[0]);
+
+	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
+	    (((len - ofs) / *height) < (*width * 4)))
+	{
+		Com_DPrintf("%s: can't load, small body\n", __func__);
+	}
+
+	*pic = malloc (len - ofs);
+	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+}
+
 void
 VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bytesPerPixel)
@@ -322,14 +361,23 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	else
 	{
 		int sourceBytesPerPixel = 0;
+
 		/* other formats does not have palette directly */
 		if (palette)
 		{
 			*palette = NULL;
 		}
 
-		*pic = stbi_load_from_memory(raw, len, width, height,
-			&sourceBytesPerPixel, STBI_rgb_alpha);
+		if (!strcmp(ext, "m32"))
+		{
+			M32_Decode(raw, len, pic, width, height);
+			printf("->%s:%p\n", filename, *pic);
+		}
+		else
+		{
+			*pic = stbi_load_from_memory(raw, len, width, height,
+				&sourceBytesPerPixel, STBI_rgb_alpha);
+		}
 
 		if (*pic == NULL)
 		{

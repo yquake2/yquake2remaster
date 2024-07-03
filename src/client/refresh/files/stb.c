@@ -585,11 +585,8 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 		{
 			image = LoadM8(name, namewe, type, load_image);
 		}
-		else if (!strcmp(ext, "m32"))
-		{
-			image = LoadM32(name, namewe, type, load_image);
-		}
 		else if (!strcmp(ext, "tga") ||
+		         !strcmp(ext, "m32") ||
 		         !strcmp(ext, "png") ||
 		         !strcmp(ext, "jpg"))
 		{
