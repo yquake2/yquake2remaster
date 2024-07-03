@@ -136,7 +136,7 @@ fixQuitScreen(byte* px)
 
 static void
 PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
-	int *width, int *height, int *bytesPerPixel)
+	int *width, int *height)
 {
 	pcx_t *pcx;
 	int x, y, full_size;
@@ -144,7 +144,6 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 	byte *out, *pix;
 
 	*pic = NULL;
-	*bytesPerPixel = 1;
 
 	if (len < sizeof(pcx_t))
 	{
@@ -224,12 +223,63 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 	}
 }
 
+static void
+SWL_Decode(const byte *raw, int len, byte **pic, byte **palette,
+	int *width, int *height)
+{
+	sinmiptex_t *mt;
+	int ofs, i;
+
+	mt = (sinmiptex_t *)raw;
+
+	*pic = NULL;
+
+	if (!mt)
+	{
+		return;
+	}
+
+	if (len < sizeof(*mt))
+	{
+		Com_DPrintf("%s: can't load, small header\n", __func__);
+		return;
+	}
+
+	*width = LittleLong(mt->width);
+	*height = LittleLong(mt->height);
+	ofs = LittleLong(mt->offsets[0]);
+
+	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
+	    (((len - ofs) / *height) < *width))
+	{
+		Com_DPrintf("%s: can't load, small body\n", __func__);
+		return;
+	}
+
+	*pic = malloc (len - ofs);
+	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+
+	if (palette)
+	{
+		*palette = malloc(768);
+		for (i = 0; i < 256; i ++)
+		{
+			(*palette)[i * 3 + 0] =  mt->palette[i * 4 + 0];
+			(*palette)[i * 3 + 1] =  mt->palette[i * 4 + 1];
+			(*palette)[i * 3 + 2] =  mt->palette[i * 4 + 2];
+		}
+	}
+}
+
 void
 VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bytesPerPixel)
 {
+	const char* ext;
 	int len, ident;
 	byte *raw;
+
+	ext = COM_FileExtension(filename);
 
 	/* load the file */
 	len = FS_LoadFile(filename, (void **)&raw);
@@ -250,7 +300,7 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	ident = LittleLong(*((int*)raw));
 	if (ident == PCX_IDENT)
 	{
-		PCX_Decode(raw, len, pic, palette, width, height, bytesPerPixel);
+		PCX_Decode(raw, len, pic, palette, width, height);
 
 		if(*pic && width && height
 			&& *width == 319 && *height == 239
@@ -261,6 +311,13 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 			// so fix it
 			fixQuitScreen(*pic);
 		}
+
+		*bytesPerPixel = 1;
+	}
+	else if (!strcmp(ext, "swl"))
+	{
+		SWL_Decode(raw, len, pic, palette, width, height);
+		*bytesPerPixel = 1;
 	}
 	else
 	{

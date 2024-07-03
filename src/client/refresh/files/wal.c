@@ -212,52 +212,22 @@ LoadM8(const char *origname, const char *namewe, imagetype_t type,
 void
 LoadSWL(const char *origname, byte **pic, byte **palette, int *width, int *height)
 {
-	int	ofs, size, i;
-	char	name[256];
-	sinmiptex_t	*mt;
+	int bytesPerPixel;
+	char name[256];
 
 	FixFileExt(origname, "swl", name, sizeof(name));
 
-	size = ri.FS_LoadFile(name, (void **)&mt);
-
-	*pic = NULL;
-
-	if (!mt)
+	if (palette)
 	{
-		return;
+		*palette = NULL;
 	}
 
-	if (size < sizeof(*mt))
+	ri.VID_ImageDecode(name, pic, palette, width, height, &bytesPerPixel);
+
+	if (!(*pic))
 	{
-		R_Printf(PRINT_ALL, "%s: can't load %s, small header\n", __func__, name);
-		ri.FS_FreeFile((void *)mt);
-		return;
+		R_Printf(PRINT_DEVELOPER, "Bad swl file %s\n", name);
 	}
-
-	*width = LittleLong(mt->width);
-	*height = LittleLong(mt->height);
-	ofs = LittleLong(mt->offsets[0]);
-
-	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
-	    (((size - ofs) / *height) < *width))
-	{
-		R_Printf(PRINT_ALL, "%s: can't load %s, small body\n", __func__, name);
-		ri.FS_FreeFile((void *)mt);
-		return;
-	}
-
-	*pic = malloc (size - ofs);
-	memcpy(*pic, (byte *)mt + ofs, size - ofs);
-
-	*palette = malloc(768);
-	for (i = 0; i < 256; i ++)
-	{
-		(*palette)[i * 3 + 0] =  mt->palette[i * 4 + 0];
-		(*palette)[i * 3 + 1] =  mt->palette[i * 4 + 1];
-		(*palette)[i * 3 + 2] =  mt->palette[i * 4 + 2];
-	}
-
-	ri.FS_FreeFile((void *)mt);
 }
 
 struct image_s *
