@@ -26,7 +26,7 @@
 
 #include "../../client/header/client.h"
 
-#define PCX_IDENT ((0x08 << 24) + (0x01 << 16) + (0x05 << 8) + 0x0a)
+#define PCX_IDENT ((0x05 << 8) + 0x0a)
 // don't need HDR stuff
 #define STBI_NO_LINEAR
 #define STBI_NO_HDR
@@ -403,8 +403,8 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 
 	*pic = NULL;
 
-	ident = LittleLong(*((int*)raw));
-	if (ident == PCX_IDENT)
+	ident = LittleShort(*((short*)raw));
+	if (!strcmp(ext, "pcx") && (ident == PCX_IDENT))
 	{
 		PCX_Decode(raw, len, pic, palette, width, height);
 
