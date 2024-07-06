@@ -139,44 +139,63 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 	int *width, int *height)
 {
 	pcx_t *pcx;
-	int y, full_size, bpl, xmax, ymax, xmin, ymin, xsize, ysize;
+	int x, y;
+	int full_size;
+	int pcx_width, pcx_height;
+	qboolean image_issues = false;
+	int dataByte, runLength;
 	byte *out, *pix;
+	char filename[256];
 
 	*pic = NULL;
 
-	if (len < (sizeof(pcx_t) + 768))
+	if (palette)
+	{
+		*palette = NULL;
+	}
+
+	if (len < sizeof(pcx_t))
 	{
 		return;
 	}
 
 	/* parse the PCX file */
 	pcx = (pcx_t *)raw;
+
+	pcx->xmin = LittleShort(pcx->xmin);
+	pcx->ymin = LittleShort(pcx->ymin);
+	pcx->xmax = LittleShort(pcx->xmax);
+	pcx->ymax = LittleShort(pcx->ymax);
+	pcx->hres = LittleShort(pcx->hres);
+	pcx->vres = LittleShort(pcx->vres);
+	pcx->bytes_per_line = LittleShort(pcx->bytes_per_line);
+	pcx->palette_type = LittleShort(pcx->palette_type);
+
 	raw = &pcx->data;
 
-	if ((pcx->manufacturer != 0x0a) ||
-		(pcx->version != 5) ||
-		(pcx->encoding != 1) ||
-		(pcx->bits_per_pixel != 8))
+	pcx_width = pcx->xmax - pcx->xmin;
+	pcx_height = pcx->ymax - pcx->ymin;
+
+	if ((pcx->manufacturer != 0x0a) || (pcx->version != 5) ||
+		(pcx->encoding != 1) || (pcx->bits_per_pixel != 8))
 	{
+		Com_Printf("Bad pcx file %s\n", filename);
 		return;
 	}
 
-	bpl = LittleShort(pcx->bytes_per_line);
-	xmax = LittleShort(pcx->xmax);
-	ymax = LittleShort(pcx->ymax);
-	xmin = LittleShort(pcx->xmin);
-	ymin = LittleShort(pcx->ymin);
-	/* get real size of image */
-	xsize = xmax - xmin + 1;
-	ysize = ymax - ymin + 1;
-	/* fix bpl */
-	if (bpl < xsize)
+	if (pcx->bytes_per_line <= pcx_width)
 	{
-		bpl = xsize;
+		pcx->bytes_per_line = pcx_width + 1;
+		image_issues = true;
 	}
 
-	full_size = ysize * bpl;
+	full_size = (pcx_height + 1) * (pcx_width + 1);
 	out = malloc(full_size);
+	if (!out)
+	{
+		Com_Printf("Can't allocate\n");
+		return;
+	}
 
 	*pic = out;
 
@@ -185,32 +204,55 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 	if (palette)
 	{
 		*palette = malloc(768);
-		memcpy(*palette, (byte *)pcx + len - 768, 768);
+		if (!(*palette))
+		{
+			Com_Printf("Can't allocate\n");
+			free(out);
+			return;
+		}
+		if (len > 768)
+		{
+			memcpy(*palette, (byte *)pcx + len - 768, 768);
+		}
+		else
+		{
+			image_issues = true;
+		}
 	}
 
 	if (width)
 	{
-		*width = xsize;
+		*width = pcx_width + 1;
 	}
 
 	if (height)
 	{
-		*height = ysize;
+		*height = pcx_height + 1;
 	}
 
-	for (y = 0; y < ysize; y++, pix += xsize)
+	for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
 	{
-		int x;
-
-		for (x = 0; x < bpl; )
+		for (x = 0; x < pcx->bytes_per_line; )
 		{
-			int dataByte, runLength;
-
+			if (raw - (byte *)pcx > len)
+			{
+				// no place for read
+				image_issues = true;
+				x = pcx_width;
+				break;
+			}
 			dataByte = *raw++;
 
 			if ((dataByte & 0xC0) == 0xC0)
 			{
 				runLength = dataByte & 0x3F;
+				if (raw - (byte *)pcx > len)
+				{
+					// no place for read
+					image_issues = true;
+					x = pcx_width;
+					break;
+				}
 				dataByte = *raw++;
 			}
 			else
@@ -222,6 +264,8 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 			{
 				if ((*pic + full_size) <= (pix + x))
 				{
+					// no place for write
+					image_issues = true;
 					x += runLength;
 					runLength = 0;
 				}
@@ -235,8 +279,14 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 
 	if (raw - (byte *)pcx > len)
 	{
+		Com_DPrintf("PCX file was malformed");
 		free(*pic);
 		*pic = NULL;
+	}
+
+	if (image_issues)
+	{
+		Com_Printf("PCX file has possible size issues.\n");
 	}
 }
 
