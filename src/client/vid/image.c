@@ -139,13 +139,12 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 	int *width, int *height)
 {
 	pcx_t *pcx;
-	int x, y, full_size;
-	int dataByte, runLength;
+	int y, full_size, bpl, xmax, ymax, xmin, ymin, xsize, ysize;
 	byte *out, *pix;
 
 	*pic = NULL;
 
-	if (len < sizeof(pcx_t))
+	if (len < (sizeof(pcx_t) + 768))
 	{
 		return;
 	}
@@ -162,7 +161,21 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 		return;
 	}
 
-	full_size = (pcx->ymax + 1) * (pcx->xmax + 1);
+	bpl = LittleShort(pcx->bytes_per_line);
+	xmax = LittleShort(pcx->xmax);
+	ymax = LittleShort(pcx->ymax);
+	xmin = LittleShort(pcx->xmin);
+	ymin = LittleShort(pcx->ymin);
+	/* get real size of image */
+	xsize = xmax - xmin + 1;
+	ysize = ymax - ymin + 1;
+	/* fix bpl */
+	if (bpl < xsize)
+	{
+		bpl = xsize;
+	}
+
+	full_size = ysize * bpl;
 	out = malloc(full_size);
 
 	*pic = out;
@@ -177,18 +190,22 @@ PCX_Decode(const byte *raw, int len, byte **pic, byte **palette,
 
 	if (width)
 	{
-		*width = pcx->xmax + 1;
+		*width = xsize;
 	}
 
 	if (height)
 	{
-		*height = pcx->ymax + 1;
+		*height = ysize;
 	}
 
-	for (y = 0; y <= pcx->ymax; y++, pix += pcx->xmax + 1)
+	for (y = 0; y < ysize; y++, pix += xsize)
 	{
-		for (x = 0; x <= pcx->xmax; )
+		int x;
+
+		for (x = 0; x < bpl; )
 		{
+			int dataByte, runLength;
+
 			dataByte = *raw++;
 
 			if ((dataByte & 0xC0) == 0xC0)
