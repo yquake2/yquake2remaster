@@ -67,8 +67,8 @@ int crosshair_width, crosshair_height;
 extern cvar_t *cl_showfps;
 extern cvar_t *crosshair_scale;
 extern cvar_t *cl_showspeed;
+extern float GetPlayerSpeed(float *, float *);
 
-float GetPlayerSpeed(float* speed, float* speedxy);
 void SCR_TimeRefresh_f(void);
 void SCR_Loading_f(void);
 
