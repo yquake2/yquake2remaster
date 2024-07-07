@@ -294,7 +294,7 @@ SWL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	int *width, int *height)
 {
 	sinmiptex_t *mt;
-	int ofs, i;
+	int ofs;
 
 	mt = (sinmiptex_t *)raw;
 
@@ -327,6 +327,8 @@ SWL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 	if (palette)
 	{
+		int i;
+
 		*palette = malloc(768);
 		for (i = 0; i < 256; i ++)
 		{
@@ -376,6 +378,52 @@ M32_Decode(const char *name, const byte *raw, int len, byte **pic, int *width, i
 	memcpy(*pic, (byte *)mt + ofs, len - ofs);
 }
 
+static void
+M8_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palette,
+	int *width, int *height)
+{
+	m8tex_t *mt;
+	int ofs;
+
+	mt = (m8tex_t *)raw;
+
+	if (!mt)
+	{
+		return;
+	}
+
+	if (len < sizeof(*mt))
+	{
+		Com_Printf("%s: can't load %s, small header\n", __func__, name);
+		return;
+	}
+
+	if (LittleLong (mt->version) != M8_VERSION)
+	{
+		Com_Printf("%s: can't load %s, wrong magic value.\n", __func__, name);
+		return;
+	}
+
+	*width = LittleLong(mt->width[0]);
+	*height = LittleLong(mt->height[0]);
+	ofs = LittleLong(mt->offsets[0]);
+
+	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
+	    (((len - ofs) / *height) < *width))
+	{
+		Com_Printf("%s: can't load %s, small body\n", __func__, name);
+		return;
+	}
+
+	*pic = malloc(len - ofs);
+	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	if (palette)
+	{
+		*palette = malloc(768);
+		memcpy(*palette, mt->palette, 768);
+	}
+}
+
 void
 VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bytesPerPixel)
@@ -417,6 +465,11 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 			fixQuitScreen(*pic);
 		}
 
+		*bytesPerPixel = 1;
+	}
+	else if (!strcmp(ext, "m8"))
+	{
+		M8_Decode(filename, raw, len, pic, palette, width, height);
 		*bytesPerPixel = 1;
 	}
 	else if (!strcmp(ext, "swl"))
