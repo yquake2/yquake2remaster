@@ -424,9 +424,95 @@ M8_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palette
 	}
 }
 
+static void
+LoadWalQ2(const char *name, const byte *raw, int len, byte **pic, byte **palette,
+	int *width, int *height)
+{
+	const miptex_t *mt;
+	int ofs;
+
+	mt = (miptex_t *)raw;
+
+	if (len < sizeof(*mt))
+	{
+		Com_Printf("%s: can't load %s, small header\n", __func__, name);
+		return;
+	}
+
+	*width = LittleLong(mt->width);
+	*height = LittleLong(mt->height);
+	ofs = LittleLong(mt->offsets[0]);
+
+	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
+	    (((len - ofs) / *height) < *width))
+	{
+		Com_Printf("%s: can't load %s, small body\n", __func__, name);
+		return;
+	}
+
+	*pic = malloc (len - ofs);
+	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+}
+
+static void
+LoadWalDKM(const char *name, const byte *raw, int len, byte **pic, byte **palette,
+	int *width, int *height)
+{
+	dkmtex_t *mt;
+	int ofs;
+
+	mt = (dkmtex_t *)raw;
+
+	if (len < sizeof(*mt))
+	{
+		Com_Printf("%s: can't load %s, small header\n", __func__, name);
+		return;
+	}
+
+	if (mt->version != DKM_WAL_VERSION)
+	{
+		Com_Printf("%s: can't load %s, wrong magic value.\n", __func__, name);
+		return;
+	}
+
+	*width = LittleLong(mt->width);
+	*height = LittleLong(mt->height);
+	ofs = LittleLong(mt->offsets[0]);
+
+	if ((ofs <= 0) || (*width <= 0) || (*height <= 0) ||
+	    (((len - ofs) / *height) < *width))
+	{
+		Com_Printf("%s: can't load %s, small body\n", __func__, name);
+		return;
+	}
+
+	*pic = malloc (len - ofs);
+	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+
+	if (palette)
+	{
+		*palette = malloc(768);
+		memcpy(*palette, mt->palette, 768);
+	}
+}
+
+static void
+WAL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palette,
+	int *width, int *height)
+{
+	if (*raw == DKM_WAL_VERSION)
+	{
+		LoadWalDKM(name, raw, len, pic, palette, width, height);
+	}
+	else
+	{
+		LoadWalQ2(name, raw, len, pic, palette, width, height);
+	}
+}
+
 void
 VID_ImageDecode(const char *filename, byte **pic, byte **palette,
-	int *width, int *height, int *bytesPerPixel)
+	int *width, int *height, int *bitesPerPixel)
 {
 	const char* ext;
 	int len, ident;
@@ -465,21 +551,26 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 			fixQuitScreen(*pic);
 		}
 
-		*bytesPerPixel = 1;
+		*bitesPerPixel = 8;
 	}
 	else if (!strcmp(ext, "m8"))
 	{
 		M8_Decode(filename, raw, len, pic, palette, width, height);
-		*bytesPerPixel = 1;
+		*bitesPerPixel = 8;
 	}
 	else if (!strcmp(ext, "swl"))
 	{
 		SWL_Decode(filename, raw, len, pic, palette, width, height);
-		*bytesPerPixel = 1;
+		*bitesPerPixel = 8;
+	}
+	else if (!strcmp(ext, "wal"))
+	{
+		WAL_Decode(filename, raw, len, pic, palette, width, height);
+		*bitesPerPixel = 8;
 	}
 	else
 	{
-		int sourceBytesPerPixel = 0;
+		int sourcebitesPerPixel = 0;
 
 		/* other formats does not have palette directly */
 		if (palette)
@@ -490,12 +581,11 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 		if (!strcmp(ext, "m32"))
 		{
 			M32_Decode(filename, raw, len, pic, width, height);
-			printf("->%s:%p\n", filename, *pic);
 		}
 		else
 		{
 			*pic = stbi_load_from_memory(raw, len, width, height,
-				&sourceBytesPerPixel, STBI_rgb_alpha);
+				&sourcebitesPerPixel, STBI_rgb_alpha);
 
 			if (*pic == NULL)
 			{
@@ -504,7 +594,7 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 			}
 		}
 
-		*bytesPerPixel = 4;
+		*bitesPerPixel = 32;
 	}
 
 	FS_FreeFile(raw);
@@ -584,14 +674,14 @@ static void
 LoadPalette(byte **colormap, unsigned *d_8to24table)
 {
 	const char * filename;
-	int bytesPerPixel;
+	int bitesPerPixel;
 	byte *pal = NULL;
 
 	filename = "pics/colormap.pcx";
 
 	/* get the palette and colormap */
 	VID_ImageDecode(filename, colormap, &pal, NULL, NULL,
-		&bytesPerPixel);
+		&bitesPerPixel);
 	if (!*colormap || !pal)
 	{
 		int width = 0, height = 0;
@@ -599,7 +689,7 @@ LoadPalette(byte **colormap, unsigned *d_8to24table)
 
 		filename = "pics/colormap.bmp";
 
-		VID_ImageDecode(filename, &pic, NULL, &width, &height, &bytesPerPixel);
+		VID_ImageDecode(filename, &pic, NULL, &width, &height, &bitesPerPixel);
 		if (pic && width == 256 && height == 320)
 		{
 			int i;

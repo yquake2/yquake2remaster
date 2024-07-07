@@ -58,7 +58,7 @@ FixFileExt(const char *origname, const char *ext, char *filename, size_t size)
 qboolean
 LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *height)
 {
-	int w, h, bytesPerPixel;
+	int w, h, bitesPerPixel;
 	char filename[256];
 	byte* data = NULL;
 
@@ -66,18 +66,18 @@ LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *hei
 
 	*pic = NULL;
 
-	ri.VID_ImageDecode(filename, &data, NULL, &w, &h, &bytesPerPixel);
+	ri.VID_ImageDecode(filename, &data, NULL, &w, &h, &bitesPerPixel);
 	if (data == NULL)
 	{
 		return false;
 	}
 
-	if (bytesPerPixel != 4)
+	if (bitesPerPixel != 32)
 	{
 		free(data);
 
 		R_Printf(PRINT_ALL, "%s unexpected file format of %s with %d bytes per pixel!\n",
-			__func__, filename, bytesPerPixel);
+			__func__, filename, bitesPerPixel);
 
 		return false;
 	}
@@ -501,6 +501,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 	if (!image)
 	{
 		if (!strcmp(ext, "pcx") ||
+			!strcmp(ext, "wal") ||
 			!strcmp(ext, "m8") ||
 			!strcmp(ext, "swl"))
 		{
@@ -508,13 +509,13 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 			byte	*pic = NULL;
 			byte	*palette = NULL;
 			char filename[256];
-			int bytesPerPixel;
+			int bitesPerPixel;
 
 			/* name could not be used here as could have different extension
 			 * originaly */
 			FixFileExt(namewe, ext, filename, sizeof(filename));
 
-			ri.VID_ImageDecode(filename, &pic, &palette, &width, &height, &bytesPerPixel);
+			ri.VID_ImageDecode(filename, &pic, &palette, &width, &height, &bitesPerPixel);
 
 			if (!pic)
 			{
@@ -525,63 +526,71 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 			realheight = height;
 			realwidth = width;
 
-			if (r_retexturing >= 2)
+			if (bitesPerPixel == 32)
 			{
-				byte *image_scale = NULL;
-
-				/* scale image paletted images */
-				image_scale = malloc(width * height * 4);
-				scale2x(pic, image_scale, width, height);
-
-				/* replace pic with scale */
-				free(pic);
-				pic = image_scale;
-
-				width *= 2;
-				height *= 2;
-			}
-
-			if (r_retexturing && palette)
-			{
-				byte *image_buffer = NULL;
-				int i, size;
-
-				size = width * height;
-
-				/* convert to full color */
-				image_buffer = malloc (size * 4);
-				for(i = 0; i < size; i++)
-				{
-					unsigned char value = pic[i];
-					image_buffer[i * 4 + 0] = palette[value * 3 + 0];
-					image_buffer[i * 4 + 1] = palette[value * 3 + 1];
-					image_buffer[i * 4 + 2] = palette[value * 3 + 2];
-					image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
-				}
-
-				image = load_image(name, image_buffer,
+				image = load_image(name, pic,
 					width, realwidth,
 					height, realheight,
-					size, type, 32);
-				free (image_buffer);
+					width * height,
+					type, bitesPerPixel);
 			}
 			else
 			{
-				image = load_image(name, pic,
-					width, width,
-					height, height,
-					width * height, type, 8);
+				if (r_retexturing >= 2)
+				{
+					byte *image_scale = NULL;
+
+					/* scale image paletted images */
+					image_scale = malloc(width * height * 4);
+					scale2x(pic, image_scale, width, height);
+
+					/* replace pic with scale */
+					free(pic);
+					pic = image_scale;
+
+					width *= 2;
+					height *= 2;
+				}
+
+				if (r_retexturing && palette)
+				{
+					byte *image_buffer = NULL;
+					int i, size;
+
+					size = width * height;
+
+					/* convert to full color */
+					image_buffer = malloc (size * 4);
+					for(i = 0; i < size; i++)
+					{
+						unsigned char value = pic[i];
+						image_buffer[i * 4 + 0] = palette[value * 3 + 0];
+						image_buffer[i * 4 + 1] = palette[value * 3 + 1];
+						image_buffer[i * 4 + 2] = palette[value * 3 + 2];
+						image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
+					}
+
+					image = load_image(name, image_buffer,
+						width, realwidth,
+						height, realheight,
+						size, type, 32);
+					free (image_buffer);
+				}
+				else
+				{
+					image = load_image(name, pic,
+						width, realwidth,
+						height, realheight,
+						width * height, type, bitesPerPixel);
+				}
 			}
 
 			if (palette)
 			{
 				free(palette);
 			}
+
 			free(pic);
-		}
-		else if (!strcmp(ext, "wal"))
-		{
-			image = LoadWal(name, namewe, type, load_image);
 		}
 		else if (!strcmp(ext, "tga") ||
 		         !strcmp(ext, "m32") ||

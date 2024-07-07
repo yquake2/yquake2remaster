@@ -98,19 +98,19 @@ cinematics_t cin;
 
 static void
 SCR_LoadPCX(char *filename, byte **pic, byte **palette, int *width, int *height,
-	int *bytesPerPixel)
+	int *bitesPerPixel)
 {
 	byte *data, *palette_in;
 
 	*pic = NULL;
 	*palette = NULL;
 
-	VID_ImageDecode(filename, &data, &palette_in, width, height, bytesPerPixel);
+	VID_ImageDecode(filename, &data, &palette_in, width, height, bitesPerPixel);
 
 	if (data)
 	{
-		*pic = Z_Malloc((*width) * (*height) * (*bytesPerPixel));
-		memcpy(*pic, data, (*height) * (*width) * (*bytesPerPixel));
+		*pic = Z_Malloc((*width) * (*height) * (*bitesPerPixel) / 8);
+		memcpy(*pic, data, (*height) * (*width) * (*bitesPerPixel) / 8);
 		free(data);
 	}
 	else
@@ -778,18 +778,18 @@ SCR_DrawCinematic(void)
 }
 
 static byte *
-SCR_LoadHiColor(const char* namewe, const char *ext, int *width, int *height)
+SCR_LoadHiColor(const char* namewe, const char *ext, int *width, int *height,
+	int *bitesPerPixel)
 {
 	byte *pic, *data = NULL, *palette = NULL;
 	char filename[256];
-	int bytesPerPixel;
 
 	Q_strlcpy(filename, namewe, sizeof(filename));
 	Q_strlcat(filename, ".", sizeof(filename));
 	Q_strlcat(filename, ext, sizeof(filename));
 
 	VID_ImageDecode(filename, &data, &palette,
-		width, height, &bytesPerPixel);
+		width, height, bitesPerPixel);
 	if (data == NULL)
 	{
 		return NULL;
@@ -801,8 +801,8 @@ SCR_LoadHiColor(const char* namewe, const char *ext, int *width, int *height)
 		free(palette);
 	}
 
-	pic = Z_Malloc(cin.height * cin.width * 4);
-	memcpy(pic, data, cin.height * cin.width * 4);
+	pic = Z_Malloc(cin.height * cin.width * (*bitesPerPixel) / 8);
+	memcpy(pic, data, cin.height * cin.width * (*bitesPerPixel) / 8);
 	free(data);
 
 	return pic;
@@ -844,26 +844,26 @@ SCR_PlayCinematic(char *arg)
 			/* Remove the extension */
 			memset(namewe, 0, 256);
 			memcpy(namewe, name, strlen(name) - strlen(dot));
-			cin.pic = SCR_LoadHiColor(namewe, "tga", &cin.width, &cin.height);
+			cin.pic = SCR_LoadHiColor(namewe, "tga", &cin.width, &cin.height,
+				&cin.color_bits);
 
 			if (!cin.pic)
 			{
-				cin.pic = SCR_LoadHiColor(namewe, "png", &cin.width, &cin.height);
+				cin.pic = SCR_LoadHiColor(namewe, "png", &cin.width, &cin.height,
+					&cin.color_bits);
 			}
 
 			if (!cin.pic)
 			{
-				cin.pic = SCR_LoadHiColor(namewe, "jpg", &cin.width, &cin.height);
+				cin.pic = SCR_LoadHiColor(namewe, "jpg", &cin.width, &cin.height,
+					&cin.color_bits);
 			}
 		}
 
 		if (!cin.pic)
 		{
-			int bytesPerPixel;
-
 			SCR_LoadPCX(name, &cin.pic, &palette, &cin.width, &cin.height,
-				&bytesPerPixel);
-			cin.color_bits = 8 * bytesPerPixel;
+				&cin.color_bits);
 		}
 
 		cl.cinematicframe = -1;
