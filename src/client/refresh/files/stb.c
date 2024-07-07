@@ -505,18 +505,18 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 			int width = 0, height = 0, realwidth = 0, realheight = 0;
 			byte	*pic = NULL;
 			byte	*palette = NULL;
+			char filename[256];
+			int bytesPerPixel;
 
-			if (!strcmp(ext, "pcx"))
-			{
-				LoadPCX (namewe, &pic, &palette, &width, &height);
-			}
-			else if (!strcmp(ext, "swl"))
-			{
-				LoadSWL (namewe, &pic, &palette, &width, &height);
-			}
+			/* name could not be used here as could have different extension
+			 * originaly */
+			FixFileExt(namewe, ext, filename, sizeof(filename));
+
+			ri.VID_ImageDecode(filename, &pic, &palette, &width, &height, &bytesPerPixel);
 
 			if (!pic)
 			{
+				R_Printf(PRINT_DEVELOPER, "Bad %s file %s\n", ext, filename);
 				return NULL;
 			}
 

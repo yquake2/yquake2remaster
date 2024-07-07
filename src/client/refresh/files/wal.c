@@ -210,27 +210,6 @@ LoadM8(const char *origname, const char *namewe, imagetype_t type,
 }
 
 void
-LoadSWL(const char *origname, byte **pic, byte **palette, int *width, int *height)
-{
-	int bytesPerPixel;
-	char name[256];
-
-	FixFileExt(origname, "swl", name, sizeof(name));
-
-	if (palette)
-	{
-		*palette = NULL;
-	}
-
-	ri.VID_ImageDecode(name, pic, palette, width, height, &bytesPerPixel);
-
-	if (!(*pic))
-	{
-		R_Printf(PRINT_DEVELOPER, "Bad swl file %s\n", name);
-	}
-}
-
-void
 GetWalInfo(const char *origname, int *width, int *height)
 {
 	byte *data;
@@ -359,6 +338,32 @@ GetSWLInfo(const char *origname, int *width, int *height)
 	*height = LittleLong(mt->height);
 
 	ri.FS_FreeFile((void *)mt);
+
+	return;
+}
+
+void
+GetPCXInfo(const char *origname, int *width, int *height)
+{
+	const pcx_t *pcx;
+	byte *raw;
+	char filename[256];
+
+	FixFileExt(origname, "pcx", filename, sizeof(filename));
+
+	ri.FS_LoadFile(filename, (void **)&raw);
+
+	if (!raw)
+	{
+		return;
+	}
+
+	pcx = (pcx_t *)raw;
+
+	*width = pcx->xmax + 1;
+	*height = pcx->ymax + 1;
+
+	ri.FS_FreeFile(raw);
 
 	return;
 }
