@@ -465,10 +465,36 @@ R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int heigh
 		}
 		else
 		{
-			return R_LoadPic8 (name, pic,
-				width, realwidth,
-				height, realheight,
-				data_size, type);
+			if ((width != realwidth) &&
+				(height != realheight) &&
+				type != it_pic
+			)
+			{
+				/* image could be prescalled */
+				byte *scaled = NULL;
+				image_t	*image;
+
+				scaled = malloc(realwidth * realheight);
+				if (!scaled)
+					return NULL;
+
+				R_ImageShrink(pic, scaled, width, realwidth, height, realheight);
+
+				image = R_LoadPic8(name, scaled,
+								realwidth, realwidth,
+								realwidth, realheight,
+								realwidth * realheight, type);
+				free(scaled);
+
+				return image;
+			}
+			else
+			{
+				return R_LoadPic8 (name, pic,
+					width, realwidth,
+					height, realheight,
+					data_size, type);
+			}
 		}
 	}
 }
