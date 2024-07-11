@@ -218,6 +218,7 @@
 {"TankRocket", (byte *)TankRocket},
 {"TankStrike", (byte *)TankStrike},
 {"TargetTesla", (byte *)TargetTesla},
+{"Target_Help_Think", (byte *)Target_Help_Think},
 {"Think_AccelMove", (byte *)Think_AccelMove},
 {"Think_Boss3Stand", (byte *)Think_Boss3Stand},
 {"Think_CalcMoveSpeed", (byte *)Think_CalcMoveSpeed},

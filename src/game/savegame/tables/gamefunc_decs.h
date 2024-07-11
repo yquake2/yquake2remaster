@@ -267,6 +267,7 @@ extern void TankMachineGun ( edict_t * self ) ;
 extern void TankRocket ( edict_t * self ) ;
 extern void TankStrike ( edict_t * self ) ;
 extern void TargetTesla ( edict_t * self , edict_t * tesla ) ;
+extern void Target_Help_Think ( edict_t * ent );
 extern void Think_AccelMove ( edict_t * ent ) ;
 extern void Think_Boss3Stand ( edict_t * ent ) ;
 extern void Think_CalcMoveSpeed ( edict_t * self ) ;
