@@ -224,9 +224,7 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 	if ((pcx->manufacturer != 0x0a) ||
 		(pcx->version != 5) ||
-		(pcx->encoding != 1) ||
-		((pcx->color_planes != 1) && (pcx->color_planes != 3)) ||
-		(pcx->bits_per_pixel != 8))
+		(pcx->encoding != 1))
 	{
 		Com_Printf("%s: Bad pcx file %s: version: %d:%d, encoding: %d\n",
 			__func__, name, pcx->manufacturer, pcx->version, pcx->encoding);
@@ -311,7 +309,7 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 				return;
 			}
 
-			if (len > 768)
+			if ((len > 768) && (((byte *)pcx)[len - 769] == 0x0C))
 			{
 				memcpy(*palette, (byte *)pcx + len - 768, 768);
 			}
@@ -327,6 +325,59 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 				raw, (byte *)pcx + len,
 				pcx->bytes_per_line);
 		}
+	}
+	else if (pcx->bits_per_pixel == 1)
+	{
+		byte *line;
+		int y;
+
+		if (palette)
+		{
+			*palette = malloc(768);
+
+			if (!(*palette))
+			{
+				Com_Printf("%s: Can't allocate for %s\n", __func__, name);
+				free(out);
+				return;
+			}
+
+			memcpy(*palette, pcx->palette, sizeof(pcx->palette));
+		}
+
+		line = malloc(pcx->bytes_per_line * pcx->color_planes);
+
+		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
+		{
+			int x;
+
+			raw = PCX_RLE_Decode(line, line + pcx->bytes_per_line * pcx->color_planes,
+				raw, (byte *)pcx + len,
+				pcx->bytes_per_line * pcx->color_planes);
+
+			for (x = 0; x < pcx_width + 1; x++)
+			{
+				int m, i, v;
+
+				m = 0x80 >> (x & 7);
+				v = 0;
+
+				for (i = pcx->color_planes - 1; i >= 0; i--) {
+					v <<= 1;
+					v  += !!(line[i * pcx->bytes_per_line + (x >> 3)] & m);
+				}
+				pix[x] = v;
+			}
+		}
+		free(line);
+	}
+	else
+	{
+		Com_Printf("%s: Bad pcx file %s: planes: %d, bits: %d, palete %d -> %dx%d\n",
+			__func__, name, pcx->color_planes, pcx->bits_per_pixel, pcx->palette_type,
+			pcx_height, pcx_width);
+		free(*pic);
+		*pic = NULL;
 	}
 
 	if (raw - (byte *)pcx > len)
@@ -572,6 +623,7 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	byte *raw;
 
 	ext = COM_FileExtension(filename);
+	*pic = NULL;
 
 	/* load the file */
 	len = FS_LoadFile(filename, (void **)&raw);
@@ -586,8 +638,6 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 		FS_FreeFile(raw);
 		return;
 	}
-
-	*pic = NULL;
 
 	ident = LittleShort(*((short*)raw));
 	if (!strcmp(ext, "pcx") && (ident == PCX_IDENT))
