@@ -114,6 +114,7 @@ static unsigned char quitscreenfix[] = {
 
 static byte *colormap_cache = NULL;
 static unsigned d_8to24table_cache[256];
+static qboolean colormap_loaded = false;
 
 
 static void
@@ -673,8 +674,99 @@ WAL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	}
 }
 
-void
-VID_ImageDecode(const char *filename, byte **pic, byte **palette,
+static byte
+Convert24to8(const byte *d_8to24table, const int rgb[3])
+{
+	int i, best, diff;
+
+	best = 255;
+	diff = 1 << 20;
+
+	for (i = 0; i < 256; i ++)
+	{
+		int j, curr_diff;
+
+		curr_diff = 0;
+
+		for (j = 0; j < 3; j++)
+		{
+			int v;
+
+			v = d_8to24table[i * 4 + j] - rgb[j];
+			curr_diff += v * v;
+		}
+
+		if (curr_diff < diff)
+		{
+			diff = curr_diff;
+			best = i;
+		}
+	}
+
+	return best;
+}
+
+static void
+GenerateColormap(const byte *palette, byte *out_colormap)
+{
+	// https://quakewiki.org/wiki/Quake_palette
+	int num_fullbrights = 32; /* the last 32 colours will be full bright */
+	int x;
+
+	for (x = 0; x < 256; x++)
+	{
+		int y;
+
+		for (y = 0; y < 64; y++)
+		{
+			if (x < 256 - num_fullbrights)
+			{
+				int rgb[3], i;
+
+				for (i = 0; i < 3; i++)
+				{
+					/* divide by 32, rounding to nearest integer */
+					rgb[i] = (palette[x * 4 + i] * (63 - y) + 16) >> 5;
+					if (rgb[i] > 255)
+					{
+						rgb[i] = 255;
+					}
+				}
+
+				out_colormap[y * 256 + x] = Convert24to8(palette, rgb);
+			}
+			else
+			{
+				/* this colour is a fullbright, just keep the original colour */
+				out_colormap[y*256 + x] = x;
+			}
+		}
+	}
+}
+
+static void
+Convert24to32(unsigned *d_8to24table, byte *pal)
+{
+	int i;
+
+	for (i = 0; i < 256; i++)
+	{
+		unsigned v;
+		int	r, g, b;
+
+		r = pal[i*3+0];
+		g = pal[i*3+1];
+		b = pal[i*3+2];
+
+		v = (255U<<24) + (r<<0) + (g<<8) + (b<<16);
+		d_8to24table[i] = LittleLong(v);
+	}
+
+	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
+}
+
+static void
+LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitesPerPixel)
 {
 	const char* ext;
@@ -760,73 +852,18 @@ VID_ImageDecode(const char *filename, byte **pic, byte **palette,
 	FS_FreeFile(raw);
 }
 
-static byte
-Convert24to8(const byte *d_8to24table, const int rgb[3])
+void
+VID_ImageDecode(const char *filename, byte **pic, byte **palette,
+	int *width, int *height, int *bitesPerPixel)
 {
-	int i, best, diff;
+	LoadImageWithPalette(filename, pic, palette, width, height, bitesPerPixel);
 
-	best = 255;
-	diff = 1 << 20;
-
-	for (i = 0; i < 256; i ++)
+	if (palette && *palette && colormap_cache && !colormap_loaded)
 	{
-		int j, curr_diff;
-
-		curr_diff = 0;
-
-		for (j = 0; j < 3; j++)
-		{
-			int v;
-
-			v = d_8to24table[i * 4 + j] - rgb[j];
-			curr_diff += v * v;
-		}
-
-		if (curr_diff < diff)
-		{
-			diff = curr_diff;
-			best = i;
-		}
-	}
-
-	return best;
-}
-
-static void
-GenerateColormap(const byte *palette, byte *out_colormap)
-{
-	// https://quakewiki.org/wiki/Quake_palette
-	int num_fullbrights = 32; /* the last 32 colours will be full bright */
-	int x;
-
-	for (x = 0; x < 256; x++)
-	{
-		int y;
-
-		for (y = 0; y < 64; y++)
-		{
-			if (x < 256 - num_fullbrights)
-			{
-				int rgb[3], i;
-
-				for (i = 0; i < 3; i++)
-				{
-					/* divide by 32, rounding to nearest integer */
-					rgb[i] = (palette[x * 4 + i] * (63 - y) + 16) >> 5;
-					if (rgb[i] > 255)
-					{
-						rgb[i] = 255;
-					}
-				}
-
-				out_colormap[y*256+x] = Convert24to8(palette, rgb);
-			}
-			else
-			{
-				/* this colour is a fullbright, just keep the original colour */
-				out_colormap[y*256+x] = x;
-			}
-		}
+		/* Stil have no palette, lets use palete from first loaded image */
+		Convert24to32(d_8to24table_cache, *palette);
+		GenerateColormap((const byte *)d_8to24table_cache, colormap_cache);
+		colormap_loaded = true;
 	}
 }
 
@@ -840,7 +877,7 @@ LoadPalette(byte **colormap, unsigned *d_8to24table)
 	filename = "pics/colormap.pcx";
 
 	/* get the palette and colormap */
-	VID_ImageDecode(filename, colormap, &pal, NULL, NULL,
+	LoadImageWithPalette(filename, colormap, &pal, NULL, NULL,
 		&bitesPerPixel);
 	if (!*colormap || !pal)
 	{
@@ -849,7 +886,7 @@ LoadPalette(byte **colormap, unsigned *d_8to24table)
 
 		filename = "pics/colormap.bmp";
 
-		VID_ImageDecode(filename, &pic, NULL, &width, &height, &bitesPerPixel);
+		LoadImageWithPalette(filename, &pic, NULL, &width, &height, &bitesPerPixel);
 		if (pic && width == 256 && height == 320)
 		{
 			int i;
@@ -878,6 +915,7 @@ LoadPalette(byte **colormap, unsigned *d_8to24table)
 			}
 
 			free(pic);
+			colormap_loaded = true;
 			return;
 		}
 
@@ -917,28 +955,14 @@ LoadPalette(byte **colormap, unsigned *d_8to24table)
 		}
 
 		GenerateColormap((const byte *)d_8to24table, *colormap);
+		colormap_loaded = false;
 		return;
 	}
 	else
 	{
-		int i;
-
-		for (i = 0; i < 256; i++)
-		{
-			unsigned v;
-			int	r, g, b;
-
-			r = pal[i*3+0];
-			g = pal[i*3+1];
-			b = pal[i*3+2];
-
-			v = (255U<<24) + (r<<0) + (g<<8) + (b<<16);
-			d_8to24table[i] = LittleLong(v);
-		}
-
-		d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
-
+		Convert24to32(d_8to24table, pal);
 		free(pal);
+		colormap_loaded = true;
 	}
 }
 
@@ -988,6 +1012,7 @@ VID_ImageInit(void)
 	int i;
 
 	colormap_cache = NULL;
+	colormap_loaded = false;
 
 	for (i = 0; i < 256; i++)
 	{
