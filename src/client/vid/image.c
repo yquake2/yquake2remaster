@@ -135,7 +135,8 @@ fixQuitScreen(byte* px)
 }
 
 static const byte *
-PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max, int bytes_per_line)
+PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max,
+	int bytes_per_line, qboolean *image_issues)
 {
 	int x;
 
@@ -147,6 +148,7 @@ PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max, i
 		if (raw >= raw_max)
 		{
 			// no place for read
+			*image_issues = true;
 			return raw;
 		}
 		dataByte = *raw++;
@@ -157,6 +159,7 @@ PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max, i
 			if (raw >= raw_max)
 			{
 				// no place for read
+				*image_issues = true;
 				return raw;
 			}
 			dataByte = *raw++;
@@ -171,6 +174,7 @@ PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max, i
 			if (pix_max <= (pix + x))
 			{
 				// no place for write
+				*image_issues = true;
 				return raw;
 			}
 			else
@@ -217,7 +221,12 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 	if ((pcx->manufacturer != 0x0a) ||
 		(pcx->version != 5) ||
-		(pcx->encoding != 1))
+		(pcx->encoding != 1) ||
+		(pcx_width <= 0) ||
+		(pcx_height <= 0) ||
+		(bytes_per_line <= 0) ||
+		(pcx->color_planes <= 0) ||
+		(pcx->bits_per_pixel <= 0))
 	{
 		Com_Printf("%s: Bad pcx file %s: version: %d:%d, encoding: %d\n",
 			__func__, name, pcx->manufacturer, pcx->version, pcx->encoding);
@@ -273,7 +282,7 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		{
 			data = PCX_RLE_Decode(line, line + (pcx_width + 1) * pcx->color_planes,
 				data, (byte *)pcx + len,
-				bytes_per_line * pcx->color_planes);
+				bytes_per_line * pcx->color_planes, &image_issues);
 
 			for (x = 0; x <= pcx_width; x++) {
 				int j;
@@ -314,7 +323,7 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 			data = PCX_RLE_Decode(line, line + bytes_per_line * pcx->color_planes,
 				data, (byte *)pcx + len,
-				bytes_per_line * pcx->color_planes);
+				bytes_per_line * pcx->color_planes, &image_issues);
 
 			for (x = 0; x <= pcx_width; x++)
 			{
@@ -332,100 +341,95 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		}
 		free(line);
 	}
-	else if (pcx->color_planes == 1 &&
-		(pcx->bits_per_pixel == 2 ||
-		pcx->bits_per_pixel == 4 ||
-		pcx->bits_per_pixel == 8))
+	else if (pcx->color_planes == 1 && pcx->bits_per_pixel == 8)
 	{
-		if (pcx->bits_per_pixel == 8)
+		int y;
+
+		if (palette)
 		{
-			int y;
+			*palette = malloc(768);
 
-			if (palette)
+			if (!(*palette))
 			{
-				*palette = malloc(768);
-
-				if (!(*palette))
-				{
-					Com_Printf("%s: Can't allocate for %s\n", __func__, name);
-					free(out);
-					return;
-				}
-
-				if ((len > 768) && (((byte *)pcx)[len - 769] == 0x0C))
-				{
-					memcpy(*palette, (byte *)pcx + len - 768, 768);
-				}
-				else
-				{
-					image_issues = true;
-				}
+				Com_Printf("%s: Can't allocate for %s\n", __func__, name);
+				free(out);
+				return;
 			}
 
-			if (bytes_per_line <= pcx_width)
+			if ((len > 768) && (((byte *)pcx)[len - 769] == 0x0C))
 			{
-				bytes_per_line = pcx_width + 1;
+				memcpy(*palette, (byte *)pcx + len - 768, 768);
+			}
+			else
+			{
 				image_issues = true;
 			}
-
-			for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
-			{
-				data = PCX_RLE_Decode(pix, pix + pcx_width + 1,
-					data, (byte *)pcx + len,
-					bytes_per_line);
-			}
 		}
-		else
+
+		if (bytes_per_line <= pcx_width)
 		{
-			int y;
-
-			byte *line;
-
-			if (palette)
-			{
-				*palette = malloc(768);
-
-				if (!(*palette))
-				{
-					Com_Printf("%s: Can't allocate for %s\n", __func__, name);
-					free(out);
-					return;
-				}
-
-				memcpy(*palette, pcx->palette, sizeof(pcx->palette));
-			}
-
-			line = malloc(bytes_per_line);
-
-			for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
-			{
-				int x, mask, div;
-
-				data = PCX_RLE_Decode(line, line + bytes_per_line,
-					data, (byte *)pcx + len,
-					bytes_per_line);
-
-				mask = (1 << pcx->bits_per_pixel) - 1;
-				div = 8 / pcx->bits_per_pixel;
-
-				for (x = 0; x <= pcx_width; x++)
-				{
-					unsigned v, shift;
-
-					v = line[x / div] & 0xFF;
-					/* for 2 bits:
-					 * 0 -> 6
-					 * 1 -> 4
-					 * 3 -> 2
-					 * 4 -> 0
-					 */
-					shift = pcx->bits_per_pixel * ((div - 1) - x % div);
-					pix[x] = (v >> shift) & mask;
-				}
-			}
-
-			free(line);
+			bytes_per_line = pcx_width + 1;
+			image_issues = true;
 		}
+
+		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
+		{
+			data = PCX_RLE_Decode(pix, pix + pcx_width + 1,
+				data, (byte *)pcx + len,
+				bytes_per_line, &image_issues);
+		}
+	}
+	else if (pcx->color_planes == 1 &&
+		(pcx->bits_per_pixel == 2 || pcx->bits_per_pixel == 4))
+	{
+		int y;
+
+		byte *line;
+
+		if (palette)
+		{
+			*palette = malloc(768);
+
+			if (!(*palette))
+			{
+				Com_Printf("%s: Can't allocate for %s\n", __func__, name);
+				free(out);
+				return;
+			}
+
+			memcpy(*palette, pcx->palette, sizeof(pcx->palette));
+		}
+
+		line = malloc(bytes_per_line);
+
+		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
+		{
+			int x, mask, div;
+
+			data = PCX_RLE_Decode(line, line + bytes_per_line,
+				data, (byte *)pcx + len,
+				bytes_per_line, &image_issues);
+
+			mask = (1 << pcx->bits_per_pixel) - 1;
+			div = 8 / pcx->bits_per_pixel;
+
+			for (x = 0; x <= pcx_width; x++)
+			{
+				unsigned v, shift;
+
+				v = line[x / div] & 0xFF;
+				/* for 2 bits:
+				 * 0 -> 6
+				 * 1 -> 4
+				 * 3 -> 2
+				 * 4 -> 0
+				 */
+				shift = pcx->bits_per_pixel * ((div - 1) - x % div);
+				pix[x] = (v >> shift) & mask;
+			}
+		}
+
+		free(line);
 	}
 	else
 	{
