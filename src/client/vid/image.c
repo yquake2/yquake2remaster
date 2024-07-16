@@ -265,23 +265,23 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	if ((pcx->color_planes == 3 || pcx->color_planes == 4)
 		&& pcx->bits_per_pixel == 8)
 	{
-		int x, y;
+		int x, y, linesize;
 		byte *line;
 
 		if (bytes_per_line <= pcx_width)
 		{
-			bytes_per_line = pcx_width + 1;
 			image_issues = true;
 		}
 
 		/* clean image alpha */
 		memset(pix, 255, full_size);
 
-		line = malloc(bytes_per_line * pcx->color_planes);
+		linesize = Q_max(bytes_per_line, pcx_width + 1) * pcx->color_planes;
+		line = malloc(linesize);
 
 		for (y = 0; y <= pcx_height; y++, pix += (pcx_width + 1) * 4)
 		{
-			data = PCX_RLE_Decode(line, line + (pcx_width + 1) * pcx->color_planes,
+			data = PCX_RLE_Decode(line, line + linesize,
 				data, (byte *)pcx + len,
 				bytes_per_line * pcx->color_planes, &image_issues);
 
@@ -344,7 +344,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	}
 	else if (pcx->color_planes == 1 && pcx->bits_per_pixel == 8)
 	{
-		int y;
+		int y, linesize;
+		byte *line;
 
 		if (palette)
 		{
@@ -369,16 +370,20 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 		if (bytes_per_line <= pcx_width)
 		{
-			bytes_per_line = pcx_width + 1;
 			image_issues = true;
 		}
 
+		linesize = Q_max(bytes_per_line, pcx_width + 1);
+		line = malloc(linesize);
 		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
 		{
-			data = PCX_RLE_Decode(pix, pix + pcx_width + 1,
+			data = PCX_RLE_Decode(line, line + linesize,
 				data, (byte *)pcx + len,
 				bytes_per_line, &image_issues);
+			/* copy only visible part */
+			memcpy(pix, line, pcx_width + 1);
 		}
+		free(line);
 	}
 	else if (pcx->color_planes == 1 &&
 		(pcx->bits_per_pixel == 2 || pcx->bits_per_pixel == 4))
