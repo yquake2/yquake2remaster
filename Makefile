@@ -1096,6 +1096,7 @@ REFGL1_OBJS_ := \
 	src/client/refresh/gl1/gl1_sdl.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \
+	src/client/refresh/gl1/gl1_buffer.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \

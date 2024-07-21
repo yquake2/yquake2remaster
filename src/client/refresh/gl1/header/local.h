@@ -39,14 +39,15 @@
  #define GL_COLOR_INDEX8_EXT GL_COLOR_INDEX
 #endif
 
-#define TEXNUM_LIGHTMAPS 1024
-#define TEXNUM_SCRAPS 1152
-#define TEXNUM_IMAGES 1153
+#define MAX_LIGHTMAPS 256
 #define MAX_SCRAPS 1
+#define TEXNUM_LIGHTMAPS 1024
+#define TEXNUM_SCRAPS (TEXNUM_LIGHTMAPS + MAX_LIGHTMAPS)
+#define TEXNUM_IMAGES (TEXNUM_SCRAPS + MAX_SCRAPS)
 #define BLOCK_WIDTH 256		// default values; now defined in glstate_t
 #define BLOCK_HEIGHT 256
 #define REF_VERSION "Yamagi Quake II OpenGL Refresher"
-#define MAX_LIGHTMAPS 256
+#define MAX_TEXTURE_UNITS 2
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
 extern viddef_t vid;
@@ -85,21 +86,22 @@ typedef struct image_s
 	qboolean paletted;
 } image_t;
 
-#include "model.h"
+typedef enum
+{
+	buf_2d,
+	buf_singletex,
+	buf_mtex,
+	buf_alpha,
+	buf_alias,
+	buf_flash,
+	buf_shadow
+} buffered_draw_t;
 
-void GL_BeginRendering(int *x, int *y, int *width, int *height);
-void GL_EndRendering(void);
+#include "model.h"
 
 void R_SetDefaultState(void);
 
 extern float gldepthmin, gldepthmax;
-
-typedef struct
-{
-	float x, y, z;
-	float s, t;
-	float r, g, b;
-} glvert_t;
 
 extern image_t gltextures[MAX_TEXTURES];
 extern int numgltextures;
@@ -144,7 +146,6 @@ extern cvar_t *gl1_overbrightbits;
 extern cvar_t *gl1_palettedtexture;
 extern cvar_t *gl1_pointparameters;
 extern cvar_t *gl1_multitexture;
-extern cvar_t *gl1_biglightmaps;
 
 extern cvar_t *gl1_particle_min_size;
 extern cvar_t *gl1_particle_max_size;
@@ -211,7 +212,7 @@ extern int c_visible_textures;
 extern float r_world_matrix[16];
 
 void R_TranslatePlayerSkin(int playernum);
-void R_Bind(int texnum);
+qboolean R_Bind(int texnum);
 
 void R_TexEnv(GLenum value);
 void R_SelectTexture(GLenum);
@@ -265,12 +266,23 @@ void R_TextureAlphaMode(const char *string);
 void R_TextureSolidMode(const char *string);
 int Scrap_AllocBlock(int w, int h, int *x, int *y);
 
+void R_ApplyGLBuffer(void);
+void R_UpdateGLBuffer(buffered_draw_t type, int colortex, int lighttex, int flags, float alpha);
+void R_Buffer2DQuad(GLfloat ul_vx, GLfloat ul_vy, GLfloat dr_vx, GLfloat dr_vy,
+	GLfloat ul_tx, GLfloat ul_ty, GLfloat dr_tx, GLfloat dr_ty);
+void R_SetBufferIndices(GLenum type, GLuint vertices_num);
+void R_BufferVertex(GLfloat x, GLfloat y, GLfloat z);
+void R_BufferSingleTex(GLfloat s, GLfloat t);
+void R_BufferMultiTex(GLfloat cs, GLfloat ct, GLfloat ls, GLfloat lt);
+void R_BufferColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+
 #ifdef DEBUG
 void glCheckError_(const char *file, const char *function, int line);
 // Ideally, the following list should contain all OpenGL calls.
 // Either way, errors are caught, since error flags are persisted until the next glGetError() call.
 // So they show, even if the location of the error is inaccurate.
 #define glDrawArrays(...) glDrawArrays(__VA_ARGS__); glCheckError_(__FILE__, __func__, __LINE__)
+#define glDrawElements(...) glDrawElements(__VA_ARGS__); glCheckError_(__FILE__, __func__, __LINE__)
 #define glTexImage2D(...) glTexImage2D(__VA_ARGS__); glCheckError_(__FILE__, __func__, __LINE__)
 #define glTexSubImage2D(...) glTexSubImage2D(__VA_ARGS__); glCheckError_(__FILE__, __func__, __LINE__)
 #define glTexEnvf(...) glTexEnvf(__VA_ARGS__); glCheckError_(__FILE__, __func__, __LINE__)
@@ -352,7 +364,7 @@ typedef struct
 
 	int lightmap_textures;
 
-	int currenttextures[2];
+	int currenttextures[MAX_TEXTURE_UNITS];
 	int currenttmu;
 	GLenum currenttarget;
 

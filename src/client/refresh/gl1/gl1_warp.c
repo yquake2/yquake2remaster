@@ -68,60 +68,30 @@ R_EmitWaterPolys(msurface_t *fa)
 {
 	mpoly_t *p, *bp;
 	mvtx_t *v;
-	int i;
+	int i, nv;
 	float s, t, os, ot;
 	float sscroll, tscroll;
 
 	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	// workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
-#ifdef _MSC_VER
-	int maxNumVerts = 0;
-	for ( mpoly_t* tmp = fa->polys; tmp; tmp = tmp->next )
-	{
-		if (tmp->numverts > maxNumVerts)
-			maxNumVerts = tmp->numverts;
-	}
-
-	YQ2_VLA( GLfloat, tex, 2 * maxNumVerts );
-#endif
-
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
 		p = bp;
-#ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
-		YQ2_VLA(GLfloat, tex, 2 * p->numverts);
-#endif
-		unsigned int index_tex = 0;
+		nv = p->numverts;
+		R_SetBufferIndices(GL_TRIANGLE_FAN, nv);
 
 		for ( i = 0, v = p->verts; i < p->numverts; i++, v++)
 		{
 			os = v->texCoord[0];
 			ot = v->texCoord[1];
 
-			s = os + r_turbsin [ (int) ( ( ot * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ];
-			s += sscroll;
-			tex[index_tex++] = s * ( 1.0 / 64 );
+			s = os + r_turbsin [ (int) ( ( ot * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ] + sscroll;
+			t = ot + r_turbsin [ (int) ( ( os * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ] + tscroll;
 
-			t = ot + r_turbsin [ (int) ( ( os * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ];
-			t += tscroll;
-			tex[index_tex++] = t * ( 1.0 / 64 );
+			R_BufferVertex( v->pos[0], v->pos[1], v->pos[2] );
+			R_BufferSingleTex( s * ( 1.0 / 64 ), t * ( 1.0 / 64 ) );
 		}
-
-		v = p->verts;
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-		glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), v->pos);
-		glTexCoordPointer(2, GL_FLOAT, 0, tex);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
-
-		glDisableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
-
-	YQ2_VLAFREE( tex );
 }
 
 void
