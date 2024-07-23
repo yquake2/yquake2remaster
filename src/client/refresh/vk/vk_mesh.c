@@ -751,8 +751,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	}
 
 	/* ir goggles color override */
-	if (r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags &
-		RF_IR_VISIBLE)
+	if ((r_newrefdef.rdflags & RDF_IRGOGGLES) &&
+		(currententity->flags & RF_IR_VISIBLE))
 	{
 		shadelight[0] = 1.0;
 		shadelight[1] = 0.0;

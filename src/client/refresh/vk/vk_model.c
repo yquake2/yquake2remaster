@@ -188,7 +188,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
-		int	side, ti, planenum, lightofs;
+		int side, ti, planenum, lightofs;
 
 		out->firstedge = in->firstedge;
 		out->numedges = in->numedges;
