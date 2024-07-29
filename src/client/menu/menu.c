@@ -5800,6 +5800,7 @@ PlayerModelList(void)
 			ContainsFile(s, "tris.def") == false &&
 			ContainsFile(s, "tris.md2") == false &&
 			ContainsFile(s, "tris.md3") == false &&
+			ContainsFile(s, "tris.mdr") == false &&
 			ContainsFile(s, "tris.md5mesh") == false &&
 			ContainsFile(s, "tris.mdx") == false &&
 			ContainsFile(s, "tris.mdl") == false)

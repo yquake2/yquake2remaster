@@ -1586,7 +1586,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		mesh_nodes[i].ofs_tris = num_tris;
 		mesh_nodes[i].num_tris = LittleLong(md3_mesh->num_tris);
 
-		for (j = 0; j < LittleLong(md3_mesh->num_tris); j++)
+		for (j = 0; j < mesh_nodes[i].num_tris; j++)
 		{
 			int k;
 
@@ -3085,6 +3085,11 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 		case ID3HEADER:
 			extradata = Mod_LoadModel_MD3(mod_name, buffer, modfilelen,
+				skins, numskins, type);
+			break;
+
+		case MDR_IDENT:
+			extradata = Mod_LoadModel_MDR(mod_name, buffer, modfilelen,
 				skins, numskins, type);
 			break;
 

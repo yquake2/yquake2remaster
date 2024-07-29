@@ -221,6 +221,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		!strcmp(ext, "dkm") ||
 		!strcmp(ext, "md2") ||
 		!strcmp(ext, "md3") ||
+		!strcmp(ext, "mdr") ||
 		!strcmp(ext, "md5mesh") ||
 		!strcmp(ext, "mdx") ||
 		!strcmp(ext, "mdl"))
@@ -232,6 +233,17 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		if (filesize > 0)
 		{
 			Com_DPrintf("%s: %s loaded as md5 (Doom 3)\n",
+				__func__, namewe);
+			return filesize;
+		}
+
+		/* Check Quake 3 model */
+		Q_strlcpy(newname, namewe, sizeof(newname));
+		Q_strlcpy(newname + tlen, ".mdr", sizeof(newname));
+		filesize = FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			Com_DPrintf("%s: %s loaded as mdr/md4 (Star Trek: Elite Force)\n",
 				__func__, namewe);
 			return filesize;
 		}

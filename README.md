@@ -43,6 +43,7 @@ Models support:
 | dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                     |
 | dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                     |
 | md3    | Quake 3         | 16 bit       | Multiple | No tags support                         |
+| mdr    | EliteForce      | float        | Multiple | No tags support. Uses first LOD only    |
 | md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins                  |
 | sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
 | sam    | SiN             | 8 bit        | Multiple | Unchecked with game                     |

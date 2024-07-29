@@ -1076,6 +1076,118 @@ typedef struct
 	int ofs_end; // end of file
 } sin_sam_header_t;
 
+/*
+ * Here are the definitions for Ravensoft's model format of md4. Raven stores their
+ * playermodels in .mdr files, in some games, which are pretty much like the md4
+ * format implemented by ID soft. It seems like ID's original md4 stuff is not used at all.
+ * MDR is being used in EliteForce, JediKnight2 and Soldiers of Fortune2 (I think).
+ * So this comes in handy for anyone who wants to make it possible to load player
+ * models from these games.
+ * This format has bone tags, which is similar to the thing you have in md3 I suppose.
+ * Raven has released their version of md3view under GPL enabling me to add support
+ * to this codebase. Thanks to Steven Howes aka Skinner for helping with example
+ * source code.
+ *
+ * - Thilo Schulz (arny@ats.s.bawue.de)
+ */
+
+#define MDR_IDENT (('5'<<24)+('M'<<16)+('D'<<8)+'R')
+#define MDR_VERSION 2
+
+typedef struct {
+	int bone_index; // these are indexes into the boneReferences,
+	float bone_weight; // not the global per-frame bone list
+	vec3_t offset;
+} mdr_weight_t;
+
+typedef struct {
+	vec3_t normal;
+	vec2_t texcoords;
+	int num_weights;
+	mdr_weight_t weights[1]; // variable sized
+} mdr_vertex_t;
+
+typedef struct {
+	int ident;
+
+	char name[MAX_QPATH]; // polyset name
+	char shader[MAX_QPATH];
+	int shader_index; // for in-game use
+
+	int ofs_header; // this will be a negative number
+
+	int num_verts;
+	int ofs_verts;
+
+	int num_tris;
+	int ofs_tris;
+
+	// Bone references are a set of ints representing all the bones
+	// present in any vertex weights for this surface.  This is
+	// needed because a model may have surfaces that need to be
+	// drawn at different sort times, and we don't want to have
+	// to re-interpolate all the bones for each surface.
+	int num_bonereferences;
+	int ofs_bonereferences;
+
+	int ofs_end; // next surface follows
+} mdr_surface_t;
+
+typedef struct {
+	float matrix[3][4];
+} mdr_bone_t;
+
+typedef struct {
+	vec3_t bounds[2]; // bounds of all surfaces of all LOD's for this frame
+	vec3_t origin; // midpoint of bounds, used for sphere cull
+	float radius; // dist from origin to corner
+	char name[16];
+	mdr_bone_t bones[1]; // [num_bones]
+} mdr_frame_t;
+
+typedef struct {
+	unsigned char Comp[24]; // MC_COMP_BYTES is in MatComp.h, but don't want to couple
+} mdr_compbone_t;
+
+typedef struct {
+	vec3_t bounds[2]; // bounds of all surfaces of all LOD's for this frame
+	vec3_t origin; // midpoint of bounds, used for sphere cull
+	float radius; // dist from origin to corner
+	mdr_compbone_t bones[1]; // [num_bones]
+} mdr_compframe_t;
+
+typedef struct {
+	int num_surfaces;
+	int ofs_surfaces; // first surface, others follow
+	int ofs_end; // next lod follows
+} mdr_lod_t;
+
+typedef struct {
+	int bone_index;
+	char name[32];
+} mdr_tag_t;
+
+typedef struct {
+	int ident;
+	int version;
+
+	char name[MAX_QPATH]; // model name
+
+	// frames and bones are shared by all levels of detail
+	int num_frames;
+	int num_bones;
+	int ofs_frames; // mdr_frame_t[numFrames]
+
+	// each level of detail has completely separate sets of surfaces
+	int num_lods;
+	int ofs_lods;
+
+	int num_tags;
+	int ofs_tags;
+
+	int ofs_end; // end of file
+} mdr_header_t;
+
 /* Quake 1 BSP */
 #define BSPQ1VERSION 29
 

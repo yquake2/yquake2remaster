@@ -492,6 +492,8 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 			/* fall through */
 		case ID3HEADER:
 			/* fall through */
+		case MDR_IDENT:
+			/* fall through */
 		case IDMD5HEADER:
 			/* fall through */
 		case IDSPRITEHEADER:
