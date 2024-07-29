@@ -1,3 +1,10 @@
+Quake 2 8.41RR8:
+- Fix platforms in q64/outpost,
+- Add MDR model format support,
+- Sync with classic yquake 2 repository,
+- Full support pcx version 5 format,
+- Rework image load code.
+
 Quake 2 8.31RR8:
 - GL1 multitexture support (by Jaime Moreira),
 - GL1 big lightmap support (by Jaime Moreira),
