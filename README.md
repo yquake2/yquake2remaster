@@ -89,19 +89,23 @@ Games:
   * Tech info: <https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii>
 * Anachronox:
   * SDK: <https://github.com/hogsy/chronon>
+  * SDK: <https://code.idtech.space/ion-storm/anachronox-sdk>
   * Tech info: <https://anachrodox.talonbrave.info/>
 * Kingpin:
   * SDK: <https://github.com/QuakeTools/Kingpin-SDK-v1.21>
+  * SDK: <https://code.idtech.space/xatrix/kingpin-sdk>
   * Tech info: <https://www.kingpin.info/>
 * Daikatana:
   * Info: <http://daikatananews.net/>
 * Heretic 2:
   * SDK: <https://www.quaddicted.com/files/idgames2/planetquake/hereticii/files/Ht2Toolkit_v1.06.exe>
+  * SDK: <https://code.idtech.space/raven/heretic2-sdk>
   * Tech info: <http://h2vault.infinityfreeapp.com/index.html>
 * SiN:
   * Tools: [SiNview](https://web.archive.org/web/20001212060900/http://starbase.neosoft.com:80/~otaku/program.html)
   * Tools: <https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff>
   * SDK: <https://github.com/NightDive-Studio/sin-ex-game>
+  * SDK: <https://code.idtech.space/ritual/sin-sdk>
 
 Goals:
 
@@ -116,9 +120,9 @@ Goals:
 * [x] suport Daikatana/SiN .pak/.sin format from pakextract,
 * [x] Support flow/scale flags for Q64 maps,
 * [x] Add debug progress loading code for maps,
-* [ ] MDR model format in Star Trek: Voyager – Elite Force,
+* [x] MDR model format in Star Trek: Voyager – Elite Force,
 * [ ] RGB particles support instead palette based one,
-* [ ] Broken maps groups from base2 to next,
+* [x] Broken maps groups from base2 to next,
 * [ ] Single player support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
