@@ -491,7 +491,7 @@ SWL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		return;
 	}
 
-	*pic = malloc (len - ofs);
+	*pic = malloc(len - ofs);
 	memcpy(*pic, (byte *)mt + ofs, len - ofs);
 
 	if (palette)
@@ -543,7 +543,7 @@ M32_Decode(const char *name, const byte *raw, int len, byte **pic, int *width, i
 		Com_DPrintf("%s: can't load %s small body\n", __func__, name);
 	}
 
-	*pic = malloc (len - ofs);
+	*pic = malloc(len - ofs);
 	memcpy(*pic, (byte *)mt + ofs, len - ofs);
 }
 
@@ -619,7 +619,7 @@ LoadWalQ2(const char *name, const byte *raw, int len, byte **pic, byte **palette
 		return;
 	}
 
-	*pic = malloc (len - ofs);
+	*pic = malloc(len - ofs);
 	memcpy(*pic, (byte *)mt + ofs, len - ofs);
 }
 
@@ -655,7 +655,7 @@ LoadWalDKM(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		return;
 	}
 
-	*pic = malloc (len - ofs);
+	*pic = malloc(len - ofs);
 	memcpy(*pic, (byte *)mt + ofs, len - ofs);
 
 	if (palette)
@@ -676,6 +676,41 @@ WAL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	else
 	{
 		LoadWalQ2(name, raw, len, pic, palette, width, height);
+	}
+}
+
+static void
+LMP_Decode(const char *name, const byte *raw, int len, byte **pic,
+	int *width, int *height)
+{
+	unsigned lmp_width = 0, lmp_height = 0, lmp_size = 0;
+	if (len < (sizeof(int) * 3))
+	{
+		/* looks too small */
+		return;
+	}
+
+	lmp_width = LittleLong(((int*)raw)[0]) & 0xFFFF;
+	lmp_height = LittleLong(((int*)raw)[1]) & 0xFFFF;
+	lmp_size = lmp_height * lmp_width;
+	if ((lmp_size + sizeof(int) * 2) > len)
+	{
+		Com_Printf("%s: can't load %s, small body %dx%d ? %d\n",
+			__func__, name, lmp_width, lmp_height, len);
+		return;
+	}
+
+	*pic = malloc(lmp_size);
+	memcpy(*pic, raw + sizeof(int) * 2, lmp_size);
+
+	if (width)
+	{
+		*width = lmp_width;
+	}
+
+	if (height)
+	{
+		*height = lmp_height;
 	}
 }
 
@@ -823,6 +858,11 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	else if (!strcmp(ext, "wal"))
 	{
 		WAL_Decode(filename, raw, len, pic, palette, width, height);
+		*bitsPerPixel = 8;
+	}
+	else if (!strcmp(ext, "lmp"))
+	{
+		LMP_Decode(filename, raw, len, pic, width, height);
 		*bitsPerPixel = 8;
 	}
 	else
