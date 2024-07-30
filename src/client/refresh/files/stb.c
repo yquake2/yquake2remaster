@@ -58,7 +58,7 @@ FixFileExt(const char *origname, const char *ext, char *filename, size_t size)
 qboolean
 LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *height)
 {
-	int w, h, bitesPerPixel;
+	int w, h, bitsPerPixel;
 	char filename[256];
 	byte* data = NULL;
 
@@ -66,18 +66,18 @@ LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *hei
 
 	*pic = NULL;
 
-	ri.VID_ImageDecode(filename, &data, NULL, &w, &h, &bitesPerPixel);
+	ri.VID_ImageDecode(filename, &data, NULL, &w, &h, &bitsPerPixel);
 	if (data == NULL)
 	{
 		return false;
 	}
 
-	if (bitesPerPixel != 32)
+	if (bitsPerPixel != 32)
 	{
 		free(data);
 
 		R_Printf(PRINT_ALL, "%s unexpected file format of %s with %d bytes per pixel!\n",
-			__func__, filename, bitesPerPixel);
+			__func__, filename, bitsPerPixel);
 
 		return false;
 	}
@@ -503,13 +503,13 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 		int width = 0, height = 0, realwidth = 0, realheight = 0;
 		byte *pic = NULL, *palette = NULL;
 		char filename[256];
-		int bitesPerPixel;
+		int bitsPerPixel;
 
 		/* name could not be used here as could have different extension
 		 * originaly */
 		FixFileExt(namewe, ext, filename, sizeof(filename));
 
-		ri.VID_ImageDecode(filename, &pic, &palette, &width, &height, &bitesPerPixel);
+		ri.VID_ImageDecode(filename, &pic, &palette, &width, &height, &bitsPerPixel);
 
 		if (!pic)
 		{
@@ -520,13 +520,13 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 		realheight = height;
 		realwidth = width;
 
-		if (bitesPerPixel == 32)
+		if (bitsPerPixel == 32)
 		{
 			image = load_image(name, pic,
 				width, realwidth,
 				height, realheight,
 				width * height,
-				type, bitesPerPixel);
+				type, bitsPerPixel);
 		}
 		else
 		{
@@ -575,7 +575,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 				image = load_image(name, pic,
 					width, realwidth,
 					height, realheight,
-					width * height, type, bitesPerPixel);
+					width * height, type, bitsPerPixel);
 			}
 		}
 

@@ -189,7 +189,7 @@ PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max,
 
 static void
 PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palette,
-	int *width, int *height, int *bitesPerPixel)
+	int *width, int *height, int *bitsPerPixel)
 {
 	const pcx_t *pcx;
 	int full_size;
@@ -199,7 +199,7 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	const byte *data;
 
 	*pic = NULL;
-	*bitesPerPixel = 8;
+	*bitsPerPixel = 8;
 
 	if (palette)
 	{
@@ -238,7 +238,7 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	if (pcx->color_planes == 3 && pcx->bits_per_pixel == 8)
 	{
 		full_size *= 4;
-		*bitesPerPixel = 32;
+		*bitsPerPixel = 32;
 	}
 
 	out = malloc(full_size);
@@ -772,7 +772,7 @@ Convert24to32(unsigned *d_8to24table, byte *pal)
 
 static void
 LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
-	int *width, int *height, int *bitesPerPixel)
+	int *width, int *height, int *bitsPerPixel)
 {
 	const char* ext;
 	int len, ident;
@@ -798,10 +798,10 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	ident = LittleShort(*((short*)raw));
 	if (!strcmp(ext, "pcx") && (ident == PCX_IDENT))
 	{
-		PCX_Decode(filename, raw, len, pic, palette, width, height, bitesPerPixel);
+		PCX_Decode(filename, raw, len, pic, palette, width, height, bitsPerPixel);
 
 		if(*pic && width && height
-			&& *width == 319 && *height == 239 && *bitesPerPixel == 8
+			&& *width == 319 && *height == 239 && *bitsPerPixel == 8
 			&& Q_strcasecmp(filename, "pics/quit.pcx") == 0
 			&& Com_BlockChecksum(raw, len) == 3329419434u)
 		{
@@ -813,21 +813,21 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	else if (!strcmp(ext, "m8"))
 	{
 		M8_Decode(filename, raw, len, pic, palette, width, height);
-		*bitesPerPixel = 8;
+		*bitsPerPixel = 8;
 	}
 	else if (!strcmp(ext, "swl"))
 	{
 		SWL_Decode(filename, raw, len, pic, palette, width, height);
-		*bitesPerPixel = 8;
+		*bitsPerPixel = 8;
 	}
 	else if (!strcmp(ext, "wal"))
 	{
 		WAL_Decode(filename, raw, len, pic, palette, width, height);
-		*bitesPerPixel = 8;
+		*bitsPerPixel = 8;
 	}
 	else
 	{
-		int sourcebitesPerPixel = 0;
+		int sourcebitsPerPixel = 0;
 
 		/* other formats does not have palette directly */
 		if (palette)
@@ -842,7 +842,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 		else
 		{
 			*pic = stbi_load_from_memory(raw, len, width, height,
-				&sourcebitesPerPixel, STBI_rgb_alpha);
+				&sourcebitsPerPixel, STBI_rgb_alpha);
 
 			if (*pic == NULL)
 			{
@@ -851,7 +851,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			}
 		}
 
-		*bitesPerPixel = 32;
+		*bitsPerPixel = 32;
 	}
 
 	FS_FreeFile(raw);
@@ -859,9 +859,9 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 void
 VID_ImageDecode(const char *filename, byte **pic, byte **palette,
-	int *width, int *height, int *bitesPerPixel)
+	int *width, int *height, int *bitsPerPixel)
 {
-	LoadImageWithPalette(filename, pic, palette, width, height, bitesPerPixel);
+	LoadImageWithPalette(filename, pic, palette, width, height, bitsPerPixel);
 
 	if (palette && *palette && colormap_cache && !colormap_loaded)
 	{
@@ -876,14 +876,14 @@ static void
 LoadPalette(byte **colormap, unsigned *d_8to24table)
 {
 	const char * filename;
-	int bitesPerPixel;
+	int bitsPerPixel;
 	byte *pal = NULL;
 
 	filename = "pics/colormap.pcx";
 
 	/* get the palette and colormap */
 	LoadImageWithPalette(filename, colormap, &pal, NULL, NULL,
-		&bitesPerPixel);
+		&bitsPerPixel);
 	if (!*colormap || !pal)
 	{
 		int width = 0, height = 0;
@@ -891,7 +891,7 @@ LoadPalette(byte **colormap, unsigned *d_8to24table)
 
 		filename = "pics/colormap.bmp";
 
-		LoadImageWithPalette(filename, &pic, NULL, &width, &height, &bitesPerPixel);
+		LoadImageWithPalette(filename, &pic, NULL, &width, &height, &bitsPerPixel);
 		if (pic && width == 256 && height == 320)
 		{
 			int i;
