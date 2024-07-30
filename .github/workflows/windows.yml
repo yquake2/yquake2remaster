@@ -131,7 +131,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { sys: clangarm64, env: arm64 }
+          - { sys: clangarm64, env: aarch64 }
     steps:
     - uses: msys2/setup-msys2@v2
       with:
@@ -142,13 +142,13 @@ jobs:
           make
           zip
           unzip
-          mingw-w64-${{matrix.env}}-curl
-          mingw-w64-${{matrix.env}}-gcc
-          mingw-w64-${{matrix.env}}-make
-          mingw-w64-${{matrix.env}}-openal
-          mingw-w64-${{matrix.env}}-SDL2
-          mingw-w64-${{matrix.env}}-vulkan-headers
-          mingw-w64-${{matrix.env}}-wget
+          mingw-w64-clang-${{matrix.env}}-curl
+          mingw-w64-clang-${{matrix.env}}-gcc
+          mingw-w64-clang-${{matrix.env}}-make
+          mingw-w64-clang-${{matrix.env}}-openal
+          mingw-w64-clang-${{matrix.env}}-SDL2
+          mingw-w64-clang-${{matrix.env}}-vulkan-headers
+          mingw-w64-clang-${{matrix.env}}-wget
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Build Release code
