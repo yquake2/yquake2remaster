@@ -5610,6 +5610,11 @@ PlayerDirectoryList(void)
 
 		ReplaceCharacters(list[i], '\\', '/');
 
+		/*
+		 * search slash after "players/" and use only directory name
+		 * pak search does not return directory names, only files in
+		 * directories
+		 */
 		dirsize = strchr(list[i] + listoff, '/');
 		if (dirsize)
 		{
@@ -5756,7 +5761,6 @@ HasSkinsInDir(const char *dirname, int *num)
 
 	return list;
 }
-
 
 /*
  * list all valid player models.

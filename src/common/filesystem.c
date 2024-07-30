@@ -506,8 +506,8 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 				/* Found it! */
 				if (fs_debug->value)
 				{
-					Com_Printf("FS_FOpenFile: '%s' (found in '%s').\n",
-					           handle->name, pack->name);
+					Com_Printf("%s: '%s' (found in '%s').\n",
+						__func__, handle->name, pack->name);
 				}
 
 				// save the name with *correct case* in the handle
@@ -2030,7 +2030,7 @@ FS_Dir_f(void)
 
 /*
  * This function returns true if a real file (e.g. not something
- * in a pak, somthing in the file system itself) exists in the
+ * in a pak, something in the file system itself) exists in the
  * current gamedir.
  */
 qboolean
