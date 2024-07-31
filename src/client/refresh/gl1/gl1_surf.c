@@ -1119,7 +1119,7 @@ R_GetBrushesLighting(void)
 
 		for (k = 0; k < currentmodel->nummodelsurfaces; k++, surf++)
 		{
-			if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)
+			if (surf->texinfo->flags & (SURF_TRANSPARENT | SURF_WARP)
 				|| surf->flags & SURF_DRAWTURB || surf->lmchain_frame == r_framecount)
 			{
 				continue;	// either not affected by light, or already in the chain
