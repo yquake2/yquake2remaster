@@ -188,10 +188,11 @@ Mesh_Free(void)
 }
 
 static void
-Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_end,
-	float alpha, image_t *skin, float *modelMatrix, int leftHandOffset, int translucentIdx,
+Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffset,
+	int *order, int *order_end,
+	float alpha, int leftHandOffset, int translucentIdx,
 	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count, const float *shadelight,
-	const float *shadevector)
+	const float *shadevector, qboolean iscolor)
 {
 	int vertCounts[2] = { 0, 0 };
 	int pipeCounters[2] = { 0, 0 };
@@ -204,11 +205,6 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 
 	drawInfo[0][0].firstVertex = 0;
 	drawInfo[1][0].firstVertex = 0;
-
-	struct {
-		float model[16];
-		int textured;
-	} meshUbo;
 
 	while (1)
 	{
@@ -240,10 +236,8 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].vertexCount = count;
 		maxTriangleFanIdxCnt = Q_max(maxTriangleFanIdxCnt, ((count - 2) * 3));
 
-		if (currententity->flags &
-			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
+		if (iscolor)
 		{
-			meshUbo.textured = 0;
 			do
 			{
 				int vertIdx = vertCounts[pipelineIdx];
@@ -278,8 +272,6 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 		}
 		else
 		{
-			/* Do not apply texture for lighmap debug case */
-			meshUbo.textured = r_lightmap->value ? 0 : 1;
 			do
 			{
 				int vertIdx = vertCounts[pipelineIdx];
@@ -334,12 +326,6 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].firstVertex = vertCounts[pipelineIdx];
 	}
 
-	uint32_t uboOffset;
-	VkDescriptorSet uboDescriptorSet;
-	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(meshUbo), &uboOffset, &uboDescriptorSet);
-	memcpy(meshUbo.model, modelMatrix, sizeof(float) * 16);
-	memcpy(uboData, &meshUbo, sizeof(meshUbo));
-
 	// player configuration screen model is using the UI renderpass
 	int pidx = (r_newrefdef.rdflags & RDF_NOWORLDMODEL) ? RP_UI : RP_WORLD;
 	// non-depth write alias models don't occur with RF_WEAPONMODEL set, so no need for additional left-handed pipelines
@@ -355,11 +341,8 @@ Vk_DrawAliasFrameLerpCommands(entity_t *currententity, int *order, int *order_en
 		memcpy(vertData, vertList[p], vaoSize);
 
 		QVk_BindPipeline(&pipelines[translucentIdx][leftHandOffset]);
-		VkDescriptorSet descriptorSets[] = {
-			skin->vk_texture.descriptorSet,
-			uboDescriptorSet
-		};
-		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelines[translucentIdx][leftHandOffset].layout, 0, 2, descriptorSets, 1, &uboOffset);
+		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelines[translucentIdx][leftHandOffset].layout, 0, 2, descriptorSets, 1, uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
 		if (p == TRIANGLE_STRIP)
@@ -397,8 +380,9 @@ FIXME: batch lerp all vertexes
 */
 static void
 Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp, image_t *skin,
-	float *modelMatrix, int leftHandOffset, int translucentIdx, vec4_t *s_lerped,
-	const float *shadelight, const float *shadevector)
+	int leftHandOffset, int translucentIdx, vec4_t *s_lerped,
+	const float *shadelight, const float *shadevector,
+	uint32_t uboOffset, VkDescriptorSet uboDescriptorSet)
 {
 	daliasxframe_t *frame, *oldframe;
 	dxtrivertx_t *ov, *verts;
@@ -459,37 +443,29 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
+	VkDescriptorSet descriptorSets[] = {
+		skin->vk_texture.descriptorSet,
+		uboDescriptorSet
+	};
+
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
-		Vk_DrawAliasFrameLerpCommands(currententity,
+		Vk_DrawAliasFrameLerpCommands(descriptorSets, &uboOffset,
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			alpha, skin,
-			modelMatrix, leftHandOffset, translucentIdx, verts,
-			s_lerped, paliashdr->num_xyz, shadelight, shadevector);
+			alpha, leftHandOffset, translucentIdx, verts,
+			s_lerped, paliashdr->num_xyz, shadelight, shadevector,
+			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE));
 	}
 }
 
 static void
 Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
-	float *modelMatrix, entity_t *currententity, vec4_t *s_lerped,
-	const float *shadevector)
+	float height, float lheight, vec4_t *s_lerped, const float *shadevector,
+	uint32_t *uboOffset, VkDescriptorSet *uboDescriptorSet
+)
 {
-	vec3_t	point;
-	float	height, lheight;
-
-	lheight = currententity->origin[2] - lightspot[2];
-
-	height = 0;
-
-	height = -lheight + 1.0;
-
-	uint32_t uboOffset;
-	VkDescriptorSet uboDescriptorSet;
-	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(float) * 16, &uboOffset, &uboDescriptorSet);
-	memcpy(uboData, modelMatrix, sizeof(float) * 16);
-
 	while (1)
 	{
 		int i, count;
@@ -519,6 +495,8 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 
 		do
 		{
+			vec3_t	point;
+
 			if (Mesh_VertsRealloc(order[2]))
 			{
 				Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
@@ -549,7 +527,8 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 			memcpy(vertData, shadowverts, vaoSize);
 
 			QVk_BindPipeline(&vk_shadowsPipelineFan);
-			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_shadowsPipelineFan.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
+			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+				vk_shadowsPipelineFan.layout, 0, 1, uboDescriptorSet, 1, uboOffset);
 			vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
 			if (pipelineIdx == TRIANGLE_STRIP)
@@ -605,6 +584,10 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	vec3_t shadevector, shadelight;
 	dmdx_t *paliashdr;
 	vec4_t *s_lerped;
+	struct {
+		float model[16];
+		int textured;
+	} meshUbo;
 
 	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
@@ -797,17 +780,34 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		leftHandOffset = 1;
 	}
 
-	currententity->angles[PITCH] = -currententity->angles[PITCH];	// sigh.
 	/* buffer for scalled vert from frame */
 	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
 
-	{
-		float model[16];
-		image_t *skin = NULL;
-		Mat_Identity(model);
-		R_RotateForEntity (currententity, model);
+	Mat_Identity(meshUbo.model);
+	currententity->angles[PITCH] = -currententity->angles[PITCH];	// sigh.
+	R_RotateForEntity(currententity, meshUbo.model);
+	currententity->angles[PITCH] = -currententity->angles[PITCH];	// sigh.
 
-		currententity->angles[PITCH] = -currententity->angles[PITCH];	// sigh.
+	/* prepare ubo */
+	if (currententity->flags &
+		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE))
+	{
+		meshUbo.textured = 0;
+	}
+	else
+	{
+		/* Do not apply texture for lighmap debug case */
+		meshUbo.textured = r_lightmap->value ? 0 : 1;
+	}
+
+	uint32_t uboOffset;
+	VkDescriptorSet uboDescriptorSet;
+	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(meshUbo), &uboOffset, &uboDescriptorSet);
+	memcpy(uboData, &meshUbo, sizeof(meshUbo));
+
+	/* draw model */
+	{
+		image_t *skin = NULL;
 
 		// select skin
 		if (currententity->skin)
@@ -857,8 +857,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 
 		Vk_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp,
-			skin, model, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0,
-			s_lerped, shadelight, shadevector);
+			skin, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0,
+			s_lerped, shadelight, shadevector, uboOffset, uboDescriptorSet);
 	}
 
 	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
@@ -877,25 +877,25 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	{
 		int num_mesh_nodes, i;
 		dmdxmesh_t *mesh_nodes;
-		float model[16];
+		float height, lheight;
 		int *order;
-
-		Mat_Identity(model);
-		R_RotateForEntity(currententity, model);
 
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
 		num_mesh_nodes = paliashdr->num_meshes;
 		mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
+		lheight = currententity->origin[2] - lightspot[2];
+		height = -lheight + 1.0;
+
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
-			Vk_DrawAliasShadow (
+			Vk_DrawAliasShadow(
 				order + mesh_nodes[i].ofs_glcmds,
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-				currententity->frame, model, currententity,
-				s_lerped, shadevector);
+				currententity->frame, height, lheight,
+				s_lerped, shadevector, &uboOffset, &uboDescriptorSet);
 		}
 	}
 }
