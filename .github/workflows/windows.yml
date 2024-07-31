@@ -5,7 +5,7 @@ on:
     tags:
       - "*"
 jobs:
-  build64:
+  build_x86_64:
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -68,7 +68,7 @@ jobs:
       with:
         files: |
           yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip
-  build32:
+  build_x86_32:
     runs-on: windows-latest
     strategy:
       fail-fast: false
@@ -86,7 +86,6 @@ jobs:
           zip
           unzip
           mingw-w64-${{matrix.env}}-curl
-          mingw-w64-${{matrix.env}}-ffmpeg
           mingw-w64-${{matrix.env}}-gcc
           mingw-w64-${{matrix.env}}-make
           mingw-w64-${{matrix.env}}-openal

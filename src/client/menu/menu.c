@@ -143,7 +143,7 @@ M_PopMenu(void)
 
 	if (m_menudepth < 1)
 	{
-		Com_Error(ERR_FATAL, "M_PopMenu: depth < 1");
+		Com_Error(ERR_FATAL, "%s: depth < 1", __func__);
 	}
 
 	m_menudepth--;
@@ -156,7 +156,7 @@ M_PopMenu(void)
 		M_ForceMenuOff();
 		/* play music */
 		if (Cvar_VariableValue("ogg_pausewithgame") == 1 &&
-				OGG_Status() == PAUSE && cl.attractloop == false)
+			OGG_Status() == PAUSE && cl.attractloop == false)
 		{
 			Cbuf_AddText("ogg toggle\n");
 		}
@@ -172,14 +172,14 @@ M_PopMenu(void)
  * 2. If the requested menu is already open, close it.
  *
  * 3. If the requested menu is already open but not
- *	on top, close all menus above it and the menu
- *	itself. This is necessary since an instance of
- *	the reqeuested menu is in flight and will be
- *	displayed.
+ *    on top, close all menus above it and the menu
+ *    itself. This is necessary since an instance of
+ *    the reqeuested menu is in flight and will be
+ *    displayed.
  *
  * 4. Save the previous menu on top (which was in flight)
- *	to the stack and make the requested menu the menu in
- *	flight.
+ *    to the stack and make the requested menu the menu in
+ *    flight.
  */
 void
 M_PushMenu(menuframework_s* menu)
@@ -193,7 +193,7 @@ M_PushMenu(menuframework_s* menu)
 	}
 
 	if ((Cvar_VariableValue("maxclients") == 1) &&
-			Com_ServerState())
+		Com_ServerState())
 	{
 		Cvar_Set("paused", "1");
 	}
@@ -263,31 +263,31 @@ Key_GetMenuKey(int key)
 	switch (key)
 	{
 		case K_KP_UPARROW:
-		    if (IN_NumpadIsOn() == true) { break; }
+			if (IN_NumpadIsOn() == true) { break; }
 		case K_UPARROW:
 		case K_DPAD_UP:
-		    return K_UPARROW;
+			return K_UPARROW;
 
 		case K_TAB:
 		case K_KP_DOWNARROW:
-		    if (IN_NumpadIsOn() == true) { break; }
+			if (IN_NumpadIsOn() == true) { break; }
 		case K_DOWNARROW:
 		case K_DPAD_DOWN:
-		    return K_DOWNARROW;
+			return K_DOWNARROW;
 
 		case K_KP_LEFTARROW:
-                    if (IN_NumpadIsOn() == true) { break; }
+			if (IN_NumpadIsOn() == true) { break; }
 		case K_LEFTARROW:
 		case K_DPAD_LEFT:
 		case K_SHOULDER_LEFT:
-		    return K_LEFTARROW;
+			return K_LEFTARROW;
 
 		case K_KP_RIGHTARROW:
-		    if (IN_NumpadIsOn() == true) { break; }
+			if (IN_NumpadIsOn() == true) { break; }
 		case K_RIGHTARROW:
 		case K_DPAD_RIGHT:
 		case K_SHOULDER_RIGHT:
-		    return K_RIGHTARROW;
+			return K_RIGHTARROW;
 
 		case K_MOUSE1:
 		case K_MOUSE2:
@@ -298,23 +298,23 @@ Key_GetMenuKey(int key)
 		case K_KP_ENTER:
 		case K_ENTER:
 		case K_BTN_A:
-		    return K_ENTER;
+			return K_ENTER;
 
 		case K_ESCAPE:
 		case K_JOY_BACK:
 		case K_BTN_B:
-		    return K_ESCAPE;
+			return K_ESCAPE;
 
 		case K_BACKSPACE:
 		case K_DEL:
 		case K_KP_DEL:
-		    if (IN_NumpadIsOn() == true) { break; }
+			if (IN_NumpadIsOn() == true) { break; }
 		case K_BTN_Y:
-		    return K_BACKSPACE;
+			return K_BACKSPACE;
 		case K_KP_INS:
-		    if (IN_NumpadIsOn() == true) { break; }
+			if (IN_NumpadIsOn() == true) { break; }
 		case K_INS:
-		    return K_INS;
+			return K_INS;
 	}
 
 	return key;
@@ -941,14 +941,14 @@ M_UnbindCommand(char *command, int scope)
 	switch (scope)
 	{
 		case KEYS_KEYBOARD_MOUSE:
-			 end = K_JOY_FIRST_REGULAR;
-			 break;
+			end = K_JOY_FIRST_REGULAR;
+			break;
 		case KEYS_CONTROLLER:
-			 begin = K_JOY_FIRST_REGULAR;
-			 end = K_JOY_LAST_REGULAR + 1;
-			 break;
+			begin = K_JOY_FIRST_REGULAR;
+			end = K_JOY_LAST_REGULAR + 1;
+			break;
 		case KEYS_CONTROLLER_ALT:
-			 begin = K_JOY_FIRST_REGULAR_ALT;
+			begin = K_JOY_FIRST_REGULAR_ALT;
 	}
 
 	for (j = begin; j < end; j++)
@@ -977,14 +977,14 @@ M_FindKeysForCommand(char *command, int *twokeys, int scope)
 	switch (scope)
 	{
 		case KEYS_KEYBOARD_MOUSE:
-			 end = K_JOY_FIRST_REGULAR;
-			 break;
+			end = K_JOY_FIRST_REGULAR;
+			break;
 		case KEYS_CONTROLLER:
-			 begin = K_JOY_FIRST_REGULAR;
-			 end = K_JOY_LAST_REGULAR + 1;
-			 break;
+			begin = K_JOY_FIRST_REGULAR;
+			end = K_JOY_LAST_REGULAR + 1;
+			break;
 		case KEYS_CONTROLLER_ALT:
-			 begin = K_JOY_FIRST_REGULAR_ALT;
+			begin = K_JOY_FIRST_REGULAR_ALT;
 	}
 
 	twokeys[0] = twokeys[1] = -1;
@@ -1025,7 +1025,7 @@ KeyCursorDrawFunc(menuframework_s *menu)
 	else
 	{
 		Draw_CharScaled(menu->x, (menu->y + menu->cursor * 9) * scale, 12 +
-				  ((int)(Sys_Milliseconds() / 250) & 1), scale);
+					   ((int)(Sys_Milliseconds() / 250) & 1), scale);
 	}
 }
 
@@ -1041,7 +1041,7 @@ DrawKeyBindingFunc(void *self)
 	if (keys[0] == -1)
 	{
 		Menu_DrawString(a->generic.x + a->generic.parent->x + RCOLUMN_OFFSET * scale,
-						a->generic.y + a->generic.parent->y, "???");
+					    a->generic.y + a->generic.parent->y, "???");
 	}
 	else
 	{
@@ -1051,7 +1051,7 @@ DrawKeyBindingFunc(void *self)
 		name = Key_KeynumToString(keys[0]);
 
 		Menu_DrawString(a->generic.x + a->generic.parent->x + RCOLUMN_OFFSET * scale,
-						a->generic.y + a->generic.parent->y, name);
+					    a->generic.y + a->generic.parent->y, name);
 
 		x = strlen(name) * 8;
 
@@ -2354,8 +2354,8 @@ UpdateSoundQualityFunc(void *unused)
 	}
 
 	m_popup_string = "Restarting the sound system. This\n"
-					 "could take up to a minute, so\n"
-					 "please be patient.";
+			         "could take up to a minute, so\n"
+			         "please be patient.";
 	m_popup_endtime = cls.realtime + 2000;
 	M_Popup();
 
@@ -2999,7 +2999,7 @@ M_Credits_Draw(void)
 			int x;
 
 			x = (viddef.width / scale- (int)strlen(credits[i]) * 8 - stringoffset *
-				 8) / 2 + (j + stringoffset) * 8;
+				8) / 2 + (j + stringoffset) * 8;
 
 			if (bold)
 			{
@@ -3743,7 +3743,7 @@ LoadGame_MenuKey(int key)
 	{
 		if (ExecDeleteSaveFunc(m, menu_key))
 		{
-			 LoadGame_MenuInit();
+			LoadGame_MenuInit();
 		}
 		return menu_move_sound;
 	}
@@ -3811,8 +3811,8 @@ SaveGameCallback(void *self)
 	if (a->generic.localdata[0] == -1)
 	{
 		m_popup_string = "This slot is reserved for\n"
-						 "quicksaving, so please select\n"
-						 "another one.";
+			             "quicksaving, so please select\n"
+			             "another one.";
 		m_popup_endtime = cls.realtime + 2000;
 		M_Popup();
 		return;
@@ -3820,8 +3820,8 @@ SaveGameCallback(void *self)
 	else if (a->generic.localdata[0] == 0)
 	{
 		m_popup_string = "This slot is reserved for\n"
-						 "autosaving, so please select\n"
-						 "another one.";
+			             "autosaving, so please select\n"
+			             "another one.";
 		m_popup_endtime = cls.realtime + 2000;
 		M_Popup();
 		return;
@@ -4034,7 +4034,7 @@ JoinServerFunc(void *self)
 	}
 
 	Com_sprintf(buffer, sizeof(buffer), "connect %s\n",
-				NET_AdrToString(local_server_netadr[index]));
+			    NET_AdrToString(local_server_netadr[index]));
 	Cbuf_AddText(buffer);
 	M_ForceMenuOff();
 }
@@ -4059,8 +4059,8 @@ SearchLocalGames(void)
 	}
 
 	m_popup_string = "Searching for local servers. This\n"
-					 "could take up to a minute, so\n"
-					 "please be patient.";
+			         "could take up to a minute, so\n"
+			         "please be patient.";
 	m_popup_endtime = cls.realtime + 2000;
 	M_Popup();
 
@@ -4754,11 +4754,11 @@ DMFlagCallback(void *self)
 	{
 		if (f == &s_no_mines_box)
 		{
-			bit = DF_NO_MINES;		  /* Equivalent to DF_CTF_FORCEJOIN in CTF */
+			bit = DF_NO_MINES;          /* Equivalent to DF_CTF_FORCEJOIN in CTF */
 		}
 		else if (f == &s_no_nukes_box)
 		{
-			bit = DF_NO_NUKES;		  /* Equivalent to DF_CTF_NO_TECH   in CTF */
+			bit = DF_NO_NUKES;          /* Equivalent to DF_CTF_NO_TECH   in CTF */
 		}
 		else if (f == &s_stack_double_box)
 		{
@@ -4783,7 +4783,7 @@ setvalue:
 	Cvar_SetValue("dmflags", (float)flags);
 
 	Com_sprintf(dmoptions_statusbar, sizeof(dmoptions_statusbar),
-				"dmflags = %d", flags);
+			    "dmflags = %d", flags);
 }
 
 static void
@@ -5336,7 +5336,7 @@ static stringlist_t s_directory;
 
 static int rate_tbl[] = {2500, 3200, 5000, 10000, 25000, 0};
 static const char *rate_names[] = {"28.8 Modem", "33.6 Modem", "Single ISDN",
-								   "Dual ISDN/Cable", "T1/LAN", "User defined", 0 };
+			                       "Dual ISDN/Cable", "T1/LAN", "User defined", 0 };
 
 static void
 DownloadOptionsFunc(void *self)
@@ -5404,7 +5404,7 @@ StripExtension(char* path)
 
 		if (path[length] == '/')
 		{
-			return;		 // no extension
+			return;         // no extension
 		}
 	}
 
@@ -5610,6 +5610,11 @@ PlayerDirectoryList(void)
 
 		ReplaceCharacters(list[i], '\\', '/');
 
+		/*
+		 * search slash after "players/" and use only directory name
+		 * pak search does not return directory names, only files in
+		 * directories
+		 */
 		dirsize = strchr(list[i] + listoff, '/');
 		if (dirsize)
 		{
@@ -5756,7 +5761,6 @@ HasSkinsInDir(const char *dirname, int *num)
 
 	return list;
 }
-
 
 /*
  * list all valid player models.
@@ -6277,7 +6281,7 @@ PlayerConfig_MenuKey(int key)
 		Cvar_Set("name", name);
 		Cvar_Set("skin", skin);
 
-		PlayerModelFree();		  // free player skins, models and directories
+		PlayerModelFree();          // free player skins, models and directories
 	}
 
 	return Default_MenuKey(&s_player_config_menu, key);
@@ -6454,4 +6458,3 @@ M_Keydown(int key)
 		}
 	}
 }
-

@@ -306,7 +306,7 @@ FS_HandleForFile(const char *path, fileHandle_t *f)
 	}
 
 	/* Failed. */
-	Com_Error(ERR_DROP, "FS_HandleForFile: none free");
+	Com_Error(ERR_DROP, "%s: none free", __func__);
 
 	return NULL;
 }
@@ -319,7 +319,7 @@ FS_GetFileByHandle(fileHandle_t f)
 {
 	if ((f < 0) || (f > MAX_HANDLES))
 	{
-		Com_Error(ERR_DROP, "FS_GetFileByHandle: out of range");
+		Com_Error(ERR_DROP, "%s: out of range", __func__);
 	}
 
 	if (f == 0)
@@ -506,8 +506,8 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 				/* Found it! */
 				if (fs_debug->value)
 				{
-					Com_Printf("FS_FOpenFile: '%s' (found in '%s').\n",
-					           handle->name, pack->name);
+					Com_Printf("%s: '%s' (found in '%s').\n",
+						__func__, handle->name, pack->name);
 				}
 
 				// save the name with *correct case* in the handle
@@ -585,8 +585,8 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 			{
 				if (fs_debug->value)
 				{
-					Com_Printf("FS_FOpenFile: '%s' (found in '%s').\n",
-							   handle->name, search->path);
+					Com_Printf("%s: '%s' (found in '%s').\n",
+						__func__, handle->name, search->path);
 				}
 
 				return FS_FileLength(handle->file);
@@ -595,7 +595,7 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 	}
 	if (fs_debug->value)
 	{
-		Com_Printf("FS_FOpenFile: couldn't find '%s'.\n", handle->name);
+		Com_Printf("%s: couldn't find '%s'.\n", __func__, handle->name);
 	}
 
 	/* Couldn't open, so free the handle. */
@@ -769,13 +769,15 @@ FS_Read(void *buffer, int size, fileHandle_t f)
 			else
 			{
 				/* Already tried once. */
-				Com_Error(ERR_FATAL, "FS_Read: 0 bytes read from '%s'", handle->name);
+				Com_Error(ERR_FATAL, "%s: 0 bytes read from '%s'",
+					__func__, handle->name);
 				return size - remaining;
 			}
 		}
 		else if (r == -1)
 		{
-			Com_Error(ERR_FATAL, "FS_Read: -1 bytes read from '%s'", handle->name);
+			Com_Error(ERR_FATAL, "%s: -1 bytes read from '%s'",
+				__func__, handle->name);
 		}
 
 		remaining -= r;
@@ -1127,7 +1129,7 @@ FS_LoadSIN(const char *packPath)
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
 		Com_Printf("%s: '%s' has %i > %i files\n",
-				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
+			__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
 	info = malloc(header.dirlen);
@@ -2028,7 +2030,7 @@ FS_Dir_f(void)
 
 /*
  * This function returns true if a real file (e.g. not something
- * in a pak, somthing in the file system itself) exists in the
+ * in a pak, something in the file system itself) exists in the
  * current gamedir.
  */
 qboolean
