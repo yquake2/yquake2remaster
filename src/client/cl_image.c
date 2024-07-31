@@ -24,9 +24,10 @@
  * =======================================================================
  */
 
-#include "../../client/header/client.h"
+#include "header/client.h"
 
 #define PCX_IDENT ((0x05 << 8) + 0x0a)
+
 // don't need HDR stuff
 #define STBI_NO_LINEAR
 #define STBI_NO_HDR
@@ -38,7 +39,7 @@
 #define STBI_NO_THREAD_LOCALS
 // include implementation part of stb_image into this file
 #define STB_IMAGE_IMPLEMENTATION
-#include "../refresh/files/stb_image.h"
+#include "refresh/files/stb_image.h"
 
 // Fix Jennell Jaquays' name in the Quitscreen
 // this is 98x11 pixels, each value an index
@@ -235,7 +236,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	}
 
 	full_size = (pcx_height + 1) * (pcx_width + 1);
-	if (pcx->color_planes == 3 && pcx->bits_per_pixel == 8)
+	if ((pcx->color_planes == 3 || pcx->color_planes == 4)
+		&& pcx->bits_per_pixel == 8)
 	{
 		full_size *= 4;
 		*bitsPerPixel = 32;
@@ -443,6 +445,13 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 			__func__, name, pcx->color_planes, pcx->bits_per_pixel);
 		free(*pic);
 		*pic = NULL;
+	}
+
+	if (pcx->color_planes != 1 || pcx->bits_per_pixel != 8)
+	{
+		Com_DPrintf("%s: %s has uncommon flags, "
+			"could be unsupported by other engines\n",
+			__func__, name);
 	}
 
 	if (data - (byte *)pcx > len)
