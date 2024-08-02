@@ -191,16 +191,19 @@ static void
 Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffset,
 	int *order, int *order_end, float alpha, qvkpipeline_t *pipeline,
 	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count, const float *shadelight,
-	const float *shadevector, qboolean iscolor, int numtis)
+	const float *shadevector, qboolean iscolor, int num_tris)
 {
 	int vertCounts[2] = { 0, 0 };
 	int pipeCounters[2] = { 0, 0 };
-	VkDeviceSize maxTriangleFanIdxCnt = 0;
+	VkBuffer fan, strip;
 
 	if (Mesh_VertsRealloc(verts_count))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
+
+	fan = QVk_GetTriangleFanIbo(num_tris);
+	strip = QVk_GetTriangleStripIbo(num_tris);
 
 	drawInfo[0][0].firstVertex = 0;
 	drawInfo[1][0].firstVertex = 0;
@@ -233,7 +236,6 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		}
 
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].vertexCount = count;
-		maxTriangleFanIdxCnt = Q_max(maxTriangleFanIdxCnt, ((count - 2) * 3));
 
 		if (iscolor)
 		{
@@ -325,10 +327,6 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].firstVertex = vertCounts[pipelineIdx];
 	}
 
-	VkBuffer fan, strip;
-	fan = QVk_GetTriangleFanIbo(numtis);
-	strip = QVk_GetTriangleStripIbo(numtis);
-
 	for (int p = 0; p < 2; p++)
 	{
 		VkDeviceSize vaoSize = sizeof(modelvert) * vertCounts[p];
@@ -346,7 +344,7 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		{
 			int i;
 
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, 0 /* buffer offset */, VK_INDEX_TYPE_UINT16);
 
 			for (i = 0; i < pipeCounters[p]; i++)
 			{
@@ -357,7 +355,7 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		{
 			int i;
 
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, 0 /* buffer offset */, VK_INDEX_TYPE_UINT16);
 
 			for (i = 0; i < pipeCounters[p]; i++)
 			{
@@ -468,9 +466,13 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 static void
 Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 	float height, float lheight, vec4_t *s_lerped, const float *shadevector,
-	uint32_t *uboOffset, VkDescriptorSet *uboDescriptorSet
-)
+	uint32_t *uboOffset, VkDescriptorSet *uboDescriptorSet, int num_tris)
 {
+	VkBuffer fan, strip;
+
+	fan = QVk_GetTriangleFanIbo(num_tris);
+	strip = QVk_GetTriangleStripIbo(num_tris);
+
 	while (1)
 	{
 		int i, count;
@@ -538,12 +540,12 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 
 			if (pipelineIdx == TRIANGLE_STRIP)
 			{
-				vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleStripIbo((i - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
+				vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, 0, VK_INDEX_TYPE_UINT16);
 				vkCmdDrawIndexed(vk_activeCmdbuffer, (i - 2) * 3, 1, 0, 0, 0);
 			}
 			else
 			{
-				vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((i - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
+				vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, 0, VK_INDEX_TYPE_UINT16);
 				vkCmdDrawIndexed(vk_activeCmdbuffer, (i - 2) * 3, 1, 0, 0, 0);
 			}
 		}
@@ -900,7 +902,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 				currententity->frame, height, lheight,
-				s_lerped, shadevector, &uboOffset, &uboDescriptorSet);
+				s_lerped, shadevector, &uboOffset, &uboDescriptorSet,
+				paliashdr->num_tris);
 		}
 	}
 }

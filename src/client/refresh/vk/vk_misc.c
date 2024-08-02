@@ -312,7 +312,6 @@ void Vk_Mem_f(void)
 		vk_config.vertex_buffer_size / 1024,
 		100.f * vk_config.vertex_buffer_usage / vk_config.vertex_buffer_size,
 		vk_config.vertex_buffer_max_usage / 1024);
-
 	R_Printf(PRINT_ALL, "Index  : %u/%uB (%.1f%% max: %uB)\n",
 		vk_config.index_buffer_usage,
 		vk_config.index_buffer_size,
@@ -323,9 +322,4 @@ void Vk_Mem_f(void)
 		vk_config.uniform_buffer_size / 1024,
 		100.f * vk_config.uniform_buffer_usage / vk_config.uniform_buffer_size,
 		vk_config.uniform_buffer_max_usage / 1024);
-	R_Printf(PRINT_ALL, "Triangle index: %u/%u (%.1f%% max: %u)\n",
-		vk_config.triangle_index_usage,
-		vk_config.triangle_index_count,
-		100.f * vk_config.triangle_index_usage / vk_config.triangle_index_count,
-		vk_config.triangle_index_max_usage);
 }
