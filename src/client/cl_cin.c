@@ -860,7 +860,7 @@ SCR_PlayCinematic(char *arg)
 			int i;
 
 			/* palette r:2bit, g:3bit, b:3bit */
-			for (i = 0; i < sizeof(cl.cinematicpalette); i++)
+			for (i = 0; i < sizeof(cl.cinematicpalette) / 3; i++)
 			{
 				cl.cinematicpalette[i * 3 + 0] = ((i >> 0) & 0x3) << 6;
 				cl.cinematicpalette[i * 3 + 1] = ((i >> 2) & 0x7) << 5;

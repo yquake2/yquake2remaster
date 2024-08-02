@@ -1076,40 +1076,64 @@ static int NextPow2(int v)
 
 // internal helper
 static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, int currentBufferIdx);
-static void RebuildTriangleIndexBuffer()
+
+static void
+GenFanIndexes(uint16_t *data, int from, int to)
 {
-	int idx = 0;
+	int i;
+
+	// fill the index buffer so that we can emulate triangle fans via triangle lists
+	for (i = from; i < to; i++)
+	{
+		*data = from;
+		data ++;
+		*data = i + 1;
+		data++;
+		*data = i + 2;
+		data ++;
+	}
+}
+
+static void
+GenStripIndexes(uint16_t *data, int from, int to)
+{
+	int i;
+
+	// fill the index buffer so that we can emulate triangle strips via triangle lists
+	for (i = from + 2; i < to + 2; i++)
+	{
+		if ((i%2) == 0)
+		{
+			*data =  i - 2;
+			data ++;
+			*data =  i - 1;
+			data ++;
+			*data =  i;
+			data ++;
+		}
+		else
+		{
+			*data = i;
+			data ++;
+			*data =  i - 1;
+			data ++;
+			*data =  i - 2;
+			data ++;
+		}
+	}
+}
+
+static void
+RebuildTriangleIndexBuffer()
+{
 	VkDeviceSize dstOffset = 0;
 	VkDeviceSize bufferSize = 3 * vk_config.triangle_index_count * sizeof(uint16_t);
 	uint16_t *iboData = NULL;
 	uint16_t *fanData = malloc(bufferSize);
 	uint16_t *stripData = malloc(bufferSize);
 
-	// fill the index buffer so that we can emulate triangle fans via triangle lists
-	for (int i = 0; i < vk_config.triangle_index_count; ++i)
-	{
-		fanData[idx++] = 0;
-		fanData[idx++] = i + 1;
-		fanData[idx++] = i + 2;
-	}
-
-	// fill the index buffer so that we can emulate triangle strips via triangle lists
-	idx = 0;
-	for (int i = 2; i < (vk_config.triangle_index_count + 2); ++i)
-	{
-		if ((i%2) == 0)
-		{
-			stripData[idx++] = i - 2;
-			stripData[idx++] = i - 1;
-			stripData[idx++] = i;
-		}
-		else
-		{
-			stripData[idx++] = i;
-			stripData[idx++] = i - 1;
-			stripData[idx++] = i - 2;
-		}
-	}
+	GenFanIndexes(fanData, 0, vk_config.triangle_index_count);
+	GenStripIndexes(stripData, 0, vk_config.triangle_index_count);
 
 	for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 	{
@@ -2634,14 +2658,16 @@ QVk_CheckTriangleIbo(VkDeviceSize indexCount)
 	}
 }
 
-VkBuffer QVk_GetTriangleFanIbo(VkDeviceSize indexCount)
+VkBuffer
+QVk_GetTriangleFanIbo(VkDeviceSize indexCount)
 {
 	QVk_CheckTriangleIbo(indexCount);
 
 	return *vk_triangleFanIbo;
 }
 
-VkBuffer QVk_GetTriangleStripIbo(VkDeviceSize indexCount)
+VkBuffer
+QVk_GetTriangleStripIbo(VkDeviceSize indexCount)
 {
 	QVk_CheckTriangleIbo(indexCount);
 

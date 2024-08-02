@@ -189,10 +189,9 @@ Mesh_Free(void)
 
 static void
 Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffset,
-	int *order, int *order_end,
-	float alpha, int leftHandOffset, int translucentIdx,
+	int *order, int *order_end, float alpha, qvkpipeline_t *pipeline,
 	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count, const float *shadelight,
-	const float *shadevector, qboolean iscolor)
+	const float *shadevector, qboolean iscolor, int numtis)
 {
 	int vertCounts[2] = { 0, 0 };
 	int pipeCounters[2] = { 0, 0 };
@@ -326,12 +325,10 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].firstVertex = vertCounts[pipelineIdx];
 	}
 
-	// player configuration screen model is using the UI renderpass
-	int pidx = (r_newrefdef.rdflags & RDF_NOWORLDMODEL) ? RP_UI : RP_WORLD;
-	// non-depth write alias models don't occur with RF_WEAPONMODEL set, so no need for additional left-handed pipelines
-	qvkpipeline_t pipelines[2][2] = {
-		{ vk_drawModelPipelineFan[pidx], vk_drawLefthandModelPipelineFan },
-		{ vk_drawNoDepthModelPipelineFan, vk_drawLefthandModelPipelineFan } };
+	VkBuffer fan, strip;
+	fan = QVk_GetTriangleFanIbo(numtis);
+	strip = QVk_GetTriangleStripIbo(numtis);
+
 	for (int p = 0; p < 2; p++)
 	{
 		VkDeviceSize vaoSize = sizeof(modelvert) * vertCounts[p];
@@ -340,16 +337,16 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
 		memcpy(vertData, vertList[p], vaoSize);
 
-		QVk_BindPipeline(&pipelines[translucentIdx][leftHandOffset]);
+		QVk_BindPipeline(pipeline);
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipelines[translucentIdx][leftHandOffset].layout, 0, 2, descriptorSets, 1, uboOffset);
+			pipeline->layout, 0, 2, descriptorSets, 1, uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
 		if (p == TRIANGLE_STRIP)
 		{
 			int i;
 
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleStripIbo(maxTriangleFanIdxCnt), 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, 0, VK_INDEX_TYPE_UINT16);
 
 			for (i = 0; i < pipeCounters[p]; i++)
 			{
@@ -360,7 +357,7 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		{
 			int i;
 
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo(maxTriangleFanIdxCnt), 0, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, 0, VK_INDEX_TYPE_UINT16);
 
 			for (i = 0; i < pipeCounters[p]; i++)
 			{
@@ -440,13 +437,20 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, (float*)s_lerped,
 		move, frontv, backv);
 
-	num_mesh_nodes = paliashdr->num_meshes;
-	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
-
 	VkDescriptorSet descriptorSets[] = {
 		skin->vk_texture.descriptorSet,
 		uboDescriptorSet
 	};
+
+	// player configuration screen model is using the UI renderpass
+	int pidx = (r_newrefdef.rdflags & RDF_NOWORLDMODEL) ? RP_UI : RP_WORLD;
+	// non-depth write alias models don't occur with RF_WEAPONMODEL set, so no need for additional left-handed pipelines
+	qvkpipeline_t pipelines[2][2] = {
+		{ vk_drawModelPipelineFan[pidx], vk_drawLefthandModelPipelineFan },
+		{ vk_drawNoDepthModelPipelineFan, vk_drawLefthandModelPipelineFan } };
+
+	num_mesh_nodes = paliashdr->num_meshes;
+	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
@@ -454,9 +458,10 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			alpha, leftHandOffset, translucentIdx, verts,
+			alpha, &pipelines[translucentIdx][leftHandOffset], verts,
 			s_lerped, paliashdr->num_xyz, shadelight, shadevector,
-			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE));
+			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE),
+			paliashdr->num_tris);
 	}
 }
 
