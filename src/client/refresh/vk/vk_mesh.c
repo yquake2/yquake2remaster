@@ -44,9 +44,11 @@ typedef struct {
 } drawinfo_t;
 
 mvtx_t 	*verts_buffer = NULL;
-static	drawinfo_t	*drawInfo[2] = {NULL, NULL};
-static	modelvert	*vertList[2] = {NULL, NULL};
+static	drawinfo_t	*drawInfo = NULL;
+static	modelvert	*vertList = NULL;
 static	vec3_t	*shadowverts = NULL;
+static	uint16_t	*vertIdxData = NULL;
+
 static	int	verts_count = 0;
 
 // correction matrix with "hacked depth" for models with RF_DEPTHHACK flag set
@@ -83,33 +85,26 @@ Mesh_VertsRealloc(int count)
 	}
 	verts_buffer = ptr;
 
-	ptr = realloc(vertList[0], verts_count * sizeof(modelvert));
+	ptr = realloc(vertList, verts_count * sizeof(modelvert));
 	if (!ptr)
 	{
 		return -1;
 	}
-	vertList[0] = ptr;
+	vertList = ptr;
 
-	ptr = realloc(vertList[1], verts_count * sizeof(modelvert));
+	ptr = realloc(drawInfo, verts_count * sizeof(drawinfo_t));
 	if (!ptr)
 	{
 		return -1;
 	}
-	vertList[1] = ptr;
+	drawInfo = ptr;
 
-	ptr = realloc(drawInfo[0], verts_count * sizeof(drawinfo_t));
+	ptr = realloc(vertIdxData, verts_count * sizeof(uint16_t));
 	if (!ptr)
 	{
 		return -1;
 	}
-	drawInfo[0] = ptr;
-
-	ptr = realloc(drawInfo[1], verts_count * sizeof(drawinfo_t));
-	if (!ptr)
-	{
-		return -1;
-	}
-	drawInfo[1] = ptr;
+	vertIdxData = ptr;
 
 	return 0;
 }
@@ -124,10 +119,8 @@ Mesh_Init(void)
 {
 	shadowverts = NULL;
 	verts_buffer = NULL;
-	vertList[0] = NULL;
-	vertList[1] = NULL;
-	drawInfo[0] = NULL;
-	drawInfo[1] = NULL;
+	vertList = NULL;
+	drawInfo = NULL;
 
 	verts_count = 0;
 
@@ -164,50 +157,39 @@ Mesh_Free(void)
 	}
 	verts_buffer = NULL;
 
-	if (vertList[0])
+	if (vertList)
 	{
-		free(vertList[0]);
+		free(vertList);
 	}
-	if (vertList[1])
-	{
-		free(vertList[1]);
-	}
-	vertList[0] = NULL;
-	vertList[1] = NULL;
+	vertList = NULL;
 
-	if (drawInfo[0])
+	if (drawInfo)
 	{
-		free(drawInfo[0]);
+		free(drawInfo);
 	}
-	if (drawInfo[1])
+	drawInfo = NULL;
+
+	if (vertIdxData)
 	{
-		free(drawInfo[1]);
+		free(vertIdxData);
 	}
-	drawInfo[0] = NULL;
-	drawInfo[1] = NULL;
+	vertIdxData = NULL;
 }
 
 static void
 Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffset,
 	int *order, int *order_end, float alpha, qvkpipeline_t *pipeline,
-	dxtrivertx_t *verts, vec4_t *s_lerped, int verts_count, const float *shadelight,
-	const float *shadevector, qboolean iscolor, int num_tris)
+	dxtrivertx_t *verts, vec4_t *s_lerped, int count, const float *shadelight,
+	const float *shadevector, qboolean iscolor)
 {
-	int vertCounts[2] = { 0, 0 };
-	int pipeCounters[2] = { 0, 0 };
-	VkDeviceSize fanOffset, stripOffset;
-	VkBuffer fan, strip;
+	int vertIdx = 0, pipeCounters = 0, index_pos = 0;
 
-	if (Mesh_VertsRealloc(verts_count))
+	if (Mesh_VertsRealloc(count))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
-	fan = QVk_GetTriangleFanIbo(num_tris, &fanOffset);
-	strip = QVk_GetTriangleStripIbo(num_tris, &stripOffset);
-
-	drawInfo[0][0].firstVertex = 0;
-	drawInfo[1][0].firstVertex = 0;
+	drawInfo[0].firstVertex = 0;
 
 	while (1)
 	{
@@ -231,18 +213,17 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 			pipelineIdx = TRIANGLE_STRIP;
 		}
 
-		if (Mesh_VertsRealloc(pipeCounters[pipelineIdx]))
+		if (Mesh_VertsRealloc(pipeCounters))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
-		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].vertexCount = count;
+		drawInfo[pipeCounters].vertexCount = count;
 
 		if (iscolor)
 		{
 			do
 			{
-				int vertIdx = vertCounts[pipelineIdx];
 				int index_xyz = order[2];
 
 				if (Mesh_VertsRealloc(vertIdx))
@@ -251,13 +232,13 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 				}
 
 				// unused in this case, since texturing is disabled
-				vertList[pipelineIdx][vertIdx].texCoord[0] = 0.f;
-				vertList[pipelineIdx][vertIdx].texCoord[1] = 0.f;
+				vertList[vertIdx].texCoord[0] = 0.f;
+				vertList[vertIdx].texCoord[1] = 0.f;
 
-				vertList[pipelineIdx][vertIdx].color[0] = shadelight[0];
-				vertList[pipelineIdx][vertIdx].color[1] = shadelight[1];
-				vertList[pipelineIdx][vertIdx].color[2] = shadelight[2];
-				vertList[pipelineIdx][vertIdx].color[3] = alpha;
+				vertList[vertIdx].color[0] = shadelight[0];
+				vertList[vertIdx].color[1] = shadelight[1];
+				vertList[vertIdx].color[2] = shadelight[2];
+				vertList[vertIdx].color[3] = alpha;
 
 				if (verts_count <= index_xyz)
 				{
@@ -265,10 +246,10 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 					return;
 				}
 
-				vertList[pipelineIdx][vertIdx].vertex[0] = s_lerped[index_xyz][0];
-				vertList[pipelineIdx][vertIdx].vertex[1] = s_lerped[index_xyz][1];
-				vertList[pipelineIdx][vertIdx].vertex[2] = s_lerped[index_xyz][2];
-				vertCounts[pipelineIdx]++;
+				vertList[vertIdx].vertex[0] = s_lerped[index_xyz][0];
+				vertList[vertIdx].vertex[1] = s_lerped[index_xyz][1];
+				vertList[vertIdx].vertex[2] = s_lerped[index_xyz][2];
+				vertIdx++;
 				order += 3;
 			} while (--count);
 		}
@@ -276,7 +257,6 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		{
 			do
 			{
-				int vertIdx = vertCounts[pipelineIdx];
 				int i, index_xyz = order[2];
 				vec3_t normal;
 				float l;
@@ -287,8 +267,8 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 				}
 
 				// texture coordinates come from the draw list
-				vertList[pipelineIdx][vertIdx].texCoord[0] = ((float *)order)[0];
-				vertList[pipelineIdx][vertIdx].texCoord[1] = ((float *)order)[1];
+				vertList[vertIdx].texCoord[0] = ((float *)order)[0];
+				vertList[vertIdx].texCoord[1] = ((float *)order)[1];
 
 				/* unpack normal */
 				for(i = 0; i < 3; i++)
@@ -300,10 +280,10 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 				/* shadevector is set above according to rotation (around Z axis I think) */
 				l = DotProduct(normal, shadevector) + 1;
 
-				vertList[pipelineIdx][vertIdx].color[0] = l * shadelight[0];
-				vertList[pipelineIdx][vertIdx].color[1] = l * shadelight[1];
-				vertList[pipelineIdx][vertIdx].color[2] = l * shadelight[2];
-				vertList[pipelineIdx][vertIdx].color[3] = alpha;
+				vertList[vertIdx].color[0] = l * shadelight[0];
+				vertList[vertIdx].color[1] = l * shadelight[1];
+				vertList[vertIdx].color[2] = l * shadelight[2];
+				vertList[vertIdx].color[3] = alpha;
 
 				if (verts_count <= index_xyz)
 				{
@@ -311,59 +291,53 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 					return;
 				}
 
-				vertList[pipelineIdx][vertIdx].vertex[0] = s_lerped[index_xyz][0];
-				vertList[pipelineIdx][vertIdx].vertex[1] = s_lerped[index_xyz][1];
-				vertList[pipelineIdx][vertIdx].vertex[2] = s_lerped[index_xyz][2];
-				vertCounts[pipelineIdx]++;
+				vertList[vertIdx].vertex[0] = s_lerped[index_xyz][0];
+				vertList[vertIdx].vertex[1] = s_lerped[index_xyz][1];
+				vertList[vertIdx].vertex[2] = s_lerped[index_xyz][2];
+				vertIdx++;
 				order += 3;
 			} while (--count);
 		}
 
-		if (Mesh_VertsRealloc(pipeCounters[pipelineIdx] + 1))
+		if (Mesh_VertsRealloc(pipeCounters + 1))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
-		pipeCounters[pipelineIdx]++;
-		drawInfo[pipelineIdx][pipeCounters[pipelineIdx]].firstVertex = vertCounts[pipelineIdx];
-	}
-
-	for (int p = 0; p < 2; p++)
-	{
-		VkDeviceSize vaoSize = sizeof(modelvert) * vertCounts[p];
-		VkBuffer vbo;
-		VkDeviceSize vboOffset;
-		uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
-		memcpy(vertData, vertList[p], vaoSize);
-
-		QVk_BindPipeline(pipeline);
-		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			pipeline->layout, 0, 2, descriptorSets, 1, uboOffset);
-		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-
-		if (p == TRIANGLE_STRIP)
+		if (pipelineIdx == TRIANGLE_STRIP)
 		{
-			int i;
-
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, stripOffset, VK_INDEX_TYPE_UINT16);
-
-			for (i = 0; i < pipeCounters[p]; i++)
-			{
-				vkCmdDrawIndexed(vk_activeCmdbuffer, (drawInfo[p][i].vertexCount - 2) * 3, 1, 0, drawInfo[p][i].firstVertex, 0);
-			}
+			GenStripIndexes(vertIdxData + index_pos,
+				drawInfo[pipeCounters].firstVertex,
+				drawInfo[pipeCounters].vertexCount - 2 + drawInfo[pipeCounters].firstVertex);
 		}
 		else
 		{
-			int i;
-
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
-
-			for (i = 0; i < pipeCounters[p]; i++)
-			{
-				vkCmdDrawIndexed(vk_activeCmdbuffer, (drawInfo[p][i].vertexCount - 2) * 3, 1, 0, drawInfo[p][i].firstVertex, 0);
-			}
+			GenFanIndexes(vertIdxData + index_pos,
+				drawInfo[pipeCounters].firstVertex,
+				drawInfo[pipeCounters].vertexCount - 2 + drawInfo[pipeCounters].firstVertex);
 		}
+		index_pos += (drawInfo[pipeCounters].vertexCount - 2) * 3;
+
+		pipeCounters++;
+		drawInfo[pipeCounters].firstVertex = vertIdx;
 	}
+
+	VkDeviceSize vaoSize = sizeof(modelvert) * vertIdx;
+	VkBuffer vbo, *buffer;
+	VkDeviceSize vboOffset, dstOffset;
+
+	uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
+	memcpy(vertData, vertList, vaoSize);
+
+	QVk_BindPipeline(pipeline);
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipeline->layout, 0, 2, descriptorSets, 1, uboOffset);
+	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+
+	buffer = UpdateIndexBuffer(vertIdxData, verts_count * sizeof(uint16_t), &dstOffset);
+
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
 }
 
 /*
@@ -458,9 +432,9 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, &pipelines[translucentIdx][leftHandOffset], verts,
-			s_lerped, paliashdr->num_xyz, shadelight, shadevector,
-			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE),
-			paliashdr->num_tris);
+			s_lerped, Q_max(paliashdr->num_xyz, paliashdr->num_tris * 3),
+			shadelight, shadevector,
+			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE));
 	}
 }
 

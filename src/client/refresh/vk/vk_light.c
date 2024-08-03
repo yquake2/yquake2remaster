@@ -33,10 +33,10 @@ vec3_t lightspot;
 static void
 R_RenderDlight(dlight_t *light)
 {
+	VkDeviceSize vboOffset, fanOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint32_t uboOffset, fanOffset;
 	uint8_t *vertData, *uboData;
-	VkDeviceSize vboOffset;
+	uint32_t uboOffset;
 	VkBuffer vbo;
 	VkBuffer fan;
 	float rad;

@@ -254,7 +254,7 @@ static VkDescriptorSet *vk_swapDescriptorSets[NUM_SWAPBUFFER_SLOTS];
 #define UNIFORM_ALLOC_SIZE 1024
 // start values for dynamic buffer sizes - bound to change if the application runs out of space (sizes in bytes)
 #define VERTEX_BUFFER_SIZE (1024 * 1024)
-#define INDEX_BUFFER_SIZE (2 * 1024)
+#define INDEX_BUFFER_SIZE (1024 * 1024)
 #define UNIFORM_BUFFER_SIZE (2048 * 1024)
 // staging buffer is constant in size but has a max limit beyond which it will be submitted
 #define STAGING_BUFFER_MAXSIZE (8192 * 1024)
@@ -1075,7 +1075,7 @@ static int NextPow2(int v)
 // internal helper
 static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, int currentBufferIdx);
 
-static void
+void
 GenFanIndexes(uint16_t *data, int from, int to)
 {
 	int i;
@@ -1092,7 +1092,7 @@ GenFanIndexes(uint16_t *data, int from, int to)
 	}
 }
 
-static void
+void
 GenStripIndexes(uint16_t *data, int from, int to)
 {
 	int i;
@@ -1100,7 +1100,7 @@ GenStripIndexes(uint16_t *data, int from, int to)
 	// fill the index buffer so that we can emulate triangle strips via triangle lists
 	for (i = from + 2; i < to + 2; i++)
 	{
-		if ((i%2) == 0)
+		if ((i - from) % 2 == 0)
 		{
 			*data =  i - 2;
 			data ++;
@@ -1121,7 +1121,7 @@ GenStripIndexes(uint16_t *data, int from, int to)
 	}
 }
 
-static VkBuffer*
+VkBuffer*
 UpdateIndexBuffer(uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *dstOffset)
 {
 	uint16_t *iboData = NULL;
