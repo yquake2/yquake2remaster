@@ -291,8 +291,8 @@ R_DrawNullModel(entity_t *currententity)
 		verts[i][2] = shadelight[2];
 	}
 
-	VkBuffer vbo;
-	VkDeviceSize vboOffset;
+	VkBuffer vbo, fan;
+	VkDeviceSize vboOffset, fanOffset;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
 	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(verts), &vbo, &vboOffset);
@@ -300,10 +300,11 @@ R_DrawNullModel(entity_t *currententity)
 	memcpy(vertData, verts, sizeof(verts));
 	memcpy(uboData,  model, sizeof(model));
 
+	fan = QVk_GetTriangleFanIbo(12, &fanOffset);
 	QVk_BindPipeline(&vk_drawNullModelPipeline);
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawNullModelPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo(12), 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 12, 1, 0, 0, 0);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 12, 1, 0, 6, 0);
 }

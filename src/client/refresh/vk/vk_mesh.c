@@ -195,6 +195,7 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 {
 	int vertCounts[2] = { 0, 0 };
 	int pipeCounters[2] = { 0, 0 };
+	VkDeviceSize fanOffset, stripOffset;
 	VkBuffer fan, strip;
 
 	if (Mesh_VertsRealloc(verts_count))
@@ -202,8 +203,8 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
-	fan = QVk_GetTriangleFanIbo(num_tris);
-	strip = QVk_GetTriangleStripIbo(num_tris);
+	fan = QVk_GetTriangleFanIbo(num_tris, &fanOffset);
+	strip = QVk_GetTriangleStripIbo(num_tris, &stripOffset);
 
 	drawInfo[0][0].firstVertex = 0;
 	drawInfo[1][0].firstVertex = 0;
@@ -344,7 +345,7 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		{
 			int i;
 
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, 0 /* buffer offset */, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, stripOffset, VK_INDEX_TYPE_UINT16);
 
 			for (i = 0; i < pipeCounters[p]; i++)
 			{
@@ -355,7 +356,7 @@ Vk_DrawAliasFrameLerpCommands(VkDescriptorSet *descriptorSets, uint32_t *uboOffs
 		{
 			int i;
 
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, 0 /* buffer offset */, VK_INDEX_TYPE_UINT16);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
 
 			for (i = 0; i < pipeCounters[p]; i++)
 			{
@@ -468,10 +469,11 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 	float height, float lheight, vec4_t *s_lerped, const float *shadevector,
 	uint32_t *uboOffset, VkDescriptorSet *uboDescriptorSet, int num_tris)
 {
+	VkDeviceSize fanOffset, stripOffset;
 	VkBuffer fan, strip;
 
-	fan = QVk_GetTriangleFanIbo(num_tris);
-	strip = QVk_GetTriangleStripIbo(num_tris);
+	fan = QVk_GetTriangleFanIbo(num_tris, &fanOffset);
+	strip = QVk_GetTriangleStripIbo(num_tris, &stripOffset);
 
 	while (1)
 	{
@@ -540,12 +542,12 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 
 			if (pipelineIdx == TRIANGLE_STRIP)
 			{
-				vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, 0, VK_INDEX_TYPE_UINT16);
+				vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, stripOffset, VK_INDEX_TYPE_UINT16);
 				vkCmdDrawIndexed(vk_activeCmdbuffer, (i - 2) * 3, 1, 0, 0, 0);
 			}
 			else
 			{
-				vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, 0, VK_INDEX_TYPE_UINT16);
+				vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
 				vkCmdDrawIndexed(vk_activeCmdbuffer, (i - 2) * 3, 1, 0, 0, 0);
 			}
 		}

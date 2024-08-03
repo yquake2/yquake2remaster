@@ -126,6 +126,9 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
+		VkDeviceSize fanOffset;
+		VkBuffer fan;
+
 		p = bp;
 
 		if (Mesh_VertsRealloc(p->numverts))
@@ -143,8 +146,9 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
 		memcpy(vertData, verts_buffer, sizeof(mvtx_t) * p->numverts);
 
+		fan = QVk_GetTriangleFanIbo((p->numverts - 2) * 3, &fanOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-		vkCmdBindIndexBuffer(vk_activeCmdbuffer, QVk_GetTriangleFanIbo((p->numverts - 2) * 3), 0, VK_INDEX_TYPE_UINT16);
+		vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
 	}
 }
