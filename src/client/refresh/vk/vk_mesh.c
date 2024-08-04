@@ -38,13 +38,7 @@ typedef struct {
 	float texCoord[2];
 } modelvert;
 
-typedef struct {
-	int vertexCount;
-	int firstVertex;
-} drawinfo_t;
-
 mvtx_t 	*verts_buffer = NULL;
-static	drawinfo_t	*drawInfo = NULL;
 static	modelvert	*vertList = NULL;
 static	vec3_t	*shadowverts = NULL;
 static	uint16_t	*vertIdxData = NULL;
@@ -92,13 +86,6 @@ Mesh_VertsRealloc(int count)
 	}
 	vertList = ptr;
 
-	ptr = realloc(drawInfo, verts_count * sizeof(drawinfo_t));
-	if (!ptr)
-	{
-		return -1;
-	}
-	drawInfo = ptr;
-
 	ptr = realloc(vertIdxData, verts_count * sizeof(uint16_t));
 	if (!ptr)
 	{
@@ -120,7 +107,6 @@ Mesh_Init(void)
 	shadowverts = NULL;
 	verts_buffer = NULL;
 	vertList = NULL;
-	drawInfo = NULL;
 
 	verts_count = 0;
 
@@ -163,12 +149,6 @@ Mesh_Free(void)
 	}
 	vertList = NULL;
 
-	if (drawInfo)
-	{
-		free(drawInfo);
-	}
-	drawInfo = NULL;
-
 	if (vertIdxData)
 	{
 		free(vertIdxData);
@@ -180,11 +160,11 @@ static void
 Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 	dxtrivertx_t *verts, vec4_t *s_lerped, const float *shadelight,
 	const float *shadevector, qboolean iscolor, int *vertIdx,
-	int *pipeCounters, int *index_pos)
+	int *firstVertex, int *index_pos)
 {
 	while (1)
 	{
-		int count;
+		int count, vertexCount;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
@@ -204,12 +184,7 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 			pipelineIdx = TRIANGLE_STRIP;
 		}
 
-		if (Mesh_VertsRealloc(*pipeCounters))
-		{
-			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-		}
-
-		drawInfo[*pipeCounters].vertexCount = count;
+		vertexCount = count;
 
 		if (iscolor)
 		{
@@ -294,27 +269,21 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 			while (--count);
 		}
 
-		if (Mesh_VertsRealloc(*pipeCounters + 1))
-		{
-			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-		}
-
 		if (pipelineIdx == TRIANGLE_STRIP)
 		{
 			GenStripIndexes(vertIdxData + *index_pos,
-				drawInfo[*pipeCounters].firstVertex,
-				drawInfo[*pipeCounters].vertexCount - 2 + drawInfo[*pipeCounters].firstVertex);
+				*firstVertex,
+				vertexCount - 2 + *firstVertex);
 		}
 		else
 		{
 			GenFanIndexes(vertIdxData + *index_pos,
-				drawInfo[*pipeCounters].firstVertex,
-				drawInfo[*pipeCounters].vertexCount - 2 + drawInfo[*pipeCounters].firstVertex);
+				*firstVertex,
+				vertexCount - 2 + *firstVertex);
 		}
-		*index_pos += (drawInfo[*pipeCounters].vertexCount - 2) * 3;
 
-		(*pipeCounters)++;
-		drawInfo[*pipeCounters].firstVertex = *vertIdx;
+		*index_pos += (vertexCount - 2) * 3;
+		*firstVertex = *vertIdx;
 	}
 }
 
@@ -342,7 +311,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	int i;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
-	int vertIdx = 0, pipeCounters = 0, index_pos = 0;
+	int vertIdx = 0, index_pos = 0, firstVertex = 0;
 	qboolean colorOnly = 0 != (currententity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 			 RF_SHELL_HALF_DAM));
@@ -409,8 +378,6 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
-	drawInfo[0].firstVertex = 0;
-
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
 		Vk_DrawAliasFrameLerpCommands(
@@ -419,7 +386,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, verts, s_lerped, shadelight, shadevector,
 			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE),
-			&vertIdx, &pipeCounters, &index_pos);
+			&vertIdx, &firstVertex, &index_pos);
 	}
 
 	VkDeviceSize vaoSize = sizeof(modelvert) * vertIdx;
@@ -444,11 +411,11 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 static void
 Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 	vec4_t *s_lerped, const float *shadevector,
-	int *vertIdx, int *pipeCounters, int *index_pos)
+	int *vertIdx, int *firstVertex, int *index_pos)
 {
 	while (1)
 	{
-		int count;
+		int count, vertexCount;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
@@ -468,12 +435,7 @@ Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 			pipelineIdx = TRIANGLE_STRIP;
 		}
 
-		if (Mesh_VertsRealloc(*pipeCounters))
-		{
-			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-		}
-
-		drawInfo[*pipeCounters].vertexCount = count;
+		vertexCount = count;
 
 		do
 		{
@@ -508,27 +470,20 @@ Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 		}
 		while (--count);
 
-		if (Mesh_VertsRealloc(*pipeCounters + 1))
-		{
-			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-		}
-
 		if (pipelineIdx == TRIANGLE_STRIP)
 		{
 			GenStripIndexes(vertIdxData + *index_pos,
-				drawInfo[*pipeCounters].firstVertex,
-				drawInfo[*pipeCounters].vertexCount - 2 + drawInfo[*pipeCounters].firstVertex);
+				*firstVertex,
+				vertexCount - 2 + *firstVertex);
 		}
 		else
 		{
 			GenFanIndexes(vertIdxData + *index_pos,
-				drawInfo[*pipeCounters].firstVertex,
-				drawInfo[*pipeCounters].vertexCount - 2 + drawInfo[*pipeCounters].firstVertex);
+				*firstVertex,
+				vertexCount - 2 + *firstVertex);
 		}
-		*index_pos += (drawInfo[*pipeCounters].vertexCount - 2) * 3;
-
-		(*pipeCounters)++;
-		drawInfo[*pipeCounters].firstVertex = *vertIdx;
+		*index_pos += (vertexCount - 2) * 3;
+		*firstVertex = *vertIdx;
 	}
 }
 
@@ -866,7 +821,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		dmdxmesh_t *mesh_nodes;
 		float height, lheight;
 		int *order;
-		int vertIdx = 0, pipeCounters = 0, index_pos = 0;
+		int vertIdx = 0, index_pos = 0, firstVertex = 0;
 
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
@@ -876,8 +831,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		lheight = currententity->origin[2] - lightspot[2];
 		height = -lheight + 1.0;
 
-		drawInfo[0].firstVertex = 0;
-
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			Vk_DrawAliasShadow(
@@ -885,7 +838,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 				height, lheight, s_lerped, shadevector,
-				&vertIdx, &pipeCounters, &index_pos);
+				&vertIdx, &firstVertex, &index_pos);
 		}
 
 		VkDeviceSize vaoSize = sizeof(vec3_t) * vertIdx;

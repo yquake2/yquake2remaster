@@ -2648,21 +2648,6 @@ QVk_GetTriangleFanIbo(VkDeviceSize indexCount, VkDeviceSize *dstOffset)
 	return *buffer;
 }
 
-VkBuffer
-QVk_GetTriangleStripIbo(VkDeviceSize indexCount, VkDeviceSize *dstOffset)
-{
-	VkDeviceSize bufferSize = 3 * indexCount * sizeof(uint16_t);
-	uint16_t *data = malloc(bufferSize);
-	VkBuffer *buffer;
-
-	GenStripIndexes(data, 0, indexCount);
-	buffer = UpdateIndexBuffer(data, bufferSize, dstOffset);
-
-	free(data);
-
-	return *buffer;
-}
-
 void QVk_SubmitStagingBuffers()
 {
 	for (int i = 0; i < NUM_DYNBUFFERS; ++i)
