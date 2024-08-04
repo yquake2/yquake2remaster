@@ -243,7 +243,8 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 				vertList[*vertIdx].vertex[2] = s_lerped[index_xyz][2];
 				(*vertIdx) ++;
 				order += 3;
-			} while (--count);
+			}
+			while (--count);
 		}
 		else
 		{
@@ -289,7 +290,8 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 				vertList[*vertIdx].vertex[2] = s_lerped[index_xyz][2];
 				(*vertIdx) ++;
 				order += 3;
-			} while (--count);
+			}
+			while (--count);
 		}
 
 		if (Mesh_VertsRealloc(*pipeCounters + 1))
@@ -402,7 +404,6 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
 
-
 	if (Mesh_VertsRealloc(Q_max(paliashdr->num_xyz, paliashdr->num_tris * 3)))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
@@ -441,23 +442,17 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 }
 
 static void
-Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
-	float height, float lheight, vec4_t *s_lerped, const float *shadevector,
-	uint32_t *uboOffset, VkDescriptorSet *uboDescriptorSet, int num_tris)
+Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
+	vec4_t *s_lerped, const float *shadevector,
+	int *vertIdx, int *pipeCounters, int *index_pos)
 {
-	VkDeviceSize fanOffset, stripOffset;
-	VkBuffer fan, strip;
-
-	fan = QVk_GetTriangleFanIbo(num_tris, &fanOffset);
-	strip = QVk_GetTriangleStripIbo(num_tris, &stripOffset);
-
 	while (1)
 	{
-		int i, count;
+		int count;
 
-		i = 0;
-		// get the vertex count and primitive type
+		/* get the vertex count and primitive type */
 		count = *order++;
+
 		if (!count || order >= order_end)
 		{
 			break; /* done */
@@ -473,60 +468,67 @@ Vk_DrawAliasShadow(int *order, int *order_end, int posenum,
 			pipelineIdx = TRIANGLE_STRIP;
 		}
 
-		if (Mesh_VertsRealloc(count))
+		if (Mesh_VertsRealloc(*pipeCounters))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
+		drawInfo[*pipeCounters].vertexCount = count;
+
 		do
 		{
-			vec3_t	point;
+			int index_xyz = order[2];
+			vec3_t point;
 
-			if (Mesh_VertsRealloc(order[2]))
+			if (Mesh_VertsRealloc(*vertIdx))
 			{
 				Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 			}
 
+			if (verts_count <= index_xyz)
+			{
+				R_Printf(PRINT_ALL, "%s: Model has issues with lerped index\n",
+					__func__);
+				return;
+			}
+
 			/* normals and vertexes come from the frame list */
-			memcpy(point, s_lerped[order[2]], sizeof(point));
+			memcpy(point, s_lerped[index_xyz], sizeof(point));
 
 			point[0] -= shadevector[0] * (point[2] + lheight);
 			point[1] -= shadevector[1] * (point[2] + lheight);
 			point[2] = height;
 
-			shadowverts[i][0] = point[0];
-			shadowverts[i][1] = point[1];
-			shadowverts[i][2] = point[2];
+			shadowverts[*vertIdx][0] = point[0];
+			shadowverts[*vertIdx][1] = point[1];
+			shadowverts[*vertIdx][2] = point[2];
 
+			(*vertIdx) ++;
 			order += 3;
-			i++;
 		}
 		while (--count);
 
-		if (i > 0)
+		if (Mesh_VertsRealloc(*pipeCounters + 1))
 		{
-			VkDeviceSize vaoSize = sizeof(vec3_t) * i;
-			VkBuffer vbo;
-			VkDeviceSize vboOffset;
-			uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
-			memcpy(vertData, shadowverts, vaoSize);
-
-			QVk_BindPipeline(&vk_shadowsPipelineFan);
-			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-				vk_shadowsPipelineFan.layout, 0, 1, uboDescriptorSet, 1, uboOffset);
-			vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-
-			if (pipelineIdx == TRIANGLE_STRIP)
-			{
-				vkCmdBindIndexBuffer(vk_activeCmdbuffer, strip, stripOffset, VK_INDEX_TYPE_UINT16);
-				vkCmdDrawIndexed(vk_activeCmdbuffer, (i - 2) * 3, 1, 0, 0, 0);
-			}
-			else
-			{
-				vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
-				vkCmdDrawIndexed(vk_activeCmdbuffer, (i - 2) * 3, 1, 0, 0, 0);
-			}
+			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
+
+		if (pipelineIdx == TRIANGLE_STRIP)
+		{
+			GenStripIndexes(vertIdxData + *index_pos,
+				drawInfo[*pipeCounters].firstVertex,
+				drawInfo[*pipeCounters].vertexCount - 2 + drawInfo[*pipeCounters].firstVertex);
+		}
+		else
+		{
+			GenFanIndexes(vertIdxData + *index_pos,
+				drawInfo[*pipeCounters].firstVertex,
+				drawInfo[*pipeCounters].vertexCount - 2 + drawInfo[*pipeCounters].firstVertex);
+		}
+		*index_pos += (drawInfo[*pipeCounters].vertexCount - 2) * 3;
+
+		(*pipeCounters)++;
+		drawInfo[*pipeCounters].firstVertex = *vertIdx;
 	}
 }
 
@@ -864,6 +866,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		dmdxmesh_t *mesh_nodes;
 		float height, lheight;
 		int *order;
+		int vertIdx = 0, pipeCounters = 0, index_pos = 0;
 
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
@@ -873,15 +876,32 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		lheight = currententity->origin[2] - lightspot[2];
 		height = -lheight + 1.0;
 
+		drawInfo[0].firstVertex = 0;
+
 		for (i = 0; i < num_mesh_nodes; i++)
 		{
 			Vk_DrawAliasShadow(
 				order + mesh_nodes[i].ofs_glcmds,
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-				currententity->frame, height, lheight,
-				s_lerped, shadevector, &uboOffset, &uboDescriptorSet,
-				paliashdr->num_tris);
+				height, lheight, s_lerped, shadevector,
+				&vertIdx, &pipeCounters, &index_pos);
 		}
+
+		VkDeviceSize vaoSize = sizeof(vec3_t) * vertIdx;
+		VkBuffer vbo, *buffer;
+		VkDeviceSize vboOffset, dstOffset;
+
+		uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
+		memcpy(vertData, shadowverts, vaoSize);
+
+		QVk_BindPipeline(&vk_shadowsPipelineFan);
+		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			vk_shadowsPipelineFan.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
+		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+
+		buffer = UpdateIndexBuffer(vertIdxData, verts_count * sizeof(uint16_t), &dstOffset);
+		vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
 	}
 }
