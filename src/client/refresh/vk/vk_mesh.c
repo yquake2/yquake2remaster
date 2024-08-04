@@ -41,7 +41,7 @@ typedef struct {
 mvtx_t 	*verts_buffer = NULL;
 static	modelvert	*vertList = NULL;
 static	vec3_t	*shadowverts = NULL;
-static	uint16_t	*vertIdxData = NULL;
+uint16_t	*vertIdxData = NULL;
 
 static	int	verts_count = 0;
 

@@ -448,6 +448,14 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
 
+	VkDescriptorSet descriptorSets[] = {
+		image->vk_texture.descriptorSet,
+		uboDescriptorSet,
+		vk_state.lightmap_textures[lmtex].descriptorSet
+	};
+
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
+
 	if (is_dynamic)
 	{
 		int smax, tmax, size;
@@ -489,12 +497,6 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 
 			VkBuffer vbo;
 			VkDeviceSize vboOffset;
-			VkDescriptorSet descriptorSets[] = {
-				image->vk_texture.descriptorSet,
-				uboDescriptorSet,
-				vk_state.lightmap_textures[lmtex].descriptorSet
-			};
-			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 
 			for (p = surf->polys; p; p = p->chain)
 			{
@@ -522,13 +524,6 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 		{
 			VkDeviceSize vboOffset;
 			VkBuffer vbo;
-			VkDescriptorSet descriptorSets[] = {
-				image->vk_texture.descriptorSet,
-				uboDescriptorSet,
-				vk_state.lightmap_textures[lmtex].descriptorSet
-			};
-
-			vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 
 			for (p = surf->polys; p; p = p->chain)
 			{
@@ -577,14 +572,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 				vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * nv, &vbo, &vboOffset);
 				memcpy(vertData, verts_buffer, sizeof(mvtx_t) * nv);
 
-				VkDescriptorSet descriptorSets[] = {
-					image->vk_texture.descriptorSet,
-					uboDescriptorSet,
-					vk_state.lightmap_textures[lmtex].descriptorSet
-				};
-
 				fan = QVk_GetTriangleFanIbo((nv - 2) * 3, &fanOffset);
-				vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 				vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 				vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
 				vkCmdDrawIndexed(vk_activeCmdbuffer, (nv - 2) * 3, 1, 0, 0, 0);
@@ -603,14 +591,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, const float *modelMatrix, float alpha
 				vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * nv, &vbo, &vboOffset);
 				memcpy(vertData, p->verts, sizeof(mvtx_t) * nv);
 
-				VkDescriptorSet descriptorSets[] = {
-					image->vk_texture.descriptorSet,
-					uboDescriptorSet,
-					vk_state.lightmap_textures[lmtex].descriptorSet
-				};
-
 				fan = QVk_GetTriangleFanIbo((nv - 2) * 3, &fanOffset);
-				vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, &uboOffset);
 				vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 				vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
 				vkCmdDrawIndexed(vk_activeCmdbuffer, (nv - 2) * 3, 1, 0, 0, 0);
