@@ -299,7 +299,8 @@ static void
 Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp, image_t *skin,
 	int leftHandOffset, int translucentIdx, vec4_t *s_lerped,
 	const float *shadelight, const float *shadevector,
-	uint32_t uboOffset, VkDescriptorSet uboDescriptorSet)
+	uint32_t uboOffset, VkDescriptorSet uboDescriptorSet,
+	int *index_pos, VkBuffer **buffer, VkDeviceSize *dstOffset)
 {
 	daliasxframe_t *frame, *oldframe;
 	dxtrivertx_t *ov, *verts;
@@ -311,7 +312,9 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	int i;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
-	int vertIdx = 0, index_pos = 0, firstVertex = 0;
+	int vertIdx = 0, firstVertex = 0;
+	VkDeviceSize vboOffset, vaoSize;
+	VkBuffer vbo;
 	qboolean colorOnly = 0 != (currententity->flags &
 			(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 			 RF_SHELL_HALF_DAM));
@@ -386,13 +389,10 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, verts, s_lerped, shadelight, shadevector,
 			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE),
-			&vertIdx, &firstVertex, &index_pos);
+			&vertIdx, &firstVertex, index_pos);
 	}
 
-	VkDeviceSize vaoSize = sizeof(modelvert) * vertIdx;
-	VkBuffer vbo, *buffer;
-	VkDeviceSize vboOffset, dstOffset;
-
+	vaoSize = sizeof(modelvert) * vertIdx;
 	uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
 	memcpy(vertData, vertList, vaoSize);
 
@@ -402,20 +402,20 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 		descriptorSets, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
-	buffer = UpdateIndexBuffer(vertIdxData, verts_count * sizeof(uint16_t), &dstOffset);
+	*buffer = UpdateIndexBuffer(vertIdxData, verts_count * sizeof(uint16_t), dstOffset);
 
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
-	vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, **buffer, *dstOffset, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(vk_activeCmdbuffer, *index_pos, 1, 0, 0, 0);
 }
 
 static void
 Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 	vec4_t *s_lerped, const float *shadevector,
-	int *vertIdx, int *firstVertex, int *index_pos)
+	int *vertIdx)
 {
 	while (1)
 	{
-		int count, vertexCount;
+		int count;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
@@ -428,14 +428,7 @@ Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 		if (count < 0)
 		{
 			count = -count;
-			pipelineIdx = TRIANGLE_FAN;
 		}
-		else
-		{
-			pipelineIdx = TRIANGLE_STRIP;
-		}
-
-		vertexCount = count;
 
 		do
 		{
@@ -469,21 +462,6 @@ Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 			order += 3;
 		}
 		while (--count);
-
-		if (pipelineIdx == TRIANGLE_STRIP)
-		{
-			GenStripIndexes(vertIdxData + *index_pos,
-				*firstVertex,
-				vertexCount - 2 + *firstVertex);
-		}
-		else
-		{
-			GenFanIndexes(vertIdxData + *index_pos,
-				*firstVertex,
-				vertexCount - 2 + *firstVertex);
-		}
-		*index_pos += (vertexCount - 2) * 3;
-		*firstVertex = *vertIdx;
 	}
 }
 
@@ -521,7 +499,7 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
-	int leftHandOffset = 0, i;
+	int leftHandOffset = 0, index_pos = 0, i;
 	float prev_viewproj[16], an;
 	vec3_t shadevector, shadelight;
 	dmdx_t *paliashdr;
@@ -746,6 +724,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	VkDescriptorSet uboDescriptorSet;
 	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(meshUbo), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, &meshUbo, sizeof(meshUbo));
+	VkBuffer *buffer;
+	VkDeviceSize dstOffset;
 
 	/* draw model */
 	{
@@ -800,7 +780,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		Vk_DrawAliasFrameLerp(currententity, paliashdr, currententity->backlerp,
 			skin, leftHandOffset, (currententity->flags & RF_TRANSLUCENT) ? 1 : 0,
-			s_lerped, shadelight, shadevector, uboOffset, uboDescriptorSet);
+			s_lerped, shadelight, shadevector, uboOffset, uboDescriptorSet,
+			&index_pos, &buffer, &dstOffset);
 	}
 
 	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
@@ -821,7 +802,9 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		dmdxmesh_t *mesh_nodes;
 		float height, lheight;
 		int *order;
-		int vertIdx = 0, index_pos = 0, firstVertex = 0;
+		int vertIdx = 0;
+		VkDeviceSize vboOffset, vaoSize;
+		VkBuffer vbo;
 
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
@@ -838,12 +821,10 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				order + Q_min(paliashdr->num_glcmds,
 					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 				height, lheight, s_lerped, shadevector,
-				&vertIdx, &firstVertex, &index_pos);
+				&vertIdx);
 		}
 
-		VkDeviceSize vaoSize = sizeof(vec3_t) * vertIdx;
-		VkBuffer vbo, *buffer;
-		VkDeviceSize vboOffset, dstOffset;
+		vaoSize = sizeof(vec3_t) * vertIdx;
 
 		uint8_t *vertData = QVk_GetVertexBuffer(vaoSize, &vbo, &vboOffset);
 		memcpy(vertData, shadowverts, vaoSize);
@@ -853,7 +834,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			vk_shadowsPipelineFan.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
-		buffer = UpdateIndexBuffer(vertIdxData, verts_count * sizeof(uint16_t), &dstOffset);
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
 	}
