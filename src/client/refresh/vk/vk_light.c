@@ -33,12 +33,11 @@ vec3_t lightspot;
 static void
 R_RenderDlight(dlight_t *light)
 {
-	VkDeviceSize vboOffset, fanOffset;
+	VkDeviceSize vboOffset, dstOffset;
 	VkDescriptorSet uboDescriptorSet;
 	uint8_t *vertData, *uboData;
+	VkBuffer vbo, *buffer;
 	uint32_t uboOffset;
-	VkBuffer vbo;
-	VkBuffer fan;
 	float rad;
 	int i, j;
 
@@ -78,10 +77,13 @@ R_RenderDlight(dlight_t *light)
 	memcpy(vertData, lightVerts, sizeof(lightVerts));
 	memcpy(uboData,  r_viewproj_matrix, sizeof(r_viewproj_matrix));
 
-	fan = QVk_GetTriangleFanIbo(48, &fanOffset);
+	Mesh_VertsRealloc(64);
+	GenFanIndexes(vertIdxData, 0, 48);
+	buffer = UpdateIndexBuffer(vertIdxData, 48 * sizeof(uint16_t), &dstOffset);
+
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawDLightPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 48, 1, 0, 0, 0);
 }
 
