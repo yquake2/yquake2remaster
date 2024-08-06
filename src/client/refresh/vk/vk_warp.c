@@ -168,8 +168,10 @@ RE_ClearSkyBox(void)
 void
 R_DrawSkyBox(void)
 {
-	int i;
+	VkDeviceSize dstOffset;
+	VkBuffer *buffer;
 	qboolean farsee;
+	int i;
 
 	farsee = (r_farsee->value == 0);
 
@@ -204,6 +206,10 @@ R_DrawSkyBox(void)
 	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(model), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, model, sizeof(model));
 
+	Mesh_VertsRealloc(6);
+	GenFanIndexes(vertIdxData, 0, 4);
+	buffer = UpdateIndexBuffer(vertIdxData, 6 * sizeof(uint16_t), &dstOffset);
+
 	for (i = 0; i < 6; i++)
 	{
 		if (skyrotate)
@@ -231,13 +237,8 @@ R_DrawSkyBox(void)
 
 		VkBuffer vbo;
 		VkDeviceSize vboOffset;
-		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * 6, &vbo, &vboOffset);
-		memcpy(vertData + sizeof(mvtx_t) * 0, &skyVerts[0], sizeof(mvtx_t));
-		memcpy(vertData + sizeof(mvtx_t) * 1, &skyVerts[1], sizeof(mvtx_t));
-		memcpy(vertData + sizeof(mvtx_t) * 2, &skyVerts[2], sizeof(mvtx_t));
-		memcpy(vertData + sizeof(mvtx_t) * 3, &skyVerts[0], sizeof(mvtx_t));
-		memcpy(vertData + sizeof(mvtx_t) * 4, &skyVerts[2], sizeof(mvtx_t));
-		memcpy(vertData + sizeof(mvtx_t) * 5, &skyVerts[3], sizeof(mvtx_t));
+		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * 4, &vbo, &vboOffset);
+		memcpy(vertData, skyVerts, sizeof(mvtx_t) * 4);
 
 		VkDescriptorSet descriptorSets[] = {
 			sky_images[skytexorder[i]]->vk_texture.descriptorSet,
@@ -252,7 +253,9 @@ R_DrawSkyBox(void)
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			vk_drawSkyboxPipeline.layout, 0, 2, descriptorSets, 1, &uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-		vkCmdDraw(vk_activeCmdbuffer, 6, 1, 0, 0);
+
+		vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
 	}
 }
 
