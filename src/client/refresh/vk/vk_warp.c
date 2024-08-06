@@ -60,6 +60,9 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 		float tscroll;
 	} polyUbo;
 
+	VkBuffer *buffer;
+	VkDeviceSize dstOffset;
+
 	polyUbo.color[0] = color[0];
 	polyUbo.color[1] = color[1];
 	polyUbo.color[2] = color[2];
@@ -101,6 +104,7 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 		texture->vk_texture.descriptorSet,
 		uboDescriptorSet
 	};
+	int pos_vect = 0, index_pos = 0;
 
 	float gamma = 2.1F - vid_gamma->value;
 
@@ -126,31 +130,32 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
-		VkDeviceSize fanOffset;
-		VkBuffer fan;
-
 		p = bp;
 
-		if (Mesh_VertsRealloc(p->numverts))
+		if (Mesh_VertsRealloc(pos_vect + p->numverts))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		}
 
-		memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * p->numverts);
+		memcpy(verts_buffer + pos_vect, p->verts, sizeof(mvtx_t) * p->numverts);
 		for (i = 0; i < p->numverts; i++)
 		{
-			verts_buffer[i].texCoord[0] /= 64.f;
-			verts_buffer[i].texCoord[1] /= 64.f;
+			verts_buffer[i + pos_vect].texCoord[0] /= 64.f;
+			verts_buffer[i + pos_vect].texCoord[1] /= 64.f;
 		}
-
-		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
-		memcpy(vertData, verts_buffer, sizeof(mvtx_t) * p->numverts);
-
-		fan = QVk_GetTriangleFanIbo((p->numverts - 2) * 3, &fanOffset);
-		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-		vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
-		vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
+		GenFanIndexes(vertIdxData + index_pos,
+			pos_vect, p->numverts - 2 + pos_vect);
+		pos_vect += p->numverts;
+		index_pos += (p->numverts - 2) * 3;
 	}
+
+	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
+	memcpy(vertData, verts_buffer, sizeof(mvtx_t) * pos_vect);
+
+	buffer = UpdateIndexBuffer(vertIdxData, index_pos * sizeof(uint16_t), &dstOffset);
+	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
 }
 
 void
