@@ -41,8 +41,8 @@ DrawVkPoly(mpoly_t *p, image_t *texture, const float *color)
 {
 	QVk_BindPipeline(&vk_drawPolyPipeline);
 
-	VkBuffer vbo, fan;
-	VkDeviceSize vboOffset, fanOffset;
+	VkBuffer vbo, *buffer;
+	VkDeviceSize vboOffset, dstOffset;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
 	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
@@ -60,10 +60,14 @@ DrawVkPoly(mpoly_t *p, image_t *texture, const float *color)
 	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
 		VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
 
-	fan = QVk_GetTriangleFanIbo((p->numverts - 2) * 3, &fanOffset);
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPolyPipeline.layout, 0, 2, descriptorSets, 1, &uboOffset);
+	Mesh_VertsRealloc((p->numverts - 2) * 3);
+	GenFanIndexes(vertIdxData, 0, p->numverts - 2);
+	buffer = UpdateIndexBuffer(vertIdxData, (p->numverts - 2) * 3 * sizeof(uint16_t), &dstOffset);
+
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vk_drawPolyPipeline.layout, 0, 2, descriptorSets, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer, fan, fanOffset, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
 }
 
@@ -211,9 +215,13 @@ R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 	//======
 	//PGM
 	if (fa->texinfo->flags & SURF_SCROLL)
+	{
 		DrawVkFlowingPoly(fa, image, color);
+	}
 	else
+	{
 		DrawVkPoly(fa->polys, image, color);
+	}
 	//PGM
 	//======
 
