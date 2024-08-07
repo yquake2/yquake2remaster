@@ -329,7 +329,6 @@ void		QVk_DestroyPipeline(qvkpipeline_t *pipeline);
 uint8_t*	QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSize *dstOffset);
 uint8_t*	QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescriptorSet *dstUboDescriptorSet);
 uint8_t*	QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer *cmdBuffer, VkBuffer *buffer, uint32_t *dstOffset);
-VkBuffer	QVk_GetTriangleFanIbo(VkDeviceSize indexCount, VkDeviceSize *dstOffset);
 void		GenFanIndexes(uint16_t *data, int from, int to);
 void		GenStripIndexes(uint16_t *data, int from, int to);
 VkBuffer*	UpdateIndexBuffer(uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *dstOffset);

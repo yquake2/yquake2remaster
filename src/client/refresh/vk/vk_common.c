@@ -236,10 +236,6 @@ static qvkstagingbuffer_t vk_stagingBuffers[NUM_DYNBUFFERS];
 static int vk_activeDynBufferIdx = 0;
 static int vk_activeSwapBufferIdx = 0;
 static int vk_dynIndex = 0;
-/* cache tri between calls */
-static VkBuffer *vk_fanBuffercache = NULL;
-static VkDeviceSize vk_fanOffset = 0;
-static int vk_fanBuffersize = 0;
 
 // swap buffers used if primary dynamic buffers get full
 #define NUM_SWAPBUFFER_SLOTS 4
@@ -2138,10 +2134,6 @@ qboolean QVk_Init(void)
 	CreateDynamicBuffers();
 	// create staging buffers
 	CreateStagingBuffers();
-	/* reset fan buffer */
-	vk_fanOffset = 0;
-	vk_fanBuffersize = 512;
-	vk_fanBuffercache = NULL;
 
 	CreatePipelines();
 	CreateSamplers();
@@ -2178,9 +2170,6 @@ VkResult QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 	vk_config.vertex_buffer_usage  = 0;
 	vk_config.index_buffer_usage   = 0;
 	vk_config.uniform_buffer_usage = 0;
-	/* reset fan buffer */
-	vk_fanOffset = 0;
-	vk_fanBuffercache = NULL;
 
 	ReleaseSwapBuffers();
 
@@ -2615,37 +2604,6 @@ uint8_t *QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer 
 	stagingBuffer->currentOffset += size;
 
 	return data;
-}
-
-VkBuffer
-QVk_GetTriangleFanIbo(VkDeviceSize indexCount, VkDeviceSize *dstOffset)
-{
-	VkDeviceSize bufferSize;
-	VkBuffer *buffer;
-	uint16_t *data;
-
-	if (vk_fanBuffercache && (vk_fanBuffersize > indexCount))
-	{
-		*dstOffset = vk_fanOffset;
-		return *vk_fanBuffercache;
-	}
-
-	indexCount = ROUNDUP(Q_max(indexCount, vk_fanBuffersize), 4);
-
-	bufferSize = 3 * indexCount * sizeof(uint16_t);
-	data = malloc(bufferSize);
-
-	GenFanIndexes(data, 0, indexCount);
-	buffer = UpdateIndexBuffer(data, bufferSize, dstOffset);
-
-	free(data);
-
-	/* save to cache */
-	vk_fanOffset = *dstOffset;
-	vk_fanBuffersize = indexCount;
-	vk_fanBuffercache = buffer;
-
-	return *buffer;
 }
 
 void QVk_SubmitStagingBuffers()
