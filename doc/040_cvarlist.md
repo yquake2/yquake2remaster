@@ -311,6 +311,12 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   is much more reliable than the classic sound system, especially on
   modern systems like Windows 10 or Linux with PulseAudio.
 
+* **s_sdldriver**: Can be set to the name of a SDL audio driver. If set
+  to `auto`, SDL chooses the driver. If set to anything else the given
+  driver is forced, regardless if supported by SDL or the platform or
+  not. By default set to `directsound` under Windows and `auto` on all
+  other platforms.
+
 * **s_underwater**: Dampen sounds if submerged. Enabled by default.
 
 * **s_occlusion_strength**: If set bigger than `0` sound occlusion effects
