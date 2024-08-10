@@ -1041,6 +1041,9 @@ qboolean RE_EndWorldRenderpass(void)
 	// Restore full viewport for future steps.
 	vkCmdSetViewport(vk_activeCmdbuffer, 0u, 1u, &vk_viewport);
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &vk_scissor);
+/*
+ * VK_WARNING: Validation Warning: [ BestPractices-PushConstants ] Object 0: handle = 0xaaaaadf16a40, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0x1248c6a4 | vkCmdDraw():  Pipeline uses push constants with 112 bytes, but byte 0 was never set with vkCmdPushConstants. (validation)
+ */
 	vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);
 	printf("%d: %s\n", drawCalls++, __func__);
 	vkCmdEndRenderPass(vk_activeCmdbuffer);

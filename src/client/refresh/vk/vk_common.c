@@ -2173,6 +2173,9 @@ VkResult QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 
 	ReleaseSwapBuffers();
 
+/*
+ * VK_ERROR: Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] Object 0: handle = 0x90000000009, name = Semaphore: image available #0, type = VK_OBJECT_TYPE_SEMAPHORE; | MessageID = 0x5717e75b | vkAcquireNextImageKHR():  Semaphore must not have any pending operations. The Vulkan spec states: If semaphore is not VK_NULL_HANDLE it must not have any uncompleted signal or wait operations pending (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#VUID-vkAcquireNextImageKHR-semaphore-01779) (validation)
+ */
 	VkResult result = vkAcquireNextImageKHR(vk_device.logical, vk_swapchain.sc, 500000000, vk_imageAvailableSemaphores[vk_activeBufferIdx], VK_NULL_HANDLE, &vk_imageIndex);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_SURFACE_LOST_KHR || result == VK_TIMEOUT)
 	{
@@ -2691,6 +2694,9 @@ void QVk_DrawTexRect(const float *ubo, VkDeviceSize uboSize, qvktexture_t *textu
 		&vk_texRectVbo.resource.buffer, &offsets);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer,
 		vk_rectIbo.resource.buffer, 0, VK_INDEX_TYPE_UINT32);
+/*
+ * VK_WARNING: Validation Warning: [ BestPractices-PushConstants ] Object 0: handle = 0xaaaaadf16a40, type = VK_OBJECT_TYPE_COMMAND_BUFFER; | MessageID = 0x1248c6a4 | vkCmdDrawIndexed():  Pipeline uses push constants with 112 bytes, but byte 0 was never set with vkCmdPushConstants. (validation)
+ */
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
 	printf("%d: %s\n", drawCalls++, __func__);
 }
