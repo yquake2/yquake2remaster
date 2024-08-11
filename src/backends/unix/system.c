@@ -403,7 +403,7 @@ void *
 Sys_GetGameAPI(void *parms)
 {
 	typedef void *(*fnAPI)(void *);
-	fnAPI GetGameAPI; 
+	fnAPI GetGameAPI;
 
 	char name[MAX_OSPATH];
 	char *path;

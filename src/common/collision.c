@@ -1321,7 +1321,7 @@ CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
 
 	if (count > MAX_MAP_MODELS)
 	{
-		Com_Error(ERR_DROP, "%s: Map has too many models", __func__);
+		Com_Error(ERR_DROP, "%s: Map %s has too many models", __func__, name);
 	}
 
 	*numcmodels = count;
@@ -1708,7 +1708,7 @@ CMod_LoadEntityString(const char *name, const char **map_entitystring, int *nume
 		}
 		else if (bufLen != -1)
 		{
-			/* If the .ent file is too small, don't load. */
+			/* If the .ent file is too small or large, don't load. */
 			Com_Printf("%s: .ent file %s too small.\n", __func__, entname);
 			FS_FreeFile(buffer);
 		}
