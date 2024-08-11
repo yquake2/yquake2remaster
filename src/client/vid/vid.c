@@ -447,7 +447,7 @@ VID_LoadRenderer(void)
 	ri.Vid_GetModeInfo = VID_GetModeInfo;
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_WriteScreenshot = VID_WriteScreenshot;
-	ri.VID_ImageDecode = VID_ImageDecode;
+	ri.VID_ImageDecode = SCR_LoadImageWithPalette;
 	ri.VID_GetPalette = VID_GetPalette;
 	ri.VID_GetPalette24to8 = VID_GetPalette24to8;
 	ri.Vid_RequestRestart = VID_RequestRestart;

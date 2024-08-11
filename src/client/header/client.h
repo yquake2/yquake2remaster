@@ -507,8 +507,6 @@ void V_AddEntity (entity_t *ent);
 void V_AddParticle (vec3_t org, unsigned int color, float alpha);
 void V_AddLight (vec3_t org, float intensity, float r, float g, float b);
 void V_AddLightStyle (int style, float r, float g, float b);
-void VID_ImageDecode(const char *filename, byte **pic, byte **palette,
-	int *width, int *height, int *bitsPerPixel);
 void VID_GetPalette(byte **colormap, unsigned *d_8to24table);
 void VID_GetPalette24to8(const byte *d_8to24table, byte** d_16to8table);
 unsigned VID_PaletteColor(byte color);

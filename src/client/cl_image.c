@@ -907,7 +907,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 }
 
 void
-VID_ImageDecode(const char *filename, byte **pic, byte **palette,
+SCR_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel)
 {
 	LoadImageWithPalette(filename, pic, palette, width, height, bitsPerPixel);

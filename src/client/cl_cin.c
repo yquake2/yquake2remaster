@@ -758,7 +758,7 @@ SCR_LoadHiColor(const char* namewe, const char *ext, int *width, int *height,
 	Q_strlcat(filename, ".", sizeof(filename));
 	Q_strlcat(filename, ext, sizeof(filename));
 
-	VID_ImageDecode(filename, &data, &palette_in,
+	SCR_LoadImageWithPalette(filename, &data, &palette_in,
 		width, height, bitsPerPixel);
 	if (data == NULL)
 	{
