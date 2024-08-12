@@ -34,6 +34,7 @@ jobs:
         sed -i 's|WITH_AVCODEC:=yes|WITH_AVCODEC:=no|g' Makefile
         # Public runners come with 2 CPUs.
         make -j2
+        make -j2 ref_gles1
     - name: Create testbuild package
       run: |
         # Create release directory tree
