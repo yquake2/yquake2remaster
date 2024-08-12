@@ -91,8 +91,7 @@ LM_UploadBlock(qboolean dynamic)
 
 	if (dynamic)
 	{
-		int i;
-		int height = 0;
+		int i, height = 0;
 
 		for (i = 0; i < gl_state.block_width; i++)
 		{
@@ -112,6 +111,23 @@ LM_UploadBlock(qboolean dynamic)
 				gl_state.block_width, gl_state.block_height,
 				0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
 				gl_lms.lightmap_buffer[buffer]);
+
+		if (gl_config.lightmapcopies && buffer != 0)
+		{
+			int i;
+
+			// Upload to all lightmap copies
+			for (i = 1; i < MAX_LIGHTMAP_COPIES; i++)
+			{
+				R_Bind(gl_state.lightmap_textures + (gl_state.max_lightmaps * i) + texture);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_LIGHTMAP_FORMAT,
+					gl_state.block_width, gl_state.block_height,
+					0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
+					gl_lms.lightmap_buffer[buffer]);
+			}
+		}
 
 		if (++gl_lms.current_lightmap_texture == gl_state.max_lightmaps)
 		{

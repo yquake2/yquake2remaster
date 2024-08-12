@@ -92,6 +92,8 @@ cvar_t *gl1_particle_square;
 cvar_t *gl1_palettedtexture;
 cvar_t *gl1_pointparameters;
 cvar_t *gl1_multitexture;
+cvar_t *gl1_lightmapcopies;
+cvar_t *gl1_discardfb;
 
 cvar_t *gl_drawbuffer;
 cvar_t *gl_lightmap;
@@ -148,6 +150,8 @@ refimport_t ri;
 void LM_FreeLightmapBuffers(void);
 void Scrap_Free(void);
 void Scrap_Init(void);
+
+extern void R_ResetGLBuffer(void);
 
 void
 R_RotateForEntity(entity_t *e)
@@ -928,6 +932,7 @@ R_SetGL2D(void)
 static void
 R_RenderView(const refdef_t *fd)
 {
+#ifndef YQ2_GL1_GLES
 	if ((gl_state.stereo_mode != STEREO_MODE_NONE) && gl_state.camera_separation) {
 
 		qboolean drawing_left_eye = gl_state.camera_separation < 0;
@@ -1035,7 +1040,7 @@ R_RenderView(const refdef_t *fd)
 				break;
 		}
 	}
-
+#endif
 
 	if (r_norefresh->value)
 	{
@@ -1176,6 +1181,12 @@ RI_RenderFrame(refdef_t *fd)
 	R_SetGL2D();
 }
 
+#ifdef YQ2_GL1_GLES
+#define DEFAULT_LMCOPIES	"1"
+#else
+#define DEFAULT_LMCOPIES	"0"
+#endif
+
 void
 R_Register(void)
 {
@@ -1234,6 +1245,10 @@ R_Register(void)
 	gl1_palettedtexture = ri.Cvar_Get("r_palettedtextures", "0", CVAR_ARCHIVE);
 	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", "1", CVAR_ARCHIVE);
 	gl1_multitexture = ri.Cvar_Get("gl1_multitexture", "1", CVAR_ARCHIVE);
+	gl1_lightmapcopies = ri.Cvar_Get("gl1_lightmapcopies", DEFAULT_LMCOPIES, CVAR_ARCHIVE);
+#ifdef YQ2_GL1_GLES
+	gl1_discardfb = ri.Cvar_Get("gl1_discardfb", "1", CVAR_ARCHIVE);
+#endif
 
 	gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
 	r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
@@ -1270,6 +1285,8 @@ R_Register(void)
 	ri.Cmd_AddCommand("modellist", Mod_Modellist_f);
 	ri.Cmd_AddCommand("gl_strings", R_Strings);
 }
+
+#undef DEFAULT_LMCOPIES
 
 /*
  * Changes the video mode
@@ -1411,11 +1428,26 @@ R_SetMode(void)
 	return true;
 }
 
+// just to avoid too many preprocessor directives in RI_Init()
+typedef enum
+{
+	rf_opengl14,
+	rf_opengles10
+} refresher_t;
+
 qboolean
 RI_Init(void)
 {
 	int j;
 	extern float r_turbsin[256];
+
+#ifdef YQ2_GL1_GLES
+#define GLEXTENSION_NPOT	"GL_OES_texture_npot"
+	static const refresher_t refresher = rf_opengles10;
+#else
+#define GLEXTENSION_NPOT	"GL_ARB_texture_non_power_of_two"
+	static const refresher_t refresher = rf_opengl14;
+#endif
 
 	Swap_Init();
 
@@ -1472,7 +1504,7 @@ RI_Init(void)
 
 	sscanf(gl_config.version_string, "%d.%d", &gl_config.major_version, &gl_config.minor_version);
 
-	if (gl_config.major_version == 1)
+	if (refresher == rf_opengl14 && gl_config.major_version == 1)
 	{
 		if (gl_config.minor_version < 4)
 		{
@@ -1490,7 +1522,8 @@ RI_Init(void)
 	/* Point parameters */
 	R_Printf(PRINT_ALL, " - Point parameters: ");
 
-	if ( strstr(gl_config.extensions_string, "GL_ARB_point_parameters") ||
+	if ( refresher == rf_opengles10 ||
+		strstr(gl_config.extensions_string, "GL_ARB_point_parameters") ||
 		strstr(gl_config.extensions_string, "GL_EXT_point_parameters") )	// should exist for all OGL 1.4 hw...
 	{
 		qglPointParameterf = (void (APIENTRY *)(GLenum, GLfloat))RI_GetProcAddress ( "glPointParameterf" );
@@ -1583,7 +1616,7 @@ RI_Init(void)
 	/* Non power of two textures */
 	R_Printf(PRINT_ALL, " - Non power of two textures: ");
 
-	if (strstr(gl_config.extensions_string, "GL_ARB_texture_non_power_of_two"))
+	if (strstr(gl_config.extensions_string, GLEXTENSION_NPOT))
 	{
 		gl_config.npottextures = true;
 		R_Printf(PRINT_ALL, "Okay\n");
@@ -1594,6 +1627,8 @@ RI_Init(void)
 		R_Printf(PRINT_ALL, "Failed\n");
 	}
 
+#undef GLEXTENSION_NPOT
+
 	// ----
 
 	/* Multitexturing */
@@ -1601,7 +1636,7 @@ RI_Init(void)
 
 	R_Printf(PRINT_ALL, " - Multitexturing: ");
 
-	if (strstr(gl_config.extensions_string, "GL_ARB_multitexture"))
+	if ( refresher == rf_opengles10 || strstr(gl_config.extensions_string, "GL_ARB_multitexture") )
 	{
 		qglActiveTexture = (void (APIENTRY *)(GLenum))RI_GetProcAddress ("glActiveTexture");
 		qglClientActiveTexture = (void (APIENTRY *)(GLenum))RI_GetProcAddress ("glClientActiveTexture");
@@ -1632,6 +1667,65 @@ RI_Init(void)
 
 	// ----
 
+	/* Lightmap copies: keep multiple copies of "the same" lightmap on video memory.
+	 * All of them are actually different, because they are affected by different dynamic lighting,
+	 * in different frames. This is not meant for Immediate-Mode Rendering systems (desktop),
+	 * but for Tile-Based / Deferred Rendering ones (embedded / mobile), since active manipulation
+	 * of textures already being used in the last few frames can cause slowdown on these systems.
+	 * Needless to say, GPU memory usage is highly increased, so watch out in low memory situations.
+	 */
+
+	R_Printf(PRINT_ALL, " - Lightmap copies: ");
+	gl_config.lightmapcopies = false;
+	if (gl_config.multitexture && gl1_lightmapcopies->value)
+	{
+		gl_config.lightmapcopies = true;
+		R_Printf(PRINT_ALL, "Okay\n");
+	}
+	else
+	{
+		R_Printf(PRINT_ALL, "Disabled\n");
+	}
+
+	// ----
+
+	/* Discard framebuffer: Available only on GLES1, enables the use of a "performance hint"
+	 * to the graphic driver, to get rid of the contents of the depth and stencil buffers.
+	 * Useful for some GPUs that may attempt to keep them and/or write them back to
+	 * external/uniform memory, actions that are useless for Quake 2 rendering path.
+	 * https://registry.khronos.org/OpenGL/extensions/EXT/EXT_discard_framebuffer.txt
+	 */
+	gl_config.discardfb = false;
+
+#ifdef YQ2_GL1_GLES
+	R_Printf(PRINT_ALL, " - Discard framebuffer: ");
+
+	if (strstr(gl_config.extensions_string, "GL_EXT_discard_framebuffer"))
+	{
+			qglDiscardFramebufferEXT = (void (APIENTRY *)(GLenum, GLsizei, const GLenum *))
+					RI_GetProcAddress ("glDiscardFramebufferEXT");
+	}
+
+	if (gl1_discardfb->value)
+	{
+		if (qglDiscardFramebufferEXT)
+		{
+			gl_config.discardfb = true;
+			R_Printf(PRINT_ALL, "Okay\n");
+		}
+		else
+		{
+			R_Printf(PRINT_ALL, "Failed\n");
+		}
+	}
+	else
+	{
+		R_Printf(PRINT_ALL, "Disabled\n");
+	}
+#endif
+
+	// ----
+
 	/* Big lightmaps: this used to be fast, but after the implementation of the "GL Buffer", it
 	 * became too evident that the bigger the texture, the slower the call to glTexSubImage2D() is.
 	 * Original logic remains, but it's preferable not to make it visible to the user.
@@ -1654,6 +1748,7 @@ RI_Init(void)
 	Mod_Init();
 	R_InitParticleTexture();
 	Draw_InitLocal();
+	R_ResetGLBuffer();
 
 	return true;
 }
@@ -1794,6 +1889,7 @@ RI_BeginFrame(float camera_separation)
 		gl1_particle_square->modified = false;
 	}
 
+#ifndef YQ2_GL1_GLES
 	/* draw buffer stuff */
 	if (gl_drawbuffer->modified)
 	{
@@ -1811,6 +1907,7 @@ RI_BeginFrame(float camera_separation)
 			}
 		}
 	}
+#endif
 
 	/* texturemode stuff */
 	if (gl_texturemode->modified || (gl_config.anisotropic && gl_anisotropic->modified)

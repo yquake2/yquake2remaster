@@ -88,8 +88,8 @@ R_EmitWaterPolys(msurface_t *fa)
 			s = os + r_turbsin [ (int) ( ( ot * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ] + sscroll;
 			t = ot + r_turbsin [ (int) ( ( os * 0.125 + r_newrefdef.time ) * TURBSCALE ) & 255 ] + tscroll;
 
-			R_BufferVertex( v->pos[0], v->pos[1], v->pos[2] );
-			R_BufferSingleTex( s * ( 1.0 / 64 ), t * ( 1.0 / 64 ) );
+			GLBUFFER_VERTEX( v->pos[0], v->pos[1], v->pos[2] )
+			GLBUFFER_SINGLETEX( s * ( 1.0 / 64 ), t * ( 1.0 / 64 ) )
 		}
 	}
 }

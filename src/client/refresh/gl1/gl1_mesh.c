@@ -63,11 +63,11 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				index_xyz = order[2];
 				order += 3;
 
-				R_BufferVertex(s_lerped[index_xyz][0],
-					s_lerped[index_xyz][1], s_lerped[index_xyz][2]);
+				GLBUFFER_VERTEX(s_lerped[index_xyz][0],
+					s_lerped[index_xyz][1], s_lerped[index_xyz][2])
 
-				R_BufferColor(shadelight[0], shadelight[1],
-					shadelight[2], alpha);
+				GLBUFFER_COLOR(shadelight[0], shadelight[1],
+					shadelight[2], alpha)
 			}
 			while (--count);
 		}
@@ -96,13 +96,13 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				/* shadevector is set above according to rotation (around Z axis I think) */
 				l = DotProduct(normal, shadevector) + 1;
 
-				R_BufferVertex(s_lerped[index_xyz][0],
-					s_lerped[index_xyz][1], s_lerped[index_xyz][2]);
+				GLBUFFER_VERTEX(s_lerped[index_xyz][0],
+					s_lerped[index_xyz][1], s_lerped[index_xyz][2])
 
-				R_BufferSingleTex(tex[0], tex[1]);
+				GLBUFFER_SINGLETEX(tex[0], tex[1])
 
-				R_BufferColor(l * shadelight[0], l * shadelight[1],
-					l * shadelight[2], alpha);
+				GLBUFFER_COLOR(l * shadelight[0], l * shadelight[1],
+					l * shadelight[2], alpha)
 			}
 			while (--count);
 		}
@@ -225,7 +225,7 @@ R_DrawAliasShadowCommand(const entity_t *currententity, int *order, const int *o
 			point[1] -= shadevector[1] * (point[2] + lheight);
 			point[2] = height;
 
-			R_BufferVertex( point[0], point[1], point[2] );
+			GLBUFFER_VERTEX( point[0], point[1], point[2] )
 
 			order += 3;
 		}
