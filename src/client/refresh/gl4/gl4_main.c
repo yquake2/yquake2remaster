@@ -746,7 +746,6 @@ GL4_DrawBeam(entity_t *e)
 		VectorAdd(start_points[i], direction, end_points[i]);
 	}
 
-	//glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glDepthMask(GL_FALSE);
 
@@ -1590,6 +1589,9 @@ GL4_RenderView(refdef_t *fd)
 	GL4_DrawParticles();
 
 	GL4_DrawAlphaSurfaces();
+
+	// simple gamma correction
+	glEnable(GL_FRAMEBUFFER_SRGB);
 
 	// Note: R_Flash() is now GL4_Draw_Flash() and called from GL4_RenderFrame()
 
