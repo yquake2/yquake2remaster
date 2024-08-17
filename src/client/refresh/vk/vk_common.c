@@ -86,7 +86,7 @@ qvkrenderpass_t vk_renderpasses[RP_COUNT] = {
 };
 
 // Vulkan pools
-VkCommandPool vk_commandPool[NUM_CMDBUFFERS] = { VK_NULL_HANDLE, VK_NULL_HANDLE };
+VkCommandPool vk_commandPool[NUM_CMDBUFFERS] = { 0 };
 VkCommandPool vk_transferCommandPool = VK_NULL_HANDLE;
 VkDescriptorPool vk_descriptorPool = VK_NULL_HANDLE;
 static VkCommandPool vk_stagingCommandPool[NUM_DYNBUFFERS] = { VK_NULL_HANDLE, VK_NULL_HANDLE };
@@ -1733,6 +1733,8 @@ void QVk_PostInit(void)
 */
 qboolean QVk_Init(void)
 {
+	int i;
+
 	PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
 	uint32_t instanceVersion = VK_API_VERSION_1_0;
 
@@ -1817,7 +1819,7 @@ qboolean QVk_Init(void)
 #endif
 
 	R_Printf(PRINT_ALL, "Enabled extensions: ");
-	for (int i = 0; i < extCount; i++)
+	for (i = 0; i < extCount; i++)
 	{
 		R_Printf(PRINT_ALL, "%s ", wantedExtensions[i]);
 		vk_config.extensions[i] = wantedExtensions[i];
@@ -2019,8 +2021,9 @@ qboolean QVk_Init(void)
 		.pNext = NULL,
 		.flags = 0
 	};
-	for (int i = 0; i < NUM_CMDBUFFERS; ++i)
+	for (i = 0; i < NUM_CMDBUFFERS; ++i)
 	{
+		vk_commandPool[i] = VK_NULL_HANDLE;
 		VK_VERIFY(vkCreateFence(vk_device.logical, &fCreateInfo, NULL, &vk_fences[i]));
 		VK_VERIFY(vkCreateSemaphore(vk_device.logical, &sCreateInfo, NULL, &vk_imageAvailableSemaphores[i]));
 		VK_VERIFY(vkCreateSemaphore(vk_device.logical, &sCreateInfo, NULL, &vk_renderFinishedSemaphores[i]));
@@ -2173,7 +2176,8 @@ VkResult QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 
 	ReleaseSwapBuffers();
 
-	VkResult result = vkAcquireNextImageKHR(vk_device.logical, vk_swapchain.sc, 500000000, vk_imageAvailableSemaphores[vk_activeBufferIdx], VK_NULL_HANDLE, &vk_imageIndex);
+	VkResult result = vkAcquireNextImageKHR(vk_device.logical, vk_swapchain.sc, 500000000 /* 0.5 sec */,
+		vk_imageAvailableSemaphores[vk_activeBufferIdx], VK_NULL_HANDLE, &vk_imageIndex);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_SURFACE_LOST_KHR || result == VK_TIMEOUT)
 	{
 		vk_recreateSwapchainNeeded = true;
