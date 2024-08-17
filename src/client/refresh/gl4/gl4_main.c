@@ -684,64 +684,21 @@ GL4_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 	}
 	else // gl4config.useBigVBO == true
 	{
-		/*
-		 * For some reason, AMD's Windows driver doesn't seem to like lots of
-		 * calls to glBufferData() (some of them seem to take very long then).
-		 * GL4_BufferAndDraw3D() is called a lot when drawing world geometry
-		 * (once for each visible face I think?).
-		 * The simple code above caused noticeable slowdowns - even a fast
-		 * quadcore CPU and a Radeon RX580 weren't able to maintain 60fps..
-		 * The workaround is to not call glBufferData() with small data all the time,
-		 * but to allocate a big buffer and on each call to GL4_BufferAndDraw3D()
-		 * to use a different region of that buffer, resulting in a lot less calls
-		 * to glBufferData() (=> a lot less buffer allocations in the driver).
-		 * Only when the buffer is full and at the end of a frame (=> GL4_EndFrame())
-		 * we get a fresh buffer.
-		 *
-		 * BTW, we couldn't observe this kind of problem with any other driver:
-		 * Neither nvidias driver, nor AMDs or Intels Open Source Linux drivers,
-		 * not even Intels Windows driver seem to care that much about the
-		 * glBufferData() calls.. However, at least nvidias driver doesn't like
-		 * this workaround (with glMapBufferRange()), the framerate dropped
-		 * significantly - that's why both methods are available and
-		 * selectable at runtime.
-		 */
-#if 0
-		// I /think/ doing it with glBufferSubData() didn't really help
-		const int bufSize = gl4state.vbo3Dsize;
-		int neededSize = numVerts*sizeof(mvtx_t);
 		int curOffset = gl4state.vbo3DcurOffset;
-		if(curOffset + neededSize > gl4state.vbo3Dsize)
-			curOffset = 0;
-		int curIdx = curOffset / sizeof(mvtx_t);
+		int neededSize = numVerts * sizeof(mvtx_t);
 
-		gl4state.vbo3DcurOffset = curOffset + neededSize;
-
-		glBufferSubData( GL_ARRAY_BUFFER, curOffset, neededSize, verts );
-		glDrawArrays( drawMode, curIdx, numVerts );
-#else
-		int curOffset = gl4state.vbo3DcurOffset;
-		int neededSize = numVerts*sizeof(mvtx_t);
-		if(curOffset+neededSize > gl4state.vbo3Dsize)
-		{
-			// buffer is full, need to start again from the beginning
-			// => need to sync or get fresh buffer
-			// (getting fresh buffer seems easier)
-			glBufferData(GL_ARRAY_BUFFER, gl4state.vbo3Dsize, NULL, GL_STREAM_DRAW);
+		if (curOffset + neededSize > gl4state.vbo3Dsize) {
 			curOffset = 0;
 		}
 
-		// as we make sure to use a previously unused part of the buffer,
-		// doing it unsynchronized should be safe..
-		GLbitfield accessBits = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
-		void* data = glMapBufferRange(GL_ARRAY_BUFFER, curOffset, neededSize, accessBits);
-		memcpy(data, verts, neededSize);
+		glBindBuffer(GL_ARRAY_BUFFER, gl4state.vbo3D);
+		void* data = glMapBufferRange(GL_ARRAY_BUFFER, curOffset, gl4state.vbo3Dsize - curOffset, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+		memcpy((char*)data + curOffset, verts, neededSize);
+
 		glUnmapBuffer(GL_ARRAY_BUFFER);
-
-		glDrawArrays(drawMode, curOffset/sizeof(mvtx_t), numVerts);
-
-		gl4state.vbo3DcurOffset = curOffset + neededSize; // TODO: padding or sth needed?
-#endif
+		glDrawArrays(drawMode, curOffset / sizeof(mvtx_t), numVerts);
+		gl4state.vbo3DcurOffset = (curOffset + neededSize) % gl4state.vbo3Dsize;
 	}
 }
 
