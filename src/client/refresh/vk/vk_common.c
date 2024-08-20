@@ -222,9 +222,6 @@ enum {
 	QVk_DebugSetObjectName((uint64_t)shaders[SHADER_VERT_INDEX].module, VK_OBJECT_TYPE_SHADER_MODULE, "Shader Module: "#namevert".vert"); \
 	QVk_DebugSetObjectName((uint64_t)shaders[SHADER_FRAG_INDEX].module, VK_OBJECT_TYPE_SHADER_MODULE, "Shader Module: "#namefrag".frag");
 
-// global static buffers (reused, never changing)
-static qvkbuffer_t vk_colorRectVbo;
-
 // global dynamic buffers (double buffered)
 static qvkbuffer_t vk_dynVertexBuffers[NUM_DYNBUFFERS];
 static qvkbuffer_t vk_dynIndexBuffers[NUM_DYNBUFFERS];
@@ -1221,23 +1218,6 @@ static void SubmitStagingBuffer(int index)
 	vk_activeStagingBuffer = (vk_activeStagingBuffer + 1) % NUM_DYNBUFFERS;
 }
 
-// internal helper
-static void CreateStaticBuffers()
-{
-	const float colorVerts[] = { -1., -1.,
-								  1.,  1.,
-								 -1.,  1.,
-								  1., -1. };
-
-	QVk_CreateVertexBuffer(colorVerts, sizeof(colorVerts),
-		&vk_colorRectVbo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0);
-
-	QVk_DebugSetObjectName((uint64_t)vk_colorRectVbo.resource.buffer,
-		VK_OBJECT_TYPE_BUFFER, "Static Buffer: Colored Rectangle VBO");
-	QVk_DebugSetObjectName((uint64_t)vk_colorRectVbo.resource.memory,
-		VK_OBJECT_TYPE_DEVICE_MEMORY, "Memory: Colored Rectangle VBO");
-}
-
 static void
 DestroyShaderModule(qvkshader_t *shaders)
 {
@@ -1544,7 +1524,6 @@ void QVk_Shutdown( void )
 		QVk_DestroyPipeline(&vk_shadowsPipelineFan);
 		QVk_DestroyPipeline(&vk_worldWarpPipeline);
 		QVk_DestroyPipeline(&vk_postprocessPipeline);
-		QVk_FreeBuffer(&vk_colorRectVbo);
 		for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 		{
 			if (vk_dynUniformBuffers[i].resource.buffer != VK_NULL_HANDLE)
@@ -2108,8 +2087,6 @@ qboolean QVk_Init(void)
 
 	CreateDescriptorSetLayouts();
 	CreateDescriptorPool();
-	// create static vertex/index buffers reused in the games
-	CreateStaticBuffers();
 	// create vertex, index and uniform buffer pools
 	CreateDynamicBuffers();
 	// create staging buffers
@@ -2634,19 +2611,29 @@ void QVk_DrawColorRect(float *ubo, VkDeviceSize uboSize, qvkrenderpasstype_t rpT
 	VkDeviceSize dstOffset;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint8_t *vertData = QVk_GetUniformBuffer(uboSize,
+	VkDeviceSize vboOffset;
+	VkBuffer vbo;
+
+	uint8_t *uboData = QVk_GetUniformBuffer(uboSize,
 		&uboOffset, &uboDescriptorSet);
-	memcpy(vertData, ubo, uboSize);
+	memcpy(uboData, ubo, uboSize);
 
 	const uint16_t indices[] = { 0, 1, 2, 0, 3, 1 };
 	buffer = UpdateIndexBuffer(indices, sizeof(indices), &dstOffset);
 
+	const float colorVerts[] = { -1., -1.,
+								  1.,  1.,
+								 -1.,  1.,
+								  1., -1. };
+
+	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(colorVerts), &vbo, &vboOffset);
+	memcpy(vertData, colorVerts, sizeof(colorVerts));
+
 	QVk_BindPipeline(&vk_drawColorQuadPipeline[rpType]);
-	VkDeviceSize offsets = 0;
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 		vk_drawColorQuadPipeline[rpType].layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
-		&vk_colorRectVbo.resource.buffer, &offsets);
+		&vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer,
 		*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
