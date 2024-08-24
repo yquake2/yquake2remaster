@@ -86,10 +86,9 @@ void RE_Draw_CharScaled (int x, int y, int num, float scale)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	float imgTransform[] = { (float)x / vid.width, (float)y / vid.height,
-							 8.f * scale / vid.width, 8.f * scale / vid.height,
-							 fcol, frow, size, size };
-	QVk_DrawTexRect(imgTransform, sizeof(imgTransform), &draw_chars->vk_texture);
+	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
+					8.f * scale / vid.width, 8.f * scale / vid.height,
+					fcol, frow, size, size, &draw_chars->vk_texture);
 }
 
 /*
@@ -141,10 +140,9 @@ void RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 		return;
 	}
 
-	float imgTransform[] = { (float)x / vid.width, (float)y / vid.height,
-							 (float)w / vid.width, (float)h / vid.height,
-							  0, 0, 1, 1 };
-	QVk_DrawTexRect(imgTransform, sizeof(imgTransform), &vk->vk_texture);
+	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
+					(float)w / vid.width, (float)h / vid.height,
+					0, 0, 1, 1, &vk->vk_texture);
 }
 
 
@@ -178,6 +176,7 @@ refresh window.
 void RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 {
 	image_t	*image;
+	float divisor;
 
 	if (!vk_frameStarted)
 		return;
@@ -188,6 +187,9 @@ void RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 		R_Printf(PRINT_ALL, "%s(): Can't find pic: %s\n", __func__, name);
 		return;
 	}
+
+	/* draw before change viewport */
+	QVk_Draw2DCallsRender();
 
 	// Change viewport and scissor to draw in the top left corner as the world view.
 	VkViewport tileViewport = vk_viewport;
@@ -201,16 +203,20 @@ void RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 	vkCmdSetViewport(vk_activeCmdbuffer, 0u, 1u, &tileViewport);
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &tileScissor);
 
-	const float divisor = (vk_pixel_size->value < 1.0f ? 1.0f : vk_pixel_size->value);
-	float imgTransform[] = { (float)x / (vid.width * divisor),	(float)y / (vid.height * divisor),
-							 (float)w / (vid.width * divisor),	(float)h / (vid.height * divisor),
-							 (float)x / (64.0 * divisor),		(float)y / (64.0 * divisor),
-							 (float)w / (64.0 * divisor),		(float)h / (64.0 * divisor) };
-	QVk_DrawTexRect(imgTransform, sizeof(imgTransform), &image->vk_texture);
+	divisor = (vk_pixel_size->value < 1.0f ? 1.0f : vk_pixel_size->value);
+	QVk_DrawTexRect((float)x / (vid.width * divisor),	(float)y / (vid.height * divisor),
+					(float)w / (vid.width * divisor),	(float)h / (vid.height * divisor),
+					(float)x / (64.0 * divisor),		(float)y / (64.0 * divisor),
+					(float)w / (64.0 * divisor),		(float)h / (64.0 * divisor),
+					&image->vk_texture);
+
+	/* force draw before change viewport */
+	QVk_Draw2DCallsRender();
 
 	// Restore viewport and scissor.
 	vkCmdSetViewport(vk_activeCmdbuffer, 0u, 1u, &vk_viewport);
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &vk_scissor);
+
 }
 
 
@@ -385,8 +391,8 @@ void RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const b
 
 	free(raw_image32);
 
-	float imgTransform[] = { (float)x / vid.width, (float)y / vid.height,
-							 (float)w / vid.width, (float)h / vid.height,
-							 0.f, 0.f, 1.f, 1.0f };
-	QVk_DrawTexRect(imgTransform, sizeof(imgTransform), &vk_rawTexture);
+	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
+					(float)w / vid.width, (float)h / vid.height,
+					0.f, 0.f, 1.f, 1.0f, &vk_rawTexture);
+	QVk_Draw2DCallsRender();
 }

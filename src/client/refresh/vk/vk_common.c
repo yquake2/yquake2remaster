@@ -261,13 +261,21 @@ static const char *renderpassObjectNames[] = {
 	"RP_WORLD_WARP"
 };
 
-#define MAXDRAWCALLS 4
+#define MAXDRAWCALLS 1024
+
+typedef enum
+{
+	CALL_COLOR,
+	CALL_TEX,
+} calltype_t;
 
 static int draw2dcolor_num = 0;
-static float draw2dcolor_calls[8 * MAXDRAWCALLS] = {0};
+static float draw2dcolor_calls[16 * MAXDRAWCALLS] = {0};
 static uint16_t draw2dcolor_indices[6 * MAXDRAWCALLS] = {0};
 static float draw2dcolor_r, draw2dcolor_g, draw2dcolor_b, draw2dcolor_a;
 static qvkrenderpasstype_t draw2dcolor_rpType;
+static calltype_t draw2dcolor_calltype;
+static qvktexture_t *draw2dcolor_texture = NULL;
 
 VkFormat QVk_FindDepthFormat()
 {
@@ -2630,41 +2638,85 @@ VkSampler QVk_UpdateTextureSampler(qvktexture_t *texture, qvksampler_t samplerTy
 void
 QVk_Draw2DCallsRender(void)
 {
-	VkDescriptorSet uboDescriptorSet;
-	VkDeviceSize dstOffset, vboOffset, vertSize;
-	uint8_t *vertData, *uboData;
-	VkBuffer *buffer, vbo;
-	uint32_t uboOffset;
-
 	if (!draw2dcolor_num)
 	{
 		return;
 	}
 
-	float imgTransform[] = {
-		0, 0,
-		1.0, 1.0,
-		draw2dcolor_r, draw2dcolor_g, draw2dcolor_b, draw2dcolor_a
-	};
+	if (draw2dcolor_calltype == CALL_COLOR)
+	{
+		VkDescriptorSet uboDescriptorSet;
+		VkDeviceSize dstOffset, vboOffset, vertSize;
+		uint8_t *vertData, *uboData;
+		VkBuffer *buffer, vbo;
+		uint32_t uboOffset;
 
-	uboData = QVk_GetUniformBuffer(sizeof(imgTransform),
-		&uboOffset, &uboDescriptorSet);
-	memcpy(uboData, imgTransform, sizeof(imgTransform));
-	buffer = UpdateIndexBuffer(
-		draw2dcolor_indices, draw2dcolor_num * 6 * sizeof(uint16_t), &dstOffset);
+		float imgTransform[] = {
+			0, 0,
+			1.0, 1.0,
+			draw2dcolor_r, draw2dcolor_g, draw2dcolor_b, draw2dcolor_a
+		};
 
-	vertSize = draw2dcolor_num * 8 * sizeof(float);
-	vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
-	memcpy(vertData, draw2dcolor_calls, vertSize);
+		uboData = QVk_GetUniformBuffer(sizeof(imgTransform),
+			&uboOffset, &uboDescriptorSet);
+		memcpy(uboData, imgTransform, sizeof(imgTransform));
+		buffer = UpdateIndexBuffer(
+			draw2dcolor_indices, draw2dcolor_num * 6 * sizeof(uint16_t), &dstOffset);
 
-	QVk_BindPipeline(&vk_drawColorQuadPipeline[draw2dcolor_rpType]);
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawColorQuadPipeline[draw2dcolor_rpType].layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
-	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
-		&vbo, &vboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer,
-		*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
-	vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+		vertSize = draw2dcolor_num * 8 * sizeof(float);
+		vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
+		memcpy(vertData, draw2dcolor_calls, vertSize);
+
+		QVk_BindPipeline(&vk_drawColorQuadPipeline[draw2dcolor_rpType]);
+		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			vk_drawColorQuadPipeline[draw2dcolor_rpType].layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
+		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
+			&vbo, &vboOffset);
+		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
+			*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+	}
+	else if (draw2dcolor_calltype == CALL_TEX)
+	{
+		VkDescriptorSet uboDescriptorSet;
+		VkDeviceSize dstOffset, vboOffset, vertSize;
+		uint8_t *vertData, *uboData;
+		VkBuffer *buffer, vbo;
+		uint32_t uboOffset;
+		float gamma = 2.1F - vid_gamma->value;
+
+		float imgTransform[] = {
+			0, 0, 1.0, 1.0,
+			0, 0, 1.0, 1.0
+		};
+
+		uboData = QVk_GetUniformBuffer(sizeof(imgTransform), &uboOffset, &uboDescriptorSet);
+		memcpy(uboData, imgTransform, sizeof(imgTransform));
+
+		QVk_BindPipeline(&vk_drawTexQuadPipeline[vk_state.current_renderpass]);
+		VkDescriptorSet descriptorSets[] = {
+			draw2dcolor_texture->descriptorSet,
+			uboDescriptorSet
+		};
+
+		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
+			VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
+
+		buffer = UpdateIndexBuffer(
+			draw2dcolor_indices, draw2dcolor_num * 6 * sizeof(uint16_t), &dstOffset);
+
+		vertSize = draw2dcolor_num * 16 * sizeof(float);
+		vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
+		memcpy(vertData, draw2dcolor_calls, vertSize);
+
+		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			vk_drawTexQuadPipeline[draw2dcolor_rpType].layout, 0, 2, descriptorSets, 1, &uboOffset);
+		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
+			&vbo, &vboOffset);
+		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
+			*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+	}
 
 	draw2dcolor_num = 0;
 }
@@ -2676,19 +2728,26 @@ QVk_DrawColorRect(float x, float y, float w, float h, float r, float g, float b,
 	float *last;
 	int i;
 
+	if (draw2dcolor_num && (
+		(draw2dcolor_calltype != CALL_COLOR) ||
+		(draw2dcolor_num >= MAXDRAWCALLS) ||
+		(draw2dcolor_r != r) || (draw2dcolor_g != g) ||
+		(draw2dcolor_b != b) || (draw2dcolor_a != a)
+	))
+	{
+		/* not color call draws */
+		QVk_Draw2DCallsRender();
+	}
+
 	if (!draw2dcolor_num)
 	{
+		/* init color and type */
 		draw2dcolor_r = r;
 		draw2dcolor_g = g;
 		draw2dcolor_b = b;
 		draw2dcolor_a = a;
 		draw2dcolor_rpType = rpType;
-	}
-	else if ((draw2dcolor_num >= MAXDRAWCALLS) ||
-			(draw2dcolor_r != r) || (draw2dcolor_g != g) ||
-			(draw2dcolor_b != b) || (draw2dcolor_a != a))
-	{
-		QVk_Draw2DCallsRender();
+		draw2dcolor_calltype = CALL_COLOR;
 	}
 
 	/* save new row */
@@ -2711,49 +2770,49 @@ QVk_DrawColorRect(float x, float y, float w, float h, float r, float g, float b,
 }
 
 
-void QVk_DrawTexRect(const float *ubo, VkDeviceSize uboSize, qvktexture_t *texture)
+void QVk_DrawTexRect(float x, float y, float w, float h,
+	float u, float v, float us, float vs, qvktexture_t *texture)
 {
-	VkBuffer *buffer;
-	VkDeviceSize dstOffset;
-	uint32_t uboOffset;
-	VkDescriptorSet uboDescriptorSet;
-	VkDeviceSize vboOffset;
-	VkBuffer vbo;
+	float *last;
 
-	QVk_Draw2DCallsRender();
+	if (draw2dcolor_num && (
+		(draw2dcolor_calltype != CALL_TEX) ||
+		(draw2dcolor_num >= MAXDRAWCALLS) ||
+		(draw2dcolor_rpType != vk_state.current_renderpass) ||
+		(draw2dcolor_texture != texture)
+	))
+	{
+		QVk_Draw2DCallsRender();
+	}
 
-	uint8_t *uboData = QVk_GetUniformBuffer(uboSize, &uboOffset, &uboDescriptorSet);
-	memcpy(uboData, ubo, uboSize);
+	if (!draw2dcolor_num)
+	{
+		/* different call draws */
+		draw2dcolor_texture = texture;
+		draw2dcolor_rpType = vk_state.current_renderpass;
+		draw2dcolor_calltype = CALL_TEX;
+	}
 
-	QVk_BindPipeline(&vk_drawTexQuadPipeline[vk_state.current_renderpass]);
-	VkDescriptorSet descriptorSets[] = {
-		texture->descriptorSet,
-		uboDescriptorSet
-	};
+	/* save new row */
+	last = draw2dcolor_calls + draw2dcolor_num * 16;
+	draw2dcolor_num++;
 
-	float gamma = 2.1F - vid_gamma->value;
-
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
-		VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
-
-	buffer = UpdateIndexBuffer(
-		draw2dcolor_indices, 6 * sizeof(uint16_t), &dstOffset);
-
-	const float texVerts[] = {	-1., -1., 0., 0.,
-								 1.,  1., 1., 1.,
-								-1.,  1., 0., 1.,
-								 1., -1., 1., 0. };
-
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(texVerts), &vbo, &vboOffset);
-	memcpy(vertData, texVerts, sizeof(texVerts));
-
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawTexQuadPipeline[vk_state.current_renderpass].layout, 0, 2, descriptorSets, 1, &uboOffset);
-	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
-		&vbo, &vboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer,
-		*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
-	vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
+	last[0] = x * 2 - 1;
+	last[1] = y * 2 - 1;
+	last[2] = u;
+	last[3] = v;
+	last[4] = (x + w) * 2 - 1;
+	last[5] = (y + h) * 2 - 1;
+	last[6] = u + us;
+	last[7] = v + vs;
+	last[8] = x * 2 - 1;
+	last[9] = (y + h) * 2 - 1;
+	last[10] = u;
+	last[11] = v + vs;
+	last[12] = (x + w) * 2 - 1;
+	last[13] = y * 2 - 1;
+	last[14] = u + us;
+	last[15] = v;
 }
 
 void QVk_BindPipeline(qvkpipeline_t *pipeline)
