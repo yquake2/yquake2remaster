@@ -332,7 +332,9 @@ uint8_t*	QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer 
 void		GenFanIndexes(uint16_t *data, int from, int to);
 void		GenStripIndexes(uint16_t *data, int from, int to);
 VkBuffer*	UpdateIndexBuffer(const uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *dstOffset);
-void		QVk_DrawColorRect(float *ubo, VkDeviceSize uboSize, qvkrenderpasstype_t rpType);
+void		QVk_Draw2DCallsRender(void);
+void		QVk_DrawColorRect(float x, float y, float w, float h,
+				float r, float g, float b, float a, qvkrenderpasstype_t rpType);
 void		QVk_DrawTexRect(const float *ubo, VkDeviceSize uboSize, qvktexture_t *texture);
 void		QVk_BindPipeline(qvkpipeline_t *pipeline);
 void		QVk_SubmitStagingBuffers(void);

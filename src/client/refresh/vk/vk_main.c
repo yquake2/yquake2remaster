@@ -617,8 +617,10 @@ R_PolyBlend(void)
 		return;
 	}
 
-	float polyTransform[] = { 0.f, 0.f, vid.width, vid.height, v_blend[0], v_blend[1], v_blend[2], v_blend[3] };
-	QVk_DrawColorRect(polyTransform, sizeof(polyTransform), RP_WORLD);
+	QVk_DrawColorRect(
+		0.f, 0.f, 1.0f, 1.0f,
+		v_blend[0], v_blend[1], v_blend[2], v_blend[3],
+		RP_WORLD);
 }
 
 static void
@@ -693,10 +695,12 @@ R_SetupFrame(void)
 	   unlike OpenGL, draw a rectangle in proper location - it's easier to do in Vulkan */
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
-		float clearArea[] = { (float)r_newrefdef.x / vid.width, (float)r_newrefdef.y / vid.height,
-							  (float)r_newrefdef.width / vid.width, (float)r_newrefdef.height / vid.height,
-							  .3f, .3f, .3f, 1.f };
-		QVk_DrawColorRect(clearArea, sizeof(clearArea), RP_UI);
+		QVk_DrawColorRect(
+			(float)r_newrefdef.x / vid.width,
+			(float)r_newrefdef.y / vid.height,
+			(float)r_newrefdef.width / vid.width,
+			(float)r_newrefdef.height / vid.height,
+			.3f, .3f, .3f, 1.f , RP_UI);
 	}
 }
 

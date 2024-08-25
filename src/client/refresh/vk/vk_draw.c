@@ -237,10 +237,14 @@ void RE_Draw_Fill (int x, int y, int w, int h, int c)
 
 	color.c = d_8to24table[c];
 
-	float imgTransform[] = { (float)x / vid.width, (float)y / vid.height,
-							 (float)w / vid.width, (float)h / vid.height,
-							 color.v[0] / 255.f, color.v[1] / 255.f, color.v[2] / 255.f, 1.f };
-	QVk_DrawColorRect(imgTransform, sizeof(imgTransform), RP_UI);
+	QVk_DrawColorRect(
+		(float)x / vid.width, (float)y / vid.height,
+		(float)w / vid.width, (float)h / vid.height,
+		(float)color.v[0] / 255.f,
+		(float)color.v[1] / 255.f,
+		(float)color.v[2] / 255.f,
+		1.f,
+		RP_UI);
 }
 
 //=============================================================================
@@ -253,12 +257,13 @@ RE_Draw_FadeScreen
 */
 void RE_Draw_FadeScreen (void)
 {
-	float imgTransform[] = { 0.f, 0.f, vid.width, vid.height, 0.f, 0.f, 0.f, .8f };
-
 	if (!vk_frameStarted)
 		return;
 
-	QVk_DrawColorRect(imgTransform, sizeof(imgTransform), RP_UI);
+	QVk_DrawColorRect(
+		0.0f, 0.0f, 1.0f, 1.0f,
+		0.f, 0.f, 0.f, .8f,
+		RP_UI);
 }
 
 
