@@ -222,6 +222,10 @@ enum {
 	QVk_DebugSetObjectName((uint64_t)shaders[SHADER_VERT_INDEX].module, VK_OBJECT_TYPE_SHADER_MODULE, "Shader Module: "#namevert".vert"); \
 	QVk_DebugSetObjectName((uint64_t)shaders[SHADER_FRAG_INDEX].module, VK_OBJECT_TYPE_SHADER_MODULE, "Shader Module: "#namefrag".frag");
 
+// global static buffers (reused, never changing)
+static qvkbuffer_t vk_rectIbo;
+static VkDeviceSize vk_rectIboffet;
+
 // global dynamic buffers (double buffered)
 static qvkbuffer_t vk_dynVertexBuffers[NUM_DYNBUFFERS];
 static qvkbuffer_t vk_dynIndexBuffers[NUM_DYNBUFFERS];
@@ -271,7 +275,6 @@ typedef enum
 
 static int draw2dcolor_num = 0;
 static float draw2dcolor_calls[16 * MAXDRAWCALLS] = {0};
-static uint16_t draw2dcolor_indices[6 * MAXDRAWCALLS] = {0};
 static float draw2dcolor_r, draw2dcolor_g, draw2dcolor_b, draw2dcolor_a;
 static qvkrenderpasstype_t draw2dcolor_rpType;
 static calltype_t draw2dcolor_calltype;
@@ -1249,6 +1252,38 @@ DestroyShaderModule(qvkshader_t *shaders)
 }
 
 // internal helper
+static void
+CreateStaticBuffers()
+{
+	uint16_t *indices;
+	int i, size;
+
+	size = 6 * MAXDRAWCALLS * sizeof(*indices);
+	indices = malloc(size);
+
+	/* gen color index buffer */
+	draw2dcolor_num = 0;
+	for (i = 0; i < MAXDRAWCALLS; i ++)
+	{
+		indices[6 * i + 0] = i * 4 + 0;
+		indices[6 * i + 1] = i * 4 + 1;
+		indices[6 * i + 2] = i * 4 + 2;
+		indices[6 * i + 3] = i * 4 + 0;
+		indices[6 * i + 4] = i * 4 + 3;
+		indices[6 * i + 5] = i * 4 + 1;
+	}
+
+	QVk_CreateIndexBuffer(indices, size,
+			&vk_rectIbo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 0);
+	QVk_DebugSetObjectName((uint64_t)vk_rectIbo.resource.buffer,
+			VK_OBJECT_TYPE_BUFFER, "Static Buffer: Rectangle IBO");
+	QVk_DebugSetObjectName((uint64_t)vk_rectIbo.resource.memory,
+			VK_OBJECT_TYPE_DEVICE_MEMORY, "Memory: Rectangle IBO");
+	vk_rectIboffet = 0;
+	free(indices);
+}
+
+// internal helper
 static void CreatePipelines()
 {
 	// shared pipeline vertex input state create infos
@@ -1540,6 +1575,7 @@ void QVk_Shutdown( void )
 		QVk_DestroyPipeline(&vk_shadowsPipelineFan);
 		QVk_DestroyPipeline(&vk_worldWarpPipeline);
 		QVk_DestroyPipeline(&vk_postprocessPipeline);
+		QVk_FreeBuffer(&vk_rectIbo);
 		for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 		{
 			if (vk_dynUniformBuffers[i].resource.buffer != VK_NULL_HANDLE)
@@ -1706,18 +1742,6 @@ void QVk_PostInit(void)
 qboolean QVk_Init(void)
 {
 	int i;
-
-	/* gen color index buffer */
-	draw2dcolor_num = 0;
-	for (i = 0; i < MAXDRAWCALLS; i ++)
-	{
-		draw2dcolor_indices[6 * i + 0] = i * 4 + 0;
-		draw2dcolor_indices[6 * i + 1] = i * 4 + 1;
-		draw2dcolor_indices[6 * i + 2] = i * 4 + 2;
-		draw2dcolor_indices[6 * i + 3] = i * 4 + 0;
-		draw2dcolor_indices[6 * i + 4] = i * 4 + 3;
-		draw2dcolor_indices[6 * i + 5] = i * 4 + 1;
-	}
 
 	PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion)vkGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion");
 	uint32_t instanceVersion = VK_API_VERSION_1_0;
@@ -2115,6 +2139,8 @@ qboolean QVk_Init(void)
 
 	CreateDescriptorSetLayouts();
 	CreateDescriptorPool();
+	// create static index buffers reused in the games
+	CreateStaticBuffers();
 	// create vertex, index and uniform buffer pools
 	CreateDynamicBuffers();
 	// create staging buffers
@@ -2646,9 +2672,9 @@ QVk_Draw2DCallsRender(void)
 	if (draw2dcolor_calltype == CALL_COLOR)
 	{
 		VkDescriptorSet uboDescriptorSet;
-		VkDeviceSize dstOffset, vboOffset, vertSize;
+		VkDeviceSize vboOffset, vertSize;
 		uint8_t *vertData, *uboData;
-		VkBuffer *buffer, vbo;
+		VkBuffer vbo;
 		uint32_t uboOffset;
 
 		float imgTransform[] = {
@@ -2660,8 +2686,6 @@ QVk_Draw2DCallsRender(void)
 		uboData = QVk_GetUniformBuffer(sizeof(imgTransform),
 			&uboOffset, &uboDescriptorSet);
 		memcpy(uboData, imgTransform, sizeof(imgTransform));
-		buffer = UpdateIndexBuffer(
-			draw2dcolor_indices, draw2dcolor_num * 6 * sizeof(uint16_t), &dstOffset);
 
 		vertSize = draw2dcolor_num * 8 * sizeof(float);
 		vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
@@ -2673,15 +2697,15 @@ QVk_Draw2DCallsRender(void)
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
 			&vbo, &vboOffset);
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
-			*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
 	}
 	else if (draw2dcolor_calltype == CALL_TEX)
 	{
 		VkDescriptorSet uboDescriptorSet;
-		VkDeviceSize dstOffset, vboOffset, vertSize;
+		VkDeviceSize vboOffset, vertSize;
 		uint8_t *vertData, *uboData;
-		VkBuffer *buffer, vbo;
+		VkBuffer vbo;
 		uint32_t uboOffset;
 		float gamma = 2.1F - vid_gamma->value;
 
@@ -2702,9 +2726,6 @@ QVk_Draw2DCallsRender(void)
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
 			VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
 
-		buffer = UpdateIndexBuffer(
-			draw2dcolor_indices, draw2dcolor_num * 6 * sizeof(uint16_t), &dstOffset);
-
 		vertSize = draw2dcolor_num * 16 * sizeof(float);
 		vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
 		memcpy(vertData, draw2dcolor_calls, vertSize);
@@ -2714,7 +2735,7 @@ QVk_Draw2DCallsRender(void)
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
 			&vbo, &vboOffset);
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
-			*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
 	}
 
