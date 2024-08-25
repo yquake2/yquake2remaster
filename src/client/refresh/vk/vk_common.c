@@ -236,7 +236,6 @@ static VkDescriptorSet vk_uboDescriptorSets[NUM_DYNBUFFERS];
 static qvkstagingbuffer_t vk_stagingBuffers[NUM_DYNBUFFERS];
 static int vk_activeDynBufferIdx = 0;
 static int vk_activeSwapBufferIdx = 0;
-static int vk_dynIndex = 0;
 
 // swap buffers used if primary dynamic buffers get full
 #define NUM_SWAPBUFFER_SLOTS 4
@@ -1138,14 +1137,12 @@ UpdateIndexBuffer(const uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *d
 {
 	uint16_t *iboData = NULL;
 
-	vk_dynIndex = (vk_dynIndex + 1) % NUM_DYNBUFFERS;
-
-	VK_VERIFY(buffer_invalidate(&vk_dynIndexBuffers[vk_dynIndex].resource));
-	iboData = (uint16_t *)QVk_GetIndexBuffer(bufferSize, dstOffset, vk_dynIndex);
+	VK_VERIFY(buffer_invalidate(&vk_dynIndexBuffers[vk_activeDynBufferIdx].resource));
+	iboData = (uint16_t *)QVk_GetIndexBuffer(bufferSize, dstOffset, vk_activeDynBufferIdx);
 	memcpy(iboData, data, bufferSize);
-	VK_VERIFY(buffer_flush(&vk_dynIndexBuffers[vk_dynIndex].resource));
+	VK_VERIFY(buffer_flush(&vk_dynIndexBuffers[vk_activeDynBufferIdx].resource));
 
-	return &vk_dynIndexBuffers[vk_dynIndex].resource.buffer;
+	return &vk_dynIndexBuffers[vk_activeDynBufferIdx].resource.buffer;
 }
 
 static void CreateStagingBuffer(VkDeviceSize size, qvkstagingbuffer_t *dstBuffer, int i)
