@@ -150,6 +150,8 @@ Goals:
 * [x] RGB particles support instead palette based one,
 * [x] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,
+* [ ] Group images in vulkan render,
+* [ ] Rearange surfaces in vulkan render before render,
 * [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
