@@ -213,6 +213,8 @@ typedef enum
 // Vulkan constants: command and dynamic buffer count
 #define NUM_CMDBUFFERS 32
 #define NUM_DYNBUFFERS 2
+#define PUSH_CONSTANT_VERTEX_SIZE 17
+#define PUSH_CONSTANT_FRAGMENT_SIZE 11
 
 // Vulkan instance
 extern VkInstance vk_instance;

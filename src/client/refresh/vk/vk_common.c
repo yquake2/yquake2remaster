@@ -2676,6 +2676,7 @@ QVk_Draw2DCallsRender(void)
 		uint8_t *vertData, *uboData;
 		VkBuffer vbo;
 		uint32_t uboOffset;
+		float dummy[PUSH_CONSTANT_VERTEX_SIZE] = {0};
 
 		float imgTransform[] = {
 			0, 0,
@@ -2692,6 +2693,8 @@ QVk_Draw2DCallsRender(void)
 		memcpy(vertData, draw2dcolor_calls, vertSize);
 
 		QVk_BindPipeline(&vk_drawColorQuadPipeline[draw2dcolor_rpType]);
+		vkCmdPushConstants(vk_activeCmdbuffer, vk_worldWarpPipeline.layout,
+			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(dummy), dummy);
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			vk_drawColorQuadPipeline[draw2dcolor_rpType].layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1,
@@ -2708,6 +2711,7 @@ QVk_Draw2DCallsRender(void)
 		VkBuffer vbo;
 		uint32_t uboOffset;
 		float gamma = 2.1F - vid_gamma->value;
+		float dummy[PUSH_CONSTANT_VERTEX_SIZE] = {0};
 
 		float imgTransform[] = {
 			0, 0, 1.0, 1.0,
@@ -2723,8 +2727,10 @@ QVk_Draw2DCallsRender(void)
 			uboDescriptorSet
 		};
 
+		vkCmdPushConstants(vk_activeCmdbuffer, vk_worldWarpPipeline.layout,
+			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(dummy), dummy);
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
-			VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
+			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
 
 		vertSize = draw2dcolor_num * 16 * sizeof(float);
 		vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);

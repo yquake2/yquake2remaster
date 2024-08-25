@@ -217,7 +217,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	float gamma = 2.1F - vid_gamma->value;
 
 	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
-		VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
+		VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
 
 	if (currententity->frame < currentmodel->numskins)
 	{
@@ -510,7 +510,7 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 	float gamma = 2.1F - vid_gamma->value;
 
 	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
-		VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(gamma), &gamma);
+		VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
 
 	if (vk_custom_particles->value == 2)
 	{
@@ -898,7 +898,8 @@ R_SetupVulkan (void)
 	// precalculate view-projection matrix
 	Mat_Mul(r_view_matrix, r_projection_matrix, r_viewproj_matrix);
 	// view-projection matrix will always be stored as the first push constant item, so set no offset
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(r_viewproj_matrix), r_viewproj_matrix);
+	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
+		VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(r_viewproj_matrix), r_viewproj_matrix);
 }
 
 static void R_Flash( void )
@@ -989,6 +990,8 @@ RE_RenderView(refdef_t *fd)
 
 qboolean RE_EndWorldRenderpass(void)
 {
+	float dummy[PUSH_CONSTANT_VERTEX_SIZE] = {0};
+
 	// still some issues?
 	if (!vk_frameStarted)
 	{
@@ -1035,7 +1038,9 @@ qboolean RE_EndWorldRenderpass(void)
 		r_newrefdef.height,
 	};
 	vkCmdPushConstants(vk_activeCmdbuffer, vk_worldWarpPipeline.layout,
-		VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(pushConsts), pushConsts);
+		VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(dummy), dummy);
+	vkCmdPushConstants(vk_activeCmdbuffer, vk_worldWarpPipeline.layout,
+		VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(pushConsts), pushConsts);
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_worldWarpPipeline.layout, 0, 1, &vk_colorbuffer.descriptorSet, 0, NULL);
 	QVk_BindPipeline(&vk_worldWarpPipeline);
 	// Restore full viewport for future steps.
@@ -1068,7 +1073,7 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 	{
 		float pushConsts[] = { vk_postprocess->value, (2.1 - vid_gamma->value)};
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_postprocessPipeline.layout,
-			VK_SHADER_STAGE_FRAGMENT_BIT, 17 * sizeof(float), sizeof(pushConsts), pushConsts);
+			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(pushConsts), pushConsts);
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_postprocessPipeline.layout, 0, 1, &vk_colorbufferWarp.descriptorSet, 0, NULL);
 		QVk_BindPipeline(&vk_postprocessPipeline);
 		vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);

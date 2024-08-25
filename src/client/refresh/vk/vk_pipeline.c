@@ -164,12 +164,12 @@ void QVk_CreatePipeline(const VkDescriptorSetLayout *descriptorLayout,
 		{
 			.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
 			.offset = 0,
-			.size = 17 * sizeof(float)
+			.size = PUSH_CONSTANT_VERTEX_SIZE * sizeof(float)
 		},
 		{
 			.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT,
-			.offset = 17 * sizeof(float),
-			.size = 11 * sizeof(float)
+			.offset = PUSH_CONSTANT_VERTEX_SIZE * sizeof(float),
+			.size = PUSH_CONSTANT_FRAGMENT_SIZE * sizeof(float)
 	}};
 
 	VkPipelineLayoutCreateInfo plCreateInfo = {
