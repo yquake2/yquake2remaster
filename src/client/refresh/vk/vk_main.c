@@ -844,6 +844,9 @@ R_SetupVulkan (void)
 	int		x, x2, y2, y, w, h;
 	float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
 
+	/* Render old elements before change viewport */
+	QVk_Draw2DCallsRender();
+
 	//
 	// set up viewport
 	//
