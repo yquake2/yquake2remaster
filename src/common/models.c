@@ -175,6 +175,12 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 					i, md5skinname);
 			}
 		}
+
+		/* clean up original buffer */
+		if (skins)
+		{
+			free(skins);
+		}
 	}
 
 	/* prepare final file */

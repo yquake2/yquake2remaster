@@ -5712,10 +5712,18 @@ HasSkinsInDir(const char *dirname, int *num)
 
 			for (j = 0; j < num_png; j ++)
 			{
-				if (list_png[j] && !strchr(list_png[j] + dirname_size, '/'))
+				if (list_png[j])
 				{
-					*curr = list_png[j];
-					curr++;
+					if (!strchr(list_png[j] + dirname_size, '/'))
+					{
+						*curr = list_png[j];
+						curr++;
+					}
+					else
+					{
+						/* unused in final response */
+						free(list_png[j]);
+					}
 				}
 			}
 
@@ -5728,10 +5736,18 @@ HasSkinsInDir(const char *dirname, int *num)
 
 			for (j = 0; j < num_pcx; j ++)
 			{
-				if (list_pcx[j] && !strchr(list_pcx[j] + dirname_size, '/'))
+				if (list_pcx[j])
 				{
-					*curr = list_pcx[j];
-					curr++;
+					if (!strchr(list_pcx[j] + dirname_size, '/'))
+					{
+						*curr = list_pcx[j];
+						curr++;
+					}
+					else
+					{
+						/* unused in final response */
+						free(list_pcx[j]);
+					}
 				}
 			}
 
@@ -5744,10 +5760,18 @@ HasSkinsInDir(const char *dirname, int *num)
 
 			for (j = 0; j < num_m8; j ++)
 			{
-				if (list_m8[j] && !strchr(list_m8[j] + dirname_size, '/'))
+				if (list_m8[j])
 				{
-					*curr = list_m8[j];
-					curr++;
+					if (!strchr(list_m8[j] + dirname_size, '/'))
+					{
+						*curr = list_m8[j];
+						curr++;
+					}
+					else
+					{
+						/* unused in final response */
+						free(list_m8[j]);
+					}
 				}
 			}
 
