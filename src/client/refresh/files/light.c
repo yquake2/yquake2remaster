@@ -67,11 +67,17 @@ BSPX_LightGridSingleValue(const bspxlightgrid_t *grid, const lightstyle_t *light
 		//no hdr support
 		for (i = 0; i < 4; i++)
 		{
+			int j;
+
 			if (samp->map[i].style == ((byte)(~0u)))
+			{
 				break;	//no more
-			res_diffuse[0] += samp->map[i].rgb[0] * lightstyles[samp->map[i].style].rgb[0] / 255.0;
-			res_diffuse[1] += samp->map[i].rgb[1] * lightstyles[samp->map[i].style].rgb[1] / 255.0;
-			res_diffuse[2] += samp->map[i].rgb[2] * lightstyles[samp->map[i].style].rgb[2] / 255.0;
+			}
+
+			for (j = 0; j < 3; j++)
+			{
+				res_diffuse[j] += samp->map[i].rgb[j] * lightstyles[samp->map[i].style].rgb[j] / 255.0;
+			}
 		}
 	}
 	return 1;
@@ -581,10 +587,9 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 	float modulate, int r_framecount)
 {
 	int smax, tmax;
-	int i, size, numlightmaps;
+	int size, numlightmaps;
 	byte *lightmap;
-	float scale[4];
-	float *bl;
+	const float *max_light;
 
 	if (surf->texinfo->flags &
 		(SURF_SKY | SURF_TRANSPARENT | SURF_WARP))
@@ -598,13 +603,21 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 
 	R_ResizeTemporaryLMBuffer(size * 3);
 
+	max_light = s_blocklights + size * 3;
+
 	/* set to full bright if no light data */
 	if (!surf->samples)
 	{
-		for (i = 0; i < size * 3; i++)
+		float *curr_light;
+
+		curr_light = s_blocklights;
+
+		do
 		{
-			s_blocklights[i] = 255;
+			*curr_light = 255;
+			curr_light++;
 		}
+		while(curr_light < max_light);
 
 		R_StoreLightMap(dest, stride, smax, tmax);
 		return;
@@ -625,7 +638,11 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 
 		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
 		{
-			bl = s_blocklights;
+			float *curr_light;
+			vec3_t scale;
+			int i;
+
+			curr_light = s_blocklights;
 
 			for (i = 0; i < 3; i++)
 			{
@@ -637,24 +654,27 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 				(scale[1] == 1.0F) &&
 				(scale[2] == 1.0F))
 			{
-				for (i = 0; i < size; i++, bl += 3)
+				do
 				{
-					bl[0] = lightmap[i * 3 + 0];
-					bl[1] = lightmap[i * 3 + 1];
-					bl[2] = lightmap[i * 3 + 2];
+					*curr_light = *lightmap;
+					curr_light++;
+					lightmap++;
 				}
+				while(curr_light < max_light);
 			}
 			else
 			{
-				for (i = 0; i < size; i++, bl += 3)
+				do
 				{
-					bl[0] = lightmap[i * 3 + 0] * scale[0];
-					bl[1] = lightmap[i * 3 + 1] * scale[1];
-					bl[2] = lightmap[i * 3 + 2] * scale[2];
+					for (i = 0; i < 3; i++)
+					{
+						*curr_light = *lightmap * scale[i];
+						curr_light++;
+						lightmap++;
+					}
 				}
+				while(curr_light < max_light);
 			}
-
-			lightmap += size * 3; /* skip to next lightmap */
 		}
 	}
 	else
@@ -665,7 +685,11 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 
 		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255; maps++)
 		{
-			bl = s_blocklights;
+			float *curr_light;
+			vec3_t scale;
+			int i;
+
+			curr_light = s_blocklights;
 
 			for (i = 0; i < 3; i++)
 			{
@@ -677,24 +701,27 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 				(scale[1] == 1.0F) &&
 				(scale[2] == 1.0F))
 			{
-				for (i = 0; i < size; i++, bl += 3)
+				do
 				{
-					bl[0] += lightmap[i * 3 + 0];
-					bl[1] += lightmap[i * 3 + 1];
-					bl[2] += lightmap[i * 3 + 2];
+					*curr_light += *lightmap;
+					curr_light++;
+					lightmap++;
 				}
+				while(curr_light < max_light);
 			}
 			else
 			{
-				for (i = 0; i < size; i++, bl += 3)
+				do
 				{
-					bl[0] += lightmap[i * 3 + 0] * scale[0];
-					bl[1] += lightmap[i * 3 + 1] * scale[1];
-					bl[2] += lightmap[i * 3 + 2] * scale[2];
+					for (i = 0; i < 3; i++)
+					{
+						*curr_light += *lightmap * scale[i];
+						curr_light++;
+						lightmap++;
+					}
 				}
+				while(curr_light < max_light);
 			}
-
-			lightmap += size * 3; /* skip to next lightmap */
 		}
 	}
 
