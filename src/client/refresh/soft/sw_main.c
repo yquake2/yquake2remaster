@@ -591,6 +591,7 @@ R_ReallocateMapBuffers (void)
 	if (!r_numallocatedlights || r_outoflights)
 	{
 		free(blocklights);
+		free(bblocklights);
 
 		if (r_outoflights)
 		{
@@ -602,6 +603,7 @@ R_ReallocateMapBuffers (void)
 			r_numallocatedlights = MAXLIGHTS;
 
 		blocklights = malloc (r_numallocatedlights * sizeof(light_t));
+		bblocklights = malloc (r_numallocatedlights);
 		if (!blocklights)
 		{
 			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
@@ -611,6 +613,7 @@ R_ReallocateMapBuffers (void)
 
 		// set limits
 		blocklight_max = &blocklights[r_numallocatedlights];
+		bblocklight_max = &bblocklights[r_numallocatedlights];
 
 		R_Printf(PRINT_ALL, "Allocated %d lights.\n", r_numallocatedlights);
 	}
@@ -2063,6 +2066,12 @@ RE_ShutdownContext(void)
 		free(blocklights);
 	}
 	blocklights = NULL;
+
+	if(bblocklights)
+	{
+		free(bblocklights);
+	}
+	bblocklights = NULL;
 
 	if(r_edges)
 	{

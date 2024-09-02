@@ -30,9 +30,10 @@ static int		r_stepback;
 static int		r_lightwidth;
 static int		r_numvblocks;
 static unsigned char	*r_source, *r_sourcemax;
-static unsigned		*r_lightptr;
+static light_t		*r_lightptr;
 
-void RI_BuildLightMap(drawsurf_t *drawsurf);
+void RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
+	float modulate, int r_framecount);
 
 static int	sc_size;
 static surfcache_t	*sc_rover;
@@ -140,6 +141,7 @@ R_DrawSurfaceBlock8_anymip (int level, int surfrowbytes)
 		// FIXME: use delta rather than both right and left, like ASM?
 		memcpy(lightleft, r_lightptr, sizeof(light3_t));
 		memcpy(lightright, r_lightptr + 3, sizeof(light3_t));
+
 		r_lightptr += r_lightwidth * 3;
 		for(i=0; i<3; i++)
 		{
@@ -176,7 +178,7 @@ R_DrawSurface
 ===============
 */
 static void
-R_DrawSurface (drawsurf_t *drawsurf)
+R_DrawSurface (drawsurf_t *drawsurf, light_t *blocklights, light_t *blocklight_max)
 {
 	unsigned char	*basetptr;
 	int		smax, tmax, twidth;
@@ -497,10 +499,10 @@ D_CacheSurface(const entity_t *currententity, msurface_t *surface, int miplevel)
 	c_surf++;
 
 	// calculate the lightings
-	RI_BuildLightMap(&r_drawsurf);
+	RI_BuildLightMap(&r_drawsurf, &r_newrefdef, r_modulate->value, r_framecount);
 
 	// rasterize the surface into the cache
-	R_DrawSurface(&r_drawsurf);
+	R_DrawSurface(&r_drawsurf, blocklights, blocklight_max);
 
 	return cache;
 }

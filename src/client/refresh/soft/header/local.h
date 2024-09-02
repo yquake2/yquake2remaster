@@ -370,6 +370,7 @@ extern vec3_t	vright, base_vright;
 extern surf_t	*surfaces, *surface_p, *surf_max;
 // allow some very large lightmaps
 extern light_t	*blocklights, *blocklight_max;
+extern byte	*bblocklights, *bblocklight_max;
 
 // surfaces are generated in back to front order by the bsp, so if a surf
 // pointer is greater than another one, it should be drawn in front

@@ -399,7 +399,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		R_BuildLightMap(surf, temp, smax * 4,
 			&r_newrefdef, r_modulate->value, r_framecount);
 
-		if ((surf->styles[map] >= 32 || surf->styles[map] == 0) && (surf->dlightframe != r_framecount))
+		if ((surf->styles[map] >= 32 || surf->styles[map] == 0) &&
+			(surf->dlightframe != r_framecount))
 		{
 			R_SetCacheState(surf, &r_newrefdef);
 
