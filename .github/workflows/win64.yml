@@ -80,7 +80,7 @@ jobs:
         # remove unused libraries
         rm -fv  publish/quake2-win64-${{github.sha}}/avdevice*.dll publish/quake2-win64-${{github.sha}}/avfilter*.dll  publish/quake2-win64-${{github.sha}}/postproc*.dll
         # openal-soft
-        wget -c https://www.openal-soft.org/openal-binaries/openal-soft-1.23.1-bin.zip
+        wget -c https://github.com/kcat/openal-soft/releases/download/1.23.1/openal-soft-1.23.1-bin.zip
         unzip -o openal-soft-1.23.1-bin.zip
         cp openal-soft-1.23.1-bin/bin/Win64/soft_oal.dll publish/quake2-win64-${{github.sha}}/openal32.dll
         # curl (releases use a custom build curl.dll)
