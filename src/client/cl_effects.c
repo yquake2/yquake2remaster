@@ -2395,7 +2395,7 @@ CL_Heatbeam(vec3_t start, vec3_t forward)
  *Puffs with velocity along direction, with some randomness thrown in
  */
 void
-CL_ParticleSteamEffect(vec3_t org, vec3_t dir, int color,
+CL_ParticleSteamEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 		int count, int magnitude)
 {
 	int i, j;
@@ -2419,7 +2419,8 @@ CL_ParticleSteamEffect(vec3_t org, vec3_t dir, int color,
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(color + (randk() & 7));
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 7) / 7.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2489,7 +2490,7 @@ CL_ParticleSteamEffect2(cl_sustain_t *self)
 }
 
 void
-CL_TrackerTrail(vec3_t start, vec3_t end, int particleColor)
+CL_TrackerTrail(vec3_t start, vec3_t end, unsigned int color)
 {
 	vec3_t move;
 	vec3_t vec;
@@ -2532,7 +2533,7 @@ CL_TrackerTrail(vec3_t start, vec3_t end, int particleColor)
 
 		p->alpha = 1.0;
 		p->alphavel = -2.0;
-		p->color = VID_PaletteColor(particleColor);
+		p->color = color;
 		dist = DotProduct(move, forward);
 		VectorMA(move, 8 * cos(dist), up, p->org);
 

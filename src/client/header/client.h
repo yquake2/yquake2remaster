@@ -408,8 +408,9 @@ void CL_GenericParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, u
 	int count, int numcolors, int dirspread, float alphavel);
 void CL_BubbleTrail2 (vec3_t start, vec3_t end, int dist);
 void CL_Heatbeam (vec3_t start, vec3_t end);
-void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, int color, int count, int magnitude);
-void CL_TrackerTrail (vec3_t start, vec3_t end, int particleColor);
+void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count, int magnitude);
+void CL_TrackerTrail (vec3_t start, vec3_t end, unsigned int particleColor);
 void CL_Tracker_Explode(vec3_t origin);
 void CL_TagTrail (vec3_t start, vec3_t end, int color);
 void CL_ColorFlash (vec3_t pos, int ent, float intensity, float r, float g, float b);

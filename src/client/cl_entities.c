@@ -561,7 +561,7 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 			else if (effects & EF_TRACKER)
 			{
-				CL_TrackerTrail(cent->lerp_origin, ent.origin, 0);
+				CL_TrackerTrail(cent->lerp_origin, ent.origin, 0xff000000);
 				V_AddLight(ent.origin, 200, -1, -1, -1);
 			}
 			else if (effects & EF_IONRIPPER)

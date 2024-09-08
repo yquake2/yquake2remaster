@@ -575,7 +575,8 @@ CL_ParseSteam(void)
 		r = MSG_ReadByte(&net_message);
 		magnitude = MSG_ReadShort(&net_message);
 		color = r & 0xff;
-		CL_ParticleSteamEffect(pos, dir, color, cnt, magnitude);
+		CL_ParticleSteamEffect(pos, dir,
+			VID_PaletteColor(color), VID_PaletteColor(color + 7), cnt, magnitude);
 	}
 }
 
@@ -1187,8 +1188,7 @@ CL_ParseTEnt(void)
 			MSG_ReadDir(&net_message, dir);
 			r = 8;
 			magnitude = 60;
-			color = r & 0xff;
-			CL_ParticleSteamEffect(pos, dir, color, cnt, magnitude);
+			CL_ParticleSteamEffect(pos, dir, 0xff7b7b7b, 0xffebebeb, cnt, magnitude);
 			S_StartSound(pos, 0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
 			break;
 
@@ -1196,9 +1196,8 @@ CL_ParseTEnt(void)
 			cnt = 20;
 			MSG_ReadPos(&net_message, pos);
 			MSG_ReadDir(&net_message, dir);
-			color = 0xe0;
 			magnitude = 60;
-			CL_ParticleSteamEffect(pos, dir, color, cnt, magnitude);
+			CL_ParticleSteamEffect(pos, dir, 0xff07abff, 0xff002bab, cnt, magnitude);
 			S_StartSound(pos, 0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
 			break;
 

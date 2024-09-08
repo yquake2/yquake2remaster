@@ -121,10 +121,10 @@ Goals:
 * [x] Support flow/scale flags for Q64 maps,
 * [x] Add debug progress loading code for maps,
 * [x] MDR model format in Star Trek: Voyager – Elite Force,
-* [ ] RGB particles support instead palette based one,
-* [ ] Get rid of VID_PaletteColor client internally,
+* [x] RGB particles support instead palette based one,
+* [ ] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,
-* [ ] Single player support,
+* [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
 * [ ] Check load soft colormap as 24bit color,
