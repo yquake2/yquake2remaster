@@ -1162,7 +1162,7 @@ CL_ParseTEnt(void)
 			MSG_ReadPos(&net_message, pos);
 			MSG_ReadPos(&net_message, pos2);
 			color = MSG_ReadByte(&net_message);
-			CL_ForceWall(pos, pos2, color);
+			CL_ForceWall(pos, pos2, VID_PaletteColor(color));
 			break;
 
 		case TE_HEATBEAM:
@@ -1229,7 +1229,7 @@ CL_ParseTEnt(void)
 		case TE_TRACKER_EXPLOSION:
 			MSG_ReadPos(&net_message, pos);
 			CL_ColorFlash(pos, 0, 150, -1, -1, -1);
-			CL_ColorExplosionParticles(pos, 0, 1);
+			CL_ColorExplosionParticles(pos, 0xff000000, 0xff0f0f0f);
 			S_StartSound(pos, 0, 0, cl_sfx_disrexp, 1, ATTN_NORM, 0);
 			break;
 

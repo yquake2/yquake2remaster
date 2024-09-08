@@ -412,7 +412,7 @@ void CL_TagTrail (vec3_t start, vec3_t end, int color);
 void CL_ColorFlash (vec3_t pos, int ent, float intensity, float r, float g, float b);
 void CL_Tracker_Shell(vec3_t origin);
 void CL_MonsterPlasma_Shell(vec3_t origin);
-void CL_ColorExplosionParticles (vec3_t org, int color, int run);
+void CL_ColorExplosionParticles (vec3_t org, unsigned int basecolor, unsigned int finalcolor);
 void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count, int magnitude);
 void CL_Widowbeamout (cl_sustain_t *self);

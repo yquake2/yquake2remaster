@@ -2189,7 +2189,7 @@ CL_SmokeTrail(vec3_t start, vec3_t end, int colorStart,
 }
 
 void
-CL_ForceWall(vec3_t start, vec3_t end, int color8)
+CL_ForceWall(vec3_t start, vec3_t end, int color)
 {
 	vec3_t move;
 	vec3_t vec;
@@ -2227,7 +2227,7 @@ CL_ForceWall(vec3_t start, vec3_t end, int color8)
 
 			p->alpha = 1.0;
 			p->alphavel = -1.0f / (3.0 + frandk() * 0.5f);
-			p->color = VID_PaletteColor(color8);
+			p->color = color;
 
 			for (j = 0; j < 3; j++)
 			{
@@ -2833,7 +2833,7 @@ CL_TagTrail(vec3_t start, vec3_t end, int color)
 }
 
 void
-CL_ColorExplosionParticles(vec3_t org, int color, int run)
+CL_ColorExplosionParticles(vec3_t org, unsigned int basecolor, unsigned int finalcolor)
 {
 	int i;
 	int j;
@@ -2855,7 +2855,7 @@ CL_ColorExplosionParticles(vec3_t org, int color, int run)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(color + (randk() % run));
+		p->color = CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
 
 		for (j = 0; j < 3; j++)
 		{
