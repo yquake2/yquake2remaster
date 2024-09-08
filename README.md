@@ -122,6 +122,7 @@ Goals:
 * [x] Add debug progress loading code for maps,
 * [x] MDR model format in Star Trek: Voyager – Elite Force,
 * [ ] RGB particles support instead palette based one,
+* [ ] Get rid of VID_PaletteColor client internally,
 * [x] Broken maps groups from base2 to next,
 * [ ] Single player support,
 * [ ] Support effects and additional flags for ReRelease when possible.
