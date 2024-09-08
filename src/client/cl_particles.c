@@ -243,7 +243,7 @@ CL_AddParticles(void)
 }
 
 void
-CL_GenericParticleEffect(vec3_t org, vec3_t dir, int color,
+CL_GenericParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 		int count, int numcolors, int dirspread, float alphavel)
 {
 	int i, j;
@@ -267,15 +267,7 @@ CL_GenericParticleEffect(vec3_t org, vec3_t dir, int color,
 
 		p->time = time;
 
-		if (numcolors > 1)
-		{
-			p->color = VID_PaletteColor(color + (randk() & numcolors));
-		}
-
-		else
-		{
-			p->color = VID_PaletteColor(color);
-		}
+		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
 
 		d = (float)(randk() & dirspread);
 

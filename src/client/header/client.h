@@ -402,7 +402,8 @@ void CL_SmokeTrail (vec3_t start, vec3_t end, int colorStart, int colorRun, int 
 void CL_Flashlight (int ent, vec3_t pos);
 void CL_ForceWall (vec3_t start, vec3_t end, int color);
 void CL_FlameEffects (centity_t *ent, vec3_t origin);
-void CL_GenericParticleEffect (vec3_t org, vec3_t dir, int color, int count, int numcolors, int dirspread, float alphavel);
+void CL_GenericParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count, int numcolors, int dirspread, float alphavel);
 void CL_BubbleTrail2 (vec3_t start, vec3_t end, int dist);
 void CL_Heatbeam (vec3_t start, vec3_t end);
 void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, int color, int count, int magnitude);
@@ -415,6 +416,7 @@ void CL_MonsterPlasma_Shell(vec3_t origin);
 void CL_ColorExplosionParticles (vec3_t org, unsigned int basecolor, unsigned int finalcolor);
 void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count, int magnitude);
+unsigned int CL_CombineColors(unsigned int basecolor, unsigned int finalcolor, float scale);
 void CL_Widowbeamout (cl_sustain_t *self);
 void CL_Nukeblast (cl_sustain_t *self);
 void CL_WidowSplash (vec3_t org);
