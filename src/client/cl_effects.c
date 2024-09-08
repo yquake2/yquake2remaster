@@ -384,7 +384,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound("infantry/infatck1.wav"), 1, ATTN_NORM, 0);
@@ -401,7 +401,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound("soldier/solatck3.wav"), 1, ATTN_NORM, 0);
@@ -418,7 +418,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound("gunner/gunatck2.wav"), 1, ATTN_NORM, 0);
@@ -436,7 +436,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound("infantry/infatck1.wav"), 1, ATTN_NORM, 0);
@@ -453,7 +453,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound("infantry/infatck1.wav"), 1, ATTN_NONE, 0);
@@ -556,7 +556,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			Com_sprintf(soundname, sizeof(soundname), "tank/tnkatk2%c.wav",
 				'a' + (char)(randk() % 5));
@@ -656,7 +656,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			S_StartSound(NULL, ent, CHAN_WEAPON,
 				S_RegisterSound("boss3/xfire.wav"), 1, ATTN_NORM, 0);
@@ -671,7 +671,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[0] = 1;
 			dl->color[1] = 1;
 			dl->color[2] = 0;
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			break;
 
@@ -693,7 +693,7 @@ CL_AddMuzzleFlash2(void)
 			dl->color[1] = 1;
 			dl->color[2] = 0;
 
-			CL_ParticleEffect(origin, vec3_origin, 0, 40);
+			CL_ParticleEffect(origin, vec3_origin, 0xff000000, 0xff6b6b6b, 40);
 			CL_SmokeAndFlash(origin);
 			break;
 
@@ -2951,7 +2951,7 @@ CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned in
 
 		p->time = time;
 		d = (float)(randk() & 15);
-		p->color = CL_CombineColors(basecolor, finalcolor, d / 15.0);
+		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
 
 		for (j = 0; j < 3; j++)
 		{

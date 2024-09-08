@@ -50,7 +50,7 @@ CL_ClearParticles(void)
 }
 
 void
-CL_ParticleEffect(vec3_t org, vec3_t dir, int color, int count)
+CL_ParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor, int count)
 {
 	int i, j;
 	cparticle_t *p;
@@ -69,7 +69,7 @@ CL_ParticleEffect(vec3_t org, vec3_t dir, int color, int count)
 		active_particles = p;
 
 		p->time = cl.time;
-		p->color = VID_PaletteColor(color + (randk() & 7));
+		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
 		d = randk() & 31;
 
 		for (j = 0; j < 3; j++)
@@ -87,7 +87,7 @@ CL_ParticleEffect(vec3_t org, vec3_t dir, int color, int count)
 }
 
 void
-CL_ParticleEffect2(vec3_t org, vec3_t dir, int color, int count)
+CL_ParticleEffect2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor, int count)
 {
 	int i, j;
 	cparticle_t *p;
@@ -109,7 +109,7 @@ CL_ParticleEffect2(vec3_t org, vec3_t dir, int color, int count)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(color + (randk() & 7));
+		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
 
 		d = randk() & 7;
 
@@ -128,7 +128,7 @@ CL_ParticleEffect2(vec3_t org, vec3_t dir, int color, int count)
 }
 
 void
-CL_ParticleEffect3(vec3_t org, vec3_t dir, int color, int count)
+CL_ParticleEffect3(vec3_t org, vec3_t dir, unsigned int color, int count)
 {
 	int i, j;
 	cparticle_t *p;
@@ -150,7 +150,7 @@ CL_ParticleEffect3(vec3_t org, vec3_t dir, int color, int count)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(color);
+		p->color = color;
 
 		d = randk() & 7;
 

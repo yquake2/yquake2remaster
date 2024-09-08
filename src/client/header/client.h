@@ -364,10 +364,12 @@ typedef struct cl_sustain
 void CL_ParticleSteamEffect2(cl_sustain_t *self);
 
 void CL_TeleporterParticles (entity_state_t *ent);
-void CL_ParticleEffect (vec3_t org, vec3_t dir, int color, int count);
-void CL_ParticleEffect2 (vec3_t org, vec3_t dir, int color, int count);
+void CL_ParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count);
+void CL_ParticleEffect2 (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count);
 
-void CL_ParticleEffect3 (vec3_t org, vec3_t dir, int color, int count);
+void CL_ParticleEffect3 (vec3_t org, vec3_t dir, unsigned int color, int count);
 
 
 typedef struct particle_s
