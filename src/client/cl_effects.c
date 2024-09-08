@@ -872,17 +872,20 @@ CL_LogoutEffect(vec3_t org, int type)
 
 		if (type == MZ_LOGIN)
 		{
-			p->color = CL_CombineColors(0xff00ff00, 0xffffffff, (float)(randk() & 7) / 7.0);
+			p->color = CL_CombineColors(0xff00ff00, 0xffffffff,
+				(float)(randk() & 15) / 15.0);
 		}
 
 		else if (type == MZ_LOGOUT)
 		{
-			p->color = CL_CombineColors(0xff2b3ba7, 0xff001357, (float)(randk() & 7) / 7.0);
+			p->color = CL_CombineColors(0xff2b3ba7, 0xff001357,
+				(float)(randk() & 15) / 15.0);
 		}
 
 		else
 		{
-			p->color = CL_CombineColors(0xff07abff, 0xff002bab, (float)(randk() & 7) / 7.0);
+			p->color = CL_CombineColors(0xff07abff, 0xff002bab,
+				(float)(randk() & 15) / 15.0);
 		}
 
 		p->org[0] = org[0] - 16 + frandk() * 32;
@@ -924,7 +927,8 @@ CL_ItemRespawnParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(0xff2fa75f, 0xffffffff, (float)(randk() & 3) / 3.0);
+		p->color = CL_CombineColors(0xff2fa75f, 0xffffffff,
+			(float)(randk() & 15) / 15.0);
 		p->org[0] = org[0] + crandk() * 8;
 		p->org[1] = org[1] + crandk() * 8;
 		p->org[2] = org[2] + crandk() * 8;
@@ -964,7 +968,8 @@ CL_ExplosionParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(0xff07abff, 0xff002bab, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff07abff, 0xff002bab,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1054,7 +1059,8 @@ CL_BlasterParticles(vec3_t org, vec3_t dir)
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(0xff07abff, 0xff002bab, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff07abff, 0xff002bab,
+			(float)(randk() & 15) / 15.0);
 		d = randk() & 15;
 
 		for (j = 0; j < 3; j++)
@@ -1289,7 +1295,8 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.4f);
-				p->color = CL_CombineColors(0xff001f9b, 0xff00001b, (float)(randk() & 7) / 7.0);
+				p->color = CL_CombineColors(0xff001f9b, 0xff00001b,
+					(float)(randk() & 15) / 15.0);
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1304,7 +1311,8 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.4f);
-				p->color = CL_CombineColors(0xff53ffff, 0xff007fef, (float)(randk() & 7) / 7.0);
+				p->color = CL_CombineColors(0xff53ffff, 0xff007fef,
+					(float)(randk() & 15) / 15.0);
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1319,7 +1327,8 @@ CL_DiminishingTrail(vec3_t start, vec3_t end, centity_t *old, int flags)
 			{
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-				p->color = CL_CombineColors(0xff3f3f3f, 0xffababab, (float)(randk() & 7) / 7.0);
+				p->color = CL_CombineColors(0xff3f3f3f, 0xffababab,
+					(float)(randk() & 15) / 15.0);
 
 				for (j = 0; j < 3; j++)
 				{
@@ -1404,7 +1413,8 @@ CL_RocketTrail(vec3_t start, vec3_t end, centity_t *old)
 
 			p->alpha = 1.0;
 			p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-			p->color = CL_CombineColors(0xff27ffff, 0xff0fbfff, (float)(randk() & 3) / 3.0);
+			p->color = CL_CombineColors(0xff27ffff, 0xff0fbfff,
+				(float)(randk() & 15) / 15.0);
 
 			for (j = 0; j < 3; j++)
 			{
@@ -1466,7 +1476,8 @@ CL_RailTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-		p->color = CL_CombineColors(0xff6f5317, 0xff2b1f00, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff6f5317, 0xff2b1f00,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1500,7 +1511,8 @@ CL_RailTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.6f + frandk() * 0.2f);
-		p->color = CL_CombineColors(0xff000000, 0xffebebeb, (float)(randk() & 15) / 15.0);
+		p->color = CL_CombineColors(0xff000000, 0xffebebeb,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1552,7 +1564,8 @@ CL_IonripperTrail(vec3_t start, vec3_t ent)
 		p->time = time;
 		p->alpha = 0.5;
 		p->alphavel = -1.0f / (0.3f + frandk() * 0.2f);
-		p->color = CL_CombineColors(0xff0057d3, 0xff002bab, (float)(randk() & 3) / 3.0);
+		p->color = CL_CombineColors(0xff0057d3, 0xff002bab,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1615,7 +1628,8 @@ CL_BubbleTrail(vec3_t start, vec3_t end)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.2f);
-		p->color = CL_CombineColors(0xff3f3f3f, 0xffababab, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff3f3f3f, 0xffababab,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1895,7 +1909,8 @@ CL_TrapParticles(entity_t *ent)
 					active_particles = p;
 
 					p->time = time;
-					p->color = CL_CombineColors(0xff07abff, 0xff006be3, (float)(randk() & 3) / 3.0);
+					p->color = CL_CombineColors(0xff07abff, 0xff006be3,
+						(float)(randk() & 15) / 15.0);
 					p->alpha = 1.0;
 					p->alphavel = -1.0f / (0.3f + (randk() & 7) * 0.02f);
 
@@ -1941,7 +1956,8 @@ CL_BFGExplosionParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(0xff00ff00, 0xffffffff, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff00ff00, 0xffffffff,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1985,7 +2001,8 @@ CL_TeleportParticles(vec3_t org)
 				active_particles = p;
 
 				p->time = time;
-				p->color = CL_CombineColors(0xff6b6b6b, 0xffdbdbdb, (float)(randk() & 7) / 7.0);
+				p->color = CL_CombineColors(0xff6b6b6b, 0xffdbdbdb,
+					(float)(randk() & 15) / 15.0);
 				p->alpha = 1.0;
 				p->alphavel = -1.0f / (0.3f + (randk() & 7) * 0.02f);
 
@@ -2131,7 +2148,8 @@ CL_DebugTrail(vec3_t start, vec3_t end)
 		VectorClear(p->vel);
 		p->alpha = 1.0;
 		p->alphavel = -0.1f;
-		p->color = CL_CombineColors(0xff6f5317, 0xff2b1f00, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff6f5317, 0xff2b1f00,
+			(float)(randk() & 15) / 15.0);
 		VectorCopy(move, p->org);
 		VectorAdd(move, vec, move);
 	}
@@ -2175,7 +2193,7 @@ CL_SmokeTrail(vec3_t start, vec3_t end, unsigned int basecolor, unsigned int fin
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.5f);
 		p->color = CL_CombineColors(basecolor, finalcolor,
-			(float)(randk() & 7) / 7.0);
+			(float)(randk() & 15) / 15.0);
 
 
 		for (j = 0; j < 3; j++)
@@ -2285,7 +2303,8 @@ CL_BubbleTrail2(vec3_t start, vec3_t end, int dist)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.1f);
-		p->color = CL_CombineColors(0xff3f3f3f, 0xffababab, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(0xff3f3f3f, 0xffababab,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2380,7 +2399,8 @@ CL_Heatbeam(vec3_t start, vec3_t forward)
 
 			p->alpha = 0.5;
 			p->alphavel = -1000.0;
-			p->color = CL_CombineColors(0xff0fbfff, 0xff003bb7, (float)(randk() & 7) / 7.0);
+			p->color = CL_CombineColors(0xff0fbfff, 0xff003bb7,
+				(float)(randk() & 15) / 15.0);
 
 			for (j = 0; j < 3; j++)
 			{
@@ -2422,7 +2442,7 @@ CL_ParticleSteamEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 
 		p->time = time;
 		p->color = CL_CombineColors(basecolor, finalcolor,
-			(float)(randk() & 7) / 7.0);
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2469,7 +2489,7 @@ CL_ParticleSteamEffect2(cl_sustain_t *self)
 
 		p->time = cl.time;
 		p->color = CL_CombineColors(self->basecolor, self->finalcolor,
-			(float)(randk() & 7) / 7.0);
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2859,7 +2879,8 @@ CL_ColorExplosionParticles(vec3_t org, unsigned int basecolor, unsigned int fina
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2905,7 +2926,8 @@ CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2955,7 +2977,8 @@ CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned in
 
 		p->time = time;
 		d = (float)(randk() & 15);
-		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{

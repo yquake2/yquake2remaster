@@ -69,7 +69,8 @@ CL_ParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int f
 		active_particles = p;
 
 		p->time = cl.time;
-		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 15) / 15.0);
 		d = randk() & 31;
 
 		for (j = 0; j < 3; j++)
@@ -109,7 +110,8 @@ CL_ParticleEffect2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int 
 		active_particles = p;
 
 		p->time = time;
-		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 15) / 15.0);
 
 		d = randk() & 7;
 
@@ -267,7 +269,8 @@ CL_GenericParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigne
 
 		p->time = time;
 
-		p->color = CL_CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 15) / 15.0);
 
 		d = (float)(randk() & dirspread);
 
