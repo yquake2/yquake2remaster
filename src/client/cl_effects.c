@@ -985,6 +985,20 @@ CL_ExplosionParticles(vec3_t org)
 	}
 }
 
+static int default_colortable[] = {
+	0xff234b63, /* 0x10 */
+	0xff4f5bb3, /* 0x68 */
+	0xff0f1b4f, /* 0xa8 */
+	0xff7b9f97, /* 0x90 */
+};
+
+static int nuke_colortable[] = {
+	0xffc3b79f, /* 0x10 */
+	0xffa79773, /* 0x68 */
+	0xff8b7747, /* 0xa8 */
+	0xff6f5317, /* 0x90 */
+};
+
 void
 CL_BigTeleportParticles(vec3_t org)
 {
@@ -994,7 +1008,6 @@ CL_BigTeleportParticles(vec3_t org)
 
 	time = (float)cl.time;
 	float angle, dist;
-	static int colortable[4] = {2 * 8, 13 * 8, 21 * 8, 18 * 8};
 
 	for (i = 0; i < 4096; i++)
 	{
@@ -1009,7 +1022,7 @@ CL_BigTeleportParticles(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(colortable[randk() & 3]);
+		p->color = default_colortable[randk() & 3];
 
 		angle = M_PI * 2 * (randk() & 1023) / 1023.0f;
 		dist = (float)(randk() & 31);
@@ -2652,7 +2665,6 @@ CL_Widowbeamout(cl_sustain_t *self)
 	vec3_t dir;
 	int i;
 	cparticle_t *p;
-	static int colortable[4] = {2 * 8, 13 * 8, 21 * 8, 18 * 8};
 	float ratio;
 	float time;
 
@@ -2676,7 +2688,7 @@ CL_Widowbeamout(cl_sustain_t *self)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = VID_PaletteColor(colortable[randk() & 3]);
+		p->color = default_colortable[randk() & 3];
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2692,7 +2704,6 @@ CL_Nukeblast(cl_sustain_t *self)
 	vec3_t dir;
 	int i;
 	cparticle_t *p;
-	static int colortable[4] = {110, 112, 114, 116};
 	float ratio;
 	float time;
 
@@ -2716,7 +2727,7 @@ CL_Nukeblast(cl_sustain_t *self)
 
 		p->alpha = 1.0;
 		p->alphavel = INSTANT_PARTICLE;
-		p->color = VID_PaletteColor(colortable[randk() & 3]);
+		p->color = nuke_colortable[randk() & 3];
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
@@ -2729,7 +2740,6 @@ CL_Nukeblast(cl_sustain_t *self)
 void
 CL_WidowSplash(vec3_t org)
 {
-	static int colortable[4] = {2 * 8, 13 * 8, 21 * 8, 18 * 8};
 	int i;
 	cparticle_t *p;
 	vec3_t dir;
@@ -2750,7 +2760,7 @@ CL_WidowSplash(vec3_t org)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(colortable[randk() & 3]);
+		p->color = default_colortable[randk() & 3];
 		dir[0] = crandk();
 		dir[1] = crandk();
 		dir[2] = crandk();
