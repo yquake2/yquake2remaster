@@ -1053,11 +1053,11 @@ CL_ParseTEnt(void)
 
 			if (type == TE_BLASTER2)
 			{
-				CL_BlasterParticles2(pos, dir, 0xd0);
+				CL_BlasterParticles2(pos, dir, 0xff00ff00, 0xffffffff);
 			}
 			else
 			{
-				CL_BlasterParticles2(pos, dir, 0x6f);
+				CL_BlasterParticles2(pos, dir, 0xffb7a787, 0xff5b430f);
 			}
 
 			ex = CL_AllocExplosion();

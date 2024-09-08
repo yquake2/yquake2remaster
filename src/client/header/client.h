@@ -395,7 +395,7 @@ void CL_FlagTrail (vec3_t start, vec3_t end, int color);
 
 void CL_IonripperTrail (vec3_t start, vec3_t end);
 
-void CL_BlasterParticles2 (vec3_t org, vec3_t dir, unsigned int color);
+void CL_BlasterParticles2 (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor);
 void CL_BlasterTrail2 (vec3_t start, vec3_t end);
 void CL_DebugTrail (vec3_t start, vec3_t end);
 void CL_SmokeTrail (vec3_t start, vec3_t end, int colorStart, int colorRun, int spacing);

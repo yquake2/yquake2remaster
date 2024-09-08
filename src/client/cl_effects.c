@@ -2925,7 +2925,7 @@ CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, int color,
  * Wall impact puffs (Green)
  */
 void
-CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int color)
+CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor)
 {
 	int i, j;
 	cparticle_t *p;
@@ -2950,8 +2950,8 @@ CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int color)
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(color + (randk() & 7));
 		d = (float)(randk() & 15);
+		p->color = CombineColors(basecolor, finalcolor, d / 15.0);
 
 		for (j = 0; j < 3; j++)
 		{
