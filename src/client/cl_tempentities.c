@@ -549,7 +549,8 @@ CL_ParseSteam(void)
 			MSG_ReadPos(&net_message, s->org);
 			MSG_ReadDir(&net_message, s->dir);
 			r = MSG_ReadByte(&net_message);
-			s->color = r & 0xff;
+			s->basecolor = VID_PaletteColor(r & 0xff);
+			s->finalcolor = VID_PaletteColor((r + 7) & 0xff);
 			s->magnitude = MSG_ReadShort(&net_message);
 			s->endtime = cl.time + MSG_ReadLong(&net_message);
 			s->think = CL_ParticleSteamEffect2;

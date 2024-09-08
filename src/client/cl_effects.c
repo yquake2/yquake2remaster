@@ -1803,7 +1803,7 @@ CL_BfgParticles(entity_t *ent)
 
 		VectorSubtract(p->org, ent->origin, v);
 		dist = VectorLength(v) / 90.0f;
-		p->color = VID_PaletteColor((int)floor(0xd0 + dist * 7));
+		p->color = CL_CombineColors(0xff00ff00, 0xffffffff, dist);
 		p->alpha = 1.0f - dist;
 		p->alphavel = -100;
 	}
@@ -2138,8 +2138,8 @@ CL_DebugTrail(vec3_t start, vec3_t end)
 }
 
 void
-CL_SmokeTrail(vec3_t start, vec3_t end, int colorStart,
-		int colorRun, int spacing)
+CL_SmokeTrail(vec3_t start, vec3_t end, unsigned int basecolor, unsigned int finalcolor,
+		int spacing)
 {
 	vec3_t move;
 	vec3_t vec;
@@ -2174,7 +2174,9 @@ CL_SmokeTrail(vec3_t start, vec3_t end, int colorStart,
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (1 + frandk() * 0.5f);
-		p->color = VID_PaletteColor(colorStart + (float)(randk() % colorRun));
+		p->color = CL_CombineColors(basecolor, finalcolor,
+			(float)(randk() & 7) / 7.0);
+
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2466,7 +2468,8 @@ CL_ParticleSteamEffect2(cl_sustain_t *self)
 		active_particles = p;
 
 		p->time = cl.time;
-		p->color = VID_PaletteColor(self->color + (randk() & 7));
+		p->color = CL_CombineColors(self->basecolor, self->finalcolor,
+			(float)(randk() & 7) / 7.0);
 
 		for (j = 0; j < 3; j++)
 		{
