@@ -531,17 +531,17 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 			else if (effects & EF_FLAG1)
 			{
-				CL_FlagTrail(cent->lerp_origin, ent.origin, 242);
+				CL_FlagTrailRGB(cent->lerp_origin, ent.origin, 0xff0000ff);
 				V_AddLight(ent.origin, 225, 1, 0.1f, 0.1f);
 			}
 			else if (effects & EF_FLAG2)
 			{
-				CL_FlagTrail(cent->lerp_origin, ent.origin, 115);
+				CL_FlagTrailRGB(cent->lerp_origin, ent.origin, 0xff7f672f);
 				V_AddLight(ent.origin, 225, 0.1f, 0.1f, 1);
 			}
 			else if (effects & EF_TAGTRAIL)
 			{
-				CL_TagTrail(cent->lerp_origin, ent.origin, 220);
+				CL_TagTrailRGB(cent->lerp_origin, ent.origin, 0xff27ffff);
 				V_AddLight(ent.origin, 225, 1.0, 1.0, 0.0);
 			}
 			else if (effects & EF_TRACKERTRAIL)

@@ -1147,7 +1147,7 @@ CL_QuadTrail(vec3_t start, vec3_t end)
 }
 
 void
-CL_FlagTrail(vec3_t start, vec3_t end, int color)
+CL_FlagTrailRGB(vec3_t start, vec3_t end, int color)
 {
 	vec3_t move;
 	vec3_t vec;
@@ -1185,7 +1185,7 @@ CL_FlagTrail(vec3_t start, vec3_t end, int color)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.8f + frandk() * 0.2f);
-		p->color = VID_PaletteColor(color);
+		p->color = color;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1196,6 +1196,12 @@ CL_FlagTrail(vec3_t start, vec3_t end, int color)
 
 		VectorAdd(move, vec, move);
 	}
+}
+
+void
+CL_FlagTrail(vec3_t start, vec3_t end, int color)
+{
+	CL_FlagTrailRGB(start, end, VID_PaletteColor(color));
 }
 
 void
@@ -2753,7 +2759,7 @@ CL_Tracker_Explode(vec3_t origin)
 }
 
 void
-CL_TagTrail(vec3_t start, vec3_t end, int color)
+CL_TagTrailRGB(vec3_t start, vec3_t end, int color)
 {
 	vec3_t move;
 	vec3_t vec;
@@ -2791,7 +2797,7 @@ CL_TagTrail(vec3_t start, vec3_t end, int color)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0f / (0.8f + frandk() * 0.2f);
-		p->color = VID_PaletteColor(color);
+		p->color = color;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -2802,6 +2808,12 @@ CL_TagTrail(vec3_t start, vec3_t end, int color)
 
 		VectorAdd(move, vec, move);
 	}
+}
+
+void
+CL_TagTrail(vec3_t start, vec3_t end, int color)
+{
+	CL_TagTrailRGB(start, end, VID_PaletteColor(color));
 }
 
 void
