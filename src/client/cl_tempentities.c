@@ -649,7 +649,15 @@ CL_ParseNuke(void)
 	}
 }
 
-static byte splash_color[] = {0x00, 0xe0, 0xb0, 0x50, 0xd0, 0xe0, 0xe8};
+static unsigned int splash_color[] = {
+	0xff000000, 0xff6b6b6b,
+	0xff07abff, 0xff002bab,
+	0xffcf7b77, 0xff734747,
+	0xff4b5f7b, 0xff2b374b,
+	0xff00ff00, 0xffffffff,
+	0xff07abff, 0xff002bab,
+	0xff001f9b, 0xff00001b,
+};
 
 void
 CL_ParseTEnt(void)
@@ -774,15 +782,11 @@ CL_ParseTEnt(void)
 
 			if (r > 6)
 			{
-				color = 0x00;
-			}
-			else
-			{
-				color = splash_color[r];
+				r = 0;
 			}
 
 			CL_ParticleEffect(pos, dir,
-				VID_PaletteColor(color), VID_PaletteColor(color + 7), cnt);
+				splash_color[r * 2], splash_color[r * 2 + 1], cnt);
 
 			if (r == SPLASH_SPARKS)
 			{
