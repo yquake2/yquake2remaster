@@ -1216,7 +1216,7 @@ CL_ParseTEnt(void)
 			dir[1] = 0;
 			dir[2] = 1;
 			MSG_ReadPos(&net_message, pos);
-			CL_ParticleSmokeEffect(pos, dir, 0, 20, 20);
+			CL_ParticleSmokeEffect(pos, dir, 0xff000000, 0xff6b6b6b, 20, 20);
 			break;
 
 		case TE_ELECTRIC_SPARKS:

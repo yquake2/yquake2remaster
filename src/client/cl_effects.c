@@ -2875,7 +2875,7 @@ CL_ColorExplosionParticles(vec3_t org, int color, int run)
  * Like the steam effect, but unaffected by gravity
  */
 void
-CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, int color,
+CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 		int count, int magnitude)
 {
 	int i, j;
@@ -2901,7 +2901,7 @@ CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, int color,
 		active_particles = p;
 
 		p->time = time;
-		p->color = VID_PaletteColor(color + (randk() & 7));
+		p->color = CombineColors(basecolor, finalcolor, (float)(randk() & 7) / 7.0);
 
 		for (j = 0; j < 3; j++)
 		{

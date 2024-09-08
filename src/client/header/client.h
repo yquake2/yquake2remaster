@@ -413,7 +413,8 @@ void CL_ColorFlash (vec3_t pos, int ent, float intensity, float r, float g, floa
 void CL_Tracker_Shell(vec3_t origin);
 void CL_MonsterPlasma_Shell(vec3_t origin);
 void CL_ColorExplosionParticles (vec3_t org, int color, int run);
-void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, int color, int count, int magnitude);
+void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count, int magnitude);
 void CL_Widowbeamout (cl_sustain_t *self);
 void CL_Nukeblast (cl_sustain_t *self);
 void CL_WidowSplash (vec3_t org);
