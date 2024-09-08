@@ -312,10 +312,9 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   modern systems like Windows 10 or Linux with PulseAudio.
 
 * **s_sdldriver**: Can be set to the name of a SDL audio driver. If set
-  to `auto`, SDL chooses the driver. If set to anything else the given
-  driver is forced, regardless if supported by SDL or the platform or
-  not. By default set to `directsound` under Windows and `auto` on all
-  other platforms.
+  to `auto` (the defailt), SDL chooses the driver. If set to anything
+  else the given driver is forced, regardless if supported by SDL or the
+  platform or not.
 
 * **s_underwater**: Dampen sounds if submerged. Enabled by default.
 
@@ -594,12 +593,11 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   `1`, which enables gamepad usage; `0` disables its detection at
   startup. Can only be set from command line.
 
-* **in_sdlbackbutton**: Defines which button is used in the gamepad or
-  joystick as the `Esc` key, to access the main menu and 'cancel' /
-  'go back' on its options. Default is `0`, which corresponds to the
-  Back/Select/Minus button. Set to `1` to use Start/Menu/Plus, and to
-  `2` to use the Guide/Home/PS button. Requires a game restart
-  (or controller replug) when changed.
+* **in_sdlbackbutton**: Defines which button is used in the gamepad as
+  the `Esc` key, to pull the main menu and 'cancel' / 'go back' on its
+  options. Valid values are `0` = Back / Select / Minus, `1` = Start /
+  Menu / Plus (default), or `2` = Guide / Home / PS. Requires a game
+  restart, or gamepad replug, when changed.
 
 * **joy_layout**: Allows to select the stick layout of the gamepad.
   - `0`: *Default*, left stick moves, right aims
