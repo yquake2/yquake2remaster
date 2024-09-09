@@ -29,12 +29,12 @@
 #define NUM_BEAM_SEGS 6
 
 viddef_t vid;
-model_t *r_worldmodel;
+model_t *r_worldmodel = NULL;
 
 float gldepthmin, gldepthmax;
 
-glconfig_t gl_config;
-glstate_t gl_state;
+glconfig_t gl_config = {0};
+glstate_t gl_state = {0};
 
 image_t *r_notexture; /* use for bad textures */
 image_t *r_particletexture; /* little dot for particles */
@@ -1776,6 +1776,11 @@ RI_Shutdown(void)
 	QGL_Shutdown();
 
 	R_FreeTemporaryLMBuffer();
+
+	if (gl_state.d_16to8table)
+	{
+		free(gl_state.d_16to8table);
+	}
 }
 
 static void
