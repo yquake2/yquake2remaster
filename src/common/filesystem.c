@@ -726,23 +726,31 @@ int
 FS_Read(void *buffer, int size, fileHandle_t f)
 {
 	qboolean tried = false;    /* Tried to read from a CD. */
-	byte *buf;        /* Buffer. */
+	byte *buf, *compressed_buf;        /* Buffer. */
 	int r;         /* Number of bytes read. */
 	int remaining;        /* Remaining bytes. */
 	fsHandle_t *handle;  /* File handle. */
 
 	handle = FS_GetFileByHandle(f);
 
+	buf = (byte *)buffer;
+	compressed_buf = (byte *)buffer;
+
 	/* Read. */
 	if (handle->compressed_size)
 	{
 		remaining = handle->compressed_size;
+		if (size < handle->compressed_size)
+		{
+			/* compressed chunk bigger than provided buffer */
+			compressed_buf = malloc(handle->compressed_size);
+			buf = compressed_buf;
+		}
 	}
 	else
 	{
 		remaining = size;
 	}
-	buf = (byte *)buffer;
 
 	while (remaining)
 	{
@@ -784,7 +792,13 @@ FS_Read(void *buffer, int size, fileHandle_t f)
 		buf += r;
 	}
 
-	return FS_DecompressFile(buffer, size, handle);
+	remaining = FS_DecompressFile(compressed_buf, size, handle);
+	if (buffer != compressed_buf)
+	{
+		memcpy(buffer, compressed_buf, size);
+		free(compressed_buf);
+	}
+	return remaining;
 }
 
 /*
@@ -795,7 +809,7 @@ int
 FS_FRead(void *buffer, int size, int count, fileHandle_t f)
 {
 	qboolean tried = false;    /* Tried to read from a CD. */
-	byte *buf;        /* Buffer. */
+	byte *buf, *compressed_buf;        /* Buffer. */
 	int loops;         /* Loop indicator. */
 	int r;         /* Number of bytes read. */
 	int remaining;         /* Remaining bytes. */
@@ -806,6 +820,14 @@ FS_FRead(void *buffer, int size, int count, fileHandle_t f)
 	/* Read. */
 	loops = count;
 	buf = (byte *)buffer;
+	compressed_buf = (byte *)buffer;
+
+	if (handle->compressed_size && size < handle->compressed_size)
+	{
+		/* compressed chunk bigger than provided buffer */
+		compressed_buf = malloc(handle->compressed_size);
+		buf = compressed_buf;
+	}
 
 	while (loops)
 	{
@@ -861,7 +883,13 @@ FS_FRead(void *buffer, int size, int count, fileHandle_t f)
 		loops--;
 	}
 
-	return FS_DecompressFile(buffer, size, handle);
+	remaining = FS_DecompressFile(compressed_buf, size, handle);
+	if (buffer != compressed_buf)
+	{
+		memcpy(buffer, compressed_buf, size);
+		free(compressed_buf);
+	}
+	return remaining;
 }
 
 /*
