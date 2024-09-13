@@ -81,6 +81,8 @@ Note:
    with tranparency or some animations flags and properties.
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
+* Use `maptype 1` before load any Heretic 2 maps. Look to
+   [maptype_t](src/common/header/cmodel.h#L42) for more info.
 
 Games:
 
@@ -120,14 +122,15 @@ Goals:
 * [x] suport Daikatana/SiN .pak/.sin format from pakextract,
 * [x] Support flow/scale flags for Q64 maps,
 * [x] Add debug progress loading code for maps,
-* [x] MDR model format in Star Trek: Voyager – Elite Force,
+* [x] MDR model format from Star Trek: Voyager – Elite Force,
+* [ ] MDA entity format from Anachronox,
 * [x] RGB particles support instead palette based one,
 * [x] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,
 * [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
-* [ ] Check load soft colormap as 24bit color,
+* [x] Check load soft colormap as 24bit color from loaded image,
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] Use separete texture hi-color buffer for ui in soft render,
 * [ ] Cleanup function declarations in game save code,

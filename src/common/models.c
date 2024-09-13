@@ -225,6 +225,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 	if (!strcmp(ext, "fm") ||
 		!strcmp(ext, "def") ||
 		!strcmp(ext, "dkm") ||
+		!strcmp(ext, "mda") ||
 		!strcmp(ext, "md2") ||
 		!strcmp(ext, "md3") ||
 		!strcmp(ext, "mdr") ||
@@ -292,6 +293,16 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 		if (filesize > 0)
 		{
 			Com_DPrintf("%s: %s loaded as md2 (Quake 2/Anachronox)\n",
+				__func__, namewe);
+			return filesize;
+		}
+
+		/* Check Anachronox model definition */
+		Q_strlcpy(newname + tlen, ".mda", sizeof(newname));
+		filesize = FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			Com_DPrintf("%s: %s loaded as mda (Anachronox)\n",
 				__func__, namewe);
 			return filesize;
 		}
