@@ -66,7 +66,7 @@ G_ProjectSource2(vec3_t point, vec3_t distance, vec3_t forward,
  * if the end of the list is reached.
  */
 edict_t *
-G_Find(edict_t *from, int fieldofs, char *match)
+G_Find(edict_t *from, int fieldofs, const char *match)
 {
 	char *s;
 
@@ -409,7 +409,7 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 
 			if (t == ent)
 			{
-				gi.dprintf("WARNING: Entity used itself.\n");
+				gi.dprintf ("WARNING: %s used itself.\n", t->classname);
 			}
 			else
 			{
@@ -771,7 +771,9 @@ G_Spawn(void)
 	edict_t *e = G_SpawnOptional();
 
 	if (!e)
-		gi.error ("ED_Alloc: no free edicts");
+	{
+		gi.error("%s: no free edicts", __func__);
+	}
 
 	return e;
 }
