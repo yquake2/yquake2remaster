@@ -2238,6 +2238,19 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 	search->next = fs_searchPaths;
 	fs_searchPaths = search;
 
+	/* remaster additional files */
+	pack = FS_LoadPK3("Q2Game.kpf");
+	if (pack)
+	{
+		pack->isProtectedPak = true;
+
+		FS_SortPack(pack);
+
+		search = Z_Malloc(sizeof(fsSearchPath_t));
+		search->pack = pack;
+		search->next = fs_searchPaths;
+		fs_searchPaths = search;
+	}
 
 	// Numbered paks contain the official game data, they
 	// need to be added first and are marked protected.
