@@ -27,8 +27,15 @@
 
 #include "header/local.h"
 
-localmessages_t *localmessages = NULL;
-int nlocalmessages = 0;
+typedef struct
+{
+	char *key;
+	char *value;
+	char *sound;
+} localmessages_t;
+
+static localmessages_t *localmessages = NULL;
+static int nlocalmessages = 0;
 
 static int
 LocalizationSort(const void *p1, const void *p2)
@@ -44,7 +51,8 @@ void
 LocalizationInit(void)
 {
 	byte *raw = NULL;
-	int len;
+	char *buf_loc = NULL;
+	int len, curr_pos;
 
 	localmessages = NULL;
 	nlocalmessages = 0;
@@ -53,15 +61,19 @@ LocalizationInit(void)
 	len = gi.FS_LoadFile("localization/loc_english.txt", (void **)&raw);
 	if (len > 1)
 	{
-		char *buf, *curr;
-		int i;
+		buf_loc = malloc(len + 1);
+		memcpy(buf_loc, raw, len);
+		buf_loc[len] = 0;
+		gi.FS_FreeFile(raw);
+	}
 
-		buf = malloc(len + 1);
-		memcpy(buf, raw, len);
-		buf[len] = 0;
+	/* localization lines count */
+	if (buf_loc)
+	{
+		char *curr;
 
 		/* get lines count */
-		curr = buf;
+		curr = buf_loc;
 		while(*curr)
 		{
 			size_t linesize = 0;
@@ -73,28 +85,35 @@ LocalizationInit(void)
 				nlocalmessages ++;
 			}
 			curr += linesize;
-			if (curr >= (buf + len))
+			if (curr >= (buf_loc + len))
 			{
 				break;
 			}
 			/* skip our endline */
 			curr++;
 		}
+	}
 
-		if (nlocalmessages)
-		{
-			localmessages = gi.TagMalloc(nlocalmessages * sizeof(*localmessages), TAG_GAME);
-			memset(localmessages, 0, nlocalmessages * sizeof(*localmessages));
-		}
+	if (nlocalmessages)
+	{
+		localmessages = gi.TagMalloc(nlocalmessages * sizeof(*localmessages), TAG_GAME);
+		memset(localmessages, 0, nlocalmessages * sizeof(*localmessages));
+	}
+
+	curr_pos = 0;
+
+	/* localization load */
+	if (buf_loc)
+	{
+		char *curr;
 
 		/* parse lines */
-		curr = buf;
-		i = 0;
+		curr = buf_loc;
 		while(*curr)
 		{
 			size_t linesize = 0;
 
-			if (i == nlocalmessages)
+			if (curr_pos == nlocalmessages)
 			{
 				break;
 			}
@@ -167,30 +186,37 @@ LocalizationInit(void)
 						*currend = 0;
 					}
 
-					localmessages[i].key = gi.TagMalloc(strlen(curr) + 2, TAG_GAME);
-					localmessages[i].key[0] = '$';
-					strcpy(localmessages[i].key + 1, curr);
-					localmessages[i].value = gi.TagMalloc(strlen(sign) + 1, TAG_GAME);
-					strcpy(localmessages[i].value, sign);
-					i ++;
+					localmessages[curr_pos].key = gi.TagMalloc(strlen(curr) + 2, TAG_GAME);
+					localmessages[curr_pos].key[0] = '$';
+					strcpy(localmessages[curr_pos].key + 1, curr);
+					localmessages[curr_pos].value = gi.TagMalloc(strlen(sign) + 1, TAG_GAME);
+					strcpy(localmessages[curr_pos].value, sign);
+					/* ReRelease does not have merged sound files to message */
+					localmessages[curr_pos].sound = NULL;
+					curr_pos ++;
 				}
 			}
 			curr += linesize;
-			if (curr >= (buf + len))
+			if (curr >= (buf_loc + len))
 			{
 				break;
 			}
 			/* skip our endline */
 			curr++;
 		}
-
-		nlocalmessages = i;
-		/* sort messages */
-		qsort(localmessages, nlocalmessages, sizeof(localmessages_t), LocalizationSort);
-
-		gi.FS_FreeFile(raw);
-		free(buf);
+		free(buf_loc);
 	}
+
+	/* save last used position */
+	nlocalmessages = curr_pos;
+
+	if (!curr_pos)
+	{
+		return;
+	}
+
+	/* sort messages */
+	qsort(localmessages, nlocalmessages, sizeof(localmessages_t), LocalizationSort);
 }
 
 static int
