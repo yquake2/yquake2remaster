@@ -2618,7 +2618,7 @@ door_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 
 	self->touch_debounce_time = level.time + 5.0;
 
-	gi.centerprintf(other, "%s", self->message);
+	gi.centerprintf(other, "%s", LocalizationMessage(self->message));
 	gi.sound(other, CHAN_AUTO, gi.soundindex("misc/talk1.wav"), 1, ATTN_NORM, 0);
 }
 

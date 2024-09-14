@@ -264,6 +264,9 @@ InitGame(void)
 	g_quick_weap = gi.cvar("g_quick_weap", "1", CVAR_ARCHIVE);
 	g_swap_speed = gi.cvar("g_swap_speed", "1", 0);
 
+	/* initilize localization */
+	LocalizationInit();
+
 	/* items */
 	InitItems();
 

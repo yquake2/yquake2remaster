@@ -189,6 +189,15 @@ typedef struct
 	void (*AddCommandString)(const char *text);
 
 	void (*DebugGraph)(float value, int color);
+
+	/* Extended to classic Quake2 API.
+	   files will be memory mapped read only
+	   the returned buffer may be part of a larger pak file,
+	   or a discrete file from anywhere in the quake search path
+	   a -1 return means the file does not exist
+	   NULL can be passed for buf to just determine existance */
+	int (*FS_LoadFile) (const char *name, void **buf);
+	void (*FS_FreeFile) (void *buf);
 } game_import_t;
 
 /* functions exported by the game subsystem */

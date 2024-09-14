@@ -453,6 +453,10 @@ SV_InitGameProgs(void)
 	import.SetAreaPortalState = CM_SetAreaPortalState;
 	import.AreasConnected = CM_AreasConnected;
 
+	/* Extension to classic Quake2 API */
+	import.FS_LoadFile = FS_LoadFile;
+	import.FS_FreeFile = FS_FreeFile;
+
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 
 	if (!ge)

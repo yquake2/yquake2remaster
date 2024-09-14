@@ -994,6 +994,18 @@ void SV_AddGravity(edict_t *ent);
 void SaveClientData(void);
 void EndDMLevel(void);
 
+/* g_translate.c */
+typedef struct
+{
+	char *key;
+	char *value;
+} localmessages_t;
+
+extern localmessages_t *localmessages;
+extern int nlocalmessages;
+void LocalizationInit(void);
+const char* LocalizationMessage(const char *message);
+
 /* g_chase.c */
 void UpdateChaseCam(edict_t *ent);
 void ChaseNext(edict_t *ent);

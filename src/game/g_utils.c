@@ -321,7 +321,7 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 	/* print the message */
 	if (activator && (ent->message) && !(activator->svflags & SVF_MONSTER))
 	{
-		gi.centerprintf(activator, "%s", ent->message);
+		gi.centerprintf(activator, "%s", LocalizationMessage(ent->message));
 
 		if (ent->noise_index)
 		{
