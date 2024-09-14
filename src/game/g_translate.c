@@ -51,41 +51,75 @@ void
 LocalizationInit(void)
 {
 	byte *raw = NULL;
-	char *buf_loc = NULL;
-	int len, curr_pos;
+	char *buf_local = NULL, *buf_level = NULL;
+	int len_local, len_level, curr_pos;
 
 	localmessages = NULL;
 	nlocalmessages = 0;
 
-	/* load the file */
-	len = gi.FS_LoadFile("localization/loc_english.txt", (void **)&raw);
-	if (len > 1)
+	/* load the localization file */
+	len_local = gi.FS_LoadFile("localization/loc_english.txt", (void **)&raw);
+	if (len_local > 1)
 	{
-		buf_loc = malloc(len + 1);
-		memcpy(buf_loc, raw, len);
-		buf_loc[len] = 0;
+		buf_local = malloc(len_local + 1);
+		memcpy(buf_local, raw, len_local);
+		buf_local[len_local] = 0;
+		gi.FS_FreeFile(raw);
+	}
+
+	/* load the heretic 2 messages file */
+	len_level = gi.FS_LoadFile("levelmsg.txt", (void **)&raw);
+	if (len_level > 1)
+	{
+		buf_level = malloc(len_level + 1);
+		memcpy(buf_level, raw, len_level);
+		buf_level[len_level] = 0;
 		gi.FS_FreeFile(raw);
 	}
 
 	/* localization lines count */
-	if (buf_loc)
+	if (buf_local)
 	{
 		char *curr;
 
 		/* get lines count */
-		curr = buf_loc;
+		curr = buf_local;
 		while(*curr)
 		{
 			size_t linesize = 0;
 
 			linesize = strcspn(curr, "\n\r");
-			if (*curr && strncmp(curr, "//", 2) &&
+			if (strncmp(curr, "//", 2) &&
 				*curr != '\n' && *curr != '\r')
 			{
 				nlocalmessages ++;
 			}
 			curr += linesize;
-			if (curr >= (buf_loc + len))
+			if (curr >= (buf_local + len_local))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+	}
+
+	/* heretic 2 lines count */
+	if (buf_level)
+	{
+		char *curr;
+
+		/* get lines count */
+		curr = buf_level;
+		while(*curr)
+		{
+			size_t linesize = 0;
+
+			linesize = strcspn(curr, "\n");
+			/* skip lines with both endline codes */
+			nlocalmessages ++;
+			curr += linesize;
+			if (curr >= (buf_level + len_level))
 			{
 				break;
 			}
@@ -103,12 +137,12 @@ LocalizationInit(void)
 	curr_pos = 0;
 
 	/* localization load */
-	if (buf_loc)
+	if (buf_local)
 	{
 		char *curr;
 
 		/* parse lines */
-		curr = buf_loc;
+		curr = buf_local;
 		while(*curr)
 		{
 			size_t linesize = 0;
@@ -197,14 +231,86 @@ LocalizationInit(void)
 				}
 			}
 			curr += linesize;
-			if (curr >= (buf_loc + len))
+			if (curr >= (buf_local + len_local))
 			{
 				break;
 			}
 			/* skip our endline */
 			curr++;
 		}
-		free(buf_loc);
+		free(buf_local);
+	}
+
+	/* heretic 2 translate load */
+	if (buf_level)
+	{
+		char *curr;
+		int i;
+
+		curr = buf_level;
+		i = 1;
+		while(*curr)
+		{
+			char *sign, *currend;
+			size_t linesize = 0;
+
+			linesize = strcspn(curr, "\n");
+			curr[linesize] = 0;
+			if (curr[0] != ';')
+			{
+				/* remove caret back */
+				if (curr[linesize - 1] == '\r')
+				{
+					curr[linesize - 1] = 0;
+				}
+
+				sign = strchr(curr, '#');
+				/* clean up end of key */
+				if (sign)
+				{
+					*sign = 0;
+					sign ++;
+				}
+
+				/* replace @ with new line */
+				currend = curr;
+				while(*currend)
+				{
+					if (*currend == '@')
+					{
+						*currend = '\n';
+					}
+
+					currend++;
+				}
+
+				localmessages[curr_pos].key = gi.TagMalloc(6, TAG_GAME);
+				snprintf(localmessages[curr_pos].key, 5, "%d", i);
+				localmessages[curr_pos].value = gi.TagMalloc(strlen(curr) + 1, TAG_GAME);
+				strcpy(localmessages[curr_pos].value, curr);
+				/* Some Heretic message could have no sound effects */
+				localmessages[curr_pos].sound = NULL;
+				if (sign)
+				{
+					/* has some sound aligned with message */
+					localmessages[curr_pos].sound = gi.TagMalloc(strlen(sign) + 1, TAG_GAME);
+					strcpy(localmessages[curr_pos].sound, sign);
+				}
+
+				curr_pos ++;
+			}
+			i ++;
+
+			curr += linesize;
+			if (curr >= (buf_level + len_level))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+
+		free(buf_level);
 	}
 
 	/* save last used position */
@@ -214,6 +320,8 @@ LocalizationInit(void)
 	{
 		return;
 	}
+
+	gi.dprintf("Found %d translated lines\n", nlocalmessages);
 
 	/* sort messages */
 	qsort(localmessages, nlocalmessages, sizeof(localmessages_t), LocalizationSort);
@@ -259,7 +367,8 @@ LocalizationMessage(const char *message)
 		return message;
 	}
 
-	if (message[0] == '$')
+	if ((message[0] == '$') || /* ReRelease */
+		(strspn(message, "1234567890") == strlen(message))) /* Heretic 2 */
 	{
 		int i;
 
