@@ -270,9 +270,21 @@ LocalizationInit(void)
 				{
 					*sign = 0;
 					sign ++;
+
+					/* replace '\' with '/' in sound path */
+					currend = sign;
+					while(*currend)
+					{
+						if (*currend == '\\')
+						{
+							*currend = '/';
+						}
+
+						currend++;
+					}
 				}
 
-				/* replace @ with new line */
+				/* replace @ in message with new line */
 				currend = curr;
 				while(*currend)
 				{
@@ -360,7 +372,7 @@ LocalizationSearch(const char *name)
 }
 
 const char*
-LocalizationMessage(const char *message)
+LocalizationMessage(const char *message, int *sound_index)
 {
 	if (!message || !localmessages || !nlocalmessages)
 	{
@@ -375,6 +387,11 @@ LocalizationMessage(const char *message)
 		i = LocalizationSearch(message);
 		if (i >= 0)
 		{
+			if (sound_index && localmessages[i].sound)
+			{
+				*sound_index = gi.soundindex(localmessages[i].sound);
+			}
+
 			return localmessages[i].value;
 		}
 	}

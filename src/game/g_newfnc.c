@@ -228,7 +228,15 @@ secret_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurfa
 
 	if (self->message)
 	{
-		gi.centerprintf(other, LocalizationMessage(self->message));
+		int sound_index;
+
+		sound_index = 0;
+		gi.centerprintf(other, LocalizationMessage(self->message, &sound_index));
+
+		if (sound_index)
+		{
+			gi.sound(other, CHAN_AUTO, sound_index, 1, ATTN_NORM, 0);
+		}
 	}
 }
 

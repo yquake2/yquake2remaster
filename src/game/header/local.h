@@ -996,7 +996,7 @@ void EndDMLevel(void);
 
 /* g_translate.c */
 void LocalizationInit(void);
-const char* LocalizationMessage(const char *message);
+const char* LocalizationMessage(const char *message, int *sound_index);
 
 /* g_chase.c */
 void UpdateChaseCam(edict_t *ent);

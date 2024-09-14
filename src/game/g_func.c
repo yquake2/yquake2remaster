@@ -2601,6 +2601,8 @@ void
 door_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
 {
+	int sound_index;
+
 	if (!self || !other)
 	{
 		return;
@@ -2618,8 +2620,9 @@ door_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 
 	self->touch_debounce_time = level.time + 5.0;
 
-	gi.centerprintf(other, "%s", LocalizationMessage(self->message));
-	gi.sound(other, CHAN_AUTO, gi.soundindex("misc/talk1.wav"), 1, ATTN_NORM, 0);
+	sound_index = gi.soundindex("misc/talk1.wav");
+	gi.centerprintf(other, "%s", LocalizationMessage(self->message, &sound_index));
+	gi.sound(other, CHAN_AUTO, sound_index, 1, ATTN_NORM, 0);
 }
 
 void

@@ -321,17 +321,19 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 	/* print the message */
 	if (activator && (ent->message) && !(activator->svflags & SVF_MONSTER))
 	{
-		gi.centerprintf(activator, "%s", LocalizationMessage(ent->message));
+		int sound_index;
 
 		if (ent->noise_index)
 		{
-			gi.sound(activator, CHAN_AUTO, ent->noise_index, 1, ATTN_NORM, 0);
+			sound_index = ent->noise_index;
 		}
 		else
 		{
-			gi.sound(activator, CHAN_AUTO, gi.soundindex(
-							"misc/talk1.wav"), 1, ATTN_NORM, 0);
+			sound_index = gi.soundindex("misc/talk1.wav");
 		}
+
+		gi.centerprintf(activator, "%s", LocalizationMessage(ent->message, &sound_index));
+		gi.sound(activator, CHAN_AUTO, sound_index, 1, ATTN_NORM, 0);
 	}
 
 	/* kill killtargets */
