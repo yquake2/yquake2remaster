@@ -193,6 +193,38 @@ LocalizationInit(void)
 	}
 }
 
+static int
+LocalizationSearch(const char *name)
+{
+	int start, end;
+
+	start = 0;
+	end = nlocalmessages - 1;
+
+	while (start <= end)
+	{
+		int i, res;
+
+		i = start + (end - start) / 2;
+
+		res = Q_stricmp(localmessages[i].key, name);
+		if (res == 0)
+		{
+			return i;
+		}
+		else if (res < 0)
+		{
+			start = i + 1;
+		}
+		else
+		{
+			end = i - 1;
+		}
+	}
+
+	return -1;
+}
+
 const char*
 LocalizationMessage(const char *message)
 {
@@ -205,12 +237,10 @@ LocalizationMessage(const char *message)
 	{
 		int i;
 
-		for (i = 0; i < nlocalmessages; i++)
+		i = LocalizationSearch(message);
+		if (i >= 0)
 		{
-			if (!strcmp(localmessages[i].key, message))
-			{
-				return localmessages[i].value;
-			}
+			return localmessages[i].value;
 		}
 	}
 
