@@ -89,7 +89,7 @@ LocalizationInit(void)
 			size_t linesize = 0;
 
 			linesize = strcspn(curr, "\n\r");
-			if (strncmp(curr, "//", 2) &&
+			if (*curr && strncmp(curr, "//", 2) &&
 				*curr != '\n' && *curr != '\r')
 			{
 				nlocalmessages ++;
@@ -117,7 +117,10 @@ LocalizationInit(void)
 
 			linesize = strcspn(curr, "\n");
 			/* skip lines with both endline codes */
-			nlocalmessages ++;
+			if (*curr && *curr != ';')
+			{
+				nlocalmessages ++;
+			}
 			curr += linesize;
 			if (curr >= (buf_level + len_level))
 			{
