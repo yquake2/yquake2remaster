@@ -3023,11 +3023,9 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 Mod_LoadModel
 =================
 */
-void *
-Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
-	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, loadimage_t load_image, readfile_t read_file,
-	modtype_t *type)
+static void *
+Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
+	struct image_s ***skins, int *numskins, readfile_t read_file, modtype_t *type)
 {
 	void *extradata = NULL;
 
@@ -3103,6 +3101,25 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 				skins, numskins, type);
 			break;
 	}
+
+	return extradata;
+}
+
+/*
+=================
+Mod_LoadModel
+=================
+*/
+void *
+Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
+	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
+	findimage_t find_image, loadimage_t load_image, readfile_t read_file,
+	modtype_t *type)
+{
+	void *extradata;
+
+	extradata = Mod_LoadModelFile(mod_name, buffer, modfilelen, skins, numskins,
+		read_file, type);
 
 	if (extradata)
 	{
