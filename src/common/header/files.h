@@ -224,6 +224,7 @@ typedef struct
 
 /* .MD2 Anachronox triangle model file format */
 
+#define MDAHEADER (('1' << 24) + ('A' << 16) + ('D' << 8) + 'M')
 #define ALIAS_ANACHRONOX_VERSION 15
 
 typedef struct

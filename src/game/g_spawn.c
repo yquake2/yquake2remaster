@@ -75,7 +75,7 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("<model_path>"/*data->model_path*/);
+	self->s.modelindex = gi.modelindex(data->model_path);
 
 	VectorCopy(data->mins, self->mins);
 	VectorCopy(data->maxs, self->maxs);
@@ -1810,8 +1810,14 @@ DynamicSpawnInit(void)
 				break;
 			}
 
+			/* skip empty */
+			linesize = strspn(curr, "\n\r\t ");
+			curr += linesize;
+
+			/* mark end line */
 			linesize = strcspn(curr, "\n\r");
 			curr[linesize] = 0;
+
 			if (*curr && strncmp(curr, "//", 2) &&
 				*curr != '\n' && *curr != '\r' && *curr != ';')
 			{

@@ -29,6 +29,10 @@
 
 #include "models.h"
 
+static void *
+Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
+	struct image_s ***skins, int *numskins, readfile_t read_file, modtype_t *type);
+
 /*
 =================
 Mod_LoadSTvertList
@@ -2856,6 +2860,80 @@ Mod_LoadModel_SDEF(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+static void *
+Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
+	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
+{
+	char base_model[MAX_QPATH * 2] = {0};
+
+	while (curr_buff)
+	{
+		const char *token;
+
+		token = COM_Parse(&curr_buff);
+		if (!*token)
+		{
+			continue;
+		}
+
+		/* found basemodel */
+		else if (!strncmp(token, "basemodel", 9))
+		{
+			token = COM_Parse(&curr_buff);
+			if (!token)
+			{
+				return NULL;
+			}
+			strncpy(base_model, token, sizeof(base_model) - 1);
+			/* other fields is unused for now */
+			break;
+		}
+	}
+
+	if (base_model[0])
+	{
+		void *extradata, *base;
+		int base_size;
+
+		base_size = read_file(base_model, (void **)&base);
+		if (base_size <= 0)
+		{
+			R_Printf(PRINT_DEVELOPER, "%s: %s No base model for %s\n",
+				__func__, mod_name, base_model);
+			return NULL;
+		}
+
+		/* little bit recursive load */
+		extradata = Mod_LoadModelFile(mod_name, base, base_size,
+			skins, numskins,
+			read_file, type);
+
+		free(base);
+		return extradata;
+	}
+
+	return NULL;
+}
+
+static void *
+Mod_LoadModel_MDA(const char *mod_name, const void *buffer, int modfilelen,
+	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
+{
+	void *extradata;
+	char *text;
+
+	text = malloc(modfilelen + 1 - 4);
+	memcpy(text, (char *)buffer + 4, modfilelen - 4);
+	text[modfilelen - 4] = 0;
+
+	extradata = Mod_LoadModel_MDA_Text(mod_name, text, read_file, skins,
+		numskins, type);
+
+	free(text);
+
+	return extradata;
+}
+
 /*
 =================
 Mod_LoadSprite_SP2
@@ -3037,6 +3115,11 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
 
 	switch (LittleLong(*(unsigned *)buffer))
 	{
+		case MDAHEADER:
+			extradata = Mod_LoadModel_MDA(mod_name, buffer, modfilelen,
+				read_file, skins, numskins, type);
+			break;
+
 		case SDEFHEADER:
 			extradata = Mod_LoadModel_SDEF(mod_name, buffer, modfilelen,
 				read_file, skins, numskins, type);
