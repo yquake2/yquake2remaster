@@ -44,6 +44,77 @@ static spawn_t spawns[] = {
 #include "savegame/tables/spawnfunc_list.h"
 };
 
+/* Definition of dynamic object */
+typedef struct
+{
+	char classname[MAX_QPATH];
+	char model_path[MAX_QPATH];
+	vec3_t scale;
+	char entity_type[MAX_QPATH];
+	vec3_t mins;
+	vec3_t maxs;
+	char noshadow[MAX_QPATH];
+	int solidflag;
+	float walk_speed;
+	float run_speed;
+	int speed;
+	int lighting;
+	int blending;
+	char target_sequence[MAX_QPATH];
+	int misc_value;
+	int no_mip;
+	char spawn_sequence[MAX_QPATH];
+	char description[MAX_QPATH];
+} dynamicentity_t;
+
+static dynamicentity_t *dynamicentities;
+static int ndynamicentities;
+
+static void
+DynamicSpawn(edict_t *self, dynamicentity_t *data)
+{
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_BBOX;
+	self->s.modelindex = gi.modelindex("<model_path>"/*data->model_path*/);
+
+	VectorCopy(data->mins, self->mins);
+	VectorCopy(data->maxs, self->maxs);
+
+	gi.linkentity(self);
+}
+
+static int
+DynamicSpawnSearch(const char *name)
+{
+	int start, end;
+
+	start = 0;
+	end = ndynamicentities - 1;
+
+	while (start <= end)
+	{
+		int i, res;
+
+		i = start + (end - start) / 2;
+
+		res = Q_stricmp(dynamicentities[i].classname, name);
+		if (res == 0)
+		{
+			return i;
+		}
+		else if (res < 0)
+		{
+			start = i + 1;
+		}
+		else
+		{
+			end = i - 1;
+		}
+	}
+
+	return -1;
+}
+
 static qboolean
 Spawn_CheckCoop_MapHacks(edict_t *ent)
 {
@@ -141,6 +212,14 @@ ED_CallSpawn(edict_t *ent)
 			s->spawn(ent);
 			return;
 		}
+	}
+
+	i = DynamicSpawnSearch(ent->classname);
+	if (i >= 0)
+	{
+		DynamicSpawn(ent, &dynamicentities[i]);
+
+		return;
 	}
 
 	gi.dprintf("%s doesn't have a spawn function\n", ent->classname);
@@ -1595,4 +1674,195 @@ Widowlegs_Spawn(vec3_t startpos, vec3_t angles)
 
 	ent->nextthink = level.time + FRAMETIME;
 	gi.linkentity(ent);
+}
+
+static char *
+DynamicStringParse(char *line, char *field, int size)
+{
+	char *next_section, *current_section;
+
+	/* search line end */
+	current_section = line;
+	next_section = strchr(line, '|');
+	if (next_section)
+	{
+		*next_section = 0;
+		line = next_section + 1;
+	}
+
+	/* copy current line state */
+	strncpy(field, current_section, size);
+
+	return line;
+}
+
+static char *
+DynamicIntParse(char *line, int *field)
+{
+	char *next_section;
+
+	next_section = strchr(line, '|');
+	if (next_section)
+	{
+		*next_section = 0;
+		*field = (int)strtol(line, (char **)NULL, 10);
+		line = next_section + 1;
+	}
+
+	return line;
+}
+
+static char *
+DynamicFloatParse(char *line, float *field, int size)
+{
+	char *next_section;
+	int i;
+
+	for (i = 0; i < size; i++)
+	{
+		next_section = strchr(line, '|');
+		if (next_section)
+		{
+			*next_section = 0;
+			field[i] = (float)strtod(line, (char **)NULL);
+			line = next_section + 1;
+		}
+	}
+	return line;
+}
+
+static int
+DynamicSort(const void *p1, const void *p2)
+{
+	dynamicentity_t *ent1, *ent2;
+
+	ent1 = (dynamicentity_t*)p1;
+	ent2 = (dynamicentity_t*)p2;
+	return Q_stricmp(ent1->classname, ent2->classname);
+}
+
+void
+DynamicSpawnInit(void)
+{
+	char *buf, *raw;
+	int len, curr_pos;
+
+	buf = NULL;
+	len = 0;
+
+	/* load the file */
+	len = gi.FS_LoadFile("models/entity.dat", (void **)&raw);
+	if (len > 1)
+	{
+		buf = malloc(len + 1);
+		memcpy(buf, raw, len);
+		buf[len] = 0;
+		gi.FS_FreeFile(raw);
+	}
+
+	/* definition lines count */
+	if (buf)
+	{
+		char *curr;
+
+		/* get lines count */
+		curr = buf;
+		while(*curr)
+		{
+			size_t linesize = 0;
+
+			linesize = strcspn(curr, "\n\r");
+			if (*curr && strncmp(curr, "//", 2) &&
+				*curr != '\n' && *curr != '\r' && *curr != ';')
+			{
+				ndynamicentities ++;
+			}
+			curr += linesize;
+			if (curr >= (buf + len))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+	}
+
+	if (ndynamicentities)
+	{
+		dynamicentities = gi.TagMalloc(ndynamicentities * sizeof(*dynamicentities), TAG_GAME);
+		memset(dynamicentities, 0, ndynamicentities * sizeof(*dynamicentities));
+	}
+	curr_pos = 0;
+
+	/* load definitons count */
+	if (buf)
+	{
+		char *curr;
+
+		/* get lines count */
+		curr = buf;
+		while(*curr)
+		{
+			size_t linesize = 0;
+
+			if (curr_pos >= ndynamicentities)
+			{
+				break;
+			}
+
+			linesize = strcspn(curr, "\n\r");
+			curr[linesize] = 0;
+			if (*curr && strncmp(curr, "//", 2) &&
+				*curr != '\n' && *curr != '\r' && *curr != ';')
+			{
+				char *line;
+
+				line = curr;
+				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path, MAX_QPATH);
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].scale, 3);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].entity_type, MAX_QPATH);
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3);
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].maxs, 3);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].noshadow, MAX_QPATH);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].solidflag);
+				line = DynamicFloatParse(line, &dynamicentities[curr_pos].walk_speed, 1);
+				line = DynamicFloatParse(line, &dynamicentities[curr_pos].run_speed, 1);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].speed);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].lighting);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].blending);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].target_sequence, MAX_QPATH);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].misc_value);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].no_mip);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].spawn_sequence, MAX_QPATH);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].description, MAX_QPATH);
+
+				curr_pos ++;
+			}
+			curr += linesize;
+			if (curr >= (buf + len))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+
+		ndynamicentities = curr_pos;
+
+		free(buf);
+	}
+
+	/* save last used position */
+	ndynamicentities = curr_pos;
+
+	if (!curr_pos)
+	{
+		return;
+	}
+
+	gi.dprintf("Found %d dynamic definitions\n", ndynamicentities);
+
+	/* sort definitions */
+	qsort(dynamicentities, ndynamicentities, sizeof(dynamicentity_t), DynamicSort);
 }

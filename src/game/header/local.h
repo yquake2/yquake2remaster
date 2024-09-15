@@ -796,6 +796,7 @@ edict_t *findradius2(edict_t *from, vec3_t org, float rad);
 
 /* g_spawn.c */
 void ED_CallSpawn(edict_t *ent);
+void DynamicSpawnInit(void);
 
 /* g_combat.c */
 qboolean OnSameTeam(edict_t *ent1, edict_t *ent2);
