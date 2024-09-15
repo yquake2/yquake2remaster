@@ -287,22 +287,22 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 			return filesize;
 		}
 
-		/* Check Quake 2 model */
-		Q_strlcpy(newname + tlen, ".md2", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as md2 (Quake 2/Anachronox)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
 		/* Check Anachronox model definition */
 		Q_strlcpy(newname + tlen, ".mda", sizeof(newname));
 		filesize = FS_LoadFile(newname, buffer);
 		if (filesize > 0)
 		{
 			Com_DPrintf("%s: %s loaded as mda (Anachronox)\n",
+				__func__, namewe);
+			return filesize;
+		}
+
+		/* Check Quake 2 model */
+		Q_strlcpy(newname + tlen, ".md2", sizeof(newname));
+		filesize = FS_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			Com_DPrintf("%s: %s loaded as md2 (Quake 2/Anachronox)\n",
 				__func__, namewe);
 			return filesize;
 		}

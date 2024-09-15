@@ -2894,6 +2894,17 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 	{
 		void *extradata, *base;
 		int base_size;
+		char *curr;
+
+		curr = base_model;
+		while (*curr)
+		{
+			if (*curr == '\\')
+			{
+				*curr = '/';
+			}
+			curr++;
+		}
 
 		base_size = read_file(base_model, (void **)&base);
 		if (base_size <= 0)
@@ -3250,12 +3261,13 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load
 	else if (type == mod_alias)
 	{
 		dmdx_t *pheader;
-		int	i;
 
 		pheader = (dmdx_t *)extradata;
 		if (pheader->ofs_imgbit && load_image)
 		{
 			byte* images = (byte *)pheader + pheader->ofs_imgbit;
+			int i;
+
 			for (i = 0; i < pheader->num_skins; i++)
 			{
 				skins[i] = load_image(
@@ -3269,7 +3281,9 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load
 		}
 		else
 		{
-			for (i=0; i < pheader->num_skins; i++)
+			int i;
+
+			for (i = 0; i < pheader->num_skins; i++)
 			{
 				skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME, it_skin);
 			}

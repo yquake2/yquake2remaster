@@ -214,12 +214,15 @@ ED_CallSpawn(edict_t *ent)
 		}
 	}
 
-	i = DynamicSpawnSearch(ent->classname);
-	if (i >= 0)
+	if (dynamicentities && ndynamicentities)
 	{
-		DynamicSpawn(ent, &dynamicentities[i]);
+		i = DynamicSpawnSearch(ent->classname);
+		if (i >= 0)
+		{
+			DynamicSpawn(ent, &dynamicentities[i]);
 
-		return;
+			return;
+		}
 	}
 
 	gi.dprintf("%s doesn't have a spawn function\n", ent->classname);
@@ -1715,11 +1718,12 @@ DynamicIntParse(char *line, int *field)
 static char *
 DynamicFloatParse(char *line, float *field, int size)
 {
-	char *next_section;
 	int i;
 
 	for (i = 0; i < size; i++)
 	{
+		char *next_section;
+
 		next_section = strchr(line, '|');
 		if (next_section)
 		{
@@ -1749,6 +1753,9 @@ DynamicSpawnInit(void)
 
 	buf = NULL;
 	len = 0;
+
+	dynamicentities = NULL;
+	ndynamicentities = 0;
 
 	/* load the file */
 	len = gi.FS_LoadFile("models/entity.dat", (void **)&raw);
