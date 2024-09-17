@@ -1680,13 +1680,13 @@ Widowlegs_Spawn(vec3_t startpos, vec3_t angles)
 }
 
 static char *
-DynamicStringParse(char *line, char *field, int size)
+DynamicStringParse(char *line, char *field, int size, char separator)
 {
 	char *next_section, *current_section;
 
 	/* search line end */
 	current_section = line;
-	next_section = strchr(line, '|');
+	next_section = strchr(line, separator);
 	if (next_section)
 	{
 		*next_section = 0;
@@ -1716,7 +1716,28 @@ DynamicIntParse(char *line, int *field)
 }
 
 static char *
-DynamicFloatParse(char *line, float *field, int size)
+DynamicFloatParse(char *line, float *field, int size, char separator)
+{
+	int i;
+
+	for (i = 0; i < size; i++)
+	{
+		char *next_section, *current_section;
+
+		current_section = line;
+		next_section = strchr(line, separator);
+		if (next_section)
+		{
+			*next_section = 0;
+			line = next_section + 1;
+		}
+		field[i] = (float)strtod(current_section, (char **)NULL);
+	}
+	return line;
+}
+
+static char *
+DynamicSkipParse(char *line, int size, char separator)
 {
 	int i;
 
@@ -1724,11 +1745,10 @@ DynamicFloatParse(char *line, float *field, int size)
 	{
 		char *next_section;
 
-		next_section = strchr(line, '|');
+		next_section = strchr(line, separator);
 		if (next_section)
 		{
 			*next_section = 0;
-			field[i] = (float)strtod(line, (char **)NULL);
 			line = next_section + 1;
 		}
 	}
@@ -1748,32 +1768,81 @@ DynamicSort(const void *p1, const void *p2)
 void
 DynamicSpawnInit(void)
 {
-	char *buf, *raw;
-	int len, curr_pos;
+	char *buf_ent, *buf_ai, *raw;
+	int len_ent, len_ai, curr_pos;
 
-	buf = NULL;
-	len = 0;
+	buf_ent = NULL;
+	len_ent = 0;
+	buf_ai = NULL;
+	len_ai = 0;
 
 	dynamicentities = NULL;
 	ndynamicentities = 0;
 
-	/* load the file */
-	len = gi.FS_LoadFile("models/entity.dat", (void **)&raw);
-	if (len > 1)
+	/* load the aidata file */
+	len_ai = gi.FS_LoadFile("aidata.vsc", (void **)&raw);
+	if (len_ai > 1)
 	{
-		buf = malloc(len + 1);
-		memcpy(buf, raw, len);
-		buf[len] = 0;
+		if (len_ai > 4 && !strncmp(raw, "CVSC", 4))
+		{
+			int i;
+
+			len_ai -= 4;
+			buf_ai = malloc(len_ai + 1);
+			memcpy(buf_ai, raw + 4, len_ai);
+			for (i = 0; i < len_ai; i++)
+			{
+				buf_ai[i] = buf_ai[i] ^ 0x96;
+			}
+			buf_ai[len_ai] = 0;
+		}
 		gi.FS_FreeFile(raw);
 	}
 
-	/* definition lines count */
-	if (buf)
+	/* load the file */
+	len_ent = gi.FS_LoadFile("models/entity.dat", (void **)&raw);
+	if (len_ent > 1)
+	{
+		buf_ent = malloc(len_ent + 1);
+		memcpy(buf_ent, raw, len_ent);
+		buf_ent[len_ent] = 0;
+		gi.FS_FreeFile(raw);
+	}
+
+	/* aidata definition lines count */
+	if (buf_ai)
 	{
 		char *curr;
 
 		/* get lines count */
-		curr = buf;
+		curr = buf_ai;
+		while(*curr)
+		{
+			size_t linesize = 0;
+
+			linesize = strcspn(curr, "\n\r");
+			if (*curr &&  *curr != '\n' && *curr != '\r' && *curr != ',')
+			{
+				ndynamicentities ++;
+			}
+
+			curr += linesize;
+			if (curr >= (buf_ai + len_ai))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+	}
+
+	/* entitiyty definition lines count */
+	if (buf_ent)
+	{
+		char *curr;
+
+		/* get lines count */
+		curr = buf_ent;
 		while(*curr)
 		{
 			size_t linesize = 0;
@@ -1785,7 +1854,7 @@ DynamicSpawnInit(void)
 				ndynamicentities ++;
 			}
 			curr += linesize;
-			if (curr >= (buf + len))
+			if (curr >= (buf_ent + len_ent))
 			{
 				break;
 			}
@@ -1801,13 +1870,114 @@ DynamicSpawnInit(void)
 	}
 	curr_pos = 0;
 
-	/* load definitons count */
-	if (buf)
+	if (buf_ai)
 	{
 		char *curr;
 
 		/* get lines count */
-		curr = buf;
+		curr = buf_ai;
+		while(*curr)
+		{
+			size_t linesize = 0;
+
+			if (curr_pos >= ndynamicentities)
+			{
+				break;
+			}
+
+			/* skip empty */
+			linesize = strspn(curr, "\n\r\t ");
+			curr += linesize;
+
+			/* mark end line */
+			linesize = strcspn(curr, "\n\r");
+			curr[linesize] = 0;
+
+			if (*curr &&  *curr != '\n' && *curr != '\r' && *curr != ',')
+			{
+				char *line, scale[MAX_QPATH];
+
+				line = curr;
+				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, ',');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path, MAX_QPATH, ',');
+				/*
+				 * Skipped:
+					 * audio file definition
+					 * health
+					 * basehealth
+					 * elasticity
+					 * mass
+					 * angle speed
+				*/
+				line = DynamicSkipParse(line, 6, ',');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3, ',');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].maxs, 3, ',');
+				line = DynamicStringParse(line, scale, MAX_QPATH, ',');
+				/* parse to 3 floats */
+				DynamicFloatParse(scale, dynamicentities[curr_pos].scale, 3, ' ');
+				/*
+				 * Ignored fields:
+					* active distance
+					* attack distance
+					* jump attack distance
+					* upward velocity
+					* run speed
+					* walk speed
+					* attack speed
+					* fov
+					* X weapon1Offset
+					* Y weapon1Offset
+					* Z weapon1Offset
+					* base damage
+					* random damage
+					* spread x
+					* spread z
+					* speed
+					* distance
+					* X weapon2Offset
+					* Y weapon2Offset
+					* Z weapon2Offset
+					* base damage
+					* random damage
+					* spread x
+					* spread z
+					* speed
+					* distance
+					* X weapon3Offset
+					* Y weapon3Offset
+					* Z weapon3Offset
+					* base damage
+					* random damage
+					* spread x
+					* spread z
+					* speed
+					* distance
+					* min attenuation
+					* max attenuation
+				 */
+
+				curr_pos ++;
+			}
+
+			curr += linesize;
+			if (curr >= (buf_ai + len_ai))
+			{
+				break;
+			}
+
+			/* skip our endline */
+			curr++;
+		}
+		free(buf_ai);
+	}
+
+	/* load definitons count */
+	if (buf_ent)
+	{
+		char *curr;
+
+		/* get lines count */
+		curr = buf_ent;
 		while(*curr)
 		{
 			size_t linesize = 0;
@@ -1831,29 +2001,29 @@ DynamicSpawnInit(void)
 				char *line;
 
 				line = curr;
-				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH);
-				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path, MAX_QPATH);
-				line = DynamicFloatParse(line, dynamicentities[curr_pos].scale, 3);
-				line = DynamicStringParse(line, dynamicentities[curr_pos].entity_type, MAX_QPATH);
-				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3);
-				line = DynamicFloatParse(line, dynamicentities[curr_pos].maxs, 3);
-				line = DynamicStringParse(line, dynamicentities[curr_pos].noshadow, MAX_QPATH);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, '|');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path, MAX_QPATH, '|');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].scale, 3, '|');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].entity_type, MAX_QPATH, '|');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3, '|');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].maxs, 3, '|');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].noshadow, MAX_QPATH, '|');
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].solidflag);
-				line = DynamicFloatParse(line, &dynamicentities[curr_pos].walk_speed, 1);
-				line = DynamicFloatParse(line, &dynamicentities[curr_pos].run_speed, 1);
+				line = DynamicFloatParse(line, &dynamicentities[curr_pos].walk_speed, 1, '|');
+				line = DynamicFloatParse(line, &dynamicentities[curr_pos].run_speed, 1, '|');
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].speed);
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].lighting);
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].blending);
-				line = DynamicStringParse(line, dynamicentities[curr_pos].target_sequence, MAX_QPATH);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].target_sequence, MAX_QPATH, '|');
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].misc_value);
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].no_mip);
-				line = DynamicStringParse(line, dynamicentities[curr_pos].spawn_sequence, MAX_QPATH);
-				line = DynamicStringParse(line, dynamicentities[curr_pos].description, MAX_QPATH);
+				line = DynamicStringParse(line, dynamicentities[curr_pos].spawn_sequence, MAX_QPATH, '|');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].description, MAX_QPATH, '|');
 
 				curr_pos ++;
 			}
 			curr += linesize;
-			if (curr >= (buf + len))
+			if (curr >= (buf_ent + len_ent))
 			{
 				break;
 			}
@@ -1861,9 +2031,7 @@ DynamicSpawnInit(void)
 			curr++;
 		}
 
-		ndynamicentities = curr_pos;
-
-		free(buf);
+		free(buf_ent);
 	}
 
 	/* save last used position */
