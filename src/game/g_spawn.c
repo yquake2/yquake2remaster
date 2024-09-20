@@ -36,7 +36,7 @@
 
 typedef struct
 {
-	char *name;
+	const char *name;
 	void (*spawn)(edict_t *ent);
 } spawn_t;
 
@@ -222,6 +222,26 @@ ED_CallSpawn(edict_t *ent)
 			DynamicSpawn(ent, &dynamicentities[i]);
 
 			return;
+		}
+	}
+
+	/* SiN entity could have model path as model field */
+	if (ent->model && (ent->model[0] != '*') && (strlen(ent->model) > 4))
+	{
+		dynamicentity_t self = {0};
+		const char *ext;
+
+		ext = COM_FileExtension(ent->model);
+		if(!strcmp(ext, "def"))
+		{
+			strncpy(self.classname, ent->classname, sizeof(self.classname));
+			snprintf(self.model_path, sizeof(self.model_path), "models/%s", ent->model);
+
+			if (gi.FS_LoadFile(self.model_path, NULL) > 4)
+			{
+				DynamicSpawn(ent, &self);
+				return;
+			}
 		}
 	}
 

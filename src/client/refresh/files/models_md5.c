@@ -1323,12 +1323,14 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_meshes = md5file->num_meshes;
 	pheader->num_st = md5file->num_tris * 3;
 	pheader->num_tris = md5file->num_tris;
+	pheader->num_imgbit = 0;
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
 	pheader->ofs_st = ofs_st;
 	pheader->ofs_tris = ofs_tris;
 	pheader->ofs_frames = ofs_frames;
 	pheader->ofs_glcmds = ofs_glcmds;
+	pheader->ofs_imgbit = 0;
 	pheader->ofs_end = ofs_end;
 
 	for(i = 0; i < md5file->num_frames; i ++)
