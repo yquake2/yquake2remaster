@@ -625,7 +625,7 @@ RI_RegisterModel(const char *name)
 		else
 		{
 			/* numframes is unused for SP2 but lets set it also  */
-			mod->numframes = Mod_ReLoadSkins((struct image_s **)mod->skins,
+			mod->numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
 				(findimage_t)R_FindImage, (loadimage_t)R_LoadPic,
 				mod->extradata, mod->type);
 		}

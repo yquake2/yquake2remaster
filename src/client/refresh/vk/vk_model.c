@@ -623,7 +623,7 @@ RE_RegisterModel(const char *name)
 		else
 		{
 			/* numframes is unused for SP2 but lets set it also  */
-			mod->numframes = Mod_ReLoadSkins((struct image_s **)mod->skins,
+			mod->numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
 				(findimage_t)Vk_FindImage, (loadimage_t)Vk_LoadPic,
 				mod->extradata, mod->type);
 		}

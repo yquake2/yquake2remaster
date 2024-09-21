@@ -324,7 +324,7 @@ extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfile
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, loadimage_t load_image, readfile_t read_file,
 	modtype_t *type);
-extern int Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image,
+extern int Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image,
 	loadimage_t load_image, void *extradata, modtype_t type);
 extern struct image_s *GetSkyImage(const char *skyname, const char* surfname,
 	qboolean palettedtexture, findimage_t find_image);

@@ -2879,6 +2879,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	char base_model[MAX_QPATH * 2] = {0};
+	char base_skin[MAX_QPATH * 2] = {0};
 
 	while (curr_buff)
 	{
@@ -2891,16 +2892,74 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 		}
 
 		/* found basemodel */
-		else if (!strncmp(token, "basemodel", 9))
+		else if (!strcmp(token, "basemodel"))
 		{
+			char *curr;
+
 			token = COM_Parse(&curr_buff);
 			if (!token)
 			{
 				return NULL;
 			}
 			strncpy(base_model, token, sizeof(base_model) - 1);
-			/* other fields is unused for now */
-			break;
+
+			curr = base_model;
+			while (*curr)
+			{
+				if (*curr == '\\')
+				{
+					*curr = '/';
+				}
+				curr++;
+			}
+
+			if (base_skin[0])
+			{
+				/* other fields is unused for now */
+				break;
+			}
+		}
+		/* TODO: should be profile {*} -> skin -> pass -> map */
+		else if (!strcmp(token, "map"))
+		{
+			char* token_end = NULL;
+			char *curr;
+
+			token = COM_Parse(&curr_buff);
+			if (!token)
+			{
+				return NULL;
+			}
+
+			if (token[0] == '"')
+			{
+				token ++;
+			}
+
+			token_end = strchr(token, '"');
+			if (token_end)
+			{
+				/* remove end " */
+				*token_end = 0;
+			}
+
+			strncpy(base_skin, token, sizeof(base_skin) - 1);
+
+			curr = base_skin;
+			while (*curr)
+			{
+				if (*curr == '\\')
+				{
+					*curr = '/';
+				}
+				curr++;
+			}
+
+			if (base_model[0])
+			{
+				/* other fields is unused for now */
+				break;
+			}
 		}
 	}
 
@@ -2908,17 +2967,6 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 	{
 		void *extradata, *base;
 		int base_size;
-		char *curr;
-
-		curr = base_model;
-		while (*curr)
-		{
-			if (*curr == '\\')
-			{
-				*curr = '/';
-			}
-			curr++;
-		}
 
 		base_size = read_file(base_model, (void **)&base);
 		if (base_size <= 0)
@@ -2932,6 +2980,31 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 		extradata = Mod_LoadModelFile(mod_name, base, base_size,
 			skins, numskins,
 			read_file, type);
+
+		/* check skin path */
+		if (extradata && *type == mod_alias)
+		{
+			dmdx_t *pheader;
+			int	i;
+
+			pheader = (dmdx_t *)extradata;
+			for (i=0; i < pheader->num_skins; i++)
+			{
+				char *skin;
+
+				/* Update included model with skin path */
+				skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+				if (!strchr(skin, '/') && !strchr(skin, '\\'))
+				{
+					char skin_path[MAX_QPATH * 2] = {0};
+
+					strncpy(skin_path, base_skin, sizeof(skin_path));
+					strcpy(strrchr(skin_path, '/') + 1, skin);
+
+					strncpy(skin, skin_path, MAX_SKINNAME);
+				}
+			}
+		}
 
 		free(base);
 		return extradata;
@@ -3232,7 +3305,7 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	if (extradata)
 	{
 		Mod_LoadMinMaxUpdate(mod_name, mins, maxs, extradata, *type);
-		Mod_ReLoadSkins(*skins, find_image, load_image, extradata, *type);
+		Mod_ReLoadSkins(mod_name, *skins, find_image, load_image, extradata, *type);
 		Mod_LoadLimits(mod_name, extradata, *type);
 	}
 
@@ -3247,8 +3320,8 @@ Reload images in SP2/MD2 (mark registration_sequence)
 =================
 */
 int
-Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load_image,
-	void *extradata, modtype_t type)
+Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image,
+	loadimage_t load_image, void *extradata, modtype_t type)
 {
 	if (type == mod_sprite)
 	{
@@ -3299,7 +3372,22 @@ Mod_ReLoadSkins(struct image_s **skins, findimage_t find_image, loadimage_t load
 
 			for (i = 0; i < pheader->num_skins; i++)
 			{
-				skins[i] = find_image((char *)pheader + pheader->ofs_skins + i*MAX_SKINNAME, it_skin);
+				char *skin;
+
+				skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+				skins[i] = find_image(skin, it_skin);
+
+				if (!skins[i] && !strchr(skin, '/') && !strchr(skin, '\\'))
+				{
+					char skin_path[MAX_QPATH * 2] = {0};
+
+					strncpy(skin_path, name, sizeof(skin_path));
+					strcpy(strrchr(skin_path, '/') + 1, skin);
+
+					R_Printf(PRINT_DEVELOPER, "Model %s: No original skin found, %s is used\n",
+						name, skin_path);
+					skins[i] = find_image(skin_path, it_skin);
+				}
 			}
 		}
 		return  pheader->num_frames;
