@@ -1707,7 +1707,8 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
 	}
 
-	if (pinmodel.version != ALIAS_ANACHRONOX_VERSION)
+	if (pinmodel.version != ALIAS_ANACHRONOX_VERSION &&
+		pinmodel.version != ALIAS_ANACHRONOX_VERSION_OLD)
 	{
 		R_Printf(PRINT_ALL, "%s: %s has wrong version number (%i should be %i)\n",
 				__func__, mod_name, pinmodel.version, ALIAS_ANACHRONOX_VERSION);
@@ -3244,7 +3245,8 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
 				short version;
 
 				version = LittleShort(((short*)buffer)[2]);
-				if (version == ALIAS_ANACHRONOX_VERSION)
+				if (version == ALIAS_ANACHRONOX_VERSION ||
+					version == ALIAS_ANACHRONOX_VERSION_OLD)
 				{
 					extradata = Mod_LoadModel_MD2Anox(mod_name, buffer, modfilelen,
 						skins, numskins, type);
