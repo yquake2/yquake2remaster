@@ -223,6 +223,7 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 	tlen = strlen(namewe);
 
 	if (!strcmp(ext, "fm") ||
+		!strcmp(ext, "ctc") ||
 		!strcmp(ext, "def") ||
 		!strcmp(ext, "dkm") ||
 		!strcmp(ext, "mda") ||
