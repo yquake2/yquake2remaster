@@ -28,7 +28,8 @@ State:
 Monsters:
 
 * incorrect dead animation for Arachnid,
-* broken fire effect for Guardian.
+* broken fire effect for Guardian,
+* q64/outpost can't change to next level.
 
 Models support:
 
@@ -108,7 +109,23 @@ Games:
   * Tools: [SiNview](https://web.archive.org/web/20001212060900/http://starbase.neosoft.com:80/~otaku/program.html)
   * Tools: <https://www.moddb.com/games/sin/downloads/sin-modding-tools-and-other-stuff>
   * SDK: <https://github.com/NightDive-Studio/sin-ex-game>
+  * SDK: <https://github.com/jimdose/SiN_110_Source>
   * SDK: <https://code.idtech.space/ritual/sin-sdk>
+
+Games check videos:
+
+* 8.42RR9:
+
+[![Latest Video](https://img.youtube.com/vi/N0iHhEDkZFg/0.jpg)](https://www.youtube.com/watch?v=N0iHhEDkZFg)
+
+* 8.42RR8:
+
+[![8.42RR8](https://img.youtube.com/vi/NJ7T0cdyqk8/0.jpg)](https://www.youtube.com/watch?v=NJ7T0cdyqk8)
+
+* 8.31RR7:
+
+[![8.31RR7](https://img.youtube.com/vi/VAFs1HtQU_0/0.jpg)](https://www.youtube.com/watch?v=VAFs1HtQU_0)
+
 
 Goals:
 
@@ -124,7 +141,12 @@ Goals:
 * [x] Support flow/scale flags for Q64 maps,
 * [x] Add debug progress loading code for maps,
 * [x] MDR model format from Star Trek: Voyager – Elite Force,
-* [ ] MDA entity format from Anachronox,
+* [x] MDA entity format from Anachronox,
+* [ ] CTC entity format from Anachronox,
+* [ ] Support material load textures/textureinfo.dat from Anachronox,
+* [ ] Support textures/*/*.mat load from ReRelease,
+* [ ] Support textures/*/*_glow.png load from ReRelease,
+* [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
 * [x] RGB particles support instead palette based one,
 * [x] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,
