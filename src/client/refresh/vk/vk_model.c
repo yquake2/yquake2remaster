@@ -188,7 +188,8 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
-		int side, ti, planenum, lightofs;
+		unsigned int planenum;
+		int	ti, side, lightofs;
 
 		out->firstedge = in->firstedge;
 		out->numedges = in->numedges;
@@ -209,14 +210,14 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->flags |= SURF_PLANEBACK;
 		}
 
-		if (planenum < 0 || planenum >= loadmodel->numplanes)
+		if (planenum >= loadmodel->numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect %d planenum.",
 					__func__, planenum);
 		}
 		out->plane = loadmodel->planes + planenum;
 
-		ti = LittleLong(in->texinfo);
+		ti = in->texinfo;
 
 		if ((ti < 0) || (ti >= loadmodel->numtexinfo))
 		{

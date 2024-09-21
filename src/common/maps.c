@@ -205,7 +205,7 @@ Mod_Load2QBSP_IBSP_NODES(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleShort(in->maxs[j]);
 		}
 
-		out->planenum = LittleLong(in->planenum);
+		out->planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
 		out->firstface = LittleShort(in->firstface) & 0xFFFF;
 		out->numfaces = LittleShort(in->numfaces) & 0xFFFF;
 
@@ -241,7 +241,7 @@ Mod_Load2QBSP_QBSP_NODES(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleFloat(in->maxs[j]);
 		}
 
-		out->planenum = LittleLong(in->planenum);
+		out->planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
 		out->firstface = LittleLong(in->firstface) & 0xFFFFFFFF;
 		out->numfaces = LittleLong(in->numfaces) & 0xFFFFFFFF;
 
@@ -336,10 +336,10 @@ Mod_Load2QBSP_IBSP_FACES(byte *outbuf, dheader_t *outheader,
 
 	for (i = 0; i < count; i++)
 	{
-		out->planenum = LittleShort(in->planenum);
-		out->side = LittleShort(in->side);
-		out->firstedge = LittleLong(in->firstedge);
-		out->numedges = LittleShort(in->numedges);
+		out->planenum = LittleShort(in->planenum) & 0xFFFF;
+		out->side = LittleShort(in->side) & 0xFFFF;
+		out->firstedge = LittleLong(in->firstedge) & 0xFFFFFFFF;
+		out->numedges = LittleShort(in->numedges) & 0xFFFF;
 		out->texinfo = LittleShort(in->texinfo);
 		memcpy(out->styles, in->styles, Q_min(sizeof(out->styles), sizeof(in->styles)));
 		out->lightofs = LittleLong(in->lightofs);
@@ -364,10 +364,10 @@ Mod_Load2QBSP_RBSP_FACES(byte *outbuf, dheader_t *outheader,
 
 	for (i = 0; i < count; i++)
 	{
-		out->planenum = LittleShort(in->planenum);
-		out->side = LittleShort(in->side);
-		out->firstedge = LittleLong(in->firstedge);
-		out->numedges = LittleShort(in->numedges);
+		out->planenum = LittleShort(in->planenum) & 0xFFFF;
+		out->side = LittleShort(in->side) & 0xFFFF;
+		out->firstedge = LittleLong(in->firstedge) & 0xFFFFFFFF;
+		out->numedges = LittleShort(in->numedges) & 0xFFFF;
 		out->texinfo = LittleShort(in->texinfo);
 		memcpy(out->styles, in->styles, Q_min(sizeof(out->styles), sizeof(in->styles)));
 		out->lightofs = LittleLong(in->lightofs);
@@ -392,10 +392,10 @@ Mod_Load2QBSP_QBSP_FACES(byte *outbuf, dheader_t *outheader,
 
 	for (i = 0; i < count; i++)
 	{
-		out->planenum = LittleLong(in->planenum);
-		out->side = LittleLong(in->side);
-		out->firstedge = LittleLong(in->firstedge);
-		out->numedges = LittleLong(in->numedges);
+		out->planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
+		out->side = LittleLong(in->side) & 0xFFFFFFFF;
+		out->firstedge = LittleLong(in->firstedge) & 0xFFFFFFFF;
+		out->numedges = LittleLong(in->numedges) & 0xFFFFFFFF;
 		out->texinfo = LittleLong(in->texinfo);
 		memcpy(out->styles, in->styles, Q_min(sizeof(out->styles), sizeof(in->styles)));
 		out->lightofs = LittleLong(in->lightofs);
@@ -699,7 +699,7 @@ Mod_Load2QBSP_IBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader,
 
 	for (i = 0; i < count; i++)
 	{
-		out->planenum = LittleShort(in->planenum);
+		out->planenum = LittleShort(in->planenum) & 0xFFFF;
 		out->texinfo = LittleShort(in->texinfo);
 
 		out++;
@@ -722,7 +722,7 @@ Mod_Load2QBSP_RBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader,
 
 	for (i = 0; i < count; i++)
 	{
-		out->planenum = LittleShort(in->planenum);
+		out->planenum = LittleShort(in->planenum) & 0xFFFF;
 		out->texinfo = LittleShort(in->texinfo);
 
 		out++;
@@ -744,7 +744,7 @@ Mod_Load2QBSP_QBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader,
 
 	for (i = 0; i < count; i++)
 	{
-		out->planenum = LittleLong(in->planenum);
+		out->planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
 		out->texinfo = LittleLong(in->texinfo);
 
 		out++;

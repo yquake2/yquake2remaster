@@ -111,7 +111,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 			out->minmaxs[3 + j] = in->maxs[j];
 		}
 
-		planenum = LittleLong(in->planenum);
+		planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
 		if (planenum  < 0 || planenum >= numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect %d < %d planenum.",
@@ -972,7 +972,7 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 
 	for (int surfnum = 0; surfnum < face_count; surfnum++, face_in++)
 	{
-		int numverts = face_in->numedges;
+		unsigned int numverts = face_in->numedges;
 		int ti = face_in->texinfo;
 		int texFlags = texinfo_in[ti].flags;
 		if ((ti < 0) || (ti >= texinfo_count))
