@@ -1100,6 +1100,8 @@ FS_LoadDAT(const char *packPath)
 			p ++;
 		}
 
+		printf("file: %s\n", files[i].name);
+
 		/* copy length */
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
