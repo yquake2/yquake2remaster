@@ -336,45 +336,83 @@ set(Game-Source
 	${COMMON_SRC_DIR}/shared/flash.c
 	${COMMON_SRC_DIR}/shared/rand.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${GAME_SRC_DIR}/dm/ball.c
+	${GAME_SRC_DIR}/dm/tag.c
 	${GAME_SRC_DIR}/g_ai.c
 	${GAME_SRC_DIR}/g_chase.c
 	${GAME_SRC_DIR}/g_cmds.c
 	${GAME_SRC_DIR}/g_combat.c
+	${GAME_SRC_DIR}/g_ctf.c
 	${GAME_SRC_DIR}/g_func.c
 	${GAME_SRC_DIR}/g_items.c
 	${GAME_SRC_DIR}/g_main.c
 	${GAME_SRC_DIR}/g_misc.c
 	${GAME_SRC_DIR}/g_monster.c
+	${GAME_SRC_DIR}/g_newai.c
+	${GAME_SRC_DIR}/g_newdm.c
+	${GAME_SRC_DIR}/g_newfnc.c
+	${GAME_SRC_DIR}/g_newtarg.c
+	${GAME_SRC_DIR}/g_newtrig.c
+	${GAME_SRC_DIR}/g_newweap.c
 	${GAME_SRC_DIR}/g_phys.c
 	${GAME_SRC_DIR}/g_spawn.c
+	${GAME_SRC_DIR}/g_sphere.c
 	${GAME_SRC_DIR}/g_svcmds.c
 	${GAME_SRC_DIR}/g_target.c
+	${GAME_SRC_DIR}/g_translate.c
 	${GAME_SRC_DIR}/g_trigger.c
 	${GAME_SRC_DIR}/g_turret.c
 	${GAME_SRC_DIR}/g_utils.c
 	${GAME_SRC_DIR}/g_weapon.c
+	${GAME_SRC_DIR}/menu/menu.c
+	${GAME_SRC_DIR}/monster/actor/actor.c
+	${GAME_SRC_DIR}/monster/arachnid/arachnid.c
+	${GAME_SRC_DIR}/monster/army/army.c
 	${GAME_SRC_DIR}/monster/berserker/berserker.c
 	${GAME_SRC_DIR}/monster/boss2/boss2.c
-	${GAME_SRC_DIR}/monster/boss3/boss3.c
 	${GAME_SRC_DIR}/monster/boss3/boss31.c
 	${GAME_SRC_DIR}/monster/boss3/boss32.c
+	${GAME_SRC_DIR}/monster/boss3/boss3.c
+	${GAME_SRC_DIR}/monster/boss5/boss5.c
 	${GAME_SRC_DIR}/monster/brain/brain.c
+	${GAME_SRC_DIR}/monster/carrier/carrier.c
 	${GAME_SRC_DIR}/monster/chick/chick.c
+	${GAME_SRC_DIR}/monster/demon/demon.c
+	${GAME_SRC_DIR}/monster/dog/dog.c
+	${GAME_SRC_DIR}/monster/enforcer/enforcer.c
+	${GAME_SRC_DIR}/monster/fish/fish.c
+	${GAME_SRC_DIR}/monster/fixbot/fixbot.c
 	${GAME_SRC_DIR}/monster/flipper/flipper.c
 	${GAME_SRC_DIR}/monster/float/float.c
 	${GAME_SRC_DIR}/monster/flyer/flyer.c
+	${GAME_SRC_DIR}/monster/gekk/gekk.c
+	${GAME_SRC_DIR}/monster/gladiator/gladb.c
 	${GAME_SRC_DIR}/monster/gladiator/gladiator.c
+	${GAME_SRC_DIR}/monster/guardian/guardian.c
 	${GAME_SRC_DIR}/monster/gunner/gunner.c
+	${GAME_SRC_DIR}/monster/hknight/hknight.c
 	${GAME_SRC_DIR}/monster/hover/hover.c
 	${GAME_SRC_DIR}/monster/infantry/infantry.c
 	${GAME_SRC_DIR}/monster/insane/insane.c
+	${GAME_SRC_DIR}/monster/knight/knight.c
 	${GAME_SRC_DIR}/monster/medic/medic.c
 	${GAME_SRC_DIR}/monster/misc/move.c
 	${GAME_SRC_DIR}/monster/mutant/mutant.c
+	${GAME_SRC_DIR}/monster/ogre/ogre.c
 	${GAME_SRC_DIR}/monster/parasite/parasite.c
+	${GAME_SRC_DIR}/monster/shalrath/shalrath.c
+	${GAME_SRC_DIR}/monster/shambler/shambler.c
 	${GAME_SRC_DIR}/monster/soldier/soldier.c
+	${GAME_SRC_DIR}/monster/stalker/stalker.c
 	${GAME_SRC_DIR}/monster/supertank/supertank.c
 	${GAME_SRC_DIR}/monster/tank/tank.c
+	${GAME_SRC_DIR}/monster/tarbaby/tarbaby.c
+	${GAME_SRC_DIR}/monster/turret/turret.c
+	${GAME_SRC_DIR}/monster/widow/widow2.c
+	${GAME_SRC_DIR}/monster/widow/widow.c
+	${GAME_SRC_DIR}/monster/wizard/wizard.c
+	${GAME_SRC_DIR}/monster/zombie/zombie.c
+	${GAME_SRC_DIR}/player/chase.c
 	${GAME_SRC_DIR}/player/client.c
 	${GAME_SRC_DIR}/player/hud.c
 	${GAME_SRC_DIR}/player/trail.c
@@ -452,18 +490,23 @@ set(Client-Source
 	${COMMON_SRC_DIR}/collision.c
 	${COMMON_SRC_DIR}/crc.c
 	${COMMON_SRC_DIR}/cmdparser.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/cvar.c
 	${COMMON_SRC_DIR}/filesystem.c
 	${COMMON_SRC_DIR}/glob.c
+	${COMMON_SRC_DIR}/maps.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/movemsg.c
+	${COMMON_SRC_DIR}/models.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c
+	${COMMON_SRC_DIR}/protocol.c
 	${COMMON_SRC_DIR}/szone.c
 	${COMMON_SRC_DIR}/zone.c
 	${COMMON_SRC_DIR}/shared/flash.c
 	${COMMON_SRC_DIR}/shared/rand.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/unzip/ioapi.c
 	${COMMON_SRC_DIR}/unzip/unzip.c
@@ -532,14 +575,17 @@ set(Server-Source
 	${COMMON_SRC_DIR}/collision.c
 	${COMMON_SRC_DIR}/crc.c
 	${COMMON_SRC_DIR}/cmdparser.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/cvar.c
 	${COMMON_SRC_DIR}/filesystem.c
 	${COMMON_SRC_DIR}/glob.c
+	${COMMON_SRC_DIR}/maps.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/movemsg.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c
+	${COMMON_SRC_DIR}/protocol.c
 	${COMMON_SRC_DIR}/szone.c
 	${COMMON_SRC_DIR}/zone.c
 	${COMMON_SRC_DIR}/shared/rand.c
@@ -592,13 +638,20 @@ set(GL1-Source
 	${REF_SRC_DIR}/gl1/gl1_warp.c
 	${REF_SRC_DIR}/gl1/gl1_sdl.c
 	${REF_SRC_DIR}/gl1/gl1_buffer.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/pcx.c
+	${REF_SRC_DIR}/files/models_md5.c
+	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
 	${REF_SRC_DIR}/files/pvs.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -635,13 +688,21 @@ set(GL3-Source
 	${REF_SRC_DIR}/gl3/gl3_surf.c
 	${REF_SRC_DIR}/gl3/gl3_warp.c
 	${REF_SRC_DIR}/gl3/gl3_shaders.c
+	${REF_SRC_DIR}/files/glshaders.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/pcx.c
+	${REF_SRC_DIR}/files/models_md5.c
+	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
 	${REF_SRC_DIR}/files/pvs.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -654,8 +715,8 @@ set(GL3-Header
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
-	${REF_SRC_DIR}/gl3/header/DG_dynarr.h
-	${REF_SRC_DIR}/gl3/header/HandmadeMath.h
+	${REF_SRC_DIR}/files/DG_dynarr.h
+	${REF_SRC_DIR}/files/HandmadeMath.h
 	${REF_SRC_DIR}/gl3/header/local.h
 	${REF_SRC_DIR}/gl3/header/model.h
 	${COMMON_SRC_DIR}/header/shared.h
@@ -689,13 +750,21 @@ set(SOFT-Source
 	${REF_SRC_DIR}/soft/sw_scan.c
 	${REF_SRC_DIR}/soft/sw_sprite.c
 	${REF_SRC_DIR}/soft/sw_surf.c
+	${REF_SRC_DIR}/soft/sw_warp.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/pcx.c
+	${REF_SRC_DIR}/files/models_md5.c
+	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
 	${REF_SRC_DIR}/files/pvs.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
