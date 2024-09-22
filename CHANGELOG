@@ -1,3 +1,15 @@
+Quake 2 8.42RR9:
+- vk: fixed vulkan call groups,
+- game: Add ReRelease translated messages (English only)
+- game: Add Heretic 2 translated message (checked with English only)
+- game: Anachronox support load entitities decription file,
+- game: Daikatana support load entitities decription file,
+- game: SiN show entities with defined models,
+- renders: Partial support of MDA models (Anachronox),
+- renders: improved colors of particles,
+- renders: Fix pcx load code,
+- renders: Fix maps with 32k+ faces.
+
 Quake 2 8.42RR8:
 - vk: draw alias models as single call,
 - Support mdr(EliteForce) models support.
