@@ -305,6 +305,12 @@ ED_CallSpawn(edict_t *ent)
 		}
 	}
 
+	ent->movetype = MOVETYPE_NONE;
+	ent->solid = SOLID_BBOX;
+	ent->s.modelindex = gi.modelindex("unknow");
+
+	gi.linkentity(ent);
+
 	gi.dprintf("%s doesn't have a spawn function\n", ent->classname);
 }
 
