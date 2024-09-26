@@ -1125,6 +1125,7 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	/* remove powerups */
 	self->client->quad_framenum = 0;
 	self->client->invincible_framenum = 0;
+	self->client->invisible_framenum = 0;
 	self->client->breather_framenum = 0;
 	self->client->enviro_framenum = 0;
 	self->flags &= ~FL_POWER_ARMOR;

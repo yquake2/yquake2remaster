@@ -61,6 +61,7 @@ MoveClientToIntermission(edict_t *ent)
 	/* clean up powerup info */
 	ent->client->quad_framenum = 0;
 	ent->client->invincible_framenum = 0;
+	ent->client->invisible_framenum = 0;
 	ent->client->breather_framenum = 0;
 	ent->client->enviro_framenum = 0;
 	ent->client->grenade_blew_up = false;
