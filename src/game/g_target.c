@@ -1474,6 +1474,283 @@ SP_target_earthquake(edict_t *self)
 	}
 }
 
+#if 0
+/*
+ * QUAKED target_camera (1 0 0) (-8 -8 -8) (8 8 8)
+ * [Sam-KEX] Creates a camera path as seen in the N64 version.
+*/
+size_t HACKFLAG_TELEPORT_OUT = 2;
+size_t HACKFLAG_SKIPPABLE = 64;
+size_t HACKFLAG_END_OF_UNIT = 128;
+
+static void
+camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
+{
+	if(self->pathtarget)
+	{
+		edict_t* pt = NULL;
+		pt = G_FindByString<&edict_t::targetname>(pt, self->pathtarget);
+		if(pt)
+		{
+			float yaw, pitch;
+			vec3_t delta = pt->s.origin - origin;
+
+			float d = delta[0] * delta[0] + delta[1] * delta[1];
+			if(d == 0.0f)
+			{
+				yaw = 0.0f;
+				pitch = (delta[2] > 0.0f) ? 90.0f : -90.0f;
+			}
+			else
+			{
+				yaw = atan2(delta[1], delta[0]) * (180.0f / PIf);
+				pitch = atan2(delta[2], sqrt(d)) * (180.0f / PIf);
+			}
+
+			(*dest)[YAW] = yaw;
+			(*dest)[PITCH] = -pitch;
+			(*dest)[ROLL] = 0;
+		}
+	}
+}
+
+void
+update_target_camera(edict_t *self)
+{
+	bool do_skip = false;
+
+	// only allow skipping after 2 seconds
+	if ((self->hackflags & HACKFLAG_SKIPPABLE) && level.time > 2_sec)
+	{
+		for (int i = 0; i < game.maxclients; i++)
+		{
+			edict_t *client = g_edicts + 1 + i;
+			if (!client->inuse || !client->client->pers.connected)
+				continue;
+
+			if (client->client->buttons & BUTTON_ANY)
+			{
+				do_skip = true;
+				break;
+			}
+		}
+	}
+
+	if (!do_skip && self->movetarget)
+	{
+		self->moveinfo.remaining_distance -= (self->moveinfo.move_speed * gi.frame_time_s) * 0.8f;
+
+		if(self->moveinfo.remaining_distance <= 0)
+		{
+			if (self->movetarget->hackflags & HACKFLAG_TELEPORT_OUT)
+			{
+				if (self->enemy)
+				{
+					self->enemy->s.event = EV_PLAYER_TELEPORT;
+					self->enemy->hackflags = HACKFLAG_TELEPORT_OUT;
+					self->enemy->pain_debounce_time = self->enemy->timestamp = gtime_t::from_sec(self->movetarget->wait);
+				}
+			}
+
+			self->s.origin = self->movetarget->s.origin;
+			self->nextthink = level.time + gtime_t::from_sec(self->movetarget->wait);
+			if (self->movetarget->target)
+			{
+				self->movetarget = G_PickTarget(self->movetarget->target);
+
+				if (self->movetarget)
+				{
+					self->moveinfo.move_speed = self->movetarget->speed ? self->movetarget->speed : 55;
+					self->moveinfo.remaining_distance = (self->movetarget->s.origin - self->s.origin).normalize();
+					self->moveinfo.distance = self->moveinfo.remaining_distance;
+				}
+			}
+			else
+				self->movetarget = NULL;
+
+			return;
+		}
+		else
+		{
+			float frac = 1.0f - (self->moveinfo.remaining_distance / self->moveinfo.distance);
+
+			if (self->enemy && (self->enemy->hackflags & HACKFLAG_TELEPORT_OUT))
+				self->enemy->s.alpha = max(1.f / 255.f, frac);
+
+			vec3_t delta = self->movetarget->s.origin - self->s.origin;
+			delta *= frac;
+			vec3_t newpos = self->s.origin + delta;
+
+			camera_lookat_pathtarget(self, newpos, &level.intermission_angle);
+			level.intermission_origin = newpos;
+
+			// move all clients to the intermission point
+			for (int i = 0; i < game.maxclients; i++)
+			{
+				edict_t* client = g_edicts + 1 + i;
+				if (!client->inuse)
+				{
+					continue;
+				}
+
+				MoveClientToIntermission(client);
+			}
+		}
+	}
+	else
+	{
+		if (self->killtarget)
+		{
+			// destroy dummy player
+			if (self->enemy)
+				G_FreeEdict(self->enemy);
+
+			edict_t* t = NULL;
+			level.intermissiontime = 0_ms;
+			level.level_intermission_set = true;
+
+			while ((t = G_FindByString<&edict_t::targetname>(t, self->killtarget)))
+			{
+				t->use(t, self, self->activator);
+			}
+
+			level.intermissiontime = level.time;
+			level.intermission_server_frame = gi.ServerFrame();
+
+			// end of unit requires a wait
+			if (level.changemap && !strchr(level.changemap, '*'))
+				level.exitintermission = true;
+		}
+
+		self->think = NULL;
+		return;
+	}
+
+	self->nextthink = level.time + FRAME_TIME_S;
+}
+
+void G_SetClientFrame(edict_t *ent);
+
+extern float xyspeed;
+
+void
+target_camera_dummy_think(edict_t *self)
+{
+	// bit of a hack, but this will let the dummy
+	// move like a player
+	self->client = self->owner->client;
+	xyspeed = sqrtf(self->velocity[0] * self->velocity[0] + self->velocity[1] * self->velocity[1]);
+	G_SetClientFrame(self);
+	self->client = NULL;
+
+	// alpha fade out for voops
+	if (self->hackflags & HACKFLAG_TELEPORT_OUT)
+	{
+		self->timestamp = max(0_ms, self->timestamp - 10_hz);
+		self->s.alpha = max(1.f / 255.f, (self->timestamp.seconds() / self->pain_debounce_time.seconds()));
+	}
+
+	self->nextthink = level.time + 10_hz;
+}
+
+void
+use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
+{
+	if (self->sounds)
+		gi.configstring (CS_CDTRACK, G_Fmt("{}", self->sounds).data() );
+
+	if (!self->target)
+		return;
+
+	self->movetarget = G_PickTarget(self->target);
+
+	if (!self->movetarget)
+		return;
+
+	level.intermissiontime = level.time;
+	level.intermission_server_frame = gi.ServerFrame();
+	level.exitintermission = 0;
+
+	// spawn fake player dummy where we were
+	if (activator->client)
+	{
+		edict_t *dummy = self->enemy = G_Spawn();
+		dummy->owner = activator;
+		dummy->clipmask = activator->clipmask;
+		dummy->s.origin = activator->s.origin;
+		dummy->s.angles = activator->s.angles;
+		dummy->groundentity = activator->groundentity;
+		dummy->groundentity_linkcount = dummy->groundentity ? dummy->groundentity->linkcount : 0;
+		dummy->think = target_camera_dummy_think;
+		dummy->nextthink = level.time + 10_hz;
+		dummy->solid = SOLID_BBOX;
+		dummy->movetype = MOVETYPE_STEP;
+		dummy->mins = activator->mins;
+		dummy->maxs = activator->maxs;
+		dummy->s.modelindex = dummy->s.modelindex2 = MODELINDEX_PLAYER;
+		dummy->s.skinnum = activator->s.skinnum;
+		dummy->velocity = activator->velocity;
+		dummy->s.renderfx = RF_MINLIGHT;
+		dummy->s.frame = activator->s.frame;
+		gi.linkentity(dummy);
+	}
+
+	camera_lookat_pathtarget(self, self->s.origin, &level.intermission_angle);
+	level.intermission_origin = self->s.origin;
+
+	// move all clients to the intermission point
+	for (int i = 0; i < game.maxclients; i++)
+	{
+		edict_t* client = g_edicts + 1 + i;
+		if (!client->inuse)
+		{
+			continue;
+		}
+
+		// respawn any dead clients
+		if (client->health <= 0)
+		{
+			// give us our max health back since it will reset
+			// to pers.health; in instanced items we'd lose the items
+			// we touched so we always want to respawn with our max.
+			if (P_UseCoopInstancedItems())
+				client->client->pers.health = client->client->pers.max_health = client->max_health;
+
+			respawn(client);
+		}
+
+		MoveClientToIntermission(client);
+	}
+
+	self->activator = activator;
+	self->think = update_target_camera;
+	self->nextthink = level.time + gtime_t::from_sec(self->wait);
+	self->moveinfo.move_speed = self->speed;
+
+	self->moveinfo.remaining_distance = (self->movetarget->s.origin - self->s.origin).normalize();
+	self->moveinfo.distance = self->moveinfo.remaining_distance;
+
+	if (self->hackflags & HACKFLAG_END_OF_UNIT)
+	{
+		G_EndOfUnitMessage();
+	}
+}
+
+void
+SP_target_camera(edict_t* self)
+{
+	if (deathmatch->value)
+	{
+		/* auto-remove for deathmatch */
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->use = use_target_camera;
+	self->svflags = SVF_NOCLIENT;
+}
+#endif
+
 /*
  * QUAKED target_gravity (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
  * [Sam-KEX] Changes gravity, as seen in the N64 version
