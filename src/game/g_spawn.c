@@ -65,6 +65,8 @@ typedef struct
 	int no_mip;
 	char spawn_sequence[MAX_QPATH];
 	char description[MAX_QPATH];
+	/* Additional fields */
+	vec3_t color;
 } dynamicentity_t;
 
 static dynamicentity_t *dynamicentities;
@@ -2056,6 +2058,8 @@ DynamicSpawnInit(void)
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].no_mip);
 				line = DynamicStringParse(line, dynamicentities[curr_pos].spawn_sequence, MAX_QPATH, '|');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].description, MAX_QPATH, '|');
+				/* Additional field for cover for color from QUAKED */
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].color, 3, '|');
 
 				curr_pos ++;
 			}
