@@ -80,6 +80,12 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 
 	VectorCopy(data->mins, self->mins);
 	VectorCopy(data->maxs, self->maxs);
+
+	self->monsterinfo.scale = (
+		data->scale[0] +
+		data->scale[1] +
+		data->scale[2]
+	) / 3;
 }
 
 static void

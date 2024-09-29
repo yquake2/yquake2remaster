@@ -372,6 +372,9 @@ dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t
 		self->monsterinfo.currentmove = &dog_move_die2;
 }
 
+/*
+ * QUAKED monster_dog (1 .5 0) (-32, -32, -24) (32, 32, 40) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_dog(edict_t *self)
 {

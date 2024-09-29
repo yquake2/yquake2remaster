@@ -295,6 +295,9 @@ fish_pain(edict_t *self, edict_t *other /* unused */,
 	self->monsterinfo.currentmove = &fish_move_pain;
 }
 
+/*
+ * QUAKED monster_fish (1 .5 0) (-16, -16, -24) (16, 16, 24) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_fish(edict_t *self)
 {

@@ -692,6 +692,9 @@ shambler_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /
 	self->monsterinfo.currentmove = &shambler_move_death;
 }
 
+/*
+ * QUAKED monster_shambler (1 .5 0) (-32, -32, -24) (32, 32, 64) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_shambler(edict_t* self)
 {

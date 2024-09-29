@@ -519,6 +519,9 @@ hknight_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
+/*
+ * QUAKED monster_hknight (1 .5 0) (-16, -16, -24) (16, 16, 40) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_hknight(edict_t *self)
 {

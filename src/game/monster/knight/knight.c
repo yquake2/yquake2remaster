@@ -359,6 +359,9 @@ knight_sight(edict_t *self, edict_t *other /* unused */)
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
+/*
+ * QUAKED monster_knight (1 .5 0) (-16, -16, -24) (16, 16, 40) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_knight(edict_t *self)
 {

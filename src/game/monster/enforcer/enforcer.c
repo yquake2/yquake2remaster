@@ -519,6 +519,9 @@ enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, v
 		self->monsterinfo.currentmove = &enforcer_move_death2;
 }
 
+/*
+ * QUAKED monster_enforcer (1 .5 0) (-16, -16, -24) (16, 16, 40) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_enforcer(edict_t *self)
 {

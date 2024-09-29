@@ -247,6 +247,9 @@ tarbaby_pain(edict_t *self, edict_t *other /* unused */,
 
 }
 
+/*
+ * QUAKED monster_tarbaby (1 .5 0) (-16, -16, -24) (16, 16, 40) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_tarbaby(edict_t *self)
 {

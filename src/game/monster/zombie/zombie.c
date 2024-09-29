@@ -722,6 +722,9 @@ zombie_search(edict_t *self)
 	}
 }
 
+/*
+ * QUAKED monster_zombie (1 .5 0) (-16, -16, -24) (16, 16, 40) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_zombie(edict_t *self)
 {

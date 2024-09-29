@@ -337,6 +337,9 @@ shalrath_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
+/*
+ * QUAKED monster_shalrath (1 .5 0) (-32, -32, -24) (32, 32, 48) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_shalrath(edict_t *self)
 {
