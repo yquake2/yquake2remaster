@@ -71,14 +71,21 @@ static dynamicentity_t *dynamicentities;
 static int ndynamicentities;
 
 static void
-DynamicSpawn(edict_t *self, dynamicentity_t *data)
+DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->solid = SOLID_BBOX;
+	/* update properties by dynamic properties */
 	self->s.modelindex = gi.modelindex(data->model_path);
 
 	VectorCopy(data->mins, self->mins);
 	VectorCopy(data->maxs, self->maxs);
+}
+
+static void
+DynamicSpawn(edict_t *self)
+{
+	/* All other properties could be updated in DynamicSpawnUpdate */
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_BBOX;
 
 	gi.linkentity(self);
 }
@@ -154,7 +161,7 @@ ED_CallSpawn(edict_t *ent)
 {
 	spawn_t *s;
 	gitem_t *item;
-	int i;
+	int i, dyn_id;
 
 	if (!ent)
 	{
@@ -187,6 +194,18 @@ ED_CallSpawn(edict_t *ent)
 		ent->classname = (FindItem("Plasma Beam"))->classname;
 	}
 
+	/* search dynamic definitions */
+	dyn_id = -1;
+	if (dynamicentities && ndynamicentities)
+	{
+		dyn_id = DynamicSpawnSearch(ent->classname);
+
+		if (dyn_id >= 0)
+		{
+			DynamicSpawnUpdate(ent, &dynamicentities[dyn_id]);
+		}
+	}
+
 	/* check item spawn functions */
 	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
 	{
@@ -214,15 +233,12 @@ ED_CallSpawn(edict_t *ent)
 		}
 	}
 
-	if (dynamicentities && ndynamicentities)
+	if (dyn_id >= 0 && dynamicentities[dyn_id].model_path[0])
 	{
-		i = DynamicSpawnSearch(ent->classname);
-		if (i >= 0)
-		{
-			DynamicSpawn(ent, &dynamicentities[i]);
+		/* spawn only if know model */
+		DynamicSpawn(ent);
 
-			return;
-		}
+		return;
 	}
 
 	/* SiN entity could have model path as model field */
@@ -239,7 +255,8 @@ ED_CallSpawn(edict_t *ent)
 
 			if (gi.FS_LoadFile(self.model_path, NULL) > 4)
 			{
-				DynamicSpawn(ent, &self);
+				DynamicSpawnUpdate(ent, &self);
+				DynamicSpawn(ent);
 				return;
 			}
 		}
