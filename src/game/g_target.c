@@ -438,7 +438,7 @@ use_target_explosion(edict_t *self, edict_t *other /* unused */, edict_t *activa
 {
 	if (!self)
 	{
-	    return;
+		return;
 	}
 	self->activator = activator;
 
@@ -1474,6 +1474,90 @@ SP_target_earthquake(edict_t *self)
 	}
 }
 
+/*
+ * QUAKED target_gravity (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
+ * [Sam-KEX] Changes gravity, as seen in the N64 version
+ */
+void
+use_target_gravity(edict_t *self, edict_t *other, edict_t *activator)
+{
+	gi.cvar_set("sv_gravity", va("%f", self->gravity));
+}
+
+void
+SP_target_gravity(edict_t* self)
+{
+	self->use = use_target_gravity;
+	self->gravity = atof(st.gravity);
+}
+
+/*
+ * QUAKED target_soundfx (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
+ * [Sam-KEX] Plays a sound fx, as seen in the N64 version
+*/
+void
+update_target_soundfx(edict_t *self)
+{
+	gi.positioned_sound(self->s.origin, self, CHAN_VOICE, self->noise_index,
+		self->volume, self->attenuation, 0);
+}
+
+void
+use_target_soundfx(edict_t *self, edict_t *other, edict_t *activator)
+{
+	self->think = update_target_soundfx;
+	self->nextthink = level.time + self->delay;
+}
+
+void
+SP_target_soundfx(edict_t* self)
+{
+	if (!self->volume)
+	{
+		self->volume = 1.0;
+	}
+
+	if (!self->attenuation)
+	{
+		self->attenuation = 1.0;
+	}
+	else if (self->attenuation == -1)
+	{
+		/* use -1 so 0 defaults to 1 */
+		self->attenuation = 0;
+	}
+
+	self->noise_index = atoi(st.noise);
+
+	switch(self->noise_index)
+	{
+	case 1:
+		self->noise_index = gi.soundindex("world/x_alarm.wav");
+		break;
+	case 2:
+		self->noise_index = gi.soundindex("world/flyby1.wav");
+		break;
+	case 4:
+		self->noise_index = gi.soundindex("world/amb12.wav");
+		break;
+	case 5:
+		self->noise_index = gi.soundindex("world/amb17.wav");
+		break;
+	case 7:
+		self->noise_index = gi.soundindex("world/bigpump2.wav");
+		break;
+	default:
+		gi.dprintf("%s: unknown noise %d\n", self->classname, self->noise_index);
+		return;
+	}
+
+	self->use = use_target_soundfx;
+}
+
+/*
+ * QUAKED target_music (1 0 0) (-8 -8 -8) (8 8 8)
+ * Change music when used
+ */
 void
 target_music_use(edict_t *self, edict_t *other, edict_t *activator)
 {

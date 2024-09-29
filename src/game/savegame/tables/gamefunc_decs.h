@@ -1439,6 +1439,9 @@ extern void use_target_secret ( edict_t * ent , edict_t * other , edict_t * acti
 extern void use_target_spawner ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_splash ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_steam ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void use_target_soundfx ( edict_t *self, edict_t *other, edict_t *activator ) ;
+extern void use_target_gravity ( edict_t *self, edict_t *other, edict_t *activator ) ;
+extern void update_target_soundfx ( edict_t *self);
 extern void vengeance_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
 extern void vengeance_think ( edict_t * self ) ;
 extern void vengeance_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;

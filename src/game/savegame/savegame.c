@@ -519,7 +519,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 	}
 }
 
-void
+static void
 WriteField2(FILE *f, field_t *field, byte *base)
 {
 	int len;

@@ -717,7 +717,7 @@ typedef enum
 
 typedef struct
 {
-	char *name;
+	const char *name;
 	int ofs;
 	fieldtype_t type;
 	int flags;
