@@ -48,7 +48,8 @@ static spawn_t spawns[] = {
 typedef struct
 {
 	char classname[MAX_QPATH];
-	char model_path[MAX_QPATH];
+	/* could be up to three models */
+	char model_path[MAX_QPATH * 3];
 	vec3_t scale;
 	char entity_type[MAX_QPATH];
 	vec3_t mins;
@@ -76,7 +77,41 @@ static void
 DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 {
 	/* update properties by dynamic properties */
-	self->s.modelindex = gi.modelindex(data->model_path);
+	char model_path[MAX_QPATH * 3];
+	char *semicolon, *curr;
+
+	strncpy(model_path, data->model_path, sizeof(model_path));
+
+	/* first model */
+	curr = model_path;
+	semicolon = strchr(curr, ';');
+	if (semicolon)
+	{
+		*semicolon = 0;
+		semicolon ++;
+	}
+
+	self->s.modelindex = gi.modelindex(curr);
+
+	/* second model */
+	if (semicolon)
+	{
+		curr = semicolon;
+		semicolon = strchr(curr, ';');
+		if (semicolon)
+		{
+			*semicolon = 0;
+			semicolon ++;
+		}
+		self->s.modelindex2 = gi.modelindex(curr);
+	}
+
+	/* third model */
+	if (semicolon)
+	{
+		curr = semicolon;
+		self->s.modelindex3 = gi.modelindex(curr);
+	}
 
 	VectorCopy(data->mins, self->mins);
 	VectorCopy(data->maxs, self->maxs);
@@ -1944,7 +1979,8 @@ DynamicSpawnInit(void)
 
 				line = curr;
 				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, ',');
-				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path, MAX_QPATH, ',');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path,
+					sizeof(dynamicentities[curr_pos].model_path), ',');
 				/*
 				 * Skipped:
 					 * audio file definition
@@ -2047,7 +2083,8 @@ DynamicSpawnInit(void)
 
 				line = curr;
 				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, '|');
-				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path, MAX_QPATH, '|');
+				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path,
+					sizeof(dynamicentities[curr_pos].model_path), '|');
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].scale, 3, '|');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].entity_type, MAX_QPATH, '|');
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3, '|');
