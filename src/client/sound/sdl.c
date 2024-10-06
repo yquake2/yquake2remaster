@@ -1362,7 +1362,11 @@ SDL_BackendInit(void)
 
 	if (!SDL_WasInit(SDL_INIT_AUDIO))
 	{
+#ifdef USE_SDL3
+		if (!SDL_Init(SDL_INIT_AUDIO))
+#else
 		if (SDL_Init(SDL_INIT_AUDIO) == -1)
+#endif
 		{
 			Com_Printf ("Couldn't init SDL audio: %s.\n", SDL_GetError ());
 			return 0;
@@ -1423,7 +1427,7 @@ SDL_BackendInit(void)
 	spec.channels = sndchans;
 
 	/* Okay, let's try our luck */
-	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_OUTPUT, &spec, SDL_SDL3Callback, NULL);
+	stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, SDL_SDL3Callback, NULL);
 	if (stream == NULL)
 	{
 		Com_Printf("SDL_OpenAudio() failed: %s\n", SDL_GetError());
