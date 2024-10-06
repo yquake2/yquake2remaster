@@ -127,8 +127,6 @@ typedef struct	//	832k aprox.
 
 #include "model.h"
 
-void R_SetDefaultState(void);
-
 extern glbuffer_t gl_buf;
 extern float gldepthmin, gldepthmax;
 
@@ -397,7 +395,6 @@ typedef struct
 	qboolean pointparameters;
 	qboolean multitexture;
 	qboolean lightmapcopies;	// many copies of same lightmap, for embedded
-	qboolean discardfb;
 
 	// ----
 

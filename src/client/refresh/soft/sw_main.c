@@ -1780,8 +1780,7 @@ RE_IsVsyncActive(void)
 
 static int RE_PrepareForWindow(void)
 {
-	int flags = SDL_SWSURFACE;
-	return flags;
+	return 0;
 }
 
 /*
@@ -1809,17 +1808,18 @@ GetRefAPI(refimport_t imp)
 
 	// Need to communicate the SDL major version to the client.
 #ifdef USE_SDL3
-	SDL_Version ver;
+	int version = SDL_VERSIONNUM_MAJOR(SDL_GetVersion());
 #else
 	SDL_version ver;
-#endif
 	SDL_VERSION(&ver);
+	int version = ver.major;
+#endif
 
 	memset(&refexport, 0, sizeof(refexport_t));
 	ri = imp;
 
 	refexport.api_version = API_VERSION;
-	refexport.framework_version = ver.major;
+	refexport.framework_version = version;
 
 	refexport.BeginRegistration = RE_BeginRegistration;
 	refexport.RegisterModel = RE_RegisterModel;
@@ -1905,7 +1905,8 @@ RE_InitContext(void *win)
 	if (r_vsync->value)
 	{
 #ifdef USE_SDL3
-		renderer = SDL_CreateRenderer(window, NULL, SDL_RENDERER_PRESENTVSYNC);
+		renderer = SDL_CreateRenderer(window, NULL);
+		SDL_SetRenderVSync(renderer, 1);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 #endif
@@ -1913,7 +1914,7 @@ RE_InitContext(void *win)
 	else
 	{
 #ifdef USE_SDL3
-		renderer = SDL_CreateRenderer(window, NULL, 0);
+		renderer = SDL_CreateRenderer(window, NULL);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 #endif
@@ -2205,7 +2206,11 @@ RE_CleanFrame(void)
 	memset(swap_buffers, 0,
 		vid_buffer_height * vid_buffer_width * sizeof(pixel_t) * 2);
 
+#ifdef USE_SDL3
+	if (!SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+#else
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+#endif
 	{
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;
@@ -2237,7 +2242,11 @@ RE_FlushFrame(int vmin, int vmax)
 		return;
 	}
 
+#ifdef USE_SDL3
+	if (!SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+#else
 	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+#endif
 	{
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;

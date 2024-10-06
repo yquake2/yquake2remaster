@@ -38,6 +38,8 @@ static SDL_GLContext context = NULL;
 qboolean IsHighDPIaware = false;
 static qboolean vsyncActive = false;
 
+extern cvar_t *gl1_discardfb;
+
 // ----
 
 /*
@@ -47,13 +49,26 @@ void
 RI_EndFrame(void)
 {
 	R_ApplyGLBuffer();	// to draw buffered 2D text
+
 #ifdef YQ2_GL1_GLES
-	if (gl_config.discardfb)
+	static const GLenum attachments[3] = {GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT};
+
+	if (qglDiscardFramebufferEXT)
 	{
-		static const GLenum attachments[] = { GL_DEPTH_EXT, GL_STENCIL_EXT };
-		qglDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, attachments);
+		switch ((int)gl1_discardfb->value)
+		{
+			case 1:
+				qglDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 3, &attachments[0]);
+				break;
+			case 2:
+				qglDiscardFramebufferEXT(GL_FRAMEBUFFER_OES, 2, &attachments[1]);
+				break;
+			default:
+				break;
+		}
 	}
 #endif
+
 	SDL_GL_SwapWindow(window);
 }
 
@@ -111,7 +126,11 @@ int RI_PrepareForWindow(void)
 
 		msaa_samples = gl_msaa_samples->value;
 
+#ifdef USE_SDL3
+		if (!SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))
+#else
 		if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) < 0)
+#endif
 		{
 			R_Printf(PRINT_ALL, "MSAA is unsupported: %s\n", SDL_GetError());
 
@@ -120,7 +139,11 @@ int RI_PrepareForWindow(void)
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 			SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 		}
+#ifdef USE_SDL3
+		else if (!SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa_samples))
+#else
 		else if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa_samples) < 0)
+#endif
 		{
 			R_Printf(PRINT_ALL, "MSAA %ix is unsupported: %s\n", msaa_samples, SDL_GetError());
 
@@ -157,7 +180,11 @@ void RI_SetVsync(void)
 		vsync = -1;
 	}
 
+#ifdef USE_SDL3
+	if (!SDL_GL_SetSwapInterval(vsync))
+#else
 	if (SDL_GL_SetSwapInterval(vsync) == -1)
+#endif
 	{
 		if (vsync == -1)
 		{
@@ -170,7 +197,7 @@ void RI_SetVsync(void)
 
 #ifdef USE_SDL3
 	int vsyncState;
-	if (SDL_GL_GetSwapInterval(&vsyncState) != 0)
+	if (!SDL_GL_GetSwapInterval(&vsyncState))
 	{
 		R_Printf(PRINT_ALL, "Failed to get vsync state, assuming vsync inactive.\n");
 		vsyncActive = false;
@@ -296,7 +323,11 @@ int RI_InitContext(void* win)
 
 	if (gl_state.stencil)
 	{
+#ifdef USE_SDL3
+		if (!SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencil_bits) || stencil_bits < 8)
+#else
 		if (SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &stencil_bits) < 0 || stencil_bits < 8)
+#endif
 		{
 			gl_state.stencil = false;
 		}
@@ -350,7 +381,11 @@ RI_ShutdownContext(void)
 	{
 		if(context)
 		{
+#ifdef USE_SDL3
+			SDL_GL_DestroyContext(context);
+#else
 			SDL_GL_DeleteContext(context);
+#endif
 			context = NULL;
 		}
 	}
@@ -364,12 +399,11 @@ RI_ShutdownContext(void)
 int RI_GetSDLVersion()
 {
 #ifdef USE_SDL3
-	SDL_Version ver;
+	int version = SDL_GetVersion();
+	return SDL_VERSIONNUM_MAJOR(version);
 #else
 	SDL_version ver;
-#endif
-
 	SDL_VERSION(&ver);
-
 	return ver.major;
+#endif
 }

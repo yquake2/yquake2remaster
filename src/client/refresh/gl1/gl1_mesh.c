@@ -237,6 +237,10 @@ static void
 R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 	vec4_t *s_lerped, vec3_t shadevector)
 {
+	// Don't do stencil test on unsupported stereo modes
+	const qboolean stencilt = ( gl_state.stencil && gl1_stencilshadow->value &&
+		( gl_state.stereo_mode < STEREO_MODE_ROW_INTERLEAVED
+		|| gl_state.stereo_mode > STEREO_MODE_PIXEL_INTERLEAVED ) );
 	int *order, i, num_mesh_nodes;
 	float height = 0, lheight;
 	dmdxmesh_t *mesh_nodes;
@@ -248,7 +252,7 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 	R_UpdateGLBuffer(buf_shadow, 0, 0, 0, 1);
 
 	/* stencilbuffer shadows */
-	if (gl_state.stencil && gl1_stencilshadow->value)
+	if (stencilt)
 	{
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_EQUAL, 1, 2);
@@ -270,7 +274,7 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 	R_ApplyGLBuffer();
 
 	/* stencilbuffer shadows */
-	if (gl_state.stencil && gl1_stencilshadow->value)
+	if (stencilt)
 	{
 		glDisable(GL_STENCIL_TEST);
 	}
