@@ -380,7 +380,6 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/demon/demon.c
 	${GAME_SRC_DIR}/monster/dog/dog.c
 	${GAME_SRC_DIR}/monster/enforcer/enforcer.c
-	${GAME_SRC_DIR}/monster/fish/fish.c
 	${GAME_SRC_DIR}/monster/fixbot/fixbot.c
 	${GAME_SRC_DIR}/monster/flipper/flipper.c
 	${GAME_SRC_DIR}/monster/float/float.c
@@ -400,6 +399,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/mutant/mutant.c
 	${GAME_SRC_DIR}/monster/ogre/ogre.c
 	${GAME_SRC_DIR}/monster/parasite/parasite.c
+	${GAME_SRC_DIR}/monster/rotfish/fish.c
 	${GAME_SRC_DIR}/monster/shalrath/shalrath.c
 	${GAME_SRC_DIR}/monster/shambler/shambler.c
 	${GAME_SRC_DIR}/monster/soldier/soldier.c

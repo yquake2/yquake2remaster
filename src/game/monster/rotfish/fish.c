@@ -296,12 +296,12 @@ fish_pain(edict_t *self, edict_t *other /* unused */,
 }
 
 /*
- * QUAKED monster_fish (1 .5 0) (-16, -16, -24) (16, 16, 24) Ambush Trigger_Spawn Sight
+ * QUAKED monster_rotfish (1 .5 0) (-16, -16, -24) (16, 16, 24) Ambush Trigger_Spawn Sight
  */
 void
-SP_monster_fish(edict_t *self)
+SP_monster_rotfish(edict_t *self)
 {
-	self->s.modelindex = gi.modelindex("models/monsters/fish/tris.md2");
+	self->s.modelindex = gi.modelindex("models/monsters/rotfish/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 24);
 	self->health = 25;

@@ -303,10 +303,10 @@ monster_army|models/monsters/army/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,
 monster_demon|models/monsters/demon/tris.md2|1.0|1.0|1.0|general|-32,|-32,|-24|32,|32,|64|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_dog|models/monsters/dog/tris.md2|1.0|1.0|1.0|general|-32,|-32,|-24|32,|32,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_enforcer|models/monsters/enforcer/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
-monster_fish|models/monsters/fish/tris.md2|1.0|1.0|1.0|general|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish|1.0|0.5|0.0
 monster_hknight|models/monsters/hknight/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_knight|models/monsters/knight/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_ogre|models/monsters/ogre/tris.md2|1.0|1.0|1.0|general|-32,|-32,|-24|32,|32,|64|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
+monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|general|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0
 monster_shalrath|models/monsters/shalrath/tris.md2|1.0|1.0|1.0|general|-32,|-32,|-24|32,|32,|48|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_shambler|models/monsters/shambler/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shambler|1.0|0.5|0.0
 monster_tarbaby|models/monsters/tarbaby/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
@@ -678,33 +678,34 @@ misc_flag||1.0|1.0|1.0|general|-10|-10|0|10|10|80|shadow|0|0.0|0.0|0|0|0|0:0|0|0
 misc_magic_portal||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Magic Portal|1.0|0.0|0.0
 misc_remote_camera||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Remote Camera|1.0|0.0|0.0
 misc_update_spawner||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Updates level spawn point to trigger's position. Relevant for teleport spell.|.5|.5|.5
-monster_assassin||1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|48.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Assassin|1.0|0.5|0.0
-monster_bee||1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bee (unfinished)|1.0|0.5|0.0
-monster_chicken||1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chicken|1.0|0.5|0.0
-monster_chkroktk||1.0|1.0|1.0|general|-16|-16|-26|16|16|26|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
+monster_assassin|models/monsters/assassin/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|48.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Assassin|1.0|0.5|0.0
+monster_bee|models/monsters/bee/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bee (unfinished)|1.0|0.5|0.0
+monster_chicken|models/monsters/chicken2/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chicken|1.0|0.5|0.0
+monster_chkroktk|models/monsters/rat/tris.fm|1.0|1.0|1.0|general|-16|-16|-26|16|16|26|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_elflord|models/monsters/elflord/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-64.0|24.0|24.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|1.0|0.5|0.0
-monster_gkrokon||1.0|1.0|1.0|general|-20.0|-20.0|-0.0|20.0|20.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gkrokon|1.0|0.5|0.0
-monster_gorgon||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon|1.0|0.5|0.0
-monster_gorgon_leader||1.0|1.0|1.0|general|-16|-16|-0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
-monster_harpy1||1.0|1.0|1.0|general|-16|-12|16|16|12|AMBUSH|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-16
-monster_high_priestess||1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|1.0|0.5|0.0
-monster_imp1||1.0|1.0|1.0|general|-16|0|16|16|32|AMBUSH|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-16
-monster_morcalavin1||1.0|1.0|1.0|general|-24|-50|24|24|40||shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-24
-monster_mssithra||1.0|1.0|1.0|general|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0
-monster_ogle1||1.0|1.0|1.0|general|-16|-24|16|16|16|pushing|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-16
+monster_fish|models/monsters/fish/tris.fm|1.0|1.0|1.0|general|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish|1.0|0.5|0.0
+monster_gkrokon|models/monsters/gkrokon/tris.fm|1.0|1.0|1.0|general|-20.0|-20.0|-0.0|20.0|20.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gkrokon|1.0|0.5|0.0
+monster_gorgon|models/monsters/gorgon/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon|1.0|0.5|0.0
+monster_gorgon_leader|models/monsters/gorgon/tris.fm|1.0|1.0|1.0|general|-16|-16|-0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
+monster_harpy|models/monsters/harpy/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-12.0|16.0|16.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Harpy|1.0|0.5|0.0
+monster_high_priestess|models/monsters/highpriestess/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|1.0|0.5|0.0
+monster_imp|models/monsters/imp/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Imp (unfinished)|1.0|0.5|0.0
+monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-50.0|24.0|24.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|1.0|0.5|0.0
+monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|general|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0
+monster_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ogle|1.0|0.5|0.0
 monster_palace_plague_guard||1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0
 monster_palace_plague_guard_invisible||1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0
 monster_plagueElf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Elf|1.0|0.5|0.0
 monster_rat|models/monsters/rat/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rat|1.0|0.5|0.0
 monster_rat_giant|models/monsters/rat/superduperat/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0
-monster_seraph_guard1||1.0|1.0|1.0|general|-24|-34|24|24|34|AMBUSH|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-24
-monster_seraph_overlord1||1.0|1.0|1.0|general|-24|-34|24|24|34|AMBUSH|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-24
+monster_seraph_guard|models/monsters/guard/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Guard|1.0|0.5|0.0
+monster_seraph_overlord|models/monsters/overlord/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Overlord|1.0|0.5|0.0
 monster_spreader|models/monsters/spreader/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spreader|1.0|0.5|0.0
-monster_ssithra||1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0
-monster_tcheckrik_female||1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Female Tcheckrik|1.0|0.5|0.0
-monster_tcheckrik_male||1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Tcheckrik|1.0|0.5|0.0
-monster_tcheckrik_mothers||1.0|1.0|1.0|general|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0
-monster_trial_beast||1.0|1.0|1.0|general|-100.0|-100.0|-36.0|100.0|100.0|150.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trial Beast|1.0|0.5|0.0
+monster_ssithra|models/monsters/ssithra/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0
+monster_tcheckrik_female|models/monsters/tcheckrik/female/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Female Tcheckrik|1.0|0.5|0.0
+monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Tcheckrik|1.0|0.5|0.0
+monster_tcheckrik_mothers|models/monsters/mother/tris.fm|1.0|1.0|1.0|general|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0
+monster_trial_beast|models/monsters/beast/tris.fm|1.0|1.0|1.0|general|-100.0|-100.0|-36.0|100.0|100.0|150.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trial Beast|1.0|0.5|0.0
 obj_andwallhanging|models/objects/andwallhang/tris.fm|1.0|1.0|1.0|general|0.0|-19.0|-24.0|4.0|19.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Circular Andorian wall hanging|0.3|0.3|1.0
 obj_banner||1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0
 obj_banneronpole||1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0
