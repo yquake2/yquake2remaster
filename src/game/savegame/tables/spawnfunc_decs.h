@@ -111,7 +111,7 @@ extern void SP_monster_commander_body(edict_t * self);
 extern void SP_monster_demon(edict_t * self);
 extern void SP_monster_dog(edict_t * self);
 extern void SP_monster_enforcer(edict_t * self);
-extern void SP_monster_fish(edict_t * self);
+extern void SP_monster_rotfish(edict_t * self);
 extern void SP_monster_fixbot(edict_t * self);
 extern void SP_monster_flipper(edict_t * self);
 extern void SP_monster_floater(edict_t * self);

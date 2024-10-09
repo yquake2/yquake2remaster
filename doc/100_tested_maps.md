@@ -241,7 +241,7 @@ Additionally supported models:
  | progs/demon.mdl            | models/monsters/demon/tris.mdl    | 4c73786e7cfb2083ca38cbc983cd6c4b |
  | progs/dog.mdl              | models/monsters/dog/tris.mdl      | e727fbc39acc652f812972612ce37565 |
  | progs/enforcer.mdl         | models/monsters/enforcer/tris.mdl | 136c265f96d6077ee3312c52e134529f |
- | progs/fish.mdl             | models/monsters/fish/tris.mdl     | d770d6ef92ae8b372926e6c3d49e8716 |
+ | progs/fish.mdl             | models/monsters/rotfish/tris.mdl  | d770d6ef92ae8b372926e6c3d49e8716 |
  | progs/hknight.mdl          | models/monsters/hknight/tris.mdl  | ed20e30be6fdb83efbaa6d0b23671a49 |
  | progs/knight.mdl           | models/monsters/knight/tris.mdl   | 5328915db5c53e85cf75d46e7b747fb9 |
  | progs/ogre.mdl             | models/monsters/ogre/tris.mdl     | fbb592ca3788a576dd2f31fcf8c80fab |

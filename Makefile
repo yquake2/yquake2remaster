@@ -992,7 +992,6 @@ GAME_OBJS_ = \
 	src/game/monster/demon/demon.o \
 	src/game/monster/dog/dog.o \
 	src/game/monster/enforcer/enforcer.o \
-	src/game/monster/fish/fish.o \
 	src/game/monster/fixbot/fixbot.o \
 	src/game/monster/flipper/flipper.o \
 	src/game/monster/float/float.o \
@@ -1012,6 +1011,7 @@ GAME_OBJS_ = \
 	src/game/monster/mutant/mutant.o \
 	src/game/monster/ogre/ogre.o \
 	src/game/monster/parasite/parasite.o \
+	src/game/monster/rotfish/fish.o \
 	src/game/monster/shalrath/shalrath.o \
 	src/game/monster/shambler/shambler.o \
 	src/game/monster/soldier/soldier.o \

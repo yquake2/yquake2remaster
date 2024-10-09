@@ -117,7 +117,7 @@
 {"monster_demon", SP_monster_demon},
 {"monster_dog", SP_monster_dog},
 {"monster_enforcer", SP_monster_enforcer},
-{"monster_fish", SP_monster_fish},
+{"monster_rotfish", SP_monster_rotfish},
 {"monster_fixbot", SP_monster_fixbot},
 {"monster_flipper", SP_monster_flipper},
 {"monster_floater", SP_monster_floater},
