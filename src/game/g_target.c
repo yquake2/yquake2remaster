@@ -1474,18 +1474,18 @@ SP_target_earthquake(edict_t *self)
 	}
 }
 
-#if 0
 /*
  * QUAKED target_camera (1 0 0) (-8 -8 -8) (8 8 8)
  * [Sam-KEX] Creates a camera path as seen in the N64 version.
 */
-size_t HACKFLAG_TELEPORT_OUT = 2;
-size_t HACKFLAG_SKIPPABLE = 64;
-size_t HACKFLAG_END_OF_UNIT = 128;
+#define HACKFLAG_TELEPORT_OUT 2
+#define HACKFLAG_SKIPPABLE 64
+#define HACKFLAG_END_OF_UNIT 128
 
 static void
 camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
 {
+#if 0
 	if(self->pathtarget)
 	{
 		edict_t* pt = NULL;
@@ -1512,11 +1512,13 @@ camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
 			(*dest)[ROLL] = 0;
 		}
 	}
+#endif
 }
 
 void
 update_target_camera(edict_t *self)
 {
+#if 0
 	bool do_skip = false;
 
 	// only allow skipping after 2 seconds
@@ -1627,6 +1629,7 @@ update_target_camera(edict_t *self)
 	}
 
 	self->nextthink = level.time + FRAME_TIME_S;
+#endif
 }
 
 void G_SetClientFrame(edict_t *ent);
@@ -1636,6 +1639,7 @@ extern float xyspeed;
 void
 target_camera_dummy_think(edict_t *self)
 {
+#if 0
 	// bit of a hack, but this will let the dummy
 	// move like a player
 	self->client = self->owner->client;
@@ -1651,11 +1655,13 @@ target_camera_dummy_think(edict_t *self)
 	}
 
 	self->nextthink = level.time + 10_hz;
+#endif
 }
 
 void
 use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 {
+#if 0
 	if (self->sounds)
 		gi.configstring (CS_CDTRACK, G_Fmt("{}", self->sounds).data() );
 
@@ -1734,6 +1740,7 @@ use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 	{
 		G_EndOfUnitMessage();
 	}
+#endif
 }
 
 void
@@ -1749,7 +1756,6 @@ SP_target_camera(edict_t* self)
 	self->use = use_target_camera;
 	self->svflags = SVF_NOCLIENT;
 }
-#endif
 
 /*
  * QUAKED target_gravity (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
