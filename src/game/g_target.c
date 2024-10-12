@@ -1519,7 +1519,7 @@ void
 update_target_camera(edict_t *self)
 {
 #if 0
-	bool do_skip = false;
+	qboolean do_skip = false;
 
 	// only allow skipping after 2 seconds
 	if ((self->hackflags & HACKFLAG_SKIPPABLE) && level.time > 2_sec)
@@ -1663,10 +1663,14 @@ use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 {
 #if 0
 	if (self->sounds)
-		gi.configstring (CS_CDTRACK, G_Fmt("{}", self->sounds).data() );
+	{
+		gi.configstring(CS_CDTRACK, va("%i", self->sounds));
+	}
 
 	if (!self->target)
+	{
 		return;
+	}
 
 	self->movetarget = G_PickTarget(self->target);
 
@@ -1683,19 +1687,19 @@ use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 		edict_t *dummy = self->enemy = G_Spawn();
 		dummy->owner = activator;
 		dummy->clipmask = activator->clipmask;
-		dummy->s.origin = activator->s.origin;
-		dummy->s.angles = activator->s.angles;
+		VectorCopy(activator->s.origin, dummy->s.origin);
+		VectorCopy(dummy->s.origin, dummy->s.angles);
 		dummy->groundentity = activator->groundentity;
 		dummy->groundentity_linkcount = dummy->groundentity ? dummy->groundentity->linkcount : 0;
 		dummy->think = target_camera_dummy_think;
 		dummy->nextthink = level.time + 10_hz;
 		dummy->solid = SOLID_BBOX;
 		dummy->movetype = MOVETYPE_STEP;
-		dummy->mins = activator->mins;
-		dummy->maxs = activator->maxs;
+		VectorCopy(activator->mins, dummy->mins);
+		VectorCopy(activator->maxs, dummy->maxs);
 		dummy->s.modelindex = dummy->s.modelindex2 = MODELINDEX_PLAYER;
 		dummy->s.skinnum = activator->s.skinnum;
-		dummy->velocity = activator->velocity;
+		VectorCopy(activator->velocity, dummy->velocity);
 		dummy->s.renderfx = RF_MINLIGHT;
 		dummy->s.frame = activator->s.frame;
 		gi.linkentity(dummy);
