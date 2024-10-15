@@ -1716,6 +1716,20 @@ static int RE_PrepareForWindow(void)
 	return SDL_WINDOW_VULKAN;
 }
 
+
+static int
+RE_GetSDLVersion(void)
+{
+#ifdef USE_SDL3
+	int version = SDL_GetVersion();
+	return SDL_VERSIONNUM_MAJOR(version);
+#else
+	SDL_version ver;
+	SDL_VERSION(&ver);
+	return ver.major;
+#endif
+}
+
 /*
 ===============
 GetRefAPI
@@ -1726,18 +1740,10 @@ GetRefAPI(refimport_t imp)
 {
 	refexport_t refexport = {0};
 
-	// Need to communicate the SDL major version to the client.
-#ifdef USE_SDL3
-	SDL_Version ver;
-#else
-	SDL_version ver;
-#endif
-	SDL_VERSION(&ver);
-
 	ri = imp;
 
 	refexport.api_version = API_VERSION;
-	refexport.framework_version = ver.major;
+	refexport.framework_version = RE_GetSDLVersion();
 
 	refexport.BeginRegistration = RE_BeginRegistration;
 	refexport.RegisterModel = RE_RegisterModel;
