@@ -58,6 +58,7 @@
 {"origin", FOFS(s.origin), F_VECTOR},
 {"angles", FOFS(s.angles), F_VECTOR},
 {"angle", FOFS(s.angles), F_ANGLEHACK},
+{"rgba", FOFS(s.skinnum), F_RGBA},
 {"goalentity", FOFS(goalentity), F_EDICT, FFL_NOSPAWN},
 {"movetarget", FOFS(movetarget), F_EDICT, FFL_NOSPAWN},
 {"enemy", FOFS(enemy), F_EDICT, FFL_NOSPAWN},
