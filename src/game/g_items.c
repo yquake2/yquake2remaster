@@ -1059,6 +1059,28 @@ Use_Invulnerability(edict_t *ent, gitem_t *item)
 					"items/protect.wav"), 1, ATTN_NORM, 0);
 }
 
+void
+Use_Invisibility(edict_t *ent, gitem_t *item)
+{
+	if (!ent || !item)
+	{
+		return;
+	}
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+
+	if (ent->client->invisible_framenum > level.framenum)
+	{
+		ent->client->invisible_framenum += 300;
+	}
+	else
+	{
+		ent->client->invisible_framenum = level.framenum + 300;
+	}
+
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/protect.wav"), 1, ATTN_NORM, 0);
+}
+
 /* ====================================================================== */
 
 void
@@ -3302,6 +3324,31 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		0,
 		"items/protect.wav items/protect2.wav items/protect4.wav"
+	},
+
+	/*
+	 * QUAKED item_invisibility (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 */
+	{
+		"item_invisibility",
+		Pickup_Powerup,
+		Use_Invisibility,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/cloaker/tris.md2",
+		EF_ROTATE,
+		NULL,
+		"p_cloaker",
+		"Invisibility",
+		2,
+		300,
+		NULL,
+		IT_POWERUP,
+		0,
+		NULL,
+		0,
+		NULL,
 	},
 
 	/*

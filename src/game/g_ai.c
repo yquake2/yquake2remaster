@@ -434,6 +434,18 @@ visible(edict_t *self, edict_t *other)
 		return false;
 	}
 
+	/*
+	 * [Paril-KEX] bit of a hack, but we'll tweak monster-player visibility
+	 * if they have the invisibility powerup.
+	 */
+	if (other->client)
+	{
+		if (other->client->invisible_framenum > level.framenum)
+		{
+			return false;
+		}
+	}
+
 	VectorCopy(self->s.origin, spot1);
 	spot1[2] += self->viewheight;
 	VectorCopy(other->s.origin, spot2);
@@ -761,6 +773,13 @@ FindTarget(edict_t *self)
 					return false;
 				}
 			}
+
+			if ((self->enemy->client) &&
+				(self->enemy->client->invisible_framenum > level.framenum))
+			{
+				self->enemy = NULL;
+				return false;
+			}
 		}
 	}
 	else /* heardit */
@@ -870,6 +889,14 @@ M_CheckAttack(edict_t *self)
 
 	if (self->enemy->health > 0)
 	{
+		if (self->enemy->client)
+		{
+			if (self->enemy->client->invisible_framenum > level.framenum)
+			{
+				return false;
+			}
+		}
+
 		/* see if any entities are in the way of the shot */
 		VectorCopy(self->s.origin, spot1);
 		spot1[2] += self->viewheight;

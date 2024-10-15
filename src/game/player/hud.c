@@ -61,6 +61,7 @@ MoveClientToIntermission(edict_t *ent)
 	/* clean up powerup info */
 	ent->client->quad_framenum = 0;
 	ent->client->invincible_framenum = 0;
+	ent->client->invisible_framenum = 0;
 	ent->client->breather_framenum = 0;
 	ent->client->enviro_framenum = 0;
 	ent->client->grenade_blew_up = false;
@@ -556,6 +557,13 @@ G_SetStats(edict_t *ent)
 				"p_invulnerability");
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->invincible_framenum - level.framenum) / 10;
+	}
+	else if (ent->client->invisible_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(
+				"p_cloaker");
+		ent->client->ps.stats[STAT_TIMER] =
+			(ent->client->invisible_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->enviro_framenum > level.framenum)
 	{

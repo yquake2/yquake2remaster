@@ -665,6 +665,21 @@ SV_CalcBlend(edict_t *ent)
 			SV_AddBlend(1, 1, 0, 0.08, ent->client->ps.blend);
 		}
 	}
+	else if (ent->client->invisible_framenum > level.framenum)
+	{
+		remaining = ent->client->invisible_framenum - level.framenum;
+
+		if (remaining == 30) /* beginning to fade */
+		{
+			gi.sound(ent, CHAN_ITEM, gi.soundindex(
+							"items/protect2.wav"), 1, ATTN_NORM, 0);
+		}
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			SV_AddBlend(0.8f, 0.8f, 0.8f, 0.08f, ent->client->ps.blend);
+		}
+	}
 	else if (ent->client->enviro_framenum > level.framenum)
 	{
 		remaining = ent->client->enviro_framenum - level.framenum;
