@@ -349,6 +349,54 @@ ED_NewString(const char *string)
 	return newb;
 }
 
+static unsigned
+ED_ParseColorField(const char *value)
+{
+	/* space means rgba as values */
+	if (strchr(value, ' '))
+	{
+		float v[4] = { 0, 0, 0, 1.0f };
+		qboolean is_float = true;
+		char color_buffer[16], *tmp;
+		int i;
+
+		strncpy(color_buffer, value, sizeof(color_buffer) - 1);
+		tmp = color_buffer;
+
+		for (i = 0; i < 4; i++)
+		{
+			v[i] = (float)strtod(COM_Parse(&tmp), (char **)NULL);
+
+			if (v[i] > 1.0f)
+			{
+				is_float = false;
+			}
+
+			if (!tmp)
+			{
+				break;
+			}
+		}
+
+		/* convert to bytes */
+		if (is_float)
+		{
+			for (i = 0; i < 4; i++)
+			{
+				v[i] *= 255.f;
+			}
+		}
+
+		return ((byte)v[3]) |
+				(((byte)v[2]) << 8) |
+				(((byte)v[1]) << 16) |
+				(((byte)v[0]) << 24);
+	}
+
+	/* integral */
+	return atoi(value);
+}
+
 /*
  * Takes a key/value pair and sets
  * the binary values in an edict
@@ -402,6 +450,9 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 					((float *)(b + f->ofs))[0] = 0;
 					((float *)(b + f->ofs))[1] = v;
 					((float *)(b + f->ofs))[2] = 0;
+					break;
+				case F_RGBA:
+					*(unsigned *)(b + f->ofs) = ED_ParseColorField(value);
 					break;
 				case F_IGNORE:
 					break;
