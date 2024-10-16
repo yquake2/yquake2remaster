@@ -410,6 +410,11 @@ typedef struct
 	float maxyaw;
 	float minpitch;
 	float maxpitch;
+
+	float radius;
+	float fade_start_dist;
+	float fade_end_dist;
+	char *image;
 } spawn_temp_t;
 
 typedef struct
@@ -712,7 +717,8 @@ typedef enum
 	F_CLIENT,           /* index on disk, pointer in memory */
 	F_FUNCTION,
 	F_MMOVE,
-	F_IGNORE
+	F_IGNORE,
+	F_RGBA,
 } fieldtype_t;
 
 typedef struct

@@ -417,6 +417,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 		case F_ANGLEHACK:
 		case F_VECTOR:
 		case F_IGNORE:
+		case F_RGBA:
 			break;
 
 		case F_LSTRING:
@@ -614,6 +615,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 		case F_ANGLEHACK:
 		case F_VECTOR:
 		case F_IGNORE:
+		case F_RGBA:
 			break;
 
 		case F_LSTRING:
