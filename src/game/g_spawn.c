@@ -781,14 +781,14 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		if (!Q_stricmp(level.mapname, "rhangar2") &&
 			!Q_stricmp(ent->classname, "trigger_always") &&
-		   	ent->target && !Q_stricmp(ent->target, "t265"))
+			ent->target && !Q_stricmp(ent->target, "t265"))
 		{
 			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
 		}
 
 		if (!Q_stricmp(level.mapname, "rhangar2") &&
 			!Q_stricmp(ent->classname, "func_wall") &&
-		   	!Q_stricmp(ent->model, "*15"))
+			!Q_stricmp(ent->model, "*15"))
 		{
 			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
 		}

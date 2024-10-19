@@ -805,7 +805,7 @@ brain_laserbeam(edict_t *self)
 	if (random() > 0.8)
 	{
 		gi.sound(self, CHAN_AUTO, gi.soundindex("misc/lasfly.wav"),
-			   	1, ATTN_STATIC, 0);
+				1, ATTN_STATIC, 0);
 	}
 
 	/* check for max distance */
@@ -1078,7 +1078,7 @@ brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 	if (self->health <= self->gib_health)
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
-			   	1, ATTN_NORM, 0);
+				1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{

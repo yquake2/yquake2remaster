@@ -1629,7 +1629,7 @@ Trap_Think(edict_t *ent)
 			if (ent->wait == 64)
 			{
 				gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/trapdown.wav"),
-					   	1, ATTN_IDLE, 0);
+						1, ATTN_IDLE, 0);
 			}
 
 			ent->wait -= 2;

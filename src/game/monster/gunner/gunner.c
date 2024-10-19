@@ -413,7 +413,7 @@ mmove_t gunner_move_pain1 =
 
 void
 gunner_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	if (!self)
 	{

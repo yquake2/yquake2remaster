@@ -584,7 +584,7 @@ supertank_reattack1(edict_t *self)
 
 void
 supertank_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	if (!self)
 	{

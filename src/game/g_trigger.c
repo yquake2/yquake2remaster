@@ -145,7 +145,7 @@ Use_Multi(edict_t *ent, edict_t *other /* unused */, edict_t *activator)
 
 void
 Touch_Multi(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -207,7 +207,7 @@ Touch_Multi(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
  */
 void
 trigger_enable(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	if (!self)
 	{
@@ -320,7 +320,7 @@ SP_trigger_once(edict_t *ent)
  */
 void
 trigger_relay_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator)
+		edict_t *activator)
 {
 	if (!self || !activator)
 	{
@@ -519,7 +519,7 @@ SP_trigger_key(edict_t *self)
 
 void
 trigger_counter_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator)
+		edict_t *activator)
 {
 	if (!self || !activator)
 	{
@@ -846,7 +846,7 @@ hurt_use(edict_t *self, edict_t *other /* unused */,
 
 		self->solid = SOLID_TRIGGER;
 		num = gi.BoxEdicts(self->absmin, self->absmax,
-			   	touch, MAX_EDICTS, AREA_SOLID);
+				touch, MAX_EDICTS, AREA_SOLID);
 
 		/* Check for idle monsters in
 		   trigger hurt */

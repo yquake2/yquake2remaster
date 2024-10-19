@@ -934,7 +934,7 @@ flyer_check_melee(edict_t *self)
 
 void
 flyer_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	int n;
 
