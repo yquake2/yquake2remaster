@@ -1004,6 +1004,7 @@
 {"misc_easterchick_think", (byte *)misc_easterchick_think},
 {"misc_eastertank_think", (byte *)misc_eastertank_think},
 {"misc_nuke_core_use", (byte *)misc_nuke_core_use},
+{"misc_flare_use", (byte *)misc_flare_use},
 {"misc_satellite_dish_think", (byte *)misc_satellite_dish_think},
 {"misc_satellite_dish_use", (byte *)misc_satellite_dish_use},
 {"misc_strogg_ship_use", (byte *)misc_strogg_ship_use},
