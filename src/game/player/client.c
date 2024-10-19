@@ -434,7 +434,7 @@ SP_info_player_intermission(edict_t *self)
 
 void
 player_pain(edict_t *self /* unused */, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage /* unused */)
+		float kick /* unused */, int damage /* unused */)
 {
 	/* Player pain is handled at the end
 	 * of the frame in P_DamageFeedback.
@@ -506,7 +506,7 @@ IsNeutral(edict_t *ent)
 
 void
 ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
-	   	edict_t *attacker)
+		edict_t *attacker)
 {
 	int mod;
 	char *message;
@@ -1869,7 +1869,7 @@ InitBodyQue(void)
 
 void
 body_die(edict_t *self, edict_t *inflictor /* unused */,
-	   	edict_t *attacker /* unused */, int damage,
+		edict_t *attacker /* unused */, int damage,
 		vec3_t point /* unused */)
 {
 	int n;

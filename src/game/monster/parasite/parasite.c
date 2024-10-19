@@ -443,7 +443,7 @@ mmove_t parasite_move_pain1 =
 
 void
 parasite_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage /* unused */)
+		float kick /* unused */, int damage /* unused */)
 {
 	if (!self)
 	{

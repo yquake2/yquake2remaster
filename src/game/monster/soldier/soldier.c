@@ -2526,7 +2526,7 @@ mmove_t soldierh_move_pain4 = {
 
 void
 soldierh_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage /* unused */)
+		float kick /* unused */, int damage /* unused */)
 {
 	float r;
 	int n;

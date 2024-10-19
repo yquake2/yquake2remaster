@@ -382,7 +382,7 @@ force_wall_think(edict_t *self)
 
 void
 force_wall_use(edict_t *self, edict_t *other /* activator */,
-	   	edict_t *activator /* activator */)
+		edict_t *activator /* activator */)
 {
 	if (!self)
 	{

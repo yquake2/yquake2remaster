@@ -379,7 +379,7 @@ mmove_t chick_move_pain3 =
 
 void
 chick_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	float r;
 

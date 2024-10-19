@@ -1318,7 +1318,7 @@ plat2_blocked(edict_t *self, edict_t *other)
 
 void
 Use_Plat2(edict_t *ent, edict_t *other /* unused */,
-	   	edict_t *activator)
+		edict_t *activator)
 {
 	edict_t *trigger;
 	int i;
@@ -1358,7 +1358,7 @@ Use_Plat2(edict_t *ent, edict_t *other /* unused */,
 
 void
 plat2_activate(edict_t *ent, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	edict_t *trigger;
 
@@ -1607,7 +1607,7 @@ rotating_blocked(edict_t *self, edict_t *other)
 
 void
 rotating_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -1623,7 +1623,7 @@ rotating_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 
 void
 rotating_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	if (!self)
 	{
@@ -1884,7 +1884,7 @@ button_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 
 void
 button_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -2375,7 +2375,7 @@ door_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 
 void
 Touch_DoorTrigger(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -2759,7 +2759,7 @@ SP_func_door(edict_t *ent)
 
 void
 Door_Activate(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	if (!self)
 	{
@@ -3475,7 +3475,7 @@ func_train_find(edict_t *self)
 
 void
 train_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator)
+		edict_t *activator)
 {
 	if (!self || !activator)
 	{
@@ -3573,7 +3573,7 @@ SP_func_train(edict_t *self)
  */
 void
 trigger_elevator_use(edict_t *self, edict_t *other,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	edict_t *target;
 
@@ -3753,7 +3753,7 @@ SP_func_timer(edict_t *self)
  */
 void
 func_conveyor_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	if (!self)
 	{
@@ -3820,7 +3820,7 @@ SP_func_conveyor(edict_t *self)
  */
 void
 door_secret_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /*unused */)
+		edict_t *activator /*unused */)
 {
 	if (!self)
 	{
@@ -4164,7 +4164,7 @@ rotating_light_killed(edict_t *self, edict_t *inflictor /* unused */,
 
 void
 rotating_light_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	if (!self)
 	{

@@ -372,7 +372,7 @@ mmove_t tank_move_pain3 =
 
 void
 tank_pain(edict_t *self, edict_t *other /* other */,
-	   	float kick /* other */, int damage)
+		float kick /* other */, int damage)
 {
 	if (!self)
 	{

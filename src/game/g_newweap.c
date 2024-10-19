@@ -868,7 +868,7 @@ Nuke_Think(edict_t *ent)
 
 void
 nuke_bounce(edict_t *ent, edict_t *other /* unused */, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	if (!ent)
 	{

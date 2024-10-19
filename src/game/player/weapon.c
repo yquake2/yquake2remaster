@@ -3381,7 +3381,7 @@ weapon_trap_fire(edict_t *ent, qboolean held)
 
 	timer = ent->client->grenade_time - level.time;
 	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) *
-	   	((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
+		((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
 	fire_trap(ent, start, forward, damage, speed, timer, radius, held);
 
 	ent->client->pers.inventory[ent->client->ammo_index]--;
@@ -3427,7 +3427,7 @@ Weapon_Trap(edict_t *ent)
 				if (level.time >= ent->pain_debounce_time)
 				{
 					gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"),
-						   	1, ATTN_NORM, 0);
+							1, ATTN_NORM, 0);
 					ent->pain_debounce_time = level.time + 1;
 				}
 
@@ -3461,7 +3461,7 @@ Weapon_Trap(edict_t *ent)
 		if (ent->client->ps.gunframe == 5)
 		{
 			gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/trapcock.wav"),
-				   	1, ATTN_NORM, 0);
+					1, ATTN_NORM, 0);
 		}
 
 		if (ent->client->ps.gunframe == 11)
