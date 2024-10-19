@@ -89,6 +89,8 @@ extern void SP_misc_gib_leg ( edict_t * ent ) ;
 extern void SP_misc_insane(edict_t * self);
 extern void SP_misc_nuke ( edict_t * ent ) ;
 extern void SP_misc_nuke_core ( edict_t * ent ) ;
+extern void SP_misc_flare ( edict_t * ent ) ;
+extern void SP_misc_model ( edict_t * ent ) ;
 extern void SP_misc_satellite_dish ( edict_t * ent ) ;
 extern void SP_misc_strogg_ship ( edict_t * ent ) ;
 extern void SP_misc_teleporter ( edict_t * ent ) ;

@@ -1026,6 +1026,7 @@ extern void misc_easterchick2_think ( edict_t * self ) ;
 extern void misc_easterchick_think ( edict_t * self ) ;
 extern void misc_eastertank_think ( edict_t * self ) ;
 extern void misc_nuke_core_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void misc_flare_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void misc_satellite_dish_think ( edict_t * self ) ;
 extern void misc_satellite_dish_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void misc_strogg_ship_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
