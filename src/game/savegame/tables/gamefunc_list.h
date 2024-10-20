@@ -1430,6 +1430,7 @@
 {"use_nuke", (byte *)use_nuke},
 {"use_scanner", (byte *)use_scanner},
 {"use_target_blaster", (byte *)use_target_blaster},
+{"use_target_camera", (byte *)use_target_camera},
 {"use_target_changelevel", (byte *)use_target_changelevel},
 {"use_target_explosion", (byte *)use_target_explosion},
 {"use_target_goal", (byte *)use_target_goal},

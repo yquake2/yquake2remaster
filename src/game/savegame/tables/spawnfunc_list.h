@@ -168,6 +168,7 @@
 {"target_anger", SP_target_anger},
 {"target_blacklight", SP_target_blacklight},
 {"target_blaster", SP_target_blaster},
+{"target_camera", SP_target_camera},
 {"target_changelevel", SP_target_changelevel},
 {"target_character", SP_target_character},
 {"target_crosslevel_target", SP_target_crosslevel_target},

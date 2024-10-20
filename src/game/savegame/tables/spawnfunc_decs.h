@@ -162,6 +162,7 @@ extern void SP_target_actor(edict_t * self);
 extern void SP_target_anger(edict_t * self);
 extern void SP_target_blacklight ( edict_t * ent ) ;
 extern void SP_target_blaster(edict_t * self);
+extern void SP_target_camera(edict_t* self);
 extern void SP_target_changelevel ( edict_t * ent ) ;
 extern void SP_target_character(edict_t * self);
 extern void SP_target_crosslevel_target(edict_t * self);

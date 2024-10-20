@@ -1475,6 +1475,55 @@ SP_target_earthquake(edict_t *self)
 }
 
 /*
+ * QUAKED target_camera (1 0 0) (-8 -8 -8) (8 8 8)
+ * [Sam-KEX] Creates a camera path as seen in the N64 version.
+*/
+void
+use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
+{
+	edict_t *target;
+
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->sounds)
+	{
+		gi.configstring(CS_CDTRACK, va("%i", self->sounds));
+	}
+
+	if (!self->killtarget)
+	{
+		return;
+	}
+
+	target = G_PickTarget(self->killtarget);
+
+	if (!target || !target->use)
+	{
+		return;
+	}
+
+	/* TODO: Fully implement target camera logic */
+	target->use(target, self, activator);
+}
+
+void
+SP_target_camera(edict_t* self)
+{
+	if (deathmatch->value)
+	{
+		/* auto-remove for deathmatch */
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->use = use_target_camera;
+	self->svflags = SVF_NOCLIENT;
+}
+
+/*
  * QUAKED target_gravity (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
  * [Sam-KEX] Changes gravity, as seen in the N64 version
  */
