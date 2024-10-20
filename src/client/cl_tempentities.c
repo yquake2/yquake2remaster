@@ -664,7 +664,7 @@ static unsigned int splash_color[] = {
 void
 CL_ParseTEnt(void)
 {
-	int type;
+	temp_event_t type;
 	vec3_t pos, pos2, dir;
 	explosion_t *ex;
 	int cnt;
@@ -864,6 +864,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_RAILTRAIL: /* railgun effect */
+		case TE_RAILTRAIL2:
 			MSG_ReadPos(&net_message, pos);
 			MSG_ReadPos(&net_message, pos2);
 			CL_RailTrail(pos, pos2);
@@ -1124,6 +1125,11 @@ CL_ParseTEnt(void)
 			S_StartSound(pos, 0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
 			break;
 
+		case TE_FLAME:
+			MSG_ReadPos(&net_message, pos);
+			CL_FlameEffects(pos);
+			break;
+
 		case TE_LIGHTNING:
 			ent = CL_ParseLightning(cl_mod_lightning);
 			S_StartSound(NULL, ent, CHAN_WEAPON, cl_sfx_lightning,
@@ -1261,7 +1267,7 @@ CL_ParseTEnt(void)
 			break;
 
 		default:
-			Com_Error(ERR_DROP, "CL_ParseTEnt: bad type");
+			Com_Error(ERR_DROP, "%s: bad type", __func__);
 	}
 }
 

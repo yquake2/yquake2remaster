@@ -1174,7 +1174,7 @@ fixbot_fire_laser(edict_t *self)
 	}
 
 	gi.sound(self, CHAN_AUTO, gi.soundindex("misc/lasfly.wav"),
-		   	1, ATTN_STATIC, 0);
+			1, ATTN_STATIC, 0);
 
 	VectorCopy(self->s.origin, start);
 	VectorCopy(self->enemy->s.origin, end);
@@ -1576,7 +1576,7 @@ fixbot_attack(edict_t *self)
 
 void
 fixbot_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage /* unused */)
+		float kick /* unused */, int damage /* unused */)
 {
 	if (!self)
 	{

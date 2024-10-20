@@ -3273,3 +3273,84 @@ SP_misc_nuke_core(edict_t *ent)
 
 	ent->use = misc_nuke_core_use;
 }
+
+/*
+ * QUAKED misc_flare (1.0 1.0 0.0) (-32 -32 -32) (32 32 32) RED GREEN BLUE LOCK_ANGLE
+ * Creates a flare seen in the N64 version.
+ */
+#define SPAWNFLAG_FLARE_RED 1
+#define SPAWNFLAG_FLARE_GREEN 2
+#define SPAWNFLAG_FLARE_BLUE 4
+#define SPAWNFLAG_FLARE_LOCK_ANGLE 8
+
+/* TODO: implement FX_FLARE */
+#define RF_FLARE EF_BLUEHYPERBLASTER
+#define RF_FLARE_LOCK_ANGLE 0
+
+void
+misc_flare_use(edict_t *ent, edict_t *other, edict_t *activator)
+{
+	ent->svflags ^= SVF_NOCLIENT;
+	gi.linkentity(ent);
+}
+
+void
+SP_misc_flare(edict_t* ent)
+{
+	ent->s.modelindex = 0;
+	ent->s.renderfx = RF_FLARE;
+	ent->solid = SOLID_NOT;
+	/*
+	 * TODO: Add scale field
+	 * ent->s.scale = st.radius;
+	 */
+
+	if (ent->spawnflags & SPAWNFLAG_FLARE_RED)
+	{
+		ent->s.renderfx |= RF_SHELL_RED;
+	}
+
+	if (ent->spawnflags & SPAWNFLAG_FLARE_GREEN)
+	{
+		ent->s.renderfx |= RF_SHELL_GREEN;
+	}
+
+	if (ent->spawnflags & SPAWNFLAG_FLARE_BLUE)
+	{
+		ent->s.renderfx |= RF_SHELL_BLUE;
+	}
+
+	if (ent->spawnflags & SPAWNFLAG_FLARE_LOCK_ANGLE)
+	{
+		ent->s.renderfx |= RF_FLARE_LOCK_ANGLE;
+	}
+
+	if (st.image && *st.image)
+	{
+		ent->s.renderfx |= RF_CUSTOMSKIN;
+		ent->s.frame = gi.imageindex(st.image);
+	}
+
+	VectorSet(ent->mins, -32, -32, -32);
+	VectorSet(ent->maxs, 32, 32, 32);
+
+	ent->s.modelindex2 = st.fade_start_dist;
+	ent->s.modelindex3 = st.fade_end_dist;
+
+	if (ent->targetname)
+	{
+		ent->use = misc_flare_use;
+	}
+
+	gi.linkentity(ent);
+}
+
+
+/*
+ * QUAKED misc_model (1 0 0) (-8 -8 -8) (8 8 8)
+ */
+void SP_misc_model(edict_t *ent)
+{
+	gi.setmodel(ent, ent->model);
+	gi.linkentity(ent);
+}

@@ -568,7 +568,7 @@ boss5_reattack1(edict_t *self)
 
 void
 boss5_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	if (!self)
 	{
@@ -833,7 +833,7 @@ BossExplode2(edict_t *self)
 void
 boss5_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage /* unused */,
-	   	vec3_t point /* unused */)
+		vec3_t point /* unused */)
 {
 	if (!self)
 	{

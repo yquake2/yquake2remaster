@@ -674,7 +674,7 @@ SV_StepDirection(edict_t *ent, float yaw, float dist)
 		{
 			if ((delta > 45) && (delta < 315))
 			{
-		 		/* not turned far enough, so don't take the step */
+				/* not turned far enough, so don't take the step */
 				VectorCopy(oldorigin, ent->s.origin);
 			}
 		}

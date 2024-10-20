@@ -303,7 +303,7 @@ mmove_t infantry_move_pain2 =
 
 void
 infantry_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	if (!self)
 	{
