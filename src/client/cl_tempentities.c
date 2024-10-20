@@ -864,6 +864,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_RAILTRAIL: /* railgun effect */
+		case TE_RAILTRAIL2:
 			MSG_ReadPos(&net_message, pos);
 			MSG_ReadPos(&net_message, pos2);
 			CL_RailTrail(pos, pos2);
