@@ -1434,6 +1434,7 @@ extern void use_killbox ( edict_t * self , edict_t * other , edict_t * activator
 extern void use_nuke ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_scanner ( edict_t * self ) ;
 extern void use_target_blaster ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void use_target_camera ( edict_t * self , edict_t * other , edict_t * activator);
 extern void use_target_changelevel ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_explosion ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_goal ( edict_t * ent , edict_t * other , edict_t * activator ) ;
