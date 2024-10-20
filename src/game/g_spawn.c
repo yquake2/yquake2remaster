@@ -123,12 +123,26 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	) / 3;
 }
 
+void
+dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	if (!self || !other || !self->message || !self->message[0])
+	{
+		return;
+	}
+
+	gi.centerprintf(other, "Entity description: %s", self->message);
+}
+
 static void
-DynamicSpawn(edict_t *self)
+DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
+	self->message = data->description;
+	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);
 }
@@ -279,7 +293,7 @@ ED_CallSpawn(edict_t *ent)
 	if (dyn_id >= 0 && dynamicentities[dyn_id].model_path[0])
 	{
 		/* spawn only if know model */
-		DynamicSpawn(ent);
+		DynamicSpawn(ent, &dynamicentities[dyn_id]);
 
 		return;
 	}
@@ -299,7 +313,7 @@ ED_CallSpawn(edict_t *ent)
 			if (gi.FS_LoadFile(self.model_path, NULL) > 4)
 			{
 				DynamicSpawnUpdate(ent, &self);
-				DynamicSpawn(ent);
+				DynamicSpawn(ent, &self);
 				return;
 			}
 		}
