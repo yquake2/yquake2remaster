@@ -127,8 +127,14 @@ void
 dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
 {
-	if (!self || !other || !self->message || !self->message[0])
+	if (!self || !other)
 	{
+		return;
+	}
+
+	if (!self->message || !self->message[0])
+	{
+		gi.centerprintf(other, "Entity classname: %s", self->classname);
 		return;
 	}
 
@@ -141,7 +147,12 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
-	self->message = data->description;
+
+	/* set message only if it has description */
+	if (data->description[0])
+	{
+		self->message = data->description;
+	}
 	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);
@@ -301,17 +312,22 @@ ED_CallSpawn(edict_t *ent)
 	/* SiN entity could have model path as model field */
 	if (ent->model && (ent->model[0] != '*') && (strlen(ent->model) > 4))
 	{
-		dynamicentity_t self = {0};
 		const char *ext;
 
 		ext = COM_FileExtension(ent->model);
 		if(!strcmp(ext, "def"))
 		{
+			dynamicentity_t self = {0};
+
 			strncpy(self.classname, ent->classname, sizeof(self.classname));
 			snprintf(self.model_path, sizeof(self.model_path), "models/%s", ent->model);
 
 			if (gi.FS_LoadFile(self.model_path, NULL) > 4)
 			{
+				/* Set default size */
+				VectorSet(self.mins, -16, -16, -16);
+				VectorSet(self.maxs, 16, 16, 16);
+
 				DynamicSpawnUpdate(ent, &self);
 				DynamicSpawn(ent, &self);
 				return;
