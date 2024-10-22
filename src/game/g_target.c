@@ -39,8 +39,6 @@
 #define LASER_FAT 0x0040
 #define LASER_STOPWINDOW 0x0080
 
-void ED_CallSpawn(edict_t *ent);
-
 /*
  * QUAKED target_temp_entity (1 0 0) (-8 -8 -8) (8 8 8)
  *

@@ -28,7 +28,6 @@
 #include "../../header/local.h"
 #include "hover.h"
 
-qboolean visible(edict_t *self, edict_t *other);
 void hover_run(edict_t *self);
 void hover_stand(edict_t *self);
 void hover_dead(edict_t *self);

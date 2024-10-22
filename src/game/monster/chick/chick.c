@@ -30,8 +30,6 @@
 
 #define LEAD_TARGET 1
 
-qboolean visible(edict_t *self, edict_t *other);
-
 void chick_stand(edict_t *self);
 void chick_run(edict_t *self);
 void chick_reslash(edict_t *self);

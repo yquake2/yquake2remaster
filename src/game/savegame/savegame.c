@@ -421,6 +421,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 			break;
 
 		case F_LSTRING:
+		case F_LRAWSTRING:
 		case F_GSTRING:
 
 			if (*(char **)p)
@@ -538,6 +539,7 @@ WriteField2(FILE *f, field_t *field, byte *base)
 	switch (field->type)
 	{
 		case F_LSTRING:
+		case F_LRAWSTRING:
 
 			if (*(char **)p)
 			{
@@ -619,6 +621,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 			break;
 
 		case F_LSTRING:
+		case F_LRAWSTRING:
 			len = *(int *)p;
 
 			if (!len)
