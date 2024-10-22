@@ -18,7 +18,6 @@
 #define VENGEANCE_LIFESPAN 30
 #define MINIMUM_FLY_TIME 15
 
-extern char *ED_NewString(const char *string);
 void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker);
 
 void defender_think(edict_t *self);

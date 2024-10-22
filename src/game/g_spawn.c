@@ -339,10 +339,10 @@ ED_CallSpawn(edict_t *ent)
 }
 
 char *
-ED_NewString(const char *string)
+ED_NewString(const char *string, qboolean raw)
 {
-	char *newb, *new_p;
-	int i, l;
+	char *newb;
+	int l;
 
 	if (!string)
 	{
@@ -353,27 +353,38 @@ ED_NewString(const char *string)
 
 	newb = gi.TagMalloc(l, TAG_LEVEL);
 
-	new_p = newb;
-
-	for (i = 0; i < l; i++)
+	if (!raw)
 	{
-		if ((string[i] == '\\') && (i < l - 1))
-		{
-			i++;
+		char *new_p;
+		int i;
 
-			if (string[i] == 'n')
+		new_p = newb;
+
+		for (i = 0; i < l; i++)
+		{
+			if ((string[i] == '\\') && (i < l - 1))
 			{
-				*new_p++ = '\n';
+				i++;
+
+				if (string[i] == 'n')
+				{
+					*new_p++ = '\n';
+				}
+				else
+				{
+					*new_p++ = '\\';
+				}
 			}
 			else
 			{
-				*new_p++ = '\\';
+				*new_p++ = string[i];
 			}
 		}
-		else
-		{
-			*new_p++ = string[i];
-		}
+	}
+	else
+	{
+		/* just copy without convert */
+		memcpy(newb, string, l);
 	}
 
 	return newb;
@@ -460,8 +471,11 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 
 			switch (f->type)
 			{
+				case F_LRAWSTRING:
+					*(char **)(b + f->ofs) = ED_NewString(value, true);
+					break;
 				case F_LSTRING:
-					*(char **)(b + f->ofs) = ED_NewString(value);
+					*(char **)(b + f->ofs) = ED_NewString(value, false);
 					break;
 				case F_VECTOR:
 					sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
@@ -1343,7 +1357,7 @@ CreateMonster(vec3_t origin, vec3_t angles, char *classname)
 
 	VectorCopy(origin, newEnt->s.origin);
 	VectorCopy(angles, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname);
+	newEnt->classname = ED_NewString(classname, true);
 	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
 	VectorSet(newEnt->gravityVector, 0, 0, -1);
@@ -1367,7 +1381,7 @@ DetermineBBox(char *classname, vec3_t mins, vec3_t maxs)
 
 	VectorCopy(vec3_origin, newEnt->s.origin);
 	VectorCopy(vec3_origin, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname);
+	newEnt->classname = ED_NewString(classname, true);
 	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
 	ED_CallSpawn(newEnt);

@@ -28,8 +28,6 @@
 #include "../../header/local.h"
 #include "flyer.h"
 
-qboolean visible(edict_t *self, edict_t *other);
-
 static int nextmove; /* Used for start/stop frames */
 
 static int sound_sight;

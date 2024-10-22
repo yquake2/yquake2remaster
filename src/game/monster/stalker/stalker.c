@@ -58,7 +58,6 @@ void stalker_false_death_start(edict_t *self);
 #define FAUX_GRAVITY 800.0
 
 extern qboolean SV_PointCloseEnough(edict_t *ent, vec3_t goal, float dist);
-extern void drawbbox(edict_t *self);
 
 static qboolean
 stalker_ok_to_transition(edict_t *self)

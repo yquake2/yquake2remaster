@@ -37,7 +37,6 @@
 #define VARIANCE 15.0
 
 void BossExplode(edict_t *self);
-qboolean infront(edict_t *self, edict_t *other);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -94,8 +93,6 @@ void widow_start_run_10(edict_t *self);
 void widow_start_run_12(edict_t *self);
 
 void WidowCalcSlots(edict_t *self);
-
-void drawbbox(edict_t *self);
 
 void
 widow_search(edict_t *self)

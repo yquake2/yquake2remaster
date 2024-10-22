@@ -19,9 +19,6 @@
 #define FIXBOT_GOAL_TIMEOUT			15
 #define FIXBOT_WELD_GOAL_TIMEOUT	15
 
-qboolean visible(edict_t *self, edict_t *other);
-qboolean infront(edict_t *self, edict_t *other);
-
 static int sound_pain1;
 static int sound_die;
 static int sound_weld1;
@@ -56,7 +53,6 @@ extern mmove_t fixbot_move_landing;
 extern mmove_t fixbot_move_turn;
 
 extern void roam_goal(edict_t *self);
-void ED_CallSpawn(edict_t *ent);
 
 float
 crand(void)

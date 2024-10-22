@@ -29,7 +29,6 @@
 #include "boss31.h"
 
 extern void SP_monster_makron(edict_t *self);
-qboolean visible(edict_t *self, edict_t *other);
 void BossExplode(edict_t *self);
 void MakronToss(edict_t *self);
 void MakronPrecache(void);

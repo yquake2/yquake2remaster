@@ -28,8 +28,6 @@
 #include "../../header/local.h"
 #include "boss32.h"
 
-qboolean visible(edict_t *self, edict_t *other);
-
 void MakronRailgun(edict_t *self);
 void MakronSaveloc(edict_t *self);
 void MakronHyperblaster(edict_t *self);

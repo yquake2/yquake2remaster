@@ -44,7 +44,6 @@ extern void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 extern void hurt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf);
 extern void droptofloor(edict_t *ent);
 extern void Grenade_Explode(edict_t *ent);
-extern void drawbbox(edict_t *ent);
 
 void
 flechette_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
