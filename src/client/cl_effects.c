@@ -2099,6 +2099,7 @@ CL_FlameEffects(vec3_t origin)
 
 	count = rand() & 0xF;
 
+	/* Particles going down */
 	for(n = 0; n < count; n++)
 	{
 		cparticle_t *p;
@@ -2119,7 +2120,7 @@ CL_FlameEffects(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0 / (1 + frandk() * 0.2);
-		p->color = CL_CombineColors(0xff0b0700, 0xff47477b,
+		p->color = CL_CombineColors(0xff007fef, 0xff003bb7,
 					(float)(randk() & 15) / 15.0);
 
 		for (j = 0; j < 3; j++)
@@ -2134,6 +2135,7 @@ CL_FlameEffects(vec3_t origin)
 
 	count = rand() & 0x7;
 
+	/* Particles go up */
 	for (n = 0; n < count; n++)
 	{
 		cparticle_t *p;
@@ -2154,7 +2156,7 @@ CL_FlameEffects(vec3_t origin)
 
 		p->alpha = 1.0;
 		p->alphavel = -1.0 / (1 + frandk() * 0.5);
-		p->color = CL_CombineColors(0xff000000, 0xff2f2f2f,
+		p->color = CL_CombineColors(0xff0000ff, 0xff002f2f,
 					(float)(randk() & 15) / 15.0);
 		for (j=0 ; j<3 ; j++)
 		{

@@ -35,6 +35,7 @@
 {"dm_dball_team1_start", SP_dm_dball_team1_start},
 {"dm_dball_team2_start", SP_dm_dball_team2_start},
 {"dm_tag_token", SP_dm_tag_token},
+{"env_fire", SP_env_fire},
 {"func_areaportal", SP_func_areaportal},
 {"func_button", SP_func_button},
 {"func_clock", SP_func_clock},
