@@ -955,6 +955,7 @@ GAME_OBJS_ = \
 	src/game/g_combat.o \
 	src/game/g_func.o \
 	src/game/g_items.o \
+	src/game/g_light.o \
 	src/game/g_main.o \
 	src/game/g_misc.o \
 	src/game/g_monster.o \

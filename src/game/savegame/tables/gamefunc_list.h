@@ -589,6 +589,7 @@
 {"enforcer_sight", (byte *)enforcer_sight},
 {"enforcer_stand", (byte *)enforcer_stand},
 {"enforcer_walk", (byte *)enforcer_walk},
+{"env_fire_think", (byte *)env_fire_think},
 {"face_wall", (byte *)face_wall},
 {"fd_secret_done", (byte *)fd_secret_done},
 {"fd_secret_killed", (byte *)fd_secret_killed},
