@@ -965,6 +965,7 @@ GAME_OBJS_ = \
 	src/game/g_newtarg.o \
 	src/game/g_newtrig.o \
 	src/game/g_newweap.o \
+	src/game/g_obj.o \
 	src/game/g_phys.o \
 	src/game/g_spawn.o \
 	src/game/g_sphere.o \

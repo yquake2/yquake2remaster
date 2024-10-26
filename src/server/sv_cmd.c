@@ -175,7 +175,7 @@ SV_DemoMap_f(void)
 static void
 SV_GameMap_f(void)
 {
-	char *map;
+	char *map, mapvalue[MAX_QPATH];
 	int i;
 	client_t *cl;
 	qboolean *savedInuse;
@@ -186,12 +186,20 @@ SV_GameMap_f(void)
 		return;
 	}
 
+	if (strlen(Cmd_Argv(1)) >= sizeof(mapvalue))
+	{
+		Com_Printf("gamemap is too long\n");
+		return;
+	}
+
+
 	Com_DPrintf("%s(%s)\n", __func__, Cmd_Argv(1));
 
 	FS_CreatePath(va("%s/save/current/", FS_Gamedir()));
 
 	/* check for clearing the current savegame */
-	map = Cmd_Argv(1);
+	strcpy(mapvalue, Cmd_Argv(1));
+	map = mapvalue;
 
 	if (map[0] == '*')
 	{

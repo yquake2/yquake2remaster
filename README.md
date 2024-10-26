@@ -111,6 +111,9 @@ Games:
   * SDK: <https://github.com/NightDive-Studio/sin-ex-game>
   * SDK: <https://github.com/jimdose/SiN_110_Source>
   * SDK: <https://code.idtech.space/ritual/sin-sdk>
+* Dawn of Darkness:
+  * Docs: <https://www.moddb.com/mods/dawn-of-darkness1/downloads/dod-mood-scripts-gsm-tutorials-fgd-and-def-file>
+  * Demo: [Episode 1](https://www.moddb.com/mods/dawn-of-darkness1/downloads/dawn-of-darkness-episode-1)
 
 Games check videos:
 

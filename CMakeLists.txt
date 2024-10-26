@@ -355,6 +355,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_newtarg.c
 	${GAME_SRC_DIR}/g_newtrig.c
 	${GAME_SRC_DIR}/g_newweap.c
+	${GAME_SRC_DIR}/g_obj.c
 	${GAME_SRC_DIR}/g_phys.c
 	${GAME_SRC_DIR}/g_spawn.c
 	${GAME_SRC_DIR}/g_sphere.c

@@ -1073,6 +1073,8 @@
 {"mutant_walk_loop", (byte *)mutant_walk_loop},
 {"nuke_bounce", (byte *)nuke_bounce},
 {"nuke_die", (byte *)nuke_die},
+{"object_big_fire_think", (byte *)object_big_fire_think},
+{"object_flame1_think", (byte *)object_flame1_think},
 {"object_repair_dead", (byte *)object_repair_dead},
 {"object_repair_fx", (byte *)object_repair_fx},
 {"object_repair_sparks", (byte *)object_repair_sparks},
