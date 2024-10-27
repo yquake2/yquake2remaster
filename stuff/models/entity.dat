@@ -580,26 +580,26 @@ weapon_tommygun|models/weapons/g_tomgun/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0
 
 // Heretic 2
 breakable_brush||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Exploding/Breakable brush|0.0|0.5|0.8
-character_corvus1||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the torture victim|0.3|0.3|1.0
-character_corvus2||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the celestial watcher scene|0.3|0.3|1.0
-character_corvus3||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the high priestess scene|0.3|0.3|1.0
-character_corvus4||1.0|1.0|1.0|general|16.0|-16.0|-34.0|16.0|16.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the Scout scene|0.3|0.3|1.0
+character_corvus1|models/player/victim_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the torture victim|0.3|0.3|1.0
+character_corvus2|models/player/watcher_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the celestial watcher scene|0.3|0.3|1.0
+character_corvus3|models/player/highpriestess_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the high priestess scene|0.3|0.3|1.0
+character_corvus4|models/player/scout_scene/tris.fm|1.0|1.0|1.0|general|16.0|-16.0|-34.0|16.0|16.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the Scout scene|0.3|0.3|1.0
 character_corvus5|models/player/dranor_scene/tris.fm|1.0|1.0|1.0|general|16.0|-16.0|-34.0|16.0|16.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the Dranor scene|0.3|0.3|1.0
-character_corvus6||1.0|1.0|1.0|general|16.0|-16.0|-34.0|16.0|16.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the Dranor scene|0.3|0.3|1.0
-character_corvus7||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the Morcalavin scene|0.3|0.3|1.0
-character_corvus8||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the Siernan scenes|0.3|0.3|1.0
-character_corvus9||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the T'chekrik scenes|0.3|0.3|1.0
-character_dranor||1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dranor|0.3|0.3|1.0
-character_elflord||1.0|1.0|1.0|general|-24.0|-24.0|-78.0|24.0|24.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|0.3|0.3|1.0
-character_highpriestess1||1.0|1.0|1.0|general|-24|-36|24|24|36|INVISIBLE|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-24
-character_highpriestess21||1.0|1.0|1.0|general|-24|-36|24|24|36|INVISIBLE|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|0|-24
-character_morcalavin||1.0|1.0|1.0|general|-24.0|-24.0|-50.0|24.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|0.3|0.3|1.0
-character_sidhe_guard||1.0|1.0|1.0|general|-16|-16|-26|16|16|26|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
-character_siernan1||1.0|1.0|1.0|general|-10.0|-10.0|-20.0|10.0|10.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan standing|0.3|0.3|1.0
-character_siernan2||1.0|1.0|1.0|general|-17.0|-25.0|0.0|22.0|12.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan laying down|0.3|0.3|1.0
-character_ssithra_scout||1.0|1.0|1.0|general|-26.0|-16.0|-13.0|26.0|16.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra scout|0.3|0.3|1.0
-character_ssithra_victim||1.0|1.0|1.0|general|-40.0|-16.0|-2.0|40.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra torture victim|0.3|0.3|1.0
-character_tome||1.0|1.0|1.0|general|-4.0|-8.0|-12.0|4.0|8.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tome of Power|0.3|0.3|1.0
+character_corvus6|models/player/sewer_scene/tris.fm|1.0|1.0|1.0|general|16.0|-16.0|-34.0|16.0|16.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the Dranor scene|0.3|0.3|1.0
+character_corvus7|models/player/morcalavin_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the Morcalavin scene|0.3|0.3|1.0
+character_corvus8|models/player/siernan_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the Siernan scenes|0.3|0.3|1.0
+character_corvus9|models/player/t'chekrikscene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the T'chekrik scenes|0.3|0.3|1.0
+character_dranor|models/monsters/plaguelf/dranor/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dranor|0.3|0.3|1.0
+character_elflord|models/monsters/elflord/cinematic/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-78.0|24.0|24.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|0.3|0.3|1.0
+character_highpriestess|models/monsters/highpriestess/cinematic/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-36.0|24.0|24.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|0.3|0.3|1.0
+character_highpriestess2|models/monsters/highpriestess/pod_scene/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-36.0|24.0|24.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|0.3|0.3|1.0
+character_morcalavin|models/monsters/morcalavin/cinematic/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-50.0|24.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|0.3|0.3|1.0
+character_sidhe_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-16|-16|-26|16|16|26|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
+character_siernan1|models/monsters/siernan/standing/tris.fm|1.0|1.0|1.0|general|-10.0|-10.0|-20.0|10.0|10.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan standing|0.3|0.3|1.0
+character_siernan2|models/monsters/siernan/laying/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|0.0|22.0|12.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan laying down|0.3|0.3|1.0
+character_ssithra_scout|models/monsters/ssithra/scout_scene/tris.fm|1.0|1.0|1.0|general|-26.0|-16.0|-13.0|26.0|16.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra scout|0.3|0.3|1.0
+character_ssithra_victim|models/monsters/Ssithra/cinematics/tris.fm|1.0|1.0|1.0|general|-40.0|-16.0|-2.0|40.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra torture victim|0.3|0.3|1.0
+character_tome|models/spells/book/tris.fm|1.0|1.0|1.0|general|-4.0|-8.0|-12.0|4.0|8.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tome of Power|0.3|0.3|1.0
 choose_CDTrack||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets CD track|.5|.5|.5
 env_bubbler||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bubbler|0.3|0.3|1.0
 env_dust||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dust (triggered)|0.3|0.3|1.0
@@ -613,7 +613,7 @@ env_waterfall_base||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|
 env_water_fountain||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fountain|0.3|0.3|1.0
 flamethrower||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flamethrower. Triggers flame from origin brush when player touches trigger brush, or when triggered if targetted. Sets player on fire if they touch trigger brush, regardless of if the visual flame FX touches them.|.5|.5|.5
 func_monsterspawner||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Spawner|0.0|0.5|0.8
-info_buoy0.6||1.0|1.0|1.0|general|-24|-24|24|24|24|JUMP|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|0.8|-24
+info_buoy||1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Buoy for monster navigation|0.0|1.0|0.0
 item_ammo_hellstaff||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hellstaff ammo|0.3|0.3|1.0
 item_ammo_phoenix||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Phoenix ammo|0.3|0.3|1.0
 item_ammo_redrain||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Red rain ammo|0.3|0.3|1.0
@@ -623,8 +623,8 @@ item_defense_ringofrepulsion||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16
 item_defense_shield||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shield Spell|0.3|0.3|1.0
 item_defense_teleport||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Teleport Spell|0.3|0.3|1.0
 item_defense_tornado||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Whirlwind spell (Enhancement patch)|0.3|0.3|1.0
-item_health_full||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Full Health|0.3|0.3|1.0
-item_health_half||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Half Health|0.3|0.3|1.0
+item_health_full|models/items/health/healthbig/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Full Health|0.3|0.3|1.0
+item_health_half|models/items/health/healthsmall/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Half Health|0.3|0.3|1.0
 item_mana_combo_half||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Half Combo Mana|0.3|0.3|1.0
 item_mana_combo_quarter||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Quater Combo Mana|0.3|0.3|1.0
 item_mana_defensive_full||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Full Defensive Mana|0.3|0.3|1.0
@@ -659,22 +659,22 @@ item_weapon_magicmissile||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|s
 item_weapon_phoenixbow||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Phoenix Bow|0.3|0.3|1.0
 item_weapon_redrain_bow||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Red Rain Bow|0.3|0.3|1.0
 item_weapon_sphereofannihilation||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sphere of Annihilation|0.3|0.3|1.0
-light_buglight||1.0|1.0|1.0|general|-7.0|-7.0|-7.0|7.0|7.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bug light|0.0|1.0|0.0
-light_chandelier1||1.0|1.0|1.0|general|-36.0|-36.0|-43.0|34.0|34.0|43.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty gold) A tarnished gold chandelier hung from chains.|0.0|1.0|0.0
-light_chandelier2||1.0|1.0|1.0|general|-18.0|-18.0|-40.0|18.0|18.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty metal) A tarnished metal chandelier hung from chains.|0.0|1.0|0.0
-light_chandelier3||1.0|1.0|1.0|general|-34.0|-34.0|-80.0|34.0|34.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (gold & large) A golden chandelier.|0.0|1.0|0.0
+light_buglight|models/objects/lights/bug/tris.fm|1.0|1.0|1.0|general|-7.0|-7.0|-7.0|7.0|7.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bug light|0.0|1.0|0.0
+light_chandelier1|models/objects/chandelier/chan1/tris.fm|1.0|1.0|1.0|general|-36.0|-36.0|-43.0|34.0|34.0|43.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty gold) A tarnished gold chandelier hung from chains.|0.0|1.0|0.0
+light_chandelier2|models/objects/chandelier/chan2/tris.fm|1.0|1.0|1.0|general|-18.0|-18.0|-40.0|18.0|18.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty metal) A tarnished metal chandelier hung from chains.|0.0|1.0|0.0
+light_chandelier3|models/objects/chandelier/chan3/tris.fm|1.0|1.0|1.0|general|-34.0|-34.0|-80.0|34.0|34.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (gold & large) A golden chandelier.|0.0|1.0|0.0
 light_flame||1.0|1.0|1.0|general|-16|-16|0|16|16|34|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
-light_floortorch||1.0|1.0|1.0|general|-14.0|-14.0|-17.0|14.0|14.0|17.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Floor torch stand|0.0|1.0|0.0
-light_gem2||1.0|1.0|1.0|general|-1.0|-6.0|-8.0|4.0|6.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gem light|0.0|1.0|0.0
+light_floortorch|models/objects/lights/floortorch/tris.fm|1.0|1.0|1.0|general|-14.0|-14.0|-17.0|14.0|14.0|17.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Floor torch stand|0.0|1.0|0.0
+light_gem2|models/objects/lights/sinkcity/light-2/tris.fm|1.0|1.0|1.0|general|-1.0|-6.0|-8.0|4.0|6.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gem light|0.0|1.0|0.0
 light_lantern1|models/objects/lights/lantern-1/tris.fm|1.0|1.0|1.0|general|-28.0|-8.0|-22.0|4.0|8.0|22.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lantern with wood arm|0.0|1.0|0.0
 light_lantern2|models/objects/lights/lantern-2/tris.fm|1.0|1.0|1.0|general|-6.0|-6.0|-24.0|6.0|6.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lantern on chain|0.0|1.0|0.0
 light_lantern3|models/objects/lights/lantern-3/tris.fm|1.0|1.0|1.0|general|-6.0|-6.0|-12.0|6.0|6.0|11.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lantern (ceiling)|0.0|1.0|0.0
 light_lantern4|models/objects/lights/lantern-4/tris.fm|1.0|1.0|1.0|general|-18.0|-7.0|-7.0|7.0|7.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lantern (wall)|0.0|1.0|0.0
 light_lantern5|models/objects/lights/lantern-4/tris.fm|1.0|1.0|1.0|general|-7.0|-7.0|-7.0|7.0|7.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lantern (table)|0.0|1.0|0.0
-light_torch1||1.0|1.0|1.0|general|-4.0|-6.0|-5.0|6.0|6.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall torch with blue gem|0.0|1.0|0.0
-light_walltorch||1.0|1.0|1.0|general|-16.0|-10.0|-12.0|10.0|10.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall Torch|0.0|1.0|0.0
+light_torch1|models/objects/lights/sinkcity/light-3/tris.fm|1.0|1.0|1.0|general|-4.0|-6.0|-5.0|6.0|6.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall torch with blue gem|0.0|1.0|0.0
+light_walltorch|models/objects/lights/walltorch/tris.fm|1.0|1.0|1.0|general|-16.0|-10.0|-12.0|10.0|10.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall Torch|0.0|1.0|0.0
 misc_fire_sparker||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spark generator (triggered)|0|0|0
-misc_flag||1.0|1.0|1.0|general|-10|-10|0|10|10|80|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
+misc_flag|models/rj5/tris.fm|1.0|1.0|1.0|general|-10|-10|0|10|10|80|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 misc_magic_portal||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Magic Portal|1.0|0.0|0.0
 misc_remote_camera||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Remote Camera|1.0|0.0|0.0
 misc_update_spawner||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Updates level spawn point to trigger's position. Relevant for teleport spell.|.5|.5|.5
@@ -693,8 +693,8 @@ monster_imp|models/monsters/imp/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16
 monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-50.0|24.0|24.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|1.0|0.5|0.0
 monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|general|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0
 monster_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ogle|1.0|0.5|0.0
-monster_palace_plague_guard||1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0
-monster_palace_plague_guard_invisible||1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0
+monster_palace_plague_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0
+monster_palace_plague_guard_invisible|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0
 monster_plagueElf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Elf|1.0|0.5|0.0
 monster_rat|models/monsters/rat/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rat|1.0|0.5|0.0
 monster_rat_giant|models/monsters/rat/superduperat/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0
@@ -707,8 +707,8 @@ monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|genera
 monster_tcheckrik_mothers|models/monsters/mother/tris.fm|1.0|1.0|1.0|general|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0
 monster_trial_beast|models/monsters/beast/tris.fm|1.0|1.0|1.0|general|-100.0|-100.0|-36.0|100.0|100.0|150.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trial Beast|1.0|0.5|0.0
 obj_andwallhanging|models/objects/andwallhang/tris.fm|1.0|1.0|1.0|general|0.0|-19.0|-24.0|4.0|19.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Circular Andorian wall hanging|0.3|0.3|1.0
-obj_banner||1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0
-obj_banneronpole||1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0
+obj_banner|models/objects/banner/wall/tris.fm|1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0
+obj_banneronpole|models/objects/banner/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0
 obj_barrel|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-12.0|-12.0|-19.0|12.0|12.0|19.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel|0.3|0.3|1.0
 obj_barrel_explosive|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Explosive barrel. Use barrel with spawnflags 4 instead|0.3|0.3|1.0
 obj_barrel_metal|models/objects/barrel/metal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Metal barrel|0.3|0.3|1.0
@@ -737,7 +737,7 @@ obj_chest3|models/objects/chests/chest3/tris.fm|1.0|1.0|1.0|general|-10.0|-17.0|
 obj_choppeddude|models/objects/torture/guy2/tris.fm|1.0|1.0|1.0|general|-15.0|-40.0|-8.0|15.0|40.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lying chopped corpse|0.3|0.3|1.0
 obj_claybowl|models/objects/pots/claybowl/tris.fm|1.0|1.0|1.0|general|-6.0|-6.0|-2.0|6.0|6.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Clay bowl|0.3|0.3|1.0
 obj_clayjar|models/objects/pots/clayjar/tris.fm|1.0|1.0|1.0|general|-15.0|-15.0|-24.0|15.0|15.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Clay jar|0.3|0.3|1.0
-obj_cocoon||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cocoon|0.3|0.3|1.0
+obj_cocoon|models/objects/eggs/cocoon/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cocoon|0.3|0.3|1.0
 obj_cocoonopen|models/objects/eggs/cocoon/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cocoon|0.3|0.3|1.0
 obj_cog1|models/objects/cogs/cog1/tris.fm|1.0|1.0|1.0|general|-8.0|-4.0|0.0|8.0|4.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cog (triggerable)|0.3|0.3|1.0
 obj_corpse1|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0|30.0|12.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Elf corpse|0.3|0.3|1.0
@@ -745,27 +745,27 @@ obj_corpse2|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0
 obj_corpse_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-30|-12|-2|30|12|2|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 obj_corpse_ssithra|models/monsters/ssithra/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0|30.0|12.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra corpse|0.3|0.3|1.0
 obj_dying_elf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0|30.0|12.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dying elf|0.3|0.3|1.0
-obj_eggpan||1.0|1.0|1.0|general|-4.0|-10.0|-1.0|4.0|10.0|1.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flat pan|0.3|0.3|1.0
-obj_eyeball_jar||1.0|1.0|1.0|general|-13.0|-13.0|-18.0|13.0|13.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Jar of joy|0.3|0.3|1.0
-obj_firepot||1.0|1.0|1.0|general|-18.0|-18.0|-12.0|18.0|18.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Firepot|0.3|0.3|1.0
-obj_fishhead1||1.0|1.0|1.0|general|0.0|-76.0|-86.0|136.0|76.0|86.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain|0.3|0.3|1.0
-obj_fishhead2||1.0|1.0|1.0|general|0.0|-110.0|-118.0|136.0|110.0|118.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain 2|0.3|0.3|1.0
+obj_eggpan|models/objects/pots/eggpan/tris.fm|1.0|1.0|1.0|general|-4.0|-10.0|-1.0|4.0|10.0|1.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flat pan|0.3|0.3|1.0
+obj_eyeball_jar|models/objects/labs/container2/tris.fm|1.0|1.0|1.0|general|-13.0|-13.0|-18.0|13.0|13.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Jar of joy|0.3|0.3|1.0
+obj_firepot|models/objects/pots/firepot/tris.fm|1.0|1.0|1.0|general|-18.0|-18.0|-12.0|18.0|18.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Firepot|0.3|0.3|1.0
+obj_fishhead1|models/objects/fishheads/fishhead1/tris.fm|1.0|1.0|1.0|general|0.0|-76.0|-86.0|136.0|76.0|86.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain|0.3|0.3|1.0
+obj_fishhead2|models/objects/fishheads/fishhead2/tris.fm|1.0|1.0|1.0|general|0.0|-110.0|-118.0|136.0|110.0|118.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain 2|0.3|0.3|1.0
 obj_fishtrap|models/objects/fishtrap/tris.fm|1.0|1.0|1.0|general|-14.0|-28.0|-13.0|14.0|28.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish trap|0.3|0.3|1.0
-obj_flagonpole||1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|60.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flag on pole|0.3|0.3|1.0
-obj_floor_candelabrum||1.0|1.0|1.0|general|-8.0|-8.0|-35.0|8.0|8.0|35.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Floor candelbrum. Does not emit light|0.3|0.3|1.0
-obj_fountain_fish||1.0|1.0|1.0|general|-52.0|-34.0|-48.0|52.0|34.0|48.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Two-headed fish fountain. Water FX not included|0.3|0.3|1.0
-obj_frypan||1.0|1.0|1.0|general|-1.0|-3.0|-10.0|1.0|3.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging pan|0.3|0.3|1.0
-obj_gascan||1.0|1.0|1.0|general|-8.0|-9.0|-13.0|8.0|9.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gas can|0.3|0.3|1.0
-obj_gorgonbones||1.0|1.0|1.0|general|-18.0|-38.0|-9.0|18.0|38.0|1.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon bones|0.3|0.3|1.0
-obj_grass||1.0|1.0|1.0|general|-8.0|-8.0|-10.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Grass clump|0.3|0.3|1.0
-obj_hangingdude||1.0|1.0|1.0|general|-3.0|-20.0|-55.0|3.0|20.0|55.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging dude|0.3|0.3|1.0
-obj_hanging_ogle||1.0|1.0|1.0|general|-8.0|-16.0|-34.0|8.0|16.0|34.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging Ogle|0.3|0.3|1.0
+obj_flagonpole|models/objects/flags/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|60.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flag on pole|0.3|0.3|1.0
+obj_floor_candelabrum|models/objects/lights/candelabrum/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-35.0|8.0|8.0|35.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Floor candelbrum. Does not emit light|0.3|0.3|1.0
+obj_fountain_fish|models/objects/fountainfish/tris.fm|1.0|1.0|1.0|general|-52.0|-34.0|-48.0|52.0|34.0|48.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Two-headed fish fountain. Water FX not included|0.3|0.3|1.0
+obj_frypan|models/objects/pots/frypan/tris.fm|1.0|1.0|1.0|general|-1.0|-3.0|-10.0|1.0|3.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging pan|0.3|0.3|1.0
+obj_gascan|models/objects/barrel/gascan/tris.fm|1.0|1.0|1.0|general|-8.0|-9.0|-13.0|8.0|9.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gas can|0.3|0.3|1.0
+obj_gorgonbones|models/objects/bones/gorgon/tris.fm|1.0|1.0|1.0|general|-18.0|-38.0|-9.0|18.0|38.0|1.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon bones|0.3|0.3|1.0
+obj_grass|models/objects/plants/grass/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-10.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Grass clump|0.3|0.3|1.0
+obj_hangingdude|models/objects/torture/guy1/tris.fm|1.0|1.0|1.0|general|-3.0|-20.0|-55.0|3.0|20.0|55.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging dude|0.3|0.3|1.0
+obj_hanging_ogle|models/objects/torture/plaque2/tris.fm|1.0|1.0|1.0|general|-8.0|-16.0|-34.0|8.0|16.0|34.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging Ogle|0.3|0.3|1.0
 obj_hivepriestessssymbol||1.0|1.0|1.0|general|-4.0|-4.0|-13.0|4.0|4.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive Priestess symbol (triggered)|0.3|0.3|1.0
-obj_jawbone||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish jawbone|0.3|0.3|1.0
+obj_jawbone|models/objects/bones/jaws/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish jawbone|0.3|0.3|1.0
 obj_jug1|models/objects/jars/jug/tris.fm|1.0|1.0|1.0|general|-6.0|-6.0|-6.0|6.0|6.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Jug|0.3|0.3|1.0
 obj_kettle|models/objects/pots/kettle/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Kettle|0.3|0.3|1.0
-obj_lab_parts_container||1.0|1.0|1.0|general|-8.0|-8.0|-11.0|8.0|8.0|11.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Body parts container|0.3|0.3|1.0
-obj_lab_tray||1.0|1.0|1.0|general|-8.0|-8.0|-5.0|8.0|8.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tray with heart and tools|0.3|0.3|1.0
+obj_lab_parts_container|models/objects/labs/container1/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-11.0|8.0|8.0|11.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Body parts container|0.3|0.3|1.0
+obj_lab_tray|models/objects/labs/tray/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-5.0|8.0|8.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tray with heart and tools|0.3|0.3|1.0
 obj_larva|models/objects/eggs/larva/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-2.0|8.0|8.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Squirming larva|0.3|0.3|1.0
 obj_larvabrokenegg|models/objects/eggs/brokenegg/tris.fm|1.0|1.0|1.0|general|-6.0|-7.0|-5.0|6.0|7.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive egg|0.3|0.3|1.0
 obj_larvaegg|models/objects/eggs/eggs/tris.fm|1.0|1.0|1.0|general|-6.0|-14.0|-6.0|6.0|14.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive egg|0.3|0.3|1.0
@@ -784,21 +784,21 @@ obj_moss2|models/objects/moss/tris.fm|1.0|1.0|1.0|general|-4.0|-10.0|-40.0|4.0|1
 obj_moss3|models/objects/moss/tris.fm|1.0|1.0|1.0|general|-4.0|-10.0|-40.0|4.0|10.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Moss 3|0.3|0.3|1.0
 obj_moss4|models/objects/moss/tris.fm|1.0|1.0|1.0|general|-4.0|-10.0|-40.0|4.0|10.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Moss 4|0.3|0.3|1.0
 obj_moss5|models/objects/moss/tris.fm|1.0|1.0|1.0|general|-4.0|-10.0|-40.0|4.0|10.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Moss 5|0.3|0.3|1.0
-obj_nest||1.0|1.0|1.0|general|-25.0|-25.0|-4.0|25.0|25.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nest|0.3|0.3|1.0
-obj_pick||1.0|1.0|1.0|general|-12.0|-13.0|-2.0|12.0|13.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pick|0.3|0.3|1.0
-obj_pipe1||1.0|1.0|1.0|general|-11.0|-24.0|-7.0|11.0|24.0|7.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pipe (90* turn)|0.3|0.3|1.0
-obj_pipe2||1.0|1.0|1.0|general|-6.0|-25.0|-4.0|6.0|25.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pipe (straight)|0.3|0.3|1.0
-obj_pipewheel||1.0|1.0|1.0|general|-14.0|-14.0|-12.0|14.0|14.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pipe shutoff valve|0.3|0.3|1.0
-obj_plant1||1.0|1.0|1.0|general|-8.0|-8.0|-24.0|8.0|8.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant|0.3|0.3|1.0
-obj_plant2||1.0|1.0|1.0|general|-20.0|-20.0|-10.0|20.0|20.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant|0.3|0.3|1.0
-obj_plant3||1.0|1.0|1.0|general|-8.0|-8.0|-12.0|8.0|8.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant|0.3|0.3|1.0
-obj_pot1||1.0|1.0|1.0|general|-3.0|-8.0|-8.0|3.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cooking pot|0.3|0.3|1.0
-obj_pot2||1.0|1.0|1.0|general|-7.0|-7.0|-3.0|7.0|7.0|3.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flat cooking pot|0.3|0.3|1.0
-obj_pottedplant||1.0|1.0|1.0|general|-20.0|-20.0|-30.0|20.0|20.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Potted plant|0.3|0.3|1.0
-obj_pushcart||1.0|1.0|1.0|general|-13.0|-16.0|-41.0|13.0|16.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Push cart|0.3|0.3|1.0
-obj_queenchair||1.0|1.0|1.0|general|-30.0|-28.0|-31.0|30.0|28.0|31.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive queen chair|0.3|0.3|1.0
-obj_queenthrone||1.0|1.0|1.0|general|-40.0|-56.0|-49.0|40.0|56.0|49.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive queen throne|0.3|0.3|1.0
-obj_ring_plaque2||1.0|1.0|1.0|general|-2.0|-24.0|-20.0|2.0|24.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rings mounted on wall plate|0.3|0.3|1.0
+obj_nest|models/objects/nest/tris.fm|1.0|1.0|1.0|general|-25.0|-25.0|-4.0|25.0|25.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nest|0.3|0.3|1.0
+obj_pick|models/objects/tools/pick/tris.fm|1.0|1.0|1.0|general|-12.0|-13.0|-2.0|12.0|13.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pick|0.3|0.3|1.0
+obj_pipe1|models/objects/pipes/pipe1/tris.fm|1.0|1.0|1.0|general|-11.0|-24.0|-7.0|11.0|24.0|7.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pipe (90* turn)|0.3|0.3|1.0
+obj_pipe2|models/objects/pipes/pipe2/tris.fm|1.0|1.0|1.0|general|-6.0|-25.0|-4.0|6.0|25.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pipe (straight)|0.3|0.3|1.0
+obj_pipewheel|models/objects/pipes/pipewheel/tris.fm|1.0|1.0|1.0|general|-14.0|-14.0|-12.0|14.0|14.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pipe shutoff valve|0.3|0.3|1.0
+obj_plant1|models/objects/plants/plant1/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-24.0|8.0|8.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant|0.3|0.3|1.0
+obj_plant2|models/objects/plants/plant2/tris.fm|1.0|1.0|1.0|general|-20.0|-20.0|-10.0|20.0|20.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant|0.3|0.3|1.0
+obj_plant3|models/objects/plants/plant3/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-12.0|8.0|8.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant|0.3|0.3|1.0
+obj_pot1|models/objects/pots/pot/tris.fm|1.0|1.0|1.0|general|-3.0|-8.0|-8.0|3.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cooking pot|0.3|0.3|1.0
+obj_pot2|models/objects/pots/pot2/tris.fm|1.0|1.0|1.0|general|-7.0|-7.0|-3.0|7.0|7.0|3.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flat cooking pot|0.3|0.3|1.0
+obj_pottedplant|models/objects/pots/plant/tris.fm|1.0|1.0|1.0|general|-20.0|-20.0|-30.0|20.0|20.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Potted plant|0.3|0.3|1.0
+obj_pushcart|models/objects/carts/pushcart/tris.fm|1.0|1.0|1.0|general|-13.0|-16.0|-41.0|13.0|16.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Push cart|0.3|0.3|1.0
+obj_queenchair|models/objects/chairs/smallchair/tris.fm|1.0|1.0|1.0|general|-30.0|-28.0|-31.0|30.0|28.0|31.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive queen chair|0.3|0.3|1.0
+obj_queenthrone|models/objects/chairs/queen/tris.fm|1.0|1.0|1.0|general|-40.0|-56.0|-49.0|40.0|56.0|49.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive queen throne|0.3|0.3|1.0
+obj_ring_plaque2|models/objects/torture/plaque2/tris.fm|1.0|1.0|1.0|general|-2.0|-24.0|-20.0|2.0|24.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rings mounted on wall plate|0.3|0.3|1.0
 obj_rocks1|models/objects/rocks/rock1/tris.fm|1.0|1.0|1.0|general|-12.0|-13.0|-4.0|12.0|13.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rock cluster|0.3|0.3|1.0
 obj_rocks2|models/objects/rocks/rock2/tris.fm|1.0|1.0|1.0|general|-9.0|-30.0|-4.0|9.0|30.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big rock|0.3|0.3|1.0
 obj_rope||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Climbable rope. Requires origin brush (brush with ORIGIN content flag)|0.3|0.3|1.0
@@ -809,31 +809,31 @@ obj_shovel|models/objects/shovel/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0
 obj_shrine|models/objects/shrine/tris.fm|1.0|1.0|1.0|general|-26.0|-38.0|-38.0|26.0|38.0|38.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shrine model. Target with a matching shrine_(style) trigger brush.|0.3|0.3|1.0
 obj_sign1|models/objects/signs/sign1/tris.fm|1.0|1.0|1.0|general|-29.0|-4.0|-16.0|29.0|4.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sign 1|0.3|0.3|1.0
 obj_sign4|models/objects/signs/sign4/tris.fm|1.0|1.0|1.0|general|-8.0|-18.0|-29.0|8.0|18.0|29.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sign 4|0.3|0.3|1.0
-obj_skullpole||1.0|1.0|1.0|general|-10.0|-10.0|-47.0|10.0|10.0|47.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skull pole|0.3|0.3|1.0
-obj_spellbook||1.0|1.0|1.0|general|-14.0|-14.0|-35.0|14.0|14.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spell book that closes when triggered|0.3|0.3|1.0
-obj_stalactite1||1.0|1.0|1.0|general|-24.0|-24.0|-99.0|24.0|24.0|99.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0
-obj_stalactite2||1.0|1.0|1.0|general|-60.0|-60.0|-64.0|60.0|60.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0
-obj_stalactite3||1.0|1.0|1.0|general|-23.0|-23.0|-98.0|23.0|23.0|98.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0
-obj_stalagmite1||1.0|1.0|1.0|general|-32.0|-32.0|-200.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0
-obj_stalagmite2||1.0|1.0|1.0|general|-32.0|-32.0|-128.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0
-obj_stalagmite3||1.0|1.0|1.0|general|-32.0|-32.0|-200.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0
-obj_statue_boulderfish||1.0|1.0|1.0|general|-26.0|-16.0|-27.0|26.0|16.0|27.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish statue|0.3|0.3|1.0
-obj_statue_corvus||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Corvus statue|0.3|0.3|1.0
-obj_statue_dolphin1||1.0|1.0|1.0|general|-68.0|-22.0|-30.0|68.0|22.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on all fours|0.3|0.3|1.0
-obj_statue_dolphin2||1.0|1.0|1.0|general|-17.0|-20.0|-70.0|17.0|20.0|70.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on wall turned right|0.3|0.3|1.0
-obj_statue_dolphin3||1.0|1.0|1.0|general|-17.0|-20.0|-70.0|17.0|20.0|70.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on wall turned left|0.3|0.3|1.0
-obj_statue_dolphin4||1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on two legs|0.3|0.3|1.0
-obj_statue_dragon||1.0|1.0|1.0|general|-53.0|-33.0|-72.0|53.0|33.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon statue|0.3|0.3|1.0
-obj_statue_dragonhead||1.0|1.0|1.0|general|-76.0|-28.0|-46.0|76.0|28.0|46.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon head statue|0.3|0.3|1.0
-obj_statue_duckbill1||1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.3|0.3|1.0
-obj_statue_duckbill2||1.0|1.0|1.0|general|-67.0|-24.0|-50.0|67.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.3|0.3|1.0
-obj_statue_guardian||1.0|1.0|1.0|general|-100.0|-64.0|0.0|64.0|64.0|128.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Guardian statue|0.3|0.3|1.0
-obj_statue_saraphbust||1.0|1.0|1.0|general|-10.0|-20.0|-24.0|10.0|20.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph bust|0.3|0.3|1.0
-obj_statue_sariph||1.0|1.0|1.0|general|-13.0|-16.0|-41.0|13.0|16.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph statue|0.3|0.3|1.0
-obj_statue_sithraguard||1.0|1.0|1.0|general|-22.0|-20.0|-57.0|22.0|20.0|57.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A statue of a sithra guard with spear extended.  When used he gains a shield and pulls his arm back. Used with: item_puzzle_shield|0.3|0.3|1.0
-obj_statue_tchecktrik_bust||1.0|1.0|1.0|general|-8.0|-12.0|-15.0|8.0|12.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A bust of a tchecktrik.  When used a necklace appears around it's neck.|0.3|0.3|1.0
-obj_statue_techeckrikleft||1.0|1.0|1.0|general|-26.0|-40.0|-50.0|26.0|40.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik statue left (triggerable)|0.3|0.3|1.0
-obj_statue_techeckrikright||1.0|1.0|1.0|general|-26.0|-40.0|-50.0|26.0|40.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik statue right (triggerable)|0.3|0.3|1.0
+obj_skullpole|models/objects/flags/totempole/tris.fm|1.0|1.0|1.0|general|-10.0|-10.0|-47.0|10.0|10.0|47.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skull pole|0.3|0.3|1.0
+obj_spellbook|models/objects/spellbook/book/tris.fm|1.0|1.0|1.0|general|-14.0|-14.0|-35.0|14.0|14.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spell book that closes when triggered|0.3|0.3|1.0
+obj_stalactite1|models/objects/stalactite/stalact1/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-99.0|24.0|24.0|99.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0
+obj_stalactite2|models/objects/stalactite/stalact2/tris.fm|1.0|1.0|1.0|general|-60.0|-60.0|-64.0|60.0|60.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0
+obj_stalactite3|models/objects/stalactite/stalact3/tris.fm|1.0|1.0|1.0|general|-23.0|-23.0|-98.0|23.0|23.0|98.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0
+obj_stalagmite1|models/objects/stalagmite/smite1/tris.fm|1.0|1.0|1.0|general|-32.0|-32.0|-200.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0
+obj_stalagmite2|models/objects/stalagmite/smite2/tris.fm|1.0|1.0|1.0|general|-32.0|-32.0|-128.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0
+obj_stalagmite3|models/objects/stalagmite/smite3/tris.fm|1.0|1.0|1.0|general|-32.0|-32.0|-200.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0
+obj_statue_boulderfish|models/objects/statue/boulderfish/tris.fm|1.0|1.0|1.0|general|-26.0|-16.0|-27.0|26.0|16.0|27.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish statue|0.3|0.3|1.0
+obj_statue_corvus|models/objects/statue/corvus/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Corvus statue|0.3|0.3|1.0
+obj_statue_dolphin1|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-68.0|-22.0|-30.0|68.0|22.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on all fours|0.3|0.3|1.0
+obj_statue_dolphin2|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-17.0|-20.0|-70.0|17.0|20.0|70.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on wall turned right|0.3|0.3|1.0
+obj_statue_dolphin3|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-17.0|-20.0|-70.0|17.0|20.0|70.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on wall turned left|0.3|0.3|1.0
+obj_statue_dolphin4|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on two legs|0.3|0.3|1.0
+obj_statue_dragon|models/objects/statue/dragon/tris.fm|1.0|1.0|1.0|general|-53.0|-33.0|-72.0|53.0|33.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon statue|0.3|0.3|1.0
+obj_statue_dragonhead|models/objects/statue/dragonhead/tris.fm|1.0|1.0|1.0|general|-76.0|-28.0|-46.0|76.0|28.0|46.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon head statue|0.3|0.3|1.0
+obj_statue_duckbill1|models/objects/statue/duckbill/tris.fm|1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.3|0.3|1.0
+obj_statue_duckbill2|models/objects/statue/duckbill/tris.fm|1.0|1.0|1.0|general|-67.0|-24.0|-50.0|67.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.3|0.3|1.0
+obj_statue_guardian|models/objects/statue/guardian/tris.fm|1.0|1.0|1.0|general|-100.0|-64.0|0.0|64.0|64.0|128.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Guardian statue|0.3|0.3|1.0
+obj_statue_saraphbust|models/objects/statue/saraphbust/tris.fm|1.0|1.0|1.0|general|-10.0|-20.0|-24.0|10.0|20.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph bust|0.3|0.3|1.0
+obj_statue_sariph|models/objects/statue/sariph/tris.fm|1.0|1.0|1.0|general|-13.0|-16.0|-41.0|13.0|16.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph statue|0.3|0.3|1.0
+obj_statue_sithraguard|models/objects/statue/sithraguard/tris.fm|1.0|1.0|1.0|general|-22.0|-20.0|-57.0|22.0|20.0|57.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A statue of a sithra guard with spear extended.  When used he gains a shield and pulls his arm back. Used with: item_puzzle_shield|0.3|0.3|1.0
+obj_statue_tchecktrik_bust|models/items/puzzles/tchecktrikbust/tris.fm|1.0|1.0|1.0|general|-8.0|-12.0|-15.0|8.0|12.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A bust of a tchecktrik.  When used a necklace appears around it's neck.|0.3|0.3|1.0
+obj_statue_techeckrikleft|models/objects/statue/tcheckrik/tris.fm|1.0|1.0|1.0|general|-26.0|-40.0|-50.0|26.0|40.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik statue left (triggerable)|0.3|0.3|1.0
+obj_statue_techeckrikright|models/objects/statue/tcheckrik/tris.fm|1.0|1.0|1.0|general|-26.0|-40.0|-50.0|26.0|40.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik statue right (triggerable)|0.3|0.3|1.0
 obj_statue_techeckriktomb|models/objects/statue/tomb/tris.fm|1.0|1.0|1.0|general|-41.0|-11.0|-14.0|41.0|11.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tchekrik laying down (triggerable)|0.3|0.3|1.0
 obj_stein|models/objects/stein/tris.fm|1.0|1.0|1.0|general|-2.0|-2.0|-3.0|2.0|2.0|3.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stein|0.3|0.3|1.0
 obj_swampflat_bottom|models/objects/plants/swampflat/tris.fm|1.0|1.0|1.0|general|0.0|-100.0|-48.0|2.0|100.0|48.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A flat poly to be used on the outer edge of swamp levels. Vegetation growing down.|0.3|0.3|1.0
@@ -899,3 +899,123 @@ trigger_playerusepuzzle||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.
 trigger_puzzle||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Relay that requires puzzle piece|.5|.5|.5
 trigger_quake||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Earthquake|0.5|0.5|0.5
 trigger_quit_to_menu||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Quit to menu|.5|.5|.5
+
+// Dawn of Darkness
+ammo_arrows|models/weapons/ammo/g_arrow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Arrows Ammo|0.3|0.3|1.0
+ammo_bolts|models/weapons/ammo/g_bolt.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bolts Ammo|0.3|0.3|1.0
+ammo_dballs|models/weapons/ammo/g_dballs.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon Balls Ammo|0.3|0.3|1.0
+ammo_ebolts|models/weapons/ammo/g_ebolt.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Explosive Bolts|0.3|0.3|1.0
+ammo_farrows|models/weapons/ammo/g_farrow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fire Arrows|0.3|0.3|1.0
+animal_camel|models/animals/camel.md2|1.0|1.0|1.0|general|-8.0|-16.0|-20.0|8.0|16.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Camel|1.0|0.0|0.0
+animal_fish|models/animals/fish1.md2|1.0|1.0|1.0|general|-4.0|-8.0|-4.0|4.0|8.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish|1.0|0.0|0.0
+animal_goat|models/animals/goat.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Goat|1.0|0.0|0.0
+animal_vulture|models/animals/vulture.md2|1.0|1.0|1.0|general|-8.0|-16.0|-12.0|8.0|16.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vulture|1.0|0.0|0.0
+cam_aim||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cam Aim|0.5|0.5|0.5
+cam_position||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cam Position|0.5|0.5|0.5
+corpse_male1|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-6.0|-6.0|-34.0|6.0|6.0|27.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 1|1.0|0.5|0.5
+corpse_male2|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-18.0|-11.0|-30.0|16.0|3.0|-13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 2|1.0|0.5|0.5
+corpse_male3|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-30.0|-10.0|-30.0|32.0|10.0|-12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 3|1.0|0.5|0.5
+corpse_male4|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-19.0|-11.0|-30.0|17.0|11.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 4|1.0|0.5|0.5
+corpse_male5|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-27.0|-16.0|-29.0|26.0|11.0|-11.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 5|1.0|0.5|0.5
+corpse_male6|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-30.0|-14.0|-30.0|30.0|14.0|17.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 6|1.0|0.5|0.5
+corpse_male7|models/npcs/mcorps.md2|1.0|1.0|1.0|general|-8.0|-12.0|-34.0|5.0|12.0|31.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Corpse 7|1.0|0.5|0.5
+effect_ripple|models/effects/ripple.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Effects Ripple|1.0|1.0|0.0
+effect_spirting||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Effects Spirting|1.0|1.0|0.0
+func_dig||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Diggable brush|0.0|0.5|0.8
+item_armor||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ancestral Armor|0.3|0.3|1.0
+item_b_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bile Flask|0.3|0.3|1.0
+item_bl_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blur Flask|0.3|0.3|1.0
+item_book1|models/objects/book1.md2|1.0|1.0|1.0|general|-4.0|-6.0|-2.0|4.0|6.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Book|0.3|0.3|1.0
+item_bottle1|models/objects/bottle1.md2|1.0|1.0|1.0|general|-2.0|-2.0|-6.0|2.0|2.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bottle|0.3|0.3|1.0
+item_bowl|models/objects/bowl.md2|1.0|1.0|1.0|general|-8.0|-8.0|-5.0|8.0|8.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bowl|0.3|0.3|1.0
+item_bread|models/objects/bread.md2|1.0|1.0|1.0|general|-4.0|-6.0|-4.0|4.0|6.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bread|0.3|0.3|1.0
+item_h_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Health Flask|0.3|0.3|1.0
+item_leather||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Leather Armor|0.3|0.3|1.0
+item_o_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Oil Flask|0.3|0.3|1.0
+item_p_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Poison Flask|0.3|0.3|1.0
+item_q_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Quickness Flask|0.3|0.3|1.0
+item_r_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rejuvination Flask|0.3|0.3|1.0
+item_scalemail||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Scalemail Armor|0.3|0.3|1.0
+item_shovel|models/objects/shovel.md2|1.0|1.0|1.0|general|-6.0|-6.0|-18.0|6.0|6.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shovel|0.3|0.3|1.0
+item_torch||1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Torch|0.3|0.3|1.0
+item_vase1|models/objects/vase1.md2|1.0|1.0|1.0|general|-6.0|-6.0|-8.0|6.0|6.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vase|0.3|0.3|1.0
+item_w_flask|models/objects/flask.md2|1.0|1.0|1.0|general|-4.0|-4.0|-6.0|4.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Water Flask|0.3|0.3|1.0
+key_glass|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Glass Key|0.3|0.3|1.0
+key_gold|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gold Key|0.3|0.3|1.0
+key_metal|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Metal Key|0.3|0.3|1.0
+key_silver|models/objects/key.md2|1.0|1.0|1.0|general|-2.0|-2.0|-4.0|2.0|2.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Silver Key|0.3|0.3|1.0
+keys_xxx||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.3|0
+monster_agath|models/monsters/agath.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Agathodaemon|1.0|0.0|0.0
+monster_apprentice|models/monsters/necro.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Apprentice|1.0|0.0|0.0
+monster_captain|models/monsters/captain.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Captain|1.0|0.0|0.0
+monster_carnivean|models/monsters/carniv.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Carnivean|1.0|0.0|0.0
+monster_crescent|models/monsters/crescent.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crescent|1.0|0.0|0.0
+monster_dweller|models/monsters/dweller.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dweller|1.0|0.0|0.0
+monster_hellhound|models/monsters/hhound.md2|1.0|1.0|1.0|general|-15|-15|-23|15|15|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
+monster_merc_axe|models/monsters/merc_a.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Axe|1.0|0.0|0.0
+monster_merc_sword|models/monsters/merc_s.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Sword|1.0|0.0|0.0
+monster_merc_xbow|models/monsters/merc_x.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mercenary Crossbow|1.0|0.0|0.0
+monster_necromancer|models/monsters/necro.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Necromancer|1.0|0.0|0.0
+monster_outrider|models/monsters/outrider.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Outrider|1.0|0.0|0.0
+monster_pilot|models/monsters/crescent.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pilot|1.0|0.0|0.0
+monster_scout|models/monsters/scout.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Scout|1.0|0.0|0.0
+monster_sultan|models/npcs/insnvlg.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sultan|1.0|0.0|0.0
+monster_tenebrion|models/monsters/teneb.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tenebrion|1.0|0.0|0.0
+monster_tormentor|models/monsters/torment.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tormentor|1.0|0.0|0.0
+monster_wraith|models/monsters/wraith.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wraith|1.0|0.0|0.0
+npc_boy|models/npcs/boy.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Boy|1.0|0.5|0.0
+npc_femvilgr|models/npcs/femvilg.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Female Villager|1.0|0.5|0.0
+npc_fslave|models/npcs/fslave.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Female Slave|1.0|0.5|0.0
+npc_girl|models/npcs/girl.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Girl|1.0|0.5|0.0
+npc_insvilgr|models/npcs/insnvlg.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Insane Villager|1.0|0.5|0.0
+npc_malvilgr|models/npcs/malvilg.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Male Villager|1.0|0.5|0.0
+npc_moktosk|models/npcs/moktosk.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Moktar or Ratatosk|1.0|0.5|0.0
+npc_mslave|models/npcs/mslave.md2;models/npcs/pickaxe.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Male Slave|1.0|0.5|0.0
+npc_worker|models/npcs/mslave.md2|1.0|1.0|1.0|general|-12.0|-12.0|-24.0|12.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|NPC Worker|1.0|0.5|0.0
+object_banner|models/objects/banner.md2|1.0|1.0|1.0|general|-2.0|-4.0|-52.0|2.0|4.0|52.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner|1.0|0.0|0.0
+object_barrel|models/objects/barrel.md2|1.0|1.0|1.0|general|-10.0|-10.0|-14.0|10.0|10.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel|0.3|0.3|1.0
+object_big_fire|models/objects/bigfire.md2|1.0|1.0|1.0|general|-10.0|-10.0|-9.0|10.0|10.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big Fire|1.0|0.0|0.0
+object_campfire|models/objects/campfire.md2|1.0|1.0|1.0|general|-10.0|-10.0|-5.0|10.0|10.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Campfire|0.3|0.3|1.0
+object_cart||1.0|1.0|1.0|general|-20.0|-20.0|-20.0|20.0|20.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cart|0.3|0.3|1.0
+object_cauldron|models/objects/cauldron.md2|1.0|1.0|1.0|general|-8.0|-11.0|-8.0|8.0|11.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cauldron|0.3|0.3|1.0
+object_chest1|models/objects/chest1.md2|1.0|1.0|1.0|general|-7.0|-12.0|-7.0|7.0|12.0|7.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest|0.3|0.3|1.0
+object_demonorb|models/objects/demonorb.md2|1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
+object_flag|models/objects/flag.md2|1.0|1.0|1.0|general|-20.0|-4.0|-8.0|20.0|4.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flag|1.0|1.0|0.0
+object_flame1|models/objects/flame1.md2|1.0|1.0|1.0|general|-3.0|-3.0|-6.0|3.0|3.0|11.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flame|1.0|1.0|0.0
+object_goyle1|models/objects/goyle.md2|1.0|1.0|1.0|general|-18|-18|-45|18|18|17|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|.5
+object_goyle2|models/objects/goyle.md2|1.0|1.0|1.0|general|-16|-16|-45|16|16|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|.5
+object_goyle3|models/objects/goyle.md2|1.0|1.0|1.0|general|-12|-12|-45|12|12|35|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|.5
+object_goyle4|models/objects/goyle.md2|1.0|1.0|1.0|general|-12|-12|-45|12|12|35|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|.5
+object_goyle5|models/objects/goyle.md2|1.0|1.0|1.0|general|-20|-20|-45|20|20|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|.5
+object_pennant|models/objects/pennant.md2|1.0|1.0|1.0|general|-8.0|-50.0|-14.0|8.0|50.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pennant|1.0|0.0|0.0
+object_statue|models/objects/statue.md2|1.0|1.0|1.0|general|-12.0|-12.0|-44.0|12.0|12.0|44.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Statue|1.0|0.0|0.0
+object_throne|models/objects/throne.md2|1.0|1.0|1.0|general|-22.0|-22.0|-35.0|22.0|22.0|35.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Throne|1.0|0.0|0.0
+object_torch|models/objects/torch.md2|1.0|1.0|1.0|general|-2.0|-3.0|-6.0|2.0|4.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Torch|1.0|1.0|0.0
+plant_deadtree1|models/plants/deadtree1.md2|1.0|1.0|1.0|general|-6.0|-6.0|-47.0|6.0|6.0|47.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Tree 1|0.0|1.0|0.0
+plant_deadtree2|models/plants/deadtree2.md2|1.0|1.0|1.0|general|-6.0|-6.0|-40.0|6.0|6.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Tree 2|0.0|1.0|0.0
+plant_deadtree3|models/plants/deadtree3.md2|1.0|1.0|1.0|general|-8.0|-8.0|-78.0|4.0|4.0|80.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Tree 3|0.0|1.0|0.0
+plant_deadtree4|models/plants/deadtree4.md2|1.0|1.0|1.0|general|-8.0|-8.0|-80.0|8.0|8.0|84.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Tree 4|0.0|1.0|0.0
+plant_plant1|models/plants/plant.md2|1.0|1.0|1.0|general|-12.0|-5.0|-14.0|11.0|6.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 1|0.0|1.0|0.0
+plant_plant2|models/plants/plant.md2|1.0|1.0|1.0|general|-9.0|-9.0|-9.0|9.0|9.0|9.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 2|0.0|1.0|0.0
+plant_plant3|models/plants/plant.md2|1.0|1.0|1.0|general|-19.0|-19.0|-1.0|19.0|19.0|1.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 3|0.0|1.0|0.0
+plant_plant4|models/plants/plant.md2|1.0|1.0|1.0|general|-24.0|-14.0|-1.0|24.0|14.0|1.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 4|0.0|1.0|0.0
+plant_plant5|models/plants/plant.md2|1.0|1.0|1.0|general|-1.0|-24.0|-12.0|1.0|24.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 5|0.0|1.0|0.0
+plant_plant6|models/plants/plant.md2|1.0|1.0|1.0|general|-1.0|-8.0|-20.0|1.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 6|0.0|1.0|0.0
+plant_plant7|models/plants/plant.md2|1.0|1.0|1.0|general|-20.0|-20.0|-12.0|20.0|20.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 7|0.0|1.0|0.0
+plant_plant8|models/plants/plant.md2|1.0|1.0|1.0|general|-10.0|-20.0|-8.0|10.0|20.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plant 8|0.0|1.0|0.0
+plant_tallbush|models/plants/tallbush.md2|1.0|1.0|1.0|general|-17.0|-19.0|-27.0|17.0|19.0|27.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tall Bush|0.0|1.0|0.0
+plant_tree1|models/plants/tree1.md2|1.0|1.0|1.0|general|-3.0|-3.0|-46.0|10.0|10.0|44.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tree 1|0.0|1.0|0.0
+plant_tree2|models/plants/tree2.md2|1.0|1.0|1.0|general|-10.0|-10.0|-94.0|10.0|10.0|90.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tree 2|0.0|1.0|0.0
+plant_widebush|models/plants/widebush.md2|1.0|1.0|1.0|general|-17.0|-17.0|-15.0|17.0|17.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wide Bush|0.0|1.0|0.0
+point_flee||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Point Flee|0.5|0.3|0.0
+target_debris||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Target debris|1.0|0.0|0.0
+target_gsm||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Target GSM|0.39|0.78|0.2
+target_interaction||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spawn conversation session|1.0|0.0|1.0
+trap_arrow||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Arrow Trap|0.0|0.5|0.88
+trigger_cam||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cam trigger|0.5|0.5|0.5
+trigger_GSM||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|GSM Trigger|0.5|0.5|0.5
+weapon_3gun|models/weapons/g_3gun.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triple Flintlock|1.0|0.5|0.0
+weapon_bow|models/weapons/g_bow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bow|1.0|0.5|0.0
+weapon_rifle|models/weapons/g_rifle.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blunderbuss|1.0|0.5|0.0
+weapon_sword|models/weapons/g_sword.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ancestral Sword|1.0|0.5|0.0
+weapon_xbow|models/weapons/g_xbow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow|1.0|0.5|0.0

@@ -32,15 +32,10 @@
 #define MEDIC_MAX_HEAL_DISTANCE 400
 #define MEDIC_TRY_TIME 10.0
 
-qboolean visible(edict_t *self, edict_t *other);
 void M_SetEffects(edict_t *ent);
 qboolean FindTarget(edict_t *self);
 void HuntTarget(edict_t *self);
-void FoundTarget(edict_t *self);
-char *ED_NewString(const char *string);
 void spawngrow_think(edict_t *self);
-void SpawnGrow_Spawn(vec3_t startpos, int size);
-void ED_CallSpawn(edict_t *ent);
 void M_FliesOff(edict_t *self);
 void M_FliesOn(edict_t *self);
 
@@ -1921,7 +1916,7 @@ MedicCommanderCache(void)
 
 		VectorCopy(vec3_origin, newEnt->s.origin);
 		VectorCopy(vec3_origin, newEnt->s.angles);
-		newEnt->classname = ED_NewString(reinforcements[i]);
+		newEnt->classname = ED_NewString(reinforcements[i], true);
 
 		newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 

@@ -36,7 +36,6 @@ static int sound_search1;
 static int sound_search2;
 static int tread_sound;
 
-qboolean visible(edict_t *self, edict_t *other);
 void BossExplode2(edict_t *self);
 void boss5_dead(edict_t *self);
 void boss5Rocket(edict_t *self);

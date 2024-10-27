@@ -41,12 +41,6 @@ void carrier_prep_spawn(edict_t *self);
 void CarrierMachineGunHold(edict_t *self);
 void CarrierRocket(edict_t *self);
 
-qboolean infront(edict_t *self, edict_t *other);
-qboolean inback(edict_t *self, edict_t *other);
-qboolean below(edict_t *self, edict_t *other);
-void drawbbox(edict_t *self);
-void ED_CallSpawn(edict_t *ent);
-
 static int sound_pain1;
 static int sound_pain2;
 static int sound_pain3;

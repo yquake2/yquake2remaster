@@ -39,8 +39,6 @@
 #define LASER_FAT 0x0040
 #define LASER_STOPWINDOW 0x0080
 
-void ED_CallSpawn(edict_t *ent);
-
 /*
  * QUAKED target_temp_entity (1 0 0) (-8 -8 -8) (8 8 8)
  *
@@ -1661,12 +1659,35 @@ target_camera_dummy_think(edict_t *self)
 void
 use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 {
-#if 0
+	edict_t *target;
+
+	if (!self)
+	{
+		return;
+	}
+
 	if (self->sounds)
 	{
 		gi.configstring(CS_CDTRACK, va("%i", self->sounds));
 	}
 
+#if 1
+	if (!self->killtarget)
+	{
+		return;
+	}
+
+	target = G_PickTarget(self->killtarget);
+
+	if (!target || !target->use)
+	{
+		return;
+	}
+
+	/* TODO: Fully implement target camera logic */
+	target->use(target, self, activator);
+
+#else
 	if (!self->target)
 	{
 		return;

@@ -127,8 +127,14 @@ void
 dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
 {
-	if (!self || !other || !self->message || !self->message[0])
+	if (!self || !other)
 	{
+		return;
+	}
+
+	if (!self->message || !self->message[0])
+	{
+		gi.centerprintf(other, "Entity classname: %s", self->classname);
 		return;
 	}
 
@@ -141,7 +147,12 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
-	self->message = data->description;
+
+	/* set message only if it has description */
+	if (data->description[0])
+	{
+		self->message = data->description;
+	}
 	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);
@@ -301,17 +312,22 @@ ED_CallSpawn(edict_t *ent)
 	/* SiN entity could have model path as model field */
 	if (ent->model && (ent->model[0] != '*') && (strlen(ent->model) > 4))
 	{
-		dynamicentity_t self = {0};
 		const char *ext;
 
 		ext = COM_FileExtension(ent->model);
 		if(!strcmp(ext, "def"))
 		{
+			dynamicentity_t self = {0};
+
 			strncpy(self.classname, ent->classname, sizeof(self.classname));
 			snprintf(self.model_path, sizeof(self.model_path), "models/%s", ent->model);
 
 			if (gi.FS_LoadFile(self.model_path, NULL) > 4)
 			{
+				/* Set default size */
+				VectorSet(self.mins, -16, -16, -16);
+				VectorSet(self.maxs, 16, 16, 16);
+
 				DynamicSpawnUpdate(ent, &self);
 				DynamicSpawn(ent, &self);
 				return;
@@ -323,10 +339,10 @@ ED_CallSpawn(edict_t *ent)
 }
 
 char *
-ED_NewString(const char *string)
+ED_NewString(const char *string, qboolean raw)
 {
-	char *newb, *new_p;
-	int i, l;
+	char *newb;
+	int l;
 
 	if (!string)
 	{
@@ -337,27 +353,38 @@ ED_NewString(const char *string)
 
 	newb = gi.TagMalloc(l, TAG_LEVEL);
 
-	new_p = newb;
-
-	for (i = 0; i < l; i++)
+	if (!raw)
 	{
-		if ((string[i] == '\\') && (i < l - 1))
-		{
-			i++;
+		char *new_p;
+		int i;
 
-			if (string[i] == 'n')
+		new_p = newb;
+
+		for (i = 0; i < l; i++)
+		{
+			if ((string[i] == '\\') && (i < l - 1))
 			{
-				*new_p++ = '\n';
+				i++;
+
+				if (string[i] == 'n')
+				{
+					*new_p++ = '\n';
+				}
+				else
+				{
+					*new_p++ = '\\';
+				}
 			}
 			else
 			{
-				*new_p++ = '\\';
+				*new_p++ = string[i];
 			}
 		}
-		else
-		{
-			*new_p++ = string[i];
-		}
+	}
+	else
+	{
+		/* just copy without convert */
+		memcpy(newb, string, l);
 	}
 
 	return newb;
@@ -444,8 +471,11 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 
 			switch (f->type)
 			{
+				case F_LRAWSTRING:
+					*(char **)(b + f->ofs) = ED_NewString(value, true);
+					break;
 				case F_LSTRING:
-					*(char **)(b + f->ofs) = ED_NewString(value);
+					*(char **)(b + f->ofs) = ED_NewString(value, false);
 					break;
 				case F_VECTOR:
 					sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
@@ -1327,7 +1357,7 @@ CreateMonster(vec3_t origin, vec3_t angles, char *classname)
 
 	VectorCopy(origin, newEnt->s.origin);
 	VectorCopy(angles, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname);
+	newEnt->classname = ED_NewString(classname, true);
 	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
 	VectorSet(newEnt->gravityVector, 0, 0, -1);
@@ -1351,7 +1381,7 @@ DetermineBBox(char *classname, vec3_t mins, vec3_t maxs)
 
 	VectorCopy(vec3_origin, newEnt->s.origin);
 	VectorCopy(vec3_origin, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname);
+	newEnt->classname = ED_NewString(classname, true);
 	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
 	ED_CallSpawn(newEnt);

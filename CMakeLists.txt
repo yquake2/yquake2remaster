@@ -345,6 +345,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_ctf.c
 	${GAME_SRC_DIR}/g_func.c
 	${GAME_SRC_DIR}/g_items.c
+	${GAME_SRC_DIR}/g_light.c
 	${GAME_SRC_DIR}/g_main.c
 	${GAME_SRC_DIR}/g_misc.c
 	${GAME_SRC_DIR}/g_monster.c
@@ -354,6 +355,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_newtarg.c
 	${GAME_SRC_DIR}/g_newtrig.c
 	${GAME_SRC_DIR}/g_newweap.c
+	${GAME_SRC_DIR}/g_obj.c
 	${GAME_SRC_DIR}/g_phys.c
 	${GAME_SRC_DIR}/g_spawn.c
 	${GAME_SRC_DIR}/g_sphere.c

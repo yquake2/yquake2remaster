@@ -719,6 +719,7 @@ typedef enum
 	F_MMOVE,
 	F_IGNORE,
 	F_RGBA,
+	F_LRAWSTRING,       /* raw string on disk, pointer in memory, TAG_LEVEL */
 } fieldtype_t;
 
 typedef struct
@@ -799,10 +800,6 @@ void G_ProjectSource2(vec3_t point, vec3_t distance, vec3_t forward, vec3_t righ
 float vectoyaw2(vec3_t vec);
 void vectoangles2(vec3_t vec, vec3_t angles);
 edict_t *findradius2(edict_t *from, vec3_t org, float rad);
-
-/* g_spawn.c */
-void ED_CallSpawn(edict_t *ent);
-void DynamicSpawnInit(void);
 
 /* g_combat.c */
 qboolean OnSameTeam(edict_t *ent1, edict_t *ent2);
@@ -1085,6 +1082,9 @@ void Tag_PlayerDeath(edict_t *targ, edict_t *inflictor, edict_t *attacker);
 void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 
 /* g_spawn.c */
+void ED_CallSpawn(edict_t *ent);
+char *ED_NewString(const char *string, qboolean raw);
+void DynamicSpawnInit(void);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
 edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t mins,

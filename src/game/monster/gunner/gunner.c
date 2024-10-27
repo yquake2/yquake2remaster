@@ -39,7 +39,6 @@ static int sound_sight;
 static int  sound_step;
 static int  sound_step2;
 
-qboolean visible(edict_t *self, edict_t *other);
 void GunnerGrenade(edict_t *self);
 void GunnerFire(edict_t *self);
 void gunner_fire_chain(edict_t *self);

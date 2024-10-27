@@ -1,3 +1,10 @@
+Quake 2 8.42RR10:
+- client: updated console logic,
+- game: Update default entities descriptor file,
+- game: Add hack for next level change in q64/outpost
+- game: Restore flame effect, currently used only as torch fire in
+  Heretic 2 fire as example.
+
 Quake 2 8.42RR9:
 - vk: fixed vulkan call groups,
 - game: Add ReRelease translated messages (English only)

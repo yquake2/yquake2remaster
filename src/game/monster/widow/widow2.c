@@ -49,7 +49,6 @@ static float sweep_angles[] = {
 
 extern vec3_t stalker_mins, stalker_maxs;
 
-qboolean infront(edict_t *self, edict_t *other);
 void WidowCalcSlots(edict_t *self);
 void WidowPowerups(edict_t *self);
 

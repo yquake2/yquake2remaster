@@ -111,12 +111,19 @@ Games:
   * SDK: <https://github.com/NightDive-Studio/sin-ex-game>
   * SDK: <https://github.com/jimdose/SiN_110_Source>
   * SDK: <https://code.idtech.space/ritual/sin-sdk>
+* Dawn of Darkness:
+  * Docs: <https://www.moddb.com/mods/dawn-of-darkness1/downloads/dod-mood-scripts-gsm-tutorials-fgd-and-def-file>
+  * Demo: [Episode 1](https://www.moddb.com/mods/dawn-of-darkness1/downloads/dawn-of-darkness-episode-1)
 
 Games check videos:
 
+* 8.42RR10:
+
+[![Latest Video](https://img.youtube.com/vi/obIrzYsNxBY/0.jpg)](https://www.youtube.com/watch?v=obIrzYsNxBY)
+
 * 8.42RR9:
 
-[![Latest Video](https://img.youtube.com/vi/N0iHhEDkZFg/0.jpg)](https://www.youtube.com/watch?v=N0iHhEDkZFg)
+[![8.42RR9](https://img.youtube.com/vi/N0iHhEDkZFg/0.jpg)](https://www.youtube.com/watch?v=N0iHhEDkZFg)
 
 * 8.42RR8:
 
@@ -147,11 +154,15 @@ Goals:
 * [ ] Support textures/*/*.mat load from ReRelease,
 * [ ] Support textures/*/*_glow.png load from ReRelease,
 * [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
+* [ ] Fix physics with incorrect floor height in psx/base0.bsp,
+* [ ] Fix strange white flying boxes in psx/base0.bsp,
 * [x] RGB particles support instead palette based one,
 * [x] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,
-* [ ] Group images in vulkan render,
+* [ ] Group `it_pic` images in vulkan render,
 * [ ] Rearange surfaces in vulkan render before render,
+* [ ] Fully implement `target_camera`,
+* [ ] Fully implement `misc_flare`,
 * [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
