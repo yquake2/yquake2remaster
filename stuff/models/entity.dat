@@ -887,12 +887,10 @@ trigger_endgame||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|
 trigger_farclip||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Changes the console variable r_farclipdist.|0.5|0.5|0.5
 trigger_fogdensity||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets r_fog_density and fog color|.5|.5|.5
 trigger_goto_buoy||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Send monster to buoy|.5|.5|.5
-trigger_Gravity||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.5|.5
 trigger_lightning||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggers lightning bolt|0.5|0.5|0.5
 trigger_mappercentage||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Map percentage|0.3|0.1|0.6
 trigger_mission_give||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gives mission objectives|0.5|0.5|0.5
 trigger_mission_take||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Removes mission objectives|0.5|0.5|0.5
-trigger_MonsterJump||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Makes monsters jump|0.5|0.5|0.5
 trigger_playerpushbutton||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player push button|.5|.5|.5
 trigger_playerpushlever||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Push lever|.5|.5|.5
 trigger_playerusepuzzle||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player can use puzzle items within this entity|.5|.5|.5

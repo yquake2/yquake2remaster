@@ -268,7 +268,7 @@ InitGame(void)
 	LocalizationInit();
 
 	/* initilize dynamic object spawn */
-	DynamicSpawnInit();
+	SpawnInit();
 
 	/* items */
 	InitItems();

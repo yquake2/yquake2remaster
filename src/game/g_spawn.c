@@ -72,6 +72,7 @@ typedef struct
 
 static dynamicentity_t *dynamicentities;
 static int ndynamicentities;
+static int nstaticentities;
 
 static void
 DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
@@ -220,6 +221,39 @@ Spawn_CheckCoop_MapHacks(edict_t *ent)
 	return false;
 }
 
+static const spawn_t *
+StaticSpawnSearch(const char *classname)
+{
+	int start, end;
+
+	start = 0;
+	end = nstaticentities - 1;
+
+	while (start <= end)
+	{
+		int i, res;
+
+		i = start + (end - start) / 2;
+
+		res = Q_stricmp(spawns[i].name, classname);
+		if (res == 0)
+		{
+			return &spawns[i];
+		}
+		else if (res < 0)
+		{
+			start = i + 1;
+		}
+		else
+		{
+			end = i - 1;
+		}
+	}
+
+	return NULL;
+}
+
+
 /*
  * Finds the spawn function for
  * the entity and calls it
@@ -227,7 +261,7 @@ Spawn_CheckCoop_MapHacks(edict_t *ent)
 void
 ED_CallSpawn(edict_t *ent)
 {
-	spawn_t *s;
+	const spawn_t *s;
 	gitem_t *item;
 	int i, dyn_id;
 
@@ -291,14 +325,12 @@ ED_CallSpawn(edict_t *ent)
 	}
 
 	/* check normal spawn functions */
-	for (s = spawns; s->name; s++)
+	s = StaticSpawnSearch(ent->classname);
+	if (s)
 	{
-		if (!strcmp(s->name, ent->classname))
-		{
-			/* found it */
-			s->spawn(ent);
-			return;
-		}
+		/* found it */
+		s->spawn(ent);
+		return;
 	}
 
 	if (dyn_id >= 0 && dynamicentities[dyn_id].model_path[0])
@@ -1940,7 +1972,7 @@ DynamicSort(const void *p1, const void *p2)
 	return Q_stricmp(ent1->classname, ent2->classname);
 }
 
-void
+static void
 DynamicSpawnInit(void)
 {
 	char *buf_ent, *buf_ai, *raw;
@@ -2225,4 +2257,39 @@ DynamicSpawnInit(void)
 
 	/* sort definitions */
 	qsort(dynamicentities, ndynamicentities, sizeof(dynamicentity_t), DynamicSort);
+}
+
+static int
+StaticSort(const void *p1, const void *p2)
+{
+	spawn_t *ent1, *ent2;
+
+	ent1 = (spawn_t*)p1;
+	ent2 = (spawn_t*)p2;
+	return Q_stricmp(ent1->name, ent2->name);
+}
+
+static void
+StaticSpawnInit(void)
+{
+	const spawn_t *s;
+
+	/* check count of spawn functions */
+	for (s = spawns; s->name; s++)
+	{
+	}
+
+	nstaticentities = s - spawns;
+
+	gi.dprintf("Found %d static definitions\n", nstaticentities);
+
+	/* sort definitions */
+	qsort(spawns, nstaticentities, sizeof(spawn_t), StaticSort);
+}
+
+void
+SpawnInit(void)
+{
+	StaticSpawnInit();
+	DynamicSpawnInit();
 }
