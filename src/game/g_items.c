@@ -1975,7 +1975,8 @@ droptofloor(edict_t *ent)
 		}
 		else
 		{
-			gi.dprintf("droptofloor: %s startsolid at %s\n",
+			gi.dprintf("%s: %s startsolid at %s\n",
+					__func__,
 					ent->classname,
 					vtos(ent->s.origin));
 			G_FreeEdict(ent);
@@ -3751,6 +3752,81 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		"k_powercube",
 		"Power Cube",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
+	 * QUAKED key_explosive_charges (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN NO_TOUCH
+	 * warehouse circuits, key for N64
+	 */
+	{
+		"key_explosive_charges",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/n64/charge/tris.md2", EF_ROTATE,
+		NULL,
+		"n64/i_charges",
+		"Explosive Charges",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
+	 * QUAKED key_yellow_key (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * normal door key - yellow, key for N64
+	 */
+	{
+		"key_yellow_key",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/n64/yellow_key/tris.md2", EF_ROTATE,
+		NULL,
+		"n64/i_yellow_key",
+		"Yellow Key",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
+	 * QUAKED key_power_core (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * key for N64
+	 */
+	{
+		"key_power_core",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/n64/power_core/tris.md2", EF_ROTATE,
+		NULL,
+		"k_pyramid",
+		"Power Core",
 		2,
 		0,
 		NULL,

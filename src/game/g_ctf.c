@@ -1198,7 +1198,7 @@ CTFFlagSetup(edict_t *ent)
 
 	if (tr.startsolid)
 	{
-		gi.dprintf("CTFFlagSetup: %s startsolid at %s\n", ent->classname,
+		gi.dprintf("%s: %s startsolid at %s\n", __func__, ent->classname,
 				vtos(ent->s.origin));
 		G_FreeEdict(ent);
 		return;
