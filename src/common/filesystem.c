@@ -655,7 +655,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memmove(buffer + written, comressed_buffer + read, x + 1);
+					memmove((byte *)buffer + written, comressed_buffer + read, x + 1);
 
 					read += x + 1;
 					written += x + 1;
@@ -670,7 +670,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memset(buffer + written, 0, x - 62);
+					memset((byte *)buffer + written, 0, x - 62);
 
 					written += x - 62;
 				}
@@ -684,7 +684,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memset(buffer + written, comressed_buffer[read], x - 126);
+					memset((byte *)buffer + written, comressed_buffer[read], x - 126);
 
 					++read;
 					written += x - 126;
@@ -699,7 +699,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memmove(buffer + written, (buffer + written) - (
+					memmove((byte *)buffer + written, ((byte *)buffer + written) - (
 						(int)comressed_buffer[read] + 2), x - 190);
 
 					++read;
