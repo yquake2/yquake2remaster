@@ -1931,6 +1931,57 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 
 /* ====================================================================== */
 
+static void
+FixObjectPosition(edict_t *ent)
+{
+	int i;
+
+	for (i = 0; i < 3; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			vec3_t pos;
+			trace_t tr_pos;
+			int k;
+
+			VectorCopy(ent->s.origin, pos);
+
+			/* move by min */
+			for (k = 0; k < i + 1; k++)
+			{
+				int v;
+
+				v = (j + k) % 3;
+				pos[v] = ent->s.origin[v] - ent->mins[v];
+			}
+
+			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
+			if (!tr_pos.startsolid)
+			{
+				VectorCopy(tr_pos.endpos, ent->s.origin);
+				return;
+			}
+
+			/* move by max */
+			for (k = 0; k < i + 1; k++)
+			{
+				int v;
+
+				v = (j + k) % 3;
+				pos[v] = ent->s.origin[v] - ent->maxs[v];
+			}
+			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
+			if (!tr_pos.startsolid)
+			{
+				VectorCopy(tr_pos.endpos, ent->s.origin);
+				return;
+			}
+		}
+	}
+}
+
 void
 droptofloor(edict_t *ent)
 {
@@ -1965,6 +2016,13 @@ droptofloor(edict_t *ent)
 	VectorAdd(ent->s.origin, v, dest);
 
 	tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+
+	if (tr.startsolid)
+	{
+		FixObjectPosition(ent);
+
+		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+	}
 
 	if (tr.startsolid)
 	{
