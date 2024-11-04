@@ -13,15 +13,15 @@ Saves format is unstabled and could change between alpha releases.
 
 State:
 
+* Localization requires `Q2Game.kpf` file in root directory of game,
 * GL1/GLES3/GL3/GL4/VK:
   * base1: no known issues,
   * base2: no known issues,
-  * q64/outpost: broken level change,
   * mguhub: sometimes broken logic for surface fall in next maps.
 * SOFT:
   * base1: broken wall light and wall glitch,
   * base2: broken wall light and wall glitch,
-  * q64/outpost: broken level change, scale textures unsupported,
+  * q64/outpost: scale textures unsupported,
   * mguhub: broken wall light, sometimes broken logic for surface fall
      in next maps.
 
