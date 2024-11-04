@@ -29,6 +29,7 @@
 extern void SP_CreateCoopSpots(edict_t * self);
 extern void SP_CreateUnnamedSpawn(edict_t * self);
 extern void SP_FixCoopSpots(edict_t * self);
+extern void SP_choose_cdtrack(edict_t *self);
 extern void SP_dm_dball_ball(edict_t * self);
 extern void SP_dm_dball_ball_start(edict_t * self);
 extern void SP_dm_dball_goal(edict_t * self);

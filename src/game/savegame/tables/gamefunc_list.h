@@ -522,6 +522,7 @@
 {"chick_slash", (byte *)chick_slash},
 {"chick_stand", (byte *)chick_stand},
 {"chick_walk", (byte *)chick_walk},
+{"choose_cdtrack_touch", (byte *)choose_cdtrack_touch},
 {"cleanupHeal", (byte *)cleanupHeal},
 {"cleanupHealTarget", (byte *)cleanupHealTarget},
 {"commander_body_die", (byte *)commander_body_die},

@@ -79,6 +79,12 @@ object_big_fire_think(edict_t *self)
 {
 	self->s.frame = (self->s.frame + 1) % 60;
 	self->nextthink = level.time + FRAMETIME;
+
+	/* add particles */
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_FLAME);
+	gi.WritePosition(self->s.origin);
+	gi.multicast(self->s.origin, MULTICAST_PVS);
 }
 
 void
