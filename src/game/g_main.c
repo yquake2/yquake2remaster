@@ -102,6 +102,7 @@ cvar_t *aimfix;
 cvar_t *g_machinegun_norecoil;
 cvar_t *g_quick_weap;
 cvar_t *g_swap_speed;
+cvar_t *g_language;
 
 static void G_RunFrame(void);
 

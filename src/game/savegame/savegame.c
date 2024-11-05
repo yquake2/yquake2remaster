@@ -263,6 +263,7 @@ InitGame(void)
 	g_machinegun_norecoil = gi.cvar("g_machinegun_norecoil", "0", CVAR_ARCHIVE);
 	g_quick_weap = gi.cvar("g_quick_weap", "1", CVAR_ARCHIVE);
 	g_swap_speed = gi.cvar("g_swap_speed", "1", CVAR_ARCHIVE);
+	g_language = gi.cvar("g_language", "english", CVAR_ARCHIVE);
 
 	/* initilize localization */
 	LocalizationInit();

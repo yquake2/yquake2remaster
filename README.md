@@ -79,7 +79,7 @@ Maps support:
 
 Note:
 
-* Non Quake 2 maps are limmited mostly view only, and could have issues
+* Non Quake 2 maps are limited mostly view only, and could have issues
    with tranparency or some animations flags and properties.
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
