@@ -871,7 +871,7 @@ makron_torso_origin(edict_t *self, edict_t *torso)
 
 	tr = gi.trace(self->s.origin, torso->mins, torso->maxs, v, self, MASK_SOLID);
 
-	VectorCopy (tr.endpos, torso->s.origin);
+	VectorCopy(tr.endpos, torso->s.origin);
 }
 
 void
@@ -1007,7 +1007,7 @@ makron_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 
 	/* lower bbox since the torso is gone */
 	self->maxs[2] = 64;
-	gi.linkentity (self);
+	gi.linkentity(self);
 
 	self->monsterinfo.currentmove = &makron_move_death2;
 }

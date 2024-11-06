@@ -321,7 +321,7 @@ CheckChasecam_Viewent(edict_t *ent)
 
 		ent->client->oldplayer->flags = ent->flags;
 		/* end Lazarus */
-		gi.linkentity (ent->client->oldplayer);
+		gi.linkentity(ent->client->oldplayer);
 	}
 }
 

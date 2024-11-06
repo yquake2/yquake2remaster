@@ -221,7 +221,7 @@ wizard_spit(edict_t *self)
 	vec3_t	vec;
 	vec3_t	offset = {0, 0, 30};
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors(self->s.angles, forward, right, NULL);
 	G_ProjectSource(self->s.origin, offset, forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	vec[2] += self->enemy->viewheight;

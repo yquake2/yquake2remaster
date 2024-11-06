@@ -672,7 +672,7 @@ SP_target_spawner(edict_t *self)
 	if (!Q_stricmp(level.mapname, "fact2")
 		&& VectorCompare(self->s.origin, fact2spawnpoint1) )
 	{
-		VectorSet (forward, 0, 0, 1);
+		VectorSet(forward, 0, 0, 1);
 		VectorMA (self->s.origin, -8, forward, self->s.origin);
 	}
 

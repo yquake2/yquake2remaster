@@ -539,11 +539,11 @@ TankRocket(edict_t *self)
 
 	if (blindfire)
 	{
-		VectorCopy (self->monsterinfo.blind_fire_target, target);
+		VectorCopy(self->monsterinfo.blind_fire_target, target);
 	}
 	else
 	{
-		VectorCopy (self->enemy->s.origin, target);
+		VectorCopy(self->enemy->s.origin, target);
 	}
 
 	if (blindfire)

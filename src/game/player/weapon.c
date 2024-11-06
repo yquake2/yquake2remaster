@@ -210,8 +210,8 @@ PlayerNoise_Spawn(edict_t *who, int type)
 
 	noise->classname = "player_noise";
 	noise->spawnflags = type;
-	VectorSet (noise->mins, -8, -8, -8);
-	VectorSet (noise->maxs, 8, 8, 8);
+	VectorSet(noise->mins, -8, -8, -8);
+	VectorSet(noise->maxs, 8, 8, 8);
 	noise->owner = who;
 	noise->svflags = SVF_NOCLIENT;
 

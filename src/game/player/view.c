@@ -432,7 +432,7 @@ SV_CalcViewOffset(edict_t *ent)
 	}
 	else
 	{
-		VectorSet (v, 0, 0, 0);
+		VectorSet(v, 0, 0, 0);
 		if (ent->client->chasecam)
 		{
 			ent->client->ps.pmove.origin[0] = ent->client->chasecam->s.origin[0] * 8;
