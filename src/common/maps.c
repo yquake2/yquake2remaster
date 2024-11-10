@@ -68,6 +68,7 @@ Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
 		case map_kingpin: convert = kingpin_flags; break;
 		case map_anachronox: convert = anachronox_flags; break;
 		case map_sin: convert = sin_flags; break;
+		case map_quake2: convert = quake2_flags; break;
 		default: convert = NULL; break;
 	}
 

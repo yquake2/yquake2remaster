@@ -196,7 +196,7 @@ static const int daikatana_flags[32] = {
 	0,              /* 16: Mirror */
 	0,              /* 17: Holy Grond */
 	SURF_ALPHATEST, /* 18: Alphachan */
-	0,              /* 19: Midtexture (Used together with Clear and Nodraw.) */
+	SURF_ALPHATEST, /* 19: Midtexture (Used together with Clear and Nodraw.) */
 	0,              /* 20: Puddle */
 	0,              /* 21: Water Surge */
 	0,              /* 22: Big Water Surge */
@@ -214,15 +214,15 @@ static const int daikatana_flags[32] = {
 static const int daikatana_contents_flags[32] = {
 	CONTENTS_SOLID,        /* 0: Default for all brushes */
 	CONTENTS_WINDOW,       /* 1: Brush is a window (not really used) */
-	0,                     /* 2: Unused by the Dk's engine? */
+	CONTENTS_AUX,          /* 2: Unused by the Dk's engine? */
 	CONTENTS_LAVA,         /* 3: The brush is lava */
 	CONTENTS_SLIME,        /* 4: The brush is slime */
 	CONTENTS_WATER,        /* 5: The brush is water */
 	CONTENTS_MIST,         /* 6: The brush is non-solid */
-	0,                     /* 7: clear */
+	CONTENTS_SOLID,        /* 7: clear */
 	0,                     /* 8: notsolid */
 	0,                     /* 9: noshoot */
-	0,                     /* 10: fog */
+	CONTENTS_MIST,         /* 10: fog */
 	0,                     /* 11: nitro */
 	0,                     /* 12: Unused */
 	0,                     /* 13: Unused */
