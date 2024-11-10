@@ -740,6 +740,11 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			surf->texturechain = r_alpha_surfaces;
 			r_alpha_surfaces = surf;
 		}
+		else if (surf->texinfo->flags & SURF_NODRAW)
+		{
+			/* Surface should be skipped */
+			continue;
+		}
 		else
 		{
 			if (!(surf->flags & SURF_DRAWTURB) && !r_showtris->value)

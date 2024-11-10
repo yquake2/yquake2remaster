@@ -1090,6 +1090,11 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			r_alpha_surfaces = surf;
 			r_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
 		}
+		else if (surf->texinfo->flags & SURF_NODRAW)
+		{
+			/* Surface should be skipped */
+			continue;
+		}
 		else
 		{
 			/* the polygon is visible, so add it to the texture sorted chain */
