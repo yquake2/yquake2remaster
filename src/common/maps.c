@@ -284,6 +284,9 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
 
+		/* Fix backslashes */
+		Q_replacebackslash(out->texture);
+
 		out++;
 		in++;
 	}
@@ -316,6 +319,9 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
+
+		/* Fix backslashes */
+		Q_replacebackslash(out->texture);
 
 		out++;
 		in++;

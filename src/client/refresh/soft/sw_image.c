@@ -548,18 +548,19 @@ Finds or loads the given image or NULL
 ===============
 */
 image_t	*
-R_FindImage(const char *name, imagetype_t type)
+R_FindImage(const char *originname, imagetype_t type)
 {
-	image_t	*image;
-	int	i, len;
-	char *ptr;
-	char namewe[256];
+	char namewe[256], name[256] = {0};
 	const char* ext;
+	image_t *image;
+	int i, len;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	strncpy(name, originname, sizeof(name) - 1);
 
 	/* just return white image if show lightmap only */
 	if ((type == it_wall || type == it_skin) && r_lightmap->value)
@@ -586,10 +587,7 @@ R_FindImage(const char *name, imagetype_t type)
 	}
 
 	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
+	Q_replacebackslash(name);
 
 	// look for it
 	for (i=0, image=r_images ; i<numr_images ; i++,image++)

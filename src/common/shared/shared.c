@@ -581,9 +581,10 @@ double sqrt(double x);
 vec_t
 VectorLength(const vec3_t v)
 {
-	return sqrtf((v[0] * v[0]) +
-               (v[1] * v[1]) +
-	       (v[2] * v[2]));
+	return sqrtf(
+		(v[0] * v[0]) +
+		(v[1] * v[1]) +
+		(v[2] * v[2]));
 }
 
 void
@@ -1082,6 +1083,19 @@ int
 Q_strcasecmp(const char *s1, const char *s2)
 {
 	return Q_strncasecmp(s1, s2, 99999);
+}
+
+void
+Q_replacebackslash(char *curr)
+{
+	while (*curr)
+	{
+		if (*curr == '\\')
+		{
+			*curr = '/';
+		}
+		curr++;
+	}
 }
 
 void

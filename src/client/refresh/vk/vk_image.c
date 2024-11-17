@@ -1187,18 +1187,19 @@ Finds or loads the given image or NULL
 ===============
 */
 image_t	*
-Vk_FindImage(const char *name, imagetype_t type)
+Vk_FindImage(const char *originname, imagetype_t type)
 {
-	image_t	*image;
-	int	i, len;
-	char *ptr;
-	char namewe[256];
+	char namewe[256], name[256] = {0};
 	const char* ext;
+	image_t *image;
+	int i, len;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	strncpy(name, originname, sizeof(name) - 1);
 
 	ext = COM_FileExtension(name);
 	if(!ext[0])
@@ -1218,10 +1219,7 @@ Vk_FindImage(const char *name, imagetype_t type)
 	memcpy(namewe, name, len - (strlen(ext) + 1));
 
 	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
+	Q_replacebackslash(name);
 
 	/* look for it */
 	for (i=0, image=vktextures ; i<numvktextures ; i++,image++)

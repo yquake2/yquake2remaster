@@ -1079,7 +1079,6 @@ FS_LoadDAT(const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		int name_len;
-		char* p;
 
 		/* name */
 		memcpy(files[i].name, prefix, prefix_size);
@@ -1090,15 +1089,7 @@ FS_LoadDAT(const char *packPath)
 		files[i].name[prefix_size + name_len + 1] = 0;
 
 		/* fix naming */
-		p = files[i].name;
-		while (*p)
-		{
-			if (*p == '\\')
-			{
-				*p = '/';
-			}
-			p ++;
-		}
+		Q_replacebackslash(files[i].name);
 
 		/* copy length */
 		files[i].offset = LittleLong(info[i].filepos);
@@ -2590,13 +2581,7 @@ static void FS_AddDirToRawPath (const char *rawdir, qboolean create, qboolean re
 	}
 
 	// Convert backslashes to forward slashes.
-	for (int i = 0; i < strlen(dir); i++)
-	{
-		if (dir[i] == '\\')
-		{
-			dir[i] = '/';
-		}
-	}
+	Q_replacebackslash(dir);
 
 	// Make sure that the dir doesn't end with a slash.
 	for (size_t s = strlen(dir) - 1; s > 0; s--)

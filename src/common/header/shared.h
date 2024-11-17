@@ -343,6 +343,9 @@ void Q_strdel(char *s, size_t i, size_t n);
 size_t Q_strins(char *dest, const char *src, size_t i, size_t n);
 qboolean Q_strisnum(const char *s);
 
+/* fix backslashes in path */
+void Q_replacebackslash(char *curr);
+
 /* ============================================= */
 
 /* Unicode wrappers that also make sure it's a regular file around fopen(). */
