@@ -143,6 +143,12 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
+	if (cls.serverProtocol != PROTOCOL_VERSION)
+	{
+		/* Always set scale to 1.0f for old clients */
+		to->scale[0] = 1.0f;
+	}
+
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
 		if (bits & U_MODEL)
@@ -210,6 +216,12 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	if ((bits & U_SKIN8) && (bits & U_SKIN16))
 	{
 		to->skinnum = MSG_ReadLong(&net_message);
+		/* Additional scale with skinnum */
+		if (cls.serverProtocol == PROTOCOL_VERSION)
+		{
+			to->scale[0] = MSG_ReadFloat(&net_message);
+			printf("received scale %f\n", to->scale[0]);
+		}
 	}
 	else if (bits & U_SKIN8)
 	{

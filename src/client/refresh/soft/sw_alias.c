@@ -457,7 +457,7 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 		 RF_SHELL_HALF_DAM));
 
 	R_LerpVerts(colorOnly, s_pmdl->num_xyz, r_thisframe->verts, r_lastframe->verts,
-		s_lerped[0], r_lerp_move, r_lerp_frontv, r_lerp_backv);
+		s_lerped[0], r_lerp_move, r_lerp_frontv, r_lerp_backv, currententity->scale);
 
 	R_AliasTransformFinalVerts(s_pmdl->num_xyz,
 		verts,	/* destination for transformed verts */

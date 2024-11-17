@@ -69,6 +69,7 @@ Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 
 	if (!l->filelen)
 	{
+		/* n64jam_chnuckierdbeer */
 		Com_Printf("%s: Map %s has too small visibility lump\n",
 			__func__, name);
 		*vis = NULL;

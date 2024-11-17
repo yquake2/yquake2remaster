@@ -979,7 +979,7 @@ RE_RenderView(refdef_t *fd)
 
 	R_DrawAlphaSurfaces();
 
-	R_Flash();
+	R_Flash(); /* citadel error */
 
 	if (r_speeds->value)
 	{

@@ -359,7 +359,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	}
 
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, (float*)s_lerped,
-		move, frontv, backv);
+		move, frontv, backv, currententity->scale);
 
 	VkDescriptorSet descriptorSets[] = {
 		skin->vk_texture.descriptorSet,

@@ -95,9 +95,15 @@ void
 R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
 		float *lerp, const float move[3],
-		const float frontv[3], const float backv[3])
+		const float frontv[3], const float backv[3], float scale)
 {
 	int i;
+
+	/* If scale is undefined, set scale 1.0f */
+	if (!scale)
+	{
+		scale = 1.0f;
+	}
 
 	if (powerUpEffect)
 	{
@@ -111,7 +117,7 @@ R_LerpVerts(qboolean powerUpEffect, int nverts,
 
 				normal = v->normal[n] / 127.f;
 
-				lerp[n] = move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n] +
+				lerp[n] = scale * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]) +
 						  normal * POWERSUIT_SCALE;
 			}
 		}
@@ -120,9 +126,9 @@ R_LerpVerts(qboolean powerUpEffect, int nverts,
 	{
 		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
-			lerp[0] = move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0];
-			lerp[1] = move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1];
-			lerp[2] = move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2];
+			lerp[0] = scale * (move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0]);
+			lerp[1] = scale * (move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1]);
+			lerp[2] = scale * (move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2]);
 		}
 	}
 }
