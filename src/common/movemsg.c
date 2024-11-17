@@ -650,12 +650,28 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 	{
 		if (bits & U_MODEL)
 		{
-			MSG_WriteByte(msg, to->modelindex);
+			int modelindex = to->modelindex;
+
+			/* New protocol use 16 bit for model id, and custom player model
+			 * id is different to old one, converty back */
+			if (modelindex == CUSTOM_PLAYER_MODEL)
+			{
+				modelindex = QII97_PLAYER_MODEL;
+			}
+			MSG_WriteByte(msg, modelindex);
 		}
 
 		if (bits & U_MODEL2)
 		{
-			MSG_WriteByte(msg, to->modelindex2);
+			int modelindex = to->modelindex2;
+
+			/* New protocol use 16 bit for model id, and custom player model
+			 * id is different to old one, converty back */
+			if (modelindex == CUSTOM_PLAYER_MODEL)
+			{
+				modelindex = QII97_PLAYER_MODEL;
+			}
+			MSG_WriteByte(msg, modelindex);
 		}
 
 		if (bits & U_MODEL3)

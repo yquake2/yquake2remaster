@@ -190,6 +190,9 @@ void Info_Print(char *s);
 /* Quake 2 Customized Network Release */
 #define PROTOCOL_VERSION 2024
 
+/* Quake 2 originaly uses 255 as player model */
+#define QII97_PLAYER_MODEL 255
+
 #define IS_QII97_PROTOCOL(x) ( \
 	((x) == PROTOCOL_RELEASE_VERSION) || \
 	((x) == PROTOCOL_DEMO_VERSION) || \

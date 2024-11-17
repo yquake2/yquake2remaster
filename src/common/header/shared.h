@@ -178,6 +178,7 @@ typedef unsigned char byte;
 #define MAX_IMAGES 256
 #define MAX_ITEMS 256
 #define MAX_GENERAL (MAX_CLIENTS * 2)       /* general config strings */
+#define CUSTOM_PLAYER_MODEL (MAX_MODELS - 1)
 
 /* game print flags */
 #define PRINT_LOW 0                 /* pickup messages */

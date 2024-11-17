@@ -148,11 +148,19 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 		if (bits & U_MODEL)
 		{
 			to->modelindex = MSG_ReadByte(&net_message);
+			if (to->modelindex == QII97_PLAYER_MODEL)
+			{
+				to->modelindex = CUSTOM_PLAYER_MODEL;
+			}
 		}
 
 		if (bits & U_MODEL2)
 		{
 			to->modelindex2 = MSG_ReadByte(&net_message);
+			if (to->modelindex2 == QII97_PLAYER_MODEL)
+			{
+				to->modelindex2 = CUSTOM_PLAYER_MODEL;
+			}
 		}
 
 		if (bits & U_MODEL3)

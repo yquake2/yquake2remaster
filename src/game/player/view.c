@@ -116,7 +116,7 @@ P_DamageFeedback(edict_t *player)
 	}
 
 	/* start a pain animation if still in the player model */
-	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == 255))
+	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == CUSTOM_PLAYER_MODEL))
 	{
 		static int i;
 
@@ -782,7 +782,7 @@ P_FallingDamage(edict_t *ent)
 		return;
 	}
 
-	if (ent->s.modelindex != 255)
+	if (ent->s.modelindex != CUSTOM_PLAYER_MODEL)
 	{
 		return; /* not in the player model */
 	}
@@ -1333,7 +1333,7 @@ G_SetClientFrame(edict_t *ent)
 		return;
 	}
 
-	if (ent->s.modelindex != 255)
+	if (ent->s.modelindex != CUSTOM_PLAYER_MODEL)
 	{
 		return; /* not in the player model */
 	}

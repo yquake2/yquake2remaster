@@ -2265,8 +2265,8 @@ PutClientInServer(edict_t *ent)
 	/* clear entity state values */
 	ent->s.effects = 0;
 	ent->s.skinnum = ent - g_edicts - 1;
-	ent->s.modelindex = 255; /* will use the skin specified model */
-	ent->s.modelindex2 = 255; /* custom gun model */
+	ent->s.modelindex = CUSTOM_PLAYER_MODEL; /* will use the skin specified model */
+	ent->s.modelindex2 = CUSTOM_PLAYER_MODEL; /* custom gun model */
 
 	/* sknum is player num and weapon number
 	   weapon number will be added in changeweapon */
@@ -2840,7 +2840,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		{
 			client->ps.pmove.pm_type = PM_SPECTATOR;
 		}
-		else if (ent->s.modelindex != 255)
+		else if (ent->s.modelindex != CUSTOM_PLAYER_MODEL)
 		{
 			client->ps.pmove.pm_type = PM_GIB;
 		}
