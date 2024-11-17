@@ -3336,6 +3336,7 @@ SP_misc_flare(edict_t* ent)
 
 	ent->s.modelindex2 = st.fade_start_dist;
 	ent->s.modelindex3 = st.fade_end_dist;
+	ent->s.skinnum = st.rgba;
 
 	if (ent->targetname)
 	{

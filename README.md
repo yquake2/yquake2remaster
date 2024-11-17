@@ -158,7 +158,7 @@ Goals:
 * [ ] Support textures/*/*_glow.png load from ReRelease,
 * [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
 * [ ] Fix physics with incorrect floor height in psx/base0.bsp,
-* [ ] Fix strange white flying boxes in psx/base0.bsp,
+* [x] Fix strange white flying boxes in psx/base0.bsp,
 * [x] RGB particles support instead palette based one,
 * [x] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,

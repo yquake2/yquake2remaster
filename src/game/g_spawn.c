@@ -117,11 +117,27 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	VectorCopy(data->mins, self->mins);
 	VectorCopy(data->maxs, self->maxs);
 
-	self->monsterinfo.scale = (
-		data->scale[0] +
-		data->scale[1] +
-		data->scale[2]
-	) / 3;
+	/* has updated scale */
+	if (st.scale[0] || st.scale[1] || st.scale[2])
+	{
+		/* copy to other parts if zero */
+		if (!st.scale[1])
+		{
+			st.scale[1] = st.scale[0];
+		}
+
+		if (!st.scale[2])
+		{
+			st.scale[2] = st.scale[0];
+		}
+
+		/* Copy to entity scale field */
+		VectorCopy(st.scale, self->s.scale);
+	}
+	else
+	{
+		VectorCopy(data->scale, self->s.scale);
+	}
 }
 
 void
@@ -510,6 +526,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 					*(char **)(b + f->ofs) = ED_NewString(value, false);
 					break;
 				case F_VECTOR:
+					VectorClear(vec);
 					sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
 					((float *)(b + f->ofs))[0] = vec[0];
 					((float *)(b + f->ofs))[1] = vec[1];

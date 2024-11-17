@@ -411,10 +411,15 @@ typedef struct
 	float minpitch;
 	float maxpitch;
 
+	/* misc_flare */
 	float radius;
 	float fade_start_dist;
 	float fade_end_dist;
 	char *image;
+	unsigned rgba;
+
+	/* Addional fields for models */
+	vec3_t scale;
 } spawn_temp_t;
 
 typedef struct
