@@ -3181,7 +3181,7 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 
 /*
 =================
-Mod_LoadModel
+Mod_LoadModelFile
 =================
 */
 static void *
