@@ -122,7 +122,7 @@ dog_leap_step(edict_t *self)
 {
 	vec3_t forward;
 
-	AngleVectors (self->s.angles, forward, NULL, NULL);
+	AngleVectors(self->s.angles, forward, NULL, NULL);
 	self->s.origin[2] += 1;
 	VectorScale(forward, 300, self->velocity);
 	self->velocity[2] = 200;

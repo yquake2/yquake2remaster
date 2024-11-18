@@ -28,6 +28,7 @@
 
 {"ammo_magslug", SP_xatrix_item},
 {"ammo_trap", SP_xatrix_item},
+{"choose_cdtrack", SP_choose_cdtrack},
 {"dm_dball_ball", SP_dm_dball_ball},
 {"dm_dball_ball_start", SP_dm_dball_ball_start},
 {"dm_dball_goal", SP_dm_dball_goal},

@@ -13,15 +13,15 @@ Saves format is unstabled and could change between alpha releases.
 
 State:
 
+* Localization requires `Q2Game.kpf` file in root directory of game,
 * GL1/GLES3/GL3/GL4/VK:
   * base1: no known issues,
   * base2: no known issues,
-  * q64/outpost: broken level change,
   * mguhub: sometimes broken logic for surface fall in next maps.
 * SOFT:
   * base1: broken wall light and wall glitch,
   * base2: broken wall light and wall glitch,
-  * q64/outpost: broken level change, scale textures unsupported,
+  * q64/outpost: scale textures unsupported,
   * mguhub: broken wall light, sometimes broken logic for surface fall
      in next maps.
 
@@ -79,7 +79,7 @@ Maps support:
 
 Note:
 
-* Non Quake 2 maps are limmited mostly view only, and could have issues
+* Non Quake 2 maps are limited mostly view only, and could have issues
    with tranparency or some animations flags and properties.
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
@@ -150,12 +150,15 @@ Goals:
 * [x] MDR model format from Star Trek: Voyager – Elite Force,
 * [x] MDA entity format from Anachronox,
 * [ ] CTC entity format from Anachronox,
+* [ ] ATD texture format from Anachronox,
+* [ ] MDA model skin selection by tag,
+* [ ] SDEF/MDA dynamicaly allocate list of skins,
 * [ ] Support material load textures/textureinfo.dat from Anachronox,
 * [ ] Support textures/*/*.mat load from ReRelease,
 * [ ] Support textures/*/*_glow.png load from ReRelease,
 * [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
 * [ ] Fix physics with incorrect floor height in psx/base0.bsp,
-* [ ] Fix strange white flying boxes in psx/base0.bsp,
+* [x] Fix strange white flying boxes in psx/base0.bsp,
 * [x] RGB particles support instead palette based one,
 * [x] Get rid of VID_PaletteColor client internal api use,
 * [x] Broken maps groups from base2 to next,

@@ -398,9 +398,10 @@ Mod_ReadFile(const char *path, void **buffer)
 static gl3model_t *
 Mod_ForName(const char *name, gl3model_t *parent_model, qboolean crash)
 {
+	char filename[256] = {0}, *tag;
+	int i, modfilelen;
 	gl3model_t *mod;
 	void *buf;
-	int i, modfilelen;
 
 	if (!name[0])
 	{
@@ -456,8 +457,18 @@ Mod_ForName(const char *name, gl3model_t *parent_model, qboolean crash)
 
 	strcpy(mod->name, name);
 
+	/* Anachronox has tags in model path*/
+	strncpy(filename, name, sizeof(filename) - 1);
+	tag = strstr(filename, ".mda!");
+	if (tag)
+	{
+		tag += 4; /* strlen(.mda) */
+		*tag = 0;
+		tag ++;
+	}
+
 	/* load the file */
-	modfilelen = ri.Mod_LoadFile(mod->name, &buf);
+	modfilelen = ri.Mod_LoadFile(filename, &buf);
 
 	if (!buf)
 	{

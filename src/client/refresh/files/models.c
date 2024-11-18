@@ -658,6 +658,9 @@ Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
 		skin[MAX_SKINNAME - 1] = 0;
 
+		/* fix skin backslash */
+		Q_replacebackslash(skin);
+
 		R_Printf(PRINT_DEVELOPER, "%s: %s #%d: Should load %s '%s'\n",
 			__func__, mod_name, i, internal ? "internal": "external", skin);
 	}
@@ -2895,8 +2898,6 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 		/* found basemodel */
 		else if (!strcmp(token, "basemodel"))
 		{
-			char *curr;
-
 			token = COM_Parse(&curr_buff);
 			if (!token)
 			{
@@ -2904,15 +2905,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 			}
 			strncpy(base_model, token, sizeof(base_model) - 1);
 
-			curr = base_model;
-			while (*curr)
-			{
-				if (*curr == '\\')
-				{
-					*curr = '/';
-				}
-				curr++;
-			}
+			Q_replacebackslash(base_model);
 
 			if (base_skin[0])
 			{
@@ -2924,7 +2917,6 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 		else if (!strcmp(token, "map"))
 		{
 			char* token_end = NULL;
-			char *curr;
 
 			token = COM_Parse(&curr_buff);
 			if (!token)
@@ -2946,15 +2938,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 
 			strncpy(base_skin, token, sizeof(base_skin) - 1);
 
-			curr = base_skin;
-			while (*curr)
-			{
-				if (*curr == '\\')
-				{
-					*curr = '/';
-				}
-				curr++;
-			}
+			Q_replacebackslash(base_skin);
 
 			if (base_model[0])
 			{
@@ -3197,7 +3181,7 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 
 /*
 =================
-Mod_LoadModel
+Mod_LoadModelFile
 =================
 */
 static void *

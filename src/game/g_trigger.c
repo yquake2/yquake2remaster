@@ -1124,3 +1124,33 @@ SP_trigger_monsterjump(edict_t *self)
 	self->touch = trigger_monsterjump_touch;
 	self->movedir[2] = st.height;
 }
+
+/*
+ * QUAKED choose_cdtrack (.5 .5 .5) ?
+ * Sets CD track
+ *
+ * style: CD Track Id
+ */
+void
+choose_cdtrack_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	gi.configstring(CS_CDTRACK, va("%i", self->style));
+}
+
+void
+SP_choose_cdtrack(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	InitTrigger(self);
+	self->touch = choose_cdtrack_touch;
+}

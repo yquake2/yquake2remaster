@@ -210,8 +210,8 @@ PlayerNoise_Spawn(edict_t *who, int type)
 
 	noise->classname = "player_noise";
 	noise->spawnflags = type;
-	VectorSet (noise->mins, -8, -8, -8);
-	VectorSet (noise->maxs, 8, 8, 8);
+	VectorSet(noise->mins, -8, -8, -8);
+	VectorSet(noise->maxs, 8, 8, 8);
 	noise->owner = who;
 	noise->svflags = SVF_NOCLIENT;
 
@@ -477,7 +477,7 @@ ChangeWeapon(edict_t *ent)
 	ent->client->machinegun_shots = 0;
 
 	/* set visible model */
-	if (ent->s.modelindex == 255)
+	if (ent->s.modelindex == CUSTOM_PLAYER_MODEL)
 	{
 		if (ent->client->pers.weapon)
 		{
@@ -847,7 +847,7 @@ Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		return;
 	}
 
-	if (ent->deadflag || (ent->s.modelindex != 255)) /* VWep animations screw up corpses */
+	if (ent->deadflag || (ent->s.modelindex != CUSTOM_PLAYER_MODEL)) /* VWep animations screw up corpses */
 	{
 		return;
 	}
@@ -1125,7 +1125,7 @@ weapon_grenade_fire(edict_t *ent, qboolean held)
 
 	ent->client->grenade_time = level.time + 1.0;
 
-	if (ent->deadflag || (ent->s.modelindex != 255)) /* VWep animations screw up corpses */
+	if (ent->deadflag || (ent->s.modelindex != CUSTOM_PLAYER_MODEL)) /* VWep animations screw up corpses */
 	{
 		return;
 	}

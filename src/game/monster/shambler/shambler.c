@@ -710,8 +710,8 @@ SP_monster_shambler(edict_t* self)
 	}
 
 	self->s.modelindex = gi.modelindex("models/monsters/shambler/tris.md2");
-	VectorSet (self->mins, -32, -32, -24);
-	VectorSet (self->maxs, 32, 32, 64);
+	VectorSet(self->mins, -32, -32, -24);
+	VectorSet(self->maxs, 32, 32, 64);
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 

@@ -53,12 +53,14 @@ LocalizationInit(void)
 	byte *raw = NULL;
 	char *buf_local = NULL, *buf_level = NULL;
 	int len_local, len_level, curr_pos;
+	char loc_name[MAX_QPATH];
 
 	localmessages = NULL;
 	nlocalmessages = 0;
 
+	snprintf(loc_name, sizeof(loc_name) - 1, "localization/loc_%s.txt", g_language->string);
 	/* load the localization file */
-	len_local = gi.FS_LoadFile("localization/loc_english.txt", (void **)&raw);
+	len_local = gi.FS_LoadFile(loc_name, (void **)&raw);
 	if (len_local > 1)
 	{
 		buf_local = malloc(len_local + 1);

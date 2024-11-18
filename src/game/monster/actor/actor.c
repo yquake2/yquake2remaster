@@ -314,7 +314,7 @@ void actorMachineGun (edict_t *self)
 	vec3_t	start, target;
 	vec3_t	forward, right;
 
-	AngleVectors (self->s.angles, forward, right, NULL);
+	AngleVectors(self->s.angles, forward, right, NULL);
 	G_ProjectSource (self->s.origin, monster_flash_offset[MZ2_ACTOR_MACHINEGUN_1], forward, right, start);
 	if (self->enemy)
 	{
@@ -325,7 +325,7 @@ void actorMachineGun (edict_t *self)
 		}
 		else
 		{
-			VectorCopy (self->enemy->absmin, target);
+			VectorCopy(self->enemy->absmin, target);
 			target[2] += (self->enemy->size[2] / 2);
 		}
 		VectorSubtract (target, start, forward);
@@ -333,7 +333,7 @@ void actorMachineGun (edict_t *self)
 	}
 	else
 	{
-		AngleVectors (self->s.angles, forward, NULL, NULL);
+		AngleVectors(self->s.angles, forward, NULL, NULL);
 	}
 	monster_fire_bullet (self, start, forward, 3, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, MZ2_ACTOR_MACHINEGUN_1);
 }
@@ -341,12 +341,12 @@ void actorMachineGun (edict_t *self)
 
 void actor_dead (edict_t *self)
 {
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, -8);
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, -8);
 	self->movetype = MOVETYPE_TOSS;
 	self->svflags |= SVF_DEADMONSTER;
 	self->nextthink = 0;
-	gi.linkentity (self);
+	gi.linkentity(self);
 }
 
 static mframe_t actor_frames_death1 [] =
@@ -506,8 +506,8 @@ void SP_misc_actor (edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 	self->s.modelindex = gi.modelindex("players/male/tris.md2");
-	VectorSet (self->mins, -16, -16, -24);
-	VectorSet (self->maxs, 16, 16, 32);
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 32);
 
 	if (!self->health)
 		self->health = 100;
@@ -525,7 +525,7 @@ void SP_misc_actor (edict_t *self)
 
 	self->monsterinfo.aiflags |= AI_GOOD_GUY;
 
-	gi.linkentity (self);
+	gi.linkentity(self);
 
 	self->monsterinfo.currentmove = &actor_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
@@ -651,8 +651,8 @@ void SP_target_actor (edict_t *self)
 
 	self->solid = SOLID_TRIGGER;
 	self->touch = target_actor_touch;
-	VectorSet (self->mins, -8, -8, -8);
-	VectorSet (self->maxs, 8, 8, 8);
+	VectorSet(self->mins, -8, -8, -8);
+	VectorSet(self->maxs, 8, 8, 8);
 	self->svflags = SVF_NOCLIENT;
 
 	if (self->spawnflags & 1)
@@ -667,5 +667,5 @@ void SP_target_actor (edict_t *self)
 		self->movedir[2] = st.height;
 	}
 
-	gi.linkentity (self);
+	gi.linkentity(self);
 }

@@ -174,7 +174,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 	lerp = s_lerped[0];
 
 	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp,
-		move, frontv, backv);
+		move, frontv, backv, currententity->scale);
 
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
@@ -335,6 +335,15 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		if (gl_lefthand->value == 2)
 		{
 			return;
+		}
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		/* fix scale */
+		if (!currententity->scale[i])
+		{
+			currententity->scale[i] = 1.0f;
 		}
 	}
 

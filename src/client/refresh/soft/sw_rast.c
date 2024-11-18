@@ -536,6 +536,12 @@ R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *
 		return;
 	}
 
+	if (fa->texinfo->flags & SURF_NODRAW)
+	{
+		/* Surface should be skipped */
+		return;
+	}
+
 	// sky surfaces encountered in the world will cause the
 	// environment box surfaces to be emited
 	if ( fa->texinfo->flags & SURF_SKY )

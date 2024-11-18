@@ -143,16 +143,35 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
+	if (cls.serverProtocol != PROTOCOL_VERSION)
+	{
+		int i;
+
+		/* Always set scale to 1.0f for old clients */
+		for (i = 0; i < 3; i++)
+		{
+			to->scale[i] = 1.0f;
+		}
+	}
+
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
 		if (bits & U_MODEL)
 		{
 			to->modelindex = MSG_ReadByte(&net_message);
+			if (to->modelindex == QII97_PLAYER_MODEL)
+			{
+				to->modelindex = CUSTOM_PLAYER_MODEL;
+			}
 		}
 
 		if (bits & U_MODEL2)
 		{
 			to->modelindex2 = MSG_ReadByte(&net_message);
+			if (to->modelindex2 == QII97_PLAYER_MODEL)
+			{
+				to->modelindex2 = CUSTOM_PLAYER_MODEL;
+			}
 		}
 
 		if (bits & U_MODEL3)
@@ -202,6 +221,19 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	if ((bits & U_SKIN8) && (bits & U_SKIN16))
 	{
 		to->skinnum = MSG_ReadLong(&net_message);
+		/* Additional scale with skinnum */
+		if (cls.serverProtocol == PROTOCOL_VERSION)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				to->scale[i] = MSG_ReadFloat(&net_message);
+			}
+
+			printf("received scale %.2fx%.2fx%.2f\n",
+				to->scale[0], to->scale[1], to->scale[2]);
+		}
 	}
 	else if (bits & U_SKIN8)
 	{

@@ -178,6 +178,7 @@ typedef unsigned char byte;
 #define MAX_IMAGES 256
 #define MAX_ITEMS 256
 #define MAX_GENERAL (MAX_CLIENTS * 2)       /* general config strings */
+#define CUSTOM_PLAYER_MODEL (MAX_MODELS - 1)
 
 /* game print flags */
 #define PRINT_LOW 0                 /* pickup messages */
@@ -341,6 +342,9 @@ void Q_strdel(char *s, size_t i, size_t n);
 /* Returns length of src on success, 0 if there is not enough space in dest for src */
 size_t Q_strins(char *dest, const char *src, size_t i, size_t n);
 qboolean Q_strisnum(const char *s);
+
+/* fix backslashes in path */
+void Q_replacebackslash(char *curr);
 
 /* ============================================= */
 
@@ -1218,6 +1222,8 @@ typedef struct entity_state_s
 	int event;              /* impulse events -- muzzle flashes, footsteps, etc */
 							/* events only go out for a single frame, they */
 							/* are automatically cleared each frame */
+	/* New protocol fields */
+	vec3_t scale;
 } entity_state_t;
 
 /* ============================================== */

@@ -145,7 +145,7 @@ tarbaby_jump_step(edict_t *self)
 	self->movetype = MOVETYPE_BOUNCE;
 	self->touch = tarbaby_touch;
 
-	AngleVectors (self->s.angles, forward, NULL, NULL);
+	AngleVectors(self->s.angles, forward, NULL, NULL);
 	self->s.origin[2] += 1;
 	VectorScale(forward, 600, self->velocity);
 	self->velocity[2] = 200 + (random() * 150);

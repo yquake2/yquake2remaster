@@ -150,7 +150,7 @@ endif
 # Highest supported optimizations are -O2, higher levels
 # will likely break this crappy code.
 ifdef DEBUG
-CFLAGS ?= -O0 -g -Wall -pipe -DDEBUG
+CFLAGS ?= -O0 -g -Wall -Wpointer-arith -pipe -DDEBUG
 ifdef ASAN
 override CFLAGS += -fsanitize=address -DUSE_SANITIZER
 endif
@@ -158,7 +158,7 @@ ifdef UBSAN
 override CFLAGS += -fsanitize=undefined -DUSE_SANITIZER
 endif
 else
-CFLAGS ?= -O2 -Wall -pipe -fomit-frame-pointer
+CFLAGS ?= -O2 -Wall -Wpointer-arith -pipe -fomit-frame-pointer
 endif
 
 # Always needed are:

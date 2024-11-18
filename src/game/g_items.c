@@ -1931,6 +1931,57 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 
 /* ====================================================================== */
 
+static void
+FixObjectPosition(edict_t *ent)
+{
+	int i;
+
+	for (i = 0; i < 3; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			vec3_t pos;
+			trace_t tr_pos;
+			int k;
+
+			VectorCopy(ent->s.origin, pos);
+
+			/* move by min */
+			for (k = 0; k < i + 1; k++)
+			{
+				int v;
+
+				v = (j + k) % 3;
+				pos[v] = ent->s.origin[v] - ent->mins[v];
+			}
+
+			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
+			if (!tr_pos.startsolid)
+			{
+				VectorCopy(tr_pos.endpos, ent->s.origin);
+				return;
+			}
+
+			/* move by max */
+			for (k = 0; k < i + 1; k++)
+			{
+				int v;
+
+				v = (j + k) % 3;
+				pos[v] = ent->s.origin[v] - ent->maxs[v];
+			}
+			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
+			if (!tr_pos.startsolid)
+			{
+				VectorCopy(tr_pos.endpos, ent->s.origin);
+				return;
+			}
+		}
+	}
+}
+
 void
 droptofloor(edict_t *ent)
 {
@@ -1968,6 +2019,13 @@ droptofloor(edict_t *ent)
 
 	if (tr.startsolid)
 	{
+		FixObjectPosition(ent);
+
+		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+	}
+
+	if (tr.startsolid)
+	{
 		if (strcmp(ent->classname, "foodcube") == 0)
 		{
 			VectorCopy(ent->s.origin, tr.endpos);
@@ -1975,7 +2033,8 @@ droptofloor(edict_t *ent)
 		}
 		else
 		{
-			gi.dprintf("droptofloor: %s startsolid at %s\n",
+			gi.dprintf("%s: %s startsolid at %s\n",
+					__func__,
 					ent->classname,
 					vtos(ent->s.origin));
 			G_FreeEdict(ent);
@@ -3751,6 +3810,81 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		"k_powercube",
 		"Power Cube",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
+	 * QUAKED key_explosive_charges (0 .5 .8) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN NO_TOUCH
+	 * warehouse circuits, key for N64
+	 */
+	{
+		"key_explosive_charges",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/n64/charge/tris.md2", EF_ROTATE,
+		NULL,
+		"n64/i_charges",
+		"Explosive Charges",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
+	 * QUAKED key_yellow_key (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * normal door key - yellow, key for N64
+	 */
+	{
+		"key_yellow_key",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/n64/yellow_key/tris.md2", EF_ROTATE,
+		NULL,
+		"n64/i_yellow_key",
+		"Yellow Key",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP | IT_KEY,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
+	 * QUAKED key_power_core (0 .5 .8) (-16 -16 -16) (16 16 16)
+	 * key for N64
+	 */
+	{
+		"key_power_core",
+		Pickup_Key,
+		NULL,
+		Drop_General,
+		NULL,
+		"items/pkup.wav",
+		"models/items/n64/power_core/tris.md2", EF_ROTATE,
+		NULL,
+		"k_pyramid",
+		"Power Core",
 		2,
 		0,
 		NULL,

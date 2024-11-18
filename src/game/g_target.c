@@ -672,7 +672,7 @@ SP_target_spawner(edict_t *self)
 	if (!Q_stricmp(level.mapname, "fact2")
 		&& VectorCompare(self->s.origin, fact2spawnpoint1) )
 	{
-		VectorSet (forward, 0, 0, 1);
+		VectorSet(forward, 0, 0, 1);
 		VectorMA (self->s.origin, -8, forward, self->s.origin);
 	}
 
@@ -1888,6 +1888,15 @@ SP_target_music(edict_t* self)
 	self->use = target_music_use;
 }
 
+/*
+ * QUAKED target_sky (1 0 0) (-8 -8 -8) (8 8 8)
+ *
+ * Change sky parameters
+ *  - sky: Environment map name
+ *  - skyaxis: Vector axis for rotating sky
+ *  - skyrotate: Speed of rotation (degrees/second)
+ *  - skyautorotate: Disable to set sky rotation manually
+ */
 void
 target_sky_use(edict_t *self, edict_t *other, edict_t *activator)
 {

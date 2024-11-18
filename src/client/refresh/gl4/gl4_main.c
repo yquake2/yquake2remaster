@@ -1590,9 +1590,6 @@ GL4_RenderView(refdef_t *fd)
 
 	GL4_DrawAlphaSurfaces();
 
-	// simple gamma correction
-	glEnable(GL_FRAMEBUFFER_SRGB);
-
 	// Note: R_Flash() is now GL4_Draw_Flash() and called from GL4_RenderFrame()
 
 	if (r_speeds->value)

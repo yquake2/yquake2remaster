@@ -655,7 +655,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memmove(buffer + written, comressed_buffer + read, x + 1);
+					memmove((byte *)buffer + written, comressed_buffer + read, x + 1);
 
 					read += x + 1;
 					written += x + 1;
@@ -670,7 +670,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memset(buffer + written, 0, x - 62);
+					memset((byte *)buffer + written, 0, x - 62);
 
 					written += x - 62;
 				}
@@ -684,7 +684,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memset(buffer + written, comressed_buffer[read], x - 126);
+					memset((byte *)buffer + written, comressed_buffer[read], x - 126);
 
 					++read;
 					written += x - 126;
@@ -699,7 +699,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 						return 0;
 					}
 
-					memmove(buffer + written, (buffer + written) - (
+					memmove((byte *)buffer + written, ((byte *)buffer + written) - (
 						(int)comressed_buffer[read] + 2), x - 190);
 
 					++read;
@@ -1079,7 +1079,6 @@ FS_LoadDAT(const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		int name_len;
-		char* p;
 
 		/* name */
 		memcpy(files[i].name, prefix, prefix_size);
@@ -1090,15 +1089,7 @@ FS_LoadDAT(const char *packPath)
 		files[i].name[prefix_size + name_len + 1] = 0;
 
 		/* fix naming */
-		p = files[i].name;
-		while (*p)
-		{
-			if (*p == '\\')
-			{
-				*p = '/';
-			}
-			p ++;
-		}
+		Q_replacebackslash(files[i].name);
 
 		printf("file: %s\n", files[i].name);
 
@@ -2024,6 +2015,7 @@ FS_Dir_f(void)
 	char **dirnames; /* File list. */
 	char findname[1024]; /* File search path and pattern. */
 	char *path = NULL; /* Search path. */
+	char *lastsep;
 	char wildcard[1024] = "*.*"; /* File pattern. */
 	int i; /* Loop counter. */
 	int ndirs; /* Number of files in list. */
@@ -2045,9 +2037,10 @@ FS_Dir_f(void)
 		{
 			for (i = 0; i < ndirs - 1; i++)
 			{
-				if (strrchr(dirnames[i], '/'))
+				lastsep = strrchr(dirnames[i], '/');
+				if (lastsep)
 				{
-					Com_Printf("%s\n", strrchr(dirnames[i], '/') + 1);
+					Com_Printf("%s\n", lastsep + 1);
 				}
 				else
 				{
@@ -2590,13 +2583,7 @@ static void FS_AddDirToRawPath (const char *rawdir, qboolean create, qboolean re
 	}
 
 	// Convert backslashes to forward slashes.
-	for (int i = 0; i < strlen(dir); i++)
-	{
-		if (dir[i] == '\\')
-		{
-			dir[i] = '/';
-		}
-	}
+	Q_replacebackslash(dir);
 
 	// Make sure that the dir doesn't end with a slash.
 	for (size_t s = strlen(dir) - 1; s > 0; s--)

@@ -726,6 +726,11 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			gl4_alpha_surfaces = surf;
 			gl4_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
 		}
+		else if (surf->texinfo->flags & SURF_NODRAW)
+		{
+			/* Surface should be skipped */
+			continue;
+		}
 		else
 		{
 			// calling RenderLightmappedPoly() here probably isn't optimal, rendering everything

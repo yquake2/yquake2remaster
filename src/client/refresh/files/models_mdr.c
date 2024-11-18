@@ -236,7 +236,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	}
 
 	mdr_lod_t *inlod;
-	inlod = (mdr_lod_t*)(buffer + pinmodel.ofs_lods);
+	inlod = (mdr_lod_t*)((byte *)buffer + pinmodel.ofs_lods);
 
 	meshofs = inlod->ofs_surfaces;
 	for (i = 0; i < inlod->num_surfaces; i++)

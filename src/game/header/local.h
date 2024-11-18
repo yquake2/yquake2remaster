@@ -411,10 +411,15 @@ typedef struct
 	float minpitch;
 	float maxpitch;
 
+	/* misc_flare */
 	float radius;
 	float fade_start_dist;
 	float fade_end_dist;
 	char *image;
+	unsigned rgba;
+
+	/* Addional fields for models */
+	vec3_t scale;
 } spawn_temp_t;
 
 typedef struct
@@ -679,6 +684,7 @@ extern cvar_t *aimfix;
 extern cvar_t *g_machinegun_norecoil;
 extern cvar_t *g_quick_weap;
 extern cvar_t *g_swap_speed;
+extern cvar_t *g_language;
 
 /* this is for the count of monsters */
 #define ENT_SLOTS_LEFT \
@@ -1084,7 +1090,7 @@ void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 /* g_spawn.c */
 void ED_CallSpawn(edict_t *ent);
 char *ED_NewString(const char *string, qboolean raw);
-void DynamicSpawnInit(void);
+void SpawnInit(void);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
 edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t mins,

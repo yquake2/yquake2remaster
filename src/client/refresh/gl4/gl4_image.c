@@ -610,18 +610,20 @@ GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
  * Finds or loads the given image or NULL
  */
 gl4image_t *
-GL4_FindImage(const char *name, imagetype_t type)
+GL4_FindImage(const char *originname, imagetype_t type)
 {
+	char namewe[256], name[256] = {0};
 	gl4image_t *image;
-	int i, len;
-	char *ptr;
-	char namewe[256];
 	const char* ext;
+	int i, len;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	strncpy(name, originname, sizeof(name) - 1);
+
 
 	ext = COM_FileExtension(name);
 	if(!ext[0])
@@ -642,10 +644,7 @@ GL4_FindImage(const char *name, imagetype_t type)
 	}
 
 	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
+	Q_replacebackslash(name);
 
 	/* look for it */
 	for (i = 0, image = gl4textures; i < numgl4textures; i++, image++)

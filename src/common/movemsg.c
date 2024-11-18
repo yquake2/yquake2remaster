@@ -505,6 +505,13 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		}
 	}
 
+	/* Scale with skins if force or different */
+	if ((protocol == PROTOCOL_VERSION) &&
+		((to->scale != from->scale) || force))
+	{
+		bits |= (U_SKIN8 | U_SKIN16);
+	}
+
 	if (to->frame != from->frame)
 	{
 		if (to->frame < 256)
@@ -650,12 +657,28 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 	{
 		if (bits & U_MODEL)
 		{
-			MSG_WriteByte(msg, to->modelindex);
+			int modelindex = to->modelindex;
+
+			/* New protocol use 16 bit for model id, and custom player model
+			 * id is different to old one, converty back */
+			if (modelindex == CUSTOM_PLAYER_MODEL)
+			{
+				modelindex = QII97_PLAYER_MODEL;
+			}
+			MSG_WriteByte(msg, modelindex);
 		}
 
 		if (bits & U_MODEL2)
 		{
-			MSG_WriteByte(msg, to->modelindex2);
+			int modelindex = to->modelindex2;
+
+			/* New protocol use 16 bit for model id, and custom player model
+			 * id is different to old one, converty back */
+			if (modelindex == CUSTOM_PLAYER_MODEL)
+			{
+				modelindex = QII97_PLAYER_MODEL;
+			}
+			MSG_WriteByte(msg, modelindex);
 		}
 
 		if (bits & U_MODEL3)
@@ -704,6 +727,20 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /*used for laser colors */
 	{
 		MSG_WriteLong(msg, to->skinnum);
+
+		/* Send scale */
+		if (protocol == PROTOCOL_VERSION)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				MSG_WriteFloat(msg, to->scale[i]);
+			}
+
+			printf("send scale %.2fx%.2fx%.2f\n",
+				to->scale[0], to->scale[1], to->scale[2]);
+		}
 	}
 
 	else if (bits & U_SKIN8)

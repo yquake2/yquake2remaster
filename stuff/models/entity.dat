@@ -600,7 +600,7 @@ character_siernan2|models/monsters/siernan/laying/tris.fm|1.0|1.0|1.0|general|-1
 character_ssithra_scout|models/monsters/ssithra/scout_scene/tris.fm|1.0|1.0|1.0|general|-26.0|-16.0|-13.0|26.0|16.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra scout|0.3|0.3|1.0
 character_ssithra_victim|models/monsters/Ssithra/cinematics/tris.fm|1.0|1.0|1.0|general|-40.0|-16.0|-2.0|40.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra torture victim|0.3|0.3|1.0
 character_tome|models/spells/book/tris.fm|1.0|1.0|1.0|general|-4.0|-8.0|-12.0|4.0|8.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tome of Power|0.3|0.3|1.0
-choose_CDTrack||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets CD track|.5|.5|.5
+choose_cdtrack||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets CD track|.5|.5|.5
 env_bubbler||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bubbler|0.3|0.3|1.0
 env_dust||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dust (triggered)|0.3|0.3|1.0
 env_fire||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flame effect. Does not emit light|0.3|0.3|1.0
@@ -887,12 +887,10 @@ trigger_endgame||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|
 trigger_farclip||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Changes the console variable r_farclipdist.|0.5|0.5|0.5
 trigger_fogdensity||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets r_fog_density and fog color|.5|.5|.5
 trigger_goto_buoy||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Send monster to buoy|.5|.5|.5
-trigger_Gravity||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.5|.5
 trigger_lightning||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggers lightning bolt|0.5|0.5|0.5
 trigger_mappercentage||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Map percentage|0.3|0.1|0.6
 trigger_mission_give||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gives mission objectives|0.5|0.5|0.5
 trigger_mission_take||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Removes mission objectives|0.5|0.5|0.5
-trigger_MonsterJump||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Makes monsters jump|0.5|0.5|0.5
 trigger_playerpushbutton||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player push button|.5|.5|.5
 trigger_playerpushlever||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Push lever|.5|.5|.5
 trigger_playerusepuzzle||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player can use puzzle items within this entity|.5|.5|.5

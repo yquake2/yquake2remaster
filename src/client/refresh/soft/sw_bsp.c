@@ -322,7 +322,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 	numsurfaces = currentmodel->nummodelsurfaces;
 	pedges = currentmodel->edges;
 
-	for (i=0 ; i<numsurfaces ; i++, psurf++)
+	for (i = 0; i < numsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		bedge_t  *pbedge;
@@ -337,7 +337,9 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 		// draw the polygon
 		if (( !(psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			((psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
+		{
 			continue;
+		}
 
 		// FIXME: use bounding-box-based frustum clipping info?
 
@@ -349,7 +351,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 		pbedge = &bedges[numbedges];
 		numbedges += psurf->numedges;
 
-		for (j=0 ; j<psurf->numedges ; j++)
+		for (j = 0; j < psurf->numedges; j++)
 		{
 			int	lindex;
 

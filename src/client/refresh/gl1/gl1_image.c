@@ -1139,18 +1139,19 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
  * Finds or loads the given image or null
  */
 image_t *
-R_FindImage(const char *name, imagetype_t type)
+R_FindImage(const char *originname, imagetype_t type)
 {
+	char namewe[256], name[256] = {0};
+	const char* ext;
 	image_t *image;
 	int i, len;
-	char *ptr;
-	char namewe[256];
-	const char* ext;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	strncpy(name, originname, sizeof(name) - 1);
 
 	ext = COM_FileExtension(name);
 	if(!ext[0])
@@ -1171,10 +1172,7 @@ R_FindImage(const char *name, imagetype_t type)
 	}
 
 	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
+	Q_replacebackslash(name);
 
 	/* look for it */
 	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
