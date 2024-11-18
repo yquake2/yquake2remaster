@@ -382,7 +382,7 @@ extern qboolean R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum,
 extern void R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
 		float *lerp, const float move[3],
-		const float frontv[3], const float backv[3]);
+		const float frontv[3], const float backv[3], const float *scale);
 extern void R_ConvertNormalMDL(byte in_normal, signed char *normal);
 extern vec4_t *R_VertBufferRealloc(int num);
 extern void R_VertBufferInit(void);

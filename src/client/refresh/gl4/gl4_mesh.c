@@ -289,7 +289,8 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 
 	lerp = s_lerped[0];
 
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp, move, frontv, backv);
+	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp,
+		move, frontv, backv, entity->scale);
 
 	YQ2_STATIC_ASSERT(sizeof(gl4_alias_vtx_t) == 9 * sizeof(GLfloat), "invalid gl4_alias_vtx_t size");
 
@@ -469,7 +470,8 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 
 		// false: don't extrude vertices for powerup - this means the powerup shell
 		//  is not seen in the shadow, only the underlying model..
-		R_LerpVerts(false, paliashdr->num_xyz, verts, ov, s_lerped[0], move, frontv, backv);
+		R_LerpVerts(false, paliashdr->num_xyz, verts, ov, s_lerped[0],
+			move, frontv, backv, entity->scale);
 	}
 
 	lheight = entity->origin[2] - shadowInfo->lightspot[2];
@@ -543,6 +545,15 @@ GL4_DrawAliasModel(entity_t *entity)
 		if (gl_lefthand->value == 2)
 		{
 			return;
+		}
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		/* fix scale */
+		if (!entity->scale[i])
+		{
+			entity->scale[i] = 1.0f;
 		}
 	}
 

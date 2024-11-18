@@ -1073,6 +1073,9 @@ monster_death_use(edict_t *self)
 qboolean
 monster_start(edict_t *self)
 {
+	float scale;
+	int i;
+
 	if (!self)
 	{
 		return false;
@@ -1127,6 +1130,37 @@ monster_start(edict_t *self)
 	if (!self->monsterinfo.checkattack)
 	{
 		self->monsterinfo.checkattack = M_CheckAttack;
+	}
+
+	scale = 0;
+
+	for (i = 0; i < 3; i++)
+	{
+		if (!self->s.scale[i])
+		{
+			/* fix empty scale */
+			self->s.scale[i] = 1.0f;
+		}
+
+		scale += self->s.scale[i];
+	}
+
+	scale /= 3;
+
+	/* non default scale */
+	if (scale != 1.0)
+	{
+		int i;
+
+		self->monsterinfo.scale *= scale;
+		self->mass *= scale;
+
+
+		for (i = 0; i < 3; i++)
+		{
+			self->mins[i] *= self->s.scale[i];
+			self->maxs[i] *= self->s.scale[i];
+		}
 	}
 
 	VectorCopy(self->s.origin, self->s.old_origin);

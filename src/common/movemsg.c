@@ -505,6 +505,15 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		}
 	}
 
+	/* Scale with skins if force or different */
+	if ((protocol == PROTOCOL_VERSION) &&
+		((to->scale[0] != from->scale[0]) ||
+		 (to->scale[1] != from->scale[1]) ||
+		 (to->scale[2] != from->scale[2])))
+	{
+		bits |= (U_SKIN8 | U_SKIN16);
+	}
+
 	if (to->frame != from->frame)
 	{
 		if (to->frame < 256)
@@ -720,6 +729,17 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /*used for laser colors */
 	{
 		MSG_WriteLong(msg, to->skinnum);
+
+		/* Send scale */
+		if (protocol == PROTOCOL_VERSION)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				MSG_WriteFloat(msg, to->scale[i]);
+			}
+		}
 	}
 
 	else if (bits & U_SKIN8)

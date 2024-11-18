@@ -1127,7 +1127,7 @@ SP_trigger_monsterjump(edict_t *self)
 
 /*
  * QUAKED choose_cdtrack (.5 .5 .5) ?
- * Sets CD track
+ * HEretic 2: Sets CD track
  *
  * style: CD Track Id
  */

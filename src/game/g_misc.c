@@ -3297,13 +3297,17 @@ misc_flare_use(edict_t *ent, edict_t *other, edict_t *activator)
 void
 SP_misc_flare(edict_t* ent)
 {
+	int i;
+
 	ent->s.modelindex = 0;
 	ent->s.renderfx = RF_FLARE;
 	ent->solid = SOLID_NOT;
-	/*
-	 * TODO: Add scale field
-	 * ent->s.scale = st.radius;
-	 */
+
+	/* Radius saved to scale */
+	for (i = 0; i < 3; i++)
+	{
+		ent->s.scale[i] = st.radius;
+	}
 
 	if (ent->spawnflags & SPAWNFLAG_FLARE_RED)
 	{

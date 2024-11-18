@@ -2120,6 +2120,7 @@ DynamicSpawnInit(void)
 			if (*curr &&  *curr != '\n' && *curr != '\r' && *curr != ',')
 			{
 				char *line, scale[MAX_QPATH];
+				int i;
 
 				line = curr;
 				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, ',');
@@ -2181,6 +2182,10 @@ DynamicSpawnInit(void)
 					* max attenuation
 				 */
 
+				for (i = 0; i < 3; i++)
+				{
+					dynamicentities[curr_pos].scale[i] = 1.0f;
+				}
 
 				/* Fix path */
 				Q_replacebackslash(dynamicentities[curr_pos].model_path);

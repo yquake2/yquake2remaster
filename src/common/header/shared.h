@@ -1222,6 +1222,7 @@ typedef struct entity_state_s
 	int event;              /* impulse events -- muzzle flashes, footsteps, etc */
 							/* events only go out for a single frame, they */
 							/* are automatically cleared each frame */
+	/* New protocol fields */
 	vec3_t scale;
 } entity_state_t;
 

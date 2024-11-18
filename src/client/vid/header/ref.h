@@ -68,6 +68,7 @@ typedef struct entity_s {
 	/* misc */
 	float	backlerp; /* 0.0 = current, 1.0 = old */
 	int		skinnum; /* also used as RF_BEAM's palette index */
+	vec3_t	scale; /* model scale before render */
 
 	int		lightstyle; /* for flashing entities */
 	float	alpha; /* ignore if RF_TRANSLUCENT isn't set */
