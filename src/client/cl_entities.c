@@ -198,8 +198,9 @@ CL_AddPacketEntities(frame_t *frame)
 				ent.skin = NULL;
 				ent.model = cl.model_draw[s1->modelindex];
 			}
+
 			/* store scale */
-			ent.scale = s1->scale[0];
+			VectorCopy(s1->scale, ent.scale);
 		}
 
 		/* only used for black hole model right now */

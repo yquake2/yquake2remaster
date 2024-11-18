@@ -548,6 +548,15 @@ GL3_DrawAliasModel(entity_t *entity)
 		}
 	}
 
+	for (i = 0; i < 3; i++)
+	{
+		/* fix scale */
+		if (!entity->scale[i])
+		{
+			entity->scale[i] = 1.0f;
+		}
+	}
+
 	gl3model_t* model = entity->model;
 	paliashdr = (dmdx_t *)model->extradata;
 

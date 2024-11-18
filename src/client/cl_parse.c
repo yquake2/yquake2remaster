@@ -145,8 +145,13 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 
 	if (cls.serverProtocol != PROTOCOL_VERSION)
 	{
+		int i;
+
 		/* Always set scale to 1.0f for old clients */
-		to->scale[0] = 1.0f;
+		for (i = 0; i < 3; i++)
+		{
+			to->scale[i] = 1.0f;
+		}
 	}
 
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
@@ -219,8 +224,15 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 		/* Additional scale with skinnum */
 		if (cls.serverProtocol == PROTOCOL_VERSION)
 		{
-			to->scale[0] = MSG_ReadFloat(&net_message);
-			printf("received scale %f\n", to->scale[0]);
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				to->scale[i] = MSG_ReadFloat(&net_message);
+			}
+
+			printf("received scale %.2fx%.2fx%.2f\n",
+				to->scale[0], to->scale[1], to->scale[2]);
 		}
 	}
 	else if (bits & U_SKIN8)

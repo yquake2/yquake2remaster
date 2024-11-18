@@ -95,18 +95,20 @@ void
 R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
 		float *lerp, const float move[3],
-		const float frontv[3], const float backv[3], float scale)
+		const float frontv[3], const float backv[3], const float *scale)
 {
-	int i;
+	vec3_t new_scale = {1.0, 1.0, 1.0};
+	scale = new_scale;
 
-	/* If scale is undefined, set scale 1.0f */
-	if (!scale)
+	if (!scale[0] || !scale[1] || !scale[2])
 	{
-		scale = 1.0f;
+		printf("model without scale\n");
 	}
 
 	if (powerUpEffect)
 	{
+		int i;
+
 		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
 			int n;
@@ -117,18 +119,23 @@ R_LerpVerts(qboolean powerUpEffect, int nverts,
 
 				normal = v->normal[n] / 127.f;
 
-				lerp[n] = scale * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]) +
+				lerp[n] = scale[n] * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]) +
 						  normal * POWERSUIT_SCALE;
 			}
 		}
 	}
 	else
 	{
+		int i;
+
 		for (i = 0; i < nverts; i++, v++, ov++, lerp += 4)
 		{
-			lerp[0] = scale * (move[0] + ov->v[0] * backv[0] + v->v[0] * frontv[0]);
-			lerp[1] = scale * (move[1] + ov->v[1] * backv[1] + v->v[1] * frontv[1]);
-			lerp[2] = scale * (move[2] + ov->v[2] * backv[2] + v->v[2] * frontv[2]);
+			int n;
+
+			for (n = 0; n < 3; n++)
+			{
+				lerp[n] = scale[n] * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]);
+			}
 		}
 	}
 }

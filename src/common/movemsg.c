@@ -731,9 +731,15 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		/* Send scale */
 		if (protocol == PROTOCOL_VERSION)
 		{
-			to->scale[0] = 1.5f;
-			MSG_WriteFloat(msg, to->scale[0]);
-			printf("send scale %f\n", to->scale[0]);
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				MSG_WriteFloat(msg, to->scale[i]);
+			}
+
+			printf("send scale %.2fx%.2fx%.2f\n",
+				to->scale[0], to->scale[1], to->scale[2]);
 		}
 	}
 

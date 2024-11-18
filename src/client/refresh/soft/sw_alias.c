@@ -795,17 +795,21 @@ R_AliasDrawModel
 void
 R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel)
 {
+	int i;
+
 	s_pmdl = (dmdx_t *)currentmodel->extradata;
 
 	if ( r_lerpmodels->value == 0 )
+	{
 		currententity->backlerp = 0;
+	}
 
 	float oldAliasxscale = aliasxscale;
 	float oldAliasyscale = aliasyscale;
 
-	if ( currententity->flags & RF_WEAPONMODEL )
+	if (currententity->flags & RF_WEAPONMODEL)
 	{
-		if ( r_lefthand->value == 2.0F )
+		if (r_lefthand->value == 2.0F)
 		{
 			return;
 		}
@@ -819,6 +823,15 @@ R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel)
 
 		if ( r_lefthand->value == 1.0F )
 			aliasxscale = -aliasxscale;
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		/* fix scale */
+		if (!currententity->scale[i])
+		{
+			currententity->scale[i] = 1.0f;
+		}
 	}
 
 	/*
