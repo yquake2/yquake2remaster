@@ -485,21 +485,21 @@ void SP_misc_actor (edict_t *self)
 {
 	if (deathmatch->value)
 	{
-		G_FreeEdict (self);
+		G_FreeEdict(self);
 		return;
 	}
 
 	if (!self->targetname)
 	{
 		gi.dprintf("untargeted %s at %s\n", self->classname, vtos(self->s.origin));
-		G_FreeEdict (self);
+		G_FreeEdict(self);
 		return;
 	}
 
 	if (!self->target)
 	{
 		gi.dprintf("%s with no target at %s\n", self->classname, vtos(self->s.origin));
-		G_FreeEdict (self);
+		G_FreeEdict(self);
 		return;
 	}
 

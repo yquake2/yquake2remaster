@@ -154,7 +154,7 @@ magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (surf && (surf->flags & SURF_SKY))
 	{
-		G_FreeEdict (self);
+		G_FreeEdict(self);
 		return;
 	}
 	if (other->takedamage)

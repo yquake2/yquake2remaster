@@ -590,12 +590,12 @@ character_corvus7|models/player/morcalavin_scene/tris.fm|1.0|1.0|1.0|general|-17
 character_corvus8|models/player/siernan_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the Siernan scenes|0.3|0.3|1.0
 character_corvus9|models/player/t'chekrikscene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the T'chekrik scenes|0.3|0.3|1.0
 character_dranor|models/monsters/plaguelf/dranor/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dranor|0.3|0.3|1.0
-character_elflord|models/monsters/elflord/cinematic/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-78.0|24.0|24.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|0.3|0.3|1.0
+character_elflord|models/monsters/elflord/cinematic/tris.fm|2.0|2.0|2.0|general|-24.0|-24.0|-78.0|24.0|24.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|0.3|0.3|1.0
 character_highpriestess|models/monsters/highpriestess/cinematic/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-36.0|24.0|24.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|0.3|0.3|1.0
 character_highpriestess2|models/monsters/highpriestess/pod_scene/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-36.0|24.0|24.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|0.3|0.3|1.0
 character_morcalavin|models/monsters/morcalavin/cinematic/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-50.0|24.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|0.3|0.3|1.0
 character_sidhe_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-16|-16|-26|16|16|26|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
-character_siernan1|models/monsters/siernan/standing/tris.fm|1.0|1.0|1.0|general|-10.0|-10.0|-20.0|10.0|10.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan standing|0.3|0.3|1.0
+character_siernan1|models/monsters/siernan/standing/tris.fm|1.2|1.2|1.2|general|-10.0|-10.0|-20.0|10.0|10.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan standing|0.3|0.3|1.0
 character_siernan2|models/monsters/siernan/laying/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|0.0|22.0|12.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan laying down|0.3|0.3|1.0
 character_ssithra_scout|models/monsters/ssithra/scout_scene/tris.fm|1.0|1.0|1.0|general|-26.0|-16.0|-13.0|26.0|16.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra scout|0.3|0.3|1.0
 character_ssithra_victim|models/monsters/Ssithra/cinematics/tris.fm|1.0|1.0|1.0|general|-40.0|-16.0|-2.0|40.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra torture victim|0.3|0.3|1.0
@@ -697,11 +697,11 @@ monster_palace_plague_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general
 monster_palace_plague_guard_invisible|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0
 monster_plagueElf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Elf|1.0|0.5|0.0
 monster_rat|models/monsters/rat/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rat|1.0|0.5|0.0
-monster_rat_giant|models/monsters/rat/superduperat/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0
-monster_seraph_guard|models/monsters/guard/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Guard|1.0|0.5|0.0
+monster_rat_giant|models/monsters/rat/superduperat/tris.fm|2.0|2.0|2.0|general|-8.0|-8.0|-0.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0
+monster_seraph_guard|models/monsters/guard/tris.fm|2.5|2.5|2.5|general|-12.0|-12.0|-17.0|12.0|12.0|17.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Guard|1.0|0.5|0.0
 monster_seraph_overlord|models/monsters/overlord/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Overlord|1.0|0.5|0.0
 monster_spreader|models/monsters/spreader/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spreader|1.0|0.5|0.0
-monster_ssithra|models/monsters/ssithra/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0
+monster_ssithra|models/monsters/ssithra/tris.fm|1.1|1.1|1.1|general|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0
 monster_tcheckrik_female|models/monsters/tcheckrik/female/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Female Tcheckrik|1.0|0.5|0.0
 monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Male Tcheckrik|1.0|0.5|0.0
 monster_tcheckrik_mothers|models/monsters/mother/tris.fm|1.0|1.0|1.0|general|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0

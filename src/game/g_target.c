@@ -657,7 +657,7 @@ void
 SP_target_spawner(edict_t *self)
 {
 	vec3_t	forward;
-	vec3_t	fact2spawnpoint1 = {-1504,512,72};
+	vec3_t	fact2spawnpoint1 = {-1504, 512, 72};
 
 	if (!self)
 	{

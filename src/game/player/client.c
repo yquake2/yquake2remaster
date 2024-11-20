@@ -1942,13 +1942,13 @@ respawn(edict_t *self)
 
 	if (self->client->oldplayer)
 	{
-			G_FreeEdict (self->client->oldplayer);
+			G_FreeEdict(self->client->oldplayer);
 	}
 	self->client->oldplayer = NULL;
 
 	if (self->client->chasecam)
 	{
-			G_FreeEdict (self->client->chasecam);
+			G_FreeEdict(self->client->chasecam);
 	}
 	self->client->chasecam = NULL;
 
