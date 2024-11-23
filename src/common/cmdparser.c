@@ -909,7 +909,7 @@ Cmd_CompleteMapCommand(const char *partial)
 {
 	char **mapNames;
 	int i, j, k, nbMatches, len, nMaps;
-	char *mapName;
+	char *mapName, *lastsep;
 	char *pmatch[1024];
 	qboolean partialFillContinue = true;
 
@@ -921,9 +921,9 @@ Cmd_CompleteMapCommand(const char *partial)
 
 		for (i = 0; i < nMaps - 1; i++)
 		{
-			if (strrchr(mapNames[i], '/'))
+			if ((lastsep = strrchr(mapNames[i], '/')))
 			{
-				mapName = strrchr(mapNames[i], '/') + 1;
+				mapName = lastsep + 1;
 			}
 			else
 			{

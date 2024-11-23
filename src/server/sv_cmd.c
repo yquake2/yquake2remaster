@@ -325,7 +325,7 @@ SV_ListMaps_f(void)
 	char **userMapNames;
 	int nUserMaps = 0;
 	int i;
-	char* mapName;
+	char* mapName, *lastsep;
 
 	Com_Printf("\n");
 
@@ -333,9 +333,9 @@ SV_ListMaps_f(void)
 	{
 		for (i = 0; i < nUserMaps - 1; i++)
 		{
-			if (strrchr(userMapNames[i], '/'))
+			if ((lastsep = strrchr(userMapNames[i], '/')))
 			{
-				mapName = strrchr(userMapNames[i], '/') + 1;
+				mapName = lastsep + 1;
 			}
 			else
 			{
