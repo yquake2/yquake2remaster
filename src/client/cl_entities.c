@@ -254,6 +254,20 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 		}
 
+		if (effects & EF_FLASHLIGHT) {
+			vec3_t forward, start, end;
+			trace_t trace;
+			int mask = CONTENTS_SOLID | CONTENTS_MONSTER;
+
+			AngleVectors(ent.angles, forward, NULL, NULL);
+			VectorMA(ent.origin, 1024, forward, end);
+			VectorCopy(ent.origin, start);
+
+			trace = CM_BoxTrace(start, end, vec3_origin, vec3_origin, 0, mask);
+
+			V_AddLight(trace.endpos, 256, 1, 1, 1);
+		}
+
 		if (s1->number == cl.playernum + 1)
 		{
 			ent.flags |= RF_VIEWERMODEL;
