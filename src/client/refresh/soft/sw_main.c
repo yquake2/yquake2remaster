@@ -1854,9 +1854,9 @@ GetRefAPI(refimport_t imp)
 	refexport.EndWorldRenderpass = RE_EndWorldRenderpass;
 	refexport.EndFrame = RE_EndFrame;
 
-    // Tell the client that we're unsing the
+	// Tell the client that we're unsing the
 	// new renderer restart API.
-    ri.Vid_RequestRestart(RESTART_NO);
+	ri.Vid_RequestRestart(RESTART_NO);
 
 	Swap_Init ();
 
@@ -1909,10 +1909,10 @@ RE_InitContext(void *win)
 		SDL_SetRenderVSync(renderer, 1);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-                if(!renderer)
-                {
-                	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
-                }
+		if(!renderer)
+		{
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
+		}
 #endif
 	}
 	else
@@ -1921,10 +1921,10 @@ RE_InitContext(void *win)
 		renderer = SDL_CreateRenderer(window, NULL);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-                if(!renderer)
-                {
-                	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-                }
+		if(!renderer)
+		{
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+		}
 #endif
 	}
 	if(!renderer) {

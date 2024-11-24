@@ -376,7 +376,7 @@ ShutdownGraphics(void)
 		}
 		else {
 			SDL_GetWindowPosition(window,
-				      &last_position_x, &last_position_y);
+				&last_position_x, &last_position_y);
 		}
 
 		/* cleanly ungrab input (needs window) */
@@ -640,8 +640,7 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 		Com_Printf("Real display mode: %ix%i@%i\n", mode.w, mode.h, mode.refresh_rate);
 	}
 
-
-    /* Initialize rendering context. */
+	/* Initialize rendering context. */
 	if (!re.InitContext(window))
 	{
 		/* InitContext() should have logged an error. */
