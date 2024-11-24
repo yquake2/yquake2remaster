@@ -180,6 +180,7 @@
 {"target_crosslevel_trigger", SP_target_crosslevel_trigger},
 {"target_earthquake", SP_target_earthquake},
 {"target_explosion", SP_target_explosion},
+{"trigger_flashlight", SP_trigger_flashlight},
 {"target_goal", SP_target_goal},
 {"target_gravity", SP_target_gravity},
 {"target_help", SP_target_help},

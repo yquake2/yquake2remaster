@@ -1125,9 +1125,59 @@ SP_trigger_monsterjump(edict_t *self)
 	self->movedir[2] = st.height;
 }
 
+/* QUAKED trigger_flashlight (.5 .5 .5) ?
+ * Players moving against this trigger will have their flashlight turned on or off.
+ * "style" default to 0, set to 1 to always turn flashlight on, 2 to always turn off,
+ *      otherwise "angles" are used to control on/off state
+ */
+
+#define SPAWNFLAG_FLASHLIGHT_CLIPPED 1
+
+void
+trigger_flashlight_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	if (!other->client)
+	{
+		return;
+	}
+
+	if (self->style == 1)
+	{
+		P_ToggleFlashlight(other, true);
+	}
+	else if (self->style == 2)
+	{
+		P_ToggleFlashlight(other, false);
+	}
+	else if (VectorLength(other->velocity) > 6)
+	{
+		vec3_t forward;
+
+		VectorNormalize2(other->velocity, forward);
+
+		P_ToggleFlashlight(other, _DotProduct(forward, self->movedir) > 0);
+	}
+}
+
+void
+SP_trigger_flashlight(edict_t *self)
+{
+	if (self->s.angles[YAW] == 0)
+	{
+		self->s.angles[YAW] = 360;
+	}
+
+	InitTrigger(self);
+	self->touch = trigger_flashlight_touch;
+	self->movedir[2] = (float) st.height;
+
+	gi.linkentity(self);
+}
+
 /*
  * QUAKED choose_cdtrack (.5 .5 .5) ?
- * HEretic 2: Sets CD track
+ * Heretic 2: Sets CD track
  *
  * style: CD Track Id
  */

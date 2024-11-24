@@ -276,6 +276,32 @@ Pickup_Powerup(edict_t *ent, edict_t *other)
 	return true;
 }
 
+qboolean
+Pickup_General(edict_t *ent, edict_t *other)
+{
+	if (!ent || !other)
+	{
+		return false;
+	}
+
+	if (other->client->pers.inventory[ITEM_INDEX(ent->item)])
+	{
+		return false;
+	}
+
+	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
+
+	if (deathmatch->value)
+	{
+		if (!(ent->spawnflags & DROPPED_ITEM))
+		{
+			SetRespawn(ent, ent->item->quantity);
+		}
+	}
+
+	return true;
+}
+
 void
 Drop_General(edict_t *ent, gitem_t *item)
 {
@@ -2406,6 +2432,29 @@ SpawnItem(edict_t *ent, gitem_t *item)
 	}
 }
 
+
+void
+P_ToggleFlashlight(edict_t *ent, qboolean state)
+{
+	if (!!(ent->flags & FL_FLASHLIGHT) == state)
+	{
+		return;
+	}
+
+	ent->flags ^= FL_FLASHLIGHT;
+
+	gi.sound(ent, CHAN_AUTO,
+		gi.soundindex(ent->flags & FL_FLASHLIGHT ?
+			"items/flashlight_on.wav" : "items/flashlight_off.wav"),
+		1.f, ATTN_STATIC, 0);
+}
+
+void
+Use_Flashlight(edict_t *ent, gitem_t *inv)
+{
+	P_ToggleFlashlight(ent, !(ent->flags & FL_FLASHLIGHT));
+}
+
 /* ====================================================================== */
 
 static const gitem_t gameitemlist[] = {
@@ -4301,6 +4350,27 @@ static const gitem_t gameitemlist[] = {
 		NULL,
 		0,
 		"ctf/tech4.wav"
+	},
+
+	{
+		"item_flashlight",
+		Pickup_General,
+		Use_Flashlight,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/flashlight/tris.md2", EF_ROTATE,
+		NULL,
+		"p_torch",
+		"Flashlight",
+		2,
+		0,
+		NULL,
+		IT_STAY_COOP,
+		0,
+		NULL,
+		0,
+		"items/flashlight_on.wav items/flashlight_off.wav",
 	},
 
 	/* end of list marker */

@@ -76,7 +76,8 @@
 #define FL_TEAMSLAVE 0x00000400             /* not the first on the team */
 #define FL_NO_KNOCKBACK 0x00000800
 #define FL_POWER_ARMOR 0x00001000           /* power armor (if any) is active */
-#define FL_COOP_TAKEN 0x00002000 /* Another client has already taken it */
+#define FL_COOP_TAKEN 0x00002000            /* Another client has already taken it */
+#define FL_FLASHLIGHT 0x00004000            /* enable flashlight */
 #define FL_RESPAWN 0x80000000               /* used for item respawning */
 
 #define FL_MECHANICAL 0x00002000            /* entity is mechanical, use sparks not blood */
@@ -1091,6 +1092,7 @@ void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 void ED_CallSpawn(edict_t *ent);
 char *ED_NewString(const char *string, qboolean raw);
 void SpawnInit(void);
+void P_ToggleFlashlight(edict_t *ent, qboolean state);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
 edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t mins,

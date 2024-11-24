@@ -1123,6 +1123,11 @@ G_SetClientEffects(edict_t *ent)
 		return;
 	}
 
+	if (ent->flags & FL_FLASHLIGHT)
+	{
+		ent->s.effects |= EF_FLASHLIGHT;
+	}
+
 	if (ent->flags & FL_DISGUISED)
 	{
 		ent->s.renderfx |= RF_USE_DISGUISE;
