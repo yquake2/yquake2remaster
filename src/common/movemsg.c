@@ -527,14 +527,14 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		}
 	}
 
-	if (to->effects != from->effects)
+	if ((to->effects != from->effects) || (to->rr_effects != from->rr_effects))
 	{
-		if (to->effects < 256)
+		if ((to->effects < 256) && (to->rr_effects < 256))
 		{
 			bits |= U_EFFECTS8;
 		}
 
-		else if (to->effects < 0x8000)
+		else if ((to->effects < 0x8000) && (to->rr_effects < 0x8000))
 		{
 			bits |= U_EFFECTS16;
 		}
@@ -765,6 +765,25 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 	else if (bits & U_EFFECTS16)
 	{
 		MSG_WriteShort(msg, to->effects);
+	}
+
+	/* ReRelease effects */
+	if (protocol == PROTOCOL_VERSION)
+	{
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		{
+			MSG_WriteLong(msg, to->rr_effects);
+		}
+
+		else if (bits & U_EFFECTS8)
+		{
+			MSG_WriteByte(msg, to->rr_effects);
+		}
+
+		else if (bits & U_EFFECTS16)
+		{
+			MSG_WriteShort(msg, to->rr_effects);
+		}
 	}
 
 	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))

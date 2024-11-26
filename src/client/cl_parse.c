@@ -254,6 +254,27 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 		to->effects = MSG_ReadShort(&net_message);
 	}
 
+	/* ReRelease effects */
+	if (cls.serverProtocol != PROTOCOL_VERSION)
+	{
+		to->rr_effects = 0;
+	}
+	else
+	{
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		{
+			to->rr_effects = MSG_ReadLong(&net_message);
+		}
+		else if (bits & U_EFFECTS8)
+		{
+			to->rr_effects = MSG_ReadByte(&net_message);
+		}
+		else if (bits & U_EFFECTS16)
+		{
+			to->rr_effects = MSG_ReadShort(&net_message);
+		}
+	}
+
 	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
 	{
 		to->renderfx = MSG_ReadLong(&net_message);

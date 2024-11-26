@@ -40,7 +40,6 @@ CL_AddPacketEntities(frame_t *frame)
 	centity_t *cent;
 	int autoanim;
 	clientinfo_t *ci;
-	unsigned int effects, renderfx;
 
 	/* To distinguish baseq2, xatrix and rogue. */
 	cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
@@ -53,12 +52,15 @@ CL_AddPacketEntities(frame_t *frame)
 
 	for (pnum = 0; pnum < frame->num_entities; pnum++)
 	{
+		unsigned int effects, renderfx, rr_effects;
+
 		s1 = &cl_parse_entities[(frame->parse_entities +
 				pnum) & (MAX_PARSE_ENTITIES - 1)];
 
 		cent = &cl_entities[s1->number];
 
 		effects = s1->effects;
+		rr_effects = s1->rr_effects;
 		renderfx = s1->renderfx;
 
 		/* set frame */
@@ -132,7 +134,7 @@ CL_AddPacketEntities(frame_t *frame)
 			for (i = 0; i < 3; i++)
 			{
 				ent.origin[i] = ent.oldorigin[i] = cent->prev.origin[i] + cl.lerpfrac *
-				   	(cent->current.origin[i] - cent->prev.origin[i]);
+					(cent->current.origin[i] - cent->prev.origin[i]);
 			}
 		}
 
@@ -254,7 +256,7 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 		}
 
-		if (effects & EF_FLASHLIGHT) {
+		if (rr_effects & EF_FLASHLIGHT) {
 			vec3_t forward, start, end;
 			trace_t trace;
 			int mask = CONTENTS_SOLID | CONTENTS_MONSTER;

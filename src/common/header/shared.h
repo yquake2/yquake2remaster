@@ -692,7 +692,6 @@ typedef struct
  * it has a zero index model. */
 #define EF_ROTATE 0x00000001                /* rotate (bonus items) */
 #define EF_GIB 0x00000002                   /* leave a trail */
-#define EF_FLASHLIGHT 0x00000004            /* project flashlight, only for players */
 #define EF_BLASTER 0x00000008               /* redlight + trail */
 #define EF_ROCKET 0x00000010                /* redlight + trail */
 #define EF_GRENADE 0x00000020
@@ -722,6 +721,10 @@ typedef struct
 #define EF_TAGTRAIL 0x20000000
 #define EF_HALF_DAMAGE 0x40000000
 #define EF_TRACKERTRAIL 0x80000000
+
+/* entity_state_t->rr_effects
+ * ReRelease flags, values are diffeent to quake 2 RR code */
+#define EF_FLASHLIGHT 0x00000001         /* project flashlight, only for players */
 
 /* entity_state_t->renderfx flags */
 #define RF_MINLIGHT 1               /* allways have some light (viewmodel) */
@@ -1224,7 +1227,8 @@ typedef struct entity_state_s
 							/* events only go out for a single frame, they */
 							/* are automatically cleared each frame */
 	/* New protocol fields */
-	vec3_t scale;
+	vec3_t scale; /* model scale */
+	unsigned int rr_effects;
 } entity_state_t;
 
 /* ============================================== */
