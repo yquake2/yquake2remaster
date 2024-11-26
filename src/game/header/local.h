@@ -77,13 +77,13 @@
 #define FL_NO_KNOCKBACK 0x00000800
 #define FL_POWER_ARMOR 0x00001000           /* power armor (if any) is active */
 #define FL_COOP_TAKEN 0x00002000            /* Another client has already taken it */
-#define FL_FLASHLIGHT 0x00004000            /* enable flashlight */
 #define FL_RESPAWN 0x80000000               /* used for item respawning */
 
 #define FL_MECHANICAL 0x00002000            /* entity is mechanical, use sparks not blood */
 #define FL_SAM_RAIMI 0x00004000             /* entity is in sam raimi cam mode */
 #define FL_DISGUISED 0x00008000             /* entity is in disguise, monsters will not recognize. */
 #define FL_NOGIB 0x00010000                 /* player has been vaporized by a nuke, drop no gibs */
+#define FL_FLASHLIGHT 0x00020000            /* enable flashlight */
 
 #define FRAMETIME 0.1
 

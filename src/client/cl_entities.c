@@ -273,7 +273,7 @@ CL_AddPacketEntities(frame_t *frame)
 
 			trace = CM_BoxTrace(start, end, vec3_origin, vec3_origin, 0, mask);
 
-			V_AddLight(trace.endpos, 256, 1, 1, 1);
+			V_AddLight(trace.endpos, 128, 1, 1, 1);
 		}
 
 		if (s1->number == cl.playernum + 1)
