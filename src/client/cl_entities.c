@@ -34,7 +34,7 @@ CL_AddPacketEntities(frame_t *frame)
 {
 	entity_t ent = {0};
 	entity_state_t *s1;
-	float autorotate;
+	float autorotate, autobob;
 	int i;
 	int pnum;
 	centity_t *cent;
@@ -49,6 +49,7 @@ CL_AddPacketEntities(frame_t *frame)
 
 	/* brush models can auto animate their frames */
 	autoanim = 2 * cl.time / 1000;
+	autobob = 5 * sinf(cl.time / 400.0f);
 
 	for (pnum = 0; pnum < frame->num_entities; pnum++)
 	{
@@ -136,6 +137,11 @@ CL_AddPacketEntities(frame_t *frame)
 				ent.origin[i] = ent.oldorigin[i] = cent->prev.origin[i] + cl.lerpfrac *
 					(cent->current.origin[i] - cent->prev.origin[i]);
 			}
+		}
+
+		if (effects & EF_BOB) {
+			ent.origin[2] += autobob;
+			ent.oldorigin[2] += autobob;
 		}
 
 		/* tweak the color of beams */

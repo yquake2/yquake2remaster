@@ -372,7 +372,7 @@ item_cashbaglarge|models/pu_icon/money/money_lg.md2|1.0|1.0|1.0|general|-16.0|-1
 item_cashbagsmall|models/pu_icon/money/money_sm.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cash the player can pick up.|0.3|0.3|1.0
 item_cashroll|models/pu_icon/cash/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cash the player can pick up.|0.3|0.3|1.0
 item_coil|models/pu_icon/coil/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pickup item: coil ('Coil').|0.3|0.3|1.0
-item_flashlight|models/items/silencer/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flashlight|0.3|1.0|1.0
+item_flashlight|models/items/flashlight/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flashlight|0.3|1.0|1.0
 item_health_lg|models/pu_icon/health/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Health : large medicine bag.|0.3|0.3|1.0
 item_health_sm|models/pu_icon/health_s/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Health : small medkit.|0.3|0.3|1.0
 item_jetpack||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pickup item: jetpack ('Jetpack'). No model and broken code.|0.3|0.3|1.0

@@ -2090,7 +2090,7 @@ droptofloor(edict_t *ent)
 	{
 		ent->solid = SOLID_BBOX;
 		ent->touch = NULL;
-		ent->s.effects &= ~EF_ROTATE;
+		ent->s.effects &= ~(EF_ROTATE | EF_BOB);
 		ent->s.renderfx &= ~RF_GLOW;
 	}
 
@@ -2263,6 +2263,11 @@ SpawnItem(edict_t *ent, gitem_t *item)
 	if (!ent || !item)
 	{
 		return;
+	}
+
+	if (g_itemsbobeffect->value && (item->world_model_flags & EF_ROTATE))
+	{
+		item->world_model_flags |= EF_BOB;
 	}
 
 	if (!g_disruptor->value)
@@ -2727,7 +2732,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_MACHINEGUN,
 		NULL,
 		0,
-
 		"weapons/machgf1b.wav weapons/machgf2b.wav weapons/machgf3b.wav weapons/machgf4b.wav weapons/machgf5b.wav"
 	},
 
@@ -2752,7 +2756,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_CHAINGUN,
 		NULL,
 		0,
-
 		"weapons/chngnu1a.wav weapons/chngnl1a.wav weapons/machgf3b.wav` weapons/chngnd1a.wav"
 	},
 
@@ -2801,7 +2804,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_GRENADES,
 		NULL,
 		AMMO_GRENADES,
-
 		"weapons/hgrent1a.wav weapons/hgrena1b.wav weapons/hgrenc1b.wav weapons/hgrenb1a.wav weapons/hgrenb2a.wav "
 	},
 
@@ -2826,7 +2828,6 @@ static const gitem_t gameitemlist[] = {
 		0,
 		NULL,
 		AMMO_TRAP,
-
 		"weapons/trapcock.wav weapons/traploop.wav weapons/trapsuck.wav weapons/trapdown.wav"
 	},
 
@@ -2851,7 +2852,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_GRENADELAUNCHER,
 		NULL,
 		0,
-
 		"models/objects/grenade/tris.md2 weapons/grenlf1a.wav weapons/grenlr1b.wav weapons/grenlb1b.wav"
 	},
 
@@ -2900,7 +2900,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_ROCKETLAUNCHER,
 		NULL,
 		0,
-
 		"models/objects/rocket/tris.md2 weapons/rockfly.wav weapons/rocklf1a.wav weapons/rocklr1b.wav models/objects/debris2/tris.md2"
 	},
 
@@ -2925,7 +2924,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_HYPERBLASTER,
 		NULL,
 		0,
-
 		"weapons/hyprbu1a.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav weapons/hyprbd1a.wav misc/lasfly.wav"
 	},
 
@@ -3047,7 +3045,6 @@ static const gitem_t gameitemlist[] = {
 		WEAP_BFG,
 		NULL,
 		0,
-
 		"sprites/s_bfg1.sp2 sprites/s_bfg2.sp2 sprites/s_bfg3.sp2 weapons/bfg__f1y.wav weapons/bfg__l1a.wav weapons/bfg__x1b.wav weapons/bfg_hum.wav"
 	},
 
@@ -4212,7 +4209,6 @@ static const gitem_t gameitemlist[] = {
 		0,
 		NULL,
 		0,
-
 		"items/s_health.wav items/n_health.wav items/l_health.wav items/m_health.wav"
 	},
 
