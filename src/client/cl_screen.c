@@ -1136,14 +1136,18 @@ SCR_ExecuteLayoutString(char *s)
 
 			if ((index < 0) || (index >= MAX_STATS))
 			{
-				Com_Error(ERR_DROP, "bad stats index %d (0x%x)", index, index);
+				Com_DPrintf("%s: bad stats index %d (0x%x)",
+					__func__, index, index);
+				continue;
 			}
 
 			value = cl.frame.playerstate.stats[index];
 
 			if (value >= MAX_IMAGES)
 			{
-				Com_Error(ERR_DROP, "Pic >= MAX_IMAGES");
+				Com_DPrintf("%s: Pic %d >= MAX_IMAGES",
+					__func__, value);
+				continue;
 			}
 
 			if (cl.configstrings[CS_IMAGES + value][0] != '\0')

@@ -687,6 +687,7 @@ extern cvar_t *g_quick_weap;
 extern cvar_t *g_swap_speed;
 extern cvar_t *g_language;
 extern cvar_t *g_itemsbobeffect;
+extern cvar_t *g_game;
 
 /* this is for the count of monsters */
 #define ENT_SLOTS_LEFT \

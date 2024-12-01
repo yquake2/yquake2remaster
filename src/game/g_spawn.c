@@ -1149,6 +1149,71 @@ static char *dm_statusbar =
 	"endif "
 ;
 
+static char *roarke_statusbar =
+	"yb	-70 "
+
+/* health */
+	"xl	3 "
+	"pic 0 "
+	"yb	-68 "
+	"xl	35 "
+	"hnum "
+
+/* draw ammo value */
+	"yb	-35 "
+	"xl	3 "
+	"pic 8 "
+	"yb	-33 "
+	"xl	35 "
+	"num 3 9 "
+	"yt	5 "
+	"xr	-35 "
+	"pic 31 "
+
+/* selected item */
+	"if 6 "
+	"	yt	45 "
+	"	xr	-70 "
+	"	num	2	7 "
+	"	xr	-35 "
+	"	pic	6 "
+	"endif "
+
+/* chase camera */
+	"if 16 "
+	"	yb	-105 "
+	"	xr	-35 "
+	"	pic 16 "
+	"endif "
+
+/* ammo */
+	"if 2 "
+	"	yb	-70 "
+	"	xr	-87 "
+	"	anum "
+	"	yb	-68 "
+	"	xr	-35 "
+	"	pic 2 "
+	"endif "
+
+/* armor */
+	"if 4 "
+	"	yb	-35 "
+	"	xr	-87 "
+	"	rnum "
+	"	yb	-33 "
+	"	xr	-35 "
+	"	pic 4 "
+	"endif "
+
+/* selected item */
+	"if 12 "
+	"	xv	145 "
+	"	yt 5 "
+	"	pic 12 "
+	"endif"
+;
+
 /*
  * QUAKED worldspawn (0 0 0) ?
  *
@@ -1239,14 +1304,28 @@ SP_worldspawn(edict_t *ent)
 	}
 	else
 	{
-		gi.configstring(CS_STATUSBAR, single_statusbar);
+		if (!strcmp(g_game->string, "roarke")) /* DoD */
+		{
+			gi.configstring(CS_STATUSBAR, roarke_statusbar);
+		}
+		else
+		{
+			gi.configstring(CS_STATUSBAR, single_statusbar);
+		}
 	}
 
 	/* --------------- */
 
 	/* help icon for statusbar */
 	gi.imageindex("i_help");
-	level.pic_health = gi.imageindex("i_health");
+	if (!strcmp(g_game->string, "roarke")) /* DoD */
+	{
+		level.pic_health = gi.imageindex("i_life");
+	}
+	else
+	{
+		level.pic_health = gi.imageindex("i_health");
+	}
 	gi.imageindex("help");
 	gi.imageindex("field_3");
 
