@@ -91,6 +91,7 @@ typedef struct
 	menucommon_s    generic;
 	char *          focuspic;
 	char *          errorpic;
+	char *          alttext;
 	int             width;
 	int             height;
 } menubitmap_s;

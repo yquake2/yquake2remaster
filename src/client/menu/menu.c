@@ -462,7 +462,7 @@ M_DrawCursor(int x, int y, int f)
 	}
 
 	Com_sprintf(cursorname, sizeof(cursorname), "m_cursor%d", f);
-	Draw_PicScaled(x * scale, y * scale, cursorname, scale);
+	Draw_PicScaledAltText(x * scale, y * scale, cursorname, scale, "*");
 }
 
 static void
@@ -665,6 +665,7 @@ InitMainMenu(void)
 	s_plaque.generic.name = "m_main_plaque";
 	s_plaque.generic.callback = 0;
 	s_plaque.focuspic = 0;
+	s_plaque.alttext = NULL;
 
 	s_logo.generic.type = MTYPE_BITMAP;
 	s_logo.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
@@ -673,6 +674,7 @@ InitMainMenu(void)
 	s_logo.generic.name = "m_main_logo";
 	s_logo.generic.callback = 0;
 	s_logo.focuspic = 0;
+	s_logo.alttext = NULL;
 
 	y += 10;
 
@@ -683,6 +685,7 @@ InitMainMenu(void)
 	s_game.generic.name = "m_main_game";
 	s_game.generic.callback = GameFunc;
 	s_game.focuspic = "m_main_game_sel";
+	s_game.alttext = "Game";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_game.generic.name);
 	y += h + 8;
@@ -694,6 +697,7 @@ InitMainMenu(void)
 	s_multiplayer.generic.name = "m_main_multiplayer";
 	s_multiplayer.generic.callback = MultiplayerFunc;
 	s_multiplayer.focuspic = "m_main_multiplayer_sel";
+	s_multiplayer.alttext = "Multiplayer";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_multiplayer.generic.name);
 	y += h + 8;
@@ -705,6 +709,7 @@ InitMainMenu(void)
 	s_options.generic.name = "m_main_options";
 	s_options.generic.callback = OptionsFunc;
 	s_options.focuspic = "m_main_options_sel";
+	s_options.alttext = "Options";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_options.generic.name);
 	y += h + 8;
@@ -716,6 +721,7 @@ InitMainMenu(void)
 	s_video.generic.name = "m_main_video";
 	s_video.generic.callback = VideoFunc;
 	s_video.focuspic = "m_main_video_sel";
+	s_video.alttext = "Video";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_video.generic.name);
 	y += h + 8;
@@ -727,6 +733,7 @@ InitMainMenu(void)
 	s_quit.generic.name = "m_main_quit";
 	s_quit.generic.callback = QuitFunc;
 	s_quit.focuspic = "m_main_quit_sel";
+	s_quit.alttext = "Quit";
 
 	Menu_AddItem(&s_main, (void *)&s_plaque);
 	Menu_AddItem(&s_main, (void *)&s_logo);
@@ -6377,7 +6384,8 @@ M_Quit_Draw(void)
 	float scale = SCR_GetMenuScale();
 
 	Draw_GetPicSize(&w, &h, "quit");
-	Draw_PicScaled((viddef.width - w * scale) / 2, (viddef.height - h * scale) / 2, "quit", scale);
+	Draw_PicScaledAltText((viddef.width - w * scale) / 2, (viddef.height - h * scale) / 2,
+		"quit", scale, "Quit Y/N?");
 }
 
 static void
@@ -6440,6 +6448,12 @@ M_Init(void)
 		if (w > m_cursor_width)
 		{
 			m_cursor_width = w;
+		}
+
+		/* No cursor image? */
+		if (m_cursor_width == 0)
+		{
+			m_cursor_width = 8;
 		}
 	}
 }

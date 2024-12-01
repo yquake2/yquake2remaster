@@ -458,7 +458,7 @@ SCR_DrawNet(void)
 		return;
 	}
 
-	Draw_PicScaled(scr_vrect.x + 64 * scale, scr_vrect.y, "net", scale);
+	Draw_PicScaledAltText(scr_vrect.x + 64 * scale, scr_vrect.y, "net", scale, "net");
 }
 
 void
@@ -478,7 +478,8 @@ SCR_DrawPause(void)
 	}
 
 	Draw_GetPicSize(&w, &h, "pause");
-	Draw_PicScaled((viddef.width - w * scale) / 2, viddef.height / 2 + 8 * scale, "pause", scale);
+	Draw_PicScaledAltText((viddef.width - w * scale) / 2, viddef.height / 2 + 8 * scale,
+		"pause", scale, "pause");
 }
 
 void
@@ -493,7 +494,8 @@ SCR_DrawLoading(void)
 	}
 
 	Draw_GetPicSize(&w, &h, "loading");
-	Draw_PicScaled((viddef.width - w * scale) / 2, (viddef.height - h * scale) / 2, "loading", scale);
+	Draw_PicScaledAltText((viddef.width - w * scale) / 2, (viddef.height - h * scale) / 2,
+		"loading", scale, "loading");
 }
 
 /*
@@ -1000,6 +1002,9 @@ SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 
 	while (*ptr && l)
 	{
+		char alttext[] = "?";
+
+		alttext[0] = *ptr;
 		if (*ptr == '-')
 		{
 			frame = STAT_MINUS;
@@ -1010,8 +1015,8 @@ SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 			frame = *ptr - '0';
 		}
 
-		Draw_PicScaled(x, y, sb_nums[color][frame], factor);
-		x += CHAR_WIDTH*factor;
+		Draw_PicScaledAltText(x, y, sb_nums[color][frame], factor, alttext);
+		x += CHAR_WIDTH * factor;
 		ptr++;
 		l--;
 	}
@@ -1153,7 +1158,7 @@ SCR_ExecuteLayoutString(char *s)
 			if (cl.configstrings[CS_IMAGES + value][0] != '\0')
 			{
 				SCR_AddDirtyPoint(x, y);
-				SCR_AddDirtyPoint(x + 23*scale, y + 23*scale);
+				SCR_AddDirtyPoint(x + 23 * scale, y + 23 * scale);
 				Draw_PicScaled(x, y, cl.configstrings[CS_IMAGES + value], scale);
 			}
 
@@ -1653,7 +1658,8 @@ SCR_UpdateScreen(void)
 			}
 
 			Draw_GetPicSize(&w, &h, "loading");
-			Draw_PicScaled((viddef.width - w * scale) / 2, (viddef.height - h * scale) / 2, "loading", scale);
+			Draw_PicScaledAltText((viddef.width - w * scale) / 2, (viddef.height - h * scale) / 2,
+				"loading", scale, "loading");
 		}
 
 		/* if a cinematic is supposed to be running,
