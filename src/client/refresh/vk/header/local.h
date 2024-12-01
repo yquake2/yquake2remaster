@@ -206,7 +206,7 @@ void R_DrawSkyBox(void);
 struct image_s	*RE_Draw_FindPic (const char *name);
 
 void	RE_Draw_GetPicSize (int *w, int *h, const char *name);
-void	RE_Draw_PicScaled (int x, int y, const char *name, float scale);
+void	RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext);
 void	RE_Draw_StretchPic (int x, int y, int w, int h, const char *name);
 void	RE_Draw_CharScaled (int x, int y, int num, float scale);
 void	RE_Draw_TileClear (int x, int y, int w, int h, const char *name);

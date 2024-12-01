@@ -151,13 +151,27 @@ void RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 RE_Draw_PicScaled
 =============
 */
-void RE_Draw_PicScaled (int x, int y, const char *name, float scale)
+void RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext)
 {
 	image_t *vk;
 
 	vk = R_FindPic(name, (findimage_t)Vk_FindImage);
 	if (!vk)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			int l, i;
+
+			l = strlen(alttext);
+			for (i = 0; i < l; i++)
+			{
+				RE_Draw_CharScaled(x + i * 8 * scale, y, alttext[i], scale);
+			}
+
+			return;
+		}
+
 		R_Printf(PRINT_ALL, "%s(): Can't find pic: %s\n", __func__, name);
 		return;
 	}

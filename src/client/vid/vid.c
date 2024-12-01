@@ -725,7 +725,16 @@ Draw_PicScaled(int x, int y, const char *pic, float factor)
 {
 	if (ref_active)
 	{
-		re.DrawPicScaled(x, y, pic, factor);
+		re.DrawPicScaled(x, y, pic, factor, NULL);
+	}
+}
+
+void
+Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *alttext)
+{
+	if (ref_active)
+	{
+		re.DrawPicScaled(x, y, pic, factor, alttext);
 	}
 }
 

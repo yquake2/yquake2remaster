@@ -165,7 +165,7 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 }
 
 void
-RDraw_PicScaled(int x, int y, const char *pic, float factor)
+RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext)
 {
 	image_t *gl;
 
@@ -173,6 +173,20 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor)
 
 	if (!gl)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			int l, i;
+
+			l = strlen(alttext);
+			for (i = 0; i < l; i++)
+			{
+				RDraw_CharScaled(x + i * 8 * factor, y, alttext[i], factor);
+			}
+
+			return;
+		}
+
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", pic);
 		return;
 	}

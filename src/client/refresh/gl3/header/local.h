@@ -417,7 +417,7 @@ extern void GL3_Draw_ShutdownLocal(void);
 extern gl3image_t * GL3_Draw_FindPic(const char *name);
 extern void GL3_Draw_GetPicSize(int *w, int *h, const char *pic);
 
-extern void GL3_Draw_PicScaled(int x, int y, const char *pic, float factor);
+extern void GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
 extern void GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void GL3_Draw_CharScaled(int x, int y, int num, float scale);
 extern void GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic);

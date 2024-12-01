@@ -196,7 +196,7 @@ typedef struct
 	struct image_s * (EXPORT *DrawFindPic)(const char *name);
 
 	void	(EXPORT *DrawGetPicSize) (int *w, int *h, const char *name);	// will return 0 0 if not found
-	void 	(EXPORT *DrawPicScaled) (int x, int y, const char *pic, float factor);
+	void 	(EXPORT *DrawPicScaled) (int x, int y, const char *pic, float factor, const char *alttext);
 	void	(EXPORT *DrawStretchPic) (int x, int y, int w, int h, const char *name);
 	void	(EXPORT *DrawCharScaled)(int x, int y, int num, float scale);
 	void	(EXPORT *DrawTileClear) (int x, int y, int w, int h, const char *name);
@@ -291,14 +291,13 @@ void Draw_GetPicSize(int *w, int *h, const char *name);
 
 void Draw_StretchPic(int x, int y, int w, int h, const char *name);
 void Draw_PicScaled(int x, int y, const char *pic, float factor);
+void Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *alttext);
 
 void Draw_CharScaled(int x, int y, int num, float scale);
 void Draw_TileClear(int x, int y, int w, int h, const char *name);
 void Draw_Fill(int x, int y, int w, int h, int c);
 void Draw_FadeScreen(void);
 void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
-//int R_Init(void *hinstance, void *hWnd);
-//void R_Shutdown(void);
 void R_SetPalette(const unsigned char *palette);
 void R_BeginFrame(float camera_separation);
 qboolean R_EndWorldRenderpass(void);

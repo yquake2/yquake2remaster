@@ -214,11 +214,27 @@ GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 }
 
 void
-GL3_Draw_PicScaled(int x, int y, const char *pic, float factor)
+GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext)
 {
-	gl3image_t *gl = R_FindPic(pic, (findimage_t)GL3_FindImage);
+	gl3image_t *gl;
+
+	gl = R_FindPic(pic, (findimage_t)GL3_FindImage);
 	if (!gl)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			int l, i;
+
+			l = strlen(alttext);
+			for (i = 0; i < l; i++)
+			{
+				GL3_Draw_CharScaled(x + i * 8 * factor, y, alttext[i], factor);
+			}
+
+			return;
+		}
+
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", pic);
 		return;
 	}

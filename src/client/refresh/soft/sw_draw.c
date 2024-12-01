@@ -397,13 +397,27 @@ Draw_Pic
 =============
 */
 void
-RE_Draw_PicScaled(int x, int y, const char *name, float scale)
+RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext)
 {
 	const image_t *pic;
 
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			int l, i;
+
+			l = strlen(alttext);
+			for (i = 0; i < l; i++)
+			{
+				RE_Draw_CharScaled(x + i * 8 * scale, y, alttext[i], scale);
+			}
+
+			return;
+		}
+
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", name);
 		return;
 	}
