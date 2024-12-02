@@ -764,7 +764,7 @@ SP_monster_guardian(edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	self->health = 2500;
+	self->health = 2500 * st.health_multiplier;
 	self->gib_health = -200;
 
 	self->monsterinfo.scale = MODEL_SCALE;

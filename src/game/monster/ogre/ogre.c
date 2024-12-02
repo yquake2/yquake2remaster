@@ -492,7 +492,7 @@ SP_monster_ogre(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/ogre/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
-	self->health = 200;
+	self->health = 200 * st.health_multiplier;
 
 	sound_death = gi.soundindex("ogre/ogdth.wav");
 	sound_attack = gi.soundindex("ogre/grenade.wav");

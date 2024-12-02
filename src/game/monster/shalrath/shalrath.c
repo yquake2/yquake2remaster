@@ -346,7 +346,7 @@ SP_monster_shalrath(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/shalrath/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 48);
-	self->health = 400;
+	self->health = 400 * st.health_multiplier;
 
 	sound_death = gi.soundindex("shalrath/death.wav");
 	sound_search = gi.soundindex("shalrath/idle.wav");

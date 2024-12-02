@@ -1153,7 +1153,7 @@ SP_monster_turret(edict_t *self)
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
 
-	self->health = 240;
+	self->health = 240 * st.health_multiplier;
 	self->gib_health = -100;
 	self->mass = 250;
 	self->yaw_speed = 45;

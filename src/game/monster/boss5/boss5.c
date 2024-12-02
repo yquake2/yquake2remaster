@@ -878,7 +878,7 @@ SP_monster_boss5(edict_t *self)
 	VectorSet(self->mins, -64, -64, 0);
 	VectorSet(self->maxs, 64, 64, 112);
 
-	self->health = 1500;
+	self->health = 1500 * st.health_multiplier;
 	self->gib_health = -500;
 	self->mass = 800;
 

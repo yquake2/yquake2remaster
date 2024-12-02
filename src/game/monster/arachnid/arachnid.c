@@ -554,7 +554,7 @@ SP_monster_arachnid(edict_t *self)
 	sound_die = gi.soundindex("arachnid/death.wav");
 	sound_sight = gi.soundindex("arachnid/sight.wav");
 
-	self->health = 1000;
+	self->health = 1000 * st.health_multiplier;
 	self->gib_health = -200;
 
 	self->mass = 450;

@@ -1496,7 +1496,7 @@ SP_monster_widow2(edict_t *self)
 	VectorSet(self->mins, -70, -70, 0);
 	VectorSet(self->maxs, 70, 70, 144);
 
-	self->health = 2000 + 800 + 1000 * (skill->value);
+	self->health = 2000 + 800 + 1000 * (skill->value) * st.health_multiplier;
 
 	if (coop->value)
 	{

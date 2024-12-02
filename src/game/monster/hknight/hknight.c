@@ -528,7 +528,7 @@ SP_monster_hknight(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/hknight/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 40);
-	self->health = 250;
+	self->health = 250 * st.health_multiplier;
 
 	sound_attack = gi.soundindex("hknight/attack1.wav");
 	sound_melee = gi.soundindex("hknight/slash1.wav");

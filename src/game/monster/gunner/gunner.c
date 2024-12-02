@@ -1381,7 +1381,7 @@ SP_monster_gunner(edict_t *self)
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 32);
 
-	self->health = 175;
+	self->health = 175 * st.health_multiplier;
 	self->gib_health = -70;
 	self->mass = 200;
 
@@ -1449,7 +1449,7 @@ SP_monster_guncmdr(edict_t *self)
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 32);
 
-	self->health = 175;
+	self->health = 175 * st.health_multiplier;
 	self->gib_health = -70;
 	self->mass = 200;
 

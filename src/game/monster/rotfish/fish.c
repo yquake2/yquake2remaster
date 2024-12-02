@@ -304,7 +304,7 @@ SP_monster_rotfish(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/rotfish/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 24);
-	self->health = 25;
+	self->health = 25 * st.health_multiplier;
 
 	sound_search = gi.soundindex("fish/idle.wav");
 	sound_death = gi.soundindex("fish/death.wav");

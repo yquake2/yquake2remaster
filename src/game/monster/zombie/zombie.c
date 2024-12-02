@@ -215,7 +215,7 @@ fire_zombie_gib(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int spee
 	gib->s.effects |= EF_GIB;
 	VectorClear(gib->mins);
 	VectorClear(gib->maxs);
-	gib->s.modelindex = gi.modelindex("models/monsters/objects/gibs/sm_meat/tris.md2");
+	gib->s.modelindex = gi.modelindex("models/objects/gibs/sm_meat/tris.md2");
 	gib->owner = self;
 	gib->touch = zombie_gib_touch;
 	gib->nextthink = level.time + 2.5;
@@ -731,7 +731,7 @@ SP_monster_zombie(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/zombie/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 40);
-	self->health = 60;
+	self->health = 60 * st.health_multiplier;
 
 	sound_sight = gi.soundindex("zombie/z_idle.wav");
 	sound_search = gi.soundindex("zombie/z_idle.wav");

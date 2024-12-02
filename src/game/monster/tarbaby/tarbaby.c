@@ -256,7 +256,7 @@ SP_monster_tarbaby(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/tarbaby/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 40);
-	self->health = 80;
+	self->health = 80 * st.health_multiplier;
 
 	sound_death = gi.soundindex("tarbaby/death1.wav");
 	sound_hit = gi.soundindex("tarbaby/hit1.wav");

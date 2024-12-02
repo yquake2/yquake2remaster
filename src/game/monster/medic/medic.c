@@ -2045,7 +2045,7 @@ SP_monster_medic(edict_t *self)
 
 	if (strcmp(self->classname, "monster_medic_commander") == 0)
 	{
-		self->health = 600;
+		self->health = 600 * st.health_multiplier;
 		self->gib_health = -130;
 		self->mass = 600;
 		self->yaw_speed = 40;
@@ -2053,7 +2053,7 @@ SP_monster_medic(edict_t *self)
 	}
 	else
 	{
-		self->health = 300;
+		self->health = 300 * st.health_multiplier;
 		self->gib_health = -130;
 		self->mass = 400;
 	}

@@ -364,7 +364,7 @@ SP_monster_army(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/army/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 40);
-	self->health = 30;
+	self->health = 30 * st.health_multiplier;
 
 	sound_death = gi.soundindex("army/death1.wav");
 	sound_search = gi.soundindex("army/idle.wav");

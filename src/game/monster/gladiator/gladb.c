@@ -532,7 +532,7 @@ SP_monster_gladb(edict_t *self)
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
 
-	self->health = 800;
+	self->health = 800 * st.health_multiplier;
 	self->gib_health = -175;
 	self->mass = 350;
 

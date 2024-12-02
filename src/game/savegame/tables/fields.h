@@ -58,6 +58,7 @@
 {"origin", FOFS(s.origin), F_VECTOR},
 {"angles", FOFS(s.angles), F_VECTOR},
 {"angle", FOFS(s.angles), F_ANGLEHACK},
+{"health_multiplier", STOFS(health_multiplier), F_FLOAT, FFL_SPAWNTEMP},
 {"rgb", STOFS(rgba), F_RGBA, FFL_SPAWNTEMP},
 {"rgba", STOFS(rgba), F_RGBA, FFL_SPAWNTEMP},
 {"scale", STOFS(scale), F_VECTOR, FFL_SPAWNTEMP},

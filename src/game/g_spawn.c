@@ -303,6 +303,11 @@ ED_CallSpawn(edict_t *ent)
 	ent->gravityVector[1] = 0.0;
 	ent->gravityVector[2] = -1.0;
 
+	if (st.health_multiplier <= 0)
+	{
+			st.health_multiplier = 1.0;
+	}
+
 	if (!strcmp(ent->classname, "weapon_nailgun"))
 	{
 		ent->classname = (FindItem("ETF Rifle"))->classname;

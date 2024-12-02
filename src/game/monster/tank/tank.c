@@ -1279,12 +1279,12 @@ SP_monster_tank(edict_t *self)
 
 	if (strcmp(self->classname, "monster_tank_commander") == 0)
 	{
-		self->health = 1000;
+		self->health = 1000 * st.health_multiplier;
 		self->gib_health = -225;
 	}
 	else
 	{
-		self->health = 750;
+		self->health = 750 * st.health_multiplier;
 		self->gib_health = -200;
 	}
 

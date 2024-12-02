@@ -588,7 +588,7 @@ SP_monster_gladiator(edict_t *self)
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
 
-	self->health = 400;
+	self->health = 400 * st.health_multiplier;
 	self->gib_health = -175;
 	self->mass = 400;
 

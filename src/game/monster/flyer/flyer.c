@@ -1082,7 +1082,7 @@ SP_monster_flyer(edict_t *self)
 
 	self->s.sound = gi.soundindex("flyer/flyidle1.wav");
 
-	self->health = 50;
+	self->health = 50 * st.health_multiplier;
 	self->mass = 50;
 
 	self->pain = flyer_pain;
@@ -1140,7 +1140,7 @@ SP_monster_kamikaze(edict_t *self)
 
 	self->s.effects |= EF_ROCKET;
 
-	self->health = 50;
+	self->health = 50 * st.health_multiplier;
 	self->mass = 100;
 
 	self->pain = flyer_pain;

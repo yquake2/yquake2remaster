@@ -1968,7 +1968,7 @@ SP_monster_gekk(edict_t *self)
 	gi.modelindex("models/objects/gekkgib/leg/tris.md2");
 	gi.modelindex("models/objects/gekkgib/head/tris.md2");
 
-	self->health = 125;
+	self->health = 125 * st.health_multiplier;
 	self->gib_health = -30;
 	self->mass = 300;
 

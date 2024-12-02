@@ -1534,7 +1534,7 @@ SP_monster_carrier(edict_t *self)
 	VectorSet(self->maxs, 56, 56, 44);
 
 	/* 2000 - 4000 health */
-	self->health = Q_max(2000, 2000 + 1000 * ((skill->value) - 1));
+	self->health = Q_max(2000, 2000 + 1000 * ((skill->value) - 1)) * st.health_multiplier;
 
 	/* add health in coop (500 * skill) */
 	if (coop->value)

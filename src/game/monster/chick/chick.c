@@ -1208,7 +1208,7 @@ SP_monster_chick(edict_t *self)
 	VectorSet(self->mins, -16, -16, 0);
 	VectorSet(self->maxs, 16, 16, 56);
 
-	self->health = 175;
+	self->health = 175 * st.health_multiplier;
 	self->gib_health = -70;
 	self->mass = 200;
 

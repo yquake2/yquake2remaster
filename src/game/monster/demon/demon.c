@@ -376,7 +376,7 @@ SP_monster_demon(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/demon/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
-	self->health = 300;
+	self->health = 300 * st.health_multiplier;
 
 	sound_death = gi.soundindex("demon/ddeath.wav");
 	sound_hit = gi.soundindex("demon/dhit2.wav");

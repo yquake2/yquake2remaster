@@ -726,7 +726,7 @@ SP_monster_shambler(edict_t* self)
 	sound_smack = gi.soundindex("shambler/smack.wav");
 	sound_boom = gi.soundindex("shambler/sboom.wav");
 
-	self->health = 600;
+	self->health = 600 * st.health_multiplier;
 	self->gib_health = -60;
 
 	self->mass = 500;

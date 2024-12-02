@@ -878,7 +878,7 @@ SP_monster_floater(edict_t *self)
 	VectorSet(self->mins, -24, -24, -24);
 	VectorSet(self->maxs, 24, 24, 32);
 
-	self->health = 200;
+	self->health = 200 * st.health_multiplier;
 	self->gib_health = -80;
 	self->mass = 300;
 

@@ -528,7 +528,7 @@ SP_monster_enforcer(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/enforcer/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 40);
-	self->health = 80;
+	self->health = 80 * st.health_multiplier;
 
 	sound_death = gi.soundindex("enforcer/death1.wav");
 	sound_hit = gi.soundindex("enforcer/enfstop.wav");

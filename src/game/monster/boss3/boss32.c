@@ -1170,7 +1170,7 @@ SP_monster_makron(edict_t *self)
 	VectorSet(self->mins, -30, -30, 0);
 	VectorSet(self->maxs, 30, 30, 90);
 
-	self->health = 3000;
+	self->health = 3000 * st.health_multiplier;
 	self->gib_health = -2000;
 	self->mass = 500;
 

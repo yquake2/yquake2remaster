@@ -478,10 +478,11 @@ void actor_use (edict_t *self, edict_t *other, edict_t *activator)
 }
 
 
-/*QUAKED misc_actor (1 .5 0) (-16 -16 -24) (16 16 32)
-*/
-
-void SP_misc_actor (edict_t *self)
+/*
+ * QUAKED misc_actor (1 .5 0) (-16 -16 -24) (16 16 32)
+ */
+void
+SP_misc_actor(edict_t *self)
 {
 	if (deathmatch->value)
 	{
@@ -510,7 +511,10 @@ void SP_misc_actor (edict_t *self)
 	VectorSet(self->maxs, 16, 16, 32);
 
 	if (!self->health)
-		self->health = 100;
+	{
+		self->health = 100  * st.health_multiplier;
+	}
+
 	self->mass = 200;
 
 	self->pain = actor_pain;

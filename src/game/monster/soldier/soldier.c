@@ -2055,7 +2055,7 @@ SP_monster_soldier_light(edict_t *self)
 		return;
 	}
 
-	self->health = 20;
+	self->health = 20 * st.health_multiplier;
 	self->gib_health = -30;
 
 	SP_monster_soldier_x(self);
@@ -2093,7 +2093,7 @@ SP_monster_soldier(edict_t *self)
 		return;
 	}
 
-	self->health = 30;
+	self->health = 30 * st.health_multiplier;
 	self->gib_health = -30;
 
 	SP_monster_soldier_x(self);
@@ -2128,7 +2128,7 @@ SP_monster_soldier_ss(edict_t *self)
 		return;
 	}
 
-	self->health = 40;
+	self->health = 40 * st.health_multiplier;
 	self->gib_health = -30;
 
 	SP_monster_soldier_x(self);
@@ -3808,7 +3808,7 @@ SP_monster_soldier_ripper(edict_t *self)
 		return;
 	}
 
-	self->health = 50;
+	self->health = 50 * st.health_multiplier;
 	self->gib_health = -30;
 
 	SP_monster_soldier_h(self);
@@ -3840,7 +3840,7 @@ SP_monster_soldier_hypergun(edict_t *self)
 		return;
 	}
 
-	self->health = 60;
+	self->health = 60 * st.health_multiplier;
 	self->gib_health = -30;
 
 	SP_monster_soldier_h(self);
@@ -3874,7 +3874,7 @@ SP_monster_soldier_lasergun(edict_t *self)
 		return;
 	}
 
-	self->health = 70;
+	self->health = 70 * st.health_multiplier;
 	self->gib_health = -30;
 
 	SP_monster_soldier_h(self);

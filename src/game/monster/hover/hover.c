@@ -1016,7 +1016,7 @@ SP_monster_hover(edict_t *self)
 	VectorSet(self->mins, -24, -24, -24);
 	VectorSet(self->maxs, 24, 24, 32);
 
-	self->health = 240;
+	self->health = 240 * st.health_multiplier;
 	self->gib_health = -100;
 	self->mass = 150;
 
@@ -1033,7 +1033,7 @@ SP_monster_hover(edict_t *self)
 
 	if (strcmp(self->classname, "monster_daedalus") == 0)
 	{
-		self->health = 450;
+		self->health = 450 * st.health_multiplier;
 		self->mass = 225;
 		self->yaw_speed = 25;
 		self->monsterinfo.power_armor_type = POWER_ARMOR_SCREEN;
