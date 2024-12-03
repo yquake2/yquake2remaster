@@ -257,6 +257,39 @@ Mod_Load2QBSP_QBSP_NODES(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_MATERIALS_TEXINFO(xtexinfo_t *out, int count)
+{
+	int i;
+
+	for (i = 0; i < count; i++)
+	{
+		if (out->texture[0])
+		{
+			char material_path[70];
+			byte *raw;
+			int len;
+
+			snprintf(material_path, sizeof(material_path), "textures/%s.mat", out->texture);
+
+			/* load the file */
+			len = FS_LoadFile(material_path, (void **)&raw);
+			if (len > 0)
+			{
+				int j;
+
+				j = Q_min(sizeof(out->material) - 1, len);
+				memcpy(out->material, raw, j);
+				out->material[j] = 0;
+
+				FS_FreeFile(raw);
+			}
+		}
+
+		out ++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -281,6 +314,7 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
+		memset(out->material, 0, sizeof(out->material));
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
 
@@ -290,6 +324,9 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 		out++;
 		in++;
 	}
+
+	Mod_Load2QBSP_MATERIALS_TEXINFO(
+		(xtexinfo_t *)(outbuf + outheader->lumps[outlumppos].fileofs), count);
 }
 
 static void
@@ -317,6 +354,7 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->flags), maptype);
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
+		memset(out->material, 0, sizeof(out->material));
 		strncpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
 
@@ -326,6 +364,9 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 		out++;
 		in++;
 	}
+
+	Mod_Load2QBSP_MATERIALS_TEXINFO(
+		(xtexinfo_t *)(outbuf + outheader->lumps[outlumppos].fileofs), count);
 }
 
 static void

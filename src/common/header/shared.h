@@ -580,6 +580,7 @@ typedef struct csurface_s
 {
 	char name[16];
 	int flags; /* SURF_* */
+	char material[16]; /* Material properties */
 } csurface_t;
 
 typedef struct mapsurface_s  /* used internally due to name len probs */

@@ -818,6 +818,7 @@ typedef struct
 	float vecs[2][4]; /* [s/t][xyz offset] */
 	int flags;        /* miptex flags + overrides light emission, etc */
 	int value;        /* used with some flags, unused in Quake2 */
+	char material[16];     /* used material */
 	char texture[64]; /* texture name (textures*.wal) */
 	int nexttexinfo;  /* for animations, -1 = end of chain */
 } xtexinfo_t;

@@ -1372,6 +1372,7 @@ CMod_LoadSurfaces(const char *name, mapsurface_t **map_surfaces, int *numtexinfo
 		Q_strlcpy(out->c.name, in->texture, sizeof(out->c.name));
 		Q_strlcpy(out->rname, in->texture, sizeof(out->rname));
 		out->c.flags = in->flags;
+		Q_strlcpy(out->c.material, in->material, sizeof(out->c.material));
 	}
 }
 
