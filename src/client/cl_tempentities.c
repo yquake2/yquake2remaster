@@ -119,7 +119,6 @@ void
 CL_RegisterTEntSounds(void)
 {
 	int i;
-	char name[MAX_QPATH];
 
 	cl_sfx_ric1 = S_RegisterSound("world/ric1.wav");
 	cl_sfx_ric2 = S_RegisterSound("world/ric2.wav");
@@ -139,6 +138,8 @@ CL_RegisterTEntSounds(void)
 
 	for (i = 0; i < 4; i++)
 	{
+		char name[MAX_QPATH];
+
 		Com_sprintf(name, sizeof(name), "player/step%i.wav", i + 1);
 		cl_sfx_footsteps[i] = S_RegisterSound(name);
 	}

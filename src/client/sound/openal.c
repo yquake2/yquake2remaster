@@ -662,6 +662,7 @@ AL_Spatialize(channel_t *ch)
 			{
 				AL_ApplyReverb();
 			}
+
 			/* Forsed reverb effect */
 			else if (s_reverb_preset->value >= 0)
 			{

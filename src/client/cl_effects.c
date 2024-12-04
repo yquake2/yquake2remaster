@@ -2064,8 +2064,52 @@ CL_EntityEvent(entity_state_t *ent)
 
 			if (cl_footsteps->value)
 			{
+				vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0}, dir = { 0, 0, -1000000 };
+				struct sfx_s *sfx = NULL;
+				trace_t trace;
+				trace = CM_BoxTrace(ent->origin, dir, mins, maxs, 0, MASK_DEADSOLID);
+
+				/* ladder does not have separate material */
+				if ((trace.contents & CONTENTS_LADDER))
+				{
+					char name[MAX_QPATH];
+					int step;
+
+					/* material has sometime 5 steps versions */
+					step = randk() % 5;
+
+					Com_sprintf(name, sizeof(name), "player/ladder%i.wav",
+						step + 1);
+
+					sfx = S_RegisterSound(name);
+				}
+
+				/* step sound based onb material */
+				if (!sfx && trace.surface->material[0])
+				{
+					char name[MAX_QPATH];
+					int step;
+
+					/* material has sometime 5 steps versions */
+					step = randk() % 5;
+
+					Com_sprintf(name, sizeof(name), "player/%s%i.wav",
+						trace.surface->material, step + 1);
+
+					sfx = S_RegisterSound(name);
+				}
+
+				/* no material steps sound found */
+				if (!sfx)
+				{
+					int step;
+
+					step = randk() & 3;
+					sfx = cl_sfx_footsteps[step];
+				}
+
 				S_StartSound(NULL, ent->number, CHAN_BODY,
-						cl_sfx_footsteps[randk() & 3], 1, ATTN_NORM, 0);
+						sfx, 1, ATTN_NORM, 0);
 			}
 
 			break;
