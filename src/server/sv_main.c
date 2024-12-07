@@ -139,6 +139,11 @@ SV_CalcPings(void)
 			continue;
 		}
 
+		if (!cl->edict->client)
+		{
+			continue;
+		}
+
 		total = 0;
 		count = 0;
 
