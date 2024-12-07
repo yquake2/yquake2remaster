@@ -3306,7 +3306,7 @@ SP_misc_flare(edict_t* ent)
 	/* Radius saved to scale */
 	for (i = 0; i < 3; i++)
 	{
-		ent->s.scale[i] = st.radius;
+		ent->rrs.scale[i] = st.radius;
 	}
 
 	if (ent->spawnflags & SPAWNFLAG_FLARE_RED)

@@ -1351,6 +1351,9 @@ struct edict_s
 	int clipmask;
 	edict_t *owner;
 
+	/* Additional state from ReRelease */
+	entity_rrstate_t rrs;
+
 	/* DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER */
 	/* EXPECTS THE FIELDS IN THAT ORDER! */
 

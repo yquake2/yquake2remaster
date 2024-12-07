@@ -61,7 +61,11 @@ CL_AddPacketEntities(frame_t *frame)
 		cent = &cl_entities[s1->number];
 
 		effects = s1->effects;
+#if _RREXTEND
 		rr_effects = s1->rr_effects;
+#else
+		rr_effects = 0;
+#endif
 		renderfx = s1->renderfx;
 
 		/* set frame */
@@ -208,7 +212,11 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 
 			/* store scale */
+#if _RREXTEND
 			VectorCopy(s1->scale, ent.scale);
+#else
+			VectorClear(ent.scale);
+#endif
 		}
 
 		/* only used for black hole model right now */

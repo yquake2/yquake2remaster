@@ -1114,7 +1114,7 @@ G_SetClientEffects(edict_t *ent)
 	}
 
 	ent->s.effects = 0;
-	ent->s.rr_effects = 0;
+	ent->rrs.effects = 0;
 
 	/* player is always ir visible, even dead. */
 	ent->s.renderfx = RF_IR_VISIBLE;
@@ -1126,7 +1126,7 @@ G_SetClientEffects(edict_t *ent)
 
 	if (ent->flags & FL_FLASHLIGHT)
 	{
-		ent->s.rr_effects |= EF_FLASHLIGHT;
+		ent->rrs.effects |= EF_FLASHLIGHT;
 	}
 
 	if (ent->flags & FL_DISGUISED)

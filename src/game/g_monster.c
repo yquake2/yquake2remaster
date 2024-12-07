@@ -1136,13 +1136,13 @@ monster_start(edict_t *self)
 
 	for (i = 0; i < 3; i++)
 	{
-		if (!self->s.scale[i])
+		if (!self->rrs.scale[i])
 		{
 			/* fix empty scale */
-			self->s.scale[i] = 1.0f;
+			self->rrs.scale[i] = 1.0f;
 		}
 
-		scale += self->s.scale[i];
+		scale += self->rrs.scale[i];
 	}
 
 	scale /= 3;
@@ -1158,8 +1158,8 @@ monster_start(edict_t *self)
 
 		for (i = 0; i < 3; i++)
 		{
-			self->mins[i] *= self->s.scale[i];
-			self->maxs[i] *= self->s.scale[i];
+			self->mins[i] *= self->rrs.scale[i];
+			self->maxs[i] *= self->rrs.scale[i];
 		}
 	}
 

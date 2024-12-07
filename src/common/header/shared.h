@@ -1228,10 +1228,15 @@ typedef struct entity_state_s
 	int event;              /* impulse events -- muzzle flashes, footsteps, etc */
 							/* events only go out for a single frame, they */
 							/* are automatically cleared each frame */
+} entity_state_t;
+
+/* ReRelease states */
+typedef struct entity_rrstate_s
+{
 	/* New protocol fields */
 	vec3_t scale; /* model scale */
-	unsigned int rr_effects;
-} entity_state_t;
+	unsigned int effects;
+} entity_rrstate_t;
 
 /* ============================================== */
 

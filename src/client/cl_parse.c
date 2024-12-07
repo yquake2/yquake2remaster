@@ -143,6 +143,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	VectorCopy(from->origin, to->old_origin);
 	to->number = number;
 
+#if _RREXTEND
 	if (cls.serverProtocol != PROTOCOL_VERSION)
 	{
 		int i;
@@ -153,6 +154,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 			to->scale[i] = 1.0f;
 		}
 	}
+#endif
 
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
@@ -222,6 +224,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	{
 		to->skinnum = MSG_ReadLong(&net_message);
 		/* Additional scale with skinnum */
+#if _RREXTEND
 		if (cls.serverProtocol == PROTOCOL_VERSION)
 		{
 			int i;
@@ -231,6 +234,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 				to->scale[i] = MSG_ReadFloat(&net_message);
 			}
 		}
+#endif
 	}
 	else if (bits & U_SKIN8)
 	{
@@ -255,6 +259,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 	}
 
 	/* ReRelease effects */
+#if _RREXTEND
 	if (cls.serverProtocol != PROTOCOL_VERSION)
 	{
 		to->rr_effects = 0;
@@ -274,6 +279,7 @@ CL_ParseDelta(entity_state_t *from, entity_state_t *to, int number, int bits)
 			to->rr_effects = MSG_ReadShort(&net_message);
 		}
 	}
+#endif
 
 	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
 	{

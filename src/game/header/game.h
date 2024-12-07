@@ -101,6 +101,8 @@ struct edict_s
 	int clipmask;
 	edict_t *owner;
 
+	/* Additional state from ReRelease */
+	entity_rrstate_t rrs;
 	/* the game dll can add anything it wants
 	   after this point in the structure */
 };
