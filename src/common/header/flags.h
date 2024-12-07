@@ -211,6 +211,44 @@ static const int daikatana_flags[32] = {
 	0,              /* 31: Unused */
 };
 
+static const char *daikatana_material[] = {
+	NULL,              /* 0: Emit light from the surface, brightness is
+		                *    specified in the 'value' field" */
+	NULL,              /* 1: Fullbright */
+	NULL,              /* 2: The surface is sky, the texture will not be drawn,
+		                *    but the background sky box is used instead */
+	NULL,              /* 3: The surface warps (like water textures do) */
+	NULL,              /* 4: The surface is 33% transparent */
+	NULL,              /* 5: The surface is 66% transparent */
+	NULL,              /* 6: The texture wraps in a downward 'flowing' pattern
+		                *    (warp must also be set) */
+	NULL,              /* 7: Used for non-fixed-size brush triggers and clip brushes */
+	NULL,              /* 8: Hint */
+	NULL,              /* 9: Skip */
+	"wood",            /* 10: Wood */
+	"metal",           /* 11: Metal */
+	"stone",           /* 12: Stone */
+	"glass",           /* 13: Glass */
+	"ice",             /* 14: Ice */
+	"snow",            /* 15: Snow */
+	"mirror",          /* 16: Mirror */
+	"holy grond",      /* 17: Holy Grond */
+	NULL,              /* 18: Alphachan */
+	NULL,              /* 19: Midtexture (Used together with Clear and Nodraw.) */
+	"puddle",          /* 20: Puddle */
+	"water surge",     /* 21: Water Surge */
+	"big water surge", /* 22: Big Water Surge */
+	"bullet light",    /* 23: Bullet Light */
+	"fog",             /* 24: Fog */
+	"sand",            /* 25: Sand */
+	NULL,              /* 26: Unused */
+	NULL,              /* 27: Unused */
+	NULL,              /* 28: Unused */
+	NULL,              /* 29: Unused */
+	NULL,              /* 30: Unused */
+	NULL,              /* 31: Unused */
+};
+
 static const int daikatana_contents_flags[32] = {
 	CONTENTS_SOLID,        /* 0: Default for all brushes */
 	CONTENTS_WINDOW,       /* 1: Brush is a window (not really used) */
@@ -282,6 +320,44 @@ static const int kingpin_flags[32] = {
 	0,              /* 29: Reflect light */
 	0,              /* 30: Unused */
 	0,              /* 31: Unused */
+};
+
+static const char * kingpin_material[32] = {
+	NULL,          /* 0: Emit light from the surface, brightness is specified
+	                *    in the 'value' field */
+	NULL,          /* 1: The surface is slippery */
+	NULL,          /* 2: The surface is sky, the texture will not be drawn,
+	                *    but the background sky box is used instead */
+	NULL,          /* 3: The surface warps (like water textures do) */
+	NULL,          /* 4: The surface is 33% transparent */
+	NULL,          /* 5: The surface is 66% transparent */
+	NULL,          /* 6: The texture wraps in a downward 'flowing' pattern
+	                *    (warp must also be set) */
+	NULL,          /* 7: Used for non-fixed-size brush triggers and clip brushes */
+	NULL,          /* 8: Make a primary bsp splitter */
+	NULL,          /* 9: Skip, Completely ignore, allowing non-closed brushes */
+	NULL,          /* 10: Specular */
+	NULL,          /* 11: Diffuse */
+	NULL,          /* 12: Alpha texture */
+	NULL,          /* 13: Mirror */
+	NULL,          /* 14: Wndw33 */
+	NULL,          /* 15: Wndw66 */
+	NULL,          /* 16: Unused */
+	NULL,          /* 17: Unused */
+	NULL,          /* 18: Unused */
+	"water",       /* 19: Water sound */
+	"concrete",    /* 20: Concrete sound */
+	"fabric",      /* 21: Fabric sound */
+	"gravel",      /* 22: Gravel sound */
+	"metal",       /* 23: Metal sound */
+	"metal light", /* 24: Metal light sound */
+	"tin",         /* 25: Tin sound */
+	"tile",        /* 26: Tile sound */
+	"wood",        /* 27: Wood sound */
+	NULL,          /* 28: Reflect fake */
+	NULL,          /* 29: Reflect light */
+	NULL,          /* 30: Unused */
+	NULL,          /* 31: Unused */
 };
 
 static const int kingpin_contents_flags[32] = {
