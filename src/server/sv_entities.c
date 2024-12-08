@@ -40,11 +40,9 @@ static void
 SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
 	int protocol)
 {
-	entity_state_t *oldent, *newent;
+	entity_xstate_t *oldent, *newent;
 	int oldindex, newindex;
-	int oldnum, newnum;
 	int from_num_entities;
-	int bits;
 
 	MSG_WriteByte(msg, svc_packetentities);
 
@@ -64,6 +62,9 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
 
 	while (newindex < to->num_entities || oldindex < from_num_entities)
 	{
+		int oldnum, newnum;
+		int bits;
+
 		if (msg->cursize > MAX_MSGLEN - 150)
 		{
 			break;
@@ -526,7 +527,6 @@ SV_BuildClientFrame(client_t *client)
 	edict_t *ent;
 	edict_t *clent;
 	client_frame_t *frame;
-	entity_state_t *state;
 	int l;
 	int clientarea, clientcluster;
 	int leafnum;
@@ -571,6 +571,8 @@ SV_BuildClientFrame(client_t *client)
 
 	for (e = 1; e < ge->num_edicts; e++)
 	{
+		entity_xstate_t *state;
+
 		ent = EDICT_NUM(e);
 
 		/* ignore ents without visible models */
@@ -670,7 +672,7 @@ SV_BuildClientFrame(client_t *client)
 			ent->s.number = e;
 		}
 
-		*state = ent->s;
+		SV_GetEntityState(ent, state);
 
 		/* don't mark players missiles as solid */
 		if (ent->owner == client->edict)
@@ -692,7 +694,7 @@ SV_RecordDemoMessage(void)
 {
 	int e;
 	edict_t *ent;
-	entity_state_t nostate;
+	entity_xstate_t nostate;
 	sizebuf_t buf;
 	byte buf_data[32768];
 	int len;
@@ -722,7 +724,10 @@ SV_RecordDemoMessage(void)
 			(ent->s.modelindex || ent->s.effects || ent->s.sound ||
 			 ent->s.event) && !(ent->svflags & SVF_NOCLIENT))
 		{
-			MSG_WriteDeltaEntity(&nostate, &ent->s, &buf,
+			entity_xstate_t state;
+
+			SV_GetEntityState(ent, &state);
+			MSG_WriteDeltaEntity(&nostate, &state, &buf,
 				false, true, PROTOCOL_VERSION);
 		}
 

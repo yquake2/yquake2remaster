@@ -704,7 +704,7 @@ S_RegisterSound(char *name)
 }
 
 static struct sfx_s *
-S_RegisterSexedSound(entity_state_t *ent, char *base)
+S_RegisterSexedSound(entity_xstate_t *ent, char *base)
 {
 	int n;
 	struct sfx_s *sfx;
@@ -1346,7 +1346,7 @@ S_BuildSoundList(int *sounds)
 	for (i = 0; i < cl.frame.num_entities; i++)
 	{
 		int num;
-		entity_state_t *ent;
+		entity_xstate_t *ent;
 
 		if (i >= MAX_EDICTS)
 		{

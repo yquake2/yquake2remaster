@@ -778,7 +778,7 @@ CL_AddMuzzleFlash2(void)
 }
 
 void
-CL_TeleporterParticles(entity_state_t *ent)
+CL_TeleporterParticles(const entity_xstate_t *ent)
 {
 	int i, j;
 	cparticle_t *p;
@@ -2046,7 +2046,7 @@ CL_TeleportParticles(vec3_t org)
 extern struct sfx_s *cl_sfx_footsteps[4];
 
 void
-CL_EntityEvent(entity_state_t *ent)
+CL_EntityEvent(entity_xstate_t *ent)
 {
 	switch (ent->event)
 	{

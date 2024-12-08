@@ -74,7 +74,7 @@ typedef struct
 	struct cmodel_s *models[MAX_MODELS];
 
 	char configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
-	entity_state_t baselines[MAX_EDICTS];
+	entity_xstate_t baselines[MAX_EDICTS];
 
 	/* the multicast buffer is used to send a message to a set of clients
 	   it is only used to marshall data until SV_Multicast is called */
@@ -167,7 +167,7 @@ typedef struct
 	client_t *clients;                  /* [maxclients->value]; */
 	int num_client_entities;            /* maxclients->value*UPDATE_BACKUP*MAX_PACKET_ENTITIES */
 	int next_client_entities;           /* next client_entity to use */
-	entity_state_t *client_entities;    /* [num_client_entities] */
+	entity_xstate_t *client_entities;    /* [num_client_entities] */
 
 	int last_heartbeat;
 
@@ -204,6 +204,7 @@ void SV_DropClient(client_t *drop);
 int SV_ModelIndex(const char *name);
 int SV_SoundIndex(const char *name);
 int SV_ImageIndex(const char *name);
+void SV_GetEntityState(const edict_t *svent, entity_xstate_t *state);
 
 void SV_WriteClientdataToMessage(client_t *client, sizebuf_t *msg);
 

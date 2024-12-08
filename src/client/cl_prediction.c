@@ -81,17 +81,19 @@ void
 CL_ClipMoveToEntities(vec3_t start, vec3_t mins, vec3_t maxs,
 		vec3_t end, trace_t *tr)
 {
-	int i, x, zd, zu;
-	trace_t trace;
-	int headnode;
-	float *angles;
-	entity_state_t *ent;
-	int num;
-	cmodel_t *cmodel;
-	vec3_t bmins, bmaxs;
+	int i;
 
 	for (i = 0; i < cl.frame.num_entities; i++)
 	{
+		int x, zd, zu;
+		trace_t trace;
+		int headnode;
+		float *angles;
+		int num;
+		cmodel_t *cmodel;
+		vec3_t bmins, bmaxs;
+		entity_xstate_t *ent;
+
 		num = (cl.frame.parse_entities + i) & (MAX_PARSE_ENTITIES - 1);
 		ent = &cl_parse_entities[num];
 
@@ -184,15 +186,16 @@ int
 CL_PMpointcontents(vec3_t point)
 {
 	int i;
-	entity_state_t *ent;
-	int num;
-	cmodel_t *cmodel;
 	int contents;
 
 	contents = CM_PointContents(point, 0);
 
 	for (i = 0; i < cl.frame.num_entities; i++)
 	{
+		entity_xstate_t *ent;
+		int num;
+		cmodel_t *cmodel;
+
 		num = (cl.frame.parse_entities + i) & (MAX_PARSE_ENTITIES - 1);
 		ent = &cl_parse_entities[num];
 

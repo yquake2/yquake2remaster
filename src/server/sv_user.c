@@ -186,8 +186,7 @@ static void
 SV_Baselines_f(void)
 {
 	int start;
-	entity_state_t nullstate;
-	entity_state_t *base;
+	entity_xstate_t nullstate;
 
 	Com_DPrintf("Baselines() from %s\n", sv_client->name);
 
@@ -212,6 +211,8 @@ SV_Baselines_f(void)
 	while (sv_client->netchan.message.cursize < MAX_MSGLEN / 2 &&
 		   start < MAX_EDICTS)
 	{
+		entity_xstate_t *base;
+
 		base = &sv.baselines[start];
 
 		if (base->modelindex || base->sound || base->effects)

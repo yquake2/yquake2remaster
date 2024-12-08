@@ -1238,6 +1238,33 @@ typedef struct entity_rrstate_s
 	unsigned int effects;
 } entity_rrstate_t;
 
+typedef struct entity_xstate_s
+{
+	/* keep it insync with entity_state_t */
+	int number;             /* edict index */
+
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t old_origin;      /* for lerping */
+	int modelindex;
+	int modelindex2, modelindex3, modelindex4;      /* weapons, CTF flags, etc */
+	int frame;
+	int skinnum;
+	unsigned int effects;
+	int renderfx;
+	int solid;              /* for client side prediction, 8*(bits 0-4) is x/y radius */
+							/* 8*(bits 5-9) is z down distance, 8(bits10-15) is z up */
+							/* gi.linkentity sets this properly */
+	int sound;              /* for looping sounds, to guarantee shutoff */
+	int event;              /* impulse events -- muzzle flashes, footsteps, etc */
+							/* events only go out for a single frame, they */
+							/* are automatically cleared each frame */
+
+	/* New protocol fields, sync with entity_rrstate_t */
+	vec3_t scale; /* model scale */
+	unsigned int rreffects;
+} entity_xstate_t;
+
 /* ============================================== */
 
 /* player_state_t is the information needed in addition to pmove_state_t

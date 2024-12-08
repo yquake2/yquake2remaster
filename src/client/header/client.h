@@ -72,9 +72,9 @@ typedef struct
 
 typedef struct
 {
-	entity_state_t	baseline; /* delta from this if not from a previous frame */
-	entity_state_t	current;
-	entity_state_t	prev; /* will always be valid, but might just be a copy of current */
+	entity_xstate_t	baseline; /* delta from this if not from a previous frame */
+	entity_xstate_t	current;
+	entity_xstate_t	prev; /* will always be valid, but might just be a copy of current */
 
 	int			serverframe; /* if not current, this ent isn't in the frame */
 
@@ -331,7 +331,7 @@ typedef struct
 
 extern	centity_t	cl_entities[MAX_EDICTS];
 
-extern	entity_state_t	cl_parse_entities[MAX_PARSE_ENTITIES];
+extern	entity_xstate_t	cl_parse_entities[MAX_PARSE_ENTITIES];
 
 extern	netadr_t	net_from;
 extern	sizebuf_t	net_message;
@@ -364,7 +364,7 @@ typedef struct cl_sustain
 
 void CL_ParticleSteamEffect2(cl_sustain_t *self);
 
-void CL_TeleporterParticles (entity_state_t *ent);
+void CL_TeleporterParticles (const entity_xstate_t *ent);
 void CL_ParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count);
 void CL_ParticleEffect2 (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
@@ -535,7 +535,7 @@ void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, int flags);
 void CL_FlyEffect (centity_t *ent, vec3_t origin);
 void CL_BfgParticles (entity_t *ent);
 void CL_AddParticles (void);
-void CL_EntityEvent (entity_state_t *ent);
+void CL_EntityEvent (entity_xstate_t *ent);
 void CL_TrapParticles (entity_t *ent);
 
 void M_Init (void);

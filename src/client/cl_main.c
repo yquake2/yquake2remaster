@@ -88,7 +88,7 @@ client_state_t cl;
 
 centity_t cl_entities[MAX_EDICTS];
 
-entity_state_t cl_parse_entities[MAX_PARSE_ENTITIES];
+entity_xstate_t cl_parse_entities[MAX_PARSE_ENTITIES];
 
 /*Evil hack against too many power screen and power
   shield impact sounds. For example if the player
@@ -156,8 +156,8 @@ CL_Record_f(void)
 	sizebuf_t buf;
 	int i;
 	int len;
-	entity_state_t *ent;
-	entity_state_t nullstate;
+	entity_xstate_t *ent;
+	entity_xstate_t nullstate;
 
 	if (Cmd_Argc() != 2)
 	{

@@ -32,14 +32,9 @@ extern struct model_s *cl_mod_powerscreen;
 void
 CL_AddPacketEntities(frame_t *frame)
 {
-	entity_t ent = {0};
-	entity_state_t *s1;
 	float autorotate, autobob;
-	int i;
-	int pnum;
-	centity_t *cent;
 	int autoanim;
-	clientinfo_t *ci;
+	int pnum;
 
 	/* To distinguish baseq2, xatrix and rogue. */
 	cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
@@ -54,6 +49,11 @@ CL_AddPacketEntities(frame_t *frame)
 	for (pnum = 0; pnum < frame->num_entities; pnum++)
 	{
 		unsigned int effects, renderfx, rr_effects;
+		entity_xstate_t *s1;
+		entity_t ent = {0};
+		clientinfo_t *ci;
+		centity_t *cent;
+		int i;
 
 		s1 = &cl_parse_entities[(frame->parse_entities +
 				pnum) & (MAX_PARSE_ENTITIES - 1)];

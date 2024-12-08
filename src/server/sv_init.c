@@ -96,6 +96,17 @@ SV_ImageIndex(const char *name)
 }
 
 /*
+ * Combine entity_state and entity_rrstate_t
+ */
+void
+SV_GetEntityState(const edict_t *svent, entity_xstate_t *state)
+{
+	memcpy(state, &svent->s, sizeof(entity_state_t));
+	memcpy((byte *)state + sizeof(entity_state_t),
+		&svent->rrs, sizeof(entity_rrstate_t));
+}
+
+/*
  * Entity baselines are used to compress the update messages
  * to the clients -- only the fields that differ from the
  * baseline will be transmitted
@@ -129,7 +140,8 @@ SV_CreateBaseline(void)
 			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 				__func__, entnum, MAX_EDICTS);
 		}
-		sv.baselines[entnum] = svent->s;
+
+		SV_GetEntityState(svent, &sv.baselines[entnum]);
 	}
 }
 
@@ -463,7 +475,7 @@ SV_InitGame(void)
 	svs.spawncount = randk();
 	svs.clients = Z_Malloc(sizeof(client_t) * maxclients->value);
 	svs.num_client_entities = maxclients->value * UPDATE_BACKUP * 64;
-	svs.client_entities = Z_Malloc( sizeof(entity_state_t) * svs.num_client_entities);
+	svs.client_entities = Z_Malloc( sizeof(entity_xstate_t) * svs.num_client_entities);
 
 	/* init network stuff */
 	if (dedicated->value)
