@@ -505,7 +505,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		}
 	}
 
-#if _RREXTEND
 	/* Scale with skins if force or different */
 	if ((protocol == PROTOCOL_VERSION) &&
 		((to->scale[0] != from->scale[0]) ||
@@ -514,7 +513,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 	{
 		bits |= (U_SKIN8 | U_SKIN16);
 	}
-#endif
 
 	if (to->frame != from->frame)
 	{
@@ -547,12 +545,10 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		}
 	}
 
-#if _RREXTEND
 	if (to->rr_effects != from->rr_effects)
 	{
 		bits |= U_EFFECTS8 | U_EFFECTS16;
 	}
-#endif
 
 	if (to->renderfx != from->renderfx)
 	{
@@ -739,7 +735,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 	{
 		MSG_WriteLong(msg, to->skinnum);
 
-#if _RREXTEND
 		/* Send scale */
 		if (protocol == PROTOCOL_VERSION)
 		{
@@ -750,7 +745,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 				MSG_WriteFloat(msg, to->scale[i]);
 			}
 		}
-#endif
 	}
 
 	else if (bits & U_SKIN8)
@@ -778,7 +772,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 		MSG_WriteShort(msg, to->effects);
 	}
 
-#if _RREXTEND
 	/* ReRelease effects */
 	if (protocol == PROTOCOL_VERSION)
 	{
@@ -797,7 +790,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 			MSG_WriteShort(msg, to->rr_effects);
 		}
 	}
-#endif
 
 	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
 	{

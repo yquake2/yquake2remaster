@@ -1262,7 +1262,7 @@ typedef struct entity_xstate_s
 
 	/* New protocol fields, sync with entity_rrstate_t */
 	vec3_t scale; /* model scale */
-	unsigned int rreffects;
+	unsigned int rr_effects;
 } entity_xstate_t;
 
 /* ============================================== */
