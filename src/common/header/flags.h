@@ -409,28 +409,63 @@ static const int anachronox_flags[32] = {
 	SURF_NODRAW,    /* 7: NoDraw */
 	0,              /* 8: Hint */
 	0,              /* 9: Skip */
-	0,              /* 10: Unused */
-	0,              /* 11: Unused */
-	0,              /* 12: Unused */
-	0,              /* 13: Unused */
-	0,              /* 14: Unused */
-	0,              /* 15: Unused */
+	0,              /* 10: Snd_Wood */
+	0,              /* 11: Snd_Metal */
+	0,              /* 12: Snd_Stone */
+	0,              /* 13: Snd_Carpet */
+	0,              /* 14: Snd_Ice */
+	0,              /* 15: Snd_Snow */
 	0,              /* 16: Alpha Banner */
 	SURF_ALPHATEST, /* 17: Alpha Test */
 	0,              /* 18: No V-turbulence */
-	0,              /* 19: Unused */
-	0,              /* 20: Unused */
-	0,              /* 21: Unused */
-	0,              /* 22: Unused */
-	0,              /* 23: Unused */
-	0,              /* 24: Unused */
-	0,              /* 25: Unused */
-	0,              /* 26: Unused */
-	0,              /* 27: Unused */
+	0,              /* 19: Snd_Hollow */
+	0,              /* 20: Snd_Puddle */
+	0,              /* 21: Surf_Scroll */
+	0,              /* 22: Snd_Gravel */
+	0,              /* 23: Snd_Leaves */
+	0,              /* 24: Snd_Grass */
+	0,              /* 25: Snd_Sand */
+	0,              /* 26: Snd_Water */
+	0,              /* 27: Surf_Particles */
 	0,              /* 28: Half Scroll */
 	0,              /* 29: Quarter Scroll */
 	0,              /* 30: Surface Fog */
 	0,              /* 31: Surface Curve */
+};
+
+static const char * anachronox_material[32] = {
+	NULL,              /* 0: Light */
+	NULL,              /* 1: Slick */
+	NULL,              /* 2: Sky Flag */
+	NULL,              /* 3: Warp */
+	NULL,              /* 4: Trans33 */
+	NULL,              /* 5: Trans66 */
+	NULL,              /* 6: Unused */
+	NULL,              /* 7: NoDraw */
+	NULL,              /* 8: Hint */
+	NULL,              /* 9: Skip */
+	"wood",            /* 10: Snd_Wood */
+	"metal",           /* 11: Snd_Metal */
+	"stone",           /* 12: Snd_Stone */
+	"carpet",          /* 13: Snd_Carpet */
+	"ice",             /* 14: Snd_Ice */
+	"snow",            /* 15: Snd_Snow */
+	NULL,              /* 16: Alpha Banner */
+	NULL,              /* 17: Alpha Test */
+	NULL,              /* 18: No V-turbulence */
+	"hollow",          /* 19: Snd_Hollow */
+	"puddle",          /* 20: Snd_Puddle */
+	NULL,              /* 21: Surf_Scroll */
+	"gravel",          /* 22: Snd_Gravel */
+	"leaves",          /* 23: Snd_Leaves */
+	"grass",           /* 24: Snd_Grass */
+	"sand",            /* 25: Snd_Sand */
+	"water",           /* 26: Snd_Water */
+	NULL,              /* 27: Surf_Particles */
+	NULL,              /* 28: Half Scroll */
+	NULL,              /* 29: Quarter Scroll */
+	NULL,              /* 30: Surface Fog */
+	NULL,              /* 31: Surface Curve */
 };
 
 static const int anachronox_contents_flags[32] = {
