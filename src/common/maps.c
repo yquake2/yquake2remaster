@@ -127,6 +127,7 @@ Mod_LoadMaterialConvertFlags(int flags, maptype_t maptype, char *value)
 
 	switch (maptype)
 	{
+		case map_anachronox: material = anachronox_material; break;
 		case map_daikatana: material = daikatana_material; break;
 		case map_kingpin: material = kingpin_material; break;
 		default: break;

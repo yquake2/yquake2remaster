@@ -28,8 +28,7 @@ State:
 Monsters:
 
 * incorrect dead animation for Arachnid,
-* broken fire effect for Guardian,
-* q64/outpost can't change to next level.
+* broken fire effect for Guardian.
 
 Models support:
 
@@ -88,7 +87,7 @@ Note:
 
 Games:
 
-* Quake 2:
+* Quake 2 ReRelease:
   * SDK: <https://github.com/id-Software/quake2-rerelease-dll>
   * Tech info: <https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii>
 * Anachronox:
@@ -154,7 +153,7 @@ Goals:
 * [ ] MDA model skin selection by tag,
 * [ ] SDEF/MDA dynamicaly allocate list of skins,
 * [ ] Support material load textures/textureinfo.dat from Anachronox,
-* [*] Support textures/*/*.mat load from ReRelease (footstep),
+* [x] Support textures/*/*.mat load from ReRelease (footstep),
 * [ ] Support textures/*/*.mat load from ReRelease texture effects,
 * [ ] Support textures/*/*_glow.png load from ReRelease,
 * [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
