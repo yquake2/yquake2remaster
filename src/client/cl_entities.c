@@ -63,6 +63,7 @@ CL_AddPacketEntities(frame_t *frame)
 		effects = s1->effects;
 		rr_effects = s1->rr_effects;
 		renderfx = s1->renderfx;
+		ent.rr_mesh = s1->rr_mesh;
 
 		/* set frame */
 		if (effects & EF_ANIM01)

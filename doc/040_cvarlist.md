@@ -146,6 +146,10 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   preview.  `-1` - don't show animation. Defaults to `94` for show
   salute animation.
 
+* **cl_model_mesh_hide**: Mesh mask to hide in multiplayer model preview.
+ `0` - show whole model, `2` - hide second mesh from model. Defaults
+  to `0` for show whole model.
+
 * **cl_nodownload_list**: Whitespace separated list of substrings, files
   having one these strings in their name are never downloaded. Empty by
   default. Note that some substrings are always forbidden, for security

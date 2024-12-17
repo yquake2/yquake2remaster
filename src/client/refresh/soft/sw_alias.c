@@ -476,6 +476,11 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 		const dtriangle_t *ptri;
 		int num_tris;
 
+		if (currententity->rr_mesh & (1 << i))
+		{
+			continue;
+		}
+
 		num_tris = Q_min(s_pmdl->num_tris - mesh_nodes[i].ofs_tris, mesh_nodes[i].num_tris);
 		ptri = (dtriangle_t *)((byte *)s_pmdl + s_pmdl->ofs_tris) + mesh_nodes[i].ofs_tris;
 

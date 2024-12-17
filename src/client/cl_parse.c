@@ -259,20 +259,24 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	if (cls.serverProtocol != PROTOCOL_VERSION)
 	{
 		to->rr_effects = 0;
+		to->rr_mesh = 0;
 	}
 	else
 	{
 		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
 		{
 			to->rr_effects = MSG_ReadLong(&net_message);
+			to->rr_mesh = MSG_ReadLong(&net_message);
 		}
 		else if (bits & U_EFFECTS8)
 		{
 			to->rr_effects = MSG_ReadByte(&net_message);
+			to->rr_mesh = MSG_ReadByte(&net_message);
 		}
 		else if (bits & U_EFFECTS16)
 		{
 			to->rr_effects = MSG_ReadShort(&net_message);
+			to->rr_mesh = MSG_ReadShort(&net_message);
 		}
 	}
 

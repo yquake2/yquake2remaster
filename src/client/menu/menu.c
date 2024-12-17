@@ -6180,11 +6180,12 @@ extern float CalcFov(float fov_x, float w, float h);
 static void
 PlayerConfig_AnimateModel(entity_t *entity, int count, int curTime)
 {
-	const cvar_t *cl_start_frame, *cl_end_frame;
+	const cvar_t *cl_start_frame, *cl_end_frame, *cl_mesh_mask;
 	int startFrame, endFrame;
 
 	cl_start_frame = Cvar_Get("cl_model_preview_start", "84", CVAR_ARCHIVE);
 	cl_end_frame = Cvar_Get("cl_model_preview_end", "94", CVAR_ARCHIVE);
+	cl_mesh_mask = Cvar_Get("cl_model_mesh_hide", "0", CVAR_ARCHIVE);
 	startFrame = cl_start_frame->value;
 	endFrame = cl_end_frame->value;
 
@@ -6196,6 +6197,8 @@ PlayerConfig_AnimateModel(entity_t *entity, int count, int curTime)
 		{
 			/* salute male 84..94 frame */
 			entity[i].frame = (curTime / 100) % (endFrame - startFrame) + startFrame;
+			/* hide part of meshes */
+			entity[i].rr_mesh = cl_mesh_mask->value;
 		}
 	}
 }

@@ -299,6 +299,11 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
+		if (entity->rr_mesh & (1 << i))
+		{
+			continue;
+		}
+
 		DrawAliasFrameLerpCommands(paliashdr, entity, shadelight,
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,

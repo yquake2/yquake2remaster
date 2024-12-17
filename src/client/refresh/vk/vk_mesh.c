@@ -383,6 +383,11 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	for (i = 0; i < num_mesh_nodes; i++)
 	{
+		if (currententity->rr_mesh & (1 << i))
+		{
+			continue;
+		}
+
 		Vk_DrawAliasFrameLerpCommands(
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
