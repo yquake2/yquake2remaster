@@ -106,6 +106,7 @@
 {"item", STOFS(item), F_LRAWSTRING, FFL_SPAWNTEMP},
 {"item", FOFS(item), F_ITEM},
 {"gravity", STOFS(gravity), F_LRAWSTRING, FFL_SPAWNTEMP},
+{"start_items", STOFS(start_items), F_LRAWSTRING, FFL_SPAWNTEMP},
 {"sky", STOFS(sky), F_LRAWSTRING, FFL_SPAWNTEMP},
 {"skyrotate", STOFS(skyrotate), F_FLOAT, FFL_SPAWNTEMP},
 {"skyautorotate", STOFS(skyautorotate), F_INT, FFL_SPAWNTEMP},

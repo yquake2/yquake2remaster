@@ -281,7 +281,7 @@ Netchan_Transmit(netchan_t *chan, int length, byte *data)
 	}
 	else
 	{
-		Com_Printf("Netchan_Transmit: dumped unreliable\n");
+		Com_Printf("%s: dumped unreliable\n", __func__);
 	}
 
 	/* send the datagram */

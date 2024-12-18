@@ -4279,7 +4279,7 @@ CTFObserver(edict_t *ent)
 	ent->client->ps.gunindex = 0;
 	ent->client->resp.score = 0;
 	memcpy(userinfo, ent->client->pers.userinfo, sizeof(userinfo));
-	InitClientPersistant(ent->client);
+	InitClientPersistant(ent);
 	ClientUserinfoChanged(ent, userinfo);
 	gi.linkentity(ent);
 	CTFOpenJoinMenu(ent);

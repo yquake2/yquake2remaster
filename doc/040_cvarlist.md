@@ -259,6 +259,8 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **g_itemsbobeffect**: Bob effect of items like in ReRelease. Defaults to `0`.
 
+* **g_start_items**: List of start items on level.
+
 * **g_swap_speed**: Sets the speed of the "changing weapon" animation.
   Default is `1`. If set to `2`, it will be double the speed, `3` is
   the triple... up until the max of `8`, since there are at least 2

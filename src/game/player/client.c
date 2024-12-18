@@ -1244,15 +1244,84 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 
 /* ======================================================================= */
 
+static void
+Player_GiveStartItems(edict_t *ent, const char *ptr)
+{
+	if (!ptr || !*ptr)
+	{
+		return;
+	}
+
+	while (*ptr)
+	{
+		char buffer[MAX_QPATH + 1] = {0};
+		const char *buffer_end = NULL, *item_name = NULL;
+		char *curr_buf;
+
+		buffer_end = strchr(ptr, ';');
+		if (!buffer_end)
+		{
+			buffer_end = ptr + strlen(ptr);
+		}
+		strncpy(buffer, ptr, Q_min(MAX_QPATH, buffer_end - ptr));
+
+		curr_buf = buffer;
+		item_name = COM_Parse(&curr_buf);
+		if (item_name)
+		{
+			gitem_t *item;
+
+			item = FindItemByClassname(item_name);
+			if (!item || !item->pickup)
+			{
+				gi.dprintf("%s: Invalid g_start_item entry: %s\n", __func__, item_name);
+			}
+			else
+			{
+				edict_t *dummy;
+				int count = 1;
+
+				if (*curr_buf)
+				{
+					count = atoi(COM_Parse(&curr_buf));
+				}
+
+				if (count == 0)
+				{
+					ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
+					continue;
+				}
+
+				dummy = G_Spawn();
+				dummy->item = item;
+				dummy->count = count;
+				dummy->spawnflags |= DROPPED_PLAYER_ITEM;
+				item->pickup(dummy, ent);
+				G_FreeEdict(dummy);
+			}
+		}
+
+		/* skip end of section */
+		ptr = buffer_end;
+		if (*ptr == ';')
+		{
+			ptr ++;
+		}
+	}
+}
+
 /*
  * This is only called when the game first
  * initializes in single player, but is called
  * after each death and level change in deathmatch
  */
 void
-InitClientPersistant(gclient_t *client)
+InitClientPersistant(edict_t *ent)
 {
+	gclient_t *client;
 	gitem_t *item;
+
+	client = ent->client;
 
 	if (!client)
 	{
@@ -1292,6 +1361,26 @@ InitClientPersistant(gclient_t *client)
 
 	/* Default chasecam to off */
 	client->pers.chasetoggle = 0;
+
+	/* start items */
+	if (*g_start_items->string)
+	{
+		if ((deathmatch->value || coop->value) && !sv_cheats->value)
+		{
+			gi.cprintf(ent, PRINT_HIGH,
+				"You must run the server with '+set cheats 1' to enable 'g_start_items'.\n");
+			return;
+		}
+		else
+		{
+			Player_GiveStartItems(ent, g_start_items->string);
+		}
+	}
+
+	if (level.start_items && *level.start_items)
+	{
+		Player_GiveStartItems(ent, level.start_items);
+	}
 }
 
 void
@@ -2142,7 +2231,7 @@ PutClientInServer(edict_t *ent)
 
 		resp = client->resp;
 		memcpy(userinfo, client->pers.userinfo, sizeof(userinfo));
-		InitClientPersistant(client);
+		InitClientPersistant(ent);
 		ClientUserinfoChanged(ent, userinfo);
 	}
 	else if (coop->value)
@@ -2188,7 +2277,7 @@ PutClientInServer(edict_t *ent)
 
 	if (client->pers.health <= 0)
 	{
-		InitClientPersistant(client);
+		InitClientPersistant(ent);
 	}
 
 	client->resp = resp;
@@ -2638,7 +2727,7 @@ ClientConnect(edict_t *ent, char *userinfo)
 
 		if (!game.autosaved || !ent->client->pers.weapon)
 		{
-			InitClientPersistant(ent->client);
+			InitClientPersistant(ent);
 		}
 	}
 

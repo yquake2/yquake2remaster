@@ -384,6 +384,8 @@ typedef struct
 
 	edict_t *disguise_violator;
 	int disguise_violation_framenum;
+
+	char *start_items;
 } level_locals_t;
 
 /* spawn_temp_t is only used to hold entity field values that
@@ -406,6 +408,7 @@ typedef struct
 	float pausetime;
 	char *item;
 	char *gravity;
+	char *start_items;
 
 	float minyaw;
 	float maxyaw;
@@ -688,6 +691,7 @@ extern cvar_t *g_quick_weap;
 extern cvar_t *g_swap_speed;
 extern cvar_t *g_language;
 extern cvar_t *g_itemsbobeffect;
+extern cvar_t *g_start_items;
 extern cvar_t *g_game;
 
 /* this is for the count of monsters */
@@ -761,8 +765,8 @@ void Cmd_Score_f(edict_t *ent);
 void PrecacheItem(gitem_t *it);
 void InitItems(void);
 void SetItemNames(void);
-gitem_t *FindItem(char *pickup_name);
-gitem_t *FindItemByClassname(char *classname);
+gitem_t *FindItem(const char *pickup_name);
+gitem_t *FindItemByClassname(const char *classname);
 
 #define ITEM_INDEX(x) ((x) - itemlist)
 
@@ -958,7 +962,7 @@ edict_t *PlayerTrail_LastSpot(void);
 void respawn(edict_t *ent);
 void BeginIntermission(edict_t *targ);
 void PutClientInServer(edict_t *ent);
-void InitClientPersistant(gclient_t *client);
+void InitClientPersistant(edict_t *ent);
 void InitClientResp(gclient_t *client);
 void InitBodyQue(void);
 void ClientBeginServerFrame(edict_t *ent);

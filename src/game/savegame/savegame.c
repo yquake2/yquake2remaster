@@ -266,6 +266,7 @@ InitGame(void)
 	g_language = gi.cvar("g_language", "english", CVAR_ARCHIVE);
 	g_itemsbobeffect = gi.cvar("g_itemsbobeffect", "0", CVAR_ARCHIVE);
 	g_game = gi.cvar("game", "", 0);
+	g_start_items = gi.cvar("g_start_items", "", 0);
 
 	/* initilize localization */
 	LocalizationInit();
