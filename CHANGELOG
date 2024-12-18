@@ -1,3 +1,33 @@
+Quake 2 8.42RR11:
+- ReRelease: add support `flashlight` item
+- ReRelease: add support `trigger_flashlight`
+- ReRelease: add support `start_item` cvar/map property
+- ReRelease: add material support for custom footstep sound
+- ReRelease: add support `health_multiplier`
+- ReRelease: add support `g_itemsbobeffect` (bob effect for items)
+- ReRelease: add models scale support
+- ReRelease: ignore nodraw surfaces
+- ReRelease: add `g_language` localization cvar
+- ReRelease: update docs about localization
+- ReRelease: fix `key_yellow_key` item definition
+- ReRelease: sort spawn function before search
+- Other games maps: alternative text for unexisted iamges in menu
+- Other games maps: convert map suface flags to material type
+- Other games maps: update entities definition file
+- Other games maps: support mesh hide mask for player model preview
+- Other games maps: `choose_cdtrack` triger support
+- Anachronox: ignore tag name in model for now
+- DoD: add custom status bar
+- Daikatana: fix surface flags convert
+- yquake2: improve backends support @john-tornblom
+- yquake2: clipboard fix @BjossiAlfreds
+- yquake2: update cmd parser @devnexen
+- yquake2: update soft render with unaccelerated render support @john-tornblom
+- yquake2: fix compile without gl targets @john-tornblom
+- renders: sync gl4 with gl3 codes
+- game: use player model id based on max models limit
+- filesystem: fix pointers arithmetic
+
 Quake 2 8.42RR10:
 - client: updated console logic,
 - game: Update default entities descriptor file,
