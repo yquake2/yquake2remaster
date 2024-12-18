@@ -264,17 +264,41 @@ CL_AddPacketEntities(frame_t *frame)
 		}
 
 		if (rr_effects & EF_FLASHLIGHT) {
-			vec3_t forward, start, end;
+			vec3_t forward, start, end, diff, pos;
+			vec3_t mins = {-1, -1, -1}, maxs = {1, 1, 1};
 			trace_t trace;
-			int mask = CONTENTS_SOLID | CONTENTS_MONSTER;
+			int len = 0, i;
+			float step;
 
 			AngleVectors(ent.angles, forward, NULL, NULL);
-			VectorMA(ent.origin, 1024, forward, end);
+			VectorMA(ent.origin, 256, forward, end);
 			VectorCopy(ent.origin, start);
+			/* search light end point */
+			trace = CM_BoxTrace(start, end, mins, maxs, 0, MASK_SHOT);
+			/* step back little bit, for cover nearest surfaces */
+			VectorSubtract(trace.endpos, ent.origin, diff);
+			len = VectorNormalize(diff);
+			/* get light steps */
+			step = (float)len / 16;
+			for (i = 0; i < 3; i++)
+			{
+				diff[i] *= step;
+			}
 
-			trace = CM_BoxTrace(start, end, vec3_origin, vec3_origin, 0, mask);
+			/* place only 16 lights in row max */
+			if (len > 16)
+			{
+				len = 16;
+			}
 
-			V_AddLight(trace.endpos, 128, 1, 1, 1);
+			VectorCopy(trace.endpos, pos);
+			/* Add light trace */
+			for (i = 0; i < len; i++)
+			{
+				/* create light */
+				V_AddLight(pos, 128 * (len - i) / len + 64, 1, 1, 1);
+				VectorSubtract(pos, diff, pos);
+			}
 		}
 
 		if (s1->number == cl.playernum + 1)
