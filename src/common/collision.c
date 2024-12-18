@@ -135,6 +135,7 @@ static cleaf_t *box_leaf;
 static cplane_t *box_planes;
 static cvar_t *map_noareas;
 static cvar_t *r_maptype;
+static cvar_t *r_game;
 static int box_headnode;
 static int checkcount;
 static int floodvalid;
@@ -1737,6 +1738,16 @@ CM_ModFree(model_t *cmod)
 }
 
 void
+CM_ModInit(void)
+{
+	memset(models, 0, sizeof(models));
+
+	map_noareas = Cvar_Get("map_noareas", "0", 0);
+	r_maptype = Cvar_Get("maptype", "0", CVAR_ARCHIVE);
+	r_game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
+}
+
+void
 CM_ModFreeAll(void)
 {
 	int i;
@@ -1769,6 +1780,11 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	/* Can't detect will use provided */
 	maptype = r_maptype->value;
+	/* force heretic2 only if game is heretic2 */
+	if (!strcmp(r_game->string, "heretic2") && maptype == map_quake2rr)
+	{
+		maptype = map_heretic2;
+	}
 	cmod_base = Mod_Load2QBSP(name, (byte *)filebuf, filelen, &length, &maptype);
 	header = (dheader_t *)cmod_base;
 
@@ -1862,9 +1878,6 @@ cmodel_t *
 CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum)
 {
 	int i, sec_start;
-
-	map_noareas = Cvar_Get("map_noareas", "0", 0);
-	r_maptype = Cvar_Get("maptype", "0", CVAR_ARCHIVE);
 
 	if (!name[0])
 	{

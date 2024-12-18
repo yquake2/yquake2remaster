@@ -642,6 +642,7 @@ cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
 int CM_MapSurfacesNum(void);
 mapsurface_t* CM_MapSurfaces(int surfnum);
 
+void CM_ModInit(void);
 void CM_ModFreeAll(void);
 
 int CM_NumClusters(void);
