@@ -72,7 +72,7 @@ typedef struct
 	char name[MAX_QPATH];
 	unsigned checksum;
 	byte *cache; /* raw converted map */
-	int cache_size;
+	size_t cache_size;
 
 	cleaf_t *map_leafs;
 	int emptyleaf;
@@ -1659,7 +1659,8 @@ CMod_LoadEntityString(const char *name, const char **map_entitystring, int *nume
 	if (sv_entfile->value)
 	{
 		char *buffer = NULL, entname[256];
-		int nameLen, bufLen = -1;
+		size_t nameLen;
+		int bufLen = -1;
 
 		nameLen = strlen(name);
 		if (strcmp(name + nameLen - 4, ".bsp") || nameLen > (MAX_QPATH - 1))
@@ -1762,11 +1763,11 @@ CM_ModFreeAll(void)
 static void
 CM_LoadCachedMap(const char *name, model_t *mod)
 {
-	int filelen, hunkSize;
+	size_t length, hunkSize;
 	byte *cmod_base, *filebuf;
 	maptype_t maptype;
 	dheader_t *header;
-	size_t length;
+	int filelen;
 
 	filelen = FS_LoadFile(name, (void **)&filebuf);
 
@@ -1864,7 +1865,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	CMod_LoadEntityString(mod->name, &mod->map_entitystring, &mod->numentitychars,
 		mod->cache, &header->lumps[LUMP_ENTITIES]);
 	mod->extradatasize = Hunk_End();
-	Com_DPrintf("Allocated %d from expected %d hunk size\n",
+	Com_DPrintf("Allocated %d from expected " YQ2_COM_PRIdS " hunk size\n",
 		mod->extradatasize, hunkSize);
 
 	free(cmod_base);

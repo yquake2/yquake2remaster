@@ -224,7 +224,8 @@ GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			int l, i;
+			size_t l;
+			int i;
 
 			l = strlen(alttext);
 			for (i = 0; i < l; i++)

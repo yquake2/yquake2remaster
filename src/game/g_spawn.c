@@ -99,7 +99,8 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	char model_path[MAX_QPATH * 3];
 	char *semicolon, *curr;
 
-	strncpy(model_path, data->model_path, sizeof(model_path));
+	Q_strlcpy(model_path, data->model_path,
+		Q_min(sizeof(model_path), sizeof(data->model_path)));
 
 	/* first model */
 	curr = model_path;
@@ -414,7 +415,7 @@ char *
 ED_NewString(const char *string, qboolean raw)
 {
 	char *newb;
-	int l;
+	size_t l;
 
 	if (!string)
 	{

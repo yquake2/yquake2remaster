@@ -371,8 +371,8 @@ Mod_LoadFile(const char *name, void **buffer)
 {
 	char namewe[256];
 	const char* ext;
-	int filesize, len;
-	size_t tlen;
+	int filesize;
+	size_t tlen, len;
 
 	if (!name)
 	{

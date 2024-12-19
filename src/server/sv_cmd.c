@@ -389,7 +389,8 @@ SV_Kick_f(void)
 static void
 SV_Status_f(void)
 {
-	int i, j, l;
+	int i, j;
+	size_t l;
 	client_t *cl;
 	char *s;
 	int ping;

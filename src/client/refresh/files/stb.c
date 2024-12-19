@@ -131,13 +131,13 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 	{
 		if (last_color != *dst)
 		{
-			int step = dst - last_diff;
+			size_t step = dst - last_diff;
 			if (step > 1)
 			{
 				int a_beg, b_beg, c_beg, d_beg;
 				int a_end, b_end, c_end, d_end;
-				int a_step, b_step, c_step, d_step;
-				int k;
+				size_t a_step, b_step, c_step, d_step;
+				size_t k;
 
 				// minimize effect size to rstep
 				if (step > rstep)
@@ -723,7 +723,7 @@ R_FindPic(const char *name, findimage_t find_image)
 		}
 		else
 		{
-			int len;
+			size_t len;
 
 			len = strlen(name);
 

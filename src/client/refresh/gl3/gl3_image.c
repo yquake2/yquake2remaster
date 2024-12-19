@@ -186,7 +186,7 @@ GL3_BindLightmap(int lightmapnum)
 /*
  * Returns has_alpha
  */
-qboolean
+static qboolean
 GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 {
 	qboolean res;
@@ -237,7 +237,7 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 /*
  * Returns has_alpha
  */
-qboolean
+static qboolean
 GL3_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 {
 	int s = width * height;
@@ -614,7 +614,8 @@ GL3_FindImage(const char *originname, imagetype_t type)
 	char namewe[256], name[256] = {0};
 	gl3image_t *image;
 	const char* ext;
-	int i, len;
+	size_t len;
+	int i;
 
 	if (!originname)
 	{
