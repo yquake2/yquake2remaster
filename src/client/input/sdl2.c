@@ -2036,6 +2036,9 @@ IN_Controller_Init(qboolean notify_user)
 
 	for (int i = 0; i < SDL_NumJoysticks(); i++)
 	{
+		const char* joystick_name;
+		size_t name_len;
+
 		joystick = SDL_JoystickOpen(i);
 		if (!joystick)
 		{
@@ -2043,8 +2046,8 @@ IN_Controller_Init(qboolean notify_user)
 			continue;	// try next joystick
 		}
 
-		const char* joystick_name = SDL_JoystickName(joystick);
-		const int name_len = strlen(joystick_name);
+		joystick_name = SDL_JoystickName(joystick);
+		name_len = strlen(joystick_name);
 
 		Com_Printf ("Trying joystick %d, '%s'\n", i+1, joystick_name);
 

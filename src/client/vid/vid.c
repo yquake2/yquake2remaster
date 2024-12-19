@@ -106,7 +106,7 @@ VID_WriteScreenshot(int width, int height, int comp, const void* data)
 		if (argc > 2)
 		{
 			const char* q = Cmd_Argv(2);
-			int qualityStrLen = strlen(q);
+			size_t qualityStrLen = strlen(q);
 
 			for (i = 0; i < qualityStrLen; ++i)
 			{
@@ -248,7 +248,7 @@ vidmode_t vid_modes[] = {
 /*
  * Callback function for the 'vid_listmodes' cmd.
  */
-void
+static void
 VID_ListModes_f(void)
 {
 	int i;
@@ -265,7 +265,7 @@ VID_ListModes_f(void)
 /*
  * Returns informations about the given mode.
  */
-qboolean
+static qboolean
 VID_GetModeInfo(int *width, int *height, int mode)
 {
 	if ((mode < 0) || (mode >= VID_NUM_MODES))
@@ -342,7 +342,7 @@ VID_HasRenderer(const char *renderer)
 /*
  * Called by the renderer to request a restart.
  */
-void
+static void
 VID_RequestRestart(ref_restart_t rs)
 {
 	restart_state = rs;
@@ -351,7 +351,7 @@ VID_RequestRestart(ref_restart_t rs)
 /*
  * Restarts the renderer.
  */
-void
+static void
 VID_Restart_f(void)
 {
 	if (restart_state == RESTART_UNDEF)
@@ -365,7 +365,7 @@ VID_Restart_f(void)
 /*
  * Shuts the renderer down and unloads it.
  */
-void
+static void
 VID_ShutdownRenderer(void)
 {
 	if (ref_active)
@@ -385,7 +385,7 @@ VID_ShutdownRenderer(void)
 /*
  * Loads and initializes a renderer.
  */
-qboolean
+static qboolean
 VID_LoadRenderer(void)
 {
 	refimport_t	ri;

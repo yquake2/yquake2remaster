@@ -767,7 +767,7 @@ M_Main_Draw(void)
 		( int )(cls.realtime / 100) % NUM_CURSOR_FRAMES);
 }
 
-const char *
+static const char *
 M_Main_Key(int key)
 {
 	return Default_MenuKey(&s_main, key);
@@ -1543,7 +1543,7 @@ DrawControllerAltButtonBindingFunc(void *self)
 	}
 	else
 	{
-		int x;
+		size_t x;
 		const char *name;
 
 		name = Key_KeynumToString(keys[0]);
@@ -3377,7 +3377,7 @@ ModsFunc(void *unused)
 	M_Menu_Mods_f();
 }
 
-void
+static void
 Game_MenuInit(void)
 {
 	Mods_NamesInit();
@@ -4392,7 +4392,7 @@ StartServer_MenuInit(void)
 			char shortname[MAX_TOKEN_CHARS];
 			char longname[MAX_TOKEN_CHARS];
 			char scratch[200];
-			int j, l;
+			size_t j, l;
 
 			strcpy(shortname, COM_Parse(&s));
 			l = strlen(shortname);
@@ -5055,7 +5055,7 @@ DMOptions_MenuDraw(void)
 	Menu_Draw(&s_dmoptions_menu);
 }
 
-const char *
+static const char *
 DMOptions_MenuKey(int key)
 {
 	return Default_MenuKey(&s_dmoptions_menu, key);
@@ -5287,7 +5287,7 @@ AddressBook_MenuInit(void)
 	}
 }
 
-const char *
+static const char *
 AddressBook_MenuKey(int key)
 {
 	if (key == K_ESCAPE)
@@ -5412,7 +5412,7 @@ IconOfSkinExists(const char* skin, char** pcxfiles, int npcxfiles,
 static void
 StripExtension(char* path)
 {
-	int length;
+	size_t length;
 
 	length = strlen(path) - 1;
 
@@ -5695,7 +5695,8 @@ HasSkinsInDir(const char *dirname, int *num)
 {
 	char **list_png, **list_pcx, **list_m8;
 	char **curr = NULL, **list = NULL;
-	int num_png, num_pcx, num_m8, dirname_size;
+	int num_png, num_pcx, num_m8;
+	size_t dirname_size;
 
 	*num = 0;
 	/* dir name size plus one for skip slash */
@@ -5987,7 +5988,8 @@ PlayerConfig_ScanDirectories(void)
 	return result;
 }
 
-void ListModels_f(void)
+static void
+ListModels_f(void)
 {
 	PlayerConfig_ScanDirectories();
 

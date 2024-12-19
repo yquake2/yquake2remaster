@@ -776,7 +776,7 @@ CL_FireEntityEvents(frame_t *frame)
 	}
 }
 
-void
+static void
 SHOWNET(char *s)
 {
 	if (cl_shownet->value >= 2)
@@ -1207,7 +1207,7 @@ CL_ParseClientinfo(int player)
 static void
 CL_ParseConfigString(void)
 {
-	int i, length;
+	size_t i, length;
 	char *s;
 	char olds[MAX_QPATH];
 

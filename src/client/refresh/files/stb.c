@@ -723,7 +723,7 @@ R_FindPic(const char *name, findimage_t find_image)
 		}
 		else
 		{
-			int len;
+			size_t len;
 
 			len = strlen(name);
 

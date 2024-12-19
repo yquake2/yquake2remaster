@@ -1009,7 +1009,7 @@ FS_LoadDAT(const char *packPath)
 	ddatfile_t *info = NULL; /* DAT info. */
 	const char *prefixpos, *pos;
 	char prefix[MAX_QPATH];
-	int prefix_size;
+	size_t prefix_size;
 
 	handle = Q_fopen(packPath, "rb");
 
@@ -1078,7 +1078,7 @@ FS_LoadDAT(const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		int name_len;
+		size_t name_len;
 
 		/* name */
 		memcpy(files[i].name, prefix, prefix_size);
@@ -1111,7 +1111,7 @@ FS_LoadDAT(const char *packPath)
 	return pack;
 }
 
-fsPack_t *
+static fsPack_t *
 FS_LoadSIN(const char *packPath)
 {
 	int i; /* Loop counter. */
@@ -1910,7 +1910,8 @@ Q_sort_modcmp(const void *p1, const void *p2)
 char**
 FS_ListMods(int *nummods)
 {
-	int nmods = 0, numdirchildren, numpacksinchilddir, searchpathlength;
+	int nmods = 0, numdirchildren, numpacksinchilddir;
+	size_t searchpathlength;
 	char findnamepattern[MAX_OSPATH], modname[MAX_QPATH], searchpath[MAX_OSPATH];
 	char **dirchildren, **packsinchilddir, **modnames;
 

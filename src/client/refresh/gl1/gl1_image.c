@@ -471,7 +471,7 @@ R_ImageList_f(void)
 /*
  * Fill background pixels so mipmapping doesn't have haloes
  */
-void
+static void
 R_FloodFillSkin(byte *skin, int skinwidth, int skinheight)
 {
 	byte fillcolor = *skin; /* assume this is the pixel to fill */
@@ -537,7 +537,7 @@ R_FloodFillSkin(byte *skin, int skinwidth, int skinheight)
  * texture to increase the
  * lighting range
  */
-void
+static void
 R_LightScaleTexture(unsigned *in, int inwidth,
 		int inheight, qboolean only_gamma)
 {
@@ -578,7 +578,7 @@ R_LightScaleTexture(unsigned *in, int inwidth,
 /*
  * Operates in place, quartering the size of the texture
  */
-void
+static void
 R_MipMap(byte *in, int width, int height)
 {
 	int i, j;
@@ -603,7 +603,7 @@ R_MipMap(byte *in, int width, int height)
 /*
  * Returns has_alpha
  */
-void
+static void
 R_BuildPalettedTexture(unsigned char *paletted_texture, unsigned char *scaled,
 		int scaled_width, int scaled_height)
 {
@@ -625,7 +625,7 @@ R_BuildPalettedTexture(unsigned char *paletted_texture, unsigned char *scaled,
 	}
 }
 
-qboolean
+static qboolean
 R_Upload32Native(unsigned *data, int width, int height, qboolean mipmap)
 {
 	// This is for GL 2.x so no palettes, no scaling, no messing around with the data here. :)
@@ -661,7 +661,7 @@ R_Upload32Native(unsigned *data, int width, int height, qboolean mipmap)
 }
 
 
-qboolean
+static qboolean
 R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 {
 	int samples;
@@ -1144,7 +1144,8 @@ R_FindImage(const char *originname, imagetype_t type)
 	char namewe[256], name[256] = {0};
 	const char* ext;
 	image_t *image;
-	int i, len;
+	size_t len;
+	int i;
 
 	if (!originname)
 	{

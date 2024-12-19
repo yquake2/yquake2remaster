@@ -224,7 +224,7 @@ ValidateSelectedItem(edict_t *ent)
 /*
  * Give items to a client
  */
-void
+static void
 Cmd_Give_f(edict_t *ent)
 {
 	char *name;
@@ -454,7 +454,7 @@ Cmd_Give_f(edict_t *ent)
 /*
  * Sets client to godmode
  */
-void
+static void
 Cmd_God_f(edict_t *ent)
 {
 	char *msg;
@@ -488,7 +488,7 @@ Cmd_God_f(edict_t *ent)
 /*
  * Sets client to notarget
  */
-void
+static void
 Cmd_Notarget_f(edict_t *ent)
 {
 	char *msg;
@@ -522,7 +522,7 @@ Cmd_Notarget_f(edict_t *ent)
 /*
  * argv(0) noclip
  */
-void
+static void
 Cmd_Noclip_f(edict_t *ent)
 {
 	char *msg;
@@ -556,7 +556,7 @@ Cmd_Noclip_f(edict_t *ent)
 /*
  * Use an inventory item
  */
-void
+static void
 Cmd_Use_f(edict_t *ent)
 {
 	int index;
@@ -622,7 +622,7 @@ Cmd_Use_f(edict_t *ent)
 /*
  * Drop an inventory item
  */
-void
+static void
 Cmd_Drop_f(edict_t *ent)
 {
 	int index;
@@ -761,7 +761,7 @@ Cmd_Help_f(edict_t *ent)
 	gi.unicast(ent, true);
 }
 
-void
+static void
 Cmd_Inven_f(edict_t *ent)
 {
 	gclient_t *cl;
@@ -801,7 +801,7 @@ Cmd_Inven_f(edict_t *ent)
 	gi.unicast(ent, true);
 }
 
-void
+static void
 Cmd_InvUse_f(edict_t *ent)
 {
 	gitem_t *it;
@@ -836,7 +836,7 @@ Cmd_InvUse_f(edict_t *ent)
 	it->use(ent, it);
 }
 
-void
+static void
 Cmd_WeapPrev_f(edict_t *ent)
 {
 	gclient_t *cl;
@@ -898,7 +898,7 @@ Cmd_WeapPrev_f(edict_t *ent)
 	}
 }
 
-void
+static void
 Cmd_WeapNext_f(edict_t *ent)
 {
 	gclient_t *cl;
@@ -960,7 +960,7 @@ Cmd_WeapNext_f(edict_t *ent)
 	}
 }
 
-void
+static void
 Cmd_WeapLast_f(edict_t *ent)
 {
 	gclient_t *cl;
@@ -1001,7 +1001,7 @@ Cmd_WeapLast_f(edict_t *ent)
 	it->use(ent, it);
 }
 
-void
+static void
 Cmd_InvDrop_f(edict_t *ent)
 {
 	gitem_t *it;
@@ -1030,7 +1030,7 @@ Cmd_InvDrop_f(edict_t *ent)
 	it->drop(ent, it);
 }
 
-void
+static void
 Cmd_Kill_f(edict_t *ent)
 {
 	if (!ent)
@@ -1068,7 +1068,7 @@ Cmd_Kill_f(edict_t *ent)
 	player_die(ent, ent, ent, 100000, vec3_origin);
 }
 
-void
+static void
 Cmd_PutAway_f(edict_t *ent)
 {
 	if (!ent)
@@ -1117,7 +1117,7 @@ PlayerSort(void const *a, void const *b)
 	return 0;
 }
 
-void
+static void
 Cmd_Players_f(edict_t *ent)
 {
 	int i;
@@ -1167,7 +1167,7 @@ Cmd_Players_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
 }
 
-void
+static void
 Cmd_Wave_f(edict_t *ent)
 {
 	int i;
@@ -1291,7 +1291,7 @@ CheckFlood(edict_t *ent)
 	return false;
 }
 
-void
+static void
 Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 {
 	int j;
@@ -1386,7 +1386,7 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 	}
 }
 
-void
+static void
 Cmd_Ent_Count_f(edict_t *ent)
 {
 	int x;
@@ -1410,7 +1410,7 @@ Cmd_Ent_Count_f(edict_t *ent)
 	gi.dprintf("%d entites active\n", x);
 }
 
-void
+static void
 Cmd_PlayerList_f(edict_t *ent)
 {
 	int i;
@@ -1428,7 +1428,7 @@ Cmd_PlayerList_f(edict_t *ent)
 
 	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
 	{
-		int text_len;
+		size_t text_len;
 
 		if (!e2->inuse)
 		{

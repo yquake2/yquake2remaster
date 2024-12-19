@@ -107,7 +107,7 @@ CL_Drop(void)
  * We have gotten a challenge from the server, so try and
  * connect.
  */
-void
+static void
 CL_SendConnectPacket(void)
 {
 	netadr_t adr;
@@ -374,7 +374,7 @@ void
 CL_Packet_f(void)
 {
 	char send[2048];
-	int i, l;
+	size_t i, l;
 	char *in, *out;
 	netadr_t adr;
 
@@ -563,7 +563,7 @@ CL_PingServers_f(void)
 /*
  * Responses to broadcasts, etc
  */
-void
+static void
 CL_ConnectionlessPacket(void)
 {
 	char *s;
