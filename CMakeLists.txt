@@ -67,6 +67,7 @@ option(SYSTEMWIDE_SUPPORT "Enable systemwide installation of game assets" OFF)
 option(SDL3_SUPPORT "Build against SDL 3 instead of SDL2" OFF)
 option(GL1_RENDERER "Build the GL1 renderer" ON)
 option(GL3_RENDERER "Build the GL3 renderer" ON)
+option(GL4_RENDERER "Build the GL4 renderer" ON)
 option(GLES1_RENDERER "Build the GLES1 renderer" OFF)
 option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
@@ -741,6 +742,57 @@ set(Glad-GLES3-Header
 	${REF_SRC_DIR}/gl3/glad-gles3/include/KHR/khrplatform.h
 	)
 
+set(GL4-Source
+	${REF_SRC_DIR}/gl4/gl4_draw.c
+	${REF_SRC_DIR}/gl4/gl4_image.c
+	${REF_SRC_DIR}/gl4/gl4_light.c
+	${REF_SRC_DIR}/gl4/gl4_lightmap.c
+	${REF_SRC_DIR}/gl4/gl4_main.c
+	${REF_SRC_DIR}/gl4/gl4_mesh.c
+	${REF_SRC_DIR}/gl4/gl4_misc.c
+	${REF_SRC_DIR}/gl4/gl4_model.c
+	${REF_SRC_DIR}/gl4/gl4_sdl.c
+	${REF_SRC_DIR}/gl4/gl4_surf.c
+	${REF_SRC_DIR}/gl4/gl4_warp.c
+	${REF_SRC_DIR}/gl4/gl4_shaders.c
+	${REF_SRC_DIR}/files/glshaders.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
+	${REF_SRC_DIR}/files/models.c
+	${REF_SRC_DIR}/files/models_md5.c
+	${REF_SRC_DIR}/files/models_mdr.c
+	${REF_SRC_DIR}/files/stb.c
+	${REF_SRC_DIR}/files/surf.c
+	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
+	${REF_SRC_DIR}/files/pvs.c
+	${COMMON_SRC_DIR}/shared/utils.c
+	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/md4.c
+	)
+
+set(Glad-GL4-Source ${REF_SRC_DIR}/gl4/glad/src/glad.c)
+
+set(GL4-Header
+	${REF_SRC_DIR}/ref_shared.h
+	${REF_SRC_DIR}/constants/anorms.h
+	${REF_SRC_DIR}/constants/anormtab.h
+	${REF_SRC_DIR}/constants/warpsin.h
+	${REF_SRC_DIR}/files/stb_image.h
+	${REF_SRC_DIR}/files/DG_dynarr.h
+	${REF_SRC_DIR}/files/HandmadeMath.h
+	${REF_SRC_DIR}/gl4/header/local.h
+	${REF_SRC_DIR}/gl4/header/model.h
+	${COMMON_SRC_DIR}/header/shared.h
+	)
+
+set(Glad-GL4-Header
+	${REF_SRC_DIR}/gl4/glad/include/glad/glad.h
+	${REF_SRC_DIR}/gl4/glad/include/KHR/khrplatform.h
+	)
+
 set(SOFT-Source
 	${REF_SRC_DIR}/soft/sw_aclip.c
 	${REF_SRC_DIR}/soft/sw_alias.c
@@ -891,6 +943,24 @@ target_include_directories(ref_gl3 PRIVATE ${CMAKE_SOURCE_DIR}/src/client/refres
 target_link_libraries(ref_gl3 ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
 if(SDL3_SUPPORT)
 	target_link_libraries(ref_gl3 SDL3::SDL3)
+endif()
+
+endif()
+
+if(${GL4_RENDERER})
+
+# Build the GL4 dynamic library
+add_library(ref_gl4 MODULE ${GL4-Source} ${Glad-GL4-Source} ${GL4-Header} ${Glad-GL4-Header} ${REF-Platform-Specific-Source})
+set_target_properties(ref_gl4 PROPERTIES
+		PREFIX ""
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX}
+		)
+target_include_directories(ref_gl4 PRIVATE ${CMAKE_SOURCE_DIR}/src/client/refresh/gl4/glad/include)
+target_link_libraries(ref_gl4 ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
+if(SDL3_SUPPORT)
+	target_link_libraries(ref_gl4 SDL3::SDL3)
 endif()
 
 endif()
