@@ -81,7 +81,7 @@ static size_t CL_HTTP_Recv(void *ptr, size_t size, size_t nmemb, void *stream)
 
 	if (!dl->fileSize)
 	{
-		double length = 0;
+		curl_off_t length = 0;
 
 		qcurl_easy_getinfo(dl->curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD_T, &length);
 
@@ -264,6 +264,9 @@ static void CL_StartHTTPDownload (dlqueue_t *entry, dlhandle_t *dl)
 	}
 
 	// Make sure that the download handle is in empty state.
+	if (dl->tempBuffer) {
+		free(dl->tempBuffer);
+	}
 	dl->tempBuffer = NULL;
 	dl->fileSize = 0;
 	dl->position = 0;
@@ -474,6 +477,10 @@ static void CL_ParseFileList(dlhandle_t *dl)
 {
 	if (!cl_http_filelists->value)
 	{
+		return;
+	}
+
+	if (!dl->tempBuffer) {
 		return;
 	}
 
