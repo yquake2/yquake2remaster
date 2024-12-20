@@ -116,9 +116,13 @@ Games:
 
 Games check videos:
 
+* 8.42RR11:
+
+[![Latest Video](https://img.youtube.com/vi/ukqBrx80ESM/0.jpg)](https://www.youtube.com/watch?v=ukqBrx80ESM)
+
 * 8.42RR10:
 
-[![Latest Video](https://img.youtube.com/vi/obIrzYsNxBY/0.jpg)](https://www.youtube.com/watch?v=obIrzYsNxBY)
+[![8.42RR10](https://img.youtube.com/vi/obIrzYsNxBY/0.jpg)](https://www.youtube.com/watch?v=obIrzYsNxBY)
 
 * 8.42RR9:
 
