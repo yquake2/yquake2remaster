@@ -458,8 +458,8 @@ SCR_ReadNextFrame(void)
 	FS_Read(compressed, size, cl.cinematic_file);
 
 	/* read sound */
-	start = cl.cinematicframe * cin.s_rate / cin.fps;
-	end = (cl.cinematicframe + 1) * cin.s_rate / cin.fps;
+	start = cl.cinematicframe * cin.s_rate / (int)cin.fps;
+	end = (cl.cinematicframe + 1) * cin.s_rate / (int)cin.fps;
 	count = end - start;
 
 	FS_Read(samples, count * cin.s_width * cin.s_channels,
@@ -599,6 +599,7 @@ SCR_RunCinematic(void)
 	}
 
 	cin.pic = cin.pic_pending;
+	cin.pic_pending = NULL;
 	switch (cin.video_type)
 	{
 		case video_cin:
@@ -613,7 +614,8 @@ SCR_RunCinematic(void)
 			break;
 #endif
 		default:
-			cin.pic_pending = NULL;
+			/* should be never called */
+			Com_Error(ERR_DROP, "Incorrect media data.");
 	}
 
 	if (!cin.pic_pending)
