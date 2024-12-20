@@ -71,6 +71,7 @@ option(GL4_RENDERER "Build the GL4 renderer" ON)
 option(GLES1_RENDERER "Build the GLES1 renderer" OFF)
 option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
+option(VK_RENDERER "Build the Vulkan renderer" ON)
 
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
 
@@ -838,6 +839,57 @@ set(SOFT-Header
 	${COMMON_SRC_DIR}/header/shared.h
 	)
 
+set(VK-Source
+	${REF_SRC_DIR}/vk/vk_buffer.c
+	${REF_SRC_DIR}/vk/vk_cmd.c
+	${REF_SRC_DIR}/vk/vk_common.c
+	${REF_SRC_DIR}/vk/vk_device.c
+	${REF_SRC_DIR}/vk/vk_draw.c
+	${REF_SRC_DIR}/vk/vk_image.c
+	${REF_SRC_DIR}/vk/vk_light.c
+	${REF_SRC_DIR}/vk/vk_lightmap.c
+	${REF_SRC_DIR}/vk/vk_main.c
+	${REF_SRC_DIR}/vk/vk_mesh.c
+	${REF_SRC_DIR}/vk/vk_misc.c
+	${REF_SRC_DIR}/vk/vk_model.c
+	${REF_SRC_DIR}/vk/vk_pipeline.c
+	${REF_SRC_DIR}/vk/vk_shaders.c
+	${REF_SRC_DIR}/vk/vk_surf.c
+	${REF_SRC_DIR}/vk/vk_swapchain.c
+	${REF_SRC_DIR}/vk/vk_util.c
+	${REF_SRC_DIR}/vk/vk_validation.c
+	${REF_SRC_DIR}/vk/vk_warp.c
+	${REF_SRC_DIR}/vk/volk/volk.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
+	${REF_SRC_DIR}/files/models.c
+	${REF_SRC_DIR}/files/models_md5.c
+	${REF_SRC_DIR}/files/models_mdr.c
+	${REF_SRC_DIR}/files/stb.c
+	${REF_SRC_DIR}/files/surf.c
+	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
+	${REF_SRC_DIR}/files/pvs.c
+	${COMMON_SRC_DIR}/shared/utils.c
+	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/md4.c
+	)
+
+set(VK-Header
+	${REF_SRC_DIR}/ref_shared.h
+	${REF_SRC_DIR}/files/stb_image.h
+	${REF_SRC_DIR}/files/stb_image_resize.h
+	${REF_SRC_DIR}/vk/header/local.h
+	${REF_SRC_DIR}/vk/header/model.h
+	${REF_SRC_DIR}/vk/header/qvk.h
+	${REF_SRC_DIR}/vk/header/shaders.h
+	${REF_SRC_DIR}/vk/header/util.h
+	${REF_SRC_DIR}/vk/volk/volk.h
+	${COMMON_SRC_DIR}/header/shared.h
+	)
+
 # Main Quake 2 executable
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -998,6 +1050,23 @@ set_target_properties(ref_soft PROPERTIES
 target_link_libraries(ref_soft ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
 if(SDL3_SUPPORT)
 	target_link_libraries(ref_soft SDL3::SDL3)
+endif()
+
+endif()
+
+if(${VK_RENDERER})
+
+# Build the vk renderer dynamic library
+add_library(ref_vk MODULE ${VK-Source} ${VK-Header} ${REF-Platform-Specific-Source})
+set_target_properties(ref_vk PROPERTIES
+		PREFIX ""
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX}
+		)
+target_link_libraries(ref_vk ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
+if(SDL3_SUPPORT)
+	target_link_libraries(ref_vk SDL3::SDL3)
 endif()
 
 endif()
