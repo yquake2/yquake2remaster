@@ -257,7 +257,7 @@ static const int daikatana_contents_flags[32] = {
 	CONTENTS_SLIME,        /* 4: The brush is slime */
 	CONTENTS_WATER,        /* 5: The brush is water */
 	CONTENTS_MIST,         /* 6: The brush is non-solid */
-	CONTENTS_SOLID,        /* 7: clear */
+	CONTENTS_WINDOW,       /* 7: clear */
 	0,                     /* 8: notsolid */
 	0,                     /* 9: noshoot */
 	CONTENTS_MIST,         /* 10: fog */
