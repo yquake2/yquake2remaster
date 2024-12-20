@@ -137,21 +137,8 @@ Games check videos:
 [![8.31RR7](https://img.youtube.com/vi/VAFs1HtQU_0/0.jpg)](https://www.youtube.com/watch?v=VAFs1HtQU_0)
 
 
-Goals:
+Goals, fully finished goals could be checked in [here](CHANGELOG):
 
-* [x] BSPX DECOUPLEDLM light map support (base1),
-* [x] QBSP map format support (mguhub),
-* [x] Use ffmpeg for load any video,
-* [x] RoQ and Theora cinematic videos support.
-* [x] Cinematic videos support in smk, mpeg, ogv format,
-* [x] Daikatana/Heretic 2 map partial format support,
-* [x] md5 improve load speed,
-* [x] support Anachronox .dat format,
-* [x] suport Daikatana/SiN .pak/.sin format from pakextract,
-* [x] Support flow/scale flags for Q64 maps,
-* [x] Add debug progress loading code for maps,
-* [x] MDR model format from Star Trek: Voyager – Elite Force,
-* [x] MDA entity format from Anachronox,
 * [ ] CTC entity format from Anachronox,
 * [ ] ATD texture format from Anachronox,
 * [ ] MDA model skin selection by tag,
@@ -163,24 +150,18 @@ Goals:
 * [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
 * [ ] Fix physics with incorrect floor height in psx/base0.bsp,
 * [ ] Fix statusbar for DoD `roarke`,
-* [x] Fix strange white flying boxes in psx/base0.bsp,
-* [x] RGB particles support instead palette based one,
-* [x] Get rid of VID_PaletteColor client internal api use,
-* [x] Broken maps groups from base2 to next,
 * [ ] Group `it_pic` images in vulkan render,
 * [ ] Rearange surfaces in vulkan render before render,
 * [ ] Fully implement `target_camera`,
 * [ ] Fully implement `misc_flare`,
-* [x] Fix player height with enabled flashlight,
+* [ ] Fully implement `misc_player_mannequin`,
 * [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
-* [x] Check load soft colormap as 24bit color from loaded image,
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] Use separete texture hi-color buffer for ui in soft render,
 * [ ] Cleanup function declarations in game save code,
 * [ ] Fix broken base3 with sorted fields names,
-* [x] Use 3 bytes vertex normal,
 * [ ] Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
 * [ ] Modified ReRelease game code support with removed KEX only related code.

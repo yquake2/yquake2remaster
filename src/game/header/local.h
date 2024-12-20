@@ -1097,6 +1097,7 @@ void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 
 /* g_spawn.c */
 void ED_CallSpawn(edict_t *ent);
+void DynamicResetSpawnModels(edict_t *self);
 char *ED_NewString(const char *string, qboolean raw);
 void SpawnInit(void);
 void P_ToggleFlashlight(edict_t *ent, qboolean state);

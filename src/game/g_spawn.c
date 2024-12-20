@@ -92,6 +92,24 @@ DynamicSpawnSetScale(edict_t *self)
 	VectorCopy(st.scale, self->rrs.scale);
 }
 
+/*
+ * Spawn method does not require any models to attach, so remove posible model
+ * attached by dynamic spawn. In most cases spawn function will replace model
+ * to correct one if need.
+ */
+void
+DynamicResetSpawnModels(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->s.modelindex = 0;
+	self->s.modelindex2 = 0;
+	self->s.modelindex3 = 0;
+}
+
 static void
 DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 {

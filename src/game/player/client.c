@@ -308,6 +308,8 @@ SP_info_player_start(edict_t *self)
 		return;
 	}
 
+	DynamicResetSpawnModels(self);
+
 	/* Call function to hack unnamed spawn points */
 	self->think = SP_CreateUnnamedSpawn;
 	self->nextthink = level.time + FRAMETIME;
@@ -347,6 +349,7 @@ SP_info_player_deathmatch(edict_t *self)
 		return;
 	}
 
+	DynamicResetSpawnModels(self);
 	SP_misc_teleporter_dest(self);
 }
 
@@ -367,6 +370,8 @@ SP_info_player_coop(edict_t *self)
 		G_FreeEdict(self);
 		return;
 	}
+
+	DynamicResetSpawnModels(self);
 
 	if ((Q_stricmp(level.mapname, "jail2") == 0) ||
 		(Q_stricmp(level.mapname, "jail4") == 0) ||
@@ -412,6 +417,8 @@ SP_info_player_coop_lava(edict_t *self)
 		G_FreeEdict(self);
 		return;
 	}
+
+	DynamicResetSpawnModels(self);
 }
 
 /*
@@ -428,6 +435,7 @@ SP_info_player_intermission(edict_t *self)
 	 * since the info_player_intermission
 	 * needs a callback function. Like
 	 * every entity. */
+	DynamicResetSpawnModels(self);
 }
 
 /* ======================================================================= */

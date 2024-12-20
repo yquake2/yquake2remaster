@@ -1600,6 +1600,7 @@ SetCTFStats(edict_t *ent)
 void
 SP_info_player_team1(edict_t *self)
 {
+	DynamicResetSpawnModels(self);
 }
 
 /*
@@ -1609,6 +1610,7 @@ SP_info_player_team1(edict_t *self)
 void
 SP_info_player_team2(edict_t *self)
 {
+	DynamicResetSpawnModels(self);
 }
 
 /*------------------------------------------------------------------------*/
