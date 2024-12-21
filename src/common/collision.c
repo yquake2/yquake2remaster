@@ -1851,7 +1851,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	if (!mod->map_vis)
 	{
-		Com_Printf("%s: Map %s has no visual clusters.",
+		Com_DPrintf("%s: Map %s has no visual clusters.",
 			__func__, name);
 	}
 
@@ -2109,16 +2109,16 @@ CM_DecompressVis(byte *in, byte *out)
 	while (out_p - out < row);
 }
 
-byte *
-CM_ClusterPVS(int cluster)
+static byte *
+CM_Cluster(int cluster, int type, byte *buffer)
 {
 	if (!cmod->map_vis)
 	{
-		memset(pvsrow, 0xFF, (cmod->numclusters + 7) >> 3);
+		memset(buffer, 0xFF, (cmod->numclusters + 7) >> 3);
 	}
 	else if (cluster == -1)
 	{
-		memset(pvsrow, 0, (cmod->numclusters + 7) >> 3);
+		memset(buffer, 0, (cmod->numclusters + 7) >> 3);
 	}
 	else
 	{
@@ -2128,27 +2128,22 @@ CM_ClusterPVS(int cluster)
 		}
 
 		CM_DecompressVis((byte *)cmod->map_vis +
-				cmod->map_vis->bitofs[cluster][DVIS_PVS], pvsrow);
+				cmod->map_vis->bitofs[cluster][type], buffer);
 	}
 
-	return pvsrow;
+	return buffer;
+}
+
+byte *
+CM_ClusterPVS(int cluster)
+{
+	return CM_Cluster(cluster, DVIS_PVS, pvsrow);
 }
 
 byte *
 CM_ClusterPHS(int cluster)
 {
-	if (cluster == -1 || !cmod->map_vis)
-	{
-		memset(phsrow, 0, (cmod->numclusters + 7) >> 3);
-	}
-
-	else
-	{
-		CM_DecompressVis((byte *)cmod->map_vis +
-				cmod->map_vis->bitofs[cluster][DVIS_PHS], phsrow);
-	}
-
-	return phsrow;
+	return CM_Cluster(cluster, DVIS_PHS, phsrow);
 }
 
 /*

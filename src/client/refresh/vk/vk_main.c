@@ -1821,6 +1821,15 @@ Com_Printf(const char *msg, ...)
 }
 
 void
+Com_DPrintf(const char *msg, ...)
+{
+	va_list argptr;
+	va_start(argptr, msg);
+	ri.Com_VPrintf(PRINT_DEVELOPER, msg, argptr);
+	va_end(argptr);
+}
+
+void
 Com_Error(int code, const char *fmt, ...)
 {
 	va_list argptr;
