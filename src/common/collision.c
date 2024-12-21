@@ -1851,11 +1851,11 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	if (!mod->map_vis)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s has no visual clusters.",
+		Com_Printf("%s: Map %s has no visual clusters.",
 			__func__, name);
 	}
 
-	if (mod->numclusters != mod->map_vis->numclusters)
+	if (mod->map_vis && mod->numclusters != mod->map_vis->numclusters)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
 			__func__, name, mod->numclusters, mod->map_vis->numclusters);
@@ -2112,12 +2112,21 @@ CM_DecompressVis(byte *in, byte *out)
 byte *
 CM_ClusterPVS(int cluster)
 {
-	if (cluster == -1 || !cmod->map_vis)
+	if (!cmod->map_vis)
+	{
+		memset(pvsrow, 0xFF, (cmod->numclusters + 7) >> 3);
+	}
+	else if (cluster == -1)
 	{
 		memset(pvsrow, 0, (cmod->numclusters + 7) >> 3);
 	}
 	else
 	{
+		if (cluster < 0 || cluster >= cmod->numclusters)
+		{
+			Com_Error(ERR_DROP, "%s: bad cluster", __func__);
+		}
+
 		CM_DecompressVis((byte *)cmod->map_vis +
 				cmod->map_vis->bitofs[cluster][DVIS_PVS], pvsrow);
 	}

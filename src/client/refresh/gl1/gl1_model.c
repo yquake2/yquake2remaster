@@ -65,9 +65,21 @@ Mod_HasFreeSpace(void)
 const byte *
 Mod_ClusterPVS(int cluster, const model_t *model)
 {
-	if ((cluster == -1) || !model->vis)
+	if (!model->vis)
 	{
+		memset(mod_novis, 0xFF, sizeof(mod_novis));
 		return mod_novis;
+	}
+
+	if (cluster == -1)
+	{
+		memset(mod_novis, 0, sizeof(mod_novis));
+		return mod_novis;
+	}
+
+	if (cluster < 0 || cluster >= model->numvisibility)
+	{
+		Com_Error(ERR_DROP, "%s: bad cluster", __func__);
 	}
 
 	return Mod_DecompressVis((byte *)model->vis +
