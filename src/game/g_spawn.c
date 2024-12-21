@@ -600,7 +600,7 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 		}
 	}
 
-	gi.dprintf("%s is not a field. Value is %s\n", key, value);
+	gi.dprintf("'%s' is not a field. Value is '%s'\n", key, value);
 }
 
 /*

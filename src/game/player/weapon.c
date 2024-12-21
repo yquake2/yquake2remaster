@@ -379,7 +379,6 @@ qboolean
 Pickup_Weapon(edict_t *ent, edict_t *other)
 {
 	int index;
-	gitem_t *ammo;
 
 	if (!ent || !other)
 	{
@@ -402,18 +401,29 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 
 	if (!(ent->spawnflags & DROPPED_ITEM))
 	{
-		/* give them some ammo with it */
-		ammo = FindItem(ent->item->ammo);
+		if (ent->item->ammo)
+		{
+			gitem_t *ammo;
 
-		/* Don't get infinite ammo with trap */
-		if (((int)dmflags->value & DF_INFINITE_AMMO) &&
-			Q_stricmp(ent->item->pickup_name, "ammo_trap"))
-		{
-			Add_Ammo(other, ammo, 1000);
-		}
-		else
-		{
-			Add_Ammo(other, ammo, ammo->quantity);
+			/* give them some ammo with it */
+			ammo = FindItem(ent->item->ammo);
+			if (!ammo)
+			{
+				gi.dprintf("Ammo %s for item %s has not be found\n",
+					ent->item->ammo, ent->item->classname);
+				return false;
+			}
+
+			/* Don't get infinite ammo with trap */
+			if (((int)dmflags->value & DF_INFINITE_AMMO) &&
+				Q_stricmp(ent->item->pickup_name, "ammo_trap"))
+			{
+				Add_Ammo(other, ammo, 1000);
+			}
+			else
+			{
+				Add_Ammo(other, ammo, ammo->quantity);
+			}
 		}
 
 		if (!(ent->spawnflags & DROPPED_PLAYER_ITEM))
