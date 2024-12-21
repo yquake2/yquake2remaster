@@ -811,7 +811,7 @@ void
 R_MarkLeaves(void)
 {
 	const byte *vis;
-	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS / 8];
+	byte *fatvis = NULL;
 	mnode_t *node;
 	int i;
 	mleaf_t *leaf;
@@ -858,6 +858,7 @@ R_MarkLeaves(void)
 	{
 		int c;
 
+		fatvis = malloc(((r_worldmodel->numleafs + 31) / 32) * sizeof(int));
 		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
 		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
 		c = (r_worldmodel->numleafs + 31) / 32;
@@ -899,5 +900,11 @@ R_MarkLeaves(void)
 			}
 			while (node);
 		}
+	}
+
+	/* clean combined buffer */
+	if (fatvis)
+	{
+		free(fatvis);
 	}
 }

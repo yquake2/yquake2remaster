@@ -794,11 +794,10 @@ void
 GL4_MarkLeaves(void)
 {
 	const byte *vis;
-	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS / 8];
+	byte *fatvis = NULL;
 	mnode_t *node;
-	int i, c;
+	int i;
 	mleaf_t *leaf;
-	int cluster;
 
 	if ((gl4_oldviewcluster == gl4_viewcluster) &&
 		(gl4_oldviewcluster2 == gl4_viewcluster2) &&
@@ -840,6 +839,9 @@ GL4_MarkLeaves(void)
 	/* may have to combine two clusters because of solid water boundaries */
 	if (gl4_viewcluster2 != gl4_viewcluster)
 	{
+		int c;
+
+		fatvis = malloc(((gl4_worldmodel->numleafs + 31) / 32) * sizeof(int));
 		memcpy(fatvis, vis, (gl4_worldmodel->numleafs + 7) / 8);
 		vis = GL4_Mod_ClusterPVS(gl4_viewcluster2, gl4_worldmodel);
 		c = (gl4_worldmodel->numleafs + 31) / 32;
@@ -856,6 +858,8 @@ GL4_MarkLeaves(void)
 		 i < gl4_worldmodel->numleafs;
 		 i++, leaf++)
 	{
+		int cluster;
+
 		cluster = leaf->cluster;
 
 		if (cluster == -1)
@@ -880,5 +884,10 @@ GL4_MarkLeaves(void)
 			while (node);
 		}
 	}
-}
 
+	/* clean combined buffer */
+	if (fatvis)
+	{
+		free(fatvis);
+	}
+}
