@@ -29,7 +29,7 @@
 
 static int bitcounts[32]; /* just for protocol profiling */
 
-static char *svc_strings[256] = {
+static const char *svc_strings[256] = {
 	"svc_bad",
 
 	"svc_muzzleflash",
@@ -777,7 +777,7 @@ CL_FireEntityEvents(frame_t *frame)
 }
 
 static void
-SHOWNET(char *s)
+SHOWNET(const char *s)
 {
 	if (cl_shownet->value >= 2)
 	{
@@ -1207,7 +1207,8 @@ CL_ParseClientinfo(int player)
 static void
 CL_ParseConfigString(void)
 {
-	size_t i, length;
+	size_t length;
+	int i;
 	char *s;
 	char olds[MAX_QPATH];
 
