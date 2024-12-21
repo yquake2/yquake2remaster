@@ -705,7 +705,7 @@ Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned 
 void
 Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
-	const byte *mod_base, const lump_t *l)
+	int *numclusters, const byte *mod_base, const lump_t *l)
 {
 	dqleaf_t *in;
 	mleaf_t *out;
@@ -724,6 +724,7 @@ Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 
 	*leafs = out;
 	*numleafs = count;
+	*numclusters = 0;
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
@@ -747,6 +748,11 @@ Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 		{
 			Com_Error(ERR_DROP, "%s: wrong marksurfaces position in %s",
 				__func__, name);
+		}
+
+		if (out->cluster >= *numclusters)
+		{
+			*numclusters = out->cluster + 1;
 		}
 	}
 }

@@ -375,13 +375,19 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 	Mod_LoadVisibility(mod->name, &mod->vis, &mod->numvisibility, mod_base,
 		&header->lumps[LUMP_VISIBILITY]);
 	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
-		mod->marksurfaces, mod->nummarksurfaces, mod_base,
-		&header->lumps[LUMP_LEAFS]);
+		mod->marksurfaces, mod->nummarksurfaces, &mod->numclusters,
+		mod_base, &header->lumps[LUMP_LEAFS]);
 	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
 		mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
 		&header->lumps[LUMP_NODES], header->ident);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->numframes = 2; /* regular and alternate animation */
+
+	if (mod->vis && mod->numclusters != mod->vis->numclusters)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
+			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
+	}
 }
 
 /* Temporary solution, need to use load file dirrectly */
