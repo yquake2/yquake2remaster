@@ -419,10 +419,10 @@ CL_DeltaEntity(frame_t *frame, int newnum, entity_xstate_t *old, int bits)
 static void
 CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 {
-	unsigned int newnum;
-	unsigned bits;
 	entity_xstate_t *oldstate = NULL;
 	int oldindex, oldnum;
+	unsigned int newnum;
+	unsigned bits;
 
 	newframe->parse_entities = cl.parse_entities;
 	newframe->num_entities = 0;
