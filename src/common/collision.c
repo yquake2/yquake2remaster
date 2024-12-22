@@ -128,8 +128,9 @@ static int model_num = 0;
 static model_t *cmod = models;
 
 // DG: is casted to int32_t* in SV_FatPVS() so align accordingly
-static YQ2_ALIGNAS_TYPE(int32_t) byte pvsrow[MAX_MAP_LEAFS / 8];
-static byte phsrow[MAX_MAP_LEAFS / 8];
+static byte *pvsrow = NULL;
+static byte *phsrow = NULL;
+static size_t pxsrow_len = 0;
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
 static cplane_t *box_planes;
@@ -1743,6 +1744,11 @@ CM_ModInit(void)
 {
 	memset(models, 0, sizeof(models));
 
+	/* init buffers for PVS/PHS buffers*/
+	pvsrow = NULL;
+	phsrow = NULL;
+	pxsrow_len = 0;
+
 	map_noareas = Cvar_Get("map_noareas", "0", 0);
 	r_maptype = Cvar_Get("maptype", "0", CVAR_ARCHIVE);
 	r_game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
@@ -1757,6 +1763,21 @@ CM_ModFreeAll(void)
 	{
 		CM_ModFree(&models[i]);
 	}
+
+	/* Free up buffer for PVS/PHS */
+	if (pvsrow)
+	{
+		free(pvsrow);
+		pvsrow = NULL;
+	}
+
+	if (phsrow)
+	{
+		free(phsrow);
+		phsrow = NULL;
+	}
+	pxsrow_len = 0;
+
 	Com_Printf("Server models free up\n");
 }
 
@@ -1786,7 +1807,10 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	{
 		maptype = map_heretic2;
 	}
+
 	cmod_base = Mod_Load2QBSP(name, (byte *)filebuf, filelen, &length, &maptype);
+	FS_FreeFile(filebuf);
+
 	header = (dheader_t *)cmod_base;
 
 	/* load into heap */
@@ -1869,7 +1893,16 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		mod->extradatasize, hunkSize);
 
 	free(cmod_base);
-	FS_FreeFile(filebuf);
+
+	if ((mod->numleafs > pxsrow_len) || !pvsrow || !phsrow)
+	{
+		/* reallocate buffers for PVS/PHS buffers*/
+		pxsrow_len = (mod->numleafs + 63) & ~63;
+		pvsrow = malloc(pxsrow_len / 8);
+		phsrow = malloc(pxsrow_len / 8);
+		Com_DPrintf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
+			pxsrow_len);
+	}
 }
 
 /*
@@ -2064,6 +2097,11 @@ CM_MapSurfaces(int surfnum)
 static byte *
 CM_Cluster(int cluster, int type, byte *buffer)
 {
+	if (!buffer)
+	{
+		Com_Error(ERR_DROP, "%s: incrorrect init of PVS/PHS", __func__);
+	}
+
 	if (!cmod->map_vis)
 	{
 		Mod_DecompressVis(NULL, buffer, NULL, (cmod->numclusters + 7) >> 3);
