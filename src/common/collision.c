@@ -2061,60 +2061,12 @@ CM_MapSurfaces(int surfnum)
 	return cmod->map_surfaces + surfnum;
 }
 
-static void
-CM_DecompressVis(byte *in, byte *out)
-{
-	int c;
-	byte *out_p;
-	int row;
-
-	row = (cmod->numclusters + 7) >> 3;
-	out_p = out;
-
-	if (!in || !cmod->numvisibility)
-	{
-		/* no vis info, so make all visible */
-		while (row)
-		{
-			*out_p++ = 0xff;
-			row--;
-		}
-
-		return;
-	}
-
-	do
-	{
-		if (*in)
-		{
-			*out_p++ = *in++;
-			continue;
-		}
-
-		c = in[1];
-		in += 2;
-
-		if ((out_p - out) + c > row)
-		{
-			c = row - (out_p - out);
-			Com_DPrintf("warning: Vis decompression overrun\n");
-		}
-
-		while (c)
-		{
-			*out_p++ = 0;
-			c--;
-		}
-	}
-	while (out_p - out < row);
-}
-
 static byte *
 CM_Cluster(int cluster, int type, byte *buffer)
 {
 	if (!cmod->map_vis)
 	{
-		memset(buffer, 0xFF, (cmod->numclusters + 7) >> 3);
+		Mod_DecompressVis(NULL, buffer, NULL, (cmod->numclusters + 7) >> 3);
 	}
 	else if (cluster == -1)
 	{
@@ -2127,8 +2079,10 @@ CM_Cluster(int cluster, int type, byte *buffer)
 			Com_Error(ERR_DROP, "%s: bad cluster", __func__);
 		}
 
-		CM_DecompressVis((byte *)cmod->map_vis +
-				cmod->map_vis->bitofs[cluster][type], buffer);
+		Mod_DecompressVis((byte *)cmod->map_vis +
+				cmod->map_vis->bitofs[cluster][type], buffer,
+				(byte *)cmod->map_vis + cmod->numvisibility,
+				(cmod->numclusters + 7) >> 3);
 	}
 
 	return buffer;

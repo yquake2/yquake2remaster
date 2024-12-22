@@ -71,7 +71,8 @@ Mod_ClusterPVS(int cluster, const model_t *model)
 {
 	if (!model->vis)
 	{
-		memset(mod_novis, 0xFF, sizeof(mod_novis));
+		Mod_DecompressVis(NULL, mod_novis, NULL,
+			(model->vis->numclusters + 7) >> 3);
 		return mod_novis;
 	}
 
@@ -86,10 +87,11 @@ Mod_ClusterPVS(int cluster, const model_t *model)
 		Com_Error(ERR_DROP, "%s: bad cluster", __func__);
 	}
 
-	return Mod_DecompressVis((byte *)model->vis +
-			model->vis->bitofs[cluster][DVIS_PVS],
+	Mod_DecompressVis((byte *)model->vis +
+			model->vis->bitofs[cluster][DVIS_PVS], mod_novis,
 			(byte *)model->vis + model->numvisibility,
 			(model->vis->numclusters + 7) >> 3);
+	return mod_novis;
 }
 
 void

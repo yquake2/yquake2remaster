@@ -659,7 +659,6 @@ set(GL1-Source
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
 	${REF_SRC_DIR}/files/warp.c
-	${REF_SRC_DIR}/files/pvs.c
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
@@ -710,7 +709,6 @@ set(GL3-Source
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
 	${REF_SRC_DIR}/files/warp.c
-	${REF_SRC_DIR}/files/pvs.c
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
@@ -767,7 +765,6 @@ set(GL4-Source
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
 	${REF_SRC_DIR}/files/warp.c
-	${REF_SRC_DIR}/files/pvs.c
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
@@ -823,7 +820,6 @@ set(SOFT-Source
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
 	${REF_SRC_DIR}/files/warp.c
-	${REF_SRC_DIR}/files/pvs.c
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
@@ -870,7 +866,6 @@ set(VK-Source
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
 	${REF_SRC_DIR}/files/warp.c
-	${REF_SRC_DIR}/files/pvs.c
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c

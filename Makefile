@@ -1164,7 +1164,6 @@ REFGL1_OBJS_ := \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
-	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
 	src/common/cmodels.o \
@@ -1207,7 +1206,6 @@ REFGL3_OBJS_ := \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
-	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
 	src/common/cmodels.o \
@@ -1253,7 +1251,6 @@ REFGL4_OBJS_ := \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
-	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/cmodels.o \
 	src/common/md4.o
@@ -1300,7 +1297,6 @@ REFSOFT_OBJS_ := \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
-	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
 	src/common/cmodels.o \
@@ -1347,7 +1343,6 @@ REFVK_OBJS_ := \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
-	src/client/refresh/files/pvs.o \
 	src/common/shared/shared.o \
 	src/common/shared/utils.o \
 	src/common/cmodels.o \
