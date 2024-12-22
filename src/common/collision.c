@@ -1900,7 +1900,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		pxsrow_len = (mod->numleafs + 63) & ~63;
 		pvsrow = malloc(pxsrow_len / 8);
 		phsrow = malloc(pxsrow_len / 8);
-		Com_DPrintf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
+		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			pxsrow_len);
 	}
 }

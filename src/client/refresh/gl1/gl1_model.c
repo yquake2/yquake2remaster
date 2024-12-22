@@ -26,7 +26,8 @@
 
 #include "header/local.h"
 
-static YQ2_ALIGNAS_TYPE(int) byte mod_novis[MAX_MAP_LEAFS / 8];
+static byte *mod_novis = NULL;
+static size_t mod_novis_len = 0;
 
 static model_t mod_known[MAX_MOD_KNOWN];
 static int mod_numknown = 0;
@@ -65,16 +66,21 @@ Mod_HasFreeSpace(void)
 const byte *
 Mod_ClusterPVS(int cluster, const model_t *model)
 {
+	if (!mod_novis)
+	{
+		Com_Error(ERR_DROP, "%s: incrorrect init of PVS/PHS", __func__);
+	}
+
 	if (!model->vis)
 	{
 		Mod_DecompressVis(NULL, mod_novis, NULL,
-			(model->vis->numclusters + 7) >> 3);
+			(model->numclusters + 7) >> 3);
 		return mod_novis;
 	}
 
 	if (cluster == -1)
 	{
-		memset(mod_novis, 0, sizeof(mod_novis));
+		memset(mod_novis, 0, (model->numclusters + 7) >> 3);
 		return mod_novis;
 	}
 
@@ -86,7 +92,7 @@ Mod_ClusterPVS(int cluster, const model_t *model)
 	Mod_DecompressVis((byte *)model->vis +
 			model->vis->bitofs[cluster][DVIS_PVS], mod_novis,
 			(byte *)model->vis + model->numvisibility,
-			(model->vis->numclusters + 7) >> 3);
+			(model->numclusters + 7) >> 3);
 	return mod_novis;
 }
 
@@ -131,7 +137,8 @@ void
 Mod_Init(void)
 {
 	mod_max = 0;
-	memset(mod_novis, 0xff, sizeof(mod_novis));
+	mod_novis = NULL;
+	mod_novis_len = 0;
 }
 
 static void
@@ -389,6 +396,15 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
 			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
 	}
+
+	if ((mod->numleafs > mod_novis_len) || !mod_novis)
+	{
+		/* reallocate buffers for PVS/PHS buffers*/
+		mod_novis_len = (mod->numleafs + 63) & ~63;
+		mod_novis = malloc(mod_novis_len / 8);
+		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
+			mod_novis_len);
+	}
 }
 
 /* Temporary solution, need to use load file dirrectly */
@@ -601,6 +617,14 @@ Mod_FreeAll(void)
 			Mod_Free(&mod_known[i]);
 		}
 	}
+
+	/* Free PVS buffer */
+	if (mod_novis)
+	{
+		free(mod_novis);
+		mod_novis = NULL;
+	}
+	mod_novis_len = 0;
 }
 
 /*

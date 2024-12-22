@@ -72,12 +72,13 @@ Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 		Com_DPrintf("%s: Map %s has too small visibility lump\n",
 			__func__, name);
 		*vis = NULL;
+		*numvisibility = 0;
 		return;
 	}
 
 	*numvisibility = l->filelen;
 
-	out = Hunk_Alloc(l->filelen);
+	out = Hunk_Alloc((l->filelen + 63) & ~63);
 	*vis = out;
 	memcpy(out, mod_base + l->fileofs, l->filelen);
 
