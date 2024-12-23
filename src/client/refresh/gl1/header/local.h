@@ -51,8 +51,8 @@
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS (TEXNUM_LIGHTMAPS + MAX_LIGHTMAPS * MAX_LIGHTMAP_COPIES)
 #define TEXNUM_IMAGES (TEXNUM_SCRAPS + MAX_SCRAPS)
-#define BLOCK_WIDTH 256		// default values; now defined in glstate_t
-#define BLOCK_HEIGHT 256
+#define BLOCK_WIDTH 1024		// default values; now defined in glstate_t
+#define BLOCK_HEIGHT 1024
 #define MAX_TEXTURE_UNITS 2
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 

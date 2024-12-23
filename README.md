@@ -90,6 +90,8 @@ Games:
 * Quake 2 ReRelease:
   * SDK: <https://github.com/id-Software/quake2-rerelease-dll>
   * Tech info: <https://bethesda.net/en/article/6NIyBxapXOurTKtF4aPiF4/enhancing-quake-ii>
+  * PSX source: <https://www.moddb.com/mods/quake-ii-psx/downloads/quake-ii-psx-10-sources>
+  * PSX Mod: <https://www.moddb.com/mods/quake-ii-psx>
 * Anachronox:
   * SDK: <https://github.com/hogsy/chronon>
   * SDK: <https://code.idtech.space/ion-storm/anachronox-sdk>
@@ -113,6 +115,11 @@ Games:
 * Dawn of Darkness:
   * Docs: <https://www.moddb.com/mods/dawn-of-darkness1/downloads/dod-mood-scripts-gsm-tutorials-fgd-and-def-file>
   * Demo: [Episode 1](https://www.moddb.com/mods/dawn-of-darkness1/downloads/dawn-of-darkness-episode-1)
+* Additional maps used for check maps support:
+  * PSX: <https://www.moddb.com/mods/quake-ii-psx/downloads/quake-ii-psx-10>
+  * ReRelease N64 Jam: <https://www.moddb.com/games/quake-2/addons/quake-2-re-release-n64-sp-map-jam>
+  * ReRelease Basic Jam: <https://www.moddb.com/games/quake-2/addons/quake-2-re-release-back-to-baseq2ics-jam-1>
+  * ReRelease PSX Jam: <https://www.moddb.com/mods/psx-jam-1/downloads/quake-2-re-release-psx-jam-1>
 
 Games check videos:
 
@@ -144,6 +151,8 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] MDA model skin selection by tag,
 * [ ] SDEF/MDA dynamicaly allocate list of skins,
 * [ ] Support material load textures/textureinfo.dat from Anachronox,
+* [ ] Fix invisiable entities in basicsjam1_ziutek,
+* [ ] Make lightmap textures dynamic n64jam_palmlix,
 * [x] Support textures/*/*.mat load from ReRelease (footstep),
 * [ ] Support textures/*/*.mat load from ReRelease texture effects,
 * [ ] Support textures/*/*_glow.png load from ReRelease,

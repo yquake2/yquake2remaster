@@ -180,8 +180,8 @@ enum {
 	// width and height used to be 128, so now we should be able to get the same lightmap data
 	// that used 32 lightmaps before into one, so 4 lightmaps should be enough
 	BLOCK_WIDTH = 1024,
-	BLOCK_HEIGHT = 512,
-	MAX_LIGHTMAPS = 8,
+	BLOCK_HEIGHT = 1024,
+	MAX_LIGHTMAPS = 16,
 	MAX_LIGHTMAPS_PER_SURFACE = MAXLIGHTMAPS // 4
 };
 
