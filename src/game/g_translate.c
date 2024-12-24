@@ -135,7 +135,7 @@ LocalizationInit(void)
 
 	if (nlocalmessages)
 	{
-		localmessages = gi.TagMalloc(nlocalmessages * sizeof(*localmessages), TAG_GAME);
+		localmessages = malloc(nlocalmessages * sizeof(*localmessages));
 		memset(localmessages, 0, nlocalmessages * sizeof(*localmessages));
 	}
 
@@ -225,10 +225,10 @@ LocalizationInit(void)
 						*currend = 0;
 					}
 
-					localmessages[curr_pos].key = gi.TagMalloc(strlen(curr) + 2, TAG_GAME);
+					localmessages[curr_pos].key = malloc(strlen(curr) + 2);
 					localmessages[curr_pos].key[0] = '$';
 					strcpy(localmessages[curr_pos].key + 1, curr);
-					localmessages[curr_pos].value = gi.TagMalloc(strlen(sign) + 1, TAG_GAME);
+					localmessages[curr_pos].value = malloc(strlen(sign) + 1);
 					strcpy(localmessages[curr_pos].value, sign);
 					/* ReRelease does not have merged sound files to message */
 					localmessages[curr_pos].sound = NULL;
@@ -301,16 +301,16 @@ LocalizationInit(void)
 					currend++;
 				}
 
-				localmessages[curr_pos].key = gi.TagMalloc(6, TAG_GAME);
+				localmessages[curr_pos].key = malloc(6);
 				snprintf(localmessages[curr_pos].key, 5, "%d", i);
-				localmessages[curr_pos].value = gi.TagMalloc(strlen(curr) + 1, TAG_GAME);
+				localmessages[curr_pos].value = malloc(strlen(curr) + 1);
 				strcpy(localmessages[curr_pos].value, curr);
 				/* Some Heretic message could have no sound effects */
 				localmessages[curr_pos].sound = NULL;
 				if (sign)
 				{
 					/* has some sound aligned with message */
-					localmessages[curr_pos].sound = gi.TagMalloc(strlen(sign) + 1, TAG_GAME);
+					localmessages[curr_pos].sound = malloc(strlen(sign) + 1);
 					strcpy(localmessages[curr_pos].sound, sign);
 				}
 
@@ -342,6 +342,38 @@ LocalizationInit(void)
 
 	/* sort messages */
 	qsort(localmessages, nlocalmessages, sizeof(localmessages_t), LocalizationSort);
+}
+
+void
+LocalizationFree(void)
+{
+	if (localmessages || nlocalmessages)
+	{
+		int i;
+
+		for (i = 0; i < nlocalmessages; i++)
+		{
+			if (localmessages[i].key)
+			{
+				free(localmessages[i].key);
+			}
+
+			if (localmessages[i].value)
+			{
+				free(localmessages[i].value);
+			}
+
+			if (localmessages[i].sound)
+			{
+				free(localmessages[i].sound);
+			}
+		}
+		free(localmessages);
+
+		gi.dprintf("Free %d translated lines\n", nlocalmessages);
+	}
+	localmessages = NULL;
+	nlocalmessages = 0;
 }
 
 static int

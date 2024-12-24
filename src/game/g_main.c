@@ -118,6 +118,8 @@ ShutdownGame(void)
 
 	gi.FreeTags(TAG_LEVEL);
 	gi.FreeTags(TAG_GAME);
+	SpawnFree();
+	LocalizationFree();
 }
 
 /*

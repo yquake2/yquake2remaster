@@ -2592,7 +2592,7 @@ uint8_t *QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer 
 	stagingBuffer = &vk_stagingBuffers[vk_activeStagingBuffer];
 	if (size > stagingBuffer->resource.size)
 	{
-		R_Printf(PRINT_ALL, "%s: %d: Resize stanging buffer %" YQ2_COM_PRIu64 "-> %" YQ2_COM_PRIu64 "\n",
+		R_Printf(PRINT_ALL, "%s: %d: Resize stanging buffer " YQ2_COM_PRIdS "-> " YQ2_COM_PRIdS "\n",
 			__func__, vk_activeStagingBuffer, stagingBuffer->resource.size, size);
 
 		DestroyStagingBuffer(stagingBuffer);

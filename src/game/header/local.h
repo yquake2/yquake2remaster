@@ -1014,6 +1014,7 @@ void EndDMLevel(void);
 
 /* g_translate.c */
 void LocalizationInit(void);
+void LocalizationFree(void);
 const char* LocalizationMessage(const char *message, int *sound_index);
 
 /* g_chase.c */
@@ -1100,6 +1101,7 @@ void ED_CallSpawn(edict_t *ent);
 void DynamicResetSpawnModels(edict_t *self);
 char *ED_NewString(const char *string, qboolean raw);
 void SpawnInit(void);
+void SpawnFree(void);
 void P_ToggleFlashlight(edict_t *ent, qboolean state);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
