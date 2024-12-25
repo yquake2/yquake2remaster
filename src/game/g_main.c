@@ -105,6 +105,7 @@ cvar_t *g_swap_speed;
 cvar_t *g_language;
 cvar_t *g_itemsbobeffect;
 cvar_t *g_start_items;
+cvar_t *ai_model_scale;
 cvar_t *g_game;
 
 static void G_RunFrame(void);

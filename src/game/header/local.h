@@ -693,6 +693,7 @@ extern cvar_t *g_swap_speed;
 extern cvar_t *g_language;
 extern cvar_t *g_itemsbobeffect;
 extern cvar_t *g_start_items;
+extern cvar_t *ai_model_scale;
 extern cvar_t *g_game;
 
 /* this is for the count of monsters */

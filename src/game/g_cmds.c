@@ -1194,27 +1194,27 @@ Cmd_Wave_f(edict_t *ent)
 
 	switch (i)
 	{
-		case 0:
+		case GESTURE_FLIP_OFF:
 			gi.cprintf(ent, PRINT_HIGH, "flipoff\n");
 			ent->s.frame = FRAME_flip01 - 1;
 			ent->client->anim_end = FRAME_flip12;
 			break;
-		case 1:
+		case GESTURE_SALUTE:
 			gi.cprintf(ent, PRINT_HIGH, "salute\n");
 			ent->s.frame = FRAME_salute01 - 1;
 			ent->client->anim_end = FRAME_salute11;
 			break;
-		case 2:
+		case GESTURE_TAUNT:
 			gi.cprintf(ent, PRINT_HIGH, "taunt\n");
 			ent->s.frame = FRAME_taunt01 - 1;
 			ent->client->anim_end = FRAME_taunt17;
 			break;
-		case 3:
+		case GESTURE_WAVE:
 			gi.cprintf(ent, PRINT_HIGH, "wave\n");
 			ent->s.frame = FRAME_wave01 - 1;
 			ent->client->anim_end = FRAME_wave11;
 			break;
-		case 4:
+		case GESTURE_POINT:
 		default:
 			gi.cprintf(ent, PRINT_HIGH, "point\n");
 			ent->s.frame = FRAME_point01 - 1;

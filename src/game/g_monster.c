@@ -1132,6 +1132,12 @@ monster_start(edict_t *self)
 		self->monsterinfo.checkattack = M_CheckAttack;
 	}
 
+	if (ai_model_scale->value > 0)
+	{
+		scale = ai_model_scale->value;
+		VectorSet(self->rrs.scale, scale, scale, scale);
+	}
+
 	scale = 0;
 
 	for (i = 0; i < 3; i++)

@@ -56,6 +56,18 @@ typedef enum
 	SOLID_BSP       /* bsp clip, touch on edge */
 } solid_t;
 
+typedef enum
+{
+	GESTURE_NONE = -1,
+	GESTURE_FLIP_OFF,
+	GESTURE_SALUTE,
+	GESTURE_TAUNT,
+	GESTURE_WAVE,
+	GESTURE_POINT,
+	GESTURE_POINT_NO_PING,
+	GESTURE_MAX
+} gesture_type_t;
+
 /* =============================================================== */
 
 /* link_t is only used for entity area links now */
