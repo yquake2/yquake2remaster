@@ -165,6 +165,7 @@ extern void SP_point_combat(edict_t * self);
 extern void SP_rotating_light(edict_t * self);
 extern void SP_target_actor(edict_t * self);
 extern void SP_target_anger(edict_t * self);
+extern void SP_target_autosave(edict_t * self);
 extern void SP_target_blacklight ( edict_t * ent ) ;
 extern void SP_target_blaster(edict_t * self);
 extern void SP_target_camera(edict_t* self);

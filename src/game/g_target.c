@@ -1628,6 +1628,40 @@ SP_target_music(edict_t* self)
 }
 
 /*
+ * QUAKED target_autosave (0 1 0) (-8 -8 -8) (8 8 8)
+ *
+ * Auto save on command.
+ */
+void
+use_target_autosave(edict_t *ent, edict_t *other, edict_t *activator)
+{
+	float save_time = gi.cvar("g_athena_auto_save_min_time", "60", CVAR_NOSET)->value;
+
+	if (level.time - level.next_auto_save > save_time)
+	{
+		gi.AddCommandString("save quick\n");
+		level.next_auto_save = level.time;
+	}
+}
+
+void
+SP_target_autosave(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->use = use_target_autosave;
+}
+
+/*
  * QUAKED target_sky (1 0 0) (-8 -8 -8) (8 8 8)
  *
  * Change sky parameters

@@ -386,6 +386,7 @@ typedef struct
 	int disguise_violation_framenum;
 
 	char *start_items;             /* level start items */
+	float next_auto_save;          /* target_autosave */
 } level_locals_t;
 
 /* spawn_temp_t is only used to hold entity field values that

@@ -171,6 +171,7 @@
 {"rotating_light", SP_rotating_light},
 {"target_actor", SP_target_actor},
 {"target_anger", SP_target_anger},
+{"target_autosave", SP_target_autosave},
 {"target_blacklight", SP_target_blacklight},
 {"target_blaster", SP_target_blaster},
 {"target_camera", SP_target_camera},
