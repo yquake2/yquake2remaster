@@ -200,6 +200,7 @@ typedef struct
 	   NULL can be passed for buf to just determine existance */
 	int (*FS_LoadFile) (const char *name, void **buf);
 	void (*FS_FreeFile) (void *buf);
+	const char * (*get_configstring)(int num);
 } game_import_t;
 
 /* functions exported by the game subsystem */

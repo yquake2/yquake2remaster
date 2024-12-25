@@ -1639,10 +1639,6 @@ SP_target_music(edict_t* self)
 void
 target_sky_use(edict_t *self, edict_t *other, edict_t *activator)
 {
-	float rotate;
-	int autorotate;
-
-
 	if (!self)
 	{
 		return;
@@ -1653,12 +1649,31 @@ target_sky_use(edict_t *self, edict_t *other, edict_t *activator)
 		gi.configstring(CS_SKY, self->map);
 	}
 
-	rotate = self->accel;
-	autorotate = self->style;
-	gi.configstring(CS_SKYROTATE, va("%f %d", rotate, autorotate));
+	if (self->count & 3)
+	{
+		float rotate;
+		int autorotate;
 
-	gi.configstring(CS_SKYAXIS, va("%f %f %f",
-		self->movedir[0], self->movedir[1], self->movedir[2]));
+		sscanf(gi.get_configstring(CS_SKYROTATE), "%f %i", &rotate, &autorotate);
+
+		if (self->count & 1)
+		{
+			rotate = self->accel;
+		}
+
+		if (self->count & 2)
+		{
+			autorotate = self->style;
+		}
+
+		gi.configstring(CS_SKYROTATE, va("%f %d", rotate, autorotate));
+	}
+
+	if (self->count & 4)
+	{
+		gi.configstring(CS_SKYAXIS, va("%f %f %f",
+			self->movedir[0], self->movedir[1], self->movedir[2]));
+	}
 }
 
 void
@@ -1676,7 +1691,23 @@ SP_target_sky(edict_t* self)
 		self->map = st.sky;
 	}
 
-	VectorCopy(st.skyaxis, self->movedir);
-	self->accel = st.skyrotate;
-	self->style = st.skyautorotate;
+	if (self->movedir[0] &&
+		self->movedir[1] &&
+		self->movedir[2])
+	{
+		self->count |= 4;
+		VectorCopy(st.skyaxis, self->movedir);
+	}
+
+	if (st.skyrotate)
+	{
+		self->count |= 1;
+		self->accel = st.skyrotate;
+	}
+
+	if (st.skyautorotate)
+	{
+		self->count |= 2;
+		self->style = st.skyautorotate;
+	}
 }

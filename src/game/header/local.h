@@ -385,7 +385,7 @@ typedef struct
 	edict_t *disguise_violator;
 	int disguise_violation_framenum;
 
-	char *start_items;
+	char *start_items;             /* level start items */
 } level_locals_t;
 
 /* spawn_temp_t is only used to hold entity field values that
