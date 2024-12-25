@@ -156,6 +156,7 @@ extern void SP_monster_widow(edict_t * self);
 extern void SP_monster_widow2(edict_t * self);
 extern void SP_monster_wizard(edict_t * self);
 extern void SP_monster_zombie(edict_t * self);
+extern void SP_npc_timeminder(edict_t * self);
 extern void SP_object_big_fire ( edict_t * ent ) ;
 extern void SP_object_campfire ( edict_t * ent ) ;
 extern void SP_object_flame1 ( edict_t * ent ) ;

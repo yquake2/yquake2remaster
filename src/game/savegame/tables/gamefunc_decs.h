@@ -1373,6 +1373,7 @@ extern void target_music_use ( edict_t * self , edict_t * other , edict_t * acti
 extern void target_sky_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void target_steam_start ( edict_t * self ) ;
 extern void target_string_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void touch_npc_timeminder ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void teleporter_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void tesla_activate ( edict_t * self ) ;
 extern void tesla_blow ( edict_t * self ) ;

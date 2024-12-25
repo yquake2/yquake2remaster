@@ -163,6 +163,7 @@
 {"monster_widow2", SP_monster_widow2},
 {"monster_wizard", SP_monster_wizard},
 {"monster_zombie", SP_monster_zombie},
+{"npc_timeminder", SP_npc_timeminder},
 {"object_big_fire", SP_object_big_fire},
 {"object_campfire", SP_object_campfire},
 {"object_flame1", SP_object_flame1},

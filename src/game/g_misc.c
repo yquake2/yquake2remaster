@@ -3360,3 +3360,35 @@ void SP_misc_model(edict_t *ent)
 	gi.setmodel(ent, ent->model);
 	gi.linkentity(ent);
 }
+
+/*
+ * QUAKED npc_timeminder (0 1 0) (-8 -8 -8) (8 8 8)
+ *
+ * Anachronox: Save menu open.
+ */
+void
+touch_npc_timeminder(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	gi.AddCommandString("menu_savegame\n");
+}
+
+void
+SP_npc_timeminder(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_BBOX;
+	self->touch = touch_npc_timeminder;
+	gi.linkentity(self);
+}

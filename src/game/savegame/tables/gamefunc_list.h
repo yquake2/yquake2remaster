@@ -1377,6 +1377,7 @@
 {"tesla_think", (byte *)tesla_think},
 {"tesla_think_active", (byte *)tesla_think_active},
 {"tesla_zap", (byte *)tesla_zap},
+{"touch_npc_timeminder", (byte *)touch_npc_timeminder},
 {"tracker_explode", (byte *)tracker_explode},
 {"tracker_fly", (byte *)tracker_fly},
 {"tracker_pain_daemon_spawn", (byte *)tracker_pain_daemon_spawn},
