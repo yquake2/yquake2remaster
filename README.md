@@ -163,7 +163,6 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Rearange surfaces in vulkan render before render,
 * [ ] Fully implement `target_camera`,
 * [ ] Fully implement `misc_flare`,
-* [ ] Fully implement `misc_player_mannequin`,
 * [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
 * [ ] Use shared model cache in client code insted reimplemnet in each render,

@@ -422,6 +422,9 @@ typedef struct
 	float fade_end_dist;
 	char *image;
 	unsigned rgba;
+	char *goals;
+	int effects;
+	int renderfx;
 
 	/* Addional fields for models */
 	vec3_t scale;

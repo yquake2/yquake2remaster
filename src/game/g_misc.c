@@ -26,6 +26,7 @@
  */
 
 #include "header/local.h"
+#include "monster/misc/player.h"
 
 int debristhisframe;
 int gibsthisframe;
@@ -3351,6 +3352,219 @@ SP_misc_flare(edict_t* ent)
 	gi.linkentity(ent);
 }
 
+void
+misc_player_mannequin_use(edict_t * self, edict_t * other, edict_t * activator)
+{
+	self->monsterinfo.aiflags |= AI_TARGET_ANGER;
+	self->enemy = activator;
+
+	switch ( self->count )
+	{
+		case GESTURE_FLIP_OFF:
+			self->s.frame = FRAME_flip01;
+			self->monsterinfo.nextframe = FRAME_flip12;
+			break;
+
+		case GESTURE_SALUTE:
+			self->s.frame = FRAME_salute01;
+			self->monsterinfo.nextframe = FRAME_salute11;
+			break;
+
+		case GESTURE_TAUNT:
+			self->s.frame = FRAME_taunt01;
+			self->monsterinfo.nextframe = FRAME_taunt17;
+			break;
+
+		case GESTURE_WAVE:
+			self->s.frame = FRAME_wave01;
+			self->monsterinfo.nextframe = FRAME_wave11;
+			break;
+
+		case GESTURE_POINT:
+			self->s.frame = FRAME_point01;
+			self->monsterinfo.nextframe = FRAME_point12;
+			break;
+	}
+}
+
+void
+misc_player_mannequin_think(edict_t * self)
+{
+	if (self->last_sound_time <= level.time)
+	{
+		self->s.frame++;
+
+		if ((self->monsterinfo.aiflags & AI_TARGET_ANGER) == 0)
+		{
+			if (self->s.frame > FRAME_stand40)
+			{
+				self->s.frame = FRAME_stand01;
+			}
+		}
+		else
+		{
+			if (self->s.frame > self->monsterinfo.nextframe)
+			{
+				self->s.frame = FRAME_stand01;
+				self->monsterinfo.aiflags &= ~AI_TARGET_ANGER;
+				self->enemy = NULL;
+			}
+		}
+
+		self->last_sound_time = level.time + FRAMETIME;
+	}
+
+	if (self->enemy)
+	{
+		vec3_t vec;
+
+		VectorSubtract(self->enemy->s.origin, self->s.origin, vec);
+		self->ideal_yaw = vectoyaw(vec);
+		M_ChangeYaw(self);
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
+void
+SetupMannequinModel(edict_t * self, int modelType, const char *weapon, const char *skin)
+{
+	const char *model_name = NULL;
+	const char *default_skin = NULL;
+
+	switch (modelType)
+	{
+		case 1:
+			{
+				self->s.skinnum = (MAX_CLIENTS - 1);
+				model_name = "female";
+				default_skin = "venus";
+				break;
+			}
+
+		case 2:
+			{
+				self->s.skinnum = (MAX_CLIENTS - 2);
+				model_name = "male";
+				default_skin = "rampage";
+				break;
+			}
+
+		case 3:
+			{
+				self->s.skinnum = (MAX_CLIENTS - 3);
+				model_name = "cyborg";
+				default_skin = "oni911";
+				break;
+			}
+
+		default:
+			{
+				self->s.skinnum = (MAX_CLIENTS - 1);
+				model_name = "female";
+				default_skin = "venus";
+				break;
+			}
+	}
+
+	if (model_name)
+	{
+		char line[MAX_QPATH] = {0};
+
+		snprintf(line, sizeof(line), "players/%s/tris.md2", model_name);
+		self->model = ED_NewString(line, true);
+
+		if (weapon)
+		{
+			snprintf(line, sizeof(line), "players/%s/%s.md2", model_name, weapon);
+		}
+		else
+		{
+			snprintf(line, sizeof(line), "players/%s/w_hyperblaster.md2", model_name);
+		}
+		self->s.modelindex2 = gi.modelindex(line);
+
+		if (skin)
+		{
+			snprintf(line, sizeof(line), "%s/%s", model_name, skin);
+		}
+		else
+		{
+			snprintf(line, sizeof(line), "%s/%s", model_name, default_skin);
+		}
+		gi.configstring(CS_PLAYERSKINS + self->s.skinnum, line);
+	}
+}
+
+/*
+ * QUAKED misc_player_mannequin (1.0 1.0 0.0) (-32 -32 -32) (32 32 32)
+ * Creates a player mannequin that stands around.
+ *
+ * NOTE: this is currently very limited, and only allows one unique model
+ * from each of the three player model types.
+ *
+ *
+ * "distance"		- Sets the type of gesture mannequin when use when triggered
+ * "height"		- Sets the type of model to use ( valid numbers: 1 - 3 )
+ * "goals"		- Name of the weapon to use.
+ * "image"		- Name of the player skin to use.
+ * "radius"		- How much to scale the model in-game
+ */
+void
+SP_misc_player_mannequin(edict_t * self)
+{
+	int i;
+
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_BBOX;
+	if (!st.effects)
+	{
+		self->s.effects = 0;
+	}
+
+	if (!st.renderfx)
+	{
+		self->s.renderfx = RF_MINLIGHT;
+	}
+
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 32);
+	self->yaw_speed = 30;
+	self->ideal_yaw = 0;
+	self->last_sound_time = level.time + FRAMETIME;
+	self->s.modelindex = CUSTOM_PLAYER_MODEL;
+	self->count = st.distance;
+
+	SetupMannequinModel(self, st.height, st.goals, st.image);
+
+	VectorSet(self->rrs.scale, 1.0f, 1.0f, 1.0f);
+	if (ai_model_scale->value > 0.0f)
+	{
+		VectorSet(self->rrs.scale,
+			ai_model_scale->value, ai_model_scale->value, ai_model_scale->value);
+	}
+	else if (st.radius > 0.0f)
+	{
+		VectorSet(self->rrs.scale,
+			st.radius, st.radius, st.radius);
+	}
+
+	for (i = 0;i < 3; i++)
+	{
+		self->mins[i] *= self->rrs.scale[i];
+		self->maxs[i] *= self->rrs.scale[i];
+	}
+
+	self->think = misc_player_mannequin_think;
+	self->nextthink = level.time + FRAMETIME;
+
+	if (self->targetname)
+	{
+		self->use = misc_player_mannequin_use;
+	}
+
+	gi.linkentity(self);
+}
 
 /*
  * QUAKED misc_model (1 0 0) (-8 -8 -8) (8 8 8)
