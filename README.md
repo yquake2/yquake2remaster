@@ -125,7 +125,9 @@ Games check videos:
 
 * 8.42RR11:
 
-[![Latest Video](https://img.youtube.com/vi/ukqBrx80ESM/0.jpg)](https://www.youtube.com/watch?v=ukqBrx80ESM)
+[![First episode](https://img.youtube.com/vi/Ha1FuVXaQSE/0.jpg)](https://www.youtube.com/watch?v=Ha1FuVXaQSE)
+[![Q2DQ2](https://img.youtube.com/vi/6P3wJojExyI/0.jpg)](https://www.youtube.com/watch?v=6P3wJojExyI)
+[![8.42RR11](https://img.youtube.com/vi/ukqBrx80ESM/0.jpg)](https://www.youtube.com/watch?v=ukqBrx80ESM)
 
 * 8.42RR10:
 
