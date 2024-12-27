@@ -85,6 +85,7 @@ R_RenderDlight(dlight_t *light)
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawDLightPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 48, 1, 0, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 void
