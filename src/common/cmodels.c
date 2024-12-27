@@ -174,7 +174,7 @@ Mod_DecompressVis(const byte *in, byte *out, const byte* numvisibility, int row)
 	{
 		int c;
 
-		if (*in && (in + 2) < numvisibility)
+		if (((in + 2) < numvisibility) && *in)
 		{
 			*out_p++ = *in++;
 			continue;

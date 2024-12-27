@@ -1329,7 +1329,7 @@ G_SetClientSound(edict_t *ent)
 }
 
 void
-G_SetClientFrame(edict_t *ent)
+G_SetClientFrame(edict_t *ent, float speed)
 {
 	gclient_t *client;
 	qboolean duck, run;
@@ -1342,6 +1342,11 @@ G_SetClientFrame(edict_t *ent)
 	if (ent->s.modelindex != CUSTOM_PLAYER_MODEL)
 	{
 		return; /* not in the player model */
+	}
+
+	if (speed)
+	{
+		xyspeed = speed;
 	}
 
 	client = ent->client;
@@ -1615,7 +1620,7 @@ ClientEndServerFrame(edict_t *ent)
 	G_SetClientEvent(ent);
 	G_SetClientEffects(ent);
 	G_SetClientSound(ent);
-	G_SetClientFrame(ent);
+	G_SetClientFrame(ent, 0);
 
 	VectorCopy(ent->velocity, ent->client->oldvelocity);
 	VectorCopy(ent->client->ps.viewangles, ent->client->oldviewangles);

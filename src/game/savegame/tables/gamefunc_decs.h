@@ -1356,6 +1356,7 @@ extern void tarbaby_stand ( edict_t * self ) ;
 extern void tarbaby_touch ( edict_t * self ,  edict_t * other , cplane_t *plane, csurface_t *surf);
 extern void target_actor_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void target_anger_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void target_camera_dummy_think ( edict_t * self ) ;
 extern void target_crosslevel_target_think ( edict_t * self ) ;
 extern void target_earthquake_think ( edict_t * self ) ;
 extern void target_earthquake_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
@@ -1454,6 +1455,7 @@ extern void use_target_splash ( edict_t * self , edict_t * other , edict_t * act
 extern void use_target_steam ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_soundfx ( edict_t *self, edict_t *other, edict_t *activator ) ;
 extern void use_target_gravity ( edict_t *self, edict_t *other, edict_t *activator ) ;
+extern void update_target_camera_think ( edict_t *self);
 extern void update_target_soundfx ( edict_t *self);
 extern void vengeance_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
 extern void vengeance_think ( edict_t * self ) ;

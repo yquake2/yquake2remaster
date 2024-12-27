@@ -983,6 +983,7 @@ void ServerCommand(void);
 qboolean SV_FilterPacket(char *from);
 
 /* p_view.c */
+void G_SetClientFrame(edict_t *ent, float speed);
 void ClientEndServerFrame(edict_t *ent);
 
 /* p_hud.c */
