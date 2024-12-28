@@ -1474,8 +1474,9 @@ SP_target_earthquake(edict_t *self)
 
 /*
  * QUAKED target_camera (1 0 0) (-8 -8 -8) (8 8 8)
- * [Sam-KEX] Creates a camera path as seen in the N64 version.
-*/
+ *
+ * ReRelease: Creates a camera path as seen in the N64 version.
+ */
 #define HACKFLAG_TELEPORT_OUT 2
 #define HACKFLAG_SKIPPABLE 64
 #define HACKFLAG_END_OF_UNIT 128
@@ -1816,7 +1817,8 @@ SP_target_camera(edict_t* self)
 
 /*
  * QUAKED target_gravity (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
- * [Sam-KEX] Changes gravity, as seen in the N64 version
+ *
+ * ReRelease: Changes gravity, as seen in the N64 version
  */
 void
 use_target_gravity(edict_t *self, edict_t *other, edict_t *activator)
@@ -1833,8 +1835,9 @@ SP_target_gravity(edict_t* self)
 
 /*
  * QUAKED target_soundfx (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
- * [Sam-KEX] Plays a sound fx, as seen in the N64 version
-*/
+ *
+ * ReRelease: Plays a sound fx, as seen in the N64 version
+ */
 void
 update_target_soundfx(edict_t *self)
 {
