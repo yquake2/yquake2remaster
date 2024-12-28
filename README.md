@@ -163,7 +163,6 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Fix statusbar for DoD `roarke`,
 * [ ] Group `it_pic` images in vulkan render,
 * [ ] Rearange surfaces in vulkan render before render,
-* [ ] Fully implement `target_camera`,
 * [ ] Fully implement `misc_flare`,
 * [ ] Single player ReRelease support,
 * [ ] Support effects and additional flags for ReRelease when possible.
