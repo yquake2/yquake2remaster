@@ -179,8 +179,8 @@ typedef struct
 	void (*WriteLong)(int c);
 	void (*WriteFloat)(float f);
 	void (*WriteString)(const char *s);
-	void (*WritePosition)(vec3_t pos);      /* some fractional bits */
-	void (*WriteDir)(vec3_t pos);           /* single byte encoded, very coarse */
+	void (*WritePosition)(const vec3_t pos);      /* some fractional bits */
+	void (*WriteDir)(const vec3_t pos);           /* single byte encoded, very coarse */
 	void (*WriteAngle)(float f);
 
 	/* managed memory allocation */

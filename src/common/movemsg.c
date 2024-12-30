@@ -261,13 +261,28 @@ MSG_WriteString(sizebuf_t *sb, const char *s)
 }
 
 void
-MSG_WriteCoord(sizebuf_t *sb, float f)
+MSG_WriteCoord(sizebuf_t *sb, float f, int protocol)
 {
-	MSG_WriteShort(sb, (int)(f * 8));
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		MSG_WriteShort(sb, (int)(f * 8));
+	}
+	else
+	{
+		MSG_WriteFloat(sb, f);
+	}
 }
 
 void
-MSG_WritePos(sizebuf_t *sb, vec3_t pos)
+MSG_WritePosExt(sizebuf_t *sb, const vec3_t pos, int protocol)
+{
+	MSG_WriteCoord(sb, pos[0], protocol);
+	MSG_WriteCoord(sb, pos[1], protocol);
+	MSG_WriteCoord(sb, pos[2], protocol);
+}
+
+void
+MSG_WritePos(sizebuf_t *sb, const vec3_t pos)
 {
 	MSG_WriteShort(sb, (int)(pos[0] * 8));
 	MSG_WriteShort(sb, (int)(pos[1] * 8));
@@ -381,7 +396,7 @@ MSG_WriteDeltaUsercmd(sizebuf_t *buf, usercmd_t *from, usercmd_t *cmd)
 }
 
 void
-MSG_WriteDir(sizebuf_t *sb, vec3_t dir)
+MSG_WriteDir(sizebuf_t *sb, const vec3_t dir)
 {
 	int i, best;
 	float d, bestd;
@@ -811,17 +826,17 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 
 	if (bits & U_ORIGIN1)
 	{
-		MSG_WriteCoord(msg, to->origin[0]);
+		MSG_WriteCoord(msg, to->origin[0], protocol);
 	}
 
 	if (bits & U_ORIGIN2)
 	{
-		MSG_WriteCoord(msg, to->origin[1]);
+		MSG_WriteCoord(msg, to->origin[1], protocol);
 	}
 
 	if (bits & U_ORIGIN3)
 	{
-		MSG_WriteCoord(msg, to->origin[2]);
+		MSG_WriteCoord(msg, to->origin[2], protocol);
 	}
 
 	if (bits & U_ANGLE1)
@@ -841,9 +856,7 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 
 	if (bits & U_OLDORIGIN)
 	{
-		MSG_WriteCoord(msg, to->old_origin[0]);
-		MSG_WriteCoord(msg, to->old_origin[1]);
-		MSG_WriteCoord(msg, to->old_origin[2]);
+		MSG_WritePosExt(msg, to->old_origin, protocol);
 	}
 
 	if (bits & U_SOUND)
@@ -1037,9 +1050,24 @@ MSG_ReadStringLine(sizebuf_t *msg_read)
 }
 
 float
-MSG_ReadCoord(sizebuf_t *msg_read)
+MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
-	return MSG_ReadShort(msg_read) * (0.125f);
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		return MSG_ReadShort(msg_read) * (0.125f);
+	}
+	else
+	{
+		return MSG_ReadFloat(msg_read);
+	}
+}
+
+void
+MSG_ReadPosExt(sizebuf_t *msg_read, vec3_t pos, int protocol)
+{
+	pos[0] = MSG_ReadCoord(msg_read, protocol);
+	pos[1] = MSG_ReadCoord(msg_read, protocol);
+	pos[2] = MSG_ReadCoord(msg_read, protocol);
 }
 
 void

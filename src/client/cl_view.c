@@ -525,7 +525,7 @@ V_Render3dCrosshair(void)
 
 
 	if(crosshair_3d->value || crosshair_3d_glow->value){
-		VectorMA(cl.refdef.vieworg,8192,cl.v_forward,end);
+		VectorMA(cl.refdef.vieworg, 8192, cl.v_forward,end);
 		crosshair_trace = CL_PMTrace(cl.refdef.vieworg, vec3_origin, vec3_origin, end);
 
 		if(crosshair_3d_glow->value){

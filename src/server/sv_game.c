@@ -276,13 +276,13 @@ PF_WriteString(const char *s)
 }
 
 static void
-PF_WritePos(vec3_t pos)
+PF_WritePos(const vec3_t pos)
 {
 	MSG_WritePos(&sv.multicast, pos);
 }
 
 static void
-PF_WriteDir(vec3_t dir)
+PF_WriteDir(const vec3_t dir)
 {
 	MSG_WriteDir(&sv.multicast, dir);
 }

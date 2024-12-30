@@ -1177,9 +1177,9 @@ SCR_ExecuteLayoutString(char *s)
 			clientinfo_t *ci;
 
 			token = COM_Parse(&s);
-			x = viddef.width / 2 - scale * 160 + scale*(int)strtol(token, (char **)NULL, 10);
+			x = viddef.width / 2 - scale * 160 + scale * (int)strtol(token, (char **)NULL, 10);
 			token = COM_Parse(&s);
-			y = viddef.height / 2 - scale * 120 + scale*(int)strtol(token, (char **)NULL, 10);
+			y = viddef.height / 2 - scale * 120 + scale * (int)strtol(token, (char **)NULL, 10);
 			SCR_AddDirtyPoint(x, y);
 			SCR_AddDirtyPoint(x + scale * 159, y + scale * 31);
 

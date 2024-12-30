@@ -283,12 +283,11 @@ void
 SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 		float volume, float attenuation, float timeofs)
 {
-	int sendchan;
-	int flags;
-	int i;
-	int ent;
-	vec3_t origin_v;
+	int sendchan, flags, i, ent, protocol;
 	qboolean use_phs;
+	vec3_t origin_v;
+
+	protocol = sv_client ? sv_client->protocol : PROTOCOL_VERSION;
 
 	if ((volume < 0) || (volume > 1.0))
 	{
@@ -370,7 +369,7 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 
 	MSG_WriteByte(&sv.multicast, svc_sound);
 	MSG_WriteByte(&sv.multicast, flags);
-	if (sv_client && IS_QII97_PROTOCOL(sv_client->protocol))
+	if (IS_QII97_PROTOCOL(protocol))
 	{
 		MSG_WriteByte(&sv.multicast, soundindex);
 	}
@@ -401,7 +400,7 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 
 	if (flags & SND_POS)
 	{
-		MSG_WritePos(&sv.multicast, origin);
+		MSG_WritePosExt(&sv.multicast, origin, protocol);
 	}
 
 	/* if the sound doesn't attenuate,send it to everyone

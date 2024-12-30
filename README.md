@@ -160,6 +160,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Support textures/*/*_glow.png load from ReRelease,
 * [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
 * [ ] Fix physics with incorrect floor height in psx/base0.bsp,
+* [ ] Make pmove_state_t.origin 29.3 (PS_M_ORIGIN),
 * [ ] Fix statusbar for DoD `roarke`,
 * [ ] Group `it_pic` images in vulkan render,
 * [ ] Rearange surfaces in vulkan render before render,
