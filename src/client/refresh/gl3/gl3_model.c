@@ -387,8 +387,8 @@ Mod_LoadBrushModel(gl3model_t *mod, const void *buffer, int modfilelen)
 		mod->marksurfaces, mod->nummarksurfaces, &mod->numclusters,
 		mod_base, &header->lumps[LUMP_LEAFS]);
 	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
-		mod->numleafs, &mod->nodes, &mod->numnodes, mod_base,
-		&header->lumps[LUMP_NODES], header->ident);
+		mod->numleafs, &mod->nodes, &mod->numnodes, mod->mins, mod->maxs,
+		mod_base, &header->lumps[LUMP_NODES], header->ident);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->numframes = 2; /* regular and alternate animation */
 

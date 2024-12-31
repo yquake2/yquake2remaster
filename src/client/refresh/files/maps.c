@@ -80,8 +80,8 @@ Mod_NumberLeafs(mleaf_t *leafs, mnode_t *node, int *r_leaftovis, int *r_vistolea
 
 static void
 Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
-	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
-	const lump_t *l)
+	int numleafs, mnode_t **nodes, int *numnodes, vec3_t mins, vec3_t maxs,
+	const byte *mod_base, const lump_t *l)
 {
 	dqnode_t *in;
 	mnode_t *out;
@@ -101,6 +101,24 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 	*nodes = out;
 	*numnodes = count;
 
+	/* Set initial min/max */
+	if (count)
+	{
+		for (i = 0; i < 3; i++)
+		{
+			mins[i] = in->mins[i];
+			maxs[i] = in->maxs[i];
+		}
+	}
+	else
+	{
+		for (i = 0; i < 3; i++)
+		{
+			mins[i] = 0;
+			maxs[i] = 0;
+		}
+	}
+
 	for (i = 0; i < count; i++, in++, out++)
 	{
 		int j, planenum;
@@ -109,6 +127,17 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 		{
 			out->minmaxs[j] = in->mins[j];
 			out->minmaxs[3 + j] = in->maxs[j];
+
+			/* update min/max */
+			if (mins[j] > in->mins[j])
+			{
+				mins[j] = in->mins[j];
+			}
+
+			if (maxs[j] < in->maxs[j])
+			{
+				maxs[j] = in->maxs[j];
+			}
 		}
 
 		planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
@@ -156,8 +185,8 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 
 void
 Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs,
-	int numleafs, mnode_t **nodes, int *numnodes, const byte *mod_base,
-	const lump_t *l, int ident)
+	int numleafs, mnode_t **nodes, int *numnodes, vec3_t mins, vec3_t maxs,
+	const byte *mod_base, const lump_t *l, int ident)
 {
 	int *r_leaftovis, *r_vistoleaf;
 	int numvisleafs;
@@ -172,7 +201,7 @@ Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *le
 	}
 
 	Mod_LoadQNodes(name, planes, numplanes, leafs, numleafs, nodes, numnodes,
-		mod_base, l);
+		mins, maxs, mod_base, l);
 
 	Mod_SetParent(*nodes, NULL); /* sets nodes and leafs */
 

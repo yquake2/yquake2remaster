@@ -332,7 +332,7 @@ extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurface
 	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
 	const byte *mod_base, const lump_t *lMod_LoadQBSPMarksurfaces);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
-	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes,
+	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes, vec3_t mins, vec3_t maxs,
 	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
