@@ -253,7 +253,7 @@ CL_ParseParticles(void)
 	int color, count;
 	vec3_t pos, dir;
 
-	MSG_ReadPos(&net_message, pos);
+	MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 	MSG_ReadDir(&net_message, dir);
 
 	color = MSG_ReadByte(&net_message);
@@ -274,8 +274,8 @@ CL_ParseBeam(struct model_s *model)
 
 	ent = MSG_ReadShort(&net_message);
 
-	MSG_ReadPos(&net_message, start);
-	MSG_ReadPos(&net_message, end);
+	MSG_ReadPos(&net_message, start, cls.serverProtocol);
+	MSG_ReadPos(&net_message, end, cls.serverProtocol);
 
 	/* override any beam with the same entity */
 	for (i = 0, b = cl_beams; i < MAX_BEAMS; i++, b++)
@@ -321,9 +321,9 @@ CL_ParseBeam2(struct model_s *model)
 
 	ent = MSG_ReadShort(&net_message);
 
-	MSG_ReadPos(&net_message, start);
-	MSG_ReadPos(&net_message, end);
-	MSG_ReadPos(&net_message, offset);
+	MSG_ReadPos(&net_message, start, cls.serverProtocol);
+	MSG_ReadPos(&net_message, end, cls.serverProtocol);
+	MSG_ReadPos(&net_message, offset, cls.serverProtocol);
 
 	/* override any beam with the same entity */
 	for (i = 0, b = cl_beams; i < MAX_BEAMS; i++, b++)
@@ -372,8 +372,8 @@ CL_ParsePlayerBeam(struct model_s *model)
 
 	ent = MSG_ReadShort(&net_message);
 
-	MSG_ReadPos(&net_message, start);
-	MSG_ReadPos(&net_message, end);
+	MSG_ReadPos(&net_message, start, cls.serverProtocol);
+	MSG_ReadPos(&net_message, end, cls.serverProtocol);
 
 	/* network optimization */
 	if (model == cl_mod_heatbeam)
@@ -388,7 +388,7 @@ CL_ParsePlayerBeam(struct model_s *model)
 	}
 	else
 	{
-		MSG_ReadPos(&net_message, offset);
+		MSG_ReadPos(&net_message, offset, cls.serverProtocol);
 	}
 
 	/* Override any beam with the same entity
@@ -439,8 +439,8 @@ CL_ParseLightning(struct model_s *model)
 	srcEnt = MSG_ReadShort(&net_message);
 	destEnt = MSG_ReadShort(&net_message);
 
-	MSG_ReadPos(&net_message, start);
-	MSG_ReadPos(&net_message, end);
+	MSG_ReadPos(&net_message, start, cls.serverProtocol);
+	MSG_ReadPos(&net_message, end, cls.serverProtocol);
 
 	/* override any beam with the same
 	   source AND destination entities */
@@ -487,8 +487,8 @@ CL_ParseLaser(int colors)
 	laser_t *l;
 	int i;
 
-	MSG_ReadPos(&net_message, start);
-	MSG_ReadPos(&net_message, end);
+	MSG_ReadPos(&net_message, start, cls.serverProtocol);
+	MSG_ReadPos(&net_message, end, cls.serverProtocol);
 
 	for (i = 0, l = cl_lasers; i < MAX_LASERS; i++, l++)
 	{
@@ -547,7 +547,7 @@ CL_ParseSteam(void)
 		{
 			s->id = id;
 			s->count = MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, s->org);
+			MSG_ReadPos(&net_message, s->org, cls.serverProtocol);
 			MSG_ReadDir(&net_message, s->dir);
 			r = MSG_ReadByte(&net_message);
 			s->basecolor = VID_PaletteColor(r & 0xff);
@@ -561,7 +561,7 @@ CL_ParseSteam(void)
 		else
 		{
 			MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			MSG_ReadByte(&net_message);
 			MSG_ReadShort(&net_message);
@@ -572,7 +572,7 @@ CL_ParseSteam(void)
 	{
 		/* instant */
 		cnt = MSG_ReadByte(&net_message);
-		MSG_ReadPos(&net_message, pos);
+		MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 		MSG_ReadDir(&net_message, dir);
 		r = MSG_ReadByte(&net_message);
 		magnitude = MSG_ReadShort(&net_message);
@@ -605,7 +605,7 @@ CL_ParseWidow(void)
 	if (free_sustain)
 	{
 		s->id = id;
-		MSG_ReadPos(&net_message, s->org);
+		MSG_ReadPos(&net_message, s->org, cls.serverProtocol);
 		s->endtime = cl.time + 2100;
 		s->think = CL_Widowbeamout;
 		s->thinkinterval = 1;
@@ -614,7 +614,7 @@ CL_ParseWidow(void)
 	else
 	{
 		/* no free sustains */
-		MSG_ReadPos(&net_message, pos);
+		MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 	}
 }
 
@@ -639,7 +639,7 @@ CL_ParseNuke(void)
 	if (free_sustain)
 	{
 		s->id = 21000;
-		MSG_ReadPos(&net_message, s->org);
+		MSG_ReadPos(&net_message, s->org, cls.serverProtocol);
 		s->endtime = cl.time + 1000;
 		s->think = CL_Nukeblast;
 		s->thinkinterval = 1;
@@ -648,7 +648,7 @@ CL_ParseNuke(void)
 	else
 	{
 		/* no free sustains */
-		MSG_ReadPos(&net_message, pos);
+		MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 	}
 }
 
@@ -679,7 +679,7 @@ CL_ParseTEnt(void)
 	switch (type)
 	{
 		case TE_BLOOD: /* bullet hitting flesh */
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			CL_ParticleEffect(pos, dir, 0xff001f9b, 0xff00001b, 60);
 			break;
@@ -687,7 +687,7 @@ CL_ParseTEnt(void)
 		case TE_GUNSHOT: /* bullet hitting wall */
 		case TE_SPARKS:
 		case TE_BULLET_SPARKS:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 
 			if (type == TE_GUNSHOT)
@@ -723,7 +723,7 @@ CL_ParseTEnt(void)
 
 		case TE_SCREEN_SPARKS:
 		case TE_SHIELD_SPARKS:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 
 			if (type == TE_SCREEN_SPARKS)
@@ -771,7 +771,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_SHOTGUN: /* bullet hitting wall */
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			CL_ParticleEffect(pos, dir, 0xff000000, 0xff6b6b6b, 20);
 			CL_SmokeAndFlash(pos);
@@ -779,7 +779,7 @@ CL_ParseTEnt(void)
 
 		case TE_SPLASH: /* bullet hitting water */
 			cnt = MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			r = MSG_ReadByte(&net_message);
 
@@ -813,7 +813,7 @@ CL_ParseTEnt(void)
 
 		case TE_LASER_SPARKS:
 			cnt = MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			color = MSG_ReadByte(&net_message);
 			CL_ParticleEffect2(pos, dir,
@@ -821,13 +821,13 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BLUEHYPERBLASTER:
-			MSG_ReadPos(&net_message, pos);
-			MSG_ReadPos(&net_message, dir);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, dir, cls.serverProtocol);
 			CL_BlasterParticles(pos, dir);
 			break;
 
 		case TE_BLASTER: /* blaster hitting wall */
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			CL_BlasterParticles(pos, dir);
 
@@ -866,8 +866,8 @@ CL_ParseTEnt(void)
 
 		case TE_RAILTRAIL: /* railgun effect */
 		case TE_RAILTRAIL2:
-			MSG_ReadPos(&net_message, pos);
-			MSG_ReadPos(&net_message, pos2);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
 			CL_RailTrail(pos, pos2);
 			S_StartSound(pos2, 0, 0, cl_sfx_railg, 1, ATTN_NORM, 0);
 			break;
@@ -875,7 +875,7 @@ CL_ParseTEnt(void)
 		case TE_EXPLOSION2:
 		case TE_GRENADE_EXPLOSION:
 		case TE_GRENADE_EXPLOSION_WATER:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
 			ex->type = ex_poly;
@@ -903,7 +903,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_PLASMA_EXPLOSION:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
 			ex->type = ex_poly;
@@ -931,7 +931,7 @@ CL_ParseTEnt(void)
 		case TE_EXPLOSION1:
 		case TE_ROCKET_EXPLOSION:
 		case TE_ROCKET_EXPLOSION_WATER:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
 			ex->type = ex_poly;
@@ -976,7 +976,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BFG_EXPLOSION:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
 			ex->type = ex_poly;
@@ -993,7 +993,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BFG_BIGEXPLOSION:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_BFGExplosionParticles(pos);
 			break;
 
@@ -1002,8 +1002,8 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BUBBLETRAIL:
-			MSG_ReadPos(&net_message, pos);
-			MSG_ReadPos(&net_message, pos2);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
 			CL_BubbleTrail(pos, pos2);
 			break;
 
@@ -1013,7 +1013,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BOSSTPORT: /* boss teleporting to station */
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_BigTeleportParticles(pos);
 			S_StartSound(pos, 0, 0, S_RegisterSound(
 						"misc/bigtele.wav"), 1, ATTN_NONE, 0);
@@ -1025,7 +1025,7 @@ CL_ParseTEnt(void)
 
 		case TE_WELDING_SPARKS:
 			cnt = MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			color = MSG_ReadByte(&net_message);
 			CL_ParticleEffect2(pos, dir,
@@ -1045,14 +1045,14 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_GREENBLOOD:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			CL_ParticleEffect2(pos, dir, 0xff0fbfff, 0xff003bb7, 30);
 			break;
 
 		case TE_TUNNEL_SPARKS:
 			cnt = MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			color = MSG_ReadByte(&net_message);
 			CL_ParticleEffect3(pos, dir, VID_PaletteColor(color), cnt);
@@ -1060,7 +1060,7 @@ CL_ParseTEnt(void)
 
 		case TE_BLASTER2:
 		case TE_FLECHETTE:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 
 			if (type == TE_BLASTER2)
@@ -1127,7 +1127,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_FLAME:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_FlameEffects(pos);
 			break;
 
@@ -1138,13 +1138,13 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_DEBUGTRAIL:
-			MSG_ReadPos(&net_message, pos);
-			MSG_ReadPos(&net_message, pos2);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
 			CL_DebugTrail(pos, pos2);
 			break;
 
 		case TE_PLAIN_EXPLOSION:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
@@ -1170,14 +1170,14 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_FLASHLIGHT:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			ent = MSG_ReadShort(&net_message);
 			CL_Flashlight(ent, pos);
 			break;
 
 		case TE_FORCEWALL:
-			MSG_ReadPos(&net_message, pos);
-			MSG_ReadPos(&net_message, pos2);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
 			color = MSG_ReadByte(&net_message);
 			CL_ForceWall(pos, pos2, VID_PaletteColor(color));
 			break;
@@ -1192,7 +1192,7 @@ CL_ParseTEnt(void)
 
 		case TE_HEATBEAM_SPARKS:
 			cnt = 50;
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			r = 8;
 			magnitude = 60;
@@ -1202,7 +1202,7 @@ CL_ParseTEnt(void)
 
 		case TE_HEATBEAM_STEAM:
 			cnt = 20;
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			magnitude = 60;
 			CL_ParticleSteamEffect(pos, dir, 0xff07abff, 0xff002bab, cnt, magnitude);
@@ -1214,14 +1214,14 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_BUBBLETRAIL2:
-			MSG_ReadPos(&net_message, pos);
-			MSG_ReadPos(&net_message, pos2);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+			MSG_ReadPos(&net_message, pos2, cls.serverProtocol);
 			CL_BubbleTrail2(pos, pos2, 8);
 			S_StartSound(pos, 0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
 			break;
 
 		case TE_MOREBLOOD:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			CL_ParticleEffect(pos, dir, 0xff001f9b, 0xff00001b, 250);
 			break;
@@ -1230,19 +1230,19 @@ CL_ParseTEnt(void)
 			dir[0] = 0;
 			dir[1] = 0;
 			dir[2] = 1;
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_ParticleSmokeEffect(pos, dir, 0xff000000, 0xff6b6b6b, 20, 20);
 			break;
 
 		case TE_ELECTRIC_SPARKS:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 			CL_ParticleEffect(pos, dir, 0xff5b430f, 0xff1f1700, 40);
 			S_StartSound(pos, 0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
 			break;
 
 		case TE_TRACKER_EXPLOSION:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_ColorFlash(pos, 0, 150, -1, -1, -1);
 			CL_ColorExplosionParticles(pos, 0xff000000, 0xff0f0f0f);
 			S_StartSound(pos, 0, 0, cl_sfx_disrexp, 1, ATTN_NORM, 0);
@@ -1250,7 +1250,7 @@ CL_ParseTEnt(void)
 
 		case TE_TELEPORT_EFFECT:
 		case TE_DBALL_GOAL:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_TeleportParticles(pos);
 			break;
 
@@ -1263,7 +1263,7 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_WIDOWSPLASH:
-			MSG_ReadPos(&net_message, pos);
+			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			CL_WidowSplash(pos);
 			break;
 

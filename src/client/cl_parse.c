@@ -325,7 +325,7 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 
 	if (bits & U_OLDORIGIN)
 	{
-		MSG_ReadPosExt(&net_message, to->old_origin, cls.serverProtocol);
+		MSG_ReadPos(&net_message, to->old_origin, cls.serverProtocol);
 	}
 
 	if (bits & U_SOUND)
@@ -1361,7 +1361,7 @@ CL_ParseStartSoundPacket(void)
 	if (flags & SND_POS)
 	{
 		/* positioned in space */
-		MSG_ReadPosExt(&net_message, pos_v, cls.serverProtocol);
+		MSG_ReadPos(&net_message, pos_v, cls.serverProtocol);
 
 		pos = pos_v;
 	}

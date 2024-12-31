@@ -278,7 +278,7 @@ PF_WriteString(const char *s)
 static void
 PF_WritePos(const vec3_t pos)
 {
-	MSG_WritePos(&sv.multicast, pos);
+	MSG_WritePos(&sv.multicast, pos, SV_GetRecomendedProtocol());
 }
 
 static void
