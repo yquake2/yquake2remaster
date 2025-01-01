@@ -281,9 +281,18 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_M_ORIGIN)
 	{
-		MSG_WriteShort(msg, ps->pmove.origin[0]);
-		MSG_WriteShort(msg, ps->pmove.origin[1]);
-		MSG_WriteShort(msg, ps->pmove.origin[2]);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteShort(msg, ps->pmove.origin[0]);
+			MSG_WriteShort(msg, ps->pmove.origin[1]);
+			MSG_WriteShort(msg, ps->pmove.origin[2]);
+		}
+		else
+		{
+			MSG_WriteLong(msg, ps->pmove.origin[0]);
+			MSG_WriteLong(msg, ps->pmove.origin[1]);
+			MSG_WriteLong(msg, ps->pmove.origin[2]);
+		}
 	}
 
 	if (pflags & PS_M_VELOCITY)

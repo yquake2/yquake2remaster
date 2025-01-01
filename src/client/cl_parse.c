@@ -595,7 +595,7 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 }
 
 static void
-CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
+CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 {
 	int flags, i, statbits;
 	player_state_t *state;
@@ -623,9 +623,18 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 	if (flags & PS_M_ORIGIN)
 	{
-		state->pmove.origin[0] = MSG_ReadShort(&net_message);
-		state->pmove.origin[1] = MSG_ReadShort(&net_message);
-		state->pmove.origin[2] = MSG_ReadShort(&net_message);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			state->pmove.origin[0] = MSG_ReadShort(&net_message);
+			state->pmove.origin[1] = MSG_ReadShort(&net_message);
+			state->pmove.origin[2] = MSG_ReadShort(&net_message);
+		}
+		else
+		{
+			state->pmove.origin[0] = MSG_ReadLong(&net_message);
+			state->pmove.origin[1] = MSG_ReadLong(&net_message);
+			state->pmove.origin[2] = MSG_ReadLong(&net_message);
+		}
 	}
 
 	if (flags & PS_M_VELOCITY)
@@ -686,7 +695,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 	if (flags & PS_WEAPONINDEX)
 	{
-		if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		if (IS_QII97_PROTOCOL(protocol))
 		{
 			state->gunindex = MSG_ReadByte(&net_message);
 		}
@@ -698,7 +707,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 
 	if (flags & PS_WEAPONFRAME)
 	{
-		if (IS_QII97_PROTOCOL(cls.serverProtocol))
+		if (IS_QII97_PROTOCOL(protocol))
 		{
 			state->gunframe = MSG_ReadByte(&net_message);
 		}
@@ -745,7 +754,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe)
 			if (i == STAT_PICKUP_STRING)
 			{
 				state->stats[i] = P_ConvertConfigStringFrom(state->stats[i],
-					cls.serverProtocol);
+					protocol);
 			}
 		}
 	}
@@ -871,7 +880,7 @@ CL_ParseFrame(void)
 		Com_Error(ERR_DROP, "CL_ParseFrame: 0x%X not playerinfo", cmd);
 	}
 
-	CL_ParsePlayerstate(old, &cl.frame);
+	CL_ParsePlayerstate(old, &cl.frame, cls.serverProtocol);
 
 	/* read packet entities */
 	cmd = MSG_ReadByte(&net_message);
