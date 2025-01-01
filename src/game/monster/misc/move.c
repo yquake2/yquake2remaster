@@ -100,12 +100,12 @@ realcheck:
 	if (ent->gravityVector[2] < 0)
 	{
 		start[2] = mins[2];
-		stop[2] = start[2] - STEPSIZE - STEPSIZE;
+		stop[2] = start[2] - (2 * STEPSIZE);
 	}
 	else
 	{
 		start[2] = maxs[2];
-		stop[2] = start[2] + STEPSIZE + STEPSIZE;
+		stop[2] = start[2] + (2 * STEPSIZE);
 	}
 
 	trace = gi.trace(start, vec3_origin, vec3_origin,

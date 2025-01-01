@@ -1036,7 +1036,7 @@ static mframe_t widow_frames_death[] = {
 
 mmove_t widow_move_death = {
 	FRAME_death01,
- 	FRAME_death31,
+	FRAME_death31,
 	widow_frames_death,
 	NULL
 };

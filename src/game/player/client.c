@@ -230,8 +230,8 @@ SP_CreateUnnamedSpawn(edict_t *self)
 		}
 	}
 
- 	/* power2 */
-    if (Q_stricmp(level.mapname, "power2") == 0)
+	/* power2 */
+	if (Q_stricmp(level.mapname, "power2") == 0)
 	{
 		if (Q_stricmp(self->targetname, "power1") == 0)
 		{
