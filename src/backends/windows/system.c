@@ -275,7 +275,7 @@ Sys_Microseconds(void)
 	static LARGE_INTEGER freq = { 0 };
 	static LARGE_INTEGER base = { 0 };
 
-    if (!freq.QuadPart)
+	if (!freq.QuadPart)
 	{
 		QueryPerformanceFrequency(&freq);
 	}

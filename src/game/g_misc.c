@@ -393,7 +393,7 @@ ThrowHeadACID(edict_t *self, const char *gibname, int damage, int type)
 	vec3_t vd;
 	float vscale;
 
-    if (!self || !gibname)
+	if (!self || !gibname)
 	{
 		return;
 	}

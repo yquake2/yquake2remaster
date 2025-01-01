@@ -53,7 +53,7 @@ enum {
  */
 static void APIENTRY
 DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
-              const GLchar *message, const void *userParam)
+	const GLchar *message, const void *userParam)
 {
 	const char* sourceStr = "Source: Unknown";
 	const char* typeStr = "Type: Unknown";
@@ -172,15 +172,15 @@ void GL3_SetVsync(void)
 
 #ifdef USE_SDL3
 	int vsyncState;
-       if (!SDL_GL_GetSwapInterval(&vsyncState))
-       {
-               R_Printf(PRINT_ALL, "Failed to get vsync state, assuming vsync inactive.\n");
-               vsyncActive = false;
-       }
-       else
-       {
-               vsyncActive = vsyncState ? true : false;
-       }
+	if (!SDL_GL_GetSwapInterval(&vsyncState))
+	{
+		R_Printf(PRINT_ALL, "Failed to get vsync state, assuming vsync inactive.\n");
+		vsyncActive = false;
+	}
+	else
+	{
+		vsyncActive = vsyncState ? true : false;
+	}
 #else
 	vsyncActive = SDL_GL_GetSwapInterval() != 0;
 #endif

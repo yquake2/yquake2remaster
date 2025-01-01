@@ -506,14 +506,14 @@ static void IN_Controller_Shutdown(qboolean notify_user);
 
 qboolean IN_NumpadIsOn()
 {
-    SDL_Keymod mod = SDL_GetModState();
+	SDL_Keymod mod = SDL_GetModState();
 
-    if ((mod & SDL_KMOD_NUM) == SDL_KMOD_NUM)
-    {
-        return true;
-    }
+	if ((mod & SDL_KMOD_NUM) == SDL_KMOD_NUM)
+	{
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 /* ------------------------------------------------------------------ */

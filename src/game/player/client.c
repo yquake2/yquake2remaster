@@ -167,7 +167,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* mine1 */
-    if (Q_stricmp(level.mapname, "mine1") == 0)
+	if (Q_stricmp(level.mapname, "mine1") == 0)
 	{
 		if (Q_stricmp(self->targetname, "mintro") == 0)
 		{
@@ -183,7 +183,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* mine2 */
-    if (Q_stricmp(level.mapname, "mine2") == 0)
+	if (Q_stricmp(level.mapname, "mine2") == 0)
 	{
 		if (Q_stricmp(self->targetname, "mine1") == 0)
 		{
@@ -199,7 +199,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* mine3 */
-    if (Q_stricmp(level.mapname, "mine3") == 0)
+	if (Q_stricmp(level.mapname, "mine3") == 0)
 	{
 		if (Q_stricmp(self->targetname, "mine2a") == 0)
 		{
@@ -215,7 +215,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* mine4 */
-    if (Q_stricmp(level.mapname, "mine4") == 0)
+	if (Q_stricmp(level.mapname, "mine4") == 0)
 	{
 		if (Q_stricmp(self->targetname, "mine3") == 0)
 		{
@@ -247,7 +247,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* waste1 */
-    if (Q_stricmp(level.mapname, "waste1") == 0)
+	if (Q_stricmp(level.mapname, "waste1") == 0)
 	{
 		if (Q_stricmp(self->targetname, "power2") == 0)
 		{
@@ -263,7 +263,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* waste2 */
-    if (Q_stricmp(level.mapname, "waste2") == 0)
+	if (Q_stricmp(level.mapname, "waste2") == 0)
 	{
 		if (Q_stricmp(self->targetname, "waste1") == 0)
 		{
@@ -279,7 +279,7 @@ SP_CreateUnnamedSpawn(edict_t *self)
 	}
 
 	/* city3 */
-    if (Q_stricmp(level.mapname, "city2") == 0)
+	if (Q_stricmp(level.mapname, "city2") == 0)
 	{
 		if (Q_stricmp(self->targetname, "city2NL") == 0)
 		{
