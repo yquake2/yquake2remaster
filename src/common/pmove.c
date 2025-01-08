@@ -408,9 +408,6 @@ PM_AirAccelerate(vec3_t wishdir, float wishspeed, float accel)
 static void
 PM_AddCurrents(vec3_t wishvel)
 {
-	vec3_t v;
-	float s;
-
 	/* account for ladders */
 	if (pml.ladder && (fabs(pml.velocity[2]) <= 200))
 	{
@@ -458,6 +455,9 @@ PM_AddCurrents(vec3_t wishvel)
 	/* add water currents  */
 	if (pm->watertype & MASK_CURRENT)
 	{
+		vec3_t v;
+		float s;
+
 		VectorClear(v);
 
 		if (pm->watertype & CONTENTS_CURRENT_0)
@@ -503,6 +503,8 @@ PM_AddCurrents(vec3_t wishvel)
 	/* add conveyor belt velocities */
 	if (pm->groundentity)
 	{
+		vec3_t v;
+
 		VectorClear(v);
 
 		if (pml.groundcontents & CONTENTS_CURRENT_0)
@@ -1491,4 +1493,3 @@ Pmove(pmove_t *pmove)
 
 	PM_SnapPosition();
 }
-
