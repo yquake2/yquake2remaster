@@ -452,7 +452,7 @@ PM_AddCurrents(vec3_t wishvel)
 		}
 	}
 
-	/* add water currents  */
+	/* add water currents */
 	if (pm->watertype & MASK_CURRENT)
 	{
 		vec3_t v;
@@ -1488,7 +1488,7 @@ Pmove(pmove_t *pmove)
 	PM_CatagorizePosition();
 
 #if !defined(DEDICATED_ONLY)
-    PM_UpdateUnderwaterSfx();
+	PM_UpdateUnderwaterSfx();
 #endif
 
 	PM_SnapPosition();
