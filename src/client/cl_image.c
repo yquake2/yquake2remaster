@@ -860,6 +860,22 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			fixQuitScreen(*pic);
 		}
 	}
+	else if (!strcmp(ext, "atd"))
+	{
+		char *tmp_buf;
+		int lindent;
+
+		lindent = LittleLong(*((int*)raw));
+
+		if (lindent == IDATDSPRITEHEADER)
+		{
+			tmp_buf = malloc(len + 1);
+			memcpy(tmp_buf, raw, len);
+			tmp_buf[len] = 0;
+			printf("\nfile: %s\n%s\n", filename, tmp_buf);
+			free(tmp_buf);
+		}
+	}
 	else if (!strcmp(ext, "m8"))
 	{
 		M8_Decode(filename, raw, len, pic, palette, width, height);
