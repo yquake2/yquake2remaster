@@ -869,11 +869,129 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 		if (lindent == IDATDSPRITEHEADER)
 		{
-			tmp_buf = malloc(len + 1);
-			memcpy(tmp_buf, raw, len);
-			tmp_buf[len] = 0;
+			tmp_buf = malloc(len + 1 - 4);
+			memcpy(tmp_buf, raw + 4, len - 4);
+			tmp_buf[len - 4] = 0;
 			printf("\nfile: %s\n%s\n", filename, tmp_buf);
 			free(tmp_buf);
+/*
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char* file;
+} bitmap_t;
+
+typedef struct {
+    int bitmap;
+    int next;
+    float wait;
+    int x;
+    int y;
+} frame_t;
+
+typedef struct {
+    int colortype;
+    int width;
+    int height;
+    int bilinear;
+    int clamp;
+    bitmap_t* bitmaps;
+    size_t bitmap_count;
+    frame_t* frames;
+    size_t frame_count;
+} animation_t;
+
+void parse_animation(const char* filename, animation_t* anim) {
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        perror("Failed to open file");
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        if (strncmp(line, "colortype", 9) == 0) {
+            sscanf(line, "colortype = %d", &anim->colortype);
+        } else if (strncmp(line, "width", 5) == 0) {
+            sscanf(line, "width = %d", &anim->width);
+        } else if (strncmp(line, "height", 6) == 0) {
+            sscanf(line, "height = %d", &anim->height);
+        } else if (strncmp(line, "bilinear", 8) == 0) {
+            sscanf(line, "bilinear = %d", &anim->bilinear);
+        } else if (strncmp(line, "clamp", 5) == 0) {
+            sscanf(line, "clamp = %d", &anim->clamp);
+        } else if (strncmp(line, "!bitmap", 7) == 0) {
+            anim->bitmap_count++;
+            anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
+            fgets(line, sizeof(line), file);
+            anim->bitmaps[anim->bitmap_count - 1].file = strdup(strchr(line, '=') + 2);
+            anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file) - 1] = '\0'; // Remove newline
+        } else if (strncmp(line, "!frame", 6) == 0) {
+            anim->frame_count++;
+            anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
+            frame_t* frame = &anim->frames[anim->frame_count - 1];
+            frame->next = -1;
+            frame->wait = 0.0f;
+            frame->x = frame->y = 0;
+            while (fgets(line, sizeof(line), file) && line[0] != '\n' && line[0] != '!') {
+                if (strncmp(line, "bitmap", 6) == 0) {
+                    sscanf(line, "bitmap = %d", &frame->bitmap);
+                } else if (strncmp(line, "next", 4) == 0) {
+                    sscanf(line, "next = %d", &frame->next);
+                } else if (strncmp(line, "wait", 4) == 0) {
+                    sscanf(line, "wait = %f", &frame->wait);
+                } else if (strncmp(line, "x", 1) == 0) {
+                    sscanf(line, "x = %d", &frame->x);
+                } else if (strncmp(line, "y", 1) == 0) {
+                    sscanf(line, "y = %d", &frame->y);
+                }
+            }
+        }
+    }
+
+    fclose(file);
+}
+
+void free_animation(animation_t* anim) {
+    for (size_t i = 0; i < anim->bitmap_count; i++) {
+        free(anim->bitmaps[i].file);
+    }
+    free(anim->bitmaps);
+    free(anim->frames);
+}
+
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <file>\n", argv[0]);
+        return 1;
+    }
+
+    animation_t anim = {0};
+    parse_animation(argv[1], &anim);
+
+    // Print parsed data for demonstration
+    printf("Animation:\n");
+    printf("  colortype: %d\n", anim.colortype);
+    printf("  width: %d\n", anim.width);
+    printf("  height: %d\n", anim.height);
+    printf("  bilinear: %d\n", anim.bilinear);
+    printf("  clamp: %d\n", anim.clamp);
+    printf("  bitmaps: %zu\n", anim.bitmap_count);
+    for (size_t i = 0; i < anim.bitmap_count; i++) {
+        printf("    file: %s\n", anim.bitmaps[i].file);
+    }
+    printf("  frames: %zu\n", anim.frame_count);
+    for (size_t i = 0; i < anim.frame_count; i++) {
+        printf("    frame %zu: bitmap=%d, next=%d, wait=%.2f, x=%d, y=%d\n",
+               i, anim.frames[i].bitmap, anim.frames[i].next, anim.frames[i].wait, anim.frames[i].x, anim.frames[i].y);
+    }
+
+    free_animation(&anim);
+    return 0;
+}
+*/
 		}
 	}
 	else if (!strcmp(ext, "m8"))
