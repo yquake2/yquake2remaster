@@ -874,6 +874,34 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			tmp_buf[len - 4] = 0;
 			printf("\nfile: %s\n%s\n", filename, tmp_buf);
 			free(tmp_buf);
+
+			int len_png;
+			byte *raw_png;
+
+			/* load the file */
+			len_png = FS_LoadFile("textures/bricks/parquet_0.png", (void **)&raw_png);
+			if (len_png > 0)
+			{
+				int sourcebitsPerPixel = 0;
+
+				/* other formats does not have palette directly */
+				if (palette)
+				{
+					*palette = NULL;
+				}
+
+				*pic = stbi_load_from_memory(raw_png, len_png, width, height,
+					&sourcebitsPerPixel, STBI_rgb_alpha);
+
+				FS_FreeFile(raw_png);
+
+				if (*pic == NULL)
+				{
+					Com_DPrintf("%s couldn't load data from %s: %s!\n",
+						__func__, filename, stbi_failure_reason());
+				}
+				*bitsPerPixel = 32;
+			}
 /*
 #include <stdio.h>
 #include <stdlib.h>
