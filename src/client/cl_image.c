@@ -946,13 +946,47 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 		}
 
 		lindent = LittleLong(*((int*)raw));
+		len -= 4;
 
 		if (lindent == IDATDSPRITEHEADER)
 		{
-			tmp_buf = malloc(len + 1 - 4);
-			memcpy(tmp_buf, raw + 4, len - 4);
-			tmp_buf[len - 4] = 0;
-			printf("\nfile: %s\n%s\n", filename, tmp_buf);
+			tmp_buf = malloc(len + 1);
+			memcpy(tmp_buf, raw + 4, len);
+			tmp_buf[len] = 0;
+			// printf("\nfile: %s\n%s\n", filename, tmp_buf);
+
+			char *curr;
+
+			/* get lines count */
+			curr = tmp_buf;
+			while(*curr)
+			{
+				size_t linesize = 0;
+
+				/* skip empty */
+				linesize = strspn(curr, "\n\r\t ");
+				curr += linesize;
+
+				/* mark end line */
+				linesize = strcspn(curr, "\n\r");
+				curr[linesize] = 0;
+
+				if (*curr && *curr != '\n' && *curr != '\r' && *curr != '#')
+				{
+					char *line;
+
+					line = curr;
+					printf("line: %s\n", line);
+				}
+				curr += linesize;
+				if (curr >= (tmp_buf + len))
+				{
+					break;
+				}
+
+				/* skip our endline */
+				curr++;
+			}
 			free(tmp_buf);
 
 			LoadImageWithPaletteStatic("textures/bricks/parquet_0.png", pic, palette, width, height, bitsPerPixel);
