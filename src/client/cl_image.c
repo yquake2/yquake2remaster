@@ -820,8 +820,11 @@ Convert24to32(unsigned *d_8to24table, byte *pal)
 	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
 }
 
+/*
+ * Load only static images without animation support
+ */
 static void
-LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
+LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel)
 {
 	const char* ext;
@@ -860,10 +863,87 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			fixQuitScreen(*pic);
 		}
 	}
-	else if (!strcmp(ext, "atd"))
+	else if (!strcmp(ext, "m8"))
 	{
-		char *tmp_buf;
-		int lindent;
+		M8_Decode(filename, raw, len, pic, palette, width, height);
+		*bitsPerPixel = 8;
+	}
+	else if (!strcmp(ext, "swl"))
+	{
+		SWL_Decode(filename, raw, len, pic, palette, width, height);
+		*bitsPerPixel = 8;
+	}
+	else if (!strcmp(ext, "wal"))
+	{
+		WAL_Decode(filename, raw, len, pic, palette, width, height);
+		*bitsPerPixel = 8;
+	}
+	else if (!strcmp(ext, "lmp"))
+	{
+		LMP_Decode(filename, raw, len, pic, width, height);
+		*bitsPerPixel = 8;
+	}
+	else
+	{
+		int sourcebitsPerPixel = 0;
+
+		/* other formats does not have palette directly */
+		if (palette)
+		{
+			*palette = NULL;
+		}
+
+		if (!strcmp(ext, "m32"))
+		{
+			M32_Decode(filename, raw, len, pic, width, height);
+		}
+		else
+		{
+			*pic = stbi_load_from_memory(raw, len, width, height,
+				&sourcebitsPerPixel, STBI_rgb_alpha);
+
+			if (*pic == NULL)
+			{
+				Com_DPrintf("%s couldn't load data from %s: %s!\n",
+					__func__, filename, stbi_failure_reason());
+			}
+		}
+
+		*bitsPerPixel = 32;
+	}
+
+	FS_FreeFile(raw);
+}
+
+/* Load images with sprites */
+static void
+LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
+	int *width, int *height, int *bitsPerPixel)
+{
+	const char* ext;
+
+	ext = COM_FileExtension(filename);
+
+	if (!strcmp(ext, "atd"))
+	{
+		char *tmp_buf, *raw;
+		int lindent, len;
+
+		*pic = NULL;
+
+		/* load the file */
+		len = FS_LoadFile(filename, (void **)&raw);
+
+		if (!raw || len <= 0)
+		{
+			return;
+		}
+
+		if (len <= sizeof(int))
+		{
+			FS_FreeFile(raw);
+			return;
+		}
 
 		lindent = LittleLong(*((int*)raw));
 
@@ -875,33 +955,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			printf("\nfile: %s\n%s\n", filename, tmp_buf);
 			free(tmp_buf);
 
-			int len_png;
-			byte *raw_png;
-
-			/* load the file */
-			len_png = FS_LoadFile("textures/bricks/parquet_0.png", (void **)&raw_png);
-			if (len_png > 0)
-			{
-				int sourcebitsPerPixel = 0;
-
-				/* other formats does not have palette directly */
-				if (palette)
-				{
-					*palette = NULL;
-				}
-
-				*pic = stbi_load_from_memory(raw_png, len_png, width, height,
-					&sourcebitsPerPixel, STBI_rgb_alpha);
-
-				FS_FreeFile(raw_png);
-
-				if (*pic == NULL)
-				{
-					Com_DPrintf("%s couldn't load data from %s: %s!\n",
-						__func__, filename, stbi_failure_reason());
-				}
-				*bitsPerPixel = 32;
-			}
+			LoadImageWithPaletteStatic("textures/bricks/parquet_0.png", pic, palette, width, height, bitsPerPixel);
 /*
 #include <stdio.h>
 #include <stdlib.h>
@@ -1021,57 +1075,14 @@ int main(int argc, char** argv) {
 }
 */
 		}
-	}
-	else if (!strcmp(ext, "m8"))
-	{
-		M8_Decode(filename, raw, len, pic, palette, width, height);
-		*bitsPerPixel = 8;
-	}
-	else if (!strcmp(ext, "swl"))
-	{
-		SWL_Decode(filename, raw, len, pic, palette, width, height);
-		*bitsPerPixel = 8;
-	}
-	else if (!strcmp(ext, "wal"))
-	{
-		WAL_Decode(filename, raw, len, pic, palette, width, height);
-		*bitsPerPixel = 8;
-	}
-	else if (!strcmp(ext, "lmp"))
-	{
-		LMP_Decode(filename, raw, len, pic, width, height);
-		*bitsPerPixel = 8;
+
+		FS_FreeFile(raw);
+		return;
 	}
 	else
 	{
-		int sourcebitsPerPixel = 0;
-
-		/* other formats does not have palette directly */
-		if (palette)
-		{
-			*palette = NULL;
-		}
-
-		if (!strcmp(ext, "m32"))
-		{
-			M32_Decode(filename, raw, len, pic, width, height);
-		}
-		else
-		{
-			*pic = stbi_load_from_memory(raw, len, width, height,
-				&sourcebitsPerPixel, STBI_rgb_alpha);
-
-			if (*pic == NULL)
-			{
-				Com_DPrintf("%s couldn't load data from %s: %s!\n",
-					__func__, filename, stbi_failure_reason());
-			}
-		}
-
-		*bitsPerPixel = 32;
+		LoadImageWithPaletteStatic(filename, pic, palette, width, height, bitsPerPixel);
 	}
-
-	FS_FreeFile(raw);
 }
 
 void
