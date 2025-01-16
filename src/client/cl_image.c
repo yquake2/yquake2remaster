@@ -915,6 +915,41 @@ LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 	FS_FreeFile(raw);
 }
 
+typedef struct {
+	char* file;
+} bitmap_t;
+
+typedef struct {
+	int bitmap;
+	int next;
+	float wait;
+	int x;
+	int y;
+} atd_frame_t;
+
+typedef struct {
+	int colortype;
+	int width;
+	int height;
+	int bilinear;
+	int clamp;
+	bitmap_t *bitmaps;
+	size_t bitmap_count;
+	atd_frame_t *frames;
+	size_t frame_count;
+} animation_t;
+
+void
+free_animation(animation_t* anim)
+{
+	for (size_t i = 0; i < anim->bitmap_count; i++)
+	{
+		free(anim->bitmaps[i].file);
+	}
+	free(anim->bitmaps);
+	free(anim->frames);
+}
+
 /* Load images with sprites */
 static void
 LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
@@ -995,30 +1030,6 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct {
-    char* file;
-} bitmap_t;
-
-typedef struct {
-    int bitmap;
-    int next;
-    float wait;
-    int x;
-    int y;
-} frame_t;
-
-typedef struct {
-    int colortype;
-    int width;
-    int height;
-    int bilinear;
-    int clamp;
-    bitmap_t* bitmaps;
-    size_t bitmap_count;
-    frame_t* frames;
-    size_t frame_count;
-} animation_t;
-
 void parse_animation(const char* filename, animation_t* anim) {
     FILE* file = fopen(filename, "r");
     if (!file) {
@@ -1068,14 +1079,6 @@ void parse_animation(const char* filename, animation_t* anim) {
     }
 
     fclose(file);
-}
-
-void free_animation(animation_t* anim) {
-    for (size_t i = 0; i < anim->bitmap_count; i++) {
-        free(anim->bitmaps[i].file);
-    }
-    free(anim->bitmaps);
-    free(anim->frames);
 }
 
 int main(int argc, char** argv) {
