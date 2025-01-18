@@ -175,6 +175,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
 * [ ] Modified ReRelease game code support with removed KEX only related code.
+* [ ] Add support for [JaBot](https://www.moddb.com/mods/jabotq2/downloads/jabot-q2-v09x-win32-and-linux)
 
 Not a goal:
 
