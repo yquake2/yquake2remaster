@@ -70,8 +70,8 @@ jobs:
         cp doc/080_contributing.md publish/quake2-win64-${{github.sha}}/misc/docs/080_contributing.txt
         cp doc/090_filelists.md publish/quake2-win64-${{github.sha}}/misc/docs/090_filelists.md
         # SDL2
-        wget -c https://github.com/libsdl-org/SDL/releases/download/release-2.30.7/SDL2-2.30.7-win32-x64.zip
-        unzip -o SDL2-2.30.7-win32-x64.zip
+        wget -c https://github.com/libsdl-org/SDL/releases/download/release-2.30.11/SDL2-2.30.11-win32-x64.zip
+        unzip -o SDL2-2.30.11-win32-x64.zip
         cp SDL2.dll publish/quake2-win64-${{github.sha}}/
         # static ffmpeg
         wget -c https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-win64-lgpl-shared-7.0.zip
