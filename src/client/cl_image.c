@@ -987,6 +987,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 		{
 			char *curr;
 			animation_t *anim = malloc(sizeof(animation_t));
+			memset(anim, 0, sizeof(animation_t));
 
 			tmp_buf = malloc(len + 1);
 			memcpy(tmp_buf, raw + 4, len);
@@ -1011,7 +1012,60 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 					char *line;
 
 					line = curr;
-					printf("line: %s\n", line);
+
+					if (strncmp(line, "colortype", 9) == 0)
+					{
+						sscanf(line, "colortype = %d", &anim->colortype);
+					}
+					else if (strncmp(line, "width", 5) == 0)
+					{
+						sscanf(line, "width = %d", &anim->width);
+					}
+					else if (strncmp(line, "height", 6) == 0)
+					{
+						sscanf(line, "height = %d", &anim->height);
+					}
+					else if (strncmp(line, "bilinear", 8) == 0)
+					{
+						sscanf(line, "bilinear = %d", &anim->bilinear);
+					}
+					else if (strncmp(line, "clamp", 5) == 0)
+					{
+						sscanf(line, "clamp = %d", &anim->clamp);
+					}
+					/*
+					else if (strncmp(line, "!bitmap", 7) == 0) {
+						anim->bitmap_count++;
+						anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
+						fgets(line, sizeof(line), file);
+						anim->bitmaps[anim->bitmap_count - 1].file = strdup(strchr(line, '=') + 2);
+						anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file) - 1] = '\0'; // Remove newline
+					} else if (strncmp(line, "!frame", 6) == 0) {
+						anim->frame_count++;
+						anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
+						frame_t* frame = &anim->frames[anim->frame_count - 1];
+						frame->next = -1;
+						frame->wait = 0.0f;
+						frame->x = frame->y = 0;
+						while (fgets(line, sizeof(line), file) && line[0] != '\n' && line[0] != '!') {
+							if (strncmp(line, "bitmap", 6) == 0) {
+								sscanf(line, "bitmap = %d", &frame->bitmap);
+							} else if (strncmp(line, "next", 4) == 0) {
+								sscanf(line, "next = %d", &frame->next);
+							} else if (strncmp(line, "wait", 4) == 0) {
+								sscanf(line, "wait = %f", &frame->wait);
+							} else if (strncmp(line, "x", 1) == 0) {
+								sscanf(line, "x = %d", &frame->x);
+							} else if (strncmp(line, "y", 1) == 0) {
+								sscanf(line, "y = %d", &frame->y);
+							}
+						}
+					}
+					*/
+					else
+					{
+						printf("line: %s\n", line);
+					}
 				}
 				curr += linesize;
 				if (curr >= (tmp_buf + len))
@@ -1023,7 +1077,24 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 				curr++;
 			}
 
-			free(anim);
+			// Print parsed data for demonstration
+			printf("Animation:\n");
+			printf("  colortype: %d\n", anim->colortype);
+			printf("  width: %d\n", anim->width);
+			printf("  height: %d\n", anim->height);
+			printf("  bilinear: %d\n", anim->bilinear);
+			printf("  clamp: %d\n", anim->clamp);
+			printf("  bitmaps: %zu\n", anim->bitmap_count);
+			for (size_t i = 0; i < anim->bitmap_count; i++) {
+				printf("	file: %s\n", anim->bitmaps[i].file);
+			}
+			printf("  frames: %zu\n", anim->frame_count);
+			for (size_t i = 0; i < anim->frame_count; i++) {
+				printf("	frame %zu: bitmap=%d, next=%d, wait=%.2f, x=%d, y=%d\n",
+					   i, anim->frames[i].bitmap, anim->frames[i].next, anim->frames[i].wait, anim->frames[i].x, anim->frames[i].y);
+			}
+
+			free_animation(anim);
 			free(tmp_buf);
 
 			LoadImageWithPaletteStatic("textures/bricks/parquet_0.png", pic, palette, width, height, bitsPerPixel);
