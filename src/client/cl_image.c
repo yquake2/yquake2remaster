@@ -985,12 +985,12 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 		if (lindent == IDATDSPRITEHEADER)
 		{
+			char *curr;
+			animation_t *anim = malloc(sizeof(animation_t));
+
 			tmp_buf = malloc(len + 1);
 			memcpy(tmp_buf, raw + 4, len);
 			tmp_buf[len] = 0;
-			// printf("\nfile: %s\n%s\n", filename, tmp_buf);
-
-			char *curr;
 
 			/* get lines count */
 			curr = tmp_buf;
@@ -1022,6 +1022,8 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 				/* skip our endline */
 				curr++;
 			}
+
+			free(anim);
 			free(tmp_buf);
 
 			LoadImageWithPaletteStatic("textures/bricks/parquet_0.png", pic, palette, width, height, bitsPerPixel);
