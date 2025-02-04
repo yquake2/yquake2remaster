@@ -1056,6 +1056,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 						curr[linesize] = 0;
 
 						line = curr;
+						/* file = ... */
 						anim->bitmaps[anim->bitmap_count - 1].file = strdup(strchr(line, '=') + 2);
 						anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file)] = '\0'; // Remove newline
 					}
