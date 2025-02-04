@@ -1033,14 +1033,34 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 					{
 						sscanf(line, "clamp = %d", &anim->clamp);
 					}
-					/*
-					else if (strncmp(line, "!bitmap", 7) == 0) {
+					else if (strncmp(line, "!bitmap", 7) == 0)
+					{
 						anim->bitmap_count++;
 						anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
-						fgets(line, sizeof(line), file);
+
+						curr += linesize;
+						if (curr >= (tmp_buf + len))
+						{
+							break;
+						}
+
+						/* skip our endline */
+						curr++;
+
+						/* skip empty */
+						linesize = strspn(curr, "\n\r\t ");
+						curr += linesize;
+
+						/* mark end line */
+						linesize = strcspn(curr, "\n\r");
+						curr[linesize] = 0;
+
+						line = curr;
 						anim->bitmaps[anim->bitmap_count - 1].file = strdup(strchr(line, '=') + 2);
-						anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file) - 1] = '\0'; // Remove newline
-					} else if (strncmp(line, "!frame", 6) == 0) {
+						anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file)] = '\0'; // Remove newline
+					}
+					/*
+					else if (strncmp(line, "!frame", 6) == 0) {
 						anim->frame_count++;
 						anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
 						frame_t* frame = &anim->frames[anim->frame_count - 1];
@@ -1094,10 +1114,13 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 					   i, anim->frames[i].bitmap, anim->frames[i].next, anim->frames[i].wait, anim->frames[i].x, anim->frames[i].y);
 			}
 
-			free_animation(anim);
 			free(tmp_buf);
 
-			LoadImageWithPaletteStatic("textures/bricks/parquet_0.png", pic, palette, width, height, bitsPerPixel);
+			if (anim->bitmap_count)
+			{
+				LoadImageWithPaletteStatic(anim->bitmaps[0].file, pic, palette, width, height, bitsPerPixel);
+			}
+			free_animation(anim);
 /*
 #include <stdio.h>
 #include <stdlib.h>
