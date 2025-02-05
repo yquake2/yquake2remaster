@@ -992,7 +992,7 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "="))
 			{
-				/* should = afret token */
+				/* should = after token */
 				return;
 			}
 
@@ -1028,6 +1028,27 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 					anim->clamp = value;
 				}
 			}
+		}
+		else if (!strcmp(token, "!bitmap"))
+		{
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "file"))
+			{
+				/* should file after token */
+				return;
+			}
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "="))
+			{
+				/* should = after token */
+				return;
+			}
+
+			/* save bitmap file */
+			anim->bitmap_count++;
+			anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
+			anim->bitmaps[anim->bitmap_count - 1].file = strdup(COM_Parse(&curr_buff));
 		}
 		else
 		{
