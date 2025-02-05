@@ -995,7 +995,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 			/* get lines count */
 			curr = tmp_buf;
-			while(*curr)
+			while(curr && *curr && (curr < (tmp_buf + len)))
 			{
 				size_t linesize = 0;
 
