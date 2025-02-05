@@ -1050,6 +1050,37 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 			anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
 			anim->bitmaps[anim->bitmap_count - 1].file = strdup(COM_Parse(&curr_buff));
 		}
+		else if (!strcmp(token, "!frame"))
+		{
+			printf("->%s\n", token);
+
+			while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
+			{
+				size_t linesize;
+
+				/* skip empty */
+				linesize = strspn(curr_buff, "\n\r\t ");
+				curr_buff += linesize;
+
+				/* new frame? */
+				if (curr_buff[0] == '!')
+				{
+					break;
+				}
+
+				token = COM_Parse(&curr_buff);
+				if (token[0] == '#')
+				{
+					/* skip empty */
+					linesize = strcspn(curr_buff, "\n\r");
+					curr_buff += linesize;
+				}
+				else
+				{
+					printf("frame...token: %s\n", token);
+				}
+			}
+		}
 		else
 		{
 			printf("token: %s\n", token);
