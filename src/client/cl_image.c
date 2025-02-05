@@ -933,6 +933,7 @@ typedef struct {
 	int height;
 	int bilinear;
 	int clamp;
+	char* type;
 	bitmap_t *bitmaps;
 	size_t bitmap_count;
 	atd_frame_t *frames;
@@ -948,21 +949,92 @@ free_animation(animation_t* anim)
 	}
 	free(anim->bitmaps);
 	free(anim->frames);
+	free(anim->type);
 }
 
 static void
 LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 {
-	char *curr;
+	char *curr_buff;
 
+	printf("\n>>>>>\n%s\n<<<<<<\n", tmp_buf);
 	/* get lines count */
-	curr = tmp_buf;
-	while(curr && *curr && (curr < (tmp_buf + len)))
+	curr_buff = tmp_buf;
+	while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
 	{
-		// const char *token;
+		const char *token;
 
-		// token = COM_Parse(&curr_buff);
+		token = COM_Parse(&curr_buff);
+		if (!token)
+		{
+			continue;
+		}
 
+		if (token[0] == '#')
+		{
+			size_t linesize;
+
+			/* skip empty */
+			linesize = strcspn(curr_buff, "\n\r");
+			curr_buff += linesize;
+		}
+		else if (!strcmp(token, "type") ||
+				 !strcmp(token, "width") ||
+				 !strcmp(token, "height") ||
+				 !strcmp(token, "bilinear") ||
+				 !strcmp(token, "clamp") ||
+				 !strcmp(token, "colortype"))
+		{
+			char token_section[MAX_TOKEN_CHARS];
+
+			strncpy(token_section, token, sizeof(token_section) - 1);
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "="))
+			{
+				/* should = afret token */
+				return;
+			}
+
+			if (!strcmp(token_section, "type") && !anim->type)
+			{
+				anim->type = strdup(COM_Parse(&curr_buff));
+			}
+			else
+			{
+				int value;
+
+				token = COM_Parse(&curr_buff);
+				value = (int)strtol(token, (char **)NULL, 10);
+
+				if (!strcmp(token_section, "colortype"))
+				{
+					anim->colortype = value;
+				}
+				else if (!strcmp(token_section, "width"))
+				{
+					anim->width = value;
+				}
+				else if (!strcmp(token_section, "height"))
+				{
+					anim->height = value;
+				}
+				else if (!strcmp(token_section, "bilinear"))
+				{
+					anim->bilinear = value;
+				}
+				else if (!strcmp(token_section, "clamp"))
+				{
+					anim->clamp = value;
+				}
+			}
+		}
+		else
+		{
+			printf("token: %s\n", token);
+		}
+
+#if 0
 		size_t linesize = 0;
 
 		/* skip empty */
@@ -1085,6 +1157,7 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 
 		/* skip our endline */
 		curr++;
+#endif
 	}
 }
 
@@ -1134,6 +1207,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 			// Print parsed data for demonstration
 			printf("Animation:\n");
+			printf("  type: %s\n", anim->type);
 			printf("  colortype: %d\n", anim->colortype);
 			printf("  width: %d\n", anim->width);
 			printf("  height: %d\n", anim->height);
