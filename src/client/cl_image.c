@@ -997,6 +997,10 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			curr = tmp_buf;
 			while(curr && *curr && (curr < (tmp_buf + len)))
 			{
+				// const char *token;
+
+				// token = COM_Parse(&curr_buff);
+
 				size_t linesize = 0;
 
 				/* skip empty */
@@ -1060,15 +1064,34 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 						anim->bitmaps[anim->bitmap_count - 1].file = strdup(strchr(line, '=') + 2);
 						anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file)] = '\0'; // Remove newline
 					}
-					/*
 					else if (strncmp(line, "!frame", 6) == 0) {
 						anim->frame_count++;
 						anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
-						frame_t* frame = &anim->frames[anim->frame_count - 1];
+						atd_frame_t* frame = &anim->frames[anim->frame_count - 1];
 						frame->next = -1;
 						frame->wait = 0.0f;
 						frame->x = frame->y = 0;
-						while (fgets(line, sizeof(line), file) && line[0] != '\n' && line[0] != '!') {
+						while(curr && *curr && (curr < (tmp_buf + len)))
+						{
+							curr += linesize;
+							if (curr >= (tmp_buf + len))
+							{
+								break;
+							}
+
+							/* skip our endline */
+							curr++;
+
+							/* skip empty */
+							linesize = strspn(curr, "\n\r\t ");
+							curr += linesize;
+
+							/* mark end line */
+							linesize = strcspn(curr, "\n\r");
+							curr[linesize] = 0;
+
+							line = curr;
+
 							if (strncmp(line, "bitmap", 6) == 0) {
 								sscanf(line, "bitmap = %d", &frame->bitmap);
 							} else if (strncmp(line, "next", 4) == 0) {
@@ -1080,9 +1103,13 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 							} else if (strncmp(line, "y", 1) == 0) {
 								sscanf(line, "y = %d", &frame->y);
 							}
+
+							if (curr[linesize + 1] && curr[linesize + 1] == '!')
+							{
+								break;
+							}
 						}
 					}
-					*/
 					else
 					{
 						printf("line: %s\n", line);
