@@ -41,6 +41,32 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "refresh/files/stb_image.h"
 
+/* ATD types */
+typedef struct {
+	char* file;
+} bitmap_t;
+
+typedef struct {
+	int bitmap;
+	int next;
+	float wait;
+	int x;
+	int y;
+} atd_frame_t;
+
+typedef struct {
+	int colortype;
+	int width;
+	int height;
+	int bilinear;
+	int clamp;
+	char* type;
+	bitmap_t *bitmaps;
+	size_t bitmap_count;
+	atd_frame_t *frames;
+	size_t frame_count;
+} animation_t;
+
 // Fix Jennell Jaquays' name in the Quitscreen
 // this is 98x11 pixels, each value an index
 // into the standard baseq2/pak0/pics/quit.pcx colormap
@@ -914,31 +940,6 @@ LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 
 	FS_FreeFile(raw);
 }
-
-typedef struct {
-	char* file;
-} bitmap_t;
-
-typedef struct {
-	int bitmap;
-	int next;
-	float wait;
-	int x;
-	int y;
-} atd_frame_t;
-
-typedef struct {
-	int colortype;
-	int width;
-	int height;
-	int bilinear;
-	int clamp;
-	char* type;
-	bitmap_t *bitmaps;
-	size_t bitmap_count;
-	atd_frame_t *frames;
-	size_t frame_count;
-} animation_t;
 
 static void
 free_animation(animation_t* anim)
