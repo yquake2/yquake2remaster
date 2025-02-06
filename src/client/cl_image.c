@@ -1052,6 +1052,16 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 		}
 		else if (!strcmp(token, "!frame"))
 		{
+			atd_frame_t *frame;
+
+			anim->frame_count++;
+			anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
+			frame = &anim->frames[anim->frame_count - 1];
+			frame->next = -1;
+			frame->wait = 0.0f;
+			frame->x = frame->y = 0;
+			frame->bitmap = -1;
+
 			printf("->%s\n", token);
 
 			while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
@@ -1075,6 +1085,53 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 					linesize = strcspn(curr_buff, "\n\r");
 					curr_buff += linesize;
 				}
+				else if (!strcmp(token, "bitmap") ||
+						 !strcmp(token, "next") ||
+						 !strcmp(token, "wait") ||
+						 !strcmp(token, "x") ||
+						 !strcmp(token, "y"))
+				{
+					char token_section[MAX_TOKEN_CHARS];
+
+					strncpy(token_section, token, sizeof(token_section) - 1);
+
+					token = COM_Parse(&curr_buff);
+					if (strcmp(token, "="))
+					{
+						/* should = after token */
+						return;
+					}
+
+					if (!strcmp(token_section, "wait"))
+					{
+						token = COM_Parse(&curr_buff);
+						frame->wait = (float)strtod(token, (char **)NULL);
+					}
+					else
+					{
+						int value;
+
+						token = COM_Parse(&curr_buff);
+						value = (int)strtol(token, (char **)NULL, 10);
+
+						if (!strcmp(token_section, "bitmap"))
+						{
+							frame->bitmap = value;
+						}
+						else if (!strcmp(token_section, "next"))
+						{
+							frame->next = value;
+						}
+						else if (!strcmp(token_section, "x"))
+						{
+							frame->x = value;
+						}
+						else if (!strcmp(token_section, "y"))
+						{
+							frame->y = value;
+						}
+					}
+				}
 				else
 				{
 					printf("frame...token: %s\n", token);
@@ -1085,131 +1142,6 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 		{
 			printf("token: %s\n", token);
 		}
-
-#if 0
-		size_t linesize = 0;
-
-		/* skip empty */
-		linesize = strspn(curr, "\n\r\t ");
-		curr += linesize;
-
-		/* mark end line */
-		linesize = strcspn(curr, "\n\r");
-		curr[linesize] = 0;
-
-		if (*curr && *curr != '\n' && *curr != '\r' && *curr != '#')
-		{
-			char *line;
-
-			line = curr;
-
-			if (strncmp(line, "colortype", 9) == 0)
-			{
-				sscanf(line, "colortype = %d", &anim->colortype);
-			}
-			else if (strncmp(line, "width", 5) == 0)
-			{
-				sscanf(line, "width = %d", &anim->width);
-			}
-			else if (strncmp(line, "height", 6) == 0)
-			{
-				sscanf(line, "height = %d", &anim->height);
-			}
-			else if (strncmp(line, "bilinear", 8) == 0)
-			{
-				sscanf(line, "bilinear = %d", &anim->bilinear);
-			}
-			else if (strncmp(line, "clamp", 5) == 0)
-			{
-				sscanf(line, "clamp = %d", &anim->clamp);
-			}
-			else if (strncmp(line, "!bitmap", 7) == 0)
-			{
-				anim->bitmap_count++;
-				anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
-
-				curr += linesize;
-				if (curr >= (tmp_buf + len))
-				{
-					break;
-				}
-
-				/* skip our endline */
-				curr++;
-
-				/* skip empty */
-				linesize = strspn(curr, "\n\r\t ");
-				curr += linesize;
-
-				/* mark end line */
-				linesize = strcspn(curr, "\n\r");
-				curr[linesize] = 0;
-
-				line = curr;
-				/* file = ... */
-				anim->bitmaps[anim->bitmap_count - 1].file = strdup(strchr(line, '=') + 2);
-				anim->bitmaps[anim->bitmap_count - 1].file[strlen(anim->bitmaps[anim->bitmap_count - 1].file)] = '\0'; // Remove newline
-			}
-			else if (strncmp(line, "!frame", 6) == 0) {
-				anim->frame_count++;
-				anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
-				atd_frame_t* frame = &anim->frames[anim->frame_count - 1];
-				frame->next = -1;
-				frame->wait = 0.0f;
-				frame->x = frame->y = 0;
-				while(curr && *curr && (curr < (tmp_buf + len)))
-				{
-					curr += linesize;
-					if (curr >= (tmp_buf + len))
-					{
-						break;
-					}
-
-					/* skip our endline */
-					curr++;
-
-					/* skip empty */
-					linesize = strspn(curr, "\n\r\t ");
-					curr += linesize;
-
-					/* mark end line */
-					linesize = strcspn(curr, "\n\r");
-					curr[linesize] = 0;
-
-					line = curr;
-
-					if (strncmp(line, "bitmap", 6) == 0) {
-						sscanf(line, "bitmap = %d", &frame->bitmap);
-					} else if (strncmp(line, "next", 4) == 0) {
-						sscanf(line, "next = %d", &frame->next);
-					} else if (strncmp(line, "wait", 4) == 0) {
-						sscanf(line, "wait = %f", &frame->wait);
-					} else if (strncmp(line, "x", 1) == 0) {
-						sscanf(line, "x = %d", &frame->x);
-					} else if (strncmp(line, "y", 1) == 0) {
-						sscanf(line, "y = %d", &frame->y);
-					}
-
-					if (curr[linesize + 1] && curr[linesize + 1] == '!')
-					{
-						break;
-					}
-				}
-			}
-			else
-			{
-				printf("line: %s\n", line);
-			}
-		}
-		curr += linesize;
-		if (curr >= (tmp_buf + len))
-		{
-			break;
-		}
-
-		/* skip our endline */
-		curr++;
-#endif
 	}
 }
 
@@ -1277,9 +1209,16 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 			free(tmp_buf);
 
-			if (anim->bitmap_count)
+			if (anim->bitmap_count &&
+				anim->frame_count &&
+				(anim->frames[0].bitmap >= 0) &&
+				(anim->frames[0].bitmap < anim->bitmap_count))
 			{
-				LoadImageWithPaletteStatic(anim->bitmaps[0].file, pic, palette, width, height, bitsPerPixel);
+				int bitmap;
+
+				bitmap = anim->frames[0].bitmap;
+				LoadImageWithPaletteStatic(anim->bitmaps[bitmap].file,
+					pic, palette, width, height, bitsPerPixel);
 			}
 			free_animation(anim);
 		}
