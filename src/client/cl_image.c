@@ -957,7 +957,6 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 {
 	char *curr_buff;
 
-	printf("\n>>>>>\n%s\n<<<<<<\n", tmp_buf);
 	/* get lines count */
 	curr_buff = tmp_buf;
 	while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
@@ -1062,8 +1061,6 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 			frame->x = frame->y = 0;
 			frame->bitmap = -1;
 
-			printf("->%s\n", token);
-
 			while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
 			{
 				size_t linesize;
@@ -1132,15 +1129,7 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 						}
 					}
 				}
-				else
-				{
-					printf("frame...token: %s\n", token);
-				}
 			}
-		}
-		else
-		{
-			printf("token: %s\n", token);
 		}
 	}
 }
@@ -1186,27 +1175,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			tmp_buf = malloc(len + 1);
 			memcpy(tmp_buf, raw + 4, len);
 			tmp_buf[len] = 0;
-
 			LoadImageATD(anim, tmp_buf, len);
-
-			// Print parsed data for demonstration
-			printf("Animation:\n");
-			printf("  type: %s\n", anim->type);
-			printf("  colortype: %d\n", anim->colortype);
-			printf("  width: %d\n", anim->width);
-			printf("  height: %d\n", anim->height);
-			printf("  bilinear: %d\n", anim->bilinear);
-			printf("  clamp: %d\n", anim->clamp);
-			printf("  bitmaps: %zu\n", anim->bitmap_count);
-			for (size_t i = 0; i < anim->bitmap_count; i++) {
-				printf("	file: %s\n", anim->bitmaps[i].file);
-			}
-			printf("  frames: %zu\n", anim->frame_count);
-			for (size_t i = 0; i < anim->frame_count; i++) {
-				printf("	frame %zu: bitmap=%d, next=%d, wait=%.2f, x=%d, y=%d\n",
-					   i, anim->frames[i].bitmap, anim->frames[i].next, anim->frames[i].wait, anim->frames[i].x, anim->frames[i].y);
-			}
-
 			free(tmp_buf);
 
 			if (anim->bitmap_count &&
