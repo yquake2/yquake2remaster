@@ -41,6 +41,32 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "refresh/files/stb_image.h"
 
+/* ATD types */
+typedef struct {
+	char* file;
+} bitmap_t;
+
+typedef struct {
+	int bitmap;
+	int next;
+	float wait;
+	int x;
+	int y;
+} atd_frame_t;
+
+typedef struct {
+	int colortype;
+	int width;
+	int height;
+	int bilinear;
+	int clamp;
+	char* type;
+	bitmap_t *bitmaps;
+	size_t bitmap_count;
+	atd_frame_t *frames;
+	size_t frame_count;
+} animation_t;
+
 // Fix Jennell Jaquays' name in the Quitscreen
 // this is 98x11 pixels, each value an index
 // into the standard baseq2/pak0/pics/quit.pcx colormap
@@ -820,8 +846,11 @@ Convert24to32(unsigned *d_8to24table, byte *pal)
 	d_8to24table[255] &= LittleLong(0xffffff);	// 255 is transparent
 }
 
+/*
+ * Load only static images without animation support
+ */
 static void
-LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
+LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel)
 {
 	const char* ext;
@@ -910,6 +939,267 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	}
 
 	FS_FreeFile(raw);
+}
+
+static void
+free_animation(animation_t* anim)
+{
+	for (size_t i = 0; i < anim->bitmap_count; i++)
+	{
+		free(anim->bitmaps[i].file);
+	}
+	free(anim->bitmaps);
+	free(anim->frames);
+	free(anim->type);
+}
+
+static void
+LoadImageATD(animation_t* anim, char *tmp_buf, int len)
+{
+	char *curr_buff;
+
+	/* get lines count */
+	curr_buff = tmp_buf;
+	while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
+	{
+		const char *token;
+
+		token = COM_Parse(&curr_buff);
+		if (!token)
+		{
+			continue;
+		}
+
+		if (token[0] == '#')
+		{
+			size_t linesize;
+
+			/* skip empty */
+			linesize = strcspn(curr_buff, "\n\r");
+			curr_buff += linesize;
+		}
+		else if (!strcmp(token, "type") ||
+				 !strcmp(token, "width") ||
+				 !strcmp(token, "height") ||
+				 !strcmp(token, "bilinear") ||
+				 !strcmp(token, "clamp") ||
+				 !strcmp(token, "colortype"))
+		{
+			char token_section[MAX_TOKEN_CHARS];
+
+			strncpy(token_section, token, sizeof(token_section) - 1);
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "="))
+			{
+				/* should = after token */
+				return;
+			}
+
+			if (!strcmp(token_section, "type") && !anim->type)
+			{
+				anim->type = strdup(COM_Parse(&curr_buff));
+			}
+			else
+			{
+				int value;
+
+				token = COM_Parse(&curr_buff);
+				value = (int)strtol(token, (char **)NULL, 10);
+
+				if (!strcmp(token_section, "colortype"))
+				{
+					anim->colortype = value;
+				}
+				else if (!strcmp(token_section, "width"))
+				{
+					anim->width = value;
+				}
+				else if (!strcmp(token_section, "height"))
+				{
+					anim->height = value;
+				}
+				else if (!strcmp(token_section, "bilinear"))
+				{
+					anim->bilinear = value;
+				}
+				else if (!strcmp(token_section, "clamp"))
+				{
+					anim->clamp = value;
+				}
+			}
+		}
+		else if (!strcmp(token, "!bitmap"))
+		{
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "file"))
+			{
+				/* should file after token */
+				return;
+			}
+
+			token = COM_Parse(&curr_buff);
+			if (strcmp(token, "="))
+			{
+				/* should = after token */
+				return;
+			}
+
+			/* save bitmap file */
+			anim->bitmap_count++;
+			anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
+			anim->bitmaps[anim->bitmap_count - 1].file = strdup(COM_Parse(&curr_buff));
+		}
+		else if (!strcmp(token, "!frame"))
+		{
+			atd_frame_t *frame;
+
+			anim->frame_count++;
+			anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
+			frame = &anim->frames[anim->frame_count - 1];
+			frame->next = -1;
+			frame->wait = 0.0f;
+			frame->x = frame->y = 0;
+			frame->bitmap = -1;
+
+			while(curr_buff && *curr_buff && (curr_buff < (tmp_buf + len)))
+			{
+				size_t linesize;
+
+				/* skip empty */
+				linesize = strspn(curr_buff, "\n\r\t ");
+				curr_buff += linesize;
+
+				/* new frame? */
+				if (curr_buff[0] == '!')
+				{
+					break;
+				}
+
+				token = COM_Parse(&curr_buff);
+				if (token[0] == '#')
+				{
+					/* skip empty */
+					linesize = strcspn(curr_buff, "\n\r");
+					curr_buff += linesize;
+				}
+				else if (!strcmp(token, "bitmap") ||
+						 !strcmp(token, "next") ||
+						 !strcmp(token, "wait") ||
+						 !strcmp(token, "x") ||
+						 !strcmp(token, "y"))
+				{
+					char token_section[MAX_TOKEN_CHARS];
+
+					strncpy(token_section, token, sizeof(token_section) - 1);
+
+					token = COM_Parse(&curr_buff);
+					if (strcmp(token, "="))
+					{
+						/* should = after token */
+						return;
+					}
+
+					if (!strcmp(token_section, "wait"))
+					{
+						token = COM_Parse(&curr_buff);
+						frame->wait = (float)strtod(token, (char **)NULL);
+					}
+					else
+					{
+						int value;
+
+						token = COM_Parse(&curr_buff);
+						value = (int)strtol(token, (char **)NULL, 10);
+
+						if (!strcmp(token_section, "bitmap"))
+						{
+							frame->bitmap = value;
+						}
+						else if (!strcmp(token_section, "next"))
+						{
+							frame->next = value;
+						}
+						else if (!strcmp(token_section, "x"))
+						{
+							frame->x = value;
+						}
+						else if (!strcmp(token_section, "y"))
+						{
+							frame->y = value;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+/* Load images with sprites */
+static void
+LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
+	int *width, int *height, int *bitsPerPixel)
+{
+	const char* ext;
+
+	ext = COM_FileExtension(filename);
+
+	if (!strcmp(ext, "atd"))
+	{
+		char *tmp_buf, *raw;
+		int lindent, len;
+
+		*pic = NULL;
+
+		/* load the file */
+		len = FS_LoadFile(filename, (void **)&raw);
+
+		if (!raw || len <= 0)
+		{
+			return;
+		}
+
+		if (len <= sizeof(int))
+		{
+			FS_FreeFile(raw);
+			return;
+		}
+
+		lindent = LittleLong(*((int*)raw));
+		len -= 4;
+
+		if (lindent == IDATDSPRITEHEADER)
+		{
+			animation_t *anim = malloc(sizeof(animation_t));
+			memset(anim, 0, sizeof(animation_t));
+
+			tmp_buf = malloc(len + 1);
+			memcpy(tmp_buf, raw + 4, len);
+			tmp_buf[len] = 0;
+			LoadImageATD(anim, tmp_buf, len);
+			free(tmp_buf);
+
+			if (anim->bitmap_count &&
+				anim->frame_count &&
+				(anim->frames[0].bitmap >= 0) &&
+				(anim->frames[0].bitmap < anim->bitmap_count))
+			{
+				int bitmap;
+
+				bitmap = anim->frames[0].bitmap;
+				LoadImageWithPaletteStatic(anim->bitmaps[bitmap].file,
+					pic, palette, width, height, bitsPerPixel);
+			}
+			free_animation(anim);
+		}
+
+		FS_FreeFile(raw);
+		return;
+	}
+	else
+	{
+		LoadImageWithPaletteStatic(filename, pic, palette, width, height, bitsPerPixel);
+	}
 }
 
 void

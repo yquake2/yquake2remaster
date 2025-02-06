@@ -484,6 +484,11 @@ typedef struct
 	int ofs_end;    /* end of file */
 } dmdx_t;
 
+
+/* .ATD sprite file format */
+
+#define IDATDSPRITEHEADER (('1' << 24) + ('D' << 16) + ('T' << 8) + 'A') /* little-endian "ATD1" */
+
 /* .SP2 sprite file format */
 
 #define IDSPRITEHEADER (('2' << 24) + ('S' << 16) + ('D' << 8) + 'I') /* little-endian "IDS2" */

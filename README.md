@@ -66,6 +66,13 @@ Texture support:
 | jpg    | retexturing    | 24 bit   |
 | bmp    | Daikatana      | 24 bit   |
 
+Sprites support:
+
+| Format | Original Game  | Comments                      |
+| ------ | -------------- | ----------------------------- |
+| sp2    | Quake 2        |                               |
+| atd    | Anachronox     | Show first frame of animation |
+
 Maps support:
 
 | Format | Version | Game                                       |
@@ -149,7 +156,6 @@ Games check videos:
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
 * [ ] CTC entity format from Anachronox,
-* [ ] ATD texture format from Anachronox,
 * [ ] MDA model skin selection by tag,
 * [ ] SDEF/MDA dynamicaly allocate list of skins,
 * [ ] Support material load textures/textureinfo.dat from Anachronox,

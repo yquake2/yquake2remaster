@@ -641,6 +641,12 @@ R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t t
 		image = LoadImage_Ext(name, namewe, "png", type, r_retexturing, load_image);
 	}
 
+	/* atd check */
+	if (!image)
+	{
+		image = LoadImage_Ext(name, namewe, "atd", type, r_retexturing, load_image);
+	}
+
 	return image;
 }
 
