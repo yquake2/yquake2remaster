@@ -57,7 +57,7 @@ WITH_AVCODEC:=yes
 WITH_RPATH:=yes
 
 # Builds with SDL 3 instead of SDL 2.
-WITH_SDL3:=no
+WITH_SDL3:=yes
 
 # Enable systemwide installation of game assets.
 WITH_SYSTEMWIDE:=no

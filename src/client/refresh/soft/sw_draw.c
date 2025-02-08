@@ -385,7 +385,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 
 	RE_Draw_StretchPicImplementation (x, y, w, h, &pic);
 
-	if (r_retexturing->value)
+	if (image_scaled != (byte *)data)
 	{
 		free(image_scaled);
 	}

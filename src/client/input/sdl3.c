@@ -2253,6 +2253,8 @@ IN_Controller_Init(qboolean notify_user)
 			show_haptic = true;
 		}
 
+		SDL_free((void *)joysticks);
+
 		return;
 	}
 
