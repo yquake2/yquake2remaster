@@ -3036,50 +3036,66 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			pass->map = strdup(token);
 			Q_replacebackslash(pass->map);
 		}
+		else if (!strcmp(token, "alphafunc") ||
+				 !strcmp(token, "depthwrite") ||
+				 !strcmp(token, "uvgen") ||
+				 !strcmp(token, "blendmode") ||
+				 !strcmp(token, "depthfunc") ||
+				 !strcmp(token, "cull") ||
+				 !strcmp(token, "rgbgen") ||
+				 !strcmp(token, "uvmod"))
+		{
+			char token_section[MAX_TOKEN_CHARS];
+			mda_pass_t *pass;
+
+			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
+			strncpy(token_section, token, sizeof(token_section) - 1);
+			token = COM_Parse(&curr_buff);
+		}
 #if 0
-		else if (strncmp(line, "alphafunc", 9) == 0)
+		else if (!strcmp(token, "alphafunc"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->alphafunc = strdup(strchr(line, '=') + 2);
 			pass->alphafunc[strlen(pass->alphafunc) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "depthwrite", 10) == 0)
+		else if (!strcmp(token, "depthwrite"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->depthwrite = strdup(strchr(line, '=') + 2);
 			pass->depthwrite[strlen(pass->depthwrite) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "uvgen", 5) == 0)
+		else if (!strcmp(token, "uvgen"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->uvgen = strdup(strchr(line, '=') + 2);
 			pass->uvgen[strlen(pass->uvgen) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "blendmode", 9) == 0)
+		else if (!strcmp(token, "blendmode"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->blendmode = strdup(strchr(line, '=') + 2);
 			pass->blendmode[strlen(pass->blendmode) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "depthfunc", 9) == 0)
+		else if (!strcmp(token, "depthfunc"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->depthfunc = strdup(strchr(line, '=') + 2);
 			pass->depthfunc[strlen(pass->depthfunc) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "cull", 4) == 0)
+		else if (!strcmp(token, "cull"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->cull = strdup(strchr(line, '=') + 2);
 			pass->cull[strlen(pass->cull) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "rgbgen", 6) == 0)
+		else if (!strcmp(token, "rgbgen"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			pass->rgbgen = strdup(strchr(line, '=') + 2);
 			pass->rgbgen[strlen(pass->rgbgen) - 1] = '\0'; // Remove newline
 		}
-		else if (strncmp(line, "uvmod", 5) == 0)
+		else if (!strcmp(token, "uvmod"))
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 
