@@ -3067,7 +3067,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 	printf("\nModel: %s\n", mod_name);
 	// Print parsed data for demonstration
 	printf("Base model: %s\n", mda.basemodel);
-	printf("  head: (%.2fx%.2fx%.2f)\n",
+	printf("  head: %.2fx%.2fx%.2f\n",
 		mda.headtri[0], mda.headtri[1], mda.headtri[2]);
 	for (size_t i = 0; i < mda.profile_count; i++)
 	{
