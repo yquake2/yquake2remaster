@@ -387,9 +387,16 @@ SDLLDFLAGS := $(shell sdl2-config --libs)
 endif
 endif
 
+ifeq ($(WITH_SDL3),yes)
+# The renderer libs don't need libSDL3main, libmingw32 or -mwindows.
+ifeq ($(YQ2_OSTYPE), Windows)
+DLL_SDLLDFLAGS = $(subst -mwindows,,$(subst -lmingw32,,$(subst -lSDL3main,,$(SDLLDFLAGS))))
+endif
+else
 # The renderer libs don't need libSDL2main, libmingw32 or -mwindows.
 ifeq ($(YQ2_OSTYPE), Windows)
 DLL_SDLLDFLAGS = $(subst -mwindows,,$(subst -lmingw32,,$(subst -lSDL2main,,$(SDLLDFLAGS))))
+endif
 endif
 
 # ----------
