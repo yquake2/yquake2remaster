@@ -2381,7 +2381,7 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 		SDL_RenderTexture(renderer, texture_rgba, NULL, NULL);
 #else
 		SDL_RenderCopy(renderer, texture_rgba, NULL, NULL);
-#else
+#endif
 	}
 	else
 	{
