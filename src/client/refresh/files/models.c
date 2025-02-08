@@ -3085,12 +3085,79 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 	}
 }
 
+static void
+Mod_LoadModel_MDA_Free(mda_model_t *mda)
+{
+	free(mda->basemodel);
+	for (size_t i = 0; i < mda->profile_count; i++) {
+		mda_profile_t *profile = &mda->profiles[i];
+		free(profile->name);
+		free(profile->evaluate);
+		for (size_t j = 0; j < profile->skin_count; j++) {
+			mda_skin_t *skin = &profile->skins[j];
+			for (size_t k = 0; k < skin->pass_count; k++) {
+				mda_pass_t *pass = &skin->passes[k];
+				free(pass->map);
+				free(pass->alphafunc);
+				free(pass->depthwrite);
+				free(pass->uvgen);
+				free(pass->blendmode);
+				free(pass->depthfunc);
+				free(pass->cull);
+				free(pass->rgbgen);
+				free(pass->uvmod);
+			}
+			free(skin->passes);
+		}
+		free(profile->skins);
+	}
+	free(mda->profiles);
+}
+
 static void *
-Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
+Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	char base_model[MAX_QPATH * 2] = {0};
 	char base_skin[MAX_QPATH * 2] = {0};
+	mda_model_t mda = {0};
+
+	Mod_LoadModel_MDA_Parse(mod_name, curr_buff, len, &mda);
+
+	printf("\nModel: %s\n", mod_name);
+	// Print parsed data for demonstration
+	printf("Base model: %s\n", mda.basemodel);
+	for (size_t i = 0; i < mda.profile_count; i++)
+	{
+		mda_profile_t *profile = &mda.profiles[i];
+		printf("Profile %s\n", profile->name);
+		if (profile->evaluate)
+		{
+			printf("  Evaluate: %s\n", profile->evaluate);
+		}
+
+		for (size_t j = 0; j < profile->skin_count; j++)
+		{
+			mda_skin_t *skin = &profile->skins[j];
+			printf("  Skin %zu:\n", j + 1);
+			for (size_t k = 0; k < skin->pass_count; k++)
+			{
+				mda_pass_t *pass = &skin->passes[k];
+				printf("	Pass %zu:\n", k + 1);
+				printf("	  Map: %s\n", pass->map);
+				if (pass->alphafunc) printf("	  Alphafunc: %s\n", pass->alphafunc);
+				if (pass->depthwrite) printf("	  Depthwrite: %s\n", pass->depthwrite);
+				if (pass->uvgen) printf("	  UVGen: %s\n", pass->uvgen);
+				if (pass->blendmode) printf("	  Blendmode: %s\n", pass->blendmode);
+				if (pass->depthfunc) printf("	  Depthfunc: %s\n", pass->depthfunc);
+				if (pass->cull) printf("	  Cull: %s\n", pass->cull);
+				if (pass->rgbgen) printf("	  RGBGen: %s\n", pass->rgbgen);
+				if (pass->uvmod) printf("	  UVMod: %s\n", pass->uvmod);
+			}
+		}
+	}
+
+	Mod_LoadModel_MDA_Free(&mda);
 
 	while (curr_buff)
 	{
@@ -3205,36 +3272,6 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff,
 	return NULL;
 }
 
-
-static void
-Mod_LoadModel_MDA_Free(mda_model_t *mda)
-{
-	free(mda->basemodel);
-	for (size_t i = 0; i < mda->profile_count; i++) {
-		mda_profile_t *profile = &mda->profiles[i];
-		free(profile->name);
-		free(profile->evaluate);
-		for (size_t j = 0; j < profile->skin_count; j++) {
-			mda_skin_t *skin = &profile->skins[j];
-			for (size_t k = 0; k < skin->pass_count; k++) {
-				mda_pass_t *pass = &skin->passes[k];
-				free(pass->map);
-				free(pass->alphafunc);
-				free(pass->depthwrite);
-				free(pass->uvgen);
-				free(pass->blendmode);
-				free(pass->depthfunc);
-				free(pass->cull);
-				free(pass->rgbgen);
-				free(pass->uvmod);
-			}
-			free(skin->passes);
-		}
-		free(profile->skins);
-	}
-	free(mda->profiles);
-}
-
 static void *
 Mod_LoadModel_MDA(const char *mod_name, const void *buffer, int modfilelen,
 	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
@@ -3246,50 +3283,8 @@ Mod_LoadModel_MDA(const char *mod_name, const void *buffer, int modfilelen,
 	memcpy(text, (char *)buffer + 4, modfilelen - 4);
 	text[modfilelen - 4] = 0;
 
-	mda_model_t mda = {0};
-
-	Mod_LoadModel_MDA_Parse(mod_name, text, modfilelen - 4, &mda);
-
-	printf("\nModel: %s\n", mod_name);
-	// Print parsed data for demonstration
-	printf("Base model: %s\n", mda.basemodel);
-	for (size_t i = 0; i < mda.profile_count; i++)
-	{
-		mda_profile_t *profile = &mda.profiles[i];
-		printf("Profile %s\n", profile->name);
-		if (profile->evaluate)
-		{
-			printf("  Evaluate: %s\n", profile->evaluate);
-		}
-
-		for (size_t j = 0; j < profile->skin_count; j++)
-		{
-			mda_skin_t *skin = &profile->skins[j];
-			printf("  Skin %zu:\n", j + 1);
-			for (size_t k = 0; k < skin->pass_count; k++)
-			{
-				mda_pass_t *pass = &skin->passes[k];
-				printf("	Pass %zu:\n", k + 1);
-				printf("	  Map: %s\n", pass->map);
-				if (pass->alphafunc) printf("	  Alphafunc: %s\n", pass->alphafunc);
-				if (pass->depthwrite) printf("	  Depthwrite: %s\n", pass->depthwrite);
-				if (pass->uvgen) printf("	  UVGen: %s\n", pass->uvgen);
-				if (pass->blendmode) printf("	  Blendmode: %s\n", pass->blendmode);
-				if (pass->depthfunc) printf("	  Depthfunc: %s\n", pass->depthfunc);
-				if (pass->cull) printf("	  Cull: %s\n", pass->cull);
-				if (pass->rgbgen) printf("	  RGBGen: %s\n", pass->rgbgen);
-				if (pass->uvmod) printf("	  UVMod: %s\n", pass->uvmod);
-			}
-		}
-	}
-
-	Mod_LoadModel_MDA_Free(&mda);
-
-	memcpy(text, (char *)buffer + 4, modfilelen - 4);
-	text[modfilelen - 4] = 0;
-
-	extradata = Mod_LoadModel_MDA_Text(mod_name, text, read_file, skins,
-		numskins, type);
+	extradata = Mod_LoadModel_MDA_Text(mod_name, text, modfilelen - 4,
+		read_file, skins, numskins, type);
 
 	free(text);
 
