@@ -2913,6 +2913,7 @@ static void
 Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 	mda_model_t *mda)
 {
+	printf(">--(%s)--<\n%s\n>----<\n", mod_name, curr_buff);
 	while (curr_buff)
 	{
 		const char *token;
@@ -3019,6 +3020,13 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 				return;
 			}
 		}
+		else if (!strcmp(token, "evaluate"))
+		{
+			mda_profile_t *profile;
+
+			profile = &mda->profiles[mda->profile_count - 1];
+			profile->evaluate = strdup(COM_Parse(&curr_buff));
+		}
 		else if (!strcmp(token, "map"))
 		{
 			mda_pass_t *pass;
@@ -3029,12 +3037,6 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			Q_replacebackslash(pass->map);
 		}
 #if 0
-		else if (strncmp(line, "evaluate", 8) == 0)
-		{
-			mda_profile_t *profile = &mda->profiles[mda->profile_count - 1];
-			profile->evaluate = strdup(strchr(line, '=') + 2);
-			profile->evaluate[strlen(profile->evaluate) - 1] = '\0'; // Remove newline
-		}
 		else if (strncmp(line, "alphafunc", 9) == 0)
 		{
 			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
