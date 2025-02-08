@@ -2377,7 +2377,11 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 
 	if (cols == vid_buffer_width && rows == vid_buffer_height)
 	{
+#ifdef USE_SDL3
+		SDL_RenderTexture(renderer, texture_rgba, NULL, NULL);
+#else
 		SDL_RenderCopy(renderer, texture_rgba, NULL, NULL);
+#else
 	}
 	else
 	{
@@ -2386,7 +2390,11 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 		srcrect.y = 0;
 		srcrect.w = cols;
 		srcrect.h = rows;
+#ifdef USE_SDL3
+		SDL_RenderTexture(renderer, texture_rgba, &srcrect, NULL);
+#else
 		SDL_RenderCopy(renderer, texture_rgba, &srcrect, NULL);
+#endif
 	}
 
 	SDL_RenderPresent(renderer);
