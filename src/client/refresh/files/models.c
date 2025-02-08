@@ -3019,26 +3019,20 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 				return;
 			}
 		}
+		else if (!strcmp(token, "map"))
+		{
+			mda_pass_t *pass;
+
+			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
+			token = COM_Parse(&curr_buff);
+			pass->map = strdup(token);
+		}
 #if 0
 		else if (strncmp(line, "evaluate", 8) == 0)
 		{
 			mda_profile_t *profile = &mda->profiles[mda->profile_count - 1];
 			profile->evaluate = strdup(strchr(line, '=') + 2);
 			profile->evaluate[strlen(profile->evaluate) - 1] = '\0'; // Remove newline
-		}
-		else if (strncmp(line, "pass", 4) == 0)
-		{
-			mda_skin_t *skin = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1];
-			skin->pass_count++;
-			skin->passes = realloc(skin->passes, skin->pass_count * sizeof(pass_t));
-			pass_t *pass = &skin->passes[skin->pass_count - 1];
-			memset(pass, 0, sizeof(pass_t));
-		}
-		else if (strncmp(line, "map", 3) == 0)
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->map = strdup(strchr(line, '=') + 2);
-			pass->map[strlen(pass->map) - 1] = '\0'; // Remove newline
 		}
 		else if (strncmp(line, "alphafunc", 9) == 0)
 		{
