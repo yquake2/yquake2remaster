@@ -37,7 +37,7 @@ jobs:
           mingw-w64-${{matrix.env}}-gcc
           mingw-w64-${{matrix.env}}-make
           mingw-w64-${{matrix.env}}-openal
-          mingw-w64-${{matrix.env}}-SDL3
+          mingw-w64-${{matrix.env}}-sdl3
           mingw-w64-${{matrix.env}}-vulkan-headers
           mingw-w64-${{matrix.env}}-wget
     - name: Check out repository code
