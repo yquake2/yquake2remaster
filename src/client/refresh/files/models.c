@@ -3026,6 +3026,7 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			token = COM_Parse(&curr_buff);
 			pass->map = strdup(token);
+			Q_replacebackslash(pass->map);
 		}
 #if 0
 		else if (strncmp(line, "evaluate", 8) == 0)
@@ -3124,8 +3125,6 @@ static void *
 Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
 {
-	char base_model[MAX_QPATH * 2] = {0};
-	char base_skin[MAX_QPATH * 2] = {0};
 	mda_model_t mda = {0};
 
 	Mod_LoadModel_MDA_Parse(mod_name, curr_buff, len, &mda);
@@ -3165,81 +3164,17 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 		}
 	}
 
-	Mod_LoadModel_MDA_Free(&mda);
-
-	while (curr_buff)
-	{
-		const char *token;
-
-		token = COM_Parse(&curr_buff);
-		if (!*token)
-		{
-			continue;
-		}
-
-		/* found basemodel */
-		else if (!strcmp(token, "basemodel"))
-		{
-			token = COM_Parse(&curr_buff);
-			if (!token)
-			{
-				return NULL;
-			}
-			strncpy(base_model, token, sizeof(base_model) - 1);
-
-			Q_replacebackslash(base_model);
-
-			if (base_skin[0])
-			{
-				/* other fields is unused for now */
-				break;
-			}
-		}
-		/* TODO: should be profile {*} -> skin -> pass -> map */
-		else if (!strcmp(token, "map"))
-		{
-			char* token_end = NULL;
-
-			token = COM_Parse(&curr_buff);
-			if (!token)
-			{
-				return NULL;
-			}
-
-			if (token[0] == '"')
-			{
-				token ++;
-			}
-
-			token_end = strchr(token, '"');
-			if (token_end)
-			{
-				/* remove end " */
-				*token_end = 0;
-			}
-
-			strncpy(base_skin, token, sizeof(base_skin) - 1);
-
-			Q_replacebackslash(base_skin);
-
-			if (base_model[0])
-			{
-				/* other fields is unused for now */
-				break;
-			}
-		}
-	}
-
-	if (base_model[0])
+	if (mda.basemodel)
 	{
 		void *extradata, *base;
 		int base_size;
 
-		base_size = read_file(base_model, (void **)&base);
+		base_size = read_file(mda.basemodel, (void **)&base);
 		if (base_size <= 0)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s No base model for %s\n",
-				__func__, mod_name, base_model);
+				__func__, mod_name, mda.basemodel);
+			Mod_LoadModel_MDA_Free(&mda);
 			return NULL;
 		}
 
@@ -3251,32 +3186,46 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 		/* check skin path */
 		if (extradata && *type == mod_alias)
 		{
-			dmdx_t *pheader;
-			int	i;
+			char *base_skin = NULL;
 
-			pheader = (dmdx_t *)extradata;
-			for (i=0; i < pheader->num_skins; i++)
+			if (mda.profile_count &&
+				mda.profiles[0].skin_count &&
+				mda.profiles[0].skins[0].pass_count)
 			{
-				char *skin;
+				base_skin = mda.profiles[0].skins[0].passes[0].map;
+			}
 
-				/* Update included model with skin path */
-				skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-				if (!strchr(skin, '/') && !strchr(skin, '\\'))
+			if (base_skin)
+			{
+				dmdx_t *pheader;
+				int i;
+
+				pheader = (dmdx_t *)extradata;
+				for (i=0; i < pheader->num_skins; i++)
 				{
-					char skin_path[MAX_QPATH * 2] = {0};
+					char *skin;
 
-					strncpy(skin_path, base_skin, sizeof(skin_path));
-					strcpy(strrchr(skin_path, '/') + 1, skin);
+					/* Update included model with skin path */
+					skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+					if (!strchr(skin, '/') && !strchr(skin, '\\'))
+					{
+						char skin_path[MAX_QPATH * 2] = {0};
 
-					strncpy(skin, skin_path, MAX_SKINNAME);
+						strncpy(skin_path, base_skin, sizeof(skin_path));
+						strcpy(strrchr(skin_path, '/') + 1, skin);
+						strncpy(skin, skin_path, MAX_SKINNAME);
+					}
 				}
 			}
 		}
 
 		free(base);
+		Mod_LoadModel_MDA_Free(&mda);
+
 		return extradata;
 	}
 
+	Mod_LoadModel_MDA_Free(&mda);
 	return NULL;
 }
 
