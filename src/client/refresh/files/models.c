@@ -2923,6 +2923,11 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			continue;
 		}
 
+		else if (token[0] == '}')
+		{
+			/* skip end of section */
+			continue;
+		}
 		else if (token[0] == '#')
 		{
 			size_t linesize;
@@ -2952,6 +2957,33 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 				token = COM_Parse(&curr_buff);
 				mda->headtri[i] = (float)strtod(token, (char **)NULL);
 			}
+		}
+		else if (!strcmp(token, "profile"))
+		{
+			mda_profile_t *profile;
+
+			token = COM_Parse(&curr_buff);
+			mda->profile_count++;
+			mda->profiles = realloc(mda->profiles, mda->profile_count * sizeof(mda_profile_t));
+			profile = &mda->profiles[mda->profile_count - 1];
+
+			if (!token || token[0] == '{')
+			{
+				profile->name = strdup("");
+			}
+			else
+			{
+				profile->name = strdup(token);
+				token = COM_Parse(&curr_buff);
+				if (!token || token[0] != '{')
+				{
+					return;
+				}
+			}
+
+			profile->evaluate = NULL;
+			profile->skins = NULL;
+			profile->skin_count = 0;
 		}
 #if 0
 		else if (strncmp(line, "profile", 7) == 0) {
