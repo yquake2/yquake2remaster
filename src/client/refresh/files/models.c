@@ -2904,93 +2904,10 @@ typedef struct {
 
 typedef struct {
 	char *basemodel;
+	vec3_t headtri;
 	mda_profile_t *profiles;
 	size_t profile_count;
 } mda_model_t;
-
-#if 0
-
-void parse_mda(const char *filename, mda_t *mda) {
-	FILE *file = fopen(filename, "r");
-	if (!file) {
-		perror("Failed to open file");
-		return;
-	}
-
-	char line[256];
-	while (fgets(line, sizeof(line), file)) {
-		if (strncmp(line, "basemodel", 9) == 0) {
-			mda->basemodel = strdup(strchr(line, '=') + 2);
-			mda->basemodel[strlen(mda->basemodel) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "profile", 7) == 0) {
-			mda->profile_count++;
-			mda->profiles = realloc(mda->profiles, mda->profile_count * sizeof(profile_t));
-			mda_profile_t *profile = &mda->profiles[mda->profile_count - 1];
-			sscanf(line, "profile %4s", profile->name);
-			profile->evaluate = NULL;
-			profile->skins = NULL;
-			profile->skin_count = 0;
-		} else if (strncmp(line, "evaluate", 8) == 0) {
-			mda_profile_t *profile = &mda->profiles[mda->profile_count - 1];
-			profile->evaluate = strdup(strchr(line, '=') + 2);
-			profile->evaluate[strlen(profile->evaluate) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "skin", 4) == 0) {
-			mda_profile_t *profile = &mda->profiles[mda->profile_count - 1];
-			profile->skin_count++;
-			profile->skins = realloc(profile->skins, profile->skin_count * sizeof(skin_t));
-			skin_t *skin = &profile->skins[profile->skin_count - 1];
-			skin->passes = NULL;
-			skin->pass_count = 0;
-		} else if (strncmp(line, "pass", 4) == 0) {
-			mda_skin_t *skin = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1];
-			skin->pass_count++;
-			skin->passes = realloc(skin->passes, skin->pass_count * sizeof(pass_t));
-			pass_t *pass = &skin->passes[skin->pass_count - 1];
-			memset(pass, 0, sizeof(pass_t));
-		} else if (strncmp(line, "map", 3) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->map = strdup(strchr(line, '=') + 2);
-			pass->map[strlen(pass->map) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "alphafunc", 9) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->alphafunc = strdup(strchr(line, '=') + 2);
-			pass->alphafunc[strlen(pass->alphafunc) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "depthwrite", 10) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->depthwrite = strdup(strchr(line, '=') + 2);
-			pass->depthwrite[strlen(pass->depthwrite) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "uvgen", 5) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->uvgen = strdup(strchr(line, '=') + 2);
-			pass->uvgen[strlen(pass->uvgen) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "blendmode", 9) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->blendmode = strdup(strchr(line, '=') + 2);
-			pass->blendmode[strlen(pass->blendmode) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "depthfunc", 9) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->depthfunc = strdup(strchr(line, '=') + 2);
-			pass->depthfunc[strlen(pass->depthfunc) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "cull", 4) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->cull = strdup(strchr(line, '=') + 2);
-			pass->cull[strlen(pass->cull) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "rgbgen", 6) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->rgbgen = strdup(strchr(line, '=') + 2);
-			pass->rgbgen[strlen(pass->rgbgen) - 1] = '\0'; // Remove newline
-		} else if (strncmp(line, "uvmod", 5) == 0) {
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-
-			pass->uvmod = strdup(strchr(line, '=') + 2);
-			pass->uvmod[strlen(pass->uvmod) - 1] = '\0'; // Remove newline
-		}
-	}
-
-	fclose(file);
-}
-
-#endif
 
 static void
 Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
@@ -3006,6 +2923,15 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			continue;
 		}
 
+		else if (token[0] == '#')
+		{
+			size_t linesize;
+
+			/* skip empty */
+			linesize = strcspn(curr_buff, "\n\r");
+			curr_buff += linesize;
+		}
+
 		/* found basemodel */
 		else if (!strcmp(token, "basemodel"))
 		{
@@ -3016,6 +2942,16 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			}
 			mda->basemodel = strdup(token);
 			Q_replacebackslash(mda->basemodel);
+		}
+		else if (!strcmp(token, "headtri"))
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				token = COM_Parse(&curr_buff);
+				mda->headtri[i] = (float)strtod(token, (char **)NULL);
+			}
 		}
 #if 0
 		else if (strncmp(line, "profile", 7) == 0) {
@@ -3082,6 +3018,10 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			pass->uvmod[strlen(pass->uvmod) - 1] = '\0'; // Remove newline
 		}
 #endif
+		else
+		{
+			printf("unparsed: >%s<\n", token);
+		}
 	}
 }
 
@@ -3127,6 +3067,8 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 	printf("\nModel: %s\n", mod_name);
 	// Print parsed data for demonstration
 	printf("Base model: %s\n", mda.basemodel);
+	printf("  head: (%.2fx%.2fx%.2f)\n",
+		mda.headtri[0], mda.headtri[1], mda.headtri[2]);
 	for (size_t i = 0; i < mda.profile_count; i++)
 	{
 		mda_profile_t *profile = &mda.profiles[i];
