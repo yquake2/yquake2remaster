@@ -3216,6 +3216,16 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
 {
 	mda_model_t mda = {0};
+	const char *profile_name;
+
+	profile_name = strrchr(mod_name, '!');
+	if (profile_name)
+	{
+		/* skip ! */
+		profile_name += 1;
+	}
+
+	printf("\nprofile name: %s\n", profile_name);
 
 	Mod_LoadModel_MDA_Parse(mod_name, curr_buff, curr_buff + len, &mda);
 
@@ -3278,7 +3288,25 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 		{
 			char *base_skin = NULL;
 
-			if (mda.profile_count &&
+			if (profile_name && mda.profile_count)
+			{
+				size_t i;
+
+				for (i = 0; i < mda.profile_count; i++)
+				{
+					if (!strcmp(mda.profiles[i].name, profile_name) &&
+						mda.profiles[i].skin_count &&
+						mda.profiles[i].skins[0].pass_count)
+					{
+						printf("Used: %s\n", mda.profiles[i].name);
+						base_skin = mda.profiles[i].skins[0].passes[0].map;
+						break;
+					}
+				}
+			}
+
+			if (!base_skin &&
+				mda.profile_count &&
 				mda.profiles[0].skin_count &&
 				mda.profiles[0].skins[0].pass_count)
 			{
@@ -3288,7 +3316,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 			if (base_skin)
 			{
 				dmdx_t *pheader;
-				int i;
+				size_t i;
 
 				pheader = (dmdx_t *)extradata;
 				for (i=0; i < pheader->num_skins; i++)
