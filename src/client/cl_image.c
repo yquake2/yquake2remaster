@@ -42,11 +42,13 @@
 #include "refresh/files/stb_image.h"
 
 /* ATD types */
-typedef struct {
-	char* file;
-} bitmap_t;
+typedef struct
+{
+	char *file;
+} atd_bitmap_t;
 
-typedef struct {
+typedef struct
+{
 	int bitmap;
 	int next;
 	float wait;
@@ -54,18 +56,19 @@ typedef struct {
 	int y;
 } atd_frame_t;
 
-typedef struct {
+typedef struct
+{
 	int colortype;
 	int width;
 	int height;
 	int bilinear;
 	int clamp;
 	char* type;
-	bitmap_t *bitmaps;
+	atd_bitmap_t *bitmaps;
 	size_t bitmap_count;
 	atd_frame_t *frames;
 	size_t frame_count;
-} animation_t;
+} atd_sprites_t;
 
 // Fix Jennell Jaquays' name in the Quitscreen
 // this is 98x11 pixels, each value an index
@@ -942,7 +945,7 @@ LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 }
 
 static void
-free_animation(animation_t* anim)
+LoadImageATDFree(atd_sprites_t* anim)
 {
 	for (size_t i = 0; i < anim->bitmap_count; i++)
 	{
@@ -954,7 +957,7 @@ free_animation(animation_t* anim)
 }
 
 static void
-LoadImageATD(animation_t* anim, char *tmp_buf, int len)
+LoadImageATD(atd_sprites_t* anim, char *tmp_buf, int len)
 {
 	char *curr_buff;
 
@@ -1047,7 +1050,7 @@ LoadImageATD(animation_t* anim, char *tmp_buf, int len)
 
 			/* save bitmap file */
 			anim->bitmap_count++;
-			anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(bitmap_t));
+			anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(atd_bitmap_t));
 			anim->bitmaps[anim->bitmap_count - 1].file = strdup(COM_Parse(&curr_buff));
 		}
 		else if (!strcmp(token, "!frame"))
@@ -1170,8 +1173,8 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 		if (lindent == IDATDSPRITEHEADER)
 		{
-			animation_t *anim = malloc(sizeof(animation_t));
-			memset(anim, 0, sizeof(animation_t));
+			atd_sprites_t *anim = malloc(sizeof(atd_sprites_t));
+			memset(anim, 0, sizeof(atd_sprites_t));
 
 			tmp_buf = malloc(len + 1);
 			memcpy(tmp_buf, raw + 4, len);
@@ -1190,7 +1193,8 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 				LoadImageWithPaletteStatic(anim->bitmaps[bitmap].file,
 					pic, palette, width, height, bitsPerPixel);
 			}
-			free_animation(anim);
+			LoadImageATDFree(anim);
+			free(anim);
 		}
 
 		FS_FreeFile(raw);
