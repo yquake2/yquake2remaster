@@ -3105,15 +3105,27 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 static void
 Mod_LoadModel_MDA_Free(mda_model_t *mda)
 {
+	size_t i;
+
 	free(mda->basemodel);
-	for (size_t i = 0; i < mda->profile_count; i++) {
-		mda_profile_t *profile = &mda->profiles[i];
+	for (i = 0; i < mda->profile_count; i++) {
+		mda_profile_t *profile;
+		size_t j;
+
+		profile = &mda->profiles[i];
 		free(profile->name);
 		free(profile->evaluate);
-		for (size_t j = 0; j < profile->skin_count; j++) {
-			mda_skin_t *skin = &profile->skins[j];
-			for (size_t k = 0; k < skin->pass_count; k++) {
-				mda_pass_t *pass = &skin->passes[k];
+		for (j = 0; j < profile->skin_count; j++)
+		{
+			mda_skin_t *skin;
+			size_t k;
+
+			skin = &profile->skins[j];
+			for (k = 0; k < skin->pass_count; k++)
+			{
+				mda_pass_t *pass;
+
+				pass = &skin->passes[k];
 				free(pass->map);
 				free(pass->alphafunc);
 				free(pass->depthwrite);
