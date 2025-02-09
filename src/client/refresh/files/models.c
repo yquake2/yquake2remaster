@@ -3231,41 +3231,6 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 
 	Mod_LoadModel_MDA_Parse(mod_name, curr_buff, curr_buff + len, &mda);
 
-	printf("\nModel: %s\n", mod_name);
-	// Print parsed data for demonstration
-	printf("Base model: %s\n", mda.basemodel);
-	printf("  head: %.2fx%.2fx%.2f\n",
-		mda.headtri[0], mda.headtri[1], mda.headtri[2]);
-	for (size_t i = 0; i < mda.profile_count; i++)
-	{
-		mda_profile_t *profile = &mda.profiles[i];
-		printf("Profile %s\n", profile->name);
-		if (profile->evaluate)
-		{
-			printf("  Evaluate: %s\n", profile->evaluate);
-		}
-
-		for (size_t j = 0; j < profile->skin_count; j++)
-		{
-			mda_skin_t *skin = &profile->skins[j];
-			printf("  Skin %zu:\n", j + 1);
-			for (size_t k = 0; k < skin->pass_count; k++)
-			{
-				mda_pass_t *pass = &skin->passes[k];
-				printf("	Pass %zu:\n", k + 1);
-				printf("	  Map: %s\n", pass->map);
-				if (pass->alphafunc) printf("	  Alphafunc: %s\n", pass->alphafunc);
-				if (pass->depthwrite) printf("	  Depthwrite: %s\n", pass->depthwrite);
-				if (pass->uvgen) printf("	  UVGen: %s\n", pass->uvgen);
-				if (pass->blendmode) printf("	  Blendmode: %s\n", pass->blendmode);
-				if (pass->depthfunc) printf("	  Depthfunc: %s\n", pass->depthfunc);
-				if (pass->cull) printf("	  Cull: %s\n", pass->cull);
-				if (pass->rgbgen) printf("	  RGBGen: %s\n", pass->rgbgen);
-				if (pass->uvmod) printf("	  UVMod: %s\n", pass->uvmod);
-			}
-		}
-	}
-
 	if (mda.basemodel)
 	{
 		void *extradata, *base;
