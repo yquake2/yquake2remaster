@@ -3034,7 +3034,7 @@ Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, char *curr_
 			skin->pass_count++;
 			skin->passes = realloc(skin->passes, skin->pass_count * sizeof(mda_pass_t));
 			pass = &skin->passes[skin->pass_count - 1];
-			memset(pass, 0, sizeof(mda_pass_t));
+			memset(pass, 0, sizeof(*pass));
 
 			token = COM_Parse(curr_buff);
 			if (!token || token[0] != '{')
@@ -3043,6 +3043,56 @@ Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, char *curr_
 			}
 
 			Mod_LoadModel_MDA_Parse_Pass(mod_name, curr_buff, curr_end, pass);
+		}
+	}
+}
+
+static void
+Mod_LoadModel_MDA_Parse_Profile(const char *mod_name, char **curr_buff, char *curr_end,
+	mda_profile_t *profile)
+{
+	while (*curr_buff && *curr_buff < curr_end)
+	{
+		const char *token;
+
+		token = COM_Parse(curr_buff);
+		if (!*token)
+		{
+			continue;
+		}
+
+		else if (token[0] == '}')
+		{
+			/* skip end of section */
+			break;
+		}
+		else if (token[0] == '#')
+		{
+			size_t linesize;
+
+			/* skip empty */
+			linesize = strcspn(*curr_buff, "\n\r");
+			*curr_buff += linesize;
+		}
+		else if (!strcmp(token, "skin")) {
+			mda_skin_t *skin;
+
+			profile->skin_count++;
+			profile->skins = realloc(profile->skins, profile->skin_count * sizeof(mda_skin_t));
+			skin = &profile->skins[profile->skin_count - 1];
+			memset(skin, 0, sizeof(*skin));
+
+			token = COM_Parse(curr_buff);
+			if (!token || token[0] != '{')
+			{
+				return;
+			}
+
+			Mod_LoadModel_MDA_Parse_Skin(mod_name, curr_buff, curr_end, skin);
+		}
+		else if (!strcmp(token, "evaluate"))
+		{
+			profile->evaluate = strdup(COM_Parse(curr_buff));
 		}
 	}
 }
@@ -3104,6 +3154,7 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 			mda->profile_count++;
 			mda->profiles = realloc(mda->profiles, mda->profile_count * sizeof(mda_profile_t));
 			profile = &mda->profiles[mda->profile_count - 1];
+			memset(profile, 0, sizeof(*profile));
 
 			if (!token || token[0] == '{')
 			{
@@ -3119,35 +3170,7 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 				}
 			}
 
-			profile->evaluate = NULL;
-			profile->skins = NULL;
-			profile->skin_count = 0;
-		}
-		else if (!strcmp(token, "skin")) {
-			mda_profile_t *profile;
-			mda_skin_t *skin;
-
-			profile = &mda->profiles[mda->profile_count - 1];
-			profile->skin_count++;
-			profile->skins = realloc(profile->skins, profile->skin_count * sizeof(mda_skin_t));
-			skin = &profile->skins[profile->skin_count - 1];
-			skin->passes = NULL;
-			skin->pass_count = 0;
-
-			token = COM_Parse(&curr_buff);
-			if (!token || token[0] != '{')
-			{
-				return;
-			}
-
-			Mod_LoadModel_MDA_Parse_Skin(mod_name, &curr_buff, curr_end, skin);
-		}
-		else if (!strcmp(token, "evaluate"))
-		{
-			mda_profile_t *profile;
-
-			profile = &mda->profiles[mda->profile_count - 1];
-			profile->evaluate = strdup(COM_Parse(&curr_buff));
+			Mod_LoadModel_MDA_Parse_Profile(mod_name, &curr_buff, curr_end, profile);
 		}
 		else
 		{
