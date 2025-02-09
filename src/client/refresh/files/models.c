@@ -2910,7 +2910,98 @@ typedef struct {
 } mda_model_t;
 
 static void
-Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
+Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_end,
+	mda_pass_t *pass)
+{
+	while (*curr_buff && *curr_buff < curr_end)
+	{
+		const char *token;
+
+		token = COM_Parse(curr_buff);
+		if (!*token)
+		{
+			continue;
+		}
+
+		else if (token[0] == '}')
+		{
+			/* skip end of section */
+			break;
+		}
+		else if (token[0] == '#')
+		{
+			size_t linesize;
+
+			/* skip empty */
+			linesize = strcspn(*curr_buff, "\n\r");
+			*curr_buff += linesize;
+		}
+		else if (!strcmp(token, "map"))
+		{
+			token = COM_Parse(curr_buff);
+			pass->map = strdup(token);
+			Q_replacebackslash(pass->map);
+		}
+		else if (!strcmp(token, "uvmod"))
+		{
+			size_t linesize;
+			char *value;
+
+			linesize = strcspn(*curr_buff, "\n\r");
+			value = malloc(linesize + 1);
+			memcpy(value, *curr_buff, linesize);
+			value[linesize] = 0;
+			*curr_buff += linesize;
+
+			pass->uvmod = value;
+		}
+		else if (!strcmp(token, "alphafunc") ||
+				 !strcmp(token, "depthwrite") ||
+				 !strcmp(token, "uvgen") ||
+				 !strcmp(token, "blendmode") ||
+				 !strcmp(token, "depthfunc") ||
+				 !strcmp(token, "cull") ||
+				 !strcmp(token, "rgbgen"))
+		{
+			char token_section[MAX_TOKEN_CHARS];
+
+			strncpy(token_section, token, sizeof(token_section) - 1);
+			token = COM_Parse(curr_buff);
+
+			if (!strcmp(token_section, "alphafunc"))
+			{
+				pass->alphafunc = strdup(token);
+			}
+			else if (!strcmp(token_section, "depthwrite"))
+			{
+				pass->depthwrite = strdup(token);
+			}
+			else if (!strcmp(token_section, "uvgen"))
+			{
+				pass->uvgen = strdup(token);
+			}
+			else if (!strcmp(token_section, "blendmode"))
+			{
+				pass->blendmode = strdup(token);
+			}
+			else if (!strcmp(token_section, "depthfunc"))
+			{
+				pass->depthfunc = strdup(token);
+			}
+			else if (!strcmp(token_section, "cull"))
+			{
+				pass->cull = strdup(token);
+			}
+			else if (!strcmp(token_section, "rgbgen"))
+			{
+				pass->rgbgen = strdup(token);
+			}
+		}
+	}
+}
+
+static void
+Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 	mda_model_t *mda)
 {
 	while (curr_buff)
@@ -3018,6 +3109,8 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			{
 				return;
 			}
+
+			Mod_LoadModel_MDA_Parse_Pass(mod_name, &curr_buff, curr_end, pass);
 		}
 		else if (!strcmp(token, "evaluate"))
 		{
@@ -3025,75 +3118,6 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 
 			profile = &mda->profiles[mda->profile_count - 1];
 			profile->evaluate = strdup(COM_Parse(&curr_buff));
-		}
-		else if (!strcmp(token, "map"))
-		{
-			mda_pass_t *pass;
-
-			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			token = COM_Parse(&curr_buff);
-			pass->map = strdup(token);
-			Q_replacebackslash(pass->map);
-		}
-		else if (!strcmp(token, "uvmod"))
-		{
-			size_t linesize;
-			char *value;
-			mda_pass_t *pass;
-
-			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-
-			linesize = strcspn(curr_buff, "\n\r");
-			value = malloc(linesize + 1);
-			memcpy(value, curr_buff, linesize);
-			value[linesize] = 0;
-			curr_buff += linesize;
-
-			pass->uvmod = value;
-		}
-		else if (!strcmp(token, "alphafunc") ||
-				 !strcmp(token, "depthwrite") ||
-				 !strcmp(token, "uvgen") ||
-				 !strcmp(token, "blendmode") ||
-				 !strcmp(token, "depthfunc") ||
-				 !strcmp(token, "cull") ||
-				 !strcmp(token, "rgbgen"))
-		{
-			char token_section[MAX_TOKEN_CHARS];
-			mda_pass_t *pass;
-
-			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			strncpy(token_section, token, sizeof(token_section) - 1);
-			token = COM_Parse(&curr_buff);
-
-			if (!strcmp(token_section, "alphafunc"))
-			{
-				pass->alphafunc = strdup(token);
-			}
-			else if (!strcmp(token_section, "depthwrite"))
-			{
-				pass->depthwrite = strdup(token);
-			}
-			else if (!strcmp(token_section, "uvgen"))
-			{
-				pass->uvgen = strdup(token);
-			}
-			else if (!strcmp(token_section, "blendmode"))
-			{
-				pass->blendmode = strdup(token);
-			}
-			else if (!strcmp(token_section, "depthfunc"))
-			{
-				pass->depthfunc = strdup(token);
-			}
-			else if (!strcmp(token_section, "cull"))
-			{
-				pass->cull = strdup(token);
-			}
-			else if (!strcmp(token_section, "rgbgen"))
-			{
-				pass->rgbgen = strdup(token);
-			}
 		}
 		else
 		{
@@ -3149,7 +3173,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 {
 	mda_model_t mda = {0};
 
-	Mod_LoadModel_MDA_Parse(mod_name, curr_buff, len, &mda);
+	Mod_LoadModel_MDA_Parse(mod_name, curr_buff, curr_buff + len, &mda);
 
 	printf("\nModel: %s\n", mod_name);
 	// Print parsed data for demonstration
