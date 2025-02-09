@@ -1,4 +1,4 @@
-name: Testbuild for Win64
+name: Testbuild for Win64 (SDL3)
 run-name: testbuild_win64
 on:
   push:
@@ -8,8 +8,9 @@ on:
       - "*"
   pull_request:
     types:
-      - opened
       - edited
+      - opened
+      - synchronize
 concurrency:
   # Cancel concurrent workflows for the same PR or commit hash.
   group: ${{github.workflow}}-${{github.event_name == 'pull_request' && github.head_ref || github.sha}}
@@ -37,17 +38,19 @@ jobs:
           mingw-w64-${{matrix.env}}-gcc
           mingw-w64-${{matrix.env}}-make
           mingw-w64-${{matrix.env}}-openal
-          mingw-w64-${{matrix.env}}-SDL2
+          mingw-w64-${{matrix.env}}-sdl3
           mingw-w64-${{matrix.env}}-vulkan-headers
           mingw-w64-${{matrix.env}}-wget
+          mingw-w64-${{matrix.env}}-pkgconf
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Build
       shell: msys2 {0}
       run: |
-        # Public runners come with 2 CPUs.
-        make -j2
-        make -j2 ref_gles1
+        sed -i 's|WITH_SDL3:=no|WITH_SDL3:=yes|g' Makefile
+        # Public runners come with 4 CPUs.
+        make -j4
+        make -j4 ref_gles1
     - name: Create testbuild package
       shell: msys2 {0}
       run: |
@@ -69,10 +72,10 @@ jobs:
         cp doc/070_packaging.md publish/quake2-win64-${{github.sha}}/misc/docs/070_packaging.txt
         cp doc/080_contributing.md publish/quake2-win64-${{github.sha}}/misc/docs/080_contributing.txt
         cp doc/090_filelists.md publish/quake2-win64-${{github.sha}}/misc/docs/090_filelists.md
-        # SDL2
-        wget -c https://github.com/libsdl-org/SDL/releases/download/release-2.30.11/SDL2-2.30.11-win32-x64.zip
-        unzip -o SDL2-2.30.11-win32-x64.zip
-        cp SDL2.dll publish/quake2-win64-${{github.sha}}/
+        # SDL3
+        wget -c https://github.com/libsdl-org/SDL/releases/download/release-3.2.4/SDL3-3.2.4-win32-x64.zip
+        unzip -o SDL3-3.2.4-win32-x64.zip
+        cp SDL3.dll publish/quake2-win64-${{github.sha}}/
         # static ffmpeg
         wget -c https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2024-08-31-12-50/ffmpeg-n7.0.2-6-g7e69129d2f-win64-lgpl-shared-7.0.zip
         unzip -o ffmpeg-n7.0.2-6-g7e69129d2f-win64-lgpl-shared-7.0.zip
@@ -84,9 +87,9 @@ jobs:
         unzip -o openal-soft-1.23.1-bin.zip
         cp openal-soft-1.23.1-bin/bin/Win64/soft_oal.dll publish/quake2-win64-${{github.sha}}/openal32.dll
         # curl (releases use a custom build curl.dll)
-        wget -c https://curl.se/windows/dl-8.9.1_1/curl-8.9.1_1-win64-mingw.zip
-        unzip -o curl-8.9.1_1-win64-mingw.zip
-        cp curl-8.9.1_1-win64-mingw/bin/libcurl-x64.dll publish/quake2-win64-${{github.sha}}/curl.dll
+        wget -c -O curl-mingw-latest.zip "https://curl.se/windows/latest.cgi?p=win64-mingw.zip"
+        unzip -o curl-mingw-latest.zip
+        cp curl-*-win64-mingw/bin/libcurl-x64.dll publish/quake2-win64-${{github.sha}}/curl.dll
     - name: Upload testbuild package
       uses: actions/upload-artifact@v4
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
