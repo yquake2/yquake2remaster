@@ -3051,58 +3051,40 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 			strncpy(token_section, token, sizeof(token_section) - 1);
 			token = COM_Parse(&curr_buff);
-		}
-#if 0
-		else if (!strcmp(token, "alphafunc"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->alphafunc = strdup(strchr(line, '=') + 2);
-			pass->alphafunc[strlen(pass->alphafunc) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "depthwrite"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->depthwrite = strdup(strchr(line, '=') + 2);
-			pass->depthwrite[strlen(pass->depthwrite) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "uvgen"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->uvgen = strdup(strchr(line, '=') + 2);
-			pass->uvgen[strlen(pass->uvgen) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "blendmode"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->blendmode = strdup(strchr(line, '=') + 2);
-			pass->blendmode[strlen(pass->blendmode) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "depthfunc"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->depthfunc = strdup(strchr(line, '=') + 2);
-			pass->depthfunc[strlen(pass->depthfunc) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "cull"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->cull = strdup(strchr(line, '=') + 2);
-			pass->cull[strlen(pass->cull) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "rgbgen"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
-			pass->rgbgen = strdup(strchr(line, '=') + 2);
-			pass->rgbgen[strlen(pass->rgbgen) - 1] = '\0'; // Remove newline
-		}
-		else if (!strcmp(token, "uvmod"))
-		{
-			mda_pass_t *pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profile_count - 1].skin_count - 1].pass_count - 1];
 
-			pass->uvmod = strdup(strchr(line, '=') + 2);
-			pass->uvmod[strlen(pass->uvmod) - 1] = '\0'; // Remove newline
+			if (!strcmp(token_section, "alphafunc"))
+			{
+				pass->alphafunc = strdup(token);
+			}
+			else if (!strcmp(token_section, "depthwrite"))
+			{
+				pass->depthwrite = strdup(token);
+			}
+			else if (!strcmp(token_section, "uvgen"))
+			{
+				pass->uvgen = strdup(token);
+			}
+			else if (!strcmp(token_section, "blendmode"))
+			{
+				pass->blendmode = strdup(token);
+			}
+			else if (!strcmp(token_section, "depthfunc"))
+			{
+				pass->depthfunc = strdup(token);
+			}
+			else if (!strcmp(token_section, "cull"))
+			{
+				pass->cull = strdup(token);
+			}
+			else if (!strcmp(token_section, "rgbgen"))
+			{
+				pass->rgbgen = strdup(token);
+			}
+			else if (!strcmp(token_section, "uvmod"))
+			{
+				pass->uvmod = strdup(token);
+			}
 		}
-#endif
 		else
 		{
 			printf("unparsed: >%s<\n", token);
