@@ -40,7 +40,7 @@ Models support:
 | mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine           |
 | md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                     |
 | mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game     |
-| fm     | Heretic 2       | 8 bit        | Multiple | Without skelet animation                |
+| fm     | Heretic 2       | 8 bit        | Multiple | Without skeletal animation              |
 | def    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
 | dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                     |
 | dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                     |
