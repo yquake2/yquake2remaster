@@ -2341,7 +2341,11 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 	}
 
 	/* Full screen update should be faster */
+#ifdef USE_SDL3
+	if (!SDL_LockTexture(texture_rgba, NULL, (void**)&pixels, &pitch))
+#else
 	if (SDL_LockTexture(texture_rgba, NULL, (void**)&pixels, &pitch))
+#endif
 	{
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;
@@ -2377,16 +2381,28 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 
 	if (cols == vid_buffer_width && rows == vid_buffer_height)
 	{
+#ifdef USE_SDL3
+		SDL_RenderTexture(renderer, texture_rgba, NULL, NULL);
+#else
 		SDL_RenderCopy(renderer, texture_rgba, NULL, NULL);
+#endif
 	}
 	else
 	{
+#ifdef USE_SDL3
+		SDL_FRect srcrect;
+#else
 		SDL_Rect srcrect;
+#endif
 		srcrect.x = 0;
 		srcrect.y = 0;
 		srcrect.w = cols;
 		srcrect.h = rows;
+#ifdef USE_SDL3
+		SDL_RenderTexture(renderer, texture_rgba, &srcrect, NULL);
+#else
 		SDL_RenderCopy(renderer, texture_rgba, &srcrect, NULL);
+#endif
 	}
 
 	SDL_RenderPresent(renderer);

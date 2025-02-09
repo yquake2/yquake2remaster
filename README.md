@@ -19,6 +19,7 @@ State:
   * base2: no known issues,
   * mguhub: sometimes broken logic for surface fall in next maps.
 * SOFT:
+  * build with SDL3 has glitch in menu,
   * base1: broken wall light and wall glitch,
   * base2: broken wall light and wall glitch,
   * q64/outpost: scale textures unsupported,
