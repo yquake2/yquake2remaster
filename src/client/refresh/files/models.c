@@ -3001,6 +3001,53 @@ Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_
 }
 
 static void
+Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, char *curr_end,
+	mda_skin_t *skin)
+{
+	while (*curr_buff && *curr_buff < curr_end)
+	{
+		const char *token;
+
+		token = COM_Parse(curr_buff);
+		if (!*token)
+		{
+			continue;
+		}
+
+		else if (token[0] == '}')
+		{
+			/* skip end of section */
+			break;
+		}
+		else if (token[0] == '#')
+		{
+			size_t linesize;
+
+			/* skip empty */
+			linesize = strcspn(*curr_buff, "\n\r");
+			*curr_buff += linesize;
+		}
+		else if (!strcmp(token, "pass"))
+		{
+			mda_pass_t *pass;
+
+			skin->pass_count++;
+			skin->passes = realloc(skin->passes, skin->pass_count * sizeof(mda_pass_t));
+			pass = &skin->passes[skin->pass_count - 1];
+			memset(pass, 0, sizeof(mda_pass_t));
+
+			token = COM_Parse(curr_buff);
+			if (!token || token[0] != '{')
+			{
+				return;
+			}
+
+			Mod_LoadModel_MDA_Parse_Pass(mod_name, curr_buff, curr_end, pass);
+		}
+	}
+}
+
+static void
 Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 	mda_model_t *mda)
 {
@@ -3092,25 +3139,8 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 			{
 				return;
 			}
-		}
-		else if (!strcmp(token, "pass"))
-		{
-			mda_skin_t *skin;
-			mda_pass_t *pass;
 
-			skin = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1];
-			skin->pass_count++;
-			skin->passes = realloc(skin->passes, skin->pass_count * sizeof(mda_pass_t));
-			pass = &skin->passes[skin->pass_count - 1];
-			memset(pass, 0, sizeof(mda_pass_t));
-
-			token = COM_Parse(&curr_buff);
-			if (!token || token[0] != '{')
-			{
-				return;
-			}
-
-			Mod_LoadModel_MDA_Parse_Pass(mod_name, &curr_buff, curr_end, pass);
+			Mod_LoadModel_MDA_Parse_Skin(mod_name, &curr_buff, curr_end, skin);
 		}
 		else if (!strcmp(token, "evaluate"))
 		{
