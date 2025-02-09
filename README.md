@@ -19,6 +19,7 @@ State:
   * base2: no known issues,
   * mguhub: sometimes broken logic for surface fall in next maps.
 * SOFT:
+  * build with SDL3 has glitch in menu,
   * base1: broken wall light and wall glitch,
   * base2: broken wall light and wall glitch,
   * q64/outpost: scale textures unsupported,
@@ -156,8 +157,7 @@ Games check videos:
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
 * [ ] CTC entity format from Anachronox,
-* [ ] MDA model skin selection by tag,
-* [ ] SDEF/MDA dynamicaly allocate list of skins,
+* [ ] SDEF dynamicaly allocate list of skins,
 * [ ] Support material load textures/textureinfo.dat from Anachronox,
 * [ ] Fix invisiable entities in basicsjam1_ziutek,
 * [ ] Make lightmap textures dynamic n64jam_palmlix,
