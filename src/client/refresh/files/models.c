@@ -2910,6 +2910,16 @@ typedef struct {
 } mda_model_t;
 
 static void
+Mod_LoadModel_MDA_Parse_SkipComment(char **curr_buff)
+{
+	size_t linesize;
+
+	/* skip comment */
+	linesize = strcspn(*curr_buff, "\n\r");
+	*curr_buff += linesize;
+}
+
+static void
 Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_end,
 	mda_pass_t *pass)
 {
@@ -2930,11 +2940,7 @@ Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_
 		}
 		else if (token[0] == '#')
 		{
-			size_t linesize;
-
-			/* skip empty */
-			linesize = strcspn(*curr_buff, "\n\r");
-			*curr_buff += linesize;
+			Mod_LoadModel_MDA_Parse_SkipComment(curr_buff);
 		}
 		else if (!strcmp(token, "map"))
 		{
@@ -3021,11 +3027,7 @@ Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, char *curr_
 		}
 		else if (token[0] == '#')
 		{
-			size_t linesize;
-
-			/* skip empty */
-			linesize = strcspn(*curr_buff, "\n\r");
-			*curr_buff += linesize;
+			Mod_LoadModel_MDA_Parse_SkipComment(curr_buff);
 		}
 		else if (!strcmp(token, "pass"))
 		{
@@ -3068,11 +3070,7 @@ Mod_LoadModel_MDA_Parse_Profile(const char *mod_name, char **curr_buff, char *cu
 		}
 		else if (token[0] == '#')
 		{
-			size_t linesize;
-
-			/* skip empty */
-			linesize = strcspn(*curr_buff, "\n\r");
-			*curr_buff += linesize;
+			Mod_LoadModel_MDA_Parse_SkipComment(curr_buff);
 		}
 		else if (!strcmp(token, "skin")) {
 			mda_skin_t *skin;
@@ -3118,11 +3116,8 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 		}
 		else if (token[0] == '#')
 		{
-			size_t linesize;
+			Mod_LoadModel_MDA_Parse_SkipComment(&curr_buff);
 
-			/* skip empty */
-			linesize = strcspn(curr_buff, "\n\r");
-			curr_buff += linesize;
 		}
 
 		/* found basemodel */
@@ -3171,10 +3166,6 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 			}
 
 			Mod_LoadModel_MDA_Parse_Profile(mod_name, &curr_buff, curr_end, profile);
-		}
-		else
-		{
-			printf("unparsed: >%s<\n", token);
 		}
 	}
 }
