@@ -37,10 +37,10 @@ Models support:
 | ------ | --------------- | ------------ | -------- | --------------------------------------- |
 | mdl    | Quake 1         | 8 bit        | Single   | Unsupported grouped textures            |
 | md2    | Quake 2         | 8 bit        | Single   |                                         |
-| mda    | Anachronox      | Part of md2  | Single   | No tagged surfaces                      |
-| md2    | Anachronox      | 8/10/16 bit  | Single   | No tagged surfaces, unchecked with game |
+| mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine           |
+| md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                     |
 | mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game     |
-| fm     | Heretic 2       | 8 bit        | Multiple |                                         |
+| fm     | Heretic 2       | 8 bit        | Multiple | Without skelet animation                |
 | def    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
 | dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                     |
 | dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                     |
