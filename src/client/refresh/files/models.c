@@ -2913,7 +2913,6 @@ static void
 Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 	mda_model_t *mda)
 {
-	printf(">--(%s)--<\n%s\n>----<\n", mod_name, curr_buff);
 	while (curr_buff)
 	{
 		const char *token;
@@ -3036,14 +3035,29 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			pass->map = strdup(token);
 			Q_replacebackslash(pass->map);
 		}
+		else if (!strcmp(token, "uvmod"))
+		{
+			size_t linesize;
+			char *value;
+			mda_pass_t *pass;
+
+			pass = &mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].passes[mda->profiles[mda->profile_count - 1].skins[mda->profiles[mda->profile_count - 1].skin_count - 1].pass_count - 1];
+
+			linesize = strcspn(curr_buff, "\n\r");
+			value = malloc(linesize + 1);
+			memcpy(value, curr_buff, linesize);
+			value[linesize] = 0;
+			curr_buff += linesize;
+
+			pass->uvmod = value;
+		}
 		else if (!strcmp(token, "alphafunc") ||
 				 !strcmp(token, "depthwrite") ||
 				 !strcmp(token, "uvgen") ||
 				 !strcmp(token, "blendmode") ||
 				 !strcmp(token, "depthfunc") ||
 				 !strcmp(token, "cull") ||
-				 !strcmp(token, "rgbgen") ||
-				 !strcmp(token, "uvmod"))
+				 !strcmp(token, "rgbgen"))
 		{
 			char token_section[MAX_TOKEN_CHARS];
 			mda_pass_t *pass;
@@ -3079,10 +3093,6 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, size_t len,
 			else if (!strcmp(token_section, "rgbgen"))
 			{
 				pass->rgbgen = strdup(token);
-			}
-			else if (!strcmp(token_section, "uvmod"))
-			{
-				pass->uvmod = strdup(token);
 			}
 		}
 		else
