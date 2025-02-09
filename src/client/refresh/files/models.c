@@ -3312,35 +3312,26 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 
 			if (profile)
 			{
-				char *base_skin = NULL;
+				size_t skins_count, i;
+				dmdx_t *pheader;
 
-				if (
-					profile->skin_count &&
-					profile->skins[0].pass_count)
+				pheader = (dmdx_t *)extradata;
+				skins_count = Q_min(profile->skin_count, pheader->num_skins);
+
+				for (i = 0; i < skins_count; i++)
 				{
-					base_skin = profile->skins[0].passes[0].map;
-				}
-
-				if (base_skin)
-				{
-					dmdx_t *pheader;
-					size_t i;
-
-					pheader = (dmdx_t *)extradata;
-					printf("Used: %s, model skins: %d, mda skins: %d\n",
-						profile->name, pheader->num_skins, profile->skin_count);
-
-					for (i=0; i < pheader->num_skins; i++)
+					if (profile->skins[i].pass_count)
 					{
 						char *skin;
 
 						/* Update included model with skin path */
 						skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-						printf("%s:%s->%s\n", mod_name, skin, profile->skins[i].passes[0].map);
 						if (!strchr(skin, '/') && !strchr(skin, '\\'))
 						{
 							char skin_path[MAX_QPATH * 2] = {0};
+							char *base_skin;
 
+							base_skin = profile->skins[i].passes[0].map;
 							strncpy(skin_path, base_skin, sizeof(skin_path));
 							strcpy(strrchr(skin_path, '/') + 1, skin);
 							strncpy(skin, skin_path, MAX_SKINNAME);
