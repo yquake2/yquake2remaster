@@ -2585,20 +2585,29 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
+typedef struct
+{
+	char value[MAX_SKINNAME];
+} def_entry_t;
+
 static void *
 Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_file,
 	struct image_s ***skins, int *numskins)
 {
 	char models_path[MAX_QPATH];
 	char base_model[MAX_QPATH * 2];
-	char skinnames[255][MAX_SKINNAME];
-	char animations[255][MAX_QPATH * 2];
+	def_entry_t *skinnames = NULL;
+	def_entry_t *animations = NULL;
 	int actions_num, skinnames_num, i, base_size;
 	sin_sbm_header_t *base;
-	sin_sam_header_t *anim[255];
+	sin_sam_header_t **anim;
 	void *extradata = NULL;
 	vec3_t translate = {0, 0, 0};
 	float scale;
+	int framescount = 0;
+	int animation_num = 0;
+	int num_tris = 0;
+	sin_trigroup_t *trigroup;
 
 	actions_num = 0;
 	skinnames_num = 0;
@@ -2665,27 +2674,19 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 			}
 			else if (!Q_stricmp(ext, "sam"))
 			{
-				if (actions_num >= 255)
-				{
-					R_Printf(PRINT_DEVELOPER, "%s: %s has huge list of animations %s\n",
-						__func__, mod_name, base_model);
-					continue;
-				}
-				snprintf(animations[actions_num], sizeof(animations[actions_num]),
-					"%s/%s", models_path, token);
 				actions_num ++;
+				animations = realloc(animations, actions_num * sizeof(def_entry_t));
+				snprintf(animations[actions_num - 1].value,
+					sizeof(animations[actions_num - 1].value),
+					"%s/%s", models_path, token);
 			}
 			else if (!Q_stricmp(ext, "tga"))
 			{
-				if (skinnames_num >= 255)
-				{
-					R_Printf(PRINT_DEVELOPER, "%s: %s has huge list of skinss %s\n",
-						__func__, mod_name, base_model);
-					continue;
-				}
-				snprintf(skinnames[skinnames_num], sizeof(skinnames[skinnames_num]),
-					"%s/%s", models_path, token);
 				skinnames_num ++;
+				skinnames = realloc(skinnames, skinnames_num * sizeof(def_entry_t));
+				snprintf(skinnames[skinnames_num - 1].value,
+					sizeof(skinnames[skinnames_num - 1].value),
+					"%s/%s", models_path, token);
 			}
 		}
 	}
@@ -2695,6 +2696,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	{
 		R_Printf(PRINT_DEVELOPER, "%s: %s No base model for %s\n",
 			__func__, mod_name, base_model);
+		free(skinnames);
+		free(animations);
 		return NULL;
 	}
 
@@ -2707,29 +2710,27 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	if ((base->ident != SBMHEADER) || (base->version != MDSINVERSION))
 	{
 		free(base);
+		free(skinnames);
+		free(animations);
 		R_Printf(PRINT_DEVELOPER, "%s: %s, Incorrect ident or version for %s\n",
 			__func__, mod_name, base_model);
 		return NULL;
 	}
 
-	int num_tris = 0;
-	{
-		sin_trigroup_t *trigroup = (sin_trigroup_t *)((char*)base + sizeof(sin_sbm_header_t));
+	trigroup = (sin_trigroup_t *)((char*)base + sizeof(sin_sbm_header_t));
 
-		for(i = 0; i < base->num_groups; i ++)
-		{
-			num_tris += LittleLong(trigroup[i].num_tris);
-		}
+	for(i = 0; i < base->num_groups; i ++)
+	{
+		num_tris += LittleLong(trigroup[i].num_tris);
 	}
 
-	int framescount = 0;
-	int animation_num = 0;
+	anim = malloc(actions_num * sizeof(*anim));
 
 	for (i = 0; i < actions_num; i++)
 	{
 		int anim_size, j;
 
-		anim_size = read_file(animations[i], (void **)&anim[animation_num]);
+		anim_size = read_file(animations[i].value, (void **)&anim[animation_num]);
 		if (anim_size <= 0)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s empty animation %s\n",
@@ -2768,6 +2769,9 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	{
 		R_Printf(PRINT_DEVELOPER, "%s: %s no animation found\n",
 			__func__, mod_name);
+		free(anim);
+		free(skinnames);
+		free(animations);
 		free(base);
 		return NULL;
 	}
@@ -2805,9 +2809,11 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
-
-	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)skinnames,
-		pheader->num_skins * MAX_SKINNAME);
+	for (i = 0; i < pheader->num_skins; i ++)
+	{
+		strncpy((char*)pheader + pheader->ofs_skins +  i * MAX_SKINNAME,
+			skinnames[i].value, MAX_SKINNAME);
+	}
 
 	/* st */
 	st_vert_t *st_in = (st_vert_t *)((char *)base + base->ofs_st);
@@ -2855,6 +2861,10 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	{
 		free(anim[i]);
 	}
+
+	free(anim);
+	free(skinnames);
+	free(animations);
 
 	free(base);
 	return extradata;
