@@ -1,5 +1,5 @@
 Quake 2 8.42RR11.1:
-- Fix into .cin video crash
+- Fix intro .cin video crash
 - Update CMakefile with vulkan and gl4 targets
 - Fix spirit models on start points
 - maps: fix yellow wall in daikatana e2m2a
