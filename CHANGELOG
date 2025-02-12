@@ -1,3 +1,19 @@
+Quake 2 8.42RR12:
+- Fix intro .cin video crash
+- Update CMakefile with vulkan and gl4 targets
+- maps: remove spirit of player models on start points
+- maps: fix yellow wall in daikatana e2m2a
+- maps: make visibility entity optional
+- game: fix pickup chainfist
+- game: fix allocation code for translation and dynamic entities
+- game: sync target_sky, sync target_camera, target_autosave with ReRelease code
+- game: Add npc_timeminder from Anachronox
+- game: add ai_model_scale, misc_player_mannequin from ReRelease code
+- Add MacOS DMG and use windows x64 SDL3 build
+- Anachronox: support initial ATD sprites
+- Anachronox: update MDA load code
+- SiN: dynamic allocation of sub models list in .def
+
 Quake 2 8.42RR11:
 - ReRelease: add support `flashlight` item
 - ReRelease: add support `trigger_flashlight`
