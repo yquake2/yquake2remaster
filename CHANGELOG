@@ -1,4 +1,4 @@
-Quake 2 8.42RR11.1:
+Quake 2 8.42RR12:
 - Fix intro .cin video crash
 - Update CMakefile with vulkan and gl4 targets
 - maps: remove spirit of player models on start points
