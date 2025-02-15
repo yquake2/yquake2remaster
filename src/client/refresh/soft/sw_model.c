@@ -341,7 +341,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	header = (dheader_t *)mod_base;
 
 	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)mod_base);
+	bspx_header = Mod_LoadBSPX(modfilelen, mod_base);
 
 	// calculate the needed hunksize from the lumps
 	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header);
