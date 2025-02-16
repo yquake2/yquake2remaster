@@ -251,7 +251,7 @@ SCR_DrawCenterString(void)
 {
 	const int char_unscaled_width  = 8;
 	const int char_unscaled_height = 8;
-	int l, j, x, y;
+	int l, x, y;
 	char *start;
 	float scale;
 
@@ -271,24 +271,37 @@ SCR_DrawCenterString(void)
 
 	do
 	{
-		/* scan the width of the line */
-		for (l = 0; l < 40; l++)
+		char message[161]; /* utf string could by 4 bytes per char */
+		char *end;
+
+		end = strchr(start, '\n');
+		if (end)
 		{
-			if ((start[l] == '\n') || !start[l])
-			{
-				break;
-			}
+			l = end - start;
+		}
+		else
+		{
+			l = strlen(start);
+		}
+		if (l > 160)
+		{
+			l = 160;
+		}
+		memcpy(message, start, l);
+		message[l] = 0;
+
+		/* scan the width of the line */
+		if (l > 40)
+		{
+			l = 40;
 		}
 
 		x = ((viddef.width / scale) - (l * char_unscaled_width)) / 2;
 		SCR_AddDirtyPoint(x, y);
 
-		for (j = 0; j < l; j++, x += char_unscaled_width)
-		{
-			Draw_CharScaled(x * scale, y * scale, start[j], scale);
-		}
+		SCR_AddDirtyPoint(x + l * char_unscaled_width, y + char_unscaled_height);
 
-		SCR_AddDirtyPoint(x, y + char_unscaled_height);
+		Draw_StringScaled(x, y, scale, false, message);
 
 		y += char_unscaled_height;
 
