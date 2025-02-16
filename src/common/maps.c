@@ -362,6 +362,25 @@ Mod_Load2QBSP_MATERIALS_TEXINFO(xtexinfo_t *out, size_t count)
 	}
 }
 
+/*
+ * Only bspx maps in ReRelease has SURF_NODRAW correctly set,
+ * other maps could by set flag by mistake or some custom unknown logic
+ */
+static void
+Mod_Load2QBSP_TEXINFO_NOBSPX(byte *outbuf, dheader_t *outheader)
+{
+	xtexinfo_t *out;
+	size_t i, count;
+
+	count = outheader->lumps[LUMP_TEXINFO].filelen / sizeof(xtexinfo_t);
+	out = (xtexinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
+	for (i = 0; i < count; i++)
+	{
+		out->flags &= ~SURF_NODRAW;
+		out ++;
+	}
+}
+
 static void
 Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
@@ -1115,6 +1134,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	qboolean error = false;
 	byte *outbuf;
 	maptype_t detected_maptype;
+	qboolean bspx_map = false;
 	int ident, version;
 	int *inlumps;
 	size_t ofs, xofs;
@@ -1207,6 +1227,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		{
 			result_size += (filesize - xofs);
 			result_size += 4;
+			bspx_map = true;
 		}
 		else
 		{
@@ -1292,6 +1313,11 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 		rules[s].func(outbuf, outheader, inbuf, lumps, rules[s].size, *maptype,
 			rules[s].pos, s);
+	}
+
+	if (!bspx_map)
+	{
+		Mod_Load2QBSP_TEXINFO_NOBSPX(outbuf, outheader);
 	}
 
 	*out_len = result_size;
