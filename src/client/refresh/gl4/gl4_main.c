@@ -1901,6 +1901,21 @@ GL4_EndWorldRenderpass( void )
 	return true;
 }
 
+static void
+GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	int xor;
+
+	xor = alt ? 0x80 : 0;
+
+	while (*message)
+	{
+		GL4_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
+		x += 8 * scale;
+		message ++;
+	}
+}
+
 Q2_DLL_EXPORTED refexport_t
 GetRefAPI(refimport_t imp)
 {
@@ -1935,6 +1950,7 @@ GetRefAPI(refimport_t imp)
 	re.DrawStretchPic = GL4_Draw_StretchPic;
 
 	re.DrawCharScaled = GL4_Draw_CharScaled;
+	re.DrawStringScaled = GL4_Draw_StringScaled;
 	re.DrawTileClear = GL4_Draw_TileClear;
 	re.DrawFill = GL4_Draw_Fill;
 	re.DrawFadeScreen = GL4_Draw_FadeScreen;

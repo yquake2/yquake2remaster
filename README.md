@@ -137,6 +137,7 @@ Games check videos:
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
 * [ ] skins load broken in Anachronox maps with mingw win64 build,
+* [ ] Anachronox rowdys: models disappear on dance space,
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
 * [ ] soft: build with SDL3 has glitch in menu,

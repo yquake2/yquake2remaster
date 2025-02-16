@@ -2133,6 +2133,21 @@ RI_EndWorldRenderpass( void )
 	return true;
 }
 
+static void
+RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	int xor;
+
+	xor = alt ? 0x80 : 0;
+
+	while (*message)
+	{
+		RDraw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
+		x += 8 * scale;
+		message ++;
+	}
+}
+
 Q2_DLL_EXPORTED refexport_t
 GetRefAPI(refimport_t imp)
 {
@@ -2165,6 +2180,7 @@ GetRefAPI(refimport_t imp)
 	refexport.DrawPicScaled = RDraw_PicScaled;
 	refexport.DrawStretchPic = RDraw_StretchPic;
 	refexport.DrawCharScaled = RDraw_CharScaled;
+	refexport.DrawStringScaled = RDraw_StringScaled;
 	refexport.DrawTileClear = RDraw_TileClear;
 	refexport.DrawFill = RDraw_Fill;
 	refexport.DrawFadeScreen = RDraw_FadeScreen;

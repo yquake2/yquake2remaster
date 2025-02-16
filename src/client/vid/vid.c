@@ -748,6 +748,15 @@ Draw_CharScaled(int x, int y, int num, float scale)
 }
 
 void
+Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	if (ref_active)
+	{
+		re.DrawStringScaled(x, y, scale, alt, message);
+	}
+}
+
+void
 Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
 	if (ref_active)
