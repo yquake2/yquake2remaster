@@ -27,12 +27,12 @@
 
 #include "header/client.h"
 
-float scr_con_current; /* aproaches scr_conlines at scr_conspeed */
-float scr_conlines; /* 0.0 to 1.0 lines of console to display */
+static float scr_con_current; /* aproaches scr_conlines at scr_conspeed */
+static float scr_conlines; /* 0.0 to 1.0 lines of console to display */
 
-qboolean scr_initialized; /* ready to draw */
+static qboolean scr_initialized; /* ready to draw */
 
-int scr_draw_loading;
+static int scr_draw_loading;
 
 vrect_t scr_vrect; /* position of render window on screen */
 
@@ -59,18 +59,18 @@ typedef struct
 	int x1, y1, x2, y2;
 } dirty_t;
 
-dirty_t scr_dirty, scr_old_dirty[2];
+static dirty_t scr_dirty, scr_old_dirty[2];
 
-char crosshair_pic[MAX_QPATH];
-int crosshair_width, crosshair_height;
+static char crosshair_pic[MAX_QPATH];
+static int crosshair_width, crosshair_height;
 
 extern cvar_t *cl_showfps;
 extern cvar_t *crosshair_scale;
 extern cvar_t *cl_showspeed;
 extern float GetPlayerSpeed(float *, float *);
 
-void SCR_TimeRefresh_f(void);
-void SCR_Loading_f(void);
+static void SCR_TimeRefresh_f(void);
+static void SCR_Loading_f(void);
 
 /*
  * A new packet was just parsed
@@ -129,7 +129,7 @@ SCR_DebugGraph(float value, int color)
 	current++;
 }
 
-void
+static void
 SCR_DrawDebugGraph(void)
 {
 	int a, x, y, w, i, h;
@@ -162,11 +162,11 @@ SCR_DrawDebugGraph(void)
 	}
 }
 
-char scr_centerstring[1024];
-float scr_centertime_start; /* for slow victory printing */
-float scr_centertime_off;
-int scr_center_lines;
-int scr_erase_center;
+static char scr_centerstring[1024];
+static float scr_centertime_start; /* for slow victory printing */
+static float scr_centertime_off;
+static int scr_center_lines;
+static int scr_erase_center;
 
 /*
  * Called for important messages that should stay
@@ -246,20 +246,14 @@ SCR_CenterPrint(char *str)
 	Con_ClearNotify();
 }
 
-void
+static void
 SCR_DrawCenterString(void)
 {
+	const int char_unscaled_width  = 8;
+	const int char_unscaled_height = 8;
+	int l, j, x, y;
 	char *start;
-	int l;
-	int j;
-	int x, y;
-	int remaining;
 	float scale;
-    const int char_unscaled_width  = 8;
-    const int char_unscaled_height = 8;
-
-	/* the finale prints the characters one at a time */
-	remaining = 9999;
 
 	scr_erase_center = 0;
 	start = scr_centerstring;
@@ -292,11 +286,6 @@ SCR_DrawCenterString(void)
 		for (j = 0; j < l; j++, x += char_unscaled_width)
 		{
 			Draw_CharScaled(x * scale, y * scale, start[j], scale);
-
-			if (!remaining--)
-			{
-				return;
-			}
 		}
 
 		SCR_AddDirtyPoint(x, y + char_unscaled_height);
@@ -318,7 +307,7 @@ SCR_DrawCenterString(void)
 	while (1);
 }
 
-void
+static void
 SCR_CheckDrawCenterString(void)
 {
 	scr_centertime_off -= cls.rframetime;
@@ -362,16 +351,16 @@ SCR_CalcVrect(void)
 /*
  * Keybinding command
  */
-void
+static void
 SCR_SizeUp_f(void)
 {
 	Cvar_SetValue("viewsize", (float)scr_viewsize->value + 10);
 }
 
 /*
- *Keybinding command
+ * Keybinding command
  */
-void
+static void
 SCR_SizeDown_f(void)
 {
 	Cvar_SetValue("viewsize", (float)scr_viewsize->value - 10);
@@ -380,7 +369,7 @@ SCR_SizeDown_f(void)
 /*
  * Set a specific sky and rotation speed
  */
-void
+static void
 SCR_Sky_f(void)
 {
 	int autorotate = 1;
@@ -448,7 +437,7 @@ SCR_Init(void)
 	scr_initialized = true;
 }
 
-void
+static void
 SCR_DrawNet(void)
 {
 	float scale = SCR_GetMenuScale();
@@ -461,7 +450,7 @@ SCR_DrawNet(void)
 	Draw_PicScaledAltText(scr_vrect.x + 64 * scale, scr_vrect.y, "net", scale, "net");
 }
 
-void
+static void
 SCR_DrawPause(void)
 {
 	int w, h;
@@ -482,7 +471,7 @@ SCR_DrawPause(void)
 		"pause", scale, "pause");
 }
 
-void
+static void
 SCR_DrawLoading(void)
 {
 	int w, h;
@@ -541,7 +530,7 @@ SCR_RunConsole(void)
 	}
 }
 
-void
+static void
 SCR_DrawConsole(void)
 {
 	Con_CheckResize();
@@ -638,13 +627,13 @@ SCR_EndLoadingPlaque(void)
 	Con_ClearNotify();
 }
 
-void
+static void
 SCR_Loading_f(void)
 {
 	SCR_BeginLoadingPlaque();
 }
 
-void
+static void
 SCR_TimeRefresh_f(void)
 {
 	int i;
@@ -727,7 +716,7 @@ SCR_DirtyScreen(void)
 /*
  * Clear any parts of the tiled background that were drawn on last frame
  */
-void
+static void
 SCR_TileClear(void)
 {
 	int i;
@@ -862,7 +851,7 @@ SCR_TileClear(void)
 }
 
 #define STAT_MINUS 10
-char *sb_nums[2][11] = {
+static char *sb_nums[2][11] = {
 	{
 		"num_0", "num_1", "num_2", "num_3", "num_4", "num_5",
 		"num_6", "num_7", "num_8", "num_9", "num_minus"
@@ -878,44 +867,7 @@ char *sb_nums[2][11] = {
 #define CHAR_WIDTH 16
 #define ICON_SPACE 8
 
-/*
- * Allow embedded \n in the string
- */
-void
-SizeHUDString(char *string, int *w, int *h)
-{
-	int lines, width, current;
-
-	lines = 1;
-	width = 0;
-
-	current = 0;
-
-	while (*string)
-	{
-		if (*string == '\n')
-		{
-			lines++;
-			current = 0;
-		}
-		else
-		{
-			current++;
-
-			if (current > width)
-			{
-				width = current;
-			}
-		}
-
-		string++;
-	}
-
-	*w = width * 8;
-	*h = lines * 8;
-}
-
-void
+static void
 DrawHUDStringScaled(const char *string, int x, int y, int centerwidth, int xor, float factor)
 {
 	int margin;
@@ -961,13 +913,7 @@ DrawHUDStringScaled(const char *string, int x, int y, int centerwidth, int xor, 
 	}
 }
 
-void
-DrawHUDString(char *string, int x, int y, int centerwidth, int xor)
-{
-	DrawHUDStringScaled(string, x, y, centerwidth, xor, 1.0f);
-}
-
-void
+static void
 SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 {
 	char num[16], *ptr;
@@ -1022,12 +968,6 @@ SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 	}
 }
 
-void
-SCR_DrawField(int x, int y, int color, int width, int value)
-{
-	SCR_DrawFieldScaled(x, y, color, width, value, 1.0f);
-}
-
 /*
  * Allows rendering code to cache all needed sbar graphics
  */
@@ -1062,7 +1002,7 @@ SCR_TouchPics(void)
 	}
 }
 
-void
+static void
 SCR_ExecuteLayoutString(char *s)
 {
 	int x, y;
@@ -1479,7 +1419,7 @@ SCR_ExecuteLayoutString(char *s)
  * The status bar is a small layout program that
  * is based on the stats array
  */
-void
+static void
 SCR_DrawStats(void)
 {
 	SCR_ExecuteLayoutString(cl.configstrings[CS_STATUSBAR]);
@@ -1487,7 +1427,7 @@ SCR_DrawStats(void)
 
 #define STAT_LAYOUTS 13
 
-void
+static void
 SCR_DrawLayout(void)
 {
 	if (!cl.frame.playerstate.stats[STAT_LAYOUTS])
@@ -1500,7 +1440,7 @@ SCR_DrawLayout(void)
 
 // ----
 
-void
+static void
 SCR_DrawSpeed(void)
 {
 	if (cl_showspeed->value < 1)  //Disabled, do nothing
@@ -1551,8 +1491,9 @@ SCR_DrawSpeed(void)
 	}
 }
 
-void
-SCR_Framecounter(void) {
+static void
+SCR_Framecounter(void)
+{
 	long long newtime;
 	static int frame;
 	static int frametimes[60] = {0};
@@ -1560,21 +1501,26 @@ SCR_Framecounter(void) {
 
 	/* skip statistics without show fps */
 	if (cl_showfps->value < 1)
+	{
 		return;
+	}
 
 	newtime = Sys_Microseconds();
 	frametimes[frame] = (int)(newtime - oldtime);
 
 	oldtime = newtime;
 	frame++;
-	if (frame > 59) {
+	if (frame > 59)
+	{
 		frame = 0;
 	}
 
 	float scale = SCR_GetConsoleScale();
 
-	if (cl_showfps->value == 1) {
+	if (cl_showfps->value == 1)
+	{
 		// Calculate average of frames.
+		char str[10];
 		int avg = 0;
 		int num = 0;
 
@@ -1585,16 +1531,17 @@ SCR_Framecounter(void) {
 			}
 		}
 
-
-		char str[10];
 		snprintf(str, sizeof(str), "%3.2ffps", (1000.0 * 1000.0) / (avg / num));
 		DrawStringScaled(viddef.width - scale * (strlen(str) * 8 + 2), 0, str, scale);
 		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * 8 + 2), 0);
 		SCR_AddDirtyPoint(viddef.width, 0);
-	} else if (cl_showfps->value >= 2) {
+	}
+	else if (cl_showfps->value >= 2)
+	{
 		// Calculate average of frames.
 		int avg = 0;
 		int num = 0;
+		char str[64];
 
 		for (int i = 0; i < 60; i++) {
 			if (frametimes[i] != 0) {
@@ -1602,23 +1549,24 @@ SCR_Framecounter(void) {
 				num++;
 			}
 		}
-
 
 		// Find lowest and highest
 		int min = frametimes[0];
 		int max = frametimes[1];
 
-		for (int i = 1; i < 60; i++) {
-			if ((frametimes[i] > 0) &&  (min < frametimes[i])) {
+		for (int i = 1; i < 60; i++)
+		{
+			if ((frametimes[i] > 0) &&  (min < frametimes[i]))
+			{
 				min = frametimes[i];
 			}
 
-			if ((frametimes[i] > 0) && (max > frametimes[i])) {
+			if ((frametimes[i] > 0) && (max > frametimes[i]))
+			{
 				max = frametimes[i];
 			}
 		}
 
-		char str[64];
 		snprintf(str, sizeof(str), "Min: %7.2ffps, Max: %7.2ffps, Avg: %7.2ffps",
 		         (1000.0 * 1000.0) / min, (1000.0 * 1000.0) / max, (1000.0 * 1000.0) / (avg / num));
 		DrawStringScaled(viddef.width - scale * (strlen(str) * 8 + 2), 0, str, scale);
