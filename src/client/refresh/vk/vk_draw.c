@@ -22,14 +22,17 @@
 
 #include "header/local.h"
 
-static image_t	*draw_chars;
+static int vk_rawTexture_height = 0;
+static int vk_rawTexture_width = 0;
+static image_t *draw_chars = NULL;
 
 /*
 ===============
 Draw_InitLocal
 ===============
 */
-void Draw_InitLocal (void)
+void
+Draw_InitLocal(void)
 {
 	draw_chars = R_FindPic ("conchars", (findimage_t)Vk_FindImage);
 
@@ -63,7 +66,8 @@ It can be clipped to the top of the screen to allow the console to be
 smoothly scrolled off.
 ================
 */
-void RE_Draw_CharScaled (int x, int y, int num, float scale)
+void
+RE_Draw_CharScaled (int x, int y, int num, float scale)
 {
 	int	row, col;
 	float	frow, fcol, size;
@@ -91,12 +95,78 @@ void RE_Draw_CharScaled (int x, int y, int num, float scale)
 					fcol, frow, size, size, &draw_chars->vk_texture);
 }
 
+static int
+get_utf8_char(const char **curr)
+{
+	unsigned value = 0, size = 0, i;
+
+	value = **curr;
+	if (!(value & 0x80))
+	{
+		size = 1;
+	}
+	else if ((value & 0xE0) == 0xC0)
+	{
+		size = 2;
+		value = (value & 0x1F) << 6;
+	}
+	else if ((value & 0xF0) == 0xE0)
+	{
+		size = 3;
+		value = (value & 0x0F) << 12;
+	}
+	else if ((value & 0xF8) == 0xF0)
+	{
+		size = 4;
+		value = (value & 0x07) << 18;
+	}
+
+	(*curr) ++;
+	size --;
+
+	for (i = 0; (i < size); i++)
+	{
+		int c;
+
+		c = **curr;
+		if ((c & 0xC0) != 0x80)
+		{
+			break;
+		}
+		value |= (c & 0x3F) << ((size - i - 1) * 6);
+		(*curr) ++;
+	}
+
+	return value;
+}
+
+void
+RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	int xor;
+
+	xor = alt ? 0x80 : 0;
+
+	while (*message)
+	{
+		unsigned value = get_utf8_char(&message);
+
+		if (value > ' ' && value < 128)
+		{
+			RE_Draw_CharScaled(x * scale, y * scale, value ^ xor, scale);
+		}
+
+		x += 8 * scale;
+	}
+}
+
 /*
 =============
 RE_Draw_FindPic
 =============
 */
-image_t	*RE_Draw_FindPic (const char *name)
+image_t *
+RE_Draw_FindPic(const char *name)
 {
 	return R_FindPic(name, (findimage_t)Vk_FindImage);
 }
@@ -106,7 +176,8 @@ image_t	*RE_Draw_FindPic (const char *name)
 RE_Draw_GetPicSize
 =============
 */
-void RE_Draw_GetPicSize (int *w, int *h, const char *name)
+void
+RE_Draw_GetPicSize(int *w, int *h, const char *name)
 {
 	image_t *image;
 
@@ -126,7 +197,8 @@ void RE_Draw_GetPicSize (int *w, int *h, const char *name)
 RE_Draw_StretchPic
 =============
 */
-void RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
+void
+RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 {
 	image_t *vk;
 
@@ -151,7 +223,8 @@ void RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 RE_Draw_PicScaled
 =============
 */
-void RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext)
+void
+RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext)
 {
 	image_t *vk;
 
@@ -187,7 +260,8 @@ This repeats a 64*64 tile graphic to fill the screen around a sized down
 refresh window.
 =============
 */
-void RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
+void
+RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
 	image_t	*image;
 	float divisor;
@@ -241,7 +315,8 @@ RE_Draw_Fill
 Fills a box of pixels with a single color
 =============
 */
-void RE_Draw_Fill (int x, int y, int w, int h, int c)
+void
+RE_Draw_Fill(int x, int y, int w, int h, int c)
 {
 	union
 	{
@@ -275,7 +350,8 @@ RE_Draw_FadeScreen
 
 ================
 */
-void RE_Draw_FadeScreen (void)
+void
+RE_Draw_FadeScreen(void)
 {
 	if (!vk_frameStarted)
 		return;
@@ -295,10 +371,8 @@ void RE_Draw_FadeScreen (void)
 RE_Draw_StretchRaw
 =============
 */
-static int vk_rawTexture_height;
-static int vk_rawTexture_width;
-
-void RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+void
+RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
 
 	int	i, j;

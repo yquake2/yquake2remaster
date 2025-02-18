@@ -1730,21 +1730,6 @@ RE_GetSDLVersion(void)
 #endif
 }
 
-static void
-RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
-{
-	int xor;
-
-	xor = alt ? 0x80 : 0;
-
-	while (*message)
-	{
-		RE_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
-		x += 8 * scale;
-		message ++;
-	}
-}
-
 /*
 ===============
 GetRefAPI
