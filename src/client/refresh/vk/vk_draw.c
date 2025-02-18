@@ -21,10 +21,74 @@
  */
 
 #include "header/local.h"
+#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
+#include "../files/stb_truetype.h"
+
+#define MAX_FONTCODE 0x500
 
 static int vk_rawTexture_height = 0;
 static int vk_rawTexture_width = 0;
 static image_t *draw_chars = NULL;
+static image_t *draw_font = NULL;
+static image_t *draw_font_alt = NULL;
+static stbtt_bakedchar *draw_fontcodes = NULL;
+
+static void
+Draw_LoadFont(void)
+{
+	char *font_name = "fonts/Montserrat-Regular.ttf";
+	byte *data, *font_mask, *font_data;
+	int size, i;
+
+	size = ri.FS_LoadFile(font_name, (void **)&data);
+	if (size <= 0)
+	{
+		return;
+	}
+
+	font_mask = malloc(1024 * 1024);
+	font_data = malloc(1024 * 1024 * 4);
+	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
+	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
+
+	stbtt_BakeFontBitmap(data,
+		0 /* file offset */,
+		16.0 /* symbol size */,
+		font_mask,
+		1024, 1024,
+		32 /* Start font code */, MAX_FONTCODE,
+		draw_fontcodes);
+
+	for (i = 0; i < 1024 * 1024; i++)
+	{
+		font_data[i * 4 + 0] = 0xbb;
+		font_data[i * 4 + 1] = 0xbb;
+		font_data[i * 4 + 2] = 0xbb;
+		font_data[i * 4 + 3] = font_mask[i];
+	}
+
+	draw_font = Vk_LoadPic("***ttf***", font_data,
+		1024, 1024, 1024, 1024,
+		1024 * 1024, it_pic, 32);
+
+	for (i = 0; i < 1024 * 1024; i++)
+	{
+		font_data[i * 4 + 0] = 0x5a;
+		font_data[i * 4 + 1] = 0x5f;
+		font_data[i * 4 + 2] = 0x57;
+		font_data[i * 4 + 3] = font_mask[i];
+	}
+
+	draw_font_alt = Vk_LoadPic("***ttf_alt***", font_data,
+		1024, 1024, 1024, 1024,
+		1024 * 1024, it_pic, 32);
+
+	free(font_data);
+	free(font_mask);
+	ri.FS_FreeFile((void *)data);
+
+	printf("Loaded font %s: %d\n", font_name, size);
+}
 
 /*
 ===============
@@ -34,6 +98,8 @@ Draw_InitLocal
 void
 Draw_InitLocal(void)
 {
+	Draw_LoadFont();
+
 	draw_chars = R_FindPic ("conchars", (findimage_t)Vk_FindImage);
 
 	/* Anachronox */
@@ -55,7 +121,11 @@ Draw_InitLocal(void)
 	}
 }
 
-
+void
+Draw_FreeLocal(void)
+{
+	free(draw_fontcodes);
+}
 
 /*
 ================

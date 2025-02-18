@@ -193,6 +193,7 @@ void R_RenderDlights(void);
 void R_DrawAlphaSurfaces(void);
 void RE_InitParticleTexture(void);
 void Draw_InitLocal(void);
+void Draw_FreeLocal(void);
 void R_RotateForEntity(entity_t *e, float *mvMatrix);
 void R_MarkLeaves(void);
 
