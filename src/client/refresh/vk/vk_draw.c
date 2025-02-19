@@ -23,7 +23,8 @@
 #include "header/local.h"
 #define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
 #include "../files/stb_truetype.h"
-
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../../vid/header/stb_image_write.h"
 #define MAX_FONTCODE 0x500
 
 static int vk_rawTexture_height = 0;
@@ -36,7 +37,7 @@ static stbtt_bakedchar *draw_fontcodes = NULL;
 static void
 Draw_LoadFont(void)
 {
-	char *font_name = "fonts/Montserrat-Regular.ttf";
+	char *font_name = "fonts/RussoOne-Regular.ttf";
 	byte *data, *font_mask, *font_data;
 	int size, i;
 
@@ -46,42 +47,43 @@ Draw_LoadFont(void)
 		return;
 	}
 
-	font_mask = malloc(1024 * 1024);
-	font_data = malloc(1024 * 1024 * 4);
+	font_mask = malloc(512 * 512);
+	font_data = malloc(512 * 512 * 4);
 	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
 	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
 
 	stbtt_BakeFontBitmap(data,
 		0 /* file offset */,
-		16.0 /* symbol size */,
+		32.0 /* symbol size */,
 		font_mask,
-		1024, 1024,
+		512, 512,
 		32 /* Start font code */, MAX_FONTCODE,
 		draw_fontcodes);
 
-	for (i = 0; i < 1024 * 1024; i++)
+	for (i = 0; i < 512 * 512; i++)
 	{
-		font_data[i * 4 + 0] = 0xbb;
-		font_data[i * 4 + 1] = 0xbb;
-		font_data[i * 4 + 2] = 0xbb;
+		font_data[i * 4 + 0] = font_mask[i];
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = font_mask[i];
 		font_data[i * 4 + 3] = font_mask[i];
 	}
-
 	draw_font = Vk_LoadPic("***ttf***", font_data,
-		1024, 1024, 1024, 1024,
-		1024 * 1024, it_pic, 32);
+		512, 512, 512, 512,
+		512 * 512, it_pic, 32);
 
-	for (i = 0; i < 1024 * 1024; i++)
+	for (i = 0; i < 512 * 512; i++)
 	{
-		font_data[i * 4 + 0] = 0x5a;
-		font_data[i * 4 + 1] = 0x5f;
-		font_data[i * 4 + 2] = 0x57;
+		font_data[i * 4 + 0] = 0x0;
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = 0x0;
 		font_data[i * 4 + 3] = font_mask[i];
 	}
 
 	draw_font_alt = Vk_LoadPic("***ttf_alt***", font_data,
-		1024, 1024, 1024, 1024,
-		1024 * 1024, it_pic, 32);
+		512, 512, 512, 512,
+		512 * 512, it_pic, 32);
+
+	stbi_write_png("font.png", 512, 512, 4, font_data, 0);
 
 	free(font_data);
 	free(font_mask);
@@ -221,9 +223,27 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 	{
 		unsigned value = get_utf8_char(&message);
 
-		if (value > ' ' && value < 128)
+		if (draw_fontcodes && (draw_font || draw_font_alt))
 		{
-			RE_Draw_CharScaled(x * scale, y * scale, value ^ xor, scale);
+			if (value >= 32 && value < MAX_FONTCODE) {
+				stbtt_aligned_quad q;
+				float xf, yf;
+
+				const stbtt_bakedchar *b = draw_fontcodes + value - 32;
+
+				QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
+								8.f * scale / vid.width, 8.f * scale / vid.height,
+								(float)b->x0 / 512, (float)b->y0 / 512,
+								(float)(b->x1 - b->x0) / 512, (float)(b->y1 - b->y0) / 512,
+								alt ? &draw_font_alt->vk_texture : &draw_font->vk_texture);
+			}
+		}
+		else
+		{
+			if (value > ' ' && value < 128)
+			{
+				RE_Draw_CharScaled(x * scale, y * scale, value ^ xor, scale);
+			}
 		}
 
 		x += 8 * scale;
