@@ -29,6 +29,7 @@
 
 static int vk_rawTexture_height = 0;
 static int vk_rawTexture_width = 0;
+static float vk_font_size = 8.0;
 static image_t *draw_chars = NULL;
 static image_t *draw_font = NULL;
 static image_t *draw_font_alt = NULL;
@@ -52,9 +53,14 @@ Draw_LoadFont(void)
 	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
 	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
 
+	vk_font_size = vid.height / 240;
+	//if (vk_font_size < 8)
+	{
+		vk_font_size = 8.0;
+	}
 	stbtt_BakeFontBitmap(data,
 		0 /* file offset */,
-		32.0 /* symbol size */,
+		vk_font_size /* symbol size */,
 		font_mask,
 		512, 512,
 		32 /* Start font code */, MAX_FONTCODE,
@@ -231,10 +237,13 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 
 				const stbtt_bakedchar *b = draw_fontcodes + value - 32;
 
-				QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
-								8.f * scale / vid.width, 8.f * scale / vid.height,
-								(float)b->x0 / 512, (float)b->y0 / 512,
-								(float)(b->x1 - b->x0) / 512, (float)(b->y1 - b->y0) / 512,
+				QVk_DrawTexRect((float)(x + b->xoff * scale / (vk_font_size / 8.0)) / vid.width,
+								(float)(y + b->yoff * scale / (vk_font_size / 8.0) + 8 * scale) / vid.height,
+								(b->x1 - b->x0) * scale / vid.width / 1.0,
+								(b->y1 - b->y0) * scale / vid.height / 1.0,
+								(float)(b->x0) / 512, (float)(b->y0) / 512,
+								(float)(b->x1 - b->x0) / 512,
+								(float)(b->y1 - b->y0) / 512,
 								alt ? &draw_font_alt->vk_texture : &draw_font->vk_texture);
 			}
 		}
