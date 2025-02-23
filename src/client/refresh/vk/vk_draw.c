@@ -49,16 +49,16 @@ Draw_LoadFont(void)
 		return;
 	}
 
-	vk_font_size = vid.height / 240;
+	vk_font_size = (vid.height / 240.0) * 4.0;
 	if (vk_font_size < 8)
 	{
 		vk_font_size = 8.0;
 	}
+
 	while (power_two < vk_font_size)
 	{
 		power_two <<= 1;
 	}
-	vk_font_size = power_two;
 	vk_font_height = 32 * power_two;
 
 	font_mask = malloc(vk_font_height * vk_font_height);
@@ -68,7 +68,7 @@ Draw_LoadFont(void)
 
 	stbtt_BakeFontBitmap(data,
 		0 /* file offset */,
-		vk_font_size * 1.5 /* symbol size */,
+		vk_font_size * 1.5 /* symbol size ~ as console font */,
 		font_mask,
 		vk_font_height, vk_font_height,
 		32 /* Start font code */, MAX_FONTCODE,
@@ -103,7 +103,7 @@ Draw_LoadFont(void)
 	free(font_mask);
 	ri.FS_FreeFile((void *)data);
 
-	R_Printf(PRINT_ALL, "%s(): Loaded font %s.\n", __func__, font_name);
+	R_Printf(PRINT_ALL, "%s(): Loaded font %s %.0fp.\n", __func__, font_name, vk_font_size);
 }
 
 /*
