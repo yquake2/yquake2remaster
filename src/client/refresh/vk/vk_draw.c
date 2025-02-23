@@ -103,7 +103,7 @@ Draw_LoadFont(void)
 	free(font_mask);
 	ri.FS_FreeFile((void *)data);
 
-	printf("Loaded font %s: %d\n", font_name, size);
+	R_Printf(PRINT_ALL, "%s(): Loaded font %s.\n", __func__, font_name);
 }
 
 /*
