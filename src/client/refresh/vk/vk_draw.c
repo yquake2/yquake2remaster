@@ -253,6 +253,11 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 								(b->y1 - b->y0) * scale / vid.height / (vk_font_size / 8.0),
 								q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
 								alt ? &draw_font_alt->vk_texture : &draw_font->vk_texture);
+				x += Q_max(8, xf / (vk_font_size / 8.0)) * scale;
+			}
+			else
+			{
+				x += 8 * scale;
 			}
 		}
 		else
@@ -261,9 +266,9 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 			{
 				RE_Draw_CharScaled(x * scale, y * scale, value ^ xor, scale);
 			}
-		}
 
-		x += 8 * scale;
+			x += 8 * scale;
+		}
 	}
 }
 
