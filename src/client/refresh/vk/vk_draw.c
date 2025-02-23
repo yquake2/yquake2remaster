@@ -30,6 +30,7 @@
 static int vk_rawTexture_height = 0;
 static int vk_rawTexture_width = 0;
 static float vk_font_size = 8.0;
+static int vk_font_height = 128;
 static image_t *draw_chars = NULL;
 static image_t *draw_font = NULL;
 static image_t *draw_font_alt = NULL;
@@ -40,7 +41,7 @@ Draw_LoadFont(void)
 {
 	char *font_name = "fonts/RussoOne-Regular.ttf";
 	byte *data, *font_mask, *font_data;
-	int size, i;
+	int size, i, power_two = 1;
 
 	size = ri.FS_LoadFile(font_name, (void **)&data);
 	if (size <= 0)
@@ -48,25 +49,32 @@ Draw_LoadFont(void)
 		return;
 	}
 
-	font_mask = malloc(512 * 512);
-	font_data = malloc(512 * 512 * 4);
-	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
-	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
-
 	vk_font_size = vid.height / 240;
-	//if (vk_font_size < 8)
+	if (vk_font_size < 8)
 	{
 		vk_font_size = 8.0;
 	}
+	while (power_two < vk_font_size)
+	{
+		power_two <<= 1;
+	}
+	vk_font_size = power_two;
+	vk_font_height = 32 * power_two;
+
+	font_mask = malloc(vk_font_height * vk_font_height);
+	font_data = malloc(vk_font_height * vk_font_height * 4);
+	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
+	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
+
 	stbtt_BakeFontBitmap(data,
 		0 /* file offset */,
-		vk_font_size /* symbol size */,
+		vk_font_size * 1.5 /* symbol size */,
 		font_mask,
-		512, 512,
+		vk_font_height, vk_font_height,
 		32 /* Start font code */, MAX_FONTCODE,
 		draw_fontcodes);
 
-	for (i = 0; i < 512 * 512; i++)
+	for (i = 0; i < vk_font_height * vk_font_height; i++)
 	{
 		font_data[i * 4 + 0] = font_mask[i];
 		font_data[i * 4 + 1] = font_mask[i];
@@ -74,10 +82,10 @@ Draw_LoadFont(void)
 		font_data[i * 4 + 3] = font_mask[i];
 	}
 	draw_font = Vk_LoadPic("***ttf***", font_data,
-		512, 512, 512, 512,
-		512 * 512, it_pic, 32);
+		vk_font_height, vk_font_height, vk_font_height, vk_font_height,
+		vk_font_height * vk_font_height, it_pic, 32);
 
-	for (i = 0; i < 512 * 512; i++)
+	for (i = 0; i < vk_font_height * vk_font_height; i++)
 	{
 		font_data[i * 4 + 0] = 0x0;
 		font_data[i * 4 + 1] = font_mask[i];
@@ -86,10 +94,10 @@ Draw_LoadFont(void)
 	}
 
 	draw_font_alt = Vk_LoadPic("***ttf_alt***", font_data,
-		512, 512, 512, 512,
-		512 * 512, it_pic, 32);
+		vk_font_height, vk_font_height, vk_font_height, vk_font_height,
+		vk_font_height * vk_font_height, it_pic, 32);
 
-	stbi_write_png("font.png", 512, 512, 4, font_data, 0);
+	stbi_write_png("font.png", vk_font_height, vk_font_height, 4, font_data, 0);
 
 	free(font_data);
 	free(font_mask);
@@ -235,14 +243,14 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 				stbtt_aligned_quad q;
 				float xf = 0, yf = 0;
 
-				stbtt_GetBakedQuad(draw_fontcodes, 512, 512, value - 32, &xf, &yf, &q, 1);
+				stbtt_GetBakedQuad(draw_fontcodes, vk_font_height, vk_font_height, value - 32, &xf, &yf, &q, 1);
 
 				const stbtt_bakedchar *b = draw_fontcodes + value - 32;
 
 				QVk_DrawTexRect((float)(x + b->xoff * scale / (vk_font_size / 8.0)) / vid.width,
 								(float)(y + b->yoff * scale / (vk_font_size / 8.0) + 8 * scale) / vid.height,
-								(b->x1 - b->x0) * scale / vid.width / 1.0,
-								(b->y1 - b->y0) * scale / vid.height / 1.0,
+								(b->x1 - b->x0) * scale / vid.width / (vk_font_size / 8.0),
+								(b->y1 - b->y0) * scale / vid.height / (vk_font_size / 8.0),
 								q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
 								alt ? &draw_font_alt->vk_texture : &draw_font->vk_texture);
 			}
