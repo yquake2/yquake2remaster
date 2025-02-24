@@ -21,16 +21,99 @@
  */
 
 #include "header/local.h"
+#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
+#include "../files/stb_truetype.h"
+#define MAX_FONTCODE 0x500
 
-static image_t	*draw_chars;
+static int vk_rawTexture_height = 0;
+static int vk_rawTexture_width = 0;
+static float vk_font_size = 8.0;
+static int vk_font_height = 128;
+static image_t *draw_chars = NULL;
+static image_t *draw_font = NULL;
+static image_t *draw_font_alt = NULL;
+static stbtt_bakedchar *draw_fontcodes = NULL;
+
+static void
+Draw_LoadFont(void)
+{
+	char font_name[MAX_QPATH] = {0};
+	byte *data, *font_mask, *font_data;
+	int size, i, power_two = 1;
+
+	snprintf(font_name, sizeof(font_name), "fonts/%s.ttf", r_ttffont->string);
+
+	size = ri.FS_LoadFile(font_name, (void **)&data);
+	if (size <= 0)
+	{
+		return;
+	}
+
+	vk_font_size = (vid.height / 240.0) * 4.0;
+	if (vk_font_size < 8)
+	{
+		vk_font_size = 8.0;
+	}
+
+	while (power_two < vk_font_size)
+	{
+		power_two <<= 1;
+	}
+	vk_font_height = 32 * power_two;
+
+	font_mask = malloc(vk_font_height * vk_font_height);
+	font_data = malloc(vk_font_height * vk_font_height * 4);
+	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
+	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
+
+	stbtt_BakeFontBitmap(data,
+		0 /* file offset */,
+		vk_font_size * 1.5 /* symbol size ~ as console font */,
+		font_mask,
+		vk_font_height, vk_font_height,
+		32 /* Start font code */, MAX_FONTCODE,
+		draw_fontcodes);
+
+	for (i = 0; i < vk_font_height * vk_font_height; i++)
+	{
+		font_data[i * 4 + 0] = font_mask[i];
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i];
+	}
+	draw_font = Vk_LoadPic("***ttf***", font_data,
+		vk_font_height, vk_font_height, vk_font_height, vk_font_height,
+		vk_font_height * vk_font_height, it_pic, 32);
+
+	for (i = 0; i < vk_font_height * vk_font_height; i++)
+	{
+		font_data[i * 4 + 0] = 0x0;
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = 0x0;
+		font_data[i * 4 + 3] = font_mask[i];
+	}
+
+	draw_font_alt = Vk_LoadPic("***ttf_alt***", font_data,
+		vk_font_height, vk_font_height, vk_font_height, vk_font_height,
+		vk_font_height * vk_font_height, it_pic, 32);
+
+	free(font_data);
+	free(font_mask);
+	ri.FS_FreeFile((void *)data);
+
+	R_Printf(PRINT_ALL, "%s(): Loaded font %s %.0fp.\n", __func__, font_name, vk_font_size);
+}
 
 /*
 ===============
 Draw_InitLocal
 ===============
 */
-void Draw_InitLocal (void)
+void
+Draw_InitLocal(void)
 {
+	Draw_LoadFont();
+
 	draw_chars = R_FindPic ("conchars", (findimage_t)Vk_FindImage);
 
 	/* Anachronox */
@@ -52,7 +135,11 @@ void Draw_InitLocal (void)
 	}
 }
 
-
+void
+Draw_FreeLocal(void)
+{
+	free(draw_fontcodes);
+}
 
 /*
 ================
@@ -63,7 +150,8 @@ It can be clipped to the top of the screen to allow the console to be
 smoothly scrolled off.
 ================
 */
-void RE_Draw_CharScaled (int x, int y, int num, float scale)
+void
+RE_Draw_CharScaled (int x, int y, int num, float scale)
 {
 	int	row, col;
 	float	frow, fcol, size;
@@ -91,12 +179,106 @@ void RE_Draw_CharScaled (int x, int y, int num, float scale)
 					fcol, frow, size, size, &draw_chars->vk_texture);
 }
 
+static int
+get_utf8_char(const char **curr)
+{
+	unsigned value = 0, size = 0, i;
+
+	value = **curr;
+	if (!(value & 0x80))
+	{
+		size = 1;
+	}
+	else if ((value & 0xE0) == 0xC0)
+	{
+		size = 2;
+		value = (value & 0x1F) << 6;
+	}
+	else if ((value & 0xF0) == 0xE0)
+	{
+		size = 3;
+		value = (value & 0x0F) << 12;
+	}
+	else if ((value & 0xF8) == 0xF0)
+	{
+		size = 4;
+		value = (value & 0x07) << 18;
+	}
+
+	(*curr) ++;
+	size --;
+
+	for (i = 0; (i < size); i++)
+	{
+		int c;
+
+		c = **curr;
+		if ((c & 0xC0) != 0x80)
+		{
+			break;
+		}
+		value |= (c & 0x3F) << ((size - i - 1) * 6);
+		(*curr) ++;
+	}
+
+	return value;
+}
+
+void
+RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	while (*message)
+	{
+		unsigned value = get_utf8_char(&message);
+
+		if (draw_fontcodes && (draw_font || draw_font_alt))
+		{
+			float font_scale;
+
+			font_scale = vk_font_size / 8.0;
+
+			if (value >= 32 && value < MAX_FONTCODE) {
+				stbtt_aligned_quad q;
+				float xf = 0, yf = 0;
+
+				stbtt_GetBakedQuad(draw_fontcodes, vk_font_height, vk_font_height, value - 32, &xf, &yf, &q, 1);
+
+				QVk_DrawTexRect((float)(x + q.x0 * scale / font_scale) / vid.width,
+								(float)(y + q.y0 * scale / font_scale + 8 * scale) / vid.height,
+								(q.x1 - q.x0) * scale / vid.width / font_scale,
+								(q.y1 - q.y0) * scale / vid.height / font_scale,
+								q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
+								alt ? &draw_font_alt->vk_texture : &draw_font->vk_texture);
+				x += Q_max(8, xf / font_scale) * scale;
+			}
+			else
+			{
+				x += 8 * scale;
+			}
+		}
+		else
+		{
+			int xor;
+
+			xor = alt ? 0x80 : 0;
+
+			if (value > ' ' && value < 128)
+			{
+				RE_Draw_CharScaled(x * scale, y * scale, value ^ xor, scale);
+			}
+
+			x += 8 * scale;
+		}
+	}
+}
+
 /*
 =============
 RE_Draw_FindPic
 =============
 */
-image_t	*RE_Draw_FindPic (const char *name)
+image_t *
+RE_Draw_FindPic(const char *name)
 {
 	return R_FindPic(name, (findimage_t)Vk_FindImage);
 }
@@ -106,7 +288,8 @@ image_t	*RE_Draw_FindPic (const char *name)
 RE_Draw_GetPicSize
 =============
 */
-void RE_Draw_GetPicSize (int *w, int *h, const char *name)
+void
+RE_Draw_GetPicSize(int *w, int *h, const char *name)
 {
 	image_t *image;
 
@@ -126,7 +309,8 @@ void RE_Draw_GetPicSize (int *w, int *h, const char *name)
 RE_Draw_StretchPic
 =============
 */
-void RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
+void
+RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 {
 	image_t *vk;
 
@@ -151,7 +335,8 @@ void RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 RE_Draw_PicScaled
 =============
 */
-void RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext)
+void
+RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext)
 {
 	image_t *vk;
 
@@ -187,7 +372,8 @@ This repeats a 64*64 tile graphic to fill the screen around a sized down
 refresh window.
 =============
 */
-void RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
+void
+RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
 	image_t	*image;
 	float divisor;
@@ -241,7 +427,8 @@ RE_Draw_Fill
 Fills a box of pixels with a single color
 =============
 */
-void RE_Draw_Fill (int x, int y, int w, int h, int c)
+void
+RE_Draw_Fill(int x, int y, int w, int h, int c)
 {
 	union
 	{
@@ -275,7 +462,8 @@ RE_Draw_FadeScreen
 
 ================
 */
-void RE_Draw_FadeScreen (void)
+void
+RE_Draw_FadeScreen(void)
 {
 	if (!vk_frameStarted)
 		return;
@@ -295,10 +483,8 @@ void RE_Draw_FadeScreen (void)
 RE_Draw_StretchRaw
 =============
 */
-static int vk_rawTexture_height;
-static int vk_rawTexture_width;
-
-void RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+void
+RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
 
 	int	i, j;

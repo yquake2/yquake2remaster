@@ -139,6 +139,7 @@ cvar_t	*r_lerp_list;
 cvar_t	*r_2D_unfiltered;
 cvar_t	*r_videos_unfiltered;
 cvar_t	*r_fixsurfsky;
+cvar_t	*r_ttffont;
 
 cvar_t	*vid_fullscreen;
 cvar_t	*vid_gamma;
@@ -1207,6 +1208,8 @@ R_Register(void)
 	/* don't bilerp videos */
 	r_videos_unfiltered = ri.Cvar_Get("r_videos_unfiltered", "0", CVAR_ARCHIVE);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
+	/* font should looks good with 8 pixels size */
+	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 
 	// clamp vk_msaa to accepted range so that video menu doesn't crash on us
 	if (vk_msaa->value < 0)
@@ -1728,21 +1731,6 @@ RE_GetSDLVersion(void)
 	SDL_VERSION(&ver);
 	return ver.major;
 #endif
-}
-
-static void
-RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
-{
-	int xor;
-
-	xor = alt ? 0x80 : 0;
-
-	while (*message)
-	{
-		RE_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
-		x += 8 * scale;
-		message ++;
-	}
 }
 
 /*

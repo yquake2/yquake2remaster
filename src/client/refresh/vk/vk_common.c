@@ -1696,7 +1696,8 @@ void QVk_GetDrawableSize(int *width, int *height)
 #endif
 }
 
-void QVk_WaitAndShutdownAll (void)
+void
+QVk_WaitAndShutdownAll(void)
 {
 	if (!vk_initialized)
 	{
@@ -1711,6 +1712,7 @@ void QVk_WaitAndShutdownAll (void)
 	Mod_FreeAll();
 	Mod_FreeModelsKnown();
 	Vk_ShutdownImages();
+	Draw_FreeLocal();
 	Mesh_Free();
 	R_VertBufferFree();
 	QVk_Shutdown();
