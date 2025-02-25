@@ -23,6 +23,8 @@
 #include "header/local.h"
 #define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
 #include "../files/stb_truetype.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../../vid/header/stb_image_write.h"
 #define MAX_FONTCODE 0x500
 
 static int vk_rawTexture_height = 0;
@@ -96,6 +98,8 @@ Draw_LoadFont(void)
 	draw_font_alt = Vk_LoadPic("***ttf_alt***", font_data,
 		vk_font_height, vk_font_height, vk_font_height, vk_font_height,
 		vk_font_height * vk_font_height, it_pic, 32);
+
+	stbi_write_png("font.png", vk_font_height, vk_font_height, 4, font_data, 0);
 
 	free(font_data);
 	free(font_mask);
