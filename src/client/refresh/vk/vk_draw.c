@@ -104,28 +104,25 @@ Draw_LoadFont(void)
 	R_Printf(PRINT_ALL, "%s(): Loaded font %s %.0fp.\n", __func__, font_name, vk_font_size);
 }
 
-/*
-===============
-Draw_InitLocal
-===============
-*/
+
 void
 Draw_InitLocal(void)
 {
 	Draw_LoadFont();
 
-	draw_chars = R_FindPic ("conchars", (findimage_t)Vk_FindImage);
+	/* load console characters */
+	draw_chars = R_FindPic("conchars", (findimage_t)Vk_FindImage);
 
 	/* Anachronox */
 	if (!draw_chars)
 	{
-		draw_chars = R_FindPic ("fonts/conchars", (findimage_t)Vk_FindImage);
+		draw_chars = R_FindPic("fonts/conchars", (findimage_t)Vk_FindImage);
 	}
 
 	/* Daikatana */
 	if (!draw_chars)
 	{
-		draw_chars = R_FindPic ("dkchars", (findimage_t)Vk_FindImage);
+		draw_chars = R_FindPic("dkchars", (findimage_t)Vk_FindImage);
 	}
 
 	if (!draw_chars)
@@ -142,30 +139,32 @@ Draw_FreeLocal(void)
 }
 
 /*
-================
-RE_Draw_CharScaled
-
-Draws one 8*8 graphics character with 0 being transparent.
-It can be clipped to the top of the screen to allow the console to be
-smoothly scrolled off.
-================
-*/
+ * Draws one 8*8 graphics character with 0 being transparent.
+ * It can be clipped to the top of the screen to allow the console to be
+ * smoothly scrolled off.
+ */
 void
-RE_Draw_CharScaled (int x, int y, int num, float scale)
+RE_Draw_CharScaled(int x, int y, int num, float scale)
 {
-	int	row, col;
-	float	frow, fcol, size;
+	int row, col;
+	float frow, fcol, size, scaledSize;
 
 	if (!vk_frameStarted)
+	{
 		return;
+	}
 
 	num &= 255;
 
 	if ((num & 127) == 32)
-		return;		// space
+	{
+		return; /* space */
+	}
 
 	if (y <= -8)
-		return;			// totally off screen
+	{
+		return; /* totally off screen */
+	}
 
 	row = num >> 4;
 	col = num & 15;
@@ -174,54 +173,11 @@ RE_Draw_CharScaled (int x, int y, int num, float scale)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
+	scaledSize = 8 * scale;
+
 	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
-					8.f * scale / vid.width, 8.f * scale / vid.height,
+					scaledSize / vid.width, scaledSize / vid.height,
 					fcol, frow, size, size, &draw_chars->vk_texture);
-}
-
-static int
-get_utf8_char(const char **curr)
-{
-	unsigned value = 0, size = 0, i;
-
-	value = **curr;
-	if (!(value & 0x80))
-	{
-		size = 1;
-	}
-	else if ((value & 0xE0) == 0xC0)
-	{
-		size = 2;
-		value = (value & 0x1F) << 6;
-	}
-	else if ((value & 0xF0) == 0xE0)
-	{
-		size = 3;
-		value = (value & 0x0F) << 12;
-	}
-	else if ((value & 0xF8) == 0xF0)
-	{
-		size = 4;
-		value = (value & 0x07) << 18;
-	}
-
-	(*curr) ++;
-	size --;
-
-	for (i = 0; (i < size); i++)
-	{
-		int c;
-
-		c = **curr;
-		if ((c & 0xC0) != 0x80)
-		{
-			break;
-		}
-		value |= (c & 0x3F) << ((size - i - 1) * 6);
-		(*curr) ++;
-	}
-
-	return value;
 }
 
 void
@@ -229,7 +185,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 {
 	while (*message)
 	{
-		unsigned value = get_utf8_char(&message);
+		unsigned value = R_NextUTF8Code(&message);
 
 		if (draw_fontcodes && (draw_font || draw_font_alt))
 		{
@@ -291,7 +247,7 @@ RE_Draw_GetPicSize
 void
 RE_Draw_GetPicSize(int *w, int *h, const char *name)
 {
-	image_t *image;
+	const image_t *image;
 
 	image = R_FindPic(name, (findimage_t)Vk_FindImage);
 	if (!image)
@@ -315,7 +271,9 @@ RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 	image_t *vk;
 
 	if (!vk_frameStarted)
+	{
 		return;
+	}
 
 	vk = R_FindPic(name, (findimage_t)Vk_FindImage);
 	if (!vk)
@@ -346,7 +304,8 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			int l, i;
+			size_t l;
+			int i;
 
 			l = strlen(alttext);
 			for (i = 0; i < l; i++)
@@ -365,23 +324,23 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 }
 
 /*
-=============
-RE_Draw_TileClear
-
-This repeats a 64*64 tile graphic to fill the screen around a sized down
-refresh window.
-=============
-*/
+ * This repeats a 64*64 tile graphic to fill
+ * the screen around a sized down
+ * refresh window.
+ */
 void
 RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
-	image_t	*image;
+	const image_t *image;
 	float divisor;
 
 	if (!vk_frameStarted)
+	{
 		return;
+	}
 
 	image = R_FindPic(name, (findimage_t)Vk_FindImage);
+
 	if (!image)
 	{
 		R_Printf(PRINT_ALL, "%s(): Can't find pic: %s\n", __func__, name);
@@ -419,28 +378,27 @@ RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 
 }
 
-
 /*
-=============
-RE_Draw_Fill
-
-Fills a box of pixels with a single color
-=============
-*/
+ * Fills a box of pixels with a single color
+ */
 void
 RE_Draw_Fill(int x, int y, int w, int h, int c)
 {
 	union
 	{
-		unsigned	c;
-		byte		v[4];
+		unsigned c;
+		byte v[4];
 	} color;
 
 	if (!vk_frameStarted)
+	{
 		return;
+	}
 
 	if ((unsigned)c > 255)
+	{
 		Com_Error(ERR_FATAL, "%s: bad color", __func__);
+	}
 
 	color.c = d_8to24table[c];
 
@@ -466,7 +424,9 @@ void
 RE_Draw_FadeScreen(void)
 {
 	if (!vk_frameStarted)
+	{
 		return;
+	}
 
 	QVk_DrawColorRect(
 		0.0f, 0.0f, 1.0f, 1.0f,
@@ -487,14 +447,16 @@ void
 RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
 
-	int	i, j;
+	int i, j;
 	unsigned *dest;
 	byte *source;
 	byte *image_scaled = NULL;
 	unsigned *raw_image32;
 
 	if (!vk_frameStarted)
+	{
 		return;
+	}
 
 	if (bits == 32)
 	{

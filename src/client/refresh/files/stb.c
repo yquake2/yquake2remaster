@@ -764,3 +764,48 @@ R_FindPic(const char *name, findimage_t find_image)
 
 	return image;
 }
+
+unsigned
+R_NextUTF8Code(const char **curr)
+{
+	unsigned value = 0, size = 0, i;
+
+	value = **curr;
+	if (!(value & 0x80))
+	{
+		size = 1;
+	}
+	else if ((value & 0xE0) == 0xC0)
+	{
+		size = 2;
+		value = (value & 0x1F) << 6;
+	}
+	else if ((value & 0xF0) == 0xE0)
+	{
+		size = 3;
+		value = (value & 0x0F) << 12;
+	}
+	else if ((value & 0xF8) == 0xF0)
+	{
+		size = 4;
+		value = (value & 0x07) << 18;
+	}
+
+	(*curr) ++;
+	size --;
+
+	for (i = 0; (i < size); i++)
+	{
+		int c;
+
+		c = **curr;
+		if ((c & 0xC0) != 0x80)
+		{
+			break;
+		}
+		value |= (c & 0x3F) << ((size - i - 1) * 6);
+		(*curr) ++;
+	}
+
+	return value;
+}

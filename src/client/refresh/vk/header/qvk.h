@@ -340,7 +340,7 @@ void		QVk_Draw2DCallsRender(void);
 void		QVk_DrawColorRect(float x, float y, float w, float h,
 				float r, float g, float b, float a, qvkrenderpasstype_t rpType);
 void		QVk_DrawTexRect(float x, float y, float w, float h,
-				float u, float v, float us, float vs, qvktexture_t *texture);
+				float u, float v, float us, float vs, const qvktexture_t *texture);
 void		QVk_BindPipeline(qvkpipeline_t *pipeline);
 void		QVk_SubmitStagingBuffers(void);
 void		Qvk_MemoryBarrier(VkCommandBuffer cmdBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask);
