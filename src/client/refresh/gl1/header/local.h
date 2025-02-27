@@ -166,6 +166,7 @@ extern cvar_t *r_fullbright;
 extern cvar_t *r_novis;
 extern cvar_t *r_lerpmodels;
 extern cvar_t *r_fixsurfsky;
+extern cvar_t *r_ttffont;
 
 extern cvar_t *r_lightlevel;
 extern cvar_t *gl1_overbrightbits;
@@ -285,6 +286,7 @@ void R_SetTexturePalette(const unsigned palette[256]);
 
 void R_InitImages(void);
 void R_ShutdownImages(void);
+void RDraw_FreeLocal(void);
 
 void R_FreeUnusedImages(void);
 qboolean R_ImageHasFreeSpace(void);
