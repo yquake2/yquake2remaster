@@ -36,26 +36,7 @@ static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured ren
 void
 GL3_Draw_InitLocal(void)
 {
-	/* load console characters */
-	draw_chars = R_FindPic("conchars", (findimage_t)GL3_FindImage);
-
-	/* Anachronox */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic ("fonts/conchars", (findimage_t)GL3_FindImage);
-	}
-
-	/* Daikatana */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic ("dkchars", (findimage_t)GL3_FindImage);
-	}
-
-	if (!draw_chars)
-	{
-		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
-			__func__);
-	}
+	draw_chars = R_LoadConsoleChars((findimage_t)GL3_FindImage);
 
 	// set up attribute layout for 2D textured rendering
 	glGenVertexArrays(1, &vao2D);

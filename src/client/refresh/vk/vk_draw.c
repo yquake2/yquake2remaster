@@ -110,26 +110,7 @@ Draw_InitLocal(void)
 {
 	Draw_LoadFont();
 
-	/* load console characters */
-	draw_chars = R_FindPic("conchars", (findimage_t)Vk_FindImage);
-
-	/* Anachronox */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic("fonts/conchars", (findimage_t)Vk_FindImage);
-	}
-
-	/* Daikatana */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic("dkchars", (findimage_t)Vk_FindImage);
-	}
-
-	if (!draw_chars)
-	{
-		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
-			__func__);
-	}
+	draw_chars = R_LoadConsoleChars((findimage_t)Vk_FindImage);
 }
 
 void

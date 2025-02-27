@@ -809,3 +809,32 @@ R_NextUTF8Code(const char **curr)
 
 	return value;
 }
+
+struct image_s *
+R_LoadConsoleChars(findimage_t find_image)
+{
+	struct image_s *draw_chars;
+
+	/* load console characters */
+	draw_chars = R_FindPic("conchars", find_image);
+
+	/* Anachronox */
+	if (!draw_chars)
+	{
+		draw_chars = R_FindPic("fonts/conchars", find_image);
+	}
+
+	/* Daikatana */
+	if (!draw_chars)
+	{
+		draw_chars = R_FindPic("dkchars", find_image);
+	}
+
+	if (!draw_chars)
+	{
+		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
+			__func__);
+	}
+
+	return draw_chars;
+}
