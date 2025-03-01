@@ -255,7 +255,7 @@ SCR_CenterPrint(char *str)
 		int l;
 
 		l = SCR_CopyUtf8(s, line, 40);
-		memmove(line + 40 - l, line, 161 - l);
+		memmove(line + 40 - l, line, strlen(line) + 1);
 		memset(line, ' ', 40 - l);
 
 		Com_Printf("%s\n", line);
@@ -307,10 +307,10 @@ SCR_DrawCenterString(void)
 		l = SCR_CopyUtf8(start, message, 60);
 
 		x = ((viddef.width / scale) - (l * CHAR_SIZE)) / 2;
-		SCR_AddDirtyPoint(x, y);
-		SCR_AddDirtyPoint(x + l * CHAR_SIZE, y + CHAR_SIZE);
+		SCR_AddDirtyPoint(x * scale, y * scale);
+		SCR_AddDirtyPoint((x + l * CHAR_SIZE) * scale, (y + CHAR_SIZE) * scale);
 
-		Draw_StringScaled(x, y, scale, false, message);
+		Draw_StringScaled(x * scale, y * scale, scale, false, message);
 
 		y += CHAR_SIZE;
 

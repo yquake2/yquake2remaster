@@ -25,18 +25,105 @@
  */
 
 #include "header/local.h"
+#define STB_TRUETYPE_IMPLEMENTATION  // force following include to generate implementation
+#include "../files/stb_truetype.h"
+#define MAX_FONTCODE 0x500
 
-image_t *draw_chars;
+static float gl_font_size = 8.0;
+static int gl_font_height = 128;
+image_t *draw_chars = NULL;
+static image_t *draw_font = NULL;
+static image_t *draw_font_alt = NULL;
+static stbtt_bakedchar *draw_fontcodes = NULL;
 
 extern qboolean scrap_dirty;
 void Scrap_Upload(void);
 
 extern unsigned r_rawpalette[256];
 
+static void
+Draw_LoadFont(void)
+{
+	char font_name[MAX_QPATH] = {0};
+	byte *data, *font_mask, *font_data;
+	int size, i, power_two = 1;
+
+	snprintf(font_name, sizeof(font_name), "fonts/%s.ttf", r_ttffont->string);
+
+	size = ri.FS_LoadFile(font_name, (void **)&data);
+	if (size <= 0)
+	{
+		return;
+	}
+
+	gl_font_size = (vid.height / 240.0) * 4.0;
+	if (gl_font_size < 8)
+	{
+		gl_font_size = 8.0;
+	}
+
+	while (power_two < gl_font_size)
+	{
+		power_two <<= 1;
+	}
+	gl_font_height = 32 * power_two;
+
+	font_mask = malloc(gl_font_height * gl_font_height);
+	font_data = malloc(gl_font_height * gl_font_height * 4);
+	draw_fontcodes = malloc(MAX_FONTCODE * sizeof(*draw_fontcodes));
+	memset(draw_fontcodes, 0, MAX_FONTCODE * sizeof(*draw_fontcodes));
+
+	stbtt_BakeFontBitmap(data,
+		0 /* file offset */,
+		gl_font_size * 1.5 /* symbol size ~ as console font */,
+		font_mask,
+		gl_font_height, gl_font_height,
+		32 /* Start font code */, MAX_FONTCODE,
+		draw_fontcodes);
+
+	for (i = 0; i < gl_font_height * gl_font_height; i++)
+	{
+		font_data[i * 4 + 0] = font_mask[i];
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i];
+	}
+	draw_font = R_LoadPic("***ttf***", font_data,
+		gl_font_height, gl_font_height, gl_font_height, gl_font_height,
+		gl_font_height * gl_font_height, it_pic, 32);
+
+	for (i = 0; i < gl_font_height * gl_font_height; i++)
+	{
+		font_data[i * 4 + 0] = 0x0;
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = 0x0;
+		font_data[i * 4 + 3] = font_mask[i];
+	}
+
+	draw_font_alt = R_LoadPic("***ttf_alt***", font_data,
+		gl_font_height, gl_font_height, gl_font_height, gl_font_height,
+		gl_font_height * gl_font_height, it_pic, 32);
+
+	free(font_data);
+	free(font_mask);
+	ri.FS_FreeFile((void *)data);
+
+	R_Printf(PRINT_ALL, "%s(): Loaded font %s %.0fp.\n", __func__, font_name, gl_font_size);
+}
+
+
 void
 Draw_InitLocal(void)
 {
+	Draw_LoadFont();
+
 	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
+}
+
+void
+RDraw_FreeLocal(void)
+{
+	free(draw_fontcodes);
 }
 
 /*
@@ -69,12 +156,64 @@ RDraw_CharScaled(int x, int y, int num, float scale)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	scaledSize = 8*scale;
+	scaledSize = 8 * scale;
 
 	R_UpdateGLBuffer(buf_2d, draw_chars->texnum, 0, 0, 1);
 
 	R_Buffer2DQuad(x, y, x + scaledSize, y + scaledSize,
 		fcol, frow, fcol + size, frow + size);
+}
+
+void
+RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	while (*message)
+	{
+		unsigned value = R_NextUTF8Code(&message);
+
+		if (draw_fontcodes && (draw_font || draw_font_alt))
+		{
+			float font_scale;
+
+			font_scale = gl_font_size / 8.0;
+
+			if (value >= 32 && value < MAX_FONTCODE)
+			{
+				stbtt_aligned_quad q;
+				float xf = 0, yf = 0;
+
+				stbtt_GetBakedQuad(draw_fontcodes, gl_font_height, gl_font_height,
+					value - 32, &xf, &yf, &q, 1);
+
+				R_UpdateGLBuffer(buf_2d, alt ? draw_font_alt->texnum : draw_font->texnum, 0, 0, 1);
+
+				R_Buffer2DQuad(
+					(float)(x + q.x0 * scale / font_scale),
+					(float)(y + q.y0 * scale / font_scale + 8 * scale),
+					x + q.x1 * scale / font_scale,
+					y + q.y1 * scale / font_scale + 8 * scale,
+					q.s0, q.t0, q.s1, q.t1);
+				x += Q_max(8, xf / font_scale) * scale;
+			}
+			else
+			{
+				x += 8 * scale;
+			}
+		}
+		else
+		{
+			int xor;
+
+			xor = alt ? 0x80 : 0;
+
+			if (value > ' ' && value < 128)
+			{
+				RDraw_CharScaled(x, y, value ^ xor, scale);
+			}
+
+			x += 8 * scale;
+		}
+	}
 }
 
 image_t *

@@ -174,16 +174,18 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 
 			font_scale = vk_font_size / 8.0;
 
-			if (value >= 32 && value < MAX_FONTCODE) {
+			if (value >= 32 && value < MAX_FONTCODE)
+			{
 				stbtt_aligned_quad q;
 				float xf = 0, yf = 0;
 
-				stbtt_GetBakedQuad(draw_fontcodes, vk_font_height, vk_font_height, value - 32, &xf, &yf, &q, 1);
+				stbtt_GetBakedQuad(draw_fontcodes, vk_font_height, vk_font_height,
+					value - 32, &xf, &yf, &q, 1);
 
 				QVk_DrawTexRect((float)(x + q.x0 * scale / font_scale) / vid.width,
 								(float)(y + q.y0 * scale / font_scale + 8 * scale) / vid.height,
-								(q.x1 - q.x0) * scale / vid.width / font_scale,
-								(q.y1 - q.y0) * scale / vid.height / font_scale,
+								(q.x1 - q.x0) * scale / font_scale / vid.width,
+								(q.y1 - q.y0) * scale / font_scale / vid.height,
 								q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
 								alt ? &draw_font_alt->vk_texture : &draw_font->vk_texture);
 				x += Q_max(8, xf / font_scale) * scale;
@@ -201,7 +203,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 
 			if (value > ' ' && value < 128)
 			{
-				RE_Draw_CharScaled(x * scale, y * scale, value ^ xor, scale);
+				RE_Draw_CharScaled(x, y, value ^ xor, scale);
 			}
 
 			x += 8 * scale;

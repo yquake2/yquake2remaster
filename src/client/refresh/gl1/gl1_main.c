@@ -101,6 +101,7 @@ cvar_t *gl_shadows;
 cvar_t *gl1_stencilshadow;
 cvar_t *r_mode;
 cvar_t *r_fixsurfsky;
+cvar_t *r_ttffont;
 
 cvar_t *r_customwidth;
 cvar_t *r_customheight;
@@ -1280,6 +1281,8 @@ R_Register(void)
 	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", 0);
 	r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
+	/* font should looks good with 8 pixels size */
+	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
@@ -1812,6 +1815,7 @@ RI_Shutdown(void)
 	Mod_FreeAll();
 
 	R_ShutdownImages();
+	RDraw_FreeLocal();
 
 	R_VertBufferFree();
 
@@ -2131,21 +2135,6 @@ static qboolean
 RI_EndWorldRenderpass( void )
 {
 	return true;
-}
-
-static void
-RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
-{
-	int xor;
-
-	xor = alt ? 0x80 : 0;
-
-	while (*message)
-	{
-		RDraw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
-		x += 8 * scale;
-		message ++;
-	}
 }
 
 Q2_DLL_EXPORTED refexport_t
