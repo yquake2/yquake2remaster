@@ -111,6 +111,11 @@ Games:
 
 Games check videos:
 
+* 8.42RR12+:
+
+[![Translation check](https://img.youtube.com/vi/8Tlm8lSY5x8/0.jpg)](https://www.youtube.com/watch?v=8Tlm8lSY5x8)
+[![Anacronox dance sector](https://img.youtube.com/vi/PR2_nK7DFJM/0.jpg)](https://www.youtube.com/watch?v=PR2_nK7DFJM)
+
 * 8.42RR11:
 
 [![First episode](https://img.youtube.com/vi/Ha1FuVXaQSE/0.jpg)](https://www.youtube.com/watch?v=Ha1FuVXaQSE)
