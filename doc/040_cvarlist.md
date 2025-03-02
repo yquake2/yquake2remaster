@@ -496,6 +496,8 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **r_flashblend**: Flash blend enable in  gl1, gl3 and vulkan.
 
+* **r_ttffont**: Use `ttf` font for game messages.
+
 ## Graphics (GL renderers only)
 
 * **gl_zfix**: Sometimes two or even more surfaces overlap and flicker.

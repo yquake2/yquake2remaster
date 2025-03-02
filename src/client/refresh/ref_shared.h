@@ -90,6 +90,7 @@ typedef enum
 
 #define MAX_MOD_KNOWN (MAX_MODELS * 2)
 #define MAX_TEXTURES (MAX_IMAGES * 4)
+#define MAX_FONTCODE 0x500
 
 extern void R_Printf(int level, const char* msg, ...) PRINTF_ATTR(2, 3);
 
@@ -326,6 +327,8 @@ extern struct image_s *GetSkyImage(const char *skyname, const char* surfname,
 	qboolean palettedtexture, findimage_t find_image);
 extern struct image_s *GetTexImage(const char *name, findimage_t find_image);
 extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
+extern struct image_s *R_LoadConsoleChars(findimage_t find_image);
+extern unsigned R_NextUTF8Code(const char **curr);
 extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, int r_retexturing, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,

@@ -26,36 +26,31 @@
  */
 
 #include "header/local.h"
+#include "../files/stb_truetype.h"
 
 unsigned d_8to24table[256];
 
-gl4image_t *draw_chars;
+static float gl4_font_size = 8.0;
+static int gl4_font_height = 128;
+gl4image_t *draw_chars = NULL;
+static gl4image_t *draw_font = NULL;
+static gl4image_t *draw_font_alt = NULL;
+static stbtt_bakedchar *draw_fontcodes = NULL;
 
 static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
+
+void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
+	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
+	struct image_s **draw_font, struct image_s **draw_font_alt,
+	loadimage_t R_LoadPic);
 
 void
 GL4_Draw_InitLocal(void)
 {
-	/* load console characters */
-	draw_chars = R_FindPic("conchars", (findimage_t)GL4_FindImage);
+	R_LoadTTFFont(r_ttffont->string, vid.height, &gl4_font_size, &gl4_font_height,
+		&draw_fontcodes, &draw_font, &draw_font_alt, (loadimage_t)GL4_LoadPic);
 
-	/* Anachronox */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic ("fonts/conchars", (findimage_t)GL4_FindImage);
-	}
-
-	/* Daikatana */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic ("dkchars", (findimage_t)GL4_FindImage);
-	}
-
-	if (!draw_chars)
-	{
-		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars.pcx",
-			__func__);
-	}
+	draw_chars = R_LoadConsoleChars((findimage_t)GL4_FindImage);
 
 	// set up attribute layout for 2D textured rendering
 	glGenVertexArrays(1, &vao2D);
@@ -98,6 +93,7 @@ GL4_Draw_ShutdownLocal(void)
 	vao2D = 0;
 	glDeleteVertexArrays(1, &vao2Dcolor);
 	vao2Dcolor = 0;
+	free(draw_fontcodes);
 }
 
 // bind the texture before calling this
@@ -171,6 +167,58 @@ GL4_Draw_CharScaled(int x, int y, int num, float scale)
 	GL4_UseProgram(gl4state.si2D.shaderProgram);
 	GL4_Bind(draw_chars->texnum);
 	drawTexturedRectangle(x, y, scaledSize, scaledSize, fcol, frow, fcol+size, frow+size);
+}
+
+void
+GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	while (*message)
+	{
+		unsigned value = R_NextUTF8Code(&message);
+
+		if (draw_fontcodes && (draw_font || draw_font_alt))
+		{
+			float font_scale;
+
+			font_scale = gl4_font_size / 8.0;
+
+			if (value >= 32 && value < MAX_FONTCODE)
+			{
+				stbtt_aligned_quad q;
+				float xf = 0, yf = 0;
+
+				stbtt_GetBakedQuad(draw_fontcodes, gl4_font_height, gl4_font_height,
+					value - 32, &xf, &yf, &q, 1);
+
+				GL4_UseProgram(gl4state.si2D.shaderProgram);
+				GL4_Bind(alt ? draw_font_alt->texnum : draw_font->texnum);
+				drawTexturedRectangle(
+					(float)(x + q.x0 * scale / font_scale),
+					(float)(y + q.y0 * scale / font_scale + 8 * scale),
+					(q.x1 - q.x0) * scale / font_scale,
+					(q.y1 - q.y0) * scale / font_scale,
+					q.s0, q.t0, q.s1, q.t1);
+				x += Q_max(8, xf / font_scale) * scale;
+			}
+			else
+			{
+				x += 8 * scale;
+			}
+		}
+		else
+		{
+			int xor;
+
+			xor = alt ? 0x80 : 0;
+
+			if (value > ' ' && value < 128)
+			{
+				GL4_Draw_CharScaled(x, y, value ^ xor, scale);
+			}
+
+			x += 8 * scale;
+		}
+	}
 }
 
 gl4image_t *

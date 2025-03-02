@@ -36,28 +36,6 @@ extern int edit_line;
 extern int key_linepos;
 
 void
-DrawStringScaled(int x, int y, const char *s, float factor)
-{
-	while (*s)
-	{
-		Draw_CharScaled(x, y, *s, factor);
-		x += 8*factor;
-		s++;
-	}
-}
-
-void
-DrawAltStringScaled(int x, int y, const char *s, float factor)
-{
-	while (*s)
-	{
-		Draw_CharScaled(x, y, *s ^ 0x80, factor);
-		x += 8*factor;
-		s++;
-	}
-}
-
-void
 Key_ClearTyping(void)
 {
 	key_lines[edit_line][0] = '\0';
@@ -587,12 +565,12 @@ Con_DrawNotify(void)
 	{
 		if (chat_team)
 		{
-			DrawStringScaled(8 * scale, v * scale, "say_team:", scale);
+			Draw_StringScaled(8 * scale, v * scale, scale, false, "say_team:");
 			skip = 11;
 		}
 		else
 		{
-			DrawStringScaled(8 * scale, v * scale, "say:", scale);
+			Draw_StringScaled(8 * scale, v * scale, scale, false, "say:");
 			skip = 5;
 		}
 

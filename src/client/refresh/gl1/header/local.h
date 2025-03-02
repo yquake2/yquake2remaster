@@ -166,6 +166,7 @@ extern cvar_t *r_fullbright;
 extern cvar_t *r_novis;
 extern cvar_t *r_lerpmodels;
 extern cvar_t *r_fixsurfsky;
+extern cvar_t *r_ttffont;
 
 extern cvar_t *r_lightlevel;
 extern cvar_t *gl1_overbrightbits;
@@ -285,6 +286,7 @@ void R_SetTexturePalette(const unsigned palette[256]);
 
 void R_InitImages(void);
 void R_ShutdownImages(void);
+void RDraw_FreeLocal(void);
 
 void R_FreeUnusedImages(void);
 qboolean R_ImageHasFreeSpace(void);
@@ -487,6 +489,7 @@ extern void RDraw_GetPicSize(int *w, int *h, const char *pic);
 extern void RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
 extern void RDraw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void RDraw_CharScaled(int x, int y, int num, float scale);
+extern void RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 extern void RDraw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void RDraw_Fill(int x, int y, int w, int h, int c);
 extern void RDraw_FadeScreen(void);

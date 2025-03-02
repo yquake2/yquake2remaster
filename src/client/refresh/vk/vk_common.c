@@ -279,7 +279,7 @@ static float draw2dcolor_calls[16 * MAXDRAWCALLS] = {0};
 static float draw2dcolor_r, draw2dcolor_g, draw2dcolor_b, draw2dcolor_a;
 static qvkrenderpasstype_t draw2dcolor_rpType;
 static calltype_t draw2dcolor_calltype;
-static qvktexture_t *draw2dcolor_texture = NULL;
+static const qvktexture_t *draw2dcolor_texture = NULL;
 
 VkFormat QVk_FindDepthFormat()
 {
@@ -1696,7 +1696,8 @@ void QVk_GetDrawableSize(int *width, int *height)
 #endif
 }
 
-void QVk_WaitAndShutdownAll (void)
+void
+QVk_WaitAndShutdownAll(void)
 {
 	if (!vk_initialized)
 	{
@@ -1711,6 +1712,7 @@ void QVk_WaitAndShutdownAll (void)
 	Mod_FreeAll();
 	Mod_FreeModelsKnown();
 	Vk_ShutdownImages();
+	Draw_FreeLocal();
 	Mesh_Free();
 	R_VertBufferFree();
 	QVk_Shutdown();
@@ -2253,7 +2255,9 @@ VkResult QVk_EndFrame(qboolean force)
 {
 	// continue only if QVk_BeginFrame() had been previously issued
 	if (!vk_frameStarted)
+	{
 		return VK_SUCCESS;
+	}
 
 	QVk_Draw2DCallsRender();
 
@@ -2814,7 +2818,7 @@ QVk_DrawColorRect(float x, float y, float w, float h, float r, float g, float b,
 
 
 void QVk_DrawTexRect(float x, float y, float w, float h,
-	float u, float v, float us, float vs, qvktexture_t *texture)
+	float u, float v, float us, float vs, const qvktexture_t *texture)
 {
 	float *last;
 

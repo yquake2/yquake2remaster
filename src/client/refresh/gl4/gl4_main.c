@@ -126,6 +126,7 @@ cvar_t *gl_shadows;
 cvar_t *gl4_debugcontext;
 cvar_t *gl4_usebigvbo;
 cvar_t *r_fixsurfsky;
+cvar_t *r_ttffont;
 cvar_t *r_palettedtexture;
 cvar_t *r_validation;
 cvar_t *gl4_usefbo;
@@ -228,6 +229,8 @@ GL4_Register(void)
 	r_drawentities = ri.Cvar_Get("r_drawentities", "1", 0);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", 0);
 	r_fullbright = ri.Cvar_Get("r_fullbright", "0", 0);
+	/* font should looks good with 8 pixels size */
+	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
 	r_palettedtexture = ri.Cvar_Get("r_palettedtexture", "0", 0);
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
@@ -1935,6 +1938,7 @@ GetRefAPI(refimport_t imp)
 	re.DrawStretchPic = GL4_Draw_StretchPic;
 
 	re.DrawCharScaled = GL4_Draw_CharScaled;
+	re.DrawStringScaled = GL4_Draw_StringScaled;
 	re.DrawTileClear = GL4_Draw_TileClear;
 	re.DrawFill = GL4_Draw_Fill;
 	re.DrawFadeScreen = GL4_Draw_FadeScreen;

@@ -200,6 +200,7 @@ typedef struct
 	void 	(EXPORT *DrawPicScaled) (int x, int y, const char *pic, float factor, const char *alttext);
 	void	(EXPORT *DrawStretchPic) (int x, int y, int w, int h, const char *name);
 	void	(EXPORT *DrawCharScaled)(int x, int y, int num, float scale);
+	void	(EXPORT *DrawStringScaled)(int x, int y, float scale, qboolean alt, const char *message);
 	void	(EXPORT *DrawTileClear) (int x, int y, int w, int h, const char *name);
 	void	(EXPORT *DrawFill) (int x, int y, int w, int h, int c);
 	void	(EXPORT *DrawFadeScreen) (void);
@@ -295,6 +296,7 @@ void Draw_PicScaled(int x, int y, const char *pic, float factor);
 void Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *alttext);
 
 void Draw_CharScaled(int x, int y, int num, float scale);
+void Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 void Draw_TileClear(int x, int y, int w, int h, const char *name);
 void Draw_Fill(int x, int y, int w, int h, int c);
 void Draw_FadeScreen(void);

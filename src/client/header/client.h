@@ -338,10 +338,6 @@ extern	sizebuf_t	net_message;
 
 extern qboolean paused_at_load;
 
-void DrawString (int x, int y, const char *s);
-void DrawStringScaled(int x, int y, const char *s, float factor);
-void DrawAltString (int x, int y, const char *s);	/* toggle high bit */
-void DrawAltStringScaled(int x, int y, const char *s, float factor);
 qboolean	CL_CheckOrDownloadFile (const char *filename);
 
 void CL_AddNetgraph (void);

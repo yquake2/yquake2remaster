@@ -25,37 +25,38 @@
  */
 
 #include "header/local.h"
+#include "../files/stb_truetype.h"
 
-image_t *draw_chars;
+static float gl_font_size = 8.0;
+static int gl_font_height = 128;
+image_t *draw_chars = NULL;
+static image_t *draw_font = NULL;
+static image_t *draw_font_alt = NULL;
+static stbtt_bakedchar *draw_fontcodes = NULL;
 
 extern qboolean scrap_dirty;
 void Scrap_Upload(void);
 
 extern unsigned r_rawpalette[256];
 
+void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
+	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
+	struct image_s **draw_font, struct image_s **draw_font_alt,
+	loadimage_t R_LoadPic);
+
 void
 Draw_InitLocal(void)
 {
-	/* load console characters */
-	draw_chars = R_FindPic("conchars", (findimage_t)R_FindImage);
+	R_LoadTTFFont(r_ttffont->string, vid.height, &gl_font_size, &gl_font_height,
+		&draw_fontcodes, &draw_font, &draw_font_alt, R_LoadPic);
 
-	/* Anachronox */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic ("fonts/conchars", (findimage_t)R_FindImage);
-	}
+	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
+}
 
-	/* Daikatana */
-	if (!draw_chars)
-	{
-		draw_chars = R_FindPic ("dkchars", (findimage_t)R_FindImage);
-	}
-
-	if (!draw_chars)
-	{
-		Com_Error(ERR_FATAL, "%s: Couldn't load pics/conchars",
-			__func__);
-	}
+void
+RDraw_FreeLocal(void)
+{
+	free(draw_fontcodes);
 }
 
 /*
@@ -88,12 +89,64 @@ RDraw_CharScaled(int x, int y, int num, float scale)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	scaledSize = 8*scale;
+	scaledSize = 8 * scale;
 
 	R_UpdateGLBuffer(buf_2d, draw_chars->texnum, 0, 0, 1);
 
 	R_Buffer2DQuad(x, y, x + scaledSize, y + scaledSize,
 		fcol, frow, fcol + size, frow + size);
+}
+
+void
+RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	while (*message)
+	{
+		unsigned value = R_NextUTF8Code(&message);
+
+		if (draw_fontcodes && (draw_font || draw_font_alt))
+		{
+			float font_scale;
+
+			font_scale = gl_font_size / 8.0;
+
+			if (value >= 32 && value < MAX_FONTCODE)
+			{
+				stbtt_aligned_quad q;
+				float xf = 0, yf = 0;
+
+				stbtt_GetBakedQuad(draw_fontcodes, gl_font_height, gl_font_height,
+					value - 32, &xf, &yf, &q, 1);
+
+				R_UpdateGLBuffer(buf_2d, alt ? draw_font_alt->texnum : draw_font->texnum, 0, 0, 1);
+
+				R_Buffer2DQuad(
+					(float)(x + q.x0 * scale / font_scale),
+					(float)(y + q.y0 * scale / font_scale + 8 * scale),
+					x + q.x1 * scale / font_scale,
+					y + q.y1 * scale / font_scale + 8 * scale,
+					q.s0, q.t0, q.s1, q.t1);
+				x += Q_max(8, xf / font_scale) * scale;
+			}
+			else
+			{
+				x += 8 * scale;
+			}
+		}
+		else
+		{
+			int xor;
+
+			xor = alt ? 0x80 : 0;
+
+			if (value > ' ' && value < 128)
+			{
+				RDraw_CharScaled(x, y, value ^ xor, scale);
+			}
+
+			x += 8 * scale;
+		}
+	}
 }
 
 image_t *

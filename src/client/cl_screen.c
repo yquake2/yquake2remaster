@@ -27,12 +27,12 @@
 
 #include "header/client.h"
 
-float scr_con_current; /* aproaches scr_conlines at scr_conspeed */
-float scr_conlines; /* 0.0 to 1.0 lines of console to display */
+static float scr_con_current; /* aproaches scr_conlines at scr_conspeed */
+static float scr_conlines; /* 0.0 to 1.0 lines of console to display */
 
-qboolean scr_initialized; /* ready to draw */
+static qboolean scr_initialized; /* ready to draw */
 
-int scr_draw_loading;
+static int scr_draw_loading;
 
 vrect_t scr_vrect; /* position of render window on screen */
 
@@ -59,18 +59,20 @@ typedef struct
 	int x1, y1, x2, y2;
 } dirty_t;
 
-dirty_t scr_dirty, scr_old_dirty[2];
+static dirty_t scr_dirty, scr_old_dirty[2];
 
-char crosshair_pic[MAX_QPATH];
-int crosshair_width, crosshair_height;
+static char crosshair_pic[MAX_QPATH];
+static int crosshair_width, crosshair_height;
 
 extern cvar_t *cl_showfps;
 extern cvar_t *crosshair_scale;
 extern cvar_t *cl_showspeed;
 extern float GetPlayerSpeed(float *, float *);
 
-void SCR_TimeRefresh_f(void);
-void SCR_Loading_f(void);
+static void SCR_TimeRefresh_f(void);
+static void SCR_Loading_f(void);
+
+#define CHAR_SIZE 8
 
 /*
  * A new packet was just parsed
@@ -129,7 +131,7 @@ SCR_DebugGraph(float value, int color)
 	current++;
 }
 
-void
+static void
 SCR_DrawDebugGraph(void)
 {
 	int a, x, y, w, i, h;
@@ -162,11 +164,58 @@ SCR_DrawDebugGraph(void)
 	}
 }
 
-char scr_centerstring[1024];
-float scr_centertime_start; /* for slow victory printing */
-float scr_centertime_off;
-int scr_center_lines;
-int scr_erase_center;
+static char scr_centerstring[1024];
+static float scr_centertime_start; /* for slow victory printing */
+static float scr_centertime_off;
+static int scr_center_lines;
+static int scr_erase_center;
+
+static int
+SCR_CopyUtf8(const char *src, char *dst, int limit)
+{
+	int symbols = 0;
+
+	while (*src && *src != '\n')
+	{
+		size_t size;
+		int i;
+
+		if (symbols >= limit)
+		{
+			break;
+		}
+
+		if (!(*src & 0x80))
+		{
+			size = 1;
+		}
+		else if ((*src & 0xE0) == 0xC0)
+		{
+			size = 2;
+		}
+		else if ((*src & 0xF0) == 0xE0)
+		{
+			size = 3;
+		}
+		else if ((*src & 0xF8) == 0xF0)
+		{
+			size = 4;
+		}
+
+		for (i = 0; i < size; i++)
+		{
+			*dst = *src;
+			dst ++;
+			src ++;
+		}
+
+		symbols ++;
+	}
+
+	*dst = 0;
+
+	return symbols;
+}
 
 /*
  * Called for important messages that should stay
@@ -176,8 +225,6 @@ void
 SCR_CenterPrint(char *str)
 {
 	char *s;
-	char line[64];
-	int i, j, l;
 
 	Q_strlcpy(scr_centerstring, str, sizeof(scr_centerstring));
 	scr_centertime_off = scr_centertime->value;
@@ -204,29 +251,14 @@ SCR_CenterPrint(char *str)
 
 	do
 	{
-		/* scan the width of the line */
-		for (l = 0; l < 40; l++)
-		{
-			if ((s[l] == '\n') || !s[l])
-			{
-				break;
-			}
-		}
+		char line[161];
+		int l;
 
-		for (i = 0; i < (40 - l) / 2; i++)
-		{
-			line[i] = ' ';
-		}
+		l = SCR_CopyUtf8(s, line, 40);
+		memmove(line + 40 - l, line, strlen(line) + 1);
+		memset(line, ' ', 40 - l);
 
-		for (j = 0; j < l; j++)
-		{
-			line[i++] = s[j];
-		}
-
-		line[i] = '\n';
-		line[i + 1] = 0;
-
-		Com_Printf("%s", line);
+		Com_Printf("%s\n", line);
 
 		while (*s && *s != '\n')
 		{
@@ -246,20 +278,12 @@ SCR_CenterPrint(char *str)
 	Con_ClearNotify();
 }
 
-void
+static void
 SCR_DrawCenterString(void)
 {
 	char *start;
-	int l;
-	int j;
-	int x, y;
-	int remaining;
 	float scale;
-    const int char_unscaled_width  = 8;
-    const int char_unscaled_height = 8;
-
-	/* the finale prints the characters one at a time */
-	remaining = 9999;
+	int y;
 
 	scr_erase_center = 0;
 	start = scr_centerstring;
@@ -277,31 +301,18 @@ SCR_DrawCenterString(void)
 
 	do
 	{
-		/* scan the width of the line */
-		for (l = 0; l < 40; l++)
-		{
-			if ((start[l] == '\n') || !start[l])
-			{
-				break;
-			}
-		}
+		char message[241]; /* utf string could by 4 bytes per char */
+		int l, x;
 
-		x = ((viddef.width / scale) - (l * char_unscaled_width)) / 2;
-		SCR_AddDirtyPoint(x, y);
+		l = SCR_CopyUtf8(start, message, 60);
 
-		for (j = 0; j < l; j++, x += char_unscaled_width)
-		{
-			Draw_CharScaled(x * scale, y * scale, start[j], scale);
+		x = ((viddef.width / scale) - (l * CHAR_SIZE)) / 2;
+		SCR_AddDirtyPoint(x * scale, y * scale);
+		SCR_AddDirtyPoint((x + l * CHAR_SIZE) * scale, (y + CHAR_SIZE) * scale);
 
-			if (!remaining--)
-			{
-				return;
-			}
-		}
+		Draw_StringScaled(x * scale, y * scale, scale, false, message);
 
-		SCR_AddDirtyPoint(x, y + char_unscaled_height);
-
-		y += char_unscaled_height;
+		y += CHAR_SIZE;
 
 		while (*start && *start != '\n')
 		{
@@ -318,7 +329,7 @@ SCR_DrawCenterString(void)
 	while (1);
 }
 
-void
+static void
 SCR_CheckDrawCenterString(void)
 {
 	scr_centertime_off -= cls.rframetime;
@@ -362,16 +373,16 @@ SCR_CalcVrect(void)
 /*
  * Keybinding command
  */
-void
+static void
 SCR_SizeUp_f(void)
 {
 	Cvar_SetValue("viewsize", (float)scr_viewsize->value + 10);
 }
 
 /*
- *Keybinding command
+ * Keybinding command
  */
-void
+static void
 SCR_SizeDown_f(void)
 {
 	Cvar_SetValue("viewsize", (float)scr_viewsize->value - 10);
@@ -380,7 +391,7 @@ SCR_SizeDown_f(void)
 /*
  * Set a specific sky and rotation speed
  */
-void
+static void
 SCR_Sky_f(void)
 {
 	int autorotate = 1;
@@ -448,7 +459,7 @@ SCR_Init(void)
 	scr_initialized = true;
 }
 
-void
+static void
 SCR_DrawNet(void)
 {
 	float scale = SCR_GetMenuScale();
@@ -461,7 +472,7 @@ SCR_DrawNet(void)
 	Draw_PicScaledAltText(scr_vrect.x + 64 * scale, scr_vrect.y, "net", scale, "net");
 }
 
-void
+static void
 SCR_DrawPause(void)
 {
 	int w, h;
@@ -478,11 +489,11 @@ SCR_DrawPause(void)
 	}
 
 	Draw_GetPicSize(&w, &h, "pause");
-	Draw_PicScaledAltText((viddef.width - w * scale) / 2, viddef.height / 2 + 8 * scale,
+	Draw_PicScaledAltText((viddef.width - w * scale) / 2, viddef.height / 2 + CHAR_SIZE * scale,
 		"pause", scale, "pause");
 }
 
-void
+static void
 SCR_DrawLoading(void)
 {
 	int w, h;
@@ -541,7 +552,7 @@ SCR_RunConsole(void)
 	}
 }
 
-void
+static void
 SCR_DrawConsole(void)
 {
 	Con_CheckResize();
@@ -638,13 +649,13 @@ SCR_EndLoadingPlaque(void)
 	Con_ClearNotify();
 }
 
-void
+static void
 SCR_Loading_f(void)
 {
 	SCR_BeginLoadingPlaque();
 }
 
-void
+static void
 SCR_TimeRefresh_f(void)
 {
 	int i;
@@ -727,7 +738,7 @@ SCR_DirtyScreen(void)
 /*
  * Clear any parts of the tiled background that were drawn on last frame
  */
-void
+static void
 SCR_TileClear(void)
 {
 	int i;
@@ -862,7 +873,7 @@ SCR_TileClear(void)
 }
 
 #define STAT_MINUS 10
-char *sb_nums[2][11] = {
+static char *sb_nums[2][11] = {
 	{
 		"num_0", "num_1", "num_2", "num_3", "num_4", "num_5",
 		"num_6", "num_7", "num_8", "num_9", "num_minus"
@@ -875,71 +886,27 @@ char *sb_nums[2][11] = {
 
 #define ICON_WIDTH 24
 #define ICON_HEIGHT 24
-#define CHAR_WIDTH 16
+#define CHARACTER_WIDTH 16
 #define ICON_SPACE 8
 
-/*
- * Allow embedded \n in the string
- */
-void
-SizeHUDString(char *string, int *w, int *h)
-{
-	int lines, width, current;
-
-	lines = 1;
-	width = 0;
-
-	current = 0;
-
-	while (*string)
-	{
-		if (*string == '\n')
-		{
-			lines++;
-			current = 0;
-		}
-		else
-		{
-			current++;
-
-			if (current > width)
-			{
-				width = current;
-			}
-		}
-
-		string++;
-	}
-
-	*w = width * 8;
-	*h = lines * 8;
-}
-
-void
-DrawHUDStringScaled(const char *string, int x, int y, int centerwidth, int xor, float factor)
+static void
+DrawHUDStringScaled(const char *string, int x, int y, int centerwidth, qboolean alt, float factor)
 {
 	int margin;
-	char line[1024];
-	int width;
-	int i;
 
 	margin = x;
 
 	while (*string)
 	{
 		/* scan out one line of text from the string */
-		width = 0;
+		int width;
+		char line[1024];
 
-		while (*string && *string != '\n')
-		{
-			line[width++] = *string++;
-		}
-
-		line[width] = 0;
+		width = SCR_CopyUtf8(string, line, 255);
 
 		if (centerwidth)
 		{
-			x = margin + (centerwidth - width * 8)*factor / 2;
+			x = margin + (centerwidth - width * CHAR_SIZE) * factor / 2;
 		}
 
 		else
@@ -947,27 +914,22 @@ DrawHUDStringScaled(const char *string, int x, int y, int centerwidth, int xor, 
 			x = margin;
 		}
 
-		for (i = 0; i < width; i++)
+		Draw_StringScaled(x, y, factor, alt, line);
+
+		while (*string && *string != '\n')
 		{
-			Draw_CharScaled(x, y, line[i] ^ xor, factor);
-			x += 8 * factor;
+			string++;
 		}
 
 		if (*string)
 		{
 			string++; /* skip the \n */
-			y += 8 * factor;
+			y += CHAR_SIZE * factor;
 		}
 	}
 }
 
-void
-DrawHUDString(char *string, int x, int y, int centerwidth, int xor)
-{
-	DrawHUDStringScaled(string, x, y, centerwidth, xor, 1.0f);
-}
-
-void
+static void
 SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 {
 	char num[16], *ptr;
@@ -986,7 +948,7 @@ SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 	}
 
 	SCR_AddDirtyPoint(x, y);
-	SCR_AddDirtyPoint(x + (width * CHAR_WIDTH + 2) * factor, y + factor * 24);
+	SCR_AddDirtyPoint(x + (width * CHARACTER_WIDTH + 2) * factor, y + factor * 24);
 
 	Com_sprintf(num, sizeof(num), "%i", value);
 	l = (int)strlen(num);
@@ -996,7 +958,7 @@ SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 		l = width;
 	}
 
-	x += (2 + CHAR_WIDTH * (width - l)) * factor;
+	x += (2 + CHARACTER_WIDTH * (width - l)) * factor;
 
 	ptr = num;
 
@@ -1016,16 +978,10 @@ SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 		}
 
 		Draw_PicScaledAltText(x, y, sb_nums[color][frame], factor, alttext);
-		x += CHAR_WIDTH * factor;
+		x += CHARACTER_WIDTH * factor;
 		ptr++;
 		l--;
 	}
-}
-
-void
-SCR_DrawField(int x, int y, int color, int width, int value)
-{
-	SCR_DrawFieldScaled(x, y, color, width, value, 1.0f);
 }
 
 /*
@@ -1062,7 +1018,7 @@ SCR_TouchPics(void)
 	}
 }
 
-void
+static void
 SCR_ExecuteLayoutString(char *s)
 {
 	int x, y;
@@ -1203,11 +1159,12 @@ SCR_ExecuteLayoutString(char *s)
 			token = COM_Parse(&s);
 			time = (int)strtol(token, (char **)NULL, 10);
 
-			DrawAltStringScaled(x + scale * 32, y, ci->name, scale);
-			DrawAltStringScaled(x + scale * 32, y + scale * 8, "Score: ", scale);
-			DrawAltStringScaled(x + scale * (32 + 7 * 8), y + scale * 8, va("%i", score), scale);
-			DrawStringScaled(x + scale * 32, y + scale * 16, va("Ping:  %i", ping), scale);
-			DrawStringScaled(x + scale * 32, y + scale * 24, va("Time:  %i", time), scale);
+			Draw_StringScaled(x + scale * 32, y, scale, true, ci->name);
+			Draw_StringScaled(x + scale * 32, y + scale * CHAR_SIZE, scale, true, "Score: ");
+			Draw_StringScaled(x + scale * (32 + 7 * CHAR_SIZE),
+				y + scale * CHAR_SIZE, scale, true, va("%i", score));
+			Draw_StringScaled(x + scale * 32, y + scale * 16, scale, false, va("Ping:  %i", ping));
+			Draw_StringScaled(x + scale * 32, y + scale * 24, scale, false, va("Time:  %i", time));
 
 			if (!ci->icon)
 			{
@@ -1256,15 +1213,7 @@ SCR_ExecuteLayoutString(char *s)
 
 			sprintf(block, "%3d %3d %-12.12s", score, ping, ci->name);
 
-			if (value == cl.playernum)
-			{
-				DrawAltStringScaled(x, y, block, scale);
-			}
-
-			else
-			{
-				DrawStringScaled(x, y, block, scale);
-			}
+			Draw_StringScaled(x, y, scale, value == cl.playernum, token);
 
 			continue;
 		}
@@ -1402,35 +1351,35 @@ SCR_ExecuteLayoutString(char *s)
 				continue;
 			}
 
-			DrawStringScaled(x, y, cl.configstrings[index], scale);
+			Draw_StringScaled(x, y, scale, false, cl.configstrings[index]);
 			continue;
 		}
 
 		if (!strcmp(token, "cstring"))
 		{
 			token = COM_Parse(&s);
-			DrawHUDStringScaled(token, x, y, 320, 0, scale); // FIXME: or scale 320 here?
+			DrawHUDStringScaled(token, x, y, 320, false, scale); // FIXME: or scale 320 here?
 			continue;
 		}
 
 		if (!strcmp(token, "string"))
 		{
 			token = COM_Parse(&s);
-			DrawStringScaled(x, y, token, scale);
+			Draw_StringScaled(x, y, scale, false, token);
 			continue;
 		}
 
 		if (!strcmp(token, "cstring2"))
 		{
 			token = COM_Parse(&s);
-			DrawHUDStringScaled(token, x, y, 320, 0x80, scale); // FIXME: or scale 320 here?
+			DrawHUDStringScaled(token, x, y, 320, true, scale); // FIXME: or scale 320 here?
 			continue;
 		}
 
 		if (!strcmp(token, "string2"))
 		{
 			token = COM_Parse(&s);
-			DrawAltStringScaled(x, y, token, scale);
+			Draw_StringScaled(x, y, scale, true, token);
 			continue;
 		}
 
@@ -1526,7 +1475,7 @@ SCR_ExecuteLayoutString(char *s)
  * The status bar is a small layout program that
  * is based on the stats array
  */
-void
+static void
 SCR_DrawStats(void)
 {
 	SCR_ExecuteLayoutString(cl.configstrings[CS_STATUSBAR]);
@@ -1534,7 +1483,7 @@ SCR_DrawStats(void)
 
 #define STAT_LAYOUTS 13
 
-void
+static void
 SCR_DrawLayout(void)
 {
 	if (!cl.frame.playerstate.stats[STAT_LAYOUTS])
@@ -1547,7 +1496,7 @@ SCR_DrawLayout(void)
 
 // ----
 
-void
+static void
 SCR_DrawSpeed(void)
 {
 	if (cl_showspeed->value < 1)  //Disabled, do nothing
@@ -1560,7 +1509,7 @@ SCR_DrawSpeed(void)
 
 	GetPlayerSpeed(&speed, &speedxy);
 	snprintf(spd_str, sizeof(spd_str), "%6.2f (%6.2f) QU/s", speed, speedxy);
-	str_len = scale * (strlen(spd_str) * 8 + 2);
+	str_len = scale * (strlen(spd_str) * CHAR_SIZE + 2);
 
 	if (cl_showspeed->value == 1) //Draw speed and xy speed at top right
 	{
@@ -1575,7 +1524,7 @@ SCR_DrawSpeed(void)
 			yPos = scale * 20;
 		}
 
-		DrawStringScaled(xPos, yPos, spd_str, scale);
+		Draw_StringScaled(xPos, yPos, scale, false, spd_str);
 		SCR_AddDirtyPoint(xPos, yPos);
 		SCR_AddDirtyPoint(viddef.width, yPos);
 	}
@@ -1588,18 +1537,19 @@ SCR_DrawSpeed(void)
 		}
 
 		snprintf(spd_str, sizeof(spd_str), "%6.2f", speedxy);
-		str_len = scale * (strlen(spd_str) * 8 + 2);
+		str_len = scale * (strlen(spd_str) * CHAR_SIZE + 2);
 		yPos = scr_vrect.y + (scr_vrect.height / 2) + (scale * 10);
 		xPos = scr_vrect.x + (scr_vrect.width / 2) - (str_len / 2);
 
-		DrawStringScaled(xPos, yPos, spd_str, scale);
+		Draw_StringScaled(xPos, yPos, scale, false, spd_str);
 		SCR_AddDirtyPoint(xPos, yPos);
 		SCR_AddDirtyPoint(xPos + str_len, yPos);
 	}
 }
 
-void
-SCR_Framecounter(void) {
+static void
+SCR_Framecounter(void)
+{
 	long long newtime;
 	static int frame;
 	static int frametimes[60] = {0};
@@ -1607,39 +1557,26 @@ SCR_Framecounter(void) {
 
 	/* skip statistics without show fps */
 	if (cl_showfps->value < 1)
+	{
 		return;
+	}
 
 	newtime = Sys_Microseconds();
 	frametimes[frame] = (int)(newtime - oldtime);
 
 	oldtime = newtime;
 	frame++;
-	if (frame > 59) {
+	if (frame > 59)
+	{
 		frame = 0;
 	}
 
 	float scale = SCR_GetConsoleScale();
 
-	if (cl_showfps->value == 1) {
+	if (cl_showfps->value == 1)
+	{
 		// Calculate average of frames.
-		int avg = 0;
-		int num = 0;
-
-		for (int i = 0; i < 60; i++) {
-			if (frametimes[i] != 0) {
-				avg += frametimes[i];
-				num++;
-			}
-		}
-
-
 		char str[10];
-		snprintf(str, sizeof(str), "%3.2ffps", (1000.0 * 1000.0) / (avg / num));
-		DrawStringScaled(viddef.width - scale * (strlen(str) * 8 + 2), 0, str, scale);
-		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * 8 + 2), 0);
-		SCR_AddDirtyPoint(viddef.width, 0);
-	} else if (cl_showfps->value >= 2) {
-		// Calculate average of frames.
 		int avg = 0;
 		int num = 0;
 
@@ -1650,34 +1587,54 @@ SCR_Framecounter(void) {
 			}
 		}
 
+		snprintf(str, sizeof(str), "%3.2ffps", (1000.0 * 1000.0) / (avg / num));
+		Draw_StringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0, scale, false, str);
+		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0);
+		SCR_AddDirtyPoint(viddef.width, 0);
+	}
+	else if (cl_showfps->value >= 2)
+	{
+		// Calculate average of frames.
+		int avg = 0;
+		int num = 0;
+		char str[64];
+
+		for (int i = 0; i < 60; i++) {
+			if (frametimes[i] != 0) {
+				avg += frametimes[i];
+				num++;
+			}
+		}
 
 		// Find lowest and highest
 		int min = frametimes[0];
 		int max = frametimes[1];
 
-		for (int i = 1; i < 60; i++) {
-			if ((frametimes[i] > 0) &&  (min < frametimes[i])) {
+		for (int i = 1; i < 60; i++)
+		{
+			if ((frametimes[i] > 0) &&  (min < frametimes[i]))
+			{
 				min = frametimes[i];
 			}
 
-			if ((frametimes[i] > 0) && (max > frametimes[i])) {
+			if ((frametimes[i] > 0) && (max > frametimes[i]))
+			{
 				max = frametimes[i];
 			}
 		}
 
-		char str[64];
 		snprintf(str, sizeof(str), "Min: %7.2ffps, Max: %7.2ffps, Avg: %7.2ffps",
 		         (1000.0 * 1000.0) / min, (1000.0 * 1000.0) / max, (1000.0 * 1000.0) / (avg / num));
-		DrawStringScaled(viddef.width - scale * (strlen(str) * 8 + 2), 0, str, scale);
-		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * 8 + 2), 0);
+		Draw_StringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0, scale, false, str);
+		SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), 0);
 		SCR_AddDirtyPoint(viddef.width, 0);
 
 		if (cl_showfps->value > 2)
 		{
 			snprintf(str, sizeof(str), "Max: %5.2fms, Min: %5.2fms, Avg: %5.2fms",
 			         0.001f*min, 0.001f*max, 0.001f*(avg / num));
-			DrawStringScaled(viddef.width - scale*(strlen(str) * 8 + 2), scale * 10, str, scale);
-			SCR_AddDirtyPoint(viddef.width - scale*(strlen(str) * 8 + 2), scale * 10);
+			Draw_StringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), scale * 10, scale, false, str);
+			SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), scale * 10);
 			SCR_AddDirtyPoint(viddef.width, scale + 10);
 		}
 	}

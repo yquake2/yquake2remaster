@@ -1794,6 +1794,21 @@ RE_EndWorldRenderpass( void )
 	return true;
 }
 
+static void
+RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	int xor;
+
+	xor = alt ? 0x80 : 0;
+
+	while (*message)
+	{
+		RE_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
+		x += 8 * scale;
+		message ++;
+	}
+}
+
 /*
 ===============
 GetRefAPI
@@ -1835,6 +1850,7 @@ GetRefAPI(refimport_t imp)
 	refexport.DrawPicScaled = RE_Draw_PicScaled;
 	refexport.DrawStretchPic = RE_Draw_StretchPic;
 	refexport.DrawCharScaled = RE_Draw_CharScaled;
+	refexport.DrawStringScaled = RE_Draw_StringScaled;
 	refexport.DrawTileClear = RE_Draw_TileClear;
 	refexport.DrawFill = RE_Draw_Fill;
 	refexport.DrawFadeScreen = RE_Draw_FadeScreen;

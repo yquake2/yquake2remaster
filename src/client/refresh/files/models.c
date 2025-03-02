@@ -2734,14 +2734,14 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		if (anim_size <= 0)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s empty animation %s\n",
-				__func__, mod_name, animations[i]);
+				__func__, mod_name, animations[i].value);
 			continue;
 		}
 
 		if (anim[animation_num]->num_xyz != base->num_xyz)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: %s, incorrect count tris in animation in %s\n",
-				__func__, mod_name, animations[i]);
+				__func__, mod_name, animations[i].value);
 			continue;
 		}
 
