@@ -130,6 +130,7 @@ cvar_t *gl_shadows;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usebigvbo;
 cvar_t *r_fixsurfsky;
+cvar_t *r_ttffont;
 cvar_t *r_palettedtexture;
 cvar_t *r_validation;
 cvar_t *gl3_usefbo;
@@ -232,6 +233,8 @@ GL3_Register(void)
 	r_drawentities = ri.Cvar_Get("r_drawentities", "1", 0);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", 0);
 	r_fullbright = ri.Cvar_Get("r_fullbright", "0", 0);
+	/* font should looks good with 8 pixels size */
+	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
 	r_palettedtexture = ri.Cvar_Get("r_palettedtexture", "0", 0);
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
@@ -525,19 +528,6 @@ GL3_Init(void)
 
 	R_Printf(PRINT_ALL, "\nOpenGL setting:\n");
 	GL3_Strings();
-
-	/*
-	if (gl_config.major_version < 3)
-	{
-		// if (gl_config.major_version == 3 && gl_config.minor_version < 2)
-		{
-			QGL_Shutdown();
-			R_Printf(PRINT_ALL, "Support for OpenGL 3.2 is not available\n");
-
-			return false;
-		}
-	}
-	*/
 
 	R_Printf(PRINT_ALL, "\n\nProbing for OpenGL extensions:\n");
 
@@ -1982,21 +1972,6 @@ static qboolean
 GL3_EndWorldRenderpass( void )
 {
 	return true;
-}
-
-static void
-GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
-{
-	int xor;
-
-	xor = alt ? 0x80 : 0;
-
-	while (*message)
-	{
-		GL3_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
-		x += 8 * scale;
-		message ++;
-	}
 }
 
 Q2_DLL_EXPORTED refexport_t
