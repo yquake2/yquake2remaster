@@ -79,7 +79,7 @@ Draw_LoadFont(void)
 		font_data[i * 4 + 0] = font_mask[i];
 		font_data[i * 4 + 1] = font_mask[i];
 		font_data[i * 4 + 2] = font_mask[i];
-		font_data[i * 4 + 3] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
 	}
 	draw_font = Vk_LoadPic("***ttf***", font_data,
 		vk_font_height, vk_font_height, vk_font_height, vk_font_height,
@@ -90,7 +90,7 @@ Draw_LoadFont(void)
 		font_data[i * 4 + 0] = 0x0;
 		font_data[i * 4 + 1] = font_mask[i];
 		font_data[i * 4 + 2] = 0x0;
-		font_data[i * 4 + 3] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
 	}
 
 	draw_font_alt = Vk_LoadPic("***ttf_alt***", font_data,

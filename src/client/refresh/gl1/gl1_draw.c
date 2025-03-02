@@ -86,7 +86,7 @@ Draw_LoadFont(void)
 		font_data[i * 4 + 0] = font_mask[i];
 		font_data[i * 4 + 1] = font_mask[i];
 		font_data[i * 4 + 2] = font_mask[i];
-		font_data[i * 4 + 3] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
 	}
 	draw_font = R_LoadPic("***ttf***", font_data,
 		gl_font_height, gl_font_height, gl_font_height, gl_font_height,
@@ -97,7 +97,7 @@ Draw_LoadFont(void)
 		font_data[i * 4 + 0] = 0x0;
 		font_data[i * 4 + 1] = font_mask[i];
 		font_data[i * 4 + 2] = 0x0;
-		font_data[i * 4 + 3] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
 	}
 
 	draw_font_alt = R_LoadPic("***ttf_alt***", font_data,

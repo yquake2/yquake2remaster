@@ -136,6 +136,7 @@ Games check videos:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
+* [ ] soft: support custom ttf fonts,
 * [ ] skins load broken in Anachronox maps with mingw win64 build,
 * [ ] Anachronox rowdys: models disappear on dance space,
 * [ ] soft: q64/outpost scale textures unsupported,
@@ -181,7 +182,11 @@ Not a goal:
 
 # Additional requirements:
 
-Localization requires `Q2Game.kpf` file in root directory of game.
+Localization requires `Q2Game.kpf` file in root directory of game. If you
+like to support your language put it to localization/loc_<your language>.txt
+and extend MAX_FONTCODE to your [max symbol code](https://en.wikipedia.org/wiki/List_of_Unicode_characters).
+Used font and language file are defined by `g_language` and `r_ttffont`, as
+an example could be used fonts like [unifont](https://unifoundry.com/pub/unifont/unifont-15.0.06/font-builds/unifont-15.0.06.ttf).
 
 Quake 1 models usage requires such models:
 
