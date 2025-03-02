@@ -410,6 +410,7 @@ extern void GL4_Draw_GetPicSize(int *w, int *h, const char *pic);
 extern void GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
 extern void GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void GL4_Draw_CharScaled(int x, int y, int num, float scale);
+extern void GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 extern void GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4]);
 extern void GL4_Draw_Fill(int x, int y, int w, int h, int c);
@@ -540,6 +541,7 @@ extern cvar_t *r_modulate;
 extern cvar_t *gl_lightmap;
 extern cvar_t *gl_shadows;
 extern cvar_t *r_fixsurfsky;
+extern cvar_t *r_ttffont;
 extern cvar_t *r_palettedtexture;
 extern cvar_t *r_validation;
 
