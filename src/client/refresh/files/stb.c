@@ -33,6 +33,8 @@
 // include resize implementation
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "stb_image_resize.h"
+#define STB_TRUETYPE_IMPLEMENTATION
+#include "../files/stb_truetype.h"
 
 /*
  * Add extension to file name
@@ -837,4 +839,77 @@ R_LoadConsoleChars(findimage_t find_image)
 	}
 
 	return draw_chars;
+}
+
+void
+R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
+	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
+	struct image_s **draw_font, struct image_s **draw_font_alt,
+	loadimage_t R_LoadPic)
+{
+	char font_name[MAX_QPATH] = {0};
+	byte *data, *font_mask, *font_data;
+	int size, i, power_two = 1, texture_size;
+
+	snprintf(font_name, sizeof(font_name), "fonts/%s.ttf", ttffont);
+
+	size = ri.FS_LoadFile(font_name, (void **)&data);
+	if (size <= 0)
+	{
+		return;
+	}
+
+	*r_font_size = (vid_height / 240.0) * 4.0;
+	if (*r_font_size < 8)
+	{
+		*r_font_size = 8.0;
+	}
+
+	while (power_two < *r_font_size)
+	{
+		power_two <<= 1;
+	}
+	*r_font_height = 32 * power_two;
+
+	texture_size = (*r_font_height) * (*r_font_height);
+	font_mask = malloc(texture_size);
+	font_data = malloc(texture_size * 4);
+	*draw_fontcodes = malloc(MAX_FONTCODE * sizeof(**draw_fontcodes));
+
+	stbtt_BakeFontBitmap(data,
+		0 /* file offset */,
+		*r_font_size * 1.5 /* symbol size ~ as console font */,
+		font_mask,
+		*r_font_height, *r_font_height,
+		32 /* Start font code */, MAX_FONTCODE,
+		*draw_fontcodes);
+
+	for (i = 0; i < texture_size; i++)
+	{
+		font_data[i * 4 + 0] = font_mask[i];
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = font_mask[i];
+		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
+	}
+	*draw_font = R_LoadPic("***ttf***", font_data,
+		*r_font_height, *r_font_height, *r_font_height, *r_font_height,
+		texture_size, it_pic, 32);
+
+	for (i = 0; i < texture_size; i++)
+	{
+		font_data[i * 4 + 0] = 0x0;
+		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 2] = 0x0;
+		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
+	}
+
+	*draw_font_alt = R_LoadPic("***ttf_alt***", font_data,
+		*r_font_height, *r_font_height, *r_font_height, *r_font_height,
+		texture_size, it_pic, 32);
+
+	free(font_data);
+	free(font_mask);
+	ri.FS_FreeFile((void *)data);
+
+	R_Printf(PRINT_ALL, "%s(): Loaded font %s %.0fp.\n", __func__, font_name, *r_font_size);
 }
