@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -20,6 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "g_local.h"
 #include "ai_local.h"
+
+int	num_players;
+edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
+ai_devel_t	AIDevel;
 
 //ACE
 
@@ -64,10 +68,10 @@ void AI_SetUpMoveWander( edict_t *ent )
 	ent->ai.state = BOT_STATE_WANDER;
 	ent->ai.wander_timeout = level.time + 1.0;
 	ent->ai.nearest_node_tries = 0;
-	
+
 	ent->ai.next_move_time = level.time;
 	ent->ai.bloqued_timeout = level.time + 15.0;
-	
+
 	ent->ai.goal_node = INVALID;
 	ent->ai.current_node = INVALID;
 	ent->ai.next_node = INVALID;
@@ -107,7 +111,7 @@ void AI_ResetNavigation(edict_t *ent)
 	ent->ai.goal_node = INVALID;
 	ent->ai.current_node = INVALID;
 	ent->ai.next_node = INVALID;
-	
+
 	VectorSet( ent->ai.move_vector, 0, 0, 0 );
 
 	//reset bot_roams timeouts
@@ -178,7 +182,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 // AI_PickLongRangeGoal
 //
 // Evaluate the best long range goal and send the bot on
-// its way. This is a good time waster, so use it sparingly. 
+// its way. This is a good time waster, so use it sparingly.
 // Do not call it for every think cycle.
 //
 // jal: I don't think there is any problem by calling it,
@@ -282,7 +286,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 		weight /= cost; // Check against cost of getting there
 
 		if(weight > best_weight)
-		{		
+		{
 			best_weight = weight;
 			goal_node = node;
 			goal_ent = players[i];
@@ -340,7 +344,7 @@ void AI_PickShortRangeGoal(edict_t *self)
 	{
 		if(target->classname == NULL)
 			return;
-		
+
 		// Missile detection code
 		if(strcmp(target->classname,"rocket")==0 || strcmp(target->classname,"grenade")==0)
 		{
@@ -349,18 +353,18 @@ void AI_PickShortRangeGoal(edict_t *self)
 			{
 //				if(AIDevel.debugChased && bot_showcombat->value)
 //					G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: ROCKET ALERT!\n", self->ai.pers.netname);
-				
+
 				self->enemy = target->owner;	// set who fired the rocket as enemy
 				return;
 			}
 		}
-		
+
 		if (AI_ItemIsReachable(self,target->s.origin))
 		{
 			if (infront(self, target))
 			{
 				weight = AI_ItemWeight(self, target);
-				
+
 				if(weight > best_weight)
 				{
 					best_weight = weight;
@@ -368,11 +372,11 @@ void AI_PickShortRangeGoal(edict_t *self)
 				}
 			}
 		}
-		
+
 		// next target
-		target = findradius(target, self->s.origin, AI_GOAL_SR_RADIUS);	
+		target = findradius(target, self->s.origin, AI_GOAL_SR_RADIUS);
 	}
-	
+
 	//jalfixme (what's goalentity doing here?)
 	if(best_weight)
 	{
@@ -438,7 +442,7 @@ void AI_Think (edict_t *self)
 
 	//update position in path, set up move vector
 	if( self->ai.state == BOT_STATE_MOVE ) {
-		
+
 		if( !AI_FollowPath(self) )
 		{
 			AI_SetUpMoveWander( self );

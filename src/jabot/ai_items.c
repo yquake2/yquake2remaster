@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -249,7 +249,7 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 
 		if (weight < 0.2)
 			weight = 0.2;
-		
+
 		return weight;
 	}
 
@@ -281,7 +281,7 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 void SP_item_botroam (edict_t *ent)
 {
 	float weight;
-	
+
 	//try to convert Q3 weights (doh)
 	if(st.weight)
 	{
@@ -296,6 +296,6 @@ void SP_item_botroam (edict_t *ent)
 	}
 	else
 		weight = 30;	//default value
-				
+
 	ent->count = (int)weight;
 }

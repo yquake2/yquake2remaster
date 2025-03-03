@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -64,14 +64,14 @@ typedef struct nav_path_s
 
 } nav_path_t;
 
-nav_plink_t pLinks[MAX_NODES];		// pLinks array
-nav_node_t nodes[MAX_NODES];		// nodes array
+extern nav_plink_t pLinks[MAX_NODES];		// pLinks array
+extern nav_node_t nodes[MAX_NODES];		// nodes array
 
 typedef struct
 {
 	qboolean	loaded;
 	int			num_nodes;			// total number of nodes
-	
+
 	int			num_items;			// number of items known to navigation code
 	nav_item_t	items[MAX_EDICTS];	//keeps track of items related to nodes
 
@@ -83,5 +83,5 @@ typedef struct
 
 } ai_navigation_t;
 
-ai_navigation_t	nav;
+extern ai_navigation_t	nav;
 

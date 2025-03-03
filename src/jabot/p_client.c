@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -655,7 +655,7 @@ void InitClientResp (gclient_t *client)
 //ZOID
 
 	memset (&client->resp, 0, sizeof(client->resp));
-	
+
 //ZOID
 	client->resp.ctf_team = ctf_team;
 	client->resp.id_state = id_state;
@@ -663,7 +663,7 @@ void InitClientResp (gclient_t *client)
 
 	client->resp.enterframe = level.framenum;
 	client->resp.coop_respawn = client->pers;
- 
+
 //ZOID
 	if (ctf->value && client->resp.ctf_team < CTF_TEAM1)
 		CTFAssignTeam(client);
@@ -674,7 +674,7 @@ void InitClientResp (gclient_t *client)
 ==================
 SaveClientData
 
-Some information that should be persistant, like health, 
+Some information that should be persistant, like health,
 is still stored in the edict structure, so it needs to
 be mirrored out to the client structure before all the
 edicts are wiped.
@@ -1220,7 +1220,7 @@ void PutClientInServer (edict_t *ent)
 =====================
 ClientBeginDeathmatch
 
-A client has just connected to the server in 
+A client has just connected to the server in
 deathmatch mode, so clear everything out before starting them.
 =====================
 */
@@ -1256,11 +1256,11 @@ void ClientBeginDeathmatch (edict_t *ent)
 
 
 	safe_centerprintf(ent,"\nQ2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2\n\nJABot Linux 0.9 Beta\n\n http://jal.quakedev.com/\n\nLinux Port : QuDos\n\nTo add bots\n\nDeathMatch \n\n]sv addbot <name>\n\nCapture The Flag \n\n]sv addbot <blue/red> <name>\n\nTo remove bots\n\n]sv removebot <name>\n\n\nQ2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2 Q2\n\n");
-	
+
 
 // SPLASH_END
-	
-	
+
+
 	// make sure all view stuff is valid
 	ClientEndServerFrame (ent);
 }
@@ -1329,7 +1329,7 @@ void ClientBegin (edict_t *ent)
 
 
 	safe_centerprintf(ent,"\nQ2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2\n\nJABot 0.9b\n\n http://jal.quakedev.com/\n\nLinux Port : QuDos\n\nTo add bots\n\nDeathMatch \n\n]sv addbot <name>\n\nCapture The Flag \n\n]sv addbot <blue/red> <name>\n\nTo remove bots\n\n]sv removebot <name>\n\n\nQ2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2Q2\n\n");
-	
+
 
 // SPLASH_END
 	// make sure all view stuff is valid
@@ -1431,7 +1431,7 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 
 	// check for a password
 	value = Info_ValueForKey (userinfo, "password");
-	if (*password->string && strcmp(password->string, "none") && 
+	if (*password->string && strcmp(password->string, "none") &&
 		strcmp(password->string, value)) {
 		Info_SetValueForKey(userinfo, "rejmsg", "Password required or incorrect.");
 		return false;
@@ -1447,7 +1447,7 @@ qboolean ClientConnect (edict_t *ent, char *userinfo)
 		// clear the respawning variables
 //ZOID -- force team join
 		ent->client->resp.ctf_team = -1;
-		ent->client->resp.id_state = true; 
+		ent->client->resp.id_state = true;
 //ZOID
 		InitClientResp (ent->client);
 		if (!game.autosaved || !ent->client->pers.weapon)
@@ -1560,7 +1560,7 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 	{
 		client->ps.pmove.pm_type = PM_FREEZE;
 		// can exit intermission after five seconds
-		if (level.time > level.intermissiontime + 5.0 
+		if (level.time > level.intermissiontime + 5.0
 			&& (ucmd->buttons & BUTTON_ANY) )
 			level.exitintermission = true;
 		return;

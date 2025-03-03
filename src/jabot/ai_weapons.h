@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -29,7 +29,7 @@ enum
 	AI_AIMSTYLE_PREDICTION,
 	AI_AIMSTYLE_PREDICTION_EXPLOSIVE,
 	AI_AIMSTYLE_DROP,
-	
+
 	AIWEAP_AIM_TYPES
 };
 
@@ -39,7 +39,7 @@ enum
 	AIWEAP_SHORT_RANGE,
 	AIWEAP_MEDIUM_RANGE,
 	AIWEAP_LONG_RANGE,
-	
+
 	AIWEAP_RANGES
 };
 
@@ -54,4 +54,4 @@ typedef struct
 
 } ai_weapon_t;
 
-ai_weapon_t		AIWeapons[WEAP_TOTAL];
+extern ai_weapon_t		AIWeapons[WEAP_TOTAL];

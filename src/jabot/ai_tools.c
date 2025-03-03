@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -95,7 +95,7 @@ void AIDebug_SetChased(edict_t *ent)
 
 
 //=======================================================================
-//							NODE TOOLS	
+//							NODE TOOLS
 //=======================================================================
 
 
@@ -108,7 +108,7 @@ void AITools_DrawLine(vec3_t origin, vec3_t dest)
 {
 /*
 	edict_t		*event;
-	
+
 	event = G_SpawnEvent ( EV_BFG_LASER, 0, origin );
 	event->svflags = SVF_FORCEOLDORIGIN;
 	VectorCopy ( dest, event->s.origin2 );
@@ -147,10 +147,10 @@ void AITools_DrawPath(edict_t *self, int node_from, int node_to)
 	while( self->ai.path->nodes[pos] != node_to && count < 32)
 	{
 		edict_t		*event;
-		
+
 		event = G_SpawnEvent ( EV_BFG_LASER, 0, nodes[self->ai.path->nodes[pos]].origin );
 		event->svflags = SVF_FORCEOLDORIGIN;
-		VectorCopy ( nodes[self->ai.path->nodes[pos+1]].origin, event->s.origin2 );		
+		VectorCopy ( nodes[self->ai.path->nodes[pos+1]].origin, event->s.origin2 );
 		pos++;
 		count++;
 	}
@@ -191,7 +191,7 @@ void AITools_ShowPlinks( void )
 		}
 	}
 
-	for (i=0; i<pLinks[current_node].numLinks; i++) 
+	for (i=0; i<pLinks[current_node].numLinks; i++)
 	{
 		plink_node = pLinks[current_node].nodes[i];
 		AITools_DrawLine(nodes[current_node].origin, nodes[plink_node].origin);

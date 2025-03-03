@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -44,7 +44,7 @@ extern	cvar_t				*bot_debugmonster;
 #define AI_GOAL_SR_RADIUS		200
 #define MAX_BOT_SKILL			5		//skill levels graduation
 
-// Platform states: 
+// Platform states:
 #define	STATE_TOP			0
 #define	STATE_BOTTOM		1
 #define STATE_UP			2
@@ -66,8 +66,8 @@ extern	cvar_t				*bot_debugmonster;
 
 //acebot_items.c players table
 //----------------------------------------------------------
-int	num_players;
-edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
+extern int	num_players;
+extern edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 
 
 //Debug & creating and linking nodes
@@ -83,7 +83,7 @@ typedef struct
 	edict_t		*chaseguy;
 
 } ai_devel_t;
-ai_devel_t	AIDevel;
+extern ai_devel_t	AIDevel;
 
 
 

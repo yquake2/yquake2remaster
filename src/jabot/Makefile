@@ -5,18 +5,8 @@ BUILD_RELEASE_DIR=releasei386
 # this nice line comes from the linux kernel makefile
 ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc/ -e s/sparc64/sparc/ -e s/arm.*/arm/ -e s/sa110/arm/ -e s/alpha/axp/)
 
-ifneq ($(ARCH),i386)
-ifneq ($(ARCH),axp)
-ifneq ($(ARCH),ppc)
-ifneq ($(ARCH),sparc)
-$(error arch $(ARCH) is currently not supported)
-endif
-endif
-endif
-endif
-
 CC=gcc
-BASE_CFLAGS=-Dstricmp=strcasecmp -I ./  
+BASE_CFLAGS=-Dstricmp=strcasecmp -I ./
 RELEASE_CFLAGS=$(BASE_CFLAGS) -ffast-math -funroll-loops \
 	-fomit-frame-pointer -fexpensive-optimizations
 DEBUG_CFLAGS=$(BASE_CFLAGS) -g
@@ -97,40 +87,40 @@ $(BUILDDIR)/ai_class_monster_default.o :      ai_class_monster_default.c
 
 $(BUILDDIR)/ai_dropnodes.o :      ai_dropnodes.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/ai_items.o :      ai_items.c
 	$(DO_SHLIB_CC)
 
 $(BUILDDIR)/ai_links.o :      ai_links.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/ai_main.o :      ai_main.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/ai_movement.o :      ai_movement.c
-	$(DO_SHLIB_CC)	
-		
+	$(DO_SHLIB_CC)
+
 $(BUILDDIR)/ai_navigation.o :      ai_navigation.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/ai_nodes.o :      ai_nodes.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/ai_tools.o :      ai_tools.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/ai_weapons.o :      ai_weapons.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/AStar.o :      AStar.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/bot_common.o :      bot_common.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/bot_spawn.o :      bot_spawn.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/g_ai.o :         g_ai.c
 	$(DO_SHLIB_CC)
 
@@ -142,7 +132,7 @@ $(BUILDDIR)/g_cmds.o :       g_cmds.c
 
 $(BUILDDIR)/g_combat.o :     g_combat.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/g_ctf.o :       g_ctf.c
 	$(DO_SHLIB_CC)
 
@@ -184,7 +174,7 @@ $(BUILDDIR)/g_utils.o :      g_utils.c
 
 $(BUILDDIR)/g_weapon.o :     g_weapon.c
 	$(DO_SHLIB_CC)
-		
+
 $(BUILDDIR)/m_move.o :       m_move.c
 	$(DO_SHLIB_CC)
 
@@ -196,7 +186,7 @@ $(BUILDDIR)/p_hud.o :        p_hud.c
 
 $(BUILDDIR)/p_menu.o :        p_menu.c
 	$(DO_SHLIB_CC)
-	
+
 $(BUILDDIR)/p_trail.o :      p_trail.c
 	$(DO_SHLIB_CC)
 

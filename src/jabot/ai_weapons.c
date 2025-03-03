@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "g_local.h"
 #include "ai_local.h"
 
+ai_weapon_t		AIWeapons[WEAP_TOTAL];
 
 //WEAP_NONE,
 //WEAP_BLASTER
@@ -39,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //==========================================
 // AI_InitAIWeapons
-// 
+//
 // AIWeapons are the way the AI uses to analize
 // weapon types, for choosing and fire them
 //==========================================
@@ -65,7 +66,7 @@ void AI_InitAIWeapons (void)
 	AIWeapons[WEAP_SHOTGUN].RangeWeight[AIWEAP_MELEE_RANGE] = 0.3;
 	AIWeapons[WEAP_SHOTGUN].weaponItem = FindItemByClassname("weapon_shotgun");
 	AIWeapons[WEAP_SHOTGUN].ammoItem = FindItemByClassname("ammo_shells");
-	
+
 	//SUPERSHOTGUN
 	AIWeapons[WEAP_SUPERSHOTGUN].aimType = AI_AIMSTYLE_INSTANTHIT;
 	AIWeapons[WEAP_SUPERSHOTGUN].RangeWeight[AIWEAP_LONG_RANGE] = 0.2;

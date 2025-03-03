@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -48,7 +48,7 @@ in NO WAY supported by Steve Yeager.
 
 // node flags
 #define	NODEFLAGS_WATER				0x00000001
-#define	NODEFLAGS_LADDER			0x00000002 
+#define	NODEFLAGS_LADDER			0x00000002
 #define NODEFLAGS_SERVERLINK		0x00000004	//plats, doors, teles. Only server can link 2 nodes with this flag
 #define	NODEFLAGS_FLOAT				0x00000008	//don't drop node to floor ( air & water )
 //#define	NODEFLAGS_ITEM			0x00000010	//jal remove me
@@ -64,9 +64,9 @@ in NO WAY supported by Steve Yeager.
 
 // links types (movetypes required to run node links)
 #define	LINK_MOVE				0x00000001
-#define	LINK_STAIRS				0x00000002 
-#define LINK_FALL				0x00000004	
-#define	LINK_CLIMB				0x00000008	
+#define	LINK_STAIRS				0x00000002
+#define LINK_FALL				0x00000004
+#define	LINK_CLIMB				0x00000008
 #define	LINK_TELEPORT			0x00000010
 #define	LINK_PLATFORM			0x00000020
 #define LINK_JUMPPAD			0x00000040

@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -66,12 +66,12 @@ edict_t *BOT_FindFreeClient (void)
 	edict_t *bot;
 	int	i;
 	int max_count=0;
-	
+
 	// This is for the naming of the bots
 	for (i = maxclients->value; i > 0; i--)
 	{
 		bot = g_edicts + i + 1;
-		
+
 		if(bot->count > max_count)
 			max_count = bot->count;
 	}
@@ -89,7 +89,7 @@ edict_t *BOT_FindFreeClient (void)
 
 	if (bot->inuse)
 		bot = NULL;
-	
+
 	return bot;
 }
 
@@ -113,7 +113,7 @@ void BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 	// skin
 	if(strlen(skin) == 0)
 	{
-		// randomly choose skin 
+		// randomly choose skin
 		rnd = random();
 		if(rnd  < 0.05)
 			sprintf(bot_skin,"female/athena");
@@ -153,7 +153,7 @@ void BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 			sprintf(bot_skin,"male/psycho");
 		else if(rnd < 0.95)
 			sprintf(bot_skin,"male/razor");
-		else 
+		else
 			sprintf(bot_skin,"male/sniper");
 	}
 	else
@@ -220,7 +220,7 @@ qboolean BOT_JoinCTFTeam (edict_t *ent, char *team_name)
 
 	if (ent->client->resp.ctf_team != CTF_NOTEAM)
 		return false;
-	
+
 	// find what ctf team
 	if ((team_name !=NULL) && (strcmp(team_name, "blue") == 0))
 		team = CTF_TEAM2;
@@ -231,7 +231,7 @@ qboolean BOT_JoinCTFTeam (edict_t *ent, char *team_name)
 
 	if (team == CTF_NOTEAM)
 		return false;
-	
+
 	//join ctf team
 	ent->svflags &= ~SVF_NOCLIENT;
 	ent->client->resp.ctf_state = 1;//0?
@@ -320,9 +320,9 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 		Com_Printf("Can't spawn bots without a valid navigation file\n");
 		return;
 	}
-	
+
 	bot = BOT_FindFreeClient ();
-	
+
 	if (!bot)
 	{
 //		safe_bprintf (PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
@@ -339,7 +339,7 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 		BOT_SetName(bot, name, skin, team);
 	else
 		ClientConnect (bot, userinfo);
-	
+
 	G_InitEdict (bot);
 	InitClientResp (bot->client);
 
@@ -366,7 +366,7 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 		else if( !Q_stricmp( team, "red" ) )
 			bot->think = BOT_JoinRed;
 	}
-	
+
 	AI_EnemyAdded (bot); // let the ai know we added another
 }
 
@@ -399,8 +399,8 @@ void BOT_RemoveBot(char *name)
 		}
 	}
 
-//	if(!freed)	
+//	if(!freed)
 //		safe_bprintf (PRINT_MEDIUM, "%s not found\n", name);
-	
+
 //	ACESP_SaveBots(); // Save them again
 }

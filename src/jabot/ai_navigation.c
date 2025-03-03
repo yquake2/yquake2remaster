@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -129,7 +129,7 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	}
 
 	//------- ASTAR -----------
-	if(!AI_SetupPath( self, node, goal_node, self->ai.pers.moveTypesMask )) 
+	if(!AI_SetupPath( self, node, goal_node, self->ai.pers.moveTypesMask ))
 	{
 		AI_SetUpMoveWander(self);
 		return;
@@ -144,7 +144,7 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	self->ai.next_node = self->ai.current_node; // make sure we get to the nearest node first
 	self->ai.node_timeout = 0;
 
-	
+
 }
 
 //==========================================
@@ -198,7 +198,7 @@ qboolean AI_FollowPath( edict_t *self )
 		{
 //			if(AIDevel.debugChased && bot_showlrgoal->value)
 //				G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL REACHED!\n", self->ai.pers.netname);
-			
+
 			//if botroam, setup a timeout for it
 			if( nodes[self->ai.goal_node].flags & NODEFLAGS_BOTROAM )
 			{
@@ -213,7 +213,7 @@ qboolean AI_FollowPath( edict_t *self )
 					break;
 				}
 			}
-			
+
 			// Pick a new goal
 			AI_PickLongRangeGoal(self);
 		}

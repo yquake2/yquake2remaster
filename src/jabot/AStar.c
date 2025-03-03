@@ -3,8 +3,8 @@
 #include "ai_local.h"
 
 //==========================================
-// 
-// 
+//
+//
 //==========================================
 
 static int	alist[MAX_NODES];	//list contains all studied nodes, Open and Closed together
@@ -31,8 +31,8 @@ astarnode_t	astarnodes[MAX_NODES];
 static int Apath[MAX_NODES];
 static int Apath_numNodes;
 //==========================================
-// 
-// 
+//
+//
 //==========================================
 static int originNode;
 static int goalNode;
@@ -41,19 +41,19 @@ static int currentNode;
 int ValidLinksMask;
 #define DEFAULT_MOVETYPES_MASK (LINK_MOVE|LINK_STAIRS|LINK_FALL|LINK_WATER|LINK_WATERJUMP|LINK_JUMPPAD|LINK_PLATFORM|LINK_TELEPORT);
 //==========================================
-// 
-// 
-// 
+//
+//
+//
 //==========================================
 
-int	AStar_nodeIsInPath( int node )
+int	AStar_nodeIsInPath(int node)
 {
 	int	i;
 
 	if( !Apath_numNodes )
 		return 0;
 
-	for (i=0; i<Apath_numNodes; i++) 
+	for (i=0; i<Apath_numNodes; i++)
 	{
 		if(node == Apath[i])
 			return 1;
@@ -98,7 +98,7 @@ static void AStar_InitLists (void)
 		alist[i] = -1;
 }
 
-static int AStar_PLinkDistance( n1, n2 )
+static int AStar_PLinkDistance(int n1, int n2)
 {
 	int	i;
 	int	found = 0;
@@ -149,7 +149,7 @@ static void AStar_PutInClosed( int node )
 	astarnodes[node].list = CLOSEDLIST;
 }
 
-static void AStar_PutAdjacentsInOpen( node )
+static void AStar_PutAdjacentsInOpen(int node)
 {
 	int	i;
 
@@ -175,18 +175,18 @@ static void AStar_PutAdjacentsInOpen( node )
 		if( AStar_nodeIsInOpen( addnode ) )
 		{
 			int plinkDist;
-			
+
 			plinkDist = AStar_PLinkDistance( node, addnode );
 			if( plinkDist == -1)
 				printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
-			
+
 			//compare G distances and choose best parent
 			else if( astarnodes[addnode].G > (astarnodes[node].G + plinkDist) )
 			{
 				astarnodes[addnode].parent = node;
 				astarnodes[addnode].G = astarnodes[node].G + plinkDist;
 			}
-			
+
 		} else {	//just put it in
 
 			int plinkDist;
@@ -195,7 +195,7 @@ static void AStar_PutAdjacentsInOpen( node )
 			if( plinkDist == -1)
 			{
 				plinkDist = AStar_PLinkDistance( addnode, node );
-				if( plinkDist == -1) 
+				if( plinkDist == -1)
 					plinkDist = 999;//jalFIXME
 
 				//ERROR
@@ -243,14 +243,14 @@ static void AStar_ListsToPath ( void )
 	int count = 0;
 	int cur = goalNode;
 
-	while ( cur != originNode ) 
+	while ( cur != originNode )
 	{
 		cur = astarnodes[cur].parent;
 		count++;
 	}
 	cur = goalNode;
-	
-	while ( count >= 0 ) 
+
+	while ( count >= 0 )
 	{
 		Apath[count] = cur;
 		Apath_numNodes++;
@@ -263,10 +263,10 @@ static int	AStar_FillLists ( void )
 {
 	//put current node inside closed list
 	AStar_PutInClosed( currentNode );
-	
+
 	//put adjacent nodes inside open list
 	AStar_PutAdjacentsInOpen( currentNode );
-	
+
 	//find best adjacent and make it our current
 	currentNode = AStar_FindInOpen_BestF();
 
