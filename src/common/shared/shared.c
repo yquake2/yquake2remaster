@@ -1110,7 +1110,7 @@ Com_sprintf(char *dest, int size, const char *fmt, ...)
 
 	if (len >= size)
 	{
-		Com_Printf("Com_sprintf: overflow\n");
+		Com_Printf("%s: overflow\n", __func__);
 	}
 }
 
