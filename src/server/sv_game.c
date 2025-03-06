@@ -196,27 +196,29 @@ PF_setmodel(edict_t *ent, const char *name)
 static void
 PF_Configstring(int index, const char *val)
 {
+	int internal_index;
+
 	if (!val)
 	{
 		val = "";
 	}
 
-	index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
+	internal_index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
 
-	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
+	if ((internal_index < 0) || (internal_index >= MAX_CONFIGSTRINGS))
 	{
-		Com_Error(ERR_DROP, "configstring: bad index %i\n", index);
+		Com_Error(ERR_DROP, "configstring: bad internal_index %i\n", internal_index);
 	}
 
 	/* change the string in sv */
-	strcpy(sv.configstrings[index], val);
+	strcpy(sv.configstrings[internal_index], val);
 
 	if (sv.state != ss_loading)
 	{
 		/* send the update to everyone */
 		SZ_Clear(&sv.multicast);
 		MSG_WriteChar(&sv.multicast, svc_configstring);
-		/* index in library range */
+		/* index in protocol range */
 		MSG_WriteShort(&sv.multicast, index);
 		MSG_WriteString(&sv.multicast, val);
 
