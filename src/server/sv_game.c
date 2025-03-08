@@ -207,7 +207,7 @@ PF_Configstring(int index, const char *val)
 
 	if ((internal_index < 0) || (internal_index >= MAX_CONFIGSTRINGS))
 	{
-		Com_Error(ERR_DROP, "configstring: bad internal_index %i\n", internal_index);
+		Com_Error(ERR_DROP, "configstring: bad index %i\n", internal_index);
 	}
 
 	/* change the string in sv */
