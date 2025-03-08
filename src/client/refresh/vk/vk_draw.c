@@ -220,15 +220,7 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			size_t l;
-			int i;
-
-			l = strlen(alttext);
-			for (i = 0; i < l; i++)
-			{
-				RE_Draw_CharScaled(x + i * 8 * scale, y, alttext[i], scale);
-			}
-
+			RE_Draw_StringScaled(x, y, scale, false, alttext);
 			return;
 		}
 
@@ -236,7 +228,7 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 		return;
 	}
 
-	RE_Draw_StretchPic(x, y, vk->width*scale, vk->height*scale, name);
+	RE_Draw_StretchPic(x, y, vk->width * scale, vk->height * scale, name);
 }
 
 /*

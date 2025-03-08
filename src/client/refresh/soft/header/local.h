@@ -554,6 +554,7 @@ struct image_s	*RE_Draw_FindPic (const char *name);
 
 void	RE_Draw_GetPicSize (int *w, int *h, const char *name);
 void	RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext);
+void	RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 void	RE_Draw_StretchPic (int x, int y, int w, int h, const char *name);
 void	RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 void	RE_Draw_CharScaled (int x, int y, int c, float scale);

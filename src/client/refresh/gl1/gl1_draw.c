@@ -229,15 +229,7 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			size_t l;
-			int i;
-
-			l = strlen(alttext);
-			for (i = 0; i < l; i++)
-			{
-				RDraw_CharScaled(x + i * 8 * factor, y, alttext[i], factor);
-			}
-
+			RDraw_StringScaled(x, y, factor, false, alttext);
 			return;
 		}
 

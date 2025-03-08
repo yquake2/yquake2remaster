@@ -270,14 +270,7 @@ GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			int l, i;
-
-			l = strlen(alttext);
-			for (i = 0; i < l; i++)
-			{
-				GL4_Draw_CharScaled(x + i * 8 * factor, y, alttext[i], factor);
-			}
-
+			GL4_Draw_StringScaled(x, y, factor, false, alttext);
 			return;
 		}
 

@@ -374,6 +374,21 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 	}
 }
 
+void
+RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	int xor;
+
+	xor = alt ? 0x80 : 0;
+
+	while (*message)
+	{
+		RE_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
+		x += 8 * scale;
+		message ++;
+	}
+}
+
 /*
 =============
 Draw_Pic
@@ -390,15 +405,7 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			size_t l;
-			int i;
-
-			l = strlen(alttext);
-			for (i = 0; i < l; i++)
-			{
-				RE_Draw_CharScaled(x + i * 8 * scale, y, alttext[i], scale);
-			}
-
+			RE_Draw_StringScaled(x, y, scale, false, alttext);
 			return;
 		}
 

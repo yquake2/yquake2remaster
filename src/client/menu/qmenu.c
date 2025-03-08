@@ -528,49 +528,33 @@ Menu_DrawStatusBar(const char *string)
 void
 Menu_DrawString(int x, int y, const char *string)
 {
-	unsigned i;
 	float scale = SCR_GetMenuScale();
 
-	for (i = 0; i < strlen(string); i++)
-	{
-		Draw_CharScaled(x + i * 8 * scale, y * scale, string[i], scale);
-	}
+	Draw_StringScaled(x, y * scale, scale, false, string);
 }
 
 void
 Menu_DrawStringDark(int x, int y, const char *string)
 {
-	unsigned i;
 	float scale = SCR_GetMenuScale();
 
-	for (i = 0; i < strlen(string); i++)
-	{
-		Draw_CharScaled(x + i * 8 * scale, y * scale, string[i] + 128, scale);
-	}
+	Draw_StringScaled(x, y * scale, scale, true, string);
 }
 
 void
 Menu_DrawStringR2L(int x, int y, const char *string)
 {
-	unsigned i;
 	float scale = SCR_GetMenuScale();
 
-	for (i = 0; i < strlen(string); i++)
-	{
-		Draw_CharScaled(x - i * 8 * scale, y * scale, string[strlen(string) - i - 1], scale);
-	}
+	Draw_StringScaled(x - 8 * scale * strlen(string), y * scale, scale, false, string);
 }
 
 void
 Menu_DrawStringR2LDark(int x, int y, const char *string)
 {
-	unsigned i;
 	float scale = SCR_GetMenuScale();
 
-	for (i = 0; i < strlen(string); i++)
-	{
-		Draw_CharScaled(x - i * 8 * scale, y * scale, string[strlen(string) - i - 1] + 128, scale);
-	}
+	Draw_StringScaled(x - 8 * scale * strlen(string), y * scale, scale, true, string);
 }
 
 void *
