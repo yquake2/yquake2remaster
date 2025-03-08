@@ -4244,15 +4244,10 @@ RulesChangeFunc(void *self)
 		s_maxclients_field.generic.statusbar = NULL;
 		s_startserver_dmoptions_action.generic.statusbar = NULL;
 	}
-
-	/* Ground Zero game modes */
-	else if (M_IsGame("rogue"))
+	else if (s_rules_box.curvalue == 2)
 	{
-		if (s_rules_box.curvalue == 2)
-		{
-			s_maxclients_field.generic.statusbar = NULL;
-			s_startserver_dmoptions_action.generic.statusbar = NULL;
-		}
+		s_maxclients_field.generic.statusbar = NULL;
+		s_startserver_dmoptions_action.generic.statusbar = NULL;
 	}
 }
 
@@ -4287,16 +4282,12 @@ StartServerActionFunc(void *self)
 
 	Cvar_SetValue("singleplayer", 0);
 
-	if ((s_rules_box.curvalue < 2) || M_IsGame("rogue"))
-	{
-		Cvar_SetValue("deathmatch", (float)!s_rules_box.curvalue);
-		Cvar_SetValue("coop", (float)s_rules_box.curvalue);
-	}
-	else
-	{
-		Cvar_SetValue("deathmatch", 1); /* deathmatch is always true for rogue games */
-		Cvar_SetValue("coop", 0); /* This works for at least the main game and both addons */
-	}
+	/* deathmatch is always true for rogue games */
+	Cvar_SetValue("deathmatch",
+		(s_rules_box.curvalue == 3 || s_rules_box.curvalue == 0) ? 1 : 0);
+	/* This works for at least the main game and both addons */
+	Cvar_SetValue("coop", s_rules_box.curvalue == 1 ? 1 : 0);
+	Cvar_SetValue("ctf", s_rules_box.curvalue == 3 ? 1 : 0);
 
 	spot = NULL;
 
@@ -4367,13 +4358,8 @@ StartServer_MenuInit(void)
 	{
 		"deathmatch",
 		"cooperative",
-		0
-	};
-	static const char *dm_coop_names_rogue[] =
-	{
-		"deathmatch",
-		"cooperative",
 		"tag",
+		"ctf",
 		0
 	};
 
@@ -4483,23 +4469,23 @@ StartServer_MenuInit(void)
 		s_rules_box.generic.y = 20;
 		s_rules_box.generic.name = "rules";
 
-		/* Ground Zero games only available with rogue game */
-		if (M_IsGame("rogue"))
-		{
-			s_rules_box.itemnames = dm_coop_names_rogue;
-		}
-		else
-		{
-			s_rules_box.itemnames = dm_coop_names;
-		}
+		s_rules_box.itemnames = dm_coop_names;
 
 		if (Cvar_VariableValue("coop"))
 		{
 			s_rules_box.curvalue = 1;
 		}
-		else
+		else if (Cvar_VariableValue("ctf"))
+		{
+			s_rules_box.curvalue = 3;
+		}
+		else if (Cvar_VariableValue("deathmatch"))
 		{
 			s_rules_box.curvalue = 0;
+		}
+		else
+		{
+			s_rules_box.curvalue = 2;
 		}
 
 		s_rules_box.generic.callback = RulesChangeFunc;

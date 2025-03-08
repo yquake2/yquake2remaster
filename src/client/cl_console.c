@@ -644,10 +644,7 @@ Con_DrawConsole(float frac)
 
 	verLen = strlen(version);
 
-	for (x = 0; x < verLen; x++)
-	{
-		Draw_CharScaled(viddef.width - ((verLen*8+5) * scale) + x * 8 * scale, lines - 35 * scale, 128 + version[x], scale);
-	}
+	Draw_StringScaled(viddef.width - ((verLen * 8 + 5) * scale), lines - 35 * scale, scale, true, version);
 
 	t = time(NULL);
 	today = localtime(&t);
@@ -655,10 +652,7 @@ Con_DrawConsole(float frac)
 
 	Com_sprintf(tmpbuf, sizeof(tmpbuf), "%s", timebuf);
 
-	for (x = 0; x < 21; x++)
-	{
-		Draw_CharScaled(viddef.width - (173 * scale) + x * 8 * scale, lines - 25 * scale, 128 + tmpbuf[x], scale);
-	}
+	Draw_StringScaled(viddef.width - (173 * scale), lines - 25 * scale, scale, true, tmpbuf);
 
 	/* draw the text */
 	con.vislines = lines;
