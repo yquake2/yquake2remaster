@@ -272,15 +272,7 @@ GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		if (alttext && alttext[0])
 		{
 			/* Show alttext if provided */
-			size_t l;
-			int i;
-
-			l = strlen(alttext);
-			for (i = 0; i < l; i++)
-			{
-				GL3_Draw_CharScaled(x + i * 8 * factor, y, alttext[i], factor);
-			}
-
+			GL3_Draw_StringScaled(x, y, factor, false, alttext);
 			return;
 		}
 
