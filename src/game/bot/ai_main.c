@@ -1,25 +1,33 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
+ * Copyright (c) ZeniMax Media Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
-#include "g_local.h"
+#include "../header/local.h"
 #include "ai_local.h"
+
+int	num_players;
+edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
+ai_devel_t	AIDevel;
 
 //ACE
 
@@ -64,10 +72,10 @@ void AI_SetUpMoveWander( edict_t *ent )
 	ent->ai.state = BOT_STATE_WANDER;
 	ent->ai.wander_timeout = level.time + 1.0;
 	ent->ai.nearest_node_tries = 0;
-	
+
 	ent->ai.next_move_time = level.time;
 	ent->ai.bloqued_timeout = level.time + 15.0;
-	
+
 	ent->ai.goal_node = INVALID;
 	ent->ai.current_node = INVALID;
 	ent->ai.next_node = INVALID;
@@ -107,7 +115,7 @@ void AI_ResetNavigation(edict_t *ent)
 	ent->ai.goal_node = INVALID;
 	ent->ai.current_node = INVALID;
 	ent->ai.next_node = INVALID;
-	
+
 	VectorSet( ent->ai.move_vector, 0, 0, 0 );
 
 	//reset bot_roams timeouts
@@ -127,7 +135,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 	float	cost;
 	float	weight, best_weight = 0.0;
 	int		goal_node = INVALID;
-	int		best_broam = INVALID;
+	// int		best_broam = INVALID;
 	float	dist;
 
 	if (!nav.num_broams)
@@ -155,7 +163,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 		{
 			best_weight = weight;
 			goal_node = nav.broams[i].node;
-			best_broam = i;
+			// best_broam = i;
 		}
 	}
 
@@ -178,7 +186,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 // AI_PickLongRangeGoal
 //
 // Evaluate the best long range goal and send the bot on
-// its way. This is a good time waster, so use it sparingly. 
+// its way. This is a good time waster, so use it sparingly.
 // Do not call it for every think cycle.
 //
 // jal: I don't think there is any problem by calling it,
@@ -190,7 +198,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 	int		node;
 	float	weight,best_weight=0.0;
 	int		current_node, goal_node = INVALID;
-	edict_t *goal_ent = NULL;
+	// edict_t *goal_ent = NULL;
 	float	cost;
 	float dist;
 
@@ -253,7 +261,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 		{
 			best_weight = weight;
 			goal_node = nav.items[i].node;
-			goal_ent = nav.items[i].ent;
+			// goal_ent = nav.items[i].ent;
 		}
 	}
 
@@ -282,10 +290,10 @@ void AI_PickLongRangeGoal(edict_t *self)
 		weight /= cost; // Check against cost of getting there
 
 		if(weight > best_weight)
-		{		
+		{
 			best_weight = weight;
 			goal_node = node;
-			goal_ent = players[i];
+			// goal_ent = players[i];
 		}
 	}
 
@@ -340,7 +348,7 @@ void AI_PickShortRangeGoal(edict_t *self)
 	{
 		if(target->classname == NULL)
 			return;
-		
+
 		// Missile detection code
 		if(strcmp(target->classname,"rocket")==0 || strcmp(target->classname,"grenade")==0)
 		{
@@ -349,18 +357,18 @@ void AI_PickShortRangeGoal(edict_t *self)
 			{
 //				if(AIDevel.debugChased && bot_showcombat->value)
 //					G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: ROCKET ALERT!\n", self->ai.pers.netname);
-				
+
 				self->enemy = target->owner;	// set who fired the rocket as enemy
 				return;
 			}
 		}
-		
+
 		if (AI_ItemIsReachable(self,target->s.origin))
 		{
 			if (infront(self, target))
 			{
 				weight = AI_ItemWeight(self, target);
-				
+
 				if(weight > best_weight)
 				{
 					best_weight = weight;
@@ -368,11 +376,11 @@ void AI_PickShortRangeGoal(edict_t *self)
 				}
 			}
 		}
-		
+
 		// next target
-		target = findradius(target, self->s.origin, AI_GOAL_SR_RADIUS);	
+		target = findradius(target, self->s.origin, AI_GOAL_SR_RADIUS);
 	}
-	
+
 	//jalfixme (what's goalentity doing here?)
 	if(best_weight)
 	{
@@ -398,7 +406,7 @@ void AI_CategorizePosition (edict_t *ent)
 	ent->ai.is_ladder = AI_IsLadder( ent->s.origin, ent->s.angles, ent->mins, ent->maxs, ent );
 
 	M_CatagorizePosition(ent);
-	if (ent->waterlevel > 2 || ent->waterlevel && !stepping) {
+	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping)) {
 		ent->ai.is_swim = true;
 		ent->ai.is_step = false;
 		return;
@@ -438,7 +446,7 @@ void AI_Think (edict_t *self)
 
 	//update position in path, set up move vector
 	if( self->ai.state == BOT_STATE_MOVE ) {
-		
+
 		if( !AI_FollowPath(self) )
 		{
 			AI_SetUpMoveWander( self );

@@ -28,35 +28,25 @@
  * in NO WAY supported by Steve Yeager.
  */
 
-enum
+//==========================================
+//
+//
+//==========================================
+
+typedef struct astarpath_s
 {
-	AI_AIMSTYLE_INSTANTHIT,
-	AI_AIMSTYLE_PREDICTION,
-	AI_AIMSTYLE_PREDICTION_EXPLOSIVE,
-	AI_AIMSTYLE_DROP,
+	int numNodes;
+	int nodes[MAX_NODES];
+	int originNode;
+	int goalNode;
 
-	AIWEAP_AIM_TYPES
-};
+} astarpath_t;
 
-enum
-{
-	AIWEAP_MELEE_RANGE,
-	AIWEAP_SHORT_RANGE,
-	AIWEAP_MEDIUM_RANGE,
-	AIWEAP_LONG_RANGE,
-
-	AIWEAP_RANGES
-};
-
-typedef struct
-{
-	int		aimType;
-
-	float	RangeWeight[AIWEAP_RANGES];
-
-	gitem_t	*weaponItem;
-	gitem_t	*ammoItem;
-
-} ai_weapon_t;
-
-extern ai_weapon_t		AIWeapons[WEAP_TOTAL];
+//	A* PROPS
+//===========================================
+int	AStar_nodeIsInClosed( int node );
+int	AStar_nodeIsInOpen( int node );
+int	AStar_nodeIsInPath( int node );
+int	AStar_ResolvePath ( int origin, int goal, int movetypes );
+//===========================================
+int AStar_GetPath( int origin, int goal, int movetypes, struct astarpath_s *path );

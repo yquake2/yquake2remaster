@@ -259,6 +259,10 @@ typedef struct
 #define IT_TECH 0x000000200 /* CTF */
 
 /* gitem_t->weapmodel for weapons indicates model index */
+#define IT_HEALTH 0x000000400 /* JABot */
+#define IT_FLAG	0x000000800 /* JABot */
+
+/* gitem_t->weapmodel for weapons indicates model index */
 #define WEAP_BLASTER 1
 #define WEAP_SHOTGUN 2
 #define WEAP_SUPERSHOTGUN 3
@@ -278,6 +282,11 @@ typedef struct
 #define WEAP_PROXLAUNCH 17
 #define WEAP_CHAINFIST 18
 #define WEAP_GRAPPLE 19
+
+//JABot[start]
+#define WEAP_NONE			0
+#define WEAP_TOTAL			20
+//JABot[end]
 
 typedef struct gitem_s
 {
@@ -429,6 +438,8 @@ typedef struct
 	/* Addional fields for models */
 	vec3_t scale;
 	float health_multiplier;
+
+	int weight;//JABot
 } spawn_temp_t;
 
 typedef struct
@@ -1129,6 +1140,8 @@ void RemoveAttackingPainDaemons(edict_t *self);
 
 /* ============================================================================ */
 
+#include "ai.h"//JABot
+
 /* client_t->anim_priority */
 #define ANIM_BASIC 0            /* stand / run */
 #define ANIM_WAVE 1
@@ -1503,6 +1516,8 @@ struct edict_s
 	/* Third person view */
 	int chasedist1;
 	int chasedist2;
+
+	ai_handle_t		ai;		//JABot
 };
 
 #define SPHERE_DEFENDER 0x0001

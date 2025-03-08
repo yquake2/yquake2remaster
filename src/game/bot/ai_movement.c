@@ -1,29 +1,34 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
+ * Copyright (c) ZeniMax Media Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * --------------------------------------------------------------
+ * The ACE Bot is a product of Steve Yeager, and is available from
+ * the ACE Bot homepage, at http://www.axionfx.com/ace.
+ *
+ * This program is a modification of the ACE Bot, and is therefore
+ * in NO WAY supported by Steve Yeager.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
---------------------------------------------------------------
-The ACE Bot is a product of Steve Yeager, and is available from
-the ACE Bot homepage, at http://www.axionfx.com/ace.
-
-This program is a modification of the ACE Bot, and is therefore
-in NO WAY supported by Steve Yeager.
-*/
-
-#include "g_local.h"
+#include "../header/local.h"
 #include "ai_local.h"
 
 //ACE
@@ -32,7 +37,7 @@ in NO WAY supported by Steve Yeager.
 // AI_CanMove
 // Checks if bot can move (really just checking the ground)
 // Also, this is not a real accurate check, but does a
-// pretty good job and looks for lava/slime.  
+// pretty good job and looks for lava/slime.
 //==========================================
 qboolean AI_CanMove(edict_t *self, int direction)
 {
@@ -84,19 +89,19 @@ qboolean AI_IsStep (edict_t *ent)
 {
 	vec3_t		point;
 	trace_t		trace;
-	
+
 	//determine a point below
 	point[0] = ent->s.origin[0];
 	point[1] = ent->s.origin[1];
 	point[2] = ent->s.origin[2] - (1.6*AI_STEPSIZE);
-	
+
 	//trace to point
 //	trap_Trace (&trace, ent->s.origin, ent->mins, ent->maxs, point, ent, MASK_PLAYERSOLID);
 	trace = gi.trace( ent->s.origin, ent->mins, ent->maxs, point, ent, MASK_PLAYERSOLID);
-	
+
 	if (trace.plane.normal[2] < 0.7 && !trace.startsolid)
 		return false;
-	
+
 	//found solid.
 	return true;
 }
@@ -124,7 +129,7 @@ qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, ed
 
 //	trap_Trace(&trace, self->s.origin, self->mins, self->maxs, spot, self, MASK_AISOLID);
 	trace = gi.trace( origin, mins, maxs, spot, passent, MASK_AISOLID);
-	
+
 //	if ((trace.fraction < 1) && (trace.surfFlags & SURF_LADDER))
 	if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
 		return true;
@@ -135,7 +140,7 @@ qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, ed
 
 //==========================================
 // AI_CheckEyes
-// Helper for ACEMV_SpecialMove. 
+// Helper for ACEMV_SpecialMove.
 // Tries to turn when in front of obstacle
 //==========================================
 qboolean AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
@@ -153,8 +158,8 @@ qboolean AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
 	if(!self->movetarget)
 		VectorSet(offset,200,0,self->maxs[2]*0.5); // focalpoint
 	else
-		VectorSet(offset,64,0,self->maxs[2]*0.5); // wander focalpoint 
-	
+		VectorSet(offset,64,0,self->maxs[2]*0.5); // wander focalpoint
+
 	G_ProjectSource (self->s.origin, offset, forward, right, focalpoint);
 
 	VectorSet(offset, 0, 18, self->maxs[2]*0.5);
@@ -174,11 +179,11 @@ qboolean AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
 			self->s.angles[YAW] += (1.0 - traceLeft.fraction) * 45.0;
 		else
 			self->s.angles[YAW] += -(1.0 - traceRight.fraction) * 45.0;
-		
+
 		ucmd->forwardmove = 400;
 		return true;
 	}
-				
+
 	return false;
 }
 
@@ -240,7 +245,7 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 			{
 				ucmd->forwardmove = 400;
 				ucmd->upmove = 400;
-				
+
 				return true;
 			}
 		}
@@ -255,7 +260,7 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 // AI_ChangeAngle
 // Make the change in angles a little more gradual, not so snappy
 // Subtle, but noticeable.
-// 
+//
 // Modified from the original id ChangeYaw code...
 //==========================================
 void AI_ChangeAngle (edict_t *ent)
@@ -372,7 +377,7 @@ qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 	// Set bot's movement direction
 	VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai.move_vector);
 	AI_ChangeAngle(self);
-	if(!AI_CanMove(self, BOT_MOVE_FORWARD) ) 
+	if(!AI_CanMove(self, BOT_MOVE_FORWARD) )
 	{
 		self->movetarget = NULL;
 		ucmd->forwardmove = -100;

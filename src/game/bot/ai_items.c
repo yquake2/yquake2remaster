@@ -1,29 +1,34 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
+ * Copyright (c) ZeniMax Media Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * --------------------------------------------------------------
+ * The ACE Bot is a product of Steve Yeager, and is available from
+ * the ACE Bot homepage, at http://www.axionfx.com/ace.
+ *
+ * This program is a modification of the ACE Bot, and is therefore
+ * in NO WAY supported by Steve Yeager.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
---------------------------------------------------------------
-The ACE Bot is a product of Steve Yeager, and is available from
-the ACE Bot homepage, at http://www.axionfx.com/ace.
-
-This program is a modification of the ACE Bot, and is therefore
-in NO WAY supported by Steve Yeager.
-*/
-
-#include "g_local.h"
+#include "../header/local.h"
 #include "ai_local.h"
 
 //ACE
@@ -249,7 +254,7 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 
 		if (weight < 0.2)
 			weight = 0.2;
-		
+
 		return weight;
 	}
 
@@ -281,7 +286,7 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 void SP_item_botroam (edict_t *ent)
 {
 	float weight;
-	
+
 	//try to convert Q3 weights (doh)
 	if(st.weight)
 	{
@@ -296,6 +301,6 @@ void SP_item_botroam (edict_t *ent)
 	}
 	else
 		weight = 30;	//default value
-				
+
 	ent->count = (int)weight;
 }

@@ -1365,6 +1365,11 @@ G_RunEntity(edict_t *ent)
 
 	switch ((int)ent->movetype)
 	{
+		//JABot[start]
+		case MOVETYPE_WALK:
+			SV_RunThink(ent);
+			break;
+		//[end]
 		case MOVETYPE_PUSH:
 		case MOVETYPE_STOP:
 			SV_Physics_Pusher(ent);

@@ -1,29 +1,34 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
+ * Copyright (c) ZeniMax Media Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * --------------------------------------------------------------
+ * The ACE Bot is a product of Steve Yeager, and is available from
+ * the ACE Bot homepage, at http://www.axionfx.com/ace.
+ *
+ * This program is a modification of the ACE Bot, and is therefore
+ * in NO WAY supported by Steve Yeager.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
---------------------------------------------------------------
-The ACE Bot is a product of Steve Yeager, and is available from
-the ACE Bot homepage, at http://www.axionfx.com/ace.
-
-This program is a modification of the ACE Bot, and is therefore
-in NO WAY supported by Steve Yeager.
-*/
-
-#include "g_local.h"
+#include "../header/local.h"
 #include "ai_local.h"
 
 edict_t		*LINKS_PASSENT = NULL;
@@ -119,10 +124,10 @@ int AI_findNodeInRadius (int from, vec3_t org, float rad, qboolean ignoreHeight)
 
 		for( j=0 ; j<3 ; j++ )
 			eorg[j] = org[j] - nodes[from].origin[j];
-		
+
 		if( ignoreHeight )
 			eorg[2] = 0;
-		
+
 		if( VectorLength(eorg) > rad )
 			continue;
 
@@ -163,7 +168,7 @@ qboolean AI_AddLink( int n1, int n2, int linkType )
 	//never store self-link
 	if( n1 == n2 )
 		return false;
-	
+
 	//already referenced
 	if( AI_PlinkExists(n1, n2) )
 		return false;
@@ -172,7 +177,7 @@ qboolean AI_AddLink( int n1, int n2, int linkType )
 		return false;
 
 	//add the link
-	if (pLinks[n1].numLinks > NODES_MAX_PLINKS) 
+	if (pLinks[n1].numLinks > NODES_MAX_PLINKS)
 	{
 //		G_Printf("MaxPlinks Reached! node:%i numPlinks:%i\n", n1, pLinks[n1].numLinks);
 		return false;
@@ -181,9 +186,9 @@ qboolean AI_AddLink( int n1, int n2, int linkType )
 	pLinks[n1].nodes[pLinks[n1].numLinks] = n2;
 	pLinks[n1].dist[pLinks[n1].numLinks] = (int)AI_FindLinkDistance(n1, n2);
 	pLinks[n1].moveType[pLinks[n1].numLinks] = linkType;
-	
+
 	pLinks[n1].numLinks++;
-	
+
 	return true;
 }
 
@@ -246,9 +251,9 @@ int	AI_IsWaterJumpLink( int n1, int n2 )
 	trace = gi.trace( nodes[n2].origin, tv(-15,-15,0), tv(15,15,0), tv(nodes[n2].origin[0], nodes[n2].origin[1], nodes[n2].origin[2] - AI_JUMPABLE_HEIGHT), NULL, MASK_NODESOLID );
 	if( trace.startsolid || trace.fraction == 1.0 )
 		return LINK_INVALID;
-	
+
 	VectorCopy( trace.endpos, solidorigin );
-	
+
 	if( gi.pointcontents(nodes[n1].origin) & MASK_WATER )
 		VectorCopy( nodes[n1].origin, waterorigin );
 	else {
@@ -295,11 +300,11 @@ int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t newori
 	trace = gi.trace( origin, mins, maxs, origin, LINKS_PASSENT, MASK_NODESOLID );
 	if( trace.startsolid )
 		return LINK_INVALID;
-	
+
 	VectorSubtract( destvec, origin, movedir);
 	VectorNormalize( movedir );
 	vectoangles ( movedir, angles );
-	
+
 	//remaining distance in planes
 	if( scale < 1 )
 		scale = 1;
@@ -307,36 +312,36 @@ int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t newori
 	dist = AI_Distance( origin, destvec );
 	if( scale > dist )
 		scale = dist;
-	
+
 	xzscale = scale;
 	xzdist = AI_Distance( tv(origin[0], origin[1], destvec[2]), destvec );
 	if( xzscale > xzdist )
 		xzscale = xzdist;
-	
+
 	yscale = scale;
 	ydist = AI_Distance( tv(0,0,origin[2]), tv(0,0,destvec[2]) );
 	if( yscale > ydist )
 		yscale = ydist;
-	
-	
+
+
 	//float move step
 	if( gi.pointcontents( origin ) & MASK_WATER )
 	{
 		angles[ROLL] = 0;
 		AngleVectors( angles, forward, NULL, up );
 
-		
+
 		VectorMA( origin, scale, movedir, neworigin );
 		trace = gi.trace( origin, mins, maxs, neworigin, LINKS_PASSENT, MASK_NODESOLID);
-		if( trace.startsolid || trace.fraction < 1.0 ) 
+		if( trace.startsolid || trace.fraction < 1.0 )
 			VectorCopy( origin, neworigin );	//update if valid
-		
+
 		if( VectorCompare(origin, neworigin) )
 			return LINK_INVALID;
-		
+
 		if( gi.pointcontents( neworigin ) & MASK_WATER )
 			return LINK_WATER;
-		
+
 		//jal: Actually GravityBox can't leave water.
 		//return INVALID and WATERJUMP, so it can validate the rest outside
 		return (LINK_INVALID|LINK_WATERJUMP);
@@ -353,7 +358,7 @@ int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t newori
 	VectorMA( origin, xzscale, forward, neworigin );
 	trace = gi.trace( origin, mins, maxs, neworigin, LINKS_PASSENT, MASK_NODESOLID );
 	if( trace.fraction == 1.0 ) //moved
-	{	
+	{
 		movemask |= LINK_MOVE;
 		goto droptofloor;
 
@@ -386,7 +391,7 @@ int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t newori
 			v1[2] = 0;
 			VectorNormalize( v1 );
 			VectorMA( neworigin, xzscale, v1, neworigin );
-			
+
 			//if new position is closer to destiny, might be valid
 			if( AI_Distance( origin, destvec ) > AI_Distance( neworigin, destvec ) )
 			{
@@ -402,7 +407,7 @@ int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t newori
 
 droptofloor:
 
-	while(eternalfall < 20000000) 
+	while(eternalfall < 20000000)
 	{
 		if( gi.pointcontents(neworigin) & MASK_WATER ) {
 
@@ -521,7 +526,7 @@ int AI_RunGravityBox( int n1, int n2 )
 			}
 			return ( movemask|move );
 		}
-		
+
 		//next
 		movemask |= move;
 		VectorCopy( v1, o1 );
@@ -620,7 +625,7 @@ int	AI_FindFallOrigin( int n1, int n2, vec3_t fallorigin )
 
 		if( move & LINK_INVALID )
 			return LINK_INVALID;
-		
+
 		movemask |= move;
 
 		if( move & LINK_FALL ) {
@@ -663,7 +668,7 @@ int AI_LadderLink_FindUpperNode( int node )
 
 		if( !(nodes[i].flags & NODEFLAGS_LADDER) )
 			continue;
-		
+
 		//same ladder
 		for (j=0 ; j<2 ; j++)
 			eorg[j] = nodes[i].origin[j] - nodes[node].origin[j];
@@ -710,7 +715,7 @@ int AI_LadderLink_FindLowerNode( int node )
 
 		if( !(nodes[i].flags & NODEFLAGS_LADDER) )
 			continue;
-		
+
 		//same ladder
 		for (j=0 ; j<2 ; j++)
 			eorg[j] = nodes[i].origin[j] - nodes[node].origin[j];
@@ -751,10 +756,10 @@ int AI_IsLadderLink( int n1, int n2 )
 	for (j=0 ; j<2 ; j++)
 		eorg[j] = nodes[n2].origin[j] - nodes[n1].origin[j];
 	eorg[2] = 0; //ignore height
-	
+
 	xzdist = VectorLength(eorg);
 
-	if(xzdist < 0) 
+	if(xzdist < 0)
 		xzdist = -xzdist;
 
 	//if both are ladder nodes
@@ -797,7 +802,7 @@ int AI_IsLadderLink( int n1, int n2 )
 				return AI_GravityBoxToLink( n1, n2 );
 			}
 		}
-		
+
 		return LINK_INVALID;
 	}
 
@@ -840,11 +845,11 @@ int AI_FindLinkType(int n1, int n2)
 	//ignore server links
 	if( nodes[n1].flags & NODEFLAGS_SERVERLINK || nodes[n2].flags & NODEFLAGS_SERVERLINK )
 		return LINK_INVALID; // they are added only by the server at dropping entity nodes
-	
+
 	//LINK_LADDER
-	if( nodes[n1].flags & NODEFLAGS_LADDER || nodes[n2].flags & NODEFLAGS_LADDER ) 
+	if( nodes[n1].flags & NODEFLAGS_LADDER || nodes[n2].flags & NODEFLAGS_LADDER )
 		return AI_IsLadderLink( n1, n2 );
-	
+
 	//find out the link move type against the world
 	return AI_GravityBoxToLink( n1, n2 );
 }
@@ -865,9 +870,9 @@ int AI_IsJumpLink(int n1, int n2)
 	//ignore server links
 	if( nodes[n1].flags & NODEFLAGS_SERVERLINK || nodes[n2].flags & NODEFLAGS_SERVERLINK )
 		return LINK_INVALID; // they are added only by the server at dropping entity nodes
-	
+
 	//LINK_LADDER
-	if( nodes[n1].flags & NODEFLAGS_LADDER || nodes[n2].flags & NODEFLAGS_LADDER ) 
+	if( nodes[n1].flags & NODEFLAGS_LADDER || nodes[n2].flags & NODEFLAGS_LADDER )
 		return LINK_INVALID;
 
 	//can't jump if begins inside water
@@ -879,55 +884,55 @@ int AI_IsJumpLink(int n1, int n2)
 
 	if( !(link & LINK_INVALID) )	// recheck backwards for climb links
 		return LINK_INVALID;
-	
+
 	if( AI_PlinkExists( n2, n1 ))
 		climblink = AI_PlinkMoveType( n2, n1 );
-	else 
+	else
 		climblink = AI_RunGravityBox( n2, n1 );
-	
+
 	if( climblink & LINK_FALL ) {
 		climblink &= ~LINK_FALL;
 		link &= ~LINK_INVALID;
 		link = (link|climblink|LINK_CLIMB);
 	}
-	
+
 	//see if we can jump it
-	if( link & LINK_CLIMB && link & LINK_FALL )	
+	if( link & LINK_CLIMB && link & LINK_FALL )
 	{
 		vec3_t fo1, fo2;
 		int		link;
 		float	dist;
 		float	heightdiff;
-		
+
 		VectorSet( fo1, 0,0,0 );
 		VectorSet( fo2, 0,0,0 );
-		
+
 		link = AI_FindFallOrigin( n1, n2, fo1 );
 		if( !(link & LINK_FALL) )
 			return LINK_INVALID;
-		
+
 		link = AI_FindFallOrigin( n2, n1, fo2 );
 		if( !(link & LINK_FALL) )
 			return LINK_INVALID;
-		
+
 		//reachable? (faster)
 		if( !AI_VisibleOrigins( fo1, fo2 ) )
 			return LINK_INVALID;
-		
+
 		if( fo2[2] > fo1[2] + AI_JUMPABLE_HEIGHT )	//n1 is just too low
 			return LINK_INVALID;
-		
+
 		heightdiff = fo2[2] - fo1[2];	//if n2 is higher, shorten xzplane dist
 		if( heightdiff < 0 )
 			heightdiff = 0;
-		
+
 		//xzplane dist is valid?
 		fo2[2] = fo1[2];
 		dist = AI_Distance( fo1, fo2 );
 		if( (dist + heightdiff) < AI_JUMPABLE_DISTANCE && dist > 24 )
 			return LINK_JUMP;
 	}
-	
+
 	return LINK_INVALID;
 }
 
@@ -952,7 +957,7 @@ int AI_LinkCloseNodes_JumpPass( int start )
 	{
 		n2 = 0;
 		n2 = AI_findNodeInRadius ( 0, nodes[n1].origin, pLinkRadius, ignoreHeight);
-		
+
 		while (n2 != -1)
 		{
 			if( n1 != n2 && !AI_PlinkExists( n1, n2 ) )
@@ -994,12 +999,12 @@ int AI_LinkCloseNodes( void )
 	{
 		n2 = 0;
 		n2 = AI_findNodeInRadius ( 0, nodes[n1].origin, pLinkRadius, ignoreHeight);
-		
+
 		while (n2 != -1)
 		{
 			if( AI_AddLink( n1, n2, AI_FindLinkType(n1, n2) ))
 				count++;
-			
+
 			n2 = AI_findNodeInRadius ( n2, nodes[n1].origin, pLinkRadius, ignoreHeight);
 		}
 	}

@@ -1,29 +1,34 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
+ * Copyright (c) ZeniMax Media Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * --------------------------------------------------------------
+ * The ACE Bot is a product of Steve Yeager, and is available from
+ * the ACE Bot homepage, at http://www.axionfx.com/ace.
+ *
+ * This program is a modification of the ACE Bot, and is therefore
+ * in NO WAY supported by Steve Yeager.
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
---------------------------------------------------------------
-The ACE Bot is a product of Steve Yeager, and is available from
-the ACE Bot homepage, at http://www.axionfx.com/ace.
-
-This program is a modification of the ACE Bot, and is therefore
-in NO WAY supported by Steve Yeager.
-*/
-
-#include "g_local.h"
+#include "../header/local.h"
 #include "ai_local.h"
 
 
@@ -110,8 +115,8 @@ void AI_UpdateNodeEdge( int from, int to )
 		link = AI_FindLinkType( from, to );
 
 	Com_Printf("Link: %d -> %d. ", from, to);
-	
-	
+
+
 	Com_Printf("%s\n", AI_LinkString(link) );
 }
 
@@ -151,16 +156,16 @@ void AI_DropLadderNodes( edict_t *self )
 
 	//find bottom. Try simple first
 	trace = gi.trace( borigin, tv(-15,-15,-24), tv(15,15,0), tv(borigin[0], borigin[1], borigin[2] - 2048), self, MASK_NODESOLID );
-	if( !trace.startsolid && trace.fraction < 1.0 
-		&& AI_IsLadder( trace.endpos, self->client->ps.viewangles, self->mins, self->maxs, self) ) 
+	if( !trace.startsolid && trace.fraction < 1.0
+		&& AI_IsLadder( trace.endpos, self->client->ps.viewangles, self->mins, self->maxs, self) )
 	{
 		VectorCopy( trace.endpos, borigin );
 
 	} else {	//it wasn't so easy
-		
+
 		trace = gi.trace( borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID );
-		while( AI_IsLadder( borigin, self->client->ps.viewangles, self->mins, self->maxs, self) 
-			&& !trace.startsolid ) 
+		while( AI_IsLadder( borigin, self->client->ps.viewangles, self->mins, self->maxs, self)
+			&& !trace.startsolid )
 		{
 			borigin[2]--;
 			trace = gi.trace( borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID );
@@ -247,31 +252,31 @@ void AI_WaterJumpNode( void )
 	if( gi.pointcontents(waterorigin) & MASK_WATER )
 	{
 		//reverse
-		trace = gi.trace( waterorigin, 
-			vec3_origin, 
+		trace = gi.trace( waterorigin,
+			vec3_origin,
 			vec3_origin,
 			tv( waterorigin[0], waterorigin[1], waterorigin[2] + NODE_DENSITY*2 ),
 			player.ent,
 			MASK_ALL );
-		
+
 		VectorCopy( trace.endpos, waterorigin );
 		if( gi.pointcontents(waterorigin) & MASK_WATER )
 			return;
 	}
-	
+
 	//find water limit
-	trace = gi.trace( waterorigin, 
-		vec3_origin, 
+	trace = gi.trace( waterorigin,
+		vec3_origin,
 		vec3_origin,
 		tv( waterorigin[0], waterorigin[1], waterorigin[2] - NODE_DENSITY*2 ),
 		player.ent,
 		MASK_WATER );
-	
+
 	if( trace.fraction == 1.0 )
 		return;
 	else
 		VectorCopy( trace.endpos, waterorigin );
-	
+
 	//tmp test (should just move 1 downwards)
 	if( !(gi.pointcontents(waterorigin) & MASK_WATER) ) {
 		int	k = 0;
@@ -289,11 +294,11 @@ void AI_WaterJumpNode( void )
 	if( closest_node == -1 ) // we need to drop a node
 	{
 		closest_node = AI_AddNode( waterorigin, (NODEFLAGS_WATER|NODEFLAGS_FLOAT) );
-		
+
 		// Add an edge
 		AI_UpdateNodeEdge( player.last_node, closest_node);
 		player.last_node = closest_node;
-	
+
 	} else {
 
 		AI_UpdateNodeEdge( player.last_node, closest_node );
@@ -314,8 +319,8 @@ void AI_PathMap( void )
 	int			 closest_node;
 
 	//DROP WATER JUMP NODE (not limited by delayed updates)
-	if ( !player.ent->ai.is_swim && player.last_node != -1 
-		&& player.ent->ai.is_swim != player.ent->ai.was_swim) 
+	if ( !player.ent->ai.is_swim && player.last_node != -1
+		&& player.ent->ai.is_swim != player.ent->ai.was_swim)
 	{
 		AI_WaterJumpNode();
 		last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
@@ -365,18 +370,18 @@ void AI_PathMap( void )
 
 		//check for duplicates (prevent adding too many)
 		closest_node = AI_FindClosestReachableNode( player.ent->s.origin, player.ent, 64, NODE_ALL);
-		
+
 		//otherwise, add a new node
-		if(closest_node == INVALID) 
+		if(closest_node == INVALID)
 			closest_node = AI_AddNode( player.ent->s.origin, 0 ); //no flags = normal movement node
-		
+
 		// Now add link
 		if( player.last_node != -1 && closest_node != -1)
 			AI_UpdateNodeEdge( player.last_node, closest_node);
 
 		if( closest_node != -1 )
 			player.last_node = closest_node; // set visited to last
-		
+
 		player.was_falling = false;
 		return;
 	}
@@ -469,18 +474,18 @@ void AITools_InitEditnodes( void )
 		AI_LoadPLKFile( level.mapname );
 		//delete everything but nodes
 		memset( pLinks, 0, sizeof(nav_plink_t) * MAX_NODES );
-		
+
 		nav.num_ents = 0;
 		memset( nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS );
-		
+
 		nav.num_broams = 0;
 		memset( nav.broams, 0, sizeof(nav_broam_t) * MAX_BOT_ROAMS );
-		
+
 		nav.num_items = 0;
 		memset( nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS );
 		nav.loaded = false;
 	}
-	
+
 	Com_Printf("EDITNODES: on\n");
 }
 

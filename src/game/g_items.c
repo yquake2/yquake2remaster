@@ -58,9 +58,9 @@ void Weapon_Ionripper(edict_t *ent);
 void Weapon_Phalanx(edict_t *ent);
 void Weapon_Trap(edict_t *ent);
 
-static gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
-static gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
-static gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
+gitem_armor_t jacketarmor_info = {25, 50, .30, .00, ARMOR_JACKET};
+gitem_armor_t combatarmor_info = {50, 100, .60, .30, ARMOR_COMBAT};
+gitem_armor_t bodyarmor_info = {100, 200, .80, .60, ARMOR_BODY};
 
 static int jacket_armor_index;
 static int combat_armor_index;

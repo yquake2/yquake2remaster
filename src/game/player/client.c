@@ -1993,7 +1993,7 @@ body_die(edict_t *self, edict_t *inflictor /* unused */,
 	}
 }
 
-static void
+void
 CopyToBodyQue(edict_t *ent)
 {
 	edict_t *body;
@@ -2051,6 +2051,13 @@ respawn(edict_t *self)
 
 	if (deathmatch->value || coop->value)
 	{
+//JABot[start]
+		if (self->ai.is_bot){
+			BOT_Respawn (self);
+			return;
+		}
+//JABot[end]
+
 		/* spectator's don't leave bodies */
 		if (self->movetype != MOVETYPE_NOCLIP)
 		{
@@ -2387,6 +2394,11 @@ PutClientInServer(edict_t *ent)
 	VectorCopy(ent->s.angles, client->ps.viewangles);
 	VectorCopy(ent->s.angles, client->v_angle);
 
+	//JABot[start]
+	if( ent->ai.is_bot == true )
+		return;
+	//JABot[end]
+
 	if (CTFStartClient(ent))
 	{
 		return;
@@ -2482,6 +2494,10 @@ ClientBeginDeathmatch(edict_t *ent)
 		gi.WriteByte(MZ_LOGIN);
 		gi.multicast(ent->s.origin, MULTICAST_PVS);
 	}
+
+	//JABot[start]
+	AI_EnemyAdded(ent);
+	//[end]
 
 	gi.bprintf(PRINT_HIGH, "%s entered the game\n", ent->client->pers.netname);
 
@@ -2822,6 +2838,10 @@ ClientDisconnect(edict_t *ent)
 
 	playernum = ent - g_edicts - 1;
 	gi.configstring(CS_PLAYERSKINS + playernum, "");
+
+	//JABot[start]
+	AI_EnemyRemoved (ent);
+	//[end]
 }
 
 /* ============================================================== */
@@ -3144,6 +3164,10 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 			UpdateChaseCam(other);
 		}
 	}
+
+	//JABot[start]
+	AITools_DropNodes(ent);
+	//JABot[end]
 
 	if (ctf->value && client->menudirty && (client->menutime <= level.time))
 	{

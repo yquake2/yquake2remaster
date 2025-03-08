@@ -108,6 +108,22 @@ cvar_t *g_start_items;
 cvar_t *ai_model_scale;
 cvar_t *g_game;
 
+cvar_t *bot_showpath;
+cvar_t *bot_showcombat;
+cvar_t *bot_showsrgoal;
+cvar_t *bot_showlrgoal;
+cvar_t *bot_debugmonster;
+
+/*
+void ClientThink (edict_t *ent, usercmd_t *cmd);
+qboolean ClientConnect (edict_t *ent, char *userinfo);
+void ClientUserinfoChanged (edict_t *ent, char *userinfo);
+void ClientDisconnect (edict_t *ent);
+void ClientBegin (edict_t *ent);
+void ClientCommand (edict_t *ent);
+void RunEntity (edict_t *ent);
+void InitGame(void);
+*/
 static void G_RunFrame(void);
 
 /* =================================================================== */
@@ -433,6 +449,10 @@ ExitLevel(void)
 		return;
 	}
 
+	//JABot[start] (Disconnect all bots before changing map)
+	BOT_RemoveBot("all");
+	//[end]
+
 	Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.changemap);
 	gi.AddCommandString(command);
 	level.changemap = NULL;
@@ -517,6 +537,10 @@ G_RunFrame(void)
 		if ((i > 0) && (i <= maxclients->value))
 		{
 			ClientBeginServerFrame(ent);
+			//JABot[start]
+			if ( ent->ai.is_bot )
+				G_RunEntity (ent);
+			//[end]
 			continue;
 		}
 
@@ -531,4 +555,8 @@ G_RunFrame(void)
 
 	/* build the playerstate_t structures for all players */
 	ClientEndServerFrames();
+
+	//JABot[start]
+	AITools_Frame();	//give think time to AI debug tools
+	//[end]
 }

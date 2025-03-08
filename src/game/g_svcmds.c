@@ -324,6 +324,13 @@ ServerCommand(void)
 {
 	char *cmd;
 
+	// JABot[start]
+	if (BOT_ServerCommand())
+	{
+		return;
+	}
+	// [end]
+
 	cmd = gi.argv(1);
 
 	if (Q_stricmp(cmd, "test") == 0)

@@ -66,6 +66,7 @@ extern void SP_info_player_deathmatch(edict_t * self);
 extern void SP_info_player_intermission ( edict_t * ent ) ;
 extern void SP_info_player_start(edict_t * self);
 extern void SP_info_teleport_destination(edict_t * self);
+extern void SP_item_botroam(edict_t * self);
 extern void SP_item_foodcube(edict_t * self);
 extern void SP_item_health(edict_t * self);
 extern void SP_item_health_large(edict_t * self);

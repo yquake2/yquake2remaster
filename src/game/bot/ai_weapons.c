@@ -1,26 +1,31 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
+ * Copyright (c) ZeniMax Media Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
-#include "g_local.h"
+#include "../header/local.h"
 #include "ai_local.h"
 
+ai_weapon_t		AIWeapons[WEAP_TOTAL];
 
 //WEAP_NONE,
 //WEAP_BLASTER
@@ -39,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //==========================================
 // AI_InitAIWeapons
-// 
+//
 // AIWeapons are the way the AI uses to analize
 // weapon types, for choosing and fire them
 //==========================================
@@ -65,7 +70,7 @@ void AI_InitAIWeapons (void)
 	AIWeapons[WEAP_SHOTGUN].RangeWeight[AIWEAP_MELEE_RANGE] = 0.3;
 	AIWeapons[WEAP_SHOTGUN].weaponItem = FindItemByClassname("weapon_shotgun");
 	AIWeapons[WEAP_SHOTGUN].ammoItem = FindItemByClassname("ammo_shells");
-	
+
 	//SUPERSHOTGUN
 	AIWeapons[WEAP_SUPERSHOTGUN].aimType = AI_AIMSTYLE_INSTANTHIT;
 	AIWeapons[WEAP_SUPERSHOTGUN].RangeWeight[AIWEAP_LONG_RANGE] = 0.2;

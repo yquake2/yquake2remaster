@@ -1032,6 +1032,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	{
 		CTFSpawn();
 	}
+
+	AI_NewMap();//JABot
 }
 
 /* =================================================================== */

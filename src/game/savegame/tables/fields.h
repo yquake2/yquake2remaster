@@ -120,6 +120,7 @@
 {"maxpitch", STOFS(maxpitch), F_FLOAT, FFL_SPAWNTEMP},
 {"music", STOFS(music), F_LRAWSTRING, FFL_SPAWNTEMP},
 {"nextmap", STOFS(nextmap), F_LRAWSTRING, FFL_SPAWNTEMP},
+{"weight", STOFS(weight), F_INT, FFL_SPAWNTEMP},
 {"bad_area", FOFS(bad_area), F_EDICT},
 {"hint_chain", FOFS(hint_chain), F_EDICT},
 {"monster_hint_chain", FOFS(monster_hint_chain), F_EDICT},
