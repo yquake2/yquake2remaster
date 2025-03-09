@@ -193,7 +193,7 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 //	trap_Trace ( &trace, target_origin, tv(-15, -15, -8), tv(15, 15, 8), floor_target_origin, NULL, MASK_NODESOLID);
 	trace = gi.trace(  target_origin, tv(-15, -15, -8), tv(15, 15, 8), floor_target_origin, NULL, MASK_NODESOLID);
 	if ((trace.fraction == 1.0 && trace.startsolid) || (trace.allsolid && trace.startsolid)){
-//		G_Printf("JUMPAD LAND: ERROR: trace was in solid.\n"); //started inside solid (target should never be inside solid, this is a mapper error)
+//		Com_Printf("JUMPAD LAND: ERROR: trace was in solid.\n"); //started inside solid (target should never be inside solid, this is a mapper error)
 		return false;
 	} else if ( trace.fraction == 1.0 ) {
 
@@ -645,7 +645,8 @@ qboolean AI_LoadPLKFile( char *mapname )
 	char		filename[MAX_OSPATH];
 	int			version;
 
-	Com_sprintf (filename, sizeof(filename), "%s/%s/%s.%s", AI_MOD_FOLDER, AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
+	Com_sprintf (filename, sizeof(filename), "%s/%s/%s.%s",
+		gi.FS_Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
 
 	pIn = fopen( filename, "rb" );
 	if( pIn  == NULL )
@@ -904,12 +905,14 @@ void AI_InitNavigationData(void)
 	//Load nodes from file
 	nav.loaded = AI_LoadPLKFile( level.mapname );
 	if( !nav.loaded ) {
-		Com_Printf( "AI: FAILED to load nodes file.\n");
+		Com_Printf("AI: FAILED to load nodes file.\n");
 		return;
 	}
 
 	for( linkscount = 0, i = 0; i< nav.num_nodes; i++ )
+	{
 		linkscount += pLinks[i].numLinks;
+	}
 
 	servernodesstart = nav.num_nodes;
 
@@ -918,12 +921,12 @@ void AI_InitNavigationData(void)
 	newlinks = AI_LinkServerNodes( servernodesstart );
 	newjumplinks = AI_LinkCloseNodes_JumpPass( servernodesstart );
 
-	Com_Printf("-------------------------------------\n" );
-	Com_Printf("       : AI: Nodes Initialized.\n" );
-	Com_Printf("       : loaded nodes:%i.\n", servernodesstart );
-	Com_Printf("       : added nodes:%i.\n", nav.num_nodes - servernodesstart );
-	Com_Printf("       : total nodes:%i.\n", nav.num_nodes );
-	Com_Printf("       : loaded links:%i.\n", linkscount );
-	Com_Printf("       : added links:%i.\n", newlinks );
-	Com_Printf("       : added jump links:%i.\n", newjumplinks );
+	Com_Printf("-------------------------------------\n");
+	Com_Printf("AI: Nodes Initialized.\n");
+	Com_Printf("Loaded nodes: %i.\n", servernodesstart);
+	Com_Printf("Added nodes: %i.\n", nav.num_nodes - servernodesstart);
+	Com_Printf("Total nodes: %i.\n", nav.num_nodes);
+	Com_Printf("Loaded links: %i.\n", linkscount);
+	Com_Printf("Added links: %i.\n", newlinks);
+	Com_Printf("Added jump links: %i.\n", newjumplinks);
 }

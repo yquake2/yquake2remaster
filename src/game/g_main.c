@@ -114,16 +114,6 @@ cvar_t *bot_showsrgoal;
 cvar_t *bot_showlrgoal;
 cvar_t *bot_debugmonster;
 
-/*
-void ClientThink (edict_t *ent, usercmd_t *cmd);
-qboolean ClientConnect (edict_t *ent, char *userinfo);
-void ClientUserinfoChanged (edict_t *ent, char *userinfo);
-void ClientDisconnect (edict_t *ent);
-void ClientBegin (edict_t *ent);
-void ClientCommand (edict_t *ent);
-void RunEntity (edict_t *ent);
-void InitGame(void);
-*/
 static void G_RunFrame(void);
 
 /* =================================================================== */

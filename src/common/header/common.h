@@ -743,8 +743,8 @@ void FS_FreeList(char **list, int nfiles);
 void FS_InitFilesystem(void);
 void FS_ShutdownFilesystem(void);
 void FS_BuildGameSpecificSearchPath(const char *dir);
-char *FS_Gamedir(void);
-char *FS_NextPath(const char *prevpath);
+const char *FS_Gamedir(void);
+const char *FS_NextPath(const char *prevpath);
 int FS_LoadFile(const char *path, void **buffer);
 qboolean FS_FileInGamedir(const char *file);
 qboolean FS_AddPAKFromGamedir(const char *pak);
@@ -757,7 +757,7 @@ char **FS_ListMods(int *nummods);
 /* properly handles partial reads */
 
 void FS_FreeFile(void *buffer);
-void FS_CreatePath(char *path);
+void FS_CreatePath(const char *path);
 
 /* MISC */
 

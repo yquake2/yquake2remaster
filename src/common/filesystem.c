@@ -231,27 +231,30 @@ FS_FileLength(FILE *f)
  * Creates any directories needed to store the given filename.
  */
 void
-FS_CreatePath(char *path)
+FS_CreatePath(const char *path)
 {
 	char *cur; /* Current '/'. */
 	char *old; /* Old '/'. */
+	char dir_path[MAX_OSPATH];
 
-	FS_DPrintf("FS_CreatePath(%s)\n", path);
+	FS_DPrintf("%s(%s)\n", __func__, path);
 
-	if (strstr(path, "..") != NULL)
+	if (strstr(dir_path, "..") != NULL)
 	{
 		Com_Printf("WARNING: refusing to create relative path '%s'.\n", path);
 		return;
 	}
 
-	cur = old = path;
+	strncpy(dir_path, path, sizeof(dir_path) - 1);
+
+	cur = old = dir_path;
 
 	while (cur != NULL)
 	{
 		if ((cur - old) > 1)
 		{
 			*cur = '\0';
-			Sys_Mkdir(path);
+			Sys_Mkdir(dir_path);
 			*cur = '/';
 		}
 
@@ -278,7 +281,7 @@ FS_DPrintf(const char *format, ...)
 	Com_Printf("%s", msg);
 }
 
-char *
+const char *
 FS_Gamedir(void)
 {
 	return fs_gamedir;
@@ -1460,7 +1463,7 @@ FS_LoadPK3(const char *packPath)
 /*
  * Allows enumerating all of the directories in the search path.
  */
-char *
+const char *
 FS_NextPath(const char *prevPath)
 {
 	char *prev;
@@ -2013,7 +2016,7 @@ FS_Dir_f(void)
 {
 	char **dirnames; /* File list. */
 	char findname[1024]; /* File search path and pattern. */
-	char *path = NULL; /* Search path. */
+	const char *path = NULL; /* Search path. */
 	char *lastsep;
 	char wildcard[1024] = "*.*"; /* File pattern. */
 	int i; /* Loop counter. */

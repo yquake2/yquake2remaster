@@ -528,7 +528,8 @@ SCR_ReadNextAVFrame(void)
 static qboolean
 SCR_LoadAVcodec(const char *arg, const char *dot)
 {
-	char name[MAX_OSPATH], *path = NULL;
+	const char *path = NULL;
+	char name[MAX_OSPATH];
 
 	while (1)
 	{

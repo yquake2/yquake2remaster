@@ -72,7 +72,7 @@ qboolean AI_CanMove(edict_t *self, int direction)
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
 		//if(AIDevel.debugChased)	//jal: is too spammy. Temporary disabled
-		//	G_PrintMsg (AIDevel.devguy, PRINT_HIGH, "%s: move blocked\n", self->bot.botStatus.netname);
+		//	gi.cprintf(NULL, PRINT_HIGH, "%s: move blocked\n", self->bot.botStatus.netname);
 		return false;
 	}
 
@@ -363,7 +363,7 @@ qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 		VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai.move_vector);
 		AI_ChangeAngle(self);
 //		if(AIDevel.debugChased && bot_showcombat->value)
-//			G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: Oh crap a rocket!\n",self->ai.pers.netname);
+//			gi.cprintf(NULL, PRINT_HIGH, "%s: Oh crap a rocket!\n",self->ai.pers.netname);
 
 		// strafe left/right
 		if(rand()%1 && AI_CanMove(self, BOT_MOVE_LEFT))

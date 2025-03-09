@@ -144,7 +144,7 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	//-------------------------
 
 //	if(AIDevel.debugChased && bot_showlrgoal->value)
-//		G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL: new START NODE selected %d\n", self->ai.pers.netname, node);
+//		gi.cprintf(NULL, PRINT_HIGH, "%s: GOAL: new START NODE selected %d\n", self->ai.pers.netname, node);
 
 	self->ai.next_node = self->ai.current_node; // make sure we get to the nearest node first
 	self->ai.node_timeout = 0;
@@ -202,7 +202,7 @@ qboolean AI_FollowPath( edict_t *self )
 		if( self->ai.next_node == self->ai.goal_node )
 		{
 //			if(AIDevel.debugChased && bot_showlrgoal->value)
-//				G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL REACHED!\n", self->ai.pers.netname);
+//				gi.cprintf(NULL, PRINT_HIGH, "%s: GOAL REACHED!\n", self->ai.pers.netname);
 
 			//if botroam, setup a timeout for it
 			if( nodes[self->ai.goal_node].flags & NODEFLAGS_BOTROAM )
@@ -213,7 +213,7 @@ qboolean AI_FollowPath( edict_t *self )
 						continue;
 
 //					if(AIDevel.debugChased && bot_showlrgoal->value)
-//						G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: BotRoam Time Out set up for node %i\n", self->ai.pers.netname, nav.broams[i].node);
+//						gi.cprintf(NULL, PRINT_HIGH, "%s: BotRoam Time Out set up for node %i\n", self->ai.pers.netname, nav.broams[i].node);
 					self->ai.status.broam_timeouts[i] = level.time + 15.0;
 					break;
 				}
@@ -228,7 +228,7 @@ qboolean AI_FollowPath( edict_t *self )
 			self->ai.next_node = self->ai.path->nodes[self->ai.path_position++];
 
 //			if(AIDevel.debugChased && bot_showpath->value > 1 )
-//				G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: CurrentNode(%i):%s NextNode(%i):%s\n", self->ai.pers.netname, self->ai.current_node, nodeTypeNames[nodes[self->ai.current_node].type], self->ai.next_node, nodeTypeNames[nodes[self->ai.next_node].type]);
+//				gi.cprintf(NULL, PRINT_HIGH, "%s: CurrentNode(%i):%s NextNode(%i):%s\n", self->ai.pers.netname, self->ai.current_node, nodeTypeNames[nodes[self->ai.current_node].type], self->ai.next_node, nodeTypeNames[nodes[self->ai.next_node].type]);
 
 		}
 	}
