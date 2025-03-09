@@ -403,7 +403,7 @@ qboolean BOT_DMclass_FindEnemy(edict_t *self)
 	if(bestenemy)
 	{
 //		if (AIDevel.debugChased && bot_showcombat->value && bestenemy->ai.is_bot)
-//			G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: selected %s as enemy.\n",
+//			gi.cprintf(NULL, PRINT_HIGH, "%s: selected %s as enemy.\n",
 //			self->ai.pers.netname,
 //			bestenemy->ai.pers.netname);
 
@@ -587,7 +587,7 @@ void BOT_DMclass_FireWeapon (edict_t *self, usercmd_t *ucmd)
 		ucmd->buttons = BUTTON_ATTACK;
 
 	//if(AIDevel.debugChased && bot_showcombat->integer)
-	//	G_PrintMsg (AIDevel.devguy, PRINT_HIGH, "%s: attacking %s\n",self->bot.pers.netname ,self->enemy->r.client->pers.netname);
+	//	gi.cprintf(NULL, PRINT_HIGH, "%s: attacking %s\n",self->bot.pers.netname ,self->enemy->r.client->pers.netname);
 }
 
 

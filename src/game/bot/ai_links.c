@@ -179,7 +179,7 @@ qboolean AI_AddLink( int n1, int n2, int linkType )
 	//add the link
 	if (pLinks[n1].numLinks > NODES_MAX_PLINKS)
 	{
-//		G_Printf("MaxPlinks Reached! node:%i numPlinks:%i\n", n1, pLinks[n1].numLinks);
+//		Com_Printf("MaxPlinks Reached! node:%i numPlinks:%i\n", n1, pLinks[n1].numLinks);
 		return false;
 	}
 

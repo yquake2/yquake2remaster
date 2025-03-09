@@ -474,6 +474,8 @@ SV_InitGameProgs(void)
 	/* Extension to classic Quake2 API */
 	import.FS_LoadFile = FS_LoadFile;
 	import.FS_FreeFile = FS_FreeFile;
+	import.FS_Gamedir = FS_Gamedir;
+	import.FS_CreatePath = FS_CreatePath;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

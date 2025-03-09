@@ -274,7 +274,7 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 
 	//item didn't have a recognizable item flag
 //	if (AIDevel.debugMode)
-//		G_PrintMsg (NULL, PRINT_HIGH, "(AI_ItemWeight) WARNING: Item with unhandled item flag:%s\n", it->classname);
+//		gi.cprintf(NULL, PRINT_HIGH, "(AI_ItemWeight) WARNING: Item with unhandled item flag:%s\n", it->classname);
 
 	return 0;
 }

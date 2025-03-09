@@ -353,6 +353,12 @@ ServerCommand(void)
 	{
 		SVCmd_WriteIP_f();
 	}
+	/* JABot[start] */
+	else if(Q_stricmp(cmd, "removebot") == 0)
+	{
+		BOT_RemoveBot(gi.argv(2));
+	}
+	/* [end] */
 	else
 	{
 		gi.cprintf(NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);

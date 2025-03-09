@@ -255,7 +255,7 @@ void M_default_FireWeapon (edict_t *self)
 	}
 
 	//if(AIDevel.debugMode && bot_debugmonster->integer)
-	//	G_PrintMsg (NULL, PRINT_HIGH, "monster: attacking\n");
+	//	gi.cprintf(NULL, PRINT_HIGH, "monster: attacking\n");
 }
 
 

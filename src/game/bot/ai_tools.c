@@ -39,23 +39,23 @@ void AIDebug_ToogleBotDebug(void)
 {
 /*	if (AIDevel.debugMode || !sv_cheats->integer )
 	{
-//		G_Printf ("BOT: Debug Mode Off\n");
+//		Com_Printf("BOT: Debug Mode Off\n");
 		AIDevel.debugMode = false;
 		return;
 	}
 
 	//Activate debug mode
-	G_Printf ("\n======================================\n");
-	G_Printf ("--==[ D E B U G ]==--\n");
-	G_Printf ("======================================\n");
-	G_Printf ("'addnode [nodetype]' -- Add [specified] node to players current location\n");
-	G_Printf ("'movenode [node] [x y z]' -- Move [node] to [x y z] coordinates\n");
-	G_Printf ("'findnode' -- Finds closest node\n");
-	G_Printf ("'removelink [node1 node2]' -- Removes link between two nodes\n");
-	G_Printf ("'addlink [node1 node2]' -- Adds a link between two nodes\n");
-	G_Printf ("======================================\n\n");
+	Com_Printf("\n======================================\n");
+	Com_Printf("--==[ D E B U G ]==--\n");
+	Com_Printf("======================================\n");
+	Com_Printf("'addnode [nodetype]' -- Add [specified] node to players current location\n");
+	Com_Printf("'movenode [node] [x y z]' -- Move [node] to [x y z] coordinates\n");
+	Com_Printf("'findnode' -- Finds closest node\n");
+	Com_Printf("'removelink [node1 node2]' -- Removes link between two nodes\n");
+	Com_Printf("'addlink [node1 node2]' -- Adds a link between two nodes\n");
+	Com_Printf("======================================\n\n");
 
-	G_Printf ("BOT: Debug Mode On\n");
+	Com_Printf("BOT: Debug Mode On\n");
 
 	AIDevel.debugMode = true;
 */
