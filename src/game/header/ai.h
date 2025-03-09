@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2001 Steve Yeager
+ * Copyright (C) 2001-2004 Pat AfterMoon
  * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -98,7 +100,6 @@ typedef struct
 
 
 // bot_cmds.c
-qboolean	BOT_Commands(edict_t *ent);
 qboolean	BOT_ServerCommand(void);
 
 // ai_main.c
@@ -114,9 +115,6 @@ void		BOT_SpawnBot(char *team, char *name, char *skin, char *userinfo);
 void		BOT_RemoveBot(char *name);
 void		BOT_Respawn(edict_t *self);
 
-//bot_misc.c
-void		AI_BotObituary(edict_t *self, edict_t *inflictor, edict_t *attacker);
-
 // ai_tools.c
 void		AIDebug_ToogleBotDebug(void);
 
@@ -124,7 +122,6 @@ void		AITools_Frame(void);
 void		AITools_DropNodes(edict_t *ent);
 
 // safe **cough** prints
-void		debug_printf(char *fmt, ...);
 void		safe_cprintf(edict_t *ent, int printlevel, char *fmt, ...);
 void		safe_centerprintf(edict_t *ent, char *fmt, ...);
 void		safe_bprintf(int printlevel, char *fmt, ...);

@@ -27,19 +27,6 @@
 
 //ACE
 
-
-
-
-//==========================================
-// BOT_Commands
-// Special command processor
-//==========================================
-qboolean BOT_Commands(edict_t *ent)
-{
-	return false;
-}
-
-
 //==========================================
 // BOT_ServerCommand
 // Special server command processor
@@ -59,10 +46,6 @@ qboolean BOT_ServerCommand (void)
 		else // name, skin
 			BOT_SpawnBot ( NULL, gi.argv(2), gi.argv(3), NULL );
 	}
-	// removebot
-    else if( !Q_stricmp (cmd, "removebot") )
-    	BOT_RemoveBot(gi.argv(2));
-
 	else if( !Q_stricmp (cmd, "editnodes") )
 		AITools_InitEditnodes();
 
@@ -84,94 +67,6 @@ qboolean BOT_ServerCommand (void)
 	return true;
 }
 
-
-//==========================================
-// AI_BotObituary
-// Bots can't use stock obituaries cause server doesn't print from them
-//==========================================
-void AI_BotObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
-{
-/*	int			mod;
-	char		message[64];
-	char		message2[64];
-	qboolean	ff;
-
-	if (coop->value && attacker->client)
-		meansOfDeath |= MOD_FRIENDLY_FIRE;
-
-	if ( deathmatch->value || coop->value )
-	{
-		ff = meansOfDeath & MOD_FRIENDLY_FIRE;
-		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
-
-		GS_Obituary ( self, G_PlayerGender ( self ), attacker, mod, message, message2 );
-
-		// duplicate message at server console for logging
-		if ( attacker && attacker->client )
-		{
-			if ( attacker != self )
-			{		// regular death message
-				if ( deathmatch->value ) {
-					if( ff )
-						attacker->client->resp.score--;
-					else
-						attacker->client->resp.score++;
-				}
-
-				self->enemy = attacker;
-
-				if( dedicated->value )
-					G_Printf ( "%s %s %s%s\n", self->client->pers.netname, message, attacker->client->pers.netname, message2 );
-				else
-				{	//bot
-					G_PrintMsg (NULL, PRINT_HIGH, "%s%s %s %s%s\n",
-						self->client->pers.netname,
-						S_COLOR_WHITE,
-						message,
-						attacker->client->pers.netname,
-						message2);
-				}
-
-			} else {			// suicide
-
-				if( deathmatch->value )
-					self->client->resp.score--;
-
-				self->enemy = NULL;
-
-				if( dedicated->value )
-					G_Printf ( "%s %s\n", self->client->pers.netname, message );
-				else
-				{	//bot
-					G_PrintMsg (NULL, PRINT_HIGH, "%s%s %s\n",
-						self->client->pers.netname,
-						S_COLOR_WHITE,
-						message );
-				}
-			}
-
-		} else {		// wrong place, suicide, etc.
-
-			if( deathmatch->value )
-				self->client->resp.score--;
-
-			self->enemy = NULL;
-
-			if( dedicated->value )
-				G_Printf( "%s %s\n", self->client->pers.netname, message );
-			else
-			{	//bot
-				G_PrintMsg (NULL, PRINT_HIGH, "%s%s %s\n",
-					self->client->pers.netname,
-					S_COLOR_WHITE,
-					message );
-			}
-		}
-	}
-*/
-}
-
-
 ///////////////////////////////////////////////////////////////////////
 // These routines are bot safe print routines, all id code needs to be
 // changed to these so the bots do not blow up on messages sent to them.
@@ -188,7 +83,7 @@ void AI_BotObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 ///////////////////////////////////////////////////////////////////////
 // Debug print, could add a "logging" feature to print to a file
 ///////////////////////////////////////////////////////////////////////
-void debug_printf(char *fmt, ...)
+void debuCom_Printf(char *fmt, ...)
 {
 	int     i;
 	char	bigbuffer[0x10000];

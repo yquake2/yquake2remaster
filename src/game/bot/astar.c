@@ -62,7 +62,17 @@ static int goalNode;
 static int currentNode;
 
 int ValidLinksMask;
-#define DEFAULT_MOVETYPES_MASK (LINK_MOVE|LINK_STAIRS|LINK_FALL|LINK_WATER|LINK_WATERJUMP|LINK_JUMPPAD|LINK_PLATFORM|LINK_TELEPORT);
+
+#define DEFAULT_MOVETYPES_MASK ( \
+	LINK_MOVE | \
+	LINK_STAIRS | \
+	LINK_FALL | \
+	LINK_WATER | \
+	LINK_WATERJUMP | \
+	LINK_JUMPPAD | \
+	LINK_PLATFORM | \
+	LINK_TELEPORT);
+
 //==========================================
 //
 //
@@ -149,13 +159,17 @@ static int	Astar_HDist_ManhatanGuess( int node )
 
 	//teleporters are exceptional
 	if( nodes[node].flags & NODEFLAGS_TELEPORTER_IN )
+	{
 		node++; //it's tele out is stored in the next node in the array
+	}
 
 	for (i=0 ; i<3 ; i++)
 	{
 		DistVec[i] = nodes[goalNode].origin[i] - nodes[node].origin[i];
 		if( DistVec[i] < 0.0f )
+		{
 			DistVec[i] = -DistVec[i];	//use only positive values. We don't care about direction.
+		}
 	}
 
 	HDist = (int)(DistVec[0] + DistVec[1] + DistVec[2]);
@@ -164,7 +178,8 @@ static int	Astar_HDist_ManhatanGuess( int node )
 
 static void AStar_PutInClosed( int node )
 {
-	if( !astarnodes[node].list ) {
+	if( !astarnodes[node].list )
+	{
 		alist[alist_numNodes] = node;
 		alist_numNodes++;
 	}
@@ -182,17 +197,23 @@ static void AStar_PutAdjacentsInOpen(int node)
 
 		//ignore invalid links
 		if( !(ValidLinksMask & pLinks[node].moveType[i]) )
+		{
 			continue;
+		}
 
 		addnode = pLinks[node].nodes[i];
 
 		//ignore self
 		if( addnode == node )
+		{
 			continue;
+		}
 
 		//ignore if it's already in closed list
 		if( AStar_nodeIsInClosed( addnode ) )
+		{
 			continue;
+		}
 
 		//if it's already inside open list
 		if( AStar_nodeIsInOpen( addnode ) )
@@ -202,7 +223,7 @@ static void AStar_PutAdjacentsInOpen(int node)
 			plinkDist = AStar_PLinkDistance( node, addnode );
 			if( plinkDist == -1)
 			{
-				//printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
+				Com_Printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
 			}
 			//compare G distances and choose best parent
 			else if( astarnodes[addnode].G > (astarnodes[node].G + plinkDist) )
@@ -211,7 +232,9 @@ static void AStar_PutAdjacentsInOpen(int node)
 				astarnodes[addnode].G = astarnodes[node].G + plinkDist;
 			}
 
-		} else {	//just put it in
+		}
+		else
+		{	//just put it in
 
 			int plinkDist;
 
@@ -220,14 +243,16 @@ static void AStar_PutAdjacentsInOpen(int node)
 			{
 				plinkDist = AStar_PLinkDistance( addnode, node );
 				if( plinkDist == -1)
+				{
 					plinkDist = 999;//jalFIXME
+				}
 
-				//ERROR
-				//printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
+				Com_Printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
 			}
 
 			//put in global list
-			if( !astarnodes[addnode].list ) {
+			if( !astarnodes[addnode].list )
+			{
 				alist[alist_numNodes] = addnode;
 				alist_numNodes++;
 			}
@@ -251,14 +276,18 @@ static int AStar_FindInOpen_BestF ( void )
 		int node = alist[i];
 
 		if( astarnodes[node].list != OPENLIST )
+		{
 			continue;
+		}
 
-		if ( bestF == -1 || bestF > (astarnodes[node].G + astarnodes[node].H) ) {
+		if ( bestF == -1 || bestF > (astarnodes[node].G + astarnodes[node].H) )
+		{
 			bestF = astarnodes[node].G + astarnodes[node].H;
 			best = node;
 		}
 	}
-	//printf("BEST:%i\n", best);
+
+	Com_Printf("BEST:%i\n", best);
 	return best;
 }
 
@@ -301,7 +330,9 @@ int	AStar_ResolvePath ( int n1, int n2, int movetypes )
 {
 	ValidLinksMask = movetypes;
 	if ( !ValidLinksMask )
+	{
 		ValidLinksMask = DEFAULT_MOVETYPES_MASK;
+	}
 
 	AStar_InitLists();
 
@@ -312,12 +343,14 @@ int	AStar_ResolvePath ( int n1, int n2, int movetypes )
 	while ( !AStar_nodeIsInOpen(goalNode) )
 	{
 		if( !AStar_FillLists() )
+		{
 			return 0;	//failed
+		}
 	}
 
 	AStar_ListsToPath();
 
-	//printf("RESULT:\n Origin:%i\n Goal:%i\n numNodes:%i\n FirstInPath:%i\n LastInPath:%i\n", originNode, goalNode, Apath_numNodes, Apath[0], Apath[Apath_numNodes-1]);
+	Com_Printf("RESULT:\n Origin:%i\n Goal:%i\n numNodes:%i\n FirstInPath:%i\n LastInPath:%i\n", originNode, goalNode, Apath_numNodes, Apath[0], Apath[Apath_numNodes-1]);
 
 	return 1;
 }
@@ -327,14 +360,17 @@ int AStar_GetPath( int origin, int goal, int movetypes, struct astarpath_s *path
 	int i;
 
 	if( !AStar_ResolvePath ( origin, goal, movetypes ) )
+	{
 		return 0;
+	}
 
 	path->numNodes = Apath_numNodes;
 	path->originNode = origin;
 	path->goalNode = goal;
 	for(i=0; i<path->numNodes; i++)
+	{
 		path->nodes[i] = Apath[i];
+	}
 
 	return 1;
 }
-

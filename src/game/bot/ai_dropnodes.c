@@ -42,7 +42,7 @@ typedef struct
 	qboolean	was_falling;
 	int			last_node;
 
-}player_dropping_nodes_t;
+} player_dropping_nodes_t;
 player_dropping_nodes_t	player;
 
 
@@ -100,24 +100,25 @@ int AI_AddNode( vec3_t origin, int flagsmask )
 // AI_UpdateNodeEdge
 // Add/Update node connections (paths)
 //==========================================
-void AI_UpdateNodeEdge( int from, int to )
+void AI_UpdateNodeEdge(int from, int to)
 {
 	int	link;
 
 	if(from == -1 || to == -1 || from == to)
+	{
 		return; // safety
-
+	}
 
 	if(AI_PlinkExists(from, to))
 	{
 		link = AI_PlinkMoveType(from, to);
-	} else
+	}
+	else
+	{
 		link = AI_FindLinkType( from, to );
+	}
 
-	Com_Printf("Link: %d -> %d. ", from, to);
-
-
-	Com_Printf("%s\n", AI_LinkString(link) );
+	Com_Printf("Link: %d -> %d. %s\n", from, to, AI_LinkString(link) );
 }
 
 
@@ -161,7 +162,9 @@ void AI_DropLadderNodes( edict_t *self )
 	{
 		VectorCopy( trace.endpos, borigin );
 
-	} else {	//it wasn't so easy
+	}
+	else
+	{	//it wasn't so easy
 
 		trace = gi.trace( borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID );
 		while( AI_IsLadder( borigin, self->client->ps.viewangles, self->mins, self->maxs, self)
@@ -513,21 +516,28 @@ qboolean AI_SavePLKFile( char *mapname )
 	int			i;
 	int			version = NAV_FILE_VERSION;
 
-	Com_sprintf (filename, sizeof(filename), "%s/%s/%s.%s", AI_MOD_FOLDER, AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION );
-	pOut = fopen (filename, "wb");
+	Com_sprintf(filename, sizeof(filename), "%s/%s/%s.%s", AI_MOD_FOLDER, AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION );
+	pOut = fopen(filename, "wb");
 	if (!pOut)
+	{
+		geCom_Printf("Failed to store: %s\n", filename);
 		return false;
+	}
 
-	fwrite(&version,sizeof(int),1,pOut);
-	fwrite(&nav.num_nodes,sizeof(int),1,pOut);
+	fwrite(&version, sizeof(int), 1, pOut);
+	fwrite(&nav.num_nodes, sizeof(int), 1, pOut);
 
 	// write out nodes
 	for(i=0; i<nav.num_nodes;i++)
-		fwrite(&nodes[i],sizeof(nav_node_t),1,pOut);
+	{
+		fwrite(&nodes[i], sizeof(nav_node_t), 1, pOut);
+	}
 
 	// write out plinks array
 	for(i=0; i<nav.num_nodes;i++)
-		fwrite(&pLinks[i],sizeof(nav_plink_t),1,pOut);
+	{
+		fwrite(&pLinks[i], sizeof(nav_plink_t), 1, pOut);
+	}
 
 	fclose(pOut);
 

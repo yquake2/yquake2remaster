@@ -193,7 +193,7 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 //	trap_Trace ( &trace, target_origin, tv(-15, -15, -8), tv(15, 15, 8), floor_target_origin, NULL, MASK_NODESOLID);
 	trace = gi.trace(  target_origin, tv(-15, -15, -8), tv(15, 15, 8), floor_target_origin, NULL, MASK_NODESOLID);
 	if ((trace.fraction == 1.0 && trace.startsolid) || (trace.allsolid && trace.startsolid)){
-//		G_Printf("JUMPAD LAND: ERROR: trace was in solid.\n"); //started inside solid (target should never be inside solid, this is a mapper error)
+//		Com_Printf("JUMPAD LAND: ERROR: trace was in solid.\n"); //started inside solid (target should never be inside solid, this is a mapper error)
 		return false;
 	} else if ( trace.fraction == 1.0 ) {
 

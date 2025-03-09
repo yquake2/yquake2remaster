@@ -175,7 +175,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 	self->ai.tries = 0;	// Reset the count of how many times we tried this goal
 
 //	if(AIDevel.debugChased && bot_showlrgoal->value)
-//		G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: selected a bot roam of weight %f at node %d for LR goal.\n",self->ai.pers.netname, nav.broams[best_broam].weight, goal_node);
+//		gi.cprintf(NULL, PRINT_HIGH, "%s: selected a bot roam of weight %f at node %d for LR goal.\n",self->ai.pers.netname, nav.broams[best_broam].weight, goal_node);
 
 	AI_SetGoal(self,goal_node);
 
@@ -209,7 +209,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 	if(current_node == -1)	//failed. Go wandering :(
 	{
 //		if (AIDevel.debugChased && bot_showlrgoal->value)
-//			G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai.pers.netname, self->ai.nearest_node_tries);
+//			gi.cprintf(NULL, PRINT_HIGH, "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai.pers.netname, self->ai.nearest_node_tries);
 //		Com_Printf( "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai.pers.netname, self->ai.nearest_node_tries);
 
 		if( self->ai.state != BOT_STATE_WANDER )
@@ -307,7 +307,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 			self->ai.state = BOT_STATE_WANDER;
 			self->ai.wander_timeout = level.time + 1.0;
 //			if(AIDevel.debugChased && bot_showlrgoal->value)
-//				G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: did not find a LR goal, wandering.\n",self->ai.pers.netname);
+//				gi.cprintf(NULL, PRINT_HIGH, "%s: did not find a LR goal, wandering.\n",self->ai.pers.netname);
 //			Com_Printf( "%s: did not find a LR goal, wandering.\n",self->ai.pers.netname);
 		}
 		return; // no path?
@@ -318,7 +318,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 	self->ai.tries = 0;	// Reset the count of how many times we tried this goal
 
 //	if(goal_ent != NULL && AIDevel.debugChased && bot_showlrgoal->value)
-//		G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: selected a %s at node %d for LR goal.\n",self->ai.pers.netname, goal_ent->classname, goal_node);
+//		gi.cprintf(NULL, PRINT_HIGH, "%s: selected a %s at node %d for LR goal.\n",self->ai.pers.netname, goal_ent->classname, goal_node);
 //	if(goal_ent != NULL )
 //		Com_Printf( "%s: selected a %s at node %d for LR goal.\n",self->ai.pers.netname, goal_ent->classname, goal_node);
 
@@ -356,7 +356,7 @@ void AI_PickShortRangeGoal(edict_t *self)
 			if (self->ai.status.playersWeights[target->owner->s.number-1])
 			{
 //				if(AIDevel.debugChased && bot_showcombat->value)
-//					G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: ROCKET ALERT!\n", self->ai.pers.netname);
+//					gi.cprintf(NULL, PRINT_HIGH, "%s: ROCKET ALERT!\n", self->ai.pers.netname);
 
 				self->enemy = target->owner;	// set who fired the rocket as enemy
 				return;
@@ -387,7 +387,7 @@ void AI_PickShortRangeGoal(edict_t *self)
 		self->movetarget = best;
 		self->goalentity = best;
 //		if(AIDevel.debugChased && bot_showsrgoal->value && (self->goalentity != self->movetarget))
-//			G_PrintMsg (AIDevel.chaseguy, PRINT_HIGH, "%s: selected a %s for SR goal.\n",self->ai.pers.netname, self->movetarget->classname);
+//			gi.cprintf(NULL, PRINT_HIGH, "%s: selected a %s for SR goal.\n",self->ai.pers.netname, self->movetarget->classname);
 	}
 }
 
