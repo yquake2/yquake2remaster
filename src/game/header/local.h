@@ -1796,6 +1796,16 @@ qboolean Pickup_PowerArmor(edict_t * ent, edict_t * other);
 qboolean Pickup_Powerup(edict_t * ent, edict_t * other);
 qboolean Pickup_Sphere(edict_t * ent, edict_t * other);
 
+void CopyToBodyQue(edict_t *ent);
+void Use_Plat(edict_t *ent, edict_t *other, edict_t *activator);
+void SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles);
+
+/* platforms states */
+#define STATE_TOP 0
+#define STATE_BOTTOM 1
+#define STATE_UP 2
+#define STATE_DOWN 3
+
 /*
  * Uncomment for check that exported functions declarations are same as in
  * implementation. (-Wmissing-prototypes )

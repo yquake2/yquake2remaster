@@ -108,12 +108,6 @@ cvar_t *g_start_items;
 cvar_t *ai_model_scale;
 cvar_t *g_game;
 
-cvar_t *bot_showpath;
-cvar_t *bot_showcombat;
-cvar_t *bot_showsrgoal;
-cvar_t *bot_showlrgoal;
-cvar_t *bot_debugmonster;
-
 static void G_RunFrame(void);
 
 /* =================================================================== */

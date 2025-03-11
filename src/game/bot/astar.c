@@ -221,7 +221,7 @@ static void AStar_PutAdjacentsInOpen(int node)
 			int plinkDist;
 
 			plinkDist = AStar_PLinkDistance( node, addnode );
-			if( plinkDist == -1)
+			if (plinkDist == -1 && bot_debugmonster->value)
 			{
 				Com_Printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
 			}
@@ -247,7 +247,10 @@ static void AStar_PutAdjacentsInOpen(int node)
 					plinkDist = 999;//jalFIXME
 				}
 
-				Com_Printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
+				if (bot_debugmonster->value)
+				{
+					Com_Printf("WARNING: AStar_PutAdjacentsInOpen - Couldn't find distance between nodes\n");
+				}
 			}
 
 			//put in global list
@@ -287,7 +290,11 @@ static int AStar_FindInOpen_BestF ( void )
 		}
 	}
 
-	Com_Printf("BEST:%i\n", best);
+	if (bot_debugmonster->value)
+	{
+		Com_Printf("BEST:%i\n", best);
+	}
+
 	return best;
 }
 
@@ -350,8 +357,11 @@ int	AStar_ResolvePath ( int n1, int n2, int movetypes )
 
 	AStar_ListsToPath();
 
-	Com_Printf("RESULT:\n Origin:%i\n Goal:%i\n numNodes:%i\n FirstInPath:%i\n LastInPath:%i\n", originNode, goalNode, Apath_numNodes, Apath[0], Apath[Apath_numNodes-1]);
-
+	if (bot_debugmonster->value)
+	{
+		Com_Printf("RESULT:\n Origin:%i\n Goal:%i\n numNodes:%i\n FirstInPath:%i\n LastInPath:%i\n",
+			originNode, goalNode, Apath_numNodes, Apath[0], Apath[Apath_numNodes-1]);
+	}
 	return 1;
 }
 

@@ -69,14 +69,20 @@ edict_t *AI_PlayerDroppingNodesPassent(void)
 int AI_AddNode( vec3_t origin, int flagsmask )
 {
 	if (nav.num_nodes + 1 > MAX_NODES)
+	{
 		return -1;
+	}
 
-	if( flagsmask & NODEFLAGS_WATER )
+	if (flagsmask & NODEFLAGS_WATER)
+	{
 		flagsmask |= NODEFLAGS_FLOAT;
+	}
 
 	VectorCopy( origin, nodes[nav.num_nodes].origin );
-	if( !(flagsmask & NODEFLAGS_FLOAT) )
+	if (!(flagsmask & NODEFLAGS_FLOAT))
+	{
 		AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, player.ent );
+	}
 
 	//if( !(flagsmask & NODEFLAGS_NOWORLD) ) {	//don't spawn inside solids
 	//	trace_t	trace;
@@ -88,7 +94,10 @@ int AI_AddNode( vec3_t origin, int flagsmask )
 	nodes[nav.num_nodes].flags = flagsmask;
 	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, player.ent );
 
-	Com_Printf("Dropped Node\n");
+	if (bot_debugmonster->value)
+	{
+		Com_Printf("Dropped Node\n");
+	}
 
 	nav.num_nodes++;
 	return nav.num_nodes-1; // return the node added
@@ -118,7 +127,10 @@ void AI_UpdateNodeEdge(int from, int to)
 		link = AI_FindLinkType( from, to );
 	}
 
-	Com_Printf("Link: %d -> %d. %s\n", from, to, AI_LinkString(link) );
+	if (bot_debugmonster->value)
+	{
+		Com_Printf("Link: %d -> %d. %s\n", from, to, AI_LinkString(link));
+	}
 }
 
 

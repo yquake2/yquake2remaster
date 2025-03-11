@@ -63,6 +63,3 @@ original clients (Vanilla Quake II) commands are still in place.
   it's just the same thing)
 
 * **sv removebot <name>**: Remove a bot ("all" removes every bot in the map).
-
-* **sv addmonster**: Spawns a monster. It's a testing function. Spawning
-  from map files is not present in the code.

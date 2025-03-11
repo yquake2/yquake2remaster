@@ -37,23 +37,17 @@
 
 
 //bot debug_chase options
-extern  cvar_t				*bot_showpath;
-extern  cvar_t				*bot_showcombat;
-extern  cvar_t				*bot_showsrgoal;
-extern  cvar_t				*bot_showlrgoal;
-extern	cvar_t				*bot_debugmonster;
+// extern  cvar_t				*bot_showpath;
+// extern  cvar_t				*bot_showcombat;
+// extern  cvar_t				*bot_showsrgoal;
+// extern  cvar_t				*bot_showlrgoal;
+extern cvar_t *bot_debugmonster;
 
 //----------------------------------------------------------
 
 #define MAX_BOTS 64
 #define AI_GOAL_SR_RADIUS		200
 #define MAX_BOT_SKILL			5		//skill levels graduation
-
-// Platform states:
-#define	STATE_TOP			0
-#define	STATE_BOTTOM		1
-#define STATE_UP			2
-#define STATE_DOWN			3
 
 // Bot state types
 #define BOT_STATE_STAND			0
@@ -94,14 +88,6 @@ extern ai_devel_t	AIDevel;
 
 //----------------------------------------------------------
 
-//game
-//----------------------------------------------------------
-void		CopyToBodyQue (edict_t *ent);
-void		Use_Plat (edict_t *ent, edict_t *other, edict_t *activator);
-void ClientThink (edict_t *ent, usercmd_t *ucmd);
-void	SelectSpawnPoint (edict_t *ent, vec3_t origin, vec3_t angles);
-qboolean ClientConnect (edict_t *ent, char *userinfo);
-
 // bot_spawn.c
 //----------------------------------------------------------
 void		BOT_Respawn(edict_t *ent);
@@ -129,24 +115,23 @@ void AI_ChangeAngle (edict_t *ent);
 qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd);
 qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd);
 qboolean AI_CanMove(edict_t *self, int direction);
-qboolean	AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, edict_t *passent);
-qboolean	AI_IsStep (edict_t *ent);
+qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, edict_t *passent);
+qboolean AI_IsStep(edict_t *ent);
 
 // ai_navigation.c
 //----------------------------------------------------------
-int			AI_FindCost(int from, int to, int movetypes);
+int AI_FindCost(int from, int to, int movetypes);
 int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int flagsmask );
-void		AI_SetGoal(edict_t *self, int goal_node);
-qboolean	AI_FollowPath(edict_t *self);
+void AI_SetGoal(edict_t *self, int goal_node);
+qboolean AI_FollowPath(edict_t *self);
 
 
 // ai_nodes.c
 //----------------------------------------------------------
-qboolean	AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent );
-void		AI_InitNavigationData(void);
-int			AI_FlagsForNode( vec3_t origin, edict_t *passent );
-float		AI_Distance( vec3_t o1, vec3_t o2 );
-
+qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent );
+void AI_InitNavigationData(void);
+int AI_FlagsForNode( vec3_t origin, edict_t *passent );
+float AI_Distance( vec3_t o1, vec3_t o2 );
 void AITools_AddBotRoamNode(void);
 
 
@@ -182,12 +167,10 @@ void		AI_BotRoamFinishTimeouts(edict_t *self);
 //bot_classes
 //----------------------------------------------------------
 void		BOT_DMclass_InitPersistant(edict_t *self);
-qboolean	BOT_ChangeWeapon (edict_t *ent, gitem_t *item);
-void		M_default_Spawn (void);
+qboolean	BOT_ChangeWeapon(edict_t *ent, gitem_t *item);
 
 //ai_weapons.c
 //----------------------------------------------------------
-void		AI_InitAIWeapons (void);
-
+void		AI_InitAIWeapons(void);
 
 qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, edict_t *passent);
