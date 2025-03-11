@@ -35,34 +35,39 @@ qboolean BOT_ServerCommand (void)
 {
 	char	*cmd;
 
-	cmd = gi.argv (1);
-
-
+	cmd = gi.argv(1);
 
 	if (Q_stricmp (cmd, "addbot") == 0)
 	{
 		if(ctf->value) // name, skin, team
+		{
 			BOT_SpawnBot ( gi.argv(2), gi.argv(3), gi.argv(4), NULL );
+		}
 		else // name, skin
+		{
 			BOT_SpawnBot ( NULL, gi.argv(2), gi.argv(3), NULL );
+		}
 	}
 	else if( !Q_stricmp (cmd, "editnodes") )
+	{
 		AITools_InitEditnodes();
-
-	else if( !Q_stricmp (cmd, "makenodes") )
+	}
+	else if (!Q_stricmp (cmd, "makenodes"))
+	{
 		AITools_InitMakenodes();
-
-	else if( !Q_stricmp (cmd, "savenodes") )
+	}
+	else if (!Q_stricmp (cmd, "savenodes"))
+	{
 		AITools_SaveNodes();
-
-	else if( !Q_stricmp (cmd, "addbotroam") )
+	}
+	else if (!Q_stricmp (cmd, "addbotroam"))
+	{
 		AITools_AddBotRoamNode();
-
-	else if( !Q_stricmp (cmd, "addmonster") )
-    	M_default_Spawn ();
-
+	}
 	else
+	{
 		return false;
+	}
 
 	return true;
 }

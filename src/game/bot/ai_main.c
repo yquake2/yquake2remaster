@@ -29,6 +29,12 @@ int	num_players;
 edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
 ai_devel_t	AIDevel;
 
+// cvar_t *bot_showpath;
+// cvar_t *bot_showcombat;
+// cvar_t *bot_showsrgoal;
+// cvar_t *bot_showlrgoal;
+cvar_t *bot_debugmonster;
+
 //ACE
 
 
@@ -39,10 +45,10 @@ ai_devel_t	AIDevel;
 void AI_Init(void)
 {
 	//Init developer mode
-	bot_showpath = gi.cvar("bot_showpath", "0", CVAR_SERVERINFO);
-	bot_showcombat = gi.cvar("bot_showcombat", "0", CVAR_SERVERINFO);
-	bot_showsrgoal = gi.cvar("bot_showsrgoal", "0", CVAR_SERVERINFO);
-	bot_showlrgoal = gi.cvar("bot_showlrgoal", "0", CVAR_SERVERINFO);
+	// bot_showpath = gi.cvar("bot_showpath", "0", CVAR_SERVERINFO);
+	// bot_showcombat = gi.cvar("bot_showcombat", "0", CVAR_SERVERINFO);
+	// bot_showsrgoal = gi.cvar("bot_showsrgoal", "0", CVAR_SERVERINFO);
+	// bot_showlrgoal = gi.cvar("bot_showlrgoal", "0", CVAR_SERVERINFO);
 	bot_debugmonster = gi.cvar("bot_debugmonster", "0", CVAR_SERVERINFO|CVAR_ARCHIVE);
 
 	AIDevel.debugMode = false;

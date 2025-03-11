@@ -34,11 +34,6 @@
 #define PLAT2_TRIGGER_BOTTOM 16
 #define PLAT2_BOX_LIFT 32
 
-#define STATE_TOP 0
-#define STATE_BOTTOM 1
-#define STATE_UP 2
-#define STATE_DOWN 3
-
 #define DOOR_START_OPEN 1
 #define DOOR_REVERSE 2
 #define DOOR_CRUSHER 4

@@ -13,11 +13,6 @@
 
 #include "header/local.h"
 
-#define STATE_TOP 0
-#define STATE_BOTTOM 1
-#define STATE_UP 2
-#define STATE_DOWN 3
-
 #define HINT_ENDPOINT 0x0001
 #define MAX_HINT_CHAINS 100
 

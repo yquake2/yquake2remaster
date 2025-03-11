@@ -163,11 +163,13 @@ qboolean AI_FollowPath( edict_t *self )
 	float			dist;
 
 	// Show the path
+	/*
 	if(bot_showpath->value)
 	{
 		if( AIDevel.debugChased )
 			AITools_DrawPath(self, self->ai.current_node, self->ai.goal_node);
 	}
+	*/
 
 	if( self->ai.goal_node == INVALID )
 		return false;
