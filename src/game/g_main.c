@@ -522,10 +522,9 @@ G_RunFrame(void)
 		{
 			ClientBeginServerFrame(ent);
 			//JABot[start]
-			if ( ent->ai.is_bot )
-				G_RunEntity (ent);
+			if (!ent->ai)
 			//[end]
-			continue;
+				continue;
 		}
 
 		G_RunEntity(ent);

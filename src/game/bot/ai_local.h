@@ -33,8 +33,6 @@
 
 #include "ai_nodes_local.h"
 #include "ai_weapons.h"
-#include "astar.h"
-
 
 //bot debug_chase options
 // extern  cvar_t				*bot_showpath;
@@ -65,8 +63,8 @@ extern cvar_t *bot_debugmonster;
 
 //acebot_items.c players table
 //----------------------------------------------------------
-extern int	num_players;
-extern edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
+extern int	num_AIEnemies;
+extern edict_t *AIEnemies[MAX_EDICTS];		// pointers to all players in the game
 
 
 //Debug & creating and linking nodes
@@ -112,26 +110,27 @@ qboolean	AI_ItemIsReachable(edict_t *self,vec3_t goal);
 // ai_movement.c
 //----------------------------------------------------------
 void AI_ChangeAngle (edict_t *ent);
-qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd);
-qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd);
-qboolean AI_CanMove(edict_t *self, int direction);
-qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, edict_t *passent);
-qboolean AI_IsStep(edict_t *ent);
+qboolean	AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd);
+qboolean	AI_SpecialMove(edict_t *self, usercmd_t *ucmd);
+qboolean	AI_CanMove(edict_t *self, int direction);
+qboolean	AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, edict_t *passent);
+qboolean	AI_IsStep (edict_t *ent);
 
 // ai_navigation.c
 //----------------------------------------------------------
-int AI_FindCost(int from, int to, int movetypes);
-int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int flagsmask );
-void AI_SetGoal(edict_t *self, int goal_node);
-qboolean AI_FollowPath(edict_t *self);
+int			AI_FindCost(int from, int to, int movetypes);
+int			AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int flagsmask );
+void		AI_SetGoal(edict_t *self, int goal_node);
+qboolean	AI_FollowPath(edict_t *self);
 
 
 // ai_nodes.c
 //----------------------------------------------------------
-qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent );
-void AI_InitNavigationData(void);
-int AI_FlagsForNode( vec3_t origin, edict_t *passent );
-float AI_Distance( vec3_t o1, vec3_t o2 );
+qboolean	AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent );
+void		AI_InitNavigationData(void);
+int			AI_FlagsForNode( vec3_t origin, edict_t *passent );
+float		AI_Distance( vec3_t o1, vec3_t o2 );
+
 void AITools_AddBotRoamNode(void);
 
 
@@ -167,7 +166,7 @@ void		AI_BotRoamFinishTimeouts(edict_t *self);
 //bot_classes
 //----------------------------------------------------------
 void		BOT_DMclass_InitPersistant(edict_t *self);
-qboolean	BOT_ChangeWeapon(edict_t *ent, gitem_t *item);
+qboolean	BOT_ChangeWeapon (edict_t *ent, gitem_t *item);
 
 //ai_weapons.c
 //----------------------------------------------------------

@@ -30,8 +30,8 @@
 //
 //==========================================
 
-static int	alist[MAX_NODES];	//list contains all studied nodes, Open and Closed together
-static int	alist_numNodes;
+static int alist[MAX_NODES];	//list contains all studied nodes, Open and Closed together
+static int alist_numNodes;
 
 enum {
 	NOLIST,
@@ -41,18 +41,17 @@ enum {
 
 typedef struct
 {
-	int		parent;
+	int	parent;
 	int		G;
 	int		H;
 
-	int		list;
+	int	list;
 
 } astarnode_t;
 
 astarnode_t	astarnodes[MAX_NODES];
 
-static int Apath[MAX_NODES];
-static int Apath_numNodes;
+struct astarpath_s *Apath;
 //==========================================
 //
 //
@@ -61,8 +60,7 @@ static int originNode;
 static int goalNode;
 static int currentNode;
 
-int ValidLinksMask;
-
+static int ValidLinksMask;
 #define DEFAULT_MOVETYPES_MASK ( \
 	LINK_MOVE | \
 	LINK_STAIRS | \
@@ -71,29 +69,12 @@ int ValidLinksMask;
 	LINK_WATERJUMP | \
 	LINK_JUMPPAD | \
 	LINK_PLATFORM | \
-	LINK_TELEPORT);
-
+	LINK_TELEPORT)
 //==========================================
 //
 //
 //
 //==========================================
-
-int	AStar_nodeIsInPath(int node)
-{
-	int	i;
-
-	if( !Apath_numNodes )
-		return 0;
-
-	for (i=0; i<Apath_numNodes; i++)
-	{
-		if(node == Apath[i])
-			return 1;
-	}
-
-	return 0;
-}
 
 int	AStar_nodeIsInClosed( int node )
 {
@@ -117,38 +98,33 @@ static void AStar_InitLists (void)
 
 	for ( i=0; i<MAX_NODES; i++ )
 	{
-		Apath[i] = 0;
-
 		astarnodes[i].G = 0;
 		astarnodes[i].H = 0;
 		astarnodes[i].parent = 0;
 		astarnodes[i].list = NOLIST;
 	}
-	Apath_numNodes = 0;
+
+	if( Apath )
+		Apath->numNodes = 0;
 
 	alist_numNodes = 0;
-	for( i=0; i<MAX_NODES; i++ )
-		alist[i] = -1;
+	memset( alist, -1, sizeof(alist));//jabot092
 }
 
-static int AStar_PLinkDistance(int n1, int n2)
+static int
+AStar_PLinkDistance(int n1, int n2)
 {
-	int	i;
-	int	found = 0;
-	int dist;
+	int i;
 
 	for ( i=0; i<pLinks[n1].numLinks; i++)
 	{
-		if( pLinks[n1].nodes[i] == n2 ) {
-			found = 1;
-			dist = (int)pLinks[n1].dist[i];
+		if (pLinks[n1].nodes[i] == n2)
+		{
+			return (int)pLinks[n1].dist[i];
 		}
 	}
 
-	if(!found)
-		return -1;
-
-	return dist;
+	return -1;
 }
 
 static int	Astar_HDist_ManhatanGuess( int node )
@@ -165,11 +141,7 @@ static int	Astar_HDist_ManhatanGuess( int node )
 
 	for (i=0 ; i<3 ; i++)
 	{
-		DistVec[i] = nodes[goalNode].origin[i] - nodes[node].origin[i];
-		if( DistVec[i] < 0.0f )
-		{
-			DistVec[i] = -DistVec[i];	//use only positive values. We don't care about direction.
-		}
+		DistVec[i] = fabs(nodes[goalNode].origin[i] - nodes[node].origin[i]);
 	}
 
 	HDist = (int)(DistVec[0] + DistVec[1] + DistVec[2]);
@@ -187,7 +159,8 @@ static void AStar_PutInClosed( int node )
 	astarnodes[node].list = CLOSEDLIST;
 }
 
-static void AStar_PutAdjacentsInOpen(int node)
+static void
+AStar_PutAdjacentsInOpen(int node)
 {
 	int	i;
 
@@ -232,9 +205,7 @@ static void AStar_PutAdjacentsInOpen(int node)
 				astarnodes[addnode].G = astarnodes[node].G + plinkDist;
 			}
 
-		}
-		else
-		{	//just put it in
+		} else {	//just put it in
 
 			int plinkDist;
 
@@ -243,9 +214,7 @@ static void AStar_PutAdjacentsInOpen(int node)
 			{
 				plinkDist = AStar_PLinkDistance( addnode, node );
 				if( plinkDist == -1)
-				{
 					plinkDist = 999;//jalFIXME
-				}
 
 				if (bot_debugmonster->value)
 				{
@@ -302,21 +271,19 @@ static void AStar_ListsToPath ( void )
 {
 	int count = 0;
 	int cur = goalNode;
+	int *pnode;
 
+	Apath->numNodes = 0;
+	pnode = Apath->nodes;
 	while ( cur != originNode )
 	{
+		*pnode = cur;
+		pnode++;
 		cur = astarnodes[cur].parent;
 		count++;
 	}
-	cur = goalNode;
 
-	while ( count >= 0 )
-	{
-		Apath[count] = cur;
-		Apath_numNodes++;
-		count--;
-		cur = astarnodes[cur].parent;
-	}
+	Apath->numNodes = count-1;
 }
 
 static int	AStar_FillLists ( void )
@@ -333,7 +300,7 @@ static int	AStar_FillLists ( void )
 	return (currentNode != -1);	//if -1 path is bloqued
 }
 
-int	AStar_ResolvePath ( int n1, int n2, int movetypes )
+static int AStar_ResolvePath ( int n1, int n2, int movetypes )
 {
 	ValidLinksMask = movetypes;
 	if ( !ValidLinksMask )
@@ -357,30 +324,20 @@ int	AStar_ResolvePath ( int n1, int n2, int movetypes )
 
 	AStar_ListsToPath();
 
-	if (bot_debugmonster->value)
-	{
-		Com_Printf("RESULT:\n Origin:%i\n Goal:%i\n numNodes:%i\n FirstInPath:%i\n LastInPath:%i\n",
-			originNode, goalNode, Apath_numNodes, Apath[0], Apath[Apath_numNodes-1]);
-	}
 	return 1;
 }
 
-int AStar_GetPath( int origin, int goal, int movetypes, struct astarpath_s *path )
+int
+AStar_GetPath(int origin, int goal, int movetypes, struct astarpath_s *path)
 {
-	int i;
+	Apath = path;
 
 	if( !AStar_ResolvePath ( origin, goal, movetypes ) )
 	{
 		return 0;
 	}
 
-	path->numNodes = Apath_numNodes;
 	path->originNode = origin;
 	path->goalNode = goal;
-	for(i=0; i<path->numNodes; i++)
-	{
-		path->nodes[i] = Apath[i];
-	}
-
 	return 1;
 }

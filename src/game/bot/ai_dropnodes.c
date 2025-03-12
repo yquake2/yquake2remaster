@@ -334,8 +334,8 @@ void AI_PathMap( void )
 	int			 closest_node;
 
 	//DROP WATER JUMP NODE (not limited by delayed updates)
-	if ( !player.ent->ai.is_swim && player.last_node != -1
-		&& player.ent->ai.is_swim != player.ent->ai.was_swim)
+	if ( !player.ent->is_swim && player.last_node != -1
+		&& player.ent->is_swim != player.ent->was_swim)
 	{
 		AI_WaterJumpNode();
 		last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
@@ -365,13 +365,13 @@ void AI_PathMap( void )
 		return;
 
 	// Not on ground, and not in the water, so bail (deeper check by using a splitmodels function)
-	if (!player.ent->ai.is_step )
+	if (!player.ent->is_step )
 	{
-		if ( !player.ent->ai.is_swim ){
+		if ( !player.ent->is_swim ){
 			player.was_falling = true;
 			return;
 		}
-		else if ( player.ent->ai.is_swim )
+		else if ( player.ent->is_swim )
 			player.was_falling = false;
 	}
 
@@ -415,7 +415,7 @@ void AI_PathMap( void )
 	if( closest_node == INVALID )
 	{
 		// Add nodes in the water as needed
-		if( player.ent->ai.is_swim )
+		if( player.ent->is_swim )
 			closest_node = AI_AddNode( player.ent->s.origin, (NODEFLAGS_WATER|NODEFLAGS_FLOAT) );
 		else
 			closest_node = AI_AddNode( player.ent->s.origin, 0 );

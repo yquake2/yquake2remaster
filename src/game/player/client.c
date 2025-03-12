@@ -2052,7 +2052,7 @@ respawn(edict_t *self)
 	if (deathmatch->value || coop->value)
 	{
 //JABot[start]
-		if (self->ai.is_bot){
+		if (self->ai && self->ai->is_bot){
 			BOT_Respawn (self);
 			return;
 		}
@@ -2395,7 +2395,7 @@ PutClientInServer(edict_t *ent)
 	VectorCopy(ent->s.angles, client->v_angle);
 
 	//JABot[start]
-	if( ent->ai.is_bot == true )
+	if( ent->ai && ent->ai->is_bot )
 		return;
 	//JABot[end]
 

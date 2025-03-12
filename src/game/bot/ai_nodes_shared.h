@@ -34,7 +34,6 @@
 //
 //=============================================================
 
-#define MAX_NODES			2048		//jalToDo: needs dynamic alloc (big terrain maps)
 #define NODE_DENSITY		128			// Density setting for nodes
 #define INVALID				-1
 #define	NODES_MAX_PLINKS	16

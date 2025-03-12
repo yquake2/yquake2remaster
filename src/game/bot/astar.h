@@ -28,20 +28,6 @@
  * in NO WAY supported by Steve Yeager.
  */
 
-//==========================================
-//
-//
-//==========================================
-
-typedef struct astarpath_s
-{
-	int numNodes;
-	int nodes[MAX_NODES];
-	int originNode;
-	int goalNode;
-
-} astarpath_t;
-
 //	A* PROPS
 //===========================================
 int	AStar_nodeIsInClosed( int node );

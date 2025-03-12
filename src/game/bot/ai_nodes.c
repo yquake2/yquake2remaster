@@ -52,7 +52,7 @@ qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent )
 {
 	trace_t	trace;
 
-	//trap_Trace ( &trace, origin, tv(-15, -15, 0), tv(15, 15, 0), tv(origin[0], origin[1], world->mins[2]), NULL, MASK_NODESOLID );//jalfixme. 0?
+	//trap_Trace ( &trace, origin, tv(-15, -15, 0), tv(15, 15, 0), tv(origin[0], origin[1], world->mins[2]), NULL, MASK_NODESOLID );
 	trace = gi.trace( origin, tv(-15, -15, 0), tv(15, 15, 0), tv(origin[0], origin[1], origin[2]-2048), passent, MASK_NODESOLID );
 	if( trace.startsolid )
 		return false;
@@ -109,16 +109,16 @@ void AI_JumpadGuess_ShowPoint( vec3_t origin, char *modelname )
 	ent->movetype = MOVETYPE_NONE;
 	ent->clipmask = MASK_WATER;
 	ent->solid = SOLID_NOT;
-	ent->s.type = ET_GENERIC;
-	ent->s.renderfx |= RF_NOSHADOW;
+//	ent->s.type = ET_GENERIC;
+//	ent->s.renderfx |= RF_NOSHADOW;
 	VectorClear ( ent->mins );
 	VectorClear ( ent->maxs );
-	ent->s.modelindex = trap_ModelIndex ( modelname );
+	ent->s.modelindex = gi.modelindex ( modelname );
 	ent->nextthink = level.time + 20000;
 	ent->think = G_FreeEdict;
 	ent->classname = "checkent";
 
-	trap_LinkEntity (ent);
+	gi.linkentity (ent);
 }
 #endif
 
@@ -139,6 +139,9 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 
 	VectorClear( out );
 
+	if( !ent->target )	//jabot092
+		return false;
+
 	// get target entity
 	target = G_Find ( NULL, FOFS(targetname), ent->target );
 	if (!target)
@@ -157,7 +160,6 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 	floor_target_origin[2] = pad_origin[2];	//put at pad's height
 
 	//make a guess on how player movement will affect the trajectory
-	//tmpfloat = Distance( pad_origin, floor_target_origin );
 	tmpfloat = AI_Distance( pad_origin, floor_target_origin );
 	htime = sqrt ((tmpfloat));
 	vtime = sqrt ((target->s.origin[2] - pad_origin[2]));
@@ -185,7 +187,7 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 
 #ifdef SHOW_JUMPAD_GUESS
 	// this is our top of the curve point, and the original target
-	AI_JumpadGuess_ShowPoint( target_origin, "models/powerups/health/mega_sphere.md3" );
+	AI_JumpadGuess_ShowPoint( target_origin, "models/objects/grenade2/tris.md2" );
 	AI_JumpadGuess_ShowPoint( target->s.origin, "models/powerups/health/large_cross.md3" );
 #endif
 
@@ -214,7 +216,7 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 
 #ifdef SHOW_JUMPAD_GUESS
 	// destiny found
-	AI_JumpadGuess_ShowPoint( trace.endpos, "models/powerups/health/mega_sphere.md3" );
+	AI_JumpadGuess_ShowPoint( trace.endpos, "models/objects/grenade2/tris.md2" );
 #endif
 
 	VectorCopy ( trace.endpos, out );
@@ -270,7 +272,7 @@ int AI_AddNode_JumpPad( edict_t *ent )
 
 
 //==========================================
-// AI_AddNode_Door
+// AI_AddNode_Door -  //jabot092(2)
 // Drop a node at each side of the door
 // and force them to link. Only typical
 // doors are covered.
@@ -279,8 +281,10 @@ int AI_AddNode_Door( edict_t *ent )
 {
 	edict_t		*other;
 	vec3_t		mins, maxs;
-	vec3_t		forward, right, up;
 	vec3_t		door_origin;
+	vec3_t		crossdir;
+	vec3_t		MOVEDIR_UP		= {0, 0, 1};
+	vec3_t		MOVEDIR_DOWN	= {0, 0, -1};
 
 	if (ent->flags & FL_TEAMSLAVE)
 		return INVALID;		//only team master will drop the nodes
@@ -299,47 +303,97 @@ int AI_AddNode_Door( edict_t *ent )
 	door_origin[1] = (maxs[1] - mins[1]) / 2 + mins[1];
 	door_origin[2] = (maxs[2] - mins[2]) / 2 + mins[2];
 
-	//now find the crossing angle
-	AngleVectors( ent->s.angles, forward, right, up );
-	VectorNormalize( right );
+
+	//if it moves in y axis we don't know if it's walked to north or east, so
+	// we must try dropping nodes in both directions and check for solids
+	if (VectorCompare(MOVEDIR_UP, ent->movedir) || VectorCompare(MOVEDIR_DOWN, ent->movedir) )
+	{
+		//now find the crossing angle
+		AngleVectors( ent->s.angles, crossdir, NULL, NULL );
+		VectorNormalize( crossdir );
+
+		//add node
+		nodes[nav.num_nodes].flags = 0;
+		VectorMA( door_origin, 32, crossdir, nodes[nav.num_nodes].origin);
+		if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+		{
+			nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
+#ifdef SHOW_JUMPAD_GUESS
+			AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
+#endif
+			nav.num_nodes++;
+		}
+
+		//add node 2
+		nodes[nav.num_nodes].flags = 0;
+		VectorMA( door_origin, -32, crossdir, nodes[nav.num_nodes].origin);
+		if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+		{
+			nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
+#ifdef SHOW_JUMPAD_GUESS
+			AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
+#endif
+			//add links in both directions
+			AI_AddLink( nav.num_nodes, nav.num_nodes-1, LINK_MOVE );
+			AI_AddLink( nav.num_nodes-1, nav.num_nodes, LINK_MOVE );
+
+			nav.num_nodes++;
+		}
+
+	}
+
+	//find the crossing angle
+	AngleVectors( ent->s.angles, NULL, crossdir, NULL ); //jabot092(2)
+	VectorNormalize( crossdir );
 
 	//add node
-	nodes[nav.num_nodes].flags = 0/*NODEFLAGS_SERVERLINK*/;
-	VectorMA( door_origin, 32, right, nodes[nav.num_nodes].origin);
-	AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL );
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
+	nodes[nav.num_nodes].flags = 0;
+	VectorMA( door_origin, 32, crossdir, nodes[nav.num_nodes].origin);
+	if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+	{
+		nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
-	AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/powerups/health/mega_sphere.md3" );
+		AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
 #endif
-	nav.num_nodes++;
+		nav.num_nodes++;
+	}
 
 	//add node 2
-	nodes[nav.num_nodes].flags = 0/*NODEFLAGS_SERVERLINK*/;
-	VectorMA( door_origin, -32, right, nodes[nav.num_nodes].origin);
-	AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL );
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
+	nodes[nav.num_nodes].flags = 0;
+	VectorMA( door_origin, -32, crossdir, nodes[nav.num_nodes].origin);
+	if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+	{
+		nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
-	AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/powerups/health/mega_sphere.md3" );
+		AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
 #endif
-	//add links in both directions
-	AI_AddLink( nav.num_nodes, nav.num_nodes-1, LINK_MOVE );
-	AI_AddLink( nav.num_nodes-1, nav.num_nodes, LINK_MOVE );
+		//add links in both directions
+		AI_AddLink( nav.num_nodes, nav.num_nodes-1, LINK_MOVE );
+		AI_AddLink( nav.num_nodes-1, nav.num_nodes, LINK_MOVE );
 
-	nav.num_nodes++;
+		nav.num_nodes++;
+	}
+
 	return nav.num_nodes-1;
 }
 
 
 //==========================================
-// AI_AddNode_Platform
+// AI_AddNode_Platform -  //jabot092(2)
 // drop two nodes one at top, one at bottom
 //==========================================
 int AI_AddNode_Platform( edict_t *ent )
 {
 	vec3_t		v1,v2;
+	float		plat_dist;
 
-	if (nav.num_nodes + 1 > MAX_NODES)
+	if (nav.num_nodes + 2 > MAX_NODES)
 		return INVALID;
+
+	if (ent->flags & FL_TEAMSLAVE)
+		return INVALID;		//only team master will drop the nodes
+
+	plat_dist = ent->pos1[2] - ent->pos2[2]; //jabot092(2)
 
 	// Upper node
 	nodes[nav.num_nodes].flags = (NODEFLAGS_PLATFORM|NODEFLAGS_SERVERLINK|NODEFLAGS_FLOAT);
@@ -347,8 +401,10 @@ int AI_AddNode_Platform( edict_t *ent )
 	VectorCopy( ent->mins, v2 );
 	nodes[nav.num_nodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
 	nodes[nav.num_nodes].origin[1] = (v1[1] - v2[1]) / 2 + v2[1];
-	nodes[nav.num_nodes].origin[2] = ent->maxs[2] + 8;
-
+	nodes[nav.num_nodes].origin[2] = ent->mins[2] + plat_dist + 16;//jabot092(2)
+#ifdef SHOW_JUMPAD_GUESS
+	AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
+#endif
 	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 
 	//put into ents table
@@ -362,8 +418,10 @@ int AI_AddNode_Platform( edict_t *ent )
 	nodes[nav.num_nodes].flags = (NODEFLAGS_PLATFORM|NODEFLAGS_SERVERLINK|NODEFLAGS_FLOAT);
 	nodes[nav.num_nodes].origin[0] = nodes[nav.num_nodes-1].origin[0];
 	nodes[nav.num_nodes].origin[1] = nodes[nav.num_nodes-1].origin[1];
-	nodes[nav.num_nodes].origin[2] = ent->mins[2] + (AI_JUMPABLE_HEIGHT - 1);
-
+	nodes[nav.num_nodes].origin[2] = ent->mins[2] + (AI_JUMPABLE_HEIGHT - 1); //jabot092(2)
+#ifdef SHOW_JUMPAD_GUESS
+	AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
+#endif
 	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 
 	//put into ents table
@@ -909,12 +967,12 @@ void AI_InitNavigationData(void)
 		return;
 	}
 
+	servernodesstart = nav.num_nodes;
+
 	for( linkscount = 0, i = 0; i< nav.num_nodes; i++ )
 	{
 		linkscount += pLinks[i].numLinks;
 	}
-
-	servernodesstart = nav.num_nodes;
 
 	//create nodes for map entities
 	AI_CreateNodesForEntities();
