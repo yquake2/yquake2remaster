@@ -64,37 +64,30 @@ void BOT_Respawn (edict_t *self)
 
 
 ///////////////////////////////////////////////////////////////////////
-// Find a free client spot
+// Find a free client spot - //jabot092(2)
 ///////////////////////////////////////////////////////////////////////
 edict_t *BOT_FindFreeClient (void)
 {
 	edict_t *bot;
+	edict_t	*ent;
 	int	i;
 	int max_count=0;
 
-	// This is for the naming of the bots
-	for (i = maxclients->value; i > 0; i--)
+	bot = NULL;
+	for( i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++ )
 	{
-		bot = g_edicts + i + 1;
+		if( !ent->inuse && bot == NULL )
+			bot = ent;
 
-		if(bot->count > max_count)
-			max_count = bot->count;
+		//count bots for bot names
+		if( ent->count > max_count )
+			max_count = ent->count;
 	}
 
-	// Check for free spot
-	for (i = maxclients->value; i > 0; i--)
-	{
-		bot = g_edicts + i + 1;
-
-		if (!bot->inuse)
-			break;
-	}
+	if (bot == NULL || (max_count + 2) >= game.maxclients ) //always leave room for 1 player
+		return NULL;
 
 	bot->count = max_count + 1; // Will become bot name...
-
-	if (bot->inuse)
-		bot = NULL;
-
 	return bot;
 }
 
@@ -173,8 +166,6 @@ void BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 	Info_SetValueForKey (userinfo, "hand", "2"); // bot is center handed for now!
 
 	ClientConnect (bot, userinfo);
-
-//	ACESP_SaveBots(); // make sure to save the bots
 }
 
 //==========================================
@@ -330,13 +321,12 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 
 	if (!bot)
 	{
-//		safe_bprintf (PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
+		safe_bprintf (PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
 		return;
 	}
 
 	//init the bot
 	bot->inuse = true;
-	bot->ai.is_bot = true;
 	bot->yaw_speed = 100;
 
 	// To allow bots to respawn
@@ -346,17 +336,19 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 		ClientConnect (bot, userinfo);
 
 	G_InitEdict (bot);
+	G_SpawnAI(bot); //jabot092(2)
+	bot->ai->is_bot = true;
 	InitClientResp (bot->client);
 
 	PutClientInServer(bot);
 	BOT_StartAsSpectator (bot);
 
 	//skill
-	bot->ai.pers.skillLevel = (int)(random()*MAX_BOT_SKILL);
-	if (bot->ai.pers.skillLevel > MAX_BOT_SKILL)	//fix if off-limits
-		bot->ai.pers.skillLevel =  MAX_BOT_SKILL;
-	else if (bot->ai.pers.skillLevel < 0)
-		bot->ai.pers.skillLevel =  0;
+	bot->ai->pers.skillLevel = (int)(random()*MAX_BOT_SKILL);
+	if (bot->ai->pers.skillLevel > MAX_BOT_SKILL)	//fix if off-limits
+		bot->ai->pers.skillLevel =  MAX_BOT_SKILL;
+	else if (bot->ai->pers.skillLevel < 0)
+		bot->ai->pers.skillLevel =  0;
 
 	BOT_DMclass_InitPersistant(bot);
 	AI_ResetWeights(bot);
@@ -387,23 +379,19 @@ void BOT_RemoveBot(char *name)
 	for(i=0;i<maxclients->value;i++)
 	{
 		bot = g_edicts + i + 1;
-		if(bot->inuse)
+		if( !bot->inuse || !bot->ai )  //jabot092(2)
+			continue;
+
+		if( bot->ai->is_bot && (!strcmp(bot->client->pers.netname,name) || !strcmp(name,"all")))
 		{
-			if(bot->ai.is_bot && (strcmp(bot->client->pers.netname,name)==0 || strcmp(name,"all")==0))
-			{
-				bot->health = 0;
-				player_die (bot, bot, bot, 100000, vec3_origin);
-				// don't even bother waiting for death frames
-				bot->deadflag = DEAD_DEAD;
-				bot->inuse = false;
-				AI_EnemyRemoved (bot);
-//				safe_bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
-			}
+			bot->health = 0;
+			player_die (bot, bot, bot, 100000, vec3_origin);
+			// don't even bother waiting for death frames
+			bot->deadflag = DEAD_DEAD;
+			bot->inuse = false;
+			AI_EnemyRemoved (bot);
+			G_FreeAI( bot ); //jabot092(2)
+			//safe_bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
 		}
 	}
-
-//	if(!freed)
-//		safe_bprintf (PRINT_MEDIUM, "%s not found\n", name);
-
-//	ACESP_SaveBots(); // Save them again
 }

@@ -66,7 +66,6 @@ qboolean AI_CanMove(edict_t *self, int direction)
 	VectorSet(offset, 36, 0, -100);
 	G_ProjectSource (self->s.origin, offset, forward, right, end);
 
-//	trap_Trace(&tr, start, NULL, NULL, end, self, MASK_AISOLID);
 	tr = gi.trace( start, NULL, NULL, end, self, MASK_AISOLID );
 
 	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
@@ -208,25 +207,7 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 	if( !tr.startsolid && tr.fraction == 1.0 ) // not bloqued
 		return false;
 
-	if( self->ai.pers.moveTypesMask & LINK_CROUCH || self->ai.is_swim )
-	{
-		//crouch box
-		VectorCopy( self->s.origin, boxorigin );
-		VectorCopy( self->mins, boxmins );
-		VectorCopy( self->maxs, boxmaxs );
-		boxmaxs[2] = 14;	//crouched size
-		VectorMA( boxorigin, 8, forward, boxorigin ); //move box by 8 to front
-		//see if bloqued
-		tr = gi.trace( boxorigin, boxmins, boxmaxs, boxorigin, self, MASK_AISOLID);
-		if( !tr.startsolid ) // can move by crouching
-		{
-			ucmd->forwardmove = 400;
-			ucmd->upmove = -400;
-			return true;
-		}
-	}
-
-	if( self->ai.pers.moveTypesMask & LINK_JUMP && self->groundentity )
+	if( self->ai->pers.moveTypesMask & LINK_JUMP && self->groundentity )
 	{
 		//jump box
 		VectorCopy( self->s.origin, boxorigin );
@@ -248,6 +229,24 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 
 				return true;
 			}
+		}
+	}
+
+	if( self->ai->pers.moveTypesMask & LINK_CROUCH || self->is_swim )
+	{
+		//crouch box
+		VectorCopy( self->s.origin, boxorigin );
+		VectorCopy( self->mins, boxmins );
+		VectorCopy( self->maxs, boxmaxs );
+		boxmaxs[2] = 14;	//crouched size
+		VectorMA( boxorigin, 8, forward, boxorigin ); //move box by 8 to front
+		//see if bloqued
+		tr = gi.trace( boxorigin, boxmins, boxmaxs, boxorigin, self, MASK_AISOLID);
+		if( !tr.startsolid ) // can move by crouching
+		{
+			ucmd->forwardmove = 400;
+			ucmd->upmove = -400;
+			return true;
 		}
 	}
 
@@ -274,12 +273,12 @@ void AI_ChangeAngle (edict_t *ent)
 	vec3_t  ideal_angle;
 
 	// Normalize the move angle first
-	VectorNormalize(ent->ai.move_vector);
+	VectorNormalize(ent->ai->move_vector);
 
 	current_yaw = anglemod(ent->s.angles[YAW]);
 	current_pitch = anglemod(ent->s.angles[PITCH]);
 
-	vectoangles (ent->ai.move_vector, ideal_angle);
+	vectoangles (ent->ai->move_vector, ideal_angle);
 
 	ideal_yaw = anglemod(ideal_angle[YAW]);
 	ideal_pitch = anglemod(ideal_angle[PITCH]);
@@ -360,7 +359,7 @@ qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 	   !Q_stricmp(self->movetarget->classname,"grenade") ||
 	   !Q_stricmp(self->movetarget->classname,"hgrenade"))
 	{
-		VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai.move_vector);
+		VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai->move_vector);
 		AI_ChangeAngle(self);
 //		if(AIDevel.debugChased && bot_showcombat->value)
 //			gi.cprintf(NULL, PRINT_HIGH, "%s: Oh crap a rocket!\n",self->ai.pers.netname);
@@ -375,7 +374,7 @@ qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Set bot's movement direction
-	VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai.move_vector);
+	VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai->move_vector);
 	AI_ChangeAngle(self);
 	if(!AI_CanMove(self, BOT_MOVE_FORWARD) )
 	{

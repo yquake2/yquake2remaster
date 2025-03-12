@@ -103,6 +103,8 @@ Games:
 * Dawn of Darkness:
   * Docs: <https://www.moddb.com/mods/dawn-of-darkness1/downloads/dod-mood-scripts-gsm-tutorials-fgd-and-def-file>
   * Demo: [Episode 1](https://www.moddb.com/mods/dawn-of-darkness1/downloads/dawn-of-darkness-episode-1)
+* JaBot:
+  * SDK: <https://www.moddb.com/mods/jabotq2/downloads/jabot-q2-v09x-win32-and-linux>
 * Additional maps used for check maps support:
   * PSX: <https://www.moddb.com/mods/quake-ii-psx/downloads/quake-ii-psx-10>
   * ReRelease N64 Jam: <https://www.moddb.com/games/quake-2/addons/quake-2-re-release-n64-sp-map-jam>
@@ -176,7 +178,6 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Support scalled textures for models and walls in soft render and fix
     lighting with remastered maps,
 * [ ] Modified ReRelease game code support with removed KEX only related code.
-* [ ] Add support for [JaBot](https://www.moddb.com/mods/jabotq2/downloads/jabot-q2-v09x-win32-and-linux)
 
 Not a goal:
 

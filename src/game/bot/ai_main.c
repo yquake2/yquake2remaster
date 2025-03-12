@@ -25,8 +25,8 @@
 #include "../header/local.h"
 #include "ai_local.h"
 
-int	num_players;
-edict_t *players[MAX_CLIENTS];		// pointers to all players in the game
+int num_AIEnemies;
+edict_t *AIEnemies[MAX_EDICTS];		// pointers to all players in the game
 ai_devel_t	AIDevel;
 
 // cvar_t *bot_showpath;
@@ -69,23 +69,47 @@ void AI_NewMap(void)
 	AI_InitAIWeapons ();
 }
 
+//==========================================
+// G_FreeAI
+// removes the AI handle from memory
+//==========================================
+void G_FreeAI( edict_t *ent )
+{
+	if( !ent->ai ) return;
+
+	gi.TagFree (ent->ai);
+	ent->ai = NULL;
+}
+
+//==========================================
+// G_SpawnAI
+// allocate ai_handle_t for this entity
+//==========================================
+void G_SpawnAI( edict_t *ent )
+{
+	if( !ent->ai )
+		ent->ai = gi.TagMalloc (sizeof(ai_handle_t), TAG_LEVEL);
+
+	memset( ent->ai, 0, sizeof(ai_handle_t));
+}
 
 //==========================================
 // AI_SetUpMoveWander
 //==========================================
 void AI_SetUpMoveWander( edict_t *ent )
 {
-	ent->ai.state = BOT_STATE_WANDER;
-	ent->ai.wander_timeout = level.time + 1.0;
-	ent->ai.nearest_node_tries = 0;
+	ent->ai->state = BOT_STATE_WANDER;
+	ent->ai->wander_timeout = level.time + 1.0;
+	ent->ai->nearest_node_tries = 0;
 
-	ent->ai.next_move_time = level.time;
-	ent->ai.bloqued_timeout = level.time + 15.0;
+	ent->ai->next_move_time = level.time;
+	ent->ai->bloqued_timeout = level.time + 15.0;
 
-	ent->ai.goal_node = INVALID;
-	ent->ai.current_node = INVALID;
-	ent->ai.next_node = INVALID;
+	ent->ai->goal_node = INVALID;
+	ent->ai->current_node = INVALID;
+	ent->ai->next_node = INVALID;
 }
+
 
 //==========================================
 // AI_ResetWeights
@@ -94,8 +118,8 @@ void AI_SetUpMoveWander( edict_t *ent )
 void AI_ResetWeights(edict_t *ent)
 {
 	//restore defaults from bot persistant
-	memset(ent->ai.status.inventoryWeights, 0, sizeof (ent->ai.status.inventoryWeights));
-	memcpy(ent->ai.status.inventoryWeights, ent->ai.pers.inventoryWeights, sizeof(ent->ai.pers.inventoryWeights));
+	memset(ent->ai->status.inventoryWeights, 0, sizeof (ent->ai->status.inventoryWeights));
+	memcpy(ent->ai->status.inventoryWeights, ent->ai->pers.inventoryWeights, sizeof(ent->ai->pers.inventoryWeights));
 }
 
 
@@ -109,24 +133,24 @@ void AI_ResetNavigation(edict_t *ent)
 
 	ent->enemy = NULL;
 	ent->movetarget = NULL;
-	ent->ai.state_combat_timeout = 0.0;
+	ent->ai->state_combat_timeout = 0.0;
 
-	ent->ai.state = BOT_STATE_WANDER;
-	ent->ai.wander_timeout = level.time;
-	ent->ai.nearest_node_tries = 0;
+	ent->ai->state = BOT_STATE_WANDER;
+	ent->ai->wander_timeout = level.time;
+	ent->ai->nearest_node_tries = 0;
 
-	ent->ai.next_move_time = level.time;
-	ent->ai.bloqued_timeout = level.time + 15.0;
+	ent->ai->next_move_time = level.time;
+	ent->ai->bloqued_timeout = level.time + 15.0;
 
-	ent->ai.goal_node = INVALID;
-	ent->ai.current_node = INVALID;
-	ent->ai.next_node = INVALID;
+	ent->ai->goal_node = INVALID;
+	ent->ai->current_node = INVALID;
+	ent->ai->next_node = INVALID;
 
-	VectorSet( ent->ai.move_vector, 0, 0, 0 );
+	VectorSet( ent->ai->move_vector, 0, 0, 0 );
 
 	//reset bot_roams timeouts
 	for( i=0; i<nav.num_broams; i++)
-		ent->ai.status.broam_timeouts[i] = 0.0;
+		ent->ai->status.broam_timeouts[i] = 0.0;
 }
 
 
@@ -149,7 +173,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 
 	for( i=0; i<nav.num_broams; i++)
 	{
-		if( self->ai.status.broam_timeouts[i] > level.time)
+		if( self->ai->status.broam_timeouts[i] > level.time)
 			continue;
 
 		//limit cost finding by distance
@@ -158,7 +182,7 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 			continue;
 
 		//find cost
-		cost = AI_FindCost(current_node, nav.broams[i].node, self->ai.pers.moveTypesMask);
+		cost = AI_FindCost(current_node, nav.broams[i].node, self->ai->pers.moveTypesMask);
 		if(cost == INVALID || cost < 3) // ignore invalid and very short hops
 			continue;
 
@@ -177,11 +201,11 @@ qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
 		return false;
 
 	//set up the goal
-	self->ai.state = BOT_STATE_MOVE;
-	self->ai.tries = 0;	// Reset the count of how many times we tried this goal
+	self->ai->state = BOT_STATE_MOVE;
+	self->ai->tries = 0;	// Reset the count of how many times we tried this goal
 
 //	if(AIDevel.debugChased && bot_showlrgoal->value)
-//		gi.cprintf(NULL, PRINT_HIGH, "%s: selected a bot roam of weight %f at node %d for LR goal.\n",self->ai.pers.netname, nav.broams[best_broam].weight, goal_node);
+//		gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: selected a bot roam of weight %f at node %d for LR goal.\n",self->ai->pers.netname, nav.broams[best_broam].weight, goal_node);
 
 	AI_SetGoal(self,goal_node);
 
@@ -209,23 +233,22 @@ void AI_PickLongRangeGoal(edict_t *self)
 	float dist;
 
 	// look for a target
-	current_node = AI_FindClosestReachableNode(self->s.origin, self,((1+self->ai.nearest_node_tries)*NODE_DENSITY),NODE_ALL);
-	self->ai.current_node = current_node;
+	current_node = AI_FindClosestReachableNode(self->s.origin, self,((1+self->ai->nearest_node_tries)*NODE_DENSITY),NODE_ALL);
+	self->ai->current_node = current_node;
 
 	if(current_node == -1)	//failed. Go wandering :(
 	{
 //		if (AIDevel.debugChased && bot_showlrgoal->value)
-//			gi.cprintf(NULL, PRINT_HIGH, "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai.pers.netname, self->ai.nearest_node_tries);
-//		Com_Printf( "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai.pers.netname, self->ai.nearest_node_tries);
+//			gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai->pers.netname, self->ai->nearest_node_tries);
 
-		if( self->ai.state != BOT_STATE_WANDER )
+		if( self->ai->state != BOT_STATE_WANDER )
 			AI_SetUpMoveWander( self );
 
-		self->ai.wander_timeout = level.time + 1.0;
-		self->ai.nearest_node_tries++;	//extend search radius with each try
+		self->ai->wander_timeout = level.time + 1.0;
+		self->ai->nearest_node_tries++;	//extend search radius with each try
 		return;
 	}
-	self->ai.nearest_node_tries = 0;
+	self->ai->nearest_node_tries = 0;
 
 
 	// Items
@@ -256,7 +279,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 		if( nav.items[i].ent->item->flags & (IT_WEAPON|IT_FLAG) && dist > 10000 )
 			continue;
 
-		cost = AI_FindCost(current_node, nav.items[i].node, self->ai.pers.moveTypesMask);
+		cost = AI_FindCost(current_node, nav.items[i].node, self->ai->pers.moveTypesMask);
 		if(cost == INVALID || cost < 3) // ignore invalid and very short hops
 			continue;
 
@@ -273,24 +296,24 @@ void AI_PickLongRangeGoal(edict_t *self)
 
 
 	// Players: This should be its own function and is for now just finds a player to set as the goal.
-	for(i=0;i<num_players;i++)
+	for( i=0; i<num_AIEnemies; i++ )
 	{
 		//ignore self & spectators
-		if(players[i] == self || players[i]->svflags & SVF_NOCLIENT)
+		if( AIEnemies[i] == self || AIEnemies[i]->svflags & SVF_NOCLIENT)
 			continue;
 
 		//ignore zero weighted players
-		if( self->ai.status.playersWeights[i] == 0.0f )
+		if( self->ai->status.playersWeights[i] == 0.0f )
 			continue;
 
-		node = AI_FindClosestReachableNode( players[i]->s.origin, players[i], NODE_DENSITY, NODE_ALL);
-		cost = AI_FindCost(current_node, node, self->ai.pers.moveTypesMask);
+		node = AI_FindClosestReachableNode( AIEnemies[i]->s.origin, AIEnemies[i], NODE_DENSITY, NODE_ALL);
+		cost = AI_FindCost(current_node, node, self->ai->pers.moveTypesMask);
 
 		if(cost == INVALID || cost < 4) // ignore invalid and very short hops
 			continue;
 
 		//precomputed player weights
-		weight = self->ai.status.playersWeights[i];
+		weight = self->ai->status.playersWeights[i];
 
 		//weight *= random(); // Allow random variations
 		weight /= cost; // Check against cost of getting there
@@ -299,7 +322,7 @@ void AI_PickLongRangeGoal(edict_t *self)
 		{
 			best_weight = weight;
 			goal_node = node;
-			// goal_ent = players[i];
+			// goal_ent = AIEnemies[i];
 		}
 	}
 
@@ -309,24 +332,21 @@ void AI_PickLongRangeGoal(edict_t *self)
 		//BOT_ROAMS
 		if (!AI_BotRoamForLRGoal(self, current_node))
 		{
-			self->ai.goal_node = INVALID;
-			self->ai.state = BOT_STATE_WANDER;
-			self->ai.wander_timeout = level.time + 1.0;
+			self->ai->goal_node = INVALID;
+			self->ai->state = BOT_STATE_WANDER;
+			self->ai->wander_timeout = level.time + 1.0;
 //			if(AIDevel.debugChased && bot_showlrgoal->value)
-//				gi.cprintf(NULL, PRINT_HIGH, "%s: did not find a LR goal, wandering.\n",self->ai.pers.netname);
-//			Com_Printf( "%s: did not find a LR goal, wandering.\n",self->ai.pers.netname);
+//				gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: did not find a LR goal, wandering.\n",self->ai->pers.netname);
 		}
 		return; // no path?
 	}
 
 	// OK, everything valid, let's start moving to our goal.
-	self->ai.state = BOT_STATE_MOVE;
-	self->ai.tries = 0;	// Reset the count of how many times we tried this goal
+	self->ai->state = BOT_STATE_MOVE;
+	self->ai->tries = 0;	// Reset the count of how many times we tried this goal
 
 //	if(goal_ent != NULL && AIDevel.debugChased && bot_showlrgoal->value)
-//		gi.cprintf(NULL, PRINT_HIGH, "%s: selected a %s at node %d for LR goal.\n",self->ai.pers.netname, goal_ent->classname, goal_node);
-//	if(goal_ent != NULL )
-//		Com_Printf( "%s: selected a %s at node %d for LR goal.\n",self->ai.pers.netname, goal_ent->classname, goal_node);
+//		gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: selected a %s at node %d for LR goal.\n",self->ai->pers.netname, goal_ent->classname, goal_node);
 
 	AI_SetGoal(self,goal_node);
 }
@@ -359,10 +379,10 @@ void AI_PickShortRangeGoal(edict_t *self)
 		if(strcmp(target->classname,"rocket")==0 || strcmp(target->classname,"grenade")==0)
 		{
 			//if player who shoot is a potential enemy
-			if (self->ai.status.playersWeights[target->owner->s.number-1])
+			if (self->ai->status.playersWeights[target->owner->s.number-1])
 			{
 //				if(AIDevel.debugChased && bot_showcombat->value)
-//					gi.cprintf(NULL, PRINT_HIGH, "%s: ROCKET ALERT!\n", self->ai.pers.netname);
+//					gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: ROCKET ALERT!\n", self->ai->pers.netname);
 
 				self->enemy = target->owner;	// set who fired the rocket as enemy
 				return;
@@ -393,7 +413,7 @@ void AI_PickShortRangeGoal(edict_t *self)
 		self->movetarget = best;
 		self->goalentity = best;
 //		if(AIDevel.debugChased && bot_showsrgoal->value && (self->goalentity != self->movetarget))
-//			gi.cprintf(NULL, PRINT_HIGH, "%s: selected a %s for SR goal.\n",self->ai.pers.netname, self->movetarget->classname);
+//			gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: selected a %s for SR goal.\n",self->ai->pers.netname, self->movetarget->classname);
 	}
 }
 
@@ -406,20 +426,20 @@ void AI_CategorizePosition (edict_t *ent)
 {
 	qboolean stepping = AI_IsStep(ent);
 
-	ent->ai.was_swim = ent->ai.is_swim;
-	ent->ai.was_step = ent->ai.is_step;
+	ent->was_swim = ent->is_swim;
+	ent->was_step = ent->is_step;
 
-	ent->ai.is_ladder = AI_IsLadder( ent->s.origin, ent->s.angles, ent->mins, ent->maxs, ent );
+	ent->is_ladder = AI_IsLadder( ent->s.origin, ent->s.angles, ent->mins, ent->maxs, ent );
 
 	M_CatagorizePosition(ent);
 	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping)) {
-		ent->ai.is_swim = true;
-		ent->ai.is_step = false;
+		ent->is_swim = true;
+		ent->is_step = false;
 		return;
 	}
 
-	ent->ai.is_swim = false;
-	ent->ai.is_step = stepping;
+	ent->is_swim = false;
+	ent->is_step = stepping;
 }
 
 
@@ -429,46 +449,49 @@ void AI_CategorizePosition (edict_t *ent)
 //==========================================
 void AI_Think (edict_t *self)
 {
+	if( !self->ai )	//jabot092(2)
+		return;
+
 	AIDebug_SetChased(self);	//jal:debug shit
 	AI_CategorizePosition(self);
 
 	//freeze AI when dead
 	if( self->deadflag ) {
-		self->ai.pers.deadFrame(self);
+		self->ai->pers.deadFrame(self);
 		return;
 	}
 
 	//if completely stuck somewhere
 	if(VectorLength(self->velocity) > 37)
-		self->ai.bloqued_timeout = level.time + 10.0;
+		self->ai->bloqued_timeout = level.time + 10.0;
 
-	if( self->ai.bloqued_timeout < level.time ) {
-		self->ai.pers.bloquedTimeout(self);
+	if( self->ai->bloqued_timeout < level.time ) {
+		self->ai->pers.bloquedTimeout(self);
 		return;
 	}
 
 	//update status information to feed up ai
-	self->ai.pers.UpdateStatus(self);
+	self->ai->pers.UpdateStatus(self);
 
 	//update position in path, set up move vector
-	if( self->ai.state == BOT_STATE_MOVE ) {
+	if( self->ai->state == BOT_STATE_MOVE ) {
 
 		if( !AI_FollowPath(self) )
 		{
 			AI_SetUpMoveWander( self );
-			self->ai.wander_timeout = level.time - 1;	//do it now
+			self->ai->wander_timeout = level.time - 1;	//do it now
 		}
 	}
 
 	//pick a new long range goal
-	if( self->ai.state == BOT_STATE_WANDER && self->ai.wander_timeout < level.time)
+	if( self->ai->state == BOT_STATE_WANDER && self->ai->wander_timeout < level.time)
 		AI_PickLongRangeGoal(self);
 
 	//Find any short range goal
 	AI_PickShortRangeGoal(self);
 
 	//run class based states machine
-	self->ai.pers.RunFrame(self);
+	self->ai->pers.RunFrame(self);
 }
 
 

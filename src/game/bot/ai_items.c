@@ -39,7 +39,8 @@
 //==========================================
 void AI_EnemyAdded(edict_t *ent)
 {
-	players[num_players++] = ent;
+	if( num_AIEnemies < MAX_EDICTS )
+		AIEnemies[num_AIEnemies++] = ent;
 }
 
 //==========================================
@@ -52,27 +53,26 @@ void AI_EnemyRemoved(edict_t *ent)
 	int pos;
 
 	// watch for 0 players
-	if(num_players == 0)
+	if(num_AIEnemies < 1)
 		return;
 
-
 	// special case for only one player
-	if(num_players == 1)
+	if(num_AIEnemies == 1)
 	{
-		num_players = 0;
+		num_AIEnemies = 0;
 		return;
 	}
 
 	// Find the player
-	for(i=0;i<num_players;i++)
-		if(ent == players[i])
+	for(i=0;i<num_AIEnemies;i++)
+		if(ent == AIEnemies[i])
 			pos = i;
 
 	// decrement
-	for(i=pos;i<num_players-1;i++)
-		players[i] = players[i+1];
+	for( i=pos; i<num_AIEnemies-1; i++ )
+		AIEnemies[i] = AIEnemies[i+1];
 
-	num_players--;
+	num_AIEnemies--;
 }
 
 
@@ -211,25 +211,25 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 	//IT_WEAPON
 	if (it->item->flags & IT_WEAPON)
 	{
-		return self->ai.status.inventoryWeights[ITEM_INDEX(it->item)];
+		return self->ai->status.inventoryWeights[ITEM_INDEX(it->item)];
 	}
 
 	//IT_AMMO
 	if (it->item->flags & IT_AMMO)
 	{
-		return self->ai.status.inventoryWeights[ITEM_INDEX(it->item)];
+		return self->ai->status.inventoryWeights[ITEM_INDEX(it->item)];
 	}
 
 	//IT_ARMOR
 	if (it->item->flags & IT_ARMOR)
 	{
-		return self->ai.status.inventoryWeights[ITEM_INDEX(it->item)];
+		return self->ai->status.inventoryWeights[ITEM_INDEX(it->item)];
 	}
 
 	//IT_FLAG
 	if (it->item->flags & IT_FLAG)
 	{
-		return self->ai.status.inventoryWeights[ITEM_INDEX(it->item)];
+		return self->ai->status.inventoryWeights[ITEM_INDEX(it->item)];
 	}
 
 	//IT_HEALTH
@@ -265,7 +265,7 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 	//IT_TECH
 	if (it->item->flags & IT_TECH)
 	{
-		return self->ai.status.inventoryWeights[ITEM_INDEX(it->item)];
+		return self->ai->status.inventoryWeights[ITEM_INDEX(it->item)];
 	}
 
 	//IT_STAY_COOP

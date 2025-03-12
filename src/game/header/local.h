@@ -1517,7 +1517,12 @@ struct edict_s
 	int chasedist1;
 	int chasedist2;
 
-	ai_handle_t		ai;		//JABot
+	ai_handle_t		*ai;		//jabot092(2)
+	qboolean		is_swim;	//AI_CategorizePosition
+	qboolean		is_step;
+	qboolean		is_ladder;
+	qboolean		was_swim;
+	qboolean		was_step;
 };
 
 #define SPHERE_DEFENDER 0x0001

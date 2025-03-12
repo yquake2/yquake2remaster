@@ -31,6 +31,15 @@
 //	declaration of botedict for the game
 //----------------------------------------------------------
 #define MAX_BOT_ROAMS		128
+#define MAX_NODES			2048		//jalToDo: needs dynamic alloc (big terrain maps)
+
+typedef struct astarpath_s
+{
+	int numNodes;
+	int nodes[MAX_NODES];
+	int originNode;
+	int goalNode;
+} astarpath_t;
 
 typedef struct
 {
@@ -70,12 +79,6 @@ typedef struct
 	int				state;			// Bot State (WANDER, MOVE, etc)
 	float			state_combat_timeout;
 
-	qboolean		is_swim;
-	qboolean		is_step;
-	qboolean		is_ladder;
-	qboolean		was_swim;
-	qboolean		was_step;
-
 	// movement
 	vec3_t			move_vector;
 	float			next_move_time;
@@ -91,8 +94,7 @@ typedef struct
 
 	int				tries;
 
-	struct astarpath_s	*path;
-	int				path_position;
+	struct astarpath_s	path; //jabot092
 
 	int				nearest_node_tries;	//for increasing radius of search with each try
 
@@ -105,6 +107,8 @@ qboolean	BOT_ServerCommand(void);
 // ai_main.c
 void		AI_Init(void);
 void		AI_NewMap(void);
+void		G_FreeAI( edict_t *ent );
+void		G_SpawnAI( edict_t *ent );
 
 // ai_items.c
 void		AI_EnemyAdded(edict_t *ent);

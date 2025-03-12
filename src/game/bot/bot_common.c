@@ -93,7 +93,7 @@ void safe_cprintf (edict_t *ent, int printlevel, char *fmt, ...)
 	char	bigbuffer[0x10000];
 	va_list		argptr;
 
-	if (ent && (!ent->inuse || ent->ai.is_bot))
+	if (ent && (!ent->inuse || ent->ai))
 		return;
 
 	va_start (argptr,fmt);
@@ -112,7 +112,7 @@ void safe_centerprintf (edict_t *ent, char *fmt, ...)
 	char	bigbuffer[0x10000];
 	va_list		argptr;
 
-	if (!ent->inuse || ent->ai.is_bot)
+	if (!ent->inuse || ent->ai)
 		return;
 
 	va_start (argptr,fmt);
@@ -143,7 +143,7 @@ void safe_bprintf (int printlevel, char *fmt, ...)
 	for (i=0 ; i<maxclients->value ; i++)
 	{
 		cl_ent = g_edicts + 1 + i;
-		if (!cl_ent->inuse || cl_ent->ai.is_bot)
+		if (!cl_ent->inuse || cl_ent->ai)
 			continue;
 
 		gi.cprintf(cl_ent, printlevel, bigbuffer);
