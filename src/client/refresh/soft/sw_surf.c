@@ -42,7 +42,7 @@ surfcache_t	*sc_base;
 /*
  * Color light apply is not required
  */
-static qboolean
+static int
 R_GreyscaledLight(const light3_t light)
 {
 	light3_t light_masked;
