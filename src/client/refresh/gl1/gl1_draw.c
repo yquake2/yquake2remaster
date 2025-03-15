@@ -112,18 +112,24 @@ RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 
 			if (value >= 32 && value < MAX_FONTCODE)
 			{
+				float xf = 0, yf = 0, xdiff;
 				stbtt_aligned_quad q;
-				float xf = 0, yf = 0;
 
 				stbtt_GetBakedQuad(draw_fontcodes, gl_font_height, gl_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
+				xdiff = (8 - xf / font_scale) / 2;
+				if (xdiff < 0)
+				{
+					xdiff = 0;
+				}
+
 				R_UpdateGLBuffer(buf_2d, alt ? draw_font_alt->texnum : draw_font->texnum, 0, 0, 1);
 
 				R_Buffer2DQuad(
-					(float)(x + q.x0 * scale / font_scale),
+					(float)(x + (xdiff + q.x0 / font_scale) * scale),
 					(float)(y + q.y0 * scale / font_scale + 8 * scale),
-					x + q.x1 * scale / font_scale,
+					x + (xdiff + q.x1 / font_scale) * scale,
 					y + q.y1 * scale / font_scale + 8 * scale,
 					q.s0, q.t0, q.s1, q.t1);
 				x += Q_max(8, xf / font_scale) * scale;

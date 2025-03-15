@@ -184,16 +184,22 @@ GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 
 			if (value >= 32 && value < MAX_FONTCODE)
 			{
+				float xf = 0, yf = 0, xdiff;
 				stbtt_aligned_quad q;
-				float xf = 0, yf = 0;
 
 				stbtt_GetBakedQuad(draw_fontcodes, gl3_font_height, gl3_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
+				xdiff = (8 - xf / font_scale) / 2;
+				if (xdiff < 0)
+				{
+					xdiff = 0;
+				}
+
 				GL3_UseProgram(gl3state.si2D.shaderProgram);
 				GL3_Bind(alt ? draw_font_alt->texnum : draw_font->texnum);
 				drawTexturedRectangle(
-					(float)(x + q.x0 * scale / font_scale),
+					(float)(x + (xdiff + q.x0 / font_scale) * scale),
 					(float)(y + q.y0 * scale / font_scale + 8 * scale),
 					(q.x1 - q.x0) * scale / font_scale,
 					(q.y1 - q.y0) * scale / font_scale,
