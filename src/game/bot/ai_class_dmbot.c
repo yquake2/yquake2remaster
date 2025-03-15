@@ -40,11 +40,17 @@ static gitem_t *blueflag;
 // BOT_DMclass_Move
 // DMClass is generic bot class
 //==========================================
-void BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
+static void
+BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 {
 	int next_node_flags = 0;
 	int	current_link_type = 0;
 	int i;
+
+	if (self->ai->next_node < 0)
+	{
+		return;
+	}
 
 	next_node_flags = nodes[self->ai->next_node].flags;
 	if( AI_PlinkExists( self->ai->current_node, self->ai->next_node ))

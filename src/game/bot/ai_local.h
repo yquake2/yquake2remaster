@@ -173,3 +173,7 @@ qboolean	BOT_ChangeWeapon (edict_t *ent, gitem_t *item);
 void		AI_InitAIWeapons(void);
 
 qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, edict_t *passent);
+
+//	A* PROPS
+//===========================================
+qboolean AStar_GetPath(int origin, int goal, int movetypes, struct astarpath_s *path);
