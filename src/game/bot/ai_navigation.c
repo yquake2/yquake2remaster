@@ -30,7 +30,6 @@
 
 #include "../header/local.h"
 #include "ai_local.h"
-#include "astar.h"
 
 
 //==========================================
