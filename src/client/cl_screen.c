@@ -1414,6 +1414,53 @@ SCR_ExecuteLayoutString(char *s)
 			continue;
 		}
 
+		if (!strcmp(token, "pici"))
+		{
+			int index, value;
+
+			token = COM_Parse(&s);
+			index = (int)strtol(token, (char **)NULL, 10);
+
+			if (!(cl.frame.playerstate.stats[STAT_LAYOUTS] & 4))
+			{
+				continue;
+			}
+
+			if ((index < 0) || (index >= MAX_STATS))
+			{
+				Com_DPrintf("%s: bad stats index %d (0x%x) in pici\n",
+					__func__, index, index);
+				continue;
+			}
+
+			value = cl.frame.playerstate.stats[index];
+			value &= 0x7FFF;
+
+			if (value >= MAX_IMAGES)
+			{
+				Com_DPrintf("%s: Pic %d >= MAX_IMAGES in pici\n",
+					__func__, value);
+				continue;
+			}
+
+			if (cl.configstrings[CS_IMAGES + value][0] != '\0')
+			{
+				char* image;
+
+				image = cl.configstrings[CS_IMAGES + value];
+				if (*image && image[0])
+				{
+					int w, h;
+
+					Draw_GetPicSize(&w, &h, image);
+					SCR_AddDirtyPoint(x, y);
+					SCR_AddDirtyPoint(x + (w - 1) * scale, y + (h - 1) * scale);
+					Draw_PicScaled(x, y, image, scale);
+				}
+			}
+			continue;
+		}
+
 		if (!strcmp(token, "endif") || (token && !token[0]))
 		{
 			/* just skip endif and empty line */
