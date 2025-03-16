@@ -3626,3 +3626,54 @@ SP_npc_timeminder(edict_t *self)
 
 	gi.linkentity(self);
 }
+
+/*
+ * QUAKED misc_remote_camera (1 0 0) (-32 -32 -24) (32 32 -16)
+ *
+ * Heretic 2: Remote Camera
+ *
+ *
+ * spawnflags:
+ *   1: Only for activator
+ *   2: Scripted camera (follow pathtarget?)
+ *   4: Don't delete camera
+ * pathtarget: Owner entity (optional)
+ * delay: Delay
+ */
+void
+misc_remote_camera_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	printf("%s: called for %s\n", __func__, self->target);
+}
+
+void
+misc_remote_camera_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	printf("%s: called for %s\n", __func__, self->target);
+}
+
+void
+SP_misc_remote_camera(edict_t *self)
+{
+	self->enemy = self->target_ent = NULL;
+
+	printf("camera: %s\n", self->target);
+	if (!self->target)
+	{
+		gi.dprintf("Object 'misc_remote_camera' without a target.\n");
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+	VectorSet(self->mins, -32, -32, -24);
+	VectorSet(self->maxs, 32, 32, -16);
+	self->count = 0;
+
+	self->use = misc_remote_camera_use;
+	self->touch = misc_remote_camera_touch;
+	gi.setmodel(self, "models/objects/gibs/arm/tris.md2");
+	gi.linkentity(self);
+}

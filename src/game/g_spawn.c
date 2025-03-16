@@ -1270,6 +1270,84 @@ static char *roarke_statusbar =
 	"endif"
 ;
 
+static char *heretic2_statusbar =
+/* Green mana bar */
+	"yb	-74 "
+	"xl 16 "
+	"bar 8 16 60 "
+
+	"yb -44 "
+
+/* Weapon */
+	"xl	40 "
+	"pic 4 "
+
+/* Ammo */
+	"xl 76 "
+	"pic 2 "
+	"am "
+
+/* Armour */
+	"xr -152 "
+	"pic 34 "
+	"arm "
+
+/* Health */
+	"xr -112 "
+	"pic 0 "
+	"hnum "
+
+/* Defence */
+	"if 6 "
+	"	yb -44 "
+	"	xr -72 "
+	"	pic 6 "
+	"endif "
+
+/* Blue mana bar */
+	"yb	-74 "
+	"xr -32 "
+	"bar 11 16 60 "
+
+	" yt 16 "
+
+/* Lung time left */
+	"if 28 "
+	"	xl 32 "
+	"	bar 26 60 16 "
+	"endif "
+
+/* Powerup time left */
+	"if 25 "
+	"	xr -96 "
+	"	bar 23 60 16 "
+	"endif "
+
+	"yt	16 "
+
+/* Inventory Puzzle Item 1 */
+	"xc 0 "
+	"pici 18 "
+
+/* Puzzle 2 */
+	"xc 40 "
+	"pici 19 "
+
+/* Puzzle 3 */
+	"xc 80 "
+	"pici 20 "
+
+/* Puzzle 4 */
+	"xc 120 "
+	"pici 21 "
+
+/* Boss Life Meter */
+	"if 31 "
+	"	xl 32 "
+	"	gbar 29 "
+	"endif "
+;
+
 /*
  * QUAKED worldspawn (0 0 0) ?
  *
@@ -1363,6 +1441,10 @@ SP_worldspawn(edict_t *ent)
 		if (!strcmp(g_game->string, "roarke")) /* DoD */
 		{
 			gi.configstring(CS_STATUSBAR, roarke_statusbar);
+		}
+		else if (!strcmp(g_game->string, "heretic2"))
+		{
+			gi.configstring(CS_STATUSBAR, heretic2_statusbar);
 		}
 		else
 		{
