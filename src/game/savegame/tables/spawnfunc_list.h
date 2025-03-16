@@ -99,6 +99,7 @@
 {"misc_flare", SP_misc_flare},
 {"misc_model", SP_misc_model},
 {"misc_player_mannequin", SP_misc_player_mannequin},
+{"misc_remote_camera", SP_misc_remote_camera},
 {"misc_satellite_dish", SP_misc_satellite_dish},
 {"misc_strogg_ship", SP_misc_strogg_ship},
 {"misc_teleporter", SP_misc_teleporter},
