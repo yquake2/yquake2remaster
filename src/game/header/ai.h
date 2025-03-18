@@ -30,8 +30,9 @@
 
 //	declaration of botedict for the game
 //----------------------------------------------------------
-#define MAX_BOT_ROAMS		128
-#define MAX_NODES			2048		//jalToDo: needs dynamic alloc (big terrain maps)
+#define MAX_BOT_ROAMS 128
+/* jalToDo: needs dynamic alloc (big terrain maps) */
+#define MAX_NODES 2048
 
 typedef struct astarpath_s
 {
@@ -43,89 +44,83 @@ typedef struct astarpath_s
 
 typedef struct
 {
-	qboolean	jumpadReached;
-	qboolean	TeleportReached;
+	qboolean jumpadReached;
+	qboolean TeleportReached;
 
-	float		inventoryWeights[MAX_ITEMS];
-	float		playersWeights[MAX_EDICTS];
-	float		broam_timeouts[MAX_BOT_ROAMS];	//revisit bot roams
-
+	float inventoryWeights[MAX_ITEMS];
+	float playersWeights[MAX_EDICTS];
+	float broam_timeouts[MAX_BOT_ROAMS];	//revisit bot roams
 } ai_status_t;
 
 typedef struct
 {
-	char		*netname;
-	int			skillLevel;			// Affects AIM and fire rate
-	int			moveTypesMask;		// bot can perform these moves, to check against required moves for a given path
+	char *netname;
+	int skillLevel;         // Affects AIM and fire rate
+	int moveTypesMask;      // bot can perform these moves, to check against required moves for a given path
 
-	float		inventoryWeights[MAX_ITEMS];
+	float inventoryWeights[MAX_ITEMS];
 
 	//class based functions
-	void		(*UpdateStatus)(edict_t *ent);
-	void		(*RunFrame)(edict_t *ent);
-	void		(*bloquedTimeout)(edict_t *ent);
-	void		(*deadFrame)(edict_t *ent);
-
+	void (*UpdateStatus)(edict_t *ent);
+	void (*RunFrame)(edict_t *ent);
+	void (*bloquedTimeout)(edict_t *ent);
+	void (*deadFrame)(edict_t *ent);
 } ai_pers_t;
 
 typedef struct
 {
-	ai_pers_t		pers;			//persistant definition (class?)
-	ai_status_t		status;			//player (bot, NPC) status for AI frame
+	ai_pers_t pers;          /* persistant definition (class?) */
+	ai_status_t status;      /* player (bot, NPC) status for AI frame */
 
-	qboolean		is_bot;			//used for fakeclient classname determination
+	qboolean is_bot;         /* used for fakeclient classname determination */
 
-	//NPC state
-	int				state;			// Bot State (WANDER, MOVE, etc)
-	float			state_combat_timeout;
+	/* NPC state */
+	int state;              /* Bot State (WANDER, MOVE, etc) */
+	float state_combat_timeout;
 
-	// movement
-	vec3_t			move_vector;
-	float			next_move_time;
-	float			wander_timeout;
-	float			bloqued_timeout;
-	float			changeweapon_timeout;
+	/* movement */
+	vec3_t move_vector;
+	float next_move_time;
+	float wander_timeout;
+	float bloqued_timeout;
+	float changeweapon_timeout;
 
-	// nodes
-	int				current_node;
-	int				goal_node;
-	int				next_node;
-	int				node_timeout;
+	/* nodes */
+	int current_node;
+	int goal_node;
+	int next_node;
+	int node_timeout;
 
-	int				tries;
+	int tries;
 
-	struct astarpath_s	path; //jabot092
+	struct astarpath_s path; /* jabot092 */
 
-	int				nearest_node_tries;	//for increasing radius of search with each try
+	int nearest_node_tries; /*for increasing radius of search with each try */
 
 } ai_handle_t;
 
+/* ai_main.c */
+void AI_Init(void);
+void AI_NewMap(void);
+void G_FreeAI( edict_t *ent );
+void G_SpawnAI( edict_t *ent );
 
-// bot_cmds.c
-qboolean	BOT_ServerCommand(void);
+/* ai_items.c */
+void AI_EnemyAdded(edict_t *ent);
+void AI_EnemyRemoved(edict_t *ent);
 
-// ai_main.c
-void		AI_Init(void);
-void		AI_NewMap(void);
-void		G_FreeAI( edict_t *ent );
-void		G_SpawnAI( edict_t *ent );
+/* bot_spawn.c */
+void BOT_SpawnBot(char *team, char *name, char *skin, char *userinfo);
+void BOT_RemoveBot(char *name);
+void BOT_Respawn(edict_t *self);
 
-// ai_items.c
-void		AI_EnemyAdded(edict_t *ent);
-void		AI_EnemyRemoved(edict_t *ent);
+/* ai_tools.c */
+void AIDebug_ToogleBotDebug(void);
+void AITools_Frame(void);
+void AITools_DropNodes(edict_t *ent);
 
-// bot_spawn.c
-void		BOT_SpawnBot(char *team, char *name, char *skin, char *userinfo);
-void		BOT_RemoveBot(char *name);
-void		BOT_Respawn(edict_t *self);
-
-// ai_tools.c
-void		AIDebug_ToogleBotDebug(void);
-
-void		AITools_Frame(void);
-void		AITools_DropNodes(edict_t *ent);
-
-// safe **cough** prints
-void		safe_cprintf(edict_t *ent, int printlevel, char *fmt, ...);
-void		safe_centerprintf(edict_t *ent, char *fmt, ...);
-void		safe_bprintf(int printlevel, char *fmt, ...);
+/* ai_dropnodes.c */
+void AITools_AddBotRoamNode(void);
+void AITools_SaveNodes(void);
+void AITools_InitEditnodes(void);
+void AITools_InitMakenodes(void);

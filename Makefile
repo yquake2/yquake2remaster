@@ -971,7 +971,6 @@ GAME_OBJS_ = \
 	src/game/bot/ai_tools.o \
 	src/game/bot/ai_weapons.o \
 	src/game/bot/astar.o \
-	src/game/bot/bot_common.o \
 	src/game/bot/bot_spawn.o \
 	src/game/g_ai.o \
 	src/game/g_chase.o \

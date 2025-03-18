@@ -712,6 +712,8 @@ G_InitEdict(edict_t *e)
 	e->gravityVector[0] = 0.0;
 	e->gravityVector[1] = 0.0;
 	e->gravityVector[2] = -1.0;
+
+	VectorSet(e->rrs.scale, 1.0, 1.0, 1.0);
 }
 
 /*

@@ -292,17 +292,22 @@ void BOT_StartAsSpectator (edict_t *ent)
 // BOT_JoinGame
 // 3 for teams and such
 //==========================================
-void BOT_JoinBlue (edict_t *ent)
+static void
+BOT_JoinBlue(edict_t *ent)
 {
-	BOT_DMClass_JoinGame( ent, "blue" );
+	BOT_DMClass_JoinGame(ent, "blue");
 }
-void BOT_JoinRed (edict_t *ent)
+
+static void
+BOT_JoinRed(edict_t *ent)
 {
-	BOT_DMClass_JoinGame( ent, "red" );
+	BOT_DMClass_JoinGame(ent, "red");
 }
-void BOT_JoinGame (edict_t *ent)
+
+static void
+BOT_JoinGame(edict_t *ent)
 {
-	BOT_DMClass_JoinGame( ent, NULL );
+	BOT_DMClass_JoinGame(ent, NULL);
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -310,61 +315,75 @@ void BOT_JoinGame (edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 {
-	edict_t	*bot;
+	edict_t *bot;
 
-	if( !nav.loaded ) {
+	if(!nav.loaded)
+	{
 		Com_Printf("Can't spawn bots without a valid navigation file\n");
 		return;
 	}
 
-	bot = BOT_FindFreeClient ();
+	bot = BOT_FindFreeClient();
 
 	if (!bot)
 	{
-		safe_bprintf (PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
+		gi.bprintf(PRINT_MEDIUM, "Server is full, increase Maxclients.\n");
 		return;
 	}
 
-	//init the bot
+	/* init the bot */
 	bot->inuse = true;
 	bot->yaw_speed = 100;
 
-	// To allow bots to respawn
+	/* To allow bots to respawn */
 	if(userinfo == NULL)
+	{
 		BOT_SetName(bot, name, skin, team);
+	}
 	else
-		ClientConnect (bot, userinfo);
+	{
+		ClientConnect(bot, userinfo);
+	}
 
-	G_InitEdict (bot);
-	G_SpawnAI(bot); //jabot092(2)
+	G_InitEdict(bot);
+	G_SpawnAI(bot);
 	bot->ai->is_bot = true;
-	InitClientResp (bot->client);
+	InitClientResp(bot->client);
 
 	PutClientInServer(bot);
-	BOT_StartAsSpectator (bot);
+	BOT_StartAsSpectator(bot);
 
-	//skill
-	bot->ai->pers.skillLevel = (int)(random()*MAX_BOT_SKILL);
-	if (bot->ai->pers.skillLevel > MAX_BOT_SKILL)	//fix if off-limits
+	/* skill */
+	bot->ai->pers.skillLevel = (int)(random() * MAX_BOT_SKILL);
+	if (bot->ai->pers.skillLevel > MAX_BOT_SKILL)
+	{
+		/* fix if off-limits */
 		bot->ai->pers.skillLevel =  MAX_BOT_SKILL;
+	}
 	else if (bot->ai->pers.skillLevel < 0)
+	{
 		bot->ai->pers.skillLevel =  0;
+	}
 
 	BOT_DMclass_InitPersistant(bot);
 	AI_ResetWeights(bot);
 	AI_ResetNavigation(bot);
 
 	bot->think = BOT_JoinGame;
-	bot->nextthink = level.time + (int)(random()*6.0);
-	if( ctf->value && team != NULL )
+	bot->nextthink = level.time + (int)(random() * 6.0);
+	if(ctf->value && team != NULL)
 	{
-		if( !Q_stricmp( team, "blue" ) )
+		if (!Q_stricmp(team, "blue"))
+		{
 			bot->think = BOT_JoinBlue;
-		else if( !Q_stricmp( team, "red" ) )
+		}
+		else if (!Q_stricmp( team, "red"))
+		{
 			bot->think = BOT_JoinRed;
+		}
 	}
 
-	AI_EnemyAdded (bot); // let the ai know we added another
+	AI_EnemyAdded(bot); // let the ai know we added another
 }
 
 
@@ -376,22 +395,27 @@ void BOT_RemoveBot(char *name)
 	int i;
 	edict_t *bot;
 
-	for(i=0;i<maxclients->value;i++)
+	for (i = 0; i < maxclients->value; i++)
 	{
 		bot = g_edicts + i + 1;
-		if( !bot->inuse || !bot->ai )  //jabot092(2)
-			continue;
 
-		if( bot->ai->is_bot && (!strcmp(bot->client->pers.netname,name) || !strcmp(name,"all")))
+		if (!bot->inuse || !bot->ai)
+		{
+			continue;
+		}
+
+		if (bot->ai->is_bot &&
+			(!strcmp(bot->client->pers.netname,name) || !strcmp(name,"all")))
 		{
 			bot->health = 0;
 			player_die (bot, bot, bot, 100000, vec3_origin);
-			// don't even bother waiting for death frames
+
+			/* don't even bother waiting for death frames */
 			bot->deadflag = DEAD_DEAD;
 			bot->inuse = false;
-			AI_EnemyRemoved (bot);
-			G_FreeAI( bot ); //jabot092(2)
-			//safe_bprintf (PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
+			AI_EnemyRemoved(bot);
+			G_FreeAI(bot);
+			gi.bprintf(PRINT_MEDIUM, "%s removed\n", bot->client->pers.netname);
 		}
 	}
 }

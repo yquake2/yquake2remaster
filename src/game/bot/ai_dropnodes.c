@@ -329,12 +329,13 @@ void AI_WaterJumpNode( void )
 //==========================================
 static float last_update=0;
 #define NODE_UPDATE_DELAY	0.10;
-void AI_PathMap( void )
+void
+AI_PathMap(void)
 {
-	int			 closest_node;
+	int closest_node;
 
 	//DROP WATER JUMP NODE (not limited by delayed updates)
-	if ( !player.ent->is_swim && player.last_node != -1
+	if (!player.ent->is_swim && player.last_node != -1
 		&& player.ent->is_swim != player.ent->was_swim)
 	{
 		AI_WaterJumpNode();
@@ -342,15 +343,19 @@ void AI_PathMap( void )
 		return;
 	}
 
-	if( level.time < last_update )
+	if (level.time < last_update)
+	{
 		return;
+	}
 
 	last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
 
 	//don't drop nodes when riding movers
-	if( player.ent->groundentity && player.ent->groundentity != world) {
-		if( player.ent->groundentity->classname ) {
-			if( !strcmp( player.ent->groundentity->classname, "func_plat")
+	if (player.ent->groundentity && player.ent->groundentity != world)
+	{
+		if (player.ent->groundentity->classname)
+		{
+			if (!strcmp( player.ent->groundentity->classname, "func_plat")
 				|| !strcmp(player.ent->groundentity->classname, "trigger_push")
 				|| !strcmp(player.ent->groundentity->classname, "func_train")
 				|| !strcmp(player.ent->groundentity->classname, "func_rotate")
@@ -361,7 +366,7 @@ void AI_PathMap( void )
 	}
 
 	// Special check for ladder nodes
-	if(AI_CheckForLadder(player.ent))
+	if (AI_CheckForLadder(player.ent))
 		return;
 
 	// Not on ground, and not in the water, so bail (deeper check by using a splitmodels function)

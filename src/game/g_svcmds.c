@@ -324,13 +324,6 @@ ServerCommand(void)
 {
 	char *cmd;
 
-	// JABot[start]
-	if (BOT_ServerCommand())
-	{
-		return;
-	}
-	// [end]
-
 	cmd = gi.argv(1);
 
 	if (Q_stricmp(cmd, "test") == 0)
@@ -354,6 +347,33 @@ ServerCommand(void)
 		SVCmd_WriteIP_f();
 	}
 	/* JABot[start] */
+	else if (Q_stricmp(cmd, "addbot") == 0)
+	{
+		if (ctf->value) // name, skin, team
+		{
+			BOT_SpawnBot(gi.argv(2), gi.argv(3), gi.argv(4), NULL);
+		}
+		else // name, skin
+		{
+			BOT_SpawnBot(NULL, gi.argv(2), gi.argv(3), NULL);
+		}
+	}
+	else if (Q_stricmp(cmd, "editnodes") == 0)
+	{
+		AITools_InitEditnodes();
+	}
+	else if (!Q_stricmp(cmd, "makenodes"))
+	{
+		AITools_InitMakenodes();
+	}
+	else if (!Q_stricmp (cmd, "savenodes"))
+	{
+		AITools_SaveNodes();
+	}
+	else if (!Q_stricmp (cmd, "addbotroam"))
+	{
+		AITools_AddBotRoamNode();
+	}
 	else if(Q_stricmp(cmd, "removebot") == 0)
 	{
 		BOT_RemoveBot(gi.argv(2));

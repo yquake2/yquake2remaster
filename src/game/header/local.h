@@ -1517,7 +1517,7 @@ struct edict_s
 	int chasedist1;
 	int chasedist2;
 
-	ai_handle_t		*ai;		//jabot092(2)
+	ai_handle_t *ai;       /* jabot */
 	qboolean		is_swim;	//AI_CategorizePosition
 	qboolean		is_step;
 	qboolean		is_ladder;

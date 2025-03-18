@@ -85,12 +85,15 @@ void G_FreeAI( edict_t *ent )
 // G_SpawnAI
 // allocate ai_handle_t for this entity
 //==========================================
-void G_SpawnAI( edict_t *ent )
+void
+G_SpawnAI(edict_t *ent)
 {
-	if( !ent->ai )
-		ent->ai = gi.TagMalloc (sizeof(ai_handle_t), TAG_LEVEL);
+	if(!ent->ai)
+	{
+		ent->ai = gi.TagMalloc(sizeof(ai_handle_t), TAG_LEVEL);
+	}
 
-	memset( ent->ai, 0, sizeof(ai_handle_t));
+	memset(ent->ai, 0, sizeof(ai_handle_t));
 }
 
 //==========================================
@@ -422,17 +425,20 @@ void AI_PickShortRangeGoal(edict_t *self)
 //  AI_CategorizePosition
 //  Categorize waterlevel and groundentity/stepping
 //===================
-void AI_CategorizePosition (edict_t *ent)
+void
+AI_CategorizePosition(edict_t *ent)
 {
 	qboolean stepping = AI_IsStep(ent);
 
 	ent->was_swim = ent->is_swim;
 	ent->was_step = ent->is_step;
 
-	ent->is_ladder = AI_IsLadder( ent->s.origin, ent->s.angles, ent->mins, ent->maxs, ent );
+	ent->is_ladder = AI_IsLadder(ent->s.origin, ent->s.angles,
+		ent->mins, ent->maxs, ent);
 
 	M_CatagorizePosition(ent);
-	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping)) {
+	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping))
+	{
 		ent->is_swim = true;
 		ent->is_step = false;
 		return;
@@ -447,25 +453,32 @@ void AI_CategorizePosition (edict_t *ent)
 // AI_Think
 // think funtion for AIs
 //==========================================
-void AI_Think (edict_t *self)
+void
+AI_Think(edict_t *self)
 {
-	if( !self->ai )	//jabot092(2)
+	if (!self->ai )	//jabot092(2)
+	{
 		return;
+	}
 
 	AIDebug_SetChased(self);	//jal:debug shit
 	AI_CategorizePosition(self);
 
 	//freeze AI when dead
-	if( self->deadflag ) {
+	if (self->deadflag)
+	{
 		self->ai->pers.deadFrame(self);
 		return;
 	}
 
 	//if completely stuck somewhere
-	if(VectorLength(self->velocity) > 37)
+	if (VectorLength(self->velocity) > 37)
+	{
 		self->ai->bloqued_timeout = level.time + 10.0;
+	}
 
-	if( self->ai->bloqued_timeout < level.time ) {
+	if (self->ai->bloqued_timeout < level.time)
+	{
 		self->ai->pers.bloquedTimeout(self);
 		return;
 	}
@@ -474,23 +487,26 @@ void AI_Think (edict_t *self)
 	self->ai->pers.UpdateStatus(self);
 
 	//update position in path, set up move vector
-	if( self->ai->state == BOT_STATE_MOVE ) {
-
-		if( !AI_FollowPath(self) )
+	if (self->ai->state == BOT_STATE_MOVE)
+	{
+		if (!AI_FollowPath(self))
 		{
-			AI_SetUpMoveWander( self );
+			AI_SetUpMoveWander(self);
 			self->ai->wander_timeout = level.time - 1;	//do it now
 		}
 	}
 
-	//pick a new long range goal
-	if( self->ai->state == BOT_STATE_WANDER && self->ai->wander_timeout < level.time)
+	/* pick a new long range goal */
+	if (self->ai->state == BOT_STATE_WANDER &&
+		self->ai->wander_timeout < level.time)
+	{
 		AI_PickLongRangeGoal(self);
+	}
 
-	//Find any short range goal
+	/* Find any short range goal */
 	AI_PickShortRangeGoal(self);
 
-	//run class based states machine
+	/* run class based states machine */
 	self->ai->pers.RunFrame(self);
 }
 

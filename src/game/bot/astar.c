@@ -33,20 +33,19 @@
 static int alist[MAX_NODES];	//list contains all studied nodes, Open and Closed together
 static int alist_numNodes;
 
-enum {
+typedef enum {
 	NOLIST,
 	OPENLIST,
 	CLOSEDLIST
-};
+} astarnodelist_e;
 
 typedef struct
 {
-	int	parent;
-	int		G;
-	int		H;
+	int parent;
+	int G;
+	int H;
 
-	int	list;
-
+	astarnodelist_e list;
 } astarnode_t;
 
 static astarnode_t	astarnodes[MAX_NODES];
@@ -109,7 +108,7 @@ AStar_nodeIsInOpen(int node)
 }
 
 static void
-AStar_InitLists(void)
+AStar_InitLists(struct astarpath_s *path)
 {
 	size_t i;
 
@@ -120,6 +119,8 @@ AStar_InitLists(void)
 		astarnodes[i].parent = 0;
 		astarnodes[i].list = NOLIST;
 	}
+
+	Apath = path;
 
 	if(Apath)
 	{
@@ -326,7 +327,7 @@ AStar_FillLists(void)
 }
 
 static qboolean
-AStar_ResolvePath(int origin, int goal, int movetypes)
+AStar_ResolvePath(int origin, int goal, int movetypes, struct astarpath_s *path)
 {
 	if (origin < 0 || goal < 0)
 	{
@@ -339,7 +340,7 @@ AStar_ResolvePath(int origin, int goal, int movetypes)
 		ValidLinksMask = DEFAULT_MOVETYPES_MASK;
 	}
 
-	AStar_InitLists();
+	AStar_InitLists(path);
 
 	currentNode = originNode = origin;
 	goalNode = goal;
@@ -360,9 +361,7 @@ AStar_ResolvePath(int origin, int goal, int movetypes)
 qboolean
 AStar_GetPath(int origin, int goal, int movetypes, struct astarpath_s *path)
 {
-	Apath = path;
-
-	if( !AStar_ResolvePath ( origin, goal, movetypes ) )
+	if (!AStar_ResolvePath(origin, goal, movetypes, path))
 	{
 		return false;
 	}
