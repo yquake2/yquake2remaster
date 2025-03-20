@@ -232,7 +232,7 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 		}
 	}
 
-	if( self->ai->pers.moveTypesMask & LINK_CROUCH || self->is_swim )
+	if( self->ai->pers.moveTypesMask & LINK_CROUCH || self->ai->is_swim )
 	{
 		//crouch box
 		VectorCopy( self->s.origin, boxorigin );

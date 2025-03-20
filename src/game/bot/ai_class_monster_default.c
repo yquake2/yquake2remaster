@@ -61,7 +61,7 @@ void M_default_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Falling off ledge
-	if(!self->groundentity && !self->is_step && !self->is_swim )
+	if(!self->groundentity && !self->ai->is_step && !self->ai->is_swim )
 	{
 		AI_ChangeAngle(self);
 		if (current_link_type == LINK_JUMPPAD ) {
@@ -78,7 +78,7 @@ void M_default_Move(edict_t *self, usercmd_t *ucmd)
 
 
 	// swimming
-	if( self->is_swim )
+	if( self->ai->is_swim )
 	{
 		// We need to be pointed up/down
 		AI_ChangeAngle(self);

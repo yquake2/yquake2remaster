@@ -96,7 +96,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Ladder movement
-	if( self->is_ladder )
+	if( self->ai->is_ladder )
 	{
 		ucmd->forwardmove = 70;
 		ucmd->upmove = 200;
@@ -105,7 +105,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Falling off ledge
-	if(!self->groundentity && !self->is_step && !self->is_swim )
+	if(!self->groundentity && !self->ai->is_step && !self->ai->is_swim )
 	{
 		AI_ChangeAngle(self);
 		if (current_link_type == LINK_JUMPPAD ) {
@@ -153,7 +153,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 		return;
 
 	// swimming
-	if( self->is_swim )
+	if( self->ai->is_swim )
 	{
 		// We need to be pointed up/down
 		AI_ChangeAngle(self);
@@ -266,7 +266,7 @@ void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 
 		self->s.angles[YAW] += random() * 180 - 90;
 
-		if (!self->is_step)// if there is ground continue otherwise wait for next move
+		if (!self->ai->is_step)// if there is ground continue otherwise wait for next move
 			ucmd->forwardmove = 0; //0
 		else if( AI_CanMove( self, BOT_MOVE_FORWARD))
 			ucmd->forwardmove = 100;
