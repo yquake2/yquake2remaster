@@ -95,6 +95,12 @@ typedef struct
 
 	int nearest_node_tries; /*for increasing radius of search with each try */
 
+	/* AI_CategorizePosition */
+	qboolean is_swim;
+	qboolean is_step;
+	qboolean is_ladder;
+	qboolean was_swim;
+	qboolean was_step;
 } ai_handle_t;
 
 /* ai_main.c */

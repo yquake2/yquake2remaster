@@ -362,24 +362,30 @@ void AI_PickShortRangeGoal(edict_t *self)
 void
 AI_CategorizePosition(edict_t *ent)
 {
-	qboolean stepping = AI_IsStep(ent);
+	qboolean stepping;
 
-	ent->was_swim = ent->is_swim;
-	ent->was_step = ent->is_step;
+	if (!ent || !ent->ai)
+	{
+		return;
+	}
 
-	ent->is_ladder = AI_IsLadder(ent->s.origin, ent->s.angles,
+	stepping = AI_IsStep(ent);
+	ent->ai->was_swim = ent->ai->is_swim;
+	ent->ai->was_step = ent->ai->is_step;
+
+	ent->ai->is_ladder = AI_IsLadder(ent->s.origin, ent->s.angles,
 		ent->mins, ent->maxs, ent);
 
 	M_CatagorizePosition(ent);
 	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping))
 	{
-		ent->is_swim = true;
-		ent->is_step = false;
+		ent->ai->is_swim = true;
+		ent->ai->is_step = false;
 		return;
 	}
 
-	ent->is_swim = false;
-	ent->is_step = stepping;
+	ent->ai->is_swim = false;
+	ent->ai->is_step = stepping;
 }
 
 
