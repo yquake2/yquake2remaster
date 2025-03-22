@@ -697,6 +697,27 @@ RI_RegisterModel(const char *name)
 	return mod;
 }
 
+const dmdxframegroup_t *
+RI_GetFrameGroups(const char *name, int *num)
+{
+	model_t *mod;
+
+	mod = Mod_ForName(name, NULL, false);
+
+	if (mod)
+	{
+		dmdx_t *paliashdr;
+
+		paliashdr = (dmdx_t *)mod->extradata;
+		*num = paliashdr->num_animgroup;
+
+		return (dmdxframegroup_t *)((char *)paliashdr + paliashdr->ofs_animgroup);
+	}
+
+	*num = 0;
+	return NULL;
+}
+
 void
 RI_EndRegistration(void)
 {

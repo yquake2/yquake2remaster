@@ -183,12 +183,44 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	gi.centerprintf(other, "Entity description: %s", self->message);
 }
 
+void
+dynamicspawn_think(edict_t *self)
+{
+	int num, i, ofs_frames = 0, num_frames = 1;
+	const dmdxframegroup_t * frames;
+
+	frames = gi.SV_GetFrameGroups(self->s.modelindex, &num);
+	for (i = 0; i < num; i++)
+	{
+		if (!strcmp(frames[i].name, "frame"))
+		{
+			ofs_frames = frames[i].ofs;
+			num_frames = frames[i].num;
+			break;
+		}
+	}
+
+	i = self->s.frame - ofs_frames;
+	if (i < 0)
+	{
+		i = 0;
+	}
+	i++;
+
+	self->s.frame = ofs_frames + i % num_frames;
+	self->nextthink = level.time + FRAMETIME;
+}
+
 static void
 DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
+	self->think = dynamicspawn_think;
+	self->nextthink = level.time + FRAMETIME;
+
+	self->s.frame = 0;
 
 	/* set message only if it has description */
 	if (data->description[0])

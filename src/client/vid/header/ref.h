@@ -188,6 +188,7 @@ typedef struct
 	void	(EXPORT *BeginRegistration) (const char *map);
 	struct model_s * (EXPORT *RegisterModel) (const char *name);
 	struct image_s * (EXPORT *RegisterSkin) (const char *name);
+	const dmdxframegroup_t * (EXPORT *GetFrameGroups)(const char *name, int *num);
 
 	void	(EXPORT *SetSky) (const char *name, float rotate, int autorotate, const vec3_t axis);
 	void	(EXPORT *EndRegistration) (void);

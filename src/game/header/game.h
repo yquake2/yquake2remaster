@@ -214,7 +214,8 @@ typedef struct
 	void (*FS_FreeFile)(void *buf);
 	const char * (*FS_Gamedir)(void);
 	void (*FS_CreatePath)(const char *path);
-	const char * (*get_configstring)(int num);
+	const char * (*SV_GetConfigString)(int num);
+	const dmdxframegroup_t * (*SV_GetFrameGroups)(int index, int *num);
 } game_import_t;
 
 /* functions exported by the game subsystem */
