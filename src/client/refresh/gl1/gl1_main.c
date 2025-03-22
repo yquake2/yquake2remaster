@@ -2157,6 +2157,7 @@ GetRefAPI(refimport_t imp)
 	refexport.BeginRegistration = RI_BeginRegistration;
 	refexport.RegisterModel = RI_RegisterModel;
 	refexport.RegisterSkin = RI_RegisterSkin;
+	refexport.GetFrameGroups = RI_GetFrameGroups;
 
 	refexport.SetSky = RI_SetSky;
 	refexport.EndRegistration = RI_EndRegistration;

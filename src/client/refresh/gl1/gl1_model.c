@@ -690,6 +690,32 @@ RI_RegisterModel(const char *name)
 	return mod;
 }
 
+static entity_framegroup_t frame;
+
+const entity_framegroup_t *
+RI_GetFrameGroups(const char *name, int *num)
+{
+	model_t *mod;
+
+	*num = 0;
+
+	mod = Mod_ForName(name, NULL, false);
+
+	if (mod)
+	{
+		dmdx_t *paliashdr;
+
+		strcpy(frame.name, "frame");
+		frame.ofs = 0;
+
+		paliashdr = (dmdx_t *)mod->extradata;
+		frame.num = paliashdr->num_frames;
+		*num = 1;
+	}
+
+	return &frame;
+}
+
 void
 RI_EndRegistration(void)
 {
