@@ -1220,7 +1220,7 @@ MD5_ComputeNormals(md5_model_t *md5file)
 /* mesh and anim should be in same buffer with zero as separator */
 void *
 Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris, ofs_st, ofs_end;
 	int i, num_verts = 0, num_tris = 0, num_glcmds = 0;
@@ -1308,15 +1308,13 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_st = ofs_tris + md5file->num_tris * 3 * sizeof(dtriangle_t);
 	ofs_end = ofs_st + md5file->num_tris * 3 * sizeof(dstvert_t);
 
-	*numskins = md5file->num_skins;
-	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	pheader->framesize = framesize;
 	pheader->skinheight = 256;
 	pheader->skinwidth = 256;
-	pheader->num_skins = *numskins;
+	pheader->num_skins = md5file->num_skins;
 	pheader->num_glcmds = num_glcmds;
 	pheader->num_frames = md5file->num_frames;
 	pheader->num_xyz = num_verts;

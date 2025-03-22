@@ -143,7 +143,7 @@ Mod_LoadModel_MDR
 */
 void *
 Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris,
 		ofs_st, ofs_end;
@@ -263,15 +263,13 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
 	ofs_end = ofs_st + num_xyz * sizeof(dstvert_t);
 
-	*numskins = num_skins;
-	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	pheader->framesize = framesize;
 	pheader->skinheight = 256;
 	pheader->skinwidth = 256;
-	pheader->num_skins = *numskins;
+	pheader->num_skins = num_skins;
 	pheader->num_glcmds = num_glcmds;
 	pheader->num_frames = pinmodel.num_frames;
 	pheader->num_xyz = num_xyz;

@@ -165,12 +165,12 @@ AI_ResetNavigation(edict_t *ent)
 void
 AI_PickLongRangeGoal(edict_t *self)
 {
-	int		i;
-	int		node;
-	float	weight,best_weight=0.0;
-	int		current_node, goal_node = INVALID;
+	int i;
+	int node;
+	float weight, best_weight = 0.0;
+	int current_node, goal_node = INVALID;
 	// edict_t *goal_ent = NULL;
-	float	cost;
+	float cost;
 	float dist;
 
 	// look for a target

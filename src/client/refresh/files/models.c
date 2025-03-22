@@ -31,7 +31,7 @@
 
 static void *
 Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, readfile_t read_file, modtype_t *type);
+	readfile_t read_file, modtype_t *type);
 
 /*
 =================
@@ -794,7 +794,7 @@ Mod_LoadModel_MDL
 */
 static void *
 Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	const mdl_header_t		*pinmodel;
 	int		version;
@@ -882,10 +882,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	/* one less as single vertx in frame by default */
 	ofs_end = ofs_imgbit + (skinwidth * skinheight * num_skins);
 
-	*numskins = num_skins;
-	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	/* copy back all values */
 	memset(pheader, 0, sizeof(*pheader));
@@ -1442,7 +1440,7 @@ Mod_LoadModel_MD3
 */
 static void *
 Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris,
 		ofs_st, ofs_end;
@@ -1529,15 +1527,13 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
 	ofs_end = ofs_st + num_tris * 3 * sizeof(dstvert_t);
 
-	*numskins = num_skins;
-	extradata = Hunk_Begin(ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	pheader->framesize = framesize;
 	pheader->skinheight = 256;
 	pheader->skinwidth = 256;
-	pheader->num_skins = *numskins;
+	pheader->num_skins = num_skins;
 	pheader->num_glcmds = num_glcmds;
 	pheader->num_frames = pinmodel.num_frames;
 	pheader->num_xyz = num_xyz;
@@ -1684,7 +1680,7 @@ ANACHRONOX Model
 */
 static void *
 Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	int framesize, ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds,
 		ofs_frames, ofs_end;
@@ -1783,11 +1779,8 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
 	ofs_end = ofs_frames + framesize * pinmodel.num_frames;
 
-	*numskins = pinmodel.num_skins;
-	extradata = Hunk_Begin(ofs_end +
-		Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	/* Copy values as we have mostly same data format */
 	memset(pheader, 0, sizeof(*pheader));
@@ -1862,7 +1855,7 @@ Mod_LoadModel_MD2
 */
 static void *
 Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds, ofs_frames, ofs_end;
 	vec3_t translate = {0, 0, 0};
@@ -1927,11 +1920,8 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
 	ofs_end = ofs_frames + framesize * pinmodel.num_frames;
 
-	*numskins = pinmodel.num_skins;
-	extradata = Hunk_Begin(ofs_end +
-		Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	/* Copy values as we have mostly same data format */
 	memset(pheader, 0, sizeof(*pheader));
@@ -2046,7 +2036,6 @@ Mod_LoadModel_Flex
 */
 static void *
 Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins,
 	modtype_t *type)
 {
 	char *src = (char *)buffer;
@@ -2159,14 +2148,13 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 				return NULL;
 			}
 
-			*numskins = dmdxheader.num_skins;
-			extradata = Hunk_Begin(dmdxheader.ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+			extradata = Hunk_Begin(dmdxheader.ofs_end);
 			pheader = Hunk_Alloc(dmdxheader.ofs_end);
-			*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 			memcpy(pheader, &dmdxheader, sizeof(*pheader));
 		}
-		else {
+		else
+		{
 			if (!pheader)
 			{
 				R_Printf(PRINT_ALL, "%s: %s has broken header.\n",
@@ -2378,7 +2366,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 
 static void *
 Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	dmdx_t dmdxheader, *pheader = NULL;
 	dkm_header_t header = {0};
@@ -2458,10 +2446,8 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	dmdxheader.ofs_imgbit = 0;
 	dmdxheader.ofs_end = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
 
-	*numskins = dmdxheader.num_skins;
-	extradata = Hunk_Begin(dmdxheader.ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(dmdxheader.ofs_end);
 	pheader = Hunk_Alloc(dmdxheader.ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
 
@@ -2494,7 +2480,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 static void *
 Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, modtype_t *type)
+	modtype_t *type)
 {
 	dmdx_t dmdxheader, *pheader = NULL;
 	vec3_t translate = {0, 0, 0};
@@ -2562,10 +2548,8 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
 	dmdxheader.ofs_imgbit = 0;
 	dmdxheader.ofs_end = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
 
-	*numskins = dmdxheader.num_skins;
-	extradata = Hunk_Begin(dmdxheader.ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(dmdxheader.ofs_end);
 	pheader = Hunk_Alloc(dmdxheader.ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
 
@@ -2591,8 +2575,7 @@ typedef struct
 } def_entry_t;
 
 static void *
-Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_file,
-	struct image_s ***skins, int *numskins)
+Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_file)
 {
 	char models_path[MAX_QPATH];
 	char base_model[MAX_QPATH * 2];
@@ -2803,10 +2786,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	dmdxheader.ofs_imgbit = 0;
 	dmdxheader.ofs_end = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
 
-	*numskins = dmdxheader.num_skins;
-	extradata = Hunk_Begin(dmdxheader.ofs_end + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(dmdxheader.ofs_end);
 	pheader = Hunk_Alloc(dmdxheader.ofs_end);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
 	for (i = 0; i < pheader->num_skins; i ++)
@@ -2872,7 +2853,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 
 static void *
 Mod_LoadModel_SDEF(const char *mod_name, const void *buffer, int modfilelen,
-	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
+	readfile_t read_file, modtype_t *type)
 {
 	void *extradata;
 	char *text;
@@ -2880,7 +2861,7 @@ Mod_LoadModel_SDEF(const char *mod_name, const void *buffer, int modfilelen,
 	text = malloc(modfilelen + 1);
 	memcpy(text, buffer, modfilelen);
 	text[modfilelen] = 0;
-	extradata = Mod_LoadModel_SDEF_Text(mod_name, text, read_file, skins, numskins);
+	extradata = Mod_LoadModel_SDEF_Text(mod_name, text, read_file);
 	free(text);
 
 	*type = mod_alias;
@@ -3223,7 +3204,7 @@ Mod_LoadModel_MDA_Free(mda_model_t *mda)
 
 static void *
 Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
-	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
+	readfile_t read_file, modtype_t *type)
 {
 	mda_model_t mda = {0};
 	const char *profile_name;
@@ -3257,7 +3238,6 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 
 		/* little bit recursive load */
 		extradata = Mod_LoadModelFile(mod_name, base, base_size,
-			skins, numskins,
 			read_file, type);
 		free(base);
 
@@ -3327,7 +3307,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len,
 
 static void *
 Mod_LoadModel_MDA(const char *mod_name, const void *buffer, int modfilelen,
-	readfile_t read_file, struct image_s ***skins, int *numskins, modtype_t *type)
+	readfile_t read_file, modtype_t *type)
 {
 	void *extradata;
 	char *text;
@@ -3337,7 +3317,7 @@ Mod_LoadModel_MDA(const char *mod_name, const void *buffer, int modfilelen,
 	text[modfilelen - 4] = 0;
 
 	extradata = Mod_LoadModel_MDA_Text(mod_name, text, modfilelen - 4,
-		read_file, skins, numskins, type);
+		read_file, type);
 
 	free(text);
 
@@ -3353,7 +3333,6 @@ support for .sp2 sprites
 */
 static void *
 Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins,
 	modtype_t *type)
 {
 	const dsprite_t *sprin;
@@ -3364,10 +3343,8 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 	sprin = (dsprite_t *)buffer;
 	numframes = LittleLong(sprin->numframes);
 
-	*numskins = numframes;
-	extradata = Hunk_Begin(modfilelen + Q_max(*numskins, MAX_MD2SKINS) * sizeof(struct image_s *));
+	extradata = Hunk_Begin(modfilelen);
 	sprout = Hunk_Alloc(modfilelen);
-	*skins = Hunk_Alloc((*numskins) * sizeof(struct image_s *));
 
 	sprout->ident = LittleLong(sprin->ident);
 	sprout->version = LittleLong(sprin->version);
@@ -3401,6 +3378,100 @@ Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen,
 
 	return extradata;
 }
+
+/*
+=================
+Mod_LoadModelFile
+=================
+*/
+static void *
+Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
+	readfile_t read_file, modtype_t *type)
+{
+	void *extradata = NULL;
+
+	/* code needs at least 2 ints for detect file type */
+	if (!buffer || modfilelen < (sizeof(unsigned) * 2))
+	{
+		return NULL;
+	}
+
+	switch (LittleLong(*(unsigned *)buffer))
+	{
+		case MDAHEADER:
+			extradata = Mod_LoadModel_MDA(mod_name, buffer, modfilelen,
+				read_file, type);
+			break;
+
+		case SDEFHEADER:
+			extradata = Mod_LoadModel_SDEF(mod_name, buffer, modfilelen,
+				read_file, type);
+			break;
+
+		case MDXHEADER:
+			extradata = Mod_LoadModel_MDX(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case DKMHEADER:
+			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case RAVENFMHEADER:
+			extradata = Mod_LoadModel_Flex(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case IDALIASHEADER:
+			{
+				/* next short after file type */
+				short version;
+
+				version = LittleShort(((short*)buffer)[2]);
+				if (version == ALIAS_ANACHRONOX_VERSION ||
+					version == ALIAS_ANACHRONOX_VERSION_OLD)
+				{
+					extradata = Mod_LoadModel_MD2Anox(mod_name, buffer, modfilelen,
+						type);
+				}
+				else
+				{
+					extradata = Mod_LoadModel_MD2(mod_name, buffer, modfilelen,
+						type);
+				}
+			}
+			break;
+
+		case IDMDLHEADER:
+			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case ID3HEADER:
+			extradata = Mod_LoadModel_MD3(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case MDR_IDENT:
+			extradata = Mod_LoadModel_MDR(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case IDMD5HEADER:
+			extradata = Mod_LoadModel_MD5(mod_name, buffer, modfilelen,
+				type);
+			break;
+
+		case IDSPRITEHEADER:
+			extradata = Mod_LoadSprite_SP2(mod_name, buffer, modfilelen,
+				type);
+			break;
+	}
+
+	return extradata;
+}
+
 
 static void
 Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
@@ -3506,97 +3577,28 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 	}
 }
 
-/*
-=================
-Mod_LoadModelFile
-=================
-*/
-static void *
-Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
-	struct image_s ***skins, int *numskins, readfile_t read_file, modtype_t *type)
+static void
+Mod_AllocateSkins(const char *mod_name, struct image_s ***skins, int *numskins,
+	void *extradata, modtype_t type)
 {
-	void *extradata = NULL;
-
-	/* code needs at least 2 ints for detect file type */
-	if (!buffer || modfilelen < (sizeof(unsigned) * 2))
+	if (type == mod_sprite)
 	{
-		return NULL;
-	}
+		dsprite_t	*sprout;
 
-	switch (LittleLong(*(unsigned *)buffer))
+		sprout = (dsprite_t *)extradata;
+
+		*numskins = sprout->numframes;
+		*skins = malloc(Q_max(*numskins, 1) * sizeof(struct image_s *));
+	}
+	else if (type == mod_alias)
 	{
-		case MDAHEADER:
-			extradata = Mod_LoadModel_MDA(mod_name, buffer, modfilelen,
-				read_file, skins, numskins, type);
-			break;
+		const dmdx_t *pheader;
 
-		case SDEFHEADER:
-			extradata = Mod_LoadModel_SDEF(mod_name, buffer, modfilelen,
-				read_file, skins, numskins, type);
-			break;
+		pheader = (dmdx_t *)extradata;
 
-		case MDXHEADER:
-			extradata = Mod_LoadModel_MDX(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case DKMHEADER:
-			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case RAVENFMHEADER:
-			extradata = Mod_LoadModel_Flex(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case IDALIASHEADER:
-			{
-				/* next short after file type */
-				short version;
-
-				version = LittleShort(((short*)buffer)[2]);
-				if (version == ALIAS_ANACHRONOX_VERSION ||
-					version == ALIAS_ANACHRONOX_VERSION_OLD)
-				{
-					extradata = Mod_LoadModel_MD2Anox(mod_name, buffer, modfilelen,
-						skins, numskins, type);
-				}
-				else
-				{
-					extradata = Mod_LoadModel_MD2(mod_name, buffer, modfilelen,
-						skins, numskins, type);
-				}
-			}
-			break;
-
-		case IDMDLHEADER:
-			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case ID3HEADER:
-			extradata = Mod_LoadModel_MD3(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case MDR_IDENT:
-			extradata = Mod_LoadModel_MDR(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case IDMD5HEADER:
-			extradata = Mod_LoadModel_MD5(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
-
-		case IDSPRITEHEADER:
-			extradata = Mod_LoadSprite_SP2(mod_name, buffer, modfilelen,
-				skins, numskins, type);
-			break;
+		*numskins = pheader->num_skins;
+		*skins = malloc(Q_max(*numskins, 1) * sizeof(struct image_s *));
 	}
-
-	return extradata;
 }
 
 /*
@@ -3612,11 +3614,11 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 {
 	void *extradata;
 
-	extradata = Mod_LoadModelFile(mod_name, buffer, modfilelen, skins, numskins,
-		read_file, type);
+	extradata = Mod_LoadModelFile(mod_name, buffer, modfilelen, read_file, type);
 
 	if (extradata)
 	{
+		Mod_AllocateSkins(mod_name, skins, numskins, extradata, *type);
 		Mod_LoadMinMaxUpdate(mod_name, mins, maxs, extradata, *type);
 		Mod_ReLoadSkins(mod_name, *skins, find_image, load_image, extradata, *type);
 		Mod_LoadLimits(mod_name, extradata, *type);

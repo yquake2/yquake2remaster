@@ -610,6 +610,13 @@ Mod_Free(model_t *mod)
 	}
 
 	Hunk_Free(mod->extradata);
+
+	if (mod->type == mod_alias || mod->type == mod_sprite)
+	{
+		/* skins are allocated separately */
+		free(mod->skins);
+	}
+
 	memset(mod, 0, sizeof(*mod));
 }
 
