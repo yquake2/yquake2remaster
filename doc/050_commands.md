@@ -57,8 +57,6 @@ original clients (Vanilla Quake II) commands are still in place.
 
 * **sv savenodes**: Save nodes file
 
-* **sv addbotroam**: Drop a bot roam node
-
 * **sv addbot <team> <name> <skin>**: Spawn a bot (consult ACEbot readme,
   it's just the same thing)
 

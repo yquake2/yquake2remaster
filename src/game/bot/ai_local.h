@@ -155,8 +155,6 @@ int			AI_GravityBoxToLink(int n1, int n2);
 //----------------------------------------------------------
 qboolean	AI_CanPick_Ammo (edict_t *ent, gitem_t *item);
 qboolean	AI_CanUseArmor (gitem_t *item, edict_t *other);
-void		AI_BotRoamFinishTimeouts(edict_t *self);
-
 
 //bot_classes
 //----------------------------------------------------------

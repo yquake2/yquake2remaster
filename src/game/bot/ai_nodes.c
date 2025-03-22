@@ -487,41 +487,6 @@ int AI_AddNode_Teleporter( edict_t *ent )
 
 
 //==========================================
-// AI_AddNode_BotRoam
-// add nodes from bot roam entities
-//==========================================
-int AI_AddNode_BotRoam( edict_t *ent )
-{
-	if( nav.num_nodes + 1 > MAX_NODES )
-		return INVALID;
-
-	nodes[nav.num_nodes].flags = (NODEFLAGS_BOTROAM);//bot roams are not NODEFLAGS_NOWORLD
-
-	// Set location
-	VectorCopy( ent->s.origin, nodes[nav.num_nodes].origin );
-	if ( ent->spawnflags & 1 ) // floating items
-		nodes[nav.num_nodes].flags |= NODEFLAGS_FLOAT;
-	else
-		if( !AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
-			return INVALID;//spawned inside solid
-
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
-
-	//count into bot_roams table
-	nav.broams[nav.num_broams].node = nav.num_nodes;
-
-	if( ent->count )
-		nav.broams[nav.num_broams].weight = ent->count * 0.01;//count is a int with a value in between 0 and 100
-	else
-		nav.broams[nav.num_broams].weight = 0.3;
-
-	nav.num_broams++;
-	nav.num_nodes++;
-	return nav.num_nodes-1; // return the node added
-}
-
-
-//==========================================
 // AI_AddNode_ItemNode
 // Used to add nodes from items
 //==========================================
@@ -584,62 +549,6 @@ void AI_CreateNodesForEntities ( void )
 		else if( !strcmp( ent->classname,"func_door" ) )
 		{
 			AI_AddNode_Door( ent );
-		}
-	}
-
-	// bot roams
-	nav.num_broams = 0;
-	memset( nav.broams, 0, sizeof(nav_broam_t) * MAX_BOT_ROAMS );
-
-	//visit world nodes first, and put in list what we find in there
-	for( node=0; node < nav.num_nodes; node++ )
-	{
-		if( nodes[node].flags & NODEFLAGS_BOTROAM && nav.num_broams < MAX_BOT_ROAMS)
-		{
-			nav.broams[nav.num_broams].node = node;
-			nav.broams[nav.num_broams].weight = 0.3;
-			nav.num_broams++;
-		}
-	}
-
-	//now add bot roams from entities
-//	for(ent = game.edicts; ent < &game.edicts[game.numentities]; ent++)
-	for( ent = g_edicts; ent < &g_edicts[game.maxentities]; ent++ )
-	{
-		if( !ent->classname )
-			continue;
-
-		if( !strcmp( ent->classname,"item_botroam" ) )
-		{
-			//if we have a available node close enough to the item, use it instead of dropping a new node
-			node = AI_FindClosestReachableNode( ent->s.origin, NULL, 48, NODE_ALL );
-			if( node != -1 &&
-				!(nodes[node].flags & NODEFLAGS_SERVERLINK) &&
-				!(nodes[node].flags & NODEFLAGS_LADDER) )
-			{
-				float heightdiff = 0;
-				heightdiff = ent->s.origin[2] - nodes[node].origin[2];
-				if( heightdiff < 0 ) heightdiff = -heightdiff;
-
-				if( heightdiff < AI_STEPSIZE && nav.num_broams < MAX_BOT_ROAMS ) //near enough
-				{
-					nodes[node].flags |= NODEFLAGS_BOTROAM;
-					//add node to botroam list
-					if( ent->count )
-						nav.broams[nav.num_broams].weight = ent->count * 0.01;//count is a int with a value in between 0 and 100
-					else
-						nav.broams[nav.num_broams].weight = 0.3; //jalfixme: add cmd to weight (dropped by console cmd, self is player)
-
-					nav.broams[nav.num_broams].node = node;
-					nav.num_broams++;
-					continue;
-				}
-			}
-
-			//drop a new node
-			if( nav.num_broams < MAX_BOT_ROAMS ){
-				AI_AddNode_BotRoam( ent );
-			}
 		}
 	}
 

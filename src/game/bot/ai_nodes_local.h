@@ -54,13 +54,6 @@ typedef struct nav_ents_s
 
 } nav_ents_t;
 
-typedef struct nav_botroam_s
-{
-	int			node;
-	float		weight;
-
-} nav_broam_t;
-
 typedef struct nav_path_s
 {
 	int		next;		//next node
@@ -82,10 +75,6 @@ typedef struct
 
 	int			num_ents;
 	nav_ents_t	ents[MAX_EDICTS];	//plats, etc
-
-	int			num_broams;
-	nav_broam_t	broams[MAX_BOT_ROAMS];	//list of nodes wich are botroams
-
 } ai_navigation_t;
 
 extern ai_navigation_t	nav;
