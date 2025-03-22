@@ -441,19 +441,6 @@ AI_PathMap(void)
 // AI_ClientPathMap
 // Clients try to create new nodes while walking the map
 //==========================================
-void AITools_AddBotRoamNode(void)
-{
-	if( nav.loaded )
-		return;
-
-	AI_AddNode( player.ent->s.origin, NODEFLAGS_BOTROAM );
-}
-
-
-//==========================================
-// AI_ClientPathMap
-// Clients try to create new nodes while walking the map
-//==========================================
 void AITools_DropNodes(edict_t *ent)
 {
 	if( nav.loaded )
@@ -478,9 +465,6 @@ void AITools_EraseNodes( void )
 	nav.num_ents = 0;
 	memset( nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS );
 
-	nav.num_broams = 0;
-	memset( nav.broams, 0, sizeof(nav_broam_t) * MAX_BOT_ROAMS );
-
 	nav.num_items = 0;
 	memset( nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS );
 
@@ -497,9 +481,6 @@ void AITools_InitEditnodes( void )
 
 		nav.num_ents = 0;
 		memset( nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS );
-
-		nav.num_broams = 0;
-		memset( nav.broams, 0, sizeof(nav_broam_t) * MAX_BOT_ROAMS );
 
 		nav.num_items = 0;
 		memset( nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS );

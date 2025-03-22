@@ -30,7 +30,6 @@
 
 //	declaration of botedict for the game
 //----------------------------------------------------------
-#define MAX_BOT_ROAMS 128
 /* jalToDo: needs dynamic alloc (big terrain maps) */
 #define MAX_NODES 2048
 
@@ -49,7 +48,6 @@ typedef struct
 
 	float inventoryWeights[MAX_ITEMS];
 	float playersWeights[MAX_EDICTS];
-	float broam_timeouts[MAX_BOT_ROAMS];	//revisit bot roams
 } ai_status_t;
 
 typedef struct
@@ -120,7 +118,6 @@ void AITools_Frame(void);
 void AITools_DropNodes(edict_t *ent);
 
 /* ai_dropnodes.c */
-void AITools_AddBotRoamNode(void);
 void AITools_SaveNodes(void);
 void AITools_InitEditnodes(void);
 void AITools_InitMakenodes(void);

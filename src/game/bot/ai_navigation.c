@@ -185,22 +185,6 @@ qboolean AI_FollowPath( edict_t *self )
 			//if(AIDevel.debugChased && bot_showlrgoal->value)
 			//	gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL REACHED!\n", self->ai->pers.netname);
 
-			//if botroam, setup a timeout for it
-			if( nodes[self->ai->goal_node].flags & NODEFLAGS_BOTROAM )
-			{
-				int		i;
-				for( i=0; i<nav.num_broams; i++) {	//find the broam
-					if( nav.broams[i].node != self->ai->goal_node )
-						continue;
-
-					//if(AIDevel.debugChased && bot_showlrgoal->integer)
-					//	gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: BotRoam Time Out set up for node %i\n", self->ai->pers.netname, nav.broams[i].node);
-					//Com_Printf( "%s: BotRoam Time Out set up for node %i\n", self->ai->pers.netname, nav.broams[i].node);
-					self->ai->status.broam_timeouts[i] = level.time + 15.0;
-					break;
-				}
-			}
-
 			// Pick a new goal
 			AI_PickLongRangeGoal(self);
 		}

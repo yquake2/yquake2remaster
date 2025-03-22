@@ -69,7 +69,6 @@
 {"info_player_team1", SP_info_player_team1},
 {"info_player_team2", SP_info_player_team2},
 {"info_teleport_destination", SP_info_teleport_destination},
-{"item_botroam", SP_item_botroam},
 {"item_health", SP_item_health},
 {"item_health_large", SP_item_health_large},
 {"item_health_mega", SP_item_health_mega},

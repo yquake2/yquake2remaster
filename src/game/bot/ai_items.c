@@ -278,29 +278,3 @@ float AI_ItemWeight(edict_t *self, edict_t *it)
 
 	return 0;
 }
-
-
-//==========================================
-//QUAKED item_botroam
-//==========================================
-void SP_item_botroam (edict_t *ent)
-{
-	float weight;
-
-	//try to convert Q3 weights (doh)
-	if(st.weight)
-	{
-		weight = st.weight;
-
-		// item_botroam weights should go between 0 and 100.
-		// to convert odd weights to this format:
-		if (weight >= 1000)
-			weight = 100;
-		else if (weight >= 100) //include 100, cause some q3 mappers use 100, 200, 300... etc
-			weight *= 0.1;
-	}
-	else
-		weight = 30;	//default value
-
-	ent->count = (int)weight;
-}

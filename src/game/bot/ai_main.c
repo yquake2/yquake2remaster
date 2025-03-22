@@ -150,70 +150,8 @@ void AI_ResetNavigation(edict_t *ent)
 	ent->ai->next_node = INVALID;
 
 	VectorSet( ent->ai->move_vector, 0, 0, 0 );
-
-	//reset bot_roams timeouts
-	for( i=0; i<nav.num_broams; i++)
-		ent->ai->status.broam_timeouts[i] = 0.0;
 }
 
-
-//==========================================
-// AI_BotRoamForLRGoal
-//
-// Try assigning a bot roam node as LR Goal
-//==========================================
-qboolean AI_BotRoamForLRGoal(edict_t *self, int current_node)
-{
-	int		i;
-	float	cost;
-	float	weight, best_weight = 0.0;
-	int		goal_node = INVALID;
-	// int		best_broam = INVALID;
-	float	dist;
-
-	if (!nav.num_broams)
-		return false;
-
-	for( i=0; i<nav.num_broams; i++)
-	{
-		if( self->ai->status.broam_timeouts[i] > level.time)
-			continue;
-
-		//limit cost finding by distance
-		dist = AI_Distance( self->s.origin, nodes[nav.broams[i].node].origin );
-		if( dist > 10000 )
-			continue;
-
-		//find cost
-		cost = AI_FindCost(current_node, nav.broams[i].node, self->ai->pers.moveTypesMask);
-		if(cost == INVALID || cost < 3) // ignore invalid and very short hops
-			continue;
-
-		cost *= random(); // Allow random variations for broams
-		weight = nav.broams[i].weight / cost;	// Check against cost of getting there
-
-		if(weight > best_weight)
-		{
-			best_weight = weight;
-			goal_node = nav.broams[i].node;
-			// best_broam = i;
-		}
-	}
-
-	if(best_weight == 0.0 || goal_node == INVALID)
-		return false;
-
-	//set up the goal
-	self->ai->state = BOT_STATE_MOVE;
-	self->ai->tries = 0;	// Reset the count of how many times we tried this goal
-
-//	if(AIDevel.debugChased && bot_showlrgoal->value)
-//		gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: selected a bot roam of weight %f at node %d for LR goal.\n",self->ai->pers.netname, nav.broams[best_broam].weight, goal_node);
-
-	AI_SetGoal(self,goal_node);
-
-	return true;
-}
 
 //==========================================
 // AI_PickLongRangeGoal
@@ -332,15 +270,11 @@ void AI_PickLongRangeGoal(edict_t *self)
 	// If do not find a goal, go wandering....
 	if(best_weight == 0.0 || goal_node == INVALID)
 	{
-		//BOT_ROAMS
-		if (!AI_BotRoamForLRGoal(self, current_node))
-		{
-			self->ai->goal_node = INVALID;
-			self->ai->state = BOT_STATE_WANDER;
-			self->ai->wander_timeout = level.time + 1.0;
-//			if(AIDevel.debugChased && bot_showlrgoal->value)
-//				gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: did not find a LR goal, wandering.\n",self->ai->pers.netname);
-		}
+		self->ai->goal_node = INVALID;
+		self->ai->state = BOT_STATE_WANDER;
+		self->ai->wander_timeout = level.time + 1.0;
+//		if(AIDevel.debugChased && bot_showlrgoal->value)
+//			gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: did not find a LR goal, wandering.\n",self->ai->pers.netname);
 		return; // no path?
 	}
 

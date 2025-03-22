@@ -370,10 +370,6 @@ ServerCommand(void)
 	{
 		AITools_SaveNodes();
 	}
-	else if (!Q_stricmp (cmd, "addbotroam"))
-	{
-		AITools_AddBotRoamNode();
-	}
 	else if(Q_stricmp(cmd, "removebot") == 0)
 	{
 		BOT_RemoveBot(gi.argv(2));
