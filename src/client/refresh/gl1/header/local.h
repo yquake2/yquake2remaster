@@ -501,6 +501,7 @@ extern int RI_InitContext(void* win);
 extern void RI_BeginRegistration(const char *model);
 extern struct model_s * RI_RegisterModel(const char *name);
 extern struct image_s * RI_RegisterSkin(const char *name);
+extern const dmdxframegroup_t * RI_GetFrameGroups(const char *name, int *num);
 extern void RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 extern void RI_EndRegistration(void);
 extern qboolean RI_IsVSyncActive(void);

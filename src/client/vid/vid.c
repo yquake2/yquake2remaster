@@ -652,6 +652,17 @@ R_RegisterModel(const char *name)
 	return NULL;
 }
 
+const dmdxframegroup_t *
+R_GetFrameGroups(const char *name, int *num)
+{
+	if (ref_active && re.GetFrameGroups)
+	{
+		return re.GetFrameGroups(name, num);
+	}
+	*num = 0;
+	return NULL;
+}
+
 struct image_s*
 R_RegisterSkin(const char *name)
 {

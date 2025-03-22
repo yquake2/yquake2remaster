@@ -582,6 +582,7 @@
 {"drop_temp_touch", (byte *)drop_temp_touch},
 {"droptofloor", (byte *)droptofloor},
 {"dynamicspawn_touch", (byte *)dynamicspawn_touch},
+{"dynamicspawn_think", (byte *)dynamicspawn_think},
 {"enfbolt_touch", (byte *)enfbolt_touch},
 {"enforcer_attack", (byte *)enforcer_attack},
 {"enforcer_die", (byte *)enforcer_die},
