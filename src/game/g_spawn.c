@@ -184,7 +184,7 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 }
 
 void
-dynamicspawn_think(edict_t *self)
+SpawnSetAnimGroupFrame(edict_t *self, const char *name)
 {
 	int num, i, ofs_frames = 0, num_frames = 1;
 	const dmdxframegroup_t * frames;
@@ -192,7 +192,7 @@ dynamicspawn_think(edict_t *self)
 	frames = gi.SV_GetFrameGroups(self->s.modelindex, &num);
 	for (i = 0; i < num; i++)
 	{
-		if (!strcmp(frames[i].name, "frame"))
+		if (!strcmp(frames[i].name, name))
 		{
 			ofs_frames = frames[i].ofs;
 			num_frames = frames[i].num;
@@ -208,6 +208,12 @@ dynamicspawn_think(edict_t *self)
 	i++;
 
 	self->s.frame = ofs_frames + i % num_frames;
+}
+
+void
+dynamicspawn_think(edict_t *self)
+{
+	SpawnSetAnimGroupFrame(self, "frame");
 	self->nextthink = level.time + FRAMETIME;
 }
 
