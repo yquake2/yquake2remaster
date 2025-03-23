@@ -479,7 +479,7 @@ Mod_LoadMDXTriangleList(const char *mod_name, dmdx_t *pheader, const dtriangle_t
 
 /*
 =================
-Mod_LoadMD2TriangleList
+Mod_LoadDKMTriangleList
 
 Load DKM triangle lists
 =================
@@ -517,6 +517,32 @@ Mod_LoadDKMTriangleList(dmdx_t *pheader, const dkmtriangle_t *pintri)
 		}
 
 		mesh_nodes[m].num_tris = pouttri - pouttriofs - mesh_nodes[m].ofs_tris;
+	}
+}
+
+/*
+=================
+Mod_LoadDKMAnimGroupList
+
+Load DKM animation group lists
+=================
+*/
+static void
+Mod_LoadDKMAnimGroupList(dmdx_t *pheader, const byte *iframegroup)
+{
+	dmdxframegroup_t *pframegroup;
+	int i;
+
+	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
+
+	for (i = 0; i < pheader->num_animgroup; i++)
+	{
+		memcpy(pframegroup[i].name, iframegroup, 16);
+		iframegroup += 16;
+		pframegroup[i].ofs = LittleLong(((int*)iframegroup)[0]);
+		pframegroup[i].num = LittleLong(((int*)iframegroup)[1]) + 1;
+		pframegroup[i].num -= pframegroup[i].ofs;
+		iframegroup += 8;
 	}
 }
 
@@ -2503,7 +2529,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
 	dmdxheader.num_imgbit = 0;
-	dmdxheader.num_animgroup = 1;
+	dmdxheader.num_animgroup = header.num_animgroup;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -2524,6 +2550,8 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 
 	Mod_LoadDKMTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
+	Mod_LoadDKMAnimGroupList(pheader,
+		(byte *)buffer + header.ofs_animgroup);
 
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixNormals(pheader);
@@ -3534,8 +3562,9 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 {
 	if (type == mod_alias)
 	{
+		dmdxframegroup_t *framegroups;
 		dmdxmesh_t *mesh_nodes;
-		int num_mesh_nodes, i, num_glcmds = 0;
+		int i, num_glcmds = 0;
 		dmdx_t *pheader;
 
 		pheader = (dmdx_t *)extradata;
@@ -3552,15 +3581,21 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 					__func__, mod_name, pheader->skinwidth, MAX_LBM_WIDTH);
 		}
 
-		num_mesh_nodes = pheader->num_meshes;
 		mesh_nodes = (dmdxmesh_t *)((char*)pheader + pheader->ofs_meshes);
-
-		for (i = 0; i < num_mesh_nodes; i++)
+		for (i = 0; i < pheader->num_meshes; i++)
 		{
 			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands, %d tris\n",
 				__func__, mod_name, i, mesh_nodes[i].num_glcmds, mesh_nodes[i].num_tris);
 			num_glcmds += mesh_nodes[i].num_glcmds;
 		}
+
+		framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
+		for (i = 0; i < pheader->num_animgroup; i++)
+		{
+			R_Printf(PRINT_DEVELOPER, "%s: model %s animation group #%d: '%s' %d -> %d\n",
+				__func__, mod_name, i, framegroups[i].name, framegroups[i].ofs, framegroups[i].num);
+		}
+
 		R_Printf(PRINT_DEVELOPER,
 			"%s: model %s num tris %d / num vert %d / commands %d of %d / frames %d\n",
 			__func__, mod_name, pheader->num_tris, pheader->num_xyz, num_glcmds,
@@ -3648,21 +3683,12 @@ Mod_AllocateSkins(const char *mod_name, struct image_s ***skins, int *numskins,
 	}
 	else if (type == mod_alias)
 	{
-		dmdxframegroup_t *framegroups;
 		const dmdx_t *pheader;
-		int i;
 
 		pheader = (dmdx_t *)extradata;
 
 		*numskins = pheader->num_skins;
 		*skins = malloc(Q_max(*numskins, 1) * sizeof(struct image_s *));
-
-		framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
-		for (i = 0; i < pheader->num_animgroup; i++)
-		{
-			R_Printf(PRINT_DEVELOPER, "Model %s[%d]: animation group '%s' %d -> %d\n",
-				mod_name, i, framegroups[i].name, framegroups[i].ofs, framegroups[i].num);
-		}
 	}
 }
 
