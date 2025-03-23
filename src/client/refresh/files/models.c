@@ -33,6 +33,12 @@ static void *
 Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
 	readfile_t read_file, modtype_t *type);
 
+typedef struct
+{
+	char name[MAX_SKINNAME];
+	char value[MAX_SKINNAME];
+} def_entry_t;
+
 /*
 =================
 Mod_LoadSTvertList
@@ -184,15 +190,24 @@ Load the SiN sam animation format frames
 =================
 */
 static void
-Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, int anim_num,
-	vec3_t translate, float scale)
+Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *animations,
+	int anim_num, vec3_t translate, float scale)
 {
+	dmdxframegroup_t *framegroups;
 	int curr_frame = 0, i;
+
+	framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 
 	for (i = 0; i < anim_num; i++)
 	{
 		sin_frame_t *pinframe;
 		int k;
+
+		/* create single animation group by default*/
+		strncpy(framegroups[i].name, animations[i].name,
+			sizeof(framegroups[0].name) - 1);
+		framegroups[i].ofs = curr_frame;
+		framegroups[i].num = anims[i]->num_frames;
 
 		pinframe = (sin_frame_t *) ((char *)anims[i] + anims[i]->ofs_frames);
 
@@ -2598,11 +2613,6 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
 	return extradata;
 }
 
-typedef struct
-{
-	char value[MAX_SKINNAME];
-} def_entry_t;
-
 static void *
 Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_file)
 {
@@ -2621,6 +2631,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	int animation_num = 0;
 	int num_tris = 0;
 	sin_trigroup_t *trigroup;
+	char prevvalue[MAX_SKINNAME] = {0};
 
 	actions_num = 0;
 	skinnames_num = 0;
@@ -2684,6 +2695,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 			{
 				snprintf(base_model, sizeof(base_model),
 					"%s/%s", models_path, token);
+				prevvalue[0] = 0;
 			}
 			else if (!Q_stricmp(ext, "sam"))
 			{
@@ -2692,6 +2704,17 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 				snprintf(animations[actions_num - 1].value,
 					sizeof(animations[actions_num - 1].value),
 					"%s/%s", models_path, token);
+				if (prevvalue[0])
+				{
+					strncpy(animations[actions_num - 1].name, prevvalue,
+						sizeof(animations[actions_num - 1].name) - 1);
+				}
+				else
+				{
+					sprintf(animations[actions_num - 1].name,
+						"optional%d", actions_num);
+				}
+				prevvalue[0] = 0;
 			}
 			else if (!Q_stricmp(ext, "tga"))
 			{
@@ -2700,6 +2723,21 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 				snprintf(skinnames[skinnames_num - 1].value,
 					sizeof(skinnames[skinnames_num - 1].value),
 					"%s/%s", models_path, token);
+				if (prevvalue[0])
+				{
+					strncpy(skinnames[skinnames_num - 1].name, prevvalue,
+						sizeof(skinnames[skinnames_num - 1].name) - 1);
+				}
+				else
+				{
+					sprintf(skinnames[skinnames_num - 1].name,
+						"optional%d", skinnames_num);
+				}
+				prevvalue[0] = 0;
+			}
+			else
+			{
+				strncpy(prevvalue, token, sizeof(prevvalue) - 1);
 			}
 		}
 	}
@@ -2804,7 +2842,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
 	dmdxheader.num_imgbit = 0;
-	dmdxheader.num_animgroup = 1;
+	dmdxheader.num_animgroup = animation_num;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -2852,7 +2890,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		tris_ofs += mesh_nodes[i].num_tris;
 	}
 
-	Mod_LoadFrames_SAM(pheader, anim, animation_num, translate, scale);
+	Mod_LoadFrames_SAM(pheader, anim, animations, animation_num, translate, scale);
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
@@ -3622,7 +3660,7 @@ Mod_AllocateSkins(const char *mod_name, struct image_s ***skins, int *numskins,
 		framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 		for (i = 0; i < pheader->num_animgroup; i++)
 		{
-			R_Printf(PRINT_DEVELOPER, "Model %s[%d]: group '%s' %d -> %d\n",
+			R_Printf(PRINT_DEVELOPER, "Model %s[%d]: animation group '%s' %d -> %d\n",
 				mod_name, i, framegroups[i].name, framegroups[i].ofs, framegroups[i].num);
 		}
 	}
