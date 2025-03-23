@@ -130,10 +130,9 @@ void AI_ResetWeights(edict_t *ent)
 // AI_ResetNavigation
 // Init bot navigation. Called at first spawn & each respawn
 //==========================================
-void AI_ResetNavigation(edict_t *ent)
+void
+AI_ResetNavigation(edict_t *ent)
 {
-	int		i;
-
 	ent->enemy = NULL;
 	ent->movetarget = NULL;
 	ent->ai->state_combat_timeout = 0.0;
@@ -149,7 +148,7 @@ void AI_ResetNavigation(edict_t *ent)
 	ent->ai->current_node = INVALID;
 	ent->ai->next_node = INVALID;
 
-	VectorSet( ent->ai->move_vector, 0, 0, 0 );
+	VectorSet(ent->ai->move_vector, 0, 0, 0);
 }
 
 
@@ -163,7 +162,8 @@ void AI_ResetNavigation(edict_t *ent)
 // jal: I don't think there is any problem by calling it,
 // now that we have stored the costs at the nav.costs table (I don't do it anyway)
 //==========================================
-void AI_PickLongRangeGoal(edict_t *self)
+void
+AI_PickLongRangeGoal(edict_t *self)
 {
 	int		i;
 	int		node;
