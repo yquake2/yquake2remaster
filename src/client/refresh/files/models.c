@@ -668,7 +668,7 @@ Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 }
 
 void
-Mod_LoadUpdateAnimGroups(const char* mod_name, dmdx_t *pheader)
+Mod_LoadUpdateAnimGroups(const char *mod_name, dmdx_t *pheader)
 {
 	dmdxframegroup_t *framegroups;
 
@@ -680,6 +680,34 @@ Mod_LoadUpdateAnimGroups(const char* mod_name, dmdx_t *pheader)
 		framegroups[0].ofs = 0;
 		framegroups[0].num = pheader->num_frames;
 	}
+}
+
+/*
+ * Calculate offsets and allocate memory for model
+ */
+static dmdx_t *
+Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
+{
+	dmdx_t *pheader = NULL;
+
+	/* just skip header */
+	dmdxheader->ofs_meshes = sizeof(dmdx_t);
+	dmdxheader->ofs_skins = dmdxheader->ofs_meshes + dmdxheader->num_meshes * sizeof(dmdxmesh_t);
+	dmdxheader->ofs_st = dmdxheader->ofs_skins + dmdxheader->num_skins * MAX_SKINNAME;
+	dmdxheader->ofs_tris = dmdxheader->ofs_st + dmdxheader->num_st * sizeof(dstvert_t);
+	dmdxheader->ofs_frames = dmdxheader->ofs_tris + dmdxheader->num_tris * sizeof(dtriangle_t);
+	dmdxheader->ofs_glcmds = dmdxheader->ofs_frames + dmdxheader->num_frames * dmdxheader->framesize;
+	dmdxheader->ofs_imgbit = 0;
+	dmdxheader->ofs_animgroup = dmdxheader->ofs_glcmds + dmdxheader->num_glcmds * sizeof(int);
+	dmdxheader->ofs_end = dmdxheader->ofs_animgroup + dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
+
+	*extradata = Hunk_Begin(dmdxheader->ofs_end);
+	pheader = Hunk_Alloc(dmdxheader->ofs_end);
+
+	memcpy(pheader, dmdxheader, sizeof(dmdx_t));
+	Mod_LoadUpdateAnimGroups(mod_name, pheader);
+
+	return pheader;
 }
 
 /* get full count of frames */
@@ -2142,17 +2170,6 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			dmdxheader.num_imgbit = 0;
 			dmdxheader.num_animgroup = 1;
 
-			// just skip header
-			dmdxheader.ofs_meshes = sizeof(dmdxheader);
-			dmdxheader.ofs_skins = dmdxheader.ofs_meshes + sizeof(dmdxmesh_t) * dmdxheader.num_meshes;
-			dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
-			dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
-			dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
-			dmdxheader.ofs_glcmds = dmdxheader.ofs_frames + dmdxheader.num_frames * dmdxheader.framesize;
-			dmdxheader.ofs_imgbit = 0;
-			dmdxheader.ofs_animgroup = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
-			dmdxheader.ofs_end = dmdxheader.ofs_animgroup + dmdxheader.num_animgroup * sizeof(dmdxframegroup_t);
-
 			if (dmdxheader.num_xyz <= 0)
 			{
 				R_Printf(PRINT_ALL, "%s: model %s has no vertices\n",
@@ -2187,11 +2204,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 				return NULL;
 			}
 
-			extradata = Hunk_Begin(dmdxheader.ofs_end);
-			pheader = Hunk_Alloc(dmdxheader.ofs_end);
-
-			memcpy(pheader, &dmdxheader, sizeof(*pheader));
-			Mod_LoadUpdateAnimGroups(mod_name, pheader);
+			pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 		}
 		else
 		{
@@ -2477,23 +2490,8 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = 1;
 
-	/* just skip header */
-	dmdxheader.ofs_meshes = sizeof(dmdxheader);
-	dmdxheader.ofs_skins = dmdxheader.ofs_meshes + dmdxheader.num_meshes * sizeof(dmdxmesh_t);
-	dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
-	dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
-	dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
-	dmdxheader.ofs_glcmds = dmdxheader.ofs_frames + dmdxheader.num_frames * dmdxheader.framesize;
-	dmdxheader.ofs_imgbit = 0;
-	dmdxheader.ofs_animgroup = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
-	dmdxheader.ofs_end = dmdxheader.ofs_animgroup + dmdxheader.num_animgroup * sizeof(dmdxframegroup_t);
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
-	extradata = Hunk_Begin(dmdxheader.ofs_end);
-	pheader = Hunk_Alloc(dmdxheader.ofs_end);
-
-	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
-
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
 	Mod_LoadSTvertList(pheader,
@@ -2582,23 +2580,7 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
 	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = 1;
 
-	/* just skip header */
-	dmdxheader.ofs_meshes = sizeof(dmdxheader);
-	dmdxheader.ofs_skins = dmdxheader.ofs_meshes + dmdxheader.num_meshes * sizeof(dmdxmesh_t);
-	dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
-	dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
-	dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
-	dmdxheader.ofs_glcmds = dmdxheader.ofs_frames + dmdxheader.num_frames * dmdxheader.framesize;
-	dmdxheader.ofs_imgbit = 0;
-	dmdxheader.ofs_animgroup = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
-	dmdxheader.ofs_end = dmdxheader.ofs_animgroup + dmdxheader.num_animgroup * sizeof(dmdxframegroup_t);
-
-	extradata = Hunk_Begin(dmdxheader.ofs_end);
-	pheader = Hunk_Alloc(dmdxheader.ofs_end);
-
-	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
-
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	memcpy((byte*)pheader + pheader->ofs_skins, (byte *)buffer + header.ofs_skins,
 		pheader->num_skins * MAX_SKINNAME);
@@ -2629,6 +2611,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	def_entry_t *skinnames = NULL;
 	def_entry_t *animations = NULL;
 	int actions_num, skinnames_num, i, base_size;
+	dmdx_t dmdxheader, *pheader = NULL;
 	sin_sbm_header_t *base;
 	sin_sam_header_t **anim;
 	void *extradata = NULL;
@@ -2806,7 +2789,6 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 		return NULL;
 	}
 
-	dmdx_t dmdxheader, *pheader = NULL;
 	dmdxheader.skinwidth = 256;
 	dmdxheader.skinheight = 256;
 
@@ -2824,22 +2806,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff, readfile_t read_f
 	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = 1;
 
-	/* just skip header */
-	dmdxheader.ofs_meshes = sizeof(dmdxheader);
-	dmdxheader.ofs_skins = dmdxheader.ofs_meshes + dmdxheader.num_meshes * sizeof(dmdxmesh_t);
-	dmdxheader.ofs_st = dmdxheader.ofs_skins + dmdxheader.num_skins * MAX_SKINNAME;
-	dmdxheader.ofs_tris = dmdxheader.ofs_st + dmdxheader.num_st * sizeof(dstvert_t);
-	dmdxheader.ofs_frames = dmdxheader.ofs_tris + dmdxheader.num_tris * sizeof(dtriangle_t);
-	dmdxheader.ofs_glcmds = dmdxheader.ofs_frames + dmdxheader.num_frames * dmdxheader.framesize;
-	dmdxheader.ofs_imgbit = 0;
-	dmdxheader.ofs_animgroup = dmdxheader.ofs_glcmds + dmdxheader.num_glcmds * sizeof(int);
-	dmdxheader.ofs_end = dmdxheader.ofs_animgroup + dmdxheader.num_animgroup * sizeof(dmdxframegroup_t);
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
-	extradata = Hunk_Begin(dmdxheader.ofs_end);
-	pheader = Hunk_Alloc(dmdxheader.ofs_end);
-
-	memcpy(pheader, &dmdxheader, sizeof(dmdxheader));
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 	for (i = 0; i < pheader->num_skins; i ++)
 	{
 		strncpy((char*)pheader + pheader->ofs_skins +  i * MAX_SKINNAME,
