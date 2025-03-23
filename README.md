@@ -115,8 +115,9 @@ Games check videos:
 
 * 8.42RR12+:
 
+[![JaBot check](https://img.youtube.com/vi/uW3XDxrjQOU/0.jpg)](https://www.youtube.com/watch?v=uW3XDxrjQOU)
 [![Translation check](https://img.youtube.com/vi/8Tlm8lSY5x8/0.jpg)](https://www.youtube.com/watch?v=8Tlm8lSY5x8)
-[![Anacronox dance sector](https://img.youtube.com/vi/PR2_nK7DFJM/0.jpg)](https://www.youtube.com/watch?v=PR2_nK7DFJM)
+[![Anacronox dance sector issue](https://img.youtube.com/vi/PR2_nK7DFJM/0.jpg)](https://www.youtube.com/watch?v=PR2_nK7DFJM)
 
 * 8.42RR11:
 
@@ -143,41 +144,41 @@ Games check videos:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
-* [ ] soft: support custom ttf fonts,
-* [ ] skins load broken in Anachronox maps with mingw win64 build,
-* [ ] Anachronox rowdys: models disappear on dance space,
+* [ ] jabot: fix crash in SZ_GetSpace,
+* [ ] Anachronox: skins load broken with mingw win64 build,
+* [ ] Anachronox: rowdys map models disappear on dance space,
+* [ ] Anachronox: CTC entity format,
+* [ ] Anachronox: Support material load textures/textureinfo.dat,
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
 * [ ] soft: build with SDL3 has glitch in menu,
-* [ ] mguhub: sometimes broken logic for surface fall in next maps,
-* [ ] incorrect light apply to models (wall looks fine),
-* [ ] incorrect dead animation for Arachnid,
-* [ ] broken fire effect for Guardian.
-* [ ] CTC entity format from Anachronox,
-* [ ] SDEF dynamicaly allocate list of skins,
-* [ ] Support material load textures/textureinfo.dat from Anachronox,
-* [ ] Fix invisiable entities in basicsjam1_ziutek,
-* [ ] Make lightmap textures dynamic n64jam_palmlix,
-* [x] Support textures/*/*.mat load from ReRelease (footstep),
-* [ ] Support textures/*/*.mat load from ReRelease texture effects,
-* [ ] Support textures/*/*_glow.png load from ReRelease,
-* [ ] Support tactile/*/*.bnvib/.wav feedback load from ReRelease,
-* [ ] Fix physics with incorrect floor height in psx/base0.bsp,
-* [ ] Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) >4k coord values support,
-* [ ] Fix statusbar for DoD `roarke`,
-* [ ] Group `it_pic` images in vulkan render,
-* [ ] Rearange surfaces in vulkan render before render,
-* [ ] Fully implement `misc_flare`,
-* [ ] Single player ReRelease support,
-* [ ] Support effects and additional flags for ReRelease when possible.
+* [ ] soft: support custom ttf fonts,
+* [ ] soft: support scalled textures for models and walls, and fix
+    lighting with remastered maps,
+* [ ] soft: Use separete texture hi-color buffer for ui in soft render,
+* [ ] DoD: Fix statusbar `roarke`,
+* [ ] vulkan: Group `it_pic` images,
+* [ ] vulkan: Rearange surfaces before render,
 * [ ] Use shared model cache in client code insted reimplemnet in each render,
 * [ ] Fix transparent textures in Daikatana/SiN maps,
-* [ ] Use separete texture hi-color buffer for ui in soft render,
-* [ ] Cleanup function declarations in game save code,
-* [ ] Fix broken base3 with sorted fields names,
-* [ ] Support scalled textures for models and walls in soft render and fix
-    lighting with remastered maps,
-* [ ] Modified ReRelease game code support with removed KEX only related code.
+* [ ] game: Cleanup function declarations in game save code,
+* [ ] game: Fix broken base3 with sorted fields names,
+* [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
+* [ ] ReRelease: incorrect light apply to models (wall looks fine),
+* [ ] ReRelease: incorrect dead animation for Arachnid,
+* [ ] ReRelease: broken fire effect for Guardian.
+* [ ] ReRelease: Fix invisiable entities in basicsjam1_ziutek,
+* [ ] ReRelease: Make lightmap textures dynamic n64jam_palmlix,
+* [x] ReRelease: Support textures/*/*.mat load (footstep),
+* [ ] ReRelease: Support textures/*/*.mat load texture effects,
+* [ ] ReRelease: Support textures/*/*_glow.png load,
+* [ ] ReRelease: Support tactile/*/*.bnvib/.wav feedback load,
+* [ ] ReRelease: Fix physics with incorrect floor height in psx/base0.bsp,
+* [ ] ReRelease: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) >4k coord values support,
+* [ ] ReRelease: Fully implement `misc_flare`,
+* [ ] ReRelease: Single player support,
+* [ ] ReRelease: Support effects and additional flags when possible.
+* [ ] ReRelease: Modified game code support with removed KEX only related code.
 
 Not a goal:
 

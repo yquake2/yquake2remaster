@@ -406,8 +406,7 @@ Sys_GetGameAPI(void *parms)
 	fnAPI GetGameAPI;
 
 	char name[MAX_OSPATH];
-	char *path;
-	char *str_p;
+	const char *path, *str_p;
 #ifdef __APPLE__
 	const char *gamename = "game.dylib";
 #else

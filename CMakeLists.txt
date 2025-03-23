@@ -361,8 +361,6 @@ set(Game-Source
 	${GAME_SRC_DIR}/bot/ai_weapons.c
 	${GAME_SRC_DIR}/bot/ai_weapons.h
 	${GAME_SRC_DIR}/bot/astar.c
-	${GAME_SRC_DIR}/bot/astar.h
-	${GAME_SRC_DIR}/bot/bot_common.c
 	${GAME_SRC_DIR}/bot/bot_spawn.c
 	${GAME_SRC_DIR}/dm/ball.c
 	${GAME_SRC_DIR}/dm/tag.c
