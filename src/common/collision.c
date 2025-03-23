@@ -1898,8 +1898,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	{
 		/* reallocate buffers for PVS/PHS buffers*/
 		pxsrow_len = (mod->numleafs + 63) & ~63;
-		pvsrow = malloc(pxsrow_len / 8);
-		phsrow = malloc(pxsrow_len / 8);
+		pvsrow = realloc(pvsrow, pxsrow_len / 8);
+		phsrow = realloc(phsrow, pxsrow_len / 8);
 		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			pxsrow_len);
 	}

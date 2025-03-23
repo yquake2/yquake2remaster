@@ -1222,7 +1222,8 @@ void *
 Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris, ofs_st, ofs_end;
+	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris, ofs_st,
+		ofs_animgroup, ofs_end;
 	int i, num_verts = 0, num_tris = 0, num_glcmds = 0;
 	int mesh_size, anim_size;
 	void *extradata = NULL;
@@ -1306,7 +1307,8 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int);
 	ofs_tris = ofs_meshes + md5file->num_meshes * sizeof(dmdxmesh_t);
 	ofs_st = ofs_tris + md5file->num_tris * 3 * sizeof(dtriangle_t);
-	ofs_end = ofs_st + md5file->num_tris * 3 * sizeof(dstvert_t);
+	ofs_animgroup = ofs_st + md5file->num_tris * 3 * sizeof(dstvert_t);
+	ofs_end = ofs_animgroup + sizeof(dmdxframegroup_t);
 
 	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
@@ -1322,6 +1324,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_st = md5file->num_tris * 3;
 	pheader->num_tris = md5file->num_tris;
 	pheader->num_imgbit = 0;
+	pheader->num_animgroup = 1;
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
 	pheader->ofs_st = ofs_st;
@@ -1329,7 +1332,10 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_frames = ofs_frames;
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_imgbit = 0;
+	pheader->ofs_animgroup = ofs_animgroup;
 	pheader->ofs_end = ofs_end;
+
+	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 
 	for(i = 0; i < md5file->num_frames; i ++)
 	{

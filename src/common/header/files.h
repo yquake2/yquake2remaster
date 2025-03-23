@@ -473,6 +473,7 @@ typedef struct
 	int num_frames;
 	int num_meshes;
 	int num_imgbit; /* image format of embeded images */
+	int num_animgroup;
 
 	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
 	int ofs_st;     /* byte offset from start for stverts */
@@ -481,6 +482,7 @@ typedef struct
 	int ofs_glcmds;
 	int ofs_meshes;
 	int ofs_imgbit; /* offest of embeded image */
+	int ofs_animgroup; /* offset to animation frames group */
 	int ofs_end;    /* end of file */
 } dmdx_t;
 

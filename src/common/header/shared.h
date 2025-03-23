@@ -1273,6 +1273,13 @@ typedef struct entity_xstate_s
 	unsigned int rr_mesh;
 } entity_xstate_t;
 
+typedef struct
+{
+	char name[16];  /* frame group name from grabbing */
+	int ofs;        /* first frame in group */
+	int num;        /* number of frames */
+} dmdxframegroup_t;
+
 /* ============================================== */
 
 /* player_state_t is the information needed in addition to pmove_state_t
