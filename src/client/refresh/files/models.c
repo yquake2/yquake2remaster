@@ -88,6 +88,70 @@ Mod_LoadCmdList(const char *mod_name, dmdx_t *pheader, const int *pincmd)
 }
 
 /*
+=================
+Mod_LoadAnimGroupList
+
+Generate animations groups from frames
+=================
+*/
+void
+Mod_LoadAnimGroupList(dmdx_t *pheader)
+{
+	char newname[16] = {0}, oldname[16] = {0};
+	int i, oldframe = 0, currgroup = 0;
+	dmdxframegroup_t *pframegroup;
+
+	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
+
+	for (i = 0; i < pheader->num_frames; i++)
+	{
+		daliasxframe_t *poutframe;
+		int j;
+
+		poutframe = (daliasxframe_t *) ((byte *)pheader
+			+ pheader->ofs_frames + i * pheader->framesize);
+
+		strncpy(newname, poutframe->name, sizeof(poutframe->name) - 1);
+
+		for (j = strlen(newname) - 1; j > 0; j--)
+		{
+			if ((newname[j] >= '0' && newname[j] <= '9') ||
+				(newname[j] == '_'))
+			{
+				newname[j] = 0;
+				continue;
+			}
+			break;
+		}
+
+		if (strcmp(newname, oldname))
+		{
+			if ((i != oldframe) && (currgroup < pheader->num_animgroup))
+			{
+				strncpy(pframegroup[currgroup].name, oldname,
+					sizeof(pframegroup[currgroup].name) - 1);
+				pframegroup[currgroup].ofs = oldframe;
+				pframegroup[currgroup].num = i - oldframe;
+				currgroup++;
+			}
+			strcpy(oldname, newname);
+			oldframe = i;
+		}
+	}
+
+	if (currgroup < pheader->num_animgroup)
+	{
+		strncpy(pframegroup[currgroup].name, oldname,
+			sizeof(pframegroup[currgroup].name) - 1);
+		pframegroup[currgroup].ofs = oldframe;
+		pframegroup[currgroup].num = i - oldframe;
+		currgroup++;
+	}
+
+	pheader->num_animgroup = currgroup;
+}
+
+/*
  * verts as bytes
  */
 static void
@@ -145,7 +209,7 @@ Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t transl
 	qboolean normalfix = true;
 	int i;
 
-	for (i=0 ; i < pheader->num_frames ; i++)
+	for (i = 0; i < pheader->num_frames; i++)
 	{
 		daliasframe_t *pinframe;
 		daliasxframe_t *poutframe;
@@ -708,21 +772,6 @@ Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 
 }
 
-void
-Mod_LoadUpdateAnimGroups(const char *mod_name, dmdx_t *pheader)
-{
-	dmdxframegroup_t *framegroups;
-
-	framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
-	if (pheader->num_animgroup == 1)
-	{
-		/* create single animation group by default*/
-		strcpy(framegroups[0].name, "frame");
-		framegroups[0].ofs = 0;
-		framegroups[0].num = pheader->num_frames;
-	}
-}
-
 /*
  * Calculate offsets and allocate memory for model
  */
@@ -746,7 +795,6 @@ Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
 	pheader = Hunk_Alloc(dmdxheader->ofs_end);
 
 	memcpy(pheader, dmdxheader, sizeof(dmdx_t));
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 
 	return pheader;
 }
@@ -914,7 +962,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	num_glcmds = (10 * num_tris) + 1;
 	num_frames = LittleLong(pinmodel->num_frames);
-	num_animgroup = 1;
+	num_animgroup = num_frames;
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * (num_xyz - 1);
 
@@ -1001,8 +1049,6 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
 	mesh_nodes[0].ofs_tris = 0;
 	mesh_nodes[0].num_tris = num_tris;
-
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 
 	{
 		int i;
@@ -1156,6 +1202,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		}
 	}
 
+	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, true);
@@ -1616,7 +1663,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_tris = ofs_meshes + pinmodel.num_meshes * sizeof(dmdxmesh_t);
 	ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
 	ofs_animgroup = ofs_st + num_tris * 3 * sizeof(dstvert_t);
-	ofs_end = ofs_animgroup + sizeof(dmdxframegroup_t);
+	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
 	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
@@ -1632,7 +1679,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_st = num_tris * 3;
 	pheader->num_tris = num_tris;
 	pheader->num_imgbit = 0;
-	pheader->num_animgroup = 1;
+	pheader->num_animgroup = pinmodel.num_frames;
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
 	pheader->ofs_st = ofs_st;
@@ -1642,8 +1689,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_imgbit = 0;
 	pheader->ofs_animgroup = ofs_animgroup;
 	pheader->ofs_end = ofs_end;
-
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 
 	mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
@@ -1747,7 +1792,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 		}
 		else
 		{
-			snprintf(frame->name, 15, "%d", i);
+			snprintf(frame->name, sizeof(frame->name), "frame%d", i);
 		}
 
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,
@@ -1757,6 +1802,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	}
 	free(vertx);
 
+	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, false);
@@ -1873,7 +1919,7 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_glcmds = ofs_tris + pinmodel.num_tris * sizeof(dtriangle_t);
 	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
 	ofs_animgroup = ofs_frames + framesize * pinmodel.num_frames;
-	ofs_end = ofs_animgroup + sizeof(dmdxframegroup_t);
+	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
 	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
@@ -1892,7 +1938,7 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_glcmds = pinmodel.num_glcmds;
 	pheader->num_frames = pinmodel.num_frames;
 	pheader->num_imgbit = 0;
-	pheader->num_animgroup = 1;
+	pheader->num_animgroup = pinmodel.num_frames;
 
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
@@ -1911,8 +1957,6 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	mesh_nodes[0].ofs_glcmds = 0;
 	mesh_nodes[0].num_glcmds = pheader->num_glcmds;
 
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
-
 	//
 	// load base s and t vertices (not used in gl version)
 	//
@@ -1930,7 +1974,7 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	//
 	Mod_LoadFrames_MD2Anox(pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate, pinmodel.resolution);
-
+	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadFixNormals(pheader);
 
 	//
@@ -2020,7 +2064,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_glcmds = ofs_tris + pinmodel.num_tris * sizeof(dtriangle_t);
 	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
 	ofs_animgroup = ofs_frames + framesize * pinmodel.num_frames;
-	ofs_end = ofs_animgroup + sizeof(dmdxframegroup_t);
+	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
 	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
@@ -2039,7 +2083,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_glcmds = pinmodel.num_glcmds;
 	pheader->num_frames = pinmodel.num_frames;
 	pheader->num_imgbit = 0;
-	pheader->num_animgroup = 1;
+	pheader->num_animgroup = pinmodel.num_frames;
 
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
@@ -2057,8 +2101,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	mesh_nodes[0].num_tris = pheader->num_tris;
 	mesh_nodes[0].ofs_glcmds = 0;
 	mesh_nodes[0].num_glcmds = pheader->num_glcmds;
-
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 
 	if (pheader->num_xyz <= 0)
 	{
@@ -2111,6 +2153,11 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	//
 	normalfix = Mod_LoadFrames_MD2(pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate);
+
+	//
+	// Update animation groups by frames
+	//
+	Mod_LoadAnimGroupList(pheader);
 
 	//
 	// load the glcmds
@@ -2209,7 +2256,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 			dmdxheader.num_frames = LittleLong(header->num_frames);
 			dmdxheader.num_meshes = LittleLong(header->num_mesh_nodes);
 			dmdxheader.num_imgbit = 0;
-			dmdxheader.num_animgroup = 1;
+			dmdxheader.num_animgroup = dmdxheader.num_frames;
 
 			if (dmdxheader.num_xyz <= 0)
 			{
@@ -2325,6 +2372,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen,
 				}
 
 				Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
+				Mod_LoadAnimGroupList(pheader);
 			}
 			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
 			{
@@ -2547,6 +2595,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen,
 		Mod_LoadFrames_DKM2(pheader, (byte *)buffer + header.ofs_frames,
 			header.framesize, header.translate);
 	}
+	Mod_LoadAnimGroupList(pheader);
 
 	Mod_LoadDKMTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
@@ -2621,7 +2670,7 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
 	dmdxheader.num_imgbit = 0;
-	dmdxheader.num_animgroup = 1;
+	dmdxheader.num_animgroup = header.num_frames;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -2633,6 +2682,7 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen,
 		header.num_glcmds);
 	Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
 		header.framesize, translate);
+	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 

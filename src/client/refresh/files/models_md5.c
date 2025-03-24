@@ -1308,7 +1308,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_tris = ofs_meshes + md5file->num_meshes * sizeof(dmdxmesh_t);
 	ofs_st = ofs_tris + md5file->num_tris * 3 * sizeof(dtriangle_t);
 	ofs_animgroup = ofs_st + md5file->num_tris * 3 * sizeof(dstvert_t);
-	ofs_end = ofs_animgroup + sizeof(dmdxframegroup_t);
+	ofs_end = ofs_animgroup + md5file->num_frames * sizeof(dmdxframegroup_t);
 
 	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
@@ -1324,7 +1324,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_st = md5file->num_tris * 3;
 	pheader->num_tris = md5file->num_tris;
 	pheader->num_imgbit = 0;
-	pheader->num_animgroup = 1;
+	pheader->num_animgroup = md5file->num_frames;
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
 	pheader->ofs_st = ofs_st;
@@ -1335,13 +1335,11 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_animgroup = ofs_animgroup;
 	pheader->ofs_end = ofs_end;
 
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
-
 	for(i = 0; i < md5file->num_frames; i ++)
 	{
 		daliasxframe_t *frame = (daliasxframe_t *)(
 			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
-		snprintf(frame->name, 15, "%d", i);
+		snprintf(frame->name, sizeof(frame->name), "frame%d", i);
 		PrepareFrameVertex((md5file->skelFrames + i)->vertexArray,
 			num_verts, frame);
 	}
@@ -1383,6 +1381,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 		num_tris += md5file->meshes[i].num_tris;
 	}
 
+	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadCmdGenerate(pheader);
 
 	/* register all skins */

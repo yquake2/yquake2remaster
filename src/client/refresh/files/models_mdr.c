@@ -262,7 +262,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	ofs_tris = ofs_meshes + inlod->num_surfaces * sizeof(dmdxmesh_t);
 	ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
 	ofs_animgroup = ofs_st + num_xyz * sizeof(dstvert_t);
-	ofs_end = ofs_animgroup + sizeof(dmdxframegroup_t);
+	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
 	extradata = Hunk_Begin(ofs_end);
 	pheader = Hunk_Alloc(ofs_end);
@@ -277,7 +277,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->num_meshes = inlod->num_surfaces;
 	pheader->num_st = num_xyz;
 	pheader->num_tris = num_tris;
-	pheader->num_animgroup = 1;
+	pheader->num_animgroup = pinmodel.num_frames;
 	pheader->ofs_meshes = ofs_meshes;
 	pheader->ofs_skins = ofs_skins;
 	pheader->ofs_st = ofs_st;
@@ -286,8 +286,6 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	pheader->ofs_glcmds = ofs_glcmds;
 	pheader->ofs_animgroup = ofs_animgroup;
 	pheader->ofs_end = ofs_end;
-
-	Mod_LoadUpdateAnimGroups(mod_name, pheader);
 
 	mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
@@ -403,7 +401,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 		}
 		else
 		{
-			snprintf(frame->name, 15, "%d", i);
+			snprintf(frame->name, sizeof(frame->name), "frame%d", i);
 		}
 
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,
@@ -413,6 +411,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	free(vertx);
 	free(frames);
 
+	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, false);
