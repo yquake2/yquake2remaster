@@ -97,6 +97,7 @@ typedef struct md5_model_s
 	md5_frame_t *skelFrames;
 	vec2_t *st;
 	char *skins;
+	char *framenames;
 
 	int num_frames;
 	int num_joints;
@@ -104,6 +105,7 @@ typedef struct md5_model_s
 	int num_verts;
 	int num_tris;
 	int num_skins;
+	int num_framenames;
 	float frameRate;
 } md5_model_t;
 
@@ -683,6 +685,12 @@ FreeModelMd5(md5_model_t *mdl)
 		mdl->skins = NULL;
 	}
 
+	if (mdl->framenames)
+	{
+		free(mdl->framenames);
+		mdl->framenames = NULL;
+	}
+
 	if (mdl->meshes)
 	{
 		int i;
@@ -770,6 +778,17 @@ ReadMD5Model(const char *buffer, size_t size)
 				memset(mdl->skins, 0, mdl->num_skins * MAX_SKINNAME);
 			}
 		}
+		else if (!strcmp(token, "numFramenames"))
+		{
+			token = COM_Parse(&curr_buff);
+			mdl->num_framenames = (int)strtol(token, (char **)NULL, 10);
+
+			if (mdl->num_framenames > 0)
+			{
+				mdl->framenames = malloc(mdl->num_framenames * 16);
+				memset(mdl->framenames, 0, mdl->num_framenames * 16);
+			}
+		}
 		else if (!strcmp(token, "numJoints"))
 		{
 			token = COM_Parse(&curr_buff);
@@ -808,6 +827,22 @@ ReadMD5Model(const char *buffer, size_t size)
 
 				skinname = mdl->skins + pos * MAX_SKINNAME;
 				strncpy(skinname, token, MAX_SKINNAME - 1);
+			}
+		}
+		else if (!strcmp(token, "framename"))
+		{
+			int pos;
+
+			token = COM_Parse(&curr_buff);
+			pos = (int)strtol(token, (char **)NULL, 10);
+			token = COM_Parse(&curr_buff);
+
+			if (pos >= 0 && pos < mdl->num_framenames)
+			{
+				char *framename;
+
+				framename = mdl->framenames + pos * 16;
+				strncpy(framename, token, 15);
 			}
 		}
 		else if (!strcmp(token, "joints"))
@@ -1339,7 +1374,17 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	{
 		daliasxframe_t *frame = (daliasxframe_t *)(
 			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
-		snprintf(frame->name, sizeof(frame->name), "frame%d", i);
+
+		if (md5file->framenames && (i < md5file->num_framenames))
+		{
+			strncpy(frame->name, md5file->framenames + i * 16,
+				sizeof(frame->name) - 1);
+		}
+		else
+		{
+			snprintf(frame->name, sizeof(frame->name), "frame%d", i);
+		}
+
 		PrepareFrameVertex((md5file->skelFrames + i)->vertexArray,
 			num_verts, frame);
 	}

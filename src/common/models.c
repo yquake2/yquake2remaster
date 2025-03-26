@@ -29,7 +29,7 @@
 
 static void
 Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
-	char **skins, int *numskins)
+	char **skins, int *numskins, char **frames, int *numframes)
 {
 	dmdl_t pinmodel;
 	int i;
@@ -64,22 +64,36 @@ Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
 				__func__, mod_name, pinmodel.num_skins);
 	}
 
+	/* list of skins */
 	*numskins = pinmodel.num_skins;
 	*skins = malloc(pinmodel.num_skins * MAX_SKINNAME);
 
 	memcpy(*skins, (char *)buffer + pinmodel.ofs_skins,
 		pinmodel.num_skins * MAX_SKINNAME);
+
+	/* list of frames */
+	*numframes = pinmodel.num_frames;
+	*frames = malloc(pinmodel.num_frames * 16);
+
+	for (i = 0; i < pinmodel.num_frames; i++)
+	{
+		daliasframe_t *pinframe;
+
+		pinframe = (daliasframe_t *)((char *)buffer + pinmodel.ofs_frames + i * pinmodel.framesize);
+
+		memcpy((*frames) + 16 * i, pinframe->name, 16);
+	}
 }
 
 static void
 Mod_LoadSkinList(const char *mod_name, const void *buffer, int modfilelen,
-	char **skins, int *numskins)
+	char **skins, int *numskins, char **frames, int *numframes)
 {
 	switch (LittleLong(*(unsigned *)buffer))
 	{
 		case IDALIASHEADER:
 			Mod_LoadSkinList_MD2(mod_name, buffer, modfilelen,
-				skins, numskins);
+				skins, numskins, frames, numframes);
 			break;
 	}
 }
@@ -144,17 +158,19 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 	filesize_skins = FS_LoadFile(newname, &skins_buffer);
 	if (filesize_skins > 0)
 	{
-		char *skins = NULL;
-		int numskins = 0, i;
+		char *skins = NULL, *frames = NULL;
+		int numskins = 0, numframes = 0, i;
 
 		Mod_LoadSkinList(newname, skins_buffer, filesize_skins,
-			&skins, &numskins);
+			&skins, &numskins, &frames, &numframes);
 		FS_FreeFile(skins_buffer);
 
 		/*
 		 * 20 -> numSkins <num> | skin <num> "MAX_SKINNAME" + md5
+		 * 25 -> numFramenames <num> | framename <num> 16 + md5
 		 */
-		skins_list = malloc((numskins + 1) * (MAX_SKINNAME + 20));
+		skins_list = malloc((numskins + 1) * (MAX_SKINNAME + 20) +
+			(numframes + 1) * (16 + 25));
 		sprintf(skins_list, "\nnumSkins %d\n", numskins);
 		for(i = 0; i < numskins; i++)
 		{
@@ -176,10 +192,24 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 			}
 		}
 
+		sprintf(skins_list + strlen(skins_list), "\nnumFramenames %d\n", numframes);
+		for(i = 0; i < numframes; i++)
+		{
+			const char *framename = frames + 16 * i;
+
+			sprintf(skins_list + strlen(skins_list), "framename %d \"%s\"\n",
+				i, framename);
+		}
+
 		/* clean up original buffer */
 		if (skins)
 		{
 			free(skins);
+		}
+
+		if (frames)
+		{
+			free(frames);
 		}
 	}
 
