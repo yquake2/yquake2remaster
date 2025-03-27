@@ -145,15 +145,13 @@ void *
 Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris,
-		ofs_st, ofs_animgroup, ofs_end;
-	int num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0, meshofs = 0;
+	int framesize, num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0, meshofs = 0;
+	dmdx_t dmdxheader, *pheader;
 	mdr_header_t pinmodel;
 	dmdxmesh_t *mesh_nodes;
 	dtriangle_t *tris;
 	dstvert_t *st;
 	void *extradata = NULL;
-	dmdx_t *pheader = NULL;
 	dmdx_vert_t *vertx;
 	char *skin;
 	int i;
@@ -255,37 +253,22 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen,
 	num_glcmds = (10 * num_tris) + 1 * inlod->num_surfaces;
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_xyz;
-	ofs_skins = sizeof(dmdx_t);
-	ofs_frames = ofs_skins + num_skins * MAX_SKINNAME;
-	ofs_glcmds = ofs_frames + framesize * pinmodel.num_frames;
-	ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int);
-	ofs_tris = ofs_meshes + inlod->num_surfaces * sizeof(dmdxmesh_t);
-	ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
-	ofs_animgroup = ofs_st + num_xyz * sizeof(dstvert_t);
-	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
-	extradata = Hunk_Begin(ofs_end);
-	pheader = Hunk_Alloc(ofs_end);
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.framesize = framesize;
+	dmdxheader.skinheight = 256;
+	dmdxheader.skinwidth = 256;
+	dmdxheader.num_skins = num_skins;
+	dmdxheader.num_glcmds = num_glcmds;
+	dmdxheader.num_frames = pinmodel.num_frames;
+	dmdxheader.num_xyz = num_xyz;
+	dmdxheader.num_meshes = inlod->num_surfaces;
+	dmdxheader.num_st = num_xyz;
+	dmdxheader.num_tris = num_tris;
+	dmdxheader.num_animgroup = pinmodel.num_frames;
 
-	pheader->framesize = framesize;
-	pheader->skinheight = 256;
-	pheader->skinwidth = 256;
-	pheader->num_skins = num_skins;
-	pheader->num_glcmds = num_glcmds;
-	pheader->num_frames = pinmodel.num_frames;
-	pheader->num_xyz = num_xyz;
-	pheader->num_meshes = inlod->num_surfaces;
-	pheader->num_st = num_xyz;
-	pheader->num_tris = num_tris;
-	pheader->num_animgroup = pinmodel.num_frames;
-	pheader->ofs_meshes = ofs_meshes;
-	pheader->ofs_skins = ofs_skins;
-	pheader->ofs_st = ofs_st;
-	pheader->ofs_tris = ofs_tris;
-	pheader->ofs_frames = ofs_frames;
-	pheader->ofs_glcmds = ofs_glcmds;
-	pheader->ofs_animgroup = ofs_animgroup;
-	pheader->ofs_end = ofs_end;
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);

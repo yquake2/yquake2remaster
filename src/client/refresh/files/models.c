@@ -775,7 +775,7 @@ Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 /*
  * Calculate offsets and allocate memory for model
  */
-static dmdx_t *
+dmdx_t *
 Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
 {
 	dmdx_t *pheader = NULL;
@@ -787,8 +787,11 @@ Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
 	dmdxheader->ofs_tris = dmdxheader->ofs_st + dmdxheader->num_st * sizeof(dstvert_t);
 	dmdxheader->ofs_frames = dmdxheader->ofs_tris + dmdxheader->num_tris * sizeof(dtriangle_t);
 	dmdxheader->ofs_glcmds = dmdxheader->ofs_frames + dmdxheader->num_frames * dmdxheader->framesize;
-	dmdxheader->ofs_imgbit = 0;
-	dmdxheader->ofs_animgroup = dmdxheader->ofs_glcmds + dmdxheader->num_glcmds * sizeof(int);
+	dmdxheader->ofs_imgbit = dmdxheader->ofs_glcmds + dmdxheader->num_glcmds * sizeof(int);
+	dmdxheader->ofs_animgroup = dmdxheader->ofs_imgbit + (
+		dmdxheader->skinwidth * dmdxheader->skinheight *
+		dmdxheader->num_skins * dmdxheader->num_imgbit / 8
+	);
 	dmdxheader->ofs_end = dmdxheader->ofs_animgroup + dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
 
 	*extradata = Hunk_Begin(dmdxheader->ofs_end);
@@ -928,18 +931,16 @@ static void *
 Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	const mdl_header_t		*pinmodel;
-	int		version;
-	dmdx_t		*pheader;
-	void	*extradata;
+	const mdl_header_t *pinmodel;
+	dmdx_t dmdxheader, *pheader;
 	dmdxmesh_t *mesh_nodes;
+	void *extradata;
+	int version;
 
 	/* local copy of all values */
 	int skinwidth, skinheight, framesize;
 	int num_meshes, num_skins, num_xyz, num_st, num_tris, num_glcmds,
 		num_frames, frame_count, num_animgroup;
-	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_frames, ofs_glcmds,
-		ofs_imgbit, ofs_animgroup, ofs_end;
 
 	pinmodel = (mdl_header_t *)buffer;
 
@@ -1004,46 +1005,23 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 		return NULL;
 	}
 
-	/* generate offsets */
-	ofs_meshes = sizeof(*pheader); // just skip header and go
-	ofs_skins = ofs_meshes + num_meshes * sizeof(dmdxmesh_t);
-	ofs_st = ofs_skins + num_skins * MAX_SKINNAME;
-	ofs_tris = ofs_st + num_st * sizeof(dstvert_t) * 2;
-	ofs_glcmds = ofs_tris + num_tris * sizeof(dtriangle_t);
-	ofs_frames = ofs_glcmds + num_glcmds * sizeof(int);
-	ofs_imgbit = ofs_frames + framesize * frame_count;
-	/* one less as single vertx in frame by default */
-	ofs_animgroup = ofs_imgbit + (skinwidth * skinheight * num_skins);
-	ofs_end = ofs_animgroup + num_animgroup * sizeof(dmdxframegroup_t);
-
-	extradata = Hunk_Begin(ofs_end);
-	pheader = Hunk_Alloc(ofs_end);
-
 	/* copy back all values */
-	memset(pheader, 0, sizeof(*pheader));
-	pheader->skinwidth = skinwidth;
-	pheader->skinheight = skinheight;
-	pheader->framesize = framesize;
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = skinwidth;
+	dmdxheader.skinheight = skinheight;
+	dmdxheader.framesize = framesize;
 
-	pheader->num_meshes = num_meshes;
-	pheader->num_skins = num_skins;
-	pheader->num_xyz = num_xyz;
-	pheader->num_st = num_st * 2;
-	pheader->num_tris = num_tris;
-	pheader->num_glcmds = num_glcmds;
-	pheader->num_imgbit = 8;
-	pheader->num_frames = frame_count;
-	pheader->num_animgroup = num_animgroup;
+	dmdxheader.num_meshes = num_meshes;
+	dmdxheader.num_skins = num_skins;
+	dmdxheader.num_xyz = num_xyz;
+	dmdxheader.num_st = num_st * 2;
+	dmdxheader.num_tris = num_tris;
+	dmdxheader.num_glcmds = num_glcmds;
+	dmdxheader.num_imgbit = 8;
+	dmdxheader.num_frames = frame_count;
+	dmdxheader.num_animgroup = num_animgroup;
 
-	pheader->ofs_meshes = ofs_meshes;
-	pheader->ofs_skins = ofs_skins;
-	pheader->ofs_st = ofs_st;
-	pheader->ofs_tris = ofs_tris;
-	pheader->ofs_frames = ofs_frames;
-	pheader->ofs_glcmds = ofs_glcmds;
-	pheader->ofs_imgbit = ofs_imgbit;
-	pheader->ofs_animgroup = ofs_animgroup;
-	pheader->ofs_end = ofs_end;
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
@@ -1067,7 +1045,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			const mdl_texcoord_t *texcoords;
 			dstvert_t *poutst;
 
-			poutst = (dstvert_t *) ((byte *)pheader + ofs_st);
+			poutst = (dstvert_t *) ((byte *)pheader + pheader->ofs_st);
 
 			texcoords = (mdl_texcoord_t *)curr_pos;
 			curr_pos += sizeof(mdl_texcoord_t) * num_st;
@@ -1098,7 +1076,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 			const mdl_triangle_t *triangles;
 			dtriangle_t *pouttri;
 
-			pouttri = (dtriangle_t *) ((byte *)pheader + ofs_tris);
+			pouttri = (dtriangle_t *) ((byte *)pheader + pheader->ofs_tris);
 
 			triangles = (mdl_triangle_t *) curr_pos;
 			curr_pos += sizeof(mdl_triangle_t) * num_tris;
@@ -1168,7 +1146,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen,
 				daliasframe_t *frame;
 				int j;
 
-				frame = (daliasframe_t *) ((byte *)pheader + ofs_frames + frame_count * framesize);
+				frame = (daliasframe_t *) ((byte *)pheader + pheader->ofs_frames +
+					frame_count * framesize);
 				frame->scale[0] = scale[0];
 				frame->scale[1] = scale[1];
 				frame->scale[2] = scale[2];
@@ -1579,10 +1558,9 @@ static void *
 Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris,
-		ofs_st, ofs_animgroup, ofs_end;
-	int num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0, meshofs = 0;
-	dmdx_t *pheader = NULL;
+	int framesize, num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0,
+		meshofs = 0;
+	dmdx_t dmdxheader, *pheader;
 	md3_header_t pinmodel;
 	void *extradata;
 	dmdxmesh_t *mesh_nodes;
@@ -1656,39 +1634,23 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen,
 	num_glcmds = (10 * num_tris) + 1 * pinmodel.num_meshes;
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_xyz;
-	ofs_skins = sizeof(dmdx_t);
-	ofs_frames = ofs_skins + num_skins * MAX_SKINNAME;
-	ofs_glcmds = ofs_frames + framesize * pinmodel.num_frames;
-	ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int);
-	ofs_tris = ofs_meshes + pinmodel.num_meshes * sizeof(dmdxmesh_t);
-	ofs_st = ofs_tris + num_tris * sizeof(dtriangle_t);
-	ofs_animgroup = ofs_st + num_tris * 3 * sizeof(dstvert_t);
-	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
-	extradata = Hunk_Begin(ofs_end);
-	pheader = Hunk_Alloc(ofs_end);
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.framesize = framesize;
+	dmdxheader.skinheight = 256;
+	dmdxheader.skinwidth = 256;
+	dmdxheader.num_skins = num_skins;
+	dmdxheader.num_glcmds = num_glcmds;
+	dmdxheader.num_frames = pinmodel.num_frames;
+	dmdxheader.num_xyz = num_xyz;
+	dmdxheader.num_meshes = pinmodel.num_meshes;
+	dmdxheader.num_st = num_tris * 3;
+	dmdxheader.num_tris = num_tris;
+	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_animgroup = pinmodel.num_frames;
 
-	pheader->framesize = framesize;
-	pheader->skinheight = 256;
-	pheader->skinwidth = 256;
-	pheader->num_skins = num_skins;
-	pheader->num_glcmds = num_glcmds;
-	pheader->num_frames = pinmodel.num_frames;
-	pheader->num_xyz = num_xyz;
-	pheader->num_meshes = pinmodel.num_meshes;
-	pheader->num_st = num_tris * 3;
-	pheader->num_tris = num_tris;
-	pheader->num_imgbit = 0;
-	pheader->num_animgroup = pinmodel.num_frames;
-	pheader->ofs_meshes = ofs_meshes;
-	pheader->ofs_skins = ofs_skins;
-	pheader->ofs_st = ofs_st;
-	pheader->ofs_tris = ofs_tris;
-	pheader->ofs_frames = ofs_frames;
-	pheader->ofs_glcmds = ofs_glcmds;
-	pheader->ofs_imgbit = 0;
-	pheader->ofs_animgroup = ofs_animgroup;
-	pheader->ofs_end = ofs_end;
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	mesh_nodes = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
@@ -1823,17 +1785,15 @@ static void *
 Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	int framesize, ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds,
-		ofs_frames, ofs_animgroup, ofs_end;
 	vec3_t translate = {0, 0, 0};
+	dmdx_t dmdxheader, *pheader;
 	const dtriangle_t *pintri;
 	const dstvert_t *pinst;
 	dmdxmesh_t *mesh_nodes;
 	const int *pincmd;
 	dmdla_t pinmodel;
+	int i, framesize;
 	void *extradata;
-	dmdx_t *pheader;
-	int i;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -1912,43 +1872,23 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen,
 
 	framesize = sizeof(daliasxframe_t) +
 		(pinmodel.num_xyz - 1) * sizeof(dxtrivertx_t);
-	ofs_meshes = sizeof(*pheader); // just skip header and go
-	ofs_skins = ofs_meshes + 1 * sizeof(dmdxmesh_t);
-	ofs_st = ofs_skins + pinmodel.num_skins * MAX_SKINNAME;
-	ofs_tris = ofs_st + pinmodel.num_st * sizeof(dstvert_t);
-	ofs_glcmds = ofs_tris + pinmodel.num_tris * sizeof(dtriangle_t);
-	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
-	ofs_animgroup = ofs_frames + framesize * pinmodel.num_frames;
-	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
-
-	extradata = Hunk_Begin(ofs_end);
-	pheader = Hunk_Alloc(ofs_end);
 
 	/* Copy values as we have mostly same data format */
-	memset(pheader, 0, sizeof(*pheader));
-	pheader->skinwidth = pinmodel.skinwidth;
-	pheader->skinheight = pinmodel.skinheight;
-	pheader->framesize = framesize;
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = pinmodel.skinwidth;
+	dmdxheader.skinheight = pinmodel.skinheight;
+	dmdxheader.framesize = framesize;
+	dmdxheader.num_meshes = 1;
+	dmdxheader.num_skins = pinmodel.num_skins;
+	dmdxheader.num_xyz = pinmodel.num_xyz;
+	dmdxheader.num_st = pinmodel.num_st;
+	dmdxheader.num_tris = pinmodel.num_tris;
+	dmdxheader.num_glcmds = pinmodel.num_glcmds;
+	dmdxheader.num_frames = pinmodel.num_frames;
+	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_animgroup = pinmodel.num_frames;
 
-	pheader->num_meshes = 1;
-	pheader->num_skins = pinmodel.num_skins;
-	pheader->num_xyz = pinmodel.num_xyz;
-	pheader->num_st = pinmodel.num_st;
-	pheader->num_tris = pinmodel.num_tris;
-	pheader->num_glcmds = pinmodel.num_glcmds;
-	pheader->num_frames = pinmodel.num_frames;
-	pheader->num_imgbit = 0;
-	pheader->num_animgroup = pinmodel.num_frames;
-
-	pheader->ofs_meshes = ofs_meshes;
-	pheader->ofs_skins = ofs_skins;
-	pheader->ofs_st = ofs_st;
-	pheader->ofs_tris = ofs_tris;
-	pheader->ofs_glcmds = ofs_glcmds;
-	pheader->ofs_frames = ofs_frames;
-	pheader->ofs_imgbit = 0;
-	pheader->ofs_animgroup = ofs_animgroup;
-	pheader->ofs_end = ofs_end;
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
@@ -2001,18 +1941,16 @@ static void *
 Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	int ofs_meshes, ofs_skins, ofs_st, ofs_tris, ofs_glcmds, ofs_frames,
-		ofs_animgroup, ofs_end;
 	vec3_t translate = {0, 0, 0};
+	dmdx_t dmdxheader, *pheader;
 	const dtriangle_t *pintri;
 	dmdxmesh_t *mesh_nodes;
 	const dstvert_t *pinst;
 	qboolean normalfix;
 	const int *pincmd;
-	dmdl_t pinmodel;
-	dmdx_t *pheader;
-	void *extradata;
 	int i, framesize;
+	dmdl_t pinmodel;
+	void *extradata;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -2057,43 +1995,24 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	framesize = sizeof(daliasxframe_t) +
 		(pinmodel.num_xyz - 1) * sizeof(dxtrivertx_t);
-	ofs_meshes = sizeof(*pheader); // just skip header and go
-	ofs_skins = ofs_meshes + 1 * sizeof(dmdxmesh_t);
-	ofs_st = ofs_skins + pinmodel.num_skins * MAX_SKINNAME;
-	ofs_tris = ofs_st + pinmodel.num_st * sizeof(dstvert_t);
-	ofs_glcmds = ofs_tris + pinmodel.num_tris * sizeof(dtriangle_t);
-	ofs_frames = ofs_glcmds + pinmodel.num_glcmds * sizeof(int);
-	ofs_animgroup = ofs_frames + framesize * pinmodel.num_frames;
-	ofs_end = ofs_animgroup + pinmodel.num_frames * sizeof(dmdxframegroup_t);
 
-	extradata = Hunk_Begin(ofs_end);
-	pheader = Hunk_Alloc(ofs_end);
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = pinmodel.skinwidth;
+	dmdxheader.skinheight = pinmodel.skinheight;
+	dmdxheader.framesize = framesize;
 
-	/* Copy values as we have mostly same data format */
-	memset(pheader, 0, sizeof(*pheader));
-	pheader->skinwidth = pinmodel.skinwidth;
-	pheader->skinheight = pinmodel.skinheight;
-	pheader->framesize = framesize;
+	dmdxheader.num_meshes = 1;
+	dmdxheader.num_skins = pinmodel.num_skins;
+	dmdxheader.num_xyz = pinmodel.num_xyz;
+	dmdxheader.num_st = pinmodel.num_st;
+	dmdxheader.num_tris = pinmodel.num_tris;
+	dmdxheader.num_glcmds = pinmodel.num_glcmds;
+	dmdxheader.num_frames = pinmodel.num_frames;
+	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_animgroup = pinmodel.num_frames;
 
-	pheader->num_meshes = 1;
-	pheader->num_skins = pinmodel.num_skins;
-	pheader->num_xyz = pinmodel.num_xyz;
-	pheader->num_st = pinmodel.num_st;
-	pheader->num_tris = pinmodel.num_tris;
-	pheader->num_glcmds = pinmodel.num_glcmds;
-	pheader->num_frames = pinmodel.num_frames;
-	pheader->num_imgbit = 0;
-	pheader->num_animgroup = pinmodel.num_frames;
-
-	pheader->ofs_meshes = ofs_meshes;
-	pheader->ofs_skins = ofs_skins;
-	pheader->ofs_st = ofs_st;
-	pheader->ofs_tris = ofs_tris;
-	pheader->ofs_glcmds = ofs_glcmds;
-	pheader->ofs_frames = ofs_frames;
-	pheader->ofs_imgbit = 0;
-	pheader->ofs_animgroup = ofs_animgroup;
-	pheader->ofs_end = ofs_end;
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);

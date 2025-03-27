@@ -1257,12 +1257,10 @@ void *
 Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	modtype_t *type)
 {
-	int framesize, ofs_skins, ofs_frames, ofs_glcmds, ofs_meshes, ofs_tris, ofs_st,
-		ofs_animgroup, ofs_end;
-	int i, num_verts = 0, num_tris = 0, num_glcmds = 0;
+	int framesize, i, num_verts = 0, num_tris = 0, num_glcmds = 0;
+	dmdx_t dmdxheader, *pheader;
 	int mesh_size, anim_size;
 	void *extradata = NULL;
-	dmdx_t *pheader = NULL;
 	dmdxmesh_t *mesh_nodes;
 	const byte *endbuffer;
 	md5_model_t *md5file;
@@ -1336,39 +1334,23 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen,
 	MD5_ComputeNormals(md5file);
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_verts;
-	ofs_skins = sizeof(dmdx_t);
-	ofs_frames = ofs_skins + md5file->num_skins * MAX_SKINNAME;
-	ofs_glcmds = ofs_frames + framesize * md5file->num_frames;
-	ofs_meshes = ofs_glcmds + num_glcmds * sizeof(int);
-	ofs_tris = ofs_meshes + md5file->num_meshes * sizeof(dmdxmesh_t);
-	ofs_st = ofs_tris + md5file->num_tris * 3 * sizeof(dtriangle_t);
-	ofs_animgroup = ofs_st + md5file->num_tris * 3 * sizeof(dstvert_t);
-	ofs_end = ofs_animgroup + md5file->num_frames * sizeof(dmdxframegroup_t);
 
-	extradata = Hunk_Begin(ofs_end);
-	pheader = Hunk_Alloc(ofs_end);
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.framesize = framesize;
+	dmdxheader.skinheight = 256;
+	dmdxheader.skinwidth = 256;
+	dmdxheader.num_skins = md5file->num_skins;
+	dmdxheader.num_glcmds = num_glcmds;
+	dmdxheader.num_frames = md5file->num_frames;
+	dmdxheader.num_xyz = num_verts;
+	dmdxheader.num_meshes = md5file->num_meshes;
+	dmdxheader.num_st = md5file->num_tris * 3;
+	dmdxheader.num_tris = md5file->num_tris;
+	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_animgroup = md5file->num_frames;
 
-	pheader->framesize = framesize;
-	pheader->skinheight = 256;
-	pheader->skinwidth = 256;
-	pheader->num_skins = md5file->num_skins;
-	pheader->num_glcmds = num_glcmds;
-	pheader->num_frames = md5file->num_frames;
-	pheader->num_xyz = num_verts;
-	pheader->num_meshes = md5file->num_meshes;
-	pheader->num_st = md5file->num_tris * 3;
-	pheader->num_tris = md5file->num_tris;
-	pheader->num_imgbit = 0;
-	pheader->num_animgroup = md5file->num_frames;
-	pheader->ofs_meshes = ofs_meshes;
-	pheader->ofs_skins = ofs_skins;
-	pheader->ofs_st = ofs_st;
-	pheader->ofs_tris = ofs_tris;
-	pheader->ofs_frames = ofs_frames;
-	pheader->ofs_glcmds = ofs_glcmds;
-	pheader->ofs_imgbit = 0;
-	pheader->ofs_animgroup = ofs_animgroup;
-	pheader->ofs_end = ofs_end;
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	for(i = 0; i < md5file->num_frames; i ++)
 	{

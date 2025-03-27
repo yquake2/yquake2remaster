@@ -47,5 +47,6 @@ extern int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangle
 extern void Mod_LoadCmdGenerate(dmdx_t *pheader);
 extern void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
 extern void Mod_LoadAnimGroupList(dmdx_t *pheader);
+extern dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
 
 #endif /* SRC_CLIENT_REFRESH_FILES_MODELS_H_ */
