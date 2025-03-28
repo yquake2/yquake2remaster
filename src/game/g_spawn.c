@@ -213,7 +213,7 @@ SpawnSetAnimGroupFrame(edict_t *self, const char *name)
 void
 dynamicspawn_think(edict_t *self)
 {
-	SpawnSetAnimGroupFrame(self, "frame");
+	SpawnSetAnimGroupFrame(self, "idle");
 	self->nextthink = level.time + FRAMETIME;
 }
 
