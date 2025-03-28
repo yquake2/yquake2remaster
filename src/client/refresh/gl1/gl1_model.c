@@ -401,7 +401,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	{
 		/* reallocate buffers for PVS/PHS buffers*/
 		mod_novis_len = (mod->numleafs + 63) & ~63;
-		mod_novis = malloc(mod_novis_len / 8);
+		mod_novis = realloc(mod_novis, mod_novis_len / 8);
 		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			mod_novis_len);
 	}
