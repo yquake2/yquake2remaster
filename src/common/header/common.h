@@ -905,4 +905,6 @@ void Sys_SetupFPU(void);
 
 /* ======================================================================= */
 
+void Mods_NamesFinish(void);
+
 #endif

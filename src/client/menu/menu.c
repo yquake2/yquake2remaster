@@ -3163,6 +3163,16 @@ static char mods_statusbar[64];
 static char **modnames = NULL;
 static int nummods;
 
+void
+Mods_NamesFinish(void)
+{
+    if (modnames)
+    {
+        free(modnames);
+        modnames = NULL;
+    }
+}
+
 static void
 Mods_NamesInit(void)
 {
