@@ -810,12 +810,18 @@ M_MoveFrame(edict_t *self)
 	}
 
 	move = self->monsterinfo.currentmove;
+	if (self->monsterinfo.currentanimgroup)
+	{
+		printf("%s: %s\n", self->classname, self->monsterinfo.currentanimgroup);
+		SpawnSetAnimGroupFrame(self, self->monsterinfo.currentanimgroup);
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+
 	if (!move)
 	{
 		return;
 	}
-
-	self->nextthink = level.time + FRAMETIME;
 
 	if ((self->monsterinfo.nextframe) &&
 		(self->monsterinfo.nextframe >= move->firstframe) &&

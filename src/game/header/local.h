@@ -490,6 +490,7 @@ typedef struct
 typedef struct
 {
 	mmove_t *currentmove;
+	const char *currentanimgroup;   /* current animation group */
 	unsigned int aiflags;           /* unsigned, since we're close to the max */
 	int nextframe;
 	float scale;
