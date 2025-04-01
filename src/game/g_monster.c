@@ -801,7 +801,7 @@ M_SetEffects(edict_t *ent)
 void
 M_MoveFrame(edict_t *self)
 {
-	mmove_t *move;
+	mmove_t *move, dynamic_move = {0};
 	int index;
 
 	if (!self)
@@ -810,54 +810,22 @@ M_MoveFrame(edict_t *self)
 	}
 
 	move = self->monsterinfo.currentmove;
-	if (self->monsterinfo.currentanimgroup)
-	{
-		printf("%s: %s\n", self->classname, self->monsterinfo.currentanimgroup);
-		SpawnSetAnimGroupFrame(self, self->monsterinfo.currentanimgroup);
-
-		if (!strcmp(self->monsterinfo.currentanimgroup, "attack"))
-		{
-			ai_move(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "death"))
-		{
-			ai_move(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "dodge"))
-		{
-			ai_move(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "idle"))
-		{
-			ai_stand(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "melee"))
-		{
-			ai_charge(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "pain"))
-		{
-			ai_move(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "run"))
-		{
-			ai_run(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "stand"))
-		{
-			ai_stand(self, 0);
-		}
-		else if (!strcmp(self->monsterinfo.currentanimgroup, "walk"))
-		{
-			ai_walk(self, 0);
-		}
-	}
 
 	self->nextthink = level.time + FRAMETIME;
 
 	if (!move)
 	{
-		return;
+		int ofs_frames, num_frames;
+
+		if (!self->monsterinfo.currentanimgroup)
+		{
+			return;
+		}
+
+		SpawnSetAnimGroupFrameValues(self, self->monsterinfo.currentanimgroup, &ofs_frames, &num_frames);
+		dynamic_move.firstframe = ofs_frames;
+		dynamic_move.lastframe = ofs_frames + num_frames;
+		move = &dynamic_move;
 	}
 
 	if ((self->monsterinfo.nextframe) &&
@@ -916,22 +884,67 @@ M_MoveFrame(edict_t *self)
 
 	index = self->s.frame - move->firstframe;
 
-	if (move->frame[index].aifunc)
+	if (move->frame)
 	{
-		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+		if (move->frame[index].aifunc)
 		{
-			move->frame[index].aifunc(self,
-					move->frame[index].dist * self->monsterinfo.scale);
+			if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+			{
+				move->frame[index].aifunc(self,
+						move->frame[index].dist * self->monsterinfo.scale);
+			}
+			else
+			{
+				move->frame[index].aifunc(self, 0);
+			}
 		}
-		else
+
+		if (move->frame[index].thinkfunc)
 		{
-			move->frame[index].aifunc(self, 0);
+			move->frame[index].thinkfunc(self);
 		}
 	}
-
-	if (move->frame[index].thinkfunc)
+	else
 	{
-		move->frame[index].thinkfunc(self);
+		if (self->monsterinfo.currentanimgroup)
+		{
+			if (!strcmp(self->monsterinfo.currentanimgroup, "attack"))
+			{
+				ai_move(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "death"))
+			{
+				ai_move(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "dodge"))
+			{
+				ai_move(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "idle"))
+			{
+				ai_stand(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "melee"))
+			{
+				ai_charge(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "pain"))
+			{
+				ai_move(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "run"))
+			{
+				ai_run(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "stand"))
+			{
+				ai_stand(self, 0);
+			}
+			else if (!strcmp(self->monsterinfo.currentanimgroup, "walk"))
+			{
+				ai_walk(self, 0);
+			}
+		}
 	}
 }
 

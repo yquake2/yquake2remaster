@@ -1121,6 +1121,8 @@ char *ED_NewString(const char *string, qboolean raw);
 void SpawnInit(void);
 void SpawnFree(void);
 void SpawnSetAnimGroupFrame(edict_t *self, const char *name);
+void SpawnSetAnimGroupFrameValues(edict_t *self, const char *name,
+	int *ofs_frames, int *num_frames);
 void P_ToggleFlashlight(edict_t *ent, qboolean state);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
