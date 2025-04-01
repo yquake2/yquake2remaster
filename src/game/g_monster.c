@@ -814,6 +814,43 @@ M_MoveFrame(edict_t *self)
 	{
 		printf("%s: %s\n", self->classname, self->monsterinfo.currentanimgroup);
 		SpawnSetAnimGroupFrame(self, self->monsterinfo.currentanimgroup);
+
+		if (!strcmp(self->monsterinfo.currentanimgroup, "attack"))
+		{
+			ai_move(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "death"))
+		{
+			ai_move(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "dodge"))
+		{
+			ai_move(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "idle"))
+		{
+			ai_stand(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "melee"))
+		{
+			ai_charge(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "pain"))
+		{
+			ai_move(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "run"))
+		{
+			ai_run(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "stand"))
+		{
+			ai_stand(self, 0);
+		}
+		else if (!strcmp(self->monsterinfo.currentanimgroup, "walk"))
+		{
+			ai_walk(self, 0);
+		}
 	}
 
 	self->nextthink = level.time + FRAMETIME;

@@ -184,21 +184,30 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 }
 
 void
-SpawnSetAnimGroupFrame(edict_t *self, const char *name)
+SpawnSetAnimGroupFrameValues(edict_t *self, const char *name,
+	int *ofs_frames, int *num_frames)
 {
-	int num, i, ofs_frames = 0, num_frames = 1;
 	const dmdxframegroup_t * frames;
+	int num, i;
 
 	frames = gi.SV_GetFrameGroups(self->s.modelindex, &num);
 	for (i = 0; i < num; i++)
 	{
 		if (!strcmp(frames[i].name, name))
 		{
-			ofs_frames = frames[i].ofs;
-			num_frames = frames[i].num;
+			*ofs_frames = frames[i].ofs;
+			*num_frames = frames[i].num;
 			break;
 		}
 	}
+}
+
+void
+SpawnSetAnimGroupFrame(edict_t *self, const char *name)
+{
+	int i, ofs_frames = 0, num_frames = 1;
+
+	SpawnSetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames);
 
 	i = self->s.frame - ofs_frames;
 	if (i < 0)
@@ -304,8 +313,6 @@ DynamicSpawnSetMonsterInfo_sight(edict_t *self, edict_t *other /* unused */)
 	{
 		return;
 	}
-
-	self->monsterinfo.currentanimgroup = "sight";
 }
 
 static void
