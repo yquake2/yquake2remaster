@@ -437,7 +437,7 @@ SV_InitGameProgs(void)
 	import.imageindex = SV_ImageIndex;
 
 	import.configstring = PF_Configstring;
-	import.ConfigString = PF_ConfigstringGet;
+	import.GetConfigString = PF_ConfigstringGet;
 	import.sound = PF_StartSound;
 	import.positioned_sound = SV_StartSound;
 

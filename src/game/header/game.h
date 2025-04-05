@@ -214,7 +214,7 @@ typedef struct
 	void (*FreeFile)(void *buf);
 	const char * (*Gamedir)(void);
 	void (*CreatePath)(const char *path);
-	const char * (*ConfigString)(int num);
+	const char * (*GetConfigString)(int num);
 } game_import_t;
 
 /* functions exported by the game subsystem */

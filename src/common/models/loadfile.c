@@ -252,156 +252,6 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 	*buffer = final_buffer;
 	return fullsize;
 }
-
-static int
-Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
-{
-	char newname[256];
-	size_t tlen;
-
-	*buffer = NULL;
-
-	tlen = strlen(namewe);
-
-	if (!strcmp(ext, "fm") ||
-		!strcmp(ext, "ctc") ||
-		!strcmp(ext, "def") ||
-		!strcmp(ext, "dkm") ||
-		!strcmp(ext, "mda") ||
-		!strcmp(ext, "md2") ||
-		!strcmp(ext, "md3") ||
-		!strcmp(ext, "mdr") ||
-		!strcmp(ext, "md5mesh") ||
-		!strcmp(ext, "mdx") ||
-		!strcmp(ext, "mdl"))
-	{
-		int filesize;
-
-		/* Check ReRelease / Doom 3 / Quake 4 model */
-		filesize = Mod_LoadFileMD5Merge(namewe, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as md5 (Doom 3)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Quake 3 model */
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcpy(newname + tlen, ".mdr", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as mdr/md4 (Star Trek: Elite Force)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Quake 3 model */
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcpy(newname + tlen, ".md3", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as md3 (Quake 3)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Heretic2 model */
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcat(newname, ".fm", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as fm (Heretic 2)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check SiN model def with include sbm/sam files */
-		Q_strlcpy(newname + tlen, ".def", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as def/sbm/sam (SiN)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Anachronox model definition */
-		Q_strlcpy(newname + tlen, ".mda", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as mda (Anachronox)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Quake 2 model */
-		Q_strlcpy(newname + tlen, ".md2", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as md2 (Quake 2/Anachronox)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Kingpin model */
-		Q_strlcpy(newname + tlen, ".mdx", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as mdx (Kingpin)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Daikatana model */
-		Q_strlcpy(newname + tlen, ".dkm", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as dkm (Daikatana)\n",
-				__func__, namewe);
-			return filesize;
-		}
-
-		/* Check Quake model */
-		Q_strlcpy(newname + tlen, ".mdl", sizeof(newname));
-		filesize = FS_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			Com_DPrintf("%s: %s loaded as mdl (Quake 1)\n",
-				__func__, namewe);
-			return filesize;
-		}
-	}
-
-	if (!strcmp(ext, "bsp"))
-	{
-		int filesize;
-
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcat(newname, ".", sizeof(newname));
-		Q_strlcat(newname, ext, sizeof(newname));
-
-		filesize = CM_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			return filesize;
-		}
-	}
-
-	Q_strlcpy(newname, namewe, sizeof(newname));
-	Q_strlcat(newname, ".", sizeof(newname));
-	Q_strlcat(newname, ext, sizeof(newname));
-
-	return FS_LoadFile(newname, buffer);
-}
-
 /* Models cache logic */
 void
 Mod_AliasesInit(void)
@@ -473,6 +323,208 @@ Mod_AliasSave(const char *namewe, int modfilelen, const void *buffer)
 	return mod;
 }
 
+static model_t *
+Mod_FindModel(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < MAX_MOD_KNOWN; i++)
+	{
+		if (!strcmp(name, mod_known[i].name))
+		{
+			return &mod_known[i];
+		}
+	}
+	return NULL;
+}
+
+static int
+Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
+{
+	char newname[256];
+	int filesize;
+
+	/* Check ReRelease / Doom 3 / Quake 4 model */
+	filesize = Mod_LoadFileMD5Merge(namewe, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as md5 (Doom 3)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Quake 3 model */
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcpy(newname + tlen, ".mdr", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as mdr/md4 (Star Trek: Elite Force)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Quake 3 model */
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcpy(newname + tlen, ".md3", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as md3 (Quake 3)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Heretic2 model */
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcat(newname, ".fm", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as fm (Heretic 2)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check SiN model def with include sbm/sam files */
+	Q_strlcpy(newname + tlen, ".def", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as def/sbm/sam (SiN)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Anachronox model definition */
+	Q_strlcpy(newname + tlen, ".mda", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as mda (Anachronox)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Quake 2 model */
+	Q_strlcpy(newname + tlen, ".md2", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as md2 (Quake 2/Anachronox)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Kingpin model */
+	Q_strlcpy(newname + tlen, ".mdx", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as mdx (Kingpin)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Daikatana model */
+	Q_strlcpy(newname + tlen, ".dkm", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as dkm (Daikatana)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	/* Check Quake model */
+	Q_strlcpy(newname + tlen, ".mdl", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as mdl (Quake 1)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
+	return -1;
+}
+
+static int
+Mod_LoadFileWithoutExt(const char *name, const char *namewe, void **buffer, const char* ext)
+{
+	char newname[256];
+	size_t tlen;
+
+	*buffer = NULL;
+
+	tlen = strlen(namewe);
+
+	if (!strcmp(ext, "fm") ||
+		!strcmp(ext, "ctc") ||
+		!strcmp(ext, "def") ||
+		!strcmp(ext, "dkm") ||
+		!strcmp(ext, "mda") ||
+		!strcmp(ext, "md2") ||
+		!strcmp(ext, "md3") ||
+		!strcmp(ext, "mdr") ||
+		!strcmp(ext, "md5mesh") ||
+		!strcmp(ext, "mdx") ||
+		!strcmp(ext, "mdl"))
+	{
+		const model_t *mod;
+		int filesize;
+
+		mod = Mod_FindModel(name);
+		if (mod)
+		{
+			*buffer = Z_Malloc(mod->extradatasize);
+			memcpy(*buffer, mod->extradata, mod->extradatasize);
+			return mod->extradatasize;
+		}
+
+		filesize = Mod_LoadFileWithoutExtModel(namewe, tlen, buffer);
+		if (filesize > 0)
+		{
+			/* save and convert */
+			mod = Mod_AliasSave(name, filesize, *buffer);
+			if (mod && *buffer)
+			{
+				/* free old buffer */
+				FS_FreeFile(*buffer);
+
+				/* copy buffer */
+				*buffer = Z_Malloc(mod->extradatasize);
+				memcpy(*buffer, mod->extradata, mod->extradatasize);
+
+				return mod->extradatasize;
+			}
+
+			return filesize;
+		}
+	}
+
+	if (!strcmp(ext, "bsp"))
+	{
+		int filesize;
+
+		Q_strlcpy(newname, namewe, sizeof(newname));
+		Q_strlcat(newname, ".", sizeof(newname));
+		Q_strlcat(newname, ext, sizeof(newname));
+
+		filesize = CM_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+	}
+
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcat(newname, ".", sizeof(newname));
+	Q_strlcat(newname, ext, sizeof(newname));
+
+	return FS_LoadFile(newname, buffer);
+}
+
 /*
 =================
 Mod_LoadFile
@@ -481,8 +533,7 @@ Mod_LoadFile
 int
 Mod_LoadFile(const char *name, void **buffer)
 {
-	size_t tlen, len, i;
-	const model_t *mod;
+	size_t tlen, len;
 	char namewe[256];
 	const char* ext;
 	int filesize;
@@ -510,59 +561,30 @@ Mod_LoadFile(const char *name, void **buffer)
 	memset(namewe, 0, 256);
 	memcpy(namewe, name, tlen);
 
-	for (i = 0; i < MAX_MOD_KNOWN; i++)
-	{
-		if (!strcmp(name, mod_known[i].name))
-		{
-			*buffer = Z_Malloc(mod_known[i].extradatasize);
-			memcpy(*buffer, mod_known[i].extradata, mod_known[i].extradatasize);
-			return mod_known[i].extradatasize;
-		}
-	}
-
-	filesize = Mod_LoadFileWithoutExt(namewe, buffer, ext);
+	filesize = Mod_LoadFileWithoutExt(name, namewe, buffer, ext);
 	if (filesize <= 0)
 	{
 		/* Replacement of ReRelease models */
 		if (!strcmp(namewe, "models/monsters/soldierh/tris"))
 		{
-			filesize = Mod_LoadFileWithoutExt("models/monsters/soldier/tris",
+			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/soldier/tris",
 				buffer, ext);
 		}
 		else if (!strcmp(namewe, "models/monsters/gladb/tris"))
 		{
-			filesize = Mod_LoadFileWithoutExt("models/monsters/gladiatr/tris",
+			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/gladiatr/tris",
 				buffer, ext);
 		}
 		else if (!strcmp(namewe, "models/monsters/boss5/tris"))
 		{
-			filesize = Mod_LoadFileWithoutExt("models/monsters/boss1/tris",
+			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/boss1/tris",
 				buffer, ext);
 		}
 		else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
 		{
-			filesize = Mod_LoadFileWithoutExt("models/monsters/bitch/tris",
+			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/bitch/tris",
 				buffer, ext);
 		}
-	}
-
-	if (filesize <= 0)
-	{
-		return filesize;
-	}
-
-	/* save and convert */
-	mod = Mod_AliasSave(name, filesize, *buffer);
-	if (mod)
-	{
-		/* free old buffer */
-		FS_FreeFile(*buffer);
-
-		/* copy buffer */
-		*buffer = Z_Malloc(mod->extradatasize);
-		memcpy(*buffer, mod->extradata, mod->extradatasize);
-
-		return mod->extradatasize;
 	}
 
 	return filesize;
