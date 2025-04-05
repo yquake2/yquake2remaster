@@ -613,7 +613,7 @@ qboolean AI_LoadPLKFile( char *mapname )
 	int			version;
 
 	Com_sprintf (filename, sizeof(filename), "%s/%s/%s.%s",
-		gi.FS_Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
+		gi.Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
 
 	pIn = fopen( filename, "rb" );
 	if( pIn  == NULL )

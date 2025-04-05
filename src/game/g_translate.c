@@ -60,23 +60,23 @@ LocalizationInit(void)
 
 	snprintf(loc_name, sizeof(loc_name) - 1, "localization/loc_%s.txt", g_language->string);
 	/* load the localization file */
-	len_local = gi.FS_LoadFile(loc_name, (void **)&raw);
+	len_local = gi.LoadFile(loc_name, (void **)&raw);
 	if (len_local > 1)
 	{
 		buf_local = malloc(len_local + 1);
 		memcpy(buf_local, raw, len_local);
 		buf_local[len_local] = 0;
-		gi.FS_FreeFile(raw);
+		gi.FreeFile(raw);
 	}
 
 	/* load the heretic 2 messages file */
-	len_level = gi.FS_LoadFile("levelmsg.txt", (void **)&raw);
+	len_level = gi.LoadFile("levelmsg.txt", (void **)&raw);
 	if (len_level > 1)
 	{
 		buf_level = malloc(len_level + 1);
 		memcpy(buf_level, raw, len_level);
 		buf_level[len_level] = 0;
-		gi.FS_FreeFile(raw);
+		gi.FreeFile(raw);
 	}
 
 	/* localization lines count */

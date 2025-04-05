@@ -437,7 +437,7 @@ SV_InitGameProgs(void)
 	import.imageindex = SV_ImageIndex;
 
 	import.configstring = PF_Configstring;
-	import.get_configstring = PF_ConfigstringGet;
+	import.ConfigString = PF_ConfigstringGet;
 	import.sound = PF_StartSound;
 	import.positioned_sound = SV_StartSound;
 
@@ -472,10 +472,10 @@ SV_InitGameProgs(void)
 	import.AreasConnected = CM_AreasConnected;
 
 	/* Extension to classic Quake2 API */
-	import.FS_LoadFile = FS_LoadFile;
-	import.FS_FreeFile = FS_FreeFile;
-	import.FS_Gamedir = FS_Gamedir;
-	import.FS_CreatePath = FS_CreatePath;
+	import.LoadFile = FS_LoadFile;
+	import.FreeFile = FS_FreeFile;
+	import.Gamedir = FS_Gamedir;
+	import.CreatePath = FS_CreatePath;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

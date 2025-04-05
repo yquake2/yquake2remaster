@@ -516,8 +516,8 @@ AI_SavePLKFile(const char *mapname)
 	int			version = NAV_FILE_VERSION;
 
 	Com_sprintf(filename, sizeof(filename), "%s/%s/%s.%s",
-		gi.FS_Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
-	gi.FS_CreatePath(filename);
+		gi.Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
+	gi.CreatePath(filename);
 	pOut = fopen(filename, "wb");
 	if (!pOut)
 	{

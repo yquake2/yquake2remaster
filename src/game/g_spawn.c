@@ -413,7 +413,7 @@ ED_CallSpawn(edict_t *ent)
 			strncpy(self.classname, ent->classname, sizeof(self.classname));
 			snprintf(self.model_path, sizeof(self.model_path), "models/%s", ent->model);
 
-			if (gi.FS_LoadFile(self.model_path, NULL) > 4)
+			if (gi.LoadFile(self.model_path, NULL) > 4)
 			{
 				/* Set default size */
 				VectorSet(self.mins, -16, -16, -16);
@@ -2137,7 +2137,7 @@ DynamicSpawnInit(void)
 	ndynamicentities = 0;
 
 	/* load the aidata file */
-	len_ai = gi.FS_LoadFile("aidata.vsc", (void **)&raw);
+	len_ai = gi.LoadFile("aidata.vsc", (void **)&raw);
 	if (len_ai > 1)
 	{
 		if (len_ai > 4 && !strncmp(raw, "CVSC", 4))
@@ -2153,17 +2153,17 @@ DynamicSpawnInit(void)
 			}
 			buf_ai[len_ai] = 0;
 		}
-		gi.FS_FreeFile(raw);
+		gi.FreeFile(raw);
 	}
 
 	/* load the file */
-	len_ent = gi.FS_LoadFile("models/entity.dat", (void **)&raw);
+	len_ent = gi.LoadFile("models/entity.dat", (void **)&raw);
 	if (len_ent > 1)
 	{
 		buf_ent = malloc(len_ent + 1);
 		memcpy(buf_ent, raw, len_ent);
 		buf_ent[len_ent] = 0;
-		gi.FS_FreeFile(raw);
+		gi.FreeFile(raw);
 	}
 
 	/* aidata definition lines count */
