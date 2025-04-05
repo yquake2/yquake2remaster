@@ -464,6 +464,8 @@ typedef struct
 
 typedef struct
 {
+	int ident;
+	int version;    /* version should be 0 */
 	int skinwidth;
 	int skinheight;
 	int framesize;  /* byte size of each frame */

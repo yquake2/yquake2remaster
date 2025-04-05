@@ -25,7 +25,7 @@
  * =======================================================================
  */
 
-#include "../header/common.h"
+#include "models.h"
 
 #define MAX_MOD_KNOWN MAX_MODELS
 
