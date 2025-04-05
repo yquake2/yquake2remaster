@@ -526,6 +526,9 @@ set(Client-Source
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/movemsg.c
 	${COMMON_SRC_DIR}/models/loadfile.c
+	${COMMON_SRC_DIR}/models/models.c
+	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mdr.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c
@@ -588,6 +591,8 @@ set(Client-Header
 	${COMMON_SRC_DIR}/header/glob.h
 	${COMMON_SRC_DIR}/header/shared.h
 	${COMMON_SRC_DIR}/header/zone.h
+	${COMMON_SRC_DIR}/models/anorms.h
+	${COMMON_SRC_DIR}/models/models.h
 	${COMMON_SRC_DIR}/unzip/ioapi.h
 	${COMMON_SRC_DIR}/unzip/unzip.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz.h
@@ -608,6 +613,10 @@ set(Server-Source
 	${COMMON_SRC_DIR}/filesystem.c
 	${COMMON_SRC_DIR}/glob.c
 	${COMMON_SRC_DIR}/maps.c
+	${COMMON_SRC_DIR}/models/loadfile.c
+	${COMMON_SRC_DIR}/models/models.c
+	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mdr.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/movemsg.c
@@ -644,6 +653,8 @@ set(Server-Header
 	${COMMON_SRC_DIR}/header/zone.h
 	${COMMON_SRC_DIR}/unzip/ioapi.h
 	${COMMON_SRC_DIR}/unzip/unzip.h
+	${COMMON_SRC_DIR}/models/anorms.h
+	${COMMON_SRC_DIR}/models/models.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz_tdef.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz_tinfl.h
@@ -670,8 +681,6 @@ set(GL1-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/models_md5.c
-	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
@@ -686,7 +695,6 @@ set(Glad-GLES1-Source ${REF_SRC_DIR}/gl1/glad-gles1/src/glad.c)
 
 set(GL1-Header
 	${REF_SRC_DIR}/ref_shared.h
-	${REF_SRC_DIR}/constants/anorms.h
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
@@ -720,8 +728,6 @@ set(GL3-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/models_md5.c
-	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
@@ -737,7 +743,6 @@ set(Glad-GLES3-Source ${REF_SRC_DIR}/gl3/glad-gles3/src/glad.c)
 
 set(GL3-Header
 	${REF_SRC_DIR}/ref_shared.h
-	${REF_SRC_DIR}/constants/anorms.h
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
@@ -776,8 +781,6 @@ set(GL4-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/models_md5.c
-	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
@@ -792,7 +795,6 @@ set(Glad-GL4-Source ${REF_SRC_DIR}/gl4/glad/src/glad.c)
 
 set(GL4-Header
 	${REF_SRC_DIR}/ref_shared.h
-	${REF_SRC_DIR}/constants/anorms.h
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
@@ -831,8 +833,6 @@ set(SOFT-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/models_md5.c
-	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
@@ -877,8 +877,6 @@ set(VK-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/models_md5.c
-	${REF_SRC_DIR}/files/models_mdr.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c

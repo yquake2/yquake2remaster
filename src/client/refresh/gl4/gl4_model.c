@@ -408,26 +408,6 @@ Mod_LoadBrushModel(gl4model_t *mod, const void *buffer, int modfilelen)
 	}
 }
 
-/* Temporary solution, need to use load file dirrectly */
-static int
-Mod_ReadFile(const char *path, void **buffer)
-{
-	char *data;
-	int size;
-
-	size = ri.FS_LoadFile(path, (void **)&data);
-	if (size <= 0)
-	{
-		return size;
-	}
-
-	*buffer = malloc(size);
-	memcpy(*buffer, data, size);
-	ri.FS_FreeFile((void *)data);
-
-	return size;
-}
-
 /*
  * Loads in a model for the given name
  */
@@ -526,32 +506,14 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 	/* call the apropriate loader */
 	switch (LittleLong(*(unsigned *)buf))
 	{
-		case MDAHEADER:
-			/* fall through */
-		case SDEFHEADER:
-			/* fall through */
-		case MDXHEADER:
-			/* fall through */
-		case DKMHEADER:
-			/* fall through */
-		case RAVENFMHEADER:
-			/* fall through */
 		case IDALIASHEADER:
-			/* fall through */
-		case IDMDLHEADER:
-			/* fall through */
-		case ID3HEADER:
-			/* fall through */
-		case MDR_IDENT:
-			/* fall through */
-		case IDMD5HEADER:
 			/* fall through */
 		case IDSPRITEHEADER:
 			{
 				mod->extradata = Mod_LoadModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
-					(findimage_t)GL4_FindImage, (loadimage_t)GL4_LoadPic, Mod_ReadFile,
+					(findimage_t)GL4_FindImage, (loadimage_t)GL4_LoadPic,
 					&(mod->type));
 				if (!mod->extradata)
 				{

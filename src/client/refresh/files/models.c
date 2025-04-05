@@ -211,8 +211,7 @@ Mod_LoadModel
 void *
 Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, loadimage_t load_image, readfile_t read_file,
-	modtype_t *type)
+	findimage_t find_image, loadimage_t load_image, modtype_t *type)
 {
 	void *extradata;
 

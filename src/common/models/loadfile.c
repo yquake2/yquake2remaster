@@ -512,7 +512,7 @@ Mod_LoadFile(const char *name, void **buffer)
 
 	for (i = 0; i < MAX_MOD_KNOWN; i++)
 	{
-		if (!strcmp(namewe, mod_known[i].name))
+		if (!strcmp(name, mod_known[i].name))
 		{
 			*buffer = Z_Malloc(mod_known[i].extradatasize);
 			memcpy(*buffer, mod_known[i].extradata, mod_known[i].extradatasize);
@@ -552,7 +552,7 @@ Mod_LoadFile(const char *name, void **buffer)
 	}
 
 	/* save and convert */
-	mod = Mod_AliasSave(namewe, filesize, *buffer);
+	mod = Mod_AliasSave(name, filesize, *buffer);
 	if (mod)
 	{
 		/* free old buffer */
