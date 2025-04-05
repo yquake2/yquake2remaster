@@ -525,7 +525,7 @@ set(Client-Source
 	${COMMON_SRC_DIR}/maps.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/movemsg.c
-	${COMMON_SRC_DIR}/models.c
+	${COMMON_SRC_DIR}/models/loadfile.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c

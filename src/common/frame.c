@@ -358,6 +358,7 @@ Qcommon_Init(int argc, char **argv)
 
 	// The filesystems needs to be initialized after the cvars.
 	FS_InitFilesystem();
+	Mod_AliasesInit();
 	CM_ModInit();
 
 	// Add and execute configuration files.
@@ -832,6 +833,7 @@ void
 Qcommon_Shutdown(void)
 {
 	CM_ModFreeAll();
+	Mod_AliasesFreeAll();
 	FS_ShutdownFilesystem();
 	Cvar_Fini();
 

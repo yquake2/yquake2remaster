@@ -25,7 +25,18 @@
  * =======================================================================
  */
 
-#include "header/common.h"
+#include "../header/common.h"
+
+#define MAX_MOD_KNOWN MAX_MODELS
+
+typedef struct
+{
+	char name[MAX_QPATH];
+	int extradatasize;
+	void *extradata;
+} model_t;
+static int model_num;
+static model_t mod_known[MAX_MOD_KNOWN];
 
 static void
 Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
@@ -391,6 +402,76 @@ Mod_LoadFileWithoutExt(const char *namewe, void **buffer, const char* ext)
 	return FS_LoadFile(newname, buffer);
 }
 
+/* Models cache logic */
+void
+Mod_AliasesInit(void)
+{
+	memset(mod_known, 0, sizeof(*mod_known));
+	model_num = 0;
+}
+
+static void
+Mod_AliasFree(model_t *mod)
+{
+	if (mod->extradata && mod->extradatasize)
+	{
+		Hunk_Free(mod->extradata);
+	}
+
+	memset(mod, 0, sizeof(model_t));
+}
+
+void
+Mod_AliasesFreeAll(void)
+{
+	int i;
+
+	for (i = 0; i < MAX_MOD_KNOWN; i++)
+	{
+		Mod_AliasFree(mod_known + i);
+	}
+	model_num = 0;
+}
+
+static void
+Mod_AliasSave(const char *namewe, int filesize, const void *buffer)
+{
+	model_t *mod;
+	int i;
+
+	if (filesize <= 0)
+	{
+		return;
+	}
+
+	mod = NULL;
+	for (i = 0; i < MAX_MOD_KNOWN; i++)
+	{
+		if (!mod_known[i].extradatasize)
+		{
+			mod = &mod_known[i];
+			break;
+		}
+	}
+
+	if (!mod)
+	{
+		model_num = (model_num + 1) % MAX_MOD_KNOWN;
+		mod = &mod_known[model_num];
+		Com_DPrintf("%s: No free space. Clean up random for model: %s: %d Kb\n",
+			__func__, namewe, mod->extradatasize / 1024);
+		/* free old stuff */
+		Mod_AliasFree(mod);
+	}
+
+	mod->extradata = Hunk_Begin(filesize);
+	/* copy to new allocated memory */
+	memcpy(Hunk_Alloc(filesize), buffer, filesize);
+	mod->extradatasize = Hunk_End();
+
+	strncpy(mod->name, namewe, sizeof(mod->name) - 1);
+}
+
 /*
 =================
 Mod_LoadFile
@@ -399,10 +480,10 @@ Mod_LoadFile
 int
 Mod_LoadFile(const char *name, void **buffer)
 {
+	size_t tlen, len, i;
 	char namewe[256];
 	const char* ext;
 	int filesize;
-	size_t tlen, len;
 
 	if (!name)
 	{
@@ -427,9 +508,20 @@ Mod_LoadFile(const char *name, void **buffer)
 	memset(namewe, 0, 256);
 	memcpy(namewe, name, tlen);
 
+	for (i = 0; i < MAX_MOD_KNOWN; i++)
+	{
+		if (!strcmp(namewe, mod_known[i].name))
+		{
+			*buffer = Z_Malloc(mod_known[i].extradatasize);
+			memcpy(*buffer, mod_known[i].extradata, mod_known[i].extradatasize);
+			return mod_known[i].extradatasize;
+		}
+	}
+
 	filesize = Mod_LoadFileWithoutExt(namewe, buffer, ext);
 	if (filesize > 0)
 	{
+		Mod_AliasSave(namewe, filesize, *buffer);
 		return filesize;
 	}
 
@@ -454,6 +546,8 @@ Mod_LoadFile(const char *name, void **buffer)
 		filesize = Mod_LoadFileWithoutExt("models/monsters/bitch/tris",
 			buffer, ext);
 	}
+
+	Mod_AliasSave(namewe, filesize, *buffer);
 
 	return filesize;
 }

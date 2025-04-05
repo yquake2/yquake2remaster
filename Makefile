@@ -1104,7 +1104,7 @@ CLIENT_OBJS_ := \
 	src/common/glob.o \
 	src/common/md4.o \
 	src/common/maps.o \
-	src/common/models.o \
+	src/common/models/loadfile.o \
 	src/common/movemsg.o \
 	src/common/frame.o \
 	src/common/netchan.o \
@@ -1393,7 +1393,7 @@ SERVER_OBJS_ := \
 	src/common/md4.o \
 	src/common/frame.o \
 	src/common/maps.o \
-	src/common/models.o \
+	src/common/models/loadfile.o \
 	src/common/movemsg.o \
 	src/common/netchan.o \
 	src/common/pmove.o \

@@ -688,6 +688,8 @@ int CM_LoadFile(const char *path, void **buffer);
 
 /* Shared Model load code */
 int Mod_LoadFile(const char *path, void **buffer);
+void Mod_AliasesInit(void);
+void Mod_AliasesFreeAll(void);
 
 /* PLAYER MOVEMENT CODE */
 
