@@ -433,16 +433,11 @@ Mod_AliasesFreeAll(void)
 	model_num = 0;
 }
 
-static void
-Mod_AliasSave(const char *namewe, int filesize, const void *buffer)
+static const model_t *
+Mod_AliasSave(const char *namewe, int modfilelen, const void *buffer)
 {
 	model_t *mod;
 	int i;
-
-	if (filesize <= 0)
-	{
-		return;
-	}
 
 	mod = NULL;
 	for (i = 0; i < MAX_MOD_KNOWN; i++)
@@ -464,12 +459,18 @@ Mod_AliasSave(const char *namewe, int filesize, const void *buffer)
 		Mod_AliasFree(mod);
 	}
 
-	mod->extradata = Hunk_Begin(filesize);
-	/* copy to new allocated memory */
-	memcpy(Hunk_Alloc(filesize), buffer, filesize);
+	mod->extradata = Mod_LoadModelFile(namewe, buffer, modfilelen);
+	if (!mod->extradata)
+	{
+		/* unrecognized format */
+		return NULL;
+	}
+
 	mod->extradatasize = Hunk_End();
 
 	strncpy(mod->name, namewe, sizeof(mod->name) - 1);
+
+	return mod;
 }
 
 /*
@@ -481,6 +482,7 @@ int
 Mod_LoadFile(const char *name, void **buffer)
 {
 	size_t tlen, len, i;
+	const model_t *mod;
 	char namewe[256];
 	const char* ext;
 	int filesize;
@@ -519,35 +521,49 @@ Mod_LoadFile(const char *name, void **buffer)
 	}
 
 	filesize = Mod_LoadFileWithoutExt(namewe, buffer, ext);
-	if (filesize > 0)
+	if (filesize <= 0)
 	{
-		Mod_AliasSave(namewe, filesize, *buffer);
+		/* Replacement of ReRelease models */
+		if (!strcmp(namewe, "models/monsters/soldierh/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExt("models/monsters/soldier/tris",
+				buffer, ext);
+		}
+		else if (!strcmp(namewe, "models/monsters/gladb/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExt("models/monsters/gladiatr/tris",
+				buffer, ext);
+		}
+		else if (!strcmp(namewe, "models/monsters/boss5/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExt("models/monsters/boss1/tris",
+				buffer, ext);
+		}
+		else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExt("models/monsters/bitch/tris",
+				buffer, ext);
+		}
+	}
+
+	if (filesize <= 0)
+	{
 		return filesize;
 	}
 
-	/* Replacement of ReRelease models */
-	if (!strcmp(namewe, "models/monsters/soldierh/tris"))
+	/* save and convert */
+	mod = Mod_AliasSave(namewe, filesize, *buffer);
+	if (mod)
 	{
-		filesize = Mod_LoadFileWithoutExt("models/monsters/soldier/tris",
-			buffer, ext);
-	}
-	else if (!strcmp(namewe, "models/monsters/gladb/tris"))
-	{
-		filesize = Mod_LoadFileWithoutExt("models/monsters/gladiatr/tris",
-			buffer, ext);
-	}
-	else if (!strcmp(namewe, "models/monsters/boss5/tris"))
-	{
-		filesize = Mod_LoadFileWithoutExt("models/monsters/boss1/tris",
-			buffer, ext);
-	}
-	else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
-	{
-		filesize = Mod_LoadFileWithoutExt("models/monsters/bitch/tris",
-			buffer, ext);
-	}
+		/* free old buffer */
+		FS_FreeFile(*buffer);
 
-	Mod_AliasSave(namewe, filesize, *buffer);
+		/* copy buffer */
+		*buffer = Z_Malloc(mod->extradatasize);
+		memcpy(*buffer, mod->extradata, mod->extradatasize);
+
+		return mod->extradatasize;
+	}
 
 	return filesize;
 }

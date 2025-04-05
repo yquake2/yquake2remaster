@@ -26,10 +26,6 @@
 
 #include "../ref_shared.h"
 
-static const float r_avertexnormals[NUMVERTEXNORMALS][3] = {
-#include "../constants/anorms.h"
-};
-
 static vec4_t *lerpbuff = NULL;
 static int lerpbuffnum = 0;
 
@@ -74,21 +70,6 @@ R_VertBufferFree(void)
 		lerpbuff = NULL;
 	}
 	lerpbuffnum = 0;
-}
-
-/* compressed vertex normals used by mdl and md2 model formats */
-void
-R_ConvertNormalMDL(byte in_normal, signed char *normal)
-{
-	const float *norm;
-	int n;
-
-	norm = r_avertexnormals[in_normal % NUMVERTEXNORMALS];
-
-	for (n = 0; n < 3; n ++)
-	{
-		normal[n] = norm[n] * 127.f;
-	}
 }
 
 void
