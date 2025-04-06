@@ -620,6 +620,7 @@ extern void drop_make_touchable ( edict_t * ent ) ;
 extern void drop_temp_touch ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void droptofloor ( edict_t * ent ) ;
 extern void dynamicspawn_touch ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
+extern void dynamicspawn_think ( edict_t * ent ) ;
 extern void enfbolt_touch ( edict_t * self , edict_t * other , cplane_t * plane, csurface_t *surf);
 extern void enforcer_attack ( edict_t * self ) ;
 extern void enforcer_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
