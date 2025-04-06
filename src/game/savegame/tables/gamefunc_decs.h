@@ -206,7 +206,6 @@ extern void M_FliesOff ( edict_t * self ) ;
 extern void M_FliesOn ( edict_t * self ) ;
 extern void M_FlyCheck ( edict_t * self ) ;
 extern void M_MonsterDodge ( edict_t * self , edict_t * attacker , float eta, trace_t *tr ) ;
-extern void M_MoveFrame ( edict_t * self ) ;
 extern void M_MoveToGoal ( edict_t * ent , float dist ) ;
 extern void M_ReactToDamage ( edict_t * targ , edict_t * attacker , edict_t * inflictor ) ;
 extern void M_SetEffects ( edict_t * ent ) ;

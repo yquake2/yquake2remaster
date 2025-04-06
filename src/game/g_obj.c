@@ -39,7 +39,7 @@
 void
 object_flame1_think(edict_t *self)
 {
-	SpawnSetAnimGroupFrame(self, "flame");
+	M_SetAnimGroupFrame(self, "flame");
 	self->nextthink = level.time + FRAMETIME;
 }
 
@@ -79,7 +79,7 @@ SP_object_flame1(edict_t *self)
 void
 object_big_fire_think(edict_t *self)
 {
-	SpawnSetAnimGroupFrame(self, "bigfire");
+	M_SetAnimGroupFrame(self, "bigfire");
 	self->nextthink = level.time + FRAMETIME;
 
 	/* add particles */

@@ -127,7 +127,6 @@
 {"M_FliesOn", (byte *)M_FliesOn},
 {"M_FlyCheck", (byte *)M_FlyCheck},
 {"M_MonsterDodge", (byte *)M_MonsterDodge},
-{"M_MoveFrame", (byte *)M_MoveFrame},
 {"M_MoveToGoal", (byte *)M_MoveToGoal},
 {"M_ReactToDamage", (byte *)M_ReactToDamage},
 {"M_SetEffects", (byte *)M_SetEffects},
