@@ -1074,6 +1074,7 @@
 {"mutant_swing", (byte *)mutant_swing},
 {"mutant_walk", (byte *)mutant_walk},
 {"mutant_walk_loop", (byte *)mutant_walk_loop},
+{"npc_timeminder_think", (byte *)npc_timeminder_think},
 {"nuke_bounce", (byte *)nuke_bounce},
 {"nuke_die", (byte *)nuke_die},
 {"object_big_fire_think", (byte *)object_big_fire_think},

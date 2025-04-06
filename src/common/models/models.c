@@ -195,7 +195,7 @@ Mod_LoadFrames_VertDKM2(dxtrivertx_t *vert, int in)
  * verts as short
  */
 static void
-Mod_LoadFrames_VertAnox(dxtrivertx_t *vert, const short *in)
+Mod_LoadFrames_VertA(dxtrivertx_t *vert, const short *in)
 {
 	int k;
 
@@ -319,13 +319,13 @@ Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *anima
 
 /*
 =================
-Mod_LoadFrames_MD2Anox
+Mod_LoadFrames_MD2A
 
 Load the Anachronox md2 format frame
 =================
 */
 static void
-Mod_LoadFrames_MD2Anox(dmdx_t *pheader, byte *src, size_t inframesize,
+Mod_LoadFrames_MD2A(dmdx_t *pheader, byte *src, size_t inframesize,
 	vec3_t translate, int resolution)
 {
 	int i;
@@ -402,7 +402,7 @@ Mod_LoadFrames_MD2Anox(dmdx_t *pheader, byte *src, size_t inframesize,
 				/* verts are all short, swapped inside func */
 				for (j=0; j < pheader->num_xyz; j ++)
 				{
-					Mod_LoadFrames_VertAnox(poutframe->verts + j, (short*)inverts);
+					Mod_LoadFrames_VertA(poutframe->verts + j, (short*)inverts);
 					/* 6 bytes vert + 2 bytes */
 					inverts += 8;
 					/* norm convert logic is unknown */
@@ -1781,13 +1781,13 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen)
 
 /*
 =================
-Mod_LoadModel_MD2Anox
+Mod_LoadModel_MD2A
 
-ANACHRONOX Model
+Anachronox Model
 =================
 */
 static void *
-Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen)
+Mod_LoadModel_MD2A(const char *mod_name, const void *buffer, int modfilelen)
 {
 	vec3_t translate = {0, 0, 0};
 	dmdx_t dmdxheader, *pheader;
@@ -1916,7 +1916,7 @@ Mod_LoadModel_MD2Anox(const char *mod_name, const void *buffer, int modfilelen)
 	//
 	// load the frames
 	//
-	Mod_LoadFrames_MD2Anox(pheader, (byte *)buffer + pinmodel.ofs_frames,
+	Mod_LoadFrames_MD2A(pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate, pinmodel.resolution);
 	Mod_LoadAnimGroupList(pheader);
 	Mod_LoadFixNormals(pheader);
@@ -3460,7 +3460,7 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 				if (version == ALIAS_ANACHRONOX_VERSION ||
 					version == ALIAS_ANACHRONOX_VERSION_OLD)
 				{
-					extradata = Mod_LoadModel_MD2Anox(mod_name, buffer, modfilelen);
+					extradata = Mod_LoadModel_MD2A(mod_name, buffer, modfilelen);
 				}
 				else
 				{
