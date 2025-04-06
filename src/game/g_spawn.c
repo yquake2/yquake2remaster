@@ -188,6 +188,133 @@ dynamicspawn_think(edict_t *self)
 {
 	M_SetAnimGroupFrame(self, "idle");
 	self->nextthink = level.time + FRAMETIME;
+
+	printf("%s\n", __func__);
+}
+
+static void
+DynamicSpawnSetMonsterInfo_walk(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "walk";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_run(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "run";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_attack(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "attack";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_melee(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "melee";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_pain(edict_t *self, edict_t *other /* unused */, float kick, int damage)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "pain";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
+		int damage, vec3_t point /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "death";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_idle(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "idle";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_sight(edict_t *self, edict_t *other /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+}
+
+static void
+DynamicSpawnSetMonsterInfo_stand(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "stand";
+}
+
+static void
+DynamicSpawnSetMonsterInfo_dodge(edict_t *self, edict_t *attacker, float eta, trace_t *tr /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentanimgroup = "dodge";
+}
+
+static qboolean
+DynamicSpawnSetMonsterInfo_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 static void
@@ -197,8 +324,12 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	int num, i;
 
 	/* All other properties could be updated in DynamicSpawnUpdate */
-	self->movetype = MOVETYPE_NONE;
+	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
+	// self->think = dynamicspawn_think;
+	// self->nextthink = level.time + FRAMETIME;
+
+	self->s.frame = 0;
 
 	/* set message only if it has description */
 	if (data->description[0])
@@ -227,7 +358,31 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 
 	self->touch = dynamicspawn_touch;
 
+	self->pain = DynamicSpawnSetMonsterInfo_pain;
+	self->die = DynamicSpawnSetMonsterInfo_die;
+
+	self->monsterinfo.stand = DynamicSpawnSetMonsterInfo_stand;
+	self->monsterinfo.walk = DynamicSpawnSetMonsterInfo_walk;
+	self->monsterinfo.run = DynamicSpawnSetMonsterInfo_run;
+	self->monsterinfo.attack = DynamicSpawnSetMonsterInfo_attack;
+	self->monsterinfo.sight = DynamicSpawnSetMonsterInfo_sight;
+	self->monsterinfo.idle = DynamicSpawnSetMonsterInfo_idle;
+	self->monsterinfo.dodge = DynamicSpawnSetMonsterInfo_dodge;
+	self->monsterinfo.blocked = DynamicSpawnSetMonsterInfo_blocked;
+	self->monsterinfo.melee = DynamicSpawnSetMonsterInfo_melee;
+
 	gi.linkentity(self);
+
+	self->monsterinfo.scale = 1.0;
+	self->health = 100;
+	self->gib_health = -50;
+	self->mass = 250;
+	self->viewheight = 15;
+
+	// self->monsterinfo.aiflags |= AI_WALK_WALLS;
+
+	self->monsterinfo.currentanimgroup = "idle";
+	walkmonster_start(self);
 }
 
 static int
