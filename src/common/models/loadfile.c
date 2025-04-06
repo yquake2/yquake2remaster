@@ -284,7 +284,7 @@ Mod_AliasesFreeAll(void)
 }
 
 static const model_t *
-Mod_AliasSave(const char *namewe, int modfilelen, const void *buffer)
+Mod_AliasSave(const char *mod_name, int modfilelen, const void *buffer)
 {
 	model_t *mod;
 	int i;
@@ -304,12 +304,12 @@ Mod_AliasSave(const char *namewe, int modfilelen, const void *buffer)
 		model_num = (model_num + 1) % MAX_MOD_KNOWN;
 		mod = &mod_known[model_num];
 		Com_DPrintf("%s: No free space. Clean up random for model: %s: %d Kb\n",
-			__func__, namewe, mod->extradatasize / 1024);
+			__func__, mod_name, mod->extradatasize / 1024);
 		/* free old stuff */
 		Mod_AliasFree(mod);
 	}
 
-	mod->extradata = Mod_LoadModelFile(namewe, buffer, modfilelen);
+	mod->extradata = Mod_LoadModelFile(mod_name, buffer, modfilelen);
 	if (!mod->extradata)
 	{
 		/* unrecognized format */
@@ -318,7 +318,7 @@ Mod_AliasSave(const char *namewe, int modfilelen, const void *buffer)
 
 	mod->extradatasize = Hunk_End();
 
-	strncpy(mod->name, namewe, sizeof(mod->name) - 1);
+	strncpy(mod->name, mod_name, sizeof(mod->name) - 1);
 
 	return mod;
 }
@@ -335,6 +335,27 @@ Mod_FindModel(const char *name)
 			return &mod_known[i];
 		}
 	}
+	return NULL;
+}
+
+const dmdxframegroup_t *
+Mod_GetFrameGroups(const char *name, int *num)
+{
+	model_t *mod;
+
+	mod = Mod_FindModel(name);
+
+	if (mod)
+	{
+		dmdx_t *paliashdr;
+
+		paliashdr = (dmdx_t *)mod->extradata;
+		*num = paliashdr->num_animgroup;
+
+		return (dmdxframegroup_t *)((char *)paliashdr + paliashdr->ofs_animgroup);
+	}
+
+	*num = 0;
 	return NULL;
 }
 

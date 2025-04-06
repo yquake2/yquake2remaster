@@ -690,6 +690,7 @@ int CM_LoadFile(const char *path, void **buffer);
 int Mod_LoadFile(const char *path, void **buffer);
 void Mod_AliasesInit(void);
 void Mod_AliasesFreeAll(void);
+const dmdxframegroup_t *Mod_GetFrameGroups(const char *name, int *num);
 
 /* PLAYER MOVEMENT CODE */
 

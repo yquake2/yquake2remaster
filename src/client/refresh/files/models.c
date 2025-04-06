@@ -29,45 +29,6 @@
 
 #include "../ref_shared.h"
 
-/*
-=================
-Mod_LoadModelFile
-=================
-*/
-static void *
-Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen,
-	modtype_t *type)
-{
-	void *extradata = NULL;
-	int ident;
-
-	/* code needs at least 2 ints for detect file type */
-	if (!buffer || modfilelen < (sizeof(unsigned) * 2))
-	{
-		return NULL;
-	}
-
-	ident = LittleLong(*(unsigned *)buffer);
-
-	if (ident == IDALIASHEADER || ident == IDSPRITEHEADER)
-	{
-		char *data = NULL;
-
-		extradata = Hunk_Begin(modfilelen);
-		data = Hunk_Alloc(modfilelen);
-		memcpy(data, buffer, modfilelen);
-
-		switch (ident)
-		{
-			case IDALIASHEADER: *type = mod_alias; break;
-			case IDSPRITEHEADER: *type = mod_sprite; break;
-		}
-	}
-
-	return extradata;
-}
-
-
 static void
 Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 {
@@ -213,19 +174,42 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
 	findimage_t find_image, loadimage_t load_image, modtype_t *type)
 {
-	void *extradata;
+	int ident;
 
-	extradata = Mod_LoadModelFile(mod_name, buffer, modfilelen, type);
-
-	if (extradata)
+	/* code needs at least 2 ints for detect file type */
+	if (!buffer || modfilelen < (sizeof(unsigned) * 2))
 	{
+		return NULL;
+	}
+
+	ident = LittleLong(*(unsigned *)buffer);
+
+	if (ident == IDALIASHEADER || ident == IDSPRITEHEADER)
+	{
+		void *extradata = NULL;
+		char *data;
+
+		extradata = Hunk_Begin(modfilelen);
+		data = Hunk_Alloc(modfilelen);
+		memcpy(data, buffer, modfilelen);
+
+		switch (ident)
+		{
+			case IDALIASHEADER: *type = mod_alias; break;
+			case IDSPRITEHEADER: *type = mod_sprite; break;
+		}
+
 		Mod_AllocateSkins(mod_name, skins, numskins, extradata, *type);
 		Mod_LoadMinMaxUpdate(mod_name, mins, maxs, extradata, *type);
 		Mod_ReLoadSkins(mod_name, *skins, find_image, load_image, extradata, *type);
-		Mod_LoadLimits(mod_name, extradata, *type);
+		/* should use data, in other case compiler could skip memcpy
+		 * for optimizaed code */
+		Mod_LoadLimits(mod_name, data, *type);
+
+		return extradata;
 	}
 
-	return extradata;
+	return NULL;
 }
 
 /*

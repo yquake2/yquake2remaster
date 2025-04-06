@@ -169,7 +169,6 @@ static void
 PF_setmodel(edict_t *ent, const char *name)
 {
 	int i;
-	cmodel_t *mod;
 
 	if (!name)
 	{
@@ -185,6 +184,8 @@ PF_setmodel(edict_t *ent, const char *name)
 	   the size information for it */
 	if (name[0] == '*')
 	{
+		cmodel_t *mod;
+
 		mod = CM_InlineModel(name);
 		VectorCopy(mod->mins, ent->mins);
 		VectorCopy(mod->maxs, ent->maxs);
@@ -228,7 +229,7 @@ PF_Configstring(int index, const char *val)
 
 /* Direct get value for config string, index in library range */
 static const char *
-PF_ConfigstringGet(int index)
+PF_ConfigStringGet(int index)
 {
 	index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
 
@@ -239,6 +240,12 @@ PF_ConfigstringGet(int index)
 
 	/* change the string in sv */
 	return sv.configstrings[index];
+}
+
+static const dmdxframegroup_t *
+PF_GetFrameGroups(int index, int *num)
+{
+	return Mod_GetFrameGroups(sv.configstrings[CS_MODELS + index], num);
 }
 
 static void
@@ -437,7 +444,6 @@ SV_InitGameProgs(void)
 	import.imageindex = SV_ImageIndex;
 
 	import.configstring = PF_Configstring;
-	import.GetConfigString = PF_ConfigstringGet;
 	import.sound = PF_StartSound;
 	import.positioned_sound = SV_StartSound;
 
@@ -476,6 +482,8 @@ SV_InitGameProgs(void)
 	import.FreeFile = FS_FreeFile;
 	import.Gamedir = FS_Gamedir;
 	import.CreatePath = FS_CreatePath;
+	import.GetConfigString = PF_ConfigStringGet;
+	import.GetFrameGroups = PF_GetFrameGroups;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

@@ -215,6 +215,7 @@ typedef struct
 	const char * (*Gamedir)(void);
 	void (*CreatePath)(const char *path);
 	const char * (*GetConfigString)(int num);
+	const dmdxframegroup_t * (*GetFrameGroups)(int index, int *num);
 } game_import_t;
 
 /* functions exported by the game subsystem */
