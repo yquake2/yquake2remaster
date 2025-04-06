@@ -798,7 +798,43 @@ M_SetEffects(edict_t *ent)
 	}
 }
 
+static void
+M_SetAnimGroupFrameValues(edict_t *self, const char *name,
+	int *ofs_frames, int *num_frames)
+{
+	const dmdxframegroup_t * frames;
+	int num, i;
+
+	frames = gi.GetFrameGroups(self->s.modelindex, &num);
+	for (i = 0; i < num; i++)
+	{
+		if (!strcmp(frames[i].name, name))
+		{
+			*ofs_frames = frames[i].ofs;
+			*num_frames = frames[i].num;
+			break;
+		}
+	}
+}
+
 void
+M_SetAnimGroupFrame(edict_t *self, const char *name)
+{
+	int i, ofs_frames = 0, num_frames = 1;
+
+	M_SetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames);
+
+	i = self->s.frame - ofs_frames;
+	if (i < 0)
+	{
+		i = 0;
+	}
+	i++;
+
+	self->s.frame = ofs_frames + i % num_frames;
+}
+
+static void
 M_MoveFrame(edict_t *self)
 {
 	mmove_t *move;

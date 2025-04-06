@@ -39,28 +39,7 @@
 void
 object_flame1_think(edict_t *self)
 {
-	int num, i, ofs_frames = 0, num_frames = 1;
-	const dmdxframegroup_t * frames;
-
-	frames = gi.GetFrameGroups(self->s.modelindex, &num);
-	for (i = 0; i < num; i++)
-	{
-		if (!strcmp(frames[i].name, "flame"))
-		{
-			ofs_frames = frames[i].ofs;
-			num_frames = frames[i].num;
-			break;
-		}
-	}
-
-	i = self->s.frame - ofs_frames;
-	if (i < 0)
-	{
-		i = 0;
-	}
-	i++;
-
-	self->s.frame = ofs_frames + i % num_frames;
+	M_SetAnimGroupFrame(self, "flame");
 	self->nextthink = level.time + FRAMETIME;
 }
 
@@ -100,7 +79,7 @@ SP_object_flame1(edict_t *self)
 void
 object_big_fire_think(edict_t *self)
 {
-	self->s.frame = (self->s.frame + 1) % 60;
+	M_SetAnimGroupFrame(self, "bigfire");
 	self->nextthink = level.time + FRAMETIME;
 
 	/* add particles */

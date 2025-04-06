@@ -50,27 +50,40 @@ void AI_EnemyAdded(edict_t *ent)
 void AI_EnemyRemoved(edict_t *ent)
 {
 	int i;
-	int pos;
+	int pos = -1;
 
-	// watch for 0 players
-	if(num_AIEnemies < 1)
+	/* watch for 0 players */
+	if (num_AIEnemies < 1)
+	{
 		return;
+	}
 
-	// special case for only one player
-	if(num_AIEnemies == 1)
+	/* special case for only one player */
+	if (num_AIEnemies == 1)
 	{
 		num_AIEnemies = 0;
 		return;
 	}
 
-	// Find the player
-	for(i=0;i<num_AIEnemies;i++)
-		if(ent == AIEnemies[i])
+	/* Find the player */
+	for (i = 0; i < num_AIEnemies; i++)
+	{
+		if (ent == AIEnemies[i])
+		{
 			pos = i;
+		}
+	}
 
-	// decrement
-	for( i=pos; i<num_AIEnemies-1; i++ )
-		AIEnemies[i] = AIEnemies[i+1];
+	if (pos < 0)
+	{
+		return;
+	}
+
+	/* decrement */
+	for (i = pos; i < num_AIEnemies - 1; i++)
+	{
+		AIEnemies[i] = AIEnemies[i + 1];
+	}
 
 	num_AIEnemies--;
 }

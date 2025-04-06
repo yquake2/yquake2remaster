@@ -38,36 +38,35 @@ edict_t		*LINKS_PASSENT = NULL;
 //==========================================
 char *AI_LinkString( int linktype )
 {
-	char *s;
-
-	if( linktype == LINK_MOVE )
-		s = "LINK_MOVE";
-	else if( linktype == LINK_STAIRS )
-		s = "LINK_STAIRS";
-	else if( linktype == LINK_FALL )
-		s = "LINK_FALL";
-	else if( linktype == LINK_CLIMB )
-		s = "LINK_CLIMB";
-	else if( linktype == LINK_TELEPORT )
-		s = "LINK_TELEPORT";
-	else if( linktype == LINK_PLATFORM )
-		s = "LINK_PLATFORM";
-	else if( linktype == LINK_JUMPPAD )
-		s = "LINK_JUMPAD";
-	else if( linktype == LINK_WATER )
-		s = "LINK_WATER";
-	else if( linktype == LINK_WATERJUMP )
-		s = "LINK_WATERJUMP";
-	else if( linktype == LINK_LADDER )
-		s = "LINK_LADDER";
-	else if( linktype == LINK_INVALID )
-		s = "LINK_INVALID";
-	else if( linktype == LINK_JUMP )
-		s = "LINK_JUMP";
-	else if( linktype )
-		s = "UNKNOWN";
-
-	return s;
+	switch (linktype)
+	{
+		case LINK_MOVE:
+			return "LINK_MOVE";
+		case LINK_STAIRS:
+			return "LINK_STAIRS";
+		case LINK_FALL:
+			return "LINK_FALL";
+		case LINK_CLIMB:
+			return "LINK_CLIMB";
+		case LINK_TELEPORT:
+			return "LINK_TELEPORT";
+		case LINK_PLATFORM:
+			return "LINK_PLATFORM";
+		case LINK_JUMPPAD:
+			return "LINK_JUMPAD";
+		case LINK_WATER:
+			return "LINK_WATER";
+		case LINK_WATERJUMP:
+			return "LINK_WATERJUMP";
+		case LINK_LADDER:
+			return "LINK_LADDER";
+		case LINK_INVALID:
+			return "LINK_INVALID";
+		case LINK_JUMP:
+			return "LINK_JUMP";
+		default:
+			return "UNKNOWN";
+	}
 }
 
 //==========================================

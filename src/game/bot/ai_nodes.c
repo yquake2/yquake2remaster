@@ -646,43 +646,57 @@ qboolean AI_LoadPLKFile( char *mapname )
 // AI_IsPlatformLink
 // interpretation of this link type
 //==========================================
-int AI_IsPlatformLink( int n1, int n2 )
+static int
+AI_IsPlatformLink(int n1, int n2)
 {
-	int	i;
-	if( nodes[n1].flags & NODEFLAGS_PLATFORM && nodes[n2].flags & NODEFLAGS_PLATFORM )
+	if (n1 < 0 || n2 < 0)
+	{
+		return LINK_INVALID;
+	}
+
+	if ((nodes[n1].flags & NODEFLAGS_PLATFORM) && (nodes[n2].flags & NODEFLAGS_PLATFORM))
 	{
 		//the link was added by it's dropping function or it's invalid
 		return LINK_INVALID;
 	}
 
-	//if first is plat but not second
-	if( nodes[n1].flags & NODEFLAGS_PLATFORM && !(nodes[n2].flags & NODEFLAGS_PLATFORM) )
+	/* if first is plat but not second */
+	if ((nodes[n1].flags & NODEFLAGS_PLATFORM) && !(nodes[n2].flags & NODEFLAGS_PLATFORM))
 	{
 		edict_t *n1ent = NULL;
-		int		othernode;
+		int othernode = -1, i;
 
 		// find ent
-		for(i=0;i<nav.num_ents;i++) {
-			if( nav.ents[i].node == n1 )
+		for( i = 0; i < nav.num_ents; i++)
+		{
+			if (nav.ents[i].node == n1)
+			{
 				n1ent = nav.ents[i].ent;
+			}
 		}
 		// find the other node from that ent
-		for(i=0;i<nav.num_ents;i++){
+		for(i = 0; i < nav.num_ents; i++)
+		{
 			if( nav.ents[i].node != n1 && nav.ents[i].ent == n1ent)
+			{
 				othernode = nav.ents[i].node;
+			}
 		}
 
-		if( othernode == -1 || !n1ent )
+		if (othernode == -1 || !n1ent)
+		{
 			return LINK_INVALID;
+		}
 
 		//find out if n1 is the upper or the lower plat node
-		if( nodes[n1].origin[2] < nodes[othernode].origin[2] )
+		if (nodes[n1].origin[2] < nodes[othernode].origin[2])
 		{
 			//n1 is plat lower: it can't link TO anything but upper plat node
 			return LINK_INVALID;
 
-		} else {
-
+		}
+		else
+		{
 			trace_t	trace;
 			float	heightdiff;
 			//n1 is plat upper: it can link to visibles at same height
@@ -693,8 +707,10 @@ int AI_IsPlatformLink( int n1, int n2 )
 				if( heightdiff < 0 )
 					heightdiff = -heightdiff;
 
-				if( heightdiff < AI_JUMPABLE_HEIGHT )
+				if (heightdiff < AI_JUMPABLE_HEIGHT)
+				{
 					return LINK_MOVE;
+				}
 
 				return LINK_INVALID;
 			}
@@ -702,10 +718,10 @@ int AI_IsPlatformLink( int n1, int n2 )
 	}
 
 	//only second is plat node
-	if( !(nodes[n1].flags & NODEFLAGS_PLATFORM) && nodes[n2].flags & NODEFLAGS_PLATFORM )
+	if (!(nodes[n1].flags & NODEFLAGS_PLATFORM) && (nodes[n2].flags & NODEFLAGS_PLATFORM))
 	{
 		edict_t *n2ent = NULL;
-		int		othernode;
+		int othernode = -1, i;
 
 		// find ent
 		for(i=0;i<nav.num_ents;i++) {
