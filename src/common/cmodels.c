@@ -161,12 +161,7 @@ Mod_DecompressVis(const byte *in, byte *out, const byte* numvisibility, int row)
 	if (!in || !numvisibility)
 	{
 		/* no vis info, so make all visible */
-		while (row)
-		{
-			*out_p++ = 0xff;
-			row--;
-		}
-
+		memset(out_p, 0xff, row);
 		return;
 	}
 
@@ -174,10 +169,18 @@ Mod_DecompressVis(const byte *in, byte *out, const byte* numvisibility, int row)
 	{
 		int c;
 
-		if (((in + 2) < numvisibility) && *in)
+		if ((in < numvisibility) && *in)
 		{
 			*out_p++ = *in++;
 			continue;
+		}
+
+		if (in >= numvisibility)
+		{
+			/* not enough data */
+			memset(out_p, 0xff, row - (out_p - out));
+			Com_DPrintf("%s: warning: Vis has not enough data to decompress\n", __func__);
+			return;
 		}
 
 		c = in[1];
@@ -189,11 +192,8 @@ Mod_DecompressVis(const byte *in, byte *out, const byte* numvisibility, int row)
 			Com_DPrintf("%s: warning: Vis decompression overrun\n", __func__);
 		}
 
-		while (c)
-		{
-			*out_p++ = 0;
-			c--;
-		}
+		memset(out_p, 0, c);
+		out_p += c;
 	}
 	while (out_p - out < row);
 }

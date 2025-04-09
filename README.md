@@ -166,7 +166,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: Cleanup function declarations in game save code,
 * [ ] game: Fix broken base3 with sorted fields names,
-* [ ] ReRelease: crash on exit from psx/base2,
+* [x] ReRelease: crash on exit from psx/base2,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
 * [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
