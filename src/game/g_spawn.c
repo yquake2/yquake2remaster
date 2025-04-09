@@ -489,10 +489,10 @@ ED_ParseColorField(const char *value)
 	{
 		float v[4] = { 0, 0, 0, 1.0f };
 		qboolean is_float = true;
-		char color_buffer[16], *tmp;
+		char *color_buffer, *tmp;
 		int i;
 
-		strncpy(color_buffer, value, sizeof(color_buffer) - 1);
+		color_buffer = strdup(value);
 		tmp = color_buffer;
 
 		for (i = 0; i < 4; i++)
@@ -509,6 +509,7 @@ ED_ParseColorField(const char *value)
 				break;
 			}
 		}
+		free(color_buffer);
 
 		/* convert to bytes */
 		if (is_float)
