@@ -243,9 +243,34 @@ PF_ConfigStringGet(int index)
 }
 
 static const dmdxframegroup_t *
-PF_GetFrameGroups(int index, int *num)
+PF_GetModelInfo(int index, int *num, float *mins, float *maxs)
 {
-	return Mod_GetFrameGroups(sv.configstrings[CS_MODELS + index], num);
+	if (index < MAX_MODELS)
+	{
+		if (sv.configstrings[CS_MODELS + index][0] == '*')
+		{
+			if (maxs && mins)
+			{
+				cmodel_t *mod;
+
+				mod = CM_InlineModel(sv.configstrings[CS_MODELS + index]);
+				VectorCopy(mod->mins, mins);
+				VectorCopy(mod->maxs, maxs);
+			}
+		}
+		else
+		{
+			return Mod_GetModelInfo(sv.configstrings[CS_MODELS + index],
+				num, mins, maxs);
+		}
+	}
+
+	if (num)
+	{
+		*num = 0;
+	}
+
+	return NULL;
 }
 
 static void
@@ -483,7 +508,7 @@ SV_InitGameProgs(void)
 	import.Gamedir = FS_Gamedir;
 	import.CreatePath = FS_CreatePath;
 	import.GetConfigString = PF_ConfigStringGet;
-	import.GetFrameGroups = PF_GetFrameGroups;
+	import.GetModelInfo = PF_GetModelInfo;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

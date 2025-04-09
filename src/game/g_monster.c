@@ -805,7 +805,7 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 	const dmdxframegroup_t * frames;
 	int num, i;
 
-	frames = gi.GetFrameGroups(self->s.modelindex, &num);
+	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
 	for (i = 0; i < num; i++)
 	{
 		if (!strcmp(frames[i].name, name))

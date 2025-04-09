@@ -339,7 +339,7 @@ Mod_FindModel(const char *name)
 }
 
 const dmdxframegroup_t *
-Mod_GetFrameGroups(const char *name, int *num)
+Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 {
 	model_t *mod;
 
@@ -350,12 +350,58 @@ Mod_GetFrameGroups(const char *name, int *num)
 		dmdx_t *paliashdr;
 
 		paliashdr = (dmdx_t *)mod->extradata;
-		*num = paliashdr->num_animgroup;
+
+		if (num)
+		{
+			*num = paliashdr->num_animgroup;
+		}
+
+		if (mins && maxs && paliashdr->num_frames)
+		{
+			daliasxframe_t *frame;
+			int i;
+
+			frame = (daliasxframe_t *) ((byte *)mod->extradata + paliashdr->ofs_frames);
+
+			VectorCopy(frame->translate, mins);
+			VectorCopy(frame->translate, maxs);
+
+			for (i = 0; i < paliashdr->num_frames; i++)
+			{
+				int j;
+
+				frame = (daliasxframe_t *) ((byte *)mod->extradata
+					+ paliashdr->ofs_frames + i * paliashdr->framesize);
+
+				for (j = 0; j < 3; j++)
+				{
+					float curr;
+
+					curr = frame->translate[j];
+
+					if (mins[j] > curr)
+					{
+						mins[j] = curr;
+					}
+
+					curr += frame->scale[j] * 0xFFFF;
+
+					if (maxs[j] < curr)
+					{
+						maxs[j] = curr;
+					}
+				}
+			}
+		}
 
 		return (dmdxframegroup_t *)((char *)paliashdr + paliashdr->ofs_animgroup);
 	}
 
-	*num = 0;
+	if (num)
+	{
+		*num = 0;
+	}
+
 	return NULL;
 }
 

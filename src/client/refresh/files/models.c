@@ -64,7 +64,7 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 		for (i = 0; i < pheader->num_animgroup; i++)
 		{
-			R_Printf(PRINT_DEVELOPER, "%s: model %s animation group #%d: '%s' %d -> %d\n",
+			R_Printf(PRINT_DEVELOPER, "%s: model %s animation group #%d: '%s' %d + %d\n",
 				__func__, mod_name, i, framegroups[i].name, framegroups[i].ofs, framegroups[i].num);
 		}
 
@@ -133,7 +133,7 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 			}
 		}
 
-		R_Printf(PRINT_DEVELOPER, "Model %s: %.1fx%.1fx%.1f -> %.1fx%.1fx%.1f\n",
+		R_Printf(PRINT_DEVELOPER, "Model %s box: %.1fx%.1fx%.1f -> %.1fx%.1fx%.1f\n",
 			mod_name,
 			mins[0], mins[1], mins[2],
 			maxs[0], maxs[1], maxs[2]);
