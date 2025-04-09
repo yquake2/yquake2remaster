@@ -2035,7 +2035,7 @@ droptofloor(edict_t *ent)
 		gi.setmodel(ent, ent->item->world_model);
 	}
 
-	/* set real size of item model */
+	/* set real size of item model except height to items fly hack */
 	VectorCopy(ent->mins, mins);
 	VectorCopy(ent->maxs, maxs);
 	gi.GetModelInfo(ent->s.modelindex, NULL, mins, maxs);

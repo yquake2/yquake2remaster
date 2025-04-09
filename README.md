@@ -166,6 +166,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: Cleanup function declarations in game save code,
 * [ ] game: Fix broken base3 with sorted fields names,
+* [ ] ReRelease: crash on exit from psx/base2,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
 * [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
@@ -177,7 +178,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: Support textures/*/*_glow.png load,
 * [ ] ReRelease: Support tactile/*/*.bnvib/.wav feedback load,
 * [ ] ReRelease: Fix physics with incorrect floor height in psx/base0.bsp,
-* [ ] ReRelease: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) >4k coord values support,
+* [ ] ReRelease: basicsjam1_detrohogga: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) > 4k coord values support,
 * [ ] ReRelease: Fully implement `misc_flare`,
 * [ ] ReRelease: Single player support,
 * [ ] ReRelease: Support effects and additional flags when possible.
