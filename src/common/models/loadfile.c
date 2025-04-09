@@ -328,6 +328,11 @@ Mod_FindModel(const char *name)
 {
 	size_t i;
 
+	if (!name || !name[0])
+	{
+		return NULL;
+	}
+
 	for (i = 0; i < MAX_MOD_KNOWN; i++)
 	{
 		if (!strcmp(name, mod_known[i].name))
@@ -335,73 +340,6 @@ Mod_FindModel(const char *name)
 			return &mod_known[i];
 		}
 	}
-	return NULL;
-}
-
-const dmdxframegroup_t *
-Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
-{
-	model_t *mod;
-
-	mod = Mod_FindModel(name);
-
-	if (mod)
-	{
-		dmdx_t *paliashdr;
-
-		paliashdr = (dmdx_t *)mod->extradata;
-
-		if (num)
-		{
-			*num = paliashdr->num_animgroup;
-		}
-
-		if (mins && maxs && paliashdr->num_frames)
-		{
-			daliasxframe_t *frame;
-			int i;
-
-			frame = (daliasxframe_t *) ((byte *)mod->extradata + paliashdr->ofs_frames);
-
-			VectorCopy(frame->translate, mins);
-			VectorCopy(frame->translate, maxs);
-
-			for (i = 0; i < paliashdr->num_frames; i++)
-			{
-				int j;
-
-				frame = (daliasxframe_t *) ((byte *)mod->extradata
-					+ paliashdr->ofs_frames + i * paliashdr->framesize);
-
-				for (j = 0; j < 3; j++)
-				{
-					float curr;
-
-					curr = frame->translate[j];
-
-					if (mins[j] > curr)
-					{
-						mins[j] = curr;
-					}
-
-					curr += frame->scale[j] * 0xFFFF;
-
-					if (maxs[j] < curr)
-					{
-						maxs[j] = curr;
-					}
-				}
-			}
-		}
-
-		return (dmdxframegroup_t *)((char *)paliashdr + paliashdr->ofs_animgroup);
-	}
-
-	if (num)
-	{
-		*num = 0;
-	}
-
 	return NULL;
 }
 
@@ -516,80 +454,151 @@ Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
 	return -1;
 }
 
-static int
-Mod_LoadFileWithoutExt(const char *name, const char *namewe, void **buffer, const char* ext)
+const model_t *
+Mod_StoreAliasModel(const char *name)
 {
-	char newname[256];
-	size_t tlen;
+	size_t tlen, len;
+	char namewe[256];
+	const char* ext;
+	int filesize;
+	void *buffer;
 
-	*buffer = NULL;
+	if (!name || !name[0])
+	{
+		return NULL;
+	}
 
-	tlen = strlen(namewe);
+	ext = COM_FileExtension(name);
+	if(!ext[0])
+	{
+		/* file has no extension */
+		return NULL;
+	}
 
-	if (!strcmp(ext, "fm") ||
-		!strcmp(ext, "ctc") ||
-		!strcmp(ext, "def") ||
-		!strcmp(ext, "dkm") ||
-		!strcmp(ext, "mda") ||
-		!strcmp(ext, "md2") ||
-		!strcmp(ext, "md3") ||
-		!strcmp(ext, "mdr") ||
-		!strcmp(ext, "md5mesh") ||
-		!strcmp(ext, "mdx") ||
-		!strcmp(ext, "mdl"))
+	len = strlen(name);
+	if (len < 5)
+	{
+		return NULL;
+	}
+
+	/* Remove the extension */
+	tlen = len - (strlen(ext) + 1);
+	memset(namewe, 0, 256);
+	memcpy(namewe, name, tlen);
+
+	filesize = Mod_LoadFileWithoutExtModel(namewe, tlen, &buffer);
+	if (filesize <= 0)
+	{
+		/* Replacement of ReRelease models */
+		if (!strcmp(namewe, "models/monsters/soldierh/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/soldier/tris",
+				tlen, &buffer);
+		}
+		else if (!strcmp(namewe, "models/monsters/gladb/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/gladiatr/tris",
+				tlen, &buffer);
+		}
+		else if (!strcmp(namewe, "models/monsters/boss5/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/boss1/tris",
+				tlen, &buffer);
+		}
+		else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/bitch/tris",
+				tlen, &buffer);
+		}
+	}
+
+	if (filesize > 0)
 	{
 		const model_t *mod;
-		int filesize;
 
-		mod = Mod_FindModel(name);
-		if (mod)
+		/* save and convert */
+		mod = Mod_AliasSave(name, filesize, buffer);
+		if (buffer)
 		{
-			*buffer = Z_Malloc(mod->extradatasize);
-			memcpy(*buffer, mod->extradata, mod->extradatasize);
-			return mod->extradatasize;
+			/* free old buffer */
+			FS_FreeFile(buffer);
 		}
 
-		filesize = Mod_LoadFileWithoutExtModel(namewe, tlen, buffer);
-		if (filesize > 0)
-		{
-			/* save and convert */
-			mod = Mod_AliasSave(name, filesize, *buffer);
-			if (mod && *buffer)
-			{
-				/* free old buffer */
-				FS_FreeFile(*buffer);
-
-				/* copy buffer */
-				*buffer = Z_Malloc(mod->extradatasize);
-				memcpy(*buffer, mod->extradata, mod->extradatasize);
-
-				return mod->extradatasize;
-			}
-
-			return filesize;
-		}
+		return mod;
 	}
 
-	if (!strcmp(ext, "bsp"))
+	return NULL;
+}
+
+const dmdxframegroup_t *
+Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
+{
+	const model_t *mod;
+
+	mod = Mod_FindModel(name);
+	if (!mod)
 	{
-		int filesize;
-
-		Q_strlcpy(newname, namewe, sizeof(newname));
-		Q_strlcat(newname, ".", sizeof(newname));
-		Q_strlcat(newname, ext, sizeof(newname));
-
-		filesize = CM_LoadFile(newname, buffer);
-		if (filesize > 0)
-		{
-			return filesize;
-		}
+		mod = Mod_StoreAliasModel(name);
 	}
 
-	Q_strlcpy(newname, namewe, sizeof(newname));
-	Q_strlcat(newname, ".", sizeof(newname));
-	Q_strlcat(newname, ext, sizeof(newname));
+	if (mod)
+	{
+		dmdx_t *paliashdr;
 
-	return FS_LoadFile(newname, buffer);
+		paliashdr = (dmdx_t *)mod->extradata;
+
+		if (num)
+		{
+			*num = paliashdr->num_animgroup;
+		}
+
+		if (mins && maxs && paliashdr->num_frames)
+		{
+			daliasxframe_t *frame;
+			int i;
+
+			frame = (daliasxframe_t *) ((byte *)mod->extradata + paliashdr->ofs_frames);
+
+			VectorCopy(frame->translate, mins);
+			VectorCopy(frame->translate, maxs);
+
+			for (i = 0; i < paliashdr->num_frames; i++)
+			{
+				int j;
+
+				frame = (daliasxframe_t *) ((byte *)mod->extradata
+					+ paliashdr->ofs_frames + i * paliashdr->framesize);
+
+				for (j = 0; j < 3; j++)
+				{
+					float curr;
+
+					curr = frame->translate[j];
+
+					if (mins[j] > curr)
+					{
+						mins[j] = curr;
+					}
+
+					curr += frame->scale[j] * 0xFFFF;
+
+					if (maxs[j] < curr)
+					{
+						maxs[j] = curr;
+					}
+				}
+			}
+		}
+
+		return (dmdxframegroup_t *)((char *)paliashdr + paliashdr->ofs_animgroup);
+	}
+
+	if (num)
+	{
+		*num = 0;
+	}
+
+	return NULL;
 }
 
 /*
@@ -600,10 +609,10 @@ Mod_LoadFile
 int
 Mod_LoadFile(const char *name, void **buffer)
 {
+	char newname[256];
 	size_t tlen, len;
 	char namewe[256];
 	const char* ext;
-	int filesize;
 
 	if (!name)
 	{
@@ -628,31 +637,54 @@ Mod_LoadFile(const char *name, void **buffer)
 	memset(namewe, 0, 256);
 	memcpy(namewe, name, tlen);
 
-	filesize = Mod_LoadFileWithoutExt(name, namewe, buffer, ext);
-	if (filesize <= 0)
+	*buffer = NULL;
+
+	if (!strcmp(ext, "fm") ||
+		!strcmp(ext, "ctc") ||
+		!strcmp(ext, "def") ||
+		!strcmp(ext, "dkm") ||
+		!strcmp(ext, "mda") ||
+		!strcmp(ext, "md2") ||
+		!strcmp(ext, "md3") ||
+		!strcmp(ext, "mdr") ||
+		!strcmp(ext, "md5mesh") ||
+		!strcmp(ext, "mdx") ||
+		!strcmp(ext, "mdl"))
 	{
-		/* Replacement of ReRelease models */
-		if (!strcmp(namewe, "models/monsters/soldierh/tris"))
+		const model_t *mod;
+
+		mod = Mod_FindModel(name);
+		if (!mod)
 		{
-			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/soldier/tris",
-				buffer, ext);
+			mod = Mod_StoreAliasModel(name);
 		}
-		else if (!strcmp(namewe, "models/monsters/gladb/tris"))
+
+		if (mod)
 		{
-			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/gladiatr/tris",
-				buffer, ext);
-		}
-		else if (!strcmp(namewe, "models/monsters/boss5/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/boss1/tris",
-				buffer, ext);
-		}
-		else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExt(name, "models/monsters/bitch/tris",
-				buffer, ext);
+			*buffer = Z_Malloc(mod->extradatasize);
+			memcpy(*buffer, mod->extradata, mod->extradatasize);
+			return mod->extradatasize;
 		}
 	}
 
-	return filesize;
+	if (!strcmp(ext, "bsp"))
+	{
+		int filesize;
+
+		Q_strlcpy(newname, namewe, sizeof(newname));
+		Q_strlcat(newname, ".", sizeof(newname));
+		Q_strlcat(newname, ext, sizeof(newname));
+
+		filesize = CM_LoadFile(newname, buffer);
+		if (filesize > 0)
+		{
+			return filesize;
+		}
+	}
+
+	Q_strlcpy(newname, namewe, sizeof(newname));
+	Q_strlcat(newname, ".", sizeof(newname));
+	Q_strlcat(newname, ext, sizeof(newname));
+
+	return FS_LoadFile(newname, buffer);
 }
