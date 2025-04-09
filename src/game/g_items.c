@@ -2011,9 +2011,10 @@ FixObjectPosition(edict_t *ent)
 void
 droptofloor(edict_t *ent)
 {
+	vec3_t mins, maxs, dest;
 	trace_t tr;
-	vec3_t dest;
 	float *v;
+	int i;
 
 	if (!ent)
 	{
@@ -2032,6 +2033,16 @@ droptofloor(edict_t *ent)
 	else if (ent->item->world_model)
 	{
 		gi.setmodel(ent, ent->item->world_model);
+	}
+
+	/* set real size of item model */
+	VectorCopy(ent->mins, mins);
+	VectorCopy(ent->maxs, maxs);
+	gi.GetModelInfo(ent->s.modelindex, NULL, mins, maxs);
+	for (i = 0; i < 2; i++)
+	{
+		ent->mins[i] = mins[i];
+		ent->maxs[i] = maxs[i];
 	}
 
 	ent->solid = SOLID_TRIGGER;
