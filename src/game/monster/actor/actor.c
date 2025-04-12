@@ -645,7 +645,8 @@ void target_actor_touch (edict_t *self, edict_t *other, cplane_t *plane, csurfac
 	}
 }
 
-void SP_target_actor (edict_t *self)
+void
+SP_target_actor(edict_t *self)
 {
 	if (!self->targetname)
 	{
