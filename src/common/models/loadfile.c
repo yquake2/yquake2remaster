@@ -475,11 +475,11 @@ static const replacement_t replacements[] = {
 const model_t *
 Mod_StoreAliasModel(const char *name)
 {
-	size_t tlen, len;
 	char namewe[256];
 	const char* ext;
 	int filesize;
 	void *buffer;
+	size_t len;
 
 	if (!name || !name[0])
 	{
@@ -487,24 +487,23 @@ Mod_StoreAliasModel(const char *name)
 	}
 
 	ext = COM_FileExtension(name);
-	if(!ext[0])
+	if(!ext || !ext[0])
 	{
 		/* file has no extension */
 		return NULL;
 	}
 
-	len = strlen(name);
-	if (len < 5)
+	/* Remove the extension */
+	len = (ext - name) - 1;
+	if (len < 1)
 	{
 		return NULL;
 	}
 
-	/* Remove the extension */
-	tlen = (ext - name) - 1;
-	memcpy(namewe, name, tlen);
-	namewe[tlen] = 0;
+	memcpy(namewe, name, len);
+	namewe[len] = 0;
 
-	filesize = Mod_LoadFileWithoutExtModel(namewe, tlen, &buffer);
+	filesize = Mod_LoadFileWithoutExtModel(namewe, len, &buffer);
 	if (filesize <= 0)
 	{
 		int i;
@@ -514,6 +513,8 @@ Mod_StoreAliasModel(const char *name)
 		{
 			if (!strcmp(namewe, replacements[i].old))
 			{
+				Com_DPrintf("%s: %s tring to replace %s to %s.\n",
+					__func__, name, namewe, replacements[i].new);
 				filesize = Mod_LoadFileWithoutExtModel(replacements[i].new,
 					strlen(replacements[i].new), &buffer);
 				break;
@@ -619,9 +620,9 @@ int
 Mod_LoadFile(const char *name, void **buffer)
 {
 	char newname[256];
-	size_t tlen, len;
 	char namewe[256];
 	const char* ext;
+	size_t len;
 
 	if (!name)
 	{
@@ -634,17 +635,6 @@ Mod_LoadFile(const char *name, void **buffer)
 		/* file has no extension */
 		return -1;
 	}
-
-	len = strlen(name);
-	if (len < 5)
-	{
-		return -1;
-	}
-
-	/* Remove the extension */
-	tlen = (ext - name) - 1;
-	memcpy(namewe, name, tlen);
-	namewe[tlen] = 0;
 
 	*buffer = NULL;
 
@@ -675,6 +665,16 @@ Mod_LoadFile(const char *name, void **buffer)
 			return mod->extradatasize;
 		}
 	}
+
+	/* Remove the extension */
+	len = (ext - name) - 1;
+	if (len < 1)
+	{
+		return -1;
+	}
+
+	memcpy(namewe, name, len);
+	namewe[len] = 0;
 
 	if (!strcmp(ext, "bsp"))
 	{

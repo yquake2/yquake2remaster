@@ -1201,6 +1201,9 @@ Vk_FindImage(const char *originname, imagetype_t type)
 
 	strncpy(name, originname, sizeof(name) - 1);
 
+	/* fix backslashes */
+	Q_replacebackslash(name);
+
 	ext = COM_FileExtension(name);
 	if(!ext[0])
 	{
@@ -1208,18 +1211,15 @@ Vk_FindImage(const char *originname, imagetype_t type)
 		return NULL;
 	}
 
-	len = strlen(name);
-	if (len < 5)
+	/* Remove the extension */
+	len = (ext - name) - 1;
+	if (len < 1)
 	{
 		return NULL;
 	}
 
-	/* Remove the extension */
-	memset(namewe, 0, sizeof(namewe));
-	memcpy(namewe, name, len - (strlen(ext) + 1));
-
-	/* fix backslashes */
-	Q_replacebackslash(name);
+	memcpy(namewe, name, len);
+	namewe[len] = 0;
 
 	/* look for it */
 	for (i=0, image=vktextures ; i<numvktextures ; i++,image++)

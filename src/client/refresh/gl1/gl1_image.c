@@ -1154,6 +1154,9 @@ R_FindImage(const char *originname, imagetype_t type)
 
 	strncpy(name, originname, sizeof(name) - 1);
 
+	/* fix backslashes */
+	Q_replacebackslash(name);
+
 	ext = COM_FileExtension(name);
 	if(!ext[0])
 	{
@@ -1161,19 +1164,15 @@ R_FindImage(const char *originname, imagetype_t type)
 		return NULL;
 	}
 
-	len = strlen(name);
-
 	/* Remove the extension */
-	memset(namewe, 0, 256);
-	memcpy(namewe, name, len - (strlen(ext) + 1));
-
-	if (len < 5)
+	len = (ext - name) - 1;
+	if (len < 1)
 	{
 		return NULL;
 	}
 
-	/* fix backslashes */
-	Q_replacebackslash(name);
+	memcpy(namewe, name, len);
+	namewe[len] = 0;
 
 	/* look for it */
 	for (i = 0, image = gltextures; i < numgltextures; i++, image++)

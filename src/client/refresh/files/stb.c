@@ -723,7 +723,7 @@ R_FindPic(const char *name, findimage_t find_image)
 		const char* ext;
 
 		ext = COM_FileExtension(name);
-		if(!ext[0])
+		if(!ext || !ext[0])
 		{
 			/* file has no extension */
 			strncpy(namewe, name, sizeof(namewe) - 1);
@@ -733,12 +733,10 @@ R_FindPic(const char *name, findimage_t find_image)
 		{
 			size_t len;
 
-			len = strlen(name);
-
 			/* Remove the extension */
-			memset(namewe, 0, MAX_QPATH);
-			memcpy(namewe, name, len - (strlen(ext) + 1));
-			namewe[len - (strlen(ext))] = 0;
+			len = (ext - name) - 1;
+			memcpy(namewe, name, len);
+			namewe[len] = 0;
 		}
 
 		/* Quake 2 */
