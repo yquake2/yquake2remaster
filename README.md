@@ -199,6 +199,35 @@ and extend MAX_FONTCODE to your [max symbol code](https://en.wikipedia.org/wiki/
 Used font and language file are defined by `g_language` and `r_ttffont`, as
 an example could be used fonts like [unifont](https://unifoundry.com/pub/unifont/unifont-15.0.06/font-builds/unifont-15.0.06.ttf).
 
+Additional models:
+
+| Spawn classname  | Description                    |
+| ---------------- | ------------------------------ |
+| misc_actorvx     | ReRelease Vault Actor X        |
+| misc_actorvy     | ReRelease Vault Actor Y        |
+| misc_fighter     | ReRelease Vault Fighter ship   |
+| misc_transprt    | ReRelease Vault Transport ship |
+| monster_army     | Quake 1 Army soldier           |
+| monster_demon    | Quake 1 Demon                  |
+| monster_dog      | Quake 1 Dog                    |
+| monster_enforcer | Quake 1 Enforcer               |
+| monster_floaterv | Vault_Technician               |
+| monster_flyerv   | ReRelease Vault Flyer          |
+| monster_gnorta   | ReRelease Vault Gnorta         |
+| monster_hknight  | Quake 1 HKnight                |
+| monster_knight   | Quake 1 Knight                 |
+| monster_mutantv  | ReRelease Vault Mutant         |
+| monster_ogre     | Quake 1 Ogre                   |
+| monster_rotfish  | Quake 1 Rotfish                |
+| monster_shalrath | Quake 1 Shalrath               |
+| monster_shambler | Quake 1 Shambler               |
+| monster_shockerv | ReRelease Vault Shocker        |
+| monster_tankv    | ReRelease Vault Tank           |
+| monster_tarbaby  | Quake 1 Tarbaby                |
+| monster_wizard   | Quake 1 Wizard                 |
+| monster_zombie   | Quake 1 Zombie                 |
+| npc_timeminder   | Anachronox Save Menu           |
+
 Quake 1 models usage requires such models:
 
  | source Quake 1 Path        | destination Quake 2 Path          | md5 hash                         |

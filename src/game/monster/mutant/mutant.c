@@ -956,6 +956,10 @@ mutant_blocked(edict_t *self, float dist)
 /*
  * QUAKED monster_mutant (1 .5 0) (-32 -32 -24) (32 32 32) Ambush Trigger_Spawn Sight
  */
+
+/*
+ * QUAKED monster_mutantv (1 .5 0) (-32 -32 -24) (32 32 32) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_mutant(edict_t *self)
 {
@@ -986,7 +990,14 @@ SP_monster_mutant(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/mutant/tris.md2");
+	if (!strcmp(self->classname, "monster_mutantv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/mutant/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/mutant/tris.md2");
+	}
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 48);
 

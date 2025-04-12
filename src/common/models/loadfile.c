@@ -510,6 +510,26 @@ Mod_StoreAliasModel(const char *name)
 			filesize = Mod_LoadFileWithoutExtModel("models/monsters/bitch/tris",
 				tlen, &buffer);
 		}
+		else if (!strcmp(namewe, "models/vault/monsters/tank/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/tank/tris",
+				tlen, &buffer);
+		}
+		else if (!strcmp(namewe, "models/vault/monsters/mutant/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/mutant/tris",
+				tlen, &buffer);
+		}
+		else if (!strcmp(namewe, "models/vault/monsters/flyer/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/flyer/tris",
+				tlen, &buffer);
+		}
+		else if (!strcmp(namewe, "models/vault/monsters/float/tris"))
+		{
+			filesize = Mod_LoadFileWithoutExtModel("models/monsters/float/tris",
+				tlen, &buffer);
+		}
 	}
 
 	if (filesize > 0)

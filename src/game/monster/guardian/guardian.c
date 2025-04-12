@@ -726,7 +726,7 @@ guardian_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /
 }
 
 //
-// monster_tank
+// monster_guardian
 //
 
 /*

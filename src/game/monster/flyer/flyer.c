@@ -1043,6 +1043,10 @@ flyer_blocked(edict_t *self, float dist)
 /*
  * QUAKED monster_flyer (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */
+
+/*
+ * QUAKED monster_flyerv (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_flyer(edict_t *self)
 {
@@ -1074,7 +1078,14 @@ SP_monster_flyer(edict_t *self)
 
 	gi.soundindex("flyer/flyatck3.wav");
 
-	self->s.modelindex = gi.modelindex("models/monsters/flyer/tris.md2");
+	if (!strcmp(self->classname, "monster_flyerv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/flyer/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/flyer/tris.md2");
+	}
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 16);
 	self->movetype = MOVETYPE_STEP;

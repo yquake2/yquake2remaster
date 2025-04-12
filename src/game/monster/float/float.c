@@ -846,6 +846,10 @@ floater_blocked(edict_t *self, float dist)
 /*
  * QUAKED monster_floater (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */
+
+/*
+ * QUAKED monster_floaterv (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ */
 void
 SP_monster_floater(edict_t *self)
 {
@@ -874,7 +878,14 @@ SP_monster_floater(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/float/tris.md2");
+	if (!strcmp(self->classname, "monster_floaterv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/float/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/float/tris.md2");
+	}
 	VectorSet(self->mins, -24, -24, -24);
 	VectorSet(self->maxs, 24, 24, 32);
 

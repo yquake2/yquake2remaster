@@ -1231,14 +1231,20 @@ tank_stand_think(edict_t * self)
  */
 
 /*
+ * QUAKED monster_tankv (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
+ *
+ * Tank model from vault.
+ */
+
+/*
  * QUAKED monster_tank_commander (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
  */
 
 /*QUAKED monster_tank_stand (1 .5 0) (-32 -32 0) (32 32 90)
-
-Just stands and cycles in one place until targeted, then teleports away.
-N64 edition!
-*/
+ *
+ * Just stands and cycles in one place until targeted, then teleports away.
+ * N64 edition!
+ */
 
 void
 SP_monster_tank(edict_t *self)
@@ -1254,7 +1260,15 @@ SP_monster_tank(edict_t *self)
 		return;
 	}
 
-	self->s.modelindex = gi.modelindex("models/monsters/tank/tris.md2");
+	if (!strcmp(self->classname, "monster_tankv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/tank/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/tank/tris.md2");
+	}
+
 	VectorSet(self->mins, -32, -32, -16);
 	VectorSet(self->maxs, 32, 32, 72);
 	self->movetype = MOVETYPE_STEP;
