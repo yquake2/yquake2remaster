@@ -454,6 +454,24 @@ Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
 	return -1;
 }
 
+typedef struct
+{
+	char *old;
+	char *new;
+} replacement_t;
+
+/* Replacement of ReRelease models */
+static const replacement_t replacements[] = {
+	{"models/monsters/soldierh/tris", "models/monsters/soldier/tris"},
+	{"models/monsters/gladb/tris", "models/monsters/gladiatr/tris"},
+	{"models/monsters/boss5/tris", "models/monsters/boss1/tris"},
+	{"models/monsters/bitch2/tris", "models/monsters/bitch/tris"},
+	{"models/vault/monsters/tank/tris", "models/monsters/tank/tris"},
+	{"models/vault/monsters/mutant/tris", "models/monsters/mutant/tris"},
+	{"models/vault/monsters/flyer/tris", "models/monsters/flyer/tris"},
+	{"models/vault/monsters/float/tris", "models/monsters/float/tris"}
+};
+
 const model_t *
 Mod_StoreAliasModel(const char *name)
 {
@@ -482,53 +500,24 @@ Mod_StoreAliasModel(const char *name)
 	}
 
 	/* Remove the extension */
-	tlen = len - (strlen(ext) + 1);
-	memset(namewe, 0, 256);
+	tlen = (ext - name) - 1;
 	memcpy(namewe, name, tlen);
+	namewe[tlen] = 0;
 
 	filesize = Mod_LoadFileWithoutExtModel(namewe, tlen, &buffer);
 	if (filesize <= 0)
 	{
-		/* Replacement of ReRelease models */
-		if (!strcmp(namewe, "models/monsters/soldierh/tris"))
+		int i;
+
+		/* Replace to other one if load failed */
+		for (i = 0; i < sizeof(replacements) / sizeof(replacement_t); i++)
 		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/soldier/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/monsters/gladb/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/gladiatr/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/monsters/boss5/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/boss1/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/monsters/bitch2/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/bitch/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/vault/monsters/tank/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/tank/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/vault/monsters/mutant/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/mutant/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/vault/monsters/flyer/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/flyer/tris",
-				tlen, &buffer);
-		}
-		else if (!strcmp(namewe, "models/vault/monsters/float/tris"))
-		{
-			filesize = Mod_LoadFileWithoutExtModel("models/monsters/float/tris",
-				tlen, &buffer);
+			if (!strcmp(namewe, replacements[i].old))
+			{
+				filesize = Mod_LoadFileWithoutExtModel(replacements[i].new,
+					strlen(replacements[i].new), &buffer);
+				break;
+			}
 		}
 	}
 
@@ -653,9 +642,9 @@ Mod_LoadFile(const char *name, void **buffer)
 	}
 
 	/* Remove the extension */
-	tlen = len - (strlen(ext) + 1);
-	memset(namewe, 0, 256);
+	tlen = (ext - name) - 1;
 	memcpy(namewe, name, tlen);
+	namewe[tlen] = 0;
 
 	*buffer = NULL;
 

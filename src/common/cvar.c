@@ -36,7 +36,7 @@ typedef struct
 } replacement_t;
 
 /* An ugly hack to rewrite CVARs loaded from config.cfg */
-replacement_t replacements[] = {
+static const replacement_t replacements[] = {
 	{"cd_shuffle", "ogg_shuffle"},
 	{"cl_anglekicks", "cl_kickangles"},
 	{"cl_drawfps", "cl_showfps"},
