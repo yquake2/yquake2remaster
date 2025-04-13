@@ -211,3 +211,48 @@ Mod_RadiusFromBounds(const vec3_t mins, const vec3_t maxs)
 
 	return VectorLength(corner);
 }
+
+void
+Mod_UpdateMinMaxByFrames(const dmdx_t *paliashdr, int from, int to, float *mins, float *maxs)
+{
+	daliasxframe_t *frame;
+	int i;
+
+	if ((from > paliashdr->num_frames) || (to > paliashdr->num_frames))
+	{
+		return;
+	}
+
+	frame = (daliasxframe_t *) ((byte *)paliashdr
+		+ paliashdr->ofs_frames + from * paliashdr->framesize);
+
+	VectorCopy(frame->translate, mins);
+	VectorCopy(frame->translate, maxs);
+
+	for (i = from; i < to; i++)
+	{
+		int j;
+
+		frame = (daliasxframe_t *) ((byte *)paliashdr
+			+ paliashdr->ofs_frames + i * paliashdr->framesize);
+
+		for (j = 0; j < 3; j++)
+		{
+			float curr;
+
+			curr = frame->translate[j];
+
+			if (mins[j] > curr)
+			{
+				mins[j] = curr;
+			}
+
+			curr += frame->scale[j] * 0xFFFF;
+
+			if (maxs[j] < curr)
+			{
+				maxs[j] = curr;
+			}
+		}
+	}
+}

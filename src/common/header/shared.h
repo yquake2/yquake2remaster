@@ -1277,6 +1277,8 @@ typedef struct
 	char name[16];  /* frame group name from grabbing */
 	int ofs;        /* first frame in group */
 	int num;        /* number of frames */
+	vec3_t mins;
+	vec3_t maxs;
 } dmdxframegroup_t;
 
 /* ============================================== */

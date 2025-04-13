@@ -64,8 +64,12 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 		for (i = 0; i < pheader->num_animgroup; i++)
 		{
-			R_Printf(PRINT_DEVELOPER, "%s: model %s animation group #%d: '%s' %d + %d\n",
-				__func__, mod_name, i, framegroups[i].name, framegroups[i].ofs, framegroups[i].num);
+			R_Printf(PRINT_DEVELOPER,
+				"%s: model %s animation group #%d: '%s' %d:%d, box %.2fx%.2fx%.2f:%.2fx%.2fx%.2f\n",
+				__func__, mod_name, i, framegroups[i].name, framegroups[i].ofs,
+				framegroups[i].num,
+				framegroups[i].mins[0], framegroups[i].mins[1], framegroups[i].mins[2],
+				framegroups[i].maxs[0], framegroups[i].maxs[1], framegroups[i].maxs[2]);
 		}
 
 		R_Printf(PRINT_DEVELOPER,
@@ -80,58 +84,15 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 {
 	if (type == mod_alias)
 	{
-		daliasxframe_t *frame;
 		const dmdx_t *pheader;
-		int i;
 
 		pheader = (dmdx_t *)extradata;
 		if (!pheader->num_frames)
 		{
-			mins[0] = -32;
-			mins[1] = -32;
-			mins[2] = -32;
-
-			maxs[0] = 32;
-			maxs[1] = 32;
-			maxs[2] = 32;
-
 			return;
 		}
 
-		mins[0] = 9999;
-		mins[1] = 9999;
-		mins[2] = 9999;
-
-		maxs[0] = -9999;
-		maxs[1] = -9999;
-		maxs[2] = -9999;
-
-		for (i = 0; i < pheader->num_frames; i++)
-		{
-			int j;
-
-			frame = (daliasxframe_t *) ((byte *)extradata
-				+ pheader->ofs_frames + i * pheader->framesize);
-
-			for (j = 0; j < 3; j++)
-			{
-				float curr;
-
-				curr = frame->translate[j];
-
-				if (mins[j] > curr)
-				{
-					mins[j] = curr;
-				}
-
-				curr += frame->scale[j] * 0xFFFF;
-
-				if (maxs[j] < curr)
-				{
-					maxs[j] = curr;
-				}
-			}
-		}
+		Mod_UpdateMinMaxByFrames(pheader, 0, pheader->num_frames, mins, maxs);
 
 		R_Printf(PRINT_DEVELOPER, "Model %s box: %.1fx%.1fx%.1f -> %.1fx%.1fx%.1f\n",
 			mod_name,

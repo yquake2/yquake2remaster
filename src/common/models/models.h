@@ -28,6 +28,7 @@
 #define SRC_CLIENT_REFRESH_FILES_MODELS_H_
 
 #include "../header/common.h"
+#include "../header/cmodel.h"
 
 /* Unpacked vertex info model convert */
 typedef struct dmdx_vert_s

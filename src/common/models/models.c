@@ -158,6 +158,13 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 	}
 
 	pheader->num_animgroup = currgroup;
+
+	for (i = 0; i < pheader->num_animgroup; i++)
+	{
+		Mod_UpdateMinMaxByFrames(pheader,
+			pframegroup[i].ofs, pframegroup[i].ofs + pframegroup[i].num,
+			pframegroup[i].mins, pframegroup[i].maxs);
+	}
 }
 
 /*
@@ -314,6 +321,10 @@ Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *anima
 
 			curr_frame ++;
 		}
+
+		Mod_UpdateMinMaxByFrames(pheader,
+			framegroups[i].ofs, framegroups[i].ofs + framegroups[i].num,
+			framegroups[i].mins, framegroups[i].maxs);
 	}
 }
 
@@ -616,6 +627,10 @@ Mod_LoadDKMAnimGroupList(dmdx_t *pheader, const byte *iframegroup)
 		pframegroup[i].num = LittleLong(((int*)iframegroup)[1]) + 1;
 		pframegroup[i].num -= pframegroup[i].ofs;
 		iframegroup += 8;
+
+		Mod_UpdateMinMaxByFrames(pheader,
+			pframegroup[i].ofs, pframegroup[i].ofs + pframegroup[i].num,
+			pframegroup[i].mins, pframegroup[i].maxs);
 	}
 }
 
@@ -2509,7 +2524,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 		Mod_LoadFrames_DKM2(pheader, (byte *)buffer + header.ofs_frames,
 			header.framesize, header.translate);
 	}
-	Mod_LoadAnimGroupList(pheader);
 
 	Mod_LoadDKMTriangleList(pheader,
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));

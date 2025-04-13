@@ -60,5 +60,7 @@ extern byte *Mod_Load2QBSP(const char *name, byte *in, size_t filesize,
 extern float Mod_RadiusFromBounds(const vec3_t mins, const vec3_t maxs);
 extern void Mod_DecompressVis(const byte *in, byte *out, const byte* numvisibility,
 	int row);
+void Mod_UpdateMinMaxByFrames(const dmdx_t *paliashdr, int from, int to,
+	float *mins, float *maxs);
 
 #endif
