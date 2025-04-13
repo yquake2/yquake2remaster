@@ -179,6 +179,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: Support textures/*/*_glow.png load,
 * [ ] ReRelease: Support tactile/*/*.bnvib/.wav feedback load,
 * [x] ReRelease: Fix physics with incorrect floor height in psx/base0.bsp,
+* [ ] ReRelease: Console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) > 4k coord values support,
 * [ ] ReRelease: Fully implement `misc_flare`,
 * [ ] ReRelease: Single player support,

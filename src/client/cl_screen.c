@@ -255,8 +255,8 @@ SCR_CenterPrint(char *str)
 		int l;
 
 		l = SCR_CopyUtf8(s, line, 40);
-		memmove(line + 40 - l, line, strlen(line) + 1);
-		memset(line, ' ', 40 - l);
+		memmove(line + (40 - l) / 2, line, strlen(line) + 1);
+		memset(line, ' ', (40 - l) / 2);
 
 		Com_Printf("%s\n", line);
 
