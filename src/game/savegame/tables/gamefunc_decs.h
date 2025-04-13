@@ -109,7 +109,6 @@ extern qboolean infront ( edict_t * self , edict_t * other ) ;
 extern qboolean medic_blocked ( edict_t * self , float dist ) ;
 extern qboolean medic_checkattack ( edict_t * self ) ;
 extern qboolean monster_jump_finished ( edict_t * self ) ;
-extern qboolean monster_start ( edict_t * self ) ;
 extern qboolean monsterlost_checkhint ( edict_t * self ) ;
 extern qboolean mutant_blocked ( edict_t * self , float dist ) ;
 extern qboolean mutant_check_jump ( edict_t * self ) ;

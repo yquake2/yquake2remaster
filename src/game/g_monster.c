@@ -1113,7 +1113,31 @@ monster_death_use(edict_t *self)
 
 /* ================================================================== */
 
-qboolean
+static void
+M_FixStuckMonster(edict_t *self)
+{
+	trace_t tr;
+
+	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
+	if (!tr.startsolid)
+	{
+		return;
+	}
+
+	FixEntityPosition(self);
+
+	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
+
+	if (tr.startsolid)
+	{
+		gi.dprintf("%s: %s startsolid at %s\n",
+				__func__,
+				self->classname,
+				vtos(self->s.origin));
+	}
+}
+
+static qboolean
 monster_start(edict_t *self)
 {
 	float scale;
@@ -1213,6 +1237,8 @@ monster_start(edict_t *self)
 	}
 
 	VectorCopy(self->s.origin, self->s.old_origin);
+
+	M_FixStuckMonster(self);
 
 	if (st.item)
 	{

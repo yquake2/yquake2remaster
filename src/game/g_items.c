@@ -1957,8 +1957,8 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 
 /* ====================================================================== */
 
-static void
-FixObjectPosition(edict_t *ent)
+void
+FixEntityPosition(edict_t *ent)
 {
 	int i;
 
@@ -2057,7 +2057,7 @@ droptofloor(edict_t *ent)
 
 	if (tr.startsolid)
 	{
-		FixObjectPosition(ent);
+		FixEntityPosition(ent);
 
 		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
 	}

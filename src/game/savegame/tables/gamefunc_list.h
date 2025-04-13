@@ -1039,7 +1039,6 @@
 {"monster_fire_tracker", (byte *)monster_fire_tracker},
 {"monster_jump_finished", (byte *)monster_jump_finished},
 {"monster_jump_start", (byte *)monster_jump_start},
-{"monster_start", (byte *)monster_start},
 {"monster_start_go", (byte *)monster_start_go},
 {"monster_think", (byte *)monster_think},
 {"monster_triggered_spawn", (byte *)monster_triggered_spawn},
