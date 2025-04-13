@@ -2039,6 +2039,7 @@ droptofloor(edict_t *ent)
 	VectorCopy(ent->mins, mins);
 	VectorCopy(ent->maxs, maxs);
 	gi.GetModelInfo(ent->s.modelindex, NULL, mins, maxs);
+
 	for (i = 0; i < 2; i++)
 	{
 		ent->mins[i] = mins[i];

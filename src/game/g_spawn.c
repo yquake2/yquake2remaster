@@ -183,9 +183,19 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	gi.centerprintf(other, "Entity description: %s", self->message);
 }
 
+void
+dynamicspawn_think(edict_t *self)
+{
+	M_SetAnimGroupFrame(self, "idle");
+	self->nextthink = level.time + FRAMETIME;
+}
+
 static void
 DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
+	const dmdxframegroup_t * frames;
+	int num, i;
+
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
@@ -195,6 +205,26 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	{
 		self->message = data->description;
 	}
+
+	/* Set Mins/Maxs based on first frame */
+	gi.GetModelFrameInfo(self->s.modelindex, self->s.frame,
+		self->mins, self->maxs);
+
+	/* Set Mins/Maxs based on whole model frames in animation group */
+	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
+	for (i = 0; i < num; i++)
+	{
+		if (!strcmp(frames[i].name, "idle"))
+		{
+			self->think = dynamicspawn_think;
+			self->nextthink = level.time + FRAMETIME;
+			VectorCopy(frames[i].mins, self->mins);
+			VectorCopy(frames[i].maxs, self->maxs);
+
+			break;
+		}
+	}
+
 	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);

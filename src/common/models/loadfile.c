@@ -540,6 +540,30 @@ Mod_StoreAliasModel(const char *name)
 	return NULL;
 }
 
+void
+Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs)
+{
+	const model_t *mod;
+
+	mod = Mod_FindModel(name);
+	if (!mod)
+	{
+		mod = Mod_StoreAliasModel(name);
+	}
+
+	if (mod)
+	{
+		dmdx_t *paliashdr;
+
+		paliashdr = (dmdx_t *)mod->extradata;
+
+		if (mins && maxs && paliashdr->num_frames)
+		{
+			Mod_UpdateMinMaxByFrames(paliashdr, num, num + 1, mins, maxs);
+		}
+	}
+}
+
 const dmdxframegroup_t *
 Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 {

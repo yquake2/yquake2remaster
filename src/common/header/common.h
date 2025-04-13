@@ -692,6 +692,7 @@ void Mod_AliasesInit(void);
 void Mod_AliasesFreeAll(void);
 const dmdxframegroup_t *Mod_GetModelInfo(const char *name, int *num,
 	float *mins, float *maxs);
+void Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs);
 
 /* PLAYER MOVEMENT CODE */
 

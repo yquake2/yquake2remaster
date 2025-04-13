@@ -832,6 +832,8 @@ M_SetAnimGroupFrame(edict_t *self, const char *name)
 	i++;
 
 	self->s.frame = ofs_frames + i % num_frames;
+	gi.GetModelFrameInfo(self->s.modelindex, self->s.frame,
+		self->mins, self->maxs);
 }
 
 static void
