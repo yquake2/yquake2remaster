@@ -636,8 +636,9 @@ GL3_FindImage(const char *originname, imagetype_t type)
 
 	/* Remove the extension */
 	len = (ext - name) - 1;
-	if (len < 1)
+	if ((len < 1) || (len > sizeof(namewe) - 1))
 	{
+		Com_DPrintf("%s: Bad filename %s\n", __func__, name);
 		return NULL;
 	}
 
