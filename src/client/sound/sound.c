@@ -213,9 +213,10 @@ S_IsSilencedMuzzleFlash(const wavinfo_t* info, const void* raw_data, const char*
 static void
 S_LoadVorbis(const char *path, wavinfo_t *info, void **buffer)
 {
-	int	len;
+	const char ogg_ext[] = ".ogg";
 	char filename[MAX_QPATH];
 	const char* ext;
+	int	len;
 
 	if (!path)
 	{
@@ -237,11 +238,11 @@ S_LoadVorbis(const char *path, wavinfo_t *info, void **buffer)
 		return;
 	}
 
+	/* copy base path */
 	memcpy(filename, path, len);
-	filename[len] = 0;
 
 	/* Add the extension */
-	Q_strlcat(filename, ".ogg", sizeof(filename));
+	memcpy(filename + len, ogg_ext, sizeof(ogg_ext));
 
 	OGG_LoadAsWav(filename, info, buffer);
 }
