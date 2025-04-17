@@ -358,13 +358,12 @@ CL_PrepRefresh(void)
 		strcpy(name, cl.configstrings[CS_MODELS + i]);
 		name[37] = 0; /* never go beyond one line */
 
-		if (name[0] != '*')
+		if (developer->value && name[0] != '*')
 		{
 			CL_PrintInSameLine(name);
+			SCR_UpdateScreen();
+			IN_Update();
 		}
-
-		SCR_UpdateScreen();
-		IN_Update();
 
 		if (name[0] == '#')
 		{
@@ -395,11 +394,11 @@ CL_PrepRefresh(void)
 
 	CL_PrintInSameLine("Images");
 	SCR_UpdateScreen();
+	IN_Update();
 
 	for (i = 1; i < MAX_IMAGES && cl.configstrings[CS_IMAGES + i][0]; i++)
 	{
 		cl.image_precache[i] = Draw_FindPic(cl.configstrings[CS_IMAGES + i]);
-		IN_Update();
 	}
 
 	CL_PrintInSameLine("Clients");
@@ -411,11 +410,14 @@ CL_PrepRefresh(void)
 			continue;
 		}
 
-		Com_Printf("client %i\r", i);
-		SCR_UpdateScreen();
-		IN_Update();
+		if (developer->value)
+		{
+			Com_Printf("Client %i\r", i);
+			SCR_UpdateScreen();
+			IN_Update();
+		}
+
 		CL_ParseClientinfo(i);
-		CL_PrintInSameLine("");
 	}
 
 	CL_LoadClientinfo(&cl.baseclientinfo, "unnamed\\male/grunt");
