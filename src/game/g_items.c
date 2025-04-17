@@ -2630,12 +2630,12 @@ static const gitem_t gameitemlist[] = {
 	 */
 	{
 		"weapon_grapple",
-		NULL,
+		Pickup_Weapon,
 		Use_Weapon,
-		NULL,
+		Drop_Weapon,
 		CTFWeapon_Grapple,
 		"misc/w_pkup.wav",
-		NULL, 0,
+		"models/weapons/grapple/hook/tris.md2", EF_ROTATE,
 		"models/weapons/grapple/tris.md2",
 		"w_grapple",
 		"Grapple",
@@ -2656,12 +2656,12 @@ static const gitem_t gameitemlist[] = {
 	 */
 	{
 		"weapon_blaster",
-		NULL,
+		Pickup_Weapon,
 		Use_Weapon,
-		NULL,
+		Drop_Weapon,
 		Weapon_Blaster,
 		"misc/w_pkup.wav",
-		NULL, 0,
+		"models/weapons/g_blast/tris.md2", EF_ROTATE,
 		"models/weapons/v_blast/tris.md2",
 		"w_blaster",
 		"Blaster",
