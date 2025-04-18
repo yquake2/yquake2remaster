@@ -95,13 +95,35 @@ BOT_FindFreeClient(void)
 	return bot;
 }
 
+static const char *bot_skin_table[] = {
+	"female/athena",
+	"female/brianna",
+	"female/cobalt",
+	"female/ensign",
+	"female/jezebel",
+	"female/jungle",
+	"female/lotus",
+	"female/stiletto",
+	"female/venus",
+	"female/voodoo",
+	"male/cipher",
+	"male/flak",
+	"male/grunt",
+	"male/howitzer",
+	"male/major",
+	"male/nightops",
+	"male/pointman",
+	"male/psycho",
+	"male/razor",
+	"male/sniper"
+};
+
 ///////////////////////////////////////////////////////////////////////
 // Set the name of the bot and update the userinfo
 ///////////////////////////////////////////////////////////////////////
 static void
 BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 {
-	float rnd;
 	char userinfo[MAX_INFO_STRING];
 	char bot_skin[MAX_INFO_STRING];
 	char bot_name[MAX_INFO_STRING];
@@ -120,88 +142,11 @@ BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 	// skin
 	if(strlen(skin) == 0)
 	{
-		// randomly choose skin
-		rnd = random();
-		if(rnd  < 0.05)
-		{
-			sprintf(bot_skin,"female/athena");
-		}
-		else if(rnd < 0.1)
-		{
-			sprintf(bot_skin,"female/brianna");
-		}
-		else if(rnd < 0.15)
-		{
-			sprintf(bot_skin,"female/cobalt");
-		}
-		else if(rnd < 0.2)
-		{
-			sprintf(bot_skin,"female/ensign");
-		}
-		else if(rnd < 0.25)
-		{
-			sprintf(bot_skin,"female/jezebel");
-		}
-		else if(rnd < 0.3)
-		{
-			sprintf(bot_skin,"female/jungle");
-		}
-		else if(rnd < 0.35)
-		{
-			sprintf(bot_skin,"female/lotus");
-		}
-		else if(rnd < 0.4)
-		{
-			sprintf(bot_skin,"female/stiletto");
-		}
-		else if(rnd < 0.45)
-		{
-			sprintf(bot_skin,"female/venus");
-		}
-		else if(rnd < 0.5)
-		{
-			sprintf(bot_skin,"female/voodoo");
-		}
-		else if(rnd < 0.55)
-		{
-			sprintf(bot_skin,"male/cipher");
-		}
-		else if(rnd < 0.6)
-		{
-			sprintf(bot_skin,"male/flak");
-		}
-		else if(rnd < 0.65)
-		{
-			sprintf(bot_skin,"male/grunt");
-		}
-		else if(rnd < 0.7)
-		{
-			sprintf(bot_skin,"male/howitzer");
-		}
-		else if(rnd < 0.75)
-		{
-			sprintf(bot_skin,"male/major");
-		}
-		else if(rnd < 0.8)
-		{
-			sprintf(bot_skin,"male/nightops");
-		}
-		else if(rnd < 0.85)
-		{
-			sprintf(bot_skin,"male/pointman");
-		}
-		else if(rnd < 0.9)
-		{
-			sprintf(bot_skin,"male/psycho");
-		}
-		else if(rnd < 0.95)
-		{
-			sprintf(bot_skin,"male/razor");
-		}
-		else
-		{
-			sprintf(bot_skin,"male/sniper");
-		}
+		int rnd;
+
+		/* randomly choose skin */
+		rnd = rand() % (sizeof(bot_skin_table) / sizeof(*bot_skin_table));
+		sprintf(bot_skin, bot_skin_table[rnd]);
 	}
 	else
 	{

@@ -957,25 +957,26 @@ void BOT_DMclass_RunFrame( edict_t *self )
 		BOT_DMclass_FireWeapon( self, &ucmd );
 		self->ai->state = BOT_STATE_ATTACK;
 		self->ai->state_combat_timeout = level.time + 1.0;
-
-	} else if( self->ai->state == BOT_STATE_ATTACK &&
+	}
+	else if( self->ai->state == BOT_STATE_ATTACK &&
 		level.time > self->ai->state_combat_timeout)
 	{
 		//Jalfixme: change to: AI_SetUpStateMove(self);
 		self->ai->state = BOT_STATE_MOVE;
 	}
-
 	// Execute the move, or wander
-	if( self->ai->state == BOT_STATE_MOVE )
+	if (self->ai->state == BOT_STATE_MOVE)
+	{
 		BOT_DMclass_Move( self, &ucmd );
-
+	}
 	else if(self->ai->state == BOT_STATE_ATTACK)
+	{
 		BOT_DMclass_CombatMovement( self, &ucmd );
-
+	}
 	else if ( self->ai->state == BOT_STATE_WANDER )
+	{
 		BOT_DMclass_Wander( self, &ucmd );
-
-
+	}
 
 	//set up for pmove
 	ucmd.angles[PITCH] = ANGLE2SHORT(self->s.angles[PITCH]);
@@ -1000,19 +1001,23 @@ void BOT_DMclass_InitPersistant(edict_t *self)
 {
 	self->classname = "dmbot";
 
-	//copy name
+	/* copy name */
 	if (self->client->pers.netname[0])
+	{
 		self->ai->pers.netname = self->client->pers.netname;
+	}
 	else
+	{
 		self->ai->pers.netname = "dmBot";
+	}
 
-	//set 'class' functions
+	/* set 'class' functions */
 	self->ai->pers.RunFrame = BOT_DMclass_RunFrame;
 	self->ai->pers.UpdateStatus = BOT_DMclass_UpdateStatus;
 	self->ai->pers.bloquedTimeout = BOT_DMClass_BloquedTimeout;
 	self->ai->pers.deadFrame = BOT_DMclass_DeadFrame;
 
-	//available moveTypes for this class
+	/* available moveTypes for this class */
 	self->ai->pers.moveTypesMask = (LINK_MOVE|LINK_STAIRS|LINK_FALL|LINK_WATER|LINK_WATERJUMP|LINK_JUMPPAD|LINK_PLATFORM|LINK_TELEPORT|LINK_LADDER|LINK_JUMP|LINK_CROUCH);
 
 	//Persistant Inventory Weights (0 = can not pick)
@@ -1052,12 +1057,11 @@ void BOT_DMclass_InitPersistant(edict_t *self)
 	self->ai->pers.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_tech3"))] = 0.5;
 	self->ai->pers.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_tech4"))] = 0.5;
 
-	if( ctf->value ) {
+	if( ctf->value )
+	{
 		redflag = FindItemByClassname("item_flag_team1");	// store pointers to flags gitem_t, for
 		blueflag = FindItemByClassname("item_flag_team2");// simpler comparisons inside this archive
 		self->ai->pers.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_flag_team1"))] = 3.0;
 		self->ai->pers.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_flag_team2"))] = 3.0;
 	}
 }
-
-
