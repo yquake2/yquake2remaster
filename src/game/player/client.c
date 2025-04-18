@@ -1297,15 +1297,16 @@ Player_GiveStartItems(edict_t *ent, const char *ptr)
 				if (count == 0)
 				{
 					ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
-					continue;
 				}
-
-				dummy = G_Spawn();
-				dummy->item = item;
-				dummy->count = count;
-				dummy->spawnflags |= DROPPED_PLAYER_ITEM;
-				item->pickup(dummy, ent);
-				G_FreeEdict(dummy);
+				else
+				{
+					dummy = G_Spawn();
+					dummy->item = item;
+					dummy->count = count;
+					dummy->spawnflags |= DROPPED_PLAYER_ITEM;
+					item->pickup(dummy, ent);
+					G_FreeEdict(dummy);
+				}
 			}
 		}
 
