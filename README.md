@@ -149,7 +149,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: CTC entity format,
-* [ ] Anachronox: Support material load textures/textureinfo.dat,
+* [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
@@ -157,34 +157,35 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: support custom ttf fonts,
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
-* [ ] soft: Use separete texture hi-color buffer for ui in soft render,
-* [ ] DoD: Fix statusbar `roarke`,
-* [ ] vulkan: Group `it_pic` images,
-* [ ] vulkan: Rearange surfaces before render,
+* [ ] soft: use separete texture hi-color buffer for ui in soft render,
+* [ ] DoD: fix statusbar `roarke`,
+* [ ] vulkan: group `it_pic` images,
+* [ ] vulkan: rearange surfaces before render,
 * [x] Use shared model cache in client code insted reimplement in each render,
 * [ ] reuse memory from models cache in renders model list,
 * [ ] reuse memory from models cache for bsp,
 * [ ] Fix transparent textures in Daikatana/SiN maps,
-* [ ] game: Cleanup function declarations in game save code,
-* [ ] game: Fix broken base3 with sorted fields names,
+* [ ] game: cleanup function declarations in game save code,
+* [ ] game: fix broken base3 with sorted fields names,
+* [ ] game: remove grapple by default,
 * [x] ReRelease: crash on exit from psx/base2,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
 * [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
 * [ ] ReRelease: broken fire effect for Guardian.
-* [ ] ReRelease: Fix invisiable entities in basicsjam1_ziutek,
-* [ ] ReRelease: Make lightmap textures dynamic n64jam_palmlix,
-* [x] ReRelease: Support textures/*/*.mat load (footstep),
-* [ ] ReRelease: Support textures/*/*.mat load texture effects,
-* [ ] ReRelease: Support textures/*/*_glow.png load,
-* [ ] ReRelease: Support tactile/*/*.bnvib/.wav feedback load,
-* [x] ReRelease: Fix physics with incorrect floor height in psx/base0.bsp,
-* [ ] ReRelease: Console `~` incorrectly show multibyte characters,
+* [ ] ReRelease: fix invisiable entities in basicsjam1_ziutek,
+* [ ] ReRelease: make lightmap textures dynamic n64jam_palmlix,
+* [x] ReRelease: support textures/*/*.mat load (footstep),
+* [ ] ReRelease: support textures/*/*.mat load texture effects,
+* [ ] ReRelease: support textures/*/*_glow.png load,
+* [ ] ReRelease: support tactile/*/*.bnvib/.wav feedback load,
+* [x] ReRelease: fix physics with incorrect floor height in psx/base0.bsp,
+* [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) > 4k coord values support,
-* [ ] ReRelease: Fully implement `misc_flare`,
-* [ ] ReRelease: Single player support,
-* [ ] ReRelease: Support effects and additional flags when possible.
-* [ ] ReRelease: Modified game code support with removed KEX only related code.
+* [ ] ReRelease: fully implement `misc_flare`,
+* [ ] ReRelease: single player support,
+* [ ] ReRelease: support effects and additional flags when possible.
+* [ ] ReRelease: modified game code support with removed KEX only related code.
 
 Not a goal:
 
