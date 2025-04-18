@@ -245,7 +245,7 @@ FS_CreatePath(const char *path)
 		return;
 	}
 
-	strncpy(dir_path, path, sizeof(dir_path) - 1);
+	Q_strlcpy(dir_path, path, sizeof(dir_path));
 
 	cur = old = dir_path;
 
@@ -1072,8 +1072,8 @@ FS_LoadDAT(const char *packPath)
 
 	/* '/' + '.dat' */
 	memset(prefix, 0, sizeof(prefix));
-	strncpy(prefix, prefixpos + 1,
-		Q_min(strlen(prefixpos) - 5, sizeof(prefix) - 1));
+	Q_strlcpy(prefix, prefixpos + 1,
+		Q_min(strlen(prefixpos) - 4, sizeof(prefix)));
 
 	Q_strlwr(prefix);
 	prefix_size = strlen(prefix);

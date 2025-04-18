@@ -474,7 +474,7 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 	strcpy(mod->name, name);
 
 	/* Anachronox has tags in model path*/
-	strncpy(filename, name, sizeof(filename) - 1);
+	Q_strlcpy(filename, name, sizeof(filename));
 	tag = strstr(filename, ".mda!");
 	if (tag)
 	{

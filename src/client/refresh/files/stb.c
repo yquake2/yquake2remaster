@@ -726,8 +726,7 @@ R_FindPic(const char *name, findimage_t find_image)
 		if (!ext[0])
 		{
 			/* file has no extension */
-			strncpy(namewe, name, sizeof(namewe) - 1);
-			namewe[sizeof(namewe) - 1] = 0;
+			Q_strlcpy(namewe, name, sizeof(namewe));
 		}
 		else
 		{

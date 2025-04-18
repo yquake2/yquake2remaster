@@ -318,7 +318,7 @@ Mod_AliasSave(const char *mod_name, int modfilelen, const void *buffer)
 
 	mod->extradatasize = Hunk_End();
 
-	strncpy(mod->name, mod_name, sizeof(mod->name) - 1);
+	Q_strlcpy(mod->name, mod_name, sizeof(mod->name));
 
 	return mod;
 }

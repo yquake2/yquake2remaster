@@ -120,7 +120,7 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 		poutframe = (daliasxframe_t *) ((byte *)pheader
 			+ pheader->ofs_frames + i * pheader->framesize);
 
-		strncpy(newname, poutframe->name, sizeof(poutframe->name) - 1);
+		Q_strlcpy(newname, poutframe->name, sizeof(poutframe->name));
 
 		for (j = strlen(newname) - 1; j > 0; j--)
 		{
@@ -137,8 +137,8 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 		{
 			if ((i != oldframe) && (currgroup < pheader->num_animgroup))
 			{
-				strncpy(pframegroup[currgroup].name, oldname,
-					sizeof(pframegroup[currgroup].name) - 1);
+				Q_strlcpy(pframegroup[currgroup].name, oldname,
+					sizeof(pframegroup[currgroup].name));
 				pframegroup[currgroup].ofs = oldframe;
 				pframegroup[currgroup].num = i - oldframe;
 				currgroup++;
@@ -150,8 +150,8 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 
 	if (currgroup < pheader->num_animgroup)
 	{
-		strncpy(pframegroup[currgroup].name, oldname,
-			sizeof(pframegroup[currgroup].name) - 1);
+		Q_strlcpy(pframegroup[currgroup].name, oldname,
+			sizeof(pframegroup[currgroup].name));
 		pframegroup[currgroup].ofs = oldframe;
 		pframegroup[currgroup].num = i - oldframe;
 		currgroup++;
@@ -284,8 +284,8 @@ Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *anima
 		int k;
 
 		/* create single animation group by default*/
-		strncpy(framegroups[i].name, animations[i].name,
-			sizeof(framegroups[0].name) - 1);
+		Q_strlcpy(framegroups[i].name, animations[i].name,
+			sizeof(framegroups[i].name));
 		framegroups[i].ofs = curr_frame;
 		framegroups[i].num = anims[i]->num_frames;
 
@@ -1772,7 +1772,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen)
 
 		if (md3_frameinfo->name[0])
 		{
-			strncpy(frame->name, md3_frameinfo->name, sizeof(frame->name) - 1);
+			Q_strlcpy(frame->name, md3_frameinfo->name, sizeof(frame->name));
 		}
 		else
 		{
@@ -2667,7 +2667,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 		}
 		else if (!strcmp(token, "path"))
 		{
-			strncpy(models_path, COM_Parse(&curr_buff), sizeof(models_path));
+			Q_strlcpy(models_path, COM_Parse(&curr_buff), sizeof(models_path));
 		}
 		else if (!strcmp(token, "scale"))
 		{
@@ -2707,8 +2707,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 					"%s/%s", models_path, token);
 				if (prevvalue[0])
 				{
-					strncpy(animations[actions_num - 1].name, prevvalue,
-						sizeof(animations[actions_num - 1].name) - 1);
+					Q_strlcpy(animations[actions_num - 1].name, prevvalue,
+						sizeof(animations[actions_num - 1].name));
 				}
 				else
 				{
@@ -2726,8 +2726,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 					"%s/%s", models_path, token);
 				if (prevvalue[0])
 				{
-					strncpy(skinnames[skinnames_num - 1].name, prevvalue,
-						sizeof(skinnames[skinnames_num - 1].name) - 1);
+					Q_strlcpy(skinnames[skinnames_num - 1].name, prevvalue,
+						sizeof(skinnames[skinnames_num - 1].name));
 				}
 				else
 				{
@@ -2738,7 +2738,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 			}
 			else
 			{
-				strncpy(prevvalue, token, sizeof(prevvalue) - 1);
+				Q_strlcpy(prevvalue, token, sizeof(prevvalue));
 			}
 		}
 	}
@@ -2849,7 +2849,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 
 	for (i = 0; i < pheader->num_skins; i ++)
 	{
-		strncpy((char*)pheader + pheader->ofs_skins +  i * MAX_SKINNAME,
+		Q_strlcpy((char*)pheader + pheader->ofs_skins +  i * MAX_SKINNAME,
 			skinnames[i].value, MAX_SKINNAME);
 	}
 
@@ -3016,7 +3016,7 @@ Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_
 		{
 			char token_section[MAX_TOKEN_CHARS];
 
-			strncpy(token_section, token, sizeof(token_section) - 1);
+			Q_strlcpy(token_section, token, sizeof(token_section));
 			token = COM_Parse(curr_buff);
 
 			if (!strcmp(token_section, "alphafunc"))
@@ -3340,9 +3340,9 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len)
 							char *base_skin;
 
 							base_skin = profile->skins[i].passes[0].map;
-							strncpy(skin_path, base_skin, sizeof(skin_path));
+							Q_strlcpy(skin_path, base_skin, sizeof(skin_path));
 							strcpy(strrchr(skin_path, '/') + 1, skin);
-							strncpy(skin, skin_path, MAX_SKINNAME);
+							Q_strlcpy(skin, skin_path, MAX_SKINNAME);
 						}
 					}
 				}

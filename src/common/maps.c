@@ -409,7 +409,7 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
 		memset(out->material, 0, sizeof(out->material));
 		Mod_LoadMaterialConvertFlags(inflags, maptype, out->material);
-		strncpy(out->texture, in->texture,
+		Q_strlcpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
 
 		/* Fix backslashes */
@@ -451,7 +451,7 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 		out->nexttexinfo = LittleLong(in->nexttexinfo);
 		memset(out->material, 0, sizeof(out->material));
 		Mod_LoadMaterialConvertFlags(inflags, maptype, out->material);
-		strncpy(out->texture, in->texture,
+		Q_strlcpy(out->texture, in->texture,
 			Q_min(sizeof(out->texture), sizeof(in->texture)));
 
 		/* Fix backslashes */

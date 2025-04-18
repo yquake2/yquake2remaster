@@ -165,8 +165,7 @@ SV_CheckForSavegame(qboolean isautosave)
 		return;
 	}
 
-	strncpy(savename, sv.name, sizeof(savename));
-	savename[sizeof(savename) - 1] = 0;
+	Q_strlcpy(savename, sv.name, sizeof(savename));
 	SV_CleanLevelFileName(savename);
 
 	Com_sprintf(name, sizeof(name), "%s/save/current/%s.sav",

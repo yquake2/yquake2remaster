@@ -1271,7 +1271,7 @@ Player_GiveStartItems(edict_t *ent, const char *ptr)
 		{
 			buffer_end = ptr + strlen(ptr);
 		}
-		strncpy(buffer, ptr, Q_min(MAX_QPATH, buffer_end - ptr));
+		Q_strlcpy(buffer, ptr, Q_min(MAX_QPATH, buffer_end - ptr));
 
 		curr_buf = buffer;
 		item_name = COM_Parse(&curr_buf);

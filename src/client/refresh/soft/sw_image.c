@@ -561,7 +561,7 @@ R_FindImage(const char *originname, imagetype_t type)
 		return NULL;
 	}
 
-	strncpy(name, originname, sizeof(name) - 1);
+	Q_strlcpy(name, originname, sizeof(name));
 
 	/* just return white image if show lightmap only */
 	if ((type == it_wall || type == it_skin) && r_lightmap->value)

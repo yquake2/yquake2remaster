@@ -497,7 +497,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			{
 				/* Read joint info */
 				token = COM_Parse(&curr_buff);
-				strncpy(jointInfos[i].name, token, sizeof(jointInfos[i].name) - 1);
+				Q_strlcpy(jointInfos[i].name, token, sizeof(jointInfos[i].name));
 
 				token = COM_Parse(&curr_buff);
 				jointInfos[i].parent = (int)strtol(token, (char **)NULL, 10);
@@ -826,7 +826,7 @@ ReadMD5Model(const char *buffer, size_t size)
 				char *skinname;
 
 				skinname = mdl->skins + pos * MAX_SKINNAME;
-				strncpy(skinname, token, MAX_SKINNAME - 1);
+				Q_strlcpy(skinname, token, MAX_SKINNAME);
 			}
 		}
 		else if (!strcmp(token, "framename"))
@@ -842,7 +842,7 @@ ReadMD5Model(const char *buffer, size_t size)
 				char *framename;
 
 				framename = mdl->framenames + pos * 16;
-				strncpy(framename, token, 15);
+				Q_strlcpy(framename, token, 16);
 			}
 		}
 		else if (!strcmp(token, "joints"))
@@ -865,7 +865,7 @@ ReadMD5Model(const char *buffer, size_t size)
 				md5_joint_t *joint = &mdl->baseSkel[i];
 
 				token = COM_Parse(&curr_buff);
-				strncpy(joint->name, token, sizeof(joint->name) - 1);
+				Q_strlcpy(joint->name, token, sizeof(joint->name));
 
 				token = COM_Parse(&curr_buff);
 				joint->parent = (int)strtol(token, (char **)NULL, 10);
@@ -931,7 +931,7 @@ ReadMD5Model(const char *buffer, size_t size)
 				else if (!strcmp(token, "shader"))
 				{
 					token = COM_Parse(&curr_buff);
-					strncpy(mesh->shader, token, sizeof(mesh->shader) - 1);
+					Q_strlcpy(mesh->shader, token, sizeof(mesh->shader));
 				}
 				else if (!strcmp(token, "numverts"))
 				{
@@ -1358,8 +1358,8 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 
 		if (md5file->framenames && (i < md5file->num_framenames))
 		{
-			strncpy(frame->name, md5file->framenames + i * 16,
-				sizeof(frame->name) - 1);
+			Q_strlcpy(frame->name, md5file->framenames + i * 16,
+				sizeof(frame->name));
 		}
 		else
 		{

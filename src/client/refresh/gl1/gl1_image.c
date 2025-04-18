@@ -1152,7 +1152,7 @@ R_FindImage(const char *originname, imagetype_t type)
 		return NULL;
 	}
 
-	strncpy(name, originname, sizeof(name) - 1);
+	Q_strlcpy(name, originname, sizeof(name));
 
 	/* fix backslashes */
 	Q_replacebackslash(name);
