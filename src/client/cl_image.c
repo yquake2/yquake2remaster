@@ -990,7 +990,7 @@ LoadImageATD(atd_sprites_t* anim, char *tmp_buf, int len)
 		{
 			char token_section[MAX_TOKEN_CHARS];
 
-			strncpy(token_section, token, sizeof(token_section) - 1);
+			Q_strlcpy(token_section, token, sizeof(token_section));
 
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "="))
@@ -1094,7 +1094,7 @@ LoadImageATD(atd_sprites_t* anim, char *tmp_buf, int len)
 				{
 					char token_section[MAX_TOKEN_CHARS];
 
-					strncpy(token_section, token, sizeof(token_section) - 1);
+					Q_strlcpy(token_section, token, sizeof(token_section));
 
 					token = COM_Parse(&curr_buff);
 					if (strcmp(token, "="))

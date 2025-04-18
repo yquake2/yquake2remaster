@@ -177,7 +177,7 @@ SCR_CopyUtf8(const char *src, char *dst, int limit)
 
 	while (*src && *src != '\n')
 	{
-		size_t size;
+		size_t size = 1;
 		int i;
 
 		if (symbols >= limit)

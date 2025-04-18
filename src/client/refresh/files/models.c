@@ -242,7 +242,7 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 				{
 					char skin_path[MAX_QPATH * 2] = {0};
 
-					strncpy(skin_path, name, sizeof(skin_path));
+					Q_strlcpy(skin_path, name, sizeof(skin_path));
 					strcpy(strrchr(skin_path, '/') + 1, skin);
 
 					R_Printf(PRINT_DEVELOPER, "Model %s: No original skin found, %s is used\n",

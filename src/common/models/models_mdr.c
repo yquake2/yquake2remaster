@@ -379,7 +379,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 
 		if (outframe->name[0])
 		{
-			strncpy(frame->name, outframe->name, sizeof(frame->name) - 1);
+			Q_strlcpy(frame->name, outframe->name, sizeof(frame->name));
 		}
 		else
 		{
