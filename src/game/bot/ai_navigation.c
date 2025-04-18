@@ -136,7 +136,8 @@ void AI_SetGoal(edict_t *self, int goal_node)
 // Move closer to goal by pointing the bot to the next node
 // that is closer to the goal //jabot092 (path-> to path.)
 //==========================================
-qboolean AI_FollowPath( edict_t *self )
+qboolean
+AI_FollowPath(edict_t *self)
 {
 	vec3_t			v;
 	float			dist;
@@ -150,8 +151,16 @@ qboolean AI_FollowPath( edict_t *self )
 	}
 	*/
 
-	if( self->ai->goal_node == INVALID )
+	if((self->ai->goal_node < 0) || (self->ai->goal_node >= MAX_NODES))
+	{
+		if (bot_debugmonster->value)
+		{
+			Com_Printf("WARNING: %s - incorrect goal node %d\n",
+				__func__, self->ai->goal_node);
+		}
+
 		return false;
+	}
 
 	// Try again?
 	if(self->ai->node_timeout++ > 30)

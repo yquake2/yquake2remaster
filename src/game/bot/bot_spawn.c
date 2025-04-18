@@ -43,11 +43,12 @@
 ///////////////////////////////////////////////////////////////////////
 // Respawn the bot
 ///////////////////////////////////////////////////////////////////////
-void BOT_Respawn (edict_t *self)
+void
+BOT_Respawn(edict_t *self)
 {
-	CopyToBodyQue (self);
+	CopyToBodyQue(self);
 
-	PutClientInServer (self);
+	PutClientInServer(self);
 
 	// add a teleportation effect
 	self->s.event = EV_PLAYER_TELEPORT;
@@ -66,7 +67,8 @@ void BOT_Respawn (edict_t *self)
 ///////////////////////////////////////////////////////////////////////
 // Find a free client spot - //jabot092(2)
 ///////////////////////////////////////////////////////////////////////
-edict_t *BOT_FindFreeClient (void)
+static edict_t *
+BOT_FindFreeClient(void)
 {
 	edict_t *bot;
 	edict_t	*ent;
@@ -85,7 +87,9 @@ edict_t *BOT_FindFreeClient (void)
 	}
 
 	if (bot == NULL || (max_count + 2) >= game.maxclients ) //always leave room for 1 player
+	{
 		return NULL;
+	}
 
 	bot->count = max_count + 1; // Will become bot name...
 	return bot;
@@ -94,7 +98,8 @@ edict_t *BOT_FindFreeClient (void)
 ///////////////////////////////////////////////////////////////////////
 // Set the name of the bot and update the userinfo
 ///////////////////////////////////////////////////////////////////////
-void BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
+static void
+BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 {
 	float rnd;
 	char userinfo[MAX_INFO_STRING];
@@ -104,9 +109,13 @@ void BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 	// Set the name for the bot.
 	// name
 	if(strlen(name) == 0)
-		sprintf(bot_name,"Bot%d",bot->count);
+	{
+		sprintf(bot_name, "Bot%d", bot->count);
+	}
 	else
-		strcpy(bot_name,name);
+	{
+		strcpy(bot_name, name);
+	}
 
 	// skin
 	if(strlen(skin) == 0)
@@ -114,65 +123,108 @@ void BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 		// randomly choose skin
 		rnd = random();
 		if(rnd  < 0.05)
+		{
 			sprintf(bot_skin,"female/athena");
+		}
 		else if(rnd < 0.1)
+		{
 			sprintf(bot_skin,"female/brianna");
+		}
 		else if(rnd < 0.15)
+		{
 			sprintf(bot_skin,"female/cobalt");
+		}
 		else if(rnd < 0.2)
+		{
 			sprintf(bot_skin,"female/ensign");
+		}
 		else if(rnd < 0.25)
+		{
 			sprintf(bot_skin,"female/jezebel");
+		}
 		else if(rnd < 0.3)
+		{
 			sprintf(bot_skin,"female/jungle");
+		}
 		else if(rnd < 0.35)
+		{
 			sprintf(bot_skin,"female/lotus");
+		}
 		else if(rnd < 0.4)
+		{
 			sprintf(bot_skin,"female/stiletto");
+		}
 		else if(rnd < 0.45)
+		{
 			sprintf(bot_skin,"female/venus");
+		}
 		else if(rnd < 0.5)
+		{
 			sprintf(bot_skin,"female/voodoo");
+		}
 		else if(rnd < 0.55)
+		{
 			sprintf(bot_skin,"male/cipher");
+		}
 		else if(rnd < 0.6)
+		{
 			sprintf(bot_skin,"male/flak");
+		}
 		else if(rnd < 0.65)
+		{
 			sprintf(bot_skin,"male/grunt");
+		}
 		else if(rnd < 0.7)
+		{
 			sprintf(bot_skin,"male/howitzer");
+		}
 		else if(rnd < 0.75)
+		{
 			sprintf(bot_skin,"male/major");
+		}
 		else if(rnd < 0.8)
+		{
 			sprintf(bot_skin,"male/nightops");
+		}
 		else if(rnd < 0.85)
+		{
 			sprintf(bot_skin,"male/pointman");
+		}
 		else if(rnd < 0.9)
+		{
 			sprintf(bot_skin,"male/psycho");
+		}
 		else if(rnd < 0.95)
+		{
 			sprintf(bot_skin,"male/razor");
+		}
 		else
+		{
 			sprintf(bot_skin,"male/sniper");
+		}
 	}
 	else
-		strcpy(bot_skin,skin);
+	{
+		strcpy(bot_skin, skin);
+	}
 
 	// initialise userinfo
-	memset (userinfo, 0, sizeof(userinfo));
+	memset(userinfo, 0, sizeof(userinfo));
 
 	// add bot's name/skin/hand to userinfo
-	Info_SetValueForKey (userinfo, "name", bot_name);
-	Info_SetValueForKey (userinfo, "skin", bot_skin);
-	Info_SetValueForKey (userinfo, "hand", "2"); // bot is center handed for now!
+	Info_SetValueForKey(userinfo, "name", bot_name);
+	Info_SetValueForKey(userinfo, "skin", bot_skin);
+	Info_SetValueForKey(userinfo, "hand", "2"); // bot is center handed for now!
 
-	ClientConnect (bot, userinfo);
+	ClientConnect(bot, userinfo);
 }
 
 //==========================================
 // BOT_NextCTFTeam
 // Get the emptier CTF team
 //==========================================
-int	BOT_NextCTFTeam()
+static int
+BOT_NextCTFTeam()
 {
 	int	i;
 	int	onteam1 = 0;
@@ -207,7 +259,8 @@ int	BOT_NextCTFTeam()
 // BOT_JoinCTFTeam
 // Assign a team for the bot
 //==========================================
-qboolean BOT_JoinCTFTeam (edict_t *ent, char *team_name)
+static qboolean
+BOT_JoinCTFTeam(edict_t *ent, char *team_name)
 {
 	char	*s;
 	int		team;

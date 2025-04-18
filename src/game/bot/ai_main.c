@@ -120,9 +120,11 @@ void AI_SetUpMoveWander( edict_t *ent )
 //==========================================
 void AI_ResetWeights(edict_t *ent)
 {
-	//restore defaults from bot persistant
+	/* restore defaults from bot persistant */
 	memset(ent->ai->status.inventoryWeights, 0, sizeof (ent->ai->status.inventoryWeights));
-	memcpy(ent->ai->status.inventoryWeights, ent->ai->pers.inventoryWeights, sizeof(ent->ai->pers.inventoryWeights));
+	memcpy(ent->ai->status.inventoryWeights,
+		ent->ai->pers.inventoryWeights,
+		sizeof(ent->ai->pers.inventoryWeights));
 }
 
 

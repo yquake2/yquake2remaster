@@ -27,23 +27,8 @@
 
 //ACE
 
-qboolean SV_movestep (edict_t *ent, vec3_t move, qboolean relink);
-void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
-void SelectSpawnPoint (edict_t *ent, vec3_t origin, vec3_t angles);
-qboolean BOT_DMclass_FindEnemy(edict_t *self);
-void BOT_DMclass_CombatMovement( edict_t *self, usercmd_t *ucmd );
-void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd);
-void BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd);
-
-//==========================================
-// M_default_Move
-// movement following paths code
-//==========================================
-//void M_default_Move( edict_t *self, usercmd_t *ucmd )
-//{
-//	BOT_DMclass_Move( self, ucmd );
-//}
-void M_default_Move(edict_t *self, usercmd_t *ucmd)
+static void
+M_default_Move(edict_t *self, usercmd_t *ucmd)
 {
 	// int current_node_flags = 0;
 	// int next_node_flags = 0;
@@ -114,32 +99,6 @@ void M_default_Move(edict_t *self, usercmd_t *ucmd)
 }
 
 //==========================================
-// M_default_CombatMovement
-// movement while in state combat
-//==========================================
-void M_default_CombatMovement( edict_t *self, usercmd_t *ucmd )
-{
-	BOT_DMclass_CombatMovement( self, ucmd );
-}
-
-//==========================================
-// M_default_Wander
-// movement when couldn't find a goal
-//==========================================
-void M_default_Wander( edict_t *self, usercmd_t *ucmd )
-{
-	BOT_DMclass_Wander( self, ucmd );
-}
-
-//==========================================
-// M_default_FindEnemy
-//==========================================
-qboolean M_default_FindEnemy(edict_t *self)
-{
-	return BOT_DMclass_FindEnemy(self);
-}
-
-//==========================================
 // M_default_ChooseWeapon
 // Choose weapon based on range & weights
 //==========================================
@@ -153,7 +112,6 @@ void M_default_ChooseWeapon(edict_t *self)
 void M_default_pain (edict_t *self, edict_t *other, float kick, int damage)
 {
 }
-
 
 //==========================================
 // M_default_DeadFrame
@@ -172,7 +130,6 @@ void M_default_die (edict_t *self, edict_t *inflictor, edict_t *attacker, int da
 {
 	//if(AIDevel.debugMode && bot_debugmonster->value)
 	Com_Printf("AI_monster: Die\n");
-
 
 	//throw gibs
 	//G_Sound (self, CHAN_BODY, trap_SoundIndex ("sound/misc/udeath.wav"), 1, ATTN_NORM);
@@ -603,11 +560,10 @@ void M_WorldEffects (edict_t *ent);
 //==========================================
 void M_default_RunFrame( edict_t *self )
 {
-	usercmd_t	ucmd;
-	memset( &ucmd, 0, sizeof(ucmd) );
+	usercmd_t	ucmd = {0};
 
 	// Look for enemies
-	if( M_default_FindEnemy(self) )
+	if( BOT_DMclass_FindEnemy(self) )
 	{
 		M_default_ChooseWeapon( self );
 		M_default_FireWeapon( self );
@@ -626,10 +582,10 @@ void M_default_RunFrame( edict_t *self )
 		M_default_Move( self, &ucmd );
 
 	else if(self->ai->state == BOT_STATE_ATTACK)
-		M_default_CombatMovement( self, &ucmd );
+		BOT_DMclass_CombatMovement( self, &ucmd );
 
 	else if ( self->ai->state == BOT_STATE_WANDER )
-		M_default_Wander( self, &ucmd );
+		BOT_DMclass_Wander( self, &ucmd );
 
 
 	//move a step

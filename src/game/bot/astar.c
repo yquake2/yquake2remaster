@@ -22,6 +22,7 @@
  *
  */
 
+#include <limits.h>
 #include "../header/local.h"
 #include "ai_local.h"
 
@@ -48,7 +49,7 @@ typedef struct
 	astarnodelist_e list;
 } astarnode_t;
 
-static astarnode_t	astarnodes[MAX_NODES];
+static astarnode_t	astar_nodes[MAX_NODES];
 
 //==========================================
 //
@@ -74,36 +75,31 @@ static int ValidLinksMask;
 //
 //==========================================
 
-static qboolean
-AStar_nodeIsInClosed(int node)
+/*
+ * Check if a node is within valid bounds.
+ */
+static inline qboolean
+AStar_IsValidNode(int node)
 {
-	if (node >= MAX_NODES || node < 0)
-	{
-		return false;
-	}
-
-	if (astarnodes[node].list == CLOSEDLIST)
-	{
-		return true;
-	}
-
-	return false;
+	return (node >= 0 && node < MAX_NODES);
 }
 
-static qboolean
+/*
+ * Check if a node is in the Closed list.
+ */
+static inline qboolean
+AStar_nodeIsInClosed(int node)
+{
+	return (AStar_IsValidNode(node) && astar_nodes[node].list == CLOSEDLIST);
+}
+
+/*
+ * Check if a node is in the Open list.
+ */
+static inline qboolean
 AStar_nodeIsInOpen(int node)
 {
-	if (node >= MAX_NODES || node < 0)
-	{
-		return false;
-	}
-
-	if(astarnodes[node].list == OPENLIST)
-	{
-		return true;
-	}
-
-	return false;
+	return (AStar_IsValidNode(node) && astar_nodes[node].list == OPENLIST);
 }
 
 static void
@@ -113,20 +109,31 @@ AStar_InitLists(void)
 
 	for (i = 0; i < MAX_NODES; i++)
 	{
-		astarnodes[i].g = 0;
-		astarnodes[i].h = 0;
-		astarnodes[i].parent = 0;
-		astarnodes[i].list = NOLIST;
+		astar_nodes[i].g = 0;
+		astar_nodes[i].h = 0;
+		astar_nodes[i].parent = 0;
+		astar_nodes[i].list = NOLIST;
 	}
 
 	alist_nodesnum = 0;
-	memset(alist, -1, sizeof(alist));//jabot092
+	memset(alist, -1, sizeof(alist));
 }
 
 static int
 AStar_PlinkDistance(int n1, int n2)
 {
 	size_t i;
+
+	if (!AStar_IsValidNode(n1) || !AStar_IsValidNode(n2))
+	{
+		if (bot_debugmonster->value)
+		{
+			Com_Printf("WARNING: %s - incorrect distance nodes %d, %d\n",
+				__func__, n1, n2);
+		}
+
+		return -1;
+	}
 
 	for (i = 0; i < pLinks[n1].numLinks; i++)
 	{
@@ -145,6 +152,17 @@ Astar_HDist_ManhatanGuess(int node)
 	vec3_t DistVec;
 	size_t i;
 
+	if (!AStar_IsValidNode(node))
+	{
+		if (bot_debugmonster->value)
+		{
+			Com_Printf("WARNING: %s - incorrect %d\n",
+				__func__, node);
+		}
+
+		return -1;
+	}
+
 	//teleporters are exceptional
 	if (nodes[node].flags & NODEFLAGS_TELEPORTER_IN)
 	{
@@ -162,19 +180,41 @@ Astar_HDist_ManhatanGuess(int node)
 static void
 AStar_PutInClosed(int node)
 {
-	if (!astarnodes[node].list)
+	if (!AStar_IsValidNode(node))
+	{
+		if (bot_debugmonster->value)
+		{
+			Com_Printf("WARNING: %s - incorrect %d\n",
+				__func__, node);
+		}
+
+		return;
+	}
+
+	if (!astar_nodes[node].list)
 	{
 		alist[alist_nodesnum] = node;
 		alist_nodesnum++;
 	}
 
-	astarnodes[node].list = CLOSEDLIST;
+	astar_nodes[node].list = CLOSEDLIST;
 }
 
 static void
 AStar_PutAdjacentsInOpen(int node)
 {
 	size_t i;
+
+	if (!AStar_IsValidNode(node))
+	{
+		if (bot_debugmonster->value)
+		{
+			Com_Printf("WARNING: %s - incorrect %d\n",
+				__func__, node);
+		}
+
+		return;
+	}
 
 	for (i = 0; i < pLinks[node].numLinks; i++)
 	{
@@ -206,16 +246,16 @@ AStar_PutAdjacentsInOpen(int node)
 			int plink_dist;
 
 			plink_dist = AStar_PlinkDistance(node, addnode);
-			if (plink_dist == -1 && bot_debugmonster->value)
+			if (plink_dist < 0 && bot_debugmonster->value)
 			{
 				Com_Printf("WARNING: %s - Couldn't find distance between nodes\n",
 					__func__);
 			}
 			// compare G distances and choose best parent
-			else if (astarnodes[addnode].g > (astarnodes[node].g + plink_dist))
+			else if (astar_nodes[addnode].g > (astar_nodes[node].g + plink_dist))
 			{
-				astarnodes[addnode].parent = node;
-				astarnodes[addnode].g = astarnodes[node].g + plink_dist;
+				astar_nodes[addnode].parent = node;
+				astar_nodes[addnode].g = astar_nodes[node].g + plink_dist;
 			}
 		}
 		else
@@ -224,12 +264,12 @@ AStar_PutAdjacentsInOpen(int node)
 			int plink_dist;
 
 			plink_dist = AStar_PlinkDistance( node, addnode );
-			if (plink_dist == -1)
+			if (plink_dist < 0)
 			{
 				plink_dist = AStar_PlinkDistance(addnode, node);
-				if (plink_dist == -1)
+				if (plink_dist < 0)
 				{
-					plink_dist = 999;//jalFIXME
+					plink_dist = INT_MAX;
 				}
 
 				if (bot_debugmonster->value)
@@ -240,16 +280,16 @@ AStar_PutAdjacentsInOpen(int node)
 			}
 
 			// put in global list
-			if (!astarnodes[addnode].list)
+			if (!astar_nodes[addnode].list)
 			{
 				alist[alist_nodesnum] = addnode;
 				alist_nodesnum++;
 			}
 
-			astarnodes[addnode].parent = node;
-			astarnodes[addnode].g = astarnodes[node].g + plink_dist;
-			astarnodes[addnode].h = Astar_HDist_ManhatanGuess( addnode );
-			astarnodes[addnode].list = OPENLIST;
+			astar_nodes[addnode].parent = node;
+			astar_nodes[addnode].g = astar_nodes[node].g + plink_dist;
+			astar_nodes[addnode].h = Astar_HDist_ManhatanGuess( addnode );
+			astar_nodes[addnode].list = OPENLIST;
 		}
 	}
 }
@@ -265,14 +305,14 @@ AStar_FindInOpen_BestF(void)
 	{
 		int node = alist[i];
 
-		if( astarnodes[node].list != OPENLIST )
+		if (!AStar_IsValidNode(node) || astar_nodes[node].list != OPENLIST)
 		{
 			continue;
 		}
 
-		if (bestF == -1 || bestF > (astarnodes[node].g + astarnodes[node].h))
+		if (bestF < 0 || bestF > (astar_nodes[node].g + astar_nodes[node].h))
 		{
-			bestF = astarnodes[node].g + astarnodes[node].h;
+			bestF = astar_nodes[node].g + astar_nodes[node].h;
 			best = node;
 		}
 	}
@@ -299,11 +339,11 @@ AStar_ListsToPath(struct astarpath_s *astar_path)
 
 	astar_path->numNodes = 0;
 	pnode = astar_path->nodes;
-	while (cur != originNode)
+	while (cur != originNode && cur >= 0)
 	{
 		*pnode = cur;
 		pnode++;
-		cur = astarnodes[cur].parent;
+		cur = astar_nodes[cur].parent;
 		count++;
 	}
 
