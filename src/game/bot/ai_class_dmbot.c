@@ -65,7 +65,9 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 		// Move to the center
 		self->ai->move_vector[2] = 0; // kill z movement
 		if(VectorLength(self->ai->move_vector) > 10)
+		{
 			ucmd->forwardmove = 200; // walk to center
+		}
 
 		AI_ChangeAngle(self);
 
@@ -90,7 +92,9 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 				if( ((nav.ents[i].ent->s.origin[2] + nav.ents[i].ent->maxs[2])
 					> (self->s.origin[2] + self->mins[2] + AI_JUMPABLE_HEIGHT) ) &&
 					nav.ents[i].ent->moveinfo.state != STATE_BOTTOM) //jabot092(2)
+				{
 					return; //wait for elevator
+				}
 			}
 		}
 	}
@@ -108,12 +112,17 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	if(!self->groundentity && !self->is_step && !self->is_swim )
 	{
 		AI_ChangeAngle(self);
-		if (current_link_type == LINK_JUMPPAD ) {
+		if (current_link_type == LINK_JUMPPAD)
+		{
 			ucmd->forwardmove = 100;
-		} else if( current_link_type == LINK_JUMP ) {
+		}
+		else if( current_link_type == LINK_JUMP )
+		{
 			self->velocity[0] = self->ai->move_vector[0] * 280;
 			self->velocity[1] = self->ai->move_vector[1] * 280;
-		} else {
+		}
+		else
+		{
 			self->velocity[0] = self->ai->move_vector[0] * 160;
 			self->velocity[1] = self->ai->move_vector[1] * 160;
 		}
@@ -141,7 +150,9 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 			v1[2] += self->mins[2];
 			trace = gi.trace( v1, tv(-12, -12, -8), tv(12, 12, 0), v1, self, MASK_AISOLID );
 			if( trace.startsolid )
+			{
 				ucmd->upmove = 400;
+			}
 			return;
 		}
 	}
@@ -150,7 +161,9 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	// plats, grapple, etc have higher priority than SR Goals, cause the bot will
 	// drop from them and have to repeat the process from the beginning
 	if (AI_MoveToGoalEntity(self,ucmd))
+	{
 		return;
+	}
 
 	// swimming
 	if( self->is_swim )
@@ -159,7 +172,9 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 		AI_ChangeAngle(self);
 
 		if( !(gi.pointcontents(nodes[self->ai->next_node].origin) & MASK_WATER) ) // Exit water
+		{
 			ucmd->upmove = 400;
+		}
 
 		ucmd->forwardmove = 300;
 		return;
@@ -170,7 +185,9 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	{
 		// Keep a random factor just in case....
 		if( random() > 0.1 && AI_SpecialMove(self, ucmd) ) //jumps, crouches, turns...
+		{
 			return;
+		}
 
 		self->s.angles[YAW] += random() * 180 - 90;
 
@@ -191,18 +208,24 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 
 //==========================================
 // BOT_DMclass_Wander
+// movement when couldn't find a goal
 // Wandering code (based on old ACE movement code)
 //==========================================
-void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
+void
+BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 {
 	vec3_t  temp;
 
 	// Do not move
 	if(self->ai->next_move_time > level.time)
+	{
 		return;
+	}
 
 	if (self->deadflag)
+	{
 		return;
+	}
 
 	// Special check for elevators, stand still until the ride comes to a complete stop.
 	if(self->groundentity != NULL && self->groundentity->use == Use_Plat)
@@ -219,14 +242,15 @@ void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Move To Goal (Short Range Goal, not following paths)
-	if (AI_MoveToGoalEntity(self,ucmd))
+	if (AI_MoveToGoalEntity(self, ucmd))
+	{
 		return;
+	}
 
 	// Swimming?
 	VectorCopy(self->s.origin,temp);
-	temp[2]+=24;
+	temp[2] += 24;
 
-//	if(trap_PointContents (temp) & MASK_WATER)
 	if( gi.pointcontents (temp) & MASK_WATER)
 	{
 		// If drowning and no node, move up
@@ -236,40 +260,51 @@ void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 			self->s.angles[PITCH] = -45;
 		}
 		else
+		{
 			ucmd->upmove = 15;
+		}
 
 		ucmd->forwardmove = 300;
 	}
 	// else self->client->next_drown_time = 0; // probably shound not be messing with this, but
 
-
 	// Lava?
-	temp[2]-=48;
-	//if(trap_PointContents(temp) & (CONTENTS_LAVA|CONTENTS_SLIME))
+	temp[2] -= 48;
+
 	if( gi.pointcontents(temp) & (CONTENTS_LAVA|CONTENTS_SLIME) )
 	{
 		self->s.angles[YAW] += random() * 360 - 180;
 		ucmd->forwardmove = 400;
 		if(self->groundentity)
+		{
 			ucmd->upmove = 400;
+		}
 		else
+		{
 			ucmd->upmove = 0;
+		}
+
 		return;
 	}
-
 
 	// Check for special movement
  	if(VectorLength(self->velocity) < 37)
 	{
 		if(random() > 0.1 && AI_SpecialMove(self,ucmd))	//jumps, crouches, turns...
+		{
 			return;
+		}
 
 		self->s.angles[YAW] += random() * 180 - 90;
 
 		if (!self->is_step)// if there is ground continue otherwise wait for next move
+		{
 			ucmd->forwardmove = 0; //0
+		}
 		else if( AI_CanMove( self, BOT_MOVE_FORWARD))
+		{
 			ucmd->forwardmove = 100;
+		}
 
 		return;
 	}
@@ -277,9 +312,13 @@ void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 
 	// Otherwise move slowly, walking wondering what's going on
 	if( AI_CanMove( self, BOT_MOVE_FORWARD))
+	{
 		ucmd->forwardmove = 100;
+	}
 	else
+	{
 		ucmd->forwardmove = -100;
+	}
 }
 
 
@@ -289,7 +328,8 @@ void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 // NOTE: Very simple for now, just a basic move about avoidance.
 //       Change this routine for more advanced attack movement.
 //==========================================
-void BOT_DMclass_CombatMovement( edict_t *self, usercmd_t *ucmd )
+void
+BOT_DMclass_CombatMovement(edict_t *self, usercmd_t *ucmd)
 {
 	float	c;
 	vec3_t	attackvector;
@@ -299,32 +339,45 @@ void BOT_DMclass_CombatMovement( edict_t *self, usercmd_t *ucmd )
 	//it to dodge, but still follow paths, chasing enemy or
 	//running away... hmmm... maybe it will need 2 different BOT_STATEs
 
-	if(!self->enemy) {
+	if(!self->enemy)
+	{
 
-		//do whatever (tmp move wander)
-		if( AI_FollowPath(self) )
+		// do whatever (tmp move wander)
+		if (AI_FollowPath(self))
+		{
 			BOT_DMclass_Move(self, ucmd);
+		}
+
 		return;
 	}
 
 	// Randomly choose a movement direction
 	c = random();
 
-	if(c < 0.2 && AI_CanMove(self,BOT_MOVE_LEFT))
+	if (c < 0.2 && AI_CanMove(self, BOT_MOVE_LEFT))
+	{
 		ucmd->sidemove -= 400;
-	else if(c < 0.4 && AI_CanMove(self,BOT_MOVE_RIGHT))
+	}
+	else if (c < 0.4 && AI_CanMove(self, BOT_MOVE_RIGHT))
+	{
 		ucmd->sidemove += 400;
-	else if(c < 0.6 && AI_CanMove(self,BOT_MOVE_FORWARD))
+	}
+	else if (c < 0.6 && AI_CanMove(self, BOT_MOVE_FORWARD))
+	{
 		ucmd->forwardmove += 400;
+	}
 	else if(c < 0.8 && AI_CanMove(self,BOT_MOVE_BACK))
+	{
 		ucmd->forwardmove -= 400;
-
+	}
 
 	VectorSubtract( self->s.origin, self->enemy->s.origin, attackvector);
 	dist = VectorLength( attackvector);
 
 	if(dist < 75)
+	{
 		ucmd->forwardmove -= 200;
+	}
 }
 
 
@@ -332,7 +385,8 @@ void BOT_DMclass_CombatMovement( edict_t *self, usercmd_t *ucmd )
 // BOT_DMclass_CheckShot
 // Checks if shot is blocked or if too far to shoot
 //==========================================
-qboolean BOT_DMclass_CheckShot(edict_t *ent, vec3_t	point)
+static qboolean
+BOT_DMclass_CheckShot(edict_t *ent, vec3_t	point)
 {
 	trace_t tr;
 	vec3_t	start, forward, right, offset;
@@ -356,7 +410,8 @@ qboolean BOT_DMclass_CheckShot(edict_t *ent, vec3_t	point)
 // BOT_DMclass_FindEnemy
 // Scan for enemy (simplifed for now to just pick any visible enemy)
 //==========================================
-qboolean BOT_DMclass_FindEnemy(edict_t *self)
+qboolean
+BOT_DMclass_FindEnemy(edict_t *self)
 {
 	int i;
 
@@ -893,8 +948,7 @@ void BOT_DMclass_DeadFrame( edict_t *self )
 //==========================================
 void BOT_DMclass_RunFrame( edict_t *self )
 {
-	usercmd_t	ucmd;
-	memset( &ucmd, 0, sizeof(ucmd) );
+	usercmd_t ucmd = {0};
 
 	// Look for enemies
 	if( BOT_DMclass_FindEnemy(self) )

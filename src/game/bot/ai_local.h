@@ -170,3 +170,8 @@ qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, ed
 //	A* PROPS
 //===========================================
 qboolean AStar_GetPath(int origin, int goal, int movetypes, struct astarpath_s *path);
+
+/* ai_class_dmbot */
+qboolean BOT_DMclass_FindEnemy(edict_t *self);
+void BOT_DMclass_CombatMovement( edict_t *self, usercmd_t *ucmd );
+void BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd);
