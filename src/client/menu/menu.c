@@ -3168,6 +3168,13 @@ Mods_NamesFinish(void)
 {
     if (modnames)
     {
+        int i;
+
+        for (i = 0; i < nummods; i ++)
+        {
+            free(modnames[i]);
+        }
+
         free(modnames);
         modnames = NULL;
     }
