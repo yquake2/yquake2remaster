@@ -167,7 +167,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: cleanup function declarations in game save code,
 * [ ] game: fix broken base3 with sorted fields names,
-* [ ] game: remove grapple by default,
+* [x] game: remove grapple by default,
 * [x] ReRelease: crash on exit from psx/base2,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
 * [ ] ReRelease: incorrect light apply to models (wall looks fine),

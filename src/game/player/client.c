@@ -1346,8 +1346,12 @@ InitClientPersistant(edict_t *ent)
 	client->pers.weapon = item;
 	client->pers.lastweapon = item;
 
-	item = FindItem("Grapple");
-	client->pers.inventory[ITEM_INDEX(item)] = 1;
+	if (ctf->value)
+	{
+		/* Provide Grapple for ctf only */
+		item = FindItem("Grapple");
+		client->pers.inventory[ITEM_INDEX(item)] = 1;
+	}
 
 	client->pers.health = 100;
 	client->pers.max_health = 100;
