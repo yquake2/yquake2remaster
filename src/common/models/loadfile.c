@@ -487,7 +487,7 @@ Mod_StoreAliasModel(const char *name)
 	}
 
 	ext = COM_FileExtension(name);
-	if(!ext || !ext[0])
+	if (!ext[0])
 	{
 		/* file has no extension */
 		return NULL;
@@ -622,7 +622,7 @@ Mod_LoadFile(const char *name, void **buffer)
 	}
 
 	ext = COM_FileExtension(name);
-	if(!ext[0])
+	if (!ext[0])
 	{
 		/* file has no extension */
 		return -1;

@@ -723,7 +723,7 @@ R_FindPic(const char *name, findimage_t find_image)
 		const char* ext;
 
 		ext = COM_FileExtension(name);
-		if(!ext || !ext[0])
+		if (!ext[0])
 		{
 			/* file has no extension */
 			strncpy(namewe, name, sizeof(namewe) - 1);

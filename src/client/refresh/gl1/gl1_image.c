@@ -1158,7 +1158,7 @@ R_FindImage(const char *originname, imagetype_t type)
 	Q_replacebackslash(name);
 
 	ext = COM_FileExtension(name);
-	if(!ext[0])
+	if (!ext[0])
 	{
 		/* file has no extension */
 		return NULL;

@@ -224,7 +224,7 @@ S_LoadVorbis(const char *path, wavinfo_t *info, void **buffer)
 	}
 
 	ext = COM_FileExtension(path);
-	if(!ext[0])
+	if (!ext[0])
 	{
 		/* file has no extension */
 		return;
