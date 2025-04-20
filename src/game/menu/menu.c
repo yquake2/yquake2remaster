@@ -156,7 +156,6 @@ PMenu_Do_Update(edict_t *ent)
 	char string[1400];
 	int i;
 	pmenu_t *p;
-	int x;
 	pmenuhnd_t *hnd;
 	char *t;
 	qboolean alt = false;
@@ -173,6 +172,8 @@ PMenu_Do_Update(edict_t *ent)
 
 	for (i = 0, p = hnd->entries; i < hnd->num; i++, p++)
 	{
+		size_t x;
+
 		if (!p->text || !*(p->text))
 		{
 			continue; /* blank line */

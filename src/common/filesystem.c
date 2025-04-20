@@ -239,7 +239,7 @@ FS_CreatePath(const char *path)
 
 	FS_DPrintf("%s(%s)\n", __func__, path);
 
-	if (strstr(dir_path, "..") != NULL)
+	if (strstr(path, "..") != NULL)
 	{
 		Com_Printf("WARNING: refusing to create relative path '%s'.\n", path);
 		return;
@@ -1395,7 +1395,6 @@ FS_LoadPAK(const char *packPath)
 static fsPack_t *
 FS_LoadPK3(const char *packPath)
 {
-	char fileName[MAX_FILENAME]; /* File name. */
 	int i = 0; /* Loop counter. */
 	int numFiles; /* Number of files in PK3. */
 	int status; /* Error indicator. */
@@ -1438,7 +1437,8 @@ FS_LoadPK3(const char *packPath)
 
 	while (status == UNZ_OK)
 	{
-		fileName[0] = '\0';
+		char fileName[MAX_FILENAME] = {0}; /* File name. */
+
 		unzGetCurrentFileInfo(handle, &info, fileName, sizeof(fileName),
 				NULL, 0, NULL, 0);
 		Q_strlcpy(files[i].name, fileName, sizeof(files[i].name));

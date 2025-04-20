@@ -497,7 +497,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 						__func__);
 				}
 
-				len = strlen(func->funcStr)+1;
+				len = strlen(func->funcStr) + 1;
 			}
 
 			*(int *)p = len;
@@ -518,7 +518,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 						__func__);
 				}
 
-				len = strlen(mmove->mmoveStr)+1;
+				len = strlen(mmove->mmoveStr) + 1;
 			}
 
 			*(int *)p = len;

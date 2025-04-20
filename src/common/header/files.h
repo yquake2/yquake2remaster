@@ -672,7 +672,7 @@ typedef struct
 
 typedef struct
 {
-	int fileofs, filelen;
+	unsigned int fileofs, filelen;
 } lump_t;
 
 #define LUMP_ENTITIES 0

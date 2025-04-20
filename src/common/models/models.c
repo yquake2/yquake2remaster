@@ -115,22 +115,29 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 	for (i = 0; i < pheader->num_frames; i++)
 	{
 		daliasxframe_t *poutframe;
-		int j;
 
 		poutframe = (daliasxframe_t *) ((byte *)pheader
 			+ pheader->ofs_frames + i * pheader->framesize);
 
-		Q_strlcpy(newname, poutframe->name, sizeof(poutframe->name));
-
-		for (j = strlen(newname) - 1; j > 0; j--)
+		if (poutframe->name[0])
 		{
-			if ((newname[j] >= '0' && newname[j] <= '9') ||
-				(newname[j] == '_'))
+			size_t j;
+
+			Q_strlcpy(newname, poutframe->name, sizeof(poutframe->name));
+			for (j = strlen(newname) - 1; j > 0; j--)
 			{
-				newname[j] = 0;
-				continue;
+				if ((newname[j] >= '0' && newname[j] <= '9') ||
+					(newname[j] == '_'))
+				{
+					newname[j] = 0;
+					continue;
+				}
+				break;
 			}
-			break;
+		}
+		else
+		{
+			*newname = 0;
 		}
 
 		if (strcmp(newname, oldname))

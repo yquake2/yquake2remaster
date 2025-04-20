@@ -396,7 +396,7 @@ SV_ReadServerFile(void)
 	/* start a new game fresh with new cvars */
 	SV_InitGame();
 
-	strcpy(svs.mapcmd, mapcmd);
+	Q_strlcpy(svs.mapcmd, mapcmd, sizeof(svs.mapcmd));
 
 	/* read game state */
 	Com_sprintf(name, sizeof(name), "%s/save/current", FS_Gamedir());

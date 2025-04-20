@@ -1254,7 +1254,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	{
 		if (rules[s].size && (rules[s].pos >= 0))
 		{
-			int pos;
+			size_t pos;
 
 			pos = rules[s].pos;
 			outheader->lumps[pos].fileofs = ofs;
@@ -1288,7 +1288,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		lump = (bspx_lump_t*)(bspx_header + 1);
 		for (i = 0; i < numlumps; i++, lump++)
 		{
-			int fileofs;
+			size_t fileofs;
 
 			/* move fileofs to correct place */
 			fileofs = LittleLong(lump->fileofs);
