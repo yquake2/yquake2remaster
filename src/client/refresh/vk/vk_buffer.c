@@ -41,36 +41,7 @@ copyBuffer(const VkBuffer * src, VkBuffer * dst, VkDeviceSize size)
 						 &commandBuffer);
 }
 
-// internal helper
-static void
-createStagedBuffer(const void *data, VkDeviceSize size, qvkbuffer_t * dstBuffer,
-				   qvkbufferopts_t bufferOpts)
-{
-	qvkstagingbuffer_t *stgBuffer;
-	stgBuffer = (qvkstagingbuffer_t *) malloc(sizeof(qvkstagingbuffer_t));
-	VK_VERIFY(QVk_CreateStagingBuffer(size, stgBuffer,
-			   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-			   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			   VK_MEMORY_PROPERTY_HOST_CACHED_BIT));
-
-	if (data)
-	{
-		void *dst;
-		// staging buffers in vkQuake2 are required to be host coherent,
-		// so no flushing/invalidation is involved
-		dst = buffer_map(&stgBuffer->resource);
-		memcpy(dst, data, (size_t) size);
-		buffer_unmap(&stgBuffer->resource);
-	}
-
-	VK_VERIFY(QVk_CreateBuffer(size, dstBuffer, bufferOpts));
-	copyBuffer(&stgBuffer->resource.buffer, &dstBuffer->resource.buffer, size);
-
-	QVk_FreeStagingBuffer(stgBuffer);
-	free(stgBuffer);
-}
-
-VkResult
+static VkResult
 QVk_CreateBuffer(VkDeviceSize size, qvkbuffer_t *dstBuffer,
 				 const qvkbufferopts_t options)
 {
@@ -103,6 +74,35 @@ QVk_CreateBuffer(VkDeviceSize size, qvkbuffer_t *dstBuffer,
 	return buffer_create(&dstBuffer->resource, bcInfo,
 						 options.reqMemFlags, options.prefMemFlags,
 						 /*skip memory*/ 0);
+}
+
+// internal helper
+static void
+createStagedBuffer(const void *data, VkDeviceSize size, qvkbuffer_t * dstBuffer,
+				   qvkbufferopts_t bufferOpts)
+{
+	qvkstagingbuffer_t *stgBuffer;
+	stgBuffer = (qvkstagingbuffer_t *) malloc(sizeof(qvkstagingbuffer_t));
+	VK_VERIFY(QVk_CreateStagingBuffer(size, stgBuffer,
+			   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+			   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			   VK_MEMORY_PROPERTY_HOST_CACHED_BIT));
+
+	if (data)
+	{
+		void *dst;
+		// staging buffers in vkQuake2 are required to be host coherent,
+		// so no flushing/invalidation is involved
+		dst = buffer_map(&stgBuffer->resource);
+		memcpy(dst, data, (size_t) size);
+		buffer_unmap(&stgBuffer->resource);
+	}
+
+	VK_VERIFY(QVk_CreateBuffer(size, dstBuffer, bufferOpts));
+	copyBuffer(&stgBuffer->resource.buffer, &dstBuffer->resource.buffer, size);
+
+	QVk_FreeStagingBuffer(stgBuffer);
+	free(stgBuffer);
 }
 
 void

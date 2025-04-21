@@ -1191,7 +1191,8 @@ static void CreateStagingBuffers()
 }
 
 // Records a memory barrier in the given command buffer.
-void Qvk_MemoryBarrier(VkCommandBuffer cmdBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask)
+static void
+Qvk_MemoryBarrier(VkCommandBuffer cmdBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask)
 {
 	const VkMemoryBarrier memBarrier = {
 		.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
@@ -1540,7 +1541,8 @@ static void DestroyStagingBuffer(qvkstagingbuffer_t *dstBuffer)
 **
 ** Destroy all Vulkan related resources.
 */
-void QVk_Shutdown( void )
+static void
+QVk_Shutdown(void)
 {
 	if (!vk_initialized)
 	{
@@ -1719,15 +1721,6 @@ QVk_WaitAndShutdownAll(void)
 
 	vk_frameStarted = false;
 	vk_initialized = false;
-}
-
-void QVk_Restart(void)
-{
-	QVk_WaitAndShutdownAll();
-	if (!QVk_Init())
-		Com_Error(ERR_FATAL, "Unable to restart Vulkan renderer");
-	QVk_PostInit();
-	ri.Vid_RequestRestart(RESTART_PARTIAL);
 }
 
 void QVk_PostInit(void)

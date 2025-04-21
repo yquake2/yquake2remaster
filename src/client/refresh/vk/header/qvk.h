@@ -295,8 +295,6 @@ qboolean	QVk_Init(void);
 void		QVk_PostInit(void);
 void		QVk_GetDrawableSize(int *width, int *height);
 void		QVk_WaitAndShutdownAll(void);
-void		QVk_Shutdown(void);
-void		QVk_Restart(void);
 void		QVk_CreateValidationLayers(void);
 void		QVk_DestroyValidationLayers(void);
 qboolean	QVk_CreateDevice(int preferredDeviceIdx);
@@ -321,7 +319,6 @@ VkResult	QVk_EndFrame(qboolean force);
 void		QVk_BeginRenderpass(qvkrenderpasstype_t rpType);
 qboolean	QVk_RecreateSwapchain();
 void		QVk_FreeStagingBuffer(qvkstagingbuffer_t *buffer);
-VkResult	QVk_CreateBuffer(VkDeviceSize size, qvkbuffer_t *dstBuffer, const qvkbufferopts_t options);
 void		QVk_FreeBuffer(qvkbuffer_t *buffer);
 VkResult	QVk_CreateStagingBuffer(VkDeviceSize size, qvkstagingbuffer_t *dstBuffer, VkMemoryPropertyFlags reqMemFlags, VkMemoryPropertyFlags prefMemFlags);
 VkResult	QVk_CreateUniformBuffer(VkDeviceSize size, qvkbuffer_t *dstBuffer, VkMemoryPropertyFlags reqMemFlags, VkMemoryPropertyFlags prefMemFlags);
@@ -343,7 +340,6 @@ void		QVk_DrawTexRect(float x, float y, float w, float h,
 				float u, float v, float us, float vs, const qvktexture_t *texture);
 void		QVk_BindPipeline(qvkpipeline_t *pipeline);
 void		QVk_SubmitStagingBuffers(void);
-void		Qvk_MemoryBarrier(VkCommandBuffer cmdBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask);
 qboolean	QVk_CheckExtent(void);
 
 // debug label related functions
