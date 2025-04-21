@@ -1,3 +1,12 @@
+Quake 2 8.51RR12:
+- TTF support in all renders except soft,
+- intergrate jabot code,
+- add animation groups code callback,
+- fix mod_novis logic,
+- cache model on client side,
+- disable grapple by default,
+- vault models support.
+
 Quake II 8.41 to 8.50:
 - Consistent bindings between multiple gamepad types. (by protocultor)
 - Improved menu navigation with gamepads. (by protocultor)

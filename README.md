@@ -116,6 +116,8 @@ Games check videos:
 
 * 8.42RR12+:
 
+[![PSX check](https://img.youtube.com/vi/jAcNMbvrPe4/0.jpg)](https://www.youtube.com/watch?v=jAcNMbvrPe4)
+[![Vault check](https://img.youtube.com/vi/a338jWr6uTc/0.jpg)](https://www.youtube.com/watch?v=a338jWr6uTc)
 [![JaBot check](https://img.youtube.com/vi/uW3XDxrjQOU/0.jpg)](https://www.youtube.com/watch?v=uW3XDxrjQOU)
 [![Translation check](https://img.youtube.com/vi/8Tlm8lSY5x8/0.jpg)](https://www.youtube.com/watch?v=8Tlm8lSY5x8)
 [![Anacronox dance sector issue](https://img.youtube.com/vi/PR2_nK7DFJM/0.jpg)](https://www.youtube.com/watch?v=PR2_nK7DFJM)
@@ -167,6 +169,8 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: cleanup function declarations in game save code,
 * [ ] game: fix broken base3 with sorted fields names,
+* [ ] game: code has not reset ctf flag on load saves,
+* [ ] game: code has reset thirdperson flag on load new level,
 * [x] game: remove grapple by default,
 * [x] ReRelease: crash on exit from psx/base2,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
