@@ -69,6 +69,7 @@ static ALuint underwaterFilter;
 static ALuint ReverbEffect[QAL_EFX_MAX] = {0};
 static ALuint ReverbEffectSlot[QAL_EFX_MAX] = {0};
 static int lastreverteffect = -1; /* just some invalid index value */
+static qboolean snd_is_underwater_enabled = false;
 
 /* ----------------------------------------------------------------- */
 
@@ -82,7 +83,9 @@ AL_StreamDie(void)
 
 	/* openal might not be initialised yet */
 	if (!qalSourceStop)
-            return;
+	{
+		return;
+	}
 
 	streamPlaying = false;
 	qalSourceStop(streamSource);
@@ -1191,7 +1194,7 @@ AL_Underwater()
 {
 	int i;
 
-	if (sound_started != SS_OAL)
+	if (sound_started != SS_OAL || !snd_is_underwater_enabled)
 	{
 		return;
 	}
@@ -1216,13 +1219,15 @@ AL_Overwater()
 {
 	int i;
 
-	if (sound_started != SS_OAL)
+	if (sound_started != SS_OAL || !snd_is_underwater_enabled)
 	{
 		return;
 	}
 
 	if (underwaterFilter == 0)
+	{
 		return;
+	}
 
 	/* Apply to all sources */
 	for (i = 0; i < s_numchannels; i++)

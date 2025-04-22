@@ -1315,10 +1315,7 @@ PM_UpdateUnderwaterSfx()
 		snd_is_underwater = 1;
 
 #ifdef USE_OPENAL
-		if (snd_is_underwater_enabled)
-		{
-			AL_Underwater();
-		}
+		AL_Underwater();
 #endif
 	}
 
@@ -1327,8 +1324,7 @@ PM_UpdateUnderwaterSfx()
 		snd_is_underwater = 0;
 
 #ifdef USE_OPENAL
-		if (snd_is_underwater_enabled)
-			AL_Overwater();
+		AL_Overwater();
 #endif
 	}
 }
