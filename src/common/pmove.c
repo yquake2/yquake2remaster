@@ -101,14 +101,9 @@ static void
 PM_StepSlideMove_(void)
 {
 	int bumpcount, numbumps;
-	vec3_t dir;
-	float d;
 	int numplanes;
 	vec3_t planes[MAX_CLIP_PLANES];
 	vec3_t primal_velocity;
-	int i, j;
-	trace_t trace;
-	vec3_t end;
 	float time_left;
 
 	numbumps = 4;
@@ -120,6 +115,11 @@ PM_StepSlideMove_(void)
 
 	for (bumpcount = 0; bumpcount < numbumps; bumpcount++)
 	{
+		vec3_t end, dir;
+		trace_t trace;
+		int i, j;
+		float d;
+
 		for (i = 0; i < 3; i++)
 		{
 			end[i] = pml.origin[i] + time_left * pml.velocity[i];
@@ -290,7 +290,6 @@ PM_Friction(void)
 {
 	float *vel;
 	float speed, newspeed, control;
-	float friction;
 	float drop;
 
 	vel = pml.velocity;
@@ -310,9 +309,8 @@ PM_Friction(void)
 	if ((pm->groundentity && pml.groundsurface &&
 		 !(pml.groundsurface->flags & SURF_SLICK)) || (pml.ladder))
 	{
-		friction = pm_friction;
 		control = speed < pm_stopspeed ? pm_stopspeed : speed;
-		drop += control * friction * pml.frametime;
+		drop += control * pm_friction * pml.frametime;
 	}
 
 	/* apply water friction */
@@ -1141,11 +1139,11 @@ PM_GoodPosition(void)
 static void
 PM_SnapPosition(void)
 {
-	int sign[3];
-	int i, j, bits;
-	short base[3];
 	/* try all single bits first */
-	static int jitterbits[8] = {0, 4, 1, 2, 3, 5, 6, 7};
+	static const int jitterbits[8] = {0, 4, 1, 2, 3, 5, 6, 7};
+	short base[3];
+	int sign[3];
+	int i, j;
 
 	/* snap velocity to eigths */
 	for (i = 0; i < 3; i++)
@@ -1177,6 +1175,8 @@ PM_SnapPosition(void)
 	/* try all combinations */
 	for (j = 0; j < 8; j++)
 	{
+		int bits;
+
 		bits = jitterbits[j];
 		VectorCopy(base, pm->s.origin);
 
@@ -1201,18 +1201,22 @@ PM_SnapPosition(void)
 static void
 PM_InitialSnapPosition(void)
 {
-	int x, y, z;
+	static const int offset[3] = {0, -1, 1};
 	short base[3];
-	static int offset[3] = {0, -1, 1};
+	int z;
 
 	VectorCopy(pm->s.origin, base);
 
 	for (z = 0; z < 3; z++)
 	{
+		int y;
+
 		pm->s.origin[2] = base[2] + offset[z];
 
 		for (y = 0; y < 3; y++)
 		{
+			int x;
+
 			pm->s.origin[1] = base[1] + offset[y];
 
 			for (x = 0; x < 3; x++)
@@ -1237,9 +1241,6 @@ PM_InitialSnapPosition(void)
 static void
 PM_ClampAngles(void)
 {
-	short temp;
-	int i;
-
 	if (pm->s.pm_flags & PMF_TIME_TELEPORT)
 	{
 		pm->viewangles[YAW] = SHORT2ANGLE(
@@ -1249,9 +1250,13 @@ PM_ClampAngles(void)
 	}
 	else
 	{
+		int i;
+
 		/* circularly clamp the angles with deltas */
 		for (i = 0; i < 3; i++)
 		{
+			short temp;
+
 			temp = pm->cmd.angles[i] + pm->s.delta_angles[i];
 			pm->viewangles[i] = SHORT2ANGLE(temp);
 		}
@@ -1275,17 +1280,24 @@ static void
 PM_CalculateViewHeightForDemo()
 {
 	if (pm->s.pm_type == PM_GIB)
+	{
 		pm->viewheight = 8;
-	else {
+	}
+	else
+	{
 		if ((pm->s.pm_flags & PMF_DUCKED) != 0)
+		{
 			pm->viewheight = -2;
+		}
 		else
+		{
 			pm->viewheight = 22;
+		}
 	}
 }
 
 static void
-PM_CalculateWaterLevelForDemo()
+PM_CalculateWaterLevelForDemo(void)
 {
 	vec3_t point;
 	int cont;
@@ -1319,7 +1331,8 @@ PM_UpdateUnderwaterSfx()
 #endif
 	}
 
-	if ((pm->waterlevel < 3) && underwater) {
+	if ((pm->waterlevel < 3) && underwater)
+	{
 		underwater = 0;
 		snd_is_underwater = 0;
 
@@ -1382,7 +1395,8 @@ Pmove(pmove_t *pmove)
 	if (pm->s.pm_type == PM_FREEZE)
 	{
 #if !defined(DEDICATED_ONLY)
-		if (cl.attractloop) {
+		if (cl.attractloop)
+		{
 			PM_CalculateViewHeightForDemo();
 			PM_CalculateWaterLevelForDemo();
 			PM_UpdateUnderwaterSfx();
