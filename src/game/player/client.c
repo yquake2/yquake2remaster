@@ -2338,9 +2338,9 @@ PutClientInServer(edict_t *ent)
 	/* clear playerstate values */
 	memset(&ent->client->ps, 0, sizeof(client->ps));
 
-	client->ps.pmove.origin[0] = spawn_origin[0] * 8;
-	client->ps.pmove.origin[1] = spawn_origin[1] * 8;
-	client->ps.pmove.origin[2] = spawn_origin[2] * 8;
+	/*
+	 * set ps.pmove.origin is not required as server uses ent.origin instead
+	 */
 	client->ps.pmove.pm_flags &= ~PMF_NO_PREDICTION;
 
 	if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
@@ -2955,6 +2955,8 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	}
 	else
 	{
+		int origin[3];
+
 		/* set up for pmove */
 		memset(&pm, 0, sizeof(pm));
 
@@ -2980,7 +2982,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 		for (i = 0; i < 3; i++)
 		{
-			pm.s.origin[i] = ent->s.origin[i] * 8;
+			origin[i] = ent->s.origin[i] * 8;
 			/* save to an int first, in case the short overflows
 			 * so we get defined behavior (at least with -fwrapv) */
 			int tmpVel = ent->velocity[i] * 8;
@@ -2998,7 +3000,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		pm.pointcontents = gi.pointcontents;
 
 		/* perform a pmove */
-		gi.Pmove(&pm);
+		gi.PmoveEx(&pm, origin);
 
 		/* save results of pmove */
 		client->ps.pmove = pm.s;
@@ -3006,7 +3008,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 
 		for (i = 0; i < 3; i++)
 		{
-			ent->s.origin[i] = pm.s.origin[i] * 0.125;
+			ent->s.origin[i] = origin[i] * 0.125;
 			ent->velocity[i] = pm.s.velocity[i] * 0.125;
 		}
 
