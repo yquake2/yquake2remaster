@@ -56,15 +56,15 @@ static pmove_t *pm;
 static pml_t pml;
 
 /* movement parameters */
-float pm_stopspeed = 100;
-float pm_maxspeed = 300;
-float pm_duckspeed = 100;
-float pm_accelerate = 10;
+static float pm_stopspeed = 100;
+static float pm_maxspeed = 300;
+static float pm_duckspeed = 100;
+static float pm_accelerate = 10;
 float pm_airaccelerate = 0;
-float pm_wateraccelerate = 10;
-float pm_friction = 6;
-float pm_waterfriction = 1;
-float pm_waterspeed = 400;
+static float pm_wateraccelerate = 10;
+static float pm_friction = 6;
+static float pm_waterfriction = 1;
+static float pm_waterspeed = 400;
 
 #define STOP_EPSILON 0.1 /* Slide off of the impacting object returns the blocked flags (1 = floor, 2 = step / wall) */
 #define MIN_STEP_NORMAL 0.7 /* can't step up onto very steep slopes */
@@ -1142,8 +1142,7 @@ PM_SnapPosition(void)
 {
 	/* try all single bits first */
 	static const int jitterbits[8] = {0, 4, 1, 2, 3, 5, 6, 7};
-	short base[3];
-	int sign[3];
+	int base[3], sign[3];
 	int i, j;
 
 	/* snap velocity to eigths */
@@ -1203,8 +1202,7 @@ static void
 PM_InitialSnapPosition(void)
 {
 	static const int offset[3] = {0, -1, 1};
-	short base[3];
-	int z;
+	int base[3], z;
 
 	VectorCopy(pml.current_origin, base);
 
@@ -1514,4 +1512,19 @@ Pmove(pmove_t *pmove)
 	Pmove_();
 	/* 28.3 -> 12.3 coordiantes */
 	VectorCopy(pml.current_origin, pmove->s.origin);
+}
+
+void
+PmoveEx(pmove_t *pmove, int *origin)
+{
+	pm = pmove;
+
+	/* clear all pmove local vars */
+	memset(&pml, 0, sizeof(pml));
+
+	/* 28.3 -> 12.3 coordiantes */
+	VectorCopy(origin, pml.current_origin);
+	Pmove_();
+	/* 28.3 -> 12.3 coordiantes */
+	VectorCopy(pml.current_origin, origin);
 }

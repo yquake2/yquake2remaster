@@ -224,8 +224,7 @@ CL_PMpointcontents(vec3_t point)
 void
 CL_PredictMovement(void)
 {
-	int ack, current;
-	int frame;
+	int ack, current, origin[3];
 	usercmd_t *cmd;
 	pmove_t pm;
 	int i;
@@ -276,9 +275,13 @@ CL_PredictMovement(void)
 	pm_airaccelerate = atof(cl.configstrings[CS_AIRACCEL]);
 	pm.s = cl.frame.playerstate.pmove;
 
+	VectorCopy(cl.frame.origin, origin);
+
 	/* run frames */
 	while (++ack <= current)
 	{
+		int frame;
+
 		frame = ack & (CMD_BACKUP - 1);
 		cmd = &cl.cmds[frame];
 
@@ -289,15 +292,15 @@ CL_PredictMovement(void)
 		}
 
 		pm.cmd = *cmd;
-		Pmove(&pm);
+		PmoveEx(&pm, origin);
 
 		/* save for debug checking */
-		VectorCopy(pm.s.origin, cl.predicted_origins[frame]);
+		VectorCopy(origin, cl.predicted_origins[frame]);
 	}
 
 	// step is used for movement prediction on stairs
 	// (so moving up/down stairs is smooth)
-	step = pm.s.origin[2] - (int)(cl.predicted_origin[2] * 8);
+	step = origin[2] - (int)(cl.predicted_origin[2] * 8);
 	VectorCopy(pm.s.velocity, tmp);
 
 	if (((step > 62 && step < 66) || (step > 94 && step < 98) || (step > 126 && step < 130))
@@ -309,9 +312,9 @@ CL_PredictMovement(void)
 	}
 
 	/* copy results out for rendering */
-	cl.predicted_origin[0] = pm.s.origin[0] * 0.125f;
-	cl.predicted_origin[1] = pm.s.origin[1] * 0.125f;
-	cl.predicted_origin[2] = pm.s.origin[2] * 0.125f;
+	cl.predicted_origin[0] = origin[0] * 0.125f;
+	cl.predicted_origin[1] = origin[1] * 0.125f;
+	cl.predicted_origin[2] = origin[2] * 0.125f;
 
 	VectorCopy(pm.viewangles, cl.predicted_angles);
 }

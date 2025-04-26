@@ -699,6 +699,7 @@ void Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs);
 extern float pm_airaccelerate;
 
 void Pmove(pmove_t *pmove);
+void PmoveEx(pmove_t *pmove, int *origin);
 
 /* FILESYSTEM */
 
