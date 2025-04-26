@@ -217,6 +217,7 @@ typedef struct
 	const char * (*GetConfigString)(int num);
 	const dmdxframegroup_t * (*GetModelInfo)(int index, int *num, float *mins, float *maxs);
 	void (*GetModelFrameInfo)(int index, int num, float *mins, float *maxs);
+	void (*PmoveEx)(pmove_t *pmove, int *origin);
 } game_import_t;
 
 /* functions exported by the game subsystem */

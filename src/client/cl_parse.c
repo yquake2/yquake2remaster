@@ -637,8 +637,6 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 			newframe->origin[1] = MSG_ReadLong(&net_message);
 			newframe->origin[2] = MSG_ReadLong(&net_message);
 		}
-		/* Copy coordinates back 28.3 -> 12.3 */
-		VectorCopy(newframe->origin, state->pmove.origin);
 	}
 
 	if (flags & PS_M_VELOCITY)

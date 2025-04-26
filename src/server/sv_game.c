@@ -534,6 +534,7 @@ SV_InitGameProgs(void)
 	import.GetConfigString = PF_ConfigStringGet;
 	import.GetModelInfo = PF_GetModelInfo;
 	import.GetModelFrameInfo = PF_GetModelFrameInfo;
+	import.PmoveEx = PmoveEx;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

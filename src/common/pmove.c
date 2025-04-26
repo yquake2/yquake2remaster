@@ -1142,8 +1142,7 @@ PM_SnapPosition(void)
 {
 	/* try all single bits first */
 	static const int jitterbits[8] = {0, 4, 1, 2, 3, 5, 6, 7};
-	int base[3], sign[3];
-	int i, j;
+	int base[3], sign[3], i, j;
 
 	/* snap velocity to eigths */
 	for (i = 0; i < 3; i++)
