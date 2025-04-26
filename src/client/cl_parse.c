@@ -606,11 +606,13 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	if (oldframe)
 	{
 		*state = oldframe->playerstate;
+		VectorCopy(oldframe->origin, newframe->origin);
 	}
 
 	else
 	{
 		memset(state, 0, sizeof(*state));
+		memset(newframe->origin, 0, sizeof(newframe->origin));
 	}
 
 	flags = MSG_ReadShort(&net_message);
@@ -625,16 +627,18 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 	{
 		if (IS_QII97_PROTOCOL(protocol))
 		{
-			state->pmove.origin[0] = MSG_ReadShort(&net_message);
-			state->pmove.origin[1] = MSG_ReadShort(&net_message);
-			state->pmove.origin[2] = MSG_ReadShort(&net_message);
+			newframe->origin[0] = MSG_ReadShort(&net_message);
+			newframe->origin[1] = MSG_ReadShort(&net_message);
+			newframe->origin[2] = MSG_ReadShort(&net_message);
 		}
 		else
 		{
-			state->pmove.origin[0] = MSG_ReadLong(&net_message);
-			state->pmove.origin[1] = MSG_ReadLong(&net_message);
-			state->pmove.origin[2] = MSG_ReadLong(&net_message);
+			newframe->origin[0] = MSG_ReadLong(&net_message);
+			newframe->origin[1] = MSG_ReadLong(&net_message);
+			newframe->origin[2] = MSG_ReadLong(&net_message);
 		}
+		/* Copy coordinates back 28.3 -> 12.3 */
+		VectorCopy(newframe->origin, state->pmove.origin);
 	}
 
 	if (flags & PS_M_VELOCITY)
@@ -903,9 +907,9 @@ CL_ParseFrame(void)
 		{
 			cls.state = ca_active;
 			cl.force_refdef = true;
-			cl.predicted_origin[0] = cl.frame.playerstate.pmove.origin[0] * 0.125f;
-			cl.predicted_origin[1] = cl.frame.playerstate.pmove.origin[1] * 0.125f;
-			cl.predicted_origin[2] = cl.frame.playerstate.pmove.origin[2] * 0.125f;
+			cl.predicted_origin[0] = cl.frame.origin[0] * 0.125f;
+			cl.predicted_origin[1] = cl.frame.origin[1] * 0.125f;
+			cl.predicted_origin[2] = cl.frame.origin[2] * 0.125f;
 			VectorCopy(cl.frame.playerstate.viewangles, cl.predicted_angles);
 
 			if ((cls.disable_servercount != cl.servercount) && cl.refresh_prepped)

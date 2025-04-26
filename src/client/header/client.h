@@ -66,6 +66,7 @@ typedef struct
 	int				deltaframe;
 	byte			areabits[MAX_MAP_AREAS/8]; /* portalarea visibility bits */
 	player_state_t	playerstate;
+	int				origin[3]; /* extended ps.origin to 28.3 format */
 	int				num_entities;
 	int				parse_entities; /* non-masked index into cl_parse_entities array */
 } frame_t;
@@ -120,7 +121,7 @@ typedef struct
 	usercmd_t	cmd;
 	usercmd_t	cmds[CMD_BACKUP]; /* each mesage will send several old cmds */
 	int			cmd_time[CMD_BACKUP]; /* time sent, for calculating pings */
-	short		predicted_origins[CMD_BACKUP][3]; /* for debug comparing against server */
+	int			predicted_origins[CMD_BACKUP][3]; /* for debug comparing against server */
 
 	float		predicted_step; /* for stair up smoothing */
 	unsigned	predicted_step_time;

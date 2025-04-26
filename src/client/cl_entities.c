@@ -738,13 +738,14 @@ CL_CalcViewValues(void)
 {
 	int i;
 	float lerp, backlerp, ifov;
-	frame_t *oldframe;
+	frame_t *oldframe, *frame;
 	player_state_t *ps, *ops;
 
 	/* find the previous frame to interpolate from */
 	ps = &cl.frame.playerstate;
 	i = (cl.frame.serverframe - 1) & UPDATE_MASK;
 	oldframe = &cl.frames[i];
+	frame = &cl.frame;
 
 	if ((oldframe->serverframe != cl.frame.serverframe - 1) || !oldframe->valid)
 	{
@@ -754,9 +755,9 @@ CL_CalcViewValues(void)
 	ops = &oldframe->playerstate;
 
 	/* see if the player entity was teleported this frame */
-	if ((abs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8) ||
-		(abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8) ||
-		(abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8))
+	if ((abs(oldframe->origin[0] - frame->origin[0]) > 256 * 8) ||
+		(abs(oldframe->origin[1] - frame->origin[1]) > 256 * 8) ||
+		(abs(oldframe->origin[2] - frame->origin[2]) > 256 * 8))
 	{
 		ops = ps; /* don't interpolate */
 	}
@@ -797,9 +798,9 @@ CL_CalcViewValues(void)
 		/* just use interpolated values */
 		for (i = 0; i < 3; i++)
 		{
-			cl.refdef.vieworg[i] = ops->pmove.origin[i] * 0.125 +
-				ops->viewoffset[i] + lerp * (ps->pmove.origin[i] * 0.125 +
-						ps->viewoffset[i] - (ops->pmove.origin[i] * 0.125 +
+			cl.refdef.vieworg[i] = oldframe->origin[i] * 0.125 +
+				ops->viewoffset[i] + lerp * (frame->origin[i] * 0.125 +
+						ps->viewoffset[i] - (oldframe->origin[i] * 0.125 +
 							ops->viewoffset[i]));
 		}
 	}

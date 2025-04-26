@@ -46,7 +46,7 @@ CL_CheckPredictionError(void)
 	frame &= (CMD_BACKUP - 1);
 
 	/* compare what the server returned with what we had predicted it to be */
-	VectorSubtract(cl.frame.playerstate.pmove.origin,
+	VectorSubtract(cl.frame.origin,
 			cl.predicted_origins[frame], delta);
 
 	/* save the prediction error for interpolation */
@@ -66,7 +66,7 @@ CL_CheckPredictionError(void)
 					delta[0] + delta[1] + delta[2]);
 		}
 
-		VectorCopy(cl.frame.playerstate.pmove.origin,
+		VectorCopy(cl.frame.origin,
 				cl.predicted_origins[frame]);
 
 		/* save for error itnerpolation */
