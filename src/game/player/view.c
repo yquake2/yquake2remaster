@@ -272,7 +272,7 @@ P_DamageFeedback(edict_t *player)
  *
  * damage = deltavelocity*deltavelocity  * 0.0001
  */
-void
+static void
 SV_CalcViewOffset(edict_t *ent)
 {
 	float *angles;
@@ -444,7 +444,7 @@ SV_CalcViewOffset(edict_t *ent)
 	VectorCopy(v, ent->client->ps.viewoffset);
 }
 
-void
+static void
 SV_CalcGunOffset(edict_t *ent)
 {
 	int i;
@@ -554,7 +554,7 @@ SV_AddBlend(float r, float g, float b, float a, float *v_blend)
 	v_blend[3] = a2;
 }
 
-void
+static void
 SV_CalcBlend(edict_t *ent)
 {
 	int contents;

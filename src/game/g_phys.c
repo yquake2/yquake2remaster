@@ -32,7 +32,7 @@
 #define FRICTION 6
 #define WATERFRICTION 1
 
-void SV_Physics_NewToss(edict_t *ent);
+static void SV_Physics_NewToss(edict_t *ent);
 
 typedef struct
 {
@@ -96,7 +96,7 @@ SV_TestEntityPosition(edict_t *ent)
 	return NULL;
 }
 
-void
+static void
 SV_CheckVelocity(edict_t *ent)
 {
 	if (!ent)
@@ -115,7 +115,7 @@ SV_CheckVelocity(edict_t *ent)
  * Runs thinking code for
  * this frame if necessary
  */
-qboolean
+static qboolean
 SV_RunThink(edict_t *ent)
 {
 	float thinktime;
@@ -153,7 +153,7 @@ SV_RunThink(edict_t *ent)
  * Two entities have touched, so
  * run their touch functions
  */
-void
+static void
 SV_Impact(edict_t *e1, trace_t *trace)
 {
 	edict_t *e2;
@@ -227,7 +227,7 @@ ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
  * 2 = wall / step
  * 4 = dead stop
  */
-int
+static int
 SV_FlyMove(edict_t *ent, float time, int mask)
 {
 	edict_t *hit;
@@ -820,7 +820,7 @@ SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
  * Bmodel objects don't interact with each
  * other, but push all box objects
  */
-void
+static void
 SV_Physics_Pusher(edict_t *ent)
 {
 	vec3_t move, amove;
@@ -903,7 +903,7 @@ SV_Physics_Pusher(edict_t *ent)
 /*
  * Non moving objects can only think
  */
-void
+static void
 SV_Physics_None(edict_t *ent)
 {
 	if (!ent)
@@ -918,7 +918,7 @@ SV_Physics_None(edict_t *ent)
 /*
  * A moving object that doesn't obey physics
  */
-void
+static void
 SV_Physics_Noclip(edict_t *ent)
 {
 	if (!ent)
@@ -946,7 +946,7 @@ SV_Physics_Noclip(edict_t *ent)
  * Toss, bounce, and fly movement.
  * When onground, do nothing.
  */
-void
+static void
 SV_Physics_Toss(edict_t *ent)
 {
 	trace_t trace;
@@ -1112,7 +1112,7 @@ SV_Physics_Toss(edict_t *ent)
  * still on the ground, but  will fall if the floor
  * is pulled out from under them.
  */
-void
+static void
 SV_AddRotationalFriction(edict_t *ent)
 {
 	int n;
@@ -1149,7 +1149,7 @@ SV_AddRotationalFriction(edict_t *ent)
 	}
 }
 
-void
+static void
 SV_Physics_Step(edict_t *ent)
 {
 	qboolean wasonground;
@@ -1415,7 +1415,7 @@ G_RunEntity(edict_t *ent)
  * Toss, bounce, and fly movement. When on ground and
  * no velocity, do nothing. With velocity, slide.
  */
-void
+static void
 SV_Physics_NewToss(edict_t *ent)
 {
 	trace_t trace;

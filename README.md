@@ -174,6 +174,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] game: fix broken base3 with sorted fields names,
 * [ ] game: code has not reset ctf flag on load saves,
 * [ ] game: code has reset thirdperson flag on load new level,
+* [ ] game: check RealBoundingBox with frame box,
 * [x] game: remove grapple by default,
 * [x] ReRelease: crash on exit from psx/base2,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
