@@ -286,7 +286,6 @@ SV_CalcViewOffset(edict_t *ent)
 		return;
 	}
 
-
 	/* base angles */
 	angles = ent->client->ps.kick_angles;
 
@@ -435,9 +434,22 @@ SV_CalcViewOffset(edict_t *ent)
 		VectorSet(v, 0, 0, 0);
 		if (ent->client->chasecam)
 		{
-			ent->client->ps.pmove.origin[0] = ent->client->chasecam->s.origin[0] * 8;
-			ent->client->ps.pmove.origin[1] = ent->client->chasecam->s.origin[1] * 8;
-			ent->client->ps.pmove.origin[2] = ent->client->chasecam->s.origin[2] * 8;
+			int i;
+
+			VectorSubtract(ent->client->chasecam->s.origin, ent->s.origin, v);
+
+			/* Clamp coordinates to -30..30 */
+			for (i = 0; i < 3; i++)
+			{
+				if (v[i] > 30)
+				{
+					v[i] = 30;
+				}
+				else if (v[i] < -30)
+				{
+					v[i] = -30;
+				}
+			}
 		}
 	}
 

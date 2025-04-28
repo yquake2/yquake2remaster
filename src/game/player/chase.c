@@ -121,22 +121,27 @@ ChasecamTrack(edict_t *ent)
 	vec3_t forward, right, up,angles;
 	int distance;
 	int tot;
+
 	ent->nextthink = level.time + 0.100;
+
 	/* get the CLIENT's angle, and break it down into direction vectors,
 	 * of forward, right, and up. VERY useful */
-	VectorCopy(ent->owner->client->v_angle,angles);
+	VectorCopy(ent->owner->client->v_angle, angles);
 	if (angles[PITCH] > 56)
 	{
 		angles[PITCH] = 56;
 	}
 	AngleVectors(angles, forward, right, up);
 	VectorNormalize(forward);
+
 	/* go starting at the player's origin, forward, ent->chasedist1
 	 * distance, and save the location in vector spot2 */
 	VectorMA (ent->owner->s.origin, -ent->chasedist1, forward, spot2);
+
 	/* make spot2 a bit higher, by adding viewheight to the Z coordinate */
 	spot2[2] += (ent->owner->viewheight + 16);
-	// jump animation lifts
+
+	/* jump animation lifts */
 	if (!ent->owner->groundentity)
 	{
 		spot2[2] += 16;
@@ -145,34 +150,43 @@ ChasecamTrack(edict_t *ent)
 	/* make the tr traceline trace from the player model's position, to spot2,
 	 * ignoring the player, with a mask. */
 	tr = gi.trace (ent->owner->s.origin, vec3_origin, vec3_origin, spot2, ent->owner, MASK_SOLID);
+
 	/* subtract the endpoint from the start point for length and
 	 * direction manipulation */
 	VectorSubtract (tr.endpos, ent->owner->s.origin, spot1);
+
 	/* in this case, length */
 	ent->chasedist1 = VectorLength (spot1);
+
 	/* go, starting from the end of the trace, 2 points forward (client
 	 * angles) and save the location in spot2 */
 	VectorMA (tr.endpos, 2, forward, spot2);
+
 	/* make spot1 the same for tempory vector modification and make spot1
 	 * a bit higher than spot2 */
 	VectorCopy(spot2, spot1);
 	spot1[2] += 32;
+
 	/* another trace from spot2 to spot1, ignoring player, no masks */
 	tr = gi.trace (spot2, vec3_origin, vec3_origin, spot1, ent->owner, MASK_SOLID);
+
 	/* if we hit something, copy the trace end to spot2 and lower spot2 */
 	if (tr.fraction < 1.000)
 	{
 		VectorCopy(tr.endpos, spot2);
 		spot2[2] -= 32;
 	}
+
 	/* subtract endpos spot2 from startpos the camera origin, saving it to
 	 * the dir vector, and normalize dir for a direction from the camera
 	 * origin, to the spot2 */
 	VectorSubtract (spot2, ent->s.origin, dir);
 	distance = VectorLength (dir);
 	VectorNormalize (dir);
+
 	/* another traceline */
 	tr = gi.trace (ent->s.origin, vec3_origin, vec3_origin, spot2, ent->owner, MASK_SOLID);
+
 	/* if we DON'T hit anyting, do some freaky stuff  */
 	if (tr.fraction == 1.000)
 	{
@@ -213,6 +227,7 @@ ChasecamTrack(edict_t *ent)
 				ent->velocity[2] = (dir[2] * distance);
 			}
 		}
+
 		/* subtract endpos,player position, from chasecam position to get
 		 * a length to determine whether we should accelerate faster from
 		 * the player or not */
@@ -233,10 +248,11 @@ ChasecamTrack(edict_t *ent)
 
 	/* add to the distance between the player and the camera */
 	ent->chasedist1 += 2;
+
 	/* if we're too far away, give us a maximum distance */
-	if (ent->chasedist1 > (60.00 + ent->owner->client->zoom))
+	if (ent->chasedist1 > (50.00 + ent->owner->client->zoom))
 	{
-		ent->chasedist1 = (60.00 + ent->owner->client->zoom);
+		ent->chasedist1 = (50.00 + ent->owner->client->zoom);
 	}
 
 	/* if we haven't gone anywhere since the last think routine, and we
@@ -252,6 +268,7 @@ ChasecamTrack(edict_t *ent)
 			ent->chasedist2++;
 		}
 	}
+
 	/* if we've buggered up more than 3 times, there must be some mistake,
 	 * so restart the camera so we re-create a chasecam, destroy the old one,
 	 * slowly go outwards from the player, and keep thinking this routing in
@@ -263,9 +280,11 @@ ChasecamTrack(edict_t *ent)
 		G_FreeEdict(ent);
 		return;
 	}
+
 	/* Copy the position of the chasecam now, and stick it to the movedir
 	 * variable, for position checking when we rethink this function */
 	VectorCopy(ent->s.origin, ent->movedir);
+
 	/* MUST LINK SINCE WE CHANGED THE ORIGIN! */
 	gi.linkentity(ent);
 }
