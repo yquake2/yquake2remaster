@@ -436,6 +436,11 @@ SV_CalcViewOffset(edict_t *ent)
 		{
 			int i;
 
+			/*
+			 * code had used ent->client->ps.pmove.origin,
+			 * that can't be unused with 4k+ coordinates,
+			 * so use viewoffset with clamp
+			 */
 			VectorSubtract(ent->client->chasecam->s.origin, ent->s.origin, v);
 
 			/* Clamp coordinates to -30..30 */

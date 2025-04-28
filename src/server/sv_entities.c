@@ -153,22 +153,25 @@ static void
 SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		sizebuf_t *msg, int protocol)
 {
-	int i;
-	int pflags;
+	int statbits, pflags, i, *origin, *oorig, idummy[3];
 	player_state_t *ps, *ops;
 	player_state_t dummy;
-	int statbits;
 
 	ps = &to->ps;
+	origin = to->origin;
 
 	if (!from)
 	{
+		memset(&idummy, 0, sizeof(idummy));
+		oorig = idummy;
+
 		memset(&dummy, 0, sizeof(dummy));
 		ops = &dummy;
 	}
 	else
 	{
 		ops = &from->ps;
+		oorig = from->origin;
 	}
 
 	/* determine what needs to be sent */
@@ -179,9 +182,9 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		pflags |= PS_M_TYPE;
 	}
 
-	if ((ps->pmove.origin[0] != ops->pmove.origin[0]) ||
-		(ps->pmove.origin[1] != ops->pmove.origin[1]) ||
-		(ps->pmove.origin[2] != ops->pmove.origin[2]))
+	if ((origin[0] != oorig[0]) ||
+		(origin[1] != oorig[1]) ||
+		(origin[2] != oorig[2]))
 	{
 		pflags |= PS_M_ORIGIN;
 	}
@@ -283,15 +286,15 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	{
 		if (IS_QII97_PROTOCOL(protocol))
 		{
-			MSG_WriteShort(msg, ps->pmove.origin[0]);
-			MSG_WriteShort(msg, ps->pmove.origin[1]);
-			MSG_WriteShort(msg, ps->pmove.origin[2]);
+			MSG_WriteShort(msg, origin[0]);
+			MSG_WriteShort(msg, origin[1]);
+			MSG_WriteShort(msg, origin[2]);
 		}
 		else
 		{
-			MSG_WriteLong(msg, ps->pmove.origin[0]);
-			MSG_WriteLong(msg, ps->pmove.origin[1]);
-			MSG_WriteLong(msg, ps->pmove.origin[2]);
+			MSG_WriteLong(msg, origin[0]);
+			MSG_WriteLong(msg, origin[1]);
+			MSG_WriteLong(msg, origin[2]);
 		}
 	}
 
@@ -557,8 +560,10 @@ SV_BuildClientFrame(client_t *client)
 	/* find the client's PVS */
 	for (i = 0; i < 3; i++)
 	{
-		org[i] = clent->client->ps.pmove.origin[i] * 0.125 +
+		org[i] = clent->s.origin[i] +
 				 clent->client->ps.viewoffset[i];
+		/* store origin in 28.3 format */
+		frame->origin[i] = clent->s.origin[i] * 8;
 	}
 
 	leafnum = CM_PointLeafnum(org);

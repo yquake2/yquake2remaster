@@ -100,6 +100,7 @@ typedef struct
 	int areabytes;
 	byte areabits[MAX_MAP_AREAS / 8];       /* portalarea visibility bits */
 	player_state_t ps;
+	int origin[3];                          /* extended ps.origin to 28.3 format */
 	int num_entities;
 	int first_entity;                       /* into the circular sv_packet_entities[] */
 	int senttime;                           /* for ping calculations */
