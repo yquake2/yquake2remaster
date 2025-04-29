@@ -2878,7 +2878,6 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	gclient_t *client;
 	edict_t *other;
 	int i, j;
-	pmove_t pm;
 
 	if (!ent || !ucmd)
 	{
@@ -2955,11 +2954,10 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	}
 	else
 	{
+		pmove_t pm = {0};
 		int origin[3];
 
 		/* set up for pmove */
-		memset(&pm, 0, sizeof(pm));
-
 		if (ent->movetype == MOVETYPE_NOCLIP)
 		{
 			client->ps.pmove.pm_type = PM_SPECTATOR;

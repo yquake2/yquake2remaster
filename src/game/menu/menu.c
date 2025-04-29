@@ -172,7 +172,7 @@ PMenu_Do_Update(edict_t *ent)
 
 	for (i = 0, p = hnd->entries; i < hnd->num; i++, p++)
 	{
-		size_t x;
+		int x;
 
 		if (!p->text || !*(p->text))
 		{

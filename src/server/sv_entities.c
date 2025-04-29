@@ -182,11 +182,23 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		pflags |= PS_M_TYPE;
 	}
 
-	if ((origin[0] != oorig[0]) ||
-		(origin[1] != oorig[1]) ||
-		(origin[2] != oorig[2]))
+	if (IS_QII97_PROTOCOL(protocol))
 	{
-		pflags |= PS_M_ORIGIN;
+		if ((ps->pmove.origin[0] != ops->pmove.origin[0]) ||
+			(ps->pmove.origin[1] != ops->pmove.origin[1]) ||
+			(ps->pmove.origin[2] != ops->pmove.origin[2]))
+		{
+			pflags |= PS_M_ORIGIN;
+		}
+	}
+	else
+	{
+		if ((origin[0] != oorig[0]) ||
+			(origin[1] != oorig[1]) ||
+			(origin[2] != oorig[2]))
+		{
+			pflags |= PS_M_ORIGIN;
+		}
 	}
 
 	if ((ps->pmove.velocity[0] != ops->pmove.velocity[0]) ||
@@ -286,9 +298,9 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 	{
 		if (IS_QII97_PROTOCOL(protocol))
 		{
-			MSG_WriteShort(msg, origin[0]);
-			MSG_WriteShort(msg, origin[1]);
-			MSG_WriteShort(msg, origin[2]);
+			MSG_WriteShort(msg, ps->pmove.origin[0]);
+			MSG_WriteShort(msg, ps->pmove.origin[1]);
+			MSG_WriteShort(msg, ps->pmove.origin[2]);
 		}
 		else
 		{
