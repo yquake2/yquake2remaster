@@ -172,7 +172,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] reuse memory from models cache for bsp,
 * [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: cleanup function declarations in game save code,
-* [ ] game: broken camera on start zbase1,
+* [x] game: broken camera on start zbase1,
 * [ ] game: fix broken base3 with sorted fields names,
 * [ ] game: code has not reset ctf flag on load saves,
 * [ ] game: code has reset thirdperson flag on load new level,

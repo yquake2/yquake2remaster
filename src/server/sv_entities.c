@@ -569,13 +569,27 @@ SV_BuildClientFrame(client_t *client)
 
 	frame->senttime = svs.realtime; /* save it for ping calc later */
 
-	/* find the client's PVS */
-	for (i = 0; i < 3; i++)
+	if (IS_QII97_PROTOCOL(client->protocol))
 	{
-		org[i] = clent->s.origin[i] +
-				 clent->client->ps.viewoffset[i];
+		/* find the client's PVS */
+		for (i = 0; i < 3; i++)
+		{
+			org[i] = clent->client->ps.pmove.origin[i] * 0.125 +
+					 clent->client->ps.viewoffset[i];
+		}
 		/* store origin in 28.3 format */
-		frame->origin[i] = clent->s.origin[i] * 8;
+		VectorCopy(clent->s.origin, frame->origin);
+	}
+	else
+	{
+		/* find the client's PVS */
+		for (i = 0; i < 3; i++)
+		{
+			org[i] = clent->s.origin[i] +
+					 clent->client->ps.viewoffset[i];
+			/* store origin in 28.3 format */
+			frame->origin[i] = clent->s.origin[i] * 8;
+		}
 	}
 
 	leafnum = CM_PointLeafnum(org);
