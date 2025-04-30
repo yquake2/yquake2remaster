@@ -1309,7 +1309,8 @@ PM_CalculateWaterLevelForDemo(void)
 
 	cont = pm->pointcontents(point);
 
-	if ((cont & MASK_WATER) != 0) {
+	if ((cont & MASK_WATER) != 0)
+	{
 		pm->waterlevel = 3;
 		pm->watertype = cont;
 	}
@@ -1320,7 +1321,8 @@ PM_UpdateUnderwaterSfx()
 {
 	static int underwater;
 
-	if ((pm->waterlevel == 3) && !underwater) {
+	if ((pm->waterlevel == 3) && !underwater)
+	{
 		underwater = 1;
 		snd_is_underwater = 1;
 
