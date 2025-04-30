@@ -235,30 +235,30 @@ weapon_plasmabeam|models/weapons/g_beamer/tris.md2|1.0|1.0|1.0|general|-15.0|-15
 weapon_proxlauncher|models/weapons/g_plaunch/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Prox Launcher|1.0|0.3|0.3
 
 // Quake 2 Zaero
-ammo_a2k||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-ammo_empnuke||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-ammo_flares||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-ammo_ired||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-ammo_plasmashield||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-item_visor||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-key_clearancepass||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
-key_energy||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
-key_lab||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
-key_landing_arena||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
-key_lava||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
-key_slime||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
+ammo_a2k|models/weapons/g_a2k/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+ammo_empnuke|models/weapons/g_enuke/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+ammo_flares|models/items/ammo/flares/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+ammo_ired|models/items/ammo/ireds/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+ammo_plasmashield|models/items/plasma/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+item_visor|models/items/visor/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+key_clearancepass|models/items/keys/pass/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|security pass for the security level|0|.5|.8
+key_energy|models/items/keys/energy/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|security pass for the security level|0|.5|.8
+key_lab|models/items/keys/pass/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|security pass for the laboratory|0|.5|.8
+key_landing_area|models/items/keys/key/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|landing arena key - blue|0|.5|.8
+key_lava|models/items/keys/lava/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
+key_slime|models/items/keys/slime/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
 load_mirrorlevel||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
-misc_commdish||1.0|1.0|1.0|general|-16|-16|0|16|16|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
+misc_commdish|models/objects/satdish/tris.md2|1.0|1.0|1.0|general|-16|-16|0|16|16|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
 monster_handler|models/monsters/guard/handler/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_hound|models/monsters/guard/hound/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 monster_zboss|models/monsters/bossz/mech/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0
 sound_echo||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
 target_zboss_target||1.0|1.0|1.0|general|||||||shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||||
 trigger_laser||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
-weapon_flaregun||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-weapon_hand||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-weapon_sniperrifle||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
-weapon_soniccannon||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+weapon_flaregun|models/weapons/g_flare/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+weapon_push||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+weapon_sniperrifle|models/weapons/g_sniper/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
+weapon_soniccannon|models/weapons/g_sonic/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
 
 // Quake 2 ReRelease
 func_animation||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Similar to func_wall, but triggering it will toggle animation state rather than going on/off.|0.0|0.5|0.8
@@ -323,6 +323,7 @@ monster_tarbaby|models/monsters/tarbaby/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-
 monster_wizard|models/monsters/wizard/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wizard|1|.5|0
 monster_zombie|models/monsters/zombie/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Zombie|1|.5|0
 npc_timeminder|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Save Menu|0|1|0
+weapon_grapple|models/weapons/grapple/hook/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
 
 // Kingpin
 ai_boundary||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Character will abort pursuing player when touching this brush. Will take cover until the player is out of view, then return to guarding position (if character has been assigned one).|.5|.5|0

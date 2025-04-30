@@ -28,7 +28,7 @@
 #include "../header/local.h"
 #include "../monster/misc/player.h"
 
-edict_t *pm_passent;
+static edict_t *pm_passent;
 
 void ClientUserinfoChanged(edict_t *ent, char *userinfo);
 void SP_misc_teleporter_dest(edict_t *ent);

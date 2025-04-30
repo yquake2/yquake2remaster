@@ -903,12 +903,10 @@ build/ref_vk/%.o: %.c
 
 # The baseq2 game
 ifeq ($(YQ2_OSTYPE), Windows)
-game: stuff/models/entity.dat
+game:
 	@echo "===> Building baseq2/game.dll"
 	${Q}mkdir -p release/baseq2
 	$(MAKE) release/baseq2/game.dll
-	${Q}mkdir -p release/baseq2/models
-	${Q}cp stuff/models/entity.dat release/baseq2/models
 
 build/baseq2/%.o: %.c
 	@echo "===> CC $<"
@@ -919,12 +917,10 @@ release/baseq2/game.dll : LDFLAGS += -shared
 
 else ifeq ($(YQ2_OSTYPE), Darwin)
 
-game: stuff/models/entity.dat
+game:
 	@echo "===> Building baseq2/game.dylib"
 	${Q}mkdir -p release/baseq2
 	$(MAKE) release/baseq2/game.dylib
-	${Q}mkdir -p release/baseq2/models
-	${Q}cp stuff/models/entity.dat release/baseq2/models
 
 build/baseq2/%.o: %.c
 	@echo "===> CC $<"
@@ -936,12 +932,10 @@ release/baseq2/game.dylib : LDFLAGS += -shared
 
 else # not Windows or Darwin
 
-game: stuff/models/entity.dat
+game:
 	@echo "===> Building baseq2/game.so"
 	${Q}mkdir -p release/baseq2
 	$(MAKE) release/baseq2/game.so
-	${Q}mkdir -p release/baseq2/models
-	${Q}cp stuff/models/entity.dat release/baseq2/models
 
 build/baseq2/%.o: %.c
 	@echo "===> CC $<"
