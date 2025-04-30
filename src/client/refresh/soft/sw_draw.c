@@ -383,9 +383,14 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 
 	while (*message)
 	{
-		RE_Draw_CharScaled(x * scale, y * scale, *message ^ xor, scale);
+		unsigned value = R_NextUTF8Code(&message);
+
+		if (value > ' ' && value < 128)
+		{
+			RE_Draw_CharScaled(x, y, value ^ xor, scale);
+		}
+
 		x += 8 * scale;
-		message ++;
 	}
 }
 

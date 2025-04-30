@@ -160,7 +160,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: broken wall light and wall glitch,
 * [ ] soft: build with SDL3 has glitch in menu,
 * [ ] soft: support custom ttf fonts,
-* [ ] soft: broken fonts in menu,
+* [x] soft: broken fonts in menu,
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
