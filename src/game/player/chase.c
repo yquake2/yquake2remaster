@@ -34,6 +34,7 @@ ChasecamStart(edict_t *ent)
 	/* This creates a tempory entity we can manipulate within this
 	 * function */
 	edict_t *chasecam;
+
 	/* Don't work on a spectator! */
 	if (ent->client->resp.spectator)
 	{
@@ -49,6 +50,7 @@ ChasecamStart(edict_t *ent)
 	/* Tell everything that looks at the toggle that our chasecam is on
 	 * and working */
 	ent->client->chasetoggle = 1;
+
 	/* Make our gun model "non-existent" so it's more realistic to the
 	 * player using the chasecam */
 	ent->client->ps.gunindex = 0;
@@ -56,20 +58,25 @@ ChasecamStart(edict_t *ent)
 	chasecam->owner = ent;
 	chasecam->solid = SOLID_NOT;
 	chasecam->movetype = MOVETYPE_FLYMISSILE;
+
 	/* this turns off Quake2's inclination to predict where the camera is going,
 	 * making a much smoother ride */
 	ent->client->ps.pmove.pm_flags |= PMF_NO_PREDICTION;
+
 	/* this line tells Quake2 not to send the unnecessary info about the
 	 * camera to other players */
 	ent->svflags |= SVF_NOCLIENT;
+
 	/* Now, make the angles of the player model, (!NOT THE HUMAN VIEW!) be
 	 * copied to the same angle of the chasecam entity */
 	VectorCopy(ent->s.angles, chasecam->s.angles);
+
 	/* Clear the size of the entity, so it DOES technically have a size,
 	 * but that of '0 0 0'-'0 0 0'. (xyz, xyz). mins = Minimum size,
 	 * maxs = Maximum size */
 	VectorClear(chasecam->mins);
 	VectorClear(chasecam->maxs);
+
 	/* Make the chasecam's origin (position) be the same as the player
 	 * entity's because as the camera starts, it will force itself out
 	 * slowly backwards from the player model */
@@ -90,7 +97,8 @@ void
 ChasecamRemove(edict_t *ent)
 {
 	/* Stop the chasecam from moving */
-	VectorClear (ent->client->chasecam->velocity);
+	VectorClear(ent->client->chasecam->velocity);
+
 	/* Make the weapon model of the player appear on screen for 1st
 	 * person reality and aiming */
 	//Don't turn back on during intermission!
@@ -136,7 +144,7 @@ ChasecamTrack(edict_t *ent)
 
 	/* go starting at the player's origin, forward, ent->chasedist1
 	 * distance, and save the location in vector spot2 */
-	VectorMA (ent->owner->s.origin, -ent->chasedist1, forward, spot2);
+	VectorMA(ent->owner->s.origin, -ent->chasedist1, forward, spot2);
 
 	/* make spot2 a bit higher, by adding viewheight to the Z coordinate */
 	spot2[2] += (ent->owner->viewheight + 16);
@@ -149,18 +157,18 @@ ChasecamTrack(edict_t *ent)
 
 	/* make the tr traceline trace from the player model's position, to spot2,
 	 * ignoring the player, with a mask. */
-	tr = gi.trace (ent->owner->s.origin, vec3_origin, vec3_origin, spot2, ent->owner, MASK_SOLID);
+	tr = gi.trace(ent->owner->s.origin, vec3_origin, vec3_origin, spot2, ent->owner, MASK_SOLID);
 
 	/* subtract the endpoint from the start point for length and
 	 * direction manipulation */
-	VectorSubtract (tr.endpos, ent->owner->s.origin, spot1);
+	VectorSubtract(tr.endpos, ent->owner->s.origin, spot1);
 
 	/* in this case, length */
-	ent->chasedist1 = VectorLength (spot1);
+	ent->chasedist1 = VectorLength(spot1);
 
 	/* go, starting from the end of the trace, 2 points forward (client
 	 * angles) and save the location in spot2 */
-	VectorMA (tr.endpos, 2, forward, spot2);
+	VectorMA(tr.endpos, 2, forward, spot2);
 
 	/* make spot1 the same for tempory vector modification and make spot1
 	 * a bit higher than spot2 */
@@ -168,7 +176,7 @@ ChasecamTrack(edict_t *ent)
 	spot1[2] += 32;
 
 	/* another trace from spot2 to spot1, ignoring player, no masks */
-	tr = gi.trace (spot2, vec3_origin, vec3_origin, spot1, ent->owner, MASK_SOLID);
+	tr = gi.trace(spot2, vec3_origin, vec3_origin, spot1, ent->owner, MASK_SOLID);
 
 	/* if we hit something, copy the trace end to spot2 and lower spot2 */
 	if (tr.fraction < 1.000)
@@ -180,12 +188,12 @@ ChasecamTrack(edict_t *ent)
 	/* subtract endpos spot2 from startpos the camera origin, saving it to
 	 * the dir vector, and normalize dir for a direction from the camera
 	 * origin, to the spot2 */
-	VectorSubtract (spot2, ent->s.origin, dir);
-	distance = VectorLength (dir);
-	VectorNormalize (dir);
+	VectorSubtract(spot2, ent->s.origin, dir);
+	distance = VectorLength(dir);
+	VectorNormalize(dir);
 
 	/* another traceline */
-	tr = gi.trace (ent->s.origin, vec3_origin, vec3_origin, spot2, ent->owner, MASK_SOLID);
+	tr = gi.trace(ent->s.origin, vec3_origin, vec3_origin, spot2, ent->owner, MASK_SOLID);
 
 	/* if we DON'T hit anyting, do some freaky stuff  */
 	if (tr.fraction == 1.000)
@@ -194,13 +202,15 @@ ChasecamTrack(edict_t *ent)
 		 * player, and save in spot1. Normalize spot1 for a direction, and
 		 * make that direction the angles of the chasecam for copying to the
 		 * clients view angle which is displayed to the client. (human) */
-		VectorSubtract (ent->s.origin, ent->owner->s.origin, spot1);
-		VectorNormalize (spot1);
+		VectorSubtract(ent->s.origin, ent->owner->s.origin, spot1);
+		VectorNormalize(spot1);
 		VectorCopy(spot1, ent->s.angles);
+
 		/* calculate the percentages of the distances, and make sure we're
 		 * not going too far, or too short, in relation to our panning
 		 * speed of the chasecam entity */
 		tot = (distance * 0.400);
+
 		/* if we're going too fast, make us top speed */
 		if (tot > 5.200)
 		{
@@ -231,7 +241,7 @@ ChasecamTrack(edict_t *ent)
 		/* subtract endpos,player position, from chasecam position to get
 		 * a length to determine whether we should accelerate faster from
 		 * the player or not */
-		VectorSubtract (ent->owner->s.origin, ent->s.origin, spot1);
+		VectorSubtract(ent->owner->s.origin, ent->s.origin, spot1);
 		if (VectorLength(spot1) < 20)
 		{
 			ent->velocity[0] *= 2;
@@ -317,6 +327,7 @@ CheckChasecam_Viewent(edict_t *ent)
 	{
 		ent->client->oldplayer->client = ent->client;
 	}
+
 	/* Copy the angle and model from ourselves to the old player.
 	 * Even though people can't see us we still have all this stuff */
 	if ((ent->client->chasetoggle == 1) && (ent->client->oldplayer))
@@ -330,6 +341,9 @@ CheckChasecam_Viewent(edict_t *ent)
 
 		/* Copy player related info */
 		ent->client->oldplayer->s = ent->s;
+
+		/* Copy scale and mesh */
+		ent->client->oldplayer->rrs = ent->rrs;
 
 		/* Lazarus: s.numbers shouldn't be the same */
 		ent->client->oldplayer->s.number = ent->client->oldplayer - g_edicts;
