@@ -402,6 +402,7 @@ SV_CalcViewOffset(edict_t *ent)
 	   outside the player box */
 	if (!ent->client->chasetoggle)
 	{
+#if 0
 		if (v[0] < -14)
 		{
 			v[0] = -14;
@@ -428,6 +429,60 @@ SV_CalcViewOffset(edict_t *ent)
 		{
 			v[2] = 30;
 		}
+		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+#else
+		vec3_t forward, right, up, view_origin, view_angles, angles;
+		trace_t trace;
+
+		VectorCopy(ent->client->v_angle, angles);
+
+		if (angles[PITCH] > 56)
+		{
+			angles[PITCH] = 56;
+		}
+		else if (angles[PITCH] < -56)
+		{
+			angles[PITCH] = -56;
+		}
+
+		// Get the player's direction
+		AngleVectors(angles, forward, right, up);
+
+		// Start from the player's eye position
+		VectorCopy(ent->s.origin, view_origin);
+		view_origin[2] += ent->viewheight + 8; // Adjust for standing height
+
+		// Offset the view behind the player
+		VectorMA(view_origin, -100.0f, forward, view_origin); // Move 100 units back
+
+		// Trace to prevent camera clipping inside walls
+		trace = gi.trace(ent->s.origin, ent->mins, ent->maxs, view_origin, ent, MASK_SOLID);
+		if (trace.fraction < 1.0)
+		{
+			// Adjust to avoid clipping into walls
+			VectorCopy(trace.endpos, view_origin);
+		}
+
+		// Adjust view angles to match player aim
+		VectorCopy(ent->client->v_angle, view_angles);
+
+		// Apply third-person view settings
+		VectorSubtract(view_origin, ent->s.origin, ent->client->ps.viewoffset);
+		printf("%.2fx%.2fx%.2fx(%.2fx%.2fx%.2fx -> %.2fx%.2fx%.2fx)\n",
+			ent->client->ps.viewoffset[0],
+			ent->client->ps.viewoffset[1],
+			ent->client->ps.viewoffset[2],
+			ent->mins[0],
+			ent->mins[1],
+			ent->mins[2],
+			ent->maxs[0],
+			ent->maxs[1],
+			ent->maxs[2]
+			);
+		VectorCopy(view_angles, ent->client->ps.viewangles);
+		ent->client->ps.gunindex = 0;
+		return;
+#endif
 	}
 	else
 	{
