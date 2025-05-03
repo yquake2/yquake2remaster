@@ -92,7 +92,6 @@
 #define TAG_LEVEL 766       /* clear when loading a new level */
 
 #define MELEE_DISTANCE 80
-
 #define BODY_QUEUE_SIZE 8
 #define STEPSIZE 18
 
@@ -958,8 +957,7 @@ void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
 void fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
-		int speed, float damage_radius,
-		int radius_damage);
+		int speed, float damage_radius, int radius_damage);
 void fire_rail(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
 void fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, float damage_radius);

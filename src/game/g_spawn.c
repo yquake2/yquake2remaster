@@ -32,7 +32,6 @@
 #define MAX_LEGSFRAME 23
 
 #define SPAWNGROW_LIFESPAN 0.3
-#define STEPSIZE 18
 
 typedef struct
 {
