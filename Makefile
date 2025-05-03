@@ -48,6 +48,9 @@ WITH_CURL:=yes
 # installed
 WITH_OPENAL:=yes
 
+# Use avcodec for decode ogv videos
+WITH_AVCODEC:=yes
+
 # Sets an RPATH to $ORIGIN/lib. It can be used to
 # inject custom libraries, e.g. a patches libSDL.so
 # or libopenal.so. Not supported on Windows.
@@ -147,7 +150,7 @@ endif
 # Highest supported optimizations are -O2, higher levels
 # will likely break this crappy code.
 ifdef DEBUG
-CFLAGS ?= -O0 -g -Wall -pipe -DDEBUG
+CFLAGS ?= -O0 -g -Wall -Wpointer-arith -pipe -Werror=format-security -DDEBUG
 ifdef ASAN
 override CFLAGS += -fsanitize=address -DUSE_SANITIZER
 endif
@@ -155,7 +158,7 @@ ifdef UBSAN
 override CFLAGS += -fsanitize=undefined -DUSE_SANITIZER
 endif
 else
-CFLAGS ?= -O2 -Wall -pipe -fomit-frame-pointer
+CFLAGS ?= -O2 -Wall -Wpointer-arith -pipe -fomit-frame-pointer
 endif
 
 # Always needed are:
@@ -304,7 +307,8 @@ INCLUDE ?= -I/usr/local/include
 else ifeq ($(YQ2_OSTYPE),Windows)
 INCLUDE ?= -I/usr/include
 else ifeq ($(YQ2_OSTYPE),Darwin)
-INCLUDE ?= -I/usr/local/include -I/opt/homebrew/include
+MOLTENVK_PATH ?= $(shell brew --prefix molten-vk)
+INCLUDE ?= -I/usr/local/include -I/opt/homebrew/include -I$(MOLTENVK_PATH)/libexec/include
 endif
 
 # ----------
@@ -383,9 +387,16 @@ SDLLDFLAGS := $(shell sdl2-config --libs)
 endif
 endif
 
+ifeq ($(WITH_SDL3),yes)
+# The renderer libs don't need libSDL3main, libmingw32 or -mwindows.
+ifeq ($(YQ2_OSTYPE), Windows)
+DLL_SDLLDFLAGS = $(subst -mwindows,,$(subst -lmingw32,,$(subst -lSDL3main,,$(SDLLDFLAGS))))
+endif
+else
 # The renderer libs don't need libSDL2main, libmingw32 or -mwindows.
 ifeq ($(YQ2_OSTYPE), Windows)
 DLL_SDLLDFLAGS = $(subst -mwindows,,$(subst -lmingw32,,$(subst -lSDL2main,,$(SDLLDFLAGS))))
+endif
 endif
 
 # ----------
@@ -401,12 +412,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft ref_vk ref_gl4
 
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
 
 # ----------
 
@@ -422,6 +433,7 @@ config:
 	@echo "YQ2_ARCH = $(YQ2_ARCH) COMPILER = $(COMPILER)"
 	@echo "WITH_CURL = $(WITH_CURL)"
 	@echo "WITH_OPENAL = $(WITH_OPENAL)"
+	@echo "WITH_AVCODEC = $(WITH_AVCODEC)"
 	@echo "WITH_RPATH = $(WITH_RPATH)"
 	@echo "WITH_SDL3 = $(WITH_SDL3)"
 	@echo "WITH_SYSTEMWIDE = $(WITH_SYSTEMWIDE)"
@@ -472,6 +484,11 @@ ifeq ($(WITH_CURL),yes)
 release/yquake2.exe : CFLAGS += -DUSE_CURL
 endif
 
+ifeq ($(WITH_AVCODEC),yes)
+release/yquake2.exe : CFLAGS += -DAVMEDIADECODE
+release/yquake2.exe : LDLIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil
+endif
+
 ifeq ($(WITH_OPENAL),yes)
 release/yquake2.exe : CFLAGS += -DUSE_OPENAL -DDEFAULT_OPENAL_DRIVER='"openal32.dll"'
 endif
@@ -499,6 +516,11 @@ release/quake2 : CFLAGS += -Wno-unused-result
 
 ifeq ($(WITH_CURL),yes)
 release/quake2 : CFLAGS += -DUSE_CURL
+endif
+
+ifeq ($(WITH_AVCODEC),yes)
+release/quake2 : CFLAGS += -DAVMEDIADECODE
+release/quake2 : LDLIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil
 endif
 
 ifeq ($(WITH_OPENAL),yes)
@@ -766,6 +788,47 @@ build/ref_gles3/%.o: %.c
 
 # ----------
 
+# The OpenGL 4.6 renderer lib
+
+ifeq ($(YQ2_OSTYPE), Windows)
+
+ref_gl4:
+	@echo "===> Building ref_gl4.dll"
+	${Q}mkdir -p release
+	$(MAKE) release/ref_gl4.dll
+
+release/ref_gl4.dll : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
+release/ref_gl4.dll : LDFLAGS += -shared
+
+else ifeq ($(YQ2_OSTYPE), Darwin)
+
+ref_gl4:
+	@echo "===> Building ref_gl4.dylib"
+	$(MAKE) release/ref_gl4.dylib
+
+release/ref_gl4.dylib : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
+release/ref_gl4.dylib : LDFLAGS += -shared
+
+else # not Windows or Darwin - macOS doesn't support OpenGL 4.6
+
+ref_gl4:
+	@echo "===> Building ref_gl4.so"
+	${Q}mkdir -p release
+	$(MAKE) release/ref_gl4.so
+
+release/ref_gl4.so : GLAD_INCLUDE = -Isrc/client/refresh/gl4/glad/include
+release/ref_gl4.so : CFLAGS += -fPIC
+release/ref_gl4.so : LDFLAGS += -shared
+
+endif # OS specific ref_gl4 stuff
+
+build/ref_gl4/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) $(GLAD_INCLUDE) -o $@ $<
+
+# ----------
+
 # The soft renderer lib
 
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -796,6 +859,42 @@ release/ref_soft.so : LDFLAGS += -shared
 endif # OS specific ref_soft stuff
 
 build/ref_soft/%.o: %.c
+	@echo "===> CC $<"
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
+
+# ----------
+
+# The vk renderer lib
+
+ifeq ($(YQ2_OSTYPE), Windows)
+
+ref_vk:
+	@echo "===> Building ref_vk.dll"
+	$(MAKE) release/ref_vk.dll
+
+release/ref_vk.dll : LDFLAGS += -shared
+
+else ifeq ($(YQ2_OSTYPE), Darwin)
+
+ref_vk:
+	@echo "===> Building ref_vk.dylib"
+	$(MAKE) release/ref_vk.dylib
+
+release/ref_vk.dylib : LDFLAGS += -shared
+
+else # not Windows or Darwin
+
+ref_vk:
+	@echo "===> Building ref_vk.so"
+	$(MAKE) release/ref_vk.so
+
+release/ref_vk.so : CFLAGS += -fPIC
+release/ref_vk.so : LDFLAGS += -shared
+
+endif # OS specific ref_vk stuff
+
+build/ref_vk/%.o: %.c
 	@echo "===> CC $<"
 	${Q}mkdir -p $(@D)
 	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
@@ -854,45 +953,97 @@ GAME_OBJS_ = \
 	src/common/shared/flash.o \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
+	src/game/bot/ai_class_dmbot.o \
+	src/game/bot/ai_dropnodes.o \
+	src/game/bot/ai_items.o \
+	src/game/bot/ai_links.o \
+	src/game/bot/ai_main.o \
+	src/game/bot/ai_movement.o \
+	src/game/bot/ai_navigation.o \
+	src/game/bot/ai_nodes.o \
+	src/game/bot/ai_tools.o \
+	src/game/bot/ai_weapons.o \
+	src/game/bot/astar.o \
+	src/game/bot/bot_spawn.o \
 	src/game/g_ai.o \
 	src/game/g_chase.o \
 	src/game/g_cmds.o \
+	src/game/g_ctf.o \
 	src/game/g_combat.o \
 	src/game/g_func.o \
 	src/game/g_items.o \
+	src/game/g_light.o \
 	src/game/g_main.o \
 	src/game/g_misc.o \
 	src/game/g_monster.o \
+	src/game/g_newai.o \
+	src/game/g_newdm.o \
+	src/game/g_newfnc.o \
+	src/game/g_newtarg.o \
+	src/game/g_newtrig.o \
+	src/game/g_newweap.o \
+	src/game/g_obj.o \
 	src/game/g_phys.o \
 	src/game/g_spawn.o \
+	src/game/g_sphere.o \
 	src/game/g_svcmds.o \
 	src/game/g_target.o \
+	src/game/g_translate.o \
 	src/game/g_trigger.o \
 	src/game/g_turret.o \
 	src/game/g_utils.o \
 	src/game/g_weapon.o \
+	src/game/dm/ball.o \
+	src/game/dm/tag.o \
+	src/game/menu/menu.o \
+	src/game/monster/actor/actor.o \
+	src/game/monster/arachnid/arachnid.o \
+	src/game/monster/army/army.o \
 	src/game/monster/berserker/berserker.o \
 	src/game/monster/boss2/boss2.o \
 	src/game/monster/boss3/boss3.o \
 	src/game/monster/boss3/boss31.o \
 	src/game/monster/boss3/boss32.o \
+	src/game/monster/boss5/boss5.o \
 	src/game/monster/brain/brain.o \
+	src/game/monster/carrier/carrier.o \
 	src/game/monster/chick/chick.o \
+	src/game/monster/demon/demon.o \
+	src/game/monster/dog/dog.o \
+	src/game/monster/enforcer/enforcer.o \
+	src/game/monster/fixbot/fixbot.o \
 	src/game/monster/flipper/flipper.o \
 	src/game/monster/float/float.o \
 	src/game/monster/flyer/flyer.o \
+	src/game/monster/gekk/gekk.o \
+	src/game/monster/gladiator/gladb.o \
 	src/game/monster/gladiator/gladiator.o \
+	src/game/monster/guardian/guardian.o \
 	src/game/monster/gunner/gunner.o \
+	src/game/monster/hknight/hknight.o \
 	src/game/monster/hover/hover.o \
 	src/game/monster/infantry/infantry.o \
 	src/game/monster/insane/insane.o \
+	src/game/monster/knight/knight.o \
 	src/game/monster/medic/medic.o \
 	src/game/monster/misc/move.o \
 	src/game/monster/mutant/mutant.o \
+	src/game/monster/ogre/ogre.o \
 	src/game/monster/parasite/parasite.o \
+	src/game/monster/rotfish/fish.o \
+	src/game/monster/shalrath/shalrath.o \
+	src/game/monster/shambler/shambler.o \
 	src/game/monster/soldier/soldier.o \
+	src/game/monster/stalker/stalker.o \
 	src/game/monster/supertank/supertank.o \
 	src/game/monster/tank/tank.o \
+	src/game/monster/tarbaby/tarbaby.o \
+	src/game/monster/turret/turret.o \
+	src/game/monster/widow/widow2.o \
+	src/game/monster/widow/widow.o \
+	src/game/monster/wizard/wizard.o \
+	src/game/monster/zombie/zombie.o \
+	src/game/player/chase.o \
 	src/game/player/client.o \
 	src/game/player/hud.o \
 	src/game/player/trail.o \
@@ -938,21 +1089,29 @@ CLIENT_OBJS_ := \
 	src/common/argproc.o \
 	src/common/clientserver.o \
 	src/common/collision.o \
+	src/common/cmodels.o \
 	src/common/crc.o \
 	src/common/cmdparser.o \
 	src/common/cvar.o \
 	src/common/filesystem.o \
 	src/common/glob.o \
 	src/common/md4.o \
+	src/common/maps.o \
+	src/common/models/loadfile.o \
+	src/common/models/models.o \
+	src/common/models/models_md5.o \
+	src/common/models/models_mdr.o \
 	src/common/movemsg.o \
 	src/common/frame.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
+	src/common/protocol.o \
 	src/common/szone.o \
 	src/common/zone.o \
 	src/common/shared/flash.o \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
+	src/common/shared/utils.o \
 	src/common/unzip/ioapi.o \
 	src/common/unzip/unzip.o \
 	src/common/unzip/miniz/miniz.o \
@@ -1010,14 +1169,18 @@ REFGL1_OBJS_ := \
 	src/client/refresh/gl1/gl1_surf.o \
 	src/client/refresh/gl1/gl1_warp.o \
 	src/client/refresh/gl1/gl1_sdl.o \
+	src/client/refresh/files/mesh.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/gl1/gl1_buffer.o \
 	src/client/refresh/files/surf.o \
+	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \
-	src/client/refresh/files/pcx.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
-	src/client/refresh/files/pvs.o \
+	src/client/refresh/files/warp.o \
 	src/common/shared/shared.o \
+	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 REFGL1_OBJS_GLADEES_ := \
@@ -1046,13 +1209,18 @@ REFGL3_OBJS_ := \
 	src/client/refresh/gl3/gl3_surf.o \
 	src/client/refresh/gl3/gl3_warp.o \
 	src/client/refresh/gl3/gl3_shaders.o \
+	src/client/refresh/files/glshaders.o \
+	src/client/refresh/files/mesh.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
+	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \
-	src/client/refresh/files/pcx.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
-	src/client/refresh/files/pvs.o \
+	src/client/refresh/files/warp.o \
 	src/common/shared/shared.o \
+	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 REFGL3_OBJS_GLADE_ := \
@@ -1066,6 +1234,45 @@ REFGL3_OBJS_ += \
 	src/backends/windows/shared/hunk.o
 else # not Windows
 REFGL3_OBJS_ += \
+	src/backends/unix/shared/hunk.o
+endif
+
+# ----------
+
+REFGL4_OBJS_ := \
+	src/client/refresh/gl4/gl4_draw.o \
+	src/client/refresh/gl4/gl4_image.o \
+	src/client/refresh/gl4/gl4_light.o \
+	src/client/refresh/gl4/gl4_lightmap.o \
+	src/client/refresh/gl4/gl4_main.o \
+	src/client/refresh/gl4/gl4_mesh.o \
+	src/client/refresh/gl4/gl4_misc.o \
+	src/client/refresh/gl4/gl4_model.o \
+	src/client/refresh/gl4/gl4_sdl.o \
+	src/client/refresh/gl4/gl4_surf.o \
+	src/client/refresh/gl4/gl4_warp.o \
+	src/client/refresh/gl4/gl4_shaders.o \
+	src/client/refresh/files/glshaders.o \
+	src/client/refresh/files/mesh.o \
+	src/client/refresh/files/light.o \
+	src/client/refresh/files/surf.o \
+	src/client/refresh/files/maps.o \
+	src/client/refresh/files/models.o \
+	src/client/refresh/files/stb.o \
+	src/client/refresh/files/wal.o \
+	src/client/refresh/files/warp.o \
+	src/common/shared/shared.o \
+	src/common/cmodels.o \
+	src/common/md4.o
+
+REFGL4_OBJS_GLADE_ := \
+	src/client/refresh/gl4/glad/src/glad.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+REFGL4_OBJS_ += \
+	src/backends/windows/shared/hunk.o
+else # not Windows
+REFGL4_OBJS_ += \
 	src/backends/unix/shared/hunk.o
 endif
 
@@ -1089,13 +1296,18 @@ REFSOFT_OBJS_ := \
 	src/client/refresh/soft/sw_scan.o \
 	src/client/refresh/soft/sw_sprite.o \
 	src/client/refresh/soft/sw_surf.o \
+	src/client/refresh/soft/sw_warp.o \
+	src/client/refresh/files/mesh.o \
+	src/client/refresh/files/light.o \
 	src/client/refresh/files/surf.o \
+	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \
-	src/client/refresh/files/pcx.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
-	src/client/refresh/files/pvs.o \
+	src/client/refresh/files/warp.o \
 	src/common/shared/shared.o \
+	src/common/shared/utils.o \
+	src/common/cmodels.o \
 	src/common/md4.o
 
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -1108,12 +1320,57 @@ endif
 
 # ----------
 
+REFVK_OBJS_ := \
+	src/client/refresh/vk/vk_buffer.o \
+	src/client/refresh/vk/vk_cmd.o \
+	src/client/refresh/vk/vk_common.o \
+	src/client/refresh/vk/vk_device.o \
+	src/client/refresh/vk/vk_draw.o \
+	src/client/refresh/vk/vk_image.o \
+	src/client/refresh/vk/vk_light.o \
+	src/client/refresh/vk/vk_lightmap.o \
+	src/client/refresh/vk/vk_mesh.o \
+	src/client/refresh/vk/vk_model.o \
+	src/client/refresh/vk/vk_pipeline.o \
+	src/client/refresh/vk/vk_main.o \
+	src/client/refresh/vk/vk_misc.o \
+	src/client/refresh/vk/vk_surf.o \
+	src/client/refresh/vk/vk_shaders.o \
+	src/client/refresh/vk/vk_swapchain.o \
+	src/client/refresh/vk/vk_validation.o \
+	src/client/refresh/vk/vk_warp.o \
+	src/client/refresh/vk/vk_util.o \
+	src/client/refresh/vk/volk/volk.o \
+	src/client/refresh/files/mesh.o \
+	src/client/refresh/files/light.o \
+	src/client/refresh/files/surf.o \
+	src/client/refresh/files/maps.o \
+	src/client/refresh/files/models.o \
+	src/client/refresh/files/stb.o \
+	src/client/refresh/files/wal.o \
+	src/client/refresh/files/warp.o \
+	src/common/shared/shared.o \
+	src/common/shared/utils.o \
+	src/common/cmodels.o \
+	src/common/md4.o
+
+ifeq ($(YQ2_OSTYPE), Windows)
+REFVK_OBJS_ += \
+	src/backends/windows/shared/hunk.o
+else # not Windows
+REFVK_OBJS_ += \
+	src/backends/unix/shared/hunk.o
+endif
+
+# ----------
+
 # Used by the server
 SERVER_OBJS_ := \
 	src/backends/generic/misc.o \
 	src/common/argproc.o \
 	src/common/clientserver.o \
 	src/common/collision.o \
+	src/common/cmodels.o \
 	src/common/crc.o \
 	src/common/cmdparser.o \
 	src/common/cvar.o \
@@ -1121,13 +1378,20 @@ SERVER_OBJS_ := \
 	src/common/glob.o \
 	src/common/md4.o \
 	src/common/frame.o \
+	src/common/maps.o \
+	src/common/models/loadfile.o \
+	src/common/models/models.o \
+	src/common/models/models_md5.o \
+	src/common/models/models_mdr.o \
 	src/common/movemsg.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
+	src/common/protocol.o \
 	src/common/szone.o \
 	src/common/zone.o \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
+	src/common/shared/utils.o \
 	src/common/unzip/ioapi.o \
 	src/common/unzip/unzip.o \
 	src/common/unzip/miniz/miniz.o \
@@ -1170,7 +1434,10 @@ REFGL3_OBJS = $(patsubst %,build/ref_gl3/%,$(REFGL3_OBJS_))
 REFGL3_OBJS += $(patsubst %,build/ref_gl3/%,$(REFGL3_OBJS_GLADE_))
 REFGLES3_OBJS = $(patsubst %,build/ref_gles3/%,$(REFGL3_OBJS_))
 REFGLES3_OBJS += $(patsubst %,build/ref_gles3/%,$(REFGL3_OBJS_GLADEES_))
+REFGL4_OBJS = $(patsubst %,build/ref_gl4/%,$(REFGL4_OBJS_))
+REFGL4_OBJS += $(patsubst %,build/ref_gl4/%,$(REFGL4_OBJS_GLADE_))
 REFSOFT_OBJS = $(patsubst %,build/ref_soft/%,$(REFSOFT_OBJS_))
+REFVK_OBJS = $(patsubst %,build/ref_vk/%,$(REFVK_OBJS_))
 SERVER_OBJS = $(patsubst %,build/server/%,$(SERVER_OBJS_))
 GAME_OBJS = $(patsubst %,build/baseq2/%,$(GAME_OBJS_))
 
@@ -1183,7 +1450,9 @@ REFGL1_DEPS= $(REFGL1_OBJS:.o=.d)
 REFGLES1_DEPS= $(REFGLES1_OBJS:.o=.d)
 REFGL3_DEPS= $(REFGL3_OBJS:.o=.d)
 REFGLES3_DEPS= $(REFGLES3_OBJS:.o=.d)
+REFGL4_DEPS= $(REFGL4_OBJS:.o=.d)
 REFSOFT_DEPS= $(REFSOFT_OBJS:.o=.d)
+REFVK_DEPS= $(REFVK_OBJS:.o=.d)
 SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 
 # Suck header dependencies in.
@@ -1193,6 +1462,8 @@ SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 -include $(REFGLES1_DEPS)
 -include $(REFGL3_DEPS)
 -include $(REFGLES3_DEPS)
+-include $(REFGL4_DEPS)
+-include $(REFVK_DEPS)
 -include $(SERVER_DEPS)
 
 # ----------
@@ -1288,6 +1559,22 @@ release/ref_gles3.so : $(REFGLES3_OBJS)
 	${Q}$(CC) $(LDFLAGS) $(REFGLES3_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
 endif
 
+# release/ref_gl4.so
+ifeq ($(YQ2_OSTYPE), Windows)
+release/ref_gl4.dll : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
+	$(Q)strip $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/ref_gl4.dylib : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+else
+release/ref_gl4.so : $(REFGL4_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFGL4_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+endif
+
 # release/ref_soft.so
 ifeq ($(YQ2_OSTYPE), Windows)
 release/ref_soft.dll : $(REFSOFT_OBJS)
@@ -1302,6 +1589,21 @@ else
 release/ref_soft.so : $(REFSOFT_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFSOFT_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+endif
+
+# release/ref_vk.so
+ifeq ($(YQ2_OSTYPE), Windows)
+release/ref_vk.dll : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+release/ref_vk.dylib : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
+else
+release/ref_vk.so : $(REFVK_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(REFVK_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
 endif
 
 # release/baseq2/game.so

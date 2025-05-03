@@ -45,7 +45,7 @@ glmode_t modes[] = {
 int gl_filter_min = GL_LINEAR_MIPMAP_NEAREST;
 int gl_filter_max = GL_LINEAR;
 
-gl3image_t gl3textures[MAX_GL3TEXTURES];
+gl3image_t gl3textures[MAX_TEXTURES];
 int numgl3textures = 0;
 static int image_max = 0;
 
@@ -87,7 +87,7 @@ GL3_TextureMode(char *string)
 
 	gl3image_t *glt;
 
-	const char* nolerplist = gl_nolerp_list->string;
+	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
 
@@ -95,13 +95,13 @@ GL3_TextureMode(char *string)
 	for (i = 0, glt = gl3textures; i < numgl3textures; i++, glt++)
 	{
 		qboolean nolerp = false;
-		/* r_2D_unfiltered and gl_nolerp_list allow rendering stuff unfiltered even if gl_filter_* is filtered */
+		/* r_2D_unfiltered and r_nolerp_list allow rendering stuff unfiltered even if gl_filter_* is filtered */
 		if (unfiltered2D && glt->type == it_pic)
 		{
 			// exception to that exception: stuff on the r_lerp_list
-			nolerp = (lerplist== NULL) || (strstr(lerplist, glt->name) == NULL);
+			nolerp = (lerplist == NULL) || Utils_FilenameFiltered(glt->name, lerplist, ' ');
 		}
-		else if(nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
+		else if (nolerplist != NULL && Utils_FilenameFiltered(glt->name, nolerplist, ' '))
 		{
 			nolerp = true;
 		}
@@ -123,7 +123,7 @@ GL3_TextureMode(char *string)
 		{
 			if (nolerp)
 			{
-				// this texture shouldn't be filtered at all (no gl_nolerp_list or r_2D_unfiltered case)
+				// this texture shouldn't be filtered at all (no r_nolerp_list or r_2D_unfiltered case)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
@@ -390,9 +390,9 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
 		// *unless* the texture is on the r_lerp_list
 		nolerp = (r_lerp_list->string == NULL) || (strstr(r_lerp_list->string, name) == NULL);
 	}
-	else if (gl_nolerp_list != NULL && gl_nolerp_list->string != NULL)
+	else if (r_nolerp_list != NULL && r_nolerp_list->string != NULL)
 	{
-		nolerp = strstr(gl_nolerp_list->string, name) != NULL;
+		nolerp = strstr(r_nolerp_list->string, name) != NULL;
 	}
 	/* find a free gl3image_t */
 	for (i = 0, image = gl3textures; i < numgl3textures; i++, image++)
@@ -401,13 +401,20 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
 		{
 			break;
 		}
+
+		if (!strcmp(image->name, name))
+		{
+			/* we already have such image */
+			image->registration_sequence = registration_sequence;
+			return image;
+		}
 	}
 
 	if (i == numgl3textures)
 	{
-		if (numgl3textures == MAX_GL3TEXTURES)
+		if (numgl3textures == MAX_TEXTURES)
 		{
-			ri.Sys_Error(ERR_DROP, "MAX_GLTEXTURES");
+			Com_Error(ERR_DROP, "MAX_TEXTURES");
 		}
 
 		numgl3textures++;
@@ -417,7 +424,7 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
 
 	if (strlen(name) >= sizeof(image->name))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
+		Com_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
 	}
 
 	strcpy(image->name, name);
@@ -602,19 +609,23 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
  * Finds or loads the given image or NULL
  */
 gl3image_t *
-GL3_FindImage(const char *name, imagetype_t type)
+GL3_FindImage(const char *originname, imagetype_t type)
 {
+	char namewe[256], name[256] = {0};
 	gl3image_t *image;
+	const char* ext;
 	size_t len;
 	int i;
-	char *ptr;
-	char namewe[256];
-	const char* ext;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	Q_strlcpy(name, originname, sizeof(name));
+
+	/* fix backslashes */
+	Q_replacebackslash(name);
 
 	ext = COM_FileExtension(name);
 	if (!ext[0])
@@ -627,17 +638,12 @@ GL3_FindImage(const char *name, imagetype_t type)
 	len = (ext - name) - 1;
 	if ((len < 1) || (len > sizeof(namewe) - 1))
 	{
+		Com_DPrintf("%s: Bad filename %s\n", __func__, name);
 		return NULL;
 	}
 
 	memcpy(namewe, name, len);
 	namewe[len] = 0;
-
-	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
 
 	/* look for it */
 	for (i = 0, image = gl3textures; i < numgl3textures; i++, image++)
@@ -731,7 +737,7 @@ GL3_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numgl3textures + used) < MAX_GL3TEXTURES;
+	return (numgl3textures + used) < MAX_TEXTURES;
 }
 
 void
@@ -841,5 +847,6 @@ GL3_ImageList_f(void)
 
 	R_Printf(PRINT_ALL, "Total texel count (not counting mipmaps): %i\n", texels);
 	freeup = GL3_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }

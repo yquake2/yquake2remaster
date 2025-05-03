@@ -36,7 +36,7 @@
 typedef struct cmd_function_s
 {
 	struct cmd_function_s *next;
-	char *name;
+	const char *name;
 	xcommand_t function;
 } cmd_function_t;
 
@@ -82,7 +82,7 @@ Cbuf_Init(void)
  * Adds command text at the end of the buffer
  */
 void
-Cbuf_AddText(char *text)
+Cbuf_AddText(const char *text)
 {
 	size_t l;
 
@@ -90,7 +90,7 @@ Cbuf_AddText(char *text)
 
 	if (cmd_text.cursize + l >= cmd_text.maxsize)
 	{
-		Com_Printf("Cbuf_AddText: overflow\n");
+		Com_Printf("%s: overflow\n", __func__);
 		return;
 	}
 
@@ -534,7 +534,8 @@ Cmd_MacroExpandString(char *text)
 	char *scan;
 	static char expanded[MAX_STRING_CHARS];
 	char temporary[MAX_STRING_CHARS];
-	char *token, *start;
+	const char *token;
+	char *start;
 
 	inquote = false;
 	scan = text;
@@ -704,7 +705,7 @@ Cmd_TokenizeString(char *text, qboolean macroExpand)
 }
 
 void
-Cmd_AddCommand(char *cmd_name, xcommand_t function)
+Cmd_AddCommand(const char *cmd_name, xcommand_t function)
 {
 	cmd_function_t *cmd;
 	cmd_function_t **pos;
@@ -740,7 +741,7 @@ Cmd_AddCommand(char *cmd_name, xcommand_t function)
 }
 
 void
-Cmd_RemoveCommand(char *cmd_name)
+Cmd_RemoveCommand(const char *cmd_name)
 {
 	cmd_function_t *cmd, **back;
 
@@ -768,7 +769,7 @@ Cmd_RemoveCommand(char *cmd_name)
 }
 
 qboolean
-Cmd_Exists(char *cmd_name)
+Cmd_Exists(const char *cmd_name)
 {
 	cmd_function_t *cmd;
 
@@ -783,15 +784,15 @@ Cmd_Exists(char *cmd_name)
 	return false;
 }
 
-char *
-Cmd_CompleteCommand(char *partial)
+const char *
+Cmd_CompleteCommand(const char *partial)
 {
 	cmd_function_t *cmd;
 	size_t len;
 	int i, o, p;
 	cmdalias_t *a;
 	cvar_t *cvar;
-	char *pmatch[1024];
+	const char *pmatch[1024];
 	qboolean diff = false;
 
 	len = strlen(partial);
@@ -908,8 +909,8 @@ Cmd_CompleteCommand(char *partial)
 	return NULL;
 }
 
-char *
-Cmd_CompleteMapCommand(char *partial)
+const char *
+Cmd_CompleteMapCommand(const char *partial)
 {
 	char **mapNames;
 	int i, j, k, nbMatches, nMaps;
@@ -994,7 +995,7 @@ Cmd_CompleteMapCommand(char *partial)
 }
 
 qboolean
-Cmd_IsComplete(char *command)
+Cmd_IsComplete(const char *command)
 {
 	cmd_function_t *cmd;
 	cmdalias_t *a;

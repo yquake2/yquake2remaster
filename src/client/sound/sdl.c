@@ -700,7 +700,7 @@ SDL_AddLoopSounds(void)
 		sfx_t *sfx;
 		sfxcache_t *sc;
 		int num;
-		entity_state_t *ent;
+		entity_xstate_t *ent;
 		int j;
 
 		if (!sounds[i])

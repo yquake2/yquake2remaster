@@ -45,32 +45,20 @@
 #endif
 #endif
 
-#define MAX_LIGHTMAPS 128
+#define MAX_LIGHTMAPS 256
 #define MAX_LIGHTMAP_COPIES 3	// Meant for tile / deferred rendering platforms
 #define MAX_SCRAPS 1
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS (TEXNUM_LIGHTMAPS + MAX_LIGHTMAPS * MAX_LIGHTMAP_COPIES)
 #define TEXNUM_IMAGES (TEXNUM_SCRAPS + MAX_SCRAPS)
-#define MAX_GLTEXTURES 1024
-#define BLOCK_WIDTH 128		// default values; now defined in glstate_t
-#define BLOCK_HEIGHT 128
-#define BACKFACE_EPSILON 0.01
-#define LIGHTMAP_BYTES 4
+#define BLOCK_WIDTH 1024		// default values; now defined in glstate_t
+#define BLOCK_HEIGHT 1024
 #define MAX_TEXTURE_UNITS 2
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
 // GL buffer definitions
 #define MAX_VERTICES	16384
 #define MAX_INDICES 	(MAX_VERTICES * 4)
-
-/* up / down */
-#define PITCH 0
-
-/* left / right */
-#define YAW 1
-
-/* fall over */
-#define ROLL 2
 
 extern viddef_t vid;
 
@@ -110,15 +98,6 @@ typedef struct image_s
 
 typedef enum
 {
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-} rserr_t;
-
-typedef enum
-{
 	buf_2d,
 	buf_singletex,
 	buf_mtex,
@@ -151,7 +130,7 @@ typedef struct	//	832k aprox.
 extern glbuffer_t gl_buf;
 extern float gldepthmin, gldepthmax;
 
-extern image_t gltextures[MAX_GLTEXTURES];
+extern image_t gltextures[MAX_TEXTURES];
 extern int numgltextures;
 
 extern image_t *r_notexture;
@@ -174,6 +153,8 @@ extern int r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 extern qboolean IsHighDPIaware;
 
+extern vec3_t lightspot;
+
 extern cvar_t *r_norefresh;
 extern cvar_t *gl_lefthand;
 extern cvar_t *r_gunfov;
@@ -185,6 +166,7 @@ extern cvar_t *r_fullbright;
 extern cvar_t *r_novis;
 extern cvar_t *r_lerpmodels;
 extern cvar_t *r_fixsurfsky;
+extern cvar_t *r_ttffont;
 
 extern cvar_t *r_lightlevel;
 extern cvar_t *gl1_overbrightbits;
@@ -209,19 +191,20 @@ extern cvar_t *r_retexturing;
 extern cvar_t *r_scale8bittextures;
 extern cvar_t *r_validation;
 
-extern cvar_t *gl_nolerp_list;
+extern cvar_t *r_nolerp_list;
 extern cvar_t *r_lerp_list;
 extern cvar_t *r_2D_unfiltered;
 extern cvar_t *r_videos_unfiltered;
 
+extern cvar_t *gl_version_override;
 extern cvar_t *gl_lightmap;
 extern cvar_t *gl_shadows;
 extern cvar_t *gl1_stencilshadow;
-extern cvar_t *gl1_dynamic;
+extern cvar_t *r_dynamic;
 extern cvar_t *gl_nobind;
 extern cvar_t *gl1_round_down;
 extern cvar_t *gl1_picmip;
-extern cvar_t *gl_showtris;
+extern cvar_t *r_showtris;
 extern cvar_t *gl_showbbox;
 extern cvar_t *gl_finish;
 extern cvar_t *gl1_ztrick;
@@ -229,7 +212,7 @@ extern cvar_t *gl_zfix;
 extern cvar_t *r_clear;
 extern cvar_t *r_cull;
 extern cvar_t *gl1_polyblend;
-extern cvar_t *gl1_flashblend;
+extern cvar_t *r_flashblend;
 extern cvar_t *r_modulate;
 extern cvar_t *gl_drawbuffer;
 extern cvar_t *r_vsync;
@@ -264,8 +247,7 @@ void R_SelectTexture(GLenum);
 void R_MBind(GLenum target, int texnum);
 void R_EnableMultitexture(qboolean enable);
 
-void R_LightPoint(entity_t *currententity, vec3_t p, vec3_t color);
-void R_PushDlights(void);
+void RI_PushDlights(void);
 
 extern model_t *r_worldmodel;
 extern unsigned d_8to24table[256];
@@ -276,27 +258,21 @@ void V_AddBlend(float r, float g, float b, float a, float *v_blend);
 void R_ScreenShot(void);
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
-void R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBeam(entity_t *e);
 void R_DrawWorld(void);
 void R_RenderDlights(void);
 void R_DrawAlphaSurfaces(void);
 void R_InitParticleTexture(void);
 void Draw_InitLocal(void);
-void R_SubdivideSurface(model_t *loadmodel, msurface_t *fa);
 void R_RotateForEntity(entity_t *e);
 void R_MarkLeaves(void);
 
 extern int r_dlightframecount;
-glpoly_t *WaterWarpPolyVerts(glpoly_t *p);
+mpoly_t *WaterWarpPolyVerts(mpoly_t *p);
 void R_EmitWaterPolys(msurface_t *fa);
-void R_AddSkySurface(msurface_t *fa);
-void R_ClearSkyBox(void);
+void RE_AddSkySurface(msurface_t *fa);
+void RE_ClearSkyBox(void);
 void R_DrawSkyBox(void);
-void R_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
-	int lightframecount);
-
-void COM_StripExtension(char *in, char *out);
 
 void R_SwapBuffers(int);
 
@@ -310,6 +286,7 @@ void R_SetTexturePalette(const unsigned palette[256]);
 
 void R_InitImages(void);
 void R_ShutdownImages(void);
+void RDraw_FreeLocal(void);
 
 void R_FreeUnusedImages(void);
 qboolean R_ImageHasFreeSpace(void);
@@ -398,11 +375,6 @@ void glCheckError_(const char *file, const char *function, int line);
 #endif
 #endif
 
-/* GL extension emulation functions */
-void R_DrawParticles2(int n,
-		const particle_t particles[],
-		const unsigned *colortable);
-
 /*
  * GL config stuff
  */
@@ -471,6 +443,10 @@ typedef struct
 	byte *lightmap_buffer[MAX_LIGHTMAPS];
 } gllightmapstate_t;
 
+void LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa);
+void LM_EndBuildingLightmaps(void);
+void LM_BeginBuildingLightmaps(model_t *m);
+
 extern glconfig_t gl_config;
 extern glstate_t gl_state;
 
@@ -510,12 +486,24 @@ int RI_GetSDLVersion();
 /* g11_draw */
 extern image_t * RDraw_FindPic(const char *name);
 extern void RDraw_GetPicSize(int *w, int *h, const char *pic);
-extern void RDraw_PicScaled(int x, int y, const char *pic, float factor);
+extern void RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
 extern void RDraw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void RDraw_CharScaled(int x, int y, int num, float scale);
+extern void RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 extern void RDraw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void RDraw_Fill(int x, int y, int w, int h, int c);
 extern void RDraw_FadeScreen(void);
 extern void RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
+
+/* public interface funtions */
+extern int RI_PrepareForWindow(void);
+extern int RI_InitContext(void* win);
+extern void RI_BeginRegistration(const char *model);
+extern struct model_s * RI_RegisterModel(const char *name);
+extern struct image_s * RI_RegisterSkin(const char *name);
+extern void RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
+extern void RI_EndRegistration(void);
+extern qboolean RI_IsVSyncActive(void);
+extern void RI_EndFrame(void);
 
 #endif

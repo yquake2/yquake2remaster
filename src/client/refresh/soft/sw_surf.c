@@ -1,22 +1,24 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
 // sw_surf.c: surface-related refresh code
 
 #include "header/local.h"
@@ -28,9 +30,10 @@ static int		r_stepback;
 static int		r_lightwidth;
 static int		r_numvblocks;
 static unsigned char	*r_source, *r_sourcemax;
-static unsigned		*r_lightptr;
+static light_t		*r_lightptr;
 
-void R_BuildLightMap (drawsurf_t *drawsurf);
+void RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
+	float modulate, int r_framecount);
 
 static int	sc_size;
 static surfcache_t	*sc_rover;
@@ -69,7 +72,8 @@ R_DrawSurfaceBlock_Light (pixel_t *prowdest, pixel_t *psource, size_t size,
 	// Full same light from both side
 	if (light_masked_right != LIGHTMASK && light_masked_left == light_masked_right)
 	{
-		pixel_t *dest, *dest_max, *src;
+		const pixel_t *dest_max;
+		pixel_t *dest, *src;
 
 		dest = prowdest;
 		dest_max = prowdest + size;
@@ -139,6 +143,7 @@ R_DrawSurfaceBlock8_anymip (int level, int surfrowbytes)
 		// FIXME: use delta rather than both right and left, like ASM?
 		memcpy(lightleft, r_lightptr, sizeof(light3_t));
 		memcpy(lightright, r_lightptr + 3, sizeof(light3_t));
+
 		r_lightptr += r_lightwidth * 3;
 		for(i=0; i<3; i++)
 		{
@@ -175,7 +180,7 @@ R_DrawSurface
 ===============
 */
 static void
-R_DrawSurface (drawsurf_t *drawsurf)
+R_DrawSurface (drawsurf_t *drawsurf, light_t *blocklights, light_t *blocklight_max)
 {
 	unsigned char	*basetptr;
 	int		smax, tmax, twidth;
@@ -199,7 +204,7 @@ R_DrawSurface (drawsurf_t *drawsurf)
 	blocksize = 16 >> drawsurf->surfmip;
 	blockdivshift = NUM_MIPS - drawsurf->surfmip;
 
-	r_lightwidth = (drawsurf->surf->extents[0]>>4)+1;
+	r_lightwidth = (drawsurf->surf->extents[0] >> drawsurf->surf->lmshift) + 1;
 
 	r_numhblocks = drawsurf->surfwidth >> blockdivshift;
 	r_numvblocks = drawsurf->surfheight >> blockdivshift;
@@ -261,18 +266,22 @@ void
 R_InitCaches (void)
 {
 	int		size;
-
 	// calculate size to allocate
 	int pix;
+
 	// surface cache size at 320X240
 	size = 1024*768;
 
 	pix = vid_buffer_width*vid_buffer_height;
 	if (pix > 64000)
-		size += (pix-64000)*3;
+	{
+		size += (pix - 64000) * 3;
+	}
 
 	if (r_farsee->value > 0)
+	{
 		size *= 2;
+	}
 
 	if (sw_surfcacheoverride->value > size)
 	{
@@ -288,8 +297,8 @@ R_InitCaches (void)
 	sc_base = (surfcache_t *)malloc(size);
 	if (!sc_base)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Can't allocate cache.", __func__);
-		// code never returns after ERR_FATAL
+		Com_Error(ERR_FATAL, "%s: Can't allocate cache.", __func__);
+		/* code never returns after ERR_FATAL */
 		return;
 	}
 	sc_rover = sc_base;
@@ -298,7 +307,6 @@ R_InitCaches (void)
 	sc_base->owner = NULL;
 	sc_base->size = sc_size;
 }
-
 
 /*
 ==================
@@ -331,49 +339,55 @@ D_SCAlloc
 =================
 */
 static surfcache_t *
-D_SCAlloc (int width, int size)
+D_SCAlloc(int width, int size)
 {
 	surfcache_t	*new;
 
 	if ((width < 0) || (width > 256))
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: bad cache width %d\n", __func__, width);
+		Com_Error(ERR_FATAL, "%s: bad cache width %d\n", __func__, width);
 	}
 
 	if ((size <= 0) || (size > 0x10000))
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: bad cache size %d\n", __func__, size);
+		Com_Error(ERR_FATAL, "%s: bad cache size %d\n", __func__, size);
 	}
 
-	// Add header size
+	/* Add header size */
 	size += ((char*)sc_base->data - (char*)sc_base);
 	size = (size + 3) & ~3;
 	if (size > sc_size)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: %i > cache size of %i", __func__, size, sc_size);
+		Com_Error(ERR_FATAL, "%s: %i > cache size of %i", __func__, size, sc_size);
 	}
 
-	// if there is not size bytes after the rover, reset to the start
+	/* if there is not size bytes after the rover, reset to the start */
 	if ( !sc_rover || (byte *)sc_rover - (byte *)sc_base > sc_size - size)
 	{
 		sc_rover = sc_base;
 	}
 
-	// colect and free surfcache_t blocks until the rover block is large enough
+	/* colect and free surfcache_t blocks until the rover block is large enough */
 	new = sc_rover;
 	if (sc_rover->owner)
+	{
 		*sc_rover->owner = NULL;
+	}
 
 	while (new->size < size)
 	{
-		// free another
+		/* free another */
 		sc_rover = sc_rover->next;
+
 		if (!sc_rover)
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: hit the end of memory", __func__);
+			Com_Error(ERR_FATAL, "%s: hit the end of memory", __func__);
 		}
+
 		if (sc_rover->owner)
+		{
 			*sc_rover->owner = NULL;
+		}
 
 		new->size += sc_rover->size;
 		new->next = sc_rover->next;
@@ -391,12 +405,17 @@ D_SCAlloc (int width, int size)
 		new->size = size;
 	}
 	else
+	{
 		sc_rover = new->next;
+	}
 
 	new->width = width;
+
 	// DEBUG
 	if (width > 0)
+	{
 		new->height = (size - sizeof(*new) + sizeof(new->data)) / width;
+	}
 
 	new->owner = NULL; // should be set properly after return
 
@@ -413,7 +432,7 @@ D_CacheSurface
 ================
 */
 surfcache_t *
-D_CacheSurface (const entity_t *currententity, msurface_t *surface, int miplevel)
+D_CacheSurface(const entity_t *currententity, msurface_t *surface, int miplevel)
 {
 	surfcache_t	*cache;
 	float		surfscale;
@@ -443,7 +462,7 @@ D_CacheSurface (const entity_t *currententity, msurface_t *surface, int miplevel
 	//
 	// determine shape of surface
 	//
-	surfscale = 1.0 / (1<<miplevel);
+	surfscale = 1.0 / (1 << miplevel);
 	r_drawsurf.surfmip = miplevel;
 	r_drawsurf.surfwidth = surface->extents[0] >> miplevel;
 	r_drawsurf.rowbytes = r_drawsurf.surfwidth;
@@ -482,10 +501,10 @@ D_CacheSurface (const entity_t *currententity, msurface_t *surface, int miplevel
 	c_surf++;
 
 	// calculate the lightings
-	R_BuildLightMap (&r_drawsurf);
+	RI_BuildLightMap(&r_drawsurf, &r_newrefdef, r_modulate->value, r_framecount);
 
 	// rasterize the surface into the cache
-	R_DrawSurface (&r_drawsurf);
+	R_DrawSurface(&r_drawsurf, blocklights, blocklight_max);
 
 	return cache;
 }

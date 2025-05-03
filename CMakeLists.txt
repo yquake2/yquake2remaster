@@ -67,9 +67,11 @@ option(SYSTEMWIDE_SUPPORT "Enable systemwide installation of game assets" OFF)
 option(SDL3_SUPPORT "Build against SDL 3 instead of SDL2" OFF)
 option(GL1_RENDERER "Build the GL1 renderer" ON)
 option(GL3_RENDERER "Build the GL3 renderer" ON)
+option(GL4_RENDERER "Build the GL4 renderer" ON)
 option(GLES1_RENDERER "Build the GLES1 renderer" OFF)
 option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
+option(VK_RENDERER "Build the Vulkan renderer" ON)
 
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
 
@@ -169,10 +171,10 @@ unset(cpu)
 
 # Systemwide installation of game assets.
 if(${SYSTEMWIDE_SUPPORT})
-    add_definitions(-DSYSTEMWIDE)
-    if(NOT ${SYSTEMDIR} STREQUAL "")
-      add_definitions(-DSYSTEMDIR="${SYSTEMDIR}")
-    endif()
+	add_definitions(-DSYSTEMWIDE)
+	if(NOT ${SYSTEMDIR} STREQUAL "")
+		add_definitions(-DSYSTEMDIR="${SYSTEMDIR}")
+	endif()
 endif()
 
 # We need to pass some options to minizip / unzip.
@@ -195,11 +197,11 @@ else()
 endif()
 
 if(GL1_RENDERER)
-     # We need an OpenGL implementation.
-     set(OpenGL_GL_PREFERENCE GLVND)
-     find_package(OpenGL REQUIRED)
-     list(APPEND yquake2IncludeDirectories ${OPENGL_INCLUDE_DIR})
-     list(APPEND yquake2OpenGLLinkerFlags ${OPENGL_LIBRARIES})
+	# We need an OpenGL implementation.
+	set(OpenGL_GL_PREFERENCE GLVND)
+	find_package(OpenGL REQUIRED)
+	list(APPEND yquake2IncludeDirectories ${OPENGL_INCLUDE_DIR})
+	list(APPEND yquake2OpenGLLinkerFlags ${OPENGL_LIBRARIES})
 endif()
 
 # backtrace lookup
@@ -260,7 +262,7 @@ else()
 		list(APPEND yquake2LinkerFlags "-rdynamic")
 	else()
 		list(APPEND yquake2LinkerFlags "-lnetwork")
-                set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+			set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 	endif()
 	if (${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
 		list(APPEND yquake2LinkerFlags "-lsocket -lnsl")
@@ -343,45 +345,101 @@ set(Game-Source
 	${COMMON_SRC_DIR}/shared/flash.c
 	${COMMON_SRC_DIR}/shared/rand.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${GAME_SRC_DIR}/bot/ai_class_dmbot.c
+	${GAME_SRC_DIR}/bot/ai_dropnodes.c
+	${GAME_SRC_DIR}/bot/ai_items.c
+	${GAME_SRC_DIR}/bot/ai_links.c
+	${GAME_SRC_DIR}/bot/ai_local.h
+	${GAME_SRC_DIR}/bot/ai_main.c
+	${GAME_SRC_DIR}/bot/ai_movement.c
+	${GAME_SRC_DIR}/bot/ai_navigation.c
+	${GAME_SRC_DIR}/bot/ai_nodes.c
+	${GAME_SRC_DIR}/bot/ai_nodes_local.h
+	${GAME_SRC_DIR}/bot/ai_nodes_shared.h
+	${GAME_SRC_DIR}/bot/ai_tools.c
+	${GAME_SRC_DIR}/bot/ai_weapons.c
+	${GAME_SRC_DIR}/bot/ai_weapons.h
+	${GAME_SRC_DIR}/bot/astar.c
+	${GAME_SRC_DIR}/bot/bot_spawn.c
+	${GAME_SRC_DIR}/dm/ball.c
+	${GAME_SRC_DIR}/dm/tag.c
 	${GAME_SRC_DIR}/g_ai.c
 	${GAME_SRC_DIR}/g_chase.c
 	${GAME_SRC_DIR}/g_cmds.c
 	${GAME_SRC_DIR}/g_combat.c
+	${GAME_SRC_DIR}/g_ctf.c
 	${GAME_SRC_DIR}/g_func.c
 	${GAME_SRC_DIR}/g_items.c
+	${GAME_SRC_DIR}/g_light.c
 	${GAME_SRC_DIR}/g_main.c
 	${GAME_SRC_DIR}/g_misc.c
 	${GAME_SRC_DIR}/g_monster.c
+	${GAME_SRC_DIR}/g_newai.c
+	${GAME_SRC_DIR}/g_newdm.c
+	${GAME_SRC_DIR}/g_newfnc.c
+	${GAME_SRC_DIR}/g_newtarg.c
+	${GAME_SRC_DIR}/g_newtrig.c
+	${GAME_SRC_DIR}/g_newweap.c
+	${GAME_SRC_DIR}/g_obj.c
 	${GAME_SRC_DIR}/g_phys.c
 	${GAME_SRC_DIR}/g_spawn.c
+	${GAME_SRC_DIR}/g_sphere.c
 	${GAME_SRC_DIR}/g_svcmds.c
 	${GAME_SRC_DIR}/g_target.c
+	${GAME_SRC_DIR}/g_translate.c
 	${GAME_SRC_DIR}/g_trigger.c
 	${GAME_SRC_DIR}/g_turret.c
 	${GAME_SRC_DIR}/g_utils.c
 	${GAME_SRC_DIR}/g_weapon.c
+	${GAME_SRC_DIR}/menu/menu.c
+	${GAME_SRC_DIR}/monster/actor/actor.c
+	${GAME_SRC_DIR}/monster/arachnid/arachnid.c
+	${GAME_SRC_DIR}/monster/army/army.c
 	${GAME_SRC_DIR}/monster/berserker/berserker.c
 	${GAME_SRC_DIR}/monster/boss2/boss2.c
-	${GAME_SRC_DIR}/monster/boss3/boss3.c
 	${GAME_SRC_DIR}/monster/boss3/boss31.c
 	${GAME_SRC_DIR}/monster/boss3/boss32.c
+	${GAME_SRC_DIR}/monster/boss3/boss3.c
+	${GAME_SRC_DIR}/monster/boss5/boss5.c
 	${GAME_SRC_DIR}/monster/brain/brain.c
+	${GAME_SRC_DIR}/monster/carrier/carrier.c
 	${GAME_SRC_DIR}/monster/chick/chick.c
+	${GAME_SRC_DIR}/monster/demon/demon.c
+	${GAME_SRC_DIR}/monster/dog/dog.c
+	${GAME_SRC_DIR}/monster/enforcer/enforcer.c
+	${GAME_SRC_DIR}/monster/fixbot/fixbot.c
 	${GAME_SRC_DIR}/monster/flipper/flipper.c
 	${GAME_SRC_DIR}/monster/float/float.c
 	${GAME_SRC_DIR}/monster/flyer/flyer.c
+	${GAME_SRC_DIR}/monster/gekk/gekk.c
+	${GAME_SRC_DIR}/monster/gladiator/gladb.c
 	${GAME_SRC_DIR}/monster/gladiator/gladiator.c
+	${GAME_SRC_DIR}/monster/guardian/guardian.c
 	${GAME_SRC_DIR}/monster/gunner/gunner.c
+	${GAME_SRC_DIR}/monster/hknight/hknight.c
 	${GAME_SRC_DIR}/monster/hover/hover.c
 	${GAME_SRC_DIR}/monster/infantry/infantry.c
 	${GAME_SRC_DIR}/monster/insane/insane.c
+	${GAME_SRC_DIR}/monster/knight/knight.c
 	${GAME_SRC_DIR}/monster/medic/medic.c
 	${GAME_SRC_DIR}/monster/misc/move.c
 	${GAME_SRC_DIR}/monster/mutant/mutant.c
+	${GAME_SRC_DIR}/monster/ogre/ogre.c
 	${GAME_SRC_DIR}/monster/parasite/parasite.c
+	${GAME_SRC_DIR}/monster/rotfish/fish.c
+	${GAME_SRC_DIR}/monster/shalrath/shalrath.c
+	${GAME_SRC_DIR}/monster/shambler/shambler.c
 	${GAME_SRC_DIR}/monster/soldier/soldier.c
+	${GAME_SRC_DIR}/monster/stalker/stalker.c
 	${GAME_SRC_DIR}/monster/supertank/supertank.c
 	${GAME_SRC_DIR}/monster/tank/tank.c
+	${GAME_SRC_DIR}/monster/tarbaby/tarbaby.c
+	${GAME_SRC_DIR}/monster/turret/turret.c
+	${GAME_SRC_DIR}/monster/widow/widow2.c
+	${GAME_SRC_DIR}/monster/widow/widow.c
+	${GAME_SRC_DIR}/monster/wizard/wizard.c
+	${GAME_SRC_DIR}/monster/zombie/zombie.c
+	${GAME_SRC_DIR}/player/chase.c
 	${GAME_SRC_DIR}/player/client.c
 	${GAME_SRC_DIR}/player/hud.c
 	${GAME_SRC_DIR}/player/trail.c
@@ -459,18 +517,26 @@ set(Client-Source
 	${COMMON_SRC_DIR}/collision.c
 	${COMMON_SRC_DIR}/crc.c
 	${COMMON_SRC_DIR}/cmdparser.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/cvar.c
 	${COMMON_SRC_DIR}/filesystem.c
 	${COMMON_SRC_DIR}/glob.c
+	${COMMON_SRC_DIR}/maps.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/movemsg.c
+	${COMMON_SRC_DIR}/models/loadfile.c
+	${COMMON_SRC_DIR}/models/models.c
+	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mdr.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c
+	${COMMON_SRC_DIR}/protocol.c
 	${COMMON_SRC_DIR}/szone.c
 	${COMMON_SRC_DIR}/zone.c
 	${COMMON_SRC_DIR}/shared/flash.c
 	${COMMON_SRC_DIR}/shared/rand.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/unzip/ioapi.c
 	${COMMON_SRC_DIR}/unzip/unzip.c
@@ -524,6 +590,8 @@ set(Client-Header
 	${COMMON_SRC_DIR}/header/glob.h
 	${COMMON_SRC_DIR}/header/shared.h
 	${COMMON_SRC_DIR}/header/zone.h
+	${COMMON_SRC_DIR}/models/anorms.h
+	${COMMON_SRC_DIR}/models/models.h
 	${COMMON_SRC_DIR}/unzip/ioapi.h
 	${COMMON_SRC_DIR}/unzip/unzip.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz.h
@@ -539,14 +607,21 @@ set(Server-Source
 	${COMMON_SRC_DIR}/collision.c
 	${COMMON_SRC_DIR}/crc.c
 	${COMMON_SRC_DIR}/cmdparser.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/cvar.c
 	${COMMON_SRC_DIR}/filesystem.c
 	${COMMON_SRC_DIR}/glob.c
+	${COMMON_SRC_DIR}/maps.c
+	${COMMON_SRC_DIR}/models/loadfile.c
+	${COMMON_SRC_DIR}/models/models.c
+	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mdr.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/frame.c
 	${COMMON_SRC_DIR}/movemsg.c
 	${COMMON_SRC_DIR}/netchan.c
 	${COMMON_SRC_DIR}/pmove.c
+	${COMMON_SRC_DIR}/protocol.c
 	${COMMON_SRC_DIR}/szone.c
 	${COMMON_SRC_DIR}/zone.c
 	${COMMON_SRC_DIR}/shared/rand.c
@@ -577,6 +652,8 @@ set(Server-Header
 	${COMMON_SRC_DIR}/header/zone.h
 	${COMMON_SRC_DIR}/unzip/ioapi.h
 	${COMMON_SRC_DIR}/unzip/unzip.h
+	${COMMON_SRC_DIR}/models/anorms.h
+	${COMMON_SRC_DIR}/models/models.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz_tdef.h
 	${COMMON_SRC_DIR}/unzip/miniz/miniz_tinfl.h
@@ -599,13 +676,17 @@ set(GL1-Source
 	${REF_SRC_DIR}/gl1/gl1_warp.c
 	${REF_SRC_DIR}/gl1/gl1_sdl.c
 	${REF_SRC_DIR}/gl1/gl1_buffer.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/pcx.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
-	${REF_SRC_DIR}/files/pvs.c
+	${REF_SRC_DIR}/files/warp.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -613,7 +694,6 @@ set(Glad-GLES1-Source ${REF_SRC_DIR}/gl1/glad-gles1/src/glad.c)
 
 set(GL1-Header
 	${REF_SRC_DIR}/ref_shared.h
-	${REF_SRC_DIR}/constants/anorms.h
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
@@ -642,13 +722,18 @@ set(GL3-Source
 	${REF_SRC_DIR}/gl3/gl3_surf.c
 	${REF_SRC_DIR}/gl3/gl3_warp.c
 	${REF_SRC_DIR}/gl3/gl3_shaders.c
+	${REF_SRC_DIR}/files/glshaders.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/pcx.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
-	${REF_SRC_DIR}/files/pvs.c
+	${REF_SRC_DIR}/files/warp.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -657,12 +742,11 @@ set(Glad-GLES3-Source ${REF_SRC_DIR}/gl3/glad-gles3/src/glad.c)
 
 set(GL3-Header
 	${REF_SRC_DIR}/ref_shared.h
-	${REF_SRC_DIR}/constants/anorms.h
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
 	${REF_SRC_DIR}/files/stb_image.h
-	${REF_SRC_DIR}/gl3/header/DG_dynarr.h
-	${REF_SRC_DIR}/gl3/header/HandmadeMath.h
+	${REF_SRC_DIR}/files/DG_dynarr.h
+	${REF_SRC_DIR}/files/HandmadeMath.h
 	${REF_SRC_DIR}/gl3/header/local.h
 	${REF_SRC_DIR}/gl3/header/model.h
 	${COMMON_SRC_DIR}/header/shared.h
@@ -676,6 +760,53 @@ set(Glad-GL3-Header
 set(Glad-GLES3-Header
 	${REF_SRC_DIR}/gl3/glad-gles3/include/glad/glad.h
 	${REF_SRC_DIR}/gl3/glad-gles3/include/KHR/khrplatform.h
+	)
+
+set(GL4-Source
+	${REF_SRC_DIR}/gl4/gl4_draw.c
+	${REF_SRC_DIR}/gl4/gl4_image.c
+	${REF_SRC_DIR}/gl4/gl4_light.c
+	${REF_SRC_DIR}/gl4/gl4_lightmap.c
+	${REF_SRC_DIR}/gl4/gl4_main.c
+	${REF_SRC_DIR}/gl4/gl4_mesh.c
+	${REF_SRC_DIR}/gl4/gl4_misc.c
+	${REF_SRC_DIR}/gl4/gl4_model.c
+	${REF_SRC_DIR}/gl4/gl4_sdl.c
+	${REF_SRC_DIR}/gl4/gl4_surf.c
+	${REF_SRC_DIR}/gl4/gl4_warp.c
+	${REF_SRC_DIR}/gl4/gl4_shaders.c
+	${REF_SRC_DIR}/files/glshaders.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
+	${REF_SRC_DIR}/files/models.c
+	${REF_SRC_DIR}/files/stb.c
+	${REF_SRC_DIR}/files/surf.c
+	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
+	${COMMON_SRC_DIR}/shared/utils.c
+	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/md4.c
+	)
+
+set(Glad-GL4-Source ${REF_SRC_DIR}/gl4/glad/src/glad.c)
+
+set(GL4-Header
+	${REF_SRC_DIR}/ref_shared.h
+	${REF_SRC_DIR}/constants/anormtab.h
+	${REF_SRC_DIR}/constants/warpsin.h
+	${REF_SRC_DIR}/files/stb_image.h
+	${REF_SRC_DIR}/files/DG_dynarr.h
+	${REF_SRC_DIR}/files/HandmadeMath.h
+	${REF_SRC_DIR}/gl4/header/local.h
+	${REF_SRC_DIR}/gl4/header/model.h
+	${COMMON_SRC_DIR}/header/shared.h
+	)
+
+set(Glad-GL4-Header
+	${REF_SRC_DIR}/gl4/glad/include/glad/glad.h
+	${REF_SRC_DIR}/gl4/glad/include/KHR/khrplatform.h
 	)
 
 set(SOFT-Source
@@ -696,13 +827,18 @@ set(SOFT-Source
 	${REF_SRC_DIR}/soft/sw_scan.c
 	${REF_SRC_DIR}/soft/sw_sprite.c
 	${REF_SRC_DIR}/soft/sw_surf.c
+	${REF_SRC_DIR}/soft/sw_warp.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
-	${REF_SRC_DIR}/files/pcx.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
-	${REF_SRC_DIR}/files/pvs.c
+	${REF_SRC_DIR}/files/warp.c
+	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -712,6 +848,54 @@ set(SOFT-Header
 	${REF_SRC_DIR}/files/stb_image_resize.h
 	${REF_SRC_DIR}/soft/header/local.h
 	${REF_SRC_DIR}/soft/header/model.h
+	${COMMON_SRC_DIR}/header/shared.h
+	)
+
+set(VK-Source
+	${REF_SRC_DIR}/vk/vk_buffer.c
+	${REF_SRC_DIR}/vk/vk_cmd.c
+	${REF_SRC_DIR}/vk/vk_common.c
+	${REF_SRC_DIR}/vk/vk_device.c
+	${REF_SRC_DIR}/vk/vk_draw.c
+	${REF_SRC_DIR}/vk/vk_image.c
+	${REF_SRC_DIR}/vk/vk_light.c
+	${REF_SRC_DIR}/vk/vk_lightmap.c
+	${REF_SRC_DIR}/vk/vk_main.c
+	${REF_SRC_DIR}/vk/vk_mesh.c
+	${REF_SRC_DIR}/vk/vk_misc.c
+	${REF_SRC_DIR}/vk/vk_model.c
+	${REF_SRC_DIR}/vk/vk_pipeline.c
+	${REF_SRC_DIR}/vk/vk_shaders.c
+	${REF_SRC_DIR}/vk/vk_surf.c
+	${REF_SRC_DIR}/vk/vk_swapchain.c
+	${REF_SRC_DIR}/vk/vk_util.c
+	${REF_SRC_DIR}/vk/vk_validation.c
+	${REF_SRC_DIR}/vk/vk_warp.c
+	${REF_SRC_DIR}/vk/volk/volk.c
+	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/maps.c
+	${REF_SRC_DIR}/files/mesh.c
+	${REF_SRC_DIR}/files/models.c
+	${REF_SRC_DIR}/files/stb.c
+	${REF_SRC_DIR}/files/surf.c
+	${REF_SRC_DIR}/files/wal.c
+	${REF_SRC_DIR}/files/warp.c
+	${COMMON_SRC_DIR}/shared/utils.c
+	${COMMON_SRC_DIR}/shared/shared.c
+	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/md4.c
+	)
+
+set(VK-Header
+	${REF_SRC_DIR}/ref_shared.h
+	${REF_SRC_DIR}/files/stb_image.h
+	${REF_SRC_DIR}/files/stb_image_resize.h
+	${REF_SRC_DIR}/vk/header/local.h
+	${REF_SRC_DIR}/vk/header/model.h
+	${REF_SRC_DIR}/vk/header/qvk.h
+	${REF_SRC_DIR}/vk/header/shaders.h
+	${REF_SRC_DIR}/vk/header/util.h
+	${REF_SRC_DIR}/vk/volk/volk.h
 	${COMMON_SRC_DIR}/header/shared.h
 	)
 
@@ -824,6 +1008,24 @@ endif()
 
 endif()
 
+if(${GL4_RENDERER})
+
+# Build the GL4 dynamic library
+add_library(ref_gl4 MODULE ${GL4-Source} ${Glad-GL4-Source} ${GL4-Header} ${Glad-GL4-Header} ${REF-Platform-Specific-Source})
+set_target_properties(ref_gl4 PROPERTIES
+		PREFIX ""
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX}
+		)
+target_include_directories(ref_gl4 PRIVATE ${CMAKE_SOURCE_DIR}/src/client/refresh/gl4/glad/include)
+target_link_libraries(ref_gl4 ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
+if(SDL3_SUPPORT)
+	target_link_libraries(ref_gl4 SDL3::SDL3)
+endif()
+
+endif()
+
 if(${GLES3_RENDERER})
 
 # Build the GLES3 dynamic library
@@ -857,6 +1059,23 @@ set_target_properties(ref_soft PROPERTIES
 target_link_libraries(ref_soft ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
 if(SDL3_SUPPORT)
 	target_link_libraries(ref_soft SDL3::SDL3)
+endif()
+
+endif()
+
+if(${VK_RENDERER})
+
+# Build the vk renderer dynamic library
+add_library(ref_vk MODULE ${VK-Source} ${VK-Header} ${REF-Platform-Specific-Source})
+set_target_properties(ref_vk PROPERTIES
+		PREFIX ""
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+		SUFFIX ${CMAKE_SHARED_LIBRARY_SUFFIX}
+		)
+target_link_libraries(ref_vk ${yquake2LinkerFlags} ${yquake2SDLLinkerFlags})
+if(SDL3_SUPPORT)
+	target_link_libraries(ref_vk SDL3::SDL3)
 endif()
 
 endif()

@@ -30,6 +30,13 @@
 #include "header/client.h"
 #include "input/header/input.h"
 
+#ifdef AVMEDIADECODE
+#include "cinema/avdecode.h"
+#endif
+
+#define PL_MPEG_IMPLEMENTATION
+#include "cinema/pl_mpeg.h"
+
 extern cvar_t *vid_renderer;
 
 cvar_t *cin_force43;
@@ -41,6 +48,13 @@ typedef struct
 	int count;
 } cblock_t;
 
+typedef enum
+{
+	video_cin,
+	video_av,
+	video_mpg
+} cinema_t;
+
 typedef struct
 {
 	qboolean restart_sound;
@@ -50,10 +64,13 @@ typedef struct
 
 	int width;
 	int height;
+	float fps;
 	int color_bits;
+	cinema_t video_type;
 	byte *pic;
 	byte *pic_pending;
 
+	/* cin video */
 	/* order 1 huffman stuff */
 	int *hnodes1;
 
@@ -62,6 +79,19 @@ typedef struct
 
 	int h_used[512];
 	int h_count[512];
+
+	/* shared video buffer */
+	void *raw_video;
+	byte *audio_buf;
+	size_t audio_pos;
+
+	/* mpg video */
+	plm_t *plm_video;
+
+#ifdef AVMEDIADECODE
+	/* ffmpeg avideo */
+	cinavdecode_t *av_video;
+#endif
 } cinematics_t;
 
 cinematics_t cin;
@@ -70,6 +100,32 @@ void
 SCR_StopCinematic(void)
 {
 	cl.cinematictime = 0; /* done */
+
+#ifdef AVMEDIADECODE
+	if (cin.av_video)
+	{
+		cinavdecode_close(cin.av_video);
+		cin.av_video = NULL;
+	}
+#endif
+
+	if (cin.plm_video)
+	{
+		plm_destroy(cin.plm_video);
+		cin.plm_video = NULL;
+	}
+
+	if (cin.audio_buf)
+	{
+		Z_Free(cin.audio_buf);
+		cin.audio_buf = NULL;
+	}
+
+	if (cin.raw_video)
+	{
+		FS_FreeFile(cin.raw_video);
+		cin.raw_video = NULL;
+	}
 
 	if (cin.pic)
 	{
@@ -272,7 +328,80 @@ Huff1Decompress(cblock_t in)
 	return out;
 }
 
-byte *
+static byte *
+SCR_ReadNextMPGFrame(void)
+{
+	size_t count, i;
+	byte *buffer;
+	plm_frame_t *frame;
+
+	if (plm_has_ended(cin.plm_video))
+	{
+		return NULL;
+	}
+
+	count = cin.height * cin.width * cin.color_bits / 8;
+	buffer = Z_Malloc(count);
+	frame = plm_decode_video(cin.plm_video);
+	if (!frame)
+	{
+		Z_Free(buffer);
+		return NULL;
+	}
+	plm_frame_to_rgba(frame, buffer, frame->width * 4);
+
+	/* force untransparent image show */
+	for (i=0; i < count; i += 4)
+	{
+		buffer[i + 3] = 255;
+	}
+
+	if (cin.s_channels > 0)
+	{
+		/* Fix here if audio not in sync */
+		count = cin.s_rate * cin.s_channels * cin.s_width / cin.fps;
+		/* round up to channels and width */
+		count = (count + (cin.s_channels * cin.s_width) - 1) & (~(cin.s_channels * cin.s_width) - 1);
+		/* load enough sound data for single frame*/
+		while (cin.audio_pos < count && cin.s_channels > 0)
+		{
+			plm_samples_t *samples;
+			short *audiobuffer;
+
+			samples = plm_decode_audio(cin.plm_video);
+			if (!samples || samples->count <= 0)
+			{
+				break;
+			}
+
+			audiobuffer = (short *)(cin.audio_buf + cin.audio_pos);
+			for (i=0; i < samples->count * cin.s_channels; i++)
+			{
+				audiobuffer[i] = samples->interleaved[i] * (1 << 15);
+			}
+
+			cin.audio_pos += samples->count * cin.s_channels * cin.s_width;
+		}
+
+		if (count > cin.audio_pos)
+		{
+			count = cin.audio_pos;
+		}
+
+		S_RawSamples(count / (cin.s_width * cin.s_channels), cin.s_rate, cin.s_width, cin.s_channels,
+			cin.audio_buf, Cvar_VariableValue("s_volume"));
+
+		/* cleanup already played buffer part */
+		memmove(cin.audio_buf, cin.audio_buf + count, cin.audio_pos - count);
+		cin.audio_pos -= count;
+	}
+
+	cl.cinematicframe++;
+
+	return buffer;
+}
+
+static byte *
 SCR_ReadNextFrame(void)
 {
 	int r;
@@ -329,8 +458,8 @@ SCR_ReadNextFrame(void)
 	FS_Read(compressed, size, cl.cinematic_file);
 
 	/* read sound */
-	start = cl.cinematicframe * cin.s_rate / 14;
-	end = (cl.cinematicframe + 1) * cin.s_rate / 14;
+	start = cl.cinematicframe * cin.s_rate / (int)cin.fps;
+	end = (cl.cinematicframe + 1) * cin.s_rate / (int)cin.fps;
 	count = end - start;
 
 	FS_Read(samples, count * cin.s_width * cin.s_channels,
@@ -359,6 +488,76 @@ SCR_ReadNextFrame(void)
 	return pic;
 }
 
+
+#ifdef AVMEDIADECODE
+
+static byte *
+SCR_ReadNextAVFrame(void)
+{
+	size_t count;
+	byte *buffer;
+
+	count = cin.height * cin.width * cin.color_bits / 8;
+	buffer = Z_Malloc(count);
+	if (cinavdecode_next_frame(cin.av_video, buffer, cin.audio_buf) < 0)
+	{
+		Z_Free(buffer);
+		return NULL;
+	}
+
+	Com_DPrintf("Audio %.2f (%.2f): Video %.2f (%.2f)\n",
+		(float)(cin.av_video->audio_pos - cin.av_video->audio_curr) /
+			cin.av_video->audio_frame_size,
+		cin.av_video->audio_timestamp,
+		(float)(cin.av_video->video_pos - cin.av_video->video_curr) /
+			cin.av_video->video_frame_size,
+		cin.av_video->video_timestamp);
+
+	if (cin.s_channels > 0)
+	{
+		S_RawSamples(cin.av_video->audio_frame_size / (cin.s_width * cin.s_channels),
+			cin.s_rate, cin.s_width, cin.s_channels,
+			cin.audio_buf, Cvar_VariableValue("s_volume"));
+	}
+
+	cl.cinematicframe++;
+
+	return buffer;
+}
+
+static qboolean
+SCR_LoadAVcodec(const char *arg, const char *dot)
+{
+	const char *path = NULL;
+	char name[MAX_OSPATH];
+
+	while (1)
+	{
+		path = FS_NextPath(path);
+
+		if (!path)
+		{
+			break;
+		}
+
+		Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg, dot);
+		cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
+		if (cin.av_video)
+		{
+			break;
+		}
+	}
+
+	if (!cin.av_video)
+	{
+		/* Can't open file */
+		return false;
+	}
+
+	return true;
+}
+#endif
+
 void
 SCR_RunCinematic(void)
 {
@@ -378,11 +577,11 @@ SCR_RunCinematic(void)
 	if (cls.key_dest != key_game)
 	{
 		/* pause if menu or console is up */
-		cl.cinematictime = cls.realtime - cl.cinematicframe * 1000 / 14;
+		cl.cinematictime = cls.realtime - cl.cinematicframe * 1000 / cin.fps;
 		return;
 	}
 
-	frame = (cls.realtime - cl.cinematictime) * 14.0 / 1000;
+	frame = (cls.realtime - cl.cinematictime) * cin.fps / 1000;
 
 	if (frame <= cl.cinematicframe)
 	{
@@ -392,7 +591,7 @@ SCR_RunCinematic(void)
 	if (frame > cl.cinematicframe + 1)
 	{
 		Com_Printf("Dropped frame: %i > %i\n", frame, cl.cinematicframe + 1);
-		cl.cinematictime = cls.realtime - cl.cinematicframe * 1000 / 14;
+		cl.cinematictime = cls.realtime - cl.cinematicframe * 1000 / cin.fps;
 	}
 
 	if (cin.pic)
@@ -402,7 +601,23 @@ SCR_RunCinematic(void)
 
 	cin.pic = cin.pic_pending;
 	cin.pic_pending = NULL;
-	cin.pic_pending = SCR_ReadNextFrame();
+	switch (cin.video_type)
+	{
+		case video_cin:
+			cin.pic_pending = SCR_ReadNextFrame();
+			break;
+		case video_mpg:
+			cin.pic_pending = SCR_ReadNextMPGFrame();
+			break;
+#ifdef AVMEDIADECODE
+		case video_av:
+			cin.pic_pending = SCR_ReadNextAVFrame();
+			break;
+#endif
+		default:
+			/* should be never called */
+			Com_Error(ERR_DROP, "Incorrect media data.");
+	}
 
 	if (!cin.pic_pending)
 	{
@@ -586,6 +801,7 @@ SCR_PlayCinematic(char *arg)
 
 	/* static pcx image */
 	if (dot && (!strcmp(dot, ".pcx") ||
+				!strcmp(dot, ".lmp") ||
 				!strcmp(dot, ".tga") ||
 				!strcmp(dot, ".jpg") ||
 				!strcmp(dot, ".png")))
@@ -642,9 +858,138 @@ SCR_PlayCinematic(char *arg)
 			memcpy(cl.cinematicpalette, palette, sizeof(cl.cinematicpalette));
 			Z_Free(palette);
 		}
+		else if (cin.color_bits == 8)
+		{
+			int i;
+
+			/* palette r:2bit, g:3bit, b:3bit */
+			for (i = 0; i < sizeof(cl.cinematicpalette) / 3; i++)
+			{
+				cl.cinematicpalette[i * 3 + 0] = ((i >> 0) & 0x3) << 6;
+				cl.cinematicpalette[i * 3 + 1] = ((i >> 2) & 0x7) << 5;
+				cl.cinematicpalette[i * 3 + 2] = ((i >> 5) & 0x7) << 5;
+			}
+		}
 
 		return;
 	}
+
+#ifdef AVMEDIADECODE
+	if (dot && (!strcmp(dot, ".cin") ||
+				!strcmp(dot, ".ogv") ||
+				!strcmp(dot, ".avi") ||
+				!strcmp(dot, ".mpg") ||
+				!strcmp(dot, ".smk") ||
+				!strcmp(dot, ".roq")))
+	{
+		char namewe[256];
+
+		/* Remove the extension */
+		memset(namewe, 0, 256);
+		memcpy(namewe, arg, strlen(arg) - strlen(dot));
+
+		if (SCR_LoadAVcodec(namewe, ".ogv") ||
+			SCR_LoadAVcodec(namewe, ".roq") ||
+			SCR_LoadAVcodec(namewe, ".mpg") ||
+			SCR_LoadAVcodec(namewe, ".avi") ||
+			SCR_LoadAVcodec(namewe, dot))
+		{
+			SCR_EndLoadingPlaque();
+
+			cin.color_bits = 32;
+			cls.state = ca_active;
+
+			cin.s_rate = cin.av_video->rate;
+			cin.s_width = 2;
+			cin.s_channels = cin.av_video->channels;
+			cin.audio_buf = Z_Malloc(cin.av_video->audio_frame_size);
+
+			cin.width = cin.av_video->width;
+			cin.height = cin.av_video->height;
+			cin.fps = cin.av_video->fps;
+
+			cl.cinematicframe = 0;
+			cin.pic = SCR_ReadNextAVFrame();
+			cl.cinematictime = Sys_Milliseconds();
+
+			cin.video_type = video_av;
+			return;
+		}
+		else
+		{
+			cin.av_video = NULL;
+			cl.cinematictime = 0; /* done */
+		}
+	}
+
+#else
+
+	/* buildin decoders */
+	if (dot && !strcmp(dot, ".mpg"))
+	{
+		int len;
+
+		Com_sprintf(name, sizeof(name), "video/%s", arg);
+
+		len = FS_LoadFile(name, &cin.raw_video);
+		if (!cin.raw_video || len <= 0)
+		{
+			cl.cinematictime = 0; /* done */
+			return;
+		}
+
+		cin.plm_video = plm_create_with_memory(cin.raw_video, len, 0);
+		if (!cin.plm_video ||
+			!plm_probe(cin.plm_video, len) ||
+			!cin.plm_video->demux)
+		{
+			FS_FreeFile(cin.raw_video);
+			cin.raw_video = NULL;
+			cl.cinematictime = 0; /* done */
+			return;
+		}
+
+		SCR_EndLoadingPlaque();
+
+		cin.color_bits = 32;
+		cls.state = ca_active;
+
+		plm_set_loop(cin.plm_video, 0);
+		plm_set_audio_enabled(cin.plm_video, 1);
+		plm_set_audio_stream(cin.plm_video, 0);
+
+		cin.fps = plm_get_framerate(cin.plm_video);
+		cin.width = plm_get_width(cin.plm_video);
+		cin.height = plm_get_height(cin.plm_video);
+
+		if (plm_get_num_audio_streams(cin.plm_video) == 0)
+		{
+			/* No Sound */
+			cin.s_channels = 0;
+		}
+		else
+		{
+			cin.s_rate = plm_get_samplerate(cin.plm_video);
+			/* set to default 2 bytes with 2 channels */
+			cin.s_width = 2;
+			cin.s_channels = 2;
+
+			/* Adjust the audio lead time according to the audio_spec buffer size */
+			plm_set_audio_lead_time(cin.plm_video, 1.0f / cin.fps);
+
+			/* Allocate audio buffer for 2 frames */
+			cin.audio_buf = Z_Malloc(cin.s_channels * cin.s_width * cin.s_rate * 2 / cin.fps);
+			cin.audio_pos = 0;
+		}
+
+		cl.cinematicframe = 0;
+		cin.pic = SCR_ReadNextMPGFrame();
+		cl.cinematictime = Sys_Milliseconds();
+
+		cin.video_type = video_mpg;
+		return;
+	}
+#endif
 
 	Com_sprintf(name, sizeof(name), "video/%s", arg);
 	FS_FOpenFile(name, &cl.cinematic_file, false);
@@ -665,6 +1010,7 @@ SCR_PlayCinematic(char *arg)
 	FS_Read(&height, 4, cl.cinematic_file);
 	cin.width = LittleLong(width);
 	cin.height = LittleLong(height);
+	cin.fps = 14.0f;
 
 	FS_Read(&cin.s_rate, 4, cl.cinematic_file);
 	cin.s_rate = LittleLong(cin.s_rate);
@@ -678,4 +1024,6 @@ SCR_PlayCinematic(char *arg)
 	cl.cinematicframe = 0;
 	cin.pic = SCR_ReadNextFrame();
 	cl.cinematictime = Sys_Milliseconds();
+
+	cin.video_type = video_cin;
 }

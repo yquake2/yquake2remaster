@@ -69,7 +69,8 @@ compress_for_stbiw(unsigned char *data, int data_len, int *out_len, int quality)
  * RGB or RGBA. The pixels must be given row-wise, stating at the top
  * left.
  */
-void VID_WriteScreenshot(int width, int height, int comp, const void* data)
+static void
+VID_WriteScreenshot(int width, int height, int comp, const void* data)
 {
 	char picname[80];
 	char checkname[MAX_OSPATH];
@@ -439,12 +440,17 @@ VID_LoadRenderer(void)
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_Gamedir = FS_Gamedir;
 	ri.FS_LoadFile = FS_LoadFile;
+	ri.FS_AllocFile = Z_Malloc;
+	ri.Mod_LoadFile = Mod_LoadFile;
 	ri.GLimp_InitGraphics = GLimp_InitGraphics;
 	ri.GLimp_GetDesktopMode = GLimp_GetDesktopMode;
 	ri.Sys_Error = Com_Error;
 	ri.Vid_GetModeInfo = VID_GetModeInfo;
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_WriteScreenshot = VID_WriteScreenshot;
+	ri.VID_ImageDecode = SCR_LoadImageWithPalette;
+	ri.VID_GetPalette = VID_GetPalette;
+	ri.VID_GetPalette24to8 = VID_GetPalette24to8;
 	ri.Vid_RequestRestart = VID_RequestRestart;
 
 	// Exchange our export struct with the renderers import struct.
@@ -603,6 +609,8 @@ VID_Init(void)
 		Com_Error(ERR_FATAL, "Couldn't initialize the graphics subsystem!\n");
 	}
 
+	VID_ImageInit();
+
 	// Load the renderer and get things going.
 	VID_CheckChanges();
 }
@@ -614,6 +622,9 @@ void
 VID_Shutdown(void)
 {
 	VID_ShutdownRenderer();
+
+	VID_ImageDestroy();
+
 	GLimp_Shutdown();
 }
 
@@ -623,7 +634,7 @@ VID_Shutdown(void)
 // =========================================================
 
 void
-R_BeginRegistration(char *map)
+R_BeginRegistration(const char *map)
 {
 	if (ref_active)
 	{
@@ -632,7 +643,7 @@ R_BeginRegistration(char *map)
 }
 
 struct model_s*
-R_RegisterModel(char *name)
+R_RegisterModel(const char *name)
 {
 	if (ref_active)
 	{
@@ -654,11 +665,11 @@ R_RegisterSkin(const char *name)
 }
 
 void
-R_SetSky(const char *name, float rotate, vec3_t axis)
+R_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 {
 	if (ref_active)
 	{
-		re.SetSky(name, rotate, axis);
+		re.SetSky(name, rotate, autorotate, axis);
 	}
 }
 
@@ -715,7 +726,16 @@ Draw_PicScaled(int x, int y, const char *pic, float factor)
 {
 	if (ref_active)
 	{
-		re.DrawPicScaled(x, y, pic, factor);
+		re.DrawPicScaled(x, y, pic, factor, NULL);
+	}
+}
+
+void
+Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *alttext)
+{
+	if (ref_active)
+	{
+		re.DrawPicScaled(x, y, pic, factor, alttext);
 	}
 }
 
@@ -725,6 +745,15 @@ Draw_CharScaled(int x, int y, int num, float scale)
 	if (ref_active)
 	{
 		re.DrawCharScaled(x, y, num, scale);
+	}
+}
+
+void
+Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	if (ref_active)
+	{
+		re.DrawStringScaled(x, y, scale, alt, message);
 	}
 }
 

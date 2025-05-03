@@ -53,7 +53,7 @@ qboolean menubound[K_LAST]; /* if true, can't be rebound while in menu */
 int key_repeats[K_LAST]; /* if > 1, it is autorepeating */
 qboolean keydown[K_LAST];
 
-qboolean Cmd_IsComplete(char *cmd);
+qboolean Cmd_IsComplete(const char *cmd);
 
 typedef struct
 {
@@ -357,8 +357,7 @@ static char *gpbtns_triggers[] =
 static void
 CompleteCommand(void)
 {
-	char *cmd;
-	char *s;
+	const char *cmd, *s;
 
 	s = key_lines[edit_line];
 
@@ -389,7 +388,7 @@ CompleteCommand(void)
 static void
 CompleteMapNameCommand(void)
 {
-	char *s, *cmdArg;
+	const char *s, *cmdArg;
 	const char *mapCmdString = "map ";
 
 	s = key_lines[edit_line];

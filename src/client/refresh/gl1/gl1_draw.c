@@ -25,24 +25,38 @@
  */
 
 #include "header/local.h"
+#include "../files/stb_truetype.h"
 
-image_t *draw_chars;
+static float gl_font_size = 8.0;
+static int gl_font_height = 128;
+image_t *draw_chars = NULL;
+static image_t *draw_font = NULL;
+static image_t *draw_font_alt = NULL;
+static stbtt_bakedchar *draw_fontcodes = NULL;
 
 extern qboolean scrap_dirty;
 void Scrap_Upload(void);
 
 extern unsigned r_rawpalette[256];
 
+void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
+	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
+	struct image_s **draw_font, struct image_s **draw_font_alt,
+	loadimage_t R_LoadPic);
+
 void
 Draw_InitLocal(void)
 {
-	/* load console characters */
-	draw_chars = R_FindPic("conchars", (findimage_t)R_FindImage);
-	if (!draw_chars)
-	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/conchars.pcx",
-			__func__);
-	}
+	R_LoadTTFFont(r_ttffont->string, vid.height, &gl_font_size, &gl_font_height,
+		&draw_fontcodes, &draw_font, &draw_font_alt, R_LoadPic);
+
+	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
+}
+
+void
+RDraw_FreeLocal(void)
+{
+	free(draw_fontcodes);
 }
 
 /*
@@ -75,12 +89,70 @@ RDraw_CharScaled(int x, int y, int num, float scale)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	scaledSize = 8*scale;
+	scaledSize = 8 * scale;
 
 	R_UpdateGLBuffer(buf_2d, draw_chars->texnum, 0, 0, 1);
 
 	R_Buffer2DQuad(x, y, x + scaledSize, y + scaledSize,
 		fcol, frow, fcol + size, frow + size);
+}
+
+void
+RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	while (*message)
+	{
+		unsigned value = R_NextUTF8Code(&message);
+
+		if (draw_fontcodes && (draw_font || draw_font_alt))
+		{
+			float font_scale;
+
+			font_scale = gl_font_size / 8.0;
+
+			if (value >= 32 && value < MAX_FONTCODE)
+			{
+				float xf = 0, yf = 0, xdiff;
+				stbtt_aligned_quad q;
+
+				stbtt_GetBakedQuad(draw_fontcodes, gl_font_height, gl_font_height,
+					value - 32, &xf, &yf, &q, 1);
+
+				xdiff = (8 - xf / font_scale) / 2;
+				if (xdiff < 0)
+				{
+					xdiff = 0;
+				}
+
+				R_UpdateGLBuffer(buf_2d, alt ? draw_font_alt->texnum : draw_font->texnum, 0, 0, 1);
+
+				R_Buffer2DQuad(
+					(float)(x + (xdiff + q.x0 / font_scale) * scale),
+					(float)(y + q.y0 * scale / font_scale + 8 * scale),
+					x + (xdiff + q.x1 / font_scale) * scale,
+					y + q.y1 * scale / font_scale + 8 * scale,
+					q.s0, q.t0, q.s1, q.t1);
+				x += Q_max(8, xf / font_scale) * scale;
+			}
+			else
+			{
+				x += 8 * scale;
+			}
+		}
+		else
+		{
+			int xor;
+
+			xor = alt ? 0x80 : 0;
+
+			if (value > ' ' && value < 128)
+			{
+				RDraw_CharScaled(x, y, value ^ xor, scale);
+			}
+
+			x += 8 * scale;
+		}
+	}
 }
 
 image_t *
@@ -92,7 +164,7 @@ RDraw_FindPic(const char *name)
 void
 RDraw_GetPicSize(int *w, int *h, const char *pic)
 {
-	image_t *gl;
+	const image_t *gl;
 
 	gl = R_FindPic(pic, (findimage_t)R_FindImage);
 
@@ -152,7 +224,7 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 }
 
 void
-RDraw_PicScaled(int x, int y, const char *pic, float factor)
+RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext)
 {
 	image_t *gl;
 
@@ -160,6 +232,13 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor)
 
 	if (!gl)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			RDraw_StringScaled(x, y, factor, false, alttext);
+			return;
+		}
+
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", pic);
 		return;
 	}
@@ -212,7 +291,7 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor)
 void
 RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 {
-	image_t *image;
+	const image_t *image;
 
 	image = R_FindPic(pic, (findimage_t)R_FindImage);
 
@@ -242,7 +321,7 @@ RDraw_Fill(int x, int y, int w, int h, int c)
 
 	if ((unsigned)c > 255)
 	{
-		ri.Sys_Error(ERR_FATAL, "Draw_Fill: bad color");
+		Com_Error(ERR_FATAL, "Draw_Fill: bad color");
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -357,8 +436,6 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 
 	if (!gl_config.palettedtexture || bits == 32)
 	{
-		unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
-
 		/* .. because now if non-power-of-2 textures are supported, we just load
 		 * the data into a texture in the original format, without skipping any
 		 * pixels to fit into a 256x256 texture.
@@ -372,6 +449,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		}
 		else if(gl_config.npottextures || rows <= 256)
 		{
+			unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
 			unsigned* img = image32;
 
 			if(cols*rows > 320*240)
@@ -403,11 +481,11 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		else
 		{
 			unsigned int image32[320*240];
-			unsigned *dest;
 
 			for (i = 0; i < trows; i++)
 			{
 				const byte *source;
+				unsigned *dest;
 
 				row = (int)(i * hscale);
 
@@ -436,10 +514,10 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	else
 	{
 		unsigned char image8[256 * 256];
-		unsigned char *dest;
 
 		for (i = 0; i < trows; i++)
 		{
+			unsigned char *dest;
 			const byte *source;
 
 			row = (int)(i * hscale);

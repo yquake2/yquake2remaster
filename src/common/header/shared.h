@@ -182,13 +182,14 @@ typedef unsigned char byte;
 
 /* per-level limits */
 #define MAX_CLIENTS 256             /* absolute limit */
-#define MAX_EDICTS 1024             /* must change protocol to increase more */
+#define MAX_EDICTS 2048             /* must change protocol to increase more */
 #define MAX_LIGHTSTYLES 256
-#define MAX_MODELS 256              /* these are sent over the net as bytes */
-#define MAX_SOUNDS 256              /* so they cannot be blindly increased */
+#define MAX_MODELS 512              /* these are sent over the net as bytes */
+#define MAX_SOUNDS 512              /* so they cannot be blindly increased */
 #define MAX_IMAGES 256
 #define MAX_ITEMS 256
 #define MAX_GENERAL (MAX_CLIENTS * 2)       /* general config strings */
+#define CUSTOM_PLAYER_MODEL (MAX_MODELS - 1)
 
 /* game print flags */
 #define PRINT_LOW 0                 /* pickup messages */
@@ -223,8 +224,11 @@ typedef enum
  * ==============================================================
  */
 
+/* Vectors */
 typedef float vec_t;
+typedef vec_t vec2_t[2];
 typedef vec_t vec3_t[3];
+typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
 
 typedef int fixed4_t;
@@ -258,33 +262,35 @@ extern vec3_t vec3_origin;
 #define VectorNegate(a, b) (b[0] = -a[0], b[1] = -a[1], b[2] = -a[2])
 #define VectorSet(v, x, y, z) (v[0] = (x), v[1] = (y), v[2] = (z))
 
-void VectorMA(vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
+void VectorMA(const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc);
 
 /* just in case you do't want to use the macros */
-vec_t _DotProduct(vec3_t v1, vec3_t v2);
-void _VectorSubtract(vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorAdd(vec3_t veca, vec3_t vecb, vec3_t out);
-void _VectorCopy(vec3_t in, vec3_t out);
+vec_t _DotProduct(const vec3_t v1, const vec3_t v2);
+void _VectorSubtract(const vec3_t veca, const vec3_t vecb, vec3_t out);
+void _VectorAdd(const vec3_t veca, const vec3_t vecb, vec3_t out);
+void _VectorCopy(const vec3_t in, vec3_t out);
 
 void ClearBounds(vec3_t mins, vec3_t maxs);
-void AddPointToBounds(vec3_t v, vec3_t mins, vec3_t maxs);
-int VectorCompare(vec3_t v1, vec3_t v2);
-vec_t VectorLength(vec3_t v);
-void CrossProduct(vec3_t v1, vec3_t v2, vec3_t cross);
+void AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs);
+int VectorCompare(const vec3_t v1, const vec3_t v2);
+vec_t VectorLength(const vec3_t v);
+void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross);
 vec_t VectorNormalize(vec3_t v); /* returns vector length */
-vec_t VectorNormalize2(vec3_t v, vec3_t out);
+vec_t VectorNormalize2(const vec3_t v, vec3_t out);
 void VectorInverse(vec3_t v);
-void VectorScale(vec3_t in, vec_t scale, vec3_t out);
+void VectorScale(const vec3_t in, vec_t scale, vec3_t out);
 int Q_log2(int val);
 
-void R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3]);
-void R_ConcatTransforms(float in1[3][4], float in2[3][4], float out[3][4]);
+void R_ConcatRotations(const float in1[3][3], const float in2[3][3], float out[3][3]);
+void R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[3][4]);
 
-void AngleVectors(vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
-void AngleVectors2(vec3_t value1, vec3_t angles);
-int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *plane);
+void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
+void AngleVectors2(const vec3_t value1, vec3_t angles);
+int BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
 float anglemod(float a);
-float LerpAngle(float a1, float a2, float frac);
+float Q_fabs(float f);
+float LerpAngle(float a2, float a1, float frac);
+int BoxOnPlaneSide2(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p);
 
 #define BOX_ON_PLANE_SIDE(emins, emaxs, p) \
 	(((p)->type < 3) ? \
@@ -311,19 +317,19 @@ void RotatePointAroundVector(vec3_t dst,
 
 /* ============================================= */
 
-char *COM_SkipPath(char *pathname);
-void COM_StripExtension(char *in, char *out);
+const char *COM_SkipPath(const char *pathname);
+void COM_StripExtension(const char *in, char *out);
 YQ2_ATTR_RETURNS_NONNULL const char *COM_FileExtension(const char *in);
-void COM_FileBase(char *in, char *out);
+void COM_FileBase(const char *in, char *out);
 void COM_FilePath(const char *in, char *out);
 void COM_DefaultExtension(char *path, const char *extension);
 
-char *COM_Parse(char **data_p);
+const char *COM_Parse(char **data_p);
 
 /* data is an in/out parm, returns a parsed out token */
-void Com_sprintf(char *dest, int size, char *fmt, ...);
+void Com_sprintf(char *dest, int size, const char *fmt, ...);
 
-void Com_PageInMemory(byte *buffer, int size);
+void Com_PageInMemory(const byte *buffer, int size);
 
 /* ============================================= */
 
@@ -347,6 +353,9 @@ void Q_strdel(char *s, size_t i, size_t n);
 /* Returns length of src on success, 0 if there is not enough space in dest for src */
 size_t Q_strins(char *dest, const char *src, size_t i, size_t n);
 qboolean Q_strisnum(const char *s);
+
+/* fix backslashes in path */
+void Q_replacebackslash(char *curr);
 
 /* ============================================= */
 
@@ -378,10 +387,10 @@ char *va(const char *format, ...)  PRINTF_ATTR(1, 2);
 #define MAX_INFO_VALUE 64
 #define MAX_INFO_STRING 512
 
-char *Info_ValueForKey(char *s, char *key);
-void Info_RemoveKey(char *s, char *key);
-void Info_SetValueForKey(char *s, char *key, char *value);
-qboolean Info_Validate(char *s);
+char *Info_ValueForKey(char *s, const char *key);
+void Info_RemoveKey(char *s, const char *key);
+void Info_SetValueForKey(char *s, const char *key, const char *value);
+qboolean Info_Validate(const char *s);
 
 /* ============================================= */
 
@@ -390,6 +399,9 @@ int randk(void);
 float frandk(void);
 float crandk(void);
 void randk_seed(void);
+
+/* Addition code utilities */
+qboolean Utils_FilenameFiltered(const char *name, const char *filter, char sepator);
 
 /*
  * ==============================================================
@@ -513,6 +525,15 @@ typedef struct cvar_s
 #define SURF_TRANS66 0x20
 #define SURF_FLOWING 0x40       /* scroll towards angle */
 #define SURF_NODRAW 0x80        /* don't bother referencing the texture */
+#define SURF_ALPHATEST 0x02000000 /* KMQUAKE2 Alpha test flag */
+#define SURF_N64_UV 0x10000000    /* ReRelease Stretches texture UVs. */
+#define SURF_N64_SCROLL_X 0x20000000 /* ReRelease Texture scroll X-axis. */
+#define SURF_N64_SCROLL_Y 0x40000000 /* ReRelease Texture scroll Y-axis. */
+#define SURF_N64_SCROLL_FLIP 0x80000000 /* ReRelease Flip direction of texture scroll. */
+/* Transparnet but not explicitly warp */
+#define SURF_TRANSPARENT (SURF_TRANS33 | SURF_TRANS66 | SURF_ALPHATEST)
+/* Different flowing settings */
+#define SURF_SCROLL (SURF_FLOWING | SURF_N64_SCROLL_X | SURF_N64_SCROLL_Y)
 
 /* content masks */
 #define MASK_ALL (-1)
@@ -570,7 +591,7 @@ typedef struct csurface_s
 {
 	char name[16];
 	int flags; /* SURF_* */
-	int value; /* unused */
+	char material[16]; /* Material properties */
 } csurface_t;
 
 typedef struct mapsurface_s  /* used internally due to name len probs */
@@ -683,6 +704,7 @@ typedef struct
  * it has a zero index model. */
 #define EF_ROTATE 0x00000001                /* rotate (bonus items) */
 #define EF_GIB 0x00000002                   /* leave a trail */
+#define EF_BOB 0x00000004                   /* ReRelease BoB effect */
 #define EF_BLASTER 0x00000008               /* redlight + trail */
 #define EF_ROCKET 0x00000010                /* redlight + trail */
 #define EF_GRENADE 0x00000020
@@ -712,6 +734,10 @@ typedef struct
 #define EF_TAGTRAIL 0x20000000
 #define EF_HALF_DAMAGE 0x40000000
 #define EF_TRACKERTRAIL 0x80000000
+
+/* entity_state_t->rr_effects
+ * ReRelease flags, values are diffeent to quake 2 RR code */
+#define EF_FLASHLIGHT 0x00000001         /* project flashlight, only for players */
 
 /* entity_state_t->renderfx flags */
 #define RF_MINLIGHT 1               /* allways have some light (viewmodel) */
@@ -1214,6 +1240,52 @@ typedef struct entity_state_s
 							/* events only go out for a single frame, they */
 							/* are automatically cleared each frame */
 } entity_state_t;
+
+/* ReRelease states */
+typedef struct entity_rrstate_s
+{
+	/* New protocol fields */
+	vec3_t scale; /* model scale */
+	unsigned int effects;
+	unsigned int mesh;
+} entity_rrstate_t;
+
+typedef struct entity_xstate_s
+{
+	/* keep it insync with entity_state_t */
+	int number;             /* edict index */
+
+	vec3_t origin;
+	vec3_t angles;
+	vec3_t old_origin;      /* for lerping */
+	int modelindex;
+	int modelindex2, modelindex3, modelindex4;      /* weapons, CTF flags, etc */
+	int frame;
+	int skinnum;
+	unsigned int effects;
+	int renderfx;
+	int solid;              /* for client side prediction, 8*(bits 0-4) is x/y radius */
+							/* 8*(bits 5-9) is z down distance, 8(bits10-15) is z up */
+							/* gi.linkentity sets this properly */
+	int sound;              /* for looping sounds, to guarantee shutoff */
+	int event;              /* impulse events -- muzzle flashes, footsteps, etc */
+							/* events only go out for a single frame, they */
+							/* are automatically cleared each frame */
+
+	/* New protocol fields, sync with entity_rrstate_t */
+	vec3_t scale; /* model scale */
+	unsigned int rr_effects;
+	unsigned int rr_mesh;
+} entity_xstate_t;
+
+typedef struct
+{
+	char name[16];  /* frame group name from grabbing */
+	int ofs;        /* first frame in group */
+	int num;        /* number of frames */
+	vec3_t mins;
+	vec3_t maxs;
+} dmdxframegroup_t;
 
 /* ============================================== */
 

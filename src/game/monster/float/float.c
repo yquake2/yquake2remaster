@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +36,13 @@ static int sound_pain1;
 static int sound_pain2;
 static int sound_sight;
 
+void floater_dead(edict_t *self);
+void floater_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+		int damage, vec3_t point);
+void floater_run(edict_t *self);
+void floater_wham(edict_t *self);
+void floater_zap(edict_t *self);
+
 void
 floater_sight(edict_t *self, edict_t *other /* unused */)
 {
@@ -57,13 +65,6 @@ floater_idle(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-void floater_dead(edict_t *self);
-void floater_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
-void floater_run(edict_t *self);
-void floater_wham(edict_t *self);
-void floater_zap(edict_t *self);
-
 void
 floater_fire_blaster(edict_t *self)
 {
@@ -73,7 +74,7 @@ floater_fire_blaster(edict_t *self)
 	vec3_t dir;
 	int effect;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -156,9 +157,9 @@ static mframe_t floater_frames_stand1[] = {
 mmove_t floater_move_stand1 =
 {
 	FRAME_stand101,
-   	FRAME_stand152,
-   	floater_frames_stand1,
-   	NULL
+	FRAME_stand152,
+	floater_frames_stand1,
+	NULL
 };
 
 static mframe_t floater_frames_stand2[] = {
@@ -304,7 +305,34 @@ mmove_t floater_move_attack1 =
 {
 	FRAME_attak101,
 	FRAME_attak114,
-   	floater_frames_attack1,
+	floater_frames_attack1,
+	floater_run
+};
+
+/* circle strafe frames */
+static mframe_t floater_frames_attack1a[] =
+{
+	{ai_charge, 10, NULL},			// Blaster attack
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, floater_fire_blaster},			// BOOM (0, -25.8, 32.5)	-- LOOP Starts
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, floater_fire_blaster},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL},
+	{ai_charge, 10, NULL}			//							-- LOOP Ends
+};
+
+mmove_t floater_move_attack1a =
+{
+	FRAME_attak101,
+	FRAME_attak114,
+	floater_frames_attack1a,
 	floater_run
 };
 
@@ -384,9 +412,10 @@ static mframe_t floater_frames_attack3[] = {
 mmove_t floater_move_attack3 =
 {
 	FRAME_attak301,
-   	FRAME_attak334,
-   	floater_frames_attack3,
-   	floater_run};
+	FRAME_attak334,
+	floater_frames_attack3,
+	floater_run
+};
 
 static mframe_t floater_frames_death[] = {
 	{ai_move, 0, NULL},
@@ -632,6 +661,11 @@ floater_wham(edict_t *self)
 {
 	static vec3_t aim = {MELEE_DISTANCE, 0, 0};
 
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_WEAPON, sound_attack3, 1, ATTN_NORM, 0);
 	fire_hit(self, aim, 5 + randk() % 6, -50);
 }
@@ -677,12 +711,41 @@ floater_zap(edict_t *self)
 void
 floater_attack(edict_t *self)
 {
+	float chance;
+
 	if (!self)
 	{
 		return;
 	}
 
-	self->monsterinfo.currentmove = &floater_move_attack1;
+	// 0% chance of circle in easy
+	// 50% chance in normal
+	// 75% chance in hard
+	// 86.67% chance in nightmare
+	if (skill->value == SKILL_EASY)
+	{
+		chance = 0;
+	}
+	else
+	{
+		chance = 1.0 - (0.5/(float)(skill->value));
+	}
+
+	if (random() > chance)
+	{
+		self->monsterinfo.attack_state = AS_STRAIGHT;
+		self->monsterinfo.currentmove = &floater_move_attack1;
+	}
+	else // circle strafe
+	{
+		if (random () <= 0.5) // switch directions
+		{
+			self->monsterinfo.lefty = 1 - self->monsterinfo.lefty;
+		}
+
+		self->monsterinfo.attack_state = AS_SLIDING;
+		self->monsterinfo.currentmove = &floater_move_attack1a;
+	}
 }
 
 void
@@ -705,7 +768,7 @@ floater_melee(edict_t *self)
 
 void
 floater_pain(edict_t *self, edict_t *other /* unused */,
-	   	float kick /* unused */, int damage)
+		float kick /* unused */, int damage)
 {
 	int n;
 
@@ -774,8 +837,18 @@ floater_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 	BecomeExplosion1(self);
 }
 
+qboolean
+floater_blocked(edict_t *self, float dist)
+{
+	return false;
+}
+
 /*
  * QUAKED monster_floater (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ */
+
+/*
+ * QUAKED monster_floaterv (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */
 void
 SP_monster_floater(edict_t *self)
@@ -805,11 +878,18 @@ SP_monster_floater(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/float/tris.md2");
+	if (!strcmp(self->classname, "monster_floaterv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/float/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/float/tris.md2");
+	}
 	VectorSet(self->mins, -24, -24, -24);
 	VectorSet(self->maxs, 24, 24, 32);
 
-	self->health = 200;
+	self->health = 200 * st.health_multiplier;
 	self->gib_health = -80;
 	self->mass = 300;
 

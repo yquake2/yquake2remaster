@@ -46,7 +46,7 @@ CL_CheckPredictionError(void)
 	frame &= (CMD_BACKUP - 1);
 
 	/* compare what the server returned with what we had predicted it to be */
-	VectorSubtract(cl.frame.playerstate.pmove.origin,
+	VectorSubtract(cl.frame.origin,
 			cl.predicted_origins[frame], delta);
 
 	/* save the prediction error for interpolation */
@@ -66,7 +66,7 @@ CL_CheckPredictionError(void)
 					delta[0] + delta[1] + delta[2]);
 		}
 
-		VectorCopy(cl.frame.playerstate.pmove.origin,
+		VectorCopy(cl.frame.origin,
 				cl.predicted_origins[frame]);
 
 		/* save for error itnerpolation */
@@ -81,17 +81,19 @@ void
 CL_ClipMoveToEntities(vec3_t start, vec3_t mins, vec3_t maxs,
 		vec3_t end, trace_t *tr)
 {
-	int i, x, zd, zu;
-	trace_t trace;
-	int headnode;
-	float *angles;
-	entity_state_t *ent;
-	int num;
-	cmodel_t *cmodel;
-	vec3_t bmins, bmaxs;
+	int i;
 
 	for (i = 0; i < cl.frame.num_entities; i++)
 	{
+		int x, zd, zu;
+		trace_t trace;
+		int headnode;
+		float *angles;
+		int num;
+		cmodel_t *cmodel;
+		vec3_t bmins, bmaxs;
+		entity_xstate_t *ent;
+
 		num = (cl.frame.parse_entities + i) & (MAX_PARSE_ENTITIES - 1);
 		ent = &cl_parse_entities[num];
 
@@ -184,15 +186,16 @@ int
 CL_PMpointcontents(vec3_t point)
 {
 	int i;
-	entity_state_t *ent;
-	int num;
-	cmodel_t *cmodel;
 	int contents;
 
 	contents = CM_PointContents(point, 0);
 
 	for (i = 0; i < cl.frame.num_entities; i++)
 	{
+		entity_xstate_t *ent;
+		int num;
+		cmodel_t *cmodel;
+
 		num = (cl.frame.parse_entities + i) & (MAX_PARSE_ENTITIES - 1);
 		ent = &cl_parse_entities[num];
 
@@ -221,8 +224,7 @@ CL_PMpointcontents(vec3_t point)
 void
 CL_PredictMovement(void)
 {
-	int ack, current;
-	int frame;
+	int ack, current, origin[3];
 	usercmd_t *cmd;
 	pmove_t pm;
 	int i;
@@ -273,9 +275,13 @@ CL_PredictMovement(void)
 	pm_airaccelerate = atof(cl.configstrings[CS_AIRACCEL]);
 	pm.s = cl.frame.playerstate.pmove;
 
+	VectorCopy(cl.frame.origin, origin);
+
 	/* run frames */
 	while (++ack <= current)
 	{
+		int frame;
+
 		frame = ack & (CMD_BACKUP - 1);
 		cmd = &cl.cmds[frame];
 
@@ -286,15 +292,15 @@ CL_PredictMovement(void)
 		}
 
 		pm.cmd = *cmd;
-		Pmove(&pm);
+		PmoveEx(&pm, origin);
 
 		/* save for debug checking */
-		VectorCopy(pm.s.origin, cl.predicted_origins[frame]);
+		VectorCopy(origin, cl.predicted_origins[frame]);
 	}
 
 	// step is used for movement prediction on stairs
 	// (so moving up/down stairs is smooth)
-	step = pm.s.origin[2] - (int)(cl.predicted_origin[2] * 8);
+	step = origin[2] - (int)(cl.predicted_origin[2] * 8);
 	VectorCopy(pm.s.velocity, tmp);
 
 	if (((step > 62 && step < 66) || (step > 94 && step < 98) || (step > 126 && step < 130))
@@ -306,9 +312,9 @@ CL_PredictMovement(void)
 	}
 
 	/* copy results out for rendering */
-	cl.predicted_origin[0] = pm.s.origin[0] * 0.125f;
-	cl.predicted_origin[1] = pm.s.origin[1] * 0.125f;
-	cl.predicted_origin[2] = pm.s.origin[2] * 0.125f;
+	cl.predicted_origin[0] = origin[0] * 0.125f;
+	cl.predicted_origin[1] = origin[1] * 0.125f;
+	cl.predicted_origin[2] = origin[2] * 0.125f;
 
 	VectorCopy(pm.viewangles, cl.predicted_angles);
 }

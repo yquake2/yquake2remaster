@@ -1,24 +1,25 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
-// sw_main.c
+#include <stdint.h>
 #include <limits.h>
 
 #ifdef USE_SDL3
@@ -46,7 +47,8 @@ pixel_t		*vid_alphamap = NULL;
 light_t		vid_lightthreshold = 0;
 static int	vid_minu, vid_minv, vid_maxu, vid_maxv;
 static int	vid_zminu, vid_zminv, vid_zmaxu, vid_zmaxv;
-static qboolean IsHighDPIaware;
+static qboolean IsHighDPIaware = false;
+static qboolean is_render_flushed = false;
 
 // last position  on map
 static vec3_t	lastvieworg;
@@ -58,8 +60,6 @@ refimport_t	ri;
 
 byte		d_8to24table[256 * 4];
 
-vec3_t		skyaxis;
-
 refdef_t	r_newrefdef;
 
 model_t		*r_worldmodel;
@@ -68,11 +68,10 @@ pixel_t		*r_warpbuffer;
 
 typedef struct swstate_s
 {
-	qboolean	fullscreen;
-	int		prev_mode; // last valid SW mode
+	int prev_mode; /* last valid SW mode */
 
-	unsigned char	gammatable[256];
-	unsigned char	currentpalette[1024];
+	unsigned char gammatable[256];
+	unsigned char currentpalette[1024];
 } swstate_t;
 
 static swstate_t sw_state;
@@ -177,7 +176,7 @@ static cvar_t	*vid_fullscreen;
 static cvar_t	*vid_gamma;
 
 static cvar_t	*r_lockpvs;
-static cvar_t	*r_palettedtexture;
+cvar_t	*r_palettedtexture;
 cvar_t	*r_cull;
 
 // sw_vars.c
@@ -216,12 +215,14 @@ int		cachewidth;
 pixel_t		*d_viewbuffer;
 zvalue_t	*d_pzbuffer;
 
-static void RE_BeginFrame( float camera_separation );
+static void RE_BeginFrame(float camera_separation);
 static void Draw_BuildGammaTable(void);
 static void RE_FlushFrame(int vmin, int vmax);
 static void RE_CleanFrame(void);
 static void RE_EndFrame(void);
 static void R_DrawBeam(const entity_t *e);
+static void RE_Draw_StretchDirectRaw(int x, int y, int w, int h,
+	int cols, int rows, const byte *data, int bits);
 
 /*
 ================
@@ -458,6 +459,7 @@ static qboolean
 RE_Init(void)
 {
 	R_RegisterVariables ();
+	R_VertBufferInit();
 	R_InitImages ();
 	Mod_Init ();
 	Draw_InitLocal ();
@@ -473,9 +475,6 @@ RE_Init(void)
 	r_refdef.yOrigin = YCENTERING;
 
 	r_aliasuvscale = 1.0;
-
-	GetPCXPalette (&vid_colormap, (unsigned *)d_8to24table);
-	vid_alphamap = vid_colormap + 64*256;
 
 	/* set our "safe" mode */
 	sw_state.prev_mode = 4;
@@ -527,19 +526,9 @@ RE_Shutdown (void)
 	R_UnRegister ();
 	Mod_FreeAll ();
 	R_ShutdownImages ();
+	R_VertBufferFree();
 
 	RE_ShutdownContext();
-}
-
-/*
-===============
-R_NewMap
-===============
-*/
-void
-R_NewMap (void)
-{
-	r_viewcluster = -1;
 }
 
 static surf_t	*lsurfs;
@@ -602,6 +591,7 @@ R_ReallocateMapBuffers (void)
 	if (!r_numallocatedlights || r_outoflights)
 	{
 		free(blocklights);
+		free(bblocklights);
 
 		if (r_outoflights)
 		{
@@ -613,6 +603,7 @@ R_ReallocateMapBuffers (void)
 			r_numallocatedlights = MAXLIGHTS;
 
 		blocklights = malloc (r_numallocatedlights * sizeof(light_t));
+		bblocklights = malloc (r_numallocatedlights);
 		if (!blocklights)
 		{
 			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
@@ -622,6 +613,7 @@ R_ReallocateMapBuffers (void)
 
 		// set limits
 		blocklight_max = &blocklights[r_numallocatedlights];
+		bblocklight_max = &bblocklights[r_numallocatedlights];
 
 		R_Printf(PRINT_ALL, "Allocated %d lights.\n", r_numallocatedlights);
 	}
@@ -698,8 +690,10 @@ R_ReallocateMapBuffers (void)
 		}
 
 		// one more for the terminator
-		if (r_numallocatedtriangles < vid.height+1)
-			r_numallocatedtriangles = vid.height+1;
+		if (r_numallocatedtriangles < vid.height + 1)
+		{
+			r_numallocatedtriangles = vid.height + 1;
+		}
 
 		triangle_spans  = malloc(r_numallocatedtriangles * sizeof(spanpackage_t));
 		if (!triangle_spans)
@@ -937,7 +931,7 @@ R_BmodelCheckBBox
 =============
 */
 static int
-R_BmodelCheckBBox (const float *minmaxs)
+R_BmodelCheckBBox(const float *minmaxs)
 {
 	int i, clipflags;
 
@@ -946,7 +940,7 @@ R_BmodelCheckBBox (const float *minmaxs)
 	for (i=0 ; i<4 ; i++)
 	{
 		vec3_t acceptpt, rejectpt;
-		int *pindex;
+		const int *pindex;
 		float d;
 
 		// generate accept and reject points
@@ -995,7 +989,7 @@ R_FindTopnode (vec3_t mins, vec3_t maxs)
 
 	while (1)
 	{
-		cplane_t *splitplane;
+		const cplane_t *splitplane;
 		int sides;
 
 		if (node->visframe != r_visframecount)
@@ -1140,7 +1134,7 @@ R_DrawBEntitiesOnList (void)
 		R_RotateBmodel(currententity);
 
 		// calculate dynamic lighting for bmodel
-		R_PushDlights (currentmodel);
+		RI_PushDlights (currentmodel);
 
 		if (topnode->contents == CONTENTS_NODE)
 		{
@@ -1275,19 +1269,44 @@ R_CalcPalette (void)
 //=======================================================================
 
 static void
-R_SetLightLevel (const entity_t *currententity)
+R_SetLightLevel(const entity_t *currententity)
 {
-	vec3_t		light;
+	vec3_t shadelight = {0};
 
-	if ((r_newrefdef.rdflags & RDF_NOWORLDMODEL) || (!r_drawentities->value) || (!currententity))
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
-		r_lightlevel->value = 150.0;
 		return;
 	}
 
-	// save off light value for server to look at (BIG HACK!)
-	R_LightPoint (currententity, r_newrefdef.vieworg, light);
-	r_lightlevel->value = 150.0 * light[0];
+	/* save off light value for server to look at */
+	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
+		shadelight, r_modulate->value, lightspot);
+
+	/* pick the greatest component, which should be the
+	 * same as the mono value returned by software */
+	if (shadelight[0] > shadelight[1])
+	{
+		if (shadelight[0] > shadelight[2])
+		{
+			r_lightlevel->value = 150 * shadelight[0];
+		}
+		else
+		{
+			r_lightlevel->value = 150 * shadelight[2];
+		}
+	}
+	else
+	{
+		if (shadelight[1] > shadelight[2])
+		{
+			r_lightlevel->value = 150 * shadelight[1];
+		}
+		else
+		{
+			r_lightlevel->value = 150 * shadelight[2];
+		}
+	}
 }
 
 static int
@@ -1318,7 +1337,7 @@ RE_RenderFrame (refdef_t *fd)
 
 	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: NULL worldmodel", __func__);
+		Com_Error(ERR_FATAL, "%s: NULL worldmodel", __func__);
 	}
 
 	// Need to rerender whole frame
@@ -1356,7 +1375,7 @@ RE_RenderFrame (refdef_t *fd)
 	R_MarkLeaves ();	// done here so we know if we're in water
 
 	// For each dlight_t* passed via r_newrefdef.dlights, mark polygons affected by a light.
-	R_PushDlights (r_worldmodel);
+	RI_PushDlights (r_worldmodel);
 
 	// TODO: rearrange code same as in GL*_DrawWorld?
 	/* auto cycle the world frame for texture animation */
@@ -1385,7 +1404,7 @@ RE_RenderFrame (refdef_t *fd)
 	}
 	// Draw enemies, barrel etc...
 	// Use Z-Buffer mostly in read mode only.
-	R_DrawEntitiesOnList ();
+	R_DrawEntitiesOnList();
 
 	if (r_dspeeds->value)
 	{
@@ -1394,19 +1413,23 @@ RE_RenderFrame (refdef_t *fd)
 	}
 
 	// Duh !
-	R_DrawParticles ();
+	R_DrawParticles();
 
 	if (r_dspeeds->value)
+	{
 		dp_time2 = SDL_GetTicks();
+	}
 
 	// Perform pixel palette blending ia the pics/colormap.pcx lower part lookup table.
 	R_DrawAlphaSurfaces(&ent);
 
 	// Save off light value for server to look at (BIG HACK!)
-	R_SetLightLevel (&ent);
+	R_SetLightLevel(&ent);
 
 	if (r_dowarp)
+	{
 		D_WarpScreen ();
+	}
 
 	if (r_dspeeds->value)
 	{
@@ -1418,13 +1441,19 @@ RE_RenderFrame (refdef_t *fd)
 	R_CalcPalette ();
 
 	if (sw_aliasstats->value)
-		R_PrintAliasStats ();
+	{
+		R_PrintAliasStats();
+	}
 
 	if (r_speeds->value)
-		R_PrintTimes ();
+	{
+		R_PrintTimes();
+	}
 
 	if (r_dspeeds->value)
+	{
 		R_PrintDSpeeds ();
+	}
 
 	R_ReallocateMapBuffers();
 }
@@ -1469,6 +1498,8 @@ RE_BeginFrame( float camera_separation )
 	palette_changed = false;
 	// run without speed optimization
 	fastmoving = false;
+	/* window could redraw */
+	is_render_flushed = false;
 
 	while (r_vsync->modified)
 	{
@@ -1716,43 +1747,6 @@ R_DrawBeam(const entity_t *e)
 //===================================================================
 
 /*
-============
-RE_SetSky
-============
-*/
-// 3dstudio environment map names
-static const char	*suf[6] = {"rt", "bk", "lf", "ft", "up", "dn"};
-static const int	r_skysideimage[6] = {5, 2, 4, 1, 0, 3};
-extern mtexinfo_t		r_skytexinfo[6];
-
-static void
-RE_SetSky (const char *name, float rotate, vec3_t axis)
-{
-	char	skyname[MAX_QPATH];
-	int		i;
-
-	Q_strlcpy (skyname, name, sizeof(skyname));
-	VectorCopy (axis, skyaxis);
-
-	for (i=0 ; i<6 ; i++)
-	{
-		image_t	*image;
-
-		image = (image_t *)GetSkyImage(skyname, suf[r_skysideimage[i]],
-			r_palettedtexture->value, (findimage_t)R_FindImage);
-
-		if (!image)
-		{
-			R_Printf(PRINT_ALL, "%s: can't load %s:%s sky\n",
-				__func__, skyname, suf[r_skysideimage[i]]);
-			image = r_notexture_mip;
-		}
-
-		r_skytexinfo[i].image = image;
-	}
-}
-
-/*
 ===============
 RE_RegisterSkin
 ===============
@@ -1841,11 +1835,12 @@ GetRefAPI(refimport_t imp)
 	refexport.DrawPicScaled = RE_Draw_PicScaled;
 	refexport.DrawStretchPic = RE_Draw_StretchPic;
 	refexport.DrawCharScaled = RE_Draw_CharScaled;
+	refexport.DrawStringScaled = RE_Draw_StringScaled;
 	refexport.DrawTileClear = RE_Draw_TileClear;
 	refexport.DrawFill = RE_Draw_Fill;
 	refexport.DrawFadeScreen = RE_Draw_FadeScreen;
 
-	refexport.DrawStretchRaw = RE_Draw_StretchRaw;
+	refexport.DrawStretchRaw = RE_Draw_StretchDirectRaw;
 
 	refexport.Init = RE_Init;
 	refexport.IsVSyncActive = RE_IsVsyncActive;
@@ -1860,9 +1855,9 @@ GetRefAPI(refimport_t imp)
 	refexport.EndWorldRenderpass = RE_EndWorldRenderpass;
 	refexport.EndFrame = RE_EndFrame;
 
-    // Tell the client that we're unsing the
+	// Tell the client that we're unsing the
 	// new renderer restart API.
-    ri.Vid_RequestRestart(RESTART_NO);
+	ri.Vid_RequestRestart(RESTART_NO);
 
 	Swap_Init ();
 
@@ -1885,6 +1880,7 @@ GetRefAPI(refimport_t imp)
 
 static SDL_Window	*window = NULL;
 static SDL_Texture	*texture = NULL;
+static SDL_Texture	*texture_rgba = NULL;
 static SDL_Renderer	*renderer = NULL;
 
 int vid_buffer_height = 0;
@@ -1897,7 +1893,7 @@ RE_InitContext(void *win)
 
 	if(win == NULL)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s() must not be called with NULL argument!", __func__);
+		Com_Error(ERR_FATAL, "%s() must not be called with NULL argument!", __func__);
 		return false;
 	}
 
@@ -1914,10 +1910,10 @@ RE_InitContext(void *win)
 		SDL_SetRenderVSync(renderer, 1);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-                if(!renderer)
-                {
-                	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
-                }
+		if(!renderer)
+		{
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
+		}
 #endif
 	}
 	else
@@ -1926,10 +1922,10 @@ RE_InitContext(void *win)
 		renderer = SDL_CreateRenderer(window, NULL);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-                if(!renderer)
-                {
-                	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-                }
+		if(!renderer)
+		{
+			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+		}
 #endif
 	}
 	if(!renderer) {
@@ -1970,6 +1966,9 @@ RE_InitContext(void *win)
 		vid_buffer_width = vid.width;
 	}
 
+	/* do not create by default buffer for HUD/2D/Direct cinema*/
+	texture_rgba = NULL;
+	/* just buffer for 8bit -> 32bit covert and render */
 	texture = SDL_CreateTexture(renderer,
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 				    SDL_PIXELFORMAT_BGRA8888,
@@ -2085,6 +2084,12 @@ RE_ShutdownContext(void)
 	}
 	blocklights = NULL;
 
+	if(bblocklights)
+	{
+		free(bblocklights);
+	}
+	bblocklights = NULL;
+
 	if(r_edges)
 	{
 		free(r_edges);
@@ -2109,6 +2114,12 @@ RE_ShutdownContext(void)
 	}
 	texture = NULL;
 
+	if (texture_rgba)
+	{
+		SDL_DestroyTexture(texture_rgba);
+	}
+	texture_rgba = NULL;
+
 	if (renderer)
 	{
 		SDL_DestroyRenderer(renderer);
@@ -2125,7 +2136,7 @@ char shift_size;
 static void
 RE_CopyFrame (Uint32 * pixels, int pitch, int vmin, int vmax)
 {
-	Uint32 *sdl_palette = (Uint32 *)sw_state.currentpalette;
+	const Uint32 *sdl_palette = (Uint32 *)sw_state.currentpalette;
 
 	// no gaps between images rows
 	if (pitch == vid_buffer_width)
@@ -2170,7 +2181,8 @@ RE_CopyFrame (Uint32 * pixels, int pitch, int vmin, int vmax)
 static int
 RE_BufferDifferenceStart(int vmin, int vmax)
 {
-	int *front_buffer, *back_buffer, *back_max;
+	int *front_buffer, *back_buffer;
+	const int *back_max;
 
 	back_buffer = (int*)(swap_frames[0] + vmin);
 	front_buffer = (int*)(swap_frames[1] + vmin);
@@ -2186,7 +2198,8 @@ RE_BufferDifferenceStart(int vmin, int vmax)
 static size_t
 RE_BufferDifferenceEnd(int vmin, int vmax)
 {
-	int *front_buffer, *back_buffer, *back_min;
+	int *front_buffer, *back_buffer;
+	const int *back_min;
 
 	back_buffer = (int*)(swap_frames[0] + vmax);
 	front_buffer = (int*)(swap_frames[1] + vmax);
@@ -2233,6 +2246,18 @@ RE_FlushFrame(int vmin, int vmax)
 	int pitch;
 	Uint32 *pixels;
 
+	if (vmin > vmax)
+	{
+		/* Looks like we already updated everything */
+		return;
+	}
+
+	if (is_render_flushed)
+	{
+		R_Printf(PRINT_DEVELOPER, "%s: Render is already flushed\n", __func__);
+		return;
+	}
+
 #ifdef USE_SDL3
 	if (!SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
 #else
@@ -2242,6 +2267,7 @@ RE_FlushFrame(int vmin, int vmax)
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;
 	}
+
 	if (sw_partialrefresh->value)
 	{
 		RE_CopyFrame (pixels, pitch / sizeof(Uint32), vmin, vmax);
@@ -2272,8 +2298,117 @@ RE_FlushFrame(int vmin, int vmax)
 	swap_current ++;
 	vid_buffer = swap_frames[swap_current&1];
 
-	// All changes flushed
+	/* All changes flushed */
 	VID_NoDamageBuffer();
+
+	/* new draw is not required */
+	is_render_flushed = true;
+}
+
+static void
+RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+{
+	int pitch;
+	Uint32 *pixels;
+
+	if (!cols || !rows || !data)
+	{
+		return;
+	}
+
+	if (bits != 32 || x || y ||
+		w != vid_buffer_width || h != vid_buffer_height ||
+		cols > vid_buffer_width || rows > vid_buffer_height)
+	{
+		/* Not full screen update */
+		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
+		return;
+	}
+
+	if (is_render_flushed)
+	{
+		/* TODO: fix show fps */
+		Com_Printf("%s: Render is already flushed\n", __func__);
+		return;
+	}
+
+	if (!texture_rgba)
+	{
+		/* texture for direct rendering */
+		texture_rgba = SDL_CreateTexture(renderer,
+					    SDL_PIXELFORMAT_ABGR8888,
+					    SDL_TEXTUREACCESS_STREAMING,
+					    vid_buffer_width, vid_buffer_height);
+	}
+
+	/* Full screen update should be faster */
+#ifdef USE_SDL3
+	if (!SDL_LockTexture(texture_rgba, NULL, (void**)&pixels, &pitch))
+#else
+	if (SDL_LockTexture(texture_rgba, NULL, (void**)&pixels, &pitch))
+#endif
+	{
+		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
+		return;
+	}
+
+	if (pitch < (cols * sizeof(Uint32)))
+	{
+		/* Oops: different texture format? */
+		SDL_UnlockTexture(texture_rgba);
+		/* Failback full image convert */
+		RE_Draw_StretchRaw(x, y, w, h, cols, rows, data, bits);
+		return;
+	}
+
+	if (cols == vid_buffer_width && rows == vid_buffer_height)
+	{
+		memcpy(pixels, data, vid_buffer_width * vid_buffer_height * sizeof(Uint32));
+	}
+	else
+	{
+		int i;
+
+		for (i = 0; i < rows; i++)
+		{
+			memcpy(pixels + i * vid_buffer_width,
+				data + i * cols * sizeof(Uint32),
+				cols * sizeof(Uint32)
+			);
+		}
+	}
+
+	SDL_UnlockTexture(texture_rgba);
+
+	if (cols == vid_buffer_width && rows == vid_buffer_height)
+	{
+#ifdef USE_SDL3
+		SDL_RenderTexture(renderer, texture_rgba, NULL, NULL);
+#else
+		SDL_RenderCopy(renderer, texture_rgba, NULL, NULL);
+#endif
+	}
+	else
+	{
+#ifdef USE_SDL3
+		SDL_FRect srcrect;
+#else
+		SDL_Rect srcrect;
+#endif
+		srcrect.x = 0;
+		srcrect.y = 0;
+		srcrect.w = cols;
+		srcrect.h = rows;
+#ifdef USE_SDL3
+		SDL_RenderTexture(renderer, texture_rgba, &srcrect, NULL);
+#else
+		SDL_RenderCopy(renderer, texture_rgba, &srcrect, NULL);
+#endif
+	}
+
+	SDL_RenderPresent(renderer);
+
+	is_render_flushed = true;
 }
 
 /*
@@ -2292,14 +2427,17 @@ RE_EndFrame (void)
 	{
 		vid_minu = 0;
 	}
+
 	if (vid_minv < 0)
 	{
 		vid_minv = 0;
 	}
+
 	if (vid_maxu > vid_buffer_width)
 	{
 		vid_maxu = vid_buffer_width;
 	}
+
 	if (vid_maxv > vid_buffer_height)
 	{
 		vid_maxv = vid_buffer_height;
@@ -2445,8 +2583,8 @@ SWimp_CreateRender(int width, int height)
 	swap_buffers = malloc(height * width * sizeof(pixel_t) * 2);
 	if (!swap_buffers)
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Can't allocate swapbuffer.", __func__);
-		// code never returns after ERR_FATAL
+		Com_Error(ERR_FATAL, "%s: Can't allocate swapbuffer.", __func__);
+		/* code never returns after ERR_FATAL */
 		return;
 	}
 	swap_frames[0] = swap_buffers;
@@ -2521,7 +2659,7 @@ Sys_Error (const char *error, ...)
 	vsnprintf(text, sizeof(text), error, argptr);
 	va_end(argptr);
 
-	ri.Sys_Error (ERR_FATAL, "%s", text);
+	Com_Error(ERR_FATAL, "%s", text);
 }
 
 void
@@ -2531,6 +2669,28 @@ Com_Printf(const char *msg, ...)
 	va_start(argptr, msg);
 	ri.Com_VPrintf(PRINT_ALL, msg, argptr);
 	va_end(argptr);
+}
+
+void
+Com_DPrintf(const char *msg, ...)
+{
+	va_list argptr;
+	va_start(argptr, msg);
+	ri.Com_VPrintf(PRINT_DEVELOPER, msg, argptr);
+	va_end(argptr);
+}
+
+void
+Com_Error(int code, const char *fmt, ...)
+{
+	va_list argptr;
+	char text[4096]; // MAXPRINTMSG == 4096
+
+	va_start(argptr, fmt);
+	vsnprintf(text, sizeof(text), fmt, argptr);
+	va_end(argptr);
+
+	ri.Sys_Error(code, "%s", text);
 }
 
 /*
@@ -2555,7 +2715,8 @@ R_ScreenShot_f(void)
 
 	if (!buffer)
 	{
-		R_Printf(PRINT_ALL, "R_ScreenShot: Couldn't malloc %d bytes\n", vid_buffer_width * vid_buffer_height * 3);
+		R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			__func__, vid_buffer_width * vid_buffer_height * 3);
 		return;
 	}
 

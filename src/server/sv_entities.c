@@ -36,14 +36,13 @@ static YQ2_ALIGNAS_TYPE(int32_t) byte fatpvs[65536 / 8];
 /*
  * Writes a delta update of an entity_state_t list to the message.
  */
-void
-SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
+static void
+SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
+	int protocol)
 {
-	entity_state_t *oldent, *newent;
+	entity_xstate_t *oldent, *newent;
 	int oldindex, newindex;
-	int oldnum, newnum;
 	int from_num_entities;
-	int bits;
 
 	MSG_WriteByte(msg, svc_packetentities);
 
@@ -63,6 +62,9 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 
 	while (newindex < to->num_entities || oldindex < from_num_entities)
 	{
+		int oldnum, newnum;
+		int bits;
+
 		if (msg->cursize > MAX_MSGLEN - 150)
 		{
 			break;
@@ -92,13 +94,13 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 
 		if (newnum == oldnum)
 		{
-			/* delta update from old position. because the force 
+			/* delta update from old position. because the force
 			   parm is false, this will not result in any bytes
 			   being emited if the entity has not changed at all
 			   note that players are always 'newentities', this
 			   updates their oldorigin always and prevents warping */
 			MSG_WriteDeltaEntity(oldent, newent, msg,
-					false, newent->number <= maxclients->value);
+					false, newent->number <= maxclients->value, protocol);
 			oldindex++;
 			newindex++;
 			continue;
@@ -107,7 +109,8 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 		if (newnum < oldnum)
 		{
 			/* this is a new entity, send it from the baseline */
-			MSG_WriteDeltaEntity(&sv.baselines[newnum], newent, msg, true, true);
+			MSG_WriteDeltaEntity(&sv.baselines[newnum], newent, msg,
+				true, true, protocol);
 			newindex++;
 			continue;
 		}
@@ -146,26 +149,29 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg)
 	MSG_WriteShort(msg, 0);
 }
 
-void
+static void
 SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
-		sizebuf_t *msg)
+		sizebuf_t *msg, int protocol)
 {
-	int i;
-	int pflags;
+	int statbits, pflags, i, *origin, *oorig, idummy[3];
 	player_state_t *ps, *ops;
 	player_state_t dummy;
-	int statbits;
 
 	ps = &to->ps;
+	origin = to->origin;
 
 	if (!from)
 	{
+		memset(&idummy, 0, sizeof(idummy));
+		oorig = idummy;
+
 		memset(&dummy, 0, sizeof(dummy));
 		ops = &dummy;
 	}
 	else
 	{
 		ops = &from->ps;
+		oorig = from->origin;
 	}
 
 	/* determine what needs to be sent */
@@ -176,11 +182,23 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		pflags |= PS_M_TYPE;
 	}
 
-	if ((ps->pmove.origin[0] != ops->pmove.origin[0]) ||
-		(ps->pmove.origin[1] != ops->pmove.origin[1]) ||
-		(ps->pmove.origin[2] != ops->pmove.origin[2]))
+	if (IS_QII97_PROTOCOL(protocol))
 	{
-		pflags |= PS_M_ORIGIN;
+		if ((ps->pmove.origin[0] != ops->pmove.origin[0]) ||
+			(ps->pmove.origin[1] != ops->pmove.origin[1]) ||
+			(ps->pmove.origin[2] != ops->pmove.origin[2]))
+		{
+			pflags |= PS_M_ORIGIN;
+		}
+	}
+	else
+	{
+		if ((origin[0] != oorig[0]) ||
+			(origin[1] != oorig[1]) ||
+			(origin[2] != oorig[2]))
+		{
+			pflags |= PS_M_ORIGIN;
+		}
 	}
 
 	if ((ps->pmove.velocity[0] != ops->pmove.velocity[0]) ||
@@ -278,9 +296,18 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_M_ORIGIN)
 	{
-		MSG_WriteShort(msg, ps->pmove.origin[0]);
-		MSG_WriteShort(msg, ps->pmove.origin[1]);
-		MSG_WriteShort(msg, ps->pmove.origin[2]);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteShort(msg, ps->pmove.origin[0]);
+			MSG_WriteShort(msg, ps->pmove.origin[1]);
+			MSG_WriteShort(msg, ps->pmove.origin[2]);
+		}
+		else
+		{
+			MSG_WriteLong(msg, origin[0]);
+			MSG_WriteLong(msg, origin[1]);
+			MSG_WriteLong(msg, origin[2]);
+		}
 	}
 
 	if (pflags & PS_M_VELOCITY)
@@ -336,12 +363,27 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 
 	if (pflags & PS_WEAPONINDEX)
 	{
-		MSG_WriteByte(msg, ps->gunindex);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteByte(msg, ps->gunindex);
+		}
+		else
+		{
+			MSG_WriteShort(msg, ps->gunindex);
+		}
 	}
 
 	if (pflags & PS_WEAPONFRAME)
 	{
-		MSG_WriteByte(msg, ps->gunframe);
+		if (IS_QII97_PROTOCOL(protocol))
+		{
+			MSG_WriteByte(msg, ps->gunframe);
+		}
+		else
+		{
+			MSG_WriteShort(msg, ps->gunframe);
+		}
+
 		MSG_WriteChar(msg, ps->gunoffset[0] * 4);
 		MSG_WriteChar(msg, ps->gunoffset[1] * 4);
 		MSG_WriteChar(msg, ps->gunoffset[2] * 4);
@@ -429,17 +471,17 @@ SV_WriteFrameToClient(client_t *client, sizebuf_t *msg)
 	SZ_Write(msg, frame->areabits, frame->areabytes);
 
 	/* delta encode the playerstate */
-	SV_WritePlayerstateToClient(oldframe, frame, msg);
+	SV_WritePlayerstateToClient(oldframe, frame, msg, client->protocol);
 
 	/* delta encode the entities */
-	SV_EmitPacketEntities(oldframe, frame, msg);
+	SV_EmitPacketEntities(oldframe, frame, msg, client->protocol);
 }
 
 /*
  * The client will interpolate the view position,
  * so we can't use a single PVS point
  */
-void
+static void
 SV_FatPVS(vec3_t org)
 {
 	int leafs[64];
@@ -509,7 +551,6 @@ SV_BuildClientFrame(client_t *client)
 	edict_t *ent;
 	edict_t *clent;
 	client_frame_t *frame;
-	entity_state_t *state;
 	int l;
 	int clientarea, clientcluster;
 	int leafnum;
@@ -528,11 +569,27 @@ SV_BuildClientFrame(client_t *client)
 
 	frame->senttime = svs.realtime; /* save it for ping calc later */
 
-	/* find the client's PVS */
-	for (i = 0; i < 3; i++)
+	if (IS_QII97_PROTOCOL(client->protocol))
 	{
-		org[i] = clent->client->ps.pmove.origin[i] * 0.125 +
-				 clent->client->ps.viewoffset[i];
+		/* find the client's PVS */
+		for (i = 0; i < 3; i++)
+		{
+			org[i] = clent->client->ps.pmove.origin[i] * 0.125 +
+					 clent->client->ps.viewoffset[i];
+		}
+		/* store origin in 28.3 format */
+		VectorCopy(clent->s.origin, frame->origin);
+	}
+	else
+	{
+		/* find the client's PVS */
+		for (i = 0; i < 3; i++)
+		{
+			org[i] = clent->s.origin[i] +
+					 clent->client->ps.viewoffset[i];
+			/* store origin in 28.3 format */
+			frame->origin[i] = clent->s.origin[i] * 8;
+		}
 	}
 
 	leafnum = CM_PointLeafnum(org);
@@ -554,6 +611,8 @@ SV_BuildClientFrame(client_t *client)
 
 	for (e = 1; e < ge->num_edicts; e++)
 	{
+		entity_xstate_t *state;
+
 		ent = EDICT_NUM(e);
 
 		/* ignore ents without visible models */
@@ -563,7 +622,7 @@ SV_BuildClientFrame(client_t *client)
 		}
 
 		/* ignore ents without visible models unless they have an effect */
-		if (!ent->s.modelindex && !ent->s.effects && 
+		if (!ent->s.modelindex && !ent->s.effects &&
 			!ent->s.sound && !ent->s.event)
 		{
 			continue;
@@ -627,7 +686,7 @@ SV_BuildClientFrame(client_t *client)
 
 				if (!ent->s.modelindex)
 				{
-					/* don't send sounds if they 
+					/* don't send sounds if they
 					   will be attenuated away */
 					vec3_t delta;
 					float len;
@@ -653,7 +712,7 @@ SV_BuildClientFrame(client_t *client)
 			ent->s.number = e;
 		}
 
-		*state = ent->s;
+		SV_GetEntityState(ent, state);
 
 		/* don't mark players missiles as solid */
 		if (ent->owner == client->edict)
@@ -675,7 +734,7 @@ SV_RecordDemoMessage(void)
 {
 	int e;
 	edict_t *ent;
-	entity_state_t nostate;
+	entity_xstate_t nostate;
 	sizebuf_t buf;
 	byte buf_data[32768];
 	int len;
@@ -705,7 +764,11 @@ SV_RecordDemoMessage(void)
 			(ent->s.modelindex || ent->s.effects || ent->s.sound ||
 			 ent->s.event) && !(ent->svflags & SVF_NOCLIENT))
 		{
-			MSG_WriteDeltaEntity(&nostate, &ent->s, &buf, false, true);
+			entity_xstate_t state;
+
+			SV_GetEntityState(ent, &state);
+			MSG_WriteDeltaEntity(&nostate, &state, &buf,
+				false, true, PROTOCOL_VERSION);
 		}
 
 		e++;

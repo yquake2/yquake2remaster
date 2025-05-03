@@ -7,6 +7,7 @@
  */
 
 #include <inttypes.h>
+#include "header/common.h"
 
 #define ROTATELEFT32(x, s) (((x) << (s)) | ((x) >> (32 - (s))))
 
@@ -210,7 +211,7 @@ PerformMD4(const unsigned char *buf, int length, unsigned char *digest)
 }
 
 unsigned
-Com_BlockChecksum(void *buffer, int length)
+Com_BlockChecksum(const void *buffer, int length)
 {
 	uint32_t digest[4];
 	unsigned val;

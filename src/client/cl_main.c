@@ -89,7 +89,7 @@ client_state_t cl;
 
 centity_t cl_entities[MAX_EDICTS];
 
-entity_state_t cl_parse_entities[MAX_PARSE_ENTITIES];
+entity_xstate_t cl_parse_entities[MAX_PARSE_ENTITIES];
 
 /*Evil hack against too many power screen and power
   shield impact sounds. For example if the player
@@ -149,7 +149,7 @@ CL_Stop_f(void)
  * record <demoname>
  * Begins recording a demo from the current position
  */
-void
+static void
 CL_Record_f(void)
 {
 	char name[MAX_OSPATH];
@@ -157,8 +157,8 @@ CL_Record_f(void)
 	sizebuf_t buf;
 	int i;
 	int len;
-	entity_state_t *ent;
-	entity_state_t nullstate;
+	entity_xstate_t *ent;
+	entity_xstate_t nullstate;
 
 	if (Cmd_Argc() != 2)
 	{
@@ -223,7 +223,8 @@ CL_Record_f(void)
 
 			MSG_WriteByte(&buf, svc_configstring);
 
-			MSG_WriteShort(&buf, i);
+			/* i in native server range */
+			MSG_WriteShort(&buf, P_ConvertConfigStringTo(i, PROTOCOL_VERSION));
 			MSG_WriteString(&buf, cl.configstrings[i]);
 		}
 	}
@@ -251,7 +252,7 @@ CL_Record_f(void)
 		MSG_WriteByte(&buf, svc_spawnbaseline);
 
 		MSG_WriteDeltaEntity(&nullstate, &cl_entities[i].baseline,
-				&buf, true, true);
+				&buf, true, true, PROTOCOL_VERSION);
 	}
 
 	MSG_WriteByte(&buf, svc_stufftext);
@@ -264,7 +265,7 @@ CL_Record_f(void)
 	fwrite(buf.data, buf.cursize, 1, cls.demofile);
 }
 
-void
+static void
 CL_Setenv_f(void)
 {
 	int argc = Cmd_Argc();
@@ -302,7 +303,7 @@ CL_Setenv_f(void)
 	}
 }
 
-void
+static void
 CL_Pause_f(void)
 {
 	/* never pause in multiplayer */
@@ -364,7 +365,7 @@ CL_ParseStatusMessage(void)
 /*
  * Load or download any custom player skins and models
  */
-void
+static void
 CL_Skins_f(void)
 {
 	int i;
@@ -426,7 +427,7 @@ CL_FixUpGender(void)
 	}
 }
 
-void
+static void
 CL_Userinfo_f(void)
 {
 	Com_Printf("User info settings:\n");
@@ -468,7 +469,7 @@ void CL_ResetPrecacheCheck (void)
  * The server will send this command right
  * before allowing the client into the server
  */
-void
+static void
 CL_Precache_f(void)
 {
 	/* Yet another hack to let old demos work */
@@ -491,12 +492,13 @@ CL_Precache_f(void)
 	CL_RequestNextDownload();
 }
 
-void CL_CurrentMap_f(void)
+static void
+CL_CurrentMap_f(void)
 {
 	Com_Printf("%s\n", cl.configstrings[CS_MODELS + 1]);
 }
 
-void
+static void
 CL_InitLocal(void)
 {
 	cls.state = ca_disconnected;
@@ -517,7 +519,7 @@ CL_InitLocal(void)
 	cl_noskins = Cvar_Get("cl_noskins", "0", 0);
 	cl_predict = Cvar_Get("cl_predict", "1", 0);
 	cl_showfps = Cvar_Get("cl_showfps", "0", CVAR_ARCHIVE);
-	cl_showspeed = Cvar_Get("cl_showspeed", "0", CVAR_ARCHIVE);	
+	cl_showspeed = Cvar_Get("cl_showspeed", "0", CVAR_ARCHIVE);
 	cl_laseralpha = Cvar_Get("cl_laseralpha", "0.3", 0);
 	cl_nodownload_list = Cvar_Get("cl_nodownload_list", "", CVAR_ARCHIVE);
 
@@ -637,6 +639,7 @@ CL_InitLocal(void)
 	Cmd_AddCommand("spawnentity", NULL);
 	Cmd_AddCommand("spawnonstart", NULL);
 	Cmd_AddCommand("cycleweap", NULL);
+	Cmd_AddCommand("thirdperson", NULL);
 }
 
 /*
@@ -699,9 +702,9 @@ cheatvar_t cheatvars[] = {
 	{NULL, NULL}
 };
 
-int numcheatvars;
+static int numcheatvars;
 
-void
+static void
 CL_FixCvarCheats(void)
 {
 	int i;
@@ -734,7 +737,7 @@ CL_FixCvarCheats(void)
 	}
 }
 
-void
+static void
 CL_UpdateWindowedMouse(void)
 {
 	if (cls.disable_screen)

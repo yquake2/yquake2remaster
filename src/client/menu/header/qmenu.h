@@ -64,7 +64,7 @@ typedef struct _tag_menuframework
 	const char *statusbar;
 
 	void (*draw)(void);
-    	const char *(*key)(int k);
+	const char *(*key)(int k);
 	void (*cursordraw)(struct _tag_menuframework *m);
 } menuframework_s;
 
@@ -89,8 +89,9 @@ typedef struct
 typedef struct
 {
 	menucommon_s    generic;
-	char *          focuspic;	
+	char *          focuspic;
 	char *          errorpic;
+	char *          alttext;
 	int             width;
 	int             height;
 } menubitmap_s;

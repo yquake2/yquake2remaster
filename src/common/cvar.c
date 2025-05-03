@@ -54,9 +54,13 @@ static const replacement_t replacements[] = {
 	{"gl_menuscale", "r_scale"},
 	{"gl_customheight", "r_customheight"},
 	{"gl_customwidth", "r_customheight"},
-	{"gl_dynamic", "gl1_dynamic"},
+	{"gl_dynamic", "r_dynamic"},
+	{"gl1_dynamic", "r_dynamic"},
+	{"vk_dynamic", "r_dynamic"},
 	{"gl_farsee", "r_farsee"},
-	{"gl_flashblend", "gl1_flashblend"},
+	{"gl_flashblend", "r_flashblend"},
+	{"gl1_flashblend", "r_flashblend"},
+	{"vk_flashblend", "r_flashblend"},
 	{"gl_lockpvs", "r_lockpvs"},
 	{"gl_maxfps", "vid_maxfps"},
 	{"gl_mode", "r_mode"},
@@ -91,7 +95,9 @@ static const replacement_t replacements[] = {
 	{"gl_lightmap", "r_lightmap"},
 	{"gl1_polyblend", "gl_polyblend"},
 	{"gl_cull", "r_cull"},
-	{"intensity", "gl1_intensity"}
+	{"intensity", "gl1_intensity"},
+	{"gl_showtris", "r_showtris"},
+	{"vk_showtris", "r_showtris"}
 };
 
 
@@ -394,7 +400,7 @@ Cvar_Set2(const char *var_name, const char *value, qboolean force)
 }
 
 cvar_t *
-Cvar_ForceSet(const char *var_name, char *value)
+Cvar_ForceSet(const char *var_name, const char *value)
 {
 	return Cvar_Set2(var_name, value, true);
 }
@@ -719,41 +725,41 @@ static void
 Cvar_Inc_f(void)
 {
 	char string[MAX_QPATH];
-    cvar_t *var;
-    float value;
+	cvar_t *var;
+	float value;
 
-    if (Cmd_Argc() < 2)
+	if (Cmd_Argc() < 2)
 	{
-        Com_Printf("Usage: %s <cvar> [value]\n", Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("Usage: %s <cvar> [value]\n", Cmd_Argv(0));
+		return;
+	}
 
-    var = Cvar_FindVar(Cmd_Argv(1));
+	var = Cvar_FindVar(Cmd_Argv(1));
 
-    if (!var)
+	if (!var)
 	{
-        Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
-        return;
-    }
+		Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
+		return;
+	}
 
-    if (!Cvar_IsFloat(var->string))
+	if (!Cvar_IsFloat(var->string))
 	{
-        Com_Printf("\"%s\" is \"%s\", can't %s\n", var->name, var->string, Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("\"%s\" is \"%s\", can't %s\n", var->name, var->string, Cmd_Argv(0));
+		return;
+	}
 
-    value = 1;
+	value = 1;
 
-    if (Cmd_Argc() > 2) {
-        value = atof(Cmd_Argv(2));
-    }
+	if (Cmd_Argc() > 2) {
+		value = atof(Cmd_Argv(2));
+	}
 
-    if (!strcmp(Cmd_Argv(0), "dec")) {
-        value = -value;
-    }
+	if (!strcmp(Cmd_Argv(0), "dec")) {
+		value = -value;
+	}
 
 	Com_sprintf(string, sizeof(string), "%f", var->value + value);
-    Cvar_Set(var->name, string);
+	Cvar_Set(var->name, string);
 }
 
 /*
@@ -762,24 +768,24 @@ Cvar_Inc_f(void)
 static void
 Cvar_Reset_f(void)
 {
-    cvar_t *var;
+	cvar_t *var;
 
-    if (Cmd_Argc() < 2)
+	if (Cmd_Argc() < 2)
 	{
-        Com_Printf("Usage: %s <cvar>\n", Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("Usage: %s <cvar>\n", Cmd_Argv(0));
+		return;
+	}
 
-    var = Cvar_FindVar(Cmd_Argv(1));
+	var = Cvar_FindVar(Cmd_Argv(1));
 
-    if (!var)
+	if (!var)
 	{
-        Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
-        return;
-    }
+		Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
+		return;
+	}
 
 	Com_Printf("%s: %s\n", var->name, var->default_string);
-    Cvar_Set(var->name, var->default_string);
+	Cvar_Set(var->name, var->default_string);
 }
 
 /*
@@ -789,21 +795,21 @@ Cvar_Reset_f(void)
 static void
 Cvar_ResetAll_f(void)
 {
-    cvar_t *var;
+	cvar_t *var;
 
-    for (var = cvar_vars; var; var = var->next)
+	for (var = cvar_vars; var; var = var->next)
 	{
-        if ((var->flags & CVAR_NOSET))
+		if ((var->flags & CVAR_NOSET))
 		{
-            continue;
+			continue;
 		}
 		else if (strcmp(var->name, "game") == 0)
 		{
-            continue;
+			continue;
 		}
 
-        Cvar_Set(var->name, var->default_string);
-    }
+		Cvar_Set(var->name, var->default_string);
+	}
 }
 
 /*
@@ -812,53 +818,53 @@ Cvar_ResetAll_f(void)
 static void
 Cvar_Toggle_f(void)
 {
-    cvar_t *var;
-    int i, argc = Cmd_Argc();
+	cvar_t *var;
+	int i, argc = Cmd_Argc();
 
-    if (argc < 2)
+	if (argc < 2)
 	{
-        Com_Printf("Usage: %s <cvar> [values]\n", Cmd_Argv(0));
-        return;
-    }
+		Com_Printf("Usage: %s <cvar> [values]\n", Cmd_Argv(0));
+		return;
+	}
 
-    var = Cvar_FindVar(Cmd_Argv(1));
+	var = Cvar_FindVar(Cmd_Argv(1));
 
-    if (!var)
+	if (!var)
 	{
-        Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
-        return;
-    }
+		Com_Printf("%s is not a cvar\n", Cmd_Argv(1));
+		return;
+	}
 
-    if (argc < 3)
+	if (argc < 3)
 	{
-        if (!strcmp(var->string, "0"))
+		if (!strcmp(var->string, "0"))
 		{
-            Cvar_Set(var->name, "1");
-        }
+			Cvar_Set(var->name, "1");
+		}
 		else if (!strcmp(var->string, "1"))
 		{
-            Cvar_Set(var->name, "0");
-        }
+			Cvar_Set(var->name, "0");
+		}
 		else
 		{
-            Com_Printf("\"%s\" is \"%s\", can't toggle\n", var->name, var->string);
-        }
+			Com_Printf("\"%s\" is \"%s\", can't toggle\n", var->name, var->string);
+		}
 
-        return;
-    }
+		return;
+	}
 
-    for (i = 0; i < argc - 2; i++)
+	for (i = 0; i < argc - 2; i++)
 	{
-        if (!Q_stricmp(var->string, Cmd_Argv(2 + i)))
+		if (!Q_stricmp(var->string, Cmd_Argv(2 + i)))
 		{
-            i = (i + 1) % (argc - 2);
-            Cvar_Set(var->name, Cmd_Argv(2 + i));
+			i = (i + 1) % (argc - 2);
+			Cvar_Set(var->name, Cmd_Argv(2 + i));
 
-            return;
-        }
-    }
+			return;
+		}
+	}
 
-    Com_Printf("\"%s\" is \"%s\", can't cycle\n", var->name, var->string);
+	Com_Printf("\"%s\" is \"%s\", can't cycle\n", var->name, var->string);
 }
 
 /*
@@ -873,6 +879,9 @@ Cvar_Init(void)
 	Cmd_AddCommand("reset", Cvar_Reset_f);
 	Cmd_AddCommand("resetall", Cvar_ResetAll_f);
 	Cmd_AddCommand("set", Cvar_Set_f);
+	Cmd_AddCommand("seta", Cvar_Set_f);
+	Cmd_AddCommand("setu", Cvar_Set_f);
+	Cmd_AddCommand("sets", Cvar_Set_f);
 	Cmd_AddCommand("toggle", Cvar_Toggle_f);
 }
 
@@ -900,6 +909,9 @@ Cvar_Fini(void)
 	Cmd_RemoveCommand("reset");
 	Cmd_RemoveCommand("resetall");
 	Cmd_RemoveCommand("set");
+	Cmd_RemoveCommand("seta");
+	Cmd_RemoveCommand("setu");
+	Cmd_RemoveCommand("sets");
 	Cmd_RemoveCommand("toggle");
 }
 

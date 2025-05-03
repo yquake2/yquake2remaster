@@ -1,23 +1,24 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// sw_edge.c
 #include <limits.h>
 #include <stdint.h>
 #include "header/local.h"
@@ -59,7 +60,7 @@ float	scale_for_mip;
 static void R_GenerateSpans (void);
 static void R_GenerateSpansBackward (void);
 
-static void R_TrailingEdge (surf_t *surf, edge_t *edge);
+static void R_TrailingEdge (surf_t *surf, const edge_t *edge);
 
 /*
 ===============================================================================
@@ -327,7 +328,7 @@ R_TrailingEdge
 ==============
 */
 static void
-R_TrailingEdge (surf_t *surf, edge_t *edge)
+R_TrailingEdge(surf_t *surf, const edge_t *edge)
 {
 	// don't generate a span if this is an inverted span, with the end
 	// edge preceding the start edge (that is, we haven't seen the
@@ -581,7 +582,7 @@ R_GenerateSpansBackward (void)
 	R_CleanupSpan ();
 }
 
-static void D_DrawSurfaces (entity_t *currententity, surf_t *surface);
+static void D_DrawSurfaces (entity_t *currententity, const surf_t *surface);
 
 /*
 ==============
@@ -597,7 +598,7 @@ Each surface has a linked list of its visible spans
 ==============
 */
 void
-R_ScanEdges (entity_t *currententity, surf_t *surface)
+R_ScanEdges (entity_t *currententity, const surf_t *surface)
 {
 	shift20_t	iv, bottom;
 	surf_t		*s;
@@ -814,12 +815,13 @@ D_CalcGradients (msurface_t *pface, float d_ziorigin, float d_zistepu, float d_z
 			+ pface->texinfo->vecs[1][3]*t;
 
 	// changing flow speed for non-warping textures.
-	if (pface->texinfo->flags & SURF_FLOWING)
+	if (pface->texinfo->flags & SURF_SCROLL)
 	{
-		if(pface->texinfo->flags & SURF_WARP)
-			sadjust += SHIFT16XYZ_MULT * (-128 * ( (r_newrefdef.time * 0.25) - (int)(r_newrefdef.time * 0.25) ));
-		else
-			sadjust += SHIFT16XYZ_MULT * (-128 * ( (r_newrefdef.time * 0.77) - (int)(r_newrefdef.time * 0.77) ));
+		float sscroll, tscroll;
+
+		R_FlowingScroll(&r_newrefdef, pface->texinfo->flags, &sscroll, &tscroll);
+		sadjust += SHIFT16XYZ_MULT * 2 * sscroll;
+		tadjust += SHIFT16XYZ_MULT * 2 * tscroll;
 	}
 
 	//
@@ -1028,7 +1030,7 @@ May be called more than once a frame if the surf list overflows (higher res)
 ==============
 */
 static void
-D_DrawSurfaces (entity_t *currententity, surf_t *surface)
+D_DrawSurfaces(entity_t *currententity, const surf_t *surface)
 {
 	VectorSubtract (r_origin, vec3_origin, modelorg);
 	TransformVector (modelorg, transformed_modelorg);

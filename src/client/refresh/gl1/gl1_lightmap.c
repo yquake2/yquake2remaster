@@ -28,9 +28,6 @@
 
 extern gllightmapstate_t gl_lms;
 
-void R_SetCacheState(msurface_t *surf);
-void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
-
 void
 LM_FreeLightmapBuffers(void)
 {
@@ -87,7 +84,6 @@ LM_UploadBlock(qboolean dynamic)
 {
 	const int texture = (dynamic)? 0 : gl_lms.current_lightmap_texture;
 	const int buffer = (gl_config.multitexture)? gl_lms.current_lightmap_texture : 0;
-	int height = 0, i;
 
 	R_Bind(gl_state.lightmap_textures + texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -95,6 +91,8 @@ LM_UploadBlock(qboolean dynamic)
 
 	if (dynamic)
 	{
+		int i, height = 0;
+
 		for (i = 0; i < gl_state.block_width; i++)
 		{
 			if (gl_lms.allocated[i] > height)
@@ -116,6 +114,8 @@ LM_UploadBlock(qboolean dynamic)
 
 		if (gl_config.lightmapcopies && buffer != 0)
 		{
+			int i;
+
 			// Upload to all lightmap copies
 			for (i = 1; i < MAX_LIGHTMAP_COPIES; i++)
 			{
@@ -131,8 +131,8 @@ LM_UploadBlock(qboolean dynamic)
 
 		if (++gl_lms.current_lightmap_texture == gl_state.max_lightmaps)
 		{
-			ri.Sys_Error(ERR_DROP,
-					"LM_UploadBlock() - MAX_LIGHTMAPS exceeded\n");
+			Com_Error(ERR_DROP,
+					"%s() - MAX_LIGHTMAPS exceeded\n", __func__);
 		}
 	}
 }
@@ -143,13 +143,14 @@ LM_UploadBlock(qboolean dynamic)
 qboolean
 LM_AllocBlock(int w, int h, int *x, int *y)
 {
-	int i, j;
-	int best, best2;
+	int i, best;
 
 	best = gl_state.block_height;
 
 	for (i = 0; i < gl_state.block_width - w; i++)
 	{
+		int		j, best2;
+
 		best2 = 0;
 
 		for (j = 0; j < w; j++)
@@ -186,15 +187,15 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 	return true;
 }
 
-void
+static void
 LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 {
-	int i, lindex, lnumverts;
 	medge_t *pedges, *r_pedge;
-	float *vec;
-	float s, t;
-	glpoly_t *poly;
+	int i, lnumverts;
+	const float *vec;
+	mpoly_t *poly;
 	vec3_t total;
+	vec3_t normal;
 
 	/* reconstruct the polygon */
 	pedges = currentmodel->edges;
@@ -203,15 +204,33 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 	VectorClear(total);
 
 	/* draw texture */
-	poly = Hunk_Alloc(sizeof(glpoly_t) +
-		   (lnumverts - 4) * VERTEXSIZE * sizeof(float));
+	poly = Hunk_Alloc(sizeof(mpoly_t) +
+		   (lnumverts - 4) * sizeof(mvtx_t));
 	poly->next = fa->polys;
 	poly->flags = fa->flags;
 	fa->polys = poly;
 	poly->numverts = lnumverts;
 
+	VectorCopy(fa->plane->normal, normal);
+
+	if(fa->flags & SURF_PLANEBACK)
+	{
+		// if for some reason the normal sticks to the back of the plane, invert it
+		// so it's usable for the shader
+		for (i=0; i<3; ++i)
+		{
+			normal[i] = -normal[i];
+		}
+	}
+
 	for (i = 0; i < lnumverts; i++)
 	{
+		mvtx_t* vert;
+		float s, t;
+		int lindex;
+
+		vert = &poly->verts[i];
+
 		lindex = currentmodel->surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
@@ -231,30 +250,39 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 		t = DotProduct(vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
 		t /= fa->texinfo->image->height;
 
+		if (fa->texinfo->flags & SURF_N64_UV)
+		{
+			s *= 0.5;
+			t *= 0.5;
+		}
+
 		VectorAdd(total, vec, total);
-		VectorCopy(vec, poly->verts[i]);
-		poly->verts[i][3] = s;
-		poly->verts[i][4] = t;
+		VectorCopy(vec, vert->pos);
+		vert->texCoord[0] = s;
+		vert->texCoord[1] = t;
 
 		/* lightmap texture coordinates */
-		s = DotProduct(vec, fa->texinfo->vecs[0]) + fa->texinfo->vecs[0][3];
+		s = DotProduct(vec, fa->lmvecs[0]) + fa->lmvecs[0][3];
 		s -= fa->texturemins[0];
-		s += fa->light_s * 16;
-		s += 8;
-		s /= gl_state.block_width * 16; /* fa->texinfo->texture->width; */
+		s += fa->light_s * (1 << fa->lmshift);
+		s += (1 << fa->lmshift) * 0.5;
+		s /= gl_state.block_width * (1 << fa->lmshift);
 
-		t = DotProduct(vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
+		t = DotProduct(vec, fa->lmvecs[1]) + fa->lmvecs[1][3];
 		t -= fa->texturemins[1];
-		t += fa->light_t * 16;
-		t += 8;
-		t /= gl_state.block_height * 16; /* fa->texinfo->texture->height; */
+		t += fa->light_t * (1 << fa->lmshift);
+		t += (1 << fa->lmshift) * 0.5;
+		t /= gl_state.block_height * (1 << fa->lmshift);
 
-		poly->verts[i][5] = s;
-		poly->verts[i][6] = t;
+		vert->lmTexCoord[0] = s;
+		vert->lmTexCoord[1] = t;
+
+		VectorCopy(normal, vert->normal);
+		vert->lightFlags = 0;
 	}
 }
 
-void
+static void
 LM_CreateSurfaceLightmap(msurface_t *surf)
 {
 	int smax, tmax, buffer;
@@ -265,8 +293,8 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 		return;
 	}
 
-	smax = (surf->extents[0] >> 4) + 1;
-	tmax = (surf->extents[1] >> 4) + 1;
+	smax = (surf->extents[0] >> surf->lmshift) + 1;
+	tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
 	if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 	{
@@ -275,8 +303,9 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 
 		if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
-			ri.Sys_Error(ERR_FATAL, "Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
-					smax, tmax);
+			Com_Error(ERR_FATAL,
+				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
+					__func__, smax, tmax);
 		}
 	}
 
@@ -286,8 +315,24 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 	base = gl_lms.lightmap_buffer[buffer];
 	base += (surf->light_t * gl_state.block_width + surf->light_s) * LIGHTMAP_BYTES;
 
-	R_SetCacheState(surf);
-	R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES);
+	R_SetCacheState(surf, &r_newrefdef);
+	R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES,
+		&r_newrefdef, r_modulate->value, r_framecount);
+}
+
+void
+LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa)
+{
+	/* create lightmaps and polygons */
+	if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
+	{
+		LM_CreateSurfaceLightmap(fa);
+	}
+
+	if (!(fa->texinfo->flags & SURF_WARP))
+	{
+		LM_BuildPolygonFromSurface(currentmodel, fa);
+	}
 }
 
 void

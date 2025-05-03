@@ -29,12 +29,12 @@
 #define NUM_BEAM_SEGS 6
 
 viddef_t vid;
-model_t *r_worldmodel;
+model_t *r_worldmodel = NULL;
 
 float gldepthmin, gldepthmax;
 
-glconfig_t gl_config;
-glstate_t gl_state;
+glconfig_t gl_config = {0};
+glstate_t gl_state = {0};
 
 image_t *r_notexture; /* use for bad textures */
 image_t *r_particletexture; /* little dot for particles */
@@ -79,6 +79,7 @@ cvar_t *r_validation;
 
 cvar_t *r_lightlevel;
 cvar_t *gl1_overbrightbits;
+cvar_t *gl_version_override;
 
 cvar_t *gl1_particle_min_size;
 cvar_t *gl1_particle_max_size;
@@ -100,6 +101,7 @@ cvar_t *gl_shadows;
 cvar_t *gl1_stencilshadow;
 cvar_t *r_mode;
 cvar_t *r_fixsurfsky;
+cvar_t *r_ttffont;
 
 cvar_t *r_customwidth;
 cvar_t *r_customheight;
@@ -107,17 +109,17 @@ cvar_t *r_customheight;
 cvar_t *r_retexturing;
 cvar_t *r_scale8bittextures;
 
-cvar_t *gl_nolerp_list;
+cvar_t *r_nolerp_list;
 cvar_t *r_lerp_list;
 cvar_t *r_2D_unfiltered;
 cvar_t *r_videos_unfiltered;
 
-cvar_t *gl1_dynamic;
+cvar_t *r_dynamic;
 cvar_t *r_modulate;
 cvar_t *gl_nobind;
 cvar_t *gl1_round_down;
 cvar_t *gl1_picmip;
-cvar_t *gl_showtris;
+cvar_t *r_showtris;
 cvar_t *gl_showbbox;
 cvar_t *gl1_ztrick;
 cvar_t *gl_zfix;
@@ -125,7 +127,7 @@ cvar_t *gl_finish;
 cvar_t *r_clear;
 cvar_t *r_cull;
 cvar_t *gl_polyblend;
-cvar_t *gl1_flashblend;
+cvar_t *r_flashblend;
 cvar_t *gl1_saturatelighting;
 cvar_t *r_vsync;
 cvar_t *gl_texturemode;
@@ -164,15 +166,15 @@ R_RotateForEntity(entity_t *e)
 	glRotatef(-e->angles[2], 1, 0, 0);
 }
 
-void
+static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
+	const dsprframe_t *frame;
+	const image_t *skin;
+	dsprite_t *psprite;
 	float alpha = 1.0F;
 	vec3_t point[4];
-	dsprframe_t *frame;
 	float *up, *right;
-	dsprite_t *psprite;
-	image_t *skin;
 
 	R_EnableMultitexture(false);
 	/* don't even bother culling, because it's just
@@ -224,27 +226,27 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		1, 1
 	};
 
-	VectorMA( currententity->origin, -frame->origin_y, up, point[0] );
-	VectorMA( point[0], -frame->origin_x, right, point[0] );
+	VectorMA(currententity->origin, -frame->origin_y, up, point[0]);
+	VectorMA(point[0], -frame->origin_x, right, point[0]);
 
-	VectorMA( currententity->origin, frame->height - frame->origin_y, up, point[1] );
-	VectorMA( point[1], -frame->origin_x, right, point[1] );
+	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point[1]);
+	VectorMA(point[1], -frame->origin_x, right, point[1]);
 
-	VectorMA( currententity->origin, frame->height - frame->origin_y, up, point[2] );
-	VectorMA( point[2], frame->width - frame->origin_x, right, point[2] );
+	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point[2]);
+	VectorMA(point[2], frame->width - frame->origin_x, right, point[2]);
 
-	VectorMA( currententity->origin, -frame->origin_y, up, point[3] );
-	VectorMA( point[3], frame->width - frame->origin_x, right, point[3] );
+	VectorMA(currententity->origin, -frame->origin_y, up, point[3]);
+	VectorMA(point[3], frame->width - frame->origin_x, right, point[3]);
 
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	glVertexPointer( 3, GL_FLOAT, 0, point );
-	glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-	glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
+	glVertexPointer(3, GL_FLOAT, 0, point);
+	glTexCoordPointer(2, GL_FLOAT, 0, tex);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	glDisable(GL_ALPHA_TEST);
 	R_TexEnv(GL_REPLACE);
@@ -257,18 +259,20 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	glColor4f(1, 1, 1, 1);
 }
 
-void
+static void
 R_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT)
+	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		R_LightPoint(currententity, currententity->origin, shadelight);
+		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
+			shadelight, r_modulate->value, lightspot);
 	}
 
 	R_EnableMultitexture(false);
@@ -315,7 +319,7 @@ R_DrawNullModel(entity_t *currententity)
 	glEnable(GL_TEXTURE_2D);
 }
 
-void
+static void
 R_DrawEntitiesOnList(void)
 {
 	int i;
@@ -361,7 +365,8 @@ R_DrawEntitiesOnList(void)
 					R_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					ri.Sys_Error(ERR_DROP, "Bad modeltype");
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -407,8 +412,9 @@ R_DrawEntitiesOnList(void)
 					R_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					ri.Sys_Error(ERR_DROP, "Bad modeltype");
-					break;
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
+					return;
 			}
 		}
 	}
@@ -417,14 +423,12 @@ R_DrawEntitiesOnList(void)
 	R_EnableMultitexture(false);
 }
 
-void
-R_DrawParticles2(int num_particles, const particle_t particles[],
-		const unsigned *colortable)
+static void
+R_DrawParticles2(int num_particles, const particle_t particles[])
 {
 	const particle_t *p;
 	int i;
 	vec3_t up, right;
-	float scale;
 	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 
 	YQ2_VLA(GLfloat, vtx, 3 * num_particles * 3);
@@ -446,12 +450,14 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 
 	for ( p = particles, i = 0; i < num_particles; i++, p++ )
 	{
+		float scale;
+
 		/* hack a scale up to keep particles from disapearing */
 		scale = ( p->origin [ 0 ] - r_origin [ 0 ] ) * vpn [ 0 ] +
 			( p->origin [ 1 ] - r_origin [ 1 ] ) * vpn [ 1 ] +
 			( p->origin [ 2 ] - r_origin [ 2 ] ) * vpn [ 2 ];
 
-		if ( scale < 20 )
+		if (scale < 20)
 		{
 			scale = 1;
 		}
@@ -460,7 +466,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 			scale = 1 + scale * 0.004;
 		}
 
-		*(unsigned *) color = colortable [ p->color ];
+		*(unsigned *) color = p->color;
 
 		for (j=0; j<3; j++) // Copy the color for each point
 		{
@@ -518,7 +524,7 @@ R_DrawParticles2(int num_particles, const particle_t particles[],
 	YQ2_VLAFREE(clr);
 }
 
-void
+static void
 R_DrawParticles(void)
 {
 	qboolean stereo_split_tb = ((gl_state.stereo_mode == STEREO_SPLIT_VERTICAL) && gl_state.camera_separation);
@@ -550,7 +556,7 @@ R_DrawParticles(void)
 
 		for ( i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++ )
 		{
-			*(int *) color = d_8to24table [ p->color & 0xFF ];
+			*(int *) color = p->color;
 			clr[index_clr++] = color[0]/255.0f;
 			clr[index_clr++] = color[1]/255.0f;
 			clr[index_clr++] = color[2]/255.0f;
@@ -582,11 +588,11 @@ R_DrawParticles(void)
 	else
 	{
 		R_DrawParticles2(r_newrefdef.num_particles,
-				r_newrefdef.particles, d_8to24table);
+				r_newrefdef.particles);
 	}
 }
 
-void
+static void
 R_PolyBlend(void)
 {
 	if (!gl_polyblend->value)
@@ -645,11 +651,11 @@ R_ResetClearColor(void)
 	}
 }
 
-void
+static void
 R_SetupFrame(void)
 {
+	const mleaf_t *leaf;
 	int i;
-	mleaf_t *leaf;
 
 	r_framecount++;
 
@@ -663,7 +669,7 @@ R_SetupFrame(void)
 	{
 		if (!r_worldmodel)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad world model", __func__);
+			Com_Error(ERR_DROP, "%s: bad world model", __func__);
 			return;
 		}
 
@@ -959,7 +965,7 @@ R_SetGL2D(void)
  * r_newrefdef must be set before the first call
  */
 static void
-R_RenderView(refdef_t *fd)
+R_RenderView(const refdef_t *fd)
 {
 	if ((gl_state.stereo_mode != STEREO_MODE_NONE) && gl_state.camera_separation) {
 
@@ -972,10 +978,10 @@ R_RenderView(refdef_t *fd)
 					int anaglyph_colours[] = { 0x4, 0x3 }; // Left = red, right = cyan.
 
 					if (strlen(gl1_stereo_anaglyph_colors->string) == 2) {
-						int eye, colour, missing_bits;
+						int eye, missing_bits;
 						// Decode the colour name from its character.
 						for (eye = 0; eye < 2; ++eye) {
-							colour = 0;
+							int colour = 0;
 							switch (toupper((unsigned char)gl1_stereo_anaglyph_colors->string[eye])) {
 								case 'B': ++colour; // 001 Blue
 								case 'G': ++colour; // 010 Green
@@ -1091,7 +1097,7 @@ R_RenderView(refdef_t *fd)
 
 	if (!r_worldmodel && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: NULL worldmodel", __func__);
+		Com_Error(ERR_DROP, "%s: NULL worldmodel", __func__);
 	}
 
 	if (r_speeds->value)
@@ -1100,7 +1106,7 @@ R_RenderView(refdef_t *fd)
 		c_alias_polys = 0;
 	}
 
-	R_PushDlights();
+	RI_PushDlights();
 
 	if (gl_finish->value)
 	{
@@ -1131,8 +1137,10 @@ R_RenderView(refdef_t *fd)
 	if (r_speeds->value)
 	{
 		R_Printf(PRINT_ALL, "%4i wpoly %4i epoly %i tex %i lmaps\n",
-				c_brush_polys, c_alias_polys, c_visible_textures,
-				c_visible_lightmaps);
+			c_brush_polys,
+			c_alias_polys,
+			c_visible_textures,
+			c_visible_lightmaps);
 	}
 
 	switch (gl_state.stereo_mode) {
@@ -1170,9 +1178,9 @@ GL_GetSpecialBufferModeForStereoMode(enum stereo_modes stereo_mode) {
 }
 
 static void
-R_SetLightLevel(entity_t *currententity)
+R_SetLightLevel(const entity_t *currententity)
 {
-	vec3_t shadelight;
+	vec3_t shadelight = {0};
 
 	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
@@ -1180,7 +1188,9 @@ R_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(currententity, r_newrefdef.vieworg, shadelight);
+	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
+		shadelight, r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */
@@ -1213,7 +1223,7 @@ RI_RenderFrame(refdef_t *fd)
 {
 	R_ApplyGLBuffer();	// menu rendering when needed
 	R_RenderView(fd);
-	R_SetLightLevel (NULL);
+	R_SetLightLevel(NULL);
 	R_SetGL2D();
 }
 
@@ -1226,6 +1236,9 @@ RI_RenderFrame(refdef_t *fd)
 void
 R_Register(void)
 {
+	/* Init default value */
+	R_InitTemporaryLMBuffer();
+
 	gl_lefthand = ri.Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 	r_gunfov = ri.Cvar_Get("r_gunfov", "80", CVAR_ARCHIVE);
 	r_farsee = ri.Cvar_Get("r_farsee", "0", CVAR_LATCH | CVAR_ARCHIVE);
@@ -1248,16 +1261,17 @@ R_Register(void)
 	gl1_particle_att_c = ri.Cvar_Get("gl1_particle_att_c", "0.01", CVAR_ARCHIVE);
 	gl1_particle_square = ri.Cvar_Get("gl1_particle_square", "0", CVAR_ARCHIVE);
 
+	gl_version_override = ri.Cvar_Get("gl_version_override", "0", CVAR_ARCHIVE);
 	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
 	r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);
 	gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	gl_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	gl1_stencilshadow = ri.Cvar_Get("gl1_stencilshadow", "0", CVAR_ARCHIVE);
-	gl1_dynamic = ri.Cvar_Get("gl1_dynamic", "1", 0);
+	r_dynamic = ri.Cvar_Get("r_dynamic", "1", 0);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl1_round_down = ri.Cvar_Get("gl1_round_down", "1", 0);
 	gl1_picmip = ri.Cvar_Get("gl1_picmip", "0", 0);
-	gl_showtris = ri.Cvar_Get("gl_showtris", "0", 0);
+	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	gl_showbbox = ri.Cvar_Get("gl_showbbox", "0", 0);
 	gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0);
 	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
@@ -1265,8 +1279,10 @@ R_Register(void)
 	r_clear = ri.Cvar_Get("r_clear", "0", 0);
 	r_cull = ri.Cvar_Get("r_cull", "1", 0);
 	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", 0);
-	gl1_flashblend = ri.Cvar_Get("gl1_flashblend", "0", 0);
+	r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
+	/* font should looks good with 8 pixels size */
+	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
@@ -1297,7 +1313,7 @@ R_Register(void)
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 
 	/* don't bilerp characters and crosshairs */
-	gl_nolerp_list = ri.Cvar_Get("r_nolerp_list", "pics/conchars.pcx pics/ch1.pcx pics/ch2.pcx pics/ch3.pcx", CVAR_ARCHIVE);
+	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
 	/* textures that should always be filtered, even if r_2D_unfiltered or an unfiltered gl mode is used */
 	r_lerp_list = ri.Cvar_Get("r_lerp_list", "", CVAR_ARCHIVE);
 	/* don't bilerp any 2D elements */
@@ -1398,7 +1414,7 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 	return rserr_ok;
 }
 
-qboolean
+static qboolean
 R_SetMode(void)
 {
 	rserr_t err;
@@ -1434,7 +1450,7 @@ R_SetMode(void)
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
 				gl_msaa_samples->modified = false;
 
-				if ((err = SetMode_impl(&vid.width, &vid.height, r_mode->value, 0)) == rserr_ok)
+				if (SetMode_impl(&vid.width, &vid.height, r_mode->value, 0) == rserr_ok)
 				{
 					return true;
 				}
@@ -1450,7 +1466,7 @@ R_SetMode(void)
 		}
 
 		/* try setting it back to something safe */
-		if ((err = SetMode_impl(&vid.width, &vid.height, gl_state.prev_mode, 0)) != rserr_ok)
+		if (SetMode_impl(&vid.width, &vid.height, gl_state.prev_mode, 0) != rserr_ok)
 		{
 			R_Printf(PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n");
 			return false;
@@ -1471,7 +1487,6 @@ qboolean
 RI_Init(void)
 {
 	int j;
-	byte *colormap;
 	extern float r_turbsin[256];
 
 #ifdef YQ2_GL1_GLES
@@ -1496,8 +1511,8 @@ RI_Init(void)
 	R_Printf(PRINT_ALL, "ref_gl1::R_Init() - DEBUG mode enabled\n");
 #endif
 
-	GetPCXPalette (&colormap, d_8to24table);
-	free(colormap);
+	ri.VID_GetPalette(NULL, d_8to24table);
+	ri.VID_GetPalette24to8((byte *)d_8to24table, &gl_state.d_16to8table);
 
 	R_Register();
 
@@ -1512,7 +1527,7 @@ RI_Init(void)
 	if (!R_SetMode())
 	{
 		QGL_Shutdown();
-		R_Printf(PRINT_ALL, "ref_gl::R_Init() - could not R_SetMode()\n");
+		R_Printf(PRINT_ALL, "%s() - could not R_SetMode()\n", __func__);
 		return false;
 	}
 
@@ -1776,6 +1791,7 @@ RI_Init(void)
 	R_ResetClearColor();
 	R_SetDefaultState();
 
+	R_VertBufferInit();
 	Scrap_Init();
 	R_InitImages();
 	Mod_Init();
@@ -1799,15 +1815,25 @@ RI_Shutdown(void)
 	Mod_FreeAll();
 
 	R_ShutdownImages();
+	RDraw_FreeLocal();
+
+	R_VertBufferFree();
 
 	/* shutdown OS specific OpenGL stuff like contexts, etc.  */
 	RI_ShutdownContext();
 
 	/* shutdown our QGL subsystem */
 	QGL_Shutdown();
+
+	R_FreeTemporaryLMBuffer();
+
+	if (gl_state.d_16to8table)
+	{
+		free(gl_state.d_16to8table);
+	}
 }
 
-void
+static void
 RI_BeginFrame(float camera_separation)
 {
 	gl_state.camera_separation = camera_separation;
@@ -1940,13 +1966,13 @@ RI_BeginFrame(float camera_separation)
 
 	/* texturemode stuff */
 	if (gl_texturemode->modified || (gl_config.anisotropic && gl_anisotropic->modified)
-	    || gl_nolerp_list->modified || r_lerp_list->modified
+	    || r_nolerp_list->modified || r_lerp_list->modified
 		|| r_2D_unfiltered->modified || r_videos_unfiltered->modified)
 	{
 		R_TextureMode(gl_texturemode->string);
 		gl_texturemode->modified = false;
 		gl_anisotropic->modified = false;
-		gl_nolerp_list->modified = false;
+		r_nolerp_list->modified = false;
 		r_lerp_list->modified = false;
 		r_2D_unfiltered->modified = false;
 		r_videos_unfiltered->modified = false;
@@ -1974,7 +2000,7 @@ RI_BeginFrame(float camera_separation)
 	R_Clear();
 }
 
-void
+static void
 RI_SetPalette(const unsigned char *palette)
 {
 	int i;
@@ -2009,7 +2035,6 @@ RI_SetPalette(const unsigned char *palette)
 	R_ResetClearColor();
 }
 
-/* R_DrawBeam */
 void
 R_DrawBeam(entity_t *e)
 {
@@ -2023,7 +2048,6 @@ R_DrawBeam(entity_t *e)
 
 	GLfloat vtx[3*NUM_BEAM_SEGS*4];
 	unsigned int index_vtx = 0;
-	unsigned int pointb;
 
 	oldorigin[0] = e->oldorigin[0];
 	oldorigin[1] = e->oldorigin[1];
@@ -2070,6 +2094,8 @@ R_DrawBeam(entity_t *e)
 
 	for ( i = 0; i < NUM_BEAM_SEGS; i++ )
 	{
+		unsigned int pointb;
+
 		vtx[index_vtx++] = start_points [ i ][ 0 ];
 		vtx[index_vtx++] = start_points [ i ][ 1 ];
 		vtx[index_vtx++] = start_points [ i ][ 2 ];
@@ -2100,22 +2126,6 @@ R_DrawBeam(entity_t *e)
 	glDepthMask(GL_TRUE);
 }
 
-extern int RI_PrepareForWindow(void);
-extern int RI_InitContext(void* win);
-
-extern void RI_BeginRegistration(char *model);
-extern struct model_s * RI_RegisterModel(char *name);
-extern struct image_s * RI_RegisterSkin(const char *name);
-
-extern void RI_SetSky(const char *name, float rotate, vec3_t axis);
-extern void RI_EndRegistration(void);
-
-extern void RI_RenderFrame(refdef_t *fd);
-
-extern void RI_SetPalette(const unsigned char *palette);
-extern qboolean RI_IsVSyncActive(void);
-extern void RI_EndFrame(void);
-
 /*
 =====================
 RI_EndWorldRenderpass
@@ -2130,53 +2140,52 @@ RI_EndWorldRenderpass( void )
 Q2_DLL_EXPORTED refexport_t
 GetRefAPI(refimport_t imp)
 {
-	refexport_t re = {0};
+	refexport_t refexport = {0};
 
 	ri = imp;
 
-	re.api_version = API_VERSION;
-	re.framework_version = RI_GetSDLVersion();
+	refexport.api_version = API_VERSION;
+	refexport.framework_version = RI_GetSDLVersion();
 
-	re.Init = RI_Init;
-	re.Shutdown = RI_Shutdown;
-	re.PrepareForWindow = RI_PrepareForWindow;
-	re.InitContext = RI_InitContext;
-	re.GetDrawableSize = RI_GetDrawableSize;
-	re.ShutdownContext = RI_ShutdownContext;
-	re.IsVSyncActive = RI_IsVSyncActive;
-	re.BeginRegistration = RI_BeginRegistration;
-	re.RegisterModel = RI_RegisterModel;
-	re.RegisterSkin = RI_RegisterSkin;
+	refexport.Init = RI_Init;
+	refexport.Shutdown = RI_Shutdown;
+	refexport.PrepareForWindow = RI_PrepareForWindow;
+	refexport.InitContext = RI_InitContext;
+	refexport.GetDrawableSize = RI_GetDrawableSize;
+	refexport.ShutdownContext = RI_ShutdownContext;
+	refexport.IsVSyncActive = RI_IsVSyncActive;
+	refexport.BeginRegistration = RI_BeginRegistration;
+	refexport.RegisterModel = RI_RegisterModel;
+	refexport.RegisterSkin = RI_RegisterSkin;
 
-	re.SetSky = RI_SetSky;
-	re.EndRegistration = RI_EndRegistration;
+	refexport.SetSky = RI_SetSky;
+	refexport.EndRegistration = RI_EndRegistration;
 
-	re.RenderFrame = RI_RenderFrame;
+	refexport.RenderFrame = RI_RenderFrame;
 
-	re.DrawFindPic = RDraw_FindPic;
+	refexport.DrawFindPic = RDraw_FindPic;
 
-	re.DrawGetPicSize = RDraw_GetPicSize;
-	//re.DrawPic = Draw_Pic;
-	re.DrawPicScaled = RDraw_PicScaled;
-	re.DrawStretchPic = RDraw_StretchPic;
-	//re.DrawChar = Draw_Char;
-	re.DrawCharScaled = RDraw_CharScaled;
-	re.DrawTileClear = RDraw_TileClear;
-	re.DrawFill = RDraw_Fill;
-	re.DrawFadeScreen = RDraw_FadeScreen;
+	refexport.DrawGetPicSize = RDraw_GetPicSize;
+	refexport.DrawPicScaled = RDraw_PicScaled;
+	refexport.DrawStretchPic = RDraw_StretchPic;
+	refexport.DrawCharScaled = RDraw_CharScaled;
+	refexport.DrawStringScaled = RDraw_StringScaled;
+	refexport.DrawTileClear = RDraw_TileClear;
+	refexport.DrawFill = RDraw_Fill;
+	refexport.DrawFadeScreen = RDraw_FadeScreen;
 
-	re.DrawStretchRaw = RDraw_StretchRaw;
+	refexport.DrawStretchRaw = RDraw_StretchRaw;
 
-	re.SetPalette = RI_SetPalette;
-	re.BeginFrame = RI_BeginFrame;
-	re.EndWorldRenderpass = RI_EndWorldRenderpass;
-	re.EndFrame = RI_EndFrame;
+	refexport.SetPalette = RI_SetPalette;
+	refexport.BeginFrame = RI_BeginFrame;
+	refexport.EndWorldRenderpass = RI_EndWorldRenderpass;
+	refexport.EndFrame = RI_EndFrame;
 
-    // Tell the client that we're unsing the
+	// Tell the client that we're unsing the
 	// new renderer restart API.
-    ri.Vid_RequestRestart(RESTART_NO);
+	ri.Vid_RequestRestart(RESTART_NO);
 
-	return re;
+	return refexport;
 }
 
 void R_Printf(int level, const char* msg, ...)
@@ -2211,6 +2220,28 @@ Com_Printf(const char *msg, ...)
 	va_start(argptr, msg);
 	ri.Com_VPrintf(PRINT_ALL, msg, argptr);
 	va_end(argptr);
+}
+
+void
+Com_DPrintf(const char *msg, ...)
+{
+	va_list argptr;
+	va_start(argptr, msg);
+	ri.Com_VPrintf(PRINT_DEVELOPER, msg, argptr);
+	va_end(argptr);
+}
+
+void
+Com_Error(int code, const char *fmt, ...)
+{
+	va_list argptr;
+	char text[4096]; // MAXPRINTMSG == 4096
+
+	va_start(argptr, fmt);
+	vsnprintf(text, sizeof(text), fmt, argptr);
+	va_end(argptr);
+
+	ri.Sys_Error(code, "%s", text);
 }
 
 #ifdef DEBUG

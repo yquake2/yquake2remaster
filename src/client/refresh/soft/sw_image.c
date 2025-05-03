@@ -1,28 +1,28 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
 #include "header/local.h"
 
-#define	MAX_RIMAGES	1024
 static image_t		*r_whitetexture_mip = NULL;
-static image_t		r_images[MAX_RIMAGES];
+static image_t		r_images[MAX_TEXTURES];
 static int		numr_images;
 static int		image_max = 0;
 
@@ -81,13 +81,14 @@ R_ImageList_f (void)
 	}
 	R_Printf(PRINT_ALL, "Total texel count: %i\n", texels);
 	freeup = R_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
 //=======================================================
 
 static image_t *
-R_FindFreeImage (void)
+R_FindFreeImage(const char *name)
 {
 	image_t		*image;
 	int			i;
@@ -99,12 +100,19 @@ R_FindFreeImage (void)
 		{
 			break;
 		}
+
+		if (!strcmp(image->name, name))
+		{
+			/* we already have such image */
+			image->registration_sequence = registration_sequence;
+			return image;
+		}
 	}
 
 	if (i == numr_images)
 	{
-		if (numr_images == MAX_RIMAGES)
-			ri.Sys_Error(ERR_DROP, "%s: Max images", __func__);
+		if (numr_images == MAX_TEXTURES)
+			Com_Error(ERR_DROP, "%s: Max images", __func__);
 		numr_images++;
 	}
 	image = &r_images[i];
@@ -209,6 +217,22 @@ Get_BestImageSize(const image_t *image, int *req_width, int *req_height)
 
 static byte *d_16to8table = NULL; // 16 to 8 bit conversion table
 
+int
+R_ConvertRGBColor(unsigned color)
+{
+	YQ2_ALIGNAS_TYPE(unsigned) byte rgbcolor[4];
+	unsigned int r, g, b, c;
+
+	*(int *)rgbcolor = color;
+	r = ( rgbcolor[0] >> 3 ) & 31;
+	g = ( rgbcolor[1] >> 2 ) & 63;
+	b = ( rgbcolor[2] >> 3 ) & 31;
+
+	c = r | ( g << 5 ) | ( b << 11 );
+
+	return d_16to8table[c & 0xFFFF];
+}
+
 void
 R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
 	qboolean transparent)
@@ -243,7 +267,7 @@ R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
 
 /*
 ================
-R_LoadPic
+R_LoadPic8
 
 ================
 */
@@ -262,9 +286,13 @@ R_LoadPic8(const char *name, const byte *pic, int width, int realwidth, int heig
 		return NULL;
 	}
 
-	image = R_FindFreeImage();
+	image = R_FindFreeImage(name);
+
 	if (strlen(name) >= sizeof(image->name))
-		ri.Sys_Error(ERR_DROP, "%s: '%s' is too long", __func__, name);
+	{
+		Com_Error(ERR_DROP, "%s: '%s' is too long", __func__, name);
+	}
+
 	strcpy (image->name, name);
 	image->registration_sequence = registration_sequence;
 
@@ -278,8 +306,8 @@ R_LoadPic8(const char *name, const byte *pic, int width, int realwidth, int heig
 	image->pixels[0] = malloc(full_size);
 	if (!image->pixels[0])
 	{
-		ri.Sys_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
-		// code never returns after ERR_FATAL
+		Com_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
+		/* code never returns after ERR_FATAL */
 		return NULL;
 	}
 
@@ -318,7 +346,7 @@ R_LoadPic8(const char *name, const byte *pic, int width, int realwidth, int heig
 	return image;
 }
 
-static image_t *
+image_t *
 R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int height, int realheight,
 	size_t data_size, imagetype_t type, int bits)
 {
@@ -328,7 +356,7 @@ R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int heigh
 		realheight = height;
 	}
 
-	if (data_size <= 0 || !width || !height)
+	if (!data_size || !width || !height)
 	{
 		return NULL;
 	}
@@ -342,8 +370,8 @@ R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int heigh
 		pic8 = malloc(data_size);
 		if (!pic8)
 		{
-			ri.Sys_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
-			// code never returns after ERR_FATAL
+			Com_Error(ERR_FATAL, "%s: Can't allocate image.", __func__);
+			/* code never returns after ERR_FATAL */
 			return NULL;
 		}
 
@@ -437,10 +465,36 @@ R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int heigh
 		}
 		else
 		{
-			return R_LoadPic8 (name, pic,
-				width, realwidth,
-				height, realheight,
-				data_size, type);
+			if ((width != realwidth) &&
+				(height != realheight) &&
+				type != it_pic
+			)
+			{
+				/* image could be prescalled */
+				byte *scaled = NULL;
+				image_t	*image;
+
+				scaled = malloc(realwidth * realheight);
+				if (!scaled)
+					return NULL;
+
+				R_ImageShrink(pic, scaled, width, realwidth, height, realheight);
+
+				image = R_LoadPic8(name, scaled,
+								realwidth, realwidth,
+								realwidth, realheight,
+								realwidth * realheight, type);
+				free(scaled);
+
+				return image;
+			}
+			else
+			{
+				return R_LoadPic8 (name, pic,
+					width, realwidth,
+					height, realheight,
+					data_size, type);
+			}
 		}
 	}
 }
@@ -494,25 +548,29 @@ Finds or loads the given image or NULL
 ===============
 */
 image_t	*
-R_FindImage(const char *name, imagetype_t type)
+R_FindImage(const char *originname, imagetype_t type)
 {
-	image_t	*image;
-	size_t len;
-	int	i;
-	char *ptr;
-	char namewe[256];
+	char namewe[256], name[256] = {0};
 	const char* ext;
+	image_t *image;
+	size_t len;
+	int i;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	Q_strlcpy(name, originname, sizeof(name));
 
 	/* just return white image if show lightmap only */
 	if ((type == it_wall || type == it_skin) && r_lightmap->value)
 	{
 		return r_whitetexture_mip;
 	}
+
+	/* fix backslashes */
+	Q_replacebackslash(name);
 
 	ext = COM_FileExtension(name);
 	if (!ext[0])
@@ -525,17 +583,12 @@ R_FindImage(const char *name, imagetype_t type)
 	len = (ext - name) - 1;
 	if ((len < 1) || (len > sizeof(namewe) - 1))
 	{
+		Com_DPrintf("%s: Bad filename %s\n", __func__, name);
 		return NULL;
 	}
 
 	memcpy(namewe, name, len);
 	namewe[len] = 0;
-
-	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
 
 	// look for it
 	for (i=0, image=r_images ; i<numr_images ; i++,image++)
@@ -615,7 +668,7 @@ R_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numr_images + used) < MAX_RIMAGES;
+	return (numr_images + used) < MAX_TEXTURES;
 }
 
 static struct texture_buffer {
@@ -692,30 +745,12 @@ R_InitImages
 void
 R_InitImages (void)
 {
-	unsigned char * table16to8;
 	registration_sequence = 1;
 	image_max = 0;
 
-	d_16to8table = NULL;
-	ri.FS_LoadFile("pics/16to8.dat", (void **)&table16to8);
-
-	if ( !table16to8 )
-	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/16to8.dat", __func__);
-		// code never returns after ERR_FATAL
-		return;
-	}
-
-	d_16to8table = malloc(0x10000);
-	if ( !d_16to8table )
-	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't allocate memory for d_16to8table", __func__);
-		// code never returns after ERR_FATAL
-		return;
-	}
-	memcpy(d_16to8table, table16to8, 0x10000);
-	ri.FS_FreeFile((void *)table16to8);
-
+	ri.VID_GetPalette(&vid_colormap, (unsigned *)d_8to24table);
+	ri.VID_GetPalette24to8(d_8to24table, &d_16to8table);
+	vid_alphamap = vid_colormap + 64*256;
 	R_InitTextures ();
 }
 

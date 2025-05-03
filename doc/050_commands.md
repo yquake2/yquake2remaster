@@ -36,9 +36,28 @@ original clients (Vanilla Quake II) commands are still in place.
 * **spawnonstart classname**: Spawn new entity of `classname` at start point.
 
 * **listmaps**: Lists available maps for the player to load. Maps from
-  loaded pak files will be listed first followed by maps placed in 
+  loaded pak files will be listed first followed by maps placed in
   the current game's maps folder.
 
 * **vstr**: Inserts the current value of a variable as command text.
 
 * **playermodels**: Lists available multiplayer models.
+
+* **set** / **seta** / **setu** / **sets**: set cvar valu with different flags.
+
+* **listlights**: Show lights style and dlights list.
+
+* **thirdperson**: Third person view.
+
+## Jabot
+
+* **sv makenodes**: Start creating a navigation file from scratch.
+
+* **sv editnodes**: Modify the loaded navigation file.
+
+* **sv savenodes**: Save nodes file
+
+* **sv addbot <team> <name> <skin>**: Spawn a bot (consult ACEbot readme,
+  it's just the same thing)
+
+* **sv removebot <name>**: Remove a bot ("all" removes every bot in the map).

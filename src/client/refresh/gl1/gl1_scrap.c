@@ -41,18 +41,20 @@ qboolean R_Upload8(byte *data,
 int
 Scrap_AllocBlock(int w, int h, int *x, int *y)
 {
-	int i, j;
-	int best, best2;
 	int texnum;
 	w += 2;	// add an empty border to all sides
 	h += 2;
 
 	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
+		int best, i;
+
 		best = gl_state.scrap_height;
 
 		for (i = 0; i < gl_state.scrap_width - w; i++)
 		{
+			int best2, j;
+
 			best2 = 0;
 
 			for (j = 0; j < w; j++)

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +38,7 @@ static float bobmove;
 static int bobcycle; /* odd cycles are right foot going forward */
 static float bobfracsin; /* sin(bobfrac*M_PI) */
 
-float
+static float
 SV_CalcRoll(vec3_t angles, vec3_t velocity)
 {
 	float sign;
@@ -65,7 +66,7 @@ SV_CalcRoll(vec3_t angles, vec3_t velocity)
 /*
  * Handles color blends and view kicks
  */
-void
+static void
 P_DamageFeedback(edict_t *player)
 {
 	gclient_t *client;
@@ -115,7 +116,7 @@ P_DamageFeedback(edict_t *player)
 	}
 
 	/* start a pain animation if still in the player model */
-	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == 255))
+	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == CUSTOM_PLAYER_MODEL))
 	{
 		static int i;
 
@@ -261,6 +262,8 @@ P_DamageFeedback(edict_t *player)
 }
 
 /*
+ * Auto pitching on slopes?
+ *
  * fall from 128: 400 = 160000
  * fall from 256: 580 = 336400
  * fall from 384: 720 = 518400
@@ -269,7 +272,7 @@ P_DamageFeedback(edict_t *player)
  *
  * damage = deltavelocity*deltavelocity  * 0.0001
  */
-void
+static void
 SV_CalcViewOffset(edict_t *ent)
 {
 	float *angles;
@@ -277,6 +280,11 @@ SV_CalcViewOffset(edict_t *ent)
 	float ratio;
 	float delta;
 	vec3_t v;
+
+	if (!ent)
+	{
+		return;
+	}
 
 	/* base angles */
 	angles = ent->client->ps.kick_angles;
@@ -286,8 +294,17 @@ SV_CalcViewOffset(edict_t *ent)
 	{
 		VectorClear(angles);
 
-		ent->client->ps.viewangles[ROLL] = 40;
-		ent->client->ps.viewangles[PITCH] = -15;
+		if (ent->flags & FL_SAM_RAIMI)
+		{
+			ent->client->ps.viewangles[ROLL] = 0;
+			ent->client->ps.viewangles[PITCH] = 0;
+		}
+		else
+		{
+			ent->client->ps.viewangles[ROLL] = 40;
+			ent->client->ps.viewangles[PITCH] = -15;
+		}
+
 		ent->client->ps.viewangles[YAW] = ent->client->killer_yaw;
 	}
 	else
@@ -349,6 +366,8 @@ SV_CalcViewOffset(edict_t *ent)
 		angles[ROLL] += delta;
 	}
 
+	/* =================================== */
+
 	/* base origin */
 	VectorClear(v);
 
@@ -381,90 +400,139 @@ SV_CalcViewOffset(edict_t *ent)
 	/* absolutely bound offsets
 	   so the view can never be
 	   outside the player box */
-	if (v[0] < -14)
+	if (!ent->client->chasetoggle)
 	{
-		v[0] = -14;
-	}
-	else if (v[0] > 14)
-	{
-		v[0] = 14;
-	}
+		if (v[0] < -14)
+		{
+			v[0] = -14;
+		}
+		else if (v[0] > 14)
+		{
+			v[0] = 14;
+		}
 
-	if (v[1] < -14)
-	{
-		v[1] = -14;
-	}
-	else if (v[1] > 14)
-	{
-		v[1] = 14;
-	}
+		if (v[1] < -14)
+		{
+			v[1] = -14;
+		}
+		else if (v[1] > 14)
+		{
+			v[1] = 14;
+		}
 
-	if (v[2] < -22)
-	{
-		v[2] = -22;
+		if (v[2] < -22)
+		{
+			v[2] = -22;
+		}
+		else if (v[2] > 30)
+		{
+			v[2] = 30;
+		}
 	}
-	else if (v[2] > 30)
+	else
 	{
-		v[2] = 30;
+		VectorSet(v, 0, 0, 0);
+		if (ent->client->chasecam)
+		{
+			int i;
+
+			/*
+			 * code had used ent->client->ps.pmove.origin,
+			 * that can't be unused with 4k+ coordinates,
+			 * so use viewoffset with clamp
+			 */
+			VectorSubtract(ent->client->chasecam->s.origin, ent->s.origin, v);
+
+			/* Clamp coordinates to -30..30 */
+			for (i = 0; i < 3; i++)
+			{
+				if (v[i] > 30)
+				{
+					v[i] = 30;
+				}
+				else if (v[i] < -30)
+				{
+					v[i] = -30;
+				}
+			}
+		}
 	}
 
 	VectorCopy(v, ent->client->ps.viewoffset);
 }
 
-void
+static void
 SV_CalcGunOffset(edict_t *ent)
 {
 	int i;
 	float delta;
+	static gitem_t *heatbeam;
 
 	if (!ent)
 	{
 		return;
 	}
 
-	/* gun angles from bobbing */
-	ent->client->ps.gunangles[ROLL] = xyspeed * bobfracsin * 0.005;
-	ent->client->ps.gunangles[YAW] = xyspeed * bobfracsin * 0.01;
-
-	if (bobcycle & 1)
+	if (!heatbeam)
 	{
-		ent->client->ps.gunangles[ROLL] = -ent->client->ps.gunangles[ROLL];
-		ent->client->ps.gunangles[YAW] = -ent->client->ps.gunangles[YAW];
+		heatbeam = FindItemByClassname("weapon_plasmabeam");
 	}
 
-	ent->client->ps.gunangles[PITCH] = xyspeed * bobfracsin * 0.005;
-
-	/* gun angles from delta movement */
-	for (i = 0; i < 3; i++)
+	/* heatbeam shouldn't bob so the beam looks right */
+	if (ent->client->pers.weapon != heatbeam)
 	{
-		delta = ent->client->oldviewangles[i] - ent->client->ps.viewangles[i];
+		/* gun angles from bobbing */
+		ent->client->ps.gunangles[ROLL] = xyspeed * bobfracsin * 0.005;
+		ent->client->ps.gunangles[YAW] = xyspeed * bobfracsin * 0.01;
 
-		if (delta > 180)
+		if (bobcycle & 1)
 		{
-			delta -= 360;
+			ent->client->ps.gunangles[ROLL] = -ent->client->ps.gunangles[ROLL];
+			ent->client->ps.gunangles[YAW] = -ent->client->ps.gunangles[YAW];
 		}
 
-		if (delta < -180)
-		{
-			delta += 360;
-		}
+		ent->client->ps.gunangles[PITCH] = xyspeed * bobfracsin * 0.005;
 
-		if (delta > 45)
+		/* gun angles from delta movement */
+		for (i = 0; i < 3; i++)
 		{
-			delta = 45;
-		}
+			delta = ent->client->oldviewangles[i] -
+					ent->client->ps.viewangles[i];
 
-		if (delta < -45)
+			if (delta > 180)
+			{
+				delta -= 360;
+			}
+
+			if (delta < -180)
+			{
+				delta += 360;
+			}
+
+			if (delta > 45)
+			{
+				delta = 45;
+			}
+
+			if (delta < -45)
+			{
+				delta = -45;
+			}
+
+			if (i == YAW)
+			{
+				ent->client->ps.gunangles[ROLL] += 0.1 * delta;
+			}
+
+			ent->client->ps.gunangles[i] += 0.2 * delta;
+		}
+	}
+	else
+	{
+		for (i = 0; i < 3; i++)
 		{
-			delta = -45;
+			ent->client->ps.gunangles[i] = 0;
 		}
-
-		if (i == YAW)
-		{
-			ent->client->ps.gunangles[ROLL] += 0.1 * delta;
-		}
-
-		ent->client->ps.gunangles[i] += 0.2 * delta;
 	}
 
 	/* gun height */
@@ -479,7 +547,7 @@ SV_CalcGunOffset(edict_t *ent)
 	}
 }
 
-void
+static void
 SV_AddBlend(float r, float g, float b, float a, float *v_blend)
 {
 	float a2, a3;
@@ -503,7 +571,7 @@ SV_AddBlend(float r, float g, float b, float a, float *v_blend)
 	v_blend[3] = a2;
 }
 
-void
+static void
 SV_CalcBlend(edict_t *ent)
 {
 	int contents;
@@ -519,7 +587,16 @@ SV_CalcBlend(edict_t *ent)
 		ent->client->ps.blend[2] = ent->client->ps.blend[3] = 0;
 
 	/* add for contents */
-	VectorAdd(ent->s.origin, ent->client->ps.viewoffset, vieworg);
+	if (ent->client->chasetoggle)
+	{
+		/* if always on then do shading to camera not player */
+		VectorCopy(ent->client->chasecam->s.origin, vieworg);
+	}
+	else
+	{
+		VectorAdd(ent->s.origin, ent->client->ps.viewoffset, vieworg);
+	}
+
 	contents = gi.pointcontents(vieworg);
 
 	if (contents & (CONTENTS_LAVA | CONTENTS_SLIME | CONTENTS_WATER))
@@ -560,6 +637,36 @@ SV_CalcBlend(edict_t *ent)
 			SV_AddBlend(0, 0, 1, 0.08, ent->client->ps.blend);
 		}
 	}
+	else if (ent->client->double_framenum > level.framenum)
+	{
+		remaining = ent->client->double_framenum - level.framenum;
+
+		if (remaining == 30) /* beginning to fade */
+		{
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ddamage2.wav"),
+					1, ATTN_NORM, 0);
+		}
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			SV_AddBlend(0.9, 0.7, 0, 0.08, ent->client->ps.blend);
+		}
+	}
+	else if (ent->client->quadfire_framenum > level.framenum)
+	{
+		remaining = ent->client->quadfire_framenum - level.framenum;
+
+		if (remaining == 30) /* beginning to fade */
+		{
+			gi.sound(ent, CHAN_ITEM, gi.soundindex("items/quadfire2.wav"),
+					1, ATTN_NORM, 0);
+		}
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			SV_AddBlend(1, 0.2, 0.5, 0.08, ent->client->ps.blend);
+		}
+	}
 	else if (ent->client->invincible_framenum > level.framenum)
 	{
 		remaining = ent->client->invincible_framenum - level.framenum;
@@ -573,6 +680,21 @@ SV_CalcBlend(edict_t *ent)
 		if ((remaining > 30) || (remaining & 4))
 		{
 			SV_AddBlend(1, 1, 0, 0.08, ent->client->ps.blend);
+		}
+	}
+	else if (ent->client->invisible_framenum > level.framenum)
+	{
+		remaining = ent->client->invisible_framenum - level.framenum;
+
+		if (remaining == 30) /* beginning to fade */
+		{
+			gi.sound(ent, CHAN_ITEM, gi.soundindex(
+							"items/protect2.wav"), 1, ATTN_NORM, 0);
+		}
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			SV_AddBlend(0.8f, 0.8f, 0.8f, 0.08f, ent->client->ps.blend);
 		}
 	}
 	else if (ent->client->enviro_framenum > level.framenum)
@@ -604,6 +726,32 @@ SV_CalcBlend(edict_t *ent)
 		{
 			SV_AddBlend(0.4, 1, 0.4, 0.04, ent->client->ps.blend);
 		}
+	}
+
+	if (ent->client->nuke_framenum > level.framenum)
+	{
+		float brightness;
+		brightness = (ent->client->nuke_framenum - level.framenum) / 20.0;
+		SV_AddBlend(1, 1, 1, brightness, ent->client->ps.blend);
+	}
+
+	if (ent->client->ir_framenum > level.framenum)
+	{
+		remaining = ent->client->ir_framenum - level.framenum;
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			ent->client->ps.rdflags |= RDF_IRGOGGLES;
+			SV_AddBlend(1, 0, 0, 0.2, ent->client->ps.blend);
+		}
+		else
+		{
+			ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
+		}
+	}
+	else
+	{
+		ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
 	}
 
 	/* add for damage */
@@ -639,7 +787,7 @@ SV_CalcBlend(edict_t *ent)
 	}
 }
 
-void
+static void
 P_FallingDamage(edict_t *ent)
 {
 	float delta;
@@ -651,7 +799,7 @@ P_FallingDamage(edict_t *ent)
 		return;
 	}
 
-	if (ent->s.modelindex != 255)
+	if (ent->s.modelindex != CUSTOM_PLAYER_MODEL)
 	{
 		return; /* not in the player model */
 	}
@@ -677,6 +825,16 @@ P_FallingDamage(edict_t *ent)
 	}
 
 	delta = delta * delta * 0.0001;
+
+	/* never take damage if just release grapple or on grapple */
+	if (ctf->value && (
+		(level.time - ent->client->ctf_grapplereleasetime <= FRAMETIME * 2) ||
+		(ent->client->ctf_grapple &&
+		 (ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY))
+	))
+	{
+		return;
+	}
 
 	/* never take falling damage if completely underwater */
 	if (ent->waterlevel == 3)
@@ -751,7 +909,7 @@ P_FallingDamage(edict_t *ent)
 	}
 }
 
-void
+static void
 P_WorldEffects(void)
 {
 	qboolean breather;
@@ -807,7 +965,7 @@ P_WorldEffects(void)
 		current_player->flags &= ~FL_INWATER;
 	}
 
-	/* check for head just going under moove^^water */
+	/* check for head just going under water */
 	if ((old_waterlevel != 3) && (waterlevel == 3))
 	{
 		gi.sound(current_player, CHAN_BODY, gi.soundindex(
@@ -910,7 +1068,8 @@ P_WorldEffects(void)
 	}
 
 	/* check for sizzle damage */
-	if (waterlevel && (current_player->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
+	if (waterlevel &&
+		(current_player->watertype & (CONTENTS_LAVA | CONTENTS_SLIME)))
 	{
 		if (current_player->watertype & CONTENTS_LAVA)
 		{
@@ -972,11 +1131,32 @@ G_SetClientEffects(edict_t *ent)
 	}
 
 	ent->s.effects = 0;
+	ent->rrs.effects = 0;
+
+	/* player is always ir visible, even dead. */
 	ent->s.renderfx = RF_IR_VISIBLE;
 
 	if ((ent->health <= 0) || level.intermissiontime)
 	{
 		return;
+	}
+
+	if (ent->flags & FL_FLASHLIGHT)
+	{
+		ent->rrs.effects |= EF_FLASHLIGHT;
+	}
+
+	if (ent->flags & FL_DISGUISED)
+	{
+		ent->s.renderfx |= RF_USE_DISGUISE;
+	}
+
+	if (gamerules && gamerules->value)
+	{
+		if (DMGame.PlayerEffects)
+		{
+			DMGame.PlayerEffects(ent);
+		}
 	}
 
 	if (ent->powerarmor_time > level.time)
@@ -994,14 +1174,50 @@ G_SetClientEffects(edict_t *ent)
 		}
 	}
 
+	if (ctf->value)
+	{
+		CTFEffects(ent);
+	}
+
 	if (ent->client->quad_framenum > level.framenum)
 	{
 		remaining = ent->client->quad_framenum - level.framenum;
 
 		if ((remaining > 30) || (remaining & 4))
 		{
+			CTFSetPowerUpEffect(ent, EF_QUAD);
+		}
+	}
+
+	if (ent->client->double_framenum > level.framenum)
+	{
+		remaining = ent->client->double_framenum - level.framenum;
+
+		if ((remaining > 30) || (remaining & 4))
+		{
+			ent->s.effects |= EF_DOUBLE;
+		}
+	}
+
+	if (ent->client->quadfire_framenum > level.framenum)
+	{
+		remaining = ent->client->quadfire_framenum - level.framenum;
+
+		if ((remaining > 30) || (remaining & 4))
+		{
 			ent->s.effects |= EF_QUAD;
 		}
+	}
+
+	if ((ent->client->owned_sphere) &&
+		(ent->client->owned_sphere->spawnflags == 1))
+	{
+		ent->s.effects |= EF_HALF_DAMAGE;
+	}
+
+	if (ent->client->tracker_pain_framenum > level.framenum)
+	{
+		ent->s.effects |= EF_TRACKERTRAIL;
 	}
 
 	if (ent->client->invincible_framenum > level.framenum)
@@ -1010,7 +1226,7 @@ G_SetClientEffects(edict_t *ent)
 
 		if ((remaining > 30) || (remaining & 4))
 		{
-			ent->s.effects |= EF_PENT;
+			CTFSetPowerUpEffect(ent, EF_PENT);
 		}
 	}
 
@@ -1115,6 +1331,10 @@ G_SetClientSound(edict_t *ent)
 	{
 		ent->s.sound = gi.soundindex("weapons/bfg_hum.wav");
 	}
+	else if (strcmp(weap, "weapon_phalanx") == 0)
+	{
+		ent->s.sound = gi.soundindex("weapons/phaloop.wav");
+	}
 	else if (ent->client->weapon_sound)
 	{
 		ent->s.sound = ent->client->weapon_sound;
@@ -1126,7 +1346,7 @@ G_SetClientSound(edict_t *ent)
 }
 
 void
-G_SetClientFrame(edict_t *ent)
+G_SetClientFrame(edict_t *ent, float speed)
 {
 	gclient_t *client;
 	qboolean duck, run;
@@ -1136,9 +1356,14 @@ G_SetClientFrame(edict_t *ent)
 		return;
 	}
 
-	if (ent->s.modelindex != 255)
+	if (ent->s.modelindex != CUSTOM_PLAYER_MODEL)
 	{
 		return; /* not in the player model */
+	}
+
+	if (speed)
+	{
+		xyspeed = speed;
 	}
 
 	client = ent->client;
@@ -1219,14 +1444,24 @@ newanim:
 
 	if (!ent->groundentity)
 	{
-		client->anim_priority = ANIM_JUMP;
-
-		if (ent->s.frame != FRAME_jump2)
+		/* if on grapple, don't go into jump
+		   frame, go into standing frame */
+		if (client->ctf_grapple)
 		{
-			ent->s.frame = FRAME_jump1;
+			ent->s.frame = FRAME_stand01;
+			client->anim_end = FRAME_stand40;
 		}
+		else
+		{
+			client->anim_priority = ANIM_JUMP;
 
-		client->anim_end = FRAME_jump2;
+			if (ent->s.frame != FRAME_jump2)
+			{
+				ent->s.frame = FRAME_jump1;
+			}
+
+			client->anim_end = FRAME_jump2;
+		}
 	}
 	else if (run)
 	{
@@ -1283,7 +1518,9 @@ ClientEndServerFrame(edict_t *ent)
 	   behind the body position when pushed -- "sinking into plats" */
 	for (i = 0; i < 3; i++)
 	{
-		current_client->ps.pmove.origin[i] = ent->s.origin[i] * 8.0;
+		/*
+		 * set ps.pmove.origin is not required as server uses ent.origin instead
+		 */
 		current_client->ps.pmove.velocity[i] = ent->velocity[i] * 8.0;
 	}
 
@@ -1377,20 +1614,32 @@ ClientEndServerFrame(edict_t *ent)
 	{
 		G_SetSpectatorStats(ent);
 	}
-	else
+	else if (!ent->client->chase_target)
 	{
 		G_SetStats(ent);
 	}
 
+	/* update chasecam follower stats */
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		edict_t *e = g_edicts + i;
+
+		if (!e->inuse || (e->client->chase_target != ent))
+		{
+			continue;
+		}
+
+		memcpy(e->client->ps.stats, ent->client->ps.stats,
+				sizeof(ent->client->ps.stats));
+		e->client->ps.stats[STAT_LAYOUTS] = 1;
+		break;
+	}
+
 	G_CheckChaseStats(ent);
-
 	G_SetClientEvent(ent);
-
 	G_SetClientEffects(ent);
-
 	G_SetClientSound(ent);
-
-	G_SetClientFrame(ent);
+	G_SetClientFrame(ent, 0);
 
 	VectorCopy(ent->velocity, ent->client->oldvelocity);
 	VectorCopy(ent->client->ps.viewangles, ent->client->oldviewangles);
@@ -1404,7 +1653,18 @@ ClientEndServerFrame(edict_t *ent)
 		/* if the scoreboard is up, update it */
 		if (ent->client->showscores)
 		{
-			DeathmatchScoreboardMessage(ent, ent->enemy);
+
+			if (ent->client->menu)
+			{
+				PMenu_Do_Update(ent);
+				ent->client->menudirty = false;
+				ent->client->menutime = level.time;
+			}
+			else
+			{
+				DeathmatchScoreboardMessage(ent, ent->enemy);
+			}
+
 			gi.unicast(ent, false);
 		}
 
@@ -1422,5 +1682,10 @@ ClientEndServerFrame(edict_t *ent)
 	{
 		InventoryMessage(ent);
 		gi.unicast(ent, false);
+	}
+
+	if (ent->client->chasetoggle == 1)
+	{
+		CheckChasecam_Viewent(ent);
 	}
 }

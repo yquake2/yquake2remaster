@@ -272,11 +272,11 @@ InitDisplayIndices()
 
 	for ( int i = 0; i < num_displays; i++ )
 	{
-		/* There are a maximum of 10 digits in 32 bit int + 1 for the NULL terminator. */
-		displayindices[ i ] = malloc(11 * sizeof( char ));
-		YQ2_COM_CHECK_OOM(displayindices[i], "malloc()", 11 * sizeof( char ))
+		/* There are a maximum of 12 digits in 32 bit int + 1 for the NULL terminator. */
+		displayindices[ i ] = malloc(16 * sizeof( char ));
+		YQ2_COM_CHECK_OOM(displayindices[i], "malloc()", 16 * sizeof( char ))
 
-		snprintf( displayindices[ i ], 11, "%d", i );
+		snprintf( displayindices[ i ], 16, "%d", i );
 	}
 
 	/* The last entry is NULL to indicate the list of strings ends. */
@@ -376,7 +376,7 @@ ShutdownGraphics(void)
 		}
 		else {
 			SDL_GetWindowPosition(window,
-				      &last_position_x, &last_position_y);
+				&last_position_x, &last_position_y);
 		}
 
 		/* cleanly ungrab input (needs window) */
@@ -640,8 +640,7 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 		Com_Printf("Real display mode: %ix%i@%i\n", mode.w, mode.h, mode.refresh_rate);
 	}
 
-
-    /* Initialize rendering context. */
+	/* Initialize rendering context. */
 	if (!re.InitContext(window))
 	{
 		/* InitContext() should have logged an error. */

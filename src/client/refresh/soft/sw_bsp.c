@@ -1,23 +1,23 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// sw_bsp.c
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
 #include "header/local.h"
 
@@ -215,7 +215,7 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 			// FIXME: share the clip edge by having a winding direction flag?
 			if (numbedges + 4 > MAX_BMODEL_EDGES)
 			{
-				R_Printf(PRINT_ALL,"Out of edges for bmodel\n");
+				R_Printf(PRINT_ALL, "Out of edges for bmodel\n");
 				return;
 			}
 
@@ -246,8 +246,11 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 				ptedge->v[1] = ptvert;
 
 				prevclipvert = NULL;
-			} else
+			}
+			else
+			{
 				prevclipvert = ptvert;
+			}
 
 			// inside: clip vert, current vert
 			ptedge = &bedges[numbedges++];
@@ -319,7 +322,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 	numsurfaces = currentmodel->nummodelsurfaces;
 	pedges = currentmodel->edges;
 
-	for (i=0 ; i<numsurfaces ; i++, psurf++)
+	for (i = 0; i < numsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		bedge_t  *pbedge;
@@ -334,7 +337,9 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 		// draw the polygon
 		if (( !(psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			((psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
+		{
 			continue;
+		}
 
 		// FIXME: use bounding-box-based frustum clipping info?
 
@@ -346,7 +351,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 		pbedge = &bedges[numbedges];
 		numbedges += psurf->numedges;
 
-		for (j=0 ; j<psurf->numedges ; j++)
+		for (j = 0; j < psurf->numedges; j++)
 		{
 			int	lindex;
 
@@ -375,7 +380,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 
 		pbedge[j-1].pnext = NULL; // mark end of edges
 
-		if ( !( psurf->texinfo->flags & ( SURF_TRANS66 | SURF_TRANS33 ) ))
+		if ( !( psurf->texinfo->flags & SURF_TRANSPARENT ))
 		{
 			R_RecursiveClipBPoly(currententity, pbedge, topnode, psurf);
 		}
@@ -463,10 +468,13 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 		int i;
 		for (i=0 ; i<4 ; i++)
 		{
-			int *pindex;
+			const int *pindex;
 			float d;
-			if (! (clipflags & (1<<i)) )
+
+			if (!(clipflags & (1<<i)))
+			{
 				continue;	// don't need to clip against it
+			}
 
 			// generate accept and reject points
 			// FIXME: do with fast look-ups or integer tests based on the sign bit
@@ -551,6 +559,12 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 
 		// recurse down the children, front side first
 		R_RecursiveWorldNode (currententity, currentmodel, node->children[side], clipflags, insubmodel);
+
+		if ((node->numsurfaces + node->firstsurface) > currentmodel->numsurfaces)
+		{
+			R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+			return;
+		}
 
 		// draw stuff
 		c = node->numsurfaces;

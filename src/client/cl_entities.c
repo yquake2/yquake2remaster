@@ -32,34 +32,38 @@ extern struct model_s *cl_mod_powerscreen;
 void
 CL_AddPacketEntities(frame_t *frame)
 {
-	entity_t ent = {0};
-	entity_state_t *s1;
-	float autorotate;
-	int i;
-	int pnum;
-	centity_t *cent;
+	float autorotate, autobob;
 	int autoanim;
-	clientinfo_t *ci;
-	unsigned int effects, renderfx;
+	int pnum;
 
 	/* To distinguish baseq2, xatrix and rogue. */
-	cvar_t *game = Cvar_Get("game",  "", CVAR_LATCH | CVAR_SERVERINFO);
+	cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
 
 	/* bonus items rotate at a fixed rate */
 	autorotate = anglemod(cl.time * 0.1f);
 
 	/* brush models can auto animate their frames */
 	autoanim = 2 * cl.time / 1000;
+	autobob = 5 * sinf(cl.time / 400.0f);
 
 	for (pnum = 0; pnum < frame->num_entities; pnum++)
 	{
+		unsigned int effects, renderfx, rr_effects;
+		entity_xstate_t *s1;
+		entity_t ent = {0};
+		clientinfo_t *ci;
+		centity_t *cent;
+		int i;
+
 		s1 = &cl_parse_entities[(frame->parse_entities +
 				pnum) & (MAX_PARSE_ENTITIES - 1)];
 
 		cent = &cl_entities[s1->number];
 
 		effects = s1->effects;
+		rr_effects = s1->rr_effects;
 		renderfx = s1->renderfx;
+		ent.rr_mesh = s1->rr_mesh;
 
 		/* set frame */
 		if (effects & EF_ANIM01)
@@ -132,8 +136,13 @@ CL_AddPacketEntities(frame_t *frame)
 			for (i = 0; i < 3; i++)
 			{
 				ent.origin[i] = ent.oldorigin[i] = cent->prev.origin[i] + cl.lerpfrac *
-				   	(cent->current.origin[i] - cent->prev.origin[i]);
+					(cent->current.origin[i] - cent->prev.origin[i]);
 			}
+		}
+
+		if (effects & EF_BOB) {
+			ent.origin[2] += autobob;
+			ent.oldorigin[2] += autobob;
 		}
 
 		/* tweak the color of beams */
@@ -156,7 +165,7 @@ CL_AddPacketEntities(frame_t *frame)
 		else
 		{
 			/* set skin */
-			if (s1->modelindex == 255)
+			if (s1->modelindex == CUSTOM_PLAYER_MODEL)
 			{
 				/* use custom player skin */
 				ent.skinnum = 0;
@@ -198,6 +207,9 @@ CL_AddPacketEntities(frame_t *frame)
 				ent.skin = NULL;
 				ent.model = cl.model_draw[s1->modelindex];
 			}
+
+			/* store scale */
+			VectorCopy(s1->scale, ent.scale);
 		}
 
 		/* only used for black hole model right now */
@@ -248,6 +260,44 @@ CL_AddPacketEntities(frame_t *frame)
 				a1 = cent->current.angles[i];
 				a2 = cent->prev.angles[i];
 				ent.angles[i] = LerpAngle(a2, a1, cl.lerpfrac);
+			}
+		}
+
+		if (rr_effects & EF_FLASHLIGHT) {
+			vec3_t forward, start, end, diff, pos;
+			vec3_t mins = {-1, -1, -1}, maxs = {1, 1, 1};
+			trace_t trace;
+			int len = 0, i;
+			float step;
+
+			AngleVectors(ent.angles, forward, NULL, NULL);
+			VectorMA(ent.origin, 256, forward, end);
+			VectorCopy(ent.origin, start);
+			/* search light end point */
+			trace = CM_BoxTrace(start, end, mins, maxs, 0, MASK_SHOT);
+			/* step back little bit, for cover nearest surfaces */
+			VectorSubtract(trace.endpos, ent.origin, diff);
+			len = VectorNormalize(diff);
+			/* get light steps */
+			step = (float)len / 16;
+			for (i = 0; i < 3; i++)
+			{
+				diff[i] *= step;
+			}
+
+			/* place only 16 lights in row max */
+			if (len > 16)
+			{
+				len = 16;
+			}
+
+			VectorCopy(trace.endpos, pos);
+			/* Add light trace */
+			for (i = 0; i < len; i++)
+			{
+				/* create light */
+				V_AddLight(pos, 128 * (len - i) / len + 64, 1, 1, 1);
+				VectorSubtract(pos, diff, pos);
 			}
 		}
 
@@ -323,7 +373,7 @@ CL_AddPacketEntities(frame_t *frame)
 			   something special */
 			if (renderfx & RF_SHELL_HALF_DAM)
 			{
-				if (strcmp(game->string, "rogue") == 0)
+				if (strcmp(gametype->string, "rogue") == 0)
 				{
 					/* ditch the half damage shell if any of red, blue, or double are on */
 					if (renderfx & (RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE))
@@ -335,7 +385,7 @@ CL_AddPacketEntities(frame_t *frame)
 
 			if (renderfx & RF_SHELL_DOUBLE)
 			{
-				if (strcmp(game->string, "rogue") == 0)
+				if (strcmp(gametype->string, "rogue") == 0)
 				{
 					/* lose the yellow shell if we have a red, blue, or green shell */
 					if (renderfx & (RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_GREEN))
@@ -381,7 +431,7 @@ CL_AddPacketEntities(frame_t *frame)
 		/* duplicate for linked models */
 		if (s1->modelindex2)
 		{
-			if (s1->modelindex2 == 255)
+			if (s1->modelindex2 == CUSTOM_PLAYER_MODEL)
 			{
 				/* custom weapon */
 				ci = &cl.clientinfo[s1->skinnum & 0xff];
@@ -531,17 +581,17 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 			else if (effects & EF_FLAG1)
 			{
-				CL_FlagTrail(cent->lerp_origin, ent.origin, 242);
+				CL_FlagTrail(cent->lerp_origin, ent.origin, 0xff0000ff);
 				V_AddLight(ent.origin, 225, 1, 0.1f, 0.1f);
 			}
 			else if (effects & EF_FLAG2)
 			{
-				CL_FlagTrail(cent->lerp_origin, ent.origin, 115);
+				CL_FlagTrail(cent->lerp_origin, ent.origin, 0xff7f672f);
 				V_AddLight(ent.origin, 225, 0.1f, 0.1f, 1);
 			}
 			else if (effects & EF_TAGTRAIL)
 			{
-				CL_TagTrail(cent->lerp_origin, ent.origin, 220);
+				CL_TagTrail(cent->lerp_origin, ent.origin, 0xff27ffff);
 				V_AddLight(ent.origin, 225, 1.0, 1.0, 0.0);
 			}
 			else if (effects & EF_TRACKERTRAIL)
@@ -561,7 +611,7 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 			else if (effects & EF_TRACKER)
 			{
-				CL_TrackerTrail(cent->lerp_origin, ent.origin, 0);
+				CL_TrackerTrail(cent->lerp_origin, ent.origin, 0xff000000);
 				V_AddLight(ent.origin, 200, -1, -1, -1);
 			}
 			else if (effects & EF_IONRIPPER)
@@ -688,13 +738,14 @@ CL_CalcViewValues(void)
 {
 	int i;
 	float lerp, backlerp, ifov;
-	frame_t *oldframe;
+	frame_t *oldframe, *frame;
 	player_state_t *ps, *ops;
 
 	/* find the previous frame to interpolate from */
 	ps = &cl.frame.playerstate;
 	i = (cl.frame.serverframe - 1) & UPDATE_MASK;
 	oldframe = &cl.frames[i];
+	frame = &cl.frame;
 
 	if ((oldframe->serverframe != cl.frame.serverframe - 1) || !oldframe->valid)
 	{
@@ -704,9 +755,9 @@ CL_CalcViewValues(void)
 	ops = &oldframe->playerstate;
 
 	/* see if the player entity was teleported this frame */
-	if ((abs(ops->pmove.origin[0] - ps->pmove.origin[0]) > 256 * 8) ||
-		(abs(ops->pmove.origin[1] - ps->pmove.origin[1]) > 256 * 8) ||
-		(abs(ops->pmove.origin[2] - ps->pmove.origin[2]) > 256 * 8))
+	if ((abs(oldframe->origin[0] - frame->origin[0]) > 256 * 8) ||
+		(abs(oldframe->origin[1] - frame->origin[1]) > 256 * 8) ||
+		(abs(oldframe->origin[2] - frame->origin[2]) > 256 * 8))
 	{
 		ops = ps; /* don't interpolate */
 	}
@@ -747,9 +798,9 @@ CL_CalcViewValues(void)
 		/* just use interpolated values */
 		for (i = 0; i < 3; i++)
 		{
-			cl.refdef.vieworg[i] = ops->pmove.origin[i] * 0.125 +
-				ops->viewoffset[i] + lerp * (ps->pmove.origin[i] * 0.125 +
-						ps->viewoffset[i] - (ops->pmove.origin[i] * 0.125 +
+			cl.refdef.vieworg[i] = oldframe->origin[i] * 0.125 +
+				ops->viewoffset[i] + lerp * (frame->origin[i] * 0.125 +
+						ps->viewoffset[i] - (oldframe->origin[i] * 0.125 +
 							ops->viewoffset[i]));
 		}
 	}

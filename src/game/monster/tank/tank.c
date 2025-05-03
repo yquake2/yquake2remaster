@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +31,9 @@
 void tank_refire_rocket(edict_t *self);
 void tank_doattack_rocket(edict_t *self);
 void tank_reattack_blaster(edict_t *self);
+void tank_walk(edict_t *self);
+void tank_run(edict_t *self);
+void Use_Boss3(edict_t * ent, edict_t * other, edict_t * activator);
 
 static int sound_thud;
 static int sound_pain;
@@ -41,7 +45,7 @@ static int sound_windup;
 static int sound_strike;
 
 void
-tank_sight(edict_t *self, edict_t *other)
+tank_sight(edict_t *self, edict_t *other /* unused */)
 {
 	if (!self)
 	{
@@ -131,9 +135,9 @@ static mframe_t tank_frames_stand[] = {
 mmove_t tank_move_stand =
 {
 	FRAME_stand01,
-   	FRAME_stand30,
-   	tank_frames_stand,
-   	NULL
+	FRAME_stand30,
+	tank_frames_stand,
+	NULL
 };
 
 void
@@ -147,8 +151,6 @@ tank_stand(edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_stand;
 }
 
-void tank_walk(edict_t *self);
-
 static mframe_t tank_frames_start_walk[] = {
 	{ai_walk, 0, NULL},
 	{ai_walk, 6, NULL},
@@ -160,8 +162,8 @@ mmove_t tank_move_start_walk =
 {
 	FRAME_walk01,
 	FRAME_walk04,
-   	tank_frames_start_walk,
-   	tank_walk
+	tank_frames_start_walk,
+	tank_walk
 };
 
 static mframe_t tank_frames_walk[] = {
@@ -188,7 +190,7 @@ mmove_t tank_move_walk =
 	FRAME_walk05,
 	FRAME_walk20,
 	tank_frames_walk,
-   	NULL
+	NULL
 };
 
 static mframe_t tank_frames_stop_walk[] = {
@@ -202,9 +204,9 @@ static mframe_t tank_frames_stop_walk[] = {
 mmove_t tank_move_stop_walk =
 {
 	FRAME_walk21,
-   	FRAME_walk25,
+	FRAME_walk25,
 	tank_frames_stop_walk,
-   	tank_stand
+	tank_stand
 };
 
 void
@@ -218,8 +220,6 @@ tank_walk(edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_walk;
 }
 
-void tank_run(edict_t *self);
-
 static mframe_t tank_frames_start_run[] = {
 	{ai_run, 0, NULL},
 	{ai_run, 6, NULL},
@@ -230,8 +230,8 @@ static mframe_t tank_frames_start_run[] = {
 mmove_t tank_move_start_run =
 {
 	FRAME_walk01,
-   	FRAME_walk04,
-   	tank_frames_start_run,
+	FRAME_walk04,
+	tank_frames_start_run,
 	tank_run
 };
 
@@ -257,9 +257,9 @@ static mframe_t tank_frames_run[] = {
 mmove_t tank_move_run =
 {
 	FRAME_walk05,
-   	FRAME_walk20,
-   	tank_frames_run,
-   	NULL
+	FRAME_walk20,
+	tank_frames_run,
+	NULL
 };
 
 static mframe_t tank_frames_stop_run[] = {
@@ -273,9 +273,9 @@ static mframe_t tank_frames_stop_run[] = {
 mmove_t tank_move_stop_run =
 {
 	FRAME_walk21,
-   	FRAME_walk25,
-   	tank_frames_stop_run,
-   	tank_walk
+	FRAME_walk25,
+	tank_frames_stop_run,
+	tank_walk
 };
 
 void
@@ -322,9 +322,9 @@ static mframe_t tank_frames_pain1[] = {
 mmove_t tank_move_pain1 =
 {
 	FRAME_pain101,
-   	FRAME_pain104,
-   	tank_frames_pain1,
-   	tank_run
+	FRAME_pain104,
+	tank_frames_pain1,
+	tank_run
 };
 
 static mframe_t tank_frames_pain2[] = {
@@ -338,9 +338,9 @@ static mframe_t tank_frames_pain2[] = {
 mmove_t tank_move_pain2 =
 {
 	FRAME_pain201,
-   	FRAME_pain205,
-   	tank_frames_pain2,
-   	tank_run
+	FRAME_pain205,
+	tank_frames_pain2,
+	tank_run
 };
 
 static mframe_t tank_frames_pain3[] = {
@@ -372,7 +372,7 @@ mmove_t tank_move_pain3 =
 
 void
 tank_pain(edict_t *self, edict_t *other /* other */,
-	   	float kick /* other */, int damage)
+		float kick /* other */, int damage)
 {
 	if (!self)
 	{
@@ -425,6 +425,8 @@ tank_pain(edict_t *self, edict_t *other /* other */,
 	{
 		return; /* no pain anims in nightmare */
 	}
+
+	self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
 
 	if (damage <= 30)
 	{
@@ -481,6 +483,11 @@ TankBlaster(edict_t *self)
 void
 TankStrike(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_WEAPON, sound_strike, 1, ATTN_NORM, 0);
 }
 
@@ -492,10 +499,23 @@ TankRocket(edict_t *self)
 	vec3_t dir;
 	vec3_t vec;
 	int flash_number;
+	trace_t trace;
+	int rocketSpeed;
+	vec3_t target;
+	qboolean blindfire = false;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
+	}
+
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		blindfire = true;
+	}
+	else
+	{
+		blindfire = false;
 	}
 
 	if (self->s.frame == FRAME_attak324)
@@ -515,12 +535,71 @@ TankRocket(edict_t *self)
 	G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
 			forward, right, start);
 
-	VectorCopy(self->enemy->s.origin, vec);
-	vec[2] += self->enemy->viewheight;
-	VectorSubtract(vec, start, dir);
+	rocketSpeed = 500 + (100 * skill->value);
+
+	if (blindfire)
+	{
+		VectorCopy(self->monsterinfo.blind_fire_target, target);
+	}
+	else
+	{
+		VectorCopy(self->enemy->s.origin, target);
+	}
+
+	if (blindfire)
+	{
+		VectorCopy(target, vec);
+		VectorSubtract(vec, start, dir);
+	}
+	else if(random() < 0.66 || (start[2] < self->enemy->absmin[2]))
+	{
+		// Don't shoot at the feed if enemy is above.
+		VectorCopy(self->enemy->s.origin, vec);
+		vec[2] += self->enemy->viewheight;
+		VectorSubtract(vec, start, dir);
+	}
+	else
+	{
+		// Shoot at the feed.
+		VectorCopy(self->enemy->s.origin, vec);
+		vec[2] = self->enemy->absmin[2];
+		VectorSubtract(vec, start, dir);
+	}
+
+	// Lead target: 20, 35, 50, 65 chance of leading.
+	if ((!blindfire) && ((random() < (0.2 + ((3 - skill->value) * 0.15)))))
+	{
+		float dist;
+		float time;
+
+		dist = VectorLength(dir);
+		time = dist/rocketSpeed;
+		VectorMA(vec, time, self->enemy->velocity, vec);
+		VectorSubtract(vec, start, dir);
+	}
+
 	VectorNormalize(dir);
 
-	monster_fire_rocket(self, start, dir, 50, 550, flash_number);
+	if (blindfire)
+	{
+		/* blindfire has different fail criteria for the trace */
+		if (!blind_rocket_ok(self, start, right, target, 20.0f, dir))
+		{
+			return;
+		}
+	}
+	else
+	{
+		trace = gi.trace(start, vec3_origin, vec3_origin, vec, self, MASK_SHOT);
+
+		if (((trace.ent != self->enemy) && (trace.ent != world)) ||
+			((trace.fraction <= 0.5f) && !trace.ent->client))
+		{
+			return;
+		}
+	}
+
+	monster_fire_rocket(self, start, dir, 50, rocketSpeed, flash_number);
 }
 
 void
@@ -532,7 +611,7 @@ TankMachineGun(edict_t *self)
 	vec3_t forward, right;
 	int flash_number;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -717,9 +796,9 @@ static mframe_t tank_frames_attack_strike[] = {
 mmove_t tank_move_attack_strike =
 {
 	FRAME_attak201,
-   	FRAME_attak238,
-   	tank_frames_attack_strike,
-   	tank_poststrike
+	FRAME_attak238,
+	tank_frames_attack_strike,
+	tank_poststrike
 };
 
 static mframe_t tank_frames_attack_pre_rocket[] = {
@@ -807,9 +886,9 @@ static mframe_t tank_frames_attack_post_rocket[] = {
 mmove_t tank_move_attack_post_rocket =
 {
 	FRAME_attak331,
-   	FRAME_attak353,
-   	tank_frames_attack_post_rocket,
-   	tank_run
+	FRAME_attak353,
+	tank_frames_attack_post_rocket,
+	tank_run
 };
 
 static mframe_t tank_frames_attack_chain[] = {
@@ -847,7 +926,7 @@ static mframe_t tank_frames_attack_chain[] = {
 mmove_t tank_move_attack_chain =
 {
 	FRAME_attak401,
-   	FRAME_attak429,
+	FRAME_attak429,
 	tank_frames_attack_chain,
 	tank_run
 };
@@ -857,6 +936,13 @@ tank_refire_rocket(edict_t *self)
 {
 	if (!self)
 	{
+		return;
+	}
+
+	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+	{
+		self->monsterinfo.aiflags &= ~AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &tank_move_attack_post_rocket;
 		return;
 	}
 
@@ -897,8 +983,9 @@ tank_attack(edict_t *self)
 	vec3_t vec;
 	float range;
 	float r;
+	float chance;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}
@@ -907,6 +994,45 @@ tank_attack(edict_t *self)
 	{
 		self->monsterinfo.currentmove = &tank_move_attack_strike;
 		self->monsterinfo.aiflags &= ~AI_BRUTAL;
+		return;
+	}
+
+	if (self->monsterinfo.attack_state == AS_BLIND)
+	{
+		if (self->monsterinfo.blind_fire_delay < 1.0)
+		{
+			chance = 1.0;
+		}
+		else if (self->monsterinfo.blind_fire_delay < 7.5)
+		{
+			chance = 0.4;
+		}
+		else
+		{
+			chance = 0.1;
+		}
+
+		r = random();
+
+		self->monsterinfo.blind_fire_delay += 3.2 + 2.0 + random() * 3.0;
+
+		// Don't shoot at the origin.
+		if (VectorCompare (self->monsterinfo.blind_fire_target, vec3_origin))
+		{
+			return;
+		}
+
+		// Don't shoot if the dice say not to.
+		if (r > chance)
+		{
+			return;
+		}
+
+		// turn on manual steering to signal both manual steering and blindfire
+		self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
+		self->monsterinfo.currentmove = &tank_move_attack_fire_rocket;
+		self->monsterinfo.attack_finished = level.time + 3.0 + 2*random();
+		self->pain_debounce_time = level.time + 5.0; // no pain for a while
 		return;
 	}
 
@@ -1009,9 +1135,9 @@ static mframe_t tank_frames_death1[] = {
 mmove_t tank_move_death =
 {
 	FRAME_death101,
-   	FRAME_death132,
+	FRAME_death132,
 	tank_frames_death1,
-   	tank_dead
+	tank_dead
 };
 
 void
@@ -1031,8 +1157,11 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-				damage, GIB_ORGANIC);
+		for (n = 0; n < 1 /*4*/; n++)
+		{
+			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
+					damage, GIB_ORGANIC);
+		}
 
 		for (n = 0; n < 4; n++)
 		{
@@ -1061,11 +1190,62 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &tank_move_death;
 }
 
+qboolean
+tank_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
+}
+
+void
+tank_stand_think(edict_t * self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->s.frame == FRAME_stand30)
+	{
+		self->s.frame = FRAME_stand01;
+	}
+	else
+	{
+		self->s.frame++;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
 /*
  * QUAKED monster_tank (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
+ */
 
+/*
+ * QUAKED monster_tankv (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
+ *
+ * Tank model from vault.
+ */
+
+/*
  * QUAKED monster_tank_commander (1 .5 0) (-32 -32 -16) (32 32 72) Ambush Trigger_Spawn Sight
  */
+
+/*QUAKED monster_tank_stand (1 .5 0) (-32 -32 0) (32 32 90)
+ *
+ * Just stands and cycles in one place until targeted, then teleports away.
+ * N64 edition!
+ */
+
 void
 SP_monster_tank(edict_t *self)
 {
@@ -1080,7 +1260,15 @@ SP_monster_tank(edict_t *self)
 		return;
 	}
 
-	self->s.modelindex = gi.modelindex("models/monsters/tank/tris.md2");
+	if (!strcmp(self->classname, "monster_tankv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/tank/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/tank/tris.md2");
+	}
+
 	VectorSet(self->mins, -32, -32, -16);
 	VectorSet(self->maxs, 32, 32, 72);
 	self->movetype = MOVETYPE_STEP;
@@ -1105,12 +1293,12 @@ SP_monster_tank(edict_t *self)
 
 	if (strcmp(self->classname, "monster_tank_commander") == 0)
 	{
-		self->health = 1000;
+		self->health = 1000 * st.health_multiplier;
 		self->gib_health = -225;
 	}
 	else
 	{
-		self->health = 750;
+		self->health = 750 * st.health_multiplier;
 		self->gib_health = -200;
 	}
 
@@ -1126,13 +1314,27 @@ SP_monster_tank(edict_t *self)
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = tank_sight;
 	self->monsterinfo.idle = tank_idle;
+	self->monsterinfo.blocked = tank_blocked;
 
 	gi.linkentity(self);
 
 	self->monsterinfo.currentmove = &tank_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
 
-	walkmonster_start(self);
+	if (strcmp(self->classname, "monster_tank_stand") == 0)
+	{
+		self->monsterinfo.scale = MODEL_SCALE * 1.5f;
+		self->use = Use_Boss3;
+		self->think = tank_stand_think;
+		self->nextthink = level.time + FRAMETIME;
+	}
+	else
+	{
+		walkmonster_start(self);
+	}
+
+	self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
+	self->monsterinfo.blindfire = true;
 
 	if (strcmp(self->classname, "monster_tank_commander") == 0)
 	{

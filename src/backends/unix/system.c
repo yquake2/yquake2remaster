@@ -406,8 +406,7 @@ Sys_GetGameAPI(void *parms)
 	fnAPI GetGameAPI;
 
 	char name[MAX_OSPATH];
-	char *path;
-	char *str_p;
+	const char *path, *str_p;
 #ifdef __APPLE__
 	const char *gamename = "game.dylib";
 #else
@@ -618,21 +617,21 @@ Sys_Realpath(const char *in, char *out, size_t size)
 void *
 Sys_GetProcAddress(void *handle, const char *sym)
 {
-    if (handle == NULL)
-    {
+	if (handle == NULL)
+	{
 #ifdef RTLD_DEFAULT
-        return dlsym(RTLD_DEFAULT, sym);
+		return dlsym(RTLD_DEFAULT, sym);
 #else
-        /* POSIX suggests that this is a portable equivalent */
-        static void *global_namespace = NULL;
+		/* POSIX suggests that this is a portable equivalent */
+		static void *global_namespace = NULL;
 
-        if (global_namespace == NULL)
-            global_namespace = dlopen(NULL, RTLD_GLOBAL|RTLD_LAZY);
+		if (global_namespace == NULL)
+			global_namespace = dlopen(NULL, RTLD_GLOBAL|RTLD_LAZY);
 
-        return dlsym(global_namespace, sym);
+		return dlsym(global_namespace, sym);
 #endif
-    }
-    return dlsym(handle, sym);
+	}
+	return dlsym(handle, sym);
 }
 
 void

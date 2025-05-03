@@ -26,8 +26,6 @@
 
 #include "header/server.h"
 
-void CM_ReadPortalState(fileHandle_t f);
-
 /*
  * Delete save/<XXX>/
  */
@@ -71,7 +69,7 @@ SV_WipeSavegame(char *savename)
 	Sys_FindClose();
 }
 
-void
+static void
 CopyFile(char *src, char *dst)
 {
 	FILE *f1, *f2;
@@ -159,16 +157,36 @@ SV_CopySaveGame(char *src, char *dst)
 }
 
 void
+SV_CleanLevelFileName(char *savename)
+{
+	char *pos;
+
+	pos = savename;
+	while(*pos)
+	{
+		if (*pos == '/' || *pos == '\\')
+		{
+			*pos = '_';
+		}
+		pos ++;
+	}
+}
+
+void
 SV_WriteLevelFile(void)
 {
 	char name[MAX_OSPATH];
+	char savename[MAX_OSPATH];
 	char workdir[MAX_OSPATH];
 	FILE *f;
 
-	Com_DPrintf("SV_WriteLevelFile()\n");
+	Com_DPrintf("%s()\n", __func__);
+
+	Q_strlcpy(savename, sv.name, sizeof(savename));
+	SV_CleanLevelFileName(savename);
 
 	Com_sprintf(name, sizeof(name), "%s/save/current/%s.sv2",
-				FS_Gamedir(), sv.name);
+				FS_Gamedir(), savename);
 	f = Q_fopen(name, "wb");
 
 	if (!f)
@@ -192,7 +210,7 @@ SV_WriteLevelFile(void)
 		return;
 	}
 
-	Com_sprintf(name, sizeof(name), "%s.sav", sv.name);
+	Com_sprintf(name, sizeof(name), "%s.sav", savename);
 	ge->WriteLevel(name);
 
 	Sys_SetWorkDir(workdir);
@@ -202,12 +220,16 @@ void
 SV_ReadLevelFile(void)
 {
 	char name[MAX_OSPATH];
+	char savename[MAX_OSPATH];
 	char workdir[MAX_OSPATH];
 	fileHandle_t f;
 
-	Com_DPrintf("SV_ReadLevelFile()\n");
+	Com_DPrintf("%s()\n", __func__);
 
-	Com_sprintf(name, sizeof(name), "save/current/%s.sv2", sv.name);
+	Q_strlcpy(savename, sv.name, sizeof(savename));
+	SV_CleanLevelFileName(savename);
+
+	Com_sprintf(name, sizeof(name), "save/current/%s.sv2", savename);
 	FS_FOpenFile(name, &f, true);
 
 	if (!f)
@@ -230,7 +252,7 @@ SV_ReadLevelFile(void)
 		return;
 	}
 
-	Com_sprintf(name, sizeof(name), "%s.sav", sv.name);
+	Com_sprintf(name, sizeof(name), "%s.sav", savename);
 	ge->ReadLevel(name);
 
 	Sys_SetWorkDir(workdir);
@@ -327,7 +349,7 @@ SV_WriteServerFile(qboolean autosave)
 	Sys_SetWorkDir(workdir);
 }
 
-void
+static void
 SV_ReadServerFile(void)
 {
 	fileHandle_t f;
@@ -374,7 +396,7 @@ SV_ReadServerFile(void)
 	/* start a new game fresh with new cvars */
 	SV_InitGame();
 
-	strcpy(svs.mapcmd, mapcmd);
+	Q_strlcpy(svs.mapcmd, mapcmd, sizeof(svs.mapcmd));
 
 	/* read game state */
 	Com_sprintf(name, sizeof(name), "%s/save/current", FS_Gamedir());
