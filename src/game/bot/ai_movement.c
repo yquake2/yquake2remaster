@@ -58,7 +58,7 @@ qboolean AI_CanMove(edict_t *self, int direction)
 
 
 	// Set up the vectors
-	AngleVectors (angles, forward, right, NULL);
+	AngleVectors(angles, forward, right, NULL);
 
 	VectorSet(offset, 36, 0, 24);
 	G_ProjectSource (self->s.origin, offset, forward, right, start);
@@ -92,7 +92,7 @@ qboolean AI_IsStep (edict_t *ent)
 	//determine a point below
 	point[0] = ent->s.origin[0];
 	point[1] = ent->s.origin[1];
-	point[2] = ent->s.origin[2] - (1.6*AI_STEPSIZE);
+	point[2] = ent->s.origin[2] - (1.6*STEPSIZE);
 
 	//trace to point
 //	trap_Trace (&trace, ent->s.origin, ent->mins, ent->maxs, point, ent, MASK_PLAYERSOLID);
@@ -142,7 +142,8 @@ qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, ed
 // Helper for ACEMV_SpecialMove.
 // Tries to turn when in front of obstacle
 //==========================================
-qboolean AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
+static qboolean
+AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
 {
 	vec3_t  forward, right;
 	vec3_t  leftstart, rightstart,focalpoint;
@@ -152,22 +153,24 @@ qboolean AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
 
 	// Get current angle and set up "eyes"
 	VectorCopy(self->s.angles,dir);
-	AngleVectors (dir, forward, right, NULL);
+	AngleVectors(dir, forward, right, NULL);
 
-	if(!self->movetarget)
-		VectorSet(offset,200,0,self->maxs[2]*0.5); // focalpoint
+	if (!self->movetarget)
+	{
+		VectorSet(offset,200, 0, self->maxs[2] * 0.5); // focalpoint
+	}
 	else
-		VectorSet(offset,64,0,self->maxs[2]*0.5); // wander focalpoint
+	{
+		VectorSet(offset, 64,0, self->maxs[2] * 0.5); // wander focalpoint
+	}
 
 	G_ProjectSource (self->s.origin, offset, forward, right, focalpoint);
 
-	VectorSet(offset, 0, 18, self->maxs[2]*0.5);
+	VectorSet(offset, 0, 18, self->maxs[2] * 0.5);
 	G_ProjectSource (self->s.origin, offset, forward, right, leftstart);
 	offset[1] -= 36; //VectorSet(offset, 0, -18, self->maxs[2]*0.5);
 	G_ProjectSource (self->s.origin, offset, forward, right, rightstart);
 
-//	trap_Trace(&traceRight, rightstart, NULL, NULL, focalpoint, self, MASK_AISOLID);
-//	trap_Trace(&traceLeft, leftstart, NULL, NULL, focalpoint, self, MASK_AISOLID);
 	traceRight = gi.trace( rightstart, NULL, NULL, focalpoint, self, MASK_AISOLID);
 	traceLeft = gi.trace( leftstart, NULL, NULL, focalpoint, self, MASK_AISOLID);
 

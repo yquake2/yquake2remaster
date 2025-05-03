@@ -346,7 +346,6 @@ set(Game-Source
 	${COMMON_SRC_DIR}/shared/rand.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${GAME_SRC_DIR}/bot/ai_class_dmbot.c
-	${GAME_SRC_DIR}/bot/ai_class_monster_default.c
 	${GAME_SRC_DIR}/bot/ai_dropnodes.c
 	${GAME_SRC_DIR}/bot/ai_items.c
 	${GAME_SRC_DIR}/bot/ai_links.c

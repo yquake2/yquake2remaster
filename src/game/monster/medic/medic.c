@@ -32,13 +32,6 @@
 #define MEDIC_MAX_HEAL_DISTANCE 400
 #define MEDIC_TRY_TIME 10.0
 
-void M_SetEffects(edict_t *ent);
-qboolean FindTarget(edict_t *self);
-void HuntTarget(edict_t *self);
-void spawngrow_think(edict_t *self);
-void M_FliesOff(edict_t *self);
-void M_FliesOn(edict_t *self);
-
 static int sound_idle1;
 static int sound_pain1;
 static int sound_pain2;

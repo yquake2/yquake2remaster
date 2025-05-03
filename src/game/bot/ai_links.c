@@ -141,13 +141,16 @@ int AI_findNodeInRadius (int from, vec3_t org, float rad, qboolean ignoreHeight)
 // AI_FindLinkDistance
 // returns world distance between both nodes
 //==========================================
-float AI_FindLinkDistance(int n1, int n2)
+static float
+AI_FindLinkDistance(int n1, int n2)
 {
 	// Teleporters exception: JALFIXME: add check for Destiny being teleporter's target
-	if (nodes[n1].flags & NODEFLAGS_TELEPORTER_IN && nodes[n2].flags & NODEFLAGS_TELEPORTER_OUT )
+	if (nodes[n1].flags & NODEFLAGS_TELEPORTER_IN && nodes[n2].flags & NODEFLAGS_TELEPORTER_OUT)
+	{
 		return NODE_DENSITY; //not 0, just because teleporting has a strategical cost
+	}
 
-	return AI_Distance( nodes[n1].origin, nodes[2].origin );
+	return AI_Distance(nodes[n1].origin, nodes[2].origin);
 }
 
 
@@ -239,7 +242,8 @@ int AI_PlinkMoveType(int n1, int n2)
 // check against the world if we can link it
 //==========================================
 #define AI_WATERJUMP_HEIGHT 24
-int	AI_IsWaterJumpLink( int n1, int n2 )
+static int
+AI_IsWaterJumpLink(int n1, int n2)
 {
 	vec3_t	waterorigin;
 	vec3_t	solidorigin;
@@ -247,36 +251,54 @@ int	AI_IsWaterJumpLink( int n1, int n2 )
 	float	heightdiff;
 
 	//find n2 floor
-	trace = gi.trace( nodes[n2].origin, tv(-15,-15,0), tv(15,15,0), tv(nodes[n2].origin[0], nodes[n2].origin[1], nodes[n2].origin[2] - AI_JUMPABLE_HEIGHT), NULL, MASK_NODESOLID );
-	if( trace.startsolid || trace.fraction == 1.0 )
+	trace = gi.trace(nodes[n2].origin,
+		tv(-15,-15,0), tv(15,15,0),
+		tv(nodes[n2].origin[0], nodes[n2].origin[1], nodes[n2].origin[2] - AI_JUMPABLE_HEIGHT),
+		NULL, MASK_NODESOLID );
+	if (trace.startsolid || trace.fraction == 1.0)
+	{
 		return LINK_INVALID;
+	}
 
-	VectorCopy( trace.endpos, solidorigin );
+	VectorCopy(trace.endpos, solidorigin);
 
-	if( gi.pointcontents(nodes[n1].origin) & MASK_WATER )
+	if (gi.pointcontents(nodes[n1].origin) & MASK_WATER)
+	{
 		VectorCopy( nodes[n1].origin, waterorigin );
-	else {
+	}
+	else
+	{
 		//try finding water below, isn't it a node_water?
 		return LINK_INVALID;
 	}
 
-	if ( solidorigin[2] >= waterorigin[2])
+	if (solidorigin[2] >= waterorigin[2])
+	{
 		heightdiff = solidorigin[2] - waterorigin[2];
+	}
 	else
+	{
 		heightdiff = waterorigin[2] - solidorigin[2];
+	}
 
-	if( heightdiff > AI_WATERJUMP_HEIGHT )	//jalfixme: find true waterjump size
+	if (heightdiff > AI_WATERJUMP_HEIGHT)	//jalfixme: find true waterjump size
+	{
 		return LINK_INVALID;
+	}
 
 	//now find if bloqued
 	waterorigin[2] = nodes[n2].origin[2];
 	trace = gi.trace( nodes[n1].origin, tv(-15,-15,0), tv(15,15,0), waterorigin, NULL, MASK_NODESOLID );
-	if( trace.fraction < 1.0 )
+	if (trace.fraction < 1.0)
+	{
 		return LINK_INVALID;
+	}
 
-	trace = gi.trace( waterorigin, tv(-15,-15,0), tv(15,15,0), nodes[n2].origin, NULL, MASK_NODESOLID );
-	if( trace.fraction < 1.0 )
+	trace = gi.trace(waterorigin, tv(-15,-15,0), tv(15,15,0), nodes[n2].origin, NULL, MASK_NODESOLID );
+	if (trace.fraction < 1.0)
+	{
 		return LINK_INVALID;
+	}
 
 	return LINK_WATERJUMP;
 }
@@ -286,7 +308,9 @@ int	AI_IsWaterJumpLink( int n1, int n2 )
 // AI_GravityBoxStep
 // move the box one step for walk movetype
 //==========================================
-int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t neworigin, vec3_t mins, vec3_t maxs )
+static int
+AI_GravityBoxStep(vec3_t origin, float scale, vec3_t destvec, vec3_t neworigin,
+	vec3_t mins, vec3_t maxs)
 {
 	trace_t	trace;
 	vec3_t	v1, v2, forward, up, angles, movedir;
@@ -371,7 +395,7 @@ int AI_GravityBoxStep( vec3_t origin, float scale, vec3_t destvec, vec3_t newori
 			if( !trace.startsolid && trace.fraction == 1.0 )
 			{
 				VectorCopy( v2, neworigin );
-				if( origin[2] + AI_STEPSIZE > v2[2] )
+				if( origin[2] + STEPSIZE > v2[2] )
 					movemask |= LINK_STAIRS;
 				else
 					movemask |= LINK_JUMP;
@@ -412,13 +436,13 @@ droptofloor:
 
 			if( origin[2] > neworigin[2] + AI_JUMPABLE_HEIGHT )
 				movemask |= LINK_FALL;
-			else if ( origin[2] > neworigin[2] + AI_STEPSIZE )
+			else if ( origin[2] > neworigin[2] + STEPSIZE )
 				movemask |= LINK_STAIRS;
 
 			return movemask;
 		}
 
-		trace = gi.trace( neworigin, mins, maxs, tv(neworigin[0], neworigin[1], (neworigin[2] - AI_STEPSIZE)), LINKS_PASSENT, MASK_NODESOLID );
+		trace = gi.trace( neworigin, mins, maxs, tv(neworigin[0], neworigin[1], (neworigin[2] - STEPSIZE)), LINKS_PASSENT, MASK_NODESOLID );
 		if( trace.startsolid )
 		{
 			return LINK_INVALID;
@@ -430,7 +454,7 @@ droptofloor:
 		{
 			if( origin[2] > neworigin[2] + AI_JUMPABLE_HEIGHT )
 				movemask |= LINK_FALL;
-			else if ( origin[2] > neworigin[2] + AI_STEPSIZE )
+			else if ( origin[2] > neworigin[2] + STEPSIZE )
 				movemask |= LINK_STAIRS;
 
 			if( VectorCompare( origin, neworigin ) )
@@ -450,7 +474,8 @@ droptofloor:
 // AI_RunGravityBox
 // move a box along the link
 //==========================================
-int AI_RunGravityBox( int n1, int n2 )
+static int
+AI_RunGravityBox(int n1, int n2)
 {
 	int			move;
 	int			movemask = 0;
@@ -592,7 +617,8 @@ int AI_GravityBoxToLink(int n1, int n2)
 // AI_FindFallOrigin
 // helper for AI_IsJumpLink
 //==========================================
-int	AI_FindFallOrigin( int n1, int n2, vec3_t fallorigin )
+static int
+AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 {
 	int			move;
 	int			movemask = 0;
@@ -652,7 +678,8 @@ int	AI_FindFallOrigin( int n1, int n2, vec3_t fallorigin )
 // AI_LadderLink_FindUpperNode
 // finds upper node in same ladder, if any
 //==========================================
-int AI_LadderLink_FindUpperNode( int node )
+static int
+AI_LadderLink_FindUpperNode(int node)
 {
 	int		i = INVALID;
 	int		j;
@@ -699,7 +726,8 @@ int AI_LadderLink_FindUpperNode( int node )
 // AI_LadderLink_FindLowerNode
 // finds lower node in same ladder, if any
 //==========================================
-int AI_LadderLink_FindLowerNode( int node )
+static int
+AI_LadderLink_FindLowerNode(int node)
 {
 	int		i = INVALID;
 	int		j;
@@ -746,23 +774,25 @@ int AI_LadderLink_FindLowerNode( int node )
 // AI_IsLadderLink
 // interpretation of this link
 //==========================================
-int AI_IsLadderLink( int n1, int n2 )
+static int
+AI_IsLadderLink(int n1, int n2)
 {
-	int	j;
-	vec3_t	eorg;
-	float	xzdist;
+	float xzdist;
+	vec3_t eorg;
 
-	for (j=0 ; j<2 ; j++)
-		eorg[j] = nodes[n2].origin[j] - nodes[n1].origin[j];
+	VectorSubtract(nodes[n2].origin, nodes[n1].origin, eorg);
+
 	eorg[2] = 0; //ignore height
 
 	xzdist = VectorLength(eorg);
 
 	if(xzdist < 0)
+	{
 		xzdist = -xzdist;
+	}
 
 	//if both are ladder nodes
-	if( nodes[n1].flags & NODEFLAGS_LADDER && nodes[n2].flags & NODEFLAGS_LADDER )
+	if (nodes[n1].flags & NODEFLAGS_LADDER && nodes[n2].flags & NODEFLAGS_LADDER)
 	{
 		int	candidate = AI_LadderLink_FindUpperNode( n1 );
 		if( candidate != n2 )
@@ -858,78 +888,106 @@ int AI_FindLinkType(int n1, int n2)
 // AI_IsJumpLink
 // interpretation of this link
 //==========================================
-int AI_IsJumpLink(int n1, int n2)
+static int
+AI_IsJumpLink(int n1, int n2)
 {
 	int		link;
 	int climblink = 0;
 
-	if( n1 == n2 || n1 == INVALID || n2 == INVALID )
+	if (n1 == n2 || n1 == INVALID || n2 == INVALID)
+	{
 		return LINK_INVALID;
+	}
 
 	//ignore server links
-	if( nodes[n1].flags & NODEFLAGS_SERVERLINK || nodes[n2].flags & NODEFLAGS_SERVERLINK )
+	if (nodes[n1].flags & NODEFLAGS_SERVERLINK || nodes[n2].flags & NODEFLAGS_SERVERLINK)
+	{
 		return LINK_INVALID; // they are added only by the server at dropping entity nodes
+	}
 
 	//LINK_LADDER
-	if( nodes[n1].flags & NODEFLAGS_LADDER || nodes[n2].flags & NODEFLAGS_LADDER )
+	if (nodes[n1].flags & NODEFLAGS_LADDER || nodes[n2].flags & NODEFLAGS_LADDER)
+	{
 		return LINK_INVALID;
+	}
 
 	//can't jump if begins inside water
-	if( nodes[n1].flags & NODEFLAGS_WATER )
+	if (nodes[n1].flags & NODEFLAGS_WATER)
+	{
 		return LINK_INVALID;
+	}
 
 	//find out the link move type against the world
-	link = AI_RunGravityBox( n1, n2 );
+	link = AI_RunGravityBox(n1, n2);
 
-	if( !(link & LINK_INVALID) )	// recheck backwards for climb links
+	if (!(link & LINK_INVALID))	// recheck backwards for climb links
+	{
 		return LINK_INVALID;
+	}
 
-	if( AI_PlinkExists( n2, n1 ))
+	if (AI_PlinkExists( n2, n1))
+	{
 		climblink = AI_PlinkMoveType( n2, n1 );
+	}
 	else
+	{
 		climblink = AI_RunGravityBox( n2, n1 );
+	}
 
-	if( climblink & LINK_FALL ) {
+	if (climblink & LINK_FALL)
+	{
 		climblink &= ~LINK_FALL;
 		link &= ~LINK_INVALID;
 		link = (link|climblink|LINK_CLIMB);
 	}
 
 	//see if we can jump it
-	if( link & LINK_CLIMB && link & LINK_FALL )
+	if (link & LINK_CLIMB && link & LINK_FALL)
 	{
 		vec3_t fo1, fo2;
 		int		link;
 		float	dist;
 		float	heightdiff;
 
-		VectorSet( fo1, 0,0,0 );
-		VectorSet( fo2, 0,0,0 );
+		VectorSet(fo1, 0,0,0);
+		VectorSet(fo2, 0, 0, 0);
 
-		link = AI_FindFallOrigin( n1, n2, fo1 );
-		if( !(link & LINK_FALL) )
+		link = AI_FindFallOrigin(n1, n2, fo1);
+		if (!(link & LINK_FALL))
+		{
 			return LINK_INVALID;
+		}
 
-		link = AI_FindFallOrigin( n2, n1, fo2 );
-		if( !(link & LINK_FALL) )
+		link = AI_FindFallOrigin(n2, n1, fo2);
+		if (!(link & LINK_FALL))
+		{
 			return LINK_INVALID;
+		}
 
 		//reachable? (faster)
-		if( !AI_VisibleOrigins( fo1, fo2 ) )
+		if (!AI_VisibleOrigins(fo1, fo2))
+		{
 			return LINK_INVALID;
+		}
 
-		if( fo2[2] > fo1[2] + AI_JUMPABLE_HEIGHT )	//n1 is just too low
+		if (fo2[2] > fo1[2] + AI_JUMPABLE_HEIGHT )	//n1 is just too low
+		{
 			return LINK_INVALID;
+		}
 
 		heightdiff = fo2[2] - fo1[2];	//if n2 is higher, shorten xzplane dist
-		if( heightdiff < 0 )
+		if (heightdiff < 0)
+		{
 			heightdiff = 0;
+		}
 
 		//xzplane dist is valid?
 		fo2[2] = fo1[2];
 		dist = AI_Distance( fo1, fo2 );
-		if( (dist + heightdiff) < AI_JUMPABLE_DISTANCE && dist > 24 )
+		if ((dist + heightdiff) < AI_JUMPABLE_DISTANCE && dist > 24 )
+		{
 			return LINK_JUMP;
+		}
 	}
 
 	return LINK_INVALID;
@@ -940,7 +998,8 @@ int AI_IsJumpLink(int n1, int n2)
 // AI_LinkCloseNodes_JumpPass
 // extend radius for jump over movetype links
 //==========================================
-int AI_LinkCloseNodes_JumpPass( int start )
+int
+AI_LinkCloseNodes_JumpPass( int start )
 {
 	int			n1, n2;
 	int			count = 0;

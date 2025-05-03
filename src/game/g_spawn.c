@@ -1801,13 +1801,13 @@ CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 		if (gravity < 0)
 		{
 			start[2] = mins[2];
-			stop[2] = start[2] - STEPSIZE - STEPSIZE;
+			stop[2] = start[2] - (STEPSIZE * 2);
 			mid = bottom = tr.endpos[2] + entMins[2];
 		}
 		else
 		{
 			start[2] = maxs[2];
-			stop[2] = start[2] + STEPSIZE + STEPSIZE;
+			stop[2] = start[2] + (STEPSIZE * 2);
 			mid = bottom = tr.endpos[2] - entMaxs[2];
 		}
 

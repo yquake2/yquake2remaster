@@ -297,7 +297,8 @@ AI_PickLongRangeGoal(edict_t *self)
 // overrides the long range goal selection for items that
 // are very close to the bot and are reachable.
 //==========================================
-void AI_PickShortRangeGoal(edict_t *self)
+static void
+AI_PickShortRangeGoal(edict_t *self)
 {
 	edict_t *target;
 	float	weight,best_weight=0.0;

@@ -29,7 +29,6 @@
 
 #include "../../header/local.h"
 
-#define STEPSIZE 18
 #define DI_NODIR -1
 
 int c_yes, c_no;
@@ -162,7 +161,7 @@ realcheck:
 	return true;
 }
 
-qboolean
+static qboolean
 IsBadAhead(edict_t *self, edict_t *bad, vec3_t move)
 {
 	vec3_t dir;

@@ -146,11 +146,11 @@ BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 
 		/* randomly choose skin */
 		rnd = rand() % (sizeof(bot_skin_table) / sizeof(*bot_skin_table));
-		sprintf(bot_skin, bot_skin_table[rnd]);
+		Q_strlcpy(bot_skin, bot_skin_table[rnd], sizeof(bot_skin));
 	}
 	else
 	{
-		strcpy(bot_skin, skin);
+		Q_strlcpy(bot_skin, skin, sizeof(bot_skin));
 	}
 
 	// initialise userinfo
@@ -250,11 +250,14 @@ BOT_JoinCTFTeam(edict_t *ent, char *team_name)
 // BOT_DMClass_JoinGame
 // put the bot into the game.
 //==========================================
-void BOT_DMClass_JoinGame (edict_t *ent, char *team_name)
+static void
+BOT_DMClass_JoinGame(edict_t *ent, char *team_name)
 {
-	if ( !BOT_JoinCTFTeam(ent, team_name) )
-		Com_Printf ( "%s joined the game.\n",
-		ent->client->pers.netname);
+	if (!BOT_JoinCTFTeam(ent, team_name))
+	{
+		Com_Printf("%s joined the game.\n",
+			ent->client->pers.netname);
+	}
 
 	ent->think = AI_Think;
 	ent->nextthink = level.time + FRAMETIME;
@@ -274,7 +277,8 @@ void BOT_DMClass_JoinGame (edict_t *ent, char *team_name)
 //==========================================
 // BOT_StartAsSpectator
 //==========================================
-void BOT_StartAsSpectator (edict_t *ent)
+static void
+BOT_StartAsSpectator(edict_t *ent)
 {
 	// start as 'observer'
 	ent->movetype = MOVETYPE_NOCLIP;

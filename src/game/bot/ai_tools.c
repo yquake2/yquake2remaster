@@ -167,7 +167,8 @@ void AITools_DrawPath(edict_t *self, int node_from, int node_to)
 // Draws lines from the current node to it's plinks nodes
 //==========================================
 // static int	debugdrawplinks_timeout;
-void AITools_ShowPlinks( void )
+static void
+AITools_ShowPlinks(void)
 {
 /*	int		current_node;
 	int		plink_node;

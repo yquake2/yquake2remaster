@@ -94,6 +94,7 @@
 #define MELEE_DISTANCE 80
 
 #define BODY_QUEUE_SIZE 8
+#define STEPSIZE 18
 
 typedef enum
 {
@@ -904,6 +905,9 @@ void M_CatagorizePosition(edict_t *ent);
 qboolean M_CheckAttack(edict_t *self);
 void M_FlyCheck(edict_t *self);
 void M_CheckGround(edict_t *ent);
+void M_FliesOff(edict_t *self);
+void M_FliesOn(edict_t *self);
+void M_SetEffects(edict_t *ent);
 
 void monster_fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
@@ -933,9 +937,12 @@ void ai_charge(edict_t *self, float dist);
 int range(edict_t *self, edict_t *other);
 
 void FoundTarget(edict_t *self);
+qboolean FindTarget(edict_t *self);
 qboolean infront(edict_t *self, edict_t *other);
 qboolean visible(edict_t *self, edict_t *other);
 qboolean FacingIdeal(edict_t *self);
+void HuntTarget(edict_t *self);
+qboolean ai_checkattack(edict_t *self);
 
 /* g_weapon.c */
 void ThrowDebris(edict_t *self, char *modelname, float speed, vec3_t origin);
@@ -1102,6 +1109,7 @@ edict_t *PickCoopTarget(edict_t *self);
 int CountPlayers(void);
 void monster_jump_start(edict_t *self);
 qboolean monster_jump_finished(edict_t *self);
+qboolean face_wall(edict_t *self);
 
 /* g_sphere.c */
 void Defender_Launch(edict_t *self);
@@ -1138,6 +1146,7 @@ void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
 void ThrowSmallStuff(edict_t *self, vec3_t point);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
 		vec3_t startpos, int hitsound, qboolean fade);
+void spawngrow_think(edict_t *self);
 
 /* p_client.c */
 void RemoveAttackingPainDaemons(edict_t *self);

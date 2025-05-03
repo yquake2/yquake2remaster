@@ -150,7 +150,7 @@ endif
 # Highest supported optimizations are -O2, higher levels
 # will likely break this crappy code.
 ifdef DEBUG
-CFLAGS ?= -O0 -g -Wall -Wpointer-arith -pipe -DDEBUG
+CFLAGS ?= -O0 -g -Wall -Wpointer-arith -pipe -Werror=format-security -DDEBUG
 ifdef ASAN
 override CFLAGS += -fsanitize=address -DUSE_SANITIZER
 endif
@@ -954,7 +954,6 @@ GAME_OBJS_ = \
 	src/common/shared/rand.o \
 	src/common/shared/shared.o \
 	src/game/bot/ai_class_dmbot.o \
-	src/game/bot/ai_class_monster_default.o \
 	src/game/bot/ai_dropnodes.o \
 	src/game/bot/ai_items.o \
 	src/game/bot/ai_links.o \

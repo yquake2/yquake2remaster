@@ -391,7 +391,7 @@ BOT_DMclass_CheckShot(edict_t *ent, vec3_t	point)
 	trace_t tr;
 	vec3_t	start, forward, right, offset;
 
-	AngleVectors (ent->client->v_angle, forward, right, NULL);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
 	VectorSet(offset, 8, 8, ent->viewheight-8);
 	P_ProjectSource(ent, offset, forward, right, start);
@@ -478,7 +478,8 @@ BOT_DMclass_FindEnemy(edict_t *self)
 //==========================================
 // BOT_DMClass_ChangeWeapon
 //==========================================
-qboolean BOT_DMClass_ChangeWeapon (edict_t *ent, gitem_t *item)
+static qboolean
+BOT_DMClass_ChangeWeapon(edict_t *ent, gitem_t *item)
 {
 	int			ammo_index;
 	gitem_t		*ammo_item;
@@ -512,7 +513,8 @@ qboolean BOT_DMClass_ChangeWeapon (edict_t *ent, gitem_t *item)
 // BOT_DMclass_ChooseWeapon
 // Choose weapon based on range & weights
 //==========================================
-void BOT_DMclass_ChooseWeapon(edict_t *self)
+static void
+BOT_DMclass_ChooseWeapon(edict_t *self)
 {
 	float	dist;
 	vec3_t	v;
@@ -582,7 +584,8 @@ void BOT_DMclass_ChooseWeapon(edict_t *self)
 // BOT_DMclass_FireWeapon
 // Fire if needed
 //==========================================
-void BOT_DMclass_FireWeapon (edict_t *self, usercmd_t *ucmd)
+static void
+BOT_DMclass_FireWeapon(edict_t *self, usercmd_t *ucmd)
 {
 	//float	c;
 	float	firedelay;
@@ -655,7 +658,8 @@ void BOT_DMclass_FireWeapon (edict_t *self, usercmd_t *ucmd)
 // BOT_DMclass_WeightPlayers
 // weight players based on game state
 //==========================================
-void BOT_DMclass_WeightPlayers(edict_t *self)
+static void
+BOT_DMclass_WeightPlayers(edict_t *self)
 {
 	int i;
 
@@ -711,39 +715,58 @@ void BOT_DMclass_WeightPlayers(edict_t *self)
 // BOT_DMclass_WantedFlag
 // find needed flag
 //==========================================
-gitem_t	*BOT_DMclass_WantedFlag (edict_t *self)
+static gitem_t *
+BOT_DMclass_WantedFlag (edict_t *self)
 {
-	qboolean	hasflag;
+	qboolean hasflag;
 
 	if (!ctf->value)
+	{
 		return NULL;
+	}
 
 	if (!self->client || !self->client->resp.ctf_team)
+	{
 		return NULL;
+	}
 
 	//find out if the player has a flag, and what flag is it
 	if (redflag && self->client->pers.inventory[ITEM_INDEX(redflag)])
+	{
 		hasflag = true;
+	}
 	else if (blueflag && self->client->pers.inventory[ITEM_INDEX(blueflag)])
+	{
 		hasflag = true;
+	}
 	else
+	{
 		hasflag = false;
+	}
 
 	//jalToDo: see if our flag is at base
 
 	if (!hasflag)//if we don't have a flag we want other's team flag
 	{
 		if (self->client->resp.ctf_team == CTF_TEAM1)
+		{
 			return blueflag;
+		}
 		else
+		{
 			return redflag;
+		}
 	}
 	else	//we have a flag
 	{
 		if (self->client->resp.ctf_team == CTF_TEAM1)
+		{
 			return redflag;
+		}
 		else
+		{
 			return blueflag;
+		}
 	}
 
 	return NULL;
@@ -754,7 +777,8 @@ gitem_t	*BOT_DMclass_WantedFlag (edict_t *self)
 // BOT_DMclass_WeightInventory
 // weight items up or down based on bot needs
 //==========================================
-void BOT_DMclass_WeightInventory(edict_t *self)
+static void
+BOT_DMclass_WeightInventory(edict_t *self)
 {
 	float		LowNeedFactor = 0.5;
 	gclient_t	*client;
@@ -886,7 +910,8 @@ void BOT_DMclass_WeightInventory(edict_t *self)
 // update ai->status values based on bot state,
 // so ai can decide based on these settings
 //==========================================
-void BOT_DMclass_UpdateStatus( edict_t *self )
+static void
+BOT_DMclass_UpdateStatus(edict_t *self)
 {
 	self->enemy = NULL;
 	self->movetarget = NULL;
@@ -917,7 +942,8 @@ void BOT_DMclass_UpdateStatus( edict_t *self )
 // BOT_DMClass_BloquedTimeout
 // the bot has been bloqued for too long
 //==========================================
-void BOT_DMClass_BloquedTimeout( edict_t *self )
+static void
+BOT_DMClass_BloquedTimeout(edict_t *self)
 {
 	self->health = 0;
 	self->ai->bloqued_timeout = level.time + 15.0;
@@ -930,7 +956,8 @@ void BOT_DMClass_BloquedTimeout( edict_t *self )
 // BOT_DMclass_DeadFrame
 // ent is dead = run this think func
 //==========================================
-void BOT_DMclass_DeadFrame( edict_t *self )
+static void
+BOT_DMclass_DeadFrame(edict_t *self)
 {
 	usercmd_t	ucmd;
 
@@ -946,7 +973,8 @@ void BOT_DMclass_DeadFrame( edict_t *self )
 // BOT_DMclass_RunFrame
 // States Machine & call client movement
 //==========================================
-void BOT_DMclass_RunFrame( edict_t *self )
+static void
+BOT_DMclass_RunFrame(edict_t *self)
 {
 	usercmd_t ucmd = {0};
 
@@ -997,7 +1025,8 @@ void BOT_DMclass_RunFrame( edict_t *self )
 // BOT_DMclass_InitPersistant
 // Persistant after respawns.
 //==========================================
-void BOT_DMclass_InitPersistant(edict_t *self)
+void
+BOT_DMclass_InitPersistant(edict_t *self)
 {
 	self->classname = "dmbot";
 

@@ -36,9 +36,6 @@ static qboolean enemy_infront;
 static int enemy_range;
 static float enemy_yaw;
 
-qboolean FindTarget(edict_t *self);
-qboolean ai_checkattack(edict_t *self);
-
 /* ========================================================================== */
 
 /*

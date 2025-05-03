@@ -194,7 +194,7 @@ qboolean AI_ItemIsReachable(edict_t *self, vec3_t goal)
 	vec3_t v;
 
 	VectorCopy(self->mins,v);
-	v[2] += AI_STEPSIZE;
+	v[2] += STEPSIZE;
 
 //	trap_Trace (&trace, self->s.origin, v, self->maxs, goal, self, MASK_NODESOLID);
 	trace = gi.trace ( self->s.origin, v, self->maxs, goal, self, MASK_NODESOLID );

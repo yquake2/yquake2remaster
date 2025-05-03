@@ -22,9 +22,6 @@ edict_t *hint_path_start[MAX_HINT_CHAINS];
 int hint_paths_present;
 int num_hint_paths;
 
-qboolean face_wall(edict_t *self);
-void HuntTarget(edict_t *self);
-
 qboolean
 blocked_checkplat(edict_t *self, float dist)
 {

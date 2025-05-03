@@ -127,7 +127,8 @@ void AI_JumpadGuess_ShowPoint( vec3_t origin, char *modelname )
 // Make a guess on where a jumpad will send
 // the player.
 //==========================================
-qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
+static qboolean
+AI_PredictJumpadDestity(edict_t *ent, vec3_t out)
 {
 	int		i;
 	edict_t *target;
@@ -229,16 +230,21 @@ qboolean AI_PredictJumpadDestity( edict_t *ent, vec3_t out )
 // Drop two nodes, one at jump pad and other
 // at predicted destity
 //==========================================
-int AI_AddNode_JumpPad( edict_t *ent )
+static int
+AI_AddNode_JumpPad(edict_t *ent)
 {
 	vec3_t	v1,v2;
 	vec3_t	out;
 
 	if (nav.num_nodes + 1 > MAX_NODES)
+	{
 		return INVALID;
+	}
 
-	if( !AI_PredictJumpadDestity( ent, out ))
+	if (!AI_PredictJumpadDestity(ent, out))
+	{
 		return INVALID;
+	}
 
 	// jumpad node
 	nodes[nav.num_nodes].flags = (NODEFLAGS_JUMPPAD|NODEFLAGS_SERVERLINK|NODEFLAGS_REACHATTOUCH);
@@ -277,7 +283,8 @@ int AI_AddNode_JumpPad( edict_t *ent )
 // and force them to link. Only typical
 // doors are covered.
 //==========================================
-int AI_AddNode_Door( edict_t *ent )
+static int
+AI_AddNode_Door(edict_t *ent)
 {
 	edict_t		*other;
 	vec3_t		mins, maxs;
@@ -382,21 +389,26 @@ int AI_AddNode_Door( edict_t *ent )
 // AI_AddNode_Platform -  //jabot092(2)
 // drop two nodes one at top, one at bottom
 //==========================================
-int AI_AddNode_Platform( edict_t *ent )
+static int
+AI_AddNode_Platform(edict_t *ent)
 {
 	vec3_t		v1,v2;
 	float		plat_dist;
 
 	if (nav.num_nodes + 2 > MAX_NODES)
+	{
 		return INVALID;
+	}
 
 	if (ent->flags & FL_TEAMSLAVE)
+	{
 		return INVALID;		//only team master will drop the nodes
+	}
 
 	plat_dist = ent->pos1[2] - ent->pos2[2]; //jabot092(2)
 
 	// Upper node
-	nodes[nav.num_nodes].flags = (NODEFLAGS_PLATFORM|NODEFLAGS_SERVERLINK|NODEFLAGS_FLOAT);
+	nodes[nav.num_nodes].flags = (NODEFLAGS_PLATFORM | NODEFLAGS_SERVERLINK | NODEFLAGS_FLOAT);
 	VectorCopy( ent->maxs, v1 );
 	VectorCopy( ent->mins, v2 );
 	nodes[nav.num_nodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
@@ -443,46 +455,55 @@ int AI_AddNode_Platform( edict_t *ent )
 // Drop two nodes, one at trigger and other
 // at target entity
 //==========================================
-int AI_AddNode_Teleporter( edict_t *ent )
+static int
+AI_AddNode_Teleporter(edict_t *ent)
 {
 	vec3_t		v1,v2;
 	edict_t		*dest;
 
 	if (nav.num_nodes + 1 > MAX_NODES)
+	{
 		return INVALID;
+	}
 
-	dest = G_Find ( NULL, FOFS(targetname), ent->target );
+	dest = G_Find(NULL, FOFS(targetname), ent->target);
 	if (!dest)
+	{
 		return INVALID;
+	}
 
 	//NODE_TELEPORTER_IN
 	nodes[nav.num_nodes].flags = (NODEFLAGS_TELEPORTER_IN|NODEFLAGS_SERVERLINK);
 
-	VectorCopy( ent->maxs, v1 );
-	VectorCopy( ent->mins, v2 );
+	VectorCopy(ent->maxs, v1);
+	VectorCopy(ent->mins, v2);
 	nodes[nav.num_nodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
 	nodes[nav.num_nodes].origin[1] = (v1[1] - v2[1]) / 2 + v2[1];
 	nodes[nav.num_nodes].origin[2] = ent->mins[2]+32;
 
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, ent );
+	nodes[nav.num_nodes].flags |= AI_FlagsForNode(nodes[nav.num_nodes].origin, ent);
 
 	nav.num_nodes++;
 
 	//NODE_TELEPORTER_OUT
 	nodes[nav.num_nodes].flags = (NODEFLAGS_TELEPORTER_OUT|NODEFLAGS_SERVERLINK);
 	VectorCopy( dest->s.origin, nodes[nav.num_nodes].origin );
-	if ( ent->spawnflags & 1 ) // droptofloor
+	if (ent->spawnflags & 1) // droptofloor
+	{
 		nodes[nav.num_nodes].flags |= NODEFLAGS_FLOAT;
+	}
 	else
+	{
 		AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL );
+	}
 
 	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, ent );
 
 	// link from teleport_in
-	AI_AddLink( nav.num_nodes-1, nav.num_nodes, LINK_TELEPORT );
+	AI_AddLink(nav.num_nodes-1, nav.num_nodes, LINK_TELEPORT);
 
 	nav.num_nodes++;
-	return nav.num_nodes -1;
+	return nav.num_nodes - 1;
 }
 
 
@@ -490,17 +511,27 @@ int AI_AddNode_Teleporter( edict_t *ent )
 // AI_AddNode_ItemNode
 // Used to add nodes from items
 //==========================================
-int AI_AddNode_ItemNode( edict_t *ent )
+static int
+AI_AddNode_ItemNode(edict_t *ent)
 {
 	if (nav.num_nodes + 1 > MAX_NODES)
+	{
 		return INVALID;
+	}
 
-	VectorCopy( ent->s.origin, nodes[nav.num_nodes].origin );
-	if ( ent->spawnflags & 1 ) // floating items
+	VectorCopy(ent->s.origin, nodes[nav.num_nodes].origin);
+	if ( ent->spawnflags & 1 )
+	{
+		/* floating items */
 		nodes[nav.num_nodes].flags |= NODEFLAGS_FLOAT;
+	}
 	else
-		if( !AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+	{
+		if (!AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL))
+		{
 			return INVALID;	//spawned inside solid
+		}
+	}
 
 	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 
@@ -515,40 +546,42 @@ int AI_AddNode_ItemNode( edict_t *ent )
 // Entities aren't saved into nodes files anymore.
 // They generate and link it's nodes at map load.
 //==========================================
-void AI_CreateNodesForEntities ( void )
+static void
+AI_CreateNodesForEntities(void)
 {
 	edict_t *ent;
-	int		node;
+	int node;
 
 	nav.num_ents = 0;
-	memset( nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS );
+	memset(nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS);
 
-	// Add special entities
-//	for( ent = game.edicts; ent < &game.edicts[game.numentities]; ent++ )
-	for( ent = g_edicts; ent < &g_edicts[game.maxentities]; ent++ )
+	/* Add special entities */
+	for (ent = g_edicts; ent < &g_edicts[game.maxentities]; ent++)
 	{
-		if( !ent->classname )
+		if (!ent->classname)
+		{
 			continue;
+		}
 
-		// platforms
-		if( !strcmp( ent->classname,"func_plat" ) )
+		/* platforms */
+		if (!strcmp(ent->classname,"func_plat"))
 		{
 			AI_AddNode_Platform( ent );
 		}
-		// teleporters
-		else if( !strcmp( ent->classname,"trigger_teleport" ) )
+		/* teleporters */
+		else if (!strcmp( ent->classname,"trigger_teleport"))
 		{
-			AI_AddNode_Teleporter( ent );
+			AI_AddNode_Teleporter(ent);
 		}
-		// jump pads
-		else if( !strcmp( ent->classname,"trigger_push" ) )
+		/* jump pads */
+		else if (!strcmp( ent->classname,"trigger_push"))
 		{
 			AI_AddNode_JumpPad( ent );
 		}
-		// doors
-		else if( !strcmp( ent->classname,"func_door" ) )
+		/* doors */
+		else if(!strcmp( ent->classname,"func_door"))
 		{
-			AI_AddNode_Door( ent );
+			AI_AddNode_Door(ent);
 		}
 	}
 
@@ -556,33 +589,45 @@ void AI_CreateNodesForEntities ( void )
 	nav.num_items = 0;
 	memset( nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS );
 
-//	for( ent = game.edicts; ent < &game.edicts[game.numentities]; ent++ )
-	for( ent = g_edicts; ent < &g_edicts[game.maxentities]; ent++ )
+	for (ent = g_edicts; ent < &g_edicts[game.maxentities]; ent++)
 	{
 		int	item_index;
 
-		if( !ent->classname || !ent->item )
-			continue;
-
-		item_index = ITEM_INDEX( ent->item );
-		if(item_index == INVALID)
-			continue;
-
-		//if we have a available node close enough to the item, use it
-		node = AI_FindClosestReachableNode( ent->s.origin, NULL, 48, NODE_ALL );
-		if( node != INVALID )
+		if (!ent->classname || !ent->item)
 		{
-			if( nodes[node].flags & NODEFLAGS_SERVERLINK ||
-				nodes[node].flags & NODEFLAGS_LADDER )
+			continue;
+		}
+
+		item_index = ITEM_INDEX(ent->item);
+		if(item_index == INVALID)
+		{
+			continue;
+		}
+
+		/* if we have a available node close enough to the item, use it */
+		node = AI_FindClosestReachableNode(ent->s.origin, NULL, 48, NODE_ALL);
+		if (node != INVALID)
+		{
+			if (nodes[node].flags & NODEFLAGS_SERVERLINK ||
+				nodes[node].flags & NODEFLAGS_LADDER)
+			{
 				node = INVALID;
+			}
 			else
 			{
-				float heightdiff = 0;
-				heightdiff = ent->s.origin[2] - nodes[node].origin[2];
-				if( heightdiff < 0 ) heightdiff = -heightdiff;
+				float heightdiff;
 
-				if( heightdiff > AI_STEPSIZE )	//not near enough
+				heightdiff = ent->s.origin[2] - nodes[node].origin[2];
+				if (heightdiff < 0)
+				{
+					heightdiff = -heightdiff;
+				}
+
+				if (heightdiff > STEPSIZE)
+				{
+					/* not near enough */
 					node = INVALID;
+				}
 			}
 		}
 
@@ -771,13 +816,20 @@ AI_IsPlatformLink(int n1, int n2)
 // AI_IsJumpPadLink
 // interpretation of this link type
 //==========================================
-int AI_IsJumpPadLink( int n1, int n2 )
+static int
+AI_IsJumpPadLink(int n1, int n2)
 {
-	if( nodes[n1].flags & NODEFLAGS_JUMPPAD )
-		return LINK_INVALID; //only can link TO jumppad land, and it's linked elsewhere
+	if (nodes[n1].flags & NODEFLAGS_JUMPPAD)
+	{
+		/* only can link TO jumppad land, and it's linked elsewhere */
+		return LINK_INVALID;
+	}
 
-	if( nodes[n2].flags & NODEFLAGS_JUMPPAD_LAND )
-		return LINK_INVALID; //linked as TO only from it's jumppad. Handled elsewhere
+	if (nodes[n2].flags & NODEFLAGS_JUMPPAD_LAND)
+	{
+		/* linked as TO only from it's jumppad. Handled elsewhere */
+		return LINK_INVALID;
+	}
 
 	return AI_GravityBoxToLink( n1, n2 );
 }
@@ -786,39 +838,48 @@ int AI_IsJumpPadLink( int n1, int n2 )
 // AI_IsTeleporterLink
 // interpretation of this link type
 //==========================================
-int AI_IsTeleporterLink( int n1, int n2 )
+static int
+AI_IsTeleporterLink(int n1, int n2)
 {
-	if( nodes[n1].flags & NODEFLAGS_TELEPORTER_IN )
+	if (nodes[n1].flags & NODEFLAGS_TELEPORTER_IN)
+	{
 		return LINK_INVALID;
+	}
 
 	if (nodes[n2].flags & NODEFLAGS_TELEPORTER_OUT)
+	{
 		return LINK_INVALID;
+	}
 
 	//find out the link move type against the world
-	return AI_GravityBoxToLink( n1, n2 );
+	return AI_GravityBoxToLink(n1, n2);
 }
 
 //==========================================
 // AI_FindServerLinkType
 // determine what type of link it is
 //==========================================
-int AI_FindServerLinkType( int n1, int n2 )
+static int
+AI_FindServerLinkType(int n1, int n2)
 {
-	if( AI_PlinkExists( n1, n2 ))
+	if (AI_PlinkExists(n1, n2))
+	{
 		return LINK_INVALID;	//already saved
+	}
 
-	if( nodes[n1].flags & NODEFLAGS_PLATFORM || nodes[n2].flags & NODEFLAGS_PLATFORM )
+	if (nodes[n1].flags & NODEFLAGS_PLATFORM || nodes[n2].flags & NODEFLAGS_PLATFORM)
 	{
 		return AI_IsPlatformLink(n1, n2);
 	}
-	else if( nodes[n2].flags & NODEFLAGS_TELEPORTER_IN || nodes[n1].flags & NODEFLAGS_TELEPORTER_OUT )
+	else if (nodes[n2].flags & NODEFLAGS_TELEPORTER_IN || nodes[n1].flags & NODEFLAGS_TELEPORTER_OUT)
 	{
 		return AI_IsTeleporterLink(n1, n2);
 	}
-	else if( nodes[n2].flags & NODEFLAGS_JUMPPAD || nodes[n1].flags & NODEFLAGS_JUMPPAD_LAND )
+	else if (nodes[n2].flags & NODEFLAGS_JUMPPAD || nodes[n1].flags & NODEFLAGS_JUMPPAD_LAND)
 	{
 		return AI_IsJumpPadLink(n1, n2);
 	}
+
 	return LINK_INVALID;
 }
 
@@ -826,7 +887,8 @@ int AI_FindServerLinkType( int n1, int n2 )
 // AI_LinkServerNodes
 // link the new nodes to&from those loaded from disk
 //==========================================
-int AI_LinkServerNodes( int start )
+static int
+AI_LinkServerNodes(int start)
 {
 	int			n1, n2;
 	int			count = 0;
@@ -867,7 +929,6 @@ int AI_LinkServerNodes( int start )
 }
 
 
-int AI_LinkCloseNodes_JumpPass( int start );
 //==========================================
 // AI_InitNavigationData
 // Setup nodes & links for this map
@@ -901,8 +962,8 @@ void AI_InitNavigationData(void)
 
 	//create nodes for map entities
 	AI_CreateNodesForEntities();
-	newlinks = AI_LinkServerNodes( servernodesstart );
-	newjumplinks = AI_LinkCloseNodes_JumpPass( servernodesstart );
+	newlinks = AI_LinkServerNodes(servernodesstart);
+	newjumplinks = AI_LinkCloseNodes_JumpPass(servernodesstart);
 
 	Com_Printf("-------------------------------------\n");
 	Com_Printf("AI: Nodes Initialized.\n");

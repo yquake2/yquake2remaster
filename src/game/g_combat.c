@@ -27,8 +27,6 @@
 
 #include "header/local.h"
 
-void M_SetEffects(edict_t *self);
-
 /*
  * clean up heal targets for medic
  */

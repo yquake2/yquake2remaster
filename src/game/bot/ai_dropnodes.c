@@ -33,8 +33,6 @@
 
 
 //ACE
-
-
 typedef struct
 {
 	edict_t		*ent;
@@ -45,20 +43,11 @@ typedef struct
 } player_dropping_nodes_t;
 player_dropping_nodes_t	player;
 
-
-void AI_CategorizePosition (edict_t *ent);
-
-
 //===========================================================
 //
 //				EDIT NODES
 //
 //===========================================================
-
-edict_t *AI_PlayerDroppingNodesPassent(void)
-{
-	return player.ent;
-}
 
 
 //==========================================
@@ -66,7 +55,8 @@ edict_t *AI_PlayerDroppingNodesPassent(void)
 // Add a node of normal navigation types.
 // Not valid to add nodes from entities nor items
 //==========================================
-int AI_AddNode( vec3_t origin, int flagsmask )
+static int
+AI_AddNode(vec3_t origin, int flagsmask)
 {
 	if (nav.num_nodes + 1 > MAX_NODES)
 	{
@@ -109,7 +99,8 @@ int AI_AddNode( vec3_t origin, int flagsmask )
 // AI_UpdateNodeEdge
 // Add/Update node connections (paths)
 //==========================================
-void AI_UpdateNodeEdge(int from, int to)
+static void
+AI_UpdateNodeEdge(int from, int to)
 {
 	int	link;
 
@@ -146,7 +137,8 @@ void AI_UpdateNodeEdge(int from, int to)
 // AI_DropLadderNodes
 // drop nodes all along the ladder
 //==========================================
-void AI_DropLadderNodes( edict_t *self )
+static void
+AI_DropLadderNodes(edict_t *self)
 {
 	vec3_t	torigin;
 	vec3_t	borigin;
@@ -213,7 +205,8 @@ void AI_DropLadderNodes( edict_t *self )
 // AI_CheckForLadder
 // Check for adding ladder nodes
 //==========================================
-qboolean AI_CheckForLadder(edict_t *self)
+static qboolean
+AI_CheckForLadder(edict_t *self)
 {
 	int			closest_node;
 
@@ -239,7 +232,8 @@ qboolean AI_CheckForLadder(edict_t *self)
 // AI_TouchWater
 // Capture when players touches water for mapping purposes.
 //==========================================
-void AI_WaterJumpNode( void )
+static void
+AI_WaterJumpNode(void)
 {
 	int			closest_node;
 	vec3_t		waterorigin;
@@ -329,7 +323,7 @@ void AI_WaterJumpNode( void )
 //==========================================
 static float last_update=0;
 #define NODE_UPDATE_DELAY	0.10;
-void
+static void
 AI_PathMap(void)
 {
 	int closest_node;
@@ -420,20 +414,31 @@ AI_PathMap(void)
 	if( closest_node == INVALID )
 	{
 		// Add nodes in the water as needed
-		if( player.ent->is_swim )
-			closest_node = AI_AddNode( player.ent->s.origin, (NODEFLAGS_WATER|NODEFLAGS_FLOAT) );
+		if (player.ent->is_swim)
+		{
+			closest_node = AI_AddNode(player.ent->s.origin,
+				(NODEFLAGS_WATER | NODEFLAGS_FLOAT));
+		}
 		else
-			closest_node = AI_AddNode( player.ent->s.origin, 0 );
+		{
+			closest_node = AI_AddNode(player.ent->s.origin, 0);
+		}
 
 		// Now add link
-		if( player.last_node != -1)
+		if (player.last_node != -1)
+		{
 			AI_UpdateNodeEdge( player.last_node, closest_node );
+		}
 	}
-	else if( closest_node != player.last_node && player.last_node != INVALID )
-		AI_UpdateNodeEdge( player.last_node, closest_node );
+	else if (closest_node != player.last_node && player.last_node != INVALID)
+	{
+		AI_UpdateNodeEdge(player.last_node, closest_node);
+	}
 
-	if( closest_node != -1 )
+	if (closest_node != -1)
+	{
 		player.last_node = closest_node; // set visited to last
+	}
 }
 
 
@@ -441,10 +446,13 @@ AI_PathMap(void)
 // AI_ClientPathMap
 // Clients try to create new nodes while walking the map
 //==========================================
-void AITools_DropNodes(edict_t *ent)
+void
+AITools_DropNodes(edict_t *ent)
 {
-	if( nav.loaded )
+	if (nav.loaded)
+	{
 		return;
+	}
 
 	AI_CategorizePosition (ent);
 	player.ent = ent;
@@ -455,7 +463,8 @@ void AITools_DropNodes(edict_t *ent)
 //==========================================
 //
 //==========================================
-void AITools_EraseNodes( void )
+static void
+AITools_EraseNodes(void)
 {
 	//Init nodes arrays
 	nav.num_nodes = 0;
@@ -552,7 +561,6 @@ AI_SavePLKFile(const char *mapname)
 //
 //===========================================================
 
-int AI_LinkCloseNodes_JumpPass( int start );
 //==================
 // AITools_SaveNodes
 //==================
