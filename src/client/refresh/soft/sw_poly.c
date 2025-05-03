@@ -921,13 +921,13 @@ R_PolygonScanRightEdge(espan_t *s_polygon_spans)
 */
 // isturbulent was qboolean. changed to int to allow passing more flags
 void
-R_ClipAndDrawPoly ( float alpha, int isturbulent, qboolean textured )
+R_ClipAndDrawPoly(float alpha, int isturbulent, qboolean textured)
 {
 	vec_t		*pv;
 	int		i, nump;
 	vec3_t		transformed, local;
 
-	if ( !textured )
+	if (!textured)
 	{
 		r_polydesc.drawspanlet = R_DrawSpanletConstant33;
 	}
