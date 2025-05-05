@@ -26,7 +26,7 @@
 
 #include "header/local.h"
 
-image_t gltextures[MAX_GLTEXTURES];
+image_t gltextures[MAX_TEXTURES];
 int numgltextures;
 static int image_max = 0;
 int base_textureid; /* gltextures[i] = base_textureid+i */
@@ -304,7 +304,7 @@ R_TextureMode(const char *string)
 		ri.Cvar_SetValue("r_anisotropic", 0.0);
 	}
 
-	const char* nolerplist = gl_nolerp_list->string;
+	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
 
@@ -316,9 +316,9 @@ R_TextureMode(const char *string)
 		if (unfiltered2D && glt->type == it_pic)
 		{
 			// exception to that exception: stuff on the r_lerp_list
-			nolerp = (lerplist== NULL) || (strstr(lerplist, glt->name) == NULL);
+			nolerp = (lerplist == NULL) || Utils_FilenameFiltered(glt->name, lerplist, ' ');
 		}
-		else if(nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
+		else if (nolerplist != NULL && Utils_FilenameFiltered(glt->name, nolerplist, ' '))
 		{
 			nolerp = true;
 		}
@@ -344,7 +344,7 @@ R_TextureMode(const char *string)
 		{
 			if (nolerp)
 			{
-				// this texture shouldn't be filtered at all (no gl_nolerp_list or r_2D_unfiltered case)
+				// this texture shouldn't be filtered at all (no r_nolerp_list or r_2D_unfiltered case)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
@@ -464,7 +464,8 @@ R_ImageList_f(void)
 			"Total texel count (not counting mipmaps): %i\n",
 			texels);
 	freeup = R_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d images%s.\n", used, image_max, freeup ? ", has free space" : "");
+	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
 /*
@@ -725,7 +726,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 	if (scaled_width * scaled_height > sizeof(scaled) / 4)
 	{
 		// this can't really happen (because they're clamped to 256 above), but whatever
-		ri.Sys_Error(ERR_DROP, "R_Upload32: too big");
+		Com_Error(ERR_DROP, "R_Upload32: too big");
 	}
 
 	/* scan the texture for any non-255 alpha */
@@ -950,44 +951,57 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		int height, int realheight, size_t data_size, imagetype_t type, int bits)
 {
 	image_t *image;
-	int i;
 
 	qboolean nolerp = false;
 	if (r_2D_unfiltered->value && type == it_pic)
 	{
-		// if r_2D_unfiltered is true(ish), nolerp should usually be true,
-		// *unless* the texture is on the r_lerp_list
+		/*
+		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
+		 * *unless* the texture is on the r_lerp_list
+		 */
 		nolerp = (r_lerp_list->string == NULL) || (strstr(r_lerp_list->string, name) == NULL);
 	}
-	else if (gl_nolerp_list != NULL && gl_nolerp_list->string != NULL)
+	else if (r_nolerp_list != NULL && r_nolerp_list->string != NULL)
 	{
-		nolerp = strstr(gl_nolerp_list->string, name) != NULL;
+		nolerp = strstr(r_nolerp_list->string, name) != NULL;
 	}
 
-	/* find a free image_t */
-	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 	{
-		if (!image->texnum)
+		int i;
+
+		/* find a free image_t */
+		for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 		{
-			break;
-		}
-	}
+			if (!image->texnum)
+			{
+				break;
+			}
 
-	if (i == numgltextures)
-	{
-		if (numgltextures == MAX_GLTEXTURES)
+			if (!strcmp(image->name, name))
+			{
+				/* we already have such image */
+				image->registration_sequence = registration_sequence;
+				return image;
+			}
+		}
+
+		if (i == numgltextures)
 		{
-			ri.Sys_Error(ERR_DROP, "MAX_GLTEXTURES");
+			if (numgltextures == MAX_TEXTURES)
+			{
+				Com_Error(ERR_DROP, "%s: load %s is failed MAX_TEXTURES",
+					__func__, name);
+			}
+
+			numgltextures++;
 		}
 
-		numgltextures++;
+		image = &gltextures[i];
 	}
-
-	image = &gltextures[i];
 
 	if (strlen(name) >= sizeof(image->name))
 	{
-		ri.Sys_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
+		Com_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
 	}
 
 	strcpy(image->name, name);
@@ -1125,19 +1139,23 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
  * Finds or loads the given image or null
  */
 image_t *
-R_FindImage(const char *name, imagetype_t type)
+R_FindImage(const char *originname, imagetype_t type)
 {
+	char namewe[256], name[256] = {0};
+	const char* ext;
 	image_t *image;
 	size_t len;
 	int i;
-	char *ptr;
-	char namewe[256];
-	const char* ext;
 
-	if (!name)
+	if (!originname)
 	{
 		return NULL;
 	}
+
+	Q_strlcpy(name, originname, sizeof(name));
+
+	/* fix backslashes */
+	Q_replacebackslash(name);
 
 	ext = COM_FileExtension(name);
 	if (!ext[0])
@@ -1150,17 +1168,12 @@ R_FindImage(const char *name, imagetype_t type)
 	len = (ext - name) - 1;
 	if ((len < 1) || (len > sizeof(namewe) - 1))
 	{
+		Com_DPrintf("%s: Bad filename %s\n", __func__, name);
 		return NULL;
 	}
 
 	memcpy(namewe, name, len);
 	namewe[len] = 0;
-
-	/* fix backslashes */
-	while ((ptr = strchr(name, '\\')))
-	{
-		*ptr = '/';
-	}
 
 	/* look for it */
 	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
@@ -1254,13 +1267,12 @@ R_ImageHasFreeSpace(void)
 	}
 
 	// should same size of free slots as currently used
-	return (numgltextures + used) < MAX_GLTEXTURES;
+	return (numgltextures + used) < MAX_TEXTURES;
 }
 
 void
 R_InitImages(void)
 {
-	byte *colormap;
 	int i;
 
 	registration_sequence = 1;
@@ -1275,21 +1287,6 @@ R_InitImages(void)
 	}
 
 	gl_state.inverse_intensity = 1 / intensity->value;
-
-	// FIXME: I think this is redundant - RI_Init() already calls that!
-	GetPCXPalette (&colormap, d_8to24table);
-	free(colormap);
-
-	if (gl_config.palettedtexture)
-	{
-		ri.FS_LoadFile("pics/16to8.dat", (void **)&gl_state.d_16to8table);
-
-		if (!gl_state.d_16to8table)
-		{
-			ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/16to8.pcx",
-				__func__);
-		}
-	}
 
 	for (i = 0; i < 256; i++)
 	{

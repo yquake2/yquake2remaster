@@ -45,38 +45,24 @@ void LM_InitBlock(void);
 void LM_UploadBlock(qboolean dynamic);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
 
-void R_SetCacheState(msurface_t *surf);
-void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
-
 static void
 R_DrawGLPoly(msurface_t *fa)
 {
 	int i, nv;
-	float *v, scroll;
+	mvtx_t *v;
+	float sscroll, tscroll;
 
-	v = fa->polys->verts[0];
+	v = fa->polys->verts;
 	nv = fa->polys->numverts;
 
-	if (fa->texinfo->flags & SURF_FLOWING)
-	{
-		scroll = -64 * ((r_newrefdef.time / 40.0) - (int)(r_newrefdef.time / 40.0));
-
-		if (scroll == 0.0)
-		{
-			scroll = -64.0;
-		}
-	}
-	else
-	{
-		scroll = 0.0;
-	}
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	R_SetBufferIndices(GL_TRIANGLE_FAN, nv);
 
-	for ( i = 0; i < nv; i++, v += VERTEXSIZE )
+	for ( i = 0; i < nv; i++, v ++)
 	{
-		GLBUFFER_VERTEX( v[0], v[1], v[2] )
-		GLBUFFER_SINGLETEX( v[3] + scroll, v[4] )
+		GLBUFFER_VERTEX( v->pos[0], v->pos[1], v->pos[2] )
+		GLBUFFER_SINGLETEX( v->texCoord[0] + sscroll, v->texCoord[1] + tscroll )
 	}
 }
 
@@ -84,9 +70,9 @@ static void
 R_DrawTriangleOutlines(void)
 {
 	int i, j;
-	glpoly_t *p;
+	mpoly_t *p;
 
-	if (!gl_showtris->value)
+	if (!r_showtris->value)
 	{
 		return;
 	}
@@ -109,23 +95,23 @@ R_DrawTriangleOutlines(void)
 			{
 				for (j = 2; j < p->numverts; j++)
 				{
-                    GLfloat vtx[12];
-                    unsigned int k;
+					GLfloat vtx[12];
+					unsigned int k;
 
-                    for (k=0; k<3; k++)
-                    {
-                        vtx[0+k] = p->verts [ 0 ][ k ];
-                        vtx[3+k] = p->verts [ j - 1 ][ k ];
-                        vtx[6+k] = p->verts [ j ][ k ];
-                        vtx[9+k] = p->verts [ 0 ][ k ];
-                    }
+					for (k=0; k<3; k++)
+					{
+						vtx[0+k] = p->verts[0    ].pos[k];
+						vtx[3+k] = p->verts[j - 1].pos[k];
+						vtx[6+k] = p->verts[j    ].pos[k];
+						vtx[9+k] = p->verts[0    ].pos[k];
+					}
 
-                    glEnableClientState( GL_VERTEX_ARRAY );
+					glEnableClientState( GL_VERTEX_ARRAY );
 
-                    glVertexPointer( 3, GL_FLOAT, 0, vtx );
-                    glDrawArrays( GL_LINE_STRIP, 0, 4 );
+					glVertexPointer( 3, GL_FLOAT, 0, vtx );
+					glDrawArrays( GL_LINE_STRIP, 0, 4 );
 
-                    glDisableClientState( GL_VERTEX_ARRAY );
+					glDisableClientState( GL_VERTEX_ARRAY );
 				}
 			}
 		}
@@ -136,25 +122,23 @@ R_DrawTriangleOutlines(void)
 }
 
 static void
-R_DrawGLPolyChain(glpoly_t *p, float soffset, float toffset)
+R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
 {
 	if ((soffset == 0) && (toffset == 0))
 	{
 		for ( ; p != 0; p = p->chain)
 		{
-			float *v;
+			mvtx_t* vert = p->verts;
 
-			v = p->verts[0];
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-            glEnableClientState( GL_VERTEX_ARRAY );
-            glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), vert->pos);
+			glTexCoordPointer(2, GL_FLOAT, sizeof(mvtx_t), vert->lmTexCoord);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-            glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
-            glTexCoordPointer( 2, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v+5 );
-            glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
-
-            glDisableClientState( GL_VERTEX_ARRAY );
-            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	}
 	else
@@ -162,7 +146,7 @@ R_DrawGLPolyChain(glpoly_t *p, float soffset, float toffset)
 		// workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 #ifdef _MSC_VER
 		int maxNumVerts = 0;
-		for (glpoly_t* tmp = p; tmp; tmp = tmp->chain)
+		for (mpoly_t* tmp = p; tmp; tmp = tmp->chain)
 		{
 			if ( tmp->numverts > maxNumVerts )
 				maxNumVerts = tmp->numverts;
@@ -173,36 +157,36 @@ R_DrawGLPolyChain(glpoly_t *p, float soffset, float toffset)
 
 		for ( ; p != 0; p = p->chain)
 		{
-			float *v;
+			mvtx_t* vert;
 			int j;
 
-			v = p->verts[0];
+			vert = p->verts;
 #ifndef _MSC_VER // we have real VLAs, so it's safe to use one in this loop
-            YQ2_VLA(GLfloat, tex, 2*p->numverts);
+			YQ2_VLA(GLfloat, tex, 2*p->numverts);
 #endif
 
-            unsigned int index_tex = 0;
+			unsigned int index_tex = 0;
 
-			for ( j = 0; j < p->numverts; j++, v += VERTEXSIZE )
+			for (j = 0; j < p->numverts; j++, vert++)
 			{
-			    tex[index_tex++] = v [ 5 ] - soffset;
-			    tex[index_tex++] = v [ 6 ] - toffset;
+				tex[index_tex++] = vert->lmTexCoord[0] - soffset;
+				tex[index_tex++] = vert->lmTexCoord[1] - toffset;
 			}
 
-			v = p->verts [ 0 ];
+			vert = p->verts;
 
-            glEnableClientState( GL_VERTEX_ARRAY );
-            glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-            glVertexPointer( 3, GL_FLOAT, VERTEXSIZE*sizeof(GLfloat), v );
-            glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-            glDrawArrays( GL_TRIANGLE_FAN, 0, p->numverts );
+			glVertexPointer(3, GL_FLOAT, sizeof(mvtx_t), vert->pos);
+			glTexCoordPointer(2, GL_FLOAT, 0, tex);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, p->numverts);
 
-            glDisableClientState( GL_VERTEX_ARRAY );
-            glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 
-		YQ2_VLAFREE( tex );
+		YQ2_VLAFREE(tex);
 	}
 }
 
@@ -214,7 +198,7 @@ static void
 R_BlendLightmaps(const model_t *currentmodel)
 {
 	int i;
-	msurface_t *surf, *newdrawsurf = 0;
+	msurface_t *surf;
 
 	/* don't bother if we're set to fullbright or multitexture is enabled */
 	if (gl_config.multitexture || r_fullbright->value || !r_worldmodel->lightdata)
@@ -278,8 +262,10 @@ R_BlendLightmaps(const model_t *currentmodel)
 	}
 
 	/* render dynamic lightmaps */
-	if (gl1_dynamic->value)
+	if (r_dynamic->value)
 	{
+		msurface_t *newdrawsurf;
+
 		LM_InitBlock();
 
 		R_Bind(gl_state.lightmap_textures + 0);
@@ -298,8 +284,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 			int smax, tmax;
 			byte *base;
 
-			smax = (surf->extents[0] >> 4) + 1;
-			tmax = (surf->extents[1] >> 4) + 1;
+			smax = (surf->extents[0] >> surf->lmshift) + 1;
+			tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
 			if (LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
 			{
@@ -307,7 +293,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				base += (surf->dlight_t * gl_state.block_width +
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
-				R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES);
+				R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES,
+					&r_newrefdef, r_modulate->value, r_framecount);
 			}
 			else
 			{
@@ -344,16 +331,17 @@ R_BlendLightmaps(const model_t *currentmodel)
 				/* try uploading the block now */
 				if (!LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
 				{
-					ri.Sys_Error(ERR_FATAL,
-							"Consecutive calls to LM_AllocBlock(%d,%d) failed (dynamic)\n",
-							smax, tmax);
+					Com_Error(ERR_FATAL,
+							"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
+								__func__, smax, tmax);
 				}
 
 				base = gl_lms.lightmap_buffer[0];
 				base += (surf->dlight_t * gl_state.block_width +
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
-				R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES);
+				R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES,
+					&r_newrefdef, r_modulate->value, r_framecount);
 			}
 		}
 
@@ -390,8 +378,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 static void
 R_RenderBrushPoly(msurface_t *fa)
 {
-	int maps;
 	qboolean is_dynamic = false;
+	int maps;
 
 	c_brush_polys++;
 
@@ -423,11 +411,10 @@ R_RenderBrushPoly(msurface_t *fa)
 	{
 	dynamic:
 
-		if (gl1_dynamic->value)
+		if (r_dynamic->value)
 		{
 			if (!(fa->texinfo->flags &
-				  (SURF_SKY | SURF_TRANS33 |
-				   SURF_TRANS66 | SURF_WARP)))
+				  (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 			{
 				is_dynamic = true;
 			}
@@ -441,14 +428,18 @@ R_RenderBrushPoly(msurface_t *fa)
 			 (fa->styles[maps] == 0)) &&
 			  (fa->dlightframe != r_framecount))
 		{
-			unsigned temp[34 * 34];
-			int smax, tmax;
+			int smax, tmax, size;
+			byte *temp;
 
-			smax = (fa->extents[0] >> 4) + 1;
-			tmax = (fa->extents[1] >> 4) + 1;
+			smax = (fa->extents[0] >> fa->lmshift) + 1;
+			tmax = (fa->extents[1] >> fa->lmshift) + 1;
 
-			R_BuildLightMap(fa, (void *)temp, smax * 4);
-			R_SetCacheState(fa);
+			size = smax * tmax * LIGHTMAP_BYTES;
+			temp = R_GetTemporaryLMBuffer(size);
+
+			R_BuildLightMap(fa, temp, smax * 4,
+				&r_newrefdef, r_modulate->value, r_framecount);
+			R_SetCacheState(fa, &r_newrefdef);
 
 			R_Bind(gl_state.lightmap_textures + fa->lightmaptexturenum);
 
@@ -529,33 +520,22 @@ static void
 R_RenderLightmappedPoly(msurface_t *surf)
 {
 	const int nv = surf->polys->numverts;
+	float sscroll, tscroll;
+	mvtx_t* vert;
 	int i;
-	float scroll;
-	float *v;
 
 	c_brush_polys++;
-	v = surf->polys->verts[0];
+	vert = surf->polys->verts;
 
-	if (surf->texinfo->flags & SURF_FLOWING)
-	{
-		scroll = -64 * ((r_newrefdef.time / 40.0) - (int) (r_newrefdef.time / 40.0));
-
-		if (scroll == 0.0)
-		{
-			scroll = -64.0;
-		}
-	}
-	else
-	{
-		scroll = 0.0;
-	}
+	R_FlowingScroll(&r_newrefdef, surf->texinfo->flags, &sscroll, &tscroll);
 
 	R_SetBufferIndices(GL_TRIANGLE_FAN, nv);
 
-	for (i = 0; i < nv; i++, v += VERTEXSIZE)
+	for (i = 0; i < nv; i++, vert++)
 	{
-		GLBUFFER_VERTEX( v[0], v[1], v[2] )
-		GLBUFFER_MULTITEX( v[3] + scroll, v[4], v[5], v[6] )
+		GLBUFFER_VERTEX( vert->pos[0], vert->pos[1], vert->pos[2] )
+		GLBUFFER_MULTITEX( vert->texCoord[0] + sscroll, vert->texCoord[1] + tscroll,
+			vert->lmTexCoord[0], vert->lmTexCoord[1] )
 	}
 }
 
@@ -597,7 +577,7 @@ R_RegenAllLightmaps()
 	qboolean pixelstore_set = false;
 #endif
 
-	if ( !gl_config.multitexture || r_fullbright->value || !gl1_dynamic->value )
+	if ( !gl_config.multitexture || r_fullbright->value || !r_dynamic->value )
 	{
 		return;
 	}
@@ -652,8 +632,8 @@ R_RegenAllLightmaps()
 
 dynamic_surf:
 			affected_lightmap = true;
-			smax = (surf->extents[0] >> 4) + 1;
-			tmax = (surf->extents[1] >> 4) + 1;
+			smax = (surf->extents[0] >> surf->lmshift) + 1;
+			tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
 			current.left = surf->light_s;
 			current.right = surf->light_s + smax;
@@ -663,12 +643,13 @@ dynamic_surf:
 			base = gl_lms.lightmap_buffer[i];
 			base += (current.top * gl_state.block_width + current.left) * LIGHTMAP_BYTES;
 
-			R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES);
+			R_BuildLightMap(surf, base, gl_state.block_width * LIGHTMAP_BYTES,
+				&r_newrefdef, r_modulate->value, r_framecount);
 
 			if ( ((surf->styles[map] >= 32) || (surf->styles[map] == 0))
 				&& (surf->dlightframe != r_framecount) )
 			{
-				R_SetCacheState(surf);
+				R_SetCacheState(surf, &r_newrefdef);
 			}
 
 			surf->dirty_lightmap = (surf->dlightframe == r_framecount);
@@ -830,26 +811,17 @@ R_DrawTextureChains(void)
 }
 
 static void
-R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
+R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 {
-	int i, k;
-	cplane_t *pplane;
-	float dot;
+	int i;
 	msurface_t *psurf;
-	dlight_t *lt;
 	image_t *image;
 
 	/* calculate dynamic lighting for bmodel */
-	if (!gl_config.multitexture && !gl1_flashblend->value)
+	if (!gl_config.multitexture && !r_flashblend->value)
 	{
-		lt = r_newrefdef.dlights;
-
-		for (k = 0; k < r_newrefdef.num_dlights; k++, lt++)
-		{
-			R_MarkLights(lt, 1 << k,
-				currentmodel->nodes + currentmodel->firstnode,
-				r_dlightframecount, R_MarkSurfaceLights);
-		}
+		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 	}
 
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
@@ -864,6 +836,9 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
 	/* draw texture */
 	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
+		cplane_t *pplane;
+		float dot;
+
 		/* find which side of the node we are on */
 		pplane = psurf->plane;
 
@@ -873,7 +848,7 @@ R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel)
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
-			if (psurf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+			if (psurf->texinfo->flags & SURF_TRANSPARENT)
 			{
 				/* add to the translucent chain */
 				psurf->texturechain = r_alpha_surfaces;
@@ -915,7 +890,6 @@ void
 R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 {
 	vec3_t mins, maxs;
-	int i;
 	qboolean rotated;
 
 	if (currentmodel->nummodelsurfaces == 0)
@@ -927,6 +901,8 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (currententity->angles[0] || currententity->angles[1] || currententity->angles[2])
 	{
+		int	i;
+
 		rotated = true;
 
 		for (i = 0; i < 3; i++)
@@ -1000,7 +976,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
 	int c, side, sidebit;
 	cplane_t *plane;
-	msurface_t *surf, **mark;
+	msurface_t *surf;
 	mleaf_t *pleaf;
 	float dot;
 	image_t *image;
@@ -1023,6 +999,8 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
+		msurface_t	**mark;
+
 		pleaf = (mleaf_t *)node;
 
 		/* check for door connected areas */
@@ -1079,6 +1057,12 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	R_RecursiveWorldNode(currententity, node->children[side]);
 
+	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
+	{
+		R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+		return;
+	}
+
 	/* draw stuff */
 	for (c = node->numsurfaces,
 		 surf = r_worldmodel->surfaces + node->firstsurface;
@@ -1097,14 +1081,19 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		if (surf->texinfo->flags & SURF_SKY)
 		{
 			/* just adds to visible sky bounds */
-			R_AddSkySurface(surf);
+			RE_AddSkySurface(surf);
 		}
-		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+		else if (surf->texinfo->flags & SURF_TRANSPARENT)
 		{
 			/* add to the translucent chain */
 			surf->texturechain = r_alpha_surfaces;
 			r_alpha_surfaces = surf;
 			r_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
+		}
+		else if (surf->texinfo->flags & SURF_NODRAW)
+		{
+			/* Surface should be skipped */
+			continue;
 		}
 		else
 		{
@@ -1137,10 +1126,9 @@ R_GetBrushesLighting(void)
 	vec3_t mins, maxs;
 	msurface_t *surf;
 	cplane_t *pplane;
-	dlight_t *lt;
 	float dot;
 
-	if (!gl_config.multitexture || !r_drawentities->value || gl1_flashblend->value)
+	if (!gl_config.multitexture || !r_drawentities->value || r_flashblend->value)
 	{
 		return;
 	}
@@ -1182,20 +1170,14 @@ R_GetBrushesLighting(void)
 		}
 
 		// from R_DrawInlineBModel()
-		lt = r_newrefdef.dlights;
-
-		for (k = 0; k < r_newrefdef.num_dlights; k++, lt++)
-		{
-			R_MarkLights(lt, 1 << k,
-				currentmodel->nodes + currentmodel->firstnode,
-				r_dlightframecount, R_MarkSurfaceLights);
-		}
+		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 
 		surf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 
 		for (k = 0; k < currentmodel->nummodelsurfaces; k++, surf++)
 		{
-			if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)
+			if (surf->texinfo->flags & (SURF_TRANSPARENT | SURF_WARP)
 				|| surf->flags & SURF_DRAWTURB || surf->lmchain_frame == r_framecount)
 			{
 				continue;	// either not affected by light, or already in the chain
@@ -1242,7 +1224,7 @@ R_DrawWorld(void)
 	glColor4f(1, 1, 1, 1);
 	memset(gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 
-	R_ClearSkyBox();
+	RE_ClearSkyBox();
 	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 	R_GetBrushesLighting();
 	R_RegenAllLightmaps();
@@ -1260,11 +1242,10 @@ void
 R_MarkLeaves(void)
 {
 	const byte *vis;
-	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS / 8];
+	byte *fatvis = NULL;
 	mnode_t *node;
-	int i, c;
+	int i;
 	mleaf_t *leaf;
-	int cluster;
 
 	if ((r_oldviewcluster == r_viewcluster) &&
 		(r_oldviewcluster2 == r_viewcluster2) &&
@@ -1306,6 +1287,9 @@ R_MarkLeaves(void)
 	/* may have to combine two clusters because of solid water boundaries */
 	if (r_viewcluster2 != r_viewcluster)
 	{
+		int c;
+
+		fatvis = malloc(((r_worldmodel->numleafs + 31) / 32) * sizeof(int));
 		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
 		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
 		c = (r_worldmodel->numleafs + 31) / 32;
@@ -1322,6 +1306,8 @@ R_MarkLeaves(void)
 		 i < r_worldmodel->numleafs;
 		 i++, leaf++)
 	{
+		int cluster;
+
 		cluster = leaf->cluster;
 
 		if (cluster == -1)
@@ -1345,5 +1331,11 @@ R_MarkLeaves(void)
 			}
 			while (node);
 		}
+	}
+
+	/* clean combined buffer */
+	if (fatvis)
+	{
+		free(fatvis);
 	}
 }

@@ -50,18 +50,19 @@ SZ_GetSpace(sizebuf_t *buf, int length)
 	{
 		if (!buf->allowoverflow)
 		{
-			Com_Error(ERR_FATAL, "SZ_GetSpace: overflow without allowoverflow set");
+			Com_Error(ERR_FATAL, "%s: overflow without allowoverflow set",
+				__func__);
 		}
 
 		if (length > buf->maxsize)
 		{
-			Com_Error(ERR_FATAL, "SZ_GetSpace: %i is > full buffer size",
-					length);
+			Com_Error(ERR_FATAL, "%s: %i is > full buffer size",
+					__func__, length);
 		}
 
 		SZ_Clear(buf);
 		buf->overflowed = true;
-		Com_Printf("SZ_GetSpace: overflow\n");
+		Com_Printf("%s: overflow\n", __func__);
 	}
 
 	data = buf->data + buf->cursize;
@@ -71,14 +72,14 @@ SZ_GetSpace(sizebuf_t *buf, int length)
 }
 
 void
-SZ_Write(sizebuf_t *buf, void *data, int length)
+SZ_Write(sizebuf_t *buf, const void *data, int length)
 {
 	if(length > 0)
 		memcpy(SZ_GetSpace(buf, length), data, length);
 }
 
 void
-SZ_Print(sizebuf_t *buf, char *data)
+SZ_Print(sizebuf_t *buf, const char *data)
 {
 	int len;
 

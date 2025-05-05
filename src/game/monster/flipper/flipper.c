@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,11 +65,11 @@ flipper_stand(edict_t *self)
 }
 
 static mframe_t flipper_frames_run[] = {
-	{ai_run, FLIPPER_RUN_SPEED, NULL},  /* 6 */
+	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 6 */
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
-	{ai_run, FLIPPER_RUN_SPEED, NULL},  /* 10 */
+	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 10 */
 
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
@@ -79,7 +80,7 @@ static mframe_t flipper_frames_run[] = {
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
-	{ai_run, FLIPPER_RUN_SPEED, NULL},  /* 20 */
+	{ai_run, FLIPPER_RUN_SPEED, NULL}, /* 20 */
 
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
 	{ai_run, FLIPPER_RUN_SPEED, NULL},
@@ -95,9 +96,9 @@ static mframe_t flipper_frames_run[] = {
 mmove_t flipper_move_run_loop =
 {
 	FRAME_flpver06,
-   	FRAME_flpver29,
-   	flipper_frames_run,
-   	NULL
+	FRAME_flpver29,
+	flipper_frames_run,
+	NULL
 };
 
 void
@@ -123,9 +124,9 @@ static mframe_t flipper_frames_run_start[] = {
 mmove_t flipper_move_run_start =
 {
 	FRAME_flpver01,
-   	FRAME_flpver06,
+	FRAME_flpver06,
 	flipper_frames_run_start,
-   	flipper_run_loop
+	flipper_run_loop
 };
 
 void
@@ -197,9 +198,9 @@ static mframe_t flipper_frames_start_run[] = {
 mmove_t flipper_move_start_run =
 {
 	FRAME_flphor01,
-   	FRAME_flphor05,
-   	flipper_frames_start_run,
-   	NULL
+	FRAME_flphor05,
+	flipper_frames_start_run,
+	NULL
 };
 
 void
@@ -224,9 +225,9 @@ static mframe_t flipper_frames_pain2[] = {
 mmove_t flipper_move_pain2 =
 {
 	FRAME_flppn101,
-   	FRAME_flppn105,
-   	flipper_frames_pain2,
-   	flipper_run
+	FRAME_flppn105,
+	flipper_frames_pain2,
+	flipper_run
 };
 
 static mframe_t flipper_frames_pain1[] = {
@@ -236,10 +237,11 @@ static mframe_t flipper_frames_pain1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
+
 mmove_t flipper_move_pain1 =
 {
 	FRAME_flppn201,
-   	FRAME_flppn205,
+	FRAME_flppn205,
 	flipper_frames_pain1,
 	flipper_run
 };
@@ -477,7 +479,8 @@ flipper_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex( "misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
+				1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{
@@ -541,7 +544,7 @@ SP_monster_flipper(edict_t *self)
 	VectorSet(self->mins, -16, -16, 0);
 	VectorSet(self->maxs, 16, 16, 32);
 
-	self->health = 50;
+	self->health = 50 * st.health_multiplier;
 	self->gib_health = -30;
 	self->mass = 100;
 

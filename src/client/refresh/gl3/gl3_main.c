@@ -25,15 +25,14 @@
  * =======================================================================
  */
 
-
 #include "../ref_shared.h"
 #include "header/local.h"
 
 #define HANDMADE_MATH_IMPLEMENTATION
-#include "header/HandmadeMath.h"
+#include "../files/HandmadeMath.h"
 
 #define DG_DYNARR_IMPLEMENTATION
-#include "header/DG_dynarr.h"
+#include "../files/DG_dynarr.h"
 
 #ifdef YQ2_GL3_GLES3
   #define REF_VERSION "Yamagi Quake II OpenGL ES3 Refresher"
@@ -81,6 +80,7 @@ const hmm_mat4 gl3_identityMat4 = {{
 }};
 
 cvar_t *gl_msaa_samples;
+cvar_t *gl_version_override;
 cvar_t *r_vsync;
 cvar_t *r_retexturing;
 cvar_t *r_scale8bittextures;
@@ -111,7 +111,7 @@ cvar_t *gl3_overbrightbits;
 cvar_t *r_norefresh;
 cvar_t *r_drawentities;
 cvar_t *r_drawworld;
-cvar_t *gl_nolerp_list;
+cvar_t *r_nolerp_list;
 cvar_t *r_lerp_list;
 cvar_t *r_2D_unfiltered;
 cvar_t *r_videos_unfiltered;
@@ -130,6 +130,7 @@ cvar_t *gl_shadows;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usebigvbo;
 cvar_t *r_fixsurfsky;
+cvar_t *r_ttffont;
 cvar_t *r_palettedtexture;
 cvar_t *r_validation;
 cvar_t *gl3_usefbo;
@@ -209,6 +210,7 @@ GL3_Register(void)
 	gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
 	r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
 	gl_msaa_samples = ri.Cvar_Get ( "r_msaa_samples", "0", CVAR_ARCHIVE );
+	gl_version_override = ri.Cvar_Get ( "gl_version_override", "0", CVAR_ARCHIVE );
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 	gl3_debugcontext = ri.Cvar_Get("gl3_debugcontext", "0", 0);
@@ -231,12 +233,14 @@ GL3_Register(void)
 	r_drawentities = ri.Cvar_Get("r_drawentities", "1", 0);
 	r_drawworld = ri.Cvar_Get("r_drawworld", "1", 0);
 	r_fullbright = ri.Cvar_Get("r_fullbright", "0", 0);
+	/* font should looks good with 8 pixels size */
+	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
 	r_palettedtexture = ri.Cvar_Get("r_palettedtexture", "0", 0);
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
 
 	/* don't bilerp characters and crosshairs */
-	gl_nolerp_list = ri.Cvar_Get("r_nolerp_list", "pics/conchars.pcx pics/ch1.pcx pics/ch2.pcx pics/ch3.pcx", CVAR_ARCHIVE);
+	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
 	/* textures that should always be filtered, even if r_2D_unfiltered or an unfiltered gl mode is used */
 	r_lerp_list = ri.Cvar_Get("r_lerp_list", "", CVAR_ARCHIVE);
 	/* don't bilerp any 2D elements */
@@ -296,13 +300,13 @@ GL3_Register(void)
 	//gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	//gl_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	//gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
-	gl_showtris = ri.Cvar_Get("gl_showtris", "0", 0);
+	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	gl_showbbox = Cvar_Get("gl_showbbox", "0", 0);
 	//gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0); NOTE: dump this.
 	//gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	//gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	r_clear = ri.Cvar_Get("r_clear", "0", 0);
-	//gl1_flashblend = ri.Cvar_Get("gl1_flashblend", "0", 0);
+	//r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 
 	//gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
@@ -324,9 +328,6 @@ GL3_Register(void)
 	//r_customheight = ri.Cvar_Get("r_customheight", "768", CVAR_ARCHIVE);
 	//gl_msaa_samples = ri.Cvar_Get ( "r_msaa_samples", "0", CVAR_ARCHIVE );
 
-	//r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
-
-
 	gl1_stereo = ri.Cvar_Get( "gl1_stereo", "0", CVAR_ARCHIVE );
 	gl1_stereo_separation = ri.Cvar_Get( "gl1_stereo_separation", "-0.4", CVAR_ARCHIVE );
 	gl1_stereo_anaglyph_colors = ri.Cvar_Get( "gl1_stereo_anaglyph_colors", "rc", CVAR_ARCHIVE );
@@ -342,17 +343,6 @@ GL3_Register(void)
 /*
  * Changes the video mode
  */
-
-// the following is only used in the next to functions,
-// no need to put it in a header
-enum
-{
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-};
 
 static int
 SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
@@ -503,8 +493,6 @@ enum { QGL_POINT_SPRITE = 0x8861 };
 static qboolean
 GL3_Init(void)
 {
-	byte *colormap;
-
 	Swap_Init(); // FIXME: for fucks sake, this doesn't have to be done at runtime!
 
 	R_Printf(PRINT_ALL, "Refresh: " REF_VERSION "\n");
@@ -519,8 +507,7 @@ GL3_Init(void)
 		return false;
 	}
 
-	GetPCXPalette (&colormap, d_8to24table);
-	free(colormap);
+	ri.VID_GetPalette(NULL, d_8to24table);
 
 	GL3_Register();
 
@@ -545,19 +532,6 @@ GL3_Init(void)
 
 	R_Printf(PRINT_ALL, "\nOpenGL setting:\n");
 	GL3_Strings();
-
-	/*
-	if (gl_config.major_version < 3)
-	{
-		// if (gl_config.major_version == 3 && gl_config.minor_version < 2)
-		{
-			QGL_Shutdown();
-			R_Printf(PRINT_ALL, "Support for OpenGL 3.2 is not available\n");
-
-			return false;
-		}
-	}
-	*/
 
 	R_Printf(PRINT_ALL, "\n\nProbing for OpenGL extensions:\n");
 
@@ -653,6 +627,8 @@ GL3_Init(void)
 
 	registration_sequence = 1; // from R_InitImages() (everything else from there shouldn't be needed anymore)
 
+	R_VertBufferInit();
+
 	GL3_Mod_Init();
 
 	GL3_InitParticleTexture();
@@ -685,6 +661,7 @@ GL3_Shutdown(void)
 		GL3_Mod_FreeAll();
 		GL3_ShutdownMeshes();
 		GL3_ShutdownImages();
+		R_VertBufferFree();
 		GL3_SurfShutdown();
 		GL3_Draw_ShutdownLocal();
 		GL3_ShutdownShaders();
@@ -706,14 +683,14 @@ GL3_Shutdown(void)
 }
 
 // assumes gl3state.v[ab]o3D are bound
-// buffers and draws gl3_3D_vtx_t vertices
+// buffers and draws mvtx_t vertices
 // drawMode is something like GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN or whatever
 void
-GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
+GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 {
 	if(!gl3config.useBigVBO)
 	{
-		glBufferData( GL_ARRAY_BUFFER, sizeof(gl3_3D_vtx_t)*numVerts, verts, GL_STREAM_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, sizeof(mvtx_t)*numVerts, verts, GL_STREAM_DRAW );
 		glDrawArrays( drawMode, 0, numVerts );
 	}
 	else // gl3config.useBigVBO == true
@@ -743,11 +720,11 @@ GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 #if 0
 		// I /think/ doing it with glBufferSubData() didn't really help
 		const int bufSize = gl3state.vbo3Dsize;
-		int neededSize = numVerts*sizeof(gl3_3D_vtx_t);
+		int neededSize = numVerts*sizeof(mvtx_t);
 		int curOffset = gl3state.vbo3DcurOffset;
 		if(curOffset + neededSize > gl3state.vbo3Dsize)
 			curOffset = 0;
-		int curIdx = curOffset / sizeof(gl3_3D_vtx_t);
+		int curIdx = curOffset / sizeof(mvtx_t);
 
 		gl3state.vbo3DcurOffset = curOffset + neededSize;
 
@@ -755,7 +732,7 @@ GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 		glDrawArrays( drawMode, curIdx, numVerts );
 #else
 		int curOffset = gl3state.vbo3DcurOffset;
-		int neededSize = numVerts*sizeof(gl3_3D_vtx_t);
+		int neededSize = numVerts*sizeof(mvtx_t);
 		if(curOffset+neededSize > gl3state.vbo3Dsize)
 		{
 			// buffer is full, need to start again from the beginning
@@ -772,7 +749,7 @@ GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode)
 		memcpy(data, verts, neededSize);
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 
-		glDrawArrays(drawMode, curOffset/sizeof(gl3_3D_vtx_t), numVerts);
+		glDrawArrays(drawMode, curOffset/sizeof(mvtx_t), numVerts);
 
 		gl3state.vbo3DcurOffset = curOffset + neededSize; // TODO: padding or sth needed?
 #endif
@@ -792,7 +769,7 @@ GL3_DrawBeam(entity_t *e)
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	gl3_3D_vtx_t verts[NUM_BEAM_SEGS*4];
+	mvtx_t verts[NUM_BEAM_SEGS*4];
 	unsigned int pointb;
 
 	oldorigin[0] = e->oldorigin[0];
@@ -864,11 +841,11 @@ static void
 GL3_DrawSpriteModel(entity_t *e, gl3model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	gl3_3D_vtx_t verts[4];
+	mvtx_t verts[4];
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
-	gl3image_t *skin;
+	gl3image_t *skin = NULL;
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -951,13 +928,15 @@ GL3_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT)
+	if (currententity->flags & RF_FULLBRIGHT || !gl3_worldmodel || !gl3_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		GL3_LightPoint(currententity, currententity->origin, shadelight);
+		R_LightPoint(gl3_worldmodel->grid, currententity, &gl3_newrefdef,
+			gl3_worldmodel->surfaces, gl3_worldmodel->nodes, currententity->origin,
+			shadelight, r_modulate->value, lightspot);
 	}
 
 	hmm_mat4 origModelMat = gl3state.uni3DData.transModelMat4;
@@ -971,7 +950,7 @@ GL3_DrawNullModel(entity_t *currententity)
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
 
-	gl3_3D_vtx_t vtxA[6] = {
+	mvtx_t vtxA[6] = {
 		{{0, 0, -16}, {0,0}, {0,0}},
 		{{16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0}, {0,0}, {0,0}},
 		{{16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0}, {0,0}, {0,0}},
@@ -982,7 +961,7 @@ GL3_DrawNullModel(entity_t *currententity)
 
 	GL3_BufferAndDraw3D(vtxA, 6, GL_TRIANGLE_FAN);
 
-	gl3_3D_vtx_t vtxB[6] = {
+	mvtx_t vtxB[6] = {
 		{{0, 0, 16}, {0,0}, {0,0}},
 		vtxA[5], vtxA[4], vtxA[3], vtxA[2], vtxA[1]
 	};
@@ -1046,7 +1025,7 @@ GL3_DrawParticles(void)
 
 		for ( i = 0, p = gl3_newrefdef.particles; i < numParticles; i++, p++ )
 		{
-			*(int *) color = d_8to24table [ p->color & 0xFF ];
+			*(int *) color = p->color;
 			part_vtx* cur = &buf[i];
 			vec3_t offset; // between viewOrg and particle position
 			VectorSubtract(viewOrg, p->origin, offset);
@@ -1126,7 +1105,8 @@ GL3_DrawEntitiesOnList(void)
 					GL3_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					ri.Sys_Error(ERR_DROP, "Bad modeltype");
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -1172,7 +1152,8 @@ GL3_DrawEntitiesOnList(void)
 					GL3_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					ri.Sys_Error(ERR_DROP, "Bad modeltype");
+					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -1181,7 +1162,6 @@ GL3_DrawEntitiesOnList(void)
 	GL3_DrawAliasShadows();
 
 	glDepthMask(GL_TRUE); /* back to writing */
-
 }
 
 static void
@@ -1202,7 +1182,7 @@ SetupFrame(void)
 	{
 		if (!gl3_worldmodel)
 		{
-			ri.Sys_Error(ERR_DROP, "%s: bad world model", __func__);
+			Com_Error(ERR_DROP, "%s: bad world model", __func__);
 			return;
 		}
 
@@ -1641,7 +1621,7 @@ GL3_RenderView(refdef_t *fd)
 
 	if (!gl3_worldmodel && !(gl3_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		ri.Sys_Error(ERR_DROP, "R_RenderView: NULL worldmodel");
+		Com_Error(ERR_DROP, "R_RenderView: NULL worldmodel");
 	}
 
 	if (r_speeds->value)
@@ -1670,7 +1650,7 @@ GL3_RenderView(refdef_t *fd)
 
 	GL3_DrawEntitiesOnList();
 
-	// kick the silly gl1_flashblend poly lights
+	// kick the silly r_flashblend poly lights
 	// GL3_RenderDlights();
 
 	GL3_DrawParticles();
@@ -1682,8 +1662,10 @@ GL3_RenderView(refdef_t *fd)
 	if (r_speeds->value)
 	{
 		R_Printf(PRINT_ALL, "%4i wpoly %4i epoly %i tex %i lmaps\n",
-				c_brush_polys, c_alias_polys, c_visible_textures,
-				c_visible_lightmaps);
+			c_brush_polys,
+			c_alias_polys,
+			c_visible_textures,
+			c_visible_lightmaps);
 	}
 
 #if 0 // TODO: stereo stuff
@@ -1735,7 +1717,9 @@ GL3_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	GL3_LightPoint(currententity, gl3_newrefdef.vieworg, shadelight);
+	R_LightPoint(gl3_worldmodel->grid, currententity, &gl3_newrefdef,
+		gl3_worldmodel->surfaces, gl3_worldmodel->nodes, gl3_newrefdef.vieworg,
+		shadelight, r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */
@@ -1797,7 +1781,7 @@ GL3_Clear(void)
 	GLbitfield stencilFlags = 0;
 #if 0 // TODO: stereo stuff
 	if (gl3state.stereo_mode >= STEREO_MODE_ROW_INTERLEAVED && gl_state.stereo_mode <= STEREO_MODE_PIXEL_INTERLEAVED) {
-		glClearStencil(0);
+		glClearStencil(GL_FALSE);
 		stencilFlags |= GL_STENCIL_BUFFER_BIT;
 	}
 #endif // 0
@@ -1833,7 +1817,7 @@ GL3_Clear(void)
 	/* stencilbuffer shadows */
 	if (gl_shadows->value && gl3config.stencil)
 	{
-		glClearStencil(1);
+		glClearStencil(GL_TRUE);
 		glClear(GL_STENCIL_BUFFER_BIT);
 	}
 }
@@ -1843,6 +1827,7 @@ GL3_BeginFrame(float camera_separation)
 {
 #if 0 // TODO: stereo stuff
 	gl_state.camera_separation = camera_separation;
+
 	// force a vid_restart if gl1_stereo has been modified.
 	if ( gl_state.stereo_mode != gl1_stereo->value ) {
 		// If we've gone from one mode to another with the same special buffer requirements there's no need to restart.
@@ -1928,13 +1913,13 @@ GL3_BeginFrame(float camera_separation)
 
 	/* texturemode stuff */
 	if (gl_texturemode->modified || (gl3config.anisotropic && gl_anisotropic->modified)
-	    || gl_nolerp_list->modified || r_lerp_list->modified
+	    || r_nolerp_list->modified || r_lerp_list->modified
 		|| r_2D_unfiltered->modified || r_videos_unfiltered->modified)
 	{
 		GL3_TextureMode(gl_texturemode->string);
 		gl_texturemode->modified = false;
 		gl_anisotropic->modified = false;
-		gl_nolerp_list->modified = false;
+		r_nolerp_list->modified = false;
 		r_lerp_list->modified = false;
 		r_2D_unfiltered->modified = false;
 		r_videos_unfiltered->modified = false;
@@ -2027,6 +2012,7 @@ GetRefAPI(refimport_t imp)
 	re.DrawStretchPic = GL3_Draw_StretchPic;
 
 	re.DrawCharScaled = GL3_Draw_CharScaled;
+	re.DrawStringScaled = GL3_Draw_StringScaled;
 	re.DrawTileClear = GL3_Draw_TileClear;
 	re.DrawFill = GL3_Draw_Fill;
 	re.DrawFadeScreen = GL3_Draw_FadeScreen;
@@ -2038,9 +2024,9 @@ GetRefAPI(refimport_t imp)
 	re.EndWorldRenderpass = GL3_EndWorldRenderpass;
 	re.EndFrame = GL3_EndFrame;
 
-    // Tell the client that we're unsing the
+	// Tell the client that we're unsing the
 	// new renderer restart API.
-    ri.Vid_RequestRestart(RESTART_NO);
+	ri.Vid_RequestRestart(RESTART_NO);
 
 	return re;
 }
@@ -2077,4 +2063,26 @@ Com_Printf(const char *msg, ...)
 	va_start(argptr, msg);
 	ri.Com_VPrintf(PRINT_ALL, msg, argptr);
 	va_end(argptr);
+}
+
+void
+Com_DPrintf(const char *msg, ...)
+{
+	va_list argptr;
+	va_start(argptr, msg);
+	ri.Com_VPrintf(PRINT_DEVELOPER, msg, argptr);
+	va_end(argptr);
+}
+
+void
+Com_Error(int code, const char *fmt, ...)
+{
+	va_list argptr;
+	char text[4096]; // MAXPRINTMSG == 4096
+
+	va_start(argptr, fmt);
+	vsnprintf(text, sizeof(text), fmt, argptr);
+	va_end(argptr);
+
+	ri.Sys_Error(code, "%s", text);
 }

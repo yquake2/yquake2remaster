@@ -97,7 +97,7 @@ RotatePointAroundVector(vec3_t dst, const vec3_t dir,
 }
 
 void
-AngleVectors(vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
+AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 {
 	float angle;
 	static float sr, sp, sy, cr, cp, cy;
@@ -135,9 +135,8 @@ AngleVectors(vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
 }
 
 void
-AngleVectors2(vec3_t value1, vec3_t angles)
+AngleVectors2(const vec3_t value1, vec3_t angles)
 {
-	float forward;
 	float yaw, pitch;
 
 	if ((value1[1] == 0) && (value1[0] == 0))
@@ -156,6 +155,8 @@ AngleVectors2(vec3_t value1, vec3_t angles)
 	}
 	else
 	{
+		float forward;
+
 		if (value1[0])
 		{
 			yaw = ((float)atan2(value1[1], value1[0]) * 180 / M_PI);
@@ -240,7 +241,7 @@ PerpendicularVector(vec3_t dst, const vec3_t src)
 }
 
 void
-R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3])
+R_ConcatRotations(const float in1[3][3], const float in2[3][3], float out[3][3])
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];
@@ -263,7 +264,7 @@ R_ConcatRotations(float in1[3][3], float in2[3][3], float out[3][3])
 }
 
 void
-R_ConcatTransforms(float in1[3][4], float in2[3][4], float out[3][4])
+R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[3][4])
 {
 	out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] +
 				in1[0][2] * in2[2][0];
@@ -329,7 +330,7 @@ anglemod(float a)
  * This is the slow, general version
  */
 int
-BoxOnPlaneSide2(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+BoxOnPlaneSide2(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p)
 {
 	int i;
 	float dist1, dist2;
@@ -371,7 +372,7 @@ BoxOnPlaneSide2(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
  * Returns 1, 2, or 1 + 2
  */
 int
-BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, struct cplane_s *p)
+BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p)
 {
 	float dist1, dist2;
 	int sides;
@@ -471,13 +472,14 @@ ClearBounds(vec3_t mins, vec3_t maxs)
 }
 
 void
-AddPointToBounds(vec3_t v, vec3_t mins, vec3_t maxs)
+AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs)
 {
 	int i;
-	vec_t val;
 
 	for (i = 0; i < 3; i++)
 	{
+		vec_t val;
+
 		val = v[i];
 
 		if (val < mins[i])
@@ -493,7 +495,7 @@ AddPointToBounds(vec3_t v, vec3_t mins, vec3_t maxs)
 }
 
 int
-VectorCompare(vec3_t v1, vec3_t v2)
+VectorCompare(const vec3_t v1, const vec3_t v2)
 {
 	if ((v1[0] != v2[0]) || (v1[1] != v2[1]) || (v1[2] != v2[2]))
 	{
@@ -506,13 +508,15 @@ VectorCompare(vec3_t v1, vec3_t v2)
 vec_t
 VectorNormalize(vec3_t v)
 {
-	float length, ilength;
+	float length;
 
 	length = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
 	length = (float)sqrt(length);
 
 	if (length)
 	{
+		float ilength;
+
 		ilength = 1 / length;
 		v[0] *= ilength;
 		v[1] *= ilength;
@@ -523,7 +527,7 @@ VectorNormalize(vec3_t v)
 }
 
 vec_t
-VectorNormalize2(vec3_t v, vec3_t out)
+VectorNormalize2(const vec3_t v, vec3_t out)
 {
 	VectorCopy(v, out);
 
@@ -531,7 +535,7 @@ VectorNormalize2(vec3_t v, vec3_t out)
 }
 
 void
-VectorMA(vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
+VectorMA(const vec3_t veca, float scale, const vec3_t vecb, vec3_t vecc)
 {
 	vecc[0] = veca[0] + scale * vecb[0];
 	vecc[1] = veca[1] + scale * vecb[1];
@@ -539,13 +543,13 @@ VectorMA(vec3_t veca, float scale, vec3_t vecb, vec3_t vecc)
 }
 
 vec_t
-_DotProduct(vec3_t v1, vec3_t v2)
+_DotProduct(const vec3_t v1, const vec3_t v2)
 {
 	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 }
 
 void
-_VectorSubtract(vec3_t veca, vec3_t vecb, vec3_t out)
+_VectorSubtract(const vec3_t veca, const vec3_t vecb, vec3_t out)
 {
 	out[0] = veca[0] - vecb[0];
 	out[1] = veca[1] - vecb[1];
@@ -553,7 +557,7 @@ _VectorSubtract(vec3_t veca, vec3_t vecb, vec3_t out)
 }
 
 void
-_VectorAdd(vec3_t veca, vec3_t vecb, vec3_t out)
+_VectorAdd(const vec3_t veca, const vec3_t vecb, vec3_t out)
 {
 	out[0] = veca[0] + vecb[0];
 	out[1] = veca[1] + vecb[1];
@@ -561,7 +565,7 @@ _VectorAdd(vec3_t veca, vec3_t vecb, vec3_t out)
 }
 
 void
-_VectorCopy(vec3_t in, vec3_t out)
+_VectorCopy(const vec3_t in, vec3_t out)
 {
 	out[0] = in[0];
 	out[1] = in[1];
@@ -569,7 +573,7 @@ _VectorCopy(vec3_t in, vec3_t out)
 }
 
 void
-CrossProduct(vec3_t v1, vec3_t v2, vec3_t cross)
+CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross)
 {
 	cross[0] = v1[1] * v2[2] - v1[2] * v2[1];
 	cross[1] = v1[2] * v2[0] - v1[0] * v2[2];
@@ -579,11 +583,12 @@ CrossProduct(vec3_t v1, vec3_t v2, vec3_t cross)
 double sqrt(double x);
 
 vec_t
-VectorLength(vec3_t v)
+VectorLength(const vec3_t v)
 {
-	return sqrtf((v[0] * v[0]) +
-               (v[1] * v[1]) +
-	       (v[2] * v[2]));
+	return sqrtf(
+		(v[0] * v[0]) +
+		(v[1] * v[1]) +
+		(v[2] * v[2]));
 }
 
 void
@@ -595,7 +600,7 @@ VectorInverse(vec3_t v)
 }
 
 void
-VectorScale(vec3_t in, vec_t scale, vec3_t out)
+VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 {
 	out[0] = in[0] * scale;
 	out[1] = in[1] * scale;
@@ -617,10 +622,10 @@ Q_log2(int val)
 
 /* ==================================================================================== */
 
-char *
-COM_SkipPath(char *pathname)
+const char *
+COM_SkipPath(const char *pathname)
 {
-	char *last;
+	const char *last;
 
 	last = pathname;
 
@@ -638,7 +643,7 @@ COM_SkipPath(char *pathname)
 }
 
 void
-COM_StripExtension(char *in, char *out)
+COM_StripExtension(const char *in, char *out)
 {
 	while (*in && *in != '.')
 	{
@@ -662,9 +667,9 @@ COM_FileExtension(const char *in)
 }
 
 void
-COM_FileBase(char *in, char *out)
+COM_FileBase(const char *in, char *out)
 {
-	char *s, *s2;
+	const char *s, *s2;
 
 	s = in + strlen(in) - 1;
 
@@ -744,12 +749,12 @@ qboolean bigendien;
 
 /* can't just use function pointers, or dll linkage can
    mess up when qcommon is included in multiple places */
-short (*_BigShort)(short l);
-short (*_LittleShort)(short l);
-int (*_BigLong)(int l);
-int (*_LittleLong)(int l);
-float (*_BigFloat)(float l);
-float (*_LittleFloat)(float l);
+static short (*_BigShort)(short l);
+static short (*_LittleShort)(short l);
+static int (*_BigLong)(int l);
+static int (*_LittleLong)(int l);
+static float (*_BigFloat)(float l);
+static float (*_LittleFloat)(float l);
 
 short
 BigShort(short l)
@@ -787,7 +792,7 @@ LittleFloat(float l)
 	return _LittleFloat(l);
 }
 
-short
+static short
 ShortSwap(short l)
 {
 	byte b1, b2;
@@ -798,13 +803,13 @@ ShortSwap(short l)
 	return (b1 << 8) + b2;
 }
 
-short
+static short
 ShortNoSwap(short l)
 {
 	return l;
 }
 
-int
+static int
 LongSwap(int l)
 {
 	byte b1, b2, b3, b4;
@@ -817,13 +822,13 @@ LongSwap(int l)
 	return ((int)b1 << 24) + ((int)b2 << 16) + ((int)b3 << 8) + b4;
 }
 
-int
+static int
 LongNoSwap(int l)
 {
 	return l;
 }
 
-float
+static float
 FloatSwap(float f)
 {
 	union
@@ -840,7 +845,7 @@ FloatSwap(float f)
 	return dat2.f;
 }
 
-float
+static float
 FloatNoSwap(float f)
 {
 	return f;
@@ -904,7 +909,7 @@ char com_token[MAX_TOKEN_CHARS];
 /*
  * Parse a token out of a string
  */
-char *
+const char *
 COM_Parse(char **data_p)
 {
 	int c;
@@ -996,7 +1001,7 @@ done:
 static int paged_total = 0;
 
 void
-Com_PageInMemory(byte *buffer, int size)
+Com_PageInMemory(const byte *buffer, int size)
 {
 	int i;
 
@@ -1027,10 +1032,12 @@ Q_stricmp(const char *s1, const char *s2)
 int
 Q_strncasecmp(const char *s1, const char *s2, int n)
 {
-	int c1, c2;
+	int c1;
 
 	do
 	{
+		int c2;
+
 		c1 = *s1++;
 		c2 = *s2++;
 
@@ -1083,7 +1090,20 @@ Q_strcasecmp(const char *s1, const char *s2)
 }
 
 void
-Com_sprintf(char *dest, int size, char *fmt, ...)
+Q_replacebackslash(char *curr)
+{
+	while (*curr)
+	{
+		if (*curr == '\\')
+		{
+			*curr = '/';
+		}
+		curr++;
+	}
+}
+
+void
+Com_sprintf(char *dest, int size, const char *fmt, ...)
 {
 	int len;
 	va_list argptr;
@@ -1094,7 +1114,7 @@ Com_sprintf(char *dest, int size, char *fmt, ...)
 
 	if (len >= size)
 	{
-		Com_Printf("Com_sprintf: overflow\n");
+		Com_Printf("%s: overflow\n", __func__);
 	}
 }
 
@@ -1282,7 +1302,7 @@ Q_sort_strcomp(const void *s1, const void *s2)
  * or an empty string.
  */
 char *
-Info_ValueForKey(char *s, char *key)
+Info_ValueForKey(char *s, const char *key)
 {
 	char pkey[512];
 	static char value[2][512]; /* use two buffers so compares
@@ -1338,12 +1358,9 @@ Info_ValueForKey(char *s, char *key)
 }
 
 void
-Info_RemoveKey(char *s, char *key)
+Info_RemoveKey(char *s, const char *key)
 {
-	char *start;
-	char pkey[512];
-	char value[512];
-	char *o;
+	char pkey[512], value[512];
 
 	if (strstr(key, "\\"))
 	{
@@ -1352,6 +1369,8 @@ Info_RemoveKey(char *s, char *key)
 
 	while (1)
 	{
+		char *start, *o;
+
 		start = s;
 
 		if (*s == '\\')
@@ -1401,7 +1420,7 @@ Info_RemoveKey(char *s, char *key)
  * because they can mess up the server's parsing
  */
 qboolean
-Info_Validate(char *s)
+Info_Validate(const char *s)
 {
 	if (strstr(s, "\""))
 	{
@@ -1417,11 +1436,11 @@ Info_Validate(char *s)
 }
 
 void
-Info_SetValueForKey(char *s, char *key, char *value)
+Info_SetValueForKey(char *s, const char *key, const char *value)
 {
-	char newi[MAX_INFO_STRING], *v;
-	int c;
 	int maxsize = MAX_INFO_STRING;
+	char newi[MAX_INFO_STRING];
+	const char *v;
 
 	if (!key)
 	{
@@ -1473,6 +1492,8 @@ Info_SetValueForKey(char *s, char *key, char *value)
 
 	while (*v)
 	{
+		int c;
+
 		c = *v++;
 		c &= 127; /* strip high bits */
 

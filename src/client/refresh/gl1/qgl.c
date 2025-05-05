@@ -49,7 +49,7 @@ void (APIENTRY *qglDiscardFramebufferEXT) (GLenum target,
 
 /* ========================================================================= */
 
-void QGL_EXT_Reset ( void )
+static void QGL_EXT_Reset ( void )
 {
 	qglPointParameterf     = NULL;
 	qglPointParameterfv    = NULL;

@@ -1,23 +1,23 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// sw_rast.c
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
 #include <stdint.h>
 #include <assert.h>
@@ -103,7 +103,7 @@ R_InitSkyBox
 ================
 */
 void
-R_InitSkyBox (model_t *loadmodel)
+R_InitSkyBox(model_t *loadmodel)
 {
 	int		i;
 
@@ -115,13 +115,9 @@ R_InitSkyBox (model_t *loadmodel)
 	loadmodel->numedges += 12;
 	r_skysurfedges = loadmodel->surfedges + loadmodel->numsurfedges;
 	loadmodel->numsurfedges += 24;
-	if (loadmodel->numsurfaces > MAX_MAP_FACES
-		|| loadmodel->numvertexes > MAX_MAP_VERTS
-		|| loadmodel->numedges > MAX_MAP_EDGES)
-		ri.Sys_Error (ERR_DROP, "InitSkyBox: map overflow");
 
-	memset (r_skyfaces, 0, 6*sizeof(*r_skyfaces));
-	for (i=0 ; i<6 ; i++)
+	memset (r_skyfaces, 0, 6 * sizeof(*r_skyfaces));
+	for (i = 0; i < 6; i++)
 	{
 		r_skyplanes[i].normal[skybox_planes[i*2]] = 1;
 		r_skyplanes[i].dist = skybox_planes[i*2+1];
@@ -209,14 +205,11 @@ R_EmitEdge
 static void
 R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1, medge_t *r_pedge, qboolean r_nearzionly)
 {
-	edge_t	*edge, *pcheck;
-	int	u_check;
-	float	u, u_step;
-	vec3_t	local, transformed;
-	float	*world;
-	int		v, v2, ceilv0;
-	float	scale, lzi0, u0, v0;
-	int		side;
+	float u, u_step, scale, lzi0, u0, v0;
+	int u_check, v, v2, ceilv0, side;
+	vec3_t local, transformed;
+	edge_t *edge, *pcheck;
+	const float *world;
 
 	if (r_lastvertvalid)
 	{
@@ -536,10 +529,16 @@ R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *
 	qboolean	r_nearzionly;
 
 	// translucent surfaces are not drawn by the edge renderer
-	if (fa->texinfo->flags & (SURF_TRANS33|SURF_TRANS66))
+	if (fa->texinfo->flags & SURF_TRANSPARENT)
 	{
 		fa->nextalphasurface = r_alpha_surfaces;
 		r_alpha_surfaces = fa;
+		return;
+	}
+
+	if (fa->texinfo->flags & SURF_NODRAW)
+	{
+		/* Surface should be skipped */
 		return;
 	}
 
@@ -760,7 +759,7 @@ R_RenderBmodelFace(entity_t *currententity, bedge_t *pedges, msurface_t *psurf, 
 	qboolean	makeleftedge, makerightedge;
 	qboolean	r_nearzionly;
 
-	if (psurf->texinfo->flags & (SURF_TRANS33|SURF_TRANS66))
+	if (psurf->texinfo->flags & SURF_TRANSPARENT)
 	{
 		psurf->nextalphasurface = r_alpha_surfaces;
 		r_alpha_surfaces = psurf;

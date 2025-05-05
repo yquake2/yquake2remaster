@@ -37,7 +37,6 @@
 
 #define MAX_SUSTAINS		32
 #define	PARTICLE_GRAVITY 40
-#define BLASTER_PARTICLE_COLOR 0xe0
 #define INSTANT_PARTICLE -10000.0
 
 #include <math.h>
@@ -67,15 +66,16 @@ typedef struct
 	int				deltaframe;
 	byte			areabits[MAX_MAP_AREAS/8]; /* portalarea visibility bits */
 	player_state_t	playerstate;
+	int				origin[3]; /* extended ps.origin to 28.3 format */
 	int				num_entities;
 	int				parse_entities; /* non-masked index into cl_parse_entities array */
 } frame_t;
 
 typedef struct
 {
-	entity_state_t	baseline; /* delta from this if not from a previous frame */
-	entity_state_t	current;
-	entity_state_t	prev; /* will always be valid, but might just be a copy of current */
+	entity_xstate_t	baseline; /* delta from this if not from a previous frame */
+	entity_xstate_t	current;
+	entity_xstate_t	prev; /* will always be valid, but might just be a copy of current */
 
 	int			serverframe; /* if not current, this ent isn't in the frame */
 
@@ -121,7 +121,7 @@ typedef struct
 	usercmd_t	cmd;
 	usercmd_t	cmds[CMD_BACKUP]; /* each mesage will send several old cmds */
 	int			cmd_time[CMD_BACKUP]; /* time sent, for calculating pings */
-	short		predicted_origins[CMD_BACKUP][3]; /* for debug comparing against server */
+	int			predicted_origins[CMD_BACKUP][3]; /* for debug comparing against server */
 
 	float		predicted_step; /* for stair up smoothing */
 	unsigned	predicted_step_time;
@@ -331,19 +331,14 @@ typedef struct
 } cdlight_t;
 
 extern	centity_t	cl_entities[MAX_EDICTS];
-extern	cdlight_t	cl_dlights[MAX_DLIGHTS];
 
-extern	entity_state_t	cl_parse_entities[MAX_PARSE_ENTITIES];
+extern	entity_xstate_t	cl_parse_entities[MAX_PARSE_ENTITIES];
 
 extern	netadr_t	net_from;
 extern	sizebuf_t	net_message;
 
 extern qboolean paused_at_load;
 
-void DrawString (int x, int y, const char *s);
-void DrawStringScaled(int x, int y, const char *s, float factor);
-void DrawAltString (int x, int y, const char *s);	/* toggle high bit */
-void DrawAltStringScaled(int x, int y, const char *s, float factor);
 qboolean	CL_CheckOrDownloadFile (const char *filename);
 
 void CL_AddNetgraph (void);
@@ -357,7 +352,8 @@ typedef struct cl_sustain
 	int			thinkinterval;
 	vec3_t		org;
 	vec3_t		dir;
-	int			color;
+	unsigned int	basecolor;
+	unsigned int	finalcolor;
 	int			count;
 	int			magnitude;
 	void		(*think)(struct cl_sustain *self);
@@ -365,11 +361,13 @@ typedef struct cl_sustain
 
 void CL_ParticleSteamEffect2(cl_sustain_t *self);
 
-void CL_TeleporterParticles (entity_state_t *ent);
-void CL_ParticleEffect (vec3_t org, vec3_t dir, int color, int count);
-void CL_ParticleEffect2 (vec3_t org, vec3_t dir, int color, int count);
+void CL_TeleporterParticles (const entity_xstate_t *ent);
+void CL_ParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count);
+void CL_ParticleEffect2 (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count);
 
-void CL_ParticleEffect3 (vec3_t org, vec3_t dir, int color, int count);
+void CL_ParticleEffect3 (vec3_t org, vec3_t dir, unsigned int color, int count);
 
 
 typedef struct particle_s
@@ -382,8 +380,7 @@ typedef struct particle_s
 	vec3_t		org;
 	vec3_t		vel;
 	vec3_t		accel;
-	float		color;
-	float		colorvel;
+	unsigned	color;
 	float		alpha;
 	float		alphavel;
 } cparticle_t;
@@ -398,25 +395,30 @@ void CL_FlagTrail (vec3_t start, vec3_t end, int color);
 
 void CL_IonripperTrail (vec3_t start, vec3_t end);
 
-void CL_BlasterParticles2 (vec3_t org, vec3_t dir, unsigned int color);
+void CL_BlasterParticles2 (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor);
 void CL_BlasterTrail2 (vec3_t start, vec3_t end);
 void CL_DebugTrail (vec3_t start, vec3_t end);
-void CL_SmokeTrail (vec3_t start, vec3_t end, int colorStart, int colorRun, int spacing);
+void CL_SmokeTrail (vec3_t start, vec3_t end, unsigned int basecolor, unsigned int finalcolor,
+	int spacing);
 void CL_Flashlight (int ent, vec3_t pos);
 void CL_ForceWall (vec3_t start, vec3_t end, int color);
-void CL_FlameEffects (centity_t *ent, vec3_t origin);
-void CL_GenericParticleEffect (vec3_t org, vec3_t dir, int color, int count, int numcolors, int dirspread, float alphavel);
+void CL_FlameEffects (vec3_t origin);
+void CL_GenericParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count, int numcolors, int dirspread, float alphavel);
 void CL_BubbleTrail2 (vec3_t start, vec3_t end, int dist);
 void CL_Heatbeam (vec3_t start, vec3_t end);
-void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, int color, int count, int magnitude);
-void CL_TrackerTrail (vec3_t start, vec3_t end, int particleColor);
+void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count, int magnitude);
+void CL_TrackerTrail (vec3_t start, vec3_t end, unsigned int particleColor);
 void CL_Tracker_Explode(vec3_t origin);
 void CL_TagTrail (vec3_t start, vec3_t end, int color);
 void CL_ColorFlash (vec3_t pos, int ent, float intensity, float r, float g, float b);
 void CL_Tracker_Shell(vec3_t origin);
 void CL_MonsterPlasma_Shell(vec3_t origin);
-void CL_ColorExplosionParticles (vec3_t org, int color, int run);
-void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, int color, int count, int magnitude);
+void CL_ColorExplosionParticles (vec3_t org, unsigned int basecolor, unsigned int finalcolor);
+void CL_ParticleSmokeEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
+	int count, int magnitude);
+unsigned int CL_CombineColors(unsigned int basecolor, unsigned int finalcolor, float scale);
 void CL_Widowbeamout (cl_sustain_t *self);
 void CL_Nukeblast (cl_sustain_t *self);
 void CL_WidowSplash (vec3_t org);
@@ -501,12 +503,14 @@ char *Key_KeynumToString_Joy (int key);
 
 void CL_WriteDemoMessage (void);
 void CL_Stop_f (void);
-void CL_Record_f (void);
+void CL_ParseStatusMessage(void);
 
 void CL_ParseServerMessage (void);
 void CL_LoadClientinfo (clientinfo_t *ci, char *s);
 void CL_ParseClientinfo (int player);
 void CL_Download_f (void);
+void CL_DownloadFileName(char *dest, int destlen, char *fn);
+void CL_ParseDownload(void);
 
 extern	int			gun_frame;
 
@@ -518,6 +522,9 @@ void V_AddEntity (entity_t *ent);
 void V_AddParticle (vec3_t org, unsigned int color, float alpha);
 void V_AddLight (vec3_t org, float intensity, float r, float g, float b);
 void V_AddLightStyle (int style, float r, float g, float b);
+void VID_GetPalette(byte **colormap, unsigned *d_8to24table);
+void VID_GetPalette24to8(const byte *d_8to24table, byte** d_16to8table);
+unsigned VID_PaletteColor(byte color);
 
 void CL_RegisterTEntSounds (void);
 void CL_RegisterTEntModels (void);
@@ -535,7 +542,7 @@ void CL_DiminishingTrail (vec3_t start, vec3_t end, centity_t *old, int flags);
 void CL_FlyEffect (centity_t *ent, vec3_t origin);
 void CL_BfgParticles (entity_t *ent);
 void CL_AddParticles (void);
-void CL_EntityEvent (entity_state_t *ent);
+void CL_EntityEvent (entity_xstate_t *ent);
 void CL_TrapParticles (entity_t *ent);
 
 void M_Init (void);

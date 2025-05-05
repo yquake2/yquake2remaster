@@ -1,25 +1,31 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
+ *
+ * Local header for the refresher.
+ *
+ * =======================================================================
+ */
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
-#ifndef __R_LOCAL__
-#define __R_LOCAL__
+#ifndef REF_LOCAL_H
+#define REF_LOCAL_H
 
 #include <stdio.h>
 #include <ctype.h>
@@ -31,17 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <stdarg.h>
 
-#define REF_VERSION	"SOFT 0.01"
-
-// up / down
-#define PITCH	0
-
-// left / right
-#define YAW	1
-
-// fall over
-#define ROLL	2
-
+#define REF_VERSION	"Yamagi Quake II Software Refresher"
 
 /*
 
@@ -82,15 +78,6 @@ typedef int	light3_t[3];
 // xyz-prescale to 16.16 fixed-point
 #define SHIFT16XYZ 16
 #define SHIFT16XYZ_MULT (1 << SHIFT16XYZ)
-
-typedef enum
-{
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-} rserr_t;
 
 /* 64 light grades available */
 #define LIGHTMASK		0xFF00
@@ -173,8 +160,6 @@ extern oldrefdef_t	r_refdef;
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
 
-#define BACKFACE_EPSILON	0.01
-
 #define NEAR_CLIP	0.01
 
 #define ALIAS_Z_CLIP_PLANE	4
@@ -251,22 +236,7 @@ typedef struct clipplane_s
 	struct clipplane_s *next;
 	byte	leftedge;
 	byte	rightedge;
-	byte	reserved[2];
 } clipplane_t;
-
-typedef struct surfcache_s
-{
-	struct surfcache_s	*next;
-	struct surfcache_s	**owner; // NULL is an empty chunk of memory
-	int			lightadj[MAXLIGHTMAPS]; // checked for strobe flush
-	int			dlight;
-	int			size; // including header
-	unsigned		width;
-	unsigned		height; // DEBUG only needed for debug
-	float			mipscale;
-	image_t			*image;
-	byte			data[4]; // width*height elements
-} surfcache_t;
 
 typedef struct espan_s
 {
@@ -345,6 +315,7 @@ extern qboolean	r_dowarp;
 extern affinetridesc_t	r_affinetridesc;
 
 void D_WarpScreen(void);
+void RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 
 //=======================================================================//
 
@@ -399,6 +370,7 @@ extern vec3_t	vright, base_vright;
 extern surf_t	*surfaces, *surface_p, *surf_max;
 // allow some very large lightmaps
 extern light_t	*blocklights, *blocklight_max;
+extern byte	*bblocklights, *bblocklight_max;
 
 // surfaces are generated in back to front order by the bsp, so if a surf
 // pointer is greater than another one, it should be drawn in front
@@ -429,6 +401,7 @@ extern cvar_t	*sw_gunzposition;
 extern cvar_t	*r_validation;
 extern cvar_t	*r_retexturing;
 extern cvar_t	*r_scale8bittextures;
+extern cvar_t	*r_palettedtexture;
 
 extern cvar_t	*r_fullbright;
 extern cvar_t	*r_lefthand;
@@ -485,7 +458,7 @@ void R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *
 void R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel);
 void R_BeginEdgeFrame(void);
 void R_ScanEdges(entity_t *currententity, const surf_t *surface);
-void R_PushDlights(const model_t *model);
+void RI_PushDlights(const model_t *model);
 void R_RotateBmodel(const entity_t *currententity);
 
 extern int	c_faceclip;
@@ -551,13 +524,14 @@ extern int r_viewcluster, r_oldviewcluster;
 
 extern int r_clipflags;
 
-extern image_t		 *r_notexture_mip;
-extern model_t		 *r_worldmodel;
+extern image_t		*r_notexture_mip;
+extern model_t		*r_worldmodel;
+extern vec3_t		lightspot;
 
+void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
 void R_PrintAliasStats (void);
 void R_PrintTimes (void);
 void R_PrintDSpeeds (void);
-void R_LightPoint (const entity_t *currententity, vec3_t p, vec3_t color);
 void R_SetupFrame (void);
 
 extern  refdef_t		r_newrefdef;
@@ -568,19 +542,19 @@ extern  void			*colormap;
 
 //====================================================================
 
-void R_NewMap (void);
 void Draw_InitLocal(void);
 void R_InitCaches(void);
 void D_FlushCaches(void);
 
-void	RE_BeginRegistration (char *model);
-struct model_s	*RE_RegisterModel (char *name);
+void	RE_BeginRegistration (const char *model);
+struct model_s	*RE_RegisterModel (const char *name);
 void	RE_EndRegistration (void);
 
 struct image_s	*RE_Draw_FindPic (const char *name);
 
 void	RE_Draw_GetPicSize (int *w, int *h, const char *name);
-void	RE_Draw_PicScaled (int x, int y, const char *name, float scale);
+void	RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext);
+void	RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 void	RE_Draw_StretchPic (int x, int y, int w, int h, const char *name);
 void	RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 void	RE_Draw_CharScaled (int x, int y, int c, float scale);
@@ -592,11 +566,14 @@ extern byte d_8to24table[256 * 4];
 void	R_InitImages(void);
 void	R_ShutdownImages(void);
 image_t	*R_FindImage(const char *name, imagetype_t type);
+image_t	*R_LoadPic(const char *name, const byte *pic, int width, int realwidth, int height, int realheight,
+	size_t data_size, imagetype_t type, int bits);
 byte	*Get_BestImageSize(const image_t *image, int *req_width, int *req_height);
 void	R_FreeUnusedImages(void);
-qboolean R_ImageHasFreeSpace(void);
+qboolean	R_ImageHasFreeSpace(void);
 pixel_t	R_ApplyLight(pixel_t pix, const light3_t light);
 void	R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size, qboolean transparent);
+int	R_ConvertRGBColor(unsigned color);
 
 void R_InitSkyBox(model_t *loadmodel);
 void R_IMFlatShadedQuad( const vec3_t a, const vec3_t b, const vec3_t c, const vec3_t d, int color, float alpha );

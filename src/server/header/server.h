@@ -74,7 +74,7 @@ typedef struct
 	struct cmodel_s *models[MAX_MODELS];
 
 	char configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
-	entity_state_t baselines[MAX_EDICTS];
+	entity_xstate_t baselines[MAX_EDICTS];
 
 	/* the multicast buffer is used to send a message to a set of clients
 	   it is only used to marshall data until SV_Multicast is called */
@@ -89,7 +89,7 @@ typedef struct
 typedef enum
 {
 	cs_free,        /* can be reused for a new connection */
-	cs_zombie,      /* client has been disconnected, but don't reuse 
+	cs_zombie,      /* client has been disconnected, but don't reuse
 					   connection for a couple seconds */
 	cs_connected,   /* has been assigned to a client_t, but not in game yet */
 	cs_spawned      /* client is fully in game */
@@ -100,6 +100,7 @@ typedef struct
 	int areabytes;
 	byte areabits[MAX_MAP_AREAS / 8];       /* portalarea visibility bits */
 	player_state_t ps;
+	int origin[3];                          /* extended ps.origin to 28.3 format */
 	int num_entities;
 	int first_entity;                       /* into the circular sv_packet_entities[] */
 	int senttime;                           /* for ping calculations */
@@ -127,7 +128,7 @@ typedef struct client_s
 	edict_t *edict;                     /* EDICT_NUM(clientnum+1) */
 	char name[32];                      /* extracted from userinfo, high bits masked */
 
-	/* The datagram is written to by sound calls, prints, 
+	/* The datagram is written to by sound calls, prints,
 	   temp ents, etc. It can be harmlessly overflowed. */
 	sizebuf_t datagram;
 	byte datagram_buf[MAX_MSGLEN];
@@ -144,6 +145,7 @@ typedef struct client_s
 	int challenge;                      /* challenge of this user, randomly generated */
 
 	netchan_t netchan;
+	int protocol;
 } client_t;
 
 typedef struct
@@ -166,7 +168,7 @@ typedef struct
 	client_t *clients;                  /* [maxclients->value]; */
 	int num_client_entities;            /* maxclients->value*UPDATE_BACKUP*MAX_PACKET_ENTITIES */
 	int next_client_entities;           /* next client_entity to use */
-	entity_state_t *client_entities;    /* [num_client_entities] */
+	entity_xstate_t *client_entities;    /* [num_client_entities] */
 
 	int last_heartbeat;
 
@@ -200,9 +202,10 @@ extern edict_t *sv_player;
 void SV_FinalMessage(char *message, qboolean reconnect);
 void SV_DropClient(client_t *drop);
 
-int SV_ModelIndex(char *name);
-int SV_SoundIndex(char *name);
-int SV_ImageIndex(char *name);
+int SV_ModelIndex(const char *name);
+int SV_SoundIndex(const char *name);
+int SV_ImageIndex(const char *name);
+void SV_GetEntityState(const edict_t *svent, entity_xstate_t *state);
 
 void SV_WriteClientdataToMessage(client_t *client, sizebuf_t *msg);
 
@@ -217,6 +220,8 @@ void Master_Packet(void);
 
 void SV_InitGame(void);
 void SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isautosave);
+void SV_SendInitBuffers(void);
+void SV_SendFreeBuffers(void);
 
 void SV_PrepWorldFrame(void);
 
@@ -226,7 +231,6 @@ extern char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 
 void SV_FlushRedirect(int sv_redirected, char *outputbuf);
 
-void SV_DemoCompleted(void);
 void SV_SendClientMessages(void);
 
 void SV_Multicast(vec3_t origin, multicast_t to);
@@ -236,12 +240,14 @@ void SV_StartSound(vec3_t origin, edict_t *entity, int channel,
 void SV_ClientPrintf(client_t *cl, int level, const char *fmt, ...);
 void SV_BroadcastPrintf(int level, const char *fmt, ...);
 void SV_BroadcastCommand(const char *fmt, ...);
+int SV_GetRecomendedProtocol(void);
 
 void SV_Nextserver(void);
 void SV_ExecuteClientMessage(client_t *cl);
 
 void SV_ReadLevelFile(void);
-void SV_Status_f(void);
+char *SV_StatusString(void);
+void SV_ConnectionlessPacket(void);
 
 void SV_WriteFrameToClient(client_t *client, sizebuf_t *msg);
 void SV_RecordDemoMessage(void);
@@ -257,6 +263,7 @@ void SV_InitEdict(edict_t *e);
 void SV_WipeSavegame(char *savename);
 void SV_CopySaveGame(char *src, char *dst);
 void SV_WriteLevelFile(void);
+void SV_CleanLevelFileName(char *name);
 void SV_WriteServerFile(qboolean autosave);
 void SV_Loadgame_f(void);
 void SV_Savegame_f(void);
@@ -273,7 +280,7 @@ void SV_LinkEdict(edict_t *ent);
 
 /* Needs to be called any time an entity changes origin, mins, maxs,
    or solid. Automatically unlinks if needed. sets ent->v.absmin and
-   ent->v.absmax sets ent->leafnums[] for pvs determination even if 
+   ent->v.absmax sets ent->leafnums[] for pvs determination even if
    the entity is not solid */
 int SV_AreaEdicts(vec3_t mins, vec3_t maxs, edict_t **list,
 		int maxcount, int areatype);

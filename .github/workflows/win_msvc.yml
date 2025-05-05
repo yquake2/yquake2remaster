@@ -36,6 +36,10 @@ jobs:
         curl -o dhewm3libs.zip https://codeload.github.com/dhewm/dhewm3-libs/zip/refs/heads/master
         # only unpack the stuff needed (no x86_64 stuff, no docs from share/)
         unzip dhewm3libs.zip "dhewm3-libs-master/i686-w64-mingw32/**" -x "dhewm3-libs-master/i686-w64-mingw32/share/**"
+        # vulkan
+        curl -o vulkan_headers.zip https://codeload.github.com/KhronosGroup/Vulkan-Headers/zip/refs/heads/master
+        unzip vulkan_headers.zip "Vulkan-Headers-master/include/**"
+        cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/i686-w64-mingw32/include/
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Build
@@ -77,8 +81,8 @@ jobs:
         cp doc/090_filelists.md publish/$PKGDIR/misc/docs/090_filelists.md
         # copy runtime libraries (SDL, OpenAL, cURL)
         cd ../dhewm3-libs-master/i686-w64-mingw32/bin/
-        cp OpenAL32.dll SDL2.dll ../../../yquake2/publish/$PKGDIR/
-        cp libcurl-4.dll ../../../yquake2/publish/$PKGDIR/curl.dll
+        cp OpenAL32.dll SDL2.dll ../../../yquake2remaster/publish/$PKGDIR/
+        cp libcurl-4.dll ../../../yquake2remaster/publish/$PKGDIR/curl.dll
         cd -
     - name: Upload testbuild package
       uses: actions/upload-artifact@v4
@@ -115,6 +119,10 @@ jobs:
         curl -o dhewm3libs.zip https://codeload.github.com/dhewm/dhewm3-libs/zip/refs/heads/master
         # only unpack the stuff needed (no i686 stuff, no docs from share/)
         unzip dhewm3libs.zip "dhewm3-libs-master/x86_64-w64-mingw32/**" -x "dhewm3-libs-master/x86_64-w64-mingw32/share/**"
+        # vulkan
+        curl -o vulkan_headers.zip https://codeload.github.com/KhronosGroup/Vulkan-Headers/zip/refs/heads/master
+        unzip vulkan_headers.zip "Vulkan-Headers-master/include/**"
+        cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/x86_64-w64-mingw32/include/
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Build
@@ -155,8 +163,8 @@ jobs:
         cp doc/090_filelists.md publish/$PKGDIR/misc/docs/090_filelists.md
         # copy runtime libraries (SDL, OpenAL, cURL)
         cd ../dhewm3-libs-master/x86_64-w64-mingw32/bin/
-        cp OpenAL32.dll SDL2.dll ../../../yquake2/publish/$PKGDIR/
-        cp libcurl-4.dll ../../../yquake2/publish/$PKGDIR/curl.dll
+        cp OpenAL32.dll SDL2.dll ../../../yquake2remaster/publish/$PKGDIR/
+        cp libcurl-4.dll ../../../yquake2remaster/publish/$PKGDIR/curl.dll
         cd -
     - name: Upload testbuild package
       uses: actions/upload-artifact@v4

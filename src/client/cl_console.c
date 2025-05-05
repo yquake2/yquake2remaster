@@ -36,28 +36,6 @@ extern int edit_line;
 extern int key_linepos;
 
 void
-DrawStringScaled(int x, int y, const char *s, float factor)
-{
-	while (*s)
-	{
-		Draw_CharScaled(x, y, *s, factor);
-		x += 8*factor;
-		s++;
-	}
-}
-
-void
-DrawAltStringScaled(int x, int y, const char *s, float factor)
-{
-	while (*s)
-	{
-		Draw_CharScaled(x, y, *s ^ 0x80, factor);
-		x += 8*factor;
-		s++;
-	}
-}
-
-void
 Key_ClearTyping(void)
 {
 	key_lines[edit_line][0] = '\0';
@@ -124,7 +102,7 @@ Con_ToggleConsole_f(void)
 	}
 }
 
-void
+static void
 Con_ToggleChat_f(void)
 {
 	Key_ClearTyping();
@@ -154,7 +132,7 @@ Con_Clear_f(void)
 /*
  * Save the console contents out to a file
  */
-void
+static void
 Con_Dump_f(void)
 {
 	int l, x;
@@ -249,14 +227,14 @@ Con_ClearNotify(void)
 	}
 }
 
-void
+static void
 Con_MessageMode_f(void)
 {
 	chat_team = false;
 	cls.key_dest = key_message;
 }
 
-void
+static void
 Con_MessageMode2_f(void)
 {
 	chat_team = true;
@@ -356,7 +334,7 @@ Con_Init(void)
 	con.initialized = true;
 }
 
-void
+static void
 Con_Linefeed(void)
 {
 	con.x = 0;
@@ -465,7 +443,7 @@ Con_Print(char *txt)
  * The input line scrolls horizontally if
  * typing goes beyond the right edge
  */
-void
+static void
 Con_DrawInput(void)
 {
 	int i;
@@ -587,12 +565,12 @@ Con_DrawNotify(void)
 	{
 		if (chat_team)
 		{
-			DrawStringScaled(8 * scale, v * scale, "say_team:", scale);
+			Draw_StringScaled(8 * scale, v * scale, scale, false, "say_team:");
 			skip = 11;
 		}
 		else
 		{
-			DrawStringScaled(8 * scale, v * scale, "say:", scale);
+			Draw_StringScaled(8 * scale, v * scale, scale, false, "say:");
 			skip = 5;
 		}
 
@@ -666,10 +644,7 @@ Con_DrawConsole(float frac)
 
 	verLen = strlen(version);
 
-	for (x = 0; x < verLen; x++)
-	{
-		Draw_CharScaled(viddef.width - ((verLen*8+5) * scale) + x * 8 * scale, lines - 35 * scale, 128 + version[x], scale);
-	}
+	Draw_StringScaled(viddef.width - ((verLen * 8 + 5) * scale), lines - 35 * scale, scale, true, version);
 
 	t = time(NULL);
 	today = localtime(&t);
@@ -677,10 +652,7 @@ Con_DrawConsole(float frac)
 
 	Com_sprintf(tmpbuf, sizeof(tmpbuf), "%s", timebuf);
 
-	for (x = 0; x < 21; x++)
-	{
-		Draw_CharScaled(viddef.width - (173 * scale) + x * 8 * scale, lines - 25 * scale, 128 + tmpbuf[x], scale);
-	}
+	Draw_StringScaled(viddef.width - (173 * scale), lines - 25 * scale, scale, true, tmpbuf);
 
 	/* draw the text */
 	con.vislines = lines;

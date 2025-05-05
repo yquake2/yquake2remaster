@@ -25,11 +25,13 @@ jobs:
     - name: Install build dependencies
       run: |
         sudo apt update
-        sudo apt install libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev
+        sudo apt install libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev \
+            libavformat-dev libswscale-dev libvulkan-dev build-essential
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Build
       run: |
+        sed -i 's|WITH_AVCODEC:=yes|WITH_AVCODEC:=no|g' Makefile
         # Public runners come with 4 CPUs.
         make -j4
         make -j4 ref_gles1

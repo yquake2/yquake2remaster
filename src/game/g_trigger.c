@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,11 +27,22 @@
 
 #include "header/local.h"
 
-#define PUSH_ONCE 1
+#define TRIGGER_MONSTER 0x01
+#define TRIGGER_NOT_PLAYER 0x02
+#define TRIGGER_TRIGGERED 0x04
+#define TRIGGER_TOGGLE 0x08
+
+#define PUSH_ONCE 0x01
+#define PUSH_START_OFF 0x02
+#define PUSH_SILENT 0x04
 
 static int windsound;
 
-void
+void trigger_push_active(edict_t *self);
+void hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */);
+
+static void
 InitTrigger(edict_t *self)
 {
 	if (!self)
@@ -111,13 +123,29 @@ Use_Multi(edict_t *ent, edict_t *other /* unused */, edict_t *activator)
 		return;
 	}
 
-	ent->activator = activator;
-	multi_trigger(ent);
+	if (ent->spawnflags & TRIGGER_TOGGLE)
+	{
+		if (ent->solid == SOLID_TRIGGER)
+		{
+			ent->solid = SOLID_NOT;
+		}
+		else
+		{
+			ent->solid = SOLID_TRIGGER;
+		}
+
+		gi.linkentity(ent);
+	}
+	else
+	{
+		ent->activator = activator;
+		multi_trigger(ent);
+	}
 }
 
 void
 Touch_Multi(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -160,12 +188,14 @@ Touch_Multi(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 }
 
 /*
- * QUAKED trigger_multiple (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED
+ * QUAKED trigger_multiple (.5 .5 .5) ? MONSTER NOT_PLAYER TRIGGERED TOGGLE
  * Variable sized repeatable trigger.  Must be targeted at one or more
  * entities. If "delay" is set, the trigger waits some time after
  * activating before firing.
  *
  * "wait" : Seconds between triggerings. (.2 default)
+ *
+ * TOGGLE - using this trigger will activate/deactivate it. trigger will begin inactive.
  *
  * sounds
  * 1)	secret
@@ -177,13 +207,12 @@ Touch_Multi(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
  */
 void
 trigger_enable(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator /* unused */)
+		edict_t *activator /* unused */)
 {
 	if (!self)
 	{
 		return;
 	}
-
 
 	self->solid = SOLID_TRIGGER;
 	self->use = Use_Multi;
@@ -208,7 +237,7 @@ SP_trigger_multiple(edict_t *ent)
 	}
 	else if (ent->sounds == 3)
 	{
-		ent->noise_index = gi.soundindex ("misc/trigger1.wav");
+		ent->noise_index = gi.soundindex("misc/trigger1.wav");
 	}
 
 	if (!ent->wait)
@@ -220,7 +249,7 @@ SP_trigger_multiple(edict_t *ent)
 	ent->movetype = MOVETYPE_NONE;
 	ent->svflags |= SVF_NOCLIENT;
 
-	if (ent->spawnflags & 4)
+	if (ent->spawnflags & (TRIGGER_TRIGGERED | TRIGGER_TOGGLE))
 	{
 		ent->solid = SOLID_NOT;
 		ent->use = trigger_enable;
@@ -242,6 +271,7 @@ SP_trigger_multiple(edict_t *ent)
 
 /*
  * QUAKED trigger_once (.5 .5 .5) ? x x TRIGGERED
+ *
  * Triggers once, then removes itself.
  *
  * You must set the key "target" to the name of another
@@ -290,7 +320,7 @@ SP_trigger_once(edict_t *ent)
  */
 void
 trigger_relay_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator)
+		edict_t *activator)
 {
 	if (!self || !activator)
 	{
@@ -310,6 +340,14 @@ SP_trigger_relay(edict_t *self)
 
 	self->use = trigger_relay_use;
 }
+
+/*
+ * ==============================================================================
+ *
+ * trigger_key
+ *
+ * ==============================================================================
+ */
 
 /*
  * QUAKED trigger_key (.5 .5 .5) (-8 -8 -8) (8 8 8)
@@ -349,11 +387,11 @@ trigger_key_use(edict_t *self, edict_t *other /* unused */,
 
 		self->touch_debounce_time = level.time + 5.0;
 		gi.centerprintf(activator, "You need the %s", self->item->pickup_name);
-		gi.sound(activator, CHAN_AUTO, gi.soundindex( "misc/keytry.wav"), 1, ATTN_NORM, 0);
+		gi.sound(activator, CHAN_AUTO, gi.soundindex("misc/keytry.wav"), 1, ATTN_NORM, 0);
 		return;
 	}
 
-	gi.sound(activator, CHAN_AUTO, gi.soundindex( "misc/keyuse.wav"), 1, ATTN_NORM, 0);
+	gi.sound(activator, CHAN_AUTO, gi.soundindex("misc/keyuse.wav"), 1, ATTN_NORM, 0);
 
 	if (coop->value)
 	{
@@ -460,7 +498,16 @@ SP_trigger_key(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_counter
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_counter (.5 .5 .5) ? nomessage
+ *
  * Acts as an intermediary for an action that takes multiple inputs.
  *
  * If nomessage is not set, it will print "1 more.. " etc when
@@ -469,9 +516,10 @@ SP_trigger_key(edict_t *self)
  * After the counter has been triggered "count" times (default 2),
  * it will fire all of it's targets and remove itself.
  */
+
 void
 trigger_counter_use(edict_t *self, edict_t *other /* unused */,
-	   	edict_t *activator)
+		edict_t *activator)
 {
 	if (!self || !activator)
 	{
@@ -527,7 +575,16 @@ SP_trigger_counter(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_always
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_always (.5 .5 .5) (-8 -8 -8) (8 8 8)
+ *
  * This trigger will always fire. It is activated by the world.
  */
 void
@@ -547,6 +604,14 @@ SP_trigger_always(edict_t *ent)
 
 	G_UseTargets(ent, ent);
 }
+
+/*
+ * ==============================================================================
+ *
+ * trigger_push
+ *
+ * ==============================================================================
+ */
 
 void
 trigger_push_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
@@ -571,7 +636,8 @@ trigger_push_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 			   immediately from this */
 			VectorCopy(other->velocity, other->client->oldvelocity);
 
-			if (other->fly_sound_debounce_time < level.time)
+			if (!(self->spawnflags & PUSH_SILENT) &&
+				(other->fly_sound_debounce_time < level.time))
 			{
 				other->fly_sound_debounce_time = level.time + 1.5;
 				gi.sound(other, CHAN_AUTO, windsound, 1, ATTN_NORM, 0);
@@ -592,6 +658,107 @@ trigger_push_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
  * "speed"		defaults to 1000
  */
 void
+trigger_effect(edict_t *self)
+{
+	vec3_t origin;
+	vec3_t size;
+	int i;
+
+	if (!self)
+	{
+		return;
+	}
+
+	VectorScale(self->size, 0.5, size);
+	VectorAdd(self->absmin, size, origin);
+
+	for (i = 0; i < 10; i++)
+	{
+		origin[2] += (self->speed * 0.01) * (i + random());
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_TUNNEL_SPARKS);
+		gi.WriteByte(1);
+		gi.WritePosition(origin);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0x74 + (rand() & 7));
+		gi.multicast(self->s.origin, MULTICAST_PVS);
+	}
+}
+
+void
+trigger_push_inactive(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->delay > level.time)
+	{
+		self->nextthink = level.time + 0.1;
+	}
+	else
+	{
+		self->touch = trigger_push_touch;
+		self->think = trigger_push_active;
+		self->nextthink = level.time + 0.1;
+		self->delay = self->nextthink + self->wait;
+	}
+}
+
+void
+trigger_push_active(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->delay > level.time)
+	{
+		self->nextthink = level.time + 0.1;
+		trigger_effect(self);
+	}
+	else
+	{
+		self->touch = NULL;
+		self->think = trigger_push_inactive;
+		self->nextthink = level.time + 0.1;
+		self->delay = self->nextthink + self->wait;
+	}
+}
+
+void
+trigger_push_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->solid == SOLID_NOT)
+	{
+		self->solid = SOLID_TRIGGER;
+	}
+	else
+	{
+		self->solid = SOLID_NOT;
+	}
+
+	gi.linkentity(self);
+}
+
+/*
+ * QUAKED trigger_push (.5 .5 .5) ? PUSH_ONCE START_OFF SILENT
+ * Pushes the player
+ * "speed"		defaults to 1000
+ *
+ * If targeted, it will toggle on and off when used.
+ *
+ * START_OFF - toggled trigger_push begins in off setting
+ * SILENT - doesn't make wind noise
+ */
+void
 SP_trigger_push(edict_t *self)
 {
 	if (!self)
@@ -608,24 +775,103 @@ SP_trigger_push(edict_t *self)
 		self->speed = 1000;
 	}
 
+	if (self->spawnflags & PUSH_START_OFF)
+	{
+		if (!self->wait)
+		{
+			self->wait = 10;
+		}
+
+		self->think = trigger_push_active;
+		self->nextthink = level.time + 0.1;
+		self->delay = self->nextthink + self->wait;
+	}
+
+	if (self->targetname) /* toggleable */
+	{
+		self->use = trigger_push_use;
+
+		if (self->spawnflags & PUSH_START_OFF)
+		{
+			self->solid = SOLID_NOT;
+		}
+	}
+	else if (self->spawnflags & PUSH_START_OFF)
+	{
+		gi.dprintf("trigger_push is START_OFF but not targeted.\n");
+		self->svflags = 0;
+		self->touch = NULL;
+		self->solid = SOLID_BSP;
+		self->movetype = MOVETYPE_PUSH;
+	}
+
 	gi.linkentity(self);
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_hurt
+ *
+ * ==============================================================================
+ */
+
+/*
  * QUAKED trigger_hurt (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW
+ *
  * Any entity that touches this will be hurt.
  *
  * It does dmg points of damage each server frame
  *
  * SILENT			supresses playing the sound
- * SLOW				changes the damage rate to once per second
+ * SLOW			changes the damage rate to once per second
  * NO_PROTECTION	*nothing* stops the damage
  *
  * "dmg"			default 5 (whole numbers only)
+ *
  */
 void
+hurt_use(edict_t *self, edict_t *other /* unused */,
+		edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->solid == SOLID_NOT)
+	{
+		int	i, num;
+		edict_t	*touch[MAX_EDICTS], *hurtme;
+
+		self->solid = SOLID_TRIGGER;
+		num = gi.BoxEdicts(self->absmin, self->absmax,
+				touch, MAX_EDICTS, AREA_SOLID);
+
+		/* Check for idle monsters in
+		   trigger hurt */
+		for (i = 0 ; i < num ; i++)
+		{
+			hurtme = touch[i];
+			hurt_touch (self, hurtme, NULL, NULL);
+		}
+	}
+	else
+	{
+		self->solid = SOLID_NOT;
+	}
+
+	gi.linkentity(self);
+
+	if (!(self->spawnflags & 2))
+	{
+		self->use = NULL;
+	}
+}
+
+void
 hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	   	csurface_t *surf /* unused */)
+		csurface_t *surf /* unused */)
 {
 	int dflags;
 
@@ -633,7 +879,6 @@ hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	{
 		return;
 	}
-
 
 	if (!other->takedamage)
 	{
@@ -676,45 +921,6 @@ hurt_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 }
 
 void
-hurt_use(edict_t *self, edict_t *other /* unused */,
-		edict_t *activator /* unused */)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (self->solid == SOLID_NOT)
-	{
-		int	i, num;
-		edict_t	*touch[MAX_EDICTS], *hurtme;
-
-		self->solid = SOLID_TRIGGER;
-		num = gi.BoxEdicts (self->absmin, self->absmax,
-			   	touch, MAX_EDICTS, AREA_SOLID);
-
-		/* Check for idle monsters in
-		   trigger hurt */
-		for (i = 0 ; i < num ; i++)
-		{
-			hurtme = touch[i];
-			hurt_touch (self, hurtme, NULL, NULL);
-		}
-	}
-	else
-	{
-		self->solid = SOLID_NOT;
-	}
-
-	gi.linkentity(self);
-
-	if (!(self->spawnflags & 2))
-	{
-		self->use = NULL;
-	}
-}
-
-void
 SP_trigger_hurt(edict_t *self)
 {
 	if (!self)
@@ -750,12 +956,39 @@ SP_trigger_hurt(edict_t *self)
 }
 
 /*
+ * ==============================================================================
+ *
+ * trigger_gravity
+ *
+ * ==============================================================================
+ */
+
+void
+trigger_gravity_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->solid == SOLID_NOT)
+	{
+		self->solid = SOLID_TRIGGER;
+	}
+	else
+	{
+		self->solid = SOLID_NOT;
+	}
+
+	gi.linkentity(self);
+}
+
+/*
  * QUAKED trigger_gravity (.5 .5 .5) ?
  * Changes the touching entites gravity to
  * the value of "gravity".  1.0 is standard
  * gravity for the level.
  */
-
 void
 trigger_gravity_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
@@ -768,6 +1001,15 @@ trigger_gravity_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused *
 	other->gravity = self->gravity;
 }
 
+/*
+ * QUAKED trigger_gravity (.5 .5 .5) ? TOGGLE START_OFF
+ * Changes the touching entites gravity to
+ * the value of "gravity".  1.0 is standard
+ * gravity for the level.
+ *
+ * TOGGLE - trigger_gravity can be turned on and off
+ * START_OFF - trigger_gravity starts turned off (implies TOGGLE)
+ */
 void
 SP_trigger_gravity(edict_t *self)
 {
@@ -786,8 +1028,29 @@ SP_trigger_gravity(edict_t *self)
 
 	InitTrigger(self);
 	self->gravity = (int)strtol(st.gravity, (char **)NULL, 10);
+
+	if (self->spawnflags & 1) /* TOGGLE */
+	{
+		self->use = trigger_gravity_use;
+	}
+
+	if (self->spawnflags & 2) /* START_OFF */
+	{
+		self->use = trigger_gravity_use;
+		self->solid = SOLID_NOT;
+	}
+
 	self->touch = trigger_gravity_touch;
+	gi.linkentity(self);
 }
+
+/*
+ * ==============================================================================
+ *
+ * trigger_monsterjump
+ *
+ * ==============================================================================
+ */
 
 /*
  * QUAKED trigger_monsterjump (.5 .5 .5) ?
@@ -860,4 +1123,84 @@ SP_trigger_monsterjump(edict_t *self)
 	InitTrigger(self);
 	self->touch = trigger_monsterjump_touch;
 	self->movedir[2] = st.height;
+}
+
+/* QUAKED trigger_flashlight (.5 .5 .5) ?
+ * Players moving against this trigger will have their flashlight turned on or off.
+ * "style" default to 0, set to 1 to always turn flashlight on, 2 to always turn off,
+ *      otherwise "angles" are used to control on/off state
+ */
+
+#define SPAWNFLAG_FLASHLIGHT_CLIPPED 1
+
+void
+trigger_flashlight_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	if (!other->client)
+	{
+		return;
+	}
+
+	if (self->style == 1)
+	{
+		P_ToggleFlashlight(other, true);
+	}
+	else if (self->style == 2)
+	{
+		P_ToggleFlashlight(other, false);
+	}
+	else if (VectorLength(other->velocity) > 6)
+	{
+		vec3_t forward;
+
+		VectorNormalize2(other->velocity, forward);
+
+		P_ToggleFlashlight(other, _DotProduct(forward, self->movedir) > 0);
+	}
+}
+
+void
+SP_trigger_flashlight(edict_t *self)
+{
+	if (self->s.angles[YAW] == 0)
+	{
+		self->s.angles[YAW] = 360;
+	}
+
+	InitTrigger(self);
+	self->touch = trigger_flashlight_touch;
+	self->movedir[2] = (float) st.height;
+
+	gi.linkentity(self);
+}
+
+/*
+ * QUAKED choose_cdtrack (.5 .5 .5) ?
+ * Heretic 2: Sets CD track
+ *
+ * style: CD Track Id
+ */
+void
+choose_cdtrack_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	gi.configstring(CS_CDTRACK, va("%i", self->style));
+}
+
+void
+SP_choose_cdtrack(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	InitTrigger(self);
+	self->touch = choose_cdtrack_touch;
 }

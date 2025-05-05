@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (C) 2011 Yamagi Burmeister
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +26,10 @@
  * =======================================================================
  */
 
-{"pers.weapon", CLOFS(pers.weapon), F_ITEM},
-{"pers.lastweapon", CLOFS(pers.lastweapon), F_ITEM},
 {"newweapon", CLOFS(newweapon), F_ITEM},
-{"resp.coop_respawn.weapon", CLOFS(resp.coop_respawn.weapon), F_ITEM, 0, 3},
+{"owned_sphere", CLOFS(owned_sphere), F_EDICT},
+{"pers.lastweapon", CLOFS(pers.lastweapon), F_ITEM},
+{"pers.weapon", CLOFS(pers.weapon), F_ITEM},
 {"resp.coop_respawn.lastweapon", CLOFS(resp.coop_respawn.lastweapon), F_ITEM, 0, 3},
+{"resp.coop_respawn.weapon", CLOFS(resp.coop_respawn.weapon), F_ITEM, 0, 3},
 {NULL, 0, F_INT, 0}

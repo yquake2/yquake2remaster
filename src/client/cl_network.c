@@ -27,8 +27,6 @@
 #include "header/client.h"
 #include "../client/sound/header/local.h"
 
-void CL_ParseStatusMessage(void);
-
 extern cvar_t *rcon_client_password;
 extern cvar_t *rcon_address;
 extern cvar_t *cl_timeout;
@@ -277,8 +275,6 @@ CL_Rcon_f(void)
 
 	NET_SendPacket(NS_CLIENT, strlen(message) + 1, message, to);
 }
-
-void CL_WriteConfiguration(void);
 
 /*
  * Goes from a connected state to full screen

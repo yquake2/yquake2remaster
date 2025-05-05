@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - 'master'
+    tags:
+      - "*"
   pull_request:
     types:
       - edited
@@ -25,7 +27,7 @@ jobs:
     - name: Install build dependencies
       run: |
         brew update
-        brew install sdl2 openal-soft make
+        brew install sdl2 openal-soft make ffmpeg molten-vk
     - name: Check out repository code
       uses: actions/checkout@v4
     - name: Build
@@ -69,7 +71,9 @@ jobs:
         install_name_tool -change "/opt/homebrew/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Resources/libSDL2-2.0.0.dylib" "build/macos-dmg/Quake 2.app/Contents/Resources/ref_gl1.dylib"
         install_name_tool -change "/opt/homebrew/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Resources/libSDL2-2.0.0.dylib" "build/macos-dmg/Quake 2.app/Contents/Resources/ref_gl3.dylib"
         install_name_tool -change "/opt/homebrew/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Resources/libSDL2-2.0.0.dylib" "build/macos-dmg/Quake 2.app/Contents/Resources/ref_gles3.dylib"
+        install_name_tool -change "/opt/homebrew/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Resources/libSDL2-2.0.0.dylib" "build/macos-dmg/Quake 2.app/Contents/Resources/ref_gl4.dylib"
         install_name_tool -change "/opt/homebrew/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Resources/libSDL2-2.0.0.dylib" "build/macos-dmg/Quake 2.app/Contents/Resources/ref_soft.dylib"
+        install_name_tool -change "/opt/homebrew/opt/sdl2/lib/libSDL2-2.0.0.dylib" "@executable_path/../Resources/libSDL2-2.0.0.dylib" "build/macos-dmg/Quake 2.app/Contents/Resources/ref_vk.dylib"
         # make disk image
         hdiutil create -srcfolder build/macos-dmg -layout SPUD -fs HFS+ -volname "Yamagi Quake II" "release/yquake2.dmg"
         cp release/yquake2.dmg publish/quake2-macos-${{github.sha}}/
@@ -79,3 +83,18 @@ jobs:
         name: quake2-macos-${{github.sha}}
         path: publish/
         if-no-files-found: error
+    - name: Create tag package
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      run: |
+        # create archive
+        mkdir yquake2remaster-${{matrix.env}}-${{github.ref_name}}
+        mv publish/quake2-macos-${{github.sha}}/yquake2.dmg yquake2remaster-${{matrix.env}}-${{github.ref_name}}.dmg
+        cp -rv publish/quake2-macos-${{github.sha}}/* yquake2remaster-${{matrix.env}}-${{github.ref_name}}
+        zip -9r yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip yquake2remaster-${{matrix.env}}-${{github.ref_name}}
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v2
+      if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      with:
+        files: |
+          yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip
+          yquake2remaster-${{matrix.env}}-${{github.ref_name}}.dmg

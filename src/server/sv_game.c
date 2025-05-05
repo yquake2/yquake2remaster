@@ -25,17 +25,17 @@
  */
 
 #include "header/server.h"
- 
+
 #ifndef DEDICATED_ONLY
 void SCR_DebugGraph(float value, int color);
 #endif
- 
+
 game_export_t *ge;
 
 /*
  * Sends the contents of the mutlicast buffer to a single client
  */
-void
+static void
 PF_Unicast(edict_t *ent, qboolean reliable)
 {
 	int p;
@@ -71,7 +71,7 @@ PF_Unicast(edict_t *ent, qboolean reliable)
 /*
  * Debug print to server console
  */
-void
+static void
 PF_dprintf(const char *fmt, ...)
 {
 	char msg[1024];
@@ -87,7 +87,7 @@ PF_dprintf(const char *fmt, ...)
 /*
  * Print to a single client
  */
-void
+static void
 PF_cprintf(edict_t *ent, int level, const char *fmt, ...)
 {
 	char msg[1024];
@@ -123,7 +123,7 @@ PF_cprintf(edict_t *ent, int level, const char *fmt, ...)
 /*
  * centerprint to a single client
  */
-void
+static void
 PF_centerprintf(edict_t *ent, const char *fmt, ...)
 {
 	char msg[1024];
@@ -149,7 +149,7 @@ PF_centerprintf(edict_t *ent, const char *fmt, ...)
 /*
  * Abort the server with a game error
  */
-YQ2_ATTR_NORETURN_FUNCPTR void
+YQ2_ATTR_NORETURN_FUNCPTR static void
 PF_error(const char *fmt, ...)
 {
 	char msg[1024];
@@ -165,15 +165,15 @@ PF_error(const char *fmt, ...)
 /*
  * Also sets mins and maxs for inline bmodels
  */
-void
-PF_setmodel(edict_t *ent, char *name)
+static void
+PF_setmodel(edict_t *ent, const char *name)
 {
 	int i;
-	cmodel_t *mod;
 
 	if (!name)
 	{
-		Com_Error(ERR_DROP, "PF_setmodel: NULL");
+		Com_Printf("%s: Name is NULL\n", __func__);
+		return;
 	}
 
 	i = SV_ModelIndex(name);
@@ -184,6 +184,8 @@ PF_setmodel(edict_t *ent, char *name)
 	   the size information for it */
 	if (name[0] == '*')
 	{
+		cmodel_t *mod;
+
 		mod = CM_InlineModel(name);
 		VectorCopy(mod->mins, ent->mins);
 		VectorCopy(mod->maxs, ent->maxs);
@@ -191,27 +193,33 @@ PF_setmodel(edict_t *ent, char *name)
 	}
 }
 
-void
-PF_Configstring(int index, char *val)
+/* Direct set value for config string, index in library range */
+static void
+PF_Configstring(int index, const char *val)
 {
-	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
-	{
-		Com_Error(ERR_DROP, "configstring: bad index %i\n", index);
-	}
+	int internal_index;
 
 	if (!val)
 	{
 		val = "";
 	}
 
+	internal_index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
+
+	if ((internal_index < 0) || (internal_index >= MAX_CONFIGSTRINGS))
+	{
+		Com_Error(ERR_DROP, "configstring: bad index %i\n", internal_index);
+	}
+
 	/* change the string in sv */
-	strcpy(sv.configstrings[index], val);
+	strcpy(sv.configstrings[internal_index], val);
 
 	if (sv.state != ss_loading)
 	{
 		/* send the update to everyone */
 		SZ_Clear(&sv.multicast);
 		MSG_WriteChar(&sv.multicast, svc_configstring);
+		/* index in protocol range */
 		MSG_WriteShort(&sv.multicast, index);
 		MSG_WriteString(&sv.multicast, val);
 
@@ -219,64 +227,134 @@ PF_Configstring(int index, char *val)
 	}
 }
 
-void
+/* Direct get value for config string, index in library range */
+static const char *
+PF_ConfigStringGet(int index)
+{
+	index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
+
+	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
+	{
+		Com_Error(ERR_DROP, "configstring: bad index %i\n", index);
+	}
+
+	/* change the string in sv */
+	return sv.configstrings[index];
+}
+
+static void
+PF_GetModelFrameInfo(int index, int num, float *mins, float *maxs)
+{
+	if (index < MAX_MODELS)
+	{
+		if (sv.configstrings[CS_MODELS + index][0] == '*')
+		{
+			if (maxs && mins)
+			{
+				cmodel_t *mod;
+
+				mod = CM_InlineModel(sv.configstrings[CS_MODELS + index]);
+				VectorCopy(mod->mins, mins);
+				VectorCopy(mod->maxs, maxs);
+			}
+		}
+		else
+		{
+			Mod_GetModelFrameInfo(sv.configstrings[CS_MODELS + index],
+				num, mins, maxs);
+		}
+	}
+}
+
+static const dmdxframegroup_t *
+PF_GetModelInfo(int index, int *num, float *mins, float *maxs)
+{
+	if (index < MAX_MODELS)
+	{
+		if (sv.configstrings[CS_MODELS + index][0] == '*')
+		{
+			if (maxs && mins)
+			{
+				cmodel_t *mod;
+
+				mod = CM_InlineModel(sv.configstrings[CS_MODELS + index]);
+				VectorCopy(mod->mins, mins);
+				VectorCopy(mod->maxs, maxs);
+			}
+		}
+		else
+		{
+			return Mod_GetModelInfo(sv.configstrings[CS_MODELS + index],
+				num, mins, maxs);
+		}
+	}
+
+	if (num)
+	{
+		*num = 0;
+	}
+
+	return NULL;
+}
+
+static void
 PF_WriteChar(int c)
 {
-	MSG_WriteChar(&sv.multicast, c); 
+	MSG_WriteChar(&sv.multicast, c);
 }
 
-void
+static void
 PF_WriteByte(int c)
 {
-	MSG_WriteByte(&sv.multicast, c); 
+	MSG_WriteByte(&sv.multicast, c);
 }
 
-void
+static void
 PF_WriteShort(int c)
 {
-	MSG_WriteShort(&sv.multicast, c); 
+	MSG_WriteShort(&sv.multicast, c);
 }
 
-void
+static void
 PF_WriteLong(int c)
 {
-	MSG_WriteLong(&sv.multicast, c); 
+	MSG_WriteLong(&sv.multicast, c);
 }
 
-void
+static void
 PF_WriteFloat(float f)
 {
-	MSG_WriteFloat(&sv.multicast, f); 
+	MSG_WriteFloat(&sv.multicast, f);
 }
 
-void
-PF_WriteString(char *s)
+static void
+PF_WriteString(const char *s)
 {
-	MSG_WriteString(&sv.multicast, s); 
+	MSG_WriteString(&sv.multicast, s);
 }
 
-void
-PF_WritePos(vec3_t pos)
+static void
+PF_WritePos(const vec3_t pos)
 {
-	MSG_WritePos(&sv.multicast, pos); 
+	MSG_WritePos(&sv.multicast, pos, SV_GetRecomendedProtocol());
 }
 
-void
-PF_WriteDir(vec3_t dir)
+static void
+PF_WriteDir(const vec3_t dir)
 {
-	MSG_WriteDir(&sv.multicast, dir); 
+	MSG_WriteDir(&sv.multicast, dir);
 }
 
-void
+static void
 PF_WriteAngle(float f)
 {
-	MSG_WriteAngle(&sv.multicast, f); 
+	MSG_WriteAngle(&sv.multicast, f);
 }
 
 /*
  * Also checks portalareas so that doors block sight
  */
-qboolean
+static qboolean
 PF_inPVS(vec3_t p1, vec3_t p2)
 {
 	int leafnum;
@@ -312,7 +390,7 @@ PF_inPVS(vec3_t p1, vec3_t p2)
 /*
  * Also checks portalareas so that doors block sound
  */
-qboolean
+static qboolean
 PF_inPHS(vec3_t p1, vec3_t p2)
 {
 	int leafnum;
@@ -345,7 +423,7 @@ PF_inPHS(vec3_t p1, vec3_t p2)
 	return true;
 }
 
-void
+static void
 PF_StartSound(edict_t *entity, int channel, int sound_num,
 		float volume, float attenuation, float timeofs)
 {
@@ -448,6 +526,16 @@ SV_InitGameProgs(void)
 	import.SetAreaPortalState = CM_SetAreaPortalState;
 	import.AreasConnected = CM_AreasConnected;
 
+	/* Extension to classic Quake2 API */
+	import.LoadFile = FS_LoadFile;
+	import.FreeFile = FS_FreeFile;
+	import.Gamedir = FS_Gamedir;
+	import.CreatePath = FS_CreatePath;
+	import.GetConfigString = PF_ConfigStringGet;
+	import.GetModelInfo = PF_GetModelInfo;
+	import.GetModelFrameInfo = PF_GetModelFrameInfo;
+	import.PmoveEx = PmoveEx;
+
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 
 	if (!ge)
@@ -455,7 +543,8 @@ SV_InitGameProgs(void)
 		Com_Error(ERR_DROP, "failed to load game DLL");
 	}
 
-	if (ge->apiversion != GAME_API_VERSION)
+	if (ge->apiversion != GAME_API_VERSION &&
+		ge->apiversion != GAME_API_R97_VERSION)
 	{
 		Com_Error(ERR_DROP, "game is version %i, not %i", ge->apiversion,
 				GAME_API_VERSION);

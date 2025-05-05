@@ -154,6 +154,12 @@ Qcommon_Buildstring(void)
 #else
 	printf(" - Systemwide installation\n");
 #endif
+
+#ifdef AVMEDIADECODE
+	printf(" + AVcodec decode\n");
+#else
+	printf(" - AVcodec decode\n");
+#endif
 #endif
 
 	printf("Platform: %s\n", YQ2OSTYPE);
@@ -326,15 +332,25 @@ Qcommon_Init(int argc, char **argv)
 	   the settings of the config files */
 	Cbuf_AddEarlyCommands(false);
 	Cbuf_Execute();
+	/* Set default maptype  */
+	Cvar_Get("maptype", "0", CVAR_ARCHIVE);
 
 	// remember the initial game name that might have been set on commandline
 	{
-		cvar_t* gameCvar = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
+		cvar_t* gameCvar, *gametypeCvar;
 		const char* game = "";
+
+		gameCvar = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
+		gametypeCvar = Cvar_Get("gametype", "", CVAR_LATCH | CVAR_SERVERINFO);
 
 		if(gameCvar->string && gameCvar->string[0])
 		{
 			game = gameCvar->string;
+			if (strcmp(gametypeCvar->string, gameCvar->string))
+			{
+				/* Set gametype if game is provided */
+				Cvar_Set("gametype", gameCvar->string);
+			}
 		}
 
 		Q_strlcpy(userGivenGame, game, sizeof(userGivenGame));
@@ -342,6 +358,8 @@ Qcommon_Init(int argc, char **argv)
 
 	// The filesystems needs to be initialized after the cvars.
 	FS_InitFilesystem();
+	Mod_AliasesInit();
+	CM_ModInit();
 
 	// Add and execute configuration files.
 	Qcommon_ExecConfigs(true);
@@ -814,6 +832,8 @@ Qcommon_Frame(int usec)
 void
 Qcommon_Shutdown(void)
 {
+	CM_ModFreeAll();
+	Mod_AliasesFreeAll();
 	FS_ShutdownFilesystem();
 	Cvar_Fini();
 

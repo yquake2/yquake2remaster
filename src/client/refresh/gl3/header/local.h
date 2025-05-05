@@ -56,7 +56,7 @@
 
 #include "../../ref_shared.h"
 
-#include "HandmadeMath.h"
+#include "../../files/HandmadeMath.h"
 
 #if 0 // only use this for development ..
 #define STUB_ONCE(msg) do { \
@@ -158,14 +158,15 @@ typedef struct
 	hmm_mat4 transProjViewMat4; // gl3state.projMat3D * gl3state.viewMat3D - so we don't have to do this in the shader
 	hmm_mat4 transModelMat4;
 
-	GLfloat scroll; // for SURF_FLOWING
+	GLfloat sscroll; // for SURF_FLOWING
+	GLfloat tscroll; // for SURF_FLOWING
 	GLfloat time; // for warping surfaces like water & possibly other things
 	GLfloat alpha; // for translucent surfaces (water, glass, ..)
 	GLfloat overbrightbits; // gl3_overbrightbits, applied to lightmaps (and elsewhere to models)
 	GLfloat particleFadeFactor; // gl3_particle_fade_factor, higher => less fading out towards edges
 
 	GLfloat lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
-		GLfloat _padding[2]; // again, some padding to ensure this has right size
+	GLfloat _padding; // again, some padding to ensure this has right size, round up to 16 bytes?
 } gl3Uni3D_t;
 
 extern const hmm_mat4 gl3_identityMat4;
@@ -189,9 +190,8 @@ enum {
 	// width and height used to be 128, so now we should be able to get the same lightmap data
 	// that used 32 lightmaps before into one, so 4 lightmaps should be enough
 	BLOCK_WIDTH = 1024,
-	BLOCK_HEIGHT = 512,
-	LIGHTMAP_BYTES = 4,
-	MAX_LIGHTMAPS = 4,
+	BLOCK_HEIGHT = 1024,
+	MAX_LIGHTMAPS = 16,
 	MAX_LIGHTMAPS_PER_SURFACE = MAXLIGHTMAPS // 4
 };
 
@@ -310,8 +310,6 @@ typedef struct image_s
 
 } gl3image_t;
 
-enum {MAX_GL3TEXTURES = 1024};
-
 // include this down here so it can use gl3image_t
 #include "model.h"
 
@@ -335,6 +333,8 @@ extern float gl3depthmin, gl3depthmax;
 extern cplane_t frustum[4];
 
 extern vec3_t gl3_origin;
+
+extern vec3_t lightspot;
 
 extern gl3image_t *gl3_notexture; /* use for bad textures */
 extern gl3image_t *gl3_particletexture; /* little dot for particles */
@@ -382,7 +382,7 @@ GL3_BindEBO(GLuint ebo)
 	}
 }
 
-extern void GL3_BufferAndDraw3D(const gl3_3D_vtx_t* verts, int numVerts, GLenum drawMode);
+extern void GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode);
 
 extern void GL3_RotateForEntity(entity_t *e);
 
@@ -405,8 +405,8 @@ extern void GL3_SetDefaultState(void);
 extern int registration_sequence;
 extern void GL3_Mod_Init(void);
 extern void GL3_Mod_FreeAll(void);
-extern void GL3_BeginRegistration(char *model);
-extern struct model_s * GL3_RegisterModel(char *name);
+extern void GL3_BeginRegistration(const char *model);
+extern struct model_s * GL3_RegisterModel(const char *name);
 extern void GL3_EndRegistration(void);
 extern void GL3_Mod_Modellist_f(void);
 extern const byte* GL3_Mod_ClusterPVS(int cluster, const gl3model_t *model);
@@ -417,15 +417,17 @@ extern void GL3_Draw_ShutdownLocal(void);
 extern gl3image_t * GL3_Draw_FindPic(const char *name);
 extern void GL3_Draw_GetPicSize(int *w, int *h, const char *pic);
 
-extern void GL3_Draw_PicScaled(int x, int y, const char *pic, float factor);
+extern void GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
 extern void GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void GL3_Draw_CharScaled(int x, int y, int num, float scale);
+extern void GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 extern void GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic);
 extern void GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4]);
 extern void GL3_Draw_Fill(int x, int y, int w, int h, int c);
 extern void GL3_Draw_FadeScreen(void);
 extern void GL3_Draw_Flash(const float color[4], float x, float y, float w, float h);
 extern void GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
+extern void GL3_Draw_FreeLocal(void);
 
 // gl3_image.c
 
@@ -454,31 +456,26 @@ extern void GL3_ImageList_f(void);
 
 // gl3_light.c
 extern int r_dlightframecount;
-extern void GL3_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
-	int r_dlightframecount);
 extern void GL3_PushDlights(void);
-extern void GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color);
 extern void GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride);
 
 // gl3_lightmap.c
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
-extern void GL3_LM_InitBlock(void);
-extern void GL3_LM_UploadBlock(void);
-extern qboolean GL3_LM_AllocBlock(int w, int h, int *x, int *y);
-extern void GL3_LM_BuildPolygonFromSurface(gl3model_t *currentmodel, msurface_t *fa);
-extern void GL3_LM_CreateSurfaceLightmap(msurface_t *surf);
-extern void GL3_LM_BeginBuildingLightmaps(gl3model_t *m);
-extern void GL3_LM_EndBuildingLightmaps(void);
+extern void LM_InitBlock(void);
+extern void LM_UploadBlock(void);
+extern qboolean LM_AllocBlock(int w, int h, int *x, int *y);
+extern void LM_CreateLightmapsPoligon(gl3model_t *currentmodel, msurface_t *fa);
+extern void LM_BeginBuildingLightmaps(gl3model_t *m);
+extern void LM_EndBuildingLightmaps(void);
 
 // gl3_warp.c
 extern void GL3_EmitWaterPolys(msurface_t *fa);
-extern void GL3_SubdivideSurface(msurface_t *fa, gl3model_t* loadmodel);
 
-extern void GL3_SetSky(const char *name, float rotate, vec3_t axis);
+extern void GL3_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 extern void GL3_DrawSkyBox(void);
-extern void GL3_ClearSkyBox(void);
-extern void GL3_AddSkySurface(msurface_t *fa);
+extern void RE_ClearSkyBox(void);
+extern void RE_AddSkySurface(msurface_t *fa);
 
 
 // gl3_surf.c
@@ -511,6 +508,7 @@ extern void GL3_UpdateUBOLights(void);
 // ############ Cvars ###########
 
 extern cvar_t *gl_msaa_samples;
+extern cvar_t *gl_version_override;
 extern cvar_t *r_vsync;
 extern cvar_t *r_retexturing;
 extern cvar_t *r_scale8bittextures;
@@ -521,7 +519,7 @@ extern cvar_t *r_customheight;
 
 extern cvar_t *r_2D_unfiltered;
 extern cvar_t *r_videos_unfiltered;
-extern cvar_t *gl_nolerp_list;
+extern cvar_t *r_nolerp_list;
 extern cvar_t *r_lerp_list;
 extern cvar_t *gl_nobind;
 extern cvar_t *r_lockpvs;
@@ -554,6 +552,7 @@ extern cvar_t *r_modulate;
 extern cvar_t *gl_lightmap;
 extern cvar_t *gl_shadows;
 extern cvar_t *r_fixsurfsky;
+extern cvar_t *r_ttffont;
 extern cvar_t *r_palettedtexture;
 extern cvar_t *r_validation;
 

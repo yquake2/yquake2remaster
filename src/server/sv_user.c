@@ -30,7 +30,7 @@
 
 edict_t *sv_player;
 
-void
+static void
 SV_BeginDemoserver(void)
 {
 	char name[MAX_OSPATH];
@@ -44,11 +44,26 @@ SV_BeginDemoserver(void)
 	}
 }
 
+int
+SV_GetRecomendedProtocol(void)
+{
+	if (ge->apiversion == GAME_API_R97_VERSION)
+	{
+		/* backward compatibility */
+		return PROTOCOL_R97_VERSION;
+	}
+	else
+	{
+		return PROTOCOL_VERSION;
+	}
+
+}
+
 /*
  * Sends the first message from the server to a connected client.
  * This will be sent on the initial connection and upon each server load.
  */
-void
+static void
 SV_New_f(void)
 {
 	static char *gamedir;
@@ -75,8 +90,9 @@ SV_New_f(void)
 	gamedir = (char *)Cvar_VariableString("gamedir");
 
 	/* send the serverdata */
+	sv_client->protocol = SV_GetRecomendedProtocol();
 	MSG_WriteByte(&sv_client->netchan.message, svc_serverdata);
-	MSG_WriteLong(&sv_client->netchan.message, PROTOCOL_VERSION);
+	MSG_WriteLong(&sv_client->netchan.message, sv_client->protocol);
 	MSG_WriteLong(&sv_client->netchan.message, svs.spawncount);
 	MSG_WriteByte(&sv_client->netchan.message, sv.attractloop);
 	MSG_WriteString(&sv_client->netchan.message, gamedir);
@@ -111,7 +127,7 @@ SV_New_f(void)
 	}
 }
 
-void
+static void
 SV_Configstrings_f(void)
 {
 	int start;
@@ -141,7 +157,9 @@ SV_Configstrings_f(void)
 		if (sv.configstrings[start][0])
 		{
 			MSG_WriteByte(&sv_client->netchan.message, svc_configstring);
-			MSG_WriteShort(&sv_client->netchan.message, start);
+			/* start in native server range */
+			MSG_WriteShort(&sv_client->netchan.message,
+					P_ConvertConfigStringTo(start, sv_client->protocol));
 			MSG_WriteString(&sv_client->netchan.message,
 					sv.configstrings[start]);
 		}
@@ -164,12 +182,11 @@ SV_Configstrings_f(void)
 	}
 }
 
-void
+static void
 SV_Baselines_f(void)
 {
 	int start;
-	entity_state_t nullstate;
-	entity_state_t *base;
+	entity_xstate_t nullstate;
 
 	Com_DPrintf("Baselines() from %s\n", sv_client->name);
 
@@ -194,6 +211,8 @@ SV_Baselines_f(void)
 	while (sv_client->netchan.message.cursize < MAX_MSGLEN / 2 &&
 		   start < MAX_EDICTS)
 	{
+		entity_xstate_t *base;
+
 		base = &sv.baselines[start];
 
 		if (base->modelindex || base->sound || base->effects)
@@ -201,7 +220,7 @@ SV_Baselines_f(void)
 			MSG_WriteByte(&sv_client->netchan.message, svc_spawnbaseline);
 			MSG_WriteDeltaEntity(&nullstate, base,
 					&sv_client->netchan.message,
-					true, true);
+					true, true, sv_client->protocol);
 		}
 
 		start++;
@@ -222,7 +241,7 @@ SV_Baselines_f(void)
 	}
 }
 
-void
+static void
 SV_Begin_f(void)
 {
 	Com_DPrintf("Begin() from %s\n", sv_client->name);
@@ -243,7 +262,7 @@ SV_Begin_f(void)
 	Cbuf_InsertFromDefer();
 }
 
-void
+static void
 SV_NextDownload_f(void)
 {
 	int r;
@@ -287,7 +306,7 @@ SV_NextDownload_f(void)
 	sv_client->download = NULL;
 }
 
-void
+static void
 SV_BeginDownload_f(void)
 {
 	char *name;
@@ -366,7 +385,7 @@ SV_BeginDownload_f(void)
 /*
  * The client is going to disconnect, so remove the connection immediately
  */
-void
+static void
 SV_Disconnect_f(void)
 {
 	SV_DropClient(sv_client);
@@ -375,7 +394,7 @@ SV_Disconnect_f(void)
 /*
  * Dumps the serverinfo info string
  */
-void
+static void
 SV_ShowServerinfo_f(void)
 {
 	Info_Print(Cvar_Serverinfo());
@@ -413,7 +432,7 @@ SV_Nextserver(void)
  * A cinematic has completed or been aborted by a client, so move
  * to the next server,
  */
-void
+static void
 SV_Nextserver_f(void)
 {
 	if ((int)strtol(Cmd_Argv(1), (char **)NULL, 10) != svs.spawncount)
@@ -477,9 +496,8 @@ SV_ExecuteUserCommand(char *s)
 	}
 }
 
-void
+static void
 SV_ClientThink(client_t *cl, usercmd_t *cmd)
-
 {
 	cl->commandMsec -= cmd->msec;
 

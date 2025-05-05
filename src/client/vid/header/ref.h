@@ -68,6 +68,8 @@ typedef struct entity_s {
 	/* misc */
 	float	backlerp; /* 0.0 = current, 1.0 = old */
 	int		skinnum; /* also used as RF_BEAM's palette index */
+	vec3_t	scale; /* model scale before render */
+	unsigned	rr_mesh; /* disabled meshes */
 
 	int		lightstyle; /* for flashing entities */
 	float	alpha; /* ignore if RF_TRANSLUCENT isn't set */
@@ -84,7 +86,7 @@ typedef struct {
 
 typedef struct {
 	vec3_t	origin;
-	int		color;
+	unsigned	color;
 	float	alpha;
 } particle_t;
 
@@ -183,11 +185,11 @@ typedef struct
 	// are flood filled to eliminate mip map edge errors, and pics have
 	// an implicit "pics/" prepended to the name. (a pic name that starts with a
 	// slash will not use the "pics/" prefix or the ".pcx" postfix)
-	void	(EXPORT *BeginRegistration) (char *map);
-	struct model_s * (EXPORT *RegisterModel) (char *name);
+	void	(EXPORT *BeginRegistration) (const char *map);
+	struct model_s * (EXPORT *RegisterModel) (const char *name);
 	struct image_s * (EXPORT *RegisterSkin) (const char *name);
 
-	void	(EXPORT *SetSky) (const char *name, float rotate, vec3_t axis);
+	void	(EXPORT *SetSky) (const char *name, float rotate, int autorotate, const vec3_t axis);
 	void	(EXPORT *EndRegistration) (void);
 
 	void	(EXPORT *RenderFrame) (refdef_t *fd);
@@ -195,9 +197,10 @@ typedef struct
 	struct image_s * (EXPORT *DrawFindPic)(const char *name);
 
 	void	(EXPORT *DrawGetPicSize) (int *w, int *h, const char *name);	// will return 0 0 if not found
-	void 	(EXPORT *DrawPicScaled) (int x, int y, const char *pic, float factor);
+	void 	(EXPORT *DrawPicScaled) (int x, int y, const char *pic, float factor, const char *alttext);
 	void	(EXPORT *DrawStretchPic) (int x, int y, int w, int h, const char *name);
 	void	(EXPORT *DrawCharScaled)(int x, int y, int num, float scale);
+	void	(EXPORT *DrawStringScaled)(int x, int y, float scale, qboolean alt, const char *message);
 	void	(EXPORT *DrawTileClear) (int x, int y, int w, int h, const char *name);
 	void	(EXPORT *DrawFill) (int x, int y, int w, int h, int c);
 	void	(EXPORT *DrawFadeScreen) (void);
@@ -223,8 +226,8 @@ typedef struct
 {
 	YQ2_ATTR_NORETURN_FUNCPTR void	(IMPORT *Sys_Error) (int err_level, const char *str, ...) PRINTF_ATTR(2, 3);
 
-	void	(IMPORT *Cmd_AddCommand) (char *name, void(*cmd)(void));
-	void	(IMPORT *Cmd_RemoveCommand) (char *name);
+	void	(IMPORT *Cmd_AddCommand) (const char *name, void(*cmd)(void));
+	void	(IMPORT *Cmd_RemoveCommand) (const char *name);
 	int		(IMPORT *Cmd_Argc) (void);
 	char	*(IMPORT *Cmd_Argv) (int i);
 	void	(IMPORT *Cmd_ExecuteText) (int exec_when, char *text);
@@ -238,10 +241,11 @@ typedef struct
 	// NULL can be passed for buf to just determine existance
 	int		(IMPORT *FS_LoadFile) (const char *name, void **buf);
 	void	(IMPORT *FS_FreeFile) (void *buf);
+	void	*(IMPORT *FS_AllocFile) (int size);
 
 	// gamedir will be the current directory that generated
 	// files should be stored to, ie: "f:\quake\id1"
-	char	*(IMPORT *FS_Gamedir) (void);
+	const char	*(IMPORT *FS_Gamedir) (void);
 
 	cvar_t	*(IMPORT *Cvar_Get) (const char *name, const char *value, int flags);
 	cvar_t	*(IMPORT *Cvar_Set) (const char *name, const char *value);
@@ -252,11 +256,19 @@ typedef struct
 	// called with image data of width*height pixel which comp bytes per pixel (must be 3 or 4 for RGB or RGBA)
 	// expects the pixels data to be row-wise, starting at top left
 	void		(IMPORT *Vid_WriteScreenshot)( int width, int height, int comp, const void* data );
+	/* load image from file */
+	void		(IMPORT *VID_ImageDecode)( const char *filename, byte **pic, byte **palette,
+				int *width, int *height, int *bitsPerPixel);
+	void		(IMPORT *VID_GetPalette)(byte **colormap, unsigned *d_8to24table);
+	void		(IMPORT *VID_GetPalette24to8)(const byte *d_8to24table, byte** d_16to8table);
 
 	qboolean	(IMPORT *GLimp_InitGraphics)(int fullscreen, int *pwidth, int *pheight);
 	qboolean	(IMPORT *GLimp_GetDesktopMode)(int *pwidth, int *pheight);
 
 	void		(IMPORT *Vid_RequestRestart)(ref_restart_t rs);
+
+	/* Rerelease: Get file from cache/converted */
+	int (IMPORT *Mod_LoadFile)(const char *path, void **buffer);
 } refimport_t;
 
 // this is the only function actually exported at the linker level
@@ -269,11 +281,11 @@ extern refimport_t ri;
 /*
  * Refresh API
  */
-void R_BeginRegistration(char *map);
+void R_BeginRegistration(const char *map);
 void R_Clear(void);
-struct model_s *R_RegisterModel(char *name);
+struct model_s *R_RegisterModel(const char *name);
 struct image_s *R_RegisterSkin(const char *name);
-void R_SetSky(const char *name, float rotate, vec3_t axis);
+void R_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 void R_EndRegistration(void);
 struct image_s *Draw_FindPic(const char *name);
 void R_RenderFrame(refdef_t *fd);
@@ -281,14 +293,14 @@ void Draw_GetPicSize(int *w, int *h, const char *name);
 
 void Draw_StretchPic(int x, int y, int w, int h, const char *name);
 void Draw_PicScaled(int x, int y, const char *pic, float factor);
+void Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *alttext);
 
 void Draw_CharScaled(int x, int y, int num, float scale);
+void Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
 void Draw_TileClear(int x, int y, int w, int h, const char *name);
 void Draw_Fill(int x, int y, int w, int h, int c);
 void Draw_FadeScreen(void);
 void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
-//int R_Init(void *hinstance, void *hWnd);
-//void R_Shutdown(void);
 void R_SetPalette(const unsigned char *palette);
 void R_BeginFrame(float camera_separation);
 qboolean R_EndWorldRenderpass(void);

@@ -1,24 +1,23 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-
-// draw.c
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ */
 
 #include "header/local.h"
 
@@ -48,11 +47,7 @@ Draw_InitLocal
 void
 Draw_InitLocal (void)
 {
-	draw_chars = R_FindPic ("conchars", (findimage_t)R_FindImage);
-	if (!draw_chars)
-	{
-		ri.Sys_Error(ERR_FATAL, "%s: Couldn't load pics/conchars.pcx", __func__);
-	}
+	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
 }
 
 /*
@@ -67,10 +62,10 @@ smoothly scrolled off.
 void
 RE_Draw_CharScaled(int x, int y, int c, float scale)
 {
-	pixel_t	*dest;
-	byte	*source, *pic_pixels;
-	int	drawline;
-	int	row, col, v, iscale, sscale, width, height;
+	int	drawline, row, col, v, iscale, sscale, width, height;
+	const byte *source;
+	byte *pic_pixels;
+	pixel_t *dest;
 
 	iscale = (int) scale;
 
@@ -144,9 +139,9 @@ RE_Draw_GetPicSize
 =============
 */
 void
-RE_Draw_GetPicSize (int *w, int *h, const char *name)
+RE_Draw_GetPicSize(int *w, int *h, const char *name)
 {
-	image_t *image;
+	const image_t *image;
 
 	image = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!image)
@@ -154,6 +149,7 @@ RE_Draw_GetPicSize (int *w, int *h, const char *name)
 		*w = *h = -1;
 		return;
 	}
+
 	*w = image->asset_width;
 	*h = image->asset_height;
 }
@@ -232,11 +228,14 @@ RE_Draw_StretchPicImplementation (int x, int y, int w, int h, const image_t *pic
 					dest[u] = source[f>>16];
 					f += fstep;
 				}
+
 				if (picupscale > 1)
 				{
-					int i;
-					int pu = Q_min(height-v, picupscale);
-					pixel_t	*dest_orig = dest;
+					const pixel_t *dest_orig;
+					int pu, i;
+
+					pu = Q_min(height-v, picupscale);
+					dest_orig = dest;
 
 					// copy first line to fill whole sector
 					for (i=1; i < pu; i++)
@@ -304,7 +303,7 @@ RE_Draw_StretchPic
 void
 RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 {
-	image_t	*pic;
+	const image_t *pic;
 
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
@@ -312,6 +311,7 @@ RE_Draw_StretchPic (int x, int y, int w, int h, const char *name)
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", name);
 		return;
 	}
+
 	RE_Draw_StretchPicImplementation (x, y, w, h, pic);
 }
 
@@ -321,7 +321,7 @@ RE_Draw_StretchRaw
 =============
 */
 void
-RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
 	image_t	pic;
 	byte	*image_scaled;
@@ -368,9 +368,29 @@ RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	RE_Draw_StretchPicImplementation (x, y, w, h, &pic);
 
-	if (r_retexturing->value)
+	if (image_scaled != (byte *)data)
 	{
 		free(image_scaled);
+	}
+}
+
+void
+RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
+{
+	int xor;
+
+	xor = alt ? 0x80 : 0;
+
+	while (*message)
+	{
+		unsigned value = R_NextUTF8Code(&message);
+
+		if (value > ' ' && value < 128)
+		{
+			RE_Draw_CharScaled(x, y, value ^ xor, scale);
+		}
+
+		x += 8 * scale;
 	}
 }
 
@@ -380,13 +400,20 @@ Draw_Pic
 =============
 */
 void
-RE_Draw_PicScaled(int x, int y, const char *name, float scale)
+RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext)
 {
-	image_t		*pic;
+	const image_t *pic;
 
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			RE_Draw_StringScaled(x, y, scale, false, alttext);
+			return;
+		}
+
 		R_Printf(PRINT_ALL, "Can't find pic: %s\n", name);
 		return;
 	}
@@ -408,11 +435,10 @@ refresh window.
 void
 RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 {
-	int			i, j;
-	byte		*psrc;
-	pixel_t		*pdest;
-	image_t		*pic;
-	int			x2;
+	const byte *psrc;
+	pixel_t *pdest;
+	int i, j, x2;
+	image_t *pic;
 
 	if (x < 0)
 	{

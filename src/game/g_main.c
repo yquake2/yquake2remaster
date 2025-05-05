@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,12 +41,15 @@ edict_t *g_edicts;
 
 cvar_t *deathmatch;
 cvar_t *coop;
+cvar_t *coop_baseq2;	/* treat spawnflags according to baseq2 rules */
 cvar_t *coop_pickup_weapons;
 cvar_t *coop_elevator_delay;
 cvar_t *dmflags;
 cvar_t *skill;
 cvar_t *fraglimit;
 cvar_t *timelimit;
+cvar_t *capturelimit;
+cvar_t *instantweap;
 cvar_t *password;
 cvar_t *spectator_password;
 cvar_t *needpass;
@@ -83,60 +87,40 @@ cvar_t *flood_persecond;
 cvar_t *flood_waitdelay;
 
 cvar_t *sv_maplist;
+cvar_t *sv_stopspeed;
 
 cvar_t *gib_on;
+cvar_t *g_showlogic;
+cvar_t *gamerules;
+cvar_t *huntercam;
+cvar_t *strong_mines;
+cvar_t *randomrespawn;
+
+cvar_t *g_disruptor;
 
 cvar_t *aimfix;
 cvar_t *g_machinegun_norecoil;
 cvar_t *g_quick_weap;
 cvar_t *g_swap_speed;
+cvar_t *g_language;
+cvar_t *g_itemsbobeffect;
+cvar_t *g_start_items;
+cvar_t *ai_model_scale;
+cvar_t *g_game;
 
-void G_RunFrame(void);
+static void G_RunFrame(void);
 
 /* =================================================================== */
 
-void
+static void
 ShutdownGame(void)
 {
 	gi.dprintf("==== ShutdownGame ====\n");
 
 	gi.FreeTags(TAG_LEVEL);
 	gi.FreeTags(TAG_GAME);
-}
-
-/*
- * convert function declarations to correct one
- * (warning like from incompatible pointer type)
- * little bit better than cast function before set
- */
-static void
-ReadLevel_f(char *filename)
-{
-	ReadLevel(filename);
-}
-
-static void
-WriteLevel_f(char *filename)
-{
-	WriteLevel(filename);
-}
-
-static void
-ReadGame_f(char *filename)
-{
-	ReadGame(filename);
-}
-
-static void
-WriteGame_f(char *filename, qboolean autosave)
-{
-	WriteGame(filename, autosave);
-}
-
-static void
-SpawnEntities_f(char *mapname, char *entities, char *spawnpoint)
-{
-	SpawnEntities(mapname, entities, spawnpoint);
+	SpawnFree();
+	LocalizationFree();
 }
 
 /*
@@ -152,12 +136,12 @@ GetGameAPI(game_import_t *import)
 	globals.apiversion = GAME_API_VERSION;
 	globals.Init = InitGame;
 	globals.Shutdown = ShutdownGame;
-	globals.SpawnEntities = SpawnEntities_f;
+	globals.SpawnEntities = SpawnEntities;
 
-	globals.WriteGame = WriteGame_f;
-	globals.ReadGame = ReadGame_f;
-	globals.WriteLevel = WriteLevel_f;
-	globals.ReadLevel = ReadLevel_f;
+	globals.WriteGame = WriteGame;
+	globals.ReadGame = ReadGame;
+	globals.WriteLevel = WriteLevel;
+	globals.ReadLevel = ReadLevel;
 
 	globals.ClientThink = ClientThink;
 	globals.ClientConnect = ClientConnect;
@@ -210,14 +194,14 @@ Com_Printf(const char *msg, ...)
 
 /* ====================================================================== */
 
-void
+static void
 ClientEndServerFrames(void)
 {
 	int i;
 	edict_t *ent;
 
 	/* calc the player views now that all
-	   pushing  and damage has been added */
+	   pushing and damage has been added */
 	for (i = 0; i < maxclients->value; i++)
 	{
 		ent = g_edicts + 1 + i;
@@ -234,7 +218,7 @@ ClientEndServerFrames(void)
 /*
  * Returns the created target changelevel
  */
-edict_t *
+static edict_t *
 CreateTargetChangeLevel(char *map)
 {
 	edict_t *ent;
@@ -265,6 +249,12 @@ EndDMLevel(void)
 	if ((int)dmflags->value & DF_SAME_LEVEL)
 	{
 		BeginIntermission(CreateTargetChangeLevel(level.mapname));
+		return;
+	}
+
+	if (*level.forcemap)
+	{
+		BeginIntermission(CreateTargetChangeLevel(level.forcemap));
 		return;
 	}
 
@@ -322,8 +312,10 @@ EndDMLevel(void)
 		ent = G_Find(NULL, FOFS(classname), "target_changelevel");
 
 		if (!ent)
-		{   /* the map designer didn't include a changelevel,
-			   so create a fake ent that goes back to the same level */
+		{
+			/* the map designer didn't include a changelevel,
+			   so create a fake ent that goes back to the same
+			   level */
 			BeginIntermission(CreateTargetChangeLevel(level.mapname));
 			return;
 		}
@@ -332,7 +324,7 @@ EndDMLevel(void)
 	}
 }
 
-void
+static void
 CheckNeedPass(void)
 {
 	int need;
@@ -376,6 +368,25 @@ CheckDMRules(void)
 		return;
 	}
 
+	if (gamerules && gamerules->value && DMGame.CheckDMRules)
+	{
+		if (DMGame.CheckDMRules())
+		{
+			return;
+		}
+	}
+
+	if (ctf->value && CTFCheckRules())
+	{
+		EndDMLevel();
+		return;
+	}
+
+	if (CTFInMatch())
+	{
+		return; /* no checking in match mode */
+	}
+
 	if (timelimit->value)
 	{
 		if (level.time >= timelimit->value * 60)
@@ -407,12 +418,24 @@ CheckDMRules(void)
 	}
 }
 
-void
+static void
 ExitLevel(void)
 {
 	int i;
 	edict_t *ent;
 	char command[256];
+
+	level.exitintermission = 0;
+	level.intermissiontime = 0;
+
+	if (CTFNextMap())
+	{
+		return;
+	}
+
+	//JABot[start] (Disconnect all bots before changing map)
+	BOT_RemoveBot("all");
+	//[end]
 
 	Com_sprintf(command, sizeof(command), "gamemap \"%s\"\n", level.changemap);
 	gi.AddCommandString(command);
@@ -444,7 +467,7 @@ ExitLevel(void)
 /*
  * Advances the world by 0.1 seconds
  */
-void
+static void
 G_RunFrame(void)
 {
 	int i;
@@ -498,7 +521,10 @@ G_RunFrame(void)
 		if ((i > 0) && (i <= maxclients->value))
 		{
 			ClientBeginServerFrame(ent);
-			continue;
+			//JABot[start]
+			if (!ent->ai)
+			//[end]
+				continue;
 		}
 
 		G_RunEntity(ent);
@@ -512,4 +538,8 @@ G_RunFrame(void)
 
 	/* build the playerstate_t structures for all players */
 	ClientEndServerFrames();
+
+	//JABot[start]
+	AITools_Frame();	//give think time to AI debug tools
+	//[end]
 }

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +29,11 @@
 
 #define MAXCHOICES 8
 
+static vec3_t VEC_UP = {0, -1, 0};
+static vec3_t MOVEDIR_UP = {0, 0, 1};
+static vec3_t VEC_DOWN = {0, -2, 0};
+static vec3_t MOVEDIR_DOWN = {0, 0, -1};
+
 void
 G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
 		vec3_t right, vec3_t result)
@@ -36,6 +42,18 @@ G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
 	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1];
 	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] +
 				distance[2];
+}
+
+void
+G_ProjectSource2(vec3_t point, vec3_t distance, vec3_t forward,
+		vec3_t right, vec3_t up, vec3_t result)
+{
+	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1] +
+				up[0] * distance[2];
+	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1] +
+				up[1] * distance[2];
+	result[2] = point[2] + forward[2] * distance[0] + right[2] * distance[1] +
+				up[2] * distance[2];
 }
 
 /*
@@ -52,6 +70,11 @@ G_Find(edict_t *from, int fieldofs, const char *match)
 {
 	char *s;
 
+	if (!match)
+	{
+		return NULL;
+	}
+
 	if (!from)
 	{
 		from = g_edicts;
@@ -59,11 +82,6 @@ G_Find(edict_t *from, int fieldofs, const char *match)
 	else
 	{
 		from++;
-	}
-
-	if (!match)
-	{
-		return NULL;
 	}
 
 	for ( ; from < &g_edicts[globals.num_edicts]; from++)
@@ -124,6 +142,63 @@ findradius(edict_t *from, vec3_t org, float rad)
 		{
 			eorg[j] = org[j] - (from->s.origin[j] +
 					   (from->mins[j] + from->maxs[j]) * 0.5);
+		}
+
+		if (VectorLength(eorg) > rad)
+		{
+			continue;
+		}
+
+		return from;
+	}
+
+	return NULL;
+}
+
+/*
+ * Returns entities that have origins within a spherical area
+ */
+edict_t *
+findradius2(edict_t *from, vec3_t org, float rad)
+{
+	/* rad must be positive */
+	vec3_t eorg;
+	int j;
+
+	if (!from)
+	{
+		from = g_edicts;
+	}
+	else
+	{
+		from++;
+	}
+
+	for ( ; from < &g_edicts[globals.num_edicts]; from++)
+	{
+		if (!from->inuse)
+		{
+			continue;
+		}
+
+		if (from->solid == SOLID_NOT)
+		{
+			continue;
+		}
+
+		if (!from->takedamage)
+		{
+			continue;
+		}
+
+		if (!(from->svflags & SVF_DAMAGEABLE))
+		{
+			continue;
+		}
+
+		for (j = 0; j < 3; j++)
+		{
+			eorg[j] = org[j] - (from->s.origin[j] + (from->mins[j] + from->maxs[j]) * 0.5);
 		}
 
 		if (VectorLength(eorg) > rad)
@@ -215,6 +290,7 @@ void
 G_UseTargets(edict_t *ent, edict_t *activator)
 {
 	edict_t *t;
+	edict_t *master;
 
 	if (!ent)
 	{
@@ -245,17 +321,19 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 	/* print the message */
 	if (activator && (ent->message) && !(activator->svflags & SVF_MONSTER))
 	{
-		gi.centerprintf(activator, "%s", ent->message);
+		int sound_index;
 
 		if (ent->noise_index)
 		{
-			gi.sound(activator, CHAN_AUTO, ent->noise_index, 1, ATTN_NORM, 0);
+			sound_index = ent->noise_index;
 		}
 		else
 		{
-			gi.sound(activator, CHAN_AUTO, gi.soundindex(
-							"misc/talk1.wav"), 1, ATTN_NORM, 0);
+			sound_index = gi.soundindex("misc/talk1.wav");
 		}
+
+		gi.centerprintf(activator, "%s", LocalizationMessage(ent->message, &sound_index));
+		gi.sound(activator, CHAN_AUTO, sound_index, 1, ATTN_NORM, 0);
 	}
 
 	/* kill killtargets */
@@ -270,6 +348,7 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 			{
 				level.total_secrets--;
 			}
+
 			/* same deal with target_goal, but also turn off CD music if applicable */
 			else if (!Q_stricmp(t->classname,"target_goal"))
 			{
@@ -279,6 +358,30 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 				{
 					gi.configstring (CS_CDTRACK, "0");
 				}
+			}
+
+			/* if this entity is part of a train, cleanly remove it */
+			if (t->flags & FL_TEAMSLAVE)
+			{
+				master = t->teammaster;
+
+				while (master)
+				{
+					if (master->teamchain == t)
+					{
+						master->teamchain = t->teamchain;
+						break;
+					}
+
+					master = master->teamchain;
+				}
+			}
+
+			/* correct killcounter if a living monster gets killtargeted */
+			if ((t->monsterinfo.checkattack || strcmp (t->classname, "turret_driver") == 0) &&
+				!(t->monsterinfo.aiflags & (AI_GOOD_GUY|AI_DO_NOT_COUNT)) && t->deadflag != DEAD_DEAD)
+			{
+				level.killed_monsters++;
 			}
 
 			G_FreeEdict(t);
@@ -308,7 +411,7 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 
 			if (t == ent)
 			{
-				gi.dprintf("WARNING: Entity used itself.\n");
+				gi.dprintf ("WARNING: %s used itself.\n", t->classname);
 			}
 			else
 			{
@@ -371,10 +474,18 @@ vtos(vec3_t v)
 	return s;
 }
 
-static vec3_t VEC_UP = {0, -1, 0};
-static vec3_t MOVEDIR_UP = {0, 0, 1};
-static vec3_t VEC_DOWN = {0, -2, 0};
-static vec3_t MOVEDIR_DOWN = {0, 0, -1};
+void
+get_normal_vector(const cplane_t *p, vec3_t normal)
+{
+	if (p)
+	{
+		VectorCopy(p->normal, normal);
+	}
+	else
+	{
+		VectorCopy(vec3_origin, normal);
+	}
+}
 
 void
 G_SetMovedir(vec3_t angles, vec3_t movedir)
@@ -416,6 +527,39 @@ vectoyaw(vec3_t vec)
 	else
 	{
 		yaw = (int)(atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
+
+		if (yaw < 0)
+		{
+			yaw += 360;
+		}
+	}
+
+	return yaw;
+}
+
+float
+vectoyaw2(vec3_t vec)
+{
+	float yaw;
+
+	if (vec[PITCH] == 0)
+	{
+		if (vec[YAW] == 0)
+		{
+			yaw = 0;
+		}
+		else if (vec[YAW] > 0)
+		{
+			yaw = 90;
+		}
+		else
+		{
+			yaw = 270;
+		}
+	}
+	else
+	{
+		yaw = (atan2(vec[YAW], vec[PITCH]) * 180 / M_PI);
 
 		if (yaw < 0)
 		{
@@ -479,10 +623,68 @@ vectoangles(vec3_t value1, vec3_t angles)
 	angles[ROLL] = 0;
 }
 
+void
+vectoangles2(vec3_t value1, vec3_t angles)
+{
+	float forward;
+	float yaw, pitch;
+
+	if ((value1[1] == 0) && (value1[0] == 0))
+	{
+		yaw = 0;
+
+		if (value1[2] > 0)
+		{
+			pitch = 90;
+		}
+		else
+		{
+			pitch = 270;
+		}
+	}
+	else
+	{
+		if (value1[0])
+		{
+			yaw = (atan2(value1[1], value1[0]) * 180 / M_PI);
+		}
+		else if (value1[1] > 0)
+		{
+			yaw = 90;
+		}
+		else
+		{
+			yaw = 270;
+		}
+
+		if (yaw < 0)
+		{
+			yaw += 360;
+		}
+
+		forward = sqrt(value1[0] * value1[0] + value1[1] * value1[1]);
+		pitch = (atan2(value1[2], forward) * 180 / M_PI);
+
+		if (pitch < 0)
+		{
+			pitch += 360;
+		}
+	}
+
+	angles[PITCH] = -pitch;
+	angles[YAW] = yaw;
+	angles[ROLL] = 0;
+}
+
 char *
 G_CopyString(char *in)
 {
 	char *out;
+
+	if (!in)
+	{
+		return NULL;
+	}
 
 	out = gi.TagMalloc(strlen(in) + 1, TAG_LEVEL);
 	strcpy(out, in);
@@ -492,10 +694,26 @@ G_CopyString(char *in)
 void
 G_InitEdict(edict_t *e)
 {
+	if (!e)
+	{
+		return;
+	}
+
+	if (e->nextthink)
+	{
+		e->nextthink = 0;
+	}
+
 	e->inuse = true;
 	e->classname = "noclass";
 	e->gravity = 1.0;
 	e->s.number = e - g_edicts;
+
+	e->gravityVector[0] = 0.0;
+	e->gravityVector[1] = 0.0;
+	e->gravityVector[2] = -1.0;
+
+	VectorSet(e->rrs.scale, 1.0, 1.0, 1.0);
 }
 
 /*
@@ -522,7 +740,7 @@ G_FindFreeEdict(int policy)
 		*/
 		if (!e->inuse && (policy == POLICY_DESPERATE || e->freetime < 2.0f || (level.time - e->freetime) > 0.5f))
 		{
-			G_InitEdict (e);
+			G_InitEdict(e);
 			return e;
 		}
 	}
@@ -546,7 +764,7 @@ G_SpawnOptional(void)
 	}
 
 	e = &g_edicts[globals.num_edicts++];
-	G_InitEdict (e);
+	G_InitEdict(e);
 
 	return e;
 }
@@ -557,7 +775,9 @@ G_Spawn(void)
 	edict_t *e = G_SpawnOptional();
 
 	if (!e)
-		gi.error ("ED_Alloc: no free edicts");
+	{
+		gi.error("%s: no free edicts", __func__);
+	}
 
 	return e;
 }
@@ -568,6 +788,11 @@ G_Spawn(void)
 void
 G_FreeEdict(edict_t *ed)
 {
+	if (!ed)
+	{
+		return;
+	}
+
 	gi.unlinkentity(ed); /* unlink from world */
 
 	if (deathmatch->value || coop->value)
@@ -673,6 +898,14 @@ G_TouchSolids(edict_t *ent)
 		}
 	}
 }
+
+/*
+ * ==============================================================================
+ *
+ * Kill box
+ *
+ * ==============================================================================
+ */
 
 /*
  * Kills all entities that would touch the

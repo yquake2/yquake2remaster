@@ -47,23 +47,24 @@ typedef struct
 	cplane_t groundplane;
 	int groundcontents;
 
-	vec3_t previous_origin;
+	int previous_origin[3];
+	int current_origin[3];
 	qboolean ladder;
 } pml_t;
 
-pmove_t *pm;
-pml_t pml;
+static pmove_t *pm;
+static pml_t pml;
 
 /* movement parameters */
-float pm_stopspeed = 100;
-float pm_maxspeed = 300;
-float pm_duckspeed = 100;
-float pm_accelerate = 10;
+static float pm_stopspeed = 100;
+static float pm_maxspeed = 300;
+static float pm_duckspeed = 100;
+static float pm_accelerate = 10;
 float pm_airaccelerate = 0;
-float pm_wateraccelerate = 10;
-float pm_friction = 6;
-float pm_waterfriction = 1;
-float pm_waterspeed = 400;
+static float pm_wateraccelerate = 10;
+static float pm_friction = 6;
+static float pm_waterfriction = 1;
+static float pm_waterspeed = 400;
 
 #define STOP_EPSILON 0.1 /* Slide off of the impacting object returns the blocked flags (1 = floor, 2 = step / wall) */
 #define MIN_STEP_NORMAL 0.7 /* can't step up onto very steep slopes */
@@ -101,14 +102,9 @@ static void
 PM_StepSlideMove_(void)
 {
 	int bumpcount, numbumps;
-	vec3_t dir;
-	float d;
 	int numplanes;
 	vec3_t planes[MAX_CLIP_PLANES];
 	vec3_t primal_velocity;
-	int i, j;
-	trace_t trace;
-	vec3_t end;
 	float time_left;
 
 	numbumps = 4;
@@ -120,6 +116,11 @@ PM_StepSlideMove_(void)
 
 	for (bumpcount = 0; bumpcount < numbumps; bumpcount++)
 	{
+		vec3_t end, dir;
+		trace_t trace;
+		int i, j;
+		float d;
+
 		for (i = 0; i < 3; i++)
 		{
 			end[i] = pml.origin[i] + time_left * pml.velocity[i];
@@ -290,7 +291,6 @@ PM_Friction(void)
 {
 	float *vel;
 	float speed, newspeed, control;
-	float friction;
 	float drop;
 
 	vel = pml.velocity;
@@ -310,9 +310,8 @@ PM_Friction(void)
 	if ((pm->groundentity && pml.groundsurface &&
 		 !(pml.groundsurface->flags & SURF_SLICK)) || (pml.ladder))
 	{
-		friction = pm_friction;
 		control = speed < pm_stopspeed ? pm_stopspeed : speed;
-		drop += control * friction * pml.frametime;
+		drop += control * pm_friction * pml.frametime;
 	}
 
 	/* apply water friction */
@@ -1126,7 +1125,7 @@ PM_GoodPosition(void)
 
 	for (i = 0; i < 3; i++)
 	{
-		origin[i] = end[i] = pm->s.origin[i] * 0.125f;
+		origin[i] = end[i] = pml.current_origin[i] * 0.125f;
 	}
 
 	trace = pm->trace(origin, pm->mins, pm->maxs, end);
@@ -1141,11 +1140,9 @@ PM_GoodPosition(void)
 static void
 PM_SnapPosition(void)
 {
-	int sign[3];
-	int i, j, bits;
-	short base[3];
 	/* try all single bits first */
-	static int jitterbits[8] = {0, 4, 1, 2, 3, 5, 6, 7};
+	static const int jitterbits[8] = {0, 4, 1, 2, 3, 5, 6, 7};
+	int base[3], sign[3], i, j;
 
 	/* snap velocity to eigths */
 	for (i = 0; i < 3; i++)
@@ -1164,27 +1161,29 @@ PM_SnapPosition(void)
 			sign[i] = -1;
 		}
 
-		pm->s.origin[i] = (int)(pml.origin[i] * 8);
+		pml.current_origin[i] = (int)(pml.origin[i] * 8);
 
-		if (pm->s.origin[i] * 0.125f == pml.origin[i])
+		if (pml.current_origin[i] * 0.125f == pml.origin[i])
 		{
 			sign[i] = 0;
 		}
 	}
 
-	VectorCopy(pm->s.origin, base);
+	VectorCopy(pml.current_origin, base);
 
 	/* try all combinations */
 	for (j = 0; j < 8; j++)
 	{
+		int bits;
+
 		bits = jitterbits[j];
-		VectorCopy(base, pm->s.origin);
+		VectorCopy(base, pml.current_origin);
 
 		for (i = 0; i < 3; i++)
 		{
 			if (bits & (1 << i))
 			{
-				pm->s.origin[i] += sign[i];
+				pml.current_origin[i] += sign[i];
 			}
 		}
 
@@ -1195,36 +1194,39 @@ PM_SnapPosition(void)
 	}
 
 	/* go back to the last position */
-	VectorCopy(pml.previous_origin, pm->s.origin);
+	VectorCopy(pml.previous_origin, pml.current_origin);
 }
 
 static void
 PM_InitialSnapPosition(void)
 {
-	int x, y, z;
-	short base[3];
-	static int offset[3] = {0, -1, 1};
+	static const int offset[3] = {0, -1, 1};
+	int base[3], z;
 
-	VectorCopy(pm->s.origin, base);
+	VectorCopy(pml.current_origin, base);
 
 	for (z = 0; z < 3; z++)
 	{
-		pm->s.origin[2] = base[2] + offset[z];
+		int y;
+
+		pml.current_origin[2] = base[2] + offset[z];
 
 		for (y = 0; y < 3; y++)
 		{
-			pm->s.origin[1] = base[1] + offset[y];
+			int x;
+
+			pml.current_origin[1] = base[1] + offset[y];
 
 			for (x = 0; x < 3; x++)
 			{
-				pm->s.origin[0] = base[0] + offset[x];
+				pml.current_origin[0] = base[0] + offset[x];
 
 				if (PM_GoodPosition())
 				{
-					pml.origin[0] = pm->s.origin[0] * 0.125f;
-					pml.origin[1] = pm->s.origin[1] * 0.125f;
-					pml.origin[2] = pm->s.origin[2] * 0.125f;
-					VectorCopy(pm->s.origin, pml.previous_origin);
+					pml.origin[0] = pml.current_origin[0] * 0.125f;
+					pml.origin[1] = pml.current_origin[1] * 0.125f;
+					pml.origin[2] = pml.current_origin[2] * 0.125f;
+					VectorCopy(pml.current_origin, pml.previous_origin);
 					return;
 				}
 			}
@@ -1237,9 +1239,6 @@ PM_InitialSnapPosition(void)
 static void
 PM_ClampAngles(void)
 {
-	short temp;
-	int i;
-
 	if (pm->s.pm_flags & PMF_TIME_TELEPORT)
 	{
 		pm->viewangles[YAW] = SHORT2ANGLE(
@@ -1249,9 +1248,13 @@ PM_ClampAngles(void)
 	}
 	else
 	{
+		int i;
+
 		/* circularly clamp the angles with deltas */
 		for (i = 0; i < 3; i++)
 		{
+			short temp;
+
 			temp = pm->cmd.angles[i] + pm->s.delta_angles[i];
 			pm->viewangles[i] = SHORT2ANGLE(temp);
 		}
@@ -1275,17 +1278,24 @@ static void
 PM_CalculateViewHeightForDemo()
 {
 	if (pm->s.pm_type == PM_GIB)
+	{
 		pm->viewheight = 8;
-	else {
+	}
+	else
+	{
 		if ((pm->s.pm_flags & PMF_DUCKED) != 0)
+		{
 			pm->viewheight = -2;
+		}
 		else
+		{
 			pm->viewheight = 22;
+		}
 	}
 }
 
 static void
-PM_CalculateWaterLevelForDemo()
+PM_CalculateWaterLevelForDemo(void)
 {
 	vec3_t point;
 	int cont;
@@ -1299,7 +1309,8 @@ PM_CalculateWaterLevelForDemo()
 
 	cont = pm->pointcontents(point);
 
-	if ((cont & MASK_WATER) != 0) {
+	if ((cont & MASK_WATER) != 0)
+	{
 		pm->waterlevel = 3;
 		pm->watertype = cont;
 	}
@@ -1335,11 +1346,9 @@ PM_UpdateUnderwaterSfx()
 /*
  * Can be called by either the server or the client
  */
-void
-Pmove(pmove_t *pmove)
+static void
+Pmove_(void)
 {
-	pm = pmove;
-
 	/* clear results */
 	pm->numtouch = 0;
 	VectorClear(pm->viewangles);
@@ -1348,20 +1357,17 @@ Pmove(pmove_t *pmove)
 	pm->watertype = 0;
 	pm->waterlevel = 0;
 
-	/* clear all pmove local vars */
-	memset(&pml, 0, sizeof(pml));
-
 	/* convert origin and velocity to float values */
-	pml.origin[0] = pm->s.origin[0] * 0.125f;
-	pml.origin[1] = pm->s.origin[1] * 0.125f;
-	pml.origin[2] = pm->s.origin[2] * 0.125f;
+	pml.origin[0] = pml.current_origin[0] * 0.125f;
+	pml.origin[1] = pml.current_origin[1] * 0.125f;
+	pml.origin[2] = pml.current_origin[2] * 0.125f;
 
 	pml.velocity[0] = pm->s.velocity[0] * 0.125f;
 	pml.velocity[1] = pm->s.velocity[1] * 0.125f;
 	pml.velocity[2] = pm->s.velocity[2] * 0.125f;
 
 	/* save old org in case we get stuck */
-	VectorCopy(pm->s.origin, pml.previous_origin);
+	VectorCopy(pml.current_origin, pml.previous_origin);
 
 	pml.frametime = pm->cmd.msec * 0.001f;
 
@@ -1384,7 +1390,8 @@ Pmove(pmove_t *pmove)
 	if (pm->s.pm_type == PM_FREEZE)
 	{
 #if !defined(DEDICATED_ONLY)
-		if (cl.attractloop) {
+		if (cl.attractloop)
+		{
 			PM_CalculateViewHeightForDemo();
 			PM_CalculateWaterLevelForDemo();
 			PM_UpdateUnderwaterSfx();
@@ -1490,4 +1497,35 @@ Pmove(pmove_t *pmove)
 #endif
 
 	PM_SnapPosition();
+}
+
+/* Old version of pmove */
+void
+Pmove(pmove_t *pmove)
+{
+	pm = pmove;
+
+	/* clear all pmove local vars */
+	memset(&pml, 0, sizeof(pml));
+
+	/* 28.3 -> 12.3 coordiantes */
+	VectorCopy(pmove->s.origin, pml.current_origin);
+	Pmove_();
+	/* 28.3 -> 12.3 coordiantes */
+	VectorCopy(pml.current_origin, pmove->s.origin);
+}
+
+void
+PmoveEx(pmove_t *pmove, int *origin)
+{
+	pm = pmove;
+
+	/* clear all pmove local vars */
+	memset(&pml, 0, sizeof(pml));
+
+	/* 28.3 -> 12.3 coordiantes */
+	VectorCopy(origin, pml.current_origin);
+	Pmove_();
+	/* 28.3 -> 12.3 coordiantes */
+	VectorCopy(pml.current_origin, origin);
 }

@@ -60,8 +60,6 @@ static lightstyle_t r_lightstyles[MAX_LIGHTSTYLES];
 char cl_weaponmodels[MAX_CLIENTWEAPONMODELS][MAX_QPATH];
 int num_cl_weaponmodels;
 
-static void V_Render3dCrosshair(void);
-
 /*
  * Specifies the model that will be used as the world
  */
@@ -161,7 +159,8 @@ V_TestParticles(void)
 						   cl.v_right[j] * r + cl.v_up[j] * u;
 		}
 
-		p->color = 8;
+		/* grey */
+		p->color = 0xFF7B7B7B;
 		p->alpha = cl_testparticles->value;
 	}
 }
@@ -205,7 +204,7 @@ V_TestLights(void)
 {
 	int i;
 
-	r_numdlights = 32;
+	r_numdlights = MAX_DLIGHTS;
 	memset(r_dlights, 0, sizeof(r_dlights));
 
 	for (i = 0; i < r_numdlights; i++)
@@ -232,6 +231,84 @@ V_TestLights(void)
 	}
 }
 
+static void
+V_Listlights_f(void)
+{
+	int i;
+
+	Com_Printf("LigthStyle:\n");
+	for (i = 0; i < MAX_LIGHTSTYLES; i++)
+	{
+		lightstyle_t *ls;
+
+		ls = &r_lightstyles[i];
+
+		if (ls->white == 0)
+		{
+			continue;
+		}
+
+		Com_Printf("%d: rgb: (%.2f, %.2f, %.2f)\n",
+			i, ls->rgb[0], ls->rgb[1], ls->rgb[2]);
+	}
+
+	Com_Printf("DLigths:\n");
+	for (i = 0; i < r_numdlights; i++)
+	{
+		dlight_t *dl;
+
+		dl = &r_dlights[i];
+
+		Com_Printf("%d: intensity: %.2f rgb: (%.2f, %.2f, %.2f) origin: (%.2f, %.2f, %.2f)\n",
+			i, dl->intensity, dl->color[0], dl->color[1], dl->color[2],
+			dl->origin[0], dl->origin[1], dl->origin[2]
+		);
+	}
+
+	Com_Printf("DLigths: %d\n", r_numdlights);
+}
+
+/* time relative to */
+static int sec_start = 0;
+
+static void
+CL_PrintInSameLine(const char *message)
+{
+	char emptyline[80]; /* clear full 25x80 line*/
+	float scale;
+	int cols, linesize;
+
+	if (developer->value)
+	{
+		Com_Printf("%s: %.2fs:%s\n",
+			__func__, (Sys_Milliseconds() - sec_start) / 1000.0, message);
+		return;
+	}
+
+	scale = SCR_GetConsoleScale();
+	if (scale < 1)
+	{
+		scale = 1;
+	}
+
+	cols = viddef.width / (8 * scale) - 1;
+
+	if (cols > (sizeof(emptyline) - 1))
+	{
+		cols = sizeof(emptyline) - 1;
+	}
+
+	/* go to line start */
+	linesize = snprintf(emptyline, cols - 2, "\r%s", message);
+	/* fill all with spaces */
+	memset(emptyline + linesize, ' ', cols - linesize);
+	/* go to begin after print */
+	emptyline[cols - 1] = '\r';
+	emptyline[cols] = 0;
+
+	Com_Printf("%s", emptyline);
+}
+
 /*
  * Call before entering a new level, or after changing dlls
  */
@@ -241,7 +318,8 @@ CL_PrepRefresh(void)
 	char mapname[MAX_QPATH];
 	int i;
 	char name[MAX_QPATH];
-	float rotate;
+	float rotate = 0;
+	int autorotate = 1;
 	vec3_t axis;
 
 	if (!cl.configstrings[CS_MODELS + 1][0])
@@ -249,6 +327,7 @@ CL_PrepRefresh(void)
 		return;
 	}
 
+	sec_start = Sys_Milliseconds();
 	SCR_AddDirtyPoint(0, 0);
 	SCR_AddDirtyPoint(viddef.width - 1, viddef.height - 1);
 
@@ -257,34 +336,34 @@ CL_PrepRefresh(void)
 	mapname[strlen(mapname) - 4] = 0; /* cut off ".bsp" */
 
 	/* register models, pics, and skins */
-	Com_Printf("Map: %s\r", mapname);
+	Com_Printf("Map: %s\n", mapname);
 	SCR_UpdateScreen();
-	R_BeginRegistration (mapname);
-	Com_Printf("                                     \r");
+	CL_PrintInSameLine("Map is loading...");
+	R_BeginRegistration(mapname);
 
 	/* precache status bar pics */
-	Com_Printf("pics\r");
+	CL_PrintInSameLine("Pics");
 	SCR_UpdateScreen();
 	SCR_TouchPics();
-	Com_Printf("                                     \r");
+	CL_PrintInSameLine("Temporary models");
 
 	CL_RegisterTEntModels();
 
 	num_cl_weaponmodels = 1;
 	strcpy(cl_weaponmodels[0], "weapon.md2");
 
+	CL_PrintInSameLine("Models");
 	for (i = 1; i < MAX_MODELS && cl.configstrings[CS_MODELS + i][0]; i++)
 	{
 		strcpy(name, cl.configstrings[CS_MODELS + i]);
 		name[37] = 0; /* never go beyond one line */
 
-		if (name[0] != '*')
+		if (developer->value && name[0] != '*')
 		{
-			Com_Printf("%s\r", name);
+			CL_PrintInSameLine(name);
+			SCR_UpdateScreen();
+			IN_Update();
 		}
-
-		SCR_UpdateScreen();
-		IN_Update();
 
 		if (name[0] == '#')
 		{
@@ -311,23 +390,18 @@ CL_PrepRefresh(void)
 				cl.model_clip[i] = NULL;
 			}
 		}
-
-		if (name[0] != '*')
-		{
-			Com_Printf("                                     \r");
-		}
 	}
 
-	Com_Printf("images\r");
+	CL_PrintInSameLine("Images");
 	SCR_UpdateScreen();
+	IN_Update();
 
 	for (i = 1; i < MAX_IMAGES && cl.configstrings[CS_IMAGES + i][0]; i++)
 	{
 		cl.image_precache[i] = Draw_FindPic(cl.configstrings[CS_IMAGES + i]);
-		IN_Update();
 	}
 
-	Com_Printf("                                     \r");
+	CL_PrintInSameLine("Clients");
 
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -336,25 +410,29 @@ CL_PrepRefresh(void)
 			continue;
 		}
 
-		Com_Printf("client %i\r", i);
-		SCR_UpdateScreen();
-		IN_Update();
+		if (developer->value)
+		{
+			Com_Printf("Client %i\r", i);
+			SCR_UpdateScreen();
+			IN_Update();
+		}
+
 		CL_ParseClientinfo(i);
-		Com_Printf("                                     \r");
 	}
 
 	CL_LoadClientinfo(&cl.baseclientinfo, "unnamed\\male/grunt");
 
 	/* set sky textures and speed */
-	Com_Printf("sky\r");
+	CL_PrintInSameLine("Sky");
 	SCR_UpdateScreen();
-	rotate = (float)strtod(cl.configstrings[CS_SKYROTATE], (char **)NULL);
+	sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
 	sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
-	R_SetSky(cl.configstrings[CS_SKY], rotate, axis);
-	Com_Printf("                                     \r");
+	R_SetSky(cl.configstrings[CS_SKY], rotate, autorotate, axis);
+	CL_PrintInSameLine("Cleanup.....");
 
 	/* the renderer can now free unneeded stuff */
 	R_EndRegistration();
+	CL_PrintInSameLine("Map loaded.");
 
 	/* clear any lines of console text */
 	Con_ClearNotify();
@@ -435,6 +513,52 @@ entitycmpfnc(const entity_t *a, const entity_t *b)
 	else
 	{
 		return (a->model > b->model) ? 1 : -1;
+	}
+}
+
+static void
+V_Render3dCrosshair(void)
+{
+	trace_t crosshair_trace;
+	vec3_t end;
+
+	crosshair_3d = Cvar_Get("crosshair_3d", "0", CVAR_ARCHIVE);
+	crosshair_3d_glow = Cvar_Get("crosshair_3d_glow", "0", CVAR_ARCHIVE);
+
+
+	if(crosshair_3d->value || crosshair_3d_glow->value){
+		VectorMA(cl.refdef.vieworg, 8192, cl.v_forward,end);
+		crosshair_trace = CL_PMTrace(cl.refdef.vieworg, vec3_origin, vec3_origin, end);
+
+		if(crosshair_3d_glow->value){
+			crosshair_3d_glow_r = Cvar_Get("crosshair_3d_glow_r", "5", CVAR_ARCHIVE);
+			crosshair_3d_glow_g = Cvar_Get("crosshair_3d_glow_g", "1", CVAR_ARCHIVE);
+			crosshair_3d_glow_b = Cvar_Get("crosshair_3d_glow_b", "4", CVAR_ARCHIVE);
+
+			V_AddLight(
+				crosshair_trace.endpos,
+				crosshair_3d_glow->value,
+				crosshair_3d_glow_r->value,
+				crosshair_3d_glow_g->value,
+				crosshair_3d_glow_b->value
+			);
+		}
+
+		if(crosshair_3d->value){
+			entity_t crosshair_ent = {0};
+
+			crosshair_ent.origin[0] = crosshair_trace.endpos[0];
+			crosshair_ent.origin[1] = crosshair_trace.endpos[1];
+			crosshair_ent.origin[2] = crosshair_trace.endpos[2];
+
+			crosshair_ent.model = R_RegisterModel("models/crosshair/tris.md2");
+			//crosshair_ent.skin = R_RegisterSkin("models/crosshair/skin.pcx");
+
+			AngleVectors2(crosshair_trace.plane.normal, crosshair_ent.angles);
+			crosshair_ent.flags = RF_DEPTHHACK | RF_FULLBRIGHT | RF_NOSHADOW;
+
+			V_AddEntity(&crosshair_ent);
+		}
 	}
 }
 
@@ -601,52 +725,6 @@ V_RenderView(float stereo_separation)
 }
 
 static void
-V_Render3dCrosshair(void)
-{
-	trace_t crosshair_trace;
-	vec3_t end;
-
-	crosshair_3d = Cvar_Get("crosshair_3d", "0", CVAR_ARCHIVE);
-	crosshair_3d_glow = Cvar_Get("crosshair_3d_glow", "0", CVAR_ARCHIVE);
-
-
-	if(crosshair_3d->value || crosshair_3d_glow->value){
-		VectorMA(cl.refdef.vieworg,8192,cl.v_forward,end);
-		crosshair_trace = CL_PMTrace(cl.refdef.vieworg, vec3_origin, vec3_origin, end);
-
-		if(crosshair_3d_glow->value){
-			crosshair_3d_glow_r = Cvar_Get("crosshair_3d_glow_r", "5", CVAR_ARCHIVE);
-			crosshair_3d_glow_g = Cvar_Get("crosshair_3d_glow_g", "1", CVAR_ARCHIVE);
-			crosshair_3d_glow_b = Cvar_Get("crosshair_3d_glow_b", "4", CVAR_ARCHIVE);
-
-			V_AddLight(
-				crosshair_trace.endpos,
-				crosshair_3d_glow->value,
-				crosshair_3d_glow_r->value,
-				crosshair_3d_glow_g->value,
-				crosshair_3d_glow_b->value
-			);
-		}
-
-		if(crosshair_3d->value){
-			entity_t crosshair_ent = {0};
-
-			crosshair_ent.origin[0] = crosshair_trace.endpos[0];
-			crosshair_ent.origin[1] = crosshair_trace.endpos[1];
-			crosshair_ent.origin[2] = crosshair_trace.endpos[2];
-
-			crosshair_ent.model = R_RegisterModel("models/crosshair/tris.md2");
-			//crosshair_ent.skin = R_RegisterSkin("models/crosshair/skin.pcx");
-
-			AngleVectors2(crosshair_trace.plane.normal, crosshair_ent.angles);
-			crosshair_ent.flags = RF_DEPTHHACK | RF_FULLBRIGHT | RF_NOSHADOW;
-
-			V_AddEntity(&crosshair_ent);
-		}
-	}
-}
-
-static void
 V_Viewpos_f(void)
 {
 	Com_Printf("position: %i %i %i, angles: %i %i %i\n",
@@ -664,6 +742,7 @@ V_Init(void)
 	Cmd_AddCommand("gun_model", V_Gun_Model_f);
 
 	Cmd_AddCommand("viewpos", V_Viewpos_f);
+	Cmd_AddCommand("listlights", V_Listlights_f);
 
 	crosshair = Cvar_Get("crosshair", "0", CVAR_ARCHIVE);
 	crosshair_scale = Cvar_Get("crosshair_scale", "-1", CVAR_ARCHIVE);

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,48 +20,13 @@
  *
  * =======================================================================
  *
- * Icarus.
+ * Icarus and Daedalus.
  *
  * =======================================================================
  */
 
 #include "../../header/local.h"
 #include "hover.h"
-
-qboolean visible(edict_t *self, edict_t *other);
-
-static int sound_pain1;
-static int sound_pain2;
-static int sound_death1;
-static int sound_death2;
-static int sound_sight;
-static int sound_search1;
-static int sound_search2;
-
-void
-hover_sight(edict_t *self, edict_t *other /* unused */)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
-}
-
-void
-hover_search(edict_t *self)
-
-{
-	if (random() < 0.5)
-	{
-		gi.sound(self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
-	}
-	else
-	{
-		gi.sound(self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
-	}
-}
 
 void hover_run(edict_t *self);
 void hover_stand(edict_t *self);
@@ -70,6 +36,73 @@ void hover_reattack(edict_t *self);
 void hover_fire_blaster(edict_t *self);
 void hover_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		int damage, vec3_t point);
+
+static int sound_pain1;
+static int sound_pain2;
+static int sound_death1;
+static int sound_death2;
+static int sound_sight;
+static int sound_search1;
+static int sound_search2;
+
+/* daedalus sounds */
+static int daed_sound_pain1;
+static int daed_sound_pain2;
+static int daed_sound_death1;
+static int daed_sound_death2;
+static int daed_sound_sight;
+static int daed_sound_search1;
+static int daed_sound_search2;
+
+void
+hover_sight(edict_t *self, edict_t *other /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->mass < 225)
+	{
+		gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
+	}
+	else
+	{
+		gi.sound(self, CHAN_VOICE, daed_sound_sight, 1, ATTN_NORM, 0);
+	}
+}
+
+void
+hover_search(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->mass < 225)
+	{
+		if (random() < 0.5)
+		{
+			gi.sound(self, CHAN_VOICE, sound_search1, 1, ATTN_NORM, 0);
+		}
+		else
+		{
+			gi.sound(self, CHAN_VOICE, sound_search2, 1, ATTN_NORM, 0);
+		}
+	}
+	else
+	{
+		if (random() < 0.5)
+		{
+			gi.sound(self, CHAN_VOICE, daed_sound_search1, 1, ATTN_NORM, 0);
+		}
+		else
+		{
+			gi.sound(self, CHAN_VOICE, daed_sound_search2, 1, ATTN_NORM, 0);
+		}
+	}
+}
 
 static mframe_t hover_frames_stand[] = {
 	{ai_stand, 0, NULL},
@@ -147,8 +180,8 @@ mmove_t hover_move_stop2 =
 {
 	FRAME_stop201,
 	FRAME_stop208,
-   	hover_frames_stop2,
-   	NULL
+	hover_frames_stop2,
+	NULL
 };
 
 static mframe_t hover_frames_takeoff[] = {
@@ -187,9 +220,9 @@ static mframe_t hover_frames_takeoff[] = {
 mmove_t hover_move_takeoff =
 {
 	FRAME_takeof01,
-   	FRAME_takeof30,
-   	hover_frames_takeoff,
-   	NULL
+	FRAME_takeof30,
+	hover_frames_takeoff,
+	NULL
 };
 
 static mframe_t hover_frames_pain3[] = {
@@ -207,9 +240,9 @@ static mframe_t hover_frames_pain3[] = {
 mmove_t hover_move_pain3 =
 {
 	FRAME_pain301,
-   	FRAME_pain309,
+	FRAME_pain309,
 	hover_frames_pain3,
-   	hover_run
+	hover_run
 };
 
 static mframe_t hover_frames_pain2[] = {
@@ -231,8 +264,8 @@ mmove_t hover_move_pain2 =
 {
 	FRAME_pain201,
 	FRAME_pain212,
-   	hover_frames_pain2,
-   	hover_run
+	hover_frames_pain2,
+	hover_run
 };
 
 static mframe_t hover_frames_pain1[] = {
@@ -269,9 +302,9 @@ static mframe_t hover_frames_pain1[] = {
 mmove_t hover_move_pain1 =
 {
 	FRAME_pain101,
-   	FRAME_pain128,
-   	hover_frames_pain1,
-   	hover_run
+	FRAME_pain128,
+	hover_frames_pain1,
+	hover_run
 };
 
 static mframe_t hover_frames_land[] = {
@@ -421,7 +454,7 @@ mmove_t hover_move_run =
 	FRAME_forwrd01,
 	FRAME_forwrd35,
 	hover_frames_run,
-   	NULL
+	NULL
 };
 
 static mframe_t hover_frames_death1[] = {
@@ -441,9 +474,9 @@ static mframe_t hover_frames_death1[] = {
 mmove_t hover_move_death1 =
 {
 	FRAME_death101,
-   	FRAME_death111,
-   	hover_frames_death1,
-   	hover_dead
+	FRAME_death111,
+	hover_frames_death1,
+	hover_dead
 };
 
 static mframe_t hover_frames_backward[] = {
@@ -476,9 +509,9 @@ static mframe_t hover_frames_backward[] = {
 mmove_t hover_move_backward =
 {
 	FRAME_backwd01,
-   	FRAME_backwd24,
+	FRAME_backwd24,
 	hover_frames_backward,
-   	NULL
+	NULL
 };
 
 static mframe_t hover_frames_start_attack[] = {
@@ -522,6 +555,44 @@ mmove_t hover_move_end_attack =
 	hover_run
 };
 
+static mframe_t hover_frames_start_attack2[] = {
+	{ai_charge, 15, NULL},
+	{ai_charge, 15, NULL},
+	{ai_charge, 15, NULL}
+};
+
+mmove_t hover_move_start_attack2 = {
+	FRAME_attak101,
+	FRAME_attak103,
+	hover_frames_start_attack2,
+	hover_attack
+};
+
+static mframe_t hover_frames_attack2[] = {
+	{ai_charge, 10, hover_fire_blaster},
+	{ai_charge, 10, hover_fire_blaster},
+	{ai_charge, 10, hover_reattack},
+};
+
+mmove_t hover_move_attack2 = {
+	FRAME_attak104,
+	FRAME_attak106,
+	hover_frames_attack2,
+	NULL
+};
+
+static mframe_t hover_frames_end_attack2[] = {
+	{ai_charge, 15, NULL},
+	{ai_charge, 15, NULL}
+};
+
+mmove_t hover_move_end_attack2 = {
+	FRAME_attak107,
+	FRAME_attak108,
+	hover_frames_end_attack2,
+	hover_run
+};
+
 void
 hover_reattack(edict_t *self)
 {
@@ -536,8 +607,20 @@ hover_reattack(edict_t *self)
 		{
 			if (random() <= 0.6)
 			{
-				self->monsterinfo.currentmove = &hover_move_attack1;
-				return;
+				if (self->monsterinfo.attack_state == AS_STRAIGHT)
+				{
+					self->monsterinfo.currentmove = &hover_move_attack1;
+					return;
+				}
+				else if (self->monsterinfo.attack_state == AS_SLIDING)
+				{
+					self->monsterinfo.currentmove = &hover_move_attack2;
+					return;
+				}
+				else
+				{
+					gi.dprintf("hover_reattack: unexpected state %d\n", self->monsterinfo.attack_state);
+				}
 			}
 		}
 	}
@@ -559,6 +642,11 @@ hover_fire_blaster(edict_t *self)
 		return;
 	}
 
+	if (!self->enemy || !self->enemy->inuse)
+	{
+		return;
+	}
+
 	if (self->s.frame == FRAME_attak104)
 	{
 		effect = EF_HYPERBLASTER;
@@ -576,7 +664,16 @@ hover_fire_blaster(edict_t *self)
 	end[2] += self->enemy->viewheight;
 	VectorSubtract(end, start, dir);
 
-	monster_fire_blaster(self, start, dir, 1, 1000, MZ2_HOVER_BLASTER_1, effect);
+	if (self->mass < 200)
+	{
+		monster_fire_blaster(self, start, dir, 1,
+				1000, MZ2_HOVER_BLASTER_1, effect);
+	}
+	else
+	{
+		monster_fire_blaster2(self, start, dir, 1, 1000,
+				MZ2_DAEDALUS_BLASTER, EF_BLASTER);
+	}
 }
 
 void
@@ -633,12 +730,42 @@ hover_start_attack(edict_t *self)
 void
 hover_attack(edict_t *self)
 {
+	float chance;
+
 	if (!self)
 	{
 		return;
 	}
 
-	self->monsterinfo.currentmove = &hover_move_attack1;
+	if (skill->value == SKILL_EASY)
+	{
+		chance = 0;
+	}
+	else
+	{
+		chance = 1.0 - (0.5 / (float)(skill->value));
+	}
+
+	if (self->mass > 150)  /* the daedalus strafes more */
+	{
+		chance += 0.1;
+	}
+
+	if (random() > chance)
+	{
+		self->monsterinfo.currentmove = &hover_move_attack1;
+		self->monsterinfo.attack_state = AS_STRAIGHT;
+	}
+	else /* circle strafe */
+	{
+		if (random() <= 0.5)  /* switch directions */
+		{
+			self->monsterinfo.lefty = 1 - self->monsterinfo.lefty;
+		}
+
+		self->monsterinfo.currentmove = &hover_move_attack2;
+		self->monsterinfo.attack_state = AS_SLIDING;
+	}
 }
 
 void
@@ -652,7 +779,7 @@ hover_pain(edict_t *self, edict_t *other /* unused */,
 
 	if (self->health < (self->max_health / 2))
 	{
-		self->s.skinnum = 1;
+		self->s.skinnum |= 1; /* support for skins 2 & 3. */
 	}
 
 	if (level.time < self->pain_debounce_time)
@@ -671,19 +798,63 @@ hover_pain(edict_t *self, edict_t *other /* unused */,
 	{
 		if (random() < 0.5)
 		{
-			gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+			/* daedalus sounds */
+			if (self->mass < 225)
+			{
+				gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+			}
+			else
+			{
+				gi.sound(self, CHAN_VOICE, daed_sound_pain1, 1, ATTN_NORM, 0);
+			}
+
 			self->monsterinfo.currentmove = &hover_move_pain3;
 		}
 		else
 		{
-			gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+			/* daedalus sounds */
+			if (self->mass < 225)
+			{
+				gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+			}
+			else
+			{
+				gi.sound(self, CHAN_VOICE, daed_sound_pain2, 1, ATTN_NORM, 0);
+			}
+
 			self->monsterinfo.currentmove = &hover_move_pain2;
 		}
 	}
 	else
 	{
-		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
-		self->monsterinfo.currentmove = &hover_move_pain1;
+		if (random() < (0.45 - (0.1 * skill->value)))
+		{
+			/* daedalus sounds */
+			if (self->mass < 225)
+			{
+				gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+			}
+			else
+			{
+				gi.sound(self, CHAN_VOICE, daed_sound_pain1, 1, ATTN_NORM, 0);
+			}
+
+			self->monsterinfo.currentmove = &hover_move_pain1;
+		}
+		else
+		{
+			/* daedalus sounds */
+			if (self->mass < 225)
+			{
+				gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+			}
+			else
+			{
+				gi.sound(self, CHAN_VOICE, daed_sound_pain2, 1, ATTN_NORM, 0);
+			}
+
+			self->monsterinfo.currentmove = &hover_move_pain2;
+		}
 	}
 }
 
@@ -733,6 +904,9 @@ hover_die(edict_t *self, edict_t *inflictor /* unused */,
 		return;
 	}
 
+	self->s.effects = 0;
+	self->monsterinfo.power_armor_type = POWER_ARMOR_NONE;
+
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
@@ -769,13 +943,27 @@ hover_die(edict_t *self, edict_t *inflictor /* unused */,
 	}
 
 	/* regular death */
-	if (random() < 0.5)
+	if (self->mass < 225)
 	{
-		gi.sound(self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
+		if (random() < 0.5)
+		{
+			gi.sound(self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
+		}
+		else
+		{
+			gi.sound(self, CHAN_VOICE, sound_death2, 1, ATTN_NORM, 0);
+		}
 	}
 	else
 	{
-		gi.sound(self, CHAN_VOICE, sound_death2, 1, ATTN_NORM, 0);
+		if (random() < 0.5)
+		{
+			gi.sound(self, CHAN_VOICE, daed_sound_death1, 1, ATTN_NORM, 0);
+		}
+		else
+		{
+			gi.sound(self, CHAN_VOICE, daed_sound_death2, 1, ATTN_NORM, 0);
+		}
 	}
 
 	self->deadflag = DEAD_DEAD;
@@ -783,8 +971,18 @@ hover_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &hover_move_death1;
 }
 
+qboolean
+hover_blocked(edict_t *self, float dist)
+{
+	return false;
+}
+
+
 /*
  * QUAKED monster_hover (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ *
+ * QUAKED monster_daedalus (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
+ * This is the improved icarus monster.
  */
 void
 SP_monster_hover(edict_t *self)
@@ -818,7 +1016,7 @@ SP_monster_hover(edict_t *self)
 	VectorSet(self->mins, -24, -24, -24);
 	VectorSet(self->maxs, 24, 24, 32);
 
-	self->health = 240;
+	self->health = 240 * st.health_multiplier;
 	self->gib_health = -100;
 	self->mass = 150;
 
@@ -831,6 +1029,38 @@ SP_monster_hover(edict_t *self)
 	self->monsterinfo.attack = hover_start_attack;
 	self->monsterinfo.sight = hover_sight;
 	self->monsterinfo.search = hover_search;
+	self->monsterinfo.blocked = hover_blocked;
+
+	if (strcmp(self->classname, "monster_daedalus") == 0)
+	{
+		self->health = 450 * st.health_multiplier;
+		self->mass = 225;
+		self->yaw_speed = 25;
+		self->monsterinfo.power_armor_type = POWER_ARMOR_SCREEN;
+		self->monsterinfo.power_armor_power = 100;
+		self->s.sound = gi.soundindex("daedalus/daedidle1.wav");
+		daed_sound_pain1 = gi.soundindex("daedalus/daedpain1.wav");
+		daed_sound_pain2 = gi.soundindex("daedalus/daedpain2.wav");
+		daed_sound_death1 = gi.soundindex("daedalus/daeddeth1.wav");
+		daed_sound_death2 = gi.soundindex("daedalus/daeddeth2.wav");
+		daed_sound_sight = gi.soundindex("daedalus/daedsght1.wav");
+		daed_sound_search1 = gi.soundindex("daedalus/daedsrch1.wav");
+		daed_sound_search2 = gi.soundindex("daedalus/daedsrch2.wav");
+		gi.soundindex("tank/tnkatck3.wav");
+	}
+	else
+	{
+		sound_pain1 = gi.soundindex("hover/hovpain1.wav");
+		sound_pain2 = gi.soundindex("hover/hovpain2.wav");
+		sound_death1 = gi.soundindex("hover/hovdeth1.wav");
+		sound_death2 = gi.soundindex("hover/hovdeth2.wav");
+		sound_sight = gi.soundindex("hover/hovsght1.wav");
+		sound_search1 = gi.soundindex("hover/hovsrch1.wav");
+		sound_search2 = gi.soundindex("hover/hovsrch2.wav");
+		gi.soundindex("hover/hovatck1.wav");
+
+		self->s.sound = gi.soundindex("hover/hovidle1.wav");
+	}
 
 	gi.linkentity(self);
 
@@ -838,4 +1068,9 @@ SP_monster_hover(edict_t *self)
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	flymonster_start(self);
+
+	if (strcmp(self->classname, "monster_daedalus") == 0)
+	{
+		self->s.skinnum = 2;
+	}
 }

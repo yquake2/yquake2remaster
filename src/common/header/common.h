@@ -32,7 +32,7 @@
 #include "shared.h"
 #include "crc.h"
 
-#define YQ2VERSION "8.51pre"
+#define YQ2VERSION "8.51RR12"
 #define BASEDIRNAME "baseq2"
 
 #ifndef YQ2OSTYPE
@@ -98,8 +98,8 @@ typedef struct sizebuf_s
 void SZ_Init(sizebuf_t *buf, byte *data, int length);
 void SZ_Clear(sizebuf_t *buf);
 void *SZ_GetSpace(sizebuf_t *buf, int length);
-void SZ_Write(sizebuf_t *buf, void *data, int length);
-void SZ_Print(sizebuf_t *buf, char *data);  /* strcats onto the sizebuf */
+void SZ_Write(sizebuf_t *buf, const void *data, int length);
+void SZ_Print(sizebuf_t *buf, const char *data);  /* strcats onto the sizebuf */
 
 /* ================================================================== */
 
@@ -111,17 +111,17 @@ void MSG_WriteByte(sizebuf_t *sb, int c);
 void MSG_WriteShort(sizebuf_t *sb, int c);
 void MSG_WriteLong(sizebuf_t *sb, int c);
 void MSG_WriteFloat(sizebuf_t *sb, float f);
-void MSG_WriteString(sizebuf_t *sb, char *s);
-void MSG_WriteCoord(sizebuf_t *sb, float f);
-void MSG_WritePos(sizebuf_t *sb, vec3_t pos);
+void MSG_WriteString(sizebuf_t *sb, const char *s);
+void MSG_WriteCoord(sizebuf_t *sb, float f, int protocol);
+void MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol);
 void MSG_WriteAngle(sizebuf_t *sb, float f);
 void MSG_WriteAngle16(sizebuf_t *sb, float f);
 void MSG_WriteDeltaUsercmd(sizebuf_t *sb, struct usercmd_s *from,
 		struct usercmd_s *cmd);
-void MSG_WriteDeltaEntity(struct entity_state_s *from,
-		struct entity_state_s *to, sizebuf_t *msg,
-		qboolean force, qboolean newentity);
-void MSG_WriteDir(sizebuf_t *sb, vec3_t vector);
+void MSG_WriteDeltaEntity(const struct entity_xstate_s *from,
+		const struct entity_xstate_s *to, sizebuf_t *msg,
+		qboolean force, qboolean newentity, int protocol);
+void MSG_WriteDir(sizebuf_t *sb, const vec3_t vector);
 
 void MSG_BeginReading(sizebuf_t *sb);
 
@@ -133,8 +133,8 @@ float MSG_ReadFloat(sizebuf_t *sb);
 char *MSG_ReadString(sizebuf_t *sb);
 char *MSG_ReadStringLine(sizebuf_t *sb);
 
-float MSG_ReadCoord(sizebuf_t *sb);
-void MSG_ReadPos(sizebuf_t *sb, vec3_t pos);
+float MSG_ReadCoord(sizebuf_t *sb, int protocol);
+void MSG_ReadPos(sizebuf_t *sb, vec3_t pos, int protocol);
 float MSG_ReadAngle(sizebuf_t *sb);
 float MSG_ReadAngle16(sizebuf_t *sb);
 void MSG_ReadDeltaUsercmd(sizebuf_t *sb,
@@ -175,7 +175,29 @@ void Info_Print(char *s);
 
 /* PROTOCOL */
 
-#define PROTOCOL_VERSION 34
+/* Quake 2 Release Demos */
+#define PROTOCOL_RELEASE_VERSION 26
+/* Quake 2 Demo */
+#define PROTOCOL_DEMO_VERSION 31
+/* Quake 2 Xatrix Demo */
+#define PROTOCOL_XATRIX_VERSION 32
+/* Quake 2 Network Release */
+#define PROTOCOL_R97_VERSION 34
+/* ReRelease demo files */
+#define PROTOCOL_RR22_VERSION 2022
+/* ReRelease network protocol */
+#define PROTOCOL_RR23_VERSION 2023
+/* Quake 2 Customized Network Release */
+#define PROTOCOL_VERSION 2024
+
+/* Quake 2 originaly uses 255 as player model */
+#define QII97_PLAYER_MODEL 255
+
+#define IS_QII97_PROTOCOL(x) ( \
+	((x) == PROTOCOL_RELEASE_VERSION) || \
+	((x) == PROTOCOL_DEMO_VERSION) || \
+	((x) == PROTOCOL_XATRIX_VERSION) || \
+	((x) == PROTOCOL_R97_VERSION))
 
 /* ========================================= */
 
@@ -337,7 +359,7 @@ void Cbuf_Init(void);
 
 /* allocates an initial text buffer that will grow as needed */
 
-void Cbuf_AddText(char *text);
+void Cbuf_AddText(const char *text);
 
 /* as new commands are generated from the console or keybindings, */
 /* the text is added to the end of the command buffer. */
@@ -387,22 +409,22 @@ typedef void (*xcommand_t)(void);
 void Cmd_Init(void);
 void Cmd_Shutdown(void);
 
-void Cmd_AddCommand(char *cmd_name, xcommand_t function);
+void Cmd_AddCommand(const char *cmd_name, xcommand_t function);
 
 /* called by the init functions of other parts of the program to */
 /* register commands and functions to call for them. */
 /* The cmd_name is referenced later, so it should not be in temp memory */
 /* if function is NULL, the command will be forwarded to the server */
 /* as a clc_stringcmd instead of executed locally */
-void Cmd_RemoveCommand(char *cmd_name);
+void Cmd_RemoveCommand(const char *cmd_name);
 
-qboolean Cmd_Exists(char *cmd_name);
+qboolean Cmd_Exists(const char *cmd_name);
 
 /* used by the cvar code to check for cvar / command name overlap */
 
-char *Cmd_CompleteCommand(char *partial);
+const char *Cmd_CompleteCommand(const char *partial);
 
-char *Cmd_CompleteMapCommand(char *partial);
+const char *Cmd_CompleteMapCommand(const char *partial);
 
 /* attempts to match a partial command for automatic command line completion */
 /* returns NULL if nothing fits */
@@ -458,7 +480,7 @@ cvar_t *Cvar_Set(const char *var_name, const char *value);
 
 /* will create the variable if it doesn't exist */
 
-cvar_t *Cvar_ForceSet(const char *var_name, char *value);
+cvar_t *Cvar_ForceSet(const char *var_name, const char *value);
 
 /* will set the variable even if NOSET or LATCH */
 
@@ -515,7 +537,7 @@ extern qboolean userinfo_modified;
 /* NET */
 
 #define PORT_ANY -1
-#define MAX_MSGLEN 1400             /* max length of a message */
+#define MAX_MSGLEN 32768            /* max length of a message */
 #define PACKET_HEADER 10            /* two ints and a short */
 
 typedef enum
@@ -615,12 +637,17 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 
 #include "files.h"
 
-cmodel_t *CM_LoadMap(char *name, qboolean clientload, unsigned *checksum);
+cmodel_t *CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum);
 cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
+int CM_MapSurfacesNum(void);
+mapsurface_t* CM_MapSurfaces(int surfnum);
+
+void CM_ModInit(void);
+void CM_ModFreeAll(void);
 
 int CM_NumClusters(void);
 int CM_NumInlineModels(void);
-char *CM_EntityString(void);
+const char *CM_EntityString(int *size);
 
 /* creates a clipping hull for an arbitrary box */
 int CM_HeadnodeForBox(vec3_t mins, vec3_t maxs);
@@ -657,12 +684,22 @@ int CM_WriteAreaBits(byte *buffer, int area);
 qboolean CM_HeadnodeVisible(int headnode, byte *visbits);
 
 void CM_WritePortalState(FILE *f);
+int CM_LoadFile(const char *path, void **buffer);
+
+/* Shared Model load code */
+int Mod_LoadFile(const char *path, void **buffer);
+void Mod_AliasesInit(void);
+void Mod_AliasesFreeAll(void);
+const dmdxframegroup_t *Mod_GetModelInfo(const char *name, int *num,
+	float *mins, float *maxs);
+void Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs);
 
 /* PLAYER MOVEMENT CODE */
 
 extern float pm_airaccelerate;
 
 void Pmove(pmove_t *pmove);
+void PmoveEx(pmove_t *pmove, int *origin);
 
 /* FILESYSTEM */
 
@@ -696,6 +733,8 @@ int FS_FOpenFile(const char *name, fileHandle_t *f, qboolean gamedir_only);
 void FS_FCloseFile(fileHandle_t f);
 int FS_Read(void *buffer, int size, fileHandle_t f);
 int FS_FRead(void *buffer, int size, int count, fileHandle_t f);
+void CM_ReadPortalState(fileHandle_t f);
+void CL_WriteConfiguration(void);
 
 // returns the filename used to open f, but (if opened from pack) in correct case
 // returns NULL if f is no valid handle
@@ -710,8 +749,8 @@ void FS_FreeList(char **list, int nfiles);
 void FS_InitFilesystem(void);
 void FS_ShutdownFilesystem(void);
 void FS_BuildGameSpecificSearchPath(const char *dir);
-char *FS_Gamedir(void);
-char *FS_NextPath(const char *prevpath);
+const char *FS_Gamedir(void);
+const char *FS_NextPath(const char *prevpath);
 int FS_LoadFile(const char *path, void **buffer);
 qboolean FS_FileInGamedir(const char *file);
 qboolean FS_AddPAKFromGamedir(const char *pak);
@@ -724,7 +763,7 @@ char **FS_ListMods(int *nummods);
 /* properly handles partial reads */
 
 void FS_FreeFile(void *buffer);
-void FS_CreatePath(char *path);
+void FS_CreatePath(const char *path);
 
 /* MISC */
 
@@ -768,8 +807,8 @@ YQ2_ATTR_NORETURN void Com_Quit(void);
 int Com_ServerState(void);              /* this should have just been a cvar... */
 void Com_SetServerState(int state);
 
-unsigned Com_BlockChecksum(void *buffer, int length);
-byte COM_BlockSequenceCRCByte(byte *base, int length, int sequence);
+unsigned Com_BlockChecksum(const void *buffer, int length);
+byte COM_BlockSequenceCRCByte(const byte *base, int length, int sequence);
 
 extern cvar_t *developer;
 extern cvar_t *modder;
@@ -830,6 +869,10 @@ void SCR_BeginLoadingPlaque(void);
 void SV_Init(void);
 void SV_Shutdown(char *finalmsg, qboolean reconnect);
 void SV_Frame(int usec);
+
+/* Convert protocol */
+int P_ConvertConfigStringFrom(int i, int protocol);
+int P_ConvertConfigStringTo(int i, int protocol);
 
 /* ======================================================================= */
 

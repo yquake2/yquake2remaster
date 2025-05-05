@@ -247,7 +247,7 @@ MSG_WriteFloat(sizebuf_t *sb, float f)
 }
 
 void
-MSG_WriteString(sizebuf_t *sb, char *s)
+MSG_WriteString(sizebuf_t *sb, const char *s)
 {
 	if (!s)
 	{
@@ -261,17 +261,24 @@ MSG_WriteString(sizebuf_t *sb, char *s)
 }
 
 void
-MSG_WriteCoord(sizebuf_t *sb, float f)
+MSG_WriteCoord(sizebuf_t *sb, float f, int protocol)
 {
-	MSG_WriteShort(sb, (int)(f * 8));
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		MSG_WriteShort(sb, (int)(f * 8));
+	}
+	else
+	{
+		MSG_WriteFloat(sb, f);
+	}
 }
 
 void
-MSG_WritePos(sizebuf_t *sb, vec3_t pos)
+MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol)
 {
-	MSG_WriteShort(sb, (int)(pos[0] * 8));
-	MSG_WriteShort(sb, (int)(pos[1] * 8));
-	MSG_WriteShort(sb, (int)(pos[2] * 8));
+	MSG_WriteCoord(sb, pos[0], protocol);
+	MSG_WriteCoord(sb, pos[1], protocol);
+	MSG_WriteCoord(sb, pos[2], protocol);
 }
 
 void
@@ -381,7 +388,7 @@ MSG_WriteDeltaUsercmd(sizebuf_t *buf, usercmd_t *from, usercmd_t *cmd)
 }
 
 void
-MSG_WriteDir(sizebuf_t *sb, vec3_t dir)
+MSG_WriteDir(sizebuf_t *sb, const vec3_t dir)
 {
 	int i, best;
 	float d, bestd;
@@ -429,11 +436,12 @@ MSG_ReadDir(sizebuf_t *sb, vec3_t dir)
  * Can delta from either a baseline or a previous packet_entity
  */
 void
-MSG_WriteDeltaEntity(entity_state_t *from,
-		entity_state_t *to,
+MSG_WriteDeltaEntity(const entity_xstate_t *from,
+		const entity_xstate_t *to,
 		sizebuf_t *msg,
 		qboolean force,
-		qboolean newentity)
+		qboolean newentity,
+		int protocol)
 {
 	int bits;
 
@@ -504,6 +512,15 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		}
 	}
 
+	/* Scale with skins if force or different */
+	if ((protocol == PROTOCOL_VERSION) &&
+		((to->scale[0] != from->scale[0]) ||
+		 (to->scale[1] != from->scale[1]) ||
+		 (to->scale[2] != from->scale[2])))
+	{
+		bits |= (U_SKIN8 | U_SKIN16);
+	}
+
 	if (to->frame != from->frame)
 	{
 		if (to->frame < 256)
@@ -533,6 +550,11 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		{
 			bits |= U_EFFECTS8 | U_EFFECTS16;
 		}
+	}
+
+	if (to->rr_effects != from->rr_effects || to->rr_mesh != from->rr_mesh)
+	{
+		bits |= U_EFFECTS8 | U_EFFECTS16;
 	}
 
 	if (to->renderfx != from->renderfx)
@@ -645,24 +667,65 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		MSG_WriteByte(msg, to->number);
 	}
 
-	if (bits & U_MODEL)
+	if (IS_QII97_PROTOCOL(protocol))
 	{
-		MSG_WriteByte(msg, to->modelindex);
-	}
+		if (bits & U_MODEL)
+		{
+			int modelindex = to->modelindex;
 
-	if (bits & U_MODEL2)
-	{
-		MSG_WriteByte(msg, to->modelindex2);
-	}
+			/* New protocol use 16 bit for model id, and custom player model
+			 * id is different to old one, converty back */
+			if (modelindex == CUSTOM_PLAYER_MODEL)
+			{
+				modelindex = QII97_PLAYER_MODEL;
+			}
+			MSG_WriteByte(msg, modelindex);
+		}
 
-	if (bits & U_MODEL3)
-	{
-		MSG_WriteByte(msg, to->modelindex3);
-	}
+		if (bits & U_MODEL2)
+		{
+			int modelindex = to->modelindex2;
 
-	if (bits & U_MODEL4)
+			/* New protocol use 16 bit for model id, and custom player model
+			 * id is different to old one, converty back */
+			if (modelindex == CUSTOM_PLAYER_MODEL)
+			{
+				modelindex = QII97_PLAYER_MODEL;
+			}
+			MSG_WriteByte(msg, modelindex);
+		}
+
+		if (bits & U_MODEL3)
+		{
+			MSG_WriteByte(msg, to->modelindex3);
+		}
+
+		if (bits & U_MODEL4)
+		{
+			MSG_WriteByte(msg, to->modelindex4);
+		}
+	}
+	else
 	{
-		MSG_WriteByte(msg, to->modelindex4);
+		if (bits & U_MODEL)
+		{
+			MSG_WriteShort(msg, to->modelindex);
+		}
+
+		if (bits & U_MODEL2)
+		{
+			MSG_WriteShort(msg, to->modelindex2);
+		}
+
+		if (bits & U_MODEL3)
+		{
+			MSG_WriteShort(msg, to->modelindex3);
+		}
+
+		if (bits & U_MODEL4)
+		{
+			MSG_WriteShort(msg, to->modelindex4);
+		}
 	}
 
 	if (bits & U_FRAME8)
@@ -678,6 +741,17 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /*used for laser colors */
 	{
 		MSG_WriteLong(msg, to->skinnum);
+
+		/* Send scale */
+		if (protocol == PROTOCOL_VERSION)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				MSG_WriteFloat(msg, to->scale[i]);
+			}
+		}
 	}
 
 	else if (bits & U_SKIN8)
@@ -705,6 +779,28 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 		MSG_WriteShort(msg, to->effects);
 	}
 
+	/* ReRelease effects */
+	if (protocol == PROTOCOL_VERSION)
+	{
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		{
+			MSG_WriteLong(msg, to->rr_effects);
+			MSG_WriteLong(msg, to->rr_mesh);
+		}
+
+		else if (bits & U_EFFECTS8)
+		{
+			MSG_WriteByte(msg, to->rr_effects);
+			MSG_WriteByte(msg, to->rr_mesh);
+		}
+
+		else if (bits & U_EFFECTS16)
+		{
+			MSG_WriteShort(msg, to->rr_effects);
+			MSG_WriteShort(msg, to->rr_mesh);
+		}
+	}
+
 	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
 	{
 		MSG_WriteLong(msg, to->renderfx);
@@ -722,17 +818,17 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 
 	if (bits & U_ORIGIN1)
 	{
-		MSG_WriteCoord(msg, to->origin[0]);
+		MSG_WriteCoord(msg, to->origin[0], protocol);
 	}
 
 	if (bits & U_ORIGIN2)
 	{
-		MSG_WriteCoord(msg, to->origin[1]);
+		MSG_WriteCoord(msg, to->origin[1], protocol);
 	}
 
 	if (bits & U_ORIGIN3)
 	{
-		MSG_WriteCoord(msg, to->origin[2]);
+		MSG_WriteCoord(msg, to->origin[2], protocol);
 	}
 
 	if (bits & U_ANGLE1)
@@ -752,9 +848,7 @@ MSG_WriteDeltaEntity(entity_state_t *from,
 
 	if (bits & U_OLDORIGIN)
 	{
-		MSG_WriteCoord(msg, to->old_origin[0]);
-		MSG_WriteCoord(msg, to->old_origin[1]);
-		MSG_WriteCoord(msg, to->old_origin[2]);
+		MSG_WritePos(msg, to->old_origin, protocol);
 	}
 
 	if (bits & U_SOUND)
@@ -948,17 +1042,24 @@ MSG_ReadStringLine(sizebuf_t *msg_read)
 }
 
 float
-MSG_ReadCoord(sizebuf_t *msg_read)
+MSG_ReadCoord(sizebuf_t *msg_read, int protocol)
 {
-	return MSG_ReadShort(msg_read) * (0.125f);
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		return MSG_ReadShort(msg_read) * (0.125f);
+	}
+	else
+	{
+		return MSG_ReadFloat(msg_read);
+	}
 }
 
 void
-MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos)
+MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol)
 {
-	pos[0] = MSG_ReadShort(msg_read) * (0.125f);
-	pos[1] = MSG_ReadShort(msg_read) * (0.125f);
-	pos[2] = MSG_ReadShort(msg_read) * (0.125f);
+	pos[0] = MSG_ReadCoord(msg_read, protocol);
+	pos[1] = MSG_ReadCoord(msg_read, protocol);
+	pos[2] = MSG_ReadCoord(msg_read, protocol);
 }
 
 float

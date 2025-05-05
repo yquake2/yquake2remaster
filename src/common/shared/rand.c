@@ -14,6 +14,7 @@
  */
 
 #include <stdint.h>
+#include "../header/shared.h"
 
 #define QSIZE 0x200000
 #define CNG (cng = 6906969069ULL * cng + 13579)

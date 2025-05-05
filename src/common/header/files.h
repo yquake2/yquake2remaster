@@ -27,6 +27,38 @@
 #ifndef CO_FILES_H
 #define CO_FILES_H
 
+/* The .dat files are just a linear collapse of a directory tree */
+
+#define DATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A')
+#define DATVERSION 9
+
+typedef struct
+{
+	char name[128];
+	int filepos;
+	int filelen;
+	int compressed_size;
+	int checksum;
+} ddatfile_t;
+
+typedef struct
+{
+	int ident; /* == DATHEADER */
+	int dirofs;
+	int dirlen;
+	int version; /* == IDPAKVERSION */
+} ddatheader_t;
+
+/* The .sin files are just a linear collapse of a directory tree */
+
+#define SINHEADER (('K' << 24) + ('A' << 16) + ('P' << 8) + 'S')
+
+typedef struct
+{
+	char name[120];
+	int filepos, filelen;
+} dsinfile_t;
+
 /* The .pak files are just a linear collapse of a directory tree */
 
 #define IDPAKHEADER (('K' << 24) + ('C' << 16) + ('A' << 8) + 'P')
@@ -36,6 +68,12 @@ typedef struct
 	char name[56];
 	int filepos, filelen;
 } dpackfile_t;
+
+typedef struct
+{
+	char name[56];
+	int filepos, filelen, compressed_size, is_compressed;
+} dpackdkfile_t;
 
 typedef struct
 {
@@ -64,6 +102,50 @@ typedef struct
 	char filler[58];
 	unsigned char data;   /* unbounded */
 } pcx_t;
+
+/* .MDL triangle model file format */
+
+#define IDMDLHEADER (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define MDL_VERSION 6
+
+/* Texture coords */
+typedef struct mdl_texcoord_s
+{
+	int onseam;
+	int s;
+	int t;
+} mdl_texcoord_t;
+
+/* Triangle info */
+typedef struct mdl_triangle_s
+{
+	int facesfront;  /* 0 = backface, 1 = frontface */
+	int vertex[3];   /* vertex indices */
+} mdl_triangle_t;
+
+/* MDL header */
+typedef struct mdl_header_s
+{
+	int ident;            /* magic number: "IDPO" */
+	int version;          /* version: 6 */
+
+	vec3_t scale;         /* scale factor */
+	vec3_t translate;     /* translation vector */
+	float boundingradius;
+	vec3_t eyeposition;   /* eyes' position */
+
+	int num_skins;        /* number of textures */
+	int skinwidth;        /* texture width */
+	int skinheight;       /* texture height */
+
+	int num_xyz;          /* number of vertices */
+	int num_tris;         /* number of triangles */
+	int num_frames;       /* number of frames */
+
+	int synctype;         /* 0 = synchron, 1 = random */
+	int flags;            /* state flag */
+	float size;           /* average size of triangles */
+} mdl_header_t;
 
 /* .MD2 triangle model file format */
 
@@ -139,6 +221,280 @@ typedef struct
 	int ofs_glcmds;
 	int ofs_end;    /* end of file */
 } dmdl_t;
+
+/* .MD2 Anachronox triangle model file format */
+
+#define MDAHEADER (('1' << 24) + ('A' << 16) + ('D' << 8) + 'M')
+#define ALIAS_ANACHRONOX_VERSION_OLD 14
+#define ALIAS_ANACHRONOX_VERSION 15
+
+typedef struct
+{
+	int ident;
+	short version;
+	short resolution;
+
+	int skinwidth;
+	int skinheight;
+	int framesize;  /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_st;     /* greater than num_xyz for seams */
+	int num_tris;
+	int num_glcmds; /* dwords in strip/fan command list */
+	int num_frames;
+
+	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
+	int ofs_st;     /* byte offset from start for stverts */
+	int ofs_tris;   /* offset for dtriangles */
+	int ofs_frames; /* offset for first frame */
+	int ofs_glcmds;
+	int ofs_end;    /* end of file */
+
+	/* Multiple surfaces */
+	int num_surfaces;
+	int ofs_surfaces;
+
+	/* Level of detail */
+	vec3_t lod_scale;
+
+	/* Tagged surfaces */
+	int num_tagged_triangles;
+	int ofs_tagged_triangles;
+} dmdla_t;
+
+/* .FM triangle model file format */
+
+#define RAVENFMHEADER		(('d' << 24) + ('a' << 16) + ('e' << 8) + 'h')
+
+typedef struct fmheader_s
+{
+	int skinwidth;
+	int skinheight;
+	int framesize;		// byte size of each frame
+
+	int num_skins;
+	int num_xyz;
+	int num_st;			// greater than num_xyz for seams
+	int num_tris;
+	int num_glcmds;		// dwords in strip/fan command list
+	int num_frames;
+	int num_mesh_nodes;
+} fmheader_t;
+
+/* Daikatana dkm format */
+#define DKMHEADER			(('D' << 24) + ('M' << 16) + ('K' << 8) + 'D')
+
+#define DKM1_VERSION		1
+#define DKM2_VERSION		2
+
+typedef struct dkmtriangle_s
+{
+	short mesh_id;
+	short num_uvframes;  /* no idea */
+	short index_xyz[3];
+	short index_st[3];
+} dkmtriangle_t;
+
+typedef struct dkm_header_s
+{
+	int ident;            /* magic number: "DKMD" */
+	int version;          /* version: 1 or 2 */
+	vec3_t translate;     /* translation vector */
+	int framesize;        /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_st;           /* greater than num_xyz for seams */
+	int num_tris;
+	int num_glcmds;        /* dwords in strip/fan command list */
+	int num_frames;
+	int num_surf;          /* num meshes */
+
+	int ofs_skins;         /* each skin is a MAX_SKINNAME string */
+	int ofs_st;            /* byte offset from start for stverts */
+	int ofs_tris;          /* offset for dtriangles */
+	int ofs_frames;        /* offset for first frame */
+	int ofs_glcmds;
+	/* has 52 * num_surf */
+	int ofs_surf;          /* meshes */
+	int ofs_end;           /* end of file */
+	/* has additional 24 * num_animgroup structures */
+	int num_animgroup;     /* num of animation group */
+	int ofs_animgroup;     /* offset of animation group */
+} dkm_header_t;
+
+/* Kingpin mdx format */
+#define MDXHEADER			 (('X' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define MDX_VERSION		4
+
+typedef struct mdx_header_s
+{
+	int ident;            /* magic number: "DKMD" */
+	int version;          /* version: 1 or 2 */
+
+	int skinwidth;
+	int skinheight;
+
+	int framesize;        /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_tris;
+	int num_glcmds;        /* dwords in strip/fan command list */
+	int num_frames;
+	int num_sfxdef;
+	int num_sfxent;
+	int num_subobj;
+
+	int ofs_skins;         /* each skin is a MAX_SKINNAME string */
+	int ofs_tris;          /* offset for dtriangles */
+	int ofs_frames;        /* offset for first frame */
+	int ofs_glcmds;
+	int ofs_verts;         /* link vert to subobj */
+	int ofs_sfxdef;
+	int ofs_sfxent;
+	int ofs_bbox;
+	int ofs_dummyend;
+	int ofs_end;
+} mdx_header_t;
+
+/* .MD3 mesh/anim files */
+#define ID3HEADER (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I')
+#define ID3_VERSION 15
+
+typedef struct md3_vertex_s
+{
+	short origin[3];
+	short normalpitchyaw;
+} md3_vertex_t;
+
+typedef struct md3_frameinfo_s
+{
+	float mins[3];
+	float maxs[3];
+	float origin[3];
+	float radius;
+	char name[16];
+} md3_frameinfo_t;
+
+typedef struct md3_tag_s
+{
+	char name[MAX_SKINNAME];
+	vec3_t origin;
+	float rotationmatrix[9];
+} md3_tag_t;
+
+typedef struct md3_shader_s
+{
+	char name[MAX_SKINNAME];
+	int shadernum; /* not used by the disk format */
+} md3_shader_t;
+
+typedef struct md3_mesh_s
+{
+	int ident;
+
+	char name[MAX_SKINNAME];
+
+	int flags; /* unused */
+
+	int num_frames;
+	int num_shaders;
+	int num_xyz;
+	int num_tris;
+
+	/* lump offsets are relative to start of mesh */
+	int ofs_tris;
+	int ofs_shaders;
+	int ofs_st;
+	int ofs_verts;
+	int ofs_end;
+} md3_mesh_t;
+
+typedef struct md3_header_s
+{
+	int ident;
+	int version;
+
+	char name[MAX_SKINNAME];
+
+	int flags; /* unused by quake3, darkplaces uses it for quake-style modelflags (rocket trails, etc.) */
+
+	int num_frames;
+	int num_tags;
+	int num_meshes;
+	int num_skins; /* apparently unused */
+
+	/* lump offsets are relative to start of header (start of file) */
+	int ofs_frames;
+	int ofs_tags;
+	int ofs_meshes;
+	int ofs_end;
+} md3_header_t;
+
+/* .MD5 model file format */
+#define IDMD5HEADER (('V' << 24) + ('5' << 16) + ('D' << 8) + 'M')
+
+/* Internal model render format */
+typedef struct
+{
+	unsigned short v[3]; /* scaled short to fit in frame mins/maxs */
+	signed char normal[3];
+} dxtrivertx_t;
+
+typedef struct
+{
+	vec3_t scale;       /* multiply short verts by this */
+	vec3_t translate;   /* then add this */
+	char name[16];        /* frame name from grabbing */
+	dxtrivertx_t verts[1]; /* variable sized */
+} daliasxframe_t;
+
+typedef struct
+{
+	/* Used gl commands */
+	unsigned int ofs_glcmds;
+	unsigned int num_glcmds;
+	/* Used triangles in mesh */
+	unsigned int ofs_tris;
+	unsigned int num_tris;
+} dmdxmesh_t;
+
+typedef struct
+{
+	int ident;
+	int version;    /* version should be 0 */
+	int skinwidth;
+	int skinheight;
+	int framesize;  /* byte size of each frame */
+
+	int num_skins;
+	int num_xyz;
+	int num_st;     /* greater than num_xyz for seams */
+	int num_tris;
+	int num_glcmds; /* dwords in strip/fan command list */
+	int num_frames;
+	int num_meshes;
+	int num_imgbit; /* image format of embeded images */
+	int num_animgroup;
+
+	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
+	int ofs_st;     /* byte offset from start for stverts */
+	int ofs_tris;   /* offset for dtriangles */
+	int ofs_frames; /* offset for first frame */
+	int ofs_glcmds;
+	int ofs_meshes;
+	int ofs_imgbit; /* offest of embeded image */
+	int ofs_animgroup; /* offset to animation frames group */
+	int ofs_end;    /* end of file */
+} dmdx_t;
+
+
+/* .ATD sprite file format */
+
+#define IDATDSPRITEHEADER (('1' << 24) + ('D' << 16) + ('T' << 8) + 'A') /* little-endian "ATD1" */
 
 /* .SP2 sprite file format */
 
@@ -229,13 +585,62 @@ typedef struct m32tex_s
 	int unused[20];                     // future expansion to maintain compatibility with h2
 } m32tex_t;
 
+/* .WAL Daikana texture file format */
+
+#define DKM_MIP_LEVELS 9
+#define DKM_WAL_VERSION 3
+typedef struct {
+	byte version;
+	byte padding[3];
+	char name[32];
+	unsigned width, height;
+	unsigned offsets[DKM_MIP_LEVELS];   /* nine mip maps stored */
+	char animname[32];                  /* next frame in animation chain */
+	int flags;
+	int contents;
+	rgb_t palette[256];
+	int value;
+} dkmtex_t;
+
+/* .SWL SiN texture file format */
+
+#define SIN_PALETTE_SIZE 256 * 4
+
+typedef struct
+{
+	char name[64];
+	int width, height;
+	byte palette[SIN_PALETTE_SIZE];
+	short palcrc;
+	int offsets[MIPLEVELS];		// four mip maps stored
+	char animname[64];			// next frame in animation chain
+	int flags;
+	int contents;
+	short value;
+	short direct;
+	float animtime;
+	float nonlit;
+	short directangle;
+	short trans_angle;
+	float directstyle;
+	float translucence;
+	float friction;
+	float restitution;
+	float trans_mag;
+	float color[3];
+} sinmiptex_t;
+
 /* .BSP file format */
 
 #define IDBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'I') /* little-endian "IBSP" */
+#define QBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'Q') /* little-endian "QBSP" */
+#define BSPXHEADER (('X' << 24) + ('P' << 16) + ('S' << 8) + 'B') /* little-endian "BSPX" */
 #define BSPVERSION 38
 
-/* upper design bounds: leaffaces, leafbrushes, planes, and 
- * verts are still bounded by 16 bit short limits */
+/* upper design bounds: leaffaces, leafbrushes, planes, and
+ * verts are still bounded by 16 bit short limits,
+ * mostly unused for now with use Hunk_Alloc,
+ * except MAX_MAP_AREAS */
 #define MAX_MAP_MODELS 1024
 #define MAX_MAP_BRUSHES 8192
 #define MAX_MAP_ENTITIES 2048
@@ -267,7 +672,7 @@ typedef struct m32tex_s
 
 typedef struct
 {
-	int fileofs, filelen;
+	unsigned int fileofs, filelen;
 } lump_t;
 
 #define LUMP_ENTITIES 0
@@ -297,6 +702,17 @@ typedef struct
 	int version;
 	lump_t lumps[HEADER_LUMPS];
 } dheader_t;
+
+typedef struct bspx_header_s {
+	int ident;  // 'BSPX'
+	int numlumps;
+} bspx_header_t;
+
+typedef struct {
+	char lumpname[24];
+	int fileofs;
+	int filelen;
+} bspx_lump_t;
 
 typedef struct
 {
@@ -377,10 +793,11 @@ typedef struct
 #define SURF_TRANS66 0x20
 #define SURF_FLOWING 0x40 /* scroll towards angle */
 #define SURF_NODRAW 0x80  /* don't bother referencing the texture */
+#define SURF_ALPHATEST 0x02000000
 
 typedef struct
 {
-	int planenum;
+	unsigned int planenum;
 	int children[2];         /* negative numbers are -(leafs+1), not nodes */
 	short mins[3];           /* for frustom culling */
 	short maxs[3];
@@ -388,16 +805,37 @@ typedef struct
 	unsigned short numfaces; /* counting both sides */
 } dnode_t;
 
-typedef struct texinfo_s
+typedef struct
+{
+	unsigned int planenum;
+	int children[2];         /* negative numbers are -(leafs+1), not nodes */
+	float mins[3];           /* for frustom culling */
+	float maxs[3];
+	unsigned int firstface;
+	unsigned int numfaces; /* counting both sides */
+} dqnode_t;
+
+typedef struct
 {
 	float vecs[2][4]; /* [s/t][xyz offset] */
 	int flags;        /* miptex flags + overrides light emission, etc */
-	int value;           
+	int value;        /* used with some flags, unused in Quake2 */
 	char texture[32]; /* texture name (textures*.wal) */
 	int nexttexinfo;  /* for animations, -1 = end of chain */
 } texinfo_t;
 
-/* note that edge 0 is never used, because negative edge 
+/* custom extended textinfo */
+typedef struct
+{
+	float vecs[2][4]; /* [s/t][xyz offset] */
+	int flags;        /* miptex flags + overrides light emission, etc */
+	int value;        /* used with some flags, unused in Quake2 */
+	char material[16];     /* used material */
+	char texture[64]; /* texture name (textures*.wal) */
+	int nexttexinfo;  /* for animations, -1 = end of chain */
+} xtexinfo_t;
+
+/* note that edge 0 is never used, because negative edge
    nums are used for counterclockwise use of the edge in
    a face */
 typedef struct
@@ -405,14 +843,19 @@ typedef struct
 	unsigned short v[2]; /* vertex numbers */
 } dedge_t;
 
+typedef struct
+{
+	unsigned int v[2]; /* vertex numbers */
+} dqedge_t;
+
 #define MAXLIGHTMAPS 4
 typedef struct
 {
 	unsigned short planenum;
-	short side;
+	unsigned short side;
 
-	int firstedge; /* we must support > 64k edges */
-	short numedges;
+	unsigned int firstedge; /* we must support > 64k edges */
+	unsigned short numedges;
 	short texinfo;
 
 	/* lighting info */
@@ -420,6 +863,28 @@ typedef struct
 	int lightofs; /* start of [numstyles*surfsize] samples */
 } dface_t;
 
+typedef struct
+{
+	unsigned int planenum;
+	unsigned int side;
+
+	unsigned int firstedge; /* we must support > 64k edges */
+	unsigned int numedges;
+	int texinfo;
+
+	/* lighting info */
+	byte styles[MAXLIGHTMAPS];
+	int lightofs; /* start of [numstyles*surfsize] samples */
+} dqface_t;
+
+typedef struct {
+	unsigned short	lmwidth;
+	unsigned short	lmheight;
+	int	lightofs;
+	float	vecs[2][4];
+} dlminfo_t;
+
+/* Quake2 Leafs struct */
 typedef struct
 {
 	int contents; /* OR of all brushes (not needed?) */
@@ -439,22 +904,45 @@ typedef struct
 
 typedef struct
 {
+	int contents; /* OR of all brushes (not needed?) */
+
+	int cluster;
+	int area;
+
+	float mins[3]; /* for frustum culling */
+	float maxs[3];
+
+	unsigned int firstleafface;
+	unsigned int numleaffaces;
+
+	unsigned int firstleafbrush;
+	unsigned int numleafbrushes;
+} dqleaf_t;
+
+typedef struct
+{
 	unsigned short planenum; /* facing out of the leaf */
 	short texinfo;
 } dbrushside_t;
 
 typedef struct
 {
-	int firstside;
-	int numsides;
+	unsigned int planenum; /* facing out of the leaf */
+	int texinfo;
+} dqbrushside_t;
+
+typedef struct
+{
+	unsigned int firstside;
+	unsigned int numsides;
 	int contents;
 } dbrush_t;
 
 #define ANGLE_UP -1
 #define ANGLE_DOWN -2
 
-/* the visibility lump consists of a header with a count, then 
- * byte offsets for the PVS and PHS of each cluster, then the raw 
+/* the visibility lump consists of a header with a count, then
+ * byte offsets for the PVS and PHS of each cluster, then the raw
  * compressed bit vectors */
 #define DVIS_PVS 0
 #define DVIS_PHS 1
@@ -478,6 +966,245 @@ typedef struct
 	int numareaportals;
 	int firstareaportal;
 } darea_t;
+
+/* Daikatana */
+#define BSPDKMVERSION 41
+#define HEADER_DKLUMPS 21
+
+/* Leafs struct */
+typedef struct
+{
+	int contents; /* OR of all brushes (not needed?) */
+
+	short cluster;
+	short area;
+
+	short mins[3]; /* for frustum culling */
+	short maxs[3];
+
+	unsigned short firstleafface;
+	unsigned short numleaffaces;
+
+	unsigned short firstleafbrush;
+	unsigned short numleafbrushes;
+
+	int unknow; /* some unused additional field */
+} ddkleaf_t;
+
+/* SiN structures */
+#define RBSPHEADER (('P' << 24) + ('S' << 16) + ('B' << 8) + 'R') /* little-endian "RBSP" */
+#define BSPSINVERSION 1
+
+typedef struct texsininfo_s
+{
+	float vecs[2][4]; /* [s/t][xyz offset] */
+	int flags;        /* miptex flags + overrides light emission, etc */
+	char texture[64]; /* texture name (textures*.wal) */
+	int nexttexinfo;  /* for animations, -1 = end of chain */
+	char unknown[76]; /* no idea what is it */
+} texrinfo_t;
+
+#define MAXSINLIGHTMAPS 16
+typedef struct
+{
+	unsigned short planenum;
+	unsigned short side;
+
+	unsigned int firstedge; /* we must support > 64k edges */
+	unsigned short numedges;
+	short texinfo;
+
+	/* lighting info */
+	byte styles[MAXSINLIGHTMAPS];
+	int lightofs; /* start of [numstyles*surfsize] samples */
+	int unknown;  /* no idea what is it */
+} drface_t;
+
+typedef struct
+{
+	unsigned short planenum; /* facing out of the leaf */
+	short texinfo;
+	int unknown;  /* no idea what is it */
+} drbrushside_t;
+
+#define SDEFHEADER (('F' << 24) + ('E' << 16) + ('D' << 8) + 'S') /* little-endian "SDEF" */
+#define SBMHEADER ((' ' << 24) + ('M' << 16) + ('B' << 8) + 'S') /* little-endian "SBM " */
+#define SAMHEADER ((' ' << 24) + ('M' << 16) + ('A' << 8) + 'S') /* little-endian "SAM " */
+#define MDSINVERSION 1
+
+typedef struct
+{
+	float s,t;
+} st_vert_t;
+
+typedef struct
+{
+	short index_xyz[3];
+	short index_st[3];
+	int id;
+} sin_triangle_t;
+
+typedef struct
+{
+	int id;
+	int num_tris;
+	int num_glcmds;		// dwords in strip/fan command list
+	int ofs_glcmds;
+	int ofs_tris;
+	int ofs_end;
+} sin_trigroup_t;
+
+typedef struct
+{
+	int ident;
+	int version;
+
+	int num_xyz;
+	int num_st;			// greater than num_xyz for seams
+	int num_groups;		// groups should be exactly after it as sin_trigroup_t
+
+	int ofs_st;			// byte offset from start for stverts
+	int ofs_end;		// end of file
+} sin_sbm_header_t;
+
+typedef struct
+{
+	float movedelta[3]; // used for driving the model around
+	float frametime;
+	float scale[3];	// multiply byte verts by this
+	float translate[3];	// then add this
+	int ofs_verts;
+} sin_frame_t;
+
+typedef struct
+{
+	int ident;
+	int version;
+	char name[64];
+	float scale[3]; // multiply byte verts by this
+	float translate[3]; // then add this
+	float totaldelta[3]; // total displacement of this animation
+	float totaltime;
+	int num_xyz;
+	int num_frames;
+	int ofs_frames;
+	int ofs_end; // end of file
+} sin_sam_header_t;
+
+/*
+ * Here are the definitions for Ravensoft's model format of md4. Raven stores their
+ * playermodels in .mdr files, in some games, which are pretty much like the md4
+ * format implemented by ID soft. It seems like ID's original md4 stuff is not used at all.
+ * MDR is being used in EliteForce, JediKnight2 and Soldiers of Fortune2 (I think).
+ * So this comes in handy for anyone who wants to make it possible to load player
+ * models from these games.
+ * This format has bone tags, which is similar to the thing you have in md3 I suppose.
+ * Raven has released their version of md3view under GPL enabling me to add support
+ * to this codebase. Thanks to Steven Howes aka Skinner for helping with example
+ * source code.
+ *
+ * - Thilo Schulz (arny@ats.s.bawue.de)
+ */
+
+#define MDR_IDENT (('5'<<24)+('M'<<16)+('D'<<8)+'R')
+#define MDR_VERSION 2
+
+typedef struct {
+	int bone_index; // these are indexes into the boneReferences,
+	float bone_weight; // not the global per-frame bone list
+	vec3_t offset;
+} mdr_weight_t;
+
+typedef struct {
+	vec3_t normal;
+	vec2_t texcoords;
+	int num_weights;
+	mdr_weight_t weights[1]; // variable sized
+} mdr_vertex_t;
+
+typedef struct {
+	int ident;
+
+	char name[MAX_QPATH]; // polyset name
+	char shader[MAX_QPATH];
+	int shader_index; // for in-game use
+
+	int ofs_header; // this will be a negative number
+
+	int num_verts;
+	int ofs_verts;
+
+	int num_tris;
+	int ofs_tris;
+
+	// Bone references are a set of ints representing all the bones
+	// present in any vertex weights for this surface.  This is
+	// needed because a model may have surfaces that need to be
+	// drawn at different sort times, and we don't want to have
+	// to re-interpolate all the bones for each surface.
+	int num_bonereferences;
+	int ofs_bonereferences;
+
+	int ofs_end; // next surface follows
+} mdr_surface_t;
+
+typedef struct {
+	float matrix[3][4];
+} mdr_bone_t;
+
+typedef struct {
+	vec3_t bounds[2]; // bounds of all surfaces of all LOD's for this frame
+	vec3_t origin; // midpoint of bounds, used for sphere cull
+	float radius; // dist from origin to corner
+	char name[16];
+	mdr_bone_t bones[1]; // [num_bones]
+} mdr_frame_t;
+
+typedef struct {
+	unsigned char Comp[24]; // MC_COMP_BYTES is in MatComp.h, but don't want to couple
+} mdr_compbone_t;
+
+typedef struct {
+	vec3_t bounds[2]; // bounds of all surfaces of all LOD's for this frame
+	vec3_t origin; // midpoint of bounds, used for sphere cull
+	float radius; // dist from origin to corner
+	mdr_compbone_t bones[1]; // [num_bones]
+} mdr_compframe_t;
+
+typedef struct {
+	int num_surfaces;
+	int ofs_surfaces; // first surface, others follow
+	int ofs_end; // next lod follows
+} mdr_lod_t;
+
+typedef struct {
+	int bone_index;
+	char name[32];
+} mdr_tag_t;
+
+typedef struct {
+	int ident;
+	int version;
+
+	char name[MAX_QPATH]; // model name
+
+	// frames and bones are shared by all levels of detail
+	int num_frames;
+	int num_bones;
+	int ofs_frames; // mdr_frame_t[numFrames]
+
+	// each level of detail has completely separate sets of surfaces
+	int num_lods;
+	int ofs_lods;
+
+	int num_tags;
+	int ofs_tags;
+
+	int ofs_end; // end of file
+} mdr_header_t;
+
+/* Quake 1 BSP */
+#define BSPQ1VERSION 29
 
 #endif
 

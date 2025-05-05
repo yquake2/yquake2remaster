@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +27,14 @@
 
 #include "../header/local.h"
 
+/*
+ * ======================================================================
+ *
+ * INTERMISSION
+ *
+ * ======================================================================
+ */
+
 void
 MoveClientToIntermission(edict_t *ent)
 {
@@ -39,10 +48,10 @@ MoveClientToIntermission(edict_t *ent)
 		ent->client->showscores = true;
 	}
 
+	/*
+	 * set ps.pmove.origin is not required as server uses ent.origin instead
+	 */
 	VectorCopy(level.intermission_origin, ent->s.origin);
-	ent->client->ps.pmove.origin[0] = level.intermission_origin[0] * 8;
-	ent->client->ps.pmove.origin[1] = level.intermission_origin[1] * 8;
-	ent->client->ps.pmove.origin[2] = level.intermission_origin[2] * 8;
 	VectorCopy(level.intermission_angle, ent->client->ps.viewangles);
 	ent->client->ps.pmove.pm_type = PM_FREEZE;
 	ent->client->ps.gunindex = 0;
@@ -52,10 +61,20 @@ MoveClientToIntermission(edict_t *ent)
 	/* clean up powerup info */
 	ent->client->quad_framenum = 0;
 	ent->client->invincible_framenum = 0;
+	ent->client->invisible_framenum = 0;
 	ent->client->breather_framenum = 0;
 	ent->client->enviro_framenum = 0;
 	ent->client->grenade_blew_up = false;
 	ent->client->grenade_time = 0;
+	ent->client->quadfire_framenum = 0;
+	ent->client->trap_blew_up = false;
+	ent->client->trap_time = 0;
+	ent->client->ir_framenum = 0;
+	ent->client->nuke_framenum = 0;
+	ent->client->double_framenum = 0;
+
+	ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
+
 
 	ent->viewheight = 0;
 	ent->s.modelindex = 0;
@@ -92,6 +111,11 @@ BeginIntermission(edict_t *targ)
 		return; /* already activated */
 	}
 
+	if (deathmatch->value && ctf->value)
+	{
+		CTFCalcScores();
+	}
+
 	game.autosaved = false;
 
 	/* respawn any dead clients */
@@ -110,6 +134,9 @@ BeginIntermission(edict_t *targ)
 		{
 			respawn(client);
 		}
+
+		/* Save third person view */
+		client->client->pers.chasetoggle = client->client->chasetoggle;
 	}
 
 	level.intermissiontime = level.time;
@@ -229,6 +256,12 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 		return;
 	}
 
+	if (ctf->value)
+	{
+		CTFScoreboardMessage(ent, killer);
+		return;
+	}
+
 	/* sort the clients by score */
 	total = 0;
 
@@ -304,6 +337,15 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 			tag = NULL;
 		}
 
+		/* allow new DM games to override the tag picture */
+		if (gamerules && gamerules->value)
+		{
+			if (DMGame.DogTag)
+			{
+				DMGame.DogTag(cl_ent, killer, &tag);
+			}
+		}
+
 		if (tag)
 		{
 			Com_sprintf(entry, sizeof(entry),
@@ -339,6 +381,9 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	gi.WriteString(string);
 }
 
+/*
+ * Draw help computer.
+ */
 void
 HelpComputerMessage(edict_t *ent)
 {
@@ -378,34 +423,37 @@ HelpComputerMessage(edict_t *ent)
 			"xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" ",
 			sk,
 			level.level_name,
-			game.helpmessage1,
-			game.helpmessage2,
+			LocalizationMessage(game.helpmessage1, NULL),
+			LocalizationMessage(game.helpmessage2, NULL),
 			level.killed_monsters, level.total_monsters,
 			level.found_goals, level.total_goals,
 			level.found_secrets, level.total_secrets);
 
 	gi.WriteByte(svc_layout);
 	gi.WriteString(string);
+	gi.unicast(ent, true);
 }
 
+/*
+ * Display the current help message
+ */
 void
 InventoryMessage(edict_t *ent)
 {
-        int i;
+	int i;
 
-        if (!ent)
-        {
-                return;
-        }
+	if (!ent)
+	{
+		return;
+	}
 
-        gi.WriteByte(svc_inventory);
+	gi.WriteByte(svc_inventory);
 
-        for (i = 0; i < MAX_ITEMS; i++)
-        {
-                gi.WriteShort(ent->client->pers.inventory[i]);
-        }
+	for (i = 0; i < MAX_ITEMS; i++)
+	{
+		gi.WriteShort(ent->client->pers.inventory[i]);
+	}
 }
-
 
 /* ======================================================================= */
 
@@ -438,6 +486,8 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_AMMO] =
 			ent->client->pers.inventory[ent->client->ammo_index];
 	}
+
+	cells = 0;
 
 	/* armor */
 	power_armor_type = PowerArmorType(ent);
@@ -490,12 +540,31 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->quad_framenum - level.framenum) / 10;
 	}
+	else if (ent->client->double_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_double");
+		ent->client->ps.stats[STAT_TIMER] =
+			(ent->client->double_framenum - level.framenum) / 10;
+	}
+	else if (ent->client->quadfire_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_quadfire");
+		ent->client->ps.stats[STAT_TIMER] = (ent->client->quadfire_framenum
+				- level.framenum) / 10;
+	}
 	else if (ent->client->invincible_framenum > level.framenum)
 	{
 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(
 				"p_invulnerability");
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->invincible_framenum - level.framenum) / 10;
+	}
+	else if (ent->client->invisible_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex(
+				"p_cloaker");
+		ent->client->ps.stats[STAT_TIMER] =
+			(ent->client->invisible_framenum - level.framenum) / 10;
 	}
 	else if (ent->client->enviro_framenum > level.framenum)
 	{
@@ -509,6 +578,35 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER] =
 			(ent->client->breather_framenum - level.framenum) / 10;
 	}
+	else if (ent->client->owned_sphere)
+	{
+		if (ent->client->owned_sphere->spawnflags == 1) /* defender */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] =
+				gi.imageindex("p_defender");
+		}
+		else if (ent->client->owned_sphere->spawnflags == 2) /* hunter */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_hunter");
+		}
+		else if (ent->client->owned_sphere->spawnflags == 4) /* vengeance */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] =
+				gi.imageindex("p_vengeance");
+		}
+		else /* error case */
+		{
+			ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("i_fixme");
+		}
+
+		ent->client->ps.stats[STAT_TIMER] =
+			(int)(ent->client->owned_sphere->wait - level.time);
+	}
+	else if (ent->client->ir_framenum > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_ir");
+		ent->client->ps.stats[STAT_TIMER] =
+			(ent->client->ir_framenum - level.framenum) / 10; }
 	else
 	{
 		ent->client->ps.stats[STAT_TIMER_ICON] = 0;
@@ -566,7 +664,8 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_HELPICON] = gi.imageindex("i_help");
 	}
 	else if (((ent->client->pers.hand == CENTER_HANDED) ||
-			  (ent->client->ps.fov > 91)) &&
+			  (ent->client->ps.fov > 91) ||
+			  (ent->client->chasetoggle)) &&
 			 ent->client->pers.weapon)
 	{
 		cvar_t *gun;
@@ -587,7 +686,14 @@ G_SetStats(edict_t *ent)
 		ent->client->ps.stats[STAT_HELPICON] = 0;
 	}
 
-	ent->client->ps.stats[STAT_SPECTATOR] = 0;
+	if (ctf->value)
+	{
+		SetCTFStats(ent);
+	}
+	else
+	{
+		ent->client->ps.stats[STAT_SPECTATOR] = 0;
+	}
 }
 
 void

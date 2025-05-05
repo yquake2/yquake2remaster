@@ -63,7 +63,7 @@ static WSADATA winsockdata;
 
 /* ============================================================================= */
 
-void
+static void
 NetadrToSockadr(netadr_t *a, struct sockaddr_storage *s)
 {
 	struct sockaddr_in6 *s6;
@@ -150,7 +150,7 @@ NetadrToSockadr(netadr_t *a, struct sockaddr_storage *s)
 	}
 }
 
-void
+static void
 SockadrToNetadr(struct sockaddr_storage *s, netadr_t *a)
 {
 	struct sockaddr_in6 *s6;
@@ -277,7 +277,7 @@ NET_CompareBaseAdr(netadr_t a, netadr_t b)
 	return false;
 }
 
-char *
+static char *
 NET_BaseAdrToString(netadr_t a)
 {
 	static char s[64];
@@ -382,7 +382,7 @@ NET_AdrToString(netadr_t a)
  * 192.246.40.70
  * 192.246.40.70:28000
  */
-qboolean
+static qboolean
 NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 {
 	char copy[128];
@@ -492,7 +492,7 @@ NET_IsLocalAddress(netadr_t adr)
 
 /* ============================================================================= */
 
-qboolean
+static qboolean
 NET_GetLoopPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 {
 	int i;
@@ -520,7 +520,7 @@ NET_GetLoopPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 	return true;
 }
 
-void
+static void
 NET_SendLoopPacket(netsrc_t sock, int length, void *data, netadr_t to)
 {
 	int i;
@@ -968,7 +968,7 @@ NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 	return newsocket;
 }
 
-void
+static void
 NET_OpenIP(void)
 {
 	cvar_t *ip;
@@ -1100,7 +1100,7 @@ NET_IPXSocket(int port)
 	return newsocket;
 }
 
-void
+static void
 NET_OpenIPX(void)
 {
 	int port;

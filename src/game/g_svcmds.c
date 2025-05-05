@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +29,7 @@
 
 #define MAX_IPFILTERS 1024
 
-void
+static void
 Svcmd_Test_f(void)
 {
 	gi.cprintf(NULL, PRINT_HIGH, "Svcmd_Test_f()\n");
@@ -130,6 +131,7 @@ StringToFilter(char *s, ipfilter_t *f)
 		s++;
 	}
 
+	/* PVS NOTE: maybe use memcpy here instead? */
 	f->mask = *(unsigned *)m;
 	f->compare = *(unsigned *)b;
 
@@ -170,6 +172,7 @@ SV_FilterPacket(char *from)
 		i++, p++;
 	}
 
+	/* PVS NOTE: maybe use memcpy instead? */
 	in = *(unsigned *)m;
 
 	for (i = 0; i < numipfilters; i++)
@@ -183,7 +186,7 @@ SV_FilterPacket(char *from)
 	return (filterban->value == 0);
 }
 
-void
+static void
 SVCmd_AddIP_f(void)
 {
 	int i;
@@ -219,7 +222,7 @@ SVCmd_AddIP_f(void)
 	}
 }
 
-void
+static void
 SVCmd_RemoveIP_f(void)
 {
 	ipfilter_t f;
@@ -255,7 +258,7 @@ SVCmd_RemoveIP_f(void)
 	gi.cprintf(NULL, PRINT_HIGH, "Didn't find %s.\n", gi.argv(2));
 }
 
-void
+static void
 SVCmd_ListIP_f(void)
 {
 	int i;
@@ -265,30 +268,28 @@ SVCmd_ListIP_f(void)
 
 	for (i = 0; i < numipfilters; i++)
 	{
+		/* PVS NOTE: maybe use memcpy instead? */
 		*(unsigned *)b = ipfilters[i].compare;
 		gi.cprintf(NULL, PRINT_HIGH, "%3i.%3i.%3i.%3i\n", b[0],
 				b[1], b[2], b[3]);
 	}
 }
 
-void
+static void
 SVCmd_WriteIP_f(void)
 {
 	FILE *f;
 	char name[MAX_OSPATH];
 	YQ2_ALIGNAS_TYPE(unsigned) byte b[4];
 	int i;
-	cvar_t *game;
 
-	game = gi.cvar("game", "", 0);
-
-	if (!*game->string)
+	if (!*g_game->string)
 	{
 		sprintf(name, "%s/listip.cfg", GAMEVERSION);
 	}
 	else
 	{
-		sprintf(name, "%s/listip.cfg", game->string);
+		sprintf(name, "%s/listip.cfg", g_game->string);
 	}
 
 	gi.cprintf(NULL, PRINT_HIGH, "Writing %s.\n", name);
@@ -305,6 +306,7 @@ SVCmd_WriteIP_f(void)
 
 	for (i = 0; i < numipfilters; i++)
 	{
+		/* PVS NOTE: maybe use memcpy instead? */
 		*(unsigned *)b = ipfilters[i].compare;
 		fprintf(f, "sv addip %i.%i.%i.%i\n", b[0], b[1], b[2], b[3]);
 	}
@@ -344,6 +346,35 @@ ServerCommand(void)
 	{
 		SVCmd_WriteIP_f();
 	}
+	/* JABot[start] */
+	else if (Q_stricmp(cmd, "addbot") == 0)
+	{
+		if (ctf->value) // name, skin, team
+		{
+			BOT_SpawnBot(gi.argv(2), gi.argv(3), gi.argv(4), NULL);
+		}
+		else // name, skin
+		{
+			BOT_SpawnBot(NULL, gi.argv(2), gi.argv(3), NULL);
+		}
+	}
+	else if (Q_stricmp(cmd, "editnodes") == 0)
+	{
+		AITools_InitEditnodes();
+	}
+	else if (!Q_stricmp(cmd, "makenodes"))
+	{
+		AITools_InitMakenodes();
+	}
+	else if (!Q_stricmp (cmd, "savenodes"))
+	{
+		AITools_SaveNodes();
+	}
+	else if(Q_stricmp(cmd, "removebot") == 0)
+	{
+		BOT_RemoveBot(gi.argv(2));
+	}
+	/* [end] */
 	else
 	{
 		gi.cprintf(NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);

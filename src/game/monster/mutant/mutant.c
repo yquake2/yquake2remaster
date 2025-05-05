@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,6 +42,8 @@ static int sound_step2;
 static int sound_step3;
 static int sound_thud;
 
+void mutant_walk(edict_t *self);
+
 void
 mutant_step(edict_t *self)
 {
@@ -81,6 +84,11 @@ mutant_sight(edict_t *self, edict_t *other /* unused */)
 void
 mutant_search(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
@@ -158,7 +166,8 @@ mmove_t mutant_move_stand =
 {
 	FRAME_stand101,
 	FRAME_stand151,
-	mutant_frames_stand, NULL
+	mutant_frames_stand,
+	NULL
 };
 
 void
@@ -205,9 +214,9 @@ static mframe_t mutant_frames_idle[] = {
 mmove_t mutant_move_idle =
 {
 	FRAME_stand152,
-   	FRAME_stand164,
-   	mutant_frames_idle,
-   	mutant_stand
+	FRAME_stand164,
+	mutant_frames_idle,
+	mutant_stand
 };
 
 void
@@ -221,8 +230,6 @@ mutant_idle(edict_t *self)
 	self->monsterinfo.currentmove = &mutant_move_idle;
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
-
-void mutant_walk(edict_t *self);
 
 static mframe_t mutant_frames_walk[] = {
 	{ai_walk, 3, mutant_step},
@@ -243,8 +250,8 @@ mmove_t mutant_move_walk =
 {
 	FRAME_walk05,
 	FRAME_walk16,
-   	mutant_frames_walk,
-   	NULL
+	mutant_frames_walk,
+	NULL
 };
 
 void
@@ -270,7 +277,7 @@ mmove_t mutant_move_start_walk =
 	FRAME_walk01,
 	FRAME_walk04,
 	mutant_frames_start_walk,
-   	mutant_walk_loop
+	mutant_walk_loop
 };
 
 void
@@ -296,9 +303,9 @@ static mframe_t mutant_frames_run[] = {
 mmove_t mutant_move_run =
 {
 	FRAME_run03,
-   	FRAME_run08,
-   	mutant_frames_run,
-   	NULL
+	FRAME_run08,
+	mutant_frames_run,
+	NULL
 };
 
 void
@@ -396,9 +403,9 @@ static mframe_t mutant_frames_attack[] = {
 mmove_t mutant_move_attack =
 {
 	FRAME_attack09,
-   	FRAME_attack15,
-   	mutant_frames_attack,
-   	mutant_run
+	FRAME_attack15,
+	mutant_frames_attack,
+	mutant_run
 };
 
 void
@@ -416,7 +423,7 @@ void
 mutant_jump_touch(edict_t *self, edict_t *other,
 		cplane_t *plane /* unused */, csurface_t *surf /* unused */)
 {
-	if (!self)
+	if (!self || !other)
 	{
 		return;
 	}
@@ -520,8 +527,8 @@ mmove_t mutant_move_jump =
 {
 	FRAME_attack01,
 	FRAME_attack08,
-   	mutant_frames_jump,
-   	mutant_run
+	mutant_frames_jump,
+	mutant_run
 };
 
 void
@@ -633,8 +640,8 @@ mmove_t mutant_move_pain1 =
 {
 	FRAME_pain101,
 	FRAME_pain105,
-   	mutant_frames_pain1,
-   	mutant_run
+	mutant_frames_pain1,
+	mutant_run
 };
 
 static mframe_t mutant_frames_pain2[] = {
@@ -649,9 +656,9 @@ static mframe_t mutant_frames_pain2[] = {
 mmove_t mutant_move_pain2 =
 {
 	FRAME_pain201,
-   	FRAME_pain206,
-   	mutant_frames_pain2,
-   	mutant_run
+	FRAME_pain206,
+	mutant_frames_pain2,
+	mutant_run
 };
 
 static mframe_t mutant_frames_pain3[] = {
@@ -681,6 +688,11 @@ mutant_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage /* unused */)
 {
 	float r;
+
+	if (!self)
+	{
+		return;
+	}
 
 	if (self->health < (self->max_health / 2))
 	{
@@ -750,9 +762,9 @@ static mframe_t mutant_frames_death1[] = {
 mmove_t mutant_move_death1 =
 {
 	FRAME_death101,
-   	FRAME_death109,
-   	mutant_frames_death1,
-   	mutant_dead
+	FRAME_death109,
+	mutant_frames_death1,
+	mutant_dead
 };
 
 static mframe_t mutant_frames_death2[] = {
@@ -790,7 +802,7 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex( "misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{
@@ -830,8 +842,123 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 	}
 }
 
+static void
+mutant_jump_down(edict_t *self)
+{
+	vec3_t forward, up;
+
+	if (!self)
+	{
+		return;
+	}
+
+	AngleVectors(self->s.angles, forward, NULL, up);
+	VectorMA(self->velocity, 100, forward, self->velocity);
+	VectorMA(self->velocity, 300, up, self->velocity);
+}
+
+static void
+mutant_jump_up(edict_t *self)
+{
+	vec3_t forward, up;
+
+	if (!self)
+	{
+		return;
+	}
+
+	AngleVectors(self->s.angles, forward, NULL, up);
+	VectorMA(self->velocity, 200, forward, self->velocity);
+	VectorMA(self->velocity, 450, up, self->velocity);
+}
+
+static void
+mutant_jump_wait_land(edict_t *self)
+{
+	if (self->groundentity == NULL)
+	{
+		self->monsterinfo.nextframe = self->s.frame;
+	}
+	else
+	{
+		self->monsterinfo.nextframe = self->s.frame + 1;
+	}
+}
+
+static mframe_t mutant_frames_jump_up[] = {
+	{ai_move, -8, NULL},
+	{ai_move, -8, mutant_jump_up},
+	{ai_move, 0, mutant_jump_wait_land},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
+};
+
+mmove_t mutant_move_jump_up = {
+	FRAME_jump01,
+	FRAME_jump05,
+	mutant_frames_jump_up,
+	mutant_run
+};
+
+static mframe_t mutant_frames_jump_down[] = {
+	{ai_move, 0, NULL},
+	{ai_move, 0, mutant_jump_down},
+	{ai_move, 0, mutant_jump_wait_land},
+	{ai_move, 0, NULL},
+	{ai_move, 0, NULL}
+};
+
+mmove_t mutant_move_jump_down = {
+	FRAME_jump01,
+	FRAME_jump05,
+	mutant_frames_jump_down,
+	mutant_run
+};
+
+static void
+mutant_jump_updown(edict_t *self)
+{
+	if (!self || !self->enemy)
+	{
+		return;
+	}
+
+	if (self->enemy->absmin[2] > self->absmin[2])
+	{
+		self->monsterinfo.currentmove = &mutant_move_jump_up;
+	}
+	else
+	{
+		self->monsterinfo.currentmove = &mutant_move_jump_down;
+	}
+}
+
+qboolean
+mutant_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkjump(self, dist, 256, 68))
+	{
+		mutant_jump_updown(self);
+		return true;
+	}
+
+	if (blocked_checkplat(self, dist))
+		return true;
+
+	return false;
+}
+
 /*
  * QUAKED monster_mutant (1 .5 0) (-32 -32 -24) (32 32 32) Ambush Trigger_Spawn Sight
+ */
+
+/*
+ * QUAKED monster_mutantv (1 .5 0) (-32 -32 -24) (32 32 32) Ambush Trigger_Spawn Sight
  */
 void
 SP_monster_mutant(edict_t *self)
@@ -863,11 +990,18 @@ SP_monster_mutant(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->s.modelindex = gi.modelindex("models/monsters/mutant/tris.md2");
+	if (!strcmp(self->classname, "monster_mutantv"))
+	{
+		self->s.modelindex = gi.modelindex("models/vault/monsters/mutant/tris.md2");
+	}
+	else
+	{
+		self->s.modelindex = gi.modelindex("models/monsters/mutant/tris.md2");
+	}
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 48);
 
-	self->health = 300;
+	self->health = 300 * st.health_multiplier;
 	self->gib_health = -120;
 	self->mass = 300;
 
@@ -884,6 +1018,7 @@ SP_monster_mutant(edict_t *self)
 	self->monsterinfo.search = mutant_search;
 	self->monsterinfo.idle = mutant_idle;
 	self->monsterinfo.checkattack = mutant_checkattack;
+	self->monsterinfo.blocked = mutant_blocked;
 
 	gi.linkentity(self);
 

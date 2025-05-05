@@ -2,6 +2,7 @@
  * Copyright (C) 1997-2001 Id Software, Inc.
  * Copyright (C) 2011 Knightmare
  * Copyright (C) 2011 Yamagi Burmeister
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +28,9 @@
  */
 
 {"changemap", LLOFS(changemap), F_LSTRING},
+{"disguise_violator", LLOFS(disguise_violator), F_EDICT},
 {"sight_client", LLOFS(sight_client), F_EDICT},
 {"sight_entity", LLOFS(sight_entity), F_EDICT},
-{"sound_entity", LLOFS(sound_entity), F_EDICT},
 {"sound2_entity", LLOFS(sound2_entity), F_EDICT},
+{"sound_entity", LLOFS(sound_entity), F_EDICT},
 {NULL, 0, F_INT}

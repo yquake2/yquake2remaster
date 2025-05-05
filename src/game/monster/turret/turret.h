@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,72 +20,25 @@
  *
  * =======================================================================
  *
- * The PVS Decompress
+ * Turret animations.
  *
  * =======================================================================
  */
 
-#include "../ref_shared.h"
-
-
-/*
-===================
-Mod_DecompressVis
-===================
-*/
-const byte *
-Mod_DecompressVis(const byte *in, int row)
-{
-	YQ2_ALIGNAS_TYPE(int) static byte decompressed[MAX_MAP_LEAFS / 8];
-	int c;
-	byte *out;
-
-	out = decompressed;
-
-	if (!in)
-	{
-		/* no vis info, so make all visible */
-		while (row)
-		{
-			*out++ = 0xff;
-			row--;
-		}
-
-		return decompressed;
-	}
-
-	do
-	{
-		if (*in)
-		{
-			*out++ = *in++;
-			continue;
-		}
-
-		c = in[1];
-		in += 2;
-
-		while (c)
-		{
-			*out++ = 0;
-			c--;
-		}
-	}
-	while (out - decompressed < row);
-
-	return decompressed;
-}
-
-float
-Mod_RadiusFromBounds(const vec3_t mins, const vec3_t maxs)
-{
-	int i;
-	vec3_t corner;
-
-	for (i = 0; i < 3; i++)
-	{
-		corner[i] = fabs(mins[i]) > fabs(maxs[i]) ? fabs(mins[i]) : fabs(maxs[i]);
-	}
-
-	return VectorLength(corner);
-}
+#define FRAME_stand01         	0
+#define FRAME_stand02         	1
+#define FRAME_active01        	2
+#define FRAME_active02        	3
+#define FRAME_active03        	4
+#define FRAME_active04        	5
+#define FRAME_active05        	6
+#define FRAME_active06        	7
+#define FRAME_run01           	8
+#define FRAME_run02           	9
+#define FRAME_pow01           	10
+#define FRAME_pow02           	11
+#define FRAME_pow03           	12
+#define FRAME_pow04           	13
+#define FRAME_death01         	14
+#define FRAME_death02         	15
+#define MODEL_SCALE				3.500000

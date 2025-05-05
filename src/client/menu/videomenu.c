@@ -470,7 +470,7 @@ VID_MenuInit(void)
 		"on",
 		0
 	};
-	
+
 	static const char *yesno_names[] = {
 		"no",
 		"yes",
@@ -683,7 +683,7 @@ VID_MenuInit(void)
 			s_vk_overbrightbits_slider.minvalue = 0.1f;
 			s_vk_overbrightbits_slider.maxvalue = 5.0f;
 
-			vk_dynamic = Cvar_Get("vk_dynamic", "1", CVAR_ARCHIVE);
+			vk_dynamic = Cvar_Get("r_dynamic", "1", CVAR_ARCHIVE);
 			s_vk_dynamic_list.generic.type = MTYPE_SPINCONTROL;
 			s_vk_dynamic_list.generic.name = "dynamic light";
 			s_vk_dynamic_list.generic.x = 0;
@@ -788,7 +788,7 @@ VID_MenuInit(void)
 				pow(2, s_msaa_list.curvalue) <= gl_msaa_samples->value);
 		s_msaa_list.curvalue--;
 	}
-	
+
 	s_filter_list.generic.type = MTYPE_SPINCONTROL;
 	s_filter_list.generic.name = "texture filter";
 	s_filter_list.curvalue = 0;
@@ -965,11 +965,9 @@ VID_MenuKey(int key)
 void
 M_Menu_Video_f(void)
 {
-    VID_MenuInit();
-    s_opengl_menu.draw = VID_MenuDraw;
-    s_opengl_menu.key  = VID_MenuKey;
+	VID_MenuInit();
+	s_opengl_menu.draw = VID_MenuDraw;
+	s_opengl_menu.key  = VID_MenuKey;
 
-    M_PushMenu(&s_opengl_menu);
+	M_PushMenu(&s_opengl_menu);
 }
-
-

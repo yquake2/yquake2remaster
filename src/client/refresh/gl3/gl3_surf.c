@@ -37,9 +37,8 @@ static msurface_t *gl3_alpha_surfaces;
 
 gl3lightmapstate_t gl3_lms;
 
-#define BACKFACE_EPSILON 0.01
 
-extern gl3image_t gl3textures[MAX_GL3TEXTURES];
+extern gl3image_t gl3textures[MAX_TEXTURES];
 extern int numgl3textures;
 
 void GL3_SurfInit(void)
@@ -61,19 +60,19 @@ void GL3_SurfInit(void)
 	}
 
 	glEnableVertexAttribArray(GL3_ATTRIB_POSITION);
-	qglVertexAttribPointer(GL3_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), 0);
+	qglVertexAttribPointer(GL3_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), 0);
 
 	glEnableVertexAttribArray(GL3_ATTRIB_TEXCOORD);
-	qglVertexAttribPointer(GL3_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, texCoord));
+	qglVertexAttribPointer(GL3_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), offsetof(mvtx_t, texCoord));
 
 	glEnableVertexAttribArray(GL3_ATTRIB_LMTEXCOORD);
-	qglVertexAttribPointer(GL3_ATTRIB_LMTEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, lmTexCoord));
+	qglVertexAttribPointer(GL3_ATTRIB_LMTEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), offsetof(mvtx_t, lmTexCoord));
 
 	glEnableVertexAttribArray(GL3_ATTRIB_NORMAL);
-	qglVertexAttribPointer(GL3_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, normal));
+	qglVertexAttribPointer(GL3_ATTRIB_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(mvtx_t), offsetof(mvtx_t, normal));
 
 	glEnableVertexAttribArray(GL3_ATTRIB_LIGHTFLAGS);
-	qglVertexAttribIPointer(GL3_ATTRIB_LIGHTFLAGS, 1, GL_UNSIGNED_INT, sizeof(gl3_3D_vtx_t), offsetof(gl3_3D_vtx_t, lightFlags));
+	qglVertexAttribIPointer(GL3_ATTRIB_LIGHTFLAGS, 1, GL_UNSIGNED_INT, sizeof(mvtx_t), offsetof(mvtx_t, lightFlags));
 
 
 
@@ -141,7 +140,7 @@ SetLightFlags(msurface_t *surf)
 		lightFlags = surf->dlightbits;
 	}
 
-	gl3_3D_vtx_t* verts = surf->polys->vertices;
+	mvtx_t* verts = surf->polys->verts;
 
 	int numVerts = surf->polys->numverts;
 	for(int i=0; i<numVerts; ++i)
@@ -155,7 +154,7 @@ SetAllLightFlags(msurface_t *surf)
 {
 	unsigned int lightFlags = 0xffffffff;
 
-	gl3_3D_vtx_t* verts = surf->polys->vertices;
+	mvtx_t* verts = surf->polys->verts;
 
 	int numVerts = surf->polys->numverts;
 	for(int i=0; i<numVerts; ++i)
@@ -167,50 +166,47 @@ SetAllLightFlags(msurface_t *surf)
 void
 GL3_DrawGLPoly(msurface_t *fa)
 {
-	glpoly_t *p = fa->polys;
+	mpoly_t *p = fa->polys;
 
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
 
-	GL3_BufferAndDraw3D(p->vertices, p->numverts, GL_TRIANGLE_FAN);
+	GL3_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN);
 }
 
 void
 GL3_DrawGLFlowingPoly(msurface_t *fa)
 {
-	glpoly_t *p;
-	float scroll;
+	mpoly_t *p;
+	float sscroll, tscroll;
 
 	p = fa->polys;
 
-	scroll = -64.0f * ((gl3_newrefdef.time / 40.0f) - (int)(gl3_newrefdef.time / 40.0f));
+	R_FlowingScroll(&gl3_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	if (scroll == 0.0f)
+	if((gl3state.uni3DData.sscroll != sscroll) || (gl3state.uni3DData.tscroll != tscroll))
 	{
-		scroll = -64.0f;
-	}
-
-	if(gl3state.uni3DData.scroll != scroll)
-	{
-		gl3state.uni3DData.scroll = scroll;
+		gl3state.uni3DData.sscroll = sscroll;
+		gl3state.uni3DData.tscroll = tscroll;
 		GL3_UpdateUBO3D();
 	}
+
 
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
 
-	GL3_BufferAndDraw3D(p->vertices, p->numverts, GL_TRIANGLE_FAN);
+	GL3_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN);
 }
 
 static void
 DrawTriangleOutlines(void)
 {
-	STUB_ONCE("TODO: Implement for gl_showtris support!");
+	STUB_ONCE("TODO: Implement for r_showtris support!");
 #if 0
 	int i, j;
-	glpoly_t *p;
+	mpoly_t *p;
 
-	if (!gl_showtris->value)
+	if (!r_showtris->value)
 	{
 		return;
 	}
@@ -238,10 +234,10 @@ DrawTriangleOutlines(void)
 
 					for (k=0; k<3; k++)
 					{
-						vtx[0+k] = p->vertices [ 0 ][ k ];
-						vtx[3+k] = p->vertices [ j - 1 ][ k ];
-						vtx[6+k] = p->vertices [ j ][ k ];
-						vtx[9+k] = p->vertices [ 0 ][ k ];
+						vtx[0+k] = p->verts [ 0 ][ k ];
+						vtx[3+k] = p->verts [ j - 1 ][ k ];
+						vtx[6+k] = p->verts [ j ][ k ];
+						vtx[9+k] = p->verts [ 0 ][ k ];
 					}
 
 					glEnableClientState( GL_VERTEX_ARRAY );
@@ -325,7 +321,7 @@ RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 		lmScales[map].A = 1.0f;
 	}
 
-	if (fa->texinfo->flags & SURF_FLOWING)
+	if (fa->texinfo->flags & SURF_SCROLL)
 	{
 		GL3_UseProgram(gl3state.si3DlmFlow.shaderProgram);
 		UpdateLMscales(lmScales, &gl3state.si3DlmFlow);
@@ -370,6 +366,7 @@ GL3_DrawAlphaSurfaces(void)
 		{
 			alpha = 0.666f;
 		}
+
 		if(alpha != gl3state.uni3DData.alpha)
 		{
 			gl3state.uni3DData.alpha = alpha;
@@ -380,7 +377,7 @@ GL3_DrawAlphaSurfaces(void)
 		{
 			GL3_EmitWaterPolys(s);
 		}
-		else if (s->texinfo->flags & SURF_FLOWING)
+		else if (s->texinfo->flags & SURF_SCROLL)
 		{
 			GL3_UseProgram(gl3state.si3DtransFlow.shaderProgram);
 			GL3_DrawGLFlowingPoly(s);
@@ -446,7 +443,7 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
 	lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	assert((surf->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP)) == 0
+	assert((surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)) == 0
 			&& "RenderLightMappedPoly mustn't be called with transparent, sky or warping surfaces!");
 
 	// Any dynamic lights on this surface?
@@ -463,7 +460,7 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 	GL3_Bind(image->texnum);
 	GL3_BindLightmap(surf->lightmaptexturenum);
 
-	if (surf->texinfo->flags & SURF_FLOWING)
+	if (surf->texinfo->flags & SURF_SCROLL)
 	{
 		GL3_UseProgram(gl3state.si3DlmFlow.shaderProgram);
 		UpdateLMscales(lmScales, &gl3state.si3DlmFlow);
@@ -480,20 +477,14 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 static void
 DrawInlineBModel(entity_t *currententity, gl3model_t *currentmodel)
 {
-	int i, k;
+	int i;
 	cplane_t *pplane;
 	float dot;
 	msurface_t *psurf;
-	dlight_t *lt;
 
 	/* calculate dynamic lighting for bmodel */
-	lt = gl3_newrefdef.dlights;
-
-	for (k = 0; k < gl3_newrefdef.num_dlights; k++, lt++)
-	{
-		R_MarkLights(lt, 1 << k, currentmodel->nodes + currentmodel->firstnode,
-			r_dlightframecount, GL3_MarkSurfaceLights);
-	}
+	R_PushDlights(&gl3_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 
@@ -518,7 +509,7 @@ DrawInlineBModel(entity_t *currententity, gl3model_t *currentmodel)
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
-			if (psurf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+			if (psurf->texinfo->flags & SURF_TRANSPARENT)
 			{
 				/* add to the translucent chain */
 				psurf->texturechain = gl3_alpha_surfaces;
@@ -705,6 +696,12 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	RecursiveWorldNode(currententity, node->children[side]);
 
+	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->numsurfaces)
+	{
+		R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+		return;
+	}
+
 	/* draw stuff */
 	for (c = node->numsurfaces,
 		 surf = gl3_worldmodel->surfaces + node->firstsurface;
@@ -723,14 +720,19 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		if (surf->texinfo->flags & SURF_SKY)
 		{
 			/* just adds to visible sky bounds */
-			GL3_AddSkySurface(surf);
+			RE_AddSkySurface(surf);
 		}
-		else if (surf->texinfo->flags & (SURF_TRANS33 | SURF_TRANS66))
+		else if (surf->texinfo->flags & SURF_TRANSPARENT)
 		{
 			/* add to the translucent chain */
 			surf->texturechain = gl3_alpha_surfaces;
 			gl3_alpha_surfaces = surf;
 			gl3_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
+		}
+		else if (surf->texinfo->flags & SURF_NODRAW)
+		{
+			/* Surface should be skipped */
+			continue;
 		}
 		else
 		{
@@ -780,7 +782,7 @@ GL3_DrawWorld(void)
 
 	gl3state.currenttexture = -1;
 
-	GL3_ClearSkyBox();
+	RE_ClearSkyBox();
 	RecursiveWorldNode(&ent, gl3_worldmodel->nodes);
 	DrawTextureChains(&ent);
 	GL3_DrawSkyBox();
@@ -795,11 +797,10 @@ void
 GL3_MarkLeaves(void)
 {
 	const byte *vis;
-	YQ2_ALIGNAS_TYPE(int) byte fatvis[MAX_MAP_LEAFS / 8];
+	byte *fatvis = NULL;
 	mnode_t *node;
-	int i, c;
+	int i;
 	mleaf_t *leaf;
-	int cluster;
 
 	if ((gl3_oldviewcluster == gl3_viewcluster) &&
 		(gl3_oldviewcluster2 == gl3_viewcluster2) &&
@@ -841,6 +842,9 @@ GL3_MarkLeaves(void)
 	/* may have to combine two clusters because of solid water boundaries */
 	if (gl3_viewcluster2 != gl3_viewcluster)
 	{
+		int c;
+
+		fatvis = malloc(((gl3_worldmodel->numleafs + 31) / 32) * sizeof(int));
 		memcpy(fatvis, vis, (gl3_worldmodel->numleafs + 7) / 8);
 		vis = GL3_Mod_ClusterPVS(gl3_viewcluster2, gl3_worldmodel);
 		c = (gl3_worldmodel->numleafs + 31) / 32;
@@ -857,6 +861,8 @@ GL3_MarkLeaves(void)
 		 i < gl3_worldmodel->numleafs;
 		 i++, leaf++)
 	{
+		int cluster;
+
 		cluster = leaf->cluster;
 
 		if (cluster == -1)
@@ -881,5 +887,10 @@ GL3_MarkLeaves(void)
 			while (node);
 		}
 	}
-}
 
+	/* clean combined buffer */
+	if (fatvis)
+	{
+		free(fatvis);
+	}
+}

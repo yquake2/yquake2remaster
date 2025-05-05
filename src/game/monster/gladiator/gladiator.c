@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (c) ZeniMax Media Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -118,6 +119,7 @@ static mframe_t gladiator_frames_stand[] = {
 	{ai_stand, 0, NULL},
 	{ai_stand, 0, NULL}
 };
+
 mmove_t gladiator_move_stand =
 {
 	FRAME_stand1,
@@ -484,7 +486,7 @@ mmove_t gladiator_move_death =
 
 void
 gladiator_die(edict_t *self, edict_t *inflictor /* unused */,
-	   	edict_t *attacker /* unused */, int damage /*unused */,
+		edict_t *attacker /* unused */, int damage /*unused */,
 		vec3_t point)
 {
 	int n;
@@ -497,7 +499,8 @@ gladiator_die(edict_t *self, edict_t *inflictor /* unused */,
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex( "misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex(
+						"misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
 		{
@@ -528,6 +531,22 @@ gladiator_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->takedamage = DAMAGE_YES;
 
 	self->monsterinfo.currentmove = &gladiator_move_death;
+}
+
+qboolean
+gladiator_blocked(edict_t *self, float dist)
+{
+	if (!self)
+	{
+		return false;
+	}
+
+	if (blocked_checkplat(self, dist))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 /*
@@ -569,7 +588,7 @@ SP_monster_gladiator(edict_t *self)
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
 
-	self->health = 400;
+	self->health = 400 * st.health_multiplier;
 	self->gib_health = -175;
 	self->mass = 400;
 
@@ -585,6 +604,7 @@ SP_monster_gladiator(edict_t *self)
 	self->monsterinfo.sight = gladiator_sight;
 	self->monsterinfo.idle = gladiator_idle;
 	self->monsterinfo.search = gladiator_search;
+	self->monsterinfo.blocked = gladiator_blocked;
 
 	gi.linkentity(self);
 	self->monsterinfo.currentmove = &gladiator_move_stand;
