@@ -790,7 +790,7 @@ GL4_DrawBeam(entity_t *e)
 }
 
 static void
-GL4_DrawSpriteModel(entity_t *e, gl4model_t *currentmodel)
+GL4_DrawSpriteModel(entity_t *e, const gl4model_t *currentmodel)
 {
 	float alpha = 1.0F;
 	mvtx_t verts[4];
@@ -798,6 +798,9 @@ GL4_DrawSpriteModel(entity_t *e, gl4model_t *currentmodel)
 	float *up, *right;
 	dsprite_t *psprite;
 	gl4image_t *skin = NULL;
+	vec3_t scale;
+
+	VectorCopy(e->scale, scale);
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -850,17 +853,17 @@ GL4_DrawSpriteModel(entity_t *e, gl4model_t *currentmodel)
 	verts[3].texCoord[0] = 1;
 	verts[3].texCoord[1] = 1;
 
-	VectorMA( e->origin, -frame->origin_y, up, verts[0].pos );
-	VectorMA( verts[0].pos, -frame->origin_x, right, verts[0].pos );
+	VectorMA( e->origin, -frame->origin_y * scale[0], up, verts[0].pos );
+	VectorMA( verts[0].pos, -frame->origin_x * scale[1], right, verts[0].pos );
 
-	VectorMA( e->origin, frame->height - frame->origin_y, up, verts[1].pos );
-	VectorMA( verts[1].pos, -frame->origin_x, right, verts[1].pos );
+	VectorMA( e->origin, (frame->height - frame->origin_y) * scale[0], up, verts[1].pos );
+	VectorMA( verts[1].pos, -frame->origin_x * scale[1], right, verts[1].pos );
 
-	VectorMA( e->origin, frame->height - frame->origin_y, up, verts[2].pos );
-	VectorMA( verts[2].pos, frame->width - frame->origin_x, right, verts[2].pos );
+	VectorMA( e->origin, (frame->height - frame->origin_y) * scale[0], up, verts[2].pos );
+	VectorMA( verts[2].pos, (frame->width - frame->origin_x) * scale[1], right, verts[2].pos );
 
-	VectorMA( e->origin, -frame->origin_y, up, verts[3].pos );
-	VectorMA( verts[3].pos, frame->width - frame->origin_x, right, verts[3].pos );
+	VectorMA( e->origin, -frame->origin_y * scale[0], up, verts[3].pos );
+	VectorMA( verts[3].pos, (frame->width - frame->origin_x) * scale[1], right, verts[3].pos );
 
 	GL4_BindVAO(gl4state.vao3D);
 	GL4_BindVBO(gl4state.vbo3D);
