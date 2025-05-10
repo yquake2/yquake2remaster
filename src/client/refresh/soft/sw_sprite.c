@@ -35,10 +35,12 @@ void
 R_DrawSprite(entity_t *currententity, const model_t *currentmodel)
 {
 	vec5_t		*pverts;
-	vec3_t		left, up, right, down;
+	vec3_t		left, up, right, down, scale;
 	dsprite_t	*s_psprite;
 	dsprframe_t	*s_psprframe;
 	image_t		*skin = NULL;
+
+	VectorCopy(currententity->scale, scale);
 
 	s_psprite = (dsprite_t *)currentmodel->extradata;
 	currententity->frame %= s_psprite->numframes;
@@ -67,13 +69,13 @@ R_DrawSprite(entity_t *currententity, const model_t *currentmodel)
 
 	// build the sprite poster in worldspace
 	VectorScale (r_polydesc.vright,
-		s_psprframe->width - s_psprframe->origin_x, right);
+		(s_psprframe->width - s_psprframe->origin_x) * scale[0], right);
 	VectorScale (r_polydesc.vup,
-		s_psprframe->height - s_psprframe->origin_y, up);
+		(s_psprframe->height - s_psprframe->origin_y) * scale[1], up);
 	VectorScale (r_polydesc.vright,
-		-s_psprframe->origin_x, left);
+		-s_psprframe->origin_x * scale[0], left);
 	VectorScale (r_polydesc.vup,
-		-s_psprframe->origin_y, down);
+		-s_psprframe->origin_y * scale[1], down);
 
 	// invert UP vector for sprites
 	VectorInverse( r_polydesc.vup );

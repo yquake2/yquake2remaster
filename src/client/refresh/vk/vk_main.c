@@ -164,11 +164,13 @@ static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	vec3_t point;
+	vec3_t point, scale;
 	dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
 	image_t *skin = NULL;
+
+	VectorCopy(currententity->scale, scale);
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -188,14 +190,14 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 
 	vec3_t spriteQuad[4];
 
-	VectorMA(currententity->origin, -frame->origin_y, up, point);
-	VectorMA(point, -frame->origin_x, right, spriteQuad[0]);
-	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point);
-	VectorMA(point, -frame->origin_x, right, spriteQuad[1]);
-	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point);
-	VectorMA(point, frame->width - frame->origin_x, right, spriteQuad[2]);
-	VectorMA(currententity->origin, -frame->origin_y, up, point);
-	VectorMA(point, frame->width - frame->origin_x, right, spriteQuad[3]);
+	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point);
+	VectorMA(point, -frame->origin_x * scale[1], right, spriteQuad[0]);
+	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point);
+	VectorMA(point, -frame->origin_x * scale[1], right, spriteQuad[1]);
+	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point);
+	VectorMA(point, (frame->width - frame->origin_x) * scale[1], right, spriteQuad[2]);
+	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point);
+	VectorMA(point, (frame->width - frame->origin_x) * scale[1], right, spriteQuad[3]);
 
 	float quadVerts[] = { spriteQuad[0][0], spriteQuad[0][1], spriteQuad[0][2], 0.f, 1.f,
 						  spriteQuad[1][0], spriteQuad[1][1], spriteQuad[1][2], 0.f, 0.f,
