@@ -13,7 +13,7 @@ have been renamed. The prefixes are:
 * `ogg_`: Ogg/Vorbis music playback.
 * `r_`: Common to all renderers.
 * `s_`: Sound system.
-* `sv_`: Server 
+* `sv_`: Server
 * `sw_`: Software renderer.
 * `vid_`: Video backend.
 
