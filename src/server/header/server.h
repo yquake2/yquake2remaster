@@ -232,6 +232,7 @@ extern char sv_outputbuf[SV_OUTPUTBUF_LENGTH];
 void SV_FlushRedirect(int sv_redirected, char *outputbuf);
 
 void SV_SendClientMessages(void);
+void SV_SendPrepClientMessages(void);
 
 void SV_Multicast(vec3_t origin, multicast_t to);
 void SV_StartSound(vec3_t origin, edict_t *entity, int channel,
