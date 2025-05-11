@@ -167,7 +167,7 @@ SV_Configstrings_f(void)
 
 		if (*cs != '\0')
 		{
-			if ((sv_client->netchan.message.cursize + MSG_String_Size(cs))
+			if ((sv_client->netchan.message.cursize + MSG_ConfigString_Size(cs))
 				> (MAX_MSGLEN - (CMD_MARGIN + SAFE_MARGIN)))
 			{
 				break;
@@ -175,9 +175,8 @@ SV_Configstrings_f(void)
 
 			MSG_WriteByte(&sv_client->netchan.message, svc_configstring);
 			/* start in native server range */
-			MSG_WriteShort(&sv_client->netchan.message,
-					P_ConvertConfigStringTo(start, sv_client->protocol));
-			MSG_WriteString(&sv_client->netchan.message, cs);
+			MSG_WriteConfigString(&sv_client->netchan.message,
+				P_ConvertConfigStringTo(start, sv_client->protocol), cs);
 		}
 
 		start++;
