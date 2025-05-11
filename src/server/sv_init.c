@@ -26,10 +26,6 @@
 
 #include "header/server.h"
 
-#define GAMEMODE_SP 0
-#define GAMEMODE_COOP 1
-#define GAMEMODE_DM 2
-
 server_static_t svs; /* persistant server info */
 server_t sv; /* local server */
 
@@ -68,9 +64,8 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 		/* send the update to everyone */
 		MSG_WriteChar(&sv.multicast, svc_configstring);
 		/* i in native server range */
-		MSG_WriteShort(&sv.multicast,
-				P_ConvertConfigStringTo(start + i, sv_client->protocol));
-		MSG_WriteString(&sv.multicast, name);
+		MSG_WriteConfigString(&sv.multicast,
+			P_ConvertConfigStringTo(start + i, sv_client->protocol), name);
 		SV_Multicast(vec3_origin, MULTICAST_ALL_R);
 	}
 
@@ -471,6 +466,7 @@ SV_InitGame(void)
 		Cvar_FullSet("maxclients", "1", CVAR_SERVERINFO | CVAR_LATCH);
 	}
 
+	svs.gamemode = gamemode;
 	svs.spawncount = randk();
 	svs.clients = Z_Malloc(sizeof(client_t) * maxclients->value);
 	svs.num_client_entities = maxclients->value * UPDATE_BACKUP * 64;
@@ -529,6 +525,7 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 	char *ch;
 	size_t l;
 	char spawnpoint[MAX_QPATH];
+	const char *ext;
 
 	sv.loadgame = loadgame;
 	sv.attractloop = attractloop;
@@ -589,12 +586,14 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		--l;
 	}
 
-	if ((l > 4) && (!strcmp(level + l - 4, ".cin") ||
-					!strcmp(level + l - 4, ".ogv") ||
-					!strcmp(level + l - 4, ".avi") ||
-					!strcmp(level + l - 4, ".roq") ||
-					!strcmp(level + l - 4, ".mpg") ||
-					!strcmp(level + l - 4, ".smk")))
+	ext = (l <= 4) ? NULL : level + l - 4;
+
+	if (ext && (!strcmp(ext, ".cin") ||
+				!strcmp(ext, ".ogv") ||
+				!strcmp(ext, ".avi") ||
+				!strcmp(ext, ".roq") ||
+				!strcmp(ext, ".mpg") ||
+				!strcmp(ext, ".smk")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */
@@ -602,7 +601,7 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		SV_BroadcastCommand("changing\n");
 		SV_SpawnServer(level, spawnpoint, ss_cinematic, attractloop, loadgame, isautosave);
 	}
-	else if ((l > 4) && !strcmp(level + l - 4, ".dm2"))
+	else if (ext && !strcmp(ext, ".dm2"))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */
@@ -610,11 +609,11 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		SV_BroadcastCommand("changing\n");
 		SV_SpawnServer(level, spawnpoint, ss_demo, attractloop, loadgame, isautosave);
 	}
-	else if ((l > 4) && (!strcmp(level + l - 4, ".pcx") ||
-						!strcmp(level + l - 4, ".lmp") ||
-						!strcmp(level + l - 4, ".tga") ||
-						!strcmp(level + l - 4, ".jpg") ||
-						!strcmp(level + l - 4, ".png")))
+	else if (ext && (!strcmp(ext, ".pcx") ||
+					!strcmp(ext, ".lmp") ||
+					!strcmp(ext, ".tga") ||
+					!strcmp(ext, ".jpg") ||
+					!strcmp(ext, ".png")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */
@@ -628,7 +627,14 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 		SCR_BeginLoadingPlaque(); /* for local system */
 #endif
 		SV_BroadcastCommand("changing\n");
-		SV_SendClientMessages();
+
+		/* for some reason calling send messages here causes a lengthy reconnect delay */
+		if (!(SV_Optimizations() & OPTIMIZE_RECONNECT))
+		{
+			SV_SendClientMessages();
+			SV_SendPrepClientMessages();
+		}
+
 		SV_SpawnServer(level, spawnpoint, ss_game, attractloop, loadgame, isautosave);
 		Cbuf_CopyToDefer();
 	}

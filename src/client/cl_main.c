@@ -224,8 +224,9 @@ CL_Record_f(void)
 			MSG_WriteByte(&buf, svc_configstring);
 
 			/* i in native server range */
-			MSG_WriteShort(&buf, P_ConvertConfigStringTo(i, PROTOCOL_VERSION));
-			MSG_WriteString(&buf, cl.configstrings[i]);
+			MSG_WriteConfigString(&buf,
+				P_ConvertConfigStringTo(i, PROTOCOL_VERSION),
+				cl.configstrings[i]);
 		}
 	}
 

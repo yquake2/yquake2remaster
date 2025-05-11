@@ -106,6 +106,10 @@ void SZ_Print(sizebuf_t *buf, const char *data);  /* strcats onto the sizebuf */
 struct usercmd_s;
 struct entity_state_s;
 
+size_t MSG_ConfigString_Size(const char *s);
+size_t MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
+	qboolean force, qboolean newentity, int protocol);
+
 void MSG_WriteChar(sizebuf_t *sb, int c);
 void MSG_WriteByte(sizebuf_t *sb, int c);
 void MSG_WriteShort(sizebuf_t *sb, int c);
@@ -116,8 +120,12 @@ void MSG_WriteCoord(sizebuf_t *sb, float f, int protocol);
 void MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol);
 void MSG_WriteAngle(sizebuf_t *sb, float f);
 void MSG_WriteAngle16(sizebuf_t *sb, float f);
+void MSG_WriteConfigString(sizebuf_t *sb, short index, const char *s);
 void MSG_WriteDeltaUsercmd(sizebuf_t *sb, struct usercmd_s *from,
 		struct usercmd_s *cmd);
+int DeltaEntityBits(const struct entity_xstate_s *from,
+		const struct entity_xstate_s *to, qboolean newentity,
+		int protocol);
 void MSG_WriteDeltaEntity(const struct entity_xstate_s *from,
 		const struct entity_xstate_s *to, sizebuf_t *msg,
 		qboolean force, qboolean newentity, int protocol);
