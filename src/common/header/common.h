@@ -123,9 +123,6 @@ void MSG_WriteAngle16(sizebuf_t *sb, float f);
 void MSG_WriteConfigString(sizebuf_t *sb, short index, const char *s);
 void MSG_WriteDeltaUsercmd(sizebuf_t *sb, struct usercmd_s *from,
 		struct usercmd_s *cmd);
-int DeltaEntityBits(const struct entity_xstate_s *from,
-		const struct entity_xstate_s *to, qboolean newentity,
-		int protocol);
 void MSG_WriteDeltaEntity(const struct entity_xstate_s *from,
 		const struct entity_xstate_s *to, sizebuf_t *msg,
 		qboolean force, qboolean newentity, int protocol);

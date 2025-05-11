@@ -32,8 +32,8 @@ netadr_t master_adr[MAX_MASTERS]; /* address of group servers */
 
 client_t *sv_client; /* current client */
 
-cvar_t *sv_optimize_sp_loadtime;
-cvar_t *sv_optimize_mp_loadtime;
+static cvar_t *sv_optimize_sp_loadtime;
+static cvar_t *sv_optimize_mp_loadtime;
 
 cvar_t *sv_paused;
 cvar_t *sv_timedemo;
