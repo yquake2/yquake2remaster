@@ -593,6 +593,44 @@ SV_RateDrop(client_t *c)
 	return false;
 }
 
+static int
+SV_NextDemoChunk(byte **msgbuf)
+{
+	size_t r;
+	int n, msg_buf_size;;
+
+	if (sv_paused->value)
+	{
+		return 0;
+	}
+
+	r = FS_FRead(&n, 4, 1, sv.demofile);
+
+	if (r != 4)
+	{
+		return -1;
+	}
+
+	n = LittleLong(n);
+
+	if (n == -1)
+	{
+		return -1;
+	}
+
+	msg_buf_size = Q_max(n, MAX_MSGLEN);
+	*msgbuf = SV_SendReallocBuffers(&msg_buf_size);
+
+	if (n > MAX_MSGLEN)
+	{
+		Com_Printf("%s: msglen %d > MAX_MSGLEN\n", __func__, n);
+	}
+
+	r = FS_FRead(*msgbuf, n, 1, sv.demofile);
+
+	return (r == n) ? n : -1;
+}
+
 void
 SV_SendClientMessages(void)
 {
@@ -600,54 +638,23 @@ SV_SendClientMessages(void)
 	client_t *c;
 	int msglen;
 	byte *msgbuf = NULL;
-	size_t r;
 
 	msglen = 0;
 
 	/* read the next demo message if needed */
 	if (sv.demofile && (sv.state == ss_demo))
 	{
-		if (sv_paused->value)
+		msglen = SV_NextDemoChunk(&msgbuf);
+
+		if (msglen < 0)
 		{
-			msglen = 0;
+			SV_DemoCompleted();
+			return;
 		}
-		else
-		{
-			int msg_buf_size;
-
-			/* get the next message */
-			r = FS_FRead(&msglen, 4, 1, sv.demofile);
-
-			if (r != 4)
-			{
-				SV_DemoCompleted();
-				return;
-			}
-
-			msglen = LittleLong(msglen);
-
-			if (msglen < 0)
-			{
-				SV_DemoCompleted();
-				return;
-			}
-
-			msg_buf_size = Q_max(msglen, MAX_MSGLEN);
-			msgbuf = SV_SendReallocBuffers(&msg_buf_size);
-
-			if (msglen > MAX_MSGLEN)
-			{
-				Com_Printf("%s: msglen %d > MAX_MSGLEN\n", __func__, msglen);
-			}
-
-			r = FS_FRead(msgbuf, msglen, 1, sv.demofile);
-
-			if (r != msglen)
-			{
-				SV_DemoCompleted();
-				return;
-			}
-		}
+	}
+	else
+	{
+		msglen = 0;
 	}
 
 	/* send a message to each connected client */
@@ -711,8 +718,8 @@ SV_SendPrepClientMessages(void)
 			continue;
 		}
 
-		/* if the reliable message 
-		   overflowed, drop the 
+		/* if the reliable message
+		   overflowed, drop the
 		   client */
 		if (c->netchan.message.overflowed)
 		{
