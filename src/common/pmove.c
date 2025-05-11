@@ -1033,11 +1033,17 @@ PM_CheckDuck(void)
 {
 	trace_t trace;
 
-	pm->mins[0] = -16;
-	pm->mins[1] = -16;
-
-	pm->maxs[0] = 16;
-	pm->maxs[1] = 16;
+	if (!pm->mins[0] &&
+		!pm->mins[1] &&
+		!pm->mins[2] &&
+		!pm->maxs[0] &&
+		!pm->maxs[1] &&
+		!pm->maxs[2])
+	{
+		/* set default stand up values */
+		VectorSet(pm->mins, -16, -16, -24);
+		VectorSet(pm->maxs, 16, 16, 32);
+	}
 
 	if (pm->s.pm_type == PM_GIB)
 	{
@@ -1046,8 +1052,6 @@ PM_CheckDuck(void)
 		pm->viewheight = 8;
 		return;
 	}
-
-	pm->mins[2] = -24;
 
 	if (pm->s.pm_type == PM_DEAD)
 	{
@@ -1064,7 +1068,6 @@ PM_CheckDuck(void)
 		if (pm->s.pm_flags & PMF_DUCKED)
 		{
 			/* try to stand up */
-			pm->maxs[2] = 32;
 			trace = pm->trace(pml.origin, pm->mins, pm->maxs, pml.origin);
 
 			if (!trace.allsolid)
@@ -1081,7 +1084,6 @@ PM_CheckDuck(void)
 	}
 	else
 	{
-		pm->maxs[2] = 32;
 		pm->viewheight = 22;
 	}
 }
