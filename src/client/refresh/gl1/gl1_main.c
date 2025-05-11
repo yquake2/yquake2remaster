@@ -173,8 +173,10 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	const image_t *skin;
 	dsprite_t *psprite;
 	float alpha = 1.0F;
-	vec3_t point[4];
+	vec3_t point[4], scale;
 	float *up, *right;
+
+	VectorCopy(currententity->scale, scale);
 
 	R_EnableMultitexture(false);
 	/* don't even bother culling, because it's just
@@ -226,17 +228,17 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		1, 1
 	};
 
-	VectorMA(currententity->origin, -frame->origin_y, up, point[0]);
-	VectorMA(point[0], -frame->origin_x, right, point[0]);
+	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[0]);
+	VectorMA(point[0], -frame->origin_x * scale[1], right, point[0]);
 
-	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point[1]);
-	VectorMA(point[1], -frame->origin_x, right, point[1]);
+	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point[1]);
+	VectorMA(point[1], -frame->origin_x * scale[1], right, point[1]);
 
-	VectorMA(currententity->origin, frame->height - frame->origin_y, up, point[2]);
-	VectorMA(point[2], frame->width - frame->origin_x, right, point[2]);
+	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point[2]);
+	VectorMA(point[2], (frame->width - frame->origin_x) * scale[1], right, point[2]);
 
-	VectorMA(currententity->origin, -frame->origin_y, up, point[3]);
-	VectorMA(point[3], frame->width - frame->origin_x, right, point[3]);
+	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[3]);
+	VectorMA(point[3], (frame->width - frame->origin_x) * scale[1], right, point[3]);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
