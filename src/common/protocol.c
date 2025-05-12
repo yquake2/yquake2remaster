@@ -38,6 +38,9 @@
 #define MAX_GENERAL_Q2DEMO (MAX_CLIENTS_Q2DEMO * 2)       /* general config strings */
 
 /* CS structure Quake 2 Protocol version 26 */
+#define CS_AIRACCEL_Q2DEMO 29              /* air acceleration control */
+#define CS_MAXCLIENTS_Q2DEMO 30
+#define CS_MAPCHECKSUM_Q2DEMO 31           /* for catching cheater maps */
 #define CS_MODELS_Q2DEMO 32
 #define CS_SOUNDS_Q2DEMO (CS_MODELS_Q2DEMO + MAX_MODELS_Q2DEMO)
 #define CS_IMAGES_Q2DEMO (CS_SOUNDS_Q2DEMO + MAX_SOUNDS_Q2DEMO)
@@ -57,7 +60,31 @@
 #define MAX_ITEMS_RR22DEMO 256
 #define MAX_GENERAL_RR22DEMO (MAX_CLIENTS_RR22DEMO * 2)       /* general config strings */
 
+/*
+    CS_AIRACCEL = 59, // air acceleration control
+    CS_MAXCLIENTS,
+    CS_MAPCHECKSUM, // for catching cheater maps
+
+    CS_MODELS,
+    CS_SOUNDS           = (CS_MODELS + MAX_MODELS),
+    CS_IMAGES           = (CS_SOUNDS + MAX_SOUNDS),
+    CS_LIGHTS           = (CS_IMAGES + MAX_IMAGES),
+    CS_SHADOWLIGHTS     = (CS_LIGHTS + MAX_LIGHTSTYLES), // [Sam-KEX]
+    CS_ITEMS            = (CS_SHADOWLIGHTS + MAX_SHADOW_LIGHTS),
+    CS_PLAYERSKINS      = (CS_ITEMS + MAX_ITEMS),
+    CS_GENERAL          = (CS_PLAYERSKINS + MAX_CLIENTS),
+    CS_WHEEL_WEAPONS    = (CS_GENERAL + MAX_GENERAL), // [Paril-KEX] see MAX_WHEEL_ITEMS
+    CS_WHEEL_AMMO       = (CS_WHEEL_WEAPONS + MAX_WHEEL_ITEMS), // [Paril-KEX] see MAX_WHEEL_ITEMS
+    CS_WHEEL_POWERUPS   = (CS_WHEEL_AMMO + MAX_WHEEL_ITEMS), // [Paril-KEX] see MAX_WHEEL_ITEMS
+    CS_CD_LOOP_COUNT    = (CS_WHEEL_POWERUPS + MAX_WHEEL_ITEMS), // [Paril-KEX] override default loop count
+    CS_GAME_STYLE, // [Paril-KEX] see game_style_t
+    MAX_CONFIGSTRINGS
+*/
+
 /* CS structure Quake 2 Protocol version 26 */
+#define CS_AIRACCEL_RR22DEMO 59    /* air acceleration control */
+#define CS_MAXCLIENTS_RR22DEMO 60
+#define CS_MAPCHECKSUM_RR22DEMO 61 /* for catching cheater maps */
 #define CS_MODELS_RR22DEMO 62
 #define CS_SOUNDS_RR22DEMO (CS_MODELS_RR22DEMO + MAX_MODELS_RR22DEMO)
 #define CS_IMAGES_RR22DEMO (CS_SOUNDS_RR22DEMO + MAX_SOUNDS_RR22DEMO)
@@ -73,7 +100,11 @@ P_ConvertConfigStringFrom(int i, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol))
 	{
-		if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
+		if (i >= CS_AIRACCEL_Q2DEMO && i < CS_MODELS_Q2DEMO)
+		{
+			i += CS_AIRACCEL - CS_AIRACCEL_Q2DEMO;
+		}
+		else if (i >= CS_MODELS_Q2DEMO && i < CS_SOUNDS_Q2DEMO)
 		{
 			i += CS_MODELS - CS_MODELS_Q2DEMO;
 		}
@@ -104,7 +135,24 @@ P_ConvertConfigStringFrom(int i, int protocol)
 	}
 	else if (protocol == PROTOCOL_RR22_VERSION)
 	{
-		if (i >= CS_MODELS_RR22DEMO && i < CS_SOUNDS_RR22DEMO)
+		if (i >= CS_AIRACCEL && i < CS_AIRACCEL_RR22DEMO)
+		{
+			/* Skip unknown configs */
+			i = CS_SKIP;
+		}
+		else if (i == CS_AIRACCEL_RR22DEMO)
+		{
+			i = CS_AIRACCEL;
+		}
+		else if (i == CS_MAXCLIENTS_RR22DEMO)
+		{
+			i = CS_MAXCLIENTS;
+		}
+		else if (i == CS_MAPCHECKSUM_RR22DEMO)
+		{
+			i = CS_MAPCHECKSUM;
+		}
+		else if (i >= CS_MODELS_RR22DEMO && i < CS_SOUNDS_RR22DEMO)
 		{
 			i += CS_MODELS - CS_MODELS_RR22DEMO;
 		}

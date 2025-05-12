@@ -1260,6 +1260,12 @@ CL_ParseConfigString(void)
 	}
 
 	s = MSG_ReadString(&net_message);
+	if (i == CS_SKIP)
+	{
+		Com_DPrintf("%s: unknown config string %d: %s\n",
+			__func__, i, s);
+		return;
+	}
 
 	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
 
