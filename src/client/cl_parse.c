@@ -964,6 +964,34 @@ CL_ParseFrame(void)
 	}
 }
 
+static const char *
+CL_GetProtocolName(int protocol)
+{
+	switch (protocol)
+	{
+		case PROTOCOL_RELEASE_VERSION:
+			return "Quake 2 Demo";
+		case PROTOCOL_XATRIX_VERSION:
+			return "Quake 2 Xatrix Demo";
+		case PROTOCOL_DEMO_VERSION:
+			return "Quake 2 Release Demo";
+		/* Network protocol */
+		case PROTOCOL_R97_VERSION:
+			return "Quake 2";
+		/* ReRelease Demo */
+		case PROTOCOL_RR22_VERSION:
+			return "ReRelease Quake 2 Demo";
+		/* ReRelease network protocol */
+		case PROTOCOL_RR23_VERSION:
+			return "ReRelease Quake 2";
+		/* Our new protocol */
+		case PROTOCOL_VERSION:
+			return "ReRelease Quake 2 Custom version";
+		default:
+			return "Unknown protocol version";
+	};
+}
+
 static void
 CL_ParseServerData(void)
 {
@@ -991,38 +1019,7 @@ CL_ParseServerData(void)
 		(i == PROTOCOL_RR23_VERSION) ||
 		(i == PROTOCOL_VERSION)))
 	{
-		Com_Printf("Network protocol: ");
-		switch (i)
-		{
-			case PROTOCOL_RELEASE_VERSION:
-				Com_Printf("Quake 2 Demo\n");
-				break;
-			case PROTOCOL_XATRIX_VERSION:
-				Com_Printf("Quake 2 Xatrix Demo\n");
-				break;
-			case PROTOCOL_DEMO_VERSION:
-				Com_Printf("Quake 2 Release Demo\n");
-				break;
-			/* Network protocol */
-			case PROTOCOL_R97_VERSION:
-				Com_Printf("Quake 2\n");
-				break;
-			/* ReRelease Demo */
-			case PROTOCOL_RR22_VERSION:
-				Com_Printf("ReRelease Quake 2 Demo\n");
-				break;
-			/* ReRelease network protocol */
-			case PROTOCOL_RR23_VERSION:
-				Com_Printf("ReRelease Quake 2\n");
-				break;
-			/* Our new protocol */
-			case PROTOCOL_VERSION:
-				Com_Printf("ReRelease Quake 2 Custom version\n");
-				break;
-			default:
-				Com_Printf("Unknown protocol version\n");
-				break;
-		};
+		Com_Printf("Network protocol: %s\n", CL_GetProtocolName(i));
 	}
 	else if (i != PROTOCOL_VERSION)
 	{
@@ -1243,20 +1240,31 @@ static void
 CL_ParseConfigString(void)
 {
 	size_t length;
-	int i;
+	int i, orig_i;
 	char *s;
 	char olds[MAX_QPATH];
 
-	i = MSG_ReadShort(&net_message);
+	orig_i = MSG_ReadShort(&net_message) & 0xFFFF;
 
-	i = P_ConvertConfigStringFrom(i, cls.serverProtocol);
+	i = P_ConvertConfigStringFrom(orig_i, cls.serverProtocol);
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{
-		Com_Error(ERR_DROP, "%s: configstring > MAX_CONFIGSTRINGS", __func__);
+		s = MSG_ReadString(&net_message);
+
+		Com_Error(ERR_DROP,
+			"%s: configstring[%d] > MAX_CONFIGSTRINGS for %s, protocol %s",
+			__func__, orig_i, s, CL_GetProtocolName(cls.serverProtocol));
 	}
 
 	s = MSG_ReadString(&net_message);
+
+	if (i == CS_SKIP)
+	{
+		Com_DPrintf("%s: unknown config string %d: %s, protocol %s\n",
+			__func__, orig_i, s, CL_GetProtocolName(cls.serverProtocol));
+		return;
+	}
 
 	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
 
@@ -1438,7 +1446,7 @@ CL_ParseServerMessage(void)
 	{
 		if (net_message.readcount > net_message.cursize)
 		{
-			Com_Error(ERR_DROP, "CL_ParseServerMessage: Bad server message");
+			Com_Error(ERR_DROP, "%s: Bad server message", __func__);
 			break;
 		}
 
@@ -1467,7 +1475,8 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "CL_ParseServerMessage: Illegible server message\n");
+				Com_Error(ERR_DROP, "%s: Illegible server message\n",
+					__func__);
 				break;
 
 			case svc_nop:

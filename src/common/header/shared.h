@@ -1176,8 +1176,9 @@ typedef enum
 #define CS_AIRACCEL 29              /* air acceleration control */
 #define CS_MAXCLIENTS 30
 #define CS_MAPCHECKSUM 31           /* for catching cheater maps */
+#define CS_SKIP 32                  /* Skip config string */
 
-#define CS_MODELS 32
+#define CS_MODELS 33
 #define CS_SOUNDS (CS_MODELS + MAX_MODELS)
 #define CS_IMAGES (CS_SOUNDS + MAX_SOUNDS)
 #define CS_LIGHTS (CS_IMAGES + MAX_IMAGES)
