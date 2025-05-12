@@ -1260,6 +1260,7 @@ CL_ParseConfigString(void)
 	}
 
 	s = MSG_ReadString(&net_message);
+
 	if (i == CS_SKIP)
 	{
 		Com_DPrintf("%s: unknown config string %d: %s\n",
@@ -1269,7 +1270,6 @@ CL_ParseConfigString(void)
 
 	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
 
-	printf("[%d]:%s\n", i, s);
 	length = strlen(s);
 	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0]) * i - 1)
 	{
@@ -1448,7 +1448,7 @@ CL_ParseServerMessage(void)
 	{
 		if (net_message.readcount > net_message.cursize)
 		{
-			Com_Error(ERR_DROP, "CL_ParseServerMessage: Bad server message");
+			Com_Error(ERR_DROP, "%s: Bad server message", __func__);
 			break;
 		}
 
@@ -1477,7 +1477,8 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "CL_ParseServerMessage: Illegible server message\n");
+				Com_Error(ERR_DROP, "%s: Illegible server message\n",
+					__func__);
 				break;
 
 			case svc_nop:
