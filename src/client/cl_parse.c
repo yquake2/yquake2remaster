@@ -1250,16 +1250,20 @@ CL_ParseConfigString(void)
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{
+		s = MSG_ReadString(&net_message);
+
 		Com_Error(ERR_DROP,
-			"%s: configstring[%d] > MAX_CONFIGSTRINGS[%d] for %s",
+			"%s: configstring[%d] > MAX_CONFIGSTRINGS[%d] for %s?%s",
 			__func__, orig_i, MAX_CONFIGSTRINGS,
-			CL_GetProtocolName(cls.serverProtocol));
+			CL_GetProtocolName(cls.serverProtocol),
+			s);
 	}
 
 	s = MSG_ReadString(&net_message);
 
 	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
 
+	printf("[%d]:%s\n", i, s);
 	length = strlen(s);
 	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0]) * i - 1)
 	{

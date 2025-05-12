@@ -47,6 +47,26 @@
 #define CS_GENERAL_Q2DEMO (CS_PLAYERSKINS_Q2DEMO + MAX_CLIENTS_Q2DEMO)
 #define MAX_CONFIGSTRINGS_Q2DEMO (CS_GENERAL_Q2DEMO + MAX_GENERAL_Q2DEMO)
 
+/* per-level limits Quake 2 ReRelease Protocol version 2022 */
+#define MAX_CLIENTS_RR22DEMO 256             /* absolute limit */
+#define MAX_EDICTS_RR22DEMO 8192             /* must change protocol to increase more */
+#define MAX_LIGHTSTYLES_RR22DEMO 256
+#define MAX_MODELS_RR22DEMO 8192             /* these are sent over the net as bytes */
+#define MAX_SOUNDS_RR22DEMO 2048             /* so they cannot be blindly increased */
+#define MAX_IMAGES_RR22DEMO 512
+#define MAX_ITEMS_RR22DEMO 256
+#define MAX_GENERAL_RR22DEMO (MAX_CLIENTS_RR22DEMO * 2)       /* general config strings */
+
+/* CS structure Quake 2 Protocol version 26 */
+#define CS_MODELS_RR22DEMO 62
+#define CS_SOUNDS_RR22DEMO (CS_MODELS_RR22DEMO + MAX_MODELS_RR22DEMO)
+#define CS_IMAGES_RR22DEMO (CS_SOUNDS_RR22DEMO + MAX_SOUNDS_RR22DEMO)
+#define CS_LIGHTS_RR22DEMO (CS_IMAGES_RR22DEMO + MAX_IMAGES_RR22DEMO)
+#define CS_ITEMS_RR22DEMO (CS_LIGHTS_RR22DEMO + MAX_LIGHTSTYLES_RR22DEMO)
+#define CS_PLAYERSKINS_RR22DEMO (CS_ITEMS_RR22DEMO + MAX_ITEMS_RR22DEMO)
+#define CS_GENERAL_RR22DEMO (CS_PLAYERSKINS_RR22DEMO + MAX_CLIENTS_RR22DEMO)
+#define MAX_CONFIGSTRINGS_RR22DEMO (CS_GENERAL_RR22DEMO + MAX_GENERAL_RR22DEMO)
+
 /* Convert from current protocol to internal */
 int
 P_ConvertConfigStringFrom(int i, int protocol)
@@ -80,6 +100,37 @@ P_ConvertConfigStringFrom(int i, int protocol)
 		else if (i >= CS_GENERAL_Q2DEMO && i < MAX_CONFIGSTRINGS_Q2DEMO)
 		{
 			i += CS_GENERAL - CS_GENERAL_Q2DEMO;
+		}
+	}
+	else if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		if (i >= CS_MODELS_RR22DEMO && i < CS_SOUNDS_RR22DEMO)
+		{
+			i += CS_MODELS - CS_MODELS_RR22DEMO;
+		}
+		else if (i >= CS_SOUNDS_RR22DEMO && i < CS_IMAGES_RR22DEMO)
+		{
+			i += CS_SOUNDS - CS_SOUNDS_RR22DEMO;
+		}
+		else if (i >= CS_IMAGES_RR22DEMO && i < CS_LIGHTS_RR22DEMO)
+		{
+			i += CS_IMAGES - CS_IMAGES_RR22DEMO;
+		}
+		else if (i >= CS_LIGHTS_RR22DEMO && i < CS_ITEMS_RR22DEMO)
+		{
+			i += CS_LIGHTS - CS_LIGHTS_RR22DEMO;
+		}
+		else if (i >= CS_ITEMS_RR22DEMO && i < CS_PLAYERSKINS_RR22DEMO)
+		{
+			i += CS_ITEMS - CS_ITEMS_RR22DEMO;
+		}
+		else if (i >= CS_PLAYERSKINS_RR22DEMO && i < CS_GENERAL_RR22DEMO)
+		{
+			i += CS_PLAYERSKINS - CS_PLAYERSKINS_RR22DEMO;
+		}
+		else if (i >= CS_GENERAL_RR22DEMO && i < MAX_CONFIGSTRINGS_RR22DEMO)
+		{
+			i += CS_GENERAL - CS_GENERAL_RR22DEMO;
 		}
 	}
 
