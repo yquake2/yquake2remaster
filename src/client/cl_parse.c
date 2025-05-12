@@ -1250,8 +1250,10 @@ CL_ParseConfigString(void)
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{
-		Com_Error(ERR_DROP, "%s: configstring[%d] > MAX_CONFIGSTRINGS for %s",
-			__func__, orig_i, CL_GetProtocolName(cls.serverProtocol));
+		Com_Error(ERR_DROP,
+			"%s: configstring[%d] > MAX_CONFIGSTRINGS[%d] for %s",
+			__func__, orig_i, MAX_CONFIGSTRINGS,
+			CL_GetProtocolName(cls.serverProtocol));
 	}
 
 	s = MSG_ReadString(&net_message);
