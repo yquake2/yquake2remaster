@@ -361,6 +361,12 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 		}
 
+		if (renderfx & RF_FLARE)
+		{
+			printf("%s: skip flare\n", __func__);
+			continue;
+		}
+
 		/* add to refresh list */
 		V_AddEntity(&ent);
 
