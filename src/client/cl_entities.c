@@ -363,7 +363,45 @@ CL_AddPacketEntities(frame_t *frame)
 
 		if (renderfx & RF_FLARE)
 		{
-			printf("%s: skip flare\n", __func__);
+			float fade_start, fade_end, d;
+			vec3_t dist;
+
+			fade_start = s1->modelindex2;
+			fade_end = s1->modelindex3;
+			VectorSubtract(cl.refdef.vieworg, ent.origin, dist);
+			d = VectorLength(dist);
+			if (d < fade_start)
+			{
+				continue;
+			}
+
+			if (d > fade_end)
+			{
+				ent.alpha = 1;
+			}
+			else
+			{
+				ent.alpha = (d - fade_start) / (fade_end - fade_start);
+			}
+
+			printf("%s: skip flare %f alpha\n", __func__, ent.alpha);
+#if 0
+			ent.skin = 0;
+			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < cl.csr.max_images)
+				ent.skin = cl.image_precache[s1->frame];
+			if (!ent.skin)
+				ent.skin = cl_img_flare;
+			float s = s1->scale ? s1->scale : 1;
+			VectorSet(ent.scale, s, s, s);
+			ent.flags = renderfx | RF_TRANSLUCENT;
+			if (!s1->skinnum)
+				ent.rgba = COLOR_WHITE;
+			else
+				ent.rgba.u32 = BigLong(s1->skinnum);
+			ent.skinnum = s1->number;
+			V_AddEntity(&ent);
+			goto skip;
+#endif
 			continue;
 		}
 
