@@ -145,6 +145,54 @@ CL_AddPacketEntities(frame_t *frame)
 			ent.oldorigin[2] += autobob;
 		}
 
+		if (renderfx & RF_FLARE)
+		{
+			float fade_start, fade_end, d;
+			vec3_t dist;
+
+			fade_start = s1->modelindex2;
+			fade_end = s1->modelindex3;
+			VectorSubtract(cl.refdef.vieworg, ent.origin, dist);
+			d = VectorLength(dist);
+			if (d < fade_start)
+			{
+				continue;
+			}
+
+			if (d > fade_end)
+			{
+				ent.alpha = 1;
+			}
+			else
+			{
+				ent.alpha = (d - fade_start) / (fade_end - fade_start);
+			}
+
+			ent.skin = 0;
+			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < MAX_IMAGES)
+			{
+				ent.skin = cl.image_precache[s1->frame];
+			}
+
+			if (!ent.skin)
+			{
+				ent.skin = Draw_FindPic("misc/flare.tga");
+			}
+
+			ent.flags = renderfx | RF_TRANSLUCENT;
+			ent.skinnum = s1->skinnum;
+			VectorCopy(s1->scale, ent.scale);
+
+			V_AddEntity(&ent);
+			VectorCopy(ent.origin, cent->lerp_origin);
+
+			printf("%s: skip flare %f alpha, image: %p, scale %.2fx%.2fx%.2fx color %8x\n",
+				__func__, ent.alpha, ent.skin,
+				ent.scale[0], ent.scale[0], ent.scale[0], ent.skinnum);
+
+			continue;
+		}
+
 		/* tweak the color of beams */
 		if (renderfx & RF_BEAM)
 		{
@@ -359,57 +407,6 @@ CL_AddPacketEntities(frame_t *frame)
 			{
 				ent.alpha = 0.3f;
 			}
-		}
-
-		if (renderfx & RF_FLARE)
-		{
-			float fade_start, fade_end, d;
-			vec3_t dist;
-
-			fade_start = s1->modelindex2;
-			fade_end = s1->modelindex3;
-			VectorSubtract(cl.refdef.vieworg, ent.origin, dist);
-			d = VectorLength(dist);
-			if (d < fade_start)
-			{
-				continue;
-			}
-
-			if (d > fade_end)
-			{
-				ent.alpha = 1;
-			}
-			else
-			{
-				ent.alpha = (d - fade_start) / (fade_end - fade_start);
-			}
-
-			ent.skin = 0;
-			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < MAX_IMAGES)
-			{
-				ent.skin = cl.image_precache[s1->frame];
-			}
-
-			if (!ent.skin)
-			{
-				ent.skin = Draw_FindPic("misc/flare.tga");
-			}
-
-			printf("%s: skip flare %f alpha, image: %p\n",
-				__func__, ent.alpha, ent.skin);
-#if 0
-			float s = s1->scale ? s1->scale : 1;
-			VectorSet(ent.scale, s, s, s);
-			ent.flags = renderfx | RF_TRANSLUCENT;
-			if (!s1->skinnum)
-				ent.rgba = COLOR_WHITE;
-			else
-				ent.rgba.u32 = BigLong(s1->skinnum);
-			ent.skinnum = s1->number;
-			V_AddEntity(&ent);
-			goto skip;
-#endif
-			continue;
 		}
 
 		/* add to refresh list */

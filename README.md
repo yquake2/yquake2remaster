@@ -155,6 +155,9 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
+* [ ] Anachronox: [add mp3 support](https://github.com/lieff/minimp3)
+* [ ] Daikatana/SiN: Fix transparent textures in maps,
+* [ ] DoD: fix statusbar `roarke`,
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
@@ -164,13 +167,11 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
-* [ ] DoD: fix statusbar `roarke`,
 * [ ] vulkan: group `it_pic` images,
 * [ ] vulkan: rearange surfaces before render,
 * [x] Use shared model cache in client code insted reimplement in each render,
 * [ ] reuse memory from models cache in renders model list,
 * [ ] reuse memory from models cache for bsp,
-* [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: cleanup function declarations in game save code,
 * [x] game: broken camera on start zbase1,
 * [ ] game: fix broken base3 with sorted fields names,
