@@ -384,13 +384,20 @@ CL_AddPacketEntities(frame_t *frame)
 				ent.alpha = (d - fade_start) / (fade_end - fade_start);
 			}
 
-			printf("%s: skip flare %f alpha\n", __func__, ent.alpha);
-#if 0
 			ent.skin = 0;
-			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < cl.csr.max_images)
+			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < MAX_IMAGES)
+			{
 				ent.skin = cl.image_precache[s1->frame];
+			}
+
 			if (!ent.skin)
-				ent.skin = cl_img_flare;
+			{
+				ent.skin = Draw_FindPic("misc/flare.tga");
+			}
+
+			printf("%s: skip flare %f alpha, image: %p\n",
+				__func__, ent.alpha, ent.skin);
+#if 0
 			float s = s1->scale ? s1->scale : 1;
 			VectorSet(ent.scale, s, s, s);
 			ent.flags = renderfx | RF_TRANSLUCENT;
