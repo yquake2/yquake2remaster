@@ -1020,7 +1020,7 @@ GL4_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &gl4_newrefdef.entities[i];
 
-		if (currententity->flags & RF_TRANSLUCENT)
+		if (currententity->flags & RF_TRANSLUCENT || currententity->flags & RF_FLARE)
 		{
 			continue; /* solid */
 		}
@@ -1067,7 +1067,7 @@ GL4_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &gl4_newrefdef.entities[i];
 
-		if (!(currententity->flags & RF_TRANSLUCENT))
+		if (!(currententity->flags & RF_TRANSLUCENT) || currententity->flags & RF_FLARE)
 		{
 			continue; /* solid */
 		}

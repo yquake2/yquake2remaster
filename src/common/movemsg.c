@@ -191,6 +191,403 @@ vec3_t bytedirs[NUMVERTEXNORMALS] = {
 	{-0.688191, -0.587785, -0.425325}
 };
 
+size_t
+MSG_ConfigString_Size(const char *s)
+{
+	return strlen(s) + 4; /* string length + null char + message type + index */
+}
+
+static int
+DeltaEntityBits(const entity_xstate_t *from,
+		const entity_xstate_t *to,
+		qboolean newentity,
+		int protocol)
+{
+	int bits = 0;
+
+	if (to->number >= 256)
+	{
+		bits |= U_NUMBER16; /* number8 is implicit otherwise */
+	}
+
+	if (to->origin[0] != from->origin[0])
+	{
+		bits |= U_ORIGIN1;
+	}
+
+	if (to->origin[1] != from->origin[1])
+	{
+		bits |= U_ORIGIN2;
+	}
+
+	if (to->origin[2] != from->origin[2])
+	{
+		bits |= U_ORIGIN3;
+	}
+
+	if (to->angles[0] != from->angles[0])
+	{
+		bits |= U_ANGLE1;
+	}
+
+	if (to->angles[1] != from->angles[1])
+	{
+		bits |= U_ANGLE2;
+	}
+
+	if (to->angles[2] != from->angles[2])
+	{
+		bits |= U_ANGLE3;
+	}
+
+	if (to->skinnum != from->skinnum)
+	{
+		if ((unsigned)to->skinnum < 256)
+		{
+			bits |= U_SKIN8;
+		}
+
+		else if ((unsigned)to->skinnum < 0x10000)
+		{
+			bits |= U_SKIN16;
+		}
+
+		else
+		{
+			bits |= (U_SKIN8 | U_SKIN16);
+		}
+	}
+
+	/* Scale with skins if force or different */
+	if ((protocol == PROTOCOL_VERSION) &&
+		((to->scale[0] != from->scale[0]) ||
+		 (to->scale[1] != from->scale[1]) ||
+		 (to->scale[2] != from->scale[2])))
+	{
+		bits |= (U_SKIN8 | U_SKIN16);
+	}
+
+	if (to->frame != from->frame)
+	{
+		if (to->frame < 256)
+		{
+			bits |= U_FRAME8;
+		}
+
+		else
+		{
+			bits |= U_FRAME16;
+		}
+	}
+
+	if (to->effects != from->effects)
+	{
+		if (to->effects < 256)
+		{
+			bits |= U_EFFECTS8;
+		}
+
+		else if (to->effects < 0x8000)
+		{
+			bits |= U_EFFECTS16;
+		}
+
+		else
+		{
+			bits |= U_EFFECTS8 | U_EFFECTS16;
+		}
+	}
+
+	if (to->rr_effects != from->rr_effects || to->rr_mesh != from->rr_mesh)
+	{
+		bits |= U_EFFECTS8 | U_EFFECTS16;
+	}
+
+	if (to->renderfx != from->renderfx)
+	{
+		if (to->renderfx < 256)
+		{
+			bits |= U_RENDERFX8;
+		}
+
+		else if (to->renderfx < 0x8000)
+		{
+			bits |= U_RENDERFX16;
+		}
+
+		else
+		{
+			bits |= U_RENDERFX8 | U_RENDERFX16;
+		}
+	}
+
+	if (to->solid != from->solid)
+	{
+		bits |= U_SOLID;
+	}
+
+	/* event is not delta compressed, just 0 compressed */
+	if (to->event)
+	{
+		bits |= U_EVENT;
+	}
+
+	if (to->modelindex != from->modelindex)
+	{
+		bits |= U_MODEL;
+	}
+
+	if (to->modelindex2 != from->modelindex2)
+	{
+		bits |= U_MODEL2;
+	}
+
+	if (to->modelindex3 != from->modelindex3)
+	{
+		bits |= U_MODEL3;
+	}
+
+	if (to->modelindex4 != from->modelindex4)
+	{
+		bits |= U_MODEL4;
+	}
+
+	if (to->sound != from->sound)
+	{
+		bits |= U_SOUND;
+	}
+
+	if (newentity || (to->renderfx & RF_BEAM))
+	{
+		bits |= U_OLDORIGIN;
+	}
+
+	if (bits & 0xff000000)
+	{
+		bits |= U_MOREBITS3 | U_MOREBITS2 | U_MOREBITS1;
+	}
+
+	else if (bits & 0x00ff0000)
+	{
+		bits |= U_MOREBITS2 | U_MOREBITS1;
+	}
+
+	else if (bits & 0x0000ff00)
+	{
+		bits |= U_MOREBITS1;
+	}
+
+	return bits;
+}
+
+size_t
+MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
+	qboolean force, qboolean newentity, int protocol)
+{
+	size_t sz;
+	int bits = DeltaEntityBits(from, to, newentity, protocol);
+
+	if (!bits && !force)
+	{
+		return 0;
+	}
+
+	sz = 1;
+
+	if (bits & 0xff000000)
+	{
+		sz += 3;
+	}
+	else if (bits & 0x00ff0000)
+	{
+		sz += 2;
+	}
+	else if (bits & 0x0000ff00)
+	{
+		sz++;
+	}
+
+	if (bits & U_NUMBER16)
+	{
+		sz += 2;
+	}
+	else
+	{
+		sz++;
+	}
+
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		if (bits & U_MODEL)
+		{
+			sz++;
+		}
+
+		if (bits & U_MODEL2)
+		{
+			sz++;
+		}
+
+		if (bits & U_MODEL3)
+		{
+			sz++;
+		}
+
+		if (bits & U_MODEL4)
+		{
+			sz++;
+		}
+	}
+	else
+	{
+		if (bits & U_MODEL)
+		{
+			sz += 2;
+		}
+
+		if (bits & U_MODEL2)
+		{
+			sz += 2;
+		}
+
+		if (bits & U_MODEL3)
+		{
+			sz += 2;
+		}
+
+		if (bits & U_MODEL4)
+		{
+			sz += 2;
+		}
+	}
+
+	if (bits & U_FRAME8)
+	{
+		sz++;
+	}
+
+	if (bits & U_FRAME16)
+	{
+		sz += 2;
+	}
+
+	if ((bits & U_SKIN8) && (bits & U_SKIN16)) /*used for laser colors */
+	{
+		sz += 4;
+
+		if (!IS_QII97_PROTOCOL(protocol))
+		{
+			/* 3 float for scale */
+			sz += 12;
+		}
+	}
+	else if (bits & U_SKIN8)
+	{
+		sz++;
+	}
+	else if (bits & U_SKIN16)
+	{
+		sz += 2;
+	}
+
+	if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+	{
+		sz += 4;
+	}
+	else if (bits & U_EFFECTS8)
+	{
+		sz++;
+	}
+	else if (bits & U_EFFECTS16)
+	{
+		sz += 2;
+	}
+
+	if ((bits & (U_RENDERFX8 | U_RENDERFX16)) == (U_RENDERFX8 | U_RENDERFX16))
+	{
+		sz += 4;
+	}
+	else if (bits & U_RENDERFX8)
+	{
+		sz++;
+	}
+	else if (bits & U_RENDERFX16)
+	{
+		sz += 2;
+	}
+
+	/* ReRelease effects */
+	if (protocol == PROTOCOL_VERSION)
+	{
+		if ((bits & (U_EFFECTS8 | U_EFFECTS16)) == (U_EFFECTS8 | U_EFFECTS16))
+		{
+			sz += 8;
+		}
+
+		else if (bits & U_EFFECTS8)
+		{
+			sz += 2;
+		}
+
+		else if (bits & U_EFFECTS16)
+		{
+			sz += 4;
+		}
+	}
+
+	if (bits & U_ORIGIN1)
+	{
+		sz += IS_QII97_PROTOCOL(protocol) ? 2 : 4;
+	}
+
+	if (bits & U_ORIGIN2)
+	{
+		sz += IS_QII97_PROTOCOL(protocol) ? 2 : 4;
+	}
+
+	if (bits & U_ORIGIN3)
+	{
+		sz += IS_QII97_PROTOCOL(protocol) ? 2 : 4;
+	}
+
+	if (bits & U_ANGLE1)
+	{
+		sz++;
+	}
+
+	if (bits & U_ANGLE2)
+	{
+		sz++;
+	}
+
+	if (bits & U_ANGLE3)
+	{
+		sz++;
+	}
+
+	if (bits & U_OLDORIGIN)
+	{
+		sz += IS_QII97_PROTOCOL(protocol) ? 6 : 12;
+	}
+
+	if (bits & U_SOUND)
+	{
+		sz++;
+	}
+
+	if (bits & U_EVENT)
+	{
+		sz++;
+	}
+
+	if (bits & U_SOLID)
+	{
+		sz += 2;
+	}
+
+	return sz;
+}
+
 void
 MSG_WriteChar(sizebuf_t *sb, int c)
 {
@@ -291,6 +688,13 @@ void
 MSG_WriteAngle16(sizebuf_t *sb, float f)
 {
 	MSG_WriteShort(sb, ANGLE2SHORT(f));
+}
+
+void
+MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s)
+{
+	MSG_WriteShort(buf, index);
+	MSG_WriteString(buf, s);
 }
 
 void
@@ -457,184 +861,11 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 	}
 
 	/* send an update */
-	bits = 0;
+	bits = DeltaEntityBits(from, to, newentity, protocol);
 
-	if (to->number >= 256)
-	{
-		bits |= U_NUMBER16; /* number8 is implicit otherwise */
-	}
-
-	if (to->origin[0] != from->origin[0])
-	{
-		bits |= U_ORIGIN1;
-	}
-
-	if (to->origin[1] != from->origin[1])
-	{
-		bits |= U_ORIGIN2;
-	}
-
-	if (to->origin[2] != from->origin[2])
-	{
-		bits |= U_ORIGIN3;
-	}
-
-	if (to->angles[0] != from->angles[0])
-	{
-		bits |= U_ANGLE1;
-	}
-
-	if (to->angles[1] != from->angles[1])
-	{
-		bits |= U_ANGLE2;
-	}
-
-	if (to->angles[2] != from->angles[2])
-	{
-		bits |= U_ANGLE3;
-	}
-
-	if (to->skinnum != from->skinnum)
-	{
-		if ((unsigned)to->skinnum < 256)
-		{
-			bits |= U_SKIN8;
-		}
-
-		else if ((unsigned)to->skinnum < 0x10000)
-		{
-			bits |= U_SKIN16;
-		}
-
-		else
-		{
-			bits |= (U_SKIN8 | U_SKIN16);
-		}
-	}
-
-	/* Scale with skins if force or different */
-	if ((protocol == PROTOCOL_VERSION) &&
-		((to->scale[0] != from->scale[0]) ||
-		 (to->scale[1] != from->scale[1]) ||
-		 (to->scale[2] != from->scale[2])))
-	{
-		bits |= (U_SKIN8 | U_SKIN16);
-	}
-
-	if (to->frame != from->frame)
-	{
-		if (to->frame < 256)
-		{
-			bits |= U_FRAME8;
-		}
-
-		else
-		{
-			bits |= U_FRAME16;
-		}
-	}
-
-	if (to->effects != from->effects)
-	{
-		if (to->effects < 256)
-		{
-			bits |= U_EFFECTS8;
-		}
-
-		else if (to->effects < 0x8000)
-		{
-			bits |= U_EFFECTS16;
-		}
-
-		else
-		{
-			bits |= U_EFFECTS8 | U_EFFECTS16;
-		}
-	}
-
-	if (to->rr_effects != from->rr_effects || to->rr_mesh != from->rr_mesh)
-	{
-		bits |= U_EFFECTS8 | U_EFFECTS16;
-	}
-
-	if (to->renderfx != from->renderfx)
-	{
-		if (to->renderfx < 256)
-		{
-			bits |= U_RENDERFX8;
-		}
-
-		else if (to->renderfx < 0x8000)
-		{
-			bits |= U_RENDERFX16;
-		}
-
-		else
-		{
-			bits |= U_RENDERFX8 | U_RENDERFX16;
-		}
-	}
-
-	if (to->solid != from->solid)
-	{
-		bits |= U_SOLID;
-	}
-
-	/* event is not delta compressed, just 0 compressed */
-	if (to->event)
-	{
-		bits |= U_EVENT;
-	}
-
-	if (to->modelindex != from->modelindex)
-	{
-		bits |= U_MODEL;
-	}
-
-	if (to->modelindex2 != from->modelindex2)
-	{
-		bits |= U_MODEL2;
-	}
-
-	if (to->modelindex3 != from->modelindex3)
-	{
-		bits |= U_MODEL3;
-	}
-
-	if (to->modelindex4 != from->modelindex4)
-	{
-		bits |= U_MODEL4;
-	}
-
-	if (to->sound != from->sound)
-	{
-		bits |= U_SOUND;
-	}
-
-	if (newentity || (to->renderfx & RF_BEAM))
-	{
-		bits |= U_OLDORIGIN;
-	}
-
-	/* write the message */
 	if (!bits && !force)
 	{
 		return; /* nothing to send! */
-	}
-
-	if (bits & 0xff000000)
-	{
-		bits |= U_MOREBITS3 | U_MOREBITS2 | U_MOREBITS1;
-	}
-
-	else if (bits & 0x00ff0000)
-	{
-		bits |= U_MOREBITS2 | U_MOREBITS1;
-	}
-
-	else if (bits & 0x0000ff00)
-	{
-		bits |= U_MOREBITS1;
 	}
 
 	MSG_WriteByte(msg, bits & 255);
