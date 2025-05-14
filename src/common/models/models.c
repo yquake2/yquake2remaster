@@ -3390,7 +3390,7 @@ support for .sp2 sprites
 =================
 */
 static void *
-Mod_LoadSprite_SP2 (const char *mod_name, const void *buffer, int modfilelen)
+Mod_LoadSprite_SP2(const char *mod_name, const void *buffer, int modfilelen)
 {
 	const dsprite_t *sprin;
 	dsprite_t *sprout;

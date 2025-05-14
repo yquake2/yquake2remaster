@@ -284,7 +284,7 @@ Mod_AliasesFreeAll(void)
 }
 
 static const model_t *
-Mod_AliasSave(const char *mod_name, int modfilelen, const void *buffer)
+Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 {
 	model_t *mod;
 	int i;
@@ -473,7 +473,7 @@ static const replacement_t replacements[] = {
 };
 
 const model_t *
-Mod_StoreAliasModel(const char *name)
+Mod_LoadAndStoreModel(const char *name)
 {
 	char namewe[256];
 	const char* ext;
@@ -504,21 +504,28 @@ Mod_StoreAliasModel(const char *name)
 	memcpy(namewe, name, len);
 	namewe[len] = 0;
 
-	filesize = Mod_LoadFileWithoutExtModel(namewe, len, &buffer);
-	if (filesize <= 0)
+	if (!strcmp(ext, "sp2"))
 	{
-		int i;
-
-		/* Replace to other one if load failed */
-		for (i = 0; i < sizeof(replacements) / sizeof(replacement_t); i++)
+		filesize = FS_LoadFile(name, &buffer);
+	}
+	else
+	{
+		filesize = Mod_LoadFileWithoutExtModel(namewe, len, &buffer);
+		if (filesize <= 0)
 		{
-			if (!strcmp(namewe, replacements[i].old))
+			int i;
+
+			/* Replace to other one if load failed */
+			for (i = 0; i < sizeof(replacements) / sizeof(replacement_t); i++)
 			{
-				Com_DPrintf("%s: %s tring to replace %s to %s.\n",
-					__func__, name, namewe, replacements[i].new);
-				filesize = Mod_LoadFileWithoutExtModel(replacements[i].new,
-					strlen(replacements[i].new), &buffer);
-				break;
+				if (!strcmp(namewe, replacements[i].old))
+				{
+					Com_DPrintf("%s: %s tring to replace %s to %s.\n",
+						__func__, name, namewe, replacements[i].new);
+					filesize = Mod_LoadFileWithoutExtModel(replacements[i].new,
+						strlen(replacements[i].new), &buffer);
+					break;
+				}
 			}
 		}
 	}
@@ -528,7 +535,7 @@ Mod_StoreAliasModel(const char *name)
 		const model_t *mod;
 
 		/* save and convert */
-		mod = Mod_AliasSave(name, filesize, buffer);
+		mod = Mod_StoreModel(name, filesize, buffer);
 		if (buffer)
 		{
 			/* free old buffer */
@@ -549,7 +556,7 @@ Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs)
 	mod = Mod_FindModel(name);
 	if (!mod)
 	{
-		mod = Mod_StoreAliasModel(name);
+		mod = Mod_LoadAndStoreModel(name);
 	}
 
 	if (mod)
@@ -573,7 +580,7 @@ Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 	mod = Mod_FindModel(name);
 	if (!mod)
 	{
-		mod = Mod_StoreAliasModel(name);
+		mod = Mod_LoadAndStoreModel(name);
 	}
 
 	if (mod)
@@ -639,6 +646,7 @@ Mod_LoadFile(const char *name, void **buffer)
 		!strcmp(ext, "md3") ||
 		!strcmp(ext, "mdr") ||
 		!strcmp(ext, "md5mesh") ||
+		!strcmp(ext, "sp2") ||
 		!strcmp(ext, "mdx") ||
 		!strcmp(ext, "mdl"))
 	{
@@ -647,7 +655,7 @@ Mod_LoadFile(const char *name, void **buffer)
 		mod = Mod_FindModel(name);
 		if (!mod)
 		{
-			mod = Mod_StoreAliasModel(name);
+			mod = Mod_LoadAndStoreModel(name);
 		}
 
 		if (mod)
