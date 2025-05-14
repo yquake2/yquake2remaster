@@ -167,6 +167,103 @@ R_RotateForEntity(entity_t *e)
 }
 
 static void
+R_DrawFlare(entity_t *currententity)
+{
+	const image_t *skin;
+	float alpha = 1.0F;
+	vec3_t point[4], scale;
+	float *up, *right;
+
+	VectorCopy(currententity->scale, scale);
+
+	R_EnableMultitexture(false);
+	/* don't even bother culling, because it's just
+	   a single polygon without a surface cache */
+
+	/* normal sprite */
+	up = vup;
+	right = vright;
+
+	if (currententity->flags & RF_TRANSLUCENT)
+	{
+		alpha = currententity->alpha;
+	}
+
+	if (alpha != 1.0F)
+	{
+		glEnable(GL_BLEND);
+	}
+
+	glColor4f(1, 1, 1, alpha);
+
+	skin = currententity->skin;
+	if (!skin)
+	{
+		skin = r_notexture; /* fallback... */
+	}
+
+	R_Bind(skin->texnum);
+
+	R_TexEnv(GL_MODULATE);
+
+	if (alpha == 1.0)
+	{
+		glEnable(GL_ALPHA_TEST);
+	}
+	else
+	{
+		glDisable(GL_ALPHA_TEST);
+	}
+
+	printf("%s: skip flare %f alpha, image: %p, scale %.2fx%.2fx%.2fx color %8x, size: %dx%d\n",
+		__func__, currententity->alpha, currententity->skin,
+		currententity->scale[0], currententity->scale[0], currententity->scale[0],
+		currententity->skinnum,
+		skin->width, skin->height);
+
+#if 0
+	GLfloat tex[] = {
+		0, 1,
+		0, 0,
+		1, 0,
+		1, 1
+	};
+
+	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[0]);
+	VectorMA(point[0], -frame->origin_x * scale[1], right, point[0]);
+
+	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point[1]);
+	VectorMA(point[1], -frame->origin_x * scale[1], right, point[1]);
+
+	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point[2]);
+	VectorMA(point[2], (frame->width - frame->origin_x) * scale[1], right, point[2]);
+
+	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[3]);
+	VectorMA(point[3], (frame->width - frame->origin_x) * scale[1], right, point[3]);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, point);
+	glTexCoordPointer(2, GL_FLOAT, 0, tex);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#endif
+
+	glDisable(GL_ALPHA_TEST);
+	R_TexEnv(GL_REPLACE);
+
+	if (alpha != 1.0F)
+	{
+		glDisable(GL_BLEND);
+	}
+
+	glColor4f(1, 1, 1, 1);
+}
+
+static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
 	const dsprframe_t *frame;
@@ -228,6 +325,11 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		1, 1
 	};
 
+	printf("%s: sprite %dx%d->%dx%d\n",
+		__func__,
+		frame->origin_x, frame->origin_y,
+		frame->width, frame->height
+	);
 	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[0]);
 	VectorMA(point[0], -frame->origin_x * scale[1], right, point[0]);
 
@@ -336,9 +438,9 @@ R_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (currententity->flags & RF_TRANSLUCENT)
+		if (currententity->flags & RF_TRANSLUCENT || currententity->flags & RF_FLARE)
 		{
-			continue; /* solid */
+			continue; /* not solid */
 		}
 
 		if (currententity->flags & RF_BEAM)
@@ -391,6 +493,10 @@ R_DrawEntitiesOnList(void)
 		if (currententity->flags & RF_BEAM)
 		{
 			R_DrawBeam(currententity);
+		}
+		else if (currententity->flags & RF_FLARE)
+		{
+			R_DrawFlare(currententity);
 		}
 		else
 		{

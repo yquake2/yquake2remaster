@@ -186,10 +186,6 @@ CL_AddPacketEntities(frame_t *frame)
 			V_AddEntity(&ent);
 			VectorCopy(ent.origin, cent->lerp_origin);
 
-			printf("%s: skip flare %f alpha, image: %p, scale %.2fx%.2fx%.2fx color %8x\n",
-				__func__, ent.alpha, ent.skin,
-				ent.scale[0], ent.scale[0], ent.scale[0], ent.skinnum);
-
 			continue;
 		}
 

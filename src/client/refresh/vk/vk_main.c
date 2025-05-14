@@ -331,7 +331,7 @@ R_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (currententity->flags & RF_TRANSLUCENT)
+		if (currententity->flags & RF_TRANSLUCENT || currententity->flags & RF_FLARE)
 		{
 			continue; /* solid */
 		}
@@ -377,7 +377,7 @@ R_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (!(currententity->flags & RF_TRANSLUCENT))
+		if (!(currententity->flags & RF_TRANSLUCENT) || currententity->flags & RF_FLARE)
 		{
 			continue; /* solid */
 		}

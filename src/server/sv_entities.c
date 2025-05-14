@@ -419,7 +419,7 @@ SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		if (ps->stats[i] != ops->stats[i])
 		{
 			statbits[(int)(i / 32)] |= 1 << (i % 32);
-			stats_size = i;
+			stats_size = i + 1;
 		}
 	}
 
