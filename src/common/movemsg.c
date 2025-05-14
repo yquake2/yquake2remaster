@@ -698,7 +698,7 @@ MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s)
 }
 
 void
-MSG_WriteDeltaUsercmd(sizebuf_t *buf, usercmd_t *from, usercmd_t *cmd)
+MSG_WriteDeltaUsercmd(sizebuf_t *buf, const usercmd_t *from, const usercmd_t *cmd)
 {
 	int bits;
 
