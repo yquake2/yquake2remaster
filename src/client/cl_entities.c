@@ -145,6 +145,50 @@ CL_AddPacketEntities(frame_t *frame)
 			ent.oldorigin[2] += autobob;
 		}
 
+		if (renderfx & RF_FLARE)
+		{
+			float fade_start, fade_end, d;
+			vec3_t dist;
+
+			fade_start = s1->modelindex2;
+			fade_end = s1->modelindex3;
+			VectorSubtract(cl.refdef.vieworg, ent.origin, dist);
+			d = VectorLength(dist);
+			if (d < fade_start)
+			{
+				continue;
+			}
+
+			if (d > fade_end)
+			{
+				ent.alpha = 1;
+			}
+			else
+			{
+				ent.alpha = (d - fade_start) / (fade_end - fade_start);
+			}
+
+			ent.skin = 0;
+			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < MAX_IMAGES)
+			{
+				ent.skin = cl.image_precache[s1->frame];
+			}
+
+			if (!ent.skin)
+			{
+				ent.skin = Draw_FindPic("misc/flare.tga");
+			}
+
+			ent.flags = renderfx | RF_TRANSLUCENT;
+			ent.skinnum = s1->skinnum;
+			VectorCopy(s1->scale, ent.scale);
+
+			V_AddEntity(&ent);
+			VectorCopy(ent.origin, cent->lerp_origin);
+
+			continue;
+		}
+
 		/* tweak the color of beams */
 		if (renderfx & RF_BEAM)
 		{

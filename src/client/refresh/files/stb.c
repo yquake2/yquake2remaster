@@ -748,6 +748,13 @@ R_FindPic(const char *name, findimage_t find_image)
 		Com_sprintf(pathname, sizeof(pathname), "pics/%s.pcx", namewe);
 		image = find_image(pathname, it_pic);
 
+		/* Quake 2 RR */
+		if (!image)
+		{
+			Com_sprintf(pathname, sizeof(pathname), "%s.pcx", namewe);
+			image = find_image(pathname, it_pic);
+		}
+
 		/* Anachronox */
 		if (!image)
 		{

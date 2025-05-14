@@ -3285,10 +3285,6 @@ SP_misc_nuke_core(edict_t *ent)
 #define SPAWNFLAG_FLARE_BLUE 4
 #define SPAWNFLAG_FLARE_LOCK_ANGLE 8
 
-/* TODO: implement FX_FLARE */
-#define RF_FLARE EF_BLUEHYPERBLASTER
-#define RF_FLARE_LOCK_ANGLE 0
-
 void
 misc_flare_use(edict_t *ent, edict_t *other, edict_t *activator)
 {
@@ -3301,7 +3297,7 @@ SP_misc_flare(edict_t* ent)
 {
 	int i;
 
-	ent->s.modelindex = 0;
+	ent->s.modelindex = 1;
 	ent->s.renderfx = RF_FLARE;
 	ent->solid = SOLID_NOT;
 
@@ -3343,6 +3339,10 @@ SP_misc_flare(edict_t* ent)
 	ent->s.modelindex2 = st.fade_start_dist;
 	ent->s.modelindex3 = st.fade_end_dist;
 	ent->s.skinnum = st.rgba;
+	if (!ent->s.skinnum)
+	{
+		ent->s.skinnum = -1;
+	}
 
 	if (ent->targetname)
 	{
