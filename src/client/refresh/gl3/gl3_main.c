@@ -865,9 +865,6 @@ GL3_DrawFlare(entity_t *e)
 	right = vright;
 	*(unsigned *) color = e->skinnum;
 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-
 	skin = e->skin;
 	if (!skin)
 	{
@@ -876,17 +873,9 @@ GL3_DrawFlare(entity_t *e)
 
 	GL3_Bind(skin->texnum);
 
-	if (alpha == 1.0)
-	{
-		// use shader with alpha test
-		GL3_UseProgram(gl3state.si3DspriteAlpha.shaderProgram);
-	}
-	else
-	{
-		glEnable(GL_BLEND);
-
-		GL3_UseProgram(gl3state.si3Dsprite.shaderProgram);
-	}
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	GL3_UseProgram(gl3state.si3DspriteAlpha.shaderProgram);
 
 	verts[0].texCoord[0] = 0;
 	verts[0].texCoord[1] = 1;
@@ -914,9 +903,11 @@ GL3_DrawFlare(entity_t *e)
 
 	GL3_BufferAndDraw3D(verts, 4, GL_TRIANGLE_FAN);
 
-	if (alpha != 1.0F)
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (1.0 != gl3state.uni3DData.alpha)
 	{
-		glDisable(GL_BLEND);
 		gl3state.uni3DData.alpha = 1.0f;
 		GL3_UpdateUBO3D();
 	}
