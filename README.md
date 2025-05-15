@@ -201,6 +201,8 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
       parts transparent for `misc_flare`,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible.
+* [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll
 * [ ] ReRelease: modified game code support with removed KEX only related code.
 
 Not a goal:
