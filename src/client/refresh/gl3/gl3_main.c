@@ -845,7 +845,6 @@ GL3_DrawFlare(entity_t *e)
 	mvtx_t verts[4];
 	vec3_t scale;
 	float *up, *right;
-	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 
 	VectorCopy(e->scale, scale);
 
@@ -863,7 +862,6 @@ GL3_DrawFlare(entity_t *e)
 	/* normal sprite */
 	up = vup;
 	right = vright;
-	*(unsigned *) color = e->skinnum;
 
 	skin = e->skin;
 	if (!skin)
