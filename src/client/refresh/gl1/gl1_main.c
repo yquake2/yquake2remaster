@@ -319,11 +319,6 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		1, 1
 	};
 
-	printf("%s: sprite %dx%d->%dx%d\n",
-		__func__,
-		frame->origin_x, frame->origin_y,
-		frame->width, frame->height
-	);
 	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[0]);
 	VectorMA(point[0], -frame->origin_x * scale[1], right, point[0]);
 
