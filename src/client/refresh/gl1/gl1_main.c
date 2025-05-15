@@ -173,6 +173,7 @@ R_DrawFlare(entity_t *currententity)
 	float alpha = 1.0F;
 	vec3_t point[4], scale;
 	float *up, *right;
+	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 
 	VectorCopy(currententity->scale, scale);
 
@@ -189,12 +190,15 @@ R_DrawFlare(entity_t *currententity)
 		alpha = currententity->alpha;
 	}
 
-	if (alpha != 1.0F)
-	{
-		glEnable(GL_BLEND);
-	}
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
 
-	glColor4f(1, 1, 1, alpha);
+	*(unsigned *) color = currententity->skinnum;
+	glColor4f(
+		color[0] / 255.0f,
+		color[0] / 255.0f,
+		color[0] / 255.0f,
+		alpha);
 
 	skin = currententity->skin;
 	if (!skin)
@@ -215,13 +219,6 @@ R_DrawFlare(entity_t *currententity)
 		glDisable(GL_ALPHA_TEST);
 	}
 
-	printf("%s: skip flare %f alpha, image: %p, scale %.2fx%.2fx%.2fx color %8x, size: %dx%d\n",
-		__func__, currententity->alpha, currententity->skin,
-		currententity->scale[0], currententity->scale[0], currententity->scale[0],
-		currententity->skinnum,
-		skin->width, skin->height);
-
-#if 0
 	GLfloat tex[] = {
 		0, 1,
 		0, 0,
@@ -229,17 +226,17 @@ R_DrawFlare(entity_t *currententity)
 		1, 1
 	};
 
-	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[0]);
-	VectorMA(point[0], -frame->origin_x * scale[1], right, point[0]);
+	VectorMA(currententity->origin, -skin->height * scale[0] / 2, up, point[0]);
+	VectorMA(point[0], -skin->width * scale[1] / 2, right, point[0]);
 
-	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point[1]);
-	VectorMA(point[1], -frame->origin_x * scale[1], right, point[1]);
+	VectorMA(currententity->origin, skin->height * scale[0] / 2, up, point[1]);
+	VectorMA(point[1], -skin->width * scale[1] / 2, right, point[1]);
 
-	VectorMA(currententity->origin, (frame->height - frame->origin_y) * scale[0], up, point[2]);
-	VectorMA(point[2], (frame->width - frame->origin_x) * scale[1], right, point[2]);
+	VectorMA(currententity->origin, skin->height * scale[0] / 2, up, point[2]);
+	VectorMA(point[2], skin->width * scale[1] / 2, right, point[2]);
 
-	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point[3]);
-	VectorMA(point[3], (frame->width - frame->origin_x) * scale[1], right, point[3]);
+	VectorMA(currententity->origin, -skin->height * scale[0] / 2, up, point[3]);
+	VectorMA(point[3], skin->width * scale[1] / 2, right, point[3]);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -250,15 +247,12 @@ R_DrawFlare(entity_t *currententity)
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
 
 	glDisable(GL_ALPHA_TEST);
 	R_TexEnv(GL_REPLACE);
 
-	if (alpha != 1.0F)
-	{
-		glDisable(GL_BLEND);
-	}
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glColor4f(1, 1, 1, 1);
 }
@@ -485,7 +479,7 @@ R_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (!(currententity->flags & RF_TRANSLUCENT) || currententity->flags & RF_FLARE)
+		if (!(currententity->flags & RF_TRANSLUCENT))
 		{
 			continue; /* solid */
 		}
