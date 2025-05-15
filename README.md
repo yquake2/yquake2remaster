@@ -191,9 +191,13 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: support tactile/*/*.bnvib/.wav feedback load,
 * [x] ReRelease: fix physics with incorrect floor height in psx/base0.bsp,
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
-* [x] ReRelease: basicsjam1_detrohogga: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN) > 4k coord values support,
+* [x] ReRelease: basicsjam1_detrohogga: Make pmove_state_t.origin 29.3 (PS_M_ORIGIN)
+      > 4k coord values support,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
-* [ ] ReRelease: fully implement `misc_flare`,
+* [x] ReRelease: fully implement `misc_flare`,
+* [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
+* [ ] soft, vulkan: implement color multiplication and alpha combine or make black
+      parts transparent for `misc_flare`,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible.
 * [ ] ReRelease: modified game code support with removed KEX only related code.

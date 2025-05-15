@@ -873,25 +873,33 @@ R_DrawEntitiesOnList (void)
 		}
 	}
 
-	if ( !translucent_entities )
+	if (!translucent_entities)
+	{
 		return;
+	}
 
 	for (i=0 ; i<r_newrefdef.num_entities ; i++)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (!( currententity->flags & RF_TRANSLUCENT) || currententity->flags & RF_FLARE)
+		if (!( currententity->flags & RF_TRANSLUCENT))
 		{
 			continue;
 		}
 
-		if ( currententity->flags & RF_BEAM )
+		if (currententity->flags & RF_BEAM)
 		{
 			modelorg[0] = -r_origin[0];
 			modelorg[1] = -r_origin[1];
 			modelorg[2] = -r_origin[2];
 			VectorCopy(vec3_origin, r_entorigin);
 			R_DrawBeam(currententity);
+		}
+		else if (currententity->flags & RF_FLARE)
+		{
+			VectorCopy(currententity->origin, r_entorigin);
+			VectorSubtract(r_origin, r_entorigin, modelorg);
+			R_DrawFlare(currententity);
 		}
 		else
 		{
@@ -2420,7 +2428,7 @@ RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows, const b
 ** front buffer.
 */
 static void
-RE_EndFrame (void)
+RE_EndFrame(void)
 {
 	int vmin, vmax;
 
