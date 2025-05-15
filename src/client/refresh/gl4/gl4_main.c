@@ -790,6 +790,80 @@ GL4_DrawBeam(entity_t *e)
 }
 
 static void
+GL4_DrawFlare(entity_t *e)
+{
+	const gl4image_t *skin;
+	float alpha = 1.0F;
+	mvtx_t verts[4];
+	vec3_t scale;
+	float *up, *right;
+
+	VectorCopy(e->scale, scale);
+
+	if (e->flags & RF_TRANSLUCENT)
+	{
+		alpha = e->alpha;
+	}
+
+	if (alpha != gl4state.uni3DData.alpha)
+	{
+		gl4state.uni3DData.alpha = alpha;
+		GL4_UpdateUBO3D();
+	}
+
+	/* normal sprite */
+	up = vup;
+	right = vright;
+
+	skin = e->skin;
+	if (!skin)
+	{
+		skin = gl4_notexture; /* fallback... */
+	}
+
+	GL4_Bind(skin->texnum);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+	GL4_UseProgram(gl4state.si3DspriteAlpha.shaderProgram);
+
+	verts[0].texCoord[0] = 0;
+	verts[0].texCoord[1] = 1;
+	verts[1].texCoord[0] = 0;
+	verts[1].texCoord[1] = 0;
+	verts[2].texCoord[0] = 1;
+	verts[2].texCoord[1] = 0;
+	verts[3].texCoord[0] = 1;
+	verts[3].texCoord[1] = 1;
+
+	VectorMA( e->origin, -skin->height * scale[0] / 2, up, verts[0].pos );
+	VectorMA( verts[0].pos, -skin->width * scale[1] / 2, right, verts[0].pos );
+
+	VectorMA( e->origin, skin->height * scale[0] / 2, up, verts[1].pos );
+	VectorMA( verts[1].pos, -skin->width * scale[1] / 2, right, verts[1].pos );
+
+	VectorMA( e->origin, skin->height * scale[0] / 2, up, verts[2].pos );
+	VectorMA( verts[2].pos, skin->width * scale[1] / 2, right, verts[2].pos );
+
+	VectorMA( e->origin, -skin->height * scale[0] / 2, up, verts[3].pos );
+	VectorMA( verts[3].pos, skin->width * scale[1] / 2, right, verts[3].pos );
+
+	GL4_BindVAO(gl4state.vao3D);
+	GL4_BindVBO(gl4state.vbo3D);
+
+	GL4_BufferAndDraw3D(verts, 4, GL_TRIANGLE_FAN);
+
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (1.0 != gl4state.uni3DData.alpha)
+	{
+		gl4state.uni3DData.alpha = 1.0f;
+		GL4_UpdateUBO3D();
+	}
+}
+
+static void
 GL4_DrawSpriteModel(entity_t *e, const gl4model_t *currentmodel)
 {
 	float alpha = 1.0F;
@@ -1067,7 +1141,7 @@ GL4_DrawEntitiesOnList(void)
 	{
 		entity_t *currententity = &gl4_newrefdef.entities[i];
 
-		if (!(currententity->flags & RF_TRANSLUCENT) || currententity->flags & RF_FLARE)
+		if (!(currententity->flags & RF_TRANSLUCENT))
 		{
 			continue; /* solid */
 		}
@@ -1075,6 +1149,10 @@ GL4_DrawEntitiesOnList(void)
 		if (currententity->flags & RF_BEAM)
 		{
 			GL4_DrawBeam(currententity);
+		}
+		else if (currententity->flags & RF_FLARE)
+		{
+			GL4_DrawFlare(currententity);
 		}
 		else
 		{
