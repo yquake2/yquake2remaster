@@ -155,6 +155,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
+* [ ] Anachronox: [add mp3 support](https://github.com/lieff/minimp3)
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
@@ -195,11 +196,15 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
       > 4k coord values support,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [x] ReRelease: fully implement `misc_flare`,
+* [ ] ReRelease: fully implement `dynamic_light`,
+* [ ] ReRelease: fully implement `trigger_fog`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible.
+* [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
+      and https://github.com/Paril/quake2-rerelease-dll
 * [ ] ReRelease: modified game code support with removed KEX only related code.
 
 Not a goal:
