@@ -193,6 +193,7 @@
 {"target_help", SP_target_help},
 {"target_killplayers", SP_target_killplayers},
 {"target_laser", SP_target_laser},
+{"target_light", SP_target_light},
 {"target_lightramp", SP_target_lightramp},
 {"target_mal_laser", SP_target_mal_laser},
 {"target_music", SP_target_music},

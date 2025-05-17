@@ -30,6 +30,7 @@
 #include "../../../common/header/common.h"
 #include "vid.h"
 
+#define	DLIGHT_CUTOFF	64
 #define	MAX_DLIGHTS		32
 #define	MAX_ENTITIES	128
 #define	MAX_PARTICLES	4096

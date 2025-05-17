@@ -1809,6 +1809,153 @@ SP_target_soundfx(edict_t* self)
 	self->use = use_target_soundfx;
 }
 
+/*QUAKED target_light (1 0 0) (-8 -8 -8) (8 8 8) START_ON NO_LERP FLICKER
+[Paril-KEX] dynamic light entity that follows a lightstyle.
+
+*/
+
+#define SPAWNFLAG_TARGET_LIGHT_START_ON 1
+#define SPAWNFLAG_TARGET_LIGHT_NO_LERP 2 // not used in N64, but I'll use it for this
+#define SPAWNFLAG_TARGET_LIGHT_FLICKER 4
+
+void
+target_light_flicker_think(edict_t *self)
+{
+	if ((random() < 0.5))
+	{
+		self->svflags ^= SVF_NOCLIENT;
+	}
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
+/* think function handles interpolation from start to finish. */
+void
+target_light_think(edict_t *self)
+{
+	if (self->spawnflags & SPAWNFLAG_TARGET_LIGHT_FLICKER)
+	{
+		target_light_flicker_think(self);
+	}
+
+	const char *style = gi.GetConfigString(CS_LIGHTS + self->style);
+	self->delay += self->speed;
+
+	int index = ((int) self->delay) % strlen(style);
+	char style_value = style[index];
+	float current_lerp = (float) (style_value - 'a') / (float) ('z' - 'a');
+	float lerp;
+
+	if (!(self->spawnflags & SPAWNFLAG_TARGET_LIGHT_NO_LERP))
+	{
+		int next_index = (index + 1) % strlen(style);
+		char next_style_value = style[next_index];
+
+		float next_lerp = (float) (next_style_value - 'a') / (float) ('z' - 'a');
+
+		float mod_lerp = fmod(self->delay, 1.0f);
+		lerp = (next_lerp * mod_lerp) + (current_lerp * (1.f - mod_lerp));
+	}
+	else
+	{
+		lerp = current_lerp;
+	}
+
+	int my_rgb = self->count;
+	int target_rgb = self->chain->s.skinnum;
+
+	int my_b = ((my_rgb >> 8 ) & 0xff);
+	int my_g = ((my_rgb >> 16) & 0xff);
+	int my_r = ((my_rgb >> 24) & 0xff);
+
+	int target_b = ((target_rgb >> 8 ) & 0xff);
+	int target_g = ((target_rgb >> 16) & 0xff);
+	int target_r = ((target_rgb >> 24) & 0xff);
+
+	float backlerp = 1.0f - lerp;
+
+	int b = (target_b * lerp) + (my_b * backlerp);
+	int g = (target_g * lerp) + (my_g * backlerp);
+	int r = (target_r * lerp) + (my_r * backlerp);
+
+	self->s.skinnum = (b << 8) | (g << 16) | (r << 24);
+
+	self->nextthink = level.time + FRAMETIME;
+}
+
+void
+target_light_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->health = !self->health;
+
+	if (self->health)
+	{
+		self->svflags &= ~SVF_NOCLIENT;
+	}
+	else
+	{
+		self->svflags |= SVF_NOCLIENT;
+	}
+
+	if (!self->health)
+	{
+		self->think = NULL;
+		self->nextthink = 0;
+		return;
+	}
+
+	/* has dynamic light "target" */
+	if (self->chain)
+	{
+		self->think = target_light_think;
+		self->nextthink = level.time + FRAMETIME;
+	}
+	else if (self->spawnflags & SPAWNFLAG_TARGET_LIGHT_FLICKER)
+	{
+		self->think = target_light_flicker_think;
+		self->nextthink = level.time + FRAMETIME;
+	}
+}
+
+void
+SP_target_light(edict_t *self)
+{
+	self->s.modelindex = 1;
+	self->s.renderfx = RF_CUSTOM_LIGHT;
+	self->s.frame = st.radius ? st.radius : 150;
+	self->count = self->s.skinnum;
+	self->svflags |= SVF_NOCLIENT;
+	self->health = 0;
+
+	if (self->target)
+	{
+		self->chain = G_PickTarget(self->target);
+	}
+
+	if (self->spawnflags & SPAWNFLAG_TARGET_LIGHT_START_ON)
+	{
+		target_light_use(self, self, self);
+	}
+
+	if (!self->speed)
+	{
+		self->speed = 1.0f;
+	}
+	else
+	{
+		self->speed = 0.1f / self->speed;
+	}
+
+	self->use = target_light_use;
+
+	gi.linkentity(self);
+}
+
 /*
  * QUAKED target_music (1 0 0) (-8 -8 -8) (8 8 8)
  * Change music when used

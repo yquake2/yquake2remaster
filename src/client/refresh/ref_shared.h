@@ -360,8 +360,6 @@ extern int Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurfa
 extern int Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header);
 
 /* Surface logic */
-#define DLIGHT_CUTOFF 64
-
 extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframecount,
 	msurface_t *surfaces);
 extern struct image_s *R_TextureAnimation(const entity_t *currententity,

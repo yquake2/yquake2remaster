@@ -189,6 +189,30 @@ CL_AddPacketEntities(frame_t *frame)
 			continue;
 		}
 
+		if (renderfx & RF_CUSTOM_LIGHT)
+		{
+			int color;
+
+			if (!s1->skinnum)
+			{
+				color = -1;
+			}
+			else
+			{
+				color = BigLong(s1->skinnum);
+			}
+
+			V_AddLight(ent.origin, DLIGHT_CUTOFF + s1->frame,
+						((char *)&color)[0]  / 255.0f,
+						((char *)&color)[1] / 255.0f,
+						((char *)&color)[2] / 255.0f);
+
+			V_AddEntity(&ent);
+			VectorCopy(ent.origin, cent->lerp_origin);
+
+			continue;
+		}
+
 		/* tweak the color of beams */
 		if (renderfx & RF_BEAM)
 		{
