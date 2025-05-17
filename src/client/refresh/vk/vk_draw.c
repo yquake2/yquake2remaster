@@ -31,6 +31,7 @@ static image_t *draw_chars = NULL;
 static image_t *draw_font = NULL;
 static image_t *draw_font_alt = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
+static qboolean draw_chars_has_alt;
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
@@ -44,6 +45,8 @@ Draw_InitLocal(void)
 		&draw_fontcodes, &draw_font, &draw_font_alt, Vk_LoadPic);
 
 	draw_chars = R_LoadConsoleChars((findimage_t)Vk_FindImage);
+	/* Heretic 2 uses more than 128 symbols in image */
+	draw_chars_has_alt = !(draw_chars && !strcmp(draw_chars->name, "pics/misc/conchars.m32"));
 }
 
 void
@@ -138,7 +141,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 		{
 			int xor;
 
-			xor = alt ? 0x80 : 0;
+			xor = (alt && draw_chars_has_alt) ? 0x80 : 0;
 
 			if (value > ' ' && value < 128)
 			{

@@ -35,6 +35,7 @@ static image_t *draw_font_alt = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
 
 extern qboolean scrap_dirty;
+static qboolean draw_chars_has_alt;
 void Scrap_Upload(void);
 
 extern unsigned r_rawpalette[256];
@@ -51,6 +52,8 @@ Draw_InitLocal(void)
 		&draw_fontcodes, &draw_font, &draw_font_alt, R_LoadPic);
 
 	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
+	/* Heretic 2 uses more than 128 symbols in image */
+	draw_chars_has_alt = !(draw_chars && !strcmp(draw_chars->name, "pics/misc/conchars.m32"));
 }
 
 void
@@ -143,7 +146,7 @@ RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 		{
 			int xor;
 
-			xor = alt ? 0x80 : 0;
+			xor = (alt && draw_chars_has_alt) ? 0x80 : 0;
 
 			if (value > ' ' && value < 128)
 			{

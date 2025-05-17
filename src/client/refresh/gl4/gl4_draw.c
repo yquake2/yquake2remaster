@@ -36,6 +36,7 @@ gl4image_t *draw_chars = NULL;
 static gl4image_t *draw_font = NULL;
 static gl4image_t *draw_font_alt = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
+static qboolean draw_chars_has_alt;
 
 static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
 
@@ -51,6 +52,8 @@ GL4_Draw_InitLocal(void)
 		&draw_fontcodes, &draw_font, &draw_font_alt, (loadimage_t)GL4_LoadPic);
 
 	draw_chars = R_LoadConsoleChars((findimage_t)GL4_FindImage);
+	/* Heretic 2 uses more than 128 symbols in image */
+	draw_chars_has_alt = !(draw_chars && !strcmp(draw_chars->name, "pics/misc/conchars.m32"));
 
 	// set up attribute layout for 2D textured rendering
 	glGenVertexArrays(1, &vao2D);
@@ -215,7 +218,7 @@ GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 		{
 			int xor;
 
-			xor = alt ? 0x80 : 0;
+			xor = (alt && draw_chars_has_alt) ? 0x80 : 0;
 
 			if (value > ' ' && value < 128)
 			{
