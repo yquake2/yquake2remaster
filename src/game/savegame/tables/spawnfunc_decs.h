@@ -182,6 +182,7 @@ extern void SP_target_gravity (edict_t * self);
 extern void SP_target_help ( edict_t * ent ) ;
 extern void SP_target_killplayers(edict_t * self);
 extern void SP_target_laser(edict_t * self);
+extern void SP_target_light(edict_t *self);
 extern void SP_target_lightramp(edict_t * self);
 extern void SP_target_mal_laser(edict_t * self);
 extern void SP_target_music(edict_t * self);
