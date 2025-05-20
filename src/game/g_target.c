@@ -1833,27 +1833,37 @@ target_light_flicker_think(edict_t *self)
 void
 target_light_think(edict_t *self)
 {
+	int index, my_rgb, target_rgb, my_b, my_g, my_r,
+		target_b, target_g, target_r,
+		r, g, b;
+	float current_lerp, lerp, backlerp;
+	const char *style;
+	char style_value;
+
 	if (self->spawnflags & SPAWNFLAG_TARGET_LIGHT_FLICKER)
 	{
 		target_light_flicker_think(self);
 	}
 
-	const char *style = gi.GetConfigString(CS_LIGHTS + self->style);
+	style = gi.GetConfigString(CS_LIGHTS + self->style);
 	self->delay += self->speed;
 
-	int index = ((int) self->delay) % strlen(style);
-	char style_value = style[index];
-	float current_lerp = (float) (style_value - 'a') / (float) ('z' - 'a');
-	float lerp;
+	index = ((int) self->delay) % strlen(style);
+	style_value = style[index];
+	current_lerp = (float) (style_value - 'a') / (float) ('z' - 'a');
 
 	if (!(self->spawnflags & SPAWNFLAG_TARGET_LIGHT_NO_LERP))
 	{
-		int next_index = (index + 1) % strlen(style);
-		char next_style_value = style[next_index];
+		float next_lerp, mod_lerp;
+		char next_style_value;
+		int next_index;
 
-		float next_lerp = (float) (next_style_value - 'a') / (float) ('z' - 'a');
+		next_index = (index + 1) % strlen(style);
+		next_style_value = style[next_index];
 
-		float mod_lerp = fmod(self->delay, 1.0f);
+		next_lerp = (float) (next_style_value - 'a') / (float) ('z' - 'a');
+
+		mod_lerp = fmod(self->delay, 1.0f);
 		lerp = (next_lerp * mod_lerp) + (current_lerp * (1.f - mod_lerp));
 	}
 	else
@@ -1861,22 +1871,22 @@ target_light_think(edict_t *self)
 		lerp = current_lerp;
 	}
 
-	int my_rgb = self->count;
-	int target_rgb = self->chain->s.skinnum;
+	my_rgb = self->count;
+	target_rgb = self->chain->s.skinnum;
 
-	int my_b = ((my_rgb >> 8 ) & 0xff);
-	int my_g = ((my_rgb >> 16) & 0xff);
-	int my_r = ((my_rgb >> 24) & 0xff);
+	my_b = ((my_rgb >> 8 ) & 0xff);
+	my_g = ((my_rgb >> 16) & 0xff);
+	my_r = ((my_rgb >> 24) & 0xff);
 
-	int target_b = ((target_rgb >> 8 ) & 0xff);
-	int target_g = ((target_rgb >> 16) & 0xff);
-	int target_r = ((target_rgb >> 24) & 0xff);
+	target_b = ((target_rgb >> 8 ) & 0xff);
+	target_g = ((target_rgb >> 16) & 0xff);
+	target_r = ((target_rgb >> 24) & 0xff);
 
-	float backlerp = 1.0f - lerp;
+	backlerp = 1.0f - lerp;
 
-	int b = (target_b * lerp) + (my_b * backlerp);
-	int g = (target_g * lerp) + (my_g * backlerp);
-	int r = (target_r * lerp) + (my_r * backlerp);
+	b = (target_b * lerp) + (my_b * backlerp);
+	g = (target_g * lerp) + (my_g * backlerp);
+	r = (target_r * lerp) + (my_r * backlerp);
 
 	self->s.skinnum = (b << 8) | (g << 16) | (r << 24);
 
