@@ -524,6 +524,7 @@ set(Client-Source
 	${COMMON_SRC_DIR}/maps.c
 	${COMMON_SRC_DIR}/md4.c
 	${COMMON_SRC_DIR}/movemsg.c
+	${COMMON_SRC_DIR}/models/image.c
 	${COMMON_SRC_DIR}/models/loadfile.c
 	${COMMON_SRC_DIR}/models/models.c
 	${COMMON_SRC_DIR}/models/models_md5.c
@@ -612,6 +613,7 @@ set(Server-Source
 	${COMMON_SRC_DIR}/filesystem.c
 	${COMMON_SRC_DIR}/glob.c
 	${COMMON_SRC_DIR}/maps.c
+	${COMMON_SRC_DIR}/models/image.c
 	${COMMON_SRC_DIR}/models/loadfile.c
 	${COMMON_SRC_DIR}/models/models.c
 	${COMMON_SRC_DIR}/models/models_md5.c
