@@ -35,6 +35,7 @@ typedef struct
 	int extradatasize;
 	void *extradata;
 } model_t;
+
 static int model_num;
 static model_t mod_known[MAX_MOD_KNOWN];
 
@@ -508,6 +509,39 @@ Mod_LoadAndStoreModel(const char *name)
 	{
 		filesize = FS_LoadFile(name, &buffer);
 	}
+	else if (!strcmp(ext, "png") || !strcmp(ext, "tga"))
+	{
+		int width, height, bitsPerPixel;
+		byte *pic;
+
+		LoadImageWithPaletteStatic(name, &pic, NULL, &width, &height, &bitsPerPixel);
+
+		if (pic)
+		{
+			dsprite_t *sprout;
+
+			free(pic);
+
+			filesize = sizeof(dsprite_t);
+			buffer = Z_Malloc(filesize);
+			/* create replacement */
+			sprout = (dsprite_t *)buffer;
+			sprout->ident = LittleLong(IDSPRITEHEADER);
+			sprout->version = LittleLong(SPRITE_VERSION);
+			sprout->numframes = LittleLong(1);
+			/* copy image info */
+			Q_strlcpy(sprout->frames[0].name, name,
+				sizeof(sprout->frames[0].name));
+			sprout->frames[0].origin_x = LittleLong(width / 2);
+			sprout->frames[0].origin_y = LittleLong(height / 2);
+			sprout->frames[0].width = LittleLong(width);
+			sprout->frames[0].height = LittleLong(height);
+		}
+		else
+		{
+			filesize = -1;
+		}
+	}
 	else
 	{
 		filesize = Mod_LoadFileWithoutExtModel(namewe, len, &buffer);
@@ -646,9 +680,12 @@ Mod_LoadFile(const char *name, void **buffer)
 		!strcmp(ext, "md3") ||
 		!strcmp(ext, "mdr") ||
 		!strcmp(ext, "md5mesh") ||
-		!strcmp(ext, "sp2") ||
 		!strcmp(ext, "mdx") ||
-		!strcmp(ext, "mdl"))
+		!strcmp(ext, "mdl") ||
+		/* sprites */
+		!strcmp(ext, "sp2") ||
+		!strcmp(ext, "png") ||
+		!strcmp(ext, "tga"))
 	{
 		const model_t *mod;
 
