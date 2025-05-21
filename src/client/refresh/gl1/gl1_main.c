@@ -167,97 +167,6 @@ R_RotateForEntity(entity_t *e)
 }
 
 static void
-R_DrawFlare(entity_t *currententity)
-{
-	const image_t *skin;
-	float alpha = 1.0F;
-	vec3_t point[4], scale;
-	float *up, *right;
-	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
-
-	VectorCopy(currententity->scale, scale);
-
-	R_EnableMultitexture(false);
-	/* don't even bother culling, because it's just
-	   a single polygon without a surface cache */
-
-	/* normal sprite */
-	up = vup;
-	right = vright;
-
-	if (currententity->flags & RF_TRANSLUCENT)
-	{
-		alpha = currententity->alpha;
-	}
-
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_ONE);
-
-	*(unsigned *) color = currententity->skinnum;
-	glColor4f(
-		color[0] / 255.0f,
-		color[0] / 255.0f,
-		color[0] / 255.0f,
-		alpha);
-
-	skin = currententity->skin;
-	if (!skin)
-	{
-		skin = r_notexture; /* fallback... */
-	}
-
-	R_Bind(skin->texnum);
-
-	R_TexEnv(GL_MODULATE);
-
-	if (alpha == 1.0)
-	{
-		glEnable(GL_ALPHA_TEST);
-	}
-	else
-	{
-		glDisable(GL_ALPHA_TEST);
-	}
-
-	GLfloat tex[] = {
-		0, 1,
-		0, 0,
-		1, 0,
-		1, 1
-	};
-
-	VectorMA(currententity->origin, -skin->height * scale[0] / 2, up, point[0]);
-	VectorMA(point[0], -skin->width * scale[1] / 2, right, point[0]);
-
-	VectorMA(currententity->origin, skin->height * scale[0] / 2, up, point[1]);
-	VectorMA(point[1], -skin->width * scale[1] / 2, right, point[1]);
-
-	VectorMA(currententity->origin, skin->height * scale[0] / 2, up, point[2]);
-	VectorMA(point[2], skin->width * scale[1] / 2, right, point[2]);
-
-	VectorMA(currententity->origin, -skin->height * scale[0] / 2, up, point[3]);
-	VectorMA(point[3], skin->width * scale[1] / 2, right, point[3]);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	glVertexPointer(3, GL_FLOAT, 0, point);
-	glTexCoordPointer(2, GL_FLOAT, 0, tex);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	glDisable(GL_ALPHA_TEST);
-	R_TexEnv(GL_REPLACE);
-
-	glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glColor4f(1, 1, 1, 1);
-}
-
-static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
 	const dsprframe_t *frame;
@@ -286,12 +195,29 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		alpha = currententity->alpha;
 	}
 
-	if (alpha != 1.0F)
+	if (currententity->flags & RF_FLARE)
 	{
-		glEnable(GL_BLEND);
-	}
+		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 
-	glColor4f(1, 1, 1, alpha);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+
+		*(unsigned *) color = currententity->skinnum;
+		glColor4f(
+			color[0] / 255.0f,
+			color[1] / 255.0f,
+			color[2] / 255.0f,
+			alpha);
+	}
+	else
+	{
+		if (alpha != 1.0F)
+		{
+			glEnable(GL_BLEND);
+		}
+
+		glColor4f(1, 1, 1, alpha);
+	}
 
 	skin = currentmodel->skins[currententity->frame];
 	if (!skin)
@@ -344,7 +270,12 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	glDisable(GL_ALPHA_TEST);
 	R_TexEnv(GL_REPLACE);
 
-	if (alpha != 1.0F)
+	if (currententity->flags & RF_FLARE)
+	{
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else if (alpha != 1.0F)
 	{
 		glDisable(GL_BLEND);
 	}
@@ -482,10 +413,6 @@ R_DrawEntitiesOnList(void)
 		if (currententity->flags & RF_BEAM)
 		{
 			R_DrawBeam(currententity);
-		}
-		else if (currententity->flags & RF_FLARE)
-		{
-			R_DrawFlare(currententity);
 		}
 		else
 		{

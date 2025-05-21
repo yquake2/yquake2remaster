@@ -168,15 +168,16 @@ CL_AddPacketEntities(frame_t *frame)
 				ent.alpha = (d - fade_start) / (fade_end - fade_start);
 			}
 
-			ent.skin = 0;
-			if (renderfx & RF_CUSTOMSKIN && (unsigned)s1->frame < MAX_IMAGES)
+			ent.model = NULL;
+			if (renderfx & RF_CUSTOMSKIN &&
+				(unsigned)s1->modelindex < MAX_MODELS)
 			{
-				ent.skin = cl.image_precache[s1->frame];
+				ent.model = cl.model_draw[s1->modelindex];
 			}
 
-			if (!ent.skin)
+			if (!ent.model)
 			{
-				ent.skin = Draw_FindPic("misc/flare.tga");
+				ent.model = R_RegisterModel("misc/flare.tga");
 			}
 
 			ent.flags = renderfx | RF_TRANSLUCENT;

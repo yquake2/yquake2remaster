@@ -895,12 +895,6 @@ R_DrawEntitiesOnList (void)
 			VectorCopy(vec3_origin, r_entorigin);
 			R_DrawBeam(currententity);
 		}
-		else if (currententity->flags & RF_FLARE)
-		{
-			VectorCopy(currententity->origin, r_entorigin);
-			VectorSubtract(r_origin, r_entorigin, modelorg);
-			R_DrawFlare(currententity);
-		}
 		else
 		{
 			const model_t *currentmodel = currententity->model;

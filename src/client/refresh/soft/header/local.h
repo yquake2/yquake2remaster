@@ -447,7 +447,6 @@ extern msurface_t	*r_alpha_surfaces;
 void R_DrawAlphaSurfaces(const entity_t *currententity);
 
 void R_DrawSprite(entity_t *currententity, const model_t *currentmodel);
-void R_DrawFlare(const entity_t *currententity);
 void R_ClipAndDrawPoly(float alpha, int isturbulent, qboolean textured);
 void R_RenderFace(entity_t *currententity, const model_t *currentmodel, msurface_t *fa, int clipflags, qboolean insubmodel);
 void R_RenderBmodelFace(entity_t *currententity, bedge_t *pedges, msurface_t *psurf, int r_currentbkey);

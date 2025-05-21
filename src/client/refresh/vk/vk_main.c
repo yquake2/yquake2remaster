@@ -162,74 +162,6 @@ R_RotateForEntity(entity_t *e, float *mvMatrix)
 }
 
 static void
-R_DrawFlare(entity_t *currententity)
-{
-	float alpha = 1.0F;
-	vec3_t point, scale;
-	float *up, *right;
-	image_t *skin = NULL;
-
-	VectorCopy(currententity->scale, scale);
-
-	/* don't even bother culling, because it's just
-	   a single polygon without a surface cache */
-	skin = currententity->skin;
-
-	if (!skin)
-	{
-		skin = r_notexture;
-	}
-
-	/* normal sprite */
-	up = vup;
-	right = vright;
-
-	if (currententity->flags & RF_TRANSLUCENT)
-	{
-		alpha = currententity->alpha;
-	}
-
-	vec3_t spriteQuad[4];
-
-	VectorMA(currententity->origin, -skin->height * scale[0] / 2, up, point);
-	VectorMA(point, -skin->width * scale[1] / 2, right, spriteQuad[0]);
-	VectorMA(currententity->origin, skin->height * scale[0] / 2, up, point);
-	VectorMA(point, -skin->width * scale[1] / 2, right, spriteQuad[1]);
-	VectorMA(currententity->origin, skin->height * scale[0] / 2, up, point);
-	VectorMA(point, skin->width * scale[1] / 2, right, spriteQuad[2]);
-	VectorMA(currententity->origin, -skin->height * scale[0] / 2, up, point);
-	VectorMA(point, skin->width * scale[1] / 2, right, spriteQuad[3]);
-
-	float quadVerts[] = { spriteQuad[0][0], spriteQuad[0][1], spriteQuad[0][2], 0.f, 1.f,
-						  spriteQuad[1][0], spriteQuad[1][1], spriteQuad[1][2], 0.f, 0.f,
-						  spriteQuad[2][0], spriteQuad[2][1], spriteQuad[2][2], 1.f, 0.f,
-						  spriteQuad[0][0], spriteQuad[0][1], spriteQuad[0][2], 0.f, 1.f,
-						  spriteQuad[2][0], spriteQuad[2][1], spriteQuad[2][2], 1.f, 0.f,
-						  spriteQuad[3][0], spriteQuad[3][1], spriteQuad[3][2], 1.f, 1.f };
-
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawSpritePipeline.layout,
-		VK_SHADER_STAGE_VERTEX_BIT, sizeof(r_viewproj_matrix), sizeof(float), &alpha);
-	QVk_BindPipeline(&vk_drawSpritePipeline);
-
-	VkBuffer vbo;
-	VkDeviceSize vboOffset;
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(quadVerts), &vbo, &vboOffset);
-	memcpy(vertData, quadVerts, sizeof(quadVerts));
-
-	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-
-	float gamma = 2.1F - vid_gamma->value;
-
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
-		VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
-
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawSpritePipeline.layout, 0, 1,
-		&skin->vk_texture.descriptorSet, 0, NULL);
-	vkCmdDraw(vk_activeCmdbuffer, 6, 1, 0, 0);
-}
-
-static void
 R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
@@ -238,6 +170,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	float *up, *right;
 	dsprite_t *psprite;
 	image_t *skin = NULL;
+	vec3_t spriteQuad[4];
 
 	VectorCopy(currententity->scale, scale);
 
@@ -256,8 +189,6 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	{
 		alpha = currententity->alpha;
 	}
-
-	vec3_t spriteQuad[4];
 
 	VectorMA(currententity->origin, -frame->origin_y * scale[0], up, point);
 	VectorMA(point, -frame->origin_x * scale[1], right, spriteQuad[0]);
@@ -454,10 +385,6 @@ R_DrawEntitiesOnList(void)
 		if (currententity->flags & RF_BEAM)
 		{
 			R_DrawBeam(currententity);
-		}
-		else if (currententity->flags & RF_FLARE)
-		{
-			R_DrawFlare(currententity);
 		}
 		else
 		{
