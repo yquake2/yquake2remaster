@@ -816,21 +816,23 @@ R_DrawEntitiesOnList
 static void
 R_DrawEntitiesOnList (void)
 {
-	int			i;
-	qboolean	translucent_entities = false;
+	qboolean translucent_entities = false;
+	int i;
 
 	if (!r_drawentities->value)
+	{
 		return;
+	}
 
 	// all bmodels have already been drawn by the edge list
-	for (i=0 ; i<r_newrefdef.num_entities ; i++)
+	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (currententity->flags & RF_TRANSLUCENT || currententity->flags & RF_FLARE)
+		if (currententity->flags & (RF_TRANSLUCENT | RF_FLARE))
 		{
 			translucent_entities = true;
-			continue;
+			continue; /* not solid */
 		}
 
 		if ( currententity->flags & RF_BEAM )
@@ -882,9 +884,9 @@ R_DrawEntitiesOnList (void)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
-		if (!( currententity->flags & RF_TRANSLUCENT))
+		if (!(currententity->flags & (RF_TRANSLUCENT | RF_FLARE)))
 		{
-			continue;
+			continue; /* solid */
 		}
 
 		if (currententity->flags & RF_BEAM)
