@@ -50,10 +50,12 @@ Texture support:
 
 Sprites support:
 
-| Format | Original Game  | Comments                      |
-| ------ | -------------- | ----------------------------- |
-| sp2    | Quake 2        |                               |
-| atd    | Anachronox     | Show first frame of animation |
+| Format | Original Game  | Comments                               |
+| ------ | -------------- | -------------------------------------- |
+| sp2    | Quake 2        |                                        |
+| atd    | Anachronox     | Convert first frame to surface texture |
+| png    |                | Convert to sp2                         |
+| tga    | ReRelease      | Convert to sp2                         |
 
 Maps support:
 
@@ -64,6 +66,13 @@ Maps support:
 | RBSP   | 1       | SIN                                        |
 | QBSP   | 39      | Quake 2 ReRelease                          |
 | BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
+
+Sound support:
+| Format | Music | Effects |
+| ------ | ----- | ------- |
+| wav    | No    | Yes     |
+| ogg    | Yes   | Yes     |
+| mp3    | No    | Yes     |
 
 Note:
 
@@ -155,7 +164,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
-* [ ] Anachronox: [add mp3 support](https://github.com/lieff/minimp3)
+* [x] Anachronox/Daikatana: [add mp3 support](https://github.com/lieff/minimp3)
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,

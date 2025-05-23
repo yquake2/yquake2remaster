@@ -210,9 +210,10 @@ S_IsSilencedMuzzleFlash(const wavinfo_t* info, const void* raw_data, const char*
 }
 
 static void
-S_LoadVorbis(const char *path, wavinfo_t *info, void **buffer)
+S_LoadCompressed(const char *path, wavinfo_t *info, void **buffer)
 {
 	const char ogg_ext[] = ".ogg";
+	const char mp3_ext[] = ".mp3";
 	char filename[MAX_QPATH];
 	const char* ext;
 	int	len;
@@ -244,6 +245,18 @@ S_LoadVorbis(const char *path, wavinfo_t *info, void **buffer)
 	memcpy(filename + len, ogg_ext, sizeof(ogg_ext));
 
 	OGG_LoadAsWav(filename, info, buffer);
+
+	/* no ogg files */
+	if (!*buffer)
+	{
+		/* copy base path */
+		memcpy(filename, path, len);
+
+		/* Add the extension */
+		memcpy(filename + len, mp3_ext, sizeof(mp3_ext));
+
+		MP3_LoadAsWav(filename, info, buffer);
+	}
 }
 
 static void
@@ -484,9 +497,9 @@ S_LoadSound(sfx_t *s)
 		Com_sprintf(namebuffer, sizeof(namebuffer), "sound/%s", name);
 	}
 
-	S_LoadVorbis(namebuffer, &info, (void **)&data);
+	S_LoadCompressed(namebuffer, &info, (void **)&data);
 
-	// can't load ogg file
+	/* can't load ogg/mp3 file */
 	if (!data)
 	{
 		int size = FS_LoadFile(namebuffer, (void **)&data);
@@ -1518,7 +1531,7 @@ S_SoundList(void)
 					sc->width * 8, size,
 					(sc->stereo + 1), sfx->name,
 					10 * log10((float)sc->volume / (2 << 15)),
-					(float)sc->length / 1000,
+					(float)sc->length / 1000 / (sc->stereo + 1),
 					(float)sc->begin / 1000,
 					(float)sc->attack / 1000,
 					(float)sc->fade / 1000,

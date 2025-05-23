@@ -278,6 +278,11 @@ void SDL_RawSamples(int samples, int rate, int width,
 		int channels, const byte *data, float volume);
 
 /*
+ * Convert mp3 to raw samples
+ */
+void MP3_LoadAsWav(const char *filename, wavinfo_t *info, void **buffer);
+
+/*
  * Spartializes a sample
  */
 void SDL_Spatialize(channel_t *ch);

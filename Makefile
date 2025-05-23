@@ -1081,6 +1081,7 @@ CLIENT_OBJS_ := \
 	src/client/menu/videomenu.o \
 	src/client/sound/ogg.o \
 	src/client/sound/openal.o \
+	src/client/sound/mp3.o \
 	src/client/sound/qal.o \
 	src/client/sound/sdl.o \
 	src/client/sound/sound.o \

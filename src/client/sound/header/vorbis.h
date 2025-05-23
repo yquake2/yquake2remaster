@@ -43,6 +43,6 @@ void OGG_SaveState(void);
 void OGG_Shutdown(void);
 void OGG_Stop(void);
 void OGG_Stream(void);
-void OGG_LoadAsWav(char *filename, wavinfo_t *info, void **buffer);
+void OGG_LoadAsWav(const char *filename, wavinfo_t *info, void **buffer);
 
 #endif

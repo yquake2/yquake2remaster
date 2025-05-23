@@ -893,7 +893,7 @@ OGG_Shutdown(void)
 }
 
 void
-OGG_LoadAsWav(char *filename, wavinfo_t *info, void **buffer)
+OGG_LoadAsWav(const char *filename, wavinfo_t *info, void **buffer)
 {
 	void * temp_buffer = NULL;
 	int size = FS_LoadFile(filename, &temp_buffer);

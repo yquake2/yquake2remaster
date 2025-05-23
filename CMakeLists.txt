@@ -507,6 +507,7 @@ set(Client-Source
 	${CLIENT_SRC_DIR}/menu/videomenu.c
 	${CLIENT_SRC_DIR}/sound/ogg.c
 	${CLIENT_SRC_DIR}/sound/openal.c
+	${CLIENT_SRC_DIR}/sound/mp3.c
 	${CLIENT_SRC_DIR}/sound/qal.c
 	${CLIENT_SRC_DIR}/sound/sdl.c
 	${CLIENT_SRC_DIR}/sound/sound.c
