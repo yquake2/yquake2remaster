@@ -514,8 +514,8 @@ R_AliasSetUpTransform(const entity_t *currententity)
 	for (i=0 ; i<3 ; i++)
 	{
 		aliasoldworldtransform[i][0] = aliasworldtransform[i][0] =  s_alias_forward[i];
-		aliasoldworldtransform[i][0] = aliasworldtransform[i][1] = -s_alias_right[i];
-		aliasoldworldtransform[i][0] = aliasworldtransform[i][2] =  s_alias_up[i];
+		aliasoldworldtransform[i][1] = aliasworldtransform[i][1] = -s_alias_right[i];
+		aliasoldworldtransform[i][2] = aliasworldtransform[i][2] =  s_alias_up[i];
 	}
 
 	aliasworldtransform[0][3] = currententity->origin[0]-r_origin[0];

@@ -236,7 +236,7 @@ AI_AddNode_JumpPad(edict_t *ent)
 	vec3_t	v1,v2;
 	vec3_t	out;
 
-	if (nav.num_nodes + 1 > MAX_NODES)
+	if ((nav.num_nodes + 1) >= MAX_NODES)
 	{
 		return INVALID;
 	}
@@ -250,8 +250,8 @@ AI_AddNode_JumpPad(edict_t *ent)
 	nodes[nav.num_nodes].flags = (NODEFLAGS_JUMPPAD|NODEFLAGS_SERVERLINK|NODEFLAGS_REACHATTOUCH);
 
 	// find the origin
-	VectorCopy( ent->maxs, v1 );
-	VectorCopy( ent->mins, v2 );
+	VectorCopy(ent->maxs, v1);
+	VectorCopy(ent->mins, v2);
 	nodes[nav.num_nodes].origin[0] = (v1[0] - v2[0]) / 2 + v2[0];
 	nodes[nav.num_nodes].origin[1] = (v1[1] - v2[1]) / 2 + v2[1];
 	nodes[nav.num_nodes].origin[2] = ent->maxs[2] + 16;	//raise it up a bit
@@ -261,19 +261,19 @@ AI_AddNode_JumpPad(edict_t *ent)
 	nav.num_nodes++;
 
 	// Destiny node
-	nodes[nav.num_nodes].flags = (NODEFLAGS_JUMPPAD_LAND|NODEFLAGS_SERVERLINK);
+	nodes[nav.num_nodes].flags = (NODEFLAGS_JUMPPAD_LAND | NODEFLAGS_SERVERLINK);
 	nodes[nav.num_nodes].origin[0] = out[0];
 	nodes[nav.num_nodes].origin[1] = out[1];
 	nodes[nav.num_nodes].origin[2] = out[2];	//raise it up a bit
 	AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL );
 
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
+	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL);
 
 	// link jumpad to dest
-	AI_AddLink( nav.num_nodes-1 , nav.num_nodes, LINK_JUMPPAD );
+	AI_AddLink(nav.num_nodes - 1, nav.num_nodes, LINK_JUMPPAD);
 
 	nav.num_nodes++;
-	return nav.num_nodes -1;
+	return nav.num_nodes - 1;
 }
 
 
@@ -360,7 +360,7 @@ AI_AddNode_Door(edict_t *ent)
 	{
 		nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
-		AI_JumpadGuess_ShowPoint( nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2" );
+		AI_JumpadGuess_ShowPoint(nodes[nav.num_nodes].origin, "models/objects/grenade2/tris.md2");
 #endif
 		nav.num_nodes++;
 	}
@@ -395,7 +395,7 @@ AI_AddNode_Platform(edict_t *ent)
 	vec3_t		v1,v2;
 	float		plat_dist;
 
-	if (nav.num_nodes + 2 > MAX_NODES)
+	if ((nav.num_nodes + 1) >= MAX_NODES)
 	{
 		return INVALID;
 	}
@@ -446,7 +446,7 @@ AI_AddNode_Platform(edict_t *ent)
 
 	//next
 	nav.num_nodes++;
-	return nav.num_nodes-1;
+	return nav.num_nodes - 1;
 }
 
 
@@ -461,7 +461,7 @@ AI_AddNode_Teleporter(edict_t *ent)
 	vec3_t		v1,v2;
 	edict_t		*dest;
 
-	if (nav.num_nodes + 1 > MAX_NODES)
+	if ((nav.num_nodes + 1) >= MAX_NODES)
 	{
 		return INVALID;
 	}
@@ -472,7 +472,7 @@ AI_AddNode_Teleporter(edict_t *ent)
 		return INVALID;
 	}
 
-	//NODE_TELEPORTER_IN
+	/* NODE_TELEPORTER_IN */
 	nodes[nav.num_nodes].flags = (NODEFLAGS_TELEPORTER_IN|NODEFLAGS_SERVERLINK);
 
 	VectorCopy(ent->maxs, v1);
@@ -485,22 +485,22 @@ AI_AddNode_Teleporter(edict_t *ent)
 
 	nav.num_nodes++;
 
-	//NODE_TELEPORTER_OUT
-	nodes[nav.num_nodes].flags = (NODEFLAGS_TELEPORTER_OUT|NODEFLAGS_SERVERLINK);
-	VectorCopy( dest->s.origin, nodes[nav.num_nodes].origin );
-	if (ent->spawnflags & 1) // droptofloor
+	/* NODE_TELEPORTER_OUT */
+	nodes[nav.num_nodes].flags = (NODEFLAGS_TELEPORTER_OUT | NODEFLAGS_SERVERLINK);
+	VectorCopy(dest->s.origin, nodes[nav.num_nodes].origin);
+	if (ent->spawnflags & 1) /* droptofloor */
 	{
 		nodes[nav.num_nodes].flags |= NODEFLAGS_FLOAT;
 	}
 	else
 	{
-		AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL );
+		AI_DropNodeOriginToFloor(nodes[nav.num_nodes].origin, NULL);
 	}
 
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, ent );
+	nodes[nav.num_nodes].flags |= AI_FlagsForNode(nodes[nav.num_nodes].origin, ent);
 
 	// link from teleport_in
-	AI_AddLink(nav.num_nodes-1, nav.num_nodes, LINK_TELEPORT);
+	AI_AddLink(nav.num_nodes - 1, nav.num_nodes, LINK_TELEPORT);
 
 	nav.num_nodes++;
 	return nav.num_nodes - 1;
@@ -514,7 +514,7 @@ AI_AddNode_Teleporter(edict_t *ent)
 static int
 AI_AddNode_ItemNode(edict_t *ent)
 {
-	if (nav.num_nodes + 1 > MAX_NODES)
+	if (nav.num_nodes + 1 >= MAX_NODES)
 	{
 		return INVALID;
 	}

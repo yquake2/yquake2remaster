@@ -898,7 +898,7 @@ CL_ParseFrame(void)
 	MSG_ReadData(&net_message, &cl.frame.areabits, len);
 
 	/* read playerinfo */
-	cmd = MSG_ReadByte(&net_message);
+	cmd = MSG_ReadByte(&net_message) & 0xFF;
 	SHOWNET(svc_strings[cmd]);
 
 	if (cmd != svc_playerinfo)
@@ -1335,7 +1335,7 @@ CL_ParseStartSoundPacket(void)
 	vec3_t pos_v;
 	float *pos;
 	int channel, ent;
-	int sound_num;
+	unsigned sound_num;
 	float volume;
 	float attenuation;
 	int flags;
@@ -1344,11 +1344,11 @@ CL_ParseStartSoundPacket(void)
 	flags = MSG_ReadByte(&net_message);
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
-		sound_num = MSG_ReadByte(&net_message);
+		sound_num = MSG_ReadByte(&net_message) & 0xFF;
 	}
 	else
 	{
-		sound_num = MSG_ReadShort(&net_message);
+		sound_num = MSG_ReadShort(&net_message) & 0xFFFF;
 	}
 
 	if (flags & SND_VOLUME)

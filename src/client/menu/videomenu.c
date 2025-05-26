@@ -222,7 +222,7 @@ mode modes[] = {
 static int
 GetModePos(int modenum)
 {
-	for (int i = 0; i < sizeof(modes); i++)
+	for (int i = 0; i < sizeof(modes) / sizeof(*modes); i++)
 	{
 		if (modes[i].modenum == modenum)
 		{

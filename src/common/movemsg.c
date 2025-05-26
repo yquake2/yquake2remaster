@@ -825,7 +825,7 @@ MSG_ReadDir(sizebuf_t *sb, vec3_t dir)
 {
 	int b;
 
-	b = MSG_ReadByte(sb);
+	b = MSG_ReadByte(sb) & 0xFF;
 
 	if (b >= NUMVERTEXNORMALS)
 	{

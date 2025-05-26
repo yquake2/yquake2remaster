@@ -104,7 +104,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 	{
 		unsigned value = R_NextUTF8Code(&message);
 
-		if (draw_fontcodes && (draw_font || draw_font_alt))
+		if (draw_fontcodes && draw_font && draw_font_alt)
 		{
 			float font_scale;
 

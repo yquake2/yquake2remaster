@@ -666,16 +666,21 @@ BOT_DMclass_WeightPlayers(edict_t *self)
 	//clear
 	memset(self->ai->status.playersWeights, 0, sizeof (self->ai->status.playersWeights));
 
-	for( i=0; i<num_AIEnemies; i++ )
+	for(i = 0; i < num_AIEnemies; i++)
 	{
-		if( AIEnemies[i] == NULL )
+		if(AIEnemies[i] == NULL)
+		{
 			continue;
+		}
 
-		if( AIEnemies[i] == self )
+		if(AIEnemies[i] == self)
+		{
 			continue;
+		}
 
 		//ignore spectators and dead players
-		if( AIEnemies[i]->svflags & SVF_NOCLIENT || AIEnemies[i]->deadflag ) {
+		if (AIEnemies[i]->svflags & SVF_NOCLIENT || AIEnemies[i]->deadflag)
+		{
 			self->ai->status.playersWeights[i] = 0.0f;
 			continue;
 		}
@@ -959,12 +964,12 @@ BOT_DMClass_BloquedTimeout(edict_t *self)
 static void
 BOT_DMclass_DeadFrame(edict_t *self)
 {
-	usercmd_t	ucmd;
+	usercmd_t ucmd = {0};
 
 	// ask for respawn
 	self->client->buttons = 0;
 	ucmd.buttons = BUTTON_ATTACK;
-	ClientThink (self, &ucmd);
+	ClientThink(self, &ucmd);
 	self->nextthink = level.time + FRAMETIME;
 }
 
