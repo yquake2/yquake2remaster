@@ -1047,9 +1047,11 @@ Mod_MaptypeName(maptype_t maptype)
 
 	switch(maptype)
 	{
-		case map_quake2rr: maptypename = "Quake2 ReRelease"; break;
-		case map_quake2: maptypename = "Quake2"; break;
-		case map_heretic2: maptypename = "Heretic 2"; break;
+		case map_quake1: maptypename = "Quake"; break;
+		case map_quake2: maptypename = "Quake II"; break;
+		case map_quake2rr: maptypename = "Quake II ReRelease"; break;
+		case map_quake3: maptypename = "Quake III Arena"; break;
+		case map_heretic2: maptypename = "Heretic II"; break;
 		case map_daikatana: maptypename = "Daikatana"; break;
 		case map_kingpin: maptypename = "Kingpin"; break;
 		case map_anachronox: maptypename = "Anachronox"; break;
@@ -1162,7 +1164,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	if (detected_maptype != map_quake2rr)
 	{
 		/* Use detected maptype only if for sure know */
-		*maptype  = detected_maptype;
+		*maptype = detected_maptype;
 	}
 
 	if (rules)
