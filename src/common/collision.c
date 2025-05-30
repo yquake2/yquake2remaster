@@ -1878,8 +1878,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		Com_DPrintf("%s: Map %s has no visual clusters.",
 			__func__, name);
 	}
-
-	if (mod->map_vis && mod->numclusters != mod->map_vis->numclusters)
+	else if (mod->numclusters != mod->map_vis->numclusters)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
 			__func__, name, mod->numclusters, mod->map_vis->numclusters);

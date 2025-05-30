@@ -1205,6 +1205,76 @@ typedef struct {
 
 /* Quake 1 BSP */
 #define BSPQ1VERSION 29
+#define HEADER_Q1LUMPS 15
+
+#define CONTENTS_Q1_EMPTY -1
+#define CONTENTS_Q1_SOLID -2
+#define CONTENTS_Q1_WATER -3
+#define CONTENTS_Q1_SLIME -4
+#define CONTENTS_Q1_LAVA -5
+#define CONTENTS_Q1_SKY -6
+
+typedef struct
+{
+	int planenum;
+	short children[2];         /* negative numbers are -(leafs+1), not nodes */
+	short mins[3];             /* for frustom culling */
+	short maxs[3];
+	unsigned short firstface;
+	unsigned short numfaces;   /* counting both sides */
+} dq1node_t;
+
+typedef struct
+{
+	int type;                  /* Special type of leaf */
+	int vislist;               /* Beginning of visibility lists
+							      must be -1 or in [0,numvislist] */
+	short mins[3];             /* for frustum culling */
+	short maxs[3];
+	unsigned short firstleafface;
+	unsigned short numleaffaces;
+
+	byte sndwater;             /* level of the four ambient sounds: */
+	byte sndsky;               /*   0    is no sound */
+	byte sndslime;             /*   0xFF is maximum volume */
+	byte sndlava;
+} dq1leaf_t;
+
+typedef struct
+{
+	unsigned short planenum;
+	short side;
+
+	int firstedge;             /* we must support > 64k edges */
+	short numedges;
+	short texinfo;
+
+	byte typelight;            /* type of lighting, for the face */
+	byte baselight;            /* from 0xFF (dark) to 0 (bright) */
+	byte light[2];             /* two additional light models */
+	int lightofs;              /* Pointer inside the general light map, or -1 */
+							   /* this define the start of the face light map */
+} q1face_t;
+
+typedef struct
+{
+	float vecs[2][4];          /* [s/t][xyz offset] */
+	int texture_id;            /* Index of Mip Texture */
+	int animated;              /* 0 for ordinary textures, 1 for water */
+} dq1texinfo_t;
+
+typedef struct
+{
+	float mins[3], maxs[3];
+	float origin[3];           /* for sounds or lights */
+	int headnode;              /* index of first BSP node */
+	int node_id1;              /* index of the first Clip node */
+	int node_id2;              /* index of the second Clip node */
+	int node_id3;              /*  usually zero */
+	int numleafs;              /* number of BSP leaves */
+	int firstface, numfaces;   /* submodels just draw faces without
+							      walking the bsp tree */
+} dq1model_t;
 
 #endif
 
