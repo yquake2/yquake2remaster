@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build_ubuntu_aarch64:
-    runs-on: ubuntu-22.04-arm
+    runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
       matrix:
