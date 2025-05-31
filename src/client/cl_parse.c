@@ -898,12 +898,18 @@ CL_ParseFrame(void)
 	MSG_ReadData(&net_message, &cl.frame.areabits, len);
 
 	/* read playerinfo */
-	cmd = MSG_ReadByte(&net_message) & 0xFF;
+	cmd = MSG_ReadByte(&net_message);
+	if (cmd < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
+
 	SHOWNET(svc_strings[cmd]);
 
 	if (cmd != svc_playerinfo)
 	{
-		Com_Error(ERR_DROP, "CL_ParseFrame: 0x%X not playerinfo", cmd);
+		Com_Error(ERR_DROP, "%s: 0x%X not playerinfo",
+			__func__, cmd);
 	}
 
 	CL_ParsePlayerstate(old, &cl.frame, cls.serverProtocol);
@@ -914,7 +920,8 @@ CL_ParseFrame(void)
 
 	if (cmd != svc_packetentities)
 	{
-		Com_Error(ERR_DROP, "CL_ParseFrame: 0x%X not packetentities", cmd);
+		Com_Error(ERR_DROP, "%s: 0x%X not packetentities",
+			__func__, cmd);
 	}
 
 	CL_ParsePacketEntities(old, &cl.frame);
@@ -1335,7 +1342,7 @@ CL_ParseStartSoundPacket(void)
 	vec3_t pos_v;
 	float *pos;
 	int channel, ent;
-	unsigned sound_num;
+	int sound_num;
 	float volume;
 	float attenuation;
 	int flags;
@@ -1344,11 +1351,16 @@ CL_ParseStartSoundPacket(void)
 	flags = MSG_ReadByte(&net_message);
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
-		sound_num = MSG_ReadByte(&net_message) & 0xFF;
+		sound_num = MSG_ReadByte(&net_message);
 	}
 	else
 	{
-		sound_num = MSG_ReadShort(&net_message) & 0xFFFF;
+		sound_num = MSG_ReadShort(&net_message);
+	}
+
+	if (sound_num < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
 	}
 
 	if (flags & SND_VOLUME)
@@ -1412,6 +1424,13 @@ CL_ParseStartSoundPacket(void)
 	{
 		/* use entity number */
 		pos = NULL;
+	}
+
+	if (sound_num >= MAX_SOUNDS)
+	{
+		Com_Printf("%s: incorrect sound id %d > MAX_SOUNDS\n",
+			__func__, sound_num);
+		return;
 	}
 
 	if (!cl.sound_precache[sound_num])
