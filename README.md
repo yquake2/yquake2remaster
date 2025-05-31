@@ -1,5 +1,10 @@
 # Yamagi Quake II Remaster
 
+<a href="https://scan.coverity.com/projects/yquake2-yquake2remaster">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/31780/badge.svg"/>
+</a>
+
 This is an experimental fork of Yamagi Quake II with ongoing work to add
 support for Quake II Enhanced aka Q2 Remaster(ed). This enhanced version
 has a lot non trivial changes, adding support isn't easy and takes time.
