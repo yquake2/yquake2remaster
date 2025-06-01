@@ -1,0 +1,47 @@
+name: Coverity for Linux (aarch64)
+run-name: Coverity_linux_aarch64
+on:
+  push:
+    branches:
+      - 'covertity'
+concurrency:
+  # Cancel concurrent workflows for the same PR or commit hash.
+  group: ${{github.workflow}}-${{github.event_name == 'pull_request' && github.head_ref || github.sha}}
+  cancel-in-progress: true
+jobs:
+  build_ubuntu_aarch64:
+    runs-on: ubuntu-24.04-arm
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: ubuntu
+    steps:
+    - name: Install build dependencies
+      run: |
+        sudo apt update
+        sudo apt install libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev \
+            libavformat-dev libswscale-dev libvulkan-dev build-essential
+    - name: Check out repository code
+      uses: actions/checkout@v4
+    - name: Download coverity
+      run: |
+        wget https://scan.coverity.com/download/cxx/linux-ARM64 \
+          --post-data "token=${{secrets.COVERITY_SCAN_TOKEN}}&project=${{github.repository}}" \
+          -O /tmp/coverity_tool.tgz -cq
+        rm -rf cov-int
+        tar -xf /tmp/coverity_tool.tgz
+    - name: Build
+      run: |
+        make clean
+        sed -i 's|WITH_AVCODEC:=yes|WITH_AVCODEC:=no|g' Makefile
+        cov-analysis-linux-arm64-2024.6.1/bin/cov-build --dir cov-int make -j 4
+    - name: Upload result
+      run: |
+        tar -czf cov-int.tgz cov-int
+        curl --form token=${{secrets.COVERITY_SCAN_TOKEN}} \
+          --form email=${{secrets.COVERITY_SCAN_EMAIL}} \
+          --form file=@cov-int.tgz \
+          --form version="${{github.sha}}" \
+          --form description="${{github.sha}}" \
+          https://scan.coverity.com/builds?project=${{github.repository}}
