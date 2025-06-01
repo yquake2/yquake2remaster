@@ -655,11 +655,12 @@ static vkmode_t modes[] = {
  Vk_TextureMode
  ===============
  */
-void Vk_TextureMode( char *string )
+void
+Vk_TextureMode(const char *string)
 {
 	int		i,j;
 	image_t	*image;
-	static char prev_mode[32] = { "VK_MIPMAP_LINEAR" };
+	static char prev_mode[32] = "VK_MIPMAP_LINEAR";
 	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
@@ -667,7 +668,9 @@ void Vk_TextureMode( char *string )
 	for (i = 0; i < NUM_VK_MODES; i++)
 	{
 		if (!Q_stricmp(modes[i].name, string))
+		{
 			break;
+		}
 	}
 
 	if (i == NUM_VK_MODES)
@@ -677,8 +680,7 @@ void Vk_TextureMode( char *string )
 		return;
 	}
 
-	memcpy(prev_mode, string, strlen(string));
-	prev_mode[strlen(string)] = '\0';
+	Q_strlcpy(prev_mode, string, sizeof(prev_mode));
 
 	vk_current_sampler = i;
 
@@ -716,15 +718,18 @@ void Vk_TextureMode( char *string )
  Vk_LmapTextureMode
  ===============
  */
-void Vk_LmapTextureMode( char *string )
+void
+Vk_LmapTextureMode(const char *string)
 {
 	int		i,j;
-	static char prev_mode[32] = { "VK_MIPMAP_LINEAR" };
+	static char prev_mode[32] = "VK_MIPMAP_LINEAR";
 
 	for (i = 0; i < NUM_VK_MODES; i++)
 	{
 		if (!Q_stricmp(modes[i].name, string))
+		{
 			break;
+		}
 	}
 
 	if (i == NUM_VK_MODES)
@@ -734,8 +739,7 @@ void Vk_LmapTextureMode( char *string )
 		return;
 	}
 
-	memcpy(prev_mode, string, strlen(string));
-	prev_mode[strlen(string)] = '\0';
+	Q_strlcpy(prev_mode, string, sizeof(prev_mode));
 
 	vk_current_lmap_sampler = i;
 

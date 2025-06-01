@@ -490,7 +490,7 @@ S_LoadSound(sfx_t *s)
 
 	if (name[0] == '#')
 	{
-		strcpy(namebuffer, &name[1]);
+		Q_strlcpy(namebuffer, &name[1], sizeof(namebuffer));
 	}
 	else
 	{
@@ -670,7 +670,7 @@ S_AliasName(char *aliasname, char *truename)
 
 	sfx = &known_sfx[i];
 	sfx->cache = NULL;
-	strcpy(sfx->name, aliasname);
+	Q_strlcpy(sfx->name, aliasname, sizeof(sfx->cache));
 	sfx->registration_sequence = s_registration_sequence;
 	sfx->truename = s;
 
@@ -732,7 +732,7 @@ S_RegisterSexedSound(entity_xstate_t *ent, char *base)
 		if (p)
 		{
 			p += 1;
-			strcpy(model, p);
+			Q_strlcpy(model, p, sizeof(model));
 			p = strchr(model, '/');
 
 			if (p)
