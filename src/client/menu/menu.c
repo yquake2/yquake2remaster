@@ -5567,7 +5567,6 @@ PlayerModelFree()
 				if (s != NULL)
 				{
 					free(s);
-					s = NULL;
 				}
 			}
 
@@ -5576,7 +5575,6 @@ PlayerModelFree()
 			if (s != NULL)
 			{
 				free(s);
-				s = NULL;
 			}
 
 			s_skinnames[s_modelname.num].data = 0;
@@ -5587,7 +5585,6 @@ PlayerModelFree()
 			if (s != NULL)
 			{
 				free(s);
-				s = NULL;
 			}
 		}
 	}
@@ -5596,7 +5593,6 @@ PlayerModelFree()
 	if (s != NULL)
 	{
 		free(s);
-		s = NULL;
 	}
 
 	s_modelname.data = 0;
@@ -5609,7 +5605,6 @@ PlayerModelFree()
 		if (s != NULL)
 		{
 			free(s);
-			s = NULL;
 		}
 	}
 
@@ -5683,7 +5678,7 @@ PlayerDirectoryList(void)
 		}
 		else
 		{
-			strcpy(dirname, list[i]);
+			Q_strlcpy(dirname, list[i], sizeof(dirname));
 		}
 
 		for (j = 0; j < dirnum; j++)
@@ -5712,7 +5707,7 @@ PlayerDirectoryList(void)
 	FS_FreeList(list, num);
 
 	// sort them male, female, alphabetical
-	qsort(s_directory.data, s_directory.num - 1, sizeof(char**), dircmp_func);
+	qsort(s_directory.data, s_directory.num - 1, sizeof(char*), dircmp_func);
 
 	return true;
 }
@@ -5976,7 +5971,7 @@ PlayerModelList(void)
 		}
 
 		/* sort skin names alphabetically */
-		qsort(s_skinnames[mdl].data, s_skinnames[mdl].num, sizeof(char**), Q_sort_stricmp);
+		qsort(s_skinnames[mdl].data, s_skinnames[mdl].num, sizeof(char*), Q_sort_stricmp);
 
 		/* at this point we have a valid player model */
 		t = strrchr(s_directory.data[i], '/');

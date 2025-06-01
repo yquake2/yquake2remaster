@@ -802,6 +802,11 @@ R_NextUTF8Code(const char **curr)
 		size = 4;
 		value = (value & 0x07) << 18;
 	}
+	else
+	{
+		/* incorrect utf8 encoding */
+		return 0;
+	}
 
 	(*curr) ++;
 	size --;

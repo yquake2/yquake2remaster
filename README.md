@@ -1,5 +1,10 @@
 # Yamagi Quake II Remaster
 
+<a href="https://scan.coverity.com/projects/yquake2-yquake2remaster">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/31780/badge.svg"/>
+</a>
+
 This is an experimental fork of Yamagi Quake II with ongoing work to add
 support for Quake II Enhanced aka Q2 Remaster(ed). This enhanced version
 has a lot non trivial changes, adding support isn't easy and takes time.
@@ -159,12 +164,6 @@ Games check videos:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
-* [ ] jabot: fix crash in SZ_GetSpace,
-* [ ] Anachronox: skins load broken with mingw win64 build,
-* [ ] Anachronox: rowdys map models disappear on dance space,
-* [ ] Anachronox: CTC entity format,
-* [ ] Anachronox: support material load textures/textureinfo.dat,
-* [x] Anachronox/Daikatana: [add mp3 support](https://github.com/lieff/minimp3)
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
@@ -174,15 +173,13 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
-* [ ] DoD: fix statusbar `roarke`,
 * [ ] vulkan: group `it_pic` images,
 * [ ] vulkan: rearange surfaces before render,
 * [x] Use shared model cache in client code insted reimplement in each render,
 * [ ] reuse memory from models cache in renders model list,
 * [ ] reuse memory from models cache for bsp,
-* [ ] Fix transparent textures in Daikatana/SiN maps,
 * [ ] game: cleanup function declarations in game save code,
-* [x] game: broken camera on start zbase1,
+* [x] game: broken camera on start zbase1(Zaero),
 * [ ] game: fix broken base3 with sorted fields names,
 * [ ] game: code has not reset ctf flag on load saves,
 * [ ] game: code has reset thirdperson flag on load new level,
@@ -215,6 +212,17 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll
 * [ ] ReRelease: modified game code support with removed KEX only related code.
+
+Other games support goals:
+
+* [ ] jabot: fix crash in SZ_GetSpace,
+* [ ] Anachronox: skins load broken with mingw win64 build,
+* [ ] Anachronox: rowdys map models disappear on dance space,
+* [ ] Anachronox: CTC entity format,
+* [ ] Anachronox: support material load textures/textureinfo.dat,
+* [x] Anachronox/Daikatana: [add mp3 support](https://github.com/lieff/minimp3)
+* [ ] Daikatana/SiN: Fix transparent textures in maps,
+* [ ] DoD: fix statusbar `roarke`.
 
 Not a goal:
 
