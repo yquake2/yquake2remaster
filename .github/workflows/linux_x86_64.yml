@@ -31,7 +31,6 @@ jobs:
       uses: actions/checkout@v4
     - name: Build
       run: |
-        sed -i 's|WITH_AVCODEC:=yes|WITH_AVCODEC:=no|g' Makefile
         # Public runners come with 4 CPUs.
         make -j4
         make -j4 ref_gles1

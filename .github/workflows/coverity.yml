@@ -34,7 +34,6 @@ jobs:
     - name: Build
       run: |
         make clean
-        sed -i 's|WITH_AVCODEC:=yes|WITH_AVCODEC:=no|g' Makefile
         cov-analysis-linux-arm64-2024.6.1/bin/cov-build --dir cov-int make -j 4
     - name: Upload result
       run: |
