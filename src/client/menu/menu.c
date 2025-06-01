@@ -5567,7 +5567,6 @@ PlayerModelFree()
 				if (s != NULL)
 				{
 					free(s);
-					s = NULL;
 				}
 			}
 
@@ -5576,7 +5575,6 @@ PlayerModelFree()
 			if (s != NULL)
 			{
 				free(s);
-				s = NULL;
 			}
 
 			s_skinnames[s_modelname.num].data = 0;
@@ -5587,7 +5585,6 @@ PlayerModelFree()
 			if (s != NULL)
 			{
 				free(s);
-				s = NULL;
 			}
 		}
 	}
@@ -5596,7 +5593,6 @@ PlayerModelFree()
 	if (s != NULL)
 	{
 		free(s);
-		s = NULL;
 	}
 
 	s_modelname.data = 0;
@@ -5609,7 +5605,6 @@ PlayerModelFree()
 		if (s != NULL)
 		{
 			free(s);
-			s = NULL;
 		}
 	}
 
