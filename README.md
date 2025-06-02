@@ -168,7 +168,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
 * [ ] soft: build with SDL3 has glitch in menu,
-* [ ] soft: support custom ttf fonts,
+* [x] soft: support custom ttf fonts,
 * [x] soft: broken fonts in menu,
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,

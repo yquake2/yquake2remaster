@@ -414,8 +414,8 @@ extern cvar_t	*r_lerpmodels;
 extern cvar_t	*r_lightlevel;
 extern cvar_t	*r_modulate;
 extern cvar_t	*r_fixsurfsky;
+extern	cvar_t	*r_ttffont;
 extern cvar_t	*r_cull;
-
 
 extern clipplane_t	view_clipplanes[4];
 extern int		*pfrustum_indexes[4];
