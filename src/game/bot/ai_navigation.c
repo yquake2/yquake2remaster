@@ -139,8 +139,8 @@ void AI_SetGoal(edict_t *self, int goal_node)
 qboolean
 AI_FollowPath(edict_t *self)
 {
-	vec3_t			v;
-	float			dist;
+	vec3_t v;
+	float dist;
 
 	// Show the path
 	/*
@@ -162,31 +162,45 @@ AI_FollowPath(edict_t *self)
 		return false;
 	}
 
-	// Try again?
-	if(self->ai->node_timeout++ > 30)
+	/* Try again? */
+	if (self->ai->node_timeout++ > 30)
 	{
 		if(self->ai->tries++ > 3)
+		{
 			return false;
+		}
 		else
-			AI_SetGoal( self, self->ai->goal_node );
+		{
+			AI_SetGoal(self, self->ai->goal_node);
+		}
 	}
 
 	// Are we there yet?
 	VectorSubtract( self->s.origin, nodes[self->ai->next_node].origin, v );
 	dist = VectorLength(v);
 
-	//special lower plat reached check
-	if( dist < 64
-		&& nodes[self->ai->current_node].flags & NODEFLAGS_PLATFORM
-		&& nodes[self->ai->next_node].flags & NODEFLAGS_PLATFORM
-		&& self->groundentity && self->groundentity->use == Use_Plat)
-		dist = 16;
-
-	if( (dist < 32 && nodes[self->ai->next_node].flags != NODEFLAGS_JUMPPAD && nodes[self->ai->next_node].flags != NODEFLAGS_TELEPORTER_IN)
-		|| (self->ai->status.jumpadReached && nodes[self->ai->next_node].flags & NODEFLAGS_JUMPPAD)
-		|| (self->ai->status.TeleportReached && nodes[self->ai->next_node].flags & NODEFLAGS_TELEPORTER_IN) )
+	if(self->ai->current_node == -1 || self->ai->next_node == -1)
 	{
-		// reset timeout
+		return false;
+	}
+
+	/* special lower plat reached check */
+	if (dist < 64 &&
+		nodes[self->ai->current_node].flags & NODEFLAGS_PLATFORM &&
+		nodes[self->ai->next_node].flags & NODEFLAGS_PLATFORM &&
+		self->groundentity && self->groundentity->use == Use_Plat)
+	{
+		dist = 16;
+	}
+
+	if ((dist < 32 &&
+		nodes[self->ai->next_node].flags != NODEFLAGS_JUMPPAD &&
+		nodes[self->ai->next_node].flags != NODEFLAGS_TELEPORTER_IN
+		) ||
+		(self->ai->status.jumpadReached && nodes[self->ai->next_node].flags & NODEFLAGS_JUMPPAD) ||
+		(self->ai->status.TeleportReached && nodes[self->ai->next_node].flags & NODEFLAGS_TELEPORTER_IN))
+	{
+		/* reset timeout */
 		self->ai->node_timeout = 0;
 
 		if( self->ai->next_node == self->ai->goal_node )
@@ -207,7 +221,9 @@ AI_FollowPath(edict_t *self)
 	}
 
 	if(self->ai->current_node == -1 || self->ai->next_node == -1)
+	{
 		return false;
+	}
 
 	// Set bot's movement vector
 	VectorSubtract( nodes[self->ai->next_node].origin, self->s.origin , self->ai->move_vector );

@@ -3,7 +3,7 @@ run-name: Coverity_linux_aarch64
 on:
   push:
     branches:
-      - 'covertity'
+      - 'master'
 concurrency:
   # Cancel concurrent workflows for the same PR or commit hash.
   group: ${{github.workflow}}-${{github.event_name == 'pull_request' && github.head_ref || github.sha}}

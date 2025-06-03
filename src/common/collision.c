@@ -829,8 +829,7 @@ CM_TestBoxInBrush(vec3_t mins, vec3_t maxs, vec3_t p1,
 	{
 		float d1, dist;
 
-		if (((brush->firstbrushside + i) < 0) ||
-			((brush->firstbrushside + i) >= (cmod->numbrushsides + EXTRA_LUMP_BRUSHSIDES)))
+		if ((brush->firstbrushside + i) >= (cmod->numbrushsides + EXTRA_LUMP_BRUSHSIDES))
 		{
 			Com_DPrintf("%s: Incorrect brushside %d\n",
 				__func__, brush->firstbrushside + i);
@@ -1720,7 +1719,7 @@ CMod_LoadEntityString(const char *name, const char **map_entitystring, int *nume
 
 	*numentitychars = l->filelen;
 
-	if (l->filelen < 0)
+	if (l->filelen == 0)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has too small entity lump", __func__, name);
 	}

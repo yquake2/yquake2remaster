@@ -2625,10 +2625,10 @@ static void *
 Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 {
 	char models_path[MAX_QPATH];
-	char base_model[MAX_QPATH * 2];
+	char base_model[MAX_QPATH * 2] = {0};
 	def_entry_t *skinnames = NULL;
 	def_entry_t *animations = NULL;
-	int actions_num, skinnames_num, i, base_size;
+	int actions_num, skinnames_num, i, base_size = -1;
 	dmdx_t dmdxheader, *pheader = NULL;
 	sin_sbm_header_t *base;
 	sin_sam_header_t **anim;
@@ -2750,13 +2750,26 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 		}
 	}
 
-	base_size = FS_LoadFile(base_model, (void **)&base);
+	if (*base_model)
+	{
+		base_size = FS_LoadFile(base_model, (void **)&base);
+	}
+
 	if (base_size <= 0)
 	{
 		Com_DPrintf("%s: %s No base model for %s\n",
 			__func__, mod_name, base_model);
-		free(skinnames);
-		free(animations);
+
+		if (skinnames)
+		{
+			free(skinnames);
+		}
+
+		if (animations)
+		{
+			free(animations);
+		}
+
 		return NULL;
 	}
 
