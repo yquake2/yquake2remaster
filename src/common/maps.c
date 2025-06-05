@@ -1334,6 +1334,65 @@ Mod_LoadGetRules(int ident, int version, const lump_t *lumps, const rule_t **rul
 }
 
 static size_t
+Mod_Load2QBSPValidateRules(const char *name, const rule_t *rules, size_t numrules,
+	lump_t *lumps, int ident, int version, size_t filesize, maptype_t maptype)
+{
+	qboolean error = false;
+	size_t result_size;
+
+	result_size = sizeof(dheader_t);
+
+	if (rules)
+	{
+		int s;
+
+		for (s = 0; s < numrules; s++)
+		{
+			if (rules[s].size)
+			{
+				if (lumps[s].filelen % rules[s].size)
+				{
+					Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
+						__func__, name, s, lumps[s].filelen, rules[s].size);
+					error = true;
+				}
+
+				if ((lumps[s].fileofs + lumps[s].filelen) > filesize)
+				{
+					Com_Printf("%s: Map %s lump #%d: incorrect size %d or offset %d\n",
+						__func__, name, s, lumps[s].fileofs, lumps[s].filelen);
+					error = true;
+				}
+
+				if (rules[s].pos >= 0)
+				{
+					result_size += (
+						xbsplumps[rules[s].pos].size * lumps[s].filelen / rules[s].size
+					);
+				}
+			}
+		}
+	}
+
+	Com_Printf("Map %s %c%c%c%c with version %d (%s): " YQ2_COM_PRIdS " bytes\n",
+				name,
+				(ident >> 0) & 0xFF,
+				(ident >> 8) & 0xFF,
+				(ident >> 16) & 0xFF,
+				(ident >> 24) & 0xFF,
+				version, Mod_MaptypeName(maptype),
+				result_size);
+
+	if (error || !rules)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
+			__func__, name);
+	}
+
+	return result_size;
+}
+
+static size_t
 Mod_Load2QBSPSizeByRules(const rule_t *rules, size_t numrules, dheader_t *outheader, lump_t *lumps)
 {
 	size_t ofs;
@@ -1371,7 +1430,6 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	dheader_t *outheader;
 	lump_t *lumps;
 	int s, numlumps, numrules;
-	qboolean error = false;
 	byte *outbuf;
 	maptype_t detected_maptype;
 	qboolean bspx_map = false;
@@ -1395,8 +1453,6 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	}
 	lumps = (lump_t *)&lumpsmem;
 
-	result_size = sizeof(dheader_t);
-
 	detected_maptype = Mod_LoadGetRules(ident, version, lumps,
 		&rules, &numlumps, &numrules);
 	if (detected_maptype != map_quake2rr)
@@ -1405,50 +1461,8 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		*maptype = detected_maptype;
 	}
 
-	if (rules)
-	{
-		for (s = 0; s < numrules; s++)
-		{
-			if (rules[s].size)
-			{
-				if (lumps[s].filelen % rules[s].size)
-				{
-					Com_Printf("%s: Map %s lump #%d: incorrect size %d / " YQ2_COM_PRIdS "\n",
-						__func__, name, s, lumps[s].filelen, rules[s].size);
-					error = true;
-				}
-
-				if ((lumps[s].fileofs + lumps[s].filelen) > filesize)
-				{
-					Com_Printf("%s: Map %s lump #%d: incorrect size %d or offset %d\n",
-						__func__, name, s, lumps[s].fileofs, lumps[s].filelen);
-					error = true;
-				}
-
-				if (rules[s].pos >= 0)
-				{
-					result_size += (
-						xbsplumps[rules[s].pos].size * lumps[s].filelen / rules[s].size
-					);
-				}
-			}
-		}
-	}
-
-	Com_Printf("Map %s %c%c%c%c with version %d (%s): " YQ2_COM_PRIdS " bytes\n",
-				name,
-				(ident >> 0) & 0xFF,
-				(ident >> 8) & 0xFF,
-				(ident >> 16) & 0xFF,
-				(ident >> 24) & 0xFF,
-				version, Mod_MaptypeName(*maptype),
-				result_size);
-
-	if (error || !rules)
-	{
-		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
-			__func__, name);
-	}
+	result_size = Mod_Load2QBSPValidateRules(name, rules, numrules, lumps,
+		ident, version, filesize, *maptype);
 
 	/* find end of last lump */
 	xofs = 0;
