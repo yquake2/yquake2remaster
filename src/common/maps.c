@@ -1333,6 +1333,33 @@ Mod_LoadGetRules(int ident, int version, const lump_t *lumps, const rule_t **rul
 	return map_quake2rr;
 }
 
+static size_t
+Mod_Load2QBSPSizeByRules(const rule_t *rules, size_t numrules, dheader_t *outheader, lump_t *lumps)
+{
+	size_t ofs;
+	int s;
+
+	ofs = sizeof(dheader_t);
+
+	/* mark offsets for all lumps */
+	for (s = 0; s < numrules; s++)
+	{
+		if (rules[s].size && (rules[s].pos >= 0))
+		{
+			size_t pos;
+
+			pos = rules[s].pos;
+			outheader->lumps[pos].fileofs = ofs;
+			outheader->lumps[pos].filelen = (
+				xbsplumps[pos].size * lumps[s].filelen / rules[s].size
+			);
+			ofs += outheader->lumps[pos].filelen;
+		}
+	}
+
+	return ofs;
+}
+
 byte *
 Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	maptype_t *maptype)
@@ -1469,23 +1496,8 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	memset(outheader, 0, sizeof(dheader_t));
 	outheader->ident = QBSPHEADER;
 	outheader->version = BSPVERSION;
-	ofs = sizeof(dheader_t);
 
-	/* mark offsets for all lumps */
-	for (s = 0; s < numrules; s++)
-	{
-		if (rules[s].size && (rules[s].pos >= 0))
-		{
-			size_t pos;
-
-			pos = rules[s].pos;
-			outheader->lumps[pos].fileofs = ofs;
-			outheader->lumps[pos].filelen = (
-				xbsplumps[pos].size * lumps[s].filelen / rules[s].size
-			);
-			ofs += outheader->lumps[pos].filelen;
-		}
-	}
+	ofs = Mod_Load2QBSPSizeByRules(rules, numrules, outheader, lumps);
 
 	if (detected_maptype == map_quake1)
 	{
