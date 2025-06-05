@@ -505,7 +505,7 @@ Mod_Load2QBSP_IBSP29_TEXINFO(byte *outbuf, dheader_t *outheader,
 
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->animated), maptype);
 		out->nexttexinfo = -1;
-		snprintf(out->texture, sizeof(out->texture), "texid %d", LittleLong(in->texture_id));
+		snprintf(out->texture, sizeof(out->texture), "#%d.png", LittleLong(in->texture_id));
 
 		out++;
 		in++;
