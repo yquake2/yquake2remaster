@@ -63,6 +63,7 @@ Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
 
 	switch (maptype)
 	{
+		case map_quake1: return flags == 1 ? SURF_WARP: 0;
 		case map_heretic2: convert = heretic2_flags; break;
 		case map_daikatana: convert = daikatana_flags; break;
 		case map_kingpin: convert = kingpin_flags; break;
