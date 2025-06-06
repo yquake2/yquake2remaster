@@ -80,7 +80,7 @@ CL_RegisterSounds(void)
 /*
  * Returns the entity number and the header bits
  */
-static int
+static unsigned
 CL_ParseEntityBits(unsigned *bits)
 {
 	unsigned b, total;
@@ -124,6 +124,11 @@ CL_ParseEntityBits(unsigned *bits)
 	else
 	{
 		number = MSG_ReadByte(&net_message);
+	}
+
+	if (number < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
 	}
 
 	*bits = total;

@@ -1139,6 +1139,7 @@ Key_WriteConsoleHistory()
 void
 Key_ReadConsoleHistory()
 {
+	FILE *f;
 	int i;
 
 	char path[MAX_OSPATH];
@@ -1152,8 +1153,8 @@ Key_ReadConsoleHistory()
 		Com_sprintf(path, sizeof(path), "%sconsole_history.txt", Sys_GetHomeDir());
 	}
 
-	FILE* f = Q_fopen(path, "r");
-	if(f==NULL)
+	f = Q_fopen(path, "r");
+	if (f == NULL)
 	{
 		Com_DPrintf("Opening console history %s for reading failed!\n", path);
 		return;
@@ -1161,6 +1162,8 @@ Key_ReadConsoleHistory()
 
 	for (i = 0; i < NUM_KEY_LINES; i++)
 	{
+		int lastCharIdx;
+
 		if(fgets(key_lines[i], MAXCMDLINE, f) == NULL)
 		{
 			// probably EOF.. adjust edit_line and history_line and we're done here
@@ -1170,7 +1173,7 @@ Key_ReadConsoleHistory()
 		}
 
 		// remove trailing newlines
-		int lastCharIdx = strlen(key_lines[i])-1;
+		lastCharIdx = strlen(key_lines[i]) - 1;
 		while((key_lines[i][lastCharIdx] == '\n' || key_lines[i][lastCharIdx] == '\r') && lastCharIdx >= 0)
 		{
 			key_lines[i][lastCharIdx] = '\0';

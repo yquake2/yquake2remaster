@@ -669,7 +669,7 @@ Cmd_TokenizeString(char *text, qboolean macroExpand)
 		{
 			int l;
 
-			strcpy(cmd_args, text);
+			Q_strlcpy(cmd_args, text, sizeof(cmd_args));
 
 			/* strip off any trailing whitespace */
 			l = strlen(cmd_args) - 1;

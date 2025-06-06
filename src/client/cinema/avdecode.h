@@ -475,9 +475,9 @@ cinavdecode_parse_next(cinavdecode_t *state)
 
 		/* use 2.5 second of audio buffering and 1.5 video buffer for async in
 		 * media stream */
-		if (((state->audio_pos - state->audio_curr) / state->audio_frame_size) >
+		if (((float)(state->audio_pos - state->audio_curr) / state->audio_frame_size) >
 				(state->fps * 3.0) ||
-			((state->video_pos - state->video_curr) / state->video_frame_size) >
+			((float)(state->video_pos - state->video_curr) / state->video_frame_size) >
 				(state->fps * 1.5))
 		{
 			/* flush buffer if more than 1.5 second async in video stream */
