@@ -204,12 +204,9 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 
 			V_AddLight(ent.origin, DLIGHT_CUTOFF + s1->frame,
-						((char *)&color)[0]  / 255.0f,
+						((char *)&color)[0] / 255.0f,
 						((char *)&color)[1] / 255.0f,
 						((char *)&color)[2] / 255.0f);
-
-			V_AddEntity(&ent);
-			VectorCopy(ent.origin, cent->lerp_origin);
 
 			continue;
 		}
