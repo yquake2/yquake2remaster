@@ -975,24 +975,6 @@ CL_AddEntities(void)
 }
 
 /*
- * Called to get the sound spatialization origin
- */
-void
-CL_GetEntitySoundOrigin(int ent, vec3_t org)
-{
-	centity_t *old;
-
-	if ((ent < 0) || (ent >= MAX_EDICTS))
-	{
-		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
-			__func__, ent, MAX_EDICTS);
-	}
-
-	old = &cl_entities[ent];
-	VectorCopy(old->lerp_origin, org);
-}
-
-/*
  * Called to get the sound spatialization
  */
 void

@@ -3166,24 +3166,24 @@ static int nummods;
 void
 Mods_NamesFinish(void)
 {
-    if (modnames)
-    {
-        int i;
+	if (modnames)
+	{
+		int i;
 
-        for (i = 0; i < nummods; i ++)
-        {
-            free(modnames[i]);
-        }
+		for (i = 0; i < nummods; i ++)
+		{
+			free(modnames[i]);
+		}
 
-        free(modnames);
-        modnames = NULL;
-    }
+		free(modnames);
+		modnames = NULL;
+	}
 }
 
 static void
 Mods_NamesInit(void)
 {
-	/* initialize list of mods once, reuse it afterwards (=> it isn't freed) */
+	/* initialize list of mods once, reuse it afterwards */
 	if (modnames == NULL)
 	{
 		modnames = FS_ListMods(&nummods);
