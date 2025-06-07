@@ -132,11 +132,11 @@ BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 	// name
 	if(strlen(name) == 0)
 	{
-		sprintf(bot_name, "Bot%d", bot->count);
+		snprintf(bot_name, sizeof(bot_name), "Bot%d", bot->count);
 	}
 	else
 	{
-		strcpy(bot_name, name);
+		Q_strlcpy(bot_name, name, sizeof(bot_name));
 	}
 
 	// skin

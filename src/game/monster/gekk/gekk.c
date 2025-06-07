@@ -1415,7 +1415,7 @@ gekk_pain(edict_t *self, edict_t *other /* unused */,
 
 	if (self->waterlevel)
 	{
-		if ((!self->flags) & FL_SWIM)
+		if (!(self->flags & FL_SWIM))
 		{
 			self->flags |= FL_SWIM;
 		}

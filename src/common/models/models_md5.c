@@ -487,7 +487,16 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "{"))
 			{
-				Com_Printf("Error: expected hierarchy block open\n");
+				Com_Printf("%s: expected hierarchy block open\n",
+					__func__);
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
+
+			if (!jointInfos)
+			{
+				Com_Printf("%s: unexpected block\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -566,7 +575,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			for (i = 0; i < anim->num_joints; ++i)
 			{
 				/* Read base frame joint */
-				if (!ParseFloatBlock(&curr_buff, 3, baseFrame[i].pos) ||
+				if (!baseFrame ||
+					!ParseFloatBlock(&curr_buff, 3, baseFrame[i].pos) ||
 					!ParseFloatBlock(&curr_buff, 3, baseFrame[i].orient))
 				{
 					Com_Printf("Error: unexpected baseframe format\n");

@@ -545,6 +545,7 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 						message = "got caught in his own trap";
 					}
 
+					break;
 				case MOD_TRAP:
 					message = "sucked into his own trap";
 					break;

@@ -1813,7 +1813,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	header = (dheader_t *)cmod_base;
 
 	/* load into heap */
-	strcpy(mod->name, name);
+	Q_strlcpy(mod->name, name, sizeof(mod->name));
 
 	hunkSize = length; /* allocate memory for future maps cache */
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_TEXINFO],

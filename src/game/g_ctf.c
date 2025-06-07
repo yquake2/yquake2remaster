@@ -1357,7 +1357,7 @@ CTFSetIDView(edict_t *ent)
 		}
 	}
 
-	if (bd > 0.90)
+	if (bd > 0.90 && best)
 	{
 		ent->client->ps.stats[STAT_CTF_ID_VIEW] =
 			CS_GENERAL + (best - g_edicts - 1);

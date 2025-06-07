@@ -881,12 +881,12 @@ Pickup_Sphere(edict_t *ent, edict_t *other)
 void
 Use_Defender(edict_t *ent, gitem_t *item)
 {
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
 
-	if (ent->client && ent->client->owned_sphere)
+	if (ent->client->owned_sphere)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "Only one sphere at a time!\n");
 		return;
@@ -901,12 +901,12 @@ Use_Defender(edict_t *ent, gitem_t *item)
 void
 Use_Hunter(edict_t *ent, gitem_t *item)
 {
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
 
-	if (ent->client && ent->client->owned_sphere)
+	if (ent->client->owned_sphere)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "Only one sphere at a time!\n");
 		return;
@@ -921,12 +921,12 @@ Use_Hunter(edict_t *ent, gitem_t *item)
 void
 Use_Vengeance(edict_t *ent, gitem_t *item)
 {
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
 
-	if (ent->client && ent->client->owned_sphere)
+	if (ent->client->owned_sphere)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "Only one sphere at a time!\n");
 		return;
@@ -945,7 +945,7 @@ Use_Quad(edict_t *ent, gitem_t *item)
 {
 	int timeout;
 
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
@@ -983,7 +983,7 @@ Use_QuadFire(edict_t *ent, gitem_t *item)
 {
 	int timeout;
 
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
@@ -1018,7 +1018,7 @@ Use_QuadFire(edict_t *ent, gitem_t *item)
 void
 Use_Breather(edict_t *ent, gitem_t *item)
 {
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
@@ -1041,7 +1041,7 @@ Use_Breather(edict_t *ent, gitem_t *item)
 void
 Use_Envirosuit(edict_t *ent, gitem_t *item)
 {
-	if (!ent || !item)
+	if (!ent || !item || !ent->client)
 	{
 		return;
 	}
@@ -1171,12 +1171,7 @@ Add_Ammo(edict_t *ent, gitem_t *item, int count)
 	int index;
 	int max;
 
-	if (!ent || !item)
-	{
-		return false;
-	}
-
-	if (!ent->client)
+	if (!ent || !item || !ent->client)
 	{
 		return false;
 	}
@@ -1432,12 +1427,7 @@ Pickup_Health(edict_t *ent, edict_t *other)
 int
 ArmorIndex(edict_t *ent)
 {
-	if (!ent)
-	{
-		return 0;
-	}
-
-	if (!ent->client)
+	if (!ent || !ent->client)
 	{
 		return 0;
 	}

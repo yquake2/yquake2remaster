@@ -2557,7 +2557,7 @@ Weapon_Railgun(edict_t *ent)
 void
 weapon_bfg_fire(edict_t *ent)
 {
-	vec3_t offset, start;
+	vec3_t offset, start = {0};
 	vec3_t forward, right;
 	int damage;
 	float damage_radius = 1000;
