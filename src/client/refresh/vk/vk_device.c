@@ -285,7 +285,6 @@ static const char *deviceTypeString(VkPhysicalDeviceType dType)
 		default: return "<unknown>";
 	}
 #undef DEVTYPESTR
-	return "UNKNOWN DEVICE";
 }
 
 // internal helper

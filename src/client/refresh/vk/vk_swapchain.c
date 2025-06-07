@@ -34,7 +34,6 @@ static const char *presentModeString(VkPresentModeKHR presentMode)
 		default: return "<unknown>";
 	}
 #undef PMSTR
-	return "UNKNOWN PRESENT MODE";
 }
 
 // internal helper

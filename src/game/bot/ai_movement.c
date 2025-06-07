@@ -315,7 +315,6 @@ void AI_ChangeAngle (edict_t *ent)
 		ent->s.angles[YAW] = anglemod (current_yaw + move);
 	}
 
-
 	// Pitch
 	if (current_pitch != ideal_pitch)
 	{
@@ -324,28 +323,35 @@ void AI_ChangeAngle (edict_t *ent)
 		if (ideal_pitch > current_pitch)
 		{
 			if (move >= 180)
+			{
 				move = move - 360;
+			}
 		}
 		else
 		{
 			if (move <= -180)
+			{
 				move = move + 360;
+			}
 		}
+
 		if (move > 0)
 		{
 			if (move > speed)
+			{
 				move = speed;
+			}
 		}
 		else
 		{
 			if (move < -speed)
+			{
 				move = -speed;
+			}
 		}
-		ent->s.angles[PITCH] = anglemod (current_pitch + move);
+		ent->s.angles[PITCH] = anglemod(current_pitch + move);
 	}
 }
-
-
 
 //==========================================
 // AI_MoveToGoalEntity
@@ -354,10 +360,12 @@ void AI_ChangeAngle (edict_t *ent)
 qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 {
 	if (!self->movetarget || !self->client)
+	{
 		return false;
+	}
 
-	// If a rocket or grenade is around deal with it
-	// Simple, but effective (could be rewritten to be more accurate)
+	/* If a rocket or grenade is around deal with it
+	 * Simple, but effective (could be rewritten to be more accurate) */
 	if(!Q_stricmp(self->movetarget->classname,"rocket") ||
 	   !Q_stricmp(self->movetarget->classname,"grenade") ||
 	   !Q_stricmp(self->movetarget->classname,"hgrenade"))
@@ -367,28 +375,30 @@ qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 //		if(AIDevel.debugChased && bot_showcombat->value)
 //			gi.cprintf(NULL, PRINT_HIGH, "%s: Oh crap a rocket!\n",self->ai.pers.netname);
 
-		// strafe left/right
-		if(rand()%1 && AI_CanMove(self, BOT_MOVE_LEFT))
-				ucmd->sidemove = -400;
+		/* strafe left/right */
+		if((rand() % 2) && AI_CanMove(self, BOT_MOVE_LEFT))
+		{
+			ucmd->sidemove = -400;
+		}
 		else if(AI_CanMove(self, BOT_MOVE_RIGHT))
-				ucmd->sidemove = 400;
-		return true;
+		{
+			ucmd->sidemove = 400;
+		}
 
+		return true;
 	}
 
-	// Set bot's movement direction
-	VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai->move_vector);
+	/* Set bot's movement direction */
+	VectorSubtract(self->movetarget->s.origin, self->s.origin, self->ai->move_vector);
 	AI_ChangeAngle(self);
-	if(!AI_CanMove(self, BOT_MOVE_FORWARD) )
+	if (!AI_CanMove(self, BOT_MOVE_FORWARD))
 	{
 		self->movetarget = NULL;
 		ucmd->forwardmove = -100;
 		return false;
 	}
 
-	//Move
+	/* Move */
 	ucmd->forwardmove = 400;
 	return true;
 }
-
-
