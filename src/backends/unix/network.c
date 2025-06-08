@@ -812,7 +812,7 @@ int
 NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 {
 	char Buf[BUFSIZ], *Host, *Service;
-	int newsocket = 0;
+	int newsocket = -1;
 	int Error = 0;
 	struct sockaddr_storage ss;
 	struct addrinfo hints, *res, *ai;
@@ -868,7 +868,6 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 		{
 			Com_Printf("NET_Socket: ioctl FIONBIO: %s\n", strerror(errno));
 			close(newsocket);
-			newsocket = 0;
 			continue;
 		}
 
@@ -901,7 +900,6 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 		{
 			Com_Printf("NET_Socket: bind: %s\n", strerror(errno));
 			close(newsocket);
-			newsocket = 0;
 		}
 		else
 		{
@@ -917,11 +915,7 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 
 	if (ai == NULL)
 	{
-		if (newsocket > 0)
-		{
-			close(newsocket);
-		}
-
+		/* socket should be already closed */
 		return 0;
 	}
 
