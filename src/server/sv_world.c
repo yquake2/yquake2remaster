@@ -520,9 +520,9 @@ SV_PointContents(vec3_t p)
 typedef struct
 {
 	vec3_t boxmins, boxmaxs; /* enclose the test object along entire move */
-	float *mins, *maxs; /* size of the moving object */
+	const float *mins, *maxs; /* size of the moving object */
 	vec3_t mins2, maxs2; /* size when clipping against mosnters */
-	float *start, *end;
+	const float *start, *end;
 	trace_t trace;
 	const edict_t *passedict;
 	int contentmask;
@@ -650,8 +650,8 @@ SV_ClipMoveToEntities(moveclip_t *clip)
 }
 
 static void
-SV_TraceBounds(vec3_t start, vec3_t mins, vec3_t maxs,
-		vec3_t end, vec3_t boxmins, vec3_t boxmaxs)
+SV_TraceBounds(const vec3_t start, const vec3_t mins, const vec3_t maxs,
+		const vec3_t end, vec3_t boxmins, vec3_t boxmaxs)
 {
 	int i;
 
@@ -675,7 +675,7 @@ SV_TraceBounds(vec3_t start, vec3_t mins, vec3_t maxs,
  * Passedict and edicts owned by passedict are explicitly not checked.
  */
 trace_t
-SV_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end,
+SV_Trace(const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
 		const edict_t *passedict, int contentmask)
 {
 	moveclip_t clip;
