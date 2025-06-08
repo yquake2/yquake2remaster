@@ -57,7 +57,7 @@ int ip6_sockets[2];
 int ipx_sockets[2];
 
 char *multicast_interface;
-char *NET_ErrorString(void);
+static const char *NET_ErrorString(void);
 
 static WSADATA winsockdata;
 
@@ -597,13 +597,13 @@ NET_GetPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 
 			if (dedicated->value) /* let dedicated servers continue after errors */
 			{
-				Com_Printf("NET_GetPacket: %s from %s\n", NET_ErrorString(),
-						NET_AdrToString(*net_from));
+				Com_Printf("%s: %s from %s\n", NET_ErrorString(),
+						__func__, NET_AdrToString(*net_from));
 			}
 			else
 			{
-				Com_Printf("NET_GetPacket: %s from %s",
-						NET_ErrorString(), NET_AdrToString(*net_from));
+				Com_Printf("%s: %s from %s",
+						__func__, NET_ErrorString(), NET_AdrToString(*net_from));
 			}
 
 			continue;
@@ -779,20 +779,20 @@ NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
 
 		if (dedicated->value) /* let dedicated servers continue after errors */
 		{
-			Com_Printf("NET_SendPacket ERROR: %s to %s\n", NET_ErrorString(),
+			Com_Printf("%s ERROR: %s to %s\n", __func__, NET_ErrorString(),
 					NET_AdrToString(to));
 		}
 		else
 		{
 			if (err == WSAEADDRNOTAVAIL)
 			{
-				Com_DPrintf("NET_SendPacket Warning: %s : %s\n",
-						NET_ErrorString(), NET_AdrToString(to));
+				Com_DPrintf("%s Warning: %s : %s\n",
+						__func__, NET_ErrorString(), NET_AdrToString(to));
 			}
 			else
 			{
-				Com_Printf("NET_SendPacket ERROR: %s to %s\n",
-						NET_ErrorString(), NET_AdrToString(to));
+				Com_Printf("%s ERROR: %s to %s\n",
+						__func__, NET_ErrorString(), NET_AdrToString(to));
 			}
 		}
 	}
@@ -1055,7 +1055,7 @@ NET_IPXSocket(int port)
 
 		if (err != WSAEAFNOSUPPORT)
 		{
-			Com_Printf("WARNING: IPX_Socket: socket: %s\n", NET_ErrorString());
+			Com_Printf("WARNING: %s: socket: %s\n", __func__, NET_ErrorString());
 		}
 
 		return 0;
@@ -1064,7 +1064,8 @@ NET_IPXSocket(int port)
 	/* make it non-blocking */
 	if (ioctlsocket(newsocket, FIONBIO, &t) == -1)
 	{
-		Com_Printf("WARNING: IPX_Socket: ioctl FIONBIO: %s\n", NET_ErrorString());
+		Com_Printf("WARNING: %s: ioctl FIONBIO: %s\n",
+			__func__, NET_ErrorString());
 		return 0;
 	}
 
@@ -1092,7 +1093,7 @@ NET_IPXSocket(int port)
 
 	if (bind(newsocket, (void *)&address, sizeof(address)) == -1)
 	{
-		Com_Printf("WARNING: IPX_Socket: bind: %s\n", NET_ErrorString());
+		Com_Printf("WARNING: %s: bind: %s\n", __func__, NET_ErrorString());
 		closesocket(newsocket);
 		return 0;
 	}
@@ -1290,7 +1291,7 @@ NET_Shutdown(void)
 	WSACleanup();
 }
 
-char *
+static const char *
 NET_ErrorString(void)
 {
 	int code;

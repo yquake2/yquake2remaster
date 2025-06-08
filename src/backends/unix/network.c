@@ -68,8 +68,8 @@ int ip6_sockets[2];
 int ipx_sockets[2];
 char *multicast_interface = NULL;
 
-int NET_Socket(char *net_interface, int port, netsrc_t type, int family);
-char *NET_ErrorString(void);
+static int NET_Socket(char *net_interface, int port, netsrc_t type, int family);
+static const char *NET_ErrorString(void);
 
 static void
 NetadrToSockadr(netadr_t *a, struct sockaddr_storage *s)
@@ -561,8 +561,8 @@ NET_GetPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 				continue;
 			}
 
-			Com_Printf("NET_GetPacket: %s from %s\n", NET_ErrorString(),
-					NET_AdrToString(*net_from));
+			Com_Printf("%s: %s from %s\n", NET_ErrorString(),
+					__func__, NET_AdrToString(*net_from));
 			continue;
 		}
 
@@ -729,8 +729,8 @@ NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
 
 	if (ret == -1)
 	{
-		Com_Printf("NET_SendPacket ERROR: %s to %s\n", NET_ErrorString(),
-				NET_AdrToString(to));
+		Com_Printf("%s ERROR: %s to %s\n", NET_ErrorString(),
+				__func__, NET_AdrToString(to));
 	}
 }
 
@@ -808,7 +808,7 @@ NET_Config(qboolean multiplayer)
 
 /* =================================================================== */
 
-int
+static int
 NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 {
 	char Buf[BUFSIZ], *Host, *Service;
@@ -850,8 +850,8 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 
 	if ((Error = getaddrinfo(Host, Service, &hints, &res)))
 	{
-		Com_Printf("ERROR: NET_Socket: getaddrinfo:%s\n",
-				gai_strerror(Error));
+		Com_Printf("%s ERROR: getaddrinfo:%s\n",
+				__func__, gai_strerror(Error));
 		return 0;
 	}
 
@@ -859,14 +859,14 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 	{
 		if ((newsocket = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
 		{
-			Com_Printf("NET_Socket: socket: %s\n", strerror(errno));
+			Com_Printf("%s: socket: %s\n", __func__, strerror(errno));
 			continue;
 		}
 
 		/* make it non-blocking */
 		if (ioctl(newsocket, FIONBIO, (char *)&_true) == -1)
 		{
-			Com_Printf("NET_Socket: ioctl FIONBIO: %s\n", strerror(errno));
+			Com_Printf("%s: ioctl FIONBIO: %s\n", __func__, strerror(errno));
 			close(newsocket);
 			continue;
 		}
@@ -877,8 +877,8 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 			if (setsockopt(newsocket, SOL_SOCKET, SO_BROADCAST, (char *)&i,
 						sizeof(i)) == -1)
 			{
-				Com_Printf("ERROR: NET_Socket: setsockopt SO_BROADCAST:%s\n",
-						NET_ErrorString());
+				Com_Printf("%s ERROR: setsockopt SO_BROADCAST:%s\n",
+						__func__, NET_ErrorString());
 				freeaddrinfo(res);
 				close(newsocket);
 				return 0;
@@ -889,8 +889,8 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 		if (setsockopt(newsocket, SOL_SOCKET, SO_REUSEADDR, (char *)&i,
 					sizeof(i)) == -1)
 		{
-			Com_Printf("ERROR: NET_Socket: setsockopt SO_REUSEADDR:%s\n",
-					NET_ErrorString());
+			Com_Printf("%s ERROR: setsockopt SO_REUSEADDR:%s\n",
+					__func__, NET_ErrorString());
 			freeaddrinfo(res);
 			close(newsocket);
 			return 0;
@@ -898,7 +898,7 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 
 		if (bind(newsocket, ai->ai_addr, ai->ai_addrlen) < 0)
 		{
-			Com_Printf("NET_Socket: bind: %s\n", strerror(errno));
+			Com_Printf("%s: bind: %s\n", __func__, strerror(errno));
 			close(newsocket);
 		}
 		else
@@ -939,16 +939,16 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 				if ((mreq.ipv6mr_interface =
 						 if_nametoindex(multicast_interface)) == 0)
 				{
-					Com_Printf("NET_Socket: invalid interface: %s\n",
-							multicast_interface);
+					Com_Printf("%s: invalid interface: %s\n",
+							__func__, multicast_interface);
 				}
 
 				if (setsockopt(newsocket, IPPROTO_IPV6, IPV6_MULTICAST_IF,
 							&mreq.ipv6mr_interface,
 							sizeof(mreq.ipv6mr_interface)) < 0)
 				{
-					Com_Printf("NET_Socket: IPV6_MULTICAST_IF: %s\n",
-							strerror(errno));
+					Com_Printf("%s: IPV6_MULTICAST_IF: %s\n",
+							__func__, strerror(errno));
 				}
 
 				/* Join multicast group ONLY if server */
@@ -957,15 +957,15 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 					if (inet_pton(AF_INET6, QUAKE2MCAST,
 								&mreq.ipv6mr_multiaddr.s6_addr) != 1)
 					{
-						Com_Printf("NET_Socket: inet_pton: %s\n",
-								strerror(errno));
+						Com_Printf("%s: inet_pton: %s\n",
+								__func__, strerror(errno));
 					}
 
 					if (setsockopt(newsocket, IPPROTO_IPV6, IPV6_JOIN_GROUP,
 								&mreq, sizeof(mreq)) < 0)
 					{
-						Com_Printf("NET_Socket: IPV6_JOIN_GROUP: %s\n",
-								strerror(errno));
+						Com_Printf("%s: IPV6_JOIN_GROUP: %s\n",
+								__func__, strerror(errno));
 					}
 				}
 			}
@@ -982,7 +982,7 @@ NET_Shutdown(void)
 	NET_Config(false); /* close sockets */
 }
 
-char *
+static const char *
 NET_ErrorString(void)
 {
 	int code;
