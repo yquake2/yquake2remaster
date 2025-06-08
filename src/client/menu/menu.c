@@ -214,8 +214,7 @@ M_PushMenu(menuframework_s* menu)
 
 	/* if this menu is already open (and on top),
 	   close it => toggling behaviour */
-	if ((m_active.draw == menu->draw) &&
-		(m_active.key  == menu->key))
+	if ((m_active.draw == menu->draw) && (m_active.key  == menu->key))
 	{
 		M_PopMenu();
 		return;
@@ -225,8 +224,7 @@ M_PushMenu(menuframework_s* menu)
 	   that level to avoid stacking menus by hotkeys */
 	for (i = 0; i < m_menudepth; i++)
 	{
-		if ((m_layers[i].draw == menu->draw) &&
-			(m_layers[i].key == menu->key))
+		if ((m_layers[i].draw == menu->draw) && (m_layers[i].key  == menu->key))
 		{
 			alreadyPresent = 1;
 			break;
@@ -3020,10 +3018,12 @@ M_Credits_Draw(void)
 	float scale = SCR_GetMenuScale();
 
 	/* draw the credits */
-	for (i = 0,
-			y = (int)(viddef.height / scale - ((cls.realtime - credits_start_time) / 40.0F));
-			credits[i] && y < viddef.height / scale;
-			y += 10, i++)
+	for (
+		i = 0,
+		y = (int)(viddef.height / scale - ((cls.realtime - credits_start_time) / 40.0F));
+		credits[i] && y < viddef.height / scale;
+		y += 10, i++
+		)
 	{
 		int j, stringoffset = 0;
 		int bold = false;
