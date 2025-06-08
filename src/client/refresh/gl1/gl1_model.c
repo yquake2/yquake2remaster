@@ -189,9 +189,9 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 		out->firstnode = in->headnode;
 		out->firstmodelsurface = in->firstface;
 		out->nummodelsurfaces = in->numfaces;
-		// visleafs
+		/* visleafs */
 		out->numleafs = 0;
-		//  check limits
+		/* check limits */
 		if (out->firstnode >= loadmodel->numnodes)
 		{
 			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",

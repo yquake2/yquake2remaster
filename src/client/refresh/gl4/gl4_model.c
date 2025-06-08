@@ -190,9 +190,9 @@ Mod_LoadSubmodels(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
 		out->firstnode = in->headnode;
 		out->firstmodelsurface = in->firstface;
 		out->nummodelsurfaces = in->numfaces;
-		// visleafs
+		/* visleafs */
 		out->numleafs = 0;
-		//  check limits
+		/* check limits */
 		if (out->firstnode >= loadmodel->numnodes)
 		{
 			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",

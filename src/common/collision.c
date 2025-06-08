@@ -1300,7 +1300,7 @@ CM_TransformedBoxTrace(const vec3_t start, const vec3_t end,
 }
 
 static void
-CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
+CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels, int numnodes,
 	const byte *cmod_base, const lump_t *l)
 {
 	dmodel_t *in;
@@ -1341,6 +1341,13 @@ CMod_LoadSubmodels(const char *name, cmodel_t *map_cmodels, int *numcmodels,
 		}
 
 		out->headnode = in->headnode;
+
+		/* check limits */
+		if (out->headnode >= numnodes)
+		{
+			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
+					__func__, i);
+		}
 	}
 }
 
@@ -1861,10 +1868,10 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	CMod_LoadBrushSides(mod->name, &mod->map_brushsides, &mod->numbrushsides,
 		mod->map_planes, mod->numplanes, mod->map_surfaces, mod->numtexinfo,
 		mod->cache, &header->lumps[LUMP_BRUSHSIDES]);
-	CMod_LoadSubmodels(mod->name, mod->map_cmodels, &mod->numcmodels,
-		mod->cache, &header->lumps[LUMP_MODELS]);
 	CMod_LoadNodes(mod->name, &mod->map_nodes, &mod->numnodes,
 		mod->map_planes, mod->cache, &header->lumps[LUMP_NODES]);
+	CMod_LoadSubmodels(mod->name, mod->map_cmodels, &mod->numcmodels, mod->numnodes,
+		mod->cache, &header->lumps[LUMP_MODELS]);
 	CMod_LoadAreas(mod->name, &mod->map_areas, &mod->numareas, mod->cache,
 		&header->lumps[LUMP_AREAS]);
 	CMod_LoadAreaPortals(mod->name, &mod->map_areaportals,
