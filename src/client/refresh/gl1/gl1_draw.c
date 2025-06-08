@@ -199,6 +199,8 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 		Scrap_Upload();
 	}
 
+	R_ApplyGLBuffer();
+
 	R_Bind(gl->texnum);
 
 	GLfloat vtx[] = {
