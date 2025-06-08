@@ -4277,7 +4277,8 @@ StartServerActionFunc(void *self)
 	float maxclients;
 	char *spot;
 
-	strcpy(startmap, strchr(mapnames[s_startmap_list.curvalue], '\n') + 1);
+	Q_strlcpy(startmap, strchr(mapnames[s_startmap_list.curvalue], '\n') + 1,
+		sizeof(startmap));
 
 	maxclients = (float)strtod(s_maxclients_field.buffer, (char **)NULL);
 	timelimit = (float)strtod(s_timelimit_field.buffer, (char **)NULL);
@@ -4516,7 +4517,8 @@ StartServer_MenuInit(void)
 	s_timelimit_field.generic.statusbar = "0 = no limit";
 	s_timelimit_field.length = 3;
 	s_timelimit_field.visible_length = 3;
-	strcpy(s_timelimit_field.buffer, Cvar_VariableString("timelimit"));
+	Q_strlcpy(s_timelimit_field.buffer, Cvar_VariableString("timelimit"),
+		sizeof(s_timelimit_field.buffer));
 
 	s_fraglimit_field.generic.type = MTYPE_FIELD;
 	s_fraglimit_field.generic.name = "frag limit";
@@ -4526,7 +4528,8 @@ StartServer_MenuInit(void)
 	s_fraglimit_field.generic.statusbar = "0 = no limit";
 	s_fraglimit_field.length = 3;
 	s_fraglimit_field.visible_length = 3;
-	strcpy(s_fraglimit_field.buffer, Cvar_VariableString("fraglimit"));
+	Q_strlcpy(s_fraglimit_field.buffer, Cvar_VariableString("fraglimit"),
+		sizeof(s_fraglimit_field.buffer));
 
 	/* maxclients determines the maximum number of players that can join
 	   the game. If maxclients is only "1" then we should default the menu
@@ -4547,7 +4550,8 @@ StartServer_MenuInit(void)
 	}
 	else
 	{
-		strcpy(s_maxclients_field.buffer, Cvar_VariableString("maxclients"));
+		Q_strlcpy(s_maxclients_field.buffer, Cvar_VariableString("maxclients"),
+			sizeof(s_maxclients_field.buffer));
 	}
 
 	s_hostname_field.generic.type = MTYPE_FIELD;
@@ -4558,7 +4562,8 @@ StartServer_MenuInit(void)
 	s_hostname_field.generic.statusbar = NULL;
 	s_hostname_field.length = 12;
 	s_hostname_field.visible_length = 12;
-	strcpy(s_hostname_field.buffer, Cvar_VariableString("hostname"));
+	Q_strlcpy(s_hostname_field.buffer, Cvar_VariableString("hostname"),
+		sizeof(s_hostname_field.buffer));
 	s_hostname_field.cursor = strlen(s_hostname_field.buffer);
 
 	s_startserver_dmoptions_action.generic.type = MTYPE_ACTION;
@@ -5717,9 +5722,7 @@ HasSkinInDir(const char *dirname, const char *ext, int *num)
 {
 	char findname[MAX_QPATH];
 
-	strcpy(findname, dirname);
-	strcat(findname, "/*.");
-	strcat(findname, ext);
+	snprintf(findname, sizeof(findname), "%s/*.%s", dirname, ext);
 
 	return FS_ListFiles2(findname, num, 0, 0);
 }

@@ -323,7 +323,7 @@ CL_RequestNextDownload(void)
 					p = cl.configstrings[CS_PLAYERSKINS + i];
 				}
 
-				strcpy(model, p);
+				Q_strlcpy(model, p, sizeof(model));
 
 				p = strchr(model, '/');
 

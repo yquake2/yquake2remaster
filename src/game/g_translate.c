@@ -347,7 +347,7 @@ LocalizationInit(void)
 void
 LocalizationFree(void)
 {
-	if (localmessages || nlocalmessages)
+	if (localmessages && nlocalmessages)
 	{
 		int i;
 

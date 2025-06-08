@@ -1305,7 +1305,7 @@ SP_worldspawn(edict_t *ent)
 
 	if (st.nextmap)
 	{
-		strcpy(level.nextmap, st.nextmap);
+		Q_strlcpy(level.nextmap, st.nextmap, sizeof(level.nextmap));
 	}
 
 	/* make some data visible to the server */

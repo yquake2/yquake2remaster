@@ -924,7 +924,7 @@ Cmd_CompleteMapCommand(const char *partial)
 
 		len = strlen(partial);
 		nbMatches = 0;
-		memset(retval, 0, strlen(retval));
+		memset(retval, 0, sizeof(retval));
 
 		for (i = 0; i < nMaps - 1; i++)
 		{
@@ -942,7 +942,7 @@ Cmd_CompleteMapCommand(const char *partial)
 			/* check for exact match */
 			if (!Q_strcasecmp(partial, mapName))
 			{
-				strcpy(retval, partial);
+				Q_strlcpy(retval, partial, sizeof(retval));
 			}
 			/* check for partial match */
 			else if (!Q_strncasecmp(partial, mapName, len))
@@ -954,7 +954,7 @@ Cmd_CompleteMapCommand(const char *partial)
 
 		if (nbMatches == 1)
 		{
-			strcpy(retval, pmatch[0]);
+			Q_strlcpy(retval, pmatch[0], sizeof(retval));
 		}
 		else if (nbMatches > 1)
 		{

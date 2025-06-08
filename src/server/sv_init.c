@@ -251,7 +251,7 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 
 	SZ_Init(&sv.multicast, sv.multicast_buf, sizeof(sv.multicast_buf));
 
-	strcpy(sv.name, server);
+	Q_strlcpy(sv.name, server, sizeof(sv.name));
 
 	/* leave slots at start for clients only */
 	for (i = 0; i < maxclients->value; i++)
@@ -267,8 +267,9 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 
 	sv.time = 1000;
 
-	strcpy(sv.name, server);
-	strcpy(sv.configstrings[CS_NAME], server);
+	Q_strlcpy(sv.name, server, sizeof(sv.name));
+	Q_strlcpy(sv.configstrings[CS_NAME], server,
+		sizeof(sv.configstrings[CS_NAME]));
 
 	if (serverstate != ss_game)
 	{
@@ -572,7 +573,7 @@ SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isau
 	if (ch)
 	{
 		*ch = 0;
-		strcpy(spawnpoint, ch + 1);
+		Q_strlcpy(spawnpoint, ch + 1, sizeof(spawnpoint));
 	}
 	else
 	{

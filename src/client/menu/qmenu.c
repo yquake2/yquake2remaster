@@ -765,7 +765,8 @@ SpinControl_Draw(menulist_s *s)
 		*strchr(buffer, '\n') = 0;
 		Menu_DrawString(x + (RCOLUMN_OFFSET * scale),
 			y, buffer);
-		strcpy(buffer, strchr(s->itemnames[s->curvalue], '\n') + 1);
+		Q_strlcpy(buffer, strchr(s->itemnames[s->curvalue], '\n') + 1,
+			sizeof(buffer));
 		Menu_DrawString(x + (RCOLUMN_OFFSET * scale),
 			y + 10, buffer);
 	}

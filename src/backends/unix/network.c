@@ -383,7 +383,7 @@ NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_family = PF_UNSPEC;
 
-	strcpy(copy, s);
+	Q_strlcpy(copy, s, sizeof(copy));
 	addrs = space = copy;
 
 	if (*addrs == '[')
@@ -868,6 +868,7 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 		{
 			Com_Printf("NET_Socket: ioctl FIONBIO: %s\n", strerror(errno));
 			close(newsocket);
+			newsocket = 0;
 			continue;
 		}
 
@@ -900,6 +901,7 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 		{
 			Com_Printf("NET_Socket: bind: %s\n", strerror(errno));
 			close(newsocket);
+			newsocket = 0;
 		}
 		else
 		{
@@ -915,7 +917,11 @@ NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 
 	if (ai == NULL)
 	{
-		close(newsocket);
+		if (newsocket > 0)
+		{
+			close(newsocket);
+		}
+
 		return 0;
 	}
 

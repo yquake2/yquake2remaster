@@ -220,6 +220,12 @@ FS_FileLength(FILE *f)
 	int end; /* End of file. */
 
 	pos = ftell(f);
+	if (pos < 0)
+	{
+		Com_Printf("%s: refusing to ftell\n", __func__);
+		return -1;
+	}
+
 	fseek(f, 0, SEEK_END);
 	end = ftell(f);
 	fseek(f, pos, SEEK_SET);
@@ -2681,7 +2687,7 @@ FS_InitFilesystem(void)
 	if (strcmp(fs_basedir->string, ".") != 0)
 	{
 		Com_Printf("+set basedir is deprecated, use -datadir instead\n");
-		strcpy(datadir, fs_basedir->string);
+		Q_strlcpy(datadir, fs_basedir->string, sizeof(datadir));
 	}
 	else if (strlen(datadir) == 0)
 	{

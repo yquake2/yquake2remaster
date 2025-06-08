@@ -65,7 +65,7 @@ SVC_Info(void)
 	if (version != PROTOCOL_VERSION)
 	{
 		Com_sprintf(string, sizeof(string), "%s: wrong version\n",
-				hostname->string, sizeof(string));
+				hostname->string);
 	}
 	else
 	{

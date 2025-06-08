@@ -137,7 +137,7 @@ SV_CopySaveGame(char *src, char *dst)
 
 	while (found)
 	{
-		strcpy(name + len, found + len);
+		Q_strlcpy(name + len, found + len, Q_max(sizeof(name) - len, 0));
 
 		Com_sprintf(name2, sizeof(name2), "%s/save/%s/%s",
 					FS_Gamedir(), dst, found + len);

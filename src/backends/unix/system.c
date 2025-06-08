@@ -313,7 +313,7 @@ Sys_FindFirst(const char *path, unsigned musthave, unsigned canhave)
 		Sys_Error("Sys_BeginFind without close");
 	}
 
-	strcpy(findbase, path);
+	Q_strlcpy(findbase, path, sizeof(findbase));
 
 	if ((p = strrchr(findbase, '/')) != NULL)
 	{
