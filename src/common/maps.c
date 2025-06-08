@@ -602,7 +602,8 @@ Mod_Load2QBSP_IBSP29_FACES(byte *outbuf, dheader_t *outheader,
 		out->firstedge = LittleLong(in->firstedge);
 		out->numedges = LittleShort(in->numedges);
 		out->texinfo = LittleShort(in->texinfo);
-		memset(out->styles, 255, sizeof(out->styles));
+		/* use static light for all styles */
+		memset(out->styles, 0, sizeof(out->styles));
 		out->lightofs = LittleLong(in->lightofs);
 
 		out++;

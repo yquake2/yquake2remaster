@@ -35,8 +35,8 @@ static vec3_t VEC_DOWN = {0, -2, 0};
 static vec3_t MOVEDIR_DOWN = {0, 0, -1};
 
 void
-G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
-		vec3_t right, vec3_t result)
+G_ProjectSource(const vec3_t point, const vec3_t distance, const vec3_t forward,
+		const vec3_t right, vec3_t result)
 {
 	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1];
 	result[1] = point[1] + forward[1] * distance[0] + right[1] * distance[1];
@@ -45,8 +45,8 @@ G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
 }
 
 void
-G_ProjectSource2(vec3_t point, vec3_t distance, vec3_t forward,
-		vec3_t right, vec3_t up, vec3_t result)
+G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t forward,
+		const vec3_t right, const vec3_t up, vec3_t result)
 {
 	result[0] = point[0] + forward[0] * distance[0] + right[0] * distance[1] +
 				up[0] * distance[2];

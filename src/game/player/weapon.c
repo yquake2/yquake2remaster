@@ -102,11 +102,11 @@ P_DamageModifier(edict_t *ent)
 }
 
 void
-P_ProjectSource(edict_t *ent, vec3_t distance,
-		vec3_t forward, vec3_t right, vec3_t result)
+P_ProjectSource(const edict_t *ent, const vec3_t distance,
+		vec3_t forward, const vec3_t right, vec3_t result)
 {
 	gclient_t *client = ent->client;
-	float     *point  = ent->s.origin;
+	const float *point  = ent->s.origin;
 	vec3_t     _distance;
 
 	if (!client)
@@ -143,9 +143,9 @@ P_ProjectSource(edict_t *ent, vec3_t distance,
 	}
 }
 
-void
-P_ProjectSource2(edict_t *ent, vec3_t point, vec3_t distance, vec3_t forward,
-		vec3_t right, vec3_t up, vec3_t result)
+static void
+P_ProjectSource2(const edict_t *ent, const vec3_t point, const vec3_t distance,
+		vec3_t forward, const vec3_t right, const vec3_t up, vec3_t result)
 {
 	gclient_t *client = ent->client;
 	vec3_t     _distance;
@@ -2557,10 +2557,9 @@ Weapon_Railgun(edict_t *ent)
 void
 weapon_bfg_fire(edict_t *ent)
 {
-	vec3_t offset, start = {0};
-	vec3_t forward, right;
-	int damage;
+	vec3_t offset, start, forward, right;
 	float damage_radius = 1000;
+	int damage;
 
 	if (!ent)
 	{
@@ -2578,6 +2577,18 @@ weapon_bfg_fire(edict_t *ent)
 
 	if (ent->client->ps.gunframe == 9)
 	{
+		if ((ent->client->use) && (ent->client->oldplayer))
+		{
+			AngleVectors(ent->client->oldplayer->s.angles, forward, right, NULL);
+		}
+		else
+		{
+			AngleVectors(ent->client->v_angle, forward, right, NULL);
+		}
+
+		VectorSet(offset, 8, 8, ent->viewheight - 8);
+		P_ProjectSource(ent, offset, forward, right, start);
+
 		/* send muzzle flash */
 		gi.WriteByte(svc_muzzleflash);
 

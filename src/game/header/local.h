@@ -802,8 +802,8 @@ void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane,
 
 /* g_utils.c */
 qboolean KillBox(edict_t *ent);
-void G_ProjectSource(vec3_t point, vec3_t distance, vec3_t forward,
-		vec3_t right, vec3_t result);
+void G_ProjectSource(const vec3_t point, const vec3_t distance, const vec3_t forward,
+		const vec3_t right, vec3_t result);
 edict_t *G_Find(edict_t *from, int fieldofs, const char *match);
 edict_t *findradius(edict_t *from, vec3_t org, float rad);
 edict_t *G_PickTarget(char *targetname);
@@ -827,8 +827,8 @@ void get_normal_vector(const cplane_t *p, vec3_t normal);
 float vectoyaw(vec3_t vec);
 void vectoangles(vec3_t vec, vec3_t angles);
 
-void G_ProjectSource2(vec3_t point, vec3_t distance, vec3_t forward, vec3_t right,
-		vec3_t up, vec3_t result);
+void G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t forward,
+		const vec3_t right, const vec3_t up, vec3_t result);
 float vectoyaw2(vec3_t vec);
 void vectoangles2(vec3_t vec, vec3_t angles);
 edict_t *findradius2(edict_t *from, vec3_t org, float rad);
@@ -1017,8 +1017,8 @@ void InventoryMessage(edict_t *client);
 
 /* g_pweapon.c */
 void PlayerNoise(edict_t *who, vec3_t where, int type);
-void P_ProjectSource(edict_t *ent, vec3_t distance,
-		vec3_t forward, vec3_t right, vec3_t result);
+void P_ProjectSource(const edict_t *ent, const vec3_t distance,
+		vec3_t forward, const vec3_t right, vec3_t result);
 void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
 		int *fire_frames, void (*fire)(edict_t *ent));

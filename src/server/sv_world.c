@@ -524,7 +524,7 @@ typedef struct
 	vec3_t mins2, maxs2; /* size when clipping against mosnters */
 	float *start, *end;
 	trace_t trace;
-	edict_t *passedict;
+	const edict_t *passedict;
 	int contentmask;
 } moveclip_t;
 
@@ -676,7 +676,7 @@ SV_TraceBounds(vec3_t start, vec3_t mins, vec3_t maxs,
  */
 trace_t
 SV_Trace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end,
-		edict_t *passedict, int contentmask)
+		const edict_t *passedict, int contentmask)
 {
 	moveclip_t clip;
 

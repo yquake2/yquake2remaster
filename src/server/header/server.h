@@ -295,7 +295,7 @@ int SV_AreaEdicts(vec3_t mins, vec3_t maxs, edict_t **list,
 int SV_PointContents(vec3_t p);
 
 trace_t SV_Trace(vec3_t start, vec3_t mins, vec3_t maxs,
-		vec3_t end, edict_t *passedict, int contentmask);
+		vec3_t end, const edict_t *passedict, int contentmask);
 
 /* loadtime optimizations */
 
