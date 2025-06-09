@@ -3247,17 +3247,16 @@ ModsApplyActionFunc(void *unused)
 static void
 Mods_MenuInit(void)
 {
-	int currentmod;
-	int x = 0;
-	int y = 0;
-	char modname[MAX_QPATH]; //TG626
+	int currentmod, x = 0, y = 0, i;
+	char modname[MAX_QPATH]; /* TG626 */
+	char **displaynames;
 
 	Mods_NamesInit();
 
-	// create array of bracketed display names from folder names - TG626
-	char **displaynames=malloc(sizeof(*displaynames) * (nummods+1));
+	/* create array of bracketed display names from folder names - TG626 */
+	displaynames = malloc(sizeof(*displaynames) * (nummods + 1));
 
-	for (int i=0; i < nummods; i++)
+	for (i = 0; i < nummods; i++)
 	{
 		strcpy(modname, "[");
 		if (strlen(modnames[i]) < 16)
@@ -3276,12 +3275,12 @@ Mods_MenuInit(void)
 		strcat(modname, "]");
 
 		displaynames[i] = malloc(strlen(modname) + 1);
-		Q_strlcpy(displaynames[i], modname, sizeof(displaynames[i]));
+		strcpy(displaynames[i], modname);
 	}
 	displaynames[nummods] = NULL;
-	//end TG626
+	/* end TG626 */
 
-	// pre-select the current mod for display in the list
+	/* pre-select the current mod for display in the list */
 	for (currentmod = 0; currentmod < nummods; currentmod++)
 	{
 		if (M_IsGame(modnames[currentmod]))

@@ -123,6 +123,11 @@ sphere_chase(edict_t *self, int stupidChase)
 		return;
 	}
 
+	if (!self->enemy)
+	{
+		return;
+	}
+
 	VectorCopy(self->enemy->s.origin, dest);
 
 	if (self->enemy->client)

@@ -155,13 +155,14 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 		strcpy(newname, md5modelname);
 	}
 
-	/* search animation file */
-	memcpy(newname + strlen(newname) - strlen("mesh"), "anim", strlen("anim"));
+	/* search animation file, newname could have different path generate
+	 * by Mod_LoadFileInsertMD5 */
+	memcpy(newname + strlen(newname) - 4 /* mesh */, "anim", 5);
 	filesize_anim = FS_LoadFile(newname, &anim_buffer);
 	if (filesize_anim <= 0)
 	{
 		FS_FreeFile(*buffer);
-		return filesize;
+		return -1;
 	}
 
 	/* search skins list */

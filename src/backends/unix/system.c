@@ -33,6 +33,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <errno.h>
 #include <sys/stat.h>
 #include <sys/select.h> /* for fd_set */
 #ifndef FNDELAY
@@ -562,7 +563,11 @@ Sys_GetHomeDir(void)
 void
 Sys_Remove(const char *path)
 {
-	remove(path);
+	if (remove(path) == -1)
+	{
+		Com_Printf("%s: remove %s: %s\n",
+			__func__, path, strerror(errno));
+	}
 }
 
 int

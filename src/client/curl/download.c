@@ -751,7 +751,10 @@ static void CL_FinishHTTPDownload(void)
 		{
 			// Rename the temporary file to it's final location
 			Com_sprintf(tempName, sizeof(tempName), "%s/%s", FS_Gamedir(), dl->queueEntry->quakePath);
-			Sys_Rename(dl->filePath, tempName);
+			if (Sys_Rename(dl->filePath, tempName))
+			{
+				Com_Printf("Failed to rename.\n");
+			}
 
 			// Pak files are special because they contain
 			// other files that we may be downloading...

@@ -840,14 +840,9 @@ Pickup_Doppleganger(edict_t *ent, edict_t *other)
 qboolean
 Pickup_Sphere(edict_t *ent, edict_t *other)
 {
-	int quantity;
+	int quantity = 0;
 
-	if (!ent || !other)
-	{
-		return false;
-	}
-
-	if (other->client && other->client->owned_sphere)
+	if (!ent || !other || !other->client || other->client->owned_sphere)
 	{
 		return false;
 	}
