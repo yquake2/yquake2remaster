@@ -199,33 +199,10 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 		Scrap_Upload();
 	}
 
-	R_ApplyGLBuffer();
+	R_UpdateGLBuffer(buf_2d, gl->texnum, 0, 0, 1);
 
-	R_Bind(gl->texnum);
-
-	GLfloat vtx[] = {
-		x, y,
-		x + w, y,
-		x + w, y + h,
-		x, y + h
-	};
-
-	GLfloat tex[] = {
-		gl->sl, gl->tl,
-		gl->sh, gl->tl,
-		gl->sh, gl->th,
-		gl->sl, gl->th
-	};
-
-	glEnableClientState( GL_VERTEX_ARRAY );
-	glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-
-	glVertexPointer( 2, GL_FLOAT, 0, vtx );
-	glTexCoordPointer( 2, GL_FLOAT, 0, tex );
-	glDrawArrays( GL_TRIANGLE_FAN, 0, 4 );
-
-	glDisableClientState( GL_VERTEX_ARRAY );
-	glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+	R_Buffer2DQuad(x, y, x + w, y + h,
+		gl->sl, gl->tl, gl->sh, gl->th);
 }
 
 void
