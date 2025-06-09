@@ -505,7 +505,7 @@ Mod_Load2QBSP_IBSP29_TEXINFO(byte *outbuf, dheader_t *outheader,
 
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->animated), maptype);
 		out->nexttexinfo = -1;
-		snprintf(out->texture, sizeof(out->texture), "texid %d", LittleLong(in->texture_id));
+		snprintf(out->texture, sizeof(out->texture), "#%d.lmp", LittleLong(in->texture_id));
 
 		out++;
 		in++;
@@ -1600,8 +1600,21 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (detected_maptype == map_quake1)
 	{
+		xtexinfo_t *out_texinfo;
+		int size, count, i;
 		byte *out;
-		int size;
+
+		count = outheader->lumps[LUMP_TEXINFO].filelen / sizeof(xtexinfo_t);
+		out_texinfo = (xtexinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
+
+		for (i = 0; i < count; i++)
+		{
+			char texturename[80];
+
+			snprintf(texturename, sizeof(texturename), "%s%s", name,
+				out_texinfo[i].texture);
+			Q_strlcpy(out_texinfo[i].texture, texturename, sizeof(out_texinfo[i].texture));
+		}
 
 		size = outheader->lumps[LUMP_LEAFBRUSHES].filelen;
 		out = (byte *)(outbuf + outheader->lumps[LUMP_LEAFBRUSHES].fileofs);
