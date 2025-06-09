@@ -335,7 +335,7 @@ CL_RequestNextDownload(void)
 				if (p)
 				{
 					*p++ = 0;
-					strcpy(skin, p);
+					Q_strlcpy(skin, p, sizeof(skin));
 				}
 
 				else

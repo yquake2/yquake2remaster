@@ -373,7 +373,7 @@ CompleteCommand(void)
 	}
 
 	*key_lines[edit_line] = '/';
-	strcpy(key_lines[edit_line] + 1, cmd);
+	Q_strlcpy(key_lines[edit_line] + 1, cmd, sizeof(key_lines[edit_line]) - 1);
 	key_linepos = strlen(cmd) + 1;
 
 	if (Cmd_IsComplete(cmd))

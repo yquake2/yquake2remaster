@@ -318,7 +318,7 @@ Sys_FindFirst(const char *path, unsigned musthave, unsigned canhave)
 	if ((p = strrchr(findbase, '/')) != NULL)
 	{
 		*p = 0;
-		strcpy(findpattern, p + 1);
+		Q_strlcpy(findpattern, p + 1, sizeof(findpattern));
 	}
 	else
 	{

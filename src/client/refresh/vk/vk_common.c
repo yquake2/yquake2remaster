@@ -2890,5 +2890,4 @@ const char *QVk_GetError(VkResult errorCode)
 		default: return "<unknown>";
 	}
 #undef ERRSTR
-	return "UNKNOWN ERROR";
 }

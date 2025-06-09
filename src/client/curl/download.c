@@ -989,7 +989,6 @@ void CL_SetHTTPServer (const char *URL)
 		if (last)
 		{
 			free(last);
-			last = NULL;
 		}
 
 		last = q;
@@ -998,7 +997,6 @@ void CL_SetHTTPServer (const char *URL)
 	if (last)
 	{
 		free(last);
-		last = NULL;
 	}
 
 	memset (&cls.downloadQueue, 0, sizeof(cls.downloadQueue));

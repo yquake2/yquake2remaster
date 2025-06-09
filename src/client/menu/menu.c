@@ -3276,7 +3276,7 @@ Mods_MenuInit(void)
 		strcat(modname, "]");
 
 		displaynames[i] = malloc(strlen(modname) + 1);
-		strcpy(displaynames[i], modname);
+		Q_strlcpy(displaynames[i], modname, sizeof(displaynames[i]));
 	}
 	displaynames[nummods] = NULL;
 	//end TG626
@@ -4434,7 +4434,7 @@ StartServer_MenuInit(void)
 			char scratch[200];
 			size_t j, l;
 
-			strcpy(shortname, COM_Parse(&s));
+			Q_strlcpy(shortname, COM_Parse(&s), sizeof(shortname));
 			l = strlen(shortname);
 
 			for (j = 0; j < l; j++)
@@ -4442,7 +4442,7 @@ StartServer_MenuInit(void)
 				shortname[j] = toupper((unsigned char)shortname[j]);
 			}
 
-			strcpy(longname, COM_Parse(&s));
+			Q_strlcpy(longname, COM_Parse(&s), sizeof(longname));
 			Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
 
 			mapnames[i] = strdup(scratch);
@@ -4478,7 +4478,8 @@ StartServer_MenuInit(void)
 		s_capturelimit_field.generic.statusbar = "0 = no limit";
 		s_capturelimit_field.length = 3;
 		s_capturelimit_field.visible_length = 3;
-		strcpy(s_capturelimit_field.buffer, Cvar_VariableString("capturelimit"));
+		Q_strlcpy(s_capturelimit_field.buffer, Cvar_VariableString("capturelimit"),
+			sizeof(s_capturelimit_field.buffer));
 	}
 	else
 	{
@@ -5436,7 +5437,7 @@ IconOfSkinExists(const char* skin, char** pcxfiles, int npcxfiles,
 	int i;
 	char scratch[1024];
 
-	strcpy(scratch, skin);
+	Q_strlcpy(scratch, skin, sizeof(scratch));
 	*strrchr(scratch, '.') = 0;
 	strcat(scratch, "_i.");
 	strcat(scratch, ext);
@@ -6109,7 +6110,8 @@ PlayerConfig_MenuInit(void)
 	s_player_name_field.generic.y = 0;
 	s_player_name_field.length = 20;
 	s_player_name_field.visible_length = 20;
-	strcpy(s_player_name_field.buffer, name->string);
+	Q_strlcpy(s_player_name_field.buffer, name->string,
+		sizeof(s_player_name_field.buffer));
 	s_player_name_field.cursor = strlen(name->string);
 
 	s_player_icon_bitmap.generic.type = MTYPE_BITMAP;
