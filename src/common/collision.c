@@ -1256,6 +1256,7 @@ CM_TransformedBoxTrace(const vec3_t start, const vec3_t end,
 	{
 		rotated = true;
 	}
+
 	else
 	{
 		rotated = false;
