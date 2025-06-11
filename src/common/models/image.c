@@ -805,7 +805,7 @@ Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
 }
 
 static void
-Mod_LoadBSPLMP(const char *filename, byte **pic, int *width, int *height)
+Mod_LoadBSPLMP(const char *filename, byte **pic, byte **palette, int *width, int *height)
 {
 	char bspname[MAX_QPATH], texture_index[MAX_QPATH];
 	char *mapfile;
@@ -828,6 +828,35 @@ Mod_LoadBSPLMP(const char *filename, byte **pic, int *width, int *height)
 	texture_index[strlen(texture_index) - 4] = 0;
 
 	Mod_LoadBSPImage(bspname, strtol(texture_index, (char **)NULL, 10), pic, width, height);
+
+	if (palette && *pic)
+	{
+		int len;
+		byte *raw;
+
+		/* found some image, try to load default colormap */
+		len = FS_LoadFile("gfx/palette.lmp", (void **)&raw);
+		if (!raw || len <= 0)
+		{
+			/* no palette */
+			*palette = NULL;
+			return;
+		}
+
+		if (len == 768)
+		{
+			*palette = malloc(len);
+			memcpy(*palette, raw, len);
+			Com_DPrintf("%s: Loaded custom palette\n", __func__);
+		}
+		else
+		{
+			Com_DPrintf("%s: Unexpected palette size %d\n",
+				__func__, len);
+		}
+
+		FS_FreeFile(raw);
+	}
 }
 
 
@@ -856,13 +885,9 @@ Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			return;
 		}
 
-		if (palette)
-		{
-			*palette = NULL;
-		}
 		*bitsPerPixel = 8;
 
-		Mod_LoadBSPLMP(filename, pic, width, height);
+		Mod_LoadBSPLMP(filename, pic, palette, width, height);
 		return;
 	}
 
