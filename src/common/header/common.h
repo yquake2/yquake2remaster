@@ -698,7 +698,7 @@ void Mod_AliasesFreeAll(void);
 const dmdxframegroup_t *Mod_GetModelInfo(const char *name, int *num,
 	float *mins, float *maxs);
 void Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs);
-void LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
+void Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel);
 /* PLAYER MOVEMENT CODE */
 

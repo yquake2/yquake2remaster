@@ -723,11 +723,119 @@ LMP_Decode(const char *name, const byte *raw, int len, byte **pic,
 	}
 }
 
+static void
+Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
+	int *width, int *height)
+{
+	int len, ident, miptex_offset, miptex_size, texture_offset,
+		image_offset, size;
+	byte *raw;
+	dq1mipheader_t *miptextures;
+	dq1miptex_t *texture;
+
+	/* load the file */
+	len = FS_LoadFile(filename, (void **)&raw);
+
+	if (!raw || len <= 0)
+	{
+		/* no such bsp */
+		return;
+	}
+
+	ident = LittleLong(((int *)raw)[0]);
+	if (ident != BSPQ1VERSION)
+	{
+		FS_FreeFile(raw);
+		Com_Printf("%s: Map %s is unsupported",
+			__func__, filename);
+		return;
+	}
+
+	miptex_offset = LittleLong(((int *)raw)[5]); /* text info lump pos */
+	miptex_size = LittleLong(((int *)raw)[6]); /* text info lump size */
+
+	if (miptex_offset >= len)
+	{
+		FS_FreeFile(raw);
+		Com_Printf("%s: Map %s has broken miptex lump",
+			__func__, filename);
+		return;
+	}
+
+	miptextures = (dq1mipheader_t *)(raw + miptex_offset);
+
+	if (miptextures->numtex < texture_index)
+	{
+		FS_FreeFile(raw);
+		Com_Printf("%s: Map %s has %d only textures",
+			__func__, filename, miptextures->numtex);
+		return;
+	}
+
+	texture_offset = LittleLong(miptextures->offset[texture_index]);
+	if (texture_offset > miptex_size)
+	{
+		FS_FreeFile(raw);
+		Com_Printf("%s: Map %s has wrong texture position",
+			__func__, filename);
+		return;
+	}
+
+	texture = (dq1miptex_t *)(raw + miptex_offset + texture_offset);
+	*width = LittleLong(texture->width);
+	*height = LittleLong(texture->height);
+	image_offset = LittleLong(texture->offset1);
+	size = (*width) * (*height);
+
+	if (image_offset > miptex_size || (image_offset + size) > miptex_size)
+	{
+		FS_FreeFile(raw);
+		Com_Printf("%s: Map %s has wrong texture image position",
+			__func__, filename);
+		return;
+	}
+
+	*pic = malloc(size);
+	memcpy(*pic, (raw + miptex_offset + texture_offset + image_offset), size);
+
+	Com_DPrintf("%s Loaded embeded %s image %dx%d\n",
+		__func__, texture->name, *width, *height);
+
+	FS_FreeFile(raw);
+}
+
+static void
+Mod_LoadBSPLMP(const char *filename, byte **pic, int *width, int *height)
+{
+	char bspname[MAX_QPATH], texture_index[MAX_QPATH];
+	char *mapfile;
+	size_t len;
+
+	mapfile = strstr(filename, ".bsp#");
+	if (!mapfile)
+	{
+		return;
+	}
+
+	/* get bsp file path */
+	len = Q_min(mapfile - filename + 4, sizeof(bspname) - 1);
+	memcpy(bspname, filename, len);
+	bspname[len] = 0;
+
+	/* get texture id */
+	Q_strlcpy(texture_index, filename + len + 1, sizeof(texture_index));
+	/* remove ext */
+	texture_index[strlen(texture_index) - 4] = 0;
+
+	Mod_LoadBSPImage(bspname, strtol(texture_index, (char **)NULL, 10), pic, width, height);
+}
+
+
 /*
  * Load only static images without animation support
  */
 void
-LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
+Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel)
 {
 	const char* ext;
@@ -742,6 +850,19 @@ LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 
 	if (!raw || len <= 0)
 	{
+		/* map wall texture */
+		if (strcmp(ext, "lmp"))
+		{
+			return;
+		}
+
+		if (palette)
+		{
+			*palette = NULL;
+		}
+		*bitsPerPixel = 8;
+
+		Mod_LoadBSPLMP(filename, pic, width, height);
 		return;
 	}
 
@@ -785,6 +906,11 @@ LoadImageWithPaletteStatic(const char *filename, byte **pic, byte **palette,
 	{
 		LMP_Decode(filename, raw, len, pic, width, height);
 		*bitsPerPixel = 8;
+
+		if (palette)
+		{
+			*palette = NULL;
+		}
 	}
 	else
 	{

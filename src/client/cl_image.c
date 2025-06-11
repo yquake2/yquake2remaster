@@ -396,7 +396,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 				int bitmap;
 
 				bitmap = anim->frames[0].bitmap;
-				LoadImageWithPaletteStatic(anim->bitmaps[bitmap].file,
+				Mod_LoadImageWithPalette(anim->bitmaps[bitmap].file,
 					pic, palette, width, height, bitsPerPixel);
 			}
 			LoadImageATDFree(anim);
@@ -408,7 +408,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	}
 	else
 	{
-		LoadImageWithPaletteStatic(filename, pic, palette, width, height, bitsPerPixel);
+		Mod_LoadImageWithPalette(filename, pic, palette, width, height, bitsPerPixel);
 	}
 }
 
