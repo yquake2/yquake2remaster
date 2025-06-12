@@ -5757,7 +5757,7 @@ HasSkinsInDir(const char *dirname, int *num)
 		*num += num_m8 - 1;
 	}
 
-	if (num)
+	if (*num)
 	{
 		curr = list = malloc(sizeof(char *) * (*num + 1));
 		YQ2_COM_CHECK_OOM(list, "realloc()", (size_t)sizeof(char *) * (*num + 1))

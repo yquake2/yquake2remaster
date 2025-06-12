@@ -121,7 +121,7 @@ V_AddLightStyle(int style, float r, float g, float b)
 {
 	lightstyle_t *ls;
 
-	if ((style < 0) || (style > MAX_LIGHTSTYLES))
+	if ((style < 0) || (style >= MAX_LIGHTSTYLES))
 	{
 		Com_Error(ERR_DROP, "Bad light style %i", style);
 	}
