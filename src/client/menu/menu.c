@@ -5782,8 +5782,6 @@ HasSkinsInDir(const char *dirname, int *num)
 					}
 				}
 			}
-
-			free(list_png);
 		}
 
 		if (list_pcx)
@@ -5806,8 +5804,6 @@ HasSkinsInDir(const char *dirname, int *num)
 					}
 				}
 			}
-
-			free(list_pcx);
 		}
 
 		if (list_m8)
@@ -5830,13 +5826,26 @@ HasSkinsInDir(const char *dirname, int *num)
 					}
 				}
 			}
-
-			free(list_m8);
 		}
 
 		*curr = NULL;
 		curr++;
 		*num = curr - list;
+	}
+
+	if (list_png)
+	{
+		free(list_png);
+	}
+
+	if (list_pcx)
+	{
+		free(list_pcx);
+	}
+
+	if (list_m8)
+	{
+		free(list_m8);
 	}
 
 	return list;
