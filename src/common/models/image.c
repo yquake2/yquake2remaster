@@ -751,8 +751,10 @@ Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
 		return;
 	}
 
-	miptex_offset = LittleLong(((int *)raw)[5]); /* text info lump pos */
-	miptex_size = LittleLong(((int *)raw)[6]); /* text info lump size */
+	miptex_offset = LittleLong(
+		((int *)raw)[LUMP_BSP29_MIPTEX * 2 + 1]); /* text info lump pos */
+	miptex_size = LittleLong(
+		((int *)raw)[LUMP_BSP29_MIPTEX * 2 + 2]); /* text info lump size */
 
 	if (miptex_offset >= len)
 	{

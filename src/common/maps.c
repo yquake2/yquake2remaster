@@ -1519,12 +1519,17 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (detected_maptype == map_quake1)
 	{
-		result_size += (lumps[8].filelen * 3 + 3) & ~3;
-		result_size += (lumps[10].filelen * sizeof(int) / sizeof(dq1leaf_t) + 3) & ~3;
-		result_size += (lumps[10].filelen * sizeof(dbrush_t) / sizeof(dq1leaf_t) + 3) & ~3;
-		result_size += (lumps[10].filelen * sizeof(dqbrushside_t) / sizeof(dq1leaf_t) + 3) & ~3;
-		result_size += (lumps[10].filelen * sizeof(darea_t) / sizeof(dq1leaf_t) + 3) & ~3;
-		result_size += (lumps[10].filelen * sizeof(dareaportal_t) / sizeof(dq1leaf_t) + 3) & ~3;
+		result_size += (lumps[LUMP_BSP29_LIGHTING].filelen * 3 + 3) & ~3;
+		result_size += (lumps[LUMP_BSP29_LEAFS].filelen * sizeof(int) /
+			sizeof(dq1leaf_t) + 3) & ~3;
+		result_size += (lumps[LUMP_BSP29_LEAFS].filelen * sizeof(dbrush_t) /
+			sizeof(dq1leaf_t) + 3) & ~3;
+		result_size += (lumps[LUMP_BSP29_LEAFS].filelen * sizeof(dqbrushside_t) /
+			sizeof(dq1leaf_t) + 3) & ~3;
+		result_size += (lumps[LUMP_BSP29_LEAFS].filelen * sizeof(darea_t) /
+			sizeof(dq1leaf_t) + 3) & ~3;
+		result_size += (lumps[LUMP_BSP29_LEAFS].filelen * sizeof(dareaportal_t) /
+			sizeof(dq1leaf_t) + 3) & ~3;
 	}
 
 	outbuf = malloc(result_size);
@@ -1545,32 +1550,37 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	{
 		/* Lighting */
 		outheader->lumps[LUMP_LIGHTING].fileofs = ofs;
-		outheader->lumps[LUMP_LIGHTING].filelen = lumps[8].filelen * 3;
+		outheader->lumps[LUMP_LIGHTING].filelen = lumps[LUMP_BSP29_LIGHTING].filelen * 3;
 		ofs += outheader->lumps[LUMP_LIGHTING].filelen;
 
 		/* LeafBrushes */
 		outheader->lumps[LUMP_LEAFBRUSHES].fileofs = ofs;
-		outheader->lumps[LUMP_LEAFBRUSHES].filelen = lumps[10].filelen * sizeof(int) / sizeof(dq1leaf_t);
+		outheader->lumps[LUMP_LEAFBRUSHES].filelen = lumps[LUMP_BSP29_LEAFS].filelen *
+			sizeof(int) / sizeof(dq1leaf_t);
 		ofs += outheader->lumps[LUMP_LEAFBRUSHES].filelen;
 
 		/* Brushes */
 		outheader->lumps[LUMP_BRUSHES].fileofs = ofs;
-		outheader->lumps[LUMP_BRUSHES].filelen = lumps[10].filelen * sizeof(dbrush_t) / sizeof(dq1leaf_t);
+		outheader->lumps[LUMP_BRUSHES].filelen = lumps[LUMP_BSP29_LEAFS].filelen *
+			sizeof(dbrush_t) / sizeof(dq1leaf_t);
 		ofs += outheader->lumps[LUMP_BRUSHES].filelen;
 
 		/* BrusheSides */
 		outheader->lumps[LUMP_BRUSHSIDES].fileofs = ofs;
-		outheader->lumps[LUMP_BRUSHSIDES].filelen = lumps[10].filelen * sizeof(dqbrushside_t) / sizeof(dq1leaf_t);
+		outheader->lumps[LUMP_BRUSHSIDES].filelen = lumps[LUMP_BSP29_LEAFS].filelen *
+			sizeof(dqbrushside_t) / sizeof(dq1leaf_t);
 		ofs += outheader->lumps[LUMP_BRUSHSIDES].filelen;
 
 		/* Areas */
 		outheader->lumps[LUMP_AREAS].fileofs = ofs;
-		outheader->lumps[LUMP_AREAS].filelen = lumps[10].filelen * sizeof(darea_t) / sizeof(dq1leaf_t);
+		outheader->lumps[LUMP_AREAS].filelen = lumps[LUMP_BSP29_LEAFS].filelen *
+			sizeof(darea_t) / sizeof(dq1leaf_t);
 		ofs += outheader->lumps[LUMP_AREAS].filelen;
 
 		/* Areas Portals */
 		outheader->lumps[LUMP_AREAPORTALS].fileofs = ofs;
-		outheader->lumps[LUMP_AREAPORTALS].filelen = lumps[10].filelen * sizeof(dareaportal_t) / sizeof(dq1leaf_t);
+		outheader->lumps[LUMP_AREAPORTALS].filelen = lumps[LUMP_BSP29_LEAFS].filelen *
+			sizeof(dareaportal_t) / sizeof(dq1leaf_t);
 		ofs += outheader->lumps[LUMP_AREAPORTALS].filelen;
 	}
 
@@ -1649,7 +1659,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 		/* convert LIGHTING */
 		Mod_Load2QBSP_IBSP29_LIGHTING(outbuf, outheader, inbuf, lumps, sizeof(char), *maptype,
-			LUMP_LIGHTING, 8);
+			LUMP_LIGHTING, LUMP_BSP29_LIGHTING);
 
 		size = outheader->lumps[LUMP_LEAFBRUSHES].filelen;
 		out = (byte *)(outbuf + outheader->lumps[LUMP_LEAFBRUSHES].fileofs);

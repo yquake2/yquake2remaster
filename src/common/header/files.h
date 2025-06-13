@@ -1214,6 +1214,10 @@ typedef struct {
 #define CONTENTS_Q1_LAVA -5
 #define CONTENTS_Q1_SKY -6
 
+#define LUMP_BSP29_MIPTEX 2
+#define LUMP_BSP29_LIGHTING 8
+#define LUMP_BSP29_LEAFS 10
+
 typedef struct
 {
 	int planenum;
