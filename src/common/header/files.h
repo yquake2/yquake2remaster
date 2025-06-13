@@ -878,10 +878,10 @@ typedef struct
 } dqface_t;
 
 typedef struct {
-	unsigned short	lmwidth;
-	unsigned short	lmheight;
-	int	lightofs;
-	float	vecs[2][4];
+	unsigned short lmwidth;
+	unsigned short lmheight;
+	int lightofs;
+	float vecs[2][4];
 } dlminfo_t;
 
 /* Quake2 Leafs struct */

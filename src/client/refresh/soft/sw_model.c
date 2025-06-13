@@ -281,7 +281,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		}
 
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
-			out, in->styles, in->lightofs);
+			out, in->styles, lightofs);
 
 		if (!out->texinfo->image)
 			continue;

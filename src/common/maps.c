@@ -318,9 +318,9 @@ Mod_Load2QBSP_IBSP29_NODES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
+	size_t i, count;
 	dqnode_t *out;
 	dq1node_t *in;
-	int i, count;
 
 	count = lumps[inlumppos].filelen / rule_size;
 	in = (dq1node_t *)(inbuf + lumps[inlumppos].fileofs);
@@ -485,9 +485,9 @@ Mod_Load2QBSP_IBSP29_TEXINFO(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
+	size_t i, count;
 	dq1texinfo_t *in;
 	xtexinfo_t *out;
-	int i, count;
 
 	count = lumps[inlumppos].filelen / rule_size;
 	in = (dq1texinfo_t *)(inbuf + lumps[inlumppos].fileofs);
@@ -587,7 +587,7 @@ Mod_Load2QBSP_IBSP29_FACES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
-	int i, count;
+	size_t i, count;
 	q1face_t *in;
 	dqface_t *out;
 
@@ -604,9 +604,34 @@ Mod_Load2QBSP_IBSP29_FACES(byte *outbuf, dheader_t *outheader,
 		out->texinfo = LittleShort(in->texinfo);
 		/* use static light for all styles */
 		memset(out->styles, 0, sizeof(out->styles));
-		out->lightofs = LittleLong(in->lightofs);
+		out->lightofs = LittleLong(in->lightofs) * 3;
 
 		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_IBSP29_LIGHTING(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	size_t i, count;
+	byte *in, *out;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (byte *)(inbuf + lumps[inlumppos].fileofs);
+	out = (byte *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		size_t j;
+
+		for (j = 0; j < 3; j++)
+		{
+			*out = *in;
+			out++;
+		}
 		in++;
 	}
 }
@@ -710,7 +735,7 @@ Mod_Load2QBSP_IBSP29_LEAFS(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
-	int i, count;
+	size_t i, count;
 	dq1leaf_t *in;
 	dqleaf_t *out;
 
@@ -966,9 +991,9 @@ Mod_Load2QBSP_IBSP29_MODELS(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
+	size_t i, count;
 	dq1model_t *in;
 	dmodel_t *out;
-	int i, count;
 
 	count = lumps[inlumppos].filelen / rule_size;
 	in = (dq1model_t *)(inbuf + lumps[inlumppos].fileofs);
@@ -1127,7 +1152,7 @@ static const rule_t idq1bsplumps[HEADER_LUMPS] = {
 	{LUMP_NODES, sizeof(dq1node_t), Mod_Load2QBSP_IBSP29_NODES},
 	{LUMP_TEXINFO, sizeof(dq1texinfo_t), Mod_Load2QBSP_IBSP29_TEXINFO},
 	{LUMP_FACES, sizeof(q1face_t), Mod_Load2QBSP_IBSP29_FACES},
-	{LUMP_LIGHTING, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
+	{-1, 0, NULL}, /* LIGHTING has different structure */
 	{-1, 0, NULL}, /* clipnode_t */
 	{LUMP_LEAFS, sizeof(dq1leaf_t), Mod_Load2QBSP_IBSP29_LEAFS},
 	{LUMP_LEAFFACES, sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
@@ -1494,6 +1519,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (detected_maptype == map_quake1)
 	{
+		result_size += (lumps[8].filelen * 3 + 3) & ~3;
 		result_size += (lumps[10].filelen * sizeof(int) / sizeof(dq1leaf_t) + 3) & ~3;
 		result_size += (lumps[10].filelen * sizeof(dbrush_t) / sizeof(dq1leaf_t) + 3) & ~3;
 		result_size += (lumps[10].filelen * sizeof(dqbrushside_t) / sizeof(dq1leaf_t) + 3) & ~3;
@@ -1517,6 +1543,11 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (detected_maptype == map_quake1)
 	{
+		/* Lighting */
+		outheader->lumps[LUMP_LIGHTING].fileofs = ofs;
+		outheader->lumps[LUMP_LIGHTING].filelen = lumps[8].filelen * 3;
+		ofs += outheader->lumps[LUMP_LIGHTING].filelen;
+
 		/* LeafBrushes */
 		outheader->lumps[LUMP_LEAFBRUSHES].fileofs = ofs;
 		outheader->lumps[LUMP_LEAFBRUSHES].filelen = lumps[10].filelen * sizeof(int) / sizeof(dq1leaf_t);
@@ -1615,6 +1646,10 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 				out_texinfo[i].texture);
 			Q_strlcpy(out_texinfo[i].texture, texturename, sizeof(out_texinfo[i].texture));
 		}
+
+		/* convert LIGHTING */
+		Mod_Load2QBSP_IBSP29_LIGHTING(outbuf, outheader, inbuf, lumps, sizeof(char), *maptype,
+			LUMP_LIGHTING, 8);
 
 		size = outheader->lumps[LUMP_LEAFBRUSHES].filelen;
 		out = (byte *)(outbuf + outheader->lumps[LUMP_LEAFBRUSHES].fileofs);
