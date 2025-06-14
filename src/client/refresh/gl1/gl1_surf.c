@@ -568,11 +568,7 @@ R_RegenAllLightmaps()
 	static lmrect_t lmchange[MAX_LIGHTMAPS][MAX_LIGHTMAP_COPIES];
 	static qboolean altered[MAX_LIGHTMAPS][MAX_LIGHTMAP_COPIES];
 
-	int i, map, smax, tmax, lmtex;
-	lmrect_t current, best;
-	msurface_t *surf;
-	byte *base;
-	qboolean affected_lightmap;
+	int i, lmtex;
 #ifndef YQ2_GL1_GLES
 	qboolean pixelstore_set = false;
 #endif
@@ -594,6 +590,11 @@ R_RegenAllLightmaps()
 
 	for (i = 1; i < MAX_LIGHTMAPS; i++)
 	{
+		lmrect_t current, best;
+		msurface_t *surf;
+		byte *base;
+		qboolean affected_lightmap;
+
 		if (!gl_lms.lightmap_surfaces[i] || !gl_lms.lightmap_buffer[i])
 		{
 			continue;
@@ -608,6 +609,8 @@ R_RegenAllLightmaps()
 			 surf != 0;
 			 surf = surf->lightmapchain)
 		{
+			int map;
+
 			if (surf->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
 			{
 				continue;
@@ -622,23 +625,19 @@ R_RegenAllLightmaps()
 				}
 			}
 
-			// Doesn't matter if it is this frame or was in the previous one: surface has dynamic lights
-			if ( surf->dlightframe == r_framecount || surf->dirty_lightmap )
+			// Surface is considered to have dynamic lights if it had them in the previous frame
+			if ( surf->dlightframe != r_framecount && !surf->dirty_lightmap )
 			{
-				goto dynamic_surf;
+				continue;	// no dynamic lights affect this surface in this frame
 			}
-
-			continue;	// no dynamic lights affect this surface in this frame
 
 dynamic_surf:
 			affected_lightmap = true;
-			smax = (surf->extents[0] >> surf->lmshift) + 1;
-			tmax = (surf->extents[1] >> surf->lmshift) + 1;
 
 			current.left = surf->light_s;
-			current.right = surf->light_s + smax;
+			current.right = surf->light_s + (surf->extents[0] >> surf->lmshift) + 1;	// + smax
 			current.top = surf->light_t;
-			current.bottom = surf->light_t + tmax;
+			current.bottom = surf->light_t + (surf->extents[1] >> surf->lmshift) + 1;	// + tmax
 
 			base = gl_lms.lightmap_buffer[i];
 			base += (current.top * BLOCK_WIDTH + current.left) * LIGHTMAP_BYTES;
@@ -646,10 +645,16 @@ dynamic_surf:
 			R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
 				&r_newrefdef, r_modulate->value, r_framecount);
 
-			if ( ((surf->styles[map] >= 32) || (surf->styles[map] == 0))
-				&& (surf->dlightframe != r_framecount) )
+			if (surf->dlightframe != r_framecount)
 			{
-				R_SetCacheState(surf, &r_newrefdef);
+				for (map = 0; map < MAXLIGHTMAPS && surf->styles[map] != 255; map++)
+				{
+					if ( (surf->styles[map] >= 32) || (surf->styles[map] == 0) )
+					{
+						R_SetCacheState(surf, &r_newrefdef);
+						break;
+					}
+				}
 			}
 
 			surf->dirty_lightmap = (surf->dlightframe == r_framecount);
