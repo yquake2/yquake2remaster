@@ -51,8 +51,10 @@
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS (TEXNUM_LIGHTMAPS + MAX_LIGHTMAPS * MAX_LIGHTMAP_COPIES)
 #define TEXNUM_IMAGES (TEXNUM_SCRAPS + MAX_SCRAPS)
-#define BLOCK_WIDTH 1024		// default values; now defined in glstate_t
+#define BLOCK_WIDTH 1024
 #define BLOCK_HEIGHT 1024
+#define SCRAP_WIDTH (BLOCK_WIDTH * 2)
+#define SCRAP_HEIGHT (BLOCK_HEIGHT * 2)
 #define MAX_TEXTURE_UNITS 2
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
@@ -227,10 +229,6 @@ extern cvar_t *gl_msaa_samples;
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_gamma;
 
-extern cvar_t *intensity;
-
-extern int gl_solid_format;
-extern int gl_alpha_format;
 extern int gl_tex_solid_format;
 extern int gl_tex_alpha_format;
 
@@ -239,7 +237,6 @@ extern int c_visible_textures;
 
 extern float r_world_matrix[16];
 
-void R_TranslatePlayerSkin(int playernum);
 qboolean R_Bind(int texnum);
 
 void R_TexEnv(GLenum value);
@@ -273,8 +270,6 @@ void R_EmitWaterPolys(msurface_t *fa);
 void RE_AddSkySurface(msurface_t *fa);
 void RE_ClearSkyBox(void);
 void R_DrawSkyBox(void);
-
-void R_SwapBuffers(int);
 
 image_t *R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		int height, int realheight, size_t data_size, imagetype_t type, int bits);
@@ -422,12 +417,6 @@ typedef struct
 	enum stereo_modes stereo_mode;
 
 	qboolean stencil;
-
-	int	block_width,	// replaces BLOCK_WIDTH
-		block_height,	// replaces BLOCK_HEIGHT
-		max_lightmaps,	// the larger the lightmaps, the fewer the max lightmaps
-		scrap_width,	// size for scrap (atlas of 2D elements)
-		scrap_height;
 } glstate_t;
 
 typedef struct
@@ -436,7 +425,7 @@ typedef struct
 
 	msurface_t *lightmap_surfaces[MAX_LIGHTMAPS];
 
-	int *allocated;		// formerly allocated[BLOCK_WIDTH];
+	int allocated[BLOCK_WIDTH];
 
 	/* the lightmap texture data needs to be kept in
 	   main memory so texsubimage can update properly */
