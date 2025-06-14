@@ -728,11 +728,11 @@ GL4_DrawAliasModel(entity_t *entity)
 		hmm_mat4 projMat;
 		if (r_gunfov->value < 0)
 		{
-			projMat = GL4_MYgluPerspective(gl4_newrefdef.fov_y, screenaspect, 4, dist);
+			projMat = GL4_MYgluPerspective(gl4_newrefdef.fov_y, screenaspect, 2, dist);
 		}
 		else
 		{
-			projMat = GL4_MYgluPerspective(r_gunfov->value, screenaspect, 4, dist);
+			projMat = GL4_MYgluPerspective(r_gunfov->value, screenaspect, 2, dist);
 		}
 
 		if(gl_lefthand->value == 1.0F)
