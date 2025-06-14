@@ -331,7 +331,7 @@ CL_AddMuzzleFlash2(void)
 {
 	int ent;
 	vec3_t origin;
-	unsigned flash_number;
+	int flash_number;
 	cdlight_t *dl;
 	vec3_t forward, right;
 	char soundname[64];
@@ -350,7 +350,7 @@ CL_AddMuzzleFlash2(void)
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
 	}
 
-	if (flash_number > 210)
+	if (flash_number > MZ2_MAX)
 	{
 		Com_DPrintf("%s: bad offset\n", __func__);
 		return;
