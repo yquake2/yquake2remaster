@@ -59,6 +59,11 @@ CL_AddMuzzleFlash(void)
 	}
 
 	weapon = MSG_ReadByte(&net_message);
+	if (weapon < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
+
 	silenced = weapon & MZ_SILENCED;
 	weapon &= ~MZ_SILENCED;
 
@@ -340,6 +345,10 @@ CL_AddMuzzleFlash2(void)
 	}
 
 	flash_number = MSG_ReadByte(&net_message);
+	if (flash_number < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
 
 	if (flash_number > 210)
 	{

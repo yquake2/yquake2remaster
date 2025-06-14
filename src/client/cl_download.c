@@ -741,6 +741,10 @@ CL_ParseDownload(void)
 	/* read the data */
 	size = MSG_ReadShort(&net_message);
 	percent = MSG_ReadByte(&net_message);
+	if (percent < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
 
 	if (size == -1)
 	{
