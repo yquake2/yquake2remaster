@@ -83,28 +83,52 @@ CL_RegisterSounds(void)
 static unsigned
 CL_ParseEntityBits(unsigned *bits)
 {
-	unsigned b, total;
-	int i;
-	int number;
+	int i, b, number;
+	unsigned total;
 
-	total = MSG_ReadByte(&net_message);
+	b = MSG_ReadByte(&net_message);
+	if (b < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return 0;
+	}
+
+	total = (unsigned)b;
 
 	if (total & U_MOREBITS1)
 	{
 		b = MSG_ReadByte(&net_message);
-		total |= b << 8;
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		total |= (unsigned)b << 8;
 	}
 
 	if (total & U_MOREBITS2)
 	{
 		b = MSG_ReadByte(&net_message);
-		total |= b << 16;
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		total |= (unsigned)b << 16;
 	}
 
 	if (total & U_MOREBITS3)
 	{
 		b = MSG_ReadByte(&net_message);
-		total |= b << 24;
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return 0;
+		}
+
+		total |= (unsigned)b << 24;
 	}
 
 	/* count the bits for net profiling */

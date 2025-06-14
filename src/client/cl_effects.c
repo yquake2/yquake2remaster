@@ -350,7 +350,7 @@ CL_AddMuzzleFlash2(void)
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
 	}
 
-	if (flash_number > MZ2_MAX)
+	if (flash_number > MZ2_EFFECT_MAX)
 	{
 		Com_DPrintf("%s: bad offset\n", __func__);
 		return;

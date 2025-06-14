@@ -1017,7 +1017,7 @@ typedef struct
 #define MZ2_WIDOW2_BEAM_SWEEP_9 208
 #define MZ2_WIDOW2_BEAM_SWEEP_10 209
 #define MZ2_WIDOW2_BEAM_SWEEP_11 210
-#define MZ2_MAX MZ2_WIDOW2_BEAM_SWEEP_11
+#define MZ2_EFFECT_MAX MZ2_WIDOW2_BEAM_SWEEP_11
 
 extern vec3_t monster_flash_offset[];
 
