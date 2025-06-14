@@ -332,8 +332,8 @@ R_BlendLightmaps(const model_t *currentmodel)
 				if (!LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
 				{
 					Com_Error(ERR_FATAL,
-							"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
-								__func__, smax, tmax);
+							"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed (dynamic)\n",
+							__func__, smax, tmax);
 				}
 
 				base = gl_lms.lightmap_buffer[0];

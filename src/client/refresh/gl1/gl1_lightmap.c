@@ -53,8 +53,8 @@ LM_AllocLightmapBuffer(int buffer, qboolean clean)
 	}
 	if (!gl_lms.lightmap_buffer[buffer])
 	{
-		ri.Sys_Error(ERR_FATAL, "Could not allocate lightmap buffer %d\n",
-			buffer);
+		ri.Sys_Error(ERR_FATAL, "%s: Could not allocate lightmap buffer %d\n",
+			__func__, buffer);
 	}
 	if (clean)
 	{
@@ -126,7 +126,7 @@ LM_UploadBlock(qboolean dynamic)
 		if (++gl_lms.current_lightmap_texture == MAX_LIGHTMAPS)
 		{
 			Com_Error(ERR_DROP,
-					"%s() - MAX_LIGHTMAPS exceeded\n", __func__);
+					"%s: MAX_LIGHTMAPS exceeded\n", __func__);
 		}
 	}
 }
