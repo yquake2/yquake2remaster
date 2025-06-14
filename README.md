@@ -66,11 +66,12 @@ Maps support:
 
 | Format | Version | Game                                       |
 | ------ | ------- | ------------------------------------------ |
-| IBSP   | 39      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
+| IBSP   | 29      | Quake 1 (unfinished)                       |
+| IBSP   | 38      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
 | IBSP   | 41      | Daikatana / SIN                            |
 | RBSP   | 1       | SIN                                        |
-| QBSP   | 39      | Quake 2 ReRelease                          |
-| BSPX   | 39      | Quake 2 ReRelease (Extension to IBSP)      |
+| QBSP   | 38      | Quake 2 ReRelease                          |
+| BSPX   | 38      | Quake 2 ReRelease (Extension to IBSP)      |
 
 Sound support:
 | Format | Music | Effects |

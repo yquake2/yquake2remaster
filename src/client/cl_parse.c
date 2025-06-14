@@ -1370,6 +1370,11 @@ CL_ParseStartSoundPacket(void)
 	float ofs;
 
 	flags = MSG_ReadByte(&net_message);
+	if (flags < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+	}
+
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
 	{
 		sound_num = MSG_ReadByte(&net_message);
@@ -1386,7 +1391,13 @@ CL_ParseStartSoundPacket(void)
 
 	if (flags & SND_VOLUME)
 	{
-		volume = MSG_ReadByte(&net_message) / 255.0f;
+		volume = MSG_ReadByte(&net_message);
+		if (volume < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		}
+
+		volume /= 255.0f;
 	}
 
 	else
@@ -1396,7 +1407,13 @@ CL_ParseStartSoundPacket(void)
 
 	if (flags & SND_ATTENUATION)
 	{
-		attenuation = MSG_ReadByte(&net_message) / 64.0f;
+		attenuation = MSG_ReadByte(&net_message);
+		if (attenuation < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		}
+
+		attenuation /= 64.0f;
 	}
 
 	else
@@ -1406,7 +1423,13 @@ CL_ParseStartSoundPacket(void)
 
 	if (flags & SND_OFFSET)
 	{
-		ofs = MSG_ReadByte(&net_message) / 1000.0f;
+		ofs = MSG_ReadByte(&net_message);
+		if (ofs < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		}
+
+		ofs /= 1000.0f;
 	}
 
 	else
@@ -1531,6 +1554,11 @@ CL_ParseServerMessage(void)
 
 			case svc_print:
 				i = MSG_ReadByte(&net_message);
+				if (i < 0)
+				{
+					SHOWNET("END OF MESSAGE");
+					break;
+				}
 
 				if (i == PRINT_CHAT)
 				{

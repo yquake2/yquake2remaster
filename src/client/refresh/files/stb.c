@@ -656,8 +656,8 @@ struct image_s*
 GetSkyImage(const char *skyname, const char* surfname, qboolean palettedtexture,
 	findimage_t find_image)
 {
-	struct image_s	*image = NULL;
-	char	pathname[MAX_QPATH];
+	struct image_s *image = NULL;
+	char pathname[MAX_QPATH];
 
 	/* Quake 2 */
 	if (palettedtexture)
@@ -704,11 +704,21 @@ GetSkyImage(const char *skyname, const char* surfname, qboolean palettedtexture,
 struct image_s *
 GetTexImage(const char *name, findimage_t find_image)
 {
-	char	pathname[MAX_QPATH];
+	struct image_s *image = NULL;
+	char pathname[MAX_QPATH];
 
 	/* Quake 2 */
 	Com_sprintf(pathname, sizeof(pathname), "textures/%s.wal", name);
-	return find_image(pathname, it_wall);
+	image = find_image(pathname, it_wall);
+
+	/* Quake 1 */
+	if (!image)
+	{
+		Com_sprintf(pathname, sizeof(pathname), "%s.lmp", name);
+		image = find_image(pathname, it_sky);
+	}
+
+	return image;
 }
 
 struct image_s *

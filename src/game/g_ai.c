@@ -535,7 +535,7 @@ FoundTarget(edict_t *self)
 	edict_t *combatpoint;
 	vec3_t v;
 
-	if (!self|| !self->enemy || !self->enemy->inuse)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return;
 	}

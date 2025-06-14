@@ -878,10 +878,10 @@ typedef struct
 } dqface_t;
 
 typedef struct {
-	unsigned short	lmwidth;
-	unsigned short	lmheight;
-	int	lightofs;
-	float	vecs[2][4];
+	unsigned short lmwidth;
+	unsigned short lmheight;
+	int lightofs;
+	float vecs[2][4];
 } dlminfo_t;
 
 /* Quake2 Leafs struct */
@@ -1214,6 +1214,10 @@ typedef struct {
 #define CONTENTS_Q1_LAVA -5
 #define CONTENTS_Q1_SKY -6
 
+#define LUMP_BSP29_MIPTEX 2
+#define LUMP_BSP29_LIGHTING 8
+#define LUMP_BSP29_LEAFS 10
+
 typedef struct
 {
 	int planenum;
@@ -1255,6 +1259,24 @@ typedef struct
 	int lightofs;              /* Pointer inside the general light map, or -1 */
 							   /* this define the start of the face light map */
 } q1face_t;
+
+typedef struct
+{
+	int numtex;                /* Number of textures in Mip Texture list */
+	int offset[1];             /* Offset to each of the individual texture */
+							   /*  from the beginning of dq1mipheader_t */
+} dq1mipheader_t;
+
+typedef struct
+{
+	char name[16];             /* Name of the texture. */
+	unsigned width;            /* width of picture, must be a multiple of 8 */
+	unsigned height;           /* height of picture, must be a multiple of 8 */
+	unsigned offset1;          /* offset to u_char Pix[width   * height] */
+	unsigned offset2;          /* offset to u_char Pix[width/2 * height/2] */
+	unsigned offset4;          /* offset to u_char Pix[width/4 * height/4] */
+	unsigned offset8;          /* offset to u_char Pix[width/8 * height/8] */
+} dq1miptex_t;
 
 typedef struct
 {

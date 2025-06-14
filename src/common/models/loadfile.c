@@ -515,7 +515,7 @@ Mod_LoadAndStoreModel(const char *name)
 		int width, height, bitsPerPixel;
 		byte *pic;
 
-		LoadImageWithPaletteStatic(name, &pic, NULL, &width, &height, &bitsPerPixel);
+		Mod_LoadImageWithPalette(name, &pic, NULL, &width, &height, &bitsPerPixel);
 
 		if (pic)
 		{
