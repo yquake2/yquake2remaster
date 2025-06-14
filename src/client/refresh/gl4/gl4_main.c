@@ -1421,7 +1421,7 @@ SetupGL(void)
 	{
 		float screenaspect = (float)gl4_newrefdef.width / gl4_newrefdef.height;
 		float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
-		gl4state.projMat3D = GL4_MYgluPerspective(gl4_newrefdef.fov_y, screenaspect, 4, dist);
+		gl4state.projMat3D = GL4_MYgluPerspective(gl4_newrefdef.fov_y, screenaspect, 2, dist);
 	}
 
 	glCullFace(GL_FRONT);

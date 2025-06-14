@@ -893,7 +893,7 @@ R_SetupVulkan (void)
 	r_proj_fovx = r_newrefdef.fov_x;
 	r_proj_fovy = r_newrefdef.fov_y;
 	r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
-	Mat_Perspective(r_projection_matrix, r_vulkan_correction, r_proj_fovy, r_proj_aspect, 4, dist);
+	Mat_Perspective(r_projection_matrix, r_vulkan_correction, r_proj_fovy, r_proj_aspect, 2, dist);
 
 	R_SetFrustum(vup, vpn, vright, r_origin, r_proj_fovx, r_proj_fovy,
 		frustum);
