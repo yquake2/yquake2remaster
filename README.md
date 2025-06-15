@@ -129,6 +129,10 @@ Games:
 
 Games check videos:
 
+* 8.52RR12:
+
+[![4k+ coordinates + flare](https://img.youtube.com/vi/L6BTWUUVh_k/0.jpg)](https://www.youtube.com/watch?v=L6BTWUUVh_k)
+
 * 8.51RR12:
 
 [![PSX check](https://img.youtube.com/vi/jAcNMbvrPe4/0.jpg)](https://www.youtube.com/watch?v=jAcNMbvrPe4)
