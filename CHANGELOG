@@ -1,3 +1,19 @@
+Quake II 8.52RR12:
+- soft: support custom ttf fonts,
+- soft: broken fonts in menu,
+- client: use shared model cache in client code instead reimplement
+  in each render,
+- game: broken camera on start zbase1(Zaero),
+- game: remove grapple by default,
+- ReRelease: crash on exit from psx/base2,
+- ReRelease: support textures/*/*.mat load (footstep),
+- ReRelease: fix physics with incorrect floor height in psx/base0.bsp,
+- ReRelease: basicsjam1_detrohogga: Make pmove_state_t.origin 29.3
+  (PS_M_ORIGIN) > 4k coord values support,
+- ReRelease: initial implementation of `misc_flare`,
+- Anachronox/Daikatana: add mp3 support,
+- Add coverity fixes.
+
 Quake II 8.50 to 8.51:
 - Fix savegame and mod incompatibilities when Yamagi Quake II is
   complied in C23 mode. With this fix applied savegames written by
