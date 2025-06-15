@@ -746,7 +746,7 @@ Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
 	if (ident != BSPQ1VERSION)
 	{
 		FS_FreeFile(raw);
-		Com_Printf("%s: Map %s is unsupported",
+		Com_Printf("%s: Map %s is unsupported\n",
 			__func__, filename);
 		return;
 	}
@@ -759,7 +759,7 @@ Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
 	if (miptex_offset >= len)
 	{
 		FS_FreeFile(raw);
-		Com_Printf("%s: Map %s has broken miptex lump",
+		Com_Printf("%s: Map %s has broken miptex lump\n",
 			__func__, filename);
 		return;
 	}
@@ -769,16 +769,24 @@ Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
 	if (miptextures->numtex < texture_index)
 	{
 		FS_FreeFile(raw);
-		Com_Printf("%s: Map %s has %d only textures",
+		Com_Printf("%s: Map %s has %d only textures\n",
 			__func__, filename, miptextures->numtex);
 		return;
 	}
 
 	texture_offset = LittleLong(miptextures->offset[texture_index]);
+	if (texture_offset < 0)
+	{
+		FS_FreeFile(raw);
+		Com_Printf("%s: Map %s image is not attached\n",
+			__func__, filename);
+		return;
+	}
+
 	if (texture_offset > miptex_size)
 	{
 		FS_FreeFile(raw);
-		Com_Printf("%s: Map %s has wrong texture position",
+		Com_Printf("%s: Map %s has wrong texture position\n",
 			__func__, filename);
 		return;
 	}
@@ -789,10 +797,13 @@ Mod_LoadBSPImage(const char *filename, int texture_index, byte **pic,
 	image_offset = LittleLong(texture->offset1);
 	size = (*width) * (*height);
 
-	if (image_offset > miptex_size || (image_offset + size) > miptex_size)
+	if ((image_offset < 0) ||
+		(size < 0) ||
+		(image_offset > miptex_size) ||
+		((image_offset + size) > miptex_size))
 	{
 		FS_FreeFile(raw);
-		Com_Printf("%s: Map %s has wrong texture image position",
+		Com_Printf("%s: Map %s has wrong texture image position\n",
 			__func__, filename);
 		return;
 	}
