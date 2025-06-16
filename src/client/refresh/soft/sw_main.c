@@ -1766,14 +1766,6 @@ RE_RegisterSkin (const char *name)
 	return R_FindImage (name, it_skin);
 }
 
-void R_Printf(int level, const char* msg, ...)
-{
-	va_list argptr;
-	va_start(argptr, msg);
-	ri.Com_VPrintf(level, msg, argptr);
-	va_end(argptr);
-}
-
 static qboolean
 RE_IsVsyncActive(void)
 {
@@ -2655,51 +2647,6 @@ SWimp_CreateRender(int width, int height)
 	memset(sw_state.currentpalette, 0, sizeof(sw_state.currentpalette));
 
 	R_GammaCorrectAndSetPalette( d_8to24table );
-}
-
-// this is only here so the functions in q_shared.c and q_shwin.c can link
-void
-Sys_Error (const char *error, ...)
-{
-	va_list		argptr;
-	char		text[4096]; // MAXPRINTMSG == 4096
-
-	va_start(argptr, error);
-	vsnprintf(text, sizeof(text), error, argptr);
-	va_end(argptr);
-
-	Com_Error(ERR_FATAL, "%s", text);
-}
-
-void
-Com_Printf(const char *msg, ...)
-{
-	va_list	argptr;
-	va_start(argptr, msg);
-	ri.Com_VPrintf(PRINT_ALL, msg, argptr);
-	va_end(argptr);
-}
-
-void
-Com_DPrintf(const char *msg, ...)
-{
-	va_list argptr;
-	va_start(argptr, msg);
-	ri.Com_VPrintf(PRINT_DEVELOPER, msg, argptr);
-	va_end(argptr);
-}
-
-void
-Com_Error(int code, const char *fmt, ...)
-{
-	va_list argptr;
-	char text[4096]; // MAXPRINTMSG == 4096
-
-	va_start(argptr, fmt);
-	vsnprintf(text, sizeof(text), fmt, argptr);
-	va_end(argptr);
-
-	ri.Sys_Error(code, "%s", text);
 }
 
 /*
