@@ -834,6 +834,7 @@ set(SOFT-Source
 	${REF_SRC_DIR}/soft/sw_sprite.c
 	${REF_SRC_DIR}/soft/sw_surf.c
 	${REF_SRC_DIR}/soft/sw_warp.c
+	${REF_SRC_DIR}/files/common.c
 	${REF_SRC_DIR}/files/light.c
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
