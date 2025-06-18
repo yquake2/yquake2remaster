@@ -335,6 +335,42 @@ CL_Quit_f(void)
 	Com_Quit();
 }
 
+static void
+CL_SaveMap_f(void)
+{
+	char filename[MAX_OSPATH];
+	const byte *mapdump;
+	unsigned hash;
+	FILE *f;
+	int len;
+
+	mapdump = CM_GetRawMap(&len);
+
+	if (!mapdump || len < 0)
+	{
+		Com_Printf("Can't get map content\n");
+		return;
+	}
+
+	hash = Com_BlockChecksum(mapdump, len);
+
+	Com_sprintf(filename, sizeof(filename), "%s/maps/%d.bsp",
+		FS_Gamedir(), hash);
+
+	FS_CreatePath(filename);
+	f = Q_fopen(filename, "wb");
+
+	if (!f)
+	{
+		Com_Printf("%s: Couldn't open %s", __func__, filename);
+		return;
+	}
+
+	fwrite(mapdump, len, 1, f);
+	fclose(f);
+	Com_Printf("Map dumped to %s with %d bytes\n", filename, len);
+}
+
 void
 CL_ClearState(void)
 {
@@ -597,6 +633,7 @@ CL_InitLocal(void)
 	Cmd_AddCommand("stop", CL_Stop_f);
 
 	Cmd_AddCommand("quit", CL_Quit_f);
+	Cmd_AddCommand("savemap", CL_SaveMap_f);
 
 	Cmd_AddCommand("connect", CL_Connect_f);
 	Cmd_AddCommand("reconnect", CL_Reconnect_f);

@@ -642,6 +642,7 @@ qboolean Netchan_CanReliable(netchan_t *chan);
 
 #include "files.h"
 
+const byte* CM_GetRawMap(int *len);
 cmodel_t *CM_LoadMap(const char *name, qboolean clientload, unsigned *checksum);
 cmodel_t *CM_InlineModel(const char *name);       /* *1, *2, etc */
 int CM_MapSurfacesNum(void);

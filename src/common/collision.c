@@ -1912,6 +1912,18 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 	}
 }
 
+const byte *
+CM_GetRawMap(int *len)
+{
+	if (!cmod)
+	{
+		return NULL;
+	}
+
+	*len = cmod->cache_size;
+	return cmod->cache;
+}
+
 /*
  * Loads in the map and all submodels
  */

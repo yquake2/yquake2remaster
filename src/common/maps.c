@@ -481,6 +481,48 @@ Mod_Load2QBSP_IBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP_XTEXINFO(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	xtexinfo_t *in;
+	xtexinfo_t *out;
+	size_t i, count;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (xtexinfo_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (xtexinfo_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j, inflags;
+
+		for (j = 0; j < 4; j++)
+		{
+			out->vecs[0][j] = LittleFloat(in->vecs[0][j]);
+			out->vecs[1][j] = LittleFloat(in->vecs[1][j]);
+		}
+
+		inflags = LittleLong(in->flags);
+		out->flags = Mod_LoadSurfConvertFlags(inflags, maptype);
+		out->nexttexinfo = LittleLong(in->nexttexinfo);
+		Q_strlcpy(out->material, in->material,
+			Q_min(sizeof(out->material), sizeof(in->material)));
+		Q_strlcpy(out->texture, in->texture,
+			Q_min(sizeof(out->texture), sizeof(in->texture)));
+
+		/* Fix backslashes */
+		Q_replacebackslash(out->texture);
+
+		out++;
+		in++;
+	}
+
+	Mod_Load2QBSP_MATERIALS_TEXINFO(
+		(xtexinfo_t *)(outbuf + outheader->lumps[outlumppos].fileofs), count);
+}
+
+static void
 Mod_Load2QBSP_IBSP29_TEXINFO(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -1256,7 +1298,7 @@ static const rule_t xbsplumps[HEADER_LUMPS] = {
 	{LUMP_VERTEXES, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
 	{LUMP_VISIBILITY, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
 	{LUMP_NODES, sizeof(dqnode_t), Mod_Load2QBSP_QBSP_NODES},
-	{LUMP_TEXINFO, sizeof(xtexinfo_t), Mod_Load2QBSP_IBSP_TEXINFO},
+	{LUMP_TEXINFO, sizeof(xtexinfo_t), Mod_Load2QBSP_IBSP_XTEXINFO},
 	{LUMP_FACES, sizeof(dqface_t), Mod_Load2QBSP_QBSP_FACES},
 	{LUMP_LIGHTING, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
 	{LUMP_LEAFS, sizeof(dqleaf_t), Mod_Load2QBSP_QBSP_LEAFS},
@@ -1368,7 +1410,15 @@ Mod_LoadGetRules(int ident, int version, const lump_t *lumps, const rule_t **rul
 	}
 	else if (ident == QBSPHEADER && version == BSPVERSION)
 	{
-		*rules = qbsplumps;
+		if (lumps[LUMP_TEXINFO].filelen % sizeof(texinfo_t) == 0)
+		{
+			*rules = qbsplumps;
+		}
+		else
+		{
+			*rules = xbsplumps;
+		}
+
 		*numrules = *numlumps = HEADER_LUMPS;
 		return map_quake2rr;
 	}

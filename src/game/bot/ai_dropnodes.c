@@ -527,7 +527,7 @@ AI_SavePLKFile(const char *mapname)
 	Com_sprintf(filename, sizeof(filename), "%s/%s/%s.%s",
 		gi.Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
 	gi.CreatePath(filename);
-	pOut = fopen(filename, "wb");
+	pOut = Q_fopen(filename, "wb");
 	if (!pOut)
 	{
 		Com_Printf("Failed to store: %s\n", filename);
