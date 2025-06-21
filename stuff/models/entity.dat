@@ -1032,3 +1032,63 @@ weapon_bow|models/weapons/g_bow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|1
 weapon_rifle|models/weapons/g_rifle.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blunderbuss|1.0|0.5|0.0
 weapon_sword|models/weapons/g_sword.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ancestral Sword|1.0|0.5|0.0
 weapon_xbow|models/weapons/g_xbow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow|1.0|0.5|0.0
+
+// Quake
+air_bubbles|progs/s_bubble.spr|1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Air bubbles|0.0|0.59|0.86
+ambient_comp_hum||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Computer background sounds|0.59|0.0|0.59
+ambient_drip||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dripping sound|0.59|0.0|0.59
+ambient_drone||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Engine/machinery sound|0.59|0.0|0.59
+ambient_flouro_buzz||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fluorescent buzzing sound|0.59|0.0|0.59
+ambient_light_buzz||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Buzzing sound from light|0.59|0.0|0.59
+ambient_suck_wind||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wind sound|0.59|0.0|0.59
+ambient_swamp1||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Frogs croaking|0.59|0.0|0.59
+ambient_swamp2||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Frogs croaking B|0.59|0.0|0.59
+ambient_thunder||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thunder sound|0.59|0.0|0.59
+event_lightning||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chthon's lightning|.5|.5|.5
+func_bossgate||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Boss gate|.5|.5|.5
+func_detail||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Group of brushes for certain compilers|.5|.5|.5
+func_detail_illusionary||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|func_detail variant with no collision (players / monsters / gunfire) and doesn't split world faces.|.5|.5|.5
+func_detail_wall||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|func_detail variant that doesn't split world faces.|.5|.5|.5
+func_episodegate||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Episode Gate|.5|.5|.5
+func_illusionary||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Static nonsolid model|.5|.5|.5
+info_intermission||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Intermission camera|.5|.5|.5
+info_player_start2|progs/player.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player episode return point|0.0|1.0|0.0
+item_armor1|progs/armor.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Green armor (100%)|.5|.5|.5
+item_armor2|progs/armor.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Yellow armor (150%)|.5|.5|.5
+item_armorInv|progs/armor.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Red armor (200%)|.5|.5|.5
+item_artifact_envirosuit|progs/suit.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Environmental protection suit|.5|.5|.5
+item_artifact_invisibility|progs/invisibl.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ring of Shadows|.5|.5|.5
+item_artifact_invulnerability|progs/invulner.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pentagram of Protection|.5|.5|.5
+item_artifact_super_damage|progs/quaddama.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Quad damage|.5|.5|.5
+item_cells||1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thunderbolt ammo|0.31|0.0|0.78
+item_key1|progs/w_s_key.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Silver key|.5|.5|.5
+item_key2|progs/w_g_key.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gold key|.5|.5|.5
+item_rockets||1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rockets|0.31|0.0|0.78
+item_shells||1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shells|0.31|0.0|0.78
+item_sigil||1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sigil |.5|.5|.5
+item_spikes||1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nailgun/Perforator ammo|0.31|0.0|0.78
+light_flame_large_yellow|progs/flame2.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-12.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Large yellow flame|1.0|1.0|0.16
+light_flame_small_white|progs/flame2.mdl|1.0|1.0|1.0|general|-4.0|-4.0|-12.0|4.0|4.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small white flame|1.0|1.0|0.16
+light_flame_small_yellow|progs/flame2.mdl|1.0|1.0|1.0|general|-4.0|-4.0|-12.0|4.0|4.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small yellow flame|1.0|1.0|0.16
+light_fluoro||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fluorescent light|1.0|1.0|0.16
+light_fluorospark||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sparking fluorescent light|1.0|1.0|0.16
+light_globe|progs/s_light.spr|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Globe light|1.0|1.0|0.16
+light_torch_small_walltorch|progs/flame.mdl|1.0|1.0|1.0|general|-4.0|-4.0|-12.0|4.0|4.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small walltorch|1.0|1.0|0.16
+misc_explobox2|maps/b_exbox2.bsp|1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small exploding container|.5|.5|.5
+misc_noisemaker||1.0|1.0|1.0|general|0.0|0.0|0.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Debug entity: continuously plays enforcer sounds|.5|.5|.5
+misc_teleporttrain|progs/teleport.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flying teleporter destination|.5|.5|.5
+monster_boss|progs/boss.mdl|1.0|1.0|1.0|general|-128.0|-128.0|-24.0|128.0|128.0|256.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chthon|0.86|0.0|0.0
+monster_demon1|progs/demon.mdl|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fiend|0.86|0.0|0.0
+monster_hell_knight|progs/hknight.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hell knight|0.86|0.0|0.0
+monster_ogre_marksman|progs/ogre.mdl|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ogre marksman|0.86|0.0|0.0
+monster_oldone|progs/oldone.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shub-Niggurath|0.86|0.0|0.0
+testplayerstart|progs/player.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Testing player start|0.0|1.0|0.0
+trap_shooter||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Continuous shooter|0.86|0.59|0.59
+trap_spikeshooter||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggered shooter|.5|.5|.5
+trigger_changelevel||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Change level|.5|.5|.5
+trigger_onlyregistered||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Registered only|.5|.5|.5
+trigger_secret||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Secret|.5|.5|.5
+trigger_setskill||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Set skill|.5|.5|.5
+weapon_lightning|progs/g_light.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thunderbolt|0.0|0.0|0.78
+weapon_nailgun|progs/g_nail.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nailgun|0.0|0.0|0.78
+weapon_supernailgun|progs/g_nail2.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Super nailgun|0.0|0.0|0.78
