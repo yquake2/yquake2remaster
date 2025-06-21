@@ -63,7 +63,10 @@ Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
 
 	switch (maptype)
 	{
-		case map_quake1: return flags == 1 ? SURF_WARP: 0;
+		case map_quake1:
+			/* fall through */
+		case map_hexen2:
+			return flags == 1 ? SURF_WARP: 0;
 		case map_heretic2: convert = heretic2_flags; break;
 		case map_daikatana: convert = daikatana_flags; break;
 		case map_kingpin: convert = kingpin_flags; break;
@@ -177,7 +180,10 @@ Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
 
 	switch (maptype)
 	{
-		case map_quake1: return ModLoadContextQuake1(flags);
+		case map_quake1:
+			/* fall through */
+		case map_hexen2:
+			return ModLoadContextQuake1(flags);
 		case map_quake2: convert = quake2_contents_flags; break;
 		case map_heretic2: convert = heretic2_contents_flags; break;
 		case map_daikatana: convert = daikatana_contents_flags; break;
@@ -1185,6 +1191,9 @@ typedef struct
 	funcrule_t func;
 } rule_t;
 
+/* Quake 1 based games */
+
+/* Quake 1 */
 static const rule_t idq1bsplumps[HEADER_LUMPS] = {
 	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
 	{LUMP_PLANES, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
@@ -1203,6 +1212,26 @@ static const rule_t idq1bsplumps[HEADER_LUMPS] = {
 	{LUMP_MODELS, sizeof(dq1model_t), Mod_Load2QBSP_IBSP29_MODELS},
 };
 
+/* Hexen 2 */
+static const rule_t idh2bsplumps[HEADER_LUMPS] = {
+	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
+	{LUMP_PLANES, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
+	{-1, 0, NULL}, /* Wall Textures */
+	{LUMP_VERTEXES, sizeof(dvertex_t), Mod_Load2QBSP_IBSP_VERTEXES},
+	{-1, 0, NULL}, /* Visability has different structure */
+	{LUMP_NODES, sizeof(dq1node_t), Mod_Load2QBSP_IBSP29_NODES},
+	{LUMP_TEXINFO, sizeof(dq1texinfo_t), Mod_Load2QBSP_IBSP29_TEXINFO},
+	{LUMP_FACES, sizeof(q1face_t), Mod_Load2QBSP_IBSP29_FACES},
+	{-1, 0, NULL}, /* LIGHTING has different structure */
+	{-1, 0, NULL}, /* clipnode_t */
+	{LUMP_LEAFS, sizeof(dq1leaf_t), Mod_Load2QBSP_IBSP29_LEAFS},
+	{LUMP_LEAFFACES, sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
+	{LUMP_EDGES, sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
+	{LUMP_SURFEDGES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},
+	{LUMP_MODELS, sizeof(dh2model_t), Mod_Load2QBSP_IBSP29_MODELS},
+};
+
+/* Quake 2 based games */
 static const rule_t idq2bsplumps[HEADER_LUMPS] = {
 	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
 	{LUMP_PLANES, sizeof(dplane_t), Mod_Load2QBSP_IBSP_PLANES},
@@ -1345,6 +1374,7 @@ Mod_MaptypeName(maptype_t maptype)
 	switch(maptype)
 	{
 		case map_quake1: maptypename = "Quake"; break;
+		case map_hexen2: maptypename = "Hexen II"; break;
 		case map_quake2: maptypename = "Quake II"; break;
 		case map_quake2rr: maptypename = "Quake II ReRelease"; break;
 		case map_quake3: maptypename = "Quake III Arena"; break;
@@ -1360,8 +1390,8 @@ Mod_MaptypeName(maptype_t maptype)
 }
 
 static maptype_t
-Mod_LoadGetRules(int ident, int version, const lump_t *lumps, const rule_t **rules,
-	int *numlumps, int *numrules)
+Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
+	const rule_t **rules, int *numlumps, int *numrules)
 {
 	/*
 	 * numlumps is count lumps in format,
@@ -1403,9 +1433,47 @@ Mod_LoadGetRules(int ident, int version, const lump_t *lumps, const rule_t **rul
 		}
 		else if (version == BSPQ1VERSION)
 		{
-			*rules = idq1bsplumps;
+			size_t num_nodes, num_models, i;
+			const dq1model_t *in_models;
+			qboolean hexen2map = false;
+
 			*numrules = *numlumps = HEADER_Q1LUMPS;
-			return map_quake1;
+
+			if (lumps[LUMP_BSP29_MODELS].filelen % sizeof(dh2model_t) != 0)
+			{
+				/* for sure not hexen map */
+				*rules = idq1bsplumps;
+				return map_quake1;
+			}
+
+			/* revalidate one more time */
+			num_nodes = lumps[LUMP_BSP29_NODES].filelen / sizeof(dq1node_t);
+			num_models = lumps[LUMP_BSP29_MODELS].filelen / sizeof(dq1model_t);
+			in_models = (const dq1model_t *)(inbuf + lumps[LUMP_BSP29_MODELS].fileofs);
+
+			for (i = 0; i < num_models; i++)
+			{
+				int headnode;
+
+				/* check to incorrect first node */
+				headnode = LittleLong(in_models[i].headnode);
+				if (headnode >= num_nodes)
+				{
+					hexen2map = true;
+					break;
+				}
+			}
+
+			if (hexen2map)
+			{
+				*rules = idh2bsplumps;
+				return map_hexen2;
+			}
+			else
+			{
+				*rules = idq1bsplumps;
+				return map_quake1;
+			}
 		}
 	}
 	else if (ident == QBSPHEADER && version == BSPVERSION)
@@ -1563,7 +1631,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	}
 	lumps = (lump_t *)&lumpsmem;
 
-	detected_maptype = Mod_LoadGetRules(ident, version, lumps,
+	detected_maptype = Mod_LoadGetRules(ident, version, inbuf, lumps,
 		&rules, &numlumps, &numrules);
 	if (detected_maptype != map_quake2rr)
 	{
@@ -1600,7 +1668,8 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		}
 	}
 
-	if (detected_maptype == map_quake1)
+	if ((detected_maptype == map_quake1) ||
+		(detected_maptype == map_hexen2))
 	{
 		/* lights is white only in quake 1, extend to rgb */
 		result_size += (lumps[LUMP_BSP29_LIGHTING].filelen * 3 + 3) & ~3;
@@ -1632,7 +1701,8 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	ofs = Mod_Load2QBSPSizeByRules(rules, numrules, outheader, lumps);
 
-	if (detected_maptype == map_quake1)
+	if ((detected_maptype == map_quake1) ||
+		(detected_maptype == map_hexen2))
 	{
 		/* Lighting, lights is white only in quake 1, extend to rgb */
 		outheader->lumps[LUMP_LIGHTING].fileofs = ofs;
@@ -1728,7 +1798,8 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		Mod_Load2QBSP_TEXINFO_NOBSPX(outbuf, outheader);
 	}
 
-	if (detected_maptype == map_quake1)
+	if ((detected_maptype == map_quake1) ||
+		(detected_maptype == map_hexen2))
 	{
 		int size, num_texinfo, i, num_leafs;
 		dqbrushside_t *out_brushsides;

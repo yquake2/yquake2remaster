@@ -1214,9 +1214,21 @@ typedef struct {
 #define CONTENTS_Q1_LAVA -5
 #define CONTENTS_Q1_SKY -6
 
+#define LUMP_BSP29_ENTITIES 0
+#define LUMP_BSP29_PLANES 1
 #define LUMP_BSP29_MIPTEX 2
+#define LUMP_BSP29_VERTEXES 3
+#define LUMP_BSP29_VISIBILITY 4
+#define LUMP_BSP29_NODES 5
+#define LUMP_BSP29_TEXINFO 6
+#define LUMP_BSP29_FACES 7
 #define LUMP_BSP29_LIGHTING 8
+#define LUMP_BSP29_CLIPNODES 9
 #define LUMP_BSP29_LEAFS 10
+#define LUMP_BSP29_LEAFFACES 11
+#define LUMP_BSP29_EDGES 12
+#define LUMP_BSP29_SURFEDGES 13
+#define LUMP_BSP29_MODELS 14
 
 typedef struct
 {
@@ -1297,6 +1309,17 @@ typedef struct
 	int firstface, numfaces;   /* submodels just draw faces without
 							      walking the bsp tree */
 } dq1model_t;
+
+/* Hexen 2 */
+typedef struct
+{
+	float mins[3], maxs[3];
+	float origin[3];           /* unused ? */
+	int headnode[8];           /* hexen2 only uses 6 */
+	int visleafs;              /* not including the solid leaf 0 */
+	int firstface, numfaces;   /* submodels just draw faces without
+							      walking the bsp tree */
+} dh2model_t;
 
 #endif
 
