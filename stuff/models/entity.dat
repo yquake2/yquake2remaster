@@ -1034,7 +1034,7 @@ weapon_sword|models/weapons/g_sword.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16
 weapon_xbow|models/weapons/g_xbow.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow|1.0|0.5|0.0
 
 // Quake
-air_bubbles|progs/s_bubble.spr|1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Air bubbles|0.0|0.59|0.86
+air_bubbles|progs/s_bubble.spr|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Air bubbles|0.0|0.59|0.86
 ambient_comp_hum||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Computer background sounds|0.59|0.0|0.59
 ambient_drip||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dripping sound|0.59|0.0|0.59
 ambient_drone||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Engine/machinery sound|0.59|0.0|0.59
@@ -1051,7 +1051,7 @@ func_detail_illusionary||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|
 func_detail_wall||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|func_detail variant that doesn't split world faces.|.5|.5|.5
 func_episodegate||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Episode Gate|.5|.5|.5
 func_illusionary||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Static nonsolid model|.5|.5|.5
-info_intermission||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Intermission camera|.5|.5|.5
+info_intermission||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Intermission camera|.5|.5|.5
 info_player_start2|progs/player.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player episode return point|0.0|1.0|0.0
 item_armor1|progs/armor.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Green armor (100%)|.5|.5|.5
 item_armor2|progs/armor.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Yellow armor (150%)|.5|.5|.5
@@ -1083,8 +1083,8 @@ monster_hell_knight|progs/hknight.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0
 monster_ogre_marksman|progs/ogre.mdl|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ogre marksman|0.86|0.0|0.0
 monster_oldone|progs/oldone.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shub-Niggurath|0.86|0.0|0.0
 testplayerstart|progs/player.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Testing player start|0.0|1.0|0.0
-trap_shooter||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Continuous shooter|0.86|0.59|0.59
-trap_spikeshooter||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggered shooter|.5|.5|.5
+trap_shooter||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Continuous shooter|0.86|0.59|0.59
+trap_spikeshooter||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggered shooter|.5|.5|.5
 trigger_changelevel||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Change level|.5|.5|.5
 trigger_onlyregistered||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Registered only|.5|.5|.5
 trigger_secret||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Secret|.5|.5|.5
@@ -1092,3 +1092,204 @@ trigger_setskill||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0
 weapon_lightning|progs/g_light.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thunderbolt|0.0|0.0|0.78
 weapon_nailgun|progs/g_nail.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nailgun|0.0|0.0|0.78
 weapon_supernailgun|progs/g_nail2.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Super nailgun|0.0|0.0|0.78
+
+// Hexen2
+Ring_Flight||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ring o' flight|.5|.5|.5
+Ring_Regeneration||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ring o' regeneration|.5|.5|.5
+Ring_Turning||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ring o' turning|.5|.5|.5
+Ring_WaterBreathing||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ring o' water breathing|.5|.5|.5
+art_HealthBoost|models/a_hboost.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Health Boost|.5|.5|.5
+art_SuperHBoost|models/a_shbost.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Super Health Boost|.5|.5|.5
+art_blastradius|models/a_blast.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blast Radius|.5|.5|.5
+art_cubeofforce|models/a_cube.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cube of Force|.5|.5|.5
+art_glyph|models/a_glyph.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Glyph|.5|.5|.5
+art_haste|models/a_haste.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Haste|.5|.5|.5
+art_invincibility|models/a_invinc.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invincibility|.5|.5|.5
+art_invisibility|models/a_invis.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invisibility|.5|.5|.5
+art_manaboost|models/a_mboost.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mana Boost|.5|.5|.5
+art_polymorph|models/a_poly.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Polymorph|.5|.5|.5
+art_summon|models/a_summon.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Summoning|.5|.5|.5
+art_sword_and_crown|models/xcalibur.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sword and Crown|.5|.5|.5
+art_teleport|models/a_telprt.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Teleport|.5|.5|.5
+art_tomeofpower|models/a_tome.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tome of Power|.5|.5|.5
+art_torch|models/a_torch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Torch|.5|.5|.5
+brush_pushable||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pushable brush|.5|.5|.5
+buddha_trigger_endgame||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Buddha trigger endgame (PoP)|.5|.5|.5
+camera_remote||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Camera|.5|.5|.5
+func_angletrigger||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Angle trigger|.5|.5|.5
+func_crusher||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crusher|.5|.5|.5
+func_monsterspawn_spot||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|spawn spot|.5|.5|.5
+func_monsterspawn_spot_mp||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|spawn spot (PoP)|.5|.5|.5
+func_monsterspawner_mp||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|56.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|spawner (PoP)|.5|.5|.5
+func_newplat||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|New plat|.5|.5|.5
+func_pressure||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pressure plate|.5|.5|.5
+func_rotating_movechain||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Move chain|.5|.5|.5
+func_train_mp||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Train (PoP)|.5|.5|.5
+fx_colorbeam_end||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|End of beam|.5|.5|.5
+fx_colorbeam_start||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Start of beam|.5|.5|.5
+fx_friction_change||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Friction change (PoP)|.5|.5|.5
+fx_smoke_generator||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|smoker|.5|.5|.5
+item_armor_amulet||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Armor amulet|.5|.5|.5
+item_armor_bracer||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Armor bracer|.5|.5|.5
+item_armor_breastplate||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Breastplate|.5|.5|.5
+item_mana_blue||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|blue mana|.5|.5|.5
+item_mana_both||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mana|.5|.5|.5
+item_mana_green||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|green mana|.5|.5|.5
+item_spawner||1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|45.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Item spawner|.5|.5|.5
+light_burner||1.0|1.0|1.0|general|-16.0|-16.0|-52.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Burner (PoP)|.5|.5|.5
+light_candle||1.0|1.0|1.0|general|-8.0|-8.0|-16.0|8.0|8.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Candle (PoP)|.5|.5|.5
+light_gem||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gem light|.5|.5|.5
+light_lantern||1.0|1.0|1.0|general|-8.0|-8.0|-40.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lantern (PoP)|.5|.5|.5
+light_newfire||1.0|1.0|1.0|general|-48.0|-48.0|-4.0|48.0|48.0|224.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Newfire (PoP)|.5|.5|.5
+light_palace_torch||1.0|1.0|1.0|general|-0.0|-16.0|-0.0|22.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Palace torch (PoP)|.5|.5|.5
+light_thunderstorm||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thunderstorm|.5|.5|.5
+light_torch_castle|models/cflmtrch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Castle torch|.5|.5|.5
+light_torch_egypt|models/egtorch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Egyptian torch|.5|.5|.5
+light_torch_meso|models/mflmtrch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Meso torch|.5|.5|.5
+light_torch_rome|models/rflmtrch.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Roman torch|.5|.5|.5
+misc_fountain||1.0|1.0|1.0|general|0.0|0.0|0.0|32.0|32.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fountain|.5|.5|.5
+monster_archer|models/archer.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Archer|.5|.5|.5
+monster_archer_ice|models/archer.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ice archer (PoP)|.5|.5|.5
+monster_archer_lord|models/archer.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Archer lord|.5|.5|.5
+monster_buddha|models/pravus.mdl|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Praevus (PoP)|.5|.5|.5
+monster_eidolon|models/eidolon.mdl|1.0|1.0|1.0|general|-100.0|-100.0|0.0|100.0|100.0|666.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Eidolon|.5|.5|.5
+monster_eidolon_weakling||1.0|1.0|1.0|general|-100.0|-100.0|0.0|100.0|100.0|666.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Eidolon weakling (PoP)|.5|.5|.5
+monster_fallen_angel|models/fangel.mdl|1.0|1.0|1.0|general|-14.0|-14.0|-41.0|14.0|14.0|23.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fallen angel|.5|.5|.5
+monster_fallen_angel_lord|models/fangel.mdl|1.0|1.0|1.0|general|-14.0|-14.0|-41.0|14.0|14.0|23.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fallen angel lord|.5|.5|.5
+monster_golem_bronze|models/golem_b.mdl|1.0|1.0|1.0|general|-64.0|-64.0|0.0|64.0|64.0|194.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bronze golem|.5|.5|.5
+monster_golem_crystal|models/golem_s.mdl|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crystal golem|.5|.5|.5
+monster_golem_iron|models/golem_i.mdl|1.0|1.0|1.0|general|-55.0|-55.0|0.0|55.0|55.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Iron golem|.5|.5|.5
+monster_golem_stone|models/golem_s.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|112.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stone golem|.5|.5|.5
+monster_hydra|models/hydra.mdl|1.0|1.0|1.0|general|-40.0|-40.0|-42.0|40.0|40.0|42.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hydra|.5|.5|.5
+monster_imp_fire|models/imp.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fire imp|.5|.5|.5
+monster_imp_ice|models/imp.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ice imp|.5|.5|.5
+monster_imp_lord|models/imp.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lord imp|.5|.5|.5
+monster_medusa_green|models/medusa.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Green medusa|.5|.5|.5
+monster_medusa_red|models/medusa2.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Red medusa|.5|.5|.5
+monster_mummy|models/mummy.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mummy|.5|.5|.5
+monster_mummy_lord|models/mummy.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mummy lord|.5|.5|.5
+monster_pentacles||1.0|1.0|1.0|general|-20.0|-20.0|0.0|20.0|20.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pentacle (PoP)|.5|.5|.5
+monster_ratnest|models/rat.mdl|1.0|1.0|1.0|general|-20.0|-20.0|0.0|20.0|20.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rat's nest|.5|.5|.5
+monster_raven|models/raven.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Raven|.5|.5|.5
+monster_scorpion_black|models/scorpion.mdl|1.0|1.0|1.0|general|-40.0|-40.0|0.0|40.0|40.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Black scorpion|.5|.5|.5
+monster_scorpion_yellow|models/scorpion.mdl|1.0|1.0|1.0|general|-40.0|-40.0|0.0|40.0|40.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Yellow scorpion|.5|.5|.5
+monster_skull_wizard|models/skullwiz.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skull wizard|.5|.5|.5
+monster_skull_wizard_lord|models/skullwiz.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skull wizard lord|.5|.5|.5
+monster_snake|models/snake.mdl|1.0|1.0|1.0|general|-80.0|-80.0|0.0|80.0|80.0|200.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snake|.5|.5|.5
+monster_spider_red_large|models/spider.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big red spider|.5|.5|.5
+monster_spider_red_small|models/spider.mdl|1.0|1.0|1.0|general|-12.0|-12.0|0.0|12.0|12.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small red spider|.5|.5|.5
+monster_spider_yellow_large|models/spider.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big yellow spider|.5|.5|.5
+monster_spider_yellow_small|models/spider.mdl|1.0|1.0|1.0|general|-12.0|-12.0|0.0|12.0|12.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small yellow spider|.5|.5|.5
+monster_werejaguar|models/mezzoman.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Werejaguar|.5|.5|.5
+monster_werepanther|models/mezzoman.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Werepanther|.5|.5|.5
+monster_weresnowleopard|models/mezzoman.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Were leopard (PoP)|.5|.5|.5
+monster_weretiger|models/mezzoman.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Were tiger (PoP)|.5|.5|.5
+monster_yakman|models/yakman.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|104.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Yakman (PoP)|.5|.5|.5
+obj_ballista|models/ballista.mdl|1.0|1.0|1.0|general|-45.0|-45.0|0.0|45.0|45.0|60.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ballista|.5|.5|.5
+obj_barrel_exploding|models/barrel.mdl|1.0|1.0|1.0|general|-13.0|-13.0|0.0|13.0|13.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel exploding|.5|.5|.5
+obj_barrel_indestructible|models/barrel.mdl|1.0|1.0|1.0|general|-13.0|-13.0|0.0|13.0|13.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel indestructible|.5|.5|.5
+obj_barstool|models/stool.mdl|1.0|1.0|1.0|general|-10.0|-10.0|-5.0|10.0|10.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bar stool|.5|.5|.5
+obj_beefslab||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Slab o' beef|.5|.5|.5
+obj_bell|models/bellring.mdl|1.0|1.0|1.0|general|-100.0|-100.0|-210.0|100.0|100.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bell|.5|.5|.5
+obj_bonepile|models/bonepile.mdl|1.0|1.0|1.0|general|-10.0|-10.0|0.0|10.0|10.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pile o' bones|.5|.5|.5
+obj_book_closed||1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Closed book|.5|.5|.5
+obj_book_o_the_dead||1.0|1.0|1.0|general|-8.0|-8.0|-0.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Book (PoP)|.5|.5|.5
+obj_book_open||1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Open book|.5|.5|.5
+obj_cart|models/cart.mdl|1.0|1.0|1.0|general|-36.0|-32.0|-10.0|36.0|75.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cart|.5|.5|.5
+obj_catapult2|models/cattest.mdl|1.0|1.0|1.0|general|-160.0|-160.0|-0.0|160.0|160.0|160.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Catapult|.5|.5|.5
+obj_chair|models/chair.mdl|1.0|1.0|1.0|general|-10.0|-10.0|-5.0|10.0|10.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair|.5|.5|.5
+obj_chaos_orb||1.0|1.0|1.0|general|-100.0|-100.0|0.0|100.0|100.0|200.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chaos orb|.5|.5|.5
+obj_chinese_kite_lamp||1.0|1.0|1.0|general|-32.0|-32.0|-128.0|32.0|32.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Kite lamp (PoP)|.5|.5|.5
+obj_chinese_sign||1.0|1.0|1.0|general|-8.0|-8.0|-96.0|8.0|8.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sign (PoP)|.5|.5|.5
+obj_demon_statue||1.0|1.0|1.0|general|-0.0|-48.0|-0.0|96.0|48.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Demon statue (PoP)|.5|.5|.5
+obj_fence|models/fence.mdl|1.0|1.0|1.0|general|-26.0|-26.0|0.0|26.0|26.0|70.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fence|.5|.5|.5
+obj_flag|models/flag.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|160.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flag|.5|.5|.5
+obj_fountain|models/fountain.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|80.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fountain|.5|.5|.5
+obj_hedge1|models/hedge1.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|80.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|X-Mas tree|.5|.5|.5
+obj_hedge2|models/hedge2.mdl|1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Square, medium hedge|.5|.5|.5
+obj_hedge3|models/hedge3.mdl|1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tall, thin hedge|.5|.5|.5
+obj_ice||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ice|.5|.5|.5
+obj_pew||1.0|1.0|1.0|general|-16.0|-40.0|0.0|16.0|40.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pew|.5|.5|.5
+obj_plant_generic|models/plantgen.mdl|1.0|1.0|1.0|general|-10.0|-10.0|0.0|10.0|10.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Generic plant|.5|.5|.5
+obj_plant_meso|models/plantmez.mdl|1.0|1.0|1.0|general|-10.0|-10.0|0.0|10.0|10.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Meso plant|.5|.5|.5
+obj_plant_rome|models/plantrom.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|90.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Roman plant|.5|.5|.5
+obj_playerhead_assassin|models/h_ass.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Assassin head|.5|.5|.5
+obj_playerhead_crusader|models/h_cru.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crusader head|.5|.5|.5
+obj_playerhead_necromancer|models/h_nec.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Necro head|.5|.5|.5
+obj_playerhead_paladin|models/h_ass.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Paladin head|.5|.5|.5
+obj_pot3|models/pot3.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pot #3|.5|.5|.5
+obj_samurai||1.0|1.0|1.0|general|-20.0|-20.0|-0.0|20.0|20.0|80.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Samurai statue (PoP)|.5|.5|.5
+obj_seaweed|models/seaweed.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sea weed|.5|.5|.5
+obj_shiva||1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shiva (PoP)|.5|.5|.5
+obj_skeleton||1.0|1.0|1.0|general|-12.0|-12.0|-0.0|12.0|12.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skeleton (PoP)|.5|.5|.5
+obj_skeleton_throne||1.0|1.0|1.0|general|-32.0|-32.0|-0.0|32.0|32.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skeleton on throne (PoP)|.5|.5|.5
+obj_skull|models/skull.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Skull|.5|.5|.5
+obj_skull_stick2|models/skllstk2.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|2 skulls, stick|.5|.5|.5
+obj_skullstick|models/skllstk1.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|1 skull, stick|.5|.5|.5
+obj_snow_corner||1.0|1.0|1.0|general|-40.0|-56.0|-0.0|40.0|56.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snow corner (PoP)|.5|.5|.5
+obj_snow_pile||1.0|1.0|1.0|general|-24.0|-32.0|-0.0|24.0|32.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snow pile (PoP)|.5|.5|.5
+obj_snow_wall||1.0|1.0|1.0|general|-0.0|-80.0|-0.0|40.0|80.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snow wall (PoP)|.5|.5|.5
+obj_statue_angel|models/anglstat.mdl|1.0|1.0|1.0|general|-60.0|-60.0|0.0|60.0|60.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Angel|.5|.5|.5
+obj_statue_athena|models/athena.mdl|1.0|1.0|1.0|general|-30.0|-30.0|0.0|30.0|30.0|90.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Athena|.5|.5|.5
+obj_statue_caesar|models/caesar.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|90.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Caesar|.5|.5|.5
+obj_statue_dragon_lion||1.0|1.0|1.0|general|-16.0|-16.0|-0.0|16.0|16.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon statue (PoP)|.5|.5|.5
+obj_statue_king|models/king.mdl|1.0|1.0|1.0|general|-30.0|-30.0|0.0|30.0|30.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|King|.5|.5|.5
+obj_statue_lion|models/lion.mdl|1.0|1.0|1.0|general|-56.0|-14.0|0.0|56.0|14.0|60.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lion|.5|.5|.5
+obj_statue_mars|models/mars.mdl|1.0|1.0|1.0|general|-30.0|-30.0|0.0|30.0|30.0|80.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mars|.5|.5|.5
+obj_statue_mummy|models/mumstatu.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|160.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mummy|.5|.5|.5
+obj_statue_mummy_head|models/muhead.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-26.0|16.0|16.0|160.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mummy head|.5|.5|.5
+obj_statue_neptune|models/neptune.mdl|1.0|1.0|1.0|general|-30.0|-30.0|0.0|30.0|30.0|100.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Neptune|.5|.5|.5
+obj_statue_olmec|models/olmec1.mdl|1.0|1.0|1.0|general|-40.0|-40.0|0.0|40.0|40.0|130.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Olmec???|.5|.5|.5
+obj_statue_snake|models/snkstatu.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|80.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snake|.5|.5|.5
+obj_statue_snake_coil||1.0|1.0|1.0|general|-44.0|-44.0|0.0|44.0|44.0|90.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Coiling snake|.5|.5|.5
+obj_statue_tut|models/tutstatu.mdl|1.0|1.0|1.0|general|-36.0|-36.0|0.0|36.0|36.0|248.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tut|.5|.5|.5
+obj_sword|models/sword.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-8.0|16.0|16.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sword|.5|.5|.5
+obj_talking_door||1.0|1.0|1.0|general|-8.0|-8.0|-64.0|8.0|8.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Talking door (PoP)|.5|.5|.5
+obj_tombstone1|models/tombstn1.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|60.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cross tombstone|.5|.5|.5
+obj_tombstone2|models/tombstn2.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rounded tombstone|.5|.5|.5
+obj_webs|models/webs.mdl|1.0|1.0|1.0|general|-25.0|-25.0|-25.0|25.0|25.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spider web|.5|.5|.5
+plaque||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Readable plaque|.5|.5|.5
+player_sheep|models/sheep.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sheep|.5|.5|.5
+puzzle_piece||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Puzzle piece|.5|.5|.5
+puzzle_static_piece||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Static puzzle piece|.5|.5|.5
+rider_death||1.0|1.0|1.0|general|-55.0|-55.0|-24.0|55.0|55.0|100.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Death!|.5|.5|.5
+rider_famine||1.0|1.0|1.0|general|-55.0|-55.0|-24.0|55.0|55.0|100.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Famine!|.5|.5|.5
+rider_path||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rider path|.5|.5|.5
+rider_pestilence||1.0|1.0|1.0|general|-55.0|-55.0|-24.0|55.0|55.0|100.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pestilence!|.5|.5|.5
+rider_quake||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rider quake|.5|.5|.5
+rider_quake_center||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rider quake center|.5|.5|.5
+rider_trigger_multiple||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rider trigger multiple|.5|.5|.5
+rider_trigger_once||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rider trigger once|.5|.5|.5
+rider_war||1.0|1.0|1.0|general|-50.0|-50.0|-24.0|50.0|50.0|100.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|War!|.5|.5|.5
+sound_ambient||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ambient sound|.5|.5|.5
+sound_maker||1.0|1.0|1.0|general|-10.0|-10.0|-8.0|10.0|10.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggerable sound|.5|.5|.5
+target_null||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Null target|.5|.5|.5
+teleport_buddha||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Praevus teleport (PoP)|.5|.5|.5
+trap_fireball||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triggerable fireball|.5|.5|.5
+trap_lightning||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lightning|.5|.5|.5
+trap_spikeshooter_spray||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shooter|.5|.5|.5
+trigger_attack||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger on weapon fire|.5|.5|.5
+trigger_check||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Check|.5|.5|.5
+trigger_combination_assign||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Combination assign|.5|.5|.5
+trigger_control||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ballista control|.5|.5|.5
+trigger_counter_reset||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Counter reset|.5|.5|.5
+trigger_crosslevel||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cross level trigger|.5|.5|.5
+trigger_crosslevel_target||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crosslevel trigger target|.5|.5|.5
+trigger_deathtouch||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Removes whatever it touches (PoP)|.5|.5|.5
+trigger_hub_intermission||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger hub intermission (PoP)|.5|.5|.5
+trigger_interval||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Interval trigger|.5|.5|.5
+trigger_message_transfer||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Message transferer|.5|.5|.5
+trigger_no_friction||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Removes friction|.5|.5|.5
+trigger_objective||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger objective (PoP)|.5|.5|.5
+trigger_stop||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger stop (PoP)|.5|.5|.5
+weather_dust||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dusty area|.5|.5|.5
+weather_lightning_end||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|End of lightning bolt|.5|.5|.5
+weather_lightning_start||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Beginning of lighting|.5|.5|.5
+weather_rain||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rain area|.5|.5|.5
+weather_snow||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snow (PoP)|.5|.5|.5
+weather_sunbeam_end||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|End of sunbeam|.5|.5|.5
+weather_sunbeam_start||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Start of sunbeam|.5|.5|.5
+wp_weapon2||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 2|.5|.5|.5
+wp_weapon3||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 3|.5|.5|.5
+wp_weapon4_head||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 4 head|.5|.5|.5
+wp_weapon4_staff||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 4 staff|.5|.5|.5
