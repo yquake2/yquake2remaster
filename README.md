@@ -1,9 +1,22 @@
 # Yamagi Quake II Remaster
 
-<a href="https://scan.coverity.com/projects/yquake2-yquake2remaster">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/31780/badge.svg"/>
-</a>
+![Coverity Scan](https://img.shields.io/coverity/scan/31780)
+[![Top Language](https://img.shields.io/github/languages/top/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster)
+[![Code Size](https://img.shields.io/github/languages/code-size/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster)
+[![Release](https://img.shields.io/github/release/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
+[![Release Date](https://img.shields.io/github/release-date/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
+[![AUR Version](https://img.shields.io/aur/version/yquake2remaster)](https://aur.archlinux.org/packages/yquake2remaster)
+[![Downloads (total)](https://img.shields.io/github/downloads/yquake2/yquake2remaster/total)](https://github.com/yquake2/yquake2remaster/releases/latest)
+[![Downloads (latest)](https://img.shields.io/github/downloads/yquake2/yquake2remaster/latest/total.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
+[![Commits](https://img.shields.io/github/commits-since/yquake2/yquake2remaster/latest.svg)](https://github.com/yquake2/yquake2remaster/commits/master)
+[![Last Commit](https://img.shields.io/github/last-commit/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/commits/master)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/coverity.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/coverity.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win32.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win32.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win64.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win_msvc.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win_msvc.yml)
 
 This is an experimental fork of Yamagi Quake II with ongoing work to add
 support for Quake II Enhanced aka Q2 Remaster(ed). This enhanced version
