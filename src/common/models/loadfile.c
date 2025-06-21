@@ -510,6 +510,12 @@ Mod_LoadAndStoreModel(const char *name)
 	{
 		filesize = FS_LoadFile(name, &buffer);
 	}
+	else if (!strcmp(ext, "spr"))
+	{
+		Com_DPrintf("%s: %s is unsupported, and should be converted to sp2.\n",
+			__func__, name);
+		filesize = -1;
+	}
 	else if (!strcmp(ext, "png") || !strcmp(ext, "tga"))
 	{
 		int width, height, bitsPerPixel;
@@ -685,6 +691,7 @@ Mod_LoadFile(const char *name, void **buffer)
 		!strcmp(ext, "mdl") ||
 		/* sprites */
 		!strcmp(ext, "sp2") ||
+		!strcmp(ext, "spr") ||
 		!strcmp(ext, "png") ||
 		!strcmp(ext, "tga"))
 	{

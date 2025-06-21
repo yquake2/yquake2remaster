@@ -70,6 +70,7 @@ Sprites support:
 
 | Format | Original Game  | Comments                               |
 | ------ | -------------- | -------------------------------------- |
+| spr    | Quake          | Unfinished                             |
 | sp2    | Quake 2        |                                        |
 | atd    | Anachronox     | Convert first frame to surface texture |
 | png    |                | Convert to sp2                         |
