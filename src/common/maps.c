@@ -802,8 +802,8 @@ Mod_Load2QBSP_IBSP29_LEAFS(byte *outbuf, dheader_t *outheader,
 		/* make unsigned long from signed short */
 		out->firstleafface = LittleShort(in->firstleafface) & 0xFFFF;
 		out->numleaffaces = LittleShort(in->numleaffaces) & 0xFFFF;
-		out->firstleafbrush = 0;
-		out->numleafbrushes = 0;
+		out->firstleafbrush = i;
+		out->numleafbrushes = 1;
 
 		out++;
 		in++;
@@ -1730,15 +1730,24 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if (detected_maptype == map_quake1)
 	{
+		int size, num_texinfo, i, num_leafs;
+		dqbrushside_t *out_brushsides;
 		xtexinfo_t *out_texinfo;
-		int size, count, i;
+		dbrush_t *out_brushes;
+		int *out_leafbrushes;
+		dqleaf_t *out_leafs;
 		byte *out;
 
 		/* fix textures path */
-		count = outheader->lumps[LUMP_TEXINFO].filelen / sizeof(xtexinfo_t);
+		num_texinfo = outheader->lumps[LUMP_TEXINFO].filelen / sizeof(xtexinfo_t);
 		out_texinfo = (xtexinfo_t *)(outbuf + outheader->lumps[LUMP_TEXINFO].fileofs);
+		num_leafs = outheader->lumps[LUMP_LEAFS].filelen / sizeof(dqleaf_t);
+		out_leafs = (dqleaf_t *)(outbuf + outheader->lumps[LUMP_LEAFS].fileofs);
+		out_brushes = (dbrush_t *)(outbuf + outheader->lumps[LUMP_BRUSHES].fileofs);
+		out_brushsides = (dqbrushside_t *)(outbuf + outheader->lumps[LUMP_BRUSHSIDES].fileofs);
+		out_leafbrushes = (int *)(outbuf + outheader->lumps[LUMP_LEAFBRUSHES].fileofs);
 
-		for (i = 0; i < count; i++)
+		for (i = 0; i < num_texinfo; i++)
 		{
 			char texturename[80];
 
@@ -1761,18 +1770,27 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		out = (byte *)(outbuf + outheader->lumps[LUMP_AREAPORTALS].fileofs);
 		memset(out, 0, size);
 
-		/* unfinished quake 1 convert code */
-		size = outheader->lumps[LUMP_LEAFBRUSHES].filelen;
-		out = (byte *)(outbuf + outheader->lumps[LUMP_LEAFBRUSHES].fileofs);
-		memset(out, 0, size);
+		/* Convert each Quake 1 leaf to a default leafbrush (one brush per leaf) */
+		for (i = 0; i < num_leafs; i++)
+		{
+			/* Each leaf references its own brush */
+			out_leafbrushes[i] = i;
+		}
 
-		size = outheader->lumps[LUMP_BRUSHES].filelen;
-		out = (byte *)(outbuf + outheader->lumps[LUMP_BRUSHES].fileofs);
-		memset(out, 0, size);
+		/* Quake 1 leafs does not have plane and texinfo, use zero for now */
+		for (i = 0; i < num_leafs; i++)
+		{
+			out_brushsides[i].planenum = 0;
+			out_brushsides[i].texinfo = 0;
+		}
 
-		size = outheader->lumps[LUMP_BRUSHSIDES].filelen;
-		out = (byte *)(outbuf + outheader->lumps[LUMP_BRUSHSIDES].fileofs);
-		memset(out, 0, size);
+		/* Brushes: convert each Quake 1 leaf to a default brush */
+		for (i = 0; i < num_leafs; i++)
+		{
+			out_brushes[i].firstside = i; /* Each brush starts at its own brushside */
+			out_brushes[i].numsides = 1;  /* One side per brush (per leaf) */
+			out_brushes[i].contents = out_leafs[i].contents;
+		}
 	}
 
 	*out_len = result_size;
