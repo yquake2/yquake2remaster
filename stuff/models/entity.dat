@@ -188,6 +188,7 @@ weapon_phalanx|models/weapons/g_shotx/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-
 // Quake 2 Rogue
 ammo_disruptor|models/ammo/am_disr/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Disruptor ammo|0.3|0.3|1.0
 ammo_flechettes|models/ammo/am_flechette/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ETF Rifle ammo|0.3|0.3|1.0
+ammo_nails|models/ammo/am_flechette/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ETF Rifle ammo|0.3|0.3|1.0
 ammo_nuke|models/weapons/g_nuke/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A-M Bomb (usable nuke); DM only|0.3|0.3|1.0
 ammo_prox|models/ammo/am_prox/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Prox Launcher ammo|0.3|0.3|1.0
 ammo_tesla|models/ammo/am_tesl/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Teslas|0.3|0.3|1.0
@@ -215,6 +216,7 @@ key_nuke|models/weapons/g_nuke/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16
 misc_nuke_core|models/objects/core/tris.md2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nuke Core (must be targeted to appear)|1.0|0.5|0.0
 monster_carrier|models/monsters/carrier/tris.md2|1.0|1.0|1.0|general|-56.0|-56.0|-44.0|56.0|56.0|44.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Carrier|1.0|0.5|0.0
 monster_daedalus|models/monsters/hover/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Daedalus|1.0|0.5|0.0
+monster_kamikaze|models/monsters/flyer/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flyer (kamikaze)|1.0|0.5|0.0
 monster_medic_commander|models/monsters/medic/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Medic Commander|1.0|0.5|0.0
 monster_stalker|models/monsters/stalker/tris.md2|1.0|1.0|1.0|general|-28.0|-28.0|-18.0|28.0|28.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalker|1.0|0.5|0.0
 monster_turret|models/monsters/turret/tris.md2|1.0|1.0|1.0|general|-12.0|-12.0|-12.0|12.0|12.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Turret Monster|1.0|0.5|0.0
@@ -231,6 +233,7 @@ turret_invisible_brain||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|
 weapon_chainfist|models/weapons/g_chainf/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chainfist|1.0|0.3|0.3
 weapon_disintegrator|models/weapons/g_dist/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Disruptor|1.0|0.3|0.3
 weapon_etf_rifle|models/weapons/g_etf_rifle/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ETF Rifle|1.0|0.3|0.3
+weapon_heatbeam|models/weapons/g_beamer/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Beam|1.0|0.3|0.3
 weapon_plasmabeam|models/weapons/g_beamer/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Beam|1.0|0.3|0.3
 weapon_proxlauncher|models/weapons/g_plaunch/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Prox Launcher|1.0|0.3|0.3
 
@@ -261,10 +264,12 @@ weapon_sniperrifle|models/weapons/g_sniper/tris.md2|1.0|1.0|1.0|general|-16|-16|
 weapon_soniccannon|models/weapons/g_sonic/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
 
 // Quake 2 ReRelease
+dynamic_light||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dynamic KEX light|1.0|0.5|0.0
 func_animation||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Similar to func_wall, but triggering it will toggle animation state rather than going on/off.|0.0|0.5|0.8
 func_eye||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Camera-like brush model|0.0|0.5|0.8
 info_ctf_teleport_destination||1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.5|0.5|0.5
 info_nav_lock||1.0|1.0|1.0|general|-16|-16|0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flip locked flag on targeted doors|1.0|1.0|0.0
+info_landmark||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Landmark - connect one level to another with a seamless transition|.5|.5|.5
 info_world_text||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Info_World_Text|1.0|1.0|0.0
 item_invisibility||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
 item_legacy_head||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
@@ -274,6 +279,7 @@ key_yellow_key|models/items/n64/yellow_key/tris.md2|1.0|1.0|1.0|general|-16.0|-1
 misc_fireball||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
 misc_flare||1.0|1.0|1.0|general|-32|-32|-32|32|32|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Light Flare|1.0|1.0|0.0
 misc_hologram||1.0|1.0|1.0|general|-16|-16|0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Ship Hologram|1.0|1.0|0.0
+misc_lavaball||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Lavaball|.5|.5|.5
 misc_model||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
 misc_player_mannequin|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Mannequin|1.0|0.5|1.0
 monster_arachnid|models/monsters/arachnid/tris.md2|1.0|1.0|1.0|general|-48.0|-48.0|-20.0|48.0|48.0|48.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Arachnid (PSX)|1.0|0.5|0.0
@@ -588,6 +594,7 @@ weapon_crowbar|models/weapons/g_crowbar/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0
 weapon_flamethrower|models/pu_icon/flame_shell/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flame thrower (no clip) -- Requires ammo_flametank.|0.3|0.3|1.0
 weapon_heavymachinegun|models/weapons/g_hmg/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Heavy submachine gun (clip size: 30) -- Requires ammo_308, can be equipped with Cooling Sleeves (hmg_mod_cooling).|0.3|0.3|1.0
 weapon_pistol|models/weapons/g_pistol/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Standard pistol (clip size: 10) -- Requires ammo_bullets or ammo_cylinder, can be equipped with magnum mod (pistol_mod_damage), rate of fire (pistol_mod_rof), reload (pistol_mod_reload).|0.3|0.3|1.0
+weapon_spistol|models/weapons/silencer_mdx/pistol.mdx|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pistol with silencer (clip size: 10) -- Requires ammo_bullets or ammo_cylinder can be equipped with magnum mod (pistol_mod_damage), rate of fire (pistol_mod_rof), reload (pistol_mod_reload). Silencer lasts 20 shots before breaking up.|0.3|0.3|1.0
 weapon_tommygun|models/weapons/g_tomgun/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thompson submachine gun (clip size: 50) -- Requires ammo_bullets or ammo_cylinder.|0.3|0.3|1.0
 
 // Heretic 2
@@ -705,6 +712,7 @@ monster_high_priestess|models/monsters/highpriestess/tris.fm|1.0|1.0|1.0|general
 monster_imp|models/monsters/imp/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Imp (unfinished)|1.0|0.5|0.0
 monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-50.0|24.0|24.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|1.0|0.5|0.0
 monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|general|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0
+monster_nothing||1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nothing|1.0|0.5|0.0
 monster_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ogle|1.0|0.5|0.0
 monster_palace_plague_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0
 monster_palace_plague_guard_invisible|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0
