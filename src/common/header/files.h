@@ -1301,10 +1301,7 @@ typedef struct
 {
 	float mins[3], maxs[3];
 	float origin[3];           /* for sounds or lights */
-	int headnode;              /* index of first BSP node */
-	int node_id1;              /* index of the first Clip node */
-	int node_id2;              /* index of the second Clip node */
-	int node_id3;              /*  usually zero */
+	int headnode[4];           /* 4 for backward compat, only 3 hulls exist */
 	int numleafs;              /* number of BSP leaves */
 	int firstface, numfaces;   /* submodels just draw faces without
 							      walking the bsp tree */
@@ -1314,7 +1311,7 @@ typedef struct
 typedef struct
 {
 	float mins[3], maxs[3];
-	float origin[3];           /* unused ? */
+	float origin[3];           /* for sounds or lights */
 	int headnode[8];           /* hexen2 only uses 6 */
 	int visleafs;              /* not including the solid leaf 0 */
 	int firstface, numfaces;   /* submodels just draw faces without

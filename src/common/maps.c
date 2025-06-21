@@ -1058,7 +1058,40 @@ Mod_Load2QBSP_IBSP29_MODELS(byte *outbuf, dheader_t *outheader,
 			out->origin[j] = LittleFloat(in->origin[j]);
 		}
 
-		out->headnode = LittleLong(in->headnode);
+		out->headnode = LittleLong(in->headnode[0]);
+		out->firstface = LittleLong(in->firstface);
+		out->numfaces = LittleLong(in->numfaces);
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_IBSP29_H2MODELS(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	size_t i, count;
+	dh2model_t *in;
+	dmodel_t *out;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dh2model_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dmodel_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleFloat(in->mins[j]);
+			out->maxs[j] = LittleFloat(in->maxs[j]);
+			out->origin[j] = LittleFloat(in->origin[j]);
+		}
+
+		out->headnode = LittleLong(in->headnode[0]);
 		out->firstface = LittleLong(in->firstface);
 		out->numfaces = LittleLong(in->numfaces);
 
@@ -1228,7 +1261,7 @@ static const rule_t idh2bsplumps[HEADER_LUMPS] = {
 	{LUMP_LEAFFACES, sizeof(short), Mod_Load2QBSP_IBSP_LEAFFACES},
 	{LUMP_EDGES, sizeof(dedge_t), Mod_Load2QBSP_IBSP_EDGES},
 	{LUMP_SURFEDGES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},
-	{LUMP_MODELS, sizeof(dh2model_t), Mod_Load2QBSP_IBSP29_MODELS},
+	{LUMP_MODELS, sizeof(dh2model_t), Mod_Load2QBSP_IBSP29_H2MODELS},
 };
 
 /* Quake 2 based games */
@@ -1455,8 +1488,8 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 			{
 				int headnode;
 
-				/* check to incorrect first node */
-				headnode = LittleLong(in_models[i].headnode);
+				/* check to incorrect nodes */
+				headnode = LittleLong(in_models[i].headnode[0]);
 				if (headnode >= num_nodes)
 				{
 					hexen2map = true;

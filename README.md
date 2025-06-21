@@ -80,7 +80,7 @@ Maps support:
 
 | Format | Version | Game                                       |
 | ------ | ------- | ------------------------------------------ |
-| IBSP   | 29      | Quake 1 (unfinished)                       |
+| IBSP   | 29      | Quake 1 / Hexen II (unfinished)            |
 | IBSP   | 38      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
 | IBSP   | 41      | Daikatana / SIN                            |
 | RBSP   | 1       | SIN                                        |
