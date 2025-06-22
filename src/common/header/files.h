@@ -516,6 +516,25 @@ typedef struct
 	dsprframe_t frames[1]; /* variable sized */
 } dsprite_t;
 
+/* Quake 1 Sprite */
+
+#define IDQ1SPRITEHEADER (('P' << 24) + ('S' << 16) + ('D' << 8) + 'I') /* little-endian "IDSP" */
+#define IDQ1SPRITE_VERSION 1
+
+typedef struct
+{
+	int ident;
+	int version;
+
+	int type;                   /* See below */
+	float radius;               /* Bounding Radius */
+	int maxwidth;               /* Width of the largest frame */
+	int maxheight;              /* Height of the largest frame */
+	int nframes;                /* Number of frames */
+	float beamlength;
+	int synchtype;              /* 0 = synchron 1 = random */
+} dq1sprite_t;
+
 /* .WAL texture file format */
 
 #define MIPLEVELS 4

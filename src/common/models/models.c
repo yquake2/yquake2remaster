@@ -1783,7 +1783,8 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen)
 		}
 		else
 		{
-			snprintf(frame->name, sizeof(frame->name), "frame%d", i);
+			/* limit frame ids to 2**16 */
+			snprintf(frame->name, sizeof(frame->name), "frame%d", i % 0xFFFF);
 		}
 
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,
@@ -3449,6 +3450,94 @@ Mod_LoadSprite_SP2(const char *mod_name, const void *buffer, int modfilelen)
 
 /*
 =================
+Mod_LoadSprite_SPR
+
+support for .spr sprites
+=================
+*/
+static void *
+Mod_LoadSprite_SPR(const char *mod_name, const void *buffer, int modfilelen)
+{
+	const dq1sprite_t pinsprite;
+	const byte *curr_pos;
+	dsprite_t *sprout;
+	void *extradata;
+	int i, size;
+
+	if (modfilelen < sizeof(pinsprite))
+	{
+		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
+				__func__, mod_name, modfilelen, sizeof(pinsprite));
+		return NULL;
+	}
+
+	for (i = 0; i < sizeof(pinsprite) / sizeof(int); i++)
+	{
+		((int *)&pinsprite)[i] = LittleLong(((int *)buffer)[i]);
+	}
+
+	if (pinsprite.version != IDQ1SPRITE_VERSION)
+	{
+		Com_Printf("%s: %s has wrong version number (%i should be %i)\n",
+				__func__, mod_name, pinsprite.version, ALIAS_VERSION);
+		return NULL;
+	}
+
+	size = sizeof(dsprite_t) + sizeof(dsprframe_t) * (pinsprite.nframes - 1);
+	extradata = Hunk_Begin(size);
+	sprout = Hunk_Alloc(size);
+
+	sprout->ident = IDSPRITEHEADER;
+	sprout->version = SPRITE_VERSION;
+	sprout->numframes = pinsprite.nframes;
+
+	curr_pos = (byte*)buffer + sizeof(dq1sprite_t);
+	for (i = 0; i < pinsprite.nframes; i++)
+	{
+		int skin_type;
+
+		/* skip type / int */
+		/* 0 = simple, !0 = group */
+		/* this program can't read models composed of group frames! */
+		skin_type = LittleLong(((int *)curr_pos)[0]);
+		if (skin_type)
+		{
+			Com_Printf("%s: model %s has unsupported skin type %d\n",
+				__func__, mod_name, skin_type);
+			return NULL;
+		}
+
+		snprintf(sprout->frames[i].name, sizeof(sprout->frames[i].name),
+			"%s#%d.lmp", mod_name, i);
+		sprout->frames[i].origin_x = LittleLong(((int *)curr_pos)[1]);
+		sprout->frames[i].origin_y = LittleLong(((int *)curr_pos)[2]);
+		sprout->frames[i].width = LittleLong(((int *)curr_pos)[3]);
+		sprout->frames[i].height = LittleLong(((int *)curr_pos)[4]);
+
+		curr_pos += sizeof(int) * 5 + (
+			sprout->frames[i].width * sprout->frames[i].height
+		);
+
+		if (curr_pos > ((byte *)buffer + modfilelen))
+		{
+			Com_Printf("%s: model %s is too short\n",
+				__func__, mod_name);
+			return NULL;
+		}
+	}
+
+	for (i = 0; i < sprout->numframes; i++)
+	{
+		Com_DPrintf("%s: %s #%d: Should load internal '%s'\n",
+			__func__, mod_name, i,
+			sprout->frames[i].name);
+	}
+
+	return extradata;
+}
+
+/*
+=================
 Mod_LoadModelFile
 =================
 */
@@ -3522,7 +3611,221 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 		case IDSPRITEHEADER:
 			extradata = Mod_LoadSprite_SP2(mod_name, buffer, modfilelen);
 			break;
+
+		case IDQ1SPRITEHEADER:
+			extradata = Mod_LoadSprite_SPR(mod_name, buffer, modfilelen);
+			break;
 	}
 
 	return extradata;
+}
+
+static byte *
+Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modfilelen,
+	int *width, int *height)
+{
+	const dq1sprite_t pinsprite;
+	const byte *curr_pos;
+	int i, size;
+	byte *pic;
+
+	if (modfilelen < sizeof(pinsprite))
+	{
+		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
+				__func__, mod_name, modfilelen, sizeof(pinsprite));
+		return NULL;
+	}
+
+	for (i = 0; i < sizeof(pinsprite) / sizeof(int); i++)
+	{
+		((int *)&pinsprite)[i] = LittleLong(((int *)buffer)[i]);
+	}
+
+	if (pinsprite.version != IDQ1SPRITE_VERSION)
+	{
+		Com_Printf("%s: %s has wrong version number (%i should be %i)\n",
+				__func__, mod_name, pinsprite.version, ALIAS_VERSION);
+		return NULL;
+	}
+
+	if (pinsprite.nframes <= texture_index)
+	{
+		Com_Printf("%s: Sprite %s has %d only textures\n",
+			__func__, mod_name, pinsprite.nframes);
+		return NULL;
+	}
+
+	curr_pos = (byte*)buffer + sizeof(dq1sprite_t);
+	for (i = 0; i < pinsprite.nframes; i++)
+	{
+		int skin_type;
+
+		/* skip type / int */
+		/* 0 = simple, !0 = group */
+		/* this program can't read models composed of group frames! */
+		skin_type = LittleLong(((int *)curr_pos)[0]);
+		if (skin_type)
+		{
+			Com_Printf("%s: model %s has unsupported skin type %d\n",
+				__func__, mod_name, skin_type);
+			return NULL;
+		}
+
+		*width = LittleLong(((int *)curr_pos)[3]);
+		*height = LittleLong(((int *)curr_pos)[4]);
+		size = (*width) * (*height);
+
+		if (i == texture_index)
+		{
+			curr_pos += sizeof(int) * 5;
+
+			pic = malloc(size);
+			memcpy(pic, curr_pos, size);
+
+			Com_DPrintf("%s Loaded embeded %s#%d image %dx%d\n",
+				__func__, mod_name, texture_index, *width, *height);
+
+			return pic;
+		}
+
+		curr_pos += sizeof(int) * 5 + size;
+
+		if (curr_pos > ((byte *)buffer + modfilelen))
+		{
+			Com_Printf("%s: sprite %s is too short\n",
+				__func__, mod_name);
+			return NULL;
+		}
+	}
+	return NULL;
+}
+
+static byte *
+Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
+	int *width, int *height)
+{
+	int miptex_offset, miptex_size, texture_offset,
+		image_offset, size;
+	byte *pic;
+	dq1mipheader_t *miptextures;
+	dq1miptex_t *texture;
+
+	miptex_offset = LittleLong(
+		((int *)raw)[LUMP_BSP29_MIPTEX * 2 + 1]); /* text info lump pos */
+	miptex_size = LittleLong(
+		((int *)raw)[LUMP_BSP29_MIPTEX * 2 + 2]); /* text info lump size */
+
+	if (miptex_offset >= len)
+	{
+		Com_Printf("%s: Map %s has broken miptex lump\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	miptextures = (dq1mipheader_t *)(raw + miptex_offset);
+
+	if (miptextures->numtex < texture_index)
+	{
+		Com_Printf("%s: Map %s has %d only textures\n",
+			__func__, mod_name, miptextures->numtex);
+		return NULL;
+	}
+
+	texture_offset = LittleLong(miptextures->offset[texture_index]);
+	if (texture_offset < 0)
+	{
+		Com_Printf("%s: Map %s image is not attached\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	if (texture_offset > miptex_size)
+	{
+		Com_Printf("%s: Map %s has wrong texture position\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	texture = (dq1miptex_t *)(raw + miptex_offset + texture_offset);
+	*width = LittleLong(texture->width);
+	*height = LittleLong(texture->height);
+	image_offset = LittleLong(texture->offset1);
+	size = (*width) * (*height);
+
+	if ((image_offset < 0) ||
+		(size < 0) ||
+		(image_offset > miptex_size) ||
+		((image_offset + size) > miptex_size))
+	{
+		Com_Printf("%s: Map %s has wrong texture image position\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	pic = malloc(size);
+	memcpy(pic, (raw + miptex_offset + texture_offset + image_offset), size);
+
+	Com_DPrintf("%s Loaded embeded %s image %dx%d\n",
+		__func__, texture->name, *width, *height);
+
+	return pic;
+}
+
+byte *
+Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height)
+{
+	char mainname[MAX_QPATH], texture_index[MAX_QPATH];
+	byte *pic, *raw;
+	char *mainfile;
+	size_t len;
+
+	mainfile = strstr(mod_name, ".bsp#");
+
+	/* Container is not BSP */
+	if (!mainfile)
+	{
+		mainfile = strstr(mod_name, ".spr#");
+	}
+
+	/* Unknow container */
+	if (!mainfile)
+	{
+		return NULL;
+	}
+
+	/* get bsp file path */
+	len = Q_min(mainfile - mod_name + 4, sizeof(mainname) - 1);
+	memcpy(mainname, mod_name, len);
+	mainname[len] = 0;
+
+	/* get texture id */
+	Q_strlcpy(texture_index, mod_name + len + 1, sizeof(texture_index));
+	/* remove ext */
+	texture_index[strlen(texture_index) - 4] = 0;
+
+	/* load the file */
+	len = FS_LoadFile(mainname, (void **)&raw);
+
+	if (!raw || len <= 0)
+	{
+		/* no such file */
+		return NULL;
+	}
+
+	switch (LittleLong(*(unsigned *)raw))
+	{
+		case BSPQ1VERSION:
+			pic = Mod_LoadBSPImage(mainname, strtol(texture_index, (char **)NULL, 10),
+				raw, len, width, height);
+			break;
+		case IDQ1SPRITEHEADER:
+			pic = Mod_LoadSPRImage(mainname, strtol(texture_index, (char **)NULL, 10),
+				raw, len, width, height);
+			break;
+		default:
+			pic = NULL;
+	}
+
+	FS_FreeFile(raw);
+	return pic;
 }

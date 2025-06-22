@@ -1373,7 +1373,8 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 		}
 		else
 		{
-			snprintf(frame->name, sizeof(frame->name), "frame%d", i);
+			/* limit frame ids to 2**16 */
+			snprintf(frame->name, sizeof(frame->name), "frame%d", i % 0xFFFF);
 		}
 
 		PrepareFrameVertex((md5file->skelFrames + i)->vertexArray,

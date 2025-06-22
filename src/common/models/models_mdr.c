@@ -383,7 +383,8 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 		}
 		else
 		{
-			snprintf(frame->name, sizeof(frame->name), "frame%d", i);
+			/* limit frame ids to 2**16 */
+			snprintf(frame->name, sizeof(frame->name), "frame%d", i % 0xFFFF);
 		}
 
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,

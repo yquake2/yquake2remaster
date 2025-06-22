@@ -506,15 +506,9 @@ Mod_LoadAndStoreModel(const char *name)
 	memcpy(namewe, name, len);
 	namewe[len] = 0;
 
-	if (!strcmp(ext, "sp2"))
+	if (!strcmp(ext, "sp2") || !strcmp(ext, "spr"))
 	{
 		filesize = FS_LoadFile(name, &buffer);
-	}
-	else if (!strcmp(ext, "spr"))
-	{
-		Com_DPrintf("%s: %s is unsupported, and should be converted to sp2.\n",
-			__func__, name);
-		filesize = -1;
 	}
 	else if (!strcmp(ext, "png") || !strcmp(ext, "tga"))
 	{

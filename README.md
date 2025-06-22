@@ -68,13 +68,13 @@ Texture support:
 
 Sprites support:
 
-| Format | Original Game  | Comments                               |
-| ------ | -------------- | -------------------------------------- |
-| spr    | Quake          | Unfinished                             |
-| sp2    | Quake 2        |                                        |
-| atd    | Anachronox     | Convert first frame to surface texture |
-| png    |                | Convert to sp2                         |
-| tga    | ReRelease      | Convert to sp2                         |
+| Format | Original Game  | Comments                                       |
+| ------ | -------------- | ---------------------------------------------- |
+| spr    | Quake          | Unsupported grouped textures, converted to sp2 |
+| sp2    | Quake 2        |                                                |
+| atd    | Anachronox     | Convert first frame to surface texture         |
+| png    |                | Convert to sp2                                 |
+| tga    | ReRelease      | Convert to sp2                                 |
 
 Maps support:
 
