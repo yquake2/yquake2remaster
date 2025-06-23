@@ -51,8 +51,8 @@ void
 LocalizationInit(void)
 {
 	byte *raw = NULL;
-	char *buf_local = NULL, *buf_level = NULL;
-	int len_local, len_level, curr_pos;
+	char *buf_local = NULL, *buf_level = NULL, *buf_strings = NULL;
+	int len_local, len_level, len_strings, curr_pos;
 	char loc_name[MAX_QPATH];
 
 	localmessages = NULL;
@@ -76,6 +76,16 @@ LocalizationInit(void)
 		buf_level = malloc(len_level + 1);
 		memcpy(buf_level, raw, len_level);
 		buf_level[len_level] = 0;
+		gi.FreeFile(raw);
+	}
+
+	/* load the hexen 2 messages file */
+	len_strings = gi.LoadFile("Strings.txt", (void **)&raw);
+	if (len_strings > 1)
+	{
+		buf_strings = malloc(len_strings + 1);
+		memcpy(buf_strings, raw, len_strings);
+		buf_strings[len_strings] = 0;
 		gi.FreeFile(raw);
 	}
 
@@ -125,6 +135,33 @@ LocalizationInit(void)
 			}
 			curr += linesize;
 			if (curr >= (buf_level + len_level))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+	}
+
+	/* hexen 2 lines count */
+	if (buf_strings)
+	{
+		char *curr;
+
+		/* get lines count */
+		curr = buf_strings;
+		while(*curr)
+		{
+			size_t linesize = 0;
+
+			linesize = strcspn(curr, "\n");
+			/* skip lines with both endline codes */
+			if (*curr)
+			{
+				nlocalmessages ++;
+			}
+			curr += linesize;
+			if (curr >= (buf_strings + len_strings))
 			{
 				break;
 			}
@@ -328,6 +365,62 @@ LocalizationInit(void)
 		}
 
 		free(buf_level);
+	}
+
+	/* hexen 2 translate load */
+	if (buf_strings)
+	{
+		char *curr;
+		int i;
+
+		curr = buf_strings;
+		i = 1;
+		while(*curr)
+		{
+			char *currend;
+			size_t linesize = 0;
+
+			linesize = strcspn(curr, "\n");
+			curr[linesize] = 0;
+
+			/* remove caret back */
+			if (curr[linesize - 1] == '\r')
+			{
+				curr[linesize - 1] = 0;
+			}
+
+			/* replace @ in message with new line */
+			currend = curr;
+			while(*currend)
+			{
+				if (*currend == '@')
+				{
+					*currend = '\n';
+				}
+
+				currend++;
+			}
+
+			localmessages[curr_pos].key = malloc(6);
+			snprintf(localmessages[curr_pos].key, 5, "%d", i);
+			localmessages[curr_pos].value = malloc(strlen(curr) + 1);
+			strcpy(localmessages[curr_pos].value, curr);
+			/* Some Heretic message could have no sound effects */
+			localmessages[curr_pos].sound = NULL;
+
+			curr_pos ++;
+			i ++;
+
+			curr += linesize;
+			if (curr >= (buf_strings + len_strings))
+			{
+				break;
+			}
+			/* skip our endline */
+			curr++;
+		}
+
+		free(buf_strings);
 	}
 
 	/* save last used position */
