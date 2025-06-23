@@ -632,10 +632,12 @@ AI_CreateNodesForEntities(void)
 		}
 
 		//drop a new node
-		if( node == INVALID )
+		if (node == INVALID)
+		{
 			node = AI_AddNode_ItemNode( ent );
+		}
 
-		if( node != INVALID )
+		if (node != INVALID)
 		{
 			nav.items[nav.num_items].node = node;
 			nav.items[nav.num_items].ent = ent;
@@ -652,34 +654,61 @@ AI_CreateNodesForEntities(void)
 //==========================================
 qboolean AI_LoadPLKFile( char *mapname )
 {
+	char filename[MAX_OSPATH];
+	int version;
 	FILE *pIn;
-	int			i;
-	char		filename[MAX_OSPATH];
-	int			version;
+
+	nav.num_nodes = 0;
 
 	Com_sprintf (filename, sizeof(filename), "%s/%s/%s.%s",
 		gi.Gamedir(), AI_NODES_FOLDER, mapname, NAV_FILE_EXTENSION);
 
 	pIn = fopen( filename, "rb" );
-	if( pIn  == NULL )
-		return false;
-
-	// check version
-	fread( &version, sizeof(int), 1, pIn);
-
-	if( version != NAV_FILE_VERSION )
+	if (pIn  == NULL)
 	{
+		return false;
+	}
+
+	/* check version */
+	if (fread(&version, sizeof(int), 1, pIn) != 1)
+	{
+		Com_Printf("%s: broken navigation %s file\n", __func__, filename);
+		nav.num_nodes = 0;
 		fclose(pIn);
 		return false;
 	}
 
-	fread( &nav.num_nodes, sizeof(int), 1, pIn);
+	if (version != NAV_FILE_VERSION)
+	{
+		Com_Printf("%s: incorrect navigation %s file version\n", __func__, filename);
+		nav.num_nodes = 0;
+		fclose(pIn);
+		return false;
+	}
 
-	for (i=0; i<nav.num_nodes; i++)
-		fread( &nodes[i], sizeof(nav_node_t), 1, pIn );
+	if (fread(&nav.num_nodes, sizeof(int), 1, pIn) != 1)
+	{
+		Com_Printf("%s: broken navigation %s file size\n", __func__, filename);
+		nav.num_nodes = 0;
+		fclose(pIn);
+		return false;
+	}
 
-	for(i=0; i<nav.num_nodes;i++)
-		fread( &pLinks[i], sizeof(nav_plink_t), 1, pIn );
+	if (fread(nodes, sizeof(nav_node_t), nav.num_nodes, pIn) != nav.num_nodes)
+	{
+		Com_Printf("%s: broken navigation %s file nodes\n", __func__, filename);
+		nav.num_nodes = 0;
+		fclose(pIn);
+		return false;
+	}
+
+	if (fread(pLinks, sizeof(nav_plink_t), nav.num_nodes, pIn) != nav.num_nodes)
+	{
+		Com_Printf("%s: broken navigation %s file links\n", __func__, filename);
+		nav.num_nodes = 0;
+		fclose(pIn);
+		return false;
+	}
 
 	fclose(pIn);
 

@@ -205,9 +205,9 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: broken fire effect for Guardian.
 * [ ] ReRelease: fix invisiable entities in basicsjam1_ziutek,
 * [ ] ReRelease: make lightmap textures dynamic n64jam_palmlix,
-* [ ] ReRelease: support textures/*/*.mat load texture effects,
-* [ ] ReRelease: support textures/*/*_glow.png load,
-* [ ] ReRelease: support tactile/*/*.bnvib/.wav feedback load,
+* [ ] ReRelease: support `textures/*/*.mat load` texture effects,
+* [ ] ReRelease: support `textures/*/*_glow.png` load,
+* [ ] ReRelease: support `tactile/*/*.bnvib/.wav` feedback load,
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] ReRelease: fully implement `dynamic_light`,
