@@ -47,10 +47,27 @@ LocalizationSort(const void *p1, const void *p2)
 	return Q_stricmp(msg1->key, msg2->key);
 }
 
+static char *
+LocalizationFileRead(const char *filename, int *len)
+{
+	byte *raw = NULL;
+	char *buf = NULL;
+
+	*len = gi.LoadFile(filename, (void **)&raw);
+	if (*len > 1)
+	{
+		buf = malloc(*len + 1);
+		memcpy(buf, raw, *len);
+		buf[*len] = 0;
+		gi.FreeFile(raw);
+	}
+
+	return buf;
+}
+
 void
 LocalizationInit(void)
 {
-	byte *raw = NULL;
 	char *buf_local = NULL, *buf_level = NULL, *buf_strings = NULL;
 	int len_local, len_level, len_strings, curr_pos;
 	char loc_name[MAX_QPATH];
@@ -58,36 +75,13 @@ LocalizationInit(void)
 	localmessages = NULL;
 	nlocalmessages = 0;
 
-	snprintf(loc_name, sizeof(loc_name) - 1, "localization/loc_%s.txt", g_language->string);
 	/* load the localization file */
-	len_local = gi.LoadFile(loc_name, (void **)&raw);
-	if (len_local > 1)
-	{
-		buf_local = malloc(len_local + 1);
-		memcpy(buf_local, raw, len_local);
-		buf_local[len_local] = 0;
-		gi.FreeFile(raw);
-	}
-
+	snprintf(loc_name, sizeof(loc_name) - 1, "localization/loc_%s.txt", g_language->string);
+	buf_local = LocalizationFileRead(loc_name, &len_local);
 	/* load the heretic 2 messages file */
-	len_level = gi.LoadFile("levelmsg.txt", (void **)&raw);
-	if (len_level > 1)
-	{
-		buf_level = malloc(len_level + 1);
-		memcpy(buf_level, raw, len_level);
-		buf_level[len_level] = 0;
-		gi.FreeFile(raw);
-	}
-
+	buf_level = LocalizationFileRead("levelmsg.txt", &len_level);
 	/* load the hexen 2 messages file */
-	len_strings = gi.LoadFile("Strings.txt", (void **)&raw);
-	if (len_strings > 1)
-	{
-		buf_strings = malloc(len_strings + 1);
-		memcpy(buf_strings, raw, len_strings);
-		buf_strings[len_strings] = 0;
-		gi.FreeFile(raw);
-	}
+	buf_strings = LocalizationFileRead("Strings.txt", &len_strings);
 
 	/* localization lines count */
 	if (buf_local)
@@ -510,7 +504,7 @@ LocalizationMessage(const char *message, int *sound_index)
 	}
 
 	if ((message[0] == '$') || /* ReRelease */
-		(strspn(message, "1234567890") == strlen(message))) /* Heretic 2 */
+		(strspn(message, "1234567890") == strlen(message))) /* Hexen 2 / Heretic 2 */
 	{
 		int i;
 
