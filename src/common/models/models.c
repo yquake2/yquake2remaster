@@ -930,7 +930,7 @@ Mod_LoadMDLSkins(const char *mod_name, dmdx_t *pheader, const byte *curr_pos)
 		int skin_type;
 
 		out_pos = (char*)pheader + pheader->ofs_skins;
-		snprintf(out_pos + MAX_SKINNAME * i, MAX_SKINNAME, "%s#%d.tga", mod_name, i);
+		snprintf(out_pos + MAX_SKINNAME * i, MAX_SKINNAME, "%s#%d.lmp", mod_name, i);
 
 		/* skip type / int */
 		/* 0 = simple, !0 = group */
@@ -3772,12 +3772,59 @@ Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
 }
 
 byte *
-Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height)
+Mod_LoadMDLImage(const char *mod_name, int texture_index, byte *raw, int len,
+	int *width, int *height, int *bitsPerPixel)
 {
-	char mainname[MAX_QPATH], texture_index[MAX_QPATH];
-	byte *pic, *raw;
-	char *mainfile;
+	byte *images, *pic;
+	dmdx_t *pheader;
+	size_t size;
+
+	if (len < sizeof(dmdx_t))
+	{
+		Com_DPrintf("%s: Short file %s in cache\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	pheader = (dmdx_t *)raw;
+	if (pheader->ident != IDALIASHEADER)
+	{
+		Com_DPrintf("%s: Incorrect file %s in cache\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	if (pheader->num_skins <= texture_index)
+	{
+		Com_Printf("%s: Map %s has %d only textures\n",
+			__func__, mod_name, pheader->num_skins);
+		return NULL;
+	}
+
+	size = (pheader->skinheight * pheader->skinwidth * pheader->num_imgbit / 8);
+
+	images = (byte *)pheader + pheader->ofs_imgbit;
+	images += (texture_index * size);
+
+	pic = malloc(size);
+	memcpy(pic, images, size);
+
+	*width = pheader->skinwidth;
+	*height = pheader->skinheight;
+	*bitsPerPixel = pheader->num_imgbit;
+
+	Com_DPrintf("%s Loaded embeded %s image %dx%d\n",
+		__func__, mod_name, *width, *height);
+
+	return pic;
+}
+
+byte *
+Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPixel)
+{
+	char mainname[MAX_QPATH], texture_index[MAX_QPATH], *mainfile;
 	size_t len;
+	byte *pic;
 
 	mainfile = strstr(mod_name, ".bsp#");
 
@@ -3785,6 +3832,18 @@ Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height)
 	if (!mainfile)
 	{
 		mainfile = strstr(mod_name, ".spr#");
+	}
+
+	/* Container is not SPR */
+	if (!mainfile)
+	{
+		mainfile = strstr(mod_name, ".mdl#");
+	}
+
+	/* Container is not MDL */
+	if (!mainfile)
+	{
+		mainfile = strstr(mod_name, ".md2#");
 	}
 
 	/* Unknow container */
@@ -3803,29 +3862,42 @@ Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height)
 	/* remove ext */
 	texture_index[strlen(texture_index) - 4] = 0;
 
-	/* load the file */
-	len = FS_LoadFile(mainname, (void **)&raw);
-
-	if (!raw || len <= 0)
+	if ((!strcmp(mainname + strlen(mainname) - 4, ".mdl")) ||
+		(!strcmp(mainname + strlen(mainname) - 4, ".md2")))
 	{
-		/* no such file */
-		return NULL;
+		pic = Mod_LoadModelImage(mainname, strtol(texture_index, (char **)NULL, 10),
+			width, height, bitsPerPixel);
 	}
-
-	switch (LittleLong(*(unsigned *)raw))
+	else
 	{
-		case BSPQ1VERSION:
-			pic = Mod_LoadBSPImage(mainname, strtol(texture_index, (char **)NULL, 10),
-				raw, len, width, height);
-			break;
-		case IDQ1SPRITEHEADER:
-			pic = Mod_LoadSPRImage(mainname, strtol(texture_index, (char **)NULL, 10),
-				raw, len, width, height);
-			break;
-		default:
-			pic = NULL;
-	}
+		byte *raw;
 
-	FS_FreeFile(raw);
+		/* load the file */
+		len = FS_LoadFile(mainname, (void **)&raw);
+
+		if (!raw || len <= 0)
+		{
+			/* no such file */
+			return NULL;
+		}
+
+		*bitsPerPixel = 8;
+
+		switch (LittleLong(*(unsigned *)raw))
+		{
+			case BSPQ1VERSION:
+				pic = Mod_LoadBSPImage(mainname, strtol(texture_index, (char **)NULL, 10),
+					raw, len, width, height);
+				break;
+			case IDQ1SPRITEHEADER:
+				pic = Mod_LoadSPRImage(mainname, strtol(texture_index, (char **)NULL, 10),
+					raw, len, width, height);
+				break;
+			default:
+				pic = NULL;
+		}
+
+		FS_FreeFile(raw);
+	}
 	return pic;
 }

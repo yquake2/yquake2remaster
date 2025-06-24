@@ -701,7 +701,8 @@ const dmdxframegroup_t *Mod_GetModelInfo(const char *name, int *num,
 void Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs);
 void Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel);
-byte * Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height);
+byte * Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height,
+	int *bitsPerPixel);
 /* PLAYER MOVEMENT CODE */
 
 extern float pm_airaccelerate;

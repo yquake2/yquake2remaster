@@ -778,9 +778,7 @@ Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			return;
 		}
 
-		*bitsPerPixel = 8;
-
-		*pic = Mod_LoadEmbededLMP(filename, width, height);
+		*pic = Mod_LoadEmbededLMP(filename, width, height, bitsPerPixel);
 		/* Get Quake palette */
 		if (palette && *pic)
 		{

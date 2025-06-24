@@ -607,6 +607,27 @@ Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs)
 	}
 }
 
+byte *
+Mod_LoadModelImage(const char *mod_name, int texture_index,
+	int *width, int *height, int *bitsPerPixel)
+{
+	const model_t *mod;
+
+	mod = Mod_FindModel(mod_name);
+	if (!mod)
+	{
+		mod = Mod_LoadAndStoreModel(mod_name);
+	}
+
+	if (!mod)
+	{
+		return NULL;
+	}
+
+	return Mod_LoadMDLImage(mod_name, texture_index,
+		mod->extradata, mod->extradatasize, width, height, bitsPerPixel);
+}
+
 const dmdxframegroup_t *
 Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 {
