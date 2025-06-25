@@ -318,9 +318,9 @@ typedef struct
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
 extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, loadimage_t load_image, modtype_t *type);
+	findimage_t find_image, modtype_t *type);
 extern int Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image,
-	loadimage_t load_image, void *extradata, modtype_t type);
+	void *extradata, modtype_t type);
 extern struct image_s *GetSkyImage(const char *skyname, const char* surfname,
 	qboolean palettedtexture, findimage_t find_image);
 extern struct image_s *GetTexImage(const char *name, findimage_t find_image);

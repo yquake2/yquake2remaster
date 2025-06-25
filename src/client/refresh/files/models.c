@@ -133,7 +133,7 @@ Mod_LoadModel
 void *
 Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 	vec3_t mins, vec3_t maxs, struct image_s ***skins, int *numskins,
-	findimage_t find_image, loadimage_t load_image, modtype_t *type)
+	findimage_t find_image, modtype_t *type)
 {
 	int ident;
 
@@ -162,7 +162,7 @@ Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
 
 		Mod_AllocateSkins(mod_name, skins, numskins, extradata, *type);
 		Mod_LoadMinMaxUpdate(mod_name, mins, maxs, extradata, *type);
-		Mod_ReLoadSkins(mod_name, *skins, find_image, load_image, extradata, *type);
+		Mod_ReLoadSkins(mod_name, *skins, find_image, extradata, *type);
 		/* should use data, in other case compiler could skip memcpy
 		 * for optimizaed code */
 		Mod_LoadLimits(mod_name, data, *type);
@@ -182,7 +182,7 @@ Reload images in SP2/MD2 (mark registration_sequence)
 */
 int
 Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image,
-	loadimage_t load_image, void *extradata, modtype_t type)
+	void *extradata, modtype_t type)
 {
 	if (type == mod_sprite)
 	{
@@ -209,48 +209,30 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 	else if (type == mod_alias)
 	{
 		dmdx_t *pheader;
+		int i;
 
 		pheader = (dmdx_t *)extradata;
-		if (pheader->ofs_imgbit && pheader->num_imgbit && load_image)
-		{
-			byte* images = (byte *)pheader + pheader->ofs_imgbit;
-			int i;
 
-			for (i = 0; i < pheader->num_skins; i++)
+		for (i = 0; i < pheader->num_skins; i++)
+		{
+			char *skin;
+
+			skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+			skins[i] = find_image(skin, it_skin);
+
+			if (!skins[i] && !strchr(skin, '/') && !strchr(skin, '\\'))
 			{
-				skins[i] = load_image(
-					(char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME,
-					images, pheader->skinwidth, pheader->skinwidth,
-					pheader->skinheight, pheader->skinheight,
-					pheader->skinheight * pheader->skinwidth,
-					it_skin, pheader->num_imgbit);
-				images += (pheader->skinheight * pheader->skinwidth * pheader->num_imgbit / 8);
+				char skin_path[MAX_QPATH * 2] = {0};
+
+				Q_strlcpy(skin_path, name, sizeof(skin_path));
+				strcpy(strrchr(skin_path, '/') + 1, skin);
+
+				R_Printf(PRINT_DEVELOPER, "Model %s: No original skin found, %s is used\n",
+					name, skin_path);
+				skins[i] = find_image(skin_path, it_skin);
 			}
 		}
-		else
-		{
-			int i;
 
-			for (i = 0; i < pheader->num_skins; i++)
-			{
-				char *skin;
-
-				skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-				skins[i] = find_image(skin, it_skin);
-
-				if (!skins[i] && !strchr(skin, '/') && !strchr(skin, '\\'))
-				{
-					char skin_path[MAX_QPATH * 2] = {0};
-
-					Q_strlcpy(skin_path, name, sizeof(skin_path));
-					strcpy(strrchr(skin_path, '/') + 1, skin);
-
-					R_Printf(PRINT_DEVELOPER, "Model %s: No original skin found, %s is used\n",
-						name, skin_path);
-					skins[i] = find_image(skin_path, it_skin);
-				}
-			}
-		}
 		return  pheader->num_frames;
 	}
 

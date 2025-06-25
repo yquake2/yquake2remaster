@@ -513,8 +513,7 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 				mod->extradata = Mod_LoadModel(mod->name, buf, modfilelen,
 					mod->mins, mod->maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
-					(findimage_t)GL4_FindImage, (loadimage_t)GL4_LoadPic,
-					&(mod->type));
+					(findimage_t)GL4_FindImage, &(mod->type));
 				if (!mod->extradata)
 				{
 					Com_Error(ERR_DROP, "%s: Failed to load %s",
@@ -654,8 +653,7 @@ GL4_RegisterModel(const char *name)
 		{
 			/* numframes is unused for SP2 but lets set it also  */
 			mod->numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
-				(findimage_t)GL4_FindImage, (loadimage_t)GL4_LoadPic,
-				mod->extradata, mod->type);
+				(findimage_t)GL4_FindImage, mod->extradata, mod->type);
 		}
 	}
 
