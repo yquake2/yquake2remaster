@@ -634,7 +634,7 @@ VectorInverse(vec3_t v)
 }
 
 void
-VectorInverse2(vec3_t v, vec3_t out)
+VectorInverse2(const vec3_t v, vec3_t out)
 {
 	VectorCopy(v, out);
 	VectorInverse(out);
@@ -649,7 +649,7 @@ VectorScale(const vec3_t in, vec_t scale, vec3_t out)
 }
 
 void
-VectorLerp(vec3_t v1, vec3_t v2, vec_t factor, vec3_t out)
+VectorLerp(const vec3_t v1, const vec3_t v2, const vec_t factor, vec3_t out)
 {
 	VectorSubtract(v2, v1, out);
 	VectorScale(out, factor, out);
@@ -657,7 +657,7 @@ VectorLerp(vec3_t v1, vec3_t v2, vec_t factor, vec3_t out)
 }
 
 void
-VectorToQuat(vec3_t v, quat_t out)
+VectorToQuat(const vec3_t v, quat_t out)
 {
 	out[0] = v[0];
 	out[1] = v[1];
@@ -666,7 +666,7 @@ VectorToQuat(vec3_t v, quat_t out)
 }
 
 void
-QuatInverse(quat_t q, quat_t out)
+QuatInverse(const quat_t q, quat_t out)
 {
 	out[0] = -q[0];
 	out[1] = -q[1];
@@ -675,7 +675,7 @@ QuatInverse(quat_t q, quat_t out)
 }
 
 void
-QuatMultiply(quat_t q1, quat_t q2, quat_t out)
+QuatMultiply(const quat_t q1, const quat_t q2, quat_t out)
 {
 	out[0] = q1[3] * q2[0] + q1[0] * q2[3] + q1[1] * q2[2] - q1[2] * q2[1];
 	out[1] = q1[3] * q2[1] - q1[0] * q2[2] + q1[1] * q2[3] + q1[2] * q2[0];
@@ -684,7 +684,7 @@ QuatMultiply(quat_t q1, quat_t q2, quat_t out)
 }
 
 void
-QuatAngleAxis(vec3_t v, float angle, quat_t out)
+QuatAngleAxis(const vec3_t v, float angle, quat_t out)
 {
 	const vec_t scale = sinf(angle * 0.5f);
 	vec3_t v_out;

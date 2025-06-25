@@ -34,7 +34,7 @@ typedef struct md5_joint_s
 	int parent;
 
 	vec3_t pos;
-	vec4_t orient;
+	quat_t orient;
 } md5_joint_t;
 
 /* Vertex */
@@ -122,14 +122,14 @@ typedef struct md5_joint_info_s
 typedef struct md5_baseframe_joint_s
 {
 	vec3_t pos;
-	vec4_t orient;
+	quat_t orient;
 } md5_baseframe_joint_t;
 
 /**
  * Basic quaternion operations.
  */
 static void
-Quat_computeW(vec4_t q)
+Quat_computeW(quat_t q)
 {
 	float t = 1.0f - (q[0] * q[0]) - (q[1] * q[1]) - (q[2] * q[2]);
 
@@ -144,7 +144,7 @@ Quat_computeW(vec4_t q)
 }
 
 static void
-Quat_normalize(vec4_t q)
+Quat_normalize(quat_t q)
 {
 	/* compute magnitude of the quaternion */
 	float mag = sqrt ((q[0] * q[0]) + (q[1] * q[1])
@@ -164,16 +164,7 @@ Quat_normalize(vec4_t q)
 }
 
 static void
-Quat_multQuat(const vec4_t qa, const vec4_t qb, vec4_t out)
-{
-	out[3] = (qa[3] * qb[3]) - (qa[0] * qb[0]) - (qa[1] * qb[1]) - (qa[2] * qb[2]);
-	out[0] = (qa[0] * qb[3]) + (qa[3] * qb[0]) + (qa[1] * qb[2]) - (qa[2] * qb[1]);
-	out[1] = (qa[1] * qb[3]) + (qa[3] * qb[1]) + (qa[2] * qb[0]) - (qa[0] * qb[2]);
-	out[2] = (qa[2] * qb[3]) + (qa[3] * qb[2]) + (qa[0] * qb[1]) - (qa[1] * qb[0]);
-}
-
-static void
-Quat_multVec(const vec4_t q, const vec3_t v, vec4_t out)
+Quat_multVec(const quat_t q, const vec3_t v, quat_t out)
 {
 	out[3] = - (q[0] * v[0]) - (q[1] * v[1]) - (q[2] * v[2]);
 	out[0] =   (q[3] * v[0]) + (q[1] * v[2]) - (q[2] * v[1]);
@@ -182,9 +173,9 @@ Quat_multVec(const vec4_t q, const vec3_t v, vec4_t out)
 }
 
 static void
-Quat_rotatePoint(const vec4_t q, const vec3_t in, vec3_t out)
+Quat_rotatePoint(const quat_t q, const vec3_t in, vec3_t out)
 {
-	vec4_t tmp, inv, final;
+	quat_t tmp, inv, final;
 
 	inv[0] = -q[0]; inv[1] = -q[1];
 	inv[2] = -q[2]; inv[3] =  q[3];
@@ -192,7 +183,7 @@ Quat_rotatePoint(const vec4_t q, const vec3_t in, vec3_t out)
 	Quat_normalize(inv);
 
 	Quat_multVec(q, in, tmp);
-	Quat_multQuat(tmp, inv, final);
+	QuatMultiply(tmp, inv, final);
 
 	out[0] = final[0];
 	out[1] = final[1];
@@ -215,11 +206,11 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 	{
 		const md5_baseframe_joint_t *baseJoint = &baseFrame[i];
 		vec3_t animatedPos;
-		vec4_t animatedOrient;
+		quat_t animatedOrient;
 		int j = 0;
 
 		memcpy(animatedPos, baseJoint->pos, sizeof(vec3_t));
-		memcpy(animatedOrient, baseJoint->orient, sizeof(vec4_t));
+		memcpy(animatedOrient, baseJoint->orient, sizeof(quat_t));
 
 		if (jointInfos[i].flags & 1) /* Tx */
 		{
@@ -273,7 +264,7 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 		if (thisJoint->parent < 0)
 		{
 			memcpy(thisJoint->pos, animatedPos, sizeof(vec3_t));
-			memcpy(thisJoint->orient, animatedOrient, sizeof(vec4_t));
+			memcpy(thisJoint->orient, animatedOrient, sizeof(quat_t));
 		}
 		else
 		{
@@ -287,7 +278,7 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 			thisJoint->pos[2] = rpos[2] + parentJoint->pos[2];
 
 			/* Concatenate rotations */
-			Quat_multQuat(parentJoint->orient, animatedOrient, thisJoint->orient);
+			QuatMultiply(parentJoint->orient, animatedOrient, thisJoint->orient);
 			Quat_normalize(thisJoint->orient);
 		}
 	}
