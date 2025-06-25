@@ -3771,7 +3771,7 @@ Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
 	return pic;
 }
 
-byte *
+static byte *
 Mod_LoadMDLImage(const char *mod_name, int texture_index, byte *raw, int len,
 	int *width, int *height, int *bitsPerPixel)
 {
@@ -3820,84 +3820,28 @@ Mod_LoadMDLImage(const char *mod_name, int texture_index, byte *raw, int len,
 }
 
 byte *
-Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPixel)
+Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
+	int *width, int *height, int *bitsPerPixel)
 {
-	char mainname[MAX_QPATH], texture_index[MAX_QPATH], *mainfile;
-	size_t len;
-	byte *pic;
+	*bitsPerPixel = 8;
 
-	mainfile = strstr(mod_name, ".bsp#");
-
-	/* Container is not BSP */
-	if (!mainfile)
-	{
-		mainfile = strstr(mod_name, ".spr#");
-	}
-
-	/* Container is not SPR */
-	if (!mainfile)
-	{
-		mainfile = strstr(mod_name, ".mdl#");
-	}
-
-	/* Container is not MDL */
-	if (!mainfile)
-	{
-		mainfile = strstr(mod_name, ".md2#");
-	}
-
-	/* Unknow container */
-	if (!mainfile)
+	if (len < sizeof(unsigned))
 	{
 		return NULL;
 	}
 
-	/* get bsp file path */
-	len = Q_min(mainfile - mod_name + 4, sizeof(mainname) - 1);
-	memcpy(mainname, mod_name, len);
-	mainname[len] = 0;
-
-	/* get texture id */
-	Q_strlcpy(texture_index, mod_name + len + 1, sizeof(texture_index));
-	/* remove ext */
-	texture_index[strlen(texture_index) - 4] = 0;
-
-	if ((!strcmp(mainname + strlen(mainname) - 4, ".mdl")) ||
-		(!strcmp(mainname + strlen(mainname) - 4, ".md2")))
+	switch (LittleLong(*(unsigned *)raw))
 	{
-		pic = Mod_LoadModelImage(mainname, strtol(texture_index, (char **)NULL, 10),
-			width, height, bitsPerPixel);
-	}
-	else
-	{
-		byte *raw;
-
-		/* load the file */
-		len = FS_LoadFile(mainname, (void **)&raw);
-
-		if (!raw || len <= 0)
-		{
-			/* no such file */
+		case IDALIASHEADER:
+			return Mod_LoadMDLImage(mod_name, texture_index, raw, len,
+				width, height, bitsPerPixel);
+		case BSPQ1VERSION:
+			return Mod_LoadBSPImage(mod_name, texture_index, raw, len,
+				width, height);
+		case IDQ1SPRITEHEADER:
+			return Mod_LoadSPRImage(mod_name, texture_index, raw, len,
+				width, height);
+		default:
 			return NULL;
-		}
-
-		*bitsPerPixel = 8;
-
-		switch (LittleLong(*(unsigned *)raw))
-		{
-			case BSPQ1VERSION:
-				pic = Mod_LoadBSPImage(mainname, strtol(texture_index, (char **)NULL, 10),
-					raw, len, width, height);
-				break;
-			case IDQ1SPRITEHEADER:
-				pic = Mod_LoadSPRImage(mainname, strtol(texture_index, (char **)NULL, 10),
-					raw, len, width, height);
-				break;
-			default:
-				pic = NULL;
-		}
-
-		FS_FreeFile(raw);
 	}
-	return pic;
 }
