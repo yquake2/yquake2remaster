@@ -296,7 +296,6 @@ extern	cvar_t	*cl_showclamp;
 extern	cvar_t	*lookstrafe;
 extern	cvar_t	*joy_layout;
 extern	cvar_t	*gyro_mode;
-extern	cvar_t	*gyro_turning_axis;
 extern	cvar_t	*m_pitch;
 extern	cvar_t	*m_yaw;
 extern	cvar_t	*m_forward;
@@ -501,6 +500,7 @@ float CL_KeyState (kbutton_t *key);
 char *Key_KeynumToString (int keynum);
 char *Key_KeynumToString_Joy (int key);
 
+int CL_MaxClients(void);
 void CL_WriteDemoMessage (void);
 void CL_Stop_f (void);
 void CL_ParseStatusMessage(void);

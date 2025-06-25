@@ -125,6 +125,8 @@ typedef unsigned char byte;
 
 #define Q_min(a, b) (((a) < (b)) ? (a) : (b))
 #define Q_max(a, b) (((a) > (b)) ? (a) : (b))
+#define Q_clamp(x, l, u) ((l) > (x) ? (l) : (x) > (u) ? (u) : (x))
+#define Q_signf(x) ((x) < 0.0f ? -1.0f : 1.0f)
 
 #define MAX_STRING_CHARS 2048       /* max length of a string passed to Cmd_TokenizeString */
 #define MAX_STRING_TOKENS 80        /* max tokens resulting from Cmd_TokenizeString */
@@ -218,6 +220,7 @@ typedef vec_t vec2_t[2];
 typedef vec_t vec3_t[3];
 typedef vec_t vec4_t[4];
 typedef vec_t vec5_t[5];
+typedef float quat_t[4]; // x, y, z, w
 
 typedef int fixed4_t;
 typedef int fixed8_t;
@@ -261,13 +264,23 @@ void _VectorCopy(const vec3_t in, vec3_t out);
 void ClearBounds(vec3_t mins, vec3_t maxs);
 void AddPointToBounds(const vec3_t v, vec3_t mins, vec3_t maxs);
 void ClosestPointOnBounds(const vec3_t p, const vec3_t amin, const vec3_t amax, vec3_t out);
+qboolean IsZeroVector(vec3_t v);
 int VectorCompare(const vec3_t v1, const vec3_t v2);
+vec_t VectorLengthSquared(vec3_t v);
 vec_t VectorLength(const vec3_t v);
 void CrossProduct(const vec3_t v1, const vec3_t v2, vec3_t cross);
 vec_t VectorNormalize(vec3_t v); /* returns vector length */
 vec_t VectorNormalize2(const vec3_t v, vec3_t out);
 void VectorInverse(vec3_t v);
+void VectorInverse2(vec3_t v, vec3_t out);
 void VectorScale(const vec3_t in, vec_t scale, vec3_t out);
+void VectorLerp(vec3_t v1, vec3_t v2, vec_t factor, vec3_t out);
+void VectorToQuat(vec3_t v, quat_t out);
+void QuatInverse(quat_t q, quat_t out);
+void QuatMultiply(quat_t q1, quat_t q2, quat_t out);
+void QuatAngleAxis(vec3_t v, float angle, quat_t out);
+void RotateVectorByUnitQuat(vec3_t v, quat_t q_unit);
+float Q_magnitude(float x, float y);
 int Q_log2(int val);
 
 void R_ConcatRotations(const float in1[3][3], const float in2[3][3], float out[3][3]);
