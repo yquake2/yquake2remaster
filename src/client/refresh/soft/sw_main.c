@@ -883,7 +883,7 @@ R_DrawEntitiesOnList (void)
 		return;
 	}
 
-	for (i=0 ; i<r_newrefdef.num_entities ; i++)
+	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 
@@ -1107,7 +1107,7 @@ R_DrawBEntitiesOnList (void)
 
 	VectorCopy (modelorg, oldorigin);
 
-	for (i=0 ; i<r_newrefdef.num_entities ; i++)
+	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
 		entity_t *currententity = &r_newrefdef.entities[i];
 		const model_t *currentmodel = currententity->model;
@@ -1203,7 +1203,7 @@ R_EdgeDrawing (entity_t *currententity)
 		db_time1 = rw_time2;
 	}
 
-	R_DrawBEntitiesOnList ();
+	R_DrawBEntitiesOnList();
 
 	if (r_dspeeds->value)
 	{
@@ -1339,7 +1339,7 @@ RE_RenderFrame
 ================
 */
 static void
-RE_RenderFrame (refdef_t *fd)
+RE_RenderFrame(refdef_t *fd)
 {
 	r_newrefdef = *fd;
 	entity_t	ent;
