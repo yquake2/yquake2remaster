@@ -715,7 +715,7 @@ GetTexImage(const char *name, findimage_t find_image)
 	if (!image)
 	{
 		Com_sprintf(pathname, sizeof(pathname), "%s.lmp", name);
-		image = find_image(pathname, it_sky);
+		image = find_image(pathname, it_wall);
 	}
 
 	return image;
