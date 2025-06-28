@@ -1360,6 +1360,13 @@ typedef struct
 #define LUMP_BSP46_VISIBILITY 16
 
 typedef struct {
+	float mins[3], maxs[3];
+	int firstface, numfaces; /* submodels just draw faces without
+							    walking the bsp tree */
+	int firstbrush, numbrushes;
+} dq3model_t;
+
+typedef struct {
 	char shader[64];
 	int surface_flags;
 	int content_flags;

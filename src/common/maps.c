@@ -1196,6 +1196,39 @@ Mod_Load2QBSP_IBSP29_H2MODELS(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP46_MODELS(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	size_t i, count;
+	dq3model_t *in;
+	dmodel_t *out;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dq3model_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dmodel_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleFloat(in->mins[j]);
+			out->maxs[j] = LittleFloat(in->maxs[j]);
+			out->origin[j] = (out->mins[j] + out->maxs[j]);
+		}
+
+		out->headnode = 0;
+		out->firstface = LittleLong(in->firstface);
+		out->numfaces = LittleLong(in->numfaces);
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_BRUSHES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -1588,7 +1621,7 @@ static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
 	{LUMP_LEAFS, sizeof(dq3leaf_t), Mod_Load2QBSP_IBSP46_LEAFS},
 	{-1, 0, NULL}, //  LEAFSURFACES 5
 	{-1, 0, NULL}, //  LEAFBRUSHES 6
-	{-1, 0, NULL}, //  MODELS 7
+	{LUMP_MODELS, sizeof(dq3model_t), Mod_Load2QBSP_IBSP46_MODELS},
 	{-1, 0, NULL}, //  BRUSHES 8
 	{-1, 0, NULL}, //  BRUSHSIDES 9
 	{-1, 0, NULL}, //  DRAWVERTS 10
