@@ -281,8 +281,8 @@ Mod_LoadQFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->lmvlen[0] = 1.0f;
 			out->lmvlen[1] = 1.0f;
 
-			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->vertexes,
-				loadmodel->edges, out);
+			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->numsurfedges,
+				loadmodel->vertexes, loadmodel->edges, out);
 
 			lightofs = in->lightofs;
 		}

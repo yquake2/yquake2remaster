@@ -302,7 +302,7 @@ Mod_LoadSetSurfaceLighting(byte *lightdata, int size, msurface_t *out,
  * Fills in s->texturemins[] and s->extents[]
  */
 void
-Mod_CalcSurfaceExtents(const int *surfedges, mvertex_t *vertexes, medge_t *edges,
+Mod_CalcSurfaceExtents(const int *surfedges, int numsurfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *s)
 {
 	double mins[2], maxs[2];
@@ -318,6 +318,12 @@ Mod_CalcSurfaceExtents(const int *surfedges, mvertex_t *vertexes, medge_t *edges
 	{
 		int e, j;
 		mvertex_t *v;
+
+		if ((s->firstedge + i) >= numsurfedges)
+		{
+			Com_Error(ERR_DROP, "%s: incorect edge value %d > %d",
+					__func__, (s->firstedge + i), numsurfedges);
+		}
 
 		e = surfedges[s->firstedge + i];
 

@@ -835,6 +835,34 @@ Mod_Load2QBSP_QBSP_FACES(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP46_FACES(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	size_t i, count;
+	dq3surface_t *in;
+	dqface_t *out;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dq3surface_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dqface_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		out->planenum = 0;
+		out->side = 0;
+		out->firstedge = LittleLong(in->firstedge) & 0xFFFFFFFF;
+		out->numedges = LittleLong(in->numedges) & 0xFFFFFFFF;
+		out->texinfo = LittleLong(in->texinfo);
+		memset(out->styles, 0, sizeof(out->styles));
+		out->lightofs = 0;
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -1715,18 +1743,18 @@ static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
 	{LUMP_PLANES, sizeof(dq3plane_t), Mod_Load2QBSP_IBSP46_PLANES},
 	{LUMP_NODES, sizeof(dq3node_t), Mod_Load2QBSP_IBSP46_NODES},
 	{LUMP_LEAFS, sizeof(dq3leaf_t), Mod_Load2QBSP_IBSP46_LEAFS},
-	{LUMP_LEAFFACES, 0, NULL},
+	{LUMP_LEAFFACES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},
 	{LUMP_LEAFBRUSHES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},
 	{LUMP_MODELS, sizeof(dq3model_t), Mod_Load2QBSP_IBSP46_MODELS},
 	{LUMP_BRUSHES, sizeof(dq3brush_t), Mod_Load2QBSP_IBSP46_BRUSHES},
 	{LUMP_BRUSHSIDES, sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
-	{-1, 0, NULL}, //  DRAWVERTS 10
-	{-1, 0, NULL}, //  DRAWINDEXES 11
-	{-1, 0, NULL}, //  FOGS 12
-	{-1, 0, NULL}, //  SURFACES 13
-	{-1, 0, NULL}, //  LIGHTMAPS 14
-	{-1, 0, NULL}, //  LIGHTGRID 15
-	{-1, 0, NULL}, //  VISIBILITY 16
+	{-1, 0, NULL}, /* LUMP_BSP46_DRAWVERTS */
+	{-1, 0, NULL}, /* LUMP_BSP46_DRAWINDEXES */
+	{-1, 0, NULL}, /* LUMP_BSP46_FOGS */
+	{LUMP_FACES, sizeof(dq3surface_t), Mod_Load2QBSP_IBSP46_FACES},
+	{-1, 0, NULL}, /* LUMP_BSP46_LIGHTMAPS */
+	{-1, 0, NULL}, /* LUMP_BSP46_LIGHTGRID */
+	{-1, 0, NULL}, /* LUMP_BSP46_VISIBILITY */
 };
 
 /* custom format with extended texture name */

@@ -1405,5 +1405,27 @@ typedef struct {
 	unsigned int shader_index; /* the shader that determines the contents flags */
 } dq3brush_t;
 
+typedef struct {
+	int texinfo;
+	int fog;
+	int type;
+
+	int firstedge;
+	int numedges;
+
+	int firstindex;
+	int numindexes;
+
+	int lightmapnum;
+	int lightmap_x, lightmap_y;
+	int lightmap_width, lightmap_height;
+
+	vec3_t lightmap_origin;
+	vec3_t lightmap_vecs[3];	// for patches, [0] and [1] are lodbounds
+
+	int patch_width;
+	int patch_height;
+} dq3surface_t;
+
 #endif
 
