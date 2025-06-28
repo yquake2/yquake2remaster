@@ -1410,8 +1410,8 @@ typedef struct {
 	int fog;
 	int type;
 
-	int firstedge;
-	int numedges;
+	int firstvert;
+	int numverts;
 
 	int firstindex;
 	int numindexes;

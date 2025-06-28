@@ -73,6 +73,7 @@ Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
 		case map_anachronox: convert = anachronox_flags; break;
 		case map_sin: convert = sin_flags; break;
 		case map_quake2: convert = quake2_flags; break;
+		case map_quake3: convert = quake3_flags; break;
 		default: convert = NULL; break;
 	}
 
@@ -185,6 +186,7 @@ Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
 		case map_hexen2:
 			return ModLoadContextQuake1(flags);
 		case map_quake2: convert = quake2_contents_flags; break;
+		case map_quake3: convert = quake3_contents_flags; break;
 		case map_heretic2: convert = heretic2_contents_flags; break;
 		case map_daikatana: convert = daikatana_contents_flags; break;
 		case map_kingpin: convert = kingpin_contents_flags; break;
@@ -687,8 +689,8 @@ Mod_Load2QBSP_IBSP46_TEXINFO(byte *outbuf, dheader_t *outheader,
 		memset(out->vecs, 0, sizeof(out->vecs));
 
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->surface_flags), maptype);
-		out->nexttexinfo = -1; /* TODO: Q3 -> Q2 convert */
-		strncpy(out->texture, in->shader,
+		out->nexttexinfo = -1;
+		Q_strlcpy(out->texture, in->shader,
 			Q_min(sizeof(out->texture), sizeof(in->shader)));
 
 		out++;
@@ -851,8 +853,8 @@ Mod_Load2QBSP_IBSP46_FACES(byte *outbuf, dheader_t *outheader,
 	{
 		out->planenum = 0;
 		out->side = 0;
-		out->firstedge = LittleLong(in->firstedge) & 0xFFFFFFFF;
-		out->numedges = LittleLong(in->numedges) & 0xFFFFFFFF;
+		out->firstedge = 0;
+		out->numedges = 0;
 		out->texinfo = LittleLong(in->texinfo);
 		memset(out->styles, 0, sizeof(out->styles));
 		out->lightofs = 0;
@@ -1019,7 +1021,9 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
-	int i, count;
+	int i, count, count_leafbrush, count_brush, count_shader, *in_leafbrush;
+	dq3brush_t *in_brush;
+	dshader_t *in_shader;
 	dq3leaf_t *in;
 	dqleaf_t *out;
 
@@ -1027,9 +1031,18 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 	in = (dq3leaf_t *)(inbuf + lumps[inlumppos].fileofs);
 	out = (dqleaf_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
 
+	count_leafbrush = lumps[LUMP_BSP46_LEAFBRUSHES].filelen / sizeof(int);
+	in_leafbrush = (int *)(inbuf + lumps[LUMP_BSP46_LEAFBRUSHES].fileofs);
+
+	count_brush = lumps[LUMP_BSP46_BRUSHES].filelen / sizeof(dq3brush_t);
+	in_brush = (dq3brush_t *)(inbuf + lumps[LUMP_BSP46_BRUSHES].fileofs);
+
+	count_shader = lumps[LUMP_BSP46_SHADERS].filelen / sizeof(dshader_t);
+	in_shader = (dshader_t *)(in + lumps[LUMP_BSP46_SHADERS].fileofs);
+
 	for (i = 0; i < count; i++)
 	{
-		int j;
+		int j, brush_index, brushleaf_index, shader_index;
 
 		for (j = 0; j < 3; j++)
 		{
@@ -1037,7 +1050,6 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleLong(in->maxs[j]);
 		}
 
-		out->contents = (i == 0) ? CONTENTS_SOLID : 0; /* TODO: Q3 -> Q2 convert */
 		out->cluster = LittleLong(in->cluster);
 		out->area = LittleLong(in->area);
 
@@ -1046,6 +1058,31 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 		out->numleaffaces = LittleLong(in->numleaffaces) & 0xFFFFFFFF;
 		out->firstleafbrush = LittleLong(in->firstleafbrush) & 0xFFFFFFFF;
 		out->numleafbrushes = LittleLong(in->numleafbrushes) & 0xFFFFFFFF;
+
+		/* get context flags */
+		brushleaf_index = LittleLong(in->firstleafbrush);
+		if (brushleaf_index >= count_leafbrush)
+		{
+			Com_Error(ERR_DROP, "%s: Incorrect brushleaf index %d > %d",
+				__func__, brushleaf_index, count_leafbrush);
+		}
+
+		brush_index = LittleLong(in_leafbrush[brushleaf_index]);
+		if (brush_index >= count_brush)
+		{
+			Com_Error(ERR_DROP, "%s: Incorrect brush index %d > %d",
+				__func__, brush_index, count_brush);
+		}
+
+		shader_index = LittleLong(in_brush[brush_index].shader_index) & 0xFFFFFFFF;
+		if (shader_index >= count_shader)
+		{
+			Com_Error(ERR_DROP, "%s: Incorrect shader index %d > %d",
+				__func__, shader_index, count_shader);
+		}
+
+		out->contents = Mod_LoadContextConvertFlags(
+			LittleLong(in_shader[shader_index].content_flags), maptype);
 
 		out++;
 		in++;
@@ -1324,7 +1361,8 @@ Mod_Load2QBSP_IBSP46_BRUSHES(byte *outbuf, dheader_t *outheader,
 	dshader_t *in_shader;
 	dq3brush_t *in;
 	dbrush_t *out;
-	size_t i, count, count_shader;
+	int count_shader;
+	size_t i, count;
 
 	count = lumps[inlumppos].filelen / rule_size;
 	in = (dq3brush_t *)(inbuf + lumps[inlumppos].fileofs);
@@ -1343,11 +1381,14 @@ Mod_Load2QBSP_IBSP46_BRUSHES(byte *outbuf, dheader_t *outheader,
 
 		/* get context flags */
 		shader_index = LittleLong(in->shader_index) & 0xFFFFFFFF;
-		if (shader_index < count_shader)
+		if (shader_index >= count_shader)
 		{
-			out->contents = Mod_LoadContextConvertFlags(
-				LittleLong(in_shader[shader_index].content_flags), maptype);
+			Com_Error(ERR_DROP, "%s: Incorrect shader index %d > %d",
+				__func__, shader_index, count_shader);
 		}
+
+		out->contents = Mod_LoadContextConvertFlags(
+			LittleLong(in_shader[shader_index].content_flags), maptype);
 
 		out++;
 		in++;

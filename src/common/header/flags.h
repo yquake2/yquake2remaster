@@ -26,7 +26,7 @@
 
 /*
  * Based on https://github.com/TrenchBroom/
-*/
+ */
 static const int quake2_flags[32] = {
 	SURF_LIGHT,     /* 0: value will hold the light strength */
 	SURF_SLICK,     /* 1: effects game physics */
@@ -98,9 +98,75 @@ static const int quake2_contents_flags[32] = {
 	0,                     /* 31: Unused */
 };
 
-/*
- * Based on https://github.com/TrenchBroom/
-*/
+static const int quake3_flags[32] = {
+	0,              /* 0: never give falling damage */
+	SURF_SLICK,     /* 1: effects game physics */
+	SURF_SKY,       /* 2: lighting from environment map */
+	0,              /* 3: SURF_LADDER */
+	0,              /* 4: don't make missile explosions */
+	0,              /* 5: don't leave missile marks */
+	0,              /* 6: make flesh sounds and effects */
+	SURF_NODRAW,    /* 7: Used for non-fixed-size brush triggers and clip brushes */
+	0,              /* 8: make a primary bsp splitter */
+	0,              /* 9: completely ignore, allowing non-closed brushes */
+	0,              /* 10: surface doesn't need a lightmap */
+	0,              /* 11: generate lighting info at vertexes */
+	0,              /* 12: clanking footsteps */
+	0,              /* 13: no footstep sounds */
+	0,              /* 14: don't collide against curves with this set */
+	0,              /* 15: act as a light filter during q3map -light */
+	0,              /* 16: do per-pixel light shadow casting in q3map */
+	0,              /* 17: never add dynamic lights */
+	0,              /* 19: Unused */
+	0,              /* 20: Unused */
+	0,              /* 21: Unused */
+	0,              /* 22: Unused */
+	0,              /* 23: Unused */
+	0,              /* 24: Unused */
+	0,              /* 25: Unused */
+	0,              /* 26: Unused */
+	0,              /* 27: Unused */
+	0,              /* 28: Unused */
+	0,              /* 29: Unused */
+	0,              /* 30: Unused */
+	0,              /* 31: Unused */
+};
+
+static const int quake3_contents_flags[32] = {
+	CONTENTS_SOLID,        /* 0: Default for all brushes */
+	0,                     /* 1: Unused */
+	0,                     /* 2: Unused */
+	CONTENTS_LAVA,         /* 3: The brush is lava */
+	CONTENTS_SLIME,        /* 4: The brush is slime */
+	CONTENTS_WATER,        /* 5: The brush is water */
+	CONTENTS_MIST,         /* 6: The brush is fog */
+	0,                     /* 7: Unused */
+	0,                     /* 8: Unused */
+	0,                     /* 9: Unused */
+	0,                     /* 10: Unused */
+	0,                     /* 11: Unused */
+	0,                     /* 12: Unused */
+	0,                     /* 13: Unused */
+	0,                     /* 14: Unused */
+	CONTENTS_AREAPORTAL,   /* 15: Area portal */
+	CONTENTS_PLAYERCLIP,   /* 16: Player cannot pass through the brush (other things can) */
+	CONTENTS_MONSTERCLIP,  /* 17: Monster cannot pass through the brush (player and other things can) */
+	0,                     /* 18: CONTENTS_TELEPORTER */
+	0,                     /* 19: CONTENTS_JUMPPAD */
+	0,                     /* 20: CONTENTS_CLUSTERPORTAL */
+	0,                     /* 21: CONTENTS_DONOTENTER */
+	0,                     /* 22: Unused */
+	0,                     /* 23: Unused */
+	CONTENTS_ORIGIN,       /* 24: Removed before bsping an entity */
+	CONTENTS_MONSTER,      /* 25: CONTENTS_BODY */
+	CONTENTS_DEADMONSTER,  /* 26: CONTENTS_CORPSE */
+	CONTENTS_DETAIL,       /* 27: brushes not used for the bsp */
+	0,                     /* 28: brushes used for the bsp */
+	CONTENTS_TRANSLUCENT,  /* 29: don't consume surface fragments inside */
+	0,                     /* 30: CONTENTS_TRIGGER */
+	0,                     /* 31: don't leave bodies or items (death fog, lava) */
+};
+
 static const int heretic2_flags[32] = {
 	SURF_LIGHT,     /* 0: Emit light from the surface, brightness is specified in the 'value' field */
 	SURF_SLICK,     /* 1: The surface is slippery */
