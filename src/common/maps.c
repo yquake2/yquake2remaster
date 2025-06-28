@@ -1252,6 +1252,44 @@ Mod_Load2QBSP_IBSP_BRUSHES(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP46_BRUSHES(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	dshader_t *in_shader;
+	dq3brush_t *in;
+	dbrush_t *out;
+	size_t i, count, count_shader;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dq3brush_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dbrush_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	count_shader = lumps[LUMP_BSP46_SHADERS].filelen / sizeof(dshader_t);
+	in_shader = (dshader_t *)(inbuf + lumps[LUMP_BSP46_SHADERS].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		unsigned shader_index;
+
+		out->firstside = LittleLong(in->firstside) & 0xFFFFFFFF;
+		out->numsides = LittleLong(in->numsides) & 0xFFFFFFFF;
+		out->contents = 0;
+
+		/* get context flags */
+		shader_index = LittleLong(in->shader_index) & 0xFFFFFFFF;
+		if (shader_index < count_shader)
+		{
+			out->contents = Mod_LoadContextConvertFlags(
+				LittleLong(in_shader[shader_index].content_flags), maptype);
+		}
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_BRUSHSIDES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -1620,10 +1658,10 @@ static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
 	{-1, 0, NULL}, //  NODES 3
 	{LUMP_LEAFS, sizeof(dq3leaf_t), Mod_Load2QBSP_IBSP46_LEAFS},
 	{-1, 0, NULL}, //  LEAFSURFACES 5
-	{-1, 0, NULL}, //  LEAFBRUSHES 6
+	{LUMP_LEAFBRUSHES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},
 	{LUMP_MODELS, sizeof(dq3model_t), Mod_Load2QBSP_IBSP46_MODELS},
-	{-1, 0, NULL}, //  BRUSHES 8
-	{-1, 0, NULL}, //  BRUSHSIDES 9
+	{LUMP_BRUSHES, sizeof(dq3brush_t), Mod_Load2QBSP_IBSP46_BRUSHES},
+	{LUMP_BRUSHSIDES, sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
 	{-1, 0, NULL}, //  DRAWVERTS 10
 	{-1, 0, NULL}, //  DRAWINDEXES 11
 	{-1, 0, NULL}, //  FOGS 12

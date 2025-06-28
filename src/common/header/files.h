@@ -1385,12 +1385,18 @@ typedef struct {
 	int mins[3]; /* for frustum culling */
 	int maxs[3];
 
-	int firstleafface;
-	int numleaffaces;
+	unsigned firstleafface;
+	unsigned numleaffaces;
 
-	int firstleafbrush;
-	int numleafbrushes;
+	unsigned int firstleafbrush;
+	unsigned int numleafbrushes;
 } dq3leaf_t;
+
+typedef struct {
+	unsigned int firstside;
+	unsigned int numsides;
+	unsigned int shader_index; /* the shader that determines the contents flags */
+} dq3brush_t;
 
 #endif
 
