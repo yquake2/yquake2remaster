@@ -423,6 +423,43 @@ Mod_Load2QBSP_QBSP_NODES(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP46_NODES(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	dq3node_t *in;
+	dqnode_t *out;
+	size_t i, count;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dq3node_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dqnode_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleFloat(in->mins[j]);
+			out->maxs[j] = LittleFloat(in->maxs[j]);
+		}
+
+		out->planenum = LittleLong(in->planenum) & 0xFFFFFFFF;
+		out->firstface = 0;
+		out->numfaces = 0;
+
+		for (j = 0; j < 2; j++)
+		{
+			out->children[j] = LittleLong(in->children[j]);
+		}
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_MATERIALS_TEXINFO(xtexinfo_t *out, size_t count)
 {
 	size_t i;
@@ -1655,7 +1692,7 @@ static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
 	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
 	{LUMP_TEXINFO, sizeof(dshader_t), Mod_Load2QBSP_IBSP46_TEXINFO},
 	{LUMP_PLANES, sizeof(dq3plane_t), Mod_Load2QBSP_IBSP46_PLANES},
-	{-1, 0, NULL}, //  NODES 3
+	{LUMP_NODES, sizeof(dq3node_t), Mod_Load2QBSP_IBSP46_NODES},
 	{LUMP_LEAFS, sizeof(dq3leaf_t), Mod_Load2QBSP_IBSP46_LEAFS},
 	{-1, 0, NULL}, //  LEAFSURFACES 5
 	{LUMP_LEAFBRUSHES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},

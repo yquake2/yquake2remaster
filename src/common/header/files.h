@@ -1379,6 +1379,13 @@ typedef struct {
 } dq3plane_t;
 
 typedef struct {
+	unsigned int planenum;
+	int children[2];         /* negative numbers are -(leafs+1), not nodes */
+	int mins[3];             /* for frustom culling */
+	int maxs[3];
+} dq3node_t;
+
+typedef struct {
 	int cluster; /* -1 = opaque cluster */
 	int area;
 
