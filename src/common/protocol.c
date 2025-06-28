@@ -159,8 +159,7 @@ P_ConvertConfigStringFrom(int i, int protocol)
 		}
 		else if (i >= CS_SHADOWLIGHTS_RR22DEMO && i < CS_ITEMS_RR22DEMO)
 		{
-			/* Skip unknown configs */
-			i = CS_SKIP;
+			i += CS_SHADOWLIGHTS - CS_SHADOWLIGHTS_RR22DEMO;
 		}
 		else if (i >= CS_ITEMS_RR22DEMO && i < CS_PLAYERSKINS_RR22DEMO)
 		{
