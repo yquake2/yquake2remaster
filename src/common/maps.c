@@ -1417,16 +1417,12 @@ Mod_Load2QBSP_IBSP_AREAS(byte *outbuf, dheader_t *outheader,
 }
 
 static size_t
-Mod_Load2QBSP_IBSP29_GetAdditionalSize(const lump_t *lumps)
+Mod_Load2QBSP_IBSP29_AdditionalSize(const lump_t *lumps)
 {
 	size_t result_size;
 
 	/* lights is white only in quake 1, extend to rgb */
 	result_size = (lumps[LUMP_BSP29_LIGHTING].filelen * 3 + 3) & ~3;
-
-	/* quake 1 does not have any areas, marks as single area */
-	result_size += (sizeof(darea_t) + 3) & ~3;
-	result_size += (sizeof(dareaportal_t) + 3) & ~3;
 
 	/* set brush one to one to leaf */
 	result_size += (lumps[LUMP_BSP29_LEAFS].filelen * sizeof(int) /
@@ -1440,6 +1436,18 @@ Mod_Load2QBSP_IBSP29_GetAdditionalSize(const lump_t *lumps)
 }
 
 static size_t
+Mod_Load2QBSP_AREAS_AdditionalSize(const lump_t *lumps)
+{
+	size_t result_size;
+
+	/* Quake 1/Quake 3 does not have any areas, marks as single area */
+	result_size = (sizeof(darea_t) + 3) & ~3;
+	result_size += (sizeof(dareaportal_t) + 3) & ~3;
+
+	return result_size;
+}
+
+static size_t
 Mod_Load2QBSP_IBSP29_SetLumps(size_t ofs, const lump_t *lumps, lump_t *outlumps)
 {
 	/* Lighting, lights is white only in quake 1, extend to rgb */
@@ -1447,18 +1455,6 @@ Mod_Load2QBSP_IBSP29_SetLumps(size_t ofs, const lump_t *lumps, lump_t *outlumps)
 	outlumps[LUMP_LIGHTING].filelen =
 		(lumps[LUMP_BSP29_LIGHTING].filelen * 3 + 3) & ~3;
 	ofs += outlumps[LUMP_LIGHTING].filelen;
-
-	/* Areas */
-	outlumps[LUMP_AREAS].fileofs = ofs;
-	outlumps[LUMP_AREAS].filelen =
-		(sizeof(darea_t) + 3) & ~3;
-	ofs += outlumps[LUMP_AREAS].filelen;
-
-	/* Areas Portals */
-	outlumps[LUMP_AREAPORTALS].fileofs = ofs;
-	outlumps[LUMP_AREAPORTALS].filelen =
-		(sizeof(dareaportal_t) + 3) & ~3;
-	ofs += outlumps[LUMP_AREAPORTALS].filelen;
 
 	/* LeafBrushes */
 	outlumps[LUMP_LEAFBRUSHES].fileofs = ofs;
@@ -1480,17 +1476,34 @@ Mod_Load2QBSP_IBSP29_SetLumps(size_t ofs, const lump_t *lumps, lump_t *outlumps)
 	return ofs;
 }
 
+static size_t
+Mod_Load2QBSP_AREAS_SetLumps(size_t ofs, const lump_t *lumps, lump_t *outlumps)
+{
+	/* Areas */
+	outlumps[LUMP_AREAS].fileofs = ofs;
+	outlumps[LUMP_AREAS].filelen =
+		(sizeof(darea_t) + 3) & ~3;
+	ofs += outlumps[LUMP_AREAS].filelen;
+
+	/* Areas Portals */
+	outlumps[LUMP_AREAPORTALS].fileofs = ofs;
+	outlumps[LUMP_AREAPORTALS].filelen =
+		(sizeof(dareaportal_t) + 3) & ~3;
+	ofs += outlumps[LUMP_AREAPORTALS].filelen;
+
+	return ofs;
+}
+
 static void
 Mod_Load2QBSP_IBSP29_Fix(const char *name, maptype_t maptype, const lump_t *lumps,
 	const dheader_t *outheader, const byte *inbuf, byte *outbuf)
 {
-	int size, num_texinfo, i, num_leafs;
+	int num_texinfo, i, num_leafs;
 	dqbrushside_t *out_brushsides;
 	xtexinfo_t *out_texinfo;
 	dbrush_t *out_brushes;
 	int *out_leafbrushes;
 	dqleaf_t *out_leafs;
-	byte *out;
 
 	/* fix textures path */
 	num_texinfo = outheader->lumps[LUMP_TEXINFO].filelen / sizeof(xtexinfo_t);
@@ -1514,16 +1527,6 @@ Mod_Load2QBSP_IBSP29_Fix(const char *name, maptype_t maptype, const lump_t *lump
 	Mod_Load2QBSP_IBSP29_LIGHTING(outbuf, outheader, inbuf, lumps, sizeof(char), maptype,
 		LUMP_LIGHTING, LUMP_BSP29_LIGHTING);
 
-	/* Areas */
-	size = outheader->lumps[LUMP_AREAS].filelen;
-	out = (byte *)(outbuf + outheader->lumps[LUMP_AREAS].fileofs);
-	memset(out, 0, size);
-
-	/* Areas Portals */
-	size = outheader->lumps[LUMP_AREAPORTALS].filelen;
-	out = (byte *)(outbuf + outheader->lumps[LUMP_AREAPORTALS].fileofs);
-	memset(out, 0, size);
-
 	/* Convert each Quake 1 leaf to a default leafbrush (one brush per leaf) */
 	for (i = 0; i < num_leafs; i++)
 	{
@@ -1545,6 +1548,24 @@ Mod_Load2QBSP_IBSP29_Fix(const char *name, maptype_t maptype, const lump_t *lump
 		out_brushes[i].numsides = 1;  /* One side per brush (per leaf) */
 		out_brushes[i].contents = out_leafs[i].contents;
 	}
+}
+
+static void
+Mod_Load2QBSP_AREAS_Fix(const char *name, maptype_t maptype, const lump_t *lumps,
+	const dheader_t *outheader, const byte *inbuf, byte *outbuf)
+{
+	size_t size;
+	byte *out;
+
+	/* Areas */
+	size = outheader->lumps[LUMP_AREAS].filelen;
+	out = (byte *)(outbuf + outheader->lumps[LUMP_AREAS].fileofs);
+	memset(out, 0, size);
+
+	/* Areas Portals */
+	size = outheader->lumps[LUMP_AREAPORTALS].filelen;
+	out = (byte *)(outbuf + outheader->lumps[LUMP_AREAPORTALS].fileofs);
+	memset(out, 0, size);
 }
 
 typedef void (*funcrule_t)(byte *outbuf, dheader_t *outheader, const byte *inbuf,
@@ -1694,7 +1715,7 @@ static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
 	{LUMP_PLANES, sizeof(dq3plane_t), Mod_Load2QBSP_IBSP46_PLANES},
 	{LUMP_NODES, sizeof(dq3node_t), Mod_Load2QBSP_IBSP46_NODES},
 	{LUMP_LEAFS, sizeof(dq3leaf_t), Mod_Load2QBSP_IBSP46_LEAFS},
-	{-1, 0, NULL}, //  LEAFSURFACES 5
+	{LUMP_LEAFFACES, 0, NULL},
 	{LUMP_LEAFBRUSHES, sizeof(int), Mod_Load2QBSP_IBSP_CopyLong},
 	{LUMP_MODELS, sizeof(dq3model_t), Mod_Load2QBSP_IBSP46_MODELS},
 	{LUMP_BRUSHES, sizeof(dq3brush_t), Mod_Load2QBSP_IBSP46_BRUSHES},
@@ -2065,7 +2086,14 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	if ((detected_maptype == map_quake1) ||
 		(detected_maptype == map_hexen2))
 	{
-		result_size += Mod_Load2QBSP_IBSP29_GetAdditionalSize(lumps);
+		result_size += Mod_Load2QBSP_IBSP29_AdditionalSize(lumps);
+	}
+
+	if ((detected_maptype == map_quake1) ||
+		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_quake3))
+	{
+		result_size += Mod_Load2QBSP_AREAS_AdditionalSize(lumps);
 	}
 
 	outbuf = malloc(result_size);
@@ -2086,6 +2114,13 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		(detected_maptype == map_hexen2))
 	{
 		ofs = Mod_Load2QBSP_IBSP29_SetLumps(ofs, lumps, outheader->lumps);
+	}
+
+	if ((detected_maptype == map_quake1) ||
+		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_quake3))
+	{
+		ofs = Mod_Load2QBSP_AREAS_SetLumps(ofs, lumps, outheader->lumps);
 	}
 
 	if (filesize > xofs)
@@ -2141,6 +2176,13 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	if (!bspx_map)
 	{
 		Mod_Load2QBSP_TEXINFO_NOBSPX(outbuf, outheader);
+	}
+
+	if ((detected_maptype == map_quake1) ||
+		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_quake3))
+	{
+		Mod_Load2QBSP_AREAS_Fix(name, *maptype, lumps, outheader, inbuf, outbuf);
 	}
 
 	if ((detected_maptype == map_quake1) ||
