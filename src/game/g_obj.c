@@ -27,6 +27,39 @@
 
 #include "header/local.h"
 
+void
+object_flame_think(edict_t *self)
+{
+	M_SetAnimGroupFrame(self, "flame");
+	self->nextthink = level.time + FRAMETIME;
+}
+
+/*
+ * QUAKED light_torch_small_walltorch (-10 -10 -20) (10 10 20)
+ * QUAKED light_flame_large_yellow (-10 -10 -40) (10 10 40)
+ * QUAKED light_flame_small_white (-10 -10 -12) (12 12 18)
+ * QUAKED light_flame_small_yellow (-10 -10 -12) (12 12 18)
+ *
+ * Quake I: Large yellow flame
+ * Quake I: Small white flame
+ * Quake I: Small yellow flame
+ * Quake I: Small walltorch
+ */
+
+void
+SP_quake_light_flame(edict_t *self)
+{
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+	self->think = object_flame_think;
+	self->nextthink = level.time + FRAMETIME;
+
+	self->s.frame = 0;
+	self->s.sound = 0;
+
+	gi.linkentity(self);
+}
+
 /*
  * QUAKED object_flame1 (1 .5 .5) (-3 -3 -6) (3 3 11)
  *
@@ -36,19 +69,13 @@
  *    1) sound torch
  *    2) sound campfire
  */
-void
-object_flame1_think(edict_t *self)
-{
-	M_SetAnimGroupFrame(self, "flame");
-	self->nextthink = level.time + FRAMETIME;
-}
 
 void
 SP_object_flame1(edict_t *self)
 {
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_NOT;
-	self->think = object_flame1_think;
+	self->think = object_flame_think;
 	self->nextthink = level.time + FRAMETIME;
 
 	self->s.frame = 0;
