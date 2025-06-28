@@ -371,22 +371,12 @@ VID_ShutdownRenderer(void)
 {
 	if (ref_active)
 	{
-		int i;
-
 		/* Shut down the renderer */
 		re.Shutdown();
 		GLimp_ShutdownGraphics();
 		Sys_FreeLibrary(reflib_handle);
 		reflib_handle = NULL;
 		memset(&re, 0, sizeof(re));
-
-		for (i = 0; i < cl.refdef.num_entities; i++)
-		{
-			entity_t *currententity;
-
-			currententity = &cl.refdef.entities[i];
-			currententity->model = NULL;
-		}
 	}
 
 	/* Declare the refresher as inactive */
