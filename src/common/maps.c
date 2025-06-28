@@ -257,6 +257,36 @@ Mod_Load2QBSP_IBSP_PLANES(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP46_PLANES(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	dq3plane_t *in;
+	dplane_t *out;
+	int i, count;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dq3plane_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dplane_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->normal[j] = LittleFloat(in->normal[j]);
+		}
+
+		out->dist = LittleFloat(in->dist);
+		out->type = PLANE_ANYZ; /* calculate distance each time */
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_VERTEXES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -603,6 +633,33 @@ Mod_Load2QBSP_RBSP_TEXINFO(byte *outbuf, dheader_t *outheader,
 }
 
 static void
+Mod_Load2QBSP_IBSP46_TEXINFO(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	dshader_t *in;
+	xtexinfo_t *out;
+	int i, count;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dshader_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (xtexinfo_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		memset(out->vecs, 0, sizeof(out->vecs));
+
+		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->surface_flags), maptype);
+		out->nexttexinfo = -1; /* TODO: Q3 -> Q2 convert */
+		strncpy(out->texture, in->shader,
+			Q_min(sizeof(out->texture), sizeof(in->shader)));
+
+		out++;
+		in++;
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP_FACES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
@@ -878,6 +935,44 @@ Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 		}
 
 		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
+		out->cluster = LittleLong(in->cluster);
+		out->area = LittleLong(in->area);
+
+		/* make unsigned long */
+		out->firstleafface = LittleLong(in->firstleafface) & 0xFFFFFFFF;
+		out->numleaffaces = LittleLong(in->numleaffaces) & 0xFFFFFFFF;
+		out->firstleafbrush = LittleLong(in->firstleafbrush) & 0xFFFFFFFF;
+		out->numleafbrushes = LittleLong(in->numleafbrushes) & 0xFFFFFFFF;
+
+		out++;
+		in++;
+	}
+}
+
+static void
+Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	int i, count;
+	dq3leaf_t *in;
+	dqleaf_t *out;
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (dq3leaf_t *)(inbuf + lumps[inlumppos].fileofs);
+	out = (dqleaf_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->mins[j] = LittleLong(in->mins[j]);
+			out->maxs[j] = LittleLong(in->maxs[j]);
+		}
+
+		out->contents = (i == 0) ? CONTENTS_SOLID : 0; /* TODO: Q3 -> Q2 convert */
 		out->cluster = LittleLong(in->cluster);
 		out->area = LittleLong(in->area);
 
@@ -1484,6 +1579,27 @@ static const rule_t qbsplumps[HEADER_LUMPS] = {
 	{LUMP_AREAPORTALS, sizeof(dareaportal_t), Mod_Load2QBSP_IBSP_Copy},
 };
 
+/* Quake 3 based games */
+static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
+	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
+	{LUMP_TEXINFO, sizeof(dshader_t), Mod_Load2QBSP_IBSP46_TEXINFO},
+	{LUMP_PLANES, sizeof(dq3plane_t), Mod_Load2QBSP_IBSP46_PLANES},
+	{-1, 0, NULL}, //  NODES 3
+	{LUMP_LEAFS, sizeof(dq3leaf_t), Mod_Load2QBSP_IBSP46_LEAFS},
+	{-1, 0, NULL}, //  LEAFSURFACES 5
+	{-1, 0, NULL}, //  LEAFBRUSHES 6
+	{-1, 0, NULL}, //  MODELS 7
+	{-1, 0, NULL}, //  BRUSHES 8
+	{-1, 0, NULL}, //  BRUSHSIDES 9
+	{-1, 0, NULL}, //  DRAWVERTS 10
+	{-1, 0, NULL}, //  DRAWINDEXES 11
+	{-1, 0, NULL}, //  FOGS 12
+	{-1, 0, NULL}, //  SURFACES 13
+	{-1, 0, NULL}, //  LIGHTMAPS 14
+	{-1, 0, NULL}, //  LIGHTGRID 15
+	{-1, 0, NULL}, //  VISIBILITY 16
+};
+
 /* custom format with extended texture name */
 static const rule_t xbsplumps[HEADER_LUMPS] = {
 	{LUMP_ENTITIES, sizeof(char), Mod_Load2QBSP_IBSP_Copy},
@@ -1638,6 +1754,12 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 				*rules = idq1bsplumps;
 				return map_quake1;
 			}
+		}
+		else if (version == BSPQ3VERSION)
+		{
+			*rules = idq3bsplumps;
+			*numrules = *numlumps = HEADER_Q3LUMPS;
+			return map_quake3;
 		}
 	}
 	else if (ident == QBSPHEADER && version == BSPVERSION)

@@ -1337,5 +1337,53 @@ typedef struct
 							      walking the bsp tree */
 } dh2model_t;
 
+/* Quake 3 BSP */
+#define BSPQ3VERSION 46
+#define HEADER_Q3LUMPS 17
+
+#define LUMP_BSP46_ENTITIES 0
+#define LUMP_BSP46_SHADERS 1
+#define LUMP_BSP46_PLANES 2
+#define LUMP_BSP46_NODES 3
+#define LUMP_BSP46_LEAFS 4
+#define LUMP_BSP46_LEAFSURFACES 5
+#define LUMP_BSP46_LEAFBRUSHES 6
+#define LUMP_BSP46_MODELS 7
+#define LUMP_BSP46_BRUSHES 8
+#define LUMP_BSP46_BRUSHSIDES 9
+#define LUMP_BSP46_DRAWVERTS 10
+#define LUMP_BSP46_DRAWINDEXES 11
+#define LUMP_BSP46_FOGS 12
+#define LUMP_BSP46_SURFACES 13
+#define LUMP_BSP46_LIGHTMAPS 14
+#define LUMP_BSP46_LIGHTGRID 15
+#define LUMP_BSP46_VISIBILITY 16
+
+typedef struct {
+	char shader[64];
+	int surface_flags;
+	int content_flags;
+} dshader_t;
+
+/* planes x^1 is allways the opposite of plane x */
+typedef struct {
+	vec3_t normal;
+	float dist;
+} dq3plane_t;
+
+typedef struct {
+	int cluster; /* -1 = opaque cluster */
+	int area;
+
+	int mins[3]; /* for frustum culling */
+	int maxs[3];
+
+	int firstleafface;
+	int numleaffaces;
+
+	int firstleafbrush;
+	int numleafbrushes;
+} dq3leaf_t;
+
 #endif
 

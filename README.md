@@ -83,6 +83,7 @@ Maps support:
 | IBSP   | 29      | Quake 1 / Hexen II (unfinished)            |
 | IBSP   | 38      | Quake 2 / Anachronox / Kingpin / Heretic 2 |
 | IBSP   | 41      | Daikatana / SIN                            |
+| IBSP   | 46      | Quake 3 (unfinished)                       |
 | RBSP   | 1       | SIN                                        |
 | QBSP   | 38      | Quake 2 ReRelease                          |
 | BSPX   | 38      | Quake 2 ReRelease (Extension to IBSP)      |
