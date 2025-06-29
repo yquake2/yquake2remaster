@@ -1027,7 +1027,7 @@ FS_LoadDAT(const char *packPath)
 		return NULL;
 	}
 
-	if (!fread(&header, 1, sizeof(ddatheader_t), handle))
+	if (fread(&header, sizeof(ddatheader_t), 1, handle) != 1)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' too short file",
@@ -1069,7 +1069,7 @@ FS_LoadDAT(const char *packPath)
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
 	fseek(handle, header.dirofs, SEEK_SET);
-	if (!fread(info, 1, header.dirlen, handle))
+	if (fread(info, header.dirlen, 1, handle) != 1)
 	{
 		free(info);
 		Z_Free(files);
@@ -1148,7 +1148,7 @@ FS_LoadSIN(const char *packPath)
 		return NULL;
 	}
 
-	if (!fread(&header, 1, sizeof(dpackheader_t), handle))
+	if (fread(&header, sizeof(dpackheader_t), 1, handle) != 1)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' too short file",
@@ -1191,7 +1191,7 @@ FS_LoadSIN(const char *packPath)
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
 	fseek(handle, header.dirofs, SEEK_SET);
-	if (!fread(info, 1, header.dirlen, handle))
+	if (fread(info, header.dirlen, 1, handle) != 1)
 	{
 		free(info);
 		Z_Free(files);
@@ -1262,7 +1262,7 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
 	fseek(handle, header->dirofs, SEEK_SET);
-	if (!fread(info, 1, header->dirlen, handle))
+	if (fread(info, header->dirlen, 1, handle) != 1)
 	{
 		free(info);
 		Z_Free(files);
@@ -1327,7 +1327,7 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
 	fseek(handle, header->dirofs, SEEK_SET);
-	if (!fread(info, 1, header->dirlen, handle))
+	if (fread(info, header->dirlen, 1, handle) != 1)
 	{
 		free(info);
 		Z_Free(files);
@@ -1385,7 +1385,7 @@ FS_LoadPAK(const char *packPath)
 		return NULL;
 	}
 
-	if (!fread(&header, 1, sizeof(dpackheader_t), handle))
+	if (fread(&header, sizeof(dpackheader_t), 1, handle) != 1)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' too short file",
