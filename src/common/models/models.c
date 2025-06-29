@@ -3702,13 +3702,16 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 
 static byte *
 Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
-	int *width, int *height)
+	int *width, int *height, int *bitsPerPixel)
 {
 	int miptex_offset, miptex_size, texture_offset,
-		image_offset, size;
+		image_offset, size, ident;
 	byte *pic;
 	dq1mipheader_t *miptextures;
 	dq1miptex_t *texture;
+
+	/* get BSP format ident */
+	ident = LittleLong(*(unsigned *)raw);
 
 	miptex_offset = LittleLong(
 		((int *)raw)[LUMP_BSP29_MIPTEX * 2 + 1]); /* text info lump pos */
@@ -3752,15 +3755,14 @@ Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
 	image_offset = LittleLong(texture->offset1);
 	size = (*width) * (*height);
 
-	if (image_offset == 0)
+	if (image_offset <= 0)
 	{
 		Com_Printf("%s: Map %s is external image\n",
 			__func__, mod_name);
 		return NULL;
 	}
 
-	if ((image_offset < 0) ||
-		(size < 0) ||
+	if ((size < 0) ||
 		(image_offset > miptex_size) ||
 		((image_offset + size) > miptex_size))
 	{
@@ -3769,8 +3771,51 @@ Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
 		return NULL;
 	}
 
-	pic = malloc(size);
-	memcpy(pic, (raw + miptex_offset + texture_offset + image_offset), size);
+	if (ident == BSPHL1VERSION)
+	{
+		byte *src, *dst, *palette;
+		size_t i, palette_offset;
+
+		/*
+		 * Half-Life 1 stored custom palette information for each mip texture,
+		 * so we seek past the last mip texture (and past the 256 2-byte denominator)
+		 * to grab the RGB values for this texture
+		 */
+		palette_offset = LittleLong(texture->offset8);
+		palette_offset += (*width >> 3) * (*height >> 3) + 2;
+
+		if ((palette_offset > miptex_size) ||
+			((palette_offset + 768) > miptex_size))
+		{
+			Com_Printf("%s: Map %s has wrong palette image position\n",
+				__func__, mod_name);
+			return NULL;
+		}
+
+		palette = (raw + miptex_offset + texture_offset + palette_offset);
+
+		*bitsPerPixel = 32;
+		dst = pic = malloc(size * 4);
+
+		src = (raw + miptex_offset + texture_offset + image_offset);
+		for (i = 0; i < size; i++)
+		{
+			byte value;
+
+			value = src[i];
+			dst[0] = palette[value * 3 + 0];
+			dst[1] = palette[value * 3 + 1];
+			dst[2] = palette[value * 3 + 2];
+			dst[3] = value == 255 ? 0 : 255;
+			dst += 4;
+		}
+	}
+	else
+	{
+		*bitsPerPixel = 8;
+		pic = malloc(size);
+		memcpy(pic, (raw + miptex_offset + texture_offset + image_offset), size);
+	}
 
 	Com_DPrintf("%s Loaded embeded %s image %dx%d\n",
 		__func__, texture->name, *width, *height);
@@ -3830,8 +3875,6 @@ byte *
 Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 	int *width, int *height, int *bitsPerPixel)
 {
-	*bitsPerPixel = 8;
-
 	if (len < sizeof(unsigned))
 	{
 		return NULL;
@@ -3846,8 +3889,9 @@ Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 			/* fall through */
 		case BSPHL1VERSION:
 			return Mod_LoadBSPImage(mod_name, texture_index, raw, len,
-				width, height);
+				width, height, bitsPerPixel);
 		case IDQ1SPRITEHEADER:
+			*bitsPerPixel = 8;
 			return Mod_LoadSPRImage(mod_name, texture_index, raw, len,
 				width, height);
 		default:
