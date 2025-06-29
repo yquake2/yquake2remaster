@@ -66,6 +66,8 @@ Mod_LoadSurfConvertFlags(int flags, maptype_t maptype)
 		case map_quake1:
 			/* fall through */
 		case map_hexen2:
+			/* fall through */
+		case map_halflife1:
 			return flags == 1 ? SURF_WARP: 0;
 		case map_heretic2: convert = heretic2_flags; break;
 		case map_daikatana: convert = daikatana_flags; break;
@@ -184,6 +186,8 @@ Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
 		case map_quake1:
 			/* fall through */
 		case map_hexen2:
+			/* fall through */
+		case map_halflife1:
 			return ModLoadContextQuake1(flags);
 		case map_quake2: convert = quake2_contents_flags; break;
 		case map_quake3: convert = quake3_contents_flags; break;
@@ -1853,6 +1857,7 @@ Mod_MaptypeName(maptype_t maptype)
 	{
 		case map_quake1: maptypename = "Quake"; break;
 		case map_hexen2: maptypename = "Hexen II"; break;
+		case map_halflife1: maptypename = "Half Life"; break;
 		case map_quake2: maptypename = "Quake II"; break;
 		case map_quake2rr: maptypename = "Quake II ReRelease"; break;
 		case map_quake3: maptypename = "Quake III Arena"; break;
@@ -1908,6 +1913,12 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 			*rules = idq2bsplumps;
 			*numrules = *numlumps = HEADER_LUMPS;
 			return map_quake2rr;
+		}
+		else if (version == BSPHL1VERSION)
+		{
+			*numrules = *numlumps = HEADER_Q1LUMPS;
+			*rules = idq1bsplumps;
+			return map_halflife1;
 		}
 		else if (version == BSPQ1VERSION)
 		{
@@ -2102,10 +2113,10 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	ident = LittleLong(((int *)inbuf)[0]);
 	version = LittleLong(((int *)inbuf)[1]);
 	inlumps = (int*)inbuf + 2; /* skip ident + version */
-	if (ident == BSPQ1VERSION)
+	if (ident == BSPQ1VERSION || ident == BSPHL1VERSION)
 	{
+		version = ident;
 		ident = IDBSPHEADER;
-		version = BSPQ1VERSION;
 		inlumps = (int*)inbuf + 1; /* version */
 	}
 
@@ -2153,13 +2164,15 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	}
 
 	if ((detected_maptype == map_quake1) ||
-		(detected_maptype == map_hexen2))
+		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_halflife1))
 	{
 		result_size += Mod_Load2QBSP_IBSP29_AdditionalSize(lumps);
 	}
 
 	if ((detected_maptype == map_quake1) ||
 		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_halflife1) ||
 		(detected_maptype == map_quake3))
 	{
 		result_size += Mod_Load2QBSP_AREAS_AdditionalSize(lumps);
@@ -2180,13 +2193,15 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	ofs = Mod_Load2QBSPSizeByRules(rules, numrules, outheader, lumps);
 
 	if ((detected_maptype == map_quake1) ||
-		(detected_maptype == map_hexen2))
+		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_halflife1))
 	{
 		ofs = Mod_Load2QBSP_IBSP29_SetLumps(ofs, lumps, outheader->lumps);
 	}
 
 	if ((detected_maptype == map_quake1) ||
 		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_halflife1) ||
 		(detected_maptype == map_quake3))
 	{
 		ofs = Mod_Load2QBSP_AREAS_SetLumps(ofs, lumps, outheader->lumps);
@@ -2249,13 +2264,15 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 
 	if ((detected_maptype == map_quake1) ||
 		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_halflife1) ||
 		(detected_maptype == map_quake3))
 	{
 		Mod_Load2QBSP_AREAS_Fix(name, *maptype, lumps, outheader, inbuf, outbuf);
 	}
 
 	if ((detected_maptype == map_quake1) ||
-		(detected_maptype == map_hexen2))
+		(detected_maptype == map_hexen2) ||
+		(detected_maptype == map_halflife1))
 	{
 		Mod_Load2QBSP_IBSP29_Fix(name, *maptype, lumps, outheader, inbuf, outbuf);
 	}

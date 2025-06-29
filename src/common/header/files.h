@@ -1337,6 +1337,9 @@ typedef struct
 							      walking the bsp tree */
 } dh2model_t;
 
+/* HalfLife 1 BSP */
+#define BSPHL1VERSION 30
+
 /* Quake 3 BSP */
 #define BSPQ3VERSION 46
 #define HEADER_Q3LUMPS 17
