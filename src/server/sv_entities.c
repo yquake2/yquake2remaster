@@ -92,7 +92,7 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
 			oldnum = oldent->number;
 		}
 
-		if (newnum == oldnum)
+		if (newent && newnum == oldnum)
 		{
 			/* delta update from old position. because the force
 			   parm is false, this will not result in any bytes

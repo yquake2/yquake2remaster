@@ -4571,6 +4571,11 @@ SP_xatrix_item(edict_t *self)
 		spawnClass = "weapon_plasmabeam";
 	}
 
+	if (!spawnClass)
+	{
+		return;
+	}
+
 	/* check item spawn functions */
 	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
 	{

@@ -68,6 +68,7 @@ SP_FixCoopSpots(edict_t *self)
 		{
 			G_FreeEdict(self);
 			self = NULL;
+			return;
 		}
 	}
 

@@ -1297,11 +1297,14 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 
 	if (!md5file->num_frames)
 	{
+		size_t size;
+
 		Com_Printf("init: no animation loaded.\n");
 		md5file->num_frames = 1;
 
-		md5file->skelFrames = (md5_frame_t *)
-			malloc(sizeof(md5_frame_t) * md5file->num_frames);
+		size = sizeof(md5_frame_t) * md5file->num_frames;
+		md5file->skelFrames = (md5_frame_t *)malloc(size);
+		memset(md5file->skelFrames, 0, size);
 
 		AllocateFrames(md5file);
 

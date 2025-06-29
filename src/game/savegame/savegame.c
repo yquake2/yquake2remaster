@@ -704,6 +704,8 @@ ReadField(FILE *f, field_t *field, byte *base)
 					gi.error("%s: can't function name", __func__);
 				}
 
+				funcStr[sizeof(funcStr) - 1] = 0;
+
 				if ( !(*(byte **)p = FindFunctionByName (funcStr)) )
 				{
 					gi.error("%s: function %s not found in table, can't load game",
@@ -727,10 +729,12 @@ ReadField(FILE *f, field_t *field, byte *base)
 							__func__, (int)sizeof(funcStr));
 				}
 
-				if (fread (funcStr, len, 1, f) != 1)
+				if (fread(funcStr, len, 1, f) != 1)
 				{
 					gi.error("%s: can't move name", __func__);
 				}
+
+				funcStr[sizeof(funcStr) - 1] = 0;
 
 				if ( !(*(mmove_t **)p = FindMmoveByName (funcStr)) )
 				{

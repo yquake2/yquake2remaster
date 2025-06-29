@@ -387,6 +387,7 @@ SV_ReadServerFile(void)
 		}
 
 		FS_Read(string, sizeof(string), f);
+		string[sizeof(string) - 1] = 0;
 		Com_DPrintf("Set %s = %s\n", cvarname, string);
 		Cvar_ForceSet(cvarname, string);
 	}
