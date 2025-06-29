@@ -3904,6 +3904,7 @@ Create_Savestrings(void)
 
 		FS_Read(tmp, sizeof(tmp), f);
 		FS_FCloseFile(f);
+		tmp[sizeof(tmp) - 1] = 0;
 
 		if (strlen(tmp) > 12)
 		{

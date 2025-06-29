@@ -669,7 +669,13 @@ CL_CheckOrDownloadFile(const char *filename)
 	{
 		/* it exists */
 		int len;
-		fseek(fp, 0, SEEK_END);
+
+		if (fseek(fp, 0, SEEK_END))
+		{
+			Com_Error(ERR_FATAL, "%s: can't seek in file '%s'",
+				__func__, name);
+		}
+
 		len = ftell(fp);
 
 		cls.download = fp;

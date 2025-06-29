@@ -226,9 +226,19 @@ FS_FileLength(FILE *f)
 		return -1;
 	}
 
-	fseek(f, 0, SEEK_END);
+	if (fseek(f, 0, SEEK_END))
+	{
+		Com_Printf("%s: seek failed", __func__);
+		return -1;
+	}
+
 	end = ftell(f);
-	fseek(f, pos, SEEK_SET);
+
+	if (fseek(f, pos, SEEK_SET))
+	{
+		Com_Printf("%s: seek failed", __func__);
+		return -1;
+	}
 
 	return end;
 }
@@ -540,7 +550,12 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 					{
 						handle->compressed_size = pack->files[i].compressed_size;
 						handle->format = pack->files[i].format;
-						fseek(handle->file, pack->files[i].offset, SEEK_SET);
+						if (fseek(handle->file, pack->files[i].offset, SEEK_SET))
+						{
+							Com_Printf("%s: '%s' seek failed", __func__, handle->name);
+							return 0;
+						}
+
 						return pack->files[i].size;
 					}
 				}
@@ -1068,7 +1083,13 @@ FS_LoadDAT(const char *packPath)
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
-	fseek(handle, header.dirofs, SEEK_SET);
+	if (fseek(handle, header.dirofs, SEEK_SET))
+	{
+		free(info);
+		Z_Free(files);
+		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
+	}
+
 	if (fread(info, header.dirlen, 1, handle) != 1)
 	{
 		free(info);
@@ -1190,7 +1211,13 @@ FS_LoadSIN(const char *packPath)
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
-	fseek(handle, header.dirofs, SEEK_SET);
+	if (fseek(handle, header.dirofs, SEEK_SET))
+	{
+		free(info);
+		Z_Free(files);
+		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
+	}
+
 	if (fread(info, header.dirlen, 1, handle) != 1)
 	{
 		free(info);
@@ -1261,7 +1288,13 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
-	fseek(handle, header->dirofs, SEEK_SET);
+	if (fseek(handle, header->dirofs, SEEK_SET))
+	{
+		free(info);
+		Z_Free(files);
+		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
+	}
+
 	if (fread(info, header->dirlen, 1, handle) != 1)
 	{
 		free(info);
@@ -1326,7 +1359,13 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
-	fseek(handle, header->dirofs, SEEK_SET);
+	if (fseek(handle, header->dirofs, SEEK_SET))
+	{
+		free(info);
+		Z_Free(files);
+		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
+	}
+
 	if (fread(info, header->dirlen, 1, handle) != 1)
 	{
 		free(info);
