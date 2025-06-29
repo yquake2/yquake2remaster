@@ -3752,6 +3752,13 @@ Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
 	image_offset = LittleLong(texture->offset1);
 	size = (*width) * (*height);
 
+	if (image_offset == 0)
+	{
+		Com_Printf("%s: Map %s is external image\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
 	if ((image_offset < 0) ||
 		(size < 0) ||
 		(image_offset > miptex_size) ||
@@ -3836,6 +3843,8 @@ Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 			return Mod_LoadMDLImage(mod_name, texture_index, raw, len,
 				width, height, bitsPerPixel);
 		case BSPQ1VERSION:
+			/* fall through */
+		case BSPHL1VERSION:
 			return Mod_LoadBSPImage(mod_name, texture_index, raw, len,
 				width, height);
 		case IDQ1SPRITEHEADER:
