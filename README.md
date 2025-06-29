@@ -145,6 +145,11 @@ Games:
 
 Games check videos:
 
+* 8.52RR12+:
+
+[![Quake I + Half Life 1 Demo](https://img.youtube.com/vi/_KY4bQpij0c/0.jpg)](https://www.youtube.com/watch?v=_KY4bQpij0c)
+[![Quake I + Hexen 2](https://img.youtube.com/vi/uU87u1iEBeg/0.jpg)](https://www.youtube.com/watch?v=uU87u1iEBeg)
+
 * 8.52RR12:
 
 [![4k+ coordinates + flare](https://img.youtube.com/vi/L6BTWUUVh_k/0.jpg)](https://www.youtube.com/watch?v=L6BTWUUVh_k)
@@ -228,6 +233,7 @@ Other games support goals:
 * [ ] jabot: fix crash in SZ_GetSpace,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: rowdys map models disappear on dance space,
+* [ ] Anachronox: rowdys save entity disappear in a8080c05,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
