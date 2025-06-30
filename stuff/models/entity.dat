@@ -1301,3 +1301,162 @@ wp_weapon2||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|
 wp_weapon3||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 3|.5|.5|.5
 wp_weapon4_head||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 4 head|.5|.5|.5
 wp_weapon4_staff||1.0|1.0|1.0|general|-8.0|-8.0|-44.0|8.0|8.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon 4 staff|.5|.5|.5
+
+// HalfLife
+aiscripted_sequence||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|AI Scripted Sequence|1.0|0.0|1.0
+ambient_generic||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Universal Ambient|.5|.5|.5
+ammo_357|models/w_357ammobox.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|357 Ammo|0.0|0.0|0.78
+ammo_9mmAR|models/w_9mmarclip.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|9mm Assault Rifle Ammo|0.0|0.0|0.78
+ammo_9mmbox|models/w_chainammo.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|box of 200 9mm shells|0.0|0.0|0.78
+ammo_9mmclip|models/w_9mmclip.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|9mm Pistol Ammo|0.0|0.0|0.78
+ammo_ARgrenades|models/w_argrenade.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Assault Grenades|0.0|0.0|0.78
+ammo_buckshot|models/w_shotshell.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shotgun Ammo|0.0|0.0|0.78
+ammo_crossbow|models/w_crossbow_clip.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow Ammo|0.0|0.0|0.78
+ammo_gaussclip|models/w_gaussammo.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gauss Gun Ammo|0.0|0.0|0.78
+ammo_rpgclip|models/w_rpgammo.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|RPG Ammo|0.0|0.0|0.78
+button_target||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Target Button|.5|.5|.5
+cycler||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Cycler|.5|.5|.5
+cycler_sprite||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sprite Cycler|.5|.5|.5
+cycler_weapon||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon Cycler|0.0|0.78|0.78
+cycler_wreckage||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wreckage|.5|.5|.5
+env_beam||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Energy Beam Effect|.5|.5|.5
+env_beverage||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Beverage Dispenser|.5|.5|.5
+env_blood||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blood Effects|1.0|0.0|0.0
+env_bubbles||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bubble Volume|.5|.5|.5
+env_explosion||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Explosion|.5|.5|.5
+env_fade||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Screen Fade|.5|.5|.5
+env_funnel||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Large Portal Funnel|.5|.5|.5
+env_global||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Global State|1.0|1.0|0.5
+env_glow||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Light Glow/Haze|0.12|0.39|0.0
+env_laser||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Laser Beam Effect|.5|.5|.5
+env_message||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|HUD Text Message|.5|.5|.5
+env_render||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Render Controls|0.39|0.39|0.0
+env_shake||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Screen Shake|.5|.5|.5
+env_shooter||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Model Shooter|.5|.5|.5
+env_sound||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|DSP Sound|.5|.5|.5
+env_spark||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spark|.5|.5|.5
+env_sprite||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sprite Effect|.5|.5|.5
+func_breakable||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Breakable Object|.5|.5|.5
+func_friction||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Surface with a change in friction|.5|.5|.5
+func_guntarget||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Moving platform|.5|.5|.5
+func_healthcharger||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall health recharger|.5|.5|.5
+func_ladder||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ladder|.5|.5|.5
+func_monsterclip||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster clip brush|.5|.5|.5
+func_mortar_field||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mortar Field|.5|.5|.5
+func_pendulum||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Swings back and forth|.5|.5|.5
+func_platrot||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Moving Rotating platform|.5|.5|.5
+func_pushable||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pushable object|.5|.5|.5
+func_recharge||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Battery recharger|.5|.5|.5
+func_rot_button||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|RotatingButton|.5|.5|.5
+func_tank||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Brush Gun Turret|.5|.5|.5
+func_tankcontrols||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tank controls|.5|.5|.5
+func_tanklaser||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Brush Laser Turret|.5|.5|.5
+func_tankmortar||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Brush Mortar Turret|.5|.5|.5
+func_tankrocket||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Brush Rocket Turret|.5|.5|.5
+func_trackautochange||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Automatic track changing platform|.5|.5|.5
+func_trackchange||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Train track changing platform|.5|.5|.5
+func_tracktrain||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Track Train|.5|.5|.5
+func_traincontrols||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Train Controls|.5|.5|.5
+func_wall_toggle||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Toggleable geometry|.5|.5|.5
+game_counter||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fires when it hits limit|.5|.5|.5
+game_counter_set||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets a game_counter|.5|.5|.5
+game_end||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|End this multiplayer game|.5|.5|.5
+game_player_equip||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Initial player equipment|.5|.5|.5
+game_player_hurt||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hurts player who fires|.5|.5|.5
+game_player_team||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Allows player to change teams|.5|.5|.5
+game_score||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Award/Deduct Points|.5|.5|.5
+game_team_master||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Team based master/relay|.5|.5|.5
+game_team_set||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets team of team_master|.5|.5|.5
+game_text||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|HUD Text Message|.5|.5|.5
+game_zone_player||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Zone brush|.5|.5|.5
+gibshooter||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gib Shooter|.5|.5|.5
+info_bigmomma||1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big Mamma Node|0.08|0.75|0.24
+info_node||1.0|1.0|1.0|general|-24.0|-24.0|-4.0|24.0|24.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ai node|1.0|1.0|0.0
+info_node_air||1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ai air node|1.0|1.0|0.0
+info_target||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Beam Target|0.78|0.39|0.2
+infodecal||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Decal|.5|.5|.5
+item_airtank|models/w_oxygen.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Oxygen tank|0.0|0.0|0.78
+item_antidote|models/w_antidote.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Poison antidote|0.0|0.0|0.78
+item_healthkit|models/w_medkit.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Small Health Kit|0.0|0.0|0.78
+item_longjump|models/w_longjump.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Longjump Module|0.0|0.0|0.78
+item_security|models/w_security.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Security card|0.0|0.0|0.78
+item_suit|models/w_suit.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|HEV Suit|0.0|0.0|0.78
+light_environment||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Environment|.5|.5|.5
+light_spot||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spotlight|.5|.5|.5
+momentary_door||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Momentary/Continuous door|.5|.5|.5
+momentary_rot_button||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Direct wheel control|.5|.5|.5
+monster_alien_controller|models/controller.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Controller|0.0|0.78|0.78
+monster_alien_grunt|models/agrunt.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Alien Grunt|0.0|0.78|0.78
+monster_alien_slave|models/islave.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vortigaunt|0.0|0.78|0.78
+monster_apache|models/apache.mdl|1.0|1.0|1.0|general|-360.0|-360.0|-172.0|360.0|360.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Apache|0.0|0.78|0.78
+monster_babycrab|models/baby_headcrab.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Baby Headcrab|0.0|0.78|0.78
+monster_barnacle|models/barnacle.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-36.0|16.0|16.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barnacle Monster|.5|.5|.5
+monster_barney|models/barney.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barney|0.0|0.78|0.78
+monster_barney_dead||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Barney|.5|.5|.5
+monster_bigmomma|models/big_mom.mdl|1.0|1.0|1.0|general|-95.0|-95.0|0.0|95.0|95.0|190.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big Mamma|0.0|0.78|0.78
+monster_bloater|models/floater.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bloater|0.0|0.78|0.78
+monster_bullchicken|models/bullsquid.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|BullChicken|0.0|0.78|0.78
+monster_cockroach|models/roach.mdl|1.0|1.0|1.0|general|-3.0|-3.0|0.0|3.0|3.0|3.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cockroach|0.0|0.78|0.78
+monster_flyer_flock|models/aflock.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flock of Flyers|0.0|0.78|0.78
+monster_furniture||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Furniture|0.0|0.78|0.78
+monster_gargantua|models/garg.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|128.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gargantua|0.0|0.78|0.78
+monster_generic||1.0|1.0|1.0|general|-16.0|-16.0|-36.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Generic Script Monster|0.0|0.78|0.78
+monster_gman|models/gman.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|G-Man|0.0|0.78|0.78
+monster_grunt_repel|models/hgrunt.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Human Grunt (Repel)|0.0|0.78|0.78
+monster_handgrenade|models/w_grenade.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Live Handgrenade|0.0|0.0|0.78
+monster_headcrab|models/headcrab.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Head Crab|0.0|0.78|0.78
+monster_hevsuit_dead||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead HEV Suit|.5|.5|.5
+monster_hgrunt_dead|models/hgrunt.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Human Grunt|.5|.5|.5
+monster_houndeye|models/houndeye.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Houndeye|0.0|0.78|0.78
+monster_human_assassin|models/hassassin.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Human Assassin|0.0|0.78|0.78
+monster_human_grunt|models/hgrunt.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Human Grunt (camo)|0.0|0.78|0.78
+monster_ichthyosaur|models/icky.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ichthyosaur|0.0|0.78|0.78
+monster_leech|models/leech.mdl|1.0|1.0|1.0|general|-6.0|-6.0|0.0|6.0|6.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Leech|0.0|0.78|0.78
+monster_miniturret|models/miniturret.mdl|1.0|1.0|1.0|general|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mini Auto Turret|0.0|0.78|0.78
+monster_nihilanth|models/nihilanth.mdl|1.0|1.0|1.0|general|-192.0|-192.0|0.0|192.0|192.0|384.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Nihilanth|0.0|0.78|0.78
+monster_osprey|models/osprey.mdl|1.0|1.0|1.0|general|-480.0|-480.0|-112.0|480.0|480.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Osprey|0.0|0.78|0.78
+monster_satchelcharge|models/w_satchel.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Live Satchel Charge|0.0|0.0|0.78
+monster_scientist|models/scientist.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Scared Scientist|0.0|0.78|0.78
+monster_scientist_dead|models/scientist.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dead Scientist|.5|.5|.5
+monster_sentry|models/sentry.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sentry Turret Gun|0.0|0.78|0.78
+monster_sitting_scientist|models/scientist.mdl|1.0|1.0|1.0|general|-14.0|-14.0|22.0|14.0|14.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sitting Scientist|0.0|0.78|0.78
+monster_snark|models/w_squeak.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|36.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Armed Snark|0.0|0.78|0.78
+monster_tentacle|models/tentacle2.mdl|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tentacle Arm|0.0|0.78|0.78
+monster_tripmine||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Active Tripmine|0.0|0.78|0.78
+monstermaker||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Maker|.5|.5|.5
+multi_manager||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|MultiTarget Manager|1.0|0.5|0.0
+multisource||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Multisource|0.5|1.0|0.5
+path_track||1.0|1.0|1.0|general|0.0|0.0|0.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Train Track Path|.5|.5|.5
+player_loadsaved||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Load Auto-Saved game|.5|.5|.5
+player_weaponstrip||1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Strips player's weapons|.5|.5|.5
+scripted_sentence||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Scripted Sentence|1.0|0.0|1.0
+scripted_sequence||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Scripted Sequence|1.0|0.0|1.0
+speaker||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Announcement Speaker|.5|.5|.5
+target_cdaudio||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|CD Audio Target|.5|.5|.5
+trigger_auto||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|AutoTrigger|.5|.5|.5
+trigger_autosave||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|AutoSave Trigger|.5|.5|.5
+trigger_camera||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger Camera|.5|.5|.5
+trigger_cdaudio||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger CD Audio|.5|.5|.5
+trigger_changetarget||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger Change Target|.5|.5|.5
+trigger_endsection||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|EndSection Trigger|.5|.5|.5
+trigger_transition||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trigger : Select Transition Area|.5|.5|.5
+weapon_357|models/w_357.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|357 Handgun|0.0|0.0|0.78
+weapon_9mmAR|models/w_9mmar.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|9mm Assault Rifle|0.0|0.0|0.78
+weapon_9mmhandgun|models/w_9mmhandgun.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|9mm Handgun|0.0|0.0|0.78
+weapon_crossbow|models/w_crossbow.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow|0.0|0.0|0.78
+weapon_egon|models/w_egon.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Egon Gun|0.0|0.0|0.78
+weapon_gauss|models/w_gauss.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Gauss Gun|0.0|0.0|0.78
+weapon_handgrenade|models/w_grenade.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Handgrenade Ammo|0.0|0.0|0.78
+weapon_hornetgun|models/w_hgun.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hornet Gun|0.0|0.0|0.78
+weapon_rpg|models/w_rpg.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|RPG|0.0|0.0|0.78
+weapon_satchel|models/w_satchel.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Satchel Charge Ammo|0.0|0.0|0.78
+weapon_snark|models/w_squeak.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Squeak Grenade|0.0|0.0|0.78
+weapon_tripmine||1.0|1.0|1.0|general|-16.0|-16.0|-5.0|16.0|16.0|27.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tripmine Ammo|0.0|0.0|0.78
+weaponbox|models/w_chainammo.mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Weapon/Ammo Container|0.0|0.5|0.0
+world_items||1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|World Items|0.0|0.0|0.78
+xen_hair|models/hair.mdl|1.0|1.0|1.0|general|-8.0|-8.0|0.0|8.0|8.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Hair|.5|.5|.5
+xen_plantlight|models/light.mdl|1.0|1.0|1.0|general|-48.0|-48.0|0.0|48.0|48.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Plant Light|.5|.5|.5
+xen_spore_large|models/fungus(large).mdl|1.0|1.0|1.0|general|-90.0|-90.0|0.0|90.0|90.0|220.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Spore (large)|.5|.5|.5
+xen_spore_medium|models/fungus.mdl|1.0|1.0|1.0|general|-40.0|-40.0|0.0|40.0|40.0|120.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Spore (medium)|.5|.5|.5
+xen_spore_small|models/fungus(small).mdl|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Spore (small)|.5|.5|.5
+xen_tree|models/tree.mdl|1.0|1.0|1.0|general|-24.0|-24.0|0.0|24.0|24.0|188.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Xen Tree|.5|.5|.5
