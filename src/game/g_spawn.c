@@ -353,7 +353,7 @@ ED_CallSpawn(edict_t *ent)
 
 	if (st.health_multiplier <= 0)
 	{
-			st.health_multiplier = 1.0;
+		st.health_multiplier = 1.0;
 	}
 
 	if (!strcmp(ent->classname, "weapon_nailgun"))
