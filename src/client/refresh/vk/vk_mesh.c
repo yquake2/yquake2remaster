@@ -686,10 +686,14 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	c_alias_polys += paliashdr->num_tris;
 
 	/* draw all the triangles */
-	if (currententity->flags & RF_DEPTHHACK || r_newrefdef.rdflags & RDF_NOWORLDMODEL) { // hack the depth range to prevent view model from poking into walls
+	if (currententity->flags & RF_DEPTHHACK || r_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	{
+		// hack the depth range to prevent view model from poking into walls
 		float r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
 		float r_proj_fovy = r_newrefdef.fov_y;
 		float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
+		const float zNear = Q_max(vk_znear->value, 0.1f);
+
 		// use different range for player setup screen so it doesn't collide with the viewmodel
 		r_vulkan_correction_dh[10] = 0.3f - (r_newrefdef.rdflags & RDF_NOWORLDMODEL) * 0.1f;
 		r_vulkan_correction_dh[14] = 0.3f - (r_newrefdef.rdflags & RDF_NOWORLDMODEL) * 0.1f;
@@ -697,11 +701,11 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		memcpy(prev_viewproj, r_viewproj_matrix, sizeof(r_viewproj_matrix));
 		if (currententity->flags & RF_WEAPONMODEL && r_gunfov->value < 0)
 		{
-			Mat_Perspective(r_projection_matrix, r_vulkan_correction_dh, r_proj_fovy, r_proj_aspect, 2, dist);
+			Mat_Perspective(r_projection_matrix, r_vulkan_correction_dh, r_proj_fovy, r_proj_aspect, zNear, dist);
 		}
 		else
 		{
-			Mat_Perspective(r_projection_matrix, r_vulkan_correction_dh, r_gunfov->value, r_proj_aspect, 2, dist);
+			Mat_Perspective(r_projection_matrix, r_vulkan_correction_dh, r_gunfov->value, r_proj_aspect, zNear, dist);
 		}
 		Mat_Mul(r_view_matrix, r_projection_matrix, r_viewproj_matrix);
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(r_viewproj_matrix), r_viewproj_matrix);

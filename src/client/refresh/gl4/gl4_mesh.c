@@ -717,23 +717,13 @@ GL4_DrawAliasModel(entity_t *entity)
 
 	if (entity->flags & RF_WEAPONMODEL)
 	{
-		extern hmm_mat4 GL4_MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+		extern hmm_mat4 GL4_SetPerspective(GLdouble fovy);
 
 		origProjViewMat = gl4state.uni3DData.transProjViewMat4;
 
 		// render weapon with a different FOV (r_gunfov) so it's not distorted at high view FOV
-		float screenaspect = (float)gl4_newrefdef.width / gl4_newrefdef.height;
-		float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
-
-		hmm_mat4 projMat;
-		if (r_gunfov->value < 0)
-		{
-			projMat = GL4_MYgluPerspective(gl4_newrefdef.fov_y, screenaspect, 2, dist);
-		}
-		else
-		{
-			projMat = GL4_MYgluPerspective(r_gunfov->value, screenaspect, 2, dist);
-		}
+		hmm_mat4 projMat = GL4_SetPerspective( (r_gunfov->value < 0)?
+				gl4_newrefdef.fov_y : r_gunfov->value );
 
 		if(gl_lefthand->value == 1.0F)
 		{

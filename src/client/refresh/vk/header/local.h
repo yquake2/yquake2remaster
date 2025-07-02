@@ -109,6 +109,7 @@ extern	int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 extern	cvar_t	*r_lefthand;
 extern	cvar_t	*r_drawworld;
+extern	cvar_t	*vk_znear;
 extern	cvar_t	*r_novis;
 extern	cvar_t	*r_lerpmodels;
 extern	cvar_t	*r_lockpvs;

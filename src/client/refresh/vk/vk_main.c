@@ -83,6 +83,7 @@ static cvar_t	*r_norefresh;
 static cvar_t	*r_drawentities;
 cvar_t	*r_drawworld;
 static cvar_t	*r_speeds;
+cvar_t	*vk_znear;
 static cvar_t	*r_fullbright;
 cvar_t	*r_novis;
 cvar_t	*r_cull;
@@ -853,6 +854,7 @@ R_SetupVulkan (void)
 	float	r_proj_fovy;
 	int		x, x2, y2, y, w, h;
 	float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
+	const float zNear = Q_max(vk_znear->value, 0.1f);
 
 	/* Render old elements before change viewport */
 	QVk_Draw2DCallsRender();
@@ -893,7 +895,7 @@ R_SetupVulkan (void)
 	r_proj_fovx = r_newrefdef.fov_x;
 	r_proj_fovy = r_newrefdef.fov_y;
 	r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
-	Mat_Perspective(r_projection_matrix, r_vulkan_correction, r_proj_fovy, r_proj_aspect, 2, dist);
+	Mat_Perspective(r_projection_matrix, r_vulkan_correction, r_proj_fovy, r_proj_aspect, zNear, dist);
 
 	R_SetFrustum(vup, vpn, vright, r_origin, r_proj_fovx, r_proj_fovy,
 		frustum);
@@ -1163,6 +1165,7 @@ R_Register(void)
 	r_cull = ri.Cvar_Get("r_cull", "1", 0);
 	r_lerpmodels = ri.Cvar_Get("r_lerpmodels", "1", 0);
 	r_speeds = ri.Cvar_Get("r_speeds", "0", 0);
+	vk_znear = ri.Cvar_Get("vk_znear", "4", CVAR_ARCHIVE);
 	r_lightlevel = ri.Cvar_Get("r_lightlevel", "0", 0);
 	r_mode = ri.Cvar_Get("r_mode", "11", CVAR_ARCHIVE);
 	r_vsync = ri.Cvar_Get("r_vsync", "0", CVAR_ARCHIVE);
