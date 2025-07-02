@@ -2052,8 +2052,6 @@ CL_TeleportParticles(vec3_t org)
  * event value. the female events are there for
  * backwards compatability
  */
-extern struct sfx_s *cl_sfx_footsteps[4];
-
 void
 CL_EntityEvent(entity_xstate_t *ent)
 {
@@ -2111,10 +2109,7 @@ CL_EntityEvent(entity_xstate_t *ent)
 				/* no material steps sound found */
 				if (!sfx)
 				{
-					int step;
-
-					step = randk() & 3;
-					sfx = cl_sfx_footsteps[step];
+					sfx = CL_RandomFootstepSfx();
 				}
 
 				S_StartSound(NULL, ent->number, CHAN_BODY,

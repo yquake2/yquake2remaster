@@ -86,7 +86,7 @@ RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
 	max_light = blocklights + size * 3;
 
 	R_BuildLightMap(surf, bblocklights, smax * 4,
-		r_newrefdef, modulate, r_framecount);
+		r_newrefdef, modulate, r_framecount, NULL);
 
 	/* bound, invert, and shift */
 	if(r_colorlight->value == 0)
