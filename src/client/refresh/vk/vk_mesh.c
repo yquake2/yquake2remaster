@@ -761,7 +761,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 				skin = currentmodel->skins[currententity->skinnum];
 			}
 
-			if (!skin)
+			if (!skin && currentmodel->numskins)
 			{
 				skin = currentmodel->skins[0];
 			}

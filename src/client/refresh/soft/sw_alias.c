@@ -581,6 +581,11 @@ R_AliasSetupSkin(const entity_t *currententity, const model_t *currentmodel)
 	{
 		int skinnum;
 
+		if (!currentmodel->numskins)
+		{
+			return false;
+		}
+
 		skinnum = currententity->skinnum;
 		if ((skinnum >= s_pmdl->num_skins) || (skinnum < 0) ||
 			(skinnum >= currentmodel->numskins))
@@ -593,8 +598,10 @@ R_AliasSetupSkin(const entity_t *currententity, const model_t *currentmodel)
 		pskindesc = currentmodel->skins[skinnum];
 	}
 
-	if ( !pskindesc )
+	if (!pskindesc)
+	{
 		return false;
+	}
 
 	r_affinetridesc.pskin = pskindesc->pixels[0];
 	r_affinetridesc.skinwidth = pskindesc->asset_width;
@@ -794,11 +801,11 @@ void R_PolysetDrawSpansConstant8_66(const entity_t *currententity, spanpackage_t
 
 /*
 ================
-R_AliasDrawModel
+R_DrawAliasModel
 ================
 */
 void
-R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel)
+R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 
@@ -859,10 +866,10 @@ R_AliasDrawModel(entity_t *currententity, const model_t *currentmodel)
 	}
 
 	// set up the skin and verify it exists
-	if ( !R_AliasSetupSkin(currententity, currentmodel) )
+	if (!R_AliasSetupSkin(currententity, currentmodel))
 	{
-		R_Printf(PRINT_ALL, "R_AliasDrawModel %s: NULL skin found\n",
-			currentmodel->name);
+		R_Printf(PRINT_ALL, "%s %s: NULL skin found\n",
+			__func__, currentmodel->name);
 		aliasxscale = oldAliasxscale;
 		aliasyscale = oldAliasyscale;
 		return;
