@@ -1230,9 +1230,12 @@ static void *
 Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 {
 	const hlmdl_header_t pinmodel;
-	hlmdl_texture_t *skins;
 	hlmdl_framegroup_t *seqgroups;
-	size_t i, model_size;
+	dmdx_t dmdxheader, *pheader;
+	hlmdl_texture_t *in_skins;
+	dmdxmesh_t *mesh_nodes;
+	void *extradata;
+	size_t i, num_tris;
 
 	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
 	{
@@ -1267,15 +1270,6 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	model_size = 0;
-
-	skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel.ofs_texture);
-	for (i = 0; i < pinmodel.num_skins; i++)
-	{
-		Com_Printf("%s: Skin %s: %d %dx%d\n",
-			__func__, skins[i].name, skins[i].offset, skins[i].width, skins[i].height);
-	}
-
 	seqgroups = (hlmdl_framegroup_t *)((byte *)buffer + pinmodel.ofs_seqgroup);
 	for (i = 0; i < pinmodel.num_seqgroups; i++)
 	{
@@ -1283,9 +1277,50 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			__func__, seqgroups[i].label, seqgroups[i].name);
 	}
 
-	model_size = sizeof(dmdx_t) + pinmodel.num_skins * MAX_SKINNAME;
+	num_tris = 0;
 
-	return NULL;
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = 0;
+	dmdxheader.skinheight = 0;
+	dmdxheader.framesize = 0;
+
+	dmdxheader.num_meshes = 0;
+	dmdxheader.num_skins = pinmodel.num_skins;
+	dmdxheader.num_xyz = 0;
+	dmdxheader.num_st = 0;
+	dmdxheader.num_tris = num_tris;
+	dmdxheader.num_glcmds = 0;
+	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_frames = 0;
+	dmdxheader.num_animgroup = 0;
+
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
+
+	/* create single mesh */
+	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
+	mesh_nodes[0].ofs_tris = 0;
+	mesh_nodes[0].num_tris = num_tris;
+
+	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel.ofs_texture);
+	for (i = 0; i < pinmodel.num_skins; i++)
+	{
+		char *skin;
+
+		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+
+		Q_strlcpy(skin, in_skins[i].name, MAX_SKINNAME);
+
+		Com_Printf("%s: Skin %s: %d %dx%d\n",
+			__func__, in_skins[i].name, in_skins[i].offset, in_skins[i].width, in_skins[i].height);
+	}
+
+	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadCmdGenerate(pheader);
+
+	Mod_LoadFixImages(mod_name, pheader, false);
+
+	return extradata;
 }
 
 /* glcmds generation */
