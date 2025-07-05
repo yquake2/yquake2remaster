@@ -538,7 +538,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			skin = currentmodel->skins[currententity->skinnum];
 		}
 
-		if (!skin)
+		if (!skin && currentmodel->numskins)
 		{
 			skin = currentmodel->skins[0];
 		}
@@ -552,8 +552,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	if ((currententity->frame >= paliashdr->num_frames) ||
 		(currententity->frame < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_DrawAliasModel %s: no such frame %d\n",
-				currentmodel->name, currententity->frame);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such frame %d\n",
+				__func__, currentmodel->name, currententity->frame);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}
@@ -561,8 +561,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	if ((currententity->oldframe >= paliashdr->num_frames) ||
 		(currententity->oldframe < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_DrawAliasModel %s: no such oldframe %d\n",
-				currentmodel->name, currententity->oldframe);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such oldframe %d\n",
+				__func__, currentmodel->name, currententity->oldframe);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}

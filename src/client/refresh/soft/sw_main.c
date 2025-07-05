@@ -864,7 +864,7 @@ R_DrawEntitiesOnList (void)
 				break;
 
 			case mod_alias:
-				R_AliasDrawModel(currententity, currentmodel);
+				R_DrawAliasModel(currententity, currentmodel);
 				break;
 
 			case mod_brush:
@@ -918,7 +918,7 @@ R_DrawEntitiesOnList (void)
 				break;
 
 			case mod_alias:
-				R_AliasDrawModel(currententity, currentmodel);
+				R_DrawAliasModel(currententity, currentmodel);
 				break;
 
 			case mod_brush:

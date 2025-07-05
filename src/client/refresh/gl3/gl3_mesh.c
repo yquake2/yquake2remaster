@@ -759,7 +759,7 @@ GL3_DrawAliasModel(entity_t *entity)
 			skin = model->skins[entity->skinnum];
 		}
 
-		if (!skin)
+		if (!skin && model->numskins)
 		{
 			skin = model->skins[0];
 		}
@@ -781,8 +781,8 @@ GL3_DrawAliasModel(entity_t *entity)
 	if ((entity->frame >= paliashdr->num_frames) ||
 		(entity->frame < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_DrawAliasModel %s: no such frame %d\n",
-				model->name, entity->frame);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such frame %d\n",
+				__func__, model->name, entity->frame);
 		entity->frame = 0;
 		entity->oldframe = 0;
 	}
@@ -790,8 +790,8 @@ GL3_DrawAliasModel(entity_t *entity)
 	if ((entity->oldframe >= paliashdr->num_frames) ||
 		(entity->oldframe < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "R_DrawAliasModel %s: no such oldframe %d\n",
-				model->name, entity->oldframe);
+		R_Printf(PRINT_DEVELOPER, "%s %s: no such oldframe %d\n",
+				__func__, model->name, entity->oldframe);
 		entity->frame = 0;
 		entity->oldframe = 0;
 	}
