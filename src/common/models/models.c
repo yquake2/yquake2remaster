@@ -1281,9 +1281,20 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	bodyparts = (hlmdl_bodypart_t *)((byte *)buffer + pinmodel.ofs_bodyparts);
 	for (i = 0; i < pinmodel.num_bodyparts; i++)
 	{
-		Com_Printf("%s: %s: Bodypart %s: nummodels %d,  base %d, offeset: %d\n",
-			__func__, mod_name, bodyparts[i].name, bodyparts[i].nummodels,
+		hlmdl_bodymodel_t *bodymodels;
+		int j;
+
+		Com_Printf("%s: %s: Bodypart %s: nummodels %d, base %d, offeset: %d\n",
+			__func__, mod_name, bodyparts[i].name, bodyparts[i].num_models,
 			bodyparts[i].base, bodyparts[i].ofs_model);
+
+		bodymodels = (hlmdl_bodymodel_t *)((byte *)buffer + bodyparts[i].ofs_model);
+		for (j = 0; j < bodyparts[i].num_models; j++)
+		{
+			Com_Printf("%s: %s: %s: model %s mesh %d\n",
+				__func__, mod_name, bodyparts[i].name, bodymodels[j].name,
+				bodymodels[j].num_mesh);
+		}
 	}
 
 	num_tris = 0;

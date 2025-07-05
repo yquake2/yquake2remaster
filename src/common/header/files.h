@@ -216,10 +216,28 @@ typedef struct hlmdl_framegroup_s
 typedef struct hlmdl_bodypart_s
 {
 	char name[64];           /* The name of the bodypart. */
-	int nummodels;           /* The number of Models. */
+	int num_models;           /* The number of Models. */
 	int base;
 	int ofs_model;           /* The offset of the first model chunk. */
 } hlmdl_bodypart_t;
+
+typedef struct hlmdl_bodymodel_s
+{
+	char name[64];           /* The name of the model.
+								This is also the name of the SMD file. */
+	int	type;                /* Unused. */
+	float boundingradius;    /* Unused. */
+	int num_mesh;            /* The number of meshes. */
+	int ofs_mesh;            /* The offset of the first mesh chunk. */
+	int num_verts;           /* The number of vertex positions. */
+	int ofs_vertinfo;        /* The offset to the first vertexinfoindex value. */
+	int ofs_vert;            /* The offset to the first vertex position. */
+	int num_norms;           /* The number of vertex normals. */
+	int ofs_norminfo;        /* The offset to the first norminfoindex value. */
+	int ofs_norm;            /* The offset to the first vertex normal. */
+	int num_groups;          /* Unused. */
+	int ofs_groups;          /* Unused. */
+} hlmdl_bodymodel_t;
 
 /* .MD2 triangle model file format */
 
