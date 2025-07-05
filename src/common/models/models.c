@@ -1221,6 +1221,73 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
+/*
+=================
+Mod_LoadModel_HLMDL
+=================
+*/
+static void *
+Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
+{
+	const hlmdl_header_t pinmodel;
+	hlmdl_texture_t *skins;
+	hlmdl_framegroup_t *seqgroups;
+	size_t i, model_size;
+
+	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
+	{
+		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
+	}
+
+	if (pinmodel.version != HLMDL_VERSION)
+	{
+		Com_Printf("%s: %s has wrong version number (%i should be %i)\n",
+				__func__, mod_name, pinmodel.version, ALIAS_VERSION);
+		return NULL;
+	}
+
+	if (pinmodel.ofs_end < 0 || pinmodel.ofs_end > modfilelen)
+	{
+		Com_Printf("%s: model %s file size(%d) too small, should be %d\n",
+				__func__, mod_name, modfilelen, pinmodel.ofs_end);
+		return NULL;
+	}
+
+	if (pinmodel.ofs_texture < 0)
+	{
+		Com_Printf("%s: model %s incorrect texture possition\n",
+				__func__, mod_name);
+		return NULL;
+	}
+
+	if ((pinmodel.ofs_texture + sizeof(hlmdl_texture_t) * pinmodel.num_skins) > pinmodel.ofs_end)
+	{
+		Com_Printf("%s: model %s incorrect texture size\n",
+				__func__, mod_name);
+		return NULL;
+	}
+
+	model_size = 0;
+
+	skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel.ofs_texture);
+	for (i = 0; i < pinmodel.num_skins; i++)
+	{
+		Com_Printf("%s: Skin %s: %d %dx%d\n",
+			__func__, skins[i].name, skins[i].offset, skins[i].width, skins[i].height);
+	}
+
+	seqgroups = (hlmdl_framegroup_t *)((byte *)buffer + pinmodel.ofs_seqgroup);
+	for (i = 0; i < pinmodel.num_seqgroups; i++)
+	{
+		Com_Printf("%s: Seqgroup  %s: %s\n",
+			__func__, seqgroups[i].label, seqgroups[i].name);
+	}
+
+	model_size = sizeof(dmdx_t) + pinmodel.num_skins * MAX_SKINNAME;
+
+	return NULL;
+}
+
 /* glcmds generation */
 static int
 Mod_LoadCmdStripLength(int starttri, int startv, dtriangle_t *triangles, int num_tris,
@@ -3594,6 +3661,10 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 
 		case IDMDLHEADER:
 			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen);
+			break;
+
+		case IDHLMDLHEADER:
+			extradata = Mod_LoadModel_HLMDL(mod_name, buffer, modfilelen);
 			break;
 
 		case ID3HEADER:
