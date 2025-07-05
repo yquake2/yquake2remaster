@@ -166,7 +166,7 @@ typedef struct hlmdl_header_s
 	vec3_t bbmax;            /* Clipping box max extent. */
 	int flags;               /* state flag */
 	int num_bones;           /* The number of bones. */
-	int ofs_bone;            /* The offset of the first bone chunk. */
+	int ofs_bones;           /* The offset of the first bone chunk. */
 	int num_bonecontrollers; /* The number of bone controllers. */
 	int ofs_bonecontroller;  /* The offset of the first bone controller chunk. */
 	int num_hitboxes;        /* The number of hitboxes. */
@@ -183,7 +183,7 @@ typedef struct hlmdl_header_s
 	int num_skinfamilies;    /* The number of skin families. */
 	int ofs_skins;           /* The offset of the first skin value. */
 	int num_bodyparts;       /* The number of bodyparts. */
-	int ofs_bodypart;        /* The offset of the first bodypart chunk. */
+	int ofs_bodyparts;       /* The offset of the first bodypart chunk. */
 	int num_attachments;     /* The number of attachments. */
 	int ofs_attachment;      /* The offset of the first attachment chunk. */
 	int soundtable;
@@ -212,6 +212,14 @@ typedef struct hlmdl_framegroup_s
 	char name[64];           /* The sequence group file name. */
 	int unused[2];
 } hlmdl_framegroup_t;
+
+typedef struct hlmdl_bodypart_s
+{
+	char name[64];           /* The name of the bodypart. */
+	int nummodels;           /* The number of Models. */
+	int base;
+	int ofs_model;           /* The offset of the first model chunk. */
+} hlmdl_bodypart_t;
 
 /* .MD2 triangle model file format */
 

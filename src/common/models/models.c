@@ -1236,6 +1236,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxmesh_t *mesh_nodes;
 	void *extradata;
 	size_t i, num_tris;
+	hlmdl_bodypart_t *bodyparts;
 
 	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
 	{
@@ -1273,8 +1274,16 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	seqgroups = (hlmdl_framegroup_t *)((byte *)buffer + pinmodel.ofs_seqgroup);
 	for (i = 0; i < pinmodel.num_seqgroups; i++)
 	{
-		Com_Printf("%s: Seqgroup  %s: %s\n",
-			__func__, seqgroups[i].label, seqgroups[i].name);
+		Com_Printf("%s: %s: Seqgroup  %s: %s\n",
+			__func__, mod_name, seqgroups[i].label, seqgroups[i].name);
+	}
+
+	bodyparts = (hlmdl_bodypart_t *)((byte *)buffer + pinmodel.ofs_bodyparts);
+	for (i = 0; i < pinmodel.num_bodyparts; i++)
+	{
+		Com_Printf("%s: %s: Bodypart %s: nummodels %d,  base %d, offeset: %d\n",
+			__func__, mod_name, bodyparts[i].name, bodyparts[i].nummodels,
+			bodyparts[i].base, bodyparts[i].ofs_model);
 	}
 
 	num_tris = 0;
