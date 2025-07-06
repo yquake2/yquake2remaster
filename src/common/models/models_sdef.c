@@ -245,11 +245,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 		return NULL;
 	}
 
-	/* Convert from LittleLong */
-	for (i = 0; i < sizeof(sin_sbm_header_t) / 4; i ++)
-	{
-		((int *)base)[i] = LittleLong(((int *)base)[i]);
-	}
+	Mod_LittleHeader((int *)base, sizeof(sin_sbm_header_t) / sizeof(int),
+		(int *)base);
 
 	if ((base->ident != SBMHEADER) || (base->version != MDSINVERSION))
 	{
@@ -272,7 +269,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 
 	for (i = 0; i < actions_num; i++)
 	{
-		int anim_size, j;
+		int anim_size;
 
 		anim_size = FS_LoadFile(animations[i].value, (void **)&anim[animation_num]);
 		if (anim_size <= 0)
@@ -289,12 +286,8 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 			continue;
 		}
 
-		/* Convert from LittleLong */
-		for (j = 0; j < sizeof(sin_sam_header_t) / 4; j ++)
-		{
-			((int *)anim[animation_num])[j] = LittleLong(
-				((int *)anim[animation_num])[j]);
-		}
+		Mod_LittleHeader((int *)anim[animation_num], sizeof(sin_sam_header_t) / sizeof(int),
+			(int *)anim[animation_num]);
 
 		if ((anim[animation_num]->ident != SAMHEADER) ||
 			(anim[animation_num]->version != MDSINVERSION))

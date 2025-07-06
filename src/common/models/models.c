@@ -627,10 +627,8 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	for (i=0 ; i < sizeof(pinmodel) / sizeof(int) ; i++)
-	{
-		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
-	}
+	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
+		(int *)&pinmodel);
 
 	if (pinmodel.version != ID3_VERSION)
 	{
@@ -840,8 +838,8 @@ Mod_LoadModel_MD2A(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxmesh_t *mesh_nodes;
 	const int *pincmd;
 	dmdla_t pinmodel;
-	int i, framesize;
 	void *extradata;
+	int framesize;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -850,10 +848,8 @@ Mod_LoadModel_MD2A(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
-	{
-		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
-	}
+	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
+		(int *)&pinmodel);
 
 	if (pinmodel.version != ALIAS_ANACHRONOX_VERSION &&
 		pinmodel.version != ALIAS_ANACHRONOX_VERSION_OLD)
@@ -993,9 +989,9 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	const dstvert_t *pinst;
 	qboolean normalfix;
 	const int *pincmd;
-	int i, framesize;
 	dmdl_t pinmodel;
 	void *extradata;
+	int framesize;
 
 	if (modfilelen < sizeof(pinmodel))
 	{
@@ -1004,10 +1000,8 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
-	{
-		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
-	}
+	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
+		(int *)&pinmodel);
 
 	if (pinmodel.version != ALIAS_VERSION)
 	{
@@ -1471,7 +1465,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 	dmdx_t dmdxheader, *pheader = NULL;
 	dkm_header_t header = {0};
 	void *extradata = NULL;
-	int i;
 
 	if (sizeof(dkm_header_t) > modfilelen)
 	{
@@ -1480,8 +1473,8 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	/* byte swap the header fields and sanity check */
-	for (i=0 ; i<sizeof(dkm_header_t)/sizeof(int) ; i++)
-		((int *)&header)[i] = LittleLong(((int *)buffer)[i]);
+	Mod_LittleHeader((int *)buffer, sizeof(dkm_header_t) / sizeof(int),
+		(int *)&header);
 
 	if (header.version != DKM1_VERSION && header.version != DKM2_VERSION)
 	{
@@ -1573,7 +1566,6 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 	vec3_t translate = {0, 0, 0};
 	mdx_header_t header = {0};
 	void *extradata = NULL;
-	int i;
 
 	if (sizeof(mdx_header_t) > modfilelen)
 	{
@@ -1582,8 +1574,8 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	/* byte swap the header fields and sanity check */
-	for (i=0 ; i<sizeof(mdx_header_t)/sizeof(int) ; i++)
-		((int *)&header)[i] = LittleLong(((int *)buffer)[i]);
+	Mod_LittleHeader((int *)buffer, sizeof(mdx_header_t) / sizeof(int),
+		(int *)&header);
 
 	if (header.version != MDX_VERSION)
 	{

@@ -162,10 +162,8 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	for (i = 0; i < sizeof(pinmodel) / sizeof(int); i++)
-	{
-		((int *)&pinmodel)[i] = LittleLong(((int *)buffer)[i]);
-	}
+	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
+		(int *)&pinmodel);
 
 	if (pinmodel.version != MDR_VERSION)
 	{

@@ -56,6 +56,7 @@ dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extrad
 void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
 byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 	int *width, int *height, int *bitsPerPixel);
+void Mod_LittleHeader(const int *in, size_t len, int *out);
 
 /* models */
 void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,

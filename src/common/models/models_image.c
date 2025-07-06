@@ -43,10 +43,8 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 		return NULL;
 	}
 
-	for (i = 0; i < sizeof(pinsprite) / sizeof(int); i++)
-	{
-		((int *)&pinsprite)[i] = LittleLong(((int *)buffer)[i]);
-	}
+	Mod_LittleHeader((int *)buffer, sizeof(pinsprite) / sizeof(int),
+		(int *)&pinsprite);
 
 	if (pinsprite.version != IDQ1SPRITE_VERSION)
 	{

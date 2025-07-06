@@ -553,5 +553,16 @@ Mod_LoadCmdGenerate(dmdx_t *pheader)
 		pglcmds += mesh_nodes[i].num_glcmds;
 		num_tris += mesh_nodes[i].num_tris;
 	}
+}
 
+/* Convert from LittleLong */
+void
+Mod_LittleHeader(const int *in, size_t len, int *out)
+{
+	size_t i;
+
+	for (i = 0; i < len; i++)
+	{
+		out[i] = LittleLong(in[i]);
+	}
 }
