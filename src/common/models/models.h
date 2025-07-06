@@ -47,6 +47,17 @@ void PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts,
 	daliasxframe_t *frame_out);
 void Mod_LoadFrames_VertMD2(dxtrivertx_t *vert, const byte *in);
 void Mod_ConvertNormalMDL(byte in_normal, signed char *normal);
+int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,
+	int num_tris, int *commands, int skinwidth, int skinheight);
+void Mod_LoadCmdGenerate(dmdx_t *pheader);
+void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
+void Mod_LoadAnimGroupList(dmdx_t *pheader);
+dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
+void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
+byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
+	int *width, int *height, int *bitsPerPixel);
+
+/* models */
 void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_MDA(const char *mod_name, const void *buffer,
@@ -57,14 +68,11 @@ void *Mod_LoadModel_MDR(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_SDEF(const char *mod_name, const void *buffer,
 	int modfilelen);
-int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,
-	int num_tris, int *commands, int skinwidth, int skinheight);
-void Mod_LoadCmdGenerate(dmdx_t *pheader);
-void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
-void Mod_LoadAnimGroupList(dmdx_t *pheader);
-dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
-void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
-byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
-	int *width, int *height, int *bitsPerPixel);
+
+/* sprites */
+void *Mod_LoadSprite_SP2(const char *mod_name, const void *buffer,
+	int modfilelen);
+void *Mod_LoadSprite_SPR(const char *mod_name, const void *buffer,
+	int modfilelen);
 
 #endif /* SRC_CLIENT_REFRESH_FILES_MODELS_H_ */
