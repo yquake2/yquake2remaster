@@ -1107,6 +1107,7 @@ CLIENT_OBJS_ := \
 	src/common/models/models_mda.o \
 	src/common/models/models_mdr.o \
 	src/common/models/models_sdef.o \
+	src/common/models/models_utils.o \
 	src/common/movemsg.o \
 	src/common/frame.o \
 	src/common/netchan.o \
@@ -1398,6 +1399,7 @@ SERVER_OBJS_ := \
 	src/common/models/models_mda.o \
 	src/common/models/models_mdr.o \
 	src/common/models/models_sdef.o \
+	src/common/models/models_utils.o \
 	src/common/movemsg.o \
 	src/common/netchan.o \
 	src/common/pmove.o \
