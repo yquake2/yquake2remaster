@@ -147,6 +147,105 @@ typedef struct mdl_header_s
 	float size;           /* average size of triangles */
 } mdl_header_t;
 
+/* .MDL (Half-Life) triangle model file format */
+#define IDHLMDLHEADER (('T' << 24) + ('S' << 16) + ('D' << 8) + 'I')
+#define HLMDL_VERSION 10
+
+typedef struct hlmdl_header_s
+{
+	int ident;               /* magic number: "IDST" */
+	int version;             /* version: 10 */
+	char name[64];           /* Model name */
+	int ofs_end;             /* end of file */
+	vec3_t eyeposition;      /* eyes' position */
+	vec3_t mins;             /* Hull min extent. */
+	vec3_t maxs;             /* Hull max extent. */
+	vec3_t bbmin;            /* Clipping box min extent. */
+	vec3_t bbmax;            /* Clipping box max extent. */
+	int flags;               /* state flag */
+	int num_bones;           /* The number of bones. */
+	int ofs_bones;           /* The offset of the first bone chunk. */
+	int num_bonecontrollers; /* The number of bone controllers. */
+	int ofs_bonecontroller;  /* The offset of the first bone controller chunk. */
+	int num_hitboxes;        /* The number of hitboxes. */
+	int ofs_hitbox;          /* The offset of the first hitbox chunk. */
+	int num_seq;             /* The number of sequences. */
+	int ofs_seq;             /* The offset of the first sequence chunk. */
+	int num_seqgroups;       /* The number of sequence groups. */
+	int ofs_seqgroup;        /* The offset of the first sequence group chunk. */
+	int num_skins;           /* number of textures */
+	int ofs_texture;         /* The offset of the first texture chunk. */
+	int ofs_texturedata;     /* The offset of the pixel data of the first
+								texture chunk. */
+	int num_skinref;         /* The number of replacable textures. */
+	int num_skinfamilies;    /* The number of skin families. */
+	int ofs_skins;           /* The offset of the first skin value. */
+	int num_bodyparts;       /* The number of bodyparts. */
+	int ofs_bodyparts;       /* The offset of the first bodypart chunk. */
+	int num_attachments;     /* The number of attachments. */
+	int ofs_attachment;      /* The offset of the first attachment chunk. */
+	int soundtable;
+	int ofs_sound;
+	int soundgroups;
+	int ofs_soundgroup;
+	int num_transitions;     /* The number of nodes in the sequence transition
+								graph. */
+	int ofs_transitionindex; /* The offset of the first transition value of
+								the sequence transition graph. */
+} hlmdl_header_t;
+
+typedef struct hlmdl_texture_s
+{
+	char name[64];           /* The texture name. */
+	int flags;               /* One or more texture flags. */
+	int width;               /* Width in pixel. */
+	int height;              /* Height in pixel. */
+	int offset;              /* The offset of the pixel data from file start:
+								width * height + palette. */
+} hlmdl_texture_t;
+
+typedef struct hlmdl_framegroup_s
+{
+	char label[32];          /* The sequence group name. */
+	char name[64];           /* The sequence group file name. */
+	int unused[2];
+} hlmdl_framegroup_t;
+
+typedef struct hlmdl_bodypart_s
+{
+	char name[64];           /* The name of the bodypart. */
+	int num_models;           /* The number of Models. */
+	int base;
+	int ofs_model;           /* The offset of the first model chunk. */
+} hlmdl_bodypart_t;
+
+typedef struct hlmdl_bodymodel_s
+{
+	char name[64];           /* The name of the model.
+								This is also the name of the SMD file. */
+	int	type;                /* Unused. */
+	float boundingradius;    /* Unused. */
+	int num_mesh;            /* The number of meshes. */
+	int ofs_mesh;            /* The offset of the first mesh chunk. */
+	int num_verts;           /* The number of vertex positions. */
+	int ofs_vertinfo;        /* The offset to the first vertexinfoindex value. */
+	int ofs_vert;            /* The offset to the first vertex position. */
+	int num_norms;           /* The number of vertex normals. */
+	int ofs_norminfo;        /* The offset to the first norminfoindex value. */
+	int ofs_norm;            /* The offset to the first vertex normal. */
+	int num_groups;          /* Unused. */
+	int ofs_groups;          /* Unused. */
+} hlmdl_bodymodel_t;
+
+typedef struct hlmdl_bodymesh_s
+{
+	int num_tris;            /* The number of triverts. */
+	int ofs_tris;            /* The offset of the first trivert. */
+	int skinref;             /* The texture index. */
+	int num_norms;
+	int ofs_norm;
+} hlmdl_bodymesh_t;
+
 /* .MD2 triangle model file format */
 
 #define IDALIASHEADER (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I')

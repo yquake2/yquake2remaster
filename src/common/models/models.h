@@ -59,6 +59,8 @@ byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, in
 void Mod_LittleHeader(const int *in, size_t len, int *out);
 
 /* models */
+void *Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer,
+	int modfilelen);
 void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_MDA(const char *mod_name, const void *buffer,

@@ -1695,6 +1695,10 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 			extradata = Mod_LoadModel_MDL(mod_name, buffer, modfilelen);
 			break;
 
+		case IDHLMDLHEADER:
+			extradata = Mod_LoadModel_HLMDL(mod_name, buffer, modfilelen);
+			break;
+
 		case ID3HEADER:
 			extradata = Mod_LoadModel_MD3(mod_name, buffer, modfilelen);
 			break;

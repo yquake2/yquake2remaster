@@ -1102,6 +1102,7 @@ CLIENT_OBJS_ := \
 	src/common/models/image.o \
 	src/common/models/loadfile.o \
 	src/common/models/models.o \
+	src/common/models/models_hlmdl.o \
 	src/common/models/models_image.o \
 	src/common/models/models_md5.o \
 	src/common/models/models_mda.o \
@@ -1396,6 +1397,7 @@ SERVER_OBJS_ := \
 	src/common/models/image.o \
 	src/common/models/loadfile.o \
 	src/common/models/models.o \
+	src/common/models/models_hlmdl.o \
 	src/common/models/models_image.o \
 	src/common/models/models_md5.o \
 	src/common/models/models_mda.o \
