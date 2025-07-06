@@ -531,6 +531,7 @@ set(Client-Source
 	${COMMON_SRC_DIR}/models/models.c
 	${COMMON_SRC_DIR}/models/models_image.c
 	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mda.c
 	${COMMON_SRC_DIR}/models/models_mdr.c
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/frame.c
@@ -623,6 +624,7 @@ set(Server-Source
 	${COMMON_SRC_DIR}/models/models.c
 	${COMMON_SRC_DIR}/models/models_image.c
 	${COMMON_SRC_DIR}/models/models_md5.c
+	${COMMON_SRC_DIR}/models/models_mda.c
 	${COMMON_SRC_DIR}/models/models_mdr.c
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/md4.c
