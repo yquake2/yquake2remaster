@@ -51,6 +51,8 @@ void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_MDA(const char *mod_name, const void *buffer,
 	int modfilelen);
+void *Mod_LoadModel_MDL(const char *mod_name, const void *buffer,
+	int modfilelen);
 void *Mod_LoadModel_MDR(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_SDEF(const char *mod_name, const void *buffer,

@@ -448,7 +448,7 @@ Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
 	filesize = FS_LoadFile(newname, buffer);
 	if (filesize > 0)
 	{
-		Com_DPrintf("%s: %s loaded as mdl (Quake 1)\n",
+		Com_DPrintf("%s: %s loaded as mdl (Quake/Half-Life)\n",
 			__func__, namewe);
 		return filesize;
 	}
