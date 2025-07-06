@@ -45,9 +45,13 @@ typedef struct
 
 void PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts,
 	daliasxframe_t *frame_out);
+void Mod_LoadFrames_VertMD2(dxtrivertx_t *vert, const byte *in);
+void Mod_ConvertNormalMDL(byte in_normal, signed char *normal);
 void *Mod_LoadModel_MD5(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadModel_MDR(const char *mod_name, const void *buffer,
+	int modfilelen);
+void *Mod_LoadModel_SDEF(const char *mod_name, const void *buffer,
 	int modfilelen);
 int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,
 	int num_tris, int *commands, int skinwidth, int skinheight);
