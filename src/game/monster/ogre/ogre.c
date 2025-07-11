@@ -345,7 +345,7 @@ ogre_pain(edict_t *self, edict_t *other /* unused */,
 	if (self->pain_debounce_time > level.time)
 		return;
 	r = random();
-	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	if (r < 0.25)
 	{
@@ -446,7 +446,7 @@ ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);

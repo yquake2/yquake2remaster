@@ -252,7 +252,7 @@ knight_pain(edict_t *self, edict_t *other /* unused */,
 	else
 		self->monsterinfo.currentmove = &knight_move_pain2;
 	self->pain_debounce_time = level.time + 1;
-	gi.sound (self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
 void
@@ -322,7 +322,7 @@ knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound (self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);

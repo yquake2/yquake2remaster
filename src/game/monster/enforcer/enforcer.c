@@ -148,7 +148,7 @@ enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 		gi.WriteByte(226);
 		gi.multicast(self->s.origin, MULTICAST_PVS);
 
-		gi.sound (self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
 	}
 
 	G_FreeEdict(self);
@@ -496,7 +496,7 @@ enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, v
 
 	if (self->health <= self->gib_health)
 	{
-		gi.sound(self, CHAN_VOICE, gi.soundindex ("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n= 0; n < 2; n++)
 			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);

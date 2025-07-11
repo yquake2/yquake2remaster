@@ -615,6 +615,7 @@ BecomeExplosion2(edict_t *self)
 
 	G_FreeEdict(self);
 }
+
 /* ===================================================== */
 
 /*

@@ -86,7 +86,7 @@ P_DamageFeedback(edict_t *player)
 	/* death/gib sound is now aggregated and played here */
 	if (player->sounds)
 	{
-		gi.sound (player, CHAN_VOICE, player->sounds, 1, ATTN_NORM, 0);
+		gi.sound(player, CHAN_VOICE, player->sounds, 1, ATTN_NORM, 0);
 		player->sounds = 0;
 	}
 
