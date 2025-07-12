@@ -243,7 +243,8 @@ extern int c_visible_textures;
 
 extern float r_world_matrix[16];
 
-extern unsigned char gammatable[256];
+extern byte gammatable[256];
+extern byte minlight[256];
 
 qboolean R_Bind(int texnum);
 
@@ -410,6 +411,7 @@ typedef struct
 {
 	float inverse_intensity;
 	float sw_gamma;	// always 1 if using SDL2 hw gamma
+	qboolean minlight_set;	// is gl1_minlight > 0 ?
 	qboolean fullscreen;
 
 	int prev_mode;

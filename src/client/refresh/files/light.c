@@ -498,7 +498,8 @@ R_GetTemporaryLMBuffer(size_t size)
 }
 
 static void
-R_StoreLightMap(byte *dest, int stride, int smax, int tmax, byte *gammatable)
+R_StoreLightMap(byte *dest, int stride, int smax, int tmax, byte *gammatable,
+	byte *minlight)
 {
 	float *bl;
 	int i;
@@ -568,6 +569,13 @@ R_StoreLightMap(byte *dest, int stride, int smax, int tmax, byte *gammatable)
 				a = a * t;
 			}
 
+			if (minlight)
+			{
+				r = minlight[r];
+				g = minlight[g];
+				b = minlight[b];
+			}
+
 			if (gammatable)
 			{
 				dest[0] = gammatable[r];
@@ -594,7 +602,7 @@ R_StoreLightMap(byte *dest, int stride, int smax, int tmax, byte *gammatable)
  */
 void
 R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *r_newrefdef,
-	float modulate, int r_framecount, byte *gammatable)
+	float modulate, int r_framecount, byte *gammatable, byte *minlight)
 {
 	int smax, tmax;
 	int size, numlightmaps;
@@ -629,7 +637,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 		}
 		while(curr_light < max_light);
 
-		R_StoreLightMap(dest, stride, smax, tmax, gammatable);
+		R_StoreLightMap(dest, stride, smax, tmax, gammatable, minlight);
 		return;
 	}
 
@@ -741,7 +749,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 		R_AddDynamicLights(surf, r_newrefdef, s_blocklights);
 	}
 
-	R_StoreLightMap(dest, stride, smax, tmax, gammatable);
+	R_StoreLightMap(dest, stride, smax, tmax, gammatable, minlight);
 }
 
 static void

@@ -73,6 +73,14 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 					idx[i] = Q_clamp(idx[i], 0, 255);
 				}
 
+				if (gl_state.minlight_set)
+				{
+					for (i = 0; i < 3; i++)
+					{
+						idx[i] = minlight[idx[i]];
+					}
+				}
+
 				GLBUFFER_COLOR(gammatable[idx[0]],
 					gammatable[idx[1]],
 					gammatable[idx[2]], alpha * 255)
@@ -114,6 +122,14 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				{
 					idx[i] = l * shadelight[i] * 255;
 					idx[i] = Q_clamp(idx[i], 0, 255);
+				}
+
+				if (gl_state.minlight_set)
+				{
+					for (i = 0; i < 3; i++)
+					{
+						idx[i] = minlight[idx[i]];
+					}
 				}
 
 				GLBUFFER_COLOR(gammatable[idx[0]],

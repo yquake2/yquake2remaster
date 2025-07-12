@@ -101,6 +101,7 @@ cvar_t *gl_shadows;
 cvar_t *gl1_stencilshadow;
 cvar_t *r_mode;
 cvar_t *r_fixsurfsky;
+cvar_t *gl1_minlight;
 cvar_t *r_ttffont;
 
 cvar_t *r_customwidth;
@@ -1314,6 +1315,7 @@ R_Register(void)
 	r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
 	gl_znear = ri.Cvar_Get("gl_znear", "4", CVAR_ARCHIVE);
+	gl1_minlight = ri.Cvar_Get("gl1_minlight", "0", CVAR_ARCHIVE);
 	/* font should looks good with 8 pixels size */
 	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 
