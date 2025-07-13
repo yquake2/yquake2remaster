@@ -73,6 +73,8 @@ void *Mod_LoadModel_SDEF(const char *mod_name, const void *buffer,
 	int modfilelen);
 
 /* sprites */
+void *Mod_LoadSprite_BK(const char *mod_name, const void *buffer,
+	int modfilelen);
 void *Mod_LoadSprite_SP2(const char *mod_name, const void *buffer,
 	int modfilelen);
 void *Mod_LoadSprite_SPR(const char *mod_name, const void *buffer,

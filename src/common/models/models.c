@@ -1715,6 +1715,10 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 			extradata = Mod_LoadSprite_SP2(mod_name, buffer, modfilelen);
 			break;
 
+		case IDBKHEADER:
+			extradata = Mod_LoadSprite_BK(mod_name, buffer, modfilelen);
+			break;
+
 		case IDQ1SPRITEHEADER:
 			extradata = Mod_LoadSprite_SPR(mod_name, buffer, modfilelen);
 			break;

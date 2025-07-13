@@ -504,7 +504,9 @@ Mod_LoadAndStoreModel(const char *name)
 	memcpy(namewe, name, len);
 	namewe[len] = 0;
 
-	if (!strcmp(ext, "sp2") || !strcmp(ext, "spr"))
+	if (!strcmp(ext, "bk") ||
+		!strcmp(ext, "sp2") ||
+		!strcmp(ext, "spr"))
 	{
 		filesize = FS_LoadFile(name, &buffer);
 	}
@@ -701,7 +703,9 @@ Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 		mod = Mod_LoadAndStoreModel(name);
 	}
 
-	if (mod)
+	if (mod &&
+		(mod->extradatasize > 4) &&
+		(((int *)mod->extradata)[0] == IDALIASHEADER))
 	{
 		dmdx_t *paliashdr;
 
@@ -767,6 +771,7 @@ Mod_LoadFile(const char *name, void **buffer)
 		!strcmp(ext, "mdx") ||
 		!strcmp(ext, "mdl") ||
 		/* sprites */
+		!strcmp(ext, "bk") ||
 		!strcmp(ext, "sp2") ||
 		!strcmp(ext, "spr") ||
 		!strcmp(ext, "png") ||

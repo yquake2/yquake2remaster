@@ -28,9 +28,72 @@
 
 /*
 =================
+Mod_LoadSprite_BK
+
+support for .bk Heretic 2 sprites
+=================
+*/
+void *
+Mod_LoadSprite_BK(const char *mod_name, const void *buffer, int modfilelen)
+{
+	const dbksprite_t *sprin;
+	dsprite_t *sprout;
+	int i, numframes;
+	void *extradata;
+
+	sprin = (dbksprite_t *)buffer;
+	numframes = LittleLong(sprin->numframes);
+
+	extradata = Hunk_Begin(modfilelen);
+	sprout = Hunk_Alloc(modfilelen);
+
+	/* Heretic 2 BK sprite uses different ident */
+	sprout->ident = IDSPRITEHEADER;
+	sprout->version = LittleLong(sprin->version);
+	sprout->numframes = numframes;
+
+	if (sprout->version != SPRITE_VERSION)
+	{
+		Com_Printf("%s has wrong version number (%i should be %i)\n",
+				mod_name, sprout->version, SPRITE_VERSION);
+		return NULL;
+	}
+
+	Com_DPrintf("%s has %dx%d size\n",
+			mod_name, sprin->width, sprin->height);
+
+	/* byte swap everything */
+	for (i = 0; i < sprout->numframes; i++)
+	{
+		/* Heretic 2 has coordinates inside whole combined image  */
+		sprout->frames[i].width = LittleLong(sprin->frames[i].width);
+		sprout->frames[i].height = LittleLong(sprin->frames[i].height);
+		sprout->frames[i].origin_x = sprout->frames[i].width / 2;
+		sprout->frames[i].origin_y = sprout->frames[i].height / 2;
+		snprintf(sprout->frames[i].name, MAX_SKINNAME,
+			"book/%s", sprin->frames[i].name);
+
+		Com_DPrintf("%s:#%d %s original coordinates %dx%d -> %dx%d\n",
+				mod_name, i, sprin->frames[i].name,
+				sprin->frames[i].x, sprin->frames[i].y,
+				sprin->frames[i].width, sprin->frames[i].height);
+	}
+
+	for (i = 0; i < sprout->numframes; i++)
+	{
+		Com_DPrintf("%s: %s #%d: Should load external '%s'\n",
+			__func__, mod_name, i,
+			sprout->frames[i].name);
+	}
+
+	return extradata;
+}
+
+/*
+=================
 Mod_LoadSprite_SP2
 
-support for .sp2 sprites
+support for .sp2 Quake2 engine sprites
 =================
 */
 void *
@@ -82,7 +145,7 @@ Mod_LoadSprite_SP2(const char *mod_name, const void *buffer, int modfilelen)
 =================
 Mod_LoadSprite_SPR
 
-support for .spr sprites
+support for .spr Quake engine sprites
 =================
 */
 void *

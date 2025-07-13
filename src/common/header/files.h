@@ -615,6 +615,26 @@ typedef struct
 	dsprframe_t frames[1]; /* variable sized */
 } dsprite_t;
 
+/* .BK Heretic 2 sprite file format */
+#define IDBKHEADER (('K' << 24) + ('O' << 16) + ('O' << 8) + 'B') /* little-endian "BOOK" */
+
+typedef struct
+{
+	int x, y; /* raster coordinates inside book */
+	int width, height; /* pic size */
+	char name[MAX_SKINNAME]; /* name of pcx file */
+} dbksprframe_t;
+
+typedef struct
+{
+	int ident;
+	int version;
+	int numframes;
+	int height;            /* Additional fields to dsprite_t */
+	int width;
+	dbksprframe_t frames[1]; /* variable sized */
+} dbksprite_t;
+
 /* Quake 1 Sprite */
 
 #define IDQ1SPRITEHEADER (('P' << 24) + ('S' << 16) + ('D' << 8) + 'I') /* little-endian "IDSP" */
