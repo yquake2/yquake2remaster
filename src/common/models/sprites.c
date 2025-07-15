@@ -37,33 +37,59 @@ void *
 Mod_LoadSprite_BK(const char *mod_name, const void *buffer, int modfilelen)
 {
 	const dbksprite_t *sprin;
+	dbksprite_t header;
 	dsprite_t *sprout;
-	int i, numframes;
 	void *extradata;
+	int i, size;
+
+	if (modfilelen < sizeof(sprin))
+	{
+		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
+				__func__, mod_name, modfilelen, sizeof(sprin));
+		return NULL;
+	}
+
+	Mod_LittleHeader((int *)buffer,
+		(sizeof(header) - sizeof(dbksprframe_t)) / sizeof(int), (int *)&header);
+
+	if (header.version != SPRITE_VERSION)
+	{
+		Com_Printf("%s has wrong version number (%i should be %i)\n",
+				mod_name, header.version, SPRITE_VERSION);
+		return NULL;
+	}
+
+	if (header.numframes < 1)
+	{
+		Com_Printf("%s has wrong number of frames %d\n",
+				mod_name, header.numframes);
+		return NULL;
+	}
+
+	size = sizeof(header) + (header.numframes - 1) * sizeof(dbksprframe_t);
+
+	if (size > modfilelen)
+	{
+		Com_Printf("%s has wrong size %d > %d\n",
+				mod_name, size, modfilelen);
+		return NULL;
+	}
 
 	sprin = (dbksprite_t *)buffer;
-	numframes = LittleLong(sprin->numframes);
 
 	extradata = Hunk_Begin(modfilelen);
 	sprout = Hunk_Alloc(modfilelen);
 
 	/* Heretic 2 BK sprite uses different ident */
 	sprout->ident = IDSPRITEHEADER;
-	sprout->version = LittleLong(sprin->version);
-	sprout->numframes = numframes;
-
-	if (sprout->version != SPRITE_VERSION)
-	{
-		Com_Printf("%s has wrong version number (%i should be %i)\n",
-				mod_name, sprout->version, SPRITE_VERSION);
-		return NULL;
-	}
+	sprout->version = header.version;
+	sprout->numframes = header.numframes;
 
 	Com_DPrintf("%s has %dx%d size\n",
-			mod_name, sprin->width, sprin->height);
+			mod_name, header.width, header.height);
 
 	/* byte swap everything */
-	for (i = 0; i < sprout->numframes; i++)
+	for (i = 0; i < header.numframes; i++)
 	{
 		/* Heretic 2 has coordinates inside whole combined image  */
 		sprout->frames[i].width = LittleLong(sprin->frames[i].width);
@@ -100,26 +126,50 @@ void *
 Mod_LoadSprite_SP2(const char *mod_name, const void *buffer, int modfilelen)
 {
 	const dsprite_t *sprin;
-	dsprite_t *sprout;
-	int i, numframes;
+	dsprite_t header, *sprout;
 	void *extradata;
+	int i, size;
+
+	if (modfilelen < sizeof(sprin))
+	{
+		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
+				__func__, mod_name, modfilelen, sizeof(sprin));
+		return NULL;
+	}
+
+	Mod_LittleHeader((int *)buffer,
+		(sizeof(header) - sizeof(dsprframe_t)) / sizeof(int), (int *)&header);
+	if (header.version != SPRITE_VERSION)
+	{
+		Com_Printf("%s has wrong version number (%i should be %i)\n",
+				mod_name, header.version, SPRITE_VERSION);
+		return NULL;
+	}
+
+	if (header.numframes < 1)
+	{
+		Com_Printf("%s has wrong number of frames %d\n",
+				mod_name, header.numframes);
+		return NULL;
+	}
+
+	size = sizeof(header) + (header.numframes - 1) * sizeof(dsprframe_t);
+
+	if (size > modfilelen)
+	{
+		Com_Printf("%s has wrong size %d > %d\n",
+				mod_name, size, modfilelen);
+		return NULL;
+	}
 
 	sprin = (dsprite_t *)buffer;
-	numframes = LittleLong(sprin->numframes);
 
 	extradata = Hunk_Begin(modfilelen);
 	sprout = Hunk_Alloc(modfilelen);
 
-	sprout->ident = LittleLong(sprin->ident);
-	sprout->version = LittleLong(sprin->version);
-	sprout->numframes = numframes;
-
-	if (sprout->version != SPRITE_VERSION)
-	{
-		Com_Printf("%s has wrong version number (%i should be %i)\n",
-				mod_name, sprout->version, SPRITE_VERSION);
-		return NULL;
-	}
+	sprout->ident = header.ident;
+	sprout->version = header.version;
+	sprout->numframes = header.numframes;
 
 	/* byte swap everything */
 	for (i = 0; i < sprout->numframes; i++)
