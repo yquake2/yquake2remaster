@@ -594,7 +594,9 @@ Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs)
 		mod = Mod_LoadAndStoreModel(name);
 	}
 
-	if (mod)
+	if (mod &&
+		(mod->extradatasize > 4) &&
+		(((int *)mod->extradata)[0] == IDALIASHEADER))
 	{
 		dmdx_t *paliashdr;
 
