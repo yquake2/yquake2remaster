@@ -612,8 +612,9 @@ Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs)
 byte *
 Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPixel)
 {
-	char mainname[MAX_QPATH], texture_index[MAX_QPATH], *mainfile;
+	char mainname[MAX_QPATH], texture_index[MAX_QPATH];
 	size_t len, ext_len = 4;
+	const char *mainfile;
 	byte *pic;
 
 	mainfile = strstr(mod_name, ".bsp#");

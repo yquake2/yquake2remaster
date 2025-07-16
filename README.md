@@ -71,7 +71,7 @@ Sprites support:
 
 | Format | Original Game  | Comments                                       |
 | ------ | -------------- | ---------------------------------------------- |
-| bk     | Heretic 2      | Showed first tile from book, converted to sp2  |
+| bk     | Heretic 2      | Combine frames to single one, converted to sp2 |
 | spr    | Quake          | Unsupported grouped textures, converted to sp2 |
 | sp2    | Quake 2        |                                                |
 | atd    | Anachronox     | Convert first frame to wall surface texture    |
@@ -235,7 +235,7 @@ Other games support goals:
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Half-Life: support mdl,
-* [ ] Heretic 2: combine all tiles in book sprite,
+* [x] Heretic 2: combine all tiles in book sprite,
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: rowdys map models disappear on dance space,
