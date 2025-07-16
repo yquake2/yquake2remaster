@@ -613,7 +613,7 @@ byte *
 Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPixel)
 {
 	char mainname[MAX_QPATH], texture_index[MAX_QPATH], *mainfile;
-	size_t len;
+	size_t len, ext_len = 4;
 	byte *pic;
 
 	mainfile = strstr(mod_name, ".bsp#");
@@ -636,6 +636,13 @@ Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPi
 		mainfile = strstr(mod_name, ".md2#");
 	}
 
+	/* Container is not MD2 */
+	if (!mainfile)
+	{
+		mainfile = strstr(mod_name, ".bk#");
+		ext_len = 3;
+	}
+
 	/* Unknow container */
 	if (!mainfile)
 	{
@@ -643,17 +650,17 @@ Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPi
 	}
 
 	/* get bsp file path */
-	len = Q_min(mainfile - mod_name + 4, sizeof(mainname) - 1);
+	len = Q_min(mainfile - mod_name + ext_len, sizeof(mainname) - 1);
 	memcpy(mainname, mod_name, len);
 	mainname[len] = 0;
 
 	/* get texture id */
 	Q_strlcpy(texture_index, mod_name + len + 1, sizeof(texture_index));
 	/* remove ext */
-	texture_index[strlen(texture_index) - 4] = 0;
+	texture_index[strlen(texture_index) - ext_len] = 0;
 
-	if ((!strcmp(mainname + strlen(mainname) - 4, ".mdl")) ||
-		(!strcmp(mainname + strlen(mainname) - 4, ".md2")))
+	if ((!strcmp(mainname + strlen(mainname) - ext_len, ".mdl")) ||
+		(!strcmp(mainname + strlen(mainname) - ext_len, ".md2")))
 	{
 		/* Could have some embded image in cached object */
 		const model_t *mod;

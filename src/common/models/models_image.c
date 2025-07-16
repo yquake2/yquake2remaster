@@ -28,6 +28,61 @@
 #include "models.h"
 
 static byte *
+Mod_LoadBKImage(const char *mod_name, int texture_index, byte *buffer, int modfilelen,
+	int *width, int *height)
+{
+	const dbksprite_t *sprin;
+	dbksprite_t header;
+	int i, size;
+	byte *pic;
+
+	if (modfilelen < sizeof(sprin))
+	{
+		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
+				__func__, mod_name, modfilelen, sizeof(sprin));
+		return NULL;
+	}
+
+	Mod_LittleHeader((int *)buffer,
+		(sizeof(header) - sizeof(dbksprframe_t)) / sizeof(int), (int *)&header);
+
+	if (header.version != SPRITE_VERSION)
+	{
+		Com_Printf("%s has wrong version number (%i should be %i)\n",
+				mod_name, header.version, SPRITE_VERSION);
+		return NULL;
+	}
+
+	if (header.numframes < 1)
+	{
+		Com_Printf("%s has wrong number of frames %d\n",
+				mod_name, header.numframes);
+		return NULL;
+	}
+
+	size = sizeof(header) + (header.numframes - 1) * sizeof(dbksprframe_t);
+
+	if (size > modfilelen)
+	{
+		Com_Printf("%s has wrong size %d > %d\n",
+				mod_name, size, modfilelen);
+		return NULL;
+	}
+
+	sprin = (dbksprite_t *)buffer;
+
+	Com_DPrintf("%s: %s has %dx%d size\n",
+			__func__, mod_name, header.width, header.height);
+
+	*width = header.width;
+	*height = header.height;
+	pic = malloc(header.width * header.height * 4);
+	memset(pic, 255, header.width * header.height * 4);
+
+	return pic;
+}
+
+static byte *
 Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modfilelen,
 	int *width, int *height)
 {
@@ -295,6 +350,11 @@ Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 		case BSPHL1VERSION:
 			return Mod_LoadBSPImage(mod_name, texture_index, raw, len,
 				width, height, bitsPerPixel);
+		case IDBKHEADER:
+			/* combined image could be only 32bits */
+			*bitsPerPixel = 32;
+			return Mod_LoadBKImage(mod_name, texture_index, raw, len,
+				width, height);
 		case IDQ1SPRITEHEADER:
 			*bitsPerPixel = 8;
 			return Mod_LoadSPRImage(mod_name, texture_index, raw, len,

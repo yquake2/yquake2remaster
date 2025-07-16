@@ -630,8 +630,8 @@ typedef struct
 	int ident;
 	int version;
 	int numframes;
-	int height;            /* Additional fields to dsprite_t */
-	int width;
+	int width;            /* Additional fields to dsprite_t */
+	int height;
 	dbksprframe_t frames[1]; /* variable sized */
 } dbksprite_t;
 

@@ -77,33 +77,37 @@ Mod_LoadSprite_BK(const char *mod_name, const void *buffer, int modfilelen)
 
 	sprin = (dbksprite_t *)buffer;
 
-	extradata = Hunk_Begin(modfilelen);
-	sprout = Hunk_Alloc(modfilelen);
+	/* check tile names */
+	for (i = 0; i < header.numframes; i++)
+	{
+		const char *ext;
+
+		ext = COM_FileExtension(sprin->frames[i].name);
+		if (strcmp(ext, "m8"))
+		{
+			Com_Printf("%s has incorrect tile file %s\n",
+					mod_name, sprin->frames[i].name);
+			return NULL;
+		}
+	}
+
+	extradata = Hunk_Begin(sizeof(dbksprite_t));
+	sprout = Hunk_Alloc(sizeof(dbksprite_t));
 
 	/* Heretic 2 BK sprite uses different ident */
 	sprout->ident = IDSPRITEHEADER;
 	sprout->version = header.version;
-	sprout->numframes = header.numframes;
+	sprout->numframes = 1;
 
-	Com_DPrintf("%s has %dx%d size\n",
-			mod_name, header.width, header.height);
+	Com_DPrintf("%s: %s has %dx%d size\n",
+			__func__, mod_name, header.width, header.height);
 
-	/* byte swap everything */
-	for (i = 0; i < header.numframes; i++)
-	{
-		/* Heretic 2 has coordinates inside whole combined image  */
-		sprout->frames[i].width = LittleLong(sprin->frames[i].width);
-		sprout->frames[i].height = LittleLong(sprin->frames[i].height);
-		sprout->frames[i].origin_x = sprout->frames[i].width / 2;
-		sprout->frames[i].origin_y = sprout->frames[i].height / 2;
-		snprintf(sprout->frames[i].name, MAX_SKINNAME,
-			"book/%s", sprin->frames[i].name);
-
-		Com_DPrintf("%s:#%d %s original coordinates %dx%d -> %dx%d\n",
-				mod_name, i, sprin->frames[i].name,
-				sprin->frames[i].x, sprin->frames[i].y,
-				sprin->frames[i].width, sprin->frames[i].height);
-	}
+	sprout->frames[0].width = header.width;
+	sprout->frames[0].height = header.height;
+	sprout->frames[0].origin_x = header.width / 2;
+	sprout->frames[0].origin_y = header.height / 2;
+	snprintf(sprout->frames[0].name, MAX_SKINNAME,
+		"%s#0.lmp", mod_name);
 
 	for (i = 0; i < sprout->numframes; i++)
 	{
