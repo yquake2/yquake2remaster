@@ -57,6 +57,8 @@ void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen
 byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 	int *width, int *height, int *bitsPerPixel);
 void Mod_LittleHeader(const int *in, size_t len, int *out);
+void Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
+	byte **pic, byte **palette, int *width, int *height, int *bitsPerPixel);
 
 /* models */
 void *Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer,

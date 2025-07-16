@@ -753,47 +753,15 @@ Mod_LoadQuakePalette(byte **palette)
 	FS_FreeFile(raw);
 }
 
-/*
- * Load only static images without animation support
- */
+/* Does not check to embeded images */
 void
-Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
-	int *width, int *height, int *bitsPerPixel)
+Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
+	byte **pic, byte **palette, int *width, int *height, int *bitsPerPixel)
 {
 	const char* ext;
-	int len, ident;
-	byte *raw;
+	int ident;
 
 	ext = COM_FileExtension(filename);
-	*pic = NULL;
-
-	/* load the file */
-	len = FS_LoadFile(filename, (void **)&raw);
-
-	if (!raw || len <= 0)
-	{
-		/* map wall texture */
-		if (strcmp(ext, "lmp"))
-		{
-			return;
-		}
-
-		*pic = Mod_LoadEmbededLMP(filename, width, height, bitsPerPixel);
-		/* Get Quake palette */
-		if (palette && *pic && *bitsPerPixel == 8)
-		{
-			Mod_LoadQuakePalette(palette);
-		}
-
-		return;
-	}
-
-	if (len <= sizeof(int))
-	{
-		FS_FreeFile(raw);
-		return;
-	}
-
 	ident = LittleShort(*((short*)raw));
 	if (!strcmp(ext, "pcx") && (ident == PCX_IDENT))
 	{
@@ -862,6 +830,53 @@ Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 		*bitsPerPixel = 32;
 	}
+}
+
+/*
+ * Load only static images without animation support
+ */
+void
+Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
+	int *width, int *height, int *bitsPerPixel)
+{
+	int len;
+	byte *raw;
+
+	*pic = NULL;
+
+	/* load the file */
+	len = FS_LoadFile(filename, (void **)&raw);
+
+	if (!raw || len <= 0)
+	{
+		const char* ext;
+
+		ext = COM_FileExtension(filename);
+
+		/* map wall texture */
+		if (strcmp(ext, "lmp"))
+		{
+			return;
+		}
+
+		*pic = Mod_LoadEmbededLMP(filename, width, height, bitsPerPixel);
+		/* Get Quake palette */
+		if (palette && *pic && *bitsPerPixel == 8)
+		{
+			Mod_LoadQuakePalette(palette);
+		}
+
+		return;
+	}
+
+	if (len <= sizeof(int))
+	{
+		FS_FreeFile(raw);
+		return;
+	}
+
+	Mod_RawDecodeImageWithPalette(filename, raw, len, pic, palette, width, height,
+		bitsPerPixel);
 
 	FS_FreeFile(raw);
 }
