@@ -246,6 +246,16 @@ typedef struct hlmdl_bodymesh_s
 	int ofs_norm;
 } hlmdl_bodymesh_t;
 
+typedef struct hlmdl_bone_s
+{
+	char name[32]; /* The name of the bone. */
+	int parent;    /* The bone's parent index. */
+	int flags;     /* Unused. */
+	int bonecontroller[6];
+	float value[6];
+	float scale[6];
+} hlmdl_bone_t;
+
 /* .MD2 triangle model file format */
 
 #define IDALIASHEADER (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I')

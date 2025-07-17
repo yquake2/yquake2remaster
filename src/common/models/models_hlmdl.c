@@ -40,8 +40,9 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdx_t dmdxheader, *pheader;
 	hlmdl_texture_t *in_skins;
 	dmdxmesh_t *mesh_nodes;
+	const hlmdl_bone_t *bones;
 	void *extradata;
-	size_t i, num_tris;
+	size_t i, num_tris, framesize;
 	hlmdl_bodypart_t *bodyparts;
 
 	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
@@ -135,13 +136,17 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
+	/* Calculate frame size */
+	framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
+	framesize += pinmodel.num_bones * sizeof(dxtrivertx_t);
+
 	num_tris = 0;
 
 	/* copy back all values */
 	memset(&dmdxheader, 0, sizeof(dmdxheader));
 	dmdxheader.skinwidth = 0;
 	dmdxheader.skinheight = 0;
-	dmdxheader.framesize = 0;
+	dmdxheader.framesize = framesize;
 
 	dmdxheader.num_meshes = 0;
 	dmdxheader.num_skins = pinmodel.num_skins;
@@ -150,7 +155,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = num_tris;
 	dmdxheader.num_glcmds = 0;
 	dmdxheader.num_imgbit = 0;
-	dmdxheader.num_frames = 0;
+	dmdxheader.num_frames = pinmodel.num_seq;  /* Each sequence becomes a frame */
 	dmdxheader.num_animgroup = 0;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
@@ -171,6 +176,68 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 		Com_Printf("%s: Skin %s: %d %dx%d\n",
 			__func__, in_skins[i].name, in_skins[i].offset, in_skins[i].width, in_skins[i].height);
+	}
+
+	/* Get bones/sequences */
+	bones = (const hlmdl_bone_t *)((const byte *)buffer + pinmodel.ofs_bones);
+	for (i = 0; i < pinmodel.num_seq; i++)
+	{
+		daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader +
+			pheader->ofs_frames + i * pheader->framesize);
+
+		/* Set frame name from sequence */
+		snprintf(frame->name, sizeof(frame->name), "sequence_%ld", i);
+
+		/* Use standard scale/translation for now */
+		VectorSet(frame->scale, 1.0f, 1.0f, 1.0f);
+		VectorSet(frame->translate, 0.f, 0.f, 0.f);
+
+		/* Convert bone positions to vertices */
+		for (int j = 0; j < pinmodel.num_bones; j++)
+		{
+			dxtrivertx_t *vert = &frame->verts[j];
+			const hlmdl_bone_t *bone = &bones[j];
+
+			/* Initialize vertex from bone position */
+			vec3_t pos = {0};
+
+			/* Get base bone position */
+			for (int k = 0; k < 3; k++)
+			{
+				pos[k] = bone->value[k];
+
+				/* Apply bone controller scaling */
+				if (bone->scale[k] != 0)
+				{
+					pos[k] *= bone->scale[k];
+				}
+			}
+
+			/* Apply parent bone transformations */
+			if (bone->parent >= 0)
+			{
+				const hlmdl_bone_t *parent = &bones[bone->parent];
+				vec3_t parentPos;
+
+				/* Get parent position */
+				VectorSet(parentPos,
+					parent->value[0],
+					parent->value[1],
+					parent->value[2]);
+
+
+				/* Add parent offset */
+				VectorAdd(pos, parentPos, pos);
+			}
+
+			/* Convert to 8-bit vertex coords */
+			vert->v[0] = (byte)((pos[0] / 255.0f) * 255);
+			vert->v[1] = (byte)((pos[1] / 255.0f) * 255);
+			vert->v[2] = (byte)((pos[2] / 255.0f) * 255);
+
+			/* Set normal to point up */
+			memset(vert->normal, 0, sizeof(vert->normal));
+		}
 	}
 
 	Mod_LoadAnimGroupList(pheader);
