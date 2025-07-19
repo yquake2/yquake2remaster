@@ -41,6 +41,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	hlmdl_texture_t *in_skins;
 	dmdxmesh_t *mesh_nodes;
 	const hlmdl_bone_t *bones;
+	const hlmdl_sequence_t *sequences;
 	void *extradata;
 	size_t i, num_tris, framesize;
 	hlmdl_bodypart_t *bodyparts;
@@ -180,13 +181,17 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 	/* Get bones/sequences */
 	bones = (const hlmdl_bone_t *)((const byte *)buffer + pinmodel.ofs_bones);
+	sequences = (const hlmdl_sequence_t *)((const byte *)buffer + pinmodel.ofs_seq);
 	for (i = 0; i < pinmodel.num_seq; i++)
 	{
 		daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader +
 			pheader->ofs_frames + i * pheader->framesize);
 
+		Com_Printf("%s: %s, Sequence '%s': %d frames\n",
+			__func__, mod_name, sequences[i].name, sequences[i].num_frames);
+
 		/* Set frame name from sequence */
-		snprintf(frame->name, sizeof(frame->name), "sequence_%ld", i);
+		Q_strlcpy(frame->name, sequences[i].name, sizeof(frame->name));
 
 		/* Use standard scale/translation for now */
 		VectorSet(frame->scale, 1.0f, 1.0f, 1.0f);
