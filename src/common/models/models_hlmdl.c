@@ -29,6 +29,42 @@
 
 /*
 =================
+Mod_LoadHLMDLAnimGroupList
+
+Load HLMDL animation group lists
+=================
+*/
+static void
+Mod_LoadHLMDLAnimGroupList(dmdx_t *pheader, const hlmdl_sequence_t *sequences, int num_seq)
+{
+	dmdxframegroup_t *pframegroup;
+	int i, frame_offset;
+
+	pframegroup = (dmdxframegroup_t*)((char *)pheader + pheader->ofs_animgroup);
+	frame_offset = 0;
+
+	/* Create animation group for each sequence */
+	for (i = 0; i < num_seq; i++)
+	{
+		/* Copy sequence name as group name (truncate if needed) */
+		Q_strlcpy(pframegroup[i].name, sequences[i].name, sizeof(pframegroup[i].name));
+
+		/* Set frame range for this group */
+		pframegroup[i].ofs = frame_offset;
+		pframegroup[i].num = sequences[i].num_frames;
+
+#if 0
+		Mod_UpdateMinMaxByFrames(pheader,
+			pframegroup[i].ofs, pframegroup[i].ofs + pframegroup[i].num,
+			pframegroup[i].mins, pframegroup[i].maxs);
+#endif
+
+		frame_offset += pframegroup[i].num;
+	}
+}
+
+/*
+=================
 Mod_LoadModel_HLMDL
 =================
 */
@@ -41,7 +77,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	hlmdl_texture_t *in_skins;
 	dmdxmesh_t *mesh_nodes;
 	void *extradata;
-	size_t i, num_tris;
+	const hlmdl_sequence_t *sequences;
+	size_t i, num_tris, total_frames, framesize;
 	hlmdl_bodypart_t *bodyparts;
 
 	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
@@ -75,6 +112,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
+	sequences = (const hlmdl_sequence_t *)((const byte *)buffer + pinmodel.ofs_seq);
 	seqgroups = (hlmdl_framegroup_t *)((byte *)buffer + pinmodel.ofs_seqgroup);
 	for (i = 0; i < pinmodel.num_seqgroups; i++)
 	{
@@ -135,23 +173,34 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
+	/* Calculate total number of frames (sum of all sequences' num_frames) */
+	total_frames = 0;
+	for (i = 0; i < pinmodel.num_seq; i++)
+	{
+		total_frames += sequences[i].num_frames;
+	}
+
+	/* Calculate frame size */
+	framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
+	framesize += pinmodel.num_bones * sizeof(dxtrivertx_t);
+
 	num_tris = 0;
 
 	/* copy back all values */
 	memset(&dmdxheader, 0, sizeof(dmdxheader));
 	dmdxheader.skinwidth = 0;
 	dmdxheader.skinheight = 0;
-	dmdxheader.framesize = 0;
+	dmdxheader.framesize = framesize;
 
 	dmdxheader.num_meshes = 0;
 	dmdxheader.num_skins = pinmodel.num_skins;
-	dmdxheader.num_xyz = 0;
+	dmdxheader.num_xyz = pinmodel.num_bones;
 	dmdxheader.num_st = 0;
 	dmdxheader.num_tris = num_tris;
 	dmdxheader.num_glcmds = 0;
 	dmdxheader.num_imgbit = 0;
-	dmdxheader.num_frames = 0;
-	dmdxheader.num_animgroup = 0;
+	dmdxheader.num_frames = 0; /* total_frames; */
+	dmdxheader.num_animgroup = pinmodel.num_seq;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -173,8 +222,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			__func__, in_skins[i].name, in_skins[i].offset, in_skins[i].width, in_skins[i].height);
 	}
 
-	Mod_LoadAnimGroupList(pheader);
-
+	Mod_LoadHLMDLAnimGroupList(pheader, sequences, pinmodel.num_seq);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
 	return extradata;

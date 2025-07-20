@@ -246,6 +246,53 @@ typedef struct hlmdl_bodymesh_s
 	int ofs_norm;
 } hlmdl_bodymesh_t;
 
+typedef struct hlmdl_bone_s
+{
+	char name[32]; /* The name of the bone. */
+	int parent;    /* The bone's parent index. */
+	int flags;     /* Unused. */
+	int bonecontroller[6];
+	float value[6];
+	float scale[6];
+} hlmdl_bone_t;
+
+typedef struct hlmdl_sequence_s
+{
+	char name[32];          /* The sequence name. */
+	float fps;              /* Frames per second. */
+	int flags;              /* One or more sequence flags. */
+	int activity;           /* The activity. */
+	int actweight;          /* The activity weight. */
+	int numevents;          /* The number of animation events. */
+	int eventindex;         /* The offset of the first animation event chunk. */
+	int num_frames;         /* The number of frames */
+	int numpivots;          /* Unused. */
+	int pivotindex;         /* Unused. */
+	int motiontype;         /* The motion type. */
+	int motionbone;         /* The motion bone index. */
+	vec3_t linearmovement;  /* The motion bone's displacement from the first
+							   frame to the last frame of this sequence. */
+	int automoveposindex;   /* Unused. */
+	int automoveangleindex; /* Unused. */
+	vec3_t bbmin;           /* The sequence bounds min extent. */
+	vec3_t bbmax;           /* The sequence bounds max extent. */
+	int numblends;          /* The number of blend controllers. */
+	int animindex;          /* The offset of the first animation frame offsets
+							   chunk. */
+	int blendtype[2];       /* The motion type. One per blend controller. */
+	float blendstart[2];    /* The start value. One per blend controller. */
+	float blendend[2];      /* The end value. One per blend controller. */
+	int blendparent;        /* Unused. */
+	int seqgroup;           /* The sequence group index. */
+	int entrynode;          /* The entry value in the sequence transition
+							   graph. */
+	int exitnode;           /* The exit value in the sequence transition
+							   graph. */
+	int nodeflags;          /* One or more node flags. */
+	int nextseq;            /* Unused. */
+} hlmdl_sequence_t;
+
+
 /* .MD2 triangle model file format */
 
 #define IDALIASHEADER (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I')
