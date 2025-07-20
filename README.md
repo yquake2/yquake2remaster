@@ -195,7 +195,8 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
-* [ ] soft: build with SDL3 has glitch in menu,
+* [x] soft: build with SDL3 has glitch in menu,
+* [ ] soft: rework 32bit color cinema workarrounds,
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,

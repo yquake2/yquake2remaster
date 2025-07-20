@@ -394,7 +394,7 @@ R_RegisterVariables (void)
 	// On MacOS texture is cleaned up after render and code have to copy a whole
 	// screen to texture, other platforms save previous texture content and can be
 	// copied only changed parts
-#if defined(__APPLE__)
+#if defined(__APPLE__) || defined(USE_SDL3)
 	sw_partialrefresh = ri.Cvar_Get("sw_partialrefresh", "0", CVAR_ARCHIVE);
 #else
 	sw_partialrefresh = ri.Cvar_Get("sw_partialrefresh", "1", CVAR_ARCHIVE);
@@ -1606,15 +1606,15 @@ R_GammaCorrectAndSetPalette( const unsigned char *palette )
 	// Replace palette
 	for ( i = 0; i < 256; i++ )
 	{
-		if (sw_state.currentpalette[i*4+0] != sw_state.gammatable[palette[i*4+2]] ||
-			sw_state.currentpalette[i*4+1] != sw_state.gammatable[palette[i*4+1]] ||
-			sw_state.currentpalette[i*4+2] != sw_state.gammatable[palette[i*4+0]])
+		if (sw_state.currentpalette[i * 4 + 0] != sw_state.gammatable[palette[i * 4 + 2]] ||
+			sw_state.currentpalette[i * 4 + 1] != sw_state.gammatable[palette[i * 4 + 1]] ||
+			sw_state.currentpalette[i * 4 + 2] != sw_state.gammatable[palette[i * 4 + 0]])
 		{
-			sw_state.currentpalette[i*4+0] = sw_state.gammatable[palette[i*4+2]]; // blue
-			sw_state.currentpalette[i*4+1] = sw_state.gammatable[palette[i*4+1]]; // green
-			sw_state.currentpalette[i*4+2] = sw_state.gammatable[palette[i*4+0]]; // red
+			sw_state.currentpalette[i * 4 + 0] = sw_state.gammatable[palette[i * 4 + 2]]; // blue
+			sw_state.currentpalette[i * 4 + 1] = sw_state.gammatable[palette[i * 4 + 1]]; // green
+			sw_state.currentpalette[i * 4 + 2] = sw_state.gammatable[palette[i * 4 + 0]]; // red
 
-			sw_state.currentpalette[i*4+3] = 0xFF; // alpha
+			sw_state.currentpalette[i * 4 + 3] = 255; // alpha
 			palette_changed = true;
 		}
 	}
@@ -2644,7 +2644,7 @@ SWimp_CreateRender(int width, int height)
 
 	vid_polygon_spans = malloc(sizeof(espan_t) * (height + 1));
 
-	memset(sw_state.currentpalette, 0, sizeof(sw_state.currentpalette));
+	memset(sw_state.currentpalette, 255, sizeof(sw_state.currentpalette));
 
 	R_GammaCorrectAndSetPalette( d_8to24table );
 }
