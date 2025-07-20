@@ -270,15 +270,20 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					{
 						parent_pos[k] = parent->value[k];
 						if (parent->scale[k] != 0)
+						{
 							parent_pos[k] *= parent->scale[k];
+						}
 					}
+
 					float cr = cos(parent->value[3]);
 					float sr = sin(parent->value[3]);
 					float cp = cos(parent->value[4]);
 					float sp = sin(parent->value[4]);
 					float cy = cos(parent->value[5]);
 					float sy = sin(parent->value[5]);
+
 					vec3_t rotated_pos;
+
 					/* Rotate around X */
 					rotated_pos[0] = pos[0];
 					rotated_pos[1] = pos[1] * cr - pos[2] * sr;
@@ -301,6 +306,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 				{
 					VectorCopy(pos, final_pos);
 				}
+
 				/* Convert to normalized 8-bit vertex coords */
 				float scale = 64.0f; /* Scale factor to fit model size */
 				for (int k = 0; k < 3; k++)
@@ -308,6 +314,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					float normalized = (final_pos[k] / scale + 1.0f) * 127.5f;
 					vert->v[k] = (byte)normalized;
 				}
+
 				/* Calculate vertex normal from bone rotation */
 				float cr = cos(rotation[0]);
 				float sr = sin(rotation[0]);
