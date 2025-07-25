@@ -1143,7 +1143,7 @@ R_DrawBEntitiesOnList (void)
 		R_RotateBmodel(currententity);
 
 		// calculate dynamic lighting for bmodel
-		RI_PushDlights (currentmodel);
+		RI_PushDlights(currentmodel);
 
 		if (topnode->contents == CONTENTS_NODE)
 		{
@@ -1381,10 +1381,10 @@ RE_RenderFrame(refdef_t *fd)
 
 	// Using the current view cluster (r_viewcluster), retrieve and decompress
 	// the PVS (Potentially Visible Set)
-	R_MarkLeaves ();	// done here so we know if we're in water
+	R_MarkLeaves();	// done here so we know if we're in water
 
 	// For each dlight_t* passed via r_newrefdef.dlights, mark polygons affected by a light.
-	RI_PushDlights (r_worldmodel);
+	RI_PushDlights(r_worldmodel);
 
 	// TODO: rearrange code same as in GL*_DrawWorld?
 	/* auto cycle the world frame for texture animation */
@@ -1461,7 +1461,7 @@ RE_RenderFrame(refdef_t *fd)
 
 	if (r_dspeeds->value)
 	{
-		R_PrintDSpeeds ();
+		R_PrintDSpeeds();
 	}
 
 	R_ReallocateMapBuffers();
@@ -2247,7 +2247,7 @@ RE_FlushFrame(int vmin, int vmax)
 	int pitch;
 	Uint32 *pixels;
 
-	if (vmin > vmax)
+	if (vmin >= vmax)
 	{
 		/* Looks like we already updated everything */
 		return;
@@ -2644,6 +2644,7 @@ SWimp_CreateRender(int width, int height)
 
 	vid_polygon_spans = malloc(sizeof(espan_t) * (height + 1));
 
+	/* Use nontransparent white as default value */
 	memset(sw_state.currentpalette, 255, sizeof(sw_state.currentpalette));
 
 	R_GammaCorrectAndSetPalette( d_8to24table );

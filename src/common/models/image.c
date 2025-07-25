@@ -456,7 +456,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 	if (data - (byte *)pcx > len)
 	{
-		Com_DPrintf("%s: %s file was malformed\n", __func__, name);
+		Com_DPrintf("%s: %s file was malformed\n",
+			__func__, name);
 		free(*pic);
 		*pic = NULL;
 	}
