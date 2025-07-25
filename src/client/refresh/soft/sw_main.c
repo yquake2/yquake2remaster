@@ -2247,7 +2247,7 @@ RE_FlushFrame(int vmin, int vmax)
 	int pitch;
 	Uint32 *pixels;
 
-	if (vmin > vmax)
+	if (vmin >= vmax)
 	{
 		/* Looks like we already updated everything */
 		return;
