@@ -112,7 +112,10 @@ R_FindFreeImage(const char *name)
 	if (i == numr_images)
 	{
 		if (numr_images == MAX_TEXTURES)
+		{
 			Com_Error(ERR_DROP, "%s: Max images", __func__);
+		}
+
 		numr_images++;
 	}
 	image = &r_images[i];
