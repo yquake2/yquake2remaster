@@ -1501,13 +1501,13 @@ static rserr_t	SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen
 ** RE_BeginFrame
 */
 static void
-RE_BeginFrame( float camera_separation )
+RE_BeginFrame(float camera_separation)
 {
-	// pallete without changes
+	/* pallete without changes */
 	palette_changed = false;
-	// run without speed optimization
+	/* run without speed optimization */
 	fastmoving = false;
-	/* window could redraw */
+	/* texture could redraw */
 	texture_high_color = false;
 
 	while (r_vsync->modified)
@@ -1993,7 +1993,9 @@ RE_InitContext(void *win)
 		}
 #endif
 	}
-	if (!renderer) {
+
+	if (!renderer)
+	{
 		Com_Printf("Can't create renderer: %s\n", SDL_GetError());
 		return false;
 	}
