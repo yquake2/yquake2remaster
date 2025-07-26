@@ -218,7 +218,6 @@ zvalue_t	*d_pzbuffer;
 
 static void RE_BeginFrame(float camera_separation);
 static void Draw_BuildGammaTable(void);
-static void RE_FlushFrame(int vmin, int vmax);
 static void RE_CleanFrame(void);
 static void RE_EndFrame(void);
 static void R_DrawBeam(const entity_t *e);
@@ -1287,13 +1286,13 @@ R_SetLightLevel(const entity_t *currententity)
 		return;
 	}
 
-	/* save off light value for server to look at */
+	/* save off light value for server to look at (BIG HACK!) */
 	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
-	 * same as the mono value returned by software */
+	 * same as the mono value returned by before color light apply */
 	if (shadelight[0] > shadelight[1])
 	{
 		if (shadelight[0] > shadelight[2])
@@ -2008,6 +2007,7 @@ RE_ShutdownContext(void)
 	{
 		free(swap_buffers);
 	}
+
 	swap_buffers = NULL;
 	vid_buffer = NULL;
 	swap_frames[0] = NULL;
@@ -2135,47 +2135,57 @@ point math used in R_ScanEdges() overflows at width 2048 !!
 char shift_size;
 
 static void
-RE_CopyFrame (Uint32 * pixels, int pitch, int vmin, int vmax)
+RE_CopyFrame(Uint32 *pixels, int pitch, SDL_Rect *rect)
 {
-	const Uint32 *sdl_palette = (Uint32 *)sw_state.currentpalette;
+	const unsigned *sdl_palette;
 
-	// no gaps between images rows
+	sdl_palette = (unsigned *)sw_state.currentpalette;
+
+	/* no gaps between images rows */
 	if (pitch == vid_buffer_width)
 	{
-		const Uint32	*max_pixels;
-		Uint32	*pixels_pos;
-		pixel_t	*buffer_pos;
+		const byte *src_max;
+		Uint32 *dst;
+		byte *src;
 
-		max_pixels = pixels + vmax;
-		buffer_pos = vid_buffer + vmin;
+		dst = pixels;
+		src = vid_buffer + rect->y * vid_buffer_width;
+		src_max = src + rect->h * vid_buffer_width;
 
-		pixels_pos = pixels + vmin;
-
-		while ( pixels_pos < max_pixels)
+		while (src < src_max)
 		{
-			*pixels_pos = sdl_palette[*buffer_pos];
-			buffer_pos++;
-			pixels_pos++;
+			*dst = sdl_palette[*src];
+
+			src++;
+			dst++;
 		}
 	}
 	else
 	{
-		int y,x, buffer_pos, ymin, ymax;
+		int y, buffer_pos;
+		Uint32 *dst;
 
-		ymin = vmin / vid_buffer_width;
-		ymax = vmax / vid_buffer_width;
+		buffer_pos = rect->y * vid_buffer_width;
+		dst = pixels;
 
-		buffer_pos = ymin * vid_buffer_width;
-		pixels += ymin * pitch;
-		for (y=ymin; y < ymax;  y++)
+		for (y = rect->y; y < rect->y + rect->h; y++)
 		{
-			for (x=0; x < vid_buffer_width; x ++)
+			int x;
+
+			for (x = 0; x < vid_buffer_width; x++)
 			{
-				pixels[x] = sdl_palette[vid_buffer[buffer_pos + x]];
+				dst[x] = sdl_palette[vid_buffer[buffer_pos]];
+				buffer_pos ++;
 			}
-			pixels += pitch;
-			buffer_pos += vid_buffer_width;
+
+			dst += pitch;
 		}
+	}
+
+	if ((sw_anisotropic->value > 0) && !fastmoving)
+	{
+		SmoothColorImage((unsigned *)pixels, rect->h * vid_buffer_width,
+			sw_anisotropic->value);
 	}
 }
 
@@ -2206,11 +2216,14 @@ RE_BufferDifferenceEnd(int vmin, int vmax)
 	front_buffer = (int*)(swap_frames[1] + vmax);
 	back_min = (int*)(swap_frames[0] + vmin);
 
-	do {
+	do
+	{
 		back_buffer --;
 		front_buffer --;
-	} while (back_buffer > back_min && *back_buffer == *front_buffer);
-	// +1 for fully cover changes
+	}
+	while (back_buffer > back_min && *back_buffer == *front_buffer);
+
+	/* +1 for fully cover changes */
 	return (pixel_t*)back_buffer - swap_frames[0] + sizeof(int);
 }
 
@@ -2246,6 +2259,7 @@ RE_FlushFrame(int vmin, int vmax)
 {
 	int pitch;
 	Uint32 *pixels;
+	SDL_Rect rect;
 
 	if (vmin >= vmax)
 	{
@@ -2259,31 +2273,40 @@ RE_FlushFrame(int vmin, int vmax)
 		return;
 	}
 
+	if (sw_partialrefresh->value)
+	{
+		vmin = vmin / vid_buffer_width;
+		vmax = vmax / vid_buffer_width + 1;
+		if (vmax > vid_buffer_height)
+		{
+			vmax = vid_buffer_height;
+		}
+	}
+	else
+	{
+		// On MacOS texture is cleaned up after render,
+		// code have to copy a whole screen to the texture
+		vmin = 0;
+		vmax = vid_buffer_height;
+	}
+
+	/* set section to update */
+	rect.x = 0;
+	rect.y = vmin;
+	rect.w = vid_buffer_width;
+	rect.h = vmax - vmin;
+
 #ifdef USE_SDL3
-	if (!SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+	if (!SDL_LockTexture(texture, &rect, (void**)&pixels, &pitch))
 #else
-	if (SDL_LockTexture(texture, NULL, (void**)&pixels, &pitch))
+	if (SDL_LockTexture(texture, &rect, (void**)&pixels, &pitch))
 #endif
 	{
 		Com_Printf("Can't lock texture: %s\n", SDL_GetError());
 		return;
 	}
 
-	if (sw_partialrefresh->value)
-	{
-		RE_CopyFrame (pixels, pitch / sizeof(Uint32), vmin, vmax);
-	}
-	else
-	{
-		// On MacOS texture is cleaned up after render,
-		// code have to copy a whole screen to the texture
-		RE_CopyFrame (pixels, pitch / sizeof(Uint32), 0, vid_buffer_height * vid_buffer_width);
-	}
-
-	if ((sw_anisotropic->value > 0) && !fastmoving)
-	{
-		SmoothColorImage(pixels + vmin, vmax - vmin, sw_anisotropic->value);
-	}
+	RE_CopyFrame(pixels, pitch / sizeof(Uint32), &rect);
 
 	SDL_UnlockTexture(texture);
 
@@ -2444,8 +2467,8 @@ RE_EndFrame(void)
 		vid_maxv = vid_buffer_height;
 	}
 
-	vmin = vid_minu + vid_minv  * vid_buffer_width;
-	vmax = vid_maxu + vid_maxv  * vid_buffer_width;
+	vmin = vid_minu + vid_minv * vid_buffer_width;
+	vmax = vid_maxu + vid_maxv * vid_buffer_width;
 
 	// fix to correct limit
 	if (vmax > (vid_buffer_height * vid_buffer_width))
@@ -2454,7 +2477,7 @@ RE_EndFrame(void)
 	}
 
 	// if palette changed need to flush whole buffer
-	if (!palette_changed)
+	if (!palette_changed && sw_partialrefresh->value)
 	{
 		// search real begin/end of difference
 		vmin = RE_BufferDifferenceStart(vmin, vmax);
@@ -2679,8 +2702,11 @@ R_ScreenShot_f(void)
 
 	for (x=0; x < vid_buffer_width; x ++)
 	{
-		for (y=0; y < vid_buffer_height; y ++) {
-			int buffer_pos = y * vid_buffer_width + x;
+		for (y = 0; y < vid_buffer_height; y ++)
+		{
+			int buffer_pos;
+
+			buffer_pos = y * vid_buffer_width + x;
 			buffer[buffer_pos * 3 + 0] = palette[vid_buffer[buffer_pos] * 4 + 2]; // red
 			buffer[buffer_pos * 3 + 1] = palette[vid_buffer[buffer_pos] * 4 + 1]; // green
 			buffer[buffer_pos * 3 + 2] = palette[vid_buffer[buffer_pos] * 4 + 0]; // blue
