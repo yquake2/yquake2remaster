@@ -1413,7 +1413,10 @@ RE_BeginFrame(float camera_separation)
 		}
 	}
 
-	// if ri.Sys_Error() had been issued mid-frame, we might end up here without properly submitting the image, so call QVk_EndFrame to be safe
+	/*
+	 * if Com_Error() had been issued mid-frame, we might end up here without
+	 * properly submitting the image, so call QVk_EndFrame to be safe
+	 */
 	QVk_EndFrame(true);
 
 	/*
