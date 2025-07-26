@@ -2271,7 +2271,7 @@ RE_FlushFrame(int vmin, int vmax)
 
 	if (sw_partialrefresh->value)
 	{
-		RE_CopyFrame (pixels, pitch / sizeof(Uint32), vmin, vmax);
+		RE_CopyFrame(pixels, pitch / sizeof(Uint32), vmin, vmax);
 	}
 	else
 	{
