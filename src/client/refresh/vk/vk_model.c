@@ -558,7 +558,7 @@ Mod_Free(model_t *mod)
 	mod_loaded --;
 	if (mod_loaded < 0)
 	{
-		ri.Sys_Error (ERR_DROP, "%s: Broken unload", __func__);
+		Com_Error(ERR_DROP, "%s: Broken unload", __func__);
 	}
 }
 
