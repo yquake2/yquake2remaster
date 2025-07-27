@@ -534,8 +534,6 @@ void R_PrintTimes (void);
 void R_PrintDSpeeds (void);
 void R_SetupFrame (void);
 
-extern  refdef_t		r_newrefdef;
-
 extern  surfcache_t	*sc_base;
 
 extern  void			*colormap;

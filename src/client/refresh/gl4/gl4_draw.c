@@ -317,7 +317,7 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 void
 GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4])
 {
-	qboolean underwater = (gl4_newrefdef.rdflags & RDF_UNDERWATER) != 0;
+	qboolean underwater = (r_newrefdef.rdflags & RDF_UNDERWATER) != 0;
 	gl4ShaderInfo_t* shader = underwater ? &gl4state.si2DpostProcessWater
 	                                     : &gl4state.si2DpostProcess;
 	GL4_UseProgram(shader->shaderProgram);
@@ -325,7 +325,7 @@ GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 
 	if(underwater && shader->uniLmScalesOrTime != -1)
 	{
-		glUniform1f(shader->uniLmScalesOrTime, gl4_newrefdef.time);
+		glUniform1f(shader->uniLmScalesOrTime, r_newrefdef.time);
 	}
 	if(shader->uniVblend != -1)
 	{

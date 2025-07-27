@@ -28,7 +28,6 @@
 
 #define NUM_BEAM_SEGS 6
 
-viddef_t vid;
 model_t *r_worldmodel = NULL;
 
 float gldepthmin, gldepthmax;
@@ -60,8 +59,6 @@ float r_world_matrix[16];
 float r_base_world_matrix[16];
 
 /* screen size info */
-refdef_t r_newrefdef;
-
 int r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 unsigned r_rawpalette[256];
 
@@ -295,7 +292,7 @@ R_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+		R_LightPoint(r_worldmodel->grid, currententity,
 			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
 			shadelight, r_modulate->value, lightspot);
 	}
@@ -806,11 +803,11 @@ R_SetupGL(void)
 	int x, x2, y2, y, w, h;
 
 	/* set up viewport */
-	x = floor(r_newrefdef.x * vid.width / vid.width);
-	x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
-	y = floor(vid.height - r_newrefdef.y * vid.height / vid.height);
+	x = floor(r_newrefdef.x * vid.width / (float)vid.width);
+	x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / (float)vid.width);
+	y = floor(vid.height - r_newrefdef.y * vid.height / (float)vid.height);
 	y2 = ceil(vid.height -
-			  (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
+			  (r_newrefdef.y + r_newrefdef.height) * vid.height / (float)vid.height);
 
 	w = x2 - x;
 	h = y - y2;
@@ -1221,7 +1218,7 @@ R_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+	R_LightPoint(r_worldmodel->grid, currententity,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, r_modulate->value, lightspot);
 

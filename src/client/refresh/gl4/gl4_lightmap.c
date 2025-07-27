@@ -279,7 +279,7 @@ LM_BeginBuildingLightmaps(gl4model_t *m)
 		lightstyles[i].white = 3;
 	}
 
-	gl4_newrefdef.lightstyles = lightstyles;
+	r_newrefdef.lightstyles = lightstyles;
 
 	gl4_lms.current_lightmap_texture = 0;
 

@@ -227,7 +227,7 @@ R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
 
 void
 R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
-	refdef_t *refdef, const msurface_t *surfaces, const mnode_t *nodes,
+	const msurface_t *surfaces, const mnode_t *nodes,
 	vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
 {
 	vec3_t end, dist, pointcolor = {0, 0, 0};
@@ -243,7 +243,7 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 
 	if (grid)
 	{
-		BSPX_LightGridValue(grid, refdef->lightstyles,
+		BSPX_LightGridValue(grid, r_newrefdef.lightstyles,
 			currententity->origin, color);
 		return;
 	}
@@ -252,7 +252,7 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 	end[1] = p[1];
 	end[2] = p[2] - 2048;
 
-	r = R_RecursiveLightPoint(surfaces, nodes, refdef->lightstyles,
+	r = R_RecursiveLightPoint(surfaces, nodes, r_newrefdef.lightstyles,
 		p, end, pointcolor, lightspot, modulate);
 
 	if (r == -1)
@@ -265,9 +265,9 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 	}
 
 	/* add dynamic lights */
-	dl = refdef->dlights;
+	dl = r_newrefdef.dlights;
 
-	for (lnum = 0; lnum < refdef->num_dlights; lnum++, dl++)
+	for (lnum = 0; lnum < r_newrefdef.num_dlights; lnum++, dl++)
 	{
 		float	add;
 

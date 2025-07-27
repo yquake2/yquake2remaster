@@ -266,10 +266,6 @@ typedef struct
 extern gl4config_t gl4config;
 extern gl4state_t gl4state;
 
-extern viddef_t vid;
-
-extern refdef_t gl4_newrefdef;
-
 extern int gl4_visframecount; /* bumped when going to a new PVS */
 extern int gl4_framecount; /* used for dlight push checking */
 

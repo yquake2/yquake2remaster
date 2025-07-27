@@ -637,7 +637,7 @@ R_AliasSetupLighting(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef, r_worldmodel->surfaces,
+		R_LightPoint(r_worldmodel->grid, currententity, r_worldmodel->surfaces,
 			r_worldmodel->nodes, currententity->origin, light,
 			r_modulate->value, lightspot);
 	}

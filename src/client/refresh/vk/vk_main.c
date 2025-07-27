@@ -33,8 +33,6 @@
 static qboolean world_rendered;
 static qboolean RE_IsHighDPIaware = false;
 
-viddef_t	vid;
-
 refimport_t	ri;
 
 model_t		*r_worldmodel;
@@ -75,8 +73,6 @@ static float r_vulkan_correction[16] = { 1.f,  0.f, 0.f, 0.f,
 //
 // screen size info
 //
-refdef_t	r_newrefdef;
-
 int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 static cvar_t	*r_norefresh;
@@ -251,7 +247,7 @@ R_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+		R_LightPoint(r_worldmodel->grid, currententity,
 			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
 			shadelight, r_modulate->value, lightspot);
 	}
@@ -859,13 +855,11 @@ R_SetupVulkan (void)
 	/* Render old elements before change viewport */
 	QVk_Draw2DCallsRender();
 
-	//
-	// set up viewport
-	//
-	x = floor(r_newrefdef.x * vid.width / vid.width);
-	x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / vid.width);
-	y = floor(vid.height - r_newrefdef.y * vid.height / vid.height);
-	y2 = ceil(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / vid.height);
+	/* set up viewport */
+	x = floor(r_newrefdef.x * vid.width / (float)vid.width);
+	x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / (float)vid.width);
+	y = floor(vid.height - r_newrefdef.y * vid.height / (float)vid.height);
+	y2 = ceil(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / (float)vid.height);
 
 	w = x2 - x;
 	h = y - y2;
@@ -1106,7 +1100,7 @@ R_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+	R_LightPoint(r_worldmodel->grid, currententity,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, r_modulate->value, lightspot);
 
