@@ -27,6 +27,7 @@
 #include "../ref_shared.h"
 
 #define SUBDIVIDE_SIZE 64.0f
+#define MAX_SUBDIVIDE_VERTS 60
 
 /*
 ===============
@@ -193,7 +194,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 
 	VectorCopy(warpface->plane->normal, normal);
 
-	if (numverts > 60)
+	if (numverts > MAX_SUBDIVIDE_VERTS)
 	{
 		Com_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
 	}
