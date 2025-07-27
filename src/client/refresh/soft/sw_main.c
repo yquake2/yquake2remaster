@@ -546,7 +546,7 @@ R_ReallocateMapBuffers (void)
 {
 	if (!r_cnumsurfs || r_outofsurfaces)
 	{
-		if(lsurfs)
+		if (lsurfs)
 		{
 			free(lsurfs);
 		}
@@ -1501,13 +1501,13 @@ static rserr_t	SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen
 ** RE_BeginFrame
 */
 static void
-RE_BeginFrame( float camera_separation )
+RE_BeginFrame(float camera_separation)
 {
-	// pallete without changes
+	/* pallete without changes */
 	palette_changed = false;
-	// run without speed optimization
+	/* run without speed optimization */
 	fastmoving = false;
-	/* window could redraw */
+	/* texture could redraw */
 	texture_high_color = false;
 
 	while (r_vsync->modified)
@@ -1573,7 +1573,7 @@ RE_SetMode(void)
 		{
 			R_Printf(PRINT_ALL, "%s() - invalid mode\n", __func__);
 
-			if(r_mode->value == sw_state.prev_mode)
+			if (r_mode->value == sw_state.prev_mode)
 			{
 				// trying again would result in a crash anyway, give up already
 				// (this would happen if your initing fails at all and your resolution already was 640x480)
@@ -1664,10 +1664,10 @@ Draw_BuildGammaTable (void)
 
 	overbright = sw_overbrightbits->value;
 
-	if(overbright < 0.5)
+	if (overbright < 0.5)
 		overbright = 0.5;
 
-	if(overbright > 4.0)
+	if (overbright > 4.0)
 		overbright = 4.0;
 
 	g = (2.1 - vid_gamma->value);
@@ -1814,7 +1814,7 @@ RE_EndWorldRenderpass( void )
 }
 
 static void
-RE_Draw_StretchDirectRaw(int x, int y, int w, int h, int cols, int rows,
+RE_Draw_StretchRawColor(int x, int y, int w, int h, int cols, int rows,
 	const byte *data, int bits)
 {
 	int pitch, i;
@@ -1924,7 +1924,7 @@ GetRefAPI(refimport_t imp)
 	refexport.DrawFill = RE_Draw_Fill;
 	refexport.DrawFadeScreen = RE_Draw_FadeScreen;
 
-	refexport.DrawStretchRaw = RE_Draw_StretchDirectRaw;
+	refexport.DrawStretchRaw = RE_Draw_StretchRawColor;
 
 	refexport.Init = RE_Init;
 	refexport.IsVSyncActive = RE_IsVsyncActive;
@@ -1956,7 +1956,7 @@ RE_InitContext(void *win)
 {
 	char title[40] = {0};
 
-	if(win == NULL)
+	if (win == NULL)
 	{
 		Com_Error(ERR_FATAL, "%s() must not be called with NULL argument!", __func__);
 		return false;
@@ -1975,7 +1975,7 @@ RE_InitContext(void *win)
 		SDL_SetRenderVSync(renderer, 1);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		if(!renderer)
+		if (!renderer)
 		{
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE | SDL_RENDERER_PRESENTVSYNC);
 		}
@@ -1987,13 +1987,15 @@ RE_InitContext(void *win)
 		renderer = SDL_CreateRenderer(window, NULL);
 #else
 		renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-		if(!renderer)
+		if (!renderer)
 		{
 			renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 		}
 #endif
 	}
-	if(!renderer) {
+
+	if (!renderer)
+	{
 		Com_Printf("Can't create renderer: %s\n", SDL_GetError());
 		return false;
 	}
@@ -2041,7 +2043,7 @@ RE_InitContext(void *win)
 				    SDL_TEXTUREACCESS_STREAMING,
 				    vid_buffer_width, vid_buffer_height);
 
-	if(!texture)
+	if (!texture)
 	{
 		Com_Printf("Can't create texture: %s\n", SDL_GetError());
 		return false;
@@ -2145,31 +2147,31 @@ RE_ShutdownContext(void)
 	}
 	finalverts = NULL;
 
-	if(blocklights)
+	if (blocklights)
 	{
 		free(blocklights);
 	}
 	blocklights = NULL;
 
-	if(bblocklights)
+	if (bblocklights)
 	{
 		free(bblocklights);
 	}
 	bblocklights = NULL;
 
-	if(r_edges)
+	if (r_edges)
 	{
 		free(r_edges);
 	}
 	r_edges = NULL;
 
-	if(lsurfs)
+	if (lsurfs)
 	{
 		free(lsurfs);
 	}
 	lsurfs = NULL;
 
-	if(r_warpbuffer)
+	if (r_warpbuffer)
 	{
 		free(r_warpbuffer);
 	}
@@ -2466,7 +2468,7 @@ SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen )
 	/* We trying to get resolution from desktop */
 	if (mode == -2)
 	{
-		if(!ri.GLimp_GetDesktopMode(pwidth, pheight))
+		if (!ri.GLimp_GetDesktopMode(pwidth, pheight))
 		{
 			R_Printf(PRINT_ALL, " can't detect mode\n");
 			return rserr_invalid_mode;
@@ -2479,7 +2481,7 @@ SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen )
 	{
 		int real_height, real_width;
 
-		if(ri.GLimp_GetDesktopMode(&real_width, &real_height))
+		if (ri.GLimp_GetDesktopMode(&real_width, &real_height))
 		{
 			if (real_height)
 			{
