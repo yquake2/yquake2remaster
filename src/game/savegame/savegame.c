@@ -278,8 +278,8 @@ InitGame(void)
 	/* items */
 	InitItems();
 
-	Com_sprintf(game.helpmessage1, sizeof(game.helpmessage1), "");
-	Com_sprintf(game.helpmessage2, sizeof(game.helpmessage2), "");
+	game.helpmessage1[0] = 0;
+	game.helpmessage2[0] = 0;
 
 	/* initialize all entities for this game */
 	game.maxentities = maxentities->value;
@@ -640,7 +640,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 				*(char **)p = gi.TagMalloc(32 + len, TAG_LEVEL);
 				if (fread(*(char **)p, len, 1, f) != 1)
 				{
-					gi.error("%s: can't tag", __func__);
+					gi.error("%s: can't read string field", __func__);
 				}
 			}
 
@@ -701,7 +701,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 
 				if (fread (funcStr, len, 1, f) != 1)
 				{
-					gi.error("%s: can't function name", __func__);
+					gi.error("%s: can't get function name", __func__);
 				}
 
 				funcStr[sizeof(funcStr) - 1] = 0;
@@ -731,7 +731,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 
 				if (fread(funcStr, len, 1, f) != 1)
 				{
-					gi.error("%s: can't move name", __func__);
+					gi.error("%s: can't get move name", __func__);
 				}
 
 				funcStr[sizeof(funcStr) - 1] = 0;
