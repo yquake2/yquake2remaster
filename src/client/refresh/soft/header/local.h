@@ -82,7 +82,6 @@ typedef int	light3_t[3];
 /* 64 light grades available */
 #define LIGHTMASK		0xFF00
 
-extern viddef_t	vid;
 extern pixel_t	*vid_buffer;	// invisible buffer
 extern pixel_t	*vid_colormap;	// 256 * VID_GRADES size
 extern pixel_t	*vid_alphamap;	// 256 * 256 translucency map
