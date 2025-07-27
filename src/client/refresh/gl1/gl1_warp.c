@@ -27,8 +27,6 @@
 #include "header/local.h"
 
 #define TURBSCALE (256.0 / (2 * M_PI))
-#define ON_EPSILON 0.1 /* point on plane side epsilon */
-#define MAX_CLIP_VERTS 64
 
 static float skyrotate;
 static int skyautorotate;
