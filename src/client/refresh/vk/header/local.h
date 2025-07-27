@@ -63,8 +63,6 @@
 	} \
 }
 
-extern viddef_t vid;
-
 typedef struct image_s
 {
 	char name[MAX_QPATH];               /* game path, including extension */
@@ -104,7 +102,6 @@ extern	vec3_t	r_origin;
 //
 // screen size info
 //
-extern	refdef_t	r_newrefdef;
 extern	int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 extern	cvar_t	*r_lefthand;

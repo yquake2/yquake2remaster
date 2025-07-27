@@ -33,8 +33,6 @@
 static qboolean world_rendered;
 static qboolean RE_IsHighDPIaware = false;
 
-viddef_t	vid;
-
 refimport_t	ri;
 
 model_t		*r_worldmodel;
@@ -75,8 +73,6 @@ static float r_vulkan_correction[16] = { 1.f,  0.f, 0.f, 0.f,
 //
 // screen size info
 //
-refdef_t	r_newrefdef;
-
 int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 static cvar_t	*r_norefresh;
@@ -251,7 +247,7 @@ R_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+		R_LightPoint(r_worldmodel->grid, currententity,
 			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
 			shadelight, r_modulate->value, lightspot);
 	}
@@ -1104,7 +1100,7 @@ R_SetLightLevel(entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(r_worldmodel->grid, currententity, &r_newrefdef,
+	R_LightPoint(r_worldmodel->grid, currententity,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, r_modulate->value, lightspot);
 

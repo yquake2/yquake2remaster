@@ -181,7 +181,7 @@ GL4_DrawGLFlowingPoly(msurface_t *fa)
 
 	p = fa->polys;
 
-	R_FlowingScroll(&gl4_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	if((gl4state.uni3DData.sscroll != sscroll) || (gl4state.uni3DData.tscroll != tscroll))
 	{
@@ -313,9 +313,9 @@ RenderBrushPoly(entity_t *currententity, msurface_t *fa)
 	// Any dynamic lights on this surface?
 	for (map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && fa->styles[map] != 255; map++)
 	{
-		lmScales[map].R = gl4_newrefdef.lightstyles[fa->styles[map]].rgb[0];
-		lmScales[map].G = gl4_newrefdef.lightstyles[fa->styles[map]].rgb[1];
-		lmScales[map].B = gl4_newrefdef.lightstyles[fa->styles[map]].rgb[2];
+		lmScales[map].R = r_newrefdef.lightstyles[fa->styles[map]].rgb[0];
+		lmScales[map].G = r_newrefdef.lightstyles[fa->styles[map]].rgb[1];
+		lmScales[map].B = r_newrefdef.lightstyles[fa->styles[map]].rgb[2];
 		lmScales[map].A = 1.0f;
 	}
 
@@ -447,9 +447,9 @@ RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
 	// Any dynamic lights on this surface?
 	for (map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && surf->styles[map] != 255; map++)
 	{
-		lmScales[map].R = gl4_newrefdef.lightstyles[surf->styles[map]].rgb[0];
-		lmScales[map].G = gl4_newrefdef.lightstyles[surf->styles[map]].rgb[1];
-		lmScales[map].B = gl4_newrefdef.lightstyles[surf->styles[map]].rgb[2];
+		lmScales[map].R = r_newrefdef.lightstyles[surf->styles[map]].rgb[0];
+		lmScales[map].G = r_newrefdef.lightstyles[surf->styles[map]].rgb[1];
+		lmScales[map].B = r_newrefdef.lightstyles[surf->styles[map]].rgb[2];
 		lmScales[map].A = 1.0f;
 	}
 
@@ -480,7 +480,7 @@ DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
 	float dot;
 	msurface_t *psurf;
 
-	R_PushDlights(&gl4_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
 			r_dlightframecount, currentmodel->surfaces);
 
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
@@ -571,7 +571,7 @@ GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel)
 		glEnable(GL_POLYGON_OFFSET_FILL);
 	}
 
-	VectorSubtract(gl4_newrefdef.vieworg, e->origin, modelorg);
+	VectorSubtract(r_newrefdef.vieworg, e->origin, modelorg);
 
 	if (rotated)
 	{
@@ -640,7 +640,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 		/* check for door connected areas */
 		// check for door connected areas
-		if (!R_AreaVisible(gl4_newrefdef.areabits, pleaf))
+		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
 			return;	// not visible
 
 		mark = pleaf->firstmarksurface;
@@ -766,16 +766,16 @@ GL4_DrawWorld(void)
 		return;
 	}
 
-	if (gl4_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
 		return;
 	}
 
-	VectorCopy(gl4_newrefdef.vieworg, modelorg);
+	VectorCopy(r_newrefdef.vieworg, modelorg);
 
 	/* auto cycle the world frame for texture animation */
 	memset(&ent, 0, sizeof(ent));
-	ent.frame = (int)(gl4_newrefdef.time * 2);
+	ent.frame = (int)(r_newrefdef.time * 2);
 
 	gl4state.currenttexture = -1;
 

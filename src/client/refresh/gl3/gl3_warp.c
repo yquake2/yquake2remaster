@@ -36,7 +36,7 @@ GL3_EmitWaterPolys(msurface_t *fa)
 	mpoly_t *bp;
 	float sscroll, tscroll = 0.0f;
 
-	R_FlowingScroll(&gl3_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
+	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	qboolean updateUni3D = false;
 	if((gl3state.uni3DData.sscroll != sscroll) || (gl3state.uni3DData.tscroll != tscroll))
@@ -166,10 +166,10 @@ GL3_DrawSkyBox(void)
 	hmm_mat4 modMVmat = HMM_MultiplyMat4(origModelMat, HMM_Translate(transl));
 	if(skyrotate != 0.0f)
 	{
-		// glRotatef(gl3_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
+		// glRotatef(r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
 		hmm_vec3 rotAxis = HMM_Vec3(skyaxis[0], skyaxis[1], skyaxis[2]);
 		modMVmat = HMM_MultiplyMat4(modMVmat, HMM_Rotate(
-			(skyautorotate ? gl3_newrefdef.time : 1.f) * skyrotate, rotAxis));
+			(skyautorotate ? r_newrefdef.time : 1.f) * skyrotate, rotAxis));
 	}
 	gl3state.uni3DData.transModelMat4 = modMVmat;
 	GL3_UpdateUBO3D();

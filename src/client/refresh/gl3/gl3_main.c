@@ -47,10 +47,6 @@ gl3state_t gl3state;
 
 unsigned gl3_rawpalette[256];
 
-/* screen size info */
-refdef_t gl3_newrefdef;
-
-viddef_t vid;
 gl3model_t *gl3_worldmodel;
 
 float gl3depthmin=0.0f, gl3depthmax=1.0f;
@@ -384,14 +380,14 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 
 	/* This is totaly obscure: For some strange reasons the renderer
 	   maintains two(!) repesentations of the resolution. One comes
-	   from the client and is saved in gl3_newrefdef. The other one
+	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. Several calculations take
 	   both representations into account.
 
 	   The values will always be the same. The GLimp_InitGraphics()
 	   call above communicates the requested resolution to the client
 	   where it ends up in the vid subsystem and the vid system writes
-	   it into gl3_newrefdef.
+	   it into r_newrefdef.
 
 	   We can't avoid the client roundtrip, because we can get the
 	   real size of the drawable (which can differ from the resolution
@@ -963,7 +959,7 @@ GL3_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(gl3_worldmodel->grid, currententity, &gl3_newrefdef,
+		R_LightPoint(gl3_worldmodel->grid, currententity,
 			gl3_worldmodel->surfaces, gl3_worldmodel->nodes, currententity->origin,
 			shadelight, r_modulate->value, lightspot);
 	}
@@ -1011,11 +1007,11 @@ GL3_DrawParticles(void)
 	//if (!(stereo_split_tb || stereo_split_lr))
 	{
 		int i;
-		int numParticles = gl3_newrefdef.num_particles;
+		int numParticles = r_newrefdef.num_particles;
 		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 		const particle_t *p;
 		// assume the size looks good with window height 480px and scale according to real resolution
-		float pointSize = gl3_particle_size->value * (float)gl3_newrefdef.height/480.0f;
+		float pointSize = gl3_particle_size->value * (float)r_newrefdef.height/480.0f;
 
 		typedef struct part_vtx {
 			GLfloat pos[3];
@@ -1035,7 +1031,7 @@ GL3_DrawParticles(void)
 
 		// TODO: viewOrg could be in UBO
 		vec3_t viewOrg;
-		VectorCopy(gl3_newrefdef.vieworg, viewOrg);
+		VectorCopy(r_newrefdef.vieworg, viewOrg);
 
 		glDepthMask(GL_FALSE);
 		glEnable(GL_BLEND);
@@ -1052,7 +1048,7 @@ GL3_DrawParticles(void)
 
 		GL3_UseProgram(gl3state.siParticle.shaderProgram);
 
-		for ( i = 0, p = gl3_newrefdef.particles; i < numParticles; i++, p++ )
+		for ( i = 0, p = r_newrefdef.particles; i < numParticles; i++, p++ )
 		{
 			*(int *) color = p->color;
 			part_vtx* cur = &buf[i];
@@ -1100,9 +1096,9 @@ GL3_DrawEntitiesOnList(void)
 	GL3_ResetShadowAliasModels();
 
 	/* draw non-transparent first */
-	for (i = 0; i < gl3_newrefdef.num_entities; i++)
+	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
-		entity_t *currententity = &gl3_newrefdef.entities[i];
+		entity_t *currententity = &r_newrefdef.entities[i];
 
 		if (currententity->flags & (RF_TRANSLUCENT | RF_FLARE))
 		{
@@ -1153,9 +1149,9 @@ GL3_DrawEntitiesOnList(void)
 	   becomes a problem... */
 	glDepthMask(GL_FALSE);
 
-	for (i = 0; i < gl3_newrefdef.num_entities; i++)
+	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
-		entity_t *currententity = &gl3_newrefdef.entities[i];
+		entity_t *currententity = &r_newrefdef.entities[i];
 
 		if (!(currententity->flags & (RF_TRANSLUCENT | RF_FLARE)))
 		{
@@ -1209,12 +1205,12 @@ SetupFrame(void)
 	gl3_framecount++;
 
 	/* build the transformation matrix for the given view angles */
-	VectorCopy(gl3_newrefdef.vieworg, gl3_origin);
+	VectorCopy(r_newrefdef.vieworg, gl3_origin);
 
-	AngleVectors(gl3_newrefdef.viewangles, vpn, vright, vup);
+	AngleVectors(r_newrefdef.viewangles, vpn, vright, vup);
 
 	/* current viewcluster */
-	if (!(gl3_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		if (!gl3_worldmodel)
 		{
@@ -1262,20 +1258,20 @@ SetupFrame(void)
 
 	for (i = 0; i < 4; i++)
 	{
-		v_blend[i] = gl3_newrefdef.blend[i];
+		v_blend[i] = r_newrefdef.blend[i];
 	}
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;
 
 	/* clear out the portion of the screen that the NOWORLDMODEL defines */
-	if (gl3_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
 		glEnable(GL_SCISSOR_TEST);
 		glClearColor(0.3, 0.3, 0.3, 1);
-		glScissor(gl3_newrefdef.x,
-				vid.height - gl3_newrefdef.height - gl3_newrefdef.y,
-				gl3_newrefdef.width, gl3_newrefdef.height);
+		glScissor(r_newrefdef.x,
+				vid.height - r_newrefdef.height - r_newrefdef.y,
+				r_newrefdef.width, r_newrefdef.height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1, 0, 0.5, 0.5);
 		glDisable(GL_SCISSOR_TEST);
@@ -1351,7 +1347,7 @@ GL3_SetPerspective(GLdouble fovy)
 	// gluPerspective() / R_MYgluPerspective() style parameters
 	const GLdouble zNear = Q_max(gl_znear->value, 0.1f);
 	const GLdouble zFar = (r_farsee->value) ? 8192.0f : 4096.0f;
-	const GLdouble aspect = (GLdouble)gl3_newrefdef.width / gl3_newrefdef.height;
+	const GLdouble aspect = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	// calculation of left, right, bottom, top is from R_MYgluPerspective() of old gl backend
 	// which seems to be slightly different from the real gluPerspective()
@@ -1395,10 +1391,10 @@ SetupGL(void)
 	int x, x2, y2, y, w, h;
 
 	/* set up viewport */
-	x = floor(gl3_newrefdef.x * vid.width / (float)vid.width);
-	x2 = ceil((gl3_newrefdef.x + gl3_newrefdef.width) * vid.width / (float)vid.width);
-	y = floor(vid.height - gl3_newrefdef.y * vid.height / (float)vid.height);
-	y2 = ceil(vid.height - (gl3_newrefdef.y + gl3_newrefdef.height) * vid.height / (float)vid.height);
+	x = floor(r_newrefdef.x * vid.width / (float)vid.width);
+	x2 = ceil((r_newrefdef.x + r_newrefdef.width) * vid.width / (float)vid.width);
+	y = floor(vid.height - r_newrefdef.y * vid.height / (float)vid.height);
+	y2 = ceil(vid.height - (r_newrefdef.y + r_newrefdef.height) * vid.height / (float)vid.height);
 
 	w = x2 - x;
 	h = y - y2;
@@ -1423,7 +1419,7 @@ SetupGL(void)
 	// (=> don't use FBO when rendering the playermodel in the player menu)
 	// also, only do this when under water, because this has a noticeable overhead on some systems
 	if (gl3_usefbo->value && gl3state.ppFBO != 0
-		&& (gl3_newrefdef.rdflags & (RDF_NOWORLDMODEL|RDF_UNDERWATER)) == RDF_UNDERWATER)
+		&& (r_newrefdef.rdflags & (RDF_NOWORLDMODEL|RDF_UNDERWATER)) == RDF_UNDERWATER)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, gl3state.ppFBO);
 		gl3state.ppFBObound = true;
@@ -1482,7 +1478,7 @@ SetupGL(void)
 	}
 
 	/* set up projection matrix (eye coordinates -> clip coordinates) */
-	gl3state.projMat3D = GL3_SetPerspective(gl3_newrefdef.fov_y);
+	gl3state.projMat3D = GL3_SetPerspective(r_newrefdef.fov_y);
 
 	glCullFace(GL_FRONT);
 
@@ -1497,12 +1493,12 @@ SetupGL(void)
 		}};
 
 		// now rotate by view angles
-		hmm_mat4 rotMat = rotAroundAxisXYZ(-gl3_newrefdef.viewangles[2], -gl3_newrefdef.viewangles[0], -gl3_newrefdef.viewangles[1]);
+		hmm_mat4 rotMat = rotAroundAxisXYZ(-r_newrefdef.viewangles[2], -r_newrefdef.viewangles[0], -r_newrefdef.viewangles[1]);
 
 		viewMat = HMM_MultiplyMat4( viewMat, rotMat );
 
 		// .. and apply translation for current position
-		hmm_vec3 trans = HMM_Vec3(-gl3_newrefdef.vieworg[0], -gl3_newrefdef.vieworg[1], -gl3_newrefdef.vieworg[2]);
+		hmm_vec3 trans = HMM_Vec3(-r_newrefdef.vieworg[0], -r_newrefdef.vieworg[1], -r_newrefdef.vieworg[2]);
 		viewMat = HMM_MultiplyMat4( viewMat, HMM_Translate(trans) );
 
 		gl3state.viewMat3D = viewMat;
@@ -1514,7 +1510,7 @@ SetupGL(void)
 
 	gl3state.uni3DData.transModelMat4 = gl3_identityMat4;
 
-	gl3state.uni3DData.time = gl3_newrefdef.time;
+	gl3state.uni3DData.time = r_newrefdef.time;
 
 	GL3_UpdateUBO3D();
 
@@ -1534,7 +1530,7 @@ SetupGL(void)
 extern int c_visible_lightmaps, c_visible_textures;
 
 /*
- * gl3_newrefdef must be set before the first call
+ * r_newrefdef must be set before the first call
  */
 static void
 GL3_RenderView(refdef_t *fd)
@@ -1654,9 +1650,9 @@ GL3_RenderView(refdef_t *fd)
 		return;
 	}
 
-	gl3_newrefdef = *fd;
+	r_newrefdef = *fd;
 
-	if (!gl3_worldmodel && !(gl3_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	if (!gl3_worldmodel && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		Com_Error(ERR_DROP, "R_RenderView: NULL worldmodel");
 	}
@@ -1677,7 +1673,7 @@ GL3_RenderView(refdef_t *fd)
 	SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, gl3_origin,
-		gl3_newrefdef.fov_x, gl3_newrefdef.fov_y, frustum);
+		r_newrefdef.fov_x, r_newrefdef.fov_y, frustum);
 
 	SetupGL();
 
@@ -1748,14 +1744,14 @@ GL3_SetLightLevel(entity_t *currententity)
 {
 	vec3_t shadelight = {0};
 
-	if (gl3_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
 	{
 		return;
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(gl3_worldmodel->grid, currententity, &gl3_newrefdef,
-		gl3_worldmodel->surfaces, gl3_worldmodel->nodes, gl3_newrefdef.vieworg,
+	R_LightPoint(gl3_worldmodel->grid, currententity,
+		gl3_worldmodel->surfaces, gl3_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, r_modulate->value, lightspot);
 
 	/* pick the greatest component, which should be the
@@ -1797,16 +1793,16 @@ GL3_RenderFrame(refdef_t *fd)
 	}
 	GL3_SetGL2D();
 
-	int x = (vid.width - gl3_newrefdef.width)/2;
-	int y = (vid.height - gl3_newrefdef.height)/2;
+	int x = (vid.width - r_newrefdef.width)/2;
+	int y = (vid.height - r_newrefdef.height)/2;
 	if (usedFBO)
 	{
 		// if we're actually drawing the world and using an FBO, render the FBO's texture
-		GL3_DrawFrameBufferObject(x, y, gl3_newrefdef.width, gl3_newrefdef.height, gl3state.ppFBtex, v_blend);
+		GL3_DrawFrameBufferObject(x, y, r_newrefdef.width, r_newrefdef.height, gl3state.ppFBtex, v_blend);
 	}
 	else if(v_blend[3] != 0.0f)
 	{
-		GL3_Draw_Flash(v_blend, x, y, gl3_newrefdef.width, gl3_newrefdef.height);
+		GL3_Draw_Flash(v_blend, x, y, r_newrefdef.width, r_newrefdef.height);
 	}
 }
 

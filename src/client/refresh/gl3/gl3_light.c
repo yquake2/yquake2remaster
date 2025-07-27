@@ -46,14 +46,14 @@ GL3_PushDlights(void)
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = gl3_framecount + 1;
 
-	R_PushDlights(&gl3_newrefdef, gl3_worldmodel->nodes, r_dlightframecount,
+	R_PushDlights(&r_newrefdef, gl3_worldmodel->nodes, r_dlightframecount,
 			gl3_worldmodel->surfaces);
 
-	l = gl3_newrefdef.dlights;
+	l = r_newrefdef.dlights;
 
-	gl3state.uniLightsData.numDynLights = gl3_newrefdef.num_dlights;
+	gl3state.uniLightsData.numDynLights = r_newrefdef.num_dlights;
 
-	for (i = 0; i < gl3_newrefdef.num_dlights; i++, l++)
+	for (i = 0; i < r_newrefdef.num_dlights; i++, l++)
 	{
 		gl3UniDynLight* udl = &gl3state.uniLightsData.dynLights[i];
 		VectorCopy(l->origin, udl->origin);

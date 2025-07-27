@@ -314,6 +314,10 @@ typedef struct
 	bspxlgleaf_t *leafs;
 } bspxlightgrid_t;
 
+/* screen size info */
+extern refdef_t r_newrefdef;
+extern viddef_t vid;
+
 /* Shared models func */
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
 extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
@@ -385,8 +389,9 @@ extern void R_VertBufferFree(void);
 
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
-extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity, refdef_t *refdef, const msurface_t *surfaces,
-	const mnode_t *nodes, vec3_t p, vec3_t color, float modulate, vec3_t lightspot);
+extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
+	const msurface_t *surfaces, const mnode_t *nodes, vec3_t p, vec3_t color,
+	float modulate, vec3_t lightspot);
 extern void R_SetCacheState(msurface_t *surf, const refdef_t *r_newrefdef);
 extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride,
 	const refdef_t *r_newrefdef, float modulate, int r_framecount,

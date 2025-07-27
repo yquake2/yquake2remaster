@@ -615,7 +615,7 @@ GL3_DrawAliasModel(entity_t *entity)
 		}
 		else
 		{
-			R_LightPoint(gl3_worldmodel->grid, entity, &gl3_newrefdef,
+			R_LightPoint(gl3_worldmodel->grid, entity,
 				gl3_worldmodel->surfaces, gl3_worldmodel->nodes,
 				entity->origin, shadelight, r_modulate->value, lightspot);
 		}
@@ -673,7 +673,7 @@ GL3_DrawAliasModel(entity_t *entity)
 		/* bonus items will pulse with time */
 		float scale;
 
-		scale = 0.1 * sin(gl3_newrefdef.time * 7);
+		scale = 0.1 * sin(r_newrefdef.time * 7);
 
 		for (i = 0; i < 3; i++)
 		{
@@ -692,7 +692,7 @@ GL3_DrawAliasModel(entity_t *entity)
 	// Note: gl_overbrightbits are now applied in shader.
 
 	/* ir goggles color override */
-	if ((gl3_newrefdef.rdflags & RDF_IRGOGGLES) && (entity->flags & RF_IR_VISIBLE))
+	if ((r_newrefdef.rdflags & RDF_IRGOGGLES) && (entity->flags & RF_IR_VISIBLE))
 	{
 		shadelight[0] = 1.0;
 		shadelight[1] = 0.0;
@@ -723,7 +723,7 @@ GL3_DrawAliasModel(entity_t *entity)
 
 		// render weapon with a different FOV (r_gunfov) so it's not distorted at high view FOV
 		hmm_mat4 projMat = GL3_SetPerspective( (r_gunfov->value < 0)?
-				gl3_newrefdef.fov_y : r_gunfov->value );
+				r_newrefdef.fov_y : r_gunfov->value );
 
 		if(gl_lefthand->value == 1.0F)
 		{
