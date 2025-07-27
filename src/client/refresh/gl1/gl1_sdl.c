@@ -247,8 +247,7 @@ int RI_InitContext(void* win)
 	// Coders are stupid.
 	if (win == NULL)
 	{
-		Com_Error(ERR_FATAL, "%s() must not be called with NULL argument!",
-			__func__);
+		Com_Error(ERR_FATAL, "%s must not be called with NULL argument!", __func__);
 
 		return false;
 	}
@@ -260,7 +259,7 @@ int RI_InitContext(void* win)
 
 	if (context == NULL)
 	{
-		R_Printf(PRINT_ALL, "%s(): Creating OpenGL Context failed: %s\n",
+		R_Printf(PRINT_ALL, "%s: Creating OpenGL Context failed: %s\n",
 			__func__, SDL_GetError());
 
 		window = NULL;
@@ -273,7 +272,7 @@ int RI_InitContext(void* win)
 	// Load GL pointers through GLAD and check context.
 	if( !gladLoadGLES1Loader( (void * (*)(const char *)) SDL_GL_GetProcAddress ) )
 	{
-		R_Printf(PRINT_ALL, "RI_InitContext(): ERROR: loading OpenGL ES function pointers failed!\n");
+		R_Printf(PRINT_ALL, "%s ERROR: loading OpenGL ES function pointers failed!\n", __func__);
 		return false;
 	}
 
@@ -304,7 +303,6 @@ int RI_InitContext(void* win)
 				__func__, gl_config.major_version, gl_config.minor_version);
 
 		}
-
 	}
 
 #endif
