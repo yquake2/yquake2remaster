@@ -1167,10 +1167,8 @@ R_RenderView(const refdef_t *fd)
 	if (r_speeds->value)
 	{
 		Com_Printf("%4i wpoly %4i epoly %i tex %i lmaps\n",
-			c_brush_polys,
-			c_alias_polys,
-			c_visible_textures,
-			c_visible_lightmaps);
+				c_brush_polys, c_alias_polys, c_visible_textures,
+				c_visible_lightmaps);
 	}
 
 	switch (gl_state.stereo_mode) {

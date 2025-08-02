@@ -704,7 +704,7 @@ R_ReallocateMapBuffers (void)
 		}
 		triangles_max = &triangle_spans[r_numallocatedtriangles];
 
-		Com_Printf("Allocated %d triangle spans.\n", r_numallocatedtriangles);
+		Com_DPrintf("Allocated %d triangle spans.\n", r_numallocatedtriangles);
 	}
 
 	if (!r_numallocatededgebasespans || r_outedgebasespans)
