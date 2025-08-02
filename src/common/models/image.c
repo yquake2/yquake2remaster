@@ -464,7 +464,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 	if (image_issues)
 	{
-		Com_Printf("%s: %s file has possible size issues.\n", __func__, name);
+		Com_Printf("%s: %s file has possible size issues.\n",
+			__func__, name);
 	}
 }
 

@@ -1695,10 +1695,8 @@ GL3_RenderView(refdef_t *fd)
 	if (r_speeds->value)
 	{
 		Com_Printf("%4i wpoly %4i epoly %i tex %i lmaps\n",
-			c_brush_polys,
-			c_alias_polys,
-			c_visible_textures,
-			c_visible_lightmaps);
+				c_brush_polys, c_alias_polys, c_visible_textures,
+				c_visible_lightmaps);
 	}
 
 #if 0 // TODO: stereo stuff
