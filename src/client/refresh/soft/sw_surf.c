@@ -291,7 +291,7 @@ R_InitCaches (void)
 	// round up to page size
 	size = (size + 8191) & ~8191;
 
-	R_Printf(PRINT_ALL,"%ik surface cache.\n", size/1024);
+	Com_Printf("%ik surface cache.\n", size/1024);
 
 	sc_size = size;
 	sc_base = (surfcache_t *)malloc(size);

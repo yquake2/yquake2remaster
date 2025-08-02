@@ -260,7 +260,7 @@ GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 
 	if (!gl)
 	{
-		R_Printf(PRINT_ALL, "Can't find pic: %s\n", pic);
+		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}
 
@@ -285,7 +285,7 @@ GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 			return;
 		}
 
-		R_Printf(PRINT_ALL, "Can't find pic: %s\n", pic);
+		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}
 
@@ -306,7 +306,7 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 	gl3image_t *image = R_FindPic(pic, (findimage_t)GL3_FindImage);
 	if (!image)
 	{
-		R_Printf(PRINT_ALL, "Can't find pic: %s\n", pic);
+		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}
 

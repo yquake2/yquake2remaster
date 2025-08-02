@@ -325,7 +325,7 @@ static VkSampleCountFlagBits GetSampleCount(int msaa, VkSampleCountFlagBits supp
 		step ++;
 	}
 
-	R_Printf(PRINT_ALL, "...MSAAx%d is used\n", value);
+	Com_Printf("...MSAAx%d is used\n", value);
 
 	return msaaModes[step];
 }
@@ -449,7 +449,7 @@ static VkResult CreateFramebuffers()
 
 			if (res != VK_SUCCESS)
 			{
-				R_Printf(PRINT_ALL, "%s(): framebuffer #%d create error: %s\n", __func__, j, QVk_GetError(res));
+				Com_Printf("%s(): framebuffer #%d create error: %s\n", __func__, j, QVk_GetError(res));
 				DestroyFramebuffers();
 				return res;
 			}
@@ -729,7 +729,7 @@ static VkResult CreateRenderpasses()
 		VkResult res = vkCreateRenderPass(vk_device.logical, &rpCreateInfos[i], NULL, &vk_renderpasses[i].rp);
 		if (res != VK_SUCCESS)
 		{
-			R_Printf(PRINT_ALL, "%s(): renderpass #%d create error: %s\n", __func__, i, QVk_GetError(res));
+			Com_Printf("%s(): renderpass #%d create error: %s\n", __func__, i, QVk_GetError(res));
 			return res;
 		}
 		QVk_DebugSetObjectName((uint64_t)vk_renderpasses[i].rp, VK_OBJECT_TYPE_RENDER_PASS,
@@ -744,21 +744,21 @@ static void CreateDrawBuffers()
 {
 	QVk_CreateDepthBuffer(vk_renderpasses[RP_WORLD].sampleCount,
 		&vk_depthbuffer);
-	R_Printf(PRINT_ALL, "...created world depth buffer\n");
+	Com_Printf("...created world depth buffer\n");
 	QVk_CreateDepthBuffer(VK_SAMPLE_COUNT_1_BIT, &vk_ui_depthbuffer);
-	R_Printf(PRINT_ALL, "...created UI depth buffer\n");
+	Com_Printf("...created UI depth buffer\n");
 	QVk_CreateColorBuffer(VK_SAMPLE_COUNT_1_BIT, &vk_colorbuffer,
 		VK_IMAGE_USAGE_SAMPLED_BIT);
-	R_Printf(PRINT_ALL, "...created world color buffer\n");
+	Com_Printf("...created world color buffer\n");
 	QVk_CreateColorBuffer(VK_SAMPLE_COUNT_1_BIT, &vk_colorbufferWarp,
 		VK_IMAGE_USAGE_SAMPLED_BIT);
-	R_Printf(PRINT_ALL, "...created world postpocess color buffer\n");
+	Com_Printf("...created world postpocess color buffer\n");
 
 	if (vk_renderpasses[RP_WORLD].sampleCount > 1)
 	{
 		QVk_CreateColorBuffer(vk_renderpasses[RP_WORLD].sampleCount, &vk_msaaColorbuffer,
 			VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
-		R_Printf(PRINT_ALL, "...created MSAAx%d color buffer\n",
+		Com_Printf("...created MSAAx%d color buffer\n",
 			vk_renderpasses[RP_WORLD].sampleCount);
 	}
 
@@ -1551,7 +1551,7 @@ QVk_Shutdown(void)
 
 	if (vk_instance != VK_NULL_HANDLE)
 	{
-		R_Printf(PRINT_ALL, "Shutting down Vulkan\n");
+		Com_Printf("Shutting down Vulkan\n");
 
 		for (int i = 0; i < RP_COUNT; ++i)
 		{
@@ -1775,7 +1775,7 @@ qboolean QVk_Init(void)
 	if (!SDL_Vulkan_GetInstanceExtensions(vk_window, &extCount, NULL))
 #endif
 	{
-		R_Printf(PRINT_ALL, "%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
+		Com_Printf("%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
 				__func__, SDL_GetError());
 		return false;
 	}
@@ -1793,7 +1793,7 @@ qboolean QVk_Init(void)
 #ifdef USE_SDL3
 	if ((wantedExtensions = (char **)SDL_Vulkan_GetInstanceExtensions(&extCount)) == NULL)
 	{
-		R_Printf(PRINT_ALL, "%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
+		Com_Printf("%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
 				__func__, SDL_GetError());
 		return false;
 	}
@@ -1801,7 +1801,7 @@ qboolean QVk_Init(void)
 	wantedExtensions = malloc(extCount * sizeof(char *));
 	if (!SDL_Vulkan_GetInstanceExtensions(vk_window, &extCount, (const char **)wantedExtensions))
 	{
-		R_Printf(PRINT_ALL, "%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
+		Com_Printf("%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
 				__func__, SDL_GetError());
 		free(wantedExtensions);
 		return false;
@@ -1820,13 +1820,13 @@ qboolean QVk_Init(void)
 	wantedExtensions[extCount - 1] = VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME;
 #endif
 
-	R_Printf(PRINT_ALL, "Enabled extensions: ");
+	Com_Printf("Enabled extensions: ");
 	for (i = 0; i < extCount; i++)
 	{
-		R_Printf(PRINT_ALL, "%s ", wantedExtensions[i]);
+		Com_Printf("%s ", wantedExtensions[i]);
 		vk_config.extensions[i] = wantedExtensions[i];
 	}
-	R_Printf(PRINT_ALL, "\n");
+	Com_Printf("\n");
 
 	VkInstanceCreateInfo createInfo = {
 		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
@@ -1851,12 +1851,12 @@ qboolean QVk_Init(void)
 	// anyway, the api ignore it.
 	if (qvkGetMoltenVKConfigurationMVK(VK_NULL_HANDLE, &vk_molten_config, &vk_molten_len) != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not fetch the MoltenVK configuration\n", __func__);
+		Com_Printf("%s(): Could not fetch the MoltenVK configuration\n", __func__);
 		return false;
 	}
 
-	R_Printf(PRINT_ALL, "%s(): Molten fast math %d\n", __func__, vk_molten_config.fastMathEnabled);
-	R_Printf(PRINT_ALL, "%s(): Molten Metal buffers %d\n", __func__, vk_molten_config.useMetalArgumentBuffers);
+	Com_Printf("%s(): Molten fast math %d\n", __func__, vk_molten_config.fastMathEnabled);
+	Com_Printf("%s(): Molten Metal buffers %d\n", __func__, vk_molten_config.useMetalArgumentBuffers);
 
 	VkBool32 fastMath = vk_molten_fastmath->value > 0 ? VK_TRUE : VK_FALSE;
 	VkBool32 metalBuffers = vk_molten_metalbuffers->value > 0 ? VK_TRUE : VK_FALSE;
@@ -1868,7 +1868,7 @@ qboolean QVk_Init(void)
 		vk_molten_config.useMetalArgumentBuffers = metalBuffers;
 		if (qvkSetMoltenVKConfigurationMVK(VK_NULL_HANDLE, &vk_molten_config, &vk_molten_len) != VK_SUCCESS)
 		{
-			R_Printf(PRINT_ALL, "%s(): Could not update the MoltenVK configuration\n", __func__);
+			Com_Printf("%s(): Could not update the MoltenVK configuration\n", __func__);
 		}
 	}
 #endif
@@ -1918,7 +1918,7 @@ qboolean QVk_Init(void)
 		createInfo.pNext = NULL;
 		memset(vk_config.layers, 0, sizeof(vk_config.layers));
 		ri.Cvar_Set("r_validation", "0");
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan instance, disabling r_validation\n", __func__);
+		Com_Printf("%s(): Could not create Vulkan instance, disabling r_validation\n", __func__);
 		res = vkCreateInstance(&createInfo, NULL, &vk_instance);
 	}
 
@@ -1928,12 +1928,12 @@ qboolean QVk_Init(void)
 
 	if (res != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan instance: %s\n", __func__, QVk_GetError(res));
+		Com_Printf("%s(): Could not create Vulkan instance: %s\n", __func__, QVk_GetError(res));
 		return false;
 	}
 
 	volkLoadInstance(vk_instance);
-	R_Printf(PRINT_ALL, "...created Vulkan instance\n");
+	Com_Printf("...created Vulkan instance\n");
 	if (r_validation->value > 0)
 	{
 		// initialize function pointers
@@ -1967,7 +1967,7 @@ qboolean QVk_Init(void)
 	{
 		return false;
 	}
-	R_Printf(PRINT_ALL, "...created Vulkan surface\n");
+	Com_Printf("...created Vulkan surface\n");
 
 	// create Vulkan device - see if the user prefers any specific device if there's more than one GPU in the system
 	if (!QVk_CreateDevice((int)vk_device_idx->value))
@@ -1983,10 +1983,10 @@ qboolean QVk_Init(void)
 	res = QVk_CreateSwapchain();
 	if (res != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan swapchain: %s\n", __func__, QVk_GetError(res));
+		Com_Printf("%s(): Could not create Vulkan swapchain: %s\n", __func__, QVk_GetError(res));
 		return false;
 	}
-	R_Printf(PRINT_ALL, "...created Vulkan swapchain\n");
+	Com_Printf("...created Vulkan swapchain\n");
 
 	// set viewport and scissor
 	if (vid_fullscreen->value == 2)
@@ -2047,7 +2047,7 @@ qboolean QVk_Init(void)
 
 		QVk_DebugSetObjectName((uint64_t)vk_imageAvailableSemaphores[i], VK_OBJECT_TYPE_SEMAPHORE, va("Semaphore: image available #%d", i));
 	}
-	R_Printf(PRINT_ALL, "...created synchronization objects\n");
+	Com_Printf("...created synchronization objects\n");
 
 	// setup render passes
 	for (int i = 0; i < RP_COUNT; ++i)
@@ -2064,10 +2064,10 @@ qboolean QVk_Init(void)
 	res = CreateRenderpasses();
 	if (res != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan render passes: %s\n", __func__, QVk_GetError(res));
+		Com_Printf("%s(): Could not create Vulkan render passes: %s\n", __func__, QVk_GetError(res));
 		return false;
 	}
-	R_Printf(PRINT_ALL, "...created %d Vulkan render passes\n", RP_COUNT);
+	Com_Printf("...created %d Vulkan render passes\n", RP_COUNT);
 
 	// setup command pools
 	for (int i = 0; i < NUM_CMDBUFFERS; i++)
@@ -2075,7 +2075,7 @@ qboolean QVk_Init(void)
 		res = QVk_CreateCommandPool(&vk_commandPool[i], vk_device.gfxFamilyIndex);
 		if (res != VK_SUCCESS)
 		{
-			R_Printf(PRINT_ALL, "%s(): Could not create Vulkan command pool #%d for graphics: %s\n", __func__, i, QVk_GetError(res));
+			Com_Printf("%s(): Could not create Vulkan command pool #%d for graphics: %s\n", __func__, i, QVk_GetError(res));
 			return false;
 		}
 		QVk_DebugSetObjectName((uint64_t)vk_commandPool[i],
@@ -2085,13 +2085,13 @@ qboolean QVk_Init(void)
 	res = QVk_CreateCommandPool(&vk_transferCommandPool, vk_device.transferFamilyIndex);
 	if (res != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan command pool for transfer: %s\n", __func__, QVk_GetError(res));
+		Com_Printf("%s(): Could not create Vulkan command pool for transfer: %s\n", __func__, QVk_GetError(res));
 		return false;
 	}
 
 	QVk_DebugSetObjectName((uint64_t)vk_transferCommandPool,
 		VK_OBJECT_TYPE_COMMAND_POOL, "Command Pool: Transfer");
-	R_Printf(PRINT_ALL, "...created Vulkan command pools\n");
+	Com_Printf("...created Vulkan command pools\n");
 
 	// setup draw buffers
 	CreateDrawBuffers();
@@ -2100,19 +2100,19 @@ qboolean QVk_Init(void)
 	res = CreateImageViews();
 	if (res != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan image views: %s\n", __func__, QVk_GetError(res));
+		Com_Printf("%s(): Could not create Vulkan image views: %s\n", __func__, QVk_GetError(res));
 		return false;
 	}
-	R_Printf(PRINT_ALL, "...created %d Vulkan image view(s)\n", vk_swapchain.imageCount);
+	Com_Printf("...created %d Vulkan image view(s)\n", vk_swapchain.imageCount);
 
 	// setup framebuffers
 	res = CreateFramebuffers();
 	if (res != VK_SUCCESS)
 	{
-		R_Printf(PRINT_ALL, "%s(): Could not create Vulkan framebuffers: %s\n", __func__, QVk_GetError(res));
+		Com_Printf("%s(): Could not create Vulkan framebuffers: %s\n", __func__, QVk_GetError(res));
 		return false;
 	}
-	R_Printf(PRINT_ALL, "...created %d Vulkan framebuffers\n", vk_swapchain.imageCount);
+	Com_Printf("...created %d Vulkan framebuffers\n", vk_swapchain.imageCount);
 
 	// setup command buffers (double buffering)
 	vk_commandbuffers = (VkCommandBuffer *)malloc(NUM_CMDBUFFERS * sizeof(VkCommandBuffer));
@@ -2130,13 +2130,13 @@ qboolean QVk_Init(void)
 		res = vkAllocateCommandBuffers(vk_device.logical, &cbInfo, &vk_commandbuffers[i]);
 		if (res != VK_SUCCESS)
 		{
-			R_Printf(PRINT_ALL, "%s(): Could not create Vulkan commandbuffers: %s\n", __func__, QVk_GetError(res));
+			Com_Printf("%s(): Could not create Vulkan commandbuffers: %s\n", __func__, QVk_GetError(res));
 			free(vk_commandbuffers);
 			vk_commandbuffers = NULL;
 			return false;
 		}
 	}
-	R_Printf(PRINT_ALL, "...created %d Vulkan commandbuffers\n", NUM_CMDBUFFERS);
+	Com_Printf("...created %d Vulkan commandbuffers\n", NUM_CMDBUFFERS);
 
 	// initialize tracker variables
 	vk_activeCmdbuffer = vk_commandbuffers[vk_activeBufferIdx];
@@ -2195,7 +2195,7 @@ VkResult QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 		vk_recreateSwapchainNeeded = true;
 
 		// for VK_OUT_OF_DATE_KHR and VK_SUBOPTIMAL_KHR it'd be fine to just rebuild the swapchain but let's take the easy way out and restart Vulkan.
-		R_Printf(PRINT_ALL, "%s(): received %s after vkAcquireNextImageKHR - restarting video!\n", __func__, QVk_GetError(result));
+		Com_Printf("%s(): received %s after vkAcquireNextImageKHR - restarting video!\n", __func__, QVk_GetError(result));
 		return result;
 	}
 	else if (result != VK_SUCCESS)
@@ -2296,7 +2296,7 @@ VkResult QVk_EndFrame(qboolean force)
 	// for VK_OUT_OF_DATE_KHR and VK_SUBOPTIMAL_KHR it'd be fine to just rebuild the swapchain but let's take the easy way out and restart video system
 	if (renderResult == VK_ERROR_OUT_OF_DATE_KHR || renderResult == VK_SUBOPTIMAL_KHR || renderResult == VK_ERROR_SURFACE_LOST_KHR)
 	{
-		R_Printf(PRINT_ALL, "%s(): received %s after vkQueuePresentKHR - will restart video!\n", __func__, QVk_GetError(renderResult));
+		Com_Printf("%s(): received %s after vkQueuePresentKHR - will restart video!\n", __func__, QVk_GetError(renderResult));
 		vk_recreateSwapchainNeeded = true;
 	}
 	else if (renderResult != VK_SUCCESS)
@@ -2426,7 +2426,7 @@ uint8_t *QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSiz
 		vk_config.vertex_buffer_size = Q_max(
 			vk_config.vertex_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
-		R_Printf(PRINT_ALL, "Resizing dynamic vertex buffer to %ukB\n", vk_config.vertex_buffer_size / 1024);
+		Com_Printf("Resizing dynamic vertex buffer to %ukB\n", vk_config.vertex_buffer_size / 1024);
 		int swapBufferOffset = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
 		vk_swapBuffersCnt[vk_activeSwapBufferIdx] += NUM_DYNBUFFERS;
 
@@ -2477,7 +2477,7 @@ static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, i
 		vk_config.index_buffer_size = Q_max(
 			vk_config.index_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
-		R_Printf(PRINT_ALL, "Resizing dynamic index buffer to %ukB\n", vk_config.index_buffer_size / 1024);
+		Com_Printf("Resizing dynamic index buffer to %ukB\n", vk_config.index_buffer_size / 1024);
 		int swapBufferOffset = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
 		vk_swapBuffersCnt[vk_activeSwapBufferIdx] += NUM_DYNBUFFERS;
 
@@ -2523,7 +2523,7 @@ uint8_t *QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescript
 		vk_config.uniform_buffer_size = Q_max(
 			vk_config.uniform_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
-		R_Printf(PRINT_ALL, "Resizing dynamic uniform buffer to %ukB\n", vk_config.uniform_buffer_size / 1024);
+		Com_Printf("Resizing dynamic uniform buffer to %ukB\n", vk_config.uniform_buffer_size / 1024);
 		int swapBufferOffset   = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
 		int swapDescSetsOffset = vk_swapDescSetsCnt[vk_activeSwapBufferIdx];
 		vk_swapBuffersCnt[vk_activeSwapBufferIdx]  += NUM_DYNBUFFERS;
@@ -2583,7 +2583,7 @@ uint8_t *QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer 
 	stagingBuffer = &vk_stagingBuffers[vk_activeStagingBuffer];
 	if (size > stagingBuffer->resource.size)
 	{
-		R_Printf(PRINT_ALL, "%s: %d: Resize stanging buffer " YQ2_COM_PRIdS "-> " YQ2_COM_PRIdS "\n",
+		Com_Printf("%s: %d: Resize stanging buffer " YQ2_COM_PRIdS "-> " YQ2_COM_PRIdS "\n",
 			__func__, vk_activeStagingBuffer, stagingBuffer->resource.size, size);
 
 		DestroyStagingBuffer(stagingBuffer);

@@ -361,7 +361,7 @@ R_DrawEntitiesOnList(void)
 					R_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+					Com_Printf("%s: Bad modeltype %d\n",
 						__func__, currentmodel->type);
 					break;
 			}
@@ -412,7 +412,7 @@ R_DrawEntitiesOnList(void)
 					R_DrawSpriteModel(currententity, currentmodel);
 					break;
 				default:
-					R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+					Com_Printf("%s: Bad modeltype %d\n",
 						__func__, currentmodel->type);
 					return;
 			}
@@ -989,7 +989,7 @@ RE_RenderView(refdef_t *fd)
 
 	if (r_speeds->value)
 	{
-		R_Printf(PRINT_ALL, "%4i wpoly %4i epoly %i tex %i lmaps\n",
+		Com_Printf("%4i wpoly %4i epoly %i tex %i lmaps\n",
 			c_brush_polys,
 			c_alias_polys,
 			c_visible_textures,
@@ -1240,13 +1240,13 @@ R_Register(void)
 static int
 Vkimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen)
 {
-	R_Printf(PRINT_ALL, "Setting mode %d:", mode);
+	Com_Printf("Setting mode %d:", mode);
 
 	/* mode -1 is not in the vid mode table - so we keep the values in pwidth
 	   and pheight and don't even try to look up the mode info */
 	if ((mode >= 0) && !ri.Vid_GetModeInfo(pwidth, pheight, mode))
 	{
-		R_Printf(PRINT_ALL, " invalid mode\n");
+		Com_Printf(" invalid mode\n");
 		return rserr_invalid_mode;
 	}
 
@@ -1255,12 +1255,12 @@ Vkimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen)
 	{
 		if(!ri.GLimp_GetDesktopMode(pwidth, pheight))
 		{
-			R_Printf( PRINT_ALL, " can't detect mode\n" );
+			Com_Printf(" can't detect mode\n" );
 			return rserr_invalid_mode;
 		}
 	}
 
-	R_Printf(PRINT_ALL, " %dx%d (vid_fullscreen %i)\n", *pwidth, *pheight, fullscreen);
+	Com_Printf(" %dx%d (vid_fullscreen %i)\n", *pwidth, *pheight, fullscreen);
 
 	if (!ri.GLimp_InitGraphics(fullscreen, pwidth, pheight))
 	{
@@ -1309,13 +1309,13 @@ R_SetMode(void)
 		{
 			ri.Cvar_SetValue("r_mode", vk_state.prev_mode);
 			r_mode->modified = false;
-			R_Printf(PRINT_ALL, "%s() - invalid mode\n", __func__);
+			Com_Printf("%s() - invalid mode\n", __func__);
 		}
 
 		// try setting it back to something safe
 		if (Vkimp_SetMode((int*)&vid.width, (int*)&vid.height, vk_state.prev_mode, false) != rserr_ok)
 		{
-			R_Printf(PRINT_ALL, "%s() - could not revert to safe mode\n", __func__);
+			Com_Printf("%s() - could not revert to safe mode\n", __func__);
 			return false;
 		}
 	}
@@ -1329,10 +1329,10 @@ RE_Init
 */
 static qboolean RE_Init( void )
 {
-	R_Printf(PRINT_ALL, "Refresh: " REF_VERSION "\n");
-	R_Printf(PRINT_ALL, "Platform: " YQ2OSTYPE "\n");
-	R_Printf(PRINT_ALL, "Architecture: " YQ2ARCH "\n");
-	R_Printf(PRINT_ALL, "Build date: " BUILD_DATE "\n\n");
+	Com_Printf("Refresh: " REF_VERSION "\n");
+	Com_Printf("Platform: " YQ2OSTYPE "\n");
+	Com_Printf("Architecture: " YQ2ARCH "\n");
+	Com_Printf("Build date: " BUILD_DATE "\n\n");
 
 	R_Register();
 
@@ -1341,7 +1341,7 @@ static qboolean RE_Init( void )
 	// set video mode/screen resolution
 	if (!R_SetMode())
 	{
-		R_Printf(PRINT_ALL, "%s() - could not R_SetMode()\n", __func__);
+		Com_Printf("%s() - could not R_SetMode()\n", __func__);
 		return false;
 	}
 
@@ -1350,7 +1350,7 @@ static qboolean RE_Init( void )
 	// print device information during startup
 	Vk_Strings_f();
 
-	R_Printf(PRINT_ALL, "Successfully initialized Vulkan!\n");
+	Com_Printf("Successfully initialized Vulkan!\n");
 
 	return true;
 }
@@ -1591,7 +1591,7 @@ RE_InitContext(void *win)
 
 	if(window == NULL)
 	{
-		R_Printf(PRINT_ALL, "%s() must not be called with NULL argument!", __func__);
+		Com_Printf("%s() must not be called with NULL argument!", __func__);
 		return false;
 	}
 
@@ -1611,13 +1611,13 @@ RE_InitContext(void *win)
 #endif
 	if (RE_IsHighDPIaware)
 	{
-		R_Printf(PRINT_ALL, "%s() - HighDPI is enabled\n", __func__);
+		Com_Printf("%s() - HighDPI is enabled\n", __func__);
 	}
 #endif
 
 	if (!QVk_Init())
 	{
-		R_Printf(PRINT_ALL, "%s() - could not initialize Vulkan!\n", __func__);
+		Com_Printf("%s() - could not initialize Vulkan!\n", __func__);
 		return false;
 	}
 
@@ -1634,7 +1634,7 @@ qboolean Vkimp_CreateSurface(SDL_Window *window)
 	if (!SDL_Vulkan_CreateSurface(window, vk_instance, &vk_surface))
 #endif
 	{
-		R_Printf(PRINT_ALL, "%s() SDL_Vulkan_CreateSurface failed: %s",
+		Com_Printf("%s() SDL_Vulkan_CreateSurface failed: %s",
 				__func__, SDL_GetError());
 		return false;
 	}
@@ -1701,7 +1701,7 @@ static int RE_PrepareForWindow(void)
 {
 	if (SDL_Vulkan_LoadLibrary(NULL))
 	{
-		R_Printf(PRINT_ALL, "%s() Loader import failed: %s", __func__, SDL_GetError());
+		Com_Printf("%s() Loader import failed: %s", __func__, SDL_GetError());
 	}
 
 #ifdef USE_SDL3

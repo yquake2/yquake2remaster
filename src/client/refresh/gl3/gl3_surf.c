@@ -698,7 +698,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->numsurfaces)
 	{
-		R_Printf(PRINT_ALL, "Broken node firstsurface\n");
+		Com_Printf("Broken node firstsurface\n");
 		return;
 	}
 

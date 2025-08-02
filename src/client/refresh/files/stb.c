@@ -78,7 +78,7 @@ LoadSTB(const char *origname, const char* type, byte **pic, int *width, int *hei
 	{
 		free(data);
 
-		R_Printf(PRINT_ALL, "%s unexpected file format of %s with %d bytes per pixel!\n",
+		Com_Printf("%s unexpected file format of %s with %d bytes per pixel!\n",
 			__func__, filename, bitsPerPixel);
 
 		return false;
@@ -164,7 +164,7 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 				// mirror steps
 				if (k < step)
 				{
-					// R_Printf(PRINT_ALL, "%s %d -> %d\n", __func__, k, step);
+					// Com_Printf("%s %d -> %d\n", __func__, k, step);
 					// change place for start effect
 					last_diff += (step - k);
 					step = k;
@@ -936,5 +936,5 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	free(font_mask);
 	ri.FS_FreeFile((void *)data);
 
-	R_Printf(PRINT_ALL, "%s(): Loaded font %s %.0fp.\n", __func__, font_name, *r_font_size);
+	Com_Printf("%s(): Loaded font %s %.0fp.\n", __func__, font_name, *r_font_size);
 }
