@@ -2999,7 +2999,6 @@ static const gitem_t gameitemlist[] = {
 	/*
 	 * QUAKED weapon_phalanx (.3 .3 1) (-16 -16 -16) (16 16 16)
 	 */
-
 	{
 		"weapon_phalanx",
 		Pickup_Weapon,
@@ -4491,6 +4490,11 @@ SP_item_foodcube(edict_t *self)
 void
 InitItems(void)
 {
+	if (sizeof(gameitemlist) > sizeof(itemlist))
+	{
+		gi.error("Defined items more than %d\n", MAX_ITEMS);
+	}
+
 	memset(itemlist, 0, sizeof(itemlist));
 	memcpy(itemlist, gameitemlist, sizeof(gameitemlist));
 	game.num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
