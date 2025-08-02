@@ -158,8 +158,6 @@ DoRespawn(edict_t *ent)
 	if (ent->team)
 	{
 		edict_t *master;
-		int count;
-		int choice;
 
 		master = ent->teammaster;
 
@@ -173,6 +171,8 @@ DoRespawn(edict_t *ent)
 		}
 		else
 		{
+			int count, choice;
+
 			for (count = 0, ent = master; ent; ent = ent->chain, count++)
 			{
 			}
