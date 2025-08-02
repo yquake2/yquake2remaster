@@ -284,7 +284,7 @@ RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 
 		if (!image)
 		{
-			R_Printf(PRINT_ALL, "%s: can't load %s:%s sky\n",
+			Com_Printf("%s: can't load %s:%s sky\n",
 				__func__, skyname, suf[i]);
 			image = r_notexture;
 		}

@@ -325,7 +325,7 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 	paliashdr = (dmdx_t *)currentmodel->extradata;
 	if (!paliashdr)
 	{
-		R_Printf(PRINT_ALL, "%s %s: Model is not fully loaded\n",
+		Com_Printf("%s %s: Model is not fully loaded\n",
 				__func__, currentmodel->name);
 		return true;
 	}

@@ -107,7 +107,7 @@ DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei le
 	}
 
 	// use PRINT_ALL - this is only called with gl3_debugcontext != 0 anyway.
-	R_Printf(PRINT_ALL, "GLDBG %s %s %s: %s\n", sourceStr, typeStr, severityStr, message);
+	Com_Printf("GLDBG %s %s %s: %s\n", sourceStr, typeStr, severityStr, message);
 }
 
 // ---------
@@ -165,7 +165,7 @@ void GL3_SetVsync(void)
 		{
 			// Not every system supports adaptive
 			// vsync, fallback to normal vsync.
-			R_Printf(PRINT_ALL, "Failed to set adaptive vsync, reverting to normal vsync.\n");
+			Com_Printf("Failed to set adaptive vsync, reverting to normal vsync.\n");
 			SDL_GL_SetSwapInterval(1);
 		}
 	}
@@ -174,7 +174,7 @@ void GL3_SetVsync(void)
 	int vsyncState;
 	if (!SDL_GL_GetSwapInterval(&vsyncState))
 	{
-		R_Printf(PRINT_ALL, "Failed to get vsync state, assuming vsync inactive.\n");
+		Com_Printf("Failed to get vsync state, assuming vsync inactive.\n");
 		vsyncActive = false;
 	}
 	else
@@ -223,9 +223,9 @@ int GL3_PrepareForWindow(void)
 			}
 			else
 			{
-				R_Printf(PRINT_ALL, "%s: Couldn't load libGL: %s!\n",
+				Com_Printf("%s: Couldn't load libGL: %s!\n",
 					__func__, SDL_GetError());
-				R_Printf(PRINT_ALL, "Retrying with default...\n");
+				Com_Printf("Retrying with default...\n");
 
 				ri.Cvar_Set("gl3_libgl", "");
 				libgl = NULL;
@@ -305,7 +305,7 @@ int GL3_PrepareForWindow(void)
 		if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1) < 0)
 #endif
 		{
-			R_Printf(PRINT_ALL, "MSAA is unsupported: %s\n", SDL_GetError());
+			Com_Printf("MSAA is unsupported: %s\n", SDL_GetError());
 
 			ri.Cvar_SetValue ("r_msaa_samples", 0);
 
@@ -318,7 +318,7 @@ int GL3_PrepareForWindow(void)
 		else if (SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, msaa_samples) < 0)
 #endif
 		{
-			R_Printf(PRINT_ALL, "MSAA %ix is unsupported: %s\n", msaa_samples, SDL_GetError());
+			Com_Printf("MSAA %ix is unsupported: %s\n", msaa_samples, SDL_GetError());
 
 			ri.Cvar_SetValue("r_msaa_samples", 0);
 
@@ -357,7 +357,7 @@ int GL3_InitContext(void* win)
 
 	if(context == NULL)
 	{
-		R_Printf(PRINT_ALL, "%s(): Creating OpenGL Context failed: %s\n",
+		Com_Printf("%s(): Creating OpenGL Context failed: %s\n",
 			__func__, SDL_GetError());
 
 		window = NULL;
@@ -405,7 +405,7 @@ int GL3_InitContext(void* win)
 	if( !gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
 #endif
 	{
-		R_Printf(PRINT_ALL, "%s(): ERROR: loading OpenGL function pointers failed!\n",
+		Com_Printf("%s(): ERROR: loading OpenGL function pointers failed!\n",
 			__func__);
 
 		return false;
@@ -419,14 +419,14 @@ int GL3_InitContext(void* win)
 		if ((!gl_version_override->value) ||
 			(GLVersion.major < gl_version_override->value))
 		{
-			R_Printf(PRINT_ALL, "%s(): ERROR: glad only got GL version %d.%d!\n",
+			Com_Printf("%s(): ERROR: glad only got GL version %d.%d!\n",
 				__func__, GLVersion.major, GLVersion.minor);
 
 			return false;
 		}
 		else
 		{
-			R_Printf(PRINT_ALL, "%s(): Warning: glad only got GL version %d.%d.\n"
+			Com_Printf("%s(): Warning: glad only got GL version %d.%d.\n"
 				"Some functionality could be broken.\n",
 				__func__, GLVersion.major, GLVersion.minor);
 
@@ -434,7 +434,7 @@ int GL3_InitContext(void* win)
 	}
 	else
 	{
-		R_Printf(PRINT_ALL, "Successfully loaded OpenGL function pointers using glad, got version %d.%d!\n", GLVersion.major, GLVersion.minor);
+		Com_Printf("Successfully loaded OpenGL function pointers using glad, got version %d.%d!\n", GLVersion.major, GLVersion.minor);
 	}
 
 #ifdef YQ2_GL3_GLES

@@ -115,7 +115,7 @@ void Vk_ScreenShot_f (void)
 
 	if (!vk_device.screenshotSupported)
 	{
-		R_Printf(PRINT_ALL, "%s: Screenshots are not supported by this GPU.\n", __func__);
+		Com_Printf("%s: Screenshots are not supported by this GPU.\n", __func__);
 		return;
 	}
 
@@ -205,11 +205,11 @@ void Vk_Strings_f(void)
 		preferredDevice = -1;
 	}
 
-	R_Printf(PRINT_ALL, "------------------------------------\n");
-	R_Printf(PRINT_ALL, "Vulkan API: %d.%d\n",  VK_VERSION_MAJOR(vk_config.vk_version),
+	Com_Printf("------------------------------------\n");
+	Com_Printf("Vulkan API: %d.%d\n",  VK_VERSION_MAJOR(vk_config.vk_version),
 				VK_VERSION_MINOR(vk_config.vk_version));
-	R_Printf(PRINT_ALL, "Header version: %d\n", VK_HEADER_VERSION);
-	R_Printf(PRINT_ALL, "Devices found:\n");
+	Com_Printf("Header version: %d\n", VK_HEADER_VERSION);
+	Com_Printf("Devices found:\n");
 	for (i = 0; i < numDevices; ++i)
 	{
 		qboolean isPreferred = false;
@@ -222,83 +222,83 @@ void Vk_Strings_f(void)
 		if (isPreferred) {
 			usedDevice = i;
 		}
-		R_Printf(PRINT_ALL, "%s#%d: %s\n",
+		Com_Printf("%s#%d: %s\n",
 			isPreferred && numDevices > 1 ? "*  " : "   ",
 			i, deviceProperties.deviceName);
 	}
 	free(physicalDevices);
 
-	R_Printf(PRINT_ALL, "Using device #%d:\n", usedDevice);
-	R_Printf(PRINT_ALL, "   deviceName: %s\n", vk_device.properties.deviceName);
-	R_Printf(PRINT_ALL, "   resolution: %dx%d", vid.width, vid.height);
+	Com_Printf("Using device #%d:\n", usedDevice);
+	Com_Printf("   deviceName: %s\n", vk_device.properties.deviceName);
+	Com_Printf("   resolution: %dx%d", vid.width, vid.height);
 	if (msaa > 0)
 	{
-		R_Printf(PRINT_ALL, " (MSAAx%d)\n", msaa);
+		Com_Printf(" (MSAAx%d)\n", msaa);
 	}
 	else
 	{
-		R_Printf(PRINT_ALL, "\n");
+		Com_Printf("\n");
 	}
 #ifndef __linux__
 	// Intel on Windows and MacOS (Linux uses semver for Mesa drivers)
 	if (vk_device.properties.vendorID == 0x8086)
 	{
-		R_Printf(PRINT_ALL, "   driverVersion: %d (0x%X)\n",
+		Com_Printf("   driverVersion: %d (0x%X)\n",
 			vk_device.properties.driverVersion,
 			vk_device.properties.driverVersion);
 	}
 	else
 #endif
 	{
-		R_Printf(PRINT_ALL, "   driverVersion: %d.%d.%d (0x%X)\n",
+		Com_Printf("   driverVersion: %d.%d.%d (0x%X)\n",
 			driverMajor, driverMinor, driverPatch,
 			vk_device.properties.driverVersion);
 	}
 
-	R_Printf(PRINT_ALL, "   apiVersion: %d.%d.%d\n",
+	Com_Printf("   apiVersion: %d.%d.%d\n",
 		VK_VERSION_MAJOR(vk_device.properties.apiVersion),
 		VK_VERSION_MINOR(vk_device.properties.apiVersion),
 		VK_VERSION_PATCH(vk_device.properties.apiVersion));
-	R_Printf(PRINT_ALL, "   deviceID: %d\n", vk_device.properties.deviceID);
-	R_Printf(PRINT_ALL, "   vendorID: 0x%X (%s)\n",
+	Com_Printf("   deviceID: %d\n", vk_device.properties.deviceID);
+	Com_Printf("   vendorID: 0x%X (%s)\n",
 		vk_device.properties.vendorID, vk_config.vendor_name);
 #if defined(__APPLE__)
-	R_Printf(PRINT_ALL, "   mslVersion: %d.%d.%d\n",
+	Com_Printf("   mslVersion: %d.%d.%d\n",
 		VK_VERSION_MAJOR(vk_device.metalFeatures.mslVersion),
 		VK_VERSION_MINOR(vk_device.metalFeatures.mslVersion),
 		VK_VERSION_PATCH(vk_device.metalFeatures.mslVersion));
 #endif
-	R_Printf(PRINT_ALL, "   deviceType: %s\n", vk_config.device_type);
-	R_Printf(PRINT_ALL, "   gfx/present/transfer: %d/%d/%d\n",
+	Com_Printf("   deviceType: %s\n", vk_config.device_type);
+	Com_Printf("   gfx/present/transfer: %d/%d/%d\n",
 		vk_device.gfxFamilyIndex,
 		vk_device.presentFamilyIndex,
 		vk_device.transferFamilyIndex);
-	R_Printf(PRINT_ALL, "Present mode: %s\n", vk_config.present_mode);
-	R_Printf(PRINT_ALL, "Swapchain image format: %d\n", vk_swapchain.format);
+	Com_Printf("Present mode: %s\n", vk_config.present_mode);
+	Com_Printf("Swapchain image format: %d\n", vk_swapchain.format);
 
-	R_Printf(PRINT_ALL, "Supported present modes: ");
+	Com_Printf("Supported present modes: ");
 	i = 0;
 	while(vk_config.supported_present_modes[i])
 	{
-		R_Printf(PRINT_ALL, "%s ", vk_config.supported_present_modes[i++]);
+		Com_Printf("%s ", vk_config.supported_present_modes[i++]);
 	}
-	R_Printf(PRINT_ALL, "\n");
+	Com_Printf("\n");
 
-	R_Printf(PRINT_ALL, "Enabled extensions: ");
+	Com_Printf("Enabled extensions: ");
 	i = 0;
 	while(vk_config.extensions[i])
 	{
-		R_Printf(PRINT_ALL, "%s ", vk_config.extensions[i++]);
+		Com_Printf("%s ", vk_config.extensions[i++]);
 	}
-	R_Printf(PRINT_ALL, "\n");
+	Com_Printf("\n");
 
-	R_Printf(PRINT_ALL, "Enabled layers: ");
+	Com_Printf("Enabled layers: ");
 	i = 0;
 	while(vk_config.layers[i])
 	{
-		R_Printf(PRINT_ALL, "%s ", vk_config.layers[i++]);
+		Com_Printf("%s ", vk_config.layers[i++]);
 	}
-	R_Printf(PRINT_ALL, "\n");
+	Com_Printf("\n");
 }
 
 /*
@@ -306,18 +306,18 @@ void Vk_Strings_f(void)
 */
 void Vk_Mem_f(void)
 {
-	R_Printf(PRINT_ALL, "\nDynamic buffer stats: \n");
-	R_Printf(PRINT_ALL, "Vertex : %u/%ukB (%.1f%% max: %ukB)\n",
+	Com_Printf("\nDynamic buffer stats: \n");
+	Com_Printf("Vertex : %u/%ukB (%.1f%% max: %ukB)\n",
 		vk_config.vertex_buffer_usage / 1024,
 		vk_config.vertex_buffer_size / 1024,
 		100.f * vk_config.vertex_buffer_usage / vk_config.vertex_buffer_size,
 		vk_config.vertex_buffer_max_usage / 1024);
-	R_Printf(PRINT_ALL, "Index  : %u/%uB (%.1f%% max: %uB)\n",
+	Com_Printf("Index  : %u/%uB (%.1f%% max: %uB)\n",
 		vk_config.index_buffer_usage,
 		vk_config.index_buffer_size,
 		100.f * vk_config.index_buffer_usage / vk_config.index_buffer_size,
 		vk_config.index_buffer_max_usage);
-	R_Printf(PRINT_ALL, "Uniform: %u/%ukB (%.1f%% max: %ukB)\n",
+	Com_Printf("Uniform: %u/%ukB (%.1f%% max: %ukB)\n",
 		vk_config.uniform_buffer_usage / 1024,
 		vk_config.uniform_buffer_size / 1024,
 		100.f * vk_config.uniform_buffer_usage / vk_config.uniform_buffer_size,

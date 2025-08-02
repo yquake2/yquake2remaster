@@ -137,13 +137,13 @@ memory_type_print(VkMemoryPropertyFlags mem_prop)
 {
 	if (!mem_prop)
 	{
-		R_Printf(PRINT_ALL, " VK_MEMORY_PROPERTY_NONE");
+		Com_Printf(" VK_MEMORY_PROPERTY_NONE");
 		return;
 	}
 
 #define MPSTR(r, prop) \
 	if((prop & VK_MEMORY_PROPERTY_ ##r) != 0) \
-		{ R_Printf(PRINT_ALL, " %s", "VK_MEMORY_PROPERTY_"#r); }; \
+		{ Com_Printf(" %s", "VK_MEMORY_PROPERTY_"#r); }; \
 
 	MPSTR(DEVICE_LOCAL_BIT, mem_prop);
 	MPSTR(HOST_VISIBLE_BIT, mem_prop);
@@ -163,17 +163,17 @@ memory_type_print(VkMemoryPropertyFlags mem_prop)
 void
 vulkan_memory_types_show(void)
 {
-	R_Printf(PRINT_ALL, "\nMemory blocks:");
+	Com_Printf("\nMemory blocks:");
 
 	for(uint32_t i = 0; i < VK_MAX_MEMORY_TYPES; i++)
 	{
 		if (vk_device.mem_properties.memoryTypes[i].propertyFlags)
 		{
-			R_Printf(PRINT_ALL, "\n   #%d:", i);
+			Com_Printf("\n   #%d:", i);
 			memory_type_print(vk_device.mem_properties.memoryTypes[i].propertyFlags);
 		}
 	}
-	R_Printf(PRINT_ALL, "\n");
+	Com_Printf("\n");
 }
 
 static VkBool32
@@ -381,7 +381,7 @@ memory_block_allocate(VkDeviceSize size,
 		}
 		else
 		{
-			R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+			Com_Printf("%s:%d: VkResult verification: %s\n",
 				__func__, __LINE__, QVk_GetError(result));
 		}
 		return result;
@@ -472,13 +472,13 @@ memory_create_by_property(VkMemoryRequirements* mem_reqs,
 
 	if (r_validation->value > 0)
 	{
-		R_Printf(PRINT_ALL, "Asked about memory properties with:\n");
+		Com_Printf("Asked about memory properties with:\n");
 		memory_type_print(mem_properties);
-		R_Printf(PRINT_ALL, "\nAsked about memory preferences with:\n");
+		Com_Printf("\nAsked about memory preferences with:\n");
 		memory_type_print(mem_preferences);
-		R_Printf(PRINT_ALL, "\nAsked about memory skip with:\n");
+		Com_Printf("\nAsked about memory skip with:\n");
 		memory_type_print(mem_skip);
-		R_Printf(PRINT_ALL, "\n");
+		Com_Printf("\n");
 	}
 
 	memory_index = get_memory_type(mem_reqs->memoryTypeBits,
@@ -486,17 +486,17 @@ memory_create_by_property(VkMemoryRequirements* mem_reqs,
 
 	if (memory_index == VK_MAX_MEMORY_TYPES)
 	{
-		R_Printf(PRINT_ALL, "%s:%d: Have not found required memory type.\n",
+		Com_Printf("%s:%d: Have not found required memory type.\n",
 			__func__, __LINE__);
 		return VK_ERROR_OUT_OF_DEVICE_MEMORY;
 	}
 	else if (r_validation->value > 0)
 	{
-		R_Printf(PRINT_ALL, "%s:%d: Selected %d memory properties with:\n",
+		Com_Printf("%s:%d: Selected %d memory properties with:\n",
 			__func__, __LINE__, memory_index);
 		memory_type_print(
 			vk_device.mem_properties.memoryTypes[memory_index].propertyFlags);
-		R_Printf(PRINT_ALL, "\n");
+		Com_Printf("\n");
 	}
 
 	/* get selected memory properties */
@@ -527,7 +527,7 @@ buffer_create(BufferResource_t *buf,
 
 	result = vkCreateBuffer(vk_device.logical, &buf_create_info, NULL, &buf->buffer);
 	if(result != VK_SUCCESS) {
-		R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+		Com_Printf("%s:%d: VkResult verification: %s\n",
 			__func__, __LINE__, QVk_GetError(result));
 		goto fail_buffer;
 	}
@@ -539,7 +539,7 @@ buffer_create(BufferResource_t *buf,
 	result = memory_create_by_property(&mem_reqs, mem_properties, mem_preferences,
 		mem_skip, &buf->memory, &buf->offset);
 	if(result != VK_SUCCESS) {
-		R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+		Com_Printf("%s:%d: VkResult verification: %s\n",
 			__func__, __LINE__, QVk_GetError(result));
 		goto fail_mem_alloc;
 	}
@@ -548,7 +548,7 @@ buffer_create(BufferResource_t *buf,
 
 	result = vkBindBufferMemory(vk_device.logical, buf->buffer, buf->memory, buf->offset);
 	if(result != VK_SUCCESS) {
-		R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+		Com_Printf("%s:%d: VkResult verification: %s\n",
 			__func__, __LINE__, QVk_GetError(result));
 		goto fail_bind_buf_memory;
 	}
@@ -578,7 +578,7 @@ image_create(ImageResource_t *img,
 
 	result = vkCreateImage(vk_device.logical, &img_create_info, NULL, &img->image);
 	if(result != VK_SUCCESS) {
-		R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+		Com_Printf("%s:%d: VkResult verification: %s\n",
 			__func__, __LINE__, QVk_GetError(result));
 		goto fail_buffer;
 	}
@@ -591,7 +591,7 @@ image_create(ImageResource_t *img,
 	result = memory_create_by_property(&mem_reqs, mem_properties, mem_preferences,
 		mem_skip, &img->memory, &img->offset);
 	if(result != VK_SUCCESS) {
-		R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+		Com_Printf("%s:%d: VkResult verification: %s\n",
 			__func__, __LINE__, QVk_GetError(result));
 		goto fail_mem_alloc;
 	}
@@ -600,7 +600,7 @@ image_create(ImageResource_t *img,
 
 	result = vkBindImageMemory(vk_device.logical, img->image, img->memory, img->offset);
 	if(result != VK_SUCCESS) {
-		R_Printf(PRINT_ALL, "%s:%d: VkResult verification: %s\n",
+		Com_Printf("%s:%d: VkResult verification: %s\n",
 			__func__, __LINE__, QVk_GetError(result));
 		goto fail_bind_buf_memory;
 	}

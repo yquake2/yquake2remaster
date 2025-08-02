@@ -121,7 +121,7 @@ GL4_ScreenShot(void)
 
 	if (!buffer)
 	{
-		R_Printf(PRINT_ALL, "GL4_ScreenShot: Couldn't malloc %d bytes\n", w*h*3);
+		Com_Printf("GL4_ScreenShot: Couldn't malloc %d bytes\n", w*h*3);
 		return;
 	}
 

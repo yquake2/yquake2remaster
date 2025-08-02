@@ -588,7 +588,7 @@ void	Vk_ImageList_f (void)
 	image_t	*image;
 	qboolean	freeup;
 
-	R_Printf(PRINT_ALL, "------------------\n");
+	Com_Printf("------------------\n");
 	texels = 0;
 	used = 0;
 
@@ -609,29 +609,29 @@ void	Vk_ImageList_f (void)
 		switch (image->type)
 		{
 		case it_skin:
-			R_Printf(PRINT_ALL, "M");
+			Com_Printf("M");
 			break;
 		case it_sprite:
-			R_Printf(PRINT_ALL, "S");
+			Com_Printf("S");
 			break;
 		case it_wall:
-			R_Printf(PRINT_ALL, "W");
+			Com_Printf("W");
 			break;
 		case it_pic:
-			R_Printf(PRINT_ALL, "P");
+			Com_Printf("P");
 			break;
 		default:
-			R_Printf(PRINT_ALL, " ");
+			Com_Printf(" ");
 			break;
 		}
 
-		R_Printf(PRINT_ALL, " %4i %4i RGB: %s (%dx%d) %s\n",
+		Com_Printf(" %4i %4i RGB: %s (%dx%d) %s\n",
 			image->upload_width, image->upload_height, image->name,
 			image->width, image->height, in_use);
 	}
-	R_Printf(PRINT_ALL, "Total texel count (not counting mipmaps): %i in %d images\n", texels, img_loaded);
+	Com_Printf("Total texel count (not counting mipmaps): %i in %d images\n", texels, img_loaded);
 	freeup = Vk_ImageHasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d / %d images%s.\n",
+	Com_Printf("Used %d of %d / %d images%s.\n",
 		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
@@ -675,7 +675,7 @@ Vk_TextureMode(const char *string)
 
 	if (i == NUM_VK_MODES)
 	{
-		R_Printf(PRINT_ALL, "bad filter name (valid values: VK_NEAREST, VK_LINEAR, VK_MIPMAP_NEAREST, VK_MIPMAP_LINEAR)\n");
+		Com_Printf("bad filter name (valid values: VK_NEAREST, VK_LINEAR, VK_MIPMAP_NEAREST, VK_MIPMAP_LINEAR)\n");
 		ri.Cvar_Set("vk_texturemode", prev_mode);
 		return;
 	}
@@ -734,7 +734,7 @@ Vk_LmapTextureMode(const char *string)
 
 	if (i == NUM_VK_MODES)
 	{
-		R_Printf(PRINT_ALL, "bad filter name (valid values: VK_NEAREST, VK_LINEAR, VK_MIPMAP_NEAREST, VK_MIPMAP_LINEAR)\n");
+		Com_Printf("bad filter name (valid values: VK_NEAREST, VK_LINEAR, VK_MIPMAP_NEAREST, VK_MIPMAP_LINEAR)\n");
 		ri.Cvar_Set("vk_lmaptexturemode", prev_mode);
 		return;
 	}
@@ -1115,7 +1115,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	img_loaded ++;
 	if (r_validation->value > 0)
 	{
-		R_Printf(PRINT_ALL, "%s: Load %s[%d]\n", __func__, image->name, img_loaded);
+		Com_Printf("%s: Load %s[%d]\n", __func__, image->name, img_loaded);
 	}
 
 	if (type == it_skin && bits == 8)
@@ -1244,7 +1244,7 @@ Vk_FindImage(const char *originname, imagetype_t type)
 
 	if (!image && r_validation->value > 0)
 	{
-		R_Printf(PRINT_ALL, "%s: can't load %s\n", __func__, name);
+		Com_Printf("%s: can't load %s\n", __func__, name);
 	}
 
 	return image;
@@ -1329,7 +1329,7 @@ void Vk_FreeUnusedImages (void)
 
 		if (r_validation->value > 0)
 		{
-			R_Printf(PRINT_ALL, "%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
+			Com_Printf("%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
 		}
 
 		/* free it */
@@ -1421,7 +1421,7 @@ void	Vk_ShutdownImages (void)
 
 		if (r_validation->value > 0)
 		{
-			R_Printf(PRINT_ALL, "%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
+			Com_Printf("%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
 		}
 
 		QVk_ReleaseTexture(&image->vk_texture);

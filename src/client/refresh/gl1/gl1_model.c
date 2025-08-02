@@ -105,7 +105,7 @@ Mod_Modellist_f(void)
 
 	total = 0;
 	used = 0;
-	R_Printf(PRINT_ALL, "Loaded models:\n");
+	Com_Printf("Loaded models:\n");
 
 	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
 	{
@@ -122,15 +122,15 @@ Mod_Modellist_f(void)
 			continue;
 		}
 
-		R_Printf(PRINT_ALL, "%8i : %s %s r: %.2f #%d\n",
+		Com_Printf("%8i : %s %s r: %.2f #%d\n",
 			 mod->extradatasize, mod->name, in_use, mod->radius, mod->numsubmodels);
 		total += mod->extradatasize;
 	}
 
-	R_Printf(PRINT_ALL, "Total resident: %i\n", total);
+	Com_Printf("Total resident: %i\n", total);
 	// update statistics
 	freeup = Mod_HasFreeSpace();
-	R_Printf(PRINT_ALL, "Used %d of %d models%s.\n", used, mod_max, freeup ? ", has free space" : "");
+	Com_Printf("Used %d of %d models%s.\n", used, mod_max, freeup ? ", has free space" : "");
 }
 
 void
@@ -227,7 +227,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	if ((lminfos != NULL) &&
 		(lminfosize / sizeof(dlminfo_t) != loadmodel->numsurfaces))
 	{
-		R_Printf(PRINT_ALL, "%s: [%s] decoupled_lm size " YQ2_COM_PRIdS " does not match surface count %d\n",
+		Com_Printf("%s: [%s] decoupled_lm size " YQ2_COM_PRIdS " does not match surface count %d\n",
 			__func__, loadmodel->name, lminfosize / sizeof(dlminfo_t), loadmodel->numsurfaces);
 		lminfos = NULL;
 	}
@@ -495,7 +495,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 
 		if (r_validation->value > 0)
 		{
-			R_Printf(PRINT_ALL, "%s: Can't load %s\n", __func__, mod->name);
+			Com_Printf("%s: Can't load %s\n", __func__, mod->name);
 		}
 
 		memset(mod->name, 0, sizeof(mod->name));
@@ -559,7 +559,7 @@ Mod_Free(model_t *mod)
 
 	if (r_validation->value > 0)
 	{
-		R_Printf(PRINT_ALL, "%s: Unload %s\n", __func__, mod->name);
+		Com_Printf("%s: Unload %s\n", __func__, mod->name);
 	}
 
 	Hunk_Free(mod->extradata);

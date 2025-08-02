@@ -47,16 +47,16 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugUtilsCallback(VkDebugUtilsMessageSeve
 	switch (msgSeverity)
 	{
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_INFO: %s %s\n", callbackData->pMessage, msgToString(msgType));
+		Com_Printf("VK_INFO: %s %s\n", callbackData->pMessage, msgToString(msgType));
 		break;
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_VERBOSE: %s %s\n", callbackData->pMessage, msgToString(msgType));
+		Com_Printf("VK_VERBOSE: %s %s\n", callbackData->pMessage, msgToString(msgType));
 		break;
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_WARNING: %s %s\n", callbackData->pMessage, msgToString(msgType));
+		Com_Printf("VK_WARNING: %s %s\n", callbackData->pMessage, msgToString(msgType));
 		break;
 	default:
-		R_Printf(PRINT_ALL, "VK_ERROR: %s %s\n", callbackData->pMessage, msgToString(msgType));
+		Com_Printf("VK_ERROR: %s %s\n", callbackData->pMessage, msgToString(msgType));
 		assert(!"Vulkan error occured!");
 	}
 	return VK_FALSE;
@@ -74,19 +74,19 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallbackReport(VkDebugReportFlagsEXT 
     switch (flags)
     {
 	case VK_DEBUG_REPORT_INFORMATION_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_INFO: %s %s\n", layerPrefix, msg);
+		Com_Printf("VK_INFO: %s %s\n", layerPrefix, msg);
         break;
 	case VK_DEBUG_REPORT_DEBUG_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_DEBUG: %s %s\n", layerPrefix, msg);
+		Com_Printf("VK_DEBUG: %s %s\n", layerPrefix, msg);
         break;
 	case VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_PERFORMANCE: %s %s\n", layerPrefix, msg);
+		Com_Printf("VK_PERFORMANCE: %s %s\n", layerPrefix, msg);
         break;
 	case VK_DEBUG_REPORT_WARNING_BIT_EXT:
-		R_Printf(PRINT_ALL, "VK_WARNING: %s %s\n", layerPrefix, msg);
+		Com_Printf("VK_WARNING: %s %s\n", layerPrefix, msg);
         break;
         default:
-		R_Printf(PRINT_ALL, "VK_ERROR: %s %s\n", layerPrefix, msg);
+		Com_Printf("VK_ERROR: %s %s\n", layerPrefix, msg);
         break;
     }
     return VK_FALSE;
@@ -131,7 +131,7 @@ void QVk_CreateValidationLayers()
 	if (qvkCreateDebugReportCallbackEXT)
 	{
 		VK_VERIFY(qvkCreateDebugReportCallbackEXT(vk_instance, &callbackReport, NULL, &validationLayerCallback));
-		R_Printf(PRINT_ALL, "...Vulkan validation layers enabled\n");
+		Com_Printf("...Vulkan validation layers enabled\n");
 	}
 }
 

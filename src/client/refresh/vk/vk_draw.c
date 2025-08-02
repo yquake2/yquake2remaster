@@ -203,7 +203,7 @@ RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 	vk = R_FindPic(name, (findimage_t)Vk_FindImage);
 	if (!vk)
 	{
-		R_Printf(PRINT_ALL, "%s(): Can't find pic: %s\n", __func__, name);
+		Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
 		return;
 	}
 
@@ -233,7 +233,7 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 			return;
 		}
 
-		R_Printf(PRINT_ALL, "%s(): Can't find pic: %s\n", __func__, name);
+		Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
 		return;
 	}
 
@@ -260,7 +260,7 @@ RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 
 	if (!image)
 	{
-		R_Printf(PRINT_ALL, "%s(): Can't find pic: %s\n", __func__, name);
+		Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
 		return;
 	}
 

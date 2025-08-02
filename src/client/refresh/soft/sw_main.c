@@ -482,14 +482,14 @@ RE_Init(void)
 	/* create the window and set up the context */
 	if (!RE_SetMode())
 	{
-		R_Printf(PRINT_ALL, "%s() could not R_SetMode()\n", __func__);
+		Com_Printf("%s() could not R_SetMode()\n", __func__);
 		return false;
 	}
 
 	// create the window
 	ri.Vid_MenuInit();
 
-	R_Printf(PRINT_ALL, "ref_soft version: "REF_VERSION"\n");
+	Com_Printf("ref_soft version: "REF_VERSION"\n");
 
 	return true;
 }
@@ -563,14 +563,14 @@ R_ReallocateMapBuffers (void)
 		if (r_cnumsurfs > SURFINDEX_MAX)
 		{
 			r_cnumsurfs = SURFINDEX_MAX;
-			R_Printf(PRINT_ALL, "%s: Code has limitation to surfaces count.\n",
+			Com_Printf("%s: Code has limitation to surfaces count.\n",
 				 __func__);
 		}
 
 		lsurfs = malloc (r_cnumsurfs * sizeof(surf_t));
 		if (!lsurfs)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			Com_Printf("%s: Couldn't malloc %d bytes\n",
 				 __func__, (int)(r_cnumsurfs * sizeof(surf_t)));
 			return;
 		}
@@ -606,7 +606,7 @@ R_ReallocateMapBuffers (void)
 		bblocklights = malloc (r_numallocatedlights);
 		if (!blocklights)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			Com_Printf("%s: Couldn't malloc %d bytes\n",
 				 __func__, (int)(r_numallocatedlights * sizeof(light_t)));
 			return;
 		}
@@ -636,7 +636,7 @@ R_ReallocateMapBuffers (void)
 		r_edges = malloc (r_numallocatededges * sizeof(edge_t));
 		if (!r_edges)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			Com_Printf("%s: Couldn't malloc %d bytes\n",
 				 __func__, (int)(r_numallocatededges * sizeof(edge_t)));
 			return;
 		}
@@ -667,7 +667,7 @@ R_ReallocateMapBuffers (void)
 		finalverts = malloc(r_numallocatedverts * sizeof(finalvert_t));
 		if (!finalverts)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			Com_Printf("%s: Couldn't malloc %d bytes\n",
 				 __func__, (int)(r_numallocatedverts * sizeof(finalvert_t)));
 			return;
 		}
@@ -698,13 +698,13 @@ R_ReallocateMapBuffers (void)
 		triangle_spans  = malloc(r_numallocatedtriangles * sizeof(spanpackage_t));
 		if (!triangle_spans)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			Com_Printf("%s: Couldn't malloc %d bytes\n",
 				 __func__, (int)(r_numallocatedtriangles * sizeof(spanpackage_t)));
 			return;
 		}
 		triangles_max = &triangle_spans[r_numallocatedtriangles];
 
-		R_Printf(PRINT_ALL, "Allocated %d triangle spans.\n", r_numallocatedtriangles);
+		Com_Printf("Allocated %d triangle spans.\n", r_numallocatedtriangles);
 	}
 
 	if (!r_numallocatededgebasespans || r_outedgebasespans)
@@ -727,7 +727,7 @@ R_ReallocateMapBuffers (void)
 		edge_basespans  = malloc(r_numallocatededgebasespans * sizeof(espan_t));
 		if (!edge_basespans)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+			Com_Printf("%s: Couldn't malloc %d bytes\n",
 				 __func__, (int)(r_numallocatededgebasespans * sizeof(espan_t)));
 			return;
 		}
@@ -868,7 +868,7 @@ R_DrawEntitiesOnList (void)
 				break;
 
 			default:
-				R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+				Com_Printf("%s: Bad modeltype %d\n",
 					__func__, currentmodel->type);
 				return;
 			}
@@ -922,7 +922,7 @@ R_DrawEntitiesOnList (void)
 				break;
 
 			default:
-				R_Printf(PRINT_ALL, "%s: Bad modeltype %d\n",
+				Com_Printf("%s: Bad modeltype %d\n",
 					__func__, currentmodel->type);
 				return;
 			}
@@ -1568,7 +1568,7 @@ RE_SetMode(void)
 	{
 		if (err == rserr_invalid_mode)
 		{
-			R_Printf(PRINT_ALL, "%s() - invalid mode\n", __func__);
+			Com_Printf("%s() - invalid mode\n", __func__);
 
 			if (r_mode->value == sw_state.prev_mode)
 			{
@@ -1584,7 +1584,7 @@ RE_SetMode(void)
 		/* try setting it back to something safe */
 		if (SWimp_SetMode(&vid.width, &vid.height, sw_state.prev_mode, 0) != rserr_ok)
 		{
-			R_Printf(PRINT_ALL, "%s() - could not revert to safe mode\n", __func__);
+			Com_Printf("%s() - could not revert to safe mode\n", __func__);
 			return false;
 		}
 	}
@@ -2454,11 +2454,11 @@ SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen )
 {
 	rserr_t retval = rserr_ok;
 
-	R_Printf (PRINT_ALL, "Setting mode %d:", mode );
+	Com_Printf("Setting mode %d:", mode );
 
 	if ((mode >= 0) && !ri.Vid_GetModeInfo( pwidth, pheight, mode ) )
 	{
-		R_Printf(PRINT_ALL, " invalid mode\n");
+		Com_Printf(" invalid mode\n");
 		return rserr_invalid_mode;
 	}
 
@@ -2467,12 +2467,12 @@ SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen )
 	{
 		if (!ri.GLimp_GetDesktopMode(pwidth, pheight))
 		{
-			R_Printf(PRINT_ALL, " can't detect mode\n");
+			Com_Printf(" can't detect mode\n");
 			return rserr_invalid_mode;
 		}
 	}
 
-	R_Printf(PRINT_ALL, " %dx%d (vid_fullscreen %i)\n", *pwidth, *pheight, fullscreen);
+	Com_Printf(" %dx%d (vid_fullscreen %i)\n", *pwidth, *pheight, fullscreen);
 
 	if (fullscreen == 2)
 	{
@@ -2493,7 +2493,7 @@ SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen )
 			}
 		}
 
-		R_Printf(PRINT_ALL, "Used corrected %dx%d mode\n", *pwidth, *pheight);
+		Com_Printf("Used corrected %dx%d mode\n", *pwidth, *pheight);
 	}
 
 	if (!ri.GLimp_InitGraphics(fullscreen, pwidth, pheight))
@@ -2642,7 +2642,7 @@ R_ScreenShot_f(void)
 
 	if (!buffer)
 	{
-		R_Printf(PRINT_ALL, "%s: Couldn't malloc %d bytes\n",
+		Com_Printf("%s: Couldn't malloc %d bytes\n",
 			__func__, vid_buffer_width * vid_buffer_height * 3);
 		return;
 	}

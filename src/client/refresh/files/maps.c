@@ -432,7 +432,7 @@ Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 		image = GetTexImage(imagename, find_image);
 		if (!image)
 		{
-			R_Printf(PRINT_ALL, "%s: Couldn't load %s\n",
+			Com_Printf("%s: Couldn't load %s\n",
 				__func__, imagename);
 			image = notexture;
 		}
@@ -634,7 +634,7 @@ Mod_LoadBSPX(int filesize, const byte *mod_base)
 	xheader = (bspx_header_t*)(mod_base + xofs);
 	if (LittleLong(xheader->ident) != BSPXHEADER)
 	{
-		R_Printf(PRINT_ALL, "%s: Incorrect header ident.\n", __func__);
+		Com_Printf("%s: Incorrect header ident.\n", __func__);
 		return NULL;
 	}
 
