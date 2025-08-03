@@ -755,7 +755,7 @@ typedef enum
 typedef struct
 {
 	const char *name;
-	int ofs;
+	size_t ofs;
 	fieldtype_t type;
 	int flags;
 	short save_ver;
@@ -799,6 +799,8 @@ gitem_t *GetItemByIndex(int index);
 qboolean Add_Ammo(edict_t *ent, gitem_t *item, int count);
 void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane,
 		csurface_t *surf);
+void Use_Quad(edict_t *ent, gitem_t *item);
+void Use_QuadFire(edict_t *ent, gitem_t *item);
 
 /* g_utils.c */
 qboolean KillBox(edict_t *ent);
@@ -1022,6 +1024,31 @@ void P_ProjectSource(const edict_t *ent, const vec3_t distance,
 void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
 		int *fire_frames, void (*fire)(edict_t *ent));
+qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
+void Use_Weapon(edict_t *ent, gitem_t *inv);
+void Use_Weapon2(edict_t *ent, gitem_t *inv);
+void Drop_Weapon(edict_t *ent, gitem_t *inv);
+void Weapon_Blaster(edict_t *ent);
+void Weapon_Shotgun(edict_t *ent);
+void Weapon_SuperShotgun(edict_t *ent);
+void Weapon_Machinegun(edict_t *ent);
+void Weapon_Chaingun(edict_t *ent);
+void Weapon_HyperBlaster(edict_t *ent);
+void Weapon_RocketLauncher(edict_t *ent);
+void Weapon_Grenade(edict_t *ent);
+void Weapon_GrenadeLauncher(edict_t *ent);
+void Weapon_Railgun(edict_t *ent);
+void Weapon_BFG(edict_t *ent);
+void Weapon_ChainFist(edict_t *ent);
+void Weapon_Disintegrator(edict_t *ent);
+void Weapon_ETF_Rifle(edict_t *ent);
+void Weapon_Heatbeam(edict_t *ent);
+void Weapon_Prox(edict_t *ent);
+void Weapon_Tesla(edict_t *ent);
+void Weapon_ProxLauncher(edict_t *ent);
+void Weapon_Ionripper(edict_t *ent);
+void Weapon_Phalanx(edict_t *ent);
+void Weapon_Trap(edict_t *ent);
 
 /* m_move.c */
 qboolean M_CheckBottom(edict_t *ent);
