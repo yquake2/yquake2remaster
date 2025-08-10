@@ -79,17 +79,6 @@ void plat2_kill_danger_area(edict_t *ent);
 void Think_AccelMove(edict_t *ent);
 void plat_go_down(edict_t *ent);
 
-void
-showme(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	gi.dprintf("frame %d\n", self->s.frame);
-}
-
 /*
  * =========================================================
  *

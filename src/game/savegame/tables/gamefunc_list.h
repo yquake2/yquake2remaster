@@ -1159,7 +1159,6 @@
 {"shambler_stand", (byte *)shambler_stand},
 {"shambler_walk", (byte *)shambler_walk},
 {"shambler_windup", (byte *)shambler_windup},
-{"showme", (byte *)showme},
 {"smart_water_blocked", (byte *)smart_water_blocked},
 {"smart_water_go_up", (byte *)smart_water_go_up},
 {"soldier_attack", (byte *)soldier_attack},
