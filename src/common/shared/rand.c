@@ -62,7 +62,7 @@ randk(void)
 float
 frandk(void)
 {
-	return (randk()&32767)* (1.0/32767);
+	return (randk() & 32767) * (1.0 / 32767);
 }
 
 /* Generate a pseudorandom
@@ -71,7 +71,7 @@ frandk(void)
 float
 crandk(void)
 {
-	return (randk()&32767)* (2.0/32767) - 1;
+	return (randk() & 32767) * (2.0 / 32767) - 1;
 }
 
 /*
