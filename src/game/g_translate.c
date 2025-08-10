@@ -496,6 +496,29 @@ LocalizationSearch(const char *name)
 }
 
 const char*
+LocalizationUIMessage(const char *message, const char *default_message)
+{
+	if (!message || !localmessages || !nlocalmessages)
+	{
+		return default_message;
+	}
+
+	if ((message[0] == '$') || /* ReRelease */
+		(strspn(message, "1234567890") == strlen(message))) /* Hexen 2 / Heretic 2 */
+	{
+		int i;
+
+		i = LocalizationSearch(message);
+		if (i >= 0)
+		{
+			return localmessages[i].value;
+		}
+	}
+
+	return default_message;
+}
+
+const char*
 LocalizationMessage(const char *message, int *sound_index)
 {
 	if (!message || !localmessages || !nlocalmessages)

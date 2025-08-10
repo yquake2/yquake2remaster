@@ -1069,6 +1069,7 @@ void EndDMLevel(void);
 void LocalizationInit(void);
 void LocalizationFree(void);
 const char* LocalizationMessage(const char *message, int *sound_index);
+const char* LocalizationUIMessage(const char *message, const char *default_message);
 
 /* g_chase.c */
 void UpdateChaseCam(edict_t *ent);

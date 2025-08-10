@@ -388,7 +388,7 @@ void
 HelpComputerMessage(edict_t *ent)
 {
 	char string[1024];
-	char *sk;
+	const char *sk;
 
 	if (!ent)
 	{
@@ -397,19 +397,19 @@ HelpComputerMessage(edict_t *ent)
 
 	if (skill->value == SKILL_EASY)
 	{
-		sk = "easy";
+		sk = LocalizationUIMessage("$m_easy", "easy");
 	}
 	else if (skill->value == SKILL_MEDIUM)
 	{
-		sk = "medium";
+		sk = LocalizationUIMessage("$m_medium", "medium");
 	}
 	else if (skill->value == SKILL_HARD)
 	{
-		sk = "hard";
+		sk = LocalizationUIMessage("$m_hard", "hard");
 	}
 	else
 	{
-		sk = "hard+";
+		sk = LocalizationUIMessage("$m_nightmare", "hard+");
 	}
 
 	/* send the layout */
@@ -419,12 +419,15 @@ HelpComputerMessage(edict_t *ent)
 			"xv 0 yv 24 cstring2 \"%s\" " /* level name */
 			"xv 0 yv 54 cstring2 \"%s\" " /* help 1 */
 			"xv 0 yv 110 cstring2 \"%s\" " /* help 2 */
-			"xv 50 yv 164 string2 \" kills     goals    secrets\" "
+			"xv 50 yv 164 string2 \" %-9s %-8s %-9s\" "
 			"xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" ",
 			sk,
 			level.level_name,
 			LocalizationMessage(game.helpmessage1, NULL),
 			LocalizationMessage(game.helpmessage2, NULL),
+			LocalizationUIMessage("$g_pc_kills", "kills"),
+			LocalizationUIMessage("$g_pc_goals", "goals"),
+			LocalizationUIMessage("$g_pc_secrets", "secrets"),
 			level.killed_monsters, level.total_monsters,
 			level.found_goals, level.total_goals,
 			level.found_secrets, level.total_secrets);
