@@ -275,7 +275,7 @@ turret_breach_think(edict_t *self)
 		self->owner->avelocity[1] = self->avelocity[1];
 
 		/* x & y */
-		angle = self->s.angles[1] + self->owner->move_origin[1];
+		angle = self->s.angles[YAW] + self->owner->move_origin[1];
 		angle *= (M_PI * 2 / 360);
 		target[0] = SnapToEights(self->s.origin[0] + cos(
 					angle) * self->owner->move_origin[0]);

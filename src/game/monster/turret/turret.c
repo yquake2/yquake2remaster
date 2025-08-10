@@ -830,13 +830,13 @@ turret_wall_spawn(edict_t *turret)
 	VectorCopy(turret->s.origin, ent->s.origin);
 	VectorCopy(turret->s.angles, ent->s.angles);
 
-	angle = ent->s.angles[1];
+	angle = ent->s.angles[YAW];
 
-	if (ent->s.angles[0] == 90)
+	if (ent->s.angles[PITCH] == 90)
 	{
 		angle = -1;
 	}
-	else if (ent->s.angles[0] == 270)
+	else if (ent->s.angles[PITCH] == 270)
 	{
 		angle = -2;
 	}
@@ -957,27 +957,27 @@ turret_activate(edict_t *self, edict_t *other, edict_t *activator)
 	self->moveinfo.accel = self->speed;
 	self->moveinfo.decel = self->speed;
 
-	if (self->s.angles[0] == 270)
+	if (self->s.angles[PITCH] == 270)
 	{
 		VectorSet(forward, 0, 0, 1);
 	}
-	else if (self->s.angles[0] == 90)
+	else if (self->s.angles[PITCH] == 90)
 	{
 		VectorSet(forward, 0, 0, -1);
 	}
-	else if (self->s.angles[1] == 0)
+	else if (self->s.angles[YAW] == 0)
 	{
 		VectorSet(forward, 1, 0, 0);
 	}
-	else if (self->s.angles[1] == 90)
+	else if (self->s.angles[YAW] == 90)
 	{
 		VectorSet(forward, 0, 1, 0);
 	}
-	else if (self->s.angles[1] == 180)
+	else if (self->s.angles[YAW] == 180)
 	{
 		VectorSet(forward, -1, 0, 0);
 	}
-	else if (self->s.angles[1] == 270)
+	else if (self->s.angles[YAW] == 270)
 	{
 		VectorSet(forward, 0, -1, 0);
 	}
@@ -1196,18 +1196,18 @@ SP_monster_turret(edict_t *self)
 	self->gravity = 0;
 
 	VectorCopy(self->s.angles, self->offset);
-	angle = (int)self->s.angles[1];
+	angle = (int)self->s.angles[YAW];
 
 	switch (angle)
 	{
 		case -1:                    /* up */
-			self->s.angles[0] = 270;
-			self->s.angles[1] = 0;
+			self->s.angles[PITCH] = 270;
+			self->s.angles[YAW] = 0;
 			self->s.origin[2] += 2;
 			break;
 		case -2:                    /* down */
-			self->s.angles[0] = 90;
-			self->s.angles[1] = 0;
+			self->s.angles[PITCH] = 90;
+			self->s.angles[YAW] = 0;
 			self->s.origin[2] -= 2;
 			break;
 		case 0:

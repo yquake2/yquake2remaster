@@ -2279,9 +2279,9 @@ misc_viper_bomb_prethink(edict_t *self)
 	VectorScale(self->moveinfo.dir, 1.0 + diff, v);
 	v[2] = diff;
 
-	diff = self->s.angles[2];
+	diff = self->s.angles[ROLL];
 	vectoangles(v, self->s.angles);
-	self->s.angles[2] = diff + 10;
+	self->s.angles[ROLL] = diff + 10;
 }
 
 void

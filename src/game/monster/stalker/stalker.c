@@ -526,7 +526,7 @@ stalker_false_death_start(edict_t *self)
 		return;
 	}
 
-	self->s.angles[2] = 0;
+	self->s.angles[ROLL] = 0;
 	VectorSet(self->gravityVector, 0, 0, -1);
 
 	self->monsterinfo.aiflags |= AI_STAND_GROUND;
@@ -1078,11 +1078,11 @@ stalker_jump_straightup(edict_t *self)
 		if (stalker_ok_to_transition(self))
 		{
 			self->gravityVector[2] = -1;
-			self->s.angles[2] += 180.0;
+			self->s.angles[ROLL] += 180.0;
 
-			if (self->s.angles[2] > 360.0)
+			if (self->s.angles[ROLL] > 360.0)
 			{
-				self->s.angles[2] -= 360.0;
+				self->s.angles[ROLL] -= 360.0;
 			}
 
 			self->groundentity = NULL;
@@ -1097,7 +1097,7 @@ stalker_jump_straightup(edict_t *self)
 		if (stalker_ok_to_transition(self))
 		{
 			self->gravityVector[2] = 1;
-			self->s.angles[2] = 180.0;
+			self->s.angles[ROLL] = 180.0;
 			self->groundentity = NULL;
 		}
 	}
@@ -1343,11 +1343,11 @@ stalker_blocked(edict_t *self, float dist)
 		if (stalker_ok_to_transition(self))
 		{
 			self->gravityVector[2] = -1;
-			self->s.angles[2] += 180.0;
+			self->s.angles[ROLL] += 180.0;
 
-			if (self->s.angles[2] > 360.0)
+			if (self->s.angles[ROLL] > 360.0)
 			{
-				self->s.angles[2] -= 360.0;
+				self->s.angles[ROLL] -= 360.0;
 			}
 
 			self->groundentity = NULL;
@@ -1409,7 +1409,7 @@ stalker_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 
 	/* dude bit it, make him fall! */
 	self->movetype = MOVETYPE_TOSS;
-	self->s.angles[2] = 0;
+	self->s.angles[ROLL] = 0;
 	VectorSet(self->gravityVector, 0, 0, -1);
 
 	/* check for gib */
@@ -1506,7 +1506,7 @@ SP_monster_stalker(edict_t *self)
 
 	if (self->spawnflags & 8)
 	{
-		self->s.angles[2] = 180;
+		self->s.angles[ROLL] = 180;
 		self->gravityVector[2] = 1;
 	}
 

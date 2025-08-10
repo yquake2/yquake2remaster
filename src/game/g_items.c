@@ -1840,11 +1840,11 @@ Drop_Item(edict_t *ent, gitem_t *item)
 
 	if (frandk() > 0.5)
 	{
-		dropped->s.angles[1] += frandk()*45;
+		dropped->s.angles[YAW] += frandk()*45;
 	}
 	else
 	{
-		dropped->s.angles[1] -= frandk()*45;
+		dropped->s.angles[YAW] -= frandk()*45;
 	}
 
 	VectorSet(dropped->mins, -15, -15, -15);

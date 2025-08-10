@@ -704,11 +704,11 @@ MakronHyperblaster(edict_t *self)
 
 	if (self->s.frame <= FRAME_attak413)
 	{
-		dir[1] = self->s.angles[1] - 10 * (self->s.frame - FRAME_attak413);
+		dir[1] = self->s.angles[YAW] - 10 * (self->s.frame - FRAME_attak413);
 	}
 	else
 	{
-		dir[1] = self->s.angles[1] + 10 * (self->s.frame - FRAME_attak421);
+		dir[1] = self->s.angles[YAW] + 10 * (self->s.frame - FRAME_attak421);
 	}
 
 	dir[2] = 0;

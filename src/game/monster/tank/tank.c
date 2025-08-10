@@ -637,11 +637,11 @@ TankMachineGun(edict_t *self)
 
 	if (self->s.frame <= FRAME_attak415)
 	{
-		dir[1] = self->s.angles[1] - 8 * (self->s.frame - FRAME_attak411);
+		dir[1] = self->s.angles[YAW] - 8 * (self->s.frame - FRAME_attak411);
 	}
 	else
 	{
-		dir[1] = self->s.angles[1] + 8 * (self->s.frame - FRAME_attak419);
+		dir[1] = self->s.angles[YAW] + 8 * (self->s.frame - FRAME_attak419);
 	}
 
 	dir[2] = 0;

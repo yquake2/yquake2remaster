@@ -1539,9 +1539,9 @@ Cmd_SpawnEntity_f(edict_t *ent)
 	// angles
 	if (gi.argc() >= 8)
 	{
-		ent->s.angles[0] = atof(gi.argv(5));
-		ent->s.angles[1] = atof(gi.argv(6));
-		ent->s.angles[2] = atof(gi.argv(7));
+		ent->s.angles[PITCH] = atof(gi.argv(5));
+		ent->s.angles[YAW] = atof(gi.argv(6));
+		ent->s.angles[ROLL] = atof(gi.argv(7));
 	}
 	// flags
 	if (gi.argc() >= 9)
