@@ -2077,8 +2077,8 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 	char string[1400];
 	size_t len;
 	int i, j, k, n;
-	int sorted[2][MAX_CLIENTS];
-	int sortedscores[2][MAX_CLIENTS];
+	int sorted[2][MAX_CLIENTS] = {0};
+	int sortedscores[2][MAX_CLIENTS] = {0};
 	int score, total[2], totalscore[2];
 	int last[2];
 	gclient_t *cl;

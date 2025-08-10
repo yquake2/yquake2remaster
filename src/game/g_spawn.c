@@ -1598,8 +1598,15 @@ DetermineBBox(char *classname, vec3_t mins, vec3_t maxs)
 
 	ED_CallSpawn(newEnt);
 
-	VectorCopy(newEnt->mins, mins);
-	VectorCopy(newEnt->maxs, maxs);
+	if (mins)
+	{
+		VectorCopy(newEnt->mins, mins);
+	}
+
+	if (maxs)
+	{
+		VectorCopy(newEnt->maxs, maxs);
+	}
 
 	G_FreeEdict(newEnt);
 }
