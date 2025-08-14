@@ -90,7 +90,7 @@ typedef enum
 
 #define MAX_MOD_KNOWN (MAX_MODELS * 2)
 #define MAX_TEXTURES (MAX_IMAGES * 4)
-#define MAX_FONTCODE 0x500
+#define MAX_FONTCODE 0x2000
 
 extern void R_Printf(int level, const char* msg, ...) PRINTF_ATTR(2, 3);
 

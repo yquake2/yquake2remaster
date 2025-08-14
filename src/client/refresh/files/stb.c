@@ -872,9 +872,9 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	struct image_s **draw_font, struct image_s **draw_font_alt,
 	loadimage_t R_LoadPic)
 {
-	char font_name[MAX_QPATH] = {0};
+	int size, i, power_two = 1, texture_size, symbols;
 	byte *data, *font_mask, *font_data;
-	int size, i, power_two = 1, texture_size;
+	char font_name[MAX_QPATH] = {0};
 
 	snprintf(font_name, sizeof(font_name), "fonts/%s.ttf", ttffont);
 
@@ -890,24 +890,35 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 		*r_font_size = 8.0;
 	}
 
-	while (power_two < *r_font_size)
+	*r_font_height = *r_font_size * sqrt(MAX_FONTCODE);
+	while (power_two < *r_font_height)
 	{
 		power_two <<= 1;
 	}
-	*r_font_height = 32 * power_two;
+	*r_font_height = power_two;
 
 	texture_size = (*r_font_height) * (*r_font_height);
 	font_mask = malloc(texture_size);
 	font_data = malloc(texture_size * 4);
 	*draw_fontcodes = malloc(MAX_FONTCODE * sizeof(**draw_fontcodes));
 
-	stbtt_BakeFontBitmap(data,
+	symbols = stbtt_BakeFontBitmap(data,
 		0 /* file offset */,
 		*r_font_size * 1.5 /* symbol size ~ as console font */,
 		font_mask,
 		*r_font_height, *r_font_height,
 		32 /* Start font code */, MAX_FONTCODE,
 		*draw_fontcodes);
+	if (symbols < 0)
+	{
+		Com_Printf("%s(): Not enough space, loaded only %d symbols\n",
+			__func__, -symbols);
+	}
+	else
+	{
+		Com_DPrintf("%s(): Symbols took %d of %d texture\n",
+			__func__, symbols, *r_font_height);
+	}
 
 	for (i = 0; i < texture_size; i++)
 	{
@@ -936,5 +947,6 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	free(font_mask);
 	ri.FS_FreeFile((void *)data);
 
-	Com_Printf("%s(): Loaded font %s %.0fp.\n", __func__, font_name, *r_font_size);
+	Com_Printf("%s(): Loaded font %s %.0fp.\n",
+		__func__, font_name, *r_font_size);
 }
