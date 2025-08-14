@@ -474,6 +474,162 @@ vec3_t monster_flash_offset[] = {
 	{62.77, 18.91, 91.65},
 	/* MZ2_WIDOW2_BEAM_SWEEP_11			210 */
 	{58.29, 27.11, 92.00},
+	/* MZ2_SOLDIER_RIPPER_1				211 */
+	{10.6f * 1.2f, 7.7f * 1.2f, 7.8f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_2				212 */
+	{25.1f * 1.2f, 3.6f * 1.2f, 19.0f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_3				213 */
+	{20.8f * 1.2f, 10.1f * 1.2f, -2.7f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_4				214 */
+	{7.6f * 1.2f, 9.3f * 1.2f, 0.8f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_5				215 */
+	{30.5f * 1.2f, 9.9f * 1.2f, -18.7f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_6				216 */
+	{27.6f * 1.2f, 3.4f * 1.2f, -10.4f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_7				217 */
+	{28.9f * 1.2f, 4.6f * 1.2f, -8.1f * 1.2f },
+	/* MZ2_SOLDIER_RIPPER_8				218 */
+	{31.5f * 1.2f, 9.6f * 1.2f, 10.1f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_1			219 */
+	{10.6f * 1.2f, 7.7f * 1.2f, 7.8f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_2			220 */
+	{25.1f * 1.2f, 3.6f * 1.2f, 19.0f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_3			221 */
+	{20.8f * 1.2f, 10.1f * 1.2f, -2.7f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_4			222 */
+	{7.6f * 1.2f, 9.3f * 1.2f, 0.8f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_5			223 */
+	{30.5f * 1.2f, 9.9f * 1.2f, -18.7f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_6			224 */
+	{27.6f * 1.2f, 3.4f * 1.2f, -10.4f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_7			225 */
+	{28.9f * 1.2f, 4.6f * 1.2f, -8.1f * 1.2f },
+	/* MZ2_SOLDIER_HYPERGUN_8			226 */
+	{31.5f * 1.2f, 9.6f * 1.2f, 10.1f * 1.2f },
+	/* MZ2_GUARDIAN_BLASTER				227 */
+	{88.f, 50.f, 60.f },
+	/* MZ2_ARACHNID_RAIL1				228 */
+	{58.f, 20.f, 17.2f },
+	/* MZ2_ARACHNID_RAIL2				229 */
+	{64.f, -22.f, 24.f },
+	/* MZ2_ARACHNID_RAIL_UP1			230 */
+	{37.f, 13.f, 72.f },
+	/* MZ2_ARACHNID_RAIL_UP2			231 */
+	{58.f, -25.f, 72.f },
+	/* MZ2_INFANTRY_MACHINEGUN_14		232 */
+	{34.f, 11.f, 13.f },
+	/* MZ2_INFANTRY_MACHINEGUN_15		233 */
+	{28.f, 13.f, 10.5f },
+	/* MZ2_INFANTRY_MACHINEGUN_16		234 */
+	{29.f, 13.f, 8.5f },
+	/* MZ2_INFANTRY_MACHINEGUN_17		235 */
+	{30.f, 12.5f, 12.f },
+	/* MZ2_INFANTRY_MACHINEGUN_18		236 */
+	{29.f, 12.5f, 14.7f },
+	/* MZ2_INFANTRY_MACHINEGUN_19		237 */
+	{30.f, 6.5f, 12.f },
+	/* MZ2_INFANTRY_MACHINEGUN_20		238 */
+	{29.f, 1.5f, 8.5f },
+	/* MZ2_INFANTRY_MACHINEGUN_21		239 */
+	{29.f, 6.0f, 10.f },
+	/* MZ2_GUNCMDR_CHAINGUN_1			240 */
+	{25.0f, 11.f, 21.f },
+	/* MZ2_GUNCMDR_CHAINGUN_2			241 */
+	{26.5f, 5.f, 21.f },
+	/* MZ2_GUNCMDR_GRENADE_MORTAR_1		242 */
+	{27.f, 6.5f, 4.0f },
+	/* MZ2_GUNCMDR_GRENADE_MORTAR_2		244 */
+	{28.f, 4.f, 4.0f },
+	/* MZ2_GUNCMDR_GRENADE_MORTAR_3		245 */
+	{27.f, 1.7f, 4.0f },
+	/* MZ2_GUNCMDR_GRENADE_FRONT_1		246 */
+	{21.7f, -1.5f, 22.5f },
+	/* MZ2_GUNCMDR_GRENADE_FRONT_2		247 */
+	{22.f, 0.f, 20.5f },
+	/* MZ2_GUNCMDR_GRENADE_FRONT_3		248 */
+	{22.5f, 3.7f, 20.5f },
+	/* MZ2_GUNCMDR_GRENADE_CROUCH_1		249 */
+	{8.0f, 40.0f, 18.0f },
+	/* MZ2_GUNCMDR_GRENADE_CROUCH_2		250 */
+	{29.0f, 16.0f, 19.0f },
+	/* MZ2_GUNCMDR_GRENADE_CROUCH_3		251 */
+	{4.7f, -30.0f, 20.0f },
+	/* MZ2_SOLDIER_BLASTER_9			252 */
+	{36.33f, 12.24f, -17.39f },
+	/* MZ2_SOLDIER_SHOTGUN_9			253 */
+	{36.33f, 12.24f, -17.39f },
+	/* MZ2_SOLDIER_MACHINEGUN_9			254 */
+	{36.33f, 12.24f, -17.39f },
+	/* MZ2_SOLDIER_RIPPER_9				255 */
+	{36.33f, 12.24f, -17.39f },
+	/* MZ2_SOLDIER_HYPERGUN_9			256 */
+	{36.33f, 12.24f, -17.39f },
+	/* MZ2_GUNNER_GRENADE2_1			257 */
+	{36.f, -6.2f, 19.59f },
+	/* MZ2_GUNNER_GRENADE2_2			258 */
+	{36.f, -6.2f, 19.59f },
+	/* MZ2_GUNNER_GRENADE2_3			259 */
+	{36.f, -6.2f, 19.59f },
+	/* MZ2_GUNNER_GRENADE2_4			260 */
+	{36.f, -6.2f, 19.59f },
+	/* MZ2_INFANTRY_MACHINEGUN_22		261 */
+	{14.8f, 10.5f, 8.82f },
+	/* MZ2_SUPERTANK_GRENADE_1			262 */
+	{31.31f, -37.f, 54.32f },
+	/* MZ2_SUPERTANK_GRENADE_2			263 */
+	{31.31f, 37.f, 54.32f },
+	/* MZ2_HOVER_BLASTER_2				264 */
+	{1.7f, -7.0f, 11.3f },
+	/* MZ2_DAEDALUS_BLASTER_2			265 */
+	{1.7f, -7.0f, 11.3f },
+	/* MZ2_MEDIC_HYPERBLASTER1_1		266 */
+	{33.0f + 1.f, 12.5f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_2		267 */
+	{32.4f + 1.f, 11.2f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_3		268 */
+	{35.6f + 1.f, 7.4f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_4		269 */
+	{34.0f + 1.f, 4.1f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_5		270 */
+	{36.6f + 1.f, 1.0f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_6		271 */
+	{34.7f + 1.f, -1.9f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_7		272 */
+	{36.6f + 1.f, -0.5f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_8		273 */
+	{34.2f + 1.f, 2.8f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_9		274 */
+	{36.5f + 1.f, 3.8f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_10		275 */
+	{33.5f + 1.f, 6.9f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_11		276 */
+	{32.7f + 1.f, 9.9f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER1_12		277 */
+	{34.5f + 1.f, 11.0f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_1		278 */
+	{33.0f + 1.f, 12.5f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_2		279 */
+	{32.4f + 1.f, 11.2f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_3		280 */
+	{35.6f + 1.f, 7.4f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_4		281 */
+	{34.0f + 1.f, 4.1f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_5		282 */
+	{36.6f + 1.f, 1.0f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_6		283 */
+	{34.7f + 1.f, -1.9f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_7		284 */
+	{36.6f + 1.f, -0.5f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_8		285 */
+	{34.2f + 1.f, 2.8f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_9		286 */
+	{36.5f + 1.f, 3.8f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_10		287 */
+	{33.5f + 1.f, 6.9f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_11		288 */
+	{32.7f + 1.f, 9.9f, 15.0f },
+	/* MZ2_MEDIC_HYPERBLASTER2_12		289 */
+	{34.5f + 1.f, 11.0f, 15.0f },
 
 	/* end of table */
 	{0.0, 0.0, 0.0}
