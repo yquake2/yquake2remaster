@@ -793,9 +793,12 @@ typedef struct
 #define MZ_IONRIPPER 16
 #define MZ_BLUEHYPERBLASTER 17
 #define MZ_PHALANX 18
+#define MZ_BFG2 19
+#define MZ_PHALANX2 20
 #define MZ_SILENCED 128             /* bit flag ORed with one of the above numbers */
 #define MZ_ETF_RIFLE 30
 #define MZ_UNUSED 31
+#define MZ_PROX 31
 #define MZ_SHOTGUN2 32
 #define MZ_HEATBEAM 33
 #define MZ_BLASTER2 34

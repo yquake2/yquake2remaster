@@ -222,6 +222,9 @@ CL_AddMuzzleFlash(void)
 			S_StartSound(NULL, i, CHAN_WEAPON,
 				S_RegisterSound("weapons/bfg__f1y.wav"), volume, ATTN_NORM, 0);
 			break;
+		case MZ_BFG2:
+			VectorSet(dl->color, 0, 1, 0);
+			break;
 
 		case MZ_LOGIN:
 			dl->color[0] = 0;
@@ -257,12 +260,22 @@ CL_AddMuzzleFlash(void)
 			S_StartSound(NULL, i, CHAN_WEAPON,
 				S_RegisterSound("weapons/plasshot.wav"), volume, ATTN_NORM, 0);
 			break;
+		case MZ_PHALANX2:
+			VectorSet(dl->color, 1, 0.5f, 0.5f);
+			break;
 		case MZ_IONRIPPER:
 			dl->color[0] = 1;
 			dl->color[1] = 0.5;
 			dl->color[2] = 0.5;
 			S_StartSound(NULL, i, CHAN_WEAPON,
 				S_RegisterSound("weapons/rippfire.wav"), volume, ATTN_NORM, 0);
+			break;
+		case MZ_PROX:
+			VectorSet(dl->color, 1, 0.5f, 0);
+			S_StartSound(NULL, i, CHAN_WEAPON,
+				S_RegisterSound("weapons/grenlf1a.wav"), volume, ATTN_NORM, 0);
+			S_StartSound(NULL, i, CHAN_AUTO,
+				S_RegisterSound("weapons/proxlr1a.wav"), volume, ATTN_NORM, 0.1f);
 			break;
 		case MZ_ETF_RIFLE:
 			dl->color[0] = 0.9f;
