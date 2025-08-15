@@ -257,44 +257,28 @@ arachnid_charge_rail(edict_t *self)
 void
 arachnid_rail(edict_t *self)
 {
-	vec3_t start, dir, forward, right, offset = {0, 0, 0};
+	vec3_t start, dir, forward, right;
 	int id = 0;
 
 	switch (self->s.frame)
 	{
 		case FRAME_rails4:
 		default:
-			id = MZ2_WIDOW_RAIL;
-			/* MZ2_ARACHNID_RAIL1 */
-			offset[0] = 58.f;
-			offset[1] = 20.f;
-			offset[2] = 17.2f;
+			id = MZ2_ARACHNID_RAIL1;
 			break;
 		case FRAME_rails8:
-			id = MZ2_WIDOW_RAIL_LEFT;
-			/* MZ2_ARACHNID_RAIL2 */
-			offset[0] = 64.f;
-			offset[1] = -22.f;
-			offset[2] = 24.f;
+			id = MZ2_ARACHNID_RAIL2;
 			break;
 		case FRAME_rails_up7:
-			id = MZ2_WIDOW_RAIL_RIGHT;
-			/* MZ2_ARACHNID_RAIL_UP1 */
-			offset[0] = 37.f;
-			offset[1] = 13.f;
-			offset[2] = 72.f;
+			id = MZ2_ARACHNID_RAIL_UP1;
 			break;
 		case FRAME_rails_up11:
-			id = MZ2_WIDOW_RAIL;
-			/* MZ2_ARACHNID_RAIL_UP2 */
-			offset[0] = 58.f;
-			offset[1] = -25.f;
-			offset[2] = 72.f;
+			id = MZ2_ARACHNID_RAIL_UP2;
 			break;
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, offset, forward, right, start);
+	G_ProjectSource(self->s.origin, monster_flash_offset[id], forward, right, start);
 
 	/* calc direction to where we targeted */
 	VectorSubtract(self->pos1, start, dir);

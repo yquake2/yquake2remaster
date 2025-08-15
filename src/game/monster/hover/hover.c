@@ -666,13 +666,13 @@ hover_fire_blaster(edict_t *self)
 
 	if (self->mass < 200)
 	{
-		monster_fire_blaster(self, start, dir, 1,
-				1000, MZ2_HOVER_BLASTER_1, effect);
+		monster_fire_blaster(self, start, dir, 1, 1000,
+				(self->s.frame & 1) ? MZ2_HOVER_BLASTER_2 : MZ2_HOVER_BLASTER_1, effect);
 	}
 	else
 	{
 		monster_fire_blaster2(self, start, dir, 1, 1000,
-				MZ2_DAEDALUS_BLASTER, EF_BLASTER);
+				(self->s.frame & 1) ? MZ2_DAEDALUS_BLASTER_2 : MZ2_DAEDALUS_BLASTER, EF_BLASTER);
 	}
 }
 

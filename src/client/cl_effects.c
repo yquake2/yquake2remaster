@@ -363,6 +363,19 @@ CL_AddMuzzleFlash2(void)
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
 	}
 
+	if (flash_number == 255)
+	{
+		/* hact to support effects 255 .. 511 */
+		int flash_add;
+
+		flash_add = MSG_ReadByte(&net_message);
+		if (flash_add < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		}
+		flash_number += flash_add;
+	}
+
 	if (flash_number > MZ2_EFFECT_MAX)
 	{
 		Com_DPrintf("%s: bad offset\n", __func__);

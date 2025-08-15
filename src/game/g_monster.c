@@ -32,6 +32,24 @@ void monster_start_go(edict_t *self);
 
 /* Monster weapons */
 
+static void
+monster_muzzleflash2(edict_t *self, vec3_t start, int flashtype)
+{
+	gi.WriteByte(svc_muzzleflash2);
+	gi.WriteShort(self - g_edicts);
+	if (flashtype < 255)
+	{
+		gi.WriteByte(flashtype);
+	}
+	else
+	{
+		/* hact to support effects 255 .. 511 */
+		gi.WriteByte(255);
+		gi.WriteByte(flashtype - 255);
+	}
+	gi.multicast(start, MULTICAST_PVS);
+}
+
 void
 monster_fire_bullet(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int kick, int hspread, int vspread, int flashtype)
@@ -43,10 +61,7 @@ monster_fire_bullet(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_bullet(self, start, dir, damage, kick, hspread, vspread, MOD_UNKNOWN);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -61,10 +76,7 @@ monster_fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	fire_shotgun(self, start, aimdir, damage, kick, hspread,
 			vspread, count, MOD_UNKNOWN);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -78,10 +90,7 @@ monster_fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_blaster(self, start, dir, damage, speed, effect, false);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -95,10 +104,7 @@ monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_blueblaster(self, start, dir, damage, speed, effect);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(MZ_BLUEHYPERBLASTER);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, MZ_BLUEHYPERBLASTER);
 }
 
 void
@@ -112,10 +118,7 @@ monster_fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_blaster2(self, start, dir, damage, speed, effect, false);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -129,10 +132,7 @@ monster_fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_ionripper(self, start, dir, damage, speed, effect);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -146,10 +146,7 @@ monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_heat(self, start, dir, damage, speed, damage, damage);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -163,10 +160,7 @@ monster_fire_tracker(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	fire_tracker(self, start, dir, damage, speed, enemy);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -180,10 +174,7 @@ monster_fire_heatbeam(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
 
 	fire_heatbeam(self, start, dir, offset, damage, kick, true);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -331,10 +322,7 @@ monster_fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir,
 
 	fire_grenade(self, start, aimdir, damage, speed, 2.5, damage + 40);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -348,10 +336,7 @@ monster_fire_rocket(edict_t *self, vec3_t start, vec3_t dir,
 
 	fire_rocket(self, start, dir, damage, speed, damage + 20, damage);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -368,10 +353,7 @@ monster_fire_railgun(edict_t *self, vec3_t start, vec3_t aimdir,
 		fire_rail(self, start, aimdir, damage, kick);
 	}
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 void
@@ -386,10 +368,7 @@ monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir,
 
 	fire_bfg(self, start, aimdir, damage, speed, damage_radius);
 
-	gi.WriteByte(svc_muzzleflash2);
-	gi.WriteShort(self - g_edicts);
-	gi.WriteByte(flashtype);
-	gi.multicast(start, MULTICAST_PVS);
+	monster_muzzleflash2(self, start, flashtype);
 }
 
 /* ================================================================== */
