@@ -1421,7 +1421,14 @@ weapon_grenadelauncher_fire(edict_t *ent)
 		gi.WriteShort(ent - g_edicts);
 	}
 
-	gi.WriteByte(MZ_GRENADE | is_silenced);
+	if (ent->client->pers.weapon->tag == AMMO_PROX)
+	{
+		gi.WriteByte(MZ_PROX | is_silenced);
+	}
+	else
+	{
+		gi.WriteByte(MZ_GRENADE | is_silenced);
+	}
 
 	if (ent->client->oldplayer)
 	{
@@ -2653,6 +2660,20 @@ weapon_bfg_fire(edict_t *ent)
 
 	ent->client->ps.gunframe++;
 
+	/* send muzzle flash */
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_BFG2 | is_silenced);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
+
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
 	if (!((int)dmflags->value & DF_INFINITE_AMMO))
@@ -3323,6 +3344,12 @@ weapon_phalanx_fire(edict_t *ent)
 
 		fire_plasma(ent, start, forward, damage, 725,
 				damage_radius, radius_damage);
+
+		/* send muzzle flash */
+		gi.WriteByte(svc_muzzleflash);
+		gi.WriteShort(ent - g_edicts);
+		gi.WriteByte(MZ_PHALANX2 | is_silenced);
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
 
 		if (!((int)dmflags->value & DF_INFINITE_AMMO))
 		{
