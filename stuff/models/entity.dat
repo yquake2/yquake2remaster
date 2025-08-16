@@ -598,6 +598,11 @@ weapon_spistol|models/weapons/silencer_mdx/pistol.mdx|1.0|1.0|1.0|general|-16.0|
 weapon_tommygun|models/weapons/g_tomgun/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Thompson submachine gun (clip size: 50) -- Requires ammo_bullets or ammo_cylinder.|0.3|0.3|1.0
 
 // Heretic 2
+book_worldmap|book/back/b_worldmap.bk|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Worldmap Book|0.3|0.3|1.0
+book_hivemap|book/back/b_hivemap.bk|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hivemap Book|0.3|0.3|1.0
+book_ssmap|book/back/b_ssmap.bk|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ssmap Book|0.3|0.3|1.0
+book_conback8|book/back/b_conback8.bk|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Connback Book|0.3|0.3|1.0
+book_andmap|book/back/b_andmap.bk|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Andmap Book|0.3|0.3|1.0
 breakable_brush||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Exploding/Breakable brush|0.0|0.5|0.8
 character_corvus1|models/player/victim_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic corvus for the torture victim|0.3|0.3|1.0
 character_corvus2|models/player/watcher_scene/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|-32.0|22.0|12.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|cinematic Corvus for the celestial watcher scene|0.3|0.3|1.0
