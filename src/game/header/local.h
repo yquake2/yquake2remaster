@@ -775,7 +775,6 @@ void ClientThink(edict_t *ent, usercmd_t *cmd);
 qboolean CheckFlood(edict_t *ent);
 void Cmd_Help_f(edict_t *ent);
 void ClientCommand(edict_t *ent);
-void Cmd_Score_f(edict_t *ent);
 
 /* g_items.c */
 void droptofloor(edict_t *ent);

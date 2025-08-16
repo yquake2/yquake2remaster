@@ -330,14 +330,23 @@ Cmd_Give_f(edict_t *ent)
 		gitem_armor_t *info;
 
 		it = FindItem("Jacket Armor");
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		if (it)
+		{
+			ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		}
 
 		it = FindItem("Combat Armor");
-		ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		if (it)
+		{
+			ent->client->pers.inventory[ITEM_INDEX(it)] = 0;
+		}
 
 		it = FindItem("Body Armor");
-		info = (gitem_armor_t *)it->info;
-		ent->client->pers.inventory[ITEM_INDEX(it)] = info->max_count;
+		if (it)
+		{
+			info = (gitem_armor_t *)it->info;
+			ent->client->pers.inventory[ITEM_INDEX(it)] = info->max_count;
+		}
 
 		if (!give_all)
 		{
@@ -348,14 +357,17 @@ Cmd_Give_f(edict_t *ent)
 	if (give_all || (Q_stricmp(name, "Power Shield") == 0))
 	{
 		it = FindItem("Power Shield");
-		it_ent = G_Spawn();
-		it_ent->classname = it->classname;
-		SpawnItem(it_ent, it);
-		Touch_Item(it_ent, ent, NULL, NULL);
-
-		if (it_ent->inuse)
+		if (it)
 		{
-			G_FreeEdict(it_ent);
+			it_ent = G_Spawn();
+			it_ent->classname = it->classname;
+			SpawnItem(it_ent, it);
+			Touch_Item(it_ent, ent, NULL, NULL);
+
+			if (it_ent->inuse)
+			{
+				G_FreeEdict(it_ent);
+			}
 		}
 
 		if (!give_all)
@@ -694,7 +706,7 @@ Cmd_Drop_f(edict_t *ent)
 /*
  * Display the scoreboard
  */
-void
+static void
 Cmd_Score_f(edict_t *ent)
 {
 	if (!ent)
