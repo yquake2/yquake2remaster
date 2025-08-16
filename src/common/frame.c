@@ -126,7 +126,7 @@ Qcommon_Buildstring(void)
 
 	printf("\n%s\n", versionString);
 
-	for( i = 0; i < verLen; ++i)
+	for (i = 0; i < verLen; ++i)
 	{
 		printf("=");
 	}

@@ -76,17 +76,21 @@ BOT_FindFreeClient(void)
 	int max_count=0;
 
 	bot = NULL;
-	for( i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++ )
+	for (i = 0, ent = g_edicts + 1; i < game.maxclients; i++, ent++)
 	{
-		if( !ent->inuse && bot == NULL )
+		if (!ent->inuse && bot == NULL)
+		{
 			bot = ent;
+		}
 
 		//count bots for bot names
-		if( ent->count > max_count )
+		if (ent->count > max_count)
+		{
 			max_count = ent->count;
+		}
 	}
 
-	if (bot == NULL || (max_count + 2) >= game.maxclients ) //always leave room for 1 player
+	if (bot == NULL || (max_count + 2) >= game.maxclients) //always leave room for 1 player
 	{
 		return NULL;
 	}

@@ -40,7 +40,7 @@ int AI_FindCost(int from, int to, int movetypes)
 {
 	astarpath_t	path;
 
-	if( !AStar_GetPath( from, to, movetypes, &path ) )
+	if (!AStar_GetPath( from, to, movetypes, &path))
 		return -1;
 
 	return path.numNodes;
@@ -66,7 +66,7 @@ int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int
 	VectorSet( maxs, 15, 15, 15 );
 
 	// For Ladders, do not worry so much about reachability
-	if( flagsmask & NODEFLAGS_LADDER )
+	if (flagsmask & NODEFLAGS_LADDER)
 	{
 		VectorCopy(vec3_origin,maxs);
 		VectorCopy(vec3_origin,mins);
@@ -76,7 +76,7 @@ int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int
 
 	for(i=0;i<nav.num_nodes;i++)
 	{
-		if( flagsmask == NODE_ALL || nodes[i].flags & flagsmask )
+		if (flagsmask == NODE_ALL || nodes[i].flags & flagsmask)
 		{
 			VectorSubtract( nodes[i].origin, origin, v );
 
@@ -115,7 +115,7 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	}
 
 	//------- ASTAR -----------
-	if( !AStar_GetPath( node, goal_node, self->ai->pers.moveTypesMask, &self->ai->path ) )
+	if (!AStar_GetPath( node, goal_node, self->ai->pers.moveTypesMask, &self->ai->path))
 	{
 		AI_SetUpMoveWander(self);
 		return;
@@ -146,7 +146,7 @@ AI_FollowPath(edict_t *self)
 	/*
 	if(bot_showpath->value)
 	{
-		if( AIDevel.debugChased )
+		if (AIDevel.debugChased)
 			AITools_DrawPath(self, self->ai->current_node, self->ai->goal_node);
 	}
 	*/
@@ -203,7 +203,7 @@ AI_FollowPath(edict_t *self)
 		/* reset timeout */
 		self->ai->node_timeout = 0;
 
-		if( self->ai->next_node == self->ai->goal_node )
+		if (self->ai->next_node == self->ai->goal_node)
 		{
 			//if(AIDevel.debugChased && bot_showlrgoal->value)
 			//	gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL REACHED!\n", self->ai->pers.netname);
@@ -214,8 +214,9 @@ AI_FollowPath(edict_t *self)
 		else
 		{
 			self->ai->current_node = self->ai->next_node;
-			if( self->ai->path.numNodes )
+			if (self->ai->path.numNodes)
 				self->ai->path.numNodes--;
+
 			self->ai->next_node = self->ai->path.nodes[self->ai->path.numNodes];
 		}
 	}

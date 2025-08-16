@@ -54,7 +54,7 @@ qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent )
 
 	//trap_Trace ( &trace, origin, tv(-15, -15, 0), tv(15, 15, 0), tv(origin[0], origin[1], world->mins[2]), NULL, MASK_NODESOLID );
 	trace = gi.trace( origin, tv(-15, -15, 0), tv(15, 15, 0), tv(origin[0], origin[1], origin[2]-2048), passent, MASK_NODESOLID );
-	if( trace.startsolid )
+	if (trace.startsolid)
 		return false;
 
 	origin[0] = trace.endpos[0];
@@ -75,19 +75,19 @@ int AI_FlagsForNode( vec3_t origin, edict_t *passent )
 	int		flagsmask = 0;
 
 	//water
-	if( gi.pointcontents(origin) & MASK_WATER )
+	if (gi.pointcontents(origin) & MASK_WATER)
 		flagsmask |= NODEFLAGS_WATER;
 
 	//floor
 	trace = gi.trace( origin, tv(-15,-15,0), tv(15,15,0), tv(origin[0], origin[1], origin[2] - AI_JUMPABLE_HEIGHT), passent, MASK_NODESOLID );
-	if( trace.fraction < 1.0 )
+	if (trace.fraction < 1.0)
 		flagsmask &= ~NODEFLAGS_FLOAT;	//ok, it wasn't set, I know...
 	else
 		flagsmask |= NODEFLAGS_FLOAT;
 
 	//ladder
-//	trace = gi.trace( origin, tv(-18, -18, -16), tv(18, 18, 16), origin, passent, MASK_ALL );
-//	if( trace.startsolid && trace.contents & CONTENTS_LADDER )
+//	trace = gi.trace(origin, tv(-18, -18, -16), tv(18, 18, 16), origin, passent, MASK_ALL);
+//	if (trace.startsolid && trace.contents & CONTENTS_LADDER )
 //		flagsmask |= NODEFLAGS_LADDER;
 
 	return flagsmask;
@@ -140,8 +140,10 @@ AI_PredictJumpadDestity(edict_t *ent, vec3_t out)
 
 	VectorClear( out );
 
-	if( !ent->target )	//jabot092
+	if (!ent->target)	//jabot092
+	{
 		return false;
+	}
 
 	// get target entity
 	target = G_Find ( NULL, FOFS(targetname), ent->target );
@@ -166,13 +168,18 @@ AI_PredictJumpadDestity(edict_t *ent, vec3_t out)
 	vtime = sqrt ((target->s.origin[2] - pad_origin[2]));
 	if(!vtime) return false;
 	htime *= 4;vtime *= 4;
-	if( htime > vtime )
+	if (htime > vtime)
+	{
 		htime = vtime;
+	}
+
 	player_factor = vtime - htime;
 
 	// find distance vector, on floor, from pad_origin to target origin.
-	for ( i=0 ; i<3 ; i++ )
+	for (i = 0; i < 3 ; i++)
+	{
 		floor_dist_vec[i] = floor_target_origin[i] - pad_origin[i];
+	}
 
 	// movement direction on floor
 	VectorCopy( floor_dist_vec, floor_movedir );
@@ -322,7 +329,7 @@ AI_AddNode_Door(edict_t *ent)
 		//add node
 		nodes[nav.num_nodes].flags = 0;
 		VectorMA( door_origin, 32, crossdir, nodes[nav.num_nodes].origin);
-		if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+		if (AI_DropNodeOriginToFloor(nodes[nav.num_nodes].origin, NULL))
 		{
 			nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
@@ -334,7 +341,7 @@ AI_AddNode_Door(edict_t *ent)
 		//add node 2
 		nodes[nav.num_nodes].flags = 0;
 		VectorMA( door_origin, -32, crossdir, nodes[nav.num_nodes].origin);
-		if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+		if (AI_DropNodeOriginToFloor(nodes[nav.num_nodes].origin, NULL))
 		{
 			nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
@@ -356,7 +363,7 @@ AI_AddNode_Door(edict_t *ent)
 	//add node
 	nodes[nav.num_nodes].flags = 0;
 	VectorMA( door_origin, 32, crossdir, nodes[nav.num_nodes].origin);
-	if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+	if (AI_DropNodeOriginToFloor(nodes[nav.num_nodes].origin, NULL))
 	{
 		nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
@@ -367,8 +374,8 @@ AI_AddNode_Door(edict_t *ent)
 
 	//add node 2
 	nodes[nav.num_nodes].flags = 0;
-	VectorMA( door_origin, -32, crossdir, nodes[nav.num_nodes].origin);
-	if( AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL ) )
+	VectorMA(door_origin, -32, crossdir, nodes[nav.num_nodes].origin);
+	if (AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, NULL))
 	{
 		nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, NULL );
 #ifdef SHOW_JUMPAD_GUESS
@@ -741,7 +748,7 @@ AI_IsPlatformLink(int n1, int n2)
 		int othernode = -1, i;
 
 		// find ent
-		for( i = 0; i < nav.num_ents; i++)
+		for (i = 0; i < nav.num_ents; i++)
 		{
 			if (nav.ents[i].node == n1)
 			{
@@ -751,7 +758,7 @@ AI_IsPlatformLink(int n1, int n2)
 		// find the other node from that ent
 		for(i = 0; i < nav.num_ents; i++)
 		{
-			if( nav.ents[i].node != n1 && nav.ents[i].ent == n1ent)
+			if (nav.ents[i].node != n1 && nav.ents[i].ent == n1ent)
 			{
 				othernode = nav.ents[i].node;
 			}
@@ -778,8 +785,10 @@ AI_IsPlatformLink(int n1, int n2)
 			if (trace.fraction == 1.0 && !trace.startsolid)
 			{
 				heightdiff = nodes[n1].origin[2] - nodes[n2].origin[2];
-				if( heightdiff < 0 )
+				if (heightdiff < 0)
+				{
 					heightdiff = -heightdiff;
+				}
 
 				if (heightdiff < AI_JUMPABLE_HEIGHT)
 				{
@@ -798,21 +807,30 @@ AI_IsPlatformLink(int n1, int n2)
 		int othernode = -1, i;
 
 		// find ent
-		for(i=0;i<nav.num_ents;i++) {
-			if( nav.ents[i].node == n2 )
+		for (i = 0; i < nav.num_ents; i++)
+		{
+			if (nav.ents[i].node == n2)
+			{
 				n2ent = nav.ents[i].ent;
-		}
-		// find the other node from that ent
-		for(i=0;i<nav.num_ents;i++){
-			if( nav.ents[i].node != n2 && nav.ents[i].ent == n2ent)
-				othernode = nav.ents[i].node;
+			}
 		}
 
-		if( othernode == -1 || !n2ent )
+		// find the other node from that ent
+		for (i = 0; i < nav.num_ents; i++)
+		{
+			if (nav.ents[i].node != n2 && nav.ents[i].ent == n2ent)
+			{
+				othernode = nav.ents[i].node;
+			}
+		}
+
+		if (othernode == -1 || !n2ent)
+		{
 			return LINK_INVALID;
+		}
 
 		//find out if n2 is the upper or the lower plat node
-		if( nodes[n2].origin[2] < nodes[othernode].origin[2] )
+		if (nodes[n2].origin[2] < nodes[othernode].origin[2])
 		{
 			trace_t	trace;
 			float	heightdiff;
@@ -822,11 +840,15 @@ AI_IsPlatformLink(int n1, int n2)
 			if (trace.fraction == 1.0 && !trace.startsolid)
 			{
 				heightdiff = nodes[n1].origin[2] - nodes[n2].origin[2];
-				if( heightdiff < 0 )
+				if (heightdiff < 0)
+				{
 					heightdiff = -heightdiff;
+				}
 
-				if( heightdiff < AI_JUMPABLE_HEIGHT )
+				if (heightdiff < AI_JUMPABLE_HEIGHT)
+				{
 					return LINK_MOVE;
+				}
 
 				return LINK_INVALID;
 			}
@@ -924,34 +946,45 @@ AI_LinkServerNodes(int start)
 	float		pLinkRadius = NODE_DENSITY*1.2;
 	qboolean	ignoreHeight = true;
 
-	if( start >= nav.num_nodes )
+	if (start >= nav.num_nodes)
+	{
 		return 0;
+	}
 
-	for( n1=start; n1<nav.num_nodes; n1++ )
+	for (n1=start; n1<nav.num_nodes; n1++)
 	{
 		n2 = 0;
-		n2 = AI_findNodeInRadius ( 0, nodes[n1].origin, pLinkRadius, ignoreHeight);
+		n2 = AI_findNodeInRadius(0, nodes[n1].origin, pLinkRadius, ignoreHeight);
 
 		while (n2 != -1)
 		{
-			if( nodes[n1].flags & NODEFLAGS_SERVERLINK || nodes[n2].flags & NODEFLAGS_SERVERLINK )
+			if (nodes[n1].flags & NODEFLAGS_SERVERLINK ||
+				nodes[n2].flags & NODEFLAGS_SERVERLINK)
 			{
-				if( AI_AddLink( n1, n2, AI_FindServerLinkType(n1, n2) ) )
+				if (AI_AddLink(n1, n2, AI_FindServerLinkType(n1, n2)))
+				{
 					count++;
+				}
 
-				if( AI_AddLink( n2, n1, AI_FindServerLinkType(n2, n1) ) )
+				if (AI_AddLink(n2, n1, AI_FindServerLinkType(n2, n1)))
+				{
 					count++;
+				}
 			}
 			else
 			{
-				if( AI_AddLink( n1, n2, AI_FindLinkType(n1, n2) ) )
+				if (AI_AddLink(n1, n2, AI_FindLinkType(n1, n2)))
+				{
 					count++;
+				}
 
-				if( AI_AddLink( n2, n1, AI_FindLinkType(n2, n1) ) )
+				if (AI_AddLink( n2, n1, AI_FindLinkType(n2, n1)))
+				{
 					count++;
+				}
 			}
 
-			n2 = AI_findNodeInRadius ( n2, nodes[n1].origin, pLinkRadius, ignoreHeight);
+			n2 = AI_findNodeInRadius(n2, nodes[n1].origin, pLinkRadius, ignoreHeight);
 		}
 	}
 	return count;
@@ -976,15 +1009,16 @@ void AI_InitNavigationData(void)
 	memset( pLinks, 0, sizeof(nav_plink_t) * MAX_NODES );
 
 	//Load nodes from file
-	nav.loaded = AI_LoadPLKFile( level.mapname );
-	if( !nav.loaded ) {
+	nav.loaded = AI_LoadPLKFile(level.mapname);
+	if (!nav.loaded)
+	{
 		Com_Printf("AI: FAILED to load nodes file.\n");
 		return;
 	}
 
 	servernodesstart = nav.num_nodes;
 
-	for( linkscount = 0, i = 0; i< nav.num_nodes; i++ )
+	for (linkscount = 0, i = 0; i< nav.num_nodes; i++)
 	{
 		linkscount += pLinks[i].numLinks;
 	}

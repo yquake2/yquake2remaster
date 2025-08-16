@@ -137,15 +137,15 @@ void QVk_CreateValidationLayers()
 
 void QVk_DestroyValidationLayers()
 {
-	if( validationMessenger != VK_NULL_HANDLE && qvkDestroyDebugUtilsMessengerEXT)
+	if (validationMessenger != VK_NULL_HANDLE && qvkDestroyDebugUtilsMessengerEXT)
 	{
-		qvkDestroyDebugUtilsMessengerEXT( vk_instance, validationMessenger, NULL );
+		qvkDestroyDebugUtilsMessengerEXT(vk_instance, validationMessenger, NULL);
 		validationMessenger = VK_NULL_HANDLE;
 	}
 
-	if ( validationLayerCallback != VK_NULL_HANDLE && qvkDestroyDebugReportCallbackEXT)
+	if (validationLayerCallback != VK_NULL_HANDLE && qvkDestroyDebugReportCallbackEXT)
 	{
-		qvkDestroyDebugReportCallbackEXT( vk_instance, validationLayerCallback, NULL );
+		qvkDestroyDebugReportCallbackEXT(vk_instance, validationLayerCallback, NULL);
 		validationLayerCallback = VK_NULL_HANDLE;
 	}
 }

@@ -82,8 +82,9 @@ void AIDebug_SetChased(edict_t *ent)
 	{
 //		AIDevel.chaseguy = game.edicts + i + 1;
 		AIDevel.chaseguy = g_edicts + i + 1;
-		if(AIDevel.chaseguy->inuse && AIDevel.chaseguy->client){
-			if( AIDevel.chaseguy->client->chase_target &&
+		if (AIDevel.chaseguy->inuse && AIDevel.chaseguy->client)
+		{
+			if (AIDevel.chaseguy->client->chase_target &&
 				AIDevel.chaseguy->client->chase_target == ent)
 				break;
 		}
@@ -137,14 +138,14 @@ void AITools_DrawPath(edict_t *self, int node_from, int node_to)
 		return;
 	drawnpath_timeout = level.time + 4*FRAMETIME;
 
-	if( self->ai.path->goalNode != node_to )
+	if (self->ai.path->goalNode != node_to)
 		return;
 
 	//find position in stored path
 	while( self->ai.path->nodes[pos] != node_from )
 	{
 		pos++;
-		if( self->ai.path->goalNode == self->ai.path->nodes[pos] )
+		if (self->ai.path->goalNode == self->ai.path->nodes[pos])
 			return;	//failed
 	}
 
@@ -189,7 +190,7 @@ AITools_ShowPlinks(void)
 
 	for (i=0; i<nav.num_items;i++){
 		if (nav.items[i].node == current_node){
-			if( !nav.items[i].ent->classname )
+			if (!nav.items[i].ent->classname)
 				G_CenterPrintMsg(AIDevel.plinkguy, "no classname");
 			else
 				G_CenterPrintMsg(AIDevel.plinkguy, "%s", nav.items[i].ent->classname);
@@ -218,8 +219,10 @@ AITools_ShowPlinks(void)
 void AITools_Frame(void)
 {
 	//debug
-	if( AIDevel.showPLinks )
+	if (AIDevel.showPLinks)
+	{
 		AITools_ShowPlinks();
+	}
 }
 
 

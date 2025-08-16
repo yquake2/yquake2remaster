@@ -207,10 +207,10 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 	VectorCopy( self->s.origin, boxorigin );
 	VectorMA( boxorigin, 8, forward, boxorigin ); //move box by 8 to front
 	tr = gi.trace( self->s.origin, self->mins, self->maxs, boxorigin, self, MASK_AISOLID);
-	if( !tr.startsolid && tr.fraction == 1.0 ) // not bloqued
+	if (!tr.startsolid && tr.fraction == 1.0) // not bloqued
 		return false;
 
-	if( self->ai->pers.moveTypesMask & LINK_JUMP && self->groundentity )
+	if (self->ai->pers.moveTypesMask & LINK_JUMP && self->groundentity)
 	{
 		//jump box
 		VectorCopy( self->s.origin, boxorigin );
@@ -221,11 +221,11 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 		boxorigin[2] += ( boxmins[2] + AI_JUMPABLE_HEIGHT );	//put at bottom + jumpable height
 		boxmaxs[2] = boxmaxs[2] - boxmins[2];	//total player box height in boxmaxs
 		boxmins[2] = 0;
-		if( boxmaxs[2] > AI_JUMPABLE_HEIGHT ) //the player is smaller than AI_JUMPABLE_HEIGHT
+		if (boxmaxs[2] > AI_JUMPABLE_HEIGHT) //the player is smaller than AI_JUMPABLE_HEIGHT
 		{
 			boxmaxs[2] -= AI_JUMPABLE_HEIGHT;
 			tr = gi.trace( boxorigin, boxmins, boxmaxs, boxorigin, self, MASK_AISOLID);
-			if( !tr.startsolid )	//can move by jumping
+			if (!tr.startsolid)	//can move by jumping
 			{
 				ucmd->forwardmove = 400;
 				ucmd->upmove = 400;
@@ -235,7 +235,7 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 		}
 	}
 
-	if( self->ai->pers.moveTypesMask & LINK_CROUCH || self->is_swim )
+	if (self->ai->pers.moveTypesMask & LINK_CROUCH || self->is_swim)
 	{
 		//crouch box
 		VectorCopy( self->s.origin, boxorigin );
@@ -245,7 +245,7 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 		VectorMA( boxorigin, 8, forward, boxorigin ); //move box by 8 to front
 		//see if bloqued
 		tr = gi.trace( boxorigin, boxmins, boxmaxs, boxorigin, self, MASK_AISOLID);
-		if( !tr.startsolid ) // can move by crouching
+		if (!tr.startsolid) // can move by crouching
 		{
 			ucmd->forwardmove = 400;
 			ucmd->upmove = -400;

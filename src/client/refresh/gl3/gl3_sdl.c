@@ -400,9 +400,9 @@ int GL3_InitContext(void* win)
 
 	// Load GL pointers through GLAD and check context.
 #ifdef YQ2_GL3_GLES
-	if( !gladLoadGLES2Loader((void *)SDL_GL_GetProcAddress))
+	if (!gladLoadGLES2Loader((void *)SDL_GL_GetProcAddress))
 #else // Desktop GL
-	if( !gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
+	if (!gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
 #endif
 	{
 		Com_Printf("%s(): ERROR: loading OpenGL function pointers failed!\n",

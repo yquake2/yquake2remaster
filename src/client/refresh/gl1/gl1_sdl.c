@@ -270,7 +270,7 @@ int RI_InitContext(void* win)
 #ifdef YQ2_GL1_GLES
 
 	// Load GL pointers through GLAD and check context.
-	if( !gladLoadGLES1Loader( (void * (*)(const char *)) SDL_GL_GetProcAddress ) )
+	if (!gladLoadGLES1Loader((void * (*)(const char *)) SDL_GL_GetProcAddress))
 	{
 		Com_Printf("%s ERROR: loading OpenGL ES function pointers failed!\n", __func__);
 		return false;

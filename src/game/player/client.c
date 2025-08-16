@@ -2305,8 +2305,10 @@ PutClientInServer(edict_t *ent)
 	VectorCopy(ent->s.angles, client->v_angle);
 
 	//JABot[start]
-	if( ent->ai && ent->ai->is_bot )
+	if (ent->ai && ent->ai->is_bot)
+	{
 		return;
+	}
 	//JABot[end]
 
 	if (CTFStartClient(ent))

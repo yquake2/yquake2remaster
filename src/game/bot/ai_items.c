@@ -39,7 +39,7 @@
 //==========================================
 void AI_EnemyAdded(edict_t *ent)
 {
-	if( num_AIEnemies < MAX_EDICTS )
+	if (num_AIEnemies < MAX_EDICTS)
 		AIEnemies[num_AIEnemies++] = ent;
 }
 
@@ -211,11 +211,12 @@ qboolean AI_ItemIsReachable(edict_t *self, vec3_t goal)
 // AI_ItemWeight
 // Find out item weight
 //==========================================
-float AI_ItemWeight(edict_t *self, edict_t *it)
+float
+AI_ItemWeight(edict_t *self, edict_t *it)
 {
 	float		weight;
 
-	if( !self->client )
+	if (!self->client)
 		return 0;
 
 	if (!it->item)

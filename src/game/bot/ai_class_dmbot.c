@@ -53,14 +53,14 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	next_node_flags = nodes[self->ai->next_node].flags;
-	if( AI_PlinkExists( self->ai->current_node, self->ai->next_node ))
+	if (AI_PlinkExists(self->ai->current_node, self->ai->next_node))
 	{
 		current_link_type = AI_PlinkMoveType( self->ai->current_node, self->ai->next_node );
 		//Com_Printf("%s\n", AI_LinkString( current_link_type ));
 	}
 
 	// Platforms
-	if( current_link_type == LINK_PLATFORM )
+	if (current_link_type == LINK_PLATFORM)
 	{
 		// Move to the center
 		self->ai->move_vector[2] = 0; // kill z movement
@@ -73,11 +73,12 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 
 		return; // No move, riding elevator
 	}
-	else if( next_node_flags & NODEFLAGS_PLATFORM )
+	else if (next_node_flags & NODEFLAGS_PLATFORM)
 	{
 		// is lift down?
-		for(i=0;i<nav.num_ents;i++){
-			if( nav.ents[i].node == self->ai->next_node )
+		for (i = 0; i < nav.num_ents; i++)
+		{
+			if (nav.ents[i].node == self->ai->next_node)
 			{
 				//testing line
 				//vec3_t	tPoint;
@@ -89,7 +90,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 				//AITools_DrawLine( self->s.origin, tPoint );
 
 				//if not reachable, wait for it (only height matters)
-				if( ((nav.ents[i].ent->s.origin[2] + nav.ents[i].ent->maxs[2])
+				if (((nav.ents[i].ent->s.origin[2] + nav.ents[i].ent->maxs[2])
 					> (self->s.origin[2] + self->mins[2] + AI_JUMPABLE_HEIGHT) ) &&
 					nav.ents[i].ent->moveinfo.state != STATE_BOTTOM) //jabot092(2)
 				{
@@ -100,7 +101,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Ladder movement
-	if( self->is_ladder )
+	if (self->is_ladder)
 	{
 		ucmd->forwardmove = 70;
 		ucmd->upmove = 200;
@@ -116,7 +117,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 		{
 			ucmd->forwardmove = 100;
 		}
-		else if( current_link_type == LINK_JUMP )
+		else if (current_link_type == LINK_JUMP)
 		{
 			self->velocity[0] = self->ai->move_vector[0] * 280;
 			self->velocity[1] = self->ai->move_vector[1] * 280;
@@ -130,7 +131,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// jumping over (keep fall before this)
-	if( current_link_type == LINK_JUMP && self->groundentity)
+	if (current_link_type == LINK_JUMP && self->groundentity)
 	{
 		trace_t trace;
 		vec3_t  v1, v2;
@@ -141,7 +142,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 		VectorMA( v1, 12, v2, v1 );
 		v1[2] += self->mins[2];
 		trace = gi.trace( v1, tv(-2, -2, -AI_JUMPABLE_HEIGHT), tv(2, 2, 0), v1, self, MASK_AISOLID );
-		if( !trace.startsolid && trace.fraction == 1.0 )
+		if (!trace.startsolid && trace.fraction == 1.0)
 		{
 			//jump!
 			ucmd->forwardmove = 400;
@@ -149,7 +150,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 			VectorCopy( self->s.origin, v1 );
 			v1[2] += self->mins[2];
 			trace = gi.trace( v1, tv(-12, -12, -8), tv(12, 12, 0), v1, self, MASK_AISOLID );
-			if( trace.startsolid )
+			if (trace.startsolid)
 			{
 				ucmd->upmove = 400;
 			}
@@ -166,12 +167,12 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// swimming
-	if( self->is_swim )
+	if (self->is_swim)
 	{
 		// We need to be pointed up/down
 		AI_ChangeAngle(self);
 
-		if( !(gi.pointcontents(nodes[self->ai->next_node].origin) & MASK_WATER) ) // Exit water
+		if (!(gi.pointcontents(nodes[self->ai->next_node].origin) & MASK_WATER)) // Exit water
 		{
 			ucmd->upmove = 400;
 		}
@@ -181,10 +182,10 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Check to see if stuck, and if so try to free us
- 	if(VectorLength(self->velocity) < 37)
+	if(VectorLength(self->velocity) < 37)
 	{
 		// Keep a random factor just in case....
-		if( random() > 0.1 && AI_SpecialMove(self, ucmd) ) //jumps, crouches, turns...
+		if (random() > 0.1 && AI_SpecialMove(self, ucmd)) //jumps, crouches, turns...
 		{
 			return;
 		}
@@ -251,10 +252,10 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	VectorCopy(self->s.origin,temp);
 	temp[2] += 24;
 
-	if( gi.pointcontents (temp) & MASK_WATER)
+	if (gi.pointcontents (temp) & MASK_WATER)
 	{
 		// If drowning and no node, move up
-		if( self->client && self->client->next_drown_time > 0 )	//jalfixme: client references must pass into botStatus
+		if (self->client && self->client->next_drown_time > 0)	//jalfixme: client references must pass into botStatus
 		{
 			ucmd->upmove = 100;
 			self->s.angles[PITCH] = -45;
@@ -271,7 +272,7 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	// Lava?
 	temp[2] -= 48;
 
-	if( gi.pointcontents(temp) & (CONTENTS_LAVA|CONTENTS_SLIME) )
+	if (gi.pointcontents(temp) & (CONTENTS_LAVA | CONTENTS_SLIME))
 	{
 		self->s.angles[YAW] += random() * 360 - 180;
 		ucmd->forwardmove = 400;
@@ -288,7 +289,7 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Check for special movement
- 	if(VectorLength(self->velocity) < 37)
+	if(VectorLength(self->velocity) < 37)
 	{
 		if(random() > 0.1 && AI_SpecialMove(self,ucmd))	//jumps, crouches, turns...
 		{
@@ -301,7 +302,7 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 		{
 			ucmd->forwardmove = 0; //0
 		}
-		else if( AI_CanMove( self, BOT_MOVE_FORWARD))
+		else if (AI_CanMove( self, BOT_MOVE_FORWARD))
 		{
 			ucmd->forwardmove = 100;
 		}
@@ -311,7 +312,7 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 
 
 	// Otherwise move slowly, walking wondering what's going on
-	if( AI_CanMove( self, BOT_MOVE_FORWARD))
+	if (AI_CanMove( self, BOT_MOVE_FORWARD))
 	{
 		ucmd->forwardmove = 100;
 	}
@@ -427,7 +428,7 @@ BOT_DMclass_FindEnemy(edict_t *self)
 	// Find Enemy
 	for(i=0;i<num_AIEnemies;i++)
 	{
-		if( AIEnemies[i] == NULL || AIEnemies[i] == self
+		if (AIEnemies[i] == NULL || AIEnemies[i] == self
 			|| AIEnemies[i]->solid == SOLID_NOT)
 			continue;
 
@@ -435,7 +436,7 @@ BOT_DMclass_FindEnemy(edict_t *self)
 		if(self->ai->status.playersWeights[i] == 0)
 			continue;
 
-		if( !AIEnemies[i]->deadflag && visible(self, AIEnemies[i]) &&
+		if (!AIEnemies[i]->deadflag && visible(self, AIEnemies[i]) &&
 			//trap_inPVS (self->s.origin, players[i]->s.origin))
 			gi.inPVS(self->s.origin, AIEnemies[i]->s.origin))
 		{
@@ -446,8 +447,8 @@ BOT_DMclass_FindEnemy(edict_t *self)
 			//modify weight based on precomputed player weights
 			weight *= (1.0 - self->ai->status.playersWeights[i]);
 
-			if( infront( self, AIEnemies[i] ) ||
-				(weight < 300 ) )
+			if (infront( self, AIEnemies[i]) ||
+				(weight < 300))
 			{
 				// Check if best target, or better than current target
 				if (weight < bestweight)
@@ -527,7 +528,7 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	if(!self->enemy)
 		return;
 
-	if( self->ai->changeweapon_timeout > level.time )
+	if (self->ai->changeweapon_timeout > level.time)
 		return;
 
 	// Base weapon selection on distance:
@@ -615,10 +616,10 @@ BOT_DMclass_FireWeapon(edict_t *self, usercmd_t *ucmd)
 	VectorCopy(self->enemy->s.origin,target);
 
 	// find out our weapon AIM style
-	if( AIWeapons[weapon].aimType == AI_AIMSTYLE_PREDICTION_EXPLOSIVE )
+	if (AIWeapons[weapon].aimType == AI_AIMSTYLE_PREDICTION_EXPLOSIVE)
 	{
 		//aim to the feets when enemy isn't higher
-		if( self->s.origin[2] + self->viewheight > target[2] + (self->enemy->mins[2] * 0.8) )
+		if (self->s.origin[2] + self->viewheight > target[2] + (self->enemy->mins[2] * 0.8))
 			target[2] += self->enemy->mins[2];
 	}
 	else if ( AIWeapons[weapon].aimType == AI_AIMSTYLE_PREDICTION )
@@ -685,26 +686,26 @@ BOT_DMclass_WeightPlayers(edict_t *self)
 			continue;
 		}
 
-		if( ctf->value )
+		if (ctf->value)
 		{
-			if( AIEnemies[i]->client->resp.ctf_team != self->client->resp.ctf_team )
+			if (AIEnemies[i]->client->resp.ctf_team != self->client->resp.ctf_team)
 			{
 				//being at enemy team gives a small weight, but weight afterall
 				self->ai->status.playersWeights[i] = 0.2;
 
 				//enemy has redflag
-				if( redflag && AIEnemies[i]->client->pers.inventory[ITEM_INDEX(redflag)]
-					&& (self->client->resp.ctf_team == CTF_TEAM1) )
+				if (redflag && AIEnemies[i]->client->pers.inventory[ITEM_INDEX(redflag)]
+					&& (self->client->resp.ctf_team == CTF_TEAM1))
 				{
-					if( !self->client->pers.inventory[ITEM_INDEX(blueflag)] ) //don't hunt if you have the other flag, let others do
+					if (!self->client->pers.inventory[ITEM_INDEX(blueflag)] ) //don't hunt if you have the other flag, let others do
 						self->ai->status.playersWeights[i] = 0.9;
 				}
 
 				//enemy has blueflag
-				if( blueflag && AIEnemies[i]->client->pers.inventory[ITEM_INDEX(blueflag)]
-					&& (self->client->resp.ctf_team == CTF_TEAM2) )
+				if (blueflag && AIEnemies[i]->client->pers.inventory[ITEM_INDEX(blueflag)]
+					&& (self->client->resp.ctf_team == CTF_TEAM2))
 				{
-					if( !self->client->pers.inventory[ITEM_INDEX(redflag)] ) //don't hunt if you have the other flag, let others do
+					if (!self->client->pers.inventory[ITEM_INDEX(redflag)] ) //don't hunt if you have the other flag, let others do
 						self->ai->status.playersWeights[i] = 0.9;
 				}
 			}
@@ -895,7 +896,7 @@ BOT_DMclass_WeightInventory(edict_t *self)
 
 	//CTF:
 	//-----------------------------------------------------
-	if( ctf->value )
+	if (ctf->value)
 	{
 		gitem_t		*wantedFlag;
 
@@ -984,14 +985,14 @@ BOT_DMclass_RunFrame(edict_t *self)
 	usercmd_t ucmd = {0};
 
 	// Look for enemies
-	if( BOT_DMclass_FindEnemy(self) )
+	if (BOT_DMclass_FindEnemy(self))
 	{
 		BOT_DMclass_ChooseWeapon( self );
 		BOT_DMclass_FireWeapon( self, &ucmd );
 		self->ai->state = BOT_STATE_ATTACK;
 		self->ai->state_combat_timeout = level.time + 1.0;
 	}
-	else if( self->ai->state == BOT_STATE_ATTACK &&
+	else if (self->ai->state == BOT_STATE_ATTACK &&
 		level.time > self->ai->state_combat_timeout)
 	{
 		//Jalfixme: change to: AI_SetUpStateMove(self);
@@ -1091,7 +1092,7 @@ BOT_DMclass_InitPersistant(edict_t *self)
 	self->ai->pers.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_tech3"))] = 0.5;
 	self->ai->pers.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_tech4"))] = 0.5;
 
-	if( ctf->value )
+	if (ctf->value)
 	{
 		redflag = FindItemByClassname("item_flag_team1");	// store pointers to flags gitem_t, for
 		blueflag = FindItemByClassname("item_flag_team2");// simpler comparisons inside this archive

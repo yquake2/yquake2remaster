@@ -75,7 +75,10 @@ void AI_NewMap(void)
 //==========================================
 void G_FreeAI( edict_t *ent )
 {
-	if( !ent->ai ) return;
+	if (!ent->ai)
+	{
+		return;
+	}
 
 	gi.TagFree (ent->ai);
 	ent->ai = NULL;
@@ -184,7 +187,7 @@ AI_PickLongRangeGoal(edict_t *self)
 //		if (AIDevel.debugChased && bot_showlrgoal->value)
 //			gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: LRGOAL: Closest node not found. Tries:%i\n", self->ai->pers.netname, self->ai->nearest_node_tries);
 
-		if( self->ai->state != BOT_STATE_WANDER )
+		if (self->ai->state != BOT_STATE_WANDER)
 			AI_SetUpMoveWander( self );
 
 		self->ai->wander_timeout = level.time + 1.0;
@@ -202,24 +205,25 @@ AI_PickLongRangeGoal(edict_t *self)
 			continue;
 
 		//ignore items wich can't be weighted (must have a valid item flag)
-		if( !nav.items[i].ent->item || !(nav.items[i].ent->item->flags & (IT_AMMO|IT_TECH|IT_HEALTH|IT_ARMOR|IT_WEAPON|IT_POWERUP|IT_FLAG)) )
+		if (!nav.items[i].ent->item ||
+			!(nav.items[i].ent->item->flags & (IT_AMMO|IT_TECH|IT_HEALTH|IT_ARMOR|IT_WEAPON|IT_POWERUP|IT_FLAG)))
 			continue;
 
 		weight = AI_ItemWeight(self, nav.items[i].ent);
-		if( weight == 0.0f )	//ignore zero weighted items
+		if (weight == 0.0f)	//ignore zero weighted items
 			continue;
 
 		//limit cost finding distance
 		dist = AI_Distance( self->s.origin, nav.items[i].ent->s.origin );
 
 		//different distance limits for different types
-		if( nav.items[i].ent->item->flags & (IT_AMMO|IT_TECH) && dist > 2000 )
+		if (nav.items[i].ent->item->flags & (IT_AMMO|IT_TECH) && dist > 2000)
 			continue;
 
-		if( nav.items[i].ent->item->flags & (IT_HEALTH|IT_ARMOR|IT_POWERUP) && dist > 4000 )
+		if (nav.items[i].ent->item->flags & (IT_HEALTH|IT_ARMOR|IT_POWERUP) && dist > 4000)
 			continue;
 
-		if( nav.items[i].ent->item->flags & (IT_WEAPON|IT_FLAG) && dist > 10000 )
+		if (nav.items[i].ent->item->flags & (IT_WEAPON|IT_FLAG) && dist > 10000)
 			continue;
 
 		cost = AI_FindCost(current_node, nav.items[i].node, self->ai->pers.moveTypesMask);
@@ -239,14 +243,14 @@ AI_PickLongRangeGoal(edict_t *self)
 
 
 	// Players: This should be its own function and is for now just finds a player to set as the goal.
-	for( i=0; i<num_AIEnemies; i++ )
+	for (i = 0; i < num_AIEnemies; i++)
 	{
 		//ignore self & spectators
-		if( AIEnemies[i] == self || AIEnemies[i]->svflags & SVF_NOCLIENT)
+		if (AIEnemies[i] == self || AIEnemies[i]->svflags & SVF_NOCLIENT)
 			continue;
 
 		//ignore zero weighted players
-		if( self->ai->status.playersWeights[i] == 0.0f )
+		if (self->ai->status.playersWeights[i] == 0.0f)
 			continue;
 
 		node = AI_FindClosestReachableNode( AIEnemies[i]->s.origin, AIEnemies[i], NODE_DENSITY, NODE_ALL);
@@ -304,7 +308,7 @@ AI_PickShortRangeGoal(edict_t *self)
 	float	weight,best_weight=0.0;
 	edict_t *best = NULL;
 
-	if( !self->client )
+	if (!self->client)
 		return;
 
 	// look for a target (should make more efficent later)

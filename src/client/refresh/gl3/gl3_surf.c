@@ -268,7 +268,7 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 		{
 			si->lmScales[i] = lmScales[i];
 		}
-		else if(   si->lmScales[i].R != lmScales[i].R
+		else if (  si->lmScales[i].R != lmScales[i].R
 		        || si->lmScales[i].G != lmScales[i].G
 		        || si->lmScales[i].B != lmScales[i].B
 		        || si->lmScales[i].A != lmScales[i].A )

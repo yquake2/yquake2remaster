@@ -74,10 +74,10 @@ AI_AddNode(vec3_t origin, int flagsmask)
 		AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, player.ent );
 	}
 
-	//if( !(flagsmask & NODEFLAGS_NOWORLD) ) {	//don't spawn inside solids
+	//if (!(flagsmask & NODEFLAGS_NOWORLD)) {	//don't spawn inside solids
 	//	trace_t	trace;
 	//	trace = gi.trace( nodes[nav.num_nodes].origin, tv(-15, -15, -8), tv(15, 15, 8), nodes[nav.num_nodes].origin, player.ent, MASK_NODESOLID );
-	//	if( trace.startsolid )
+	//	if (trace.startsolid)
 	//		return -1;
 	//}
 
@@ -161,11 +161,10 @@ AI_DropLadderNodes(edict_t *self)
 
 	//find bottom. Try simple first
 	trace = gi.trace( borigin, tv(-15,-15,-24), tv(15,15,0), tv(borigin[0], borigin[1], borigin[2] - 2048), self, MASK_NODESOLID );
-	if( !trace.startsolid && trace.fraction < 1.0
-		&& AI_IsLadder( trace.endpos, self->client->ps.viewangles, self->mins, self->maxs, self) )
+	if (!trace.startsolid && trace.fraction < 1.0
+		&& AI_IsLadder( trace.endpos, self->client->ps.viewangles, self->mins, self->maxs, self))
 	{
-		VectorCopy( trace.endpos, borigin );
-
+		VectorCopy(trace.endpos, borigin);
 	}
 	else
 	{	//it wasn't so easy
@@ -179,14 +178,14 @@ AI_DropLadderNodes(edict_t *self)
 		}
 
 		//if trace never reached solid, put the node on the ladder
-		if( !trace.startsolid )
+		if (!trace.startsolid)
 			borigin[2] -= self->mins[2];
 	}
 
 	//drop node on bottom
-	AI_AddNode( borigin, (NODEFLAGS_LADDER|NODEFLAGS_FLOAT) );
+	AI_AddNode(borigin, (NODEFLAGS_LADDER | NODEFLAGS_FLOAT));
 
-	if( torigin[2] - borigin[2] < NODE_DENSITY )
+	if (torigin[2] - borigin[2] < NODE_DENSITY)
 		return;
 
 	//make subdivisions and add nodes in between
@@ -241,24 +240,31 @@ AI_WaterJumpNode(void)
 	edict_t		ent;
 
 	//don't drop if player is riding elevator or climbing a ladder
-	if( player.ent->groundentity && player.ent->groundentity != world) {
-		if( player.ent->groundentity->classname ) {
-			if( !strcmp( player.ent->groundentity->classname, "func_plat")
+	if (player.ent->groundentity && player.ent->groundentity != world)
+	{
+		if (player.ent->groundentity->classname)
+		{
+			if (!strcmp( player.ent->groundentity->classname, "func_plat")
 				|| !strcmp(player.ent->groundentity->classname, "trigger_push")
 				|| !strcmp(player.ent->groundentity->classname, "func_train")
 				|| !strcmp(player.ent->groundentity->classname, "func_rotate")
 				|| !strcmp(player.ent->groundentity->classname, "func_bob")
-				|| !strcmp(player.ent->groundentity->classname, "func_door") )
+				|| !strcmp(player.ent->groundentity->classname, "func_door"))
+			{
 				return;
+			}
 		}
 	}
-	if( AI_IsLadder( player.ent->s.origin, player.ent->client->ps.viewangles, player.ent->mins, player.ent->maxs, player.ent) )
+	if (AI_IsLadder(player.ent->s.origin, player.ent->client->ps.viewangles,
+		player.ent->mins, player.ent->maxs, player.ent))
+	{
 		return;
+	}
 
 	VectorCopy( player.ent->s.origin, waterorigin );
 
 	//move the origin to water limit
-	if( gi.pointcontents(waterorigin) & MASK_WATER )
+	if (gi.pointcontents(waterorigin) & MASK_WATER)
 	{
 		//reverse
 		trace = gi.trace( waterorigin,
@@ -269,7 +275,7 @@ AI_WaterJumpNode(void)
 			MASK_ALL );
 
 		VectorCopy( trace.endpos, waterorigin );
-		if( gi.pointcontents(waterorigin) & MASK_WATER )
+		if (gi.pointcontents(waterorigin) & MASK_WATER)
 			return;
 	}
 
@@ -281,15 +287,18 @@ AI_WaterJumpNode(void)
 		player.ent,
 		MASK_WATER );
 
-	if( trace.fraction == 1.0 )
+	if (trace.fraction == 1.0)
 		return;
 	else
 		VectorCopy( trace.endpos, waterorigin );
 
 	//tmp test (should just move 1 downwards)
-	if( !(gi.pointcontents(waterorigin) & MASK_WATER) ) {
+	if (!(gi.pointcontents(waterorigin) & MASK_WATER))
+	{
 		int	k = 0;
-		while( !(gi.pointcontents(waterorigin) & MASK_WATER) ){
+
+		while (!(gi.pointcontents(waterorigin) & MASK_WATER))
+		{
 			waterorigin[2]--;
 			k++;
 		}
@@ -300,7 +309,7 @@ AI_WaterJumpNode(void)
 
 	// Look for the closest node of type water
 	closest_node = AI_FindClosestReachableNode( ent.s.origin, &ent, 32, NODEFLAGS_WATER);
-	if( closest_node == -1 ) // we need to drop a node
+	if (closest_node == -1) // we need to drop a node
 	{
 		closest_node = AI_AddNode( waterorigin, (NODEFLAGS_WATER|NODEFLAGS_FLOAT) );
 
@@ -390,10 +399,10 @@ AI_PathMap(void)
 			closest_node = AI_AddNode( player.ent->s.origin, 0 ); //no flags = normal movement node
 
 		// Now add link
-		if( player.last_node != -1 && closest_node != -1)
+		if (player.last_node != -1 && closest_node != -1)
 			AI_UpdateNodeEdge( player.last_node, closest_node);
 
-		if( closest_node != -1 )
+		if (closest_node != -1)
 			player.last_node = closest_node; // set visited to last
 
 		player.was_falling = false;
@@ -411,7 +420,7 @@ AI_PathMap(void)
 	closest_node = AI_FindClosestReachableNode( player.ent->s.origin, player.ent, NODE_DENSITY, NODE_ALL );
 
 	// Add Nodes as needed
-	if( closest_node == INVALID )
+	if (closest_node == INVALID )
 	{
 		// Add nodes in the water as needed
 		if (player.ent->is_swim)
@@ -569,7 +578,7 @@ void AITools_SaveNodes( void )
 	int newlinks;
 	int	jumplinks;
 
-	if( !nav.num_nodes )
+	if (!nav.num_nodes)
 	{
 		Com_Printf("CGame AITools: No nodes to save\n");
 		return;

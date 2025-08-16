@@ -354,7 +354,7 @@ int GL4_InitContext(void* win)
 	GL4_SetVsync();
 
 	// Load GL pointrs through GLAD and check context.
-	if( !gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
+	if (!gladLoadGLLoader((void *)SDL_GL_GetProcAddress))
 	{
 		Com_Printf("%s(): ERROR: loading OpenGL function pointers failed!\n",
 			__func__);
