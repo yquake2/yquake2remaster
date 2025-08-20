@@ -1045,15 +1045,18 @@ FS_LoadDAT(const char *packPath)
 	if (fread(&header, sizeof(ddatheader_t), 1, handle) != 1)
 	{
 		fclose(handle);
-		Com_Error(ERR_FATAL, "%s: '%s' too short file",
+		Com_Printf("%s: '%s' too short file\n",
 			__func__, packPath);
+		return NULL;
 	}
 
 	if (LittleLong(header.ident) != DATHEADER ||
 		LittleLong(header.version) != DATVERSION)
 	{
 		fclose(handle);
-		Com_Error(ERR_FATAL, "%s: '%s' is not a dat file", __func__, packPath);
+		Com_Printf("%s: '%s' is not a dat file\n",
+			__func__, packPath);
+		return NULL;
 	}
 
 	header.dirofs = LittleLong(header.dirofs);
