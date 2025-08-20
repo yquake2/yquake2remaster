@@ -200,7 +200,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_ONE);
 
-		*(unsigned *) color = currententity->skinnum;
+		*(unsigned *) color = currententity->color;
 		glColor4f(
 			color[0] / 255.0f,
 			color[1] / 255.0f,
