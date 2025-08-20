@@ -1523,3 +1523,4 @@ extern void zombie_sight ( edict_t * self , edict_t * other ) ;
 extern void zombie_stand ( edict_t * self ) ;
 extern void zombie_touch ( edict_t * self ,  edict_t * other , cplane_t *plane, csurface_t *surf);
 extern void zombie_walk ( edict_t * self ) ;
+extern void trigger_fog_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurface_t *surf /* unused */);

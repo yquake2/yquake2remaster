@@ -202,6 +202,7 @@ extern void SP_trigger_counter(edict_t * self);
 extern void SP_trigger_disguise(edict_t * self);
 extern void SP_trigger_elevator(edict_t * self);
 extern void SP_trigger_flashlight(edict_t * self);
+extern void SP_trigger_fog(edict_t * self);
 extern void SP_trigger_gravity(edict_t * self);
 extern void SP_trigger_hurt(edict_t * self);
 extern void SP_trigger_key(edict_t * self);

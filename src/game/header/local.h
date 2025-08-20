@@ -1189,6 +1189,16 @@ void RemoveAttackingPainDaemons(edict_t *self);
 #define ANIM_DEATH 5
 #define ANIM_REVERSE 6
 
+/* height fog data values */
+typedef struct
+{
+	// r g b dist
+	float start[4];
+	float end[4];
+	float falloff;
+	float density;
+} height_fog_t;
+
 /* client data that stays across multiple level loads */
 typedef struct
 {
@@ -1235,6 +1245,12 @@ typedef struct
 	int max_mines;
 	int max_flechettes;
 	int max_rounds;
+
+	// [Paril-KEX] fog that we want to achieve; density rgb skyfogfactor
+	float wanted_fog[5];
+	height_fog_t wanted_heightfog;
+	// relative time value, copied from last touched trigger
+	float fog_transition_time;
 } client_persistant_t;
 
 /* client data that stays across deathmatch respawns */
@@ -1388,6 +1404,32 @@ struct gclient_s
 	int zoom;
 	int delayedstart;
 };
+
+typedef struct {
+	vec3_t color;
+	float density;
+	float sky_factor;
+
+	vec3_t color_off;
+	float density_off;
+	float sky_factor_off;
+} edictfog_t;
+
+typedef struct {
+	float falloff;
+	float density;
+	vec3_t start_color;
+	float start_dist;
+	vec3_t end_color;
+	float end_dist;
+
+	float falloff_off;
+	float density_off;
+	vec3_t start_color_off;
+	float start_dist_off;
+	vec3_t end_color_off;
+	float end_dist_off;
+} edicthfog_t;
 
 struct edict_s
 {
@@ -1550,6 +1592,10 @@ struct edict_s
 	edict_t *target_hint_chain;
 	int hint_chain_id;
 	float lastMoveTime;
+
+	/* Fog stuff */
+	edictfog_t fog;
+	edicthfog_t heightfog;
 
 	/* Third person view */
 	int chasedist1;

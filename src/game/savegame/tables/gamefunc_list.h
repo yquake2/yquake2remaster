@@ -1518,4 +1518,5 @@
 {"zombie_stand", (byte *)zombie_stand},
 {"zombie_touch", (byte *)zombie_touch},
 {"zombie_walk", (byte *)zombie_walk},
+{"trigger_fog_touch", (byte *)trigger_fog_touch},
 {0, 0}
