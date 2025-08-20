@@ -242,7 +242,8 @@ enum svc_ops_e
 	svc_playerinfo,             /* variable */
 	svc_packetentities,         /* [...] */
 	svc_deltapacketentities,    /* [...] */
-	svc_frame
+	svc_frame,
+	svc_fog,                    /* [Paril-KEX] change current fog values */
 };
 
 /* ============================================== */

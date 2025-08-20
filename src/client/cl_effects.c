@@ -3307,3 +3307,109 @@ CL_BlasterTrail2(vec3_t start, vec3_t end)
 	}
 }
 
+void
+CL_AddFog(svc_fog_data_t *fog)
+{
+	int b;
+	unsigned total;
+
+	b = MSG_ReadByte(&net_message);
+	if (b < 0)
+	{
+		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
+	}
+
+	total = (unsigned)b;
+
+	if (total & FOGBIT_MORE_BITS)
+	{
+		b = MSG_ReadByte(&net_message);
+		if (b < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
+		}
+
+		total |= (unsigned)b << 8;
+	}
+
+	/* Parse fields based on total */
+	if (total & FOGBIT_DENSITY)
+	{
+		fog->density = MSG_ReadFloat(&net_message);
+		fog->skyfactor = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_R)
+	{
+		fog->red = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_G)
+	{
+		fog->green = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_B)
+	{
+		fog->blue = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_TIME)
+	{
+		fog->time = MSG_ReadShort(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_FALLOFF)
+	{
+		fog->hf_falloff = MSG_ReadFloat(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_DENSITY)
+	{
+		fog->hf_density = MSG_ReadFloat(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_START_R)
+	{
+		fog->hf_start_r = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_START_G)
+	{
+		fog->hf_start_g = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_START_B)
+	{
+		fog->hf_start_b = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_START_DIST)
+	{
+		fog->hf_start_dist = MSG_ReadLong(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_END_R)
+	{
+		fog->hf_end_r = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_END_G)
+	{
+		fog->hf_end_g = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_END_B)
+	{
+		fog->hf_end_b = MSG_ReadByte(&net_message);
+	}
+
+	if (total & FOGBIT_HEIGHTFOG_END_DIST)
+	{
+		fog->hf_end_dist = MSG_ReadLong(&net_message);
+	}
+
+	Com_DPrintf("%s: Fog state changed\n", __func__);
+}

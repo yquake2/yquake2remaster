@@ -1511,6 +1511,9 @@ ClientEndServerFrame(edict_t *ent)
 	current_player = ent;
 	current_client = ent->client;
 
+	/* check fog changes */
+	ForceFogTransition(ent, false);
+
 	/* If the origin or velocity have changed since ClientThink(),
 	   update the pmove values. This will happen when the client
 	   is pushed by a bmodel or kicked by an explosion.

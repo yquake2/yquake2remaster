@@ -1406,6 +1406,53 @@ typedef struct
 	short stats[MAX_STATS];     /* fast status bar updates */
 } player_state_t;
 
+/* Fog */
+
+/* Bit flag definitions */
+#define FOGBIT_DENSITY              (1 << 0)
+#define FOGBIT_R                    (1 << 1)
+#define FOGBIT_G                    (1 << 2)
+#define FOGBIT_B                    (1 << 3)
+#define FOGBIT_TIME                 (1 << 4)
+
+#define FOGBIT_HEIGHTFOG_FALLOFF    (1 << 5)
+#define FOGBIT_HEIGHTFOG_DENSITY    (1 << 6)
+#define FOGBIT_MORE_BITS            (1 << 7)
+#define FOGBIT_HEIGHTFOG_START_R    (1 << 8)
+#define FOGBIT_HEIGHTFOG_START_G    (1 << 9)
+#define FOGBIT_HEIGHTFOG_START_B    (1 << 10)
+#define FOGBIT_HEIGHTFOG_START_DIST (1 << 11)
+#define FOGBIT_HEIGHTFOG_END_R      (1 << 12)
+#define FOGBIT_HEIGHTFOG_END_G      (1 << 13)
+#define FOGBIT_HEIGHTFOG_END_B      (1 << 14)
+#define FOGBIT_HEIGHTFOG_END_DIST   (1 << 15)
+
+/* Data structure for svc_fog */
+typedef struct
+{
+	short    bits;
+
+	/* Global fog */
+	float density;      // FOGBIT_DENSITY
+	byte skyfactor;     // FOGBIT_DENSITY
+	byte red;           // FOGBIT_R
+	byte green;         // FOGBIT_G
+	byte blue;          // FOGBIT_B
+	short time;         // FOGBIT_TIME
+
+	/* Height fog */
+	float hf_falloff;   // FOGBIT_HEIGHTFOG_FALLOFF
+	float hf_density;   // FOGBIT_HEIGHTFOG_DENSITY
+	byte hf_start_r;    // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_START_R
+	byte hf_start_g;    // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_START_G
+	byte hf_start_b;    // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_START_B
+	int hf_start_dist;  // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_START_DIST
+	byte hf_end_r;      // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_END_R
+	byte hf_end_g;      // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_END_G
+	byte hf_end_b;      // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_END_B
+	int hf_end_dist;    // FOGBIT_MORE_BITS | FOGBIT_HEIGHTFOG_END_DIST
+} svc_fog_data_t;
+
 size_t verify_fread(void *, size_t, size_t, FILE *);
 size_t verify_fwrite(void *, size_t, size_t, FILE *);
 

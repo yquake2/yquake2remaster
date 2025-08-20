@@ -2110,6 +2110,234 @@ spectator_respawn(edict_t *ent)
 	}
 }
 
+// [Paril-KEX] force the fog transition on the given player,
+// optionally instantaneously (ignore any transition time)
+void ForceFogTransition(edict_t *ent, qboolean instant)
+{
+	height_fog_t *hf;
+	const height_fog_t *wanted_hf;
+	svc_fog_data_t fog = {0};
+
+	hf = &ent->client->heightfog;
+	wanted_hf = &ent->client->pers.wanted_heightfog;
+
+	// sanity check; if we're not changing the values, don't bother
+	if (!memcmp(ent->client->fog, ent->client->pers.wanted_fog, sizeof(ent->client->pers.wanted_fog)) &&
+		!memcmp(hf, wanted_hf, sizeof(*wanted_hf)) &&
+		!instant)
+	{
+		return;
+	}
+
+	// check regular fog
+	if (ent->client->pers.wanted_fog[0] != ent->client->fog[0] ||
+		ent->client->pers.wanted_fog[4] != ent->client->fog[4])
+	{
+		fog.bits |= FOGBIT_DENSITY;
+		fog.density = ent->client->pers.wanted_fog[0];
+		fog.skyfactor = ent->client->pers.wanted_fog[4] * 255.f;
+	}
+
+	if (ent->client->pers.wanted_fog[1] != ent->client->fog[1])
+	{
+		fog.bits |= FOGBIT_R;
+		fog.red = ent->client->pers.wanted_fog[1] * 255.f;
+	}
+
+	if (ent->client->pers.wanted_fog[2] != ent->client->fog[2])
+	{
+		fog.bits |= FOGBIT_G;
+		fog.green = ent->client->pers.wanted_fog[2] * 255.f;
+	}
+
+	if (ent->client->pers.wanted_fog[3] != ent->client->fog[3])
+	{
+		fog.bits |= FOGBIT_B;
+		fog.blue = ent->client->pers.wanted_fog[3] * 255.f;
+	}
+
+	if (!instant && ent->client->pers.fog_transition_time)
+	{
+		fog.bits |= FOGBIT_TIME;
+		fog.time = Q_clamp(ent->client->pers.fog_transition_time * 1000,
+			0, 65535);
+	}
+
+	/* check heightfog stuff */
+	if (hf->falloff != wanted_hf->falloff)
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_FALLOFF;
+		if (!wanted_hf->falloff)
+		{
+			fog.hf_falloff = 0;
+		}
+		else
+		{
+			fog.hf_falloff = wanted_hf->falloff;
+		}
+	}
+
+	if (hf->density != wanted_hf->density)
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_DENSITY;
+
+		if (!wanted_hf->density)
+		{
+			fog.hf_density = 0;
+		}
+		else
+		{
+			fog.hf_density = wanted_hf->density;
+		}
+	}
+
+	if (hf->start[0] != wanted_hf->start[0])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_START_R;
+		fog.hf_start_r = wanted_hf->start[0] * 255.f;
+	}
+
+	if (hf->start[1] != wanted_hf->start[1])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_START_G;
+		fog.hf_start_g = wanted_hf->start[1] * 255.f;
+	}
+
+	if (hf->start[2] != wanted_hf->start[2])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_START_B;
+		fog.hf_start_b = wanted_hf->start[2] * 255.f;
+	}
+
+	if (hf->start[3] != wanted_hf->start[3])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_START_DIST;
+		fog.hf_start_dist = wanted_hf->start[3];
+	}
+
+	if (hf->end[0] != wanted_hf->end[0])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_END_R;
+		fog.hf_end_r = wanted_hf->end[0] * 255.f;
+	}
+
+	if (hf->end[1] != wanted_hf->end[1])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_END_G;
+		fog.hf_end_g = wanted_hf->end[1] * 255.f;
+	}
+
+	if (hf->end[2] != wanted_hf->end[2])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_END_B;
+		fog.hf_end_b = wanted_hf->end[2] * 255.f;
+	}
+
+	if (hf->end[3] != wanted_hf->end[3])
+	{
+		fog.bits |= FOGBIT_HEIGHTFOG_END_DIST;
+		fog.hf_end_dist = wanted_hf->end[3];
+	}
+
+	if (fog.bits & 0xFF00)
+	{
+		fog.bits |= FOGBIT_MORE_BITS;
+	}
+
+	gi.WriteByte(svc_fog);
+
+	if (fog.bits & FOGBIT_MORE_BITS)
+	{
+		gi.WriteShort(fog.bits);
+	}
+	else
+	{
+		gi.WriteByte(fog.bits);
+	}
+
+	if (fog.bits & FOGBIT_DENSITY)
+	{
+		gi.WriteFloat(fog.density);
+		gi.WriteByte(fog.skyfactor);
+	}
+
+	if (fog.bits & FOGBIT_R)
+	{
+		gi.WriteByte(fog.red);
+	}
+
+	if (fog.bits & FOGBIT_G)
+	{
+		gi.WriteByte(fog.green);
+	}
+
+	if (fog.bits & FOGBIT_B)
+	{
+		gi.WriteByte(fog.blue);
+	}
+
+	if (fog.bits & FOGBIT_TIME)
+	{
+		gi.WriteShort(fog.time);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_FALLOFF)
+	{
+		gi.WriteFloat(fog.hf_falloff);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_DENSITY)
+	{
+		gi.WriteFloat(fog.hf_density);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_START_R)
+	{
+		gi.WriteByte(fog.hf_start_r);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_START_G)
+	{
+		gi.WriteByte(fog.hf_start_g);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_START_B)
+	{
+		gi.WriteByte(fog.hf_start_b);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_START_DIST)
+	{
+		gi.WriteLong(fog.hf_start_dist);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_END_R)
+	{
+		gi.WriteByte(fog.hf_end_r);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_END_G)
+	{
+		gi.WriteByte(fog.hf_end_g);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_END_B)
+	{
+		gi.WriteByte(fog.hf_end_b);
+	}
+
+	if (fog.bits & FOGBIT_HEIGHTFOG_END_DIST)
+	{
+		gi.WriteLong(fog.hf_end_dist);
+	}
+
+	gi.unicast(ent, true);
+
+	memcpy(ent->client->fog, ent->client->pers.wanted_fog,
+		sizeof(ent->client->fog));
+	memcpy(hf, wanted_hf, sizeof(*wanted_hf));
+}
+
 /* ============================================================== */
 
 /*
@@ -2310,6 +2538,22 @@ PutClientInServer(edict_t *ent)
 		return;
 	}
 	//JABot[end]
+
+	// [Paril-KEX] set up world fog & send it instantly
+	ent->client->pers.wanted_fog[0] = world->fog.density;
+	ent->client->pers.wanted_fog[1] = world->fog.color[0];
+	ent->client->pers.wanted_fog[2] = world->fog.color[1];
+	ent->client->pers.wanted_fog[3] = world->fog.color[2];
+	ent->client->pers.wanted_fog[4] = world->fog.sky_factor;
+
+	VectorCopy(world->heightfog.start_color, ent->client->pers.wanted_heightfog.start);
+	ent->client->pers.wanted_heightfog.start[3] = world->heightfog.start_dist;
+	VectorCopy(world->heightfog.end_color, ent->client->pers.wanted_heightfog.end);
+	ent->client->pers.wanted_heightfog.end[3] = world->heightfog.end_dist;
+	ent->client->pers.wanted_heightfog.falloff = world->heightfog.falloff;
+	ent->client->pers.wanted_heightfog.density = world->heightfog.density;
+
+	ForceFogTransition(ent, true);
 
 	if (CTFStartClient(ent))
 	{

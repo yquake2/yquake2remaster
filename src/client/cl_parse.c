@@ -52,7 +52,8 @@ static const char *svc_strings[] = {
 	"svc_playerinfo",
 	"svc_packetentities",
 	"svc_deltapacketentities",
-	"svc_frame"
+	"svc_frame",
+	"svc_fog",
 };
 
 void
@@ -1648,6 +1649,10 @@ CL_ParseServerMessage(void)
 			case svc_layout:
 				s = MSG_ReadString(&net_message);
 				Q_strlcpy(cl.layout, s, sizeof(cl.layout));
+				break;
+
+			case svc_fog:
+				CL_AddFog(&cl.fog);
 				break;
 
 			case svc_playerinfo:

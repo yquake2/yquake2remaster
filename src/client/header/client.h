@@ -179,6 +179,9 @@ typedef struct
 
 	clientinfo_t	clientinfo[MAX_CLIENTS];
 	clientinfo_t	baseclientinfo;
+
+	/* fog */
+	svc_fog_data_t	fog;
 } client_state_t;
 
 extern	client_state_t	cl;
@@ -426,6 +429,7 @@ void CL_WidowSplash (vec3_t org);
 void CL_ParseTEnt (void);
 void CL_AddMuzzleFlash (void);
 void CL_AddMuzzleFlash2 (void);
+void CL_AddFog (svc_fog_data_t *fog);
 void SmokeAndFlash(vec3_t origin);
 
 void CL_SetLightstyle (int i);

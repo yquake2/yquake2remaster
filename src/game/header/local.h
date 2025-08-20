@@ -46,6 +46,7 @@
 #define svc_layout 4
 #define svc_inventory 5
 #define svc_stufftext 11
+#define svc_fog 21
 
 /* ================================================================== */
 
@@ -1175,6 +1176,7 @@ void spawngrow_think(edict_t *self);
 
 /* p_client.c */
 void RemoveAttackingPainDaemons(edict_t *self);
+void ForceFogTransition(edict_t *ent, qboolean instant);
 
 /* ============================================================================ */
 
@@ -1403,6 +1405,10 @@ struct gclient_s
 	int use;
 	int zoom;
 	int delayedstart;
+
+	/* sync fog */
+	float fog[5];
+	height_fog_t heightfog;
 };
 
 typedef struct {
