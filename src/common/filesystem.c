@@ -99,6 +99,7 @@ typedef struct fsSearchPath_s
 
 typedef enum
 {
+	WAD,
 	DAT,
 	SIN,
 	PAK,
@@ -118,6 +119,7 @@ fsSearchPath_t *fs_baseSearchPaths = NULL;
 
 /* Pack formats / suffixes. */
 fsPackTypes_t fs_packtypes[] = {
+	{"wad", WAD},
 	{"dat", DAT},
 	{"sin", SIN},
 	{"pak", PAK},
@@ -1022,6 +1024,105 @@ FS_FreeSearchPaths(fsSearchPath_t *start, fsSearchPath_t *end)
 }
 
 static fsPack_t *
+FS_LoadWAD(const char *packPath)
+{
+	int i; /* Loop counter. */
+	int numFiles; /* Number of files in WAD. */
+	FILE *handle; /* File handle. */
+	fsPackFile_t *files; /* List of files in WAD. */
+	fsPack_t *pack; /* WAD file. */
+	dwadheader_t header; /* WAD file header. */
+	dwadfile_t *info = NULL; /* WAD info. */
+
+	handle = Q_fopen(packPath, "rb");
+
+	if (handle == NULL)
+	{
+		return NULL;
+	}
+
+	if (fread(&header, sizeof(dwadheader_t), 1, handle) != 1)
+	{
+		fclose(handle);
+		Com_Printf("%s: '%s' too short file\n",
+			__func__, packPath);
+		return NULL;
+	}
+
+	if (LittleLong(header.ident) != IWADHEADER &&
+		LittleLong(header.ident) != PWADHEADER)
+	{
+		fclose(handle);
+		Com_Printf("%s: '%s' is not a wad file\n",
+			__func__, packPath);
+		return NULL;
+	}
+
+	header.dirofs = LittleLong(header.dirofs);
+	numFiles = LittleLong(header.dirlen);
+	header.dirlen = numFiles * sizeof(dwadfile_t);
+
+	if ((numFiles == 0) || (header.dirlen < 0) || (header.dirofs < 0))
+	{
+		fclose(handle);
+		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
+				__func__, packPath);
+	}
+
+	if (numFiles > MAX_FILES_IN_PACK)
+	{
+		Com_Printf("%s: '%s' has %i > %i files\n",
+				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
+	}
+
+	info = malloc(header.dirlen);
+	if (!info)
+	{
+		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
+				__func__, packPath, header.dirlen);
+	}
+
+	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
+
+	if (fseek(handle, header.dirofs, SEEK_SET))
+	{
+		free(info);
+		Z_Free(files);
+		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
+	}
+
+	if (fread(info, header.dirlen, 1, handle) != 1)
+	{
+		free(info);
+		Z_Free(files);
+		Com_Error(ERR_FATAL, "%s: '%s' is too short", __func__, packPath);
+	}
+
+	/* Parse the directory. */
+	for (i = 0; i < numFiles; i++)
+	{
+		Q_strlcpy(files[i].name, info[i].name,
+			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
+		files[i].offset = LittleLong(info[i].filepos);
+		files[i].size = LittleLong(info[i].filelen);
+		files[i].compressed_size = 0;
+		files[i].format = PAK_MODE_Q2;
+	}
+	free(info);
+
+	pack = Z_Malloc(sizeof(fsPack_t));
+	Q_strlcpy(pack->name, packPath, sizeof(pack->name));
+	pack->pak = handle;
+	pack->pk3 = NULL;
+	pack->numFiles = numFiles;
+	pack->files = files;
+
+	Com_Printf("Added wadfile '%s' (%i files).\n", pack->name, numFiles);
+
+	return pack;
+}
+
+static fsPack_t *
 FS_LoadDAT(const char *packPath)
 {
 	int i; /* Loop counter. */
@@ -1232,7 +1333,7 @@ FS_LoadSIN(const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		Q_strlcpy(files[i].name, info[i].name,
-			Q_min(sizeof(files[i].name), sizeof(files[i].name)));
+			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
@@ -1309,7 +1410,7 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		Q_strlcpy(files[i].name, info[i].name,
-			Q_min(sizeof(files[i].name), sizeof(files[i].name)));
+			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
@@ -1380,7 +1481,7 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	for (i = 0; i < numFiles; i++)
 	{
 		Q_strlcpy(files[i].name, info[i].name,
-			Q_min(sizeof(files[i].name), sizeof(files[i].name)));
+			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		if (info[i].is_compressed)
@@ -2203,6 +2304,9 @@ FS_AddPAKFromGamedir(const char *pak)
 
 		switch (fs_packtypes[i].format)
 		{
+			case WAD:
+				pakfile = FS_LoadWAD(path);
+				break;
 			case DAT:
 				pakfile = FS_LoadDAT(path);
 				break;
@@ -2283,6 +2387,27 @@ static char* basename( char* n )
 #endif // _MSC_VER
 
 static void
+FS_AddKPFpack(void)
+{
+	fsPack_t *pack = NULL;
+	fsSearchPath_t *search;
+
+	/* remaster additional files */
+	pack = FS_LoadPK3("Q2Game.kpf");
+	if (pack)
+	{
+		pack->isProtectedPak = true;
+
+		FS_SortPack(pack);
+
+		search = Z_Malloc(sizeof(fsSearchPath_t));
+		search->pack = pack;
+		search->next = fs_searchPaths;
+		fs_searchPaths = search;
+	}
+}
+
+static void
 FS_AddDirToSearchPath(char *dir, qboolean create) {
 	char *file;
 	char **list;
@@ -2318,20 +2443,6 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 	search->next = fs_searchPaths;
 	fs_searchPaths = search;
 
-	/* remaster additional files */
-	pack = FS_LoadPK3("Q2Game.kpf");
-	if (pack)
-	{
-		pack->isProtectedPak = true;
-
-		FS_SortPack(pack);
-
-		search = Z_Malloc(sizeof(fsSearchPath_t));
-		search->pack = pack;
-		search->next = fs_searchPaths;
-		fs_searchPaths = search;
-	}
-
 	// Numbered paks contain the official game data, they
 	// need to be added first and are marked protected.
 	// Files from protected paks are never offered for
@@ -2344,6 +2455,15 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 
 			switch (fs_packtypes[i].format)
 			{
+				case WAD:
+					pack = FS_LoadWAD(path);
+
+					if (pack)
+					{
+						pack->isProtectedPak = true;
+					}
+
+					break;
 				case DAT:
 					pack = FS_LoadDAT(path);
 
@@ -2444,6 +2564,9 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 
 			switch (fs_packtypes[i].format)
 			{
+				case WAD:
+					pack = FS_LoadWAD(list[j]);
+					break;
 				case DAT:
 					pack = FS_LoadDAT(list[j]);
 					break;
@@ -2478,7 +2601,8 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 }
 
 static void
-FS_BuildGenericSearchPath(void) {
+FS_BuildGenericSearchPath(void)
+{
 	// We may not use the va() function from shared.c
 	// since it's buffersize is 1024 while most OS have
 	// a maximum path size of 4096...
@@ -2779,6 +2903,7 @@ FS_InitFilesystem(void)
 
 	// Build search path
 	FS_BuildRawPath();
+	FS_AddKPFpack();
 	FS_BuildGenericSearchPath();
 
 	if (fs_gamedirvar->string[0] != '\0')

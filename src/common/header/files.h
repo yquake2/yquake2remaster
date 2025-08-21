@@ -27,6 +27,23 @@
 #ifndef CO_FILES_H
 #define CO_FILES_H
 
+/* The .wad files are just a linear collapse of a directory tree */
+
+#define IWADHEADER (('D' << 24) + ('A' << 16) + ('W' << 8) + 'I')
+#define PWADHEADER (('D' << 24) + ('A' << 16) + ('W' << 8) + 'P')
+
+typedef struct {
+	int ident;	 /* == IWADHEADER | PWADHEADER */
+	int dirlen;
+	int dirofs;
+} dwadheader_t;
+
+typedef struct {
+	int filepos;
+	int filelen;
+	char name[8];
+} dwadfile_t;
+
 /* The .dat files are just a linear collapse of a directory tree */
 
 #define DATHEADER (('T' << 24) + ('A' << 16) + ('D' << 8) + 'A')
