@@ -41,7 +41,7 @@ typedef struct
 	int			last_node;
 
 } player_dropping_nodes_t;
-player_dropping_nodes_t	player;
+static player_dropping_nodes_t player;
 
 //===========================================================
 //
@@ -319,7 +319,7 @@ AI_WaterJumpNode(void)
 
 	} else {
 
-		AI_UpdateNodeEdge( player.last_node, closest_node );
+		AI_UpdateNodeEdge(player.last_node, closest_node);
 		player.last_node = closest_node; // zero out so other nodes will not be linked
 	}
 }
@@ -384,7 +384,7 @@ AI_PathMap(void)
 	}
 
 	//player just touched the ground
-	if ( player.was_falling == true)
+	if (player.was_falling == true)
 	{
 		if ( !player.ent->groundentity ) //not until it REALLY touches ground
 			return;
@@ -436,7 +436,7 @@ AI_PathMap(void)
 		// Now add link
 		if (player.last_node != -1)
 		{
-			AI_UpdateNodeEdge( player.last_node, closest_node );
+			AI_UpdateNodeEdge(player.last_node, closest_node);
 		}
 	}
 	else if (closest_node != player.last_node && player.last_node != INVALID)
