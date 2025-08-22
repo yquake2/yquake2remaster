@@ -74,7 +74,7 @@ typedef struct entity_s {
 
 	int		lightstyle; /* for flashing entities */
 	float	alpha; /* ignore if RF_TRANSLUCENT isn't set */
-	int		color; /* used for sprite with FLARE */
+	unsigned	color; /* used for sprite with FLARE */
 
 	struct image_s	*skin; /* NULL for inline skin */
 	int		flags;
