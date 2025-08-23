@@ -98,6 +98,19 @@ Sound support:
 | ogg    | Yes   | Yes     |
 | mp3    | No    | Yes     |
 
+Package file support:
+
+| Format | Description                        |
+| ------ | ---------------------------------- |
+| dat    | Anachronox                         |
+| pak    | Quake, Quake 2, Daikatana, Kingpin |
+| sin    | SiN                                |
+| wad    | Doom, Doom 2                       |
+| pk2    | Quake 2 Mods                       |
+| pk3    | Quake 2 Mods, Quake 3              |
+| pkz    | Quake 2 Mods                       |
+| zip    | Quake 2 Mods                       |
+
 Note:
 
 * Non Quake 2 maps are limited mostly view only, and could have issues
