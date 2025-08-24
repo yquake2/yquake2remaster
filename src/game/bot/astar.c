@@ -386,7 +386,7 @@ AStar_ResolvePath(int origin, int goal, int movetypes, struct astarpath_s *path)
 
 	while (!AStar_nodeIsInOpen(goalNode))
 	{
-		if(!AStar_FillLists())
+		if (!AStar_FillLists())
 		{
 			return false;	//failed
 		}

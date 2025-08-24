@@ -78,7 +78,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxmesh_t *mesh_nodes;
 	void *extradata;
 	const hlmdl_sequence_t *sequences;
-	size_t i, num_tris, total_frames, framesize;
+	size_t i, num_tris, framesize;
+	int total_frames;
 	hlmdl_bodypart_t *bodyparts;
 
 	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
@@ -201,6 +202,9 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_frames = 0; /* total_frames; */
 	dmdxheader.num_animgroup = pinmodel.num_seq;
+
+	Com_DPrintf("%s: %s has %d frames\n",
+		__func__, mod_name, total_frames);
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 

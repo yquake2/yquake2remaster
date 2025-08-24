@@ -64,7 +64,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	{
 		// Move to the center
 		self->ai->move_vector[2] = 0; // kill z movement
-		if(VectorLength(self->ai->move_vector) > 10)
+		if (VectorLength(self->ai->move_vector) > 10)
 		{
 			ucmd->forwardmove = 200; // walk to center
 		}
@@ -110,7 +110,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Falling off ledge
-	if(!self->groundentity && !self->is_step && !self->is_swim )
+	if (!self->groundentity && !self->is_step && !self->is_swim )
 	{
 		AI_ChangeAngle(self);
 		if (current_link_type == LINK_JUMPPAD)
@@ -182,7 +182,7 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Check to see if stuck, and if so try to free us
-	if(VectorLength(self->velocity) < 37)
+	if (VectorLength(self->velocity) < 37)
 	{
 		// Keep a random factor just in case....
 		if (random() > 0.1 && AI_SpecialMove(self, ucmd)) //jumps, crouches, turns...
@@ -218,7 +218,7 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	vec3_t  temp;
 
 	// Do not move
-	if(self->ai->next_move_time > level.time)
+	if (self->ai->next_move_time > level.time)
 	{
 		return;
 	}
@@ -229,9 +229,9 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Special check for elevators, stand still until the ride comes to a complete stop.
-	if(self->groundentity != NULL && self->groundentity->use == Use_Plat)
+	if (self->groundentity != NULL && self->groundentity->use == Use_Plat)
 	{
-		if(self->groundentity->moveinfo.state == STATE_UP ||
+		if (self->groundentity->moveinfo.state == STATE_UP ||
 		   self->groundentity->moveinfo.state == STATE_DOWN)
 		{
 			self->velocity[0] = 0;
@@ -276,7 +276,7 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	{
 		self->s.angles[YAW] += random() * 360 - 180;
 		ucmd->forwardmove = 400;
-		if(self->groundentity)
+		if (self->groundentity)
 		{
 			ucmd->upmove = 400;
 		}
@@ -289,9 +289,9 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 	}
 
 	// Check for special movement
-	if(VectorLength(self->velocity) < 37)
+	if (VectorLength(self->velocity) < 37)
 	{
-		if(random() > 0.1 && AI_SpecialMove(self,ucmd))	//jumps, crouches, turns...
+		if (random() > 0.1 && AI_SpecialMove(self,ucmd))	//jumps, crouches, turns...
 		{
 			return;
 		}
@@ -340,7 +340,7 @@ BOT_DMclass_CombatMovement(edict_t *self, usercmd_t *ucmd)
 	//it to dodge, but still follow paths, chasing enemy or
 	//running away... hmmm... maybe it will need 2 different BOT_STATEs
 
-	if(!self->enemy)
+	if (!self->enemy)
 	{
 
 		// do whatever (tmp move wander)
@@ -367,7 +367,7 @@ BOT_DMclass_CombatMovement(edict_t *self, usercmd_t *ucmd)
 	{
 		ucmd->forwardmove += 400;
 	}
-	else if(c < 0.8 && AI_CanMove(self,BOT_MOVE_BACK))
+	else if (c < 0.8 && AI_CanMove(self,BOT_MOVE_BACK))
 	{
 		ucmd->forwardmove -= 400;
 	}
@@ -375,7 +375,7 @@ BOT_DMclass_CombatMovement(edict_t *self, usercmd_t *ucmd)
 	VectorSubtract( self->s.origin, self->enemy->s.origin, attackvector);
 	dist = VectorLength( attackvector);
 
-	if(dist < 75)
+	if (dist < 75)
 	{
 		ucmd->forwardmove -= 200;
 	}
@@ -422,7 +422,7 @@ BOT_DMclass_FindEnemy(edict_t *self)
 	vec3_t		dist;
 
 	// we already set up an enemy this frame (reacting to attacks)
-	if(self->enemy != NULL)
+	if (self->enemy != NULL)
 		return true;
 
 	// Find Enemy
@@ -433,7 +433,7 @@ BOT_DMclass_FindEnemy(edict_t *self)
 			continue;
 
 		//Ignore players with 0 weight (was set at botstatus)
-		if(self->ai->status.playersWeights[i] == 0)
+		if (self->ai->status.playersWeights[i] == 0)
 			continue;
 
 		if (!AIEnemies[i]->deadflag && visible(self, AIEnemies[i]) &&
@@ -461,7 +461,7 @@ BOT_DMclass_FindEnemy(edict_t *self)
 	}
 
 	// If best enemy, set up
-	if(bestenemy)
+	if (bestenemy)
 	{
 //		if (AIDevel.debugChased && bot_showcombat->value && bestenemy->ai->is_bot)
 //			gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: selected %s as enemy.\n",
@@ -490,7 +490,7 @@ BOT_DMClass_ChangeWeapon(edict_t *ent, gitem_t *item)
 		return true;
 
 	// Has not picked up weapon yet
-	if(!ent->client->pers.inventory[ITEM_INDEX(item)])
+	if (!ent->client->pers.inventory[ITEM_INDEX(item)])
 		return false;
 
 	// Do we have ammo for it?
@@ -525,7 +525,7 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	int		weapon_range = 0;
 
 	// if no enemy, then what are we doing here?
-	if(!self->enemy)
+	if (!self->enemy)
 		return;
 
 	if (self->ai->changeweapon_timeout > level.time)
@@ -535,13 +535,13 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	VectorSubtract (self->s.origin, self->enemy->s.origin, v);
 	dist = VectorLength(v);
 
-	if(dist < 150)
+	if (dist < 150)
 		weapon_range = AIWEAP_MELEE_RANGE;
 
-	else if(dist < 500)	//Medium range limit is Grenade Laucher range
+	else if (dist < 500)	//Medium range limit is Grenade Laucher range
 		weapon_range = AIWEAP_SHORT_RANGE;
 
-	else if(dist < 900)
+	else if (dist < 900)
 		weapon_range = AIWEAP_MEDIUM_RANGE;
 
 	else
@@ -650,7 +650,7 @@ BOT_DMclass_FireWeapon(edict_t *self, usercmd_t *ucmd)
 	if (firedelay > (MAX_BOT_SKILL - self->ai->pers.skillLevel) && BOT_DMclass_CheckShot(self, target))
 		ucmd->buttons = BUTTON_ATTACK;
 
-	//if(AIDevel.debugChased && bot_showcombat->integer)
+	//if (AIDevel.debugChased && bot_showcombat->integer)
 	//	gi.cprintf(AIDevel.devguy, PRINT_HIGH, "%s: attacking %s\n",self->bot.pers.netname ,self->enemy->r.client->pers.netname);
 }
 
@@ -669,12 +669,12 @@ BOT_DMclass_WeightPlayers(edict_t *self)
 
 	for(i = 0; i < num_AIEnemies; i++)
 	{
-		if(AIEnemies[i] == NULL)
+		if (AIEnemies[i] == NULL)
 		{
 			continue;
 		}
 
-		if(AIEnemies[i] == self)
+		if (AIEnemies[i] == self)
 		{
 			continue;
 		}
@@ -1003,7 +1003,7 @@ BOT_DMclass_RunFrame(edict_t *self)
 	{
 		BOT_DMclass_Move( self, &ucmd );
 	}
-	else if(self->ai->state == BOT_STATE_ATTACK)
+	else if (self->ai->state == BOT_STATE_ATTACK)
 	{
 		BOT_DMclass_CombatMovement( self, &ucmd );
 	}

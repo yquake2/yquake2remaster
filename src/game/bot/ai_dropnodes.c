@@ -104,12 +104,12 @@ AI_UpdateNodeEdge(int from, int to)
 {
 	int	link;
 
-	if(from == -1 || to == -1 || from == to)
+	if (from == -1 || to == -1 || from == to)
 	{
 		return; // safety
 	}
 
-	if(AI_PlinkExists(from, to))
+	if (AI_PlinkExists(from, to))
 	{
 		link = AI_PlinkMoveType(from, to);
 	}
@@ -147,10 +147,10 @@ AI_DropLadderNodes(edict_t *self)
 	trace_t trace;
 
 	//find top & bottom of the ladder
-	VectorCopy( self->s.origin, torigin );
-	VectorCopy( self->s.origin, borigin );
+	VectorCopy(self->s.origin, torigin);
+	VectorCopy(self->s.origin, borigin);
 
-	while( AI_IsLadder( torigin, self->client->ps.viewangles, self->mins, self->maxs, self) )
+	while (AI_IsLadder(torigin, self->client->ps.viewangles, self->mins, self->maxs, self))
 	{
 		torigin[2]++;
 	}
@@ -169,8 +169,8 @@ AI_DropLadderNodes(edict_t *self)
 	else
 	{	//it wasn't so easy
 
-		trace = gi.trace( borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID );
-		while( AI_IsLadder( borigin, self->client->ps.viewangles, self->mins, self->maxs, self)
+		trace = gi.trace(borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID);
+		while (AI_IsLadder( borigin, self->client->ps.viewangles, self->mins, self->maxs, self)
 			&& !trace.startsolid )
 		{
 			borigin[2]--;
@@ -218,7 +218,7 @@ AI_CheckForLadder(edict_t *self)
 
 	// If there is already a ladder node in here we've already done this ladder
 	closest_node = AI_FindClosestReachableNode( self->s.origin, self, NODE_DENSITY, NODEFLAGS_LADDER );
-	if(closest_node != -1)
+	if (closest_node != -1)
 		return false;
 
 	//proceed:
@@ -295,12 +295,9 @@ AI_WaterJumpNode(void)
 	//tmp test (should just move 1 downwards)
 	if (!(gi.pointcontents(waterorigin) & MASK_WATER))
 	{
-		int	k = 0;
-
 		while (!(gi.pointcontents(waterorigin) & MASK_WATER))
 		{
 			waterorigin[2]--;
-			k++;
 		}
 	}
 
@@ -395,7 +392,7 @@ AI_PathMap(void)
 		closest_node = AI_FindClosestReachableNode( player.ent->s.origin, player.ent, 64, NODE_ALL);
 
 		//otherwise, add a new node
-		if(closest_node == INVALID)
+		if (closest_node == INVALID)
 			closest_node = AI_AddNode( player.ent->s.origin, 0 ); //no flags = normal movement node
 
 		// Now add link
@@ -491,7 +488,7 @@ AITools_EraseNodes(void)
 
 void AITools_InitEditnodes( void )
 {
-	if(nav.loaded) {
+	if (nav.loaded) {
 		AITools_EraseNodes();
 		AI_LoadPLKFile( level.mapname );
 		//delete everything but nodes
@@ -510,7 +507,7 @@ void AITools_InitEditnodes( void )
 
 void AITools_InitMakenodes( void )
 {
-	if(nav.loaded)
+	if (nav.loaded)
 		AITools_EraseNodes();
 
 	Com_Printf("EDITNODES: on\n");
@@ -592,7 +589,7 @@ void AITools_SaveNodes( void )
 	jumplinks = AI_LinkCloseNodes_JumpPass(0);
 	Com_Printf ("Added %i new jump links\n", jumplinks);
 
-	if(!AI_SavePLKFile(level.mapname))
+	if (!AI_SavePLKFile(level.mapname))
 	{
 		Com_Printf ("Failed: Couldn't create the nodes file\n");
 	}

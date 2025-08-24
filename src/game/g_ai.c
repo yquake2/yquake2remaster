@@ -511,7 +511,7 @@ HuntTarget(edict_t *self)
 		self->monsterinfo.run(self);
 	}
 
-	if(visible(self, self->enemy))
+	if (visible(self, self->enemy))
 	{
 		VectorSubtract(self->enemy->s.origin, self->s.origin, vec);
 	}

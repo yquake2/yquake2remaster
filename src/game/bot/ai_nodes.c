@@ -166,7 +166,7 @@ AI_PredictJumpadDestity(edict_t *ent, vec3_t out)
 	tmpfloat = AI_Distance( pad_origin, floor_target_origin );
 	htime = sqrt ((tmpfloat));
 	vtime = sqrt ((target->s.origin[2] - pad_origin[2]));
-	if(!vtime) return false;
+	if (!vtime) return false;
 	htime *= 4;vtime *= 4;
 	if (htime > vtime)
 	{
@@ -586,7 +586,7 @@ AI_CreateNodesForEntities(void)
 			AI_AddNode_JumpPad( ent );
 		}
 		/* doors */
-		else if(!strcmp( ent->classname,"func_door"))
+		else if (!strcmp( ent->classname,"func_door"))
 		{
 			AI_AddNode_Door(ent);
 		}
@@ -606,7 +606,7 @@ AI_CreateNodesForEntities(void)
 		}
 
 		item_index = ITEM_INDEX(ent->item);
-		if(item_index == INVALID)
+		if (item_index == INVALID)
 		{
 			continue;
 		}

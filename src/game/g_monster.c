@@ -1162,7 +1162,7 @@ monster_start(edict_t *self)
 	self->air_finished = level.time + 12;
 	self->use = monster_use;
 
-	if(!self->max_health)
+	if (!self->max_health)
 	{
 		self->max_health = self->health;
 	}

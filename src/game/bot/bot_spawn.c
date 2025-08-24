@@ -134,7 +134,7 @@ BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 
 	// Set the name for the bot.
 	// name
-	if(strlen(name) == 0)
+	if (strlen(name) == 0)
 	{
 		snprintf(bot_name, sizeof(bot_name), "Bot%d", bot->count);
 	}
@@ -144,7 +144,7 @@ BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
 	}
 
 	// skin
-	if(strlen(skin) == 0)
+	if (strlen(skin) == 0)
 	{
 		int rnd;
 
@@ -323,7 +323,7 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 {
 	edict_t *bot;
 
-	if(!nav.loaded)
+	if (!nav.loaded)
 	{
 		Com_Printf("Can't spawn bots without a valid navigation file\n");
 		return;
@@ -342,7 +342,7 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 	bot->yaw_speed = 100;
 
 	/* To allow bots to respawn */
-	if(userinfo == NULL)
+	if (userinfo == NULL)
 	{
 		BOT_SetName(bot, name, skin, team);
 	}
@@ -377,7 +377,7 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 
 	bot->think = BOT_JoinGame;
 	bot->nextthink = level.time + (int)(random() * 6.0);
-	if(ctf->value && team != NULL)
+	if (ctf->value && team != NULL)
 	{
 		if (!Q_stricmp(team, "blue"))
 		{

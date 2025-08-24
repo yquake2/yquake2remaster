@@ -721,7 +721,7 @@ wait_and_change(edict_t* ent, void (*afterwaitfunc)(edict_t *))
 	float waittime = coop_elevator_delay->value;
 	if (coop->value && waittime > 0.0f)
 	{
-		if(ent->nextthink == 0)
+		if (ent->nextthink == 0)
 		{
 			ent->moveinfo.endfunc = afterwaitfunc;
 			ent->think = wait_and_change_think;

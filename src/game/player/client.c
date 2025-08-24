@@ -62,7 +62,7 @@ SP_FixCoopSpots(edict_t *self)
 	   This unnamed info_player_start is selected as
 	   spawnpoint for player 0, therefor none of the
 	   named info_coop_start() matches... */
-	if(Q_stricmp(level.mapname, "xware") == 0)
+	if (Q_stricmp(level.mapname, "xware") == 0)
 	{
 		if (self->s.number == 292)
 		{
@@ -1810,7 +1810,7 @@ SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 
 		if (Q_stricmp(spot->classname, "info_player_start") == 0 && index != 0)
 		{
-			while(counter < 3)
+			while (counter < 3)
 			{
 				coopspot = G_Find(coopspot, FOFS(classname), "info_player_coop");
 
@@ -2114,9 +2114,10 @@ spectator_respawn(edict_t *ent)
 // optionally instantaneously (ignore any transition time)
 void ForceFogTransition(edict_t *ent, qboolean instant)
 {
-	height_fog_t *hf;
 	const height_fog_t *wanted_hf;
 	svc_fog_data_t fog = {0};
+	unsigned bits = 0;
+	height_fog_t *hf;
 
 	hf = &ent->client->heightfog;
 	wanted_hf = &ent->client->pers.wanted_heightfog;
@@ -2133,32 +2134,32 @@ void ForceFogTransition(edict_t *ent, qboolean instant)
 	if (ent->client->pers.wanted_fog[0] != ent->client->fog[0] ||
 		ent->client->pers.wanted_fog[4] != ent->client->fog[4])
 	{
-		fog.bits |= FOGBIT_DENSITY;
+		bits |= FOGBIT_DENSITY;
 		fog.density = ent->client->pers.wanted_fog[0];
 		fog.skyfactor = ent->client->pers.wanted_fog[4] * 255.f;
 	}
 
 	if (ent->client->pers.wanted_fog[1] != ent->client->fog[1])
 	{
-		fog.bits |= FOGBIT_R;
+		bits |= FOGBIT_R;
 		fog.red = ent->client->pers.wanted_fog[1] * 255.f;
 	}
 
 	if (ent->client->pers.wanted_fog[2] != ent->client->fog[2])
 	{
-		fog.bits |= FOGBIT_G;
+		bits |= FOGBIT_G;
 		fog.green = ent->client->pers.wanted_fog[2] * 255.f;
 	}
 
 	if (ent->client->pers.wanted_fog[3] != ent->client->fog[3])
 	{
-		fog.bits |= FOGBIT_B;
+		bits |= FOGBIT_B;
 		fog.blue = ent->client->pers.wanted_fog[3] * 255.f;
 	}
 
 	if (!instant && ent->client->pers.fog_transition_time)
 	{
-		fog.bits |= FOGBIT_TIME;
+		bits |= FOGBIT_TIME;
 		fog.time = Q_clamp(ent->client->pers.fog_transition_time * 1000,
 			0, 65535);
 	}
@@ -2166,7 +2167,7 @@ void ForceFogTransition(edict_t *ent, qboolean instant)
 	/* check heightfog stuff */
 	if (hf->falloff != wanted_hf->falloff)
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_FALLOFF;
+		bits |= FOGBIT_HEIGHTFOG_FALLOFF;
 		if (!wanted_hf->falloff)
 		{
 			fog.hf_falloff = 0;
@@ -2179,7 +2180,7 @@ void ForceFogTransition(edict_t *ent, qboolean instant)
 
 	if (hf->density != wanted_hf->density)
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_DENSITY;
+		bits |= FOGBIT_HEIGHTFOG_DENSITY;
 
 		if (!wanted_hf->density)
 		{
@@ -2193,140 +2194,140 @@ void ForceFogTransition(edict_t *ent, qboolean instant)
 
 	if (hf->start[0] != wanted_hf->start[0])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_START_R;
+		bits |= FOGBIT_HEIGHTFOG_START_R;
 		fog.hf_start_r = wanted_hf->start[0] * 255.f;
 	}
 
 	if (hf->start[1] != wanted_hf->start[1])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_START_G;
+		bits |= FOGBIT_HEIGHTFOG_START_G;
 		fog.hf_start_g = wanted_hf->start[1] * 255.f;
 	}
 
 	if (hf->start[2] != wanted_hf->start[2])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_START_B;
+		bits |= FOGBIT_HEIGHTFOG_START_B;
 		fog.hf_start_b = wanted_hf->start[2] * 255.f;
 	}
 
 	if (hf->start[3] != wanted_hf->start[3])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_START_DIST;
+		bits |= FOGBIT_HEIGHTFOG_START_DIST;
 		fog.hf_start_dist = wanted_hf->start[3];
 	}
 
 	if (hf->end[0] != wanted_hf->end[0])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_END_R;
+		bits |= FOGBIT_HEIGHTFOG_END_R;
 		fog.hf_end_r = wanted_hf->end[0] * 255.f;
 	}
 
 	if (hf->end[1] != wanted_hf->end[1])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_END_G;
+		bits |= FOGBIT_HEIGHTFOG_END_G;
 		fog.hf_end_g = wanted_hf->end[1] * 255.f;
 	}
 
 	if (hf->end[2] != wanted_hf->end[2])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_END_B;
+		bits |= FOGBIT_HEIGHTFOG_END_B;
 		fog.hf_end_b = wanted_hf->end[2] * 255.f;
 	}
 
 	if (hf->end[3] != wanted_hf->end[3])
 	{
-		fog.bits |= FOGBIT_HEIGHTFOG_END_DIST;
+		bits |= FOGBIT_HEIGHTFOG_END_DIST;
 		fog.hf_end_dist = wanted_hf->end[3];
 	}
 
-	if (fog.bits & 0xFF00)
+	if (bits & 0xFF00)
 	{
-		fog.bits |= FOGBIT_MORE_BITS;
+		bits |= FOGBIT_MORE_BITS;
 	}
 
 	gi.WriteByte(svc_fog);
 
-	if (fog.bits & FOGBIT_MORE_BITS)
+	if (bits & FOGBIT_MORE_BITS)
 	{
-		gi.WriteShort(fog.bits);
+		gi.WriteShort(bits);
 	}
 	else
 	{
-		gi.WriteByte(fog.bits);
+		gi.WriteByte(bits);
 	}
 
-	if (fog.bits & FOGBIT_DENSITY)
+	if (bits & FOGBIT_DENSITY)
 	{
 		gi.WriteFloat(fog.density);
 		gi.WriteByte(fog.skyfactor);
 	}
 
-	if (fog.bits & FOGBIT_R)
+	if (bits & FOGBIT_R)
 	{
 		gi.WriteByte(fog.red);
 	}
 
-	if (fog.bits & FOGBIT_G)
+	if (bits & FOGBIT_G)
 	{
 		gi.WriteByte(fog.green);
 	}
 
-	if (fog.bits & FOGBIT_B)
+	if (bits & FOGBIT_B)
 	{
 		gi.WriteByte(fog.blue);
 	}
 
-	if (fog.bits & FOGBIT_TIME)
+	if (bits & FOGBIT_TIME)
 	{
 		gi.WriteShort(fog.time);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_FALLOFF)
+	if (bits & FOGBIT_HEIGHTFOG_FALLOFF)
 	{
 		gi.WriteFloat(fog.hf_falloff);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_DENSITY)
+	if (bits & FOGBIT_HEIGHTFOG_DENSITY)
 	{
 		gi.WriteFloat(fog.hf_density);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_START_R)
+	if (bits & FOGBIT_HEIGHTFOG_START_R)
 	{
 		gi.WriteByte(fog.hf_start_r);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_START_G)
+	if (bits & FOGBIT_HEIGHTFOG_START_G)
 	{
 		gi.WriteByte(fog.hf_start_g);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_START_B)
+	if (bits & FOGBIT_HEIGHTFOG_START_B)
 	{
 		gi.WriteByte(fog.hf_start_b);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_START_DIST)
+	if (bits & FOGBIT_HEIGHTFOG_START_DIST)
 	{
 		gi.WriteLong(fog.hf_start_dist);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_END_R)
+	if (bits & FOGBIT_HEIGHTFOG_END_R)
 	{
 		gi.WriteByte(fog.hf_end_r);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_END_G)
+	if (bits & FOGBIT_HEIGHTFOG_END_G)
 	{
 		gi.WriteByte(fog.hf_end_g);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_END_B)
+	if (bits & FOGBIT_HEIGHTFOG_END_B)
 	{
 		gi.WriteByte(fog.hf_end_b);
 	}
 
-	if (fog.bits & FOGBIT_HEIGHTFOG_END_DIST)
+	if (bits & FOGBIT_HEIGHTFOG_END_DIST)
 	{
 		gi.WriteLong(fog.hf_end_dist);
 	}
@@ -2942,7 +2943,7 @@ ClientDisconnect(edict_t *ent)
 		return;
 	}
 
-	if(ent->client->chasetoggle)
+	if (ent->client->chasetoggle)
 	{
 		ChasecamRemove(ent);
 	}

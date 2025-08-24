@@ -1430,15 +1430,13 @@ typedef struct
 /* Data structure for svc_fog */
 typedef struct
 {
-	short    bits;
-
 	/* Global fog */
 	float density;      // FOGBIT_DENSITY
 	byte skyfactor;     // FOGBIT_DENSITY
 	byte red;           // FOGBIT_R
 	byte green;         // FOGBIT_G
 	byte blue;          // FOGBIT_B
-	short time;         // FOGBIT_TIME
+	unsigned short time;         // FOGBIT_TIME
 
 	/* Height fog */
 	float hf_falloff;   // FOGBIT_HEIGHTFOG_FALLOFF

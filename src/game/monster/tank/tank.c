@@ -551,7 +551,7 @@ TankRocket(edict_t *self)
 		VectorCopy(target, vec);
 		VectorSubtract(vec, start, dir);
 	}
-	else if(random() < 0.66 || (start[2] < self->enemy->absmin[2]))
+	else if (random() < 0.66 || (start[2] < self->enemy->absmin[2]))
 	{
 		// Don't shoot at the feed if enemy is above.
 		VectorCopy(self->enemy->s.origin, vec);

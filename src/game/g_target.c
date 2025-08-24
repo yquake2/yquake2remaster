@@ -1480,7 +1480,7 @@ SP_target_earthquake(edict_t *self)
 static void
 camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
 {
-	if(self->pathtarget)
+	if (self->pathtarget)
 	{
 		edict_t* pt = NULL;
 
@@ -1493,7 +1493,7 @@ camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
 			VectorSubtract(pt->s.origin, origin, delta);
 
 			d = delta[0] * delta[0] + delta[1] * delta[1];
-			if(d == 0.0f)
+			if (d == 0.0f)
 			{
 				yaw = 0.0f;
 				pitch = (delta[2] > 0.0f) ? 90.0f : -90.0f;
@@ -1518,7 +1518,7 @@ update_target_camera_think(edict_t *self)
 	{
 		self->moveinfo.remaining_distance -= (self->moveinfo.move_speed * FRAMETIME) * 0.8f;
 
-		if(self->moveinfo.remaining_distance <= 0)
+		if (self->moveinfo.remaining_distance <= 0)
 		{
 			VectorCopy(self->movetarget->s.origin, self->s.origin);
 			self->nextthink = level.time + self->movetarget->wait;

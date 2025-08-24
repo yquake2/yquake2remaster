@@ -437,7 +437,7 @@ AI_GravityBoxStep(vec3_t origin, float scale, vec3_t destvec, vec3_t neworigin,
 
 droptofloor:
 
-	while(eternalfall < 20000)
+	while (eternalfall < 20000)
 	{
 		if (gi.pointcontents(neworigin) & MASK_WATER)
 		{
@@ -537,7 +537,7 @@ AI_RunGravityBox(int n1, int n2)
 	}
 
 	//start moving the box to o2
-	while(eternalcount < 20000000)
+	while (eternalcount < 20000000)
 	{
 		move = AI_GravityBoxStep( o1, movescale, nodes[n2].origin, v1, boxmins, boxmaxs);
 		if (move & LINK_INVALID && !(movemask & LINK_CROUCH)/*!crouched*/)
@@ -631,7 +631,6 @@ static int
 AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 {
 	int			move;
-	int			movemask = 0;
 	float		movescale = 8;
 	trace_t		trace;
 	vec3_t		boxmins, boxmaxs;
@@ -641,7 +640,9 @@ AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 
 
 	if (n1 == n2)
+	{
 		return LINK_INVALID;
+	}
 
 	//set up box
 	VectorSet( boxmins, -15, -15, -24 );
@@ -654,14 +655,14 @@ AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 		return LINK_INVALID;
 
 	//moving the box to o2 until falls. Keep last origin before falling
-	while(1)
+	while (1)
 	{
 		move = AI_GravityBoxStep( o1, movescale, nodes[n2].origin, v1, boxmins, boxmaxs);
 
 		if (move & LINK_INVALID)
+		{
 			return LINK_INVALID;
-
-		movemask |= move;
+		}
 
 		if (move & LINK_FALL)
 		{
@@ -678,7 +679,7 @@ AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 		}
 
 		eternalcount++;
-		if(eternalcount > 200000000 )
+		if (eternalcount > 200000000 )
 			gi.error ("ETERNAL COUNT\n");
 	}
 
@@ -712,7 +713,7 @@ AI_LadderLink_FindUpperNode(int node)
 			eorg[j] = nodes[i].origin[j] - nodes[node].origin[j];
 		eorg[2] = 0; //ignore height
 		xzdist = VectorLength(eorg);
-		if(xzdist > 8)	//not in our ladder
+		if (xzdist > 8)	//not in our ladder
 			continue;
 
 		if (nodes[node].origin[2] > nodes[i].origin[2])	//below
@@ -761,7 +762,7 @@ AI_LadderLink_FindLowerNode(int node)
 			eorg[j] = nodes[i].origin[j] - nodes[node].origin[j];
 		eorg[2] = 0; //ignore height
 		xzdist = VectorLength(eorg);
-		if(xzdist > 8)	//not in our ladder
+		if (xzdist > 8)	//not in our ladder
 			continue;
 
 		if (nodes[i].origin[2] > nodes[node].origin[2])	//above
@@ -800,7 +801,7 @@ AI_IsLadderLink(int n1, int n2)
 
 	xzdist = VectorLength(eorg);
 
-	if(xzdist < 0)
+	if (xzdist < 0)
 	{
 		xzdist = -xzdist;
 	}

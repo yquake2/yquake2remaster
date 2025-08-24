@@ -82,11 +82,11 @@ int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int
 
 			dist = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 
-			if(dist < closest && dist < rng)
+			if (dist < closest && dist < rng)
 			{
 				// make sure it is visible
 				tr = gi.trace( origin, mins, maxs, nodes[i].origin, passent, MASK_AISOLID);
-				if(tr.fraction == 1.0)
+				if (tr.fraction == 1.0)
 				{
 					node = i;
 					closest = dist;
@@ -109,7 +109,7 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	self->ai->goal_node = goal_node;
 	node = AI_FindClosestReachableNode( self->s.origin, self, NODE_DENSITY*3, NODE_ALL );
 
-	if(node == -1) {
+	if (node == -1) {
 		AI_SetUpMoveWander(self);
 		return;
 	}
@@ -123,7 +123,7 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	self->ai->current_node = self->ai->path.nodes[self->ai->path.numNodes];
 	//-------------------------
 
-//	if(AIDevel.debugChased && bot_showlrgoal->value)
+//	if (AIDevel.debugChased && bot_showlrgoal->value)
 //		gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL: new START NODE selected %d\n", self->ai->pers.netname, node);
 
 	self->ai->next_node = self->ai->current_node; // make sure we get to the nearest node first
@@ -144,14 +144,14 @@ AI_FollowPath(edict_t *self)
 
 	// Show the path
 	/*
-	if(bot_showpath->value)
+	if (bot_showpath->value)
 	{
 		if (AIDevel.debugChased)
 			AITools_DrawPath(self, self->ai->current_node, self->ai->goal_node);
 	}
 	*/
 
-	if((self->ai->goal_node < 0) || (self->ai->goal_node >= MAX_NODES))
+	if ((self->ai->goal_node < 0) || (self->ai->goal_node >= MAX_NODES))
 	{
 		if (bot_debugmonster->value)
 		{
@@ -165,7 +165,7 @@ AI_FollowPath(edict_t *self)
 	/* Try again? */
 	if (self->ai->node_timeout++ > 30)
 	{
-		if(self->ai->tries++ > 3)
+		if (self->ai->tries++ > 3)
 		{
 			return false;
 		}
@@ -179,7 +179,7 @@ AI_FollowPath(edict_t *self)
 	VectorSubtract( self->s.origin, nodes[self->ai->next_node].origin, v );
 	dist = VectorLength(v);
 
-	if(self->ai->current_node == -1 || self->ai->next_node == -1)
+	if (self->ai->current_node == -1 || self->ai->next_node == -1)
 	{
 		return false;
 	}
@@ -205,7 +205,7 @@ AI_FollowPath(edict_t *self)
 
 		if (self->ai->next_node == self->ai->goal_node)
 		{
-			//if(AIDevel.debugChased && bot_showlrgoal->value)
+			//if (AIDevel.debugChased && bot_showlrgoal->value)
 			//	gi.cprintf(AIDevel.chaseguy, PRINT_HIGH, "%s: GOAL REACHED!\n", self->ai->pers.netname);
 
 			// Pick a new goal
@@ -221,7 +221,7 @@ AI_FollowPath(edict_t *self)
 		}
 	}
 
-	if(self->ai->current_node == -1 || self->ai->next_node == -1)
+	if (self->ai->current_node == -1 || self->ai->next_node == -1)
 	{
 		return false;
 	}

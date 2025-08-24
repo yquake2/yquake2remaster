@@ -49,11 +49,11 @@ qboolean AI_CanMove(edict_t *self, int direction)
 	// Now check to see if move will move us off an edge
 	VectorCopy(self->s.angles,angles);
 
-	if(direction == BOT_MOVE_LEFT)
+	if (direction == BOT_MOVE_LEFT)
 		angles[1] += 90;
-	else if(direction == BOT_MOVE_RIGHT)
+	else if (direction == BOT_MOVE_RIGHT)
 		angles[1] -= 90;
-	else if(direction == BOT_MOVE_BACK)
+	else if (direction == BOT_MOVE_BACK)
 		angles[1] -=180;
 
 
@@ -68,9 +68,9 @@ qboolean AI_CanMove(edict_t *self, int direction)
 
 	tr = gi.trace( start, NULL, NULL, end, self, MASK_AISOLID );
 
-	if(tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
+	if (tr.fraction == 1.0 || tr.contents & (CONTENTS_LAVA|CONTENTS_SLIME))
 	{
-		//if(AIDevel.debugChased)	//jal: is too spammy. Temporary disabled
+		//if (AIDevel.debugChased)	//jal: is too spammy. Temporary disabled
 		//	gi.cprintf(NULL, PRINT_HIGH, "%s: move blocked\n", self->bot.botStatus.netname);
 		return false;
 	}
@@ -175,9 +175,9 @@ AI_CheckEyes(edict_t *self, usercmd_t *ucmd)
 	traceLeft = gi.trace( leftstart, NULL, NULL, focalpoint, self, MASK_AISOLID);
 
 	// Find the side with more open space and turn
-	if(traceRight.fraction != 1 || traceLeft.fraction != 1)
+	if (traceRight.fraction != 1 || traceLeft.fraction != 1)
 	{
-		if(traceRight.fraction > traceLeft.fraction)
+		if (traceRight.fraction > traceLeft.fraction)
 			self->s.angles[YAW] += (1.0 - traceLeft.fraction) * 45.0;
 		else
 			self->s.angles[YAW] += -(1.0 - traceRight.fraction) * 45.0;
@@ -366,21 +366,21 @@ qboolean AI_MoveToGoalEntity(edict_t *self, usercmd_t *ucmd)
 
 	/* If a rocket or grenade is around deal with it
 	 * Simple, but effective (could be rewritten to be more accurate) */
-	if(!Q_stricmp(self->movetarget->classname,"rocket") ||
+	if (!Q_stricmp(self->movetarget->classname,"rocket") ||
 	   !Q_stricmp(self->movetarget->classname,"grenade") ||
 	   !Q_stricmp(self->movetarget->classname,"hgrenade"))
 	{
 		VectorSubtract (self->movetarget->s.origin, self->s.origin, self->ai->move_vector);
 		AI_ChangeAngle(self);
-//		if(AIDevel.debugChased && bot_showcombat->value)
+//		if (AIDevel.debugChased && bot_showcombat->value)
 //			gi.cprintf(NULL, PRINT_HIGH, "%s: Oh crap a rocket!\n",self->ai.pers.netname);
 
 		/* strafe left/right */
-		if((rand() % 2) && AI_CanMove(self, BOT_MOVE_LEFT))
+		if ((rand() % 2) && AI_CanMove(self, BOT_MOVE_LEFT))
 		{
 			ucmd->sidemove = -400;
 		}
-		else if(AI_CanMove(self, BOT_MOVE_RIGHT))
+		else if (AI_CanMove(self, BOT_MOVE_RIGHT))
 		{
 			ucmd->sidemove = 400;
 		}

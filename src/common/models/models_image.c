@@ -63,7 +63,7 @@ Mod_LoadPicReplaceTile(byte *pic, int line, const char* name,
 
 					for (x = 0; x < width; x++)
 					{
-						char v;
+						byte v;
 
 						v = *src;
 						src++;
