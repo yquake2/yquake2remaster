@@ -56,7 +56,6 @@ qboolean AI_CanMove(edict_t *self, int direction)
 	else if (direction == BOT_MOVE_BACK)
 		angles[1] -=180;
 
-
 	// Set up the vectors
 	AngleVectors(angles, forward, right, NULL);
 
@@ -77,7 +76,6 @@ qboolean AI_CanMove(edict_t *self, int direction)
 
 	return true;// yup, can move
 }
-
 
 //===================
 //  AI_IsStep
@@ -104,7 +102,6 @@ qboolean AI_IsStep (edict_t *ent)
 	//found solid.
 	return true;
 }
-
 
 //==========================================
 // AI_IsLadder
@@ -135,7 +132,6 @@ qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, ed
 
 	return false;
 }
-
 
 //==========================================
 // AI_CheckEyes
@@ -257,7 +253,6 @@ qboolean AI_SpecialMove(edict_t *self, usercmd_t *ucmd)
 	return AI_CheckEyes(self, ucmd);
 }
 
-
 //==========================================
 // AI_ChangeAngle
 // Make the change in angles a little more gradual, not so snappy
@@ -285,7 +280,6 @@ void AI_ChangeAngle (edict_t *ent)
 
 	ideal_yaw = anglemod(ideal_angle[YAW]);
 	ideal_pitch = anglemod(ideal_angle[PITCH]);
-
 
 	// Yaw
 	if (current_yaw != ideal_yaw)

@@ -28,7 +28,6 @@
  * in NO WAY supported by Steve Yeager.
  */
 
-
 #include "ai_nodes_shared.h"
 
 //=============================================================
@@ -36,7 +35,6 @@
 //					GAME NODES LOCAL
 //
 //=============================================================
-
 
 typedef struct nav_item_s
 {

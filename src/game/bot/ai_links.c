@@ -85,7 +85,6 @@ qboolean AI_VisibleOrigins (vec3_t spot1, vec3_t spot2)
 	return false;
 }
 
-
 //==========================================
 // AI_FindDistance
 //==========================================
@@ -96,7 +95,6 @@ float AI_Distance( vec3_t o1, vec3_t o2 )
 	VectorSubtract( o2, o1, distVec );
 	return VectorLength(distVec);
 }
-
 
 //=================
 //AI_findNodeInRadius
@@ -142,7 +140,6 @@ int AI_findNodeInRadius (int from, vec3_t org, float rad, qboolean ignoreHeight)
 	return -1;
 }
 
-
 //==========================================
 // AI_FindLinkDistance
 // returns world distance between both nodes
@@ -159,13 +156,11 @@ AI_FindLinkDistance(int n1, int n2)
 	return AI_Distance(nodes[n1].origin, nodes[2].origin);
 }
 
-
 //==================================================================
 //
 //		PLINKS (nodes linking. 1 hop only. Used later for pathfinding)
 //
 //==================================================================
-
 
 //==========================================
 // AI_AddLink
@@ -200,7 +195,6 @@ AI_AddLink( int n1, int n2, int linkType)
 
 	return true;
 }
-
 
 //==========================================
 // AI_PlinkExists
@@ -242,7 +236,6 @@ int AI_PlinkMoveType(int n1, int n2)
 
 	return LINK_INVALID;
 }
-
 
 //==========================================
 // AI_IsWaterJumpLink
@@ -310,7 +303,6 @@ AI_IsWaterJumpLink(int n1, int n2)
 	return LINK_WATERJUMP;
 }
 
-
 //==========================================
 // AI_GravityBoxStep
 // move the box one step for walk movetype
@@ -353,13 +345,11 @@ AI_GravityBoxStep(vec3_t origin, float scale, vec3_t destvec, vec3_t neworigin,
 	if (yscale > ydist)
 		yscale = ydist;
 
-
 	//float move step
 	if (gi.pointcontents( origin ) & MASK_WATER)
 	{
 		angles[ROLL] = 0;
 		AngleVectors( angles, forward, NULL, up );
-
 
 		VectorMA( origin, scale, movedir, neworigin );
 		trace = gi.trace( origin, mins, maxs, neworigin, LINKS_PASSENT, MASK_NODESOLID);
@@ -495,7 +485,6 @@ AI_RunGravityBox(int n1, int n2)
 	//qboolean	crouched = false;
 	int			eternalcount = 0;
 
-
 	if (n1 == n2 )
 		return LINK_INVALID;
 
@@ -622,7 +611,6 @@ AI_GravityBoxToLink(int n1, int n2)
 	return LINK_MOVE;
 }
 
-
 //==========================================
 // AI_FindFallOrigin
 // helper for AI_IsJumpLink
@@ -637,7 +625,6 @@ AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 	vec3_t		o1;
 	vec3_t		v1;
 	int			eternalcount = 0;
-
 
 	if (n1 == n2)
 	{
@@ -685,7 +672,6 @@ AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 
 	return LINK_INVALID;
 }
-
 
 //==========================================
 // AI_LadderLink_FindUpperNode
@@ -901,7 +887,6 @@ int AI_FindLinkType(int n1, int n2)
 	return AI_GravityBoxToLink( n1, n2 );
 }
 
-
 //==========================================
 // AI_IsJumpLink
 // interpretation of this link
@@ -1011,7 +996,6 @@ AI_IsJumpLink(int n1, int n2)
 	return LINK_INVALID;
 }
 
-
 //==========================================
 // AI_LinkCloseNodes_JumpPass
 // extend radius for jump over movetype links
@@ -1058,7 +1042,6 @@ AI_LinkCloseNodes_JumpPass( int start )
 
 	return count;
 }
-
 
 //==========================================
 // AI_LinkCloseNodes

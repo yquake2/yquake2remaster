@@ -54,18 +54,15 @@ extern cvar_t *bot_debugmonster;
 #define BOT_STATE_ATTACK		3
 #define BOT_STATE_DEFEND		4
 
-
 #define BOT_MOVE_LEFT			0
 #define BOT_MOVE_RIGHT			1
 #define BOT_MOVE_FORWARD		2
 #define BOT_MOVE_BACK			3
 
-
 //acebot_items.c players table
 //----------------------------------------------------------
 extern int	num_AIEnemies;
 extern edict_t *AIEnemies[MAX_EDICTS];		// pointers to all players in the game
-
 
 //Debug & creating and linking nodes
 //----------------------------------------------------------
@@ -82,13 +79,10 @@ typedef struct
 } ai_devel_t;
 extern ai_devel_t	AIDevel;
 
-
-
 //----------------------------------------------------------
 // bot_spawn.c
 //----------------------------------------------------------
 void BOT_Respawn(edict_t *ent);
-
 
 // ai_main.c
 //----------------------------------------------------------
@@ -104,7 +98,6 @@ void AI_CategorizePosition (edict_t *ent);
 //----------------------------------------------------------
 float AI_ItemWeight(edict_t *ent, edict_t *item);
 qboolean AI_ItemIsReachable(edict_t *self,vec3_t goal);
-
 
 // ai_movement.c
 //----------------------------------------------------------
@@ -122,14 +115,12 @@ int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int
 void AI_SetGoal(edict_t *self, int goal_node);
 qboolean AI_FollowPath(edict_t *self);
 
-
 // ai_nodes.c
 //----------------------------------------------------------
 qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent );
 void AI_InitNavigationData(void);
 int AI_FlagsForNode( vec3_t origin, edict_t *passent );
 float AI_Distance( vec3_t o1, vec3_t o2 );
-
 
 // ai_tools.c
 //----------------------------------------------------------

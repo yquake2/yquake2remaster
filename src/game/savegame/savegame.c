@@ -392,7 +392,6 @@ FindMmoveByName(char *name)
 	return NULL;
 }
 
-
 /* ========================================================= */
 
 /*
@@ -1117,7 +1116,6 @@ ReadEdict(FILE *f, edict_t *ent)
 		fclose(f);
 		gi.error("%s: can't read edict", __func__);
 	}
-
 
 	for (field = fields; field->name; field++)
 	{

@@ -1207,7 +1207,6 @@ monster_start(edict_t *self)
 		self->monsterinfo.scale *= scale;
 		self->mass *= scale;
 
-
 		for (i = 0; i < 3; i++)
 		{
 			self->mins[i] *= self->rrs.scale[i];

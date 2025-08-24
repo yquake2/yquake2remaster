@@ -27,14 +27,11 @@
 
 //ACE
 
-
-
 //==========================================
 // Some CTF stuff
 //==========================================
 static gitem_t *redflag;
 static gitem_t *blueflag;
-
 
 //==========================================
 // BOT_DMclass_Move
@@ -199,13 +196,11 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 		return;
 	}
 
-
 	AI_ChangeAngle(self);
 
 	// Otherwise move as fast as we can...
 	ucmd->forwardmove = 400;
 }
-
 
 //==========================================
 // BOT_DMclass_Wander
@@ -310,7 +305,6 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 		return;
 	}
 
-
 	// Otherwise move slowly, walking wondering what's going on
 	if (AI_CanMove( self, BOT_MOVE_FORWARD))
 	{
@@ -321,7 +315,6 @@ BOT_DMclass_Wander(edict_t *self, usercmd_t *ucmd)
 		ucmd->forwardmove = -100;
 	}
 }
-
 
 //==========================================
 // BOT_DMclass_CombatMovement
@@ -381,7 +374,6 @@ BOT_DMclass_CombatMovement(edict_t *self, usercmd_t *ucmd)
 	}
 }
 
-
 //==========================================
 // BOT_DMclass_CheckShot
 // Checks if shot is blocked or if too far to shoot
@@ -405,7 +397,6 @@ BOT_DMclass_CheckShot(edict_t *ent, vec3_t	point)
 
 	return true;
 }
-
 
 //==========================================
 // BOT_DMclass_FindEnemy
@@ -475,7 +466,6 @@ BOT_DMclass_FindEnemy(edict_t *self)
 	return false;	// NO enemy
 }
 
-
 //==========================================
 // BOT_DMClass_ChangeWeapon
 //==========================================
@@ -508,7 +498,6 @@ BOT_DMClass_ChangeWeapon(edict_t *ent, gitem_t *item)
 
 	return true;
 }
-
 
 //==========================================
 // BOT_DMclass_ChooseWeapon
@@ -547,7 +536,6 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	else
 		weapon_range = AIWEAP_LONG_RANGE;
 
-
 	for(i=0; i<WEAP_TOTAL; i++)
 	{
 		if (!AIWeapons[i].weaponItem)
@@ -580,7 +568,6 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	return;
 }
 
-
 //==========================================
 // BOT_DMclass_FireWeapon
 // Fire if needed
@@ -610,7 +597,6 @@ BOT_DMclass_FireWeapon(edict_t *self, usercmd_t *ucmd)
 	//was find range. I might use it later
 	//VectorSubtract( self->s.origin, self->enemy->s.origin, attackvector);
 	//dist = VectorLength( attackvector);
-
 
 	// Aim
 	VectorCopy(self->enemy->s.origin,target);
@@ -644,7 +630,6 @@ BOT_DMclass_FireWeapon(edict_t *self, usercmd_t *ucmd)
 	vectoangles (self->ai->move_vector, angles);
 	VectorCopy(angles,self->s.angles);
 
-
 	// Set the attack
 	firedelay = random()*(MAX_BOT_SKILL*1.8);
 	if (firedelay > (MAX_BOT_SKILL - self->ai->pers.skillLevel) && BOT_DMclass_CheckShot(self, target))
@@ -653,7 +638,6 @@ BOT_DMclass_FireWeapon(edict_t *self, usercmd_t *ucmd)
 	//if (AIDevel.debugChased && bot_showcombat->integer)
 	//	gi.cprintf(AIDevel.devguy, PRINT_HIGH, "%s: attacking %s\n",self->bot.pers.netname ,self->enemy->r.client->pers.netname);
 }
-
 
 //==========================================
 // BOT_DMclass_WeightPlayers
@@ -716,7 +700,6 @@ BOT_DMclass_WeightPlayers(edict_t *self)
 	}
 }
 
-
 //==========================================
 // BOT_DMclass_WantedFlag
 // find needed flag
@@ -778,7 +761,6 @@ BOT_DMclass_WantedFlag (edict_t *self)
 	return NULL;
 }
 
-
 //==========================================
 // BOT_DMclass_WeightInventory
 // weight items up or down based on bot needs
@@ -794,7 +776,6 @@ BOT_DMclass_WeightInventory(edict_t *self)
 
 	//reset with persistant values
 	memcpy(self->ai->status.inventoryWeights, self->ai->pers.inventoryWeights, sizeof(self->ai->pers.inventoryWeights));
-
 
 	//weight ammo down if bot doesn't have the weapon for it,
 	//or denny weight for it, if bot is packed up.
@@ -855,7 +836,6 @@ BOT_DMclass_WeightInventory(edict_t *self)
 	else if (!client->pers.inventory[ITEM_INDEX(AIWeapons[WEAP_RAILGUN].weaponItem)] )
 		self->ai->status.inventoryWeights[ITEM_INDEX(AIWeapons[WEAP_RAILGUN].ammoItem)] *= LowNeedFactor;
 
-
 	//WEAPONS
 	//-----------------------------------------------------
 
@@ -879,7 +859,6 @@ BOT_DMclass_WeightInventory(edict_t *self)
 
 	if (!AI_CanUseArmor ( FindItemByClassname("item_armor_body"), self ))
 		self->ai->status.inventoryWeights[ITEM_INDEX(FindItemByClassname("item_armor_body"))] = 0.0;
-
 
 	//TECH :
 	//-----------------------------------------------------
@@ -909,7 +888,6 @@ BOT_DMclass_WeightInventory(edict_t *self)
 			self->ai->status.inventoryWeights[ITEM_INDEX(redflag)] = 0.0;
 	}
 }
-
 
 //==========================================
 // BOT_DMclass_UpdateStatus
@@ -943,7 +921,6 @@ BOT_DMclass_UpdateStatus(edict_t *self)
 	BOT_DMclass_WeightPlayers( self );		//weight players
 }
 
-
 //==========================================
 // BOT_DMClass_BloquedTimeout
 // the bot has been bloqued for too long
@@ -956,7 +933,6 @@ BOT_DMClass_BloquedTimeout(edict_t *self)
 	self->die(self, self, self, 100000, vec3_origin);
 	self->nextthink = level.time + FRAMETIME;
 }
-
 
 //==========================================
 // BOT_DMclass_DeadFrame
@@ -973,7 +949,6 @@ BOT_DMclass_DeadFrame(edict_t *self)
 	ClientThink(self, &ucmd);
 	self->nextthink = level.time + FRAMETIME;
 }
-
 
 //==========================================
 // BOT_DMclass_RunFrame
@@ -1025,7 +1000,6 @@ BOT_DMclass_RunFrame(edict_t *self)
 	ClientThink( self, &ucmd );
 	self->nextthink = level.time + FRAMETIME;
 }
-
 
 //==========================================
 // BOT_DMclass_InitPersistant

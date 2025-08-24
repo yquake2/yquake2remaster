@@ -31,7 +31,6 @@
 #include "../header/local.h"
 #include "ai_local.h"
 
-
 //==========================================
 // AI_FindCost
 // Determine cost of moving from one node to another
@@ -45,7 +44,6 @@ int AI_FindCost(int from, int to, int movetypes)
 
 	return path.numNodes;
 }
-
 
 //==========================================
 // AI_FindClosestReachableNode
@@ -97,7 +95,6 @@ int AI_FindClosestReachableNode( vec3_t origin, edict_t *passent, int range, int
 	return node;
 }
 
-
 //==========================================
 // AI_SetGoal
 // set the goal //jabot092
@@ -129,7 +126,6 @@ void AI_SetGoal(edict_t *self, int goal_node)
 	self->ai->next_node = self->ai->current_node; // make sure we get to the nearest node first
 	self->ai->node_timeout = 0;
 }
-
 
 //==========================================
 // AI_FollowPath

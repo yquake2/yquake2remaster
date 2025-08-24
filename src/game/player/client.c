@@ -2504,7 +2504,6 @@ PutClientInServer(edict_t *ent)
 		client->ps.gunindex = 0;
 	}
 
-
 	/* clear entity state values */
 	ent->s.effects = 0;
 	ent->s.skinnum = ent - g_edicts - 1;

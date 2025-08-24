@@ -31,7 +31,6 @@
 #include "../header/local.h"
 #include "ai_local.h"
 
-
 //==========================================
 // AIDebug_ToogleBotDebug
 //==========================================
@@ -60,7 +59,6 @@ void AIDebug_ToogleBotDebug(void)
 	AIDevel.debugMode = true;
 */
 }
-
 
 //==========================================
 // AIDebug_SetChased
@@ -98,13 +96,9 @@ void AIDebug_SetChased(edict_t *ent)
 */
 }
 
-
-
 //=======================================================================
 //							NODE TOOLS
 //=======================================================================
-
-
 
 //==========================================
 // AITools_DrawLine
@@ -120,7 +114,6 @@ void AITools_DrawLine(vec3_t origin, vec3_t dest)
 	VectorCopy ( dest, event->s.origin2 );
 */
 }
-
 
 //==========================================
 // AITools_DrawPath
@@ -142,7 +135,7 @@ void AITools_DrawPath(edict_t *self, int node_from, int node_to)
 		return;
 
 	//find position in stored path
-	while( self->ai.path->nodes[pos] != node_from )
+	while (self->ai.path->nodes[pos] != node_from)
 	{
 		pos++;
 		if (self->ai.path->goalNode == self->ai.path->nodes[pos])
@@ -150,7 +143,7 @@ void AITools_DrawPath(edict_t *self, int node_from, int node_to)
 	}
 
 	// Now set up and display the path
-	while( self->ai.path->nodes[pos] != node_to && count < 32)
+	while (self->ai.path->nodes[pos] != node_to && count < 32)
 	{
 		edict_t		*event;
 
@@ -206,10 +199,8 @@ AITools_ShowPlinks(void)
 */
 }
 
-
 //=======================================================================
 //=======================================================================
-
 
 //==========================================
 // AITools_Frame
@@ -224,5 +215,4 @@ void AITools_Frame(void)
 		AITools_ShowPlinks();
 	}
 }
-
 

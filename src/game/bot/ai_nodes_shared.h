@@ -77,7 +77,6 @@
 
 #define LINK_INVALID			0x00001000
 
-
 typedef struct nav_plink_s
 {
 	int			numLinks;
@@ -86,7 +85,6 @@ typedef struct nav_plink_s
 	int			moveType[NODES_MAX_PLINKS];
 
 } nav_plink_t;
-
 
 typedef struct nav_node_s
 {

@@ -2403,7 +2403,6 @@ SpawnItem(edict_t *ent, gitem_t *item)
 	}
 }
 
-
 void
 P_ToggleFlashlight(edict_t *ent, qboolean state)
 {
@@ -2432,7 +2431,6 @@ static const gitem_t gameitemlist[] = {
 	{
 		NULL
 	}, /* leave index 0 alone */
-
 
 	/*
 	 * QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN

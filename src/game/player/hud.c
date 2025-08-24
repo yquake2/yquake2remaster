@@ -75,7 +75,6 @@ MoveClientToIntermission(edict_t *ent)
 
 	ent->client->ps.rdflags &= ~RDF_IRGOGGLES;
 
-
 	ent->viewheight = 0;
 	ent->s.modelindex = 0;
 	ent->s.modelindex2 = 0;

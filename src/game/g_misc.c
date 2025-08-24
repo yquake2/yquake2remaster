@@ -1661,7 +1661,6 @@ SP_misc_explobox(edict_t *self)
 	gi.linkentity(self);
 }
 
-
 /* ===================================================== */
 
 /*

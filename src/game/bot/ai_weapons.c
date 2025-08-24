@@ -41,7 +41,6 @@ ai_weapon_t		AIWeapons[WEAP_TOTAL];
 //WEAP_BFG
 //WEAP_GRAPPLE
 
-
 //==========================================
 // AI_InitAIWeapons
 //
@@ -162,12 +161,4 @@ void AI_InitAIWeapons (void)
 	AIWeapons[WEAP_GRAPPLE].ammoItem = NULL;		//doesn't use ammo
 
 }
-
-
-
-
-
-
-
-
 

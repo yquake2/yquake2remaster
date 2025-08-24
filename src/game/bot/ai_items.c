@@ -88,9 +88,6 @@ void AI_EnemyRemoved(edict_t *ent)
 	num_AIEnemies--;
 }
 
-
-
-
 extern gitem_armor_t jacketarmor_info;
 extern gitem_armor_t combatarmor_info;
 extern gitem_armor_t bodyarmor_info;
@@ -119,7 +116,6 @@ qboolean AI_CanUseArmor (gitem_t *item, edict_t *other)
 	if (item->tag == ARMOR_SHARD)
 		return true;
 
-
 	// get info on old armor
 	if (old_armor_index == ITEM_INDEX(FindItem("Jacket Armor")))
 		oldinfo = &jacketarmor_info;
@@ -127,7 +123,6 @@ qboolean AI_CanUseArmor (gitem_t *item, edict_t *other)
 		oldinfo = &combatarmor_info;
 	else
 		oldinfo = &bodyarmor_info;
-
 
 	if (newinfo->normal_protection <= oldinfo->normal_protection)
 	{
@@ -183,7 +178,6 @@ qboolean AI_CanPick_Ammo (edict_t *ent, gitem_t *item)
 	return true;
 }
 
-
 //==========================================
 // AI_ItemIsReachable
 // Can we get there? Jalfixme: this needs much better checks
@@ -205,7 +199,6 @@ qboolean AI_ItemIsReachable(edict_t *self, vec3_t goal)
 	else
 		return false;
 }
-
 
 //==========================================
 // AI_ItemWeight

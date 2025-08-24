@@ -37,7 +37,6 @@ cvar_t *bot_debugmonster;
 
 //ACE
 
-
 //==========================================
 // AI_Init
 // Inits global parameters
@@ -116,7 +115,6 @@ void AI_SetUpMoveWander( edict_t *ent )
 	ent->ai->next_node = INVALID;
 }
 
-
 //==========================================
 // AI_ResetWeights
 // Init bot weights from bot-class weights.
@@ -129,7 +127,6 @@ void AI_ResetWeights(edict_t *ent)
 		ent->ai->pers.inventoryWeights,
 		sizeof(ent->ai->pers.inventoryWeights));
 }
-
 
 //==========================================
 // AI_ResetNavigation
@@ -155,7 +152,6 @@ AI_ResetNavigation(edict_t *ent)
 
 	VectorSet(ent->ai->move_vector, 0, 0, 0);
 }
-
 
 //==========================================
 // AI_PickLongRangeGoal
@@ -195,7 +191,6 @@ AI_PickLongRangeGoal(edict_t *self)
 		return;
 	}
 	self->ai->nearest_node_tries = 0;
-
 
 	// Items
 	for(i=0;i<nav.num_items;i++)
@@ -240,7 +235,6 @@ AI_PickLongRangeGoal(edict_t *self)
 			// goal_ent = nav.items[i].ent;
 		}
 	}
-
 
 	// Players: This should be its own function and is for now just finds a player to set as the goal.
 	for (i = 0; i < num_AIEnemies; i++)
@@ -293,7 +287,6 @@ AI_PickLongRangeGoal(edict_t *self)
 
 	AI_SetGoal(self,goal_node);
 }
-
 
 //==========================================
 // AI_PickShortRangeGoal
@@ -363,7 +356,6 @@ AI_PickShortRangeGoal(edict_t *self)
 	}
 }
 
-
 //===================
 //  AI_CategorizePosition
 //  Categorize waterlevel and groundentity/stepping
@@ -390,7 +382,6 @@ AI_CategorizePosition(edict_t *ent)
 	ent->is_swim = false;
 	ent->is_step = stepping;
 }
-
 
 //==========================================
 // AI_Think
@@ -452,5 +443,4 @@ AI_Think(edict_t *self)
 	/* run class based states machine */
 	self->ai->pers.RunFrame(self);
 }
-
 

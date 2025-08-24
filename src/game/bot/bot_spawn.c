@@ -31,14 +31,11 @@
 #include "../header/local.h"
 #include "ai_local.h"
 
-
 //===============================================================
 //
 //				BOT SPAWN
 //
 //===============================================================
-
-
 
 ///////////////////////////////////////////////////////////////////////
 // Respawn the bot
@@ -62,7 +59,6 @@ BOT_Respawn(edict_t *self)
 	AI_ResetWeights(self);
 	AI_ResetNavigation(self);
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 // Find a free client spot - //jabot092(2)
@@ -215,7 +211,6 @@ BOT_JoinCTFTeam(edict_t *ent, char *team_name)
 	int		team;
 //	edict_t	*event;
 
-
 	if (ent->client->resp.ctf_team != CTF_NOTEAM)
 		return false;
 
@@ -248,7 +243,6 @@ BOT_JoinCTFTeam(edict_t *ent, char *team_name)
 
 	return true;
 }
-
 
 //==========================================
 // BOT_DMClass_JoinGame
@@ -292,7 +286,6 @@ BOT_StartAsSpectator(edict_t *ent)
 	ent->client->ps.gunindex = 0;
 	gi.linkentity (ent);
 }
-
 
 //==========================================
 // BOT_JoinGame
@@ -391,7 +384,6 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 
 	AI_EnemyAdded(bot); // let the ai know we added another
 }
-
 
 ///////////////////////////////////////////////////////////////////////
 // Remove a bot by name or all bots

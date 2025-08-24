@@ -90,7 +90,7 @@ LocalizationInit(void)
 
 		/* get lines count */
 		curr = buf_local;
-		while(*curr)
+		while (*curr)
 		{
 			size_t linesize = 0;
 
@@ -117,7 +117,7 @@ LocalizationInit(void)
 
 		/* get lines count */
 		curr = buf_level;
-		while(*curr)
+		while (*curr)
 		{
 			size_t linesize = 0;
 
@@ -144,7 +144,7 @@ LocalizationInit(void)
 
 		/* get lines count */
 		curr = buf_strings;
-		while(*curr)
+		while (*curr)
 		{
 			size_t linesize = 0;
 
@@ -179,7 +179,7 @@ LocalizationInit(void)
 
 		/* parse lines */
 		curr = buf_local;
-		while(*curr)
+		while (*curr)
 		{
 			size_t linesize = 0;
 
@@ -285,7 +285,7 @@ LocalizationInit(void)
 
 		curr = buf_level;
 		i = 1;
-		while(*curr)
+		while (*curr)
 		{
 			char *sign, *currend;
 			size_t linesize = 0;
@@ -309,7 +309,7 @@ LocalizationInit(void)
 
 					/* replace '\' with '/' in sound path */
 					currend = sign;
-					while(*currend)
+					while (*currend)
 					{
 						if (*currend == '\\')
 						{
@@ -322,7 +322,7 @@ LocalizationInit(void)
 
 				/* replace @ in message with new line */
 				currend = curr;
-				while(*currend)
+				while (*currend)
 				{
 					if (*currend == '@')
 					{
@@ -369,7 +369,7 @@ LocalizationInit(void)
 
 		curr = buf_strings;
 		i = 1;
-		while(*curr)
+		while (*curr)
 		{
 			char *currend;
 			size_t linesize = 0;
@@ -385,7 +385,7 @@ LocalizationInit(void)
 
 			/* replace @ in message with new line */
 			currend = curr;
-			while(*currend)
+			while (*currend)
 			{
 				if (*currend == '@')
 				{

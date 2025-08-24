@@ -1784,7 +1784,7 @@ SP_target_soundfx(edict_t* self)
 
 	self->noise_index = atoi(st.noise);
 
-	switch(self->noise_index)
+	switch (self->noise_index)
 	{
 	case 1:
 		self->noise_index = gi.soundindex("world/x_alarm.wav");

@@ -31,7 +31,6 @@
 #include "../header/local.h"
 #include "ai_local.h"
 
-
 //ACE
 typedef struct
 {
@@ -48,7 +47,6 @@ static player_dropping_nodes_t player;
 //				EDIT NODES
 //
 //===========================================================
-
 
 //==========================================
 // AI_AddNode
@@ -93,8 +91,6 @@ AI_AddNode(vec3_t origin, int flagsmask)
 	return nav.num_nodes-1; // return the node added
 }
 
-
-
 //==========================================
 // AI_UpdateNodeEdge
 // Add/Update node connections (paths)
@@ -124,14 +120,11 @@ AI_UpdateNodeEdge(int from, int to)
 	}
 }
 
-
-
 //===========================================================
 //
 //			PLAYER DROPPING NODES
 //
 //===========================================================
-
 
 //==========================================
 // AI_DropLadderNodes
@@ -199,7 +192,6 @@ AI_DropLadderNodes(edict_t *self)
 	}
 }
 
-
 //==========================================
 // AI_CheckForLadder
 // Check for adding ladder nodes
@@ -225,7 +217,6 @@ AI_CheckForLadder(edict_t *self)
 	AI_DropLadderNodes( self );
 	return true;
 }
-
 
 //==========================================
 // AI_TouchWater
@@ -321,7 +312,6 @@ AI_WaterJumpNode(void)
 	}
 }
 
-
 //==========================================
 // AI_PathMap
 // This routine is called to hook in the pathing code and sets
@@ -406,12 +396,10 @@ AI_PathMap(void)
 		return;
 	}
 
-
 	//jal: I'm not sure of not having nodes in lava/slime
 	//being actually a good idea. When the bots incidentally
 	//fall inside it they don't know how to get out
 	// Lava/Slime
-
 
 	// Iterate through all nodes to make sure far enough apart
 	closest_node = AI_FindClosestReachableNode( player.ent->s.origin, player.ent, NODE_DENSITY, NODE_ALL );
@@ -447,7 +435,6 @@ AI_PathMap(void)
 	}
 }
 
-
 //==========================================
 // AI_ClientPathMap
 // Clients try to create new nodes while walking the map
@@ -464,7 +451,6 @@ AITools_DropNodes(edict_t *ent)
 	player.ent = ent;
 	AI_PathMap();
 }
-
 
 //==========================================
 //
@@ -513,9 +499,7 @@ void AITools_InitMakenodes( void )
 	Com_Printf("EDITNODES: on\n");
 }
 
-
 //-------------------------------------------------------------
-
 
 //==========================================
 // AI_SavePLKFile
@@ -559,7 +543,6 @@ AI_SavePLKFile(const char *mapname)
 
 	return true;
 }
-
 
 //===========================================================
 //

@@ -323,7 +323,6 @@ StaticSpawnSearch(const char *classname)
 	return NULL;
 }
 
-
 /*
  * Finds the spawn function for
  * the entity and calls it
@@ -1748,7 +1747,6 @@ CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 	{
 		return false;
 	}
-
 
 	VectorCopy(origin, stop);
 	stop[2] = origin[2] + entMins[2] - height;

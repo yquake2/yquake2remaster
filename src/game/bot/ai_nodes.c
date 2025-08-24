@@ -33,8 +33,6 @@
 
 //ACE
 
-
-
 //===========================================================
 //
 //				NODES
@@ -64,7 +62,6 @@ qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent )
 	return true;
 }
 
-
 //==========================================
 // AI_FlagsForNode
 // check the world and set up node flags
@@ -92,7 +89,6 @@ int AI_FlagsForNode( vec3_t origin, edict_t *passent )
 
 	return flagsmask;
 }
-
 
 //#define SHOW_JUMPAD_GUESS
 #ifdef SHOW_JUMPAD_GUESS
@@ -231,7 +227,6 @@ AI_PredictJumpadDestity(edict_t *ent, vec3_t out)
 	return true;
 }
 
-
 //==========================================
 // AI_AddNode_JumpPad
 // Drop two nodes, one at jump pad and other
@@ -283,7 +278,6 @@ AI_AddNode_JumpPad(edict_t *ent)
 	return nav.num_nodes - 1;
 }
 
-
 //==========================================
 // AI_AddNode_Door -  //jabot092(2)
 // Drop a node at each side of the door
@@ -316,7 +310,6 @@ AI_AddNode_Door(edict_t *ent)
 	door_origin[0] = (maxs[0] - mins[0]) / 2 + mins[0];
 	door_origin[1] = (maxs[1] - mins[1]) / 2 + mins[1];
 	door_origin[2] = (maxs[2] - mins[2]) / 2 + mins[2];
-
 
 	//if it moves in y axis we don't know if it's walked to north or east, so
 	// we must try dropping nodes in both directions and check for solids
@@ -391,7 +384,6 @@ AI_AddNode_Door(edict_t *ent)
 	return nav.num_nodes-1;
 }
 
-
 //==========================================
 // AI_AddNode_Platform -  //jabot092(2)
 // drop two nodes one at top, one at bottom
@@ -456,7 +448,6 @@ AI_AddNode_Platform(edict_t *ent)
 	return nav.num_nodes - 1;
 }
 
-
 //==========================================
 // AI_AddNode_Teleporter
 // Drop two nodes, one at trigger and other
@@ -513,7 +504,6 @@ AI_AddNode_Teleporter(edict_t *ent)
 	return nav.num_nodes - 1;
 }
 
-
 //==========================================
 // AI_AddNode_ItemNode
 // Used to add nodes from items
@@ -545,7 +535,6 @@ AI_AddNode_ItemNode(edict_t *ent)
 	nav.num_nodes++;
 	return nav.num_nodes-1; // return the node added
 }
-
 
 //==========================================
 // AI_CreateNodesForEntities
@@ -654,7 +643,6 @@ AI_CreateNodesForEntities(void)
 	}
 }
 
-
 //==========================================
 // AI_LoadPLKFile
 // load nodes and plinks from file
@@ -721,7 +709,6 @@ qboolean AI_LoadPLKFile( char *mapname )
 
 	return true;
 }
-
 
 //==========================================
 // AI_IsPlatformLink
@@ -989,7 +976,6 @@ AI_LinkServerNodes(int start)
 	}
 	return count;
 }
-
 
 //==========================================
 // AI_InitNavigationData
