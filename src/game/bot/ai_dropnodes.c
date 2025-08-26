@@ -31,17 +31,6 @@
 #include "../header/local.h"
 #include "ai_local.h"
 
-//ACE
-typedef struct
-{
-	edict_t		*ent;
-
-	qboolean	was_falling;
-	int			last_node;
-
-} player_dropping_nodes_t;
-static player_dropping_nodes_t player;
-
 //===========================================================
 //
 //				EDIT NODES
@@ -54,11 +43,11 @@ static player_dropping_nodes_t player;
 // Not valid to add nodes from entities nor items
 //==========================================
 static int
-AI_AddNode(vec3_t origin, int flagsmask)
+AI_AddNode(edict_t *ent, vec3_t origin, int flagsmask)
 {
 	if (nav.num_nodes + 1 > MAX_NODES)
 	{
-		return -1;
+		return INVALID;
 	}
 
 	if (flagsmask & NODEFLAGS_WATER)
@@ -66,21 +55,21 @@ AI_AddNode(vec3_t origin, int flagsmask)
 		flagsmask |= NODEFLAGS_FLOAT;
 	}
 
-	VectorCopy( origin, nodes[nav.num_nodes].origin );
+	VectorCopy(origin, nodes[nav.num_nodes].origin);
 	if (!(flagsmask & NODEFLAGS_FLOAT))
 	{
-		AI_DropNodeOriginToFloor( nodes[nav.num_nodes].origin, player.ent );
+		AI_DropNodeOriginToFloor(nodes[nav.num_nodes].origin, ent);
 	}
 
 	//if (!(flagsmask & NODEFLAGS_NOWORLD)) {	//don't spawn inside solids
 	//	trace_t	trace;
-	//	trace = gi.trace( nodes[nav.num_nodes].origin, tv(-15, -15, -8), tv(15, 15, 8), nodes[nav.num_nodes].origin, player.ent, MASK_NODESOLID );
+	//	trace = gi.trace( nodes[nav.num_nodes].origin, tv(-15, -15, -8), tv(15, 15, 8), nodes[nav.num_nodes].origin, ent, MASK_NODESOLID );
 	//	if (trace.startsolid)
-	//		return -1;
+	//		return INVALID;
 	//}
 
 	nodes[nav.num_nodes].flags = flagsmask;
-	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, player.ent );
+	nodes[nav.num_nodes].flags |= AI_FlagsForNode( nodes[nav.num_nodes].origin, ent );
 
 	if (bot_debugmonster->value)
 	{
@@ -100,7 +89,7 @@ AI_UpdateNodeEdge(int from, int to)
 {
 	int	link;
 
-	if (from == -1 || to == -1 || from == to)
+	if (from == INVALID || to == INVALID || from == to)
 	{
 		return; // safety
 	}
@@ -111,7 +100,7 @@ AI_UpdateNodeEdge(int from, int to)
 	}
 	else
 	{
-		link = AI_FindLinkType( from, to );
+		link = AI_FindLinkType(from, to);
 	}
 
 	if (bot_debugmonster->value)
@@ -150,7 +139,7 @@ AI_DropLadderNodes(edict_t *self)
 	torigin[2] += (self->mins[2] + 8);
 
 	//drop node on top
-	AI_AddNode( torigin, (NODEFLAGS_LADDER|NODEFLAGS_FLOAT) );
+	AI_AddNode(self, torigin, (NODEFLAGS_LADDER|NODEFLAGS_FLOAT));
 
 	//find bottom. Try simple first
 	trace = gi.trace( borigin, tv(-15,-15,-24), tv(15,15,0), tv(borigin[0], borigin[1], borigin[2] - 2048), self, MASK_NODESOLID );
@@ -176,18 +165,20 @@ AI_DropLadderNodes(edict_t *self)
 	}
 
 	//drop node on bottom
-	AI_AddNode(borigin, (NODEFLAGS_LADDER | NODEFLAGS_FLOAT));
+	AI_AddNode(self, borigin, (NODEFLAGS_LADDER | NODEFLAGS_FLOAT));
 
 	if (torigin[2] - borigin[2] < NODE_DENSITY)
+	{
 		return;
+	}
 
 	//make subdivisions and add nodes in between
 	step = NODE_DENSITY*0.8;
 	VectorCopy( borigin, droporigin );
 	droporigin[2] += step;
-	while ( droporigin[2] < torigin[2] - 32 )
+	while (droporigin[2] < torigin[2] - 32)
 	{
-		AI_AddNode( droporigin, (NODEFLAGS_LADDER|NODEFLAGS_FLOAT) );
+		AI_AddNode(self, droporigin, (NODEFLAGS_LADDER|NODEFLAGS_FLOAT));
 		droporigin[2] += step;
 	}
 }
@@ -210,11 +201,13 @@ AI_CheckForLadder(edict_t *self)
 
 	// If there is already a ladder node in here we've already done this ladder
 	closest_node = AI_FindClosestReachableNode( self->s.origin, self, NODE_DENSITY, NODEFLAGS_LADDER );
-	if (closest_node != -1)
+	if (closest_node != INVALID)
+	{
 		return false;
+	}
 
 	//proceed:
-	AI_DropLadderNodes( self );
+	AI_DropLadderNodes(self);
 	return true;
 }
 
@@ -223,7 +216,7 @@ AI_CheckForLadder(edict_t *self)
 // Capture when players touches water for mapping purposes.
 //==========================================
 static void
-AI_WaterJumpNode(void)
+AI_WaterJumpNode(edict_t *self)
 {
 	int			closest_node;
 	vec3_t		waterorigin;
@@ -231,28 +224,28 @@ AI_WaterJumpNode(void)
 	edict_t		ent;
 
 	//don't drop if player is riding elevator or climbing a ladder
-	if (player.ent->groundentity && player.ent->groundentity != world)
+	if (self->groundentity && self->groundentity != world)
 	{
-		if (player.ent->groundentity->classname)
+		if (self->groundentity->classname)
 		{
-			if (!strcmp( player.ent->groundentity->classname, "func_plat")
-				|| !strcmp(player.ent->groundentity->classname, "trigger_push")
-				|| !strcmp(player.ent->groundentity->classname, "func_train")
-				|| !strcmp(player.ent->groundentity->classname, "func_rotate")
-				|| !strcmp(player.ent->groundentity->classname, "func_bob")
-				|| !strcmp(player.ent->groundentity->classname, "func_door"))
+			if (!strcmp( self->groundentity->classname, "func_plat")
+				|| !strcmp(self->groundentity->classname, "trigger_push")
+				|| !strcmp(self->groundentity->classname, "func_train")
+				|| !strcmp(self->groundentity->classname, "func_rotate")
+				|| !strcmp(self->groundentity->classname, "func_bob")
+				|| !strcmp(self->groundentity->classname, "func_door"))
 			{
 				return;
 			}
 		}
 	}
-	if (AI_IsLadder(player.ent->s.origin, player.ent->client->ps.viewangles,
-		player.ent->mins, player.ent->maxs, player.ent))
+	if (AI_IsLadder(self->s.origin, self->client->ps.viewangles,
+		self->mins, self->maxs, self))
 	{
 		return;
 	}
 
-	VectorCopy( player.ent->s.origin, waterorigin );
+	VectorCopy( self->s.origin, waterorigin );
 
 	//move the origin to water limit
 	if (gi.pointcontents(waterorigin) & MASK_WATER)
@@ -262,7 +255,7 @@ AI_WaterJumpNode(void)
 			vec3_origin,
 			vec3_origin,
 			tv( waterorigin[0], waterorigin[1], waterorigin[2] + NODE_DENSITY*2 ),
-			player.ent,
+			self,
 			MASK_ALL );
 
 		VectorCopy( trace.endpos, waterorigin );
@@ -275,7 +268,7 @@ AI_WaterJumpNode(void)
 		vec3_origin,
 		vec3_origin,
 		tv( waterorigin[0], waterorigin[1], waterorigin[2] - NODE_DENSITY*2 ),
-		player.ent,
+		self,
 		MASK_WATER );
 
 	if (trace.fraction == 1.0)
@@ -292,23 +285,23 @@ AI_WaterJumpNode(void)
 		}
 	}
 
-	ent = *player.ent;
+	ent = *self;
 	VectorCopy( waterorigin, ent.s.origin);
 
 	// Look for the closest node of type water
 	closest_node = AI_FindClosestReachableNode( ent.s.origin, &ent, 32, NODEFLAGS_WATER);
-	if (closest_node == -1) // we need to drop a node
+	if (closest_node == INVALID) // we need to drop a node
 	{
-		closest_node = AI_AddNode( waterorigin, (NODEFLAGS_WATER|NODEFLAGS_FLOAT) );
+		closest_node = AI_AddNode(self, waterorigin, (NODEFLAGS_WATER|NODEFLAGS_FLOAT));
 
 		// Add an edge
-		AI_UpdateNodeEdge( player.last_node, closest_node);
-		player.last_node = closest_node;
+		AI_UpdateNodeEdge( self->last_node, closest_node);
+		self->last_node = closest_node;
 
 	} else {
 
-		AI_UpdateNodeEdge(player.last_node, closest_node);
-		player.last_node = closest_node; // zero out so other nodes will not be linked
+		AI_UpdateNodeEdge(self->last_node, closest_node);
+		self->last_node = closest_node; // zero out so other nodes will not be linked
 	}
 }
 
@@ -319,16 +312,17 @@ AI_WaterJumpNode(void)
 //==========================================
 static float last_update=0;
 #define NODE_UPDATE_DELAY	0.10;
+
 static void
-AI_PathMap(void)
+AI_PathMap(edict_t *ent)
 {
 	int closest_node;
 
 	//DROP WATER JUMP NODE (not limited by delayed updates)
-	if (!player.ent->is_swim && player.last_node != -1
-		&& player.ent->is_swim != player.ent->was_swim)
+	if (!ent->is_swim && ent->last_node != INVALID
+		&& ent->is_swim != ent->was_swim)
 	{
-		AI_WaterJumpNode();
+		AI_WaterJumpNode(ent);
 		last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
 		return;
 	}
@@ -341,58 +335,71 @@ AI_PathMap(void)
 	last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
 
 	//don't drop nodes when riding movers
-	if (player.ent->groundentity && player.ent->groundentity != world)
+	if (ent->groundentity && ent->groundentity != world)
 	{
-		if (player.ent->groundentity->classname)
+		if (ent->groundentity->classname)
 		{
-			if (!strcmp( player.ent->groundentity->classname, "func_plat")
-				|| !strcmp(player.ent->groundentity->classname, "trigger_push")
-				|| !strcmp(player.ent->groundentity->classname, "func_train")
-				|| !strcmp(player.ent->groundentity->classname, "func_rotate")
-				|| !strcmp(player.ent->groundentity->classname, "func_bob")
-				|| !strcmp(player.ent->groundentity->classname, "func_door") )
+			if (!strcmp( ent->groundentity->classname, "func_plat")
+				|| !strcmp(ent->groundentity->classname, "trigger_push")
+				|| !strcmp(ent->groundentity->classname, "func_train")
+				|| !strcmp(ent->groundentity->classname, "func_rotate")
+				|| !strcmp(ent->groundentity->classname, "func_bob")
+				|| !strcmp(ent->groundentity->classname, "func_door") )
 				return;
 		}
 	}
 
 	// Special check for ladder nodes
-	if (AI_CheckForLadder(player.ent))
+	if (AI_CheckForLadder(ent))
+	{
 		return;
+	}
 
 	// Not on ground, and not in the water, so bail (deeper check by using a splitmodels function)
-	if (!player.ent->is_step )
+	if (!ent->is_step)
 	{
-		if ( !player.ent->is_swim ){
-			player.was_falling = true;
+		if (!ent->is_swim)
+		{
+			ent->was_falling = true;
 			return;
 		}
-		else if ( player.ent->is_swim )
-			player.was_falling = false;
+		else if (ent->is_swim)
+		{
+			ent->was_falling = false;
+		}
 	}
 
 	//player just touched the ground
-	if (player.was_falling == true)
+	if (ent->was_falling == true)
 	{
-		if ( !player.ent->groundentity ) //not until it REALLY touches ground
+		if (!ent->groundentity) //not until it REALLY touches ground
+		{
 			return;
+		}
 
 		//normal nodes
 
 		//check for duplicates (prevent adding too many)
-		closest_node = AI_FindClosestReachableNode( player.ent->s.origin, player.ent, 64, NODE_ALL);
+		closest_node = AI_FindClosestReachableNode(ent->s.origin, ent, 64, NODE_ALL);
 
 		//otherwise, add a new node
 		if (closest_node == INVALID)
-			closest_node = AI_AddNode( player.ent->s.origin, 0 ); //no flags = normal movement node
+		{
+			closest_node = AI_AddNode(ent, ent->s.origin, 0); //no flags = normal movement node
+		}
 
 		// Now add link
-		if (player.last_node != -1 && closest_node != -1)
-			AI_UpdateNodeEdge( player.last_node, closest_node);
+		if (ent->last_node != INVALID && closest_node != INVALID)
+		{
+			AI_UpdateNodeEdge(ent->last_node, closest_node);
+		}
 
-		if (closest_node != -1)
-			player.last_node = closest_node; // set visited to last
+		if (closest_node != INVALID)
+		{
+			ent->last_node = closest_node; // set visited to last
+		}
 
-		player.was_falling = false;
+		ent->was_falling = false;
 		return;
 	}
 
@@ -402,36 +409,36 @@ AI_PathMap(void)
 	// Lava/Slime
 
 	// Iterate through all nodes to make sure far enough apart
-	closest_node = AI_FindClosestReachableNode( player.ent->s.origin, player.ent, NODE_DENSITY, NODE_ALL );
+	closest_node = AI_FindClosestReachableNode(ent->s.origin, ent, NODE_DENSITY, NODE_ALL);
 
 	// Add Nodes as needed
 	if (closest_node == INVALID )
 	{
 		// Add nodes in the water as needed
-		if (player.ent->is_swim)
+		if (ent->is_swim)
 		{
-			closest_node = AI_AddNode(player.ent->s.origin,
+			closest_node = AI_AddNode(ent, ent->s.origin,
 				(NODEFLAGS_WATER | NODEFLAGS_FLOAT));
 		}
 		else
 		{
-			closest_node = AI_AddNode(player.ent->s.origin, 0);
+			closest_node = AI_AddNode(ent, ent->s.origin, 0);
 		}
 
 		// Now add link
-		if (player.last_node != -1)
+		if (ent->last_node != INVALID)
 		{
-			AI_UpdateNodeEdge(player.last_node, closest_node);
+			AI_UpdateNodeEdge(ent->last_node, closest_node);
 		}
 	}
-	else if (closest_node != player.last_node && player.last_node != INVALID)
+	else if (closest_node != ent->last_node && ent->last_node != INVALID)
 	{
-		AI_UpdateNodeEdge(player.last_node, closest_node);
+		AI_UpdateNodeEdge(ent->last_node, closest_node);
 	}
 
-	if (closest_node != -1)
+	if (closest_node != INVALID)
 	{
-		player.last_node = closest_node; // set visited to last
+		ent->last_node = closest_node; // set visited to last
 	}
 }
 
@@ -447,9 +454,8 @@ AITools_DropNodes(edict_t *ent)
 		return;
 	}
 
-	AI_CategorizePosition (ent);
-	player.ent = ent;
-	AI_PathMap();
+	AI_CategorizePosition(ent);
+	AI_PathMap(ent);
 }
 
 //==========================================
@@ -460,14 +466,14 @@ AITools_EraseNodes(void)
 {
 	//Init nodes arrays
 	nav.num_nodes = 0;
-	memset( nodes, 0, sizeof(nav_node_t) * MAX_NODES );
-	memset( pLinks, 0, sizeof(nav_plink_t) * MAX_NODES );
+	memset(nodes, 0, sizeof(nav_node_t) * MAX_NODES);
+	memset(pLinks, 0, sizeof(nav_plink_t) * MAX_NODES);
 
 	nav.num_ents = 0;
-	memset( nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS );
+	memset(nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS);
 
 	nav.num_items = 0;
-	memset( nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS );
+	memset(nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS);
 
 	nav.loaded = false;
 }
@@ -476,25 +482,28 @@ void AITools_InitEditnodes( void )
 {
 	if (nav.loaded) {
 		AITools_EraseNodes();
-		AI_LoadPLKFile( level.mapname );
+		AI_LoadPLKFile(level.mapname);
 		//delete everything but nodes
-		memset( pLinks, 0, sizeof(nav_plink_t) * MAX_NODES );
+		memset(pLinks, 0, sizeof(nav_plink_t) * MAX_NODES);
 
 		nav.num_ents = 0;
-		memset( nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS );
+		memset(nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS);
 
 		nav.num_items = 0;
-		memset( nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS );
+		memset(nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS);
 		nav.loaded = false;
 	}
 
 	Com_Printf("EDITNODES: on\n");
 }
 
-void AITools_InitMakenodes( void )
+void
+AITools_InitMakenodes(void)
 {
 	if (nav.loaded)
+	{
 		AITools_EraseNodes();
+	}
 
 	Com_Printf("EDITNODES: on\n");
 }
