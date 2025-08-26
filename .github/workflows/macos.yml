@@ -3,7 +3,7 @@ run-name: testbuild_macos
 on:
   push:
     branches:
-      - 'macos'
+      - 'master'
     tags:
       - "*"
   pull_request:
