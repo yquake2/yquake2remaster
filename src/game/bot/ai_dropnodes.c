@@ -105,7 +105,8 @@ AI_UpdateNodeEdge(int from, int to)
 
 	if (bot_debugmonster->value)
 	{
-		Com_Printf("Link: %d -> %d. %s\n", from, to, AI_LinkString(link));
+		Com_Printf("%s: Link %d -> %d. %s\n",
+			__func__, from, to, AI_LinkString(link));
 	}
 }
 
@@ -143,17 +144,18 @@ AI_DropLadderNodes(edict_t *self)
 
 	//find bottom. Try simple first
 	trace = gi.trace( borigin, tv(-15,-15,-24), tv(15,15,0), tv(borigin[0], borigin[1], borigin[2] - 2048), self, MASK_NODESOLID );
-	if (!trace.startsolid && trace.fraction < 1.0
-		&& AI_IsLadder( trace.endpos, self->client->ps.viewangles, self->mins, self->maxs, self))
+	if (!trace.startsolid &&
+		trace.fraction < 1.0 &&
+		AI_IsLadder(trace.endpos, self->client->ps.viewangles, self->mins, self->maxs, self))
 	{
 		VectorCopy(trace.endpos, borigin);
 	}
 	else
-	{	//it wasn't so easy
-
+	{
+		//it wasn't so easy
 		trace = gi.trace(borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID);
-		while (AI_IsLadder( borigin, self->client->ps.viewangles, self->mins, self->maxs, self)
-			&& !trace.startsolid )
+		while (AI_IsLadder(borigin, self->client->ps.viewangles, self->mins, self->maxs, self)
+			&& !trace.startsolid)
 		{
 			borigin[2]--;
 			trace = gi.trace( borigin, tv(-15,-15,-25), tv(15,15,0), borigin, self, MASK_NODESOLID );
@@ -193,11 +195,15 @@ AI_CheckForLadder(edict_t *self)
 	int			closest_node;
 
 	// If there is a ladder and we are moving up, see if we should add a ladder node
-	if ( self->velocity[2] < 5 )
+	if (!self->client || self->velocity[2] < 5)
+	{
 		return false;
+	}
 
-	if ( !AI_IsLadder(self->s.origin, self->client->ps.viewangles, self->mins, self->maxs, self) )
+	if (!AI_IsLadder(self->s.origin, self->client->ps.viewangles, self->mins, self->maxs, self))
+	{
 		return false;
+	}
 
 	// If there is already a ladder node in here we've already done this ladder
 	closest_node = AI_FindClosestReachableNode( self->s.origin, self, NODE_DENSITY, NODEFLAGS_LADDER );
@@ -310,7 +316,6 @@ AI_WaterJumpNode(edict_t *self)
 // This routine is called to hook in the pathing code and sets
 // the current node if valid.
 //==========================================
-static float last_update=0;
 #define NODE_UPDATE_DELAY	0.10;
 
 static void
@@ -323,16 +328,16 @@ AI_PathMap(edict_t *ent)
 		&& ent->is_swim != ent->was_swim)
 	{
 		AI_WaterJumpNode(ent);
-		last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
+		ent->last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
 		return;
 	}
 
-	if (level.time < last_update)
+	if (level.time < ent->last_update)
 	{
 		return;
 	}
 
-	last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
+	ent->last_update = level.time + NODE_UPDATE_DELAY; // slow down updates a bit
 
 	//don't drop nodes when riding movers
 	if (ent->groundentity && ent->groundentity != world)

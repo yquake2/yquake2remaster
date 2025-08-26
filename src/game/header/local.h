@@ -1607,7 +1607,8 @@ struct edict_s
 	int chasedist1;
 	int chasedist2;
 
-	ai_handle_t *ai;       /* jabot */
+	/* jabot */
+	ai_handle_t *ai;
 	qboolean is_swim;	//AI_CategorizePosition
 	qboolean is_step;
 	qboolean is_ladder;
@@ -1615,6 +1616,7 @@ struct edict_s
 	qboolean was_step;
 	qboolean was_falling;
 	int last_node;
+	float last_update;
 };
 
 #define SPHERE_DEFENDER 0x0001

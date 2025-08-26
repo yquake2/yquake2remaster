@@ -121,14 +121,14 @@ qboolean AI_IsLadder(vec3_t origin, vec3_t v_angle, vec3_t mins, vec3_t maxs, ed
 	flatforward[2] = 0;
 	VectorNormalize (flatforward);
 
-	VectorMA ( origin, 1, flatforward, spot);
+	VectorMA(origin, 1, flatforward, spot);
 
-//	trap_Trace(&trace, self->s.origin, self->mins, self->maxs, spot, self, MASK_AISOLID);
-	trace = gi.trace( origin, mins, maxs, spot, passent, MASK_AISOLID);
+	trace = gi.trace(origin, mins, maxs, spot, passent, MASK_AISOLID);
 
-//	if ((trace.fraction < 1) && (trace.surfFlags & SURF_LADDER))
 	if ((trace.fraction < 1) && (trace.contents & CONTENTS_LADDER))
+	{
 		return true;
+	}
 
 	return false;
 }
