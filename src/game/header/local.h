@@ -647,7 +647,6 @@ extern cvar_t *maxentities;
 extern cvar_t *deathmatch;
 extern cvar_t *coop;
 extern cvar_t *coop_baseq2;	/* treat spawnflags according to baseq2 rules */
-extern cvar_t *coop_pickup_weapons;
 extern cvar_t *coop_elevator_delay;
 extern cvar_t *coop_pickup_weapons;
 extern cvar_t *dmflags;
@@ -992,7 +991,6 @@ void InitClientPersistant(edict_t *ent);
 void InitClientResp(gclient_t *client);
 void InitBodyQue(void);
 void ClientBeginServerFrame(edict_t *ent);
-void ClientUserinfoChanged(edict_t *ent, char *userinfo);
 
 /* g_player.c */
 void player_pain(edict_t *self, edict_t *other, float kick, int damage);
@@ -1651,7 +1649,6 @@ extern dm_game_rt DMGame;
 
 void Tag_GameInit(void);
 void Tag_PostInitSetup(void);
-void Tag_PlayerDeath(edict_t *targ, edict_t *inflictor, edict_t *attacker);
 void Tag_Score(edict_t *attacker, edict_t *victim, int scoreChange);
 void Tag_PlayerEffects(edict_t *ent);
 void Tag_DogTag(edict_t *ent, edict_t *killer, char **pic);
