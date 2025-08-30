@@ -18,6 +18,9 @@ concurrency:
 jobs:
   build_mingw_x86_32:
     runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: write
     strategy:
       fail-fast: false
       matrix:

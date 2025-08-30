@@ -15,7 +15,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build_ubuntu_x86_64:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     strategy:
       fail-fast: false
       matrix:

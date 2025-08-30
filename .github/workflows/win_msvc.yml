@@ -16,6 +16,9 @@ concurrency:
 jobs:
   build_win_x86_msvc:
     runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: read
     defaults:
       run:
         # use git bash for for all steps (unless specified otherwise per step)
@@ -98,6 +101,10 @@ jobs:
         if-no-files-found: error
   build_win_x86_64_msvc:
     runs-on: windows-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     defaults:
       run:
         # use git bash for for all steps (unless specified otherwise per step)
@@ -178,3 +185,14 @@ jobs:
         name: ${{ env.pkgname }}-debugsyms
         path: debug-syms/
         if-no-files-found: error
+    - name: Run MSVC Code Analysis
+      uses: microsoft/msvc-code-analysis-action@v0.1.1
+      id: run-analysis
+      with:
+        cmakeBuildDirectory: build
+        buildConfiguration: RelWithDebInfo
+        ruleset: NativeRecommendedRules.ruleset
+    - name: Upload SARIF to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: ${{ steps.run-analysis.outputs.sarif }}
