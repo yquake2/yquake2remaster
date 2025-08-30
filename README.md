@@ -17,6 +17,7 @@
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win32.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win32.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win_msvc.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win_msvc.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/codeql.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/codeql.yml)
 
 This is an experimental fork of Yamagi Quake II with ongoing work to add
 support for Quake II Enhanced aka Q2 Remaster(ed). This enhanced version
