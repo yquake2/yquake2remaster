@@ -83,10 +83,9 @@ jobs:
         cp doc/080_contributing.md publish/$PKGDIR/misc/docs/080_contributing.txt
         cp doc/090_filelists.md publish/$PKGDIR/misc/docs/090_filelists.md
         # copy runtime libraries (SDL, OpenAL, cURL)
-        cd ../dhewm3-libs-master/i686-w64-mingw32/bin/
-        cp OpenAL32.dll SDL2.dll ../../../yquake2remaster/publish/$PKGDIR/
-        cp libcurl-4.dll ../../../yquake2remaster/publish/$PKGDIR/curl.dll
-        cd -
+        cp ../dhewm3-libs-master/i686-w64-mingw32/bin/OpenAL32.dll publish/$PKGDIR/
+        cp ../dhewm3-libs-master/i686-w64-mingw32/bin/SDL2.dll publish/$PKGDIR/
+        cp ../dhewm3-libs-master/i686-w64-mingw32/bin/libcurl-4.dll publish/$PKGDIR/curl.dll
     - name: Upload testbuild package
       uses: actions/upload-artifact@v4
       with:
@@ -169,10 +168,9 @@ jobs:
         cp doc/080_contributing.md publish/$PKGDIR/misc/docs/080_contributing.txt
         cp doc/090_filelists.md publish/$PKGDIR/misc/docs/090_filelists.md
         # copy runtime libraries (SDL, OpenAL, cURL)
-        cd ../dhewm3-libs-master/x86_64-w64-mingw32/bin/
-        cp OpenAL32.dll SDL2.dll ../../../yquake2remaster/publish/$PKGDIR/
-        cp libcurl-4.dll ../../../yquake2remaster/publish/$PKGDIR/curl.dll
-        cd -
+        cp ../dhewm3-libs-master/x86_64-w64-mingw32/bin/OpenAL32.dll publish/$PKGDIR/
+        cp ../dhewm3-libs-master/x86_64-w64-mingw32/bin/SDL2.dll publish/$PKGDIR/
+        cp ../dhewm3-libs-master/x86_64-w64-mingw32/bin/libcurl-4.dll publish/$PKGDIR/curl.dll
     - name: Upload testbuild package
       uses: actions/upload-artifact@v4
       with:
