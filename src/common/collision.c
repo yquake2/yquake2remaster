@@ -1810,11 +1810,6 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	/* Can't detect will use provided */
 	maptype = r_maptype->value;
-	/* force heretic2 only if game is heretic2 */
-	if (!strcmp(r_game->string, "heretic2") && maptype == map_quake2rr)
-	{
-		maptype = map_heretic2;
-	}
 
 	cmod_base = Mod_Load2QBSP(name, (byte *)filebuf, filelen, &length, &maptype);
 	FS_FreeFile(filebuf);

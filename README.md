@@ -118,8 +118,6 @@ Note:
    with tranparency or some animations flags and properties.
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
-* Use `maptype 1` before load any Heretic 2 maps, or place game data to `heretic2` directory.
-   Look to [maptype_t](src/common/header/cmodel.h#L42) for more info.
 
 Games:
 
