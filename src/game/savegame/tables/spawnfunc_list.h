@@ -216,6 +216,7 @@
 {"trigger_elevator", SP_trigger_elevator},
 {"trigger_flashlight", SP_trigger_flashlight},
 {"trigger_fog", SP_trigger_fog},
+{"trigger_fogdensity", SP_trigger_fogdensity},
 {"trigger_gravity", SP_trigger_gravity},
 {"trigger_hurt", SP_trigger_hurt},
 {"trigger_key", SP_trigger_key},
