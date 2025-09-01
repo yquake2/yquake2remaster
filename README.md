@@ -165,6 +165,7 @@ Games check videos:
 
 [![Quake I + Half Life 1 Demo](https://img.youtube.com/vi/_KY4bQpij0c/0.jpg)](https://www.youtube.com/watch?v=_KY4bQpij0c)
 [![Quake I + Hexen 2](https://img.youtube.com/vi/uU87u1iEBeg/0.jpg)](https://www.youtube.com/watch?v=uU87u1iEBeg)
+[![Heretic 2 Book / Translate](https://img.youtube.com/vi/4Sr_rhYP2lo/0.jpg)](https://www.youtube.com/watch?v=4Sr_rhYP2lo)
 
 * 8.52RR12:
 
