@@ -1872,9 +1872,57 @@ Mod_MaptypeName(maptype_t maptype)
 	return maptypename;
 }
 
+static qboolean
+Mod_HasBSPXHeader(const byte *inbuf, const lump_t *lumps, int numlumps, int filesize)
+{
+	size_t xofs, s;
+
+	/* find end of last lump */
+	xofs = 0;
+	for (s = 0; s < numlumps; s++)
+	{
+		xofs = Q_max(xofs,
+			(lumps[s].fileofs + lumps[s].filelen + 3) & ~3);
+	}
+
+	if (xofs + sizeof(bspx_header_t) < filesize)
+	{
+		bspx_header_t* xheader;
+
+		xheader = (bspx_header_t*)(inbuf + xofs);
+		if (LittleLong(xheader->ident) == BSPXHEADER)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static int
+Mod_Load2QBSP_IBSP_TEXINFO_Flags(const byte *inbuf, const lump_t *lumps,
+	size_t rule_size, int inlumppos)
+{
+	texinfo_t *in;
+	size_t i, count;
+	int inflags;
+
+	inflags = 0;
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (texinfo_t *)(inbuf + lumps[inlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		inflags |= LittleLong(in->flags);
+		in++;
+	}
+
+	return inflags;
+}
+
 static maptype_t
 Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
-	const rule_t **rules, int *numlumps, int *numrules)
+	size_t filesize, const rule_t **rules, int *numlumps, int *numrules)
 {
 	/*
 	 * numlumps is count lumps in format,
@@ -1910,8 +1958,24 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 		}
 		else if (version == BSPVERSION)
 		{
+			int flags;
+
 			*rules = idq2bsplumps;
 			*numrules = *numlumps = HEADER_LUMPS;
+
+			if (Mod_HasBSPXHeader(inbuf, lumps, *numlumps, filesize))
+			{
+				return map_quake2rr;
+			}
+
+			flags = Mod_Load2QBSP_IBSP_TEXINFO_Flags(inbuf, lumps,
+				idq2bsplumps[LUMP_TEXINFO].size, LUMP_TEXINFO);
+			if ((flags & HERETIC2_FLAGS) == HERETIC2_FLAGS)
+			{
+				/* heretic 2 has 24, 25 set as material */
+				return map_heretic2;
+			}
+
 			return map_quake2rr;
 		}
 		else if (version == BSPHL1VERSION)
@@ -1933,6 +1997,13 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 				/* for sure not hexen map */
 				*rules = idq1bsplumps;
 				return map_quake1;
+			}
+
+			if (lumps[LUMP_BSP29_MODELS].fileofs >= filesize)
+			{
+				/* incorrect lump fileofs */
+				*rules = NULL;
+				return map_quake2rr;
 			}
 
 			/* revalidate one more time */
@@ -2126,7 +2197,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	}
 	lumps = (lump_t *)&lumpsmem;
 
-	detected_maptype = Mod_LoadGetRules(ident, version, inbuf, lumps,
+	detected_maptype = Mod_LoadGetRules(ident, version, inbuf, lumps, filesize,
 		&rules, &numlumps, &numrules);
 	if (detected_maptype != map_quake2rr)
 	{
