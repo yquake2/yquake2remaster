@@ -118,6 +118,9 @@ typedef struct {
 
 	int			num_particles;
 	particle_t	*particles;
+
+	/* fog */
+	svc_fog_data_t	fog;
 } refdef_t;
 
 // Renderer restart type.

@@ -1652,7 +1652,7 @@ CL_ParseServerMessage(void)
 				break;
 
 			case svc_fog:
-				CL_AddFog(&cl.fog);
+				CL_AddFog(&cl.refdef.fog);
 				break;
 
 			case svc_playerinfo:

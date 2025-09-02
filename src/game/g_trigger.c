@@ -1467,7 +1467,7 @@ SP_trigger_fog(edict_t *self)
 
 /*
  * QUAKED trigger_fogdensity (.5 .5 .5) ?
- * Heretic 2: Sets r_fog_density and fog color
+ * Heretic 2: Sets r_fog_density
  *
  * target: Fog density (.01 - .0001)
  */
@@ -1483,12 +1483,12 @@ trigger_fogdensity_touch(edict_t *self, edict_t *other, cplane_t *plane /* unuse
 		return;
 	}
 
-	density = (float)strtod(self->target, (char **)NULL);
+	density = (float)strtod(self->target, (char **)NULL) * 100;
 	other->client->pers.wanted_fog[0] = density;
 	other->client->pers.wanted_fog[4] = 1.0;
 	for (i = 0; i < 3; i++)
 	{
-		other->client->pers.wanted_fog[i + 1] = 1.0;
+		other->client->pers.wanted_fog[i + 1] = 0.75;
 	}
 }
 

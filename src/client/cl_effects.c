@@ -3411,5 +3411,7 @@ CL_AddFog(svc_fog_data_t *fog)
 		fog->hf_end_dist = MSG_ReadLong(&net_message);
 	}
 
-	Com_DPrintf("%s: Fog state changed\n", __func__);
+	Com_DPrintf("%s: Fog state changed %f (%.2fx%.2f%.2f)\n",
+		__func__, fog->density,
+		fog->red / 255.0, fog->green / 255.0, fog->blue / 255.0);
 }

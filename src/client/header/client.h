@@ -179,9 +179,6 @@ typedef struct
 
 	clientinfo_t	clientinfo[MAX_CLIENTS];
 	clientinfo_t	baseclientinfo;
-
-	/* fog */
-	svc_fog_data_t	fog;
 } client_state_t;
 
 extern	client_state_t	cl;
