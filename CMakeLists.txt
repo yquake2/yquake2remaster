@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.31 FATAL_ERROR)
 
 # Print a message that using the Makefiles is recommended.
 message(NOTICE: " The CMakeLists.txt is unmaintained. Use the Makefile if possible.")
@@ -262,7 +262,7 @@ else()
 		list(APPEND yquake2LinkerFlags "-rdynamic")
 	else()
 		list(APPEND yquake2LinkerFlags "-lnetwork")
-			set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+		set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 	endif()
 	if (${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
 		list(APPEND yquake2LinkerFlags "-lsocket -lnsl")
