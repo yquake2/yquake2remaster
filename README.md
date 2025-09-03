@@ -208,7 +208,6 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
-* [x] soft: build with SDL3 has glitch in menu,
 * [ ] soft: rework 32bit color cinema workarrounds,
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
@@ -249,7 +248,6 @@ Other games support goals:
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Half-Life: support mdl,
-* [x] Heretic 2: combine all tiles in book sprite,
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: rowdys map models disappear on dance space,

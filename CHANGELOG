@@ -1,3 +1,21 @@
+Quake II 8.52RR13:
+- soft: build with SDL3 has glitch in menu,
+- Heretic 2: combine all tiles in book sprite,
+- game: implement fog logic without client code
+- workflows: update cmake and SDL3
+- workflows: enable CodeQL and PREfast validation
+- maps: rework heretic 2 maps detect logic
+- jabot: each client use own last_update time in navigation recreation
+- macos: fix workflow build (by David Carlier)
+- paks: support Doom wad
+- game: add usage extended MZ effects
+- refresh: extend ttf fontcodes to 0x2000
+- game: translate hud
+- client: improve  gamepads support (by Jaime Moreira)
+- renders: Temp ent refactoring and temp ent model state cleared (by Bjossi Alfreds)
+- client: Analog stick improvements (by ceski)
+- maps: improve Hexen 2 support
+
 Quake II 8.52RR12:
 - soft: support custom ttf fonts,
 - soft: broken fonts in menu,
