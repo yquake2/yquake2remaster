@@ -1483,7 +1483,7 @@ trigger_fogdensity_touch(edict_t *self, edict_t *other, cplane_t *plane /* unuse
 		return;
 	}
 
-	density = (float)strtod(self->target, (char **)NULL) * 100;
+	density = (float)strtod(self->target, (char **)NULL) * 10;
 	other->client->pers.wanted_fog[0] = density;
 	other->client->pers.wanted_fog[4] = 1.0;
 	for (i = 0; i < 3; i++)

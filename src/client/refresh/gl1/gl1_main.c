@@ -740,7 +740,10 @@ R_SetupFrame(void)
 		}
 	}
 
-	R_CombineBlendWithFog(v_blend);
+	for (i = 0; i < 4; i++)
+	{
+		v_blend[i] = r_newrefdef.blend[i];
+	}
 
 	for (i = 0; i < 3; i++)
 	{
@@ -871,6 +874,38 @@ R_Clear(void)
 	// Define which buffers need clearing
 	GLbitfield clearFlags = 0;
 	GLenum depthFunc = GL_LEQUAL;
+
+	Com_DPrintf("blend: %.2fx%.2fx%.2fx%.2f, fog: %.2fx%.2fx%.2fx%.2f\n",
+		r_newrefdef.blend[0],
+		r_newrefdef.blend[1],
+		r_newrefdef.blend[2],
+		r_newrefdef.blend[3],
+		r_newrefdef.fog.red / 255.0,
+		r_newrefdef.fog.green / 255.0,
+		r_newrefdef.fog.blue / 255.0,
+		r_newrefdef.fog.density
+	);
+
+	if (r_newrefdef.fog.density)
+	{
+		glEnable(GL_FOG);
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+
+		GLfloat fogColor[4] = {
+			r_newrefdef.fog.red,
+			r_newrefdef.fog.green,
+			r_newrefdef.fog.blue,
+			1.0f
+		};
+		glFogfv(GL_FOG_COLOR, fogColor);
+		glFogf(GL_FOG_START, 8.0f);
+		glFogf(GL_FOG_END, 1024.0f);
+		glFogf(GL_FOG_DENSITY, r_newrefdef.fog.density);
+	}
+	else
+	{
+		glDisable(GL_FOG);
+	}
 
 	// This breaks stereo modes, but we'll leave that responsibility to the user
 	if (r_clear->value)

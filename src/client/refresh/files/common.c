@@ -92,9 +92,10 @@ viddef_t vid;
 void
 R_CombineBlendWithFog(float *v_blend)
 {
+	float fog_density;
 	int i;
 
-	Com_DPrintf("blend: %.2fx%.2fx%.2fx%.2f, fog: %.2fx%.2fx%.2fx%.2f\n",
+	Com_DPrintf("blend: %.2fx%.2fx%.2fx%.2f, fog: %.2fx%.2fx%.2fx%.4f\n",
 		r_newrefdef.blend[0],
 		r_newrefdef.blend[1],
 		r_newrefdef.blend[2],
@@ -102,7 +103,7 @@ R_CombineBlendWithFog(float *v_blend)
 		r_newrefdef.fog.red / 255.0,
 		r_newrefdef.fog.green / 255.0,
 		r_newrefdef.fog.blue / 255.0,
-		1.0 - r_newrefdef.fog.density
+		r_newrefdef.fog.density
 	);
 
 
@@ -111,20 +112,21 @@ R_CombineBlendWithFog(float *v_blend)
 		v_blend[i] = r_newrefdef.blend[i];
 	}
 
-	if (r_newrefdef.fog.density)
+	fog_density = r_newrefdef.fog.density * 10;
+	if (fog_density)
 	{
 		if (v_blend[0])
 		{
-			v_blend[3] += r_newrefdef.fog.density;
+			v_blend[3] += fog_density;
 
 			v_blend[0] = (
-				(r_newrefdef.fog.red / 255.0) * r_newrefdef.fog.density + v_blend[0] * r_newrefdef.blend[3]
+				(r_newrefdef.fog.red / 255.0) * fog_density + v_blend[0] * r_newrefdef.blend[3]
 			) / v_blend[3];
 			v_blend[1] = (
-				(r_newrefdef.fog.green / 255.0) * r_newrefdef.fog.density + v_blend[1] * r_newrefdef.blend[3]
+				(r_newrefdef.fog.green / 255.0) * fog_density + v_blend[1] * r_newrefdef.blend[3]
 			) / v_blend[3];
 			v_blend[2] = (
-				(r_newrefdef.fog.blue / 255.0) * r_newrefdef.fog.density + v_blend[2] * r_newrefdef.blend[3]
+				(r_newrefdef.fog.blue / 255.0) * fog_density + v_blend[2] * r_newrefdef.blend[3]
 			) / v_blend[3];
 		}
 		else
@@ -132,7 +134,7 @@ R_CombineBlendWithFog(float *v_blend)
 			v_blend[0] = (r_newrefdef.fog.red / 255.0);
 			v_blend[1] = (r_newrefdef.fog.green / 255.0);
 			v_blend[2] = (r_newrefdef.fog.blue / 255.0);
-			v_blend[3] = r_newrefdef.fog.density;
+			v_blend[3] = fog_density;
 		}
 	}
 
