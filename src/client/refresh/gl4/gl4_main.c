@@ -1143,7 +1143,6 @@ GL4_DrawEntitiesOnList(void)
 static void
 SetupFrame(void)
 {
-	int i;
 	mleaf_t *leaf;
 
 	gl4_framecount++;
@@ -1200,10 +1199,7 @@ SetupFrame(void)
 		}
 	}
 
-	for (i = 0; i < 4; i++)
-	{
-		v_blend[i] = r_newrefdef.blend[i];
-	}
+	R_CombineBlendWithFog(v_blend);
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;

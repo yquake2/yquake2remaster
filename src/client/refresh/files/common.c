@@ -88,3 +88,59 @@ Com_Error(int code, const char *fmt, ...)
 /* shared variables */
 refdef_t r_newrefdef;
 viddef_t vid;
+
+void
+R_CombineBlendWithFog(float *v_blend)
+{
+	int i;
+
+	Com_DPrintf("blend: %.2fx%.2fx%.2fx%.2f, fog: %.2fx%.2fx%.2fx%.2f\n",
+		r_newrefdef.blend[0],
+		r_newrefdef.blend[1],
+		r_newrefdef.blend[2],
+		r_newrefdef.blend[3],
+		r_newrefdef.fog.red / 255.0,
+		r_newrefdef.fog.green / 255.0,
+		r_newrefdef.fog.blue / 255.0,
+		1.0 - r_newrefdef.fog.density
+	);
+
+
+	for (i = 0; i < 4; i++)
+	{
+		v_blend[i] = r_newrefdef.blend[i];
+	}
+
+	if (r_newrefdef.fog.density)
+	{
+		if (v_blend[0])
+		{
+			v_blend[3] += r_newrefdef.fog.density;
+
+			v_blend[0] = (
+				(r_newrefdef.fog.red / 255.0) * r_newrefdef.fog.density + v_blend[0] * r_newrefdef.blend[3]
+			) / v_blend[3];
+			v_blend[1] = (
+				(r_newrefdef.fog.green / 255.0) * r_newrefdef.fog.density + v_blend[1] * r_newrefdef.blend[3]
+			) / v_blend[3];
+			v_blend[2] = (
+				(r_newrefdef.fog.blue / 255.0) * r_newrefdef.fog.density + v_blend[2] * r_newrefdef.blend[3]
+			) / v_blend[3];
+		}
+		else
+		{
+			v_blend[0] = (r_newrefdef.fog.red / 255.0);
+			v_blend[1] = (r_newrefdef.fog.green / 255.0);
+			v_blend[2] = (r_newrefdef.fog.blue / 255.0);
+			v_blend[3] = r_newrefdef.fog.density;
+		}
+	}
+
+	for (i = 0; i < 4; i++)
+	{
+		if (v_blend[i] > 1.0)
+		{
+			v_blend[i] = 1.0;
+		}
+	}
+}

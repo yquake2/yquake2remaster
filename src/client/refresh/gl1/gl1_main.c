@@ -740,11 +740,12 @@ R_SetupFrame(void)
 		}
 	}
 
+	R_CombineBlendWithFog(v_blend);
+
 	for (i = 0; i < 3; i++)
 	{
-		v_blend[i] = r_newrefdef.blend[i] * gl_state.sw_gamma;
+		v_blend[i] *= gl_state.sw_gamma;
 	}
-	v_blend[3] = r_newrefdef.blend[3];
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;

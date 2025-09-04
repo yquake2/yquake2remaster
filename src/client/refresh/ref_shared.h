@@ -414,4 +414,7 @@ extern void R_FlowingScroll(const refdef_t *r_newrefdef, int flags,
 /* GL only code */
 extern const char* glshader_version(int major_version, int minor_version);
 
+/* Shared common code */
+extern void R_CombineBlendWithFog(float *v_blend);
+
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

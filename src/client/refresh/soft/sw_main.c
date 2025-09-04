@@ -1229,11 +1229,13 @@ R_CalcPalette (void)
 	static qboolean modified;
 	byte	palette[256][4], *in, *out;
 	int		i, j;
-	float	alpha, one_minus_alpha;
+	float	alpha, one_minus_alpha, v_blend[4];
 	vec3_t	premult;
 	int		v;
 
-	alpha = r_newrefdef.blend[3];
+	R_CombineBlendWithFog(v_blend);
+
+	alpha = v_blend[3];
 	if (alpha <= 0)
 	{
 		if (modified)
@@ -1247,11 +1249,13 @@ R_CalcPalette (void)
 
 	modified = true;
 	if (alpha > 1)
+	{
 		alpha = 1;
+	}
 
-	premult[0] = r_newrefdef.blend[0]*alpha*255;
-	premult[1] = r_newrefdef.blend[1]*alpha*255;
-	premult[2] = r_newrefdef.blend[2]*alpha*255;
+	premult[0] = v_blend[0] * alpha * 255;
+	premult[1] = v_blend[1] * alpha * 255;
+	premult[2] = v_blend[2] * alpha * 255;
 
 	one_minus_alpha = (1.0 - alpha);
 

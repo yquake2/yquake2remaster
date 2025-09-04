@@ -40,7 +40,7 @@ env_fire_think(edict_t *self)
 /*
  * QUAKED env_fire (.3 .3 1.0) (-8 -8 -8) (8 8 8)
  * Heretic 2: Flame effect. Does not emit light.
-*/
+ */
 void
 SP_env_fire(edict_t *self)
 {
