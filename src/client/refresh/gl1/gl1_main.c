@@ -875,7 +875,7 @@ R_Clear(void)
 	GLbitfield clearFlags = 0;
 	GLenum depthFunc = GL_LEQUAL;
 
-	Com_DPrintf("blend: %.2fx%.2fx%.2fx%.2f, fog: %.2fx%.2fx%.2fx%.2f\n",
+	Com_DPrintf("blend: %.2fx%.2fx%.2fx%.2f, fog: %.2fx%.2fx%.2fx%.2f (%d)\n",
 		r_newrefdef.blend[0],
 		r_newrefdef.blend[1],
 		r_newrefdef.blend[2],
@@ -883,7 +883,8 @@ R_Clear(void)
 		r_newrefdef.fog.red / 255.0,
 		r_newrefdef.fog.green / 255.0,
 		r_newrefdef.fog.blue / 255.0,
-		r_newrefdef.fog.density
+		r_newrefdef.fog.density,
+		r_newrefdef.fog.time
 	);
 
 	if (r_newrefdef.fog.density)
@@ -892,14 +893,14 @@ R_Clear(void)
 		glFogi(GL_FOG_MODE, GL_LINEAR);
 
 		GLfloat fogColor[4] = {
-			r_newrefdef.fog.red,
-			r_newrefdef.fog.green,
-			r_newrefdef.fog.blue,
+			r_newrefdef.fog.red / 255.0,
+			r_newrefdef.fog.green / 255.0,
+			r_newrefdef.fog.blue / 255.0,
 			1.0f
 		};
 		glFogfv(GL_FOG_COLOR, fogColor);
-		glFogf(GL_FOG_START, 8.0f);
-		glFogf(GL_FOG_END, 1024.0f);
+		glFogf(GL_FOG_START, 32.0f);
+		glFogf(GL_FOG_END, 2048.0f);
 		glFogf(GL_FOG_DENSITY, r_newrefdef.fog.density);
 	}
 	else
