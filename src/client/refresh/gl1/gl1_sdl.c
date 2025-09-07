@@ -344,7 +344,7 @@ int RI_InitContext(void* win)
 	vid_gamma->modified = true;
 
 	// Window title - set here so we can display renderer name in it.
-	char title[40] = {0};
+	char title[64] = {0};
 
 #ifdef YQ2_GL1_GLES
 	snprintf(title, sizeof(title), "Yamagi Quake II %s - OpenGL ES 1.0", YQ2VERSION);

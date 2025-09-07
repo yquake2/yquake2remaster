@@ -874,15 +874,17 @@ R_Clear(void)
 
 	if (r_newrefdef.fog.density)
 	{
-		glEnable(GL_FOG);
-		glFogi(GL_FOG_MODE, GL_LINEAR);
-
 		GLfloat fogColor[4] = {
 			r_newrefdef.fog.red / 255.0,
 			r_newrefdef.fog.green / 255.0,
 			r_newrefdef.fog.blue / 255.0,
 			1.0f
 		};
+
+		glEnable(GL_FOG);
+#ifndef YQ2_GL1_GLES
+		glFogi(GL_FOG_MODE, GL_LINEAR);
+#endif
 		glFogfv(GL_FOG_COLOR, fogColor);
 		glFogf(GL_FOG_START, 32.0f);
 		glFogf(GL_FOG_END, 4096.0f);
