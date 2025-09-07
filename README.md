@@ -214,6 +214,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
 * [ ] vulkan: group `it_pic` images,
 * [ ] vulkan: rearange surfaces before render,
+* [ ] vulkan: add fog distance effect,
 * [ ] reuse memory from models cache in renders model list,
 * [ ] reuse memory from models cache for bsp,
 * [ ] game: cleanup function declarations in game save code,
@@ -233,8 +234,9 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] ReRelease: fully implement `dynamic_light`,
-* [ ] ReRelease: fully implement `trigger_fog`,
+* [x] ReRelease: fully implement `trigger_fog`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
+* [ ] gl3, gl4: add fog distance effect,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [ ] ReRelease: single player support,

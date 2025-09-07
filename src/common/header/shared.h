@@ -126,6 +126,7 @@ typedef unsigned char byte;
 #define Q_min(a, b) (((a) < (b)) ? (a) : (b))
 #define Q_max(a, b) (((a) > (b)) ? (a) : (b))
 #define Q_clamp(x, l, u) ((l) > (x) ? (l) : (x) > (u) ? (u) : (x))
+#define Q_lerp(a, b, t) ((a) + (t) * ((b) - (a)))
 #define Q_signf(x) ((x) < 0.0f ? -1.0f : 1.0f)
 
 #define MAX_STRING_CHARS 2048       /* max length of a string passed to Cmd_TokenizeString */

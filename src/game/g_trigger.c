@@ -1215,12 +1215,6 @@ SP_trigger_flashlight(edict_t *self)
 #define SPAWNFLAG_FOG_FORCE 8
 #define SPAWNFLAG_FOG_BLEND 16
 
-static vec_t
-lerp(vec_t from, vec_t to, float t)
-{
-	return (to * t) + (from * (1.f - t));
-}
-
 void
 trigger_fog_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurface_t *surf /* unused */)
 {
@@ -1288,15 +1282,15 @@ trigger_fog_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, c
 
 		if (self->spawnflags & SPAWNFLAG_FOG_AFFECT_FOG)
 		{
-			other->client->pers.wanted_fog[0] = lerp(
+			other->client->pers.wanted_fog[0] = Q_lerp(
 				fog_value_storage->fog.density_off, fog_value_storage->fog.density, dist);
-			other->client->pers.wanted_fog[1] = lerp(
+			other->client->pers.wanted_fog[1] = Q_lerp(
 				fog_value_storage->fog.color_off[0], fog_value_storage->fog.color[0], dist);
-			other->client->pers.wanted_fog[2] = lerp(
+			other->client->pers.wanted_fog[2] = Q_lerp(
 				fog_value_storage->fog.color_off[1], fog_value_storage->fog.color[1], dist);
-			other->client->pers.wanted_fog[3] = lerp(
+			other->client->pers.wanted_fog[3] = Q_lerp(
 				fog_value_storage->fog.color_off[2], fog_value_storage->fog.color[2], dist);
-			other->client->pers.wanted_fog[4] = lerp(
+			other->client->pers.wanted_fog[4] = Q_lerp(
 				fog_value_storage->fog.sky_factor_off, fog_value_storage->fog.sky_factor, dist);
 		}
 
@@ -1316,16 +1310,16 @@ trigger_fog_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, c
 				other->client->pers.wanted_heightfog.end
 			);
 
-			other->client->pers.wanted_heightfog.start[3] = lerp(
+			other->client->pers.wanted_heightfog.start[3] = Q_lerp(
 				fog_value_storage->heightfog.start_dist_off,
 				fog_value_storage->heightfog.start_dist, dist);
-			other->client->pers.wanted_heightfog.end[3] = lerp(
+			other->client->pers.wanted_heightfog.end[3] = Q_lerp(
 				fog_value_storage->heightfog.end_dist_off,
 				fog_value_storage->heightfog.end_dist, dist);
-			other->client->pers.wanted_heightfog.falloff = lerp(
+			other->client->pers.wanted_heightfog.falloff = Q_lerp(
 				fog_value_storage->heightfog.falloff_off,
 				fog_value_storage->heightfog.falloff, dist);
-			other->client->pers.wanted_heightfog.density = lerp(
+			other->client->pers.wanted_heightfog.density = Q_lerp(
 				fog_value_storage->heightfog.density_off,
 				fog_value_storage->heightfog.density, dist);
 		}
