@@ -373,7 +373,6 @@ elements_raincloud||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0
 elements_snowcloud||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Snow falls from this invisible cloud at random points; the center of the cloud to ground trace determines the drop fall distance. Cloud can only be rectangular.|0|.5|.8
 elps||1.0|1.0|1.0|general|-32|-32|-32|32|32|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0
 ep_skidrow_flag||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.5|0
-fog_brush||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.5|.5|0
 func_lift||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lifts are moving platforms that players and ai_characters can ride (up and down only!!). The targets origin specifies the min point of the train at each corner. The train spawns at the first target it is pointing at. If the train is the target of a button or trigger, it will not begin moving until activated. A button is required for the AI to use.|0|.5|.8
 func_subdoor_base||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
 func_subdoor_handle1||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8
