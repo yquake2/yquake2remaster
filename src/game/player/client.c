@@ -2540,10 +2540,22 @@ PutClientInServer(edict_t *ent)
 	//JABot[end]
 
 	// [Paril-KEX] set up world fog & send it instantly
-	ent->client->pers.wanted_fog[0] = world->fog.density;
-	ent->client->pers.wanted_fog[1] = world->fog.color[0];
-	ent->client->pers.wanted_fog[2] = world->fog.color[1];
-	ent->client->pers.wanted_fog[3] = world->fog.color[2];
+	memset(ent->client->pers.wanted_fog, 0, sizeof(ent->client->pers.wanted_fog));
+	if (world->fog.density)
+	{
+		ent->client->pers.wanted_fog[0] = world->fog.density;
+		ent->client->pers.wanted_fog[1] = world->fog.color[0];
+		ent->client->pers.wanted_fog[2] = world->fog.color[1];
+		ent->client->pers.wanted_fog[3] = world->fog.color[2];
+	}
+	else if	(world->fog.altdensity)
+	{
+		ent->client->pers.wanted_fog[0] = world->fog.altdensity;
+		ent->client->pers.wanted_fog[1] = world->fog.altcolor[0];
+		ent->client->pers.wanted_fog[2] = world->fog.altcolor[1];
+		ent->client->pers.wanted_fog[3] = world->fog.altcolor[2];
+	}
+
 	ent->client->pers.wanted_fog[4] = world->fog.sky_factor;
 
 	VectorCopy(world->heightfog.start_color, ent->client->pers.wanted_heightfog.start);
