@@ -1260,6 +1260,29 @@ CL_LoadClientinfo(clientinfo_t *ci, char *s)
 		Com_sprintf(ci->iconname, sizeof(ci->iconname),
 				"/players/%s/%s_i.pcx", model_name, skin_name);
 		ci->icon = Draw_FindPic(ci->iconname);
+		if (!ci->icon)
+		{
+			char shortskin_name[MAX_QPATH];
+
+			strcpy(shortskin_name, skin_name);
+
+			/* Search skin without posible suffix */
+			while(!ci->icon)
+			{
+				int len;
+
+				len = strlen(shortskin_name);
+				if (!len)
+				{
+					break;
+				}
+
+				shortskin_name[len - 1] = 0;
+				Com_sprintf(ci->iconname, sizeof(ci->iconname),
+						"/players/%s/%s_i.pcx", model_name, shortskin_name);
+				ci->icon = Draw_FindPic(ci->iconname);
+			}
+		}
 	}
 
 	/* must have loaded all data types to be valid */
