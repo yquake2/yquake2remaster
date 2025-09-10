@@ -1386,6 +1386,8 @@
 {"trigger_gravity_touch", (byte *)trigger_gravity_touch},
 {"trigger_gravity_use", (byte *)trigger_gravity_use},
 {"trigger_key_use", (byte *)trigger_key_use},
+{"trigger_mission_give_touch", (byte *)trigger_mission_give_touch},
+{"trigger_mission_take_touch", (byte *)trigger_mission_take_touch},
 {"trigger_monsterjump_touch", (byte *)trigger_monsterjump_touch},
 {"trigger_push_active", (byte *)trigger_push_active},
 {"trigger_push_inactive", (byte *)trigger_push_inactive},

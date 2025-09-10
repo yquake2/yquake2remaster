@@ -207,6 +207,8 @@ extern void SP_trigger_fogdensity(edict_t * self);
 extern void SP_trigger_gravity(edict_t * self);
 extern void SP_trigger_hurt(edict_t * self);
 extern void SP_trigger_key(edict_t * self);
+extern void SP_trigger_mission_give(edict_t * self);
+extern void SP_trigger_mission_take(edict_t * self);
 extern void SP_trigger_monsterjump(edict_t * self);
 extern void SP_trigger_multiple ( edict_t * ent ) ;
 extern void SP_trigger_once ( edict_t * ent ) ;

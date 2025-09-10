@@ -1527,3 +1527,95 @@ SP_choose_cdtrack(edict_t *self)
 	InitTrigger(self);
 	self->touch = choose_cdtrack_touch;
 }
+
+/*
+ * QUAKED trigger_mission_give (.5 .5 .5) ?
+ * Heretic 2: Gives mission objectives
+ *
+ * message: "Message (index in strings.txt)"
+ */
+void
+trigger_mission_give_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	const char *message;
+
+	if (!self)
+	{
+		return;
+	}
+
+	message = LocalizationMessage(self->message, NULL);
+
+	if (strncmp(message, game.helpmessage1, sizeof(game.helpmessage1)) &&
+		strncmp(message, game.helpmessage2, sizeof(game.helpmessage2)))
+	{
+		if (!game.helpmessage1[0])
+		{
+			strncpy(game.helpmessage1, message, sizeof(game.helpmessage1));
+		}
+		else
+		{
+			strncpy(game.helpmessage2, message, sizeof(game.helpmessage2));
+		}
+
+		gi.centerprintf(other, message);
+	}
+
+
+	G_UseTargets(self, self);
+}
+
+void
+SP_trigger_mission_give(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	InitTrigger(self);
+	self->touch = trigger_mission_give_touch;
+}
+
+/*
+ * QUAKED trigger_mission_take (.5 .5 .5) ?
+ * Heretic 2: Removes mission objectives
+ *
+ * spawnflags:
+ *  16: Take objective 1
+ *  32: Take objective 2
+ */
+void
+trigger_mission_take_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+		csurface_t *surf /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (self->spawnflags & 16)
+	{
+		game.helpmessage1[0] = 0;
+	}
+
+	if (self->spawnflags & 32)
+	{
+		game.helpmessage2[0] = 0;
+	}
+
+	G_UseTargets(self, self);
+}
+
+void
+SP_trigger_mission_take(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	InitTrigger(self);
+	self->touch = trigger_mission_take_touch;
+}

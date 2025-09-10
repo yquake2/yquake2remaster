@@ -221,6 +221,8 @@
 {"trigger_hurt", SP_trigger_hurt},
 {"trigger_key", SP_trigger_key},
 {"trigger_monsterjump", SP_trigger_monsterjump},
+{"trigger_mission_give", SP_trigger_mission_give},
+{"trigger_mission_take", SP_trigger_mission_take},
 {"trigger_multiple", SP_trigger_multiple},
 {"trigger_once", SP_trigger_once},
 {"trigger_push", SP_trigger_push},
