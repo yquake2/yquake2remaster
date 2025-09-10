@@ -44,7 +44,7 @@ jobs:
         unzip vulkan_headers.zip "Vulkan-Headers-master/include/**"
         cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/i686-w64-mingw32/include/
     - name: Check out repository code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Build
       run: |
         # build with cmake and visual studio
@@ -130,7 +130,7 @@ jobs:
         unzip vulkan_headers.zip "Vulkan-Headers-master/include/**"
         cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/x86_64-w64-mingw32/include/
     - name: Check out repository code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Build
       run: |
         # build with cmake and visual studio
