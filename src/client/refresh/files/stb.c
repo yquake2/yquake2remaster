@@ -814,6 +814,7 @@ R_NextUTF8Code(const char **curr)
 	}
 	else
 	{
+		(*curr) ++;
 		/* incorrect utf8 encoding */
 		return 0;
 	}
