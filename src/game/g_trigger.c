@@ -1562,7 +1562,6 @@ trigger_mission_give_touch(edict_t *self, edict_t *other, cplane_t *plane /* unu
 		gi.centerprintf(other, message);
 	}
 
-
 	G_UseTargets(self, self);
 }
 
