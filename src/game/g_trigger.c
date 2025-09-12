@@ -1552,11 +1552,11 @@ trigger_mission_give_touch(edict_t *self, edict_t *other, cplane_t *plane /* unu
 	{
 		if (!game.helpmessage1[0])
 		{
-			strncpy(game.helpmessage1, message, sizeof(game.helpmessage1));
+			Q_strlcpy(game.helpmessage1, message, sizeof(game.helpmessage1));
 		}
 		else
 		{
-			strncpy(game.helpmessage2, message, sizeof(game.helpmessage2));
+			Q_strlcpy(game.helpmessage2, message, sizeof(game.helpmessage2));
 		}
 
 		gi.centerprintf(other, message);
