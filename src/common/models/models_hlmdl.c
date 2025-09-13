@@ -135,6 +135,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		for (j = 0; j < bodyparts[i].num_models; j++)
 		{
 			hlmdl_bodymesh_t *mesh_nodes;
+			vec3_t *in_verts;
 			int k;
 
 			Com_Printf("%s: %s: body part '%s' model '%s' mesh %d\n",
@@ -170,6 +171,13 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 							trivert[2], trivert[3]);
 					}
 				}
+			}
+
+			in_verts = (vec3_t *)((byte *)buffer + bodymodels[j].ofs_vert);
+			for (k = 0; k < bodymodels[j].num_verts; k++)
+			{
+				Com_Printf("%s: vert[%03ld]: %.2fx%.2fx%.2fx\n",
+					__func__, i, in_verts[k][0], in_verts[k][1], in_verts[k][2]);
 			}
 		}
 	}
