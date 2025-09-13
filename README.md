@@ -205,6 +205,9 @@ Games check videos:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
+* [ ] game: misc_update_spawner
+* [ ] game: maps.lst
+* [ ] game: maps limit
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
