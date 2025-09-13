@@ -99,6 +99,7 @@ extern void SP_misc_strogg_ship ( edict_t * ent ) ;
 extern void SP_misc_teleporter ( edict_t * ent ) ;
 extern void SP_misc_teleporter_dest ( edict_t * ent ) ;
 extern void SP_misc_transport ( edict_t * ent ) ;
+extern void SP_misc_update_spawner ( edict_t * self ) ;
 extern void SP_misc_viper ( edict_t * ent ) ;
 extern void SP_misc_viper_bomb(edict_t * self);
 extern void SP_misc_viper_missile(edict_t * self);

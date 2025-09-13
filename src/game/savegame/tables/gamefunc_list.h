@@ -997,6 +997,7 @@
 {"misc_viper_bomb_use", (byte *)misc_viper_bomb_use},
 {"misc_viper_missile_use", (byte *)misc_viper_missile_use},
 {"misc_viper_use", (byte *)misc_viper_use},
+{"misc_update_spawner_touch", (byte *)misc_update_spawner_touch},
 {"monster_dabeam", (byte *)monster_dabeam},
 {"monster_death_use", (byte *)monster_death_use},
 {"monster_done_dodge", (byte *)monster_done_dodge},
