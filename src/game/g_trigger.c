@@ -1641,13 +1641,16 @@ misc_update_spawner_touch(edict_t *self, edict_t *other, cplane_t *plane /* unus
 
 	spot = SP_GetSpawnPoint();
 
-	/* copy trigger position and angles to spawn point */
-	for (i = 0; i < 3; i++)
+	if (spot)
 	{
-		spot->s.origin[i] = (self->mins[i] + self->maxs[i]) / 2;
-	}
+		/* copy trigger position and angles to spawn point */
+		for (i = 0; i < 3; i++)
+		{
+			spot->s.origin[i] = (self->mins[i] + self->maxs[i]) / 2;
+		}
 
-	VectorCopy(self->s.angles, spot->s.angles);
+		VectorCopy(self->s.angles, spot->s.angles);
+	}
 
 	G_FreeEdict(self);
 }
