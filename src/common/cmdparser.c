@@ -913,18 +913,21 @@ const char *
 Cmd_CompleteMapCommand(const char *partial)
 {
 	char **mapNames;
-	int i, j, k, nbMatches, nMaps;
-	char *mapName, *lastsep;
-	char *pmatch[1024];
-	qboolean partialFillContinue = true;
+	int nMaps;
 
 	if ((mapNames = FS_ListFiles2("maps/*.bsp", &nMaps, 0, 0)) != NULL)
 	{
 		size_t len;
+		int i, j, k, nbMatches;
+		char *mapName, *lastsep;
+		char **pmatch;
+		qboolean partialFillContinue = true;
 
 		len = strlen(partial);
 		nbMatches = 0;
 		memset(retval, 0, sizeof(retval));
+
+		pmatch = malloc(nMaps * sizeof(char*));
 
 		for (i = 0; i < nMaps - 1; i++)
 		{
@@ -944,6 +947,7 @@ Cmd_CompleteMapCommand(const char *partial)
 			{
 				Q_strlcpy(retval, partial, sizeof(retval));
 			}
+
 			/* check for partial match */
 			else if (!Q_strncasecmp(partial, mapName, len))
 			{
@@ -959,6 +963,9 @@ Cmd_CompleteMapCommand(const char *partial)
 		else if (nbMatches > 1)
 		{
 			Com_Printf("\n=================\n\n");
+
+			/* Sort it */
+			qsort(pmatch, nbMatches, sizeof(pmatch[0]), Q_sort_strcomp);
 
 			for (j = 0; j < nbMatches; j++)
 			{
@@ -988,6 +995,7 @@ Cmd_CompleteMapCommand(const char *partial)
 			}
 		}
 
+		free(pmatch);
 		FS_FreeList(mapNames, nMaps);
 	}
 
