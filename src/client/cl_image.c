@@ -264,7 +264,7 @@ LoadImageATD(atd_sprites_t* anim, char *tmp_buf, int len)
 			atd_frame_t *frame;
 
 			anim->frame_count++;
-			anim->frames = realloc(anim->frames, anim->frame_count * sizeof(frame_t));
+			anim->frames = realloc(anim->frames, anim->frame_count * sizeof(atd_frame_t));
 			frame = &anim->frames[anim->frame_count - 1];
 			frame->next = -1;
 			frame->wait = 0.0f;
