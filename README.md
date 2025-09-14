@@ -249,6 +249,9 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 Other games support goals:
 
 * [ ] Jabot: fix crash in SZ_GetSpace,
+* [ ] heretic 2, kingpin: use nor all surface flags to detect map type
+* [ ] Doom: implement map load logic,
+* [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Half-Life: support mdl,
 * [ ] Anachronox: load atd as sprite,
