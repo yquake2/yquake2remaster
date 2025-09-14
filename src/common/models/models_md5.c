@@ -426,6 +426,14 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		else if (!strcmp(token, "numFrames"))
 		{
 			token = COM_Parse(&curr_buff);
+			if (anim->skelFrames)
+			{
+				/* To insure analysers as we are in a loop */
+				Com_Printf("Error: several numFrames sections");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
 			anim->num_frames = (int)strtol(token, (char **)NULL, 10);
 
 			/* Allocate memory for skeleton frames and bounding boxes */
@@ -438,6 +446,14 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		else if (!strcmp(token, "numJoints"))
 		{
 			token = COM_Parse(&curr_buff);
+			if (jointInfos || baseFrame)
+			{
+				/* To insure analysers as we are in a loop */
+				Com_Printf("Error: several numJoints sections");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
 			anim->num_joints = (int)strtol(token, (char **)NULL, 10);
 
 			if (anim->num_joints > 0)
@@ -463,6 +479,14 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		else if (!strcmp(token, "numAnimatedComponents"))
 		{
 			token = COM_Parse(&curr_buff);
+			if (animFrameData)
+			{
+				/* To insure analysers as we are in a loop */
+				Com_Printf("Error: several numAnimatedComponents sections");
+				/* broken file */
+				FreeModelMd5Frames(anim);
+				break;
+			}
 			numAnimatedComponents = (int)strtol(token, (char **)NULL, 10);
 
 			if (numAnimatedComponents > 0)

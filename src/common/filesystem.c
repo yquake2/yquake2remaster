@@ -790,6 +790,10 @@ FS_Read(void *buffer, int size, fileHandle_t f)
 		}
 		else
 		{
+			if (buffer != compressed_buf)
+			{
+				free(compressed_buf);
+			}
 			return 0;
 		}
 
@@ -879,6 +883,10 @@ FS_FRead(void *buffer, int size, int count, fileHandle_t f)
 			}
 			else
 			{
+				if (buffer != compressed_buf)
+				{
+					free(compressed_buf);
+				}
 				return 0;
 			}
 
