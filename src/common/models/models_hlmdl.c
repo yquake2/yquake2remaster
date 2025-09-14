@@ -73,7 +73,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	hlmdl_framegroup_t *seqgroups;
 	dmdx_t dmdxheader, *pheader;
 	hlmdl_texture_t *in_skins;
-	dmdxmesh_t *mesh_nodes;
+	dmdxmesh_t *mesh_nodes, *mesh_tmp;
 	void *extradata;
 	const hlmdl_sequence_t *sequences;
 	size_t i, framesize;
@@ -124,10 +124,14 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	bodyparts = (hlmdl_bodypart_t *)((byte *)buffer + pinmodel.ofs_bodyparts);
+	mesh_tmp = malloc(pinmodel.num_bodyparts * sizeof(*mesh_tmp));
 	for (i = 0; i < pinmodel.num_bodyparts; i++)
 	{
 		hlmdl_bodymodel_t *bodymodels;
 		int j;
+
+		/* TODO: convert submodels to additional meshes? */
+		mesh_tmp[i].ofs_tris = num_tris;
 
 		Com_Printf("%s: %s: Bodypart %s: nummodels %d, base %d\n",
 			__func__, mod_name, bodyparts[i].name, bodyparts[i].num_models,
@@ -249,6 +253,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					__func__, i, in_verts[k][0], in_verts[k][1], in_verts[k][2]);
 			}
 		}
+
+		mesh_tmp[i].num_tris = num_tris - mesh_tmp[i].ofs_tris;
 	}
 
 	/* Calculate total number of frames (sum of all sequences' num_frames) */
@@ -268,12 +274,13 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.skinheight = 256;
 	dmdxheader.framesize = framesize;
 
-	dmdxheader.num_meshes = 0;
+	dmdxheader.num_meshes = pinmodel.num_bodyparts;
 	dmdxheader.num_skins = pinmodel.num_skins;
 	dmdxheader.num_xyz = pinmodel.num_bones;
 	dmdxheader.num_st = num_st;
 	dmdxheader.num_tris = num_tris;
-	dmdxheader.num_glcmds = 0;
+	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
+	dmdxheader.num_glcmds = (10 * num_tris) + 1 * pinmodel.num_bodyparts;
 	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_frames = 0; /* total_frames; */
 	dmdxheader.num_animgroup = pinmodel.num_seq;
@@ -285,8 +292,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
-	mesh_nodes[0].ofs_tris = 0;
-	mesh_nodes[0].num_tris = num_tris;
+	memcpy(mesh_nodes, mesh_tmp, pinmodel.num_bodyparts * sizeof(*mesh_tmp));
 
 	memcpy((char *)pheader + pheader->ofs_st, st_tmp,
 		num_st * sizeof(dstvert_t));
@@ -310,6 +316,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	Mod_LoadHLMDLAnimGroupList(pheader, sequences, pinmodel.num_seq);
+	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
 	return extradata;
