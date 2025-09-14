@@ -1279,6 +1279,7 @@ REFGL4_OBJS_ := \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
 	src/common/shared/shared.o \
+	src/common/shared/utils.o \
 	src/common/cmodels.o \
 	src/common/md4.o
 

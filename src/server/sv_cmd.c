@@ -217,6 +217,11 @@ SV_GameMap_f(void)
 			savedInuse = malloc(maxclients->value * sizeof(qboolean));
 
 			YQ2_COM_CHECK_OOM(savedInuse, "malloc()", maxclients->value * sizeof(qboolean))
+			if (!savedInuse)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
 
 			for (i = 0, cl = svs.clients; i < maxclients->value; i++, cl++)
 			{

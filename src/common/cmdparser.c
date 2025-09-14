@@ -835,7 +835,19 @@ Cmd_CompleteCommand(const char *partial)
 		i++;
 	}
 
+	if (!i)
+	{
+		return NULL;
+	}
+
 	pmatch = malloc(i * sizeof(char *));
+	YQ2_COM_CHECK_OOM(pmatch, "malloc()", i * sizeof(char *))
+	if (!pmatch)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+
 	memset(pmatch, 0, i * sizeof(char *));
 
 	i = 0;
@@ -942,6 +954,13 @@ Cmd_CompleteMapCommand(const char *partial)
 		memset(retval, 0, sizeof(retval));
 
 		pmatch = malloc(nMaps * sizeof(char*));
+		YQ2_COM_CHECK_OOM(pmatch, "malloc()", nMaps * sizeof(char*))
+		if (!pmatch)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			FS_FreeList(mapNames, nMaps);
+			return retval;
+		}
 
 		for (i = 0; i < nMaps - 1; i++)
 		{

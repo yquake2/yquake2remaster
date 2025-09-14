@@ -1014,6 +1014,11 @@ void CL_SetHTTPServer (const char *URL)
 	size_t urllen = strlen(URL);
 	char *cleanURL = strdup(URL);
 	YQ2_COM_CHECK_OOM(cleanURL, "strdup(URL)", strlen(URL))
+	if (!cleanURL)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
 
 	if (cleanURL[urllen - 1] == '/')
 	{
@@ -1109,6 +1114,11 @@ qboolean CL_QueueHTTPDownload(const char *quakePath, qboolean gamedirForFilelist
 	q->next = malloc(sizeof(*q));
 
 	YQ2_COM_CHECK_OOM(q->next, "malloc(sizeof(*q))", sizeof(*q))
+	if (!q->next)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return false;
+	}
 
 	q = q->next;
 	q->next = NULL;

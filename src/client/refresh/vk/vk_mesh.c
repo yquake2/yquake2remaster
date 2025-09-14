@@ -485,14 +485,14 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "%s %s: no such frame %d\n",
+		Com_DPrintf("%s %s: no such frame %d\n",
 				__func__, currentmodel->name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
-		R_Printf(PRINT_DEVELOPER, "%s %s: no such oldframe %d\n",
+		Com_DPrintf("%s %s: no such oldframe %d\n",
 				__func__, currentmodel->name, e->oldframe);
 		e->oldframe = 0;
 	}

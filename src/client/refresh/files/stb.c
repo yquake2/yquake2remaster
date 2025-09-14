@@ -515,7 +515,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 		if (!pic)
 		{
-			R_Printf(PRINT_DEVELOPER, "Bad %s file %s\n", ext, filename);
+			Com_DPrintf("Bad %s file %s\n", ext, filename);
 			return NULL;
 		}
 

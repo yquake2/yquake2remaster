@@ -99,9 +99,9 @@ GL4_TextureMode(char *string)
 		if (unfiltered2D && glt->type == it_pic)
 		{
 			// exception to that exception: stuff on the r_lerp_list
-			nolerp = (lerplist== NULL) || (strstr(lerplist, glt->name) == NULL);
+			nolerp = (lerplist == NULL) || Utils_FilenameFiltered(glt->name, lerplist, ' ');
 		}
-		else if(nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
+		else if (nolerplist != NULL && Utils_FilenameFiltered(glt->name, nolerplist, ' '))
 		{
 			nolerp = true;
 		}
@@ -500,7 +500,7 @@ GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
 		}
 		else
 		{
-			R_Printf(PRINT_DEVELOPER,
+			Com_DPrintf(
 					"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
 					name, image->width, image->height, realwidth, realheight);
 		}
@@ -585,7 +585,7 @@ GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
 			}
 			else
 			{
-				R_Printf(PRINT_DEVELOPER,
+				Com_DPrintf(
 						"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
 						name, image->width, image->height, realwidth, realheight);
 			}
@@ -615,7 +615,8 @@ GL4_FindImage(const char *originname, imagetype_t type)
 	char namewe[256], name[256] = {0};
 	gl4image_t *image;
 	const char* ext;
-	int i, len;
+	size_t len;
+	int i;
 
 	if (!originname)
 	{

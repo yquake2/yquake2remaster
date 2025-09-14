@@ -1323,7 +1323,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 	{
 		size_t size;
 
-		Com_Printf("init: no animation loaded.\n");
+		Com_Printf("%s: no animation loaded.\n", __func__);
 		md5file->num_frames = 1;
 
 		size = sizeof(md5_frame_t) * md5file->num_frames;

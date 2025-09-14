@@ -269,12 +269,23 @@ static void
 InitDisplayIndices()
 {
 	displayindices = malloc((num_displays + 1) * sizeof(char *));
+	YQ2_COM_CHECK_OOM(displayindices, "malloc()", (num_displays + 1) * sizeof(char *))
+	if (!displayindices)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
 
 	for ( int i = 0; i < num_displays; i++ )
 	{
 		/* There are a maximum of 12 digits in 32 bit int + 1 for the NULL terminator. */
 		displayindices[ i ] = malloc(16 * sizeof( char ));
 		YQ2_COM_CHECK_OOM(displayindices[i], "malloc()", 16 * sizeof( char ))
+		if (!displayindices[i])
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			break;
+		}
 
 		snprintf( displayindices[ i ], 16, "%d", i );
 	}

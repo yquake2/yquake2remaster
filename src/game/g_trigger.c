@@ -1634,7 +1634,7 @@ misc_update_spawner_touch(edict_t *self, edict_t *other, cplane_t *plane /* unus
 	edict_t	*spot = NULL;
 	int i;
 
-	if (!self && !other->client)
+	if (!self || !other || !other->client)
 	{
 		return;
 	}

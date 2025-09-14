@@ -56,7 +56,7 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		mesh_nodes = (dmdxmesh_t *)((char*)pheader + pheader->ofs_meshes);
 		for (i = 0; i < pheader->num_meshes; i++)
 		{
-			R_Printf(PRINT_DEVELOPER, "%s: model %s mesh #%d: %d commands, %d tris\n",
+			Com_DPrintf("%s: model %s mesh #%d: %d commands, %d tris\n",
 				__func__, mod_name, i, mesh_nodes[i].num_glcmds, mesh_nodes[i].num_tris);
 			num_glcmds += mesh_nodes[i].num_glcmds;
 		}
@@ -64,7 +64,7 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		framegroups = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 		for (i = 0; i < pheader->num_animgroup; i++)
 		{
-			R_Printf(PRINT_DEVELOPER,
+			Com_DPrintf(
 				"%s: model %s animation group #%d: '%s' %d:%d, box %.2fx%.2fx%.2f:%.2fx%.2fx%.2f\n",
 				__func__, mod_name, i, framegroups[i].name, framegroups[i].ofs,
 				framegroups[i].num,
@@ -72,7 +72,7 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 				framegroups[i].maxs[0], framegroups[i].maxs[1], framegroups[i].maxs[2]);
 		}
 
-		R_Printf(PRINT_DEVELOPER,
+		Com_DPrintf(
 			"%s: model %s num tris %d / num vert %d / commands %d of %d / frames %d\n",
 			__func__, mod_name, pheader->num_tris, pheader->num_xyz, num_glcmds,
 			pheader->num_glcmds, pheader->num_frames);
@@ -94,7 +94,7 @@ Mod_LoadMinMaxUpdate(const char *mod_name, vec3_t mins, vec3_t maxs, void *extra
 
 		Mod_UpdateMinMaxByFrames(pheader, 0, pheader->num_frames, mins, maxs);
 
-		R_Printf(PRINT_DEVELOPER, "Model %s box: %.1fx%.1fx%.1f -> %.1fx%.1fx%.1f\n",
+		Com_DPrintf("Model %s box: %.1fx%.1fx%.1f -> %.1fx%.1fx%.1f\n",
 			mod_name,
 			mins[0], mins[1], mins[2],
 			maxs[0], maxs[1], maxs[2]);
@@ -227,7 +227,7 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 				Q_strlcpy(skin_path, name, sizeof(skin_path));
 				strcpy(strrchr(skin_path, '/') + 1, skin);
 
-				R_Printf(PRINT_DEVELOPER, "Model %s: No original skin found, %s is used\n",
+				Com_DPrintf("Model %s: No original skin found, %s is used\n",
 					name, skin_path);
 				skins[i] = find_image(skin_path, it_skin);
 			}

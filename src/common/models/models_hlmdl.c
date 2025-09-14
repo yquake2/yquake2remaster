@@ -176,14 +176,34 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 					if (!st_tmp || (num_st + count) >= st_size)
 					{
+						dstvert_t *tmp = NULL;
+
 						st_size = num_st + count * 2;
-						st_tmp = realloc(st_tmp, st_size * sizeof(*st_tmp));
+						tmp = realloc(st_tmp, st_size * sizeof(*st_tmp));
+						YQ2_COM_CHECK_OOM(tmp, "realloc()", st_size * sizeof(*st_tmp))
+						if (!tmp)
+						{
+							st_size = num_st;
+							break;
+						}
+
+						st_tmp = tmp;
 					}
 
 					if (!tri_tmp || (num_tris + count) >= tri_size)
 					{
+						dtriangle_t *tmp = NULL;
+
 						tri_size = num_tris + count * 2;
-						tri_tmp = realloc(tri_tmp, tri_size * sizeof(*tri_tmp));
+						tmp = realloc(tri_tmp, tri_size * sizeof(*tri_tmp));
+						YQ2_COM_CHECK_OOM(tmp, "realloc()", tri_size * sizeof(*tri_tmp))
+						if (!tmp)
+						{
+							tri_size = num_tris;
+							break;
+						}
+
+						tri_tmp = tmp;
 					}
 
 					for (g = 0; g < count; g++, trivert += 4)

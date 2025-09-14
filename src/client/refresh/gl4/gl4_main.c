@@ -234,7 +234,7 @@ GL4_Register(void)
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
 
 	/* don't bilerp characters and crosshairs */
-	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", "pics/conchars.pcx pics/ch1.pcx pics/ch2.pcx pics/ch3.pcx", CVAR_ARCHIVE);
+	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
 	/* textures that should always be filtered, even if r_2D_unfiltered or an unfiltered gl mode is used */
 	r_lerp_list = ri.Cvar_Get("r_lerp_list", "", CVAR_ARCHIVE);
 	/* don't bilerp any 2D elements */
@@ -1006,7 +1006,7 @@ GL4_DrawParticles(void)
 
 			for(int j=0; j<3; ++j)
 			{
-				cur->color[j] = color[j]*(1.0f / 255.0f);
+				cur->color[j] = color[j] * (1.0f / 255.0f);
 			}
 
 			cur->color[3] = p->alpha;
@@ -1795,6 +1795,7 @@ GL4_BeginFrame(float camera_separation)
 {
 #if 0 // TODO: stereo stuff
 	gl_state.camera_separation = camera_separation;
+
 	// force a vid_restart if gl1_stereo has been modified.
 	if ( gl_state.stereo_mode != gl1_stereo->value ) {
 		// If we've gone from one mode to another with the same special buffer requirements there's no need to restart.
@@ -1984,9 +1985,9 @@ GetRefAPI(refimport_t imp)
 	re.EndWorldRenderpass = GL4_EndWorldRenderpass;
 	re.EndFrame = GL4_EndFrame;
 
-    // Tell the client that we're unsing the
+	// Tell the client that we're unsing the
 	// new renderer restart API.
-    ri.Vid_RequestRestart(RESTART_NO);
+	ri.Vid_RequestRestart(RESTART_NO);
 
 	return re;
 }

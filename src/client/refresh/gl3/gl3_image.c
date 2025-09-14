@@ -116,7 +116,8 @@ GL3_TextureMode(char *string)
 			/* Set anisotropic filter if supported and enabled */
 			if (gl3config.anisotropic && gl_anisotropic->value)
 			{
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, Q_max(gl_anisotropic->value, 1.f));
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+					Q_max(gl_anisotropic->value, 1.f));
 			}
 		}
 		else /* texture has no mipmaps */

@@ -1059,7 +1059,10 @@ GL3_DrawParticles(void)
 			cur->size = pointSize;
 			cur->dist = VectorLength(offset);
 
-			for(int j=0; j<3; ++j)  cur->color[j] = color[j]*(1.0f/255.0f);
+			for(int j=0; j<3; ++j)
+			{
+				cur->color[j] = color[j] * (1.0f / 255.0f);
+			}
 
 			cur->color[3] = p->alpha;
 		}

@@ -4659,6 +4659,8 @@ StartServer_MenuInit(void)
 		if ((length = FS_LoadFile("maps.lst", (void **)&buffer)) == -1)
 		{
 			Com_Error(ERR_DROP, "couldn't find maps.lst\n");
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
 		}
 
 		s = buffer;
@@ -4677,12 +4679,19 @@ StartServer_MenuInit(void)
 		if (nummaps == 0)
 		{
 			Com_Error(ERR_DROP, "no maps in maps.lst\n");
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
 		}
 
 		nummapslen = sizeof(char *) * (nummaps + 1);
 		mapnames = malloc(nummapslen);
 
 		YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (nummaps + 1))", nummapslen)
+		if (!mapnames)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
 
 		memset(mapnames, 0, nummapslen);
 
@@ -4708,6 +4717,11 @@ StartServer_MenuInit(void)
 
 			mapnames[i] = strdup(scratch);
 			YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
+			if (!mapnames[i])
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
 		}
 
 		mapnames[nummaps] = 0;
@@ -5912,6 +5926,11 @@ PlayerDirectoryList(void)
 	// malloc directories
 	char** data = (char**)calloc(num, sizeof(char*));
 	YQ2_COM_CHECK_OOM(data, "calloc()", num * sizeof(char*))
+	if (!data)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return false;
+	}
 
 	s_directory.data = data;
 
@@ -5961,6 +5980,11 @@ PlayerDirectoryList(void)
 			char* s = (char*)malloc(MAX_QPATH);
 
 			YQ2_COM_CHECK_OOM(s, "malloc()", MAX_QPATH * sizeof(char))
+			if (!s)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return false;
+			}
 
 			Q_strlcpy(s, dirname, MAX_QPATH);
 			data[dirnum] = s;
@@ -6023,6 +6047,11 @@ HasSkinsInDir(const char *dirname, int *num)
 	{
 		curr = list = malloc(sizeof(char *) * (*num + 1));
 		YQ2_COM_CHECK_OOM(list, "realloc()", (size_t)sizeof(char *) * (*num + 1))
+		if (!list)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return false;
+		}
 
 		if (list_png)
 		{
@@ -6131,6 +6160,11 @@ PlayerModelList(void)
 	// malloc models
 	data = (char**)calloc(MAX_PLAYERMODELS, sizeof(char*));
 	YQ2_COM_CHECK_OOM(data, "calloc()", MAX_PLAYERMODELS * sizeof(char*))
+	if (!data)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return false;
+	}
 
 	s_modelname.data = data;
 	s_modelname.num = 0;
@@ -6205,6 +6239,12 @@ PlayerModelList(void)
 		/* malloc skinnames */
 		data = (char**)malloc((s_skinnames[mdl].num + 1) * sizeof(char*));
 		YQ2_COM_CHECK_OOM(data, "malloc()", (s_skinnames[mdl].num + 1) * sizeof(char*))
+		if (!data)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return false;
+		}
+
 		memset(data, 0, (s_skinnames[mdl].num + 1) * sizeof(char*));
 
 		s_skinnames[mdl].data = data;
@@ -6235,6 +6275,11 @@ PlayerModelList(void)
 					s = (char*)malloc(l);
 
 					YQ2_COM_CHECK_OOM(s, "malloc()", l * sizeof(char))
+					if (!s)
+					{
+						/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+						return false;
+					}
 
 					StripExtension(t);
 					Q_strlcpy(s, t + 1, l);
@@ -6253,6 +6298,11 @@ PlayerModelList(void)
 		s = (char*)malloc(l);
 
 		YQ2_COM_CHECK_OOM(s, "malloc()", l * sizeof(char))
+		if (!s)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return false;
+		}
 
 		Q_strlcpy(s, t + 1, l);
 
