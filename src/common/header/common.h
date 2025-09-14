@@ -809,6 +809,7 @@ YQ2_ATTR_NORETURN void Com_Quit(void);
 
 // terminate yq2 (with Com_Error()) if VAR is NULL (after malloc() or similar)
 // and print message about it
+// use me use
 #define YQ2_COM_CHECK_OOM(VAR, ALLOC_FN_NAME, ALLOC_SIZE) \
 	if(VAR == NULL) { \
 		Com_Error(ERR_FATAL, "%s for " YQ2_COM_PRIdS " bytes failed in %s() (%s == NULL)! Out of Memory?!\n", \
