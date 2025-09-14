@@ -53,11 +53,9 @@ Mod_LoadHLMDLAnimGroupList(dmdx_t *pheader, const hlmdl_sequence_t *sequences, i
 		pframegroup[i].ofs = frame_offset;
 		pframegroup[i].num = sequences[i].num_frames;
 
-#if 0
 		Mod_UpdateMinMaxByFrames(pheader,
 			pframegroup[i].ofs, pframegroup[i].ofs + pframegroup[i].num,
 			pframegroup[i].mins, pframegroup[i].maxs);
-#endif
 
 		frame_offset += pframegroup[i].num;
 	}
@@ -78,11 +76,13 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxmesh_t *mesh_nodes;
 	void *extradata;
 	const hlmdl_sequence_t *sequences;
-	size_t i, num_tris, framesize;
+	size_t i, framesize;
 	int total_frames;
 	hlmdl_bodypart_t *bodyparts;
 	dstvert_t *st_tmp = NULL;
+	dtriangle_t *tri_tmp = NULL;
 	int num_st = 0, st_size = 0;
+	int num_tris = 0, tri_size = 0;
 
 	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
 		(int *)&pinmodel);
@@ -157,31 +157,88 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 				trivert = (short *)((byte *)buffer + mesh_nodes[k].ofs_tris);
 				while ((l = *(trivert++)))
 				{
+					int g, count = l, st_prefix = num_st;
+					int *verts = NULL;
+
 					Com_Printf("%s: %s: tris %d\n",
 						__func__, mod_name, l);
 
-					if (l < 0)
+					if (count < 0)
 					{
-						l = -l;
+						count = -count;
 					}
 
-					if (!st_tmp || (num_st + l) >= st_size)
+					verts = malloc(count * sizeof(*verts));
+
+					if (!st_tmp || (num_st + count) >= st_size)
 					{
-						st_size = num_st + l * 2;
+						st_size = num_st + count * 2;
 						st_tmp = realloc(st_tmp, st_size * sizeof(*st_tmp));
 					}
 
-					for (; l > 0; l--, trivert += 4)
+					if (!tri_tmp || (num_tris + count) >= tri_size)
+					{
+						tri_size = num_tris + count * 2;
+						tri_tmp = realloc(tri_tmp, tri_size * sizeof(*tri_tmp));
+					}
+
+					for (g = 0; g < count; g++, trivert += 4)
 					{
 						st_tmp[num_st].s = trivert[2] * 256;
 						st_tmp[num_st].t = trivert[3] * 256;
 						num_st++;
+
+						verts[g] = trivert[0];
 
 						Com_Printf("%s: %s: tris #%d vert: %d, norm: %d, s: %d, t: %d\n",
 							__func__, mod_name, l,
 							trivert[0], trivert[1],
 							trivert[2], trivert[3]);
 					}
+
+					/* Reconstruct triangles */
+					if (l > 0)
+					{
+						/* Triangle strip */
+						for (g = 0; g < count - 2; g++)
+						{
+							dtriangle_t *tri = &tri_tmp[num_tris++];
+
+							if (g % 2 == 0)
+							{
+								tri->index_xyz[0] = verts[g];
+								tri->index_xyz[1] = verts[g + 1];
+								tri->index_xyz[2] = verts[g + 2];
+							}
+							else
+							{
+								tri->index_xyz[0] = verts[g + 1];
+								tri->index_xyz[1] = verts[g];
+								tri->index_xyz[2] = verts[g + 2];
+							}
+							tri->index_st[0] = st_prefix + g;
+							tri->index_st[1] = st_prefix + g + 1;
+							tri->index_st[2] = st_prefix + g + 2;
+						}
+					}
+					else
+					{
+						// Triangle fan
+						for (g = 1; g < count - 1; g++)
+						{
+							dtriangle_t *tri = &tri_tmp[num_tris++];
+
+							tri->index_xyz[0] = verts[0];
+							tri->index_xyz[1] = verts[g];
+							tri->index_xyz[2] = verts[g + 1];
+
+							tri->index_st[0] = st_prefix + 0;
+							tri->index_st[1] = st_prefix + g;
+							tri->index_st[2] = st_prefix + g + 1;
+						}
+					}
+
+					free(verts);
 				}
 			}
 
@@ -204,8 +261,6 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	/* Calculate frame size */
 	framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
 	framesize += pinmodel.num_bones * sizeof(dxtrivertx_t);
-
-	num_tris = 0;
 
 	/* copy back all values */
 	memset(&dmdxheader, 0, sizeof(dmdxheader));
@@ -236,6 +291,10 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	memcpy((char *)pheader + pheader->ofs_st, st_tmp,
 		num_st * sizeof(dstvert_t));
 	free(st_tmp);
+
+	memcpy((char *)pheader + pheader->ofs_tris, tri_tmp,
+		num_tris * sizeof(dtriangle_t));
+	free(tri_tmp);
 
 	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel.ofs_texture);
 	for (i = 0; i < pinmodel.num_skins; i++)
