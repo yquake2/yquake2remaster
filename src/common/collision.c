@@ -1898,10 +1898,32 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	if ((mod->numleafs > pxsrow_len) || !pvsrow || !phsrow)
 	{
+		byte *tmp;
+
 		/* reallocate buffers for PVS/PHS buffers*/
 		pxsrow_len = (mod->numleafs + 63) & ~63;
-		pvsrow = realloc(pvsrow, pxsrow_len / 8);
-		phsrow = realloc(phsrow, pxsrow_len / 8);
+		tmp = realloc(pvsrow, pxsrow_len / 8);
+		YQ2_COM_CHECK_OOM(tmp, "realloc()",
+			pxsrow_len / 8)
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
+
+		pvsrow = tmp;
+
+		tmp = realloc(phsrow, pxsrow_len / 8);
+		YQ2_COM_CHECK_OOM(tmp, "realloc()",
+			pxsrow_len / 8)
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
+
+		phsrow = tmp;
+
 		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			pxsrow_len);
 	}

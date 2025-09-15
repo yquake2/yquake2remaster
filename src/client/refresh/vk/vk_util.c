@@ -311,8 +311,12 @@ memory_block_empty(int *block_pos)
 	}
 
 	memory = realloc(used_memory, (used_memory_size * 2) * sizeof(MemoryResource_t));
+	YQ2_COM_CHECK_OOM(memory, "realloc()",
+		(used_memory_size * 2) * sizeof(MemoryResource_t))
 	if (!memory)
+	{
 		return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+	}
 
 	// use previous end
 	*block_pos = used_memory_size;

@@ -935,11 +935,25 @@ ReadMD5Model(const char *buffer, size_t size)
 			/* more meshes than originally provided */
 			if (curr_mesh >= mdl->num_meshes)
 			{
+				md5_mesh_t *tmp;
+
 				mdl->num_meshes = curr_mesh + 1;
 
 				/* Allocate memory for meshes */
-				mdl->meshes = (md5_mesh_t *)
+				tmp = (md5_mesh_t *)
 					realloc(mdl->meshes, mdl->num_meshes * sizeof(md5_mesh_t));
+				YQ2_COM_CHECK_OOM(tmp, "realloc()",
+					mdl->num_meshes * sizeof(md5_mesh_t))
+				if (!tmp)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					FreeModelMd5(mdl);
+					free(safe_buffer);
+
+					return NULL;
+				}
+
+				mdl->meshes = tmp;
 				memset(mdl->meshes + curr_mesh, 0, sizeof(md5_mesh_t));
 			}
 

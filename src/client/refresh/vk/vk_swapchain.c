@@ -146,6 +146,8 @@ VkResult QVk_CreateSwapchain()
 	VkSurfaceFormatKHR *surfaceFormats = NULL;
 	VkPresentModeKHR *presentModes = NULL;
 	uint32_t formatCount, presentModesCount;
+	VkImage *tmp;
+
 	VK_VERIFY(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_device.physical, vk_surface, &surfaceCaps));
 	VK_VERIFY(vkGetPhysicalDeviceSurfaceFormatsKHR(vk_device.physical, vk_surface, &formatCount, NULL));
 	VK_VERIFY(vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device.physical, vk_surface, &presentModesCount, NULL));
@@ -240,10 +242,21 @@ VkResult QVk_CreateSwapchain()
 
 	VkResult res = vkCreateSwapchainKHR(vk_device.logical, &scCreateInfo, NULL, &vk_swapchain.sc);
 	if (res != VK_SUCCESS)
+	{
 		return res;
+	}
 
 	VK_VERIFY(vkGetSwapchainImagesKHR(vk_device.logical, vk_swapchain.sc, &imageCount, NULL));
-	vk_swapchain.images = (VkImage *)realloc(vk_swapchain.images, imageCount * sizeof(VkImage));
+	tmp = (VkImage *)realloc(vk_swapchain.images, imageCount * sizeof(VkImage));
+	YQ2_COM_CHECK_OOM(tmp, "realloc()",
+		imageCount * sizeof(VkImage))
+	if (!tmp)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+	}
+
+	vk_swapchain.images = tmp;
 	vk_swapchain.imageCount = imageCount;
 	res = vkGetSwapchainImagesKHR(vk_device.logical, vk_swapchain.sc, &imageCount, vk_swapchain.images);
 

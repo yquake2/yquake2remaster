@@ -66,6 +66,8 @@ Mesh_VertsRealloc(int count)
 	verts_count = ROUNDUP(count * 2, 256);
 
 	ptr = realloc(shadowverts, verts_count * sizeof(vec3_t));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()",
+					verts_count * sizeof(vec3_t))
 	if (!ptr)
 	{
 		return -1;
@@ -73,6 +75,8 @@ Mesh_VertsRealloc(int count)
 	shadowverts = ptr;
 
 	ptr = realloc(verts_buffer, verts_count * sizeof(mvtx_t));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()",
+					verts_count * sizeof(mvtx_t))
 	if (!ptr)
 	{
 		return -1;
@@ -80,6 +84,8 @@ Mesh_VertsRealloc(int count)
 	verts_buffer = ptr;
 
 	ptr = realloc(vertList, verts_count * sizeof(modelvert));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()",
+					verts_count * sizeof(modelvert))
 	if (!ptr)
 	{
 		return -1;
@@ -87,6 +93,8 @@ Mesh_VertsRealloc(int count)
 	vertList = ptr;
 
 	ptr = realloc(vertIdxData, verts_count * sizeof(uint16_t));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()",
+					verts_count * sizeof(uint16_t))
 	if (!ptr)
 	{
 		return -1;

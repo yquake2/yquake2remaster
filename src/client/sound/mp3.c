@@ -97,15 +97,20 @@ MP3_LoadAsWav(const char *filename, wavinfo_t *info, void **buffer)
 			/* Resize if buffer is too small */
 			if ((total_samples + 1152) >= allocated_samples)
 			{
-				allocated_samples *= 2;
-				final_buffer = realloc(final_buffer, allocated_samples * sizeof(short));
+				short *tmp;
 
-				if (!final_buffer)
+				allocated_samples *= 2;
+				tmp = realloc(final_buffer, allocated_samples * sizeof(short));
+				YQ2_COM_CHECK_OOM(tmp, "realloc()",
+					allocated_samples * sizeof(short))
+				if (!tmp)
 				{
-					/* Memory reallocation failed */
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					FS_FreeFile(temp_buffer);
 					return;
 				}
+
+				final_buffer = tmp;
 			}
 
 			mp3_data += frame_info.frame_bytes;

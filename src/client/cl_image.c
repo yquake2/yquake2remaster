@@ -240,6 +240,8 @@ LoadImageATD(atd_sprites_t* anim, char *tmp_buf, int len)
 		}
 		else if (!strcmp(token, "!bitmap"))
 		{
+			atd_bitmap_t *tmp;
+
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "file"))
 			{
@@ -256,15 +258,32 @@ LoadImageATD(atd_sprites_t* anim, char *tmp_buf, int len)
 
 			/* save bitmap file */
 			anim->bitmap_count++;
-			anim->bitmaps = realloc(anim->bitmaps, anim->bitmap_count * sizeof(atd_bitmap_t));
+			tmp = realloc(anim->bitmaps, anim->bitmap_count * sizeof(atd_bitmap_t));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()",
+				anim->bitmap_count * sizeof(atd_bitmap_t))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+			anim->bitmaps = tmp;
 			anim->bitmaps[anim->bitmap_count - 1].file = strdup(COM_Parse(&curr_buff));
 		}
 		else if (!strcmp(token, "!frame"))
 		{
-			atd_frame_t *frame;
+			atd_frame_t *frame, *tmp;
 
 			anim->frame_count++;
-			anim->frames = realloc(anim->frames, anim->frame_count * sizeof(atd_frame_t));
+			tmp = realloc(anim->frames, anim->frame_count * sizeof(atd_frame_t));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()",
+				anim->frame_count * sizeof(atd_frame_t))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
+			anim->frames = tmp;
 			frame = &anim->frames[anim->frame_count - 1];
 			frame->next = -1;
 			frame->wait = 0.0f;

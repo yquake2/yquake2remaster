@@ -179,8 +179,19 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 			}
 			else if (!Q_stricmp(ext, "sam"))
 			{
+				def_entry_t *tmp;
+
 				actions_num ++;
-				animations = realloc(animations, actions_num * sizeof(def_entry_t));
+				tmp = realloc(animations, actions_num * sizeof(def_entry_t));
+				YQ2_COM_CHECK_OOM(tmp, "realloc()", actions_num * sizeof(def_entry_t))
+				if (!tmp)
+				{
+					actions_num --;
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					break;
+				}
+
+				animations = tmp;
 				snprintf(animations[actions_num - 1].value,
 					sizeof(animations[actions_num - 1].value),
 					"%s/%s", models_path, token);
@@ -198,8 +209,18 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 			}
 			else if (!Q_stricmp(ext, "tga"))
 			{
+				def_entry_t *tmp;
+
 				skinnames_num ++;
-				skinnames = realloc(skinnames, skinnames_num * sizeof(def_entry_t));
+				tmp = realloc(skinnames, skinnames_num * sizeof(def_entry_t));
+				YQ2_COM_CHECK_OOM(tmp, "realloc()", skinnames_num * sizeof(def_entry_t))
+				if (!tmp)
+				{
+					skinnames_num --;
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					break;
+				}
+				skinnames = tmp;
 				snprintf(skinnames[skinnames_num - 1].value,
 					sizeof(skinnames[skinnames_num - 1].value),
 					"%s/%s", models_path, token);

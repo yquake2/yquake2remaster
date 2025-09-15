@@ -41,10 +41,9 @@ R_VertBufferRealloc(int num)
 
 	lerpbuffnum = num * 2;
 	ptr = realloc(lerpbuff, lerpbuffnum * sizeof(vec4_t));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()", lerpbuffnum * sizeof(vec4_t))
 	if (!ptr)
 	{
-		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-
 		return NULL;
 	}
 

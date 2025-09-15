@@ -405,9 +405,20 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 
 	if ((mod->numleafs > mod_novis_len) || !mod_novis)
 	{
+		byte *tmp;
+
 		/* reallocate buffers for PVS/PHS buffers*/
 		mod_novis_len = (mod->numleafs + 63) & ~63;
-		mod_novis = realloc(mod_novis, mod_novis_len / 8);
+		tmp = realloc(mod_novis, mod_novis_len / 8);
+		YQ2_COM_CHECK_OOM(tmp, "realloc()", mod_novis_len / 8)
+		if (!tmp)
+		{
+			mod_novis_len = 0;
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
+
+		mod_novis = tmp;
 		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			mod_novis_len);
 	}

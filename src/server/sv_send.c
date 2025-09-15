@@ -461,9 +461,10 @@ SV_SendReallocBuffers(int *num)
 
 	msgbuff_size = *num * 2;
 	ptr = realloc(msgbuff_cache, msgbuff_size);
+	YQ2_COM_CHECK_OOM(ptr, "realloc()", msgbuff_size)
 	if (!ptr)
 	{
-		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 		return NULL;
 	}
 

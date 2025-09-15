@@ -2423,23 +2423,37 @@ uint8_t *QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSiz
 {
 	if (vk_dynVertexBuffers[vk_activeDynBufferIdx].currentOffset + size > vk_config.vertex_buffer_size)
 	{
+		int swapBufferOffset, i;
+
+		void *tmp;
+
 		vk_config.vertex_buffer_size = Q_max(
 			vk_config.vertex_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
 		Com_Printf("Resizing dynamic vertex buffer to %ukB\n", vk_config.vertex_buffer_size / 1024);
-		int swapBufferOffset = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
+		swapBufferOffset = vk_swapBuffersCnt[vk_activeSwapBufferIdx];
 		vk_swapBuffersCnt[vk_activeSwapBufferIdx] += NUM_DYNBUFFERS;
 
 		if (vk_swapBuffers[vk_activeSwapBufferIdx] == NULL)
 		{
-			vk_swapBuffers[vk_activeSwapBufferIdx] = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+			tmp = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
 		}
 		else
 		{
-			vk_swapBuffers[vk_activeSwapBufferIdx] = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+			tmp = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
 		}
 
-		for (int i = 0; i < NUM_DYNBUFFERS; ++i)
+		YQ2_COM_CHECK_OOM(tmp, "malloc / realloc()",
+			sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx])
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+
+		vk_swapBuffers[vk_activeSwapBufferIdx] = tmp;
+
+		for (i = 0; i < NUM_DYNBUFFERS; ++i)
 		{
 			// need unmap before copy to swapBuffers
 			buffer_unmap(&vk_dynVertexBuffers[i].resource);
@@ -2474,6 +2488,9 @@ static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, i
 
 	if (vk_dynIndexBuffers[currentBufferIdx].currentOffset + aligned_size > vk_config.index_buffer_size)
 	{
+		void *tmp;
+		int i;
+
 		vk_config.index_buffer_size = Q_max(
 			vk_config.index_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
@@ -2482,11 +2499,25 @@ static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, i
 		vk_swapBuffersCnt[vk_activeSwapBufferIdx] += NUM_DYNBUFFERS;
 
 		if (vk_swapBuffers[vk_activeSwapBufferIdx] == NULL)
-			vk_swapBuffers[vk_activeSwapBufferIdx] = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		{
+			tmp = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		}
 		else
-			vk_swapBuffers[vk_activeSwapBufferIdx] = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		{
+			tmp = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		}
 
-		for (int i = 0; i < NUM_DYNBUFFERS; ++i)
+		YQ2_COM_CHECK_OOM(tmp, "malloc / realloc()",
+			sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx])
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+
+		vk_swapBuffers[vk_activeSwapBufferIdx] = tmp;
+
+		for (i = 0; i < NUM_DYNBUFFERS; ++i)
 		{
 			// need unmap before copy to swapBuffers
 			buffer_unmap(&vk_dynIndexBuffers[i].resource);
@@ -2508,7 +2539,9 @@ static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, i
 
 	vk_config.index_buffer_usage = vk_dynIndexBuffers[currentBufferIdx].currentOffset;
 	if (vk_config.index_buffer_max_usage < vk_config.index_buffer_usage)
+	{
 		vk_config.index_buffer_max_usage = vk_config.index_buffer_usage;
+	}
 
 	return (uint8_t *)vk_dynIndexBuffers[currentBufferIdx].pMappedData + (*dstOffset);
 }
@@ -2520,6 +2553,8 @@ uint8_t *QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescript
 
 	if (vk_dynUniformBuffers[vk_activeDynBufferIdx].currentOffset + UNIFORM_ALLOC_SIZE > vk_config.uniform_buffer_size)
 	{
+		void *tmp;
+
 		vk_config.uniform_buffer_size = Q_max(
 			vk_config.uniform_buffer_size * BUFFER_RESIZE_FACTOR, NextPow2(size));
 
@@ -2530,14 +2565,41 @@ uint8_t *QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescript
 		vk_swapDescSetsCnt[vk_activeSwapBufferIdx] += NUM_DYNBUFFERS;
 
 		if (vk_swapBuffers[vk_activeSwapBufferIdx] == NULL)
-			vk_swapBuffers[vk_activeSwapBufferIdx] = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		{
+			tmp = malloc(sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		}
 		else
-			vk_swapBuffers[vk_activeSwapBufferIdx] = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		{
+			tmp = realloc(vk_swapBuffers[vk_activeSwapBufferIdx], sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx]);
+		}
+
+		YQ2_COM_CHECK_OOM(tmp, "malloc() / realloc()",
+			sizeof(qvkbuffer_t) * vk_swapBuffersCnt[vk_activeSwapBufferIdx])
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+		vk_swapBuffers[vk_activeSwapBufferIdx] = tmp;
 
 		if (vk_swapDescriptorSets[vk_activeSwapBufferIdx] == NULL)
-			vk_swapDescriptorSets[vk_activeSwapBufferIdx] = malloc(sizeof(VkDescriptorSet) * vk_swapDescSetsCnt[vk_activeSwapBufferIdx]);
+		{
+			tmp = malloc(sizeof(VkDescriptorSet) * vk_swapDescSetsCnt[vk_activeSwapBufferIdx]);
+		}
 		else
-			vk_swapDescriptorSets[vk_activeSwapBufferIdx] = realloc(vk_swapDescriptorSets[vk_activeSwapBufferIdx], sizeof(VkDescriptorSet) * vk_swapDescSetsCnt[vk_activeSwapBufferIdx]);
+		{
+			tmp = realloc(vk_swapDescriptorSets[vk_activeSwapBufferIdx], sizeof(VkDescriptorSet) * vk_swapDescSetsCnt[vk_activeSwapBufferIdx]);
+		}
+
+		YQ2_COM_CHECK_OOM(tmp, "malloc() / realloc()",
+			sizeof(VkDescriptorSet) * vk_swapDescSetsCnt[vk_activeSwapBufferIdx])
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+
+		vk_swapDescriptorSets[vk_activeSwapBufferIdx] = tmp;
 
 		for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 		{

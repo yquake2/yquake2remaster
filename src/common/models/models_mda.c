@@ -180,10 +180,19 @@ Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, char *curr_
 		}
 		else if (!strcmp(token, "pass"))
 		{
-			mda_pass_t *pass;
+			mda_pass_t *pass, *tmp;
 
 			skin->pass_count++;
-			skin->passes = realloc(skin->passes, skin->pass_count * sizeof(mda_pass_t));
+			tmp = realloc(skin->passes, skin->pass_count * sizeof(mda_pass_t));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()",
+					skin->pass_count * sizeof(mda_pass_t))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
+			skin->passes = tmp;
 			pass = &skin->passes[skin->pass_count - 1];
 			memset(pass, 0, sizeof(*pass));
 
@@ -222,10 +231,19 @@ Mod_LoadModel_MDA_Parse_Profile(const char *mod_name, char **curr_buff, char *cu
 			Mod_LoadModel_MDA_Parse_SkipComment(curr_buff);
 		}
 		else if (!strcmp(token, "skin")) {
-			mda_skin_t *skin;
+			mda_skin_t *skin, *tmp;
 
 			profile->skin_count++;
-			profile->skins = realloc(profile->skins, profile->skin_count * sizeof(mda_skin_t));
+			tmp = realloc(profile->skins, profile->skin_count * sizeof(mda_skin_t));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()",
+					profile->skin_count * sizeof(mda_skin_t))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
+			profile->skins = tmp;
 			skin = &profile->skins[profile->skin_count - 1];
 			memset(skin, 0, sizeof(*skin));
 
@@ -292,11 +310,20 @@ Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
 		}
 		else if (!strcmp(token, "profile"))
 		{
-			mda_profile_t *profile;
+			mda_profile_t *profile, *tmp;
 
 			token = COM_Parse(&curr_buff);
 			mda->profile_count++;
-			mda->profiles = realloc(mda->profiles, mda->profile_count * sizeof(mda_profile_t));
+			tmp = realloc(mda->profiles, mda->profile_count * sizeof(mda_profile_t));
+			YQ2_COM_CHECK_OOM(tmp, "realloc()",
+					mda->profile_count * sizeof(mda_profile_t))
+			if (!tmp)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
+			mda->profiles = tmp;
 			profile = &mda->profiles[mda->profile_count - 1];
 			memset(profile, 0, sizeof(*profile));
 

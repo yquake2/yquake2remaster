@@ -183,6 +183,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 						YQ2_COM_CHECK_OOM(tmp, "realloc()", st_size * sizeof(*st_tmp))
 						if (!tmp)
 						{
+							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 							st_size = num_st;
 							break;
 						}
@@ -199,6 +200,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 						YQ2_COM_CHECK_OOM(tmp, "realloc()", tri_size * sizeof(*tri_tmp))
 						if (!tmp)
 						{
+							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 							tri_size = num_tris;
 							break;
 						}
