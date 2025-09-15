@@ -313,6 +313,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	/* create single mesh */
 	mesh_nodes = (dmdxmesh_t *)((char *)pheader + pheader->ofs_meshes);
 	memcpy(mesh_nodes, mesh_tmp, pinmodel.num_bodyparts * sizeof(*mesh_tmp));
+	free(mesh_tmp);
 
 	memcpy((char *)pheader + pheader->ofs_st, st_tmp,
 		num_st * sizeof(dstvert_t));
