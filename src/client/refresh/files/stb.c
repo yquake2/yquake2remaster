@@ -900,8 +900,21 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 
 	texture_size = (*r_font_height) * (*r_font_height);
 	font_mask = malloc(texture_size);
+	YQ2_COM_CHECK_OOM(font_mask, "malloc()", texture_size)
 	font_data = malloc(texture_size * 4);
+	YQ2_COM_CHECK_OOM(font_data, "malloc()", texture_size * 4)
 	*draw_fontcodes = malloc(MAX_FONTCODE * sizeof(**draw_fontcodes));
+	YQ2_COM_CHECK_OOM(*draw_fontcodes, "malloc()",
+		MAX_FONTCODE * sizeof(**draw_fontcodes))
+	if (!font_mask || !font_data || !*draw_fontcodes)
+	{
+		free(font_mask);
+		free(font_data);
+		free(*draw_fontcodes);
+		*draw_fontcodes = NULL;
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
 
 	symbols = stbtt_BakeFontBitmap(data,
 		0 /* file offset */,

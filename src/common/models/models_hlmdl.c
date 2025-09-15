@@ -124,7 +124,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	bodyparts = (hlmdl_bodypart_t *)((byte *)buffer + pinmodel.ofs_bodyparts);
-	mesh_tmp = malloc(pinmodel.num_bodyparts * sizeof(*mesh_tmp));
+	mesh_tmp = calloc(pinmodel.num_bodyparts, sizeof(*mesh_tmp));
 	for (i = 0; i < pinmodel.num_bodyparts; i++)
 	{
 		hlmdl_bodymodel_t *bodymodels;
