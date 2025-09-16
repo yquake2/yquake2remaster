@@ -156,9 +156,11 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 				short *trivert;
 				int l;
 
+				/*
 				Com_Printf("%s: %s: mesh #%d tris %d, ofs: %d, skin: %d, norms: %d\n",
 					__func__, mod_name, k, mesh_nodes[k].num_tris,
 						mesh_nodes[k].ofs_tris, mesh_nodes[k].skinref, mesh_nodes[k].num_norms);
+				*/
 
 				trivert = (short *)((byte *)buffer + mesh_nodes[k].ofs_tris);
 				while ((l = *(trivert++)))
@@ -166,8 +168,10 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					int g, count = l, st_prefix = num_st;
 					int *verts = NULL;
 
+					/*
 					Com_Printf("%s: %s: tris %d\n",
 						__func__, mod_name, l);
+					*/
 
 					if (count < 0)
 					{
@@ -218,10 +222,12 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 						verts[g] = trivert[0];
 
+						/*
 						Com_Printf("%s: %s: tris #%d vert: %d, norm: %d, s: %d, t: %d\n",
 							__func__, mod_name, l,
 							trivert[0], trivert[1],
 							trivert[2], trivert[3]);
+						*/
 					}
 
 					/* Reconstruct triangles */
@@ -293,8 +299,11 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 				VectorCopy(in_verts[k], vert_tmp[num_verts].xyz);
 				num_verts++;
 
-				Com_Printf("%s: vert[%03ld]: %.2fx%.2fx%.2fx\n",
-					__func__, i, in_verts[k][0], in_verts[k][1], in_verts[k][2]);
+				/*
+				 Com_Printf("%s: vert[%03ld]: %.2fx%.2fx%.2fx\n",
+					__func__, k,
+					in_verts[k][0], in_verts[k][1], in_verts[k][2]);
+				*/
 			}
 		}
 
@@ -326,7 +335,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * num_tris) + 1 * pinmodel.num_bodyparts;
 	dmdxheader.num_imgbit = 0;
-	dmdxheader.num_frames = 1; /* total_frames; */
+	dmdxheader.num_frames = total_frames;
 	dmdxheader.num_animgroup = pinmodel.num_seq;
 
 	Com_DPrintf("%s: %s has %d frames\n",
@@ -347,15 +356,23 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		num_tris * sizeof(dtriangle_t));
 	free(tri_tmp);
 
-	for(i = 0; i < pheader->num_frames; i ++)
+	total_frames = 0;
+	for (i = 0; i < pinmodel.num_seq; i++)
 	{
-		daliasxframe_t *frame = (daliasxframe_t *)(
-			(byte *)pheader + pheader->ofs_frames + i * pheader->framesize);
+		int j;
 
-		/* limit frame ids to 2**16 */
-		snprintf(frame->name, sizeof(frame->name), "frame%d", i % 0xFFFF);
+		for(j = 0; j < sequences[i].num_frames; j ++)
+		{
+			daliasxframe_t *frame = (daliasxframe_t *)(
+				(byte *)pheader + pheader->ofs_frames + total_frames * pheader->framesize);
 
-		PrepareFrameVertex(vert_tmp, num_verts, frame);
+			/* limit frame ids to 2**16 */
+			snprintf(frame->name, sizeof(frame->name), "%s%d",
+				sequences[i].name, j % 0xFF);
+
+			PrepareFrameVertex(vert_tmp, num_verts, frame);
+			total_frames++;
+		}
 	}
 	free(vert_tmp);
 
