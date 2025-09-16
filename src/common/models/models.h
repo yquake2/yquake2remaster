@@ -45,6 +45,7 @@ typedef struct
 
 void PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts,
 	daliasxframe_t *frame_out);
+void Mod_LoadFixNormals(dmdx_t *pheader);
 void Mod_LoadFrames_VertMD2(dxtrivertx_t *vert, const byte *in);
 void Mod_ConvertNormalMDL(byte in_normal, signed char *normal);
 int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,

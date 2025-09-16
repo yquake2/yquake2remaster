@@ -518,7 +518,7 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 }
 
 /* Genetate normals based on MD5_ComputeNormals code */
-static void
+void
 Mod_LoadFixNormals(dmdx_t *pheader)
 {
 	int i, outframesize;
