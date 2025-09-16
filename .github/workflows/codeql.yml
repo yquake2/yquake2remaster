@@ -2,7 +2,8 @@ name: "CodeQL"
 run-name: CodeQL
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - 'master'
   pull_request:
     types:
       - edited

@@ -28,7 +28,7 @@ Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 <https://github.com/yquake2/yquake2>
 
 * Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/releases).
-* Saves format is unstabled and could change between alpha releases.
+* Saves format is unstable and could change between alpha releases.
 * MacOS build is only build tested and run is not checked.
 
 Models support:
