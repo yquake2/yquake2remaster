@@ -635,22 +635,22 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 {
 	if (handle->compressed_size)
 	{
-		unsigned long uncomressed_size;
-		byte *comressed_buffer;
+		unsigned long uncompressed_size;
+		byte *compressed_buffer;
 
-		comressed_buffer = malloc(handle->compressed_size);
-		uncomressed_size = size;
+		compressed_buffer = malloc(handle->compressed_size);
+		uncompressed_size = size;
 
-		memcpy(comressed_buffer, buffer, handle->compressed_size);
+		memcpy(compressed_buffer, buffer, handle->compressed_size);
 
 		if (handle->format == PAK_MODE_DAT)
 		{
 			int status;
 
-			status = uncompress(buffer, &uncomressed_size, comressed_buffer,
+			status = uncompress(buffer, &uncompressed_size, compressed_buffer,
 				handle->compressed_size);
 
-			free(comressed_buffer);
+			free(compressed_buffer);
 
 			if (status != MZ_OK)
 			{
@@ -668,7 +668,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 			{
 				byte x;
 
-				x = comressed_buffer[read];
+				x = compressed_buffer[read];
 				++read;
 
 				/* x + 1 bytes of uncompressed data */
@@ -676,12 +676,13 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 				{
 					if ((written + x + 1) > size)
 					{
+						free(compressed_buffer);
 						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
 							__func__, handle->name);
 						return 0;
 					}
 
-					memmove((byte *)buffer + written, comressed_buffer + read, x + 1);
+					memmove((byte *)buffer + written, compressed_buffer + read, x + 1);
 
 					read += x + 1;
 					written += x + 1;
@@ -691,6 +692,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 				{
 					if ((written + x - 62) > size)
 					{
+						free(compressed_buffer);
 						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
 							__func__, handle->name);
 						return 0;
@@ -705,12 +707,13 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 				{
 					if ((written + x - 126) > size)
 					{
+						free(compressed_buffer);
 						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
 							__func__, handle->name);
 						return 0;
 					}
 
-					memset((byte *)buffer + written, comressed_buffer[read], x - 126);
+					memset((byte *)buffer + written, compressed_buffer[read], x - 126);
 
 					++read;
 					written += x - 126;
@@ -720,13 +723,14 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 				{
 					if ((written + x - 190) > size)
 					{
+						free(compressed_buffer);
 						Com_Error(ERR_FATAL, "%s: can't decompress file '%s'",
 							__func__, handle->name);
 						return 0;
 					}
 
 					memmove((byte *)buffer + written, ((byte *)buffer + written) - (
-						(int)comressed_buffer[read] + 2), x - 190);
+						(int)compressed_buffer[read] + 2), x - 190);
 
 					++read;
 					written += x - 190;
@@ -738,7 +742,11 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 				}
 			}
 
-			free(comressed_buffer);
+			free(compressed_buffer);
+		} else {
+			free(compressed_buffer);
+			Com_Error(ERR_FATAL, "%s: unknown compression format '%s'", __func__, handle->name);
+			return 0;
 		}
 	}
 
