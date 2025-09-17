@@ -86,15 +86,15 @@ cvar_t *gl1_particle_att_b;
 cvar_t *gl1_particle_att_c;
 cvar_t *gl1_particle_square;
 
-cvar_t *gl1_palettedtexture;
+cvar_t *r_palettedtextures;
 cvar_t *gl1_pointparameters;
 cvar_t *gl1_multitexture;
 cvar_t *gl1_lightmapcopies;
 cvar_t *gl1_discardfb;
 
 cvar_t *gl_drawbuffer;
-cvar_t *gl_lightmap;
-cvar_t *gl_shadows;
+cvar_t *r_lightmap;
+cvar_t *r_shadows;
 cvar_t *gl1_stencilshadow;
 cvar_t *r_mode;
 cvar_t *r_fixsurfsky;
@@ -131,9 +131,9 @@ cvar_t *r_vsync;
 cvar_t *gl_texturemode;
 cvar_t *gl1_texturealphamode;
 cvar_t *gl1_texturesolidmode;
-cvar_t *gl_anisotropic;
+cvar_t *r_anisotropic;
 cvar_t *r_lockpvs;
-cvar_t *gl_msaa_samples;
+cvar_t *r_msaa_samples;
 
 cvar_t *vid_fullscreen;
 cvar_t *vid_gamma;
@@ -907,7 +907,7 @@ R_Clear(void)
 		glClearStencil(0);
 		clearFlags |= GL_STENCIL_BUFFER_BIT;
 	}
-	else if (gl_shadows->value && gl_state.stencil && gl1_stencilshadow->value)
+	else if (r_shadows->value && gl_state.stencil && gl1_stencilshadow->value)
 	{
 		glClearStencil(1);
 		clearFlags |= GL_STENCIL_BUFFER_BIT;
@@ -1316,8 +1316,8 @@ R_Register(void)
 	gl_version_override = ri.Cvar_Get("gl_version_override", "0", CVAR_ARCHIVE);
 	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
 	r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);
-	gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
-	gl_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
+	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
+	r_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	gl1_stencilshadow = ri.Cvar_Get("gl1_stencilshadow", "0", CVAR_ARCHIVE);
 	r_dynamic = ri.Cvar_Get("r_dynamic", "1", 0);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
@@ -1341,10 +1341,10 @@ R_Register(void)
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
 	gl1_texturesolidmode = ri.Cvar_Get("gl1_texturesolidmode", "default", CVAR_ARCHIVE);
-	gl_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
+	r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
 
-	gl1_palettedtexture = ri.Cvar_Get("r_palettedtextures", "0", CVAR_ARCHIVE);
+	r_palettedtextures = ri.Cvar_Get("r_palettedtextures", "0", CVAR_ARCHIVE);
 	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", "1", CVAR_ARCHIVE);
 	gl1_multitexture = ri.Cvar_Get("gl1_multitexture", "1", CVAR_ARCHIVE);
 	gl1_lightmapcopies = ri.Cvar_Get("gl1_lightmapcopies", GLES1_ENABLED_ONLY, CVAR_ARCHIVE);
@@ -1360,7 +1360,7 @@ R_Register(void)
 
 	r_customwidth = ri.Cvar_Get("r_customwidth", "1024", CVAR_ARCHIVE);
 	r_customheight = ri.Cvar_Get("r_customheight", "768", CVAR_ARCHIVE);
-	gl_msaa_samples = ri.Cvar_Get ( "r_msaa_samples", "0", CVAR_ARCHIVE );
+	r_msaa_samples = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE );
 
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
 	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
@@ -1498,11 +1498,11 @@ R_SetMode(void)
 		if (err == rserr_invalid_mode)
 		{
 			Com_Printf("ref_gl::R_SetMode() - invalid mode\n");
-			if (gl_msaa_samples->value != 0.0f)
+			if (r_msaa_samples->value != 0.0f)
 			{
-				Com_Printf("gl_msaa_samples was %d - will try again with gl_msaa_samples = 0\n", (int)gl_msaa_samples->value);
+				Com_Printf("r_msaa_samples was %d - will try again with r_msaa_samples = 0\n", (int)r_msaa_samples->value);
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
-				gl_msaa_samples->modified = false;
+				r_msaa_samples->modified = false;
 
 				if (SetMode_impl(&vid.width, &vid.height, r_mode->value, 0) == rserr_ok)
 				{
@@ -1676,7 +1676,7 @@ RI_Init(void)
 
 	gl_config.palettedtexture = false;
 
-	if (gl1_palettedtexture->value)
+	if (r_palettedtextures->value)
 	{
 		if (qglColorTableEXT)
 		{
@@ -1997,13 +1997,13 @@ RI_BeginFrame(float camera_separation)
 	}
 
 	/* texturemode stuff */
-	if (gl_texturemode->modified || (gl_config.anisotropic && gl_anisotropic->modified)
+	if (gl_texturemode->modified || (gl_config.anisotropic && r_anisotropic->modified)
 	    || r_nolerp_list->modified || r_lerp_list->modified
 		|| r_2D_unfiltered->modified || r_videos_unfiltered->modified)
 	{
 		R_TextureMode(gl_texturemode->string);
 		gl_texturemode->modified = false;
-		gl_anisotropic->modified = false;
+		r_anisotropic->modified = false;
 		r_nolerp_list->modified = false;
 		r_lerp_list->modified = false;
 		r_2D_unfiltered->modified = false;

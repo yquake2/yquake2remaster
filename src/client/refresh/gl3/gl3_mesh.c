@@ -820,7 +820,7 @@ GL3_DrawAliasModel(entity_t *entity)
 		glDepthRange(gl3depthmin, gl3depthmax);
 	}
 
-	if (gl_shadows->value && gl3config.stencil && !(entity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL | RF_NOSHADOW)))
+	if (r_shadows->value && gl3config.stencil && !(entity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL | RF_NOSHADOW)))
 	{
 		gl3_shadowinfo_t si = {0};
 		VectorCopy(lightspot, si.lightspot);

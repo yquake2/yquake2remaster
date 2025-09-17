@@ -881,9 +881,9 @@ static void CreateSamplersHelper(VkSampler *samplers, VkSamplerAddressMode addre
 	};
 
 	assert((vk_device.properties.limits.maxSamplerAnisotropy > 1.f) && "maxSamplerAnisotropy is 1");
-	if (vk_device.features.samplerAnisotropy && vk_aniso->value > 0.f)
+	if (vk_device.features.samplerAnisotropy && r_anisotropic->value > 0.f)
 	{
-		const float maxAniso = Q_min(Q_max(vk_aniso->value, 1.f),
+		const float maxAniso = Q_min(Q_max(r_anisotropic->value, 1.f),
 			vk_device.properties.limits.maxSamplerAnisotropy);
 		samplerInfo.anisotropyEnable = VK_TRUE;
 		samplerInfo.maxAnisotropy = maxAniso;
@@ -1490,7 +1490,7 @@ static void CreatePipelines()
 	QVk_DebugSetObjectName((uint64_t)vk_showTrisPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: show triangles");
 	QVk_DebugSetObjectName((uint64_t)vk_showTrisPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: show triangles");
 
-	/* vk_shadows render pipeline */
+	/* r_shadows render pipeline */
 	VK_LOAD_VERTFRAG_SHADERS(shaders, shadows, basic_color_quad);
 	vk_shadowsPipelineFan.blendOpts.blendEnable = VK_TRUE;
 	vk_shadowsPipelineFan.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -2055,7 +2055,7 @@ qboolean QVk_Init(void)
 		vk_renderpasses[i].colorLoadOp = r_clear->value ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	}
 
-	VkSampleCountFlagBits msaaMode = GetSampleCount((int)vk_msaa->value,
+	VkSampleCountFlagBits msaaMode = GetSampleCount((int)r_msaa_samples->value,
 			vk_device.properties.limits.framebufferColorSampleCounts);
 
 	// MSAA setting will be only relevant for the primary world render pass

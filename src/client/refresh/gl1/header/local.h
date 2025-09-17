@@ -175,7 +175,7 @@ extern cvar_t *r_ttffont;
 extern cvar_t *r_lightlevel;
 extern cvar_t *gl1_overbrightbits;
 
-extern cvar_t *gl1_palettedtexture;
+extern cvar_t *r_palettedtextures;
 extern cvar_t *gl1_pointparameters;
 extern cvar_t *gl1_multitexture;
 
@@ -201,8 +201,8 @@ extern cvar_t *r_2D_unfiltered;
 extern cvar_t *r_videos_unfiltered;
 
 extern cvar_t *gl_version_override;
-extern cvar_t *gl_lightmap;
-extern cvar_t *gl_shadows;
+extern cvar_t *r_lightmap;
+extern cvar_t *r_shadows;
 extern cvar_t *gl1_stencilshadow;
 extern cvar_t *r_dynamic;
 extern cvar_t *gl_nobind;
@@ -220,13 +220,13 @@ extern cvar_t *r_flashblend;
 extern cvar_t *r_modulate;
 extern cvar_t *gl_drawbuffer;
 extern cvar_t *r_vsync;
-extern cvar_t *gl_anisotropic;
+extern cvar_t *r_anisotropic;
 extern cvar_t *gl_texturemode;
 extern cvar_t *gl1_texturealphamode;
 extern cvar_t *gl1_texturesolidmode;
 extern cvar_t *gl1_saturatelighting;
 extern cvar_t *r_lockpvs;
-extern cvar_t *gl_msaa_samples;
+extern cvar_t *r_msaa_samples;
 
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_gamma;

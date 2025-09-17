@@ -65,7 +65,7 @@ GL3_SetDefaultState(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 #ifndef YQ2_GL3_GLES // see above
-	if (gl_msaa_samples->value)
+	if (r_msaa_samples->value)
 	{
 		glEnable(GL_MULTISAMPLE);
 		// glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST); TODO what is this for?

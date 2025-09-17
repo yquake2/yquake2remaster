@@ -108,7 +108,7 @@ cvar_t	*r_clear;
 cvar_t	*r_lockpvs;
 static cvar_t	*r_polyblend;
 cvar_t	*r_modulate;
-cvar_t	*vk_shadows;
+cvar_t	*r_shadows;
 cvar_t	*vk_pixel_size;
 static cvar_t	*vk_particle_size;
 static cvar_t	*vk_particle_att_a;
@@ -119,12 +119,12 @@ static cvar_t	*vk_particle_max_size;
 static cvar_t	*vk_custom_particles;
 cvar_t	*vk_postprocess;
 cvar_t	*r_dynamic;
-cvar_t	*vk_msaa;
+cvar_t	*r_msaa_samples;
 cvar_t	*r_showtris;
 cvar_t	*r_lightmap;
 cvar_t	*vk_texturemode;
 cvar_t	*vk_lmaptexturemode;
-cvar_t	*vk_aniso;
+cvar_t	*r_anisotropic;
 cvar_t	*vk_mip_nearfilter;
 cvar_t	*vk_sampleshading;
 cvar_t	*vk_device_idx;
@@ -1174,7 +1174,7 @@ R_Register(void)
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
 	r_polyblend = ri.Cvar_Get("r_polyblend", "1", 0);
 	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
-	vk_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
+	r_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	vk_pixel_size = ri.Cvar_Get("vk_pixel_size", "1", CVAR_ARCHIVE);
 	vk_particle_size = ri.Cvar_Get("vk_particle_size", "40", CVAR_ARCHIVE);
 	vk_particle_att_a = ri.Cvar_Get("vk_particle_att_a", "0.01", CVAR_ARCHIVE);
@@ -1185,12 +1185,12 @@ R_Register(void)
 	vk_custom_particles = ri.Cvar_Get("vk_custom_particles", "1", CVAR_ARCHIVE);
 	vk_postprocess = ri.Cvar_Get("vk_postprocess", "1", CVAR_ARCHIVE);
 	r_dynamic = ri.Cvar_Get("r_dynamic", "1", 0);
-	vk_msaa = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE);
+	r_msaa_samples = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE);
 	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	vk_texturemode = ri.Cvar_Get("vk_texturemode", "VK_MIPMAP_LINEAR", CVAR_ARCHIVE);
 	vk_lmaptexturemode = ri.Cvar_Get("vk_lmaptexturemode", "VK_MIPMAP_LINEAR", CVAR_ARCHIVE);
-	vk_aniso = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
+	r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
 	vk_mip_nearfilter = ri.Cvar_Get("vk_mip_nearfilter", "0", CVAR_ARCHIVE);
 	vk_sampleshading = ri.Cvar_Get("vk_sampleshading", "1", CVAR_ARCHIVE);
 	vk_device_idx = ri.Cvar_Get("vk_device", "-1", CVAR_ARCHIVE);
@@ -1213,8 +1213,8 @@ R_Register(void)
 	/* font should looks good with 8 pixels size */
 	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
 
-	// clamp vk_msaa to accepted range so that video menu doesn't crash on us
-	if (vk_msaa->value < 0)
+	// clamp r_msaa_samples to accepted range so that video menu doesn't crash on us
+	if (r_msaa_samples->value < 0)
 	{
 		ri.Cvar_Set("r_msaa_samples", "0");
 	}
@@ -1278,7 +1278,7 @@ R_SetMode(void)
 	fullscreen = (int)vid_fullscreen->value;
 	vid_gamma->modified = false;
 
-	vk_msaa->modified = false;
+	r_msaa_samples->modified = false;
 	r_clear->modified = false;
 	r_validation->modified = false;
 	vk_mip_nearfilter->modified = false;
@@ -1415,22 +1415,22 @@ RE_BeginFrame(float camera_separation)
 	if (vk_texturemode->modified || vk_lmaptexturemode->modified ||
 		r_nolerp_list->modified || r_2D_unfiltered->modified ||
 		r_lerp_list->modified || r_videos_unfiltered->modified ||
-		vk_aniso->modified)
+		r_anisotropic->modified)
 	{
-		if (vk_texturemode->modified || vk_aniso->modified ||
+		if (vk_texturemode->modified || r_anisotropic->modified ||
 			r_nolerp_list->modified || r_2D_unfiltered->modified)
 		{
 			Vk_TextureMode(vk_texturemode->string);
 			vk_texturemode->modified = false;
 		}
 
-		if (vk_lmaptexturemode->modified || vk_aniso->modified)
+		if (vk_lmaptexturemode->modified || r_anisotropic->modified)
 		{
 			Vk_LmapTextureMode(vk_lmaptexturemode->string);
 			vk_lmaptexturemode->modified = false;
 		}
 
-		vk_aniso->modified = false;
+		r_anisotropic->modified = false;
 		r_nolerp_list->modified = false;
 		r_lerp_list->modified = false;
 		r_2D_unfiltered->modified = false;

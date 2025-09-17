@@ -295,9 +295,9 @@ int GL3_PrepareForWindow(void)
 	// Let's see if the driver supports MSAA.
 	int msaa_samples = 0;
 
-	if (gl_msaa_samples->value)
+	if (r_msaa_samples->value)
 	{
-		msaa_samples = gl_msaa_samples->value;
+		msaa_samples = r_msaa_samples->value;
 
 #ifdef USE_SDL3
 		if (!SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1))
@@ -368,7 +368,7 @@ int GL3_InitContext(void* win)
 	// Check if we've got the requested MSAA.
 	int msaa_samples = 0;
 
-	if (gl_msaa_samples->value)
+	if (r_msaa_samples->value)
 	{
 #ifdef USE_SDL3
 		if (SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &msaa_samples))

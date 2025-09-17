@@ -57,7 +57,7 @@ GL4_SetDefaultState(void)
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (gl_msaa_samples->value)
+	if (r_msaa_samples->value)
 	{
 		glEnable(GL_MULTISAMPLE);
 	}

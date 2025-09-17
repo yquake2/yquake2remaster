@@ -212,7 +212,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 
 	/* set the appropriate blending mode unless
 	   we're only looking at the lightmaps. */
-	if (!gl_lightmap->value)
+	if (!r_lightmap->value)
 	{
 		glEnable(GL_BLEND);
 
@@ -962,7 +962,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 	currententity->angles[0] = -currententity->angles[0];
 	currententity->angles[2] = -currententity->angles[2];
 
-	if (gl_lightmap->value)
+	if (r_lightmap->value)
 	{
 		R_TexEnv(GL_REPLACE);
 	}

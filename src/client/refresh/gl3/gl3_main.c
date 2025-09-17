@@ -75,7 +75,7 @@ const hmm_mat4 gl3_identityMat4 = {{
 		{0, 0, 0, 1},
 }};
 
-cvar_t *gl_msaa_samples;
+cvar_t *r_msaa_samples;
 cvar_t *gl_version_override;
 cvar_t *r_vsync;
 cvar_t *r_retexturing;
@@ -85,7 +85,7 @@ cvar_t *r_mode;
 cvar_t *r_customwidth;
 cvar_t *r_customheight;
 cvar_t *vid_gamma;
-cvar_t *gl_anisotropic;
+cvar_t *r_anisotropic;
 cvar_t *gl_texturemode;
 cvar_t *gl_drawbuffer;
 cvar_t *r_clear;
@@ -121,8 +121,8 @@ cvar_t *r_cull;
 cvar_t *gl_zfix;
 cvar_t *r_fullbright;
 cvar_t *r_modulate;
-cvar_t *gl_lightmap;
-cvar_t *gl_shadows;
+cvar_t *r_lightmap;
+cvar_t *r_shadows;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usebigvbo;
 cvar_t *r_fixsurfsky;
@@ -207,8 +207,8 @@ GL3_Register(void)
 
 	gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
 	r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
-	gl_msaa_samples = ri.Cvar_Get ( "r_msaa_samples", "0", CVAR_ARCHIVE );
-	gl_version_override = ri.Cvar_Get ( "gl_version_override", "0", CVAR_ARCHIVE );
+	r_msaa_samples = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE );
+	gl_version_override = ri.Cvar_Get("gl_version_override", "0", CVAR_ARCHIVE );
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 	gl3_debugcontext = ri.Cvar_Get("gl3_debugcontext", "0", 0);
@@ -248,7 +248,7 @@ GL3_Register(void)
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
-	gl_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
+	r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
 
 	vid_fullscreen = ri.Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
 	vid_gamma = ri.Cvar_Get("vid_gamma", "1.2", CVAR_ARCHIVE);
@@ -258,8 +258,8 @@ GL3_Register(void)
 	r_lightlevel = ri.Cvar_Get("r_lightlevel", "0", 0);
 	gl3_overbrightbits = ri.Cvar_Get("gl3_overbrightbits", "1.3", CVAR_ARCHIVE);
 
-	gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
-	gl_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
+	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
+	r_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 
 	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
 	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
@@ -296,8 +296,8 @@ GL3_Register(void)
 
 	//gl_modulate = ri.Cvar_Get("gl_modulate", "1", CVAR_ARCHIVE);
 	//r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);
-	//gl_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
-	//gl_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
+	//r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
+	//r_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	//gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	gl_showbbox = Cvar_Get("gl_showbbox", "0", 0);
@@ -310,10 +310,10 @@ GL3_Register(void)
 	//gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
 	gl1_texturesolidmode = ri.Cvar_Get("gl1_texturesolidmode", "default", CVAR_ARCHIVE);
-	//gl_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
+	//r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
 	//r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
 
-	//gl1_palettedtexture = ri.Cvar_Get("gl1_palettedtexture", "0", CVAR_ARCHIVE); NOPE.
+	//r_palettedtextures = ri.Cvar_Get("r_palettedtextures", "0", CVAR_ARCHIVE); NOPE.
 	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", "1", CVAR_ARCHIVE);
 
 	//gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
@@ -325,7 +325,7 @@ GL3_Register(void)
 
 	//r_customwidth = ri.Cvar_Get("r_customwidth", "1024", CVAR_ARCHIVE);
 	//r_customheight = ri.Cvar_Get("r_customheight", "768", CVAR_ARCHIVE);
-	//gl_msaa_samples = ri.Cvar_Get ( "r_msaa_samples", "0", CVAR_ARCHIVE );
+	//r_msaa_samples = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE );
 
 	gl1_stereo = ri.Cvar_Get( "gl1_stereo", "0", CVAR_ARCHIVE );
 	gl1_stereo_separation = ri.Cvar_Get( "gl1_stereo_separation", "-0.4", CVAR_ARCHIVE );
@@ -453,11 +453,11 @@ GL3_SetMode(void)
 		{
 			Com_Printf("ref_gl3::GL3_SetMode() - invalid mode\n");
 
-			if (gl_msaa_samples->value != 0.0f)
+			if (r_msaa_samples->value != 0.0f)
 			{
-				Com_Printf("gl_msaa_samples was %d - will try again with gl_msaa_samples = 0\n", (int)gl_msaa_samples->value);
+				Com_Printf("r_msaa_samples was %d - will try again with r_msaa_samples = 0\n", (int)r_msaa_samples->value);
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
-				gl_msaa_samples->modified = false;
+				r_msaa_samples->modified = false;
 
 				if ((err = SetMode_impl(&vid.width, &vid.height, r_mode->value, 0)) == rserr_ok)
 				{
@@ -1845,7 +1845,7 @@ GL3_Clear(void)
 	}
 
 	/* stencilbuffer shadows */
-	if (gl_shadows->value && gl3config.stencil)
+	if (r_shadows->value && gl3config.stencil)
 	{
 		glClearStencil(GL_TRUE);
 		glClear(GL_STENCIL_BUFFER_BIT);
@@ -1942,13 +1942,13 @@ GL3_BeginFrame(float camera_separation)
 	}
 
 	/* texturemode stuff */
-	if (gl_texturemode->modified || (gl3config.anisotropic && gl_anisotropic->modified)
+	if (gl_texturemode->modified || (gl3config.anisotropic && r_anisotropic->modified)
 	    || r_nolerp_list->modified || r_lerp_list->modified
 		|| r_2D_unfiltered->modified || r_videos_unfiltered->modified)
 	{
 		GL3_TextureMode(gl_texturemode->string);
 		gl_texturemode->modified = false;
-		gl_anisotropic->modified = false;
+		r_anisotropic->modified = false;
 		r_nolerp_list->modified = false;
 		r_lerp_list->modified = false;
 		r_2D_unfiltered->modified = false;

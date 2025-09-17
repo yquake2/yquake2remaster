@@ -251,7 +251,7 @@ R_EnableMultitexture(qboolean enable)
 	{
 		glEnable(GL_TEXTURE_2D);
 
-		if (gl_lightmap->value)
+		if (r_lightmap->value)
 		{
 			R_TexEnv(GL_REPLACE);
 		}
@@ -296,7 +296,7 @@ R_TextureMode(const char *string)
 	/* clamp selected anisotropy */
 	if (gl_config.anisotropic)
 	{
-		if (gl_anisotropic->value > gl_config.max_anisotropy)
+		if (r_anisotropic->value > gl_config.max_anisotropy)
 		{
 			ri.Cvar_SetValue("r_anisotropic", gl_config.max_anisotropy);
 		}
@@ -336,10 +336,10 @@ R_TextureMode(const char *string)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 			/* Set anisotropic filter if supported and enabled */
-			if (gl_config.anisotropic && gl_anisotropic->value)
+			if (gl_config.anisotropic && r_anisotropic->value)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
-						Q_max(gl_anisotropic->value, 1.f));
+						Q_max(r_anisotropic->value, 1.f));
 			}
 		}
 		else /* texture has no mipmaps */
@@ -750,7 +750,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 	{
 		if (!mipmap)
 		{
-			if (qglColorTableEXT && gl1_palettedtexture->value &&
+			if (qglColorTableEXT && r_palettedtextures->value &&
 				(samples == Q2_GL_SOLID_FORMAT))
 			{
 				uploaded_paletted = true;
@@ -780,7 +780,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 
 	R_LightScaleTexture(scaled, scaled_width, scaled_height, !mipmap);
 
-	if (qglColorTableEXT && gl1_palettedtexture->value &&
+	if (qglColorTableEXT && r_palettedtextures->value &&
 		(samples == Q2_GL_SOLID_FORMAT))
 	{
 		uploaded_paletted = true;
@@ -821,7 +821,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 
 			miplevel++;
 
-			if (qglColorTableEXT && gl1_palettedtexture->value &&
+			if (qglColorTableEXT && r_palettedtextures->value &&
 				(samples == Q2_GL_SOLID_FORMAT))
 			{
 				uploaded_paletted = true;
@@ -869,10 +869,10 @@ R_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 	}
 
-	if (mipmap && gl_config.anisotropic && gl_anisotropic->value)
+	if (mipmap && gl_config.anisotropic && r_anisotropic->value)
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
-				Q_max(gl_anisotropic->value, 1.f));
+				Q_max(r_anisotropic->value, 1.f));
 	}
 	return res;
 }

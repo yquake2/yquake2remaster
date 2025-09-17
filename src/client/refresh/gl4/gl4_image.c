@@ -75,7 +75,7 @@ GL4_TextureMode(char *string)
 	/* clamp selected anisotropy */
 	if (gl4config.anisotropic)
 	{
-		if (gl_anisotropic->value > gl4config.max_anisotropy)
+		if (r_anisotropic->value > gl4config.max_anisotropy)
 		{
 			ri.Cvar_SetValue("r_anisotropic", gl4config.max_anisotropy);
 		}
@@ -114,10 +114,10 @@ GL4_TextureMode(char *string)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 
 			/* Set anisotropic filter if supported and enabled */
-			if (gl4config.anisotropic && gl_anisotropic->value)
+			if (gl4config.anisotropic && r_anisotropic->value)
 			{
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY,
-					Q_max(gl_anisotropic->value, 1.f));
+					Q_max(r_anisotropic->value, 1.f));
 			}
 		}
 		else /* texture has no mipmaps */
@@ -226,9 +226,9 @@ GL4_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 	}
 
-	if (mipmap && gl4config.anisotropic && gl_anisotropic->value)
+	if (mipmap && gl4config.anisotropic && r_anisotropic->value)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Q_max(gl_anisotropic->value, 1.f));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Q_max(r_anisotropic->value, 1.f));
 	}
 
 	return res;

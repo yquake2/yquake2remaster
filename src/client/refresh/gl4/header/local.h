@@ -224,7 +224,7 @@ typedef struct
 	gl4ShaderInfo_t si2DpostProcessWater; // shader to apply water-warp postprocess effect
 
 	gl4ShaderInfo_t si3Dlm;        // a regular opaque face (e.g. from brush) with lightmap
-	// TODO: lm-only variants for gl_lightmap 1
+	// TODO: lm-only variants for r_lightmap 1
 	gl4ShaderInfo_t si3Dtrans;     // transparent is always w/o lightmap
 	gl4ShaderInfo_t si3DcolorOnly; // used for beams - no lightmaps
 	gl4ShaderInfo_t si3Dturb;      // for water etc - always without lightmap
@@ -492,7 +492,7 @@ extern void GL4_UpdateUBOLights(void);
 
 // ############ Cvars ###########
 
-extern cvar_t *gl_msaa_samples;
+extern cvar_t *r_msaa_samples;
 extern cvar_t *gl_version_override;
 extern cvar_t *r_vsync;
 extern cvar_t *r_retexturing;
@@ -523,7 +523,7 @@ extern cvar_t *r_drawworld;
 extern cvar_t *vid_gamma;
 extern cvar_t *gl4_intensity;
 extern cvar_t *gl4_intensity_2D;
-extern cvar_t *gl_anisotropic;
+extern cvar_t *r_anisotropic;
 extern cvar_t *gl_texturemode;
 
 extern cvar_t *r_lightlevel;
@@ -534,8 +534,8 @@ extern cvar_t *gl4_colorlight;
 extern cvar_t *gl_polyblend;
 
 extern cvar_t *r_modulate;
-extern cvar_t *gl_lightmap;
-extern cvar_t *gl_shadows;
+extern cvar_t *r_lightmap;
+extern cvar_t *r_shadows;
 extern cvar_t *r_fixsurfsky;
 extern cvar_t *r_ttffont;
 extern cvar_t *r_palettedtexture;

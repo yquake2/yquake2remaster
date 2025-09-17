@@ -231,7 +231,7 @@ R_SetDefaultState(void)
 		R_SetTexturePalette(d_8to24table);
 	}
 
-	if (gl_msaa_samples->value)
+	if (r_msaa_samples->value)
 	{
 		glEnable(GL_MULTISAMPLE);
 		glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);

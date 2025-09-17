@@ -171,7 +171,7 @@ void Vk_Strings_f(void)
 	VkPhysicalDevice *physicalDevices;
 	VkPhysicalDeviceProperties deviceProperties;
 	int preferredDevice = (int)vk_device_idx->value;
-	int msaa = (int)vk_msaa->value;
+	int msaa = (int)r_msaa_samples->value;
 	uint32_t driverMajor = VK_VERSION_MAJOR(vk_device.properties.driverVersion);
 	uint32_t driverMinor = VK_VERSION_MINOR(vk_device.properties.driverVersion);
 	uint32_t driverPatch = VK_VERSION_PATCH(vk_device.properties.driverVersion);
