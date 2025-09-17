@@ -104,34 +104,12 @@ extern	vec3_t	r_origin;
 //
 extern	int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
-extern	cvar_t	*r_lefthand;
-extern	cvar_t	*r_drawworld;
 extern	cvar_t	*vk_znear;
-extern	cvar_t	*r_novis;
-extern	cvar_t	*r_lerpmodels;
-extern	cvar_t	*r_lockpvs;
-extern	cvar_t	*r_modulate;
-extern	cvar_t	*r_vsync;
-extern	cvar_t	*r_clear;
-extern	cvar_t	*r_lightlevel;	// FIXME: This is a HACK to get the client's light level
-extern	cvar_t	*r_gunfov;
-extern	cvar_t	*r_farsee;
-
 extern	cvar_t	*vk_overbrightbits;
-extern	cvar_t	*r_validation;
-extern	cvar_t	*r_cull;
 extern	cvar_t	*vk_picmip;
-extern	cvar_t	*r_palettedtexture;
-extern	cvar_t	*r_flashblend;
 extern	cvar_t	*vk_finish;
-extern	cvar_t	*r_shadows;
-extern	cvar_t	*r_dynamic;
-extern	cvar_t	*r_msaa_samples;
-extern	cvar_t	*r_showtris;
-extern	cvar_t	*r_lightmap;
 extern	cvar_t	*vk_texturemode;
 extern	cvar_t	*vk_lmaptexturemode;
-extern	cvar_t	*r_anisotropic;
 extern	cvar_t	*vk_sampleshading;
 extern	cvar_t	*vk_device_idx;
 extern	cvar_t	*vk_mip_nearfilter;
@@ -139,18 +117,7 @@ extern	cvar_t	*vk_mip_nearfilter;
 extern  cvar_t  *vk_molten_fastmath;
 extern  cvar_t  *vk_molten_metalbuffers;
 #endif
-extern	cvar_t	*r_retexturing;
-extern	cvar_t	*r_scale8bittextures;
-extern	cvar_t	*r_nolerp_list;
-extern	cvar_t	*r_lerp_list;
-extern	cvar_t	*r_2D_unfiltered;
-extern	cvar_t	*r_videos_unfiltered;
 extern	cvar_t	*vk_pixel_size;
-extern	cvar_t	*r_fixsurfsky;
-extern	cvar_t	*r_ttffont;
-
-extern	cvar_t	*vid_fullscreen;
-extern	cvar_t	*vid_gamma;
 
 extern	int		c_visible_lightmaps;
 extern	int		c_visible_textures;

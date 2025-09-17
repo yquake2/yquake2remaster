@@ -47,7 +47,7 @@ RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 		image_t	*image;
 
 		image = (image_t *)GetSkyImage(skyname, suf[r_skysideimage[i]],
-			r_palettedtexture->value, (findimage_t)R_FindImage);
+			r_palettedtextures->value, (findimage_t)R_FindImage);
 
 		if (!image)
 		{

@@ -104,7 +104,7 @@ R_ApplyGLBuffer(void)
 			glPushMatrix();
 			glLoadIdentity();
 
-			if (gl_lefthand->value == 1.0f)
+			if (r_lefthand->value == 1.0f)
 			{
 				glScalef(-1, 1, 1);
 			}
@@ -113,7 +113,7 @@ R_ApplyGLBuffer(void)
 
 			glMatrixMode(GL_MODELVIEW);
 
-			if (gl_lefthand->value == 1.0f)
+			if (r_lefthand->value == 1.0f)
 			{
 				glCullFace(GL_BACK);
 			}
@@ -259,7 +259,7 @@ R_ApplyGLBuffer(void)
 			glMatrixMode(GL_PROJECTION);
 			glPopMatrix();
 			glMatrixMode(GL_MODELVIEW);
-			if (gl_lefthand->value == 1.0F)
+			if (r_lefthand->value == 1.0F)
 			{
 				glCullFace(GL_FRONT);
 			}

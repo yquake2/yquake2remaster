@@ -415,6 +415,48 @@ extern void R_FlowingScroll(const refdef_t *r_newrefdef, int flags,
 extern const char* glshader_version(int major_version, int minor_version);
 
 /* Shared common code */
+extern cvar_t *r_2D_unfiltered;
+extern cvar_t *r_anisotropic;
+extern cvar_t *r_clear;
+extern cvar_t *r_cull;
+extern cvar_t *r_customheight;
+extern cvar_t *r_customwidth;
+extern cvar_t *r_drawentities;
+extern cvar_t *r_drawworld;
+extern cvar_t *r_dynamic;
+extern cvar_t *r_farsee;
+extern cvar_t *r_fixsurfsky;
+extern cvar_t *r_flashblend;
+extern cvar_t *r_fullbright;
+extern cvar_t *r_gunfov;
+extern cvar_t *r_lefthand;
+extern cvar_t *r_lerp_list;
+extern cvar_t *r_lerpmodels;
+extern cvar_t *r_lightlevel;
+extern cvar_t *r_lightmap;
+extern cvar_t *r_lockpvs;
+extern cvar_t *r_mode;
+extern cvar_t *r_modulate;
+extern cvar_t *r_msaa_samples;
+extern cvar_t *r_nolerp_list;
+extern cvar_t *r_norefresh;
+extern cvar_t *r_novis;
+extern cvar_t *r_palettedtextures;
+extern cvar_t *r_polyblend;
+extern cvar_t *r_retexturing;
+extern cvar_t *r_scale8bittextures;
+extern cvar_t *r_shadows;
+extern cvar_t *r_showtris;
+extern cvar_t *r_speeds;
+extern cvar_t *r_ttffont;
+extern cvar_t *r_validation;
+extern cvar_t *r_videos_unfiltered;
+extern cvar_t *r_vsync;
+extern cvar_t *vid_fullscreen;
+extern cvar_t *vid_gamma;
+extern cvar_t *viewsize;
+
 extern void R_CombineBlendWithFog(float *v_blend);
+extern void R_InitCvar(void);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

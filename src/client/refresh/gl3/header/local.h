@@ -503,55 +503,17 @@ extern void GL3_UpdateUBOLights(void);
 
 // ############ Cvars ###########
 
-extern cvar_t *r_msaa_samples;
 extern cvar_t *gl_version_override;
-extern cvar_t *r_vsync;
-extern cvar_t *r_retexturing;
-extern cvar_t *r_scale8bittextures;
-extern cvar_t *vid_fullscreen;
-extern cvar_t *r_mode;
-extern cvar_t *r_customwidth;
-extern cvar_t *r_customheight;
-
-extern cvar_t *r_2D_unfiltered;
-extern cvar_t *r_videos_unfiltered;
-extern cvar_t *r_nolerp_list;
-extern cvar_t *r_lerp_list;
 extern cvar_t *gl_nobind;
-extern cvar_t *r_lockpvs;
-extern cvar_t *r_novis;
-
-extern cvar_t *r_cull;
 extern cvar_t *gl_zfix;
-extern cvar_t *r_fullbright;
-
-extern cvar_t *r_norefresh;
-extern cvar_t *gl_lefthand;
-extern cvar_t *r_gunfov;
-extern cvar_t *r_farsee;
-extern cvar_t *r_drawworld;
-
-extern cvar_t *vid_gamma;
 extern cvar_t *gl3_intensity;
 extern cvar_t *gl3_intensity_2D;
-extern cvar_t *r_anisotropic;
 extern cvar_t *gl_texturemode;
-
-extern cvar_t *r_lightlevel;
 extern cvar_t *gl3_overbrightbits;
 extern cvar_t *gl3_particle_fade_factor;
 extern cvar_t *gl3_particle_square;
 extern cvar_t *gl3_colorlight;
 extern cvar_t *gl_polyblend;
-
-extern cvar_t *r_modulate;
-extern cvar_t *r_lightmap;
-extern cvar_t *r_shadows;
-extern cvar_t *r_fixsurfsky;
-extern cvar_t *r_ttffont;
-extern cvar_t *r_palettedtexture;
-extern cvar_t *r_validation;
-
 extern cvar_t *gl3_debugcontext;
 
 #endif /* SRC_CLIENT_REFRESH_GL3_HEADER_LOCAL_H_ */

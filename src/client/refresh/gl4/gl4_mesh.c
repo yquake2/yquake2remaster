@@ -547,7 +547,7 @@ GL4_DrawAliasModel(entity_t *entity)
 
 	if (entity->flags & RF_WEAPONMODEL)
 	{
-		if (gl_lefthand->value == 2)
+		if (r_lefthand->value == 2)
 		{
 			return;
 		}
@@ -725,7 +725,7 @@ GL4_DrawAliasModel(entity_t *entity)
 		hmm_mat4 projMat = GL4_SetPerspective( (r_gunfov->value < 0)?
 				r_newrefdef.fov_y : r_gunfov->value );
 
-		if(gl_lefthand->value == 1.0F)
+		if(r_lefthand->value == 1.0F)
 		{
 			// to mirror gun so it's rendered left-handed, just invert X-axis column
 			// of projection matrix
@@ -806,7 +806,7 @@ GL4_DrawAliasModel(entity_t *entity)
 	{
 		gl4state.uni3DData.transProjViewMat4 = origProjViewMat;
 		GL4_UpdateUBO3D();
-		if(gl_lefthand->value == 1.0F)
+		if(r_lefthand->value == 1.0F)
 			glCullFace(GL_FRONT);
 	}
 

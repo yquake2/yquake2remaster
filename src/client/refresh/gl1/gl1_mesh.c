@@ -369,7 +369,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (currententity->flags & RF_WEAPONMODEL)
 	{
-		if (gl_lefthand->value == 2)
+		if (r_lefthand->value == 2)
 		{
 			return;
 		}

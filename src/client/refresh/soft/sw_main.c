@@ -131,51 +131,20 @@ image_t  	*r_notexture_mip;
 float	da_time1, da_time2, dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 float	se_time1, se_time2, de_time1, de_time2;
 
-cvar_t	*r_lefthand;
-cvar_t	*r_gunfov;
-cvar_t	*r_farsee;
-cvar_t	*r_lightmap;
-cvar_t	*r_colorlight;
+cvar_t	*sw_colorlight;
+cvar_t	*sw_dspeeds;
 static cvar_t	*sw_aliasstats;
 cvar_t	*sw_clearcolor;
 cvar_t	*sw_drawflat;
 cvar_t	*sw_draworder;
-static cvar_t  *r_mode;
 cvar_t  *sw_stipplealpha;
 cvar_t	*sw_surfcacheoverride;
 cvar_t	*sw_waterwarp;
 static cvar_t	*sw_overbrightbits;
 cvar_t	*sw_custom_particles;
-static cvar_t	*r_anisotropic;
 cvar_t	*sw_texture_filtering;
-cvar_t	*r_retexturing;
-cvar_t	*r_scale8bittextures;
 cvar_t	*sw_gunzposition;
-cvar_t	*r_validation;
 static cvar_t	*sw_partialrefresh;
-
-cvar_t	*r_drawworld;
-static cvar_t	*r_drawentities;
-static cvar_t	*r_dspeeds;
-cvar_t	*r_fullbright;
-cvar_t  *r_lerpmodels;
-static cvar_t  *r_novis;
-cvar_t  *r_modulate;
-static cvar_t  *r_vsync;
-static cvar_t  *r_customwidth;
-static cvar_t  *r_customheight;
-
-static cvar_t	*r_speeds;
-cvar_t	*r_lightlevel;	//FIXME HACK
-cvar_t	*r_fixsurfsky;
-cvar_t	*r_ttffont;
-
-static cvar_t	*vid_fullscreen;
-static cvar_t	*vid_gamma;
-
-static cvar_t	*r_lockpvs;
-cvar_t	*r_palettedtexture;
-cvar_t	*r_cull;
 
 // sw_vars.c
 
@@ -370,23 +339,21 @@ static void R_ScreenShot_f(void);
 static void
 R_RegisterVariables (void)
 {
-	sw_aliasstats = ri.Cvar_Get ("sw_polymodelstats", "0", 0);
-	sw_clearcolor = ri.Cvar_Get ("sw_clearcolor", "2", 0);
-	sw_drawflat = ri.Cvar_Get ("sw_drawflat", "0", 0);
-	sw_draworder = ri.Cvar_Get ("sw_draworder", "0", 0);
-	sw_mipcap = ri.Cvar_Get ("sw_mipcap", "0", 0);
-	sw_mipscale = ri.Cvar_Get ("sw_mipscale", "1", 0);
-	sw_stipplealpha = ri.Cvar_Get( "sw_stipplealpha", "0", CVAR_ARCHIVE );
-	sw_surfcacheoverride = ri.Cvar_Get ("sw_surfcacheoverride", "0", 0);
-	sw_waterwarp = ri.Cvar_Get ("sw_waterwarp", "1", 0);
+	R_InitCvar();
+
+	sw_aliasstats = ri.Cvar_Get("sw_polymodelstats", "0", 0);
+	sw_clearcolor = ri.Cvar_Get("sw_clearcolor", "2", 0);
+	sw_drawflat = ri.Cvar_Get("sw_drawflat", "0", 0);
+	sw_draworder = ri.Cvar_Get("sw_draworder", "0", 0);
+	sw_mipcap = ri.Cvar_Get("sw_mipcap", "0", 0);
+	sw_mipscale = ri.Cvar_Get("sw_mipscale", "1", 0);
+	sw_stipplealpha = ri.Cvar_Get("sw_stipplealpha", "0", CVAR_ARCHIVE );
+	sw_surfcacheoverride = ri.Cvar_Get("sw_surfcacheoverride", "0", 0);
+	sw_waterwarp = ri.Cvar_Get("sw_waterwarp", "1", 0);
 	sw_overbrightbits = ri.Cvar_Get("sw_overbrightbits", "1.0", CVAR_ARCHIVE);
 	sw_custom_particles = ri.Cvar_Get("sw_custom_particles", "0", CVAR_ARCHIVE);
 	sw_texture_filtering = ri.Cvar_Get("sw_texture_filtering", "0", CVAR_ARCHIVE);
-	r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
-	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
-	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 	sw_gunzposition = ri.Cvar_Get("sw_gunzposition", "8", CVAR_ARCHIVE);
-	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
 
 	// On MacOS texture is cleaned up after render and code have to copy a whole
 	// screen to texture, other platforms save previous texture content and can be
@@ -397,33 +364,8 @@ R_RegisterVariables (void)
 	sw_partialrefresh = ri.Cvar_Get("sw_partialrefresh", "1", CVAR_ARCHIVE);
 #endif
 
-	r_mode = ri.Cvar_Get( "r_mode", "0", CVAR_ARCHIVE );
-
-	r_lefthand = ri.Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
-	r_gunfov = ri.Cvar_Get( "r_gunfov", "80", CVAR_ARCHIVE );
-	r_farsee = ri.Cvar_Get("r_farsee", "0", CVAR_LATCH | CVAR_ARCHIVE);
-	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
-	r_colorlight = ri.Cvar_Get("sw_colorlight", "0", CVAR_ARCHIVE);
-	r_speeds = ri.Cvar_Get ("r_speeds", "0", 0);
-	r_fullbright = ri.Cvar_Get ("r_fullbright", "0", 0);
-	r_drawentities = ri.Cvar_Get ("r_drawentities", "1", 0);
-	r_drawworld = ri.Cvar_Get ("r_drawworld", "1", 0);
-	r_dspeeds = ri.Cvar_Get ("r_dspeeds", "0", 0);
-	r_lightlevel = ri.Cvar_Get ("r_lightlevel", "0", 0);
-	r_lerpmodels = ri.Cvar_Get( "r_lerpmodels", "1", 0 );
-	r_novis = ri.Cvar_Get( "r_novis", "0", 0 );
-	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
-	r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
-	r_customwidth = ri.Cvar_Get("r_customwidth", "1024", CVAR_ARCHIVE);
-	r_customheight = ri.Cvar_Get("r_customheight", "768", CVAR_ARCHIVE);
-	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
-	/* font should looks good with 8 pixels size */
-	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
-	r_palettedtexture = ri.Cvar_Get("r_palettedtexture", "0", 0);
-	r_cull = ri.Cvar_Get("r_cull", "1", 0);
-
-	vid_fullscreen = ri.Cvar_Get( "vid_fullscreen", "0", CVAR_ARCHIVE );
-	vid_gamma = ri.Cvar_Get( "vid_gamma", "1.0", CVAR_ARCHIVE );
+	sw_colorlight = ri.Cvar_Get("sw_colorlight", "0", CVAR_ARCHIVE);
+	sw_dspeeds = ri.Cvar_Get("sw_dspeeds", "0", 0);
 
 	ri.Cmd_AddCommand("modellist", Mod_Modellist_f);
 	ri.Cmd_AddCommand("screenshot", R_ScreenShot_f);
@@ -432,8 +374,6 @@ R_RegisterVariables (void)
 	r_mode->modified = true; // force us to do mode specific stuff later
 	vid_gamma->modified = true; // force us to rebuild the gamma table later
 	sw_overbrightbits->modified = true; // force us to rebuild palette later
-
-	r_lockpvs = ri.Cvar_Get ("r_lockpvs", "0", 0);
 }
 
 static void
@@ -1185,7 +1125,7 @@ R_EdgeDrawing (entity_t *currententity)
 	surface_p = &surfaces[2];	// background is surface 1,
 					//  surface 0 is a dummy
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		rw_time1 = SDL_GetTicks();
 	}
@@ -1194,7 +1134,7 @@ R_EdgeDrawing (entity_t *currententity)
 	// Also populate the surface stack and count # surfaces to render (surf_max is the max)
 	R_RenderWorld (currententity);
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		rw_time2 = SDL_GetTicks();
 		db_time1 = rw_time2;
@@ -1202,7 +1142,7 @@ R_EdgeDrawing (entity_t *currententity)
 
 	R_DrawBEntitiesOnList();
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		db_time2 = SDL_GetTicks();
 		se_time1 = db_time2;
@@ -1372,7 +1312,7 @@ RE_RenderFrame(refdef_t *fd)
 	VectorCopy (fd->vieworg, lastvieworg);
 	VectorCopy (fd->viewangles, lastviewangles);
 
-	if (r_speeds->value || r_dspeeds->value)
+	if (r_speeds->value || sw_dspeeds->value)
 		r_time1 = SDL_GetTicks();
 
 	R_SetupFrame ();
@@ -1396,7 +1336,7 @@ RE_RenderFrame(refdef_t *fd)
 	// Render the map
 	R_EdgeDrawing (&ent);
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		se_time2 = SDL_GetTicks();
 		de_time1 = se_time2;
@@ -1416,7 +1356,7 @@ RE_RenderFrame(refdef_t *fd)
 	// Use Z-Buffer mostly in read mode only.
 	R_DrawEntitiesOnList();
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		de_time2 = SDL_GetTicks();
 		dp_time1 = SDL_GetTicks();
@@ -1425,7 +1365,7 @@ RE_RenderFrame(refdef_t *fd)
 	// Duh !
 	R_DrawParticles();
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		dp_time2 = SDL_GetTicks();
 	}
@@ -1441,7 +1381,7 @@ RE_RenderFrame(refdef_t *fd)
 		D_WarpScreen ();
 	}
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		da_time1 = SDL_GetTicks();
 		da_time2 = SDL_GetTicks();
@@ -1460,7 +1400,7 @@ RE_RenderFrame(refdef_t *fd)
 		R_PrintTimes();
 	}
 
-	if (r_dspeeds->value)
+	if (sw_dspeeds->value)
 	{
 		R_PrintDSpeeds();
 	}

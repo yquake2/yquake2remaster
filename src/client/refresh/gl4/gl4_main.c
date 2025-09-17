@@ -71,60 +71,22 @@ const hmm_mat4 gl4_identityMat4 = {{
 		{0, 0, 0, 1},
 }};
 
-cvar_t *r_msaa_samples;
 cvar_t *gl_version_override;
-cvar_t *r_vsync;
-cvar_t *r_retexturing;
-cvar_t *r_scale8bittextures;
-cvar_t *vid_fullscreen;
-cvar_t *r_mode;
-cvar_t *r_customwidth;
-cvar_t *r_customheight;
-cvar_t *vid_gamma;
-cvar_t *r_anisotropic;
 cvar_t *gl_texturemode;
 cvar_t *gl_drawbuffer;
-cvar_t *r_clear;
 cvar_t *gl4_particle_size;
 cvar_t *gl4_particle_fade_factor;
 cvar_t *gl4_particle_square;
 cvar_t *gl4_colorlight;
 cvar_t *gl_polyblend;
-
-cvar_t *gl_lefthand;
-cvar_t *r_gunfov;
-cvar_t *r_farsee;
-
 cvar_t *gl4_intensity;
 cvar_t *gl4_intensity_2D;
-cvar_t *r_lightlevel;
 cvar_t *gl4_overbrightbits;
-
-cvar_t *r_norefresh;
-cvar_t *r_drawentities;
-cvar_t *r_drawworld;
-cvar_t *r_nolerp_list;
-cvar_t *r_lerp_list;
-cvar_t *r_2D_unfiltered;
-cvar_t *r_videos_unfiltered;
 cvar_t *gl_nobind;
-cvar_t *r_lockpvs;
-cvar_t *r_novis;
-cvar_t *r_speeds;
 cvar_t *gl_finish;
-
-cvar_t *r_cull;
 cvar_t *gl_zfix;
-cvar_t *r_fullbright;
-cvar_t *r_modulate;
-cvar_t *r_lightmap;
-cvar_t *r_shadows;
 cvar_t *gl4_debugcontext;
 cvar_t *gl4_usebigvbo;
-cvar_t *r_fixsurfsky;
-cvar_t *r_ttffont;
-cvar_t *r_palettedtexture;
-cvar_t *r_validation;
 cvar_t *gl4_usefbo;
 
 static cvar_t *gl_znear;
@@ -197,20 +159,11 @@ GL4_Strings(void)
 static void
 GL4_Register(void)
 {
-	gl_lefthand = ri.Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
-	r_gunfov = ri.Cvar_Get("r_gunfov", "80", CVAR_ARCHIVE);
-	r_farsee = ri.Cvar_Get("r_farsee", "0", CVAR_LATCH | CVAR_ARCHIVE);
+	R_InitCvar();
 
 	gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
-	r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
-	r_msaa_samples = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE );
 	gl_version_override = ri.Cvar_Get("gl_version_override", "0", CVAR_ARCHIVE );
-	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
-	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
 	gl4_debugcontext = ri.Cvar_Get("gl4_debugcontext", "0", 0);
-	r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);
-	r_customwidth = ri.Cvar_Get("r_customwidth", "1024", CVAR_ARCHIVE);
-	r_customheight = ri.Cvar_Get("r_customheight", "768", CVAR_ARCHIVE);
 	gl4_particle_size = ri.Cvar_Get("gl4_particle_size", "40", CVAR_ARCHIVE);
 	gl4_particle_fade_factor = ri.Cvar_Get("gl4_particle_fade_factor", "1.2", CVAR_ARCHIVE);
 	gl4_particle_square = ri.Cvar_Get("gl4_particle_square", "0", CVAR_ARCHIVE);
@@ -222,65 +175,23 @@ GL4_Register(void)
 	//  1: reduce calls to glBufferData() with one big VBO (see GL4_BufferAndDraw3D())
 	// -1: auto (let yq2 choose to enable/disable this based on detected driver)
 	gl4_usebigvbo = ri.Cvar_Get("gl4_usebigvbo", "-1", CVAR_ARCHIVE);
-
-	r_norefresh = ri.Cvar_Get("r_norefresh", "0", 0);
-	r_drawentities = ri.Cvar_Get("r_drawentities", "1", 0);
-	r_drawworld = ri.Cvar_Get("r_drawworld", "1", 0);
-	r_fullbright = ri.Cvar_Get("r_fullbright", "0", 0);
-	/* font should looks good with 8 pixels size */
-	r_ttffont = ri.Cvar_Get("r_ttffont", "RussoOne-Regular", CVAR_ARCHIVE);
-	r_fixsurfsky = ri.Cvar_Get("r_fixsurfsky", "0", CVAR_ARCHIVE);
-	r_palettedtexture = ri.Cvar_Get("r_palettedtexture", "0", 0);
-	r_validation = ri.Cvar_Get("r_validation", "0", CVAR_ARCHIVE);
-
-	/* don't bilerp characters and crosshairs */
-	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);
-	/* textures that should always be filtered, even if r_2D_unfiltered or an unfiltered gl mode is used */
-	r_lerp_list = ri.Cvar_Get("r_lerp_list", "", CVAR_ARCHIVE);
-	/* don't bilerp any 2D elements */
-	r_2D_unfiltered = ri.Cvar_Get("r_2D_unfiltered", "0", CVAR_ARCHIVE);
-	/* don't bilerp videos */
-	r_videos_unfiltered = ri.Cvar_Get("r_videos_unfiltered", "0", CVAR_ARCHIVE);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
-	r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
 
-	vid_fullscreen = ri.Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
-	vid_gamma = ri.Cvar_Get("vid_gamma", "1.2", CVAR_ARCHIVE);
 	gl4_intensity = ri.Cvar_Get("gl4_intensity", "1.5", CVAR_ARCHIVE);
 	gl4_intensity_2D = ri.Cvar_Get("gl4_intensity_2D", "1.5", CVAR_ARCHIVE);
 
-	r_lightlevel = ri.Cvar_Get("r_lightlevel", "0", 0);
 	gl4_overbrightbits = ri.Cvar_Get("gl4_overbrightbits", "1.3", CVAR_ARCHIVE);
 
-	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
-	r_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
-
-	r_modulate = ri.Cvar_Get("r_modulate", "1", CVAR_ARCHIVE);
 	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
-	r_clear = ri.Cvar_Get("r_clear", "0", 0);
-	r_cull = ri.Cvar_Get("r_cull", "1", 0);
-	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
-	r_novis = ri.Cvar_Get("r_novis", "0", 0);
-	r_speeds = ri.Cvar_Get("r_speeds", "0", 0);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl_znear = ri.Cvar_Get("gl_znear", "4", CVAR_ARCHIVE);
 
 	gl4_usefbo = ri.Cvar_Get("gl4_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
 #if 0 // TODO!
-	//gl_lefthand = ri.Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 	//gl_farsee = ri.Cvar_Get("gl_farsee", "0", CVAR_LATCH | CVAR_ARCHIVE);
-	//r_norefresh = ri.Cvar_Get("r_norefresh", "0", 0);
-	//r_fullbright = ri.Cvar_Get("r_fullbright", "0", 0);
-	//r_drawentities = ri.Cvar_Get("r_drawentities", "1", 0);
-	//r_drawworld = ri.Cvar_Get("r_drawworld", "1", 0);
-	//r_novis = ri.Cvar_Get("r_novis", "0", 0);
-	//r_lerpmodels = ri.Cvar_Get("r_lerpmodels", "1", 0); NOTE: screw this, it looks horrible without
-	//r_speeds = ri.Cvar_Get("r_speeds", "0", 0);
-
-	//r_lightlevel = ri.Cvar_Get("r_lightlevel", "0", 0);
 	//gl_overbrightbits = ri.Cvar_Get("gl_overbrightbits", "0", CVAR_ARCHIVE);
 
 	gl1_particle_min_size = ri.Cvar_Get("gl1_particle_min_size", "2", CVAR_ARCHIVE);
@@ -291,42 +202,24 @@ GL4_Register(void)
 	gl1_particle_att_c = ri.Cvar_Get("gl1_particle_att_c", "0.01", CVAR_ARCHIVE);
 
 	//gl_modulate = ri.Cvar_Get("gl_modulate", "1", CVAR_ARCHIVE);
-	//r_mode = ri.Cvar_Get("r_mode", "4", CVAR_ARCHIVE);
-	//r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
-	//r_shadows = ri.Cvar_Get("r_shadows", "0", CVAR_ARCHIVE);
 	//gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
-	r_showtris = ri.Cvar_Get("r_showtris", "0", 0);
 	gl_showbbox = Cvar_Get("gl_showbbox", "0", 0);
 	//gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0); NOTE: dump this.
 	//gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	//gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
-	r_clear = ri.Cvar_Get("r_clear", "0", 0);
-	//r_flashblend = ri.Cvar_Get("r_flashblend", "0", 0);
 
 	//gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
 	gl1_texturesolidmode = ri.Cvar_Get("gl1_texturesolidmode", "default", CVAR_ARCHIVE);
-	//r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
-	//r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
 
-	//r_palettedtextures = ri.Cvar_Get("r_palettedtextures", "0", CVAR_ARCHIVE); NOPE.
 	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", "1", CVAR_ARCHIVE);
 
 	//gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
-	//r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
 
-
-	//vid_fullscreen = ri.Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
-	//vid_gamma = ri.Cvar_Get("vid_gamma", "1.0", CVAR_ARCHIVE);
-
-	//r_customwidth = ri.Cvar_Get("r_customwidth", "1024", CVAR_ARCHIVE);
-	//r_customheight = ri.Cvar_Get("r_customheight", "768", CVAR_ARCHIVE);
-	//r_msaa_samples = ri.Cvar_Get("r_msaa_samples", "0", CVAR_ARCHIVE );
-
-	gl1_stereo = ri.Cvar_Get( "gl1_stereo", "0", CVAR_ARCHIVE );
-	gl1_stereo_separation = ri.Cvar_Get( "gl1_stereo_separation", "-0.4", CVAR_ARCHIVE );
-	gl1_stereo_anaglyph_colors = ri.Cvar_Get( "gl1_stereo_anaglyph_colors", "rc", CVAR_ARCHIVE );
-	gl1_stereo_convergence = ri.Cvar_Get( "gl1_stereo_convergence", "1", CVAR_ARCHIVE );
+	gl1_stereo = ri.Cvar_Get("gl1_stereo", "0", CVAR_ARCHIVE );
+	gl1_stereo_separation = ri.Cvar_Get("gl1_stereo_separation", "-0.4", CVAR_ARCHIVE );
+	gl1_stereo_anaglyph_colors = ri.Cvar_Get("gl1_stereo_anaglyph_colors", "rc", CVAR_ARCHIVE );
+	gl1_stereo_convergence = ri.Cvar_Get("gl1_stereo_convergence", "1", CVAR_ARCHIVE );
 #endif // 0
 
 	ri.Cmd_AddCommand("imagelist", GL4_ImageList_f);

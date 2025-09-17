@@ -89,7 +89,7 @@ RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
 		r_newrefdef, modulate, r_framecount, NULL, NULL);
 
 	/* bound, invert, and shift */
-	if(r_colorlight->value == 0)
+	if(sw_colorlight->value == 0)
 	{
 		light_t *curr_light;
 		byte* curr;

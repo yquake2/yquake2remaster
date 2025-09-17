@@ -389,6 +389,7 @@ extern void TransformVector(const vec3_t in, vec3_t out);
 //===========================================================================
 
 extern cvar_t	*sw_clearcolor;
+extern cvar_t	*sw_dspeeds;
 extern cvar_t	*sw_drawflat;
 extern cvar_t	*sw_draworder;
 extern cvar_t	*sw_mipcap;
@@ -397,24 +398,7 @@ extern cvar_t	*sw_stipplealpha;
 extern cvar_t	*sw_surfcacheoverride;
 extern cvar_t	*sw_waterwarp;
 extern cvar_t	*sw_gunzposition;
-extern cvar_t	*r_validation;
-extern cvar_t	*r_retexturing;
-extern cvar_t	*r_scale8bittextures;
-extern cvar_t	*r_palettedtexture;
-
-extern cvar_t	*r_fullbright;
-extern cvar_t	*r_lefthand;
-extern cvar_t	*r_gunfov;
-extern cvar_t	*r_farsee;
-extern cvar_t	*r_lightmap;
-extern cvar_t	*r_colorlight;
-extern cvar_t	*r_drawworld;
-extern cvar_t	*r_lerpmodels;
-extern cvar_t	*r_lightlevel;
-extern cvar_t	*r_modulate;
-extern cvar_t	*r_fixsurfsky;
-extern	cvar_t	*r_ttffont;
-extern cvar_t	*r_cull;
+extern cvar_t	*sw_colorlight;
 
 extern clipplane_t	view_clipplanes[4];
 extern int		*pfrustum_indexes[4];

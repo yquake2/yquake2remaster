@@ -671,7 +671,7 @@ R_AliasSetupLighting(entity_t *currententity)
 		}
 	}
 
-	if(r_colorlight->value == 0)
+	if(sw_colorlight->value == 0)
 	{
 		float temp = (light[0] + light[1] + light[2]) / 3.0;
 

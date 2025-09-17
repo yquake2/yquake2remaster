@@ -159,26 +159,9 @@ extern qboolean IsHighDPIaware;
 
 extern vec3_t lightspot;
 
-extern cvar_t *r_norefresh;
-extern cvar_t *gl_lefthand;
-extern cvar_t *r_gunfov;
-extern cvar_t *r_farsee;
-extern cvar_t *r_drawentities;
-extern cvar_t *r_drawworld;
-extern cvar_t *r_speeds;
-extern cvar_t *r_fullbright;
-extern cvar_t *r_novis;
-extern cvar_t *r_lerpmodels;
-extern cvar_t *r_fixsurfsky;
-extern cvar_t *r_ttffont;
-
-extern cvar_t *r_lightlevel;
 extern cvar_t *gl1_overbrightbits;
-
-extern cvar_t *r_palettedtextures;
 extern cvar_t *gl1_pointparameters;
 extern cvar_t *gl1_multitexture;
-
 extern cvar_t *gl1_particle_min_size;
 extern cvar_t *gl1_particle_max_size;
 extern cvar_t *gl1_particle_size;
@@ -186,50 +169,21 @@ extern cvar_t *gl1_particle_att_a;
 extern cvar_t *gl1_particle_att_b;
 extern cvar_t *gl1_particle_att_c;
 extern cvar_t *gl1_particle_square;
-
-extern cvar_t *r_mode;
-extern cvar_t *r_customwidth;
-extern cvar_t *r_customheight;
-
-extern cvar_t *r_retexturing;
-extern cvar_t *r_scale8bittextures;
-extern cvar_t *r_validation;
-
-extern cvar_t *r_nolerp_list;
-extern cvar_t *r_lerp_list;
-extern cvar_t *r_2D_unfiltered;
-extern cvar_t *r_videos_unfiltered;
-
 extern cvar_t *gl_version_override;
-extern cvar_t *r_lightmap;
-extern cvar_t *r_shadows;
 extern cvar_t *gl1_stencilshadow;
-extern cvar_t *r_dynamic;
 extern cvar_t *gl_nobind;
 extern cvar_t *gl1_round_down;
 extern cvar_t *gl1_picmip;
-extern cvar_t *r_showtris;
 extern cvar_t *gl_showbbox;
 extern cvar_t *gl_finish;
 extern cvar_t *gl1_ztrick;
 extern cvar_t *gl_zfix;
-extern cvar_t *r_clear;
-extern cvar_t *r_cull;
 extern cvar_t *gl1_polyblend;
-extern cvar_t *r_flashblend;
-extern cvar_t *r_modulate;
 extern cvar_t *gl_drawbuffer;
-extern cvar_t *r_vsync;
-extern cvar_t *r_anisotropic;
 extern cvar_t *gl_texturemode;
 extern cvar_t *gl1_texturealphamode;
 extern cvar_t *gl1_texturesolidmode;
 extern cvar_t *gl1_saturatelighting;
-extern cvar_t *r_lockpvs;
-extern cvar_t *r_msaa_samples;
-
-extern cvar_t *vid_fullscreen;
-extern cvar_t *vid_gamma;
 
 extern int gl_tex_solid_format;
 extern int gl_tex_alpha_format;
