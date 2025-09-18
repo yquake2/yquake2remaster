@@ -57,6 +57,12 @@ LocalizationFileRead(const char *filename, int *len)
 	if (*len > 1)
 	{
 		buf = malloc(*len + 1);
+		if (!buf)
+		{
+			gi.error("%s: can't allocate space for file\n");
+			return NULL;
+		}
+
 		memcpy(buf, raw, *len);
 		buf[*len] = 0;
 		gi.FreeFile(raw);
@@ -167,6 +173,11 @@ LocalizationInit(void)
 	if (nlocalmessages)
 	{
 		localmessages = malloc(nlocalmessages * sizeof(*localmessages));
+		if (!localmessages)
+		{
+			gi.error("%s: can't allocate messages\n");
+			return;
+		}
 		memset(localmessages, 0, nlocalmessages * sizeof(*localmessages));
 	}
 

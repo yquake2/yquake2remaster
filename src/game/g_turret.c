@@ -494,6 +494,11 @@ turret_driver_think(edict_t *self)
 		}
 	}
 
+	if (!self->enemy)
+	{
+		return;
+	}
+
 	/* let the turret know where we want it to aim */
 	VectorCopy(self->enemy->s.origin, target);
 	target[2] += self->enemy->viewheight;
@@ -653,6 +658,11 @@ turret_brain_think(edict_t *self)
 	if (!self->enemy)
 	{
 		if (!FindTarget(self))
+		{
+			return;
+		}
+
+		if (self->enemy)
 		{
 			return;
 		}

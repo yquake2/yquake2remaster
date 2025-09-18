@@ -1304,6 +1304,11 @@ medic_cable_attack(edict_t *self)
 		}
 	}
 
+	if (!self->enemy)
+	{
+		return;
+	}
+
 	/* adjust start for beam origin being in middle of a segment */
 	VectorMA(start, 8, f, start);
 

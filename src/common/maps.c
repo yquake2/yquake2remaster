@@ -2322,6 +2322,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		{
 			Com_Error(ERR_DROP, "%s: Map %s does not have convert function for %d",
 				__func__, name, s);
+			return NULL;
 		}
 
 		rules[s].func(outbuf, outheader, inbuf, lumps, rules[s].size, *maptype,

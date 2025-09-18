@@ -640,6 +640,12 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 
 		compressed_buffer = malloc(handle->compressed_size);
 		uncompressed_size = size;
+		if (!compressed_buffer)
+		{
+			Com_Error(ERR_FATAL, "%s: can't allocate space for '%s'",
+				__func__, handle->name);
+			return 0;
+		}
 
 		memcpy(compressed_buffer, buffer, handle->compressed_size);
 
@@ -664,7 +670,7 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 			int read = 0;
 			int written = 0;
 
-			while ((read < handle->compressed_size) || (written < size))
+			while ((read < handle->compressed_size) && (written < size))
 			{
 				byte x;
 
@@ -745,7 +751,8 @@ FS_DecompressFile(void *buffer, int size, const fsHandle_t *handle)
 			free(compressed_buffer);
 		} else {
 			free(compressed_buffer);
-			Com_Error(ERR_FATAL, "%s: unknown compression format '%s'", __func__, handle->name);
+			Com_Error(ERR_FATAL, "%s: unknown compression format '%s'",
+				__func__, handle->name);
 			return 0;
 		}
 	}

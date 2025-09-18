@@ -494,6 +494,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 				{
 					gi.error("%s: function not in list, can't save game",
 						__func__);
+					return;
 				}
 
 				len = strlen(func->funcStr) + 1;
@@ -515,6 +516,7 @@ WriteField1(FILE *f, field_t *field, byte *base)
 				{
 					gi.error("%s: mmove not in list, can't save game",
 						__func__);
+					return;
 				}
 
 				len = strlen(mmove->mmoveStr) + 1;
@@ -564,6 +566,7 @@ WriteField2(FILE *f, field_t *field, byte *base)
 				{
 					gi.error("%s: function not in list, can't save game",
 						__func__);
+					return;
 				}
 
 				len = strlen(func->funcStr)+1;
@@ -580,6 +583,7 @@ WriteField2(FILE *f, field_t *field, byte *base)
 				{
 					gi.error("%s: mmove not in list, can't save game",
 						__func__);
+					return;
 				}
 
 				len = strlen(mmove->mmoveStr)+1;
