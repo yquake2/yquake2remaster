@@ -4708,6 +4708,9 @@ StartServer_MenuInit(void)
 
 			mapnames[num - 1] = NULL;
 
+			/* sort maps names alphabetically */
+			qsort(mapnames, num - 1, sizeof(char*), Q_sort_stricmp);
+
 			/* free file list */
 			FS_FreeList(list, num);
 		}
