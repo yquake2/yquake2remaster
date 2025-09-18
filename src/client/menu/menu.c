@@ -4642,8 +4642,6 @@ StartServer_MenuInit(void)
 		0
 	};
 
-	char *buffer;
-	char *s;
 	float scale = SCR_GetMenuScale();
 
 	/* initialize list of maps once, reuse it afterwards (=> it isn't freed unless the game dir is changed) */
@@ -4651,6 +4649,7 @@ StartServer_MenuInit(void)
 	{
 		int i, length;
 		size_t nummapslen;
+		char *buffer;
 
 		nummaps = 0;
 		s_startmap_list.curvalue = 0;
@@ -4662,70 +4661,74 @@ StartServer_MenuInit(void)
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 			return;
 		}
-
-		s = buffer;
-		i = 0;
-
-		while (i < length)
+		else
 		{
-			if (s[i] == '\n')
+			char *s;
+
+			s = buffer;
+			i = 0;
+
+			while (i < length)
 			{
-				nummaps++;
+				if (s[i] == '\n')
+				{
+					nummaps++;
+				}
+
+				i++;
 			}
 
-			i++;
-		}
-
-		if (nummaps == 0)
-		{
-			Com_Error(ERR_DROP, "no maps in maps.lst\n");
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return;
-		}
-
-		nummapslen = sizeof(char *) * (nummaps + 1);
-		mapnames = malloc(nummapslen);
-
-		YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (nummaps + 1))", nummapslen)
-		if (!mapnames)
-		{
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return;
-		}
-
-		memset(mapnames, 0, nummapslen);
-
-		s = buffer;
-
-		for (i = 0; i < nummaps; i++)
-		{
-			char shortname[MAX_TOKEN_CHARS];
-			char longname[MAX_TOKEN_CHARS];
-			char scratch[200];
-			size_t j, l;
-
-			Q_strlcpy(shortname, COM_Parse(&s), sizeof(shortname));
-			l = strlen(shortname);
-
-			for (j = 0; j < l; j++)
+			if (nummaps == 0)
 			{
-				shortname[j] = toupper((unsigned char)shortname[j]);
+				Com_Error(ERR_DROP, "no maps in maps.lst\n");
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
 			}
 
-			Q_strlcpy(longname, COM_Parse(&s), sizeof(longname));
-			Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
+			nummapslen = sizeof(char *) * (nummaps + 1);
+			mapnames = malloc(nummapslen);
 
-			mapnames[i] = strdup(scratch);
-			YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
-			if (!mapnames[i])
+			YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (nummaps + 1))", nummapslen)
+			if (!mapnames)
 			{
 				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 				return;
 			}
-		}
 
-		mapnames[nummaps] = 0;
-		FS_FreeFile(buffer);
+			memset(mapnames, 0, nummapslen);
+
+			s = buffer;
+
+			for (i = 0; i < nummaps; i++)
+			{
+				char shortname[MAX_TOKEN_CHARS];
+				char longname[MAX_TOKEN_CHARS];
+				char scratch[200];
+				size_t j, l;
+
+				Q_strlcpy(shortname, COM_Parse(&s), sizeof(shortname));
+				l = strlen(shortname);
+
+				for (j = 0; j < l; j++)
+				{
+					shortname[j] = toupper((unsigned char)shortname[j]);
+				}
+
+				Q_strlcpy(longname, COM_Parse(&s), sizeof(longname));
+				Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
+
+				mapnames[i] = strdup(scratch);
+				YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
+				if (!mapnames[i])
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return;
+				}
+			}
+
+			mapnames[nummaps] = 0;
+			FS_FreeFile(buffer);
+		}
 	}
 
 	/* initialize the menu stuff */
