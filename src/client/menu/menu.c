@@ -4675,6 +4675,7 @@ StartServer_MenuInit(void)
 			YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (num))", nummapslen)
 			if (!mapnames)
 			{
+				FS_FreeList(list, num);
 				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 				return;
 			}
@@ -4706,6 +4707,9 @@ StartServer_MenuInit(void)
 			}
 
 			mapnames[num - 1] = NULL;
+
+			/* free file list */
+			FS_FreeList(list, num);
 		}
 		else
 		{

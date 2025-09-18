@@ -662,7 +662,7 @@ turret_brain_think(edict_t *self)
 			return;
 		}
 
-		if (self->enemy)
+		if (!self->enemy)
 		{
 			return;
 		}
