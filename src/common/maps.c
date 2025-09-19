@@ -2254,6 +2254,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	{
 		Com_Error(ERR_DROP, "%s: Map %s is huge",
 			__func__, name);
+		return NULL;
 	}
 
 	outheader = (dheader_t*)outbuf;

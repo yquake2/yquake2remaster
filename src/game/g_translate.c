@@ -268,10 +268,22 @@ LocalizationInit(void)
 					}
 
 					localmessages[curr_pos].key = malloc(strlen(curr) + 2);
+					if (!localmessages[curr_pos].key)
+					{
+						gi.error("%s: can't allocate messages key\n");
+						break;
+					}
 					localmessages[curr_pos].key[0] = '$';
 					strcpy(localmessages[curr_pos].key + 1, curr);
+
 					localmessages[curr_pos].value = malloc(strlen(sign) + 1);
+					if (!localmessages[curr_pos].value)
+					{
+						gi.error("%s: can't allocate messages value\n");
+						break;
+					}
 					strcpy(localmessages[curr_pos].value, sign);
+
 					/* ReRelease does not have merged sound files to message */
 					localmessages[curr_pos].sound = NULL;
 					curr_pos ++;
@@ -344,8 +356,19 @@ LocalizationInit(void)
 				}
 
 				localmessages[curr_pos].key = malloc(6);
+				if (!localmessages[curr_pos].key)
+				{
+					gi.error("%s: can't allocate messages key\n");
+					break;
+				}
+
 				snprintf(localmessages[curr_pos].key, 5, "%d", i);
 				localmessages[curr_pos].value = malloc(strlen(curr) + 1);
+				if (!localmessages[curr_pos].value)
+				{
+					gi.error("%s: can't allocate messages value\n");
+					break;
+				}
 				strcpy(localmessages[curr_pos].value, curr);
 				/* Some Heretic message could have no sound effects */
 				localmessages[curr_pos].sound = NULL;
@@ -353,6 +376,11 @@ LocalizationInit(void)
 				{
 					/* has some sound aligned with message */
 					localmessages[curr_pos].sound = malloc(strlen(sign) + 1);
+					if (!localmessages[curr_pos].sound)
+					{
+						gi.error("%s: can't allocate messages sound\n");
+						break;
+					}
 					strcpy(localmessages[curr_pos].sound, sign);
 				}
 
@@ -407,8 +435,19 @@ LocalizationInit(void)
 			}
 
 			localmessages[curr_pos].key = malloc(6);
+			if (!localmessages[curr_pos].key)
+			{
+				gi.error("%s: can't allocate messages key\n");
+				break;
+			}
 			snprintf(localmessages[curr_pos].key, 5, "%d", i);
+
 			localmessages[curr_pos].value = malloc(strlen(curr) + 1);
+			if (!localmessages[curr_pos].value)
+			{
+				gi.error("%s: can't allocate messages value\n");
+				break;
+			}
 			strcpy(localmessages[curr_pos].value, curr);
 			/* Some Heretic message could have no sound effects */
 			localmessages[curr_pos].sound = NULL;

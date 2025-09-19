@@ -1174,7 +1174,9 @@ Key_ReadConsoleHistory()
 
 		// remove trailing newlines
 		lastCharIdx = strlen(key_lines[i]) - 1;
-		while((key_lines[i][lastCharIdx] == '\n' || key_lines[i][lastCharIdx] == '\r') && lastCharIdx >= 0)
+		while(lastCharIdx >= 0 && (
+			key_lines[i][lastCharIdx] == '\n' ||
+			key_lines[i][lastCharIdx] == '\r'))
 		{
 			key_lines[i][lastCharIdx] = '\0';
 			--lastCharIdx;
