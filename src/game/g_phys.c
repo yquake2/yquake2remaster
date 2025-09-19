@@ -142,6 +142,7 @@ SV_RunThink(edict_t *ent)
 	if (!ent->think)
 	{
 		gi.error("NULL ent->think");
+		return false;
 	}
 
 	ent->think(ent);
@@ -862,6 +863,7 @@ SV_Physics_Pusher(edict_t *ent)
 	if (pushed_p > &pushed[MAX_EDICTS - 1])
 	{
 		gi.error("pushed_p > &pushed[MAX_EDICTS - 1], memory corrupted");
+		return;
 	}
 
 	if (part)
@@ -1394,7 +1396,7 @@ G_RunEntity(edict_t *ent)
 			SV_Physics_NewToss(ent);
 			break;
 		default:
-			gi.error("SV_Physics: bad movetype %i", (int)ent->movetype);
+			gi.error("%s: bad movetype %i", __func__, (int)ent->movetype);
 	}
 
 	/* if we moved, check and fix origin if needed */

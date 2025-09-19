@@ -172,13 +172,13 @@ LocalizationInit(void)
 
 	if (nlocalmessages)
 	{
-		localmessages = malloc(nlocalmessages * sizeof(*localmessages));
+		localmessages = malloc((nlocalmessages + 1) * sizeof(*localmessages));
 		if (!localmessages)
 		{
 			gi.error("%s: can't allocate messages\n");
 			return;
 		}
-		memset(localmessages, 0, nlocalmessages * sizeof(*localmessages));
+		memset(localmessages, 0, (nlocalmessages + 1) * sizeof(*localmessages));
 	}
 
 	curr_pos = 0;

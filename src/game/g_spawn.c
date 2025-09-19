@@ -667,6 +667,7 @@ ED_ParseEdict(char *data, edict_t *ent)
 		if (!data)
 		{
 			gi.error("ED_ParseEntity: EOF without closing brace");
+			break;
 		}
 
 		Q_strlcpy(keyname, com_token, sizeof(keyname));
@@ -676,12 +677,14 @@ ED_ParseEdict(char *data, edict_t *ent)
 
 		if (!data)
 		{
-			gi.error("ED_ParseEntity: EOF without closing brace");
+			gi.error("%s: EOF without closing brace", __func__);
+			break;
 		}
 
 		if (com_token[0] == '}')
 		{
-			gi.error("ED_ParseEntity: closing brace without data");
+			gi.error("%s: closing brace without data", __func__);
+			break;
 		}
 
 		init = true;
@@ -914,7 +917,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 
 		if (com_token[0] != '{')
 		{
-			gi.error("ED_LoadFromFile: found %s when expecting {", com_token);
+			gi.error("%s: found %s when expecting {", __func__, com_token);
+			break;
 		}
 
 		if (!ent)
