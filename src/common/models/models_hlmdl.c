@@ -81,7 +81,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	hlmdl_bodypart_t *bodyparts;
 	dstvert_t *st_tmp = NULL;
 	dtriangle_t *tri_tmp = NULL;
-	dmdx_vert_t *vert_tmp = NULL;
+	dmdx_vert_t *out_vert = NULL;
+	int *out_boneids = NULL;
 	int num_st = 0, st_size = 0;
 	int num_tris = 0, tri_size = 0;
 	int num_verts = 0, verts_size = 0;
@@ -144,6 +145,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		{
 			hlmdl_bodymesh_t *mesh_nodes;
 			vec3_t *in_verts;
+			int *in_boneids;
 			int k;
 
 			Com_Printf("%s: %s: body part '%s' model '%s' mesh %d\n",
@@ -277,26 +279,47 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			}
 
 			in_verts = (vec3_t *)((byte *)buffer + bodymodels[j].ofs_vert);
-			if (!vert_tmp || (num_verts + bodymodels[j].num_verts) >= verts_size)
+			in_boneids = (int *)((byte *)buffer + bodymodels[j].ofs_vert);
+			if (!out_vert || !in_boneids ||
+				(num_verts + bodymodels[j].num_verts) >= verts_size)
 			{
-				dmdx_vert_t *tmp = NULL;
+				dmdx_vert_t *tmp_verts = NULL;
+				int *tmp_boneids = NULL;
 
 				verts_size = num_verts + bodymodels[j].num_verts * 2;
-				tmp = realloc(vert_tmp, verts_size * sizeof(*vert_tmp));
-				YQ2_COM_CHECK_OOM(tmp, "realloc()", verts_size * sizeof(*vert_tmp))
-				if (!tmp)
+				tmp_verts = realloc(out_vert, verts_size * sizeof(*out_vert));
+				YQ2_COM_CHECK_OOM(tmp_verts, "realloc()", verts_size * sizeof(*out_vert))
+				if (!tmp_verts)
 				{
 					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					verts_size = num_verts;
 					break;
 				}
 
-				vert_tmp = tmp;
+				tmp_boneids = realloc(out_boneids, verts_size * sizeof(*out_boneids));
+				YQ2_COM_CHECK_OOM(tmp_boneids, "realloc()", verts_size * sizeof(*out_boneids))
+				if (!tmp_boneids)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					verts_size = num_verts;
+					break;
+				}
+
+				out_vert = tmp_verts;
+				out_boneids = tmp_boneids;
 			}
 
 			for (k = 0; k < bodymodels[j].num_verts; k++)
 			{
-				VectorCopy(in_verts[k], vert_tmp[num_verts].xyz);
+				int l;
+
+				for (l = 0; l < 3; l++)
+				{
+					out_vert[num_verts].xyz[l] = LittleFloat(in_verts[k][l]);
+				}
+
+				out_boneids[num_verts] = LittleLong(in_boneids[k]);
+
 				num_verts++;
 
 				/*
@@ -370,11 +393,12 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			snprintf(frame->name, sizeof(frame->name), "%s%d",
 				sequences[i].name, j % 0xFF);
 
-			PrepareFrameVertex(vert_tmp, num_verts, frame);
+			PrepareFrameVertex(out_vert, num_verts, frame);
 			total_frames++;
 		}
 	}
-	free(vert_tmp);
+	free(out_vert);
+	free(out_boneids);
 
 	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel.ofs_texture);
 	for (i = 0; i < pinmodel.num_skins; i++)
