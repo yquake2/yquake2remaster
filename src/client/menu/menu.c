@@ -692,7 +692,7 @@ InitMainMenu(void)
 	s_plaque.generic.name = "m_main_plaque";
 	s_plaque.generic.callback = 0;
 	s_plaque.focuspic = 0;
-	s_plaque.alttext = NULL;
+	s_plaque.generic.alttext = NULL;
 
 	s_logo.generic.type = MTYPE_BITMAP;
 	s_logo.generic.flags = QMF_LEFT_JUSTIFY | QMF_INACTIVE;
@@ -701,7 +701,7 @@ InitMainMenu(void)
 	s_logo.generic.name = "m_main_logo";
 	s_logo.generic.callback = 0;
 	s_logo.focuspic = 0;
-	s_logo.alttext = NULL;
+	s_logo.generic.alttext = NULL;
 
 	y += 10;
 
@@ -712,7 +712,7 @@ InitMainMenu(void)
 	s_game.generic.name = "m_main_game";
 	s_game.generic.callback = GameFunc;
 	s_game.focuspic = "m_main_game_sel";
-	s_game.alttext = "Game";
+	s_game.generic.alttext = "Game";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_game.generic.name);
 	y += h + 8;
@@ -724,7 +724,7 @@ InitMainMenu(void)
 	s_multiplayer.generic.name = "m_main_multiplayer";
 	s_multiplayer.generic.callback = MultiplayerFunc;
 	s_multiplayer.focuspic = "m_main_multiplayer_sel";
-	s_multiplayer.alttext = "Multiplayer";
+	s_multiplayer.generic.alttext = "Multiplayer";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_multiplayer.generic.name);
 	y += h + 8;
@@ -736,7 +736,7 @@ InitMainMenu(void)
 	s_options.generic.name = "m_main_options";
 	s_options.generic.callback = OptionsFunc;
 	s_options.focuspic = "m_main_options_sel";
-	s_options.alttext = "Options";
+	s_options.generic.alttext = "Options";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_options.generic.name);
 	y += h + 8;
@@ -748,7 +748,7 @@ InitMainMenu(void)
 	s_video.generic.name = "m_main_video";
 	s_video.generic.callback = VideoFunc;
 	s_video.focuspic = "m_main_video_sel";
-	s_video.alttext = "Video";
+	s_video.generic.alttext = "Video";
 
 	Draw_GetPicSize(&w, &h, ( char * )s_video.generic.name);
 	y += h + 8;
@@ -760,7 +760,7 @@ InitMainMenu(void)
 	s_quit.generic.name = "m_main_quit";
 	s_quit.generic.callback = QuitFunc;
 	s_quit.focuspic = "m_main_quit_sel";
-	s_quit.alttext = "Quit";
+	s_quit.generic.alttext = "Quit";
 
 	Menu_AddItem(&s_main, (void *)&s_plaque);
 	Menu_AddItem(&s_main, (void *)&s_logo);
@@ -3703,6 +3703,7 @@ Game_MenuInit(void)
 	s_easy_game_action.generic.x = 0;
 	s_easy_game_action.generic.y = 0;
 	s_easy_game_action.generic.name = "easy";
+	s_easy_game_action.generic.alttext = "$m_easy";
 	s_easy_game_action.generic.callback = EasyGameFunc;
 
 	s_medium_game_action.generic.type = MTYPE_ACTION;
@@ -5647,7 +5648,7 @@ AddressBook_MenuInit(void)
 		f = &s_addressbook_fields[i];
 
 		f->generic.type = MTYPE_FIELD;
-		f->generic.name = 0;
+		f->generic.name = NULL;
 		f->generic.callback = 0;
 		f->generic.x = 0;
 		f->generic.y = i * 18 + 0;

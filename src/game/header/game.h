@@ -270,4 +270,7 @@ typedef struct
 	int edict_size;
 	int num_edicts;             /* current number, <= max_edicts */
 	int max_edicts;
+
+	/* Extended to classic Quake2 API. */
+	const char *(*LocalizationUIMessage)(const char *message, const char *default_message);
 } game_export_t;

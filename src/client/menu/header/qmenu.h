@@ -72,6 +72,7 @@ typedef struct
 {
 	int type;
 	const char *name;
+	const char *alttext;
 	int x, y;
 	menuframework_s *parent;
 	int cursor_offset;
@@ -91,7 +92,6 @@ typedef struct
 	menucommon_s    generic;
 	char *          focuspic;
 	char *          errorpic;
-	char *          alttext;
 	int             width;
 	int             height;
 } menubitmap_s;

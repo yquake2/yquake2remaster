@@ -752,3 +752,19 @@ SV_Shutdown(char *finalmsg, qboolean reconnect)
 	SV_SendFreeBuffers();
 }
 
+const char *
+SV_LocalizationUIMessage(const char *message, const char *default_message)
+{
+	if (!message)
+	{
+		return default_message;
+	}
+
+	if (!ge || ge->apiversion != GAME_API_VERSION)
+	{
+		Com_DPrintf("No game loaded %d.\n", ge ? ge->apiversion : 0);
+		return default_message;
+	}
+
+	return ge->LocalizationUIMessage(message, default_message);
+}

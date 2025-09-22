@@ -878,6 +878,7 @@ void SCR_BeginLoadingPlaque(void);
 
 void SV_Init(void);
 void SV_Shutdown(char *finalmsg, qboolean reconnect);
+const char *SV_LocalizationUIMessage(const char *message, const char *default_message);
 void SV_Frame(int usec);
 
 /* Convert protocol */
