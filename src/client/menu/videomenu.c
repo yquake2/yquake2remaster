@@ -47,32 +47,32 @@ static cvar_t *gl3_colorlight;
 static cvar_t *gl4_colorlight;
 static cvar_t *vk_dynamic;
 
-static menuframework_s s_opengl_menu;
+static menuframework_s s_opengl_menu = {0};
 
-static menulist_s s_renderer_list;
-static menulist_s s_mode_list;
-static menulist_s s_uiscale_list;
-static menuslider_s s_brightness_slider;
-static menuslider_s s_fov_slider;
-static menuslider_s s_gl1_intensity_slider;
-static menuslider_s s_gl3_intensity_slider;
-static menuslider_s s_gl4_intensity_slider;
-static menuslider_s s_vk_intensity_slider;
-static menuslider_s s_gl1_overbrightbits_slider;
-static menuslider_s s_gl3_overbrightbits_slider;
-static menuslider_s s_gl4_overbrightbits_slider;
-static menuslider_s s_vk_overbrightbits_slider;
-static menuslider_s s_gl1_minlight_slider;
-static menulist_s s_gl3_colorlight_list;
-static menulist_s s_gl4_colorlight_list;
-static menulist_s s_vk_dynamic_list;
-static menulist_s s_fs_box;
-static menulist_s s_vsync_list;
-static menulist_s s_af_list;
-static menulist_s s_msaa_list;
-static menulist_s s_filter_list;
-static menuaction_s s_defaults_action;
-static menuaction_s s_apply_action;
+static menulist_s s_renderer_list = {0};
+static menulist_s s_mode_list = {0};
+static menulist_s s_uiscale_list = {0};
+static menuslider_s s_brightness_slider = {0};
+static menuslider_s s_fov_slider = {0};
+static menuslider_s s_gl1_intensity_slider = {0};
+static menuslider_s s_gl3_intensity_slider = {0};
+static menuslider_s s_gl4_intensity_slider = {0};
+static menuslider_s s_vk_intensity_slider = {0};
+static menuslider_s s_gl1_overbrightbits_slider = {0};
+static menuslider_s s_gl3_overbrightbits_slider = {0};
+static menuslider_s s_gl4_overbrightbits_slider = {0};
+static menuslider_s s_vk_overbrightbits_slider = {0};
+static menuslider_s s_gl1_minlight_slider = {0};
+static menulist_s s_gl3_colorlight_list = {0};
+static menulist_s s_gl4_colorlight_list = {0};
+static menulist_s s_vk_dynamic_list = {0};
+static menulist_s s_fs_box = {0};
+static menulist_s s_vsync_list = {0};
+static menulist_s s_af_list = {0};
+static menulist_s s_msaa_list = {0};
+static menulist_s s_filter_list = {0};
+static menuaction_s s_defaults_action = {0};
+static menuaction_s s_apply_action = {0};
 
 // --------
 
@@ -601,6 +601,7 @@ VID_MenuInit(void)
 
 	s_renderer_list.generic.type = MTYPE_SPINCONTROL;
 	s_renderer_list.generic.name = "renderer";
+	s_renderer_list.generic.alttext = "$m_graphics_api";
 	s_renderer_list.generic.x = 0;
 	s_renderer_list.generic.y = y;
 	s_renderer_list.itemnames = renderers;
@@ -608,6 +609,7 @@ VID_MenuInit(void)
 
 	s_mode_list.generic.type = MTYPE_SPINCONTROL;
 	s_mode_list.generic.name = "video mode";
+	s_mode_list.generic.alttext = "$m_video_settings";
 	s_mode_list.generic.x = 0;
 	s_mode_list.generic.y = (y += 10);
 	s_mode_list.itemnames = resolutions;
@@ -629,6 +631,7 @@ VID_MenuInit(void)
 
 	s_brightness_slider.generic.type = MTYPE_SLIDER;
 	s_brightness_slider.generic.name = "brightness";
+	s_brightness_slider.generic.alttext = "$m_brightness";
 	s_brightness_slider.generic.x = 0;
 	s_brightness_slider.generic.y = (y += 10);
 	s_brightness_slider.generic.callback = RestartNeededSDL3Msg;
@@ -638,6 +641,7 @@ VID_MenuInit(void)
 
 	s_fov_slider.generic.type = MTYPE_SLIDER;
 	s_fov_slider.generic.name = "field of view";
+	s_fov_slider.generic.alttext = "$m_fov";
 	s_fov_slider.generic.x = 0;
 	s_fov_slider.generic.y = (y += 10);
 	s_fov_slider.cvar = "fov";
@@ -793,6 +797,7 @@ VID_MenuInit(void)
 
 	s_fs_box.generic.type = MTYPE_SPINCONTROL;
 	s_fs_box.generic.name = "fullscreen";
+	s_fs_box.generic.alttext = "$m_fullscreen";
 	s_fs_box.generic.x = 0;
 	s_fs_box.generic.y = (y += 10);
 	s_fs_box.itemnames = fullscreen_names;
@@ -800,6 +805,7 @@ VID_MenuInit(void)
 
 	s_vsync_list.generic.type = MTYPE_SPINCONTROL;
 	s_vsync_list.generic.name = "vertical sync";
+	s_vsync_list.generic.alttext = "$m_vsync";
 	s_vsync_list.generic.x = 0;
 	s_vsync_list.generic.y = (y += 10);
 	s_vsync_list.itemnames = yesno_names;
@@ -897,6 +903,7 @@ VID_MenuInit(void)
 
 	s_apply_action.generic.type = MTYPE_ACTION;
 	s_apply_action.generic.name = "apply";
+	s_apply_action.generic.alttext = "$m_apply_settings";
 	s_apply_action.generic.x = 0;
 	s_apply_action.generic.y = (y += 10);
 	s_apply_action.generic.callback = ApplyChanges;
