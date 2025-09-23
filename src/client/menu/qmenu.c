@@ -46,6 +46,41 @@ extern viddef_t viddef;
 #define VID_WIDTH viddef.width
 #define VID_HEIGHT viddef.height
 
+static size_t
+StrLenUTF8(const char *src)
+{
+	size_t symbols = 0;
+
+	while (*src)
+	{
+		size_t size = 1;
+
+		if (!(*src & 0x80))
+		{
+			size = 1;
+		}
+		else if ((*src & 0xE0) == 0xC0)
+		{
+			size = 2;
+		}
+		else if ((*src & 0xF0) == 0xE0)
+		{
+			size = 3;
+		}
+		else if ((*src & 0xF8) == 0xF0)
+		{
+			size = 4;
+		}
+
+		src += size;
+
+		symbols ++;
+	}
+
+	return symbols;
+}
+
+
 float
 ClampCvar(float min, float max, float value)
 {
@@ -511,7 +546,7 @@ Menu_DrawStatusBar(const char *string)
 
 	if (string)
 	{
-		int l = (int)strlen(string);
+		int l = (int)StrLenUTF8(string);
 		int col = (VID_WIDTH / 2) - (l*8 / 2) * scale;
 
 		Draw_Fill(0, VID_HEIGHT - 8 * scale, VID_WIDTH, 8 * scale, 4);
@@ -544,7 +579,7 @@ Menu_DrawStringR2L(int x, int y, const char *string)
 {
 	float scale = SCR_GetMenuScale();
 
-	Draw_StringScaled(x - 8 * scale * strlen(string), y * scale, scale, false, string);
+	Draw_StringScaled(x - 8 * scale * StrLenUTF8(string), y * scale, scale, false, string);
 }
 
 void
@@ -552,7 +587,7 @@ Menu_DrawStringR2LDark(int x, int y, const char *string)
 {
 	float scale = SCR_GetMenuScale();
 
-	Draw_StringScaled(x - 8 * scale * strlen(string), y * scale, scale, true, string);
+	Draw_StringScaled(x - 8 * scale * StrLenUTF8(string), y * scale, scale, true, string);
 }
 
 void *
