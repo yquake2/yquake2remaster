@@ -562,6 +562,7 @@ set(Client-Source
 	${SERVER_SRC_DIR}/sv_save.c
 	${SERVER_SRC_DIR}/sv_send.c
 	${SERVER_SRC_DIR}/sv_user.c
+	${SERVER_SRC_DIR}/sv_translate.c
 	${SERVER_SRC_DIR}/sv_world.c
 	)
 
@@ -659,6 +660,7 @@ set(Server-Source
 	${SERVER_SRC_DIR}/sv_save.c
 	${SERVER_SRC_DIR}/sv_send.c
 	${SERVER_SRC_DIR}/sv_user.c
+	${SERVER_SRC_DIR}/sv_translate.c
 	${SERVER_SRC_DIR}/sv_world.c
 	)
 

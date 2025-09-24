@@ -201,6 +201,7 @@ extern cvar_t *sv_airaccelerate;            /* don't reload level state when ree
 											/* development tool */
 extern cvar_t *sv_enforcetime;
 extern cvar_t *sv_downloadserver;			/* Download server. */
+extern cvar_t *sv_language;			/* Localization. */
 
 extern client_t *sv_client;
 extern edict_t *sv_player;

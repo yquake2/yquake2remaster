@@ -3488,6 +3488,9 @@ ModsApplyActionFunc(void *unused)
 {
 	if (!M_IsGame(modnames[s_mods_list.curvalue]))
 	{
+		/* Unload localization */
+		SV_LocalizationFree();
+
 		if(Com_ServerState())
 		{
 			// equivalent to "killserver" cmd, but avoids cvar latching below

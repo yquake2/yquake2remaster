@@ -1142,6 +1142,7 @@ CLIENT_OBJS_ := \
 	src/server/sv_main.o \
 	src/server/sv_save.o \
 	src/server/sv_send.o \
+	src/server/sv_translate.o \
 	src/server/sv_user.o \
 	src/server/sv_world.o
 
@@ -1436,6 +1437,7 @@ SERVER_OBJS_ := \
 	src/server/sv_main.o \
 	src/server/sv_save.o \
 	src/server/sv_send.o \
+	src/server/sv_translate.o \
 	src/server/sv_user.o \
 	src/server/sv_world.o
 

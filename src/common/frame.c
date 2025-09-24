@@ -407,6 +407,7 @@ Qcommon_Init(int argc, char **argv)
 	NET_Init();
 	Netchan_Init();
 	SV_Init();
+	SV_LocalizationInit();
 #ifndef DEDICATED_ONLY
 	CL_Init();
 #endif
@@ -834,6 +835,7 @@ Qcommon_Shutdown(void)
 {
 	CM_ModFreeAll();
 	Mod_AliasesFreeAll();
+	SV_LocalizationFree();
 	FS_ShutdownFilesystem();
 	Cvar_Fini();
 
