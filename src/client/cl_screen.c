@@ -170,7 +170,7 @@ static float scr_centertime_off;
 static int scr_center_lines;
 static int scr_erase_center;
 
-static int
+int
 SCR_CopyUtf8(const char *src, char *dst, int limit)
 {
 	int symbols = 0;

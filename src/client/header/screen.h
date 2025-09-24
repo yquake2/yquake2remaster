@@ -53,6 +53,7 @@ extern	vrect_t		scr_vrect; /* position of render window */
 void SCR_AddDirtyPoint(int x, int y);
 void SCR_DirtyScreen(void);
 
+int SCR_CopyUtf8(const char *src, char *dst, int limit);
 void SCR_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel);
 void SCR_PlayCinematic(char *name);

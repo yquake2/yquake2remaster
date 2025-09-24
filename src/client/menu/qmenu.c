@@ -577,17 +577,27 @@ Menu_DrawStringDark(int x, int y, const char *string)
 void
 Menu_DrawStringR2L(int x, int y, const char *string)
 {
-	float scale = SCR_GetMenuScale();
+	char message[161];
+	float scale;
+	int pos;
 
-	Draw_StringScaled(x - 8 * scale * StrLenUTF8(string), y * scale, scale, false, string);
+	scale = SCR_GetMenuScale();
+
+	pos = SCR_CopyUtf8(string, message, Q_min(40, x / (8 * scale)));
+	Draw_StringScaled(x - 8 * scale * pos, y * scale, scale, false, message);
 }
 
 void
 Menu_DrawStringR2LDark(int x, int y, const char *string)
 {
-	float scale = SCR_GetMenuScale();
+	char message[161];
+	float scale;
+	int pos;
 
-	Draw_StringScaled(x - 8 * scale * StrLenUTF8(string), y * scale, scale, true, string);
+	scale = SCR_GetMenuScale();
+
+	pos = SCR_CopyUtf8(string, message, Q_min(40, x / (8 * scale)));
+	Draw_StringScaled(x - 8 * scale * pos, y * scale, scale, true, message);
 }
 
 void *
