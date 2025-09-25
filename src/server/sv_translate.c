@@ -195,7 +195,7 @@ SV_LocalizationReload(void)
 	curr_pos = 0;
 
 	/* localization load */
-	if (buf_local)
+	if (buf_local && localmessages)
 	{
 		char *curr;
 
@@ -314,7 +314,7 @@ SV_LocalizationReload(void)
 	}
 
 	/* heretic 2 translate load */
-	if (buf_level)
+	if (buf_level && localmessages)
 	{
 		char *curr;
 		int i;
@@ -417,7 +417,7 @@ SV_LocalizationReload(void)
 	}
 
 	/* hexen 2 translate load */
-	if (buf_strings)
+	if (buf_strings && localmessages)
 	{
 		char *curr;
 		int i;

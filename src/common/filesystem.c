@@ -914,6 +914,12 @@ FS_FRead(void *buffer, int size, int count, fileHandle_t f)
 				}
 				else
 				{
+					if (buffer != compressed_buf)
+					{
+						memcpy(buffer, compressed_buf, size - remaining);
+						free(compressed_buf);
+					}
+
 					/* Already tried once. */
 					return size - remaining;
 				}

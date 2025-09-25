@@ -3477,6 +3477,10 @@ ModsListFunc(void *unused)
 	{
 		strcpy(mods_statusbar, "Quake II Mission Pack: The Reckoning");
 	}
+	else if (strcmp("zaero", modnames[s_mods_list.curvalue]) == 0)
+	{
+		strcpy(mods_statusbar, "Unofficial: Team Evolve's Zaero");
+	}
 	else
 	{
 		strcpy(mods_statusbar, "\0");
@@ -6129,7 +6133,7 @@ HasSkinsInDir(const char *dirname, int *num)
 	if (*num)
 	{
 		curr = list = malloc(sizeof(char *) * (*num + 1));
-		YQ2_COM_CHECK_OOM(list, "realloc()", (size_t)sizeof(char *) * (*num + 1))
+		YQ2_COM_CHECK_OOM(list, "malloc()", (size_t)sizeof(char *) * (*num + 1))
 		if (!list)
 		{
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
