@@ -386,7 +386,6 @@ set(Game-Source
 	${GAME_SRC_DIR}/g_sphere.c
 	${GAME_SRC_DIR}/g_svcmds.c
 	${GAME_SRC_DIR}/g_target.c
-	${GAME_SRC_DIR}/g_translate.c
 	${GAME_SRC_DIR}/g_trigger.c
 	${GAME_SRC_DIR}/g_turret.c
 	${GAME_SRC_DIR}/g_utils.c

@@ -597,7 +597,7 @@ SV_LocalizationUIMessage(const char *message, const char *default_message)
 }
 
 const char*
-LocalizationMessage(const char *message, const char **sound)
+SV_LocalizationMessage(const char *message, const char **sound)
 {
 	SV_LocalizationReload();
 

@@ -435,6 +435,21 @@ PF_StartSound(edict_t *entity, int channel, int sound_num,
 			volume, attenuation, timeofs);
 }
 
+static const char*
+PF_LocalizationMessage(const char *message, int *sound_index)
+{
+	const char *sound, *localmessage;
+
+	localmessage = SV_LocalizationMessage(message, &sound);
+
+	if (sound_index && sound)
+	{
+		*sound_index = SV_SoundIndex(sound);
+	}
+
+	return localmessage;
+}
+
 /*
  * Called when either the entire server is being killed, or
  * it is changing to a different game directory.
@@ -534,6 +549,8 @@ SV_InitGameProgs(void)
 	import.GetModelInfo = PF_GetModelInfo;
 	import.GetModelFrameInfo = PF_GetModelFrameInfo;
 	import.PmoveEx = PmoveEx;
+	import.LocalizationMessage = PF_LocalizationMessage;
+	import.LocalizationUIMessage = SV_LocalizationUIMessage;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

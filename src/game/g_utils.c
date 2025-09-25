@@ -332,7 +332,8 @@ G_UseTargets(edict_t *ent, edict_t *activator)
 			sound_index = gi.soundindex("misc/talk1.wav");
 		}
 
-		gi.centerprintf(activator, "%s", LocalizationMessage(ent->message, &sound_index));
+		gi.centerprintf(activator, "%s", gi.LocalizationMessage(
+			ent->message, &sound_index));
 		gi.sound(activator, CHAN_AUTO, sound_index, 1, ATTN_NORM, 0);
 	}
 

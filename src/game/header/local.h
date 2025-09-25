@@ -704,7 +704,6 @@ extern cvar_t *aimfix;
 extern cvar_t *g_machinegun_norecoil;
 extern cvar_t *g_quick_weap;
 extern cvar_t *g_swap_speed;
-extern cvar_t *g_language;
 extern cvar_t *g_itemsbobeffect;
 extern cvar_t *g_start_items;
 extern cvar_t *ai_model_scale;
@@ -1064,12 +1063,6 @@ void SV_AddGravity(edict_t *ent);
 /* g_main.c */
 void SaveClientData(void);
 void EndDMLevel(void);
-
-/* g_translate.c */
-void LocalizationInit(void);
-void LocalizationFree(void);
-const char* LocalizationMessage(const char *message, int *sound_index);
-const char* LocalizationUIMessage(const char *message, const char *default_message);
 
 /* g_chase.c */
 void UpdateChaseCam(edict_t *ent);

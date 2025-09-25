@@ -102,7 +102,6 @@ cvar_t *aimfix;
 cvar_t *g_machinegun_norecoil;
 cvar_t *g_quick_weap;
 cvar_t *g_swap_speed;
-cvar_t *g_language;
 cvar_t *g_itemsbobeffect;
 cvar_t *g_start_items;
 cvar_t *ai_model_scale;
@@ -120,7 +119,6 @@ ShutdownGame(void)
 	gi.FreeTags(TAG_LEVEL);
 	gi.FreeTags(TAG_GAME);
 	SpawnFree();
-	LocalizationFree();
 }
 
 /*
@@ -155,9 +153,6 @@ GetGameAPI(game_import_t *import)
 	globals.ServerCommand = ServerCommand;
 
 	globals.edict_size = sizeof(edict_t);
-
-	/* Extended API */
-	globals.LocalizationUIMessage = LocalizationUIMessage;
 
 	/* Initalize the PRNG */
 	randk_seed();

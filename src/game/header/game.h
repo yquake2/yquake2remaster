@@ -217,6 +217,9 @@ typedef struct
 	const dmdxframegroup_t * (*GetModelInfo)(int index, int *num, float *mins, float *maxs);
 	void (*GetModelFrameInfo)(int index, int num, float *mins, float *maxs);
 	void (*PmoveEx)(pmove_t *pmove, int *origin);
+
+	const char* (*LocalizationMessage)(const char *message, int *sound_index);
+	const char* (*LocalizationUIMessage)(const char *message, const char *default_message);
 } game_import_t;
 
 /* functions exported by the game subsystem */
@@ -270,7 +273,4 @@ typedef struct
 	int edict_size;
 	int num_edicts;             /* current number, <= max_edicts */
 	int max_edicts;
-
-	/* Extended to classic Quake2 API. */
-	const char *(*LocalizationUIMessage)(const char *message, const char *default_message);
 } game_export_t;

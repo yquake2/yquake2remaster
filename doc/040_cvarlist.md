@@ -287,7 +287,7 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   By default this cvar is set to `1`, and will only work if the
   game.dll implements this behaviour.
 
-* **g_language**: Default language for ReRelease game, requires `Q2Game.kpf`
+* **language**: Default language for ReRelease game, requires `Q2Game.kpf`
   or other source of `localization/loc_english.txt` like file.
   Defaults to `english`.
 

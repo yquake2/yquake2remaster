@@ -275,7 +275,7 @@ Not a goal:
 * ReRelease localization requires `Q2Game.kpf` file in root directory of game. If you
   like to support your language put it to localization/loc_<your language>.txt
   and extend MAX_FONTCODE to your [max symbol code](https://en.wikipedia.org/wiki/List_of_Unicode_characters).
-  Used font and language file are defined by `g_language` and `r_ttffont`, as
+  Used font and language file are defined by `language` and `r_ttffont`, as
   an example could be used fonts like [unifont](https://unifoundry.com/pub/unifont/unifont-15.0.06/font-builds/unifont-15.0.06.ttf).
 * Heretic 2 localization requires `levelmsg.txt` in game directory.
 * Hexen 2 localization requires `Strings.txt` in game directory.

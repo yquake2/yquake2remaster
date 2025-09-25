@@ -231,7 +231,7 @@ secret_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurfa
 		int sound_index;
 
 		sound_index = 0;
-		gi.centerprintf(other, LocalizationMessage(self->message, &sound_index));
+		gi.centerprintf(other, gi.LocalizationMessage(self->message, &sound_index));
 
 		if (sound_index)
 		{

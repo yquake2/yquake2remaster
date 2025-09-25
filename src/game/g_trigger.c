@@ -1545,7 +1545,7 @@ trigger_mission_give_touch(edict_t *self, edict_t *other, cplane_t *plane /* unu
 		return;
 	}
 
-	message = LocalizationMessage(self->message, NULL);
+	message = gi.LocalizationMessage(self->message, NULL);
 
 	if (strncmp(message, game.helpmessage1, sizeof(game.helpmessage1)) &&
 		strncmp(message, game.helpmessage2, sizeof(game.helpmessage2)))
