@@ -23,14 +23,24 @@
 
 #include <string.h>
 
+#ifdef _WIN32
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#ifdef _WIN32
 __declspec(dllimport) HMODULE __stdcall LoadLibraryA(LPCSTR);
 __declspec(dllimport) FARPROC __stdcall GetProcAddress(HMODULE, LPCSTR);
 __declspec(dllimport) int __stdcall FreeLibrary(HMODULE);
+#ifdef __cplusplus
+}
+#endif
+#endif
+
+#ifdef __cplusplus
+#ifdef VOLK_NAMESPACE
+namespace volk {
+#else
+extern "C" {
+#endif
 #endif
 
 #if defined(__GNUC__)
@@ -83,6 +93,10 @@ VkResult volkInitialize(void)
 	void* module = dlopen("libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
 	if (!module)
 		module = dlopen("libvulkan.1.dylib", RTLD_NOW | RTLD_LOCAL);
+	// modern versions of macOS don't search /usr/local/lib automatically contrary to what man dlopen says
+	// Vulkan SDK uses this as the system-wide installation location, so we're going to fallback to this if all else fails
+	if (!module && getenv("DYLD_FALLBACK_LIBRARY_PATH") == NULL)
+		module = dlopen("/usr/local/lib/libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
 	if (!module)
 		module = dlopen("libMoltenVK.dylib", RTLD_NOW | RTLD_LOCAL);
 	// Add support for using Vulkan and MoltenVK in a Framework. App store rules for iOS
@@ -91,10 +105,6 @@ VkResult volkInitialize(void)
 		module = dlopen("vulkan.framework/vulkan", RTLD_NOW | RTLD_LOCAL);
 	if (!module)
 		module = dlopen("MoltenVK.framework/MoltenVK", RTLD_NOW | RTLD_LOCAL);
-	// modern versions of macOS don't search /usr/local/lib automatically contrary to what man dlopen says
-	// Vulkan SDK uses this as the system-wide installation location, so we're going to fallback to this if all else fails
-	if (!module && getenv("DYLD_FALLBACK_LIBRARY_PATH") == NULL)
-		module = dlopen("/usr/local/lib/libvulkan.dylib", RTLD_NOW | RTLD_LOCAL);
 	if (!module)
 		return VK_ERROR_INITIALIZATION_FAILED;
 
@@ -242,6 +252,13 @@ static void volkGenLoadInstance(void* context, PFN_vkVoidFunction (*load)(void*,
 #if defined(VK_VERSION_1_3)
 	vkGetPhysicalDeviceToolProperties = (PFN_vkGetPhysicalDeviceToolProperties)load(context, "vkGetPhysicalDeviceToolProperties");
 #endif /* defined(VK_VERSION_1_3) */
+#if defined(VK_ARM_data_graph)
+	vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM = (PFN_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM)load(context, "vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM");
+	vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM = (PFN_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM)load(context, "vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM");
+#endif /* defined(VK_ARM_data_graph) */
+#if defined(VK_ARM_tensors)
+	vkGetPhysicalDeviceExternalTensorPropertiesARM = (PFN_vkGetPhysicalDeviceExternalTensorPropertiesARM)load(context, "vkGetPhysicalDeviceExternalTensorPropertiesARM");
+#endif /* defined(VK_ARM_tensors) */
 #if defined(VK_EXT_acquire_drm_display)
 	vkAcquireDrmDisplayEXT = (PFN_vkAcquireDrmDisplayEXT)load(context, "vkAcquireDrmDisplayEXT");
 	vkGetDrmDisplayEXT = (PFN_vkGetDrmDisplayEXT)load(context, "vkGetDrmDisplayEXT");
@@ -419,6 +436,9 @@ static void volkGenLoadInstance(void* context, PFN_vkVoidFunction (*load)(void*,
 #if defined(VK_NV_optical_flow)
 	vkGetPhysicalDeviceOpticalFlowImageFormatsNV = (PFN_vkGetPhysicalDeviceOpticalFlowImageFormatsNV)load(context, "vkGetPhysicalDeviceOpticalFlowImageFormatsNV");
 #endif /* defined(VK_NV_optical_flow) */
+#if defined(VK_OHOS_surface)
+	vkCreateSurfaceOHOS = (PFN_vkCreateSurfaceOHOS)load(context, "vkCreateSurfaceOHOS");
+#endif /* defined(VK_OHOS_surface) */
 #if defined(VK_QNX_screen_surface)
 	vkCreateScreenSurfaceQNX = (PFN_vkCreateScreenSurfaceQNX)load(context, "vkCreateScreenSurfaceQNX");
 	vkGetPhysicalDeviceScreenPresentationSupportQNX = (PFN_vkGetPhysicalDeviceScreenPresentationSupportQNX)load(context, "vkGetPhysicalDeviceScreenPresentationSupportQNX");
@@ -678,6 +698,31 @@ static void volkGenLoadDevice(void* context, PFN_vkVoidFunction (*load)(void*, c
 	vkGetAndroidHardwareBufferPropertiesANDROID = (PFN_vkGetAndroidHardwareBufferPropertiesANDROID)load(context, "vkGetAndroidHardwareBufferPropertiesANDROID");
 	vkGetMemoryAndroidHardwareBufferANDROID = (PFN_vkGetMemoryAndroidHardwareBufferANDROID)load(context, "vkGetMemoryAndroidHardwareBufferANDROID");
 #endif /* defined(VK_ANDROID_external_memory_android_hardware_buffer) */
+#if defined(VK_ARM_data_graph)
+	vkBindDataGraphPipelineSessionMemoryARM = (PFN_vkBindDataGraphPipelineSessionMemoryARM)load(context, "vkBindDataGraphPipelineSessionMemoryARM");
+	vkCmdDispatchDataGraphARM = (PFN_vkCmdDispatchDataGraphARM)load(context, "vkCmdDispatchDataGraphARM");
+	vkCreateDataGraphPipelineSessionARM = (PFN_vkCreateDataGraphPipelineSessionARM)load(context, "vkCreateDataGraphPipelineSessionARM");
+	vkCreateDataGraphPipelinesARM = (PFN_vkCreateDataGraphPipelinesARM)load(context, "vkCreateDataGraphPipelinesARM");
+	vkDestroyDataGraphPipelineSessionARM = (PFN_vkDestroyDataGraphPipelineSessionARM)load(context, "vkDestroyDataGraphPipelineSessionARM");
+	vkGetDataGraphPipelineAvailablePropertiesARM = (PFN_vkGetDataGraphPipelineAvailablePropertiesARM)load(context, "vkGetDataGraphPipelineAvailablePropertiesARM");
+	vkGetDataGraphPipelinePropertiesARM = (PFN_vkGetDataGraphPipelinePropertiesARM)load(context, "vkGetDataGraphPipelinePropertiesARM");
+	vkGetDataGraphPipelineSessionBindPointRequirementsARM = (PFN_vkGetDataGraphPipelineSessionBindPointRequirementsARM)load(context, "vkGetDataGraphPipelineSessionBindPointRequirementsARM");
+	vkGetDataGraphPipelineSessionMemoryRequirementsARM = (PFN_vkGetDataGraphPipelineSessionMemoryRequirementsARM)load(context, "vkGetDataGraphPipelineSessionMemoryRequirementsARM");
+#endif /* defined(VK_ARM_data_graph) */
+#if defined(VK_ARM_tensors)
+	vkBindTensorMemoryARM = (PFN_vkBindTensorMemoryARM)load(context, "vkBindTensorMemoryARM");
+	vkCmdCopyTensorARM = (PFN_vkCmdCopyTensorARM)load(context, "vkCmdCopyTensorARM");
+	vkCreateTensorARM = (PFN_vkCreateTensorARM)load(context, "vkCreateTensorARM");
+	vkCreateTensorViewARM = (PFN_vkCreateTensorViewARM)load(context, "vkCreateTensorViewARM");
+	vkDestroyTensorARM = (PFN_vkDestroyTensorARM)load(context, "vkDestroyTensorARM");
+	vkDestroyTensorViewARM = (PFN_vkDestroyTensorViewARM)load(context, "vkDestroyTensorViewARM");
+	vkGetDeviceTensorMemoryRequirementsARM = (PFN_vkGetDeviceTensorMemoryRequirementsARM)load(context, "vkGetDeviceTensorMemoryRequirementsARM");
+	vkGetTensorMemoryRequirementsARM = (PFN_vkGetTensorMemoryRequirementsARM)load(context, "vkGetTensorMemoryRequirementsARM");
+#endif /* defined(VK_ARM_tensors) */
+#if defined(VK_ARM_tensors) && defined(VK_EXT_descriptor_buffer)
+	vkGetTensorOpaqueCaptureDescriptorDataARM = (PFN_vkGetTensorOpaqueCaptureDescriptorDataARM)load(context, "vkGetTensorOpaqueCaptureDescriptorDataARM");
+	vkGetTensorViewOpaqueCaptureDescriptorDataARM = (PFN_vkGetTensorViewOpaqueCaptureDescriptorDataARM)load(context, "vkGetTensorViewOpaqueCaptureDescriptorDataARM");
+#endif /* defined(VK_ARM_tensors) && defined(VK_EXT_descriptor_buffer) */
 #if defined(VK_EXT_attachment_feedback_loop_dynamic_state)
 	vkCmdSetAttachmentFeedbackLoopEnableEXT = (PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT)load(context, "vkCmdSetAttachmentFeedbackLoopEnableEXT");
 #endif /* defined(VK_EXT_attachment_feedback_loop_dynamic_state) */
@@ -785,9 +830,9 @@ static void volkGenLoadDevice(void* context, PFN_vkVoidFunction (*load)(void*, c
 	vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)load(context, "vkCmdDrawMeshTasksEXT");
 	vkCmdDrawMeshTasksIndirectEXT = (PFN_vkCmdDrawMeshTasksIndirectEXT)load(context, "vkCmdDrawMeshTasksIndirectEXT");
 #endif /* defined(VK_EXT_mesh_shader) */
-#if defined(VK_EXT_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2))
+#if defined(VK_EXT_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count))
 	vkCmdDrawMeshTasksIndirectCountEXT = (PFN_vkCmdDrawMeshTasksIndirectCountEXT)load(context, "vkCmdDrawMeshTasksIndirectCountEXT");
-#endif /* defined(VK_EXT_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2)) */
+#endif /* defined(VK_EXT_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count)) */
 #if defined(VK_EXT_metal_objects)
 	vkExportMetalObjectsEXT = (PFN_vkExportMetalObjectsEXT)load(context, "vkExportMetalObjectsEXT");
 #endif /* defined(VK_EXT_metal_objects) */
@@ -934,6 +979,10 @@ static void volkGenLoadDevice(void* context, PFN_vkVoidFunction (*load)(void*, c
 	vkCmdCopyImageToBuffer2KHR = (PFN_vkCmdCopyImageToBuffer2KHR)load(context, "vkCmdCopyImageToBuffer2KHR");
 	vkCmdResolveImage2KHR = (PFN_vkCmdResolveImage2KHR)load(context, "vkCmdResolveImage2KHR");
 #endif /* defined(VK_KHR_copy_commands2) */
+#if defined(VK_KHR_copy_memory_indirect)
+	vkCmdCopyMemoryIndirectKHR = (PFN_vkCmdCopyMemoryIndirectKHR)load(context, "vkCmdCopyMemoryIndirectKHR");
+	vkCmdCopyMemoryToImageIndirectKHR = (PFN_vkCmdCopyMemoryToImageIndirectKHR)load(context, "vkCmdCopyMemoryToImageIndirectKHR");
+#endif /* defined(VK_KHR_copy_memory_indirect) */
 #if defined(VK_KHR_create_renderpass2)
 	vkCmdBeginRenderPass2KHR = (PFN_vkCmdBeginRenderPass2KHR)load(context, "vkCmdBeginRenderPass2KHR");
 	vkCmdEndRenderPass2KHR = (PFN_vkCmdEndRenderPass2KHR)load(context, "vkCmdEndRenderPass2KHR");
@@ -1059,6 +1108,9 @@ static void volkGenLoadDevice(void* context, PFN_vkVoidFunction (*load)(void*, c
 #if defined(VK_KHR_present_wait)
 	vkWaitForPresentKHR = (PFN_vkWaitForPresentKHR)load(context, "vkWaitForPresentKHR");
 #endif /* defined(VK_KHR_present_wait) */
+#if defined(VK_KHR_present_wait2)
+	vkWaitForPresent2KHR = (PFN_vkWaitForPresent2KHR)load(context, "vkWaitForPresent2KHR");
+#endif /* defined(VK_KHR_present_wait2) */
 #if defined(VK_KHR_push_descriptor)
 	vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)load(context, "vkCmdPushDescriptorSetKHR");
 #endif /* defined(VK_KHR_push_descriptor) */
@@ -1088,6 +1140,9 @@ static void volkGenLoadDevice(void* context, PFN_vkVoidFunction (*load)(void*, c
 	vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)load(context, "vkGetSwapchainImagesKHR");
 	vkQueuePresentKHR = (PFN_vkQueuePresentKHR)load(context, "vkQueuePresentKHR");
 #endif /* defined(VK_KHR_swapchain) */
+#if defined(VK_KHR_swapchain_maintenance1)
+	vkReleaseSwapchainImagesKHR = (PFN_vkReleaseSwapchainImagesKHR)load(context, "vkReleaseSwapchainImagesKHR");
+#endif /* defined(VK_KHR_swapchain_maintenance1) */
 #if defined(VK_KHR_synchronization2)
 	vkCmdPipelineBarrier2KHR = (PFN_vkCmdPipelineBarrier2KHR)load(context, "vkCmdPipelineBarrier2KHR");
 	vkCmdResetEvent2KHR = (PFN_vkCmdResetEvent2KHR)load(context, "vkCmdResetEvent2KHR");
@@ -1208,9 +1263,9 @@ static void volkGenLoadDevice(void* context, PFN_vkVoidFunction (*load)(void*, c
 	vkCmdDrawMeshTasksIndirectNV = (PFN_vkCmdDrawMeshTasksIndirectNV)load(context, "vkCmdDrawMeshTasksIndirectNV");
 	vkCmdDrawMeshTasksNV = (PFN_vkCmdDrawMeshTasksNV)load(context, "vkCmdDrawMeshTasksNV");
 #endif /* defined(VK_NV_mesh_shader) */
-#if defined(VK_NV_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2))
+#if defined(VK_NV_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count))
 	vkCmdDrawMeshTasksIndirectCountNV = (PFN_vkCmdDrawMeshTasksIndirectCountNV)load(context, "vkCmdDrawMeshTasksIndirectCountNV");
-#endif /* defined(VK_NV_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2)) */
+#endif /* defined(VK_NV_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count)) */
 #if defined(VK_NV_optical_flow)
 	vkBindOpticalFlowSessionImageNV = (PFN_vkBindOpticalFlowSessionImageNV)load(context, "vkBindOpticalFlowSessionImageNV");
 	vkCmdOpticalFlowExecuteNV = (PFN_vkCmdOpticalFlowExecuteNV)load(context, "vkCmdOpticalFlowExecuteNV");
@@ -1622,6 +1677,31 @@ static void volkGenLoadDeviceTable(struct VolkDeviceTable* table, void* context,
 	table->vkGetAndroidHardwareBufferPropertiesANDROID = (PFN_vkGetAndroidHardwareBufferPropertiesANDROID)load(context, "vkGetAndroidHardwareBufferPropertiesANDROID");
 	table->vkGetMemoryAndroidHardwareBufferANDROID = (PFN_vkGetMemoryAndroidHardwareBufferANDROID)load(context, "vkGetMemoryAndroidHardwareBufferANDROID");
 #endif /* defined(VK_ANDROID_external_memory_android_hardware_buffer) */
+#if defined(VK_ARM_data_graph)
+	table->vkBindDataGraphPipelineSessionMemoryARM = (PFN_vkBindDataGraphPipelineSessionMemoryARM)load(context, "vkBindDataGraphPipelineSessionMemoryARM");
+	table->vkCmdDispatchDataGraphARM = (PFN_vkCmdDispatchDataGraphARM)load(context, "vkCmdDispatchDataGraphARM");
+	table->vkCreateDataGraphPipelineSessionARM = (PFN_vkCreateDataGraphPipelineSessionARM)load(context, "vkCreateDataGraphPipelineSessionARM");
+	table->vkCreateDataGraphPipelinesARM = (PFN_vkCreateDataGraphPipelinesARM)load(context, "vkCreateDataGraphPipelinesARM");
+	table->vkDestroyDataGraphPipelineSessionARM = (PFN_vkDestroyDataGraphPipelineSessionARM)load(context, "vkDestroyDataGraphPipelineSessionARM");
+	table->vkGetDataGraphPipelineAvailablePropertiesARM = (PFN_vkGetDataGraphPipelineAvailablePropertiesARM)load(context, "vkGetDataGraphPipelineAvailablePropertiesARM");
+	table->vkGetDataGraphPipelinePropertiesARM = (PFN_vkGetDataGraphPipelinePropertiesARM)load(context, "vkGetDataGraphPipelinePropertiesARM");
+	table->vkGetDataGraphPipelineSessionBindPointRequirementsARM = (PFN_vkGetDataGraphPipelineSessionBindPointRequirementsARM)load(context, "vkGetDataGraphPipelineSessionBindPointRequirementsARM");
+	table->vkGetDataGraphPipelineSessionMemoryRequirementsARM = (PFN_vkGetDataGraphPipelineSessionMemoryRequirementsARM)load(context, "vkGetDataGraphPipelineSessionMemoryRequirementsARM");
+#endif /* defined(VK_ARM_data_graph) */
+#if defined(VK_ARM_tensors)
+	table->vkBindTensorMemoryARM = (PFN_vkBindTensorMemoryARM)load(context, "vkBindTensorMemoryARM");
+	table->vkCmdCopyTensorARM = (PFN_vkCmdCopyTensorARM)load(context, "vkCmdCopyTensorARM");
+	table->vkCreateTensorARM = (PFN_vkCreateTensorARM)load(context, "vkCreateTensorARM");
+	table->vkCreateTensorViewARM = (PFN_vkCreateTensorViewARM)load(context, "vkCreateTensorViewARM");
+	table->vkDestroyTensorARM = (PFN_vkDestroyTensorARM)load(context, "vkDestroyTensorARM");
+	table->vkDestroyTensorViewARM = (PFN_vkDestroyTensorViewARM)load(context, "vkDestroyTensorViewARM");
+	table->vkGetDeviceTensorMemoryRequirementsARM = (PFN_vkGetDeviceTensorMemoryRequirementsARM)load(context, "vkGetDeviceTensorMemoryRequirementsARM");
+	table->vkGetTensorMemoryRequirementsARM = (PFN_vkGetTensorMemoryRequirementsARM)load(context, "vkGetTensorMemoryRequirementsARM");
+#endif /* defined(VK_ARM_tensors) */
+#if defined(VK_ARM_tensors) && defined(VK_EXT_descriptor_buffer)
+	table->vkGetTensorOpaqueCaptureDescriptorDataARM = (PFN_vkGetTensorOpaqueCaptureDescriptorDataARM)load(context, "vkGetTensorOpaqueCaptureDescriptorDataARM");
+	table->vkGetTensorViewOpaqueCaptureDescriptorDataARM = (PFN_vkGetTensorViewOpaqueCaptureDescriptorDataARM)load(context, "vkGetTensorViewOpaqueCaptureDescriptorDataARM");
+#endif /* defined(VK_ARM_tensors) && defined(VK_EXT_descriptor_buffer) */
 #if defined(VK_EXT_attachment_feedback_loop_dynamic_state)
 	table->vkCmdSetAttachmentFeedbackLoopEnableEXT = (PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT)load(context, "vkCmdSetAttachmentFeedbackLoopEnableEXT");
 #endif /* defined(VK_EXT_attachment_feedback_loop_dynamic_state) */
@@ -1729,9 +1809,9 @@ static void volkGenLoadDeviceTable(struct VolkDeviceTable* table, void* context,
 	table->vkCmdDrawMeshTasksEXT = (PFN_vkCmdDrawMeshTasksEXT)load(context, "vkCmdDrawMeshTasksEXT");
 	table->vkCmdDrawMeshTasksIndirectEXT = (PFN_vkCmdDrawMeshTasksIndirectEXT)load(context, "vkCmdDrawMeshTasksIndirectEXT");
 #endif /* defined(VK_EXT_mesh_shader) */
-#if defined(VK_EXT_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2))
+#if defined(VK_EXT_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count))
 	table->vkCmdDrawMeshTasksIndirectCountEXT = (PFN_vkCmdDrawMeshTasksIndirectCountEXT)load(context, "vkCmdDrawMeshTasksIndirectCountEXT");
-#endif /* defined(VK_EXT_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2)) */
+#endif /* defined(VK_EXT_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count)) */
 #if defined(VK_EXT_metal_objects)
 	table->vkExportMetalObjectsEXT = (PFN_vkExportMetalObjectsEXT)load(context, "vkExportMetalObjectsEXT");
 #endif /* defined(VK_EXT_metal_objects) */
@@ -1878,6 +1958,10 @@ static void volkGenLoadDeviceTable(struct VolkDeviceTable* table, void* context,
 	table->vkCmdCopyImageToBuffer2KHR = (PFN_vkCmdCopyImageToBuffer2KHR)load(context, "vkCmdCopyImageToBuffer2KHR");
 	table->vkCmdResolveImage2KHR = (PFN_vkCmdResolveImage2KHR)load(context, "vkCmdResolveImage2KHR");
 #endif /* defined(VK_KHR_copy_commands2) */
+#if defined(VK_KHR_copy_memory_indirect)
+	table->vkCmdCopyMemoryIndirectKHR = (PFN_vkCmdCopyMemoryIndirectKHR)load(context, "vkCmdCopyMemoryIndirectKHR");
+	table->vkCmdCopyMemoryToImageIndirectKHR = (PFN_vkCmdCopyMemoryToImageIndirectKHR)load(context, "vkCmdCopyMemoryToImageIndirectKHR");
+#endif /* defined(VK_KHR_copy_memory_indirect) */
 #if defined(VK_KHR_create_renderpass2)
 	table->vkCmdBeginRenderPass2KHR = (PFN_vkCmdBeginRenderPass2KHR)load(context, "vkCmdBeginRenderPass2KHR");
 	table->vkCmdEndRenderPass2KHR = (PFN_vkCmdEndRenderPass2KHR)load(context, "vkCmdEndRenderPass2KHR");
@@ -2003,6 +2087,9 @@ static void volkGenLoadDeviceTable(struct VolkDeviceTable* table, void* context,
 #if defined(VK_KHR_present_wait)
 	table->vkWaitForPresentKHR = (PFN_vkWaitForPresentKHR)load(context, "vkWaitForPresentKHR");
 #endif /* defined(VK_KHR_present_wait) */
+#if defined(VK_KHR_present_wait2)
+	table->vkWaitForPresent2KHR = (PFN_vkWaitForPresent2KHR)load(context, "vkWaitForPresent2KHR");
+#endif /* defined(VK_KHR_present_wait2) */
 #if defined(VK_KHR_push_descriptor)
 	table->vkCmdPushDescriptorSetKHR = (PFN_vkCmdPushDescriptorSetKHR)load(context, "vkCmdPushDescriptorSetKHR");
 #endif /* defined(VK_KHR_push_descriptor) */
@@ -2032,6 +2119,9 @@ static void volkGenLoadDeviceTable(struct VolkDeviceTable* table, void* context,
 	table->vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)load(context, "vkGetSwapchainImagesKHR");
 	table->vkQueuePresentKHR = (PFN_vkQueuePresentKHR)load(context, "vkQueuePresentKHR");
 #endif /* defined(VK_KHR_swapchain) */
+#if defined(VK_KHR_swapchain_maintenance1)
+	table->vkReleaseSwapchainImagesKHR = (PFN_vkReleaseSwapchainImagesKHR)load(context, "vkReleaseSwapchainImagesKHR");
+#endif /* defined(VK_KHR_swapchain_maintenance1) */
 #if defined(VK_KHR_synchronization2)
 	table->vkCmdPipelineBarrier2KHR = (PFN_vkCmdPipelineBarrier2KHR)load(context, "vkCmdPipelineBarrier2KHR");
 	table->vkCmdResetEvent2KHR = (PFN_vkCmdResetEvent2KHR)load(context, "vkCmdResetEvent2KHR");
@@ -2152,9 +2242,9 @@ static void volkGenLoadDeviceTable(struct VolkDeviceTable* table, void* context,
 	table->vkCmdDrawMeshTasksIndirectNV = (PFN_vkCmdDrawMeshTasksIndirectNV)load(context, "vkCmdDrawMeshTasksIndirectNV");
 	table->vkCmdDrawMeshTasksNV = (PFN_vkCmdDrawMeshTasksNV)load(context, "vkCmdDrawMeshTasksNV");
 #endif /* defined(VK_NV_mesh_shader) */
-#if defined(VK_NV_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2))
+#if defined(VK_NV_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count))
 	table->vkCmdDrawMeshTasksIndirectCountNV = (PFN_vkCmdDrawMeshTasksIndirectCountNV)load(context, "vkCmdDrawMeshTasksIndirectCountNV");
-#endif /* defined(VK_NV_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2)) */
+#endif /* defined(VK_NV_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count)) */
 #if defined(VK_NV_optical_flow)
 	table->vkBindOpticalFlowSessionImageNV = (PFN_vkBindOpticalFlowSessionImageNV)load(context, "vkBindOpticalFlowSessionImageNV");
 	table->vkCmdOpticalFlowExecuteNV = (PFN_vkCmdOpticalFlowExecuteNV)load(context, "vkCmdOpticalFlowExecuteNV");
@@ -2602,6 +2692,34 @@ PFN_vkGetShaderInfoAMD vkGetShaderInfoAMD;
 PFN_vkGetAndroidHardwareBufferPropertiesANDROID vkGetAndroidHardwareBufferPropertiesANDROID;
 PFN_vkGetMemoryAndroidHardwareBufferANDROID vkGetMemoryAndroidHardwareBufferANDROID;
 #endif /* defined(VK_ANDROID_external_memory_android_hardware_buffer) */
+#if defined(VK_ARM_data_graph)
+PFN_vkBindDataGraphPipelineSessionMemoryARM vkBindDataGraphPipelineSessionMemoryARM;
+PFN_vkCmdDispatchDataGraphARM vkCmdDispatchDataGraphARM;
+PFN_vkCreateDataGraphPipelineSessionARM vkCreateDataGraphPipelineSessionARM;
+PFN_vkCreateDataGraphPipelinesARM vkCreateDataGraphPipelinesARM;
+PFN_vkDestroyDataGraphPipelineSessionARM vkDestroyDataGraphPipelineSessionARM;
+PFN_vkGetDataGraphPipelineAvailablePropertiesARM vkGetDataGraphPipelineAvailablePropertiesARM;
+PFN_vkGetDataGraphPipelinePropertiesARM vkGetDataGraphPipelinePropertiesARM;
+PFN_vkGetDataGraphPipelineSessionBindPointRequirementsARM vkGetDataGraphPipelineSessionBindPointRequirementsARM;
+PFN_vkGetDataGraphPipelineSessionMemoryRequirementsARM vkGetDataGraphPipelineSessionMemoryRequirementsARM;
+PFN_vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM vkGetPhysicalDeviceQueueFamilyDataGraphProcessingEnginePropertiesARM;
+PFN_vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM vkGetPhysicalDeviceQueueFamilyDataGraphPropertiesARM;
+#endif /* defined(VK_ARM_data_graph) */
+#if defined(VK_ARM_tensors)
+PFN_vkBindTensorMemoryARM vkBindTensorMemoryARM;
+PFN_vkCmdCopyTensorARM vkCmdCopyTensorARM;
+PFN_vkCreateTensorARM vkCreateTensorARM;
+PFN_vkCreateTensorViewARM vkCreateTensorViewARM;
+PFN_vkDestroyTensorARM vkDestroyTensorARM;
+PFN_vkDestroyTensorViewARM vkDestroyTensorViewARM;
+PFN_vkGetDeviceTensorMemoryRequirementsARM vkGetDeviceTensorMemoryRequirementsARM;
+PFN_vkGetPhysicalDeviceExternalTensorPropertiesARM vkGetPhysicalDeviceExternalTensorPropertiesARM;
+PFN_vkGetTensorMemoryRequirementsARM vkGetTensorMemoryRequirementsARM;
+#endif /* defined(VK_ARM_tensors) */
+#if defined(VK_ARM_tensors) && defined(VK_EXT_descriptor_buffer)
+PFN_vkGetTensorOpaqueCaptureDescriptorDataARM vkGetTensorOpaqueCaptureDescriptorDataARM;
+PFN_vkGetTensorViewOpaqueCaptureDescriptorDataARM vkGetTensorViewOpaqueCaptureDescriptorDataARM;
+#endif /* defined(VK_ARM_tensors) && defined(VK_EXT_descriptor_buffer) */
 #if defined(VK_EXT_acquire_drm_display)
 PFN_vkAcquireDrmDisplayEXT vkAcquireDrmDisplayEXT;
 PFN_vkGetDrmDisplayEXT vkGetDrmDisplayEXT;
@@ -2750,9 +2868,9 @@ PFN_vkCmdSetLineStippleEXT vkCmdSetLineStippleEXT;
 PFN_vkCmdDrawMeshTasksEXT vkCmdDrawMeshTasksEXT;
 PFN_vkCmdDrawMeshTasksIndirectEXT vkCmdDrawMeshTasksIndirectEXT;
 #endif /* defined(VK_EXT_mesh_shader) */
-#if defined(VK_EXT_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2))
+#if defined(VK_EXT_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count))
 PFN_vkCmdDrawMeshTasksIndirectCountEXT vkCmdDrawMeshTasksIndirectCountEXT;
-#endif /* defined(VK_EXT_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2)) */
+#endif /* defined(VK_EXT_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count)) */
 #if defined(VK_EXT_metal_objects)
 PFN_vkExportMetalObjectsEXT vkExportMetalObjectsEXT;
 #endif /* defined(VK_EXT_metal_objects) */
@@ -2919,6 +3037,10 @@ PFN_vkCmdCopyImage2KHR vkCmdCopyImage2KHR;
 PFN_vkCmdCopyImageToBuffer2KHR vkCmdCopyImageToBuffer2KHR;
 PFN_vkCmdResolveImage2KHR vkCmdResolveImage2KHR;
 #endif /* defined(VK_KHR_copy_commands2) */
+#if defined(VK_KHR_copy_memory_indirect)
+PFN_vkCmdCopyMemoryIndirectKHR vkCmdCopyMemoryIndirectKHR;
+PFN_vkCmdCopyMemoryToImageIndirectKHR vkCmdCopyMemoryToImageIndirectKHR;
+#endif /* defined(VK_KHR_copy_memory_indirect) */
 #if defined(VK_KHR_create_renderpass2)
 PFN_vkCmdBeginRenderPass2KHR vkCmdBeginRenderPass2KHR;
 PFN_vkCmdEndRenderPass2KHR vkCmdEndRenderPass2KHR;
@@ -3087,6 +3209,9 @@ PFN_vkGetPipelineExecutableStatisticsKHR vkGetPipelineExecutableStatisticsKHR;
 #if defined(VK_KHR_present_wait)
 PFN_vkWaitForPresentKHR vkWaitForPresentKHR;
 #endif /* defined(VK_KHR_present_wait) */
+#if defined(VK_KHR_present_wait2)
+PFN_vkWaitForPresent2KHR vkWaitForPresent2KHR;
+#endif /* defined(VK_KHR_present_wait2) */
 #if defined(VK_KHR_push_descriptor)
 PFN_vkCmdPushDescriptorSetKHR vkCmdPushDescriptorSetKHR;
 #endif /* defined(VK_KHR_push_descriptor) */
@@ -3123,6 +3248,9 @@ PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
 PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
 PFN_vkQueuePresentKHR vkQueuePresentKHR;
 #endif /* defined(VK_KHR_swapchain) */
+#if defined(VK_KHR_swapchain_maintenance1)
+PFN_vkReleaseSwapchainImagesKHR vkReleaseSwapchainImagesKHR;
+#endif /* defined(VK_KHR_swapchain_maintenance1) */
 #if defined(VK_KHR_synchronization2)
 PFN_vkCmdPipelineBarrier2KHR vkCmdPipelineBarrier2KHR;
 PFN_vkCmdResetEvent2KHR vkCmdResetEvent2KHR;
@@ -3288,9 +3416,9 @@ PFN_vkCmdDecompressMemoryNV vkCmdDecompressMemoryNV;
 PFN_vkCmdDrawMeshTasksIndirectNV vkCmdDrawMeshTasksIndirectNV;
 PFN_vkCmdDrawMeshTasksNV vkCmdDrawMeshTasksNV;
 #endif /* defined(VK_NV_mesh_shader) */
-#if defined(VK_NV_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2))
+#if defined(VK_NV_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count))
 PFN_vkCmdDrawMeshTasksIndirectCountNV vkCmdDrawMeshTasksIndirectCountNV;
-#endif /* defined(VK_NV_mesh_shader) && (defined(VK_KHR_draw_indirect_count) || defined(VK_VERSION_1_2)) */
+#endif /* defined(VK_NV_mesh_shader) && (defined(VK_VERSION_1_2) || defined(VK_KHR_draw_indirect_count) || defined(VK_AMD_draw_indirect_count)) */
 #if defined(VK_NV_optical_flow)
 PFN_vkBindOpticalFlowSessionImageNV vkBindOpticalFlowSessionImageNV;
 PFN_vkCmdOpticalFlowExecuteNV vkCmdOpticalFlowExecuteNV;
@@ -3327,6 +3455,9 @@ PFN_vkCmdBindShadingRateImageNV vkCmdBindShadingRateImageNV;
 PFN_vkCmdSetCoarseSampleOrderNV vkCmdSetCoarseSampleOrderNV;
 PFN_vkCmdSetViewportShadingRatePaletteNV vkCmdSetViewportShadingRatePaletteNV;
 #endif /* defined(VK_NV_shading_rate_image) */
+#if defined(VK_OHOS_surface)
+PFN_vkCreateSurfaceOHOS vkCreateSurfaceOHOS;
+#endif /* defined(VK_OHOS_surface) */
 #if defined(VK_QCOM_tile_memory_heap)
 PFN_vkCmdBindTileMemoryQCOM vkCmdBindTileMemoryQCOM;
 #endif /* defined(VK_QCOM_tile_memory_heap) */
@@ -3463,6 +3594,6 @@ PFN_vkAcquireNextImage2KHR vkAcquireNextImage2KHR;
 #endif
 
 #ifdef __cplusplus
-}
+} // extern "C" / namespace volk
 #endif
 /* clang-format on */
