@@ -91,6 +91,8 @@ SV_LocalizationReload(void)
 		return;
 	}
 
+	nlocalmessages = 0;
+
 	/* load the localization file */
 	snprintf(loc_name, sizeof(loc_name) - 1, "localization/loc_%s.txt", sv_language->string);
 	buf_local = LocalizationFileRead(loc_name, &len_local);
@@ -488,7 +490,7 @@ SV_LocalizationReload(void)
 	/* save last used position */
 	nlocalmessages = curr_pos;
 
-	if (!curr_pos)
+	if (!curr_pos && !localmessages)
 	{
 		localmessages = malloc(sizeof(*localmessages));
 		if (!localmessages)

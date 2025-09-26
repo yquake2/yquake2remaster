@@ -438,7 +438,7 @@ PF_StartSound(edict_t *entity, int channel, int sound_num,
 static const char*
 PF_LocalizationMessage(const char *message, int *sound_index)
 {
-	const char *sound, *localmessage;
+	const char *sound = NULL, *localmessage;
 
 	localmessage = SV_LocalizationMessage(message, &sound);
 
