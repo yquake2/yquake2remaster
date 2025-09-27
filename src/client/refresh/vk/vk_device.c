@@ -21,7 +21,7 @@
 
 #include "header/local.h"
 
-// internal helper
+/* internal helper */
 static qboolean
 deviceExtensionsSupported(const VkPhysicalDevice *physicalDevice, const char* extensionName)
 {
@@ -46,7 +46,7 @@ deviceExtensionsSupported(const VkPhysicalDevice *physicalDevice, const char* ex
 	return vk_extension_available;
 }
 
-// internal helper
+/* internal helper */
 static void getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferredIdx,
 								  int count, VkPhysicalDeviceType deviceType)
 {
@@ -144,7 +144,7 @@ static void getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferred
 	}
 }
 
-// internal helper
+/* internal helper */
 static qboolean selectPhysicalDevice(int preferredDeviceIdx)
 {
 	VkPhysicalDeviceType typePriorities[] = {
@@ -194,7 +194,7 @@ static qboolean selectPhysicalDevice(int preferredDeviceIdx)
 	return true;
 }
 
-// internal helper
+/* internal helper */
 static VkResult createLogicalDevice()
 {
 	// at least one queue (graphics and present combined) has to be present
@@ -271,7 +271,7 @@ static VkResult createLogicalDevice()
 	return vkCreateDevice(vk_device.physical, &deviceCreateInfo, NULL, &vk_device.logical);
 }
 
-// internal helper
+/* internal helper */
 static const char *deviceTypeString(VkPhysicalDeviceType dType)
 {
 #define DEVTYPESTR(r) case VK_ ##r: return "VK_"#r
@@ -287,7 +287,7 @@ static const char *deviceTypeString(VkPhysicalDeviceType dType)
 #undef DEVTYPESTR
 }
 
-// internal helper
+/* internal helper */
 static const char *vendorNameString(uint32_t vendorId)
 {
 	switch (vendorId)

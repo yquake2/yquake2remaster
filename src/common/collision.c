@@ -133,7 +133,7 @@ static byte *phsrow = NULL;
 static size_t pxsrow_len = 0;
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
-static cplane_t *box_planes;
+static cplane_t *box_planes = NULL;
 static cvar_t *map_noareas;
 static cvar_t *r_maptype;
 static cvar_t *r_game;
@@ -442,6 +442,12 @@ CM_InitBoxHull(void)
 int
 CM_HeadnodeForBox(vec3_t mins, vec3_t maxs)
 {
+	if (!box_planes)
+	{
+		Com_Printf("%s: map is not loaded yet\n", __func__);
+		return box_headnode;
+	}
+
 	box_planes[0].dist = maxs[0];
 	box_planes[1].dist = -maxs[0];
 	box_planes[2].dist = mins[0];

@@ -464,7 +464,7 @@ CTFAssignSkin(edict_t *ent, char *s)
 	}
 	else
 	{
-		strcpy(t, "male/");
+		Q_strlcpy(t, "male/", sizeof(t));
 	}
 
 	switch (ent->client->resp.ctf_team)
@@ -1403,7 +1403,8 @@ SetCTFStats(edict_t *ent)
 	if (ent->client->resp.ghost)
 	{
 		ent->client->resp.ghost->score = ent->client->resp.score;
-		strcpy(ent->client->resp.ghost->netname, ent->client->pers.netname);
+		Q_strlcpy(ent->client->resp.ghost->netname, ent->client->pers.netname,
+			sizeof(ent->client->resp.ghost->netname));
 		ent->client->resp.ghost->number = ent->s.number;
 	}
 
@@ -2138,10 +2139,9 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 	/* print level name and exit rules
 	   add the clients in sorted order */
 	*string = 0;
-	len = 0;
 
 	/* team one */
-	sprintf(string, "if 24 xv 8 yv 8 pic 24 endif "
+	snprintf(string, sizeof(string), "if 24 xv 8 yv 8 pic 24 endif "
 					"xv 40 yv 28 string \"%4d/%-3d\" "
 					"xv 98 yv 12 num 2 18 "
 					"if 25 xv 168 yv 8 pic 25 endif "
@@ -4835,6 +4835,11 @@ CTFAdmin_Settings(edict_t *ent, pmenuhnd_t *p)
 	PMenu_Close(ent);
 
 	settings = malloc(sizeof(*settings));
+	if (!settings)
+	{
+		gi.error("%s: malloc failed\n", __func__);
+		return;
+	}
 
 	settings->matchlen = matchtime->value;
 	settings->matchsetuplen = matchsetuptime->value;

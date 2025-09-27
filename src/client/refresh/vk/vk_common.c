@@ -313,7 +313,7 @@ static const VkSampleCountFlagBits msaaModes[] = {
 	VK_SAMPLE_COUNT_1_BIT
 };
 
-// internal helper
+/* internal helper */
 static VkSampleCountFlagBits GetSampleCount(int msaa, VkSampleCountFlagBits supportedMsaa)
 {
 	int step = 0, value = 64;
@@ -330,7 +330,7 @@ static VkSampleCountFlagBits GetSampleCount(int msaa, VkSampleCountFlagBits supp
 	return msaaModes[step];
 }
 
-// internal helper
+/* internal helper */
 static void DestroyImageViews()
 {
 	if(!vk_imageviews)
@@ -344,13 +344,23 @@ static void DestroyImageViews()
 	vk_imageviews = NULL;
 }
 
-// internal helper
-static VkResult CreateImageViews()
+/* internal helper */
+static VkResult
+CreateImageViews(void)
 {
 	VkResult res = VK_SUCCESS;
-	vk_imageviews = (VkImageView *)malloc(vk_swapchain.imageCount * sizeof(VkImageView));
+	size_t i;
 
-	for (size_t i = 0; i < vk_swapchain.imageCount; ++i)
+	vk_imageviews = (VkImageView *)malloc(vk_swapchain.imageCount * sizeof(VkImageView));
+	YQ2_COM_CHECK_OOM(vk_imageviews, "malloc()",
+		vk_swapchain.imageCount * sizeof(VkImageView))
+	if (!vk_imageviews)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return VK_ERROR_OUT_OF_HOST_MEMORY;
+	}
+
+	for (i = 0; i < vk_swapchain.imageCount; ++i)
 	{
 		res = QVk_CreateImageView(&vk_swapchain.images[i],
 			VK_IMAGE_ASPECT_COLOR_BIT, &vk_imageviews[i], vk_swapchain.format, 1);
@@ -369,8 +379,9 @@ static VkResult CreateImageViews()
 	return res;
 }
 
-// internal helper
-static void DestroyFramebuffers()
+/* internal helper */
+static void
+DestroyFramebuffers(void)
 {
 	for (int f = 0; f < RP_COUNT; f++)
 	{
@@ -387,11 +398,23 @@ static void DestroyFramebuffers()
 	}
 }
 
-// internal helper
-static VkResult CreateFramebuffers()
+/* internal helper */
+static VkResult
+CreateFramebuffers(void)
 {
-	for(int i = 0; i < RP_COUNT; ++i)
+	size_t i;
+
+	for(i = 0; i < RP_COUNT; ++i)
+	{
 		vk_framebuffers[i] = (VkFramebuffer *)malloc(vk_swapchain.imageCount * sizeof(VkFramebuffer));
+		YQ2_COM_CHECK_OOM(vk_framebuffers[i], "malloc()",
+			vk_swapchain.imageCount * sizeof(VkFramebuffer))
+		if (!vk_framebuffers[i])
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return VK_ERROR_OUT_OF_HOST_MEMORY;
+		}
+	}
 
 	VkFramebufferCreateInfo fbCreateInfos[] = {
 		// RP_WORLD: main world view framebuffer
@@ -459,8 +482,9 @@ static VkResult CreateFramebuffers()
 	return VK_SUCCESS;
 }
 
-// internal helper
-static VkResult CreateRenderpasses()
+/* internal helper */
+static VkResult
+CreateRenderpasses(void)
 {
 	qboolean msaaEnabled = vk_renderpasses[RP_WORLD].sampleCount != VK_SAMPLE_COUNT_1_BIT;
 
@@ -739,8 +763,9 @@ static VkResult CreateRenderpasses()
 	return VK_SUCCESS;
 }
 
-// internal helper
-static void CreateDrawBuffers()
+/* internal helper */
+static void
+CreateDrawBuffers(void)
 {
 	QVk_CreateDepthBuffer(vk_renderpasses[RP_WORLD].sampleCount,
 		&vk_depthbuffer);
@@ -798,8 +823,9 @@ static void CreateDrawBuffers()
 	}
 }
 
-// internal helper
-static void DestroyDrawBuffer(qvktexture_t *drawBuffer)
+/* internal helper */
+static void
+DestroyDrawBuffer(qvktexture_t *drawBuffer)
 {
 	if (drawBuffer->imageView != VK_NULL_HANDLE)
 	{
@@ -813,8 +839,9 @@ static void DestroyDrawBuffer(qvktexture_t *drawBuffer)
 	}
 }
 
-// internal helper
-static void DestroyDrawBuffers()
+/* internal helper */
+static void
+DestroyDrawBuffers(void)
 {
 	DestroyDrawBuffer(&vk_depthbuffer);
 	DestroyDrawBuffer(&vk_ui_depthbuffer);
@@ -823,8 +850,9 @@ static void DestroyDrawBuffers()
 	DestroyDrawBuffer(&vk_msaaColorbuffer);
 }
 
-// internal helper
-static void CreateDescriptorSetLayouts()
+/* internal helper */
+static void
+CreateDescriptorSetLayouts(void)
 {
 	VkDescriptorSetLayoutBinding layoutBinding = {
 		.binding = 0,
@@ -856,8 +884,9 @@ static void CreateDescriptorSetLayouts()
 	QVk_DebugSetObjectName((uint64_t)vk_samplerLightmapDescSetLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, "Descriptor Set Layout: Sampler + Lightmap");
 }
 
-// internal helper
-static void CreateSamplersHelper(VkSampler *samplers, VkSamplerAddressMode addressMode)
+/* internal helper */
+static void
+CreateSamplersHelper(VkSampler *samplers, VkSamplerAddressMode addressMode)
 {
 	VkSamplerCreateInfo samplerInfo = {
 		.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -924,15 +953,17 @@ static void CreateSamplersHelper(VkSampler *samplers, VkSamplerAddressMode addre
 	QVk_DebugSetObjectName((uint64_t)samplers[S_LINEAR], VK_OBJECT_TYPE_SAMPLER, "Sampler: S_LINEAR");
 }
 
-// internal helper
-static void CreateSamplers()
+/* internal helper */
+static void
+CreateSamplers(void)
 {
 	CreateSamplersHelper(vk_samplers, VK_SAMPLER_ADDRESS_MODE_REPEAT);
 	CreateSamplersHelper(vk_samplers + S_SAMPLER_CNT, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE);
 }
 
-// internal helper
-static void DestroySamplers()
+/* internal helper */
+static void
+DestroySamplers(void)
 {
 	int i;
 	for (i = 0; i < NUM_SAMPLERS; ++i)
@@ -944,8 +975,9 @@ static void DestroySamplers()
 	}
 }
 
-// internal helper
-static void CreateDescriptorPool()
+/* internal helper */
+static void
+CreateDescriptorPool(void)
 {
 	VkDescriptorPoolSize poolSizes[] = {
 		// UBO
@@ -973,8 +1005,9 @@ static void CreateDescriptorPool()
 	QVk_DebugSetObjectName((uint64_t)vk_descriptorPool, VK_OBJECT_TYPE_DESCRIPTOR_POOL, "Descriptor Pool: Sampler + UBO");
 }
 
-// internal helper
-static void CreateUboDescriptorSet(VkDescriptorSet *descSet, VkBuffer buffer)
+/* internal helper */
+static void
+CreateUboDescriptorSet(VkDescriptorSet *descSet, VkBuffer buffer)
 {
 	VkDescriptorSetAllocateInfo dsAllocInfo = {
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
@@ -1008,8 +1041,9 @@ static void CreateUboDescriptorSet(VkDescriptorSet *descSet, VkBuffer buffer)
 	vkUpdateDescriptorSets(vk_device.logical, 1, &descriptorWrite, 0, NULL);
 }
 
-// internal helper
-static void CreateDynamicBuffers()
+/* internal helper */
+static void
+CreateDynamicBuffers(void)
 {
 	for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 	{
@@ -1044,8 +1078,9 @@ static void CreateDynamicBuffers()
 	}
 }
 
-// internal helper
-static void ReleaseSwapBuffers()
+/* internal helper */
+static void
+ReleaseSwapBuffers(void)
 {
 	vk_activeSwapBufferIdx = (vk_activeSwapBufferIdx + 1) % NUM_SWAPBUFFER_SLOTS;
 	int releaseBufferIdx   = (vk_activeSwapBufferIdx + 1) % NUM_SWAPBUFFER_SLOTS;
@@ -1070,8 +1105,9 @@ static void ReleaseSwapBuffers()
 	}
 }
 
-// internal helper
-static int NextPow2(int v)
+/* internal helper */
+static int
+NextPow2(int v)
 {
 	v--;
 	v |= v >> 1;
@@ -1083,7 +1119,7 @@ static int NextPow2(int v)
 	return v;
 }
 
-// internal helper
+/* internal helper */
 static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, int currentBufferIdx);
 
 void
@@ -1145,7 +1181,8 @@ UpdateIndexBuffer(const uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *d
 	return &vk_dynIndexBuffers[vk_activeDynBufferIdx].resource.buffer;
 }
 
-static void CreateStagingBuffer(VkDeviceSize size, qvkstagingbuffer_t *dstBuffer, int i)
+static void
+CreateStagingBuffer(VkDeviceSize size, qvkstagingbuffer_t *dstBuffer, int i)
 {
 	VkFenceCreateInfo fCreateInfo = {
 		.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
@@ -1176,8 +1213,9 @@ static void CreateStagingBuffer(VkDeviceSize size, qvkstagingbuffer_t *dstBuffer
 		VK_OBJECT_TYPE_COMMAND_BUFFER, va("Command Buffer: Staging Buffer #%d", i));
 }
 
-// internal helper
-static void CreateStagingBuffers()
+/* internal helper */
+static void
+CreateStagingBuffers(void)
 {
 	for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 	{
@@ -1190,7 +1228,7 @@ static void CreateStagingBuffers()
 	}
 }
 
-// Records a memory barrier in the given command buffer.
+/* Records a memory barrier in the given command buffer. */
 static void
 Qvk_MemoryBarrier(VkCommandBuffer cmdBuffer, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask)
 {
@@ -1203,8 +1241,9 @@ Qvk_MemoryBarrier(VkCommandBuffer cmdBuffer, VkPipelineStageFlags srcStageMask, 
 	vkCmdPipelineBarrier(cmdBuffer, srcStageMask, dstStageMask, 0u, 1u, &memBarrier, 0u, NULL, 0u, NULL);
 }
 
-// internal helper
-static void SubmitStagingBuffer(int index)
+/* internal helper */
+static void
+SubmitStagingBuffer(int index)
 {
 	if (vk_stagingBuffers[index].submitted)
 	{
@@ -1251,15 +1290,21 @@ DestroyShaderModule(qvkshader_t *shaders)
 	}
 }
 
-// internal helper
+/* internal helper */
 static void
-CreateStaticBuffers()
+CreateStaticBuffers(void)
 {
 	uint16_t *indices;
 	int i, size;
 
 	size = 6 * MAXDRAWCALLS * sizeof(*indices);
 	indices = malloc(size);
+	YQ2_COM_CHECK_OOM(indices, "malloc()", size)
+	if (!indices)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
 
 	/* gen color index buffer */
 	draw2dcolor_num = 0;
@@ -1283,8 +1328,9 @@ CreateStaticBuffers()
 	free(indices);
 }
 
-// internal helper
-static void CreatePipelines()
+/* internal helper */
+static void
+CreatePipelines(void)
 {
 	// shared pipeline vertex input state create infos
 	VK_VERTINFO(RG, sizeof(float) * 2, VK_INPUTATTR_DESC(0, VK_FORMAT_R32G32_SFLOAT, 0));
@@ -1519,7 +1565,8 @@ static void CreatePipelines()
 	DestroyShaderModule(shaders);
 }
 
-static void DestroyStagingBuffer(qvkstagingbuffer_t *dstBuffer)
+static void
+DestroyStagingBuffer(qvkstagingbuffer_t *dstBuffer)
 {
 	if (dstBuffer->resource.buffer != VK_NULL_HANDLE)
 	{
@@ -1681,7 +1728,8 @@ QVk_Shutdown(void)
 	}
 }
 
-void QVk_SetWindow(SDL_Window *window)
+void
+QVk_SetWindow(SDL_Window *window)
 {
 	vk_window = window;
 }
@@ -1689,7 +1737,8 @@ void QVk_SetWindow(SDL_Window *window)
 /*
  * Fills the actual size of the drawable into width and height.
  */
-void QVk_GetDrawableSize(int *width, int *height)
+void
+QVk_GetDrawableSize(int *width, int *height)
 {
 #ifdef USE_SDL3
 	SDL_GetWindowSizeInPixels(vk_window, width, height);
@@ -1723,7 +1772,8 @@ QVk_WaitAndShutdownAll(void)
 	vk_initialized = false;
 }
 
-void QVk_PostInit(void)
+void
+QVk_PostInit(void)
 {
 	R_VertBufferInit();
 	Mesh_Init();
@@ -1739,7 +1789,8 @@ void QVk_PostInit(void)
 ** This is responsible for initializing Vulkan.
 **
 */
-qboolean QVk_Init(void)
+qboolean
+QVk_Init(void)
 {
 	int i;
 
@@ -2116,6 +2167,13 @@ qboolean QVk_Init(void)
 
 	// setup command buffers (double buffering)
 	vk_commandbuffers = (VkCommandBuffer *)malloc(NUM_CMDBUFFERS * sizeof(VkCommandBuffer));
+	YQ2_COM_CHECK_OOM(vk_commandbuffers, "malloc()",
+		NUM_CMDBUFFERS * sizeof(VkCommandBuffer))
+	if (!vk_commandbuffers)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return false;
+	}
 
 	for (int i = 0; i < NUM_CMDBUFFERS; i++)
 	{
@@ -2177,7 +2235,8 @@ qboolean QVk_Init(void)
 	return true;
 }
 
-VkResult QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
+VkResult
+QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 {
 	// reset tracking variables
 	vk_state.current_pipeline = VK_NULL_HANDLE;
@@ -2238,7 +2297,8 @@ VkResult QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 	return VK_SUCCESS;
 }
 
-VkResult QVk_EndFrame(qboolean force)
+VkResult
+QVk_EndFrame(qboolean force)
 {
 	// continue only if QVk_BeginFrame() had been previously issued
 	if (!vk_frameStarted)
@@ -2311,7 +2371,8 @@ VkResult QVk_EndFrame(qboolean force)
 	return renderResult;
 }
 
-void QVk_BeginRenderpass(qvkrenderpasstype_t rpType)
+void
+QVk_BeginRenderpass(qvkrenderpasstype_t rpType)
 {
 	const VkClearValue clearColors[3] = {
 		{.color = {.float32 = { 1.f, .0f, .5f, 1.f } } },
@@ -2379,7 +2440,8 @@ void QVk_BeginRenderpass(qvkrenderpasstype_t rpType)
 	vk_state.current_renderpass = rpType;
 }
 
-qboolean QVk_RecreateSwapchain()
+qboolean
+QVk_RecreateSwapchain()
 {
 	VkResult result = VK_SUCCESS;
 	vkDeviceWaitIdle( vk_device.logical );
@@ -2419,7 +2481,8 @@ qboolean QVk_RecreateSwapchain()
 	return true;
 }
 
-uint8_t *QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSize *dstOffset)
+uint8_t *
+QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSize *dstOffset)
 {
 	if (vk_dynVertexBuffers[vk_activeDynBufferIdx].currentOffset + size > vk_config.vertex_buffer_size)
 	{
@@ -2481,7 +2544,8 @@ uint8_t *QVk_GetVertexBuffer(VkDeviceSize size, VkBuffer *dstBuffer, VkDeviceSiz
 	return (uint8_t *)vk_dynVertexBuffers[vk_activeDynBufferIdx].pMappedData + (*dstOffset);
 }
 
-static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, int currentBufferIdx)
+static uint8_t *
+QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, int currentBufferIdx)
 {
 	// align to 4 bytes, so that we can reuse the buffer for both VK_INDEX_TYPE_UINT16 and VK_INDEX_TYPE_UINT32
 	const uint32_t aligned_size = ROUNDUP(size, 4);
@@ -2546,7 +2610,8 @@ static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, i
 	return (uint8_t *)vk_dynIndexBuffers[currentBufferIdx].pMappedData + (*dstOffset);
 }
 
-uint8_t *QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescriptorSet *dstUboDescriptorSet)
+uint8_t *
+QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescriptorSet *dstUboDescriptorSet)
 {
 	// 0x100 alignment is required by Vulkan spec
 	const uint32_t aligned_size = ROUNDUP(size, 0x100);
@@ -2634,7 +2699,8 @@ uint8_t *QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescript
 	return (uint8_t *)vk_dynUniformBuffers[vk_activeDynBufferIdx].pMappedData + (*dstOffset);
 }
 
-uint8_t *QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer *cmdBuffer, VkBuffer *buffer, uint32_t *dstOffset)
+uint8_t *
+QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer *cmdBuffer, VkBuffer *buffer, uint32_t *dstOffset)
 {
 	qvkstagingbuffer_t * stagingBuffer = &vk_stagingBuffers[vk_activeStagingBuffer];
 	stagingBuffer->currentOffset = ROUNDUP(stagingBuffer->currentOffset, alignment);
@@ -2689,7 +2755,8 @@ uint8_t *QVk_GetStagingBuffer(VkDeviceSize size, int alignment, VkCommandBuffer 
 	return data;
 }
 
-void QVk_SubmitStagingBuffers()
+void
+QVk_SubmitStagingBuffers(void)
 {
 	for (int i = 0; i < NUM_DYNBUFFERS; ++i)
 	{
@@ -2698,7 +2765,8 @@ void QVk_SubmitStagingBuffers()
 	}
 }
 
-VkSampler QVk_UpdateTextureSampler(qvktexture_t *texture, qvksampler_t samplerType, qboolean clampToEdge)
+VkSampler
+QVk_UpdateTextureSampler(qvktexture_t *texture, qvksampler_t samplerType, qboolean clampToEdge)
 {
 	const int samplerIndex = samplerType + (clampToEdge ? S_SAMPLER_CNT : 0);
 
@@ -2866,7 +2934,8 @@ QVk_DrawColorRect(float x, float y, float w, float h, float r, float g, float b,
 }
 
 
-void QVk_DrawTexRect(float x, float y, float w, float h,
+void
+QVk_DrawTexRect(float x, float y, float w, float h,
 	float u, float v, float us, float vs, const qvktexture_t *texture)
 {
 	float *last;
@@ -2911,7 +2980,8 @@ void QVk_DrawTexRect(float x, float y, float w, float h,
 	last[15] = v;
 }
 
-void QVk_BindPipeline(qvkpipeline_t *pipeline)
+void
+QVk_BindPipeline(qvkpipeline_t *pipeline)
 {
 	if (vk_state.current_pipeline != pipeline->pl)
 	{
@@ -2920,7 +2990,8 @@ void QVk_BindPipeline(qvkpipeline_t *pipeline)
 	}
 }
 
-const char *QVk_GetError(VkResult errorCode)
+const char *
+QVk_GetError(VkResult errorCode)
 {
 #define ERRSTR(r) case VK_ ##r: return "VK_"#r
 	switch (errorCode)

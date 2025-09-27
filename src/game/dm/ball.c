@@ -111,7 +111,7 @@ DBall_ClientBegin(edict_t *ent)
 			continue;
 		}
 
-		strcpy(value, Info_ValueForKey(other->client->pers.userinfo, "skin"));
+		Q_strlcpy(value, Info_ValueForKey(other->client->pers.userinfo, "skin"), sizeof(value));
 		p = strchr(value, '/');
 
 		if (p)
@@ -168,7 +168,7 @@ DBall_SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 		return;
 	}
 
-	strcpy(skin, Info_ValueForKey(ent->client->pers.userinfo, "skin"));
+	Q_strlcpy(skin, Info_ValueForKey(ent->client->pers.userinfo, "skin"), sizeof(skin));
 
 	if (!strcmp(dball_team1_skin->string, skin))
 	{
@@ -405,7 +405,7 @@ DBall_GoalTouch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 			scorechange = self->wait;
 		}
 
-		strcpy(value, Info_ValueForKey(ent->client->pers.userinfo, "skin"));
+		Q_strlcpy(value, Info_ValueForKey(ent->client->pers.userinfo, "skin"), sizeof(value));
 		p = strchr(value, '/');
 
 		if (p)

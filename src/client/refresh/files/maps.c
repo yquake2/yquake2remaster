@@ -195,6 +195,8 @@ Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *le
 	r_vistoleaf = malloc(numleafs * sizeof(int));
 	if (!r_leaftovis || !r_vistoleaf)
 	{
+		free(r_leaftovis);
+		free(r_vistoleaf);
 		Com_Error(ERR_DROP, "%s: Can't allocate %d leaf temporary buf.",
 				__func__, numleafs);
 		return;
@@ -359,13 +361,13 @@ Mod_CalcSurfaceExtents(const int *surfedges, int numsurfedges, mvertex_t *vertex
 
 	for (i = 0; i < 2; i++)
 	{
-		int bmins[2], bmaxs[2];
+		int bmins, bmaxs;
 
-		bmins[i] = floor(mins[i] / (1 << s->lmshift));
-		bmaxs[i] = ceil(maxs[i] / (1 << s->lmshift));
+		bmins = floor(mins[i] / (1 << s->lmshift));
+		bmaxs = ceil(maxs[i] / (1 << s->lmshift));
 
-		s->texturemins[i] = bmins[i] * (1 << s->lmshift);
-		s->extents[i] = (bmaxs[i] - bmins[i]) * (1 << s->lmshift);
+		s->texturemins[i] = bmins * (1 << s->lmshift);
+		s->extents[i] = (bmaxs - bmins) * (1 << s->lmshift);
 		if (s->extents[i] < 16)
 		{
 			/* take at least one cache block */

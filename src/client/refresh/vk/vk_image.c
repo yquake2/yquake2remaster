@@ -41,7 +41,7 @@ unsigned	d_8to24table[256];
 qvksampler_t vk_current_sampler = S_MIPMAP_LINEAR;
 qvksampler_t vk_current_lmap_sampler = S_MIPMAP_LINEAR;
 
-// internal helper
+/* internal helper */
 static VkImageAspectFlags getDepthStencilAspect(VkFormat depthFormat)
 {
 	switch (depthFormat)
@@ -55,7 +55,7 @@ static VkImageAspectFlags getDepthStencilAspect(VkFormat depthFormat)
 	}
 }
 
-// internal helper
+/* internal helper */
 static void transitionImageLayout(const VkCommandBuffer *cmdBuffer, const VkQueue *queue, const qvktexture_t *texture, const VkImageLayout oldLayout, const VkImageLayout newLayout)
 {
 	VkPipelineStageFlags srcStage = 0;
@@ -164,7 +164,7 @@ static void transitionImageLayout(const VkCommandBuffer *cmdBuffer, const VkQueu
 	vkCmdPipelineBarrier(*cmdBuffer, srcStage, dstStage, 0, 0, NULL, 0, NULL, 1, &imgBarrier);
 }
 
-// internal helper
+/* internal helper */
 static void generateMipmaps(const VkCommandBuffer *cmdBuffer, const qvktexture_t *texture, uint32_t width, uint32_t height)
 {
 	int32_t mipWidth = width;
@@ -235,7 +235,7 @@ static void generateMipmaps(const VkCommandBuffer *cmdBuffer, const qvktexture_t
 	vkCmdPipelineBarrier(*cmdBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0, 0, NULL, 0, NULL, 1, &imgBarrier);
 }
 
-// internal helper
+/* internal helper */
 static void createTextureImage(qvktexture_t *dstTex, const unsigned char *data, uint32_t width, uint32_t height)
 {
 	int unifiedTransferAndGfx = vk_device.transferQueue == vk_device.gfxQueue ? 1 : 0;

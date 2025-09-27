@@ -21,7 +21,7 @@
 
 #include "header/local.h"
 
-// internal helper
+/* internal helper */
 static void
 copyBuffer(const VkBuffer * src, VkBuffer * dst, VkDeviceSize size)
 {
@@ -76,7 +76,7 @@ QVk_CreateBuffer(VkDeviceSize size, qvkbuffer_t *dstBuffer,
 						 /*skip memory*/ 0);
 }
 
-// internal helper
+/* internal helper */
 static void
 createStagedBuffer(const void *data, VkDeviceSize size, qvkbuffer_t * dstBuffer,
 				   qvkbufferopts_t bufferOpts)

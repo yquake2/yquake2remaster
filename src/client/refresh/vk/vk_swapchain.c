@@ -21,7 +21,7 @@
 
 #include "header/local.h"
 
-// internal helper
+/* internal helper */
 static const char *presentModeString(VkPresentModeKHR presentMode)
 {
 #define PMSTR(r) case VK_ ##r: return "VK_"#r
@@ -36,7 +36,7 @@ static const char *presentModeString(VkPresentModeKHR presentMode)
 #undef PMSTR
 }
 
-// internal helper
+/* internal helper */
 static VkSurfaceFormatKHR getSwapSurfaceFormat(const VkSurfaceFormatKHR *surfaceFormats, uint32_t formatCount)
 {
 	VkSurfaceFormatKHR swapSurfaceFormat;
@@ -63,7 +63,7 @@ static VkSurfaceFormatKHR getSwapSurfaceFormat(const VkSurfaceFormatKHR *surface
 	return swapSurfaceFormat;
 }
 
-// internal helper
+/* internal helper */
 // look to https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkPresentModeKHR.html for more information
 static VkPresentModeKHR getSwapPresentMode(const VkPresentModeKHR *presentModes, uint32_t presentModesCount, VkPresentModeKHR desiredMode)
 {
@@ -115,7 +115,7 @@ static const VkCompositeAlphaFlagBitsKHR compositeAlphaFlags[] = {
 	VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
 };
 
-// internal helper
+/* internal helper */
 static VkCompositeAlphaFlagBitsKHR getSupportedCompositeAlpha(VkCompositeAlphaFlagsKHR supportedFlags)
 {
 	for (int i = 0; i < 4; ++i)

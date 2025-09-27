@@ -69,8 +69,6 @@ static void M_Menu_ControllerButtons_f(void);
 static void M_Menu_ControllerAltButtons_f(void);
 static void M_Menu_Quit_f(void);
 
-void M_Menu_Credits(void);
-
 qboolean m_entersound; /* play after drawing a frame, so caching won't disrupt the sound */
 
 /* Maximal number of submenus */
@@ -145,6 +143,7 @@ M_PopMenu(void)
 	if (m_menudepth < 1)
 	{
 		Com_Error(ERR_FATAL, "%s: depth < 1", __func__);
+		return;
 	}
 
 	m_menudepth--;
@@ -347,7 +346,7 @@ Key_GetMenuKey(int key)
 	return key;
 }
 
-const char *
+static const char *
 Default_MenuKey(menuframework_s *m, int key)
 {
 	const char *sound = NULL;
@@ -2237,9 +2236,6 @@ static menuaction_s s_joy_gyro_action = {0};
 static menuaction_s s_joy_customize_buttons_action = {0};
 static menuaction_s s_joy_customize_alt_buttons_action = {0};
 
-extern void IN_ApplyJoyPreset(void);
-extern qboolean IN_MatchJoyPreset(void);
-
 static void
 RefreshJoyMenuFunc(void *unused)
 {
@@ -3530,6 +3526,12 @@ Mods_MenuInit(void)
 
 	/* create array of bracketed display names from folder names - TG626 */
 	displaynames = malloc(sizeof(*displaynames) * (nummods + 1));
+	YQ2_COM_CHECK_OOM(displaynames, "malloc()", sizeof(*displaynames) * (nummods + 1))
+	if (!displaynames)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
 
 	for (i = 0; i < nummods; i++)
 	{
@@ -3552,6 +3554,7 @@ Mods_MenuInit(void)
 		displaynames[i] = malloc(strlen(modname) + 1);
 		strcpy(displaynames[i], modname);
 	}
+
 	displaynames[nummods] = NULL;
 	/* end TG626 */
 
@@ -6084,8 +6087,11 @@ PlayerDirectoryList(void)
 	// free file list
 	FS_FreeList(list, num);
 
-	// sort them male, female, alphabetical
-	qsort(s_directory.data, s_directory.num - 1, sizeof(char*), dircmp_func);
+	/* sort them male, female, alphabetical */
+	if (s_directory.num > 2)
+	{
+		qsort(s_directory.data, s_directory.num - 1, sizeof(char*), dircmp_func);
+	}
 
 	return true;
 }
@@ -6140,7 +6146,7 @@ HasSkinsInDir(const char *dirname, int *num)
 			return false;
 		}
 
-		if (list_png)
+		if (list_png && num_png)
 		{
 			int j;
 
@@ -6162,7 +6168,7 @@ HasSkinsInDir(const char *dirname, int *num)
 			}
 		}
 
-		if (list_pcx)
+		if (list_pcx && num_pcx)
 		{
 			int j;
 
@@ -6184,7 +6190,7 @@ HasSkinsInDir(const char *dirname, int *num)
 			}
 		}
 
-		if (list_m8)
+		if (list_m8 && num_m8)
 		{
 			int j;
 
@@ -6622,8 +6628,6 @@ PlayerConfig_MenuInit(void)
 
 	return true;
 }
-
-extern float CalcFov(float fov_x, float w, float h);
 
 /*
  * Model animation

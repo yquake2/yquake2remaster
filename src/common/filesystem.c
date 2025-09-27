@@ -1470,6 +1470,7 @@ FS_LoadSIN(const char *packPath)
 	{
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header.dirlen);
+		return NULL;
 	}
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
@@ -1479,6 +1480,7 @@ FS_LoadSIN(const char *packPath)
 		free(info);
 		Z_Free(files);
 		Com_Error(ERR_FATAL, "%s: '%s' seek failed", __func__, packPath);
+		return NULL;
 	}
 
 	if (fread(info, header.dirlen, 1, handle) != 1)
@@ -1486,6 +1488,7 @@ FS_LoadSIN(const char *packPath)
 		free(info);
 		Z_Free(files);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short", __func__, packPath);
+		return NULL;
 	}
 
 	/* Parse the directory. */
@@ -1534,6 +1537,7 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
 				__func__, packPath);
+		return NULL;
 	}
 
 	if (numFiles > MAX_FILES_IN_PACK)
@@ -1545,8 +1549,10 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	info = malloc(header->dirlen);
 	if (!info)
 	{
+		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header->dirlen);
+		return NULL;
 	}
 
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));

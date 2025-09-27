@@ -47,7 +47,7 @@ ClientTeam(edict_t *ent, char* value)
 		return value;
 	}
 
-	strcpy(value, Info_ValueForKey(ent->client->pers.userinfo, "skin"));
+	Q_strlcpy(value, Info_ValueForKey(ent->client->pers.userinfo, "skin"), sizeof(value));
 	p = strchr(value, '/');
 
 	if (!p)
