@@ -4756,7 +4756,72 @@ GetMapsList(int *num)
 		*num = nummaps;
 		return mapnames;
 	}
+
 	return NULL;
+}
+
+static char**
+GetMapsInFolderList(int *nummaps)
+{
+	/* Generate list by bsp files in maps/ directory */
+	size_t nummapslen;
+	char **list = NULL, **mapnames = NULL;
+	int num = 0, i;
+
+	list = FS_ListFiles2("maps/*.bsp", &num, 0, 0);
+	if (!list)
+	{
+		Com_Printf("couldn't find maps/*.bsp\n");
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+
+	nummapslen = sizeof(char *) * (num);
+	mapnames = malloc(nummapslen);
+	YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (num))", nummapslen)
+	if (!mapnames)
+	{
+		FS_FreeList(list, num);
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+
+	memset(mapnames, 0, nummapslen);
+
+	for (i = 0; i < num - 1; i++)
+	{
+		char scratch[200], shortname[MAX_QPATH];
+		int len;
+
+		len = strlen(list[i]);
+		if (len > 9 && len < MAX_QPATH)
+		{
+			/* maps/ + .bsp */
+			Q_strlcpy(shortname, list[i] + 5, sizeof(shortname));
+			shortname[len - 9]  = 0;
+
+			Com_sprintf(scratch, sizeof(scratch), "%s\n%s", shortname, shortname);
+
+			mapnames[i] = strdup(scratch);
+			YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
+			if (!mapnames[i])
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return NULL;
+			}
+		}
+	}
+
+	mapnames[num - 1] = NULL;
+
+	/* sort maps names alphabetically */
+	qsort(mapnames, num - 1, sizeof(char*), Q_sort_stricmp);
+
+	/* free file list */
+	FS_FreeList(list, num);
+	*nummaps = num;
+
+	return mapnames;
 }
 
 static void
@@ -4782,63 +4847,7 @@ StartServer_MenuInit(void)
 		mapnames = GetMapsList(&nummaps);
 		if (!mapnames || !nummaps)
 		{
-			/* Generate list by bsp files in maps/ directory */
-			size_t nummapslen;
-			char** list = NULL;
-			int num = 0, i;
-
-			list = FS_ListFiles2("maps/*.bsp", &num, 0, 0);
-			if (!list)
-			{
-				Com_Error(ERR_DROP, "couldn't find maps.lst\n");
-				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-				return;
-			}
-
-			nummapslen = sizeof(char *) * (num);
-			mapnames = malloc(nummapslen);
-
-			YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (num))", nummapslen)
-			if (!mapnames)
-			{
-				FS_FreeList(list, num);
-				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-				return;
-			}
-
-			memset(mapnames, 0, nummapslen);
-
-			for (i = 0; i < num - 1; i++)
-			{
-				char scratch[200], shortname[MAX_QPATH];
-				int len;
-
-				len = strlen(list[i]);
-				if (len > 9 && len < MAX_QPATH)
-				{
-					/* maps/ + .bsp */
-					Q_strlcpy(shortname, list[i] + 5, sizeof(shortname));
-					shortname[len - 9]  = 0;
-
-					Com_sprintf(scratch, sizeof(scratch), "%s\n%s", shortname, shortname);
-
-					mapnames[i] = strdup(scratch);
-					YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
-					if (!mapnames[i])
-					{
-						/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-						return;
-					}
-				}
-			}
-
-			mapnames[num - 1] = NULL;
-
-			/* sort maps names alphabetically */
-			qsort(mapnames, num - 1, sizeof(char*), Q_sort_stricmp);
-
-			/* free file list */
-			FS_FreeList(list, num);
+			mapnames = GetMapsInFolderList(&nummaps);
 		}
 
 		if (!mapnames || !nummaps)
