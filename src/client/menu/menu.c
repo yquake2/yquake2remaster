@@ -4520,8 +4520,8 @@ M_Menu_JoinServer_f(void)
  */
 
 static menuframework_s s_startserver_menu = {0};
-char **mapnames = NULL;
-int nummaps;
+static char **mapnames = NULL;
+static int nummaps;
 
 static menuaction_s s_startserver_start_action = {0};
 static menuaction_s s_startserver_dmoptions_action = {0};
@@ -4656,6 +4656,109 @@ StartServerActionFunc(void *self)
 	M_ForceMenuOff();
 }
 
+void
+CleanCachedMapsList(void)
+{
+	if (mapnames != NULL)
+	{
+		int i;
+
+		for (i = 0; i < nummaps; i++)
+		{
+			free(mapnames[i]);
+		}
+
+		free(mapnames);
+		mapnames = NULL;
+	}
+}
+
+static char**
+GetMapsList(int *num)
+{
+	int length;
+	char *buffer;
+
+	/* load the list of map names */
+	if ((length = FS_LoadFile("maps.lst", (void **)&buffer)) != -1)
+	{
+		char **mapnames = NULL;
+		size_t nummapslen;
+		int i, nummaps;
+
+		char *s;
+
+		s = buffer;
+		i = 0;
+
+		while (i < length)
+		{
+			if (s[i] == '\n')
+			{
+				nummaps++;
+			}
+
+			i++;
+		}
+
+		if (nummaps == 0)
+		{
+			Com_Printf("no maps in maps.lst\n");
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+
+		nummapslen = sizeof(char *) * (nummaps + 1);
+		mapnames = malloc(nummapslen);
+
+		YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (nummaps + 1))", nummapslen)
+		if (!mapnames)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+
+		memset(mapnames, 0, nummapslen);
+
+		s = buffer;
+
+		for (i = 0; i < nummaps; i++)
+		{
+			char shortname[MAX_TOKEN_CHARS];
+			char longname[MAX_TOKEN_CHARS];
+			char scratch[200];
+			size_t j, l;
+
+			Q_strlcpy(shortname, COM_Parse(&s), sizeof(shortname));
+			l = strlen(shortname);
+
+			for (j = 0; j < l; j++)
+			{
+				shortname[j] = toupper((unsigned char)shortname[j]);
+			}
+
+			Q_strlcpy(longname, COM_Parse(&s), sizeof(longname));
+			Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
+
+			mapnames[i] = strdup(scratch);
+			YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
+			if (!mapnames[i])
+			{
+				free(mapnames);
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return NULL;
+			}
+		}
+
+		mapnames[nummaps] = NULL;
+		FS_FreeFile(buffer);
+
+		*num = nummaps;
+		return mapnames;
+	}
+	return NULL;
+}
+
 static void
 StartServer_MenuInit(void)
 {
@@ -4673,17 +4776,14 @@ StartServer_MenuInit(void)
 	/* initialize list of maps once, reuse it afterwards (=> it isn't freed unless the game dir is changed) */
 	if (mapnames == NULL)
 	{
-		int i, length;
-		size_t nummapslen;
-		char *buffer;
-
 		nummaps = 0;
 		s_startmap_list.curvalue = 0;
 
-		/* load the list of map names */
-		if ((length = FS_LoadFile("maps.lst", (void **)&buffer)) == -1)
+		mapnames = GetMapsList(&nummaps);
+		if (!mapnames || !nummaps)
 		{
 			/* Generate list by bsp files in maps/ directory */
+			size_t nummapslen;
 			char** list = NULL;
 			int num = 0, i;
 
@@ -4740,73 +4840,11 @@ StartServer_MenuInit(void)
 			/* free file list */
 			FS_FreeList(list, num);
 		}
-		else
+
+		if (!mapnames || !nummaps)
 		{
-			char *s;
-
-			s = buffer;
-			i = 0;
-
-			while (i < length)
-			{
-				if (s[i] == '\n')
-				{
-					nummaps++;
-				}
-
-				i++;
-			}
-
-			if (nummaps == 0)
-			{
-				Com_Error(ERR_DROP, "no maps in maps.lst\n");
-				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-				return;
-			}
-
-			nummapslen = sizeof(char *) * (nummaps + 1);
-			mapnames = malloc(nummapslen);
-
-			YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (nummaps + 1))", nummapslen)
-			if (!mapnames)
-			{
-				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-				return;
-			}
-
-			memset(mapnames, 0, nummapslen);
-
-			s = buffer;
-
-			for (i = 0; i < nummaps; i++)
-			{
-				char shortname[MAX_TOKEN_CHARS];
-				char longname[MAX_TOKEN_CHARS];
-				char scratch[200];
-				size_t j, l;
-
-				Q_strlcpy(shortname, COM_Parse(&s), sizeof(shortname));
-				l = strlen(shortname);
-
-				for (j = 0; j < l; j++)
-				{
-					shortname[j] = toupper((unsigned char)shortname[j]);
-				}
-
-				Q_strlcpy(longname, COM_Parse(&s), sizeof(longname));
-				Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
-
-				mapnames[i] = strdup(scratch);
-				YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
-				if (!mapnames[i])
-				{
-					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-					return;
-				}
-			}
-
-			mapnames[nummaps] = NULL;
-			FS_FreeFile(buffer);
+			Com_Error(ERR_DROP, "no maps in maps.lst\n");
+			return;
 		}
 	}
 
