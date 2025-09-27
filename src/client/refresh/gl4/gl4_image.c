@@ -241,10 +241,18 @@ GL4_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 qboolean
 GL4_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 {
-	int s = width * height;
+	size_t i, s = width * height;
 	unsigned *trans = malloc(s * sizeof(unsigned));
 
-	for (int i = 0; i < s; i++)
+	YQ2_COM_CHECK_OOM(trans, "malloc()",
+		s * sizeof(unsigned))
+	if (!trans)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return false;
+	}
+
+	for (i = 0; i < s; i++)
 	{
 		int p = data[i];
 		trans[i] = d_8to24table[p];

@@ -207,7 +207,7 @@ SV_LocalizationReload(void)
 		{
 			size_t linesize = 0;
 
-			if (curr_pos == nlocalmessages)
+			if (curr_pos >= nlocalmessages)
 			{
 				break;
 			}
@@ -328,6 +328,11 @@ SV_LocalizationReload(void)
 			char *sign, *currend;
 			size_t linesize = 0;
 
+			if (curr_pos >= nlocalmessages)
+			{
+				break;
+			}
+
 			linesize = strcspn(curr, "\n");
 			curr[linesize] = 0;
 			if (curr[0] != ';')
@@ -430,6 +435,11 @@ SV_LocalizationReload(void)
 		{
 			char *currend;
 			size_t linesize = 0;
+
+			if (curr_pos >= nlocalmessages)
+			{
+				break;
+			}
 
 			linesize = strcspn(curr, "\n");
 			curr[linesize] = 0;

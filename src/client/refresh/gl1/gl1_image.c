@@ -902,6 +902,14 @@ R_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 	{
 		unsigned *trans = malloc(s * sizeof(unsigned));
 
+		YQ2_COM_CHECK_OOM(trans, "malloc()",
+			s * sizeof(unsigned))
+		if (!trans)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return false;
+		}
+
 		for (int i = 0; i < s; i++)
 		{
 			int p = data[i];

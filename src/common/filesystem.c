@@ -787,6 +787,14 @@ FS_Read(void *buffer, int size, fileHandle_t f)
 		{
 			/* compressed chunk bigger than provided buffer */
 			compressed_buf = malloc(handle->compressed_size);
+			if (!compressed_buf)
+			{
+				Com_Error(ERR_DROP, "%s: can't allocate compressed buffer\n",
+				__func__);
+				return 0;
+			}
+
+			memset(compressed_buf, 0, handle->compressed_size);
 			buf = compressed_buf;
 		}
 	}
@@ -843,6 +851,7 @@ FS_Read(void *buffer, int size, fileHandle_t f)
 
 			Com_Error(ERR_FATAL, "%s: -1 bytes read from '%s'",
 				__func__, handle->name);
+			return 0;
 		}
 
 		remaining -= r;

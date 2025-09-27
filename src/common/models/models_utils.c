@@ -376,12 +376,32 @@ Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles, int num_
 	byte *used;
 
 	used = (byte*)calloc(num_tris, sizeof(*used));
+	YQ2_COM_CHECK_OOM(used, "malloc()", sizeof(*used))
 	best_xyz = (int*)calloc(num_tris * 3, sizeof(*best_xyz));
-	best_st = (int*)calloc(num_tris * 3, sizeof(*best_xyz));
-	best_tris = (int*)calloc(num_tris * 3, sizeof(*best_xyz));
+	YQ2_COM_CHECK_OOM(best_xyz, "malloc()",
+		num_tris * 3 * sizeof(*best_xyz))
+	best_st = (int*)calloc(num_tris * 3, sizeof(*best_st));
+	YQ2_COM_CHECK_OOM(best_st, "malloc()",
+		num_tris * 3 * sizeof(*best_st))
+	best_tris = (int*)calloc(num_tris * 3, sizeof(*best_tris));
+	YQ2_COM_CHECK_OOM(best_tris, "malloc()",
+		num_tris * 3 * sizeof(*best_tris))
 	strip_xyz = (int*)calloc(num_tris * 3, sizeof(*strip_xyz));
-	strip_st = (int*)calloc(num_tris * 3, sizeof(*strip_xyz));
-	strip_tris = (int*)calloc(num_tris * 3, sizeof(*strip_xyz));
+	YQ2_COM_CHECK_OOM(strip_xyz, "malloc()",
+		num_tris * 3 * sizeof(*strip_xyz))
+	strip_st = (int*)calloc(num_tris * 3, sizeof(*strip_st));
+	YQ2_COM_CHECK_OOM(strip_st, "malloc()",
+		num_tris * 3 * sizeof(*strip_st))
+	strip_tris = (int*)calloc(num_tris * 3, sizeof(*strip_tris));
+	YQ2_COM_CHECK_OOM(strip_tris, "malloc()",
+		num_tris * 3 * sizeof(*strip_tris))
+
+	if (!used || !best_xyz || !best_st || !best_tris || !strip_xyz ||
+		!strip_st || !strip_tris)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return 0;
+	}
 
 	for (i = 0; i < num_tris; i++)
 	{
@@ -479,6 +499,12 @@ Mod_LoadSTLookup(dmdx_t *pheader)
 	st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
 
 	st_lookup = calloc(pheader->num_st, sizeof(int));
+	YQ2_COM_CHECK_OOM(st_lookup, "calloc()", pheader->num_st * sizeof(int))
+	if (!st_lookup)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
 
 	for(k = 1; k < pheader->num_st; k++)
 	{

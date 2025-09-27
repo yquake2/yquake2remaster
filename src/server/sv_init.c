@@ -310,11 +310,20 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 	{
 		entitysize = 0;
 	}
+
 	entity = malloc(entitysize + 1);
+	YQ2_COM_CHECK_OOM(entity, "malloc()", entitysize + 1)
+	if (!entity)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
+
 	if (entitysize)
 	{
 		memcpy(entity, entity_orig, entitysize);
 	}
+
 	entity[entitysize] = 0; /* jit entity bug - null terminate the entity string! */
 	/* load and spawn all other entities */
 	ge->SpawnEntities(sv.name, entity, spawnpoint);

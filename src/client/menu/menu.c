@@ -3552,8 +3552,13 @@ Mods_MenuInit(void)
 		}
 		strcat(modname, "]");
 
-		displaynames[i] = malloc(strlen(modname) + 1);
-		strcpy(displaynames[i], modname);
+		displaynames[i] = strdup(modname);
+		YQ2_COM_CHECK_OOM(displaynames[i], "strdup()", strlen(modname) + 1)
+		if (!displaynames[i])
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
 	}
 
 	displaynames[nummods] = NULL;
@@ -4685,7 +4690,7 @@ GetMapsList(int *num)
 	{
 		char **mapnames = NULL;
 		size_t nummapslen;
-		int i, nummaps;
+		int i, nummaps = 0;
 
 		char *s;
 

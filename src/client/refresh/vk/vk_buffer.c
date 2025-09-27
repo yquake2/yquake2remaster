@@ -82,7 +82,16 @@ createStagedBuffer(const void *data, VkDeviceSize size, qvkbuffer_t * dstBuffer,
 				   qvkbufferopts_t bufferOpts)
 {
 	qvkstagingbuffer_t *stgBuffer;
-	stgBuffer = (qvkstagingbuffer_t *) malloc(sizeof(qvkstagingbuffer_t));
+
+	stgBuffer = (qvkstagingbuffer_t *)malloc(sizeof(qvkstagingbuffer_t));
+	YQ2_COM_CHECK_OOM(stgBuffer, "malloc()",
+		sizeof(qvkstagingbuffer_t))
+	if (!stgBuffer)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
+
 	VK_VERIFY(QVk_CreateStagingBuffer(size, stgBuffer,
 			   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
 			   VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,

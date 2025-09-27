@@ -398,10 +398,28 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 		if (lindent == IDATDSPRITEHEADER)
 		{
-			atd_sprites_t *anim = malloc(sizeof(atd_sprites_t));
-			memset(anim, 0, sizeof(atd_sprites_t));
+			atd_sprites_t *anim;
+
+			anim = malloc(sizeof(*anim));
+			YQ2_COM_CHECK_OOM(anim, "malloc()", sizeof(*anim))
+			if (!anim)
+			{
+				FS_FreeFile(raw);
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
+			memset(anim, 0, sizeof(*anim));
 
 			tmp_buf = malloc(len + 1);
+			YQ2_COM_CHECK_OOM(tmp_buf, "malloc()", len + 1)
+			if (!tmp_buf)
+			{
+				FS_FreeFile(raw);
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
 			memcpy(tmp_buf, raw + 4, len);
 			tmp_buf[len] = 0;
 			LoadImageATD(anim, tmp_buf, len);

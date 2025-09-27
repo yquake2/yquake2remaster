@@ -538,6 +538,14 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 				/* scale image paletted images */
 				image_scale = malloc(width * height * 4);
+				YQ2_COM_CHECK_OOM(image_scale, "malloc()",
+					width * height * 4)
+				if (!image_scale)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return NULL;
+				}
+
 				scale2x(pic, image_scale, width, height);
 
 				/* replace pic with scale */
@@ -556,7 +564,15 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 				size = width * height;
 
 				/* convert to full color */
-				image_buffer = malloc (size * 4);
+				image_buffer = malloc(size * 4);
+				YQ2_COM_CHECK_OOM(image_buffer, "malloc()",
+					size * 4)
+				if (!image_buffer)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return NULL;
+				}
+
 				for(i = 0; i < size; i++)
 				{
 					unsigned char value = pic[i];

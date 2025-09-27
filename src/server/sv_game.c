@@ -566,10 +566,14 @@ SV_InitGameProgs(void)
 	if (ge->apiversion != GAME_API_VERSION &&
 		ge->apiversion != GAME_API_R97_VERSION)
 	{
+		int version;
+
+		version = ge->apiversion;
 		Sys_UnloadGame();
 		ge = NULL;
-		Com_Error(ERR_DROP, "game is version %i, not %i", ge->apiversion,
-				GAME_API_VERSION);
+
+		Com_Error(ERR_DROP, "game is version %i, not %i",
+			version, GAME_API_VERSION);
 		return;
 	}
 

@@ -120,6 +120,12 @@ void Vk_ScreenShot_f (void)
 	}
 
 	buffer = malloc(buffSize);
+	YQ2_COM_CHECK_OOM(buffer, "malloc()", buffSize)
+	if (!buffer)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
 
 	VkExtent2D extent = {
 		.width = (uint32_t)(vid.width),
@@ -136,14 +142,14 @@ void Vk_ScreenShot_f (void)
 	if (vk_swapchain.format == VK_FORMAT_R8G8B8A8_UNORM ||
 	    vk_swapchain.format == VK_FORMAT_R8G8B8A8_SRGB)
 	{
-		for (i = 0; i < buffSize; i += 4)
+		for (i = 0; i < (buffSize - 3); i += 4)
 		{
 			buffer[i + 3] = 255;
 		}
 	}
 	else
 	{
-		for (i = 0; i < buffSize; i += 4)
+		for (i = 0; i < (buffSize - 3); i += 4)
 		{
 			int	temp;
 

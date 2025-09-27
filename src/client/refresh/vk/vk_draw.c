@@ -417,6 +417,13 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 		}
 
 		raw_image32 = malloc(cols * rows * sizeof(unsigned));
+		YQ2_COM_CHECK_OOM(raw_image32, "malloc()",
+			cols * rows * sizeof(unsigned))
+		if (!raw_image32)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
 
 		source = image_scaled;
 		dest = raw_image32;

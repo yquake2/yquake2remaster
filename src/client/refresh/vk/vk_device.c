@@ -31,10 +31,23 @@ deviceExtensionsSupported(const VkPhysicalDevice *physicalDevice, const char* ex
 
 	if (availableExtCount > 0)
 	{
-		VkExtensionProperties *extensions = (VkExtensionProperties *)malloc(availableExtCount * sizeof(VkExtensionProperties));
+		VkExtensionProperties *extensions;
+		uint32_t i;
+
+		extensions = (VkExtensionProperties *)malloc(
+			availableExtCount * sizeof(VkExtensionProperties));
+
+		YQ2_COM_CHECK_OOM(extensions, "malloc()",
+			availableExtCount * sizeof(VkExtensionProperties))
+		if (!extensions)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return false;
+		}
+
 		VK_VERIFY(vkEnumerateDeviceExtensionProperties(*physicalDevice, NULL, &availableExtCount, extensions));
 
-		for (uint32_t i = 0; i < availableExtCount; ++i)
+		for (i = 0; i < availableExtCount; ++i)
 		{
 			vk_extension_available |= strcmp(extensions[i].extensionName, extensionName) == 0;
 		}
@@ -47,8 +60,9 @@ deviceExtensionsSupported(const VkPhysicalDevice *physicalDevice, const char* ex
 }
 
 /* internal helper */
-static void getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferredIdx,
-								  int count, VkPhysicalDeviceType deviceType)
+static void
+getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferredIdx,
+	int count, VkPhysicalDeviceType deviceType)
 {
 	VkPhysicalDeviceProperties deviceProperties;
 	VkPhysicalDeviceFeatures deviceFeatures;
@@ -75,27 +89,45 @@ static void getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferred
 		qboolean bestProperties = deviceProperties.deviceType == deviceType;
 		if (preferredIdx == i || (bestProperties && preferredIdx < 0) || count == 1)
 		{
+			VkQueueFamilyProperties *queueFamilies;
 			uint32_t formatCount = 0;
 			uint32_t presentModesCount = 0;
 
 			// check if requested device extensions are present
 			if (!deviceExtensionsSupported(&devices[i], VK_KHR_SWAPCHAIN_EXTENSION_NAME))
-			// no required extensions? try next device
+			{
+				// no required extensions? try next device
 				continue;
+			}
 
 #if defined(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME) && defined(__APPLE__)
 			if (!deviceExtensionsSupported(&devices[i], VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME))
+			{
 				continue;
+			}
 #endif
 
 			// if extensions are fine, query surface formats and present modes to see if the device can be used
-			VK_VERIFY(vkGetPhysicalDeviceSurfaceFormatsKHR(devices[i], vk_surface, &formatCount, NULL));
-			VK_VERIFY(vkGetPhysicalDeviceSurfacePresentModesKHR(devices[i], vk_surface, &presentModesCount, NULL));
+			VK_VERIFY(vkGetPhysicalDeviceSurfaceFormatsKHR(devices[i], vk_surface,
+				&formatCount, NULL));
+			VK_VERIFY(vkGetPhysicalDeviceSurfacePresentModesKHR(devices[i], vk_surface,
+				&presentModesCount, NULL));
 
 			if (formatCount == 0 || presentModesCount == 0)
+			{
 				continue;
+			}
 
-			VkQueueFamilyProperties *queueFamilies = (VkQueueFamilyProperties *)malloc(queueFamilyCount * sizeof(VkQueueFamilyProperties));
+			queueFamilies = (VkQueueFamilyProperties *)malloc(
+				queueFamilyCount * sizeof(VkQueueFamilyProperties));
+			YQ2_COM_CHECK_OOM(queueFamilies, "malloc()",
+				queueFamilyCount * sizeof(VkQueueFamilyProperties))
+			if (!queueFamilies)
+			{
+				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+				return;
+			}
+
 			vkGetPhysicalDeviceQueueFamilyProperties(devices[i], &queueFamilyCount, queueFamilies);
 
 			// secondary check - device is OK if there's at least on queue with VK_QUEUE_GRAPHICS_BIT set

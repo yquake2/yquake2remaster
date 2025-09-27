@@ -364,7 +364,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	GLfloat tex[8];
 	float hscale = 1.0f;
 	int frac, fracstep;
-	int i, j, trows;
+	int i, j;
 	int row;
 
 	R_Bind(0);
@@ -391,7 +391,6 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	{
 		// Scale params
 		hscale = rows / 256.0;
-		trows = 256;
 
 		// X, X
 		tex[0] = 1.0 / 512.0;
@@ -439,7 +438,15 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 			{
 				/* in case there is a bigger video after all,
 				 * malloc enough space to hold the frame */
-				img = (unsigned*)malloc(cols*rows*4);
+				img = (unsigned*)malloc(cols * rows * 4);
+
+				YQ2_COM_CHECK_OOM(img, "malloc()",
+					cols * rows * 4)
+				if (!img)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return;
+				}
 			}
 
 			for(i=0; i<rows; ++i)
@@ -464,6 +471,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		else
 		{
 			unsigned int image32[320*240];
+			int trows = 256;
 
 			for (i = 0; i < trows; i++)
 			{
@@ -497,6 +505,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	else
 	{
 		unsigned char image8[256 * 256];
+		int trows = 256;
 
 		for (i = 0; i < trows; i++)
 		{
