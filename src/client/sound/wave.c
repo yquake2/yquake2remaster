@@ -197,6 +197,7 @@ GetWavinfo(char *name, byte *wav, int wavlength)
 		{
 			Com_Error(ERR_DROP, "%s: Sound %s has a bad loop length",
 				__func__, name);
+			return info;
 		}
 	}
 	else

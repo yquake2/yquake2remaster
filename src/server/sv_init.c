@@ -57,6 +57,7 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 	if (i == max)
 	{
 		Com_Error(ERR_DROP, "*Index: overflow");
+		return 0;
 	}
 
 	Q_strlcpy(sv.configstrings[start + i], name, sizeof(sv.configstrings[start + i]));
@@ -136,6 +137,7 @@ SV_CreateBaseline(void)
 		{
 			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 				__func__, entnum, MAX_EDICTS);
+			return;
 		}
 
 		SV_GetEntityState(svent, &sv.baselines[entnum]);
@@ -327,6 +329,7 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 		(int)strtol(sv.configstrings[CS_MAPCHECKSUM], (char **)NULL, 10))
 	{
 		Com_Error(ERR_DROP, "Game DLL corrupted server configstrings");
+		return;
 	}
 
 	/* all precaches are complete */

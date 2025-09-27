@@ -170,6 +170,7 @@ M_PopMenuSilent(void)
 	if (m_menudepth < 1)
 	{
 		Com_Error(ERR_FATAL, "%s: depth < 1", __func__);
+		return;
 	}
 
 	m_menudepth--;

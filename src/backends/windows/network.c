@@ -1001,6 +1001,7 @@ NET_OpenIP(void)
 		if (!ip_sockets[NS_SERVER] && !ip6_sockets[NS_SERVER] && dedicated)
 		{
 			Com_Error(ERR_FATAL, "Couldn't allocate dedicated server IP port");
+			return;
 		}
 	}
 
@@ -1273,6 +1274,7 @@ NET_Init(void)
 	if (r)
 	{
 		Com_Error(ERR_FATAL, "Winsock initialization failed.");
+		return;
 	}
 
 	Com_Printf("Winsock Initialized\n");

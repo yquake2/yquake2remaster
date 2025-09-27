@@ -918,7 +918,10 @@ Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
 	{
 		*texBuffer = malloc(scaled_width * scaled_height * 4);
 		if (!*texBuffer)
+		{
 			Com_Error(ERR_DROP, "%s: too big", __func__);
+			return 0;
+		}
 
 		ResizeSTB(data, width, height,
 				  *texBuffer, scaled_width, scaled_height);
@@ -966,11 +969,14 @@ Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 
 	trans = malloc(s * sizeof(*trans));
 	if (!trans)
+	{
 		Com_Error(ERR_DROP, "%s: too large", __func__);
+		return 0;
+	}
 
 	for (i = 0; i < s; i++)
 	{
-		int	p;
+		int p;
 
 		p = data[i];
 		trans[i] = d_8to24table[p];
@@ -1087,14 +1093,22 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		if (i == numvktextures)
 		{
 			if (numvktextures == MAX_TEXTURES)
+			{
 				Com_Error(ERR_DROP, "%s: MAX_TEXTURES", __func__);
+				return NULL;
+			}
+
 			numvktextures++;
 		}
 		image = &vktextures[i];
 	}
 
 	if (strlen(name) >= sizeof(image->name))
+	{
 		Com_Error(ERR_DROP, "%s: \"%s\" is too long", __func__, name);
+		return NULL;
+	}
+
 	strcpy(image->name, name);
 	image->registration_sequence = registration_sequence;
 	// zero-clear Vulkan texture handle
@@ -1340,6 +1354,7 @@ void Vk_FreeUnusedImages (void)
 		if (img_loaded < 0)
 		{
 			Com_Error(ERR_DROP, "%s: Broken unload", __func__);
+			return;
 		}
 	}
 
@@ -1431,12 +1446,15 @@ void	Vk_ShutdownImages (void)
 		if (img_loaded < 0)
 		{
 			Com_Error(ERR_DROP, "%s: Broken unload", __func__);
+			return;
 		}
 	}
 
 	QVk_ReleaseTexture(&vk_rawTexture);
 
-	for(i = 0; i < MAX_LIGHTMAPS*2; i++)
+	for(i = 0; i < MAX_LIGHTMAPS * 2; i++)
+	{
 		QVk_ReleaseTexture(&vk_state.lightmap_textures[i]);
+	}
 }
 

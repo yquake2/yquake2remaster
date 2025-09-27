@@ -50,6 +50,7 @@ DrawVkPoly(msurface_t *fa, image_t *texture, const float *color)
 	if (Mesh_VertsRealloc(p->numverts))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		return;
 	}
 
 	memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * p->numverts);
@@ -383,6 +384,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	if (Mesh_VertsRealloc(nv))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		return;
 	}
 
 	if (is_dynamic)
@@ -432,6 +434,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		if (Mesh_VertsRealloc(pos_vect + nv))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			return;
 		}
 
 		memcpy(verts_buffer + pos_vect, p->verts, sizeof(mvtx_t) * nv);

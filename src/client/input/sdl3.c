@@ -2893,7 +2893,9 @@ IN_Init(void)
 	{
 		if ((SDL_InitSubSystem(SDL_INIT_EVENTS)) != 0)
 		{
-			Com_Error(ERR_FATAL, "Couldn't initialize SDL event subsystem:%s\n", SDL_GetError());
+			Com_Error(ERR_FATAL, "Couldn't initialize SDL event subsystem:%s\n",
+				SDL_GetError());
+			return;
 		}
 	}
 

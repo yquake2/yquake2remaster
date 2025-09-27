@@ -85,7 +85,8 @@ Z_TagMalloc(int size, int tag)
 
 	if (!z)
 	{
-		Com_Error(ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes", size);
+		Com_Error(ERR_FATAL, "%s: failed on allocation of %i bytes",
+			__func__, size);
 		return NULL;
 	}
 

@@ -412,6 +412,7 @@ Sys_GetGameAPI(void *parms)
 	if (game_library)
 	{
 		Com_Error(ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
+		return NULL;
 	}
 
 	/* now run through the search paths */

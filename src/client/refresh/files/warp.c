@@ -197,6 +197,7 @@ R_ClipSkyPolygon(int nump, vec3_t vecs, int stage, float skymins[2][6], float sk
 	if (nump > MAX_CLIP_VERTS - 2)
 	{
 		Com_Error(ERR_DROP, "%s: MAX_CLIP_VERTS", __func__);
+		return;
 	}
 
 	if (stage == 6)

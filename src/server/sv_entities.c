@@ -516,7 +516,8 @@ SV_FatPVS(vec3_t org)
 
 	if (count < 1)
 	{
-		Com_Error(ERR_FATAL, "SV_FatPVS: count < 1");
+		Com_Error(ERR_FATAL, "%s: count < 1", __func__);
+		return;
 	}
 
 	numInt32s = (CM_NumClusters() + 31) >> 5;

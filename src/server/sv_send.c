@@ -241,6 +241,7 @@ SV_Multicast(vec3_t origin, multicast_t to)
 		default:
 			mask = NULL;
 			Com_Error(ERR_FATAL, "%s: bad to:%i", __func__, to);
+			return;
 	}
 
 	/* send the data to all relevent clients */
@@ -303,16 +304,19 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 	if ((volume < 0) || (volume > 1.0))
 	{
 		Com_Error(ERR_FATAL, "%s: volume = %f", __func__, volume);
+		return;
 	}
 
 	if ((attenuation < 0) || (attenuation > 4))
 	{
 		Com_Error(ERR_FATAL, "%s: attenuation = %f", __func__, attenuation);
+		return;
 	}
 
 	if ((timeofs < 0) || (timeofs > 0.255))
 	{
 		Com_Error(ERR_FATAL, "%s: timeofs = %f", __func__, timeofs);
+		return;
 	}
 
 	ent = NUM_FOR_EDICT(entity);

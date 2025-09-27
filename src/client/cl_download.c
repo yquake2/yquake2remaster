@@ -674,6 +674,7 @@ CL_CheckOrDownloadFile(const char *filename)
 		{
 			Com_Error(ERR_FATAL, "%s: can't seek in file '%s'",
 				__func__, name);
+			return true;
 		}
 
 		len = ftell(fp);
@@ -750,6 +751,7 @@ CL_ParseDownload(void)
 	if (percent < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
 	}
 
 	if (size == -1)

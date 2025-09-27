@@ -154,6 +154,7 @@ CL_ParseEntityBits(unsigned *bits)
 	if (number < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return 0;
 	}
 
 	*bits = total;
@@ -488,11 +489,13 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 		{
 			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 				__func__, newnum, MAX_EDICTS);
+			return;
 		}
 
 		if (net_message.readcount > net_message.cursize)
 		{
 			Com_Error(ERR_DROP, "%s: end of message", __func__);
+			return;
 		}
 
 		if (!newnum)
@@ -857,6 +860,7 @@ CL_ShowNetCmd(int cmd)
 	{
 		Com_Error(ERR_DROP, "%3i: unexpected message end",
 			net_message.readcount - 1);
+		return;
 	}
 
 	if (cl_shownet->value >= 2)
@@ -956,6 +960,7 @@ CL_ParseFrame(void)
 	{
 		Com_Error(ERR_DROP, "%s: 0x%X not playerinfo",
 			__func__, cmd);
+		return;
 	}
 
 	CL_ParsePlayerstate(old, &cl.frame, cls.serverProtocol);
@@ -968,6 +973,7 @@ CL_ParseFrame(void)
 	{
 		Com_Error(ERR_DROP, "%s: 0x%X not packetentities",
 			__func__, cmd);
+		return;
 	}
 
 	CL_ParsePacketEntities(old, &cl.frame);
@@ -1078,6 +1084,7 @@ CL_ParseServerData(void)
 	{
 		Com_Error(ERR_DROP, "Server returned version %i, not %i",
 				i, PROTOCOL_VERSION);
+		return;
 	}
 
 	cl.servercount = MSG_ReadLong(&net_message);
@@ -1331,6 +1338,7 @@ CL_ParseConfigString(void)
 		Com_Error(ERR_DROP,
 			"%s: configstring[%d] > MAX_CONFIGSTRINGS for %s, protocol %s",
 			__func__, orig_i, s, CL_GetProtocolName(cls.serverProtocol));
+		return;
 	}
 
 	s = MSG_ReadString(&net_message);
@@ -1348,6 +1356,7 @@ CL_ParseConfigString(void)
 	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0]) * i - 1)
 	{
 		Com_Error(ERR_DROP, "%s: oversize configstring", __func__);
+		return;
 	}
 
 	strcpy(cl.configstrings[i], s);
@@ -1421,6 +1430,7 @@ CL_ParseStartSoundPacket(void)
 	if (flags < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
 	}
 
 	if (IS_QII97_PROTOCOL(cls.serverProtocol))
@@ -1435,6 +1445,7 @@ CL_ParseStartSoundPacket(void)
 	if (sound_num < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
 	}
 
 	if (flags & SND_VOLUME)
@@ -1443,6 +1454,7 @@ CL_ParseStartSoundPacket(void)
 		if (volume < 0)
 		{
 			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
 		}
 
 		volume /= 255.0f;
@@ -1459,6 +1471,7 @@ CL_ParseStartSoundPacket(void)
 		if (attenuation < 0)
 		{
 			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
 		}
 
 		attenuation /= 64.0f;
@@ -1475,6 +1488,7 @@ CL_ParseStartSoundPacket(void)
 		if (ofs < 0)
 		{
 			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
 		}
 
 		ofs /= 1000.0f;
@@ -1495,6 +1509,7 @@ CL_ParseStartSoundPacket(void)
 		{
 			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 				__func__, ent, MAX_EDICTS);
+			return;
 		}
 
 		channel &= 7;
@@ -1558,7 +1573,7 @@ CL_ParseServerMessage(void)
 		if (net_message.readcount > net_message.cursize)
 		{
 			Com_Error(ERR_DROP, "%s: Bad server message", __func__);
-			break;
+			return;
 		}
 
 		cmd = MSG_ReadByte(&net_message);
@@ -1577,14 +1592,14 @@ CL_ParseServerMessage(void)
 			default:
 				Com_Error(ERR_DROP, "%s: Illegible server message\n",
 					__func__);
-				break;
+				return;
 
 			case svc_nop:
 				break;
 
 			case svc_disconnect:
 				Com_Error(ERR_DISCONNECT, "Server disconnected\n");
-				break;
+				return;
 
 			case svc_reconnect:
 				Com_Printf("Server disconnected, reconnecting\n");
@@ -1682,7 +1697,7 @@ CL_ParseServerMessage(void)
 			case svc_packetentities:
 			case svc_deltapacketentities:
 				Com_Error(ERR_DROP, "Out of place frame data");
-				break;
+				return;
 		}
 	}
 

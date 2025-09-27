@@ -197,6 +197,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: CS_SOUNDS: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 		else if (i >= CS_SOUNDS && i < CS_IMAGES)
@@ -207,6 +208,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: CS_IMAGES: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 		else if (i >= CS_IMAGES && i < CS_LIGHTS)
@@ -217,6 +219,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: CS_LIGHTS: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 		else if (i >= CS_LIGHTS && i < CS_ITEMS)
@@ -227,6 +230,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: CS_ITEMS: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 		else if (i >= CS_ITEMS && i < CS_PLAYERSKINS)
@@ -237,6 +241,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: CS_PLAYERSKINS: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 		else if (i >= CS_PLAYERSKINS && i < CS_GENERAL)
@@ -247,6 +252,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: CS_GENERAL: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 		else if (i >= CS_GENERAL && i < MAX_CONFIGSTRINGS)
@@ -257,6 +263,7 @@ P_ConvertConfigStringTo(int i, int protocol)
 			{
 				Com_Error(ERR_DROP, "%s: MAX_CONFIGSTRINGS: bad index %i\n",
 					__func__, i);
+				return i;
 			}
 		}
 	}

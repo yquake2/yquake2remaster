@@ -548,6 +548,7 @@ SV_HullForEntity(edict_t *ent)
 		if (!model)
 		{
 			Com_Error(ERR_FATAL, "MOVETYPE_PUSH with a non bsp model");
+			return 0;
 		}
 
 		return model->headnode;

@@ -69,6 +69,7 @@ Mod_ClusterPVS(int cluster, const model_t *model)
 	if (!mod_novis)
 	{
 		Com_Error(ERR_DROP, "%s: incrorrect init of PVS/PHS", __func__);
+		return mod_novis;
 	}
 
 	if (!model->vis)
@@ -87,6 +88,7 @@ Mod_ClusterPVS(int cluster, const model_t *model)
 	if (cluster < 0 || cluster >= model->numvisibility)
 	{
 		Com_Error(ERR_DROP, "%s: bad cluster", __func__);
+		return mod_novis;
 	}
 
 	Mod_DecompressVis((byte *)model->vis +
@@ -154,6 +156,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 	{
 		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, loadmodel->name);
+		return;
 	}
 
 	count = l->filelen / sizeof(*in);
@@ -196,6 +199,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 		{
 			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
 					__func__, i);
+			return;
 		}
 	}
 }
@@ -215,6 +219,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	{
 		Com_Error(ERR_DROP, "%s: funny lump size in %s",
 				__func__, loadmodel->name);
+		return;
 	}
 
 	count = l->filelen / sizeof(*in);
@@ -244,7 +249,9 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		{
 			Com_Error(ERR_DROP, "%s: Surface with %d edges",
 					__func__, out->numedges);
+			return;
 		}
+
 		out->flags = 0;
 		out->polys = NULL;
 
@@ -260,6 +267,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect %d planenum.",
 					__func__, planenum);
+			return;
 		}
 		out->plane = loadmodel->planes + planenum;
 
@@ -269,6 +277,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		{
 			Com_Error(ERR_DROP, "%s: bad texinfo number",
 					__func__);
+			return;
 		}
 
 		out->texinfo = loadmodel->texinfo + ti;
@@ -327,6 +336,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	if (mod != mod_known)
 	{
 		Com_Error(ERR_DROP, "%s: Loaded a brush model after the world", __func__);
+		return;
 	}
 
 	mod_base = (byte *)buffer;
@@ -395,6 +405,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
 			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
+		return;
 	}
 
 	if ((mod->numleafs > mod_novis_len) || !mod_novis)
@@ -432,6 +443,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	if (!name[0])
 	{
 		Com_Error(ERR_DROP, "%s: NULL name", __func__);
+		return NULL;
 	}
 
 	/* inline models are grabbed only from worldmodel */
@@ -443,6 +455,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		{
 			Com_Error(ERR_DROP, "%s: bad inline model number",
 					__func__);
+			return NULL;
 		}
 
 		return &parent_model->submodels[i];
@@ -476,6 +489,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		if (mod_numknown == MAX_MOD_KNOWN)
 		{
 			Com_Error(ERR_DROP, "%s: mod_numknown == MAX_MOD_KNOWN", __func__);
+			return NULL;
 		}
 
 		mod_numknown++;
@@ -502,6 +516,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		{
 			Com_Error(ERR_DROP, "%s: %s not found",
 					__func__, mod->name);
+			return NULL;
 		}
 
 		if (r_validation->value > 0)
@@ -528,6 +543,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 				{
 					Com_Error(ERR_DROP, "%s: Failed to load %s",
 						__func__, mod->name);
+					return NULL;
 				}
 			};
 			break;
@@ -540,7 +556,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		default:
 			Com_Error(ERR_DROP, "%s: unknown fileid for %s",
 					__func__, mod->name);
-			break;
+			return NULL;
 	}
 
 	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);

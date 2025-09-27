@@ -829,11 +829,13 @@ MSG_ReadDir(sizebuf_t *sb, vec3_t dir)
 	if (b < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
 	}
 
 	if (b >= NUMVERTEXNORMALS)
 	{
 		Com_Error(ERR_DROP, "%s: out of range", __func__);
+		return;
 	}
 
 	VectorCopy(bytedirs[b], dir);
@@ -856,12 +858,14 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 	if (!to->number)
 	{
 		Com_Error(ERR_FATAL, "Unset entity number");
+		return;
 	}
 
 	if (to->number >= MAX_EDICTS)
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, to->number, MAX_EDICTS);
+		return;
 	}
 
 	/* send an update */

@@ -235,6 +235,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 			Com_Error(ERR_FATAL,
 				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
 					__func__, smax, tmax);
+			return;
 		}
 	}
 

@@ -103,6 +103,7 @@ PF_cprintf(edict_t *ent, int level, const char *fmt, ...)
 		if ((n < 1) || (n > maxclients->value))
 		{
 			Com_Error(ERR_DROP, "cprintf to a non-client");
+			return;
 		}
 	}
 
@@ -209,6 +210,7 @@ PF_Configstring(int index, const char *val)
 	if ((internal_index < 0) || (internal_index >= MAX_CONFIGSTRINGS))
 	{
 		Com_Error(ERR_DROP, "configstring: bad index %i\n", internal_index);
+		return;
 	}
 
 	/* change the string in sv */
@@ -235,6 +237,7 @@ PF_ConfigStringGet(int index)
 	if ((index < 0) || (index >= MAX_CONFIGSTRINGS))
 	{
 		Com_Error(ERR_DROP, "configstring: bad index %i\n", index);
+		return NULL;
 	}
 
 	/* change the string in sv */
@@ -557,13 +560,17 @@ SV_InitGameProgs(void)
 	if (!ge)
 	{
 		Com_Error(ERR_DROP, "failed to load game DLL");
+		return;
 	}
 
 	if (ge->apiversion != GAME_API_VERSION &&
 		ge->apiversion != GAME_API_R97_VERSION)
 	{
+		Sys_UnloadGame();
+		ge = NULL;
 		Com_Error(ERR_DROP, "game is version %i, not %i", ge->apiversion,
 				GAME_API_VERSION);
+		return;
 	}
 
 	ge->Init();

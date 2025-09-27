@@ -1069,6 +1069,7 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect brushleaf index %d > %d",
 				__func__, brushleaf_index, count_leafbrush);
+			return;
 		}
 
 		brush_index = LittleLong(in_leafbrush[brushleaf_index]);
@@ -1076,6 +1077,7 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect brush index %d > %d",
 				__func__, brush_index, count_brush);
+			return;
 		}
 
 		shader_index = LittleLong(in_brush[brush_index].shader_index) & 0xFFFFFFFF;
@@ -1083,6 +1085,7 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect shader index %d > %d",
 				__func__, shader_index, count_shader);
+			return;
 		}
 
 		out->contents = Mod_LoadContextConvertFlags(
@@ -1389,6 +1392,7 @@ Mod_Load2QBSP_IBSP46_BRUSHES(byte *outbuf, dheader_t *outheader,
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect shader index %d > %d",
 				__func__, shader_index, count_shader);
+			return;
 		}
 
 		out->contents = Mod_LoadContextConvertFlags(
@@ -2131,6 +2135,7 @@ Mod_Load2QBSPValidateRules(const char *name, const rule_t *rules, size_t numrule
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect lumps",
 			__func__, name);
+		return 0;
 	}
 
 	return result_size;
@@ -2297,6 +2302,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		{
 			Com_Error(ERR_DROP, "%s: Map %s has incorrect bspx lumps",
 				__func__, name);
+			return NULL;
 		}
 
 		lump = (bspx_lump_t*)(bspx_header + 1);

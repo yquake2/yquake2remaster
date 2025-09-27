@@ -315,6 +315,7 @@ RE_Draw_Fill(int x, int y, int w, int h, int c)
 	if ((unsigned)c > 255)
 	{
 		Com_Error(ERR_FATAL, "%s: bad color", __func__);
+		return;
 	}
 
 	color.c = d_8to24table[c];

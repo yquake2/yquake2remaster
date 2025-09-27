@@ -135,6 +135,7 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 		if (Mesh_VertsRealloc(pos_vect + p->numverts))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			return;
 		}
 
 		memcpy(verts_buffer + pos_vect, p->verts, sizeof(mvtx_t) * p->numverts);

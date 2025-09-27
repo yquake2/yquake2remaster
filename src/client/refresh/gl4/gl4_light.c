@@ -86,6 +86,7 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 		(SURF_SKY | SURF_TRANSPARENT | SURF_WARP))
 	{
 		Com_Error(ERR_DROP, "%s called for non-lit surface", __func__);
+		return;
 	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -97,6 +98,7 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 	if (size > BLOCK_WIDTH * BLOCK_HEIGHT * 3)
 	{
 		Com_Error(ERR_DROP, "Bad s_blocklights size");
+		return;
 	}
 
 	// count number of lightmaps surf actually has

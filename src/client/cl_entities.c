@@ -981,6 +981,7 @@ CL_GetEntitySoundVelocity(int ent, vec3_t vel)
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, ent, MAX_EDICTS);
+		return;
 	}
 
 	old = &cl_entities[ent];

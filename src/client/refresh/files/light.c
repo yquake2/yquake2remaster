@@ -462,6 +462,7 @@ R_ResizeTemporaryLMBuffer(size_t size)
 		if (!s_blocklights)
 		{
 			Com_Error(ERR_DROP, "Can't alloc s_blocklights");
+			return;
 		}
 	}
 }
@@ -490,6 +491,7 @@ R_GetTemporaryLMBuffer(size_t size)
 		if (!s_bufferlights)
 		{
 			Com_Error(ERR_DROP, "Can't alloc s_bufferlights");
+			return NULL;
 		}
 	}
 
@@ -613,6 +615,7 @@ R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *
 		(SURF_SKY | SURF_TRANSPARENT | SURF_WARP))
 	{
 		Com_Error(ERR_DROP, "%s called for non-lit surface", __func__);
+		return;
 	}
 
 	smax = (surf->extents[0] >> surf->lmshift) + 1;

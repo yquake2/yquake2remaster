@@ -203,6 +203,7 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 				if (Mesh_VertsRealloc(*vertIdx))
 				{
 					Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+					return;
 				}
 
 				// unused in this case, since texturing is disabled
@@ -240,6 +241,7 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 				if (Mesh_VertsRealloc(*vertIdx))
 				{
 					Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+					return;
 				}
 
 				// texture coordinates come from the draw list
@@ -451,6 +453,7 @@ Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
 			if (Mesh_VertsRealloc(*vertIdx))
 			{
 				Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+				return;
 			}
 
 			if (verts_count <= index_xyz)

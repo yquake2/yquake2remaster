@@ -124,6 +124,7 @@ V_AddLightStyle(int style, float r, float g, float b)
 	if ((style < 0) || (style >= MAX_LIGHTSTYLES))
 	{
 		Com_Error(ERR_DROP, "Bad light style %i", style);
+		return;
 	}
 
 	ls = &r_lightstyles[style];
@@ -450,6 +451,7 @@ CalcFov(float fov_x, float width, float height)
 	if ((fov_x < 1) || (fov_x > 179))
 	{
 		Com_Error(ERR_DROP, "Bad fov: %f", fov_x);
+		return 90;
 	}
 
 	x = width / (float)tan(fov_x / 360 * M_PI);

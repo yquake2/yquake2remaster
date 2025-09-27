@@ -197,6 +197,7 @@ R_SubdividePolygon(int numverts, float *verts, msurface_t *warpface)
 	if (numverts > MAX_SUBDIVIDE_VERTS)
 	{
 		Com_Error(ERR_DROP, "%s: numverts = %i", __func__, numverts);
+		return;
 	}
 
 	R_BoundPoly(numverts, verts, mins, maxs);

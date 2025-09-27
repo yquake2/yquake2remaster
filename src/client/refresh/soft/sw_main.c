@@ -1288,6 +1288,7 @@ RE_RenderFrame(refdef_t *fd)
 	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
 		Com_Error(ERR_FATAL, "%s: NULL worldmodel", __func__);
+		return;
 	}
 
 	// Need to rerender whole frame

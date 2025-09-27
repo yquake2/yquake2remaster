@@ -51,11 +51,14 @@ LM_AllocLightmapBuffer(int buffer, qboolean clean)
 	{
 		gl_lms.lightmap_buffer[buffer] = malloc (lightmap_size);
 	}
+
 	if (!gl_lms.lightmap_buffer[buffer])
 	{
 		Com_Error(ERR_FATAL, "%s: Could not allocate lightmap buffer %d\n",
 			__func__, buffer);
+		return;
 	}
+
 	if (clean)
 	{
 		memset (gl_lms.lightmap_buffer[buffer], 0, lightmap_size);
@@ -127,6 +130,7 @@ LM_UploadBlock(qboolean dynamic)
 		{
 			Com_Error(ERR_DROP,
 					"%s: MAX_LIGHTMAPS exceeded\n", __func__);
+			return;
 		}
 	}
 }
@@ -300,6 +304,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 			Com_Error(ERR_FATAL,
 				"%s: Consecutive calls to LM_AllocBlock(%d,%d) failed\n",
 					__func__, smax, tmax);
+			return;
 		}
 	}
 

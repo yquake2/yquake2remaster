@@ -579,6 +579,7 @@ VID_CheckChanges(void)
 			{
 				// Sorry, no usable renderer found.
 				Com_Error(ERR_FATAL, "No usable renderer found!\n");
+				return;
 			}
 		}
 
@@ -613,6 +614,7 @@ VID_Init(void)
 	if (!GLimp_Init())
 	{
 		Com_Error(ERR_FATAL, "Couldn't initialize the graphics subsystem!\n");
+		return;
 	}
 
 	VID_ImageInit();

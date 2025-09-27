@@ -113,12 +113,15 @@ Mod_LoadPlanes(const char *name, cplane_t **planes, int *numplanes,
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has funny lump size",
 				__func__, name);
+		return;
 	}
 
 	count = l->filelen / sizeof(*in);
 	if (count < 1)
 	{
-		Com_Error(ERR_DROP, "%s: Map %s with no planes", __func__, name);
+		Com_Error(ERR_DROP, "%s: Map %s with no planes",
+			__func__, name);
+		return;
 	}
 
 	out = Hunk_Alloc((count + EXTRA_LUMP_PLANES) * sizeof(*out));

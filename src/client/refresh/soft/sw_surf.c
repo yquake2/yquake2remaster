@@ -346,11 +346,13 @@ D_SCAlloc(int width, int size)
 	if ((width < 0) || (width > 256))
 	{
 		Com_Error(ERR_FATAL, "%s: bad cache width %d\n", __func__, width);
+		return NULL;
 	}
 
 	if ((size <= 0) || (size > 0x10000))
 	{
 		Com_Error(ERR_FATAL, "%s: bad cache size %d\n", __func__, size);
+		return NULL;
 	}
 
 	/* Add header size */
@@ -358,7 +360,9 @@ D_SCAlloc(int width, int size)
 	size = (size + 3) & ~3;
 	if (size > sc_size)
 	{
-		Com_Error(ERR_FATAL, "%s: %i > cache size of %i", __func__, size, sc_size);
+		Com_Error(ERR_FATAL, "%s: %i > cache size of %i",
+			__func__, size, sc_size);
+		return NULL;
 	}
 
 	/* if there is not size bytes after the rover, reset to the start */
@@ -382,6 +386,7 @@ D_SCAlloc(int width, int size)
 		if (!sc_rover)
 		{
 			Com_Error(ERR_FATAL, "%s: hit the end of memory", __func__);
+			return NULL;
 		}
 
 		if (sc_rover->owner)

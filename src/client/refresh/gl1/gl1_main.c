@@ -1109,6 +1109,7 @@ R_RenderView(const refdef_t *fd)
 	if (!r_worldmodel && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		Com_Error(ERR_DROP, "%s: NULL worldmodel", __func__);
+		return;
 	}
 
 	if (r_speeds->value)

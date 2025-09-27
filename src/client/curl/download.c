@@ -552,7 +552,8 @@ static void CL_ReVerifyHTTPQueue (void)
  * Processesall finished downloads. React on
  * errors, if there're none process the file.
  */
-static void CL_FinishHTTPDownload(void)
+static void
+CL_FinishHTTPDownload(void)
 {
 	CURL *curl;
 	char tempName[MAX_OSPATH];
@@ -591,6 +592,7 @@ static void CL_FinishHTTPDownload(void)
 		if (i == MAX_HTTP_HANDLES)
 		{
 			Com_Error(ERR_DROP, "CL_FinishHTTPDownload: Handle not found");
+			return;
 		}
 
 		// Some files aren't saved but read
@@ -1032,6 +1034,7 @@ void CL_SetHTTPServer (const char *URL)
 	if (multi)
 	{
 		Com_Error(ERR_DROP, "HTTP download: Still have old handle?!");
+		return;
 	}
 
 	multi = qcurl_multi_init();

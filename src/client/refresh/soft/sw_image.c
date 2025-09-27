@@ -114,6 +114,7 @@ R_FindFreeImage(const char *name)
 		if (numr_images == MAX_TEXTURES)
 		{
 			Com_Error(ERR_DROP, "%s: Max images", __func__);
+			return NULL;
 		}
 
 		numr_images++;
@@ -294,6 +295,7 @@ R_LoadPic8(const char *name, const byte *pic, int width, int realwidth, int heig
 	if (strlen(name) >= sizeof(image->name))
 	{
 		Com_Error(ERR_DROP, "%s: '%s' is too long", __func__, name);
+		return NULL;
 	}
 
 	strcpy (image->name, name);

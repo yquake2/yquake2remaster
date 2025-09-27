@@ -56,12 +56,14 @@ CL_AddMuzzleFlash(void)
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, i, MAX_EDICTS);
+		return;
 	}
 
 	weapon = MSG_ReadByte(&net_message);
 	if (weapon < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
 	}
 
 	silenced = weapon & MZ_SILENCED;
@@ -355,12 +357,14 @@ CL_AddMuzzleFlash2(void)
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, ent, MAX_EDICTS);
+		return;
 	}
 
 	flash_number = MSG_ReadByte(&net_message);
 	if (flash_number < 0)
 	{
 		Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+		return;
 	}
 
 	if (flash_number == 255)
@@ -372,6 +376,7 @@ CL_AddMuzzleFlash2(void)
 		if (flash_add < 0)
 		{
 			Com_Error(ERR_DROP, "%s: unexpected message end", __func__);
+			return;
 		}
 		flash_number += flash_add;
 	}

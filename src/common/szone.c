@@ -52,12 +52,14 @@ SZ_GetSpace(sizebuf_t *buf, int length)
 		{
 			Com_Error(ERR_FATAL, "%s: overflow without allowoverflow set",
 				__func__);
+			return NULL;
 		}
 
 		if (length > buf->maxsize)
 		{
 			Com_Error(ERR_FATAL, "%s: %i is > full buffer size",
 					__func__, length);
+			return NULL;
 		}
 
 		SZ_Clear(buf);

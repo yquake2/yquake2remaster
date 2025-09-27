@@ -453,6 +453,7 @@ SCR_ReadNextFrame(void)
 	if (((size_t)size > sizeof(compressed)) || (size < 1))
 	{
 		Com_Error(ERR_DROP, "Bad compressed frame size");
+		return NULL;
 	}
 
 	FS_Read(compressed, size, cl.cinematic_file);
@@ -617,6 +618,7 @@ SCR_RunCinematic(void)
 		default:
 			/* should be never called */
 			Com_Error(ERR_DROP, "Incorrect media data.");
+			return;
 	}
 
 	if (!cin.pic_pending)

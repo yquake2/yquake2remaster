@@ -924,6 +924,7 @@ S_PickChannel(int entnum, int entchannel)
 	if (entchannel < 0)
 	{
 		Com_Error(ERR_DROP, "%s: entchannel<0", __func__);
+		return NULL;
 	}
 
 	/* Check for replacement sound, or find the best one to replace */
@@ -1868,6 +1869,7 @@ GetEntitySoundOrigin(int ent, const vec3_t listener_org, vec3_t org)
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, ent, MAX_EDICTS);
+		return;
 	}
 
 	if (!GetBSPEntitySoundOrigin(ent, listener_org, org))

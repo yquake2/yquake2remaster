@@ -87,6 +87,7 @@ COM_InitArgv(int argc, char **argv)
 	if (argc > MAX_NUM_ARGVS)
 	{
 		Com_Error(ERR_FATAL, "argc > MAX_NUM_ARGVS");
+		return;
 	}
 
 	com_argc = argc;
@@ -113,7 +114,8 @@ COM_AddParm(char *parm)
 {
 	if (com_argc == MAX_NUM_ARGVS)
 	{
-		Com_Error(ERR_FATAL, "COM_AddParm: MAX_NUM)ARGS");
+		Com_Error(ERR_FATAL, "COM_AddParm: MAX_NUM_ARGS");
+		return;
 	}
 
 	com_argv[com_argc++] = parm;
