@@ -300,6 +300,12 @@ AllocateFrames(md5_model_t *anim)
 
 	anim->st = (vec2_t *)
 		malloc(sizeof(vec2_t) * anim->num_tris * 3);
+	if (!anim->st)
+	{
+		YQ2_COM_CHECK_OOM(anim->st, "malloc()",
+			sizeof(vec2_t) * anim->num_tris * 3)
+		return;
+	}
 
 	for (i = 0; i < anim->num_frames; ++i)
 	{
@@ -308,8 +314,21 @@ AllocateFrames(md5_model_t *anim)
 		/* Allocate memory for joints of each frame */
 		anim->skelFrames[i].skelJoints = (md5_joint_t *)
 			malloc(sizeof(md5_joint_t) * anim->num_joints);
+		if (!anim->skelFrames[i].skelJoints)
+		{
+			YQ2_COM_CHECK_OOM(anim->skelFrames[i].skelJoints, "malloc()",
+				sizeof(md5_joint_t) * anim->num_joints)
+			return;
+		}
+
 		anim->skelFrames[i].vertexArray = (dmdx_vert_t *)
 			malloc(sizeof(dmdx_vert_t) * anim->num_verts);
+		if (!anim->skelFrames[i].vertexArray)
+		{
+			YQ2_COM_CHECK_OOM(anim->skelFrames[i].vertexArray, "malloc()",
+				sizeof(dmdx_vert_t) * anim->num_verts)
+			return;
+		}
 		memcpy(anim->skelFrames[i].skelJoints, anim->baseSkel,
 			sizeof(md5_joint_t) * anim->num_joints);
 	}
@@ -394,6 +413,13 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 
 	/* buffer has not always had final zero */
 	safe_buffer = malloc(size + 1);
+	if (!safe_buffer)
+	{
+		FreeModelMd5Frames(anim);
+		YQ2_COM_CHECK_OOM(safe_buffer, "malloc()", size + 1)
+		return;
+	}
+
 	memcpy(safe_buffer, buffer, size);
 	safe_buffer[size] = 0;
 
@@ -441,6 +467,13 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			{
 				anim->skelFrames = (md5_frame_t *)
 					malloc(sizeof(md5_frame_t) * anim->num_frames);
+				if (!anim->skelFrames)
+				{
+					FreeModelMd5Frames(anim);
+					YQ2_COM_CHECK_OOM(anim->skelFrames, "malloc()",
+						sizeof(md5_frame_t) * anim->num_frames)
+					return;
+				}
 			}
 		}
 		else if (!strcmp(token, "numJoints"))
@@ -463,9 +496,23 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				/* Allocate temporary memory for building skeleton frames */
 				jointInfos = (md5_joint_info_t *)
 					malloc(sizeof(md5_joint_info_t) * anim->num_joints);
+				if (!jointInfos)
+				{
+					FreeModelMd5Frames(anim);
+					YQ2_COM_CHECK_OOM(jointInfos, "malloc()",
+						sizeof(md5_joint_info_t) * anim->num_joints)
+					return;
+				}
 
 				baseFrame = (md5_baseframe_joint_t *)
 					malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
+				if (!baseFrame)
+				{
+					FreeModelMd5Frames(anim);
+					YQ2_COM_CHECK_OOM(baseFrame, "malloc()",
+						sizeof(md5_baseframe_joint_t) * anim->num_joints)
+					return;
+				}
 			}
 		}
 		else if (!strcmp(token, "frameRate"))
@@ -493,6 +540,13 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			{
 				/* Allocate memory for animation frame data */
 				animFrameData = (float *)malloc(sizeof(float) * numAnimatedComponents);
+				if (!animFrameData)
+				{
+					FreeModelMd5Frames(anim);
+					YQ2_COM_CHECK_OOM(animFrameData, "malloc()",
+						sizeof(float) * numAnimatedComponents)
+					return;
+				}
 			}
 		}
 		else if (!strcmp(token, "hierarchy"))
@@ -759,9 +813,22 @@ ReadMD5Model(const char *buffer, size_t size)
 	int curr_mesh = 0;
 
 	md5_model_t *mdl = calloc(1, sizeof(*mdl));
+	if (!mdl)
+	{
+		YQ2_COM_CHECK_OOM(mdl, "malloc()", sizeof(*mdl))
+		return NULL;
+	}
 
 	/* buffer has not always had final zero */
 	safe_buffer = malloc(size + 1);
+	if (!safe_buffer)
+	{
+		FreeModelMd5(mdl);
+		YQ2_COM_CHECK_OOM(safe_buffer, "malloc()", size + 1)
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+
 	memcpy(safe_buffer, buffer, size);
 	safe_buffer[size] = 0;
 
@@ -800,6 +867,16 @@ ReadMD5Model(const char *buffer, size_t size)
 			if (mdl->num_skins > 0)
 			{
 				mdl->skins = malloc(mdl->num_skins * MAX_SKINNAME);
+				if (!mdl->skins)
+				{
+					FreeModelMd5(mdl);
+					free(safe_buffer);
+					YQ2_COM_CHECK_OOM(mdl->skins, "realloc()",
+						mdl->num_skins * MAX_SKINNAME)
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return NULL;
+				}
+
 				memset(mdl->skins, 0, mdl->num_skins * MAX_SKINNAME);
 			}
 		}
@@ -811,6 +888,17 @@ ReadMD5Model(const char *buffer, size_t size)
 			if (mdl->num_framenames > 0)
 			{
 				mdl->framenames = malloc(mdl->num_framenames * 16);
+				YQ2_COM_CHECK_OOM(mdl->framenames, "realloc()",
+					mdl->num_framenames * 16)
+				if (!mdl->framenames)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					FreeModelMd5(mdl);
+					free(safe_buffer);
+
+					return NULL;
+				}
+
 				memset(mdl->framenames, 0, mdl->num_framenames * 16);
 			}
 		}
@@ -982,6 +1070,16 @@ ReadMD5Model(const char *buffer, size_t size)
 						/* Allocate memory for vertices */
 						mesh->vertices = (md5_vertex_t *)
 							malloc(sizeof(md5_vertex_t) * mesh->num_verts);
+						YQ2_COM_CHECK_OOM(mesh->vertices, "realloc()",
+							sizeof(md5_vertex_t) * mesh->num_verts)
+						if (!mesh->vertices)
+						{
+							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+							FreeModelMd5(mdl);
+							free(safe_buffer);
+
+							return NULL;
+						}
 					}
 				}
 				else if (!strcmp(token, "numtris"))
@@ -994,6 +1092,16 @@ ReadMD5Model(const char *buffer, size_t size)
 						/* Allocate memory for triangles */
 						mesh->triangles = (md5_triangle_t *)
 							malloc(sizeof(md5_triangle_t) * mesh->num_tris);
+						YQ2_COM_CHECK_OOM(mesh->triangles, "realloc()",
+							sizeof(md5_triangle_t) * mesh->num_tris)
+						if (!mesh->triangles)
+						{
+							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+							FreeModelMd5(mdl);
+							free(safe_buffer);
+
+							return NULL;
+						}
 					}
 				}
 				else if (!strcmp(token, "numweights"))
@@ -1006,6 +1114,16 @@ ReadMD5Model(const char *buffer, size_t size)
 						/* Allocate memory for vertex weights */
 						mesh->weights = (md5_weight_t *)
 							malloc(sizeof(md5_weight_t) * mesh->num_weights);
+						YQ2_COM_CHECK_OOM(mesh->weights, "realloc()",
+							sizeof(md5_weight_t) * mesh->num_weights)
+						if (!mesh->weights)
+						{
+							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+							FreeModelMd5(mdl);
+							free(safe_buffer);
+
+							return NULL;
+						}
 					}
 				}
 				else if (!strcmp(token, "vert"))
@@ -1342,6 +1460,14 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 
 		size = sizeof(md5_frame_t) * md5file->num_frames;
 		md5file->skelFrames = (md5_frame_t *)malloc(size);
+		if (!md5file->skelFrames)
+		{
+			FreeModelMd5(md5file);
+			YQ2_COM_CHECK_OOM(md5file->skelFrames, "malloc()", size)
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return NULL;
+		}
+
 		memset(md5file->skelFrames, 0, size);
 
 		AllocateFrames(md5file);

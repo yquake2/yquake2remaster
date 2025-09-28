@@ -287,6 +287,14 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 	}
 
 	anim = malloc(actions_num * sizeof(*anim));
+	if (!anim)
+	{
+		FS_FreeFile(base);
+		free(skinnames);
+		free(animations);
+		YQ2_COM_CHECK_OOM(anim, "malloc()", actions_num * sizeof(*anim))
+		return NULL;
+	}
 
 	for (i = 0; i < actions_num; i++)
 	{
@@ -421,6 +429,12 @@ Mod_LoadModel_SDEF(const char *mod_name, const void *buffer, int modfilelen)
 	char *text;
 
 	text = malloc(modfilelen + 1);
+	if (!text)
+	{
+		YQ2_COM_CHECK_OOM(text, "malloc()", modfilelen + 1)
+		return NULL;
+	}
+
 	memcpy(text, buffer, modfilelen);
 	text[modfilelen] = 0;
 	extradata = Mod_LoadModel_SDEF_Text(mod_name, text);

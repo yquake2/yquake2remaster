@@ -102,14 +102,18 @@ Mod_LoadHLMDLSkins(const char *mod_name, dmdx_t *pheader, const hlmdl_header_t *
 
 	size = pheader->skinwidth * pheader->skinheight * 4;
 	img_cache = malloc(size);
-	YQ2_COM_CHECK_OOM(img_cache, "malloc()", size)
+	if (!img_cache)
+	{
+		YQ2_COM_CHECK_OOM(img_cache, "malloc()", size)
+		return;
+	}
 
 	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel->ofs_texture);
 	for (i = 0; i < pinmodel->num_skins; i++)
 	{
 		char *skin;
 		byte *pal, *src;
-		int y, width, height, offset;
+		int y, width, height;
 
 		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
 
@@ -117,7 +121,6 @@ Mod_LoadHLMDLSkins(const char *mod_name, dmdx_t *pheader, const hlmdl_header_t *
 
 		width = LittleLong(in_skins[i].width);
 		height = LittleLong(in_skins[i].height);
-		offset = LittleLong(in_skins[i].offset);
 
 		Com_DPrintf("%s: Skin %s: %dx%d\n",
 			__func__, in_skins[i].name, width, height);

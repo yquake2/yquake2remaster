@@ -341,7 +341,7 @@ ED_CallSpawn(edict_t *ent)
 
 	if (!ent->classname)
 	{
-		gi.dprintf("ED_CallSpawn: NULL classname\n");
+		gi.dprintf("%s: NULL classname\n", __func__);
 		G_FreeEdict(ent);
 		return;
 	}
@@ -2185,12 +2185,15 @@ DynamicSpawnInit(void)
 
 			len_ai -= 4;
 			buf_ai = malloc(len_ai + 1);
-			memcpy(buf_ai, raw + 4, len_ai);
-			for (i = 0; i < len_ai; i++)
+			if (buf_ai)
 			{
-				buf_ai[i] = buf_ai[i] ^ 0x96;
+				memcpy(buf_ai, raw + 4, len_ai);
+				for (i = 0; i < len_ai; i++)
+				{
+					buf_ai[i] = buf_ai[i] ^ 0x96;
+				}
+				buf_ai[len_ai] = 0;
 			}
-			buf_ai[len_ai] = 0;
 		}
 		gi.FreeFile(raw);
 	}
@@ -2200,8 +2203,16 @@ DynamicSpawnInit(void)
 	if (len_ent > 1)
 	{
 		buf_ent = malloc(len_ent + 1);
-		memcpy(buf_ent, raw, len_ent);
-		buf_ent[len_ent] = 0;
+		if (!buf_ent)
+		{
+			gi.dprintf("%s: cant allocate buffer for entities list\n", __func__);
+		}
+		else
+		{
+			memcpy(buf_ent, raw, len_ent);
+			buf_ent[len_ent] = 0;
+		}
+
 		gi.FreeFile(raw);
 	}
 

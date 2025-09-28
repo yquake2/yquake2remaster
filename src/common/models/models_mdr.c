@@ -174,6 +174,11 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 
 	int unframesize = sizeof(mdr_frame_t) + sizeof(mdr_bone_t) * (pinmodel.num_bones - 1);
 	char *frames = malloc(unframesize * pinmodel.num_frames);
+	if (!frames)
+	{
+		YQ2_COM_CHECK_OOM(frames, "malloc()", unframesize * pinmodel.num_frames)
+		return NULL;
+	}
 
 	if (pinmodel.ofs_frames < 0)
 	{
@@ -271,6 +276,13 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 	tris = (dtriangle_t*)((byte *)pheader + pheader->ofs_tris);
 	st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
 	vertx = malloc(pinmodel.num_frames * pheader->num_xyz * sizeof(dmdx_vert_t));
+	if (!vertx)
+	{
+		YQ2_COM_CHECK_OOM(vertx, "malloc()",
+			pinmodel.num_frames * pheader->num_xyz * sizeof(dmdx_vert_t))
+		return NULL;
+	}
+
 	skin = (char *)pheader + pheader->ofs_skins;
 
 	num_xyz = 0;

@@ -432,6 +432,7 @@ NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 		default:
 			Com_Printf("NET_StringToSockaddr: string %s:\nprotocol family %d not supported\n",
 				s, resultp->ai_family);
+			freeaddrinfo(resultp);
 			return false;
 	}
 

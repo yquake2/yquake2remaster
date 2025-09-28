@@ -543,7 +543,12 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 
 			oldindex++;
 
-			if (oldframe && oldindex >= oldframe->num_entities)
+			if (!oldframe)
+			{
+				continue;
+			}
+
+			if (oldindex >= oldframe->num_entities)
 			{
 				oldnum = 99999;
 			}

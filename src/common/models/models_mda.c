@@ -104,6 +104,12 @@ Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_
 
 			linesize = strcspn(*curr_buff, "\n\r");
 			value = malloc(linesize + 1);
+			if (!value)
+			{
+				YQ2_COM_CHECK_OOM(value, "malloc()", linesize + 1)
+				return;
+			}
+
 			memcpy(value, *curr_buff, linesize);
 			value[linesize] = 0;
 			*curr_buff += linesize;
@@ -496,6 +502,12 @@ Mod_LoadModel_MDA(const char *mod_name, const void *buffer, int modfilelen)
 	char *text;
 
 	text = malloc(modfilelen + 1 - 4);
+	if (!text)
+	{
+		YQ2_COM_CHECK_OOM(text, "malloc()", modfilelen + 1 - 4)
+		return NULL;
+	}
+
 	memcpy(text, (char *)buffer + 4, modfilelen - 4);
 	text[modfilelen - 4] = 0;
 

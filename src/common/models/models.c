@@ -309,6 +309,12 @@ Mod_LoadMDXTriangleList(const char *mod_name, dmdx_t *pheader, const dtriangle_t
 	pouttri = (dtriangle_t *) ((byte *)pheader + pheader->ofs_tris);
 	stvert = (dstvert_t *)((byte *)pheader + pheader->ofs_st);
 	mesh_ids = (int *)calloc(pheader->num_xyz, sizeof(int));
+	if (!mesh_ids)
+	{
+		YQ2_COM_CHECK_OOM(mesh_ids, "calloc()", pheader->num_xyz * sizeof(int))
+		return;
+	}
+
 	glcmds_end = glcmds + num_glcmds;
 
 	while (1)
@@ -528,6 +534,11 @@ Mod_LoadFixNormals(dmdx_t *pheader)
 	pouttri = (dtriangle_t *) ((byte *)pheader + pheader->ofs_tris);
 	outframesize = sizeof(daliasxframe_t) + (pheader->num_xyz - 1) * sizeof(dxtrivertx_t);
 	normals = calloc(pheader->num_xyz, sizeof(vec3_t));
+	if (!normals)
+	{
+		YQ2_COM_CHECK_OOM(normals, "calloc()", pheader->num_xyz * sizeof(vec3_t))
+		return;
+	}
 
 	for (i = 0; i < pheader->num_frames; i ++)
 	{

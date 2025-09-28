@@ -1532,8 +1532,9 @@ FS_LoadSIN(const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		Q_strlcpy(files[i].name, info[i].name,
-			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
+		/* files.name: 128, info.name: 120 */
+		memcpy(files[i].name, info[i].name, sizeof(info[i].name));
+		files[i].name[sizeof(info[i].name)] = 0;
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
@@ -1614,8 +1615,9 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		Q_strlcpy(files[i].name, info[i].name,
-			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
+		/* files.name: 128, info.name: 56 */
+		memcpy(files[i].name, info[i].name, sizeof(info[i].name));
+		files[i].name[sizeof(info[i].name)] = 0;
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		files[i].compressed_size = 0;
@@ -1689,8 +1691,9 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	/* Parse the directory. */
 	for (i = 0; i < numFiles; i++)
 	{
-		Q_strlcpy(files[i].name, info[i].name,
-			Q_min(sizeof(files[i].name), sizeof(info[i].name)));
+		/* files.name: 128, info.name: 56 */
+		memcpy(files[i].name, info[i].name, sizeof(info[i].name));
+		files[i].name[sizeof(info[i].name)] = 0;
 		files[i].offset = LittleLong(info[i].filepos);
 		files[i].size = LittleLong(info[i].filelen);
 		if (info[i].is_compressed)

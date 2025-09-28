@@ -130,6 +130,11 @@ DoRespawn(edict_t *ent)
 
 		master = ent->teammaster;
 
+		if (!master)
+		{
+			return;
+		}
+
 		/* in ctf, when we are weapons stay, only the master
 		   of a team of weapons is spawned */
 		if (ctf->value &&

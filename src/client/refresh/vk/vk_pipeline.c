@@ -54,8 +54,20 @@ void QVk_CreatePipeline(const VkDescriptorSetLayout *descriptorLayout,
 	qvkpipeline_t *pipeline, const qvkrenderpass_t *renderpass,
 	const qvkshader_t *shaders, uint32_t shaderCount)
 {
-	VkPipelineShaderStageCreateInfo *ssCreateInfos = (VkPipelineShaderStageCreateInfo *)malloc(shaderCount * sizeof(VkPipelineShaderStageCreateInfo));
-	for (int i = 0; i < shaderCount; i++)
+	VkPipelineShaderStageCreateInfo *ssCreateInfos;
+	size_t i;
+
+	ssCreateInfos = (VkPipelineShaderStageCreateInfo *)
+		malloc(shaderCount * sizeof(VkPipelineShaderStageCreateInfo));
+	YQ2_COM_CHECK_OOM(ssCreateInfos, "malloc()",
+		shaderCount * sizeof(VkPipelineShaderStageCreateInfo))
+	if (!ssCreateInfos)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return;
+	}
+
+	for (i = 0; i < shaderCount; i++)
 	{
 		ssCreateInfos[i] = shaders[i].createInfo;
 	}
