@@ -274,6 +274,11 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 		linesize = Q_max(bytes_per_line, pcx_width + 1) * pcx->color_planes;
 		line = malloc(linesize);
+		YQ2_COM_CHECK_OOM(line, "malloc()", linesize)
+		if (!line)
+		{
+			return;
+		}
 
 		for (y = 0; y <= pcx_height; y++, pix += (pcx_width + 1) * 4)
 		{
@@ -313,6 +318,11 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		}
 
 		line = malloc(bytes_per_line * pcx->color_planes);
+		YQ2_COM_CHECK_OOM(line, "malloc()", bytes_per_line * pcx->color_planes)
+		if (!line)
+		{
+			return;
+		}
 
 		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
 		{
@@ -377,6 +387,12 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 		linesize = Q_max(bytes_per_line, pcx_width + 1);
 		line = malloc(linesize);
+		YQ2_COM_CHECK_OOM(line, "malloc()", linesize)
+		if (!line)
+		{
+			return;
+		}
+
 		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
 		{
 			data = PCX_RLE_Decode(line, line + linesize,
@@ -400,8 +416,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 
 			if (!(*palette))
 			{
-				Com_Printf("%s: Can't allocate for %s\n", __func__, name);
 				free(out);
+				YQ2_COM_CHECK_OOM(*palette, "malloc()", 768)
 				return;
 			}
 
@@ -409,6 +425,12 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		}
 
 		line = malloc(bytes_per_line);
+		if (!line)
+		{
+			free(out);
+			YQ2_COM_CHECK_OOM(line, "malloc()", bytes_per_line)
+			return;
+		}
 
 		for (y = 0; y <= pcx_height; y++, pix += pcx_width + 1)
 		{
@@ -503,18 +525,26 @@ SWL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	}
 
 	*pic = malloc(len - ofs);
-	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", len - ofs)
+	if (*pic)
+	{
+		memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	}
 
 	if (palette)
 	{
-		int i;
-
 		*palette = malloc(768);
-		for (i = 0; i < 256; i ++)
+		YQ2_COM_CHECK_OOM(*palette, "malloc()", 768)
+		if (*palette)
 		{
-			(*palette)[i * 3 + 0] =  mt->palette[i * 4 + 0];
-			(*palette)[i * 3 + 1] =  mt->palette[i * 4 + 1];
-			(*palette)[i * 3 + 2] =  mt->palette[i * 4 + 2];
+			size_t i;
+
+			for (i = 0; i < 256; i ++)
+			{
+				(*palette)[i * 3 + 0] =  mt->palette[i * 4 + 0];
+				(*palette)[i * 3 + 1] =  mt->palette[i * 4 + 1];
+				(*palette)[i * 3 + 2] =  mt->palette[i * 4 + 2];
+			}
 		}
 	}
 }
@@ -555,7 +585,11 @@ M32_Decode(const char *name, const byte *raw, int len, byte **pic, int *width, i
 	}
 
 	*pic = malloc(len - ofs);
-	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", len - ofs)
+	if (*pic)
+	{
+		memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	}
 }
 
 static void
@@ -596,11 +630,20 @@ M8_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palette
 	}
 
 	*pic = malloc(len - ofs);
-	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", len - ofs)
+	if (*pic)
+	{
+		memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	}
+
 	if (palette)
 	{
 		*palette = malloc(768);
-		memcpy(*palette, mt->palette, 768);
+		YQ2_COM_CHECK_OOM(*palette, "malloc()", 768)
+		if (*palette)
+		{
+			memcpy(*palette, mt->palette, 768);
+		}
 	}
 }
 
@@ -631,7 +674,11 @@ LoadWalQ2(const char *name, const byte *raw, int len, byte **pic, byte **palette
 	}
 
 	*pic = malloc(len - ofs);
-	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", len - ofs)
+	if (*pic)
+	{
+		memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	}
 }
 
 static void
@@ -667,12 +714,20 @@ LoadWalDKM(const char *name, const byte *raw, int len, byte **pic, byte **palett
 	}
 
 	*pic = malloc(len - ofs);
-	memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", len - ofs)
+	if (*pic)
+	{
+		memcpy(*pic, (byte *)mt + ofs, len - ofs);
+	}
 
 	if (palette)
 	{
 		*palette = malloc(768);
-		memcpy(*palette, mt->palette, 768);
+		YQ2_COM_CHECK_OOM(*palette, "malloc()", 768)
+		if (*palette)
+		{
+			memcpy(*palette, mt->palette, 768);
+		}
 	}
 }
 
@@ -712,7 +767,11 @@ LMP_Decode(const char *name, const byte *raw, int len, byte **pic,
 	}
 
 	*pic = malloc(lmp_size);
-	memcpy(*pic, raw + sizeof(int) * 2, lmp_size);
+	YQ2_COM_CHECK_OOM(*pic, "malloc()", sizeof(lmp_size))
+	if (*pic)
+	{
+		memcpy(*pic, raw + sizeof(int) * 2, lmp_size);
+	}
 
 	if (width)
 	{
@@ -743,8 +802,12 @@ Mod_LoadQuakePalette(byte **palette)
 	if (len == 768)
 	{
 		*palette = malloc(len);
-		memcpy(*palette, raw, len);
-		Com_DPrintf("%s: Loaded custom palette\n", __func__);
+		YQ2_COM_CHECK_OOM(*palette, "malloc()", sizeof(len))
+		if (*palette)
+		{
+			memcpy(*palette, raw, len);
+			Com_DPrintf("%s: Loaded custom palette\n", __func__);
+		}
 	}
 	else
 	{

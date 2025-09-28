@@ -77,6 +77,11 @@ Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	/* list of skins */
 	*numskins = pinmodel.num_skins;
 	*skins = malloc(pinmodel.num_skins * MAX_SKINNAME);
+	if (!*skins)
+	{
+		YQ2_COM_CHECK_OOM(*skins, "malloc()", pinmodel.num_skins * MAX_SKINNAME)
+		return;
+	}
 
 	memcpy(*skins, (char *)buffer + pinmodel.ofs_skins,
 		pinmodel.num_skins * MAX_SKINNAME);
@@ -84,6 +89,11 @@ Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
 	/* list of frames */
 	*numframes = pinmodel.num_frames;
 	*frames = malloc(pinmodel.num_frames * 16);
+	if (!*frames)
+	{
+		YQ2_COM_CHECK_OOM(*frames, "malloc()", pinmodel.num_frames * 16)
+		return;
+	}
 
 	for (i = 0; i < pinmodel.num_frames; i++)
 	{
@@ -182,6 +192,13 @@ Mod_LoadFileMD5Merge(const char *namewe, void **buffer)
 		 */
 		skins_list = malloc((numskins + 1) * (MAX_SKINNAME + 20) +
 			(numframes + 1) * (16 + 25));
+		if (!skins_list)
+		{
+			YQ2_COM_CHECK_OOM(skins_list, "malloc()",
+				(numskins + 1) * (MAX_SKINNAME + 20) + (numframes + 1) * (16 + 25))
+			return 0;
+		}
+
 		sprintf(skins_list, "\nnumSkins %d\n", numskins);
 		for(i = 0; i < numskins; i++)
 		{
