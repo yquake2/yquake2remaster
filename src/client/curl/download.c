@@ -591,7 +591,7 @@ CL_FinishHTTPDownload(void)
 
 		if (i == MAX_HTTP_HANDLES)
 		{
-			Com_Error(ERR_DROP, "CL_FinishHTTPDownload: Handle not found");
+			Com_Error(ERR_DROP, "%s: Handle not found", __func__);
 			return;
 		}
 
@@ -1033,7 +1033,7 @@ void CL_SetHTTPServer (const char *URL)
 	// Initializes a new multihandle.
 	if (multi)
 	{
-		Com_Error(ERR_DROP, "HTTP download: Still have old handle?!");
+		Com_Error(ERR_DROP, "%s: Still have old handle?!", __func__);
 		return;
 	}
 

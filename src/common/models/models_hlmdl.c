@@ -62,24 +62,95 @@ Mod_LoadHLMDLAnimGroupList(dmdx_t *pheader, const hlmdl_sequence_t *sequences, i
 }
 
 static void
+Mod_LoadHLMDLSkinsSize(const hlmdl_header_t *pinmodel, const byte *buffer,
+	int *w, int *h)
+{
+	hlmdl_texture_t *in_skins;
+	size_t i;
+
+	*w = 8;
+	*h = 8;
+
+	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel->ofs_texture);
+	for (i = 0; i < pinmodel->num_skins; i++)
+	{
+		size_t width, height;
+
+		width = LittleLong(in_skins[i].width);
+		height = LittleLong(in_skins[i].height);
+
+		if (*w < width)
+		{
+			*w = width;
+		}
+
+		if (*h < height)
+		{
+			*h = height;
+		}
+	}
+}
+
+static void
 Mod_LoadHLMDLSkins(const char *mod_name, dmdx_t *pheader, const hlmdl_header_t *pinmodel,
 	const byte *buffer)
 {
 	hlmdl_texture_t *in_skins;
+	size_t size;
 	int i;
+	byte *img_cache;
+
+	size = pheader->skinwidth * pheader->skinheight * 4;
+	img_cache = malloc(size);
+	YQ2_COM_CHECK_OOM(img_cache, "malloc()", size)
 
 	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel->ofs_texture);
 	for (i = 0; i < pinmodel->num_skins; i++)
 	{
 		char *skin;
+		byte *pal, *src;
+		int y, width, height, offset;
 
 		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
 
 		snprintf(skin, MAX_SKINNAME, "%s#%d.lmp", mod_name, i);
 
-		Com_Printf("%s: Skin %s: %d %dx%d\n",
-			__func__, in_skins[i].name, in_skins[i].offset, in_skins[i].width, in_skins[i].height);
+		width = LittleLong(in_skins[i].width);
+		height = LittleLong(in_skins[i].height);
+		offset = LittleLong(in_skins[i].offset);
+
+		Com_DPrintf("%s: Skin %s: %dx%d\n",
+			__func__, in_skins[i].name, width, height);
+
+		src = (byte *)buffer + in_skins[i].offset;
+		pal = src + width * height;
+
+		for (y = 0; y < pheader->skinheight; y++)
+		{
+			size_t x;
+
+			for (x = 0; x < pheader->skinwidth; x++)
+			{
+				byte *dst, val;
+
+				dst = img_cache + (y * pheader->skinwidth + x) * 4;
+				val = src[
+					(x * width / pheader->skinwidth) +
+					(y * height / pheader->skinheight) * width
+				];
+
+				dst[0] = pal[val * 3 + 0];
+				dst[1] = pal[val * 3 + 1];
+				dst[2] = pal[val * 3 + 2];
+				dst[3] = 255;
+			}
+		}
+
+		/* copy image */
+		memcpy((byte*)pheader + pheader->ofs_imgbit + (size * i), img_cache, size);
 	}
+
+	free(img_cache);
 }
 
 /*
@@ -97,7 +168,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	void *extradata;
 	const hlmdl_sequence_t *sequences;
 	size_t i, framesize;
-	int total_frames;
+	int total_frames, skinw, skinh;
 	hlmdl_bodypart_t *bodyparts;
 	dstvert_t *st_tmp = NULL;
 	dtriangle_t *tri_tmp = NULL;
@@ -145,6 +216,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		Com_Printf("%s: %s: Seqgroup  %s: %s\n",
 			__func__, mod_name, seqgroups[i].label, seqgroups[i].name);
 	}
+
+	Mod_LoadHLMDLSkinsSize(&pinmodel, buffer, &skinw, &skinh);
 
 	bodyparts = (hlmdl_bodypart_t *)((byte *)buffer + pinmodel.ofs_bodyparts);
 	mesh_tmp = calloc(pinmodel.num_bodyparts, sizeof(*mesh_tmp));
@@ -201,6 +274,12 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					}
 
 					verts = malloc(count * sizeof(*verts));
+					YQ2_COM_CHECK_OOM(verts, "malloc()", count * sizeof(*verts))
+					if (!verts)
+					{
+						/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+						break;
+					}
 
 					if (!st_tmp || (num_st + count) >= st_size)
 					{
@@ -238,8 +317,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 					for (g = 0; g < count; g++, trivert += 4)
 					{
-						st_tmp[num_st].s = trivert[2] * 256;
-						st_tmp[num_st].t = trivert[3] * 256;
+						st_tmp[num_st].s = trivert[2]; // sizew
+						st_tmp[num_st].t = trivert[3]; // sizeh
 						num_st++;
 
 						verts[g] = trivert[0];
@@ -366,8 +445,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 	/* copy back all values */
 	memset(&dmdxheader, 0, sizeof(dmdxheader));
-	dmdxheader.skinwidth = 256;
-	dmdxheader.skinheight = 256;
+	dmdxheader.skinwidth = skinw;
+	dmdxheader.skinheight = skinh;
 	dmdxheader.framesize = framesize;
 
 	dmdxheader.num_meshes = pinmodel.num_bodyparts;
@@ -377,7 +456,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = num_tris;
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * num_tris) + 1 * pinmodel.num_bodyparts;
-	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_imgbit = 32;
 	dmdxheader.num_frames = total_frames;
 	dmdxheader.num_animgroup = pinmodel.num_seq;
 

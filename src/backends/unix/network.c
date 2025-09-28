@@ -629,7 +629,7 @@ NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
 			break;
 
 		default:
-			Com_Error(ERR_FATAL, "NET_SendPacket: bad address type");
+			Com_Error(ERR_FATAL, "%s: bad address type", __func__);
 			return;
 	}
 

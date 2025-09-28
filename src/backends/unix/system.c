@@ -416,7 +416,7 @@ Sys_GetGameAPI(void *parms)
 
 	if (game_library)
 	{
-		Com_Error(ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
+		Com_Error(ERR_FATAL, "%s without Sys_UnloadingGame", __func__);
 		return NULL;
 	}
 

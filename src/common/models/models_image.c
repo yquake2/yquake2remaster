@@ -442,8 +442,8 @@ Mod_LoadMDLImage(const char *mod_name, int texture_index, byte *raw, int len,
 	*height = pheader->skinheight;
 	*bitsPerPixel = pheader->num_imgbit;
 
-	Com_DPrintf("%s Loaded embeded %s image %dx%d\n",
-		__func__, mod_name, *width, *height);
+	Com_DPrintf("%s Loaded embeded %s image %dx%d@%d\n",
+		__func__, mod_name, *width, *height, *bitsPerPixel);
 
 	return pic;
 }

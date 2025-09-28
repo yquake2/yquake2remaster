@@ -1487,7 +1487,7 @@ GL4_RenderView(refdef_t *fd)
 
 	if (!gl4_worldmodel && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		Com_Error(ERR_DROP, "R_RenderView: NULL worldmodel");
+		Com_Error(ERR_DROP, "%s: NULL worldmodel", __func__);
 		return;
 	}
 
