@@ -866,13 +866,16 @@ ReadMD5Model(const char *buffer, size_t size)
 
 			if (mdl->num_skins > 0)
 			{
-				mdl->skins = malloc(mdl->num_skins * MAX_SKINNAME);
+				int size;
+
+				size = mdl->num_skins * MAX_SKINNAME;
+				mdl->skins = malloc(size);
 				if (!mdl->skins)
 				{
 					FreeModelMd5(mdl);
 					free(safe_buffer);
-					YQ2_COM_CHECK_OOM(mdl->skins, "realloc()",
-						mdl->num_skins * MAX_SKINNAME)
+					Com_Error(ERR_FATAL, "%s: can't allocate %d bytes\n",
+						__func__, size);
 					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					return NULL;
 				}
@@ -887,15 +890,17 @@ ReadMD5Model(const char *buffer, size_t size)
 
 			if (mdl->num_framenames > 0)
 			{
-				mdl->framenames = malloc(mdl->num_framenames * 16);
-				YQ2_COM_CHECK_OOM(mdl->framenames, "realloc()",
-					mdl->num_framenames * 16)
+				int size;
+
+				size = mdl->num_framenames * 16;
+				mdl->framenames = malloc(size);
 				if (!mdl->framenames)
 				{
 					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					FreeModelMd5(mdl);
 					free(safe_buffer);
-
+					Com_Error(ERR_FATAL, "%s: can't allocate %d bytes\n",
+						__func__, size);
 					return NULL;
 				}
 
@@ -912,6 +917,14 @@ ReadMD5Model(const char *buffer, size_t size)
 				/* Allocate memory for base skeleton joints */
 				mdl->baseSkel = (md5_joint_t *)
 					calloc (mdl->num_joints, sizeof(md5_joint_t));
+				if (!mdl->baseSkel)
+				{
+					FreeModelMd5(mdl);
+					free(safe_buffer);
+					Com_Error(ERR_FATAL, "%s: can't allocate memory\n", __func__);
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return NULL;
+				}
 			}
 		}
 		else if (!strcmp(token, "numMeshes"))
@@ -923,7 +936,15 @@ ReadMD5Model(const char *buffer, size_t size)
 			{
 				/* Allocate memory for meshes */
 				mdl->meshes = (md5_mesh_t *)
-					calloc (mdl->num_meshes, sizeof(md5_mesh_t));
+					calloc(mdl->num_meshes, sizeof(md5_mesh_t));
+				if (!mdl->meshes)
+				{
+					FreeModelMd5(mdl);
+					free(safe_buffer);
+					Com_Error(ERR_FATAL, "%s: can't allocate memory\n", __func__);
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return NULL;
+				}
 			}
 		}
 		else if (!strcmp(token, "skin"))
@@ -1463,7 +1484,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 		if (!md5file->skelFrames)
 		{
 			FreeModelMd5(md5file);
-			YQ2_COM_CHECK_OOM(md5file->skelFrames, "malloc()", size)
+			Com_Error(ERR_FATAL, "%s: can't allocate\n", __func__);
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 			return NULL;
 		}

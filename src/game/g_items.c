@@ -130,11 +130,6 @@ DoRespawn(edict_t *ent)
 
 		master = ent->teammaster;
 
-		if (!master)
-		{
-			return;
-		}
-
 		/* in ctf, when we are weapons stay, only the master
 		   of a team of weapons is spawned */
 		if (ctf->value &&
@@ -172,6 +167,11 @@ DoRespawn(edict_t *ent)
 			G_FreeEdict(ent);
 			ent = newEnt;
 		}
+	}
+
+	if (!ent)
+	{
+		return;
 	}
 
 	ent->svflags &= ~SVF_NOCLIENT;
