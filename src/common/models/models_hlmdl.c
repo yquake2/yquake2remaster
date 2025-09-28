@@ -61,6 +61,27 @@ Mod_LoadHLMDLAnimGroupList(dmdx_t *pheader, const hlmdl_sequence_t *sequences, i
 	}
 }
 
+static void
+Mod_LoadHLMDLSkins(const char *mod_name, dmdx_t *pheader, const hlmdl_header_t *pinmodel,
+	const byte *buffer)
+{
+	hlmdl_texture_t *in_skins;
+	int i;
+
+	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel->ofs_texture);
+	for (i = 0; i < pinmodel->num_skins; i++)
+	{
+		char *skin;
+
+		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
+
+		snprintf(skin, MAX_SKINNAME, "%s#%d.lmp", mod_name, i);
+
+		Com_Printf("%s: Skin %s: %d %dx%d\n",
+			__func__, in_skins[i].name, in_skins[i].offset, in_skins[i].width, in_skins[i].height);
+	}
+}
+
 /*
 =================
 Mod_LoadModel_HLMDL
@@ -72,7 +93,6 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	const hlmdl_header_t pinmodel;
 	hlmdl_framegroup_t *seqgroups;
 	dmdx_t dmdxheader, *pheader;
-	hlmdl_texture_t *in_skins;
 	dmdxmesh_t *mesh_nodes, *mesh_tmp;
 	void *extradata;
 	const hlmdl_sequence_t *sequences;
@@ -400,19 +420,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	free(out_vert);
 	free(out_boneids);
 
-	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel.ofs_texture);
-	for (i = 0; i < pinmodel.num_skins; i++)
-	{
-		char *skin;
-
-		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
-
-		Q_strlcpy(skin, in_skins[i].name, MAX_SKINNAME);
-
-		Com_Printf("%s: Skin %s: %d %dx%d\n",
-			__func__, in_skins[i].name, in_skins[i].offset, in_skins[i].width, in_skins[i].height);
-	}
-
+	Mod_LoadHLMDLSkins(mod_name, pheader, &pinmodel, buffer);
 	Mod_LoadHLMDLAnimGroupList(pheader, sequences, pinmodel.num_seq);
 	Mod_LoadFixNormals(pheader);
 	Mod_LoadCmdGenerate(pheader);

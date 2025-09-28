@@ -423,6 +423,13 @@ Mod_LoadMDLImage(const char *mod_name, int texture_index, byte *raw, int len,
 		return NULL;
 	}
 
+	if (!pheader->num_imgbit)
+	{
+		Com_Printf("%s: Map %s has no embeded textures\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
 	size = (pheader->skinheight * pheader->skinwidth * pheader->num_imgbit / 8);
 
 	images = (byte *)pheader + pheader->ofs_imgbit;
