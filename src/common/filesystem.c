@@ -892,6 +892,13 @@ FS_FRead(void *buffer, int size, int count, fileHandle_t f)
 	{
 		/* compressed chunk bigger than provided buffer */
 		compressed_buf = malloc(handle->compressed_size);
+		if (!compressed_buf)
+		{
+			Com_Error(ERR_DROP, "%s: can't allocate compressed buffer\n",
+			__func__);
+			return 0;
+		}
+
 		buf = compressed_buf;
 	}
 
@@ -1136,6 +1143,7 @@ FS_LoadWAD(const char *packPath)
 	info = malloc(header.dirlen);
 	if (!info)
 	{
+		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header.dirlen);
 		return NULL;
@@ -1372,6 +1380,7 @@ FS_LoadDAT(const char *packPath)
 	info = malloc(header.dirlen);
 	if (!info)
 	{
+		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header.dirlen);
 		return NULL;
@@ -1506,6 +1515,7 @@ FS_LoadSIN(const char *packPath)
 	info = malloc(header.dirlen);
 	if (!info)
 	{
+		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header.dirlen);
 		return NULL;
@@ -1665,6 +1675,7 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	info = malloc(header->dirlen);
 	if (!info)
 	{
+		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is to big for read %d",
 				__func__, packPath, header->dirlen);
 		return NULL;
@@ -2367,6 +2378,12 @@ FS_ListMods(int *nummods)
 	char **dirchildren, **packsinchilddir, **modnames;
 
 	modnames = malloc((MAX_QPATH + 1) * (MAX_MODS + 1));
+	if (!modnames)
+	{
+		YQ2_COM_CHECK_OOM(modnames, "malloc()", (MAX_QPATH + 1) * (MAX_MODS + 1))
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
 	memset(modnames, 0, (MAX_QPATH + 1) * (MAX_MODS + 1));
 
 	// iterate over all Raw paths
@@ -2434,6 +2451,11 @@ FS_ListMods(int *nummods)
 						if (!matchfound)
 						{
 							modnames[nmods] = malloc(strlen(modname) + 1);
+							if (!modnames[nmods])
+							{
+								break;
+							}
+
 							strcpy(modnames[nmods], modname);
 
 							nmods++;
