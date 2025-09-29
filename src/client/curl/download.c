@@ -931,7 +931,6 @@ void CL_HTTP_Cleanup(qboolean fullShutdown)
 		if (last)
 		{
 			free(last);
-			last = NULL;
 		}
 
 		last = q;
