@@ -1414,7 +1414,7 @@ SCR_ExecuteLayoutString(char *s)
 			continue;
 		}
 
-		if (!strcmp(token, "endif") || (token && !token[0]))
+		if (!strcmp(token, "endif") || !token[0])
 		{
 			/* just skip endif and empty line */
 			continue;
@@ -1585,7 +1585,7 @@ SCR_Framecounter(void)
 		if (cl_showfps->value > 2)
 		{
 			snprintf(str, sizeof(str), "Max: %5.2fms, Min: %5.2fms, Avg: %5.2fms",
-			         0.001f*min, 0.001f*max, 0.001f*(avg / num));
+			         0.001f * min, 0.001f * max, 0.001f * ((float)avg / num));
 			Draw_StringScaled(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), scale * 10, scale, false, str);
 			SCR_AddDirtyPoint(viddef.width - scale * (strlen(str) * CHAR_SIZE + 2), scale * 10);
 			SCR_AddDirtyPoint(viddef.width, scale + 10);

@@ -517,7 +517,7 @@ R_ReallocateMapBuffers (void)
 
 		surfaces = lsurfs;
 		// set limits
-		surf_max = &surfaces[r_cnumsurfs];
+		surf_max = surfaces + r_cnumsurfs;
 		// surface 0 doesn't really exist; it's just a dummy because index 0
 		// is used to indicate no edge attached to surface
 		surfaces--;
@@ -552,8 +552,8 @@ R_ReallocateMapBuffers (void)
 		}
 
 		// set limits
-		blocklight_max = &blocklights[r_numallocatedlights];
-		bblocklight_max = &bblocklights[r_numallocatedlights];
+		blocklight_max = blocklights + r_numallocatedlights;
+		bblocklight_max = bblocklights + r_numallocatedlights;
 
 		Com_DPrintf("Allocated %d lights.\n", r_numallocatedlights);
 	}
@@ -582,7 +582,7 @@ R_ReallocateMapBuffers (void)
 		}
 
 		// set limits
-		edge_max = &r_edges[r_numallocatededges];
+		edge_max = r_edges + r_numallocatededges;
 		edge_p = r_edges;
 
 		Com_DPrintf("Allocated %d edges.\n", r_numallocatededges);
@@ -611,7 +611,7 @@ R_ReallocateMapBuffers (void)
 				 __func__, (int)(r_numallocatedverts * sizeof(finalvert_t)));
 			return;
 		}
-		finalverts_max = &finalverts[r_numallocatedverts];
+		finalverts_max = finalverts + r_numallocatedverts;
 
 		Com_DPrintf("Allocated %d verts.\n", r_numallocatedverts);
 	}
@@ -642,7 +642,7 @@ R_ReallocateMapBuffers (void)
 				 __func__, (int)(r_numallocatedtriangles * sizeof(spanpackage_t)));
 			return;
 		}
-		triangles_max = &triangle_spans[r_numallocatedtriangles];
+		triangles_max = triangle_spans + r_numallocatedtriangles;
 
 		Com_DPrintf("Allocated %d triangle spans.\n", r_numallocatedtriangles);
 	}
@@ -671,7 +671,7 @@ R_ReallocateMapBuffers (void)
 				 __func__, (int)(r_numallocatededgebasespans * sizeof(espan_t)));
 			return;
 		}
-		max_span_p = &edge_basespans[r_numallocatededgebasespans];
+		max_span_p = edge_basespans + r_numallocatededgebasespans;
 
 		Com_DPrintf("Allocated %d edgespans.\n", r_numallocatededgebasespans);
 	}

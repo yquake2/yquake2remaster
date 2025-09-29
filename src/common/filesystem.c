@@ -1430,8 +1430,7 @@ FS_LoadDAT(const char *packPath)
 		/* name */
 		memcpy(files[i].name, prefix, prefix_size);
 		files[i].name[prefix_size] = '/';
-		name_len = strlen(info[i].name);
-		name_len = Q_min(name_len, sizeof(files[i].name) - prefix_size - 2);
+		name_len = Q_min(sizeof(info[i].name), sizeof(files[i].name) - prefix_size - 2);
 		memcpy(files[i].name + prefix_size + 1, info[i].name, name_len);
 		files[i].name[prefix_size + name_len + 1] = 0;
 
@@ -2329,14 +2328,17 @@ FS_FreeList(char **list, int nfiles)
 {
 	int i;
 
+	if (!list)
+	{
+		return;
+	}
+
 	for (i = 0; i < nfiles - 1; i++)
 	{
 		free(list[i]);
-		list[i] = 0;
 	}
 
 	free(list);
-	list = 0;
 }
 
 /*

@@ -349,7 +349,7 @@ Sys_FindFirst(const char *path, unsigned musthave, unsigned canhave)
 	{
 		if (!*findpattern || glob_match(findpattern, d->d_name))
 		{
-			if ((strcmp(d->d_name, ".") != 0) || (strcmp(d->d_name, "..") != 0))
+			if ((strcmp(d->d_name, ".") != 0) && (strcmp(d->d_name, "..") != 0))
 			{
 				snprintf(findpath, sizeof(findpath), "%s/%s", findbase, d->d_name);
 				return findpath;
