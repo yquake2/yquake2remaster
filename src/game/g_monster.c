@@ -796,6 +796,30 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 	}
 }
 
+static void
+M_FixStuckMonster(edict_t *self)
+{
+	trace_t tr;
+
+	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
+	if (!tr.startsolid)
+	{
+		return;
+	}
+
+	FixEntityPosition(self);
+
+	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
+
+	if (tr.startsolid)
+	{
+		gi.dprintf("%s: %s stuck in solid at %s\n",
+				__func__,
+				self->classname,
+				vtos(self->s.origin));
+	}
+}
+
 void
 M_SetAnimGroupFrame(edict_t *self, const char *name)
 {
@@ -813,6 +837,7 @@ M_SetAnimGroupFrame(edict_t *self, const char *name)
 	self->s.frame = ofs_frames + i % num_frames;
 	gi.GetModelFrameInfo(self->s.modelindex, self->s.frame,
 		self->mins, self->maxs);
+	M_FixStuckMonster(self);
 }
 
 static void
@@ -1091,30 +1116,6 @@ monster_death_use(edict_t *self)
 }
 
 /* ================================================================== */
-
-static void
-M_FixStuckMonster(edict_t *self)
-{
-	trace_t tr;
-
-	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
-	if (!tr.startsolid)
-	{
-		return;
-	}
-
-	FixEntityPosition(self);
-
-	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
-
-	if (tr.startsolid)
-	{
-		gi.dprintf("%s: %s startsolid at %s\n",
-				__func__,
-				self->classname,
-				vtos(self->s.origin));
-	}
-}
 
 static qboolean
 monster_start(edict_t *self)

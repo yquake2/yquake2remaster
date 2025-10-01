@@ -1927,19 +1927,21 @@ FixEntityPosition(edict_t *ent)
 
 		for (j = 0; j < 3; j++)
 		{
-			vec3_t pos;
+			vec3_t pos, diff;
 			trace_t tr_pos;
 			int k;
 
 			VectorCopy(ent->s.origin, pos);
 
-			/* move by min */
+			VectorSubtract(ent->maxs, ent->mins, diff);
+
+			/* move by up */
 			for (k = 0; k < i + 1; k++)
 			{
 				int v;
 
 				v = (j + k) % 3;
-				pos[v] = ent->s.origin[v] - ent->mins[v];
+				pos[v] = ent->s.origin[v] + diff[v];
 			}
 
 			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
@@ -1949,13 +1951,13 @@ FixEntityPosition(edict_t *ent)
 				return;
 			}
 
-			/* move by max */
+			/* move by down */
 			for (k = 0; k < i + 1; k++)
 			{
 				int v;
 
 				v = (j + k) % 3;
-				pos[v] = ent->s.origin[v] - ent->maxs[v];
+				pos[v] = ent->s.origin[v] - diff[v];
 			}
 
 			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
