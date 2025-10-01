@@ -68,6 +68,8 @@ extern void SP_info_player_start(edict_t * self);
 extern void SP_info_teleport_destination(edict_t * self);
 extern void SP_item_foodcube(edict_t * self);
 extern void SP_item_health(edict_t * self);
+extern void SP_item_health_half(edict_t * self);
+extern void SP_item_health_full(edict_t * self);
 extern void SP_item_health_large(edict_t * self);
 extern void SP_item_health_mega(edict_t * self);
 extern void SP_item_health_small(edict_t * self);

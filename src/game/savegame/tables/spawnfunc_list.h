@@ -70,6 +70,8 @@
 {"info_player_team2", SP_info_player_team2},
 {"info_teleport_destination", SP_info_teleport_destination},
 {"item_health", SP_item_health},
+{"item_health_half", SP_item_health_half},
+{"item_health_full", SP_item_health_full},
 {"item_health_large", SP_item_health_large},
 {"item_health_mega", SP_item_health_mega},
 {"item_health_small", SP_item_health_small},
