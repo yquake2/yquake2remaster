@@ -175,9 +175,13 @@ void
 R_DrawSkyBox(void)
 {
 	VkDeviceSize dstOffset;
+	mvtx_t skyVerts[4] = {0};
+	float model[16] = {0};
+	uint32_t uboOffset;
+	uint8_t *uboData;
 	VkBuffer *buffer;
 	qboolean farsee;
-	int i;
+	unsigned i;
 
 	farsee = (r_farsee->value == 0);
 
@@ -198,18 +202,14 @@ R_DrawSkyBox(void)
 		}
 	}
 
-	float model[16];
 	Mat_Identity(model);
 	Mat_Rotate(model, (skyautorotate ? r_newrefdef.time : 1.f) * skyrotate,
 		skyaxis[0], skyaxis[1], skyaxis[2]);
 	Mat_Translate(model, r_origin[0], r_origin[1], r_origin[2]);
 
-	mvtx_t skyVerts[4];
-
 	QVk_BindPipeline(&vk_drawSkyboxPipeline);
-	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(model), &uboOffset, &uboDescriptorSet);
+	uboData = QVk_GetUniformBuffer(sizeof(model), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, model, sizeof(model));
 
 	Mesh_VertsRealloc(6);
@@ -218,6 +218,9 @@ R_DrawSkyBox(void)
 
 	for (i = 0; i < 6; i++)
 	{
+		uint8_t *vertData;
+		float gamma;
+
 		if (skyrotate)
 		{
 			skymins[0][i] = -1;
@@ -243,7 +246,7 @@ R_DrawSkyBox(void)
 
 		VkBuffer vbo;
 		VkDeviceSize vboOffset;
-		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * 4, &vbo, &vboOffset);
+		vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * 4, &vbo, &vboOffset);
 		memcpy(vertData, skyVerts, sizeof(mvtx_t) * 4);
 
 		VkDescriptorSet descriptorSets[] = {
@@ -251,7 +254,7 @@ R_DrawSkyBox(void)
 			uboDescriptorSet
 		};
 
-		float gamma = 2.1F - vid_gamma->value;
+		gamma = 2.1F - vid_gamma->value;
 
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
 			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
@@ -268,8 +271,8 @@ R_DrawSkyBox(void)
 void
 RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 {
-	char	skyname[MAX_QPATH];
-	int		i;
+	char skyname[MAX_QPATH];
+	unsigned i;
 
 	Q_strlcpy(skyname, name, sizeof(skyname));
 	skyrotate = rotate;

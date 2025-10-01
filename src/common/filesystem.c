@@ -168,7 +168,7 @@ static voidpf ZCALLBACK fopen_file_func_utf(voidpf opaque, const char *filename,
 {
 	FILE* file = NULL;
 	WCHAR *mode_fopen = NULL;
-	WCHAR wfilename[MAX_OSPATH];
+	WCHAR wfilename[MAX_OSPATH * 2];
 
 	if ((mode & ZLIB_FILEFUNC_MODE_READWRITEFILTER) == ZLIB_FILEFUNC_MODE_READ)
 	{
@@ -185,7 +185,8 @@ static voidpf ZCALLBACK fopen_file_func_utf(voidpf opaque, const char *filename,
 
 	if (!((filename == NULL) || (mode_fopen == NULL)))
 	{
-		MultiByteToWideChar(CP_UTF8, 0, filename, -1, wfilename, sizeof(wfilename));
+		MultiByteToWideChar(CP_UTF8, 0, filename, -1, wfilename,
+			sizeof(wfilename) / sizeof(*wfilename));
 		file = _wfopen((const wchar_t *) wfilename, mode_fopen);
 	}
 

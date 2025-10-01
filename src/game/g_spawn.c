@@ -2273,6 +2273,15 @@ DynamicSpawnInit(void)
 	if (ndynamicentities)
 	{
 		dynamicentities = malloc(ndynamicentities * sizeof(*dynamicentities));
+		if (!dynamicentities)
+		{
+			ndynamicentities = 0;
+			free(buf_ent);
+			free(buf_ai);
+			gi.error("%s: Can't allocate memory for dynamicentities\n");
+			return;
+		}
+
 		memset(dynamicentities, 0, ndynamicentities * sizeof(*dynamicentities));
 	}
 	curr_pos = 0;

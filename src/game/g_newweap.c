@@ -1416,7 +1416,7 @@ fire_beams(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
 			}
 			else
 			{
-				if ((!water) && (strncmp(tr.surface->name, "sky", 3)))
+				if ((!water) && (tr.surface && strncmp(tr.surface->name, "sky", 3)))
 				{
 					/* This is the truncated steam entry - uses 1+1+2 extra bytes of data */
 					gi.WriteByte(svc_temp_entity);

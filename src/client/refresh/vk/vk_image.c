@@ -1033,7 +1033,7 @@ Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 		upload_width, upload_height);
 
 	// Only free if *texBuffer isn't the image data we sent
-	if (!texBuffer || *texBuffer != (byte *)trans)
+	if (*texBuffer != (byte *)trans)
 	{
 		free(trans);
 	}
