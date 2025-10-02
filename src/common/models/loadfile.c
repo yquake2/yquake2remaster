@@ -486,7 +486,9 @@ static const replacement_t replacements[] = {
 	{"models/vault/monsters/tank/tris", "models/monsters/tank/tris"},
 	{"models/vault/monsters/mutant/tris", "models/monsters/mutant/tris"},
 	{"models/vault/monsters/flyer/tris", "models/monsters/flyer/tris"},
-	{"models/vault/monsters/float/tris", "models/monsters/float/tris"}
+	{"models/vault/monsters/float/tris", "models/monsters/float/tris"},
+	/* DoD vs Daikatana */
+	{"models/weapons/ammo/g_bolt", "models/e3/wa_bolt"},
 };
 
 const model_t *
@@ -772,6 +774,13 @@ Mod_LoadFile(const char *name, void **buffer)
 	const char* ext;
 	size_t len;
 
+	if (!buffer)
+	{
+		return -1;
+	}
+
+	*buffer = NULL;
+
 	if (!name)
 	{
 		return -1;
@@ -783,8 +792,6 @@ Mod_LoadFile(const char *name, void **buffer)
 		/* file has no extension */
 		return -1;
 	}
-
-	*buffer = NULL;
 
 	if (!strcmp(ext, "fm") ||
 		!strcmp(ext, "ctc") ||
