@@ -2375,6 +2375,10 @@ DynamicSpawnInit(void)
 
 				/* Fix path */
 				Q_replacebackslash(dynamicentities[curr_pos].model_path);
+				printf("daikatana: %s:%s:%s\n",
+					dynamicentities[curr_pos].classname,
+					dynamicentities[curr_pos].model_path,
+					dynamicentities[curr_pos].description);
 
 				/* go to next row */
 				curr_pos ++;
@@ -2474,6 +2478,15 @@ DynamicSpawnInit(void)
 
 	/* sort definitions */
 	qsort(dynamicentities, ndynamicentities, sizeof(dynamicentity_t), DynamicSort);
+
+	size_t i;
+	for (i = 0; i < ndynamicentities; i++)
+	{
+		if (!strncmp(dynamicentities[i].classname, "item_", 5))
+		{
+			printf("could be item: %s\n", dynamicentities[i].classname);
+		}
+	}
 }
 
 static int
