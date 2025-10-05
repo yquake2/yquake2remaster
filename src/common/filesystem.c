@@ -507,8 +507,10 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 
 		// Evil hack for maps.lst and players/
 		// TODO: A flag to ignore paks would be better
-		if ((strcmp(fs_gamedirvar->string, "") == 0) && search->pack) {
-			if ((strcmp(name, "maps.lst") == 0) || (strncmp(name, "players/", 8) == 0)) {
+		if ((strcmp(fs_gamedirvar->string, "") == 0) && search->pack)
+		{
+			if ((!strcmp(name, "maps.lst")) || (!strncmp(name, "players/", 8)))
+			{
 				if (FS_FileInGamedir(name))
 				{
 					continue;
@@ -2540,20 +2542,33 @@ FS_Dir_f(void)
 qboolean
 FS_FileInGamedir(const char *file)
 {
-	char path[MAX_OSPATH];
-	FILE *fd;
+	const char *path;
 
-	Com_sprintf(path, sizeof(path), "%s/%s", fs_gamedir, file);
+	/* now run through the search paths */
+	path = NULL;
 
-	if ((fd = Q_fopen(path, "rb")) != NULL)
+	while (1)
 	{
-		fclose(fd);
-		return true;
+		char name[MAX_OSPATH];
+		FILE *fd;
+
+		path = FS_NextPath(path);
+
+		if (!path)
+		{
+			return false;     /* couldn't find one anywhere */
+		}
+
+		snprintf(name, MAX_OSPATH, "%s/%s", path, file);
+
+		if ((fd = Q_fopen(name, "rb")) != NULL)
+		{
+			fclose(fd);
+			return true;
+		}
 	}
-	else
-	{
-		return false;
-	}
+
+	return false;
 }
 
 /*
