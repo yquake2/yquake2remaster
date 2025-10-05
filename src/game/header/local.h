@@ -1145,6 +1145,7 @@ void Tag_PlayerDeath(edict_t *targ, edict_t *inflictor, edict_t *attacker);
 void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 
 /* g_spawn.c */
+gitem_t *GetDynamicItems(int *count);
 void ED_CallSpawn(edict_t *ent);
 void DynamicResetSpawnModels(edict_t *self);
 char *ED_NewString(const char *string, qboolean raw);

@@ -412,7 +412,7 @@ Cmd_Give_f(edict_t *ent)
 
 		if (!it)
 		{
-			gi.cprintf(ent, PRINT_HIGH, "unknown item\n");
+			gi.cprintf(ent, PRINT_HIGH, "unknown item: %s\n", name);
 			return;
 		}
 	}
@@ -460,6 +460,35 @@ Cmd_Give_f(edict_t *ent)
 		{
 			G_FreeEdict(it_ent);
 		}
+	}
+}
+
+static void
+Cmd_ListItems_f(edict_t *ent)
+{
+	gitem_t *it;
+	int i;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	if ((deathmatch->value || coop->value) && !sv_cheats->value)
+	{
+		gi.cprintf(ent, PRINT_HIGH,
+				"You must run the server with '+set cheats 1' to enable this command.\n");
+		return;
+	}
+
+	for (i = 0; i < game.num_items; i++)
+	{
+		it = itemlist + i;
+
+		gi.dprintf("#%d: '%s' => '%s' #%d\n",
+			i, it->classname ? it->classname : "",
+			it->pickup_name ? it->pickup_name: "",
+			it->quantity);
 	}
 }
 
@@ -2248,6 +2277,10 @@ ClientCommand(edict_t *ent)
 	else if (Q_stricmp(cmd, "listentities") == 0)
 	{
 		Cmd_ListEntities_f(ent);
+	}
+	else if (Q_stricmp(cmd, "listitems") == 0)
+	{
+		Cmd_ListItems_f(ent);
 	}
 	else if (Q_stricmp(cmd, "cycleweap") == 0)
 	{

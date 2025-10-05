@@ -2476,6 +2476,80 @@ DynamicSpawnInit(void)
 	qsort(dynamicentities, ndynamicentities, sizeof(dynamicentity_t), DynamicSort);
 }
 
+gitem_t *
+GetDynamicItems(int *count)
+{
+	size_t i, itemcount;
+	gitem_t *items;
+
+	*count = 0;
+
+	if (!ndynamicentities || !dynamicentities)
+	{
+		return NULL;
+	}
+
+	itemcount = 0;
+
+	for (i = 0; i < ndynamicentities; i++)
+	{
+		if (!strncmp(dynamicentities[i].classname, "item_", 5) ||
+			!strncmp(dynamicentities[i].classname, "weapon_", 7) ||
+			!strncmp(dynamicentities[i].classname, "key_", 4) ||
+			!strncmp(dynamicentities[i].classname, "ammo_", 5))
+		{
+			itemcount++;
+		}
+	}
+
+	if (!itemcount)
+	{
+		return NULL;
+	}
+
+	/* allocate */
+	items = calloc(itemcount, sizeof(*items));
+	if (!items)
+	{
+		gi.error("Can't allocate dynamic %d items\n", itemcount);
+	}
+
+	itemcount = 0;
+
+	for (i = 0; i < ndynamicentities; i++)
+	{
+		if (strncmp(dynamicentities[i].classname, "item_", 5) &&
+			strncmp(dynamicentities[i].classname, "weapon_", 7) &&
+			strncmp(dynamicentities[i].classname, "key_", 4) &&
+			strncmp(dynamicentities[i].classname, "ammo_", 5))
+		{
+			/* looks as not item */
+			continue;
+		}
+
+		if (!dynamicentities[i].model_path[0])
+		{
+			/* skip without model */
+			continue;
+		}
+
+		if (StaticSpawnSearch(dynamicentities[i].classname))
+		{
+			/* has static spawn function */
+			continue;
+		}
+
+		/* Could be dynamic item */
+		items[itemcount].classname = dynamicentities[i].classname;
+		items[itemcount].world_model = dynamicentities[i].model_path;
+		items[itemcount].pickup_name = dynamicentities[i].description;
+		itemcount++;
+	}
+
+	*count = itemcount;
+	return items;
+}
+
 static int
 StaticSort(const void *p1, const void *p2)
 {

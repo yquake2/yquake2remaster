@@ -1364,7 +1364,7 @@ CL_ParseConfigString(void)
 		return;
 	}
 
-	strncpy(cl.configstrings[i], s,
+	Q_strlcpy(cl.configstrings[i], s,
 		(MAX_CONFIGSTRINGS - i) * sizeof(*cl.configstrings));
 
 	/* do something apropriate */

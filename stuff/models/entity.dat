@@ -159,7 +159,6 @@ item_flag_team2|players/male/flag2.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.
 misc_ctf_banner|models/ctf/banner/tris.md2|1.0|1.0|1.0|general|-4.0|-4.0|0.0|4.0|4.0|246.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flowing CTF banner|1.0|0.5|0.0
 misc_ctf_small_banner|models/ctf/banner/small.md2|1.0|1.0|1.0|general|-4.0|-4.0|0.0|4.0|4.0|246.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Smaller flowing CTF banner|1.0|0.5|0.0
 trigger_teleport||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Teleport|0.5|0.5|0.5
-weapon_laser||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1
 
 // Quake 2 Xatrix
 ammo_magslug|models/objects/ammo/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Phalanx ammo|0.3|0.3|1.0

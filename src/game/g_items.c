@@ -56,8 +56,8 @@ GetItemByIndex(int index)
 	return &itemlist[index];
 }
 
-gitem_t *
-FindItemByClassname(const char *classname)
+static gitem_t *
+FindItemInList(const char *classname, gitem_t *list, int count)
 {
 	int i;
 	gitem_t *it;
@@ -67,9 +67,9 @@ FindItemByClassname(const char *classname)
 		return NULL;
 	}
 
-	it = itemlist;
+	it = list;
 
-	for (i = 0; i < game.num_items; i++, it++)
+	for (i = 0; i < count; i++, it++)
 	{
 		if (!it->classname)
 		{
@@ -83,6 +83,12 @@ FindItemByClassname(const char *classname)
 	}
 
 	return NULL;
+}
+
+gitem_t *
+FindItemByClassname(const char *classname)
+{
+	return FindItemInList(classname, itemlist, game.num_items);
 }
 
 gitem_t *
@@ -4324,7 +4330,7 @@ static const gitem_t gameitemlist[] = {
 		"item_flashlight",
 		Pickup_General,
 		Use_Flashlight,
-		NULL,
+		Drop_General,
 		NULL,
 		"items/pkup.wav",
 		"models/items/flashlight/tris.md2", EF_ROTATE,
@@ -4516,6 +4522,9 @@ SP_item_foodcube(edict_t *self)
 void
 InitItems(void)
 {
+	gitem_t *dyn_items;
+	int dyn_count, num_items;
+
 	if (sizeof(gameitemlist) > sizeof(itemlist))
 	{
 		gi.error("Defined items more than %d\n", MAX_ITEMS);
@@ -4524,7 +4533,65 @@ InitItems(void)
 
 	memset(itemlist, 0, sizeof(itemlist));
 	memcpy(itemlist, gameitemlist, sizeof(gameitemlist));
-	game.num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
+	num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
+
+	dyn_items = GetDynamicItems(&dyn_count);
+	if (dyn_items && dyn_count)
+	{
+		size_t i;
+
+		for (i = 0; i < dyn_count; i ++)
+		{
+			gitem_t *it;
+
+			it = FindItemInList(dyn_items[i].classname, itemlist, num_items);
+			if (!it)
+			{
+				memcpy(itemlist + num_items, dyn_items + i, sizeof(gitem_t));
+				/* Add callbacks */
+				if (!strncmp(itemlist[num_items].classname, "weapon_", 7))
+				{
+					itemlist[num_items].pickup = Pickup_Weapon;
+					itemlist[num_items].use = Use_Weapon;
+					itemlist[num_items].drop = Drop_Weapon;
+					itemlist[num_items].world_model_flags = EF_ROTATE;
+					itemlist[num_items].flags = IT_WEAPON;
+				}
+				else if (!strncmp(itemlist[num_items].classname, "item_", 5))
+				{
+					itemlist[num_items].pickup = Pickup_General;
+					itemlist[num_items].drop = Drop_General;
+					itemlist[num_items].world_model_flags = EF_ROTATE;
+				}
+				else if (!strncmp(itemlist[num_items].classname, "key_", 4))
+				{
+					itemlist[num_items].pickup = Pickup_Key;
+					itemlist[num_items].drop = Drop_General;
+					itemlist[num_items].world_model_flags = EF_ROTATE;
+					itemlist[num_items].flags = IT_KEY;
+				}
+				else if (!strncmp(itemlist[num_items].classname, "ammo_", 5))
+				{
+					itemlist[num_items].pickup = Pickup_Ammo;
+					itemlist[num_items].use = Use_Weapon;
+					itemlist[num_items].drop = Drop_Ammo;
+					itemlist[num_items].flags = IT_AMMO;
+				}
+
+				num_items ++;
+
+				if (num_items >= MAX_ITEMS)
+				{
+					gi.dprintf("No space for additional items\n");
+					break;
+				}
+			}
+		}
+
+		free(dyn_items);
+
+		game.num_items = num_items;
+	}
 }
 
 /*
@@ -4552,9 +4619,8 @@ SetItemNames(void)
 void
 SP_xatrix_item(edict_t *self)
 {
-	gitem_t *item;
-	int i;
 	char *spawnClass = NULL;
+	gitem_t *item;
 
 	if (!self)
 	{
@@ -4602,24 +4668,11 @@ SP_xatrix_item(edict_t *self)
 		spawnClass = "weapon_plasmabeam";
 	}
 
-	if (!spawnClass)
+	item = FindItemInList(spawnClass, itemlist, game.num_items);
+	if (item)
 	{
+		/* found it */
+		SpawnItem(self, item);
 		return;
-	}
-
-	/* check item spawn functions */
-	for (i = 0, item = itemlist; i < game.num_items; i++, item++)
-	{
-		if (!item->classname)
-		{
-			continue;
-		}
-
-		if (!strcmp(item->classname, spawnClass))
-		{
-			/* found it */
-			SpawnItem(self, item);
-			return;
-		}
 	}
 }

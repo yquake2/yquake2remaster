@@ -697,6 +697,7 @@ CL_InitLocal(void)
 	Cmd_AddCommand("weapnext", NULL);
 	Cmd_AddCommand("weapprev", NULL);
 	Cmd_AddCommand("listentities", NULL);
+	Cmd_AddCommand("listitems", NULL);
 	Cmd_AddCommand("teleport", NULL);
 	Cmd_AddCommand("spawnentity", NULL);
 	Cmd_AddCommand("spawnonstart", NULL);
