@@ -4536,62 +4536,65 @@ InitItems(void)
 	num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
 
 	dyn_items = GetDynamicItems(&dyn_count);
-	if (dyn_items && dyn_count)
+	if (dyn_items)
 	{
-		size_t i;
-
-		for (i = 0; i < dyn_count; i ++)
+		if (dyn_count)
 		{
-			gitem_t *it;
+			size_t i;
 
-			it = FindItemInList(dyn_items[i].classname, itemlist, num_items);
-			if (!it)
+			for (i = 0; i < dyn_count; i ++)
 			{
-				memcpy(itemlist + num_items, dyn_items + i, sizeof(gitem_t));
-				/* Add callbacks */
-				if (!strncmp(itemlist[num_items].classname, "weapon_", 7))
-				{
-					itemlist[num_items].pickup = Pickup_Weapon;
-					itemlist[num_items].use = Use_Weapon;
-					itemlist[num_items].drop = Drop_Weapon;
-					itemlist[num_items].world_model_flags = EF_ROTATE;
-					itemlist[num_items].flags = IT_WEAPON;
-				}
-				else if (!strncmp(itemlist[num_items].classname, "item_", 5))
-				{
-					itemlist[num_items].pickup = Pickup_General;
-					itemlist[num_items].drop = Drop_General;
-					itemlist[num_items].world_model_flags = EF_ROTATE;
-				}
-				else if (!strncmp(itemlist[num_items].classname, "key_", 4))
-				{
-					itemlist[num_items].pickup = Pickup_Key;
-					itemlist[num_items].drop = Drop_General;
-					itemlist[num_items].world_model_flags = EF_ROTATE;
-					itemlist[num_items].flags = IT_KEY;
-				}
-				else if (!strncmp(itemlist[num_items].classname, "ammo_", 5))
-				{
-					itemlist[num_items].pickup = Pickup_Ammo;
-					itemlist[num_items].use = Use_Weapon;
-					itemlist[num_items].drop = Drop_Ammo;
-					itemlist[num_items].flags = IT_AMMO;
-				}
+				gitem_t *it;
 
-				num_items ++;
-
-				if (num_items >= MAX_ITEMS)
+				it = FindItemInList(dyn_items[i].classname, itemlist, num_items);
+				if (!it)
 				{
-					gi.dprintf("No space for additional items\n");
-					break;
+					memcpy(itemlist + num_items, dyn_items + i, sizeof(gitem_t));
+					/* Add callbacks */
+					if (!strncmp(itemlist[num_items].classname, "weapon_", 7))
+					{
+						itemlist[num_items].pickup = Pickup_Weapon;
+						itemlist[num_items].use = Use_Weapon;
+						itemlist[num_items].drop = Drop_Weapon;
+						itemlist[num_items].world_model_flags = EF_ROTATE;
+						itemlist[num_items].flags = IT_WEAPON;
+					}
+					else if (!strncmp(itemlist[num_items].classname, "item_", 5))
+					{
+						itemlist[num_items].pickup = Pickup_General;
+						itemlist[num_items].drop = Drop_General;
+						itemlist[num_items].world_model_flags = EF_ROTATE;
+					}
+					else if (!strncmp(itemlist[num_items].classname, "key_", 4))
+					{
+						itemlist[num_items].pickup = Pickup_Key;
+						itemlist[num_items].drop = Drop_General;
+						itemlist[num_items].world_model_flags = EF_ROTATE;
+						itemlist[num_items].flags = IT_KEY;
+					}
+					else if (!strncmp(itemlist[num_items].classname, "ammo_", 5))
+					{
+						itemlist[num_items].pickup = Pickup_Ammo;
+						itemlist[num_items].use = Use_Weapon;
+						itemlist[num_items].drop = Drop_Ammo;
+						itemlist[num_items].flags = IT_AMMO;
+					}
+
+					num_items ++;
+
+					if (num_items >= MAX_ITEMS)
+					{
+						gi.dprintf("No space for additional items\n");
+						break;
+					}
 				}
 			}
 		}
 
 		free(dyn_items);
-
-		game.num_items = num_items;
 	}
+
+	game.num_items = num_items;
 }
 
 /*
