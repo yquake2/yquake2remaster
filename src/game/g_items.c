@@ -4538,7 +4538,7 @@ InitItems(void)
 	dyn_items = GetDynamicItems(&dyn_count);
 	if (dyn_items)
 	{
-		if (dyn_count)
+		if (dyn_count > 0)
 		{
 			size_t i;
 

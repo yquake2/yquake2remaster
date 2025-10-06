@@ -4667,7 +4667,7 @@ CleanCachedMapsList(void)
 {
 	if (mapnames != NULL)
 	{
-		int i;
+		size_t i;
 
 		for (i = 0; i < nummaps; i++)
 		{
@@ -4825,8 +4825,104 @@ GetMapsInFolderList(int *nummaps)
 
 	/* free file list */
 	FS_FreeList(list, num);
-	*nummaps = num;
+	*nummaps = num - 1;
 
+	return mapnames;
+}
+
+static char**
+GetCombinedMapsList(int *nummaps)
+{
+	char **mapnames_list = NULL, **mapnames_folder = NULL, **mapnames = NULL;
+	int nummaps_list = 0, nummaps_folder = 0;
+	size_t nummapslen, currpos;
+
+	mapnames_folder = GetMapsInFolderList(&nummaps_folder);
+	if (!mapnames_folder)
+	{
+		/* no maps at all? */
+		return NULL;
+	}
+
+	mapnames_list = GetMapsList(&nummaps_list);
+	if (!mapnames_list)
+	{
+		/* no maps in list? */
+		*nummaps = nummaps_folder;
+		return mapnames_folder;
+	}
+
+	/* we have maps in file and in folder */
+	nummapslen = sizeof(char *) * (nummaps_list + nummaps_folder + 1);
+	mapnames = malloc(nummapslen);
+	YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (num))", nummapslen)
+	if (!mapnames)
+	{
+		size_t i;
+
+		for (i = 0; i < nummaps_list; i++)
+		{
+			free(mapnames_list[i]);
+		}
+
+		free(mapnames_list);
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		*nummaps = nummaps_folder;
+		return mapnames_folder;
+	}
+
+	memset(mapnames, 0, nummapslen);
+	memcpy(mapnames, mapnames_list, sizeof(char *) * nummaps_list);
+	*nummaps = nummaps_list;
+	free(mapnames_list);
+
+	for (currpos = 0; currpos < nummaps_folder; currpos ++)
+	{
+		qboolean found;
+		char *foldername;
+		size_t i;
+
+		foldername = strchr(mapnames_folder[currpos], '\n');
+		if (!foldername)
+		{
+			free(mapnames_folder[currpos]);
+			continue;
+		}
+		foldername++;
+
+		found = false;
+		for (i = 0; i < *nummaps; i++)
+		{
+			char *currname;
+
+			currname = strchr(mapnames[i], '\n');
+			if (!currname)
+			{
+				continue;
+			}
+			currname++;
+
+			if (!Q_stricmp(currname, foldername))
+			{
+				found = true;
+				break;
+			}
+		}
+
+		if (!found)
+		{
+			mapnames[*nummaps] = mapnames_folder[currpos];
+			(*nummaps) ++;
+		}
+		else
+		{
+			free(mapnames_folder[currpos]);
+		}
+	}
+
+	mapnames[*nummaps] = NULL;
+
+	free(mapnames_folder);
 	return mapnames;
 }
 
@@ -4850,11 +4946,7 @@ StartServer_MenuInit(void)
 		nummaps = 0;
 		s_startmap_list.curvalue = 0;
 
-		mapnames = GetMapsList(&nummaps);
-		if (!mapnames || !nummaps)
-		{
-			mapnames = GetMapsInFolderList(&nummaps);
-		}
+		mapnames = GetCombinedMapsList(&nummaps);
 
 		if (!mapnames || !nummaps)
 		{
