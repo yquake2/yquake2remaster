@@ -183,10 +183,23 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 }
 
 void
-dynamicspawn_think(edict_t *self)
+dynamicspawn_stand(edict_t *self)
 {
-	M_SetAnimGroupFrame(self, "idle");
-	self->nextthink = level.time + FRAMETIME;
+	self->monsterinfo.action = "idle";
+	printf("%s: run\n", __func__);
+}
+
+void
+dynamicspawn_walk(edict_t *self)
+{
+	self->monsterinfo.action = "walk";
+	printf("%s: run\n", __func__);
+}
+
+void
+dynamicspawn_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+{
+	self->deadflag = DEAD_DEAD;
 }
 
 static void
@@ -194,6 +207,7 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
 	const dmdxframegroup_t * frames;
 	int num, i;
+	qboolean walkmonster = false;
 
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
@@ -215,11 +229,10 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	{
 		if (!strcmp(frames[i].name, "idle"))
 		{
-			self->think = dynamicspawn_think;
-			self->nextthink = level.time + FRAMETIME;
 			VectorCopy(frames[i].mins, self->mins);
 			VectorCopy(frames[i].maxs, self->maxs);
 
+			walkmonster = true;
 			break;
 		}
 	}
@@ -227,6 +240,14 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);
+
+	if (walkmonster)
+	{
+		self->monsterinfo.stand = dynamicspawn_stand;
+		self->monsterinfo.walk = dynamicspawn_walk;
+		self->die = dynamicspawn_die;
+		walkmonster_start(self);
+	}
 }
 
 static int
