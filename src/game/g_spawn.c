@@ -183,17 +183,69 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 }
 
 void
+dynamicspawn_idle(edict_t *self)
+{
+	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = "idle";
+	printf("%s: %s\n", __func__, self->monsterinfo.action);
+}
+
+void
 dynamicspawn_stand(edict_t *self)
 {
-	self->monsterinfo.action = "idle";
-	printf("%s: run\n", __func__);
+	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = "stand";
+	printf("%s: %s\n", __func__, self->monsterinfo.action);
 }
 
 void
 dynamicspawn_walk(edict_t *self)
 {
-	self->monsterinfo.action = "walk";
-	printf("%s: run\n", __func__);
+	self->monsterinfo.currentmove = NULL;
+
+	if (self->flags & FL_FLY)
+	{
+		self->monsterinfo.action = "fly";
+	}
+	else if (self->flags & FL_SWIM)
+	{
+		self->monsterinfo.action = "swim";
+	}
+	else
+	{
+		self->monsterinfo.action = "walk";
+	}
+
+	printf("%s: %s\n", __func__, self->monsterinfo.action);
+}
+
+void
+dynamicspawn_run(edict_t *self)
+{
+	self->monsterinfo.currentmove = NULL;
+
+	if (self->flags & FL_FLY)
+	{
+		self->monsterinfo.action = "fly";
+	}
+	else if (self->flags & FL_SWIM)
+	{
+		self->monsterinfo.action = "swim";
+	}
+	else
+	{
+		self->monsterinfo.action = "run";
+	}
+
+	printf("%s: %s\n", __func__, self->monsterinfo.action);
+}
+
+void
+dynamicspawn_attack(edict_t *self)
+{
+	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = "attack";
+	printf("%s: %s\n", __func__, self->monsterinfo.action);
 }
 
 void
@@ -206,8 +258,7 @@ static void
 DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
 	const dmdxframegroup_t * frames;
-	int num, i;
-	qboolean walkmonster = false;
+	int num;
 
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
@@ -223,30 +274,41 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	gi.GetModelFrameInfo(self->s.modelindex, self->s.frame,
 		self->mins, self->maxs);
 
-	/* Set Mins/Maxs based on whole model frames in animation group */
-	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
-	for (i = 0; i < num; i++)
-	{
-		if (!strcmp(frames[i].name, "idle"))
-		{
-			VectorCopy(frames[i].mins, self->mins);
-			VectorCopy(frames[i].maxs, self->maxs);
-
-			walkmonster = true;
-			break;
-		}
-	}
-
 	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);
 
-	if (walkmonster)
+	/* Set Mins/Maxs based on whole model frames in animation group */
+	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
+	if (frames && num)
 	{
+		size_t i;
+
+		self->monsterinfo.idle = dynamicspawn_idle;
+		self->monsterinfo.attack = dynamicspawn_attack;
 		self->monsterinfo.stand = dynamicspawn_stand;
 		self->monsterinfo.walk = dynamicspawn_walk;
+		self->monsterinfo.run = dynamicspawn_run;
 		self->die = dynamicspawn_die;
-		walkmonster_start(self);
+
+		for (i = 0; i < num; i++)
+		{
+			if (!strcmp(frames[i].name, "walk"))
+			{
+				walkmonster_start(self);
+				break;
+			}
+			else if (!strcmp(frames[i].name, "swim"))
+			{
+				swimmonster_start(self);
+				break;
+			}
+			else if (!strcmp(frames[i].name, "fly"))
+			{
+				flymonster_start(self);
+				break;
+			}
+		}
 	}
 }
 
