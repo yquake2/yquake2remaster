@@ -237,7 +237,8 @@ dynamicspawn_run(edict_t *self)
 		self->monsterinfo.action = "run";
 	}
 
-	printf("%s: %s\n", __func__, self->monsterinfo.action);
+	printf("%s: %s => %s\n",
+		__func__, self->classname, self->monsterinfo.action);
 }
 
 void
@@ -293,7 +294,8 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 
 		for (i = 0; i < num; i++)
 		{
-			if (!strcmp(frames[i].name, "walk"))
+			if (!strcmp(frames[i].name, "walk") ||
+				!strcmp(frames[i].name, "run"))
 			{
 				walkmonster_start(self);
 				break;

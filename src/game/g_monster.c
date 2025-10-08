@@ -886,9 +886,6 @@ M_MoveFrame(edict_t *self)
 	{
 		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &firstframe, &lastframe);
 		lastframe += firstframe;
-		printf("run: %s for %s with start frame %d at %s\n",
-				__func__, self->monsterinfo.action, self->s.frame,
-				vtos(self->s.origin));
 	}
 	else
 	{
@@ -965,13 +962,27 @@ M_MoveFrame(edict_t *self)
 			move->frame[index].aifunc(self, 0);
 		}
 	}
+	else if (self->monsterinfo.action && (
+		!strcmp(self->monsterinfo.action, "run") ||
+		!strcmp(self->monsterinfo.action, "swim") ||
+		!strcmp(self->monsterinfo.action, "fly")))
+	{
+		ai_run(self, 5 * self->monsterinfo.scale);
+	}
 	else if (self->monsterinfo.action && !strcmp(self->monsterinfo.action, "walk"))
 	{
 		ai_walk(self, 5 * self->monsterinfo.scale);
 	}
-	else if (self->monsterinfo.action && !strcmp(self->monsterinfo.action, "idle"))
+	else if (self->monsterinfo.action && (
+		!strcmp(self->monsterinfo.action, "idle") ||
+		!strcmp(self->monsterinfo.action, "stand")))
 	{
 		ai_stand(self,  5 * self->monsterinfo.scale);
+	}
+	else
+	{
+		printf("%snot catched up%s\n",
+			self->classname, self->monsterinfo.action);
 	}
 
 	if (move && move->frame[index].thinkfunc)
