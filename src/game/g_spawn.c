@@ -2512,6 +2512,7 @@ GetDynamicItems(int *count)
 	if (!items)
 	{
 		gi.error("Can't allocate dynamic %d items\n", itemcount);
+		return NULL;
 	}
 
 	itemcount = 0;

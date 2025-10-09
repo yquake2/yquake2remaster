@@ -777,8 +777,8 @@ M_SetEffects(edict_t *ent)
 	}
 }
 
-static void
-M_SetAnimGroupFrameValues(edict_t *self, const char *name,
+static qboolean
+M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 	int *ofs_frames, int *num_frames)
 {
 	const dmdxframegroup_t * frames;
@@ -791,8 +791,33 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 		{
 			*ofs_frames = frames[i].ofs;
 			*num_frames = frames[i].num;
-			break;
+			return true;
 		}
+	}
+
+	return false;
+}
+
+static void
+M_SetAnimGroupFrameValues(edict_t *self, const char *name,
+	int *ofs_frames, int *num_frames)
+{
+	if (M_SetAnimGroupFrameValuesInt(self, name, ofs_frames, num_frames))
+	{
+		return;
+	}
+
+	if (!strcmp(name, "stand"))
+	{
+		/* no stand animations */
+		M_SetAnimGroupFrameValuesInt(self, "idle", ofs_frames, num_frames);
+	}
+	else if (!strcmp(name, "run") ||
+			!strcmp(name, "fly") ||
+			!strcmp(name, "swim"))
+	{
+		/* no run, fly, swim animations */
+		M_SetAnimGroupFrameValuesInt(self, "walk", ofs_frames, num_frames);
 	}
 }
 
