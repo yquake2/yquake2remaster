@@ -977,6 +977,18 @@ M_MoveFrame(edict_t *self)
 			ai_run(self, 0);
 		}
 	}
+	else if (self->monsterinfo.action && !strcmp(self->monsterinfo.action, "walk"))
+	{
+		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+		{
+			ai_walk(self,
+				self->monsterinfo.walk_dist * self->monsterinfo.scale);
+		}
+		else
+		{
+			ai_walk(self, 0);
+		}
+	}
 
 	if (move && move->frame[index].thinkfunc)
 	{

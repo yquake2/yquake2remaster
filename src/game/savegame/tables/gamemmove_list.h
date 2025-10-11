@@ -169,7 +169,6 @@
 {"fish_move_death", &fish_move_death},
 {"fish_move_melee", &fish_move_melee},
 {"fish_move_pain", &fish_move_pain},
-{"fish_move_run", &fish_move_run},
 {"fish_move_stand", &fish_move_stand},
 {"fixbot_move_attack1", &fixbot_move_attack1},
 {"fixbot_move_attack2", &fixbot_move_attack2},

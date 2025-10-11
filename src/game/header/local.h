@@ -508,6 +508,7 @@ typedef struct
 
 	/* dynamic actions */
 	const char *action;
+	float walk_dist;
 	float run_dist;
 
 	float pausetime;

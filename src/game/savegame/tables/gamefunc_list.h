@@ -610,7 +610,6 @@
 {"fish_die", (byte *)fish_die},
 {"fish_melee", (byte *)fish_melee},
 {"fish_pain", (byte *)fish_pain},
-{"fish_run", (byte *)fish_run},
 {"fish_search", (byte *)fish_search},
 {"fish_stand", (byte *)fish_stand},
 {"fixbot_attack", (byte *)fixbot_attack},

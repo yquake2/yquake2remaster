@@ -65,46 +65,6 @@ fish_stand(edict_t *self)
 	self->monsterinfo.currentmove = &fish_move_stand;
 }
 
-// Run
-static mframe_t fish_frames_run [] =
-{
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL},
-
-	{ai_run, 12, NULL},
-	{ai_run, 12, NULL}
-};
-mmove_t fish_move_run =
-{
-	FRAME_swim1,
-	FRAME_swim18,
-	fish_frames_run,
-	NULL
-};
-
-void
-fish_run(edict_t *self)
-{
-	self->monsterinfo.currentmove = &fish_move_run;
-}
-
 static void
 fish_bite_step(edict_t *self)
 {
@@ -156,7 +116,7 @@ mmove_t fish_move_melee =
 	FRAME_attack1,
 	FRAME_attack18,
 	fish_frames_melee,
-	fish_run
+	monster_dynamic_run
 };
 
 void
@@ -278,7 +238,7 @@ mmove_t fish_move_pain =
 	FRAME_pain1,
 	FRAME_pain9,
 	fish_frames_pain,
-	fish_run
+	monster_dynamic_run
 };
 
 void
@@ -316,9 +276,11 @@ SP_monster_rotfish(edict_t *self)
 	self->gib_health = -25;
 	self->mass = 25;
 
+	monster_dynamic_setinfo(self);
+
+	self->monsterinfo.run_dist = 12;
+
 	self->monsterinfo.stand = fish_stand;
-	self->monsterinfo.walk = fish_run;
-	self->monsterinfo.run = fish_run;
 	self->monsterinfo.melee = fish_melee;
 	self->monsterinfo.search = fish_search;
 
@@ -328,5 +290,5 @@ SP_monster_rotfish(edict_t *self)
 	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);
 
-	flymonster_start(self);
+	swimmonster_start(self);
 }
