@@ -170,7 +170,6 @@ extern mmove_t enforcer_move_walk;
 extern mmove_t fish_move_death;
 extern mmove_t fish_move_melee;
 extern mmove_t fish_move_pain;
-extern mmove_t fish_move_stand;
 extern mmove_t fixbot_move_attack1;
 extern mmove_t fixbot_move_attack2;
 extern mmove_t fixbot_move_backward;

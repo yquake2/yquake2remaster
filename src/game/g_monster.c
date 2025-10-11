@@ -1065,6 +1065,10 @@ monster_dynamic_stand(edict_t *self)
 	{
 		self->monsterinfo.action = "hover";
 	}
+	else if (self->flags & FL_SWIM)
+	{
+		self->monsterinfo.action = "swim";
+	}
 	else
 	{
 		self->monsterinfo.action = "stand";

@@ -25,46 +25,6 @@ static int sound_search;
 static int sound_death;
 static int sound_melee;
 
-// Stand
-static mframe_t fish_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-};
-mmove_t fish_move_stand =
-{
-	FRAME_swim1,
-	FRAME_swim18,
-	fish_frames_stand,
-	NULL
-};
-
-void
-fish_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &fish_move_stand;
-}
-
 static void
 fish_bite_step(edict_t *self)
 {
@@ -280,7 +240,6 @@ SP_monster_rotfish(edict_t *self)
 
 	self->monsterinfo.run_dist = 12;
 
-	self->monsterinfo.stand = fish_stand;
 	self->monsterinfo.melee = fish_melee;
 	self->monsterinfo.search = fish_search;
 

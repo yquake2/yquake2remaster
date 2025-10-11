@@ -649,7 +649,6 @@ extern void fish_die ( edict_t * self ,  edict_t * inflictor , edict_t * attacke
 extern void fish_melee ( edict_t * self ) ;
 extern void fish_pain ( edict_t * self ,  edict_t * other , float kick , int damage ) ;
 extern void fish_search ( edict_t * self ) ;
-extern void fish_stand ( edict_t * self ) ;
 extern void fixbot_attack ( edict_t * self ) ;
 extern void fixbot_dead ( edict_t * self ) ;
 extern void fixbot_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
