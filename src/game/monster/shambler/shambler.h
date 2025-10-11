@@ -20,7 +20,8 @@
  *
  * =======================================================================
  *
- * Shambler animations.
+ * Shambler animations, ReRelease models does not have frame names in md2 file,
+ * animation groups can't be used.
  *
  * =======================================================================
  */

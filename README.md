@@ -325,6 +325,9 @@ Additional models:
 | monster_zombie   | Quake 1 zombie                 |
 | npc_timeminder   | Anachronox save menu           |
 
+ReRelease has updated Shambler that does not have animation groups and
+frame names, and uses `fr_` frame prefixes.
+
 Full list of supported entities [classnames](stuff/models/entity.dat).
 
 Quake 1 models usage requires such files:
