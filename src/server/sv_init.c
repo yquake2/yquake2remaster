@@ -28,7 +28,7 @@
 
 /* initialize the entities array to at least this many entities */
 #define ALLOC_ENTITIES_MIN 32
-#define MAX_SV_ENTS 32768
+#define MAX_SV_ENTNUM SHRT_MAX
 
 void SV_ClearBaselines(void);
 
@@ -40,7 +40,7 @@ SV_AllocBaseline(int entnum)
 {
 	int nextpow2;
 
-	if ((entnum < 0) || (entnum >= MAX_SV_ENTS))
+	if ((entnum < 0) || (entnum > MAX_SV_ENTNUM))
 	{
 		return NULL;
 	}

@@ -781,7 +781,7 @@ MSG_WriteDeltaEntity(const entity_state_t *from,
 	int bits;
 
 	/* entnums are sent in 16-bit form */
-	if (to->number >= 32768)
+	if (to->number > SHRT_MAX)
 	{
 		return;
 	}
