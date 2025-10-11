@@ -606,7 +606,6 @@ extern mmove_t wizard_move_attack;
 extern mmove_t wizard_move_death;
 extern mmove_t wizard_move_finish;
 extern mmove_t wizard_move_pain;
-extern mmove_t wizard_move_run;
 extern mmove_t wizard_move_stand;
 extern mmove_t zombie_move_attack1;
 extern mmove_t zombie_move_attack2;

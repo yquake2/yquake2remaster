@@ -869,7 +869,7 @@ static void
 M_MoveFrame(edict_t *self)
 {
 	mmove_t *move;
-	int index;
+	int index, firstframe, lastframe;
 
 	if (!self)
 	{
@@ -877,7 +877,17 @@ M_MoveFrame(edict_t *self)
 	}
 
 	move = self->monsterinfo.currentmove;
-	if (!move)
+	if (move)
+	{
+		firstframe = move->firstframe;
+		lastframe = move->lastframe;
+	}
+	else if (self->monsterinfo.action)
+	{
+		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &firstframe, &lastframe);
+		lastframe += firstframe;
+	}
+	else
 	{
 		return;
 	}
@@ -885,8 +895,8 @@ M_MoveFrame(edict_t *self)
 	self->nextthink = level.time + FRAMETIME;
 
 	if ((self->monsterinfo.nextframe) &&
-		(self->monsterinfo.nextframe >= move->firstframe) &&
-		(self->monsterinfo.nextframe <= move->lastframe))
+		(self->monsterinfo.nextframe >= firstframe) &&
+		(self->monsterinfo.nextframe <= lastframe))
 	{
 		if (self->s.frame != self->monsterinfo.nextframe)
 		{
@@ -901,9 +911,9 @@ M_MoveFrame(edict_t *self)
 		/* prevent nextframe from leaking into a future move */
 		self->monsterinfo.nextframe = 0;
 
-		if (self->s.frame == move->lastframe)
+		if (self->s.frame == lastframe)
 		{
-			if (move->endfunc)
+			if (move && move->endfunc)
 			{
 				move->endfunc(self);
 
@@ -918,11 +928,11 @@ M_MoveFrame(edict_t *self)
 			}
 		}
 
-		if ((self->s.frame < move->firstframe) ||
-			(self->s.frame > move->lastframe))
+		if ((self->s.frame < firstframe) ||
+			(self->s.frame > lastframe))
 		{
 			self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
-			self->s.frame = move->firstframe;
+			self->s.frame = firstframe;
 		}
 		else
 		{
@@ -930,17 +940,17 @@ M_MoveFrame(edict_t *self)
 			{
 				self->s.frame++;
 
-				if (self->s.frame > move->lastframe)
+				if (self->s.frame > lastframe)
 				{
-					self->s.frame = move->firstframe;
+					self->s.frame = firstframe;
 				}
 			}
 		}
 	}
 
-	index = self->s.frame - move->firstframe;
+	index = self->s.frame - firstframe;
 
-	if (move->frame[index].aifunc)
+	if (move && move->frame[index].aifunc)
 	{
 		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
 		{
@@ -952,11 +962,86 @@ M_MoveFrame(edict_t *self)
 			move->frame[index].aifunc(self, 0);
 		}
 	}
+	else if (self->monsterinfo.action && (
+		!strcmp(self->monsterinfo.action, "run") ||
+		!strcmp(self->monsterinfo.action, "swim") ||
+		!strcmp(self->monsterinfo.action, "fly")))
+	{
+		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+		{
+			ai_run(self,
+				self->monsterinfo.run_dist * self->monsterinfo.scale);
+		}
+		else
+		{
+			ai_run(self, 0);
+		}
+	}
 
-	if (move->frame[index].thinkfunc)
+	if (move && move->frame[index].thinkfunc)
 	{
 		move->frame[index].thinkfunc(self);
 	}
+}
+
+void
+monster_dynamic_walk(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+
+	if (self->flags & FL_FLY)
+	{
+		self->monsterinfo.action = "fly";
+	}
+	else if (self->flags & FL_SWIM)
+	{
+		self->monsterinfo.action = "swim";
+	}
+	else
+	{
+		self->monsterinfo.action = "walk";
+	}
+}
+
+void
+monster_dynamic_run(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+
+	if (self->flags & FL_FLY)
+	{
+		self->monsterinfo.action = "fly";
+	}
+	else if (self->flags & FL_SWIM)
+	{
+		self->monsterinfo.action = "swim";
+	}
+	else
+	{
+		self->monsterinfo.action = "run";
+	}
+}
+
+void
+monster_dynamic_setinfo(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.walk = monster_dynamic_walk;
+	self->monsterinfo.run = monster_dynamic_run;
 }
 
 void
@@ -1261,6 +1346,16 @@ monster_start(edict_t *self)
 		self->s.frame = self->monsterinfo.currentmove->firstframe +
 			(randk() % (self->monsterinfo.currentmove->lastframe -
 					   self->monsterinfo.currentmove->firstframe + 1));
+	}
+	else if (self->monsterinfo.action)
+	{
+		int ofs_frames = 0, num_frames = 1;
+
+		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &ofs_frames, &num_frames);
+
+		self->s.frame = ofs_frames + (randk() % num_frames);
+		printf("run: %s for %s with start frame %d\n",
+			__func__, self->monsterinfo.action, self->s.frame);
 	}
 
 	self->monsterinfo.base_height = self->maxs[2];

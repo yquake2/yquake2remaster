@@ -65,42 +65,6 @@ wizard_stand(edict_t *self)
 	self->monsterinfo.currentmove = &wizard_move_stand;
 }
 
-// Run
-static mframe_t wizard_frames_run [] =
-{
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL},
-	{ai_run, 16, NULL}
-};
-mmove_t wizard_move_run =
-{
-	FRAME_fly1,
-	FRAME_fly14,
-	wizard_frames_run,
-	NULL
-};
-
-void
-wizard_run(edict_t *self)
-{
-	self->monsterinfo.currentmove = &wizard_move_run;
-}
-
 static void
 wizard_frame(edict_t *self)
 {
@@ -130,7 +94,7 @@ mmove_t wizard_move_finish =
 	FRAME_magatt1,
 	FRAME_magatt5,
 	wizard_frames_finish,
-	wizard_run
+	monster_dynamic_run
 };
 
 void
@@ -276,7 +240,7 @@ mmove_t wizard_move_pain =
 	FRAME_pain1,
 	FRAME_pain4,
 	wizard_frames_pain,
-	wizard_run
+	monster_dynamic_run
 };
 
 void
@@ -405,9 +369,11 @@ SP_monster_wizard(edict_t *self)
 	self->gib_health = -40;
 	self->mass = 80;
 
+	monster_dynamic_setinfo(self);
+
+	self->monsterinfo.run_dist = 16;
+
 	self->monsterinfo.stand = wizard_stand;
-	self->monsterinfo.walk = wizard_run;
-	self->monsterinfo.run = wizard_run;
 	self->monsterinfo.attack = wizard_attack;
 	self->monsterinfo.sight = wizard_sight;
 	self->monsterinfo.search = wizard_search;

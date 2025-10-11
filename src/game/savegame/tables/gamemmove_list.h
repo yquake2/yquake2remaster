@@ -605,7 +605,6 @@
 {"wizard_move_death", &wizard_move_death},
 {"wizard_move_finish", &wizard_move_finish},
 {"wizard_move_pain", &wizard_move_pain},
-{"wizard_move_run", &wizard_move_run},
 {"wizard_move_stand", &wizard_move_stand},
 {"zombie_move_attack1", &zombie_move_attack1},
 {"zombie_move_attack2", &zombie_move_attack2},

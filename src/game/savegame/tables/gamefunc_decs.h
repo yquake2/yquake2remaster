@@ -1021,6 +1021,9 @@ extern void misc_viper_use ( edict_t * self , edict_t * other , edict_t * activa
 extern void misc_update_spawner_touch(edict_t *self, edict_t *other, cplane_t *plane ,  csurface_t *surf ) ;
 extern void monster_dabeam ( edict_t * self ) ;
 extern void monster_death_use ( edict_t * self ) ;
+extern void monster_dynamic_run ( edict_t * self ) ;
+extern void monster_dynamic_walk ( edict_t * self ) ;
+extern void monster_dynamic_setinfo ( edict_t * self ) ;
 extern void monster_done_dodge ( edict_t * self ) ;
 extern void monster_duck_down ( edict_t * self ) ;
 extern void monster_duck_hold ( edict_t * self ) ;
@@ -1512,7 +1515,6 @@ extern void wizard_dead ( edict_t * self ) ;
 extern void wizard_die ( edict_t * self ,  edict_t * inflictor , edict_t * attacker , int damage, vec3_t point);
 extern void wizard_finish_attack ( edict_t * self ) ;
 extern void wizard_pain ( edict_t * self ,  edict_t * other , float kick , int damage);
-extern void wizard_run ( edict_t * self ) ;
 extern void wizard_search ( edict_t * self ) ;
 extern void wizard_sight ( edict_t * self ,  edict_t *other );
 extern void wizard_stand ( edict_t * self ) ;
