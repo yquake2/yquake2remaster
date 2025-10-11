@@ -57,45 +57,6 @@ arachnid_footstep(edict_t *self)
 }
 
 //
-// stand
-//
-
-static mframe_t arachnid_frames_stand[] = {
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t arachnid_move_stand =
-{
-	FRAME_idle1,
-	FRAME_idle13,
-	arachnid_frames_stand,
-	NULL
-};
-
-void
-arachnid_stand(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &arachnid_move_stand;
-}
-
-//
 // walk
 //
 
@@ -163,7 +124,7 @@ arachnid_run(edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &arachnid_move_stand;
+		monster_dynamic_stand(self);
 		return;
 	}
 
@@ -543,9 +504,10 @@ SP_monster_arachnid(edict_t *self)
 
 	self->mass = 450;
 
+	monster_dynamic_setinfo(self);
+
 	self->pain = arachnid_pain;
 	self->die = arachnid_die;
-	self->monsterinfo.stand = arachnid_stand;
 	self->monsterinfo.walk = arachnid_walk;
 	self->monsterinfo.run = arachnid_run;
 	self->monsterinfo.dodge = NULL;
@@ -557,7 +519,6 @@ SP_monster_arachnid(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &arachnid_move_stand;
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	walkmonster_start(self);

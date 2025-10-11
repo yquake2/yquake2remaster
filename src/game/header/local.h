@@ -902,6 +902,7 @@ void monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damag
 void M_droptofloor(edict_t *ent);
 void monster_dynamic_run(edict_t *self);
 void monster_dynamic_walk(edict_t *self);
+void monster_dynamic_stand(edict_t *self);
 void monster_dynamic_setinfo(edict_t *self);
 void monster_think(edict_t *self);
 void walkmonster_start(edict_t *self);

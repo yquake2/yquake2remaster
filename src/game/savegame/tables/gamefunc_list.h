@@ -349,7 +349,6 @@
 {"arachnid_rail", (byte *)arachnid_rail},
 {"arachnid_run", (byte *)arachnid_run},
 {"arachnid_sight", (byte *)arachnid_sight},
-{"arachnid_stand", (byte *)arachnid_stand},
 {"arachnid_walk", (byte *)arachnid_walk},
 {"army_attack", (byte *)army_attack},
 {"army_dead", (byte *)army_dead},

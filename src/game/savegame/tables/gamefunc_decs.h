@@ -394,7 +394,6 @@ extern void arachnid_pain ( edict_t * self , edict_t *other , float kick , int d
 extern void arachnid_rail ( edict_t * self ) ;
 extern void arachnid_run ( edict_t * self ) ;
 extern void arachnid_sight ( edict_t * self ,  edict_t *other );
-extern void arachnid_stand ( edict_t * self ) ;
 extern void arachnid_walk ( edict_t * self ) ;
 extern void army_attack ( edict_t * self ) ;
 extern void army_dead ( edict_t * self ) ;

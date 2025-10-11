@@ -45,7 +45,6 @@ extern mmove_t arachnid_move_death;
 extern mmove_t arachnid_move_pain1;
 extern mmove_t arachnid_move_pain2;
 extern mmove_t arachnid_move_run;
-extern mmove_t arachnid_move_stand;
 extern mmove_t arachnid_move_walk;
 extern mmove_t army_move_attack;
 extern mmove_t army_move_death1;
