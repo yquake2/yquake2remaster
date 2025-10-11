@@ -29,42 +29,6 @@ static int sound_idle2;
 static int sound_pain;
 static int sound_sight;
 
-// Stand
-static mframe_t wizard_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-};
-mmove_t wizard_move_stand =
-{
-	FRAME_hover1,
-	FRAME_hover15,
-	wizard_frames_stand,
-	NULL
-};
-
-void
-wizard_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &wizard_move_stand;
-}
-
 static void
 wizard_frame(edict_t *self)
 {
@@ -373,7 +337,6 @@ SP_monster_wizard(edict_t *self)
 
 	self->monsterinfo.run_dist = 16;
 
-	self->monsterinfo.stand = wizard_stand;
 	self->monsterinfo.attack = wizard_attack;
 	self->monsterinfo.sight = wizard_sight;
 	self->monsterinfo.search = wizard_search;

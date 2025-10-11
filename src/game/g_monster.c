@@ -962,31 +962,38 @@ M_MoveFrame(edict_t *self)
 			move->frame[index].aifunc(self, 0);
 		}
 	}
-	else if (self->monsterinfo.action && (
-		!strcmp(self->monsterinfo.action, "run") ||
-		!strcmp(self->monsterinfo.action, "swim") ||
-		!strcmp(self->monsterinfo.action, "fly")))
+	else if (self->monsterinfo.action)
 	{
-		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+		if (!strcmp(self->monsterinfo.action, "run") ||
+			!strcmp(self->monsterinfo.action, "swim") ||
+			!strcmp(self->monsterinfo.action, "fly"))
 		{
-			ai_run(self,
-				self->monsterinfo.run_dist * self->monsterinfo.scale);
+			if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+			{
+				ai_run(self,
+					self->monsterinfo.run_dist * self->monsterinfo.scale);
+			}
+			else
+			{
+				ai_run(self, 0);
+			}
 		}
-		else
+		else if (!strcmp(self->monsterinfo.action, "walk"))
 		{
-			ai_run(self, 0);
+			if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+			{
+				ai_walk(self,
+					self->monsterinfo.walk_dist * self->monsterinfo.scale);
+			}
+			else
+			{
+				ai_walk(self, 0);
+			}
 		}
-	}
-	else if (self->monsterinfo.action && !strcmp(self->monsterinfo.action, "walk"))
-	{
-		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
+		else if (!strcmp(self->monsterinfo.action, "stand") ||
+			!strcmp(self->monsterinfo.action, "hover"))
 		{
-			ai_walk(self,
-				self->monsterinfo.walk_dist * self->monsterinfo.scale);
-		}
-		else
-		{
-			ai_walk(self, 0);
+			ai_stand(self, 0);
 		}
 	}
 
@@ -1045,6 +1052,26 @@ monster_dynamic_run(edict_t *self)
 }
 
 void
+monster_dynamic_stand(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+
+	if (self->flags & FL_FLY)
+	{
+		self->monsterinfo.action = "hover";
+	}
+	else
+	{
+		self->monsterinfo.action = "stand";
+	}
+}
+
+void
 monster_dynamic_setinfo(edict_t *self)
 {
 	if (!self)
@@ -1054,6 +1081,7 @@ monster_dynamic_setinfo(edict_t *self)
 
 	self->monsterinfo.walk = monster_dynamic_walk;
 	self->monsterinfo.run = monster_dynamic_run;
+	self->monsterinfo.stand = monster_dynamic_stand;
 }
 
 void
