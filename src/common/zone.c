@@ -134,6 +134,7 @@ Z_TagRealloc(void *ptr, int size, int tag)
 	if (!zr)
 	{
 		Com_Error(ERR_FATAL, "Z_Realloc: failed on allocation of %i bytes", size);
+		return NULL;
 	}
 
 	if (size > zr->size)

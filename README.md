@@ -252,6 +252,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 Other games support goals:
 
 * [ ] Jabot: fix crash in SZ_GetSpace,
+* [ ] Jabot: dynamic allocations,
 * [ ] Heretic 2, Kingpin: use nor all surface flags to detect map type
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,
