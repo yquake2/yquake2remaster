@@ -29,7 +29,7 @@
 
 /* initialize the entities array to at least this many entities */
 #define ALLOC_ENTITIES_MIN 32
-#define MAX_SV_ENTS SHRT_MAX
+#define MAX_SV_ENTNUM SHRT_MAX
 
 server_static_t svs; /* persistant server info */
 server_t sv; /* local server */
@@ -39,7 +39,7 @@ SV_AllocBaseline(int entnum)
 {
 	int nextpow2;
 
-	if ((entnum < 0) || (entnum >= MAX_SV_ENTS))
+	if ((entnum < 0) || (entnum > MAX_SV_ENTNUM))
 	{
 		return NULL;
 	}
