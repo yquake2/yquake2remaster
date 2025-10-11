@@ -56,6 +56,11 @@ CL_AddPacketEntities(frame_t *frame)
 		s1 = &cl_parse_entities[(frame->parse_entities +
 				pnum) & (MAX_PARSE_ENTITIES - 1)];
 
+		if ((s1->number < 0) || (s1->number >= cl_numentities))
+		{
+			continue;
+		}
+
 		cent = &cl_entities[s1->number];
 
 		effects = s1->effects;
@@ -977,10 +982,9 @@ CL_GetEntitySoundVelocity(int ent, vec3_t vel)
 {
 	centity_t *old;
 
-	if ((ent < 0) || (ent >= MAX_EDICTS))
+	if ((ent < 0) || (ent >= cl_numentities))
 	{
-		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
-			__func__, ent, MAX_EDICTS);
+		VectorClear(vel);
 		return;
 	}
 

@@ -26,8 +26,36 @@
 
 #include "header/server.h"
 
+/* initialize the entities array to at least this many entities */
+#define ALLOC_ENTITIES_MIN 32
+#define MAX_SV_ENTS 32768
+
+void SV_ClearBaselines(void);
+
 server_static_t svs; /* persistant server info */
 server_t sv; /* local server */
+
+static entity_xstate_t *
+SV_AllocBaseline(int entnum)
+{
+	int nextpow2;
+
+	if ((entnum < 0) || (entnum >= MAX_SV_ENTS))
+	{
+		return NULL;
+	}
+
+	if (entnum >= sv.numbaselines)
+	{
+		nextpow2 = (sv.numbaselines || (entnum >= ALLOC_ENTITIES_MIN)) ?
+			(int)NextPow2(entnum) : ALLOC_ENTITIES_MIN;
+
+		sv.baselines = Z_Realloc(sv.baselines, nextpow2 * sizeof(entity_xstate_t));
+		sv.numbaselines = nextpow2;
+	}
+
+	return &sv.baselines[entnum];
+}
 
 static int
 SV_FindIndex(const char *name, int start, int max, qboolean create)
@@ -112,6 +140,7 @@ SV_GetEntityState(const edict_t *svent, entity_xstate_t *state)
 static void
 SV_CreateBaseline(void)
 {
+	entity_xstate_t *es;
 	edict_t *svent;
 	int entnum;
 
@@ -133,14 +162,20 @@ SV_CreateBaseline(void)
 
 		/* take current state as baseline */
 		VectorCopy(svent->s.origin, svent->s.old_origin);
-		if (entnum >= MAX_EDICTS)
+		if (entnum >= 32768)
 		{
 			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 				__func__, entnum, MAX_EDICTS);
 			return;
 		}
 
-		SV_GetEntityState(svent, &sv.baselines[entnum]);
+		es = SV_AllocBaseline(entnum);
+		if (!es)
+		{
+			continue;
+		}
+
+		SV_GetEntityState(svent, es);
 	}
 }
 
@@ -232,6 +267,7 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 	Com_SetServerState(sv.state);
 
 	/* wipe the entire per-level structure */
+	SV_ClearBaselines();
 	memset(&sv, 0, sizeof(sv));
 	svs.realtime = 0;
 	sv.loadgame = loadgame;

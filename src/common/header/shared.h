@@ -1455,4 +1455,6 @@ typedef struct
 size_t verify_fread(void *, size_t, size_t, FILE *);
 size_t verify_fwrite(void *, size_t, size_t, FILE *);
 
+unsigned int NextPow2(unsigned int i);
+
 #endif /* COMMON_SHARED_H */

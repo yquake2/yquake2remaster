@@ -1617,3 +1617,24 @@ Info_SetValueForKey(char *s, const char *key, const char *value)
 
 	*s = 0;
 }
+
+unsigned int
+NextPow2(unsigned int i)
+{
+	unsigned int b;
+
+	if (i & (1 << 31))
+	{
+		return 0;
+	}
+
+	for (b = (1 << 29); b >= 1; b >>= 1)
+	{
+		if (i & b)
+		{
+			return b << 1;
+		}
+	}
+
+	return 1;
+}
