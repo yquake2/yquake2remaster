@@ -491,9 +491,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			daliasxframe_t *frame = (daliasxframe_t *)(
 				(byte *)pheader + pheader->ofs_frames + total_frames * pheader->framesize);
 
-			/* limit frame ids to 2**16 */
-			snprintf(frame->name, sizeof(frame->name), "%s%d",
-				sequences[i].name, j % 0xFF);
+			/* name of frames will be duplicated */
+			Q_strlcpy(frame->name, sequences[i].name, sizeof(frame->name));
 
 			PrepareFrameVertex(out_vert, num_verts, frame);
 			total_frames++;

@@ -24,13 +24,12 @@
  * =======================================================================
  */
 
+#include <limits.h>
 #include "header/server.h"
 
 /* initialize the entities array to at least this many entities */
 #define ALLOC_ENTITIES_MIN 32
-#define MAX_SV_ENTS 32768
-
-void SV_ClearBaselines(void);
+#define MAX_SV_ENTS SHRT_MAX
 
 server_static_t svs; /* persistant server info */
 server_t sv; /* local server */
@@ -162,7 +161,7 @@ SV_CreateBaseline(void)
 
 		/* take current state as baseline */
 		VectorCopy(svent->s.origin, svent->s.old_origin);
-		if (entnum >= 32768)
+		if (entnum > SHRT_MAX)
 		{
 			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 				__func__, entnum, MAX_EDICTS);

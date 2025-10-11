@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "../../common/header/common.h"
 
@@ -333,7 +334,7 @@ extern	centity_t	*cl_entities;
 extern	int			cl_numentities;
 
 /* This limit is due to entnums being sent in signed 16-bit */
-#define MAX_CL_ENTS 32768
+#define MAX_CL_ENTS SHRT_MAX
 
 centity_t *CL_AllocEntity(int entnum);
 void CL_ClearEntities(void);

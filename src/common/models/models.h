@@ -40,7 +40,7 @@ typedef struct dmdx_vert_s
 typedef struct
 {
 	char name[MAX_SKINNAME];
-	char value[MAX_SKINNAME];
+	char value[MAX_SKINNAME * 2];
 } def_entry_t;
 
 void PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts,

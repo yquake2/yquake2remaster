@@ -52,7 +52,7 @@ CL_AddMuzzleFlash(void)
 
 	i = MSG_ReadShort(&net_message);
 
-	if ((i < 1) || (i >= MAX_CL_ENTS))
+	if ((i < 1) || (i > MAX_CL_ENTS))
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, i, MAX_CL_ENTS);
@@ -358,7 +358,7 @@ CL_AddMuzzleFlash2(void)
 
 	entnum = MSG_ReadShort(&net_message);
 
-	if ((entnum < 1) || (entnum >= MAX_CL_ENTS))
+	if ((entnum < 1) || (entnum > MAX_CL_ENTS))
 	{
 		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
 			__func__, entnum, MAX_CL_ENTS);

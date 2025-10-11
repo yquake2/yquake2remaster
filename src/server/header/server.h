@@ -264,6 +264,7 @@ void SV_BuildClientFrame(client_t *client);
 
 extern game_export_t *ge;
 
+void SV_ClearBaselines(void);
 void SV_InitGameProgs(void);
 void SV_ShutdownGameProgs(void);
 void SV_InitEdict(edict_t *e);

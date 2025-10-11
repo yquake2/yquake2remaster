@@ -1257,13 +1257,14 @@ ReadLevel(const char *filename)
 		{
 			fclose(f);
 			gi.error("%s: failed to read entnum", __func__);
-			break;
+			return;
 		}
 
 		if ((entnum < -1) || (entnum >= game.maxentities))
 		{
 			fclose(f);
 			gi.error("%s: entnum out of bounds: %d", __func__, entnum);
+			return;
 		}
 
 		if (entnum == -1)
