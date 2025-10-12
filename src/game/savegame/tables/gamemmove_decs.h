@@ -153,7 +153,6 @@ extern mmove_t dog_move_melee;
 extern mmove_t dog_move_pain1;
 extern mmove_t dog_move_pain2;
 extern mmove_t dog_move_run;
-extern mmove_t dog_move_stand;
 extern mmove_t enforcer_move_attack1;
 extern mmove_t enforcer_move_attack2;
 extern mmove_t enforcer_move_death1;

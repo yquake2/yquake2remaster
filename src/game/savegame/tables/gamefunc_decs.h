@@ -566,7 +566,6 @@ extern void dog_pain ( edict_t * self ,  edict_t * other , float kick , int dama
 extern void dog_run ( edict_t * self ) ;
 extern void dog_search ( edict_t * self ) ;
 extern void dog_sight ( edict_t * self ,  edict_t *other );
-extern void dog_stand ( edict_t * self ) ;
 extern void door_blocked ( edict_t * self , edict_t * other ) ;
 extern void door_go_down ( edict_t * self ) ;
 extern void door_go_up ( edict_t * self , edict_t * activator ) ;

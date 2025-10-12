@@ -29,35 +29,6 @@ static int sound_search;
 
 void dog_leap(edict_t *self);
 
-// Stand
-static mframe_t dog_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-};
-mmove_t dog_move_stand =
-{
-	FRAME_stand1,
-	FRAME_stand9,
-	dog_frames_stand,
-	NULL
-};
-
-void
-dog_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &dog_move_stand;
-}
-
 // Run
 static mframe_t dog_frames_run [] =
 {
@@ -395,7 +366,8 @@ SP_monster_dog(edict_t *self)
 	self->gib_health = -35;
 	self->mass = 30;
 
-	self->monsterinfo.stand = dog_stand;
+	monster_dynamic_setinfo(self);
+
 	self->monsterinfo.walk = dog_run;
 	self->monsterinfo.run = dog_run;
 	self->monsterinfo.attack = dog_leap;

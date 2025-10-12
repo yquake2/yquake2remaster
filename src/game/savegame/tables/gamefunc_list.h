@@ -529,7 +529,6 @@
 {"dog_run", (byte *)dog_run},
 {"dog_search", (byte *)dog_search},
 {"dog_sight", (byte *)dog_sight},
-{"dog_stand", (byte *)dog_stand},
 {"door_blocked", (byte *)door_blocked},
 {"door_go_down", (byte *)door_go_down},
 {"door_go_up", (byte *)door_go_up},

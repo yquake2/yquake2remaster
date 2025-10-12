@@ -152,7 +152,6 @@
 {"dog_move_pain1", &dog_move_pain1},
 {"dog_move_pain2", &dog_move_pain2},
 {"dog_move_run", &dog_move_run},
-{"dog_move_stand", &dog_move_stand},
 {"enforcer_move_attack1", &enforcer_move_attack1},
 {"enforcer_move_attack2", &enforcer_move_attack2},
 {"enforcer_move_death1", &enforcer_move_death1},
