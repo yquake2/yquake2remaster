@@ -848,7 +848,6 @@ extern void hknight_pain ( edict_t * self ,  edict_t * other , float kick, int d
 extern void hknight_run ( edict_t * self ) ;
 extern void hknight_search ( edict_t * self ) ;
 extern void hknight_sight ( edict_t * self ,  edict_t *other ) ;
-extern void hknight_stand ( edict_t * self ) ;
 extern void hover_attack ( edict_t * self ) ;
 extern void hover_dead ( edict_t * self ) ;
 extern void hover_deadthink ( edict_t * self ) ;
@@ -937,7 +936,6 @@ extern void knight_pain (edict_t * self ,  edict_t * other , float kick , int da
 extern void knight_run ( edict_t * self ) ;
 extern void knight_search ( edict_t * self ) ;
 extern void knight_sight ( edict_t * self ,  edict_t *other ) ;
-extern void knight_stand ( edict_t * self ) ;
 extern void land_to_water ( edict_t * self ) ;
 extern void landing_goal ( edict_t * self ) ;
 extern void light_use ( edict_t * self , edict_t * other , edict_t * activator ) ;

@@ -32,35 +32,6 @@ static int sound_pain;
 void hknight_run(edict_t *self);
 void swing_sword_step(edict_t *self);
 
-// Stand
-static mframe_t hknight_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-};
-mmove_t hknight_move_stand =
-{
-	FRAME_stand1,
-	FRAME_stand9,
-	hknight_frames_stand,
-	NULL
-};
-
-void
-hknight_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &hknight_move_stand;
-}
-
 // Charge
 static mframe_t hknight_frames_charge [] =
 {
@@ -544,7 +515,8 @@ SP_monster_hknight(edict_t *self)
 	self->gib_health = -40;
 	self->mass = 250;
 
-	self->monsterinfo.stand = hknight_stand;
+	monster_dynamic_setinfo(self);
+
 	self->monsterinfo.walk = hknight_run;
 	self->monsterinfo.run = hknight_run;
 	self->monsterinfo.attack = hknight_attack;

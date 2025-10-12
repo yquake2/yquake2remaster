@@ -30,35 +30,6 @@ static int sound_melee2;
 
 void knight_attack(edict_t *self);
 
-// Stand
-static mframe_t knight_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-};
-mmove_t knight_move_stand =
-{
-	FRAME_stand1,
-	FRAME_stand9,
-	knight_frames_stand,
-	NULL
-};
-
-void
-knight_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &knight_move_stand;
-}
-
 // Run
 static mframe_t knight_frames_run [] =
 {
@@ -383,7 +354,8 @@ SP_monster_knight(edict_t *self)
 	self->gib_health = -40;
 	self->mass = 75;
 
-	self->monsterinfo.stand = knight_stand;
+	monster_dynamic_setinfo(self);
+
 	self->monsterinfo.walk = knight_run;
 	self->monsterinfo.run = knight_run;
 	self->monsterinfo.attack = knight_attack;
