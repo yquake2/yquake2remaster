@@ -402,7 +402,6 @@ extern void army_pain ( edict_t * self ,  edict_t * other , float kick , int dam
 extern void army_run ( edict_t * self ) ;
 extern void army_search ( edict_t * self ) ;
 extern void army_sight ( edict_t * self ,  edict_t *other ) ;
-extern void army_stand ( edict_t * self ) ;
 extern void badarea_touch ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void barrel_delay ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void barrel_explode ( edict_t * self ) ;

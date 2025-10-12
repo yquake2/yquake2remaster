@@ -357,7 +357,6 @@
 {"army_run", (byte *)army_run},
 {"army_search", (byte *)army_search},
 {"army_sight", (byte *)army_sight},
-{"army_stand", (byte *)army_stand},
 {"badarea_touch", (byte *)badarea_touch},
 {"barrel_delay", (byte *)barrel_delay},
 {"barrel_explode", (byte *)barrel_explode},

@@ -52,7 +52,6 @@
 {"army_move_pain2", &army_move_pain2},
 {"army_move_pain3", &army_move_pain3},
 {"army_move_run", &army_move_run},
-{"army_move_stand", &army_move_stand},
 {"berserk_move_attack_club", &berserk_move_attack_club},
 {"berserk_move_attack_running_club", &berserk_move_attack_running_club},
 {"berserk_move_attack_spike", &berserk_move_attack_spike},

@@ -28,33 +28,6 @@ static int sound_pain2;
 static int sound_attack;
 static int sound_sight;
 
-// Stand
-static mframe_t army_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-};
-mmove_t army_move_stand =
-{
-	FRAME_stand1,
-	FRAME_stand8,
-	army_frames_stand,
-	NULL
-};
-
-void
-army_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &army_move_stand;
-}
-
 // Run
 static mframe_t army_frames_run [] =
 {
@@ -379,7 +352,8 @@ SP_monster_army(edict_t *self)
 	self->gib_health = -35;
 	self->mass = 30;
 
-	self->monsterinfo.stand = army_stand;
+	monster_dynamic_setinfo(self);
+
 	self->monsterinfo.walk = army_run;
 	self->monsterinfo.run = army_run;
 	self->monsterinfo.attack = army_attack;
