@@ -614,4 +614,3 @@ extern mmove_t zombie_move_pain2;
 extern mmove_t zombie_move_pain3;
 extern mmove_t zombie_move_pain4;
 extern mmove_t zombie_move_run;
-extern mmove_t zombie_move_stand;

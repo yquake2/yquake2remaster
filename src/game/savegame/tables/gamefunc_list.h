@@ -1520,7 +1520,5 @@
 {"zombie_run", (byte *)zombie_run},
 {"zombie_search", (byte *)zombie_search},
 {"zombie_sight", (byte *)zombie_sight},
-{"zombie_stand", (byte *)zombie_stand},
 {"zombie_touch", (byte *)zombie_touch},
-{"zombie_walk", (byte *)zombie_walk},
 {0, 0}

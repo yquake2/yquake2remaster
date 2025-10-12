@@ -885,7 +885,7 @@ M_MoveFrame(edict_t *self)
 	else if (self->monsterinfo.action)
 	{
 		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &firstframe, &lastframe);
-		lastframe += firstframe;
+		lastframe += firstframe - 1;
 	}
 	else
 	{
