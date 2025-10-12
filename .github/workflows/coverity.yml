@@ -38,7 +38,7 @@ jobs:
       run: |
         rm -rf cov-int
         make clean
-        cov-analysis-linux-arm64/bin/cov-build --dir cov-int make -j 4
+        cov-analysis-linux-arm64/bin/cov-build --dir cov-int make WITH_SDL3=no -j 4
     - name: Upload result
       run: |
         tar -czf cov-int.tgz cov-int
