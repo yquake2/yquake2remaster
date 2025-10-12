@@ -212,13 +212,19 @@ wizard_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
+	{
 		return;
+	}
+
 	self->pain_debounce_time = level.time + 3;
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
-	// decino: No pain animations in Nightmare mode
+	/* decino: No pain animations in Nightmare mode */
 	if (skill->value == SKILL_HARDPLUS)
+	{
 		return;
+	}
+
 	self->monsterinfo.currentmove = &wizard_move_pain;
 }
 
@@ -303,9 +309,13 @@ wizard_search(edict_t *self)
 	r = random() * 5;
 
 	if (r > 4.5)
+	{
 		gi.sound(self, CHAN_VOICE, sound_idle1, 1, ATTN_NORM, 0);
-	if (r < 1.5)
+	}
+	else if (r < 1.5)
+	{
 		gi.sound(self, CHAN_VOICE, sound_idle2, 1, ATTN_NORM, 0);
+	}
 }
 
 /*
