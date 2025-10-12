@@ -161,8 +161,6 @@
 {"enforcer_move_pain3", &enforcer_move_pain3},
 {"enforcer_move_pain4", &enforcer_move_pain4},
 {"enforcer_move_run", &enforcer_move_run},
-{"enforcer_move_stand", &enforcer_move_stand},
-{"enforcer_move_walk", &enforcer_move_walk},
 {"fish_move_death", &fish_move_death},
 {"fish_move_melee", &fish_move_melee},
 {"fish_move_pain", &fish_move_pain},

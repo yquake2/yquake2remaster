@@ -32,67 +32,6 @@ static int sound_sight2;
 static int sound_sight3;
 static int sound_sight4;
 
-// Stand
-static mframe_t enforcer_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-};
-mmove_t enforcer_move_stand =
-{
-	FRAME_stand1,
-	FRAME_stand7,
-	enforcer_frames_stand,
-	NULL
-};
-
-void
-enforcer_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &enforcer_move_stand;
-}
-
-// Walk
-static mframe_t enforcer_frames_walk [] =
-{
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL},
-	{ai_walk, 0, NULL}
-};
-
-mmove_t enforcer_move_walk =
-{
-	FRAME_walk1,
-	FRAME_walk16,
-	enforcer_frames_walk,
-	NULL
-};
-
-void
-enforcer_walk(edict_t *self)
-{
-	self->monsterinfo.currentmove = &enforcer_move_walk;
-}
-
 // Run
 static mframe_t enforcer_frames_run [] =
 {
@@ -547,8 +486,8 @@ SP_monster_enforcer(edict_t *self)
 	self->gib_health = -35;
 	self->mass = 80;
 
-	self->monsterinfo.stand = enforcer_stand;
-	self->monsterinfo.walk = enforcer_walk;
+	monster_dynamic_setinfo(self);
+
 	self->monsterinfo.run = enforcer_run;
 	self->monsterinfo.attack = enforcer_attack;
 	self->monsterinfo.sight = enforcer_sight;

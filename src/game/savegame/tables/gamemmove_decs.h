@@ -162,8 +162,6 @@ extern mmove_t enforcer_move_pain2;
 extern mmove_t enforcer_move_pain3;
 extern mmove_t enforcer_move_pain4;
 extern mmove_t enforcer_move_run;
-extern mmove_t enforcer_move_stand;
-extern mmove_t enforcer_move_walk;
 extern mmove_t fish_move_death;
 extern mmove_t fish_move_melee;
 extern mmove_t fish_move_pain;

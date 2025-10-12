@@ -604,8 +604,6 @@ extern void enforcer_run ( edict_t * self ) ;
 extern void enforcer_search ( edict_t * self ) ;
 extern void enforcer_sight ( edict_t * self , edict_t * other ) ;
 extern void enforcer_sight ( edict_t * self , edict_t *other );
-extern void enforcer_stand ( edict_t * self ) ;
-extern void enforcer_walk ( edict_t * self ) ;
 extern void env_fire_think ( edict_t * self ) ;
 extern void fd_secret_done ( edict_t * self ) ;
 extern void fd_secret_killed ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
