@@ -29,40 +29,6 @@ static int sound_pain;
 static int sound_sight;
 static int sound_search;
 
-// Stand
-static mframe_t demon_frames_stand [] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-};
-mmove_t demon_move_stand =
-{
-	FRAME_stand1,
-	FRAME_stand13,
-	demon_frames_stand,
-	NULL
-};
-
-void
-demon_stand(edict_t *self)
-{
-	self->monsterinfo.currentmove = &demon_move_stand;
-}
-
 // Run
 static mframe_t demon_frames_run [] =
 {
@@ -392,7 +358,8 @@ SP_monster_demon(edict_t *self)
 	self->gib_health = -80;
 	self->mass = 300;
 
-	self->monsterinfo.stand = demon_stand;
+	monster_dynamic_setinfo(self);
+
 	self->monsterinfo.walk = demon_run;
 	self->monsterinfo.run = demon_run;
 	self->monsterinfo.attack = demon_attack;
