@@ -991,7 +991,8 @@ M_MoveFrame(edict_t *self)
 			}
 		}
 		else if (!strcmp(self->monsterinfo.action, "stand") ||
-			!strcmp(self->monsterinfo.action, "hover"))
+			!strcmp(self->monsterinfo.action, "hover") ||
+			!strcmp(self->monsterinfo.action, "idle"))
 		{
 			ai_stand(self, 0);
 		}
@@ -1052,6 +1053,19 @@ monster_dynamic_run(edict_t *self)
 }
 
 void
+monster_dynamic_idle(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+
+	self->monsterinfo.action = "idle";
+}
+
+void
 monster_dynamic_stand(edict_t *self)
 {
 	if (!self)
@@ -1078,6 +1092,9 @@ monster_dynamic_stand(edict_t *self)
 void
 monster_dynamic_setinfo(edict_t *self)
 {
+	const dmdxframegroup_t * frames;
+	int num;
+
 	if (!self)
 	{
 		return;
@@ -1086,6 +1103,21 @@ monster_dynamic_setinfo(edict_t *self)
 	self->monsterinfo.walk = monster_dynamic_walk;
 	self->monsterinfo.run = monster_dynamic_run;
 	self->monsterinfo.stand = monster_dynamic_stand;
+
+	/* Check frame names for optional move animation */
+	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
+	if (frames && num)
+	{
+		size_t i;
+
+		for (i = 0; i < num; i++)
+		{
+			if (!strcmp(frames[i].name, "idle"))
+			{
+				self->monsterinfo.idle = monster_dynamic_idle;
+			}
+		}
+	}
 }
 
 void

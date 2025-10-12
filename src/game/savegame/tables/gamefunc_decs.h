@@ -1021,6 +1021,7 @@ extern void monster_death_use ( edict_t * self ) ;
 extern void monster_dynamic_run ( edict_t * self ) ;
 extern void monster_dynamic_walk ( edict_t * self ) ;
 extern void monster_dynamic_stand ( edict_t * self ) ;
+extern void monster_dynamic_idle ( edict_t * self ) ;
 extern void monster_dynamic_setinfo ( edict_t * self ) ;
 extern void monster_done_dodge ( edict_t * self ) ;
 extern void monster_duck_down ( edict_t * self ) ;
