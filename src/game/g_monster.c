@@ -1084,6 +1084,11 @@ void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
+	if (skill->value == SKILL_HARDPLUS)
+	{
+		return; /* no pain anims in nightmare */
+	}
+
 	self->monsterinfo.currentmove = NULL;
 
 	self->monsterinfo.action = "pain";

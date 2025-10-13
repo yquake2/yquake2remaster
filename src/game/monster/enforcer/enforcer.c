@@ -331,15 +331,26 @@ enforcer_pain(edict_t *self, edict_t *other /* unused */,
 
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == SKILL_HARDPLUS)
+	{
 		return;
+	}
+
 	if (level.time < self->pain_debounce_time)
+	{
 		return;
+	}
+
 	r = random();
 
 	if (r < 0.5)
+	{
 		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+	}
 	else
+	{
 		gi.sound(self, CHAN_VOICE, sound_pain2, 1, ATTN_NORM, 0);
+	}
+
 	if (r < 0.2)
 	{
 		self->pain_debounce_time = level.time + 1.0;

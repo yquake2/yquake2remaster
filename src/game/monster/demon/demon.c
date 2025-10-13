@@ -222,40 +222,35 @@ demon_melee(edict_t *self)
 }
 
 // Pain
-static mframe_t demon_frames_pain [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-mmove_t demon_move_pain =
-{
-	FRAME_pain1,
-	FRAME_pain6,
-	demon_frames_pain,
-	demon_run
-};
 
 void
 demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == SKILL_HARDPLUS)
+	{
 		return;
+	}
+
 	if (self->touch == demon_jump_touch)
+	{
 		return;
+	}
+
 	if (self->pain_debounce_time > level.time)
+	{
 		return;
+	}
+
 	self->pain_debounce_time = level.time + 1.0;
-    gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
+	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 
 	if (random() * 200 > damage)
+	{
 		return;
-	self->monsterinfo.currentmove = &demon_move_pain;
+	}
+
+	monster_dynamic_pain(self, other, kick, damage);
 }
 
 void

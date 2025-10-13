@@ -143,7 +143,6 @@ extern mmove_t chick_move_walk;
 extern mmove_t demon_move_die;
 extern mmove_t demon_move_jump;
 extern mmove_t demon_move_melee;
-extern mmove_t demon_move_pain;
 extern mmove_t demon_move_run;
 extern mmove_t dog_move_die1;
 extern mmove_t dog_move_die2;

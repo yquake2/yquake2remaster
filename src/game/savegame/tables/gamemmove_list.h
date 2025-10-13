@@ -142,7 +142,6 @@
 {"demon_move_die", &demon_move_die},
 {"demon_move_jump", &demon_move_jump},
 {"demon_move_melee", &demon_move_melee},
-{"demon_move_pain", &demon_move_pain},
 {"demon_move_run", &demon_move_run},
 {"dog_move_die1", &dog_move_die1},
 {"dog_move_die2", &dog_move_die2},

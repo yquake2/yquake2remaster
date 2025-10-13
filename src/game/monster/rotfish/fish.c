@@ -180,12 +180,6 @@ fish_pain(edict_t *self, edict_t *other /* unused */,
 
 	self->pain_debounce_time = level.time + 3;
 
-	// decino: No pain animations in Nightmare mode
-	if (skill->value == SKILL_HARDPLUS)
-	{
-		return;
-	}
-
 	monster_dynamic_pain(self, other, kick, damage);
 }
 
