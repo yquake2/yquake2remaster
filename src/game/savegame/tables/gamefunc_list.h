@@ -989,6 +989,7 @@
 {"misc_viper_use", (byte *)misc_viper_use},
 {"misc_update_spawner_touch", (byte *)misc_update_spawner_touch},
 {"monster_dabeam", (byte *)monster_dabeam},
+{"monster_dynamic_pain", (byte *)monster_dynamic_pain},
 {"monster_dynamic_walk", (byte *)monster_dynamic_walk},
 {"monster_dynamic_run", (byte *)monster_dynamic_run},
 {"monster_dynamic_setinfo", (byte *)monster_dynamic_setinfo},

@@ -1011,6 +1011,7 @@ extern void misc_viper_use ( edict_t * self , edict_t * other , edict_t * activa
 extern void misc_update_spawner_touch(edict_t *self, edict_t *other, cplane_t *plane ,  csurface_t *surf ) ;
 extern void monster_dabeam ( edict_t * self ) ;
 extern void monster_death_use ( edict_t * self ) ;
+extern void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */, float kick /* unused */, int damage);
 extern void monster_dynamic_run ( edict_t * self ) ;
 extern void monster_dynamic_walk ( edict_t * self ) ;
 extern void monster_dynamic_stand ( edict_t * self ) ;

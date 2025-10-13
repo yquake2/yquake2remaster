@@ -192,21 +192,6 @@ wizard_attack(edict_t *self)
 }
 
 // Pain
-static mframe_t wizard_frames_pain [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-mmove_t wizard_move_pain =
-{
-	FRAME_pain1,
-	FRAME_pain4,
-	wizard_frames_pain,
-	monster_dynamic_run
-};
-
 void
 wizard_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -225,7 +210,7 @@ wizard_pain(edict_t *self, edict_t *other /* unused */,
 		return;
 	}
 
-	self->monsterinfo.currentmove = &wizard_move_pain;
+	monster_dynamic_pain(self, other, kick, damage);
 }
 
 static void

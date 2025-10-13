@@ -926,6 +926,13 @@ M_MoveFrame(edict_t *self)
 					return;
 				}
 			}
+			else if (self->monsterinfo.action &&
+				self->monsterinfo.run &&
+				!strcmp(self->monsterinfo.action, "pain"))
+			{
+				/* last frame in pain go to run action */
+				self->monsterinfo.run(self);
+			}
 		}
 
 		if ((self->s.frame < firstframe) ||
@@ -996,6 +1003,10 @@ M_MoveFrame(edict_t *self)
 		{
 			ai_stand(self, 0);
 		}
+		else if (!strcmp(self->monsterinfo.action, "pain"))
+		{
+			ai_move(self, 0);
+		}
 	}
 
 	if (move && move->frame[index].thinkfunc)
@@ -1065,6 +1076,19 @@ monster_dynamic_idle(edict_t *self)
 	self->monsterinfo.action = "idle";
 }
 
+void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+
+	self->monsterinfo.action = "pain";
+}
+
 void
 monster_dynamic_stand(edict_t *self)
 {
@@ -1115,6 +1139,10 @@ monster_dynamic_setinfo(edict_t *self)
 			if (!strcmp(frames[i].name, "idle"))
 			{
 				self->monsterinfo.idle = monster_dynamic_idle;
+			}
+			else if (!strcmp(frames[i].name, "pain"))
+			{
+				self->pain = monster_dynamic_pain;
 			}
 		}
 	}

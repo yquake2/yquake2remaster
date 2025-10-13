@@ -168,51 +168,25 @@ fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_
 }
 
 // Pain
-static mframe_t fish_frames_pain [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-mmove_t fish_move_pain =
-{
-	FRAME_pain1,
-	FRAME_pain9,
-	fish_frames_pain,
-	monster_dynamic_run
-};
 
 void
 fish_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
+	{
 		return;
+	}
+
 	self->pain_debounce_time = level.time + 3;
 
 	// decino: No pain animations in Nightmare mode
 	if (skill->value == SKILL_HARDPLUS)
+	{
 		return;
-	self->monsterinfo.currentmove = &fish_move_pain;
+	}
+
+	monster_dynamic_pain(self, other, kick, damage);
 }
 
 /*
