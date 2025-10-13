@@ -1628,7 +1628,7 @@ NextPow2(unsigned int i)
 		return 0;
 	}
 
-	for (b = (1 << 29); b >= 1; b >>= 1)
+	for (b = (1 << 30); b >= 1; b >>= 1)
 	{
 		if (i & b)
 		{

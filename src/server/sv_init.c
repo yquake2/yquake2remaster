@@ -169,12 +169,10 @@ SV_CreateBaseline(void)
 		}
 
 		es = SV_AllocBaseline(entnum);
-		if (!es)
+		if (es)
 		{
-			continue;
+			SV_GetEntityState(svent, es);
 		}
-
-		SV_GetEntityState(svent, es);
 	}
 }
 
