@@ -1012,6 +1012,7 @@ extern void misc_update_spawner_touch(edict_t *self, edict_t *other, cplane_t *p
 extern void monster_dabeam ( edict_t * self ) ;
 extern void monster_death_use ( edict_t * self ) ;
 extern void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */, float kick /* unused */, int damage);
+extern void monster_dynamic_pain_noanim(edict_t *self, edict_t *other /* unused */, float kick /* unused */, int damage);
 extern void monster_dynamic_run ( edict_t * self ) ;
 extern void monster_dynamic_walk ( edict_t * self ) ;
 extern void monster_dynamic_stand ( edict_t * self ) ;
@@ -1322,7 +1323,6 @@ extern void tarbaby_attack ( edict_t * self ) ;
 extern void tarbaby_die ( edict_t * self ,  edict_t *inflictor , edict_t *attacker , int damage, vec3_t point );
 extern void tarbaby_explode ( edict_t * self ) ;
 extern void tarbaby_fly ( edict_t * self ) ;
-extern void tarbaby_pain (edict_t * self ,  edict_t * other , float kick , int damage);
 extern void tarbaby_rejump ( edict_t * self ) ;
 extern void tarbaby_run ( edict_t * self ) ;
 extern void tarbaby_sight ( edict_t * self ,  edict_t *other );
@@ -1412,7 +1412,6 @@ extern void turret_die ( edict_t * self , edict_t * inflictor , edict_t * attack
 extern void turret_driver_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void turret_driver_link ( edict_t * self ) ;
 extern void turret_driver_think ( edict_t * self ) ;
-extern void turret_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
 extern void turret_ready_gun ( edict_t * self ) ;
 extern void turret_run ( edict_t * self ) ;
 extern void turret_search ( edict_t * self ) ;

@@ -760,12 +760,6 @@ turret_attack(edict_t *self)
 }
 
 void
-turret_pain(edict_t *self, edict_t *other, float kick, int damage)
-{
-	return;
-}
-
-void
 turret_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
 		int damage /* unused */, vec3_t point /* unused */)
 {
@@ -1160,7 +1154,7 @@ SP_monster_turret(edict_t *self)
 
 	self->flags |= FL_MECHANICAL;
 
-	self->pain = turret_pain;
+	self->pain = monster_dynamic_pain_noanim;
 	self->die = turret_die;
 
 	/* map designer didn't specify weapon type. set it now. */

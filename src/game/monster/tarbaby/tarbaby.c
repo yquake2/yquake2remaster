@@ -239,14 +239,6 @@ tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->nextthink = level.time + 0.1;
 }
 
-// Pain
-void
-tarbaby_pain(edict_t *self, edict_t *other /* unused */,
-		float kick /* unused */, int damage)
-{
-
-}
-
 /*
  * QUAKED monster_tarbaby (1 .5 0) (-16, -16, -24) (16, 16, 40) Ambush Trigger_Spawn Sight
  */
@@ -276,7 +268,7 @@ SP_monster_tarbaby(edict_t *self)
 	self->monsterinfo.sight = tarbaby_sight;
 
 	self->die = tarbaby_die;
-	self->pain = tarbaby_pain;
+	self->pain = monster_dynamic_pain_noanim;
 
 	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);

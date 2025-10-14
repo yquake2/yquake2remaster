@@ -1076,7 +1076,14 @@ monster_dynamic_idle(edict_t *self)
 	self->monsterinfo.action = "idle";
 }
 
-void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
+void
+monster_dynamic_pain_noanim(edict_t *self, edict_t *other /* unused */,
+		float kick /* unused */, int damage)
+{
+}
+
+void
+monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	if (!self)
@@ -1132,6 +1139,7 @@ monster_dynamic_setinfo(edict_t *self)
 	self->monsterinfo.walk = monster_dynamic_walk;
 	self->monsterinfo.run = monster_dynamic_run;
 	self->monsterinfo.stand = monster_dynamic_stand;
+	self->pain = monster_dynamic_pain_noanim;
 
 	/* Check frame names for optional move animation */
 	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
