@@ -182,18 +182,11 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	gi.centerprintf(other, "Entity description: %s", self->message);
 }
 
-void
-dynamicspawn_think(edict_t *self)
-{
-	M_SetAnimGroupFrame(self, "idle");
-	self->nextthink = level.time + FRAMETIME;
-}
-
 static void
 DynamicSpawn(edict_t *self, dynamicentity_t *data)
 {
 	const dmdxframegroup_t * frames;
-	int num, i;
+	int num;
 
 	/* All other properties could be updated in DynamicSpawnUpdate */
 	self->movetype = MOVETYPE_NONE;
@@ -209,24 +202,38 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 	gi.GetModelFrameInfo(self->s.modelindex, self->s.frame,
 		self->mins, self->maxs);
 
-	/* Set Mins/Maxs based on whole model frames in animation group */
-	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
-	for (i = 0; i < num; i++)
-	{
-		if (!strcmp(frames[i].name, "idle"))
-		{
-			self->think = dynamicspawn_think;
-			self->nextthink = level.time + FRAMETIME;
-			VectorCopy(frames[i].mins, self->mins);
-			VectorCopy(frames[i].maxs, self->maxs);
-
-			break;
-		}
-	}
-
 	self->touch = dynamicspawn_touch;
 
 	gi.linkentity(self);
+
+	/* Set Mins/Maxs based on whole model frames in animation group */
+	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
+	if (frames && num)
+	{
+		size_t i;
+
+		monster_dynamic_setinfo(self);
+
+		for (i = 0; i < num; i++)
+		{
+			if (!strcmp(frames[i].name, "walk") ||
+				!strcmp(frames[i].name, "run"))
+			{
+				walkmonster_start(self);
+				break;
+			}
+			else if (!strcmp(frames[i].name, "swim"))
+			{
+				swimmonster_start(self);
+				break;
+			}
+			else if (!strcmp(frames[i].name, "fly"))
+			{
+				flymonster_start(self);
+				break;
+			}
+		}
+	}
 }
 
 static int

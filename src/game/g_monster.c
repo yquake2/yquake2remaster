@@ -886,6 +886,9 @@ M_MoveFrame(edict_t *self)
 	{
 		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &firstframe, &lastframe);
 		lastframe += firstframe - 1;
+		printf("run: %s for %s with start frame %d at %s\n",
+				__func__, self->monsterinfo.action, self->s.frame,
+				vtos(self->s.origin));
 	}
 	else
 	{
@@ -1018,6 +1021,11 @@ M_MoveFrame(edict_t *self)
 		else if (!strcmp(self->monsterinfo.action, "attack"))
 		{
 			ai_charge(self, 0);
+		}
+		else
+		{
+			printf("%snot catched up%s\n",
+				self->classname, self->monsterinfo.action);
 		}
 	}
 
