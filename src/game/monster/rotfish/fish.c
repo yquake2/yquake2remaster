@@ -163,8 +163,12 @@ fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
+
 	if (self->deadflag == DEAD_DEAD)
+	{
 		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 
 	self->deadflag = DEAD_DEAD;

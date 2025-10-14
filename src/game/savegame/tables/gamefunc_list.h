@@ -996,6 +996,7 @@
 {"monster_dynamic_stand", (byte *)monster_dynamic_stand},
 {"monster_dynamic_search", (byte *)monster_dynamic_search},
 {"monster_dynamic_sight", (byte *)monster_dynamic_sight},
+{"monster_dynamic_attack", (byte *)monster_dynamic_attack},
 {"monster_dynamic_idle", (byte *)monster_dynamic_idle},
 {"monster_death_use", (byte *)monster_death_use},
 {"monster_done_dodge", (byte *)monster_done_dodge},

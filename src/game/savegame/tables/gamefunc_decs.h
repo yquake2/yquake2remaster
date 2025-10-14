@@ -1019,6 +1019,7 @@ extern void monster_dynamic_search ( edict_t * self ) ;
 extern void monster_dynamic_idle ( edict_t * self ) ;
 extern void monster_dynamic_setinfo ( edict_t * self ) ;
 extern void monster_dynamic_sight ( edict_t * self, edict_t * other /* unused */);
+extern void monster_dynamic_attack ( edict_t * self ) ;
 extern void monster_done_dodge ( edict_t * self ) ;
 extern void monster_duck_down ( edict_t * self ) ;
 extern void monster_duck_hold ( edict_t * self ) ;
