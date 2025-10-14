@@ -904,6 +904,7 @@ void monster_dynamic_run(edict_t *self);
 void monster_dynamic_walk(edict_t *self);
 void monster_dynamic_idle(edict_t *self);
 void monster_dynamic_stand(edict_t *self);
+void monster_dynamic_search(edict_t *self);
 void monster_dynamic_setinfo(edict_t *self);
 void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage);

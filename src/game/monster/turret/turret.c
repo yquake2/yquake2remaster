@@ -44,7 +44,6 @@ extern qboolean FindTarget(edict_t *self);
 void turret_run(edict_t *self);
 void TurretAim(edict_t *self);
 void turret_sight(edict_t *self, edict_t *other);
-void turret_search(edict_t *self);
 void turret_stand(edict_t *self);
 void turret_wake(edict_t *self);
 void turret_ready_gun(edict_t *self);
@@ -358,11 +357,6 @@ TurretAim(edict_t *self)
 
 void
 turret_sight(edict_t *self, edict_t *other)
-{
-}
-
-void
-turret_search(edict_t *self)
 {
 }
 
@@ -899,7 +893,7 @@ turret_wake(edict_t *self)
 	self->monsterinfo.attack = turret_attack;
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = turret_sight;
-	self->monsterinfo.search = turret_search;
+	self->monsterinfo.search = monster_dynamic_search;
 	self->monsterinfo.currentmove = &turret_move_stand;
 
 	self->takedamage = DAMAGE_AIM;
@@ -1178,7 +1172,7 @@ SP_monster_turret(edict_t *self)
 		self->monsterinfo.attack = turret_attack;
 		self->monsterinfo.melee = NULL;
 		self->monsterinfo.sight = turret_sight;
-		self->monsterinfo.search = turret_search;
+		self->monsterinfo.search = monster_dynamic_search;
 		self->monsterinfo.currentmove = &turret_move_stand;
 	}
 

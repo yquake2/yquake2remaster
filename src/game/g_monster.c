@@ -1126,6 +1126,11 @@ monster_dynamic_stand(edict_t *self)
 }
 
 void
+monster_dynamic_search(edict_t *self)
+{
+}
+
+void
 monster_dynamic_setinfo(edict_t *self)
 {
 	const dmdxframegroup_t * frames;
@@ -1139,6 +1144,7 @@ monster_dynamic_setinfo(edict_t *self)
 	self->monsterinfo.walk = monster_dynamic_walk;
 	self->monsterinfo.run = monster_dynamic_run;
 	self->monsterinfo.stand = monster_dynamic_stand;
+	self->monsterinfo.search = monster_dynamic_search;
 	self->pain = monster_dynamic_pain_noanim;
 
 	/* Check frame names for optional move animation */

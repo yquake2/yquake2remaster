@@ -89,6 +89,11 @@ fish_melee(edict_t *self)
 void
 fish_search(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 

@@ -634,6 +634,11 @@ zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec
 void
 zombie_search(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (random() < 0.2)
 	{
 		gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);

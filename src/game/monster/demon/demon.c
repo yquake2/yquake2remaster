@@ -325,6 +325,11 @@ demon_sight(edict_t *self, edict_t *other /* unused */)
 void
 demon_search(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 

@@ -95,11 +95,6 @@ void widow_start_run_12(edict_t *self);
 void WidowCalcSlots(edict_t *self);
 
 void
-widow_search(edict_t *self)
-{
-}
-
-void
 widow_sight(edict_t *self, edict_t *other /* unused */)
 {
 	if (!self)
@@ -1898,7 +1893,7 @@ SP_monster_widow(edict_t *self)
 	self->monsterinfo.walk = widow_walk;
 	self->monsterinfo.run = widow_run;
 	self->monsterinfo.attack = widow_attack;
-	self->monsterinfo.search = widow_search;
+	self->monsterinfo.search = monster_dynamic_search;
 	self->monsterinfo.checkattack = Widow_CheckAttack;
 	self->monsterinfo.sight = widow_sight;
 

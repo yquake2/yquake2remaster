@@ -284,6 +284,11 @@ wizard_sight(edict_t *self, edict_t *other /* unused */)
 void
 wizard_search(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	float r;
 	r = random() * 5;
 
