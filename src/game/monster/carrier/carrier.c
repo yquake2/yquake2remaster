@@ -1326,10 +1326,7 @@ carrier_dead(edict_t *self)
 
 	VectorSet(self->mins, -56, -56, 0);
 	VectorSet(self->maxs, 56, 56, 80);
-	self->movetype = MOVETYPE_TOSS;
-	self->svflags |= SVF_DEADMONSTER;
-	self->nextthink = 0;
-	gi.linkentity(self);
+	monster_dynamic_dead(self);
 }
 
 void

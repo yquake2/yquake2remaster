@@ -221,13 +221,6 @@ wizard_fling(edict_t *self)
 	self->svflags |= SVF_DEADMONSTER;
 }
 
-void
-wizard_dead(edict_t *self)
-{
-	self->nextthink = 0;
-	gi.linkentity(self);
-}
-
 // Death
 static mframe_t wizard_frames_death [] =
 {
@@ -246,7 +239,7 @@ mmove_t wizard_move_death =
 	FRAME_death1,
 	FRAME_death8,
 	wizard_frames_death,
-	wizard_dead
+	monster_dynamic_dead
 };
 
 void

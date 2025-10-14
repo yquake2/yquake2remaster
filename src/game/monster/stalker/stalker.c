@@ -1369,10 +1369,7 @@ stalker_dead(edict_t *self)
 
 	VectorSet(self->mins, -28, -28, -18);
 	VectorSet(self->maxs, 28, 28, -4);
-	self->movetype = MOVETYPE_TOSS;
-	self->svflags |= SVF_DEADMONSTER;
-	self->nextthink = 0;
-	gi.linkentity(self);
+	monster_dynamic_dead(self);
 }
 
 static mframe_t stalker_frames_death[] = {

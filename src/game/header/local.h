@@ -906,6 +906,11 @@ void monster_dynamic_idle(edict_t *self);
 void monster_dynamic_stand(edict_t *self);
 void monster_dynamic_search(edict_t *self);
 void monster_dynamic_setinfo(edict_t *self);
+void monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+	int damage, vec3_t point);
+void monster_dynamic_die_noanim(edict_t *self, edict_t *inflictor, edict_t *attacker,
+	int damage, vec3_t point);
+void monster_dynamic_dead(edict_t *self);
 void monster_dynamic_attack(edict_t *self);
 void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage);

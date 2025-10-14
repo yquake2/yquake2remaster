@@ -1013,6 +1013,11 @@ extern void monster_death_use ( edict_t * self ) ;
 extern void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */, float kick /* unused */, int damage);
 extern void monster_dynamic_pain_noanim(edict_t *self, edict_t *other /* unused */, float kick /* unused */, int damage);
 extern void monster_dynamic_run ( edict_t * self ) ;
+extern void monster_dynamic_die ( edict_t *self, edict_t *inflictor, edict_t *attacker,
+	int damage, vec3_t point ) ;
+extern void monster_dynamic_die_noanim ( edict_t *self, edict_t *inflictor, edict_t *attacker,
+	int damage, vec3_t point ) ;
+extern void monster_dynamic_dead ( edict_t * self ) ;
 extern void monster_dynamic_walk ( edict_t * self ) ;
 extern void monster_dynamic_stand ( edict_t * self ) ;
 extern void monster_dynamic_search ( edict_t * self ) ;
@@ -1502,7 +1507,6 @@ extern void widow_stepshoot ( edict_t * self ) ;
 extern void widow_walk ( edict_t * self ) ;
 extern void widowlegs_think ( edict_t * self ) ;
 extern void wizard_attack ( edict_t * self ) ;
-extern void wizard_dead ( edict_t * self ) ;
 extern void wizard_die ( edict_t * self ,  edict_t * inflictor , edict_t * attacker , int damage, vec3_t point);
 extern void wizard_finish_attack ( edict_t * self ) ;
 extern void wizard_pain ( edict_t * self ,  edict_t * other , float kick , int damage);

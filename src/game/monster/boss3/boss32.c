@@ -946,10 +946,7 @@ makron_dead(edict_t *self)
 
 	VectorSet(self->mins, -48, -48, 0);
 	VectorSet(self->maxs, 48, 48, 24);
-	self->movetype = MOVETYPE_TOSS;
-	self->svflags |= SVF_DEADMONSTER;
-	self->nextthink = 0;
-	gi.linkentity(self);
+	monster_dynamic_dead(self);
 }
 
 void

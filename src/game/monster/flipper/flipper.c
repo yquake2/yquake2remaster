@@ -376,10 +376,7 @@ flipper_dead(edict_t *self)
 
 	self->mins[2] = tr.endpos[2] - self->s.origin[2];
 
-	self->movetype = MOVETYPE_TOSS;
-	self->svflags |= SVF_DEADMONSTER;
-	self->nextthink = 0;
-	gi.linkentity(self);
+	monster_dynamic_dead(self);
 }
 
 static mframe_t flipper_frames_death[] = {

@@ -931,8 +931,14 @@ M_MoveFrame(edict_t *self)
 				(!strcmp(self->monsterinfo.action, "attack") ||
 				 !strcmp(self->monsterinfo.action, "pain")))
 			{
-				/* last frame in pain go to run action */
+				/* last frame in pain / attack go to run action */
 				self->monsterinfo.run(self);
+			}
+			else if (self->monsterinfo.action &&
+				!strcmp(self->monsterinfo.action, "death"))
+			{
+				/* last frame in pain go to death action */
+				monster_dynamic_dead(self);
 			}
 		}
 
@@ -1004,7 +1010,8 @@ M_MoveFrame(edict_t *self)
 		{
 			ai_stand(self, 0);
 		}
-		else if (!strcmp(self->monsterinfo.action, "pain"))
+		else if (!strcmp(self->monsterinfo.action, "pain") ||
+			!strcmp(self->monsterinfo.action, "death"))
 		{
 			ai_move(self, 0);
 		}
@@ -1077,7 +1084,6 @@ monster_dynamic_idle(edict_t *self)
 	}
 
 	self->monsterinfo.currentmove = NULL;
-
 	self->monsterinfo.action = "idle";
 }
 
@@ -1090,8 +1096,41 @@ monster_dynamic_attack(edict_t *self)
 	}
 
 	self->monsterinfo.currentmove = NULL;
-
 	self->monsterinfo.action = "attack";
+}
+
+void
+monster_dynamic_dead(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->movetype = MOVETYPE_TOSS;
+	self->svflags |= SVF_DEADMONSTER;
+	self->nextthink = 0;
+	gi.linkentity(self);
+}
+
+void
+monster_dynamic_die_noanim(edict_t *self, edict_t *inflictor, edict_t *attacker,
+	int damage, vec3_t point)
+{
+	monster_dynamic_dead(self);
+}
+
+void
+monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+	int damage, vec3_t point)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = "death";
 }
 
 void
@@ -1171,6 +1210,7 @@ monster_dynamic_setinfo(edict_t *self)
 	self->monsterinfo.sight = monster_dynamic_sight;
 	self->monsterinfo.attack = monster_dynamic_attack;
 	self->pain = monster_dynamic_pain_noanim;
+	self->die = monster_dynamic_die_noanim;
 
 	/* Check frame names for optional move animation */
 	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
@@ -1190,7 +1230,11 @@ monster_dynamic_setinfo(edict_t *self)
 			}
 			else if (!strcmp(frames[i].name, "attack"))
 			{
-				self->monsterinfo.attack = monster_dynamic_attack;;
+				self->monsterinfo.attack = monster_dynamic_attack;
+			}
+			else if (!strcmp(frames[i].name, "death"))
+			{
+				self->die = monster_dynamic_die;
 			}
 		}
 	}
