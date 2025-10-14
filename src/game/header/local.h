@@ -910,6 +910,7 @@ void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage);
 void monster_dynamic_pain_noanim(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage);
+void monster_dynamic_sight(edict_t *self, edict_t *other /* unused */);
 void monster_think(edict_t *self);
 void walkmonster_start(edict_t *self);
 void swimmonster_start(edict_t *self);

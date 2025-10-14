@@ -354,12 +354,22 @@ doppleganger_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attack
 void
 doppleganger_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	self->enemy = other;
 }
 
 void
 doppleganger_timeout(edict_t *self)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	if (self->teamchain)
 	{
 		BecomeExplosion1(self->teamchain);

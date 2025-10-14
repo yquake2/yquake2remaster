@@ -43,7 +43,6 @@ extern qboolean FindTarget(edict_t *self);
 
 void turret_run(edict_t *self);
 void TurretAim(edict_t *self);
-void turret_sight(edict_t *self, edict_t *other);
 void turret_stand(edict_t *self);
 void turret_wake(edict_t *self);
 void turret_ready_gun(edict_t *self);
@@ -353,11 +352,6 @@ TurretAim(edict_t *self)
 
 		self->s.angles[YAW] = anglemod(current + move);
 	}
-}
-
-void
-turret_sight(edict_t *self, edict_t *other)
-{
 }
 
 static mframe_t turret_frames_stand[] = {
@@ -892,7 +886,7 @@ turret_wake(edict_t *self)
 	self->monsterinfo.dodge = NULL;
 	self->monsterinfo.attack = turret_attack;
 	self->monsterinfo.melee = NULL;
-	self->monsterinfo.sight = turret_sight;
+	self->monsterinfo.sight = monster_dynamic_sight;
 	self->monsterinfo.search = monster_dynamic_search;
 	self->monsterinfo.currentmove = &turret_move_stand;
 
@@ -1171,7 +1165,7 @@ SP_monster_turret(edict_t *self)
 		self->monsterinfo.dodge = NULL;
 		self->monsterinfo.attack = turret_attack;
 		self->monsterinfo.melee = NULL;
-		self->monsterinfo.sight = turret_sight;
+		self->monsterinfo.sight = monster_dynamic_sight;
 		self->monsterinfo.search = monster_dynamic_search;
 		self->monsterinfo.currentmove = &turret_move_stand;
 	}

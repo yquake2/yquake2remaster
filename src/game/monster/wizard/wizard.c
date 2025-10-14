@@ -278,6 +278,11 @@ wizard_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec
 void
 wizard_sight(edict_t *self, edict_t *other /* unused */)
 {
+	if (!self)
+	{
+		return;
+	}
+
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
