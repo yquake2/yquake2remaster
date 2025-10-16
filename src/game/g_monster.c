@@ -1550,8 +1550,6 @@ monster_start(edict_t *self)
 		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &ofs_frames, &num_frames);
 
 		self->s.frame = ofs_frames + (randk() % num_frames);
-		printf("run: %s for %s with start frame %d\n",
-			__func__, self->monsterinfo.action, self->s.frame);
 	}
 
 	self->monsterinfo.base_height = self->maxs[2];
