@@ -1128,20 +1128,6 @@ stalker_dodge_jump(edict_t *self)
 	self->monsterinfo.currentmove = &stalker_move_jump_straightup;
 }
 
-static mframe_t stalker_frames_dodge_run[] = {
-	{ai_run, 13, NULL},
-	{ai_run, 17, NULL},
-	{ai_run, 21, NULL},
-	{ai_run, 18, monster_done_dodge}
-};
-
-mmove_t stalker_move_dodge_run = {
-	FRAME_run01,
-	FRAME_run04,
-	stalker_frames_dodge_run,
-	NULL
-};
-
 void
 stalker_dodge(edict_t *self, edict_t *attacker, float eta, trace_t *tr /* unused */)
 {

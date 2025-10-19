@@ -498,7 +498,6 @@
 {"soldierh_move_walk1", &soldierh_move_walk1},
 {"soldierh_move_walk2", &soldierh_move_walk2},
 {"stalker_move_death", &stalker_move_death},
-{"stalker_move_dodge_run", &stalker_move_dodge_run},
 {"stalker_move_false_death", &stalker_move_false_death},
 {"stalker_move_false_death_end", &stalker_move_false_death_end},
 {"stalker_move_false_death_start", &stalker_move_false_death_start},

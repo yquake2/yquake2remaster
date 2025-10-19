@@ -499,7 +499,6 @@ extern mmove_t soldierh_move_start_run;
 extern mmove_t soldierh_move_walk1;
 extern mmove_t soldierh_move_walk2;
 extern mmove_t stalker_move_death;
-extern mmove_t stalker_move_dodge_run;
 extern mmove_t stalker_move_false_death;
 extern mmove_t stalker_move_false_death_end;
 extern mmove_t stalker_move_false_death_start;
