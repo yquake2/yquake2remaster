@@ -217,6 +217,7 @@ typedef struct
 	const dmdxframegroup_t * (*GetModelInfo)(int index, int *num, float *mins, float *maxs);
 	void (*GetModelFrameInfo)(int index, int num, float *mins, float *maxs);
 	void (*PmoveEx)(pmove_t *pmove, int *origin);
+	void * (*TagRealloc)(void *ptr, int size, int tag);
 
 	const char* (*LocalizationMessage)(const char *message, int *sound_index);
 	const char* (*LocalizationUIMessage)(const char *message, const char *default_message);

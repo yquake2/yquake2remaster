@@ -36,7 +36,7 @@ Models support:
 | Format | Original Game   | Frame vertex | Meshes   | Comments                                |
 | ------ | --------------- | ------------ | -------- | --------------------------------------- |
 | mdl    | Quake / Hexen 2 | 8 bit        | Single   | Unsupported grouped textures            |
-| mdl    | Half-Life       | N/A          | N/A      | Unsupported                             |
+| mdl    | Half-Life       | float        | Multiple | Unsupported animation                   |
 | md2    | Quake 2         | 8 bit        | Single   |                                         |
 | mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine           |
 | md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                     |

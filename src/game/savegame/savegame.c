@@ -213,6 +213,46 @@ InitAllocations(void)
 	game.maxclients = num_c;
 }
 
+void
+ReinitGameEntities(int ent_cnt)
+{
+	int num_c = maxclients->value;
+	int num_e = maxentities->value;
+	edict_t *edicts;
+
+	if (num_c < 1)
+	{
+		num_c = 1;
+		gi.cvar_forceset("maxclients", "1");
+	}
+
+	if (num_e < (num_c + 1 + ent_cnt))
+	{
+		num_e = num_c + 1 + ent_cnt;
+		gi.cvar_forceset("maxentities", va("%d", num_e));
+	}
+
+	if (num_e < game.maxentities)
+	{
+		return;
+	}
+
+	edicts = gi.TagRealloc(g_edicts, num_e * sizeof(g_edicts[0]), TAG_GAME);
+	if (!edicts)
+	{
+		gi.error("Can't extend edict list to %d\n", num_e);
+		return;
+	}
+
+	g_edicts = edicts;
+
+	game.maxentities = num_e;
+
+	globals.edicts = g_edicts;
+	globals.num_edicts = num_c + 1;
+	globals.max_edicts = num_e;
+}
+
 /*
  * This will be called when the dll is first loaded,
  * which only happens when a new game is started or
@@ -252,7 +292,7 @@ InitGame(void)
 	coop_baseq2 = gi.cvar("coop_baseq2", "0", CVAR_LATCH);
 	coop_elevator_delay = gi.cvar("coop_elevator_delay", "1.0", CVAR_ARCHIVE);
 	skill = gi.cvar("skill", "1", CVAR_LATCH);
-	maxentities = gi.cvar("maxentities", "2048", CVAR_LATCH);
+	maxentities = gi.cvar("maxentities", "1024", CVAR_LATCH);
 	gamerules = gi.cvar("gamerules", "0", CVAR_LATCH);			//PGM
 	g_footsteps = gi.cvar("g_footsteps", "1", CVAR_ARCHIVE);
 	g_monsterfootsteps = gi.cvar("g_monsterfootsteps", "0", CVAR_ARCHIVE);

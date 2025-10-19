@@ -554,6 +554,7 @@ SV_InitGameProgs(void)
 	import.PmoveEx = PmoveEx;
 	import.LocalizationMessage = PF_LocalizationMessage;
 	import.LocalizationUIMessage = SV_LocalizationUIMessage;
+	import.TagRealloc = Z_TagRealloc;
 
 	ge = (game_export_t *)Sys_GetGameAPI(&import);
 

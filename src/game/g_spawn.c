@@ -896,6 +896,27 @@ G_FindTeams(void)
 	gi.dprintf("%i teams with %i entities.\n", c, c2);
 }
 
+static int
+SpawnEntitiesCount(const char *entities)
+{
+	int num_ent;
+
+	/* little more space for dynamicly created monsters */
+	num_ent = 128;
+
+	while(*entities)
+	{
+		if (*entities == '{')
+		{
+			num_ent ++;
+		}
+
+		entities++;
+	}
+
+	return num_ent;
+}
+
 /*
  * Creates a server's entity / program execution context by
  * parsing textual entity definitions out of an ent file.
@@ -934,6 +955,8 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	SaveClientData();
 
 	gi.FreeTags(TAG_LEVEL);
+
+	ReinitGameEntities(SpawnEntitiesCount(entities));
 
 	memset(&level, 0, sizeof(level));
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));

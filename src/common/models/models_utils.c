@@ -94,6 +94,7 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 
 		if (strcmp(newname, oldname))
 		{
+			/* Save previous group */
 			if ((i != oldframe) && (currgroup < pheader->num_animgroup))
 			{
 				Q_strlcpy(pframegroup[currgroup].name, oldname,
@@ -102,11 +103,14 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 				pframegroup[currgroup].num = i - oldframe;
 				currgroup++;
 			}
-			strcpy(oldname, newname);
+
+			/* Start new group */
+			Q_strlcpy(oldname, newname, sizeof(oldname));
 			oldframe = i;
 		}
 	}
 
+	/* Final group */
 	if (currgroup < pheader->num_animgroup)
 	{
 		Q_strlcpy(pframegroup[currgroup].name, oldname,
