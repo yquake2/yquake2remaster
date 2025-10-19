@@ -812,6 +812,11 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 		/* no stand animations */
 		M_SetAnimGroupFrameValuesInt(self, "idle", ofs_frames, num_frames);
 	}
+	else if (!strcmp(name, "dodge"))
+	{
+		/* no dodge animations */
+		M_SetAnimGroupFrameValuesInt(self, "duck", ofs_frames, num_frames);
+	}
 	else if (!strcmp(name, "run") ||
 			!strcmp(name, "fly") ||
 			!strcmp(name, "swim"))
@@ -929,7 +934,9 @@ M_MoveFrame(edict_t *self)
 			else if (self->monsterinfo.action &&
 				self->monsterinfo.run &&
 				(!strcmp(self->monsterinfo.action, "attack") ||
-				 !strcmp(self->monsterinfo.action, "pain")))
+				 !strcmp(self->monsterinfo.action, "pain") ||
+				 !strcmp(self->monsterinfo.action, "dodge") ||
+				 !strcmp(self->monsterinfo.action, "melee")))
 			{
 				/* last frame in pain / attack go to run action */
 				self->monsterinfo.run(self);
@@ -1011,11 +1018,13 @@ M_MoveFrame(edict_t *self)
 			ai_stand(self, 0);
 		}
 		else if (!strcmp(self->monsterinfo.action, "pain") ||
-			!strcmp(self->monsterinfo.action, "death"))
+			!strcmp(self->monsterinfo.action, "death") ||
+			!strcmp(self->monsterinfo.action, "dodge"))
 		{
 			ai_move(self, 0);
 		}
-		else if (!strcmp(self->monsterinfo.action, "attack"))
+		else if (!strcmp(self->monsterinfo.action, "attack") ||
+			!strcmp(self->monsterinfo.action, "melee"))
 		{
 			ai_charge(self, 0);
 		}
@@ -1134,6 +1143,42 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 }
 
 void
+monster_dynamic_melee(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = "melee";
+}
+
+void
+monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
+	trace_t *tr /* unused */)
+{
+	if (!self || !attacker)
+	{
+		return;
+	}
+
+	if (random() > 0.25)
+	{
+		return;
+	}
+
+	if (!self->enemy)
+	{
+		self->enemy = attacker;
+		FoundTarget(self);
+	}
+
+	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = "dodge";
+}
+
+void
 monster_dynamic_pain_noanim(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
@@ -1235,6 +1280,15 @@ monster_dynamic_setinfo(edict_t *self)
 			else if (!strcmp(frames[i].name, "death"))
 			{
 				self->die = monster_dynamic_die;
+			}
+			else if (!strcmp(frames[i].name, "dodge") ||
+				!strcmp(frames[i].name, "duck"))
+			{
+				self->monsterinfo.dodge = monster_dynamic_dodge;
+			}
+			else if (!strcmp(frames[i].name, "melee"))
+			{
+				self->monsterinfo.melee = monster_dynamic_melee;
 			}
 		}
 	}
