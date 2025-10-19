@@ -67,6 +67,8 @@ typedef struct
 	char description[MAX_QPATH];
 	/* Additional fields */
 	vec3_t color;
+	int health;
+	int mass;
 } dynamicentity_t;
 
 static dynamicentity_t *dynamicentities;
@@ -230,8 +232,8 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 		speed = (self->maxs[0] - self->mins[0]);
 		self->monsterinfo.run_dist = data->run_speed ? data->run_speed : speed;
 		self->monsterinfo.walk_dist = data->walk_speed ? data->walk_speed : speed / 2;
-		self->health = 80 * st.health_multiplier;
-		self->mass = 80;
+		self->health = (data->health ? data->health : 100) * st.health_multiplier;
+		self->mass = (data->mass ? data->mass : 100);
 
 		for (i = 0; i < num; i++)
 		{
@@ -2140,11 +2142,11 @@ DynamicStringParse(char *line, char *field, int size, char separator)
 }
 
 static char *
-DynamicIntParse(char *line, int *field)
+DynamicIntParse(char *line, int *field, char separator)
 {
 	char *next_section;
 
-	next_section = strchr(line, '|');
+	next_section = strchr(line, separator);
 	if (next_section)
 	{
 		*next_section = 0;
@@ -2361,16 +2363,18 @@ DynamicSpawnInit(void)
 				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, ',');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].model_path,
 					sizeof(dynamicentities[curr_pos].model_path), ',');
+				/* Skipped: audio file definition */
+				line = DynamicSkipParse(line, 1, ',');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].health, ',');
 				/*
 				 * Skipped:
-					 * audio file definition
-					 * health
 					 * basehealth
 					 * elasticity
-					 * mass
-					 * angle speed
 				*/
-				line = DynamicSkipParse(line, 6, ',');
+				line = DynamicSkipParse(line, 2, ',');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].mass, ',');
+				/* Skipped: angle speed */
+				line = DynamicSkipParse(line, 1, ',');
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3, ',');
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].maxs, 3, ',');
 				line = DynamicStringParse(line, scale, MAX_QPATH, ',');
@@ -2382,8 +2386,12 @@ DynamicSpawnInit(void)
 					* attack distance
 					* jump attack distance
 					* upward velocity
-					* run speed
-					* walk speed
+				*/
+				line = DynamicSkipParse(line, 4, ',');
+				line = DynamicFloatParse(line, &dynamicentities[curr_pos].run_speed, 1, ',');
+				line = DynamicFloatParse(line, &dynamicentities[curr_pos].walk_speed, 1, ',');
+				/*
+				 * Ignored fields:
 					* attack speed
 					* fov
 					* X weapon1Offset
@@ -2474,19 +2482,21 @@ DynamicSpawnInit(void)
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].mins, 3, '|');
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].maxs, 3, '|');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].noshadow, MAX_QPATH, '|');
-				line = DynamicIntParse(line, &dynamicentities[curr_pos].solidflag);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].solidflag, '|');
 				line = DynamicFloatParse(line, &dynamicentities[curr_pos].walk_speed, 1, '|');
 				line = DynamicFloatParse(line, &dynamicentities[curr_pos].run_speed, 1, '|');
-				line = DynamicIntParse(line, &dynamicentities[curr_pos].speed);
-				line = DynamicIntParse(line, &dynamicentities[curr_pos].lighting);
-				line = DynamicIntParse(line, &dynamicentities[curr_pos].blending);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].speed, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].lighting, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].blending, '|');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].target_sequence, MAX_QPATH, '|');
-				line = DynamicIntParse(line, &dynamicentities[curr_pos].misc_value);
-				line = DynamicIntParse(line, &dynamicentities[curr_pos].no_mip);
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].misc_value, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].no_mip, '|');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].spawn_sequence, MAX_QPATH, '|');
 				line = DynamicStringParse(line, dynamicentities[curr_pos].description, MAX_QPATH, '|');
 				/* Additional field for cover for color from QUAKED */
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].color, 3, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].health, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].mass, '|');
 
 				/* Fix path */
 				Q_replacebackslash(dynamicentities[curr_pos].model_path);
