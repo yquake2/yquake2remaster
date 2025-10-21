@@ -251,9 +251,9 @@ key_lava|models/items/keys/lava/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|1
 key_slime|models/items/keys/slime/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0
 load_mirrorlevel||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0
 misc_commdish|models/objects/satdish/tris.md2|1.0|1.0|1.0|general|-16|-16|0|16|16|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0
-monster_handler|models/monsters/guard/handler/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
-monster_hound|models/monsters/guard/hound/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
-monster_zboss|models/monsters/bossz/mech/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
+monster_handler|models/monsters/guard/handler/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|175|250
+monster_hound|models/monsters/guard/hound/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|7.0|40.0|0|0|0|0:0|0|0|none||1|.5|0|175|250
+monster_zboss|models/monsters/bossz/mech/tris.md2|1.0|1.0|1.0|general|-16|-16|-24|16|16|32|shadow|0|3.0|5.0|0|0|0|0:0|0|0|none||1|.5|0|3000|1000
 sound_echo||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0
 target_zboss_target||1.0|1.0|1.0|general|||||||shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|||||0|0
 trigger_laser||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0
@@ -319,13 +319,13 @@ monster_hknight|models/monsters/hknight/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-
 monster_knight|models/monsters/knight/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Knight|1|.5|0|0|0
 monster_mutantv|models/vault/monsters/mutant/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault Mutant|1.0|0.5|0.0|0|0
 monster_ogre|models/monsters/ogre/tris.md2|1.0|1.0|1.0|general|-32,|-32,|-24|32,|32,|64|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ogre|1|.5|0|0|0
-monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|general|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0|0|0
+monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|general|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|0|6.0|12.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0|25|25
 monster_shalrath|models/monsters/shalrath/tris.md2|1.0|1.0|1.0|general|-32,|-32,|-24|32,|32,|48|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shalrath|1|.5|0|0|0
 monster_shambler|models/monsters/shambler/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Shambler|1.0|0.5|0.0|0|0
 monster_shockerv|models/vault/monsters/shocker/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault Shocker|1.0|0.5|0.0|0|0
 monster_tankv|models/vault/monsters/tank/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault Tank|1.0|0.5|0.0|0|0
 monster_tarbaby|models/monsters/tarbaby/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tarbaby|1|.5|0|0|0
-monster_wizard|models/monsters/wizard/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wizard|1|.5|0|0|0
+monster_wizard|models/monsters/wizard/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|8.0|16.0|0|0|0|0:0|0|0|none|Wizard|1|.5|0|80|80
 monster_zombie|models/monsters/zombie/tris.md2|1.0|1.0|1.0|general|-16,|-16,|-24|16,|16,|40|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Zombie|1|.5|0|0|0
 npc_timeminder|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Save Menu|0|1|0|0|0
 weapon_grapple|models/weapons/grapple/hook/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0

@@ -676,7 +676,6 @@ SP_monster_zombie(edict_t *self)
 	self->mass = 60;
 
 	monster_dynamic_setinfo(self);
-	self->monsterinfo.walk_dist = 0;
 
 	self->monsterinfo.run = zombie_run;
 	self->monsterinfo.attack = zombie_attack;
