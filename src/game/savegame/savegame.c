@@ -223,13 +223,11 @@ ReinitGameEntities(int ent_cnt)
 	if (num_c < 1)
 	{
 		num_c = 1;
-		gi.cvar_forceset("maxclients", "1");
 	}
 
-	if (num_e < (num_c + 1 + ent_cnt))
+	if (num_e < (num_c + 1 + ent_cnt * 2))
 	{
-		num_e = num_c + 1 + ent_cnt;
-		gi.cvar_forceset("maxentities", va("%d", num_e));
+		num_e = num_c + 1 + ent_cnt * 2;
 	}
 
 	if (num_e < game.maxentities)

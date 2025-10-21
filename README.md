@@ -161,6 +161,7 @@ Games check videos:
 
 * 8.52RR13+:
 
+[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3kA/0.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3kA)
 [![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/0.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uGA)
 
 * 8.52RR12+:
