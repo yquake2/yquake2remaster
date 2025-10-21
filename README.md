@@ -161,51 +161,51 @@ Games check videos:
 
 * 8.52RR13+:
 
-[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3kA/0.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3kA)
-[![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/0.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uGA)
+[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3k/hqdefault.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3kA)
+[![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/hqdefault.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uGA)
 
 * 8.52RR12+:
 
-[![Quake I + Half Life 1 Demo](https://img.youtube.com/vi/_KY4bQpij0c/0.jpg)](https://www.youtube.com/watch?v=_KY4bQpij0c)
-[![Quake I + Hexen 2](https://img.youtube.com/vi/uU87u1iEBeg/0.jpg)](https://www.youtube.com/watch?v=uU87u1iEBeg)
-[![Heretic 2 Book / Translate](https://img.youtube.com/vi/4Sr_rhYP2lo/0.jpg)](https://www.youtube.com/watch?v=4Sr_rhYP2lo)
+[![Quake I + Half Life 1 Demo](https://img.youtube.com/vi/_KY4bQpij0c/hqdefault.jpg)](https://www.youtube.com/watch?v=_KY4bQpij0c)
+[![Quake I + Hexen 2](https://img.youtube.com/vi/uU87u1iEBeg/hqdefault.jpg)](https://www.youtube.com/watch?v=uU87u1iEBeg)
+[![Heretic 2 Book / Translate](https://img.youtube.com/vi/4Sr_rhYP2lo/hqdefault.jpg)](https://www.youtube.com/watch?v=4Sr_rhYP2lo)
 
 * 8.52RR12:
 
-[![4k+ coordinates + flare](https://img.youtube.com/vi/L6BTWUUVh_k/0.jpg)](https://www.youtube.com/watch?v=L6BTWUUVh_k)
+[![4k+ coordinates + flare](https://img.youtube.com/vi/L6BTWUUVh_k/hqdefault.jpg)](https://www.youtube.com/watch?v=L6BTWUUVh_k)
 
 * 8.51RR12:
 
-[![PSX check](https://img.youtube.com/vi/jAcNMbvrPe4/0.jpg)](https://www.youtube.com/watch?v=jAcNMbvrPe4)
-[![Vault check](https://img.youtube.com/vi/a338jWr6uTc/0.jpg)](https://www.youtube.com/watch?v=a338jWr6uTc)
+[![PSX check](https://img.youtube.com/vi/jAcNMbvrPe4/hqdefault.jpg)](https://www.youtube.com/watch?v=jAcNMbvrPe4)
+[![Vault check](https://img.youtube.com/vi/a338jWr6uTc/hqdefault.jpg)](https://www.youtube.com/watch?v=a338jWr6uTc)
 
 * 8.42RR12+:
 
-[![JaBot check](https://img.youtube.com/vi/uW3XDxrjQOU/0.jpg)](https://www.youtube.com/watch?v=uW3XDxrjQOU)
-[![Translation check](https://img.youtube.com/vi/8Tlm8lSY5x8/0.jpg)](https://www.youtube.com/watch?v=8Tlm8lSY5x8)
-[![Anacronox dance sector issue](https://img.youtube.com/vi/PR2_nK7DFJM/0.jpg)](https://www.youtube.com/watch?v=PR2_nK7DFJM)
+[![JaBot check](https://img.youtube.com/vi/uW3XDxrjQOU/hqdefault.jpg)](https://www.youtube.com/watch?v=uW3XDxrjQOU)
+[![Translation check](https://img.youtube.com/vi/8Tlm8lSY5x8/hqdefault.jpg)](https://www.youtube.com/watch?v=8Tlm8lSY5x8)
+[![Anacronox dance sector issue](https://img.youtube.com/vi/PR2_nK7DFJM/hqdefault.jpg)](https://www.youtube.com/watch?v=PR2_nK7DFJM)
 
 * 8.42RR11:
 
-[![First episode](https://img.youtube.com/vi/Ha1FuVXaQSE/0.jpg)](https://www.youtube.com/watch?v=Ha1FuVXaQSE)
-[![Q2DQ2](https://img.youtube.com/vi/6P3wJojExyI/0.jpg)](https://www.youtube.com/watch?v=6P3wJojExyI)
-[![8.42RR11](https://img.youtube.com/vi/ukqBrx80ESM/0.jpg)](https://www.youtube.com/watch?v=ukqBrx80ESM)
+[![First episode](https://img.youtube.com/vi/Ha1FuVXaQSE/hqdefault.jpg)](https://www.youtube.com/watch?v=Ha1FuVXaQSE)
+[![Q2DQ2](https://img.youtube.com/vi/6P3wJojExyI/hqdefault.jpg)](https://www.youtube.com/watch?v=6P3wJojExyI)
+[![8.42RR11](https://img.youtube.com/vi/ukqBrx80ESM/hqdefault.jpg)](https://www.youtube.com/watch?v=ukqBrx80ESM)
 
 * 8.42RR10:
 
-[![8.42RR10](https://img.youtube.com/vi/obIrzYsNxBY/0.jpg)](https://www.youtube.com/watch?v=obIrzYsNxBY)
+[![8.42RR10](https://img.youtube.com/vi/obIrzYsNxBY/hqdefault.jpg)](https://www.youtube.com/watch?v=obIrzYsNxBY)
 
 * 8.42RR9:
 
-[![8.42RR9](https://img.youtube.com/vi/N0iHhEDkZFg/0.jpg)](https://www.youtube.com/watch?v=N0iHhEDkZFg)
+[![8.42RR9](https://img.youtube.com/vi/N0iHhEDkZFg/hqdefault.jpg)](https://www.youtube.com/watch?v=N0iHhEDkZFg)
 
 * 8.42RR8:
 
-[![8.42RR8](https://img.youtube.com/vi/NJ7T0cdyqk8/0.jpg)](https://www.youtube.com/watch?v=NJ7T0cdyqk8)
+[![8.42RR8](https://img.youtube.com/vi/NJ7T0cdyqk8/hqdefault.jpg)](https://www.youtube.com/watch?v=NJ7T0cdyqk8)
 
 * 8.31RR7:
 
-[![8.31RR7](https://img.youtube.com/vi/VAFs1HtQU_0/0.jpg)](https://www.youtube.com/watch?v=VAFs1HtQU_0)
+[![8.31RR7](https://img.youtube.com/vi/VAFs1HtQU_0/hqdefault.jpg)](https://www.youtube.com/watch?v=VAFs1HtQU_0)
 
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
