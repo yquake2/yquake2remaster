@@ -1218,8 +1218,6 @@ Cmd_Wave_f(edict_t *ent)
 		return;
 	}
 
-	i = (int)strtol(gi.argv(1), (char **)NULL, 10);
-
 	/* can't wave when ducked */
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
 	{
@@ -1232,6 +1230,31 @@ Cmd_Wave_f(edict_t *ent)
 	}
 
 	ent->client->anim_priority = ANIM_WAVE;
+
+	if (!strcmp(gi.argv(1), "flipoff"))
+	{
+		i = GESTURE_FLIP_OFF;
+	}
+	else if (!strcmp(gi.argv(1), "salute"))
+	{
+		i = GESTURE_SALUTE;
+	}
+	else if (!strcmp(gi.argv(1), "taunt"))
+	{
+		i = GESTURE_TAUNT;
+	}
+	else if (!strcmp(gi.argv(1), "wave"))
+	{
+		i = GESTURE_WAVE;
+	}
+	else if (!strcmp(gi.argv(1), "point"))
+	{
+		i = GESTURE_POINT;
+	}
+	else
+	{
+		i = (int)strtol(gi.argv(1), (char **)NULL, 10);
+	}
 
 	switch (i)
 	{
