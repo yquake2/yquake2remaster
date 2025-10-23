@@ -192,6 +192,8 @@ vec3_t bytedirs[NUMVERTEXNORMALS] = {
 	{-0.688191, -0.587785, -0.425325}
 };
 
+static const entity_xstate_t es_nullstate = {0};
+
 size_t
 MSG_ConfigString_Size(const char *s)
 {
@@ -386,7 +388,19 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 	qboolean force, qboolean newentity, int protocol)
 {
 	size_t sz;
-	int bits = DeltaEntityBits(from, to, newentity, protocol);
+	int bits;
+
+	if (!from)
+	{
+		from = &es_nullstate;
+	}
+
+	if (!to)
+	{
+		to = &es_nullstate;
+	}
+
+	bits = DeltaEntityBits(from, to, newentity, protocol);
 
 	if (!bits && !force)
 	{
@@ -856,10 +870,14 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 {
 	int bits;
 
-	if (!to->number)
+	if (!from)
 	{
-		Com_Error(ERR_FATAL, "Unset entity number");
-		return;
+		from = &es_nullstate;
+	}
+
+	if (!to)
+	{
+		to = &es_nullstate;
 	}
 
 	/* entnums are sent in 16-bit form */

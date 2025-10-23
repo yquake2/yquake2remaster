@@ -210,13 +210,11 @@ CL_Stop_f(void)
 static void
 CL_Record_f(void)
 {
-	char name[MAX_OSPATH];
 	byte buf_data[MAX_MSGLEN];
-	sizebuf_t buf;
-	int i;
-	int len;
+	char name[MAX_OSPATH];
 	entity_xstate_t *ent;
-	entity_xstate_t nullstate;
+	sizebuf_t buf;
+	int i, len;
 
 	if (Cmd_Argc() != 2)
 	{
@@ -289,8 +287,6 @@ CL_Record_f(void)
 	}
 
 	/* baselines */
-	memset(&nullstate, 0, sizeof(nullstate));
-
 	for (i = 0; i < cl_numentities; i++)
 	{
 		ent = &cl_entities[i].baseline;
@@ -310,7 +306,7 @@ CL_Record_f(void)
 
 		MSG_WriteByte(&buf, svc_spawnbaseline);
 
-		MSG_WriteDeltaEntity(&nullstate, &cl_entities[i].baseline,
+		MSG_WriteDeltaEntity(NULL, &cl_entities[i].baseline,
 				&buf, true, true, PROTOCOL_VERSION);
 	}
 

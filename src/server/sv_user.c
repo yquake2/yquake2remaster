@@ -207,7 +207,6 @@ SV_Baselines_f(void)
 {
 	int start;
 	int max_msgutil;
-	entity_xstate_t nullstate;
 
 	Com_DPrintf("Baselines() from %s\n", sv_client->name);
 
@@ -232,8 +231,6 @@ SV_Baselines_f(void)
 		start = 0;
 	}
 
-	memset(&nullstate, 0, sizeof(nullstate));
-
 	/* 560 is roughly the legacy safety margin */
 	max_msgutil = (SV_Optimizations() & OPTIMIZE_MSGUTIL) ?
 		SAFE_MARGIN : 560;
@@ -247,14 +244,15 @@ SV_Baselines_f(void)
 
 		if (base->modelindex || base->sound || base->effects)
 		{
-			if ((sv_client->netchan.message.cursize + MSG_DeltaEntity_Size(&nullstate, base, true, true, sv_client->protocol))
+			if ((sv_client->netchan.message.cursize +
+				MSG_DeltaEntity_Size(NULL, base, true, true, sv_client->protocol))
 				> (MAX_MSGLEN - (CMD_MARGIN + max_msgutil)))
 			{
 				break;
 			}
 
 			MSG_WriteByte(&sv_client->netchan.message, svc_spawnbaseline);
-			MSG_WriteDeltaEntity(&nullstate, base,
+			MSG_WriteDeltaEntity(NULL, base,
 					&sv_client->netchan.message,
 					true, true, sv_client->protocol);
 		}
