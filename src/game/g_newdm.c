@@ -381,6 +381,7 @@ doppleganger_timeout(edict_t *self)
 void
 body_think(edict_t *self)
 {
+	int firstframe = FRAME_stand01, lastframe = FRAME_stand40;
 	float r;
 
 	if (fabsf(self->ideal_yaw - anglemod(self->s.angles[YAW])) < 2)
@@ -401,11 +402,15 @@ body_think(edict_t *self)
 		M_ChangeYaw(self);
 	}
 
+	lastframe -= firstframe;
+	M_SetAnimGroupFrameValues(self, "stand", &firstframe, &lastframe);
+	lastframe += firstframe;
+
 	self->s.frame++;
 
-	if (self->s.frame > FRAME_stand40)
+	if (self->s.frame > lastframe)
 	{
-		self->s.frame = FRAME_stand01;
+		self->s.frame = firstframe;
 	}
 
 	self->nextthink = level.time + 0.1;

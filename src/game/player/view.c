@@ -1348,6 +1348,8 @@ G_SetClientSound(edict_t *ent)
 void
 G_SetClientFrame(edict_t *ent, float speed)
 {
+	const char *animname = NULL;
+	int firstframe, lastframe;
 	gclient_t *client;
 	qboolean duck, run;
 
@@ -1448,8 +1450,9 @@ newanim:
 		   frame, go into standing frame */
 		if (client->ctf_grapple)
 		{
-			ent->s.frame = FRAME_stand01;
-			client->anim_end = FRAME_stand40;
+			firstframe = FRAME_stand01;
+			lastframe = FRAME_stand40;
+			animname = "stand";
 		}
 		else
 		{
@@ -1461,6 +1464,7 @@ newanim:
 			}
 
 			client->anim_end = FRAME_jump2;
+			return;
 		}
 	}
 	else if (run)
@@ -1468,13 +1472,15 @@ newanim:
 		/* running */
 		if (duck)
 		{
-			ent->s.frame = FRAME_crwalk1;
-			client->anim_end = FRAME_crwalk6;
+			firstframe = FRAME_crwalk1;
+			lastframe = FRAME_crwalk6;
+			animname = "crwalk";
 		}
 		else
 		{
-			ent->s.frame = FRAME_run1;
-			client->anim_end = FRAME_run6;
+			firstframe = FRAME_run1;
+			lastframe = FRAME_run6;
+			animname = "run";
 		}
 	}
 	else
@@ -1482,15 +1488,24 @@ newanim:
 		/* standing */
 		if (duck)
 		{
-			ent->s.frame = FRAME_crstnd01;
-			client->anim_end = FRAME_crstnd19;
+			firstframe = FRAME_crstnd01;
+			lastframe = FRAME_crstnd19;
+			animname = "crstnd";
 		}
 		else
 		{
-			ent->s.frame = FRAME_stand01;
-			client->anim_end = FRAME_stand40;
+			firstframe = FRAME_stand01;
+			lastframe = FRAME_stand40;
+			animname = "stand";
 		}
 	}
+
+	lastframe -= firstframe;
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe);
+	lastframe += firstframe;
+
+	ent->s.frame = firstframe;
+	client->anim_end = lastframe;
 }
 
 /*
