@@ -782,9 +782,37 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 	int *ofs_frames, int *num_frames)
 {
 	const dmdxframegroup_t * frames;
-	int num, i;
+	int num, i, modelindex;
 
-	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
+	modelindex = self->s.modelindex;
+
+	if (modelindex == CUSTOM_PLAYER_MODEL)
+	{
+		char skinname[MAX_QPATH], modelname[MAX_QPATH];
+		char *s;
+
+		/* get selected player model from skin */
+		Q_strlcpy(skinname, Info_ValueForKey(
+			self->client->pers.userinfo, "skin"), sizeof(skinname));
+
+		s = skinname;
+
+		while(*s)
+		{
+			if (*s == '/')
+			{
+				*s = 0;
+				break;
+			}
+			s++;
+		}
+
+		Com_sprintf(modelname, sizeof(modelname), "players/%s/tris.md2",
+			skinname);
+		modelindex = gi.modelindex(modelname);
+	}
+
+	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
 	for (i = 0; i < num; i++)
 	{
 		if (!strcmp(frames[i].name, name))
@@ -798,7 +826,7 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 	return false;
 }
 
-static void
+void
 M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 	int *ofs_frames, int *num_frames)
 {
@@ -811,6 +839,11 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 	{
 		/* no stand animations */
 		M_SetAnimGroupFrameValuesInt(self, "idle", ofs_frames, num_frames);
+	}
+	else if (!strcmp(name, "flipoff"))
+	{
+		/* no flipoff animations */
+		M_SetAnimGroupFrameValuesInt(self, "flip", ofs_frames, num_frames);
 	}
 	else if (!strcmp(name, "dodge"))
 	{

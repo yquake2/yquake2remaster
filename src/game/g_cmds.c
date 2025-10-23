@@ -1211,7 +1211,8 @@ Cmd_Players_f(edict_t *ent)
 static void
 Cmd_Wave_f(edict_t *ent)
 {
-	int i;
+	int i, firstframe, lastframe;
+	const char *animname = NULL;
 
 	if (!ent)
 	{
@@ -1259,32 +1260,43 @@ Cmd_Wave_f(edict_t *ent)
 	switch (i)
 	{
 		case GESTURE_FLIP_OFF:
-			gi.cprintf(ent, PRINT_HIGH, "flipoff\n");
-			ent->s.frame = FRAME_flip01 - 1;
-			ent->client->anim_end = FRAME_flip12;
+			animname = "flipoff";
+			firstframe = FRAME_flip01;
+			lastframe = FRAME_flip12;
 			break;
 		case GESTURE_SALUTE:
-			gi.cprintf(ent, PRINT_HIGH, "salute\n");
-			ent->s.frame = FRAME_salute01 - 1;
-			ent->client->anim_end = FRAME_salute11;
+			animname = "salute";
+			firstframe = FRAME_salute01;
+			lastframe = FRAME_salute11;
 			break;
 		case GESTURE_TAUNT:
-			gi.cprintf(ent, PRINT_HIGH, "taunt\n");
-			ent->s.frame = FRAME_taunt01 - 1;
-			ent->client->anim_end = FRAME_taunt17;
+			animname = "taunt";
+			firstframe = FRAME_taunt01;
+			lastframe = FRAME_taunt17;
 			break;
 		case GESTURE_WAVE:
-			gi.cprintf(ent, PRINT_HIGH, "wave\n");
-			ent->s.frame = FRAME_wave01 - 1;
-			ent->client->anim_end = FRAME_wave11;
+			animname = "wave";
+			firstframe = FRAME_wave01;
+			lastframe = FRAME_wave11;
 			break;
 		case GESTURE_POINT:
 		default:
-			gi.cprintf(ent, PRINT_HIGH, "point\n");
-			ent->s.frame = FRAME_point01 - 1;
-			ent->client->anim_end = FRAME_point12;
+			animname = "point";
+			firstframe = FRAME_point01;
+			lastframe = FRAME_point12;
 			break;
 	}
+
+	gi.cprintf(ent, PRINT_HIGH, "%s\n", animname, lastframe, firstframe);
+
+	lastframe -= firstframe - 1;
+
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe);
+	lastframe += firstframe - 1;
+
+	ent->s.frame = firstframe - 1;
+	ent->client->anim_end = lastframe;
+
 }
 
 qboolean

@@ -1080,6 +1080,8 @@ qboolean M_walkmove(edict_t *ent, float yaw, float dist);
 void M_MoveToGoal(edict_t *ent, float dist);
 void M_ChangeYaw(edict_t *ent);
 void M_SetAnimGroupFrame(edict_t *self, const char *name);
+void M_SetAnimGroupFrameValues(edict_t *self, const char *name,
+	int *ofs_frames, int *num_frames);
 
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);
