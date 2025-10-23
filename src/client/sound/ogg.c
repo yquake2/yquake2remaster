@@ -195,7 +195,7 @@ OGG_InitTrackList(void)
 			char testFileName[MAX_OSPATH];
 
 			/* the simple case (like before: $mod/music/02.ogg - 11.ogg or whatever) */
-			snprintf(testFileName, MAX_OSPATH, "%s02.ogg", fullMusicPath);
+			Com_sprintf(testFileName, MAX_OSPATH, "%s02.ogg", fullMusicPath);
 
 			if(Sys_IsFile(testFileName))
 			{
@@ -205,7 +205,8 @@ OGG_InitTrackList(void)
 
 				for(i = 3; i < MAX_NUM_OGGTRACKS; ++i)
 				{
-					snprintf(testFileName, MAX_OSPATH, "%s%02i.ogg", fullMusicPath, i);
+					Com_sprintf(testFileName, MAX_OSPATH, "%s%02i.ogg",
+						fullMusicPath, i);
 
 					if(Sys_IsFile(testFileName))
 					{
@@ -218,7 +219,7 @@ OGG_InitTrackList(void)
 			}
 
 			/* the GOG case: music/Track02.ogg to Track21.ogg */
-			snprintf(testFileName, MAX_OSPATH, "%sTrack%02i.ogg",
+			Com_sprintf(testFileName, MAX_OSPATH, "%sTrack%02i.ogg",
 				fullMusicPath, getMappedGOGtrack(8, gameType));
 
 			if(Sys_IsFile(testFileName))
@@ -229,7 +230,8 @@ OGG_InitTrackList(void)
 				{
 					int gogTrack = getMappedGOGtrack(i, gameType);
 
-					snprintf(testFileName, MAX_OSPATH, "%sTrack%02i.ogg", fullMusicPath, gogTrack);
+					Com_sprintf(testFileName, MAX_OSPATH, "%sTrack%02i.ogg",
+						fullMusicPath, gogTrack);
 
 					if(Sys_IsFile(testFileName))
 					{
@@ -242,7 +244,7 @@ OGG_InitTrackList(void)
 			}
 
 			/* the ReRelease case: music/track02.ogg to track79.ogg */
-			snprintf(testFileName, MAX_OSPATH, "%strack%02i.ogg",
+			Com_sprintf(testFileName, MAX_OSPATH, "%strack%02i.ogg",
 				fullMusicPath, getMappedGOGtrack(8, gameType));
 
 			if(Sys_IsFile(testFileName))
@@ -253,7 +255,8 @@ OGG_InitTrackList(void)
 				{
 					int gogTrack = getMappedGOGtrack(i, gameType);
 
-					snprintf(testFileName, MAX_OSPATH, "%strack%02i.ogg", fullMusicPath, gogTrack);
+					Com_sprintf(testFileName, MAX_OSPATH, "%strack%02i.ogg",
+						fullMusicPath, gogTrack);
 
 					if(Sys_IsFile(testFileName))
 					{

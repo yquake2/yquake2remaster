@@ -462,7 +462,7 @@ GLimp_Init(void)
 					return false;
 				}
 
-				snprintf( displayindices[ i ], 11, "%d", i );
+				Com_sprintf(displayindices[ i ], 11, "%d", i);
 
 				Com_Printf(" - %d\n", displays[i]);
 			}

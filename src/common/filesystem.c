@@ -1212,7 +1212,8 @@ FS_LoadWAD(const char *packPath)
 					strcpy(prefix, name);
 					strcpy(path, "maps");
 
-					snprintf(finalname, sizeof(finalname), "%s/%s.bsp", path, name);
+					Com_sprintf(finalname, sizeof(finalname), "%s/%s.bsp",
+						path, name);
 					/* add empty bsp file */
 					Q_strlcpy(files[curr].name, finalname,
 						Q_min(sizeof(files[curr].name), sizeof(finalname)));
@@ -1289,15 +1290,18 @@ FS_LoadWAD(const char *packPath)
 
 		if (!strcmp(path, "maps"))
 		{
-			snprintf(finalname, sizeof(finalname), "%s/%s/%s.lmp", path, prefix, name);
+			Com_sprintf(finalname, sizeof(finalname), "%s/%s/%s.lmp",
+				path, prefix, name);
 		}
 		else if (path[0])
 		{
-			snprintf(finalname, sizeof(finalname), "%s/%s.lmp", path, name);
+			Com_sprintf(finalname, sizeof(finalname), "%s/%s.lmp",
+				path, name);
 		}
 		else
 		{
-			snprintf(finalname, sizeof(finalname), "custom/%s.lmp", name);
+			Com_sprintf(finalname, sizeof(finalname), "custom/%s.lmp",
+				name);
 		}
 
 		Q_strlcpy(files[curr].name, finalname,

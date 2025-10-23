@@ -252,7 +252,8 @@ SV_GameMap_f(void)
 	char mapPath[MAX_QPATH];
 	{
 		qboolean haveStar = (map[0] == '*');
-		snprintf(mapPath, sizeof(mapPath), "maps/%s.bsp", haveStar ? map + 1 : map);
+		Com_sprintf(mapPath, sizeof(mapPath), "maps/%s.bsp",
+			haveStar ? map + 1 : map);
 
 		fileHandle_t f = -1;
 		if(FS_FOpenFile(mapPath, &f, false) >= 0)
