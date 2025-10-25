@@ -170,6 +170,11 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 		data->scale[1] +
 		data->scale[2]
 	) / 3;
+
+	self->monsterinfo.run_dist = data->run_speed;
+	self->monsterinfo.walk_dist = data->walk_speed;
+	self->health = data->health;
+	self->mass = data->mass;
 }
 
 void
@@ -230,10 +235,26 @@ DynamicSpawn(edict_t *self, dynamicentity_t *data)
 		monster_dynamic_setinfo(self);
 
 		speed = (self->maxs[0] - self->mins[0]);
-		self->monsterinfo.run_dist = data->run_speed ? data->run_speed : speed;
-		self->monsterinfo.walk_dist = data->walk_speed ? data->walk_speed : speed / 2;
-		self->health = (data->health ? data->health : 100) * st.health_multiplier;
-		self->mass = (data->mass ? data->mass : 100);
+
+		if (self->monsterinfo.run_dist <= 0)
+		{
+			self->monsterinfo.run_dist = speed;
+		}
+
+		if (self->monsterinfo.walk_dist <= 0)
+		{
+			self->monsterinfo.walk_dist = speed / 2;
+		}
+
+		if (self->health <= 0)
+		{
+			self->health = 100;
+		}
+
+		if (self->mass <= 0)
+		{
+			self->mass = 100;
+		}
 
 		for (i = 0; i < num; i++)
 		{
