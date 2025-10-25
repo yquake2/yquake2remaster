@@ -731,10 +731,10 @@ monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|genera
 monster_tcheckrik_mothers|models/monsters/mother/tris.fm|1.0|1.0|1.0|general|-40.0|-40.0|-75.0|40.0|40.0|75.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tcheckrik Mother|1.0|0.5|0.0|0|0
 monster_trial_beast|models/monsters/beast/tris.fm|1.0|1.0|1.0|general|-100.0|-100.0|-36.0|100.0|100.0|150.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Trial Beast|1.0|0.5|0.0|0|0
 obj_andwallhanging|models/objects/andwallhang/tris.fm|1.0|1.0|1.0|general|0.0|-19.0|-24.0|4.0|19.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Circular Andorian wall hanging|0.3|0.3|1.0|0|0
-obj_banner|models/objects/banner/wall/tris.fm|1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0|0|0
-obj_banneronpole|models/objects/banner/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0|0|0
-obj_barrel|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-12.0|-12.0|-19.0|12.0|12.0|19.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel|0.3|0.3|1.0|0|0
-obj_barrel_explosive|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Explosive barrel. Use barrel with spawnflags 4 instead|0.3|0.3|1.0|0|0
+obj_banner|models/objects/banner/wall/tris.fm|1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0|40|200
+obj_banneronpole|models/objects/banner/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0|40|200
+obj_barrel|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-12.0|-12.0|-19.0|12.0|12.0|19.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Barrel|0.3|0.3|1.0|10|60
+obj_barrel_explosive|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Explosive barrel. Use barrel with spawnflags 4 instead|0.3|0.3|1.0|75|125
 obj_barrel_metal|models/objects/barrel/metal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Metal barrel|0.3|0.3|1.0|0|0
 obj_basket|models/objects/pots/basket/tris.fm|1.0|1.0|1.0|general|-13.0|-13.0|-21.0|13.0|13.0|21.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Basket|0.3|0.3|1.0|0|0
 obj_bench|models/objects/chairs/bench/tris.fm|1.0|1.0|1.0|general|-10.0|-21.0|-10.0|10.0|21.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bench|0.3|0.3|1.0|0|0
@@ -744,7 +744,7 @@ obj_bloodsplat|sprites/fx/bsplat.sp2|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|
 obj_bookclosed|models/objects/books/bookclosed/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-2.0|8.0|8.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Closed book standing up|0.3|0.3|1.0|0|0
 obj_bookopen|models/objects/books/bookopen/tris.fm|1.0|1.0|1.0|general|-8.0|-16.0|-2.0|8.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Open Book|0.3|0.3|1.0|0|0
 obj_bottle1|models/objects/jars/bottle/tris.fm|1.0|1.0|1.0|general|-3.0|-3.0|-7.0|3.0|3.0|7.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bottle|0.3|0.3|1.0|0|0
-obj_broom|models/objects/broom/tris.fm|1.0|1.0|1.0|general|-2.0|-2.0|-25.0|2.0|2.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Broom|0.3|0.3|1.0|0|0
+obj_broom|models/objects/broom/tris.fm|1.0|1.0|1.0|general|-2.0|-2.0|-25.0|2.0|2.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Broom|0.3|0.3|1.0|10|40
 obj_bucket|models/objects/bucket/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-9.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bucket|0.3|0.3|1.0|0|0
 obj_bush1|models/objects/plants/bush1/tris.fm|1.0|1.0|1.0|general|-34.0|-34.0|-19.0|34.0|34.0|19.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bush|0.3|0.3|1.0|0|0
 obj_bush2|models/objects/plants/bush2/tris.fm|1.0|1.0|1.0|general|-56.0|-56.0|-40.0|56.0|56.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bush 2|0.3|0.3|1.0|0|0
@@ -752,18 +752,18 @@ obj_cactus|models/objects/plants/cactus/tris.fm|1.0|1.0|1.0|general|-18.0|-18.0|
 obj_cactus3|models/objects/plants/cactus3/tris.fm|1.0|1.0|1.0|general|-14.0|-14.0|-32.0|18.0|18.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cactus 3|0.3|0.3|1.0|0|0
 obj_cactus4|models/objects/plants/cactus4/tris.fm|1.0|1.0|1.0|general|-11.0|-11.0|-11.0|11.0|11.0|11.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cactus 4 (triggerable)|0.3|0.3|1.0|0|0
 obj_cauldron|models/objects/pots/caldrn/tris.fm|1.0|1.0|1.0|general|-22.0|-22.0|-10.0|22.0|22.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cauldron|0.3|0.3|1.0|0|0
-obj_chair1|models/objects/chairs/chair1/tris.fm|1.0|1.0|1.0|general|-12.0|-8.0|-26.0|12.0|8.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair (wood)|0.3|0.3|1.0|0|0
-obj_chair2|models/objects/chairs/chair2/tris.fm|1.0|1.0|1.0|general|-18.0|-29.0|-30.0|18.0|29.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair (wood, slanted)|0.3|0.3|1.0|0|0
-obj_chair3|models/objects/chairs/chair3/tris.fm|1.0|1.0|1.0|general|-14.0|-21.0|-28.0|14.0|21.0|28.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair (stone)|0.3|0.3|1.0|0|0
-obj_chest1|models/objects/chests/chest1/tris.fm|1.0|1.0|1.0|general|-10.0|-18.0|-19.0|10.0|18.0|19.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest (opens when triggered)|0.3|0.3|1.0|0|0
-obj_chest2|models/objects/chests/chest2/tris.fm|1.0|1.0|1.0|general|-14.0|-17.0|-9.0|14.0|17.0|9.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest (mines)|0.3|0.3|1.0|0|0
-obj_chest3|models/objects/chests/chest3/tris.fm|1.0|1.0|1.0|general|-10.0|-17.0|-6.0|10.0|17.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest (mines, closed)|0.3|0.3|1.0|0|0
+obj_chair1|models/objects/chairs/chair1/tris.fm|1.0|1.0|1.0|general|-12.0|-8.0|-26.0|12.0|8.0|26.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair (wood)|0.3|0.3|1.0|20|50
+obj_chair2|models/objects/chairs/chair2/tris.fm|1.0|1.0|1.0|general|-18.0|-29.0|-30.0|18.0|29.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair (wood, slanted)|0.3|0.3|1.0|20|50
+obj_chair3|models/objects/chairs/chair3/tris.fm|1.0|1.0|1.0|general|-14.0|-21.0|-28.0|14.0|21.0|28.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chair (stone)|0.3|0.3|1.0|20|50
+obj_chest1|models/objects/chests/chest1/tris.fm|1.0|1.0|1.0|general|-10.0|-18.0|-19.0|10.0|18.0|19.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest (opens when triggered)|0.3|0.3|1.0|60|150
+obj_chest2|models/objects/chests/chest2/tris.fm|1.0|1.0|1.0|general|-14.0|-17.0|-9.0|14.0|17.0|9.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest (mines)|0.3|0.3|1.0|60|150
+obj_chest3|models/objects/chests/chest3/tris.fm|1.0|1.0|1.0|general|-10.0|-17.0|-6.0|10.0|17.0|6.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chest (mines, closed)|0.3|0.3|1.0|60|150
 obj_choppeddude|models/objects/torture/guy2/tris.fm|1.0|1.0|1.0|general|-15.0|-40.0|-8.0|15.0|40.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Lying chopped corpse|0.3|0.3|1.0|0|0
 obj_claybowl|models/objects/pots/claybowl/tris.fm|1.0|1.0|1.0|general|-6.0|-6.0|-2.0|6.0|6.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Clay bowl|0.3|0.3|1.0|0|0
 obj_clayjar|models/objects/pots/clayjar/tris.fm|1.0|1.0|1.0|general|-15.0|-15.0|-24.0|15.0|15.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Clay jar|0.3|0.3|1.0|0|0
 obj_cocoon|models/objects/eggs/cocoon/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cocoon|0.3|0.3|1.0|0|0
 obj_cocoonopen|models/objects/eggs/cocoon/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging cocoon|0.3|0.3|1.0|0|0
-obj_cog1|models/objects/cogs/cog1/tris.fm|1.0|1.0|1.0|general|-8.0|-4.0|0.0|8.0|4.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cog (triggerable)|0.3|0.3|1.0|0|0
+obj_cog1|models/objects/cogs/cog1/tris.fm|1.0|1.0|1.0|general|-8.0|-4.0|0.0|8.0|4.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cog (triggerable)|0.3|0.3|1.0|40|20
 obj_corpse1|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0|30.0|12.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Elf corpse|0.3|0.3|1.0|0|0
 obj_corpse2|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0|30.0|12.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Elf corpse (alternate skin)|0.3|0.3|1.0|0|0
 obj_corpse_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-30|-12|-2|30|12|2|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
@@ -849,8 +849,8 @@ obj_statue_dolphin3|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-1
 obj_statue_dolphin4|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on two legs|0.3|0.3|1.0|0|0
 obj_statue_dragon|models/objects/statue/dragon/tris.fm|1.0|1.0|1.0|general|-53.0|-33.0|-72.0|53.0|33.0|72.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon statue|0.3|0.3|1.0|0|0
 obj_statue_dragonhead|models/objects/statue/dragonhead/tris.fm|1.0|1.0|1.0|general|-76.0|-28.0|-46.0|76.0|28.0|46.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dragon head statue|0.3|0.3|1.0|0|0
-obj_statue_duckbill1|models/objects/statue/duckbill/tris.fm|1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.3|0.3|1.0|0|0
-obj_statue_duckbill2|models/objects/statue/duckbill/tris.fm|1.0|1.0|1.0|general|-67.0|-24.0|-50.0|67.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0.3|0.3|1.0|0|0
+obj_statue_duckbill1|models/objects/statue/duckbill/tris.fm|1.0|1.0|1.0|general|-63.0|-22.0|-37.0|63.0|22.0|37.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|The duckbilled thing - tail to the right|0.3|0.3|1.0|150|100
+obj_statue_duckbill2|models/objects/statue/duckbill/tris.fm|1.0|1.0|1.0|general|-67.0|-24.0|-50.0|67.0|24.0|50.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|The duckbilled thing - tail to the left|0.3|0.3|1.0|150|100
 obj_statue_guardian|models/objects/statue/guardian/tris.fm|1.0|1.0|1.0|general|-100.0|-64.0|0.0|64.0|64.0|128.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Guardian statue|0.3|0.3|1.0|0|0
 obj_statue_saraphbust|models/objects/statue/saraphbust/tris.fm|1.0|1.0|1.0|general|-10.0|-20.0|-24.0|10.0|20.0|24.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph bust|0.3|0.3|1.0|0|0
 obj_statue_sariph|models/objects/statue/sariph/tris.fm|1.0|1.0|1.0|general|-13.0|-16.0|-41.0|13.0|16.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Seraph statue|0.3|0.3|1.0|0|0
