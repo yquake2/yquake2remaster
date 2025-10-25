@@ -1465,8 +1465,8 @@ unsigned int NextPow2(unsigned int i);
 
 /* Returns the next power of 2 value greater than i
  * Examples:
- *   NextPow2(733) == 1024
- *   NextPow2(2048) == 4096
+ *   NextPow2gt(733) == 1024
+ *   NextPow2gt(2048) == 4096
  * Returns 1 if i == 0 and 0 if i == (1 << 31)
  */
 unsigned int NextPow2gt(unsigned int i);
