@@ -1621,20 +1621,29 @@ Info_SetValueForKey(char *s, const char *key, const char *value)
 unsigned int
 NextPow2(unsigned int i)
 {
-	unsigned int b;
+	if (!i)
+	{
+		return 1;
+	}
 
-	if (i & (1 << 31))
+	i--;
+
+	if (i & (1U << 31U))
 	{
 		return 0;
 	}
 
-	for (b = (1 << 30); b >= 1; b >>= 1)
-	{
-		if (i & b)
-		{
-			return b << 1;
-		}
-	}
+	i |= i >> 1U;
+	i |= i >> 2U;
+	i |= i >> 4U;
+	i |= i >> 8U;
+	i |= i >> 16U;
 
-	return 1;
+	return i + 1;
+}
+
+unsigned int
+NextPow2gt(unsigned int i)
+{
+	return NextPow2(i + 1);
 }
