@@ -150,7 +150,7 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 				}
 
 				// compare next pixels
-				for(k = 1; k <= step; k ++)
+				for (k = 1; k <= step; k ++)
 				{
 					if (dst[k] != dst[0])
 					{
@@ -957,6 +957,7 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 		font_data[i * 4 + 2] = font_mask[i];
 		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
 	}
+
 	*draw_font = R_LoadPic("***ttf***", font_data,
 		*r_font_height, *r_font_height, *r_font_height, *r_font_height,
 		texture_size, it_pic, 32);

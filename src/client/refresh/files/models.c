@@ -190,7 +190,7 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 		int	i;
 
 		sprout = (dsprite_t *)extradata;
-		for (i=0; i < sprout->numframes; i++)
+		for (i = 0; i < sprout->numframes; i++)
 		{
 			skins[i] = find_image(sprout->frames[i].name, it_sprite);
 			if (!skins[i])

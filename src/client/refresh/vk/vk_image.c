@@ -236,7 +236,8 @@ static void generateMipmaps(const VkCommandBuffer *cmdBuffer, const qvktexture_t
 }
 
 /* internal helper */
-static void createTextureImage(qvktexture_t *dstTex, const unsigned char *data, uint32_t width, uint32_t height)
+static void
+createTextureImage(qvktexture_t *dstTex, const unsigned char *data, uint32_t width, uint32_t height)
 {
 	int unifiedTransferAndGfx = vk_device.transferQueue == vk_device.gfxQueue ? 1 : 0;
 	// assuming 32bit images
@@ -247,14 +248,19 @@ static void createTextureImage(qvktexture_t *dstTex, const unsigned char *data, 
 	uint32_t staging_offset;
 	void *imgData = QVk_GetStagingBuffer(imageSize, 4, &command_buffer, &staging_buffer, &staging_offset);
 	if (!imgData)
+	{
 		Sys_Error("%s: Staging buffers is smaller than image: %d.\n", __func__, imageSize);
+		return;
+	}
 
 	memcpy(imgData, data, (size_t)imageSize);
 
 	VkImageUsageFlags imageUsage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 	// set extra image usage flag if we're dealing with mipmapped image - will need it for copying data between mip levels
 	if (dstTex->mipLevels > 1)
+	{
 		imageUsage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	}
 
 	VK_VERIFY(QVk_CreateImage(width, height, dstTex->format, VK_IMAGE_TILING_OPTIMAL, imageUsage, dstTex));
 
@@ -272,7 +278,8 @@ static void createTextureImage(qvktexture_t *dstTex, const unsigned char *data, 
 		.imageExtent = { width, height, 1 }
 	};
 
-	vkCmdCopyBufferToImage(command_buffer, staging_buffer, dstTex->resource.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	vkCmdCopyBufferToImage(command_buffer, staging_buffer, dstTex->resource.image,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	if (dstTex->mipLevels > 1)
 	{
@@ -283,16 +290,21 @@ static void createTextureImage(qvktexture_t *dstTex, const unsigned char *data, 
 	{
 		// for non-unified transfer and graphics, this step begins queue ownership transfer to graphics queue (for exclusive sharing only)
 		if (unifiedTransferAndGfx || dstTex->sharingMode == VK_SHARING_MODE_EXCLUSIVE)
-			transitionImageLayout(&command_buffer, &vk_device.transferQueue, dstTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		{
+			transitionImageLayout(&command_buffer, &vk_device.transferQueue,
+				dstTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		}
 
 		if (!unifiedTransferAndGfx)
 		{
-			transitionImageLayout(&command_buffer, &vk_device.gfxQueue, dstTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+			transitionImageLayout(&command_buffer, &vk_device.gfxQueue,
+				dstTex, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		}
 	}
 }
 
-VkResult QVk_CreateImageView(const VkImage *image, VkImageAspectFlags aspectFlags, VkImageView *imageView, VkFormat format, uint32_t mipLevels)
+VkResult
+QVk_CreateImageView(const VkImage *image, VkImageAspectFlags aspectFlags, VkImageView *imageView, VkFormat format, uint32_t mipLevels)
 {
 	VkImageViewCreateInfo ivCreateInfo = {
 		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
@@ -356,7 +368,8 @@ VkResult QVk_CreateImage(uint32_t width, uint32_t height, VkFormat format, VkIma
 		/*mem_skip*/ mem_skip);
 }
 
-void QVk_CreateDepthBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *depthBuffer)
+void
+QVk_CreateDepthBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *depthBuffer)
 {
 	depthBuffer->format = QVk_FindDepthFormat();
 	depthBuffer->sampleCount = sampleCount;
@@ -365,7 +378,8 @@ void QVk_CreateDepthBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *dept
 	VK_VERIFY(QVk_CreateImageView(&depthBuffer->resource.image, getDepthStencilAspect(depthBuffer->format), &depthBuffer->imageView, depthBuffer->format, depthBuffer->mipLevels));
 }
 
-static void ChangeColorBufferLayout(VkImage image, VkImageLayout fromLayout, VkImageLayout toLayout)
+static void
+ChangeColorBufferLayout(VkImage image, VkImageLayout fromLayout, VkImageLayout toLayout)
 {
 	VkCommandBuffer commandBuffer = QVk_CreateCommandBuffer(&vk_transferCommandPool, VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 	QVk_BeginCommand(&commandBuffer);
@@ -397,7 +411,8 @@ static void ChangeColorBufferLayout(VkImage image, VkImageLayout fromLayout, VkI
 	vkFreeCommandBuffers(vk_device.logical, vk_transferCommandPool, 1, &commandBuffer);
 }
 
-void QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colorBuffer, int extraFlags)
+void
+QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colorBuffer, int extraFlags)
 {
 	colorBuffer->format = vk_swapchain.format;
 	colorBuffer->sampleCount = sampleCount;
@@ -415,7 +430,8 @@ void QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colo
 	ChangeColorBufferLayout(colorBuffer->resource.image, VK_IMAGE_LAYOUT_UNDEFINED, newLayout);
 }
 
-void QVk_CreateTexture(qvktexture_t *texture, const unsigned char *data, uint32_t width, uint32_t height, qvksampler_t samplerType, qboolean clampToEdge)
+void
+QVk_CreateTexture(qvktexture_t *texture, const unsigned char *data, uint32_t width, uint32_t height, qvksampler_t samplerType, qboolean clampToEdge)
 {
 	createTextureImage(texture, data, width, height);
 	VK_VERIFY(QVk_CreateImageView(&texture->resource.image, VK_IMAGE_ASPECT_COLOR_BIT, &texture->imageView, texture->format, texture->mipLevels));
@@ -484,7 +500,8 @@ void QVk_UpdateTextureData(qvktexture_t *texture, const unsigned char *data, uin
 	}
 }
 
-void QVk_ReleaseTexture(qvktexture_t *texture)
+void
+QVk_ReleaseTexture(qvktexture_t *texture)
 {
 	QVk_SubmitStagingBuffers();
 	if (vk_device.logical != VK_NULL_HANDLE)
@@ -507,7 +524,8 @@ void QVk_ReleaseTexture(qvktexture_t *texture)
 	texture->descriptorSet = VK_NULL_HANDLE;
 }
 
-void QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *extent)
+void
+QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *extent)
 {
 	BufferResource_t buff;
 	uint8_t *pMappedData;
@@ -582,7 +600,8 @@ void QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent
 Vk_ImageList_f
 ===============
 */
-void	Vk_ImageList_f (void)
+void
+Vk_ImageList_f(void)
 {
 	int		i, used, texels;
 	image_t	*image;
@@ -692,7 +711,9 @@ Vk_TextureMode(const char *string)
 		qboolean nolerp = false;
 
 		if (image->vk_texture.resource.image == VK_NULL_HANDLE)
+		{
 			continue;
+		}
 
 		/* r_2D_unfiltered and r_nolerp_list allow rendering stuff unfiltered even if gl_filter_* is filtered */
 		if (unfiltered2D && image->type == it_pic)
@@ -706,11 +727,15 @@ Vk_TextureMode(const char *string)
 		}
 
 		if(!nolerp)
+		{
 			QVk_UpdateTextureSampler(&image->vk_texture, i, image->vk_texture.clampToEdge);
+		}
 	}
 
 	if (vk_rawTexture.resource.image != VK_NULL_HANDLE)
+	{
 		QVk_UpdateTextureSampler(&vk_rawTexture, i, vk_rawTexture.clampToEdge);
+	}
 }
 
 /*
@@ -744,10 +769,13 @@ Vk_LmapTextureMode(const char *string)
 	vk_current_lmap_sampler = i;
 
 	vkDeviceWaitIdle(vk_device.logical);
-	for (j = 0; j < MAX_LIGHTMAPS*2; j++)
+	for (j = 0; j < MAX_LIGHTMAPS * 2; j++)
 	{
 		if (vk_state.lightmap_textures[j].resource.image != VK_NULL_HANDLE)
-			QVk_UpdateTextureSampler(&vk_state.lightmap_textures[j], i, vk_state.lightmap_textures[j].clampToEdge);
+		{
+			QVk_UpdateTextureSampler(&vk_state.lightmap_textures[j], i,
+				vk_state.lightmap_textures[j].clampToEdge);
+		}
 	}
 }
 
