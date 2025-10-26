@@ -903,8 +903,10 @@ R_Clear(void)
 			{
 				clearFlags |= GL_COLOR_BUFFER_BIT;
 			}
+			/* fall through */
 		case 2:
 			clearFlags |= GL_STENCIL_BUFFER_BIT;
+			/* fall through */
 		default:
 			break;
 	}
