@@ -43,7 +43,6 @@ void
 DynamicObjectSpawn(edict_t *self)
 {
 	self->movetype = MOVETYPE_NONE;
-	self->solid = SOLID_BBOX;
 	self->takedamage = DAMAGE_YES;
 
 	self->die = destructible_die;
@@ -725,7 +724,7 @@ SP_obj_ropechain(edict_t *self)
 /*
  * QUAKED obj_wheelbarrow (0.3 0.3 1.0) (-37.0 -20.0 -21.0) (37.0 20.0 21.0)
  *
- * Heretic 2: Wheebarrow
+ * Heretic 2: Wheelbarrow
  */
 void
 SP_obj_wheelbarrow(edict_t *self)
@@ -736,7 +735,7 @@ SP_obj_wheelbarrow(edict_t *self)
 /*
  * QUAKED obj_wheelbarrowdamaged (0.3 0.3 1.0) (-38.0 -26.0 -20.0) (38.0 26.0 20.0)
  *
- * Heretic 2: Wheebarrow on side
+ * Heretic 2: Wheelbarrow on side
  */
 void
 SP_obj_wheelbarrowdamaged(edict_t *self)

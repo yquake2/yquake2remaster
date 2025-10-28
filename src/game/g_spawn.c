@@ -175,6 +175,15 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	self->monsterinfo.walk_dist = data->walk_speed;
 	self->health = data->health;
 	self->mass = data->mass;
+
+	if (data->solidflag)
+	{
+		self->solid = SOLID_BBOX;
+	}
+	else
+	{
+		self->solid = SOLID_NOT;
+	}
 }
 
 void
