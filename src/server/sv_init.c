@@ -233,6 +233,22 @@ SV_CheckForSavegame(qboolean isautosave)
 	}
 }
 
+static void
+SV_InitGameClients(void)
+{
+	size_t i;
+
+	for (i = 0; i < maxclients->value; i++)
+	{
+		edict_t *ent;
+
+		ent = EDICT_NUM(i + 1);
+		ent->s.number = i + 1;
+		svs.clients[i].edict = ent;
+		memset(&svs.clients[i].lastcmd, 0, sizeof(svs.clients[i].lastcmd));
+	}
+}
+
 /*
  * Change the server to a new map, taking all connected
  * clients along with it.
@@ -362,6 +378,9 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
 	ge->SpawnEntities(sv.name, entity, spawnpoint);
 	free(entity);
 
+	/* Fix ent/client pointers after realloc in SpawnEntities */
+	SV_InitGameClients();
+
 	/* run two frames to allow everything to settle */
 	ge->RunFrame();
 	ge->RunFrame();
@@ -464,9 +483,8 @@ SV_ChooseGamemode(void)
 void
 SV_InitGame(void)
 {
-	int i, gamemode;
-	edict_t *ent;
 	char idmaster[32];
+	int gamemode;
 
 	if (svs.initialized)
 	{
@@ -544,14 +562,7 @@ SV_InitGame(void)
 
 	/* init game */
 	SV_InitGameProgs();
-
-	for (i = 0; i < maxclients->value; i++)
-	{
-		ent = EDICT_NUM(i + 1);
-		ent->s.number = i + 1;
-		svs.clients[i].edict = ent;
-		memset(&svs.clients[i].lastcmd, 0, sizeof(svs.clients[i].lastcmd));
-	}
+	SV_InitGameClients();
 }
 
 /*

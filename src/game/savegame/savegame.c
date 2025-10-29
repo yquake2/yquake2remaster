@@ -230,7 +230,7 @@ ReinitGameEntities(int ent_cnt)
 		num_e = num_c + 1 + ent_cnt * 2;
 	}
 
-	if (num_e < game.maxentities)
+	if (num_e <= game.maxentities)
 	{
 		return;
 	}
