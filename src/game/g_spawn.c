@@ -173,9 +173,19 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 
 	self->monsterinfo.run_dist = data->run_speed;
 	self->monsterinfo.walk_dist = data->walk_speed;
-	self->health = data->health;
-	self->mass = data->mass;
 
+	/* override only by non zero value and only zero value*/
+	if (data->health && !self->health)
+	{
+		self->health = data->health;
+	}
+
+	if (data->mass && !self->mass)
+	{
+		self->mass = data->mass;
+	}
+
+	/* set default solid flag */
 	if (data->solidflag)
 	{
 		self->solid = SOLID_BBOX;
