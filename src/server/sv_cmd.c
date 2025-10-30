@@ -28,24 +28,6 @@
 
 #include "header/server.h"
 
-/* Bitlist
- * API for using arrays of bits with maximum space efficiency
-*/
-typedef char bitlist_t;
-
-/* number of bits per array index */
-#define BITLIST_BPU (sizeof(int) * 8)
-
-/* calculate length of array given number of bits n */
-#define BITLIST_SIZE(n) (1 + (((n) - 1) / BITLIST_BPU))
-
-/* Set bit i to 1 or clear it to 0 */
-#define BITLIST_SET(l, i) l[(i) / BITLIST_BPU] |= 1 << ((i) % BITLIST_BPU)
-#define BITLIST_CLEAR(l, i) l[(i) / BITLIST_BPU] &= ~(1 << ((i) % BITLIST_BPU))
-
-/* test the value of bit i */
-#define BITLIST_ISSET(l, i) (l[(i) / BITLIST_BPU] & (1 << ((i) % BITLIST_BPU))) != 0
-
 /*
  * Specify a list of master servers
  */
