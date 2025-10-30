@@ -575,7 +575,7 @@ SV_BuildClientFrame(client_t *client)
 	byte *clientphs;
 	byte *bitvector;
 
-	clent = client->edict;
+	clent = CL_EDICT(client);
 
 	if (!clent->client)
 	{
@@ -733,7 +733,7 @@ SV_BuildClientFrame(client_t *client)
 		SV_GetEntityState(ent, state);
 
 		/* don't mark players missiles as solid */
-		if (ent->owner == client->edict)
+		if (ent->owner == clent)
 		{
 			state->solid = 0;
 		}

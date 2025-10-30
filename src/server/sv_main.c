@@ -71,7 +71,7 @@ SV_DropClient(client_t *drop)
 	{
 		/* call the prog function for removing a client
 		   this will remove the body, among other things */
-		ge->ClientDisconnect(drop->edict);
+		ge->ClientDisconnect(CL_EDICT(drop));
 	}
 
 	if (drop->download)
@@ -108,7 +108,7 @@ SV_StatusString(void)
 		if ((cl->state == cs_connected) || (cl->state == cs_spawned))
 		{
 			Com_sprintf(player, sizeof(player), "%i %i \"%s\"\n",
-					cl->edict->client->ps.stats[STAT_FRAGS], cl->ping, cl->name);
+					CL_EDICT(cl)->client->ps.stats[STAT_FRAGS], cl->ping, cl->name);
 			playerLength = (int)strlen(player);
 
 			if (statusLength + playerLength >= sizeof(status))
@@ -155,17 +155,10 @@ SV_CalcPings(void)
 			}
 		}
 
-		if (!count)
-		{
-			cl->ping = 0;
-		}
-		else
-		{
-			cl->ping = total / count;
-		}
+		cl->ping = (!count) ? 0 : (total / count);
 
 		/* let the game dll know about the ping */
-		cl->edict->client->ping = cl->ping;
+		CL_EDICT(cl)->client->ping = cl->ping;
 	}
 }
 
@@ -566,7 +559,7 @@ SV_UserinfoChanged(client_t *cl)
 	int i;
 
 	/* call prog code to allow overrides */
-	ge->ClientUserinfoChanged(cl->edict, cl->userinfo);
+	ge->ClientUserinfoChanged(CL_EDICT(cl), cl->userinfo);
 
 	/* name for C code */
 	Q_strlcpy(cl->name, Info_ValueForKey(cl->userinfo, "name"), sizeof(cl->name));
