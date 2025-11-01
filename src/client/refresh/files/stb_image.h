@@ -101,7 +101,7 @@ RECENT REVISION HISTORY:
     Marc LeBlanc            David Woo          Guillaume George     Martins Mozeiko
     Christpher Lloyd        Jerry Jansson      Joseph Thomson       Blazej Dariusz Roszkowski
     Phil Jordan             Henner Zeller      Dave Moore           Roy Eltham
-    Hayaki Saito            Nathan Reed        Won Chun
+    Hayaki Saito            Nathan Reed        Won Chun             Thomas Bernard
     Luke Graham             Johan Duparc       Nick Verigakis       the Horde3D community
     Thomas Ruf              Ronny Chevalier                         github:rlyeh
     Janez Zemva             John Bartholomew   Michal Cichon        github:romigrou
@@ -5267,6 +5267,10 @@ static int stbi__parse_png_file(stbi__png *z, int scan, int req_comp)
             STBI_FREE(z->expanded); z->expanded = NULL;
             // end of PNG chunk, read and skip CRC
             stbi__get32be(s);
+            if (s->io.skip && s->img_buffer_end > s->img_buffer) {
+               // rewind the additional bytes that have been read to the buffer
+               (s->io.skip)(s->io_user_data, (int)(s->img_buffer - s->img_buffer_end));
+            }
             return 1;
          }
 
@@ -6991,7 +6995,10 @@ static void *stbi__load_gif_main_outofmem(stbi__gif *g, stbi_uc *out, int **dela
    STBI_FREE(g->background);
 
    if (out) STBI_FREE(out);
-   if (delays && *delays) STBI_FREE(*delays);
+   if (delays && *delays) {
+      STBI_FREE(*delays);
+      *delays = NULL;
+   }
    return stbi__errpuc("outofmem", "Out of memory");
 }
 
@@ -7026,43 +7033,27 @@ static void *stbi__load_gif_main(stbi__context *s, int **delays, int *x, int *y,
             stride = g.w * g.h * 4;
 
             if (out) {
-               if (stride == 0) {
-                  void *ret = stbi__load_gif_main_outofmem(&g, out, delays);
-                  return ret;
-               }
-               if (!stbi__mul2sizes_valid(layers, stride)) {
-                  void *ret = stbi__load_gif_main_outofmem(&g, out, delays);
-                  return ret;
-               }
-               void *tmp = (stbi_uc*) STBI_REALLOC_SIZED( out, out_size, layers * stride );
-               if (!tmp) {
-                  void *ret = stbi__load_gif_main_outofmem(&g, out, delays);
-		  if (delays && *delays) *delays = 0;
-		  return ret;
-	       }
-               else {
-                   out = (stbi_uc*) tmp;
-                   out_size = layers * stride;
-               }
+               if (stride == 0)
+                  return stbi__load_gif_main_outofmem(&g, out, delays);
+               if (!stbi__mul2sizes_valid(layers, stride))
+                  return stbi__load_gif_main_outofmem(&g, out, delays);
+               out = (stbi_uc*) STBI_REALLOC_SIZED( out, out_size, layers * stride );
+               if (!out)
+                  return stbi__load_gif_main_outofmem(&g, out, delays);
+               out_size = layers * stride;
 
                if (delays) {
-                  int *new_delays = (int*) STBI_REALLOC_SIZED( *delays, delays_size, sizeof(int) * layers );
-                  if (!new_delays)
+                  *delays = (int*) STBI_REALLOC_SIZED( *delays, delays_size, sizeof(int) * layers );
+                  if (!*delays)
                      return stbi__load_gif_main_outofmem(&g, out, delays);
-                  *delays = new_delays;
                   delays_size = layers * sizeof(int);
                }
             } else {
-               if (!stbi__mul2sizes_valid(layers, stride)) {
-                  void *ret = stbi__load_gif_main_outofmem(&g, out, delays);
-                  return ret;
-               }
+               if (!stbi__mul2sizes_valid(layers, stride))
+                  return stbi__load_gif_main_outofmem(&g, out, delays);
                out = (stbi_uc*)stbi__malloc( layers * stride );
-               if (!out) {
-                  void *ret = stbi__load_gif_main_outofmem(&g, out, delays);
-		  if (delays && *delays) *delays = 0;
-		  return ret;
-	       }
+               if (!out)
+                  return stbi__load_gif_main_outofmem(&g, out, delays);
                out_size = layers * stride;
                if (delays) {
                   *delays = (int*) stbi__malloc( layers * sizeof(int) );
