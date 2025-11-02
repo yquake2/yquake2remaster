@@ -184,14 +184,13 @@ SV_LocalizationReload(void)
 
 	if (nlocalmessages)
 	{
-		localmessages = malloc((nlocalmessages + 1) * sizeof(*localmessages));
+		localmessages = calloc((nlocalmessages + 1), sizeof(*localmessages));
 		if (!localmessages)
 		{
 			Com_Error(ERR_DROP, "%s: can't allocate messages\n",
 				__func__);
 			return;
 		}
-		memset(localmessages, 0, (nlocalmessages + 1) * sizeof(*localmessages));
 	}
 
 	curr_pos = 0;
@@ -312,7 +311,6 @@ SV_LocalizationReload(void)
 			/* skip our endline */
 			curr++;
 		}
-		free(buf_local);
 	}
 
 	/* heretic 2 translate load */
@@ -419,8 +417,6 @@ SV_LocalizationReload(void)
 			/* skip our endline */
 			curr++;
 		}
-
-		free(buf_level);
 	}
 
 	/* hexen 2 translate load */
@@ -493,23 +489,23 @@ SV_LocalizationReload(void)
 			/* skip our endline */
 			curr++;
 		}
-
-		free(buf_strings);
 	}
 
 	/* save last used position */
 	nlocalmessages = curr_pos;
+	free(buf_strings);
+	free(buf_level);
+	free(buf_local);
 
 	if (!curr_pos && !localmessages)
 	{
-		localmessages = malloc(sizeof(*localmessages));
+		localmessages = calloc(1, sizeof(*localmessages));
 		if (!localmessages)
 		{
 			Com_Error(ERR_DROP, "%s: can't allocate messages\n",
 				__func__);
 			return;
 		}
-		memset(localmessages, 0, sizeof(*localmessages));
 		return;
 	}
 
