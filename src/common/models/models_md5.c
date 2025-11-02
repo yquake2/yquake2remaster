@@ -472,7 +472,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					FreeModelMd5Frames(anim);
 					YQ2_COM_CHECK_OOM(anim->skelFrames, "malloc()",
 						sizeof(md5_frame_t) * anim->num_frames)
-					return;
+					goto cleanup;
 				}
 			}
 		}
@@ -501,7 +501,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					FreeModelMd5Frames(anim);
 					YQ2_COM_CHECK_OOM(jointInfos, "malloc()",
 						sizeof(md5_joint_info_t) * anim->num_joints)
-					return;
+					goto cleanup;
 				}
 
 				baseFrame = (md5_baseframe_joint_t *)
@@ -511,7 +511,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					FreeModelMd5Frames(anim);
 					YQ2_COM_CHECK_OOM(baseFrame, "malloc()",
 						sizeof(md5_baseframe_joint_t) * anim->num_joints)
-					return;
+					goto cleanup;
 				}
 			}
 		}
@@ -545,7 +545,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					FreeModelMd5Frames(anim);
 					YQ2_COM_CHECK_OOM(animFrameData, "malloc()",
 						sizeof(float) * numAnimatedComponents)
-					return;
+					goto cleanup;
 				}
 			}
 		}
@@ -719,6 +719,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 		}
 	}
 
+cleanup:
 	/* Free temporary data allocated */
 	if (animFrameData)
 	{
