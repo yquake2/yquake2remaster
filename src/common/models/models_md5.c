@@ -377,7 +377,7 @@ ParseFloatBlock(char **curr_buff, int count, float *v)
 	token = COM_Parse(curr_buff);
 	if (strcmp(token, "("))
 	{
-		Com_Printf("Error: expected float block open\n");
+		Com_Printf("%s: expected float block open\n", __func__);
 		return false;
 	}
 
@@ -390,7 +390,7 @@ ParseFloatBlock(char **curr_buff, int count, float *v)
 	token = COM_Parse(curr_buff);
 	if (strcmp(token, ")"))
 	{
-		Com_Printf("Error: expected float block close\n");
+		Com_Printf("%s: expected float block close\n", __func__);
 		return false;
 	}
 
@@ -409,6 +409,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	int numAnimatedComponents = 0;
 	char *curr_buff,*safe_buffer;
 	float *animFrameData = NULL;
+	qboolean error = false;
 	const char *end_buff;
 
 	/* buffer has not always had final zero */
@@ -443,7 +444,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			if (strcmp(token, "10"))
 			{
 				/* Bad version */
-				Com_Printf("Error: bad animation version\n");
+				Com_Printf("%s: bad animation version\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -455,7 +456,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			if (anim->skelFrames)
 			{
 				/* To insure analysers as we are in a loop */
-				Com_Printf("Error: several numFrames sections");
+				Com_Printf("%s: Error several numFrames sections\n",
+					__func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -470,9 +472,10 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				if (!anim->skelFrames)
 				{
 					FreeModelMd5Frames(anim);
-					YQ2_COM_CHECK_OOM(anim->skelFrames, "malloc()",
-						sizeof(md5_frame_t) * anim->num_frames)
-					return;
+					Com_Printf("%s: OOM failed to allocate frames\n",
+						__func__);
+					error = true;
+					break;
 				}
 			}
 		}
@@ -482,7 +485,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			if (jointInfos || baseFrame)
 			{
 				/* To insure analysers as we are in a loop */
-				Com_Printf("Error: several numJoints sections");
+				Com_Printf("%s: Error several numJoints sections\n",
+					__func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -499,9 +503,10 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				if (!jointInfos)
 				{
 					FreeModelMd5Frames(anim);
-					YQ2_COM_CHECK_OOM(jointInfos, "malloc()",
-						sizeof(md5_joint_info_t) * anim->num_joints)
-					return;
+					Com_Printf("%s: OOM failed to allocate joint infos\n",
+						__func__);
+					error = true;
+					break;
 				}
 
 				baseFrame = (md5_baseframe_joint_t *)
@@ -509,9 +514,10 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				if (!baseFrame)
 				{
 					FreeModelMd5Frames(anim);
-					YQ2_COM_CHECK_OOM(baseFrame, "malloc()",
-						sizeof(md5_baseframe_joint_t) * anim->num_joints)
-					return;
+					Com_Printf("%s: OOM failed to allocate frames\n",
+						__func__);
+					error = true;
+					break;
 				}
 			}
 		}
@@ -529,7 +535,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			if (animFrameData)
 			{
 				/* To insure analysers as we are in a loop */
-				Com_Printf("Error: several numAnimatedComponents sections");
+				Com_Printf("%s: several numAnimatedComponents sections\n",
+					__func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -543,9 +550,10 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				if (!animFrameData)
 				{
 					FreeModelMd5Frames(anim);
-					YQ2_COM_CHECK_OOM(animFrameData, "malloc()",
-						sizeof(float) * numAnimatedComponents)
-					return;
+					Com_Printf("%s: OOM failed to allocate animframe\n",
+						__func__);
+					error = true;
+					break;
 				}
 			}
 		}
@@ -590,7 +598,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "}"))
 			{
-				Com_Printf("Error: expected hierarchy block close\n");
+				Com_Printf("%s: expected hierarchy block close\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -603,7 +611,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "{"))
 			{
-				Com_Printf("Error: expected hierarchy bounds open\n");
+				Com_Printf("%s: expected hierarchy bounds open\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -614,7 +622,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 				if (!ParseFloatBlock(&curr_buff, 3, anim->skelFrames[i].bbox.min) ||
 					!ParseFloatBlock(&curr_buff, 3, anim->skelFrames[i].bbox.max))
 				{
-					Com_Printf("Error: unexpected bounds format\n");
+					Com_Printf("%s: unexpected bounds format\n", __func__);
 					break;
 				}
 			}
@@ -622,7 +630,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "}"))
 			{
-				Com_Printf("Error: expected block close\n");
+				Com_Printf("%s: expected block close\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -635,7 +643,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "{"))
 			{
-				Com_Printf("Error: expected baseframe block open\n");
+				Com_Printf("%s: expected baseframe block open\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -648,7 +656,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					!ParseFloatBlock(&curr_buff, 3, baseFrame[i].pos) ||
 					!ParseFloatBlock(&curr_buff, 3, baseFrame[i].orient))
 				{
-					Com_Printf("Error: unexpected baseframe format\n");
+					Com_Printf("%s: unexpected baseframe format\n",
+						__func__);
 					break;
 				}
 
@@ -659,7 +668,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "}"))
 			{
-				Com_Printf("Error: expected baseframe block close\n");
+				Com_Printf("%s: expected baseframe block close\n",
+					__func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -675,7 +685,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "{"))
 			{
-				Com_Printf("Error: expected frame bounds open\n");
+				Com_Printf("%s: expected frame bounds open\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -690,7 +700,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 
 			if (frame_index < 0 || frame_index >= anim->num_frames)
 			{
-				Com_Printf("Error: unknown frame number\n");
+				Com_Printf("%s: unknown frame number\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -698,7 +708,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 
 			if (!jointInfos || !baseFrame || !animFrameData)
 			{
-				Com_Printf("Error: unknown size of frame\n");
+				Com_Printf("%s: unknown size of frame\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -711,7 +721,7 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "}"))
 			{
-				Com_Printf("Error: expected frame block close\n");
+				Com_Printf("%s: expected frame block close\n", __func__);
 				/* broken file */
 				FreeModelMd5Frames(anim);
 				break;
@@ -720,22 +730,16 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 	}
 
 	/* Free temporary data allocated */
-	if (animFrameData)
-	{
-		free(animFrameData);
-	}
-
-	if (baseFrame)
-	{
-		free(baseFrame);
-	}
-
-	if (jointInfos)
-	{
-		free(jointInfos);
-	}
-
+	free(animFrameData);
+	free(baseFrame);
+	free(jointInfos);
 	free(safe_buffer);
+
+	if (error)
+	{
+		Com_Error(ERR_FATAL, "%s: Failed to allocate animation\n",
+			__func__);
+	}
 }
 
 /**
@@ -852,7 +856,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			if (strcmp(token, "10"))
 			{
 				/* Bad version */
-				Com_Printf("Error: bad model version\n");
+				Com_Printf("%s: bad model version\n", __func__);
 				FreeModelMd5(mdl);
 				free(safe_buffer);
 
@@ -986,7 +990,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "{"))
 			{
-				Com_Printf("Error: expected joints block open\n");
+				Com_Printf("%s: expected joints block open\n", __func__);
 				FreeModelMd5(mdl);
 				free(safe_buffer);
 
@@ -1020,7 +1024,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "}"))
 			{
-				Com_Printf("Error: expected joints block close\n");
+				Com_Printf("%s: expected joints block close\n", __func__);
 				FreeModelMd5(mdl);
 				free(safe_buffer);
 
@@ -1034,7 +1038,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			token = COM_Parse(&curr_buff);
 			if (strcmp(token, "{"))
 			{
-				Com_Printf("Error: expected mesh block open\n");
+				Com_Printf("%s: expected mesh block open\n", __func__);
 				FreeModelMd5(mdl);
 				free(safe_buffer);
 
@@ -1156,7 +1160,8 @@ ReadMD5Model(const char *buffer, size_t size)
 
 					if (index >= mesh->num_verts)
 					{
-						Com_Printf("Error: incorrect vert index\n");
+						Com_Printf("%s: incorrect vert index\n",
+							__func__);
 						FreeModelMd5(mdl);
 						free(safe_buffer);
 
@@ -1187,7 +1192,8 @@ ReadMD5Model(const char *buffer, size_t size)
 
 					if (index >= mesh->num_tris)
 					{
-						Com_Printf("Error: incorrect tri index\n");
+						Com_Printf("%s: incorrect tri index\n",
+							__func__);
 						FreeModelMd5(mdl);
 						free(safe_buffer);
 
@@ -1210,7 +1216,8 @@ ReadMD5Model(const char *buffer, size_t size)
 
 					if (index >= mesh->num_weights)
 					{
-						Com_Printf("Error: incorrect weight index\n");
+						Com_Printf("%s: incorrect weight index\n",
+							__func__);
 						FreeModelMd5(mdl);
 						free(safe_buffer);
 
