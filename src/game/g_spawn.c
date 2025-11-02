@@ -217,7 +217,7 @@ dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 void
 dynamicspawn_think(edict_t *self)
 {
-	M_SetAnimGroupFrame(self, "idle");
+	M_SetAnimGroupFrame(self, "idle", true);
 	self->nextthink = level.time + FRAMETIME;
 }
 
