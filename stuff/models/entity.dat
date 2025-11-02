@@ -782,8 +782,8 @@ obj_frypan|models/objects/pots/frypan/tris.fm|1.0|1.0|1.0|general|-1.0|-3.0|-10.
 obj_gascan|models/objects/barrel/gascan/tris.fm|1.0|1.0|1.0|general|-8.0|-9.0|-13.0|8.0|9.0|13.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gas can|0.3|0.3|1.0|75|125
 obj_gorgonbones|models/objects/bones/gorgon/tris.fm|1.0|1.0|1.0|general|-18.0|-38.0|-9.0|18.0|38.0|1.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Gorgon bones|0.3|0.3|1.0|50|125
 obj_grass|models/objects/plants/grass/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-10.0|8.0|8.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Grass clump|0.3|0.3|1.0|50|125
-obj_hangingdude|models/objects/torture/guy1/tris.fm|1.0|1.0|1.0|general|-3.0|-20.0|-55.0|3.0|20.0|55.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hanging dude|0.3|0.3|1.0|0|0
-obj_hanging_ogle|models/objects/torture/plaque2/tris.fm|1.0|1.0|1.0|general|-8.0|-16.0|-34.0|8.0|16.0|34.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hanging Ogle|0.3|0.3|1.0|100|200
+obj_hangingdude|models/objects/torture/guy1/tris.fm|1.0|1.0|1.0|general|-3.0|-20.0|-55.0|3.0|20.0|55.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hanging dude|0.3|0.3|1.0|0|0
+obj_hanging_ogle|models/objects/torture/ogle/tris.fm|1.0|1.0|1.0|general|-8.0|-16.0|-34.0|8.0|16.0|34.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hanging Ogle|0.3|0.3|1.0|100|200
 obj_hivepriestessssymbol||1.0|1.0|1.0|general|-4.0|-4.0|-13.0|4.0|4.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Hive Priestess symbol (triggered)|0.3|0.3|1.0|75|125
 obj_jawbone|models/objects/bones/jaws/tris.fm|1.0|1.0|1.0|general|-11.0|-11.0|-12.0|11.0|11.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fish jawbone|0.3|0.3|1.0|25|125
 obj_jug1|models/objects/jars/jug/tris.fm|1.0|1.0|1.0|general|-6.0|-6.0|-6.0|6.0|6.0|6.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Jug|0.3|0.3|1.0|75|125
@@ -828,7 +828,7 @@ obj_rocks2|models/objects/rocks/rock2/tris.fm|1.0|1.0|1.0|general|-34.0|-40.0|-1
 obj_rope||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Climbable rope. Requires origin brush (brush with ORIGIN content flag)|0.3|0.3|1.0|0|0
 obj_ropechain|models/objects/rope/tris.fm|1.0|1.0|1.0|general|-20.0|-20.0|-14.0|20.0|20.0|14.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Rope chain|0.3|0.3|1.0|80|100
 obj_scroll|models/objects/scroll/tris.fm|1.0|1.0|1.0|general|-2.0|-18.0|-3.0|2.0|18.0|3.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Scroll|0.3|0.3|1.0|10|50
-obj_seasonglobe|models/objects/globe/globebottom/tris.fm|1.75|1.75|1.75|general|-80.0|-80.0|0.0|80.0|80.0|320.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Globe (triggerable)|0.3|0.3|1.0|0|0
+obj_seasonglobe|models/objects/globe/globebottom/tris.fm|1.75|1.75|1.75|general|-80.0|-80.0|0.0|80.0|80.0|320.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Globe (triggerable)|0.3|0.3|1.0|0|0
 obj_shovel|models/objects/shovel/tris.fm|1.0|1.0|1.0|general|-8.0|-8.0|-20.0|8.0|8.0|20.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shovel|0.3|0.3|1.0|20|40
 obj_shrine|models/objects/shrine/tris.fm|1.0|1.0|1.0|general|-26.0|-38.0|-38.0|26.0|38.0|38.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shrine model. Target with a matching shrine_(style) trigger brush.|0.3|0.3|1.0|75|125
 obj_sign1|models/objects/signs/sign1/tris.fm|1.0|1.0|1.0|general|-29.0|-4.0|-16.0|29.0|4.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Sign 1|0.3|0.3|1.0|40|150
