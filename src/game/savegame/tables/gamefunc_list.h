@@ -519,6 +519,7 @@
 {"demon_run", (byte *)demon_run},
 {"demon_search", (byte *)demon_search},
 {"demon_sight", (byte *)demon_sight},
+{"destructible_die", (byte *)destructible_die},
 {"dog_dead", (byte *)dog_dead},
 {"dog_die", (byte *)dog_die},
 {"dog_leap", (byte *)dog_leap},

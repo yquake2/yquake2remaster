@@ -167,7 +167,10 @@ static const int quake3_contents_flags[32] = {
 	0,                     /* 31: don't leave bodies or items (death fog, lava) */
 };
 
+/* Sum by or of all official maps (1 << 24 | 1 << 25 ....) */
+#define HERETIC2_ALLFLAGS 0x30037FF
 #define HERETIC2_FLAGS (1 << 24 | 1 << 25)
+
 static const int heretic2_flags[32] = {
 	SURF_LIGHT,     /* 0: Emit light from the surface, brightness is specified in the 'value' field */
 	SURF_SLICK,     /* 1: The surface is slippery */

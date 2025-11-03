@@ -1974,7 +1974,9 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 
 			flags = Mod_Load2QBSP_IBSP_TEXINFO_Flags(inbuf, lumps,
 				idq2bsplumps[LUMP_TEXINFO].size, LUMP_TEXINFO);
-			if ((flags & HERETIC2_FLAGS) == HERETIC2_FLAGS)
+			/* has heretic2 specific flags and no unused flags */
+			if (((flags & HERETIC2_FLAGS) == HERETIC2_FLAGS) &&
+				!(flags & ~HERETIC2_ALLFLAGS))
 			{
 				/* heretic 2 has 24, 25 set as material */
 				return map_heretic2;
