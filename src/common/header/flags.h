@@ -27,6 +27,10 @@
 /*
  * Based on https://github.com/TrenchBroom/
  */
+
+/* Sum by or of all official maps (1 << 7 | 1 << 6 ....) */
+#define QUAKE2_ALLFLAGS 0xbff
+
 static const int quake2_flags[32] = {
 	SURF_LIGHT,     /* 0: value will hold the light strength */
 	SURF_SLICK,     /* 1: effects game physics */

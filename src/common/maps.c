@@ -1974,6 +1974,13 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 
 			flags = Mod_Load2QBSP_IBSP_TEXINFO_Flags(inbuf, lumps,
 				idq2bsplumps[LUMP_TEXINFO].size, LUMP_TEXINFO);
+
+			/* has no unused quake2 flags */
+			if (!(flags & ~QUAKE2_ALLFLAGS))
+			{
+				return map_quake2;
+			}
+
 			/* has heretic2 specific flags and no unused flags */
 			if (((flags & HERETIC2_FLAGS) == HERETIC2_FLAGS) &&
 				!(flags & ~HERETIC2_ALLFLAGS))
