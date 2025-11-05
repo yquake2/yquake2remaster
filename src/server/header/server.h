@@ -75,6 +75,7 @@ typedef struct
 	char name[MAX_QPATH];           /* map name, or cinematic name */
 	struct cmodel_s *models[MAX_MODELS];
 
+	stringlist_t configstrings_overflow;
 	char configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
 	entity_xstate_t *baselines;
 	int numbaselines;
