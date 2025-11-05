@@ -697,7 +697,7 @@ R_SetupFrame(void)
 		}
 	}
 
-	R_CombineBlendWithFog(v_blend);
+	R_CombineBlendWithFog(v_blend, true);
 
 	for (i = 0; i < 3; i++)
 	{

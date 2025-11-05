@@ -1173,7 +1173,7 @@ R_CalcPalette (void)
 	vec3_t	premult;
 	int		v;
 
-	R_CombineBlendWithFog(v_blend);
+	R_CombineBlendWithFog(v_blend, false);
 
 	alpha = v_blend[3];
 	if (alpha <= 0)

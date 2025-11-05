@@ -646,7 +646,7 @@ R_SetupFrame(void)
 		}
 	}
 
-	R_CombineBlendWithFog(v_blend);
+	R_CombineBlendWithFog(v_blend, false);
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;

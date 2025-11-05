@@ -185,7 +185,7 @@ R_CombineBlends(const float *add, float *v_blend)
 }
 
 void
-R_CombineBlendWithFog(float *v_blend)
+R_CombineBlendWithFog(float *v_blend, qboolean native_fog)
 {
 	float hf_color[4];
 	int i;
@@ -203,7 +203,12 @@ R_CombineBlendWithFog(float *v_blend)
 	{
 		float fog_density;
 
-		fog_density = r_newrefdef.fog.density * 10;
+		fog_density = r_newrefdef.fog.density * 5;
+		if (!native_fog)
+		{
+			fog_density *= 2;
+		}
+
 		v_blend[3]  += fog_density;
 
 		v_blend[0] += (r_newrefdef.fog.red / 255.0) * fog_density;
