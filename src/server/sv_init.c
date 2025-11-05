@@ -85,6 +85,11 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 	{
 		if (!StringList_IsInList(&sv.configstrings_overflow, name))
 		{
+			if (sv.state != ss_loading)
+			{
+				Com_Printf("Failed to load %s: configstrings overflowed\n", name);
+			}
+
 			StringList_Add(&sv.configstrings_overflow, name);
 		}
 
