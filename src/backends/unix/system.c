@@ -57,9 +57,6 @@ qboolean stdin_active = true;
 // Terminal supports colors
 static qboolean color_active = false;
 
-// Config dir
-char cfgdir[MAX_OSPATH] = CFGDIR;
-
 // Console logfile
 extern FILE	*logfile;
 
@@ -548,27 +545,50 @@ Sys_IsFile(const char *path)
 	return false;
 }
 
-char *
-Sys_GetHomeDir(void)
+struct configpaths *
+Sys_GetConfigPaths()
 {
-	static char gdir[MAX_OSPATH];
-	char *home;
+    static struct configpaths cfg = {0};
 
-	home = getenv("HOME");
+	if (!cfg.config) {
+#ifdef __linux__
+		// XDG is mostly a thing on Linux
+		// TODO: use on BSD?
+		cfg.config = calloc(MAX_OSPATH, sizeof(char));
+		cfg.save = calloc(MAX_OSPATH, sizeof(char));
+		if (!(cfg.config && cfg.save)) {
+			// allocation failed 😭
+			return NULL;
+		}
 
-	if (!home)
-	{
-		return NULL;
+		const char* env = getenv("XDG_CONFIG_HOME");
+		if (env) {
+			strcpy(cfg.config, env);
+		} else {
+			strcpy(cfg.config, DEFPATH_CONFIG);
+		}
+
+		env = getenv("XDG_DATA_HOME");
+		if (env) {
+			strcpy(cfg.save, env);
+		} else {
+			strcpy(cfg.save, DEFPATH_SAVE);
+		}
+#else
+		static char gdir[MAX_OSPATH];
+		cfg.config = cfg.save = gdir;
+# ifdef __HAIKU__
+		Com_sprintf(gdir, sizeof(gdir), "%s/config/settings/%s", home, DEFPATH_DIRNAME);
+# else
+		Com_sprintf(gdir, sizeof(gdir), "%s/%s/", home, DEFPATH_DIRNAME);
+# endif
+#endif
 	}
 
-#ifndef __HAIKU__
-	Com_sprintf(gdir, sizeof(gdir), "%s/%s/", home, cfgdir);
-#else
-	Com_sprintf(gdir, sizeof(gdir), "%s/config/settings/%s", home, cfgdir);
-#endif
-	Sys_Mkdir(gdir);
+	Sys_Mkdir(cfg.config);
+	Sys_Mkdir(cfg.save);
 
-	return gdir;
+	return &cfg;
 }
 
 void

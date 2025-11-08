@@ -43,14 +43,8 @@
 #define BUILD_DATE __DATE__
 #endif
 
-#ifdef _WIN32
- #define CFGDIR "YamagiQ2"
-#else
- #ifndef __HAIKU__
-   #define CFGDIR ".yq2"
- #else
-   #define CFGDIR "yq2"
- #endif
+#if !(defined(DEFPATH_CONFIG) && defined(DEFPATH_SAVE) && defined(DEFPATH_DIRNAME))
+#error DEFPATH_CONFIG, DEFPATH_SAVE and DEFPATH_DIRNAME should be defined by the build system
 #endif
 
 #ifndef YQ2ARCH
@@ -894,13 +888,21 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 // Platform specific functions.
 
+
+struct configpaths
+{
+	const char* config;
+	const char* save;
+};
+
 // system.c
 char *Sys_ConsoleInput(void);
 void Sys_ConsoleOutput(char *string);
 YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
-char *Sys_GetHomeDir(void);
+//char *Sys_GetHomeDir(void);
+struct configpaths *Sys_GetConfigPaths();
 void Sys_Remove(const char *path);
 int Sys_Rename(const char *from, const char *to);
 void Sys_RemoveDir(const char *path);
