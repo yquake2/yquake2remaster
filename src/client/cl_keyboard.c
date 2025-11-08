@@ -1102,7 +1102,7 @@ Key_WriteConsoleHistory()
 	}
 	else
 	{
-		Com_sprintf(path, sizeof(path), "%sconsole_history.txt", Sys_GetHomeDir());
+		Com_sprintf(path, sizeof(path), "%sconsole_history.txt", Sys_GetConfigPaths()->save);
 	}
 
 	FILE* f = Q_fopen(path, "w");
@@ -1150,7 +1150,7 @@ Key_ReadConsoleHistory()
 	}
 	else
 	{
-		Com_sprintf(path, sizeof(path), "%sconsole_history.txt", Sys_GetHomeDir());
+		Com_sprintf(path, sizeof(path), "%sconsole_history.txt", Sys_GetConfigPaths()->save);
 	}
 
 	f = Q_fopen(path, "r");
