@@ -558,7 +558,8 @@ Sys_GetConfigPaths()
 		cfg.save = calloc(MAX_OSPATH, sizeof(char));
 		if (!(cfg.config && cfg.save)) {
 			// allocation failed 😭
-			return NULL;
+			cfg.config = cfg.save = NULL;
+			return &cfg;
 		}
 
 		const char* env = getenv("XDG_CONFIG_HOME");
