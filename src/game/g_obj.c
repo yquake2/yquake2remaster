@@ -295,7 +295,20 @@ SP_obj_dying_elf(edict_t *self)
 void
 SP_obj_sign1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	if (self->style >= 0 && self->style <= 2)
+	{
+		self->s.skinnum = self->style;
+	}
+
+	self->movetype = MOVETYPE_NONE;
+	/*
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	*/
+	self->s.frame = 3;
+
+	gi.linkentity(self);
 }
 
 /*
@@ -834,7 +847,11 @@ SP_obj_moss5(edict_t *self)
 void
 SP_obj_floor_candelabrum(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	gi.linkentity(self);
 }
 
 /*
@@ -1334,7 +1351,11 @@ SP_obj_larvabrokenegg(edict_t *self)
 void
 SP_obj_cocoon(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	gi.linkentity(self);
 }
 
 /*
@@ -1643,7 +1664,11 @@ SP_obj_choppeddude(edict_t *self)
 void
 SP_obj_lab_parts_container(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	gi.linkentity(self);
 }
 
 /*
@@ -1654,7 +1679,11 @@ SP_obj_lab_parts_container(edict_t *self)
 void
 SP_obj_eyeball_jar(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	gi.linkentity(self);
 }
 
 /*
@@ -1665,7 +1694,11 @@ SP_obj_eyeball_jar(edict_t *self)
 void
 SP_obj_lab_tray(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	gi.linkentity(self);
 }
 
 /*
@@ -1676,7 +1709,11 @@ SP_obj_lab_tray(edict_t *self)
 void
 SP_obj_hanging_ogle(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_object_think;
+	self->monsterinfo.action = "poly";
+	gi.linkentity(self);
 }
 
 /*

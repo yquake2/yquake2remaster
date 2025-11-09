@@ -683,7 +683,7 @@ item_weapon_phoenixbow|models/items/weapons/bow/tris.fm|1.0|1.0|1.0|general|-10.
 item_weapon_redrain_bow|models/items/weapons/bow/tris.fm|1.0|1.0|1.0|general|-10.0|-10.0|-10.0|10.0|10.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Red Rain Bow|0.3|0.3|1.0|0|0
 item_weapon_sphereofannihilation||1.0|1.0|1.0|general|-10.0|-10.0|-10.0|10.0|10.0|10.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sphere of Annihilation|0.3|0.3|1.0|0|0
 light_buglight|models/objects/lights/bug/tris.fm|1.0|1.0|1.0|general|-7.0|-7.0|-7.0|7.0|7.0|25.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bug light|0.0|1.0|0.0|0|0
-light_chandelier1|models/objects/chandelier/chan1/tris.fm|1.0|1.0|1.0|general|-36.0|-36.0|-43.0|34.0|34.0|43.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty gold) A tarnished gold chandelier hung from chains.|0.0|1.0|0.0|0|0
+light_chandelier1|models/objects/chandelier/chan1/tris.fm|1.0|1.0|1.0|general|-36.0|-36.0|-43.0|36.0|36.0|43.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty gold) A tarnished gold chandelier hung from chains.|0.0|1.0|0.0|0|0
 light_chandelier2|models/objects/chandelier/chan2/tris.fm|1.0|1.0|1.0|general|-18.0|-18.0|-40.0|18.0|18.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (dirty metal) A tarnished metal chandelier hung from chains.|0.0|1.0|0.0|0|0
 light_chandelier3|models/objects/chandelier/chan3/tris.fm|1.0|1.0|1.0|general|-34.0|-34.0|-80.0|34.0|34.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chandelier (gold & large) A golden chandelier.|0.0|1.0|0.0|0|0
 light_flame||1.0|1.0|1.0|general|-16|-16|0|16|16|34|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0

@@ -933,6 +933,7 @@ void M_CheckGround(edict_t *ent);
 void M_FliesOff(edict_t *self);
 void M_FliesOn(edict_t *self);
 void M_SetEffects(edict_t *ent);
+void object_object_think(edict_t *self);
 
 void monster_fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
