@@ -72,6 +72,11 @@ option(GLES1_RENDERER "Build the GLES1 renderer" OFF)
 option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
 option(VK_RENDERER "Build the Vulkan renderer" ON)
+option(XDG_SUPPORT "Use XDG Directories to store user data" OFF)
+
+if(XDG_SUPPORT)
+	add_definitions(-DUSE_XDG)
+endif()
 
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
 
@@ -94,41 +99,6 @@ set(GAME_SRC_DIR ${SOURCE_DIR}/game)
 set(SERVER_SRC_DIR ${SOURCE_DIR}/server)
 set(CLIENT_SRC_DIR ${SOURCE_DIR}/client)
 set(REF_SRC_DIR ${SOURCE_DIR}/client/refresh)
-
-# config/save paths
-set(PATH_DIRNAME "YamagiQ2 Remaster")
-if (LINUX)
-	# Use XDG Directories
-	if(DEFINED ENV{XDG_CONFIG_HOME})
-		set(PATH_CONFIG "$ENV{XDG_CONFIG_HOME}/${PATH_DIRNAME}")
-	else()
-		set(PATH_CONFIG "$ENV{HOME}/.config/${PATH_DIRNAME}")
-	endif()
-
-	if(DEFINED ENV{XDG_DATA_HOME})
-		set(PATH_SAVE "$ENV{XDG_CONFIG_HOME}/${PATH_DIRNAME}")
-	else()
-		set(PATH_SAVE "$ENV{HOME}/.local/share/${PATH_DIRNAME}")
-	endif()
-elseif(WIN32)
-	file(TO_CMAKE_PATH "$ENV{HOMEDRIVE}\\$ENV{HOMEPATH}" HOME)
-	set(PATH_CONFIG "${HOME}/Documents/${PATH_DIRNAME}")
-	set(PATH_SAVE ${PATH_CONFIG})
-	#set(PATH_SAVE "${HOME}/Saved Games/${PATH_DIRNAME}")
-	unset(HOME)
-else()
-	set(PATH_CONFIG "$ENV{HOME}/.yq2r")
-	set(PATH_SAVE ${PATH_CONFIG})
-endif()
-
-set(DEFPATH_CONFIG ${PATH_CONFIG} CACHE STRING "Override path to configuration files")
-set(DEFPATH_SAVE ${PATH_SAVE} CACHE STRING "Override path to savegames")
-
-add_definitions(-DDEFPATH_CONFIG="${DEFPATH_CONFIG}" -DDEFPATH_SAVE="${DEFPATH_SAVE}" -DDEFPATH_DIRNAME="${PATH_DIRNAME}")
-
-unset(PATH_CONFIG)
-unset(PATH_SAVE)
-unset(PATH_DIRNAME)
 
 # Operating system.
 set(YQ2OSTYPE "${CMAKE_SYSTEM_NAME}" CACHE STRING "Override operation system type")

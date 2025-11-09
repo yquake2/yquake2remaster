@@ -45,6 +45,12 @@
 #include <mach/mach.h>
 #endif
 
+#ifdef USE_SDL3
+#include <SDL3/SDL_filesystem.h>
+#else
+#include <SDL2/SDL_filesystem.h>
+#endif
+
 #include "../../common/header/common.h"
 #include "../../common/header/glob.h"
 
@@ -59,6 +65,12 @@ static qboolean color_active = false;
 
 // Console logfile
 extern FILE	*logfile;
+
+// Config dir name
+char cfgdir[MAX_OSPATH] = CFGDIRNAME;
+
+// data paths
+static struct configpaths cfgp;
 
 /* ================================================================ */
 
@@ -545,51 +557,112 @@ Sys_IsFile(const char *path)
 	return false;
 }
 
-struct configpaths *
-Sys_GetConfigPaths()
+#ifdef USE_XDG
+static const char *
+GetXDGPath(const char *xdg)
 {
-    static struct configpaths cfg = {0};
+	char* buffer = calloc(MAX_OSPATH, sizeof(char));
+	if (!buffer) {
+		goto fail;
+	}
 
-	if (!cfg.config) {
-#ifdef __linux__
-		// XDG is mostly a thing on Linux
-		// TODO: use on BSD?
-		cfg.config = calloc(MAX_OSPATH, sizeof(char));
-		cfg.save = calloc(MAX_OSPATH, sizeof(char));
-		if (!(cfg.config && cfg.save)) {
-			// allocation failed 😭
-			cfg.config = cfg.save = NULL;
-			return &cfg;
-		}
+	const char* env = getenv(xdg);
+	const char* fmt = "%s/%s/";
 
-		const char* env = getenv("XDG_CONFIG_HOME");
-		if (env) {
-			strcpy(cfg.config, env);
+	if (!env) {
+		if (strcmp(xdg, "XDG_CONFIG_HOME")==0) {
+			fmt = "%s/.config/%s/";
+		} else if (strcmp(xdg, "XDG_DATA_HOME")==0) {
+			fmt = "%s/.local/share/%s/";
+		} else if (strcmp(xdg, "XDG_STATE_HOME")==0) {
+			fmt = "%s/.local/state/%s/";
 		} else {
-			strcpy(cfg.config, DEFPATH_CONFIG);
+			Sys_Error("%s: unexpected directory %s", __func__, xdg);
 		}
 
-		env = getenv("XDG_DATA_HOME");
-		if (env) {
-			strcpy(cfg.save, env);
-		} else {
-			strcpy(cfg.save, DEFPATH_SAVE);
+		env = getenv("HOME");
+		if (!env) {
+			goto fail;
 		}
+	}
+
+	Com_sprintf(buffer, MAX_OSPATH, fmt, env, cfgdir);
+	return buffer;
+
+fail:
+	free(buffer);
+	return NULL;
+}
+#endif
+
+char *
+Sys_GetHomeDir()
+{
+	static char dir[MAX_OSPATH];
+	if (!dir[0]) {
+#ifdef USE_XDG
+		// TODO: what should be the 'org' arg?
+		char *prefpath = SDL_GetPrefPath("", cfgdir);
+		if (!prefpath) {
+			Sys_Error("%s: SDL_GetPrefPath failed!", __func__);
+		}
+
+		strcpy(dir, prefpath);
+		SDL_free(prefpath);
 #else
-		static char gdir[MAX_OSPATH];
-		cfg.config = cfg.save = gdir;
+		const char* home = getenv("HOME");
+		if (!home) {
+			return NULL;
+		}
+
 # ifdef __HAIKU__
-		Com_sprintf(gdir, sizeof(gdir), "%s/config/settings/%s", home, DEFPATH_DIRNAME);
+		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s", home, cfgdir);
 # else
-		Com_sprintf(gdir, sizeof(gdir), "%s/%s/", home, DEFPATH_DIRNAME);
+		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
 # endif
 #endif
 	}
 
-	Sys_Mkdir(cfg.config);
-	Sys_Mkdir(cfg.save);
 
-	return &cfg;
+	Sys_Mkdir(dir);
+	return dir;
+} 
+
+struct configpaths *
+Sys_GetConfigPaths()
+{
+	if (!cfgp.config[0]) {
+#ifdef USE_XDG
+		const char* xdg_config = GetXDGPath("XDG_CONFIG_HOME");
+		const char* xdg_data = GetXDGPath("XDG_DATA_HOME");
+
+		if (!(xdg_config && xdg_data)) {
+			Sys_Error("%s: failed to allocate xdg paths", __func__);
+		}
+
+		strcpy(cfgp.config, xdg_config);
+		strcpy(cfgp.save, xdg_data);
+
+		free(xdg_config);
+		free(xdg_data);
+#else
+		const char* home = getenv("HOME");
+		if (!home) {
+			return NULL;
+		}
+
+# ifdef __HAIKU__
+		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s", home, cfgdir);
+# else
+		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
+# endif
+#endif
+	}
+
+	Sys_Mkdir(cfgp.config);
+	Sys_Mkdir(cfgp.save);
+
+	return &cfgp;
 }
 
 void

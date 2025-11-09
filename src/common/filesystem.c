@@ -3127,7 +3127,7 @@ static void FS_AddDirToRawPath (const char *rawdir, qboolean create, qboolean re
 static void
 FS_BuildRawPath(void)
 {
-	// Add configpaths::config, MUST be the last dir! Required,
+	// Add configdir, MUST be the last dir! Required,
 	// otherwise the config cannot be written.
 	if (!is_portable) {
 		const char *configdir = Sys_GetConfigPaths()->config;

@@ -43,8 +43,10 @@
 #define BUILD_DATE __DATE__
 #endif
 
-#if !(defined(DEFPATH_CONFIG) && defined(DEFPATH_SAVE) && defined(DEFPATH_DIRNAME))
-#error DEFPATH_CONFIG, DEFPATH_SAVE and DEFPATH_DIRNAME should be defined by the build system
+#if defined(USE_XDG)
+#define CFGDIRNAME "YamagiQ2 Remaster"
+#else
+#define CFGDIRNAME ".yq2r"
 #endif
 
 #ifndef YQ2ARCH
@@ -827,9 +829,11 @@ extern cvar_t *sv_entfile;
 extern qboolean is_portable;
 
 /* Hack for external datadir */
+// this is where baseq2 is located
 extern char datadir[MAX_OSPATH];
 
 /* Hack for external datadir */
+// this is the NAME of the folder where config and save files are located
 extern char cfgdir[MAX_OSPATH];
 
 /* Hack for working 'game' cmd */
@@ -891,8 +895,8 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 struct configpaths
 {
-	const char* config;
-	const char* save;
+	const char config[MAX_OSPATH];
+	const char save[MAX_OSPATH];
 };
 
 // system.c
@@ -901,7 +905,7 @@ void Sys_ConsoleOutput(char *string);
 YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
-//char *Sys_GetHomeDir(void);
+char *Sys_GetHomeDir(void);
 struct configpaths *Sys_GetConfigPaths();
 void Sys_Remove(const char *path);
 int Sys_Rename(const char *from, const char *to);
