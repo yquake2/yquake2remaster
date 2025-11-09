@@ -58,9 +58,10 @@ Generate animations groups from frames
 void
 Mod_LoadAnimGroupList(dmdx_t *pheader)
 {
+	int i, oldframe = 0, currgroup = 0, lastframenum = -1;
 	char newname[16] = {0}, oldname[16] = {0};
-	int i, oldframe = 0, currgroup = 0;
 	dmdxframegroup_t *pframegroup;
+	qboolean newanim = false;
 
 	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 
@@ -78,12 +79,32 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 			Q_strlcpy(newname, poutframe->name, sizeof(poutframe->name));
 			for (j = strlen(newname) - 1; j > 0; j--)
 			{
-				if ((newname[j] >= '0' && newname[j] <= '9') ||
-					(newname[j] == '_'))
+				int framenum;
+
+				/* just skip numbers */
+				if ((newname[j] >= '0' && newname[j] <= '9'))
 				{
-					newname[j] = 0;
 					continue;
 				}
+
+				/* skip underscore, and make it zero */
+				if ((newname[j] == '_'))
+				{
+					newname[j] = '0';
+					continue;
+				}
+
+				framenum = atoi(newname + j + 1);
+
+				if (((framenum - 1) != lastframenum) && (lastframenum != -1))
+				{
+					/* need to force new group */
+					newanim = true;
+				}
+
+				lastframenum = framenum;
+				newname[j + 1] = 0;
+
 				break;
 			}
 		}
@@ -92,8 +113,11 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 			*newname = 0;
 		}
 
-		if (strcmp(newname, oldname))
+		if (strcmp(newname, oldname) || newanim)
 		{
+			newanim = false;
+			lastframenum = -1;
+
 			/* Save previous group */
 			if ((i != oldframe) && (currgroup < pheader->num_animgroup))
 			{
