@@ -69,9 +69,6 @@ extern FILE	*logfile;
 // Config dir name
 char cfgdir[MAX_OSPATH] = CFGDIRNAME;
 
-// data paths
-static struct configpaths cfgp;
-
 /* ================================================================ */
 
 void
@@ -570,6 +567,11 @@ GetXDGPath(const char *xdg)
 	const char* fmt = "%s/%s/";
 
 	if (!env) {
+		env = getenv("HOME");
+		if (!env) {
+			goto fail;
+		}
+
 		if (strcmp(xdg, "XDG_CONFIG_HOME")==0) {
 			fmt = "%s/.config/%s/";
 		} else if (strcmp(xdg, "XDG_DATA_HOME")==0) {
@@ -578,11 +580,6 @@ GetXDGPath(const char *xdg)
 			fmt = "%s/.local/state/%s/";
 		} else {
 			Sys_Error("%s: unexpected directory %s", __func__, xdg);
-		}
-
-		env = getenv("HOME");
-		if (!env) {
-			goto fail;
 		}
 	}
 
@@ -599,7 +596,20 @@ char *
 Sys_GetHomeDir()
 {
 	static char dir[MAX_OSPATH];
+	
 	if (!dir[0]) {
+		const char* home = getenv("HOME");
+
+#ifndef __HAIKU__
+		// try hidden dir
+		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
+		if (Sys_IsDir(dir)) {
+			return dir;
+		}
+#else
+		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s/", home, cfgdir);
+#endif
+
 #ifdef USE_XDG
 		// TODO: what should be the 'org' arg?
 		char *prefpath = SDL_GetPrefPath("", cfgdir);
@@ -609,61 +619,12 @@ Sys_GetHomeDir()
 
 		strcpy(dir, prefpath);
 		SDL_free(prefpath);
-#else
-		const char* home = getenv("HOME");
-		if (!home) {
-			return NULL;
-		}
-
-# ifdef __HAIKU__
-		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s", home, cfgdir);
-# else
-		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
-# endif
 #endif
 	}
-
 
 	Sys_Mkdir(dir);
 	return dir;
 } 
-
-struct configpaths *
-Sys_GetConfigPaths()
-{
-	if (!cfgp.config[0]) {
-#ifdef USE_XDG
-		const char* xdg_config = GetXDGPath("XDG_CONFIG_HOME");
-		const char* xdg_data = GetXDGPath("XDG_DATA_HOME");
-
-		if (!(xdg_config && xdg_data)) {
-			Sys_Error("%s: failed to allocate xdg paths", __func__);
-		}
-
-		strcpy(cfgp.config, xdg_config);
-		strcpy(cfgp.save, xdg_data);
-
-		free(xdg_config);
-		free(xdg_data);
-#else
-		const char* home = getenv("HOME");
-		if (!home) {
-			return NULL;
-		}
-
-# ifdef __HAIKU__
-		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s", home, cfgdir);
-# else
-		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
-# endif
-#endif
-	}
-
-	Sys_Mkdir(cfgp.config);
-	Sys_Mkdir(cfgp.save);
-
-	return &cfgp;
-}
 
 void
 Sys_Remove(const char *path)

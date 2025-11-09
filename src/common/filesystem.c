@@ -3130,7 +3130,7 @@ FS_BuildRawPath(void)
 	// Add configdir, MUST be the last dir! Required,
 	// otherwise the config cannot be written.
 	if (!is_portable) {
-		const char *configdir = Sys_GetConfigPaths()->config;
+		const char *configdir = Sys_GetHomeDir();
 
 		if (configdir != NULL) {
 			FS_AddDirToRawPath(configdir, true, true);

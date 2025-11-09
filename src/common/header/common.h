@@ -43,10 +43,16 @@
 #define BUILD_DATE __DATE__
 #endif
 
+#define CFGDIRNAME_SHORT "yq2r"
+
 #if defined(USE_XDG)
 #define CFGDIRNAME "YamagiQ2 Remaster"
 #else
-#define CFGDIRNAME ".yq2r"
+#ifdef __HAIKU__
+#define CFGDIRNAME CFGDIRNAME_SHORT
+#else
+#define CFGDIRNAME "." CFGDIRNAME_SHORT
+#endif
 #endif
 
 #ifndef YQ2ARCH
@@ -892,13 +898,6 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 // Platform specific functions.
 
-
-struct configpaths
-{
-	const char config[MAX_OSPATH];
-	const char save[MAX_OSPATH];
-};
-
 // system.c
 char *Sys_ConsoleInput(void);
 void Sys_ConsoleOutput(char *string);
@@ -906,7 +905,6 @@ YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
 char *Sys_GetHomeDir(void);
-struct configpaths *Sys_GetConfigPaths();
 void Sys_Remove(const char *path);
 int Sys_Rename(const char *from, const char *to);
 void Sys_RemoveDir(const char *path);
