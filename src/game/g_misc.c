@@ -1065,7 +1065,7 @@ SP_func_wall(edict_t *self)
 	{
 		if (!(self->spawnflags & 2))
 		{
-			gi.dprintf("func_wall START_ON without TOGGLE\n");
+			gi.dprintf("%s START_ON without TOGGLE\n", self->classname);
 			self->spawnflags |= 2;
 		}
 	}
@@ -2146,7 +2146,8 @@ SP_misc_viper(edict_t *ent)
 
 	if (!ent->target)
 	{
-		gi.dprintf("misc_viper without a target at %s\n", vtos(ent->absmin));
+		gi.dprintf("%s without a target at %s\n", ent->classname,
+			vtos(ent->absmin));
 		G_FreeEdict(ent);
 		return;
 	}
@@ -2186,7 +2187,8 @@ SP_misc_crashviper(edict_t *ent)
 
 	if (!ent->target)
 	{
-		gi.dprintf("misc_viper without a target at %s\n", vtos(ent->absmin));
+		gi.dprintf("%s without a target at %s\n", ent->classname,
+			vtos(ent->absmin));
 		G_FreeEdict(ent);
 		return;
 	}
