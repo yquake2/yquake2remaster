@@ -600,6 +600,11 @@ Sys_GetHomeDir()
 	if (!dir[0]) {
 		const char* home = getenv("HOME");
 
+		if (!home) {
+			// uh-oh
+			return NULL;
+		}
+
 #ifndef __HAIKU__
 		// try hidden dir
 		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
