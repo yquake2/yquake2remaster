@@ -74,10 +74,6 @@ option(SOFT_RENDERER "Build the software renderer" ON)
 option(VK_RENDERER "Build the Vulkan renderer" ON)
 option(XDG_SUPPORT "Use XDG Directories to store user data" OFF)
 
-if(XDG_SUPPORT)
-	add_definitions(-DUSE_XDG)
-endif()
-
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
 
 # These variables will act as our list of include folders and linker flags.
@@ -207,6 +203,11 @@ if(GL1_RENDERER)
 	find_package(OpenGL REQUIRED)
 	list(APPEND yquake2IncludeDirectories ${OPENGL_INCLUDE_DIR})
 	list(APPEND yquake2OpenGLLinkerFlags ${OPENGL_LIBRARIES})
+endif()
+
+# XDG Support for user data
+if(XDG_SUPPORT)
+	add_definitions(-DUSE_XDG)
 endif()
 
 # backtrace lookup

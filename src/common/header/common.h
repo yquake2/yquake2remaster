@@ -43,10 +43,10 @@
 #define BUILD_DATE __DATE__
 #endif
 
-#define CFGDIRNAME_SHORT "yq2r"
+#define CFGDIRNAME_SHORT "yq2"
 
 #if defined(USE_XDG)
-#define CFGDIRNAME "YamagiQ2 Remaster"
+#define CFGDIRNAME "YamagiQ2"
 #else
 #ifdef __HAIKU__
 #define CFGDIRNAME CFGDIRNAME_SHORT

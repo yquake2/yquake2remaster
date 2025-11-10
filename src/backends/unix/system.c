@@ -604,6 +604,7 @@ Sys_GetHomeDir()
 		// try hidden dir
 		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
 		if (Sys_IsDir(dir)) {
+			Com_DPrintf("%s: using '%s'", __func__, dir);
 			return dir;
 		}
 #else
@@ -619,6 +620,7 @@ Sys_GetHomeDir()
 
 		strcpy(dir, prefpath);
 		SDL_free(prefpath);
+		Com_DPrintf("%s: using '%s'", __func__, dir);
 #endif
 	}
 
