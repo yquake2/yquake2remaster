@@ -73,6 +73,9 @@ WITH_SYSTEMWIDE:=no
 # MUST NOT be surrounded by quotation marks!
 WITH_SYSTEMDIR:=""
 
+# Enable XDG directories support
+WITH_XDG:=no
+
 # This will set the build options to create an MacOS .app-bundle.
 # The app-bundle itself will not be created, but the runtime paths
 # will be set to expect the game-data in *.app/
@@ -307,6 +310,13 @@ endif
 
 # ----------
 
+# Enable XDG
+ifeq ($(WITH_XDG),yes)
+CFLAGS += -DUSE_XDG
+endif
+
+# ----------
+
 # Base include path.
 ifeq ($(YQ2_OSTYPE),Linux)
 INCLUDE ?= -I/usr/include
@@ -450,6 +460,7 @@ config:
 	@echo "WITH_SDL3 = $(WITH_SDL3)"
 	@echo "WITH_SYSTEMWIDE = $(WITH_SYSTEMWIDE)"
 	@echo "WITH_SYSTEMDIR = $(WITH_SYSTEMDIR)"
+	@echo "WITH_XDG = $(WITH_XDG)"
 	@echo "============================"
 	@echo ""
 
