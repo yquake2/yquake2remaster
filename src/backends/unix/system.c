@@ -590,7 +590,7 @@ char *
 Sys_GetHomeDir()
 {
 	static char dir[MAX_OSPATH];
-	
+
 	if (!dir[0]) {
 		const char* home = getenv("HOME");
 
@@ -600,17 +600,21 @@ Sys_GetHomeDir()
 		}
 
 #ifndef __HAIKU__
-		// try hidden dir
-		Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
-		if (Sys_IsDir(dir)) {
-			Com_DPrintf("%s: using '%s'", __func__, dir);
-			return dir;
+		if (strcmp(cfgdir, CFGDIRNAME)!=0) {
+			// custom cfgdir was set by the user: ~/{cfgdir}
+			Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
+			goto dirset;
 		}
-#else
-		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s/", home, cfgdir);
-#endif
+
+		// hidden dir: ~/.{CFGDIRNAME_SHORT}
+		Com_sprintf(dir, MAX_OSPATH, "%s/.%s/", home, CFGDIRNAME_SHORT);
 
 #ifdef USE_XDG
+		if (Sys_IsDir(dir)) {
+			goto dirset;
+		}
+
+		// XDG dir: XDG_DATA_HOME/{cfgdir}
 		char *prefpath = GetXDGPath("XDG_DATA_HOME");
 		if (!prefpath) {
 			Sys_Error("%s: failed to get XDG path", __func__);
@@ -618,8 +622,14 @@ Sys_GetHomeDir()
 
 		strcpy(dir, prefpath);
 		free(prefpath);
-		Com_DPrintf("%s: using '%s'", __func__, dir);
 #endif
+
+#else // HAIKU
+		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s/", home, cfgdir);
+#endif
+
+	dirset:
+		Com_DPrintf("%s: using '%s'", __func__, dir);
 	}
 
 	Sys_Mkdir(dir);
