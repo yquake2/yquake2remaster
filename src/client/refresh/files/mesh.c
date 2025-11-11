@@ -271,25 +271,32 @@ R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to)
 	size_t i;
 
 	/* fill the index buffer so that we can emulate triangle strips via triangle lists */
-	for (i = from + 2; i < to + 2; i++)
+	for (i = from + 2; i < to + 1; i += 2)
 	{
-		if ((i - from) % 2 == 0)
-		{
-			*data =  i - 2;
-			data ++;
-			*data =  i - 1;
-			data ++;
-			*data =  i;
-			data ++;
-		}
-		else
-		{
-			*data = i;
-			data ++;
-			*data =  i - 1;
-			data ++;
-			*data =  i - 2;
-			data ++;
-		}
+		/* add two triangles at once, because the vertex order is different
+		 * for odd vs even triangles */
+		*data =  i - 2;
+		data ++;
+		*data =  i - 1;
+		data ++;
+		*data =  i;
+		data ++;
+		*data = i + 1;
+		data ++;
+		*data =  i;
+		data ++;
+		*data =  i - 1;
+		data ++;
+	}
+
+	if (i < to + 2)
+	{
+		/* add remaining triangle, if any */
+		*data =  i - 2;
+		data ++;
+		*data =  i - 1;
+		data ++;
+		*data =  i;
+		data ++;
 	}
 }

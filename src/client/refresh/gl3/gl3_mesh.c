@@ -75,6 +75,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 	while (1)
 	{
 		GLushort nextVtxIdx = da_count(vtxBuf);
+		GLushort* add;
 		GLenum type;
 		int count;
 
@@ -155,45 +156,16 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 			}
 		}
 
-		// translate triangle fan/strip to just triangle indices
+		add = da_addn_uninit(idxBuf, (count - 2) * 3);
+
+		/* translate triangle fan/strip to just triangle indices */
 		if(type == GL_TRIANGLE_FAN)
 		{
-			GLushort i;
-			for(i=1; i < count-1; ++i)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
-
-				add[0] = nextVtxIdx;
-				add[1] = nextVtxIdx+i;
-				add[2] = nextVtxIdx+i+1;
-			}
+			R_GenFanIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 		else // triangle strip
 		{
-			GLushort i;
-			for(i=1; i < count-2; i+=2)
-			{
-				// add two triangles at once, because the vertex order is different
-				// for odd vs even triangles
-				GLushort* add = da_addn_uninit(idxBuf, 6);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-
-				add[3] = nextVtxIdx + i;
-				add[4] = nextVtxIdx + i+2;
-				add[5] = nextVtxIdx + i+1;
-			}
-			// add remaining triangle, if any
-			if(i < count-1)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-			}
+			R_GenStripIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 	}
 
