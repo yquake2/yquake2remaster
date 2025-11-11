@@ -905,6 +905,7 @@ YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
 char *Sys_GetHomeDir(void);
+char *Sys_GetConfigDir(void);
 void Sys_Remove(const char *path);
 int Sys_Rename(const char *from, const char *to);
 void Sys_RemoveDir(const char *path);

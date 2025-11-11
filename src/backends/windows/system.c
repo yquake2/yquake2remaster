@@ -551,6 +551,12 @@ Sys_GetHomeDir(void)
 	return gdir;
 }
 
+char *
+Sys_GetConfigDir()
+{
+	return Sys_GetHomeDir();
+}
+
 void
 Sys_Remove(const char *path)
 {

@@ -45,12 +45,6 @@
 #include <mach/mach.h>
 #endif
 
-#ifdef USE_SDL3
-#include <SDL3/SDL_filesystem.h>
-#else
-#include <SDL2/SDL_filesystem.h>
-#endif
-
 #include "../../common/header/common.h"
 #include "../../common/header/glob.h"
 
@@ -555,7 +549,7 @@ Sys_IsFile(const char *path)
 }
 
 #ifdef USE_XDG
-static const char *
+static char *
 GetXDGPath(const char *xdg)
 {
 	char* buffer = calloc(MAX_OSPATH, sizeof(char));
@@ -617,21 +611,45 @@ Sys_GetHomeDir()
 #endif
 
 #ifdef USE_XDG
-		// TODO: what should be the 'org' arg?
-		char *prefpath = SDL_GetPrefPath("", cfgdir);
+		char *prefpath = GetXDGPath("XDG_DATA_HOME");
 		if (!prefpath) {
-			Sys_Error("%s: SDL_GetPrefPath failed!", __func__);
+			Sys_Error("%s: failed to get XDG path", __func__);
 		}
 
 		strcpy(dir, prefpath);
-		SDL_free(prefpath);
+		free(prefpath);
 		Com_DPrintf("%s: using '%s'", __func__, dir);
 #endif
 	}
 
 	Sys_Mkdir(dir);
 	return dir;
-} 
+}
+
+char *
+Sys_GetConfigDir()
+{
+#ifndef USE_XDG
+	return Sys_GetHomeDir();
+#else
+	static char dir[MAX_OSPATH];
+
+	if (!dir[0]) {
+		const char* path = GetXDGPath("XDG_CONFIG_HOME");
+		if (!path) {
+			Sys_Error("%s: failed to get XDG path", __func__);
+		}
+
+		strcpy(dir, path);
+		free(path);
+
+		Com_DPrintf("%s: using '%s'", __func__, dir);
+	}
+
+	Sys_Mkdir(dir);
+	return dir;
+#endif
+}
 
 void
 Sys_Remove(const char *path)
