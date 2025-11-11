@@ -78,7 +78,7 @@ R_RenderDlight(dlight_t *light)
 	memcpy(uboData,  r_viewproj_matrix, sizeof(r_viewproj_matrix));
 
 	Mesh_VertsRealloc(64);
-	GenFanIndexes(vertIdxData, 0, 48);
+	R_GenFanIndexes(vertIdxData, 0, 48);
 	buffer = UpdateIndexBuffer(vertIdxData, 48 * sizeof(uint16_t), &dstOffset);
 
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);

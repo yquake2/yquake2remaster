@@ -247,3 +247,49 @@ R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum, int frame, int oldfra
 
 	return false;
 }
+
+void
+R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to)
+{
+	int i;
+
+	/* fill the index buffer so that we can emulate triangle fans via triangle lists */
+	for (i = from; i < to; i++)
+	{
+		*data = from;
+		data ++;
+		*data = i + 1;
+		data++;
+		*data = i + 2;
+		data ++;
+	}
+}
+
+void
+R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to)
+{
+	size_t i;
+
+	/* fill the index buffer so that we can emulate triangle strips via triangle lists */
+	for (i = from + 2; i < to + 2; i++)
+	{
+		if ((i - from) % 2 == 0)
+		{
+			*data =  i - 2;
+			data ++;
+			*data =  i - 1;
+			data ++;
+			*data =  i;
+			data ++;
+		}
+		else
+		{
+			*data = i;
+			data ++;
+			*data =  i - 1;
+			data ++;
+			*data =  i - 2;
+			data ++;
+		}
+	}
+}

@@ -258,8 +258,8 @@ R_DrawNullModel(entity_t *currententity)
 	memcpy(uboData,  model, sizeof(model));
 
 	Mesh_VertsRealloc(24);
-	GenFanIndexes(vertIdxData, 0, 4);
-	GenFanIndexes(vertIdxData + 4 * 3, 6, 10);
+	R_GenFanIndexes(vertIdxData, 0, 4);
+	R_GenFanIndexes(vertIdxData + 4 * 3, 6, 10);
 	buffer = UpdateIndexBuffer(vertIdxData, 24 * sizeof(uint16_t), &dstOffset);
 
 	QVk_BindPipeline(&vk_drawNullModelPipeline);

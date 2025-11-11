@@ -386,6 +386,8 @@ extern void R_ConvertNormalMDL(byte in_normal, signed char *normal);
 extern vec4_t *R_VertBufferRealloc(int num);
 extern void R_VertBufferInit(void);
 extern void R_VertBufferFree(void);
+extern void R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to);
+extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
