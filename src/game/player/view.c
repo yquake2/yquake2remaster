@@ -118,17 +118,26 @@ P_DamageFeedback(edict_t *player)
 	/* start a pain animation if still in the player model */
 	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == CUSTOM_PLAYER_MODEL))
 	{
-		static int i;
-
 		client->anim_priority = ANIM_PAIN;
 
 		if (client->ps.pmove.pm_flags & PMF_DUCKED)
 		{
-			player->s.frame = FRAME_crpain1 - 1;
-			client->anim_end = FRAME_crpain4;
+			int firstframe, lastframe;
+
+			firstframe = FRAME_crpain1 - 1;
+			lastframe = FRAME_crpain4;
+
+			lastframe -= firstframe;
+			M_SetAnimGroupFrameValues(player, "crpain", &firstframe, &lastframe);
+			lastframe += firstframe;
+
+			player->s.frame = firstframe;
+			client->anim_end = lastframe;
 		}
 		else
 		{
+			static int i;
+
 			i = (i + 1) % 3;
 
 			switch (i)

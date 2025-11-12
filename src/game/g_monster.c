@@ -840,6 +840,11 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 		/* no stand animations */
 		M_SetAnimGroupFrameValuesInt(self, "idle", ofs_frames, num_frames);
 	}
+	else if (!strcmp(name, "crpain"))
+	{
+		/* no crpain animations */
+		M_SetAnimGroupFrameValuesInt(self, "pain", ofs_frames, num_frames);
+	}
 	else if (!strcmp(name, "flipoff"))
 	{
 		/* no flipoff animations */
