@@ -118,29 +118,21 @@ P_DamageFeedback(edict_t *player)
 	/* start a pain animation if still in the player model */
 	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == CUSTOM_PLAYER_MODEL))
 	{
+		int firstframe, lastframe;
+		const char *action;
+
 		client->anim_priority = ANIM_PAIN;
 
 		if (client->ps.pmove.pm_flags & PMF_DUCKED)
 		{
-			int firstframe, lastframe;
-
 			firstframe = FRAME_crpain1 - 1;
 			lastframe = FRAME_crpain4;
 
-			lastframe -= firstframe;
-			M_SetAnimGroupFrameValues(player, "crpain", &firstframe, &lastframe);
-			lastframe += firstframe;
-
-			player->s.frame = firstframe;
-			client->anim_end = lastframe;
+			action = "crpain";
 		}
 		else
 		{
-			static int i;
-
-			i = (i + 1) % 3;
-
-			switch (i)
+			switch (randk() % 3)
 			{
 				case 0:
 					player->s.frame = FRAME_pain101 - 1;
@@ -155,7 +147,17 @@ P_DamageFeedback(edict_t *player)
 					client->anim_end = FRAME_pain304;
 					break;
 			}
+
+			action = "pain";
 		}
+
+		lastframe -= firstframe;
+		M_SetAnimGroupFrameValues(player, action,
+			&firstframe, &lastframe, true);
+		lastframe += firstframe;
+
+		player->s.frame = firstframe;
+		client->anim_end = lastframe;
 	}
 
 	realcount = count;
@@ -1510,7 +1512,7 @@ newanim:
 	}
 
 	lastframe -= firstframe;
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe);
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, false);
 	lastframe += firstframe;
 
 	ent->s.frame = firstframe;

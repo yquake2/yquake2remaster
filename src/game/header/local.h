@@ -1085,7 +1085,7 @@ void M_MoveToGoal(edict_t *ent, float dist);
 void M_ChangeYaw(edict_t *ent);
 void M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos);
 void M_SetAnimGroupFrameValues(edict_t *self, const char *name,
-	int *ofs_frames, int *num_frames);
+	int *ofs_frames, int *num_frames, qboolean multy);
 
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);
