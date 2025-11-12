@@ -105,7 +105,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 			int i;
 			for(i=0; i<count; ++i)
 			{
-				int j=0;
+				int j = 0;
 				int index_xyz;
 				gl3_alias_vtx_t* cur = &buf[i];
 				index_xyz = order[2];
@@ -122,7 +122,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 		else
 		{
 			int i;
-			for(i=0; i<count; ++i)
+			for(i = 0; i < count; ++i)
 			{
 				gl3_alias_vtx_t* cur = &buf[i];
 				int index_xyz, i, j = 0;
@@ -298,9 +298,10 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 
 	while (1)
 	{
-		int i, j, count;
-		GLenum type;
 		GLushort nextVtxIdx = da_count(vtxBuf);
+		int i, j, count;
+		GLushort* add;
+		GLenum type;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
@@ -341,45 +342,16 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 			order += 3;
 		}
 
-		// translate triangle fan/strip to just triangle indices
+		add = da_addn_uninit(idxBuf, (count - 2) * 3);
+
+		/* translate triangle fan/strip to just triangle indices */
 		if(type == GL_TRIANGLE_FAN)
 		{
-			GLushort i;
-			for(i=1; i < count-1; ++i)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
-
-				add[0] = nextVtxIdx;
-				add[1] = nextVtxIdx+i;
-				add[2] = nextVtxIdx+i+1;
-			}
+			R_GenFanIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 		else // triangle strip
 		{
-			GLushort i;
-			for(i=1; i < count-2; i+=2)
-			{
-				// add two triangles at once, because the vertex order is different
-				// for odd vs even triangles
-				GLushort* add = da_addn_uninit(idxBuf, 6);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-
-				add[3] = nextVtxIdx + i;
-				add[4] = nextVtxIdx + i+2;
-				add[5] = nextVtxIdx + i+1;
-			}
-			// add remaining triangle, if any
-			if(i < count-1)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-			}
+			R_GenStripIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 	}
 
