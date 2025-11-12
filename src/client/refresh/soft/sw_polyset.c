@@ -227,7 +227,7 @@ R_PolysetScanLeftEdge_C(int height, pixel_t *d_ptex, int u, int v)
 				d_tfrac &= 0xFFFF;
 			}
 
-			for(i=0; i<3; i++)
+			for (i=0; i<3; i++)
 				d_light[i] += d_lightextrastep[i];
 
 			d_zi += d_ziextrastep;
@@ -248,7 +248,7 @@ R_PolysetScanLeftEdge_C(int height, pixel_t *d_ptex, int u, int v)
 				d_tfrac &= 0xFFFF;
 			}
 
-			for(i=0; i<3; i++)
+			for (i=0; i<3; i++)
 				d_light[i] += d_lightbasestep[i];
 
 			d_zi += d_zibasestep;
@@ -480,7 +480,7 @@ R_PolysetDrawSpans8_33(const entity_t *currententity, spanpackage_t *pspanpackag
 				lpdest++;
 				lzi += r_zistepx;
 				lpz++;
-				for(i=0; i<3; i++)
+				for (i=0; i<3; i++)
 					llight[i] += r_lstepx[i];
 				lptex += a_ststepxwhole;
 				lsfrac += a_sstepxfrac;
@@ -600,7 +600,7 @@ R_PolysetDrawSpans8_66(const entity_t *currententity, spanpackage_t *pspanpackag
 				lpdest++;
 				lzi += r_zistepx;
 				lpz++;
-				for(i=0; i<3; i++)
+				for (i=0; i<3; i++)
 					llight[i] += r_lstepx[i];
 				lptex += a_ststepxwhole;
 				lsfrac += a_sstepxfrac;
@@ -730,7 +730,7 @@ R_PolysetDrawSpans8_Opaque (const entity_t *currententity, spanpackage_t *pspanp
 
 				if ((lzi >> SHIFT16XYZ) >= *lpz)
 				{
-					if(r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags & RF_IR_VISIBLE)
+					if (r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags & RF_IR_VISIBLE)
 						*lpdest = vid_colormap[irtable[*lptex]];
 					else
 						*lpdest = R_ApplyLight(*lptex, llight);
@@ -741,7 +741,7 @@ R_PolysetDrawSpans8_Opaque (const entity_t *currententity, spanpackage_t *pspanp
 				lpdest++;
 				lzi += r_zistepx;
 				lpz++;
-				for(i=0; i<3; i++)
+				for (i=0; i<3; i++)
 					llight[i] += r_lstepx[i];
 				lptex += a_ststepxwhole;
 				lsfrac += a_sstepxfrac;

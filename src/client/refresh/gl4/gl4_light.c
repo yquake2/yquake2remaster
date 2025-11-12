@@ -63,7 +63,7 @@ GL4_PushDlights(void)
 
 	assert(MAX_DLIGHTS == 32 && "If MAX_DLIGHTS changes, remember to adjust the uniform buffer definition in the shader!");
 
-	if(i < MAX_DLIGHTS)
+	if (i < MAX_DLIGHTS)
 	{
 		memset(&gl4state.uniLightsData.dynLights[i], 0, (MAX_DLIGHTS-i)*sizeof(gl4state.uniLightsData.dynLights[0]));
 	}
@@ -141,7 +141,7 @@ GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 
 	lightmap = surf->samples;
 
-	for(map=0; map<nummaps; ++map)
+	for (map=0; map<nummaps; ++map)
 	{
 		byte* dest = gl4_lms.lightmap_buffers[map] + offsetInLMbuf;
 		int idxInLightmap = 0;

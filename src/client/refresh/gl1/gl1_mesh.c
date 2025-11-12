@@ -104,7 +104,7 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				order += 3;
 
 				/* unpack normal */
-				for(i = 0; i < 3; i++)
+				for (i = 0; i < 3; i++)
 				{
 					normal[i] = verts[index_xyz].normal[i] / 127.f;
 				}

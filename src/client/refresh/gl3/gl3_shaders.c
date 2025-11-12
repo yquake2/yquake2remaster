@@ -43,18 +43,18 @@ CompileShader(GLenum shaderType, const char* shaderSrc, const char* shaderSrc2)
 	glCompileShader(shader);
 	GLint status;
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if(status != GL_TRUE)
+	if (status != GL_TRUE)
 	{
 		char buf[2048];
 		char* bufPtr = buf;
 		int bufLen = sizeof(buf);
 		GLint infoLogLength;
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-		if(infoLogLength >= bufLen)
+		if (infoLogLength >= bufLen)
 		{
 			bufPtr = malloc(infoLogLength+1);
 			bufLen = infoLogLength+1;
-			if(bufPtr == NULL)
+			if (bufPtr == NULL)
 			{
 				bufPtr = buf;
 				bufLen = sizeof(buf);
@@ -80,7 +80,7 @@ CompileShader(GLenum shaderType, const char* shaderSrc, const char* shaderSrc2)
 		eprintf("ERROR: Compiling %s Shader failed: %s\n", shaderTypeStr, bufPtr);
 		glDeleteShader(shader);
 
-		if(bufPtr != buf)  free(bufPtr);
+		if (bufPtr != buf)  free(bufPtr);
 
 		return 0;
 	}
@@ -93,13 +93,13 @@ CreateShaderProgram(int numShaders, const GLuint* shaders)
 {
 	int i=0;
 	GLuint shaderProgram = glCreateProgram();
-	if(shaderProgram == 0)
+	if (shaderProgram == 0)
 	{
 		eprintf("ERROR: Couldn't create a new Shader Program!\n");
 		return 0;
 	}
 
-	for(i=0; i<numShaders; ++i)
+	for (i=0; i<numShaders; ++i)
 	{
 		glAttachShader(shaderProgram, shaders[i]);
 	}
@@ -120,18 +120,18 @@ CreateShaderProgram(int numShaders, const GLuint* shaders)
 
 	GLint status;
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &status);
-	if(status != GL_TRUE)
+	if (status != GL_TRUE)
 	{
 		char buf[2048];
 		char* bufPtr = buf;
 		int bufLen = sizeof(buf);
 		GLint infoLogLength;
 		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
-		if(infoLogLength >= bufLen)
+		if (infoLogLength >= bufLen)
 		{
 			bufPtr = malloc(infoLogLength+1);
 			bufLen = infoLogLength+1;
-			if(bufPtr == NULL)
+			if (bufPtr == NULL)
 			{
 				bufPtr = buf;
 				bufLen = sizeof(buf);
@@ -145,12 +145,12 @@ CreateShaderProgram(int numShaders, const GLuint* shaders)
 
 		glDeleteProgram(shaderProgram);
 
-		if(bufPtr != buf)  free(bufPtr);
+		if (bufPtr != buf)  free(bufPtr);
 
 		return 0;
 	}
 
-	for(i=0; i<numShaders; ++i)
+	for (i=0; i<numShaders; ++i)
 	{
 		// after linking, they don't need to be attached anymore.
 		// no idea  why they even are, if they don't have to..
@@ -208,7 +208,7 @@ static const char* fragmentSrc2D = MULTILINE_STRING(
 			// the gl1 renderer used glAlphaFunc(GL_GREATER, 0.666);
 			// and glEnable(GL_ALPHA_TEST); for 2D rendering
 			// this should do the same
-			if(texel.a <= 0.666)
+			if (texel.a <= 0.666)
 				discard;
 
 			// apply gamma correction and intensity
@@ -556,17 +556,17 @@ static const char* fragmentSrc3Dlm = MULTILINE_STRING(
 			lmTex     += texture(lightmap2, passLMcoord) * lmScales[2];
 			lmTex     += texture(lightmap3, passLMcoord) * lmScales[3];
 
-			if(passLightFlags != 0u)
+			if (passLightFlags != 0u)
 			{
 				// TODO: or is hardcoding 32 better?
-				for(uint i=0u; i<numDynLights; ++i)
+				for (uint i=0u; i<numDynLights; ++i)
 				{
 					// I made the following up, it's probably not too cool..
 					// it basically checks if the light is on the right side of the surface
 					// and, if it is, sets intensity according to distance between light and pixel on surface
 
 					// dyn light number i does not affect this plane, just skip it
-					if((passLightFlags & (1u << i)) == 0u)  continue;
+					if ((passLightFlags & (1u << i)) == 0u)  continue;
 
 					float intens = dynLights[i].lightColor.a;
 
@@ -643,17 +643,17 @@ static const char* fragmentSrc3DlmNoColor = MULTILINE_STRING(
 			lmTex     += texture(lightmap2, passLMcoord) * lmScales[2];
 			lmTex     += texture(lightmap3, passLMcoord) * lmScales[3];
 
-			if(passLightFlags != 0u)
+			if (passLightFlags != 0u)
 			{
 				// TODO: or is hardcoding 32 better?
-				for(uint i=0u; i<numDynLights; ++i)
+				for (uint i=0u; i<numDynLights; ++i)
 				{
 					// I made the following up, it's probably not too cool..
 					// it basically checks if the light is on the right side of the surface
 					// and, if it is, sets intensity according to distance between light and pixel on surface
 
 					// dyn light number i does not affect this plane, just skip it
-					if((passLightFlags & (1u << i)) == 0u)  continue;
+					if ((passLightFlags & (1u << i)) == 0u)  continue;
 
 					float intens = dynLights[i].lightColor.a;
 
@@ -747,7 +747,7 @@ static const char* fragmentSrc3DspriteAlpha = MULTILINE_STRING(
 		{
 			vec4 texel = texture(tex, passTexCoord);
 
-			if(texel.a <= 0.666)
+			if (texel.a <= 0.666)
 				discard;
 
 			// apply gamma correction and intensity
@@ -850,7 +850,7 @@ static const char* fragmentSrcParticles = MULTILINE_STRING(
 		{
 			vec2 offsetFromCenter = 2.0*(gl_PointCoord - vec2(0.5, 0.5)); // normalize so offset is between 0 and 1 instead 0 and 0.5
 			float distSquared = dot(offsetFromCenter, offsetFromCenter);
-			if(distSquared > 1.0) // this makes sure the particle is round
+			if (distSquared > 1.0) // this makes sure the particle is round
 				discard;
 
 			vec4 texel = passColor;
@@ -899,7 +899,7 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	GLuint shaders2D[2] = {0};
 	GLuint prog = 0;
 
-	if(shaderInfo->shaderProgram != 0)
+	if (shaderInfo->shaderProgram != 0)
 	{
 		Com_Printf("WARNING: calling initShader2D for gl3ShaderInfo_t that already has a shaderProgram!\n");
 		glDeleteProgram(shaderInfo->shaderProgram);
@@ -911,10 +911,10 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	shaderInfo->uniVblend = -1;
 
 	shaders2D[0] = CompileShader(GL_VERTEX_SHADER, vertSrc, NULL);
-	if(shaders2D[0] == 0)  return false;
+	if (shaders2D[0] == 0)  return false;
 
 	shaders2D[1] = CompileShader(GL_FRAGMENT_SHADER, fragSrc, NULL);
-	if(shaders2D[1] == 0)
+	if (shaders2D[1] == 0)
 	{
 		glDeleteShader(shaders2D[0]);
 		return false;
@@ -926,7 +926,7 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	glDeleteShader(shaders2D[0]);
 	glDeleteShader(shaders2D[1]);
 
-	if(prog == 0)
+	if (prog == 0)
 	{
 		return false;
 	}
@@ -936,11 +936,11 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 	// Bind the buffer object to the uniform blocks
 	GLuint blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
-	if(blockIndex != GL_INVALID_INDEX)
+	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
 		glGetActiveUniformBlockiv(prog, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-		if(blockSize != sizeof(gl3state.uniCommonData))
+		if (blockSize != sizeof(gl3state.uniCommonData))
 		{
 			Com_Printf("WARNING: OpenGL driver disagrees with us about UBO size of 'uniCommon': %i vs %i\n",
 					blockSize, (int)sizeof(gl3state.uniCommonData));
@@ -957,11 +957,11 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 		return false;
 	}
 	blockIndex = glGetUniformBlockIndex(prog, "uni2D");
-	if(blockIndex != GL_INVALID_INDEX)
+	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
 		glGetActiveUniformBlockiv(prog, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-		if(blockSize != sizeof(gl3state.uni2DData))
+		if (blockSize != sizeof(gl3state.uni2DData))
 		{
 			Com_Printf("WARNING: OpenGL driver disagrees with us about UBO size of 'uni2D'\n");
 			goto err_cleanup;
@@ -976,13 +976,13 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	}
 
 	shaderInfo->uniLmScalesOrTime = glGetUniformLocation(prog, "time");
-	if(shaderInfo->uniLmScalesOrTime != -1)
+	if (shaderInfo->uniLmScalesOrTime != -1)
 	{
 		glUniform1f(shaderInfo->uniLmScalesOrTime, 0.0f);
 	}
 
 	shaderInfo->uniVblend = glGetUniformLocation(prog, "v_blend");
-	if(shaderInfo->uniVblend != -1)
+	if (shaderInfo->uniVblend != -1)
 	{
 		glUniform4f(shaderInfo->uniVblend, 0, 0, 0, 0);
 	}
@@ -1003,7 +1003,7 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	GLuint prog = 0;
 	int i=0;
 
-	if(shaderInfo->shaderProgram != 0)
+	if (shaderInfo->shaderProgram != 0)
 	{
 		Com_Printf("WARNING: calling initShader3D for gl3ShaderInfo_t that already has a shaderProgram!\n");
 		glDeleteProgram(shaderInfo->shaderProgram);
@@ -1014,10 +1014,10 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	shaderInfo->uniVblend = -1;
 
 	shaders3D[0] = CompileShader(GL_VERTEX_SHADER, vertexCommon3D, vertSrc);
-	if(shaders3D[0] == 0)  return false;
+	if (shaders3D[0] == 0)  return false;
 
 	shaders3D[1] = CompileShader(GL_FRAGMENT_SHADER, fragmentCommon3D, fragSrc);
-	if(shaders3D[1] == 0)
+	if (shaders3D[1] == 0)
 	{
 		glDeleteShader(shaders3D[0]);
 		return false;
@@ -1025,7 +1025,7 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 	prog = CreateShaderProgram(2, shaders3D);
 
-	if(prog == 0)
+	if (prog == 0)
 	{
 		goto err_cleanup;
 	}
@@ -1034,11 +1034,11 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 	// Bind the buffer object to the uniform blocks
 	GLuint blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
-	if(blockIndex != GL_INVALID_INDEX)
+	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
 		glGetActiveUniformBlockiv(prog, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-		if(blockSize != sizeof(gl3state.uniCommonData))
+		if (blockSize != sizeof(gl3state.uniCommonData))
 		{
 			Com_Printf("WARNING: OpenGL driver disagrees with us about UBO size of 'uniCommon'\n");
 
@@ -1054,11 +1054,11 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 		goto err_cleanup;
 	}
 	blockIndex = glGetUniformBlockIndex(prog, "uni3D");
-	if(blockIndex != GL_INVALID_INDEX)
+	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
 		glGetActiveUniformBlockiv(prog, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-		if(blockSize != sizeof(gl3state.uni3DData))
+		if (blockSize != sizeof(gl3state.uni3DData))
 		{
 			Com_Printf("WARNING: OpenGL driver disagrees with us about UBO size of 'uni3D'\n");
 			Com_Printf("         driver says %d, we expect %d\n", blockSize, (int)sizeof(gl3state.uni3DData));
@@ -1075,11 +1075,11 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 		goto err_cleanup;
 	}
 	blockIndex = glGetUniformBlockIndex(prog, "uniLights");
-	if(blockIndex != GL_INVALID_INDEX)
+	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
 		glGetActiveUniformBlockiv(prog, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
-		if(blockSize != sizeof(gl3state.uniLightsData))
+		if (blockSize != sizeof(gl3state.uniLightsData))
 		{
 			Com_Printf("WARNING: OpenGL driver disagrees with us about UBO size of 'uniLights'\n");
 			Com_Printf("         OpenGL says %d, we say %d\n", blockSize, (int)sizeof(gl3state.uniLightsData));
@@ -1093,18 +1093,18 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 	// make sure texture is GL_TEXTURE0
 	GLint texLoc = glGetUniformLocation(prog, "tex");
-	if(texLoc != -1)
+	if (texLoc != -1)
 	{
 		glUniform1i(texLoc, 0);
 	}
 
 	// ..  and the 4 lightmap texture use GL_TEXTURE1..4
 	char lmName[10] = "lightmapX";
-	for(i=0; i<4; ++i)
+	for (i=0; i<4; ++i)
 	{
 		lmName[8] = '0'+i;
 		GLint lmLoc = glGetUniformLocation(prog, lmName);
-		if(lmLoc != -1)
+		if (lmLoc != -1)
 		{
 			glUniform1i(lmLoc, i+1); // lightmap0 belongs to GL_TEXTURE1, lightmap1 to GL_TEXTURE2 etc
 		}
@@ -1112,11 +1112,11 @@ initShader3D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 	GLint lmScalesLoc = glGetUniformLocation(prog, "lmScales");
 	shaderInfo->uniLmScalesOrTime = lmScalesLoc;
-	if(lmScalesLoc != -1)
+	if (lmScalesLoc != -1)
 	{
 		shaderInfo->lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-		for(i=1; i<4; ++i)  shaderInfo->lmScales[i] = HMM_Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+		for (i=1; i<4; ++i)  shaderInfo->lmScales[i] = HMM_Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		glUniform4fv(lmScalesLoc, 4, shaderInfo->lmScales[0].Elements);
 	}
@@ -1134,7 +1134,7 @@ err_cleanup:
 	glDeleteShader(shaders3D[0]);
 	glDeleteShader(shaders3D[1]);
 
-	if(prog != 0)  glDeleteProgram(prog);
+	if (prog != 0)  glDeleteProgram(prog);
 
 	return false;
 }
@@ -1186,23 +1186,23 @@ static void initUBOs(void)
 
 static qboolean createShaders(void)
 {
-	if(!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D))
+	if (!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D))
 	{
 		Com_Printf("WARNING: Failed to create shader program for textured 2D rendering!\n");
 		return false;
 	}
-	if(!initShader2D(&gl3state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor))
+	if (!initShader2D(&gl3state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor))
 	{
 		Com_Printf("WARNING: Failed to create shader program for color-only 2D rendering!\n");
 		return false;
 	}
 
-	if(!initShader2D(&gl3state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess))
+	if (!initShader2D(&gl3state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object!\n");
 		return false;
 	}
-	if(!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
+	if (!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object under water!\n");
 		return false;
@@ -1211,76 +1211,76 @@ static qboolean createShaders(void)
 	const char* lightmappedFrag = (gl3_colorlight->value == 0.0f)
 	                               ? fragmentSrc3DlmNoColor : fragmentSrc3Dlm;
 
-	if(!initShader3D(&gl3state.si3Dlm, vertexSrc3Dlm, lightmappedFrag))
+	if (!initShader3D(&gl3state.si3Dlm, vertexSrc3Dlm, lightmappedFrag))
 	{
 		Com_Printf("WARNING: Failed to create shader program for textured 3D rendering with lightmap!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3Dtrans, vertexSrc3D, fragmentSrc3D))
+	if (!initShader3D(&gl3state.si3Dtrans, vertexSrc3D, fragmentSrc3D))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering translucent 3D things!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3DcolorOnly, vertexSrc3D, fragmentSrc3Dcolor))
+	if (!initShader3D(&gl3state.si3DcolorOnly, vertexSrc3D, fragmentSrc3Dcolor))
 	{
 		Com_Printf("WARNING: Failed to create shader program for flat-colored 3D rendering!\n");
 		return false;
 	}
 	/*
-	if(!initShader3D(&gl3state.si3Dlm, vertexSrc3Dlm, fragmentSrc3D))
+	if (!initShader3D(&gl3state.si3Dlm, vertexSrc3Dlm, fragmentSrc3D))
 	{
 		Com_Printf("WARNING: Failed to create shader program for blending 3D lightmaps rendering!\n");
 		return false;
 	}
 	*/
-	if(!initShader3D(&gl3state.si3Dturb, vertexSrc3Dwater, fragmentSrc3Dwater))
+	if (!initShader3D(&gl3state.si3Dturb, vertexSrc3Dwater, fragmentSrc3Dwater))
 	{
 		Com_Printf("WARNING: Failed to create shader program for water rendering!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3DlmFlow, vertexSrc3DlmFlow, lightmappedFrag))
+	if (!initShader3D(&gl3state.si3DlmFlow, vertexSrc3DlmFlow, lightmappedFrag))
 	{
 		Com_Printf("WARNING: Failed to create shader program for scrolling textured 3D rendering with lightmap!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3DtransFlow, vertexSrc3Dflow, fragmentSrc3D))
+	if (!initShader3D(&gl3state.si3DtransFlow, vertexSrc3Dflow, fragmentSrc3D))
 	{
 		Com_Printf("WARNING: Failed to create shader program for scrolling textured translucent 3D rendering!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3Dsky, vertexSrc3D, fragmentSrc3Dsky))
+	if (!initShader3D(&gl3state.si3Dsky, vertexSrc3D, fragmentSrc3Dsky))
 	{
 		Com_Printf("WARNING: Failed to create shader program for sky rendering!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3Dsprite, vertexSrc3D, fragmentSrc3Dsprite))
+	if (!initShader3D(&gl3state.si3Dsprite, vertexSrc3D, fragmentSrc3Dsprite))
 	{
 		Com_Printf("WARNING: Failed to create shader program for sprite rendering!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3DspriteAlpha, vertexSrc3D, fragmentSrc3DspriteAlpha))
+	if (!initShader3D(&gl3state.si3DspriteAlpha, vertexSrc3D, fragmentSrc3DspriteAlpha))
 	{
 		Com_Printf("WARNING: Failed to create shader program for alpha-tested sprite rendering!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3Dalias, vertexSrcAlias, fragmentSrcAlias))
+	if (!initShader3D(&gl3state.si3Dalias, vertexSrcAlias, fragmentSrcAlias))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering textured models!\n");
 		return false;
 	}
-	if(!initShader3D(&gl3state.si3DaliasColor, vertexSrcAlias, fragmentSrcAliasColor))
+	if (!initShader3D(&gl3state.si3DaliasColor, vertexSrcAlias, fragmentSrcAliasColor))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering flat-colored models!\n");
 		return false;
 	}
 
 	const char* particleFrag = fragmentSrcParticles;
-	if(gl3_particle_square->value != 0.0f)
+	if (gl3_particle_square->value != 0.0f)
 	{
 		particleFrag = fragmentSrcParticlesSquare;
 	}
 
-	if(!initShader3D(&gl3state.siParticle, vertexSrcParticles, particleFrag))
+	if (!initShader3D(&gl3state.siParticle, vertexSrcParticles, particleFrag))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering particles!\n");
 		return false;
@@ -1301,9 +1301,9 @@ qboolean GL3_InitShaders(void)
 static void deleteShaders(void)
 {
 	const gl3ShaderInfo_t siZero = {0};
-	for(gl3ShaderInfo_t* si = &gl3state.si2D; si <= &gl3state.siParticle; ++si)
+	for (gl3ShaderInfo_t* si = &gl3state.si2D; si <= &gl3state.siParticle; ++si)
 	{
-		if(si->shaderProgram != 0)  glDeleteProgram(si->shaderProgram);
+		if (si->shaderProgram != 0)  glDeleteProgram(si->shaderProgram);
 		*si = siZero;
 	}
 }
@@ -1328,7 +1328,7 @@ qboolean GL3_RecreateShaders(void)
 static inline void
 updateUBO(GLuint ubo, GLsizeiptr size, void* data)
 {
-	if(gl3state.currentUBO != ubo)
+	if (gl3state.currentUBO != ubo)
 	{
 		gl3state.currentUBO = ubo;
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);

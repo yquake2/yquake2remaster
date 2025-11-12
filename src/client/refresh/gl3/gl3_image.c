@@ -163,7 +163,7 @@ void
 GL3_BindLightmap(int lightmapnum)
 {
 	int i=0;
-	if(lightmapnum < 0 || lightmapnum >= MAX_LIGHTMAPS)
+	if (lightmapnum < 0 || lightmapnum >= MAX_LIGHTMAPS)
 	{
 		Com_Printf("WARNING: Invalid lightmapnum %i used!\n", lightmapnum);
 		return;
@@ -175,7 +175,7 @@ GL3_BindLightmap(int lightmapnum)
 	}
 
 	gl3state.currentlightmap = lightmapnum;
-	for(i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
+	for (i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
 	{
 		// this assumes that GL_TEXTURE<i+1> = GL_TEXTURE<i> + 1
 		// at least for GL_TEXTURE0 .. GL_TEXTURE31 that's true
@@ -774,10 +774,10 @@ static qboolean IsNPOT(int v)
 {
 	unsigned int uv = v;
 	// just try all the power of two values between 1 and 1 << 15 (32k)
-	for(unsigned int i=0; i<16; ++i)
+	for (unsigned int i=0; i<16; ++i)
 	{
 		unsigned int pot = (1u << i);
-		if(uv & pot)
+		if (uv & pot)
 		{
 			return uv != pot;
 		}

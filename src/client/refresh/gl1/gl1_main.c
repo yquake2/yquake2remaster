@@ -774,12 +774,12 @@ R_SetupGL(void)
 	qboolean stereo_split_tb = ((gl_state.stereo_mode == STEREO_SPLIT_VERTICAL) && gl_state.camera_separation);
 	qboolean stereo_split_lr = ((gl_state.stereo_mode == STEREO_SPLIT_HORIZONTAL) && gl_state.camera_separation);
 
-	if(stereo_split_lr) {
+	if (stereo_split_lr) {
 		w = w / 2;
 		x = drawing_left_eye ? (x / 2) : (x + vid.width) / 2;
 	}
 
-	if(stereo_split_tb) {
+	if (stereo_split_tb) {
 		h = h / 2;
 		y2 = drawing_left_eye ? (y2 + vid.height) / 2 : (y2 / 2);
 	}
@@ -951,12 +951,12 @@ R_SetGL2D(void)
 	y = 0;
 	h = vid.height;
 
-	if(stereo_split_lr) {
+	if (stereo_split_lr) {
 		w =  w / 2;
 		x = drawing_left_eye ? 0 : w;
 	}
 
-	if(stereo_split_tb) {
+	if (stereo_split_tb) {
 		h =  h / 2;
 		y = drawing_left_eye ? h : 0;
 	}
@@ -1314,7 +1314,7 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 	/* We trying to get resolution from desktop */
 	if (mode == -2)
 	{
-		if(!ri.GLimp_GetDesktopMode(pwidth, pheight))
+		if (!ri.GLimp_GetDesktopMode(pwidth, pheight))
 		{
 			Com_Printf(" can't detect mode\n" );
 			return rserr_invalid_mode;
@@ -1414,7 +1414,7 @@ R_SetMode(void)
 					return true;
 				}
 			}
-			if(r_mode->value == gl_state.prev_mode)
+			if (r_mode->value == gl_state.prev_mode)
 			{
 				// trying again would result in a crash anyway, give up already
 				// (this would happen if your initing fails at all and your resolution already was 640x480)
@@ -1832,12 +1832,12 @@ RI_BeginFrame(float camera_separation)
 	y = 0;
 	h = vid.height;
 
-	if(stereo_split_lr) {
+	if (stereo_split_lr) {
 		w =  w / 2;
 		x = drawing_left_eye ? 0 : w;
 	}
 
-	if(stereo_split_tb) {
+	if (stereo_split_tb) {
 		h =  h / 2;
 		y = drawing_left_eye ? h : 0;
 	}

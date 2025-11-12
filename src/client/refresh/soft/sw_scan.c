@@ -788,7 +788,7 @@ D_DrawZSpans (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv
 				int	step;
 				zvalue_t izi_shifted = izi >> SHIFT16XYZ;
 
-				for(step = 0; (step < safe_step) && (pdest < tdest_max); step++)
+				for (step = 0; (step < safe_step) && (pdest < tdest_max); step++)
 				{
 					*pdest++ = izi_shifted;
 				}

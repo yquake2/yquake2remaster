@@ -104,7 +104,7 @@ DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei le
  */
 void GL4_EndFrame(void)
 {
-	if(gl4config.useBigVBO)
+	if (gl4config.useBigVBO)
 	{
 		// I think this is a good point to orphan the VBO and get a fresh one
 		GL4_BindVAO(gl4state.vao3D);
@@ -338,7 +338,7 @@ int GL4_InitContext(void* win)
 	// Initialize GL context.
 	context = SDL_GL_CreateContext(window);
 
-	if(context == NULL)
+	if (context == NULL)
 	{
 		Com_Printf("%s(): Creating OpenGL Context failed: %s\n",
 			__func__, SDL_GetError());
@@ -464,7 +464,7 @@ void GL4_ShutdownContext()
 {
 	if (window)
 	{
-		if(context)
+		if (context)
 		{
 #ifdef USE_SDL3
 			SDL_GL_DestroyContext(context);

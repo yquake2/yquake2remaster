@@ -103,7 +103,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 		if (colorOnly)
 		{
 			int i;
-			for(i=0; i<count; ++i)
+			for (i=0; i<count; ++i)
 			{
 				int j = 0;
 				int index_xyz;
@@ -111,7 +111,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				index_xyz = order[2];
 				order += 3;
 
-				for(j=0; j<3; ++j)
+				for (j=0; j<3; ++j)
 				{
 					cur->pos[j] = s_lerped[index_xyz][j];
 					cur->color[j] = shadelight[j];
@@ -122,7 +122,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 		else
 		{
 			int i;
-			for(i = 0; i < count; ++i)
+			for (i = 0; i < count; ++i)
 			{
 				gl3_alias_vtx_t* cur = &buf[i];
 				int index_xyz, i, j = 0;
@@ -138,7 +138,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				order += 3;
 
 				/* unpack normal */
-				for(i = 0; i < 3; i++)
+				for (i = 0; i < 3; i++)
 				{
 					normal[i] = verts[index_xyz].normal[i] / 127.f;
 				}
@@ -147,7 +147,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				/* shadevector is set above according to rotation (around Z axis I think) */
 				l = DotProduct(normal, shadevector) + 1;
 
-				for(j=0; j<3; ++j)
+				for (j=0; j<3; ++j)
 				{
 					cur->pos[j] = s_lerped[index_xyz][j];
 					cur->color[j] = l * shadelight[j];
@@ -159,7 +159,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 		add = da_addn_uninit(idxBuf, (count - 2) * 3);
 
 		/* translate triangle fan/strip to just triangle indices */
-		if(type == GL_TRIANGLE_FAN)
+		if (type == GL_TRIANGLE_FAN)
 		{
 			R_GenFanIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
@@ -232,7 +232,7 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 		GL3_UseProgram(gl3state.si3Dalias.shaderProgram);
 	}
 
-	if(gl3_colorlight->value == 0.0f)
+	if (gl3_colorlight->value == 0.0f)
 	{
 		float avg = 0.333333f * (shadelight[0]+shadelight[1]+shadelight[2]);
 		shadelight[0] = shadelight[1] = shadelight[2] = avg;
@@ -324,7 +324,7 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 
 		gl3_alias_vtx_t* buf = da_addn_uninit(vtxBuf, count);
 
-		for(i=0; i<count; ++i)
+		for (i=0; i<count; ++i)
 		{
 			vec3_t point;
 
@@ -337,7 +337,7 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 
 			VectorCopy(point, buf[i].pos);
 
-			for(j=0; j<4; ++j)  buf[i].color[j] = color[j];
+			for (j=0; j<4; ++j)  buf[i].color[j] = color[j];
 
 			order += 3;
 		}
@@ -345,7 +345,7 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 		add = da_addn_uninit(idxBuf, (count - 2) * 3);
 
 		/* translate triangle fan/strip to just triangle indices */
-		if(type == GL_TRIANGLE_FAN)
+		if (type == GL_TRIANGLE_FAN)
 		{
 			R_GenFanIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
@@ -669,11 +669,11 @@ GL3_DrawAliasModel(entity_t *entity)
 		hmm_mat4 projMat = GL3_SetPerspective( (r_gunfov->value < 0)?
 				r_newrefdef.fov_y : r_gunfov->value );
 
-		if(r_lefthand->value == 1.0F)
+		if (r_lefthand->value == 1.0F)
 		{
 			// to mirror gun so it's rendered left-handed, just invert X-axis column
 			// of projection matrix
-			for(int i=0; i<4; ++i)
+			for (int i=0; i<4; ++i)
 			{
 				projMat.Elements[0][i] = - projMat.Elements[0][i];
 			}
@@ -750,7 +750,7 @@ GL3_DrawAliasModel(entity_t *entity)
 	{
 		gl3state.uni3DData.transProjViewMat4 = origProjViewMat;
 		GL3_UpdateUBO3D();
-		if(r_lefthand->value == 1.0F)
+		if (r_lefthand->value == 1.0F)
 			glCullFace(GL_FRONT);
 	}
 
@@ -786,7 +786,7 @@ void
 GL3_DrawAliasShadows(void)
 {
 	size_t numShadowModels = da_count(shadowModels);
-	if(numShadowModels == 0)
+	if (numShadowModels == 0)
 	{
 		return;
 	}
@@ -804,7 +804,7 @@ GL3_DrawAliasShadows(void)
 		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 	}
 
-	for(size_t i=0; i<numShadowModels; ++i)
+	for (size_t i=0; i<numShadowModels; ++i)
 	{
 		gl3_shadowinfo_t* si = &shadowModels.p[i]; // XXX da_getptr(shadowModels, i);
 		entity_t* e = si->entity;

@@ -130,7 +130,7 @@ GL3_RotateForEntity(entity_t *e)
 	// rot matrices to be multiplied in order Z, Y, X (yaw, pitch, roll)
 	hmm_mat4 transMat = rotAroundAxisZYX(e->angles[1], -e->angles[0], -e->angles[2]);
 
-	for(int i=0; i<3; ++i)
+	for (int i=0; i<3; ++i)
 	{
 		transMat.Elements[3][i] = e->origin[i]; // set translation
 	}
@@ -153,7 +153,7 @@ GL3_Strings(void)
 	glGetIntegerv(GL_NUM_EXTENSIONS, &numExtensions);
 
 	Com_Printf("GL_EXTENSIONS:");
-	for(i = 0; i < numExtensions; i++)
+	for (i = 0; i < numExtensions; i++)
 	{
 		Com_Printf(" %s", (const char*)glGetStringi(GL_EXTENSIONS, i));
 	}
@@ -247,7 +247,7 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 	/* We trying to get resolution from desktop */
 	if (mode == -2)
 	{
-		if(!ri.GLimp_GetDesktopMode(pwidth, pheight))
+		if (!ri.GLimp_GetDesktopMode(pwidth, pheight))
 		{
 			Com_Printf(" can't detect mode\n" );
 			return rserr_invalid_mode;
@@ -352,7 +352,7 @@ GL3_SetMode(void)
 					return true;
 				}
 			}
-			if(r_mode->value == gl3state.prev_mode)
+			if (r_mode->value == gl3state.prev_mode)
 			{
 				// trying again would result in a crash anyway, give up already
 				// (this would happen if your initing fails at all and your resolution already was 640x480)
@@ -385,7 +385,7 @@ GL3_Init(void)
 	Com_Printf("Refresh: " REF_VERSION "\n");
 	Com_Printf("Client: " YQ2VERSION "\n\n");
 
-	if(sizeof(float) != sizeof(GLfloat))
+	if (sizeof(float) != sizeof(GLfloat))
 	{
 		// if this ever happens, things would explode because we feed vertex arrays and UBO data
 		// using floats to OpenGL, which expects GLfloat (can't easily change, those floats are from HMM etc)
@@ -426,7 +426,7 @@ GL3_Init(void)
 	/* Anisotropic */
 	Com_Printf(" - Anisotropic Filtering: ");
 
-	if(gl3config.anisotropic)
+	if (gl3config.anisotropic)
 	{
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &gl3config.max_anisotropy);
 
@@ -439,10 +439,10 @@ GL3_Init(void)
 		Com_Printf("Not supported\n");
 	}
 
-	if(gl3config.debug_output)
+	if (gl3config.debug_output)
 	{
 		Com_Printf(" - OpenGL Debug Output: Supported ");
-		if(gl3_debugcontext->value == 0.0f)
+		if (gl3_debugcontext->value == 0.0f)
 		{
 			Com_Printf("(but disabled with gl3_debugcontext = 0)\n");
 		}
@@ -457,20 +457,20 @@ GL3_Init(void)
 	}
 
 	gl3config.useBigVBO = false;
-	if(gl3_usebigvbo->value == 1.0f)
+	if (gl3_usebigvbo->value == 1.0f)
 	{
 		Com_Printf("Enabling useBigVBO workaround because gl3_usebigvbo = 1\n");
 		gl3config.useBigVBO = true;
 	}
-	else if(gl3_usebigvbo->value == -1.0f)
+	else if (gl3_usebigvbo->value == -1.0f)
 	{
 		// enable for AMDs proprietary Windows and Linux drivers
 #ifdef _WIN32
-		if(gl3config.version_string != NULL && gl3config.vendor_string != NULL
+		if (gl3config.version_string != NULL && gl3config.vendor_string != NULL
 		   && strstr(gl3config.vendor_string, "ATI Technologies Inc") != NULL)
 		{
 			int a, b, ver;
-			if(sscanf(gl3config.version_string, " %d.%d.%d ", &a, &b, &ver) >= 3 && ver >= 13431)
+			if (sscanf(gl3config.version_string, " %d.%d.%d ", &a, &b, &ver) >= 3 && ver >= 13431)
 			{
 				// turns out the legacy driver is a lot faster *without* the workaround :-/
 				// GL_VERSION for legacy 16.2.1 Beta driver: 3.2.13399 Core Profile Forward-Compatible Context 15.200.1062.1004
@@ -488,7 +488,7 @@ GL3_Init(void)
 			}
 		}
 #elif defined(__linux__)
-		if(gl3config.vendor_string != NULL && strstr(gl3config.vendor_string, "Advanced Micro Devices, Inc.") != NULL)
+		if (gl3config.vendor_string != NULL && strstr(gl3config.vendor_string, "Advanced Micro Devices, Inc.") != NULL)
 		{
 			Com_Printf("Detected proprietary AMD GPU driver, enabling useBigVBO workaround\n");
 			Com_Printf("(consider using the open source RadeonSI drivers, they tend to work better overall)\n");
@@ -502,7 +502,7 @@ GL3_Init(void)
 
 	GL3_SetDefaultState();
 
-	if(GL3_InitShaders())
+	if (GL3_InitShaders())
 	{
 		Com_Printf("Loading shaders succeeded.\n");
 	}
@@ -543,7 +543,7 @@ GL3_Shutdown(void)
 
 	// only call all these if we have an OpenGL context and the gl function pointers
 	// randomly chose one function that should always be there to test..
-	if(glDeleteBuffers != NULL)
+	if (glDeleteBuffers != NULL)
 	{
 		GL3_Mod_FreeAll();
 		GL3_ShutdownMeshes();
@@ -554,11 +554,11 @@ GL3_Shutdown(void)
 		GL3_ShutdownShaders();
 
 		// free the postprocessing FBO and its renderbuffer and texture
-		if(gl3state.ppFBrbo != 0)
+		if (gl3state.ppFBrbo != 0)
 			glDeleteRenderbuffers(1, &gl3state.ppFBrbo);
-		if(gl3state.ppFBtex != 0)
+		if (gl3state.ppFBtex != 0)
 			glDeleteTextures(1, &gl3state.ppFBtex);
-		if(gl3state.ppFBO != 0)
+		if (gl3state.ppFBO != 0)
 			glDeleteFramebuffers(1, &gl3state.ppFBO);
 		gl3state.ppFBrbo = gl3state.ppFBtex = gl3state.ppFBO = 0;
 		gl3state.ppFBObound = false;
@@ -575,7 +575,7 @@ GL3_Shutdown(void)
 void
 GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 {
-	if(!gl3config.useBigVBO)
+	if (!gl3config.useBigVBO)
 	{
 		glBufferData( GL_ARRAY_BUFFER, sizeof(mvtx_t)*numVerts, verts, GL_STREAM_DRAW );
 		glDrawArrays( drawMode, 0, numVerts );
@@ -609,7 +609,7 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 		const int bufSize = gl3state.vbo3Dsize;
 		int neededSize = numVerts*sizeof(mvtx_t);
 		int curOffset = gl3state.vbo3DcurOffset;
-		if(curOffset + neededSize > gl3state.vbo3Dsize)
+		if (curOffset + neededSize > gl3state.vbo3Dsize)
 			curOffset = 0;
 		int curIdx = curOffset / sizeof(mvtx_t);
 
@@ -620,7 +620,7 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 #else
 		int curOffset = gl3state.vbo3DcurOffset;
 		int neededSize = numVerts*sizeof(mvtx_t);
-		if(curOffset+neededSize > gl3state.vbo3Dsize)
+		if (curOffset+neededSize > gl3state.vbo3Dsize)
 		{
 			// buffer is full, need to start again from the beginning
 			// => need to sync or get fresh buffer
@@ -947,7 +947,7 @@ GL3_DrawParticles(void)
 			cur->size = pointSize;
 			cur->dist = VectorLength(offset);
 
-			for(int j=0; j<3; ++j)
+			for (int j=0; j<3; ++j)
 			{
 				cur->color[j] = color[j] * (1.0f / 255.0f);
 			}
@@ -963,7 +963,7 @@ GL3_DrawParticles(void)
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
 #ifdef YQ2_GL3_GLES
-		if(r_cull->value != 0.0f)
+		if (r_cull->value != 0.0f)
 			glEnable(GL_CULL_FACE);
 #else
 		glDisable(GL_PROGRAM_POINT_SIZE);
@@ -1179,12 +1179,12 @@ GL3_SetGL2D(void)
 	qboolean stereo_split_tb = ((gl_state.stereo_mode == STEREO_SPLIT_VERTICAL) && gl_state.camera_separation);
 	qboolean stereo_split_lr = ((gl_state.stereo_mode == STEREO_SPLIT_HORIZONTAL) && gl_state.camera_separation);
 
-	if(stereo_split_lr) {
+	if (stereo_split_lr) {
 		w =  w / 2;
 		x = drawing_left_eye ? 0 : w;
 	}
 
-	if(stereo_split_tb) {
+	if (stereo_split_tb) {
 		h =  h / 2;
 		y = drawing_left_eye ? h : 0;
 	}
@@ -1291,12 +1291,12 @@ SetupGL(void)
 	qboolean stereo_split_tb = ((gl_state.stereo_mode == STEREO_SPLIT_VERTICAL) && gl_state.camera_separation);
 	qboolean stereo_split_lr = ((gl_state.stereo_mode == STEREO_SPLIT_HORIZONTAL) && gl_state.camera_separation);
 
-	if(stereo_split_lr) {
+	if (stereo_split_lr) {
 		w = w / 2;
 		x = drawing_left_eye ? (x / 2) : (x + vid.width) / 2;
 	}
 
-	if(stereo_split_tb) {
+	if (stereo_split_tb) {
 		h = h / 2;
 		y2 = drawing_left_eye ? (y2 + vid.height) / 2 : (y2 / 2);
 	}
@@ -1310,13 +1310,13 @@ SetupGL(void)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, gl3state.ppFBO);
 		gl3state.ppFBObound = true;
-		if(gl3state.ppFBtex == 0)
+		if (gl3state.ppFBtex == 0)
 		{
 			gl3state.ppFBtexWidth = -1; // make sure we generate the texture storage below
 			glGenTextures(1, &gl3state.ppFBtex);
 		}
 
-		if(gl3state.ppFBrbo == 0)
+		if (gl3state.ppFBrbo == 0)
 		{
 			gl3state.ppFBtexWidth = -1; // make sure we generate the RBO storage below
 			glGenRenderbuffers(1, &gl3state.ppFBrbo);
@@ -1324,7 +1324,7 @@ SetupGL(void)
 
 		// even if the FBO already has a texture and RBO, the viewport size
 		// might have changed so they need to be regenerated with the correct sizes
-		if(gl3state.ppFBtexWidth != w || gl3state.ppFBtexHeight != h)
+		if (gl3state.ppFBtexWidth != w || gl3state.ppFBtexHeight != h)
 		{
 			gl3state.ppFBtexWidth = w;
 			gl3state.ppFBtexHeight = h;
@@ -1346,7 +1346,7 @@ SetupGL(void)
 			                          GL_RENDERBUFFER, gl3state.ppFBrbo);
 
 			GLenum fbState = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			if(fbState != GL_FRAMEBUFFER_COMPLETE)
+			if (fbState != GL_FRAMEBUFFER_COMPLETE)
 			{
 				Com_Printf("GL3 SetupGL(): WARNING: FBO is not complete, status = 0x%x\n", fbState);
 				gl3state.ppFBtexWidth = -1; // to try again next frame; TODO: maybe give up?
@@ -1672,7 +1672,7 @@ GL3_RenderFrame(refdef_t *fd)
 	GL3_RenderView(fd);
 	GL3_SetLightLevel(NULL);
 	qboolean usedFBO = gl3state.ppFBObound; // if it was/is used this frame
-	if(usedFBO)
+	if (usedFBO)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // now render to default framebuffer
 		gl3state.ppFBObound = false;
@@ -1686,7 +1686,7 @@ GL3_RenderFrame(refdef_t *fd)
 		// if we're actually drawing the world and using an FBO, render the FBO's texture
 		GL3_DrawFrameBufferObject(x, y, r_newrefdef.width, r_newrefdef.height, gl3state.ppFBtex, v_blend);
 	}
-	else if(v_blend[3] != 0.0f)
+	else if (v_blend[3] != 0.0f)
 	{
 		GL3_Draw_Flash(v_blend, x, y, r_newrefdef.width, r_newrefdef.height);
 	}
@@ -1778,7 +1778,7 @@ GL3_BeginFrame(float camera_separation)
 	{
 		gl3_overbrightbits->modified = false;
 
-		if(gl3_overbrightbits->value < 0.0f)
+		if (gl3_overbrightbits->value < 0.0f)
 		{
 			ri.Cvar_Set("gl3_overbrightbits", "0");
 		}
@@ -1787,14 +1787,14 @@ GL3_BeginFrame(float camera_separation)
 		GL3_UpdateUBO3D();
 	}
 
-	if(gl3_particle_fade_factor->modified)
+	if (gl3_particle_fade_factor->modified)
 	{
 		gl3_particle_fade_factor->modified = false;
 		gl3state.uni3DData.particleFadeFactor = gl3_particle_fade_factor->value;
 		GL3_UpdateUBO3D();
 	}
 
-	if(gl3_particle_square->modified || gl3_colorlight->modified)
+	if (gl3_particle_square->modified || gl3_colorlight->modified)
 	{
 		gl3_particle_square->modified = false;
 		gl3_colorlight->modified = false;

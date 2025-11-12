@@ -246,7 +246,7 @@ R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
 	if (!d_16to8table)
 		return;
 
-	for(i=0; i < size; i++)
+	for (i=0; i < size; i++)
 	{
 		if (pic_in[3] > 128 || !transparent)
 		{

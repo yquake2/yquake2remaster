@@ -481,7 +481,7 @@ R_FloodFillSkin(byte *skin, int skinwidth, int skinheight)
 	int filledcolor = 0;
 	int i;
 
-	// NOTE: there was a if(filledcolor == -1) which didn't make sense b/c filledcolor used to be initialized to -1
+	// NOTE: there was a if (filledcolor == -1) which didn't make sense b/c filledcolor used to be initialized to -1
 	/* attempt to find opaque black */
 	for (i = 0; i < 256; ++i)
 	{

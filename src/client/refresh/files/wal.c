@@ -51,7 +51,7 @@ GetWalInfo(const char *origname, int *width, int *height)
 		*width = LittleLong(mt->width);
 		*height = LittleLong(mt->height);
 	}
-	else if(size > sizeof(miptex_t))
+	else if (size > sizeof(miptex_t))
 	{
 		const miptex_t *mt;
 
