@@ -121,13 +121,12 @@ P_DamageFeedback(edict_t *player)
 		int firstframe, lastframe;
 		const char *action;
 
+		firstframe = FRAME_crpain1 - 1;
+		lastframe = FRAME_crpain4;
 		client->anim_priority = ANIM_PAIN;
 
 		if (client->ps.pmove.pm_flags & PMF_DUCKED)
 		{
-			firstframe = FRAME_crpain1 - 1;
-			lastframe = FRAME_crpain4;
-
 			action = "crpain";
 		}
 		else
