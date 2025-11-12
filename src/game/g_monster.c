@@ -777,12 +777,10 @@ M_SetEffects(edict_t *ent)
 	}
 }
 
-static qboolean
-M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
-	int *ofs_frames, int *num_frames)
+static int
+M_GetModelIndex(edict_t *self)
 {
-	const dmdxframegroup_t * frames;
-	int num, i, modelindex;
+	int modelindex;
 
 	modelindex = self->s.modelindex;
 
@@ -812,6 +810,17 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 		modelindex = gi.modelindex(modelname);
 	}
 
+	return modelindex;
+}
+
+static qboolean
+M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
+	int *ofs_frames, int *num_frames)
+{
+	const dmdxframegroup_t * frames;
+	int num, i, modelindex;
+
+	modelindex = M_GetModelIndex(self);
 	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
 	for (i = 0; i < num; i++)
 	{
@@ -931,7 +940,8 @@ M_MoveFrame(edict_t *self)
 	}
 	else if (self->monsterinfo.action)
 	{
-		M_SetAnimGroupFrameValues(self, self->monsterinfo.action, &firstframe, &lastframe);
+		firstframe = self->monsterinfo.firstframe;
+		lastframe = self->monsterinfo.lastframe;
 		lastframe += firstframe - 1;
 	}
 	else
@@ -1078,6 +1088,18 @@ M_MoveFrame(edict_t *self)
 	}
 }
 
+static void
+monster_dynamic_setframes(edict_t *self)
+{
+	if (!self || !self->monsterinfo.action)
+	{
+		return;
+	}
+
+	M_SetAnimGroupFrameValues(self, self->monsterinfo.action,
+		&self->monsterinfo.firstframe, &self->monsterinfo.lastframe);
+}
+
 void
 monster_dynamic_walk(edict_t *self)
 {
@@ -1100,6 +1122,8 @@ monster_dynamic_walk(edict_t *self)
 	{
 		self->monsterinfo.action = "walk";
 	}
+
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1124,6 +1148,8 @@ monster_dynamic_run(edict_t *self)
 	{
 		self->monsterinfo.action = "run";
 	}
+
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1136,6 +1162,7 @@ monster_dynamic_idle(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "idle";
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1148,6 +1175,7 @@ monster_dynamic_attack(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "attack";
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1182,6 +1210,7 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "death";
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1194,6 +1223,7 @@ monster_dynamic_melee(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "melee";
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1218,6 +1248,7 @@ monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "dodge";
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1243,6 +1274,7 @@ monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 	self->monsterinfo.currentmove = NULL;
 
 	self->monsterinfo.action = "pain";
+	monster_dynamic_setframes(self);
 }
 
 void
@@ -1267,6 +1299,8 @@ monster_dynamic_stand(edict_t *self)
 	{
 		self->monsterinfo.action = "stand";
 	}
+
+	monster_dynamic_setframes(self);
 }
 
 void

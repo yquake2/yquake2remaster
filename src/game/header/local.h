@@ -510,6 +510,9 @@ typedef struct
 	const char *action;
 	float walk_dist;
 	float run_dist;
+	/* frames cache */
+	int firstframe;
+	int lastframe;
 
 	float pausetime;
 	float attack_finished;
