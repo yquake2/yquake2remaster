@@ -1201,7 +1201,7 @@ monster_dynamic_attack(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "attack";
-	monster_dynamic_setframes(self, false);
+	monster_dynamic_setframes(self, true);
 }
 
 void

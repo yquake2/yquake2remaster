@@ -1156,6 +1156,30 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
+static void
+Mod_LoadModel_FlexNamesFix(dmdx_t *pheader)
+{
+	dmdxframegroup_t *pframegroup;
+	int i;
+
+	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
+	for (i = 0; i < pheader->num_animgroup; i++)
+	{
+		/* replace frame group started with atack* to attack */
+		if (!memcmp(pframegroup[i].name, "atack", 5))
+		{
+			strcpy(pframegroup[i].name, "attack");
+		}
+		/* replace frame group started with death* to death */
+		else if (!memcmp(pframegroup[i].name, "death", 5))
+		{
+			strcpy(pframegroup[i].name, "death");
+		}
+	}
+
+}
+
+
 /*
 =============
 Mod_LoadModel_Flex
@@ -1346,6 +1370,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 
 				Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
 				Mod_LoadAnimGroupList(pheader);
+				Mod_LoadModel_FlexNamesFix(pheader);
 			}
 			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
 			{
