@@ -702,7 +702,7 @@ misc_magic_portal||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|
 misc_remote_camera||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Remote Camera|1.0|0.0|0.0|0|0
 misc_update_spawner||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Updates level spawn point to trigger's position. Relevant for teleport spell.|.5|.5|.5|0|0
 monster_assassin|models/monsters/assassin/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Assassin|1.0|0.5|0.0|0|0
-monster_bee|models/monsters/bee/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bee (unfinished)|1.0|0.5|0.0|40|40
+monster_bee|models/monsters/bee/tris.fm|1.0|1.0|1.0|char|-2.0|-2.0|-25.0|2.0|2.0|25.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bee (unfinished)|1.0|0.5|0.0|40|40
 monster_chicken|models/monsters/chicken2/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Chicken|1.0|0.5|0.0|0|0
 monster_chkroktk|models/monsters/rat/tris.fm|1.0|1.0|1.0|char|-16|-16|-26|16|16|26|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
 monster_elflord|models/monsters/elflord/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-64.0|24.0|24.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Celestial Watcher|1.0|0.5|0.0|0|0
@@ -766,13 +766,13 @@ obj_cocoonopen|models/objects/eggs/cocoon/tris.fm|1.0|1.0|1.0|general|-20.0|-20.
 obj_cog1|models/objects/cogs/cog1/tris.fm|1.0|1.0|1.0|general|-8.0|-4.0|0.0|8.0|4.0|20.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Cog (triggerable)|0.3|0.3|1.0|40|20
 obj_corpse1|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|-2.0|30.0|12.0|2.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Elf corpse|0.3|0.3|1.0|40|60
 obj_corpse2|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|-2.0|30.0|12.0|2.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Elf corpse (alternate skin)|0.3|0.3|1.0|40|60
-obj_corpse_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-30|-12|-2|30|12|2|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|40|80
-obj_corpse_ssithra|models/monsters/ssithra/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|0.0|30.0|12.0|5.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra corpse|0.3|0.3|1.0|120|80
+obj_corpse_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|general|-30|-30|-2|30|30|8|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|40|80
+obj_corpse_ssithra|models/monsters/ssithra/tris.fm|1.0|1.0|1.0|general|-30.0|-12.0|-2|30.0|12.0|2.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra corpse|0.3|0.3|1.0|120|80
 obj_dying_elf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-32|-32|-2|32|32|6|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dying elf|0.3|0.3|1.0|40|60
 obj_eggpan|models/objects/pots/eggpan/tris.fm|1.0|1.0|1.0|general|-4.0|-10.0|-1.0|4.0|10.0|1.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flat pan|0.3|0.3|1.0|250|200
 obj_eyeball_jar|models/objects/labs/container2/tris.fm|1.0|1.0|1.0|general|-13.0|-13.0|-18.0|13.0|13.0|18.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Jar of joy|0.3|0.3|1.0|50|200
 obj_firepot|models/objects/pots/firepot/tris.fm|1.0|1.0|1.0|general|-18.0|-18.0|-12.0|18.0|18.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Firepot|0.3|0.3|1.0|140|100
-obj_fishhead1|models/objects/fishheads/fishhead1/tris.fm|1.0|1.0|1.0|general|0.0|-76.0|-86.0|136.0|76.0|86.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain|0.3|0.3|1.0|100|500
+obj_fishhead1|models/objects/fishheads/fishhead1/tris.fm|1.0|1.0|1.0|general|0.0|-76.0|-86.0|136.0|76.0|86.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain|0.3|0.3|1.0|100|500
 obj_fishhead2|models/objects/fishheads/fishhead2/tris.fm|1.0|1.0|1.0|general|0.0|-110.0|-118.0|136.0|110.0|118.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fish head fountain 2|0.3|0.3|1.0|100|500
 obj_fishtrap|models/objects/fishtrap/tris.fm|1.0|1.0|1.0|general|-14.0|-28.0|-13.0|14.0|28.0|13.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fish trap|0.3|0.3|1.0|30|100
 obj_flagonpole|models/objects/flags/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-28.0|-30.0|-8.0|28.0|30.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Flag on pole|0.3|0.3|1.0|40|200
