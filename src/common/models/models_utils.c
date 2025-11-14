@@ -48,20 +48,6 @@ Mod_ConvertNormalMDL(byte in_normal, signed char *normal)
 	}
 }
 
-static void
-Mod_LoadAnimGroupLower(char *str)
-{
-	while (*str)
-	{
-		if (*str >= 'A' && *str <= 'Z')
-		{
-			*str += 'a' - 'A';
-		}
-
-		str++;
-	}
-}
-
 /*
 =================
 Mod_LoadAnimGroupList
@@ -167,7 +153,7 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 			pframegroup[i].mins, pframegroup[i].maxs);
 
 		/* lower name of group */
-		Mod_LoadAnimGroupLower(pframegroup[i].name);
+		Q_strlwr(pframegroup[i].name);
 	}
 }
 
