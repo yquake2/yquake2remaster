@@ -57,11 +57,11 @@ qboolean stdin_active = true;
 // Terminal supports colors
 static qboolean color_active = false;
 
-// Config dir
-char cfgdir[MAX_OSPATH] = CFGDIR;
-
 // Console logfile
 extern FILE	*logfile;
+
+// Config dir name
+char cfgdir[MAX_OSPATH] = CFGDIRNAME;
 
 /* ================================================================ */
 
@@ -548,27 +548,117 @@ Sys_IsFile(const char *path)
 	return false;
 }
 
-char *
-Sys_GetHomeDir(void)
+#ifdef USE_XDG
+static char *
+GetXDGPath(const char *xdg)
 {
-	static char gdir[MAX_OSPATH];
-	char *home;
-
-	home = getenv("HOME");
-
-	if (!home)
-	{
-		return NULL;
+	char* buffer = calloc(MAX_OSPATH, sizeof(char));
+	if (!buffer) {
+		goto fail;
 	}
 
-#ifndef __HAIKU__
-	Com_sprintf(gdir, sizeof(gdir), "%s/%s/", home, cfgdir);
-#else
-	Com_sprintf(gdir, sizeof(gdir), "%s/config/settings/%s", home, cfgdir);
-#endif
-	Sys_Mkdir(gdir);
+	const char* env = getenv(xdg);
+	const char* fmt = "%s/%s/";
 
-	return gdir;
+	if (!env) {
+		env = getenv("HOME");
+		if (!env) {
+			goto fail;
+		}
+
+		if (strcmp(xdg, "XDG_CONFIG_HOME")==0) {
+			fmt = "%s/.config/%s/";
+		} else if (strcmp(xdg, "XDG_DATA_HOME")==0) {
+			fmt = "%s/.local/share/%s/";
+		} else if (strcmp(xdg, "XDG_STATE_HOME")==0) {
+			fmt = "%s/.local/state/%s/";
+		} else {
+			Sys_Error("%s: unexpected directory %s", __func__, xdg);
+		}
+	}
+
+	Com_sprintf(buffer, MAX_OSPATH, fmt, env, cfgdir);
+	return buffer;
+
+fail:
+	free(buffer);
+	return NULL;
+}
+#endif
+
+char *
+Sys_GetHomeDir()
+{
+	static char dir[MAX_OSPATH];
+
+	if (!dir[0]) {
+		const char* home = getenv("HOME");
+
+		if (!home) {
+			// uh-oh
+			return NULL;
+		}
+
+#ifndef __HAIKU__
+		if (strcmp(cfgdir, CFGDIRNAME)!=0) {
+			// custom cfgdir was set by the user: ~/{cfgdir}
+			Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
+			goto dirset;
+		}
+
+		// hidden dir: ~/.{CFGDIRNAME_SHORT}
+		Com_sprintf(dir, MAX_OSPATH, "%s/.%s/", home, CFGDIRNAME_SHORT);
+
+#ifdef USE_XDG
+		if (Sys_IsDir(dir)) {
+			goto dirset;
+		}
+
+		// XDG dir: XDG_DATA_HOME/{cfgdir}
+		char *prefpath = GetXDGPath("XDG_DATA_HOME");
+		if (!prefpath) {
+			Sys_Error("%s: failed to get XDG path", __func__);
+		}
+
+		strcpy(dir, prefpath);
+		free(prefpath);
+#endif
+
+#else // HAIKU
+		Com_sprintf(dir, MAX_OSPATH, "%s/config/settings/%s/", home, cfgdir);
+#endif
+
+	dirset:
+		Com_DPrintf("%s: using '%s'", __func__, dir);
+	}
+
+	Sys_Mkdir(dir);
+	return dir;
+}
+
+char *
+Sys_GetConfigDir()
+{
+#ifndef USE_XDG
+	return Sys_GetHomeDir();
+#else
+	static char dir[MAX_OSPATH];
+
+	if (!dir[0]) {
+		const char* path = GetXDGPath("XDG_CONFIG_HOME");
+		if (!path) {
+			Sys_Error("%s: failed to get XDG path", __func__);
+		}
+
+		strcpy(dir, path);
+		free(path);
+
+		Com_DPrintf("%s: using '%s'", __func__, dir);
+	}
+
+	Sys_Mkdir(dir);
+	return dir;
+#endif
 }
 
 void

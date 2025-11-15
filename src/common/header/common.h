@@ -43,14 +43,16 @@
 #define BUILD_DATE __DATE__
 #endif
 
-#ifdef _WIN32
- #define CFGDIR "YamagiQ2"
+#define CFGDIRNAME_SHORT "yq2"
+
+#if defined(USE_XDG)
+#define CFGDIRNAME "YamagiQ2"
 #else
- #ifndef __HAIKU__
-   #define CFGDIR ".yq2"
- #else
-   #define CFGDIR "yq2"
- #endif
+#ifdef __HAIKU__
+#define CFGDIRNAME CFGDIRNAME_SHORT
+#else
+#define CFGDIRNAME "." CFGDIRNAME_SHORT
+#endif
 #endif
 
 #ifndef YQ2ARCH
@@ -833,9 +835,11 @@ extern cvar_t *sv_entfile;
 extern qboolean is_portable;
 
 /* Hack for external datadir */
+// this is where baseq2 is located
 extern char datadir[MAX_OSPATH];
 
 /* Hack for external datadir */
+// this is the NAME of the folder where config and save files are located
 extern char cfgdir[MAX_OSPATH];
 
 /* Hack for working 'game' cmd */
@@ -901,6 +905,7 @@ YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
 char *Sys_GetHomeDir(void);
+char *Sys_GetConfigDir(void);
 void Sys_Remove(const char *path);
 int Sys_Rename(const char *from, const char *to);
 void Sys_RemoveDir(const char *path);
