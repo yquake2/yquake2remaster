@@ -1188,31 +1188,32 @@ SP_obj_pick(edict_t *self)
  *
  * Heretic 2: Metal chunk
  */
-void
-SP_obj_metalchunk1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_metalchunk2 (0.3 0.3 1.0) (-10.0 -26.0 -4.0) (10.0 26.0 4.0)
  *
  * Heretic 2: Metal chunk
  */
-void
-SP_obj_metalchunk2(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_metalchunk3 (0.3 0.3 1.0) (-10.0 -26.0 -4.0) (10.0 26.0 4.0)
  *
  * Heretic 2: Metal chunk
  */
 void
-SP_obj_metalchunk3(edict_t *self)
+SP_obj_metalchunk(edict_t *self)
 {
+	if (!strcmp(self->classname, "obj_metalchunk2"))
+	{
+		self->s.frame = 1;
+	}
+	else if (!strcmp(self->classname, "obj_metalchunk3"))
+	{
+		self->s.frame = 2;
+	}
+	else
+	{
+		self->s.frame = 0;
+	}
+
 	DynamicObjectSpawn(self);
 }
 
