@@ -1170,10 +1170,30 @@ Mod_LoadModel_FlexNamesFix(dmdx_t *pheader)
 		{
 			strcpy(pframegroup[i].name, "attack");
 		}
+		/* replace frame group started with elf:attck* to attack */
+		else if (!memcmp(pframegroup[i].name, "attck", 5))
+		{
+			strcpy(pframegroup[i].name, "attack");
+		}
+		/* replace frame group started with elf:runatk* to attack */
+		else if (!memcmp(pframegroup[i].name, "runatk", 6))
+		{
+			strcpy(pframegroup[i].name, "attack");
+		}
 		/* replace frame group started with death* to death */
 		else if (!memcmp(pframegroup[i].name, "death", 5))
 		{
 			strcpy(pframegroup[i].name, "death");
+		}
+		/* replace frame group started with elf:walk* to walk */
+		else if (!memcmp(pframegroup[i].name, "walk", 4))
+		{
+			strcpy(pframegroup[i].name, "walk");
+		}
+		/* replace frame group started with run* to run */
+		else if (!memcmp(pframegroup[i].name, "run", 3))
+		{
+			strcpy(pframegroup[i].name, "run");
 		}
 	}
 
