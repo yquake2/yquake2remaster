@@ -1234,6 +1234,23 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		return;
 	}
 
+	if (self->health <= self->gib_health)
+	{
+		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
+		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+		ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
+		self->deadflag = DEAD_DEAD;
+		return;
+	}
+
+	if (self->deadflag == DEAD_DEAD)
+	{
+		return;
+	}
+
+	self->deadflag = DEAD_DEAD;
+	self->takedamage = DAMAGE_YES;
+
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "death";
 	monster_dynamic_setframes(self, true);
