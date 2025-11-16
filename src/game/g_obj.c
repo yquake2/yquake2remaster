@@ -1100,20 +1100,16 @@ SP_obj_gascan(edict_t *self)
  *
  * Heretic 2: Pipe (90  turn)
  */
-void
-SP_obj_pipe1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_pipe2 (0.3 0.3 1.0) (-6.0 -25.0 -4.0) (6.0 25.0 4.0)
  *
  * Heretic 2: Pipe (straight)
  */
 void
-SP_obj_pipe2(edict_t *self)
+SP_obj_pipe(edict_t *self)
 {
+	self->s.skinnum = 1;
+
 	DynamicObjectSpawn(self);
 }
 
