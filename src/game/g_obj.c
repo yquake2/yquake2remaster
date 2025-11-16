@@ -891,19 +891,13 @@ SP_obj_lever3(edict_t *self)
  *
  * Heretic 2: Bush
  */
-void
-SP_obj_bush1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_bush2 (0.3 0.3 1.0) (-56.0 -56.0 -40.0) (56.0 56.0 40.0)
  *
  * Heretic 2: Bush 2
  */
 void
-SP_obj_bush2(edict_t *self)
+SP_obj_bush(edict_t *self)
 {
 	DynamicObjectSpawn(self);
 }
