@@ -620,7 +620,7 @@ character_sidhe_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|general|-16|-
 character_siernan1|models/monsters/siernan/standing/tris.fm|1.2|1.2|1.2|general|-10.0|-10.0|-20.0|10.0|10.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan standing|0.3|0.3|1.0|0|0
 character_siernan2|models/monsters/siernan/laying/tris.fm|1.0|1.0|1.0|general|-17.0|-25.0|0.0|22.0|12.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Siernan laying down|0.3|0.3|1.0|0|0
 character_ssithra_scout|models/monsters/ssithra/scout_scene/tris.fm|1.0|1.0|1.0|general|-26.0|-16.0|-13.0|26.0|16.0|13.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra scout|0.3|0.3|1.0|0|0
-character_ssithra_victim|models/monsters/Ssithra/cinematics/tris.fm|1.0|1.0|1.0|general|-40.0|-16.0|-2.0|40.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra torture victim|0.3|0.3|1.0|0|0
+character_ssithra_victim|models/monsters/ssithra/cinematics/tris.fm|1.0|1.0|1.0|general|-40.0|-16.0|-2.0|40.0|16.0|2.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ssithra torture victim|0.3|0.3|1.0|0|0
 character_tome|models/spells/book/tris.fm|1.0|1.0|1.0|general|-4.0|-8.0|-12.0|4.0|8.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Tome of Power|0.3|0.3|1.0|0|0
 choose_cdtrack||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sets CD track|.5|.5|.5|0|0
 env_bubbler||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bubbler|0.3|0.3|1.0|0|0
@@ -697,7 +697,6 @@ light_lantern5|models/objects/lights/lantern-4/tris.fm|1.0|1.0|1.0|general|-7.0|
 light_torch1|models/objects/lights/sinkcity/light-3/tris.fm|1.0|1.0|1.0|general|-4.0|-6.0|-5.0|6.0|6.0|20.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall torch with blue gem|0.0|1.0|0.0|0|0
 light_walltorch|models/objects/lights/walltorch/tris.fm|1.0|1.0|1.0|general|-16.0|-10.0|-12.0|10.0|10.0|12.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Wall Torch|0.0|1.0|0.0|0|0
 misc_fire_sparker||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Spark generator (triggered)|0|0|0|0|0
-misc_flag|models/rj5/tris.fm|1.0|1.0|1.0|general|-10|-10|0|10|10|80|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
 misc_magic_portal||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Magic Portal|1.0|0.0|0.0|0|0
 misc_remote_camera||1.0|1.0|1.0|general|-32.0|-32.0|-24.0|32.0|32.0|-16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Remote Camera|1.0|0.0|0.0|0|0
 misc_update_spawner||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Updates level spawn point to trigger's position. Relevant for teleport spell.|.5|.5|.5|0|0
@@ -712,7 +711,6 @@ monster_gorgon|models/monsters/gorgon/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|0.0|1
 monster_gorgon_leader|models/monsters/gorgon/tris.fm|1.0|1.0|1.0|char|-16|-16|-0|16|16|32|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none||1|.5|0|0|0
 monster_harpy|models/monsters/harpy/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-12.0|16.0|16.0|12.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Harpy|1.0|0.5|0.0|0|0
 monster_high_priestess|models/monsters/highpriestess/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|0.0|24.0|24.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|High Priestess|1.0|0.5|0.0|0|0
-monster_imp|models/monsters/imp/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Imp (unfinished)|1.0|0.5|0.0|0|0
 monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-50.0|24.0|24.0|40.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Morcalavin|1.0|0.5|0.0|0|0
 monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|char|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0|0|0
 monster_nothing||1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Nothing|1.0|0.5|0.0|0|0
@@ -838,9 +836,6 @@ obj_spellbook|models/objects/spellbook/book/tris.fm|1.0|1.0|1.0|general|-14.0|-1
 obj_stalactite1|models/objects/stalactite/stalact1/tris.fm|1.0|1.0|1.0|general|-24.0|-24.0|-99.0|24.0|24.0|99.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0|0|0
 obj_stalactite2|models/objects/stalactite/stalact2/tris.fm|1.0|1.0|1.0|general|-60.0|-60.0|-64.0|60.0|60.0|64.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0|0|0
 obj_stalactite3|models/objects/stalactite/stalact3/tris.fm|1.0|1.0|1.0|general|-23.0|-23.0|-98.0|23.0|23.0|98.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Stalagtite|0.3|0.3|1.0|0|0
-obj_stalagmite1|models/objects/stalagmite/smite1/tris.fm|1.0|1.0|1.0|general|-32.0|-32.0|-200.0|32.0|32.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0|200|300
-obj_stalagmite2|models/objects/stalagmite/smite2/tris.fm|1.0|1.0|1.0|general|-32.0|-32.0|-128.0|32.0|32.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0|200|300
-obj_stalagmite3|models/objects/stalagmite/smite3/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|-200.0|16.0|16.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stalagmite|0.3|0.3|1.0|200|200
 obj_statue_boulderfish|models/objects/statue/boulderfish/tris.fm|1.0|1.0|1.0|general|-26.0|-16.0|-27.0|26.0|16.0|27.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fish statue|0.3|0.3|1.0|200|150
 obj_statue_corvus|models/objects/statue/corvus/tris.fm|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|128.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Corvus statue|0.3|0.3|1.0|250|200
 obj_statue_dolphin1|models/objects/statue/dolphin/tris.fm|1.0|1.0|1.0|general|-68.0|-22.0|-30.0|68.0|22.0|30.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dolphin statue on all fours|0.3|0.3|1.0|300|200
@@ -1172,9 +1167,6 @@ monster_golem_crystal|models/golem_s.mdl|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0
 monster_golem_iron|models/golem_i.mdl|1.0|1.0|1.0|char|-55.0|-55.0|0.0|55.0|55.0|120.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Iron golem|.5|.5|.5|0|0
 monster_golem_stone|models/golem_s.mdl|1.0|1.0|1.0|char|-32.0|-32.0|0.0|32.0|32.0|112.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Stone golem|.5|.5|.5|0|0
 monster_hydra|models/hydra.mdl|1.0|1.0|1.0|char|-40.0|-40.0|-42.0|40.0|40.0|42.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Hydra|.5|.5|.5|0|0
-monster_imp_fire|models/imp.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Fire imp|.5|.5|.5|0|0
-monster_imp_ice|models/imp.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ice imp|.5|.5|.5|0|0
-monster_imp_lord|models/imp.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Lord imp|.5|.5|.5|0|0
 monster_medusa_green|models/medusa.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Green medusa|.5|.5|.5|0|0
 monster_medusa_red|models/medusa2.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|50.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Red medusa|.5|.5|.5|0|0
 monster_mummy|models/mummy.mdl|1.0|1.0|1.0|char|-16.0|-16.0|0.0|16.0|16.0|55.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mummy|.5|.5|.5|0|0

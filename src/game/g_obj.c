@@ -323,39 +323,6 @@ SP_obj_sign4(edict_t *self)
 }
 
 /*
- * QUAKED obj_stalagmite1 (0.3 0.3 1.0) (-32.0 -32.0 -200.0) (32.0 32.0 0.0)
- *
- * Heretic 2: Stalagmite
- */
-void
-SP_obj_stalagmite1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_stalagmite2 (0.3 0.3 1.0) (-32.0 -32.0 -128.0) (32.0 32.0 0.0)
- *
- * Heretic 2: Stalagmite
- */
-void
-SP_obj_stalagmite2(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_stalagmite3 (0.3 0.3 1.0) (-32.0 -32.0 -200.0) (32.0 32.0 0.0)
- *
- * Heretic 2: Stalagmite
- */
-void
-SP_obj_stalagmite3(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
  * QUAKED obj_statue_corvus (0.3 0.3 1.0) (-16.0 -16.0 0.0) (16.0 16.0 32.0)
  *
  * Heretic 2: Corvus statue
@@ -506,6 +473,7 @@ SP_obj_statue_duckbill1(edict_t *self)
 void
 SP_obj_statue_duckbill2(edict_t *self)
 {
+	self->s.frame = 1;
 	DynamicObjectSpawn(self);
 }
 
@@ -580,31 +548,24 @@ SP_obj_pottedplant(edict_t *self)
  *
  * Heretic 2: Plant
  */
-void
-SP_obj_plant1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_plant2 (0.3 0.3 1.0) (-20.0 -20.0 -10.0) (20.0 20.0 20.0)
  *
  * Heretic 2: Plant
  */
-void
-SP_obj_plant2(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_plant3 (0.3 0.3 1.0) (-8.0 -8.0 -12.0) (8.0 8.0 12.0)
  *
  * Heretic 2: Plant
  */
 void
-SP_obj_plant3(edict_t *self)
+SP_obj_plant(edict_t *self)
 {
+	if (!strcmp(self->classname, "obj_plant3"))
+	{
+		self->s.skinnum = self->style;
+	}
+
 	DynamicObjectSpawn(self);
 }
 
@@ -1260,19 +1221,13 @@ SP_obj_metalchunk3(edict_t *self)
  *
  * Heretic 2: Rock cluster
  */
-void
-SP_obj_rocks1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_rocks2 (0.3 0.3 1.0) (-9.0 -30.0 -4.0) (9.0 30.0 4.0)
  *
  * Heretic 2: Big rock
  */
 void
-SP_obj_rocks2(edict_t *self)
+SP_obj_rocks(edict_t *self)
 {
 	DynamicObjectSpawn(self);
 }
