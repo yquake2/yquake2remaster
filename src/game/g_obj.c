@@ -1133,31 +1133,35 @@ SP_obj_pipewheel(edict_t *self)
  *
  * Heretic 2: Full minecart
  */
-void
-SP_obj_minecart(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_minecart2 (0.3 0.3 1.0) (-18.0 -29.0 -20.0) (18.0 29.0 20.0)
  *
  * Heretic 2: Empty minecart
  */
-void
-SP_obj_minecart2(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_minecart3 (0.3 0.3 1.0) (-18.0 -29.0 -20.0) (18.0 29.0 20.0)
  *
  * Heretic 2: Busted minecart
  */
 void
-SP_obj_minecart3(edict_t *self)
+SP_obj_minecart(edict_t *self)
 {
+	if (!strcmp(self->classname, "obj_minecart2"))
+	{
+		/* end of "polympty" */;
+		self->s.frame = 20;
+	}
+	else if (!strcmp(self->classname, "obj_minecart3"))
+	{
+		/* end of "wrecked" */;
+		self->s.frame = 40;
+	}
+	else
+	{
+		/* end of "polyfull" */;
+		self->s.frame = 0;
+	}
+
 	DynamicObjectSpawn(self);
 }
 

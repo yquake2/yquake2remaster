@@ -227,8 +227,6 @@ extern void SP_obj_lever2( edict_t * self ) ;
 extern void SP_obj_lever3( edict_t * self ) ;
 extern void SP_obj_metalchunk( edict_t * self ) ;
 extern void SP_obj_minecart( edict_t * self ) ;
-extern void SP_obj_minecart2( edict_t * self ) ;
-extern void SP_obj_minecart3( edict_t * self ) ;
 extern void SP_obj_moss1( edict_t * self ) ;
 extern void SP_obj_moss2( edict_t * self ) ;
 extern void SP_obj_moss3( edict_t * self ) ;
