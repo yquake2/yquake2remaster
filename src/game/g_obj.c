@@ -750,53 +750,51 @@ SP_obj_bigcrystal(edict_t *self)
  *
  * Heretic 2: Moss 1
  */
-void
-SP_obj_moss1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_moss2 (0.3 0.3 1.0) (-4.0 -10.0 -40.0) (4.0 10.0 40.0)
  *
  * Heretic 2: Moss 2
  */
-void
-SP_obj_moss2(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_moss3 (0.3 0.3 1.0) (-4.0 -10.0 -40.0) (4.0 10.0 40.0)
  *
  * Heretic 2: Moss 3
  */
-void
-SP_obj_moss3(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_moss4 (0.3 0.3 1.0) (-4.0 -10.0 -40.0) (4.0 10.0 40.0)
  *
  * Heretic 2: Moss 4
  */
-void
-SP_obj_moss4(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_moss5 (0.3 0.3 1.0) (-4.0 -10.0 -40.0) (4.0 10.0 40.0)
  *
  * Heretic 2: Moss 5
  */
 void
-SP_obj_moss5(edict_t *self)
+SP_obj_moss(edict_t *self)
 {
+	if (!strcmp(self->classname, "obj_moss2"))
+	{
+		self->s.skinnum = 1;
+	}
+	if (!strcmp(self->classname, "obj_moss3"))
+	{
+		self->s.skinnum = 2;
+	}
+	else if (!strcmp(self->classname, "obj_moss4"))
+	{
+		self->s.skinnum = 3;
+	}
+	else if (!strcmp(self->classname, "obj_moss5"))
+	{
+		self->s.skinnum = 4;
+	}
+	else
+	{
+		self->s.skinnum = 0;
+	}
+
+	self->s.renderfx = RF_TRANSLUCENT;
 	DynamicObjectSpawn(self);
 }
 
