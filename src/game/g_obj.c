@@ -50,13 +50,6 @@ DynamicObjectSpawn(edict_t *self)
 	gi.linkentity(self);
 }
 
-void
-object_object_think(edict_t *self)
-{
-	M_SetAnimGroupFrame(self, self->monsterinfo.action, false);
-	self->nextthink = level.time + FRAMETIME;
-}
-
 /*
  * QUAKED obj_banner (0.3 0.3 1.0) (-8.0 -44.0 -296.0) (8.0 44.0 0.0)
  *
@@ -65,12 +58,8 @@ object_object_think(edict_t *self)
 void
 SP_obj_banner(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "banner";
 	self->s.sound = gi.soundindex("ambient/bannerflap.wav");
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -81,12 +70,8 @@ SP_obj_banner(edict_t *self)
 void
 SP_obj_banneronpole(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
 	self->s.sound = gi.soundindex("ambient/bannerflap.wav");
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -103,11 +88,7 @@ SP_obj_banneronpole(edict_t *self)
 void
 SP_quake_light_flame(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "flame";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -122,13 +103,6 @@ SP_quake_light_flame(edict_t *self)
 void
 SP_object_flame1(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "flame";
-
-	self->s.frame = 0;
-
 	switch (self->sounds) {
 		case 1:
 			self->s.sound = gi.soundindex("objects/fire/torchburn.wav");
@@ -141,7 +115,7 @@ SP_object_flame1(edict_t *self)
 			break;
 	}
 
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -302,10 +276,8 @@ SP_obj_sign1(edict_t *self)
 
 	self->movetype = MOVETYPE_NONE;
 	/*
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	*/
+	 * object_spawn(self);
+	 */
 	self->s.frame = 3;
 
 	gi.linkentity(self);
@@ -794,7 +766,7 @@ SP_obj_moss(edict_t *self)
 		self->s.skinnum = 0;
 	}
 
-	self->s.renderfx = RF_TRANSLUCENT;
+	self->s.renderfx |= RF_TRANSLUCENT;
 	DynamicObjectSpawn(self);
 }
 
@@ -806,11 +778,7 @@ SP_obj_moss(edict_t *self)
 void
 SP_obj_floor_candelabrum(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -843,12 +811,7 @@ SP_obj_statue_dragon(edict_t *self)
 void
 SP_obj_flagonpole(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "flagg";
-	self->s.sound = gi.soundindex("ambient/bannerflap.wav");
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -1299,11 +1262,7 @@ SP_obj_larvabrokenegg(edict_t *self)
 void
 SP_obj_cocoon(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -1612,11 +1571,7 @@ SP_obj_choppeddude(edict_t *self)
 void
 SP_obj_lab_parts_container(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -1627,11 +1582,7 @@ SP_obj_lab_parts_container(edict_t *self)
 void
 SP_obj_eyeball_jar(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -1642,11 +1593,7 @@ SP_obj_eyeball_jar(edict_t *self)
 void
 SP_obj_lab_tray(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -1657,11 +1604,7 @@ SP_obj_lab_tray(edict_t *self)
 void
 SP_obj_hanging_ogle(edict_t *self)
 {
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*

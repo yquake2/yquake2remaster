@@ -1077,7 +1077,7 @@ extern void npc_timeminder_think ( edict_t * self ) ;
 extern void nuke_bounce ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void nuke_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void object_big_fire_think ( edict_t * ent ) ;
-extern void object_object_think ( edict_t * ent ) ;
+extern void object_think ( edict_t * ent ) ;
 extern void object_repair_dead ( edict_t * ent ) ;
 extern void object_repair_fx ( edict_t * ent ) ;
 extern void object_repair_sparks ( edict_t * ent ) ;

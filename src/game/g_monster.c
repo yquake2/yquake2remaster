@@ -1397,6 +1397,61 @@ monster_dynamic_setinfo(edict_t *self)
 }
 
 void
+object_think(edict_t *self)
+{
+	M_SetAnimGroupFrame(self, self->monsterinfo.action, false);
+	self->nextthink = level.time + FRAMETIME;
+}
+
+static const char *object_actions[] = {
+	"banner",
+	"flagg",
+	"flame",
+	"poly",
+};
+
+void
+object_spawn(edict_t *self)
+{
+	const dmdxframegroup_t * frames;
+	int i, num;
+
+	if (!self)
+	{
+		return;
+	}
+
+	/* Check frame names for optional move animation */
+	frames = gi.GetModelInfo(self->s.modelindex, &num, NULL, NULL);
+	if (!frames || num != 1)
+	{
+		gi.dprintf("no known frame groups in %s\n", self->classname);
+		return;
+	}
+
+	/* need to use static strings */
+	for (i = 0; i < sizeof(object_actions) / sizeof(*object_actions); i ++)
+	{
+		if (!strcmp(frames[0].name, object_actions[i]))
+		{
+			self->monsterinfo.action = object_actions[i];
+		}
+	}
+
+	if (!self->monsterinfo.action)
+	{
+		gi.dprintf("no known action in %s\n", self->classname);
+		return;
+	}
+
+	printf("found: %s\n", self->monsterinfo.action);
+	self->movetype = MOVETYPE_NONE;
+	self->nextthink = level.time + FRAMETIME;
+	self->think = object_think;
+	gi.linkentity(self);
+}
+
+void
 monster_think(edict_t *self)
 {
 	if (!self)

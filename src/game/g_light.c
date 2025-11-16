@@ -45,16 +45,7 @@ env_fire_think(edict_t *self)
 void
 SP_light_chandelier1(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -65,16 +56,7 @@ SP_light_chandelier1(edict_t *self)
 void
 SP_light_chandelier2(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
@@ -85,16 +67,7 @@ SP_light_chandelier2(edict_t *self)
 void
 SP_light_chandelier3(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
-	self->movetype = MOVETYPE_NONE;
-	self->nextthink = level.time + FRAMETIME;
-	self->think = object_object_think;
-	self->monsterinfo.action = "poly";
-	gi.linkentity(self);
+	object_spawn(self);
 }
 
 /*
