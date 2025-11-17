@@ -1156,6 +1156,22 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
+/*
+ * supported monsters actions:
+ *   "attack",
+ *   "death",
+ *   "dodge",
+ *   "duck",
+ *   "fly",
+ *   "hover",
+ *   "idle",
+ *   "melee",
+ *   "pain",
+ *   "run",
+ *   "stand",
+ *   "swim",
+ *   "walk"
+ */
 typedef struct
 {
 	const char* prefix;
@@ -1174,11 +1190,24 @@ static const namesconvert_t flex_names[] = {
 	/* replace frame group started with elf:walk* to walk */
 	{"walk", "walk"},
 	/* replace frame group started with run* to run */
-	{"run", "run"}
+	{"run", "run"},
+	{NULL, NULL}
+};
+
+static const namesconvert_t dkm_names[] = {
+	{"atak", "attack"},
+	{"die", "death"},
+	{"fly", "fly"},
+	{"hover", "hover"},
+	{"run", "run"},
+	{"stand", "stand"},
+	{"swim", "swim"},
+	{"walk", "walk"},
+	{NULL, NULL}
 };
 
 static void
-Mod_LoadModel_FlexNamesFix(dmdx_t *pheader)
+Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
 {
 	dmdxframegroup_t *pframegroup;
 	size_t i;
@@ -1186,19 +1215,23 @@ Mod_LoadModel_FlexNamesFix(dmdx_t *pheader)
 	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 	for (i = 0; i < pheader->num_animgroup; i++)
 	{
-		size_t n;
+		const namesconvert_t *curr;
 
-		for (n = 0; n < sizeof(flex_names) / sizeof (namesconvert_t); n++)
+		curr = names;
+		do
 		{
 			size_t len;
 
-			len = strlen(flex_names[n].prefix);
-			if (!memcmp(pframegroup[i].name, flex_names[n].prefix, len))
+			len = strlen(curr->prefix);
+			if (!memcmp(pframegroup[i].name, curr->prefix, len))
 			{
-				strcpy(pframegroup[i].name, flex_names[n].name);
+				strcpy(pframegroup[i].name, curr->name);
 				break;
 			}
+
+			curr++;
 		}
+		while (curr->prefix);
 	}
 }
 
@@ -1392,7 +1425,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 
 				Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
 				Mod_LoadAnimGroupList(pheader);
-				Mod_LoadModel_FlexNamesFix(pheader);
+				Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
 			}
 			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
 			{
@@ -1616,6 +1649,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 	Mod_LoadDKMAnimGroupList(pheader,
 		(byte *)buffer + header.ofs_animgroup);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, dkm_names);
 
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixNormals(pheader);
