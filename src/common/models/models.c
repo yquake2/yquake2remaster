@@ -1157,20 +1157,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 }
 
 /*
- * supported monsters actions:
- *   "attack",
- *   "death",
- *   "dodge",
- *   "duck",
- *   "fly",
- *   "hover",
- *   "idle",
- *   "melee",
- *   "pain",
- *   "run",
- *   "stand",
- *   "swim",
- *   "walk"
+ * Look to Readme file for more info
  */
 typedef struct
 {

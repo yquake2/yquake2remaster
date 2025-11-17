@@ -119,6 +119,35 @@ Note:
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
 
+Dynamic frame names:
+
+| group   | monster | player    | description   |
+| ------- | ------- | --------- | ------------- |
+| attack  |    Y    | hardcoded |               |
+| crattak |    N    | hardcoded | Crouch attack |
+| crdeath |    N    | hardcoded | Crouch death  |
+| crpain  |    N    | view      | Crouch pain   |
+| crstnd  |    N    | view      | Crouch stand  |
+| crwalk  |    N    | view      | Crouch walk   |
+| death   |    Y    | hardcoded |               |
+| dodge   |    Y    |           |               |
+| duck    |    Y    |           |               |
+| fly     |    Y    |           |               |
+| flip    |    N    | cmd only  |               |
+| jump    |    N    | hardcoded |               |
+| hover   |    Y    |           |               |
+| idle    |    Y    |           |               |
+| melee   |    Y    |           |               |
+| pain    |    Y    | view      |               |
+| point   |    N    | cmd only  |               |
+| run     |    Y    | view      |               |
+| salute  |    N    | cmd only  |               |
+| stand   |    Y    | view      |               |
+| swim    |    Y    |           |               |
+| taunt   |    N    | cmd only  |               |
+| wave    |    N    | cmd only  |               |
+| walk    |    Y    |           |               |
+
 Games:
 
 * Quake 2 ReRelease:
