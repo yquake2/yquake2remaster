@@ -1156,49 +1156,51 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
+typedef struct
+{
+	const char* prefix;
+	const char* name;
+} namesconvert_t;
+
+static const namesconvert_t flex_names[] = {
+	/* replace frame group started with atack* to attack */
+	{"atack",  "attack"},
+	/* replace frame group started with elf:attck* to attack */
+	{"attck", "attack"},
+	/* replace frame group started with elf:runatk* to attack */
+	{"runatk", "attack"},
+	/* replace frame group started with death* to death */
+	{"death", "death"},
+	/* replace frame group started with elf:walk* to walk */
+	{"walk", "walk"},
+	/* replace frame group started with run* to run */
+	{"run", "run"}
+};
+
 static void
 Mod_LoadModel_FlexNamesFix(dmdx_t *pheader)
 {
 	dmdxframegroup_t *pframegroup;
-	int i;
+	size_t i;
 
 	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
 	for (i = 0; i < pheader->num_animgroup; i++)
 	{
-		/* replace frame group started with atack* to attack */
-		if (!memcmp(pframegroup[i].name, "atack", 5))
+		size_t n;
+
+		for (n = 0; n < sizeof(flex_names) / sizeof (namesconvert_t); n++)
 		{
-			strcpy(pframegroup[i].name, "attack");
-		}
-		/* replace frame group started with elf:attck* to attack */
-		else if (!memcmp(pframegroup[i].name, "attck", 5))
-		{
-			strcpy(pframegroup[i].name, "attack");
-		}
-		/* replace frame group started with elf:runatk* to attack */
-		else if (!memcmp(pframegroup[i].name, "runatk", 6))
-		{
-			strcpy(pframegroup[i].name, "attack");
-		}
-		/* replace frame group started with death* to death */
-		else if (!memcmp(pframegroup[i].name, "death", 5))
-		{
-			strcpy(pframegroup[i].name, "death");
-		}
-		/* replace frame group started with elf:walk* to walk */
-		else if (!memcmp(pframegroup[i].name, "walk", 4))
-		{
-			strcpy(pframegroup[i].name, "walk");
-		}
-		/* replace frame group started with run* to run */
-		else if (!memcmp(pframegroup[i].name, "run", 3))
-		{
-			strcpy(pframegroup[i].name, "run");
+			size_t len;
+
+			len = strlen(flex_names[n].prefix);
+			if (!memcmp(pframegroup[i].name, flex_names[n].prefix, len))
+			{
+				strcpy(pframegroup[i].name, flex_names[n].name);
+				break;
+			}
 		}
 	}
-
 }
-
 
 /*
 =============
