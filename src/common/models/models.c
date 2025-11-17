@@ -612,6 +612,80 @@ Mod_LoadFixNormals(dmdx_t *pheader)
 }
 
 /*
+ * Look to Readme file for more info
+ */
+typedef struct
+{
+	const char* prefix;
+	const char* name;
+} namesconvert_t;
+
+static const namesconvert_t flex_names[] = {
+	/* replace frame group started with atack* to attack */
+	{"atack",  "attack"},
+	/* replace frame group started with elf:attck* to attack */
+	{"attck", "attack"},
+	/* replace frame group started with elf:runatk* to attack */
+	{"runatk", "attack"},
+	/* replace frame group started with death* to death */
+	{"death", "death"},
+	/* replace frame group started with elf:walk* to walk */
+	{"walk", "walk"},
+	/* replace frame group started with run* to run */
+	{"run", "run"},
+	{NULL, NULL}
+};
+
+static const namesconvert_t dkm_names[] = {
+	{"atak", "attack"},
+	{"die", "death"},
+	{"fly", "fly"},
+	{"hover", "hover"},
+	{"run", "run"},
+	{"stand", "stand"},
+	{"swim", "swim"},
+	{"walk", "walk"},
+	{NULL, NULL}
+};
+
+static const namesconvert_t anox_names[] = {
+	{"atak", "attack"},
+	{"die", "death"},
+	{"run", "run"},
+	{"walk", "walk"},
+	{NULL, NULL}
+};
+
+static void
+Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
+{
+	dmdxframegroup_t *pframegroup;
+	size_t i;
+
+	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
+	for (i = 0; i < pheader->num_animgroup; i++)
+	{
+		const namesconvert_t *curr;
+
+		curr = names;
+		do
+		{
+			size_t len;
+
+			len = strlen(curr->prefix);
+			if (!memcmp(pframegroup[i].name, curr->prefix, len))
+			{
+				strcpy(pframegroup[i].name, curr->name);
+				break;
+			}
+
+			curr++;
+		}
+		while (curr->prefix);
+	}
+}
+
+/*
 =================
 Mod_LoadModel_MD3
 =================
@@ -977,6 +1051,7 @@ Mod_LoadModel_MD2A(const char *mod_name, const void *buffer, int modfilelen)
 	Mod_LoadFrames_MD2A(pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate, pinmodel.resolution);
 	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, anox_names);
 	Mod_LoadFixNormals(pheader);
 
 	//
@@ -1154,72 +1229,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	Mod_LoadFixImages(mod_name, pheader, false);
 
 	return extradata;
-}
-
-/*
- * Look to Readme file for more info
- */
-typedef struct
-{
-	const char* prefix;
-	const char* name;
-} namesconvert_t;
-
-static const namesconvert_t flex_names[] = {
-	/* replace frame group started with atack* to attack */
-	{"atack",  "attack"},
-	/* replace frame group started with elf:attck* to attack */
-	{"attck", "attack"},
-	/* replace frame group started with elf:runatk* to attack */
-	{"runatk", "attack"},
-	/* replace frame group started with death* to death */
-	{"death", "death"},
-	/* replace frame group started with elf:walk* to walk */
-	{"walk", "walk"},
-	/* replace frame group started with run* to run */
-	{"run", "run"},
-	{NULL, NULL}
-};
-
-static const namesconvert_t dkm_names[] = {
-	{"atak", "attack"},
-	{"die", "death"},
-	{"fly", "fly"},
-	{"hover", "hover"},
-	{"run", "run"},
-	{"stand", "stand"},
-	{"swim", "swim"},
-	{"walk", "walk"},
-	{NULL, NULL}
-};
-
-static void
-Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
-{
-	dmdxframegroup_t *pframegroup;
-	size_t i;
-
-	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
-	for (i = 0; i < pheader->num_animgroup; i++)
-	{
-		const namesconvert_t *curr;
-
-		curr = names;
-		do
-		{
-			size_t len;
-
-			len = strlen(curr->prefix);
-			if (!memcmp(pframegroup[i].name, curr->prefix, len))
-			{
-				strcpy(pframegroup[i].name, curr->name);
-				break;
-			}
-
-			curr++;
-		}
-		while (curr->prefix);
-	}
 }
 
 /*
