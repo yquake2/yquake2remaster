@@ -656,6 +656,32 @@ static const namesconvert_t anox_names[] = {
 	{NULL, NULL}
 };
 
+static const namesconvert_t kingpin_names[] = {
+	{"walk", "walk"},
+	{"crch_astand", "crstnd"},
+	{"crch_death", "crdeath"},
+	{"crch_dth", "crdeath"},
+	{"cr_death", "crdeath"},
+	{"crch_walk", "crwalk"},
+	{"crch_walk", "crwalk"},
+	{"crouch_death", "crdeath"},
+	{"crouch_pain", "crpain"},
+	{"crouch_walk", "crwalk"},
+	{"cr_pain", "crpain"},
+	{"death", "death"},
+	{"idle", "idle"},
+	{"jump", "jump"},
+	{"melee", "melee"},
+	{"nw_pain", "pain"},
+	{"pain", "pain"},
+	{"p_pain", "pain"},
+	{"run", "run"},
+	{"stand_crouch", "crstnd"},
+	{"stand", "stand"},
+	{"walk", "walk"},
+	{NULL, NULL}
+};
+
 static void
 Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
 {
@@ -1724,6 +1750,7 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 	Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
 		header.framesize, translate);
 	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, kingpin_names);
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 
