@@ -43,6 +43,15 @@ typedef struct
 	char value[MAX_SKINNAME * 2];
 } def_entry_t;
 
+/*
+ * Look to Readme file for more info
+ */
+typedef struct
+{
+	const char* prefix;
+	const char* name;
+} namesconvert_t;
+
 void PrepareFrameVertex(dmdx_vert_t *vertexArray, int num_verts,
 	daliasxframe_t *frame_out);
 void Mod_LoadFixNormals(dmdx_t *pheader);
@@ -53,6 +62,7 @@ int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,
 void Mod_LoadCmdGenerate(dmdx_t *pheader);
 void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
 void Mod_LoadAnimGroupList(dmdx_t *pheader);
+void Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names);
 dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
 void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
 byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,

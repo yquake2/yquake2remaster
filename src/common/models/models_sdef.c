@@ -93,6 +93,25 @@ Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *anima
 	}
 }
 
+static const namesconvert_t sdef_names[] = {
+	{"crouch_death", "crdeath"},
+	{"crouch_idle", "crstnd"},
+	{"crouch_pain", "crpain"},
+	{"death", "death"},
+	{"down_idle", "idle"},
+	{"fire", "attack"},
+	{"idle", "idle"},
+	{"jump", "jump"},
+	{"melee", "melee"},
+	{"pain", "pain"},
+	{"run", "run"},
+	{"step", "walk"},
+	{"twitch", "idle"},
+	{"up_idle", "idle"},
+	{"walk", "walk"},
+	{NULL, NULL}
+};
+
 static void *
 Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 {
@@ -406,6 +425,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 	}
 
 	Mod_LoadFrames_SAM(pheader, anim, animations, animation_num, translate, scale);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, sdef_names);
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 

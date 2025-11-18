@@ -611,15 +611,6 @@ Mod_LoadFixNormals(dmdx_t *pheader)
 	free(normals);
 }
 
-/*
- * Look to Readme file for more info
- */
-typedef struct
-{
-	const char* prefix;
-	const char* name;
-} namesconvert_t;
-
 static const namesconvert_t flex_names[] = {
 	/* replace frame group started with atack* to attack */
 	{"atack",  "attack"},
@@ -682,7 +673,7 @@ static const namesconvert_t kingpin_names[] = {
 	{NULL, NULL}
 };
 
-static void
+void
 Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
 {
 	dmdxframegroup_t *pframegroup;
