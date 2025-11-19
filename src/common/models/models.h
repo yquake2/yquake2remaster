@@ -61,7 +61,7 @@ int Mod_LoadCmdCompress(const dstvert_t *texcoords, dtriangle_t *triangles,
 	int num_tris, int *commands, int skinwidth, int skinheight);
 void Mod_LoadCmdGenerate(dmdx_t *pheader);
 void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
-void Mod_LoadAnimGroupList(dmdx_t *pheader);
+void Mod_LoadAnimGroupList(dmdx_t *pheader, qboolean sequence);
 void Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names);
 dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
 void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);

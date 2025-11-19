@@ -1073,7 +1073,6 @@ extern void mutant_step ( edict_t * self ) ;
 extern void mutant_swing ( edict_t * self ) ;
 extern void mutant_walk ( edict_t * self ) ;
 extern void mutant_walk_loop ( edict_t * self ) ;
-extern void npc_timeminder_think ( edict_t * self ) ;
 extern void nuke_bounce ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void nuke_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void object_big_fire_think ( edict_t * ent ) ;

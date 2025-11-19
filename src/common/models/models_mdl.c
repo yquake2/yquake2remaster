@@ -405,7 +405,7 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
-	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadAnimGroupList(pheader, true);
 	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, true);

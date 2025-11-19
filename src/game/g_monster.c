@@ -928,9 +928,15 @@ M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos)
 {
 	int i, ofs_frames = 0, num_frames = 1;
 
+	if (!self || !name)
+	{
+		return;
+	}
+
 	M_SetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames, false);
 
 	i = self->s.frame - ofs_frames;
+
 	if (i < 0)
 	{
 		i = 0;

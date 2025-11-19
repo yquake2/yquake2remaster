@@ -292,6 +292,8 @@ Other games support goals:
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Half-Life: support mdl,
 * [ ] Anachronox: load atd as sprite,
+* [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
+* [ ] Anachronox: check fog field in `whitendon`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: rowdys save entity disappear in a8080c05,

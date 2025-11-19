@@ -53,10 +53,12 @@ Mod_ConvertNormalMDL(byte in_normal, signed char *normal)
 Mod_LoadAnimGroupList
 
 Generate animations groups from frames
+
+if sequence - check gaps in frame sequence numbers
 =================
 */
 void
-Mod_LoadAnimGroupList(dmdx_t *pheader)
+Mod_LoadAnimGroupList(dmdx_t *pheader, qboolean sequence)
 {
 	int i, oldframe = 0, currgroup = 0, lastframenum = -1;
 	char newname[16] = {0}, oldname[16] = {0};
@@ -96,7 +98,9 @@ Mod_LoadAnimGroupList(dmdx_t *pheader)
 
 				framenum = atoi(newname + j + 1);
 
-				if (((framenum - 1) != lastframenum) && (lastframenum != -1))
+				if (sequence &&
+					((framenum - 1) != lastframenum) &&
+					(lastframenum != -1))
 				{
 					/* need to force new group */
 					newanim = true;

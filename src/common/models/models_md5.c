@@ -1604,7 +1604,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 		num_tris += md5file->meshes[i].num_tris;
 	}
 
-	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadAnimGroupList(pheader, true);
 	Mod_LoadCmdGenerate(pheader);
 
 	/* register all skins */
