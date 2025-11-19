@@ -258,7 +258,13 @@ SP_obj_corpse2(edict_t *self)
 void
 SP_obj_dying_elf(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_BBOX;
+	self->monsterinfo.action = "fetal";
+	self->rrs.mesh = 0x1e; /* disable weapons */
+	self->think = object_think;
+	self->nextthink = level.time + FRAMETIME;
+	gi.linkentity(self);
 }
 
 /*
