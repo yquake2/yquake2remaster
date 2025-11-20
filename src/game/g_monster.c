@@ -1476,7 +1476,6 @@ object_spawn(edict_t *self)
 		return;
 	}
 
-	printf("found: %s\n", self->monsterinfo.action);
 	self->movetype = MOVETYPE_NONE;
 	self->nextthink = level.time + FRAMETIME;
 	self->think = object_think;

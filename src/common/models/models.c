@@ -701,7 +701,8 @@ Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
 			len = strlen(curr->prefix);
 			if (!memcmp(pframegroup[i].name, curr->prefix, len))
 			{
-				strcpy(pframegroup[i].name, curr->name);
+				Q_strlcpy(pframegroup[i].name, curr->name,
+					sizeof(pframegroup[i].name));
 				break;
 			}
 
