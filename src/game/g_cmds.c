@@ -1291,7 +1291,7 @@ Cmd_Wave_f(edict_t *ent)
 
 	lastframe -= firstframe - 1;
 
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, false);
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, 0);
 	lastframe += firstframe - 1;
 
 	ent->s.frame = firstframe - 1;

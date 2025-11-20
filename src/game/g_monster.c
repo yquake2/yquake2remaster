@@ -815,7 +815,7 @@ M_GetModelIndex(edict_t *self)
 
 static qboolean
 M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
-	int *ofs_frames, int *num_frames, qboolean multy)
+	int *ofs_frames, int *num_frames, int select)
 {
 	const dmdxframegroup_t * frames;
 	int num, i, modelindex, skipcount;
@@ -823,7 +823,7 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 	skipcount = 0;
 	modelindex = M_GetModelIndex(self);
 	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
-	if (multy)
+	if (select)
 	{
 		int count = 0;
 
@@ -837,7 +837,16 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 
 		if (count > 1)
 		{
-			skipcount = randk() % count;
+			/* use random if select is negative */
+			if (select < 0)
+			{
+				skipcount = randk() % count;
+			}
+			/* use exact group if positive */
+			else
+			{
+				skipcount = select % count;
+			}
 		}
 	}
 
@@ -863,9 +872,9 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 /* Use multy to select random group from same names */
 void
 M_SetAnimGroupFrameValues(edict_t *self, const char *name,
-	int *ofs_frames, int *num_frames, qboolean multy)
+	int *ofs_frames, int *num_frames, int select)
 {
-	if (M_SetAnimGroupFrameValuesInt(self, name, ofs_frames, num_frames, multy))
+	if (M_SetAnimGroupFrameValuesInt(self, name, ofs_frames, num_frames, select))
 	{
 		return;
 	}
@@ -873,29 +882,29 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 	if (!strcmp(name, "stand"))
 	{
 		/* no stand animations */
-		M_SetAnimGroupFrameValuesInt(self, "idle", ofs_frames, num_frames, multy);
+		M_SetAnimGroupFrameValuesInt(self, "idle", ofs_frames, num_frames, select);
 	}
 	else if (!strcmp(name, "crpain"))
 	{
 		/* no crpain animations */
-		M_SetAnimGroupFrameValuesInt(self, "pain", ofs_frames, num_frames, multy);
+		M_SetAnimGroupFrameValuesInt(self, "pain", ofs_frames, num_frames, select);
 	}
 	else if (!strcmp(name, "flipoff"))
 	{
 		/* no flipoff animations */
-		M_SetAnimGroupFrameValuesInt(self, "flip", ofs_frames, num_frames, multy);
+		M_SetAnimGroupFrameValuesInt(self, "flip", ofs_frames, num_frames, select);
 	}
 	else if (!strcmp(name, "dodge"))
 	{
 		/* no dodge animations */
-		M_SetAnimGroupFrameValuesInt(self, "duck", ofs_frames, num_frames, multy);
+		M_SetAnimGroupFrameValuesInt(self, "duck", ofs_frames, num_frames, select);
 	}
 	else if (!strcmp(name, "run") ||
 			!strcmp(name, "fly") ||
 			!strcmp(name, "swim"))
 	{
 		/* no run, fly, swim animations */
-		M_SetAnimGroupFrameValuesInt(self, "walk", ofs_frames, num_frames, multy);
+		M_SetAnimGroupFrameValuesInt(self, "walk", ofs_frames, num_frames, select);
 	}
 }
 
@@ -933,7 +942,7 @@ M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos)
 		return;
 	}
 
-	M_SetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames, false);
+	M_SetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames, 0);
 
 	i = self->s.frame - ofs_frames;
 
@@ -1121,7 +1130,7 @@ M_MoveFrame(edict_t *self)
 }
 
 static void
-monster_dynamic_setframes(edict_t *self, qboolean multy)
+monster_dynamic_setframes(edict_t *self, int select)
 {
 	if (!self || !self->monsterinfo.action)
 	{
@@ -1129,7 +1138,7 @@ monster_dynamic_setframes(edict_t *self, qboolean multy)
 	}
 
 	M_SetAnimGroupFrameValues(self, self->monsterinfo.action,
-		&self->monsterinfo.firstframe, &self->monsterinfo.lastframe, multy);
+		&self->monsterinfo.firstframe, &self->monsterinfo.lastframe, select);
 }
 
 void
@@ -1155,7 +1164,7 @@ monster_dynamic_walk(edict_t *self)
 		self->monsterinfo.action = "walk";
 	}
 
-	monster_dynamic_setframes(self, false);
+	monster_dynamic_setframes(self, 0);
 }
 
 void
@@ -1181,7 +1190,7 @@ monster_dynamic_run(edict_t *self)
 		self->monsterinfo.action = "run";
 	}
 
-	monster_dynamic_setframes(self, false);
+	monster_dynamic_setframes(self, 0);
 }
 
 void
@@ -1194,7 +1203,7 @@ monster_dynamic_idle(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "idle";
-	monster_dynamic_setframes(self, true);
+	monster_dynamic_setframes(self, -1);
 }
 
 void
@@ -1207,7 +1216,7 @@ monster_dynamic_attack(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "attack";
-	monster_dynamic_setframes(self, true);
+	monster_dynamic_setframes(self, -1);
 }
 
 void
@@ -1259,7 +1268,7 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "death";
-	monster_dynamic_setframes(self, true);
+	monster_dynamic_setframes(self, -1);
 }
 
 void
@@ -1272,7 +1281,7 @@ monster_dynamic_melee(edict_t *self)
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "melee";
-	monster_dynamic_setframes(self, false);
+	monster_dynamic_setframes(self, 0);
 }
 
 void
@@ -1297,7 +1306,7 @@ monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
 
 	self->monsterinfo.currentmove = NULL;
 	self->monsterinfo.action = "dodge";
-	monster_dynamic_setframes(self, false);
+	monster_dynamic_setframes(self, 0);
 }
 
 void
@@ -1323,7 +1332,7 @@ monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 	self->monsterinfo.currentmove = NULL;
 
 	self->monsterinfo.action = "pain";
-	monster_dynamic_setframes(self, true);
+	monster_dynamic_setframes(self, -1);
 }
 
 void
@@ -1349,7 +1358,7 @@ monster_dynamic_stand(edict_t *self)
 		self->monsterinfo.action = "stand";
 	}
 
-	monster_dynamic_setframes(self, false);
+	monster_dynamic_setframes(self, 0);
 }
 
 void
@@ -1782,7 +1791,7 @@ monster_start(edict_t *self)
 		int ofs_frames = 0, num_frames = 1;
 
 		M_SetAnimGroupFrameValues(self, self->monsterinfo.action,
-			&ofs_frames, &num_frames, false);
+			&ofs_frames, &num_frames, 0);
 
 		self->s.frame = ofs_frames + (randk() % num_frames);
 	}

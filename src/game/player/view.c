@@ -152,7 +152,7 @@ P_DamageFeedback(edict_t *player)
 
 		lastframe -= firstframe;
 		M_SetAnimGroupFrameValues(player, action,
-			&firstframe, &lastframe, true);
+			&firstframe, &lastframe, -1);
 		lastframe += firstframe;
 
 		player->s.frame = firstframe;
@@ -1511,7 +1511,7 @@ newanim:
 	}
 
 	lastframe -= firstframe;
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, false);
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, 0);
 	lastframe += firstframe;
 
 	ent->s.frame = firstframe;
