@@ -839,6 +839,7 @@ SP_obj_statue_dragon(edict_t *self)
 void
 SP_obj_flagonpole(edict_t *self)
 {
+	self->s.sound = gi.soundindex("ambient/bannerflap.wav");
 	object_spawn(self);
 }
 
