@@ -63,6 +63,18 @@ SV_CalcRoll(vec3_t angles, vec3_t velocity)
 	return side * sign;
 }
 
+void
+P_SetAnimGroup(edict_t *ent, const char *animname, int firstframe, int lastframe,
+	int select)
+{
+	lastframe -= firstframe - 1;
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, select);
+	lastframe += firstframe - 1;
+
+	ent->s.frame = firstframe - 1;
+	ent->client->anim_end = lastframe;
+}
+
 /*
  * Handles color blends and view kicks
  */
@@ -118,10 +130,10 @@ P_DamageFeedback(edict_t *player)
 	/* start a pain animation if still in the player model */
 	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == CUSTOM_PLAYER_MODEL))
 	{
-		int firstframe, lastframe;
+		int firstframe, lastframe, group = 0;
 		const char *action;
 
-		firstframe = FRAME_crpain1 - 1;
+		firstframe = FRAME_crpain1;
 		lastframe = FRAME_crpain4;
 		client->anim_priority = ANIM_PAIN;
 
@@ -131,32 +143,27 @@ P_DamageFeedback(edict_t *player)
 		}
 		else
 		{
-			switch (randk() % 3)
+			group = randk() % 3;
+			switch (group)
 			{
 				case 0:
-					player->s.frame = FRAME_pain101 - 1;
-					client->anim_end = FRAME_pain104;
+					firstframe = FRAME_pain101;
+					lastframe = FRAME_pain104;
 					break;
 				case 1:
-					player->s.frame = FRAME_pain201 - 1;
-					client->anim_end = FRAME_pain204;
+					firstframe = FRAME_pain201;
+					lastframe = FRAME_pain204;
 					break;
 				case 2:
-					player->s.frame = FRAME_pain301 - 1;
-					client->anim_end = FRAME_pain304;
+					firstframe = FRAME_pain301;
+					lastframe = FRAME_pain304;
 					break;
 			}
 
 			action = "pain";
 		}
 
-		lastframe -= firstframe;
-		M_SetAnimGroupFrameValues(player, action,
-			&firstframe, &lastframe, -1);
-		lastframe += firstframe;
-
-		player->s.frame = firstframe;
-		client->anim_end = lastframe;
+		P_SetAnimGroup(player, action, firstframe, lastframe, group);
 	}
 
 	realcount = count;
@@ -1510,12 +1517,7 @@ newanim:
 		}
 	}
 
-	lastframe -= firstframe;
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, 0);
-	lastframe += firstframe;
-
-	ent->s.frame = firstframe;
-	client->anim_end = lastframe;
+	P_SetAnimGroup(ent, animname, firstframe, lastframe, 0);
 }
 
 /*

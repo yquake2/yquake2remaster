@@ -1289,14 +1289,7 @@ Cmd_Wave_f(edict_t *ent)
 
 	gi.cprintf(ent, PRINT_HIGH, "%s\n", animname, lastframe, firstframe);
 
-	lastframe -= firstframe - 1;
-
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, 0);
-	lastframe += firstframe - 1;
-
-	ent->s.frame = firstframe - 1;
-	ent->client->anim_end = lastframe;
-
+	P_SetAnimGroup(ent, animname, firstframe, lastframe, 0);
 }
 
 qboolean
