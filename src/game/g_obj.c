@@ -233,20 +233,42 @@ SP_obj_cog1(edict_t *self)
  *
  * Heretic 2: Plague Elf corpse
  */
-void
-SP_obj_corpse1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
 /*
  * QUAKED obj_corpse2 (0.3 0.3 1.0) (-30.0 -12.0 0.0) (30.0 12.0 5.0)
  *
  * Heretic 2: Plague Elf corpse (alternate skin)
  */
 void
-SP_obj_corpse2(edict_t *self)
+SP_obj_corpse(edict_t *self)
 {
+	int frame = 0, count = 0;
+
+	if (!strcmp(self->classname, "obj_corpse2"))
+	{
+		self->s.skinnum = 1;
+	}
+	else
+	{
+		self->s.skinnum = 0;
+	}
+
+	self->rrs.mesh = 0x1e; /* disable weapons */
+
+	if (self->style >= 0 && self->style <= 3)
+	{
+		M_SetAnimGroupFrameValues(self, "death", &frame, &count, self->style);
+	}
+	else if (self->style == 4)
+	{
+		M_SetAnimGroupFrameValues(self, "skewered", &frame, &count, self->style);
+	}
+
+	if (count)
+	{
+		frame += count - 1;
+	}
+	self->s.frame = frame;
+
 	DynamicObjectSpawn(self);
 }
 
