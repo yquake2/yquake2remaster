@@ -1106,36 +1106,43 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		/* normal death */
 		if (!self->deadflag)
 		{
-			static int i;
-
-			i = (i + 1) % 3;
+			int firstframe, lastframe, group = 0;
+			const char *action;
 
 			/* start a death animation */
 			self->client->anim_priority = ANIM_DEATH;
 
+			firstframe = FRAME_crdeath1;
+			lastframe = FRAME_crdeath5;
+
 			if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
 			{
-				self->s.frame = FRAME_crdeath1 - 1;
-				self->client->anim_end = FRAME_crdeath5;
+				action = "crdeath";
 			}
 			else
 			{
-				switch (i)
+				group = randk() % 3;
+				switch (group)
 				{
 					case 0:
-						self->s.frame = FRAME_death101 - 1;
-						self->client->anim_end = FRAME_death106;
+						firstframe = FRAME_death101;
+						lastframe = FRAME_death106;
 						break;
 					case 1:
-						self->s.frame = FRAME_death201 - 1;
-						self->client->anim_end = FRAME_death206;
+						firstframe = FRAME_death201;
+						lastframe = FRAME_death206;
 						break;
 					case 2:
-						self->s.frame = FRAME_death301 - 1;
-						self->client->anim_end = FRAME_death308;
+						firstframe = FRAME_death301;
+						lastframe = FRAME_death308;
 						break;
 				}
+
+				action = "death";
 			}
+
+			P_SetAnimGroup(self, action, firstframe, lastframe, group);
+			self->s.frame --;
 
 			/* sound is played at end of server frame */
 			if (!self->sounds)
