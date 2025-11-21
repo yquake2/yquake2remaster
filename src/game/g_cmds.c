@@ -1290,6 +1290,7 @@ Cmd_Wave_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s\n", animname, lastframe, firstframe);
 
 	P_SetAnimGroup(ent, animname, firstframe, lastframe, 0);
+	ent->s.frame --;
 }
 
 qboolean

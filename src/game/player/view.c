@@ -71,7 +71,7 @@ P_SetAnimGroup(edict_t *ent, const char *animname, int firstframe, int lastframe
 	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, select);
 	lastframe += firstframe - 1;
 
-	ent->s.frame = firstframe - 1;
+	ent->s.frame = firstframe;
 	ent->client->anim_end = lastframe;
 }
 
@@ -164,6 +164,7 @@ P_DamageFeedback(edict_t *player)
 		}
 
 		P_SetAnimGroup(player, action, firstframe, lastframe, group);
+		player->s.frame --;
 	}
 
 	realcount = count;

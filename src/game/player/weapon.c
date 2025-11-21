@@ -838,6 +838,23 @@ Change_Weap_Animation(edict_t *ent)
 	}
 }
 
+static void
+PlayerApplyAttack(edict_t *ent)
+{
+	/* start the animation */
+	ent->client->anim_priority = ANIM_ATTACK;
+
+	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
+	{
+		P_SetAnimGroup(ent, "crattak", FRAME_crattak1, FRAME_crattak9, 0);
+	}
+	else
+	{
+		P_SetAnimGroup(ent, "attack", FRAME_attack1, FRAME_attack8, 0);
+	}
+	ent->s.frame --;
+}
+
 /*
  * A generic function to handle
  * the basics of weapon thinking
@@ -924,19 +941,7 @@ Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 				ent->client->ps.gunframe = FRAME_FIRE_FIRST;
 				ent->client->weaponstate = WEAPON_FIRING;
 
-				/* start the animation */
-				ent->client->anim_priority = ANIM_ATTACK;
-
-				if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-				{
-					ent->s.frame = FRAME_crattak1 - 1;
-					ent->client->anim_end = FRAME_crattak9;
-				}
-				else
-				{
-					ent->s.frame = FRAME_attack1 - 1;
-					ent->client->anim_end = FRAME_attack8;
-				}
+				PlayerApplyAttack(ent);
 			}
 			else
 			{
@@ -1773,18 +1778,7 @@ Weapon_HyperBlaster_Fire(edict_t *ent)
 				ent->client->pers.inventory[ent->client->ammo_index]--;
 			}
 
-			ent->client->anim_priority = ANIM_ATTACK;
-
-			if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-			{
-				ent->s.frame = FRAME_crattak1 - 1;
-				ent->client->anim_end = FRAME_crattak9;
-			}
-			else
-			{
-				ent->s.frame = FRAME_attack1 - 1;
-				ent->client->anim_end = FRAME_attack8;
-			}
+			PlayerApplyAttack(ent);
 		}
 
 		ent->client->ps.gunframe++;
@@ -1951,18 +1945,9 @@ Machinegun_Fire(edict_t *ent)
 		ent->client->pers.inventory[ent->client->ammo_index]--;
 	}
 
-	ent->client->anim_priority = ANIM_ATTACK;
+	PlayerApplyAttack(ent);
 
-	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - (int)(random() + 0.25);
-		ent->client->anim_end = FRAME_crattak9;
-	}
-	else
-	{
-		ent->s.frame = FRAME_attack1 - (int)(random() + 0.25);
-		ent->client->anim_end = FRAME_attack8;
-	}
+	ent->s.frame += 1 - (int)(random() + 0.25);
 }
 
 void
@@ -2047,18 +2032,8 @@ Chaingun_Fire(edict_t *ent)
 		ent->client->weapon_sound = gi.soundindex("weapons/chngnl1a.wav");
 	}
 
-	ent->client->anim_priority = ANIM_ATTACK;
-
-	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - (ent->client->ps.gunframe & 1);
-		ent->client->anim_end = FRAME_crattak9;
-	}
-	else
-	{
-		ent->s.frame = FRAME_attack1 - (ent->client->ps.gunframe & 1);
-		ent->client->anim_end = FRAME_attack8;
-	}
+	PlayerApplyAttack(ent);
+	ent->s.frame += 1 - (ent->client->ps.gunframe & 1);
 
 	if (ent->client->ps.gunframe <= 9)
 	{
@@ -3045,18 +3020,7 @@ weapon_etf_rifle_fire(edict_t *ent)
 		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
 	}
 
-	ent->client->anim_priority = ANIM_ATTACK;
-
-	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - 1;
-		ent->client->anim_end = FRAME_crattak9;
-	}
-	else
-	{
-		ent->s.frame = FRAME_attack1 - 1;
-		ent->client->anim_end = FRAME_attack8;
-	}
+	PlayerApplyAttack(ent);
 }
 
 void
@@ -3150,18 +3114,7 @@ Heatbeam_Fire(edict_t *ent)
 		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
 	}
 
-	ent->client->anim_priority = ANIM_ATTACK;
-
-	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
-	{
-		ent->s.frame = FRAME_crattak1 - 1;
-		ent->client->anim_end = FRAME_crattak9;
-	}
-	else
-	{
-		ent->s.frame = FRAME_attack1 - 1;
-		ent->client->anim_end = FRAME_attack8;
-	}
+	PlayerApplyAttack(ent);
 }
 
 void
