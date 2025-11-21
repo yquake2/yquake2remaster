@@ -535,13 +535,11 @@ ChangeWeapon(edict_t *ent)
 
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
 	{
-		ent->s.frame = FRAME_crpain1;
-		ent->client->anim_end = FRAME_crpain4;
+		P_SetAnimGroup(ent, "crpain", FRAME_crpain1, FRAME_crpain4, 0);
 	}
 	else
 	{
-		ent->s.frame = FRAME_pain301;
-		ent->client->anim_end = FRAME_pain304;
+		P_SetAnimGroup(ent, "pain", FRAME_pain301, FRAME_pain304, 3);
 	}
 }
 
@@ -819,6 +817,9 @@ Drop_Weapon(edict_t *ent, gitem_t *item)
 static void
 Change_Weap_Animation(edict_t *ent)
 {
+	int firstframe, lastframe, select;
+	const char *animname;
+
 	if (!ent)
 	{
 		return;
@@ -828,14 +829,25 @@ Change_Weap_Animation(edict_t *ent)
 
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
 	{
-		ent->s.frame = FRAME_crpain4 + 1;
-		ent->client->anim_end = FRAME_crpain1;
+		lastframe = FRAME_crpain4;
+		firstframe = FRAME_crpain1;
+		animname = "crpain";
+		select = 0;
 	}
 	else
 	{
-		ent->s.frame = FRAME_pain304 + 1;
-		ent->client->anim_end = FRAME_pain301;
+		lastframe = FRAME_pain304;
+		firstframe = FRAME_pain301;
+		animname = "pain";
+		select = 3;
 	}
+
+	lastframe -= firstframe - 1;
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, select);
+	lastframe += firstframe - 1;
+
+	ent->s.frame = lastframe + 1;
+	ent->client->anim_end = firstframe;
 }
 
 static void
