@@ -1164,15 +1164,33 @@ weapon_grenade_fire(edict_t *ent, qboolean held)
 
 	if (ent->client->ps.pmove.pm_flags & PMF_DUCKED)
 	{
+		int firstframe, lastframe;
+
+		firstframe = FRAME_crattak1;
+		lastframe = FRAME_crattak9;
+
+		lastframe -= firstframe;
+		M_SetAnimGroupFrameValues(ent, "crattak", &firstframe, &lastframe, 0);
+		lastframe += firstframe;
+
 		ent->client->anim_priority = ANIM_ATTACK;
-		ent->s.frame = FRAME_crattak1 - 1;
-		ent->client->anim_end = FRAME_crattak3;
+		ent->s.frame = firstframe - 1;
+		ent->client->anim_end = Q_min(firstframe + 2, lastframe);
 	}
 	else
 	{
+		int firstframe, lastframe;
+
+		firstframe = FRAME_wave01;
+		lastframe = FRAME_wave11;
+
+		lastframe -= firstframe;
+		M_SetAnimGroupFrameValues(ent, "wave", &firstframe, &lastframe, 0);
+		lastframe += firstframe;
+
 		ent->client->anim_priority = ANIM_REVERSE;
-		ent->s.frame = FRAME_wave08;
-		ent->client->anim_end = FRAME_wave01;
+		ent->s.frame = Q_min(firstframe + 7, lastframe);
+		ent->client->anim_end = firstframe;
 	}
 }
 

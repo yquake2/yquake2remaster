@@ -1444,14 +1444,24 @@ G_SetClientFrame(edict_t *ent, float speed)
 
 	if (client->anim_priority == ANIM_JUMP)
 	{
+		int firstframe, lastframe;
+
 		if (!ent->groundentity)
 		{
 			return; /* stay there */
 		}
 
 		ent->client->anim_priority = ANIM_WAVE;
-		ent->s.frame = FRAME_jump3;
-		ent->client->anim_end = FRAME_jump6;
+
+		firstframe = FRAME_jump1;
+		lastframe = FRAME_jump6;
+
+		lastframe -= firstframe;
+		M_SetAnimGroupFrameValues(ent, "jump", &firstframe, &lastframe, 0);
+		lastframe += firstframe;
+
+		ent->s.frame = firstframe + 2;
+		ent->client->anim_end = lastframe;
 		return;
 	}
 
@@ -1474,14 +1484,23 @@ newanim:
 		}
 		else
 		{
+			int firstframe, lastframe;
+
 			client->anim_priority = ANIM_JUMP;
 
-			if (ent->s.frame != FRAME_jump2)
+			firstframe = FRAME_jump1;
+			lastframe = FRAME_jump6;
+
+			lastframe -= firstframe;
+			M_SetAnimGroupFrameValues(ent, "jump", &firstframe, &lastframe, 0);
+			lastframe += firstframe;
+
+			if (ent->s.frame != (firstframe + 1))
 			{
-				ent->s.frame = FRAME_jump1;
+				ent->s.frame = firstframe;
 			}
 
-			client->anim_end = FRAME_jump2;
+			client->anim_end = Q_min(firstframe + 1, lastframe);
 			return;
 		}
 	}
