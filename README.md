@@ -285,7 +285,7 @@ Other games support goals:
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Jabot: dynamic allocations,
 * [x] Heretic 2: use nor all surface flags to detect map type
-* [ ] Kingpin: use nor all surface flags to detect map type
+* [x] Kingpin: use nor all surface flags to detect map type
 * [ ] Heretic 2: correct obj placeholders
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,

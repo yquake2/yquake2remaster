@@ -440,8 +440,14 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 	// Remove self references and empty dirs from the requested path.
 	// ZIPs and PAKs don't support them, but they may be hardcoded in
 	// some custom maps or models.
-	char name[MAX_QPATH] = {0};
+	char name[MAX_OSPATH] = {0};
 	size_t namelen = strlen(rawname);
+	if (namelen > sizeof(name) - 1)
+	{
+		Com_Printf("%s: used unexpectly long name: %s\n", __func__, rawname);
+		return -1;
+	}
+
 	for (input = 0, output = 0; input < namelen; input++)
 	{
 		// Remove self reference.

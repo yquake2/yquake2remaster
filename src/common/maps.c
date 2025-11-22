@@ -1975,7 +1975,7 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 			flags = Mod_Load2QBSP_IBSP_TEXINFO_Flags(inbuf, lumps,
 				idq2bsplumps[LUMP_TEXINFO].size, LUMP_TEXINFO);
 
-			/* has no unused quake2 flags */
+			/* used only quake2 flags */
 			if (!(flags & ~QUAKE2_ALLFLAGS))
 			{
 				return map_quake2;
@@ -1987,6 +1987,14 @@ Mod_LoadGetRules(int ident, int version, const byte *inbuf, const lump_t *lumps,
 			{
 				/* heretic 2 has 24, 25 set as material */
 				return map_heretic2;
+			}
+
+			/* has kingpin specific flags and no unused flags */
+			if (((flags & KINGPIN_FLAGS) == KINGPIN_FLAGS) &&
+				!(flags & ~KINGPIN_ALLFLAGS))
+			{
+				/* kingpin has 19 - 27 set as material */
+				return map_kingpin;
 			}
 
 			return map_quake2rr;

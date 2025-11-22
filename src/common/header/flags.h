@@ -358,6 +358,10 @@ static const int daikatana_contents_flags[32] = {
 	0,                     /* 31: Unused */
 };
 
+/* Sum by or / and of all official maps */
+#define KINGPIN_ALLFLAGS 0xcffcdfff
+#define KINGPIN_FLAGS 0x00800000
+
 static const int kingpin_flags[32] = {
 	SURF_LIGHT,     /* 0: Emit light from the surface, brightness is specified
 				     *    in the 'value' field */

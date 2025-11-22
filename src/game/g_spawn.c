@@ -149,7 +149,19 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	if (semicolon)
 	{
 		curr = semicolon;
+		semicolon = strchr(curr, ';');
+		if (semicolon)
+		{
+			*semicolon = 0;
+			semicolon ++;
+		}
 		self->s.modelindex3 = gi.modelindex(curr);
+	}
+
+	if (semicolon)
+	{
+		gi.dprintf("%s: '%s' use more than three models: %s\n",
+			__func__, self->classname, semicolon);
 	}
 
 	VectorCopy(data->mins, self->mins);
