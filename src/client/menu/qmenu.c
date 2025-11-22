@@ -80,21 +80,11 @@ StrLenUTF8(const char *src)
 	return symbols;
 }
 
-
+// "Wrapper" for Q_clamp to evaluate parameters just once (TODO: delete?)
 float
 ClampCvar(float min, float max, float value)
 {
-	if (value < min)
-	{
-		return min;
-	}
-
-	if (value > max)
-	{
-		return max;
-	}
-
-	return value;
+	return Q_clamp(value, min, max);
 }
 
 /*

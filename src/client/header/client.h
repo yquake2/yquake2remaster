@@ -396,7 +396,7 @@ void CL_ClearEffects (void);
 void CL_ClearTEnts (void);
 void CL_ClearTEntModels (void);
 void CL_BlasterTrail (vec3_t start, vec3_t end);
-void CL_QuadTrail (vec3_t start, vec3_t end);
+void CL_QuadTrail (vec3_t start, vec3_t end);	// unused
 void CL_RailTrail (vec3_t start, vec3_t end);
 void CL_BubbleTrail (vec3_t start, vec3_t end);
 void CL_FlagTrail (vec3_t start, vec3_t end, int color);
@@ -407,18 +407,18 @@ void CL_BlasterParticles2 (vec3_t org, vec3_t dir, unsigned int basecolor, unsig
 void CL_BlasterTrail2 (vec3_t start, vec3_t end);
 void CL_DebugTrail (vec3_t start, vec3_t end);
 void CL_SmokeTrail (vec3_t start, vec3_t end, unsigned int basecolor, unsigned int finalcolor,
-	int spacing);
+	int spacing);	// unused
 void CL_Flashlight (int ent, vec3_t pos);
 void CL_ForceWall (vec3_t start, vec3_t end, int color);
 void CL_FlameEffects (vec3_t origin);
 void CL_GenericParticleEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
-	int count, int numcolors, int dirspread, float alphavel);
+	int count, int numcolors, int dirspread, float alphavel);	// unused
 void CL_BubbleTrail2 (vec3_t start, vec3_t end, int dist);
 void CL_Heatbeam (vec3_t start, vec3_t end);
 void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count, int magnitude);
 void CL_TrackerTrail (vec3_t start, vec3_t end, unsigned int particleColor);
-void CL_Tracker_Explode(vec3_t origin);
+void CL_Tracker_Explode(vec3_t origin);	// unused
 void CL_TagTrail (vec3_t start, vec3_t end, int color);
 void CL_ColorFlash (vec3_t pos, int ent, float intensity, float r, float g, float b);
 void CL_Tracker_Shell(vec3_t origin);
@@ -435,11 +435,9 @@ void CL_ParseTEnt (void);
 void CL_AddMuzzleFlash (void);
 void CL_AddMuzzleFlash2 (void);
 void CL_AddFog (svc_fog_data_t *fog);
-void SmokeAndFlash(vec3_t origin);
 
 void CL_SetLightstyle (int i);
 
-void CL_RunParticles (void);
 void CL_RunDLights (void);
 void CL_RunLightStyles (void);
 
@@ -456,20 +454,15 @@ void CL_RegisterSounds (void);
 
 void CL_Quit_f (void);
 
-void IN_Accumulate (void);
-
-void CL_ParseLayout (void);
-
 void CL_Init (void);
 
 void CL_FixUpGender(void);
 void CL_Disconnect (void);
 void CL_Disconnect_f (void);
-void CL_GetChallengePacket (void);
 void CL_PingServers_f (void);
 void CL_Snd_Restart_f (void);
 void CL_RequestNextDownload (void);
-void CL_ResetPrecacheCheck (void);
+void CL_ResetPrecacheCheck (void);	// unused
 
 typedef struct
 {
@@ -479,23 +472,16 @@ typedef struct
 	int			state;
 } kbutton_t;
 
-extern	kbutton_t	in_mlook, in_klook;
 extern 	kbutton_t 	in_strafe;
-extern 	kbutton_t 	in_speed;
 
 void CL_InitInput (void);
 void CL_RefreshCmd(void);
 void CL_SendCmd (void);
 void CL_RefreshMove(void);
-void CL_SendMove (usercmd_t *cmd);
 
 void CL_ClearState (void);
 
 void CL_ReadPackets (void);
-
-int  CL_ReadFromServer (void);
-void CL_WriteToServer (usercmd_t *cmd);
-void CL_BaseMove (usercmd_t *cmd);
 
 void IN_CenterView (void);
 
@@ -508,7 +494,6 @@ typedef enum
 	LBL_MAX_COUNT
 } gamepad_labels_t;
 
-float CL_KeyState (kbutton_t *key);
 char *Key_KeynumToString (int keynum);
 char *Key_KeynumToString_Joy (int key);
 
@@ -542,9 +527,6 @@ void CL_RegisterTEntSounds (void);
 void CL_RegisterTEntModels (void);
 void CL_SmokeAndFlash(vec3_t origin);
 
-
-void CL_InitPrediction (void);
-void CL_PredictMove (void);
 void CL_CheckPredictionError (void);
 
 cdlight_t *CL_AllocDlight (int key);
@@ -565,7 +547,6 @@ void M_ForceMenuOff (void);
 void M_AddToServerList (netadr_t adr, char *info);
 
 void CL_ParseInventory (void);
-void CL_KeyInventory (int key);
 void CL_DrawInventory (void);
 
 void CL_PredictMovement (void);

@@ -81,9 +81,7 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 					}
 				}
 
-				GLBUFFER_COLOR(gammatable[idx[0]],
-					gammatable[idx[1]],
-					gammatable[idx[2]], alpha * 255)
+				GLBUFFER_COLOR(idx[0], idx[1], idx[2], alpha * 255)
 			}
 			while (--count);
 		}
@@ -132,9 +130,7 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 					}
 				}
 
-				GLBUFFER_COLOR(gammatable[idx[0]],
-					gammatable[idx[1]],
-					gammatable[idx[2]], alpha * 255)
+				GLBUFFER_COLOR(idx[0], idx[1], idx[2], alpha * 255)
 			}
 			while (--count);
 		}

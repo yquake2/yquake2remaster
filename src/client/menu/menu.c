@@ -2229,8 +2229,6 @@ static menuslider_s s_joy_pitchspeed_slider = {0};
 static menuslider_s s_joy_extra_yawspeed_slider = {0};
 static menuslider_s s_joy_extra_pitchspeed_slider = {0};
 static menuslider_s s_joy_ramp_time_slider = {0};
-static menuslider_s s_joy_forwardsensitivity_slider = {0};
-static menuslider_s s_joy_sidesensitivity_slider = {0};
 static menuslider_s s_joy_haptic_slider = {0};
 static menuaction_s s_joy_stickcfg_action = {0};
 static menuaction_s s_joy_gyro_action = {0};
@@ -2419,24 +2417,6 @@ Joy_MenuInit(void)
 	s_joy_invertpitch_box.itemnames = yesno_names;
 	s_joy_invertpitch_box.curvalue = (Cvar_VariableValue("joy_pitchspeed") < 0);
 	Menu_AddItem(&s_joy_menu, (void *)&s_joy_invertpitch_box);
-
-	s_joy_forwardsensitivity_slider.generic.type = MTYPE_SLIDER;
-	s_joy_forwardsensitivity_slider.generic.x = 0;
-	s_joy_forwardsensitivity_slider.generic.y = (y += 20);
-	s_joy_forwardsensitivity_slider.generic.name = "forward sensitivity";
-	s_joy_forwardsensitivity_slider.cvar = "joy_forwardsensitivity";
-	s_joy_forwardsensitivity_slider.minvalue = 0.0f;
-	s_joy_forwardsensitivity_slider.maxvalue = 2.0f;
-	Menu_AddItem(&s_joy_menu, (void *)&s_joy_forwardsensitivity_slider);
-
-	s_joy_sidesensitivity_slider.generic.type = MTYPE_SLIDER;
-	s_joy_sidesensitivity_slider.generic.x = 0;
-	s_joy_sidesensitivity_slider.generic.y = (y += 10);
-	s_joy_sidesensitivity_slider.generic.name = "side sensitivity";
-	s_joy_sidesensitivity_slider.cvar = "joy_sidesensitivity";
-	s_joy_sidesensitivity_slider.minvalue = 0.0f;
-	s_joy_sidesensitivity_slider.maxvalue = 2.0f;
-	Menu_AddItem(&s_joy_menu, (void *)&s_joy_sidesensitivity_slider);
 
 	if (show_haptic) {
 		s_joy_haptic_slider.generic.type = MTYPE_SLIDER;
