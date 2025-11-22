@@ -300,7 +300,7 @@ Other games support goals:
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
-* [ ] DoD: implement dynamic animations for monsters,
+* [x] DoD: implement dynamic animations for monsters,
 * [ ] DoD: fix statusbar `roarke`.
 
 Not a goal:
