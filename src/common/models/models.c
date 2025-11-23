@@ -632,6 +632,12 @@ static const namesconvert_t flex_names[] = {
 	{"walk", "walk"},
 	/* replace frame group started with run* to run */
 	{"run", "run"},
+	/* replace frame group started with breath to idle */
+	{"breath", "idle"},
+	/* replace frame group started with shoot to attack */
+	{"shoot", "attack"},
+	/* replace frame group started with rolla to crwalk */
+	{"rolla", "crwalk"},
 	{NULL, NULL}
 };
 

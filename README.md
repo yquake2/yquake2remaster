@@ -121,32 +121,32 @@ Note:
 
 Dynamic frame names:
 
-| group   | monster | player    | description   |
-| ------- | ------- | --------- | ------------- |
-| attack  |    Y    | hardcoded |               |
-| crattak |    N    | hardcoded | Crouch attack |
-| crdeath |    N    | hardcoded | Crouch death  |
-| crpain  |    N    | view      | Crouch pain   |
-| crstnd  |    N    | view      | Crouch stand  |
-| crwalk  |    N    | view      | Crouch walk   |
-| death   |    Y    | hardcoded |               |
-| dodge   |    Y    |           |               |
-| duck    |    Y    |           |               |
-| fly     |    Y    |           |               |
-| flip    |    N    | cmd only  |               |
-| jump    |    N    | hardcoded |               |
-| hover   |    Y    |           |               |
-| idle    |    Y    |           |               |
-| melee   |    Y    |           |               |
-| pain    |    Y    | view      |               |
-| point   |    N    | cmd only  |               |
-| run     |    Y    | view      |               |
-| salute  |    N    | cmd only  |               |
-| stand   |    Y    | view      |               |
-| swim    |    Y    |           |               |
-| taunt   |    N    | cmd only  |               |
-| wave    |    N    | cmd only  |               |
-| walk    |    Y    |           |               |
+| group   | monster | player | description   |
+| ------- | ------- | ------ | ------------- |
+| attack  |    Y    |    Y   |               |
+| crattak |    N    |    Y   | Crouch attack |
+| crdeath |    N    |    Y   | Crouch death  |
+| crpain  |    N    |    Y   | Crouch pain   |
+| crstnd  |    N    |    Y   | Crouch stand  |
+| crwalk  |    N    |    Y   | Crouch walk   |
+| death   |    Y    |    Y   |               |
+| dodge   |    Y    |        |               |
+| duck    |    Y    |        |               |
+| fly     |    Y    |        |               |
+| flip    |    N    |    Y   |               |
+| jump    |    N    |    Y   |               |
+| hover   |    Y    |        |               |
+| idle    |    Y    |        |               |
+| melee   |    Y    |        |               |
+| pain    |    Y    |    Y   |               |
+| point   |    N    |    Y   |               |
+| run     |    Y    |    Y   |               |
+| salute  |    N    |    Y   |               |
+| stand   |    Y    |    Y   |               |
+| swim    |    Y    |        |               |
+| taunt   |    N    |    Y   |               |
+| wave    |    N    |    Y   |               |
+| walk    |    Y    |        |               |
 
 Games:
 
