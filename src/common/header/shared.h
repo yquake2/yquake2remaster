@@ -1311,6 +1311,9 @@ typedef enum
 #define CS_GENERAL (CS_PLAYERSKINS + MAX_CLIENTS)
 #define MAX_CONFIGSTRINGS (CS_GENERAL + MAX_GENERAL)
 
+/* Originally was 64 as MAX_QPATH */
+#define MAX_CONFIGSTRING 128
+
 /* ============================================== */
 
 /* entity_state_t->event values

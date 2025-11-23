@@ -166,7 +166,7 @@ typedef struct
 	char		gamedir[MAX_QPATH];
 	int			playernum;
 
-	char		configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
+	char		configstrings[MAX_CONFIGSTRINGS][MAX_CONFIGSTRING];
 
 	/* locally derived information from server state */
 
