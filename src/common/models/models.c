@@ -650,6 +650,9 @@ static const namesconvert_t dkm_names[] = {
 	{"stand", "stand"},
 	{"swim", "swim"},
 	{"walk", "walk"},
+	{"amba", "idle"},
+	/* hack for protopod, looks as can't move, and should be attack */
+	{"hatcha", "run"},
 	{NULL, NULL}
 };
 
