@@ -144,8 +144,11 @@ typedef enum
 #define RANGE_FAR 3
 
 /* gib types */
-#define GIB_ORGANIC 0
-#define GIB_METALLIC 1
+typedef enum
+{
+	GIB_ORGANIC,
+	GIB_METALLIC
+} gibtype_t;
 
 /* monster ai flags */
 #define AI_STAND_GROUND 0x00000001
@@ -947,12 +950,12 @@ void stationarymonster_start(edict_t *self);
 void monster_done_dodge(edict_t *self);
 
 /* g_misc.c */
-void ThrowHead(edict_t *self, const char *gibname, int damage, int type);
+void ThrowHead(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void ThrowClientHead(edict_t *self, int damage);
-void ThrowGib(edict_t *self, const char *gibname, int damage, int type);
+void ThrowGib(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void BecomeExplosion1(edict_t *self);
-void ThrowHeadACID(edict_t *self, const char *gibname, int damage, int type);
-void ThrowGibACID(edict_t *self, const char *gibname, int damage, int type);
+void ThrowHeadACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
+void ThrowGibACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
 void SP_misc_teleporter_dest(edict_t *ent);
 
@@ -1199,7 +1202,7 @@ qboolean CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 void SpawnGrow_Spawn(vec3_t startpos, int size);
 void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
 void ThrowSmallStuff(edict_t *self, vec3_t point);
-void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, int hitsound, qboolean fade);
 void spawngrow_think(edict_t *self);
 
