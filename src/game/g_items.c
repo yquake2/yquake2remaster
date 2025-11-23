@@ -1457,16 +1457,12 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 			other->client->pers.inventory[old_armor_index] += 2;
 		}
 	}
-
-	/* if player has no armor, just use it */
-	else if (!old_armor_index)
+	else if (!old_armor_index) /* if player has no armor, just use it */
 	{
 		other->client->pers.inventory[ITEM_INDEX(ent->item)] =
 			newinfo->base_count;
 	}
-
-	/* use the better armor */
-	else
+	else /* use the better armor */
 	{
 		/* get info on old armor */
 		if (old_armor_index == jacket_armor_index)
@@ -1477,7 +1473,7 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 		{
 			oldinfo = &combatarmor_info;
 		}
-		else /* (old_armor_index == body_armor_index) */
+		else
 		{
 			oldinfo = &bodyarmor_info;
 		}

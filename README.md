@@ -188,6 +188,10 @@ Games:
 
 Games check videos:
 
+* 8.61RR13:
+
+[![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQA)
+
 * 8.52RR13+:
 
 [![Check dynamic frames split](https://img.youtube.com/vi/_CPmh5_TLbk/hqdefault.jpg)](https://www.youtube.com/watch?v=_CPmh5_TLbkA)
@@ -277,15 +281,12 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: support effects and additional flags when possible,
 * [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
-* [ ] ReRelease: modified game code support with removed KEX only related code,
-* [x] ReRelease: fully implement `trigger_fog`.
+* [ ] ReRelease: modified game code support with removed KEX only related code.
 
 Other games support goals:
 
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Jabot: dynamic allocations,
-* [x] Heretic 2: use nor all surface flags to detect map type
-* [x] Kingpin: use nor all surface flags to detect map type
 * [ ] Heretic 2: correct obj placeholders
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,
@@ -300,7 +301,6 @@ Other games support goals:
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
-* [x] DoD: implement dynamic animations for monsters,
 * [ ] DoD: fix statusbar `roarke`.
 
 Not a goal:
