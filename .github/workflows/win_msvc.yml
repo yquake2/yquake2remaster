@@ -70,6 +70,7 @@ jobs:
         cd ../../..
         # Copy misc assets
         cp -r stuff/yq2.cfg publish/$PKGDIR/misc/yq2.cfg
+        cp -r stuff/models publish/$PKGDIR/misc
         cp -r stuff/mapfixes publish/$PKGDIR/misc
         cp LICENSE publish/$PKGDIR/misc/docs/LICENSE.txt
         cp README.md publish/$PKGDIR/misc/docs/README.txt
@@ -155,6 +156,7 @@ jobs:
         cd ../../..
         # Copy misc assets
         cp -r stuff/yq2.cfg publish/$PKGDIR/misc/yq2.cfg
+        cp -r stuff/models publish/$PKGDIR/misc
         cp -r stuff/mapfixes publish/$PKGDIR/misc
         cp LICENSE publish/$PKGDIR/misc/docs/LICENSE.txt
         cp README.md publish/$PKGDIR/misc/docs/README.txt
