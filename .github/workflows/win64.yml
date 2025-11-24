@@ -50,7 +50,7 @@ jobs:
           mingw-w64-${{matrix.env}}-pkgconf
           mingw-w64-${{matrix.env}}-wget
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Build
       shell: msys2 {0}
       run: |

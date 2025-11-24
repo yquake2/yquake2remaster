@@ -36,7 +36,7 @@ jobs:
         install-linux-dependencies: true
         version: 3-latest
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Build
       run: |
         # Public runners come with 4 CPUs.

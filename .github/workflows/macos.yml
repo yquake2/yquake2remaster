@@ -32,7 +32,7 @@ jobs:
         brew update
         brew install sdl3 openal-soft make ffmpeg molten-vk
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Build
       run: |
         # Public runners come with 3 CPUs.
