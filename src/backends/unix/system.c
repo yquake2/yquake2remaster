@@ -636,31 +636,6 @@ Sys_GetHomeDir()
 	return dir;
 }
 
-char *
-Sys_GetConfigDir()
-{
-#ifndef USE_XDG
-	return Sys_GetHomeDir();
-#else
-	static char dir[MAX_OSPATH];
-
-	if (!dir[0]) {
-		const char* path = GetXDGPath("XDG_CONFIG_HOME");
-		if (!path) {
-			Sys_Error("%s: failed to get XDG path", __func__);
-		}
-
-		strcpy(dir, path);
-		free(path);
-
-		Com_DPrintf("%s: using '%s'", __func__, dir);
-	}
-
-	Sys_Mkdir(dir);
-	return dir;
-#endif
-}
-
 void
 Sys_Remove(const char *path)
 {
