@@ -79,6 +79,95 @@ SV_LocalizationInit(void)
 	nlocalmessages = 0;
 }
 
+/* Lookup table for Windows-1252 to Unicode code points (only special range 0x80–0x9F) */
+static const unsigned short win1252_table[32] =
+{
+	0x20AC, 0xFFFD, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+	0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0xFFFD, 0x017D, 0xFFFD,
+	0xFFFD, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+	0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0xFFFD, 0x017E, 0x0178
+};
+
+/* Encode one Unicode code point to UTF-8 */
+static size_t
+LocalizationEncodeUTF8(unsigned cp, char *out)
+{
+	if (cp < 0x80)
+	{
+		out[0] = cp;
+		return 1;
+	}
+	else if (cp < 0x800)
+	{
+		out[0] = 0xC0 | (cp >> 6);
+		out[1] = 0x80 | (cp & 0x3F);
+		return 2;
+	}
+	else if (cp < 0x10000)
+	{
+		out[0] = 0xE0 | (cp >> 12);
+		out[1] = 0x80 | ((cp >> 6) & 0x3F);
+		out[2] = 0x80 | (cp & 0x3F);
+		return 3;
+	}
+	else
+	{
+		out[0] = 0xF0 | (cp >> 18);
+		out[1] = 0x80 | ((cp >> 12) & 0x3F);
+		out[2] = 0x80 | ((cp >> 6) & 0x3F);
+		out[3] = 0x80 | (cp & 0x3F);
+		return 4;
+	}
+}
+
+/* Convert Windows-1252 string to UTF-8 */
+static char *
+LocalizationConvertWIN1252ToUTF8(char *in_buf)
+{
+	char *out, *buffer;
+	const byte *in;
+
+	buffer = out = malloc(strlen(in_buf) * 4 + 1);
+	if (!out)
+	{
+		Com_DPrintf("Can't alloc translated text\n");
+		return in_buf;
+	}
+
+	in = (const byte*)in_buf;
+	while (*in)
+	{
+		unsigned cp;
+
+		if ((*in < 0x80) || (*in >= 0xA0))
+		{
+			/* ASCII and normal Latin-1 range */
+			cp = *in;
+		}
+		else
+		{
+			/* special mapping */
+			cp = win1252_table[*in - 0x80];
+		}
+
+		out += LocalizationEncodeUTF8(cp, out);
+		in++;
+	}
+
+	*out = '\0';
+
+	out = buffer;
+	out = realloc(buffer, strlen(buffer) + 1);
+	if (!out)
+	{
+		Com_DPrintf("Can't realloc translated text\n");
+		return buffer;
+	}
+
+	return out;
+}
+
+
 static void
 SV_LocalizationReload(void)
 {
@@ -96,8 +185,14 @@ SV_LocalizationReload(void)
 	/* load the localization file */
 	snprintf(loc_name, sizeof(loc_name) - 1, "localization/loc_%s.txt", sv_language->string);
 	buf_local = LocalizationFileRead(loc_name, &len_local);
+
 	/* load the heretic 2 messages file */
 	buf_level = LocalizationFileRead("levelmsg.txt", &len_level);
+	if (buf_level)
+	{
+		buf_level = LocalizationConvertWIN1252ToUTF8(buf_level);
+	}
+
 	/* load the hexen 2 messages file */
 	buf_strings = LocalizationFileRead("Strings.txt", &len_strings);
 
