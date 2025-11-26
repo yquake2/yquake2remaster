@@ -1517,7 +1517,15 @@ newanim:
 		{
 			firstframe = FRAME_run1;
 			lastframe = FRAME_run6;
-			animname = "run";
+
+			if (ent->waterlevel >= 2)
+			{
+				animname = "swim";
+			}
+			else
+			{
+				animname = "run";
+			}
 		}
 	}
 	else

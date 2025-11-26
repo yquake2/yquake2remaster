@@ -910,9 +910,16 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 		/* no dodge animations */
 		M_SetAnimGroupFrameValuesInt(self, "duck", ofs_frames, num_frames, select);
 	}
+	else if (!strcmp(name, "swim"))
+	{
+		if (!M_SetAnimGroupFrameValuesInt(self, "run", ofs_frames, num_frames, select))
+		{
+			/* no swim -> run -> walk animations */
+			M_SetAnimGroupFrameValuesInt(self, "walk", ofs_frames, num_frames, select);
+		}
+	}
 	else if (!strcmp(name, "run") ||
-			!strcmp(name, "fly") ||
-			!strcmp(name, "swim"))
+			!strcmp(name, "fly"))
 	{
 		/* no run, fly, swim animations */
 		M_SetAnimGroupFrameValuesInt(self, "walk", ofs_frames, num_frames, select);
