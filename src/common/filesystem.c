@@ -3130,7 +3130,7 @@ FS_BuildRawPath(void)
 	// Add homedir, MUST be the last dir! Required,
 	// otherwise the config cannot be written.
 	if (!is_portable) {
-		const char *homedir = Sys_GetHomegDir();
+		const char *homedir = Sys_GetHomeDir();
 
 		if (homedir != NULL) {
 			FS_AddDirToRawPath(homedir, true, true);
