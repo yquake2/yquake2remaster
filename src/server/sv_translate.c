@@ -154,6 +154,9 @@ LocalizationConvertWIN1252ToUTF8(char *in_buf)
 		in++;
 	}
 
+	/* free input buffer */
+	free(in_buf);
+
 	*out = '\0';
 
 	out = buffer;

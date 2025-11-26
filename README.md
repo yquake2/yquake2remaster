@@ -287,7 +287,9 @@ Other games support goals:
 
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Jabot: dynamic allocations,
-* [ ] Heretic 2: correct obj placeholders
+* [ ] Heretic 2: add swim player animation support,
+* [ ] Heretic 2: add utf8 colors and fonts support in console,
+* [ ] Heretic 2: correct obj placeholders,
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
@@ -300,6 +302,7 @@ Other games support goals:
 * [ ] Anachronox: rowdys save entity disappear in a8080c05,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
+* [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
 * [ ] DoD: fix statusbar `roarke`.
 
