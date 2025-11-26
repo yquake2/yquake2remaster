@@ -310,13 +310,6 @@ endif
 
 # ----------
 
-# Enable XDG
-ifeq ($(WITH_XDG),yes)
-CFLAGS += -DUSE_XDG
-endif
-
-# ----------
-
 # Base include path.
 ifeq ($(YQ2_OSTYPE),Linux)
 INCLUDE ?= -I/usr/include
@@ -589,6 +582,10 @@ endif
 endif
 endif
 
+ifeq ($(WITH_XDG),yes)
+release/quake2 : CFLAGS += -DUSE_XDG
+endif
+
 # ----------
 
 # The server
@@ -622,6 +619,11 @@ release/q2ded : CFLAGS += -DDEDICATED_ONLY -Wno-unused-result
 ifeq ($(YQ2_OSTYPE), FreeBSD)
 release/q2ded : LDLIBS += -lexecinfo
 endif
+
+ifeq ($(WITH_XDG),yes)
+release/q2ded : CFLAGS += -DUSE_XDG
+endif
+
 endif
 
 # ----------
