@@ -62,8 +62,15 @@ extern FILE	*logfile;
 
 // Config dir name
 char cfgdir[MAX_OSPATH] = CFGDIRNAME;
+static qboolean user_cfgdir = false;
 
 /* ================================================================ */
+
+void setCustomCfgDir(const char* dir)
+{
+	strncpy(cfgdir, dir, MAX_OSPATH);
+	user_cfgdir = true;
+}
 
 void
 Sys_Error(const char *error, ...)
@@ -598,7 +605,7 @@ Sys_GetHomeDir()
 		}
 
 #ifndef __HAIKU__
-		if (strcmp(cfgdir, CFGDIRNAME)!=0) {
+		if (user_cfgdir) {
 			// custom cfgdir was set by the user: ~/{cfgdir}
 			Com_sprintf(dir, MAX_OSPATH, "%s/%s/", home, cfgdir);
 			goto dirset;
@@ -609,7 +616,7 @@ Sys_GetHomeDir()
 
 #ifdef USE_XDG
 		if (Sys_IsDir(dir)) {
-			Com_Printf("%s: Ignoring $XDG_DATA_HOME/%s because %s exists", __func__, cfgdir, dir);
+			Com_Printf("%s: Ignoring $XDG_DATA_HOME/%s because %s exists\n", __func__, cfgdir, dir);
 			return dir;
 		}
 
