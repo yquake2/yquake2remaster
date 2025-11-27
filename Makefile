@@ -74,7 +74,7 @@ WITH_SYSTEMWIDE:=no
 WITH_SYSTEMDIR:=""
 
 # Enable XDG directories support
-WITH_XDG:=no
+WITH_XDG:=yes
 
 # This will set the build options to create an MacOS .app-bundle.
 # The app-bundle itself will not be created, but the runtime paths

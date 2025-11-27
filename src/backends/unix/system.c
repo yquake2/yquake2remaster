@@ -554,7 +554,7 @@ GetXDGPath(const char *xdg)
 {
 	char* buffer = calloc(MAX_OSPATH, sizeof(char));
 	if (!buffer) {
-		goto fail;
+		return NULL;
 	}
 
 	const char* env = getenv(xdg);
@@ -563,7 +563,8 @@ GetXDGPath(const char *xdg)
 	if (!env) {
 		env = getenv("HOME");
 		if (!env) {
-			goto fail;
+			free(buffer);
+			return NULL;
 		}
 
 		if (strcmp(xdg, "XDG_CONFIG_HOME")==0) {
@@ -579,10 +580,6 @@ GetXDGPath(const char *xdg)
 
 	Com_sprintf(buffer, MAX_OSPATH, fmt, env, cfgdir);
 	return buffer;
-
-fail:
-	free(buffer);
-	return NULL;
 }
 #endif
 
@@ -591,7 +588,8 @@ Sys_GetHomeDir()
 {
 	static char dir[MAX_OSPATH];
 
-	if (!dir[0]) {
+	if (!dir[0])
+	{
 		const char* home = getenv("HOME");
 
 		if (!home) {
@@ -611,7 +609,8 @@ Sys_GetHomeDir()
 
 #ifdef USE_XDG
 		if (Sys_IsDir(dir)) {
-			goto dirset;
+			Com_Printf("%s: Ignoring $XDG_DATA_HOME/%s because %s exists", __func__, cfgdir, dir);
+			return dir;
 		}
 
 		// XDG dir: XDG_DATA_HOME/{cfgdir}

@@ -72,7 +72,7 @@ option(GLES1_RENDERER "Build the GLES1 renderer" OFF)
 option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
 option(VK_RENDERER "Build the Vulkan renderer" ON)
-option(XDG_SUPPORT "Use XDG Directories to store user data" OFF)
+option(XDG_SUPPORT "Use XDG Directories to store user data" ON)
 
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
 
