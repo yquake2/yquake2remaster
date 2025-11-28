@@ -73,6 +73,9 @@ WITH_SYSTEMWIDE:=no
 # MUST NOT be surrounded by quotation marks!
 WITH_SYSTEMDIR:=""
 
+# Enable XDG directories support
+WITH_XDG:=yes
+
 # This will set the build options to create an MacOS .app-bundle.
 # The app-bundle itself will not be created, but the runtime paths
 # will be set to expect the game-data in *.app/
@@ -450,6 +453,7 @@ config:
 	@echo "WITH_SDL3 = $(WITH_SDL3)"
 	@echo "WITH_SYSTEMWIDE = $(WITH_SYSTEMWIDE)"
 	@echo "WITH_SYSTEMDIR = $(WITH_SYSTEMDIR)"
+	@echo "WITH_XDG = $(WITH_XDG)"
 	@echo "============================"
 	@echo ""
 
@@ -578,6 +582,10 @@ endif
 endif
 endif
 
+ifeq ($(WITH_XDG),yes)
+release/quake2 : CFLAGS += -DUSE_XDG
+endif
+
 # ----------
 
 # The server
@@ -611,6 +619,11 @@ release/q2ded : CFLAGS += -DDEDICATED_ONLY -Wno-unused-result
 ifeq ($(YQ2_OSTYPE), FreeBSD)
 release/q2ded : LDLIBS += -lexecinfo
 endif
+
+ifeq ($(WITH_XDG),yes)
+release/q2ded : CFLAGS += -DUSE_XDG
+endif
+
 endif
 
 # ----------
