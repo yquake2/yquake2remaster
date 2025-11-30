@@ -1139,7 +1139,7 @@ FS_LoadWAD(const char *packPath)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
-				__func__, packPath);
+			__func__, packPath);
 		return NULL;
 	}
 
