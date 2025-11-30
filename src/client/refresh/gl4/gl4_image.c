@@ -670,7 +670,7 @@ GL4_FindImage(const char *originname, imagetype_t type)
 	// load the pic from disk
 	//
 	image = (gl4image_t *)R_LoadImage(name, namewe, ext, type,
-		r_retexturing->value, (loadimage_t)GL4_LoadPic);
+		(loadimage_t)GL4_LoadPic);
 
 	if (!image && r_validation->value)
 	{
