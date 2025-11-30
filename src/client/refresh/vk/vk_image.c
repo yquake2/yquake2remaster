@@ -1054,7 +1054,7 @@ Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 	// optimize 8bit images only when we forced such logic
 	if (r_scale8bittextures->value)
 	{
-		SmoothColorImage(trans, s, s >> 7);
+		SmoothColorImage(trans, s, width);
 	}
 
 	miplevel = Vk_Upload32Native((byte *)trans, width, height, type, texBuffer,

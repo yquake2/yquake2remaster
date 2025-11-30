@@ -442,7 +442,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 			int scaled_size = cols * rows;
 
 			free(image_scaled);
-			SmoothColorImage(raw_image32, scaled_size, (scaled_size) >> 7);
+			SmoothColorImage(raw_image32, scaled_size, cols);
 		}
 	}
 

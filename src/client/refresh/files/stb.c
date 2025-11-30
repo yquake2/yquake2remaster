@@ -105,8 +105,8 @@ ResizeSTB(const byte *input_pixels, int input_width, int input_height,
 	return false;
 }
 
-// We have 16 color palette, 256 / 16 should be enough
-#define COLOR_DISTANCE 16
+/* 8 looks good for smoothed textures with whole width as rstep */
+#define COLOR_DISTANCE 8
 
 void
 SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
@@ -190,11 +190,17 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 				c_step = c_end - c_beg;
 				d_step = d_end - d_beg;
 
-				if ((abs(a_step) <= COLOR_DISTANCE) &&
-				    (abs(b_step) <= COLOR_DISTANCE) &&
-				    (abs(c_step) <= COLOR_DISTANCE) &&
-				    (abs(d_step) <= COLOR_DISTANCE) &&
-				    step > 0)
+				if (step > 0 &&
+					(abs(a_step) < COLOR_DISTANCE) &&
+					(abs(b_step) < COLOR_DISTANCE) &&
+					(abs(c_step) < COLOR_DISTANCE) &&
+					(abs(d_step) < COLOR_DISTANCE) &&
+					(
+						abs(a_step) > 1 ||
+						abs(b_step) > 1 ||
+						abs(c_step) > 1 ||
+						abs(d_step) > 1
+					))
 				{
 					// generate color change steps
 					a_step = (a_step << 16) / step;
@@ -203,7 +209,7 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 					d_step = (d_step << 16) / step;
 
 					// apply color changes
-					for (k=0; k < step; k++)
+					for (k = 0; k < step; k++)
 					{
 						*last_diff = (((a_beg + ((a_step * k) >> 16)) << 0) & 0x000000ff) |
 									 (((b_beg + ((b_step * k) >> 16)) << 8) & 0x0000ff00) |
@@ -584,7 +590,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 				if (r_scale8bittextures->value)
 				{
-					SmoothColorImage((unsigned*)image_buffer, size, size >> 7);
+					SmoothColorImage((unsigned*)image_buffer, size, width);
 				}
 
 				image = load_image(name, image_buffer,
