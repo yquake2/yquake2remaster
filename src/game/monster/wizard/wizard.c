@@ -80,8 +80,12 @@ spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 		G_FreeEdict(self);
 		return;
 	}
+
 	if (other->takedamage)
-		T_Damage (other, self, self->owner, self->velocity, self->s.origin, plane->normal, self->dmg, 1, DAMAGE_ENERGY, 0);
+	{
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
+			plane->normal, self->dmg, 1, DAMAGE_ENERGY, 0);
+	}
 	else
 	{
 		gi.WriteByte(svc_temp_entity);
@@ -94,6 +98,7 @@ spit_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 		gi.sound(self, CHAN_WEAPON, sound_proj_hit, 1, ATTN_NORM, 0);
 	}
+
 	G_FreeEdict(self);
 }
 

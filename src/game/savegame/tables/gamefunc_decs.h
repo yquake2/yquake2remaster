@@ -1178,7 +1178,7 @@ extern void supertank_stand ( edict_t * self ) ;
 extern void supertank_walk ( edict_t * self ) ;
 extern void swimmonster_start ( edict_t * self ) ;
 extern void swimmonster_start_go ( edict_t * self ) ;
-extern void swing_sword_step ( edict_t * self ) ;
+extern void monster_dynamic_damage ( edict_t * self ) ;
 extern void Tag_DogTag ( edict_t * ent , edict_t * killer , char * * pic ) ;
 extern void Tag_DropToken ( edict_t * ent , gitem_t * item ) ;
 extern void Tag_KillItBonus ( edict_t * self ) ;

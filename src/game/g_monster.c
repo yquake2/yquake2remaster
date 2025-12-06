@@ -1141,10 +1141,46 @@ M_MoveFrame(edict_t *self)
 		}
 	}
 
-	if (move && move->frame[index].thinkfunc)
+	if (move)
 	{
-		move->frame[index].thinkfunc(self);
+		if (move->frame[index].thinkfunc)
+		{
+			move->frame[index].thinkfunc(self);
+		}
 	}
+	else
+	{
+		if (!strcmp(self->monsterinfo.action, "attack") ||
+			!strcmp(self->monsterinfo.action, "melee"))
+		{
+			monster_dynamic_damage(self);
+		}
+	}
+}
+
+void
+monster_dynamic_damage(edict_t *self)
+{
+	vec3_t dir;
+	static vec3_t aim = {100, 0, -24};
+	int damage;
+
+
+	if (!self->enemy || self->dmg <= 0)
+	{
+		return;
+	}
+
+	VectorSubtract(self->s.origin, self->enemy->s.origin, dir);
+
+	if (VectorLength(dir) > 100.0)
+	{
+		return;
+	}
+
+	damage = random() * self->dmg;
+
+	fire_hit(self, aim, damage, damage);
 }
 
 static void

@@ -30,7 +30,6 @@ static int sound_search;
 static int sound_pain;
 
 void hknight_run(edict_t *self);
-void swing_sword_step(edict_t *self);
 
 // Charge
 static mframe_t hknight_frames_charge [] =
@@ -41,13 +40,13 @@ static mframe_t hknight_frames_charge [] =
 	{ai_charge, 16,	NULL},
 
 	{ai_charge, 14,	NULL},
-	{ai_charge, 20,	swing_sword_step},
-	{ai_charge, 21,	swing_sword_step},
-	{ai_charge, 13,	swing_sword_step},
+	{ai_charge, 20,	monster_dynamic_damage},
+	{ai_charge, 21,	monster_dynamic_damage},
+	{ai_charge, 13,	monster_dynamic_damage},
 
-	{ai_charge, 20,	swing_sword_step},
-	{ai_charge, 20,	swing_sword_step},
-	{ai_charge, 18,	swing_sword_step},
+	{ai_charge, 20,	monster_dynamic_damage},
+	{ai_charge, 20,	monster_dynamic_damage},
+	{ai_charge, 18,	monster_dynamic_damage},
 	{ai_charge, 16,	NULL},
 
 	{ai_charge, 20,	NULL},
@@ -128,8 +127,12 @@ magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 		G_FreeEdict(self);
 		return;
 	}
+
 	if (other->takedamage)
-		T_Damage (other, self, self->owner, self->velocity, self->s.origin, plane->normal, self->dmg, 1, DAMAGE_ENERGY, 0);
+	{
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
+			plane->normal, self->dmg, 1, DAMAGE_ENERGY, 0);
+	}
 	else
 	{
 		gi.WriteByte(svc_temp_entity);
@@ -142,6 +145,7 @@ magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 		gi.sound(self, CHAN_WEAPON, sound_proj_hit, 1, ATTN_NORM, 0);
 	}
+
 	G_FreeEdict(self);
 }
 
@@ -246,12 +250,12 @@ static mframe_t hknight_frames_slice [] =
 	{ai_charge, 13, NULL},
 	{ai_charge, 4, NULL},
 
-	{ai_charge, 7, swing_sword_step},
-	{ai_charge, 15, swing_sword_step},
-	{ai_charge, 8, swing_sword_step},
-	{ai_charge, 2, swing_sword_step},
+	{ai_charge, 7, monster_dynamic_damage},
+	{ai_charge, 15, monster_dynamic_damage},
+	{ai_charge, 8, monster_dynamic_damage},
+	{ai_charge, 2, monster_dynamic_damage},
 
-	{ai_charge, 0, swing_sword_step},
+	{ai_charge, 0, monster_dynamic_damage},
 	{ai_charge, 3, NULL}
 };
 mmove_t hknight_move_slice =
@@ -270,12 +274,12 @@ static mframe_t hknight_frames_smash [] =
 	{ai_charge, 9, NULL},
 	{ai_charge, 11, NULL},
 
-	{ai_charge, 10, swing_sword_step},
-	{ai_charge, 7, swing_sword_step},
-	{ai_charge, 12, swing_sword_step},
-	{ai_charge, 2, swing_sword_step},
+	{ai_charge, 10, monster_dynamic_damage},
+	{ai_charge, 7, monster_dynamic_damage},
+	{ai_charge, 12, monster_dynamic_damage},
+	{ai_charge, 2, monster_dynamic_damage},
 
-	{ai_charge, 3, swing_sword_step},
+	{ai_charge, 3, monster_dynamic_damage},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
@@ -293,26 +297,26 @@ static mframe_t hknight_frames_watk [] =
 	{ai_charge, 2, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
-	{ai_charge, 0, swing_sword_step},
+	{ai_charge, 0, monster_dynamic_damage},
 
-	{ai_charge, 0, swing_sword_step},
-	{ai_charge, 0, swing_sword_step},
+	{ai_charge, 0, monster_dynamic_damage},
+	{ai_charge, 0, monster_dynamic_damage},
 	{ai_charge, 1, NULL},
 	{ai_charge, 4, NULL},
 
 	{ai_charge, 5, NULL},
-	{ai_charge, 3, swing_sword_step},
-	{ai_charge, 2, swing_sword_step},
-	{ai_charge, 2, swing_sword_step},
+	{ai_charge, 3, monster_dynamic_damage},
+	{ai_charge, 2, monster_dynamic_damage},
+	{ai_charge, 2, monster_dynamic_damage},
 
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
 	{ai_charge, 1, NULL},
 
-	{ai_charge, 1, swing_sword_step},
-	{ai_charge, 3, swing_sword_step},
-	{ai_charge, 4, swing_sword_step},
+	{ai_charge, 1, monster_dynamic_damage},
+	{ai_charge, 3, monster_dynamic_damage},
+	{ai_charge, 4, monster_dynamic_damage},
 	{ai_charge, 6, NULL},
 
 	{ai_charge, 7, NULL},
@@ -522,6 +526,7 @@ SP_monster_hknight(edict_t *self)
 
 	self->gib_health = -40;
 	self->mass = 250;
+	self->dmg = 10;
 
 	monster_dynamic_setinfo(self);
 

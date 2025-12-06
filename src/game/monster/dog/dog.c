@@ -65,14 +65,18 @@ void
 dog_leap_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (self->health < 1)
+	{
 		return;
+	}
+
 	if (other->takedamage)
 	{
 		if (VectorLength(self->velocity) > 300)
 		{
 			int	damage = 10 + 10 * random();
 
-			T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, damage, 0, 0, 0);
+			T_Damage(other, self, self, vec3_origin, other->s.origin,
+				vec3_origin, damage, 0, 0, 0);
 		}
 	}
 	self->touch = NULL;
@@ -134,21 +138,9 @@ dog_leap(edict_t *self)
 static void
 dogbite_step(edict_t *self)
 {
-	vec3_t dir;
-	static vec3_t aim = {100, 0, -24};
-	int damage;
-
 	gi.sound(self, CHAN_VOICE, sound_melee, 1, ATTN_NORM, 0);
 
-	if (!self->enemy)
-		return;
-	VectorSubtract(self->s.origin, self->enemy->s.origin, dir);
-
-	if (VectorLength(dir) > 100.0)
-		return;
-	damage = (random() + random() + random()) * 8;
-
-	fire_hit(self, aim, damage, damage);
+	monster_dynamic_damage(self);
 }
 
 // Melee
@@ -367,6 +359,7 @@ SP_monster_dog(edict_t *self)
 
 	self->gib_health = -35;
 	self->mass = 30;
+	self->dmg = 24;
 
 	monster_dynamic_setinfo(self);
 

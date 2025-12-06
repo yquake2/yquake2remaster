@@ -913,6 +913,7 @@ void monster_dynamic_stand(edict_t *self);
 void monster_dynamic_search(edict_t *self);
 void monster_dynamic_setinfo(edict_t *self);
 void monster_dynamic_melee(edict_t *self);
+void monster_dynamic_damage(edict_t *self);
 void monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
 	trace_t *tr /* unused */);
 void monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,

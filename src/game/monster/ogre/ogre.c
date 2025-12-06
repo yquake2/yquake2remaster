@@ -92,24 +92,6 @@ ogre_run(edict_t *self)
 	self->monsterinfo.currentmove = &ogre_move_run;
 }
 
-static void
-OgreChainsaw(edict_t *self)
-{
-	vec3_t dir;
-	static vec3_t aim = {100, 0, -24};
-	int damage;
-
-	if (!self->enemy)
-		return;
-	VectorSubtract(self->s.origin, self->enemy->s.origin, dir);
-
-	if (VectorLength(dir) > 100.0)
-		return;
-	damage = (random() + random() + random()) * 4;
-
-	fire_hit(self, aim, damage, damage);
-}
-
 // Smash
 static mframe_t ogre_frames_smash [] =
 {
@@ -118,13 +100,13 @@ static mframe_t ogre_frames_smash [] =
 	{ai_charge, 1, NULL},
 	{ai_charge, 4, NULL},
 
-	{ai_charge, 14, OgreChainsaw},
-	{ai_charge, 14, OgreChainsaw},
-	{ai_charge, 20, OgreChainsaw},
-	{ai_charge, 23, OgreChainsaw},
+	{ai_charge, 14, monster_dynamic_damage},
+	{ai_charge, 14, monster_dynamic_damage},
+	{ai_charge, 20, monster_dynamic_damage},
+	{ai_charge, 23, monster_dynamic_damage},
 
-	{ai_charge, 10, OgreChainsaw},
-	{ai_charge, 12, OgreChainsaw},
+	{ai_charge, 10, monster_dynamic_damage},
+	{ai_charge, 12, monster_dynamic_damage},
 	{ai_charge, 1, NULL},
 	{ai_charge, 4, NULL},
 
@@ -145,15 +127,15 @@ static mframe_t ogre_frames_swing [] =
 	{ai_charge, 11, NULL},
 	{ai_charge, 1, NULL},
 	{ai_charge, 4, NULL},
-	{ai_charge, 19, OgreChainsaw},
+	{ai_charge, 19, monster_dynamic_damage},
 
-	{ai_charge, 13, OgreChainsaw},
-	{ai_charge, 10, OgreChainsaw},
-	{ai_charge, 10, OgreChainsaw},
-	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 13, monster_dynamic_damage},
+	{ai_charge, 10, monster_dynamic_damage},
+	{ai_charge, 10, monster_dynamic_damage},
+	{ai_charge, 10, monster_dynamic_damage},
 
-	{ai_charge, 10, OgreChainsaw},
-	{ai_charge, 10, OgreChainsaw},
+	{ai_charge, 10, monster_dynamic_damage},
+	{ai_charge, 10, monster_dynamic_damage},
 	{ai_charge, 3, NULL},
 	{ai_charge, 8, NULL},
 
@@ -515,6 +497,7 @@ SP_monster_ogre(edict_t *self)
 
 	self->gib_health = -80;
 	self->mass = 200;
+	self->dmg = 12;
 
 	self->monsterinfo.stand = ogre_stand;
 	self->monsterinfo.walk = ogre_run;
