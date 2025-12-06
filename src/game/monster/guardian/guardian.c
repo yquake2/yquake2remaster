@@ -37,70 +37,6 @@ static int sound_spin_loop;
 // stand
 //
 
-static mframe_t guardian_frames_stand[] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t guardian_move_stand =
-{
-	FRAME_idle1,
-	FRAME_idle52,
-	guardian_frames_stand,
-	NULL
-};
-
 void
 guardian_stand(edict_t *self)
 {
@@ -109,14 +45,16 @@ guardian_stand(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = &guardian_move_stand;
+	self->monsterinfo.firstframe = FRAME_idle1;
+	self->monsterinfo.lastframe = FRAME_idle52;
+	monster_dynamic_stand(self);
 }
 
 //
 // walk
 //
 
-static int sound_step;
+static int sound_step = 0;
 
 void
 guardian_footstep(edict_t *self)
@@ -209,7 +147,7 @@ guardian_run(edict_t *self)
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &guardian_move_stand;
+		guardian_stand(self);
 		return;
 	}
 
@@ -219,25 +157,6 @@ guardian_run(edict_t *self)
 //
 // pain
 //
-
-static mframe_t guardian_frames_pain1[] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-mmove_t guardian_move_pain1 =
-{
-	FRAME_pain1_1,
-	FRAME_pain1_8,
-	guardian_frames_pain1,
-	guardian_run
-};
 
 void
 guardian_pain(edict_t *self, edict_t *other /* other */,
@@ -289,7 +208,9 @@ guardian_pain(edict_t *self, edict_t *other /* other */,
 		return; /* no pain anims in nightmare */
 	}
 
-	self->monsterinfo.currentmove = &guardian_move_pain1;
+	self->monsterinfo.firstframe = FRAME_pain1_1;
+	self->monsterinfo.lastframe = FRAME_pain1_8;
+	monster_dynamic_pain(self, other, kick, damage);
 }
 
 static mframe_t guardian_frames_atk1_out[] = {
@@ -500,7 +421,7 @@ static mframe_t guardian_frames_atk2_fire[] = {
 	{ai_charge, 0, guardian_laser_fire},
 	{ai_charge, 0, guardian_laser_fire},
 	{ai_charge, 0, guardian_laser_fire},
-	{ai_charge, 0, guardian_laser_fire }
+	{ai_charge, 0, guardian_laser_fire}
 };
 
 mmove_t guardian_move_atk2_fire =
@@ -780,7 +701,7 @@ SP_monster_guardian(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &guardian_move_stand;
+	guardian_stand(self);
 
 	walkmonster_start(self);
 }

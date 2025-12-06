@@ -124,6 +124,8 @@ arachnid_run(edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
+		self->monsterinfo.firstframe = FRAME_idle1;
+		self->monsterinfo.lastframe = FRAME_idle13;
 		monster_dynamic_stand(self);
 		return;
 	}
