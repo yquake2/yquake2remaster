@@ -24,8 +24,8 @@
  * =======================================================================
  */
 
-#include <limits.h>
 #include "header/server.h"
+#include <limits.h>
 
 /* initialize the entities array to at least this many entities */
 #define ALLOC_ENTITIES_MIN 32
@@ -59,6 +59,7 @@ SV_AllocBaseline(int entnum)
 static int
 SV_FindIndex(const char *name, int start, int max, qboolean create)
 {
+	size_t len, space;
 	int i, protocol;
 
 	if (!name || !name[0])
@@ -96,7 +97,26 @@ SV_FindIndex(const char *name, int start, int max, qboolean create)
 		return 0;
 	}
 
-	Q_strlcpy(sv.configstrings[start + i], name, sizeof(sv.configstrings[start + i]));
+	space = sizeof(sv.configstrings[start + i]);
+	len = Q_strlcpy(sv.configstrings[start + i], name, space);
+
+	if (len >= space)
+	{
+		sv.configstrings[start + i][0] = '\0';
+
+		if (!StringList_IsInList(&sv.configstrings_overflow, name))
+		{
+			if (sv.state != ss_loading)
+			{
+				Com_Printf("Failed to load %s: configstring too long: %u > %u\n",
+					name, len, space - 1);
+			}
+
+			StringList_Add(&sv.configstrings_overflow, name);
+		}
+
+		return 0;
+	}
 
 	if (sv.state != ss_loading)
 	{
@@ -170,12 +190,6 @@ SV_CreateBaseline(void)
 
 		/* take current state as baseline */
 		VectorCopy(svent->s.origin, svent->s.old_origin);
-		if (entnum > SHRT_MAX)
-		{
-			Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
-				__func__, entnum, MAX_EDICTS);
-			return;
-		}
 
 		es = SV_AllocBaseline(entnum);
 		if (es)
@@ -473,8 +487,8 @@ SV_ChooseGamemode(void)
 void
 SV_InitGame(void)
 {
-	char idmaster[32];
 	int i, gamemode;
+	char idmaster[32];
 
 	if (svs.initialized)
 	{

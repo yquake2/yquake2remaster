@@ -964,14 +964,13 @@ char *bindnames[][2] =
 	{"invnext", "next item"},
 	{"cmd help", "help computer"}
 };
-#define NUM_BINDNAMES (sizeof bindnames / sizeof bindnames[0])
 
 int keys_cursor;
 static int menukeyitem_bind;
 
 static menuframework_s s_keys_menu = {0};
 static menuframework_s s_joy_menu = {0};
-static menuaction_s s_keys_actions[NUM_BINDNAMES] = {0};
+static menuaction_s s_keys_actions[ARRLEN(bindnames)] = {0};
 
 static void
 M_UnbindCommand(char *command, int scope)
@@ -1133,7 +1132,7 @@ Keys_MenuInit(void)
 	s_keys_menu.nitems = 0;
 	s_keys_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(bindnames); i++)
 	{
 		s_keys_actions[i].generic.type = MTYPE_ACTION;
 		s_keys_actions[i].generic.flags = QMF_GRAYED;
@@ -1217,10 +1216,9 @@ char *multiplayer_key_bindnames[][2] =
 	{"wave 3", "wave 3"},
 	{"wave 4", "wave 4"},
 };
-#define NUM_MULTIPLAYER_KEY_BINDNAMES (sizeof multiplayer_key_bindnames / sizeof multiplayer_key_bindnames[0])
 
 static menuframework_s s_multiplayer_keys_menu = {0};
-static menuaction_s s_multiplayer_keys_actions[NUM_MULTIPLAYER_KEY_BINDNAMES] = {0};
+static menuaction_s s_multiplayer_keys_actions[ARRLEN(multiplayer_key_bindnames)] = {0};
 
 static void
 MultiplayerDrawKeyBindingFunc(void *self)
@@ -1286,7 +1284,7 @@ MultiplayerKeys_MenuInit(void)
 	s_multiplayer_keys_menu.nitems = 0;
 	s_multiplayer_keys_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_MULTIPLAYER_KEY_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(multiplayer_key_bindnames); i++)
 	{
 		s_multiplayer_keys_actions[i].generic.type = MTYPE_ACTION;
 		s_multiplayer_keys_actions[i].generic.flags = QMF_GRAYED;
@@ -1415,10 +1413,9 @@ char *controller_bindnames[][2] =
 	{"+gyroaction", "gyro off / on"},
 	{"+joyaltselector", "alt buttons modifier"}
 };
-#define NUM_CONTROLLER_BINDNAMES (sizeof controller_bindnames / sizeof controller_bindnames[0])
 
 static menuframework_s s_controller_buttons_menu = {0};
-static menuaction_s s_controller_buttons_actions[NUM_CONTROLLER_BINDNAMES] = {0};
+static menuaction_s s_controller_buttons_actions[ARRLEN(controller_bindnames)] = {0};
 
 static void
 DrawControllerButtonBindingFunc(void *self)
@@ -1484,7 +1481,7 @@ ControllerButtons_MenuInit(void)
 	s_controller_buttons_menu.nitems = 0;
 	s_controller_buttons_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_CONTROLLER_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(controller_bindnames); i++)
 	{
 		s_controller_buttons_actions[i].generic.type = MTYPE_ACTION;
 		s_controller_buttons_actions[i].generic.flags = QMF_GRAYED;
@@ -1589,10 +1586,9 @@ char *controller_alt_bindnames[][2] =
 	{"use quad damage", "use quad damage"},
 	{"cmd help", "help computer"}
 };
-#define NUM_CONTROLLER_ALT_BINDNAMES (sizeof controller_alt_bindnames / sizeof controller_alt_bindnames[0])
 
 static menuframework_s s_controller_alt_buttons_menu = {0};
-static menuaction_s s_controller_alt_buttons_actions[NUM_CONTROLLER_ALT_BINDNAMES] = {0};
+static menuaction_s s_controller_alt_buttons_actions[ARRLEN(controller_alt_bindnames)] = {0};
 
 static void
 DrawControllerAltButtonBindingFunc(void *self)
@@ -1658,7 +1654,7 @@ ControllerAltButtons_MenuInit(void)
 	s_controller_alt_buttons_menu.nitems = 0;
 	s_controller_alt_buttons_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_CONTROLLER_ALT_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(controller_alt_bindnames); i++)
 	{
 		s_controller_alt_buttons_actions[i].generic.type = MTYPE_ACTION;
 		s_controller_alt_buttons_actions[i].generic.flags = QMF_GRAYED;
@@ -5914,7 +5910,7 @@ HandednessCallback(void *unused)
 static void
 RateCallback(void *unused)
 {
-	if (s_player_rate_box.curvalue != sizeof(rate_tbl) / sizeof(*rate_tbl) - 1)
+	if (s_player_rate_box.curvalue != ARRLEN(rate_tbl) - 1)
 	{
 		Cvar_SetValue("rate", (float)rate_tbl[s_player_rate_box.curvalue]);
 	}
@@ -6712,7 +6708,7 @@ PlayerConfig_MenuInit(void)
 	s_player_handedness_box.curvalue = ClampCvar(0, 2, hand->value);
 	s_player_handedness_box.itemnames = handedness;
 
-	for (i = 0; i < sizeof(rate_tbl) / sizeof(*rate_tbl) - 1; i++)
+	for (i = 0; i < ARRLEN(rate_tbl) - 1; i++)
 	{
 		if (Cvar_VariableValue("rate") == rate_tbl[i])
 		{

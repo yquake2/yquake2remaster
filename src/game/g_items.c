@@ -4529,7 +4529,7 @@ InitItems(void)
 
 	memset(itemlist, 0, sizeof(itemlist));
 	memcpy(itemlist, gameitemlist, sizeof(gameitemlist));
-	num_items = sizeof(gameitemlist) / sizeof(gameitemlist[0]) - 1;
+	num_items = ARRLEN(gameitemlist) - 1;
 
 	dyn_items = GetDynamicItems(&dyn_count);
 	if (dyn_items)

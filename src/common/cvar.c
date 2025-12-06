@@ -129,7 +129,7 @@ Cvar_FindVar(const char *var_name)
 	int i;
 
 	/* An ugly hack to rewrite changed CVARs */
-	for (i = 0; i < sizeof(replacements) / sizeof(replacement_t); i++)
+	for (i = 0; i < ARRLEN(replacements); i++)
 	{
 		if (!strcmp(var_name, replacements[i].old))
 		{
@@ -547,7 +547,7 @@ Cvar_Set_f(void)
 	firstarg = Cmd_Argv(1);
 
 	/* An ugly hack to rewrite changed CVARs */
-	for (i = 0; i < sizeof(replacements) / sizeof(replacement_t); i++)
+	for (i = 0; i < ARRLEN(replacements); i++)
 	{
 		if (!strcmp(firstarg, replacements[i].old))
 		{
