@@ -1150,8 +1150,14 @@ M_MoveFrame(edict_t *self)
 	}
 	else
 	{
-		if (!strcmp(self->monsterinfo.action, "attack") ||
-			!strcmp(self->monsterinfo.action, "melee"))
+		int middle;
+
+		middle = (lastframe - firstframe) / 2;
+
+		if ((middle == index) && (
+			!strcmp(self->monsterinfo.action, "attack") ||
+			!strcmp(self->monsterinfo.action, "melee")
+		))
 		{
 			monster_dynamic_damage(self);
 		}

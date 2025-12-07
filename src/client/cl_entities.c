@@ -143,7 +143,8 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 		}
 
-		if (effects & EF_BOB) {
+		if (effects & EF_BOB)
+		{
 			ent.origin[2] += autobob;
 			ent.oldorigin[2] += autobob;
 		}
