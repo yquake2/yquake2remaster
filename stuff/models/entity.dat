@@ -715,14 +715,14 @@ monster_morcalavin|models/monsters/morcalavin/tris.fm|1.0|1.0|1.0|char|-24.0|-24
 monster_mssithra|models/monsters/mutantsithra/tris.fm|1.0|1.0|1.0|char|-36.0|-36.0|0.0|36.0|36.0|96.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Mssithra|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_nothing||1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Nothing|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_ogle|models/monsters/ogle/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogle|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_palace_plague_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_palace_plague_guard_invisible|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_plagueElf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Elf|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_rat|models/monsters/rat/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Rat|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_rat_giant|models/monsters/rat/superduperat/tris.fm|2.0|2.0|2.0|char|-8.0|-8.0|-0.0|8.0|8.0|16.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_palace_plague_guard|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Plague Guard|1.0|0.5|0.0|100|150|2|2|100|0|0|flesh|-80
+monster_palace_plague_guard_invisible|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Invisible Plague Guard|1.0|0.5|0.0|100|150|2|2|100|0|0|flesh|-80
+monster_plagueElf|models/monsters/plaguelf/tris.fm|1.0|1.0|1.0|char|-17.0|-25.0|-1.0|22.0|12.0|63.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Elf|1.0|0.5|0.0|50|150|2|2|100|0|0|flesh|-80
+monster_rat|models/monsters/rat/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|4.0|10.0|0|0|0|0:0|0|0|none|Rat|1.0|0.5|0.0|10|10|1|1|100|0|0|flesh|-40
+monster_rat_giant|models/monsters/rat/superduperat/tris.fm|2.0|2.0|2.0|char|-8.0|-8.0|-0.0|8.0|8.0|16.0|shadow|1|4.0|10.0|0|0|0|0:0|0|0|none|Giant Rat|1.0|0.5|0.0|40|20|4|2|100|0|0|flesh|-40
 monster_seraph_guard|models/monsters/guard/tris.fm|2.5|2.5|2.5|char|-12.0|-12.0|-17.0|12.0|12.0|17.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Guard|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_seraph_overlord|models/monsters/overlord/tris.fm|1.0|1.0|1.0|char|-24.0|-24.0|-34.0|24.0|24.0|34.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Seraph Overlord|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_spreader|models/monsters/spreader/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Spreader|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+monster_spreader|models/monsters/spreader/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-0.0|16.0|16.0|32.0|shadow|1|8.0|16.0|0|0|0|0:0|0|0|none|Spreader|1.0|0.5|0.0|200|275|10|0|100|0|0|none|-80
 monster_ssithra|models/monsters/ssithra/tris.fm|1.1|1.1|1.1|char|-16.0|-16.0|-32.0|16.0|16.0|26.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Plague Ssithra|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_tcheckrik_female|models/monsters/tcheckrik/female/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Female Tcheckrik|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_tcheckrik_male|models/monsters/tcheckrik/male/tris.fm|1.0|1.0|1.0|char|-16.0|-16.0|-32.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Male Tcheckrik|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0

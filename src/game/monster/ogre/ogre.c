@@ -482,7 +482,7 @@ SP_monster_ogre(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/ogre/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 64);
-	self->health *= st.health_multiplier;
+	self->health = 200 * st.health_multiplier;
 
 	sound_death = gi.soundindex("ogre/ogdth.wav");
 	sound_attack = gi.soundindex("ogre/grenade.wav");
@@ -494,6 +494,10 @@ SP_monster_ogre(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
+
+	self->gib_health = -80;
+	self->mass = 200;
+	self->dmg = 12;
 
 	self->monsterinfo.stand = ogre_stand;
 	self->monsterinfo.walk = ogre_run;
