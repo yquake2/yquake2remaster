@@ -310,16 +310,16 @@ misc_fighter|models/vault/ships/fighter/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0
 misc_transprt|models/vault/ships/transprt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Vault transport ship|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_army|models/monsters/army/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Army soldier|1|.5|0|0|0|0|0|0|0|0|none|0
 monster_demon|models/monsters/demon/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|64|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Demon|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_dog|models/monsters/dog/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dog|1|.5|0|0|0|0|0|0|0|0|none|0
+monster_dog|models/monsters/dog/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Dog|1|.5|0|25|30|0|24|100|0|-24|organic|-35
 monster_enforcer|models/monsters/enforcer/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Enforcer|1|.5|0|0|0|0|0|0|0|0|none|0
 monster_floaterv|models/vault/monsters/float/tris.md2|1.0|1.0|1.0|char|-24.0|-24.0|-24.0|24.0|24.0|48.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Technician|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_flyerv|models/vault/monsters/flyer/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Flyer|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_gnorta|models/vault/monsters/gnorta/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Gnorta|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_hknight|models/monsters/hknight/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|HKnight|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_knight|models/monsters/knight/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Knight|1|.5|0|0|0|0|0|0|0|0|none|0
+monster_hknight|models/monsters/hknight/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|HKnight|1|.5|0|250|250|0|10|100|0|-24|organic|-40
+monster_knight|models/monsters/knight/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Knight|1|.5|0|75|75|0|10|100|0|-24|organic|-40
 monster_mutantv|models/vault/monsters/mutant/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Mutant|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-monster_ogre|models/monsters/ogre/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|64|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogre|1|.5|0|0|0|0|0|0|0|0|none|0
-monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|char|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0|25|25|0|0|0|0|0|none|0
+monster_ogre|models/monsters/ogre/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|64|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Ogre|1|.5|0|200|200|0|12|100|0|-24|organic|-80
+monster_rotfish|models/monsters/rotfish/tris.md2|1.0|1.0|1.0|char|-25.0|-25.0|-14.0|25.0|25.0|14.0|shadow|1|6.0|12.0|0|0|0|0:0|0|0|none|Rotfish|1.0|0.5|0.0|25|25|0|0|0|0|0|organic|0
 monster_shalrath|models/monsters/shalrath/tris.md2|1.0|1.0|1.0|char|-32,|-32,|-24|32,|32,|48|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shalrath|1|.5|0|0|0|0|0|0|0|0|none|0
 monster_shambler|models/monsters/shambler/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|64.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Shambler|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_shockerv|models/vault/monsters/shocker/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-24.0|32.0|32.0|32.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Shocker|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0

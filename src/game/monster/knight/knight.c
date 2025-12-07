@@ -322,7 +322,7 @@ SP_monster_knight(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/knight/tris.md2");
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 40);
-	self->health = 75 * st.health_multiplier;
+	self->health *= st.health_multiplier;
 
 	sound_melee1 = gi.soundindex("knight/sword1.wav");
 	sound_melee2 = gi.soundindex("knight/sword2.wav");
@@ -333,10 +333,6 @@ SP_monster_knight(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-
-	self->gib_health = -40;
-	self->mass = 75;
-	self->dmg = 10;
 
 	monster_dynamic_setinfo(self);
 

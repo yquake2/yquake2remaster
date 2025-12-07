@@ -1162,11 +1162,10 @@ void
 monster_dynamic_damage(edict_t *self)
 {
 	vec3_t dir;
-	static vec3_t aim = {100, 0, -24};
 	int damage;
 
 
-	if (!self->enemy || self->dmg <= 0)
+	if (!self->enemy || ((self->dmg <= 0) && (self->dmg_range <= 0)))
 	{
 		return;
 	}
@@ -1178,9 +1177,9 @@ monster_dynamic_damage(edict_t *self)
 		return;
 	}
 
-	damage = random() * self->dmg;
+	damage = self->dmg + random() * self->dmg_range;
 
-	fire_hit(self, aim, damage, damage);
+	fire_hit(self, self->damage_aim, damage, damage);
 }
 
 static void
@@ -1306,8 +1305,8 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	if (self->health <= self->gib_health)
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
+		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, self->gib);
+		ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, self->gib);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
