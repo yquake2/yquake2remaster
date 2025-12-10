@@ -2561,12 +2561,30 @@ PutClientInServer(edict_t *ent)
 		ent->client->pers.wanted_fog[2] = world->fog.color[1];
 		ent->client->pers.wanted_fog[3] = world->fog.color[2];
 	}
-	else if	(world->fog.altdensity)
+	else if (world->fog.altdensity)
 	{
 		ent->client->pers.wanted_fog[0] = world->fog.altdensity;
 		ent->client->pers.wanted_fog[1] = world->fog.altcolor[0];
 		ent->client->pers.wanted_fog[2] = world->fog.altcolor[1];
 		ent->client->pers.wanted_fog[3] = world->fog.altcolor[2];
+	}
+	else if (world->fog.afog)
+	{
+		int res;
+
+		/* Anachronox: Fog value */
+		res = sscanf(world->fog.afog, "%f %f %f %f",
+			&ent->client->pers.wanted_fog[0],
+			&ent->client->pers.wanted_fog[1],
+			&ent->client->pers.wanted_fog[2],
+			&ent->client->pers.wanted_fog[3]);
+		ent->client->pers.wanted_fog[0] *= 200;
+		if (res != 4)
+		{
+			gi.dprintf("%s: Failed to load fog\n", __func__);
+			memset(ent->client->pers.wanted_fog, 0,
+				sizeof(ent->client->pers.wanted_fog));
+		}
 	}
 
 	ent->client->pers.wanted_fog[4] = world->fog.sky_factor;

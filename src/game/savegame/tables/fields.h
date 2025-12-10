@@ -68,6 +68,7 @@
 {"fog_sky_factor_off", FOFS(fog.sky_factor_off), F_FLOAT},
 {"fogdensity", FOFS(fog.altdensity), F_FLOAT},
 {"fogval", FOFS(fog.altcolor), F_VECTOR},
+{"fog", FOFS(fog.afog), F_LSTRING},
 {"heightfog_falloff", FOFS(heightfog.falloff), F_FLOAT},
 {"heightfog_density", FOFS(heightfog.density), F_FLOAT},
 {"heightfog_start_color", FOFS(heightfog.start_color), F_VECTOR},

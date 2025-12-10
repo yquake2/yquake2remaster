@@ -1462,9 +1462,11 @@ typedef struct {
 	vec3_t color_off;
 	float density_off;
 	float sky_factor_off;
-	/* kingpin */
+	/* Kingpin */
 	vec3_t altcolor;
 	float altdensity;
+	/* Anachronox */
+	char *afog;
 } edictfog_t;
 
 typedef struct {
