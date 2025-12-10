@@ -148,7 +148,16 @@ typedef enum
 {
 	GIB_NONE,
 	GIB_ORGANIC,
-	GIB_METALLIC
+	GIB_METALLIC,
+	GIB_STONE,
+	GIB_GREYSTONE,
+	GIB_CLOTH,
+	GIB_POTTERY,
+	GIB_GLASS,
+	GIB_LEAF,
+	GIB_WOOD,
+	GIB_BROWNSTONE,
+	GIB_INSECT,
 } gibtype_t;
 
 /* monster ai flags */
@@ -1581,6 +1590,7 @@ struct edict_s
 	int dmg_range;              /* additional damage range */
 	vec3_t damage_aim;          /* aim for dynamic animation damage */
 	gibtype_t gib;              /* default gib type */
+	const char *gibtype;        /* gib value from level entity */
 	int radius_dmg;
 	float dmg_radius;
 	int sounds;                 /* now also used for player death sound aggregation */

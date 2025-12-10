@@ -116,6 +116,93 @@ DynamicResetSpawnModels(edict_t *self)
 	self->s.modelindex3 = 0;
 }
 
+static gibtype_t
+DynamicSpawnGibFromName(const char *gib_type)
+{
+	if (!gib_type || !gib_type[0])
+	{
+		return GIB_NONE;
+	}
+
+	if (strlen(gib_type) <= 2 && gib_type[0] >= '0' && gib_type[0] <= '9')
+	{
+		/* Heretic 2: type is started from number */
+		int gib_val;
+
+		gib_val = (int)strtol(gib_type, (char **)NULL, 10);
+		switch (gib_val)
+		{
+			case 0: return GIB_STONE;
+			case 1: return GIB_GREYSTONE;
+			case 2: return GIB_CLOTH;
+			case 3: return GIB_METALLIC;
+			case 4: return GIB_ORGANIC;
+			case 5: return GIB_POTTERY;
+			case 6: return GIB_GLASS;
+			case 7: return GIB_LEAF;
+			case 8: return GIB_WOOD;
+			case 9: return GIB_BROWNSTONE;
+			case 10: return GIB_NONE;
+			case 11: return GIB_INSECT;
+			default: return GIB_NONE;
+		}
+	}
+
+	/* Combined ReMaster names and Heretic 2 materials */
+	if (!strcmp(gib_type, "none"))
+	{
+		return GIB_NONE;
+	}
+	else if (!strcmp(gib_type, "metal") ||
+		!strcmp(gib_type, "metallic"))
+	{
+		return GIB_METALLIC;
+	}
+	else if (!strcmp(gib_type, "flesh") ||
+		!strcmp(gib_type, "organic"))
+	{
+		return GIB_ORGANIC;
+	}
+	else if (!strcmp(gib_type, "stone"))
+	{
+		return GIB_STONE;
+	}
+	else if (!strcmp(gib_type, "greystone"))
+	{
+		return GIB_GREYSTONE;
+	}
+	else if (!strcmp(gib_type, "cloth"))
+	{
+		return GIB_CLOTH;
+	}
+	else if (!strcmp(gib_type, "pottery"))
+	{
+		return GIB_POTTERY;
+	}
+	else if (!strcmp(gib_type, "glass"))
+	{
+		return GIB_GLASS;
+	}
+	else if (!strcmp(gib_type, "leaf"))
+	{
+		return GIB_LEAF;
+	}
+	else if (!strcmp(gib_type, "wood"))
+	{
+		return GIB_WOOD;
+	}
+	else if (!strcmp(gib_type, "brownstone"))
+	{
+		return GIB_BROWNSTONE;
+	}
+	else if (!strcmp(gib_type, "insect"))
+	{
+		return GIB_INSECT;
+	}
+
+	return GIB_NONE;
+}
+
 static void
 DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 {
@@ -173,6 +260,11 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	VectorCopy(data->maxs, self->maxs);
 	VectorCopy(data->damage_aim, self->damage_aim);
 	self->gib = data->gib;
+	/* Heretic 2 material types */
+	if (self->gibtype && self->gibtype[0])
+	{
+		self->gib = DynamicSpawnGibFromName(self->gibtype);
+	}
 
 	/* has updated scale */
 	if (st.scale[0] || st.scale[1] || st.scale[2])
@@ -2598,16 +2690,7 @@ DynamicSpawnInit(void)
 				line = DynamicStringParse(line, gib_type, MAX_QPATH, '|');
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].gib_health, '|');
 
-				if (!strcmp(gib_type, "metal") ||
-					!strcmp(gib_type, "metallic"))
-				{
-					dynamicentities[curr_pos].gib = GIB_METALLIC;
-				}
-				else if (!strcmp(gib_type, "flesh") ||
-					!strcmp(gib_type, "organic"))
-				{
-					dynamicentities[curr_pos].gib = GIB_ORGANIC;
-				}
+				dynamicentities[curr_pos].gib = DynamicSpawnGibFromName(gib_type);
 
 				/* Fix path */
 				Q_replacebackslash(dynamicentities[curr_pos].model_path);

@@ -80,6 +80,7 @@
 {"heightfog_start_dist_off", FOFS(heightfog.start_dist_off), F_FLOAT},
 {"heightfog_end_color_off", FOFS(heightfog.end_color_off), F_VECTOR},
 {"heightfog_end_dist_off", FOFS(heightfog.end_dist_off), F_FLOAT},
+{"materialtype", FOFS(gibtype), F_LSTRING},
 {"effects", STOFS(effects), F_INT, FFL_SPAWNTEMP},
 {"fade_end_dist", STOFS(fade_end_dist), F_FLOAT, FFL_SPAWNTEMP},
 {"fade_start_dist", STOFS(fade_start_dist), F_FLOAT, FFL_SPAWNTEMP},
