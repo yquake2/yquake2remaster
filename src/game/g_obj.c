@@ -51,6 +51,123 @@ DynamicObjectSpawn(edict_t *self)
 }
 
 /*
+ * QUAKED obj_andwallhanging (0.3 0.3 1.0) (0.0 -19.0 -24.0) (4.0 19.0 24.0)
+ *
+ * Heretic 2: Circular Andorian wall hanging
+ */
+/*
+ * QUAKED monster_bee (1 .5 0) (-2.0 -2.0 -25.0) (2.0 2.0 25.0)
+ *
+ * The bee
+ */
+/*
+ * QUAKED obj_basket (0.3 0.3 1.0) (-13.0 -13.0 -21.0) (13.0 13.0 21.0)
+ *
+ * Heretic 2: Basket
+ */
+/*
+ * QUAKED obj_bookclosed (0.3 0.3 1.0) (-8.0 -8.0 -2.0) (8.0 8.0 2.0)
+ *
+ * Heretic 2: Closed book standing up
+ */
+/*
+ * QUAKED obj_bookopen (0.3 0.3 1.0) (-8.0 -16.0 -2.0) (8.0 16.0 2.0)
+ *
+ * Heretic 2: Open Book
+ */
+/*
+ * QUAKED obj_bottle1 (0.3 0.3 1.0) (-3.0 -3.0 -7.0) (3.0 3.0 7.0)
+ *
+ * Heretic 2: Bottle
+ */
+/*
+ * QUAKED obj_chair1 (0.3 0.3 1.0) (-12.0 -8.0 -26.0) (12.0 8.0 26.0)
+ *
+ * Heretic 2: Chair (wood)
+ */
+/*
+ * QUAKED obj_claybowl (0.3 0.3 1.0) (-6.0 -6.0 -2.0) (6.0 6.0 2.0)
+ *
+ * Heretic 2: Clay bowl
+ */
+/*
+ * QUAKED obj_clayjar (0.3 0.3 1.0) (-15.0 -15.0 -24.0) (15.0 15.0 24.0)
+ *
+ * Heretic 2: Clay jar
+ */
+/*
+ * QUAKED obj_fishtrap (0.3 0.3 1.0) (-14.0 -28.0 -13.0) (14.0 28.0 13.0)
+ *
+ * Heretic 2: Fish trap
+ */
+/*
+ * QUAKED obj_jug1 (0.3 0.3 1.0) (-6.0 -6.0 -6.0) (6.0 6.0 6.0)
+ *
+ * Heretic 2: Jug
+ */
+/*
+ * QUAKED obj_kettle (0.3 0.3 1.0) (-8.0 -8.0 0.0) (8.0 8.0 10.0)
+ *
+ * Heretic 2: Kettle
+ */
+/*
+ * QUAKED obj_lab_parts_container (0.3 0.3 1.0) (-8.0 -8.0 -11.0) (8.0 8.0 11.0)
+ *
+ * Heretic 2: Body parts container
+ */
+/*
+ * QUAKED obj_pick (0.3 0.3 1.0) (-12.0 -13.0 -2.0) (12.0 13.0 2.0)
+ *
+ * Heretic 2: Pick
+ */
+/*
+ * QUAKED obj_pot2 (0.3 0.3 1.0) (-7.0 -7.0 -3.0) (7.0 7.0 3.0)
+ *
+ * Heretic 2: Flat cooking pot
+ */
+/*
+ * QUAKED obj_pottedplant (0.3 0.3 1.0) (-20.0 -20.0 -30.0) (20.0 20.0 30.0)
+ *
+ * Heretic 2: Potted plant
+ */
+/*
+ * QUAKED obj_pushcart (0.3 0.3 1.0) (-13.0 -16.0 -41.0) (13.0 16.0 41.0)
+ *
+ * Heretic 2: Push cart
+ */
+/*
+ * QUAKED obj_scroll (0.3 0.3 1.0) (-2.0 -18.0 -3.0) (2.0 18.0 3.0)
+ *
+ * Heretic 2: Scroll
+ */
+/*
+ * QUAKED obj_stein (0.3 0.3 1.0) (-2.0 -2.0 -3.0) (2.0 2.0 3.0)
+ *
+ * Heretic 2: Stein
+ */
+/*
+ * QUAKED obj_table1 (0.3 0.3 1.0) (-28.0 -54.0 -18.0) (28.0 54.0 18.0)
+ *
+ * Heretic 2: Table (wood)
+ */
+/*
+ * QUAKED obj_urn (0.3 0.3 1.0) (-8.0 -8.0 -27.0) (8.0 8.0 30.0)
+ *
+ * Heretic 2: Urn (Andorian)
+ */
+/*
+ * QUAKED obj_wheelbarrow (0.3 0.3 1.0) (-37.0 -20.0 -21.0) (37.0 20.0 21.0)
+ *
+ * Heretic 2: Wheelbarrow
+ */
+void
+SP_obj_material(edict_t *self)
+{
+	/* TODO: should rename to obj_meterial */
+	DynamicObjectSpawn(self);
+}
+
+/*
  * QUAKED obj_banner (0.3 0.3 1.0) (-8.0 -44.0 -296.0) (8.0 44.0 0.0)
  *
  * Heretic 2: Banner
@@ -126,7 +243,7 @@ SP_object_flame1(edict_t *self)
 void
 SP_obj_barrel(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -148,18 +265,7 @@ SP_object_barrel(edict_t *self)
 void
 SP_obj_broom(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_chair1 (0.3 0.3 1.0) (-12.0 -8.0 -26.0) (12.0 8.0 26.0)
- *
- * Heretic 2: Chair (wood)
- */
-void
-SP_obj_chair1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -170,7 +276,7 @@ SP_obj_chair1(edict_t *self)
 void
 SP_obj_chair2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -181,7 +287,7 @@ SP_obj_chair2(edict_t *self)
 void
 SP_obj_chair3(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -192,7 +298,7 @@ SP_obj_chair3(edict_t *self)
 void
 SP_obj_chest1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -203,7 +309,7 @@ SP_obj_chest1(edict_t *self)
 void
 SP_obj_chest2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -214,7 +320,7 @@ SP_obj_chest2(edict_t *self)
 void
 SP_obj_chest3(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -225,7 +331,7 @@ SP_obj_chest3(edict_t *self)
 void
 SP_obj_cog1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -267,9 +373,10 @@ SP_obj_corpse(edict_t *self)
 	{
 		frame += count - 1;
 	}
+
 	self->s.frame = frame;
 
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -319,7 +426,16 @@ SP_obj_sign1(edict_t *self)
 void
 SP_obj_sign4(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	if (!self->style)
+	{
+		self->s.skinnum = 0;
+	}
+	else
+	{
+		self->s.skinnum = 1;
+	}
+
+	SP_obj_material(self);
 }
 
 /*
@@ -330,7 +446,7 @@ SP_obj_sign4(edict_t *self)
 void
 SP_obj_statue_corvus(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -341,7 +457,7 @@ SP_obj_statue_corvus(edict_t *self)
 void
 SP_obj_statue_dolphin1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -352,7 +468,9 @@ SP_obj_statue_dolphin1(edict_t *self)
 void
 SP_obj_statue_dolphin2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 1;
+
+	SP_obj_material(self);
 }
 
 /*
@@ -363,7 +481,9 @@ SP_obj_statue_dolphin2(edict_t *self)
 void
 SP_obj_statue_dolphin3(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 3;
+
+	SP_obj_material(self);
 }
 
 /*
@@ -374,7 +494,9 @@ SP_obj_statue_dolphin3(edict_t *self)
 void
 SP_obj_statue_dolphin4(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 2;
+
+	SP_obj_material(self);
 }
 
 /*
@@ -385,18 +507,7 @@ SP_obj_statue_dolphin4(edict_t *self)
 void
 SP_obj_statue_guardian(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_table1 (0.3 0.3 1.0) (-28.0 -54.0 -18.0) (28.0 54.0 18.0)
- *
- * Heretic 2: Table (wood)
- */
-void
-SP_obj_table1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -407,7 +518,7 @@ SP_obj_table1(edict_t *self)
 void
 SP_obj_table2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -418,18 +529,7 @@ SP_obj_table2(edict_t *self)
 void
 SP_obj_throne(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_kettle (0.3 0.3 1.0) (-8.0 -8.0 0.0) (8.0 8.0 10.0)
- *
- * Heretic 2: Kettle
- */
-void
-SP_obj_kettle(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -440,7 +540,7 @@ SP_obj_kettle(edict_t *self)
 void
 SP_obj_cauldron(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -451,7 +551,9 @@ SP_obj_cauldron(edict_t *self)
 void
 SP_obj_firepot(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.sound = gi.soundindex("ambient/fireplace.wav");
+
+	SP_obj_material(self);
 }
 
 /*
@@ -462,7 +564,8 @@ SP_obj_firepot(edict_t *self)
 void
 SP_obj_statue_duckbill1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 0;
+	SP_obj_material(self);
 }
 
 /*
@@ -474,7 +577,7 @@ void
 SP_obj_statue_duckbill2(edict_t *self)
 {
 	self->s.frame = 1;
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -489,28 +592,6 @@ SP_obj_seasonglobe(edict_t *self)
 }
 
 /*
- * QUAKED obj_stein (0.3 0.3 1.0) (-2.0 -2.0 -3.0) (2.0 2.0 3.0)
- *
- * Heretic 2: Stein
- */
-void
-SP_obj_stein(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_scroll (0.3 0.3 1.0) (-2.0 -18.0 -3.0) (2.0 18.0 3.0)
- *
- * Heretic 2: Scroll
- */
-void
-SP_obj_scroll(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
  * QUAKED obj_fountain_fish (0.3 0.3 1.0) (-52.0 -34.0 -48.0) (52.0 34.0 48.0)
  *
  * Heretic 2: Two-headed fish fountain. Water FX not included
@@ -518,7 +599,7 @@ SP_obj_scroll(edict_t *self)
 void
 SP_obj_fountain_fish(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -529,18 +610,7 @@ SP_obj_fountain_fish(edict_t *self)
 void
 SP_obj_statue_boulderfish(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_pottedplant (0.3 0.3 1.0) (-20.0 -20.0 -30.0) (20.0 20.0 30.0)
- *
- * Heretic 2: Potted plant
- */
-void
-SP_obj_pottedplant(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -566,7 +636,7 @@ SP_obj_plant(edict_t *self)
 		self->s.skinnum = self->style;
 	}
 
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -577,7 +647,7 @@ SP_obj_plant(edict_t *self)
 void
 SP_obj_treetop(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -588,7 +658,7 @@ SP_obj_treetop(edict_t *self)
 void
 SP_obj_tree(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -599,7 +669,7 @@ SP_obj_tree(edict_t *self)
 void
 SP_obj_tree2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -632,7 +702,9 @@ SP_obj_treetall(edict_t *self)
 void
 SP_obj_treefallen(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 1;
+
+	SP_obj_material(self);
 }
 
 /*
@@ -643,7 +715,7 @@ SP_obj_treefallen(edict_t *self)
 void
 SP_obj_shovel(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -654,18 +726,7 @@ SP_obj_shovel(edict_t *self)
 void
 SP_obj_woodpile(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_fishtrap (0.3 0.3 1.0) (-14.0 -28.0 -13.0) (14.0 28.0 13.0)
- *
- * Heretic 2: Fish trap
- */
-void
-SP_obj_fishtrap(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -676,7 +737,7 @@ SP_obj_fishtrap(edict_t *self)
 void
 SP_obj_bench(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -687,7 +748,7 @@ SP_obj_bench(edict_t *self)
 void
 SP_obj_bucket(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -698,18 +759,17 @@ SP_obj_bucket(edict_t *self)
 void
 SP_obj_ropechain(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
+	if (self->s.skinnum == 0)
+	{
+		self->gib = GIB_WOOD;
+	}
+	else
+	{
+		self->gib = GIB_METALLIC;
+		self->health *= 2;
+	}
 
-/*
- * QUAKED obj_wheelbarrow (0.3 0.3 1.0) (-37.0 -20.0 -21.0) (37.0 20.0 21.0)
- *
- * Heretic 2: Wheelbarrow
- */
-void
-SP_obj_wheelbarrow(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -720,18 +780,8 @@ SP_obj_wheelbarrow(edict_t *self)
 void
 SP_obj_wheelbarrowdamaged(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_urn (0.3 0.3 1.0) (-8.0 -8.0 -27.0) (8.0 8.0 30.0)
- *
- * Heretic 2: Urn (Andorian)
- */
-void
-SP_obj_urn(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	self->s.frame = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -742,7 +792,7 @@ SP_obj_urn(edict_t *self)
 void
 SP_obj_bigcrystal(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -795,7 +845,7 @@ SP_obj_moss(edict_t *self)
 	}
 
 	self->s.renderfx |= RF_TRANSLUCENT;
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -817,7 +867,7 @@ SP_obj_floor_candelabrum(edict_t *self)
 void
 SP_obj_statue_dragonhead(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -828,7 +878,16 @@ SP_obj_statue_dragonhead(edict_t *self)
 void
 SP_obj_statue_dragon(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	if (!self->style)
+	{
+		self->s.frame = 0;
+	}
+	else
+	{
+		self->s.frame = 1;
+	}
+
+	SP_obj_material(self);
 }
 
 /*
@@ -851,7 +910,7 @@ SP_obj_flagonpole(edict_t *self)
 void
 SP_obj_lever1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -862,7 +921,7 @@ SP_obj_lever1(edict_t *self)
 void
 SP_obj_lever2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -873,7 +932,7 @@ SP_obj_lever2(edict_t *self)
 void
 SP_obj_lever3(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -889,7 +948,7 @@ SP_obj_lever3(edict_t *self)
 void
 SP_obj_bush(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -900,7 +959,7 @@ SP_obj_bush(edict_t *self)
 void
 SP_obj_cactus(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -911,7 +970,7 @@ SP_obj_cactus(edict_t *self)
 void
 SP_obj_cactus3(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -922,40 +981,7 @@ SP_obj_cactus3(edict_t *self)
 void
 SP_obj_cactus4(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_basket (0.3 0.3 1.0) (-13.0 -13.0 -21.0) (13.0 13.0 21.0)
- *
- * Heretic 2: Basket
- */
-void
-SP_obj_basket(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_claybowl (0.3 0.3 1.0) (-6.0 -6.0 -2.0) (6.0 6.0 2.0)
- *
- * Heretic 2: Clay bowl
- */
-void
-SP_obj_claybowl(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_clayjar (0.3 0.3 1.0) (-15.0 -15.0 -24.0) (15.0 15.0 24.0)
- *
- * Heretic 2: Clay jar
- */
-void
-SP_obj_clayjar(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -966,7 +992,7 @@ SP_obj_clayjar(edict_t *self)
 void
 SP_obj_gorgonbones(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -977,7 +1003,7 @@ SP_obj_gorgonbones(edict_t *self)
 void
 SP_obj_grass(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -988,7 +1014,7 @@ SP_obj_grass(edict_t *self)
 void
 SP_obj_swampflat_top(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -999,7 +1025,7 @@ SP_obj_swampflat_top(edict_t *self)
 void
 SP_obj_swampflat_bottom(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1010,7 +1036,8 @@ SP_obj_swampflat_bottom(edict_t *self)
 void
 SP_obj_treestump(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.skinnum = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -1021,7 +1048,8 @@ SP_obj_treestump(edict_t *self)
 void
 SP_obj_jawbone(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.skinnum = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -1032,7 +1060,8 @@ SP_obj_jawbone(edict_t *self)
 void
 SP_obj_barrel_metal(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.skinnum = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -1065,7 +1094,8 @@ SP_obj_barrel_indestructible(edict_t *self)
 void
 SP_obj_barrel_explosive(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.skinnum = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -1076,7 +1106,8 @@ SP_obj_barrel_explosive(edict_t *self)
 void
 SP_obj_gascan(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.skinnum = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -1093,8 +1124,7 @@ void
 SP_obj_pipe(edict_t *self)
 {
 	self->s.skinnum = 1;
-
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1105,7 +1135,8 @@ SP_obj_pipe(edict_t *self)
 void
 SP_obj_pipewheel(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.skinnum = 1;
+	SP_obj_material(self);
 }
 
 /*
@@ -1142,29 +1173,7 @@ SP_obj_minecart(edict_t *self)
 		self->s.frame = 0;
 	}
 
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_andwallhanging (0.3 0.3 1.0) (0.0 -19.0 -24.0) (4.0 19.0 24.0)
- *
- * Heretic 2: Circular Andorian wall hanging
- */
-void
-SP_obj_andwallhanging(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_pick (0.3 0.3 1.0) (-12.0 -13.0 -2.0) (12.0 13.0 2.0)
- *
- * Heretic 2: Pick
- */
-void
-SP_obj_pick(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1198,7 +1207,7 @@ SP_obj_metalchunk(edict_t *self)
 		self->s.frame = 0;
 	}
 
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1214,7 +1223,7 @@ SP_obj_metalchunk(edict_t *self)
 void
 SP_obj_rocks(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1225,7 +1234,7 @@ SP_obj_rocks(edict_t *self)
 void
 SP_obj_hivepriestessssymbol(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1236,7 +1245,7 @@ SP_obj_hivepriestessssymbol(edict_t *self)
 void
 SP_obj_queenthrone(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1247,7 +1256,7 @@ SP_obj_queenthrone(edict_t *self)
 void
 SP_obj_queenchair(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1269,7 +1278,7 @@ SP_obj_shrine(edict_t *self)
 void
 SP_obj_larvaegg(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1280,7 +1289,7 @@ SP_obj_larvaegg(edict_t *self)
 void
 SP_obj_larvabrokenegg(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1291,7 +1300,7 @@ SP_obj_larvabrokenegg(edict_t *self)
 void
 SP_obj_cocoon(edict_t *self)
 {
-	object_spawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1302,7 +1311,8 @@ SP_obj_cocoon(edict_t *self)
 void
 SP_obj_cocoonopen(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 20;
+	SP_obj_material(self);
 }
 
 /*
@@ -1313,7 +1323,7 @@ SP_obj_cocoonopen(edict_t *self)
 void
 SP_obj_venusflytrap(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1324,7 +1334,7 @@ SP_obj_venusflytrap(edict_t *self)
 void
 SP_obj_statue_techeckriktomb(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1335,7 +1345,14 @@ SP_obj_statue_techeckriktomb(edict_t *self)
 void
 SP_obj_statue_techeckrikright(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 2;
+
+	if (self->spawnflags & 16)
+	{
+		self->s.frame = 3;
+	}
+
+	SP_obj_material(self);
 }
 
 /*
@@ -1346,7 +1363,14 @@ SP_obj_statue_techeckrikright(edict_t *self)
 void
 SP_obj_statue_techeckrikleft(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 0;
+
+	if (self->spawnflags & 16)
+	{
+		self->s.frame = 1;
+	}
+
+	SP_obj_material(self);
 }
 
 /*
@@ -1357,7 +1381,8 @@ SP_obj_statue_techeckrikleft(edict_t *self)
 void
 SP_obj_spellbook(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 20;
+	SP_obj_material(self);
 }
 
 /*
@@ -1368,7 +1393,7 @@ SP_obj_spellbook(edict_t *self)
 void
 SP_obj_skullpole(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1379,40 +1404,7 @@ SP_obj_skullpole(edict_t *self)
 void
 SP_obj_pot1(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_pot2 (0.3 0.3 1.0) (-7.0 -7.0 -3.0) (7.0 7.0 3.0)
- *
- * Heretic 2: Flat cooking pot
- */
-void
-SP_obj_pot2(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_bottle1 (0.3 0.3 1.0) (-3.0 -3.0 -7.0) (3.0 3.0 7.0)
- *
- * Heretic 2: Bottle
- */
-void
-SP_obj_bottle1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_jug1 (0.3 0.3 1.0) (-6.0 -6.0 -6.0) (6.0 6.0 6.0)
- *
- * Heretic 2: Jug
- */
-void
-SP_obj_jug1(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1423,7 +1415,16 @@ SP_obj_jug1(edict_t *self)
 void
 SP_obj_torture_table(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	if (self->style < 2)
+	{
+		self->s.frame = self->style;
+	}
+	else
+	{
+		self->s.frame = 0;
+	}
+
+	SP_obj_material(self);
 }
 
 /*
@@ -1434,7 +1435,7 @@ SP_obj_torture_table(edict_t *self)
 void
 SP_obj_torture_wallring(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1445,7 +1446,16 @@ SP_obj_torture_wallring(edict_t *self)
 void
 SP_obj_statue_tchecktrik_bust(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	if (!self->style)
+	{
+		self->s.frame = 1;
+	}
+	else
+	{
+		self->s.frame = 0;
+	}
+
+	SP_obj_material(self);
 }
 
 /*
@@ -1457,7 +1467,9 @@ SP_obj_statue_tchecktrik_bust(edict_t *self)
 void
 SP_obj_statue_sithraguard(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 0;
+
+	SP_obj_material(self);
 }
 
 /*
@@ -1468,7 +1480,9 @@ SP_obj_statue_sithraguard(edict_t *self)
 void
 SP_obj_torture_ironmaiden(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.frame = 0;
+
+	SP_obj_material(self);
 }
 
 /*
@@ -1479,7 +1493,7 @@ SP_obj_torture_ironmaiden(edict_t *self)
 void
 SP_obj_torture_rack(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1490,7 +1504,7 @@ SP_obj_torture_rack(edict_t *self)
 void
 SP_obj_torture_bed(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1501,7 +1515,7 @@ SP_obj_torture_bed(edict_t *self)
 void
 SP_obj_statue_saraphbust(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1512,7 +1526,7 @@ SP_obj_statue_saraphbust(edict_t *self)
 void
 SP_obj_biotank(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1523,7 +1537,7 @@ SP_obj_biotank(edict_t *self)
 void
 SP_obj_tapper(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1534,7 +1548,7 @@ SP_obj_tapper(edict_t *self)
 void
 SP_obj_wallringplaque(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1556,7 +1570,7 @@ SP_obj_hangingdude(edict_t *self)
 void
 SP_obj_frypan(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1567,7 +1581,7 @@ SP_obj_frypan(edict_t *self)
 void
 SP_obj_eggpan(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1578,7 +1592,7 @@ SP_obj_eggpan(edict_t *self)
 void
 SP_obj_nest(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1589,18 +1603,7 @@ SP_obj_nest(edict_t *self)
 void
 SP_obj_choppeddude(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_lab_parts_container (0.3 0.3 1.0) (-8.0 -8.0 -11.0) (8.0 8.0 11.0)
- *
- * Heretic 2: Body parts container
- */
-void
-SP_obj_lab_parts_container(edict_t *self)
-{
-	object_spawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1611,7 +1614,7 @@ SP_obj_lab_parts_container(edict_t *self)
 void
 SP_obj_eyeball_jar(edict_t *self)
 {
-	object_spawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1622,7 +1625,7 @@ SP_obj_eyeball_jar(edict_t *self)
 void
 SP_obj_lab_tray(edict_t *self)
 {
-	object_spawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1633,7 +1636,7 @@ SP_obj_lab_tray(edict_t *self)
 void
 SP_obj_hanging_ogle(edict_t *self)
 {
-	object_spawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1644,7 +1647,7 @@ SP_obj_hanging_ogle(edict_t *self)
 void
 SP_obj_ring_plaque2(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1655,40 +1658,7 @@ SP_obj_ring_plaque2(edict_t *self)
 void
 SP_obj_statue_sariph(edict_t *self)
 {
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_pushcart (0.3 0.3 1.0) (-13.0 -16.0 -41.0) (13.0 16.0 41.0)
- *
- * Heretic 2: Push cart
- */
-void
-SP_obj_pushcart(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_bookopen (0.3 0.3 1.0) (-8.0 -16.0 -2.0) (8.0 16.0 2.0)
- *
- * Heretic 2: Open Book
- */
-void
-SP_obj_bookopen(edict_t *self)
-{
-	DynamicObjectSpawn(self);
-}
-
-/*
- * QUAKED obj_bookclosed (0.3 0.3 1.0) (-8.0 -8.0 -2.0) (8.0 8.0 2.0)
- *
- * Heretic 2: Closed book standing up
- */
-void
-SP_obj_bookclosed(edict_t *self)
-{
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1699,7 +1669,8 @@ SP_obj_bookclosed(edict_t *self)
 void
 SP_obj_web(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	self->s.renderfx |= RF_TRANSLUCENT;
+	SP_obj_material(self);
 }
 
 /*
@@ -1710,7 +1681,7 @@ SP_obj_web(edict_t *self)
 void
 SP_obj_larva(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1721,7 +1692,7 @@ SP_obj_larva(edict_t *self)
 void
 SP_obj_bloodsplat(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
