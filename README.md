@@ -248,6 +248,12 @@ Games check videos:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
+* [ ] opengl2,
+* [ ] destrictive with damage
+* [ ] use gibtype in dynamic frames
+* [ ] oposite frame direction if min > max
+* [ ] share burrel explode
+* [ ] fix player possiotipon min/max based on player size
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
