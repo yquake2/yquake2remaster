@@ -920,6 +920,7 @@ SP_info_notnull(edict_t *self)
 }
 
 #define START_OFF 1
+#define SPAWNFLAG_LIGHT_ALLOW_IN_DM 2
 
 /*
  * QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
@@ -950,6 +951,50 @@ light_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unus
 	}
 }
 
+/* -------------------------------------------------------------------------
+ * Shadow / dynamic light support
+ * ------------------------------------------------------------------------- */
+
+typedef struct
+{
+	int entity_number;
+	shadow_light_data_t shadowlight;
+} shadow_light_info_t;
+
+static shadow_light_info_t shadowlightinfo[MAX_SHADOW_LIGHTS];
+
+static void
+setup_dynamic_light(edict_t *self)
+{
+	if (st.sl_radius > 0 && level.shadow_light_count < MAX_SHADOW_LIGHTS)
+	{
+		shadow_light_info_t *shadowlight;
+
+		shadowlight = &shadowlightinfo[level.shadow_light_count];
+
+		self->s.renderfx = RF_CASTSHADOW;
+		self->itemtarget = st.sl_lightstyletarget;
+
+		shadowlight->entity_number = self->s.number;
+		/* copy spawn data into our shadowlightinfo entry */
+		shadowlight->shadowlight.radius = st.sl_radius;
+		shadowlight->shadowlight.resolution = st.sl_resolution;
+		shadowlight->shadowlight.intensity = st.sl_intensity;
+		shadowlight->shadowlight.fade_start = st.sl_fade_start;
+		shadowlight->shadowlight.fade_end = st.sl_fade_end;
+		shadowlight->shadowlight.lightstyle = st.sl_lightstyle;
+		shadowlight->shadowlight.coneangle = st.sl_coneangle;
+		VectorClear(shadowlight->shadowlight.conedirection);
+
+		level.shadow_light_count++;
+
+		VectorClear(self->mins);
+		VectorClear(self->maxs);
+
+		gi.linkentity(self);
+	}
+}
+
 void
 SP_light(edict_t *self)
 {
@@ -959,7 +1004,9 @@ SP_light(edict_t *self)
 	}
 
 	/* no targeted lights in deathmatch, because they cause global messages */
-	if (!self->targetname || deathmatch->value)
+	if ((!self->targetname ||
+		(deathmatch->value && !(self->spawnflags & SPAWNFLAG_LIGHT_ALLOW_IN_DM))) &&
+		st.sl_radius == 0)
 	{
 		G_FreeEdict(self);
 		return;
@@ -978,7 +1025,139 @@ SP_light(edict_t *self)
 			gi.configstring(CS_LIGHTS + self->style, "m");
 		}
 	}
+
+	setup_dynamic_light(self);
 }
+
+void
+setup_shadow_lights(void)
+{
+	int i;
+
+	for (i = 0; i < level.shadow_light_count; ++i)
+	{
+		edict_t *self = &g_edicts[shadowlightinfo[i].entity_number];
+
+		shadowlightinfo[i].shadowlight.lighttype = SHADOW_LIGHT_POINT;
+		VectorClear(shadowlightinfo[i].shadowlight.conedirection);
+
+		if (self->target)
+		{
+			edict_t *target = G_Find(NULL, FOFS(targetname), self->target);
+			if (target)
+			{
+				vec3_t dir;
+
+				VectorSubtract(target->s.origin, self->s.origin, dir);
+				VectorNormalize(dir);
+				VectorCopy(dir, shadowlightinfo[i].shadowlight.conedirection);
+				shadowlightinfo[i].shadowlight.lighttype = SHADOW_LIGHT_CONE;
+			}
+		}
+
+		if (self->itemtarget)
+		{
+			edict_t *target = G_Find(NULL, FOFS(targetname), self->itemtarget);
+			if (target)
+			{
+				shadowlightinfo[i].shadowlight.lightstyle = target->style;
+			}
+		}
+
+		gi.configstring(CS_SHADOWLIGHTS + i, va("%d;%d;%f;%d;%f;%f;%f;%d;%f;%f;%f;%f",
+			self->s.number,
+			(int)shadowlightinfo[i].shadowlight.lighttype,
+			shadowlightinfo[i].shadowlight.radius,
+			shadowlightinfo[i].shadowlight.resolution,
+			shadowlightinfo[i].shadowlight.intensity,
+			shadowlightinfo[i].shadowlight.fade_start,
+			shadowlightinfo[i].shadowlight.fade_end,
+			shadowlightinfo[i].shadowlight.lightstyle,
+			shadowlightinfo[i].shadowlight.coneangle,
+			shadowlightinfo[i].shadowlight.conedirection[0],
+			shadowlightinfo[i].shadowlight.conedirection[1],
+			shadowlightinfo[i].shadowlight.conedirection[2]));
+	}
+}
+
+static double
+ParseShadowLight(const char **line)
+{
+	const char *end_line;
+	char token[64];
+	size_t len;
+
+	/* entity number */
+	end_line = strchr(*line, ';');
+	if (!end_line)
+	{
+		return 0;
+	}
+
+	len = Q_min(end_line - *line, sizeof(token));
+	strncpy(token, *line, len);
+	token[len] = 0;
+	*line = end_line + 1;
+	return strtod(token, (char **)NULL);
+}
+
+void
+G_LoadShadowLights(void)
+{
+	size_t i;
+
+	for (i = 0; i < level.shadow_light_count; i++)
+	{
+		const char *s;
+
+		s = gi.GetConfigString(CS_SHADOWLIGHTS + i);
+		if (!s || !*s)
+		{
+			continue;
+		}
+
+		shadowlightinfo[i].entity_number = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.lighttype = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.radius = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.resolution = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.intensity = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.fade_start = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.fade_end = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.lightstyle = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.coneangle = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.conedirection[0] = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.conedirection[1] = ParseShadowLight(&s);
+		shadowlightinfo[i].shadowlight.conedirection[2] = ParseShadowLight(&s);
+	}
+}
+
+void
+dynamic_light_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	self->svflags ^= SVF_NOCLIENT;
+}
+
+/*
+ * QUAKED dynamic_light (1 0.5 0) (-8 -8 -8) (8 8 8) START_OFF
+ *
+ * Dynamic KEX light
+ */
+void
+SP_dynamic_light(edict_t *self)
+{
+	setup_dynamic_light(self);
+
+	if (self->targetname)
+	{
+		self->use = dynamic_light_use;
+	}
+
+	if (self->spawnflags & START_OFF)
+	{
+		self->svflags ^= SVF_NOCLIENT;
+	}
+}
+
 
 /* ===================================================== */
 

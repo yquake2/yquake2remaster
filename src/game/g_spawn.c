@@ -1297,6 +1297,9 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	}
 
 	AI_NewMap();//JABot
+
+	/* setup server-side shadow lights */
+	setup_shadow_lights();
 }
 
 /* =================================================================== */

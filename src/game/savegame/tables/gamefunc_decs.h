@@ -403,6 +403,7 @@ extern void Drop_PowerArmor ( edict_t * ent , gitem_t * item ) ;
 extern void drop_temp_touch ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void droptofloor ( edict_t * ent ) ;
 extern void Drop_Weapon ( edict_t * ent , gitem_t * item ) ;
+extern void dynamic_light_use (edict_t * self, edict_t * other , edict_t * activator ) ;
 extern void dynamicspawn_think ( edict_t *self );
 extern void dynamicspawn_touch ( edict_t * ent , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void enfbolt_touch ( edict_t * self , edict_t * other , cplane_t * plane, csurface_t *surf);

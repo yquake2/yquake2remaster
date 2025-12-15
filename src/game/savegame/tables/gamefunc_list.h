@@ -331,6 +331,7 @@
 {"drop_temp_touch", (byte *)drop_temp_touch},
 {"droptofloor", (byte *)droptofloor},
 {"Drop_Weapon", (byte *)Drop_Weapon},
+{"dynamic_light_use", (byte *)dynamic_light_use},
 {"dynamicspawn_think", (byte *)dynamicspawn_think},
 {"dynamicspawn_touch", (byte *)dynamicspawn_touch},
 {"enfbolt_touch", (byte *)enfbolt_touch},

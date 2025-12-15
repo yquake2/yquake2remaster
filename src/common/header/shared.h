@@ -796,6 +796,7 @@ typedef struct
 /* ReRelease flags */
 #define RF_CUSTOM_LIGHT 0x00100000
 #define RF_FLARE 0x00200000
+#define RF_CASTSHADOW 0x00400000 /* entity casts shadows */
 #define RF_FLARE_LOCK_ANGLE RF_MINLIGHT
 
 /* player_state_t->refdef flags */

@@ -404,6 +404,7 @@ typedef struct
 	int body_que;                   /* dead bodies */
 
 	int power_cubes;                /* ugly necessity for coop */
+	int shadow_light_count;          /* number of shadow lights in level */
 
 	edict_t *disguise_violator;
 	int disguise_violation_framenum;
@@ -411,6 +412,30 @@ typedef struct
 	char *start_items;             /* level start items */
 	float next_auto_save;          /* target_autosave */
 } level_locals_t;
+
+/* shadow light data structures */
+typedef enum
+{
+	SHADOW_LIGHT_POINT = 0,
+	SHADOW_LIGHT_CONE  = 1
+} shadow_light_type_t;
+
+typedef struct
+{
+	int lighttype; /* shadow_light_type_t */
+	float radius;
+	int resolution;
+	float intensity;
+	float fade_start;
+	float fade_end;
+	int lightstyle;
+	float coneangle;
+	float conedirection[3];
+} shadow_light_data_t;
+
+/* shadow light helpers */
+void setup_shadow_lights(void);
+void G_LoadShadowLights(void);
 
 /* spawn_temp_t is only used to hold entity field values that
    can be set from the editor, but aren't actualy present/
@@ -448,6 +473,15 @@ typedef struct
 	char *goals;
 	int effects;
 	int renderfx;
+	/* shadow/light specific spawn fields */
+	int sl_radius;             /* shadow map resolution */
+	int sl_resolution;         /* shadow map resolution */
+	float sl_intensity;        /* shadow light intensity */
+	float sl_fade_start;       /* start fade distance */
+	float sl_fade_end;         /* end fade distance */
+	int sl_lightstyle;         /* index to bind lightstyle */
+	float sl_coneangle;        /* _cone key for spotlights */
+	char *sl_lightstyletarget; /* target used to bind a lightstyle */
 
 	/* Addional fields for models */
 	vec3_t scale;
@@ -1540,6 +1574,7 @@ struct edict_s
 	char *pathtarget;
 	char *deathtarget;
 	char *combattarget;
+	char *itemtarget; /* extra target string used by dynamic lights */
 	edict_t *target_ent;
 
 	float speed, accel, decel;

@@ -37,6 +37,7 @@ extern void SP_dm_dball_speed_change( edict_t * self ) ;
 extern void SP_dm_dball_team1_start( edict_t * self ) ;
 extern void SP_dm_dball_team2_start( edict_t * self ) ;
 extern void SP_dm_tag_token( edict_t * self ) ;
+extern void SP_dynamic_light( edict_t * self ) ;
 extern void SP_env_fire ( edict_t * ent ) ;
 extern void SP_func_areaportal ( edict_t * ent ) ;
 extern void SP_func_button ( edict_t * ent ) ;
