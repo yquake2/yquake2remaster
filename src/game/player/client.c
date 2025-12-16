@@ -2123,9 +2123,12 @@ spectator_respawn(edict_t *ent)
 	}
 }
 
-// [Paril-KEX] force the fog transition on the given player,
-// optionally instantaneously (ignore any transition time)
-void ForceFogTransition(edict_t *ent, qboolean instant)
+/*
+ * [Paril-KEX] force the fog transition on the given player,
+ * optionally instantaneously (ignore any transition time)
+ */
+void
+ForceFogTransition(edict_t *ent, qboolean instant)
 {
 	const height_fog_t *wanted_hf;
 	svc_fog_data_t fog = {0};
@@ -2135,11 +2138,15 @@ void ForceFogTransition(edict_t *ent, qboolean instant)
 	hf = &ent->client->heightfog;
 	wanted_hf = &ent->client->pers.wanted_heightfog;
 
-	// sanity check; if we're not changing the values, don't bother
-	if (!memcmp(ent->client->fog, ent->client->pers.wanted_fog, sizeof(ent->client->pers.wanted_fog)) &&
-		!memcmp(hf, wanted_hf, sizeof(*wanted_hf)) &&
-		!instant)
+	if (instant)
 	{
+		memset(&ent->client->fog, 0, sizeof(ent->client->fog));
+		memset(hf, 0, sizeof(*hf));
+	}
+	else if (!memcmp(ent->client->fog, ent->client->pers.wanted_fog, sizeof(ent->client->pers.wanted_fog)) &&
+		!memcmp(hf, wanted_hf, sizeof(*wanted_hf)))
+	{
+		/* sanity check; if we're not changing the values, don't bother */
 		return;
 	}
 
@@ -2739,6 +2746,9 @@ ClientBegin(edict_t *ent)
 			ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(
 					ent->client->ps.viewangles[i]);
 		}
+
+		/* Send fog one more time */
+		ForceFogTransition(ent, true);
 	}
 	else
 	{

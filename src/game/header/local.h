@@ -1291,10 +1291,10 @@ typedef struct
 	int max_flechettes;
 	int max_rounds;
 
-	// [Paril-KEX] fog that we want to achieve; density rgb skyfogfactor
+	/* [Paril-KEX] fog that we want to achieve; density rgb skyfogfactor */
 	float wanted_fog[5];
 	height_fog_t wanted_heightfog;
-	// relative time value, copied from last touched trigger
+	/* relative time value, copied from last touched trigger */
 	float fog_transition_time;
 } client_persistant_t;
 

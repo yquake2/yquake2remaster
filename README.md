@@ -188,6 +188,10 @@ Games:
 
 Games check videos:
 
+* 8.61RR13+:
+
+[![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0A)
+
 * 8.61RR13:
 
 [![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQA)

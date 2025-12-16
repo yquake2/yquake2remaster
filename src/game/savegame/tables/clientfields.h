@@ -32,4 +32,17 @@
 {"pers.weapon", CLOFS(pers.weapon), F_ITEM},
 {"resp.coop_respawn.lastweapon", CLOFS(resp.coop_respawn.lastweapon), F_ITEM, 0, 3},
 {"resp.coop_respawn.weapon", CLOFS(resp.coop_respawn.weapon), F_ITEM, 0, 3},
+/* store fog */
+{"pers.wanted_fog_density", CLOFS(pers.wanted_fog[0]), F_FLOAT},
+{"pers.wanted_fog_r", CLOFS(pers.wanted_fog[1]), F_FLOAT},
+{"pers.wanted_fog_g", CLOFS(pers.wanted_fog[2]), F_FLOAT},
+{"pers.wanted_fog_b", CLOFS(pers.wanted_fog[3]), F_FLOAT},
+{"pers.wanted_fog_skyfactor", CLOFS(pers.wanted_fog[4]), F_FLOAT},
+{"pers.wanted_heightfog_falloff", CLOFS(pers.wanted_heightfog.falloff), F_FLOAT},
+{"pers.wanted_heightfog_density", CLOFS(pers.wanted_heightfog.density), F_FLOAT},
+{"pers.wanted_heightfog_start_color", CLOFS(pers.wanted_heightfog.start), F_VECTOR},
+{"pers.wanted_heightfog_start_dist", CLOFS(pers.wanted_heightfog.start[3]), F_FLOAT},
+{"pers.wanted_heightfog_end_color", CLOFS(pers.wanted_heightfog.end), F_VECTOR},
+{"pers.wanted_heightfog_end_dist", CLOFS(pers.wanted_heightfog.end[3]), F_FLOAT},
+{"pers.fog_transition_time", CLOFS(pers.fog_transition_time), F_FLOAT},
 {NULL, 0, F_INT, 0}
