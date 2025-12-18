@@ -1,23 +1,41 @@
 /*
-pragma
-Copyright (C) 2023-2024 BraXi.
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ * Copyright (C) 2023-2024 BraXi.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
+ *
+ * Warps. Used on water surfaces und for skybox rotation.
+ *
+ * =======================================================================
+ */
 
-Quake 2 Engine 'Id Tech 2'
-Copyright (C) 1997-2001 Id Software, Inc.
+#include "header/local.h"
 
-See the attached GNU General Public License v2 for more details.
-*/
-// r_warp.c -- sky and water polygons
-
-#include "r_local.h"
+#define TURBSCALE (256.0 / (2 * M_PI))
 
 extern	model_t	*pLoadModel;
 
-char	skyname[MAX_QPATH];
-float	skyrotate;
-vec3_t	skyaxis;
-vec3_t	skycolor;
-image_t	*sky_images[6];
+char skyname[MAX_QPATH];
+static float skyrotate;
+static vec3_t skyaxis;
+static vec3_t skycolor;
+static image_t *sky_images[6];
 
 msurface_t	*warpface;
 
@@ -28,6 +46,9 @@ vertexbuffer_t vb_sky;
 static glvert_t skyverts[6];
 static int numSkyVerts;
 
+float r_turbsin[] = {
+#include "../constants/warpsin.h"
+};
 
 /*
 =================
@@ -234,15 +255,6 @@ void R_SubdivideSurface(msurface_t *fa)
 }
 
 //=========================================================
-
-
-
-// speed up sin calculations - Ed
-float	r_turbsin[] =
-{
-	#include "warpsin.h"
-};
-#define TURBSCALE (256.0 / (2 * M_PI))
 
 /*
 =============
