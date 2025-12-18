@@ -920,7 +920,7 @@ SP_info_notnull(edict_t *self)
 }
 
 #define START_OFF 1
-#define SPAWNFLAG_LIGHT_ALLOW_IN_DM 2
+#define LIGHT_ALLOW_IN_DM 2
 
 /*
  * QUAKED light (0 1 0) (-8 -8 -8) (8 8 8) START_OFF
@@ -941,12 +941,12 @@ light_use(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unus
 
 	if (self->spawnflags & START_OFF)
 	{
-		gi.configstring(CS_LIGHTS + self->style, "m");
+		gi.configstring(CS_LIGHTS + self->style, self->style_on);
 		self->spawnflags &= ~START_OFF;
 	}
 	else
 	{
-		gi.configstring(CS_LIGHTS + self->style, "a");
+		gi.configstring(CS_LIGHTS + self->style, self->style_off);
 		self->spawnflags |= START_OFF;
 	}
 }
@@ -1005,7 +1005,7 @@ SP_light(edict_t *self)
 
 	/* no targeted lights in deathmatch, because they cause global messages */
 	if ((!self->targetname ||
-		(deathmatch->value && !(self->spawnflags & SPAWNFLAG_LIGHT_ALLOW_IN_DM))) &&
+		(deathmatch->value && !(self->spawnflags & LIGHT_ALLOW_IN_DM))) &&
 		st.sl_radius == 0)
 	{
 		G_FreeEdict(self);
@@ -1016,13 +1016,31 @@ SP_light(edict_t *self)
 	{
 		self->use = light_use;
 
+		if (!self->style_on || !*self->style_on)
+		{
+			self->style_on = "m";
+		}
+		else if (*self->style_on >= '0' && *self->style_on <= '9')
+		{
+			self->style_on = gi.GetConfigString(CS_LIGHTS + atoi(self->style_on));
+		}
+
+		if (!self->style_off || !*self->style_off)
+		{
+			self->style_off = "a";
+		}
+		else if (*self->style_off >= '0' && *self->style_off <= '9')
+		{
+			self->style_off = gi.GetConfigString(CS_LIGHTS + atoi(self->style_off));
+		}
+
 		if (self->spawnflags & START_OFF)
 		{
-			gi.configstring(CS_LIGHTS + self->style, "a");
+			gi.configstring(CS_LIGHTS + self->style, self->style_off);
 		}
 		else
 		{
-			gi.configstring(CS_LIGHTS + self->style, "m");
+			gi.configstring(CS_LIGHTS + self->style, self->style_on);
 		}
 	}
 

@@ -1690,6 +1690,10 @@ struct edict_s
 	edictfog_t fog;
 	edicthfog_t heightfog;
 
+	/* Custom On/Off light */
+	const char *style_on;
+	const char *style_off;
+
 	/* Third person view */
 	int chasedist1;
 	int chasedist2;

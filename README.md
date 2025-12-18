@@ -277,6 +277,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] ReRelease: fully implement `dynamic_light`,
+* [ ] ReRelease: fully implement `bmodel_anim`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
 * [ ] gl3, gl4: add fog distance effect,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black

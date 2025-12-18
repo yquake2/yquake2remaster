@@ -46,6 +46,8 @@
 {"move_origin", FOFS(move_origin), F_VECTOR},
 {"move_angles", FOFS(move_angles), F_VECTOR},
 {"style", FOFS(style), F_INT},
+{"style_on", FOFS(style_on), F_LSTRING},
+{"style_off", FOFS(style_off), F_LSTRING},
 {"count", FOFS(count), F_INT},
 {"health", FOFS(health), F_INT},
 {"sounds", FOFS(sounds), F_INT},
