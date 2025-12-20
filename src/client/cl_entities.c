@@ -61,6 +61,12 @@ CL_AddPacketEntities(frame_t *frame)
 			continue;
 		}
 
+		/* handled elsewhere */
+		if (s1->renderfx & RF_CASTSHADOW)
+		{
+			continue;
+		}
+
 		cent = &cl_entities[s1->number];
 
 		effects = s1->effects;
