@@ -524,8 +524,6 @@ extern void fly_vertical ( edict_t * self ) ;
 extern void force_wall_think ( edict_t * self ) ;
 extern void force_wall_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void func_animation_use ( edict_t * self ) ;
-extern void func_clock_format_countdown ( edict_t * self ) ;
-extern void func_clock_reset ( edict_t * self ) ;
 extern void func_clock_think ( edict_t * self ) ;
 extern void func_clock_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void func_conveyor_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
