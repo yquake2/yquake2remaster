@@ -664,8 +664,7 @@ shambler_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		/* FIXME: better gibs for shambler, shambler head */
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-				damage, GIB_ORGANIC);
+		ThrowGib(self, NULL, damage, GIB_ORGANIC);
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2",
 				damage, GIB_ORGANIC);
 

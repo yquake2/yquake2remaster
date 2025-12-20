@@ -824,8 +824,7 @@ BossExplode(edict_t *self)
 
 			for (n = 0; n < 4; n++)
 			{
-				ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-						500, GIB_ORGANIC);
+				ThrowGib(self, NULL, 500, GIB_ORGANIC);
 			}
 
 			for (n = 0; n < 8; n++)

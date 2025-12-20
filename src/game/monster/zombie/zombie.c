@@ -623,7 +623,7 @@ zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec
 
 	for (n = 0; n < 4; n++)
 	{
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, self->gib);
+		ThrowGib(self, NULL, damage, self->gib);
 	}
 
 	ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, self->gib);

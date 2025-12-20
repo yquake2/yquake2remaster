@@ -202,9 +202,28 @@ ThrowGib(edict_t *self, const char *gibname, int damage, gibtype_t type)
 	vec3_t size;
 	float vscale;
 
-	if (!self || !gibname)
+	if (!self)
 	{
 		return;
+	}
+
+	if (!gibname)
+	{
+		switch (type)
+		{
+			case GIB_NONE:
+				/* no gib expected */
+				return;
+			case GIB_ORGANIC:
+				gibname = "models/objects/gibs/sm_meat/tris.md2";
+				break;
+			case GIB_METALLIC:
+				gibname = "models/objects/gibs/sm_metal/tris.md2";
+				break;
+			default:
+				/* unknow gib */
+				return;
+		}
 	}
 
 	if (gibsthisframe >= MAX_GIBS)
@@ -2121,7 +2140,7 @@ commander_body_die(edict_t *self, edict_t *inflictor /* unused */,
 	{
 		gi.sound(self, CHAN_BODY, gi.soundindex("tank/pain.wav"), 1, ATTN_NORM, 0);
 
-		ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+		ThrowGib(self, NULL, damage, GIB_ORGANIC);
 
 		for (n = 0; n < 4; n++)
 		{
@@ -2240,10 +2259,7 @@ misc_deadsoldier_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *at
 
 	for (n = 0; n < 4; n++)
 	{
-		ThrowGib(self,
-				"models/objects/gibs/sm_meat/tris.md2",
-				damage,
-				GIB_ORGANIC);
+		ThrowGib(self, NULL, damage, GIB_ORGANIC);
 	}
 
 	ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
