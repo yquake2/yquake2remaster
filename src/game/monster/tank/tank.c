@@ -1161,8 +1161,7 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 
 		for (n = 0; n < 4; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2",
-					damage, GIB_METALLIC);
+			ThrowGib(self, NULL, damage, GIB_METALLIC);
 		}
 
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2",

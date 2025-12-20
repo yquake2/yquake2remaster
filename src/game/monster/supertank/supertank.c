@@ -829,8 +829,7 @@ BossExplode(edict_t *self)
 
 			for (n = 0; n < 8; n++)
 			{
-				ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2",
-						500, GIB_METALLIC);
+				ThrowGib(self, NULL, 500, GIB_METALLIC);
 			}
 
 			ThrowGib(self, "models/objects/gibs/chest/tris.md2",
