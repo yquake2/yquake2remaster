@@ -326,7 +326,7 @@ monster_shockerv|models/vault/monsters/shocker/tris.md2|1.0|1.0|1.0|char|-32.0|-
 monster_tankv|models/vault/monsters/tank/tris.md2|1.0|1.0|1.0|char|-32.0|-32.0|-16.0|32.0|32.0|72.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Vault Tank|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 monster_tarbaby|models/monsters/tarbaby/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Tarbaby|1|.5|0|0|0|0|0|0|0|0|none|0
 monster_wizard|models/monsters/wizard/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|8.0|16.0|0|0|0|0:0|0|0|none|Wizard|1|.5|0|80|80|0|0|0|0|0|none|0
-monster_zombie|models/monsters/zombie/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Zombie|1|.5|0|0|0|0|0|0|0|0|none|0
+monster_zombie|models/monsters/zombie/tris.md2|1.0|1.0|1.0|char|-16,|-16,|-24|16,|16,|40|shadow|1|0.0|8.0|0|0|0|0:0|0|0|none|Zombie|1|.5|0|60|60|0|0|0|0|0|organic|-5
 npc_timeminder|models/monsters/insane/tris.md2|1.0|1.0|1.0|char|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|1|54|8.0|8|1|0|0:0|0|0|none|Save Menu|0|1|0|0|0|0|0|0|0|0|none|0
 weapon_grapple|models/weapons/grapple/hook/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
 
