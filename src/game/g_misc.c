@@ -287,9 +287,28 @@ ThrowHead(edict_t *self, const char *gibname, int damage, gibtype_t type)
 	vec3_t vd;
 	float vscale;
 
-	if (!self || !gibname)
+	if (!self)
 	{
 		return;
+	}
+
+	if (!gibname)
+	{
+		switch (type)
+		{
+			case GIB_NONE:
+				/* no gib expected */
+				return;
+			case GIB_ORGANIC:
+				gibname = "models/objects/gibs/head2/tris.md2";
+				break;
+			case GIB_METALLIC:
+				gibname = "models/objects/gibs/gear/tris.md2";
+				break;
+			default:
+				/* unknow gib */
+				return;
+		}
 	}
 
 	self->s.skinnum = 0;
@@ -2148,7 +2167,7 @@ commander_body_die(edict_t *self, edict_t *inflictor /* unused */,
 		}
 
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2", damage, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/gear/tris.md2", damage, GIB_METALLIC);
+		ThrowHead(self, NULL, damage, GIB_METALLIC);
 		self->deadflag = DEAD_DEAD;
 
 		return;
@@ -2262,7 +2281,7 @@ misc_deadsoldier_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *at
 		ThrowGib(self, NULL, damage, GIB_ORGANIC);
 	}
 
-	ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
+	ThrowHead(self, NULL, damage, GIB_ORGANIC);
 }
 
 void

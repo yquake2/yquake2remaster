@@ -272,7 +272,7 @@ knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec
 			ThrowGib(self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
 		for (n = 0; n < 4; n++)
 			ThrowGib(self, NULL, damage, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
+		ThrowHead(self, NULL, damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

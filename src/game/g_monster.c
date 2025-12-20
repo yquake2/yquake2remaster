@@ -1312,7 +1312,7 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		ThrowGib(self, NULL, damage, self->gib);
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, self->gib);
+		ThrowHead(self, NULL, damage, self->gib);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

@@ -1166,8 +1166,7 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2",
 				damage, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/gear/tris.md2",
-				damage, GIB_METALLIC);
+		ThrowHead(self, NULL, damage, GIB_METALLIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

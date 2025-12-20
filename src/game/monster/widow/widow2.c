@@ -1282,7 +1282,7 @@ widow2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 		}
 
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2", clipped, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2", clipped, GIB_ORGANIC);
+		ThrowHead(self, NULL, clipped, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

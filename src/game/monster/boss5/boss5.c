@@ -810,8 +810,7 @@ BossExplode2(edict_t *self)
 
 			ThrowGib(self, "models/objects/gibs/chest/tris.md2",
 				500, GIB_ORGANIC);
-			ThrowHead(self, "models/objects/gibs/gear/tris.md2",
-				500, GIB_METALLIC);
+			ThrowHead(self, NULL, 500, GIB_METALLIC);
 			self->deadflag = DEAD_DEAD;
 			return;
 	}

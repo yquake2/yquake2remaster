@@ -668,8 +668,7 @@ shambler_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2",
 				damage, GIB_ORGANIC);
 
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2",
-				damage, GIB_ORGANIC);
+		ThrowHead(self, NULL, damage, GIB_ORGANIC);
 
 		self->deadflag = true;
 		return;

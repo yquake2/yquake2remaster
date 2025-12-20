@@ -975,8 +975,7 @@ makron_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 			ThrowGib(self, NULL, damage, GIB_METALLIC);
 		}
 
-		ThrowHead(self, "models/objects/gibs/gear/tris.md2",
-				damage, GIB_METALLIC);
+		ThrowHead(self, NULL, damage, GIB_METALLIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

@@ -626,7 +626,7 @@ zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec
 		ThrowGib(self, NULL, damage, self->gib);
 	}
 
-	ThrowHead(self, "models/objects/gibs/head2/tris.md2", damage, self->gib);
+	ThrowHead(self, NULL, damage, self->gib);
 	self->deadflag = DEAD_DEAD;
 }
 
