@@ -454,6 +454,7 @@
 {"fly_vertical", (byte *)fly_vertical},
 {"force_wall_think", (byte *)force_wall_think},
 {"force_wall_use", (byte *)force_wall_use},
+{"func_animation_use", (byte *)func_animation_use},
 {"func_clock_format_countdown", (byte *)func_clock_format_countdown},
 {"func_clock_reset", (byte *)func_clock_reset},
 {"func_clock_think", (byte *)func_clock_think},

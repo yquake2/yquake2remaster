@@ -38,6 +38,7 @@
 {"dm_tag_token", SP_dm_tag_token},
 {"dynamic_light", SP_dynamic_light},
 {"env_fire", SP_env_fire},
+{"func_animation", SP_func_animation},
 {"func_areaportal", SP_func_areaportal},
 {"func_button", SP_func_button},
 {"func_clock", SP_func_clock},

@@ -905,6 +905,13 @@ ED_ParseEdict(char *data, edict_t *ent)
 		}
 
 		ED_ParseField(keyname, com_token, ent);
+
+		/* Enable brush model animation only if provided */
+		if (!strcmp(keyname, "bmodel_anim_start") ||
+			!strcmp(keyname, "bmodel_anim_end"))
+		{
+			ent->bmodel_anim.enabled = true;
+		}
 	}
 
 	if (!init)

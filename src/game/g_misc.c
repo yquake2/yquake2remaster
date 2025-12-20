@@ -1323,6 +1323,54 @@ SP_func_wall(edict_t *self)
 /* ===================================================== */
 
 /*
+ * QUAKED func_animation (0 .5 .8) ? START_ON
+ *
+ * Similar to func_wall, but triggering it will toggle animation
+ * state rather than going on/off.
+ *
+ * START_ON		will start in alterate animation
+ */
+
+#define START_ON 1
+
+void
+func_animation_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	self->bmodel_anim.alternate = self->bmodel_anim.alternate ? false : true;
+}
+
+void
+SP_func_animation(edict_t *self)
+{
+	if (!self->bmodel_anim.enabled)
+	{
+		gi.dprintf("%s: has no animation data\n", __func__);
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->movetype = MOVETYPE_PUSH;
+	gi.setmodel(self, self->model);
+	self->solid = SOLID_BSP;
+
+	self->use = func_animation_use;
+	self->bmodel_anim.alternate = (self->spawnflags & START_ON) ? true : false;
+
+	if (self->bmodel_anim.alternate)
+	{
+		self->s.frame = self->bmodel_anim.alt_start;
+	}
+	else
+	{
+		self->s.frame = self->bmodel_anim.start;
+	}
+
+	gi.linkentity(self);
+}
+
+/* ===================================================== */
+
+/*
  * QUAKED func_object (0 .5 .8) ? TRIGGER_SPAWN ANIMATED ANIMATED_FAST
  *
  * This is solid bmodel that will fall if it's support it removed.

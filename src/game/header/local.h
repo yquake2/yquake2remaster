@@ -1519,6 +1519,32 @@ typedef struct {
 	float end_dist_off;
 } edicthfog_t;
 
+typedef enum
+{
+	BMODEL_ANIM_FORWARDS,
+	BMODEL_ANIM_BACKWARDS,
+	BMODEL_ANIM_RANDOM
+} bmodel_animstyle_t;
+
+typedef struct
+{
+	/* range, inclusive */
+	int start, end;
+	bmodel_animstyle_t style;
+	int speed; /* in milliseconds */
+	qboolean nowrap;
+
+	int alt_start, alt_end;
+	bmodel_animstyle_t alt_style;
+	int alt_speed; /* in milliseconds */
+	qboolean alt_nowrap;
+
+	/* game-only */
+	bool enabled;
+	bool alternate, currently_alternate;
+	float next_tick;
+} bmodel_anim_t;
+
 struct edict_s
 {
 	entity_state_t s;
@@ -1694,13 +1720,17 @@ struct edict_s
 	const char *style_on;
 	const char *style_off;
 
+	/* brush model animation */
+	bmodel_anim_t bmodel_anim;
+
 	/* Third person view */
 	int chasedist1;
 	int chasedist2;
 
 	/* jabot */
 	ai_handle_t *ai;
-	qboolean is_swim;	//AI_CategorizePosition
+	/* AI_CategorizePosition */
+	qboolean is_swim;
 	qboolean is_step;
 	qboolean is_ladder;
 	qboolean was_swim;
