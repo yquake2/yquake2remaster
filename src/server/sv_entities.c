@@ -642,7 +642,7 @@ SV_BuildClientFrame(client_t *client)
 		/* ignore ents without visible models unless they have an effect */
 		if (!ent->s.modelindex && !ent->s.effects &&
 			!ent->s.sound && !ent->s.event &&
-			(ent->s.renderfx & RF_CASTSHADOW))
+			!(ent->s.renderfx & RF_CASTSHADOW))
 		{
 			continue;
 		}

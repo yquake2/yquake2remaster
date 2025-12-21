@@ -276,8 +276,9 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: support `tactile/*/*.bnvib/.wav` feedback load,
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
-* [ ] ReRelease: fully implement `dynamic_light`,
-* [x] ReRelease: fully implement `bmodel_anim`,
+* [x] ReRelease: implement game code for `dynamic_light`,
+* [x] ReRelease: implement game code for `bmodel_anim`,
+* [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
 * [ ] gl3, gl4: add fog distance effect,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
