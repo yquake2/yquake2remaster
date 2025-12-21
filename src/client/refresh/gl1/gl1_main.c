@@ -524,7 +524,6 @@ R_DrawParticles(void)
 	if (gl_config.pointparameters && !(stereo_split_tb || stereo_split_lr))
 	{
 		int i;
-		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
 		const particle_t *p;
 
 		YQ2_VLA(GLfloat, vtx, 3 * r_newrefdef.num_particles);
@@ -542,6 +541,8 @@ R_DrawParticles(void)
 
 		for ( i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++ )
 		{
+			YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+
 			*(int *) color = p->color;
 			clr[index_clr++] = gammatable[color[0]];
 			clr[index_clr++] = gammatable[color[1]];

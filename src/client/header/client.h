@@ -106,7 +106,6 @@ extern int num_cl_weaponmodels;
 
 /* Shadow light structures (client-side) */
 typedef struct {
-	vec3_t origin;
 	float radius;
 	int resolution;
 	float intensity;
@@ -114,6 +113,9 @@ typedef struct {
 	int lightstyle;
 	float coneangle; /* spot if non-zero */
 	vec3_t conedirection;
+	/* copy from entity */
+	vec3_t origin;
+	int color;
 } cl_shadow_light_t;
 
 typedef struct {
@@ -459,10 +461,11 @@ void CL_RunDLights (void);
 void CL_RunLightStyles (void);
 
 void CL_CalcViewValues(void);
-void CL_AddEntities (void);
-void CL_AddDLights (void);
-void CL_AddTEnts (void);
-void CL_AddLightStyles (void);
+void CL_AddEntities(void);
+void CL_AddDLights(void);
+void CL_AddTEnts(void);
+void CL_AddLightStyles(void);
+void CL_AddShadowLights(void);
 struct sfx_s *CL_RandomFootstepSfx (void);
 struct model_s *CL_PowerScreenModel (void);
 
@@ -531,12 +534,13 @@ extern	int			gun_frame;
 
 extern	struct model_s	*gun_model;
 
-void V_Init (void);
-void V_RenderView( float stereo_separation );
-void V_AddEntity (entity_t *ent);
-void V_AddParticle (vec3_t org, unsigned int color, float alpha);
-void V_AddLight (vec3_t org, float intensity, float r, float g, float b);
-void V_AddLightStyle (int style, float r, float g, float b);
+void V_Init(void);
+void V_RenderView(float stereo_separation);
+void V_AddEntity(entity_t *ent);
+void V_AddParticle(vec3_t org, unsigned int color, float alpha);
+void V_AddLight(vec3_t org, float intensity, float r, float g, float b);
+void V_AddLightStyle(int style, float r, float g, float b);
+void V_AddLightShadow(cl_shadow_light_t *light);
 void VID_GetPalette(byte **colormap, unsigned *d_8to24table);
 void VID_GetPalette24to8(const byte *d_8to24table, byte** d_16to8table);
 unsigned VID_PaletteColor(byte color);
