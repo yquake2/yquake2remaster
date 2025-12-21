@@ -276,31 +276,32 @@ typedef struct
 #define IT_HEALTH 0x000000400 /* JABot */
 #define IT_FLAG	0x000000800 /* JABot */
 
-/* gitem_t->weapmodel for weapons indicates model index */
-#define WEAP_BLASTER 1
-#define WEAP_SHOTGUN 2
-#define WEAP_SUPERSHOTGUN 3
-#define WEAP_MACHINEGUN 4
-#define WEAP_CHAINGUN 5
-#define WEAP_GRENADES 6
-#define WEAP_GRENADELAUNCHER 7
-#define WEAP_ROCKETLAUNCHER 8
-#define WEAP_HYPERBLASTER 9
-#define WEAP_RAILGUN 10
-#define WEAP_BFG 11
-#define WEAP_PHALANX 12
-#define WEAP_BOOMER 13
-#define WEAP_DISRUPTOR 14
-#define WEAP_ETFRIFLE 15
-#define WEAP_PLASMA 16
-#define WEAP_PROXLAUNCH 17
-#define WEAP_CHAINFIST 18
-#define WEAP_GRAPPLE 19
-
-//JABot[start]
-#define WEAP_NONE			0
-#define WEAP_TOTAL			20
-//JABot[end]
+/* gitem_t->weapmodel for weapons indicates model index,
+ * update MAX_CLIENTWEAPONMODELS on client side if changed */
+typedef enum
+{
+	WEAP_NONE,
+	WEAP_BLASTER,
+	WEAP_SHOTGUN,
+	WEAP_SUPERSHOTGUN,
+	WEAP_MACHINEGUN,
+	WEAP_CHAINGUN,
+	WEAP_GRENADES,
+	WEAP_GRENADELAUNCHER,
+	WEAP_ROCKETLAUNCHER,
+	WEAP_HYPERBLASTER,
+	WEAP_RAILGUN,
+	WEAP_BFG,
+	WEAP_PHALANX,
+	WEAP_BOOMER,
+	WEAP_DISRUPTOR,
+	WEAP_ETFRIFLE,
+	WEAP_PLASMA,
+	WEAP_PROXLAUNCH,
+	WEAP_CHAINFIST,
+	WEAP_GRAPPLE,
+	WEAP_TOTAL
+} weapmodel_t;
 
 typedef struct gitem_s
 {
@@ -323,7 +324,7 @@ typedef struct gitem_s
 	char *ammo;                 /* for weapons */
 	int flags;                  /* IT_* flags */
 
-	int weapmodel;              /* weapon model index (for weapons) */
+	weapmodel_t weapmodel;      /* weapon model index (for weapons) */
 
 	void *info;
 	int tag;
