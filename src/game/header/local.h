@@ -474,7 +474,7 @@ typedef struct
 	int effects;
 	int renderfx;
 	/* shadow/light specific spawn fields */
-	int sl_radius;             /* shadow map resolution */
+	float sl_radius;           /* shadow map resolution */
 	int sl_resolution;         /* shadow map resolution */
 	float sl_intensity;        /* shadow light intensity */
 	float sl_fade_start;       /* start fade distance */

@@ -27,7 +27,7 @@
 #ifndef CL_CLIENT_H
 #define CL_CLIENT_H
 
-#define MAX_CLIENTWEAPONMODELS 20
+#define MAX_CLIENTWEAPONMODELS 32
 #define	CMD_BACKUP 256 /* allow a lot of command backups for very fast systems */
 
 /* the cl_parse_entities must be large enough to hold UPDATE_BACKUP frames of
@@ -103,6 +103,23 @@ typedef struct
 
 extern char cl_weaponmodels[MAX_CLIENTWEAPONMODELS][MAX_QPATH];
 extern int num_cl_weaponmodels;
+
+/* Shadow light structures (client-side) */
+typedef struct {
+	vec3_t origin;
+	float radius;
+	int resolution;
+	float intensity;
+	float fade_start, fade_end;
+	int lightstyle;
+	float coneangle; /* spot if non-zero */
+	vec3_t conedirection;
+} cl_shadow_light_t;
+
+typedef struct {
+	int number; /* entity number for the light */
+	cl_shadow_light_t light;
+} cl_shadowdef_t;
 
 /* the client_state_t structure is wiped
    completely at every server map change */
@@ -180,6 +197,9 @@ typedef struct
 
 	clientinfo_t	clientinfo[MAX_CLIENTS];
 	clientinfo_t	baseclientinfo;
+
+	/* client-side shadowdef array */
+	cl_shadowdef_t	shadowdefs[MAX_SHADOW_LIGHTS];
 } client_state_t;
 
 extern	client_state_t	cl;
@@ -379,17 +399,14 @@ void CL_ParticleEffect3 (vec3_t org, vec3_t dir, unsigned int color, int count);
 
 typedef struct particle_s
 {
-
-	struct particle_s	*next;
-
-	float		time;
-
-	vec3_t		org;
-	vec3_t		vel;
-	vec3_t		accel;
-	unsigned	color;
-	float		alpha;
-	float		alphavel;
+	struct particle_s *next;
+	float time;
+	vec3_t org;
+	vec3_t vel;
+	vec3_t accel;
+	unsigned color;
+	float alpha;
+	float alphavel;
 } cparticle_t;
 
 void CL_ClearEffects (void);
@@ -450,6 +467,7 @@ struct sfx_s *CL_RandomFootstepSfx (void);
 struct model_s *CL_PowerScreenModel (void);
 
 void CL_PrepRefresh (void);
+void CL_LoadShadowLight(int index, const char *s);
 void CL_RegisterSounds (void);
 
 void CL_Quit_f (void);

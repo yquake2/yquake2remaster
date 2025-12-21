@@ -1344,6 +1344,67 @@ CL_ParseClientinfo(int player)
 	CL_LoadClientinfo(ci, s);
 }
 
+/*
+ * Parses a shadow light configstring and stores it in cl.shadowdefs
+ * Format: "num;iscone;radius;resolution;intensity;fade_start;fade_end;lightstyle;coneangle;conedirx;conediry;conedirz"
+ */
+void
+CL_LoadShadowLight(int idx, const char *s)
+{
+	char buf[MAX_CONFIGSTRING] = {0};
+	cl_shadowdef_t *shadow;
+	size_t semis = 0, i;
+	qboolean is_cone;
+	char *p;
+
+	/* copy and convert semicolons to spaces so COM_Parse can be used */
+	for (i = 0; i < sizeof(buf) - 1; i++, s++)
+	{
+		if (!*s)
+		{
+			buf[i] = '\0';
+			break;
+		}
+		else if (*s == ';')
+		{
+			buf[i] = ' ';
+			semis++;
+		}
+		else
+		{
+			buf[i] = *s;
+		}
+	}
+
+	/* validate expected number of fields */
+	if (semis != 11 || idx < 0 || idx >= MAX_SHADOW_LIGHTS)
+	{
+		Com_DPrintf("%s: wrong shadow %d light %s\n",
+			__func__, idx, buf);
+		return;
+	}
+
+	p = buf;
+	shadow = cl.shadowdefs + idx;
+	shadow->number = atoi(COM_Parse(&p));
+	is_cone = !!atoi(COM_Parse(&p));
+	shadow->light.radius = atof(COM_Parse(&p));
+	shadow->light.resolution = atoi(COM_Parse(&p));
+	shadow->light.intensity = atof(COM_Parse(&p));
+	shadow->light.fade_start = atof(COM_Parse(&p));
+	shadow->light.fade_end = atof(COM_Parse(&p));
+	shadow->light.lightstyle = atoi(COM_Parse(&p));
+	shadow->light.coneangle = atof(COM_Parse(&p));
+	shadow->light.conedirection[0] = atof(COM_Parse(&p));
+	shadow->light.conedirection[1] = atof(COM_Parse(&p));
+	shadow->light.conedirection[2] = atof(COM_Parse(&p));
+
+	if (!is_cone)
+	{
+		shadow->light.coneangle = 0.0f;
+	}
+}
+
 static void
 CL_ParseConfigString(void)
 {
@@ -1437,6 +1498,10 @@ CL_ParseConfigString(void)
 		{
 			CL_ParseClientinfo(i - CS_PLAYERSKINS);
 		}
+	}
+	else if ((i >= CS_SHADOWLIGHTS) && (i < CS_SHADOWLIGHTS + MAX_SHADOW_LIGHTS))
+	{
+		CL_LoadShadowLight(i - CS_SHADOWLIGHTS, s);
 	}
 }
 

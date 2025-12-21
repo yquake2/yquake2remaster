@@ -417,6 +417,18 @@ CL_PrepRefresh(void)
 		}
 	}
 
+	/* load shadow lights configstrings */
+	for (i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	{
+		int cs_idx;
+
+		cs_idx = CS_SHADOWLIGHTS + i;
+		if (cl.configstrings[cs_idx][0])
+		{
+			CL_LoadShadowLight(i, cl.configstrings[cs_idx]);
+		}
+	}
+
 	CL_LoadClientinfo(&cl.baseclientinfo, "unnamed\\male/grunt");
 
 	/* set sky textures and speed */

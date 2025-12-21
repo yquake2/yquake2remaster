@@ -1120,7 +1120,7 @@ setup_shadow_lights(void)
 			}
 		}
 
-		gi.configstring(CS_SHADOWLIGHTS + i, va("%d;%d;%f;%d;%f;%f;%f;%d;%f;%f;%f;%f",
+		gi.configstring(CS_SHADOWLIGHTS + i, va("%d;%d;%.3f;%d;%.3f;%.3f;%.3f;%d;%.3f;%.3f;%.3f;%.3f",
 			self->s.number,
 			(int)shadowlightinfo[i].shadowlight.lighttype,
 			shadowlightinfo[i].shadowlight.radius,
