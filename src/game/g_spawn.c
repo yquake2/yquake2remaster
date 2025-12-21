@@ -2777,6 +2777,8 @@ GetDynamicItems(int *count)
 
 	for (i = 0; i < ndynamicentities; i++)
 	{
+		char* classname;
+
 		if (strncmp(dynamicentities[i].classname, "item_", 5) &&
 			strncmp(dynamicentities[i].classname, "weapon_", 7) &&
 			strncmp(dynamicentities[i].classname, "key_", 4) &&
@@ -2798,8 +2800,24 @@ GetDynamicItems(int *count)
 			continue;
 		}
 
+		classname = dynamicentities[i].classname;
+
+		/* Fix class names to sync with ED_CallSpawn */
+		if (!strcmp(classname, "weapon_nailgun"))
+		{
+			classname = "weapon_etf_rifle";
+		}
+		else if (!strcmp(classname, "ammo_nails"))
+		{
+			classname = "ammo_flechettes";
+		}
+		else if (!strcmp(classname, "weapon_heatbeam"))
+		{
+			classname = "weapon_plasmabeam";
+		}
+
 		/* Could be dynamic item */
-		items[itemcount].classname = dynamicentities[i].classname;
+		items[itemcount].classname = classname;
 		items[itemcount].world_model = dynamicentities[i].model_path;
 		items[itemcount].pickup_name = dynamicentities[i].description;
 		itemcount++;

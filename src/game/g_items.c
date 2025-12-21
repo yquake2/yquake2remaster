@@ -4593,6 +4593,18 @@ InitItems(void)
 	game.num_items = num_items;
 }
 
+qboolean
+ItemHasValidModel(gitem_t *item)
+{
+	const dmdxframegroup_t * frames;
+	int num, modelindex;
+
+	modelindex = gi.modelindex(item->world_model);
+	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
+
+	return frames && (num > 0);
+}
+
 /*
  * Called by worldspawn
  */

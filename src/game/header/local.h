@@ -836,6 +836,7 @@ void droptofloor(edict_t *ent);
 void FixEntityPosition(edict_t *ent);
 void PrecacheItem(gitem_t *it);
 void InitItems(void);
+qboolean ItemHasValidModel(gitem_t *item);
 void SetItemNames(void);
 gitem_t *FindItem(const char *pickup_name);
 gitem_t *FindItemByClassname(const char *classname);

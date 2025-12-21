@@ -187,7 +187,6 @@ weapon_phalanx|models/weapons/g_shotx/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-
 // Quake 2 Rogue
 ammo_disruptor|models/ammo/am_disr/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Disruptor ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 ammo_flechettes|models/ammo/am_flechette/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ETF Rifle ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-ammo_nails|models/ammo/am_flechette/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ETF Rifle ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 ammo_nuke|models/weapons/g_nuke/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A-M Bomb (usable nuke); DM only|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 ammo_prox|models/ammo/am_prox/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Prox Launcher ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 ammo_tesla|models/ammo/am_tesl/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Teslas|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
@@ -232,7 +231,6 @@ turret_invisible_brain||1.0|1.0|1.0|general|-4.0|-4.0|-4.0|4.0|4.0|4.0|shadow|0|
 weapon_chainfist|models/weapons/g_chainf/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Chainfist|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
 weapon_disintegrator|models/weapons/g_dist/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Disruptor|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
 weapon_etf_rifle|models/weapons/g_etf_rifle/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|ETF Rifle|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
-weapon_heatbeam|models/weapons/g_beamer/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Beam|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
 weapon_plasmabeam|models/weapons/g_beamer/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Beam|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
 weapon_proxlauncher|models/weapons/g_plaunch/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Prox Launcher|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
 
