@@ -45,7 +45,7 @@
 
 #define CFGDIRNAME_SHORT "yq2"
 
-#if defined(USE_XDG)
+#if defined(USE_XDG) || defined(_WIN32)
   #define CFGDIRNAME "YamagiQ2"
 #else
   #ifdef __HAIKU__
