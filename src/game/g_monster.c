@@ -983,8 +983,9 @@ M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos)
 static void
 M_MoveFrame(edict_t *self)
 {
-	mmove_t *move;
 	int index, firstframe, lastframe;
+	qboolean reverse = false;
+	mmove_t *move;
 
 	if (!self)
 	{
@@ -996,12 +997,26 @@ M_MoveFrame(edict_t *self)
 	{
 		firstframe = move->firstframe;
 		lastframe = move->lastframe;
+
+		if (lastframe < firstframe)
+		{
+			reverse = true;
+			firstframe = move->lastframe;
+			lastframe = move->firstframe;
+		}
 	}
 	else if (self->monsterinfo.action)
 	{
 		firstframe = self->monsterinfo.firstframe;
-		lastframe = self->monsterinfo.lastframe;
-		lastframe += firstframe - 1;
+
+		if (self->monsterinfo.numframes > 0)
+		{
+			lastframe = firstframe + self->monsterinfo.numframes - 1;
+		}
+		else
+		{
+			lastframe = firstframe - self->monsterinfo.numframes - 1;
+		}
 	}
 	else
 	{
@@ -1027,7 +1042,8 @@ M_MoveFrame(edict_t *self)
 		/* prevent nextframe from leaking into a future move */
 		self->monsterinfo.nextframe = 0;
 
-		if (self->s.frame == lastframe)
+		if (((self->s.frame == lastframe) && !reverse) ||
+			((self->s.frame == firstframe) && reverse))
 		{
 			if (move && move->endfunc)
 			{
@@ -1070,11 +1086,23 @@ M_MoveFrame(edict_t *self)
 		{
 			if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
 			{
-				self->s.frame++;
-
-				if (self->s.frame > lastframe)
+				if (!reverse)
 				{
-					self->s.frame = firstframe;
+					self->s.frame++;
+
+					if (self->s.frame > lastframe)
+					{
+						self->s.frame = firstframe;
+					}
+				}
+				else
+				{
+					self->s.frame--;
+
+					if (self->s.frame < firstframe)
+					{
+						self->s.frame = lastframe;
+					}
 				}
 			}
 		}
@@ -1191,13 +1219,26 @@ monster_dynamic_damage(edict_t *self)
 static void
 monster_dynamic_setframes(edict_t *self, int select)
 {
+	qboolean reverse = false;
+
 	if (!self || !self->monsterinfo.action)
 	{
 		return;
 	}
 
+	if (self->monsterinfo.numframes < 0)
+	{
+		self->monsterinfo.numframes *= -1;
+		reverse = true;
+	}
+
 	M_SetAnimGroupFrameValues(self, self->monsterinfo.action,
-		&self->monsterinfo.firstframe, &self->monsterinfo.lastframe, select);
+		&self->monsterinfo.firstframe, &self->monsterinfo.numframes, select);
+
+	if (reverse)
+	{
+		self->monsterinfo.numframes *= -1;
+	}
 }
 
 void

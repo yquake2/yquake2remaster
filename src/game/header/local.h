@@ -560,7 +560,7 @@ typedef struct
 	float run_dist;
 	/* frames cache */
 	int firstframe;
-	int lastframe;
+	int numframes;
 
 	float pausetime;
 	float attack_finished;

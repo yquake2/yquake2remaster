@@ -29,34 +29,20 @@ static int sound_idle2;
 static int sound_pain;
 static int sound_sight;
 
-static void
-wizard_frame(edict_t *self)
-{
-	static int frame = 0;
-
-	self->s.frame = (FRAME_magatt5 - frame);
-	frame++;
-
-	if (frame > 5)
-	{
-		frame = 0;
-	}
-}
-
-// decino: Quake plays this animation backwards, so we'll have to do some hacking
 static mframe_t wizard_frames_finish [] =
 {
-	{ai_charge, 0, wizard_frame},
-	{ai_charge, 0, wizard_frame},
-	{ai_charge, 0, wizard_frame},
-	{ai_charge, 0, wizard_frame},
-
-	{ai_charge, 0, wizard_frame}
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL},
+	{ai_charge, 0, NULL}
 };
+
+/* decino: Quake plays this animation backwards, so we'll have to do some hacking */
 mmove_t wizard_move_finish =
 {
-	FRAME_magatt1,
 	FRAME_magatt5,
+	FRAME_magatt1,
 	wizard_frames_finish,
 	monster_dynamic_run
 };

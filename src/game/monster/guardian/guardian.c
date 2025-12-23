@@ -46,7 +46,7 @@ guardian_stand(edict_t *self)
 	}
 
 	self->monsterinfo.firstframe = FRAME_idle1;
-	self->monsterinfo.lastframe = FRAME_idle52;
+	self->monsterinfo.numframes = FRAME_idle52 - FRAME_idle1 + 1;
 	monster_dynamic_stand(self);
 }
 
@@ -209,7 +209,7 @@ guardian_pain(edict_t *self, edict_t *other /* other */,
 	}
 
 	self->monsterinfo.firstframe = FRAME_pain1_1;
-	self->monsterinfo.lastframe = FRAME_pain1_8;
+	self->monsterinfo.numframes = FRAME_pain1_8 - FRAME_pain1_1 + 1;
 	monster_dynamic_pain(self, other, kick, damage);
 }
 
