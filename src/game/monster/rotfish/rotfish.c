@@ -19,38 +19,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "../../header/local.h"
-#include "fish.h"
+#include "rotfish.h"
 
 static int sound_search;
 static int sound_death;
 static int sound_melee;
 
 static void
-fish_bite_step(edict_t *self)
+rotfish_bite_step(edict_t *self)
 {
 	vec3_t dir;
 	static vec3_t aim = {100, 0, 0};
 	int damage;
 
 	if (!self->enemy)
+	{
 		return;
+	}
+
 	VectorSubtract(self->s.origin, self->enemy->s.origin, dir);
 
-	// decino: In Q1 it's 60 units, but it will never hit anything in Q2 for some reason
+	/* decino: In Q1 it's 60 units, but it will never hit anything in Q2 for some reason */
 	if (VectorLength(dir) > 100)
+	{
 		return;
+	}
+
 	damage = (random() + random() + random()) * 3;
 
 	if (fire_hit(self, aim, damage, damage))
+	{
 		gi.sound(self, CHAN_WEAPON, sound_melee, 1, ATTN_NORM, 0);
+	}
 }
 
 // Melee
-static mframe_t fish_frames_melee [] =
+static mframe_t rotfish_frames_melee [] =
 {
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
-	{ai_run, 0,  fish_bite_step},
+	{ai_run, 0,  rotfish_bite_step},
 	{ai_run, 10, NULL},
 
 	{ai_run, 10, NULL},
@@ -58,36 +66,36 @@ static mframe_t fish_frames_melee [] =
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 
-	{ai_run, 0,  fish_bite_step},
+	{ai_run, 0,  rotfish_bite_step},
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
 
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL},
-	{ai_run, 0,  fish_bite_step},
+	{ai_run, 0,  rotfish_bite_step},
 	{ai_run, 10, NULL},
 
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL}
 };
-mmove_t fish_move_melee =
+mmove_t rotfish_move_melee =
 {
 	FRAME_attack1,
 	FRAME_attack18,
-	fish_frames_melee,
+	rotfish_frames_melee,
 	monster_dynamic_run
 };
 
 void
-fish_melee(edict_t *self)
+rotfish_melee(edict_t *self)
 {
-	self->monsterinfo.currentmove = &fish_move_melee;
+	self->monsterinfo.currentmove = &rotfish_move_melee;
 }
 
-// Search
+/* Search */
 void
-fish_search(edict_t *self)
+rotfish_search(edict_t *self)
 {
 	if (!self)
 	{
@@ -98,7 +106,7 @@ fish_search(edict_t *self)
 }
 
 void
-fish_dead(edict_t *self)
+rotfish_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, -8);
@@ -106,7 +114,7 @@ fish_dead(edict_t *self)
 }
 
 // Death
-static mframe_t fish_frames_death [] =
+static mframe_t rotfish_frames_death [] =
 {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -135,16 +143,16 @@ static mframe_t fish_frames_death [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t fish_move_death =
+mmove_t rotfish_move_death =
 {
 	FRAME_death1,
 	FRAME_death21,
-	fish_frames_death,
-	fish_dead
+	rotfish_frames_death,
+	rotfish_dead
 };
 
 void
-fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+rotfish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
 	int		n;
 
@@ -153,9 +161,15 @@ fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
+		{
 			ThrowGib(self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
+		}
+
 		for (n = 0; n < 4; n++)
+		{
 			ThrowGib(self, NULL, damage, GIB_ORGANIC);
+		}
+
 		ThrowHead(self, NULL, damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
 		return;
@@ -170,13 +184,12 @@ fish_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_
 
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
-	self->monsterinfo.currentmove = &fish_move_death;
+	self->monsterinfo.currentmove = &rotfish_move_death;
 }
 
-// Pain
-
+/* Pain */
 void
-fish_pain(edict_t *self, edict_t *other /* unused */,
+rotfish_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
 {
 	if (level.time < self->pain_debounce_time)
@@ -214,11 +227,11 @@ SP_monster_rotfish(edict_t *self)
 
 	self->monsterinfo.run_dist = 12;
 
-	self->monsterinfo.melee = fish_melee;
-	self->monsterinfo.search = fish_search;
+	self->monsterinfo.melee = rotfish_melee;
+	self->monsterinfo.search = rotfish_search;
 
-	self->pain = fish_pain;
-	self->die = fish_die;
+	self->pain = rotfish_pain;
+	self->die = rotfish_die;
 
 	self->monsterinfo.scale = MODEL_SCALE;
 	gi.linkentity(self);

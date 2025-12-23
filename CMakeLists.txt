@@ -432,7 +432,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/mutant/mutant.c
 	${GAME_SRC_DIR}/monster/ogre/ogre.c
 	${GAME_SRC_DIR}/monster/parasite/parasite.c
-	${GAME_SRC_DIR}/monster/rotfish/fish.c
+	${GAME_SRC_DIR}/monster/rotfish/rotfish.c
 	${GAME_SRC_DIR}/monster/shalrath/shalrath.c
 	${GAME_SRC_DIR}/monster/shambler/shambler.c
 	${GAME_SRC_DIR}/monster/soldier/soldier.c

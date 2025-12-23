@@ -46,13 +46,13 @@
 #define CFGDIRNAME_SHORT "yq2"
 
 #if defined(USE_XDG)
-#define CFGDIRNAME "YamagiQ2"
+  #define CFGDIRNAME "YamagiQ2"
 #else
-#ifdef __HAIKU__
-#define CFGDIRNAME CFGDIRNAME_SHORT
-#else
-#define CFGDIRNAME "." CFGDIRNAME_SHORT
-#endif
+  #ifdef __HAIKU__
+    #define CFGDIRNAME CFGDIRNAME_SHORT
+  #else
+    #define CFGDIRNAME "." CFGDIRNAME_SHORT
+  #endif
 #endif
 
 #ifndef YQ2ARCH
