@@ -800,20 +800,17 @@ BossExplode2(edict_t *self)
 
 			for (n = 0; n < 4; n++)
 			{
-				ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-						500, GIB_ORGANIC);
+				ThrowGib(self, NULL, 500, GIB_ORGANIC);
 			}
 
 			for (n = 0; n < 8; n++)
 			{
-				ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2",
-						500, GIB_METALLIC);
+				ThrowGib(self, NULL, 500, GIB_METALLIC);
 			}
 
 			ThrowGib(self, "models/objects/gibs/chest/tris.md2",
 				500, GIB_ORGANIC);
-			ThrowHead(self, "models/objects/gibs/gear/tris.md2",
-				500, GIB_METALLIC);
+			ThrowHead(self, NULL, 500, GIB_METALLIC);
 			self->deadflag = DEAD_DEAD;
 			return;
 	}

@@ -75,6 +75,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 	while (1)
 	{
 		GLushort nextVtxIdx = da_count(vtxBuf);
+		GLushort* add;
 		GLenum type;
 		int count;
 
@@ -102,15 +103,15 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 		if (colorOnly)
 		{
 			int i;
-			for(i=0; i<count; ++i)
+			for (i=0; i<count; ++i)
 			{
-				int j=0;
+				int j = 0;
 				int index_xyz;
 				gl4_alias_vtx_t* cur = &buf[i];
 				index_xyz = order[2];
 				order += 3;
 
-				for(j=0; j<3; ++j)
+				for (j=0; j<3; ++j)
 				{
 					cur->pos[j] = s_lerped[index_xyz][j];
 					cur->color[j] = shadelight[j];
@@ -121,7 +122,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 		else
 		{
 			int i;
-			for(i=0; i<count; ++i)
+			for (i = 0; i < count; ++i)
 			{
 				gl4_alias_vtx_t* cur = &buf[i];
 				int index_xyz, i, j = 0;
@@ -137,7 +138,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				order += 3;
 
 				/* unpack normal */
-				for(i = 0; i < 3; i++)
+				for (i = 0; i < 3; i++)
 				{
 					normal[i] = verts[index_xyz].normal[i] / 127.f;
 				}
@@ -146,7 +147,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				/* shadevector is set above according to rotation (around Z axis I think) */
 				l = DotProduct(normal, shadevector) + 1;
 
-				for(j=0; j<3; ++j)
+				for (j=0; j<3; ++j)
 				{
 					cur->pos[j] = s_lerped[index_xyz][j];
 					cur->color[j] = l * shadelight[j];
@@ -155,45 +156,16 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 			}
 		}
 
-		// translate triangle fan/strip to just triangle indices
-		if(type == GL_TRIANGLE_FAN)
-		{
-			GLushort i;
-			for(i=1; i < count-1; ++i)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
+		add = da_addn_uninit(idxBuf, (count - 2) * 3);
 
-				add[0] = nextVtxIdx;
-				add[1] = nextVtxIdx+i;
-				add[2] = nextVtxIdx+i+1;
-			}
+		/* translate triangle fan/strip to just triangle indices */
+		if (type == GL_TRIANGLE_FAN)
+		{
+			R_GenFanIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 		else // triangle strip
 		{
-			GLushort i;
-			for(i=1; i < count-2; i+=2)
-			{
-				// add two triangles at once, because the vertex order is different
-				// for odd vs even triangles
-				GLushort* add = da_addn_uninit(idxBuf, 6);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-
-				add[3] = nextVtxIdx + i;
-				add[4] = nextVtxIdx + i+2;
-				add[5] = nextVtxIdx + i+1;
-			}
-			// add remaining triangle, if any
-			if(i < count-1)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-			}
+			R_GenStripIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 	}
 
@@ -260,7 +232,7 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 		GL4_UseProgram(gl4state.si3Dalias.shaderProgram);
 	}
 
-	if(gl4_colorlight->value == 0.0f)
+	if (gl4_colorlight->value == 0.0f)
 	{
 		float avg = 0.333333f * (shadelight[0]+shadelight[1]+shadelight[2]);
 		shadelight[0] = shadelight[1] = shadelight[2] = avg;
@@ -326,9 +298,10 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 
 	while (1)
 	{
-		int i, j, count;
-		GLenum type;
 		GLushort nextVtxIdx = da_count(vtxBuf);
+		int i, j, count;
+		GLushort* add;
+		GLenum type;
 
 		/* get the vertex count and primitive type */
 		count = *order++;
@@ -351,7 +324,7 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 
 		gl4_alias_vtx_t* buf = da_addn_uninit(vtxBuf, count);
 
-		for(i=0; i<count; ++i)
+		for (i=0; i<count; ++i)
 		{
 			vec3_t point;
 
@@ -364,50 +337,21 @@ DrawAliasShadowCommands(int *order, int *order_end, const float *shadevector,
 
 			VectorCopy(point, buf[i].pos);
 
-			for(j=0; j<4; ++j)  buf[i].color[j] = color[j];
+			for (j=0; j<4; ++j)  buf[i].color[j] = color[j];
 
 			order += 3;
 		}
 
-		// translate triangle fan/strip to just triangle indices
-		if(type == GL_TRIANGLE_FAN)
-		{
-			GLushort i;
-			for(i=1; i < count-1; ++i)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
+		add = da_addn_uninit(idxBuf, (count - 2) * 3);
 
-				add[0] = nextVtxIdx;
-				add[1] = nextVtxIdx+i;
-				add[2] = nextVtxIdx+i+1;
-			}
+		/* translate triangle fan/strip to just triangle indices */
+		if (type == GL_TRIANGLE_FAN)
+		{
+			R_GenFanIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 		else // triangle strip
 		{
-			GLushort i;
-			for(i=1; i < count-2; i+=2)
-			{
-				// add two triangles at once, because the vertex order is different
-				// for odd vs even triangles
-				GLushort* add = da_addn_uninit(idxBuf, 6);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-
-				add[3] = nextVtxIdx + i;
-				add[4] = nextVtxIdx + i+2;
-				add[5] = nextVtxIdx + i+1;
-			}
-			// add remaining triangle, if any
-			if(i < count-1)
-			{
-				GLushort* add = da_addn_uninit(idxBuf, 3);
-
-				add[0] = nextVtxIdx + i-1;
-				add[1] = nextVtxIdx + i;
-				add[2] = nextVtxIdx + i+1;
-			}
+			R_GenStripIndexes(add, nextVtxIdx, nextVtxIdx + count - 2);
 		}
 	}
 
@@ -725,11 +669,11 @@ GL4_DrawAliasModel(entity_t *entity)
 		hmm_mat4 projMat = GL4_SetPerspective( (r_gunfov->value < 0)?
 				r_newrefdef.fov_y : r_gunfov->value );
 
-		if(r_lefthand->value == 1.0F)
+		if (r_lefthand->value == 1.0F)
 		{
 			// to mirror gun so it's rendered left-handed, just invert X-axis column
 			// of projection matrix
-			for(int i=0; i<4; ++i)
+			for (int i=0; i<4; ++i)
 			{
 				projMat.Elements[0][i] = - projMat.Elements[0][i];
 			}
@@ -806,7 +750,7 @@ GL4_DrawAliasModel(entity_t *entity)
 	{
 		gl4state.uni3DData.transProjViewMat4 = origProjViewMat;
 		GL4_UpdateUBO3D();
-		if(r_lefthand->value == 1.0F)
+		if (r_lefthand->value == 1.0F)
 			glCullFace(GL_FRONT);
 	}
 
@@ -842,7 +786,7 @@ void
 GL4_DrawAliasShadows(void)
 {
 	size_t numShadowModels = da_count(shadowModels);
-	if(numShadowModels == 0)
+	if (numShadowModels == 0)
 	{
 		return;
 	}
@@ -860,7 +804,7 @@ GL4_DrawAliasShadows(void)
 		glStencilOp(GL_KEEP, GL_KEEP, GL_INCR);
 	}
 
-	for(size_t i=0; i<numShadowModels; ++i)
+	for (size_t i=0; i<numShadowModels; ++i)
 	{
 		gl4_shadowinfo_t* si = &shadowModels.p[i]; // XXX da_getptr(shadowModels, i);
 		entity_t* e = si->entity;

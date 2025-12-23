@@ -2276,6 +2276,48 @@ CL_EntityEvent(entity_xstate_t *ent)
 }
 
 void
+CL_AddShadowLights(void)
+{
+	size_t i;
+
+	for (i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	{
+		cl_shadowdef_t *shadow;
+		centity_t *ent;
+		int color;
+
+		if (!*cl.configstrings[CS_SHADOWLIGHTS + i])
+		{
+			continue;
+		}
+
+		shadow = cl.shadowdefs + i;
+		ent = &cl_entities[shadow->number];
+
+		if (ent->serverframe != cl.frame.serverframe)
+		{
+			continue;
+		}
+
+		if (!ent->current.skinnum)
+		{
+			color = -1;
+		}
+		else
+		{
+			color = BigLong(ent->current.skinnum);
+		}
+
+		/* technically we should be lerping but these lights never move
+		 * in the game (even though they can) */
+		VectorCopy(ent->current.origin, shadow->light.origin);
+		shadow->light.color = color;
+
+		V_AddLightShadow(&shadow->light);
+	}
+}
+
+void
 CL_ClearEffects(void)
 {
 	CL_ClearParticles();

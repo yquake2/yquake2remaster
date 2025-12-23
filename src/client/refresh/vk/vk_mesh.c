@@ -281,13 +281,13 @@ Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
 
 		if (pipelineIdx == TRIANGLE_STRIP)
 		{
-			GenStripIndexes(vertIdxData + *index_pos,
+			R_GenStripIndexes(vertIdxData + *index_pos,
 				*firstVertex,
 				vertexCount - 2 + *firstVertex);
 		}
 		else
 		{
-			GenFanIndexes(vertIdxData + *index_pos,
+			R_GenFanIndexes(vertIdxData + *index_pos,
 				*firstVertex,
 				vertexCount - 2 + *firstVertex);
 		}

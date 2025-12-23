@@ -369,7 +369,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 
 	R_Bind(0);
 
-	if(gl_config.npottextures || rows <= 256 || bits == 32)
+	if (gl_config.npottextures || rows <= 256 || bits == 32)
 	{
 		// X, X
 		tex[0] = 0;
@@ -429,12 +429,12 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 					cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 					data);
 		}
-		else if(gl_config.npottextures || rows <= 256)
+		else if (gl_config.npottextures || rows <= 256)
 		{
 			unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
 			unsigned* img = image32;
 
-			if(cols*rows > 320*240)
+			if (cols*rows > 320*240)
 			{
 				/* in case there is a bigger video after all,
 				 * malloc enough space to hold the frame */
@@ -449,10 +449,10 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 				}
 			}
 
-			for(i=0; i<rows; ++i)
+			for (i=0; i<rows; ++i)
 			{
 				int rowOffset = i*cols;
-				for(j=0; j<cols; ++j)
+				for (j=0; j<cols; ++j)
 				{
 					byte palIdx = data[rowOffset+j];
 					img[rowOffset+j] = r_rawpalette[palIdx];
@@ -463,7 +463,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 								cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 								img);
 
-			if(img != image32)
+			if (img != image32)
 			{
 				free(img);
 			}

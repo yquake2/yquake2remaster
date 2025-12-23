@@ -881,7 +881,7 @@ D_TurbulentSurf(surf_t *s)
 
 	//============
 	// textures that aren't warping are just flowing. Use NonTurbulentPow2 instead
-	if(!(pface->texinfo->flags & SURF_WARP))
+	if (!(pface->texinfo->flags & SURF_WARP))
 		NonTurbulentPow2 (s->spans, s->d_ziorigin, s->d_zistepu, s->d_zistepv);
 	else
 		TurbulentPow2 (s->spans, s->d_ziorigin, s->d_zistepu, s->d_zistepv);

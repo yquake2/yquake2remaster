@@ -403,7 +403,7 @@ body_think(edict_t *self)
 	}
 
 	lastframe -= firstframe;
-	M_SetAnimGroupFrameValues(self, "stand", &firstframe, &lastframe);
+	M_SetAnimGroupFrameValues(self, "stand", &firstframe, &lastframe, 0);
 	lastframe += firstframe;
 
 	self->s.frame++;

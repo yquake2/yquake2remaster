@@ -440,8 +440,14 @@ FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only)
 	// Remove self references and empty dirs from the requested path.
 	// ZIPs and PAKs don't support them, but they may be hardcoded in
 	// some custom maps or models.
-	char name[MAX_QPATH] = {0};
+	char name[MAX_OSPATH] = {0};
 	size_t namelen = strlen(rawname);
+	if (namelen > sizeof(name) - 1)
+	{
+		Com_Printf("%s: used unexpectly long name: %s\n", __func__, rawname);
+		return -1;
+	}
+
 	for (input = 0, output = 0; input < namelen; input++)
 	{
 		// Remove self reference.
@@ -1133,7 +1139,7 @@ FS_LoadWAD(const char *packPath)
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
-				__func__, packPath);
+			__func__, packPath);
 		return NULL;
 	}
 
@@ -2432,7 +2438,7 @@ FS_ListMods(int *nummods)
 			numpacksinchilddir = 0;
 
 			// iterate over supported pack types, but ignore ZIP files (they cause false positives)
-			for (int j = 0; j < sizeof(fs_packtypes) / sizeof(fs_packtypes[0]); j++)
+			for (int j = 0; j < ARRLEN(fs_packtypes); j++)
 			{
 				if (strcmp("zip", fs_packtypes[j].suffix) != 0)
 				{
@@ -2563,7 +2569,7 @@ FS_FileInGamedir(const char *file)
 			return false;     /* couldn't find one anywhere */
 		}
 
-		snprintf(name, MAX_OSPATH, "%s/%s", path, file);
+		Com_sprintf(name, MAX_OSPATH, "%s/%s", path, file);
 
 		if ((fd = Q_fopen(name, "rb")) != NULL)
 		{
@@ -2600,7 +2606,7 @@ FS_AddPAKFromGamedir(const char *pak)
 	}
 
 	// Depending on filetype we must load it as .pak or .pk3.
-	for (int i = 0; i < sizeof(fs_packtypes) / sizeof(fs_packtypes[0]); i++)
+	for (int i = 0; i < ARRLEN(fs_packtypes); i++)
 	{
 		// Not the current filetype, next one please.
 		if (strncmp(pak + strlen(pak) - strlen(fs_packtypes[i].suffix), fs_packtypes[i].suffix, strlen(fs_packtypes[i].suffix)))
@@ -2755,7 +2761,7 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 	// need to be added first and are marked protected.
 	// Files from protected paks are never offered for
 	// download.
-	for (i = 0; i < sizeof(fs_packtypes) / sizeof(fs_packtypes[0]); i++)
+	for (i = 0; i < ARRLEN(fs_packtypes); i++)
 	{
 		for (j = 0; j < MAX_PAKS; j++)
 		{
@@ -2829,7 +2835,7 @@ FS_AddDirToSearchPath(char *dir, qboolean create) {
 	// sequence as they're returned by FS_ListFiles. This is
 	// fragile and file system dependend. We cannot change
 	// this, since it might break existing installations.
-	for (i = 0; i < sizeof(fs_packtypes) / sizeof(fs_packtypes[0]); i++)
+	for (i = 0; i < ARRLEN(fs_packtypes); i++)
 	{
 		Com_sprintf(path, sizeof(path), "%s/*.%s", dir, fs_packtypes[i].suffix);
 

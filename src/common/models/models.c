@@ -167,9 +167,17 @@ Load the Anachronox md2 format frame
 */
 static void
 Mod_LoadFrames_MD2A(dmdx_t *pheader, byte *src, size_t inframesize,
-	vec3_t translate, int resolution)
+	vec3_t translate, int resolution, vec3_t scale)
 {
 	int i;
+
+	for (i = 0; i < 3; i++)
+	{
+		if (!scale[i])
+		{
+			scale[i] = 1.0;
+		}
+	}
 
 	for (i = 0; i < pheader->num_frames; i++)
 	{
@@ -185,8 +193,8 @@ Mod_LoadFrames_MD2A(dmdx_t *pheader, byte *src, size_t inframesize,
 		memcpy(poutframe->name, pinframe->name, sizeof(poutframe->name));
 		for (j = 0; j < 3; j++)
 		{
-			poutframe->scale[j] = LittleFloat(pinframe->scale[j]);
-			poutframe->translate[j] = LittleFloat(pinframe->translate[j]);
+			poutframe->scale[j] = LittleFloat(pinframe->scale[j]) / scale[j];
+			poutframe->translate[j] = LittleFloat(pinframe->translate[j]) / scale[j];
 			poutframe->translate[j] += translate[j];
 		}
 
@@ -611,6 +619,110 @@ Mod_LoadFixNormals(dmdx_t *pheader)
 	free(normals);
 }
 
+static const namesconvert_t flex_names[] = {
+	/* replace frame group started with atack* to attack */
+	{"atack",  "attack"},
+	/* replace frame group started with elf:attck* to attack */
+	{"attck", "attack"},
+	/* replace frame group started with elf:runatk* to attack */
+	{"runatk", "attack"},
+	/* replace frame group started with death* to death */
+	{"death", "death"},
+	/* replace frame group started with elf:walk* to walk */
+	{"walk", "walk"},
+	/* replace frame group started with run* to run */
+	{"run", "run"},
+	/* replace frame group started with breath to idle */
+	{"breath", "idle"},
+	/* replace frame group started with shoot to attack */
+	{"shoot", "attack"},
+	/* replace frame group started with rolla to crwalk */
+	{"rolla", "crwalk"},
+	/* replace frame group started with 4swim to swim */
+	{"4swim", "swim"},
+	{NULL, NULL}
+};
+
+static const namesconvert_t dkm_names[] = {
+	{"atak", "attack"},
+	{"die", "death"},
+	{"fly", "fly"},
+	{"hover", "hover"},
+	{"run", "run"},
+	{"stand", "stand"},
+	{"swim", "swim"},
+	{"walk", "walk"},
+	{"amba", "idle"},
+	/* hack for protopod, looks as can't move, and should be attack */
+	{"hatcha", "run"},
+	{NULL, NULL}
+};
+
+static const namesconvert_t anox_names[] = {
+	{"amb", "idle"}, /* ambient */
+	{"atak", "attack"},
+	{"die", "death"},
+	{"run", "run"},
+	{"walk", "walk"},
+	{NULL, NULL}
+};
+
+static const namesconvert_t kingpin_names[] = {
+	{"walk", "walk"},
+	{"crch_astand", "crstnd"},
+	{"crch_death", "crdeath"},
+	{"crch_dth", "crdeath"},
+	{"cr_death", "crdeath"},
+	{"crch_walk", "crwalk"},
+	{"crch_walk", "crwalk"},
+	{"crouch_death", "crdeath"},
+	{"crouch_pain", "crpain"},
+	{"crouch_walk", "crwalk"},
+	{"cr_pain", "crpain"},
+	{"death", "death"},
+	{"idle", "idle"},
+	{"jump", "jump"},
+	{"melee", "melee"},
+	{"nw_pain", "pain"},
+	{"pain", "pain"},
+	{"p_pain", "pain"},
+	{"run", "run"},
+	{"stand_crouch", "crstnd"},
+	{"stand", "stand"},
+	{"walk", "walk"},
+	{NULL, NULL}
+};
+
+void
+Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names)
+{
+	dmdxframegroup_t *pframegroup;
+	size_t i;
+
+	pframegroup = (dmdxframegroup_t *)((char *)pheader + pheader->ofs_animgroup);
+	for (i = 0; i < pheader->num_animgroup; i++)
+	{
+		const namesconvert_t *curr;
+
+		curr = names;
+		do
+		{
+			size_t len;
+
+			len = strlen(curr->prefix);
+			if (!memcmp(pframegroup[i].name, curr->prefix, len))
+			{
+				Q_strlcpy(pframegroup[i].name, curr->name,
+					sizeof(pframegroup[i].name));
+				break;
+			}
+
+			curr++;
+		}
+		while (curr->prefix);
+	}
+}
+
 /*
 =================
 Mod_LoadModel_MD3
@@ -831,7 +943,7 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen)
 	}
 	free(vertx);
 
-	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadAnimGroupList(pheader, true);
 	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, false);
@@ -975,8 +1087,11 @@ Mod_LoadModel_MD2A(const char *mod_name, const void *buffer, int modfilelen)
 	// load the frames
 	//
 	Mod_LoadFrames_MD2A(pheader, (byte *)buffer + pinmodel.ofs_frames,
-		pinmodel.framesize, translate, pinmodel.resolution);
-	Mod_LoadAnimGroupList(pheader);
+		pinmodel.framesize, translate, pinmodel.resolution, pinmodel.lod_scale);
+	/* Anachronox has gaps in frame sequence numbers, skip check and expect
+	 * prefix before number as separate group */
+	Mod_LoadAnimGroupList(pheader, false);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, anox_names);
 	Mod_LoadFixNormals(pheader);
 
 	//
@@ -1133,7 +1248,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	//
 	// Update animation groups by frames
 	//
-	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadAnimGroupList(pheader, true);
 
 	//
 	// load the glcmds
@@ -1345,7 +1460,8 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 				}
 
 				Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
-				Mod_LoadAnimGroupList(pheader);
+				Mod_LoadAnimGroupList(pheader, true);
+				Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
 			}
 			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
 			{
@@ -1569,6 +1685,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 		(dkmtriangle_t *)((byte *)buffer + header.ofs_tris));
 	Mod_LoadDKMAnimGroupList(pheader,
 		(byte *)buffer + header.ofs_animgroup);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, dkm_names);
 
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixNormals(pheader);
@@ -1646,7 +1763,8 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 		header.num_glcmds);
 	Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
 		header.framesize, translate);
-	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadAnimGroupList(pheader, true);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, kingpin_names);
 	Mod_LoadCmdGenerate(pheader);
 	Mod_LoadFixImages(mod_name, pheader, false);
 

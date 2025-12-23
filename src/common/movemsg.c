@@ -24,8 +24,8 @@
  * =======================================================================
  */
 
-#include <limits.h>
 #include "header/common.h"
+#include <limits.h>
 
 vec3_t bytedirs[NUMVERTEXNORMALS] = {
 	{-0.525731, 0.000000, 0.850651},
@@ -883,8 +883,6 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 	/* entnums are sent in 16-bit form */
 	if (to->number > SHRT_MAX)
 	{
-		Com_Error(ERR_DROP, "%s: bad entity %d >= %d\n",
-			__func__, to->number, MAX_EDICTS);
 		return;
 	}
 

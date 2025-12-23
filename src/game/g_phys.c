@@ -1337,6 +1337,95 @@ SV_Physics_Step(edict_t *ent)
 }
 
 /* ================================================================== */
+static void
+G_RunBmodelAnimation(edict_t *ent)
+{
+	int speed, style, start, end;
+	bmodel_anim_t *anim;
+	qboolean nowrap;
+
+	anim = &ent->bmodel_anim;
+
+	if (anim->currently_alternate != anim->alternate)
+	{
+		anim->currently_alternate = anim->alternate;
+		anim->next_tick = 0;
+	}
+
+	if (level.time < anim->next_tick)
+	{
+		return;
+	}
+
+	if (anim->alternate)
+	{
+		speed = anim->alt_speed;
+		style = anim->alt_style;
+		start = anim->alt_start;
+		end = anim->alt_end;
+		nowrap = anim->alt_nowrap;
+	}
+	else
+	{
+		speed = anim->speed;
+		style = anim->style;
+		start = anim->start;
+		end = anim->end;
+		nowrap = anim->nowrap;
+	}
+
+	anim->next_tick = level.time + (float)speed / 1000.0;
+
+	switch (style)
+	{
+		case BMODEL_ANIM_FORWARDS:
+			if (end >= start)
+			{
+				ent->s.frame++;
+			}
+			else
+			{
+				ent->s.frame--;
+			}
+			break;
+		case BMODEL_ANIM_BACKWARDS:
+			if (end >= start)
+			{
+				ent->s.frame--;
+			}
+			else
+			{
+				ent->s.frame++;
+			}
+			break;
+		case BMODEL_ANIM_RANDOM:
+			ent->s.frame = start + randk() % (end + 1 - start);
+			break;
+	}
+
+	if (nowrap)
+	{
+		if (end >= start)
+		{
+			ent->s.frame = Q_clamp(ent->s.frame, start, end);
+		}
+		else
+		{
+			ent->s.frame = Q_clamp(ent->s.frame, end, start);
+		}
+	}
+	else
+	{
+		if (ent->s.frame < start)
+		{
+			ent->s.frame = end;
+		}
+		else if (ent->s.frame > end)
+		{
+			ent->s.frame = start;
+		}
+	}
+}
 
 void
 G_RunEntity(edict_t *ent)
@@ -1363,6 +1452,13 @@ G_RunEntity(edict_t *ent)
 	if (ent->prethink)
 	{
 		ent->prethink(ent);
+	}
+
+	/* bmodel animation stuff runs first, so custom entities
+	 * can override them */
+	if (ent->bmodel_anim.enabled)
+	{
+		G_RunBmodelAnimation(ent);
 	}
 
 	switch ((int)ent->movetype)

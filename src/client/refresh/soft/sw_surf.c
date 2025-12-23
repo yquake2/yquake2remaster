@@ -95,7 +95,7 @@ R_DrawSurfaceBlock_Light (pixel_t *prowdest, pixel_t *psource, size_t size,
 		int b, j;
 		light3_t lightstep, light;
 
-		for(j=0; j<3; j++)
+		for (j=0; j<3; j++)
 		{
 			int lighttemp;
 
@@ -113,7 +113,7 @@ R_DrawSurfaceBlock_Light (pixel_t *prowdest, pixel_t *psource, size_t size,
 			pix = psource[b];
 			prowdest[b] = R_ApplyLight(pix, light);
 
-			for(j=0; j<3; j++)
+			for (j=0; j<3; j++)
 				light[j] += lightstep[j];
 		}
 	}
@@ -145,7 +145,7 @@ R_DrawSurfaceBlock8_anymip (int level, int surfrowbytes)
 		memcpy(lightright, r_lightptr + 3, sizeof(light3_t));
 
 		r_lightptr += r_lightwidth * 3;
-		for(i=0; i<3; i++)
+		for (i=0; i<3; i++)
 		{
 			lightleftstep[i] = (r_lightptr[i] - lightleft[i]) >> level;
 			lightrightstep[i] = (r_lightptr[i + 3] - lightright[i]) >> level;
@@ -159,7 +159,7 @@ R_DrawSurfaceBlock8_anymip (int level, int surfrowbytes)
 
 			psource += sourcetstep;
 
-			for(j=0; j<3; j++)
+			for (j=0; j<3; j++)
 			{
 				lightright[j] += lightrightstep[j];
 				lightleft[j] += lightleftstep[j];

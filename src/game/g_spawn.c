@@ -69,6 +69,11 @@ typedef struct
 	vec3_t color;
 	int health;
 	int mass;
+	int damage;
+	int damage_range;
+	vec3_t damage_aim;
+	gibtype_t gib;
+	int gib_health;
 } dynamicentity_t;
 
 static dynamicentity_t *dynamicentities;
@@ -111,6 +116,93 @@ DynamicResetSpawnModels(edict_t *self)
 	self->s.modelindex3 = 0;
 }
 
+static gibtype_t
+DynamicSpawnGibFromName(const char *gib_type)
+{
+	if (!gib_type || !gib_type[0])
+	{
+		return GIB_NONE;
+	}
+
+	if (strlen(gib_type) <= 2 && gib_type[0] >= '0' && gib_type[0] <= '9')
+	{
+		/* Heretic 2: type is started from number */
+		int gib_val;
+
+		gib_val = (int)strtol(gib_type, (char **)NULL, 10);
+		switch (gib_val)
+		{
+			case 0: return GIB_STONE;
+			case 1: return GIB_GREYSTONE;
+			case 2: return GIB_CLOTH;
+			case 3: return GIB_METALLIC;
+			case 4: return GIB_ORGANIC;
+			case 5: return GIB_POTTERY;
+			case 6: return GIB_GLASS;
+			case 7: return GIB_LEAF;
+			case 8: return GIB_WOOD;
+			case 9: return GIB_BROWNSTONE;
+			case 10: return GIB_NONE;
+			case 11: return GIB_INSECT;
+			default: return GIB_NONE;
+		}
+	}
+
+	/* Combined ReMaster names and Heretic 2 materials */
+	if (!strcmp(gib_type, "none"))
+	{
+		return GIB_NONE;
+	}
+	else if (!strcmp(gib_type, "metal") ||
+		!strcmp(gib_type, "metallic"))
+	{
+		return GIB_METALLIC;
+	}
+	else if (!strcmp(gib_type, "flesh") ||
+		!strcmp(gib_type, "organic"))
+	{
+		return GIB_ORGANIC;
+	}
+	else if (!strcmp(gib_type, "stone"))
+	{
+		return GIB_STONE;
+	}
+	else if (!strcmp(gib_type, "greystone"))
+	{
+		return GIB_GREYSTONE;
+	}
+	else if (!strcmp(gib_type, "cloth"))
+	{
+		return GIB_CLOTH;
+	}
+	else if (!strcmp(gib_type, "pottery"))
+	{
+		return GIB_POTTERY;
+	}
+	else if (!strcmp(gib_type, "glass"))
+	{
+		return GIB_GLASS;
+	}
+	else if (!strcmp(gib_type, "leaf"))
+	{
+		return GIB_LEAF;
+	}
+	else if (!strcmp(gib_type, "wood"))
+	{
+		return GIB_WOOD;
+	}
+	else if (!strcmp(gib_type, "brownstone"))
+	{
+		return GIB_BROWNSTONE;
+	}
+	else if (!strcmp(gib_type, "insect"))
+	{
+		return GIB_INSECT;
+	}
+
+	return GIB_NONE;
+}
+
 static void
 DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 {
@@ -149,11 +241,30 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	if (semicolon)
 	{
 		curr = semicolon;
+		semicolon = strchr(curr, ';');
+		if (semicolon)
+		{
+			*semicolon = 0;
+			semicolon ++;
+		}
 		self->s.modelindex3 = gi.modelindex(curr);
+	}
+
+	if (semicolon)
+	{
+		gi.dprintf("%s: '%s' use more than three models: %s\n",
+			__func__, self->classname, semicolon);
 	}
 
 	VectorCopy(data->mins, self->mins);
 	VectorCopy(data->maxs, self->maxs);
+	VectorCopy(data->damage_aim, self->damage_aim);
+	self->gib = data->gib;
+	/* Heretic 2 material types */
+	if (self->gibtype && self->gibtype[0])
+	{
+		self->gib = DynamicSpawnGibFromName(self->gibtype);
+	}
 
 	/* has updated scale */
 	if (st.scale[0] || st.scale[1] || st.scale[2])
@@ -183,6 +294,16 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 	if (data->mass && !self->mass)
 	{
 		self->mass = data->mass;
+	}
+
+	if (data->damage && !self->dmg)
+	{
+		self->dmg = data->damage;
+	}
+
+	if (data->damage_range && !self->dmg_range)
+	{
+		self->dmg_range = data->damage_range;
 	}
 
 	/* set default solid flag */
@@ -784,6 +905,13 @@ ED_ParseEdict(char *data, edict_t *ent)
 		}
 
 		ED_ParseField(keyname, com_token, ent);
+
+		/* Enable brush model animation only if provided */
+		if (!strcmp(keyname, "bmodel_anim_start") ||
+			!strcmp(keyname, "bmodel_anim_end"))
+		{
+			ent->bmodel_anim.enabled = true;
+		}
 	}
 
 	if (!init)
@@ -1176,6 +1304,9 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	}
 
 	AI_NewMap();//JABot
+
+	/* setup server-side shadow lights */
+	setup_shadow_lights();
 }
 
 /* =================================================================== */
@@ -2457,11 +2588,13 @@ DynamicSpawnInit(void)
 				 * Ignored fields:
 					* attack speed
 					* fov
-					* X weapon1Offset
-					* Y weapon1Offset
-					* Z weapon1Offset
-					* base damage
-					* random damage
+				 */
+				line = DynamicSkipParse(line, 2, ',');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].damage_aim, 3, ',');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].damage, ',');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].damage_range, ',');
+				/*
+				 * Ignored fields:
 					* spread x
 					* spread z
 					* speed
@@ -2535,6 +2668,7 @@ DynamicSpawnInit(void)
 				*curr != '\n' && *curr != '\r' && *curr != ';')
 			{
 				char *line;
+				char gib_type[MAX_QPATH] = {0};
 
 				line = curr;
 				line = DynamicStringParse(line, dynamicentities[curr_pos].classname, MAX_QPATH, '|');
@@ -2560,6 +2694,13 @@ DynamicSpawnInit(void)
 				line = DynamicFloatParse(line, dynamicentities[curr_pos].color, 3, '|');
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].health, '|');
 				line = DynamicIntParse(line, &dynamicentities[curr_pos].mass, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].damage, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].damage_range, '|');
+				line = DynamicFloatParse(line, dynamicentities[curr_pos].damage_aim, 3, '|');
+				line = DynamicStringParse(line, gib_type, MAX_QPATH, '|');
+				line = DynamicIntParse(line, &dynamicentities[curr_pos].gib_health, '|');
+
+				dynamicentities[curr_pos].gib = DynamicSpawnGibFromName(gib_type);
 
 				/* Fix path */
 				Q_replacebackslash(dynamicentities[curr_pos].model_path);
@@ -2636,6 +2777,8 @@ GetDynamicItems(int *count)
 
 	for (i = 0; i < ndynamicentities; i++)
 	{
+		char* classname;
+
 		if (strncmp(dynamicentities[i].classname, "item_", 5) &&
 			strncmp(dynamicentities[i].classname, "weapon_", 7) &&
 			strncmp(dynamicentities[i].classname, "key_", 4) &&
@@ -2657,8 +2800,24 @@ GetDynamicItems(int *count)
 			continue;
 		}
 
+		classname = dynamicentities[i].classname;
+
+		/* Fix class names to sync with ED_CallSpawn */
+		if (!strcmp(classname, "weapon_nailgun"))
+		{
+			classname = "weapon_etf_rifle";
+		}
+		else if (!strcmp(classname, "ammo_nails"))
+		{
+			classname = "ammo_flechettes";
+		}
+		else if (!strcmp(classname, "weapon_heatbeam"))
+		{
+			classname = "weapon_plasmabeam";
+		}
+
 		/* Could be dynamic item */
-		items[itemcount].classname = dynamicentities[i].classname;
+		items[itemcount].classname = classname;
 		items[itemcount].world_model = dynamicentities[i].model_path;
 		items[itemcount].pickup_name = dynamicentities[i].description;
 		itemcount++;

@@ -386,7 +386,7 @@ RI_ShutdownContext(void)
 {
 	if (window)
 	{
-		if(context)
+		if (context)
 		{
 #ifdef USE_SDL3
 			SDL_GL_DestroyContext(context);

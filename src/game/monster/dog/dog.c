@@ -65,14 +65,18 @@ void
 dog_leap_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	if (self->health < 1)
+	{
 		return;
+	}
+
 	if (other->takedamage)
 	{
 		if (VectorLength(self->velocity) > 300)
 		{
 			int	damage = 10 + 10 * random();
 
-			T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, damage, 0, 0, 0);
+			T_Damage(other, self, self, vec3_origin, other->s.origin,
+				vec3_origin, damage, 0, 0, 0);
 		}
 	}
 	self->touch = NULL;
@@ -134,21 +138,9 @@ dog_leap(edict_t *self)
 static void
 dogbite_step(edict_t *self)
 {
-	vec3_t dir;
-	static vec3_t aim = {100, 0, -24};
-	int damage;
-
 	gi.sound(self, CHAN_VOICE, sound_melee, 1, ATTN_NORM, 0);
 
-	if (!self->enemy)
-		return;
-	VectorSubtract(self->s.origin, self->enemy->s.origin, dir);
-
-	if (VectorLength(dir) > 100.0)
-		return;
-	damage = (random() + random() + random()) * 8;
-
-	fire_hit(self, aim, damage, damage);
+	monster_dynamic_damage(self);
 }
 
 // Melee
@@ -324,11 +316,11 @@ dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t
 	{
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
-		for (n= 0; n < 2; n++)
-			ThrowGib (self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
-		for (n= 0; n < 4; n++)
-			ThrowGib (self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
-		ThrowHead (self, "models/objects/gibs/head2/tris.md2", damage, GIB_ORGANIC);
+		for (n = 0; n < 2; n++)
+			ThrowGib(self, "models/objects/gibs/bone/tris.md2", damage, GIB_ORGANIC);
+		for (n = 0; n < 4; n++)
+			ThrowGib(self, NULL, damage, GIB_ORGANIC);
+		ThrowHead(self, NULL, damage, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
@@ -354,7 +346,7 @@ SP_monster_dog(edict_t *self)
 	self->s.modelindex = gi.modelindex("models/monsters/dog/tris.md2");
 	VectorSet(self->mins, -32, -32, -24);
 	VectorSet(self->maxs, 32, 32, 40);
-	self->health = 25 * st.health_multiplier;
+	self->health *= st.health_multiplier;
 
 	sound_melee = gi.soundindex("dog/dattack1.wav");
 	sound_death = gi.soundindex("dog/ddeath.wav");
@@ -364,9 +356,6 @@ SP_monster_dog(edict_t *self)
 
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-
-	self->gib_health = -35;
-	self->mass = 30;
 
 	monster_dynamic_setinfo(self);
 

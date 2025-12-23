@@ -50,7 +50,7 @@ jobs:
           mingw-w64-${{matrix.env}}-pkgconf
           mingw-w64-${{matrix.env}}-wget
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Build
       shell: msys2 {0}
       run: |
@@ -70,6 +70,7 @@ jobs:
         cp -r release/* publish/quake2-win64-${{github.sha}}/
         # Copy misc assets
         cp -r stuff/yq2.cfg publish/quake2-win64-${{github.sha}}/misc/yq2.cfg
+        cp -r stuff/models publish/quake2-win64-${{github.sha}}/misc
         cp -r stuff/mapfixes publish/quake2-win64-${{github.sha}}/misc
         cp LICENSE publish/quake2-win64-${{github.sha}}/misc/docs/LICENSE.txt
         cp README.md publish/quake2-win64-${{github.sha}}/misc/docs/README.txt
@@ -105,7 +106,7 @@ jobs:
         unzip -o curl-mingw-latest.zip
         cp curl-*-win64-mingw/bin/libcurl-x64.dll publish/quake2-win64-${{github.sha}}/curl.dll
     - name: Upload testbuild package
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
       with:
         name: quake2-win64-${{github.sha}}

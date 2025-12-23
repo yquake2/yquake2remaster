@@ -1108,52 +1108,6 @@ ReleaseSwapBuffers(void)
 /* internal helper */
 static uint8_t *QVk_GetIndexBuffer(VkDeviceSize size, VkDeviceSize *dstOffset, int currentBufferIdx);
 
-void
-GenFanIndexes(uint16_t *data, int from, int to)
-{
-	int i;
-
-	// fill the index buffer so that we can emulate triangle fans via triangle lists
-	for (i = from; i < to; i++)
-	{
-		*data = from;
-		data ++;
-		*data = i + 1;
-		data++;
-		*data = i + 2;
-		data ++;
-	}
-}
-
-void
-GenStripIndexes(uint16_t *data, int from, int to)
-{
-	int i;
-
-	// fill the index buffer so that we can emulate triangle strips via triangle lists
-	for (i = from + 2; i < to + 2; i++)
-	{
-		if ((i - from) % 2 == 0)
-		{
-			*data =  i - 2;
-			data ++;
-			*data =  i - 1;
-			data ++;
-			*data =  i;
-			data ++;
-		}
-		else
-		{
-			*data = i;
-			data ++;
-			*data =  i - 1;
-			data ++;
-			*data =  i - 2;
-			data ++;
-		}
-	}
-}
-
 VkBuffer*
 UpdateIndexBuffer(const uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *dstOffset)
 {

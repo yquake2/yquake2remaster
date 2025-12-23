@@ -1592,6 +1592,14 @@ typedef struct {
 } dq3brush_t;
 
 typedef struct {
+	vec3_t		xyz;
+	float		st[2];
+	float		lightmap[2];
+	vec3_t		normal;
+	byte		color[4];
+} q3drawvert_t;
+
+typedef struct {
 	int texinfo;
 	int fog;
 	int type;

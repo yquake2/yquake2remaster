@@ -1,3 +1,14 @@
+Quake II 8.61RR13:
+- Fixes from yquake2,
+- game: Lifting the entity limit (by BjossiAlfreds),
+- game: Enhanced dynamic monster behaviors using model frame groups,
+- renders: Initial fog support,
+- renders: Share fan/strip logic,
+- ReRelease: fully implement `trigger_fog`,
+- Heretic 2: use nor all surface flags to detect map type,
+- Kingpin: use nor all surface flags to detect map type,
+- DoD: implement dynamic animations for monsters.
+
 Quake II 8.51 to 8.60:
 - Vastly improved level loading times in single-player. Set
   sv_optimize_mp_loadtime to 7 to enable in multiplayer. (by

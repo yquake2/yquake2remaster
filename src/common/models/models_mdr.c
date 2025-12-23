@@ -404,7 +404,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 	free(vertx);
 	free(frames);
 
-	Mod_LoadAnimGroupList(pheader);
+	Mod_LoadAnimGroupList(pheader, true);
 	Mod_LoadCmdGenerate(pheader);
 
 	Mod_LoadFixImages(mod_name, pheader, false);

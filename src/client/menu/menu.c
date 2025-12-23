@@ -665,7 +665,7 @@ InitMainMenu(void)
 		"m_main_options",
 		"m_main_video",
 		"m_main_quit",
-		0
+		NULL
 	};
 
 	for (i = 0; names[i] != 0; i++)
@@ -964,14 +964,13 @@ char *bindnames[][2] =
 	{"invnext", "next item"},
 	{"cmd help", "help computer"}
 };
-#define NUM_BINDNAMES (sizeof bindnames / sizeof bindnames[0])
 
 int keys_cursor;
 static int menukeyitem_bind;
 
 static menuframework_s s_keys_menu = {0};
 static menuframework_s s_joy_menu = {0};
-static menuaction_s s_keys_actions[NUM_BINDNAMES] = {0};
+static menuaction_s s_keys_actions[ARRLEN(bindnames)] = {0};
 
 static void
 M_UnbindCommand(char *command, int scope)
@@ -1133,7 +1132,7 @@ Keys_MenuInit(void)
 	s_keys_menu.nitems = 0;
 	s_keys_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(bindnames); i++)
 	{
 		s_keys_actions[i].generic.type = MTYPE_ACTION;
 		s_keys_actions[i].generic.flags = QMF_GRAYED;
@@ -1217,10 +1216,9 @@ char *multiplayer_key_bindnames[][2] =
 	{"wave 3", "wave 3"},
 	{"wave 4", "wave 4"},
 };
-#define NUM_MULTIPLAYER_KEY_BINDNAMES (sizeof multiplayer_key_bindnames / sizeof multiplayer_key_bindnames[0])
 
 static menuframework_s s_multiplayer_keys_menu = {0};
-static menuaction_s s_multiplayer_keys_actions[NUM_MULTIPLAYER_KEY_BINDNAMES] = {0};
+static menuaction_s s_multiplayer_keys_actions[ARRLEN(multiplayer_key_bindnames)] = {0};
 
 static void
 MultiplayerDrawKeyBindingFunc(void *self)
@@ -1286,7 +1284,7 @@ MultiplayerKeys_MenuInit(void)
 	s_multiplayer_keys_menu.nitems = 0;
 	s_multiplayer_keys_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_MULTIPLAYER_KEY_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(multiplayer_key_bindnames); i++)
 	{
 		s_multiplayer_keys_actions[i].generic.type = MTYPE_ACTION;
 		s_multiplayer_keys_actions[i].generic.flags = QMF_GRAYED;
@@ -1415,10 +1413,9 @@ char *controller_bindnames[][2] =
 	{"+gyroaction", "gyro off / on"},
 	{"+joyaltselector", "alt buttons modifier"}
 };
-#define NUM_CONTROLLER_BINDNAMES (sizeof controller_bindnames / sizeof controller_bindnames[0])
 
 static menuframework_s s_controller_buttons_menu = {0};
-static menuaction_s s_controller_buttons_actions[NUM_CONTROLLER_BINDNAMES] = {0};
+static menuaction_s s_controller_buttons_actions[ARRLEN(controller_bindnames)] = {0};
 
 static void
 DrawControllerButtonBindingFunc(void *self)
@@ -1484,7 +1481,7 @@ ControllerButtons_MenuInit(void)
 	s_controller_buttons_menu.nitems = 0;
 	s_controller_buttons_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_CONTROLLER_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(controller_bindnames); i++)
 	{
 		s_controller_buttons_actions[i].generic.type = MTYPE_ACTION;
 		s_controller_buttons_actions[i].generic.flags = QMF_GRAYED;
@@ -1589,10 +1586,9 @@ char *controller_alt_bindnames[][2] =
 	{"use quad damage", "use quad damage"},
 	{"cmd help", "help computer"}
 };
-#define NUM_CONTROLLER_ALT_BINDNAMES (sizeof controller_alt_bindnames / sizeof controller_alt_bindnames[0])
 
 static menuframework_s s_controller_alt_buttons_menu = {0};
-static menuaction_s s_controller_alt_buttons_actions[NUM_CONTROLLER_ALT_BINDNAMES] = {0};
+static menuaction_s s_controller_alt_buttons_actions[ARRLEN(controller_alt_bindnames)] = {0};
 
 static void
 DrawControllerAltButtonBindingFunc(void *self)
@@ -1658,7 +1654,7 @@ ControllerAltButtons_MenuInit(void)
 	s_controller_alt_buttons_menu.nitems = 0;
 	s_controller_alt_buttons_menu.cursordraw = KeyCursorDrawFunc;
 
-	for (i = 0; i < NUM_CONTROLLER_ALT_BINDNAMES; i++)
+	for (i = 0; i < ARRLEN(controller_alt_bindnames); i++)
 	{
 		s_controller_alt_buttons_actions[i].generic.type = MTYPE_ACTION;
 		s_controller_alt_buttons_actions[i].generic.flags = QMF_GRAYED;
@@ -1758,7 +1754,7 @@ Stick_MenuInit(void)
 		"southpaw",
 		"legacy",
 		"legacy southpaw",
-		0
+		NULL
 	};
 
 	static const char *stick_layouts_fs[] =
@@ -1769,7 +1765,7 @@ Stick_MenuInit(void)
 		"legacy southpaw",
 		"flick stick",
 		"flick stick spaw",
-		0
+		NULL
 	};
 
 	unsigned short int y = 0, i;
@@ -2000,7 +1996,7 @@ Gyro_MenuInit(void)
 		"off, button enables",
 		"on, button disables",
 		"always on",
-		0
+		NULL
 	};
 
 	static const char *gyro_space_choices[] =
@@ -2008,7 +2004,7 @@ Gyro_MenuInit(void)
 		"local",
 		"player",
 		"world",
-		0
+		NULL
 	};
 
 	static const char *gyro_local_roll_choices[] =
@@ -2016,14 +2012,14 @@ Gyro_MenuInit(void)
 		"off",
 		"on",
 		"on, invert",
-		0
+		NULL
 	};
 
 	static const char *onoff_names[] =
 	{
 		"off",
 		"on",
-		0
+		NULL
 	};
 
 	unsigned short int y = 0;
@@ -2229,8 +2225,6 @@ static menuslider_s s_joy_pitchspeed_slider = {0};
 static menuslider_s s_joy_extra_yawspeed_slider = {0};
 static menuslider_s s_joy_extra_pitchspeed_slider = {0};
 static menuslider_s s_joy_ramp_time_slider = {0};
-static menuslider_s s_joy_forwardsensitivity_slider = {0};
-static menuslider_s s_joy_sidesensitivity_slider = {0};
 static menuslider_s s_joy_haptic_slider = {0};
 static menuaction_s s_joy_stickcfg_action = {0};
 static menuaction_s s_joy_gyro_action = {0};
@@ -2295,7 +2289,7 @@ Joy_MenuInit(void)
 	{
 		"no",
 		"yes",
-		0
+		NULL
 	};
 
 	static const char *custom_names[] =
@@ -2303,7 +2297,7 @@ Joy_MenuInit(void)
 		"",
 		"custom",
 		"",
-		0,
+		NULL
 	};
 
 	extern qboolean show_haptic;
@@ -2419,24 +2413,6 @@ Joy_MenuInit(void)
 	s_joy_invertpitch_box.itemnames = yesno_names;
 	s_joy_invertpitch_box.curvalue = (Cvar_VariableValue("joy_pitchspeed") < 0);
 	Menu_AddItem(&s_joy_menu, (void *)&s_joy_invertpitch_box);
-
-	s_joy_forwardsensitivity_slider.generic.type = MTYPE_SLIDER;
-	s_joy_forwardsensitivity_slider.generic.x = 0;
-	s_joy_forwardsensitivity_slider.generic.y = (y += 20);
-	s_joy_forwardsensitivity_slider.generic.name = "forward sensitivity";
-	s_joy_forwardsensitivity_slider.cvar = "joy_forwardsensitivity";
-	s_joy_forwardsensitivity_slider.minvalue = 0.0f;
-	s_joy_forwardsensitivity_slider.maxvalue = 2.0f;
-	Menu_AddItem(&s_joy_menu, (void *)&s_joy_forwardsensitivity_slider);
-
-	s_joy_sidesensitivity_slider.generic.type = MTYPE_SLIDER;
-	s_joy_sidesensitivity_slider.generic.x = 0;
-	s_joy_sidesensitivity_slider.generic.y = (y += 10);
-	s_joy_sidesensitivity_slider.generic.name = "side sensitivity";
-	s_joy_sidesensitivity_slider.cvar = "joy_sidesensitivity";
-	s_joy_sidesensitivity_slider.minvalue = 0.0f;
-	s_joy_sidesensitivity_slider.maxvalue = 2.0f;
-	Menu_AddItem(&s_joy_menu, (void *)&s_joy_sidesensitivity_slider);
 
 	if (show_haptic) {
 		s_joy_haptic_slider.generic.type = MTYPE_SLIDER;
@@ -2682,26 +2658,26 @@ Options_MenuInit(void)
 		"sequential",
 		"random",
 		"truly random",
-		0
+		NULL
 	};
 
 	static const char *able_items[] =
 	{
 		"disabled",
 		"enabled",
-		0
+		NULL
 	};
 
 	static const char *sound_items[] =
 	{
-		"openal", "sdl", 0
+		"openal", "sdl", NULL
 	};
 
 	static const char *yesno_names[] =
 	{
 		"no",
 		"yes",
-		0
+		NULL
 	};
 
 	static const char* pause_names[] =
@@ -2709,7 +2685,7 @@ Options_MenuInit(void)
 		"yes",
 		"no",
 		"unpause on re-focus",
-		0
+		NULL
 	};
 
 	static const char *crosshair_names[] =
@@ -2718,7 +2694,7 @@ Options_MenuInit(void)
 		"cross",
 		"dot",
 		"angle",
-		0
+		NULL
 	};
 
 	float scale = SCR_GetMenuScale();
@@ -3273,7 +3249,7 @@ static const char *idcredits[] = {
 	"Inc. All other trademarks and trade",
 	"names are properties of their",
 	"respective owners.",
-	0
+	NULL
 };
 
 static void
@@ -4007,7 +3983,7 @@ LoadSave_AdjustPage(int dir)
 			break;
 		}
 
-		strcat(m_loadsave_statusbar, str);
+		Q_strlcat(m_loadsave_statusbar, str, sizeof(m_loadsave_statusbar));
 	}
 }
 
@@ -4935,7 +4911,7 @@ StartServer_MenuInit(void)
 		"cooperative",
 		"tag",
 		"ctf",
-		0
+		NULL
 	};
 
 	float scale = SCR_GetMenuScale();
@@ -5356,12 +5332,14 @@ DMOptions_MenuInit(void)
 {
 	static const char *yes_no_names[] =
 	{
-		"no", "yes", 0
+		"no", "yes", NULL
 	};
+
 	static const char *teamplay_names[] =
 	{
-		"disabled", "by skin", "by model", 0
+		"disabled", "by skin", "by model", NULL
 	};
+
 	int dmflags = Cvar_VariableValue("dmflags");
 	unsigned short int y = 0;
 
@@ -5682,8 +5660,9 @@ DownloadOptions_MenuInit(void)
 {
 	static const char *yes_no_names[] =
 	{
-		"no", "yes", 0
+		"no", "yes", NULL
 	};
+
 	unsigned short int y = 0;
 	float scale = SCR_GetMenuScale();
 
@@ -5908,8 +5887,13 @@ static strlist_t s_modelname;
 static strlist_t s_directory;
 
 static int rate_tbl[] = {2500, 3200, 5000, 10000, 25000, 0};
-static const char *rate_names[] = {"28.8 Modem", "33.6 Modem", "Single ISDN",
-			                       "Dual ISDN/Cable", "T1/LAN", "User defined", 0 };
+static const char *rate_names[] =
+{
+	"28.8 Modem", "33.6 Modem",
+	"Single ISDN", "Dual ISDN/Cable",
+	"T1/LAN", "User defined",
+	NULL
+};
 
 static void
 DownloadOptionsFunc(void *self)
@@ -5926,7 +5910,7 @@ HandednessCallback(void *unused)
 static void
 RateCallback(void *unused)
 {
-	if (s_player_rate_box.curvalue != sizeof(rate_tbl) / sizeof(*rate_tbl) - 1)
+	if (s_player_rate_box.curvalue != ARRLEN(rate_tbl) - 1)
 	{
 		Cvar_SetValue("rate", (float)rate_tbl[s_player_rate_box.curvalue]);
 	}
@@ -5949,8 +5933,8 @@ IconOfSkinExists(const char* skin, char** pcxfiles, int npcxfiles,
 
 	Q_strlcpy(scratch, skin, sizeof(scratch));
 	*strrchr(scratch, '.') = 0;
-	strcat(scratch, "_i.");
-	strcat(scratch, ext);
+	Q_strlcat(scratch, "_i.", sizeof(scratch));
+	Q_strlcat(scratch, ext, sizeof(scratch));
 
 	for (i = 0; i < npcxfiles; i++)
 	{
@@ -6606,7 +6590,7 @@ PlayerConfig_MenuInit(void)
 	extern cvar_t *name;
 	const extern cvar_t *skin;
 	cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
-	static const char *handedness[] = { "right", "left", "center", 0 };
+	static const char *handedness[] = { "right", "left", "center", NULL};
 	char mdlname[MAX_QPATH];
 	char imgname[MAX_QPATH];
 	int mdlindex = 0;
@@ -6704,7 +6688,7 @@ PlayerConfig_MenuInit(void)
 	s_player_skin_box.generic.type = MTYPE_SPINCONTROL;
 	s_player_skin_box.generic.x = -56 * scale;
 	s_player_skin_box.generic.y = 94;
-	s_player_skin_box.generic.name = 0;
+	s_player_skin_box.generic.name = NULL;
 	s_player_skin_box.generic.callback = 0;
 	s_player_skin_box.generic.cursor_offset = -48;
 	s_player_skin_box.curvalue = imgindex;
@@ -6718,13 +6702,13 @@ PlayerConfig_MenuInit(void)
 	s_player_handedness_box.generic.type = MTYPE_SPINCONTROL;
 	s_player_handedness_box.generic.x = -56 * scale;
 	s_player_handedness_box.generic.y = 118;
-	s_player_handedness_box.generic.name = 0;
+	s_player_handedness_box.generic.name = NULL;
 	s_player_handedness_box.generic.cursor_offset = -48;
 	s_player_handedness_box.generic.callback = HandednessCallback;
 	s_player_handedness_box.curvalue = ClampCvar(0, 2, hand->value);
 	s_player_handedness_box.itemnames = handedness;
 
-	for (i = 0; i < sizeof(rate_tbl) / sizeof(*rate_tbl) - 1; i++)
+	for (i = 0; i < ARRLEN(rate_tbl) - 1; i++)
 	{
 		if (Cvar_VariableValue("rate") == rate_tbl[i])
 		{
@@ -6740,7 +6724,7 @@ PlayerConfig_MenuInit(void)
 	s_player_rate_box.generic.type = MTYPE_SPINCONTROL;
 	s_player_rate_box.generic.x = -56 * scale;
 	s_player_rate_box.generic.y = 166;
-	s_player_rate_box.generic.name = 0;
+	s_player_rate_box.generic.name = NULL;
 	s_player_rate_box.generic.cursor_offset = -48;
 	s_player_rate_box.generic.callback = RateCallback;
 	s_player_rate_box.curvalue = i;

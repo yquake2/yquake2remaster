@@ -246,7 +246,7 @@ R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
 	if (!d_16to8table)
 		return;
 
-	for(i=0; i < size; i++)
+	for (i=0; i < size; i++)
 	{
 		if (pic_in[3] > 128 || !transparent)
 		{
@@ -609,7 +609,7 @@ R_FindImage(const char *originname, imagetype_t type)
 	// load the pic from disk
 	//
 	image = (image_t *)R_LoadImage(name, namewe, ext, type,
-		r_retexturing->value, (loadimage_t)R_LoadPic);
+		(loadimage_t)R_LoadPic);
 
 	if (!image && r_validation->value)
 	{

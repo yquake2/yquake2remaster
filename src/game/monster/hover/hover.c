@@ -923,10 +923,7 @@ hover_die(edict_t *self, edict_t *inflictor /* unused */,
 
 		for (n = 0; n < 2; n++)
 		{
-			ThrowGib(self,
-					"models/objects/gibs/sm_meat/tris.md2",
-					damage,
-					GIB_ORGANIC);
+			ThrowGib(self, NULL, damage, GIB_ORGANIC);
 		}
 
 		ThrowHead(self,

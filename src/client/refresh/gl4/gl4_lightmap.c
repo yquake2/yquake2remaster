@@ -50,7 +50,7 @@ LM_UploadBlock(void)
 	GL4_BindLightmap(gl4_lms.current_lightmap_texture);
 
 	// upload all 4 lightmaps
-	for(map=0; map < MAX_LIGHTMAPS_PER_SURFACE; ++map)
+	for (map=0; map < MAX_LIGHTMAPS_PER_SURFACE; ++map)
 	{
 		GL4_SelectTMU(GL_TEXTURE1+map); // this relies on GL_TEXTURE2 being GL_TEXTURE1+1 etc
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -143,7 +143,7 @@ LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
 
 	VectorCopy(fa->plane->normal, normal);
 
-	if(fa->flags & SURF_PLANEBACK)
+	if (fa->flags & SURF_PLANEBACK)
 	{
 		// if for some reason the normal sticks to the back of the plane, invert it
 		// so it's usable for the shader

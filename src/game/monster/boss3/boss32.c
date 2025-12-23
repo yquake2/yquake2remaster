@@ -882,13 +882,11 @@ makron_torso_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attack
 
 	gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
-	ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-			damage, GIB_ORGANIC);
+	ThrowGib(self, NULL, damage, GIB_ORGANIC);
 
 	for (n = 0; n < 4; n++)
 	{
-		ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2",
-				damage, GIB_METALLIC);
+		ThrowGib(self, NULL, damage, GIB_METALLIC);
 	}
 
 	G_FreeEdict(self);
@@ -969,18 +967,15 @@ makron_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 
 		for (n = 0; n < 1 /*4*/; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-					damage, GIB_ORGANIC);
+			ThrowGib(self, NULL, damage, GIB_ORGANIC);
 		}
 
 		for (n = 0; n < 4; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2",
-					damage, GIB_METALLIC);
+			ThrowGib(self, NULL, damage, GIB_METALLIC);
 		}
 
-		ThrowHead(self, "models/objects/gibs/gear/tris.md2",
-				damage, GIB_METALLIC);
+		ThrowHead(self, NULL, damage, GIB_METALLIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

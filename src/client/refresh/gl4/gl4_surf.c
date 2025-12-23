@@ -51,7 +51,7 @@ void GL4_SurfInit(void)
 	glGenBuffers(1, &gl4state.vbo3D);
 	GL4_BindVBO(gl4state.vbo3D);
 
-	if(gl4config.useBigVBO)
+	if (gl4config.useBigVBO)
 	{
 		gl4state.vbo3Dsize = 5*1024*1024; // a 5MB buffer seems to work well?
 		gl4state.vbo3DcurOffset = 0;
@@ -142,7 +142,7 @@ SetLightFlags(msurface_t *surf)
 	mvtx_t* verts = surf->polys->verts;
 
 	int numVerts = surf->polys->numverts;
-	for(int i=0; i<numVerts; ++i)
+	for (int i=0; i<numVerts; ++i)
 	{
 		verts[i].lightFlags = lightFlags;
 	}
@@ -156,7 +156,7 @@ SetAllLightFlags(msurface_t *surf)
 	mvtx_t* verts = surf->polys->verts;
 
 	int numVerts = surf->polys->numverts;
-	for(int i=0; i<numVerts; ++i)
+	for (int i=0; i<numVerts; ++i)
 	{
 		verts[i].lightFlags = lightFlags;
 	}
@@ -183,7 +183,7 @@ GL4_DrawGLFlowingPoly(msurface_t *fa)
 
 	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	if((gl4state.uni3DData.sscroll != sscroll) || (gl4state.uni3DData.tscroll != tscroll))
+	if ((gl4state.uni3DData.sscroll != sscroll) || (gl4state.uni3DData.tscroll != tscroll))
 	{
 		gl4state.uni3DData.sscroll = sscroll;
 		gl4state.uni3DData.tscroll = tscroll;
@@ -260,9 +260,9 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl4ShaderInfo
 	int i;
 	qboolean hasChanged = false;
 
-	for(i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
+	for (i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
 	{
-		if(hasChanged)
+		if (hasChanged)
 		{
 			si->lmScales[i] = lmScales[i];
 		}
@@ -276,7 +276,7 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl4ShaderInfo
 		}
 	}
 
-	if(hasChanged)
+	if (hasChanged)
 	{
 		glUniform4fv(si->uniLmScalesOrTime, MAX_LIGHTMAPS_PER_SURFACE, si->lmScales[0].Elements);
 	}
@@ -365,7 +365,7 @@ GL4_DrawAlphaSurfaces(void)
 			alpha = 0.666f;
 		}
 
-		if(alpha != gl4state.uni3DData.alpha)
+		if (alpha != gl4state.uni3DData.alpha)
 		{
 			gl4state.uni3DData.alpha = alpha;
 			GL4_UpdateUBO3D();
@@ -512,7 +512,7 @@ DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
 				psurf->texturechain = gl4_alpha_surfaces;
 				gl4_alpha_surfaces = psurf;
 			}
-			else if(!(psurf->flags & SURF_DRAWTURB))
+			else if (!(psurf->flags & SURF_DRAWTURB))
 			{
 				SetAllLightFlags(psurf);
 				RenderLightmappedPoly(currententity, psurf);
@@ -737,7 +737,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			// through texturechains should be faster, because far less glBindTexture() is needed
 			// (and it might allow batching the drawcalls of surfaces with the same texture)
 #if 0
-			if(!(surf->flags & SURF_DRAWTURB))
+			if (!(surf->flags & SURF_DRAWTURB))
 			{
 				RenderLightmappedPoly(surf);
 			}

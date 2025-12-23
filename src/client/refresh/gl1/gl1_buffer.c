@@ -356,8 +356,6 @@ R_Buffer2DQuad(GLfloat ul_vx, GLfloat ul_vy, GLfloat dr_vx, GLfloat dr_vy,
 void
 R_SetBufferIndices(GLenum primitive, GLuint vertices_num)
 {
-	int i;
-
 	if ( vtx_ptr + vertices_num >= MAX_VERTICES ||
 		idx_ptr + ( (vertices_num - 2) * 3 ) >= MAX_INDICES )
 	{
@@ -367,31 +365,10 @@ R_SetBufferIndices(GLenum primitive, GLuint vertices_num)
 	switch (primitive)
 	{
 		case GL_TRIANGLE_FAN:
-			for (i = 0; i < vertices_num-2; i++)
-			{
-				gl_buf.idx[idx_ptr]   = vtx_ptr;
-				gl_buf.idx[idx_ptr+1] = vtx_ptr+i+1;
-				gl_buf.idx[idx_ptr+2] = vtx_ptr+i+2;
-				idx_ptr += 3;
-			}
+			R_GenFanIndexes(gl_buf.idx + idx_ptr, vtx_ptr, vtx_ptr + vertices_num - 2);
 			break;
 		case GL_TRIANGLE_STRIP:
-			for (i = 0; i < vertices_num-2; i++)
-			{
-				if (i % 2 == 0)
-				{
-					gl_buf.idx[idx_ptr]   = vtx_ptr+i;
-					gl_buf.idx[idx_ptr+1] = vtx_ptr+i+1;
-					gl_buf.idx[idx_ptr+2] = vtx_ptr+i+2;
-				}
-				else	// backwards order
-				{
-					gl_buf.idx[idx_ptr]   = vtx_ptr+i+2;
-					gl_buf.idx[idx_ptr+1] = vtx_ptr+i+1;
-					gl_buf.idx[idx_ptr+2] = vtx_ptr+i;
-				}
-				idx_ptr += 3;
-			}
+			R_GenStripIndexes(gl_buf.idx + idx_ptr, vtx_ptr, vtx_ptr + vertices_num - 2);
 			break;
 		default:
 			Com_DPrintf("%s: no such primitive %d\n", __func__, primitive);
@@ -399,5 +376,6 @@ R_SetBufferIndices(GLenum primitive, GLuint vertices_num)
 	}
 
 	// GLBUFFER_VERTEX() must be called as many times as vertices_num
+	idx_ptr += (vertices_num - 2) * 3;
 	vtx_ptr += vertices_num;
 }

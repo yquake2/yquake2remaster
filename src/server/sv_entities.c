@@ -641,7 +641,8 @@ SV_BuildClientFrame(client_t *client)
 
 		/* ignore ents without visible models unless they have an effect */
 		if (!ent->s.modelindex && !ent->s.effects &&
-			!ent->s.sound && !ent->s.event)
+			!ent->s.sound && !ent->s.event &&
+			!(ent->s.renderfx & RF_CASTSHADOW))
 		{
 			continue;
 		}
@@ -662,7 +663,7 @@ SV_BuildClientFrame(client_t *client)
 			}
 
 			/* beams just check one point for PHS */
-			if (ent->s.renderfx & RF_BEAM)
+			if (ent->s.renderfx & RF_BEAM || (ent->s.renderfx & RF_CASTSHADOW))
 			{
 				l = ent->clusternums[0];
 
@@ -702,7 +703,7 @@ SV_BuildClientFrame(client_t *client)
 					}
 				}
 
-				if (!ent->s.modelindex)
+				if (!ent->s.modelindex && !(ent->s.renderfx & RF_CASTSHADOW))
 				{
 					/* don't send sounds if they
 					   will be attenuated away */

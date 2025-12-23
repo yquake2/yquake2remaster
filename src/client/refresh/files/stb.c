@@ -105,8 +105,8 @@ ResizeSTB(const byte *input_pixels, int input_width, int input_height,
 	return false;
 }
 
-// We have 16 color palette, 256 / 16 should be enough
-#define COLOR_DISTANCE 16
+/* 8 looks good for smoothed textures with whole width as rstep */
+#define COLOR_DISTANCE 8
 
 void
 SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
@@ -190,11 +190,17 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 				c_step = c_end - c_beg;
 				d_step = d_end - d_beg;
 
-				if ((abs(a_step) <= COLOR_DISTANCE) &&
-				    (abs(b_step) <= COLOR_DISTANCE) &&
-				    (abs(c_step) <= COLOR_DISTANCE) &&
-				    (abs(d_step) <= COLOR_DISTANCE) &&
-				    step > 0)
+				if (step > 0 &&
+					(abs(a_step) < COLOR_DISTANCE) &&
+					(abs(b_step) < COLOR_DISTANCE) &&
+					(abs(c_step) < COLOR_DISTANCE) &&
+					(abs(d_step) < COLOR_DISTANCE) &&
+					(
+						abs(a_step) > 1 ||
+						abs(b_step) > 1 ||
+						abs(c_step) > 1 ||
+						abs(d_step) > 1
+					))
 				{
 					// generate color change steps
 					a_step = (a_step << 16) / step;
@@ -203,7 +209,7 @@ SmoothColorImage(unsigned *dst, size_t size, size_t rstep)
 					d_step = (d_step << 16) / step;
 
 					// apply color changes
-					for (k=0; k < step; k++)
+					for (k = 0; k < step; k++)
 					{
 						*last_diff = (((a_beg + ((a_step * k) >> 16)) << 0) & 0x000000ff) |
 									 (((b_beg + ((b_step * k) >> 16)) << 8) & 0x0000ff00) |
@@ -490,12 +496,12 @@ LoadHiColorImage(const char *name, const char* namewe, const char *ext,
 
 static struct image_s *
 LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t type,
-	int r_retexturing, loadimage_t load_image)
+	loadimage_t load_image)
 {
 	struct image_s	*image = NULL;
 
 	// with retexturing and not skin
-	if (r_retexturing)
+	if (r_retexturing->value)
 	{
 		image = LoadHiColorImage(name, namewe, ext, type, load_image);
 	}
@@ -532,7 +538,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 		}
 		else
 		{
-			if (r_retexturing >= 2)
+			if (r_retexturing->value >= 2)
 			{
 				byte *image_scale = NULL;
 
@@ -556,7 +562,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 				height *= 2;
 			}
 
-			if (r_retexturing && palette)
+			if (r_retexturing->value && palette)
 			{
 				byte *image_buffer = NULL;
 				int i, size;
@@ -580,6 +586,11 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 					image_buffer[i * 4 + 1] = palette[value * 3 + 1];
 					image_buffer[i * 4 + 2] = palette[value * 3 + 2];
 					image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
+				}
+
+				if (r_scale8bittextures->value)
+				{
+					SmoothColorImage((unsigned*)image_buffer, size, width);
 				}
 
 				image = load_image(name, image_buffer,
@@ -610,59 +621,59 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 struct image_s *
 R_LoadImage(const char *name, const char* namewe, const char *ext, imagetype_t type,
-	int r_retexturing, loadimage_t load_image)
+	loadimage_t load_image)
 {
 	struct image_s	*image = NULL;
 
 	/* original name */
-	image = LoadImage_Ext(name, namewe, ext, type, r_retexturing, load_image);
+	image = LoadImage_Ext(name, namewe, ext, type, load_image);
 
 	/* pcx check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "pcx", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "pcx", type, load_image);
 	}
 
 	/* wal check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "wal", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "wal", type, load_image);
 	}
 
 	/* tga check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "tga", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "tga", type, load_image);
 	}
 
 	/* m32 check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "m32", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "m32", type, load_image);
 	}
 
 	/* m8 check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "m8", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "m8", type, load_image);
 	}
 
 	/* swl check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "swl", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "swl", type, load_image);
 	}
 
 	/* png check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "png", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "png", type, load_image);
 	}
 
 	/* atd check */
 	if (!image)
 	{
-		image = LoadImage_Ext(name, namewe, "atd", type, r_retexturing, load_image);
+		image = LoadImage_Ext(name, namewe, "atd", type, load_image);
 	}
 
 	return image;

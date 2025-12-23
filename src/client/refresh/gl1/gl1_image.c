@@ -78,7 +78,7 @@ glmode_t modes[] = {
 	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
 };
 
-#define NUM_GL_MODES (sizeof(modes) / sizeof(glmode_t))
+#define NUM_GL_MODES ARRLEN(modes)
 
 typedef struct
 {
@@ -120,8 +120,8 @@ gltmode_t gl_solid_modes[] = {
 
 #endif
 
-#define NUM_GL_ALPHA_MODES (sizeof(gl_alpha_modes) / sizeof(gltmode_t))
-#define NUM_GL_SOLID_MODES (sizeof(gl_solid_modes) / sizeof(gltmode_t))
+#define NUM_GL_ALPHA_MODES ARRLEN(gl_alpha_modes)
+#define NUM_GL_SOLID_MODES ARRLEN(gl_solid_modes)
 
 typedef struct
 {
@@ -481,7 +481,7 @@ R_FloodFillSkin(byte *skin, int skinwidth, int skinheight)
 	int filledcolor = 0;
 	int i;
 
-	// NOTE: there was a if(filledcolor == -1) which didn't make sense b/c filledcolor used to be initialized to -1
+	// NOTE: there was a if (filledcolor == -1) which didn't make sense b/c filledcolor used to be initialized to -1
 	/* attempt to find opaque black */
 	for (i = 0; i < 256; ++i)
 	{
@@ -846,6 +846,12 @@ R_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 {
 	qboolean res;
 
+	/* optimize 8bit images only when we forced such logic */
+	if (r_scale8bittextures->value)
+	{
+		SmoothColorImage(data, width * height, width);
+	}
+
 	if (gl_config.npottextures)
 	{
 		res = R_Upload32Native(data, width, height, mipmap);
@@ -1197,7 +1203,7 @@ R_FindImage(const char *originname, imagetype_t type)
 	// load the pic from disk
 	//
 	image = (image_t *)R_LoadImage(name, namewe, ext, type,
-		r_retexturing->value, (loadimage_t)R_LoadPic);
+		(loadimage_t)R_LoadPic);
 
 	if (!image && r_validation->value)
 	{

@@ -323,11 +323,11 @@ GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 	GL4_UseProgram(shader->shaderProgram);
 	GL4_Bind(fboTexture);
 
-	if(underwater && shader->uniLmScalesOrTime != -1)
+	if (underwater && shader->uniLmScalesOrTime != -1)
 	{
 		glUniform1f(shader->uniLmScalesOrTime, r_newrefdef.time);
 	}
-	if(shader->uniVblend != -1)
+	if (shader->uniVblend != -1)
 	{
 		glUniform4fv(shader->uniVblend, 1, v_blend);
 	}
@@ -364,7 +364,7 @@ GL4_Draw_Fill(int x, int y, int w, int h, int c)
 		x+w, y
 	};
 
-	for(i=0; i<3; ++i)
+	for (i=0; i<3; ++i)
 	{
 		gl4state.uniCommonData.color.Elements[i] = color.v[i] * (1.0f/255.0f);
 	}
@@ -404,7 +404,7 @@ GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
 
 	glEnable(GL_BLEND);
 
-	for(i=0; i<4; ++i)  gl4state.uniCommonData.color.Elements[i] = color[i];
+	for (i=0; i<4; ++i)  gl4state.uniCommonData.color.Elements[i] = color[i];
 
 	GL4_UpdateUBOCommon();
 
@@ -444,17 +444,17 @@ GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 	else
 	{
-		if(cols*rows > 320*240)
+		if (cols*rows > 320*240)
 		{
 			/* in case there is a bigger video after all,
 			 * malloc enough space to hold the frame */
 			img = (unsigned*)malloc(cols*rows*4);
 		}
 
-		for(i=0; i<rows; ++i)
+		for (i=0; i<rows; ++i)
 		{
 			int rowOffset = i*cols;
-			for(j=0; j<cols; ++j)
+			for (j=0; j<cols; ++j)
 			{
 				byte palIdx = data[rowOffset+j];
 				img[rowOffset+j] = gl4_rawpalette[palIdx];
@@ -472,7 +472,7 @@ GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	glTexImage2D(GL_TEXTURE_2D, 0, gl4_tex_solid_format,
 	             cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
 
-	if(img != image32 && img != (unsigned *)data)
+	if (img != image32 && img != (unsigned *)data)
 	{
 		free(img);
 	}

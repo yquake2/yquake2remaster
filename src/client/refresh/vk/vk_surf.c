@@ -82,7 +82,7 @@ DrawVkPoly(msurface_t *fa, image_t *texture, const float *color)
 		VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
 
 	Mesh_VertsRealloc((p->numverts - 2) * 3);
-	GenFanIndexes(vertIdxData, 0, p->numverts - 2);
+	R_GenFanIndexes(vertIdxData, 0, p->numverts - 2);
 	buffer = UpdateIndexBuffer(vertIdxData, (p->numverts - 2) * 3 * sizeof(uint16_t), &dstOffset);
 
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -444,7 +444,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 			verts_buffer[pos_vect + i].texCoord[1] += tscroll;
 		}
 
-		GenFanIndexes(vertIdxData + index_pos,
+		R_GenFanIndexes(vertIdxData + index_pos,
 			pos_vect, nv - 2 + pos_vect);
 		pos_vect += nv;
 		index_pos += (nv - 2) * 3;

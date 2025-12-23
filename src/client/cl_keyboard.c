@@ -1056,11 +1056,11 @@ Key_Bind_f(void)
 
 	for (i = 2; i < c; i++)
 	{
-		strcat(cmd, Cmd_Argv(i));
+		Q_strlcat(cmd, Cmd_Argv(i), sizeof(cmd));
 
 		if (i != (c - 1))
 		{
-			strcat(cmd, " ");
+			Q_strlcat(cmd, " ", sizeof(cmd));
 		}
 	}
 
@@ -1490,7 +1490,7 @@ Key_Event(int key, qboolean down, qboolean special)
 	   decided, that they'll need special move state
 	   BUTTON_ANY to solve this problem. So there's
 	   this global variable anykeydown. If it's not
-	   0, CL_FinishMove() encodes BUTTON_ANY into the
+	   0, CL_FinalizeCmd() encodes BUTTON_ANY into the
 	   button state. The server reads this value and
 	   sends it to gi->ClientThink() where it's used
 	   to determine if the intermission shall end.

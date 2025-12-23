@@ -46,7 +46,7 @@ R_Alias_clip_z (const finalvert_t *pfv0, const finalvert_t *pfv1, finalvert_t *o
 	out->cv.s =	pfv0->cv.s + (pfv1->cv.s - pfv0->cv.s) * scale;
 	out->cv.t =	pfv0->cv.t + (pfv1->cv.t - pfv0->cv.t) * scale;
 
-	for(i=0; i<3; i++)
+	for (i=0; i<3; i++)
 		out->cv.l[i] =	pfv0->cv.l[i] + (pfv1->cv.l[i] - pfv0->cv.l[i]) * scale;
 
 	R_AliasProjectAndClipTestFinalVert (out);
@@ -62,7 +62,7 @@ R_Alias_clip_scale (const finalvert_t *pfv0, const finalvert_t *pfv1, float scal
 	out->cv.s  = pfv1->cv.s  + ( pfv0->cv.s  - pfv1->cv.s ) * scale + 0.5;
 	out->cv.t  = pfv1->cv.t  + ( pfv0->cv.t  - pfv1->cv.t ) * scale + 0.5;
 
-	for(i=0; i<3; i++)
+	for (i=0; i<3; i++)
 		out->cv.l[i]  = pfv1->cv.l[i]  + ( pfv0->cv.l[i]  - pfv1->cv.l[i] ) * scale + 0.5;
 
 	out->cv.zi = pfv1->cv.zi + ( pfv0->cv.zi - pfv1->cv.zi) * scale + 0.5;

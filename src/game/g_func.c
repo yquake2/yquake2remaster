@@ -1792,8 +1792,16 @@ button_done(edict_t *self)
 	}
 
 	self->moveinfo.state = STATE_BOTTOM;
-	self->s.effects &= ~EF_ANIM23;
-	self->s.effects |= EF_ANIM01;
+
+	if (!self->bmodel_anim.enabled)
+	{
+		self->s.effects &= ~EF_ANIM23;
+		self->s.effects |= EF_ANIM01;
+	}
+	else
+	{
+		self->bmodel_anim.alternate = false;
+	}
 }
 
 void
@@ -1825,8 +1833,16 @@ button_wait(edict_t *self)
 	}
 
 	self->moveinfo.state = STATE_TOP;
-	self->s.effects &= ~EF_ANIM01;
-	self->s.effects |= EF_ANIM23;
+
+	if (!self->bmodel_anim.enabled)
+	{
+		self->s.effects &= ~EF_ANIM01;
+		self->s.effects |= EF_ANIM23;
+	}
+	else
+	{
+		self->bmodel_anim.alternate = true;
+	}
 
 	G_UseTargets(self, self->activator);
 	self->s.frame = 1;
@@ -1970,7 +1986,11 @@ SP_func_button(edict_t *ent)
 	VectorMA(ent->pos1, dist, ent->movedir, ent->pos2);
 
 	ent->use = button_use;
-	ent->s.effects |= EF_ANIM01;
+
+	if (!ent->bmodel_anim.enabled)
+	{
+		ent->s.effects |= EF_ANIM01;
+	}
 
 	if (ent->health)
 	{
@@ -3557,7 +3577,8 @@ SP_func_train(edict_t *self)
 	}
 	else
 	{
-		gi.dprintf("func_train without a target at %s\n", vtos(self->absmin));
+		gi.dprintf("%s without a target at %s\n", self->classname,
+			vtos(self->absmin));
 	}
 }
 
@@ -3730,8 +3751,8 @@ SP_func_timer(edict_t *self)
 	if (self->random >= self->wait)
 	{
 		self->random = self->wait - FRAMETIME;
-		gi.dprintf("func_timer at %s has random >= wait\n",
-				vtos(self->s.origin));
+		gi.dprintf("%s at %s has random >= wait\n",
+				self->classname, vtos(self->s.origin));
 	}
 
 	if (self->spawnflags & 1)

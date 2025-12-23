@@ -308,7 +308,7 @@ R_AliasTransformFinalVerts(int numpoints, finalvert_t *fv, dxtrivertx_t *newv, f
 		{
 			int		j;
 
-			for(j=0; j<3; j++)
+			for (j=0; j<3; j++)
 			{
 				int temp;
 
@@ -671,14 +671,14 @@ R_AliasSetupLighting(entity_t *currententity)
 		}
 	}
 
-	if(sw_colorlight->value == 0)
+	if (sw_colorlight->value == 0)
 	{
 		float temp = (light[0] + light[1] + light[2]) / 3.0;
 
 		light[0] = light[1] = light[2] = temp;
 	}
 
-	for(i=0; i<3; i++)
+	for (i=0; i<3; i++)
 	{
 		int j;
 

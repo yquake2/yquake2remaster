@@ -211,7 +211,7 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 
 	VectorCopy(fa->plane->normal, normal);
 
-	if(fa->flags & SURF_PLANEBACK)
+	if (fa->flags & SURF_PLANEBACK)
 	{
 		// if for some reason the normal sticks to the back of the plane, invert it
 		// so it's usable for the shader

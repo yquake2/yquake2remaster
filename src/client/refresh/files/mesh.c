@@ -247,3 +247,56 @@ R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum, int frame, int oldfra
 
 	return false;
 }
+
+void
+R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to)
+{
+	int i;
+
+	/* fill the index buffer so that we can emulate triangle fans via triangle lists */
+	for (i = from; i < to; i++)
+	{
+		*data = from;
+		data ++;
+		*data = i + 1;
+		data++;
+		*data = i + 2;
+		data ++;
+	}
+}
+
+void
+R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to)
+{
+	size_t i;
+
+	/* fill the index buffer so that we can emulate triangle strips via triangle lists */
+	for (i = from + 2; i < to + 1; i += 2)
+	{
+		/* add two triangles at once, because the vertex order is different
+		 * for odd vs even triangles */
+		*data =  i - 2;
+		data ++;
+		*data =  i - 1;
+		data ++;
+		*data =  i;
+		data ++;
+		*data = i + 1;
+		data ++;
+		*data =  i;
+		data ++;
+		*data =  i - 1;
+		data ++;
+	}
+
+	if (i < to + 2)
+	{
+		/* add remaining triangle, if any */
+		*data =  i - 2;
+		data ++;
+		*data =  i - 1;
+		data ++;
+		*data =  i;
+		data ++;
+	}
+}

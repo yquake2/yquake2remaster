@@ -142,7 +142,7 @@ R_InitSkyBox(model_t *loadmodel)
 		else
 			r_skysurfedges[i] = - (loadmodel->numedges-13 + -box_surfedges[i]);
 
-	for(i=0 ; i<12 ; i++)
+	for (i=0 ; i<12 ; i++)
 	{
 		r_skyedges[i].v[0] = loadmodel->numvertexes-9+box_edges[i*2+0];
 		r_skyedges[i].v[1] = loadmodel->numvertexes-9+box_edges[i*2+1];

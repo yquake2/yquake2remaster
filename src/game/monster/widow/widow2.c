@@ -74,11 +74,11 @@ void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		int damage, vec3_t point);
 void gib_touch(edict_t *self, edict_t *other, cplane_t *plane,
 		csurface_t *surf);
-void ThrowWidowGibReal(edict_t *self, char *gibname, int damage, int type,
+void ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, qboolean large, int hitsound, qboolean fade);
-void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, int hitsound, qboolean fade);
-static void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage, int type,
+static void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, qboolean fade);
 void WidowExplosion1(edict_t *self);
 void WidowExplosion2(edict_t *self);
@@ -1282,7 +1282,7 @@ widow2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 		}
 
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2", clipped, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2", clipped, GIB_ORGANIC);
+		ThrowHead(self, NULL, clipped, GIB_ORGANIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}
@@ -1579,7 +1579,7 @@ ThrowWidowGib(edict_t *self, char *gibname, int damage, int type)
 
 static void
 ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
-		int type, vec3_t startpos, qboolean fade)
+		gibtype_t type, vec3_t startpos, qboolean fade)
 {
 	if (!self || !gibname)
 	{
@@ -1590,7 +1590,7 @@ ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
 }
 
 void
-ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, int hitsound, qboolean fade)
 {
 	if (!self || !gibname)
@@ -1603,7 +1603,7 @@ ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
 }
 
 void
-ThrowWidowGibReal(edict_t *self, char *gibname, int damage, int type,
+ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, qboolean sized, int hitsound, qboolean fade)
 {
 	edict_t *gib;

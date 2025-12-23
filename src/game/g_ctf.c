@@ -2178,7 +2178,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 
 			if (maxsize - len > strlen(entry))
 			{
-				strcat(string, entry);
+				Q_strlcat(string, entry, sizeof(string));
 				len = strlen(string);
 				last[0] = i;
 			}
@@ -2202,7 +2202,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 
 			if (maxsize - len > strlen(entry))
 			{
-				strcat(string, entry);
+				Q_strlcat(string, entry, sizeof(string));
 				len = strlen(string);
 				last[1] = i;
 			}
@@ -2241,7 +2241,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 			{
 				k = 1;
 				sprintf(entry, "xv 0 yv %d string2 \"Spectators\" ", j);
-				strcat(string, entry);
+				Q_strlcat(string, entry, sizeof(string));
 				len = strlen(string);
 				j += 8;
 			}
@@ -2256,7 +2256,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 
 			if (maxsize - len > strlen(entry))
 			{
-				strcat(string, entry);
+				Q_strlcat(string, entry, sizeof(string));
 				len = strlen(string);
 			}
 
@@ -3098,7 +3098,7 @@ CTFSay_Team_Sight(edict_t *who, char *buf)
 					strcat(s, ", ");
 				}
 
-				strcat(s, s2);
+				Q_strlcat(s, s2, sizeof(s));
 				*s2 = 0;
 			}
 
@@ -3114,10 +3114,10 @@ CTFSay_Team_Sight(edict_t *who, char *buf)
 		{
 			if (n)
 			{
-				strcat(s, " and ");
+				Q_strlcat(s, " and ", sizeof(s));
 			}
 
-			strcat(s, s2);
+			Q_strlcat(s, s2, sizeof(s));
 		}
 
 		strcpy(buf, s);
@@ -3542,8 +3542,8 @@ CTFStartMatch(void)
 			ent->client->respawn_time = level.time + 1.0 + ((rand() % 30) / 10.0);
 			ent->client->ps.pmove.pm_type = PM_DEAD;
 			ent->client->anim_priority = ANIM_DEATH;
-			ent->s.frame = FRAME_death308 - 1;
-			ent->client->anim_end = FRAME_death308;
+			P_SetAnimGroup(ent, "death", FRAME_death301, FRAME_death308, 3);
+			ent->s.frame = ent->client->anim_end - 1;
 			ent->deadflag = DEAD_DEAD;
 			ent->movetype = MOVETYPE_NOCLIP;
 			ent->client->ps.gunindex = 0;
@@ -5024,7 +5024,7 @@ CTFStats(edict_t *ent)
 
 				if (strlen(text) + strlen(st) < sizeof(text) - 50)
 				{
-					strcat(text, st);
+					Q_strlcat(text, st, sizeof(text));
 				}
 			}
 		}
@@ -5049,7 +5049,8 @@ CTFStats(edict_t *ent)
 		return;
 	}
 
-	strcat(text, "  #|Name            |Score|Kills|Death|BasDf|CarDf|Effcy|\n");
+	Q_strlcat(text, "  #|Name            |Score|Kills|Death|BasDf|CarDf|Effcy|\n",
+		sizeof(text));
 
 	for (i = 0, g = ctfgame.ghosts; i < MAX_CLIENTS; i++, g++)
 	{
@@ -5078,7 +5079,7 @@ CTFStats(edict_t *ent)
 			return;
 		}
 
-		strcat(text, st);
+		Q_strlcat(text, st, sizeof(text));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
@@ -5121,7 +5122,7 @@ CTFPlayerList(edict_t *ent)
 			return;
 		}
 
-		strcat(text, st);
+		Q_strlcat(text, st, sizeof(text));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);

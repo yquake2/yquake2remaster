@@ -1085,13 +1085,13 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 			{
 				for (n = 0; n < 4; n++)
 				{
-					ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+					ThrowGib(self, NULL, damage, GIB_ORGANIC);
 				}
 			}
 
 			for (n = 0; n < 4; n++)
 			{
-				ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
+				ThrowGib(self, NULL, damage, GIB_ORGANIC);
 			}
 		}
 
@@ -1106,36 +1106,43 @@ player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		/* normal death */
 		if (!self->deadflag)
 		{
-			static int i;
-
-			i = (i + 1) % 3;
+			int firstframe, lastframe, group = 0;
+			const char *action;
 
 			/* start a death animation */
 			self->client->anim_priority = ANIM_DEATH;
 
+			firstframe = FRAME_crdeath1;
+			lastframe = FRAME_crdeath5;
+
 			if (self->client->ps.pmove.pm_flags & PMF_DUCKED)
 			{
-				self->s.frame = FRAME_crdeath1 - 1;
-				self->client->anim_end = FRAME_crdeath5;
+				action = "crdeath";
 			}
 			else
 			{
-				switch (i)
+				group = randk() % 3;
+				switch (group)
 				{
 					case 0:
-						self->s.frame = FRAME_death101 - 1;
-						self->client->anim_end = FRAME_death106;
+						firstframe = FRAME_death101;
+						lastframe = FRAME_death106;
 						break;
 					case 1:
-						self->s.frame = FRAME_death201 - 1;
-						self->client->anim_end = FRAME_death206;
+						firstframe = FRAME_death201;
+						lastframe = FRAME_death206;
 						break;
 					case 2:
-						self->s.frame = FRAME_death301 - 1;
-						self->client->anim_end = FRAME_death308;
+						firstframe = FRAME_death301;
+						lastframe = FRAME_death308;
 						break;
 				}
+
+				action = "death";
 			}
+
+			P_SetAnimGroup(self, action, firstframe, lastframe, group);
+			self->s.frame --;
 
 			/* sound is played at end of server frame */
 			if (!self->sounds)
@@ -1172,7 +1179,7 @@ Player_GiveStartItems(edict_t *ent, const char *ptr)
 		{
 			buffer_end = ptr + strlen(ptr);
 		}
-		Q_strlcpy(buffer, ptr, Q_min(MAX_QPATH, buffer_end - ptr));
+		Q_strlcpy(buffer, ptr, Q_min(MAX_QPATH, buffer_end - ptr + 1));
 
 		curr_buf = buffer;
 		item_name = COM_Parse(&curr_buf);
@@ -1899,8 +1906,7 @@ body_die(edict_t *self, edict_t *inflictor /* unused */,
 
 		for (n = 0; n < 4; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-					damage, GIB_ORGANIC);
+			ThrowGib(self, NULL, damage, GIB_ORGANIC);
 		}
 
 		self->s.origin[2] -= 48;
@@ -2116,9 +2122,12 @@ spectator_respawn(edict_t *ent)
 	}
 }
 
-// [Paril-KEX] force the fog transition on the given player,
-// optionally instantaneously (ignore any transition time)
-void ForceFogTransition(edict_t *ent, qboolean instant)
+/*
+ * [Paril-KEX] force the fog transition on the given player,
+ * optionally instantaneously (ignore any transition time)
+ */
+void
+ForceFogTransition(edict_t *ent, qboolean instant)
 {
 	const height_fog_t *wanted_hf;
 	svc_fog_data_t fog = {0};
@@ -2128,11 +2137,15 @@ void ForceFogTransition(edict_t *ent, qboolean instant)
 	hf = &ent->client->heightfog;
 	wanted_hf = &ent->client->pers.wanted_heightfog;
 
-	// sanity check; if we're not changing the values, don't bother
-	if (!memcmp(ent->client->fog, ent->client->pers.wanted_fog, sizeof(ent->client->pers.wanted_fog)) &&
-		!memcmp(hf, wanted_hf, sizeof(*wanted_hf)) &&
-		!instant)
+	if (instant)
 	{
+		memset(&ent->client->fog, 0, sizeof(ent->client->fog));
+		memset(hf, 0, sizeof(*hf));
+	}
+	else if (!memcmp(ent->client->fog, ent->client->pers.wanted_fog, sizeof(ent->client->pers.wanted_fog)) &&
+		!memcmp(hf, wanted_hf, sizeof(*wanted_hf)))
+	{
+		/* sanity check; if we're not changing the values, don't bother */
 		return;
 	}
 
@@ -2554,12 +2567,30 @@ PutClientInServer(edict_t *ent)
 		ent->client->pers.wanted_fog[2] = world->fog.color[1];
 		ent->client->pers.wanted_fog[3] = world->fog.color[2];
 	}
-	else if	(world->fog.altdensity)
+	else if (world->fog.altdensity)
 	{
 		ent->client->pers.wanted_fog[0] = world->fog.altdensity;
 		ent->client->pers.wanted_fog[1] = world->fog.altcolor[0];
 		ent->client->pers.wanted_fog[2] = world->fog.altcolor[1];
 		ent->client->pers.wanted_fog[3] = world->fog.altcolor[2];
+	}
+	else if (world->fog.afog)
+	{
+		int res;
+
+		/* Anachronox: Fog value */
+		res = sscanf(world->fog.afog, "%f %f %f %f",
+			&ent->client->pers.wanted_fog[0],
+			&ent->client->pers.wanted_fog[1],
+			&ent->client->pers.wanted_fog[2],
+			&ent->client->pers.wanted_fog[3]);
+		ent->client->pers.wanted_fog[0] *= 200;
+		if (res != 4)
+		{
+			gi.dprintf("%s: Failed to load fog\n", __func__);
+			memset(ent->client->pers.wanted_fog, 0,
+				sizeof(ent->client->pers.wanted_fog));
+		}
 	}
 
 	ent->client->pers.wanted_fog[4] = world->fog.sky_factor;
@@ -2714,6 +2745,9 @@ ClientBegin(edict_t *ent)
 			ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(
 					ent->client->ps.viewangles[i]);
 		}
+
+		/* Send fog one more time */
+		ForceFogTransition(ent, true);
 	}
 	else
 	{

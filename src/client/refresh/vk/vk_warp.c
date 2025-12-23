@@ -144,7 +144,7 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 			verts_buffer[i + pos_vect].texCoord[0] /= 64.f;
 			verts_buffer[i + pos_vect].texCoord[1] /= 64.f;
 		}
-		GenFanIndexes(vertIdxData + index_pos,
+		R_GenFanIndexes(vertIdxData + index_pos,
 			pos_vect, p->numverts - 2 + pos_vect);
 		pos_vect += p->numverts;
 		index_pos += (p->numverts - 2) * 3;
@@ -213,7 +213,7 @@ R_DrawSkyBox(void)
 	memcpy(uboData, model, sizeof(model));
 
 	Mesh_VertsRealloc(6);
-	GenFanIndexes(vertIdxData, 0, 4);
+	R_GenFanIndexes(vertIdxData, 0, 4);
 	buffer = UpdateIndexBuffer(vertIdxData, 6 * sizeof(uint16_t), &dstOffset);
 
 	for (i = 0; i < 6; i++)

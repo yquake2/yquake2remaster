@@ -118,6 +118,16 @@ typedef unsigned char byte;
 	#define YQ2_ATTR_NORETURN_FUNCPTR  /* nothing */
 #endif
 
+/* Calculate length of a static array
+ * Example: for (i = 0; i < ARRLEN(arr); i++)
+ */
+#define ARRLEN(a) (sizeof(a) / sizeof(*a))
+
+/* Calculate a pointer to the end of a static array
+ * Example: for (i = arr; i < ARREND(arr); i++)
+ */
+#define ARREND(a) &a[ARRLEN(a)]
+
 /* angle indexes */
 #define PITCH 0                     /* up / down */
 #define YAW 1                       /* left / right */
@@ -350,6 +360,14 @@ char *Q_strlwr(char *s);
 int Q_strlcpy(char *dst, const char *src, int size);
 int Q_strlcat(char *dst, const char *src, int size);
 
+/* Copies only ASCII chars > 31 && < 127 from s to d, up to n - 1
+ * Returns space needed to fully copy s to d (minus null char)
+ * Does not modify d at all if n is 0
+ * Example: needed = Q_strlcpy_ascii(d, "b\robby", 3)
+ *          needed is 5 and d contains "bo\0"
+ */
+size_t Q_strlcpy_ascii(char *d, const char *s, size_t n);
+
 /* Delete n characters from s starting at index i */
 void Q_strdel(char *s, size_t i, size_t n);
 
@@ -360,6 +378,17 @@ qboolean Q_strisnum(const char *s);
 
 /* fix backslashes in path */
 void Q_replacebackslash(char *curr);
+
+/* A strchr that can search for multiple characters
+ * chrs is a string of characters to search for
+ * If found, returns a pointer to that char inside s, NULL otherwise
+ */
+char *Q_strchrs(const char *s, const char *chrs);
+
+/* Returns a pointer to c in s if found
+ * Otherwise returns a pointer to the null-terminator at the end of s
+ */
+char *Q_strchr0(const char *s, char c);
 
 /* ============================================= */
 
@@ -389,9 +418,10 @@ char *va(const char *format, ...)  PRINTF_ATTR(1, 2);
 /* key / value info strings */
 #define MAX_INFO_KEY 64
 #define MAX_INFO_VALUE 64
+#define MAX_INFO_KEYVAL ((MAX_INFO_KEY - 1) + (MAX_INFO_VALUE - 1) + 3) /* 3 for 2 backslashes and null char */
 #define MAX_INFO_STRING 512
 
-char *Info_ValueForKey(char *s, const char *key);
+char *Info_ValueForKey(const char *s, const char *key);
 void Info_RemoveKey(char *s, const char *key);
 void Info_SetValueForKey(char *s, const char *key, const char *value);
 qboolean Info_Validate(const char *s);
@@ -766,6 +796,7 @@ typedef struct
 /* ReRelease flags */
 #define RF_CUSTOM_LIGHT 0x00100000
 #define RF_FLARE 0x00200000
+#define RF_CASTSHADOW 0x00400000 /* entity casts shadows */
 #define RF_FLARE_LOCK_ANGLE RF_MINLIGHT
 
 /* player_state_t->refdef flags */
@@ -1290,6 +1321,9 @@ typedef enum
 #define CS_PLAYERSKINS (CS_ITEMS + MAX_ITEMS)
 #define CS_GENERAL (CS_PLAYERSKINS + MAX_CLIENTS)
 #define MAX_CONFIGSTRINGS (CS_GENERAL + MAX_GENERAL)
+
+/* Originally was 64 as MAX_QPATH */
+#define MAX_CONFIGSTRING 128
 
 /* ============================================== */
 

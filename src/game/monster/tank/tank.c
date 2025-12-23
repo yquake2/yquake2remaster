@@ -1156,20 +1156,17 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 
 		for (n = 0; n < 1 /*4*/; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-					damage, GIB_ORGANIC);
+			ThrowGib(self, NULL, damage, GIB_ORGANIC);
 		}
 
 		for (n = 0; n < 4; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2",
-					damage, GIB_METALLIC);
+			ThrowGib(self, NULL, damage, GIB_METALLIC);
 		}
 
 		ThrowGib(self, "models/objects/gibs/chest/tris.md2",
 				damage, GIB_ORGANIC);
-		ThrowHead(self, "models/objects/gibs/gear/tris.md2",
-				damage, GIB_METALLIC);
+		ThrowHead(self, NULL, damage, GIB_METALLIC);
 		self->deadflag = DEAD_DEAD;
 		return;
 	}

@@ -209,8 +209,6 @@ extern model_t *r_worldmodel;
 extern unsigned d_8to24table[256];
 extern int registration_sequence;
 
-void V_AddBlend(float r, float g, float b, float a, float *v_blend);
-
 void R_ScreenShot(void);
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
@@ -224,7 +222,6 @@ void R_RotateForEntity(entity_t *e);
 void R_MarkLeaves(void);
 
 extern int r_dlightframecount;
-mpoly_t *WaterWarpPolyVerts(mpoly_t *p);
 void R_EmitWaterPolys(msurface_t *fa);
 void RE_AddSkySurface(msurface_t *fa);
 void RE_ClearSkyBox(void);
@@ -263,14 +260,14 @@ int Scrap_AllocBlock(int w, int h, int *x, int *y);
 	gl_buf.tex[1][gl_buf.tx] = LS; gl_buf.tex[1][gl_buf.tx+1] = LT; gl_buf.tx += 2;
 
 #define GLBUFFER_COLOR(R, G, B, A) \
-	gl_buf.clr[gl_buf.cl] = R; gl_buf.clr[gl_buf.cl+1] = G; \
-	gl_buf.clr[gl_buf.cl+2] = B; gl_buf.clr[gl_buf.cl+3] = A; gl_buf.cl += 4;
+	gl_buf.clr[gl_buf.cl] = gammatable[R]; gl_buf.clr[gl_buf.cl+1] = gammatable[G]; \
+	gl_buf.clr[gl_buf.cl+2] = gammatable[B]; gl_buf.clr[gl_buf.cl+3] = A; gl_buf.cl += 4;
 
 void R_ApplyGLBuffer(void);
 void R_UpdateGLBuffer(buffered_draw_t type, int colortex, int lighttex, int flags, float alpha);
 void R_Buffer2DQuad(GLfloat ul_vx, GLfloat ul_vy, GLfloat dr_vx, GLfloat dr_vy,
 	GLfloat ul_tx, GLfloat ul_ty, GLfloat dr_tx, GLfloat dr_ty);
-void R_SetBufferIndices(GLenum type, GLuint vertices_num);
+void R_SetBufferIndices(GLenum primitive, GLuint vertices_num);
 
 #ifdef YQ2_GL1_GLES
 #define glPolygonMode(...)
@@ -401,7 +398,7 @@ extern glconfig_t gl_config;
 extern glstate_t gl_state;
 
 /*
- * Updates the gamma ramp.
+ * Updates the gamma ramp (SDL2 only).
  */
 void RI_UpdateGamma(void);
 

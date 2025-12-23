@@ -144,8 +144,21 @@ typedef enum
 #define RANGE_FAR 3
 
 /* gib types */
-#define GIB_ORGANIC 0
-#define GIB_METALLIC 1
+typedef enum
+{
+	GIB_NONE,
+	GIB_ORGANIC,
+	GIB_METALLIC,
+	GIB_STONE,
+	GIB_GREYSTONE,
+	GIB_CLOTH,
+	GIB_POTTERY,
+	GIB_GLASS,
+	GIB_LEAF,
+	GIB_WOOD,
+	GIB_BROWNSTONE,
+	GIB_INSECT,
+} gibtype_t;
 
 /* monster ai flags */
 #define AI_STAND_GROUND 0x00000001
@@ -263,31 +276,32 @@ typedef struct
 #define IT_HEALTH 0x000000400 /* JABot */
 #define IT_FLAG	0x000000800 /* JABot */
 
-/* gitem_t->weapmodel for weapons indicates model index */
-#define WEAP_BLASTER 1
-#define WEAP_SHOTGUN 2
-#define WEAP_SUPERSHOTGUN 3
-#define WEAP_MACHINEGUN 4
-#define WEAP_CHAINGUN 5
-#define WEAP_GRENADES 6
-#define WEAP_GRENADELAUNCHER 7
-#define WEAP_ROCKETLAUNCHER 8
-#define WEAP_HYPERBLASTER 9
-#define WEAP_RAILGUN 10
-#define WEAP_BFG 11
-#define WEAP_PHALANX 12
-#define WEAP_BOOMER 13
-#define WEAP_DISRUPTOR 14
-#define WEAP_ETFRIFLE 15
-#define WEAP_PLASMA 16
-#define WEAP_PROXLAUNCH 17
-#define WEAP_CHAINFIST 18
-#define WEAP_GRAPPLE 19
-
-//JABot[start]
-#define WEAP_NONE			0
-#define WEAP_TOTAL			20
-//JABot[end]
+/* gitem_t->weapmodel for weapons indicates model index,
+ * update MAX_CLIENTWEAPONMODELS on client side if changed */
+typedef enum
+{
+	WEAP_NONE,
+	WEAP_BLASTER,
+	WEAP_SHOTGUN,
+	WEAP_SUPERSHOTGUN,
+	WEAP_MACHINEGUN,
+	WEAP_CHAINGUN,
+	WEAP_GRENADES,
+	WEAP_GRENADELAUNCHER,
+	WEAP_ROCKETLAUNCHER,
+	WEAP_HYPERBLASTER,
+	WEAP_RAILGUN,
+	WEAP_BFG,
+	WEAP_PHALANX,
+	WEAP_BOOMER,
+	WEAP_DISRUPTOR,
+	WEAP_ETFRIFLE,
+	WEAP_PLASMA,
+	WEAP_PROXLAUNCH,
+	WEAP_CHAINFIST,
+	WEAP_GRAPPLE,
+	WEAP_TOTAL
+} weapmodel_t;
 
 typedef struct gitem_s
 {
@@ -310,7 +324,7 @@ typedef struct gitem_s
 	char *ammo;                 /* for weapons */
 	int flags;                  /* IT_* flags */
 
-	int weapmodel;              /* weapon model index (for weapons) */
+	weapmodel_t weapmodel;      /* weapon model index (for weapons) */
 
 	void *info;
 	int tag;
@@ -391,6 +405,7 @@ typedef struct
 	int body_que;                   /* dead bodies */
 
 	int power_cubes;                /* ugly necessity for coop */
+	int shadow_light_count;          /* number of shadow lights in level */
 
 	edict_t *disguise_violator;
 	int disguise_violation_framenum;
@@ -398,6 +413,30 @@ typedef struct
 	char *start_items;             /* level start items */
 	float next_auto_save;          /* target_autosave */
 } level_locals_t;
+
+/* shadow light data structures */
+typedef enum
+{
+	SHADOW_LIGHT_POINT = 0,
+	SHADOW_LIGHT_CONE  = 1
+} shadow_light_type_t;
+
+typedef struct
+{
+	int lighttype; /* shadow_light_type_t */
+	float radius;
+	int resolution;
+	float intensity;
+	float fade_start;
+	float fade_end;
+	int lightstyle;
+	float coneangle;
+	float conedirection[3];
+} shadow_light_data_t;
+
+/* shadow light helpers */
+void setup_shadow_lights(void);
+void G_LoadShadowLights(void);
 
 /* spawn_temp_t is only used to hold entity field values that
    can be set from the editor, but aren't actualy present/
@@ -435,6 +474,15 @@ typedef struct
 	char *goals;
 	int effects;
 	int renderfx;
+	/* shadow/light specific spawn fields */
+	float sl_radius;           /* shadow map resolution */
+	int sl_resolution;         /* shadow map resolution */
+	float sl_intensity;        /* shadow light intensity */
+	float sl_fade_start;       /* start fade distance */
+	float sl_fade_end;         /* end fade distance */
+	int sl_lightstyle;         /* index to bind lightstyle */
+	float sl_coneangle;        /* _cone key for spotlights */
+	char *sl_lightstyletarget; /* target used to bind a lightstyle */
 
 	/* Addional fields for models */
 	vec3_t scale;
@@ -510,6 +558,9 @@ typedef struct
 	const char *action;
 	float walk_dist;
 	float run_dist;
+	/* frames cache */
+	int firstframe;
+	int lastframe;
 
 	float pausetime;
 	float attack_finished;
@@ -786,6 +837,7 @@ void droptofloor(edict_t *ent);
 void FixEntityPosition(edict_t *ent);
 void PrecacheItem(gitem_t *it);
 void InitItems(void);
+qboolean ItemHasValidModel(gitem_t *item);
 void SetItemNames(void);
 gitem_t *FindItem(const char *pickup_name);
 gitem_t *FindItemByClassname(const char *classname);
@@ -907,6 +959,7 @@ void monster_dynamic_stand(edict_t *self);
 void monster_dynamic_search(edict_t *self);
 void monster_dynamic_setinfo(edict_t *self);
 void monster_dynamic_melee(edict_t *self);
+void monster_dynamic_damage(edict_t *self);
 void monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
 	trace_t *tr /* unused */);
 void monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
@@ -933,6 +986,8 @@ void M_CheckGround(edict_t *ent);
 void M_FliesOff(edict_t *self);
 void M_FliesOn(edict_t *self);
 void M_SetEffects(edict_t *ent);
+void object_think(edict_t *self);
+void object_spawn(edict_t *self);
 
 void monster_fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int flashtype, int effect);
@@ -942,12 +997,12 @@ void stationarymonster_start(edict_t *self);
 void monster_done_dodge(edict_t *self);
 
 /* g_misc.c */
-void ThrowHead(edict_t *self, const char *gibname, int damage, int type);
+void ThrowHead(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void ThrowClientHead(edict_t *self, int damage);
-void ThrowGib(edict_t *self, const char *gibname, int damage, int type);
+void ThrowGib(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void BecomeExplosion1(edict_t *self);
-void ThrowHeadACID(edict_t *self, const char *gibname, int damage, int type);
-void ThrowGibACID(edict_t *self, const char *gibname, int damage, int type);
+void ThrowHeadACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
+void ThrowGibACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
 void SP_misc_teleporter_dest(edict_t *ent);
 
@@ -1081,7 +1136,7 @@ void M_MoveToGoal(edict_t *ent, float dist);
 void M_ChangeYaw(edict_t *ent);
 void M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos);
 void M_SetAnimGroupFrameValues(edict_t *self, const char *name,
-	int *ofs_frames, int *num_frames);
+	int *ofs_frames, int *num_frames, int select);
 
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);
@@ -1180,6 +1235,8 @@ char *ED_NewString(const char *string, qboolean raw);
 void SpawnInit(void);
 void SpawnFree(void);
 void P_ToggleFlashlight(edict_t *ent, qboolean state);
+void P_SetAnimGroup(edict_t *ent, const char *animname,
+	int firstframe, int lastframe, int select);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
 edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t mins,
@@ -1192,7 +1249,7 @@ qboolean CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 void SpawnGrow_Spawn(vec3_t startpos, int size);
 void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
 void ThrowSmallStuff(edict_t *self, vec3_t point);
-void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, int type,
+void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, int hitsound, qboolean fade);
 void spawngrow_think(edict_t *self);
 
@@ -1270,10 +1327,10 @@ typedef struct
 	int max_flechettes;
 	int max_rounds;
 
-	// [Paril-KEX] fog that we want to achieve; density rgb skyfogfactor
+	/* [Paril-KEX] fog that we want to achieve; density rgb skyfogfactor */
 	float wanted_fog[5];
 	height_fog_t wanted_heightfog;
-	// relative time value, copied from last touched trigger
+	/* relative time value, copied from last touched trigger */
 	float fog_transition_time;
 } client_persistant_t;
 
@@ -1441,9 +1498,11 @@ typedef struct {
 	vec3_t color_off;
 	float density_off;
 	float sky_factor_off;
-	/* kingpin */
+	/* Kingpin */
 	vec3_t altcolor;
 	float altdensity;
+	/* Anachronox */
+	char *afog;
 } edictfog_t;
 
 typedef struct {
@@ -1461,6 +1520,32 @@ typedef struct {
 	vec3_t end_color_off;
 	float end_dist_off;
 } edicthfog_t;
+
+typedef enum
+{
+	BMODEL_ANIM_FORWARDS,
+	BMODEL_ANIM_BACKWARDS,
+	BMODEL_ANIM_RANDOM
+} bmodel_animstyle_t;
+
+typedef struct
+{
+	/* range, inclusive */
+	int start, end;
+	bmodel_animstyle_t style;
+	int speed; /* in milliseconds */
+	qboolean nowrap;
+
+	int alt_start, alt_end;
+	bmodel_animstyle_t alt_style;
+	int alt_speed; /* in milliseconds */
+	qboolean alt_nowrap;
+
+	/* game-only */
+	bool enabled;
+	bool alternate, currently_alternate;
+	float next_tick;
+} bmodel_anim_t;
 
 struct edict_s
 {
@@ -1517,6 +1602,7 @@ struct edict_s
 	char *pathtarget;
 	char *deathtarget;
 	char *combattarget;
+	char *itemtarget; /* extra target string used by dynamic lights */
 	edict_t *target_ent;
 
 	float speed, accel, decel;
@@ -1565,7 +1651,11 @@ struct edict_s
 
 	int viewheight;             /* height above origin where eyesight is determined */
 	int takedamage;
-	int dmg;
+	int dmg;                    /* base damage */
+	int dmg_range;              /* additional damage range */
+	vec3_t damage_aim;          /* aim for dynamic animation damage */
+	gibtype_t gib;              /* default gib type */
+	const char *gibtype;        /* gib value from level entity */
 	int radius_dmg;
 	float dmg_radius;
 	int sounds;                 /* now also used for player death sound aggregation */
@@ -1628,13 +1718,21 @@ struct edict_s
 	edictfog_t fog;
 	edicthfog_t heightfog;
 
+	/* Custom On/Off light */
+	const char *style_on;
+	const char *style_off;
+
+	/* brush model animation */
+	bmodel_anim_t bmodel_anim;
+
 	/* Third person view */
 	int chasedist1;
 	int chasedist2;
 
 	/* jabot */
 	ai_handle_t *ai;
-	qboolean is_swim;	//AI_CategorizePosition
+	/* AI_CategorizePosition */
+	qboolean is_swim;
 	qboolean is_step;
 	qboolean is_ladder;
 	qboolean was_swim;

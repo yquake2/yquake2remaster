@@ -44,7 +44,7 @@ jobs:
         unzip vulkan_headers.zip "Vulkan-Headers-master/include/**"
         cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/i686-w64-mingw32/include/
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Build
       run: |
         # build with cmake and visual studio
@@ -70,6 +70,7 @@ jobs:
         cd ../../..
         # Copy misc assets
         cp -r stuff/yq2.cfg publish/$PKGDIR/misc/yq2.cfg
+        cp -r stuff/models publish/$PKGDIR/misc
         cp -r stuff/mapfixes publish/$PKGDIR/misc
         cp LICENSE publish/$PKGDIR/misc/docs/LICENSE.txt
         cp README.md publish/$PKGDIR/misc/docs/README.txt
@@ -87,13 +88,13 @@ jobs:
         cp ../dhewm3-libs-master/i686-w64-mingw32/bin/SDL2.dll publish/$PKGDIR/
         cp ../dhewm3-libs-master/i686-w64-mingw32/bin/libcurl-4.dll publish/$PKGDIR/curl.dll
     - name: Upload testbuild package
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.pkgname }}
         path: publish/
         if-no-files-found: error
     - name: Upload testbuild debug symbols
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.pkgname }}-debugsyms
         path: debug-syms/
@@ -130,7 +131,7 @@ jobs:
         unzip vulkan_headers.zip "Vulkan-Headers-master/include/**"
         cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/x86_64-w64-mingw32/include/
     - name: Check out repository code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Build
       run: |
         # build with cmake and visual studio
@@ -155,6 +156,7 @@ jobs:
         cd ../../..
         # Copy misc assets
         cp -r stuff/yq2.cfg publish/$PKGDIR/misc/yq2.cfg
+        cp -r stuff/models publish/$PKGDIR/misc
         cp -r stuff/mapfixes publish/$PKGDIR/misc
         cp LICENSE publish/$PKGDIR/misc/docs/LICENSE.txt
         cp README.md publish/$PKGDIR/misc/docs/README.txt
@@ -172,13 +174,13 @@ jobs:
         cp ../dhewm3-libs-master/x86_64-w64-mingw32/bin/SDL2.dll publish/$PKGDIR/
         cp ../dhewm3-libs-master/x86_64-w64-mingw32/bin/libcurl-4.dll publish/$PKGDIR/curl.dll
     - name: Upload testbuild package
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.pkgname }}
         path: publish/
         if-no-files-found: error
     - name: Upload testbuild debug symbols
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ env.pkgname }}-debugsyms
         path: debug-syms/

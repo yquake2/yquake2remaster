@@ -291,6 +291,13 @@ Cmd_Give_f(edict_t *ent)
 				continue;
 			}
 
+			if (!ItemHasValidModel(it))
+			{
+				gi.dprintf("Item %s does not have valid model\n",
+					it->classname ? it->classname : "<unknown>");
+				continue;
+			}
+
 			ent->client->pers.inventory[i] += 1;
 		}
 
@@ -313,6 +320,13 @@ Cmd_Give_f(edict_t *ent)
 
 			if (!(it->flags & IT_AMMO))
 			{
+				continue;
+			}
+
+			if (!ItemHasValidModel(it))
+			{
+				gi.dprintf("Item %s does not have valid model\n",
+					it->classname ? it->classname : "<unknown>");
 				continue;
 			}
 
@@ -412,6 +426,11 @@ Cmd_Give_f(edict_t *ent)
 
 		if (!it)
 		{
+			it = FindItemByClassname(name);
+		}
+
+		if (!it)
+		{
 			gi.cprintf(ent, PRINT_HIGH, "unknown item: %s\n", name);
 			return;
 		}
@@ -483,11 +502,38 @@ Cmd_ListItems_f(edict_t *ent)
 
 	for (i = 0; i < game.num_items; i++)
 	{
+		const char *item_type = "<unknow>";
 		it = itemlist + i;
 
-		gi.dprintf("#%d: '%s' => '%s' #%d\n",
+		if (it->flags & IT_WEAPON)
+		{
+			item_type = "weapon";
+		}
+		else if (it->flags & IT_AMMO)
+		{
+			item_type = "ammo";
+		}
+		else if (it->flags & IT_ARMOR)
+		{
+			item_type = "armor";
+		}
+		else if (it->flags & IT_KEY)
+		{
+			item_type = "key";
+		}
+		else if (it->flags & IT_POWERUP)
+		{
+			item_type = "powerup";
+		}
+		else if (it->flags & IT_TECH)
+		{
+			item_type = "tech";
+		}
+
+		gi.dprintf("#%d: '%s' '%s' %s #%d\n",
 			i, it->classname ? it->classname : "",
 			it->pickup_name ? it->pickup_name: "",
+			item_type,
 			it->quantity);
 	}
 }
@@ -1198,11 +1244,11 @@ Cmd_Players_f(edict_t *ent)
 		if (strlen(small) + strlen(large) > sizeof(large) - 100)
 		{
 			/* can't print all of them in one packet */
-			strcat(large, "...\n");
+			Q_strlcat(large, "...\n", sizeof(large));
 			break;
 		}
 
-		strcat(large, small);
+		Q_strlcat(large, small, sizeof(large));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s\n%i players\n", large, count);
@@ -1289,14 +1335,8 @@ Cmd_Wave_f(edict_t *ent)
 
 	gi.cprintf(ent, PRINT_HIGH, "%s\n", animname, lastframe, firstframe);
 
-	lastframe -= firstframe - 1;
-
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe);
-	lastframe += firstframe - 1;
-
-	ent->s.frame = firstframe - 1;
-	ent->client->anim_end = lastframe;
-
+	P_SetAnimGroup(ent, animname, firstframe, lastframe, 0);
+	ent->s.frame --;
 }
 
 qboolean
@@ -1406,9 +1446,9 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 
 	if (arg0)
 	{
-		strcat(text, gi.argv(0));
-		strcat(text, " ");
-		strcat(text, gi.args());
+		Q_strlcat(text, gi.argv(0), sizeof(text));
+		Q_strlcat(text, " ", sizeof(text));
+		Q_strlcat(text, gi.args(), sizeof(text));
 	}
 	else
 	{
@@ -1420,7 +1460,7 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 			p[strlen(p) - 1] = 0;
 		}
 
-		strcat(text, p);
+		Q_strlcat(text, p, sizeof(text));
 	}
 
 	/* don't let text be too long for malicious reasons */
@@ -1429,7 +1469,7 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 		text[150] = 0;
 	}
 
-	strcat(text, "\n");
+	Q_strlcat(text, "\n", sizeof(text));
 
 	if (dedicated->value)
 	{
@@ -1528,7 +1568,7 @@ Cmd_PlayerList_f(edict_t *ent)
 			return;
 		}
 
-		strcat(text, st);
+		Q_strlcat(text, st, sizeof(text));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);

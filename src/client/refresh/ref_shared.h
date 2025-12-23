@@ -332,7 +332,7 @@ extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
 extern struct image_s *R_LoadConsoleChars(findimage_t find_image);
 extern unsigned R_NextUTF8Code(const char **curr);
 extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
-	imagetype_t type, int r_retexturing, loadimage_t load_image);
+	imagetype_t type, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
 	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
 	const byte *mod_base, const lump_t *lMod_LoadQBSPMarksurfaces);
@@ -386,6 +386,8 @@ extern void R_ConvertNormalMDL(byte in_normal, signed char *normal);
 extern vec4_t *R_VertBufferRealloc(int num);
 extern void R_VertBufferInit(void);
 extern void R_VertBufferFree(void);
+extern void R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to);
+extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);

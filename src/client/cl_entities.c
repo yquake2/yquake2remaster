@@ -61,6 +61,12 @@ CL_AddPacketEntities(frame_t *frame)
 			continue;
 		}
 
+		/* handled elsewhere */
+		if (s1->renderfx & RF_CASTSHADOW)
+		{
+			continue;
+		}
+
 		cent = &cl_entities[s1->number];
 
 		effects = s1->effects;
@@ -143,7 +149,8 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 		}
 
-		if (effects & EF_BOB) {
+		if (effects & EF_BOB)
+		{
 			ent.origin[2] += autobob;
 			ent.oldorigin[2] += autobob;
 		}
@@ -972,6 +979,7 @@ CL_AddEntities(void)
 	CL_AddParticles();
 	CL_AddDLights();
 	CL_AddLightStyles();
+	CL_AddShadowLights();
 }
 
 /*

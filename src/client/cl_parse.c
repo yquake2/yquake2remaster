@@ -168,6 +168,19 @@ CL_ParseEntityBits(unsigned *bits)
 static void
 CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int bits)
 {
+	static const entity_xstate_t es_nullstate = {0};
+	entity_xstate_t dummy;
+
+	if (!from)
+	{
+		from = &es_nullstate;
+	}
+
+	if (!to)
+	{
+		to = &dummy;
+	}
+
 	/* set everything to the state we are delta'ing from */
 	*to = *from;
 
@@ -384,16 +397,16 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
  * the current frame
  */
 static void
-CL_DeltaEntity(frame_t *frame, int newnum, entity_xstate_t *old, int bits)
+CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, int bits)
 {
-	centity_t nullstate, *ent;
+	centity_t dummy, *ent;
 	entity_xstate_t *state;
 
 	ent = CL_AllocEntity(newnum);
 	if (!ent)
 	{
-		memset(&nullstate, 0, sizeof(nullstate));
-		ent = &nullstate;
+		memset(&dummy, 0, sizeof(dummy));
+		ent = &dummy;
 	}
 
 	state = &cl_parse_entities[cl.parse_entities & (MAX_PARSE_ENTITIES - 1)];
@@ -455,11 +468,11 @@ CL_DeltaEntity(frame_t *frame, int newnum, entity_xstate_t *old, int bits)
 static void
 CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 {
-	entity_xstate_t *oldstate = NULL;
-	centity_t nullstate, *ent;
-	int oldindex, oldnum;
 	unsigned int newnum;
 	unsigned bits;
+	centity_t *ent;
+	entity_xstate_t *oldstate = NULL;
+	int oldindex, oldnum;
 
 	newframe->parse_entities = cl.parse_entities;
 	newframe->num_entities = 0;
@@ -607,7 +620,7 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 			ent = CL_AllocEntity(newnum);
 
 			CL_DeltaEntity(newframe, newnum,
-					ent ? &ent->baseline : &nullstate.baseline,
+					ent ? &ent->baseline : NULL,
 					bits);
 
 			continue;
@@ -879,7 +892,7 @@ CL_ShowNetCmd(int cmd)
 
 	if (cl_shownet->value >= 2)
 	{
-		if (cmd >= (sizeof(svc_strings) / sizeof(*svc_strings)))
+		if (cmd >= ARRLEN(svc_strings))
 		{
 			Com_Printf("%3i:BAD CMD %i\n", net_message.readcount - 1, cmd);
 			return;
@@ -1143,19 +1156,14 @@ CL_ParseServerData(void)
 static void
 CL_ParseBaseline(void)
 {
-	entity_xstate_t nullstate;
-	entity_xstate_t *es;
-	centity_t *ent;
 	unsigned bits;
 	int newnum;
-
-	memset(&nullstate, 0, sizeof(nullstate));
+	centity_t *ent;
 
 	newnum = CL_ParseEntityBits(&bits);
 	ent = CL_AllocEntity(newnum);
-	es = ent ? &ent->baseline : &nullstate;
 
-	CL_ParseDelta(&nullstate, es, newnum, bits);
+	CL_ParseDelta(NULL, ent ? &ent->baseline : NULL, newnum, bits);
 }
 
 void
@@ -1336,6 +1344,67 @@ CL_ParseClientinfo(int player)
 	CL_LoadClientinfo(ci, s);
 }
 
+/*
+ * Parses a shadow light configstring and stores it in cl.shadowdefs
+ * Format: "num;iscone;radius;resolution;intensity;fade_start;fade_end;lightstyle;coneangle;conedirx;conediry;conedirz"
+ */
+void
+CL_LoadShadowLight(int idx, const char *s)
+{
+	char buf[MAX_CONFIGSTRING] = {0};
+	cl_shadowdef_t *shadow;
+	size_t semis = 0, i;
+	qboolean is_cone;
+	char *p;
+
+	/* copy and convert semicolons to spaces so COM_Parse can be used */
+	for (i = 0; i < sizeof(buf) - 1; i++, s++)
+	{
+		if (!*s)
+		{
+			buf[i] = '\0';
+			break;
+		}
+		else if (*s == ';')
+		{
+			buf[i] = ' ';
+			semis++;
+		}
+		else
+		{
+			buf[i] = *s;
+		}
+	}
+
+	/* validate expected number of fields */
+	if (semis != 11 || idx < 0 || idx >= MAX_SHADOW_LIGHTS)
+	{
+		Com_DPrintf("%s: wrong shadow %d light %s\n",
+			__func__, idx, buf);
+		return;
+	}
+
+	p = buf;
+	shadow = cl.shadowdefs + idx;
+	shadow->number = atoi(COM_Parse(&p));
+	is_cone = !!atoi(COM_Parse(&p));
+	shadow->light.radius = atof(COM_Parse(&p));
+	shadow->light.resolution = atoi(COM_Parse(&p));
+	shadow->light.intensity = atof(COM_Parse(&p));
+	shadow->light.fade_start = atof(COM_Parse(&p));
+	shadow->light.fade_end = atof(COM_Parse(&p));
+	shadow->light.lightstyle = atoi(COM_Parse(&p));
+	shadow->light.coneangle = atof(COM_Parse(&p));
+	shadow->light.conedirection[0] = atof(COM_Parse(&p));
+	shadow->light.conedirection[1] = atof(COM_Parse(&p));
+	shadow->light.conedirection[2] = atof(COM_Parse(&p));
+
+	if (!is_cone)
+	{
+		shadow->light.coneangle = 0.0f;
+	}
+}
+
 static void
 CL_ParseConfigString(void)
 {
@@ -1429,6 +1498,10 @@ CL_ParseConfigString(void)
 		{
 			CL_ParseClientinfo(i - CS_PLAYERSKINS);
 		}
+	}
+	else if ((i >= CS_SHADOWLIGHTS) && (i < CS_SHADOWLIGHTS + MAX_SHADOW_LIGHTS))
+	{
+		CL_LoadShadowLight(i - CS_SHADOWLIGHTS, s);
 	}
 }
 

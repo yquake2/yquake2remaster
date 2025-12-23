@@ -119,6 +119,35 @@ Note:
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
 
+Dynamic frame names:
+
+| group   | monster | player | description   |
+| ------- | ------- | ------ | ------------- |
+| attack  |    Y    |    Y   |               |
+| crattak |    N    |    Y   | Crouch attack |
+| crdeath |    N    |    Y   | Crouch death  |
+| crpain  |    N    |    Y   | Crouch pain   |
+| crstnd  |    N    |    Y   | Crouch stand  |
+| crwalk  |    N    |    Y   | Crouch walk   |
+| death   |    Y    |    Y   |               |
+| dodge   |    Y    |        |               |
+| duck    |    Y    |        |               |
+| fly     |    Y    |        |               |
+| flip    |    N    |    Y   |               |
+| jump    |    N    |    Y   |               |
+| hover   |    Y    |        |               |
+| idle    |    Y    |        |               |
+| melee   |    Y    |        |               |
+| pain    |    Y    |    Y   |               |
+| point   |    N    |    Y   |               |
+| run     |    Y    |    Y   |               |
+| salute  |    N    |    Y   |               |
+| stand   |    Y    |    Y   |               |
+| swim    |    Y    |        |               |
+| taunt   |    N    |    Y   |               |
+| wave    |    N    |    Y   |               |
+| walk    |    Y    |        |               |
+
 Games:
 
 * Quake 2 ReRelease:
@@ -159,8 +188,17 @@ Games:
 
 Games check videos:
 
+* 8.61RR13+:
+
+[![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0A)
+
+* 8.61RR13:
+
+[![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQA)
+
 * 8.52RR13+:
 
+[![Check dynamic frames split](https://img.youtube.com/vi/_CPmh5_TLbk/hqdefault.jpg)](https://www.youtube.com/watch?v=_CPmh5_TLbkA)
 [![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3k/hqdefault.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3kA)
 [![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/hqdefault.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uGA)
 
@@ -238,7 +276,9 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: support `tactile/*/*.bnvib/.wav` feedback load,
 * [ ] ReRelease: console `~` incorrectly show multibyte characters,
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
-* [ ] ReRelease: fully implement `dynamic_light`,
+* [x] ReRelease: implement game code for `dynamic_light`,
+* [x] ReRelease: implement game code for `bmodel_anim`,
+* [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
 * [ ] gl3, gl4: add fog distance effect,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
@@ -247,26 +287,29 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: support effects and additional flags when possible,
 * [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
       and https://github.com/Paril/quake2-rerelease-dll,
-* [ ] ReRelease: modified game code support with removed KEX only related code,
-* [x] ReRelease: fully implement `trigger_fog`.
+* [ ] ReRelease: modified game code support with removed KEX only related code.
 
 Other games support goals:
 
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Jabot: dynamic allocations,
-* [ ] Heretic 2, Kingpin: use nor all surface flags to detect map type
+* [ ] Heretic 2: add swim player animation support,
+* [ ] Heretic 2: add utf8 colors and fonts support in console,
+* [ ] Heretic 2: correct obj placeholders,
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
 * [ ] Half-Life: support mdl,
 * [ ] Anachronox: load atd as sprite,
+* [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
+* [x] Anachronox: check fog field in `whitendon`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
 * [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: rowdys save entity disappear in a8080c05,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
+* [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
-* [ ] DoD: implement dynamic animations for monsters,
 * [ ] DoD: fix statusbar `roarke`.
 
 Not a goal:

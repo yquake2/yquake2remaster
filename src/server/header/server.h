@@ -76,7 +76,7 @@ typedef struct
 	struct cmodel_s *models[MAX_MODELS];
 
 	stringlist_t configstrings_overflow;
-	char configstrings[MAX_CONFIGSTRINGS][MAX_QPATH];
+	char configstrings[MAX_CONFIGSTRINGS][MAX_CONFIGSTRING];
 	entity_xstate_t *baselines;
 	int numbaselines;
 

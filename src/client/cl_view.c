@@ -116,6 +116,92 @@ V_AddLight(vec3_t org, float intensity, float r, float g, float b)
 	dl->color[2] = b;
 }
 
+static float
+smoothstep(float edge0, float edge1, float x)
+{
+	/* https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml */
+	float t;
+
+	t = Q_clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+	return t * t * (3.0f - 2.0f * t);
+}
+
+/* calculate the fade distance from screen to light */
+static float
+fade_distance_to_light(float fade_start, float fade_end, const vec3_t light_origin,
+	const vec3_t org)
+{
+	float dist_to_light, frac_to_end, min_frag_dist;
+	vec3_t diff;
+
+	if (fade_start <= 1.0f && fade_end <= 1.0f)
+	{
+		return 1.0f;
+	}
+	else if (fade_start > fade_end)
+	{
+		return 1.0f;
+	}
+
+	VectorSubtract(org, light_origin, diff);
+	dist_to_light = VectorLengthSquared(diff);
+	frac_to_end = Q_clamp(dist_to_light / fade_end, 0.0f, 1.0f);
+	min_frag_dist = fade_start / fade_end;
+
+	if (min_frag_dist > 1.0f)
+	{
+		return 1.0f;
+	}
+	else if (min_frag_dist <= 0)
+	{
+		return frac_to_end;
+	}
+
+	return 1.0f - smoothstep(min_frag_dist, 1.0f, frac_to_end);
+}
+
+void
+V_AddLightShadow(cl_shadow_light_t *light)
+{
+	YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+	dlight_t *dl;
+	float fade;
+
+	if (r_numdlights >= MAX_DLIGHTS)
+	{
+		return;
+	}
+
+	fade = fade_distance_to_light(light->fade_start, light->fade_end,
+		light->origin, cl.refdef.vieworg);
+
+	if (fade <= 0.0f)
+	{
+		return;
+	}
+
+	dl = &r_dlights[r_numdlights++];
+	VectorCopy(light->origin, dl->origin);
+
+	dl->intensity = light->intensity * fade;
+	if (light->lightstyle != -1)
+	{
+		dl->intensity *= r_lightstyles[light->lightstyle].white;
+	}
+
+	*(int *) color = light->color;
+	dl->color[0] = color[0] / 255.f;
+	dl->color[1] = color[1] / 255.f;
+	dl->color[2] = color[2] / 255.f;
+
+	/* TODO: implement:
+	 *   radius,
+	 *   coneangle,
+	 *   conedirection,
+	 *   fade_start,
+	 *   fade_end */
+}
+
 void
 V_AddLightStyle(int style, float r, float g, float b)
 {
@@ -414,6 +500,18 @@ CL_PrepRefresh(void)
 			}
 
 			CL_ParseClientinfo(i);
+		}
+	}
+
+	/* load shadow lights configstrings */
+	for (i = 0; i < MAX_SHADOW_LIGHTS; i++)
+	{
+		int cs_idx;
+
+		cs_idx = CS_SHADOWLIGHTS + i;
+		if (cl.configstrings[cs_idx][0])
+		{
+			CL_LoadShadowLight(i, cl.configstrings[cs_idx]);
 		}
 	}
 

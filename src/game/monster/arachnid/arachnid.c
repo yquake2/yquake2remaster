@@ -124,6 +124,8 @@ arachnid_run(edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
+		self->monsterinfo.firstframe = FRAME_idle1;
+		self->monsterinfo.lastframe = FRAME_idle13;
 		monster_dynamic_stand(self);
 		return;
 	}
@@ -441,12 +443,10 @@ arachnid_die(edict_t *self, edict_t *inflictor /* unused */,
 
 		for (n = 0; n < 4; n++)
 		{
-			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2",
-					damage, GIB_ORGANIC);
+			ThrowGib(self, NULL, damage, GIB_ORGANIC);
 		}
 
-		ThrowHead(self, "models/objects/gibs/head2/tris.md2",
-				damage, GIB_ORGANIC);
+		ThrowHead(self, NULL, damage, GIB_ORGANIC);
 
 		self->deadflag = DEAD_DEAD;
 		return;

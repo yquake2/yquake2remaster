@@ -52,7 +52,7 @@ static int image_max = 0;
 void
 GL3_TextureMode(char *string)
 {
-	const int num_modes = sizeof(modes)/sizeof(modes[0]);
+	const int num_modes = ARRLEN(modes);
 	int i;
 
 	for (i = 0; i < num_modes; i++)
@@ -163,7 +163,7 @@ void
 GL3_BindLightmap(int lightmapnum)
 {
 	int i=0;
-	if(lightmapnum < 0 || lightmapnum >= MAX_LIGHTMAPS)
+	if (lightmapnum < 0 || lightmapnum >= MAX_LIGHTMAPS)
 	{
 		Com_Printf("WARNING: Invalid lightmapnum %i used!\n", lightmapnum);
 		return;
@@ -175,7 +175,7 @@ GL3_BindLightmap(int lightmapnum)
 	}
 
 	gl3state.currentlightmap = lightmapnum;
-	for(i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
+	for (i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
 	{
 		// this assumes that GL_TEXTURE<i+1> = GL_TEXTURE<i> + 1
 		// at least for GL_TEXTURE0 .. GL_TEXTURE31 that's true
@@ -208,8 +208,14 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 		}
 	}
 
+	/* optimize 8bit images only when we forced such logic */
+	if (r_scale8bittextures->value)
+	{
+		SmoothColorImage(data, width * height, width);
+	}
+
 	glTexImage2D(GL_TEXTURE_2D, 0, comp, width, height,
-	             0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 	res = (samples == gl3_alpha_format);
 
@@ -670,7 +676,7 @@ GL3_FindImage(const char *originname, imagetype_t type)
 	// load the pic from disk
 	//
 	image = (gl3image_t *)R_LoadImage(name, namewe, ext, type,
-		r_retexturing->value, (loadimage_t)GL3_LoadPic);
+		(loadimage_t)GL3_LoadPic);
 
 	if (!image && r_validation->value)
 	{
@@ -774,10 +780,10 @@ static qboolean IsNPOT(int v)
 {
 	unsigned int uv = v;
 	// just try all the power of two values between 1 and 1 << 15 (32k)
-	for(unsigned int i=0; i<16; ++i)
+	for (unsigned int i=0; i<16; ++i)
 	{
 		unsigned int pot = (1u << i);
-		if(uv & pot)
+		if (uv & pot)
 		{
 			return uv != pot;
 		}

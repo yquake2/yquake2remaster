@@ -63,6 +63,18 @@ SV_CalcRoll(vec3_t angles, vec3_t velocity)
 	return side * sign;
 }
 
+void
+P_SetAnimGroup(edict_t *ent, const char *animname, int firstframe, int lastframe,
+	int select)
+{
+	lastframe -= firstframe - 1;
+	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe, select);
+	lastframe += firstframe - 1;
+
+	ent->s.frame = firstframe;
+	ent->client->anim_end = lastframe;
+}
+
 /*
  * Handles color blends and view kicks
  */
@@ -118,35 +130,41 @@ P_DamageFeedback(edict_t *player)
 	/* start a pain animation if still in the player model */
 	if ((client->anim_priority < ANIM_PAIN) && (player->s.modelindex == CUSTOM_PLAYER_MODEL))
 	{
-		static int i;
+		int firstframe, lastframe, group = 0;
+		const char *action;
 
+		firstframe = FRAME_crpain1;
+		lastframe = FRAME_crpain4;
 		client->anim_priority = ANIM_PAIN;
 
 		if (client->ps.pmove.pm_flags & PMF_DUCKED)
 		{
-			player->s.frame = FRAME_crpain1 - 1;
-			client->anim_end = FRAME_crpain4;
+			action = "crpain";
 		}
 		else
 		{
-			i = (i + 1) % 3;
-
-			switch (i)
+			group = randk() % 3;
+			switch (group)
 			{
 				case 0:
-					player->s.frame = FRAME_pain101 - 1;
-					client->anim_end = FRAME_pain104;
+					firstframe = FRAME_pain101;
+					lastframe = FRAME_pain104;
 					break;
 				case 1:
-					player->s.frame = FRAME_pain201 - 1;
-					client->anim_end = FRAME_pain204;
+					firstframe = FRAME_pain201;
+					lastframe = FRAME_pain204;
 					break;
 				case 2:
-					player->s.frame = FRAME_pain301 - 1;
-					client->anim_end = FRAME_pain304;
+					firstframe = FRAME_pain301;
+					lastframe = FRAME_pain304;
 					break;
 			}
+
+			action = "pain";
 		}
+
+		P_SetAnimGroup(player, action, firstframe, lastframe, group);
+		player->s.frame --;
 	}
 
 	realcount = count;
@@ -1426,14 +1444,24 @@ G_SetClientFrame(edict_t *ent, float speed)
 
 	if (client->anim_priority == ANIM_JUMP)
 	{
+		int firstframe, lastframe;
+
 		if (!ent->groundentity)
 		{
 			return; /* stay there */
 		}
 
 		ent->client->anim_priority = ANIM_WAVE;
-		ent->s.frame = FRAME_jump3;
-		ent->client->anim_end = FRAME_jump6;
+
+		firstframe = FRAME_jump1;
+		lastframe = FRAME_jump6;
+
+		lastframe -= firstframe;
+		M_SetAnimGroupFrameValues(ent, "jump", &firstframe, &lastframe, 0);
+		lastframe += firstframe;
+
+		ent->s.frame = firstframe + 2;
+		ent->client->anim_end = lastframe;
 		return;
 	}
 
@@ -1456,14 +1484,23 @@ newanim:
 		}
 		else
 		{
+			int firstframe, lastframe;
+
 			client->anim_priority = ANIM_JUMP;
 
-			if (ent->s.frame != FRAME_jump2)
+			firstframe = FRAME_jump1;
+			lastframe = FRAME_jump6;
+
+			lastframe -= firstframe;
+			M_SetAnimGroupFrameValues(ent, "jump", &firstframe, &lastframe, 0);
+			lastframe += firstframe;
+
+			if (ent->s.frame != (firstframe + 1))
 			{
-				ent->s.frame = FRAME_jump1;
+				ent->s.frame = firstframe;
 			}
 
-			client->anim_end = FRAME_jump2;
+			client->anim_end = Q_min(firstframe + 1, lastframe);
 			return;
 		}
 	}
@@ -1480,7 +1517,15 @@ newanim:
 		{
 			firstframe = FRAME_run1;
 			lastframe = FRAME_run6;
-			animname = "run";
+
+			if (ent->waterlevel >= 2)
+			{
+				animname = "swim";
+			}
+			else
+			{
+				animname = "run";
+			}
 		}
 	}
 	else
@@ -1500,12 +1545,7 @@ newanim:
 		}
 	}
 
-	lastframe -= firstframe;
-	M_SetAnimGroupFrameValues(ent, animname, &firstframe, &lastframe);
-	lastframe += firstframe;
-
-	ent->s.frame = firstframe;
-	client->anim_end = lastframe;
+	P_SetAnimGroup(ent, animname, firstframe, lastframe, 0);
 }
 
 /*

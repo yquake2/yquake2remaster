@@ -40,7 +40,7 @@ GL4_EmitWaterPolys(msurface_t *fa)
 	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
 	qboolean updateUni3D = false;
-	if((gl4state.uni3DData.sscroll != sscroll) || (gl4state.uni3DData.tscroll != tscroll))
+	if ((gl4state.uni3DData.sscroll != sscroll) || (gl4state.uni3DData.tscroll != tscroll))
 	{
 		gl4state.uni3DData.sscroll = sscroll;
 		gl4state.uni3DData.tscroll = tscroll;
@@ -52,13 +52,13 @@ GL4_EmitWaterPolys(msurface_t *fa)
 	// so default use a factor of 0.5 (ontop of intensity)
 	// but lava should be bright and glowing, so use full brightness there
 	float lightScale = fa->texinfo->image->is_lava ? 1.0f : 0.5f;
-	if(lightScale != gl4state.uni3DData.lightScaleForTurb)
+	if (lightScale != gl4state.uni3DData.lightScaleForTurb)
 	{
 		gl4state.uni3DData.lightScaleForTurb = lightScale;
 		updateUni3D = true;
 	}
 
-	if(updateUni3D)
+	if (updateUni3D)
 	{
 		GL4_UpdateUBO3D();
 	}
@@ -166,7 +166,7 @@ GL4_DrawSkyBox(void)
 	// glTranslatef(gl4_origin[0], gl4_origin[1], gl4_origin[2]);
 	hmm_vec3 transl = HMM_Vec3(gl4_origin[0], gl4_origin[1], gl4_origin[2]);
 	hmm_mat4 modMVmat = HMM_MultiplyMat4(origModelMat, HMM_Translate(transl));
-	if(skyrotate != 0.0f)
+	if (skyrotate != 0.0f)
 	{
 		// glRotatef(r_newrefdef.time * skyrotate, skyaxis[0], skyaxis[1], skyaxis[2]);
 		hmm_vec3 rotAxis = HMM_Vec3(skyaxis[0], skyaxis[1], skyaxis[2]);

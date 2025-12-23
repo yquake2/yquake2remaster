@@ -63,6 +63,7 @@ Z_Free(void *ptr)
 
 	z_count--;
 	z_bytes -= z->size;
+
 	free(z);
 }
 
@@ -109,6 +110,7 @@ Z_TagMalloc(int size, int tag)
 	}
 
 	memset(z, 0, size);
+
 	z_count++;
 	z_bytes += size;
 	z->magic = Z_MAGIC;

@@ -978,7 +978,7 @@ ReadGame(const char *filename)
 		{"YQ2-6", 6},
 	};
 
-	for (i=0; i < sizeof(version_mappings)/sizeof(version_mappings[0]); ++i)
+	for (i=0; i < ARRLEN(version_mappings); ++i)
 	{
 		if (strcmp(version_mappings[i].verstr, sv.ver) == 0)
 		{
@@ -1352,4 +1352,7 @@ ReadLevel(const char *filename)
 			}
 		}
 	}
+
+	/* reload shadow light data from configstrings */
+	G_LoadShadowLights();
 }
