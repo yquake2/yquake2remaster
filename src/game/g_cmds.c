@@ -660,6 +660,11 @@ Cmd_Use_f(edict_t *ent)
 
 	if (!it)
 	{
+		it = FindItemByClassname(s);
+	}
+
+	if (!it)
+	{
 		gi.cprintf(ent, PRINT_HIGH, "unknown item: %s\n", s);
 		return;
 	}
@@ -729,6 +734,11 @@ Cmd_Drop_f(edict_t *ent)
 
 	s = gi.args();
 	it = FindItem(s);
+
+	if (!it)
+	{
+		it = FindItemByClassname(s);
+	}
 
 	if (!it)
 	{
@@ -2249,11 +2259,13 @@ ClientCommand(edict_t *ent)
 	{
 		Cmd_InvDrop_f(ent);
 	}
-	else if (Q_stricmp(cmd, "weapprev") == 0)
+	else if (Q_stricmp(cmd, "weapprev") == 0 ||
+		Q_stricmp(cmd, "cl_weapprev") == 0)
 	{
 		Cmd_WeapPrev_f(ent);
 	}
-	else if (Q_stricmp(cmd, "weapnext") == 0)
+	else if (Q_stricmp(cmd, "weapnext") == 0 ||
+		Q_stricmp(cmd, "cl_weapnext") == 0)
 	{
 		Cmd_WeapNext_f(ent);
 	}

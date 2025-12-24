@@ -728,7 +728,9 @@ CL_InitLocal(void)
 	Cmd_AddCommand("invprev", NULL);
 	Cmd_AddCommand("invnext", NULL);
 	Cmd_AddCommand("invdrop", NULL);
+	Cmd_AddCommand("cl_weapnext", NULL);
 	Cmd_AddCommand("weapnext", NULL);
+	Cmd_AddCommand("cl_weapprev", NULL);
 	Cmd_AddCommand("weapprev", NULL);
 	Cmd_AddCommand("listentities", NULL);
 	Cmd_AddCommand("listitems", NULL);
