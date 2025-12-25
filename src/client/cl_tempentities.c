@@ -1155,7 +1155,7 @@ CL_ParseTEnt(void)
 			{
 				ex->lightcolor[1] = 1;
 			}
-			else if (type == TE_BLASTER2)
+			else if (type == TE_FLARE)
 			{
 				ex->lightcolor[0] = 1;
 				ex->lightcolor[1] = 1;
