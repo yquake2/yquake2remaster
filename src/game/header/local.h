@@ -300,6 +300,7 @@ typedef enum
 	WEAP_PROXLAUNCH,
 	WEAP_CHAINFIST,
 	WEAP_GRAPPLE,
+	WEAP_FLAREGUN,
 	WEAP_TOTAL
 } weapmodel_t;
 
@@ -1035,7 +1036,7 @@ void fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void fire_blaster(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect, qboolean hyper);
 void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
-		int speed, float timer, float damage_radius);
+		int speed, float timer, float damage_radius, qboolean monster);
 void fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
 void fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
@@ -1055,6 +1056,8 @@ void fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 		float damage_radius, int radius_damage);
 void fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
+void fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+		int speed, float timer, float damage_radius);
 
 /* g_ptrail.c */
 void PlayerTrail_Init(void);
@@ -1128,6 +1131,7 @@ void Weapon_ProxLauncher(edict_t *ent);
 void Weapon_Ionripper(edict_t *ent);
 void Weapon_Phalanx(edict_t *ent);
 void Weapon_Trap(edict_t *ent);
+void Weapon_FlareGun(edict_t *ent);
 
 /* m_move.c */
 qboolean M_CheckBottom(edict_t *ent);

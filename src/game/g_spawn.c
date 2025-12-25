@@ -1681,31 +1681,27 @@ SP_worldspawn(edict_t *ent)
 	gi.soundindex("*pain100_2.wav");
 
 	/* sexed models: THIS ORDER MUST MATCH THE DEFINES IN g_local.h
-	   you can add more, max 19 (pete change)these models are only
-	   loaded in coop or deathmatch. not singleplayer. */
-	if (coop->value || deathmatch->value || ctf->value)
-	{
-		gi.modelindex("#w_blaster.md2");
-		gi.modelindex("#w_shotgun.md2");
-		gi.modelindex("#w_sshotgun.md2");
-		gi.modelindex("#w_machinegun.md2");
-		gi.modelindex("#w_chaingun.md2");
-		gi.modelindex("#a_grenades.md2");
-		gi.modelindex("#w_glauncher.md2");
-		gi.modelindex("#w_rlauncher.md2");
-		gi.modelindex("#w_hyperblaster.md2");
-		gi.modelindex("#w_railgun.md2");
-		gi.modelindex("#w_bfg.md2");
-		gi.modelindex("#w_grapple.md2");
-		gi.modelindex("#w_disrupt.md2");
-		gi.modelindex("#w_etfrifle.md2");
-		gi.modelindex("#w_plasma.md2");
-		gi.modelindex("#w_plauncher.md2");
-		gi.modelindex("#w_chainfist.md2");
-
-		gi.modelindex("#w_phalanx.md2");
-		gi.modelindex("#w_ripper.md2");
-	}
+	   you can add more. */
+	gi.modelindex("#w_blaster.md2");      /* WEAP_BLASTER */
+	gi.modelindex("#w_shotgun.md2");      /* WEAP_SHOTGUN */
+	gi.modelindex("#w_sshotgun.md2");     /* WEAP_SUPERSHOTGUN */
+	gi.modelindex("#w_machinegun.md2");   /* WEAP_MACHINEGUN */
+	gi.modelindex("#w_chaingun.md2");     /* WEAP_CHAINGUN */
+	gi.modelindex("#a_grenades.md2");     /* WEAP_GRENADES */
+	gi.modelindex("#w_glauncher.md2");    /* WEAP_GRENADELAUNCHER */
+	gi.modelindex("#w_rlauncher.md2");    /* WEAP_ROCKETLAUNCHER */
+	gi.modelindex("#w_hyperblaster.md2"); /* WEAP_HYPERBLASTER */
+	gi.modelindex("#w_railgun.md2");      /* WEAP_RAILGUN */
+	gi.modelindex("#w_bfg.md2");          /* WEAP_BFG */
+	gi.modelindex("#w_phalanx.md2");      /* WEAP_PHALANX */
+	gi.modelindex("#w_ripper.md2");       /* WEAP_BOOMER */
+	gi.modelindex("#w_disrupt.md2");      /* WEAP_DISRUPTOR */
+	gi.modelindex("#w_etfrifle.md2");     /* WEAP_ETFRIFLE */
+	gi.modelindex("#w_plasma.md2");       /* WEAP_PLASMA */
+	gi.modelindex("#w_plauncher.md2");    /* WEAP_PROXLAUNCH */
+	gi.modelindex("#w_chainfist.md2");    /* WEAP_CHAINFIST */
+	gi.modelindex("#w_grapple.md2");      /* WEAP_GRAPPLE */
+	gi.modelindex("#w_flareg.md2");       /* WEAP_FLAREGUN */
 
 	/* ------------------- */
 

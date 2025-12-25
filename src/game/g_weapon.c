@@ -684,7 +684,7 @@ Grenade_Touch(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurfa
 
 void
 fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed,
-		float timer, float damage_radius)
+		float timer, float damage_radius, qboolean monster)
 {
 	edict_t *grenade;
 	vec3_t dir;
@@ -710,7 +710,14 @@ fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed,
 	grenade->s.effects |= EF_GRENADE;
 	VectorClear(grenade->mins);
 	VectorClear(grenade->maxs);
-	grenade->s.modelindex = gi.modelindex("models/objects/grenade/tris.md2");
+	if (monster)
+	{
+		grenade->s.modelindex = gi.modelindex("models/objects/grenade/tris.md2");
+	}
+	else
+	{
+		grenade->s.modelindex = gi.modelindex("models/objects/grenade4/tris.md2");
+	}
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
@@ -750,7 +757,15 @@ fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	grenade->s.effects |= EF_GRENADE;
 	VectorClear(grenade->mins);
 	VectorClear(grenade->maxs);
-	grenade->s.modelindex = gi.modelindex("models/objects/grenade2/tris.md2");
+	if (rand() & 1)
+	{
+		grenade->s.modelindex = gi.modelindex("models/objects/grenade2/tris.md2");
+	}
+	else
+	{
+		grenade->s.modelindex = gi.modelindex("models/objects/grenade3/tris.md2");
+	}
+
 	grenade->owner = self;
 	grenade->touch = Grenade_Touch;
 	grenade->nextthink = level.time + timer;
@@ -1886,4 +1901,115 @@ fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	}
 
 	trap->timestamp = level.time + 30;
+}
+
+/*
+ * Drops a spark from the flare flying thru the air.  Checks to make
+ * sure we aren't in the water.
+ */
+static void
+flare_sparks(edict_t *self)
+{
+	vec3_t dir;
+	vec3_t forward, right, up;
+
+	/* Spawn some sparks.  This isn't net-friendly at all, but will
+	 * be fine for single player. */
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_FLARE);
+	gi.WritePosition(self->s.origin);
+	/* If we are still moving, calculate the normal to the direction
+	 * we are travelling. */
+	if (VectorLength(self->velocity) > 0.0)
+	{
+		vectoangles(self->velocity, dir);
+		AngleVectors(dir, forward, right, up);
+
+		gi.WriteDir(up);
+	}
+	else
+	{
+		/* If we're stopped, just write out the origin as our normal */
+		gi.WriteDir(vec3_origin);
+	}
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+}
+
+/*
+ * Purpose: The think function of a flare round.  It generates sparks
+ *   on the flare using a temp entity, and kills itself after
+ *   self->timestamp runs out.
+ * Parameters:
+ *   self: A pointer to the edict_t structure representing the
+ *         flare round.  self->timestamp is the value used to
+ *         measure the lifespan of the round, and is set in
+ *         fire_flaregun blow.
+ * Notes:
+ * - I'm not sure how much bandwidth is eaten by spawning a temp
+ *   entity every FRAMETIME seconds.  It might very well turn out
+ *   that the sparks need to go bye-bye in favor of less bandwidth
+ *   usage.  Then again, why the hell would you use this gun on
+ *   a DM server????
+
+ * - I haven't seen self->timestamp used anywhere else in the code,
+ *   but I never really looked that hard.  It doesn't seem to cause
+ *   any problems, and is aptly named, so I used it.
+ */
+void
+flare_think(edict_t *self)
+{
+	/* self->timestamp is 15 seconds after the flare was spawned. */
+	if (level.time > self->timestamp)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	/* We're still active, so lets shoot some sparks. */
+	flare_sparks(self);
+
+	/* We'll think again in .3 seconds */
+	self->nextthink = level.time + FRAMETIME;
+}
+
+void
+flare_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+{
+	/* Flares don't weigh that much, so let's have them stop
+	 * the instant they whack into anything. */
+	VectorClear(ent->velocity);
+}
+
+void
+fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+	int speed, float timer, float damage_radius)
+{
+	edict_t *flare;
+	vec3_t dir, forward, right, up;
+	const float size = 4;
+
+	vectoangles(aimdir, dir);
+	AngleVectors(dir, forward, right, up);
+
+	flare = G_Spawn();
+	VectorCopy(start, flare->s.origin);
+	VectorScale(aimdir, speed, flare->velocity);
+	VectorSet(flare->avelocity, 300, 300, 300);
+	flare->movetype = MOVETYPE_BOUNCE;
+	flare->clipmask = MASK_SHOT;
+	flare->solid = SOLID_BBOX;
+
+	VectorSet(flare->mins, -size, -size, -size);
+	VectorSet(flare->maxs, size, size, size);
+
+	flare->s.modelindex = gi.modelindex("models/objects/grenade/tris.md2");
+	flare->owner = self;
+	flare->touch = flare_touch;
+	flare->nextthink = level.time + .2f;
+	flare->think = flare_think;
+	flare->radius_dmg = damage;
+	flare->dmg_radius = damage_radius;
+	flare->classname = "flare";
+	flare->timestamp = level.time + 15; /* live for 15 seconds */
+	gi.linkentity(flare);
 }

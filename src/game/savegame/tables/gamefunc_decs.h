@@ -623,7 +623,7 @@ extern void fire_blueblaster ( edict_t * self , vec3_t start , vec3_t dir , int 
 extern void fire_bullet ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int kick , int hspread , int vspread , int mod ) ;
 extern void fire_doppleganger ( edict_t * ent , vec3_t start , vec3_t aimdir ) ;
 extern void fire_flechette ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , int kick ) ;
-extern void fire_grenade ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int speed , float timer , float damage_radius ) ;
+extern void fire_grenade ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int speed , float timer , float damage_radius , qboolean monster ) ;
 extern void fire_grenade2 ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int speed , float timer , float damage_radius , qboolean held ) ;
 extern void fire_heat ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , float damage_radius , int radius_damage ) ;
 extern void fire_heatbeam ( edict_t * self , vec3_t start , vec3_t aimdir , vec3_t offset , int damage , int kick , qboolean monster ) ;
@@ -651,6 +651,8 @@ extern void fixbot_run ( edict_t * self ) ;
 extern void fixbot_stand ( edict_t * self ) ;
 extern void fixbot_start_attack ( edict_t * self ) ;
 extern void fixbot_walk ( edict_t * self ) ;
+extern void flare_think ( edict_t * self ) ;
+extern void flare_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void flechette_touch ( edict_t * self , edict_t * other , cplane_t * plane , csurface_t * surf ) ;
 extern void flipper_bite ( edict_t * self ) ;
 extern void flipper_dead ( edict_t * self ) ;

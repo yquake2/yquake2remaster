@@ -3071,6 +3071,28 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
+	 * QUAKED weapon_flaregun (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 */
+	{
+		"weapon_flaregun",
+		Pickup_Weapon,
+		Use_Weapon,
+		Drop_Weapon,
+		Weapon_FlareGun,
+		"misc/w_pkup.wav",
+		"models/weapons/g_flareg/tris.md2", EF_ROTATE,
+		"models/weapons/v_flareg/tris.md2",
+		"a_grenades",
+		"Flare Gun",
+		0,
+		1,
+		"Grenades",
+		IT_WEAPON,
+		WEAP_FLAREGUN,
+		"",
+	},
+
+	/*
 	 * QUAKED ammo_shells (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{

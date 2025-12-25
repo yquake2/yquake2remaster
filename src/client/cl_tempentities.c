@@ -1097,12 +1097,17 @@ CL_ParseTEnt(void)
 
 		case TE_BLASTER2:
 		case TE_FLECHETTE:
+		case TE_FLARE:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
 
 			if (type == TE_BLASTER2)
 			{
 				CL_BlasterParticles2(pos, dir, 0xff00ff00, 0xffffffff);
+			}
+			else if (type == TE_FLARE)
+			{
+				CL_BlasterParticles2(pos, dir, 0xaa00aa00, 0xff00ff00);
 			}
 			else
 			{
@@ -1148,6 +1153,11 @@ CL_ParseTEnt(void)
 
 			if (type == TE_BLASTER2)
 			{
+				ex->lightcolor[1] = 1;
+			}
+			else if (type == TE_BLASTER2)
+			{
+				ex->lightcolor[0] = 1;
 				ex->lightcolor[1] = 1;
 			}
 			else

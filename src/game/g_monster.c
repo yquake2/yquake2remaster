@@ -320,7 +320,7 @@ monster_fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir,
 		return;
 	}
 
-	fire_grenade(self, start, aimdir, damage, speed, 2.5, damage + 40);
+	fire_grenade(self, start, aimdir, damage, speed, 2.5, damage + 40, true);
 
 	monster_muzzleflash2(self, start, flashtype);
 }

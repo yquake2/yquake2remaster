@@ -614,6 +614,8 @@
 {"fixbot_stand", (byte *)fixbot_stand},
 {"fixbot_start_attack", (byte *)fixbot_start_attack},
 {"fixbot_walk", (byte *)fixbot_walk},
+{"flare_think", (byte *)flare_think},
+{"flare_touch", (byte *)flare_touch},
 {"flechette_touch", (byte *)flechette_touch},
 {"flipper_bite", (byte *)flipper_bite},
 {"flipper_dead", (byte *)flipper_dead},
