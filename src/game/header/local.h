@@ -301,6 +301,7 @@ typedef enum
 	WEAP_CHAINFIST,
 	WEAP_GRAPPLE,
 	WEAP_FLAREGUN,
+	WEAP_BETA_DISRUPTOR,
 	WEAP_TOTAL
 } weapmodel_t;
 
@@ -1104,8 +1105,8 @@ void PlayerNoise(edict_t *who, vec3_t where, int type);
 void P_ProjectSource(const edict_t *ent, const vec3_t distance,
 		vec3_t forward, const vec3_t right, vec3_t result);
 void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
-		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
-		int *fire_frames, void (*fire)(edict_t *ent));
+		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, const int *pause_frames,
+		const int *fire_frames, void (*fire)(edict_t *ent));
 qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
 void Use_Weapon(edict_t *ent, gitem_t *inv);
 void Use_Weapon2(edict_t *ent, gitem_t *inv);
@@ -1123,6 +1124,7 @@ void Weapon_Railgun(edict_t *ent);
 void Weapon_BFG(edict_t *ent);
 void Weapon_ChainFist(edict_t *ent);
 void Weapon_Disintegrator(edict_t *ent);
+void Weapon_Beta_Disintegrator(edict_t *ent);
 void Weapon_ETF_Rifle(edict_t *ent);
 void Weapon_Heatbeam(edict_t *ent);
 void Weapon_Prox(edict_t *ent);

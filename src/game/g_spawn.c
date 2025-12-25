@@ -1702,6 +1702,7 @@ SP_worldspawn(edict_t *ent)
 	gi.modelindex("#w_chainfist.md2");    /* WEAP_CHAINFIST */
 	gi.modelindex("#w_grapple.md2");      /* WEAP_GRAPPLE */
 	gi.modelindex("#w_flareg.md2");       /* WEAP_FLAREGUN */
+	gi.modelindex("#w_disint.md2");       /* WEAP_BETA_DISRUPTOR */
 
 	/* ------------------- */
 

@@ -375,6 +375,20 @@ PlayerNoise(edict_t *who, vec3_t where, int type)
 	gi.linkentity(noise);
 }
 
+static void
+G_RemoveAmmo(edict_t *ent)
+{
+	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+	{
+		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+
+		if (ent->client->pers.inventory[ent->client->ammo_index] < 0)
+		{
+			ent->client->pers.inventory[ent->client->ammo_index] = 0;
+		}
+	}
+}
+
 qboolean
 Pickup_Weapon(edict_t *ent, edict_t *other)
 {
@@ -873,8 +887,8 @@ PlayerApplyAttack(edict_t *ent)
  */
 static void
 Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
-		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
-		int *fire_frames, void (*fire)(edict_t *ent))
+		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, const int *pause_frames,
+		const int *fire_frames, void (*fire)(edict_t *ent))
 {
 	int n;
 	const unsigned short int change_speed = (g_swap_speed->value > 1)?
@@ -1035,8 +1049,8 @@ Weapon_Generic2(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 
 void
 Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
-		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, int *pause_frames,
-		int *fire_frames, void (*fire)(edict_t *ent))
+		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, const int *pause_frames,
+		const int *fire_frames, void (*fire)(edict_t *ent))
 {
 	int oldstate = ent->client->weaponstate;
 
@@ -1145,10 +1159,7 @@ weapon_grenade_fire(edict_t *ent, qboolean held)
 			break;
 	}
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 
 	ent->client->grenade_time = level.time + 1.0;
 
@@ -1478,10 +1489,7 @@ weapon_grenadelauncher_fire(edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -1595,10 +1603,7 @@ Weapon_RocketLauncher_Fire(edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -1803,10 +1808,7 @@ Weapon_HyperBlaster_Fire(edict_t *ent)
 
 			Blaster_Fire(ent, offset, damage, true, effect);
 
-			if (!((int)dmflags->value & DF_INFINITE_AMMO))
-			{
-				ent->client->pers.inventory[ent->client->ammo_index]--;
-			}
+			G_RemoveAmmo(ent);
 
 			PlayerApplyAttack(ent);
 		}
@@ -1970,10 +1972,7 @@ Machinegun_Fire(edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 
 	PlayerApplyAttack(ent);
 
@@ -2277,10 +2276,7 @@ weapon_shotgun_fire(edict_t *ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -2422,10 +2418,7 @@ weapon_supershotgun_fire(edict_t *ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index] -= 2;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -2531,10 +2524,7 @@ weapon_railgun_fire(edict_t *ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -2632,7 +2622,7 @@ weapon_bfg_fire(edict_t *ent)
 
 	/* cells can go down during windup (from power armor hits), so
 	   check again and abort firing if we don't have enough now */
-	if (ent->client->pers.inventory[ent->client->ammo_index] < 50)
+	if (ent->client->pers.inventory[ent->client->ammo_index] < ent->client->pers.weapon->quantity)
 	{
 		ent->client->ps.gunframe++;
 		return;
@@ -2681,10 +2671,7 @@ weapon_bfg_fire(edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index] -= 50;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -2706,6 +2693,17 @@ Weapon_BFG(edict_t *ent)
 		Weapon_Generic(ent, 8, 32, 55, 58, pause_frames,
 				fire_frames, weapon_bfg_fire);
 	}
+}
+
+//======================================================================
+
+void
+Weapon_Beta_Disintegrator(edict_t *ent)
+{
+	static int pause_frames[] = { 30, 37, 45, 0 };
+	static int fire_frames[] = { 17, 0 };
+
+	Weapon_Generic(ent, 16, 23, 46, 50, pause_frames, fire_frames, weapon_bfg_fire);
 }
 
 /* CHAINFIST */
@@ -2751,7 +2749,7 @@ weapon_chainfist_fire(edict_t *ent)
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
 	ent->client->ps.gunframe++;
-	ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+	G_RemoveAmmo(ent);
 }
 
 /*
@@ -2955,7 +2953,7 @@ weapon_tracker_fire(edict_t *self)
 	PlayerNoise(self, start, PNOISE_WEAPON);
 
 	self->client->ps.gunframe++;
-	self->client->pers.inventory[self->client->ammo_index] -= self->client->pers.weapon->quantity;
+	G_RemoveAmmo(self);
 }
 
 void
@@ -3045,10 +3043,7 @@ weapon_etf_rifle_fire(edict_t *ent)
 
 	ent->client->ps.gunframe++;
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
-	}
+	G_RemoveAmmo(ent);
 
 	PlayerApplyAttack(ent);
 }
@@ -3139,10 +3134,7 @@ Heatbeam_Fire(edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
-	}
+	G_RemoveAmmo(ent);
 
 	PlayerApplyAttack(ent);
 }
@@ -3246,16 +3238,7 @@ weapon_ionripper_fire(edict_t *ent)
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index] -=
-			ent->client->pers.weapon->quantity;
-	}
-
-	if (ent->client->pers.inventory[ent->client->ammo_index] < 0)
-	{
-		ent->client->pers.inventory[ent->client->ammo_index] = 0;
-	}
+	G_RemoveAmmo(ent);
 }
 
 void
@@ -3334,10 +3317,7 @@ weapon_phalanx_fire(edict_t *ent)
 		gi.WriteByte(MZ_PHALANX2 | is_silenced);
 		gi.multicast(ent->s.origin, MULTICAST_PVS);
 
-		if (!((int)dmflags->value & DF_INFINITE_AMMO))
-		{
-			ent->client->pers.inventory[ent->client->ammo_index]--;
-		}
+		G_RemoveAmmo(ent);
 	}
 	else
 	{
@@ -3415,7 +3395,7 @@ weapon_trap_fire(edict_t *ent, qboolean held)
 		((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
 	fire_trap(ent, start, forward, damage, speed, timer, radius, held);
 
-	ent->client->pers.inventory[ent->client->ammo_index]--;
+	G_RemoveAmmo(ent);
 	ent->client->grenade_time = level.time + 1.0;
 }
 
@@ -3598,11 +3578,7 @@ weapon_flaregun_fire(edict_t *ent)
 
 	PlayerNoise(ent, start, PNOISE_WEAPON);
 
-	/* Subtract one cell from our inventory */
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
-	{
-		ent->client->pers.inventory[ent->client->ammo_index]--;
-	}
+	G_RemoveAmmo(ent);
 }
 
 /*

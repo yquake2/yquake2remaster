@@ -310,7 +310,6 @@ extern void Weapon_ChainFist ( edict_t * ent ) ;
 extern void Weapon_Chaingun ( edict_t * ent ) ;
 extern void Weapon_Disintegrator ( edict_t * ent ) ;
 extern void Weapon_ETF_Rifle ( edict_t * ent ) ;
-extern void Weapon_Generic ( edict_t * ent , int FRAME_ACTIVATE_LAST , int FRAME_FIRE_LAST , int FRAME_IDLE_LAST , int FRAME_DEACTIVATE_LAST , int * pause_frames , int * fire_frames , void ( * fire ) ( edict_t * ent ) ) ;
 extern void Weapon_Grenade ( edict_t * ent ) ;
 extern void Weapon_GrenadeLauncher ( edict_t * ent ) ;
 extern void Weapon_Heatbeam ( edict_t * ent ) ;

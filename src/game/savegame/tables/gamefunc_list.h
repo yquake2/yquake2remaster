@@ -262,7 +262,6 @@
 {"Weapon_Chaingun", (byte *)Weapon_Chaingun},
 {"Weapon_Disintegrator", (byte *)Weapon_Disintegrator},
 {"Weapon_ETF_Rifle", (byte *)Weapon_ETF_Rifle},
-{"Weapon_Generic", (byte *)Weapon_Generic},
 {"Weapon_Grenade", (byte *)Weapon_Grenade},
 {"Weapon_GrenadeLauncher", (byte *)Weapon_GrenadeLauncher},
 {"Weapon_Heatbeam", (byte *)Weapon_Heatbeam},
