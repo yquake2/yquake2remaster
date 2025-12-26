@@ -20,7 +20,8 @@
  *
  * =======================================================================
  *
- * Soldier aka "Guard" animations.
+ * Soldier aka "Guard" animations. This is the new model added in
+ * Xatrix, used for the new variants of the enemy.
  *
  * =======================================================================
  */
