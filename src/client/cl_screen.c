@@ -1011,7 +1011,7 @@ SCR_TouchPics(void)
 				(int)(crosshair->value));
 		Draw_GetPicSize(&crosshair_width, &crosshair_height, crosshair_pic);
 
-		if (!crosshair_width)
+		if (crosshair_width <= 0)
 		{
 			crosshair_pic[0] = 0;
 		}
@@ -1823,9 +1823,9 @@ SCR_DrawCrosshair(void)
 		scale = SCR_ClampScale(crosshair_scale->value);
 	}
 
-	Draw_PicScaled(scr_vrect.x + (scr_vrect.width - crosshair_width * scale) / 2,
+	Draw_PicScaledAltText(scr_vrect.x + (scr_vrect.width - crosshair_width * scale) / 2,
 			scr_vrect.y + (scr_vrect.height - crosshair_height * scale) / 2,
-			crosshair_pic, scale);
+			crosshair_pic, scale, "+");
 }
 
 float
