@@ -1045,6 +1045,9 @@ void fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
 void fire_rail(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
 void fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, float damage_radius);
+
+/* beta disintegrator projectile */
+void fire_disintegrator(edict_t *self, vec3_t start, vec3_t forward, int speed);
 void fire_ionripper(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, int effect);
 void fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
@@ -1690,6 +1693,10 @@ struct edict_s
 	float random;
 
 	float last_sound_time;
+
+	/* Disintegrator state (used by the beta disintegrator projectile) */
+	float disintegrator_time;
+	edict_t *disintegrator;
 
 	int watertype;
 	int waterlevel;

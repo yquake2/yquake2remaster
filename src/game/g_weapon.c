@@ -1293,6 +1293,64 @@ fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	gi.linkentity(bfg);
 }
 
+/*
+ * Disintegrator projectile
+ */
+
+void
+disintegrator_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+{
+	vec3_t pos;
+
+	if (!self)
+		return;
+
+	VectorCopy(self->s.origin, pos);
+	VectorMA(pos, -0.01f, self->velocity, pos);
+
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_WIDOWSPLASH);
+	gi.WritePosition(pos);
+	gi.multicast(self->s.origin, MULTICAST_PHS);
+
+	G_FreeEdict(self);
+
+	if ((other->svflags & SVF_MONSTER) || other->client || (other->svflags & SVF_DAMAGEABLE))
+	{
+		other->disintegrator_time += 50.0f;
+		other->disintegrator = self->owner;
+	}
+}
+
+void
+fire_disintegrator(edict_t *self, vec3_t start, vec3_t forward, int speed)
+{
+	edict_t *dis;
+
+	if (!self)
+		return;
+
+	dis = G_Spawn();
+	VectorCopy(start, dis->s.origin);
+	vectoangles(forward, dis->s.angles);
+	VectorScale(forward, speed, dis->velocity);
+	dis->movetype = MOVETYPE_FLYMISSILE;
+	dis->clipmask = MASK_SHOT;
+	dis->solid = SOLID_BBOX;
+	dis->s.effects |= EF_TAGTRAIL | EF_ANIM_ALL;
+	dis->s.renderfx |= RF_TRANSLUCENT;
+	dis->svflags |= SVF_PROJECTILE;
+	dis->s.modelindex = gi.modelindex("sprites/s_bfg1.sp2");
+	dis->owner = self;
+	dis->touch = disintegrator_touch;
+	dis->nextthink = level.time + (8000.0f / (float)speed);
+	dis->think = G_FreeEdict;
+	dis->classname = "disint ball";
+	dis->s.sound = gi.soundindex("weapons/bfg__l1a.wav");
+
+	gi.linkentity(dis);
+}
+
 void
 ionripper_sparks(edict_t *self)
 {

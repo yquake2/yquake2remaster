@@ -2698,12 +2698,43 @@ Weapon_BFG(edict_t *ent)
 //======================================================================
 
 void
+weapon_disint_fire(edict_t *self)
+{
+	vec3_t forward, right, up;
+	vec3_t start;
+	vec3_t offset;
+
+	if (!self)
+		return;
+
+	AngleVectors(self->client->v_angle, forward, right, up);
+	VectorSet(offset, 24, 8, self->viewheight - 8);
+	P_ProjectSource(self, offset, forward, right, start);
+
+	/* kick back */
+	VectorScale(forward, -2, self->client->kick_origin);
+	self->client->kick_angles[0] = -1;
+
+	fire_disintegrator(self, start, forward, 800);
+
+	/* send muzzle flash */
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(self - g_edicts);
+	gi.WriteByte(MZ_BLASTER2);
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
+	PlayerNoise(self, start, PNOISE_WEAPON);
+
+	G_RemoveAmmo(self);
+}
+
+void
 Weapon_Beta_Disintegrator(edict_t *ent)
 {
 	static int pause_frames[] = { 30, 37, 45, 0 };
 	static int fire_frames[] = { 17, 0 };
 
-	Weapon_Generic(ent, 16, 23, 46, 50, pause_frames, fire_frames, weapon_bfg_fire);
+	Weapon_Generic(ent, 16, 23, 46, 50, pause_frames, fire_frames, weapon_disint_fire);
 }
 
 /* CHAINFIST */
