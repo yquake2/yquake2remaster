@@ -725,6 +725,21 @@ GetSkyImage(const char *skyname, const char* surfname, qboolean palettedtexture,
 		image = find_image(pathname, it_sky);
 	}
 
+	/* q2test */
+	if (!image && palettedtexture)
+	{
+		Com_sprintf(pathname, sizeof(pathname), "env/sky1%s.pcx",
+				surfname);
+		image = find_image(pathname, it_sky);
+	}
+
+	if (!image)
+	{
+		Com_sprintf(pathname, sizeof(pathname), "env/sky1%s.tga",
+				surfname);
+		image = find_image(pathname, it_sky);
+	}
+
 	return image;
 }
 
