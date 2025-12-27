@@ -181,13 +181,15 @@ static mframe_t soldier_frames_stand1[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t soldier_move_stand1 =
+static const mmove_t soldier_move_stand1_static =
 {
 	FRAME_stand101,
 	FRAME_stand130,
 	soldier_frames_stand1,
 	soldier_stand
 };
+
+mmove_t soldier_move_stand1 = {0};
 
 static mframe_t soldier_frames_stand3[] = {
 	{ai_stand, 0, NULL},
@@ -234,13 +236,15 @@ static mframe_t soldier_frames_stand3[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t soldier_move_stand3 =
+static const mmove_t soldier_move_stand3_static =
 {
 	FRAME_stand301,
 	FRAME_stand339,
 	soldier_frames_stand3,
 	soldier_stand
 };
+
+mmove_t soldier_move_stand3 = {0};
 
 void
 soldier_stand(edict_t *self)
@@ -311,13 +315,15 @@ static mframe_t soldier_frames_walk1[] = {
 	{ai_walk, 0, NULL}
 };
 
-mmove_t soldier_move_walk1 =
+static const mmove_t soldier_move_walk1_static =
 {
 	FRAME_walk101,
 	FRAME_walk133,
 	soldier_frames_walk1,
 	NULL
 };
+
+mmove_t soldier_move_walk1 = {0};
 
 static mframe_t soldier_frames_walk2[] = {
 	{ai_walk, 4, soldier_footstep},
@@ -363,13 +369,14 @@ static mframe_t soldier_frames_start_run[] = {
 	{ai_run, 5, NULL}
 };
 
-mmove_t soldier_move_start_run =
+static const mmove_t soldier_move_start_run_static =
 {
 	FRAME_run01,
 	FRAME_run02,
 	soldier_frames_start_run,
 	soldier_run
 };
+mmove_t soldier_move_start_run = {0};
 
 void
 soldier_fire_run(edict_t *self)
@@ -438,7 +445,7 @@ static mframe_t soldier_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_pain1 =
+static const mmove_t soldier_move_pain1_static =
 {
 	FRAME_pain101,
 	FRAME_pain105,
@@ -456,7 +463,7 @@ static mframe_t soldier_frames_pain2[] = {
 	{ai_move, 2, NULL}
 };
 
-mmove_t soldier_move_pain2 =
+static const mmove_t soldier_move_pain2_static =
 {
 	FRAME_pain201,
 	FRAME_pain207,
@@ -485,7 +492,7 @@ static mframe_t soldier_frames_pain3[] = {
 	{ai_move, 2, soldier_footstep}
 };
 
-mmove_t soldier_move_pain3 =
+static const mmove_t soldier_move_pain3_static =
 {
 	FRAME_pain301,
 	FRAME_pain318,
@@ -513,13 +520,17 @@ static mframe_t soldier_frames_pain4[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_pain4 =
+static const mmove_t soldier_move_pain4_static =
 {
 	FRAME_pain401,
 	FRAME_pain417,
 	soldier_frames_pain4,
 	soldier_run
 };
+mmove_t soldier_move_pain1 = {0};
+mmove_t soldier_move_pain2 = {0};
+mmove_t soldier_move_pain3 = {0};
+mmove_t soldier_move_pain4 = {0};
 
 void
 soldier_pain(edict_t *self, edict_t *other /* unused */,
@@ -894,7 +905,7 @@ static mframe_t soldier_frames_attack1[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldier_move_attack1 =
+static const mmove_t soldier_move_attack1_static =
 {
 	FRAME_attak101,
 	FRAME_attak112,
@@ -999,7 +1010,7 @@ static mframe_t soldier_frames_attack2[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldier_move_attack2 =
+static const mmove_t soldier_move_attack2_static =
 {
 	FRAME_attak201,
 	FRAME_attak218,
@@ -1080,7 +1091,7 @@ static mframe_t soldier_frames_attack3[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldier_move_attack3 =
+static const mmove_t soldier_move_attack3_static =
 {
 	FRAME_attak301,
 	FRAME_attak309,
@@ -1109,13 +1120,18 @@ static mframe_t soldier_frames_attack4[] = {
 	{ai_charge, 0, soldier_footstep}
 };
 
-mmove_t soldier_move_attack4 =
+static const mmove_t soldier_move_attack4_static =
 {
 	FRAME_attak401,
 	FRAME_attak406,
 	soldier_frames_attack4,
 	soldier_run
 };
+
+mmove_t soldier_move_attack1 = {0};
+mmove_t soldier_move_attack2 = {0};
+mmove_t soldier_move_attack3 = {0};
+mmove_t soldier_move_attack4 = {0};
 
 /* ATTACK6 (run & shoot) */
 void
@@ -1179,13 +1195,15 @@ static mframe_t soldier_frames_attack6[] = {
 	{ai_run, 17, soldier_attack6_refire}
 };
 
-mmove_t soldier_move_attack6 =
+static const mmove_t soldier_move_attack6_static =
 {
 	FRAME_runs01,
 	FRAME_runs14,
 	soldier_frames_attack6,
 	soldier_run
 };
+
+mmove_t soldier_move_attack6 = {0};
 
 void
 soldier_attack(edict_t *self)
@@ -1323,13 +1341,14 @@ static mframe_t soldier_frames_duck[] = {
 	{ai_move, 5, NULL}
 };
 
-mmove_t soldier_move_duck =
+static const mmove_t soldier_move_duck_static =
 {
 	FRAME_duck01,
 	FRAME_duck05,
 	soldier_frames_duck,
 	soldier_run
 };
+mmove_t soldier_move_duck = {0};
 
 qboolean
 soldier_blocked(edict_t *self, float dist)
@@ -1532,7 +1551,7 @@ static mframe_t soldier_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_death1 =
+static const mmove_t soldier_move_death1_static =
 {
 	FRAME_death101,
 	FRAME_death136,
@@ -1581,7 +1600,7 @@ static mframe_t soldier_frames_death2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_death2 =
+static const mmove_t soldier_move_death2_static =
 {
 	FRAME_death201,
 	FRAME_death235,
@@ -1641,7 +1660,7 @@ static mframe_t soldier_frames_death3[] = {
 	{ai_move, 0, NULL},
 };
 
-mmove_t soldier_move_death3 =
+static const mmove_t soldier_move_death3_static =
 {
 	FRAME_death301,
 	FRAME_death345,
@@ -1710,7 +1729,7 @@ static mframe_t soldier_frames_death4[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_death4 =
+static const mmove_t soldier_move_death4_static =
 {
 	FRAME_death401,
 	FRAME_death453,
@@ -1747,7 +1766,7 @@ static mframe_t soldier_frames_death5[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_death5 =
+static const mmove_t soldier_move_death5_static =
 {
 	FRAME_death501,
 	FRAME_death524,
@@ -1768,7 +1787,7 @@ static mframe_t soldier_frames_death6[] = {
 	{ai_move, 0, NULL}
 };
 
-static mmove_t soldier_move_death6_static =
+static const mmove_t soldier_move_death6_static =
 {
 	FRAME_death601,
 	FRAME_death610,
@@ -1776,6 +1795,11 @@ static mmove_t soldier_move_death6_static =
 	soldier_dead
 };
 
+mmove_t soldier_move_death1 = {0};
+mmove_t soldier_move_death2 = {0};
+mmove_t soldier_move_death3 = {0};
+mmove_t soldier_move_death4 = {0};
+mmove_t soldier_move_death5 = {0};
 mmove_t soldier_move_death6 = {0};
 
 void
@@ -1953,12 +1977,15 @@ static mframe_t soldier_frames_blind[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldier_move_blind = {
+static const mmove_t soldier_move_blind_static =
+{
 	FRAME_stand101,
 	FRAME_stand130,
 	soldier_frames_blind,
 	soldier_blind
 };
+
+mmove_t soldier_move_blind = {0};
 
 void
 soldier_blind(edict_t *self)
@@ -1971,188 +1998,15 @@ soldier_blind(edict_t *self)
 	self->monsterinfo.currentmove = &soldier_move_blind;
 }
 
-static void
-monster_soldier_mmovefix(void)
+static const mmove_t soldierh_move_stand1_static =
 {
-	if (!soldier_move_death6.firstframe ||
-		!soldier_move_death6.lastframe)
-	{
-		memcpy(&soldier_move_death6, &soldier_move_death6_static, sizeof(mmove_t));
-	}
-}
-
-void
-SP_monster_soldier_x(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	// Force recaching at next footstep to ensure
-	// that the sound indices are correct.
-	sound_step = 0;
-	sound_step2 = 0;
-	sound_step3 = 0;
-	sound_step4 = 0;
-
-	self->s.modelindex = gi.modelindex("models/monsters/soldier/tris.md2");
-	monster_soldier_mmovefix();
-	self->monsterinfo.scale = MODEL_SCALE;
-	VectorSet(self->mins, -16, -16, -24);
-	VectorSet(self->maxs, 16, 16, 32);
-	self->movetype = MOVETYPE_STEP;
-	self->solid = SOLID_BBOX;
-
-	sound_idle = gi.soundindex("soldier/solidle1.wav");
-	sound_sight1 = gi.soundindex("soldier/solsght1.wav");
-	sound_sight2 = gi.soundindex("soldier/solsrch1.wav");
-	sound_cock = gi.soundindex("infantry/infatck3.wav");
-
-	self->mass = 100;
-
-	self->pain = soldier_pain;
-	self->die = soldier_die;
-
-	self->monsterinfo.stand = soldier_stand;
-	self->monsterinfo.walk = soldier_walk;
-	self->monsterinfo.run = soldier_run;
-	self->monsterinfo.dodge = soldier_dodge;
-	self->monsterinfo.attack = soldier_attack;
-	self->monsterinfo.melee = NULL;
-	self->monsterinfo.sight = soldier_sight;
-
-	self->monsterinfo.blocked = soldier_blocked;
-	self->monsterinfo.duck = soldier_duck;
-	self->monsterinfo.unduck = monster_duck_up;
-	self->monsterinfo.sidestep = soldier_sidestep;
-
-	if (self->spawnflags & 8) /* blind */
-	{
-		self->monsterinfo.stand = soldier_blind;
-	}
-
-	gi.linkentity(self);
-
-	self->monsterinfo.stand(self);
-
-	walkmonster_start(self);
-}
-
-/*
- * QUAKED monster_soldier_light (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
- *
- * Blind - monster will just stand there until triggered
- */
-void
-SP_monster_soldier_light(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (deathmatch->value)
-	{
-		G_FreeEdict(self);
-		return;
-	}
-
-	self->health = 20 * st.health_multiplier;
-	self->gib_health = -30;
-
-	SP_monster_soldier_x(self);
-
-	sound_pain_light = gi.soundindex("soldier/solpain2.wav");
-	sound_death_light = gi.soundindex("soldier/soldeth2.wav");
-	sound_step = gi.soundindex("player/step1.wav");
-	sound_step2 = gi.soundindex("player/step2.wav");
-	sound_step3 = gi.soundindex("player/step3.wav");
-	sound_step4 = gi.soundindex("player/step4.wav");
-	gi.modelindex("models/objects/laser/tris.md2");
-	gi.soundindex("misc/lasfly.wav");
-	gi.soundindex("soldier/solatck2.wav");
-
-	self->s.skinnum = 0;
-	self->monsterinfo.blindfire = true;
-}
-
-/*
- * QUAKED monster_soldier (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
- *
- * Blind - monster will just stand there until triggered
- */
-void
-SP_monster_soldier(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (deathmatch->value)
-	{
-		G_FreeEdict(self);
-		return;
-	}
-
-	self->health = 30 * st.health_multiplier;
-	self->gib_health = -30;
-
-	SP_monster_soldier_x(self);
-
-	sound_pain = gi.soundindex("soldier/solpain1.wav");
-	sound_death = gi.soundindex("soldier/soldeth1.wav");
-	sound_step = gi.soundindex("player/step1.wav");
-	sound_step2 = gi.soundindex("player/step2.wav");
-	sound_step3 = gi.soundindex("player/step3.wav");
-	sound_step4 = gi.soundindex("player/step4.wav");
-	gi.soundindex("soldier/solatck1.wav");
-
-	self->s.skinnum = 2;
-}
-
-/*
- * QUAKED monster_soldier_ss (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
- *
- * Blind - monster will just stand there until triggered
- */
-void
-SP_monster_soldier_ss(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (deathmatch->value)
-	{
-		G_FreeEdict(self);
-		return;
-	}
-
-	self->health = 40 * st.health_multiplier;
-	self->gib_health = -30;
-
-	SP_monster_soldier_x(self);
-
-	sound_pain_ss = gi.soundindex("soldier/solpain3.wav");
-	sound_death_ss = gi.soundindex("soldier/soldeth3.wav");
-	sound_step = gi.soundindex("player/step1.wav");
-	sound_step2 = gi.soundindex("player/step2.wav");
-	sound_step3 = gi.soundindex("player/step3.wav");
-	sound_step4 = gi.soundindex("player/step4.wav");
-	gi.soundindex("soldier/solatck3.wav");
-
-	self->s.skinnum = 4;
-}
-
-mmove_t soldierh_move_stand1 = {
 	FRAME_stand101,
 	FRAME_stand130,
 	soldier_frames_stand1,
 	soldierh_stand
 };
+
+mmove_t soldierh_move_stand1 = {0};
 
 static mframe_t soldierh_frames_stand3[] = {
 	{ai_stand, 0, NULL},
@@ -2199,12 +2053,15 @@ static mframe_t soldierh_frames_stand3[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t soldierh_move_stand3 = {
+static const mmove_t soldierh_move_stand3_static =
+{
 	FRAME_stand301,
 	FRAME_stand339,
 	soldierh_frames_stand3,
 	soldierh_stand
 };
+
+mmove_t soldierh_move_stand3 = {0};
 
 void
 soldierh_stand(edict_t *self)
@@ -2260,12 +2117,14 @@ static mframe_t soldierh_frames_walk1[] = {
 	{ai_walk, 0, NULL}
 };
 
-mmove_t soldierh_move_walk1 = {
+static const mmove_t soldierh_move_walk1_static = {
 	FRAME_walk101,
 	FRAME_walk133,
 	soldierh_frames_walk1,
 	NULL
 };
+
+mmove_t soldierh_move_walk1 = {0};
 
 static mframe_t soldierh_frames_walk2[] = {
 	{ai_walk, 4, NULL},
@@ -2305,12 +2164,14 @@ soldierh_walk(edict_t *self)
 	}
 }
 
-mmove_t soldierh_move_start_run = {
+static const mmove_t soldierh_move_start_run_static =
+{
 	FRAME_run01,
 	FRAME_run02,
 	soldier_frames_start_run,
 	soldierh_run
 };
+mmove_t soldierh_move_start_run = {0};
 
 static mframe_t soldierh_frames_run[] = {
 	{ai_run, 10, NULL},
@@ -2354,14 +2215,14 @@ soldierh_run(edict_t *self)
 	}
 }
 
-mmove_t soldierh_move_pain1 = {
+static const mmove_t soldierh_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain105,
 	soldier_frames_pain1,
 	soldierh_run
 };
 
-mmove_t soldierh_move_pain2 = {
+static const mmove_t soldierh_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain207,
 	soldier_frames_pain2,
@@ -2389,19 +2250,25 @@ static mframe_t soldierh_frames_pain3[] = {
 	{ai_move, 2, NULL}
 };
 
-mmove_t soldierh_move_pain3 = {
+static const mmove_t soldierh_move_pain3_static = {
 	FRAME_pain301,
 	FRAME_pain318,
 	soldierh_frames_pain3,
 	soldierh_run
 };
 
-mmove_t soldierh_move_pain4 = {
+static const mmove_t soldierh_move_pain4_static =
+{
 	FRAME_pain401,
 	FRAME_pain417,
 	soldier_frames_pain4,
 	soldierh_run
 };
+mmove_t soldierh_move_pain1 = {0};
+mmove_t soldierh_move_pain2 = {0};
+mmove_t soldierh_move_pain3 = {0};
+mmove_t soldierh_move_pain4 = {0};
+
 
 void
 soldierh_pain(edict_t *self, edict_t *other /* unused */,
@@ -2759,7 +2626,8 @@ static mframe_t soldierh_frames_attack1[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldierh_move_attack1 = {
+static const mmove_t soldierh_move_attack1_static =
+{
 	FRAME_attak101,
 	FRAME_attak112,
 	soldierh_frames_attack1,
@@ -2895,7 +2763,8 @@ static mframe_t soldierh_frames_attack2[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldierh_move_attack2 = {
+static const mmove_t soldierh_move_attack2_static =
+{
 	FRAME_attak201,
 	FRAME_attak218,
 	soldierh_frames_attack2,
@@ -2974,7 +2843,8 @@ static mframe_t soldierh_frames_attack3[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldierh_move_attack3 = {
+static const mmove_t soldierh_move_attack3_static =
+{
 	FRAME_attak301,
 	FRAME_attak309,
 	soldierh_frames_attack3,
@@ -3001,12 +2871,16 @@ static mframe_t soldierh_frames_attack4[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t soldierh_move_attack4 = {
+static const mmove_t soldierh_move_attack4_static = {
 	FRAME_attak401,
 	FRAME_attak406,
 	soldierh_frames_attack4,
 	soldierh_run
 };
+mmove_t soldierh_move_attack1 = {0};
+mmove_t soldierh_move_attack2 = {0};
+mmove_t soldierh_move_attack3 = {0};
+mmove_t soldierh_move_attack4 = {0};
 
 void
 soldierh_fire8(edict_t *self)
@@ -3060,12 +2934,14 @@ static mframe_t soldierh_frames_attack6[] = {
 	{ai_charge, 17, soldierh_attack6_refire}
 };
 
-mmove_t soldierh_move_attack6 = {
+static const mmove_t soldierh_move_attack6_static = {
 	FRAME_runs01,
 	FRAME_runs14,
 	soldierh_frames_attack6,
 	soldierh_run
 };
+
+mmove_t soldierh_move_attack6 = {0};
 
 void
 soldierh_attack(edict_t *self)
@@ -3151,12 +3027,14 @@ static mframe_t soldierh_frames_duck[] = {
 	{ai_move, 5, NULL}
 };
 
-mmove_t soldierh_move_duck = {
+static const mmove_t soldierh_move_duck_static =
+{
 	FRAME_duck01,
 	FRAME_duck05,
 	soldierh_frames_duck,
 	soldierh_run
 };
+mmove_t soldierh_move_duck = {0};
 
 void
 soldierh_dodge(edict_t *self, edict_t *attacker, float eta,
@@ -3293,20 +3171,24 @@ static mframe_t soldierh_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t soldierh_move_death1 = {
+static const mmove_t soldierh_move_death1_static =
+{
 	FRAME_death101,
 	FRAME_death136,
 	soldierh_frames_death1,
 	soldier_dead
 };
 
-mmove_t soldierh_move_death4 =
+static const mmove_t soldierh_move_death4_static =
 {
 	FRAME_death401,
 	FRAME_death453,
 	soldier_frames_death4,
 	soldier_dead
 };
+
+mmove_t soldierh_move_death1 = {0};
+mmove_t soldierh_move_death4 = {0};
 
 void
 soldierh_die(edict_t *self, edict_t *inflictor /* unused */,
@@ -3390,6 +3272,220 @@ soldierh_die(edict_t *self, edict_t *inflictor /* unused */,
 	}
 }
 
+static void
+monster_soldier_fix(edict_t *self)
+{
+	// Force recaching at next footstep to ensure
+	// that the sound indices are correct.
+	sound_step = 0;
+	sound_step2 = 0;
+	sound_step3 = 0;
+	sound_step4 = 0;
+
+	/* soldier */
+	M_SetAnimGroupMMove(self, &soldier_move_death1, &soldier_move_death1_static, "death", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_death2, &soldier_move_death2_static, "death", 1);
+	M_SetAnimGroupMMove(self, &soldier_move_death3, &soldier_move_death3_static, "death", 2);
+	M_SetAnimGroupMMove(self, &soldier_move_death4, &soldier_move_death4_static, "death", 3);
+	M_SetAnimGroupMMove(self, &soldier_move_death5, &soldier_move_death5_static, "death", 4);
+	M_SetAnimGroupMMove(self, &soldier_move_death6, &soldier_move_death6_static, "death", 5);
+	M_SetAnimGroupMMove(self, &soldier_move_walk1, &soldier_move_walk1_static, "walk", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_stand1, &soldier_move_stand1_static, "stand", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_blind, &soldier_move_blind_static, "stand", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_stand3, &soldier_move_stand3_static, "stand", 1);
+	M_SetAnimGroupMMove(self, &soldier_move_attack6, &soldier_move_attack6_static, "runs", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_start_run, &soldier_move_start_run_static, "run", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_pain1, &soldier_move_pain1_static, "pain", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_pain2, &soldier_move_pain2_static, "pain", 1);
+	M_SetAnimGroupMMove(self, &soldier_move_pain3, &soldier_move_pain3_static, "pain", 2);
+	M_SetAnimGroupMMove(self, &soldier_move_pain4, &soldier_move_pain4_static, "pain", 3);
+	M_SetAnimGroupMMove(self, &soldier_move_duck, &soldier_move_duck_static, "duck", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_attack1, &soldier_move_attack1_static, "attak", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_attack2, &soldier_move_attack2_static, "attak", 1);
+	M_SetAnimGroupMMove(self, &soldier_move_attack3, &soldier_move_attack3_static, "attak", 2);
+	M_SetAnimGroupMMove(self, &soldier_move_attack4, &soldier_move_attack4_static, "attak", 3);
+	/* fix partial moves */
+	soldier_move_run.firstframe = soldier_move_start_run.firstframe + 2;
+	soldier_move_run.lastframe = soldier_move_start_run.firstframe + 7;
+	soldier_move_walk2.firstframe = soldier_move_walk1.firstframe + 8;
+	soldier_move_walk2.lastframe = soldier_move_walk1.firstframe + 17;
+
+	/* soldierh */
+	M_SetAnimGroupMMove(self, &soldierh_move_death1, &soldierh_move_death1_static, "death", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_death4, &soldierh_move_death4_static, "death", 3);
+	M_SetAnimGroupMMove(self, &soldierh_move_walk1, &soldierh_move_walk1_static, "walk", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_stand1, &soldierh_move_stand1_static, "stand", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_stand3, &soldierh_move_stand3_static, "stand", 1);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack6, &soldierh_move_attack6_static, "runs", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_start_run, &soldierh_move_start_run_static, "run", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_pain1, &soldierh_move_pain1_static, "pain", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_pain2, &soldierh_move_pain2_static, "pain", 1);
+	M_SetAnimGroupMMove(self, &soldierh_move_pain3, &soldierh_move_pain3_static, "pain", 2);
+	M_SetAnimGroupMMove(self, &soldierh_move_pain4, &soldierh_move_pain4_static, "pain", 3);
+	M_SetAnimGroupMMove(self, &soldierh_move_duck, &soldierh_move_duck_static, "duck", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack1, &soldierh_move_attack1_static, "attak", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack2, &soldierh_move_attack2_static, "attak", 1);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack3, &soldierh_move_attack3_static, "attak", 2);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack4, &soldierh_move_attack4_static, "attak", 3);
+	/* fix partial moves */
+	soldierh_move_run.firstframe = soldierh_move_start_run.firstframe + 2;
+	soldierh_move_run.lastframe = soldierh_move_start_run.firstframe + 7;
+	soldierh_move_walk2.firstframe = soldierh_move_walk1.firstframe + 8;
+	soldierh_move_walk2.lastframe = soldierh_move_walk1.firstframe + 17;
+
+	sound_step = gi.soundindex("player/step1.wav");
+	sound_step2 = gi.soundindex("player/step2.wav");
+	sound_step3 = gi.soundindex("player/step3.wav");
+	sound_step4 = gi.soundindex("player/step4.wav");
+}
+
+void
+SP_monster_soldier_x(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->s.modelindex = gi.modelindex("models/monsters/soldier/tris.md2");
+	monster_soldier_fix(self);
+	self->monsterinfo.scale = MODEL_SCALE;
+	VectorSet(self->mins, -16, -16, -24);
+	VectorSet(self->maxs, 16, 16, 32);
+	self->movetype = MOVETYPE_STEP;
+	self->solid = SOLID_BBOX;
+
+	sound_idle = gi.soundindex("soldier/solidle1.wav");
+	sound_sight1 = gi.soundindex("soldier/solsght1.wav");
+	sound_sight2 = gi.soundindex("soldier/solsrch1.wav");
+	sound_cock = gi.soundindex("infantry/infatck3.wav");
+
+	self->mass = 100;
+
+	self->pain = soldier_pain;
+	self->die = soldier_die;
+
+	self->monsterinfo.stand = soldier_stand;
+	self->monsterinfo.walk = soldier_walk;
+	self->monsterinfo.run = soldier_run;
+	self->monsterinfo.dodge = soldier_dodge;
+	self->monsterinfo.attack = soldier_attack;
+	self->monsterinfo.melee = NULL;
+	self->monsterinfo.sight = soldier_sight;
+
+	self->monsterinfo.blocked = soldier_blocked;
+	self->monsterinfo.duck = soldier_duck;
+	self->monsterinfo.unduck = monster_duck_up;
+	self->monsterinfo.sidestep = soldier_sidestep;
+
+	if (self->spawnflags & 8) /* blind */
+	{
+		self->monsterinfo.stand = soldier_blind;
+	}
+
+	gi.linkentity(self);
+
+	self->monsterinfo.stand(self);
+
+	walkmonster_start(self);
+}
+
+/*
+ * QUAKED monster_soldier_light (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ *
+ * Blind - monster will just stand there until triggered
+ */
+void
+SP_monster_soldier_light(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->health = 20 * st.health_multiplier;
+	self->gib_health = -30;
+
+	SP_monster_soldier_x(self);
+
+	sound_pain_light = gi.soundindex("soldier/solpain2.wav");
+	sound_death_light = gi.soundindex("soldier/soldeth2.wav");
+	gi.modelindex("models/objects/laser/tris.md2");
+	gi.soundindex("misc/lasfly.wav");
+	gi.soundindex("soldier/solatck2.wav");
+
+	self->s.skinnum = 0;
+	self->monsterinfo.blindfire = true;
+}
+
+/*
+ * QUAKED monster_soldier (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ *
+ * Blind - monster will just stand there until triggered
+ */
+void
+SP_monster_soldier(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->health = 30 * st.health_multiplier;
+	self->gib_health = -30;
+
+	SP_monster_soldier_x(self);
+
+	sound_pain = gi.soundindex("soldier/solpain1.wav");
+	sound_death = gi.soundindex("soldier/soldeth1.wav");
+	gi.soundindex("soldier/solatck1.wav");
+
+	self->s.skinnum = 2;
+}
+
+/*
+ * QUAKED monster_soldier_ss (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ *
+ * Blind - monster will just stand there until triggered
+ */
+void
+SP_monster_soldier_ss(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->health = 40 * st.health_multiplier;
+	self->gib_health = -30;
+
+	SP_monster_soldier_x(self);
+
+	sound_pain_ss = gi.soundindex("soldier/solpain3.wav");
+	sound_death_ss = gi.soundindex("soldier/soldeth3.wav");
+	gi.soundindex("soldier/solatck3.wav");
+
+	self->s.skinnum = 4;
+}
+
 void
 SP_monster_soldier_h(edict_t *self)
 {
@@ -3405,7 +3501,7 @@ SP_monster_soldier_h(edict_t *self)
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
 
-	monster_soldier_mmovefix();
+	monster_soldier_fix(self);
 
 	sound_idle = gi.soundindex("soldier/solidle1.wav");
 	sound_sight1 = gi.soundindex("soldier/solsght1.wav");
@@ -3490,10 +3586,6 @@ SP_monster_soldier_hypergun(edict_t *self)
 	gi.modelindex("models/objects/blaser/tris.md2");
 	sound_pain = gi.soundindex("soldier/solpain1.wav");
 	sound_death = gi.soundindex("soldier/soldeth1.wav");
-	sound_step = gi.soundindex("player/step1.wav");
-	sound_step2 = gi.soundindex("player/step2.wav");
-	sound_step3 = gi.soundindex("player/step3.wav");
-	sound_step4 = gi.soundindex("player/step4.wav");
 	gi.soundindex("soldier/solatck1.wav");
 
 	self->s.skinnum = 2;
@@ -3523,10 +3615,6 @@ SP_monster_soldier_lasergun(edict_t *self)
 
 	sound_pain_ss = gi.soundindex("soldier/solpain3.wav");
 	sound_death_ss = gi.soundindex("soldier/soldeth3.wav");
-	sound_step = gi.soundindex("player/step1.wav");
-	sound_step2 = gi.soundindex("player/step2.wav");
-	sound_step3 = gi.soundindex("player/step3.wav");
-	sound_step4 = gi.soundindex("player/step4.wav");
 	gi.soundindex("soldier/solatck3.wav");
 
 	self->s.skinnum = 4;

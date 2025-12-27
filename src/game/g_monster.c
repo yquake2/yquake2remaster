@@ -980,6 +980,48 @@ M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos)
 	}
 }
 
+void
+M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_old,
+	const char *name, int select)
+{
+	int ofs_frames, num_frames, base_numframe;
+
+	if (mmove->firstframe || mmove->lastframe)
+	{
+		return;
+	}
+
+	memcpy(mmove, mmove_old, sizeof(mmove_t));
+
+	if (mmove->firstframe < mmove->lastframe)
+	{
+		ofs_frames = mmove->firstframe;
+		num_frames = mmove->lastframe - mmove->firstframe + 1;
+	}
+	else
+	{
+		ofs_frames = mmove->lastframe;
+		num_frames = mmove->firstframe - mmove->lastframe + 1;
+	}
+
+	base_numframe = num_frames;
+
+	M_SetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames, select);
+
+	num_frames = Q_min(num_frames, base_numframe);
+
+	if (mmove->firstframe < mmove->lastframe)
+	{
+		mmove->firstframe = ofs_frames;
+		mmove->lastframe = ofs_frames + num_frames - 1;
+	}
+	else
+	{
+		mmove->lastframe = ofs_frames;
+		mmove->firstframe = ofs_frames + num_frames - 1;
+	}
+}
+
 static void
 M_MoveFrame(edict_t *self)
 {
