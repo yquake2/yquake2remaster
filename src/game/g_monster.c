@@ -1008,6 +1008,10 @@ M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_old,
 
 	M_SetAnimGroupFrameValues(self, name, &ofs_frames, &num_frames, select);
 
+	printf("Fixed: %s (%s:%d): %d -> %d [%d -> %d]\n",
+		self->classname, name, select, mmove->firstframe,
+		ofs_frames, base_numframe, Q_min(num_frames, base_numframe));
+
 	num_frames = Q_min(num_frames, base_numframe);
 
 	if (mmove->firstframe < mmove->lastframe)
