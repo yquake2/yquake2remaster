@@ -46,6 +46,20 @@ static int sound_idle;
 static int  sound_step;
 static int  sound_step2;
 
+mmove_t infantry_move_death1 = {0};
+mmove_t infantry_move_death2 = {0};
+mmove_t infantry_move_death3 = {0};
+mmove_t infantry_move_jump = {0};
+mmove_t infantry_move_jump2 = {0};
+mmove_t infantry_move_attack1 = {0};
+mmove_t infantry_move_attack2 = {0};
+mmove_t infantry_move_duck = {0};
+mmove_t infantry_move_pain1 = {0};
+mmove_t infantry_move_pain2 = {0};
+mmove_t infantry_move_run = {0};
+mmove_t infantry_move_fidget = {0};
+mmove_t infantry_move_walk = {0};
+
 void
 infantry_footstep(edict_t *self)
 {
@@ -69,40 +83,6 @@ infantry_footstep(edict_t *self)
 	}
 }
 
-
-static mframe_t infantry_frames_stand[] = {
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t infantry_move_stand =
-{
-	FRAME_stand50,
-	FRAME_stand71,
-	infantry_frames_stand,
-	NULL
-};
-
 void
 infantry_stand(edict_t *self)
 {
@@ -111,7 +91,21 @@ infantry_stand(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = &infantry_move_stand;
+	/* reset to begin of stand animation,
+	 * instead FRAME_stand50..FRAME_stand71  */
+	self->monsterinfo.firstframe = FRAME_stand01;
+	self->monsterinfo.numframes = FRAME_stand71 - FRAME_stand01 + 1;
+	monster_dynamic_stand(self);
+	/* limit to original range */
+	if (self->monsterinfo.numframes > 49)
+	{
+		self->monsterinfo.numframes -= 49;
+		self->monsterinfo.firstframe += 49;
+		if (self->monsterinfo.numframes > 22)
+		{
+			self->monsterinfo.numframes = 22;
+		}
+	}
 }
 
 static mframe_t infantry_frames_fidget[] = {
@@ -166,7 +160,7 @@ static mframe_t infantry_frames_fidget[] = {
 	{ai_stand, -2, NULL}
 };
 
-mmove_t infantry_move_fidget =
+static const mmove_t infantry_move_fidget_static =
 {
 	FRAME_stand01,
 	FRAME_stand49,
@@ -201,7 +195,7 @@ static mframe_t infantry_frames_walk[] = {
 	{ai_walk, 5, NULL}
 };
 
-mmove_t infantry_move_walk =
+static const mmove_t infantry_move_walk_static =
 {
 	FRAME_walk03,
 	FRAME_walk14,
@@ -231,7 +225,7 @@ static mframe_t infantry_frames_run[] = {
 	{ai_run, 6, NULL}
 };
 
-mmove_t infantry_move_run =
+static const mmove_t infantry_move_run_static =
 {
 	FRAME_run01,
 	FRAME_run08,
@@ -251,7 +245,7 @@ infantry_run(edict_t *self)
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &infantry_move_stand;
+		infantry_stand(self);
 	}
 	else
 	{
@@ -272,7 +266,7 @@ static mframe_t infantry_frames_pain1[] = {
 	{ai_move, 2, infantry_footstep}
 };
 
-mmove_t infantry_move_pain1 =
+static const mmove_t infantry_move_pain1_static =
 {
 	FRAME_pain101,
 	FRAME_pain110,
@@ -293,7 +287,7 @@ static mframe_t infantry_frames_pain2[] = {
 	{ai_move, 2, infantry_footstep}
 };
 
-mmove_t infantry_move_pain2 =
+static const mmove_t infantry_move_pain2_static =
 {
 	FRAME_pain201,
 	FRAME_pain210,
@@ -403,7 +397,7 @@ InfantryMachineGun(edict_t *self)
 	else
 	{
 		flash_number = MZ2_INFANTRY_MACHINEGUN_2 +
-					   (self->s.frame - FRAME_death211);
+					   (self->s.frame - (infantry_move_death2.firstframe + 10));
 
 		AngleVectors(self->s.angles, forward, right, NULL);
 		G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
@@ -469,7 +463,7 @@ static mframe_t infantry_frames_death1[] = {
 	{ai_move, -3, NULL}
 };
 
-mmove_t infantry_move_death1 =
+static const mmove_t infantry_move_death1_static =
 {
 	FRAME_death101,
 	FRAME_death120,
@@ -506,7 +500,7 @@ static mframe_t infantry_frames_death2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t infantry_move_death2 =
+static const mmove_t infantry_move_death2_static =
 {
 	FRAME_death201,
 	FRAME_death225,
@@ -526,7 +520,7 @@ static mframe_t infantry_frames_death3[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t infantry_move_death3 =
+static const mmove_t infantry_move_death3_static =
 {
 	FRAME_death301,
 	FRAME_death309,
@@ -680,7 +674,7 @@ static mframe_t infantry_frames_jump[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t infantry_move_jump = {
+static const mmove_t infantry_move_jump_static = {
 	FRAME_jump01,
 	FRAME_jump10,
 	infantry_frames_jump,
@@ -700,7 +694,7 @@ static mframe_t infantry_frames_jump2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t infantry_move_jump2 = {
+static const mmove_t infantry_move_jump2_static = {
 	FRAME_jump01,
 	FRAME_jump10,
 	infantry_frames_jump2,
@@ -814,7 +808,7 @@ static mframe_t infantry_frames_duck[] = {
 	{ai_move, 0, infantry_footstep}
 };
 
-mmove_t infantry_move_duck =
+static const mmove_t infantry_move_duck_static =
 {
 	FRAME_duck01,
 	FRAME_duck05,
@@ -912,7 +906,7 @@ static mframe_t infantry_frames_attack1[] = {
 	{ai_charge, 4, NULL}                    /* 115 */
 };
 
-mmove_t infantry_move_attack1 =
+static const mmove_t infantry_move_attack1_static =
 {
 	FRAME_attak101,
 	FRAME_attak115,
@@ -960,7 +954,7 @@ static mframe_t infantry_frames_attack2[] = {
 	{ai_charge, 3, NULL},
 };
 
-mmove_t infantry_move_attack2 =
+static const mmove_t infantry_move_attack2_static =
 {
 	FRAME_attak201,
 	FRAME_attak208,
@@ -1007,7 +1001,7 @@ infantry_duck(edict_t *self, float eta)
 	/* has to be done immediately otherwise he can get stuck */
 	monster_duck_down(self);
 
-	self->monsterinfo.nextframe = FRAME_duck01;
+	self->monsterinfo.nextframe = infantry_move_duck.firstframe;
 	self->monsterinfo.currentmove = &infantry_move_duck;
 	return;
 }
@@ -1064,6 +1058,25 @@ infantry_sidestep(edict_t *self)
 	}
 }
 
+static void
+monster_infantry_fix(edict_t *self)
+{
+	M_SetAnimGroupMMove(self, &infantry_move_jump, &infantry_move_jump_static, "jump", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_jump2, &infantry_move_jump2_static, "jump", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_attack1, &infantry_move_attack1_static, "attak", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_attack2, &infantry_move_attack2_static, "attak", 1);
+	M_SetAnimGroupMMove(self, &infantry_move_death1, &infantry_move_death1_static, "death", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_death2, &infantry_move_death2_static, "death", 1);
+	M_SetAnimGroupMMove(self, &infantry_move_death3, &infantry_move_death3_static, "death", 2);
+	M_SetAnimGroupMMove(self, &infantry_move_duck, &infantry_move_duck_static, "duck", 2);
+	M_SetAnimGroupMMove(self, &infantry_move_pain1, &infantry_move_pain1_static, "pain", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_pain2, &infantry_move_pain2_static, "pain", 1);
+	M_SetAnimGroupMMove(self, &infantry_move_run, &infantry_move_run_static, "run", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_fidget, &infantry_move_fidget_static, "stand", 0);
+	/* convert to original range FRAME_walk03..FRAME_walk14 */
+	M_SetAnimGroupMMoveOffset(self, &infantry_move_walk, &infantry_move_walk_static, "walk", 0, 2);
+}
+
 /*
  * QUAKED monster_infantry (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */
@@ -1110,6 +1123,9 @@ SP_monster_infantry(edict_t *self)
 	self->gib_health = -40;
 	self->mass = 200;
 
+	monster_dynamic_setinfo(self);
+	monster_infantry_fix(self);
+
 	self->pain = infantry_pain;
 	self->die = infantry_die;
 
@@ -1128,7 +1144,7 @@ SP_monster_infantry(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &infantry_move_stand;
+	infantry_stand(self);
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	walkmonster_start(self);

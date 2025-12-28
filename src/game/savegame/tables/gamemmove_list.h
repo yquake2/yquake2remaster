@@ -329,7 +329,6 @@
 {"infantry_move_pain1", &infantry_move_pain1},
 {"infantry_move_pain2", &infantry_move_pain2},
 {"infantry_move_run", &infantry_move_run},
-{"infantry_move_stand", &infantry_move_stand},
 {"infantry_move_walk", &infantry_move_walk},
 {"insane_move_crawl", &insane_move_crawl},
 {"insane_move_crawl_death", &insane_move_crawl_death},

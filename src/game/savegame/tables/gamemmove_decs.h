@@ -330,7 +330,6 @@ extern mmove_t infantry_move_jump;
 extern mmove_t infantry_move_pain1;
 extern mmove_t infantry_move_pain2;
 extern mmove_t infantry_move_run;
-extern mmove_t infantry_move_stand;
 extern mmove_t infantry_move_walk;
 extern mmove_t insane_move_crawl;
 extern mmove_t insane_move_crawl_death;

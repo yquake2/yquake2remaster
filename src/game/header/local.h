@@ -1143,8 +1143,10 @@ void M_ChangeYaw(edict_t *ent);
 void M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos);
 void M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 	int *ofs_frames, int *num_frames, int select);
-void M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_old,
+void M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base,
 	const char *name, int select);
+void M_SetAnimGroupMMoveOffset(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base,
+	const char *name, int select, int offset);
 
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);

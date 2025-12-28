@@ -981,17 +981,9 @@ M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos)
 }
 
 void
-M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_old,
-	const char *name, int select)
+M_SetAnimGroupMMoveInt(edict_t *self, mmove_t *mmove, const char *name, int select)
 {
 	int ofs_frames, num_frames, base_numframe;
-
-	if (mmove->firstframe || mmove->lastframe)
-	{
-		return;
-	}
-
-	memcpy(mmove, mmove_old, sizeof(mmove_t));
 
 	if (mmove->firstframe < mmove->lastframe)
 	{
@@ -1020,6 +1012,42 @@ M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_old,
 		mmove->lastframe = ofs_frames;
 		mmove->firstframe = ofs_frames + num_frames - 1;
 	}
+}
+
+void
+M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base,
+	const char *name, int select)
+{
+	if (mmove->firstframe || mmove->lastframe)
+	{
+		return;
+	}
+
+	memcpy(mmove, mmove_base, sizeof(mmove_t));
+
+	M_SetAnimGroupMMoveInt(self, mmove, name, select);
+}
+
+void
+M_SetAnimGroupMMoveOffset(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base,
+	const char *name, int select, int offset)
+{
+	int numframes;
+
+	/* mmove started not from begin and has limited frames*/
+	if (mmove->firstframe || mmove->lastframe)
+	{
+		return;
+	}
+
+	numframes = mmove_base->lastframe - mmove_base->firstframe;
+	memcpy(mmove, mmove_base, sizeof(mmove_t));
+	mmove->firstframe -= offset;
+
+	M_SetAnimGroupMMoveInt(self, mmove, name, select);
+
+	mmove->firstframe += offset;
+	mmove->lastframe = Q_min(mmove->lastframe, mmove->firstframe + numframes);
 }
 
 static void

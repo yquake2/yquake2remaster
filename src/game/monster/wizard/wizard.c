@@ -325,10 +325,9 @@ SP_monster_wizard(edict_t *self)
 
 	self->gib_health = -40;
 	self->mass = 80;
+	self->monsterinfo.run_dist = 16;
 
 	monster_dynamic_setinfo(self);
-
-	self->monsterinfo.run_dist = 16;
 
 	self->monsterinfo.attack = wizard_attack;
 	self->monsterinfo.sight = wizard_sight;

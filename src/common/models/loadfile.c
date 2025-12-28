@@ -495,6 +495,8 @@ static const replacement_t replacements[] = {
 	{"models/objects/grenade3/tris", "models/objects/grenade2/tris"},
 	/* DoD vs Daikatana */
 	{"models/weapons/ammo/g_bolt", "models/e3/wa_bolt"},
+	/* q2demo */
+	{"models/objects/gibs/head2/tris", "models/objects/gibs/head/tris"},
 };
 
 const model_t *
