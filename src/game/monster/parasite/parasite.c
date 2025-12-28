@@ -40,6 +40,23 @@ static int sound_tap;
 static int sound_scratch;
 static int sound_search;
 
+mmove_t parasite_move_start_fidget = {0};
+mmove_t parasite_move_fidget = {0};
+mmove_t parasite_move_end_fidget = {0};
+mmove_t parasite_move_stand = {0};
+mmove_t parasite_move_run = {0};
+mmove_t parasite_move_start_run = {0};
+mmove_t parasite_move_stop_run = {0};
+mmove_t parasite_move_walk = {0};
+mmove_t parasite_move_start_walk = {0};
+mmove_t parasite_move_stop_walk = {0};
+mmove_t parasite_move_pain1 = {0};
+mmove_t parasite_move_drain = {0};
+mmove_t parasite_move_break = {0};
+mmove_t parasite_move_jump_up = {0};
+mmove_t parasite_move_jump_down = {0};
+mmove_t parasite_move_death = {0};
+
 void parasite_stand(edict_t *self);
 void parasite_start_run(edict_t *self);
 void parasite_run(edict_t *self);
@@ -131,7 +148,7 @@ static mframe_t parasite_frames_start_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t parasite_move_start_fidget =
+static const mmove_t parasite_move_start_fidget_static =
 {
 	FRAME_stand18,
 	FRAME_stand21,
@@ -148,7 +165,7 @@ static mframe_t parasite_frames_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t parasite_move_fidget =
+static const mmove_t parasite_move_fidget_static =
 {
 	FRAME_stand22,
 	FRAME_stand27,
@@ -167,7 +184,7 @@ static mframe_t parasite_frames_end_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t parasite_move_end_fidget =
+static const mmove_t parasite_move_end_fidget_static  =
 {
 	FRAME_stand28,
 	FRAME_stand35,
@@ -246,7 +263,7 @@ static mframe_t parasite_frames_stand[] = {
 	{ai_stand, 0, parasite_tap}
 };
 
-mmove_t parasite_move_stand =
+static const mmove_t parasite_move_stand_static =
 {
 	FRAME_stand01,
 	FRAME_stand17,
@@ -275,7 +292,7 @@ static mframe_t parasite_frames_run[] = {
 	{ai_run, 25, NULL}
 };
 
-mmove_t parasite_move_run =
+static const mmove_t parasite_move_run_static =
 {
 	FRAME_run03,
 	FRAME_run09,
@@ -288,7 +305,7 @@ static mframe_t parasite_frames_start_run[] = {
 	{ai_run, 30, NULL},
 };
 
-mmove_t parasite_move_start_run =
+static const mmove_t parasite_move_start_run_static =
 {
 	FRAME_run01,
 	FRAME_run02,
@@ -305,7 +322,7 @@ static mframe_t parasite_frames_stop_run[] = {
 	{ai_run, 0, NULL}
 };
 
-mmove_t parasite_move_stop_run =
+static const mmove_t parasite_move_stop_run_static =
 {
 	FRAME_run10,
 	FRAME_run15,
@@ -359,7 +376,7 @@ static mframe_t parasite_frames_walk[] = {
 	{ai_walk, 25, NULL}
 };
 
-mmove_t parasite_move_walk =
+static const mmove_t parasite_move_walk_static =
 {
 	FRAME_run03,
 	FRAME_run09,
@@ -372,7 +389,7 @@ static mframe_t parasite_frames_start_walk[] = {
 	{ai_walk, 30, parasite_walk}
 };
 
-mmove_t parasite_move_start_walk =
+static const mmove_t parasite_move_start_walk_static =
 {
 	FRAME_run01,
 	FRAME_run02,
@@ -389,7 +406,7 @@ static mframe_t parasite_frames_stop_walk[] = {
 	{ai_walk, 0, NULL}
 };
 
-mmove_t parasite_move_stop_walk =
+static const mmove_t parasite_move_stop_walk_static =
 {
 	FRAME_run10,
 	FRAME_run15,
@@ -433,7 +450,7 @@ static mframe_t parasite_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t parasite_move_pain1 =
+static const mmove_t parasite_move_pain1_static =
 {
 	FRAME_pain101,
 	FRAME_pain111,
@@ -563,14 +580,14 @@ parasite_drain_attack(edict_t *self)
 		return;
 	}
 
-	if (self->s.frame == FRAME_drain03)
+	if (self->s.frame == parasite_move_drain.firstframe + 2)
 	{
 		damage = 5;
 		gi.sound(self->enemy, CHAN_AUTO, sound_impact, 1, ATTN_NORM, 0);
 	}
 	else
 	{
-		if (self->s.frame == FRAME_drain04)
+		if (self->s.frame == parasite_move_drain.firstframe + 3)
 		{
 			gi.sound(self, CHAN_WEAPON, sound_suck, 1, ATTN_NORM, 0);
 		}
@@ -610,7 +627,7 @@ static mframe_t parasite_frames_drain[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t parasite_move_drain =
+static const mmove_t parasite_move_drain_static =
 {
 	FRAME_drain01,
 	FRAME_drain18,
@@ -653,7 +670,7 @@ static mframe_t parasite_frames_break[] = {
 	{ai_charge, 1, NULL}
 };
 
-mmove_t parasite_move_break =
+static const mmove_t parasite_move_break_static =
 {
 	FRAME_break01,
 	FRAME_break32,
@@ -740,7 +757,8 @@ static mframe_t parasite_frames_jump_up[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t parasite_move_jump_up = {
+static const mmove_t parasite_move_jump_up_static =
+{
 	FRAME_jump01,
 	FRAME_jump08,
 	parasite_frames_jump_up,
@@ -758,7 +776,8 @@ static mframe_t parasite_frames_jump_down[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t parasite_move_jump_down = {
+static const mmove_t parasite_move_jump_down_static =
+{
 	FRAME_jump01,
 	FRAME_jump08,
 	parasite_frames_jump_down,
@@ -927,7 +946,7 @@ static mframe_t parasite_frames_death[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t parasite_move_death =
+static const mmove_t parasite_move_death_static =
 {
 	FRAME_death101,
 	FRAME_death107,
@@ -980,6 +999,27 @@ parasite_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &parasite_move_death;
 }
 
+static void
+monster_parasite_fix(edict_t *self)
+{
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_start_fidget, &parasite_move_start_fidget_static, "stand", 0, 17);
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_fidget, &parasite_move_fidget_static, "stand", 0, 21);
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_end_fidget, &parasite_move_end_fidget_static, "stand", 0, 27);
+	M_SetAnimGroupMMove(self, &parasite_move_stand, &parasite_move_stand_static, "stand", 0);
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_run, &parasite_move_run_static, "run", 0, 2);
+	M_SetAnimGroupMMove(self, &parasite_move_start_run, &parasite_move_start_run_static, "run", 0);
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_stop_run, &parasite_move_stop_run_static, "run", 0, 9);
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_walk, &parasite_move_walk_static, "run", 0, 2);
+	M_SetAnimGroupMMove(self, &parasite_move_start_walk, &parasite_move_start_walk_static, "run", 0);
+	M_SetAnimGroupMMoveOffset(self, &parasite_move_stop_walk, &parasite_move_stop_walk_static, "run", 0, 9);
+	M_SetAnimGroupMMove(self, &parasite_move_pain1, &parasite_move_pain1_static, "pain", 0);
+	M_SetAnimGroupMMove(self, &parasite_move_drain, &parasite_move_drain_static, "drain", 0);
+	M_SetAnimGroupMMove(self, &parasite_move_break, &parasite_move_break_static, "break", 0);
+	M_SetAnimGroupMMove(self, &parasite_move_jump_up, &parasite_move_jump_up_static, "jump", 0);
+	M_SetAnimGroupMMove(self, &parasite_move_jump_down, &parasite_move_jump_down_static, "jump", 0);
+	M_SetAnimGroupMMove(self, &parasite_move_death, &parasite_move_death_static, "death", 0);
+}
+
 /*
  * QUAKED monster_parasite (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */
@@ -1010,6 +1050,7 @@ SP_monster_parasite(edict_t *self)
 	sound_search = gi.soundindex("parasite/parsrch1.wav");
 
 	self->s.modelindex = gi.modelindex("models/monsters/parasite/tris.md2");
+	monster_parasite_fix(self);
 	VectorSet(self->mins, -16, -16, -24);
 	VectorSet(self->maxs, 16, 16, 24);
 	self->movetype = MOVETYPE_STEP;
