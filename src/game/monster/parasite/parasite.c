@@ -580,14 +580,14 @@ parasite_drain_attack(edict_t *self)
 		return;
 	}
 
-	if (self->s.frame == parasite_move_drain.firstframe + 2)
+	if (self->s.frame == (parasite_move_drain.firstframe + 2))
 	{
 		damage = 5;
 		gi.sound(self->enemy, CHAN_AUTO, sound_impact, 1, ATTN_NORM, 0);
 	}
 	else
 	{
-		if (self->s.frame == parasite_move_drain.firstframe + 3)
+		if (self->s.frame == (parasite_move_drain.firstframe + 3))
 		{
 			gi.sound(self, CHAN_WEAPON, sound_suck, 1, ATTN_NORM, 0);
 		}

@@ -375,7 +375,7 @@ InfantryMachineGun(edict_t *self)
 	}
 
 	/* new attack start frame */
-	if (self->s.frame == FRAME_attak104)
+	if (self->s.frame == (infantry_move_attack1.firstframe + 3))
 	{
 		flash_number = MZ2_INFANTRY_MACHINEGUN_1;
 		AngleVectors(self->s.angles, forward, right, NULL);
@@ -1123,7 +1123,6 @@ SP_monster_infantry(edict_t *self)
 	self->gib_health = -40;
 	self->mass = 200;
 
-	monster_dynamic_setinfo(self);
 	monster_infantry_fix(self);
 
 	self->pain = infantry_pain;

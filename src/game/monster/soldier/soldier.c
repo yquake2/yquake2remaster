@@ -178,7 +178,7 @@ soldier_cock(edict_t *self)
 		return;
 	}
 
-	if (self->s.frame == soldier_move_stand3.firstframe + 21)
+	if (self->s.frame == (soldier_move_stand3.firstframe + 21))
 	{
 		gi.sound(self, CHAN_WEAPON, sound_cock, 1, ATTN_IDLE, 0);
 	}
