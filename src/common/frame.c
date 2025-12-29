@@ -159,12 +159,12 @@ Qcommon_Buildstring(void)
 #else
 	printf(" - AVcodec decode\n");
 #endif
+#endif
 
 #ifdef USE_XDG
 	printf(" + XDG directory support\n");
 #else
 	printf(" - XDG directory support\n");
-#endif
 #endif
 
 	printf("Platform: %s\n", YQ2OSTYPE);
