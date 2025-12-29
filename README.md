@@ -124,6 +124,7 @@ Dynamic frame names:
 | group   | monster | player | description   |
 | ------- | ------- | ------ | ------------- |
 | attack  |    Y    |    Y   |               |
+| break   |    N    |    N   |               |
 | crattak |    N    |    Y   | Crouch attack |
 | crdeath |    N    |    Y   | Crouch death  |
 | crpain  |    N    |    Y   | Crouch pain   |
@@ -131,6 +132,7 @@ Dynamic frame names:
 | crwalk  |    N    |    Y   | Crouch walk   |
 | death   |    Y    |    Y   |               |
 | dodge   |    Y    |        |               |
+| drain   |    N    |    N   |               |
 | duck    |    Y    |        |               |
 | fly     |    Y    |        |               |
 | flip    |    N    |    Y   |               |
@@ -141,6 +143,7 @@ Dynamic frame names:
 | pain    |    Y    |    Y   |               |
 | point   |    N    |    Y   |               |
 | run     |    Y    |    Y   |               |
+| runs    |    N    |    N   | Run and shoot |
 | salute  |    N    |    Y   |               |
 | stand   |    Y    |    Y   |               |
 | swim    |    Y    |        |               |
