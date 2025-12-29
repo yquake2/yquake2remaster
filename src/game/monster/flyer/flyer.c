@@ -83,62 +83,6 @@ flyer_pop_blades(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_sproing, 1, ATTN_NORM, 0);
 }
 
-static mframe_t flyer_frames_stand[] = {
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t flyer_move_stand =
-{
-	FRAME_stand01,
-	FRAME_stand45,
-	flyer_frames_stand,
-	NULL
-};
-
 static mframe_t flyer_frames_walk[] = {
 	{ai_walk, 5, NULL},
 	{ai_walk, 5, NULL},
@@ -266,6 +210,19 @@ mmove_t flyer_move_kamikaze = {
 	flyer_kamikaze
 };
 
+static void
+flyer_stand_int(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->monsterinfo.firstframe = FRAME_stand01;
+	self->monsterinfo.numframes = FRAME_stand45 - FRAME_stand01 + 1;
+	monster_dynamic_stand(self);
+}
+
 void
 flyer_run(edict_t *self)
 {
@@ -278,10 +235,9 @@ flyer_run(edict_t *self)
 	{
 		self->monsterinfo.currentmove = &flyer_move_kamikaze;
 	}
-	else
-	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
+	else if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &flyer_move_stand;
+		flyer_stand_int(self);
 	}
 	else
 	{
@@ -321,7 +277,7 @@ flyer_stand(edict_t *self)
 	}
 	else
 	{
-		self->monsterinfo.currentmove = &flyer_move_stand;
+		flyer_stand_int(self);
 	}
 }
 
@@ -1110,7 +1066,7 @@ SP_monster_flyer(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &flyer_move_stand;
+	flyer_stand_int(self);
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	flymonster_start(self);
@@ -1169,7 +1125,7 @@ SP_monster_kamikaze(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &flyer_move_stand;
+	flyer_stand_int(self);
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	flymonster_start(self);

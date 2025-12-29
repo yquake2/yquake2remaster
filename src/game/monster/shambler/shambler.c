@@ -112,36 +112,6 @@ shambler_maybe_idle(edict_t* self)
 //
 // stand
 //
-
-static mframe_t shambler_frames_stand[] =
-{
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t shambler_move_stand =
-{
-	FRAME_stand01,
-	FRAME_stand17,
-	shambler_frames_stand,
-	NULL
-};
-
 void
 shambler_stand(edict_t* self)
 {
@@ -150,7 +120,9 @@ shambler_stand(edict_t* self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = &shambler_move_stand;
+	self->monsterinfo.firstframe = FRAME_stand01;
+	self->monsterinfo.numframes = FRAME_stand17 - FRAME_stand01 + 1;
+	monster_dynamic_stand(self);
 }
 
 //
@@ -237,7 +209,7 @@ shambler_run(edict_t* self)
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &shambler_move_stand;
+		shambler_stand(self);
 		return;
 	}
 
@@ -745,7 +717,7 @@ SP_monster_shambler(edict_t* self)
 		self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
 	}
 
-	self->monsterinfo.currentmove = &shambler_move_stand;
+	shambler_stand(self);
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	walkmonster_start(self);

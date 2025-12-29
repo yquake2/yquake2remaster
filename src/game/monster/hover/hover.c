@@ -104,47 +104,6 @@ hover_search(edict_t *self)
 	}
 }
 
-static mframe_t hover_frames_stand[] = {
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t hover_move_stand =
-{
-	FRAME_stand01,
-	FRAME_stand30,
-	hover_frames_stand,
-	NULL
-};
-
 static mframe_t hover_frames_stop1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -684,7 +643,9 @@ hover_stand(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = &hover_move_stand;
+	self->monsterinfo.firstframe = FRAME_stand01;
+	self->monsterinfo.numframes = FRAME_stand30 - FRAME_stand01 + 1;
+	monster_dynamic_stand(self);
 }
 
 void
@@ -697,7 +658,7 @@ hover_run(edict_t *self)
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &hover_move_stand;
+		hover_stand(self);
 	}
 	else
 	{
@@ -1061,7 +1022,7 @@ SP_monster_hover(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &hover_move_stand;
+	hover_stand(self);
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	flymonster_start(self);

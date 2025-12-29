@@ -96,50 +96,6 @@ brain_search(edict_t *self)
 }
 
 /* STAND */
-
-static mframe_t brain_frames_stand[] = {
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t brain_move_stand =
-{
-	FRAME_stand01,
-	FRAME_stand30,
-	brain_frames_stand,
-	NULL
-};
-
 void
 brain_stand(edict_t *self)
 {
@@ -148,7 +104,9 @@ brain_stand(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = &brain_move_stand;
+	self->monsterinfo.firstframe = FRAME_stand01;
+	self->monsterinfo.numframes = FRAME_stand30 - FRAME_stand01 + 1;
+	monster_dynamic_stand(self);
 }
 
 /* IDLE */
@@ -983,7 +941,7 @@ brain_run(edict_t *self)
 
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
 	{
-		self->monsterinfo.currentmove = &brain_move_stand;
+		brain_stand(self);
 	}
 	else
 	{
@@ -1206,7 +1164,7 @@ SP_monster_brain(edict_t *self)
 
 	gi.linkentity(self);
 
-	self->monsterinfo.currentmove = &brain_move_stand;
+	brain_stand(self);
 	self->monsterinfo.scale = MODEL_SCALE;
 
 	walkmonster_start(self);

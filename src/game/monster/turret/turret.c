@@ -354,18 +354,6 @@ TurretAim(edict_t *self)
 	}
 }
 
-static mframe_t turret_frames_stand[] = {
-	{ai_stand, 0, NULL},
-	{ai_stand, 0, NULL}
-};
-
-mmove_t turret_move_stand = {
-	FRAME_stand01,
-	FRAME_stand02,
-	turret_frames_stand,
-	NULL
-};
-
 void
 turret_stand(edict_t *self)
 {
@@ -374,7 +362,9 @@ turret_stand(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = &turret_move_stand;
+	self->monsterinfo.firstframe = FRAME_stand01;
+	self->monsterinfo.numframes = FRAME_stand02 - FRAME_stand01 + 1;
+	monster_dynamic_stand(self);
 }
 
 static mframe_t turret_frames_ready_gun[] = {
@@ -888,7 +878,7 @@ turret_wake(edict_t *self)
 	self->monsterinfo.melee = NULL;
 	self->monsterinfo.sight = monster_dynamic_sight;
 	self->monsterinfo.search = monster_dynamic_search;
-	self->monsterinfo.currentmove = &turret_move_stand;
+	turret_stand(self);
 
 	self->takedamage = DAMAGE_AIM;
 	self->movetype = MOVETYPE_NONE;
@@ -1167,7 +1157,7 @@ SP_monster_turret(edict_t *self)
 		self->monsterinfo.melee = NULL;
 		self->monsterinfo.sight = monster_dynamic_sight;
 		self->monsterinfo.search = monster_dynamic_search;
-		self->monsterinfo.currentmove = &turret_move_stand;
+		turret_stand(self);
 	}
 
 	/* PMM */
