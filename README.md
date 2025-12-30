@@ -258,6 +258,7 @@ Checked with:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
+* [ ] min/max based on current model in trace,
 * [ ] opengl2,
 * [ ] destrictive with damage
 * [ ] use gibtype in dynamic frames
