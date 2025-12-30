@@ -194,6 +194,13 @@ Games check videos:
 * 8.61RR13+:
 
 [![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0A)
+[![Check demo maps](https://img.youtube.com/vi/VkhrEOtKeZE/hqdefault.jpg)](https://www.youtube.com/watch?v=VkhrEOtKeZEA)
+[![Check demo maps](https://img.youtube.com/vi/SHZAEkgUJLg/hqdefault.jpg)](https://www.youtube.com/watch?v=SHZAEkgUJLgA)
+
+Checked with:
+ * [Q2Test](https://archive.org/details/QuakeII_1020)
+ * [Q2Demo](https://deponie.yamagi.org/quake2/idstuff/q2-314-demo-x86.exe)
+ * [Q2 Release](https://store.steampowered.com/app/2320/Quake_II/)
 
 * 8.61RR13:
 
