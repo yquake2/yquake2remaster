@@ -156,10 +156,10 @@ Mod_LoadMaterialConvertFlags(int flags, maptype_t maptype, char *value)
 }
 
 /*
- * Convert Quake 1 games flags to Quake 2 context flags
+ * Convert Quake 1 games flags to Quake 2 content flags
  */
 static int
-ModLoadContextQuake1(int flags)
+ModLoadContentQuake1(int flags)
 {
 	switch (flags)
 	{
@@ -169,15 +169,29 @@ ModLoadContextQuake1(int flags)
 		case CONTENTS_Q1_SLIME: return CONTENTS_SLIME;
 		case CONTENTS_Q1_LAVA: return CONTENTS_LAVA;
 		case CONTENTS_Q1_SKY: return 0;
+		case CONTENTS_Q1_CLIP: return CONTENTS_SOLID;
+		case CONTENTS_Q1_ORIGIN: return CONTENTS_ORIGIN;
+		case CONTENTS_Q1_CURRENT_0: return CONTENTS_CURRENT_0;
+		case CONTENTS_Q1_CURRENT_90: return CONTENTS_CURRENT_90;
+		case CONTENTS_Q1_CURRENT_180: return CONTENTS_CURRENT_180;
+		case CONTENTS_Q1_CURRENT_270: return CONTENTS_CURRENT_270;
+		case CONTENTS_Q1_CURRENT_UP: return CONTENTS_CURRENT_UP;
+		case CONTENTS_Q1_CURRENT_DOWN: return CONTENTS_CURRENT_DOWN;
+		case CONTENTS_HL_TRANSLUCENT: return CONTENTS_TRANSLUCENT;
+		case CONTENTS_HL_LADDER: return CONTENTS_LADDER;
+		/* Ignored:
+		 * CONTENTS_HL_FLYFIELD,
+		 * CONTENTS_HL_GRAVITY_FLYFIELD,
+		 * CONTENTS_HL_FOG. */
 		default: return 0;
 	}
 }
 
 /*
- * Convert other games flags to Quake 2 context flags
+ * Convert other games flags to Quake 2 content flags
  */
 static int
-Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
+Mod_LoadContentConvertFlags(int flags, maptype_t maptype)
 {
 	const int *convert;
 
@@ -188,7 +202,7 @@ Mod_LoadContextConvertFlags(int flags, maptype_t maptype)
 		case map_hexen2:
 			/* fall through */
 		case map_halflife1:
-			return ModLoadContextQuake1(flags);
+			return ModLoadContentQuake1(flags);
 		case map_quake2: convert = quake2_contents_flags; break;
 		case map_quake3: convert = quake3_contents_flags; break;
 		case map_heretic2: convert = heretic2_contents_flags; break;
@@ -891,7 +905,7 @@ Mod_Load2QBSP_IBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleShort(in->maxs[j]);
 		}
 
-		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
+		out->contents = Mod_LoadContentConvertFlags(LittleLong(in->contents), maptype);
 		out->cluster = LittleShort(in->cluster);
 		out->area = LittleShort(in->area);
 
@@ -929,7 +943,7 @@ Mod_Load2QBSP_IBSP29_LEAFS(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleShort(in->maxs[j]);
 		}
 
-		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->type), maptype);
+		out->contents = Mod_LoadContentConvertFlags(LittleLong(in->type), maptype);
 		out->cluster = 0;
 		out->area = 0;
 
@@ -967,7 +981,7 @@ Mod_Load2QBSP_DKBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleShort(in->maxs[j]);
 		}
 
-		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
+		out->contents = Mod_LoadContentConvertFlags(LittleLong(in->contents), maptype);
 		out->cluster = LittleShort(in->cluster);
 		out->area = LittleShort(in->area);
 
@@ -1005,7 +1019,7 @@ Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 			out->maxs[j] = LittleFloat(in->maxs[j]);
 		}
 
-		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
+		out->contents = Mod_LoadContentConvertFlags(LittleLong(in->contents), maptype);
 		out->cluster = LittleLong(in->cluster);
 		out->area = LittleLong(in->area);
 
@@ -1063,7 +1077,7 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 		out->firstleafbrush = LittleLong(in->firstleafbrush) & 0xFFFFFFFF;
 		out->numleafbrushes = LittleLong(in->numleafbrushes) & 0xFFFFFFFF;
 
-		/* get context flags */
+		/* get content flags */
 		brushleaf_index = LittleLong(in->firstleafbrush);
 		if (brushleaf_index >= count_leafbrush)
 		{
@@ -1088,7 +1102,7 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 			return;
 		}
 
-		out->contents = Mod_LoadContextConvertFlags(
+		out->contents = Mod_LoadContentConvertFlags(
 			LittleLong(in_shader[shader_index].content_flags), maptype);
 
 		out++;
@@ -1376,7 +1390,7 @@ Mod_Load2QBSP_IBSP_BRUSHES(byte *outbuf, dheader_t *outheader,
 	{
 		out->firstside = LittleLong(in->firstside) & 0xFFFFFFFF;
 		out->numsides = LittleLong(in->numsides) & 0xFFFFFFFF;
-		out->contents = Mod_LoadContextConvertFlags(LittleLong(in->contents), maptype);
+		out->contents = Mod_LoadContentConvertFlags(LittleLong(in->contents), maptype);
 
 		out++;
 		in++;
@@ -1409,7 +1423,7 @@ Mod_Load2QBSP_IBSP46_BRUSHES(byte *outbuf, dheader_t *outheader,
 		out->numsides = LittleLong(in->numsides) & 0xFFFFFFFF;
 		out->contents = 0;
 
-		/* get context flags */
+		/* get content flags */
 		shader_index = LittleLong(in->shader_index) & 0xFFFFFFFF;
 		if (shader_index >= count_shader)
 		{
@@ -1418,7 +1432,7 @@ Mod_Load2QBSP_IBSP46_BRUSHES(byte *outbuf, dheader_t *outheader,
 			return;
 		}
 
-		out->contents = Mod_LoadContextConvertFlags(
+		out->contents = Mod_LoadContentConvertFlags(
 			LittleLong(in_shader[shader_index].content_flags), maptype);
 
 		out++;
