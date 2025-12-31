@@ -620,13 +620,17 @@ Mod_Load2QBSP_IBSP29_TEXINFO(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
-	size_t i, count;
+	dq1mipheader_t *miptextures;
+	size_t i, count, tex_count, tex_offs;
 	dq1texinfo_t *in;
 	xtexinfo_t *out;
 
 	count = lumps[inlumppos].filelen / rule_size;
 	in = (dq1texinfo_t *)(inbuf + lumps[inlumppos].fileofs);
 	out = (xtexinfo_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+	tex_count = lumps[LUMP_BSP29_MIPTEX].filelen;
+	tex_offs = lumps[LUMP_BSP29_MIPTEX].fileofs;
+	miptextures = (dq1mipheader_t *)(inbuf + tex_offs);
 
 	for (i = 0; i < count; i++)
 	{
@@ -641,6 +645,32 @@ Mod_Load2QBSP_IBSP29_TEXINFO(byte *outbuf, dheader_t *outheader,
 		out->flags = Mod_LoadSurfConvertFlags(LittleLong(in->animated), maptype);
 		out->nexttexinfo = -1;
 		snprintf(out->texture, sizeof(out->texture), "#%d", LittleLong(in->texture_id));
+		if (in->texture_id < tex_count)
+		{
+			int texture_offset;
+
+			texture_offset = LittleLong(miptextures->offset[in->texture_id]);
+			if (texture_offset > 0)
+			{
+				dq1miptex_t *texture;
+
+				texture = (dq1miptex_t *)(inbuf + tex_offs + texture_offset);
+
+				if (!strncmp(texture->name, "sky", 3))
+				{
+					out->flags = SURF_SKY;
+				}
+				else if ((maptype == map_quake1 || maptype == map_hexen2) &&
+					texture->name[0] == '*')
+				{
+					out->flags = SURF_WARP;
+				}
+				else if ((maptype == map_halflife1) && texture->name[0] == '!')
+				{
+					out->flags = SURF_WARP;
+				}
+			}
+		}
 
 		out++;
 		in++;
