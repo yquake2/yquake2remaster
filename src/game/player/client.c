@@ -3082,7 +3082,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	edict_t *other;
 	int i, j;
 
-	if (!ent || !ucmd)
+	if (!ent || !ent->client || !ucmd)
 	{
 		return;
 	}
@@ -3201,6 +3201,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		pm.pointcontents = gi.pointcontents;
 
 		/* perform a pmove */
+		M_SetStandMinMax(ent, pm.mins, pm.maxs);
 		gi.PmoveEx(&pm, origin);
 
 		/* save results of pmove */
