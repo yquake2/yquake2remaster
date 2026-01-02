@@ -869,6 +869,32 @@ M_SetAnimGroupFrameValuesInt(edict_t *self, const char *name,
 	return false;
 }
 
+void
+M_SetStandMinMax(edict_t *ent, float *mins, float *maxs)
+{
+	const dmdxframegroup_t * frames;
+	int num, i, modelindex;
+
+	modelindex = M_GetModelIndex(ent);
+	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
+	if (!frames || !num)
+	{
+		return;
+	}
+
+	for (i = 0; i < num; i++)
+	{
+		if (!strcmp(frames[i].name, "stand") ||
+			!strcmp(frames[i].name, "idle"))
+		{
+			/* supposed that model has only single stand/idle */
+			VectorCopy(frames[i].mins, mins);
+			VectorCopy(frames[i].maxs, maxs);
+			return;
+		}
+	}
+}
+
 /* Use multy to select random group from same names */
 void
 M_SetAnimGroupFrameValues(edict_t *self, const char *name,
