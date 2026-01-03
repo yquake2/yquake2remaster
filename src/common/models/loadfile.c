@@ -337,6 +337,7 @@ Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 
 	Q_strlcpy(mod->name, mod_name, sizeof(mod->name));
 
+	/* TODO: sort and apply Mod_FindModel */
 	return mod;
 }
 
