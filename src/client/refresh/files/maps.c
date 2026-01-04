@@ -1053,7 +1053,9 @@ calcTexinfoAndQFacesSize(const byte *mod_base, const lump_t *fl, const lump_t *t
 		if (texFlags & SURF_WARP)
 		{
 			if (numverts > 60)
+			{
 				return 0; // will error out in R_SubdividePolygon()
+			}
 
 			// R_SubdivideSurface(out, loadmodel); /* cut up polygon for warps */
 			// for each (pot. recursive) call to R_SubdividePolygon():

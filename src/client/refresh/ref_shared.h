@@ -138,6 +138,7 @@ typedef struct mvertex_s
 typedef struct medge_s
 {
 	unsigned int	v[2];
+	/* used in soft only */
 	unsigned int	cachededgeoffset;
 } medge_t;
 
