@@ -846,7 +846,7 @@ Cmd_Help_f(edict_t *ent)
 	ent->client->showscores = false;
 
 	if (ent->client->showhelp &&
-		(ent->client->resp.game_helpchanged == game.helpchanged))
+		(!ctf->value || ent->client->resp.game_helpchanged == game.helpchanged))
 	{
 		ent->client->showhelp = false;
 		return;
