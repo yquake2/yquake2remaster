@@ -82,9 +82,16 @@ Hunk_Begin(int maxsize)
 	membase = (byte *)mmap(0, maxhunksize, prot,
 			flags, -1, 0);
 
-	if ((membase == NULL) || (membase == (byte *)-1))
+	if (membase == NULL)
 	{
-		Sys_Error("unable to virtual allocate %d bytes", maxsize);
+		Sys_Error("%s: unable to virtual allocate %d bytes",
+			__func__, maxsize);
+	}
+
+	if (membase == (byte *)-1)
+	{
+		Sys_Error("%s: unable to virtual allocate %d bytes '%s'",
+			__func__, maxsize, strerror(errno));
 	}
 
 	*((size_t *)membase) = curhunksize;
@@ -148,7 +155,8 @@ Hunk_End(void)
 
 	if (n != membase)
 	{
-		Sys_Error("Hunk_End: Could not remap virtual block (%d)", errno);
+		Sys_Error("%s: Could not remap virtual block '%s'",
+			__func__, strerror(errno));
 	}
 
 	*((size_t *)membase) = curhunksize + sizeof(size_t);
@@ -167,7 +175,8 @@ Hunk_Free(void *base)
 
 		if (munmap(m, *((size_t *)m)))
 		{
-			Sys_Error("Hunk_Free: munmap failed (%d)", errno);
+			Sys_Error("%s: munmap failed '%s'",
+				__func__, strerror(errno));
 		}
 	}
 }
