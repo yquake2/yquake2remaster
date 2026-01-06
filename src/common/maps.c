@@ -1086,7 +1086,7 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 	in_brush = (dq3brush_t *)(inbuf + lumps[LUMP_BSP46_BRUSHES].fileofs);
 
 	count_shader = lumps[LUMP_BSP46_SHADERS].filelen / sizeof(dshader_t);
-	in_shader = (dshader_t *)(in + lumps[LUMP_BSP46_SHADERS].fileofs);
+	in_shader = (dshader_t *)(inbuf + lumps[LUMP_BSP46_SHADERS].fileofs);
 
 	for (i = 0; i < count; i++)
 	{
@@ -1134,6 +1134,12 @@ Mod_Load2QBSP_IBSP46_LEAFS(byte *outbuf, dheader_t *outheader,
 
 		out->contents = Mod_LoadContentConvertFlags(
 			LittleLong(in_shader[shader_index].content_flags), maptype);
+
+		if (!(out->contents & (CONTENTS_SOLID | CONTENTS_LAVA | CONTENTS_SLIME |
+								CONTENTS_WATER | CONTENTS_MIST)))
+		{
+			out->contents = 0;
+		}
 
 		out++;
 		in++;
@@ -1251,22 +1257,26 @@ Mod_Load2QBSP_QBSP_EDGES(byte *outbuf, dheader_t *outheader,
 }
 
 static void
-Mod_Load2QBSP_IBSP46_EDGES(byte *outbuf, dheader_t *outheader,
+Mod_Load2QBSP_IBSP46_VERTEXES(byte *outbuf, dheader_t *outheader,
 	const byte *inbuf, const lump_t *lumps, size_t rule_size,
 	maptype_t maptype, int outlumppos, int inlumppos)
 {
 	q3drawvert_t *in;
 	size_t i, count;
-	dqedge_t *out;
+	dvertex_t *out;
 
 	count = lumps[inlumppos].filelen / rule_size;
 	in = (q3drawvert_t *)(inbuf + lumps[inlumppos].fileofs);
-	out = (dqedge_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+	out = (dvertex_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
 
 	for (i = 0; i < count; i++)
 	{
-		out->v[0] = (unsigned int)LittleFloat(in->st[0]);
-		out->v[1] = (unsigned int)LittleFloat(in->st[1]);
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			out->point[j] = LittleFloat(in->xyz[j]);
+		}
 
 		out++;
 		in++;
@@ -1864,7 +1874,7 @@ static const rule_t idq3bsplumps[HEADER_Q3LUMPS] = {
 	{LUMP_MODELS, sizeof(dq3model_t), Mod_Load2QBSP_IBSP46_MODELS},
 	{LUMP_BRUSHES, sizeof(dq3brush_t), Mod_Load2QBSP_IBSP46_BRUSHES},
 	{LUMP_BRUSHSIDES, sizeof(dqbrushside_t), Mod_Load2QBSP_QBSP_BRUSHSIDES},
-	{LUMP_EDGES, sizeof(q3drawvert_t), Mod_Load2QBSP_IBSP46_EDGES},
+	{LUMP_VERTEXES, sizeof(q3drawvert_t), Mod_Load2QBSP_IBSP46_VERTEXES},
 	{-1, 0, NULL}, /* LUMP_BSP46_DRAWINDEXES */
 	{-1, 0, NULL}, /* LUMP_BSP46_FOGS */
 	{LUMP_FACES, sizeof(dq3surface_t), Mod_Load2QBSP_IBSP46_FACES},
