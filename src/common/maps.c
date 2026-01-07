@@ -974,7 +974,7 @@ Mod_Load2QBSP_IBSP29_LEAFS(byte *outbuf, dheader_t *outheader,
 		}
 
 		out->contents = Mod_LoadContentConvertFlags(LittleLong(in->type), maptype);
-		out->cluster = 0;
+		out->cluster = LittleShort(in->vislist);
 		out->area = 0;
 
 		/* make unsigned long from signed short */
@@ -1282,6 +1282,33 @@ Mod_Load2QBSP_IBSP46_VERTEXES(byte *outbuf, dheader_t *outheader,
 		in++;
 	}
 }
+
+#if 0
+static void
+Mod_Load2QBSP_IBSP46_EDGES(byte *outbuf, dheader_t *outheader,
+	const byte *inbuf, const lump_t *lumps, size_t rule_size,
+	maptype_t maptype, int outlumppos, int inlumppos)
+{
+	q3drawvert_t *in;
+	size_t i, count;
+	dqedge_t *edgeout;
+
+&header->lumps[LUMP_VERTEXES]);
+
+	count = lumps[inlumppos].filelen / rule_size;
+	in = (q3drawvert_t *)(inbuf + lumps[inlumppos].fileofs);
+	edgeout = (dqedge_t *)(outbuf + outheader->lumps[outlumppos].fileofs);
+
+	for (i = 0; i < count; i++)
+	{
+		edgeout->v[0] = i;
+		/* TODO: opposite ? */
+		edgeout->v[1] = 0;
+
+		edgeout++;
+	}
+}
+#endif
 
 static void
 Mod_Load2QBSP_IBSP_MODELS(byte *outbuf, dheader_t *outheader,

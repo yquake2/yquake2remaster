@@ -284,6 +284,11 @@ CL_AddPacketEntities(frame_t *frame)
 				ent.model = cl.model_draw[s1->modelindex];
 			}
 
+			if (!ent.model && s1->modelindex && cl.configstrings[s1->modelindex + CS_MODELS][0])
+			{
+				printf(">>>>%d : %s<<<<<\n", s1->modelindex, cl.configstrings[s1->modelindex + CS_MODELS]);
+			}
+
 			/* store scale */
 			VectorCopy(s1->scale, ent.scale);
 		}
