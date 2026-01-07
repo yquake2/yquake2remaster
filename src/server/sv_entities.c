@@ -507,6 +507,8 @@ SV_FatPVS(vec3_t org)
 	int32_t numInt32s;
 	byte *src;
 	vec3_t mins, maxs;
+	const byte *pvs_buf;
+	size_t pvs_size;
 
 	for (i = 0; i < 3; i++)
 	{
@@ -530,11 +532,14 @@ SV_FatPVS(vec3_t org)
 		leafs[i] = CM_LeafCluster(leafs[i]);
 	}
 
-	memcpy(fatpvs, CM_ClusterPVS(leafs[0]), numInt32s << 2);
+	pvs_buf = CM_ClusterPVS(leafs[0], &pvs_size);
+	memcpy(fatpvs, pvs_buf, Q_min(numInt32s << 2, pvs_size));
 
 	/* or in all the other leaf bits */
 	for (i = 1; i < count; i++)
 	{
+		size_t src_size;
+
 		for (j = 0; j < i; j++)
 		{
 			if (leafs[i] == leafs[j])
@@ -548,9 +553,11 @@ SV_FatPVS(vec3_t org)
 			continue; /* already have the cluster we want */
 		}
 
-		src = CM_ClusterPVS(leafs[i]);
+		src = CM_ClusterPVS(leafs[i], &src_size);
 
-		for (j = 0; j < numInt32s; j++)
+		src_size = Q_min(src_size, pvs_size);
+
+		for (j = 0; j < Q_min(numInt32s, src_size / 4); j++)
 		{
 			((int32_t *)fatpvs)[j] |= ((int32_t *)src)[j];
 		}
@@ -574,6 +581,7 @@ SV_BuildClientFrame(client_t *client)
 	int leafnum;
 	byte *clientphs;
 	byte *bitvector;
+	size_t phs_size;
 
 	clent = CL_EDICT(client);
 
@@ -621,7 +629,7 @@ SV_BuildClientFrame(client_t *client)
 	frame->ps = clent->client->ps;
 
 	SV_FatPVS(org);
-	clientphs = CM_ClusterPHS(clientcluster);
+	clientphs = CM_ClusterPHS(clientcluster, &phs_size);
 
 	/* build up the list of visible entities */
 	frame->num_entities = 0;
@@ -667,7 +675,12 @@ SV_BuildClientFrame(client_t *client)
 			{
 				l = ent->clusternums[0];
 
-				if (!(clientphs[l >> 3] & (1 << (l & 7))))
+				if (l >= phs_size)
+				{
+					continue;
+				}
+
+				if ((l >= phs_size) || !(clientphs[l >> 3] & (1 << (l & 7))))
 				{
 					continue;
 				}

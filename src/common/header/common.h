@@ -672,8 +672,8 @@ trace_t CM_TransformedBoxTrace(const vec3_t start, const vec3_t end,
 		const vec3_t mins, const vec3_t maxs, int headnode,
 		int brushmask, const vec3_t origin, const vec3_t angles);
 
-byte *CM_ClusterPVS(int cluster);
-byte *CM_ClusterPHS(int cluster);
+byte *CM_ClusterPVS(int cluster, size_t *size);
+byte *CM_ClusterPHS(int cluster, size_t *size);
 
 int CM_PointLeafnum(vec3_t p);
 

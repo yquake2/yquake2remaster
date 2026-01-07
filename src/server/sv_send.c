@@ -142,7 +142,7 @@ SV_BroadcastCommand(const char *fmt, ...)
  * MULTICAST_PHS	send to clients potentially hearable from org
  */
 static qboolean
-SV_WereConnected(const vec3_t origin, const byte *mask, int area1)
+SV_WereConnected(const vec3_t origin, const byte *mask, int area1, size_t mask_size)
 {
 	vec3_t origin2;
 	int leafnum;
@@ -155,7 +155,8 @@ SV_WereConnected(const vec3_t origin, const byte *mask, int area1)
 
 	// cluster can be -1 if we're in the void (or sometimes just at a wall)
 	// and using a negative index into mask[] would be invalid
-	if (cluster >= 0 && (mask[cluster >> 3] & (1 << (cluster & 7))))
+	if (cluster >= 0 && ((cluster >> 3) < mask_size) &&
+		(mask[cluster >> 3] & (1 << (cluster & 7))))
 	{
 		if (CM_AreasConnected(area1, CM_LeafArea(leafnum)))
 		{
@@ -197,6 +198,7 @@ SV_Multicast(vec3_t origin, multicast_t to)
 	qboolean reliable;
 	client_t *client;
 	byte *mask;
+	size_t mask_size = 0;
 
 	reliable = false;
 
@@ -225,7 +227,7 @@ SV_Multicast(vec3_t origin, multicast_t to)
 		case MULTICAST_PHS:
 			leafnum = CM_PointLeafnum(origin);
 			cluster = CM_LeafCluster(leafnum);
-			mask = CM_ClusterPHS(cluster);
+			mask = CM_ClusterPHS(cluster, &mask_size);
 			break;
 
 		case MULTICAST_PVS_R:
@@ -233,7 +235,7 @@ SV_Multicast(vec3_t origin, multicast_t to)
 		case MULTICAST_PVS:
 			leafnum = CM_PointLeafnum(origin);
 			cluster = CM_LeafCluster(leafnum);
-			mask = CM_ClusterPVS(cluster);
+			mask = CM_ClusterPVS(cluster, &mask_size);
 			break;
 
 		default:
@@ -257,7 +259,7 @@ SV_Multicast(vec3_t origin, multicast_t to)
 
 		if (mask)
 		{
-			if (!SV_WereConnected(CL_EDICT(client)->s.origin, mask, area1))
+			if (!SV_WereConnected(CL_EDICT(client)->s.origin, mask, area1, mask_size))
 			{
 				continue;
 			}

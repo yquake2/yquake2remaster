@@ -1942,8 +1942,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		/* reallocate buffers for PVS/PHS buffers*/
 		pxsrow_len = (mod->numleafs + 63) & ~63;
 		tmp = realloc(pvsrow, pxsrow_len / 8);
-		YQ2_COM_CHECK_OOM(tmp, "realloc()",
-			pxsrow_len / 8)
+		YQ2_COM_CHECK_OOM(tmp, "realloc()", pxsrow_len / 8)
 		if (!tmp)
 		{
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
@@ -1953,8 +1952,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		pvsrow = tmp;
 
 		tmp = realloc(phsrow, pxsrow_len / 8);
-		YQ2_COM_CHECK_OOM(tmp, "realloc()",
-			pxsrow_len / 8)
+		YQ2_COM_CHECK_OOM(tmp, "realloc()", pxsrow_len / 8)
 		if (!tmp)
 		{
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
@@ -2175,21 +2173,31 @@ CM_MapSurfaces(int surfnum)
 }
 
 static byte *
-CM_Cluster(int cluster, int type, byte *buffer)
+CM_Cluster(int cluster, int type, byte *buffer, size_t size)
 {
+	int buf_size;
+
 	if (!buffer)
 	{
 		Com_Error(ERR_DROP, "%s: incrorrect init of PVS/PHS", __func__);
 		return buffer;
 	}
 
+	buf_size = (cmod->numclusters + 7) >> 3;
+	if (size < buf_size)
+	{
+		Com_DPrintf( "%s: incrorrect count of clusters of PVS/PHS %d\n",
+			__func__, buf_size);
+		buf_size = size;
+	}
+
 	if (!cmod->map_vis)
 	{
-		Mod_DecompressVis(NULL, buffer, NULL, (cmod->numclusters + 7) >> 3);
+		Mod_DecompressVis(NULL, buffer, NULL, buf_size);
 	}
 	else if (cluster == -1)
 	{
-		memset(buffer, 0, (cmod->numclusters + 7) >> 3);
+		memset(buffer, 0, buf_size);
 	}
 	else
 	{
@@ -2202,22 +2210,24 @@ CM_Cluster(int cluster, int type, byte *buffer)
 		Mod_DecompressVis((byte *)cmod->map_vis +
 				cmod->map_vis->bitofs[cluster][type], buffer,
 				(byte *)cmod->map_vis + cmod->numvisibility,
-				(cmod->numclusters + 7) >> 3);
+				buf_size);
 	}
 
 	return buffer;
 }
 
 byte *
-CM_ClusterPVS(int cluster)
+CM_ClusterPVS(int cluster, size_t *size)
 {
-	return CM_Cluster(cluster, DVIS_PVS, pvsrow);
+	*size = pxsrow_len / 8;
+	return CM_Cluster(cluster, DVIS_PVS, pvsrow, *size);
 }
 
 byte *
-CM_ClusterPHS(int cluster)
+CM_ClusterPHS(int cluster, size_t *size)
 {
-	return CM_Cluster(cluster, DVIS_PHS, phsrow);
+	*size = pxsrow_len / 8;
+	return CM_Cluster(cluster, DVIS_PHS, phsrow, *size);
 }
 
 /*
