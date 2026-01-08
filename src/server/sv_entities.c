@@ -30,9 +30,6 @@
 
 #include "header/server.h"
 
-// DG: is casted to int32_t* in SV_FatPVS() so align accordingly
-static YQ2_ALIGNAS_TYPE(int32_t) byte fatpvs[65536 / 8];
-
 /*
  * Writes a delta update of an entity_state_t list to the message.
  */
@@ -501,14 +498,14 @@ SV_WriteFrameToClient(client_t *client, sizebuf_t *msg)
 static void
 SV_FatPVS(vec3_t org)
 {
-	int leafs[64];
-	int i, j, count;
+	size_t pvs_size, fatpvs_size;
+	const byte *src, *pvs_buf;
 	// DG: used to be called "longs" and long was used which isn't really correct on 64bit
 	int32_t numInt32s;
-	byte *src;
 	vec3_t mins, maxs;
-	const byte *pvs_buf;
-	size_t pvs_size;
+	int i, j, count;
+	int leafs[64];
+	byte *fatpvs;
 
 	for (i = 0; i < 3; i++)
 	{
@@ -532,8 +529,11 @@ SV_FatPVS(vec3_t org)
 		leafs[i] = CM_LeafCluster(leafs[i]);
 	}
 
+	fatpvs = CM_ClusterPTS(&fatpvs_size);
+	fatpvs_size = Q_min(numInt32s << 2, fatpvs_size);
 	pvs_buf = CM_ClusterPVS(leafs[0], &pvs_size);
-	memcpy(fatpvs, pvs_buf, Q_min(numInt32s << 2, pvs_size));
+	pvs_size = Q_min(pvs_size, fatpvs_size);
+	memcpy(fatpvs, pvs_buf, pvs_size);
 
 	/* or in all the other leaf bits */
 	for (i = 1; i < count; i++)
@@ -579,7 +579,7 @@ SV_BuildClientFrame(client_t *client)
 	int l;
 	int clientarea, clientcluster;
 	int leafnum;
-	byte *clientphs;
+	const byte *clientphs;
 	byte *bitvector;
 	size_t phs_size;
 
@@ -687,7 +687,9 @@ SV_BuildClientFrame(client_t *client)
 			}
 			else
 			{
-				bitvector = fatpvs;
+				size_t bitvector_size;
+
+				bitvector = CM_ClusterPTS(&bitvector_size);
 
 				if (ent->num_clusters == -1)
 				{
@@ -704,7 +706,7 @@ SV_BuildClientFrame(client_t *client)
 					{
 						l = ent->clusternums[i];
 
-						if (bitvector[l >> 3] & (1 << (l & 7)))
+						if ((l < bitvector_size) && bitvector[l >> 3] & (1 << (l & 7)))
 						{
 							break;
 						}
