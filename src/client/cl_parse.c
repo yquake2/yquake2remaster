@@ -1408,26 +1408,20 @@ CL_LoadShadowLight(int idx, const char *s)
 static void
 CL_ParseConfigString(void)
 {
-	size_t length;
-	int i, orig_i;
-	char *s;
-	char olds[MAX_QPATH];
+	int i, orig_i, cs_changed;
+	size_t length, space;
+	char *s, *cs;
 
 	orig_i = MSG_ReadShort(&net_message) & 0xFFFF;
+	s = MSG_ReadString(&net_message);
 
 	i = P_ConvertConfigStringFrom(orig_i, cls.serverProtocol);
 
 	if ((i < 0) || (i >= MAX_CONFIGSTRINGS))
 	{
-		s = MSG_ReadString(&net_message);
-
-		Com_Error(ERR_DROP,
-			"%s: configstring[%d] > MAX_CONFIGSTRINGS for %s, protocol %s",
-			__func__, orig_i, s, CL_GetProtocolName(cls.serverProtocol));
+		Com_Printf("%s: bad index: %i\n", __func__, i);
 		return;
 	}
-
-	s = MSG_ReadString(&net_message);
 
 	if (i == CS_SKIP)
 	{
@@ -1436,19 +1430,41 @@ CL_ParseConfigString(void)
 		return;
 	}
 
-	Q_strlcpy(olds, cl.configstrings[i], sizeof(olds));
+	cs = cl.configstrings[i];
+	cs_changed = strcmp(s, cs) != 0;
 
 	length = strlen(s);
-	if (length > sizeof(cl.configstrings) - sizeof(cl.configstrings[0]) * i - 1)
+
+	/* statusbar code covers several configstring indices */
+	if ((i >= CS_STATUSBAR) && (i < CS_STATUSBAR_END))
 	{
-		Com_Error(ERR_DROP, "%s: oversize configstring", __func__);
-		return;
+		space = CS_STATUSBAR_SPACE(i);
+
+		if (length >= space)
+		{
+			Com_Printf("%s: %i: statusbar code too long: " YQ2_COM_PRIdS " > " YQ2_COM_PRIdS "\n",
+				__func__, i, length, space - 1);
+
+			return;
+		}
+
+		memcpy(cs, s, length + 1);
+	}
+	else
+	{
+		space = sizeof(cl.configstrings[i]);
+
+		if (length >= space)
+		{
+			Com_Printf("%s: %i: string too long: " YQ2_COM_PRIdS " > " YQ2_COM_PRIdS "\n",
+				__func__, i, length, space - 1);
+
+			return;
+		}
+
+		strcpy(cs, s);
 	}
 
-	Q_strlcpy(cl.configstrings[i], s,
-		(MAX_CONFIGSTRINGS - i) * sizeof(*cl.configstrings));
-
-	/* do something apropriate */
 	if ((i >= CS_LIGHTS) && (i < CS_LIGHTS + MAX_LIGHTSTYLES))
 	{
 		CL_SetLightstyle(i - CS_LIGHTS);
@@ -1494,7 +1510,7 @@ CL_ParseConfigString(void)
 	}
 	else if ((i >= CS_PLAYERSKINS) && (i < CS_PLAYERSKINS + MAX_CLIENTS))
 	{
-		if (cl.refresh_prepped && strcmp(olds, s))
+		if (cl.refresh_prepped && cs_changed)
 		{
 			CL_ParseClientinfo(i - CS_PLAYERSKINS);
 		}

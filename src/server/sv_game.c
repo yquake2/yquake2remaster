@@ -199,22 +199,55 @@ static void
 PF_Configstring(int index, const char *val)
 {
 	int internal_index;
+	size_t len;
+	char *cs;
+
+	internal_index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
+	if ((internal_index < 0) || (internal_index >= MAX_CONFIGSTRINGS))
+	{
+		Com_Printf("%s: bad index %i\n", __func__, internal_index);
+		return;
+	}
 
 	if (!val)
 	{
 		val = "";
 	}
 
-	internal_index = P_ConvertConfigStringFrom(index, SV_GetRecomendedProtocol());
+	len = strlen(val);
+	cs = sv.configstrings[internal_index];
 
-	if ((internal_index < 0) || (internal_index >= MAX_CONFIGSTRINGS))
+	/* statusbar code covers several configstring indices */
+	if ((internal_index >= CS_STATUSBAR) && (internal_index < CS_STATUSBAR_END))
 	{
-		Com_Error(ERR_DROP, "configstring: bad index %i\n", internal_index);
-		return;
-	}
+		size_t space;
 
-	/* change the string in sv */
-	strcpy(sv.configstrings[internal_index], val);
+		space = CS_STATUSBAR_SPACE(internal_index);
+
+		if (len >= space)
+		{
+			Com_Printf("%s: statusbar code too big: " YQ2_COM_PRIdS " > " YQ2_COM_PRIdS "\n",
+				__func__, len, space - 1);
+			return;
+		}
+
+		memcpy(cs, val, len + 1);
+	}
+	else
+	{
+		size_t space;
+
+		space = sizeof(sv.configstrings[internal_index]);
+
+		if (len >= space)
+		{
+			Com_Printf("%s; value too big: " YQ2_COM_PRIdS " > " YQ2_COM_PRIdS "\n",
+				__func__, len, space - 1);
+			return;
+		}
+
+		strcpy(cs, val);
+	}
 
 	if (sv.state != ss_loading)
 	{

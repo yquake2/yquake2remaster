@@ -307,6 +307,7 @@ trace_t SV_Trace(const vec3_t start, const vec3_t mins, const vec3_t maxs,
 #define OPTIMIZE_MSGUTIL 1
 #define OPTIMIZE_SENDRATE 2
 #define OPTIMIZE_RECONNECT 4
+#define OPTIMIZE_HUDSEND 8
 
 int SV_Optimizations(void);
 
