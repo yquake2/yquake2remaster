@@ -197,7 +197,7 @@ SV_Multicast(vec3_t origin, multicast_t to)
 	int leafnum, cluster, area1 = 0, j;
 	qboolean reliable;
 	client_t *client;
-	const byte *mask;
+	byte *mask;
 	size_t mask_size = 0;
 
 	reliable = false;

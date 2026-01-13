@@ -362,7 +362,7 @@ PF_inPVS(vec3_t p1, vec3_t p2)
 	int leafnum;
 	int cluster;
 	int area1, area2;
-	const byte *mask;
+	byte *mask;
 	size_t mask_size;
 
 	leafnum = CM_PointLeafnum(p1);
@@ -400,7 +400,7 @@ PF_inPHS(vec3_t p1, vec3_t p2)
 	int leafnum;
 	int cluster;
 	int area1, area2;
-	const byte *mask;
+	byte *mask;
 	size_t mask_size;
 
 	leafnum = CM_PointLeafnum(p1);
