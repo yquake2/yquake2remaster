@@ -275,38 +275,6 @@ CL_PredictMovement(void)
 	pm_airaccelerate = atof(cl.configstrings[CS_AIRACCEL]);
 	pm.s = cl.frame.playerstate.pmove;
 
-	if (cl.baseclientinfo.model && strlen(cl.baseclientinfo.iconname) > 4)
-	{
-		char model_name[MAX_QPATH];
-		char *slash_pos;
-
-		Q_strlcpy(model_name, cl.baseclientinfo.iconname + 1, sizeof(model_name));
-		slash_pos = strrchr(model_name, '/');
-		if (slash_pos)
-		{
-			const dmdxframegroup_t * frames;
-			int num, i;
-
-			memcpy(slash_pos + 1, "tris.md2", sizeof("tris.md2"));
-
-			frames = Mod_GetModelInfo(model_name, &num, NULL, NULL);
-			if (frames && num)
-			{
-				for (i = 0; i < num; i++)
-				{
-					if (!strcmp(frames[i].name, "stand") ||
-						!strcmp(frames[i].name, "idle"))
-					{
-						/* supposed that model has only single stand/idle */
-						VectorCopy(frames[i].mins, pm.mins);
-						VectorCopy(frames[i].maxs, pm.maxs);
-						break;
-					}
-				}
-			}
-		}
-	}
-
 	VectorCopy(cl.frame.origin, origin);
 
 	/* run frames */

@@ -1147,7 +1147,6 @@ void M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_bas
 	const char *name, int select);
 void M_SetAnimGroupMMoveOffset(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base,
 	const char *name, int select, int offset);
-void M_SetStandMinMax(edict_t *ent, float *mins, float *maxs);
 
 /* g_phys.c */
 void G_RunEntity(edict_t *ent);
