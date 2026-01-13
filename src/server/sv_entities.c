@@ -30,9 +30,6 @@
 
 #include "header/server.h"
 
-// DG: is casted to int32_t* in SV_FatPVS() so align accordingly
-static YQ2_ALIGNAS_TYPE(int32_t) byte fatpvs[65536 / 8];
-
 /*
  * Writes a delta update of an entity_state_t list to the message.
  */
@@ -498,17 +495,17 @@ SV_WriteFrameToClient(client_t *client, sizebuf_t *msg)
  * The client will interpolate the view position,
  * so we can't use a single PVS point
  */
-static void
-SV_FatPVS(vec3_t org)
+static byte *
+SV_FatPVS(vec3_t org, size_t *fatpvs_size)
 {
-	int leafs[64];
-	int i, j, count;
+	size_t pvs_size;
+	const byte *src, *pvs_buf;
 	// DG: used to be called "longs" and long was used which isn't really correct on 64bit
 	int32_t numInt32s;
-	byte *src;
 	vec3_t mins, maxs;
-	const byte *pvs_buf;
-	size_t pvs_size;
+	int i, j, count;
+	int leafs[64];
+	byte *fatpvs;
 
 	for (i = 0; i < 3; i++)
 	{
@@ -518,10 +515,12 @@ SV_FatPVS(vec3_t org)
 
 	count = CM_BoxLeafnums(mins, maxs, leafs, 64, NULL);
 
+	fatpvs = CM_ClusterPTS(fatpvs_size);
+
 	if (count < 1)
 	{
 		Com_Error(ERR_FATAL, "%s: count < 1", __func__);
-		return;
+		return fatpvs;
 	}
 
 	numInt32s = (CM_NumClusters() + 31) >> 5;
@@ -532,8 +531,10 @@ SV_FatPVS(vec3_t org)
 		leafs[i] = CM_LeafCluster(leafs[i]);
 	}
 
+	*fatpvs_size = Q_min(numInt32s << 2, *fatpvs_size);
 	pvs_buf = CM_ClusterPVS(leafs[0], &pvs_size);
-	memcpy(fatpvs, pvs_buf, Q_min(numInt32s << 2, pvs_size));
+	pvs_size = Q_min(pvs_size, *fatpvs_size);
+	memcpy(fatpvs, pvs_buf, pvs_size);
 
 	/* or in all the other leaf bits */
 	for (i = 1; i < count; i++)
@@ -562,6 +563,8 @@ SV_FatPVS(vec3_t org)
 			((int32_t *)fatpvs)[j] |= ((int32_t *)src)[j];
 		}
 	}
+
+	return fatpvs;
 }
 
 /*
@@ -579,9 +582,10 @@ SV_BuildClientFrame(client_t *client)
 	int l;
 	int clientarea, clientcluster;
 	int leafnum;
-	byte *clientphs;
-	byte *bitvector;
+	const byte *clientphs;
+	const byte *bitvector, *fatpvs;
 	size_t phs_size;
+	size_t fatpvs_size;
 
 	clent = CL_EDICT(client);
 
@@ -628,7 +632,7 @@ SV_BuildClientFrame(client_t *client)
 	/* grab the current player_state_t */
 	frame->ps = clent->client->ps;
 
-	SV_FatPVS(org);
+	fatpvs = SV_FatPVS(org, &fatpvs_size);
 	clientphs = CM_ClusterPHS(clientcluster, &phs_size);
 
 	/* build up the list of visible entities */
@@ -675,12 +679,7 @@ SV_BuildClientFrame(client_t *client)
 			{
 				l = ent->clusternums[0];
 
-				if (l >= phs_size)
-				{
-					continue;
-				}
-
-				if ((l >= phs_size) || !(clientphs[l >> 3] & (1 << (l & 7))))
+				if (((l >> 3) >= phs_size) || !(clientphs[l >> 3] & (1 << (l & 7))))
 				{
 					continue;
 				}
@@ -704,7 +703,7 @@ SV_BuildClientFrame(client_t *client)
 					{
 						l = ent->clusternums[i];
 
-						if (bitvector[l >> 3] & (1 << (l & 7)))
+						if (((l >> 3) < fatpvs_size) && bitvector[l >> 3] & (1 << (l & 7)))
 						{
 							break;
 						}

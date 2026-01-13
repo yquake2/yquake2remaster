@@ -672,8 +672,9 @@ trace_t CM_TransformedBoxTrace(const vec3_t start, const vec3_t end,
 		const vec3_t mins, const vec3_t maxs, int headnode,
 		int brushmask, const vec3_t origin, const vec3_t angles);
 
-byte *CM_ClusterPVS(int cluster, size_t *size);
-byte *CM_ClusterPHS(int cluster, size_t *size);
+const byte *CM_ClusterPVS(int cluster, size_t *size);
+const byte *CM_ClusterPHS(int cluster, size_t *size);
+byte *CM_ClusterPTS(size_t *size);
 
 int CM_PointLeafnum(vec3_t p);
 
@@ -690,7 +691,7 @@ void CM_SetAreaPortalState(int portalnum, qboolean open);
 qboolean CM_AreasConnected(int area1, int area2);
 
 int CM_WriteAreaBits(byte *buffer, int area);
-qboolean CM_HeadnodeVisible(int headnode, byte *visbits);
+qboolean CM_HeadnodeVisible(int headnode, const byte *visbits);
 
 void CM_WritePortalState(FILE *f);
 int CM_LoadFile(const char *path, void **buffer);

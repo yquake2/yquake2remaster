@@ -130,6 +130,7 @@ static model_t *cmod = models;
 // DG: is casted to int32_t* in SV_FatPVS() so align accordingly
 static byte *pvsrow = NULL;
 static byte *phsrow = NULL;
+static byte *ptsrow = NULL;
 static size_t pxsrow_len = 0;
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
@@ -326,7 +327,7 @@ CM_ReadPortalState(fileHandle_t f)
  * is potentially visible
  */
 qboolean
-CM_HeadnodeVisible(int nodenum, byte *visbits)
+CM_HeadnodeVisible(int nodenum, const byte *visbits)
 {
 	const cnode_t *node;
 
@@ -1793,6 +1794,7 @@ CM_ModInit(void)
 	/* init buffers for PVS/PHS buffers*/
 	pvsrow = NULL;
 	phsrow = NULL;
+	ptsrow = NULL;
 	pxsrow_len = 0;
 
 	map_noareas = Cvar_Get("map_noareas", "0", 0);
@@ -1822,6 +1824,13 @@ CM_ModFreeAll(void)
 		free(phsrow);
 		phsrow = NULL;
 	}
+
+	if (ptsrow)
+	{
+		free(ptsrow);
+		phsrow = NULL;
+	}
+
 	pxsrow_len = 0;
 
 	Com_Printf("Server models free up\n");
@@ -1935,7 +1944,7 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 	free(cmod_base);
 
-	if ((mod->numleafs > pxsrow_len) || !pvsrow || !phsrow)
+	if ((mod->numleafs > pxsrow_len) || !pvsrow || !phsrow || !ptsrow)
 	{
 		byte *tmp;
 
@@ -1960,6 +1969,16 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 		}
 
 		phsrow = tmp;
+
+		tmp = realloc(ptsrow, pxsrow_len / 8);
+		YQ2_COM_CHECK_OOM(tmp, "realloc()", pxsrow_len / 8)
+		if (!tmp)
+		{
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
+
+		ptsrow = tmp;
 
 		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			pxsrow_len);
@@ -2216,18 +2235,25 @@ CM_Cluster(int cluster, int type, byte *buffer, size_t size)
 	return buffer;
 }
 
-byte *
+const byte *
 CM_ClusterPVS(int cluster, size_t *size)
 {
 	*size = pxsrow_len / 8;
 	return CM_Cluster(cluster, DVIS_PVS, pvsrow, *size);
 }
 
-byte *
+const byte *
 CM_ClusterPHS(int cluster, size_t *size)
 {
 	*size = pxsrow_len / 8;
 	return CM_Cluster(cluster, DVIS_PHS, phsrow, *size);
+}
+
+byte *
+CM_ClusterPTS(size_t *size)
+{
+	*size = pxsrow_len / 8;
+	return ptsrow;
 }
 
 /*

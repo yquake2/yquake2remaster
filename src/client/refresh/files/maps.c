@@ -841,10 +841,10 @@ Mod_LoadBSPXReadByte(struct rctx_s *ctx)
 static int
 Mod_LoadBSPXReadInt(struct rctx_s *ctx)
 {
-	int r = (int)Mod_LoadBSPXReadByte(ctx)<<0;
-		r|= (int)Mod_LoadBSPXReadByte(ctx)<<8;
-		r|= (int)Mod_LoadBSPXReadByte(ctx)<<16;
-		r|= (int)Mod_LoadBSPXReadByte(ctx)<<24;
+	int r = (int)Mod_LoadBSPXReadByte(ctx) << 0;
+		r|= (int)Mod_LoadBSPXReadByte(ctx) << 8;
+		r|= (int)Mod_LoadBSPXReadByte(ctx) << 16;
+		r|= (int)Mod_LoadBSPXReadByte(ctx) << 24;
 	return r;
 }
 
