@@ -978,7 +978,7 @@ CL_ParseFrame(void)
 	/* read areabits */
 	len = MSG_ReadByte(&net_message);
 
-	if (len > (int)sizeof(cl.frame.areabits))
+	if (len == -1 || (byte)len > sizeof(cl.frame.areabits))
 	{
 		Com_Error(ERR_DROP, "%s: areabits overflow (%d > %d)",
 				__func__, len, (int)sizeof(cl.frame.areabits));
