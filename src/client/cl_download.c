@@ -555,6 +555,7 @@ CL_DownloadFilter(const char *filename)
 	static const char *extensions[] = {
 		".dll",
 		".dylib",
+		".lib",
 		".so",
 		".a",
 		NULL,
