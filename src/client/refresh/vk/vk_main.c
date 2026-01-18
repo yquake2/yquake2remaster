@@ -802,7 +802,7 @@ R_SetupVulkan (void)
 	float	r_proj_fovx;
 	float	r_proj_fovy;
 	int		x, x2, y2, y, w, h;
-	float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
+	float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->radius * 2);
 	const float zNear = Q_max(vk_znear->value, 0.1f);
 
 	/* Render old elements before change viewport */

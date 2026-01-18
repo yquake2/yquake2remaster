@@ -702,7 +702,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		// hack the depth range to prevent view model from poking into walls
 		float r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
 		float r_proj_fovy = r_newrefdef.fov_y;
-		float dist = (r_farsee->value == 0) ? 4096.0f : 8192.0f;
+		float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->radius * 2);
 		const float zNear = Q_max(vk_znear->value, 0.1f);
 
 		// use different range for player setup screen so it doesn't collide with the viewmodel
