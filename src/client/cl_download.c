@@ -551,22 +551,28 @@ CL_DownloadFileName(char *dest, int destlen, char *fn)
 static qboolean
 CL_DownloadFilter(const char *filename)
 {
-	if (FS_LoadFile((char *) filename, NULL) != -1)
-	{
-		/* it exists, no need to download */
-		return true;
-	}
+	size_t i;
+	static const char *extensions[] = {
+		".dll",
+		".dylib",
+		".lib",
+		".so",
+		".a",
+		NULL,
+	};
 
-	if (strstr(filename, "..") || strchr(filename, ':') || (*filename == '.') || (*filename == '/'))
+	if ((*filename == '.') || (*filename == '/') || strchr(filename, ':') || strstr(filename, ".."))
 	{
 		Com_Printf("Refusing to download a path containing '..' or ':' or starting with '.' or '/': %s\n", filename);
 		return true;
 	}
 
-	if (strstr(filename, ".dll") || strstr(filename, ".dylib") || strstr(filename, ".so"))
-	{
-		Com_Printf("Refusing to download a path containing '.dll', '.dylib' or '.so': %s\n", filename);
-		return true;
+	for (i = 0; extensions[i]; i ++) {
+		if (strstr(filename, extensions[i]))
+		{
+			Com_Printf("Refusing to download a path containing '%s': %s\n", extensions[i], filename);
+			return true;
+		}
 	}
 
 	char *nodownload = strdup(cl_nodownload_list->string);
@@ -583,6 +589,12 @@ CL_DownloadFilter(const char *filename)
 		nodownload_token = strtok(NULL, " ");
 	}
 	free(nodownload);
+
+	if (FS_LoadFile((char *) filename, NULL) != -1)
+	{
+		/* it exists, no need to download */
+		return true;
+	}
 
 	return false;
 }
