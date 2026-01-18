@@ -977,6 +977,14 @@ CL_ParseFrame(void)
 
 	/* read areabits */
 	len = MSG_ReadByte(&net_message);
+
+	if (len == -1 || (byte)len > sizeof(cl.frame.areabits))
+	{
+		Com_Error(ERR_DROP, "%s: areabits overflow (%d > %d)",
+				__func__, len, (int)sizeof(cl.frame.areabits));
+		return;
+	}
+
 	MSG_ReadData(&net_message, &cl.frame.areabits, len);
 
 	/* read playerinfo */
@@ -986,7 +994,7 @@ CL_ParseFrame(void)
 	if (cmd != svc_playerinfo)
 	{
 		Com_Error(ERR_DROP, "%s: 0x%X not playerinfo",
-			__func__, cmd);
+				__func__, cmd);
 		return;
 	}
 
