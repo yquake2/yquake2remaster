@@ -1031,18 +1031,22 @@ PM_FlyMove(qboolean doclip)
 static void
 PM_CheckDuck(void)
 {
+	vec3_t mins = {-16, -16, -24}, maxs = {16, 16, 32};
 	trace_t trace;
+	int i;
 
-	if (!pm->mins[0] &&
-		!pm->mins[1] &&
-		!pm->mins[2] &&
-		!pm->maxs[0] &&
-		!pm->maxs[1] &&
-		!pm->maxs[2])
+	for (i = 0; i < 3; i++)
 	{
 		/* set default stand up values */
-		VectorSet(pm->mins, -16, -16, -24);
-		VectorSet(pm->maxs, 16, 16, 32);
+		if (pm->mins[i] > mins[i])
+		{
+			pm->mins[i] = mins[i];
+		}
+
+		if (pm->maxs[i] < maxs[i])
+		{
+			pm->maxs[i] = maxs[i];
+		}
 	}
 
 	if (pm->s.pm_type == PM_GIB)

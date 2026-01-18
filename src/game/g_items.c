@@ -1975,7 +1975,7 @@ FixEntityPosition(edict_t *ent)
 void
 droptofloor(edict_t *ent)
 {
-	vec3_t mins, maxs, dest;
+	vec3_t dest;
 	trace_t tr;
 	float *v;
 	int i;
@@ -1999,15 +1999,21 @@ droptofloor(edict_t *ent)
 		gi.setmodel(ent, ent->item->world_model);
 	}
 
-	/* set real size of item model except height to items fly hack */
-	VectorCopy(ent->mins, mins);
-	VectorCopy(ent->maxs, maxs);
-	gi.GetModelInfo(ent->s.modelindex, NULL, mins, maxs);
-
-	for (i = 0; i < 2; i++)
+	if (strcmp(ent->classname, "key_power_cube"))
 	{
-		ent->mins[i] = mins[i];
-		ent->maxs[i] = maxs[i];
+		/* key_power_cube is inside walls */
+		vec3_t mins, maxs;
+
+		/* set real size of item model except height to items fly hack */
+		VectorCopy(ent->mins, mins);
+		VectorCopy(ent->maxs, maxs);
+		gi.GetModelInfo(ent->s.modelindex, NULL, mins, maxs);
+
+		for (i = 0; i < 2; i++)
+		{
+			ent->mins[i] = mins[i];
+			ent->maxs[i] = maxs[i];
+		}
 	}
 
 	ent->solid = SOLID_TRIGGER;
