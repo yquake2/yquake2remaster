@@ -396,6 +396,18 @@ CL_PrintInSameLine(const char *message)
 	Com_Printf("%s", emptyline);
 }
 
+void
+CL_SetSky(void)
+{
+	float rotate = 0;
+	int autorotate = 1;
+	vec3_t axis;
+
+	sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
+	sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
+	R_SetSky(cl.configstrings[CS_SKY], rotate, autorotate, axis);
+}
+
 /*
  * Call before entering a new level, or after changing dlls
  */
@@ -404,9 +416,6 @@ CL_PrepRefresh(void)
 {
 	char mapname[MAX_QPATH];
 	int i;
-	float rotate = 0;
-	int autorotate = 1;
-	vec3_t axis;
 
 	if (!cl.configstrings[CS_MODELS + 1][0])
 	{
@@ -520,9 +529,7 @@ CL_PrepRefresh(void)
 	/* set sky textures and speed */
 	CL_PrintInSameLine("Sky");
 	SCR_UpdateScreen();
-	sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
-	sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
-	R_SetSky(cl.configstrings[CS_SKY], rotate, autorotate, axis);
+	CL_SetSky();
 	CL_PrintInSameLine("Cleanup.....");
 
 	/* the renderer can now free unneeded stuff */

@@ -1484,6 +1484,13 @@ CL_ParseConfigString(void)
 			OGG_PlayTrack(cl.configstrings[CS_CDTRACK], true, true);
 		}
 	}
+	else if (i == CS_SKYROTATE || i == CS_SKYAXIS || i == CS_SKY)
+	{
+		if (cl.refresh_prepped)
+		{
+			CL_SetSky();
+		}
+	}
 	else if ((i >= CS_MODELS) && (i < CS_MODELS + MAX_MODELS))
 	{
 		if (cl.refresh_prepped)

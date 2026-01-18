@@ -469,6 +469,7 @@ void CL_AddShadowLights(void);
 struct sfx_s *CL_RandomFootstepSfx(void);
 struct model_s *CL_PowerScreenModel(void);
 
+void CL_SetSky(void);
 void CL_PrepRefresh(void);
 void CL_LoadShadowLight(int index, const char *s);
 void CL_RegisterSounds(void);
