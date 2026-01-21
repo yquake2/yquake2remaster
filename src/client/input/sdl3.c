@@ -2776,14 +2776,15 @@ IN_ApplyJoyPreset(void)
 	const int final_preset = ARRLEN(joy_presets) - 1;
 	const int i = lroundf(Q_clamp(joy_sensitivity->value, 0, final_preset));
 
+	joy_sensitivity->modified = false;
+	if (first_init) return;
+
 	Cvar_SetValue("joy_yawspeed", joy_presets[i].yawspeed);
 	Cvar_SetValue("joy_pitchspeed",
 				  joy_presets[i].pitchspeed * Q_signf(joy_pitchspeed->value));
 	Cvar_SetValue("joy_extra_yawspeed", joy_presets[i].extra_yawspeed);
 	Cvar_SetValue("joy_extra_pitchspeed", joy_presets[i].extra_pitchspeed);
 	Cvar_SetValue("joy_ramp_time", joy_presets[i].ramp_time);
-
-	joy_sensitivity->modified = false;
 }
 
 #define EQF(a, b) (fabsf((a) - (b)) < 1.0e-6f)
