@@ -93,6 +93,7 @@ Maps support:
 | BSPX   | 38      | Quake 2 ReRelease (Extension to IBSP)      |
 
 Sound support:
+
 | Format | Music | Effects |
 | ------ | ----- | ------- |
 | wav    | No    | Yes     |

@@ -1725,6 +1725,9 @@ struct edict_s
 	int hint_chain_id;
 	float lastMoveTime;
 
+	/* Original entity structure, for fiture reparse custom fields */
+	const char *ent_str;
+
 	/* Fog stuff */
 	edictfog_t fog;
 	edicthfog_t heightfog;

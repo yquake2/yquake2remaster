@@ -847,9 +847,8 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 static char *
 ED_ParseEdict(char *data, edict_t *ent)
 {
+	const char *ent_begin;
 	qboolean init;
-	char keyname[256];
-	const char *com_token;
 
 	if (!ent)
 	{
@@ -860,9 +859,14 @@ ED_ParseEdict(char *data, edict_t *ent)
 	memset(&st, 0, sizeof(st));
 	st.skyautorotate = 1;
 
+	ent_begin = data;
+
 	/* go through all the dictionary pairs */
 	while (1)
 	{
+		const char *com_token;
+		char keyname[256];
+
 		/* parse key */
 		com_token = COM_Parse(&data);
 
@@ -917,6 +921,18 @@ ED_ParseEdict(char *data, edict_t *ent)
 	if (!init)
 	{
 		memset(ent, 0, sizeof(*ent));
+	}
+	else
+	{
+		size_t ent_string_size;
+		char *ent_str;
+
+		ent_string_size = data - ent_begin;
+
+		ent_str = gi.TagMalloc(ent_string_size, TAG_LEVEL);
+		memcpy(ent_str, ent_begin, ent_string_size);
+		ent_str[ent_string_size - 1] = 0;
+		ent->ent_str = ent_str;
 	}
 
 	return data;
