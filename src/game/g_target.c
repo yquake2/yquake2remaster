@@ -2075,6 +2075,22 @@ target_sky_use(edict_t *self, edict_t *other, edict_t *activator)
 	}
 }
 
+static qboolean
+spawn_ent_has_key(const edict_t *self, const char *key)
+{
+	if (!self || !self->ent_str)
+	{
+		return false;
+	}
+
+	if (strstr(self->ent_str, key))
+	{
+		return true;
+	}
+
+	return false;
+}
+
 void
 SP_target_sky(edict_t* self)
 {
@@ -2085,26 +2101,24 @@ SP_target_sky(edict_t* self)
 
 	self->use = target_sky_use;
 
-	if (st.sky && st.sky[0])
+	if (spawn_ent_has_key(self, "\"sky\"") && st.sky && st.sky[0])
 	{
 		self->map = st.sky;
 	}
 
-	if (self->movedir[0] &&
-		self->movedir[1] &&
-		self->movedir[2])
+	if (spawn_ent_has_key(self, "\"skyaxis\""))
 	{
 		self->count |= 4;
 		VectorCopy(st.skyaxis, self->movedir);
 	}
 
-	if (st.skyrotate)
+	if (spawn_ent_has_key(self, "\"skyrotate\""))
 	{
 		self->count |= 1;
 		self->accel = st.skyrotate;
 	}
 
-	if (st.skyautorotate)
+	if (spawn_ent_has_key(self, "\"skyautorotate\""))
 	{
 		self->count |= 2;
 		self->style = st.skyautorotate;
