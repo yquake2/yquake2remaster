@@ -3467,6 +3467,8 @@ ModsApplyActionFunc(void *unused)
 	{
 		/* Unload localization */
 		SV_LocalizationFree();
+		/* Free models cache */
+		Mod_AliasesFreeAll();
 
 		if(Com_ServerState())
 		{

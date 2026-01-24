@@ -795,7 +795,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					parent = pbones[b].parent;
 					if (parent == -1)
 					{
-						memcpy(bonetransform[b], bonematrix, sizeof(float) * 12);
+						memcpy(bonetransform[b], bonematrix, sizeof(bonematrix_t));
 					}
 					else
 					{
@@ -813,7 +813,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					}
 
 					VectorTransform(out_vert[v].xyz, bonetransform[bone], temp_verts[v].xyz);
-					VectorClear(out_vert[v].norm);
+					VectorClear(temp_verts[v].norm);
 				}
 
 				PrepareFrameVertex(temp_verts, num_verts, frame);

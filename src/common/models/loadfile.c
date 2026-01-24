@@ -36,8 +36,11 @@ typedef struct
 	void *extradata;
 } model_t;
 
-static int model_num;
 static model_t mod_known[MAX_MOD_KNOWN];
+/* Count elements to sort and search, should grow up to MAX_MOD_KNOWN */
+static int model_used;
+/* -1 element to next delete */
+static int model_num;
 
 static void
 Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
@@ -275,6 +278,7 @@ Mod_AliasesInit(void)
 {
 	memset(mod_known, 0, sizeof(*mod_known));
 	model_num = 0;
+	model_used = 0;
 }
 
 static void
@@ -298,6 +302,56 @@ Mod_AliasesFreeAll(void)
 		Mod_AliasFree(mod_known + i);
 	}
 	model_num = 0;
+	model_used = 0;
+
+	Com_DPrintf("%s: Model alias cache cleanuped\n", __func__);
+}
+
+static model_t *
+Mod_FindModel(const char *name)
+{
+	int start, end;
+
+	if (!name || !name[0])
+	{
+		return NULL;
+	}
+
+	start = 0;
+	end = model_used - 1;
+
+	while (start <= end)
+	{
+		int i, res;
+
+		i = start + (end - start) / 2;
+
+		res = Q_stricmp(mod_known[i].name, name);
+		if (res == 0)
+		{
+			return &mod_known[i];
+		}
+		else if (res < 0)
+		{
+			start = i + 1;
+		}
+		else
+		{
+			end = i - 1;
+		}
+	}
+
+	return NULL;
+}
+
+static int
+ModelSort(const void *p1, const void *p2)
+{
+	model_t *ent1, *ent2;
+
+	ent1 = (model_t*)p1;
+	ent2 = (model_t*)p2;
+	return Q_stricmp(ent1->name, ent2->name);
 }
 
 static const model_t *
@@ -312,6 +366,7 @@ Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 		if (!mod_known[i].extradatasize)
 		{
 			mod = &mod_known[i];
+			model_used ++;
 			break;
 		}
 	}
@@ -337,27 +392,15 @@ Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 
 	Q_strlcpy(mod->name, mod_name, sizeof(mod->name));
 
-	return mod;
-}
-
-static model_t *
-Mod_FindModel(const char *name)
-{
-	size_t i;
-
-	if (!name || !name[0])
+	/* sort models */
+	if (model_used > MAX_MOD_KNOWN)
 	{
-		return NULL;
+		model_used = MAX_MOD_KNOWN;
 	}
 
-	for (i = 0; i < MAX_MOD_KNOWN; i++)
-	{
-		if (!strcmp(name, mod_known[i].name))
-		{
-			return &mod_known[i];
-		}
-	}
-	return NULL;
+	qsort(mod_known, model_used, sizeof(model_t), ModelSort);
+
+	return Mod_FindModel(mod_name);
 }
 
 static int
