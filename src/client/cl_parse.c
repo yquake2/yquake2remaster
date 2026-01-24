@@ -980,8 +980,8 @@ CL_ParseFrame(void)
 
 	if (len == -1 || (byte)len > sizeof(cl.frame.areabits))
 	{
-		Com_Error(ERR_DROP, "%s: areabits overflow (%d > %d)",
-				__func__, len, (int)sizeof(cl.frame.areabits));
+		Com_Error(ERR_DROP, "%s: areabits overflow (%d > " YQ2_COM_PRIdS ")",
+				__func__, len, sizeof(cl.frame.areabits));
 		return;
 	}
 

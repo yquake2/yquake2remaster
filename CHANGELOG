@@ -1,3 +1,16 @@
+Quake II 8.61RR14:
+- Fixes from yquake2,
+- Use model stand min/max to player view height in pmove,
+- Use swim player animation underwater,
+- Extend HLMDL support (still broken),
+- Extend dynamic frames usage in monsters,
+- Q2Test: extend support,
+- Anachronox: check fog field in `whitendon`,
+- ReRelease: implement game code for `dynamic_light`,
+- ReRelease: implement game code for `bmodel_anim`.
+- ReRelease: partial fix of autorotate sky,
+- ReRelease: more weapons.
+
 Quake II 8.61RR13:
 - Fixes from yquake2,
 - game: Lifting the entity limit (by BjossiAlfreds),
