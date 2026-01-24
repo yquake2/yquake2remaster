@@ -26,6 +26,278 @@
  */
 
 #include "models.h"
+#include <math.h>
+
+/* bone controllers */
+typedef struct
+{
+	int bone;	/* -1 == 0 */
+	int type;	/* X, Y, Z, XR, YR, ZR, M */
+	float start;
+	float end;
+	int rest;	/* byte index value at rest */
+	int index;	/* 0-3 user set controller, 4 mouth */
+} hlmdl_bonecontroller_t;
+
+typedef float bonematrix_t[3][4];
+
+typedef unsigned short hlmdl_anim_t[6];
+
+// animation frames
+typedef union
+{
+	struct {
+		byte valid;
+		byte total;
+	} num;
+	short		value;
+} hlmdl_animvalue_t;
+
+// Minimal math helpers copied from engine mathlib
+static void
+AngleQuaternion(const vec3_t angles, vec4_t quaternion)
+{
+	float angle, sr, sp, sy, cr, cp, cy;
+
+	angle = angles[2] * 0.5;
+	sy = sinf(angle);
+	cy = cosf(angle);
+	angle = angles[1] * 0.5;
+	sp = sinf(angle);
+	cp = cosf(angle);
+	angle = angles[0] * 0.5;
+	sr = sinf(angle);
+	cr = cosf(angle);
+
+	quaternion[0] = sr*cp*cy-cr*sp*sy; // X
+	quaternion[1] = cr*sp*cy+sr*cp*sy; // Y
+	quaternion[2] = cr*cp*sy-sr*sp*cy; // Z
+	quaternion[3] = cr*cp*cy+sr*sp*sy; // W
+}
+
+static void
+QuaternionMatrix(const vec4_t quaternion, float (*matrix)[4])
+{
+	matrix[0][0] = 1.0f - 2.0f * quaternion[1] * quaternion[1] - 2.0f * quaternion[2] * quaternion[2];
+	matrix[1][0] = 2.0f * quaternion[0] * quaternion[1] + 2.0f * quaternion[3] * quaternion[2];
+	matrix[2][0] = 2.0f * quaternion[0] * quaternion[2] - 2.0f * quaternion[3] * quaternion[1];
+
+	matrix[0][1] = 2.0f * quaternion[0] * quaternion[1] - 2.0f * quaternion[3] * quaternion[2];
+	matrix[1][1] = 1.0f - 2.0f * quaternion[0] * quaternion[0] - 2.0f * quaternion[2] * quaternion[2];
+	matrix[2][1] = 2.0f * quaternion[1] * quaternion[2] + 2.0f * quaternion[3] * quaternion[0];
+
+	matrix[0][2] = 2.0f * quaternion[0] * quaternion[2] + 2.0f * quaternion[3] * quaternion[1];
+	matrix[1][2] = 2.0f * quaternion[1] * quaternion[2] - 2.0f * quaternion[3] * quaternion[0];
+	matrix[2][2] = 1.0f - 2.0f * quaternion[0] * quaternion[0] - 2.0f * quaternion[1] * quaternion[1];
+}
+
+static void
+QuaternionSlerp(const vec4_t p, vec4_t q, float t, vec4_t qt)
+{
+	int i;
+	float omega, cosom, sinom, sclp, sclq;
+
+	float a = 0;
+	float b = 0;
+	for (i = 0; i < 4; i++)
+	{
+		a += (p[i]-q[i])*(p[i]-q[i]);
+		b += (p[i]+q[i])*(p[i]+q[i]);
+	}
+
+	if (a > b)
+	{
+		for (i = 0; i < 4; i++)
+		{
+			((float*)q)[i] = -((float*)q)[i];
+		}
+	}
+
+	cosom = p[0] * q[0] + p[1] * q[1] + p[2] * q[2] + p[3] * q[3];
+
+	if ((1.0f + cosom) > 0.00000001f)
+	{
+		if ((1.0f - cosom) > 0.00000001f)
+		{
+			omega = acosf(cosom);
+			sinom = sinf(omega);
+			sclp = sinf((1.0f - t) * omega) / sinom;
+			sclq = sinf(t * omega ) / sinom;
+		}
+		else
+		{
+			sclp = 1.0f - t;
+			sclq = t;
+		}
+
+		for (i = 0; i < 4; i++)
+		{
+			qt[i] = sclp * p[i] + sclq * q[i];
+		}
+	}
+	else
+	{
+		qt[0] = -p[1];
+		qt[1] = p[0];
+		qt[2] = -p[3];
+		qt[3] = p[2];
+		sclp = sinf( (1.0f - t) * 0.5f * M_PI);
+		sclq = sinf( t * 0.5f * M_PI);
+
+		for (i = 0; i < 3; i++)
+		{
+			qt[i] = sclp * p[i] + sclq * qt[i];
+		}
+	}
+}
+
+static void
+VectorTransform(const vec3_t in1, const float in2[3][4], vec3_t out)
+{
+	out[0] = DotProduct(in1, in2[0]) + in2[0][3];
+	out[1] = DotProduct(in1, in2[1]) + in2[1][3];
+	out[2] = DotProduct(in1, in2[2]) + in2[2][3];
+}
+
+// Calculate quaternion from anim (port of StudioModel functions, assumes panim points to array per bone)
+static void
+CalcBoneQuaternion(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim, float *q_out)
+{
+	vec4_t q1, q2;
+	vec3_t angle1, angle2;
+	hlmdl_animvalue_t *panimvalue;
+	int j;
+
+	for (j = 0; j < 3; j++)
+	{
+		// default
+		angle1[j] = angle2[j] = pbone->value[j + 3];
+		if (panim && (*panim)[j + 3] != 0)
+		{
+			panimvalue = (hlmdl_animvalue_t *)((byte*)panim + (*panim)[j + 3]);
+			int k = frame;
+			if (panimvalue->num.total < panimvalue->num.valid)
+			{
+				k = 0;
+			}
+
+			while (panimvalue->num.total <= k)
+			{
+				k -= panimvalue->num.total;
+				panimvalue = (hlmdl_animvalue_t *)((byte*)panimvalue + (panimvalue->num.valid + 1) * sizeof(hlmdl_animvalue_t));
+				if (panimvalue->num.total < panimvalue->num.valid)
+				{
+					k = 0;
+				}
+			}
+
+			if (panimvalue->num.valid > k)
+			{
+				angle1[j] = panimvalue[k+1].value;
+
+				if (panimvalue->num.valid > k + 1)
+				{
+					angle2[j] = panimvalue[k+2].value;
+				}
+				else
+				{
+					if (panimvalue->num.total > k + 1)
+					{
+						angle2[j] = angle1[j];
+					}
+					else
+					{
+						angle2[j] = panimvalue[panimvalue->num.valid+2].value;
+					}
+				}
+			}
+			else
+			{
+				angle1[j] = panimvalue[panimvalue->num.valid].value;
+
+				if (panimvalue->num.total > k + 1)
+				{
+					angle2[j] = angle1[j];
+				}
+				else
+				{
+					angle2[j] = panimvalue[panimvalue->num.valid + 2].value;
+				}
+			}
+
+			angle1[j] = pbone->value[j+3] + angle1[j] * pbone->scale[j+3];
+			angle2[j] = pbone->value[j+3] + angle2[j] * pbone->scale[j+3];
+		}
+		// no controllers support; m_adj assumed 0
+	}
+
+	if (angle1[0] != angle2[0] || angle1[1] != angle2[1] || angle1[2] != angle2[2])
+	{
+		AngleQuaternion(angle1, q1);
+		AngleQuaternion(angle2, q2);
+		QuaternionSlerp(q1, q2, s, q_out);
+	}
+	else
+	{
+		AngleQuaternion(angle1, q_out);
+	}
+}
+
+// Calculate bone position from anim
+static void
+CalcBonePosition(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim, float *pos)
+{
+	hlmdl_animvalue_t *panimvalue;
+	int j;
+
+	for (j = 0; j < 3; j++)
+	{
+		pos[j] = pbone->value[j];
+
+		if (panim && (*panim)[j] != 0)
+		{
+			panimvalue = (hlmdl_animvalue_t *)((byte*)panim + (*panim)[j]);
+			int k = frame;
+			if (panimvalue->num.total < panimvalue->num.valid)
+			{
+				k = 0;
+			}
+
+			while (panimvalue->num.total <= k)
+			{
+				k -= panimvalue->num.total;
+				panimvalue = (hlmdl_animvalue_t *)((byte*)panimvalue + (panimvalue->num.valid + 1) * sizeof(hlmdl_animvalue_t));
+				if (panimvalue->num.total < panimvalue->num.valid)
+				{
+					k = 0;
+				}
+			}
+
+			if (panimvalue->num.valid > k)
+			{
+				if (panimvalue->num.valid > k + 1)
+				{
+					pos[j] += (panimvalue[k+1].value * (1.0f - s) + s * panimvalue[k+2].value) * pbone->scale[j];
+				}
+				else
+				{
+					pos[j] += panimvalue[k+1].value * pbone->scale[j];
+				}
+			}
+			else
+			{
+				if (panimvalue->num.total <= k + 1)
+				{
+					pos[j] += (panimvalue[panimvalue->num.valid].value * (1.0f - s) + s * panimvalue[panimvalue->num.valid + 2].value) * pbone->scale[j];
+				}
+				else
+				{
+					pos[j] += panimvalue[panimvalue->num.valid].value * pbone->scale[j];
+				}
+			}
+		}
+	}
+}
 
 /*
 =================
@@ -122,9 +394,6 @@ Mod_LoadHLMDLSkins(const char *mod_name, dmdx_t *pheader, const hlmdl_header_t *
 		width = LittleLong(in_skins[i].width);
 		height = LittleLong(in_skins[i].height);
 
-		Com_DPrintf("%s: Skin %s: %dx%d\n",
-			__func__, in_skins[i].name, width, height);
-
 		src = (byte *)buffer + in_skins[i].offset;
 		pal = src + width * height;
 
@@ -165,7 +434,6 @@ void *
 Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 {
 	const hlmdl_header_t pinmodel;
-	hlmdl_framegroup_t *seqgroups;
 	dmdx_t dmdxheader, *pheader;
 	dmdxmesh_t *mesh_nodes, *mesh_tmp;
 	void *extradata;
@@ -180,6 +448,11 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	int num_st = 0, st_size = 0;
 	int num_tris = 0, tri_size = 0;
 	int num_verts = 0, verts_size = 0;
+	bonematrix_t *bonetransform = NULL;
+	vec4_t *quaternion = NULL;
+	vec3_t *bonepos = NULL;
+	dmdx_vert_t *temp_verts = NULL;
+	hlmdl_bone_t *pbones;
 
 	Mod_LittleHeader((int *)buffer, sizeof(pinmodel) / sizeof(int),
 		(int *)&pinmodel);
@@ -213,17 +486,12 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	}
 
 	sequences = (const hlmdl_sequence_t *)((const byte *)buffer + pinmodel.ofs_seq);
-	seqgroups = (hlmdl_framegroup_t *)((byte *)buffer + pinmodel.ofs_seqgroup);
-	for (i = 0; i < pinmodel.num_seqgroups; i++)
-	{
-		Com_Printf("%s: %s: Seqgroup  %s: %s\n",
-			__func__, mod_name, seqgroups[i].label, seqgroups[i].name);
-	}
 
 	Mod_LoadHLMDLSkinsSize(&pinmodel, buffer, &skinw, &skinh);
 
 	bodyparts = (hlmdl_bodypart_t *)((byte *)buffer + pinmodel.ofs_bodyparts);
 	mesh_tmp = calloc(pinmodel.num_bodyparts, sizeof(*mesh_tmp));
+
 	for (i = 0; i < pinmodel.num_bodyparts; i++)
 	{
 		hlmdl_bodymodel_t *bodymodels;
@@ -232,21 +500,13 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		/* TODO: convert submodels to additional meshes? */
 		mesh_tmp[i].ofs_tris = num_tris;
 
-		Com_Printf("%s: %s: Bodypart %s: nummodels %d, base %d\n",
-			__func__, mod_name, bodyparts[i].name, bodyparts[i].num_models,
-			bodyparts[i].base);
-
 		bodymodels = (hlmdl_bodymodel_t *)((byte *)buffer + bodyparts[i].ofs_model);
 		for (j = 0; j < bodyparts[i].num_models; j++)
 		{
 			hlmdl_bodymesh_t *mesh_nodes;
 			vec3_t *in_verts;
-			int *in_boneids;
+			byte *in_boneids;
 			int k;
-
-			Com_Printf("%s: %s: body part '%s' model '%s' mesh %d\n",
-				__func__, mod_name, bodyparts[i].name, bodymodels[j].name,
-				bodymodels[j].num_mesh);
 
 			mesh_nodes = (hlmdl_bodymesh_t *)((byte *)buffer + bodymodels[j].ofs_mesh);
 			for (k = 0; k < bodymodels[j].num_mesh; k++)
@@ -254,22 +514,11 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 				short *trivert;
 				int l;
 
-				/*
-				Com_Printf("%s: %s: mesh #%d tris %d, ofs: %d, skin: %d, norms: %d\n",
-					__func__, mod_name, k, mesh_nodes[k].num_tris,
-						mesh_nodes[k].ofs_tris, mesh_nodes[k].skinref, mesh_nodes[k].num_norms);
-				*/
-
 				trivert = (short *)((byte *)buffer + mesh_nodes[k].ofs_tris);
 				while ((l = *(trivert++)))
 				{
 					int g, count = l, st_prefix = num_st;
 					int *verts = NULL;
-
-					/*
-					Com_Printf("%s: %s: tris %d\n",
-						__func__, mod_name, l);
-					*/
 
 					if (count < 0)
 					{
@@ -325,13 +574,6 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 						num_st++;
 
 						verts[g] = trivert[0];
-
-						/*
-						Com_Printf("%s: %s: tris #%d vert: %d, norm: %d, s: %d, t: %d\n",
-							__func__, mod_name, l,
-							trivert[0], trivert[1],
-							trivert[2], trivert[3]);
-						*/
 					}
 
 					/* Reconstruct triangles */
@@ -381,8 +623,14 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			}
 
 			in_verts = (vec3_t *)((byte *)buffer + bodymodels[j].ofs_vert);
-			in_boneids = (int *)((byte *)buffer + bodymodels[j].ofs_vert);
-			if (!out_vert || !in_boneids ||
+			in_boneids = NULL;
+			if (bodymodels[j].ofs_vertinfo > 0 &&
+				bodymodels[j].ofs_vertinfo + bodymodels[j].num_verts <= modfilelen)
+			{
+				in_boneids = (byte*)((byte *)buffer + bodymodels[j].ofs_vertinfo);
+			}
+
+			if (!out_vert ||
 				(num_verts + bodymodels[j].num_verts) >= verts_size)
 			{
 				dmdx_vert_t *tmp_verts = NULL;
@@ -413,22 +661,21 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 			for (k = 0; k < bodymodels[j].num_verts; k++)
 			{
-				int l;
+				int l, bone = 0;
 
 				for (l = 0; l < 3; l++)
 				{
 					out_vert[num_verts].xyz[l] = LittleFloat(in_verts[k][l]);
 				}
 
-				out_boneids[num_verts] = LittleLong(in_boneids[k]);
+				if (in_boneids)
+				{
+					bone = in_boneids[k];
+				}
+
+				out_boneids[num_verts] = bone;
 
 				num_verts++;
-
-				/*
-				 Com_Printf("%s: vert[%03ld]: %.2fx%.2fx%.2fx\n",
-					__func__, k,
-					in_verts[k][0], in_verts[k][1], in_verts[k][2]);
-				*/
 			}
 		}
 
@@ -463,9 +710,6 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_frames = total_frames;
 	dmdxheader.num_animgroup = pinmodel.num_seq;
 
-	Com_DPrintf("%s: %s has %d frames\n",
-		__func__, mod_name, total_frames);
-
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
 	/* create single mesh */
@@ -481,12 +725,42 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		num_tris * sizeof(dtriangle_t));
 	free(tri_tmp);
 
+	if (pinmodel.num_bones > 0)
+	{
+		bonetransform = malloc(sizeof(bonematrix_t) * pinmodel.num_bones);
+		YQ2_COM_CHECK_OOM(bonetransform, "malloc()", sizeof(bonematrix_t) * pinmodel.num_bones)
+		quaternion = malloc(sizeof(vec4_t) * pinmodel.num_bones);
+		YQ2_COM_CHECK_OOM(quaternion, "malloc()", sizeof(vec4_t) * pinmodel.num_bones)
+		bonepos = malloc(sizeof(vec3_t) * pinmodel.num_bones);
+		YQ2_COM_CHECK_OOM(bonepos, "malloc()", sizeof(vec3_t) * pinmodel.num_bones)
+	}
+
+	temp_verts = malloc(sizeof(dmdx_vert_t) * num_verts);
+	YQ2_COM_CHECK_OOM(temp_verts, "malloc()", sizeof(dmdx_vert_t) * num_verts)
+	if (!temp_verts)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return NULL;
+	}
+
 	total_frames = 0;
+	pbones = (hlmdl_bone_t *)((byte*)buffer + pinmodel.ofs_bones);
 	for (i = 0; i < pinmodel.num_seq; i++)
 	{
+		const hlmdl_sequence_t *pseq = &sequences[i];
+		hlmdl_anim_t *panim = NULL;
 		int j;
 
-		for(j = 0; j < sequences[i].num_frames; j ++)
+		if (pseq->seqgroup == 0)
+		{
+			panim = (hlmdl_anim_t *)((byte*)buffer + pseq->animindex);
+		}
+		else
+		{
+			/* sequence group from other file is unsupported */
+		}
+
+		for(j = 0; j < pseq->num_frames; j ++)
 		{
 			daliasxframe_t *frame = (daliasxframe_t *)(
 				(byte *)pheader + pheader->ofs_frames + total_frames * pheader->framesize);
@@ -494,12 +768,70 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 			/* name of frames will be duplicated */
 			Q_strlcpy(frame->name, sequences[i].name, sizeof(frame->name));
 
-			PrepareFrameVertex(out_vert, num_verts, frame);
+			/* compute bone transforms */
+			if (pinmodel.num_bones > 0 && bonetransform && quaternion && bonepos)
+			{
+				int v, b;
+
+				memset(bonetransform, 0, sizeof(bonematrix_t) * pinmodel.num_bones);
+				memset(quaternion, 0, sizeof(vec4_t) * pinmodel.num_bones);
+				memset(bonepos, 0, sizeof(vec3_t) * pinmodel.num_bones);
+
+				for (b = 0; b < pinmodel.num_bones; ++b)
+				{
+					float bonematrix[3][4];
+					int parent;
+
+					CalcBoneQuaternion(j, 0.0f, &pbones[b],
+						panim ? &panim[b] : NULL, quaternion[b]);
+					CalcBonePosition(j, 0.0f, &pbones[b],
+						panim ? &panim[b] : NULL, bonepos[b]);
+
+					QuaternionMatrix(quaternion[b], bonematrix);
+					bonematrix[0][3] = bonepos[b][0];
+					bonematrix[1][3] = bonepos[b][1];
+					bonematrix[2][3] = bonepos[b][2];
+
+					parent = pbones[b].parent;
+					if (parent == -1)
+					{
+						memcpy(bonetransform[b], bonematrix, sizeof(float) * 12);
+					}
+					else
+					{
+						R_ConcatTransforms(bonetransform[parent], bonematrix, bonetransform[b]);
+					}
+				}
+
+				/* transform verts */
+				for (v = 0; v < num_verts; ++v)
+				{
+					int bone = out_boneids[v];
+					if (bone < 0 || bone >= pinmodel.num_bones)
+					{
+						bone = 0;
+					}
+
+					VectorTransform(out_vert[v].xyz, bonetransform[bone], temp_verts[v].xyz);
+				}
+
+				PrepareFrameVertex(temp_verts, num_verts, frame);
+			}
+			else
+			{
+				/* no bones, just copy */
+				PrepareFrameVertex(out_vert, num_verts, frame);
+			}
+
 			total_frames++;
 		}
 	}
 	free(out_vert);
 	free(out_boneids);
+	free(bonetransform);
+	free(quaternion);
+	free(bonepos);
+	free(temp_verts);
 
 	Mod_LoadHLMDLSkins(mod_name, pheader, &pinmodel, buffer);
 	Mod_LoadHLMDLAnimGroupList(pheader, sequences, pinmodel.num_seq);
