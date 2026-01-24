@@ -468,6 +468,16 @@ Mod_LoadFileWithoutExtModel(const char *namewe, size_t tlen, void **buffer)
 		return filesize;
 	}
 
+	/* Check Wavefront model */
+	Q_strlcpy(newname + tlen, ".obj", sizeof(newname));
+	filesize = FS_LoadFile(newname, buffer);
+	if (filesize > 0)
+	{
+		Com_DPrintf("%s: %s loaded as obj (Wavefront)\n",
+			__func__, namewe);
+		return filesize;
+	}
+
 	return -1;
 }
 
@@ -812,6 +822,7 @@ Mod_LoadFile(const char *name, void **buffer)
 		!strcmp(ext, "md5mesh") ||
 		!strcmp(ext, "mdx") ||
 		!strcmp(ext, "mdl") ||
+		!strcmp(ext, "obj") ||
 		/* sprites */
 		!strcmp(ext, "bk") ||
 		!strcmp(ext, "sp2") ||

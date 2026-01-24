@@ -6414,7 +6414,8 @@ PlayerModelList(void)
 			ContainsFile(s, "tris.mdr") == false &&
 			ContainsFile(s, "tris.md5mesh") == false &&
 			ContainsFile(s, "tris.mdx") == false &&
-			ContainsFile(s, "tris.mdl") == false)
+			ContainsFile(s, "tris.mdl") == false &&
+			ContainsFile(s, "tris.obj") == false)
 		{
 			/* invalid player model */
 			continue;
