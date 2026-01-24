@@ -444,6 +444,7 @@ VID_LoadRenderer(void)
 	ri.FS_LoadFile = FS_LoadFile;
 	ri.FS_AllocFile = Z_Malloc;
 	ri.Mod_LoadFile = Mod_LoadFile;
+	ri.Mod_FreeFile = Mod_FreeFile;
 	ri.GLimp_InitGraphics = GLimp_InitGraphics;
 	ri.GLimp_GetDesktopMode = GLimp_GetDesktopMode;
 	ri.Sys_Error = Com_Error;

@@ -710,6 +710,7 @@ GL3_EndRegistration(void)
 		if (mod->registration_sequence != registration_sequence)
 		{
 			/* don't need this model */
+			ri.Mod_FreeFile(mod->name);
 			Mod_Free(mod);
 		}
 	}

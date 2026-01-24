@@ -274,6 +274,7 @@ typedef struct
 
 	/* Rerelease: Get file from cache/converted */
 	int (IMPORT *Mod_LoadFile)(const char *path, void **buffer);
+	void (IMPORT *Mod_FreeFile)(const char *path);
 } refimport_t;
 
 // this is the only function actually exported at the linker level

@@ -822,6 +822,22 @@ Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 	return NULL;
 }
 
+/* Alias model is not used any more */
+void
+Mod_FreeFile(const char *path)
+{
+	model_t *mod;
+
+	mod = Mod_FindModel(path);
+	if (mod)
+	{
+		Mod_AliasFree(mod);
+
+		/* Resort model list */
+		qsort(mod_known, model_used, sizeof(model_t), ModelSort);
+	}
+}
+
 /*
 =================
 Mod_LoadFile
