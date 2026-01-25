@@ -415,10 +415,8 @@ R_PolysetCalcGradients (int skinwidth)
 	r_zistepy = (int)((t1 * p00_minus_p20 - t0 * p10_minus_p20) *
 			ystepdenominv);
 
-	{
-		a_sstepxfrac = r_sstepx & 0xFFFF;
-		a_tstepxfrac = r_tstepx & 0xFFFF;
-	}
+	a_sstepxfrac = r_sstepx & 0xFFFF;
+	a_tstepxfrac = r_tstepx & 0xFFFF;
 
 	a_ststepxwhole = skinwidth * (r_tstepx >> SHIFT16XYZ) + (r_sstepx >> SHIFT16XYZ);
 }
@@ -730,19 +728,29 @@ R_PolysetDrawSpans8_Opaque (const entity_t *currententity, spanpackage_t *pspanp
 
 				if ((lzi >> SHIFT16XYZ) >= *lpz)
 				{
-					if (r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags & RF_IR_VISIBLE)
+					if ((r_newrefdef.rdflags & RDF_IRGOGGLES) &&
+						(currententity->flags & RF_IR_VISIBLE))
+					{
 						*lpdest = vid_colormap[irtable[*lptex]];
+					}
 					else
+					{
 						*lpdest = R_ApplyLight(*lptex, llight);
+					}
 
 					*lpz = lzi >> SHIFT16XYZ;
 					zdamaged = true;
 				}
+
 				lpdest++;
 				lzi += r_zistepx;
 				lpz++;
-				for (i=0; i<3; i++)
+
+				for (i = 0; i < 3; i++)
+				{
 					llight[i] += r_lstepx[i];
+				}
+
 				lptex += a_ststepxwhole;
 				lsfrac += a_sstepxfrac;
 				lptex += lsfrac >> SHIFT16XYZ;
@@ -787,7 +795,7 @@ R_ProcessLeftEdge(const compactvert_t *plefttop, const compactvert_t *prighttop,
 	s = plefttop->s * r_affinetridesc.scalewidth;
 	t = plefttop->t * r_affinetridesc.scaleheight;
 	i = (s >> SHIFT16XYZ) + (t >> SHIFT16XYZ) * r_affinetridesc.skinwidth;
-	d_ptex = &r_affinetridesc.pskin[i];
+	d_ptex = r_affinetridesc.pskin + i;
 	d_sfrac = s & 0xFFFF;
 	d_tfrac = t & 0xFFFF;
 
@@ -795,6 +803,7 @@ R_ProcessLeftEdge(const compactvert_t *plefttop, const compactvert_t *prighttop,
 	d_zi = plefttop->zi;
 
 	height = pleftbottom->v - plefttop->v;
+
 	if (height == 1)
 	{
 		// skip calculations needed for 2+ spans
@@ -802,6 +811,7 @@ R_ProcessLeftEdge(const compactvert_t *plefttop, const compactvert_t *prighttop,
 				d_ptex, d_sfrac, d_tfrac, d_light, d_zi);
 		return;
 	}
+
 	R_PolysetSetUpForLineScan(plefttop->u, plefttop->v,
 				  pleftbottom->u, pleftbottom->v);
 

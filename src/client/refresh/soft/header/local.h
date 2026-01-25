@@ -462,12 +462,13 @@ extern edge_t	**newedges;
 extern edge_t	**removeedges;
 
 typedef struct {
-	int		u, v, count;
-	pixel_t		*ptex;
-	int		sfrac, tfrac;
-	light3_t	light;
-	zvalue_t	zi;
+	int u, v, count;
+	pixel_t *ptex;
+	int sfrac, tfrac;
+	light3_t light;
+	zvalue_t zi;
 } spanpackage_t;
+
 extern spanpackage_t	*triangle_spans, *triangles_max;
 
 void R_PolysetDrawSpans8_33(const entity_t *currententity, spanpackage_t *pspanpackage);

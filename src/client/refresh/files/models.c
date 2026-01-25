@@ -73,9 +73,9 @@ Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 		}
 
 		Com_DPrintf(
-			"%s: model %s num tris %d / num vert %d / commands %d of %d / frames %d\n",
+			"%s: model %s num tris %d / num vert %d / commands %d of %d / frames %d / %d kb used\n",
 			__func__, mod_name, pheader->num_tris, pheader->num_xyz, num_glcmds,
-			pheader->num_glcmds, pheader->num_frames);
+			pheader->num_glcmds, pheader->num_frames, pheader->ofs_end / 1024);
 	}
 }
 
