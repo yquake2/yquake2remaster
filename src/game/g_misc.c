@@ -1758,9 +1758,8 @@ barrel_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */, csurfa
 void
 barrel_explode(edict_t *self)
 {
-	vec3_t org;
+	vec3_t org, save;
 	float spd;
-	vec3_t save;
 
 	if (!self)
 	{

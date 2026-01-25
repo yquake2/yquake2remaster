@@ -728,7 +728,7 @@ obj_andwallhanging|models/objects/andwallhang/tris.fm|1.0|1.0|1.0|general|0.0|-1
 obj_banner|models/objects/banner/wall/tris.fm|1.0|1.0|1.0|general|-8.0|-44.0|-296.0|8.0|44.0|0.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Banner|0.3|0.3|1.0|40|200|0|0|0|0|0|cloth|0
 obj_banneronpole|models/objects/banner/onpole/tris.fm|1.0|1.0|1.0|general|-8.0|-28.0|-30.0|8.0|28.0|30.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Banner on Pole|0.3|0.3|1.0|40|200|0|0|0|0|0|wood|0
 obj_barrel|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-12.0|-12.0|-19.0|12.0|12.0|19.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Barrel|0.3|0.3|1.0|10|60|0|0|0|0|0|wood|0
-obj_barrel_explosive|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Explosive barrel. Use barrel with spawnflags 4 instead|0.3|0.3|1.0|75|125|0|0|0|0|0|wood|0
+obj_barrel_explosive|models/objects/barrel/normal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Explosive barrel. Use barrel with spawnflags 4 instead|0.3|0.3|1.0|75|125|10|0|0|0|0|wood|0
 obj_barrel_metal|models/objects/barrel/metal/tris.fm|1.0|1.0|1.0|general|-11.0|-12.0|-18.0|11.0|12.0|18.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Metal barrel|0.3|0.3|1.0|75|125|0|0|0|0|0|metal|0
 obj_basket|models/objects/pots/basket/tris.fm|1.0|1.0|1.0|general|-13.0|-13.0|-21.0|13.0|13.0|21.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Basket|0.3|0.3|1.0|50|70|0|0|0|0|0|wood|0
 obj_bench|models/objects/chairs/bench/tris.fm|1.0|1.0|1.0|general|-10.0|-22.0|-10.0|10.0|22.0|10.0|shadow|1|0.0|0.0|0|0|0|0:0|0|0|none|Bench|0.3|0.3|1.0|3|4|0|0|0|0|0|wood|0
