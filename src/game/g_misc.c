@@ -1150,7 +1150,7 @@ ParseShadowLight(const char **line)
 		return 0;
 	}
 
-	len = Q_min(end_line - *line, sizeof(token));
+	len = Q_min(end_line - *line, sizeof(token) - 1);
 	strncpy(token, *line, len);
 	token[len] = 0;
 	*line = end_line + 1;
