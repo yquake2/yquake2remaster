@@ -846,7 +846,7 @@ SP_obj_moss(edict_t *self)
 	{
 		self->s.skinnum = 1;
 	}
-	if (!strcmp(self->classname, "obj_moss3"))
+	else if (!strcmp(self->classname, "obj_moss3"))
 	{
 		self->s.skinnum = 2;
 	}
