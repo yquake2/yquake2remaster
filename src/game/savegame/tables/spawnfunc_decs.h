@@ -196,6 +196,8 @@ extern void SP_obj_dying_elf( edict_t * self ) ;
 extern void SP_obj_eggpan( edict_t * self ) ;
 extern void SP_obj_eyeball_jar( edict_t * self ) ;
 extern void SP_obj_firepot( edict_t * self ) ;
+extern void SP_obj_fishhead1( edict_t * self ) ;
+extern void SP_obj_fishhead2( edict_t * self ) ;
 extern void SP_obj_flagonpole( edict_t * self ) ;
 extern void SP_obj_floor_candelabrum( edict_t * self ) ;
 extern void SP_obj_fountain_fish( edict_t * self ) ;

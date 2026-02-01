@@ -224,6 +224,8 @@
 {"obj_eggpan", SP_obj_eggpan},
 {"obj_eyeball_jar", SP_obj_eyeball_jar},
 {"obj_firepot", SP_obj_firepot},
+{"obj_fishhead1", SP_obj_fishhead1},
+{"obj_fishhead2", SP_obj_fishhead2},
 {"obj_fishtrap", SP_obj_material},
 {"obj_flagonpole", SP_obj_flagonpole},
 {"obj_floor_candelabrum", SP_obj_floor_candelabrum},

@@ -27,6 +27,11 @@
 
 #include "header/local.h"
 
+#define OBJ_NODAMAGE   1
+#define OBJ_WITHEFFECT 2
+#define OBJ_EXPLODE    4
+#define OBJ_STOPMOVE   8
+
 void
 destructible_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
@@ -50,17 +55,6 @@ destructible_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damag
 	{
 		G_FreeEdict(self); /* Remove object */
 	}
-}
-
-void
-DynamicObjectSpawn(edict_t *self)
-{
-	self->movetype = MOVETYPE_NONE;
-	self->takedamage = DAMAGE_YES;
-
-	self->die = destructible_die;
-
-	gi.linkentity(self);
 }
 
 /*
@@ -176,8 +170,26 @@ DynamicObjectSpawn(edict_t *self)
 void
 SP_obj_material(edict_t *self)
 {
-	/* TODO: should rename to obj_material */
-	DynamicObjectSpawn(self);
+	if (self->spawnflags & OBJ_NODAMAGE)
+	{
+		self->takedamage = DAMAGE_NO;
+	}
+	else
+	{
+		self->takedamage = DAMAGE_YES;
+	}
+
+	if (!(self->spawnflags & OBJ_STOPMOVE))
+	{
+		self->movetype = MOVETYPE_STOP;
+	}
+	else
+	{
+		self->movetype = MOVETYPE_NONE;
+	}
+
+	self->die = destructible_die;
+	gi.linkentity(self);
 }
 
 /*
@@ -188,6 +200,7 @@ SP_obj_material(edict_t *self)
 void
 SP_obj_banner(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.sound = gi.soundindex("ambient/bannerflap.wav");
 	object_spawn(self);
 }
@@ -200,6 +213,7 @@ SP_obj_banner(edict_t *self)
 void
 SP_obj_banneronpole(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.sound = gi.soundindex("ambient/bannerflap.wav");
 	object_spawn(self);
 }
@@ -256,7 +270,7 @@ SP_object_flame1(edict_t *self)
 void
 SP_obj_barrel(edict_t *self)
 {
-	if (self->spawnflags & 4)
+	if (self->spawnflags & OBJ_EXPLODE)
 	{
 		self->dmg = 10;
 		self->s.skinnum = 1;
@@ -273,7 +287,7 @@ SP_obj_barrel(edict_t *self)
 void
 SP_object_barrel(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -284,6 +298,7 @@ SP_object_barrel(edict_t *self)
 void
 SP_obj_broom(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -295,6 +310,7 @@ SP_obj_broom(edict_t *self)
 void
 SP_obj_chair2(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -306,6 +322,7 @@ SP_obj_chair2(edict_t *self)
 void
 SP_obj_chair3(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -328,6 +345,7 @@ SP_obj_chest1(edict_t *self)
 void
 SP_obj_chest2(edict_t *self)
 {
+	self->spawnflags &= ~OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -339,6 +357,7 @@ SP_obj_chest2(edict_t *self)
 void
 SP_obj_chest3(edict_t *self)
 {
+	self->spawnflags &= ~OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -350,6 +369,7 @@ SP_obj_chest3(edict_t *self)
 void
 SP_obj_cog1(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -428,13 +448,9 @@ SP_obj_sign1(edict_t *self)
 		self->s.skinnum = self->style;
 	}
 
-	self->movetype = MOVETYPE_NONE;
-	/*
-	 * object_spawn(self);
-	 */
 	self->s.frame = 3;
-
-	gi.linkentity(self);
+	self->spawnflags |= OBJ_STOPMOVE;
+	SP_obj_material(self);
 }
 
 /*
@@ -445,6 +461,8 @@ SP_obj_sign1(edict_t *self)
 void
 SP_obj_sign4(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
+
 	if (!self->style)
 	{
 		self->s.skinnum = 0;
@@ -465,6 +483,7 @@ SP_obj_sign4(edict_t *self)
 void
 SP_obj_statue_corvus(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -476,6 +495,17 @@ SP_obj_statue_corvus(edict_t *self)
 void
 SP_obj_statue_dolphin1(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
+
+	if (self->spawnflags & OBJ_NODAMAGE)
+	{
+		self->spawnflags &= ~OBJ_NODAMAGE; // can be destroyed
+	}
+	else
+	{
+		self->spawnflags |= OBJ_NODAMAGE; // can't be destroyed
+	}
+
 	SP_obj_material(self);
 }
 
@@ -488,7 +518,7 @@ void
 SP_obj_statue_dolphin2(edict_t *self)
 {
 	self->s.frame = 1;
-
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -501,7 +531,7 @@ void
 SP_obj_statue_dolphin3(edict_t *self)
 {
 	self->s.frame = 3;
-
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -514,7 +544,7 @@ void
 SP_obj_statue_dolphin4(edict_t *self)
 {
 	self->s.frame = 2;
-
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -526,6 +556,7 @@ SP_obj_statue_dolphin4(edict_t *self)
 void
 SP_obj_statue_guardian(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -537,6 +568,7 @@ SP_obj_statue_guardian(edict_t *self)
 void
 SP_obj_table2(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -548,6 +580,7 @@ SP_obj_table2(edict_t *self)
 void
 SP_obj_throne(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -607,7 +640,7 @@ SP_obj_statue_duckbill2(edict_t *self)
 void
 SP_obj_seasonglobe(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -699,7 +732,7 @@ SP_obj_tree2(edict_t *self)
 void
 SP_obj_tree3(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -710,7 +743,7 @@ SP_obj_tree3(edict_t *self)
 void
 SP_obj_treetall(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1091,7 +1124,7 @@ SP_obj_barrel_metal(edict_t *self)
 void
 SP_obj_barrel_exploding(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1102,7 +1135,7 @@ SP_obj_barrel_exploding(edict_t *self)
 void
 SP_obj_barrel_indestructible(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1286,7 +1319,7 @@ SP_obj_queenchair(edict_t *self)
 void
 SP_obj_shrine(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1297,6 +1330,7 @@ SP_obj_shrine(edict_t *self)
 void
 SP_obj_larvaegg(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1308,6 +1342,7 @@ SP_obj_larvaegg(edict_t *self)
 void
 SP_obj_larvabrokenegg(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1319,6 +1354,7 @@ SP_obj_larvabrokenegg(edict_t *self)
 void
 SP_obj_cocoon(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1330,6 +1366,7 @@ SP_obj_cocoon(edict_t *self)
 void
 SP_obj_cocoonopen(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	self->s.frame = 20;
 	SP_obj_material(self);
 }
@@ -1342,6 +1379,7 @@ SP_obj_cocoonopen(edict_t *self)
 void
 SP_obj_venusflytrap(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1353,6 +1391,8 @@ SP_obj_venusflytrap(edict_t *self)
 void
 SP_obj_statue_techeckriktomb(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
+	self->s.frame = 1;
 	SP_obj_material(self);
 }
 
@@ -1364,6 +1404,7 @@ SP_obj_statue_techeckriktomb(edict_t *self)
 void
 SP_obj_statue_techeckrikright(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.frame = 2;
 
 	if (self->spawnflags & 16)
@@ -1382,6 +1423,7 @@ SP_obj_statue_techeckrikright(edict_t *self)
 void
 SP_obj_statue_techeckrikleft(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.frame = 0;
 
 	if (self->spawnflags & 16)
@@ -1400,6 +1442,7 @@ SP_obj_statue_techeckrikleft(edict_t *self)
 void
 SP_obj_spellbook(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.frame = 20;
 	SP_obj_material(self);
 }
@@ -1412,6 +1455,7 @@ SP_obj_spellbook(edict_t *self)
 void
 SP_obj_skullpole(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -1423,6 +1467,7 @@ SP_obj_skullpole(edict_t *self)
 void
 SP_obj_pot1(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1434,6 +1479,7 @@ SP_obj_pot1(edict_t *self)
 void
 SP_obj_torture_table(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	if (self->style < 2)
 	{
 		self->s.frame = self->style;
@@ -1454,6 +1500,7 @@ SP_obj_torture_table(edict_t *self)
 void
 SP_obj_torture_wallring(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1465,6 +1512,7 @@ SP_obj_torture_wallring(edict_t *self)
 void
 SP_obj_statue_tchecktrik_bust(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	if (!self->style)
 	{
 		self->s.frame = 1;
@@ -1486,8 +1534,8 @@ SP_obj_statue_tchecktrik_bust(edict_t *self)
 void
 SP_obj_statue_sithraguard(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.frame = 0;
-
 	SP_obj_material(self);
 }
 
@@ -1499,6 +1547,7 @@ SP_obj_statue_sithraguard(edict_t *self)
 void
 SP_obj_torture_ironmaiden(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	self->s.frame = 0;
 
 	SP_obj_material(self);
@@ -1512,6 +1561,7 @@ SP_obj_torture_ironmaiden(edict_t *self)
 void
 SP_obj_torture_rack(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -1523,6 +1573,7 @@ SP_obj_torture_rack(edict_t *self)
 void
 SP_obj_torture_bed(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -1534,6 +1585,7 @@ SP_obj_torture_bed(edict_t *self)
 void
 SP_obj_statue_saraphbust(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1556,6 +1608,7 @@ SP_obj_biotank(edict_t *self)
 void
 SP_obj_tapper(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1567,6 +1620,7 @@ SP_obj_tapper(edict_t *self)
 void
 SP_obj_wallringplaque(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -1578,7 +1632,7 @@ SP_obj_wallringplaque(edict_t *self)
 void
 SP_obj_hangingdude(edict_t *self)
 {
-	DynamicObjectSpawn(self);
+	SP_obj_material(self);
 }
 
 /*
@@ -1589,6 +1643,7 @@ SP_obj_hangingdude(edict_t *self)
 void
 SP_obj_frypan(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1600,6 +1655,7 @@ SP_obj_frypan(edict_t *self)
 void
 SP_obj_eggpan(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1611,6 +1667,7 @@ SP_obj_eggpan(edict_t *self)
 void
 SP_obj_nest(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1622,6 +1679,7 @@ SP_obj_nest(edict_t *self)
 void
 SP_obj_choppeddude(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1633,6 +1691,7 @@ SP_obj_choppeddude(edict_t *self)
 void
 SP_obj_eyeball_jar(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1644,6 +1703,7 @@ SP_obj_eyeball_jar(edict_t *self)
 void
 SP_obj_lab_tray(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1655,6 +1715,7 @@ SP_obj_lab_tray(edict_t *self)
 void
 SP_obj_hanging_ogle(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1666,6 +1727,7 @@ SP_obj_hanging_ogle(edict_t *self)
 void
 SP_obj_ring_plaque2(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE | OBJ_NODAMAGE;
 	SP_obj_material(self);
 }
 
@@ -1677,6 +1739,7 @@ SP_obj_ring_plaque2(edict_t *self)
 void
 SP_obj_statue_sariph(edict_t *self)
 {
+	self->spawnflags |= OBJ_STOPMOVE;
 	SP_obj_material(self);
 }
 
@@ -1782,5 +1845,33 @@ SP_object_campfire(edict_t *self)
 			break;
 	}
 
+	gi.linkentity(self);
+}
+
+/*
+ * QUAKED obj_fishhead1 (0.3 0.3 1.0) (0 -76 -86) (136 76 86)
+ *
+ * Heretic2: Fish head fountain
+ */
+void
+SP_obj_fishhead1(edict_t *self)
+{
+	self->spawnflags |= OBJ_NODAMAGE | OBJ_STOPMOVE;
+	SP_obj_material(self);
+}
+
+/*
+ * QUAKED obj_fishhead2 (0.3 0.3 1.0) (0 -110 -118) (136 110 118)
+ *
+ * Heretic2: Fish head fountain 2
+ */
+void
+SP_obj_fishhead2(edict_t *self)
+{
+	self->spawnflags |= OBJ_STOPMOVE;
+	self->takedamage = DAMAGE_NO;
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_BBOX;
+	self->clipmask = MASK_MONSTERSOLID;
 	gi.linkentity(self);
 }
