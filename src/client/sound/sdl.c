@@ -1222,6 +1222,9 @@ SDL_Update(void)
 
 	if (!soundtime)
 	{
+#ifndef USE_SDL3
+		SDL_UnlockAudio();
+#endif
 		return;
 	}
 
