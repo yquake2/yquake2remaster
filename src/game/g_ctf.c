@@ -3832,7 +3832,7 @@ CTFGhost(edict_t *ent)
 		return;
 	}
 
-	n = atoi(gi.argv(1));
+	n = (int)strtol(gi.argv(1), (char **)NULL, 10);
 
 	for (i = 0; i < MAX_CLIENTS; i++)
 	{
@@ -5205,13 +5205,13 @@ CTFBoot(edict_t *ent)
 		return;
 	}
 
-	if ((*gi.argv(1) < '0') && (*gi.argv(1) > '9'))
+	if ((*gi.argv(1) < '0') || (*gi.argv(1) > '9'))
 	{
 		gi.cprintf(ent, PRINT_HIGH, "Specify the player number to kick.\n");
 		return;
 	}
 
-	i = atoi(gi.argv(1));
+	i = (int)strtol(gi.argv(1), (char **)NULL, 10);
 
 	if ((i < 1) || (i > maxclients->value))
 	{
