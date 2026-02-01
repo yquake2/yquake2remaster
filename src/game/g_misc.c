@@ -1060,7 +1060,12 @@ SP_light(edict_t *self)
 		}
 		else if (*self->style_on >= '0' && *self->style_on <= '9')
 		{
-			self->style_on = gi.GetConfigString(CS_LIGHTS + atoi(self->style_on));
+			int style_on = atoi(self->style_on);
+
+			if (style_on < MAX_LIGHTSTYLES)
+			{
+				self->style_on = gi.GetConfigString(CS_LIGHTS + style_on);
+			}
 		}
 
 		if (!self->style_off || !*self->style_off)
@@ -1069,7 +1074,12 @@ SP_light(edict_t *self)
 		}
 		else if (*self->style_off >= '0' && *self->style_off <= '9')
 		{
-			self->style_off = gi.GetConfigString(CS_LIGHTS + atoi(self->style_off));
+			int style_off = atoi(self->style_off);
+
+			if (style_off < MAX_LIGHTSTYLES)
+			{
+				self->style_off = gi.GetConfigString(CS_LIGHTS + style_off);
+			}
 		}
 
 		if (self->spawnflags & START_OFF)
