@@ -45,6 +45,8 @@ jobs:
           mingw-w64-${{matrix.env}}-wget
     - name: Check out repository code
       uses: actions/checkout@v6
+      with:
+        submodules: 'true'
     - name: Build
       shell: msys2 {0}
       run: |

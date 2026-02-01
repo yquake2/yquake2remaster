@@ -45,6 +45,8 @@ jobs:
         cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/i686-w64-mingw32/include/
     - name: Check out repository code
       uses: actions/checkout@v6
+      with:
+        submodules: 'true'
     - name: Build
       run: |
         # build with cmake and visual studio
@@ -132,6 +134,8 @@ jobs:
         cp -rv Vulkan-Headers-master/include/* dhewm3-libs-master/x86_64-w64-mingw32/include/
     - name: Check out repository code
       uses: actions/checkout@v6
+      with:
+        submodules: 'true'
     - name: Build
       run: |
         # build with cmake and visual studio

@@ -6,6 +6,7 @@
 #  - Server (q2ded)                                      #
 #  - Quake II Game (baseq2)                              #
 #  - Renderer libraries (gl1, gl3, soft)                 #
+#  - Mission pack libraries (xatrix, rogue, ctf)         #
 #                                                        #
 # Base dependencies:                                     #
 #  - SDL 2 or SDL 3                                      #
@@ -485,7 +486,7 @@ endif
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf
 
 # ----------
 
@@ -1762,6 +1763,354 @@ else
 $(BINDIR)/baseq2/game.so : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+
+###
+# The Reckoning library
+ifeq ($(YQ2_OSTYPE), Windows)
+xatrix:
+	@echo "===> Building game.dll"
+	${Q}mkdir -p $(BINDIR)/xatrix
+	${MAKE} $(BINDIR)/xatrix/game.dll
+
+$(BINDIR)/xatrix/game.dll : LDFLAGS += -shared
+else ifeq ($(YQ2_OSTYPE), Darwin)
+xatrix:
+	@echo "===> Building game.dylib"
+	${Q}mkdir -p $(BINDIR)/xatrix
+	$(MAKE) $(BINDIR)/xatrix/game.dylib
+
+$(BINDIR)/xatrix/game.dylib : LDFLAGS += -shared
+else
+xatrix:
+	@echo "===> Building game.so"
+	${Q}mkdir -p $(BINDIR)/xatrix
+	$(MAKE) $(BINDIR)/xatrix/game.so
+
+$(BINDIR)/xatrix/game.so : CFLAGS += -fPIC
+$(BINDIR)/xatrix/game.so : LDFLAGS += -shared
+endif
+
+$(BUILDDIR)/xatrix/src/%.o: missionpacks/xatrix/src/%.c
+	@if [ -z $(QUIET) ]; then\
+		echo "===> CC $<";\
+	fi
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) -o $@ $<
+
+# ----------
+
+XATRIX_OBJS_ = \
+	src/g_ai.o \
+	src/g_chase.o \
+	src/g_cmds.o \
+	src/g_combat.o \
+	src/g_func.o \
+	src/g_items.o \
+	src/g_main.o \
+	src/g_misc.o \
+	src/g_monster.o \
+	src/g_phys.o \
+	src/g_spawn.o \
+	src/g_svcmds.o \
+	src/g_target.o \
+	src/g_trigger.o \
+	src/g_turret.o \
+	src/g_utils.o \
+	src/g_weapon.o \
+	src/monster/berserker/berserker.o \
+	src/monster/boss2/boss2.o \
+	src/monster/boss3/boss3.o \
+	src/monster/boss3/boss31.o \
+	src/monster/boss3/boss32.o \
+	src/monster/boss5/boss5.o \
+	src/monster/brain/brain.o \
+	src/monster/chick/chick.o \
+	src/monster/fixbot/fixbot.o \
+	src/monster/flipper/flipper.o \
+	src/monster/float/float.o \
+	src/monster/flyer/flyer.o \
+	src/monster/gekk/gekk.o \
+	src/monster/gladiator/gladb.o \
+	src/monster/gladiator/gladiator.o \
+	src/monster/gunner/gunner.o \
+	src/monster/hover/hover.o \
+	src/monster/infantry/infantry.o \
+	src/monster/insane/insane.o \
+	src/monster/medic/medic.o \
+	src/monster/misc/move.o \
+	src/monster/mutant/mutant.o \
+	src/monster/parasite/parasite.o \
+	src/monster/soldier/soldier.o \
+	src/monster/supertank/supertank.o \
+	src/monster/tank/tank.o \
+	src/player/client.o \
+	src/player/hud.o \
+	src/player/trail.o \
+	src/player/view.o \
+	src/player/weapon.o \
+	src/savegame/savegame.o \
+	src/shared/flash.o \
+	src/shared/rand.o \
+	src/shared/shared.o
+
+# ----------
+
+# Rewrite paths to our object directory
+XATRIX_OBJS = $(patsubst %,$(BUILDDIR)/xatrix/%,$(XATRIX_OBJS_))
+
+# ----------
+
+# Generate header dependencies
+XATRIX_DEPS= $(XATRIX_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in
+-include $(XATRIX_DEPS)
+
+# ----------
+
+ifeq ($(YQ2_OSTYPE), Windows)
+$(BINDIR)/xatrix/game.dll : $(XATRIX_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+$(BINDIR)/xatrix/game.dylib : $(XATRIX_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
+else
+$(BINDIR)/xatrix/game.so : $(XATRIX_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(XATRIX_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+###
+# Ground Zero library
+ifeq ($(YQ2_OSTYPE), Windows)
+rogue:
+	@echo "===> Building game.dll"
+	${Q}mkdir -p $(BINDIR)/rogue
+	${MAKE} $(BINDIR)/rogue/game.dll
+
+$(BINDIR)/rogue/game.dll : LDFLAGS += -shared
+else ifeq ($(YQ2_OSTYPE), Darwin)
+rogue:
+	@echo "===> Building game.dylib"
+	${Q}mkdir -p $(BINDIR)/rogue
+	$(MAKE) $(BINDIR)/rogue/game.dylib
+
+$(BINDIR)/rogue/game.dylib : LDFLAGS += -shared
+else
+rogue:
+	@echo "===> Building game.so"
+	${Q}mkdir -p $(BINDIR)/rogue
+	$(MAKE) $(BINDIR)/rogue/game.so
+
+$(BINDIR)/rogue/game.so : CFLAGS += -fPIC
+$(BINDIR)/rogue/game.so : LDFLAGS += -shared
+endif
+
+$(BUILDDIR)/rogue/src/%.o: missionpacks/rogue/src/%.c
+	@if [ -z $(QUIET) ]; then\
+		echo "===> CC $<";\
+	fi
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) -o $@ $<
+
+# ----------
+
+ROGUE_OBJS_ = \
+	src/g_ai.o \
+	src/g_chase.o \
+	src/g_cmds.o \
+	src/g_combat.o \
+	src/g_func.o \
+	src/g_items.o \
+	src/g_main.o \
+	src/g_misc.o \
+	src/g_monster.o \
+	src/g_newai.o \
+	src/g_newdm.o \
+	src/g_newfnc.o \
+	src/g_newtarg.o \
+	src/g_newtrig.o \
+	src/g_newweap.o \
+	src/g_phys.o \
+	src/g_spawn.o \
+	src/g_sphere.o \
+	src/g_svcmds.o \
+	src/g_target.o \
+	src/g_trigger.o \
+	src/g_turret.o \
+	src/g_utils.o \
+	src/g_weapon.o \
+	src/dm/ball.o \
+	src/dm/tag.o \
+	src/monster/berserker/berserker.o \
+	src/monster/boss2/boss2.o \
+	src/monster/boss3/boss3.o \
+	src/monster/boss3/boss31.o \
+	src/monster/boss3/boss32.o \
+	src/monster/brain/brain.o \
+	src/monster/carrier/carrier.o \
+	src/monster/chick/chick.o \
+	src/monster/flipper/flipper.o \
+	src/monster/float/float.o \
+	src/monster/flyer/flyer.o \
+	src/monster/gladiator/gladiator.o \
+	src/monster/gunner/gunner.o \
+	src/monster/hover/hover.o \
+	src/monster/infantry/infantry.o \
+	src/monster/insane/insane.o \
+	src/monster/medic/medic.o \
+	src/monster/misc/move.o \
+	src/monster/mutant/mutant.o \
+	src/monster/parasite/parasite.o \
+	src/monster/soldier/soldier.o \
+	src/monster/stalker/stalker.o \
+	src/monster/supertank/supertank.o \
+	src/monster/tank/tank.o \
+	src/monster/turret/turret.o \
+	src/monster/widow/widow.o \
+	src/monster/widow/widow2.o \
+	src/player/client.o \
+	src/player/hud.o \
+	src/player/trail.o \
+	src/player/view.o \
+	src/player/weapon.o \
+	src/savegame/savegame.o \
+	src/shared/flash.o \
+	src/shared/rand.o \
+	src/shared/shared.o
+
+# ----------
+
+# Rewrite paths to our object directory
+ROGUE_OBJS = $(patsubst %,$(BUILDDIR)/rogue/%,$(ROGUE_OBJS_))
+
+# ----------
+
+# Generate header dependencies
+ROGUE_DEPS= $(ROGUE_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in
+-include $(ROGUE_DEPS)
+
+# ----------
+
+ifeq ($(YQ2_OSTYPE), Windows)
+$(BINDIR)/rogue/game.dll : $(ROGUE_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+$(BINDIR)/rogue/game.dylib : $(ROGUE_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
+else
+$(BINDIR)/rogue/game.so : $(ROGUE_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(ROGUE_OBJS) $(LDLIBS) -o $@
+endif
+
+# ----------
+###
+# Three Way CTF library
+ifeq ($(YQ2_OSTYPE), Windows)
+ctf:
+	@echo "===> Building game.dll"
+	${Q}mkdir -p $(BINDIR)/ctf
+	${MAKE} $(BINDIR)/ctf/game.dll
+
+$(BINDIR)/ctf/game.dll : LDFLAGS += -shared
+else ifeq ($(YQ2_OSTYPE), Darwin)
+ctf:
+	@echo "===> Building game.dylib"
+	${Q}mkdir -p $(BINDIR)/ctf
+	$(MAKE) $(BINDIR)/ctf/game.dylib
+
+$(BINDIR)/ctf/game.dylib : LDFLAGS += -shared
+else
+ctf:
+	@echo "===> Building game.so"
+	${Q}mkdir -p $(BINDIR)/ctf
+	$(MAKE) $(BINDIR)/ctf/game.so
+
+$(BINDIR)/ctf/game.so : CFLAGS += -fPIC
+$(BINDIR)/ctf/game.so : LDFLAGS += -shared
+endif
+
+$(BUILDDIR)/ctf/src/%.o: missionpacks/ctf/src/%.c
+	@if [ -z $(QUIET) ]; then\
+		echo "===> CC $<";\
+	fi
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) -o $@ $<
+
+# ----------
+
+CTF_OBJS_ = \
+	src/g_ai.o \
+	src/g_chase.o \
+	src/g_cmds.o \
+	src/g_combat.o \
+	src/g_ctf.o \
+	src/g_func.o \
+	src/g_items.o \
+	src/g_main.o \
+	src/g_misc.o \
+	src/g_monster.o \
+	src/g_phys.o \
+	src/g_save.o \
+	src/g_spawn.o \
+	src/g_svcmds.o \
+	src/g_target.o \
+	src/g_trigger.o \
+	src/g_utils.o \
+	src/g_weapon.o \
+	src/menu/menu.o \
+	src/monster/move.o \
+	src/player/client.o \
+	src/player/hud.o \
+	src/player/trail.o \
+	src/player/view.o \
+	src/player/weapon.o \
+	src/shared/shared.o
+
+# ----------
+
+# Rewrite paths to our object directory
+CTF_OBJS = $(patsubst %,$(BUILDDIR)/ctf/%,$(CTF_OBJS_))
+
+# ----------
+
+# Generate header dependencies
+CTF_DEPS= $(CTF_OBJS:.o=.d)
+
+# ----------
+
+# Suck header dependencies in
+-include $(CTF_DEPS)
+
+# ----------
+
+ifeq ($(YQ2_OSTYPE), Windows)
+$(BINDIR)/ctf/game.dll : $(CTF_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+$(BINDIR)/ctf/game.dylib : $(CTF_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
+else
+$(BINDIR)/ctf/game.so : $(CTF_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(CTF_OBJS) $(LDLIBS) -o $@
 endif
 
 # ----------

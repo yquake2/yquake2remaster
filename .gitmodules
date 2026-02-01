@@ -1,0 +1,9 @@
+[submodule "missionpacks/xatrix"]
+	path = missionpacks/xatrix
+	url = https://github.com/yquake2/xatrix.git
+[submodule "missionpacks/rogue"]
+	path = missionpacks/rogue
+	url = https://github.com/yquake2/rogue.git
+[submodule "missionpacks/ctf"]
+	path = missionpacks/ctf
+	url = https://github.com/yquake2/ctf.git

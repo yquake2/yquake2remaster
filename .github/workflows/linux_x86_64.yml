@@ -37,6 +37,8 @@ jobs:
         version: 3-latest
     - name: Check out repository code
       uses: actions/checkout@v6
+      with:
+        submodules: 'true'
     - name: Build
       run: |
         # Public runners come with 4 CPUs.
