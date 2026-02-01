@@ -1611,9 +1611,9 @@ Cmd_Teleport_f(edict_t *ent)
 	gi.unlinkentity(ent);
 
 	/* Set new position */
-	ent->s.origin[0] = atof(gi.argv(1));
-	ent->s.origin[1] = atof(gi.argv(2));
-	ent->s.origin[2] = atof(gi.argv(3)) + 10.0;
+	ent->s.origin[0] = (float)strtod(gi.argv(1), (char **)NULL);
+	ent->s.origin[1] = (float)strtod(gi.argv(2), (char **)NULL);
+	ent->s.origin[2] = (float)strtod(gi.argv(3), (char **)NULL) + 10.0f;
 
 	/* Remove velocity and keep the entity briefly in place
 	   to give the server and clients time to catch up. */
@@ -1659,20 +1659,20 @@ Cmd_SpawnEntity_f(edict_t *ent)
 	ent = G_Spawn();
 
 	// set position
-	ent->s.origin[0] = atof(gi.argv(2));
-	ent->s.origin[1] = atof(gi.argv(3));
-	ent->s.origin[2] = atof(gi.argv(4));
+	ent->s.origin[0] = (float)strtod(gi.argv(2), (char **)NULL);
+	ent->s.origin[1] = (float)strtod(gi.argv(3), (char **)NULL);
+	ent->s.origin[2] = (float)strtod(gi.argv(4), (char **)NULL);
 	// angles
 	if (gi.argc() >= 8)
 	{
-		ent->s.angles[PITCH] = atof(gi.argv(5));
-		ent->s.angles[YAW] = atof(gi.argv(6));
-		ent->s.angles[ROLL] = atof(gi.argv(7));
+		ent->s.angles[PITCH] = (float)strtod(gi.argv(5), (char **)NULL);
+		ent->s.angles[YAW] = (float)strtod(gi.argv(6), (char **)NULL);
+		ent->s.angles[ROLL] = (float)strtod(gi.argv(7), (char **)NULL);
 	}
 	// flags
 	if (gi.argc() >= 9)
 	{
-		ent->spawnflags = atoi(gi.argv(8));
+		ent->spawnflags = (int)strtol(gi.argv(8), (char **)NULL, 10);
 	}
 
 	ent->classname = G_CopyString(gi.argv(1));
