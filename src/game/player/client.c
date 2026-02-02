@@ -2059,6 +2059,12 @@ spectator_respawn(edict_t *ent)
 			return;
 		}
 
+		if (ctf->value)
+		{
+			CTFDeadDropFlag(ent);
+			CTFDeadDropTech(ent);
+		}
+
 		/* Third person view */
 		if (ent->client->chasetoggle)
 		{
