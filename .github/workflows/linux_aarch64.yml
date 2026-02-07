@@ -19,6 +19,7 @@ jobs:
     permissions:
       actions: read
       contents: read
+      security-events: write
     strategy:
       fail-fast: false
       matrix:
@@ -29,7 +30,7 @@ jobs:
       run: |
         sudo apt update
         sudo apt install libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev \
-            libavformat-dev libswscale-dev libvulkan-dev build-essential
+            libavformat-dev libswscale-dev libvulkan-dev build-essential snapd
     - name: Check out repository code
       uses: actions/checkout@v6
       with:
@@ -66,3 +67,13 @@ jobs:
         name: quake2-linux_aarch64-${{github.sha}}
         path: publish/
         if-no-files-found: error
+    - name: Run Cppcheck
+      run: |
+        sudo snap install cppcheck --edge
+        /snap/bin/cppcheck -j 4 --enable=all --output-format=sarif \
+          --output-file=cppcheck_results.sarif --inconclusive --library=posix \
+          -DYQ2OSTYPE=\"Linux\" src
+    - name: Upload SARIF to GitHub Code Scanning
+      uses: github/codeql-action/upload-sarif@v4
+      with:
+        sarif_file: cppcheck_results.sarif
