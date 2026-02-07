@@ -675,11 +675,11 @@ SV_FinalMessage(char *message, qboolean reconnect)
 	 *     because this is called by SV_Shutdown() and the shut down server might have
 	 *     a different number of clients (e.g. 1 if it's single player), when maxclients
 	 *     has already been set to a higher value for multiplayer (e.g. 4 for coop)
-	 *     Luckily, svs.num_client_entities = maxclients->value * UPDATE_BACKUP * 64;
+	 *     Luckily, svs.num_client_entities = maxclients->value * UPDATE_BACKUP * 256;
 	 *     with the maxclients value from when the current server was started (see SV_InitGame())
 	 *     so we can just calculate the right number of clients from that
 	 */
-	int numClients = svs.num_client_entities / ( UPDATE_BACKUP * 64 );
+	int numClients = svs.num_client_entities / ( UPDATE_BACKUP * 256 );
 	for (i = 0, cl = svs.clients; i < numClients; i++, cl++)
 	{
 		if (cl->state >= cs_connected)
