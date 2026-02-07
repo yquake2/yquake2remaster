@@ -28,6 +28,7 @@
 
 #define NUM_BEAM_SEGS 6
 
+static qboolean show_entities = false;
 model_t *r_worldmodel = NULL;
 
 float gldepthmin, gldepthmax;
@@ -261,21 +262,21 @@ R_DrawNullModel(entity_t *currententity)
 	glDisable(GL_TEXTURE_2D);
 	glColor4f( shadelight[0], shadelight[1], shadelight[2], 1 );
 
-    GLfloat vtxA[] = {
-        0, 0, -16,
-        16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0,
-        16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0,
-        16 * cos( 2 * M_PI / 2 ), 16 * sin( 2 * M_PI / 2 ), 0,
-        16 * cos( 3 * M_PI / 2 ), 16 * sin( 3 * M_PI / 2 ), 0,
-        16 * cos( 4 * M_PI / 2 ), 16 * sin( 4 * M_PI / 2 ), 0
-    };
+	GLfloat vtxA[] = {
+		0, 0, -16,
+		16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0,
+		16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0,
+		16 * cos( 2 * M_PI / 2 ), 16 * sin( 2 * M_PI / 2 ), 0,
+		16 * cos( 3 * M_PI / 2 ), 16 * sin( 3 * M_PI / 2 ), 0,
+		16 * cos( 4 * M_PI / 2 ), 16 * sin( 4 * M_PI / 2 ), 0
+	};
 
-    glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_VERTEX_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, 0, vtxA );
-    glDrawArrays( GL_TRIANGLE_FAN, 0, 6 );
+	glVertexPointer( 3, GL_FLOAT, 0, vtxA );
+	glDrawArrays( GL_TRIANGLE_FAN, 0, 6 );
 
-    glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_VERTEX_ARRAY );
 
 	GLfloat vtxB[] = {
 		0, 0, 16,
@@ -299,6 +300,12 @@ R_DrawNullModel(entity_t *currententity)
 }
 
 static void
+Mod_cliententlist_f()
+{
+	show_entities = true;
+}
+
+static void
 R_DrawEntitiesOnList(void)
 {
 	qboolean translucent_entities = false;
@@ -307,6 +314,31 @@ R_DrawEntitiesOnList(void)
 	if (!r_drawentities->value)
 	{
 		return;
+	}
+
+	if (show_entities)
+	{
+		for (i = 0; i < r_newrefdef.num_entities; i++)
+		{
+			entity_t *currententity = &r_newrefdef.entities[i];
+			if (!currententity)
+			{
+				continue;
+			}
+
+			const model_t *currentmodel = currententity->model;
+			if (currentmodel &&
+				currentmodel->type == mod_alias &&
+				!strcmp(currentmodel->name, "models/monsters/mutant/tris.md2"))
+			{
+				printf("%d: %s %.3fx%.3fx%.3f\n", i, currentmodel->name,
+					currententity->origin[0],
+					currententity->origin[1],
+					currententity->origin[2]);
+			}
+		}
+
+		show_entities = false;
 	}
 
 	/* draw non-transparent first */
@@ -1291,6 +1323,7 @@ R_Register(void)
 	ri.Cmd_AddCommand("imagelist", R_ImageList_f);
 	ri.Cmd_AddCommand("screenshot", R_ScreenShot);
 	ri.Cmd_AddCommand("modellist", Mod_Modellist_f);
+	ri.Cmd_AddCommand("cliententlist", Mod_cliententlist_f);
 	ri.Cmd_AddCommand("gl_strings", R_Strings);
 }
 
@@ -1752,6 +1785,7 @@ void
 RI_Shutdown(void)
 {
 	ri.Cmd_RemoveCommand("modellist");
+	ri.Cmd_RemoveCommand("cliententlist");
 	ri.Cmd_RemoveCommand("screenshot");
 	ri.Cmd_RemoveCommand("imagelist");
 	ri.Cmd_RemoveCommand("gl_strings");
