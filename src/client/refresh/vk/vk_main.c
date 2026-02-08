@@ -190,6 +190,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		vk_drawSpritePipeline.layout, 0, 1,
 		&skin->vk_texture.descriptorSet, 0, NULL);
 	vkCmdDraw(vk_activeCmdbuffer, 6, 1, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 static void
@@ -268,6 +269,7 @@ R_DrawNullModel(entity_t *currententity)
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 24, 1, 0, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 static void
@@ -491,6 +493,7 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdDraw(vk_activeCmdbuffer, (currentvertex - visibleParticles), 1, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 static void
@@ -561,6 +564,7 @@ R_DrawParticles(void)
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPointParticlesPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 		vkCmdDraw(vk_activeCmdbuffer, r_newrefdef.num_particles, 1, 0, 0);
+		printf("%d: %s\n", drawCalls++, __func__);
 	}
 	else
 	{
@@ -939,7 +943,7 @@ RE_RenderView(refdef_t *fd)
 
 	R_DrawAlphaSurfaces();
 
-	R_Flash();
+	R_Flash(); /* citadel error */
 
 	if (r_speeds->value)
 	{
@@ -1010,6 +1014,7 @@ qboolean RE_EndWorldRenderpass(void)
 	vkCmdSetViewport(vk_activeCmdbuffer, 0u, 1u, &vk_viewport);
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &vk_scissor);
 	vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 	vkCmdEndRenderPass(vk_activeCmdbuffer);
 
 	// start drawing UI
@@ -1040,6 +1045,7 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_postprocessPipeline.layout, 0, 1, &vk_colorbufferWarp.descriptorSet, 0, NULL);
 		QVk_BindPipeline(&vk_postprocessPipeline);
 		vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);
+		printf("%d: %s\n", drawCalls++, __func__);
 	}
 }
 
@@ -1347,6 +1353,8 @@ RE_BeginFrame(float camera_separation)
 		QVk_BeginRenderpass(RP_WORLD);
 }
 
+int drawCalls = 0;
+
 /*
 =====================
 RE_EndFrame
@@ -1359,6 +1367,9 @@ RE_EndFrame(void)
 
 	// world has not rendered yet
 	world_rendered = false;
+
+	printf("%s: Calls count %d\n", __func__, drawCalls);
+	drawCalls = 0;
 }
 
 unsigned r_rawpalette[256];
@@ -1480,6 +1491,7 @@ R_DrawBeam(entity_t *currententity )
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawBeamPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdDraw(vk_activeCmdbuffer, NUM_BEAM_SEGS * 4, 1, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 //===================================================================

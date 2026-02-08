@@ -421,6 +421,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, **buffer, *dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, *index_pos, 1, 0, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 static void
@@ -865,5 +866,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
+		printf("%d: %s\n", drawCalls++, __func__);
 	}
 }

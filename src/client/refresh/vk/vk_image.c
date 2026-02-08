@@ -404,8 +404,12 @@ ChangeColorBufferLayout(VkImage image, VkImageLayout fromLayout, VkImageLayout t
 		.image = image,
 		.subresourceRange = subresourceRange,
 	};
+/*
+ * VK_WARNING: Validation Warning: [ BestPractices-TransitionUndefinedToReadOnly ] Object 0: handle = 0x1a000000001a, type = VK_OBJECT_TYPE_IMAGE; | MessageID = 0xe10fe22f | vkCmdPipelineBarrier(): pImageMemoryBarriers[0] VkImageMemoryBarrier is being submitted with oldLayout VK_IMAGE_LAYOUT_UNDEFINED and the contents may be discarded, but the newLayout is VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, which is read only. (validation)
+*/
 
-	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0u, 0u, NULL, 0u, NULL, 1u, &imageBarrier);
+	vkCmdPipelineBarrier(commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0u, 0u, NULL, 0u, NULL, 1u, &imageBarrier);
 
 	QVk_SubmitCommand(&commandBuffer, &vk_device.transferQueue);
 	vkFreeCommandBuffers(vk_device.logical, vk_transferCommandPool, 1, &commandBuffer);

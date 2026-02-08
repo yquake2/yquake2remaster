@@ -1477,6 +1477,10 @@ SP_target_earthquake(edict_t *self)
  *
  * ReRelease: Creates a camera path as seen in the N64 version.
  */
+#define HACKFLAG_TELEPORT_OUT 2
+#define HACKFLAG_SKIPPABLE 64
+#define HACKFLAG_END_OF_UNIT 128
+
 static void
 camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
 {
@@ -1514,14 +1518,53 @@ camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
 void
 update_target_camera_think(edict_t *self)
 {
-	if (self->movetarget)
+	qboolean do_skip = false;
+
+#if ORIGIN_CODE
+	/* only allow skipping after 2 seconds */
+	if ((self->hackflags & HACKFLAG_SKIPPABLE) && level.time > 2)
+	{
+		int i;
+
+		for (i = 0; i < game.maxclients; i++)
+		{
+			edict_t *client = g_edicts + 1 + i;
+
+			if (!client->inuse || !client->client->pers.connected)
+			{
+				continue;
+			}
+
+			if (client->client->buttons & BUTTON_ANY)
+			{
+				do_skip = true;
+				break;
+			}
+		}
+	}
+#endif // ORIGIN_CODE
+
+	if (!do_skip && self->movetarget)
 	{
 		self->moveinfo.remaining_distance -= (self->moveinfo.move_speed * FRAMETIME) * 0.8f;
 
 		if (self->moveinfo.remaining_distance <= 0)
 		{
+#if ORIGIN_CODE
+			if (self->movetarget->hackflags & HACKFLAG_TELEPORT_OUT)
+			{
+				if (self->enemy)
+				{
+					self->enemy->s.event = EV_PLAYER_TELEPORT;
+					self->enemy->hackflags = HACKFLAG_TELEPORT_OUT;
+					self->enemy->pain_debounce_time = self->enemy->timestamp = self->movetarget->wait;
+				}
+			}
+#endif // ORIGIN_CODE
+
 			VectorCopy(self->movetarget->s.origin, self->s.origin);
 			self->nextthink = level.time + self->movetarget->wait;
+
 			if (self->movetarget->target)
 			{
 				self->movetarget = G_PickTarget(self->movetarget->target);
@@ -1550,6 +1593,13 @@ update_target_camera_think(edict_t *self)
 			int i;
 
 			frac = 1.0f - (self->moveinfo.remaining_distance / self->moveinfo.distance);
+
+#if ORIGIN_CODE
+			if (self->enemy && (self->enemy->hackflags & HACKFLAG_TELEPORT_OUT))
+			{
+				self->enemy->s.alpha = Q_max(1.f / 255.f, frac);
+			}
+#endif // ORIGIN_CODE
 
 			VectorSubtract(self->movetarget->s.origin, self->s.origin, delta);
 			VectorScale(delta, frac, delta);
@@ -1587,12 +1637,19 @@ update_target_camera_think(edict_t *self)
 
 			level.intermissiontime = 0;
 
+#if ORIGIN_CODE
+			level.level_intermission_set = true;
+#endif //ORIGIN_CODE
+
 			while ((t = G_Find(t, FOFS(targetname), self->killtarget)))
 			{
 				t->use(t, self, self->activator);
 			}
 
 			level.intermissiontime = level.time;
+#if ORIGIN_CODE
+			level.intermission_server_frame = gi.ServerFrame();
+#endif //ORIGIN_CODE
 
 			/* end of unit requires a wait */
 			if (level.changemap && !strchr(level.changemap, '*'))
@@ -1620,6 +1677,15 @@ target_camera_dummy_think(edict_t *self)
 		self->velocity[0] * self->velocity[0] +
 		self->velocity[1] * self->velocity[1]));
 	self->client = NULL;
+
+#if ORIGIN_CODE
+	/* alpha fade out for voops */
+	if (self->hackflags & HACKFLAG_TELEPORT_OUT)
+	{
+		self->timestamp = Q_max(0, self->timestamp - FRAMETIME);
+		self->s.alpha = Q_max(1.f / 255.f, self->timestamp  / self->pain_debounce_time);
+	}
+#endif //ORIGIN_CODE
 
 	self->nextthink = level.time + FRAMETIME;
 }
@@ -1653,6 +1719,9 @@ use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 	}
 
 	level.intermissiontime = level.time;
+#if ORIGIN_CODE
+	level.intermission_server_frame = gi.ServerFrame();
+#endif //ORIGIN_CODE
 	level.exitintermission = 0;
 
 	/* spawn fake player dummy where we were */
@@ -1696,6 +1765,18 @@ use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 		/* respawn any dead clients */
 		if (client->health <= 0)
 		{
+#if ORIGIN_CODE
+			/*
+			 * give us our max health back since it will reset
+			 * to pers.health; in instanced items we'd lose the items
+			 * we touched so we always want to respawn with our max.
+			 */
+			if (P_UseCoopInstancedItems())
+			{
+				client->client->pers.health = client->client->pers.max_health = client->max_health;
+			}
+#endif //ORIGIN_CODE
+
 			respawn(client);
 		}
 
@@ -1711,6 +1792,13 @@ use_target_camera(edict_t *self, edict_t *other, edict_t *activator)
 
 	self->moveinfo.remaining_distance = VectorNormalize(diff);
 	self->moveinfo.distance = self->moveinfo.remaining_distance;
+
+#if ORIGIN_CODE
+	if (self->hackflags & HACKFLAG_END_OF_UNIT)
+	{
+		G_EndOfUnitMessage();
+	}
+#endif //ORIGIN_CODE
 }
 
 void

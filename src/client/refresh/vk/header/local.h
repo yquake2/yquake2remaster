@@ -308,6 +308,7 @@ qboolean Vkimp_CreateSurface(SDL_Window *window);
 
 extern mvtx_t	*verts_buffer;
 extern uint16_t	*vertIdxData;
+extern int drawCalls;
 
 void	Mesh_Init (void);
 void	Mesh_Free (void);

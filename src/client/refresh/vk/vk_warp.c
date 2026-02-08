@@ -157,6 +157,7 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 void
@@ -265,6 +266,7 @@ R_DrawSkyBox(void)
 
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
+		printf("%d: %s\n", drawCalls++, __func__);
 	}
 }
 

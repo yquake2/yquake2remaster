@@ -2187,6 +2187,7 @@ QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 
 	ReleaseSwapBuffers();
 
+	// VK_ERROR: Validation Error: [ VUID-vkAcquireNextImageKHR-semaphore-01779 ] Object 0: handle = 0x620000000062, name = Semaphore: image available #30, type = VK_OBJECT_TYPE_SEMAPHORE; | MessageID = 0x5717e75b | vkAcquireNextImageKHR():  Semaphore must not have any pending operations. The Vulkan spec states: If semaphore is not VK_NULL_HANDLE it must not have any uncompleted signal or wait operations pending (https://www.khronos.org/registry/vulkan/specs/1.3-extensions/html/vkspec.html#VUID-vkAcquireNextImageKHR-semaphore-01779) (validation)
 	VkResult result = vkAcquireNextImageKHR(vk_device.logical, vk_swapchain.sc, 500000000 /* 0.5 sec */,
 		vk_imageAvailableSemaphores[vk_imageSemaphoreIdx], VK_NULL_HANDLE, &vk_imageIndex);
 	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || result == VK_ERROR_SURFACE_LOST_KHR || result == VK_TIMEOUT)
@@ -2779,6 +2780,7 @@ QVk_Draw2DCallsRender(void)
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
 			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+		printf("%d: %s Color\n", drawCalls++, __func__);
 	}
 	else if (draw2dcolor_calltype == CALL_TEX)
 	{
@@ -2820,6 +2822,7 @@ QVk_Draw2DCallsRender(void)
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
 			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+		printf("%d: %s Tex\n", drawCalls++, __func__);
 	}
 
 	draw2dcolor_num = 0;
