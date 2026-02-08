@@ -257,6 +257,16 @@ Checked with:
 
 Goals, fully finished goals could be checked in [here](CHANGELOG):
 
+* [ ] min/max based on current model in trace,
+* [ ] opengl2,
+* [ ] destrictive with damage
+* [ ] use gibtype in dynamic frames
+* [ ] opposite frame direction if min > max
+* [ ] overwrite mmove on start with copy mmove and recheck frames
+* [ ] render Quake 3 bsp as static box and map as model
+* [ ] merge md3 legs + body + head to single model
+* [ ] share burrel explode
+* [ ] fix player possiotipon min/max based on player size
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,

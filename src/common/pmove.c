@@ -1037,6 +1037,10 @@ PM_CheckDuck(void)
 
 	for (i = 0; i < 3; i++)
 	{
+		/* quake 2 male:   'stand' 0:40, box -12.43x-14.77x-24.16:14.79x8.32x26.17 */
+		/* quake 2 female: 'stand' 0:40, box -11.45x-12.66x-24.13:16.23x6.45x25.38 */
+		/* quake 2 cyborg: 'stand' 0:40, box -12.53x-14.74x-24.23:14.87x8.39x26.11 */
+		/* heretic 2 male: 'idle' 118:23, box -20.59x-27.57x-34.36:32.58x13.00x26.66 */
 		/* set default stand up values */
 		if (pm->mins[i] > mins[i])
 		{

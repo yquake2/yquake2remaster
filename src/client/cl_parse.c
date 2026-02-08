@@ -894,11 +894,11 @@ CL_ShowNetCmd(int cmd)
 	{
 		if (cmd >= ARRLEN(svc_strings))
 		{
-			Com_Printf("%3i:BAD CMD %i\n", net_message.readcount - 1, cmd);
+			Com_Printf("%3i:BAD CMD 0x%x\n", net_message.readcount - 1, cmd);
 			return;
 		}
 
-		SHOWNET(svc_strings[cmd]);
+		SHOWNET(va("#0x%x:%s", cmd, svc_strings[cmd]));
 	}
 }
 
@@ -1064,14 +1064,14 @@ CL_GetProtocolName(int protocol)
 	switch (protocol)
 	{
 		case PROTOCOL_RELEASE_VERSION:
-			return "Quake 2 Demo";
+			return "Quake 2 Demo"; // official demo
 		case PROTOCOL_XATRIX_VERSION:
-			return "Quake 2 Xatrix Demo";
+			return "Quake 2 Xatrix Demo"; // xatrix demo
 		case PROTOCOL_DEMO_VERSION:
-			return "Quake 2 Release Demo";
+			return "Quake 2 Release Demo"; // official release demo
 		/* Network protocol */
 		case PROTOCOL_R97_VERSION:
-			return "Quake 2";
+			return "Quake 2"; // multiplayer
 		/* ReRelease Demo */
 		case PROTOCOL_RR22_VERSION:
 			return "ReRelease Quake 2 Demo";
@@ -1106,6 +1106,7 @@ CL_ParseServerData(void)
 	i = MSG_ReadLong(&net_message);
 	cls.serverProtocol = i;
 
+	printf("received !%d!\n", i);
 	/* another demo hack */
 	if (Com_ServerState() && (
 		IS_QII97_PROTOCOL(i) ||
@@ -1704,8 +1705,8 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "%s: Illegible server message\n",
-					__func__);
+				Com_Error(ERR_DROP, "%s: Illegible server message (%d %d)\n",
+					__func__, cls.serverProtocol, cmd);
 				return;
 
 			case svc_nop:
