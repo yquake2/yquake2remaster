@@ -45,6 +45,8 @@
  * savegames would be broken. */
 #define MAX_SAVE_TOKEN_CHARS 128
 
+/* expected count of entities in packet */
+#define MAX_PACKET_ENTITIES 64
 
 #define SV_OUTPUTBUF_LENGTH (MAX_MSGLEN - 16)
 #define EDICT_NUM(n) ((edict_t *)((byte *)ge->edicts + ge->edict_size * (n)))
@@ -169,7 +171,7 @@ typedef struct
 										/* used to check late spawns */
 
 	client_t *clients;                  /* [maxclients->value]; */
-	int num_client_entities;            /* maxclients->value*UPDATE_BACKUP*MAX_PACKET_ENTITIES */
+	int num_client_entities;            /* maxclients->value * UPDATE_BACKUP * MAX_PACKET_ENTITIES */
 	int next_client_entities;           /* next client_entity to use */
 	entity_xstate_t *client_entities;    /* [num_client_entities] */
 
