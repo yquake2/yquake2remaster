@@ -76,6 +76,8 @@ V_AddEntity(entity_t *ent)
 {
 	if (r_numentities >= MAX_ENTITIES)
 	{
+		Com_DPrintf("%s: game sends more than expected %d entities\n",
+			__func__, MAX_ENTITIES);
 		return;
 	}
 
@@ -89,6 +91,8 @@ V_AddParticle(vec3_t org, unsigned int color, float alpha)
 
 	if (r_numparticles >= MAX_PARTICLES)
 	{
+		Com_DPrintf("%s: game sends more than expected %d particles\n",
+			__func__, MAX_PARTICLES);
 		return;
 	}
 
@@ -105,6 +109,8 @@ V_AddLight(vec3_t org, float intensity, float r, float g, float b)
 
 	if (r_numdlights >= MAX_DLIGHTS)
 	{
+		Com_DPrintf("%s: game sends more than expected %d dlights\n",
+			__func__, MAX_DLIGHTS);
 		return;
 	}
 
@@ -169,6 +175,8 @@ V_AddLightShadow(cl_shadow_light_t *light)
 
 	if (r_numdlights >= MAX_DLIGHTS)
 	{
+		Com_DPrintf("%s: game sends more than expected %d dlights\n",
+			__func__, MAX_DLIGHTS);
 		return;
 	}
 

@@ -46,7 +46,7 @@
 #define MAX_SAVE_TOKEN_CHARS 128
 
 /* expected count of entities in packet */
-#define MAX_PACKET_ENTITIES 64
+#define MAX_PACKET_ENTITIES 256
 
 #define SV_OUTPUTBUF_LENGTH (MAX_MSGLEN - 16)
 #define EDICT_NUM(n) ((edict_t *)((byte *)ge->edicts + ge->edict_size * (n)))
