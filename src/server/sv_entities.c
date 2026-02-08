@@ -709,10 +709,12 @@ SV_BuildClientFrame(client_t *client)
 						}
 					}
 
+					#if 1
 					if (i == ent->num_clusters)
 					{
 						continue; /* not visible */
 					}
+					#endif
 				}
 
 				if (!ent->s.modelindex && !(ent->s.renderfx & RF_CASTSHADOW))
@@ -725,7 +727,7 @@ SV_BuildClientFrame(client_t *client)
 					VectorSubtract(org, ent->s.origin, delta);
 					len = VectorLength(delta);
 
-					if (len > 400)
+					if (len > 1024)
 					{
 						continue;
 					}
