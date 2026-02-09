@@ -278,7 +278,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
 * [ ] ReRelease: broken fire effect for Guardian.
-* [ ] ReRelease: fix invisiable entities in basicsjam1_ziutek,
+* [ ] ReRelease: water in basicsjam1_ziutek,
 * [ ] ReRelease: make lightmap textures dynamic n64jam_palmlix,
 * [ ] ReRelease: support `textures/*/*.mat load` texture effects,
 * [ ] ReRelease: support `textures/*/*_glow.png` load,
@@ -310,13 +310,18 @@ Other games support goals:
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
-* [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: rowdys save entity disappear in a8080c05,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
-* [ ] DoD: fix statusbar `roarke`.
+* [ ] DoD: fix statusbar `roarke`,
+* [ ] Support obj waveform model format for debug other formats.
+
+Fixed:
+
+* [x] Anachronox: rowdys map models disappear on dance space,
+* [x] ReRelease: fix invisiable entities in basicsjam1_ziutek,
 
 Not a goal:
 
