@@ -224,7 +224,46 @@ SCR_CopyUtf8(const char *src, char *dst, int limit)
 void
 SCR_CenterPrint(char *str)
 {
+	char custom_bind_message[1024];
+
 	char *s;
+
+	if (!strncmp(str, "%bind:", 6))
+	{
+		/* parse string like "%bind:+movedown:$m_crouch%Crouch here." */
+		const char *next_column;
+
+		next_column = strchr(str + 6, ':');
+		if (next_column)
+		{
+			const char *bind, *end_message;
+			char binding[MAX_QPATH];
+			size_t len;
+
+			len = Q_min(sizeof(binding), next_column - str - 5);
+			Q_strlcpy(binding, str + 6, len);
+
+			bind = CL_GetBindByAction(binding);
+
+			end_message = strchr(next_column + 1, '%');
+			if (end_message)
+			{
+				char bind_message[MAX_QPATH];
+
+				len = Q_min(sizeof(bind_message), end_message - next_column);
+				Q_strlcpy(bind_message, next_column + 1, len);
+
+				custom_bind_message[0] = 0;
+				Q_strlcat(custom_bind_message, end_message + 1, sizeof(custom_bind_message));
+				Q_strlcat(custom_bind_message, "\n\n", sizeof(custom_bind_message));
+				Q_strlcat(custom_bind_message, bind, sizeof(custom_bind_message));
+				Q_strlcat(custom_bind_message, " / ", sizeof(custom_bind_message));
+				Q_strlcat(custom_bind_message, SV_LocalizationMessage(bind_message, NULL),
+					sizeof(custom_bind_message));
+				str = custom_bind_message;
+			}
+		}
+	}
 
 	Q_strlcpy(scr_centerstring, str, sizeof(scr_centerstring));
 	scr_centertime_off = scr_centertime->value;

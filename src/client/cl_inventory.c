@@ -59,11 +59,26 @@ SetStringHighBit(char *s)
 
 #define DISPLAY_ITEMS 17
 
+const char *
+CL_GetBindByAction(const char *binding)
+{
+	size_t j;
+
+	for (j = 0; j < K_LAST; j++)
+	{
+		if (keybindings[j] && !Q_stricmp(keybindings[j], binding))
+		{
+			return Key_KeynumToString(j);
+		}
+	}
+
+	return "";
+}
+
 void
 CL_DrawInventory(void)
 {
-	int i, j;
-	int num, selected_num, item;
+	int i, num, selected_num, item;
 	char string[1024];
 	int x, y;
 	char binding[1024];
@@ -107,19 +122,19 @@ CL_DrawInventory(void)
 		top = 0;
 	}
 
-	x = (viddef.width - scale*256) / 2;
-	y = (viddef.height - scale*240) / 2;
+	x = (viddef.width - scale * 256) / 2;
+	y = (viddef.height - scale * 240) / 2;
 
 	/* repaint everything next frame */
 	SCR_DirtyScreen();
 
-	Draw_PicScaled(x, y + scale*8, "inventory", scale);
+	Draw_PicScaled(x, y + scale * 8, "inventory", scale);
 
-	y += scale*24;
-	x += scale*24;
+	y += scale * 24;
+	x += scale * 24;
 
 	Inv_DrawStringScaled(x, y, "hotkey ### item", scale);
-	Inv_DrawStringScaled(x, y + scale*8, "------ --- ----", scale);
+	Inv_DrawStringScaled(x, y + scale * 8, "------ --- ----", scale);
 
 	y += scale*16;
 
@@ -129,16 +144,8 @@ CL_DrawInventory(void)
 		/* search for a binding */
 		Com_sprintf(binding, sizeof(binding), "use %s",
 				cl.configstrings[CS_ITEMS + item]);
-		bind = "";
 
-		for (j = 0; j < K_LAST; j++)
-		{
-			if (keybindings[j] && !Q_stricmp(keybindings[j], binding))
-			{
-				bind = Key_KeynumToString(j);
-				break;
-			}
-		}
+		bind = CL_GetBindByAction(binding);
 
 		Com_sprintf(string, sizeof(string), "%6.6s %3i %s", bind,
 				cl.inventory[item], cl.configstrings[CS_ITEMS + item]);
@@ -152,13 +159,12 @@ CL_DrawInventory(void)
 			/* draw a blinky cursor by the selected item */
 			if ((int)(cls.realtime * 10) & 1)
 			{
-				Draw_CharScaled(x - scale*8, y, 15, scale);
+				Draw_CharScaled(x - scale * 8, y, 15, scale);
 			}
 		}
 
 		Inv_DrawStringScaled(x, y, string, scale);
 
-		y += scale*8;
+		y += scale * 8;
 	}
 }
-
