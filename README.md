@@ -316,6 +316,9 @@ Other games support goals:
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
 * [ ] DoD: fix statusbar `roarke`,
+* [ ] Heretic 2: Add object move logic,
+* [ ] CppCheck: fix const warnings and scope,
+* [ ] Dynamic count of entities on client,
 * [ ] Support obj waveform model format for debug other formats.
 
 Fixed:
