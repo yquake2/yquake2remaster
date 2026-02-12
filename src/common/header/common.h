@@ -901,7 +901,7 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 // system.c
 char *Sys_ConsoleInput(void);
-void Sys_ConsoleOutput(const char *string);
+void Sys_ConsoleOutput(char *string);
 YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
