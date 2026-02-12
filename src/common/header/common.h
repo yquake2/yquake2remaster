@@ -901,7 +901,7 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 // system.c
 char *Sys_ConsoleInput(void);
-void Sys_ConsoleOutput(char *string);
+void Sys_ConsoleOutput(const char *string);
 YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
@@ -917,7 +917,7 @@ void *Sys_LoadLibrary(const char *path, const char *sym, void **handle);
 void *Sys_GetGameAPI(void *parms);
 void Sys_UnloadGame(void);
 void Sys_GetWorkDir(char *buffer, size_t len);
-qboolean Sys_SetWorkDir(char *path);
+qboolean Sys_SetWorkDir(const char *path);
 qboolean Sys_Realpath(const char *in, char *out, size_t size);
 
 // Windows only (system.c)

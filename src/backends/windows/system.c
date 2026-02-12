@@ -232,7 +232,7 @@ Sys_ConsoleInput(void)
 }
 
 void
-Sys_ConsoleOutput(char *string)
+Sys_ConsoleOutput(const char *string)
 {
 	if ((string[0] == 0x01) || (string[0] == 0x02))
 	{
@@ -716,7 +716,7 @@ Sys_GetWorkDir(char *buffer, size_t len)
 }
 
 qboolean
-Sys_SetWorkDir(char *path)
+Sys_SetWorkDir(const char *path)
 {
 	WCHAR wpath[MAX_OSPATH];
 

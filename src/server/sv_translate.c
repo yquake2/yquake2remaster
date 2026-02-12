@@ -40,7 +40,7 @@ static int nlocalmessages = 0;
 static int
 LocalizationSort(const void *p1, const void *p2)
 {
-	localmessages_t *msg1, *msg2;
+	const localmessages_t *msg1, *msg2;
 
 	msg1 = (localmessages_t*)p1;
 	msg2 = (localmessages_t*)p2;

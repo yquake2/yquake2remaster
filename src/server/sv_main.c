@@ -555,7 +555,7 @@ Master_Shutdown(void)
 void
 SV_UserinfoChanged(client_t *cl)
 {
-	char *val;
+	const char *val;
 	int i;
 
 	/* call prog code to allow overrides */
@@ -650,8 +650,8 @@ SV_Init(void)
  * outgoing message list, because the server is going
  * to totally exit after returning from this function.
  */
-void
-SV_FinalMessage(char *message, qboolean reconnect)
+static void
+SV_FinalMessage(const char *message, qboolean reconnect)
 {
 	int i;
 	client_t *cl;

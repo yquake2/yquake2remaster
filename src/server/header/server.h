@@ -211,7 +211,6 @@ extern cvar_t *sv_language;			/* Localization. */
 extern client_t *sv_client;
 extern edict_t *sv_player;
 
-void SV_FinalMessage(char *message, qboolean reconnect);
 void SV_DropClient(client_t *drop);
 
 int SV_ModelIndex(const char *name);
@@ -231,7 +230,7 @@ void Master_Heartbeat(void);
 void Master_Packet(void);
 
 void SV_InitGame(void);
-void SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isautosave);
+void SV_Map(qboolean attractloop, const char *levelstring, qboolean loadgame, qboolean isautosave);
 void SV_SendInitBuffers(void);
 void SV_SendFreeBuffers(void);
 

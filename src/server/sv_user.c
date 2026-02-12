@@ -69,7 +69,7 @@ SV_GetRecomendedProtocol(void)
 static void
 SV_New_f(void)
 {
-	static char *gamedir;
+	static const char *gamedir;
 	int playernum;
 
 	Com_DPrintf("New() from %s\n", sv_client->name);

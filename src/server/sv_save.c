@@ -33,7 +33,7 @@ void
 SV_WipeSavegame(char *savename)
 {
 	char name[MAX_OSPATH];
-	char *s;
+	const char *s;
 
 	Com_DPrintf("SV_WipeSaveGame(%s)\n", savename);
 
