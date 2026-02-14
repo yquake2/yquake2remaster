@@ -209,7 +209,7 @@ Sys_ConsoleInput(void)
 }
 
 void
-Sys_ConsoleOutput(char *string)
+Sys_ConsoleOutput(const char *string)
 {
 	if ((string[0] == 0x01) || (string[0] == 0x02))
 	{

@@ -385,9 +385,8 @@ NET_AdrToString(netadr_t a)
 static qboolean
 NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 {
-	char copy[128];
-	char *addrs, *space;
-	char *ports = NULL;
+	const char *addrs, *ports = NULL;
+	char copy[128], *space;
 	int err;
 	struct addrinfo hints;
 	struct addrinfo *resultp;
@@ -803,7 +802,8 @@ NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
 static int
 NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 {
-	char Buf[BUFSIZ], *Host, *Service;
+	const char *Host, *Service;
+	char Buf[BUFSIZ];
 	int newsocket, Error;
 	struct sockaddr_storage ss;
 	struct addrinfo hints, *res, *ai;

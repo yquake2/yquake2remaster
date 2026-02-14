@@ -218,13 +218,14 @@ Huff1TableInit(void)
 	int j;
 	int *node, *nodebase;
 	byte counts[256];
-	int numhnodes;
 
 	cin.hnodes1 = Z_Malloc(256 * 256 * 2 * 4);
 	memset(cin.hnodes1, 0, 256 * 256 * 2 * 4);
 
 	for (prev = 0; prev < 256; prev++)
 	{
+		int numhnodes;
+
 		memset(cin.h_count, 0, sizeof(cin.h_count));
 		memset(cin.h_used, 0, sizeof(cin.h_used));
 
@@ -276,7 +277,6 @@ Huff1Decompress(cblock_t in)
 	int nodenum;
 	int count;
 	cblock_t out;
-	int inbyte;
 	int *hnodes, *hnodesbase;
 
 	/* get decompressed count */
@@ -292,6 +292,8 @@ Huff1Decompress(cblock_t in)
 
 	while (count)
 	{
+		int inbyte;
+
 		inbyte = *input++;
 
 		int i = 0;

@@ -159,7 +159,6 @@ LocalizationConvertWIN1252ToUTF8(char *in_buf)
 
 	*out = '\0';
 
-	out = buffer;
 	out = realloc(buffer, strlen(buffer) + 1);
 	if (!out)
 	{
@@ -211,8 +210,7 @@ SV_LocalizationReload(void)
 			size_t linesize = 0;
 
 			linesize = strcspn(curr, "\n\r");
-			if (*curr && strncmp(curr, "//", 2) &&
-				*curr != '\n' && *curr != '\r')
+			if (strncmp(curr, "//", 2) && *curr != '\n' && *curr != '\r')
 			{
 				nlocalmessages ++;
 			}
@@ -239,7 +237,7 @@ SV_LocalizationReload(void)
 
 			linesize = strcspn(curr, "\n");
 			/* skip lines with both endline codes */
-			if (*curr && *curr != ';')
+			if (*curr != ';')
 			{
 				nlocalmessages ++;
 			}
@@ -265,11 +263,7 @@ SV_LocalizationReload(void)
 			size_t linesize = 0;
 
 			linesize = strcspn(curr, "\n");
-			/* skip lines with both endline codes */
-			if (*curr)
-			{
-				nlocalmessages ++;
-			}
+			nlocalmessages ++;
 			curr += linesize;
 			if (curr >= (buf_strings + len_strings))
 			{
@@ -421,7 +415,6 @@ SV_LocalizationReload(void)
 		i = 1;
 		while (*curr)
 		{
-			char *sign, *currend;
 			size_t linesize = 0;
 
 			if (curr_pos >= nlocalmessages)
@@ -433,6 +426,8 @@ SV_LocalizationReload(void)
 			curr[linesize] = 0;
 			if (curr[0] != ';')
 			{
+				char *sign, *currend;
+
 				/* remove caret back */
 				if (curr[linesize - 1] == '\r')
 				{

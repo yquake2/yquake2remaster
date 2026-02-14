@@ -37,8 +37,6 @@ server_t sv; /* local server */
 static entity_xstate_t *
 SV_AllocBaseline(int entnum)
 {
-	int nextpow2;
-
 	if ((entnum < 0) || (entnum > MAX_SV_ENTNUM))
 	{
 		return NULL;
@@ -46,6 +44,8 @@ SV_AllocBaseline(int entnum)
 
 	if (entnum >= sv.numbaselines)
 	{
+		int nextpow2;
+
 		nextpow2 = (sv.numbaselines || (entnum >= ALLOC_ENTITIES_MIN)) ?
 			(int)NextPow2gt(entnum) : ALLOC_ENTITIES_MIN;
 
@@ -205,7 +205,6 @@ SV_CheckForSavegame(qboolean isautosave)
 	char name[MAX_OSPATH];
 	char savename[MAX_OSPATH];
 	FILE *f;
-	int i;
 
 	Com_DPrintf("%s()\n", __func__);
 
@@ -243,6 +242,7 @@ SV_CheckForSavegame(qboolean isautosave)
 		/* coming back to a level after being in a different
 		   level, so run it for ten seconds */
 		server_state_t previousState;
+		int i;
 
 		previousState = sv.state;
 		sv.state = ss_loading;
@@ -417,7 +417,7 @@ SV_SpawnServer(char *server, char *spawnpoint, server_state_t serverstate,
  * A brand new game has been started
  */
 static void
-SV_ClearGamemodeCvar(char *name, char *msg, int flags)
+SV_ClearGamemodeCvar(const char *name, char *msg, int flags)
 {
 	Cvar_FullSet(name, "0", flags);
 

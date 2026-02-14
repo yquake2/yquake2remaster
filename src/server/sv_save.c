@@ -73,7 +73,6 @@ static void
 CopyFile(char *src, char *dst)
 {
 	FILE *f1, *f2;
-	size_t l;
 	byte buffer[65536];
 
 	Com_DPrintf("CopyFile (%s, %s)\n", src, dst);
@@ -95,6 +94,8 @@ CopyFile(char *src, char *dst)
 
 	while (1)
 	{
+		size_t l;
+
 		l = fread(buffer, 1, sizeof(buffer), f1);
 
 		if (!l)
@@ -113,7 +114,7 @@ void
 SV_CopySaveGame(char *src, char *dst)
 {
 	char name[MAX_OSPATH], name2[MAX_OSPATH];
-	size_t l, len;
+	size_t len;
 	char *found;
 
 	Com_DPrintf("SV_CopySaveGame(%s, %s)\n", src, dst);
@@ -137,6 +138,8 @@ SV_CopySaveGame(char *src, char *dst)
 
 	while (found)
 	{
+		int l;
+
 		Q_strlcpy(name + len, found + len, Q_max(sizeof(name) - len, 0));
 
 		Com_sprintf(name2, sizeof(name2), "%s/save/%s/%s",
@@ -267,7 +270,6 @@ SV_WriteServerFile(qboolean autosave)
 	char workdir[MAX_OSPATH];
 	char comment[32];
 	time_t aclock;
-	struct tm *newtime;
 
 	Com_DPrintf("SV_WriteServerFile(%s)\n", autosave ? "true" : "false");
 
@@ -285,6 +287,8 @@ SV_WriteServerFile(qboolean autosave)
 
 	if (!autosave)
 	{
+		struct tm *newtime;
+
 		time(&aclock);
 		newtime = localtime(&aclock);
 		Com_sprintf(comment, sizeof(comment), "%2i:%i%i %2i/%2i  ",

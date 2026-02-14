@@ -884,7 +884,7 @@ void Con_Print(char *text);
 void SCR_BeginLoadingPlaque(void);
 
 void SV_Init(void);
-void SV_Shutdown(char *finalmsg, qboolean reconnect);
+void SV_Shutdown(const char *finalmsg, qboolean reconnect);
 void SV_Frame(int usec);
 const char *SV_LocalizationUIMessage(const char *message, const char *default_message);
 const char *SV_LocalizationMessage(const char *message, const char **sound);
@@ -901,7 +901,7 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 // system.c
 char *Sys_ConsoleInput(void);
-void Sys_ConsoleOutput(char *string);
+void Sys_ConsoleOutput(const char *string);
 YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);

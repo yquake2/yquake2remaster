@@ -76,8 +76,8 @@ void
 CL_RequestNextDownload(void)
 {
 	unsigned int map_checksum; /* for detecting cheater maps */
+	const dmdl_t *pheader;
 	char fn[MAX_OSPATH];
-	dmdl_t *pheader;
 
 	if (precacherIteration == 0)
 	{

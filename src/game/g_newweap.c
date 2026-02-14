@@ -39,7 +39,6 @@
 #define TRACKER_IMPACT_FLAGS (DAMAGE_NO_POWER_ARMOR | DAMAGE_ENERGY)
 #define TRACKER_DAMAGE_TIME 0.5
 
-extern byte P_DamageModifier(edict_t *ent);
 extern void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 extern void hurt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf);
 extern void Grenade_Explode(edict_t *ent);

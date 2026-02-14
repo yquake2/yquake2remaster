@@ -93,7 +93,6 @@ SV_StatusString(void)
 	char player[1024];
 	static char status[MAX_MSGLEN - 16];
 	int i;
-	client_t *cl;
 	int statusLength;
 	int playerLength;
 
@@ -103,6 +102,8 @@ SV_StatusString(void)
 
 	for (i = 0; i < maxclients->value; i++)
 	{
+		static client_t *cl;
+
 		cl = &svs.clients[i];
 
 		if ((cl->state == cs_connected) || (cl->state == cs_spawned))
@@ -170,7 +171,6 @@ static void
 SV_GiveMsec(void)
 {
 	int i;
-	client_t *cl;
 
 	if (sv.framenum & 15)
 	{
@@ -179,6 +179,8 @@ SV_GiveMsec(void)
 
 	for (i = 0; i < maxclients->value; i++)
 	{
+		client_t *cl;
+
 		cl = &svs.clients[i];
 
 		if (cl->state == cs_free)
@@ -717,7 +719,7 @@ SV_ClearBaselines(void)
  * before Sys_Quit or Sys_Error
  */
 void
-SV_Shutdown(char *finalmsg, qboolean reconnect)
+SV_Shutdown(const char *finalmsg, qboolean reconnect)
 {
 	if (svs.clients)
 	{

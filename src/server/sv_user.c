@@ -184,7 +184,6 @@ _NumIndexSkips(int start, int end)
 static void
 SV_Configstrings_f(void)
 {
-	const char *cs;
 	sizebuf_t *msg;
 	int i, start;
 	int opt;
@@ -219,6 +218,8 @@ SV_Configstrings_f(void)
 
 	while (i < MAX_CONFIGSTRINGS)
 	{
+		const char *cs;
+
 		cs = sv.configstrings[i];
 
 		if (*cs != '\0')
@@ -629,7 +630,6 @@ SV_ClientThink(client_t *cl, usercmd_t *cmd)
 void
 SV_ExecuteClientMessage(client_t *cl)
 {
-	int c;
 	char *s;
 
 	usercmd_t nullcmd;
@@ -650,6 +650,8 @@ SV_ExecuteClientMessage(client_t *cl)
 
 	while (1)
 	{
+		int c;
+
 		if (net_message.readcount > net_message.cursize)
 		{
 			Com_Printf("SV_ReadClientMessage: badread\n");

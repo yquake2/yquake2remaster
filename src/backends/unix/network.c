@@ -372,9 +372,8 @@ NET_AdrToString(netadr_t a)
 static qboolean
 NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 {
-	char copy[128];
-	char *addrs, *space;
-	char *ports = NULL;
+	const char *addrs, *ports = NULL;
+	char copy[128], *space;
 	int err;
 	struct addrinfo hints;
 	struct addrinfo *resultp;
@@ -737,7 +736,7 @@ NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
 static void
 NET_OpenIP(void)
 {
-	cvar_t *port, *ip;
+	const cvar_t *port, *ip;
 
 	port = Cvar_Get("port", va("%i", PORT_SERVER), CVAR_NOSET);
 	ip = Cvar_Get("ip", "localhost", CVAR_NOSET);
@@ -811,7 +810,8 @@ NET_Config(qboolean multiplayer)
 static int
 NET_Socket(char *net_interface, int port, netsrc_t type, int family)
 {
-	char Buf[BUFSIZ], *Host, *Service;
+	const char *Host, *Service;
+	char Buf[BUFSIZ];
 	int newsocket = -1;
 	int Error = 0;
 	struct sockaddr_storage ss;

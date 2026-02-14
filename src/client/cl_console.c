@@ -135,8 +135,8 @@ Con_Clear_f(void)
 static void
 Con_Dump_f(void)
 {
+	const char *line;
 	int l, x;
-	char *line;
 	FILE *f;
 	char buffer[1024];
 	char name[MAX_OSPATH];
@@ -520,7 +520,7 @@ void
 Con_DrawNotify(void)
 {
 	int x, v;
-	char *text;
+	const char *text;
 	int i;
 	int time;
 	char *s;

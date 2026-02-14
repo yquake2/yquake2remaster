@@ -232,12 +232,12 @@ Sys_ConsoleInput(void)
 }
 
 void
-Sys_ConsoleOutput(char *string)
+Sys_ConsoleOutput(const char *string)
 {
 	if ((string[0] == 0x01) || (string[0] == 0x02))
 	{
-		// remove color marker
-		string[0] = ' ';
+		/* remove color marker */
+		string++;
 	}
 
 	if (!dedicated || !dedicated->value)
@@ -514,7 +514,7 @@ char *
 Sys_GetHomeDir(void)
 {
 	char *cur;
-	char *old;
+	const char *old;
 	char profile[MAX_PATH];
 	static char gdir[MAX_OSPATH];
 	WCHAR uprofile[MAX_PATH];

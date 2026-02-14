@@ -1552,7 +1552,7 @@ SelectDeathmatchSpawnPoint(void)
 }
 
 static edict_t *
-SelectLavaCoopSpawnPoint(edict_t *ent)
+SelectLavaCoopSpawnPoint(const edict_t *ent)
 {
 	int index;
 	edict_t *spot = NULL;
@@ -1662,7 +1662,7 @@ SelectCoopSpawnPoint(edict_t *ent)
 {
 	int index;
 	edict_t *spot = NULL;
-	char *target;
+	const char *target;
 
 	if (!ent)
 	{
@@ -1779,11 +1779,6 @@ void
 SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 {
 	edict_t *spot = NULL;
-	edict_t *coopspot = NULL;
-	int dist;
-	int index;
-	int counter = 0;
-	vec3_t d;
 
 	if (!ent)
 	{
@@ -1819,12 +1814,20 @@ SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 	   client) use one in 550 units radius. */
 	if (coop->value)
 	{
+		int index;
+
 		index = ent->client - game.clients;
 
 		if (Q_stricmp(spot->classname, "info_player_start") == 0 && index != 0)
 		{
+			int counter = 0;
+
 			while (counter < 3)
 			{
+				edict_t *coopspot = NULL;
+				int dist;
+				vec3_t d;
+
 				coopspot = G_Find(coopspot, FOFS(classname), "info_player_coop");
 
 				if (!coopspot)
@@ -1892,8 +1895,6 @@ body_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
 		vec3_t point /* unused */)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -1901,6 +1902,8 @@ body_die(edict_t *self, edict_t *inflictor /* unused */,
 
 	if (self->health < -40)
 	{
+		int n;
+
 		gi.sound(self, CHAN_BODY, gi.soundindex(
 						"misc/udeath.wav"), 1, ATTN_NORM, 0);
 
@@ -2013,8 +2016,6 @@ respawn(edict_t *self)
 void
 spectator_respawn(edict_t *ent)
 {
-	int i, numspec;
-
 	if (!ent)
 	{
 		return;
@@ -2024,7 +2025,9 @@ spectator_respawn(edict_t *ent)
 	   make sure he doesn't exceed max_spectators */
 	if (ent->client->pers.spectator)
 	{
-		char *value = Info_ValueForKey(ent->client->pers.userinfo, "spectator");
+		int i, numspec;
+
+		const char *value = Info_ValueForKey(ent->client->pers.userinfo, "spectator");
 
 		if (*spectator_password->string &&
 			strcmp(spectator_password->string, "none") &&
@@ -2080,7 +2083,7 @@ spectator_respawn(edict_t *ent)
 	{
 		/* he was a spectator and wants to join the
 		   game he must have the right password */
-		char *value = Info_ValueForKey(ent->client->pers.userinfo, "password");
+		const char *value = Info_ValueForKey(ent->client->pers.userinfo, "password");
 
 		if (*password->string && strcmp(password->string, "none") &&
 			strcmp(password->string, value))
@@ -2656,7 +2659,7 @@ PutClientInServer(edict_t *ent)
 		   the player has the nuke key. (not in DM) */
 		if (!(deathmatch->value))
 		{
-			gitem_t *item;
+			const gitem_t *item;
 
 			item = FindItem("Antimatter Bomb");
 			client->pers.selected_item = ITEM_INDEX(item);
@@ -2723,8 +2726,6 @@ ClientBeginDeathmatch(edict_t *ent)
 void
 ClientBegin(edict_t *ent)
 {
-	int i;
-
 	if (!ent)
 	{
 		return;
@@ -2742,6 +2743,8 @@ ClientBegin(edict_t *ent)
 	   just take it, otherwise spawn one from scratch */
 	if (ent->inuse == true)
 	{
+		int i;
+
 		/* the client has cleared the client side viewangles upon
 		   connecting to the server, which is different than the
 		   state when the game is saved, so we need to compensate
@@ -3086,7 +3089,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 {
 	gclient_t *client;
 	edict_t *other;
-	int i, j;
+	int k;
 
 	if (!ent || !ent->client || !ucmd)
 	{
@@ -3143,8 +3146,10 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	{
 		if (client->oldplayer)
 		{
+			int i;
+
 			// set angles
-			for (i=0 ; i<3 ; i++)
+			for (i = 0 ; i < 3; i++)
 			{
 				ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(
 					ent->client->oldplayer->s.angles[i] - ent->client->resp.cmd_angles[i]);
@@ -3164,7 +3169,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	else
 	{
 		pmove_t pm = {0};
-		int origin[3];
+		int origin[3], i;
 
 		/* set up for pmove */
 		if (ent->movetype == MOVETYPE_NOCLIP)
@@ -3282,6 +3287,8 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		/* touch other objects */
 		for (i = 0; i < pm.numtouch; i++)
 		{
+			int j;
+
 			other = pm.touchents[i];
 
 			for (j = 0; j < i; j++)
@@ -3370,9 +3377,9 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 	}
 
 	/* update chase cam if being followed */
-	for (i = 1; i <= maxclients->value; i++)
+	for (k = 1; k <= maxclients->value; k++)
 	{
-		other = g_edicts + i;
+		other = g_edicts + k;
 
 		if (other->inuse && (other->client->chase_target == ent))
 		{
@@ -3380,9 +3387,9 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		}
 	}
 
-	//JABot[start]
+	/* JABot[start] */
 	AITools_DropNodes(ent);
-	//JABot[end]
+	/* JABot[end] */
 
 	if (ctf->value && client->menudirty && (client->menutime <= level.time))
 	{

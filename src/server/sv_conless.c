@@ -52,7 +52,6 @@ static void
 SVC_Info(void)
 {
 	char string[64];
-	int i, count;
 	int version;
 
 	if (maxclients->value == 1)
@@ -69,6 +68,8 @@ SVC_Info(void)
 	}
 	else
 	{
+		int i, count;
+
 		count = 0;
 
 		for (i = 0; i < maxclients->value; i++)
@@ -342,7 +343,6 @@ static void
 SVC_RemoteCommand(void)
 {
 	int i;
-	char remaining[1024];
 
 	i = Rcon_Validate();
 
@@ -366,6 +366,8 @@ SVC_RemoteCommand(void)
 	}
 	else
 	{
+		char remaining[1024];
+
 		remaining[0] = 0;
 
 		for (i = 2; i < Cmd_Argc(); i++)

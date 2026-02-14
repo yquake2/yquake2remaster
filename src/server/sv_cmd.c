@@ -91,7 +91,6 @@ SV_SetPlayer(void)
 {
 	client_t *cl;
 	int i;
-	int idnum;
 	char *s;
 
 	if (Cmd_Argc() < 2)
@@ -104,6 +103,8 @@ SV_SetPlayer(void)
 	/* numeric values are just slot numbers */
 	if ((s[0] >= '0') && (s[0] <= '9'))
 	{
+		int idnum;
+
 		idnum = (int)strtol(Cmd_Argv(1), (char **)NULL, 10);
 
 		if ((idnum < 0) || (idnum >= maxclients->value))
@@ -176,8 +177,6 @@ static void
 SV_GameMap_f(void)
 {
 	char *map, mapvalue[MAX_QPATH];
-	int i;
-	edict_t *clent;
 
 	if (Cmd_Argc() != 2)
 	{
@@ -190,7 +189,6 @@ SV_GameMap_f(void)
 		Com_Printf("gamemap is too long\n");
 		return;
 	}
-
 
 	Com_DPrintf("%s(%s)\n", __func__, Cmd_Argv(1));
 
@@ -211,6 +209,8 @@ SV_GameMap_f(void)
 		if (sv.state == ss_game)
 		{
 			bitlist_t savedInuse[BITLIST_SIZE(MAX_CLIENTS)];
+			edict_t *clent;
+			int i;
 
 			/* clear all the client inuse flags before saving so that
 			   when the level is re-entered, the clients will spawn
@@ -294,7 +294,6 @@ static void
 SV_Map_f(void)
 {
 	char *map;
-	char expanded[MAX_QPATH];
 
 	if (Cmd_Argc() != 2)
 	{
@@ -307,6 +306,8 @@ SV_Map_f(void)
 
 	if (!strstr(map, ".") && !strstr(map, "$") && (*map != '*'))
 	{
+		char expanded[MAX_QPATH];
+
 		Com_sprintf(expanded, sizeof(expanded), "maps/%s.bsp", map);
 
 		if (FS_LoadFile(expanded, NULL) == -1)
@@ -329,13 +330,14 @@ SV_ListMaps_f(void)
 {
 	char **userMapNames;
 	int nUserMaps = 0;
-	int i;
 	char* mapName, *lastsep;
 
 	Com_Printf("\n");
 
 	if ((userMapNames = FS_ListFiles2("maps/*.bsp", &nUserMaps, 0, 0)) != NULL)
 	{
+		int i;
+
 		for (i = 0; i < nUserMaps - 1; i++)
 		{
 			if ((lastsep = strrchr(userMapNames[i], '/')))
@@ -698,7 +700,6 @@ SV_ServerCommand_f(void)
 static void
 SV_Gamemode_f(void)
 {
-	int none;
 	char *arg;
 
 	if (Cmd_Argc() != 2)
@@ -711,6 +712,8 @@ SV_Gamemode_f(void)
 
 	if (*arg == '?')
 	{
+		int none;
+
 		none = 1;
 
 		if (Cvar_VariableValue("deathmatch"))
