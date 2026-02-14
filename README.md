@@ -1,5 +1,6 @@
 # Yamagi Quake II Remaster
 
+[![Coverity Scan](https://img.shields.io/coverity/scan/31780)](https://scan.coverity.com/projects/yquake2-yquake2remaster)
 [![Top Language](https://img.shields.io/github/languages/top/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster)
 [![Code Size](https://img.shields.io/github/languages/code-size/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster)
 [![Release](https://img.shields.io/github/release/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
@@ -9,6 +10,7 @@
 [![Downloads (latest)](https://img.shields.io/github/downloads/yquake2/yquake2remaster/latest/total.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
 [![Commits](https://img.shields.io/github/commits-since/yquake2/yquake2remaster/latest.svg)](https://github.com/yquake2/yquake2remaster/commits/master)
 [![Last Commit](https://img.shields.io/github/last-commit/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/commits/master)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/coverity.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/coverity.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml)
