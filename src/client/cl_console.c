@@ -247,8 +247,7 @@ Con_MessageMode2_f(void)
 void
 Con_CheckResize(void)
 {
-	int i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	char tbuf[CON_TEXTSIZE];
+	int width;
 	float scale = SCR_GetConsoleScale();
 
 	/* We need to clamp the line width to MAXCMDLINE - 2,
@@ -275,6 +274,9 @@ Con_CheckResize(void)
 	}
 	else
 	{
+		int i, oldwidth, oldtotallines, numlines, numchars;
+		char tbuf[CON_TEXTSIZE];
+
 		oldwidth = con.linewidth;
 		con.linewidth = width;
 		oldtotallines = con.totallines;
@@ -293,11 +295,13 @@ Con_CheckResize(void)
 			numchars = con.linewidth;
 		}
 
-		memcpy(tbuf, con.text, CON_TEXTSIZE);
+		memcpy(tbuf, con.text, sizeof(tbuf));
 		memset(con.text, ' ', CON_TEXTSIZE);
 
 		for (i = 0; i < numlines; i++)
 		{
+			int j;
+
 			for (j = 0; j < numchars; j++)
 			{
 				con.text[(con.totallines - 1 - i) * con.linewidth + j] =
@@ -355,7 +359,7 @@ Con_Linefeed(void)
  * visible, the text will appear at the top of the game window
  */
 void
-Con_Print(char *txt)
+Con_Print(const char *txt)
 {
 	int y;
 	int c, l;
@@ -523,8 +527,6 @@ Con_DrawNotify(void)
 	const char *text;
 	int i;
 	int time;
-	char *s;
-	int skip;
 	float scale;
 
 	v = 0;
@@ -563,6 +565,9 @@ Con_DrawNotify(void)
 
 	if (cls.key_dest == key_message)
 	{
+		int skip;
+		char *s;
+
 		if (chat_team)
 		{
 			Draw_StringScaled(8 * scale, v * scale, scale, false, "say_team:");
@@ -609,7 +614,7 @@ Con_DrawConsole(float frac)
 	int i, j, x, y, n;
 	int rows;
 	size_t verLen;
-	char *text;
+	const char *text;
 	int row;
 	int lines;
 	float scale;
@@ -619,7 +624,7 @@ Con_DrawConsole(float frac)
 	char tmpbuf[48];
 
 	time_t t;
-	struct tm *today;
+	const struct tm *today;
 
 	scale = SCR_GetConsoleScale();
 	lines = viddef.height * frac;

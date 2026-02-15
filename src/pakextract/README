@@ -1,10 +1,10 @@
                       pakextract
                       ----------
 
-pakextract is a small tool to extract or list the contents 
+pakextract is a small tool to extract or list the contents
 of a Quake/Quake II or Daikatana pak file or Sin .sin file
 into the current directory. Usage:
- 
+
 Usage: pakextract [-l] [-dk] [-o output dir] pakfile
    -l     don't extract, just list contents
    -dk    Daikatana pak format (Quake is default,
@@ -37,14 +37,14 @@ following order:
  - A 4 byte integer value defining the offset to the
    directory in bytes
  - A 4 byte iteger giving the length of the directory
-   in bytes. Since every directory entry is 64 bytes 
-   long this value modulo 64 must be 0: 
+   in bytes. Since every directory entry is 64 bytes
+   long this value modulo 64 must be 0:
      (dir_length % 64) == 0;
    Also this means that the number of directory entries
    can be calculated with dir_length / 64
 
 The directory can be anywere in the file but most times
-it's written to the end. In consists of datablocks, 
+it's written to the end. In consists of datablocks,
 written one after the other without any space between
 them. A directory entry is 64 bytes long has entries
 in the following order:

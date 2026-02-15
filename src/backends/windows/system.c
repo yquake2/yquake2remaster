@@ -356,7 +356,7 @@ Sys_FindFirst(const char *path, unsigned musthave, unsigned canthave)
 }
 
 char *
-Sys_FindNext(unsigned musthave, unsigned canthave)
+Sys_FindNext(unsigned musthave, unsigned canhave)
 {
 	WIN32_FIND_DATAW findinfo;
 
@@ -577,7 +577,6 @@ Sys_RemoveDir(const char *path)
 {
 	WCHAR wpath[MAX_OSPATH] = {0};
 	WCHAR wpathwithwildcard[MAX_OSPATH] = {0};
-	WCHAR wpathwithfilename[MAX_OSPATH] = {0};
 	WIN32_FIND_DATAW fd;
 
 	if (MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_OSPATH) >= MAX_QPATH)
@@ -597,6 +596,8 @@ Sys_RemoveDir(const char *path)
 	{
 		do
 		{
+			WCHAR wpathwithfilename[MAX_OSPATH] = {0};
+
 			if (wcslen(wpath) + wcslen(fd.cFileName) >= MAX_QPATH)
 			{
 				// Same as above.

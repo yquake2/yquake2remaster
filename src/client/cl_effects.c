@@ -1159,10 +1159,11 @@ CL_BigTeleportParticles(vec3_t org)
 	float time;
 
 	time = (float)cl.time;
-	float angle, dist;
 
 	for (i = 0; i < 4096; i++)
 	{
+		float angle, dist;
+
 		if (!free_particles)
 		{
 			return;
@@ -1203,7 +1204,6 @@ CL_BlasterParticles(vec3_t org, vec3_t dir)
 {
 	int i, j;
 	cparticle_t *p;
-	float d;
 	int count;
 	float time;
 
@@ -1213,6 +1213,8 @@ CL_BlasterParticles(vec3_t org, vec3_t dir)
 
 	for (i = 0; i < count; i++)
 	{
+		float d;
+
 		if (!free_particles)
 		{
 			return;

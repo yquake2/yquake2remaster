@@ -237,7 +237,7 @@ SV_CheckForSavegame(qboolean isautosave)
 	/* get configstrings and areaportals */
 	SV_ReadLevelFile();
 
-	if (!sv.loadgame || (sv.loadgame && isautosave))
+	if (!sv.loadgame || isautosave)
 	{
 		/* coming back to a level after being in a different
 		   level, so run it for ten seconds */

@@ -578,7 +578,7 @@ void NET_Config(qboolean multiplayer);
 
 qboolean NET_GetPacket(netsrc_t sock, netadr_t *net_from,
 		sizebuf_t *net_message);
-void NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to);
+void NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to);
 
 qboolean NET_CompareAdr(netadr_t a, netadr_t b);
 qboolean NET_CompareBaseAdr(netadr_t a, netadr_t b);
@@ -880,7 +880,7 @@ void CL_Init(void);
 void CL_Drop(void);
 void CL_Shutdown(void);
 void CL_Frame(int packetdelta, int renderdelta, int timedelta, qboolean packetframe, qboolean renderframe);
-void Con_Print(char *text);
+void Con_Print(const char *txt);
 void SCR_BeginLoadingPlaque(void);
 
 void SV_Init(void);

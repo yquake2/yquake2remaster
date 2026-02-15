@@ -2526,14 +2526,12 @@ IN_Controller_Init(qboolean notify_user)
 		{
 #ifndef NO_SDL_GYRO
 			SDL_JoystickClose(joystick);
-			joystick = NULL;
 			Com_Printf ("Skipping IMU device.\n");
 
 #else	// if it's not a Left JoyCon, use it as Gyro
 			qboolean using_imu = !imu_joystick && !( strstr(joystick_name, "Joy-Con") && strstr(joystick_name, "L") );
 			Com_Printf ("IMU device found... ");
 			SDL_JoystickClose(joystick);
-			joystick = NULL;
 
 			if (using_imu)
 			{

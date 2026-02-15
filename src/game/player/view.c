@@ -82,10 +82,8 @@ static void
 P_DamageFeedback(edict_t *player)
 {
 	gclient_t *client;
-	float side;
 	float realcount, count, kick;
 	vec3_t v;
-	int r, l;
 	static vec3_t power_color = {0.0, 1.0, 0.0};
 	static vec3_t acolor = {1.0, 1.0, 1.0};
 	static vec3_t bcolor = {1.0, 0.0, 0.0};
@@ -180,6 +178,8 @@ P_DamageFeedback(edict_t *player)
 		(client->invincible_framenum <= level.framenum) &&
 		player->health > 0)
 	{
+		int r, l;
+
 		r = 1 + (randk() & 1);
 		player->pain_debounce_time = level.time + 0.7;
 
@@ -248,6 +248,8 @@ P_DamageFeedback(edict_t *player)
 
 	if (kick && (player->health > 0)) /* kick of 0 means no view adjust at all */
 	{
+		float side;
+
 		kick = kick * 100 / player->health;
 
 		if (kick < count * 0.5)

@@ -256,7 +256,7 @@ read_directory(FILE *fd, int listOnly, int* num_entries)
 }
 
 static void
-extract_compressed(FILE* in, directory *d)
+extract_compressed(FILE* in, const directory *d)
 {
 	FILE *out;
 
@@ -271,6 +271,7 @@ extract_compressed(FILE* in, directory *d)
 	if ((in_buf = malloc(d->compressed_length)) == NULL)
 	{
 		perror("Couldn't allocate memory");
+		fclose(out);
 		return;
 	}
 
@@ -279,6 +280,8 @@ extract_compressed(FILE* in, directory *d)
 	if ((out_buf = calloc(1, d->file_length)) == NULL)
 	{
 		perror("Couldn't allocate memory");
+		free(in_buf);
+		fclose(out);
 		return;
 	}
 
@@ -339,7 +342,7 @@ extract_compressed(FILE* in, directory *d)
 }
 
 static void
-extract_raw(FILE* in, directory *d)
+extract_raw(FILE* in, const directory *d)
 {
 	FILE* out = fopen(d->file_name, "w");
 	if (out == NULL)
@@ -385,7 +388,7 @@ extract_files(FILE *fd, directory *dirs, int num_entries)
 
 	for(i=0; i<num_entries; ++i)
 	{
-		directory* d = &dirs[i];
+		const directory* d = &dirs[i];
 	    mktree(d->file_name);
 
 		if(d->is_compressed)
@@ -511,4 +514,3 @@ main(int argc, char *argv[])
 
 	return 0;
 }
-

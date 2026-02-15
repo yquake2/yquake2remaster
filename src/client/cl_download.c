@@ -77,7 +77,6 @@ CL_RequestNextDownload(void)
 {
 	unsigned int map_checksum; /* for detecting cheater maps */
 	const dmdl_t *pheader;
-	char fn[MAX_OSPATH];
 
 	if (precacherIteration == 0)
 	{
@@ -250,6 +249,8 @@ CL_RequestNextDownload(void)
 			while (precache_check < CS_SOUNDS + MAX_SOUNDS &&
 				   cl.configstrings[precache_check][0])
 			{
+				char fn[MAX_OSPATH];
+
 				if (cl.configstrings[precache_check][0] == '*')
 				{
 					precache_check++;
@@ -280,6 +281,8 @@ CL_RequestNextDownload(void)
 		while (precache_check < CS_IMAGES + MAX_IMAGES &&
 			   cl.configstrings[precache_check][0])
 		{
+			char fn[MAX_OSPATH];
+
 			Com_sprintf(fn, sizeof(fn), "pics/%s.pcx",
 					cl.configstrings[precache_check++]);
 
@@ -304,6 +307,7 @@ CL_RequestNextDownload(void)
 			{
 				int i, n;
 				char model[MAX_QPATH], skin[MAX_QPATH], *p;
+				char fn[MAX_OSPATH];
 
 				i = (precache_check - CS_PLAYERSKINS) / PLAYER_MULT;
 				n = (precache_check - CS_PLAYERSKINS) % PLAYER_MULT;
@@ -354,7 +358,6 @@ CL_RequestNextDownload(void)
 							return;
 						}
 
-						n++;
 						/* fall through */
 
 					case 1: /* weapon model */
@@ -366,7 +369,6 @@ CL_RequestNextDownload(void)
 							return;
 						}
 
-						n++;
 						/* fall through */
 
 					case 2: /* weapon skin */
@@ -378,7 +380,6 @@ CL_RequestNextDownload(void)
 							return;
 						}
 
-						n++;
 						/* fall through */
 
 					case 3: /* skin */
@@ -390,7 +391,6 @@ CL_RequestNextDownload(void)
 							return;
 						}
 
-						n++;
 						/* fall through */
 
 					case 4: /* skin_i */
@@ -450,6 +450,8 @@ CL_RequestNextDownload(void)
 		{
 			while (precache_check < TEXTURE_CNT)
 			{
+				char fn[MAX_OSPATH];
+
 				int n = precache_check++ - ENV_CNT - 1;
 
 				if (n & 1)

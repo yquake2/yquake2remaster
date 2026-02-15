@@ -624,17 +624,19 @@ Sys_Rename(const char *from, const char *to)
 void
 Sys_RemoveDir(const char *path)
 {
-	char filepath[MAX_OSPATH];
-	const struct dirent *file;
-	DIR *directory;
-
 	if (Sys_IsDir(path))
 	{
+		DIR *directory;
+
 		directory = opendir(path);
 		if (directory)
 		{
+			const struct dirent *file;
+
 			while ((file = readdir(directory)) != NULL)
 			{
+				char filepath[MAX_OSPATH];
+
 				snprintf(filepath, MAX_OSPATH, "%s/%s", path, file->d_name);
 				Sys_Remove(filepath);
 			}

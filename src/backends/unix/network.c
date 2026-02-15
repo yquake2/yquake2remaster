@@ -68,7 +68,7 @@ int ip6_sockets[2];
 int ipx_sockets[2];
 char *multicast_interface = NULL;
 
-static int NET_Socket(char *net_interface, int port, netsrc_t type, int family);
+static int NET_Socket(const char *net_interface, int port, netsrc_t type, int family);
 static const char *NET_ErrorString(void);
 
 static void
@@ -497,7 +497,7 @@ NET_GetLoopPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 }
 
 static void
-NET_SendLoopPacket(netsrc_t sock, int length, void *data, netadr_t to)
+NET_SendLoopPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 {
 	int i;
 	loopback_t *loop;
@@ -580,7 +580,7 @@ NET_GetPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 }
 
 void
-NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
+NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 {
 	int ret;
 	struct sockaddr_storage addr;
@@ -808,7 +808,7 @@ NET_Config(qboolean multiplayer)
 /* =================================================================== */
 
 static int
-NET_Socket(char *net_interface, int port, netsrc_t type, int family)
+NET_Socket(const char *net_interface, int port, netsrc_t type, int family)
 {
 	const char *Host, *Service;
 	char Buf[BUFSIZ];
@@ -999,7 +999,6 @@ NET_Sleep(int msec)
 {
 	struct timeval timeout;
 	fd_set fdset;
-	extern cvar_t *dedicated;
 	extern qboolean stdin_active;
 
 	if ((!ip_sockets[NS_SERVER] &&

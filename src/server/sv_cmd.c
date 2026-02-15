@@ -209,7 +209,6 @@ SV_GameMap_f(void)
 		if (sv.state == ss_game)
 		{
 			bitlist_t savedInuse[BITLIST_SIZE(MAX_CLIENTS)];
-			edict_t *clent;
 			int i;
 
 			/* clear all the client inuse flags before saving so that
@@ -219,6 +218,8 @@ SV_GameMap_f(void)
 
 			for (i = 0; i < maxclients->value; i++)
 			{
+				edict_t *clent;
+
 				clent = CLNUM_EDICT(i);
 
 				if (clent->inuse)
