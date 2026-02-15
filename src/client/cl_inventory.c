@@ -38,7 +38,7 @@ CL_ParseInventory(void)
 }
 
 static void
-Inv_DrawStringScaled(int x, int y, char *string, float factor)
+Inv_DrawStringScaled(int x, int y, const char *string, float factor)
 {
 	while (*string)
 	{
@@ -78,11 +78,10 @@ CL_GetBindByAction(const char *binding)
 void
 CL_DrawInventory(void)
 {
-	int i, num, selected_num, item;
+	int i, num, selected_num;
 	char string[1024];
 	int x, y;
 	char binding[1024];
-	const char *bind;
 	int selected;
 	int top;
 
@@ -140,6 +139,9 @@ CL_DrawInventory(void)
 
 	for (i = top; i < num && i < top + DISPLAY_ITEMS; i++)
 	{
+		const char *bind;
+		int item;
+
 		item = index[i];
 		/* search for a binding */
 		Com_sprintf(binding, sizeof(binding), "use %s",

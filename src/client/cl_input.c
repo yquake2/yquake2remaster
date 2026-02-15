@@ -72,8 +72,8 @@ static int center_start;	// time of centering start
 static void
 KeyDown(kbutton_t *b)
 {
+	const char *c;
 	int k;
-	char *c;
 
 	c = Cmd_Argv(1);
 
@@ -125,9 +125,9 @@ KeyDown(kbutton_t *b)
 static void
 KeyUp(kbutton_t *b)
 {
-	int k;
-	char *c;
 	unsigned uptime;
+	const char *c;
+	int k;
 
 	c = Cmd_Argv(1);
 
@@ -734,7 +734,8 @@ CL_SendCmd(void)
 	sizebuf_t buf;
 	byte data[128];
 	int i;
-	usercmd_t *cmd, *oldcmd;
+	usercmd_t *cmd;
+	const usercmd_t *oldcmd;
 	usercmd_t nullcmd;
 	int checksumIndex;
 

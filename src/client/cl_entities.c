@@ -28,14 +28,14 @@
 #include "header/client.h"
 
 static void
-CL_AddPacketEntities(frame_t *frame)
+CL_AddPacketEntities(const frame_t *frame)
 {
 	float autorotate, autobob;
 	int autoanim;
 	int pnum;
 
 	/* To distinguish baseq2, xatrix and rogue. */
-	cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
+	const cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
 
 	/* bonus items rotate at a fixed rate */
 	autorotate = anglemod(cl.time * 0.1f);
@@ -634,7 +634,7 @@ CL_AddPacketEntities(frame_t *frame)
 			}
 			else if (effects & EF_BFG)
 			{
-				static int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
+				static const int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
 
 				if (effects & EF_ANIM_ALLFAST)
 				{
