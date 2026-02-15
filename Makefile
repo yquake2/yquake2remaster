@@ -1610,6 +1610,7 @@ endif
 
 # Used by the pakextract
 PAKEXTRACT_OBJS_ := \
+	src/common/glob.o \
 	src/common/shared/shared.o \
 	src/pakextract/pakextract.o
 

@@ -30,14 +30,7 @@
 #include <sys/stat.h> // mkdir()
 #include "../common/header/common.h"
 
-enum {
-	PAK_MODE_Q2, // standard Quake/Quake2 pak
-	PAK_MODE_SIN,
-	PAK_MODE_DK,
-
-	_NUM_PAK_MODES
-};
-
+/* Copy of backend functions */
 void
 Com_Printf(const char *msg, ...)
 {
@@ -77,6 +70,52 @@ Com_Error(int error_code, const char *error, ...)
 
 	exit (0);
 }
+
+#if _WIN32
+void
+Sys_Mkdir(const char *path)
+{
+	mkdir(path);
+}
+#else
+qboolean
+Sys_IsDir(const char *path)
+{
+	struct stat sb;
+
+	if (stat(path, &sb) != -1)
+	{
+		if (S_ISDIR(sb.st_mode))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void
+Sys_Mkdir(const char *path)
+{
+	if (!Sys_IsDir(path))
+	{
+		if (mkdir(path, 0755) != 0)
+		{
+			Com_Error(ERR_FATAL, "Couldn't create dir %s\n", path);
+		}
+	}
+}
+#endif
+
+/* Extract code */
+
+enum {
+	PAK_MODE_Q2, // standard Quake/Quake2 pak
+	PAK_MODE_SIN,
+	PAK_MODE_DK,
+
+	_NUM_PAK_MODES
+};
 
 static int pak_mode = PAK_MODE_Q2;
 
@@ -142,11 +181,7 @@ mktree(const char *s)
 		{
 			dir[i] = '\0'; // this ends the string at this point and allows creating the directory up to here
 
-#if _WIN32
-			mkdir(dir);
-#else
-			mkdir(dir, 0700);
-#endif
+			Sys_Mkdir(dir);
 
 			dir[i] = '/'; // restore the / so we can can go on to create next directory
 		}
