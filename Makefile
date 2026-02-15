@@ -704,7 +704,9 @@ $(BUILDDIR)/pakextract/%.o: %.c
 		echo "===> CC $<";\
 	fi
 	${Q}mkdir -p $(@D)
-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+	${Q}$(CC) -c $(CFLAGS) $(ZIPCFLAGS) $(INCLUDE) -o $@ $<
+
+$(BINDIR)/pakextract.exe : CFLAGS += -DDEDICATED_ONLY
 
 else # not Windows
 
@@ -718,7 +720,9 @@ $(BUILDDIR)/pakextract/%.o: %.c
 		echo "===> CC $<";\
 	fi
 	${Q}mkdir -p $(@D)
-	${Q}$(CC) -c $(CFLAGS) $(INCLUDE) -o $@ $<
+	${Q}$(CC) -c $(CFLAGS) $(ZIPCFLAGS) $(INCLUDE) -o $@ $<
+
+$(BINDIR)/pakextract : CFLAGS += -DDEDICATED_ONLY -Wno-unused-result
 
 ifeq ($(YQ2_OSTYPE), FreeBSD)
 $(BINDIR)/pakextract : LDLIBS += -lexecinfo
@@ -1606,6 +1610,7 @@ endif
 
 # Used by the pakextract
 PAKEXTRACT_OBJS_ := \
+	src/common/shared/shared.o \
 	src/pakextract/pakextract.o
 
 # ----------
