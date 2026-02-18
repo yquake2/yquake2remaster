@@ -107,6 +107,17 @@ Sys_Mkdir(const char *path)
 }
 #endif
 
+/* Check if path is valid and doesn't contain directory traversal attempts */
+static qboolean
+Q_IsValidPath(const char *path)
+{
+	if (strstr(path, "..") != NULL)
+	{
+		return false;
+	}
+	return true;
+}
+
 /* Extract code */
 
 enum {
@@ -172,6 +183,13 @@ mktree(const char *s)
 	char dir[128] = {0};
 	int i;
 	int sLen = strlen(s);
+
+	/* Check for path traversal attempts */
+	if (!Q_IsValidPath(s))
+	{
+		Com_Printf("WARNING: refusing to create relative path '%s'.\n", s);
+		return;
+	}
 
 	strncpy(dir, s, sizeof(dir)-1);
 
@@ -621,7 +639,35 @@ main(int argc, char *argv[])
 
 	if (out_dir != NULL)
 	{
-		if (chdir(out_dir) != 0)
+		/* Validate output directory for security */
+		char validated_dir[256];
+		Q_strlcpy(validated_dir, out_dir, sizeof(validated_dir));
+
+		/* Convert backslashes to forward slashes */
+		Q_replacebackslash(validated_dir);
+
+		/* Remove trailing slashes */
+		for (size_t s = strlen(validated_dir) - 1; s > 0; s--)
+		{
+			if (validated_dir[s] == '/')
+			{
+				validated_dir[s] = '\0';
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		/* Check for path traversal and invalid directory patterns */
+		if (!strcmp(validated_dir, ".") || strstr(validated_dir, "..") ||
+		    strstr(validated_dir, "/") || strstr(validated_dir, "\\"))
+		{
+			fprintf(stderr, "Output directory should be a single filename, not a path.\n");
+			exit(-1);
+		}
+
+		if (chdir(validated_dir) != 0)
 		{
 			perror("Could not cd to output dir");
 			exit(-1);
