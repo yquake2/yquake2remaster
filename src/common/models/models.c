@@ -123,7 +123,7 @@ Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t transl
 
 	for (i = 0; i < pheader->num_frames; i++)
 	{
-		daliasframe_t *pinframe;
+		const daliasframe_t *pinframe;
 		daliasxframe_t *poutframe;
 		int j;
 

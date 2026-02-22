@@ -82,7 +82,7 @@ CL_RunLightStyles(void)
 void
 CL_SetLightstyle(int i)
 {
-	char *s;
+	const char *s;
 	int j, k;
 
 	s = cl.configstrings[i + CS_LIGHTS];

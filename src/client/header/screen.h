@@ -33,7 +33,7 @@ void	SCR_UpdateScreen(void);
 
 void	SCR_SizeUp(void);
 void	SCR_SizeDown(void);
-void	SCR_CenterPrint(char *str);
+void	SCR_CenterPrint(const char *str);
 void	SCR_BeginLoadingPlaque(void);
 void	SCR_EndLoadingPlaque(void);
 
@@ -56,7 +56,7 @@ void SCR_DirtyScreen(void);
 int SCR_CopyUtf8(const char *src, char *dst, int limit);
 void SCR_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 	int *width, int *height, int *bitsPerPixel);
-void SCR_PlayCinematic(char *name);
+void SCR_PlayCinematic(char *arg);
 qboolean SCR_DrawCinematic(void);
 void SCR_RunCinematic(void);
 void SCR_StopCinematic(void);

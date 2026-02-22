@@ -131,7 +131,7 @@ fixQuitScreen(byte* px)
 }
 
 static const byte *
-PCX_RLE_Decode(byte *pix, byte *pix_max, const byte *raw, const byte *raw_max,
+PCX_RLE_Decode(byte *pix, const byte *pix_max, const byte *raw, const byte *raw_max,
 	int bytes_per_line, qboolean *image_issues)
 {
 	int x;
@@ -552,7 +552,7 @@ SWL_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 static void
 M32_Decode(const char *name, const byte *raw, int len, byte **pic, int *width, int *height)
 {
-	m32tex_t *mt;
+	const m32tex_t *mt;
 	int ofs;
 
 	mt = (m32tex_t *)raw;
@@ -596,7 +596,7 @@ static void
 M8_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palette,
 	int *width, int *height)
 {
-	m8tex_t *mt;
+	const m8tex_t *mt;
 	int ofs;
 
 	mt = (m8tex_t *)raw;
@@ -685,7 +685,7 @@ static void
 LoadWalDKM(const char *name, const byte *raw, int len, byte **pic, byte **palette,
 	int *width, int *height)
 {
-	dkmtex_t *mt;
+	const dkmtex_t *mt;
 	int ofs;
 
 	mt = (dkmtex_t *)raw;

@@ -885,7 +885,7 @@ brain_attack(edict_t *self)
 
 	if (random() < 0.8)
 	{
-		r = range(self, self->enemy);
+		r = ai_range(self, self->enemy);
 
 		if (r == RANGE_NEAR)
 		{

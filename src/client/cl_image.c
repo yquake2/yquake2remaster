@@ -130,7 +130,7 @@ GenerateColormap(const byte *palette, byte *out_colormap)
 }
 
 static void
-Convert24to32(unsigned *d_8to24table, byte *pal)
+Convert24to32(unsigned *d_8to24table, const byte *pal)
 {
 	int i;
 
@@ -374,7 +374,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 	if (!strcmp(ext, "atd"))
 	{
-		char *tmp_buf, *raw;
+		char *raw;
 		int lindent, len;
 
 		*pic = NULL;
@@ -398,6 +398,8 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 		if (lindent == IDATDSPRITEHEADER)
 		{
+			char *tmp_buf;
+
 			atd_sprites_t *anim;
 
 			anim = malloc(sizeof(*anim));
@@ -415,6 +417,7 @@ LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 			YQ2_COM_CHECK_OOM(tmp_buf, "malloc()", len + 1)
 			if (!tmp_buf)
 			{
+				free(anim);
 				FS_FreeFile(raw);
 				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 				return;

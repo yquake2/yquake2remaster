@@ -100,7 +100,7 @@ Mod_LoadSkinList_MD2(const char *mod_name, const void *buffer, int modfilelen,
 
 	for (i = 0; i < pinmodel.num_frames; i++)
 	{
-		daliasframe_t *pinframe;
+		const daliasframe_t *pinframe;
 
 		pinframe = (daliasframe_t *)((char *)buffer + pinmodel.ofs_frames + i * pinmodel.framesize);
 
@@ -347,7 +347,7 @@ Mod_FindModel(const char *name)
 static int
 ModelSort(const void *p1, const void *p2)
 {
-	model_t *ent1, *ent2;
+	const model_t *ent1, *ent2;
 
 	ent1 = (model_t*)p1;
 	ent2 = (model_t*)p2;
@@ -678,7 +678,7 @@ Mod_GetModelFrameInfo(const char *name, int num, float *mins, float *maxs)
 		(mod->extradatasize > 4) &&
 		(((int *)mod->extradata)[0] == IDALIASHEADER))
 	{
-		dmdx_t *paliashdr;
+		const dmdx_t *paliashdr;
 
 		paliashdr = (dmdx_t *)mod->extradata;
 

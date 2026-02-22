@@ -881,7 +881,7 @@ soldier_attack1_refire1(edict_t *self)
 	}
 
 	if (((skill->value == SKILL_HARDPLUS) &&
-		 (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+		 (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldier_move_attack1.firstframe + 1;
 	}
@@ -915,7 +915,7 @@ soldier_attack1_refire2(edict_t *self)
 	}
 
 	if (((skill->value == SKILL_HARDPLUS) &&
-		 (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+		 (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldier_move_attack1.firstframe + 1;
 	}
@@ -980,7 +980,7 @@ soldier_attack2_refire1(edict_t *self)
 	}
 
 	if (((skill->value == SKILL_HARDPLUS) &&
-		 (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+		 (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldier_move_attack2.firstframe + 3;
 	}
@@ -1014,7 +1014,7 @@ soldier_attack2_refire2(edict_t *self)
 	}
 
 	if (((skill->value == SKILL_HARDPLUS) &&
-		 (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+		 (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldier_move_attack2.firstframe + 3;
 	}
@@ -1193,7 +1193,7 @@ soldier_attack6_refire(edict_t *self)
 		return;
 	}
 
-	if (range(self, self->enemy) < RANGE_NEAR)
+	if (ai_range(self, self->enemy) < RANGE_NEAR)
 	{
 		return;
 	}
@@ -1285,7 +1285,7 @@ soldier_attack(edict_t *self)
 	r = random();
 
 	if ((!(self->monsterinfo.aiflags & (AI_BLOCKED | AI_STAND_GROUND))) &&
-		(range(self, self->enemy) >= RANGE_NEAR) &&
+		(ai_range(self, self->enemy) >= RANGE_NEAR) &&
 		((r < (skill->value * 0.25)) &&
 		 (self->s.skinnum <= 3)))
 	{
@@ -1329,7 +1329,7 @@ soldier_sight(edict_t *self, edict_t *other /* unused */)
 	}
 
 	if ((skill->value > SKILL_EASY) && (self->enemy) &&
-		(range(self, self->enemy) >= RANGE_NEAR))
+		(ai_range(self, self->enemy) >= RANGE_NEAR))
 	{
 		/*	don't let machinegunners run & shoot */
 		if ((random() > 0.75) && (self->s.skinnum <= 3))
@@ -2562,7 +2562,7 @@ soldierh_attack1_refire1(edict_t *self)
 		return;
 	}
 
-	if (((skill->value == SKILL_HARDPLUS) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+	if (((skill->value == SKILL_HARDPLUS) && (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldierh_move_attack1.firstframe + 1;
 	}
@@ -2590,7 +2590,7 @@ soldierh_attack1_refire2(edict_t *self)
 		return;
 	}
 
-	if (((skill->value == SKILL_HARDPLUS) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+	if (((skill->value == SKILL_HARDPLUS) && (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldierh_move_attack1.firstframe + 1;
 	}
@@ -2713,7 +2713,7 @@ soldierh_attack2_refire1(edict_t *self)
 		return;
 	}
 
-	if (((skill->value == SKILL_HARDPLUS) && (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+	if (((skill->value == SKILL_HARDPLUS) && (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = soldierh_move_attack2.firstframe + 3;
 	}
@@ -2743,7 +2743,7 @@ soldierh_attack2_refire2(edict_t *self)
 
 	if (((skill->value == SKILL_HARDPLUS) &&
 		 (random() < 0.5)) ||
-		((range(self, self->enemy) == RANGE_MELEE) && (self->s.skinnum < 4)))
+		((ai_range(self, self->enemy) == RANGE_MELEE) && (self->s.skinnum < 4)))
 	{
 		self->monsterinfo.nextframe = soldierh_move_attack2.firstframe + 3;
 	}
@@ -2910,7 +2910,7 @@ soldierh_attack6_refire(edict_t *self)
 		return;
 	}
 
-	if (range(self, self->enemy) < RANGE_MID)
+	if (ai_range(self, self->enemy) < RANGE_MID)
 	{
 		return;
 	}
@@ -2988,7 +2988,7 @@ soldierh_sight(edict_t *self, edict_t *other /* unused */)
 		gi.sound(self, CHAN_VOICE, sound_sight2, 1, ATTN_NORM, 0);
 	}
 
-	if ((skill->value > SKILL_EASY) && (range(self, self->enemy) >= RANGE_MID))
+	if ((skill->value > SKILL_EASY) && (ai_range(self, self->enemy) >= RANGE_MID))
 	{
 		if (random() > 0.5)
 		{

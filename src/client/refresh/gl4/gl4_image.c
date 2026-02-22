@@ -245,7 +245,7 @@ GL4_Upload32(unsigned *data, int width, int height, qboolean mipmap)
  * Returns has_alpha
  */
 qboolean
-GL4_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
+GL4_Upload8(const byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 {
 	size_t i, s = width * height;
 	unsigned *trans = malloc(s * sizeof(unsigned));

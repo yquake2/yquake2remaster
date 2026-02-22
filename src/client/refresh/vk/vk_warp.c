@@ -49,7 +49,8 @@ void
 EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 			  const float *color, qboolean solid_surface)
 {
-	mpoly_t *p, *bp;
+	const mpoly_t *p;
+	mpoly_t *bp;
 	int i;
 
 	struct {

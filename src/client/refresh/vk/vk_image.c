@@ -532,7 +532,7 @@ void
 QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *extent)
 {
 	BufferResource_t buff;
-	uint8_t *pMappedData;
+	const uint8_t *pMappedData;
 	VkCommandBuffer cmdBuffer;
 
 	VkBufferCreateInfo bcInfo = {

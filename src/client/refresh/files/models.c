@@ -107,7 +107,7 @@ Mod_AllocateSkins(const char *mod_name, struct image_s ***skins, int *numskins,
 {
 	if (type == mod_sprite)
 	{
-		dsprite_t	*sprout;
+		const dsprite_t *sprout;
 
 		sprout = (dsprite_t *)extradata;
 

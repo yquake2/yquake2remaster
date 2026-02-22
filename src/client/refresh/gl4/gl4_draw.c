@@ -301,7 +301,7 @@ GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 void
 GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
-	gl4image_t *image = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *image = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!image)
 	{
 		Com_Printf("Can't find pic: %s\n", pic);

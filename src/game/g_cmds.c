@@ -65,7 +65,7 @@ ClientTeam(const edict_t *ent, char* value, size_t val_len)
 }
 
 qboolean
-OnSameTeam(edict_t *ent1, edict_t *ent2)
+OnSameTeam(const edict_t *ent1, const edict_t *ent2)
 {
 	char ent1Team[512];
 	char ent2Team[512];
@@ -95,8 +95,7 @@ static void
 SelectNextItem(edict_t *ent, int itflags)
 {
 	gclient_t *cl;
-	int i, index;
-	gitem_t *it;
+	int i;
 
 	if (!ent)
 	{
@@ -119,6 +118,9 @@ SelectNextItem(edict_t *ent, int itflags)
 	/* scan  for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
+		const gitem_t *it;
+		int index;
+
 		index = (cl->pers.selected_item + i) % MAX_ITEMS;
 
 		if (!cl->pers.inventory[index])
@@ -149,8 +151,7 @@ static void
 SelectPrevItem(edict_t *ent, int itflags)
 {
 	gclient_t *cl;
-	int i, index;
-	gitem_t *it;
+	int i;
 
 	if (!ent)
 	{
@@ -173,6 +174,9 @@ SelectPrevItem(edict_t *ent, int itflags)
 	/* scan for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
+		const gitem_t *it;
+		int index;
+
 		index = (cl->pers.selected_item + MAX_ITEMS - i) % MAX_ITEMS;
 
 		if (!cl->pers.inventory[index])
@@ -202,7 +206,7 @@ SelectPrevItem(edict_t *ent, int itflags)
 void
 ValidateSelectedItem(edict_t *ent)
 {
-	gclient_t *cl;
+	const gclient_t *cl;
 
 	if (!ent)
 	{
@@ -341,7 +345,7 @@ Cmd_Give_f(edict_t *ent)
 
 	if (give_all || (Q_stricmp(name, "armor") == 0))
 	{
-		gitem_armor_t *info;
+		const gitem_armor_t *info;
 
 		it = FindItem("Jacket Armor");
 		if (it)
@@ -485,7 +489,6 @@ Cmd_Give_f(edict_t *ent)
 static void
 Cmd_ListItems_f(edict_t *ent)
 {
-	gitem_t *it;
 	int i;
 
 	if (!ent)
@@ -503,6 +506,8 @@ Cmd_ListItems_f(edict_t *ent)
 	for (i = 0; i < game.num_items; i++)
 	{
 		const char *item_type = "<unknow>";
+		const gitem_t *it;
+
 		it = itemlist + i;
 
 		if (it->flags & IT_WEAPON)
@@ -937,7 +942,7 @@ static void
 Cmd_WeapPrev_f(edict_t *ent)
 {
 	gclient_t *cl;
-	int i, index;
+	int i;
 	gitem_t *it;
 	int selected_weapon;
 
@@ -966,6 +971,8 @@ Cmd_WeapPrev_f(edict_t *ent)
 	/* scan for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
+		int index;
+
 		index = (selected_weapon + MAX_ITEMS - i) % MAX_ITEMS;
 
 		if (!cl->pers.inventory[index])
@@ -999,7 +1006,7 @@ static void
 Cmd_WeapNext_f(edict_t *ent)
 {
 	gclient_t *cl;
-	int i, index;
+	int i;
 	gitem_t *it;
 	int selected_weapon;
 
@@ -1028,6 +1035,8 @@ Cmd_WeapNext_f(edict_t *ent)
 	/* scan for the next valid one */
 	for (i = 1; i <= MAX_ITEMS; i++)
 	{
+		int index;
+
 		index = (selected_weapon + i) % MAX_ITEMS;
 
 		if (!cl->pers.inventory[index])
@@ -1221,7 +1230,7 @@ Cmd_Players_f(edict_t *ent)
 	int count;
 	char small[64];
 	char large[1280];
-	int index[256];
+	int index[256] = {0};
 
 	if (!ent)
 	{
@@ -1421,7 +1430,6 @@ static void
 Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 {
 	int j;
-	edict_t *other;
 	char *p;
 	char text[2048];
 
@@ -1488,6 +1496,8 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 
 	for (j = 1; j <= game.maxclients; j++)
 	{
+		edict_t *other;
+
 		other = &g_edicts[j];
 
 		if (!other->inuse)
@@ -1513,10 +1523,10 @@ Cmd_Say_f(edict_t *ent, qboolean team, qboolean arg0)
 }
 
 static void
-Cmd_Ent_Count_f(edict_t *ent)
+Cmd_Ent_Count_f(const edict_t *ent)
 {
+	const edict_t *e;
 	int x;
-	edict_t *e;
 
 	if (!ent)
 	{
@@ -1866,7 +1876,7 @@ Cmd_ListEntities_f(edict_t *ent)
 }
 
 static int
-get_ammo_usage(gitem_t *weap)
+get_ammo_usage(const gitem_t *weap)
 {
 	if (!weap)
 	{
@@ -1890,8 +1900,6 @@ cycle_weapon(edict_t *ent)
 	gclient_t *cl;
 	gitem_t *noammo_fallback;
 	gitem_t *noweap_fallback;
-	gitem_t *weap;
-	gitem_t *ammo;
 	int i;
 	int start;
 	int num_weaps;
@@ -1950,6 +1958,8 @@ cycle_weapon(edict_t *ent)
 	/* find the first eligible weapon in the list we can switch to */
 	do
 	{
+		gitem_t *weap;
+
 		weap = FindItemByClassname(gi.argv(i));
 
 		if (weap && weap != cl->pers.weapon && (weap->flags & IT_WEAPON) && weap->use)
@@ -1958,6 +1968,8 @@ cycle_weapon(edict_t *ent)
 			{
 				if (weap->ammo)
 				{
+					const gitem_t *ammo;
+
 					ammo = FindItem(weap->ammo);
 					if (ammo)
 					{
@@ -2042,13 +2054,11 @@ Cmd_CycleWeap_f(edict_t *ent)
 }
 
 static gitem_t *
-preferred_weapon(edict_t *ent)
+preferred_weapon(const edict_t *ent)
 {
-	gclient_t *cl;
+	const gclient_t *cl;
 	gitem_t *noammo_fallback;
 	gitem_t *noweap_fallback;
-	gitem_t *weap;
-	gitem_t *ammo;
 	int i;
 	int num_weaps;
 
@@ -2071,6 +2081,8 @@ preferred_weapon(edict_t *ent)
 	/* find the first eligible weapon in the list we can switch to */
 	for (i = 1; i < num_weaps; i++)
 	{
+		gitem_t *weap;
+
 		weap = FindItemByClassname(gi.argv(i));
 
 		if (weap && (weap->flags & IT_WEAPON) && weap->use)
@@ -2079,6 +2091,8 @@ preferred_weapon(edict_t *ent)
 			{
 				if (weap->ammo)
 				{
+					const gitem_t *ammo;
+
 					ammo = FindItem(weap->ammo);
 					if (ammo)
 					{
@@ -2150,7 +2164,7 @@ Cmd_PrefWeap_f(edict_t *ent)
 void
 ClientCommand(edict_t *ent)
 {
-	char *cmd;
+	const char *cmd;
 
 	if (!ent)
 	{

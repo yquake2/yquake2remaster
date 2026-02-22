@@ -209,15 +209,12 @@ IsBadAhead(edict_t *self, edict_t *bad, vec3_t move)
 static qboolean
 SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 {
-	float dz;
 	vec3_t oldorg, neworg, end;
 	trace_t trace;
-	int i;
 	float stepsize;
 	vec3_t test;
 	int contents;
 	edict_t *current_bad = NULL;
-	float minheight;
 
 	if (!ent)
 	{
@@ -263,6 +260,8 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 	/* flying monsters don't step up */
 	if (ent->flags & (FL_SWIM | FL_FLY))
 	{
+		int i;
+
 		/* try one move with vertical motion, then one without */
 		for (i = 0; i < 2; i++)
 		{
@@ -270,6 +269,8 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 
 			if ((i == 0) && ent->enemy)
 			{
+				float dz;
+
 				if (!ent->goalentity)
 				{
 					ent->goalentity = ent->enemy;
@@ -279,6 +280,8 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 
 				if (ent->goalentity->client)
 				{
+					float minheight;
+
 					/* we want the carrier to stay a certain distance off the ground,
 					   to help prevent him from shooting his fliers, who spawn in below him */
 					if (!strcmp(ent->classname, "monster_carrier"))
@@ -636,7 +639,6 @@ static qboolean
 SV_StepDirection(edict_t *ent, float yaw, float dist)
 {
 	vec3_t move, oldorigin;
-	float delta;
 
 	if (!ent)
 	{
@@ -660,6 +662,8 @@ SV_StepDirection(edict_t *ent, float yaw, float dist)
 
 	if (SV_movestep(ent, move, false))
 	{
+		float delta;
+
 		ent->monsterinfo.aiflags &= ~AI_BLOCKED;
 
 		if (!ent->inuse)
@@ -836,7 +840,7 @@ SV_NewChaseDir(edict_t *actor, edict_t *enemy, float dist)
 }
 
 static qboolean
-SV_CloseEnough(edict_t *ent, edict_t *goal, float dist)
+SV_CloseEnough(const edict_t *ent, const edict_t *goal, float dist)
 {
 	int i;
 

@@ -218,13 +218,14 @@ Huff1TableInit(void)
 	int j;
 	int *node, *nodebase;
 	byte counts[256];
-	int numhnodes;
 
 	cin.hnodes1 = Z_Malloc(256 * 256 * 2 * 4);
 	memset(cin.hnodes1, 0, 256 * 256 * 2 * 4);
 
 	for (prev = 0; prev < 256; prev++)
 	{
+		int numhnodes;
+
 		memset(cin.h_count, 0, sizeof(cin.h_count));
 		memset(cin.h_used, 0, sizeof(cin.h_used));
 
@@ -271,13 +272,13 @@ Huff1TableInit(void)
 static cblock_t
 Huff1Decompress(cblock_t in)
 {
-	byte *input;
+	const byte *input;
 	byte *out_p;
 	int nodenum;
 	int count;
 	cblock_t out;
-	int inbyte;
-	int *hnodes, *hnodesbase;
+	const int *hnodes;
+	int *hnodesbase;
 
 	/* get decompressed count */
 	count = in.data[0] + (in.data[1] << 8) + (in.data[2] << 16) + (in.data[3] << 24);
@@ -292,6 +293,8 @@ Huff1Decompress(cblock_t in)
 
 	while (count)
 	{
+		int inbyte;
+
 		inbyte = *input++;
 
 		int i = 0;
@@ -788,7 +791,8 @@ SCR_PlayCinematic(char *arg)
 {
 	int width, height;
 	byte *palette = NULL;
-	char name[MAX_OSPATH], *dot;
+	char name[MAX_OSPATH];
+	const char *dot;
 
 	In_FlushQueue();
 	abort_cinematic = INT_MAX;
@@ -806,7 +810,7 @@ SCR_PlayCinematic(char *arg)
 				!strcmp(dot, ".jpg") ||
 				!strcmp(dot, ".png")))
 	{
-		cvar_t	*r_retexturing;
+		const cvar_t *r_retexturing;
 		char namewe[256];
 
 		Com_sprintf(name, sizeof(name), "pics/%s", arg);

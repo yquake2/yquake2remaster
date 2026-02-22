@@ -364,8 +364,8 @@ InitGame(void)
  * Called by WriteField1 and
  * WriteField2.
  */
-static functionList_t *
-GetFunctionByAddress(byte *adr)
+static const functionList_t *
+GetFunctionByAddress(const byte *adr)
 {
 	int i;
 
@@ -387,8 +387,8 @@ GetFunctionByAddress(byte *adr)
  * Called by WriteField1 and
  * WriteField2.
  */
-static byte *
-FindFunctionByName(char *name)
+static const byte *
+FindFunctionByName(const char *name)
 {
 	int i;
 
@@ -408,8 +408,8 @@ FindFunctionByName(char *name)
  * human readable definition of
  * a mmove_t struct by a pointer.
  */
-static mmoveList_t *
-GetMmoveByAddress(mmove_t *adr)
+static const mmoveList_t *
+GetMmoveByAddress(const mmove_t *adr)
 {
 	int i;
 
@@ -429,8 +429,8 @@ GetMmoveByAddress(mmove_t *adr)
  * pointer to a mmove_t struct
  * by a human readable definition.
  */
-static mmove_t *
-FindMmoveByName(char *name)
+static const mmove_t *
+FindMmoveByName(const char *name)
 {
 	int i;
 
@@ -454,13 +454,11 @@ FindMmoveByName(char *name)
  * below this block into files.
  */
 static void
-WriteField1(FILE *f, field_t *field, byte *base)
+WriteField1(FILE *f, const field_t *field, byte *base)
 {
 	void *p;
 	size_t len;
 	int index;
-	functionList_t *func;
-	mmoveList_t *mmove;
 
 	if (field->flags & FFL_SPAWNTEMP)
 	{
@@ -541,6 +539,8 @@ WriteField1(FILE *f, field_t *field, byte *base)
 			}
 			else
 			{
+				const functionList_t *func;
+
 				func = GetFunctionByAddress (*(byte **)p);
 
 				if (!func)
@@ -563,6 +563,8 @@ WriteField1(FILE *f, field_t *field, byte *base)
 			}
 			else
 			{
+				const mmoveList_t *mmove;
+
 				mmove = GetMmoveByAddress (*(mmove_t **)p);
 
 				if (!mmove)
@@ -583,12 +585,10 @@ WriteField1(FILE *f, field_t *field, byte *base)
 }
 
 static void
-WriteField2(FILE *f, field_t *field, byte *base)
+WriteField2(FILE *f, const field_t *field, byte *base)
 {
 	size_t len;
 	void *p;
-	functionList_t *func;
-	mmoveList_t *mmove;
 
 	if (field->flags & FFL_SPAWNTEMP)
 	{
@@ -613,6 +613,8 @@ WriteField2(FILE *f, field_t *field, byte *base)
 
 			if (*(byte **)p)
 			{
+				const functionList_t *func;
+
 				func = GetFunctionByAddress (*(byte **)p);
 
 				if (!func)
@@ -631,6 +633,8 @@ WriteField2(FILE *f, field_t *field, byte *base)
 
 			if (*(byte **)p)
 			{
+				const mmoveList_t *mmove;
+
 				mmove = GetMmoveByAddress (*(mmove_t **)p);
 				if (!mmove)
 				{
@@ -640,7 +644,7 @@ WriteField2(FILE *f, field_t *field, byte *base)
 				}
 
 				len = strlen(mmove->mmoveStr)+1;
-				fwrite (mmove->mmoveStr, len, 1, f);
+				fwrite(mmove->mmoveStr, len, 1, f);
 			}
 
 			break;
@@ -659,7 +663,7 @@ WriteField2(FILE *f, field_t *field, byte *base)
  * below
  */
 static void
-ReadField(FILE *f, field_t *field, byte *base)
+ReadField(FILE *f, const field_t *field, byte *base)
 {
 	void *p;
 	int len;
@@ -776,7 +780,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 
 				funcStr[sizeof(funcStr) - 1] = 0;
 
-				if ( !(*(byte **)p = FindFunctionByName (funcStr)) )
+				if ( !(*(const byte **)p = FindFunctionByName (funcStr)) )
 				{
 					gi.error("%s: function %s not found in table, can't load game",
 						__func__, funcStr);
@@ -808,7 +812,7 @@ ReadField(FILE *f, field_t *field, byte *base)
 
 				funcStr[sizeof(funcStr) - 1] = 0;
 
-				if ( !(*(mmove_t **)p = FindMmoveByName (funcStr)) )
+				if (!(*(const mmove_t **)p = FindMmoveByName(funcStr)))
 				{
 					gi.error("%s: mmove %s not found in table, can't load game",
 						__func__, funcStr);
@@ -1149,7 +1153,6 @@ void
 WriteLevel(const char *filename)
 {
 	int i;
-	edict_t *ent;
 	FILE *f;
 
 	f = Q_fopen(filename, "wb");
@@ -1170,6 +1173,8 @@ WriteLevel(const char *filename)
 	/* write out all the entities */
 	for (i = 0; i < globals.num_edicts; i++)
 	{
+		edict_t *ent;
+
 		ent = &g_edicts[i];
 
 		if (!ent->inuse)

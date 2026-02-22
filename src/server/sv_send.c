@@ -85,7 +85,6 @@ SV_BroadcastPrintf(int level, const char *fmt, ...)
 	if (dedicated->value)
 	{
 		char copy[1024];
-		int i;
 
 		/* mask off high bits */
 		for (i = 0; i < 1023 && string[i]; i++)
@@ -295,7 +294,7 @@ void
 SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 		float volume, float attenuation, float timeofs)
 {
-	int sendchan, flags, i, ent, protocol;
+	int sendchan, flags, ent, protocol;
 	qboolean use_phs;
 	vec3_t origin_v;
 
@@ -375,6 +374,8 @@ SV_StartSound(vec3_t origin, edict_t *entity, int channel, int soundindex,
 
 		if (entity->solid == SOLID_BSP)
 		{
+			int i;
+
 			for (i = 0; i < 3; i++)
 			{
 				origin_v[i] = entity->s.origin[i] + 0.5f *

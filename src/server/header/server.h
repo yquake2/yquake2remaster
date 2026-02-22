@@ -45,6 +45,8 @@
  * savegames would be broken. */
 #define MAX_SAVE_TOKEN_CHARS 128
 
+/* expected count of entities in packet */
+#define MAX_PACKET_ENTITIES 256
 
 #define SV_OUTPUTBUF_LENGTH (MAX_MSGLEN - 16)
 #define EDICT_NUM(n) ((edict_t *)((byte *)ge->edicts + ge->edict_size * (n)))
@@ -169,7 +171,7 @@ typedef struct
 										/* used to check late spawns */
 
 	client_t *clients;                  /* [maxclients->value]; */
-	int num_client_entities;            /* maxclients->value*UPDATE_BACKUP*MAX_PACKET_ENTITIES */
+	int num_client_entities;            /* maxclients->value * UPDATE_BACKUP * MAX_PACKET_ENTITIES */
 	int next_client_entities;           /* next client_entity to use */
 	entity_xstate_t *client_entities;    /* [num_client_entities] */
 
@@ -209,7 +211,6 @@ extern cvar_t *sv_language;			/* Localization. */
 extern client_t *sv_client;
 extern edict_t *sv_player;
 
-void SV_FinalMessage(char *message, qboolean reconnect);
 void SV_DropClient(client_t *drop);
 
 int SV_ModelIndex(const char *name);
@@ -229,7 +230,7 @@ void Master_Heartbeat(void);
 void Master_Packet(void);
 
 void SV_InitGame(void);
-void SV_Map(qboolean attractloop, char *levelstring, qboolean loadgame, qboolean isautosave);
+void SV_Map(qboolean attractloop, const char *levelstring, qboolean loadgame, qboolean isautosave);
 void SV_SendInitBuffers(void);
 void SV_SendFreeBuffers(void);
 
@@ -275,7 +276,7 @@ void SV_InitEdict(edict_t *e);
 void SV_WipeSavegame(char *savename);
 void SV_CopySaveGame(char *src, char *dst);
 void SV_WriteLevelFile(void);
-void SV_CleanLevelFileName(char *name);
+void SV_CleanLevelFileName(char *savename);
 void SV_WriteServerFile(qboolean autosave);
 void SV_Loadgame_f(void);
 void SV_Savegame_f(void);

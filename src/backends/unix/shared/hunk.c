@@ -121,17 +121,17 @@ Hunk_Alloc(int size)
 int
 Hunk_End(void)
 {
-	byte *n = NULL;
+	const byte *n = NULL;
 
 #if defined(__linux__)
 	n = (byte *)mremap(membase, maxhunksize, curhunksize + sizeof(size_t), 0);
 #elif defined(__NetBSD__)
 	n = (byte *)mremap(membase, maxhunksize, NULL, curhunksize + sizeof(size_t), 0);
 #else
- #ifndef round_page
- size_t page_size = sysconf(_SC_PAGESIZE);
- #define round_page(x) ((((size_t)(x)) + page_size-1) & ~(page_size-1))
- #endif
+	#ifndef round_page
+		size_t page_size = sysconf(_SC_PAGESIZE);
+		#define round_page(x) ((((size_t)(x)) + page_size-1) & ~(page_size-1))
+	#endif
 
 	size_t old_size = round_page(maxhunksize);
 	size_t new_size = round_page(curhunksize + sizeof(size_t));

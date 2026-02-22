@@ -1789,7 +1789,7 @@ medic_attack(edict_t *self)
 
 	monster_done_dodge(self);
 
-	enemy_range = range(self, self->enemy);
+	enemy_range = ai_range(self, self->enemy);
 
 	/* signal from checkattack to spawn */
 	if (self->monsterinfo.aiflags & AI_BLOCKED)

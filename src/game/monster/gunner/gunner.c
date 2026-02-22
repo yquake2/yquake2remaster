@@ -1080,7 +1080,7 @@ gunner_attack(edict_t *self)
 	}
 
 	/* gunner needs to use his chaingun if he's being attacked by a tesla. */
-	if ((range(self, self->enemy) == RANGE_MELEE) || self->bad_area)
+	if ((ai_range(self, self->enemy) == RANGE_MELEE) || self->bad_area)
 	{
 		self->monsterinfo.currentmove = &gunner_move_attack_chain;
 	}

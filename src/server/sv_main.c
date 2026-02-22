@@ -93,7 +93,6 @@ SV_StatusString(void)
 	char player[1024];
 	static char status[MAX_MSGLEN - 16];
 	int i;
-	client_t *cl;
 	int statusLength;
 	int playerLength;
 
@@ -103,6 +102,8 @@ SV_StatusString(void)
 
 	for (i = 0; i < maxclients->value; i++)
 	{
+		static client_t *cl;
+
 		cl = &svs.clients[i];
 
 		if ((cl->state == cs_connected) || (cl->state == cs_spawned))
@@ -170,7 +171,6 @@ static void
 SV_GiveMsec(void)
 {
 	int i;
-	client_t *cl;
 
 	if (sv.framenum & 15)
 	{
@@ -179,6 +179,8 @@ SV_GiveMsec(void)
 
 	for (i = 0; i < maxclients->value; i++)
 	{
+		client_t *cl;
+
 		cl = &svs.clients[i];
 
 		if (cl->state == cs_free)
@@ -555,7 +557,7 @@ Master_Shutdown(void)
 void
 SV_UserinfoChanged(client_t *cl)
 {
-	char *val;
+	const char *val;
 	int i;
 
 	/* call prog code to allow overrides */
@@ -650,8 +652,8 @@ SV_Init(void)
  * outgoing message list, because the server is going
  * to totally exit after returning from this function.
  */
-void
-SV_FinalMessage(char *message, qboolean reconnect)
+static void
+SV_FinalMessage(const char *message, qboolean reconnect)
 {
 	int i;
 	client_t *cl;
@@ -675,11 +677,11 @@ SV_FinalMessage(char *message, qboolean reconnect)
 	 *     because this is called by SV_Shutdown() and the shut down server might have
 	 *     a different number of clients (e.g. 1 if it's single player), when maxclients
 	 *     has already been set to a higher value for multiplayer (e.g. 4 for coop)
-	 *     Luckily, svs.num_client_entities = maxclients->value * UPDATE_BACKUP * 64;
+	 *     Luckily, svs.num_client_entities = maxclients->value * UPDATE_BACKUP * MAX_PACKET_ENTITIES;
 	 *     with the maxclients value from when the current server was started (see SV_InitGame())
 	 *     so we can just calculate the right number of clients from that
 	 */
-	int numClients = svs.num_client_entities / ( UPDATE_BACKUP * 64 );
+	int numClients = svs.num_client_entities / ( UPDATE_BACKUP * MAX_PACKET_ENTITIES );
 	for (i = 0, cl = svs.clients; i < numClients; i++, cl++)
 	{
 		if (cl->state >= cs_connected)
@@ -717,7 +719,7 @@ SV_ClearBaselines(void)
  * before Sys_Quit or Sys_Error
  */
 void
-SV_Shutdown(char *finalmsg, qboolean reconnect)
+SV_Shutdown(const char *finalmsg, qboolean reconnect)
 {
 	if (svs.clients)
 	{

@@ -384,3 +384,25 @@ in your build directory, you can open it with Visual Studio to compile.
 
 If you prefer using `cmake-gui`, you can specify the `YQUAKE2LIBS` with the
 `Add Entry` option (Name: `YQUAKE2LIBS`, Type: `PATH`, Value: *see examples above*).
+
+# Minimal test run on debian
+
+```bash
+
+sudo apt install git curl build-essential libgl1-mesa-dev libsdl3-dev \
+	libopenal-dev libcurl4-openssl-dev libavformat-dev libswscale-dev \
+	libvulkan-dev ccache zip || exit
+
+rm -rf yquake2remaster
+git clone https://github.com/yquake2/yquake2remaster.git || exit
+cd yquake2remaster || exit
+git submodule update --init --recursive || exit
+CC="ccache gcc " make -j 2 || exit
+cd release || exit
+curl https://deponie.yamagi.org/quake2/idstuff/q2-314-demo-x86.exe -o q2-314-demo-x86.zip || exit
+unzip -o q2-314-demo-x86.zip || exit
+cp -rv Install/Data/baseq2/pak0.pak baseq2/ || exit
+cp -rv Install/Data/baseq2/players baseq2/ || exit
+./quake2 +set vid_renderer "vk" +set developer 1 | tee vk.log
+
+```

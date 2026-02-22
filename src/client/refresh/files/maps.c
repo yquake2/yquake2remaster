@@ -470,7 +470,8 @@ Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	// count animation frames
 	for (i = 0; i < *numtexinfo; i++)
 	{
-		mtexinfo_t *out, *step;
+		const mtexinfo_t *step;
+		mtexinfo_t *out;
 
 		out = (*texinfo) + i;
 		out->numframes = 1;

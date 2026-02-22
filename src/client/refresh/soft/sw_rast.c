@@ -490,7 +490,7 @@ R_EmitCachedEdge
 ================
 */
 static void
-R_EmitCachedEdge (medge_t *r_pedge)
+R_EmitCachedEdge(const medge_t *r_pedge)
 {
 	edge_t		*pedge_t;
 

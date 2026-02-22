@@ -455,7 +455,7 @@ qboolean Sys_IsFile(const char *path);
 /* large block stack allocation routines */
 YQ2_ATTR_MALLOC void *Hunk_Begin(int maxsize);
 YQ2_ATTR_MALLOC void *Hunk_Alloc(int size);
-void Hunk_Free(void *buf);
+void Hunk_Free(void *base);
 int Hunk_End(void);
 
 /* directory searching */
@@ -466,8 +466,8 @@ int Hunk_End(void);
 #define SFF_SYSTEM 0x10
 
 /* pass in an attribute mask of things you wish to REJECT */
-char *Sys_FindFirst(const char *path, unsigned musthave, unsigned canthave);
-char *Sys_FindNext(unsigned musthave, unsigned canthave);
+char *Sys_FindFirst(const char *path, unsigned musthave, unsigned canhave);
+char *Sys_FindNext(unsigned musthave, unsigned canhave);
 void Sys_FindClose(void);
 
 /* this is only here so the functions in shared source files can link */

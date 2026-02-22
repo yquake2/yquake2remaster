@@ -384,7 +384,7 @@ mutant_check_refire(edict_t *self)
 	}
 
 	if (((skill->value == SKILL_HARDPLUS) &&
-		 (random() < 0.5)) || (range(self, self->enemy) == RANGE_MELEE))
+		 (random() < 0.5)) || (ai_range(self, self->enemy) == RANGE_MELEE))
 	{
 		self->monsterinfo.nextframe = FRAME_attack09;
 	}
@@ -550,7 +550,7 @@ mutant_check_melee(edict_t *self)
 		return false;
 	}
 
-	if (range(self, self->enemy) == RANGE_MELEE)
+	if (ai_range(self, self->enemy) == RANGE_MELEE)
 	{
 		return true;
 	}
@@ -793,8 +793,6 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
 		vec3_t point /* unused */)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -802,6 +800,8 @@ mutant_die(edict_t *self, edict_t *inflictor /* unused */,
 
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)

@@ -471,7 +471,7 @@ struct model_s *CL_PowerScreenModel(void);
 
 void CL_SetSky(void);
 void CL_PrepRefresh(void);
-void CL_LoadShadowLight(int index, const char *s);
+void CL_LoadShadowLight(int idx, const char *s);
 void CL_RegisterSounds(void);
 
 void CL_Quit_f(void);
@@ -571,6 +571,8 @@ void M_AddToServerList(netadr_t adr, char *info);
 
 void CL_ParseInventory(void);
 void CL_DrawInventory(void);
+const char *CL_GetBindByAction(const char *binding);
+
 
 void CL_PredictMovement(void);
 trace_t CL_PMTrace(vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);

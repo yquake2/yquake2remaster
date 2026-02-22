@@ -502,7 +502,7 @@ R_PolysetDrawSpansConstant8_33(const entity_t *currententity, spanpackage_t *psp
 {
 	pixel_t		*lpdest;
 	int		lzi;
-	zvalue_t	*lpz;
+	const zvalue_t *lpz;
 
 	do
 	{
@@ -627,11 +627,11 @@ R_PolysetDrawSpans8_66(const entity_t *currententity, spanpackage_t *pspanpackag
 }
 
 void
-R_PolysetDrawSpansConstant8_66(const entity_t *currententity, spanpackage_t *pspanpackage)
+R_PolysetDrawSpansConstant8_66(const entity_t *currententity, const spanpackage_t *pspanpackage)
 {
 	pixel_t		*lpdest;
 	zvalue_t	lzi;
-	zvalue_t	*lpz;
+	const zvalue_t *lpz;
 
 	do
 	{

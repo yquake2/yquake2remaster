@@ -503,18 +503,18 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		bodymodels = (hlmdl_bodymodel_t *)((byte *)buffer + bodyparts[i].ofs_model);
 		for (j = 0; j < bodyparts[i].num_models; j++)
 		{
-			hlmdl_bodymesh_t *mesh_nodes;
+			hlmdl_bodymesh_t *hl_mesh_nodes;
 			vec3_t *in_verts;
 			byte *in_boneids;
 			int k;
 
-			mesh_nodes = (hlmdl_bodymesh_t *)((byte *)buffer + bodymodels[j].ofs_mesh);
+			hl_mesh_nodes = (hlmdl_bodymesh_t *)((byte *)buffer + bodymodels[j].ofs_mesh);
 			for (k = 0; k < bodymodels[j].num_mesh; k++)
 			{
 				short *trivert;
 				int l;
 
-				trivert = (short *)((byte *)buffer + mesh_nodes[k].ofs_tris);
+				trivert = (short *)((byte *)buffer + hl_mesh_nodes[k].ofs_tris);
 				while ((l = *(trivert++)))
 				{
 					int g, count = l, st_prefix = num_st;

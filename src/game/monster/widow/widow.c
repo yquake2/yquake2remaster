@@ -105,8 +105,8 @@ widow_sight(edict_t *self, edict_t *other /* unused */)
 	self->monsterinfo.pausetime = 0;
 }
 
-float
-target_angle(edict_t *self)
+static float
+widow_target_angle(edict_t *self)
 {
 	vec3_t target;
 	float enemy_yaw;
@@ -139,7 +139,7 @@ WidowTorso(edict_t *self)
 		return 0;
 	}
 
-	enemy_yaw = target_angle(self);
+	enemy_yaw = widow_target_angle(self);
 
 	if (enemy_yaw >= 105)
 	{
@@ -827,7 +827,7 @@ widow_attack_rail(edict_t *self)
 		return;
 	}
 
-	enemy_angle = target_angle(self);
+	enemy_angle = widow_target_angle(self);
 
 	if (enemy_angle < -15)
 	{
@@ -1675,7 +1675,7 @@ Widow_CheckAttack(edict_t *self)
 		}
 	}
 
-	enemy_range = range(self, self->enemy);
+	enemy_range = ai_range(self, self->enemy);
 	VectorSubtract(self->enemy->s.origin, self->s.origin, temp);
 	enemy_yaw = vectoyaw2(temp);
 

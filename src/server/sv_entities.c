@@ -34,10 +34,10 @@
  * Writes a delta update of an entity_state_t list to the message.
  */
 static void
-SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
+SV_EmitPacketEntities(const client_frame_t *from, const client_frame_t *to, sizebuf_t *msg,
 	int protocol)
 {
-	entity_xstate_t *oldent, *newent;
+	const entity_xstate_t *oldent, *newent;
 	int oldindex, newindex;
 	int from_num_entities;
 
@@ -60,7 +60,6 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
 	while (newindex < to->num_entities || oldindex < from_num_entities)
 	{
 		int oldnum, newnum;
-		int bits;
 
 		if (msg->cursize > MAX_MSGLEN - 150)
 		{
@@ -116,6 +115,8 @@ SV_EmitPacketEntities(client_frame_t *from, client_frame_t *to, sizebuf_t *msg,
 
 		if (newnum > oldnum)
 		{
+			int bits;
+
 			/* the old entity isn't present in the new message */
 			bits = U_REMOVE;
 
@@ -152,8 +153,9 @@ static void
 SV_WritePlayerstateToClient(client_frame_t *from, client_frame_t *to,
 		sizebuf_t *msg, int protocol)
 {
-	int statbits[8], stats_size, pflags, i, *origin, *oorig, idummy[3];
-	player_state_t *ps, *ops;
+	int statbits[8], stats_size, pflags, i, idummy[3];
+	const player_state_t *ps, *ops;
+	const int *origin, *oorig;
 	player_state_t dummy;
 
 	ps = &to->ps;
@@ -764,7 +766,7 @@ void
 SV_RecordDemoMessage(void)
 {
 	int e;
-	edict_t *ent;
+	const edict_t *ent;
 	entity_xstate_t nostate;
 	sizebuf_t buf;
 	byte buf_data[32768];

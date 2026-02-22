@@ -5930,11 +5930,17 @@ static qboolean
 IconOfSkinExists(const char* skin, char** pcxfiles, int npcxfiles,
 	const char *ext)
 {
+	char scratch[1024], *dot;
 	int i;
-	char scratch[1024];
 
 	Q_strlcpy(scratch, skin, sizeof(scratch));
-	*strrchr(scratch, '.') = 0;
+	dot = strrchr(scratch, '.');
+	if (!dot)
+	{
+		return false;
+	}
+
+	*dot = 0;
 	Q_strlcat(scratch, "_i.", sizeof(scratch));
 	Q_strlcat(scratch, ext, sizeof(scratch));
 

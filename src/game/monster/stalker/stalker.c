@@ -899,8 +899,8 @@ calcJumpAngle(vec3_t start, vec3_t end, float velocity, vec3_t angles)
 	}
 }
 
-int
-stalker_check_lz(edict_t *self, edict_t *target, vec3_t dest)
+static int
+stalker_check_lz(edict_t *self, const edict_t *target, vec3_t dest)
 {
 	vec3_t jumpLZ;
 

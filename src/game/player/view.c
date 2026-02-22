@@ -82,10 +82,8 @@ static void
 P_DamageFeedback(edict_t *player)
 {
 	gclient_t *client;
-	float side;
 	float realcount, count, kick;
 	vec3_t v;
-	int r, l;
 	static vec3_t power_color = {0.0, 1.0, 0.0};
 	static vec3_t acolor = {1.0, 1.0, 1.0};
 	static vec3_t bcolor = {1.0, 0.0, 0.0};
@@ -180,6 +178,8 @@ P_DamageFeedback(edict_t *player)
 		(client->invincible_framenum <= level.framenum) &&
 		player->health > 0)
 	{
+		int r, l;
+
 		r = 1 + (randk() & 1);
 		player->pain_debounce_time = level.time + 0.7;
 
@@ -248,6 +248,8 @@ P_DamageFeedback(edict_t *player)
 
 	if (kick && (player->health > 0)) /* kick of 0 means no view adjust at all */
 	{
+		float side;
+
 		kick = kick * 100 / player->health;
 
 		if (kick < count * 0.5)
@@ -484,17 +486,14 @@ SV_CalcGunOffset(edict_t *ent)
 {
 	int i;
 	float delta;
-	static gitem_t *heatbeam;
+	const gitem_t *heatbeam;
 
 	if (!ent)
 	{
 		return;
 	}
 
-	if (!heatbeam)
-	{
-		heatbeam = FindItemByClassname("weapon_plasmabeam");
-	}
+	heatbeam = FindItemByClassname("weapon_plasmabeam");
 
 	/* heatbeam shouldn't bob so the beam looks right */
 	if (ent->client->pers.weapon != heatbeam)
@@ -810,7 +809,6 @@ P_FallingDamage(edict_t *ent)
 {
 	float delta;
 	int damage;
-	vec3_t dir;
 
 	if (!ent)
 	{
@@ -892,6 +890,8 @@ P_FallingDamage(edict_t *ent)
 
 	if (delta > 30)
 	{
+		vec3_t dir;
+
 		if (ent->health > 0)
 		{
 			if (delta >= 55)
@@ -1140,7 +1140,6 @@ P_WorldEffects(void)
 void
 G_SetClientEffects(edict_t *ent)
 {
-	int pa_type;
 	int remaining;
 
 	if (!ent)
@@ -1179,6 +1178,8 @@ G_SetClientEffects(edict_t *ent)
 
 	if (ent->powerarmor_time > level.time)
 	{
+		int pa_type;
+
 		pa_type = PowerArmorType(ent);
 
 		if (pa_type == POWER_ARMOR_SCREEN)
@@ -1306,7 +1307,7 @@ G_SetClientEvent(edict_t *ent)
 void
 G_SetClientSound(edict_t *ent)
 {
-	char *weap;
+	const char *weap;
 
 	if (!ent)
 	{
@@ -1484,8 +1485,6 @@ newanim:
 		}
 		else
 		{
-			int firstframe, lastframe;
-
 			client->anim_priority = ANIM_JUMP;
 
 			firstframe = FRAME_jump1;

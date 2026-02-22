@@ -578,7 +578,7 @@ void NET_Config(qboolean multiplayer);
 
 qboolean NET_GetPacket(netsrc_t sock, netadr_t *net_from,
 		sizebuf_t *net_message);
-void NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to);
+void NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to);
 
 qboolean NET_CompareAdr(netadr_t a, netadr_t b);
 qboolean NET_CompareBaseAdr(netadr_t a, netadr_t b);
@@ -880,11 +880,11 @@ void CL_Init(void);
 void CL_Drop(void);
 void CL_Shutdown(void);
 void CL_Frame(int packetdelta, int renderdelta, int timedelta, qboolean packetframe, qboolean renderframe);
-void Con_Print(char *text);
+void Con_Print(const char *txt);
 void SCR_BeginLoadingPlaque(void);
 
 void SV_Init(void);
-void SV_Shutdown(char *finalmsg, qboolean reconnect);
+void SV_Shutdown(const char *finalmsg, qboolean reconnect);
 void SV_Frame(int usec);
 const char *SV_LocalizationUIMessage(const char *message, const char *default_message);
 const char *SV_LocalizationMessage(const char *message, const char **sound);
@@ -901,7 +901,7 @@ int P_ConvertConfigStringTo(int i, int protocol);
 
 // system.c
 char *Sys_ConsoleInput(void);
-void Sys_ConsoleOutput(char *string);
+void Sys_ConsoleOutput(const char *string);
 YQ2_ATTR_NORETURN void Sys_Error(const char *error, ...);
 YQ2_ATTR_NORETURN void Sys_Quit(void);
 void Sys_Init(void);
@@ -917,7 +917,7 @@ void *Sys_LoadLibrary(const char *path, const char *sym, void **handle);
 void *Sys_GetGameAPI(void *parms);
 void Sys_UnloadGame(void);
 void Sys_GetWorkDir(char *buffer, size_t len);
-qboolean Sys_SetWorkDir(char *path);
+qboolean Sys_SetWorkDir(const char *path);
 qboolean Sys_Realpath(const char *in, char *out, size_t size);
 
 // Windows only (system.c)

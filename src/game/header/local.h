@@ -894,7 +894,7 @@ void vectoangles2(vec3_t vec, vec3_t angles);
 edict_t *findradius2(edict_t *from, vec3_t org, float rad);
 
 /* g_combat.c */
-qboolean OnSameTeam(edict_t *ent1, edict_t *ent2);
+qboolean OnSameTeam(const edict_t *ent1, const edict_t *ent2);
 qboolean CanDamage(edict_t *targ, edict_t *inflictor);
 qboolean CheckTeamDamage(edict_t *targ, edict_t *attacker);
 void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
@@ -1007,6 +1007,8 @@ void ThrowHeadACID(edict_t *self, const char *gibname, int damage, gibtype_t typ
 void ThrowGibACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
 void SP_misc_teleporter_dest(edict_t *ent);
+void barrel_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
+	csurface_t *surf /*unused */);
 
 /* g_ai.c */
 void AI_SetSightClient(void);
@@ -1017,7 +1019,7 @@ void ai_walk(edict_t *self, float dist);
 void ai_turn(edict_t *self, float dist);
 void ai_run(edict_t *self, float dist);
 void ai_charge(edict_t *self, float dist);
-int range(edict_t *self, edict_t *other);
+int ai_range(edict_t *self, edict_t *other);
 
 void FoundTarget(edict_t *self);
 qboolean FindTarget(edict_t *self);
@@ -1108,9 +1110,9 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, const int *pause_frames,
 		const int *fire_frames, void (*fire)(edict_t *ent));
 qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
-void Use_Weapon(edict_t *ent, gitem_t *inv);
-void Use_Weapon2(edict_t *ent, gitem_t *inv);
-void Drop_Weapon(edict_t *ent, gitem_t *inv);
+void Use_Weapon(edict_t *ent, gitem_t *item);
+void Use_Weapon2(edict_t *ent, gitem_t *item);
+void Drop_Weapon(edict_t *ent, gitem_t *item);
 void Weapon_Blaster(edict_t *ent);
 void Weapon_Shotgun(edict_t *ent);
 void Weapon_SuperShotgun(edict_t *ent);
@@ -1134,6 +1136,7 @@ void Weapon_Ionripper(edict_t *ent);
 void Weapon_Phalanx(edict_t *ent);
 void Weapon_Trap(edict_t *ent);
 void Weapon_FlareGun(edict_t *ent);
+byte P_DamageModifier(const edict_t *ent);
 
 /* m_move.c */
 qboolean M_CheckBottom(edict_t *ent);

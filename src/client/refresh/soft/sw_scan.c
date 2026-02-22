@@ -589,7 +589,7 @@ D_DrawSpansPow2
 =============
 */
 void
-D_DrawSpansPow2 (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
+D_DrawSpansPow2(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
 {
 	int 	spancount;
 	pixel_t	*pbase;
@@ -741,7 +741,7 @@ D_DrawZSpans
 =============
 */
 void
-D_DrawZSpans (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
+D_DrawZSpans(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv)
 {
 	zvalue_t	izistep;
 	int		safe_step;

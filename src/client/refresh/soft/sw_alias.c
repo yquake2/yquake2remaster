@@ -621,68 +621,35 @@ R_AliasSetupLighting
 ================
 */
 static void
-R_AliasSetupLighting(entity_t *currententity)
+R_AliasSetupLighting(const entity_t *currententity)
 {
 	const vec3_t lightvec = {-1, 0, 0};
-	vec3_t light;
+	vec3_t shadelight;
 	int i;
 
-	// all components of light should be identical in software
-	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
+	if (r_worldmodel)
 	{
-		for (i = 0; i < 3; i++)
-		{
-			light[i] = 1.0;
-		}
+		R_ApplyModelLight(r_worldmodel->grid, currententity, r_worldmodel->surfaces,
+			r_worldmodel->nodes, shadelight, lightspot, r_worldmodel->lightdata);
 	}
 	else
 	{
-		R_LightPoint(r_worldmodel->grid, currententity, r_worldmodel->surfaces,
-			r_worldmodel->nodes, currententity->origin, light,
-			r_modulate->value, lightspot);
-	}
-
-	// save off light value for server to look at (BIG HACK!)
-	if (currententity->flags & RF_WEAPONMODEL)
-	{
-		r_lightlevel->value = 150.0 * light[0];
-	}
-
-	if ( currententity->flags & RF_MINLIGHT )
-	{
-		for (i=0 ; i<3 ; i++)
-			if (light[i] < 0.1)
-				light[i] = 0.1;
-	}
-
-	if ( currententity->flags & RF_GLOW )
-	{	// bonus items will pulse with time
-		float	scale;
-
-		scale = 0.1 * sin(r_newrefdef.time*7);
-		for (i=0 ; i<3 ; i++)
-		{
-			float min;
-
-			min = light[i] * 0.8;
-			light[i] += scale;
-			if (light[i] < min)
-				light[i] = min;
-		}
+		R_ApplyModelLight(NULL, currententity, NULL, NULL, shadelight,
+			lightspot, NULL);
 	}
 
 	if (sw_colorlight->value == 0)
 	{
-		float temp = (light[0] + light[1] + light[2]) / 3.0;
+		float temp = (shadelight[0] + shadelight[1] + shadelight[2]) / 3.0;
 
-		light[0] = light[1] = light[2] = temp;
+		shadelight[0] = shadelight[1] = shadelight[2] = temp;
 	}
 
-	for (i=0; i<3; i++)
+	for (i = 0; i < 3; i++)
 	{
 		int j;
 
-		j = light[i] * 255;
+		j = shadelight[i] * 255;
 
 		r_ambientlight[i] = j;
 		r_shadelight[i] = j;

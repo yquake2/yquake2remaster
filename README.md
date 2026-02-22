@@ -1,5 +1,6 @@
 # Yamagi Quake II Remaster
 
+[![Coverity Scan](https://img.shields.io/coverity/scan/31780)](https://scan.coverity.com/projects/yquake2-yquake2remaster)
 [![Top Language](https://img.shields.io/github/languages/top/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster)
 [![Code Size](https://img.shields.io/github/languages/code-size/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster)
 [![Release](https://img.shields.io/github/release/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
@@ -9,6 +10,7 @@
 [![Downloads (latest)](https://img.shields.io/github/downloads/yquake2/yquake2remaster/latest/total.svg)](https://github.com/yquake2/yquake2remaster/releases/latest)
 [![Commits](https://img.shields.io/github/commits-since/yquake2/yquake2remaster/latest.svg)](https://github.com/yquake2/yquake2remaster/commits/master)
 [![Last Commit](https://img.shields.io/github/last-commit/yquake2/yquake2remaster.svg)](https://github.com/yquake2/yquake2remaster/commits/master)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/coverity.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/coverity.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml)
@@ -288,7 +290,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
 * [ ] ReRelease: broken fire effect for Guardian.
-* [ ] ReRelease: fix invisiable entities in basicsjam1_ziutek,
+* [ ] ReRelease: water in basicsjam1_ziutek,
 * [ ] ReRelease: make lightmap textures dynamic n64jam_palmlix,
 * [ ] ReRelease: support `textures/*/*.mat load` texture effects,
 * [ ] ReRelease: support `textures/*/*_glow.png` load,
@@ -320,13 +322,18 @@ Other games support goals:
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
-* [ ] Anachronox: rowdys map models disappear on dance space,
 * [ ] Anachronox: rowdys save entity disappear in a8080c05,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
-* [ ] DoD: fix statusbar `roarke`.
+* [ ] DoD: fix statusbar `roarke`,
+* [ ] Support obj waveform model format for debug other formats.
+
+Fixed:
+
+* [x] Anachronox: rowdys map models disappear on dance space,
+* [x] ReRelease: fix invisiable entities in basicsjam1_ziutek,
 
 Not a goal:
 

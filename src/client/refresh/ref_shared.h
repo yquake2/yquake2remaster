@@ -336,7 +336,7 @@ extern struct image_s *R_LoadImage(const char *name, const char* namewe, const c
 	imagetype_t type, loadimage_t load_image);
 extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
 	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
-	const byte *mod_base, const lump_t *lMod_LoadQBSPMarksurfaces);
+	const byte *mod_base, const lump_t *l);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes, vec3_t mins, vec3_t maxs,
 	const byte *mod_base, const lump_t *l, int ident);
@@ -393,12 +393,15 @@ extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 /* Lights logic */
 extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
 extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
-	const msurface_t *surfaces, const mnode_t *nodes, vec3_t p, vec3_t color,
-	float modulate, vec3_t lightspot);
-extern void R_SetCacheState(msurface_t *surf, const refdef_t *r_newrefdef);
+	const msurface_t *surfaces, const mnode_t *nodes, const vec3_t p, vec3_t color,
+	vec3_t lightspot);
+extern void R_ApplyModelLight(const bspxlightgrid_t *grid, const entity_t *currententity,
+	const msurface_t *surfaces, const mnode_t *nodes, vec3_t shadelight,
+	vec3_t lightspot, const byte *lightdata);
+extern void R_SetCacheState(msurface_t *surf, const refdef_t *refdef);
 extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride,
 	const refdef_t *r_newrefdef, float modulate, int r_framecount,
-	byte *gammatable, byte *minlight);
+	const byte *gammatable, const byte *minlight);
 extern void R_InitTemporaryLMBuffer(void);
 extern void R_FreeTemporaryLMBuffer(void);
 extern byte *R_GetTemporaryLMBuffer(size_t size);
@@ -460,6 +463,7 @@ extern cvar_t *vid_gamma;
 extern cvar_t *viewsize;
 
 extern void R_CombineBlendWithFog(float *v_blend, qboolean native_fog);
+
 extern void R_InitCvar(void);
 
 #endif /* SRC_CLIENT_REFRESH_REF_SHARED_H_ */

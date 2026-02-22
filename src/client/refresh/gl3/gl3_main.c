@@ -849,7 +849,7 @@ GL3_DrawNullModel(entity_t *currententity)
 	{
 		R_LightPoint(gl3_worldmodel->grid, currententity,
 			gl3_worldmodel->surfaces, gl3_worldmodel->nodes, currententity->origin,
-			shadelight, r_modulate->value, lightspot);
+			shadelight, lightspot);
 	}
 
 	hmm_mat4 origModelMat = gl3state.uni3DData.transModelMat4;
@@ -1638,7 +1638,7 @@ GL3_SetLightLevel(entity_t *currententity)
 	/* save off light value for server to look at */
 	R_LightPoint(gl3_worldmodel->grid, currententity,
 		gl3_worldmodel->surfaces, gl3_worldmodel->nodes, r_newrefdef.vieworg,
-		shadelight, r_modulate->value, lightspot);
+		shadelight, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */

@@ -481,12 +481,12 @@ extern void GL3_DrawGLPoly(msurface_t *fa);
 extern void GL3_DrawGLFlowingPoly(msurface_t *fa);
 extern void GL3_DrawTriangleOutlines(void);
 extern void GL3_DrawAlphaSurfaces(void);
-extern void GL3_DrawBrushModel(entity_t *e, gl3model_t *currentmodel);
+extern void GL3_DrawBrushModel(entity_t *currententity, gl3model_t *currentmodel);
 extern void GL3_DrawWorld(void);
 extern void GL3_MarkLeaves(void);
 
 // gl3_mesh.c
-extern void GL3_DrawAliasModel(entity_t *e);
+extern void GL3_DrawAliasModel(entity_t *currententity);
 extern void GL3_ResetShadowAliasModels(void);
 extern void GL3_DrawAliasShadows(void);
 extern void GL3_ShutdownMeshes(void);

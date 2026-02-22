@@ -475,7 +475,7 @@ extern void GL4_DrawWorld(void);
 extern void GL4_MarkLeaves(void);
 
 // gl4_mesh.c
-extern void GL4_DrawAliasModel(entity_t *e);
+extern void GL4_DrawAliasModel(entity_t *currententity);
 extern void GL4_ResetShadowAliasModels(void);
 extern void GL4_DrawAliasShadows(void);
 extern void GL4_ShutdownMeshes(void);

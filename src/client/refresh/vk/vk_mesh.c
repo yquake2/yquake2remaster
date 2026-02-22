@@ -165,7 +165,7 @@ Mesh_Free(void)
 }
 
 static void
-Vk_DrawAliasFrameLerpCommands(int *order, int *order_end, float alpha,
+Vk_DrawAliasFrameLerpCommands(int *order, const int *order_end, float alpha,
 	dxtrivertx_t *verts, vec4_t *s_lerped, const float *shadelight,
 	const float *shadevector, qboolean iscolor, int *vertIdx,
 	int *firstVertex, int *index_pos)
@@ -313,7 +313,8 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	int *index_pos, VkBuffer **buffer, VkDeviceSize *dstOffset)
 {
 	daliasxframe_t *frame, *oldframe;
-	dxtrivertx_t *ov, *verts;
+	const dxtrivertx_t *ov;
+	dxtrivertx_t *verts;
 	int *order;
 	float frontlerp;
 	float alpha;
@@ -425,7 +426,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 }
 
 static void
-Vk_DrawAliasShadow(int *order, int *order_end, float height, float lheight,
+Vk_DrawAliasShadow(int *order, const int *order_end, float height, float lheight,
 	vec4_t *s_lerped, const float *shadevector,
 	int *vertIdx)
 {
@@ -555,128 +556,15 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	paliashdr = (dmdx_t *)currentmodel->extradata;
 
-	/* get lighting information */
-	if (currententity->flags &
-		(RF_SHELL_HALF_DAM | RF_SHELL_GREEN | RF_SHELL_RED |
-		 RF_SHELL_BLUE | RF_SHELL_DOUBLE))
+	if (r_worldmodel)
 	{
-		VectorClear(shadelight);
-
-		if (currententity->flags & RF_SHELL_HALF_DAM)
-		{
-			shadelight[0] = 0.56;
-			shadelight[1] = 0.59;
-			shadelight[2] = 0.45;
-		}
-
-		if (currententity->flags & RF_SHELL_DOUBLE)
-		{
-			shadelight[0] = 0.9;
-			shadelight[1] = 0.7;
-		}
-
-		if (currententity->flags & RF_SHELL_RED)
-		{
-			shadelight[0] = 1.0;
-		}
-
-		if (currententity->flags & RF_SHELL_GREEN)
-		{
-			shadelight[1] = 1.0;
-		}
-
-		if (currententity->flags & RF_SHELL_BLUE)
-		{
-			shadelight[2] = 1.0;
-		}
-	}
-	else if (currententity->flags & RF_FULLBRIGHT)
-	{
-		for (i = 0; i < 3; i++)
-		{
-			shadelight[i] = 1.0;
-		}
+		R_ApplyModelLight(r_worldmodel->grid, currententity, r_worldmodel->surfaces,
+			r_worldmodel->nodes, shadelight, lightspot, r_worldmodel->lightdata);
 	}
 	else
 	{
-		if (!r_worldmodel || !r_worldmodel->lightdata)
-		{
-			shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
-		}
-		else
-		{
-			R_LightPoint(r_worldmodel->grid, currententity, r_worldmodel->surfaces,
-				r_worldmodel->nodes, currententity->origin, shadelight,
-				r_modulate->value, lightspot);
-		}
-
-		/* player lighting hack for communication back to server */
-		if (currententity->flags & RF_WEAPONMODEL)
-		{
-			/* pick the greatest component, which should be
-			   the same as the mono value returned by software */
-			if (shadelight[0] > shadelight[1])
-			{
-				if (shadelight[0] > shadelight[2])
-				{
-					r_lightlevel->value = 150 * shadelight[0];
-				}
-				else
-				{
-					r_lightlevel->value = 150 * shadelight[2];
-				}
-			}
-			else
-			{
-				if (shadelight[1] > shadelight[2])
-				{
-					r_lightlevel->value = 150 * shadelight[1];
-				}
-				else
-				{
-					r_lightlevel->value = 150 * shadelight[2];
-				}
-			}
-		}
-	}
-
-	if (currententity->flags & RF_MINLIGHT)
-	{
-		for (i = 0; i < 3; i++)
-		{
-			if (shadelight[i] > 0.1)
-			{
-				break;
-			}
-		}
-
-		if (i == 3)
-		{
-			shadelight[0] = 0.1;
-			shadelight[1] = 0.1;
-			shadelight[2] = 0.1;
-		}
-	}
-
-	if (currententity->flags & RF_GLOW)
-	{
-		/* bonus items will pulse with time */
-		float scale;
-
-		scale = 0.1 * sin(r_newrefdef.time * 7);
-
-		for (i = 0; i < 3; i++)
-		{
-			float	min;
-
-			min = shadelight[i] * 0.8;
-			shadelight[i] += scale;
-
-			if (shadelight[i] < min)
-			{
-				shadelight[i] = min;
-			}
-		}
+		R_ApplyModelLight(NULL, currententity, NULL, NULL, shadelight,
+			lightspot, NULL);
 	}
 
 	/* ir goggles color override */
@@ -828,7 +716,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (r_shadows->value && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL)))
 	{
-		int num_mesh_nodes, i;
+		int num_mesh_nodes, m;
 		dmdxmesh_t *mesh_nodes;
 		float height, lheight;
 		int *order;
@@ -844,12 +732,12 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		lheight = currententity->origin[2] - lightspot[2];
 		height = -lheight + 1.0;
 
-		for (i = 0; i < num_mesh_nodes; i++)
+		for (m = 0; m < num_mesh_nodes; m++)
 		{
 			Vk_DrawAliasShadow(
-				order + mesh_nodes[i].ofs_glcmds,
+				order + mesh_nodes[m].ofs_glcmds,
 				order + Q_min(paliashdr->num_glcmds,
-					mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
+					mesh_nodes[m].ofs_glcmds + mesh_nodes[m].num_glcmds),
 				height, lheight, s_lerped, shadevector,
 				&vertIdx);
 		}

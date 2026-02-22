@@ -228,10 +228,10 @@ R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
 void
 R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 	const msurface_t *surfaces, const mnode_t *nodes,
-	vec3_t p, vec3_t color, float modulate, vec3_t lightspot)
+	const vec3_t p, vec3_t color, vec3_t lightspot)
 {
-	vec3_t end, dist, pointcolor = {0, 0, 0};
-	float r;
+	vec3_t dist, pointcolor = {0, 0, 0};
+	float modulate;
 	int lnum;
 	dlight_t *dl;
 
@@ -241,27 +241,33 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 		return;
 	}
 
+	modulate = r_modulate->value;
+
 	if (grid)
 	{
 		BSPX_LightGridValue(grid, r_newrefdef.lightstyles,
 			currententity->origin, color);
-		return;
-	}
-
-	end[0] = p[0];
-	end[1] = p[1];
-	end[2] = p[2] - 2048;
-
-	r = R_RecursiveLightPoint(surfaces, nodes, r_newrefdef.lightstyles,
-		p, end, pointcolor, lightspot, modulate);
-
-	if (r == -1)
-	{
-		VectorCopy(vec3_origin, color);
 	}
 	else
 	{
-		VectorCopy(pointcolor, color);
+		vec3_t end;
+		float r;
+
+		end[0] = p[0];
+		end[1] = p[1];
+		end[2] = p[2] - 2048;
+
+		r = R_RecursiveLightPoint(surfaces, nodes, r_newrefdef.lightstyles,
+			p, end, pointcolor, lightspot, modulate);
+
+		if (r == -1)
+		{
+			VectorCopy(vec3_origin, color);
+		}
+		else
+		{
+			VectorCopy(pointcolor, color);
+		}
 	}
 
 	/* add dynamic lights */
@@ -283,6 +289,137 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 	}
 
 	VectorScale(color, modulate, color);
+}
+
+void
+R_ApplyModelLight(const bspxlightgrid_t *grid, const entity_t *currententity,
+	const msurface_t *surfaces, const mnode_t *nodes, vec3_t shadelight,
+	vec3_t lightspot, const byte *lightdata)
+{
+	int i;
+
+	/* get lighting information */
+	if (currententity->flags &
+		(RF_SHELL_HALF_DAM | RF_SHELL_GREEN | RF_SHELL_RED |
+		 RF_SHELL_BLUE | RF_SHELL_DOUBLE))
+	{
+		VectorClear(shadelight);
+
+		if (currententity->flags & RF_SHELL_HALF_DAM)
+		{
+			shadelight[0] = 0.56;
+			shadelight[1] = 0.59;
+			shadelight[2] = 0.45;
+		}
+
+		if (currententity->flags & RF_SHELL_DOUBLE)
+		{
+			shadelight[0] = 0.9;
+			shadelight[1] = 0.7;
+		}
+
+		if (currententity->flags & RF_SHELL_RED)
+		{
+			shadelight[0] = 1.0;
+		}
+
+		if (currententity->flags & RF_SHELL_GREEN)
+		{
+			shadelight[1] = 1.0;
+		}
+
+		if (currententity->flags & RF_SHELL_BLUE)
+		{
+			shadelight[2] = 1.0;
+		}
+	}
+	else if (currententity->flags & RF_FULLBRIGHT)
+	{
+		for (i = 0; i < 3; i++)
+		{
+			shadelight[i] = 1.0;
+		}
+	}
+	else
+	{
+		if (!lightdata)
+		{
+			shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
+		}
+		else
+		{
+			R_LightPoint(grid, currententity, surfaces, nodes, currententity->origin,
+				shadelight, lightspot);
+		}
+
+		/* player lighting hack for communication back to server */
+		if (currententity->flags & RF_WEAPONMODEL)
+		{
+			/* pick the greatest component, which should be
+			   the same as the mono value returned by software */
+			if (shadelight[0] > shadelight[1])
+			{
+				if (shadelight[0] > shadelight[2])
+				{
+					r_lightlevel->value = 150 * shadelight[0];
+				}
+				else
+				{
+					r_lightlevel->value = 150 * shadelight[2];
+				}
+			}
+			else
+			{
+				if (shadelight[1] > shadelight[2])
+				{
+					r_lightlevel->value = 150 * shadelight[1];
+				}
+				else
+				{
+					r_lightlevel->value = 150 * shadelight[2];
+				}
+			}
+		}
+	}
+
+	if (currententity->flags & RF_MINLIGHT)
+	{
+		for (i = 0; i < 3; i++)
+		{
+			if (shadelight[i] > 0.1)
+			{
+				break;
+			}
+		}
+
+		if (i == 3)
+		{
+			shadelight[0] = 0.1;
+			shadelight[1] = 0.1;
+			shadelight[2] = 0.1;
+		}
+	}
+
+	if (currententity->flags & RF_GLOW)
+	{
+		/* bonus items will pulse with time */
+		float scale;
+
+		scale = 0.1 * sin(r_newrefdef.time * 7);
+
+		for (i = 0; i < 3; i++)
+		{
+			float	min;
+
+			min = shadelight[i] * 0.8;
+			shadelight[i] += scale;
+
+			if (shadelight[i] < min)
+			{
+				shadelight[i] = min;
+			}
+		}
+	}
 }
 
 void
@@ -500,8 +637,8 @@ R_GetTemporaryLMBuffer(size_t size)
 }
 
 static void
-R_StoreLightMap(byte *dest, int stride, int smax, int tmax, byte *gammatable,
-	byte *minlight)
+R_StoreLightMap(byte *dest, int stride, int smax, int tmax, const byte *gammatable,
+	const byte *minlight)
 {
 	float *bl;
 	int i;
@@ -604,11 +741,11 @@ R_StoreLightMap(byte *dest, int stride, int smax, int tmax, byte *gammatable,
  */
 void
 R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *r_newrefdef,
-	float modulate, int r_framecount, byte *gammatable, byte *minlight)
+	float modulate, int r_framecount, const byte *gammatable, const byte *minlight)
 {
 	int smax, tmax;
 	int size, numlightmaps;
-	byte *lightmap;
+	const byte *lightmap;
 	const float *max_light;
 
 	if (surf->texinfo->flags &

@@ -330,8 +330,8 @@ extern float	d_sdivzstepu, d_tdivzstepu;
 extern float	d_sdivzstepv, d_tdivzstepv;
 extern float	d_sdivzorigin, d_tdivzorigin;
 
-void D_DrawSpansPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv);
-void D_DrawZSpans(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv);
+void D_DrawSpansPow2(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv);
+void D_DrawZSpans(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv);
 void TurbulentPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv);
 void NonTurbulentPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv);
 

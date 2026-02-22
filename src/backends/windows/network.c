@@ -385,9 +385,8 @@ NET_AdrToString(netadr_t a)
 static qboolean
 NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 {
-	char copy[128];
-	char *addrs, *space;
-	char *ports = NULL;
+	const char *addrs, *ports = NULL;
+	char copy[128], *space;
 	int err;
 	struct addrinfo hints;
 	struct addrinfo *resultp;
@@ -521,7 +520,7 @@ NET_GetLoopPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 }
 
 static void
-NET_SendLoopPacket(netsrc_t sock, int length, void *data, netadr_t to)
+NET_SendLoopPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 {
 	int i;
 	loopback_t *loop;
@@ -625,7 +624,7 @@ NET_GetPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 /* ============================================================================= */
 
 void
-NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
+NET_SendPacket(netsrc_t sock, int length, const void *data, netadr_t to)
 {
 	int ret;
 	struct sockaddr_storage addr;
@@ -803,7 +802,8 @@ NET_SendPacket(netsrc_t sock, int length, void *data, netadr_t to)
 static int
 NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 {
-	char Buf[BUFSIZ], *Host, *Service;
+	const char *Host, *Service;
+	char Buf[BUFSIZ];
 	int newsocket, Error;
 	struct sockaddr_storage ss;
 	struct addrinfo hints, *res, *ai;
@@ -973,11 +973,11 @@ NET_OpenIP(void)
 {
 	cvar_t *ip;
 	int port;
-	int dedicated;
+	int dedicated_val;
 
 	ip = Cvar_Get("ip", "localhost", CVAR_NOSET);
 
-	dedicated = Cvar_VariableValue("dedicated");
+	dedicated_val = Cvar_VariableValue("dedicated");
 
 	if (!ip_sockets[NS_SERVER])
 	{
@@ -1006,7 +1006,7 @@ NET_OpenIP(void)
 	}
 
 	/* dedicated servers don't need client ports */
-	if (dedicated)
+	if (dedicated_val)
 	{
 		return;
 	}
@@ -1106,9 +1106,9 @@ static void
 NET_OpenIPX(void)
 {
 	int port;
-	int dedicated;
+	int dedicated_val;
 
-	dedicated = Cvar_VariableValue("dedicated");
+	dedicated_val = Cvar_VariableValue("dedicated");
 
 	if (!ipx_sockets[NS_SERVER])
 	{
@@ -1128,7 +1128,7 @@ NET_OpenIPX(void)
 	}
 
 	/* dedicated servers don't need client ports */
-	if (dedicated)
+	if (dedicated_val)
 	{
 		return;
 	}
@@ -1222,7 +1222,6 @@ NET_Sleep(int msec)
 {
 	struct timeval timeout;
 	fd_set fdset;
-	extern cvar_t *dedicated;
 	int i;
 
 	if (!dedicated || !dedicated->value)

@@ -1782,7 +1782,7 @@ FS_LoadPAK(const char *packPath)
 	header.dirofs = LittleLong(header.dirofs);
 	header.dirlen = LittleLong(header.dirlen);
 
-	if((header.dirlen <= 0) || (header.dirofs < 0))
+	if ((header.dirlen <= 0) || (header.dirofs < 0))
 	{
 		fclose(handle);
 		Com_Error(ERR_FATAL, "%s: '%s' is too short.",
@@ -2405,13 +2405,13 @@ FS_ListMods(int *nummods)
 	for (fsRawPath_t *search = fs_rawPath; search; search = search->next)
 	{
 		searchpathlength = strlen(search->path);
-		if(!searchpathlength)
+		if (!searchpathlength)
 		{
 			continue;
 		}
 
 		// make sure this Raw path ends with a '/' otherwise FS_ListFiles will open its parent dir
-		if(search->path[searchpathlength - 1] != '/')
+		if (search->path[searchpathlength - 1] != '/')
 		{
 			Com_sprintf(searchpath, sizeof(searchpath), "%s/*", search->path);
 		}
@@ -2430,7 +2430,7 @@ FS_ListMods(int *nummods)
 		// iterate over the children of this Raw path (unless we've already got enough mods)
 		for (int i = 0; i < numdirchildren && nmods < MAX_MODS; i++)
 		{
-			if(dirchildren[i] == NULL)
+			if (dirchildren[i] == NULL)
 			{
 				continue;
 			}
@@ -2973,7 +2973,7 @@ FS_BuildGameSpecificSearchPath(const char *dir)
 #endif
 
 	// empty string means baseq2
-	if(dir[0] == '\0')
+	if (dir[0] == '\0')
 	{
 		dir = BASEDIRNAME;
 	}
@@ -3009,7 +3009,8 @@ FS_BuildGameSpecificSearchPath(const char *dir)
 	}
 
 	// The game was reset to baseq2. Nothing to do here.
-	if (Q_stricmp(dir, BASEDIRNAME) == 0) {
+	if (Q_stricmp(dir, BASEDIRNAME) == 0)
+	{
 		Cvar_FullSet("gamedir", "", CVAR_SERVERINFO | CVAR_NOSET);
 		Cvar_FullSet("game", "", CVAR_LATCH | CVAR_SERVERINFO);
 
@@ -3017,11 +3018,14 @@ FS_BuildGameSpecificSearchPath(const char *dir)
 		// dir of the generic search path.
 		Com_sprintf(path, sizeof(path), "%s/%s", fs_rawPath->path, BASEDIRNAME);
 		Q_strlcpy(fs_gamedir, path, sizeof(fs_gamedir));
-	} else {
+	}
+	else
+	{
 		Cvar_FullSet("gamedir", dir, CVAR_SERVERINFO | CVAR_NOSET);
 		search = fs_rawPath;
 
-		while (search != NULL) {
+		while (search != NULL)
+		{
 			Com_sprintf(path, sizeof(path), "%s/%s", search->path, dir);
 			FS_AddDirToSearchPath(path, search->create);
 
@@ -3073,7 +3077,7 @@ FS_BuildGameSpecificSearchPath(const char *dir)
 const char* FS_GetFilenameForHandle(fileHandle_t f)
 {
 	fsHandle_t* fsh = FS_GetFileByHandle(f);
-	if(fsh)
+	if (fsh)
 	{
 		return fsh->name;
 	}
@@ -3147,7 +3151,7 @@ FS_BuildRawPath(void)
 	// libraries are loaded from it.
 	const char *binarydir = Sys_GetBinaryDir();
 
-	if(binarydir[0] != '\0')
+	if (binarydir[0] != '\0')
 	{
 		FS_AddDirToRawPath(binarydir, false, true);
 	}

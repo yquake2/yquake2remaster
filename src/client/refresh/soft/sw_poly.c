@@ -594,7 +594,7 @@ R_ClipPolyFace(int nump, const clipplane_t *pclipplane)
 */
 // iswater was qboolean. changed to allow passing more flags
 static void
-R_PolygonDrawSpans(espan_t *pspan, int iswater, float d_ziorigin, float d_zistepu, float d_zistepv)
+R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_zistepu, float d_zistepv)
 {
 	int	snext, tnext;
 	float	sdivz, tdivz, zi, z, du, dv, spancountminus1;

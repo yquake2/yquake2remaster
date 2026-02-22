@@ -81,7 +81,7 @@ gekk_check_melee(edict_t *self)
 		return false;
 	}
 
-	if (range(self, self->enemy) == RANGE_MELEE)
+	if (ai_range(self, self->enemy) == RANGE_MELEE)
 	{
 		return true;
 	}
@@ -764,7 +764,7 @@ gekk_check_refire(edict_t *self)
 
 	if (random() < (skill->value * 0.1))
 	{
-		if (range(self, self->enemy) == RANGE_MELEE)
+		if (ai_range(self, self->enemy) == RANGE_MELEE)
 		{
 			if (self->s.frame == FRAME_clawatk3_09)
 			{
@@ -908,7 +908,7 @@ reloogie(edict_t *self)
 
 	if (self->enemy->health >= 0)
 	{
-		if ((random() > 0.7) && (range(self, self->enemy) == RANGE_NEAR))
+		if ((random() > 0.7) && (ai_range(self, self->enemy) == RANGE_NEAR))
 		{
 			self->monsterinfo.currentmove = &gekk_move_spit;
 		}
@@ -1300,7 +1300,7 @@ gekk_jump(edict_t *self)
 	else
 	{
 		{
-			if ((random() > 0.5) && (range(self, self->enemy) >= RANGE_NEAR))
+			if ((random() > 0.5) && (ai_range(self, self->enemy) >= RANGE_NEAR))
 			{
 				self->monsterinfo.currentmove = &gekk_move_spit;
 			}

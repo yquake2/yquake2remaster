@@ -52,12 +52,14 @@ CL_ClearParticles(void)
 void
 CL_ParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor, int count)
 {
-	int i, j;
-	cparticle_t *p;
-	float d;
+	int i;
 
 	for (i = 0; i < count; i++)
 	{
+		cparticle_t *p;
+		float d;
+		int j;
+
 		if (!free_particles)
 		{
 			return;
@@ -90,15 +92,17 @@ CL_ParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int f
 void
 CL_ParticleEffect2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor, int count)
 {
-	int i, j;
-	cparticle_t *p;
-	float d;
 	float time;
+	int i;
 
 	time = (float)cl.time;
 
 	for (i = 0; i < count; i++)
 	{
+		cparticle_t *p;
+		int j;
+		float d;
+
 		if (!free_particles)
 		{
 			return;
@@ -132,15 +136,17 @@ CL_ParticleEffect2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int 
 void
 CL_ParticleEffect3(vec3_t org, vec3_t dir, unsigned int color, int count)
 {
-	int i, j;
-	cparticle_t *p;
-	float d;
 	float time;
+	int i;
 
 	time = (float)cl.time;
 
 	for (i = 0; i < count; i++)
 	{
+		int j;
+		cparticle_t *p;
+		float d;
+
 		if (!free_particles)
 		{
 			return;
@@ -250,13 +256,14 @@ CL_GenericParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigne
 {
 	int i, j;
 	cparticle_t *p;
-	float d;
 	float time;
 
 	time = (float)cl.time;
 
 	for (i = 0; i < count; i++)
 	{
+		float d;
+
 		if (!free_particles)
 		{
 			return;

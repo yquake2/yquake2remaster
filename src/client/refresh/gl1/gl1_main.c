@@ -251,7 +251,7 @@ R_DrawNullModel(entity_t *currententity)
 	{
 		R_LightPoint(r_worldmodel->grid, currententity,
 			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
-			shadelight, r_modulate->value, lightspot);
+			shadelight, lightspot);
 	}
 
 	R_EnableMultitexture(false);
@@ -261,21 +261,21 @@ R_DrawNullModel(entity_t *currententity)
 	glDisable(GL_TEXTURE_2D);
 	glColor4f( shadelight[0], shadelight[1], shadelight[2], 1 );
 
-    GLfloat vtxA[] = {
-        0, 0, -16,
-        16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0,
-        16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0,
-        16 * cos( 2 * M_PI / 2 ), 16 * sin( 2 * M_PI / 2 ), 0,
-        16 * cos( 3 * M_PI / 2 ), 16 * sin( 3 * M_PI / 2 ), 0,
-        16 * cos( 4 * M_PI / 2 ), 16 * sin( 4 * M_PI / 2 ), 0
-    };
+	GLfloat vtxA[] = {
+		0, 0, -16,
+		16 * cos( 0 * M_PI / 2 ), 16 * sin( 0 * M_PI / 2 ), 0,
+		16 * cos( 1 * M_PI / 2 ), 16 * sin( 1 * M_PI / 2 ), 0,
+		16 * cos( 2 * M_PI / 2 ), 16 * sin( 2 * M_PI / 2 ), 0,
+		16 * cos( 3 * M_PI / 2 ), 16 * sin( 3 * M_PI / 2 ), 0,
+		16 * cos( 4 * M_PI / 2 ), 16 * sin( 4 * M_PI / 2 ), 0
+	};
 
-    glEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_VERTEX_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, 0, vtxA );
-    glDrawArrays( GL_TRIANGLE_FAN, 0, 6 );
+	glVertexPointer( 3, GL_FLOAT, 0, vtxA );
+	glDrawArrays( GL_TRIANGLE_FAN, 0, 6 );
 
-    glDisableClientState( GL_VERTEX_ARRAY );
+	glDisableClientState( GL_VERTEX_ARRAY );
 
 	GLfloat vtxB[] = {
 		0, 0, 16,
@@ -1203,7 +1203,7 @@ R_SetLightLevel(const entity_t *currententity)
 	/* save off light value for server to look at */
 	R_LightPoint(r_worldmodel->grid, currententity,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
-		shadelight, r_modulate->value, lightspot);
+		shadelight, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */

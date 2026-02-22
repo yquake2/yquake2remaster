@@ -232,12 +232,12 @@ Sys_ConsoleInput(void)
 }
 
 void
-Sys_ConsoleOutput(char *string)
+Sys_ConsoleOutput(const char *string)
 {
 	if ((string[0] == 0x01) || (string[0] == 0x02))
 	{
-		// remove color marker
-		string[0] = ' ';
+		/* remove color marker */
+		string++;
 	}
 
 	if (!dedicated || !dedicated->value)
@@ -328,7 +328,7 @@ static char findpath[MAX_OSPATH];
 static HANDLE findhandle;
 
 char *
-Sys_FindFirst(const char *path, unsigned musthave, unsigned canthave)
+Sys_FindFirst(const char *path, unsigned musthave, unsigned canhave)
 {
 	if (findhandle)
 	{
@@ -356,7 +356,7 @@ Sys_FindFirst(const char *path, unsigned musthave, unsigned canthave)
 }
 
 char *
-Sys_FindNext(unsigned musthave, unsigned canthave)
+Sys_FindNext(unsigned musthave, unsigned canhave)
 {
 	WIN32_FIND_DATAW findinfo;
 
@@ -514,7 +514,7 @@ char *
 Sys_GetHomeDir(void)
 {
 	char *cur;
-	char *old;
+	const char *old;
 	char profile[MAX_PATH];
 	static char gdir[MAX_OSPATH];
 	WCHAR uprofile[MAX_PATH];
@@ -577,7 +577,6 @@ Sys_RemoveDir(const char *path)
 {
 	WCHAR wpath[MAX_OSPATH] = {0};
 	WCHAR wpathwithwildcard[MAX_OSPATH] = {0};
-	WCHAR wpathwithfilename[MAX_OSPATH] = {0};
 	WIN32_FIND_DATAW fd;
 
 	if (MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_OSPATH) >= MAX_QPATH)
@@ -597,6 +596,8 @@ Sys_RemoveDir(const char *path)
 	{
 		do
 		{
+			WCHAR wpathwithfilename[MAX_OSPATH] = {0};
+
 			if (wcslen(wpath) + wcslen(fd.cFileName) >= MAX_QPATH)
 			{
 				// Same as above.
@@ -716,7 +717,7 @@ Sys_GetWorkDir(char *buffer, size_t len)
 }
 
 qboolean
-Sys_SetWorkDir(char *path)
+Sys_SetWorkDir(const char *path)
 {
 	WCHAR wpath[MAX_OSPATH];
 
