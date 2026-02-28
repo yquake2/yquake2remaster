@@ -27,13 +27,15 @@
 #ifndef CO_ZONE_H
 #define CO_ZONE_H
 
-typedef struct zhead_s
-{
-	struct zhead_s	*prev, *next;
-	short	magic;
-	short	tag; /* for group free */
-	int		size;
-} zhead_t;
+void Z_Init(void);
+
+void Z_Free(void *ptr);
+void Z_FreeTags(unsigned short tag);
+
+void *Z_Malloc(size_t size);           /* returns 0 filled memory */
+void *Z_TagMalloc(size_t size, unsigned short tag);
+void *Z_Realloc(void *ptr, size_t size);
+void *Z_TagRealloc(void *ptr, size_t size, unsigned short tag);
 
 void Z_Stats_f (void);
 

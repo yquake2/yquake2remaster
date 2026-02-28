@@ -25,7 +25,6 @@
  */
 
 #include "header/common.h"
-#include "header/zone.h"
 #include <setjmp.h>
 
 cvar_t *developer;

@@ -25,13 +25,21 @@
  */
 
 #include "header/common.h"
-#include "header/zone.h"
 #include <limits.h>
+#include <stdint.h>
 
 #define Z_MAGIC 0x1d1d
 
+typedef struct zhead_s
+{
+	struct zhead_s *prev, *next;
+	size_t size;
+	unsigned short magic;
+	unsigned short tag; /* for group free */
+} zhead_t;
+
 static zhead_t z_chain;
-static int z_count, z_bytes;
+static size_t z_count, z_bytes;
 
 void
 Z_Init(void)
@@ -70,11 +78,12 @@ Z_Free(void *ptr)
 void
 Z_Stats_f(void)
 {
-	Com_Printf("%i bytes in %i blocks\n", z_bytes, z_count);
+	Com_Printf(YQ2_COM_PRIdS " bytes in " YQ2_COM_PRIdS " blocks\n",
+		z_bytes, z_count);
 }
 
 void
-Z_FreeTags(int tag)
+Z_FreeTags(unsigned short tag)
 {
 	zhead_t *z, *next;
 
@@ -90,13 +99,14 @@ Z_FreeTags(int tag)
 }
 
 void *
-Z_TagMalloc(int size, int tag)
+Z_TagMalloc(size_t size, unsigned short tag)
 {
 	zhead_t *z;
 
-	if ((size <= 0) || ((INT_MAX - size) < sizeof(zhead_t)))
+	if (!size || ((SIZE_MAX - size) < sizeof(zhead_t)))
 	{
-		Com_Error(ERR_FATAL, "%s: bad allocation size: %i", __func__, size);
+		Com_Error(ERR_FATAL, "%s: bad allocation size: " YQ2_COM_PRIdS,
+			__func__, size);
 		return NULL;
 	}
 
@@ -105,7 +115,8 @@ Z_TagMalloc(int size, int tag)
 
 	if (!z)
 	{
-		Com_Error(ERR_FATAL, "%s: failed to allocate %i bytes", __func__, size);
+		Com_Error(ERR_FATAL, "%s: failed to allocate " YQ2_COM_PRIdS " bytes",
+			__func__, size);
 		return NULL;
 	}
 
@@ -126,19 +137,20 @@ Z_TagMalloc(int size, int tag)
 }
 
 void *
-Z_Malloc(int size)
+Z_Malloc(size_t size)
 {
 	return Z_TagMalloc(size, 0);
 }
 
 void *
-Z_TagRealloc(void *ptr, int size, int tag)
+Z_TagRealloc(void *ptr, size_t size, unsigned short tag)
 {
 	zhead_t *z, *zr;
 
-	if ((size <= 0) || ((INT_MAX - size) < sizeof(zhead_t)))
+	if (!size || ((SIZE_MAX - size) < sizeof(zhead_t)))
 	{
-		Com_Error(ERR_FATAL, "%s: bad allocation size: %i", __func__, size);
+		Com_Error(ERR_FATAL, "%s: bad allocation size: " YQ2_COM_PRIdS,
+			__func__, size);
 		return NULL;
 	}
 
@@ -160,7 +172,8 @@ Z_TagRealloc(void *ptr, int size, int tag)
 
 	if (!zr)
 	{
-		Com_Error(ERR_FATAL, "%s: failed to allocate %i bytes", __func__, size);
+		Com_Error(ERR_FATAL, "%s: failed to allocate " YQ2_COM_PRIdS " bytes",
+			__func__, size);
 		return NULL;
 	}
 
@@ -181,7 +194,7 @@ Z_TagRealloc(void *ptr, int size, int tag)
 }
 
 void *
-Z_Realloc(void *ptr, int size)
+Z_Realloc(void *ptr, size_t size)
 {
 	return Z_TagRealloc(ptr, size, 0);
 }
