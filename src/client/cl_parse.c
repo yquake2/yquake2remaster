@@ -53,7 +53,20 @@ static const char *svc_strings[] = {
 	"svc_packetentities",
 	"svc_deltapacketentities",
 	"svc_frame",
+
+	"svc_splitclient",
+	"svc_configblast",
+	"svc_spawnbaselineblast",
+	"svc_level_restart",
+	"svc_damage",
+	"svc_locprint",
 	"svc_fog",
+	"svc_waitingforplayers",
+	"svc_bot_chat",
+	"svc_poi",
+	"svc_help_path",
+	"svc_muzzleflash3",
+	"svc_achievement",
 };
 
 void
@@ -1704,8 +1717,8 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "%s: Illegible server message\n",
-					__func__);
+				Com_Error(ERR_DROP, "%s: Illegible server message 0x%02x\n",
+					__func__, cmd);
 				return;
 
 			case svc_nop:

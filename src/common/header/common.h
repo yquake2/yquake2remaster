@@ -245,7 +245,22 @@ enum svc_ops_e
 	svc_packetentities,         /* [...] */
 	svc_deltapacketentities,    /* [...] */
 	svc_frame,
+
+	/* KEX messages */
+	svc_splitclient,
+	svc_configblast,            /* [Kex] A compressed version of svc_configstring */
+	svc_spawnbaselineblast,     /* [Kex] A compressed version of svc_spawnbaseline */
+	svc_level_restart,          /* [Paril-KEX] level was soft-rebooted */
+	svc_damage,                 /* [Paril-KEX] damage indicators */
+	svc_locprint,               /* [Kex] localized + libfmt version of print */
 	svc_fog,                    /* [Paril-KEX] change current fog values */
+	svc_waitingforplayers,      /* [Kex-Edward] Inform clients that the server */
+	                            /*   is waiting for remaining players */
+	svc_bot_chat,               /* [Kex] bot specific chat */
+	svc_poi,                    /* [Paril-KEX] point of interest */
+	svc_help_path,              /* [Paril-KEX] help path */
+	svc_muzzleflash3,           /* [Paril-KEX] muzzleflashes, but ushort id */
+	svc_achievement,            /* [Paril-KEX] */
 };
 
 /* ============================================== */

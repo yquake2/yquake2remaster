@@ -275,7 +275,7 @@ key_power_core|models/items/n64/power_core/tris.md2|1.0|1.0|1.0|general|-16.0|-1
 key_yellow_key|models/items/n64/yellow_key/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Yellow Key|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 misc_fireball||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0|0|0|0|0|0|none|0
 misc_flare||1.0|1.0|1.0|general|-32|-32|-32|32|32|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Light Flare|1.0|1.0|0.0|0|0|0|0|0|0|0|none|0
-misc_hologram||1.0|1.0|1.0|general|-16|-16|0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Ship Hologram|1.0|1.0|0.0|0|0|0|0|0|0|0|none|0
+misc_hologram|models/ships/strogg1/tris.md2|1.0|1.0|1.0|general|-16|-16|0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Ship Hologram|1.0|1.0|0.0|0|0|0|0|0|0|0|none|0
 misc_lavaball||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Lavaball|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_model||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 misc_player_mannequin|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Mannequin|1.0|0.5|1.0|0|0|0|0|0|0|0|none|0
