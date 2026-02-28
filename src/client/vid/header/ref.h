@@ -246,7 +246,7 @@ typedef struct
 	// NULL can be passed for buf to just determine existance
 	int		(IMPORT *FS_LoadFile) (const char *name, void **buf);
 	void	(IMPORT *FS_FreeFile) (void *buf);
-	void	*(IMPORT *FS_AllocFile) (int size);
+	void	*(IMPORT *FS_AllocFile) (size_t size);
 
 	// gamedir will be the current directory that generated
 	// files should be stored to, ie: "f:\quake\id1"
