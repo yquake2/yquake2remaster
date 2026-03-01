@@ -72,7 +72,7 @@ V_ClearScene(void)
 }
 
 void
-V_AddEntity(entity_t *ent)
+V_AddEntity(const entity_t *ent)
 {
 	if (r_numentities >= MAX_ENTITIES)
 	{
@@ -631,14 +631,15 @@ static void
 V_Render3dCrosshair(void)
 {
 	trace_t crosshair_trace;
-	vec3_t end;
 
 	crosshair_3d = Cvar_Get("crosshair_3d", "0", CVAR_ARCHIVE);
 	crosshair_3d_glow = Cvar_Get("crosshair_3d_glow", "0", CVAR_ARCHIVE);
 
+	if(crosshair_3d->value || crosshair_3d_glow->value)
+	{
+		vec3_t end;
 
-	if(crosshair_3d->value || crosshair_3d_glow->value){
-		VectorMA(cl.refdef.vieworg, 8192, cl.v_forward,end);
+		VectorMA(cl.refdef.vieworg, 8192, cl.v_forward, end);
 		crosshair_trace = CL_PMTrace(cl.refdef.vieworg, vec3_origin, vec3_origin, end);
 
 		if(crosshair_3d_glow->value){

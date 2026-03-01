@@ -4774,12 +4774,13 @@ GetMapsInFolderList(int *nummaps)
 
 	for (i = 0; i < num - 1; i++)
 	{
-		char scratch[200], shortname[MAX_QPATH];
 		int len;
 
 		len = strlen(list[i]);
 		if (len > 9 && len < MAX_QPATH)
 		{
+			char scratch[200], shortname[MAX_QPATH];
+
 			/* maps/ + .bsp */
 			Q_strlcpy(shortname, list[i] + 5, sizeof(shortname));
 			shortname[len - 9]  = 0;
@@ -4857,7 +4858,7 @@ GetCombinedMapsList(int *nummaps)
 	for (currpos = 0; currpos < nummaps_folder; currpos ++)
 	{
 		qboolean found;
-		char *foldername;
+		const char *foldername;
 		size_t i;
 
 		foldername = strchr(mapnames_folder[currpos], '\n');
@@ -4871,7 +4872,7 @@ GetCombinedMapsList(int *nummaps)
 		found = false;
 		for (i = 0; i < *nummaps; i++)
 		{
-			char *currname;
+			const char *currname;
 
 			currname = strchr(mapnames[i], '\n');
 			if (!currname)

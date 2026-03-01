@@ -1449,12 +1449,13 @@ static float
 IN_FlickStick(thumbstick_t stick, float axial_deadzone)
 {
 	static qboolean is_flicking;
-	static float last_stick_angle;
-	thumbstick_t processed = stick;
 	float angle_change = 0;
 
 	if (IN_StickMagnitude(stick) > Q_min(joy_flick_threshold->value, 1.0f))	// flick!
 	{
+		thumbstick_t processed = stick;
+		static float last_stick_angle;
+
 		// Snap-to-axis only if player just started to flick. With x < 0.4,
 		// f(x)=1-(1-x)^2 → < 0.64; this might mean a "tap" to the stick, so
 		// treat it as a possible attempt to turn 90º / 180º.
@@ -1577,7 +1578,7 @@ IN_UpdateStickLayout(joystate_t *joy)
 }
 
 static qboolean
-IN_CrossedThreshold(joystate_t *joy, float outer_threshold)
+IN_CrossedThreshold(const joystate_t *joy, float outer_threshold)
 {
 	const float magnitude = Q_magnitude(*joy->yaw, *joy->pitch);
 	return (magnitude >= outer_threshold);
@@ -2520,7 +2521,7 @@ IN_Haptic_Prepare(void)
 static void
 IN_Controller_Init(qboolean notify_user)
 {
-	cvar_t *cvar;
+	const cvar_t *cvar;
 	int nummappings, numjoysticks, joy_num, i;
 	char controllerdb[MAX_OSPATH] = {0};
 	SDL_Joystick *joystick = NULL;

@@ -599,18 +599,16 @@ CL_ParseLaser(int colors)
 static void
 CL_ParseSteam(void)
 {
-	vec3_t pos, dir;
-	int id;
-	int r;
-	int cnt;
-	int color;
-	int magnitude;
+	int id, r;
 	cl_sustain_t *s, dummy;
 
 	id = MSG_ReadShort(&net_message); /* an id of -1 is an instant effect */
 
 	if (id == -1) /* instant */
 	{
+		int magnitude, color, cnt;
+		vec3_t pos, dir;
+
 		/* instant */
 		cnt = MSG_ReadByte(&net_message);
 		MSG_ReadPos(&net_message, pos, cls.serverProtocol);
@@ -707,7 +705,6 @@ CL_ParseTEnt(void)
 	explosion_t *ex;
 	int cnt;
 	int color;
-	int r;
 	int ent;
 	int magnitude;
 
@@ -815,37 +812,40 @@ CL_ParseTEnt(void)
 			break;
 
 		case TE_SPLASH: /* bullet hitting water */
-			cnt = MSG_ReadByte(&net_message);
-			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
-			MSG_ReadDir(&net_message, dir);
-			r = MSG_ReadByte(&net_message);
-
-			if (r > 6 || r < 0)
 			{
-				r = 0;
+				int r;
+
+				cnt = MSG_ReadByte(&net_message);
+				MSG_ReadPos(&net_message, pos, cls.serverProtocol);
+				MSG_ReadDir(&net_message, dir);
+				r = MSG_ReadByte(&net_message);
+
+				if (r > 6 || r < 0)
+				{
+					r = 0;
+				}
+
+				CL_ParticleEffect(pos, dir,
+					splash_color[r * 2], splash_color[r * 2 + 1], cnt);
+
+				if (r == SPLASH_SPARKS)
+				{
+					r = randk() & 3;
+
+					if (r == 0)
+					{
+						S_StartSound(pos, 0, 0, cl_sfx_spark5, 1, ATTN_STATIC, 0);
+					}
+					else if (r == 1)
+					{
+						S_StartSound(pos, 0, 0, cl_sfx_spark6, 1, ATTN_STATIC, 0);
+					}
+					else
+					{
+						S_StartSound(pos, 0, 0, cl_sfx_spark7, 1, ATTN_STATIC, 0);
+					}
+				}
 			}
-
-			CL_ParticleEffect(pos, dir,
-				splash_color[r * 2], splash_color[r * 2 + 1], cnt);
-
-			if (r == SPLASH_SPARKS)
-			{
-				r = randk() & 3;
-
-				if (r == 0)
-				{
-					S_StartSound(pos, 0, 0, cl_sfx_spark5, 1, ATTN_STATIC, 0);
-				}
-				else if (r == 1)
-				{
-					S_StartSound(pos, 0, 0, cl_sfx_spark6, 1, ATTN_STATIC, 0);
-				}
-				else
-				{
-					S_StartSound(pos, 0, 0, cl_sfx_spark7, 1, ATTN_STATIC, 0);
-				}
-			}
-
 			break;
 
 		case TE_LASER_SPARKS:
@@ -870,11 +870,11 @@ CL_ParseTEnt(void)
 
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
-			ex->ent.angles[0] = (float)acos(dir[2]) / M_PI * 180;
+			ex->ent.angles[0] = acos(dir[2]) * 180.0 / M_PI;
 
 			if (dir[0])
 			{
-				ex->ent.angles[1] = (float)atan2(dir[1], dir[0]) / M_PI * 180;
+				ex->ent.angles[1] = atan2(dir[1], dir[0]) * 180.0 / M_PI;
 			}
 
 			else if (dir[1] > 0)
@@ -1116,11 +1116,11 @@ CL_ParseTEnt(void)
 
 			ex = CL_AllocExplosion();
 			VectorCopy(pos, ex->ent.origin);
-			ex->ent.angles[0] = (float)acos(dir[2]) / M_PI * 180;
+			ex->ent.angles[0] = acos(dir[2]) * 180.0 / M_PI;
 
 			if (dir[0])
 			{
-				ex->ent.angles[1] = (float)atan2(dir[1], dir[0]) / M_PI * 180;
+				ex->ent.angles[1] = atan2(dir[1], dir[0]) * 180.0 / M_PI;
 			}
 			else if (dir[1] > 0)
 			{
@@ -1241,7 +1241,6 @@ CL_ParseTEnt(void)
 			cnt = 50;
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
 			MSG_ReadDir(&net_message, dir);
-			r = 8;
 			magnitude = 60;
 			CL_ParticleSteamEffect(pos, dir, 0xff7b7b7b, 0xffebebeb, cnt, magnitude);
 			S_StartSound(pos, 0, 0, cl_sfx_lashit, 1, ATTN_NORM, 0);
@@ -1325,7 +1324,6 @@ CL_ParseTEnt(void)
 static void
 CalculatePitchYaw(const vec3_t dir, float *pitch, float *yaw)
 {
-	float forward;
 	float p, y;
 
 	if ((dir[1] == 0) && (dir[0] == 0))
@@ -1343,9 +1341,11 @@ CalculatePitchYaw(const vec3_t dir, float *pitch, float *yaw)
 	}
 	else
 	{
+		float forward;
+
 		if (dir[0])
 		{
-			y = ((float)atan2(dir[1], dir[0]) * 180 / M_PI);
+			y = (atan2(dir[1], dir[0]) * 180.0 / M_PI);
 		}
 		else if (dir[1] > 0)
 		{
@@ -1362,7 +1362,7 @@ CalculatePitchYaw(const vec3_t dir, float *pitch, float *yaw)
 		}
 
 		forward = sqrt(dir[0] * dir[0] + dir[1] * dir[1]);
-		p = ((float)atan2(dir[2], forward) * -180.0 / M_PI);
+		p = (atan2(dir[2], forward) * -180.0 / M_PI);
 
 		if (p < 0)
 		{
