@@ -82,7 +82,6 @@ extern qboolean canReach ( edict_t * self , edict_t * other ) ;
 extern qboolean chick_blocked ( edict_t * self , float dist ) ;
 extern qboolean face_wall ( edict_t * self ) ;
 extern qboolean fire_hit ( edict_t * self , vec3_t aim , int damage , int kick ) ;
-extern qboolean floater_blocked ( edict_t * self , float dist ) ;
 extern qboolean gekk_check_jump ( edict_t * self ) ;
 extern qboolean gekk_check_jump_close ( edict_t * self ) ;
 extern qboolean gekk_check_melee ( edict_t * self ) ;

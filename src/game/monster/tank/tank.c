@@ -519,7 +519,6 @@ TankRocket(edict_t *self)
 	vec3_t dir;
 	vec3_t vec;
 	int flash_number;
-	trace_t trace;
 	int rocketSpeed;
 	vec3_t target;
 	qboolean blindfire = false;
@@ -610,6 +609,8 @@ TankRocket(edict_t *self)
 	}
 	else
 	{
+		trace_t trace;
+
 		trace = gi.trace(start, vec3_origin, vec3_origin, vec, self, MASK_SHOT);
 
 		if (((trace.ent != self->enemy) && (trace.ent != world)) ||
@@ -1003,7 +1004,6 @@ tank_attack(edict_t *self)
 	vec3_t vec;
 	float range;
 	float r;
-	float chance;
 
 	if (!self || !self->enemy || !self->enemy->inuse)
 	{
@@ -1019,6 +1019,8 @@ tank_attack(edict_t *self)
 
 	if (self->monsterinfo.attack_state == AS_BLIND)
 	{
+		float chance;
+
 		if (self->monsterinfo.blind_fire_delay < 1.0)
 		{
 			chance = 1.0;
@@ -1162,8 +1164,6 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
 		vec3_t point /* unused */)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -1172,6 +1172,8 @@ tank_die(edict_t *self, edict_t *inflictor /* unused */,
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 1 /*4*/; n++)
