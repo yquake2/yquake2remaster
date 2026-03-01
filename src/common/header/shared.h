@@ -383,7 +383,7 @@ void Q_replacebackslash(char *curr);
  * chrs is a string of characters to search for
  * If found, returns a pointer to that char inside s, NULL otherwise
  */
-char *Q_strchrs(const char *s, const char *chrs);
+const char *Q_strchrs(const char *s, const char *chrs);
 
 /* Returns a pointer to c in s if found
  * Otherwise returns a pointer to the null-terminator at the end of s

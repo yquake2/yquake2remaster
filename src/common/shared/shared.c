@@ -1377,10 +1377,10 @@ Q_strisnum(const char *s)
 	return true;
 }
 
-char *
+const char *
 Q_strchrs(const char *s, const char *chrs)
 {
-	char *hit;
+	const char *hit;
 
 	for (; *chrs != '\0'; chrs++)
 	{

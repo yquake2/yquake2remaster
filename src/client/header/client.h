@@ -39,6 +39,9 @@
 #define	PARTICLE_GRAVITY 40
 #define INSTANT_PARTICLE -10000.0
 
+// Number of entries in server addressbook.
+#define NUM_ADDRESSBOOK_ENTRIES 9
+
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>
