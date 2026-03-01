@@ -3644,6 +3644,13 @@ SP_misc_flare(edict_t* ent)
 }
 
 void
+SP_info_landmark(edict_t* self)
+{
+	VectorCopy(self->s.origin, self->absmin);
+	VectorCopy(self->s.origin, self->absmax);
+}
+
+void
 misc_player_mannequin_use(edict_t * self, edict_t * other, edict_t * activator)
 {
 	int firstframe, lastframe;
