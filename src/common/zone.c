@@ -58,6 +58,11 @@ Z_Free(void *ptr)
 {
 	zhead_t *z;
 
+	if (!ptr)
+	{
+		return;
+	}
+
 	z = ((zhead_t *)ptr) - 1;
 
 	if (z->magic != Z_MAGIC)
@@ -72,6 +77,7 @@ Z_Free(void *ptr)
 	z_count--;
 	z_bytes -= z->size;
 
+	z->magic = 0; /* can avoid possible double free with check above */
 	free(z);
 }
 
@@ -111,7 +117,7 @@ Z_TagMalloc(size_t size, unsigned short tag)
 	}
 
 	size = size + sizeof(zhead_t);
-	z = malloc(size);
+	z = calloc(1, size);
 
 	if (!z)
 	{
@@ -119,8 +125,6 @@ Z_TagMalloc(size_t size, unsigned short tag)
 			__func__, size);
 		return NULL;
 	}
-
-	memset(z, 0, size);
 
 	z_count++;
 	z_bytes += size;
