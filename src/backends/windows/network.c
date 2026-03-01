@@ -840,6 +840,8 @@ NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 
 	if ((Error = getaddrinfo(Host, Service, &hints, &res)))
 	{
+		Com_Printf("%s ERROR: getaddrinfo: %s\n",
+				__func__, gai_strerror(Error));
 		return 0;
 	}
 
