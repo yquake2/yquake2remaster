@@ -1599,17 +1599,10 @@ CL_RocketTrail(vec3_t start, vec3_t end, centity_t *old)
 void
 CL_RailTrail(vec3_t start, vec3_t end)
 {
-	vec3_t move;
-	vec3_t vec;
-	int len;
-	int j;
-	cparticle_t *p;
-	float dec;
+	vec3_t move, vec;
 	vec3_t right, up;
-	int i;
-	float d, c, s;
-	vec3_t dir;
-	float time;
+	float time, dec;
+	int i, len;
 
 	time = (float)cl.time;
 
@@ -1621,6 +1614,11 @@ CL_RailTrail(vec3_t start, vec3_t end)
 
 	for (i = 0; i < len; i++)
 	{
+		cparticle_t *p;
+		float d, c, s;
+		vec3_t dir;
+		int j;
+
 		if (!free_particles)
 		{
 			return;
@@ -1661,6 +1659,9 @@ CL_RailTrail(vec3_t start, vec3_t end)
 
 	while (len > 0)
 	{
+		cparticle_t *p;
+		int j;
+
 		len -= dec;
 
 		if (!free_particles)
@@ -1927,8 +1928,6 @@ void
 CL_BfgParticles(entity_t *ent)
 {
 	int i;
-	float angle;
-	float sp, sy, cp, cy;
 	vec3_t forward;
 	vec3_t v;
 	float ltime;
@@ -1950,8 +1949,9 @@ CL_BfgParticles(entity_t *ent)
 
 	for (i = 0; i < NUMVERTEXNORMALS; i++)
 	{
+		float sp, sy, cp, cy;
+		float angle, dist;
 		cparticle_t *p;
-		float dist;
 
 		angle = ltime * avelocities[i][0];
 		sy = (float)sin(angle);
@@ -2747,9 +2747,8 @@ void
 CL_ParticleSteamEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 		int count, int magnitude)
 {
-	int i, j;
-	cparticle_t *p;
-	float d, time;
+	int i;
+	float time;
 	vec3_t r, u;
 
 	time = (float)cl.time;
@@ -2757,6 +2756,10 @@ CL_ParticleSteamEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 
 	for (i = 0; i < count; i++)
 	{
+		cparticle_t *p;
+		float d;
+		int j;
+
 		if (!free_particles)
 		{
 			return;

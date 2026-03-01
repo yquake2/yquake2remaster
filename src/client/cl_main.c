@@ -127,8 +127,6 @@ CL_ClearEntities(void)
 centity_t *
 CL_AllocEntity(int entnum)
 {
-	int nextpow2;
-
 	if ((entnum < 0) || (entnum > MAX_CL_ENTNUM))
 	{
 		return NULL;
@@ -136,6 +134,8 @@ CL_AllocEntity(int entnum)
 
 	if (entnum >= cl_numentities)
 	{
+		int nextpow2;
+
 		nextpow2 = (cl_numentities || (entnum >= ALLOC_ENTITIES_MIN)) ?
 			(int)NextPow2gt(entnum) : ALLOC_ENTITIES_MIN;
 

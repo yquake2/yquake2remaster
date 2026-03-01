@@ -69,7 +69,7 @@ Mod_LoadModel_MDA_Parse_SkipComment(char **curr_buff)
 }
 
 static void
-Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, char *curr_end,
+Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, const char *curr_end,
 	mda_pass_t *pass)
 {
 	while (*curr_buff && *curr_buff < curr_end)
@@ -474,7 +474,7 @@ Mod_LoadModel_MDA_Text(const char *mod_name, char *curr_buff, size_t len)
 						if (!strchr(skin, '/') && !strchr(skin, '\\'))
 						{
 							char skin_path[MAX_QPATH * 2] = {0};
-							char *base_skin;
+							const char *base_skin;
 
 							base_skin = profile->skins[i].passes[0].map;
 							Q_strlcpy(skin_path, base_skin, sizeof(skin_path));

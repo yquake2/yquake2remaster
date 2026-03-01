@@ -35,7 +35,7 @@ Load the SiN sam animation format frames
 =================
 */
 static void
-Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *animations,
+Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, const def_entry_t *animations,
 	int anim_num, vec3_t translate, float scale)
 {
 	dmdxframegroup_t *framegroups;
@@ -59,7 +59,7 @@ Mod_LoadFrames_SAM(dmdx_t *pheader, sin_sam_header_t **anims, def_entry_t *anima
 		for (k = 0; k < anims[i]->num_frames; k++)
 		{
 			daliasxframe_t *poutframe;
-			dtrivertx_t *verts;
+			const dtrivertx_t *verts;
 			int j;
 
 			poutframe = (daliasxframe_t *) ((byte *)pheader
@@ -129,7 +129,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 	int framescount = 0;
 	int animation_num = 0;
 	int num_tris = 0;
-	sin_trigroup_t *trigroup;
+	const sin_trigroup_t *trigroup;
 	char prevvalue[MAX_SKINNAME] = {0};
 
 	actions_num = 0;
@@ -387,7 +387,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 	}
 
 	/* st */
-	st_vert_t *st_in = (st_vert_t *)((char *)base + base->ofs_st);
+	const st_vert_t *st_in = (st_vert_t *)((char *)base + base->ofs_st);
 	dstvert_t *st_out = (dstvert_t *)((char *)pheader + pheader->ofs_st);
 	for (i = 0; i < pheader->num_st; i ++)
 	{
@@ -403,7 +403,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 	int tris_ofs = 0;
 	for(i = 0; i < base->num_groups; i ++)
 	{
-		sin_triangle_t *tri_in;
+		const sin_triangle_t *tri_in;
 		int j;
 
 		mesh_nodes[i].ofs_tris = tris_ofs;

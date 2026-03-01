@@ -944,19 +944,23 @@ IN_Update(void)
 					}
 					else
 					{
-						int key = IN_TranslateSDLtoQ2Key(kc);
-						if(key == 0)
+						int key_v;
+
+						key_v = IN_TranslateSDLtoQ2Key(kc);
+						if(key_v == 0)
 						{
 							// fallback to scancodes if we don't know the keycode
-							key = IN_TranslateScancodeToQ2Key(sc);
+							key_v = IN_TranslateScancodeToQ2Key(sc);
 						}
-						if(key != 0)
+
+						if(key_v != 0)
 						{
-							Key_Event(key, down, true);
+							Key_Event(key_v, down, true);
 						}
 						else
 						{
-							Com_DPrintf("Pressed unknown key with SDL_Keycode %d, SDL_Scancode %d.\n", kc, (int)sc);
+							Com_DPrintf("Pressed unknown key with SDL_Keycode %d, SDL_Scancode %d.\n",
+								kc, (int)sc);
 						}
 					}
 				}

@@ -870,16 +870,16 @@ ReadMD5Model(const char *buffer, size_t size)
 
 			if (mdl->num_skins > 0)
 			{
-				int size;
+				size_t skins_size;
 
-				size = mdl->num_skins * MAX_SKINNAME;
-				mdl->skins = malloc(size);
+				skins_size = mdl->num_skins * MAX_SKINNAME;
+				mdl->skins = malloc(skins_size);
 				if (!mdl->skins)
 				{
 					FreeModelMd5(mdl);
 					free(safe_buffer);
-					Com_Error(ERR_FATAL, "%s: can't allocate %d bytes\n",
-						__func__, size);
+					Com_Error(ERR_FATAL, "%s: can't allocate " YQ2_COM_PRIdS " bytes\n",
+						__func__, skins_size);
 					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					return NULL;
 				}
@@ -894,7 +894,7 @@ ReadMD5Model(const char *buffer, size_t size)
 
 			if (mdl->num_framenames > 0)
 			{
-				int size;
+				size_t size;
 
 				size = mdl->num_framenames * 16;
 				mdl->framenames = malloc(size);
@@ -903,7 +903,7 @@ ReadMD5Model(const char *buffer, size_t size)
 					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					FreeModelMd5(mdl);
 					free(safe_buffer);
-					Com_Error(ERR_FATAL, "%s: can't allocate %d bytes\n",
+					Com_Error(ERR_FATAL, "%s: can't allocate " YQ2_COM_PRIdS " bytes\n",
 						__func__, size);
 					return NULL;
 				}

@@ -134,9 +134,7 @@ SCR_DebugGraph(float value, int color)
 static void
 SCR_DrawDebugGraph(void)
 {
-	int a, x, y, w, i, h;
-	float v;
-	int color;
+	int a, x, y, w;
 
 	/* draw the graph */
 	w = scr_vrect.width;
@@ -148,6 +146,9 @@ SCR_DrawDebugGraph(void)
 
 	for (a = 0; a < w; a++)
 	{
+		int color, i, h;
+		float v;
+
 		i = (current - 1 - a + 1024) & 1023;
 		v = values[i].value;
 		color = values[i].color;
@@ -332,7 +333,7 @@ SCR_CenterPrint(const char *str)
 static void
 SCR_DrawCenterString(void)
 {
-	char *start;
+	const char *start;
 	float scale;
 	int y;
 
@@ -792,9 +793,6 @@ SCR_DirtyScreen(void)
 static void
 SCR_TileClear(void)
 {
-	int i;
-	int top, bottom, left, right;
-
 	if (scr_con_current == 1.0)
 	{
 		return; /* full screen console */
@@ -833,6 +831,7 @@ SCR_TileClear(void)
 	}
 	else
 	{
+		int top, bottom, left, right, i;
 		dirty_t clear;
 
 		/* erase rect will be the union of the past three
@@ -985,9 +984,9 @@ DrawHUDStringScaled(const char *string, int x, int y, int centerwidth, qboolean 
 static void
 SCR_DrawFieldScaled(int x, int y, int color, int width, int value, float factor)
 {
-	char num[16], *ptr;
-	int l;
-	int frame;
+	const char *ptr;
+	char num[16];
+	int l, frame;
 
 	if (width < 1)
 	{
@@ -1183,7 +1182,7 @@ SCR_ExecuteLayoutString(char *s)
 		{
 			/* draw a deathmatch client block */
 			int score, ping, time, value;
-			clientinfo_t *ci;
+			const clientinfo_t *ci;
 
 			token = COM_Parse(&s);
 			x = viddef.width / 2 - scale * 160 + scale * (int)strtol(token, (char **)NULL, 10);
@@ -1232,7 +1231,7 @@ SCR_ExecuteLayoutString(char *s)
 		{
 			/* draw a ctf client block */
 			int score, ping, value;
-			clientinfo_t *ci;
+			const clientinfo_t *ci;
 			char block[80];
 
 			token = COM_Parse(&s);

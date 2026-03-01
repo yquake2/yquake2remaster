@@ -974,7 +974,6 @@ const char *
 VID_MenuKey(int key)
 {
 	menuframework_s *m = &s_opengl_menu;
-	static const char *sound = "misc/menu1.wav";
 	int menu_key = Key_GetMenuKey(key);
 
 	switch (menu_key)
@@ -1001,7 +1000,7 @@ VID_MenuKey(int key)
 			break;
 	}
 
-	return sound;
+	return "misc/menu1.wav";
 }
 
 /*

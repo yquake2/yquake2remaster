@@ -507,7 +507,6 @@ CL_PingServers_f(void)
 	int i;
 	netadr_t adr;
 	char name[32];
-	const char *adrstring;
 	const cvar_t *noudp;
 	const cvar_t *noipx;
 
@@ -543,6 +542,8 @@ CL_PingServers_f(void)
 	/* send a packet to each address book entry */
 	for (i = 0; i < 16; i++)
 	{
+		const char *adrstring;
+
 		Com_sprintf(name, sizeof(name), "adr%i", i);
 		adrstring = Cvar_VariableString(name);
 

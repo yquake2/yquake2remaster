@@ -712,7 +712,7 @@ void CM_WritePortalState(FILE *f);
 int CM_LoadFile(const char *path, void **buffer);
 
 /* Shared Model load code */
-int Mod_LoadFile(const char *path, void **buffer);
+int Mod_LoadFile(const char *name, void **buffer);
 void Mod_FreeFile(const char *path);
 void Mod_AliasesInit(void);
 void Mod_AliasesFreeAll(void);

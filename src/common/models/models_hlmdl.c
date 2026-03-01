@@ -95,7 +95,7 @@ static void
 QuaternionSlerp(const vec4_t p, vec4_t q, float t, vec4_t qt)
 {
 	int i;
-	float omega, cosom, sinom, sclp, sclq;
+	float cosom, sclp, sclq;
 
 	float a = 0;
 	float b = 0;
@@ -119,6 +119,8 @@ QuaternionSlerp(const vec4_t p, vec4_t q, float t, vec4_t qt)
 	{
 		if ((1.0f - cosom) > 0.00000001f)
 		{
+			float omega, sinom;
+
 			omega = acosf(cosom);
 			sinom = sinf(omega);
 			sclp = sinf((1.0f - t) * omega) / sinom;
@@ -163,7 +165,6 @@ VectorTransform(const vec3_t in1, const float in2[3][4], vec3_t out)
 static void
 CalcBoneQuaternion(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim, float *q_out)
 {
-	vec4_t q1, q2;
 	vec3_t angle1, angle2;
 	hlmdl_animvalue_t *panimvalue;
 	int j;
@@ -233,6 +234,8 @@ CalcBoneQuaternion(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim,
 
 	if (angle1[0] != angle2[0] || angle1[1] != angle2[1] || angle1[2] != angle2[2])
 	{
+		vec4_t q1, q2;
+
 		AngleQuaternion(angle1, q1);
 		AngleQuaternion(angle2, q2);
 		QuaternionSlerp(q1, q2, s, q_out);
@@ -337,7 +340,7 @@ static void
 Mod_LoadHLMDLSkinsSize(const hlmdl_header_t *pinmodel, const byte *buffer,
 	int *w, int *h)
 {
-	hlmdl_texture_t *in_skins;
+	const hlmdl_texture_t *in_skins;
 	size_t i;
 
 	*w = 8;
@@ -383,9 +386,10 @@ Mod_LoadHLMDLSkins(const char *mod_name, dmdx_t *pheader, const hlmdl_header_t *
 	in_skins = (hlmdl_texture_t *)((byte *)buffer + pinmodel->ofs_texture);
 	for (i = 0; i < pinmodel->num_skins; i++)
 	{
-		char *skin;
-		byte *pal, *src;
 		int y, width, height;
+		const byte *pal;
+		char *skin;
+		byte *src;
 
 		skin = (char *)pheader + pheader->ofs_skins + i * MAX_SKINNAME;
 
@@ -504,8 +508,8 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		for (j = 0; j < bodyparts[i].num_models; j++)
 		{
 			hlmdl_bodymesh_t *hl_mesh_nodes;
+			const byte *in_boneids;
 			vec3_t *in_verts;
-			byte *in_boneids;
 			int k;
 
 			hl_mesh_nodes = (hlmdl_bodymesh_t *)((byte *)buffer + bodymodels[j].ofs_mesh);
