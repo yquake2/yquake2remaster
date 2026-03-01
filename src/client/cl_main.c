@@ -211,8 +211,7 @@ static void
 CL_Record_f(void)
 {
 	byte buf_data[MAX_MSGLEN];
-	char name[MAX_OSPATH];
-	entity_xstate_t *ent;
+	char filename[MAX_OSPATH];
 	sizebuf_t buf;
 	int i, len;
 
@@ -234,11 +233,11 @@ CL_Record_f(void)
 		return;
 	}
 
-	Com_sprintf(name, sizeof(name), "%s/demos/%s.dm2", FS_Gamedir(), Cmd_Argv(1));
+	Com_sprintf(filename, sizeof(filename), "%s/demos/%s.dm2", FS_Gamedir(), Cmd_Argv(1));
 
-	Com_Printf("recording to %s.\n", name);
-	FS_CreatePath(name);
-	cls.demofile = Q_fopen(name, "wb");
+	Com_Printf("recording to %s.\n", filename);
+	FS_CreatePath(filename);
+	cls.demofile = Q_fopen(filename, "wb");
 
 	if (!cls.demofile)
 	{
@@ -289,6 +288,8 @@ CL_Record_f(void)
 	/* baselines */
 	for (i = 0; i < cl_numentities; i++)
 	{
+		const entity_xstate_t *ent;
+
 		ent = &cl_entities[i].baseline;
 
 		if (!ent->modelindex)
@@ -486,11 +487,12 @@ CL_Skins_f(void)
 void
 CL_FixUpGender(void)
 {
-	char *p;
-	char sk[80];
 
 	if (gender_auto->value)
 	{
+		char sk[80];
+		char *p;
+
 		if (gender->modified)
 		{
 			/* was set directly, don't override the user */

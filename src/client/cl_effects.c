@@ -1693,7 +1693,7 @@ CL_RailTrail(vec3_t start, vec3_t end)
 }
 
 void
-CL_IonripperTrail(vec3_t start, vec3_t ent)
+CL_IonripperTrail(vec3_t start, vec3_t end)
 {
 	vec3_t move;
 	vec3_t vec;
@@ -1707,7 +1707,7 @@ CL_IonripperTrail(vec3_t start, vec3_t ent)
 	time = (float)cl.time;
 
 	VectorCopy(start, move);
-	VectorSubtract(ent, start, vec);
+	VectorSubtract(end, start, vec);
 	len = (int)VectorNormalize(vec);
 
 	dec = 5;
@@ -1814,11 +1814,6 @@ void
 CL_FlyParticles(vec3_t origin, int count)
 {
 	int i;
-	cparticle_t *p;
-	float angle;
-	float sp, sy, cp, cy;
-	vec3_t forward;
-	float dist = 64;
 	float ltime;
 	float time;
 
@@ -1843,6 +1838,12 @@ CL_FlyParticles(vec3_t origin, int count)
 
 	for (i = 0; i < count; i += 2)
 	{
+		float sp, sy, cp, cy;
+		vec3_t forward;
+		cparticle_t *p;
+		float angle;
+		float dist;
+
 		angle = ltime * avelocities[i][0];
 		sy = (float)sin(angle);
 		cy = (float)cos(angle);
@@ -1926,11 +1927,9 @@ void
 CL_BfgParticles(entity_t *ent)
 {
 	int i;
-	cparticle_t *p;
 	float angle;
 	float sp, sy, cp, cy;
 	vec3_t forward;
-	float dist = 64;
 	vec3_t v;
 	float ltime;
 	float time;
@@ -1951,6 +1950,9 @@ CL_BfgParticles(entity_t *ent)
 
 	for (i = 0; i < NUMVERTEXNORMALS; i++)
 	{
+		cparticle_t *p;
+		float dist;
+
 		angle = ltime * avelocities[i][0];
 		sy = (float)sin(angle);
 		cy = (float)cos(angle);
@@ -1997,8 +1999,6 @@ CL_TrapParticles(entity_t *ent)
 	vec3_t vec;
 	vec3_t start, end;
 	int len;
-	int j;
-	cparticle_t *p;
 	int dec;
 	float time;
 
@@ -2018,6 +2018,9 @@ CL_TrapParticles(entity_t *ent)
 
 	while (len > 0)
 	{
+		cparticle_t *p;
+		int j;
+
 		len -= dec;
 
 		if (!free_particles)
@@ -2104,14 +2107,16 @@ CL_TrapParticles(entity_t *ent)
 void
 CL_BFGExplosionParticles(vec3_t org)
 {
-	int i, j;
-	cparticle_t *p;
+	int i;
 	float time;
 
 	time = (float)cl.time;
 
 	for (i = 0; i < 256; i++)
 	{
+		cparticle_t *p;
+		int j;
+
 		if (!free_particles)
 		{
 			return;
@@ -2788,9 +2793,7 @@ CL_ParticleSteamEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 void
 CL_ParticleSteamEffect2(cl_sustain_t *self)
 {
-	int i, j;
-	cparticle_t *p;
-	float d;
+	int i;
 	vec3_t r, u;
 	vec3_t dir;
 
@@ -2799,6 +2802,10 @@ CL_ParticleSteamEffect2(cl_sustain_t *self)
 
 	for (i = 0; i < self->count; i++)
 	{
+		cparticle_t *p;
+		float d;
+		int j;
+
 		if (!free_particles)
 		{
 			return;
@@ -2844,7 +2851,6 @@ CL_TrackerTrail(vec3_t start, vec3_t end, unsigned int color)
 	int j;
 	cparticle_t *p;
 	int dec;
-	float dist;
 	float time;
 
 	time = (float)cl.time;
@@ -2861,6 +2867,8 @@ CL_TrackerTrail(vec3_t start, vec3_t end, unsigned int color)
 
 	while (len > 0)
 	{
+		float dist;
+
 		len -= dec;
 
 		if (!free_particles)
@@ -3224,7 +3232,6 @@ CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 {
 	int i, j;
 	cparticle_t *p;
-	float d;
 	vec3_t r, u;
 	float time;
 
@@ -3234,6 +3241,8 @@ CL_ParticleSmokeEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 
 	for (i = 0; i < count; i++)
 	{
+		float d;
+
 		if (!free_particles)
 		{
 			return;
@@ -3274,7 +3283,6 @@ CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned in
 {
 	int i, j;
 	cparticle_t *p;
-	float d;
 	int count;
 	float time;
 
@@ -3284,6 +3292,8 @@ CL_BlasterParticles2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned in
 
 	for (i = 0; i < count; i++)
 	{
+		float d;
+
 		if (!free_particles)
 		{
 			return;

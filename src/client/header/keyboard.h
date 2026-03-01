@@ -292,7 +292,7 @@ void Key_Shutdown(void);
 void Key_WriteBindings(FILE *f);
 void Key_ReadConsoleHistory();
 void Key_WriteConsoleHistory();
-void Key_SetBinding(int keynum, char *binding);
+void Key_SetBinding(int keynum, const char *binding);
 void Key_MarkAllUp(void);
 void Controller_Rumble(const char *name, vec3_t source, qboolean from_player,
 				unsigned int duration, unsigned short int volume);

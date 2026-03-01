@@ -794,7 +794,6 @@ SCR_TileClear(void)
 {
 	int i;
 	int top, bottom, left, right;
-	dirty_t clear;
 
 	if (scr_con_current == 1.0)
 	{
@@ -811,7 +810,6 @@ SCR_TileClear(void)
 		return; /* full screen cinematic */
 	}
 
-
 	/* This highly complicated pseudo damage tracking is very effective
 	   with the soft render, it gives about 10% speedup. On the GL
 	   renderers the speedup is negligible, but in introduce a bug:
@@ -819,7 +817,8 @@ SCR_TileClear(void)
 	   which the damage tracking doesn't take into account. Fix this
 	   by not using the damage tracking when running somethinge else
 	   than the soft renderer. Just redraw the borders every frame. */
-	if (strcmp(vid_renderer->string, "soft") != 0) {
+	if (strcmp(vid_renderer->string, "soft") != 0)
+	{
 		// Top
 		Draw_TileClear(scr_vrect.x, 0, scr_vrect.width, scr_vrect.y, "backtile");
 
@@ -831,7 +830,11 @@ SCR_TileClear(void)
 
 		// Right
 		Draw_TileClear(scr_vrect.x + scr_vrect.width, 0, viddef.width, viddef.height, "backtile");
-	} else {
+	}
+	else
+	{
+		dirty_t clear;
+
 		/* erase rect will be the union of the past three
 		   frames so tripple buffering works properly */
 		clear = scr_dirty;
@@ -918,7 +921,6 @@ SCR_TileClear(void)
 			i = clear.x1 > right + 1 ? clear.x1 : right + 1;
 			Draw_TileClear(i, clear.y1,
 					clear.x2 - i + 1, clear.y2 - clear.y1 + 1, "backtile");
-			clear.x2 = right;
 		}
 	}
 }

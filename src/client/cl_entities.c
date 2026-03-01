@@ -51,7 +51,6 @@ CL_AddPacketEntities(const frame_t *frame)
 		entity_t ent = {0};
 		clientinfo_t *ci;
 		centity_t *cent;
-		int i;
 
 		s1 = &cl_parse_entities[(frame->parse_entities +
 				pnum) & (MAX_PARSE_ENTITIES - 1)];
@@ -141,6 +140,8 @@ CL_AddPacketEntities(const frame_t *frame)
 		}
 		else
 		{
+			int i;
+
 			/* interpolate origin */
 			for (i = 0; i < 3; i++)
 			{
@@ -328,11 +329,13 @@ CL_AddPacketEntities(const frame_t *frame)
 		}
 		else
 		{
-			/* interpolate angles */
-			float a1, a2;
+			int i;
 
+			/* interpolate angles */
 			for (i = 0; i < 3; i++)
 			{
+				float a1, a2;
+
 				a1 = cent->current.angles[i];
 				a2 = cent->prev.angles[i];
 				ent.angles[i] = LerpAngle(a2, a1, cl.lerpfrac);
@@ -509,6 +512,8 @@ CL_AddPacketEntities(const frame_t *frame)
 		{
 			if (s1->modelindex2 == CUSTOM_PLAYER_MODEL)
 			{
+				int i;
+
 				/* custom weapon */
 				ci = &cl.clientinfo[s1->skinnum & 0xff];
 				i = (s1->skinnum >> 8); /* 0 is default weapon model */
@@ -635,6 +640,7 @@ CL_AddPacketEntities(const frame_t *frame)
 			else if (effects & EF_BFG)
 			{
 				static const int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
+				int i;
 
 				if (effects & EF_ANIM_ALLFAST)
 				{
@@ -650,6 +656,8 @@ CL_AddPacketEntities(const frame_t *frame)
 			}
 			else if (effects & EF_TRAP)
 			{
+				int i;
+
 				ent.origin[2] += 32;
 				CL_TrapParticles(&ent);
 				i = (randk() % 100) + 100;
@@ -813,7 +821,7 @@ void
 CL_CalcViewValues(void)
 {
 	int i;
-	float lerp, backlerp, ifov;
+	float lerp, ifov;
 	frame_t *oldframe, *frame;
 	player_state_t *ps, *ops;
 
@@ -851,6 +859,7 @@ CL_CalcViewValues(void)
 	{
 		/* use predicted values */
 		unsigned delta;
+		float backlerp;
 
 		backlerp = 1.0f - lerp;
 
