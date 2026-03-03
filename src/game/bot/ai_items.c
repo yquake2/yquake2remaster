@@ -47,10 +47,10 @@ void AI_EnemyAdded(edict_t *ent)
 // AI_EnemyRemoved
 // Remove the Player from list
 //==========================================
-void AI_EnemyRemoved(edict_t *ent)
+void
+AI_EnemyRemoved(const edict_t *ent)
 {
-	int i;
-	int pos = -1;
+	int i, pos = -1;
 
 	/* watch for 0 players */
 	if (num_AIEnemies < 1)
@@ -95,17 +95,16 @@ extern gitem_armor_t bodyarmor_info;
 // AI_CanUseArmor
 // Check if we can use the armor
 //==========================================
-qboolean AI_CanUseArmor (gitem_t *item, edict_t *other)
+qboolean
+AI_CanUseArmor(gitem_t *item, edict_t *other)
 {
-	int				old_armor_index;
-	gitem_armor_t	*oldinfo;
-	gitem_armor_t	*newinfo;
-	int				newcount;
-	float			salvage;
-	int				salvagecount;
+	const gitem_armor_t *oldinfo, *newinfo;
+	int old_armor_index;
 
 	if (!other->client)
+	{
 		return false;
+	}
 
 	// get info on new armor
 	newinfo = (gitem_armor_t *)item->info;
@@ -114,30 +113,43 @@ qboolean AI_CanUseArmor (gitem_t *item, edict_t *other)
 
 	// handle armor shards specially
 	if (item->tag == ARMOR_SHARD)
+	{
 		return true;
+	}
 
 	// get info on old armor
 	if (old_armor_index == ITEM_INDEX(FindItem("Jacket Armor")))
+	{
 		oldinfo = &jacketarmor_info;
+	}
 	else if (old_armor_index == ITEM_INDEX(FindItem("Combat Armor")))
+	{
 		oldinfo = &combatarmor_info;
+	}
 	else
+	{
 		oldinfo = &bodyarmor_info;
+	}
 
 	if (newinfo->normal_protection <= oldinfo->normal_protection)
 	{
+		int newcount, salvage, salvagecount;
+
 		// calc new armor values
 		salvage = newinfo->normal_protection / oldinfo->normal_protection;
 		salvagecount = salvage * newinfo->base_count;
 		newcount = other->client->pers.inventory[old_armor_index] + salvagecount;
 
 		if (newcount > oldinfo->max_count)
+		{
 			newcount = oldinfo->max_count;
+		}
 
 		// if we're already maxed out then we don't need the new armor
 		if (other->client->pers.inventory[old_armor_index] >= newcount)
+		{
 			return false;
-
+		}
 	}
 
 	return true;
@@ -147,7 +159,7 @@ qboolean AI_CanUseArmor (gitem_t *item, edict_t *other)
 // AI_CanPick_Ammo
 // Check if we can use the Ammo
 //==========================================
-qboolean AI_CanPick_Ammo (edict_t *ent, gitem_t *item)
+qboolean AI_CanPick_Ammo (edict_t *ent, const gitem_t *item)
 {
 	int			index;
 	int			max;
@@ -182,7 +194,8 @@ qboolean AI_CanPick_Ammo (edict_t *ent, gitem_t *item)
 // AI_ItemIsReachable
 // Can we get there? Jalfixme: this needs much better checks
 //==========================================
-qboolean AI_ItemIsReachable(edict_t *self, vec3_t goal)
+qboolean
+AI_ItemIsReachable(edict_t *self, vec3_t goal)
 {
 	trace_t trace;
 	vec3_t v;
@@ -205,15 +218,12 @@ qboolean AI_ItemIsReachable(edict_t *self, vec3_t goal)
 // Find out item weight
 //==========================================
 float
-AI_ItemWeight(edict_t *self, edict_t *it)
+AI_ItemWeight(edict_t *self, const edict_t *it)
 {
-	float		weight;
-
-	if (!self->client)
+	if (!self->client || !it->item)
+	{
 		return 0;
-
-	if (!it->item)
-		return 0;
+	}
 
 	//IT_WEAPON
 	if (it->item->flags & IT_WEAPON)
@@ -242,32 +252,48 @@ AI_ItemWeight(edict_t *self, edict_t *it)
 	//IT_HEALTH
 	if (it->item->flags & IT_HEALTH)
 	{
+		float weight;
+
 		//CanPickup_Health
-		if (!(it->style & 1)) {	//#define HEALTH_IGNORE_MAX	1
+		if (!(it->style & 1))
+		{
 			if (self->health >= self->max_health)
+			{
 				return 0;
+			}
 		}
+
 		if (self->health >= 250 && it->count > 25)
+		{
 			return 0;
+		}
 
 		//find the weight
 		weight = 0;
 		if (self->health < 100)
+		{
 			weight = ((100 - self->health) + it->count)*0.01;
+		}
 		else if (self->health <= 250 && it->count == 100)//mega
+		{
 			weight = 8.0;
+		}
 
 		weight += (self->health < 25);//we just NEED IT!!!
 
 		if (weight < 0.2)
+		{
 			weight = 0.2;
+		}
 
 		return weight;
 	}
 
 	//IT_POWERUP
 	if (it->item->flags & IT_POWERUP)
+	{
 		return 0.7;
+	}
 
 	//IT_TECH
 	if (it->item->flags & IT_TECH)
@@ -277,11 +303,12 @@ AI_ItemWeight(edict_t *self, edict_t *it)
 
 	//IT_STAY_COOP
 	if (it->item->flags & IT_STAY_COOP)
+	{
 		return 0;
+	}
 
 	//item didn't have a recognizable item flag
 //	if (AIDevel.debugMode)
 //		gi.cprintf(NULL, PRINT_HIGH, "(AI_ItemWeight) WARNING: Item with unhandled item flag:%s\n", it->classname);
-
 	return 0;
 }

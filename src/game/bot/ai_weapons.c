@@ -47,10 +47,11 @@ ai_weapon_t		AIWeapons[WEAP_TOTAL];
 // AIWeapons are the way the AI uses to analize
 // weapon types, for choosing and fire them
 //==========================================
-void AI_InitAIWeapons (void)
+void
+AI_InitAIWeapons(void)
 {
 	//clear all
-	memset( &AIWeapons, 0, sizeof(ai_weapon_t)*WEAP_TOTAL);
+	memset( &AIWeapons, 0, sizeof(ai_weapon_t) * WEAP_TOTAL);
 
 	//BLASTER
 	AIWeapons[WEAP_BLASTER].aimType = AI_AIMSTYLE_PREDICTION;

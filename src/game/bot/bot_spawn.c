@@ -122,7 +122,7 @@ static const char *bot_skin_table[] = {
 // Set the name of the bot and update the userinfo
 ///////////////////////////////////////////////////////////////////////
 static void
-BOT_SetName(edict_t *bot, char *name, char *skin, char *team)
+BOT_SetName(edict_t *bot, const char *name, const char *skin, char *team)
 {
 	char userinfo[MAX_INFO_STRING];
 	char bot_skin[MAX_INFO_STRING];
@@ -174,14 +174,17 @@ BOT_NextCTFTeam()
 	int	i;
 	int	onteam1 = 0;
 	int	onteam2 = 0;
-	edict_t		*self;
 
 	// Only use in CTF games
 	if (!ctf->value)
+	{
 		return 0;
+	}
 
 	for (i = 0; i < game.maxclients + 1; i++)
 	{
+		const edict_t *self;
+
 		self = g_edicts +i + 1;
 		if (self->inuse && self->client)
 		{
@@ -193,9 +196,9 @@ BOT_NextCTFTeam()
 	}
 
 	if (onteam1 > onteam2)
+	{
 		return (2);
-	else if (onteam2 >= onteam1)
-		return (1);
+	}
 
 	return (1);
 }
@@ -205,7 +208,7 @@ BOT_NextCTFTeam()
 // Assign a team for the bot
 //==========================================
 static qboolean
-BOT_JoinCTFTeam(edict_t *ent, char *team_name)
+BOT_JoinCTFTeam(edict_t *ent, const char *team_name)
 {
 	char	*s;
 	int		team;
@@ -388,7 +391,8 @@ void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
 ///////////////////////////////////////////////////////////////////////
 // Remove a bot by name or all bots
 ///////////////////////////////////////////////////////////////////////
-void BOT_RemoveBot(char *name)
+void
+BOT_RemoveBot(const char *name)
 {
 	int i;
 	edict_t *bot;

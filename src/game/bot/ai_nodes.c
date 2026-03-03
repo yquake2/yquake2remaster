@@ -765,12 +765,14 @@ AI_IsPlatformLink(int n1, int n2)
 		}
 		else
 		{
-			trace_t	trace;
-			float	heightdiff;
+			trace_t trace;
+
 			//n1 is plat upper: it can link to visibles at same height
 			trace = gi.trace( nodes[n1].origin, vec3_origin, vec3_origin, nodes[n2].origin, n1ent, MASK_NODESOLID );
 			if (trace.fraction == 1.0 && !trace.startsolid)
 			{
+				float heightdiff;
+
 				heightdiff = nodes[n1].origin[2] - nodes[n2].origin[2];
 				if (heightdiff < 0)
 				{
@@ -820,12 +822,13 @@ AI_IsPlatformLink(int n1, int n2)
 		if (nodes[n2].origin[2] < nodes[othernode].origin[2])
 		{
 			trace_t	trace;
-			float	heightdiff;
 
 			//n2 is plat lower: other's can link to it when visible and good height
 			trace = gi.trace( nodes[n1].origin, vec3_origin, vec3_origin, nodes[n2].origin, n2ent, MASK_NODESOLID );
 			if (trace.fraction == 1.0 && !trace.startsolid)
 			{
+				float heightdiff;
+
 				heightdiff = nodes[n1].origin[2] - nodes[n2].origin[2];
 				if (heightdiff < 0)
 				{
@@ -928,7 +931,7 @@ AI_FindServerLinkType(int n1, int n2)
 static int
 AI_LinkServerNodes(int start)
 {
-	int			n1, n2;
+	int			n1;
 	int			count = 0;
 	float		pLinkRadius = NODE_DENSITY*1.2;
 	qboolean	ignoreHeight = true;
@@ -940,6 +943,8 @@ AI_LinkServerNodes(int start)
 
 	for (n1=start; n1<nav.num_nodes; n1++)
 	{
+		int n2;
+
 		n2 = 0;
 		n2 = AI_findNodeInRadius(0, nodes[n1].origin, pLinkRadius, ignoreHeight);
 
@@ -974,6 +979,7 @@ AI_LinkServerNodes(int start)
 			n2 = AI_findNodeInRadius(n2, nodes[n1].origin, pLinkRadius, ignoreHeight);
 		}
 	}
+
 	return count;
 }
 

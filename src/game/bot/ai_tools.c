@@ -66,7 +66,8 @@ void AIDebug_ToogleBotDebug(void)
 //	at the time will chase. Otherwise it will
 //	be a really fucked up situation.
 //==========================================
-void AIDebug_SetChased(edict_t *ent)
+void
+AIDebug_SetChased(const edict_t *ent)
 {
 /*	int i;
 	AIDevel.chaseguy = NULL;
@@ -120,7 +121,8 @@ void AITools_DrawLine(vec3_t origin, vec3_t dest)
 // Draws the current path (floods as hell also)
 //==========================================
 // static int	drawnpath_timeout;
-void AITools_DrawPath(edict_t *self, int node_from, int node_to)
+void
+AITools_DrawPath(const edict_t *self, int node_from, int node_to)
 {
 /*
 	int			count = 0;

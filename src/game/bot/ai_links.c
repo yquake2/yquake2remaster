@@ -824,15 +824,21 @@ AI_IsLadderLink(int n1, int n2)
 		candidate = AI_LadderLink_FindLowerNode( n2 );
 		if (candidate == -1)
 		{
-			int link;
 			if (nodes[n2].flags & NODEFLAGS_WATER)
 			{
-				link = AI_RunGravityBox( n1, n2 );
+				int link;
+
+				link = AI_RunGravityBox(n1, n2);
 				if (link & LINK_INVALID)
+				{
 					return LINK_INVALID;
+				}
+
 				return LINK_WATER;
-			} else {
-				return AI_GravityBoxToLink( n1, n2 );
+			}
+			else
+			{
+				return AI_GravityBoxToLink(n1, n2);
 			}
 		}
 
@@ -1003,18 +1009,21 @@ AI_IsJumpLink(int n1, int n2)
 int
 AI_LinkCloseNodes_JumpPass( int start )
 {
-	int			n1, n2;
+	int			n1;
 	int			count = 0;
 	float		pLinkRadius = NODE_DENSITY*2;
 	qboolean	ignoreHeight = true;
-	int			linkType;
 
 	if (nav.num_nodes < 1)
+	{
 		return 0;
+	}
 
 	//do it for everynode in the list
 	for (n1 = start; n1 < nav.num_nodes; n1++)
 	{
+		int n2;
+
 		n2 = 0;
 		n2 = AI_findNodeInRadius ( 0, nodes[n1].origin, pLinkRadius, ignoreHeight);
 
@@ -1022,10 +1031,13 @@ AI_LinkCloseNodes_JumpPass( int start )
 		{
 			if (n1 != n2 && !AI_PlinkExists(n1, n2))
 			{
+				int linkType;
+
 				linkType = AI_IsJumpLink( n1, n2 );
 				if (linkType == LINK_JUMP && pLinks[n1].numLinks < NODES_MAX_PLINKS)
 				{
 					int cost;
+
 					//make sure there isn't a good 'standard' path for it
 					cost = AI_FindCost( n1, n2, (LINK_MOVE|LINK_STAIRS|LINK_FALL|LINK_WATER|LINK_WATERJUMP|LINK_CROUCH) );
 					if (cost == -1 || cost > 4)
@@ -1049,7 +1061,7 @@ AI_LinkCloseNodes_JumpPass( int start )
 //==========================================
 int AI_LinkCloseNodes( void )
 {
-	int			n1, n2;
+	int			n1;
 	int			count = 0;
 	float		pLinkRadius = NODE_DENSITY*1.5;
 	qboolean	ignoreHeight = true;
@@ -1057,6 +1069,8 @@ int AI_LinkCloseNodes( void )
 	//do it for everynode in the list
 	for (n1 = 0; n1 < nav.num_nodes; n1++)
 	{
+		int n2;
+
 		n2 = 0;
 		n2 = AI_findNodeInRadius ( 0, nodes[n1].origin, pLinkRadius, ignoreHeight);
 
