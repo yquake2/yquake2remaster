@@ -202,11 +202,15 @@ Note:
 
 ### Games check videos:
 
+* 8.61RR14+:
+
+[![Check infinity mod](https://img.youtube.com/vi/JYw_FEjaPJ4/hqdefault.jpg)](https://www.youtube.com/watch?v=JYw_FEjaPJ4)
+
 * 8.61RR13+:
 
-[![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0A)
-[![Check demo maps](https://img.youtube.com/vi/VkhrEOtKeZE/hqdefault.jpg)](https://www.youtube.com/watch?v=VkhrEOtKeZEA)
-[![Check demo maps](https://img.youtube.com/vi/SHZAEkgUJLg/hqdefault.jpg)](https://www.youtube.com/watch?v=SHZAEkgUJLgA)
+[![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0)
+[![Check demo maps](https://img.youtube.com/vi/VkhrEOtKeZE/hqdefault.jpg)](https://www.youtube.com/watch?v=VkhrEOtKeZE)
+[![Check demo maps](https://img.youtube.com/vi/SHZAEkgUJLg/hqdefault.jpg)](https://www.youtube.com/watch?v=SHZAEkgUJLg)
 
 Checked with:
  * [Q2Test](https://archive.org/details/QuakeII_1020)
@@ -215,13 +219,13 @@ Checked with:
 
 * 8.61RR13:
 
-[![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQA)
+[![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQ)
 
 * 8.52RR13+:
 
-[![Check dynamic frames split](https://img.youtube.com/vi/_CPmh5_TLbk/hqdefault.jpg)](https://www.youtube.com/watch?v=_CPmh5_TLbkA)
-[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3k/hqdefault.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3kA)
-[![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/hqdefault.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uGA)
+[![Check dynamic frames split](https://img.youtube.com/vi/_CPmh5_TLbk/hqdefault.jpg)](https://www.youtube.com/watch?v=_CPmh5_TLbk)
+[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3k/hqdefault.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3k)
+[![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/hqdefault.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uG)
 
 * 8.52RR12+:
 
@@ -287,7 +291,6 @@ Checked with:
 * [ ] game: code has reset thirdperson flag on load new level,
 * [ ] game: check RealBoundingBox with frame box,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
-* [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
 * [ ] ReRelease: broken fire effect for Guardian.
 * [ ] ReRelease: water in basicsjam1_ziutek,
@@ -332,8 +335,10 @@ Checked with:
 
 ### Fixed:
 
-* [x] Anachronox: rowdys map models disappear on dance space,
-* [x] ReRelease: fix invisiable entities in basicsjam1_ziutek,
+* [x] Anachronox: `rowdys` map models disappear on dance space,
+* [x] ReRelease: fix invisiable entities in `basicsjam1_ziutek`,
+* [x] ReRelease: incorrect light apply to models (wall looks fine),
+* [x] ReRelease: implement `info_landmark`.
 
 ### Not a goal:
 
