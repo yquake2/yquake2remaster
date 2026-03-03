@@ -1149,7 +1149,6 @@ CL_ParseServerData(void)
 		(!*str && (fs_gamedirvar->string && !*fs_gamedirvar->string)))
 	{
 		Cvar_Set("game", str);
-		Cvar_Set("gametype", str);
 	}
 
 	/* parse player entity number */

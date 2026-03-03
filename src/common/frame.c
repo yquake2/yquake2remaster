@@ -341,20 +341,14 @@ Qcommon_Init(int argc, char **argv)
 
 	// remember the initial game name that might have been set on commandline
 	{
-		cvar_t* gameCvar, *gametypeCvar;
+		const cvar_t* gameCvar;
 		const char* game = "";
 
 		gameCvar = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
-		gametypeCvar = Cvar_Get("gametype", "", CVAR_LATCH | CVAR_SERVERINFO);
 
 		if(gameCvar->string && gameCvar->string[0])
 		{
 			game = gameCvar->string;
-			if (strcmp(gametypeCvar->string, gameCvar->string))
-			{
-				/* Set gametype if game is provided */
-				Cvar_Set("gametype", gameCvar->string);
-			}
 		}
 
 		Q_strlcpy(userGivenGame, game, sizeof(userGivenGame));

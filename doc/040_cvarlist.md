@@ -328,8 +328,6 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **game**: current game value, mod name and directory.
 
-* **gametype**: replace menu to different mod type without change mod name in game variable.
-
 * **maptype**: convert surface map flags from different game on load:
   * 0: Quake2,
   * 1: Heretic2,
