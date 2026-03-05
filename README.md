@@ -331,7 +331,45 @@ Checked with:
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
 * [ ] DoD: fix statusbar `roarke`,
+* [ ] ReRelease: func_eye
+* [ ] ReRelease: info_landmark
+* [ ] ReRelease: info_nav_lock
+* [ ] ReRelease: info_world_text
+* [ ] ReRelease / Infinity: misc_hologram /// EF_HOLOGRAM
+* [ ] ReRelease: misc_lavaball /// EF_FIREBALL ???
+* [ ] ReRelease: target_crossunit_target
+* [ ] ReRelease: target_crossunit_trigger
+* [ ] ReRelease: target_healthbar
+* [ ] ReRelease: target_poi
+* [ ] ReRelease: target_story
+* [ ] ReRelease: trigger_coop_relay
+* [ ] ReRelease: trigger_health_relay
+* [ ] Infinity: ammo_energy
+* [ ] Infinity: ammo_goop
+* [ ] Infinity: item_radar
+* [ ] Infinity: misc_chair
+* [ ] Infinity: misc_crate
+* [ ] Infinity: misc_desk
+* [ ] Infinity: misc_drip
+* [ ] Infinity: misc_lightning
+* [ ] Infinity: misc_rain
+* [ ] Infinity: misc_text_caption
+* [ ] Infinity: monster_alienship1
+* [ ] Infinity: monster_grunt1v1
+* [ ] Infinity: monster_grunt1v2
+* [ ] Infinity: monster_grunt2
+* [ ] Infinity: monster_screamer
+* [ ] CppCheck: fix const warnings and scope,
+* [ ] Dynamic count of entities on client,
+* [ ] move shared fields to smodel_t type,
+* [ ] ReRelease: extend farsee
 * [ ] Support obj waveform model format for debug other formats.
+* [ ] unknown item: check mouse scroll weapon change in infinity
+* [ ] unknown item: broken change guns
+* [ ] unknown item: "Impulse Claw" v_pulse weapon_hyperblaster
+* [ ] unknown item: "Mini Gun" g_mini weapon_chaingun
+* [ ] unknown item: "Missile Launcher" g_miss weapon_rocketlauncher
+* [ ] unknown item: "Tornado Gun" g_bfg "weapon_bfg"
 
 ### Fixed:
 
