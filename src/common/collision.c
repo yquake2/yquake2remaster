@@ -1618,7 +1618,7 @@ CMod_LoadBrushSides(const char *name, cbrushside_t **map_brushsides, int *numbru
 		num = in->planenum;
 		j = in->texinfo;
 
-		if (j >= numtexinf || num > numplanes)
+		if (j >= numtexinf || num < 0 || num >= numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Bad brushside texinfo", __func__);
 			return;
