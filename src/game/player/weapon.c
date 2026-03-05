@@ -681,6 +681,14 @@ Think_Weapon(edict_t *ent)
 
 		ent->client->pers.weapon->weaponthink(ent);
 	}
+	/*else
+	{
+		printf("%s: No weapon to think %s\n",
+			__func__,
+			ent->client->pers.weapon ? ent->client->pers.weapon->classname : "<unknown>");
+		ent->client->newweapon = FindItem("railgun");
+		ChangeWeapon(ent);
+	}*/
 }
 
 /*
