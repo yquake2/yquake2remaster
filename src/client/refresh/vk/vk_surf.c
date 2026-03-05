@@ -37,7 +37,7 @@ msurface_t *r_alpha_surfaces;
 vklightmapstate_t vk_lms;
 
 static void
-DrawVkPoly(msurface_t *fa, image_t *texture, const float *color)
+DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 {
 	float sscroll, tscroll;
 	const mpoly_t *p;

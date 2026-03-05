@@ -370,7 +370,7 @@ SCR_ReadNextMPGFrame(void)
 			short *audiobuffer;
 
 			samples = plm_decode_audio(cin.plm_video);
-			if (!samples || samples->count <= 0)
+			if (!samples || !samples->count)
 			{
 				break;
 			}

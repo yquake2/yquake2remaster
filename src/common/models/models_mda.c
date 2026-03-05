@@ -162,7 +162,7 @@ Mod_LoadModel_MDA_Parse_Pass(const char *mod_name, char **curr_buff, const char 
 }
 
 static void
-Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, char *curr_end,
+Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, const char *curr_end,
 	mda_skin_t *skin)
 {
 	while (*curr_buff && *curr_buff < curr_end)

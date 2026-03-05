@@ -1332,7 +1332,7 @@ MSG_ReadAngle16(sizebuf_t *msg_read)
 }
 
 void
-MSG_ReadDeltaUsercmd(sizebuf_t *msg_read, usercmd_t *from, usercmd_t *move)
+MSG_ReadDeltaUsercmd(sizebuf_t *msg_read, const usercmd_t *from, usercmd_t *move)
 {
 	int bits;
 

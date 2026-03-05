@@ -825,7 +825,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 	msurface_t *psurf;
-	image_t *image;
+	const image_t *image;
 
 	/* calculate dynamic lighting for bmodel */
 	if (!gl_config.multitexture && !r_flashblend->value)

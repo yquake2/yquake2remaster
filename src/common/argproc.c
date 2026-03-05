@@ -36,7 +36,7 @@ char *com_argv[MAX_NUM_ARGVS + 1];
  * where the given parameter apears, or 0 if not present
  */
 int
-COM_CheckParm(char *parm)
+COM_CheckParm(const char *parm)
 {
 	int i;
 
@@ -122,7 +122,7 @@ COM_AddParm(char *parm)
 }
 
 int
-memsearch(byte *start, int count, int search)
+memsearch(const byte *start, int count, int search)
 {
 	int i;
 
@@ -148,12 +148,11 @@ CopyString(const char *in)
 }
 
 void
-Info_Print(char *s)
+Info_Print(const char *s)
 {
 	char key[512];
 	char value[512];
 	char *o;
-	int l;
 
 	if (*s == '\\')
 	{
@@ -162,6 +161,8 @@ Info_Print(char *s)
 
 	while (*s)
 	{
+		int l;
+
 		o = key;
 
 		while (*s && *s != '\\')

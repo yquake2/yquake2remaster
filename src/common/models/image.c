@@ -221,8 +221,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		(pcx_width <= 0) ||
 		(pcx_height <= 0) ||
 		(bytes_per_line <= 0) ||
-		(pcx->color_planes <= 0) ||
-		(pcx->bits_per_pixel <= 0))
+		(pcx->color_planes == 0) ||
+		(pcx->bits_per_pixel == 0))
 	{
 		Com_Printf("%s: Bad pcx file %s: version: %d:%d, encoding: %d\n",
 			__func__, name, pcx->manufacturer, pcx->version, pcx->encoding);

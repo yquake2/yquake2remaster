@@ -234,7 +234,7 @@ GetModePos(int modenum)
 // --------
 
 static int
-GetCustomValue(menulist_s *list)
+GetCustomValue(const menulist_s *list)
 {
 	static const menulist_s *last;
 	static int i;

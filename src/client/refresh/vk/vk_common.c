@@ -458,7 +458,7 @@ CreateFramebuffers(void)
 	fbCreateInfos[RP_WORLD].pAttachments = worldAttachments;
 	fbCreateInfos[RP_WORLD_WARP].pAttachments = warpAttachments;
 
-	for (size_t i = 0; i < vk_swapchain.imageCount; ++i)
+	for (i = 0; i < vk_swapchain.imageCount; ++i)
 	{
 		VkImageView uiAttachments[] = { vk_colorbufferWarp.imageView, vk_ui_depthbuffer.imageView, vk_imageviews[i] };
 		fbCreateInfos[RP_UI].pAttachments = uiAttachments;
@@ -1893,7 +1893,7 @@ QVk_Init(void)
 	{
 		createInfo.enabledLayerCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
 		createInfo.ppEnabledLayerNames = validationLayers;
-		for (int i = 0; i < createInfo.enabledLayerCount; i++)
+		for (i = 0; i < createInfo.enabledLayerCount; i++)
 		{
 			vk_config.layers[i] = validationLayers[i];
 		}

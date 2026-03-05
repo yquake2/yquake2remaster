@@ -145,7 +145,7 @@ void MSG_ReadPos(sizebuf_t *sb, vec3_t pos, int protocol);
 float MSG_ReadAngle(sizebuf_t *sb);
 float MSG_ReadAngle16(sizebuf_t *sb);
 void MSG_ReadDeltaUsercmd(sizebuf_t *sb,
-		struct usercmd_s *from,
+		const struct usercmd_s *from,
 		struct usercmd_s *cmd);
 
 void MSG_ReadDir(sizebuf_t *sb, vec3_t vector);
@@ -168,7 +168,7 @@ extern float LittleFloat(float l);
 int COM_Argc(void);
 char *COM_Argv(int arg);    /* range and null checked */
 void COM_ClearArgv(int arg);
-int COM_CheckParm(char *parm);
+int COM_CheckParm(const char *parm);
 void COM_AddParm(char *parm);
 
 void COM_Init(void);
@@ -178,7 +178,7 @@ char *CopyString(const char *in);
 
 /* ================================================================== */
 
-void Info_Print(char *s);
+void Info_Print(const char *s);
 
 /* PROTOCOL */
 

@@ -163,7 +163,7 @@ void Draw_FreeLocal(void);
 void R_RotateForEntity(entity_t *e, float *mvMatrix);
 void R_MarkLeaves(void);
 
-void EmitWaterPolys(msurface_t *fa, image_t *texture,
+void EmitWaterPolys(const msurface_t *fa, image_t *texture,
 				   const float *modelMatrix, const float *color,
 				   qboolean solid_surface);
 void RE_AddSkySurface(msurface_t *fa);

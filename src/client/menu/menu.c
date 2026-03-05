@@ -957,7 +957,7 @@ static menuframework_s s_joy_menu = {0};
 static menuaction_s s_keys_actions[ARRLEN(bindnames)] = {0};
 
 static void
-M_UnbindCommand(char *command, int scope)
+M_UnbindCommand(const char *command, int scope)
 {
 	int j;
 	int begin = 0, end = K_LAST;
@@ -992,7 +992,7 @@ M_UnbindCommand(char *command, int scope)
 }
 
 static void
-M_FindKeysForCommand(char *command, int *twokeys, int scope)
+M_FindKeysForCommand(const char *command, int *twokeys, int scope)
 {
 	int count;
 	int j;
@@ -4294,7 +4294,7 @@ static char local_server_names[MAX_LOCAL_SERVERS][80];
 static char local_server_netadr_strings[MAX_LOCAL_SERVERS][80];
 
 void
-M_AddToServerList(netadr_t adr, char *info)
+M_AddToServerList(netadr_t adr, const char *info)
 {
 	const char *s;
 	int i;

@@ -195,11 +195,11 @@ Com_VPrintf(int print_level, const char *fmt, va_list argptr)
  * to the apropriate place.
  */
 void
-Com_Printf(const char *fmt, ...)
+Com_Printf(const char *msg, ...)
 {
 	va_list argptr;
-	va_start(argptr, fmt);
-	Com_VPrintf(PRINT_ALL, fmt, argptr);
+	va_start(argptr, msg);
+	Com_VPrintf(PRINT_ALL, msg, argptr);
 	va_end(argptr);
 }
 
@@ -325,12 +325,14 @@ Com_SetServerState(int state)
 void
 StringList_Free(stringlist_t *sl)
 {
-	char **cs, **end;
+	char **cs;
 
 	cs = sl->lst;
 
 	if (cs)
 	{
+		char **end;
+
 		end = &sl->lst[sl->cap];
 
 		for (; cs < end; cs++)
@@ -384,7 +386,7 @@ void
 StringList_Add(stringlist_t *sl, const char *s)
 {
 	char **cs;
-	int nf, n;
+	int nf;
 
 	nf = StringList_Find(sl, NULL);
 
@@ -394,6 +396,8 @@ StringList_Add(stringlist_t *sl, const char *s)
 	}
 	else
 	{
+		int n;
+
 		n = NextPow2gt(sl->cap);
 		sl->lst = Z_Realloc(sl->lst, n * sizeof(*sl->lst));
 
