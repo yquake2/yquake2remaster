@@ -74,7 +74,7 @@ InitGameRules(void)
 	}
 }
 
-static char *
+static const char *
 FindSubstituteItem(edict_t *ent)
 {
 	int i;
@@ -258,8 +258,8 @@ FindSubstituteItem(edict_t *ent)
 edict_t *
 DoRandomRespawn(edict_t *ent)
 {
+	const char *classname;
 	edict_t *newEnt;
-	char *classname;
 
 	if (!ent)
 	{

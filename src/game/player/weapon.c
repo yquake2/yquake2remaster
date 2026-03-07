@@ -473,6 +473,23 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 	return true;
 }
 
+int
+FirstPersonWeaponModel(const gitem_t *weapon)
+{
+	if (!weapon->view_model && weapon->world_model &&
+		!strncmp(weapon->world_model, "models/weapons/g_", 17))
+	{
+		char view_model[MAX_QPATH];
+
+		Q_strlcpy(view_model, weapon->world_model, sizeof(view_model));
+		/* replace models/weapons/g_ -> models/weapons/v_ */
+		view_model[15] = 'v';
+		return gi.modelindex(view_model);
+	}
+
+	return gi.modelindex(weapon->view_model);
+}
+
 /*
  * The old weapon has been dropped all
  * the way, so make the new one current
@@ -541,8 +558,7 @@ ChangeWeapon(edict_t *ent)
 	}
 	else
 	{
-		ent->client->ps.gunindex = gi.modelindex(
-				ent->client->pers.weapon->view_model);
+		ent->client->ps.gunindex = FirstPersonWeaponModel(ent->client->pers.weapon);
 	}
 
 	ent->client->anim_priority = ANIM_PAIN;

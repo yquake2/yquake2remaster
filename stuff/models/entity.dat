@@ -1038,7 +1038,7 @@ weapon_xbow|models/weapons/g_xbow.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0
 // Infinity: The Kai'Ren Threat
 ammo_energy|models/items/ammo/energy/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ammo energy|.5|.5|.5|0|0|0|0|0|0|0|none|0
 ammo_goop|models/objects/goop/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ammo goop|.5|.5|.5|0|0|0|0|0|0|0|none|0
-item_pistol|models/weapons/g_pistol/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Item pistol|.5|.5|.5|0|0|0|0|0|0|0|none|0
+item_pistol|models/weapons/g_pistol/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pistol|.5|.5|.5|0|0|0|0|0|0|0|none|0
 item_radar|models/items/radar/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Item Radar|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_chair|models/objects/chair/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Chair|.5|.5|.5|100|100|0|0|0|0|0|none|0
 misc_crate|models/objects/crates/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Crate|.5|.5|.5|100|200|0|0|0|0|0|none|0

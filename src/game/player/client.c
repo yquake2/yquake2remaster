@@ -2525,7 +2525,7 @@ PutClientInServer(edict_t *ent)
 
 	if (client->pers.weapon)
 	{
-		client->ps.gunindex = gi.modelindex(client->pers.weapon->view_model);
+		client->ps.gunindex = FirstPersonWeaponModel(client->pers.weapon);
 	}
 	else
 	{

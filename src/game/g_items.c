@@ -2094,7 +2094,7 @@ droptofloor(edict_t *ent)
 void
 PrecacheItem(gitem_t *it)
 {
-	char *s, *start;
+	const char *s, *start;
 	char data[MAX_QPATH];
 	int len;
 	gitem_t *ammo;
@@ -4600,7 +4600,8 @@ InitItems(void)
 				{
 					memcpy(itemlist + num_items, dyn_items + i, sizeof(gitem_t));
 					/* Add callbacks */
-					if (!strncmp(itemlist[num_items].classname, "weapon_", 7))
+					if (!strncmp(itemlist[num_items].classname, "weapon_", 7) ||
+						!strncmp(itemlist[num_items].world_model, "models/weapons/g_", 17))
 					{
 						itemlist[num_items].pickup = Pickup_Weapon;
 						itemlist[num_items].use = Use_Weapon;

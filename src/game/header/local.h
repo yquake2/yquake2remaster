@@ -307,23 +307,23 @@ typedef enum
 
 typedef struct gitem_s
 {
-	char *classname; /* spawning name */
+	const char *classname; /* spawning name */
 	qboolean (*pickup)(struct edict_s *ent, struct edict_s *other);
 	void (*use)(struct edict_s *ent, struct gitem_s *item);
 	void (*drop)(struct edict_s *ent, struct gitem_s *item);
 	void (*weaponthink)(struct edict_s *ent);
-	char *pickup_sound;
-	char *world_model;
+	const char *pickup_sound;
+	const char *world_model;
 	int world_model_flags;
-	char *view_model;
+	const char *view_model;
 
 	/* client side info */
-	char *icon;
-	char *pickup_name;          /* for printing on pickup */
+	const char *icon;
+	const char *pickup_name;          /* for printing on pickup */
 	int count_width;            /* number of digits to display by icon */
 
 	int quantity;               /* for ammo how much, for weapons how much is used per shot */
-	char *ammo;                 /* for weapons */
+	const char *ammo;                 /* for weapons */
 	int flags;                  /* IT_* flags */
 
 	weapmodel_t weapmodel;      /* weapon model index (for weapons) */
@@ -331,7 +331,7 @@ typedef struct gitem_s
 	void *info;
 	int tag;
 
-	char *precaches;            /* string of all models, sounds, and images this item will use */
+	const char *precaches;            /* string of all models, sounds, and images this item will use */
 } gitem_t;
 
 /* this structure is left intact through an entire game
@@ -849,6 +849,7 @@ gitem_t *FindItemByClassname(const char *classname);
 edict_t *Drop_Item(edict_t *ent, gitem_t *item);
 void SetRespawn(edict_t *ent, float delay);
 void ChangeWeapon(edict_t *ent);
+int FirstPersonWeaponModel(const gitem_t *weapon);
 void SpawnItem(edict_t *ent, gitem_t *item);
 void Think_Weapon(edict_t *ent);
 int ArmorIndex(edict_t *ent);
@@ -1603,7 +1604,7 @@ struct edict_s
 
 	/* only used locally in game, not by server */
 	char *message;
-	char *classname;
+	const char *classname;
 	int spawnflags;
 
 	float timestamp;
