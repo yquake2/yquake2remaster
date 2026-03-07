@@ -353,6 +353,13 @@ Mod_LoadMDXTriangleList(const char *mod_name, dmdx_t *pheader, const dtriangle_t
 			memcpy(&st, glcmds, sizeof(st));
 			index_xyz = LittleLong(glcmds[2]);
 
+			if (index_xyz < 0 || index_xyz >= pheader->num_xyz)
+			{
+				free(mesh_ids);
+				Com_DPrintf("%s: %s invalid mesh id %d", __func__, mod_name, index_xyz);
+				return;
+			}
+
 			mesh_ids[index_xyz] = mesh_id;
 			stvert[index_xyz].s = LittleFloat(st[0]) * pheader->skinwidth;
 			stvert[index_xyz].t = LittleFloat(st[1]) * pheader->skinheight;
@@ -374,6 +381,12 @@ Mod_LoadMDXTriangleList(const char *mod_name, dmdx_t *pheader, const dtriangle_t
 			for (j = 0; j < 3; j++)
 			{
 				index[j] = LittleShort(pintri[i].index_xyz[j]);
+				if (index[j] < 0 || index[j] >= pheader->num_xyz)
+				{
+					free(mesh_ids);
+					Com_DPrintf("%s: %s invalid mesh id %d", __func__, mod_name, index[j]);
+					return;
+				}
 			}
 
 			/* sanity check for verts */
