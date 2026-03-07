@@ -102,7 +102,7 @@ Cbuf_AddText(const char *text)
  * Adds a \n to the text
  */
 void
-Cbuf_InsertText(char *text)
+Cbuf_InsertText(const char *text)
 {
 	char *temp;
 	int templen;
@@ -262,10 +262,11 @@ void
 Cbuf_AddEarlyCommands(qboolean clear)
 {
 	int i;
-	char *s;
 
 	for (i = 0; i < COM_Argc(); i++)
 	{
+		const char *s;
+
 		s = COM_Argv(i);
 
 		if (strcmp(s, "+set") != 0)
@@ -439,7 +440,7 @@ Cmd_Alias_f(void)
 	cmdalias_t *a;
 	char cmd[1024];
 	int i, c;
-	char *s;
+	const char *s;
 
 	if (Cmd_Argc() == 1)
 	{
@@ -771,7 +772,7 @@ Cmd_RemoveCommand(const char *cmd_name)
 qboolean
 Cmd_Exists(const char *cmd_name)
 {
-	cmd_function_t *cmd;
+	const cmd_function_t *cmd;
 
 	for (cmd = cmd_functions; cmd; cmd = cmd->next)
 	{
@@ -947,7 +948,6 @@ Cmd_CompleteMapCommand(const char *partial)
 		int i, j, k, nbMatches;
 		char *mapName, *lastsep;
 		const char **pmatch;
-		qboolean partialFillContinue = true;
 
 		len = strlen(partial);
 		nbMatches = 0;
@@ -995,6 +995,8 @@ Cmd_CompleteMapCommand(const char *partial)
 		}
 		else if (nbMatches > 1)
 		{
+			qboolean partialFillContinue = true;
+
 			Com_Printf("\n=================\n\n");
 
 			/* Sort it */
@@ -1038,9 +1040,9 @@ Cmd_CompleteMapCommand(const char *partial)
 qboolean
 Cmd_IsComplete(const char *command)
 {
-	cmd_function_t *cmd;
-	cmdalias_t *a;
-	cvar_t *cvar;
+	const cmd_function_t *cmd;
+	const cmdalias_t *a;
+	const cvar_t *cvar;
 
 	/* check for exact match */
 	for (cmd = cmd_functions; cmd; cmd = cmd->next)

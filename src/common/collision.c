@@ -1556,7 +1556,8 @@ static void
 CMod_LoadLeafBrushes(const char *name, unsigned int **map_leafbrushes,
 	int *numleafbrushes, const byte *cmod_base, const lump_t *l)
 {
-	unsigned int *out, *in;
+	const unsigned int *in;
+	unsigned int *out;
 	int count;
 
 	in = (void *)(cmod_base + l->fileofs);

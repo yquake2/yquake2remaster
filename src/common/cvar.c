@@ -186,7 +186,7 @@ Cvar_IsFloat(const char *s)
 float
 Cvar_VariableValue(const char *var_name)
 {
-	cvar_t *var;
+	const cvar_t *var;
 
 	var = Cvar_FindVar(var_name);
 
@@ -201,7 +201,7 @@ Cvar_VariableValue(const char *var_name)
 const char *
 Cvar_VariableString(const char *var_name)
 {
-	cvar_t *var;
+	const cvar_t *var;
 
 	var = Cvar_FindVar(var_name);
 
@@ -533,7 +533,7 @@ Cvar_Command(void)
 static void
 Cvar_Set_f(void)
 {
-	char *firstarg;
+	const char *firstarg;
 	int c, i;
 
 	c = Cmd_Argc();
@@ -682,7 +682,7 @@ static char *
 Cvar_BitInfo(int bit)
 {
 	static char info[MAX_INFO_STRING];
-	cvar_t *var;
+	const cvar_t *var;
 
 	info[0] = 0;
 
@@ -795,7 +795,7 @@ Cvar_Reset_f(void)
 static void
 Cvar_ResetAll_f(void)
 {
-	cvar_t *var;
+	const cvar_t *var;
 
 	for (var = cvar_vars; var; var = var->next)
 	{

@@ -387,7 +387,7 @@ void Cbuf_AddText(const char *text);
 /* as new commands are generated from the console or keybindings, */
 /* the text is added to the end of the command buffer. */
 
-void Cbuf_InsertText(char *text);
+void Cbuf_InsertText(const char *text);
 
 /* when a command wants to issue other commands immediately, the text is */
 /* inserted at the beginning of the buffer, before any remaining unexecuted */
@@ -493,7 +493,7 @@ void Cmd_ForwardToServer(void);
 
 extern cvar_t *cvar_vars;
 
-cvar_t *Cvar_Get(const char *var_name, const char *value, int flags);
+cvar_t *Cvar_Get(const char *var_name, const char *var_value, int flags);
 
 /* creates the variable if it doesn't exist, or returns the existing one */
 /* if it exists, the value will not be changed, but flags will be ORed in */
@@ -706,7 +706,7 @@ void CM_SetAreaPortalState(int portalnum, qboolean open);
 qboolean CM_AreasConnected(int area1, int area2);
 
 int CM_WriteAreaBits(byte *buffer, int area);
-qboolean CM_HeadnodeVisible(int headnode, const byte *visbits);
+qboolean CM_HeadnodeVisible(int nodenum, const byte *visbits);
 
 void CM_WritePortalState(FILE *f);
 int CM_LoadFile(const char *path, void **buffer);
