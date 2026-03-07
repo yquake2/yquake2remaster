@@ -577,6 +577,12 @@ ED_CallSpawn(edict_t *ent)
 		ent->classname = (FindItem("Plasma Beam"))->classname;
 	}
 
+	/* Infinity mod fix */
+	if (!strcmp(ent->classname, "item_pistol"))
+	{
+		ent->classname = "weapon_pistol";
+	}
+
 	/* search dynamic definitions */
 	dyn_id = -1;
 	if (dynamicentities && ndynamicentities)

@@ -4600,12 +4600,12 @@ InitItems(void)
 				{
 					memcpy(itemlist + num_items, dyn_items + i, sizeof(gitem_t));
 					/* Add callbacks */
-					if (!strncmp(itemlist[num_items].classname, "weapon_", 7) ||
-						!strncmp(itemlist[num_items].world_model, "models/weapons/g_", 17))
+					if (!strncmp(itemlist[num_items].classname, "weapon_", 7))
 					{
 						itemlist[num_items].pickup = Pickup_Weapon;
 						itemlist[num_items].use = Use_Weapon;
 						itemlist[num_items].drop = Drop_Weapon;
+						itemlist[num_items].weaponthink = Weapon_Blaster;
 						itemlist[num_items].world_model_flags = EF_ROTATE;
 						itemlist[num_items].flags = IT_WEAPON;
 					}
