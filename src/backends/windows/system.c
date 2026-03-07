@@ -623,7 +623,7 @@ Sys_Realpath(const char *in, char *out, size_t size)
 	WCHAR win[MAX_OSPATH] = {0};
 	WCHAR wconverted[MAX_OSPATH] = {0};
 
-	MultiByteToWideChar(CP_UTF8, 0, in, -1, win, sizeof(win)/sizeof(win[0]));
+	MultiByteToWideChar(CP_UTF8, 0, in, -1, win, ARRLEN(win));
 
 	if (_wfullpath(wconverted, win, size) == NULL)
 	{
@@ -707,7 +707,7 @@ Sys_GetWorkDir(char *buffer, size_t len)
 {
 	WCHAR wbuffer[MAX_OSPATH];
 
-	if (GetCurrentDirectoryW(sizeof(wbuffer)/sizeof(wbuffer[0]), wbuffer) != 0)
+	if (GetCurrentDirectoryW(ARRLEN(wbuffer), wbuffer) != 0)
 	{
 		WideCharToMultiByte(CP_UTF8, 0, wbuffer, -1, buffer, len, NULL, NULL);
 		return;
@@ -721,7 +721,7 @@ Sys_SetWorkDir(const char *path)
 {
 	WCHAR wpath[MAX_OSPATH];
 
-	MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, sizeof(wpath)/sizeof(wpath[0]));
+	MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, ARRLEN(wpath));
 
 	if (SetCurrentDirectoryW(wpath) != 0)
 	{
@@ -761,8 +761,8 @@ Sys_RedirectStdout(void)
 	snprintf(path_stdout, sizeof(path_stdout), "%s/%s", dir, "stdout.txt");
 	snprintf(path_stderr, sizeof(path_stderr), "%s/%s", dir, "stderr.txt");
 
-	MultiByteToWideChar(CP_UTF8, 0, path_stdout, -1, wpath_stdout, sizeof(wpath_stdout)/sizeof(wpath_stdout[0]));
-	MultiByteToWideChar(CP_UTF8, 0, path_stderr, -1, wpath_stderr, sizeof(wpath_stderr)/sizeof( wpath_stderr[0] ) );
+	MultiByteToWideChar(CP_UTF8, 0, path_stdout, -1, wpath_stdout, ARRLEN(wpath_stdout));
+	MultiByteToWideChar(CP_UTF8, 0, path_stderr, -1, wpath_stderr, ARRLEN(wpath_stderr));
 
 	_wfreopen(wpath_stdout, L"w", stdout);
 	_wfreopen(wpath_stderr, L"w", stderr);

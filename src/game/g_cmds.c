@@ -1383,7 +1383,7 @@ CheckFlood(edict_t *ent)
 	}
 
 	cl = ent->client;
-	mx = sizeof(cl->flood_when) / sizeof(cl->flood_when[0]);
+	mx = ARRLEN(cl->flood_when);
 
 	if (num_msgs > mx)
 	{
