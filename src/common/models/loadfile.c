@@ -631,7 +631,7 @@ Mod_LoadAndStoreModel(const char *name)
 			int i;
 
 			/* Replace to other one if load failed */
-			for (i = 0; i < sizeof(replacements) / sizeof(replacement_t); i++)
+			for (i = 0; i < ARRLEN(replacements); i++)
 			{
 				if (!strcmp(namewe, replacements[i].old))
 				{
