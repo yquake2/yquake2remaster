@@ -975,17 +975,20 @@ Cmd_CompleteMapCommand(const char *partial)
 
 			mapName = strtok(mapName, ".");
 
-			/* check for exact match */
-			if (!Q_strcasecmp(partial, mapName))
+			if (mapName)
 			{
-				Q_strlcpy(retval, partial, sizeof(retval));
-			}
+				/* check for exact match */
+				if (!Q_strcasecmp(partial, mapName))
+				{
+					Q_strlcpy(retval, partial, sizeof(retval));
+				}
 
-			/* check for partial match */
-			else if (!Q_strncasecmp(partial, mapName, len))
-			{
-				pmatch[nbMatches] = mapName;
-				nbMatches++;
+				/* check for partial match */
+				else if (!Q_strncasecmp(partial, mapName, len))
+				{
+					pmatch[nbMatches] = mapName;
+					nbMatches++;
+				}
 			}
 		}
 
