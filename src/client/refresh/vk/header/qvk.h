@@ -306,7 +306,7 @@ VkResult	QVk_CreateImage(uint32_t width, uint32_t height, VkFormat format, VkIma
 void		QVk_CreateDepthBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *depthBuffer);
 void		QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colorBuffer, int extraFlags);
 void		QVk_CreateTexture(qvktexture_t *texture, const unsigned char *data, uint32_t width, uint32_t height, qvksampler_t samplerType, qboolean clampToEdge);
-void		QVk_ReleaseTexture(qvktexture_t *texture);
+void		QVk_ReleaseTexture(qvktexture_t *texture, qboolean tosync);
 void		QVk_UpdateTextureData(qvktexture_t *texture, const unsigned char *data, uint32_t offset_x, uint32_t offset_y, uint32_t width, uint32_t height);
 VkSampler	QVk_UpdateTextureSampler(qvktexture_t *texture, qvksampler_t samplerType, qboolean clampToEdge);
 void		QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *extent);
