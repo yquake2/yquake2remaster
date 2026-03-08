@@ -1829,7 +1829,7 @@ CM_ModFreeAll(void)
 	if (ptsrow)
 	{
 		free(ptsrow);
-		phsrow = NULL;
+		ptsrow = NULL;
 	}
 
 	pxsrow_len = 0;
