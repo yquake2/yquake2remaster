@@ -1567,7 +1567,7 @@ widow_gib_touch(edict_t *self, edict_t *other /* unused */, cplane_t *plane /* u
 }
 
 void
-ThrowWidowGib(edict_t *self, char *gibname, int damage, int type)
+ThrowWidowGib(edict_t *self, char *gibname, int damage, gibtype_t type)
 {
 	if (!self || !gibname)
 	{

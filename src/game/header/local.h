@@ -309,7 +309,7 @@ typedef struct gitem_s
 {
 	const char *classname; /* spawning name */
 	qboolean (*pickup)(struct edict_s *ent, struct edict_s *other);
-	void (*use)(struct edict_s *ent, struct gitem_s *item);
+	void (*use)(struct edict_s *ent, const struct gitem_s *item);
 	void (*drop)(struct edict_s *ent, struct gitem_s *item);
 	void (*weaponthink)(struct edict_s *ent);
 	const char *pickup_sound;
@@ -846,7 +846,7 @@ gitem_t *FindItemByClassname(const char *classname);
 
 #define ITEM_INDEX(x) ((x) - itemlist)
 
-edict_t *Drop_Item(edict_t *ent, gitem_t *item);
+edict_t *Drop_Item(edict_t *ent, const gitem_t *item);
 void SetRespawn(edict_t *ent, float delay);
 void ChangeWeapon(edict_t *ent);
 int FirstPersonWeaponModel(const gitem_t *weapon);
@@ -858,8 +858,8 @@ gitem_t *GetItemByIndex(int index);
 qboolean Add_Ammo(edict_t *ent, const gitem_t *item, int count);
 void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane,
 		csurface_t *surf);
-void Use_Quad(edict_t *ent, gitem_t *item);
-void Use_QuadFire(edict_t *ent, gitem_t *item);
+void Use_Quad(edict_t *ent, const gitem_t *item);
+void Use_QuadFire(edict_t *ent, const gitem_t *item);
 
 /* g_utils.c */
 qboolean KillBox(edict_t *ent);
@@ -1111,8 +1111,8 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		int FRAME_IDLE_LAST, int FRAME_DEACTIVATE_LAST, const int *pause_frames,
 		const int *fire_frames, void (*fire)(edict_t *ent));
 qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
-void Use_Weapon(edict_t *ent, gitem_t *item);
-void Use_Weapon2(edict_t *ent, gitem_t *item);
+void Use_Weapon(edict_t *ent, const gitem_t *item);
+void Use_Weapon2(edict_t *ent, const gitem_t *item);
 void Drop_Weapon(edict_t *ent, gitem_t *item);
 void Weapon_Blaster(edict_t *ent);
 void Weapon_Shotgun(edict_t *ent);
@@ -1324,8 +1324,8 @@ typedef struct
 	int max_magslug;
 	int max_trap;
 
-	gitem_t *weapon;
-	gitem_t *lastweapon;
+	const gitem_t *weapon;
+	const gitem_t *lastweapon;
 
 	int power_cubes;            /* used for tracking the cubes in coop games */
 	int score;                  /* for calculating total unit score in coop games */
@@ -1412,7 +1412,7 @@ struct gclient_s
 
 	qboolean weapon_thunk;
 
-	gitem_t *newweapon;
+	const gitem_t *newweapon;
 
 	/* sum up damage over an entire frame, so
 	   shotgun blasts give a single big kick */
@@ -1711,7 +1711,7 @@ struct edict_s
 
 	int style;                  /* also used as areaportal number */
 
-	gitem_t *item;              /* for bonus items */
+	const gitem_t *item;              /* for bonus items */
 
 	/* common data blocks */
 	moveinfo_t moveinfo;
@@ -2050,7 +2050,7 @@ void SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles);
  * implementation. (-Wmissing-prototypes )
  *
  */
-#if 0
+#if DEBUG
 #include "../savegame/savegame.h"
 #include "../savegame/tables/gamefunc_decs.h"
 #endif

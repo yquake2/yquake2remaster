@@ -668,7 +668,7 @@ Pickup_Nuke(edict_t *ent, edict_t *other)
 }
 
 void
-Use_IR(edict_t *ent, gitem_t *item)
+Use_IR(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -691,7 +691,7 @@ Use_IR(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Double(edict_t *ent, gitem_t *item)
+Use_Double(edict_t *ent, const gitem_t *item)
 {
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
 	ValidateSelectedItem(ent);
@@ -709,7 +709,7 @@ Use_Double(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Compass(edict_t *ent, gitem_t *item)
+Use_Compass(edict_t *ent, const gitem_t *item)
 {
 	int ang;
 
@@ -730,7 +730,7 @@ Use_Compass(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Nuke(edict_t *ent, gitem_t *item)
+Use_Nuke(edict_t *ent, const gitem_t *item)
 {
 	vec3_t forward, right, start;
 	float speed;
@@ -751,7 +751,7 @@ Use_Nuke(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Doppleganger(edict_t *ent, gitem_t *item)
+Use_Doppleganger(edict_t *ent, const gitem_t *item)
 {
 	vec3_t forward, right;
 	vec3_t createPt, spawnPt;
@@ -854,7 +854,7 @@ Pickup_Sphere(edict_t *ent, edict_t *other)
 }
 
 void
-Use_Defender(edict_t *ent, gitem_t *item)
+Use_Defender(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
 	{
@@ -874,7 +874,7 @@ Use_Defender(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Hunter(edict_t *ent, gitem_t *item)
+Use_Hunter(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
 	{
@@ -894,7 +894,7 @@ Use_Hunter(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Vengeance(edict_t *ent, gitem_t *item)
+Use_Vengeance(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
 	{
@@ -916,7 +916,7 @@ Use_Vengeance(edict_t *ent, gitem_t *item)
 /* ====================================================================== */
 
 void
-Use_Quad(edict_t *ent, gitem_t *item)
+Use_Quad(edict_t *ent, const gitem_t *item)
 {
 	int timeout;
 
@@ -954,7 +954,7 @@ Use_Quad(edict_t *ent, gitem_t *item)
 /* ===================================================================== */
 
 void
-Use_QuadFire(edict_t *ent, gitem_t *item)
+Use_QuadFire(edict_t *ent, const gitem_t *item)
 {
 	int timeout;
 
@@ -991,7 +991,7 @@ Use_QuadFire(edict_t *ent, gitem_t *item)
 /* ====================================================================== */
 
 void
-Use_Breather(edict_t *ent, gitem_t *item)
+Use_Breather(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
 	{
@@ -1014,7 +1014,7 @@ Use_Breather(edict_t *ent, gitem_t *item)
 /* ====================================================================== */
 
 void
-Use_Envirosuit(edict_t *ent, gitem_t *item)
+Use_Envirosuit(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
 	{
@@ -1037,7 +1037,7 @@ Use_Envirosuit(edict_t *ent, gitem_t *item)
 /* ====================================================================== */
 
 void
-Use_Invulnerability(edict_t *ent, gitem_t *item)
+Use_Invulnerability(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -1061,7 +1061,7 @@ Use_Invulnerability(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Invisibility(edict_t *ent, gitem_t *item)
+Use_Invisibility(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -1085,7 +1085,7 @@ Use_Invisibility(edict_t *ent, gitem_t *item)
 /* ====================================================================== */
 
 void
-Use_Silencer(edict_t *ent, gitem_t *item)
+Use_Silencer(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -1562,7 +1562,7 @@ PowerArmorType(const edict_t *ent)
 }
 
 void
-Use_PowerArmor(edict_t *ent, gitem_t *item)
+Use_PowerArmor(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -1825,7 +1825,7 @@ drop_make_touchable(edict_t *ent)
 }
 
 edict_t *
-Drop_Item(edict_t *ent, gitem_t *item)
+Drop_Item(edict_t *ent, const gitem_t *item)
 {
 	edict_t *dropped;
 	vec3_t forward, right;
@@ -2440,7 +2440,7 @@ P_ToggleFlashlight(edict_t *ent, qboolean state)
 }
 
 void
-Use_Flashlight(edict_t *ent, gitem_t *inv)
+Use_Flashlight(edict_t *ent, const gitem_t *inv)
 {
 	P_ToggleFlashlight(ent, !(ent->flags & FL_FLASHLIGHT));
 }

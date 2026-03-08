@@ -791,7 +791,7 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 void
 TossClientWeapon(edict_t *self)
 {
-	gitem_t *item;
+	const gitem_t *item;
 	edict_t *drop;
 	qboolean quad;
 	qboolean quadfire;

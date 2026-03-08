@@ -2348,7 +2348,7 @@ CTFPickup_Tech(edict_t *ent, edict_t *other)
 	return true;
 }
 
-static void SpawnTech(gitem_t *item, edict_t *spot);
+static void SpawnTech(const gitem_t *item, edict_t *spot);
 
 static edict_t *
 FindTechSpawn(void)
@@ -2427,7 +2427,7 @@ CTFDeadDropTech(edict_t *ent)
 }
 
 static void
-SpawnTech(gitem_t *item, edict_t *spot)
+SpawnTech(const gitem_t *item, edict_t *spot)
 {
 	edict_t *ent;
 	vec3_t forward, right;

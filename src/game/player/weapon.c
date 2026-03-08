@@ -687,7 +687,7 @@ Think_Weapon(edict_t *ent)
  * Make the weapon ready if there is ammo
  */
 void
-Use_Weapon(edict_t *ent, gitem_t *item)
+Use_Weapon(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -728,7 +728,7 @@ Use_Weapon(edict_t *ent, gitem_t *item)
 }
 
 void
-Use_Weapon2(edict_t *ent, gitem_t *item)
+Use_Weapon2(edict_t *ent, const gitem_t *item)
 {
 	int ammo_index;
 	gitem_t *ammo_item;

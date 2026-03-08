@@ -943,7 +943,7 @@ Cmd_WeapPrev_f(edict_t *ent)
 {
 	gclient_t *cl;
 	int i;
-	gitem_t *it;
+	const gitem_t *it;
 	int selected_weapon;
 
 	if (!ent)
@@ -1007,7 +1007,7 @@ Cmd_WeapNext_f(edict_t *ent)
 {
 	gclient_t *cl;
 	int i;
-	gitem_t *it;
+	const gitem_t *it;
 	int selected_weapon;
 
 	if (!ent)
