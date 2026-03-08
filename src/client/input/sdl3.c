@@ -909,14 +909,14 @@ IN_Update(void)
 					/* Note that the SDL_SCANCODEs are SDL_SCANCODE_1, _2, ..., _9, SDL_SCANCODE_0
 					 * while in ASCII it's '0', '1', ..., '9' => handle 0 and 1-9 separately
 					 * (quake2 uses the ASCII values for those keys) */
-					int key = '0'; /* implicitly handles SDL_SCANCODE_0 */
+					int key_val = '0'; /* implicitly handles SDL_SCANCODE_0 */
 
 					if (sc <= SDL_SCANCODE_9)
 					{
-						key = '1' + (sc - SDL_SCANCODE_1);
+						key_val = '1' + (sc - SDL_SCANCODE_1);
 					}
 
-					Key_Event(key, down, false);
+					Key_Event(key_val, down, false);
 				}
 				else
 				{
@@ -2640,7 +2640,7 @@ IN_Controller_Init(qboolean notify_user)
 	SDL_Joystick *joystick = NULL;
 	bool is_controller = false;
 
-	cvar_t *cvar = Cvar_Get("in_initjoy", "1", CVAR_NOSET);
+	const cvar_t *cvar = Cvar_Get("in_initjoy", "1", CVAR_NOSET);
 	joy_num = (int)cvar->value;
 	if (joy_num < 1) return;
 

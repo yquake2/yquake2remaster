@@ -344,7 +344,7 @@ Pickup_AncientHead(edict_t *ent, edict_t *other)
 qboolean
 Pickup_Bandolier(edict_t *ent, edict_t *other)
 {
-	gitem_t *item;
+	const gitem_t *item;
 	int index;
 
 	if (!ent || !other)
@@ -431,7 +431,7 @@ Pickup_Bandolier(edict_t *ent, edict_t *other)
 qboolean
 Pickup_Pack(edict_t *ent, edict_t *other)
 {
-	gitem_t *item;
+	const gitem_t *item;
 	int index;
 
 	if (!ent || !other)
@@ -1141,7 +1141,7 @@ Pickup_Key(edict_t *ent, edict_t *other)
 /* ====================================================================== */
 
 qboolean
-Add_Ammo(edict_t *ent, gitem_t *item, int count)
+Add_Ammo(edict_t *ent, const gitem_t *item, int count)
 {
 	int index;
 	int max;
@@ -1400,7 +1400,7 @@ Pickup_Health(edict_t *ent, edict_t *other)
 /* ====================================================================== */
 
 int
-ArmorIndex(edict_t *ent)
+ArmorIndex(const edict_t *ent)
 {
 	if (!ent || !ent->client)
 	{
@@ -1428,9 +1428,8 @@ ArmorIndex(edict_t *ent)
 qboolean
 Pickup_Armor(edict_t *ent, edict_t *other)
 {
+	const gitem_armor_t *oldinfo, *newinfo;
 	int old_armor_index;
-	gitem_armor_t *oldinfo;
-	gitem_armor_t *newinfo;
 	int newcount;
 	float salvage;
 	int salvagecount;
@@ -1532,7 +1531,7 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 /* ====================================================================== */
 
 int
-PowerArmorType(edict_t *ent)
+PowerArmorType(const edict_t *ent)
 {
 	if (!ent)
 	{
@@ -1565,8 +1564,6 @@ PowerArmorType(edict_t *ent)
 void
 Use_PowerArmor(edict_t *ent, gitem_t *item)
 {
-	int index;
-
 	if (!ent || !item)
 	{
 		return;
@@ -1580,6 +1577,8 @@ Use_PowerArmor(edict_t *ent, gitem_t *item)
 	}
 	else
 	{
+		int index;
+
 		index = ITEM_INDEX(FindItem("cells"));
 
 		if (!ent->client->pers.inventory[index])
@@ -1830,7 +1829,6 @@ Drop_Item(edict_t *ent, gitem_t *item)
 {
 	edict_t *dropped;
 	vec3_t forward, right;
-	vec3_t offset;
 
 	if (!ent || !item)
 	{
@@ -1864,6 +1862,7 @@ Drop_Item(edict_t *ent, gitem_t *item)
 
 	if (ent->client)
 	{
+		vec3_t offset;
 		trace_t trace;
 
 		AngleVectors(ent->client->v_angle, forward, right, NULL);
@@ -1977,8 +1976,8 @@ droptofloor(edict_t *ent)
 {
 	vec3_t dest;
 	trace_t tr;
-	float *v;
-	int i;
+	const float *v;
+
 
 	if (!ent)
 	{
@@ -2003,6 +2002,7 @@ droptofloor(edict_t *ent)
 	{
 		/* key_power_cube is inside walls */
 		vec3_t mins, maxs;
+		int i;
 
 		/* set real size of item model except height to items fly hack */
 		VectorCopy(ent->mins, mins);
@@ -2092,12 +2092,10 @@ droptofloor(edict_t *ent)
  * and for each item in each client's inventory.
  */
 void
-PrecacheItem(gitem_t *it)
+PrecacheItem(const gitem_t *it)
 {
-	const char *s, *start;
+	const char *s;
 	char data[MAX_QPATH];
-	int len;
-	gitem_t *ammo;
 
 	if (!it)
 	{
@@ -2127,6 +2125,8 @@ PrecacheItem(gitem_t *it)
 	/* parse everything for its ammo */
 	if (it->ammo && it->ammo[0])
 	{
+		const gitem_t *ammo;
+
 		ammo = FindItem(it->ammo);
 
 		if (ammo != it)
@@ -2145,6 +2145,9 @@ PrecacheItem(gitem_t *it)
 
 	while (*s)
 	{
+		const char *start;
+		int len;
+
 		start = s;
 
 		while (*s && *s != ' ')
@@ -4593,7 +4596,7 @@ InitItems(void)
 
 			for (i = 0; i < dyn_count; i ++)
 			{
-				gitem_t *it;
+				const gitem_t *it;
 
 				it = FindItemInList(dyn_items[i].classname, itemlist, num_items);
 				if (!it)
@@ -4666,10 +4669,11 @@ void
 SetItemNames(void)
 {
 	int i;
-	gitem_t *it;
 
 	for (i = 0; i < game.num_items; i++)
 	{
+		gitem_t *it;
+
 		it = &itemlist[i];
 		gi.configstring(CS_ITEMS + i, it->pickup_name);
 	}
@@ -4684,7 +4688,7 @@ SetItemNames(void)
 void
 SP_xatrix_item(edict_t *self)
 {
-	char *spawnClass = NULL;
+	const char *spawnClass = NULL;
 	gitem_t *item;
 
 	if (!self)

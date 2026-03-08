@@ -837,7 +837,7 @@ void ClientCommand(edict_t *ent);
 /* g_items.c */
 void droptofloor(edict_t *ent);
 void FixEntityPosition(edict_t *ent);
-void PrecacheItem(gitem_t *it);
+void PrecacheItem(const gitem_t *it);
 void InitItems(void);
 qboolean ItemHasValidModel(gitem_t *item);
 void SetItemNames(void);
@@ -852,10 +852,10 @@ void ChangeWeapon(edict_t *ent);
 int FirstPersonWeaponModel(const gitem_t *weapon);
 void SpawnItem(edict_t *ent, gitem_t *item);
 void Think_Weapon(edict_t *ent);
-int ArmorIndex(edict_t *ent);
-int PowerArmorType(edict_t *ent);
+int ArmorIndex(const edict_t *ent);
+int PowerArmorType(const edict_t *ent);
 gitem_t *GetItemByIndex(int index);
-qboolean Add_Ammo(edict_t *ent, gitem_t *item, int count);
+qboolean Add_Ammo(edict_t *ent, const gitem_t *item, int count);
 void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane,
 		csurface_t *surf);
 void Use_Quad(edict_t *ent, gitem_t *item);
@@ -1254,8 +1254,8 @@ void P_SetAnimGroup(edict_t *ent, const char *animname,
 	int firstframe, int lastframe, int select);
 edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, char *classname);
-edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t mins,
-		vec3_t maxs, char *classname, int height);
+edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t entMins,
+		vec3_t entMaxs, const char *classname, int height);
 qboolean FindSpawnPoint(vec3_t startpoint, vec3_t mins, vec3_t maxs,
 		vec3_t spawnpoint, float maxMoveUp);
 qboolean CheckSpawnPoint(vec3_t origin, vec3_t mins, vec3_t maxs);
