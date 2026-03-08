@@ -2854,7 +2854,7 @@ Options_MenuInit(void)
 	s_options_crosshair_box.generic.callback = CrosshairFunc;
 	s_options_crosshair_box.itemnames = crosshair_names;
 
-	if (viddef.height > 240)
+	if (viddef.height > (240 + 20 * scale))
 	{
 		s_options_crosshair_color_box.generic.type = MTYPE_SPINCONTROL;
 		s_options_crosshair_color_box.generic.x = 0;
@@ -2872,7 +2872,7 @@ Options_MenuInit(void)
 	s_options_pauseonfocus_box.itemnames = pause_names;
 
 	y += 10;
-	if (show_gamepad)
+	if (show_gamepad && (viddef.height > (240 + 20 * scale)))
 	{
 		s_options_customize_joy_action.generic.type = MTYPE_ACTION;
 		s_options_customize_joy_action.generic.x = 0;
@@ -2915,14 +2915,14 @@ Options_MenuInit(void)
 	Menu_AddItem(&s_options_menu, (void *)&s_options_freelook_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_box);
 
-	if (viddef.height > 240)
+	if (viddef.height > (240 + 20 * scale))
 	{
 		Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_color_box);
 	}
 
 	Menu_AddItem(&s_options_menu, (void*)&s_options_pauseonfocus_box);
 
-	if (show_gamepad)
+	if (show_gamepad && (viddef.height > (240 + 20 * scale)))
 	{
 		Menu_AddItem(&s_options_menu, (void *)&s_options_customize_joy_action);
 	}
