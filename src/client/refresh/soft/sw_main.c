@@ -1859,6 +1859,7 @@ GetRefAPI(refimport_t imp)
 	refexport.DrawGetPicSize = RE_Draw_GetPicSize;
 
 	refexport.DrawPicScaled = RE_Draw_PicScaled;
+	refexport.DrawPicScaledCol = RE_Draw_PicScaledCol;
 	refexport.DrawStretchPic = RE_Draw_StretchPic;
 	refexport.DrawCharScaled = RE_Draw_CharScaled;
 	refexport.DrawStringScaled = RE_Draw_StringScaled;

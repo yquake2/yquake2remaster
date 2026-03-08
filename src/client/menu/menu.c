@@ -2480,6 +2480,7 @@ static menulist_s s_options_alwaysrun_box = {0};
 static menulist_s s_options_invertmouse_box = {0};
 static menulist_s s_options_lookstrafe_box = {0};
 static menulist_s s_options_crosshair_box = {0};
+static menulist_s s_options_crosshair_color_box = {0};
 static menuslider_s s_options_sfxvolume_slider = {0};
 static menulist_s s_options_oggshuffle_box = {0};
 static menuslider_s s_options_oggvolume_slider = {0};
@@ -2492,6 +2493,33 @@ static void
 CrosshairFunc(void *unused)
 {
 	Cvar_SetValue("crosshair", (float)s_options_crosshair_box.curvalue);
+}
+
+static void
+CrosshairColorFunc(void *unused)
+{
+	static const float color_values[][3] =
+	{
+		{1.0f, 1.0f, 1.0f},  /* white */
+		{1.0f, 0.0f, 0.0f},  /* red */
+		{0.0f, 1.0f, 0.0f},  /* green */
+		{0.0f, 0.0f, 1.0f},  /* blue */
+		{1.0f, 1.0f, 0.0f},  /* yellow */
+		{0.0f, 1.0f, 1.0f},  /* cyan */
+		{1.0f, 0.0f, 1.0f},  /* magenta */
+		{1.0f, 0.5f, 0.0f},  /* orange */
+	};
+
+	int idx = s_options_crosshair_color_box.curvalue;
+
+	if (idx < 0 || idx >= (int)ARRLEN(color_values))
+	{
+		idx = 0;
+	}
+
+	Cvar_SetValue("crosshair_color_r", color_values[idx][0]);
+	Cvar_SetValue("crosshair_color_g", color_values[idx][1]);
+	Cvar_SetValue("crosshair_color_b", color_values[idx][2]);
 }
 
 static void
@@ -2535,6 +2563,43 @@ ControlsSetMenuItemValues(void)
 	s_options_lookstrafe_box.curvalue = (lookstrafe->value != 0);
 	s_options_freelook_box.curvalue = (freelook->value != 0);
 	s_options_crosshair_box.curvalue = ClampCvar(0, 3, crosshair->value);
+
+	/* Match crosshair color cvars to a preset index */
+	{
+		static const float color_values[][3] =
+		{
+			{1.0f, 1.0f, 1.0f},  /* white */
+			{1.0f, 0.0f, 0.0f},  /* red */
+			{0.0f, 1.0f, 0.0f},  /* green */
+			{0.0f, 0.0f, 1.0f},  /* blue */
+			{1.0f, 1.0f, 0.0f},  /* yellow */
+			{0.0f, 1.0f, 1.0f},  /* cyan */
+			{1.0f, 0.0f, 1.0f},  /* magenta */
+			{1.0f, 0.5f, 0.0f},  /* orange */
+		};
+		float r = Cvar_VariableValue("crosshair_color_r");
+		float g = Cvar_VariableValue("crosshair_color_g");
+		float b = Cvar_VariableValue("crosshair_color_b");
+		int i, best = 0;
+		float best_dist = 999.0f;
+
+		for (i = 0; i < 8; i++)
+		{
+			float dr = r - color_values[i][0];
+			float dg = g - color_values[i][1];
+			float db = b - color_values[i][2];
+			float dist = dr * dr + dg * dg + db * db;
+
+			if (dist < best_dist)
+			{
+				best_dist = dist;
+				best = i;
+			}
+		}
+
+		s_options_crosshair_color_box.curvalue = best;
+	}
+
 	s_options_pauseonfocus_box.curvalue = ClampCvar(0, 2, Cvar_VariableValue("vid_pauseonfocuslost"));
 }
 
@@ -2681,6 +2746,19 @@ Options_MenuInit(void)
 		NULL
 	};
 
+	static const char *crosshair_color_names[] =
+	{
+		"white",
+		"red",
+		"green",
+		"blue",
+		"yellow",
+		"cyan",
+		"magenta",
+		"orange",
+		0
+	};
+
 	float scale = SCR_GetMenuScale();
 	unsigned short int y = 0;
 
@@ -2776,6 +2854,13 @@ Options_MenuInit(void)
 	s_options_crosshair_box.generic.callback = CrosshairFunc;
 	s_options_crosshair_box.itemnames = crosshair_names;
 
+	s_options_crosshair_color_box.generic.type = MTYPE_SPINCONTROL;
+	s_options_crosshair_color_box.generic.x = 0;
+	s_options_crosshair_color_box.generic.y = (y += 10);
+	s_options_crosshair_color_box.generic.name = "crosshair color";
+	s_options_crosshair_color_box.generic.callback = CrosshairColorFunc;
+	s_options_crosshair_color_box.itemnames = crosshair_color_names;
+
 	s_options_pauseonfocus_box.generic.type = MTYPE_SPINCONTROL;
 	s_options_pauseonfocus_box.generic.x = 0;
 	s_options_pauseonfocus_box.generic.y = (y += 10);
@@ -2826,6 +2911,7 @@ Options_MenuInit(void)
 	Menu_AddItem(&s_options_menu, (void *)&s_options_lookstrafe_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_freelook_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_box);
+	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_color_box);
 	Menu_AddItem(&s_options_menu, (void*)&s_options_pauseonfocus_box);
 
 	if (show_gamepad)

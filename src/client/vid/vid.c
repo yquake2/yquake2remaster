@@ -749,6 +749,23 @@ Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *a
 }
 
 void
+Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t color,
+	const char *alttext)
+{
+	if (ref_active)
+	{
+		if (re.DrawPicScaledCol)
+		{
+			re.DrawPicScaledCol(x, y, pic, factor, color, alttext);
+		}
+		else
+		{
+			re.DrawPicScaled(x, y, pic, factor, alttext);
+		}
+	}
+}
+
+void
 Draw_CharScaled(int x, int y, int num, float scale)
 {
 	if (ref_active)

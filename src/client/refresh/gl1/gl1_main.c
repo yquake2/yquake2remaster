@@ -2102,6 +2102,7 @@ GetRefAPI(refimport_t imp)
 
 	refexport.DrawGetPicSize = RDraw_GetPicSize;
 	refexport.DrawPicScaled = RDraw_PicScaled;
+	refexport.DrawPicScaledCol = RDraw_PicScaledCol;
 	refexport.DrawStretchPic = RDraw_StretchPic;
 	refexport.DrawCharScaled = RDraw_CharScaled;
 	refexport.DrawStringScaled = RDraw_StringScaled;

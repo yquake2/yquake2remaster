@@ -219,7 +219,7 @@ Get_BestImageSize(const image_t *image, int *req_width, int *req_height)
 	}
 }
 
-static byte *d_16to8table = NULL; // 16 to 8 bit conversion table
+byte *d_16to8table = NULL; // 16 to 8 bit conversion table
 
 int
 R_ConvertRGBColor(unsigned color)

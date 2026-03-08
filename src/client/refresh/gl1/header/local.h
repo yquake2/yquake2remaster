@@ -434,6 +434,8 @@ int RI_GetSDLVersion();
 extern image_t * RDraw_FindPic(const char *name);
 extern void RDraw_GetPicSize(int *w, int *h, const char *pic);
 extern void RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
+extern void RDraw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t color,
+	const char *alttext);
 extern void RDraw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void RDraw_CharScaled(int x, int y, int num, float scale);
 extern void RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
