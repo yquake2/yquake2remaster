@@ -449,7 +449,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 	if (vk_rawTexture.resource.image != VK_NULL_HANDLE &&
 	    (vk_rawTexture_width != cols || vk_rawTexture_height != rows))
 	{
-		QVk_ReleaseTexture(&vk_rawTexture, TRUE);
+		QVk_ReleaseTexture(&vk_rawTexture, true);
 		QVVKTEXTURE_CLEAR(vk_rawTexture);
 	}
 

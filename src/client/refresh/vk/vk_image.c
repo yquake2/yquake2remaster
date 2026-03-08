@@ -1380,7 +1380,7 @@ void Vk_FreeUnusedImages (void)
 		}
 
 		/* free it */
-		QVk_ReleaseTexture(&image->vk_texture, FALSE);
+		QVk_ReleaseTexture(&image->vk_texture, false);
 		memset(image, 0, sizeof(*image));
 
 		img_loaded --;
@@ -1474,7 +1474,7 @@ void	Vk_ShutdownImages (void)
 			Com_Printf("%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
 		}
 
-		QVk_ReleaseTexture(&image->vk_texture, FALSE);
+		QVk_ReleaseTexture(&image->vk_texture, false);
 		memset(image, 0, sizeof(*image));
 
 		img_loaded --;
@@ -1485,11 +1485,11 @@ void	Vk_ShutdownImages (void)
 		}
 	}
 
-	QVk_ReleaseTexture(&vk_rawTexture, FALSE);
+	QVk_ReleaseTexture(&vk_rawTexture, false);
 
 	for(i = 0; i < MAX_LIGHTMAPS * 2; i++)
 	{
-		QVk_ReleaseTexture(&vk_state.lightmap_textures[i], FALSE);
+		QVk_ReleaseTexture(&vk_state.lightmap_textures[i], false);
 	}
 }
 
