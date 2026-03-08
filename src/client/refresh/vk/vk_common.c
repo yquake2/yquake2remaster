@@ -1781,15 +1781,33 @@ QVk_Init(void)
 	extCount++;
 #endif
 
+	wantedExtensions = malloc(extCount * sizeof(char *));
+	YQ2_COM_CHECK_OOM(wantedExtensions, "malloc()", extCount * sizeof(char *))
+	if (!wantedExtensions)
+	{
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		return false;
+	}
+
 #ifdef USE_SDL3
-	if ((wantedExtensions = (char **)SDL_Vulkan_GetInstanceExtensions(&extCount)) == NULL)
+	Uint32 count_instance_extensions;
+	const char * const *instance_extensions;
+
+	instance_extensions = SDL_Vulkan_GetInstanceExtensions(&count_instance_extensions);
+	if (!instance_extensions)
 	{
 		Com_Printf("%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
 				__func__, SDL_GetError());
+		free(wantedExtensions);
 		return false;
 	}
+
+	SDL_memcpy(&wantedExtensions[0], instance_extensions,
+		count_instance_extensions * sizeof(const char*));
+
+	/* save curent count */
+	extCount = count_instance_extensions;
 #else
-	wantedExtensions = malloc(extCount * sizeof(char *));
 	if (!SDL_Vulkan_GetInstanceExtensions(vk_window, &extCount, (const char **)wantedExtensions))
 	{
 		Com_Printf("%s() SDL_Vulkan_GetInstanceExtensions failed: %s",
@@ -1901,7 +1919,8 @@ QVk_Init(void)
 
 	VkResult res = vkCreateInstance(&createInfo, NULL, &vk_instance);
 
-	if (res == VK_ERROR_LAYER_NOT_PRESENT && r_validation->value > 0) {
+	if (res == VK_ERROR_LAYER_NOT_PRESENT && r_validation->value > 0)
+	{
 		// we give a "last try" if the validation layer fails
 		// before falling back to a GL renderer
 		createInfo.enabledLayerCount = 0;
@@ -1909,13 +1928,12 @@ QVk_Init(void)
 		createInfo.pNext = NULL;
 		memset(vk_config.layers, 0, sizeof(vk_config.layers));
 		ri.Cvar_Set("r_validation", "0");
-		Com_Printf("%s(): Could not create Vulkan instance, disabling r_validation\n", __func__);
+		Com_Printf("%s(): Could not create Vulkan instance, disabling r_validation\n",
+			__func__);
 		res = vkCreateInstance(&createInfo, NULL, &vk_instance);
 	}
 
-#ifndef USE_SDL3
 	free(wantedExtensions);
-#endif
 
 	if (res != VK_SUCCESS)
 	{
