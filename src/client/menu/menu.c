@@ -2854,12 +2854,15 @@ Options_MenuInit(void)
 	s_options_crosshair_box.generic.callback = CrosshairFunc;
 	s_options_crosshair_box.itemnames = crosshair_names;
 
-	s_options_crosshair_color_box.generic.type = MTYPE_SPINCONTROL;
-	s_options_crosshair_color_box.generic.x = 0;
-	s_options_crosshair_color_box.generic.y = (y += 10);
-	s_options_crosshair_color_box.generic.name = "crosshair color";
-	s_options_crosshair_color_box.generic.callback = CrosshairColorFunc;
-	s_options_crosshair_color_box.itemnames = crosshair_color_names;
+	if (viddef.height > 240)
+	{
+		s_options_crosshair_color_box.generic.type = MTYPE_SPINCONTROL;
+		s_options_crosshair_color_box.generic.x = 0;
+		s_options_crosshair_color_box.generic.y = (y += 10);
+		s_options_crosshair_color_box.generic.name = "crosshair color";
+		s_options_crosshair_color_box.generic.callback = CrosshairColorFunc;
+		s_options_crosshair_color_box.itemnames = crosshair_color_names;
+	}
 
 	s_options_pauseonfocus_box.generic.type = MTYPE_SPINCONTROL;
 	s_options_pauseonfocus_box.generic.x = 0;
@@ -2911,7 +2914,12 @@ Options_MenuInit(void)
 	Menu_AddItem(&s_options_menu, (void *)&s_options_lookstrafe_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_freelook_box);
 	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_box);
-	Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_color_box);
+
+	if (viddef.height > 240)
+	{
+		Menu_AddItem(&s_options_menu, (void *)&s_options_crosshair_color_box);
+	}
+
 	Menu_AddItem(&s_options_menu, (void*)&s_options_pauseonfocus_box);
 
 	if (show_gamepad)
