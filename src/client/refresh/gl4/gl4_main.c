@@ -1865,6 +1865,7 @@ GetRefAPI(refimport_t imp)
 	re.DrawGetPicSize = GL4_Draw_GetPicSize;
 
 	re.DrawPicScaled = GL4_Draw_PicScaled;
+	re.DrawPicScaledCol = GL4_Draw_PicScaledCol;
 	re.DrawStretchPic = GL4_Draw_StretchPic;
 
 	re.DrawCharScaled = GL4_Draw_CharScaled;

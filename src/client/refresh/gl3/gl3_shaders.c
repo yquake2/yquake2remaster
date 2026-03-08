@@ -312,12 +312,9 @@ static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 		{
 			vec2 uv = passTexCoord;
 
-			// warping based on vkquake2
-			// here uv is always between 0 and 1 so ignore all that scrWidth and gl_FragCoord stuff
-			//float sx = pc.scale - abs(pc.scrWidth  / 2.0 - gl_FragCoord.x) * 2.0 / pc.scrWidth;
-			//float sy = pc.scale - abs(pc.scrHeight / 2.0 - gl_FragCoord.y) * 2.0 / pc.scrHeight;
-			float sx = 1.0 - abs(0.5-uv.x)*2.0;
-			float sy = 1.0 - abs(0.5-uv.y)*2.0;
+			// warping based on ref_vk
+			float sx = 1.0 - abs(0.5 - uv.x) * 2.0;
+			float sy = 1.0 - abs(0.5 - uv.y) * 2.0;
 			float xShift = 2.0 * time + uv.y * PI * 10.0;
 			float yShift = 2.0 * time + uv.x * PI * 10.0;
 			vec2 distortion = vec2(sin(xShift) * sx, sin(yShift) * sy) * 0.00666;
@@ -328,9 +325,9 @@ static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 			// no gamma or intensity here, it has been applied before
 			// (this is just for postprocessing)
 			vec4 res = texture(tex, uv);
+
 			// apply the v_blend, usually blended as a colored quad with:
-			// glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			res.rgb = v_blend.a * v_blend.rgb + (1.0 - v_blend.a)*res.rgb;
+			res.rgb = v_blend.a * v_blend.rgb + (1.0 - v_blend.a) * res.rgb;
 			outColor =  res;
 		}
 );

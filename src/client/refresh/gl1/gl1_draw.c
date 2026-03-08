@@ -275,6 +275,13 @@ RDraw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t col
 
 	if (!gl)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			RDraw_StringScaled(x, y, factor, false, alttext);
+			return;
+		}
+
 		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}

@@ -303,7 +303,7 @@ void Draw_StretchPic(int x, int y, int w, int h, const char *name);
 void Draw_PicScaled(int x, int y, const char *pic, float factor);
 void Draw_PicScaledAltText(int x, int y, const char *pic, float factor, const char *alttext);
 void Draw_PicScaledCol(int x, int y, const char *pic, float factor,
-	const float color[3], const char *alttext);
+	const vec3_t color, const char *alttext);
 
 void Draw_CharScaled(int x, int y, int num, float scale);
 void Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);

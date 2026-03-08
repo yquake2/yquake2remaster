@@ -596,6 +596,13 @@ RE_Draw_PicScaledCol(int x, int y, const char *name, float scale, const vec3_t c
 	pic = R_FindPic(name, (findimage_t)R_FindImage);
 	if (!pic)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			RE_Draw_StringScaled(x, y, scale, false, alttext);
+			return;
+		}
+
 		Com_Printf("Can't find pic: %s\n", name);
 		return;
 	}

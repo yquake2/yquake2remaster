@@ -302,6 +302,13 @@ GL3_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 	gl3image_t *gl = R_FindPic(pic, (findimage_t)GL3_FindImage);
 	if (!gl)
 	{
+		if (alttext && alttext[0])
+		{
+			/* Show alttext if provided */
+			GL3_Draw_StringScaled(x, y, factor, false, alttext);
+			return;
+		}
+
 		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}

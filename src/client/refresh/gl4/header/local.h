@@ -219,6 +219,7 @@ typedef struct
 
 	// NOTE: make sure si2D is always the first shaderInfo (or adapt GL4_ShutdownShaders())
 	gl4ShaderInfo_t si2D;      // shader for rendering 2D with textures
+	gl4ShaderInfo_t si2Dtinted; // shader for rendering 2D with textures and color tinting
 	gl4ShaderInfo_t si2Dcolor; // shader for rendering 2D with flat colors
 	gl4ShaderInfo_t si2DpostProcess; // shader to render postprocess FBO, when *not* underwater
 	gl4ShaderInfo_t si2DpostProcessWater; // shader to apply water-warp postprocess effect
@@ -404,6 +405,8 @@ extern gl4image_t * GL4_Draw_FindPic(const char *name);
 extern void GL4_Draw_GetPicSize(int *w, int *h, const char *pic);
 
 extern void GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext);
+extern void GL4_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t color,
+	const char *alttext);
 extern void GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic);
 extern void GL4_Draw_CharScaled(int x, int y, int num, float scale);
 extern void GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
