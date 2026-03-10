@@ -344,9 +344,12 @@ monster_grunt1v1|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|
 monster_grunt1v2|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v2|.5|.5|.5|80|120|0|0|0|0|0|none|0
 monster_grunt2|models/monsters/grunt2/tris.md2|1.0|1.0|1.0|general|-10.0|-23.0|-25.0|12.0|22.0|52.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt2|.5|.5|.5|180|100|0|0|0|0|0|none|0
 monster_screamer|models/monsters/screamer/tris.md2|1.0|1.0|1.0|general|-20.0|-20.0|-25.0|20.0|20.0|38.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Screamer|.5|.5|.5|180|200|0|0|0|0|0|none|0
+weapon_6bshot|models/weapons/g_6bshot/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Riot Shotgun|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_biggun|models/weapons/g_biggun/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Big Gun|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_blaze|models/weapons/g_blaze/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blazer|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_goop|models/weapons/g_goop/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|N-C4 Accelarator|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_pistol|models/weapons/g_pistol/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Pistol|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_rifle|models/weapons/g_rifle/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|M26 Annihilator|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 
 // Kingpin
 ai_boundary||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Character will abort pursuing player when touching this brush. Will take cover until the player is out of view, then return to guarding position (if character has been assigned one).|.5|.5|0|0|0|0|0|0|0|0|none|0
