@@ -167,6 +167,15 @@ typedef struct
 
 	GLfloat lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
 	GLfloat _padding; // again, some padding to ensure this has right size, round up to 16 bytes?
+
+	/* Fog parameters for exponential and height-based fog */
+	hmm_vec4 fogColor; // RGB color + density in .w (for exponential: density/64)
+	hmm_vec4 heightfog_start; // RGB color + distance in .w
+	hmm_vec4 heightfog_end; // RGB color + distance in .w
+	GLfloat heightfog_density;
+	GLfloat heightfog_falloff;
+	GLfloat _fog_padding1; // std140 alignment (vec4 alignment)
+	GLfloat _fog_padding2;
 } gl3Uni3D_t;
 
 extern const hmm_mat4 gl3_identityMat4;

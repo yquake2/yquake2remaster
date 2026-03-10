@@ -1146,7 +1146,7 @@ SetupFrame(void)
 		}
 	}
 
-	R_CombineBlendWithFog(v_blend, false);
+	R_CombineBlendWithFog(v_blend, true);
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;
@@ -1398,6 +1398,32 @@ SetupGL(void)
 	gl3state.uni3DData.transModelMat4 = gl3_identityMat4;
 
 	gl3state.uni3DData.time = r_newrefdef.time;
+
+	/* Set up fog parameters from server data */
+	gl3state.uni3DData.fogColor = HMM_Vec4(
+		r_newrefdef.fog.red / 255.0f,
+		r_newrefdef.fog.green / 255.0f,
+		r_newrefdef.fog.blue / 255.0f,
+		r_newrefdef.fog.density / 64.0f
+	);
+
+	/* Height fog parameters */
+	gl3state.uni3DData.heightfog_start = HMM_Vec4(
+		r_newrefdef.fog.hf_start_r / 255.0f,
+		r_newrefdef.fog.hf_start_g / 255.0f,
+		r_newrefdef.fog.hf_start_b / 255.0f,
+		(float)r_newrefdef.fog.hf_start_dist
+	);
+
+	gl3state.uni3DData.heightfog_end = HMM_Vec4(
+		r_newrefdef.fog.hf_end_r / 255.0f,
+		r_newrefdef.fog.hf_end_g / 255.0f,
+		r_newrefdef.fog.hf_end_b / 255.0f,
+		(float)r_newrefdef.fog.hf_end_dist
+	);
+
+	gl3state.uni3DData.heightfog_density = r_newrefdef.fog.hf_density;
+	gl3state.uni3DData.heightfog_falloff = r_newrefdef.fog.hf_falloff;
 
 	GL3_UpdateUBO3D();
 

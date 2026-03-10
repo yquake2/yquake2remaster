@@ -398,6 +398,15 @@ static const char* vertexCommon3D = MULTILINE_STRING(
 			float particleFadeFactor;
 			float lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
 			float _pad_1; // AMDs legacy windows driver needs this, otherwise uni3D has wrong size, round up to 16 bytes?
+
+			/* Fog parameters */
+			vec4 fogColor; // RGB + density in .w
+			vec4 heightfog_start; // RGB + start distance in .w
+			vec4 heightfog_end; // RGB + end distance in .w
+			float heightfog_density;
+			float heightfog_falloff;
+			float _fog_pad1;
+			float _fog_pad2;
 		};
 );
 
@@ -430,6 +439,15 @@ static const char* fragmentCommon3D = MULTILINE_STRING(
 			float particleFadeFactor;
 			float lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
 			float _pad_1; // AMDs legacy windows driver needs this, otherwise uni3D has wrong size, round up to 16 bytes?
+
+			/* Fog parameters */
+			vec4 fogColor; // RGB + density in .w
+			vec4 heightfog_start; // RGB + start distance in .w
+			vec4 heightfog_end; // RGB + end distance in .w
+			float heightfog_density;
+			float heightfog_falloff;
+			float _fog_pad1;
+			float _fog_pad2;
 		};
 );
 
@@ -515,6 +533,15 @@ static const char* fragmentSrc3D = MULTILINE_STRING(
 			texel.rgb *= intensity;
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
 			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
+
+			// Apply global fog if enabled (density > 0)
+			if (fogColor.w > 0.0)
+			{
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d)); // quadratic exponential falloff
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
 		}
 );
 
@@ -539,6 +566,15 @@ static const char* fragmentSrc3Dwater = MULTILINE_STRING(
 			texel.rgb *= intensity * lightScaleForTurb;
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
 			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
+
+			// Apply global fog if enabled (density > 0)
+			if (fogColor.w > 0.0)
+			{
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d)); // quadratic exponential falloff
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
 		}
 );
 
@@ -624,6 +660,14 @@ static const char* fragmentSrc3Dlm = MULTILINE_STRING(
 			lmTex.rgb *= overbrightbits;
 			outColor = lmTex*texel;
 			outColor.rgb = pow(outColor.rgb, vec3(gamma)); // apply gamma correction to result
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
 
 			outColor.a = 1.0; // lightmaps aren't used with translucent surfaces
 		}
@@ -715,6 +759,14 @@ static const char* fragmentSrc3DlmNoColor = MULTILINE_STRING(
 			outColor = lmTex*texel;
 			outColor.rgb = pow(outColor.rgb, vec3(gamma)); // apply gamma correction to result
 
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = 1; // lightmaps aren't used with translucent surfaces
 		}
 );
@@ -730,6 +782,15 @@ static const char* fragmentSrc3Dcolor = MULTILINE_STRING(
 			// apply gamma correction and intensity
 			// texel.rgb *= intensity; TODO: use intensity here? (this is used for beams)
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
 		}
 );
@@ -749,6 +810,15 @@ static const char* fragmentSrc3Dsky = MULTILINE_STRING(
 			// apply gamma correction
 			// texel.rgb *= intensity; // TODO: really no intensity for sky?
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
 		}
 );
@@ -766,6 +836,15 @@ static const char* fragmentSrc3Dsprite = MULTILINE_STRING(
 			// apply gamma correction and intensity
 			texel.rgb *= intensity;
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
 		}
 );
@@ -786,6 +865,15 @@ static const char* fragmentSrc3DspriteAlpha = MULTILINE_STRING(
 			// apply gamma correction and intensity
 			texel.rgb *= intensity;
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
 		}
 );
@@ -833,6 +921,15 @@ static const char* fragmentSrcAlias = MULTILINE_STRING(
 			texel *= min(vec4(1.5), passColor);
 
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = texel.a; // I think alpha shouldn't be modified by gamma and intensity
 		}
 );
@@ -851,6 +948,15 @@ static const char* fragmentSrcAliasColor = MULTILINE_STRING(
 			// texel.rgb *= intensity; // TODO: color-only rendering probably shouldn't use intensity?
 			texel.a *= alpha; // is alpha even used here?
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = texel.a; // I think alpha shouldn't be modified by gamma and intensity
 		}
 );
@@ -892,6 +998,14 @@ static const char* fragmentSrcParticles = MULTILINE_STRING(
 			//texel.rgb *= intensity; TODO: intensity? Probably not?
 			outColor.rgb = pow(texel.rgb, vec3(gamma));
 
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			// I want the particles to fade out towards the edge, the following seems to look nice
 			texel.a *= min(1.0, particleFadeFactor*(1.0 - distSquared));
 
@@ -912,6 +1026,15 @@ static const char* fragmentSrcParticlesSquare = MULTILINE_STRING(
 			// uniCommon is referenced so hopefully Intels Ivy Bridge HD4000 GPU driver
 			// for Windows stops shitting itself (see https://github.com/yquake2/yquake2/issues/391)
 			outColor.rgb = pow(passColor.rgb, vec3(gamma));
+
+			// Apply fog if enabled
+			if (fogColor.w > 0.0) {
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float d = fogColor.w * depth;
+				float fogFactor = 1.0 - exp(-(d * d));
+				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
+			}
+
 			outColor.a = passColor.a;
 		}
 );
