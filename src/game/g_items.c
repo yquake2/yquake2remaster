@@ -283,7 +283,7 @@ Pickup_General(edict_t *ent, edict_t *other)
 }
 
 void
-Drop_General(edict_t *ent, gitem_t *item)
+Drop_General(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{
@@ -1277,7 +1277,7 @@ Pickup_Ammo(edict_t *ent, edict_t *other)
 }
 
 void
-Drop_Ammo(edict_t *ent, gitem_t *item)
+Drop_Ammo(edict_t *ent, const gitem_t *item)
 {
 	edict_t *dropped;
 	int index;
@@ -1625,7 +1625,7 @@ Pickup_PowerArmor(edict_t *ent, edict_t *other)
 }
 
 void
-Drop_PowerArmor(edict_t *ent, gitem_t *item)
+Drop_PowerArmor(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
 	{

@@ -310,7 +310,7 @@ typedef struct gitem_s
 	const char *classname; /* spawning name */
 	qboolean (*pickup)(struct edict_s *ent, struct edict_s *other);
 	void (*use)(struct edict_s *ent, const struct gitem_s *item);
-	void (*drop)(struct edict_s *ent, struct gitem_s *item);
+	void (*drop)(struct edict_s *ent, const struct gitem_s *item);
 	void (*weaponthink)(struct edict_s *ent);
 	const char *pickup_sound;
 	const char *world_model;
@@ -1114,7 +1114,7 @@ void Weapon_Generic(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
 void Use_Weapon(edict_t *ent, const gitem_t *item);
 void Use_Weapon2(edict_t *ent, const gitem_t *item);
-void Drop_Weapon(edict_t *ent, gitem_t *item);
+void Drop_Weapon(edict_t *ent, const gitem_t *item);
 void Weapon_Blaster(edict_t *ent);
 void Weapon_Shotgun(edict_t *ent);
 void Weapon_SuperShotgun(edict_t *ent);
@@ -1951,7 +1951,7 @@ void CTFAssignSkin(edict_t *ent, char *s);
 void CTFAssignTeam(gclient_t *who);
 edict_t *SelectCTFSpawnPoint(edict_t *ent);
 qboolean CTFPickup_Flag(edict_t *ent, edict_t *other);
-void CTFDrop_Flag(edict_t *ent, gitem_t *item);
+void CTFDrop_Flag(edict_t *ent, const gitem_t *item);
 void CTFEffects(edict_t *player);
 void CTFCalcScores(void);
 void SetCTFStats(edict_t *ent);
@@ -1974,7 +1974,7 @@ void CTFResetGrapple(edict_t *self);
 /* TECH */
 gitem_t *CTFWhat_Tech(edict_t *ent);
 qboolean CTFPickup_Tech(edict_t *ent, edict_t *other);
-void CTFDrop_Tech(edict_t *ent, gitem_t *item);
+void CTFDrop_Tech(edict_t *ent, const gitem_t *item);
 void CTFDeadDropTech(edict_t *ent);
 void CTFSetupTechSpawn(void);
 int CTFApplyResistance(edict_t *ent, int dmg);
@@ -2022,6 +2022,7 @@ void SP_info_teleport_destination(edict_t *ent);
 
 void CTFSetPowerUpEffect(edict_t *ent, int def);
 
+edict_t *Sphere_Spawn(edict_t *owner, int spawnflags);
 qboolean Pickup_Adrenaline(edict_t * ent, edict_t * other);
 qboolean Pickup_Ammo(edict_t * ent , edict_t * other);
 qboolean Pickup_AncientHead(edict_t * ent, edict_t * other);

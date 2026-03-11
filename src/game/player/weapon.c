@@ -417,7 +417,7 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 	{
 		if (ent->item->ammo)
 		{
-			gitem_t *ammo;
+			const gitem_t *ammo;
 
 			/* give them some ammo with it */
 			ammo = FindItem(ent->item->ammo);
@@ -837,7 +837,7 @@ Use_Weapon2(edict_t *ent, const gitem_t *item)
 }
 
 void
-Drop_Weapon(edict_t *ent, gitem_t *item)
+Drop_Weapon(edict_t *ent, const gitem_t *item)
 {
 	int index;
 

@@ -18,13 +18,6 @@
 
 dm_game_rt DMGame;
 
-extern qboolean Pickup_Health(edict_t *ent, edict_t *other);
-extern qboolean Pickup_Adrenaline(edict_t *ent, edict_t *other);
-extern qboolean Pickup_Armor(edict_t *ent, edict_t *other);
-extern qboolean Pickup_PowerArmor(edict_t *ent, edict_t *other);
-extern edict_t *Sphere_Spawn(edict_t *owner, int spawnflags);
-void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
-
 void
 InitGameRules(void)
 {

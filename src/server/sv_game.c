@@ -37,7 +37,7 @@ game_export_t *ge;
  * Sends the contents of the mutlicast buffer to a single client
  */
 static void
-PF_Unicast(edict_t *ent, qboolean reliable)
+PF_Unicast(const edict_t *ent, qboolean reliable)
 {
 	int p;
 	client_t *client;
@@ -89,7 +89,7 @@ PF_dprintf(const char *fmt, ...)
  * Print to a single client
  */
 static void
-PF_cprintf(edict_t *ent, int level, const char *fmt, ...)
+PF_cprintf(const edict_t *ent, int level, const char *fmt, ...)
 {
 	char msg[1024];
 	va_list argptr;
@@ -126,7 +126,7 @@ PF_cprintf(edict_t *ent, int level, const char *fmt, ...)
  * centerprint to a single client
  */
 static void
-PF_centerprintf(edict_t *ent, const char *fmt, ...)
+PF_centerprintf(const edict_t *ent, const char *fmt, ...)
 {
 	char msg[1024];
 	va_list argptr;
@@ -464,7 +464,7 @@ PF_inPHS(vec3_t p1, vec3_t p2)
 }
 
 static void
-PF_StartSound(edict_t *entity, int channel, int sound_num,
+PF_StartSound(const edict_t *entity, int channel, int sound_num,
 		float volume, float attenuation, float timeofs)
 {
 	if (!entity)

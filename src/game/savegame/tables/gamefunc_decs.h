@@ -160,10 +160,10 @@ extern void DBall_SpeedTouch ( edict_t * self , edict_t * other , cplane_t * pla
 extern void Defender_Launch ( edict_t * self ) ;
 extern void DoRespawn ( edict_t * ent ) ;
 extern void Door_Activate ( edict_t * self , edict_t * other , edict_t * activator ) ;
-extern void Drop_Ammo ( edict_t * ent , gitem_t * item ) ;
-extern void Drop_General ( edict_t * ent , gitem_t * item ) ;
-extern void Drop_PowerArmor ( edict_t * ent , gitem_t * item ) ;
-extern void Drop_Weapon ( edict_t * ent , gitem_t * item ) ;
+extern void Drop_Ammo ( edict_t * ent , const gitem_t * item ) ;
+extern void Drop_General ( edict_t * ent , const gitem_t * item ) ;
+extern void Drop_PowerArmor ( edict_t * ent , const gitem_t * item ) ;
+extern void Drop_Weapon ( edict_t * ent , const gitem_t * item ) ;
 extern void G_FreeEdict ( edict_t * ed ) ;
 extern void G_TouchSolids ( edict_t * ent ) ;
 extern void G_TouchTriggers ( edict_t * ent ) ;

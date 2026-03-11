@@ -1143,7 +1143,7 @@ CTFDeadDropFlag(edict_t *self)
 }
 
 void
-CTFDrop_Flag(edict_t *ent, gitem_t *item)
+CTFDrop_Flag(edict_t *ent, const gitem_t *item)
 {
 	if (rand() & 1)
 	{
@@ -2291,7 +2291,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 /*------------------------------------------------------------------------*/
 
 static void
-CTFHasTech(edict_t *who)
+CTFHasTech(const edict_t *who)
 {
 	if (level.time - who->client->ctf_lasttechmsg > 2)
 	{
@@ -2387,7 +2387,7 @@ TechThink(edict_t *tech)
 }
 
 void
-CTFDrop_Tech(edict_t *ent, gitem_t *item)
+CTFDrop_Tech(edict_t *ent, const gitem_t *item)
 {
 	edict_t *tech;
 

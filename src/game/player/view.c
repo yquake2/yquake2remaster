@@ -84,9 +84,6 @@ P_DamageFeedback(edict_t *player)
 	gclient_t *client;
 	float realcount, count, kick;
 	vec3_t v;
-	static vec3_t power_color = {0.0, 1.0, 0.0};
-	static vec3_t acolor = {1.0, 1.0, 1.0};
-	static vec3_t bcolor = {1.0, 0.0, 0.0};
 
 	if (!player)
 	{
@@ -228,16 +225,22 @@ P_DamageFeedback(edict_t *player)
 
 	if (client->damage_parmor)
 	{
+		static vec3_t power_color = {0.0, 1.0, 0.0};
+
 		VectorMA(v, (float)client->damage_parmor / realcount, power_color, v);
 	}
 
 	if (client->damage_armor)
 	{
+		static vec3_t acolor = {1.0, 1.0, 1.0};
+
 		VectorMA(v, (float)client->damage_armor / realcount, acolor, v);
 	}
 
 	if (client->damage_blood)
 	{
+		static vec3_t bcolor = {1.0, 0.0, 0.0};
+
 		VectorMA(v, (float)client->damage_blood / realcount, bcolor, v);
 	}
 
@@ -298,7 +301,6 @@ SV_CalcViewOffset(edict_t *ent)
 	float *angles;
 	float bob;
 	float ratio;
-	float delta;
 	vec3_t v;
 
 	if (!ent)
@@ -329,6 +331,8 @@ SV_CalcViewOffset(edict_t *ent)
 	}
 	else
 	{
+		float delta;
+
 		/* add angles based on weapon kick */
 		VectorCopy(ent->client->kick_angles, angles);
 
@@ -485,7 +489,6 @@ static void
 SV_CalcGunOffset(edict_t *ent)
 {
 	int i;
-	float delta;
 	const gitem_t *heatbeam;
 
 	if (!ent)
@@ -513,6 +516,8 @@ SV_CalcGunOffset(edict_t *ent)
 		/* gun angles from delta movement */
 		for (i = 0; i < 3; i++)
 		{
+			float delta;
+
 			delta = ent->client->oldviewangles[i] -
 					ent->client->ps.viewangles[i];
 
@@ -808,7 +813,6 @@ static void
 P_FallingDamage(edict_t *ent)
 {
 	float delta;
-	int damage;
 
 	if (!ent)
 	{
@@ -890,6 +894,7 @@ P_FallingDamage(edict_t *ent)
 
 	if (delta > 30)
 	{
+		int damage;
 		vec3_t dir;
 
 		if (ent->health > 0)
