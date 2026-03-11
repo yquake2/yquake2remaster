@@ -501,12 +501,15 @@ void QVk_UpdateTextureData(qvktexture_t *texture, const unsigned char *data, uin
 }
 
 void
-QVk_ReleaseTexture(qvktexture_t *texture)
+QVk_ReleaseTexture(qvktexture_t *texture, qboolean tosync)
 {
-	QVk_SubmitStagingBuffers();
-	if (vk_device.logical != VK_NULL_HANDLE)
+	if (tosync)
 	{
-		vkDeviceWaitIdle(vk_device.logical);
+		QVk_SubmitStagingBuffers();
+		if (vk_device.logical != VK_NULL_HANDLE)
+		{
+			vkDeviceWaitIdle(vk_device.logical);
+		}
 	}
 
 	if (texture->imageView != VK_NULL_HANDLE)
@@ -1354,6 +1357,8 @@ void Vk_FreeUnusedImages (void)
 	r_particletexture->registration_sequence = registration_sequence;
 	r_squaretexture->registration_sequence = registration_sequence;
 
+	vkDeviceWaitIdle(vk_device.logical);
+
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		if (image->registration_sequence == registration_sequence)
@@ -1375,7 +1380,7 @@ void Vk_FreeUnusedImages (void)
 		}
 
 		/* free it */
-		QVk_ReleaseTexture(&image->vk_texture);
+		QVk_ReleaseTexture(&image->vk_texture, false);
 		memset(image, 0, sizeof(*image));
 
 		img_loaded --;
@@ -1467,7 +1472,7 @@ void	Vk_ShutdownImages (void)
 			Com_Printf("%s: Unload %s[%d]\n", __func__, image->name, img_loaded);
 		}
 
-		QVk_ReleaseTexture(&image->vk_texture);
+		QVk_ReleaseTexture(&image->vk_texture, true);
 		memset(image, 0, sizeof(*image));
 
 		img_loaded --;
@@ -1478,11 +1483,11 @@ void	Vk_ShutdownImages (void)
 		}
 	}
 
-	QVk_ReleaseTexture(&vk_rawTexture);
+	QVk_ReleaseTexture(&vk_rawTexture, true);
 
 	for(i = 0; i < MAX_LIGHTMAPS * 2; i++)
 	{
-		QVk_ReleaseTexture(&vk_state.lightmap_textures[i]);
+		QVk_ReleaseTexture(&vk_state.lightmap_textures[i], true);
 	}
 }
 
