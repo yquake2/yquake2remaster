@@ -484,7 +484,7 @@ G_SetStats(edict_t *ent)
 	else
 	{
 		item = &itemlist[ent->client->ammo_index];
-		ent->client->ps.stats[STAT_AMMO_ICON] = gi.imageindex(item->icon);
+		ent->client->ps.stats[STAT_AMMO_ICON] = FirstPersonWeaponIcon(item);
 		ent->client->ps.stats[STAT_AMMO] =
 			ent->client->pers.inventory[ent->client->ammo_index];
 	}
@@ -519,7 +519,7 @@ G_SetStats(edict_t *ent)
 	else if (index)
 	{
 		item = GetItemByIndex(index);
-		ent->client->ps.stats[STAT_ARMOR_ICON] = gi.imageindex(item->icon);
+		ent->client->ps.stats[STAT_ARMOR_ICON] = FirstPersonWeaponIcon(item);
 		ent->client->ps.stats[STAT_ARMOR] = ent->client->pers.inventory[index];
 	}
 	else
@@ -675,8 +675,8 @@ G_SetStats(edict_t *ent)
 
 		if (gun->value != 2)
 		{
-			ent->client->ps.stats[STAT_HELPICON] = gi.imageindex(
-					ent->client->pers.weapon->icon);
+			ent->client->ps.stats[STAT_HELPICON] = FirstPersonWeaponIcon(
+					ent->client->pers.weapon);
 		}
 		else
 		{

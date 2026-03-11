@@ -1450,7 +1450,7 @@ SetCTFStats(edict_t *ent)
 		if (((tech = FindItemByClassname(tnames[i])) != NULL) &&
 			ent->client->pers.inventory[ITEM_INDEX(tech)])
 		{
-			ent->client->ps.stats[STAT_CTF_TECH] = gi.imageindex(tech->icon);
+			ent->client->ps.stats[STAT_CTF_TECH] = FirstPersonWeaponIcon(tech);
 			break;
 		}
 

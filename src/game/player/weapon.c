@@ -473,6 +473,31 @@ Pickup_Weapon(edict_t *ent, edict_t *other)
 	return true;
 }
 
+/* Return weapon icon based om world model */
+int
+FirstPersonWeaponIcon(const gitem_t *weapon)
+{
+	if (!weapon->icon && weapon->world_model &&
+		!strncmp(weapon->world_model, "models/weapons/g_", 17))
+	{
+		char view_icon[MAX_QPATH], *end;
+
+		Q_strlcpy(view_icon, weapon->world_model + 15, sizeof(view_icon));
+		/* replace models/weapons/g_.../tris.md2 -> w_... */
+		end = strchr(view_icon, '/');
+		if (end)
+		{
+			*end = 0;
+		}
+		view_icon[0] = 'w';
+
+		return gi.imageindex(view_icon);
+	}
+
+	return gi.imageindex(weapon->icon);
+}
+
+/* Return weapon view model based om world model */
 int
 FirstPersonWeaponModel(const gitem_t *weapon)
 {

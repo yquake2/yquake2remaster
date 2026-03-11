@@ -993,7 +993,7 @@ Cmd_WeapPrev_f(edict_t *ent)
 		{
 			if (g_quick_weap->value)
 			{
-				cl->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(cl->newweapon->icon);
+				cl->ps.stats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(cl->newweapon);
 				cl->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(cl->newweapon);
 				cl->pickup_msg_time = level.time + 0.9f;
 			}
@@ -1057,7 +1057,7 @@ Cmd_WeapNext_f(edict_t *ent)
 		{
 			if (g_quick_weap->value)
 			{
-				cl->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(cl->newweapon->icon);
+				cl->ps.stats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(cl->newweapon);
 				cl->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(cl->newweapon);
 				cl->pickup_msg_time = level.time + 0.9f;
 			}
@@ -2047,7 +2047,7 @@ Cmd_CycleWeap_f(edict_t *ent)
 	weap->use(ent, weap);
 	if (num_weaps > 3 && cl->newweapon == weap)
 	{
-		cl->ps.stats[STAT_PICKUP_ICON] = gi.imageindex(weap->icon);
+		cl->ps.stats[STAT_PICKUP_ICON] = FirstPersonWeaponIcon(weap);
 		cl->ps.stats[STAT_PICKUP_STRING] = CS_ITEMS + ITEM_INDEX(weap);
 		cl->pickup_msg_time = level.time + 0.7f;
 	}
