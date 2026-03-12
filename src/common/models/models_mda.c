@@ -214,7 +214,7 @@ Mod_LoadModel_MDA_Parse_Skin(const char *mod_name, char **curr_buff, const char 
 }
 
 static void
-Mod_LoadModel_MDA_Parse_Profile(const char *mod_name, char **curr_buff, char *curr_end,
+Mod_LoadModel_MDA_Parse_Profile(const char *mod_name, char **curr_buff, const char *curr_end,
 	mda_profile_t *profile)
 {
 	while (*curr_buff && *curr_buff < curr_end)

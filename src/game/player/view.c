@@ -1450,8 +1450,6 @@ G_SetClientFrame(edict_t *ent, float speed)
 
 	if (client->anim_priority == ANIM_JUMP)
 	{
-		int firstframe, lastframe;
-
 		if (!ent->groundentity)
 		{
 			return; /* stay there */

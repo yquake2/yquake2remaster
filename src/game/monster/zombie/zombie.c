@@ -82,32 +82,38 @@ zombie_sight(edict_t *self, edict_t *other /* unused */)
 }
 
 void
-zombie_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+zombie_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	G_FreeEdict(ent);
+	G_FreeEdict(self);
 }
 
 void
-zombie_gib_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+zombie_gib_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	if (other == ent->owner)
+	if (other == self->owner)
+	{
 		return;
+	}
+
 	if (surf && (surf->flags & SURF_SKY))
 	{
-		G_FreeEdict(ent);
+		G_FreeEdict(self);
 		return;
 	}
+
 	if (other->takedamage)
 	{
-		gi.sound(ent, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
-		T_Damage(other, ent, ent->owner, ent->s.origin, ent->s.origin, vec3_origin, ent->dmg, ent->dmg, 0, 0);
-		G_FreeEdict(ent);
+		gi.sound(self, CHAN_WEAPON, sound_hit, 1, ATTN_NORM, 0);
+		T_Damage(other, self, self->owner, self->s.origin, self->s.origin,
+			vec3_origin, self->dmg, self->dmg, 0, 0);
+		G_FreeEdict(self);
 		return;
 	}
-	gi.sound(ent, CHAN_WEAPON, sound_miss, 1, ATTN_NORM, 0);
-	VectorSet(ent->avelocity, 0, 0, 0);
-	VectorSet(ent->velocity, 0, 0, 0);
-	ent->touch = zombie_touch;
+
+	gi.sound(self, CHAN_WEAPON, sound_miss, 1, ATTN_NORM, 0);
+	VectorSet(self->avelocity, 0, 0, 0);
+	VectorSet(self->velocity, 0, 0, 0);
+	self->touch = zombie_touch;
 }
 
 static void

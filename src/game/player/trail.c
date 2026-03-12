@@ -98,7 +98,7 @@ PlayerTrail_New(vec3_t spot)
 }
 
 edict_t *
-PlayerTrail_PickFirst(edict_t *self)
+PlayerTrail_PickFirst(const edict_t *self)
 {
 	int marker;
 	int n;
@@ -139,7 +139,7 @@ PlayerTrail_PickFirst(edict_t *self)
 }
 
 edict_t *
-PlayerTrail_PickNext(edict_t *self)
+PlayerTrail_PickNext(const edict_t *self)
 {
 	int marker;
 	int n;

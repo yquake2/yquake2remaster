@@ -1376,7 +1376,7 @@ CTFSetIDView(edict_t *ent)
 void
 SetCTFStats(edict_t *ent)
 {
-	gitem_t *tech;
+	const gitem_t *tech;
 	int i;
 	int p1, p2;
 	edict_t *e;

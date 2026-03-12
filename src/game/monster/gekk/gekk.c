@@ -859,8 +859,8 @@ fire_loogie(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	}
 }
 
-void
-loogie(edict_t *self)
+static void
+gekk_loogie(edict_t *self)
 {
 	vec3_t start;
 	vec3_t forward, right, up;
@@ -892,8 +892,8 @@ loogie(edict_t *self)
 	fire_loogie(self, start, dir, 5, 550);
 }
 
-void
-reloogie(edict_t *self)
+static void
+gekk_reloogie(edict_t *self)
 {
 	if (!self)
 	{
@@ -922,8 +922,8 @@ static mframe_t gekk_frames_spit[] = {
 	{ai_charge, 0.000, NULL},
 	{ai_charge, 0.000, NULL},
 
-	{ai_charge, 0.000, loogie},
-	{ai_charge, 0.000, reloogie}
+	{ai_charge, 0.000, gekk_loogie},
+	{ai_charge, 0.000, gekk_reloogie}
 };
 
 mmove_t gekk_move_spit = {

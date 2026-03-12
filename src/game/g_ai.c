@@ -420,7 +420,7 @@ ai_range(edict_t *self, edict_t *other)
  * to self, even if not infront
  */
 qboolean
-visible(edict_t *self, edict_t *other)
+visible(const edict_t *self, const edict_t *other)
 {
 	vec3_t spot1;
 	vec3_t spot2;
@@ -858,7 +858,7 @@ FindTarget(edict_t *self)
 /* ============================================================================= */
 
 qboolean
-FacingIdeal(edict_t *self)
+FacingIdeal(const edict_t *self)
 {
 	float delta;
 

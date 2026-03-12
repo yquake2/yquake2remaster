@@ -107,8 +107,6 @@ SP_FixCoopSpots(edict_t *self)
 void
 SP_CreateCoopSpots(edict_t *self)
 {
-	edict_t *spot;
-
 	if (!self)
 	{
 		return;
@@ -116,6 +114,8 @@ SP_CreateCoopSpots(edict_t *self)
 
 	if (Q_stricmp(level.mapname, "security") == 0)
 	{
+		edict_t *spot;
+
 		spot = G_Spawn();
 		spot->classname = "info_player_coop";
 		spot->s.origin[0] = 188 - 64;
@@ -352,7 +352,7 @@ player_pain(edict_t *self /* unused */, edict_t *other /* unused */,
 }
 
 static qboolean
-IsFemale(edict_t *ent)
+IsFemale(const edict_t *ent)
 {
 	char *info;
 
@@ -382,7 +382,7 @@ IsFemale(edict_t *ent)
 }
 
 static qboolean
-IsNeutral(edict_t *ent)
+IsNeutral(const edict_t *ent)
 {
 	char *info;
 
@@ -412,15 +412,10 @@ IsNeutral(edict_t *ent)
 	return false;
 }
 
-void
-ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
+static void
+ClientObituary(edict_t *self, const edict_t *inflictor /* unused */,
 		edict_t *attacker)
 {
-	int mod;
-	char *message;
-	char *message2;
-	qboolean ff;
-
 	if (!self || !attacker || !inflictor)
 	{
 		return;
@@ -433,6 +428,10 @@ ClientObituary(edict_t *self, edict_t *inflictor /* unused */,
 
 	if (deathmatch->value || coop->value)
 	{
+		char *message, *message2;
+		qboolean ff;
+		int mod;
+
 		ff = meansOfDeath & MOD_FRIENDLY_FIRE;
 		mod = meansOfDeath & ~MOD_FRIENDLY_FIRE;
 		message = NULL;
@@ -1194,7 +1193,6 @@ Player_GiveStartItems(edict_t *ent, const char *ptr)
 			}
 			else
 			{
-				edict_t *dummy;
 				int count = 1;
 
 				if (*curr_buf)
@@ -1208,6 +1206,8 @@ Player_GiveStartItems(edict_t *ent, const char *ptr)
 				}
 				else
 				{
+					edict_t *dummy;
+
 					dummy = G_Spawn();
 					dummy->item = item;
 					dummy->count = count;
@@ -1236,7 +1236,7 @@ void
 InitClientPersistant(edict_t *ent)
 {
 	gclient_t *client;
-	gitem_t *item;
+	const gitem_t *item;
 
 	client = ent->client;
 
@@ -1390,7 +1390,6 @@ FetchClientEntData(edict_t *ent)
 float
 PlayersRangeFromSpot(edict_t *spot)
 {
-	edict_t *player;
 	float bestplayerdistance;
 	vec3_t v;
 	int n;
@@ -1405,6 +1404,8 @@ PlayersRangeFromSpot(edict_t *spot)
 
 	for (n = 1; n <= maxclients->value; n++)
 	{
+		edict_t *player;
+
 		player = &g_edicts[n];
 
 		if (!player->inuse)
@@ -1439,7 +1440,7 @@ SelectRandomDeathmatchSpawnPoint(void)
 	edict_t *spot, *spot1, *spot2;
 	int count = 0;
 	int selection;
-	float range, range1, range2;
+	float range1, range2;
 
 	spot = NULL;
 	range1 = range2 = 99999;
@@ -1448,6 +1449,8 @@ SelectRandomDeathmatchSpawnPoint(void)
 	while ((spot = G_Find(spot, FOFS(classname),
 					"info_player_deathmatch")) != NULL)
 	{
+		float range;
+
 		count++;
 		range = PlayersRangeFromSpot(spot);
 
@@ -1507,7 +1510,7 @@ edict_t *
 SelectFarthestDeathmatchSpawnPoint(void)
 {
 	edict_t *bestspot;
-	float bestdistance, bestplayerdistance;
+	float bestdistance;
 	edict_t *spot;
 
 	spot = NULL;
@@ -1517,6 +1520,8 @@ SelectFarthestDeathmatchSpawnPoint(void)
 	while ((spot = G_Find(spot, FOFS(classname),
 					"info_player_deathmatch")) != NULL)
 	{
+		float bestplayerdistance;
+
 		bestplayerdistance = PlayersRangeFromSpot(spot);
 
 		if (bestplayerdistance > bestdistance)
@@ -1658,11 +1663,10 @@ SelectLavaCoopSpawnPoint(const edict_t *ent)
 }
 
 static edict_t *
-SelectCoopSpawnPoint(edict_t *ent)
+SelectCoopSpawnPoint(const edict_t *ent)
 {
 	int index;
 	edict_t *spot = NULL;
-	const char *target;
 
 	if (!ent)
 	{
@@ -1687,6 +1691,8 @@ SelectCoopSpawnPoint(edict_t *ent)
 	/* assume there are four coop spots at each spawnpoint */
 	while (1)
 	{
+		const char *target;
+
 		spot = G_Find(spot, FOFS(classname), "info_player_coop");
 
 		if (!spot)
@@ -1878,12 +1884,13 @@ InitBodyQue(void)
 	if (deathmatch->value || coop->value)
 	{
 		int i;
-		edict_t *ent;
 
 		level.body_que = 0;
 
 		for (i = 0; i < BODY_QUEUE_SIZE; i++)
 		{
+			edict_t *ent;
+
 			ent = G_Spawn();
 			ent->classname = "bodyque";
 		}

@@ -267,7 +267,7 @@ DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 	for (i = 0; i < game.maxclients; i++)
 	{
 		int k, j, score;
-		edict_t *cl_ent;
+		const edict_t *cl_ent;
 
 		cl_ent = g_edicts + 1 + i;
 
@@ -462,7 +462,7 @@ InventoryMessage(edict_t *ent)
 void
 G_SetStats(edict_t *ent)
 {
-	gitem_t *item;
+	const gitem_t *item;
 	int index, cells = 0;
 	int power_armor_type;
 
@@ -670,7 +670,7 @@ G_SetStats(edict_t *ent)
 			  (ent->client->chasetoggle)) &&
 			 ent->client->pers.weapon)
 	{
-		cvar_t *gun;
+		const cvar_t *gun;
 		gun = gi.cvar("cl_gun", "2", 0);
 
 		if (gun->value != 2)

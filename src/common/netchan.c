@@ -127,7 +127,7 @@ Netchan_Init(void)
  * Sends an out-of-band datagram
  */
 void
-Netchan_OutOfBand(int net_socket, netadr_t adr, int length, byte *data)
+Netchan_OutOfBand(int net_socket, netadr_t adr, int length, const byte *data)
 {
 	sizebuf_t send;
 	byte send_buf[MAX_MSGLEN];
@@ -181,7 +181,7 @@ Netchan_Setup(netsrc_t sock, netchan_t *chan, netadr_t adr, int qport)
  * Returns true if the last reliable message has acked
  */
 qboolean
-Netchan_CanReliable(netchan_t *chan)
+Netchan_CanReliable(const netchan_t *chan)
 {
 	if (chan->reliable_length)
 	{
@@ -192,7 +192,7 @@ Netchan_CanReliable(netchan_t *chan)
 }
 
 qboolean
-Netchan_NeedReliable(netchan_t *chan)
+Netchan_NeedReliable(const netchan_t *chan)
 {
 	qboolean send_reliable;
 
@@ -221,7 +221,7 @@ Netchan_NeedReliable(netchan_t *chan)
  * A 0 length will still generate a packet and deal with the reliable messages.
  */
 void
-Netchan_Transmit(netchan_t *chan, int length, byte *data)
+Netchan_Transmit(netchan_t *chan, int length, const byte *data)
 {
 	sizebuf_t send;
 	byte send_buf[MAX_MSGLEN];

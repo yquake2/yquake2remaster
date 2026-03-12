@@ -826,7 +826,7 @@ void ClientBegin(edict_t *ent);
 void ClientDisconnect(edict_t *ent);
 void ClientUserinfoChanged(edict_t *ent, char *userinfo);
 qboolean ClientConnect(edict_t *ent, char *userinfo);
-void ClientThink(edict_t *ent, usercmd_t *cmd);
+void ClientThink(edict_t *ent, usercmd_t *ucmd);
 edict_t *SP_GetSpawnPoint(void);
 
 /* g_cmds.c */
@@ -1026,8 +1026,8 @@ int ai_range(edict_t *self, edict_t *other);
 void FoundTarget(edict_t *self);
 qboolean FindTarget(edict_t *self);
 qboolean infront(edict_t *self, edict_t *other);
-qboolean visible(edict_t *self, edict_t *other);
-qboolean FacingIdeal(edict_t *self);
+qboolean visible(const edict_t *self, const edict_t *other);
+qboolean FacingIdeal(const edict_t *self);
 void HuntTarget(edict_t *self);
 qboolean ai_checkattack(edict_t *self);
 
@@ -1068,12 +1068,12 @@ void fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void PlayerTrail_Init(void);
 void PlayerTrail_Add(vec3_t spot);
 void PlayerTrail_New(vec3_t spot);
-edict_t *PlayerTrail_PickFirst(edict_t *self);
-edict_t *PlayerTrail_PickNext(edict_t *self);
+edict_t *PlayerTrail_PickFirst(const edict_t *self);
+edict_t *PlayerTrail_PickNext(const edict_t *self);
 edict_t *PlayerTrail_LastSpot(void);
 
 /* g_client.c */
-void respawn(edict_t *ent);
+void respawn(edict_t *self);
 void BeginIntermission(edict_t *targ);
 void PutClientInServer(edict_t *ent);
 void InitClientPersistant(edict_t *ent);
@@ -1095,14 +1095,14 @@ void G_SetClientFrame(edict_t *ent, float speed);
 void ClientEndServerFrame(edict_t *ent);
 
 /* p_hud.c */
-void MoveClientToIntermission(edict_t *client);
+void MoveClientToIntermission(edict_t *ent);
 void G_SetStats(edict_t *ent);
 void G_SetSpectatorStats(edict_t *ent);
 void G_CheckChaseStats(edict_t *ent);
 void ValidateSelectedItem(edict_t *ent);
-void DeathmatchScoreboardMessage(edict_t *client, edict_t *killer);
-void HelpComputerMessage(edict_t *client);
-void InventoryMessage(edict_t *client);
+void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer);
+void HelpComputerMessage(edict_t *ent);
+void InventoryMessage(edict_t *ent);
 
 /* g_pweapon.c */
 void PlayerNoise(edict_t *who, vec3_t where, int type);
