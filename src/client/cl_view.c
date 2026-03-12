@@ -430,9 +430,10 @@ void
 CL_PrepRefresh(void)
 {
 	char mapname[MAX_QPATH];
+	size_t mapnamelen;
 	int i;
 
-	if (!cl.configstrings[CS_MODELS + 1][0])
+	if (strncmp(cl.configstrings[CS_MODELS + 1], "maps/", 5) != 0)
 	{
 		return;
 	}
@@ -443,12 +444,20 @@ CL_PrepRefresh(void)
 
 	/* let the refresher load the map */
 	Q_strlcpy(mapname, cl.configstrings[CS_MODELS + 1] + 5, sizeof(mapname)); /* skip "maps/" */
-	mapname[strlen(mapname) - 4] = 0; /* cut off ".bsp" */
+	mapnamelen = strlen(mapname);
 
 	/* register models, pics, and skins */
-	Com_Printf("Map: %s\n", mapname);
+	Com_Printf("Map: %s", mapname);
+	if (mapnamelen < 4)
+	{
+		Com_Printf(" is invalid\n");
+		return;
+	}
+
+	mapname[mapnamelen - 4] = 0; /* cut off ".bsp" */
+
 	SCR_UpdateScreen();
-	CL_PrintInSameLine("Map is loading...");
+	CL_PrintInSameLine("\nMap is loading...");
 	R_BeginRegistration(mapname);
 
 	/* precache status bar pics */
