@@ -450,10 +450,10 @@ mmove_t hknight_move_die2 =
 void
 hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
 {
-	int		n;
-
 	if (self->health <= self->gib_health)
 	{
+		int		n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)

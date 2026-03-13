@@ -366,7 +366,6 @@ InfantryMachineGun(edict_t *self)
 {
 	vec3_t start, target;
 	vec3_t forward, right;
-	vec3_t vec;
 	int flash_number;
 
 	if (!self)
@@ -396,6 +395,8 @@ InfantryMachineGun(edict_t *self)
 	}
 	else
 	{
+		vec3_t vec;
+
 		flash_number = MZ2_INFANTRY_MACHINEGUN_2 +
 					   (self->s.frame - (infantry_move_death2.firstframe + 10));
 
@@ -1052,10 +1053,7 @@ infantry_sidestep(edict_t *self)
 		}
 	}
 
-	if (self->monsterinfo.currentmove != &infantry_move_run)
-	{
-		self->monsterinfo.currentmove = &infantry_move_run;
-	}
+	self->monsterinfo.currentmove = &infantry_move_run;
 }
 
 static void

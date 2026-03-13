@@ -1611,7 +1611,7 @@ GL4_SetLightLevel(const entity_t *currententity)
 }
 
 static void
-GL4_RenderFrame(refdef_t *fd)
+GL4_RenderFrame(const refdef_t *fd)
 {
 	GL4_RenderView(fd);
 	GL4_SetLightLevel(NULL);

@@ -196,7 +196,7 @@ typedef struct
 	void	(EXPORT *SetSky) (const char *name, float rotate, int autorotate, const vec3_t axis);
 	void	(EXPORT *EndRegistration) (void);
 
-	void	(EXPORT *RenderFrame) (refdef_t *fd);
+	void	(EXPORT *RenderFrame) (const refdef_t *fd);
 
 	struct image_s * (EXPORT *DrawFindPic)(const char *name);
 

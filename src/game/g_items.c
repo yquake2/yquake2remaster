@@ -2440,7 +2440,7 @@ P_ToggleFlashlight(edict_t *ent, qboolean state)
 }
 
 void
-Use_Flashlight(edict_t *ent, const gitem_t *inv)
+Use_Flashlight(edict_t *ent, const gitem_t *item)
 {
 	P_ToggleFlashlight(ent, !(ent->flags & FL_FLASHLIGHT));
 }

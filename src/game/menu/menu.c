@@ -35,7 +35,6 @@ pmenuhnd_t *
 PMenu_Open(edict_t *ent, pmenu_t *entries, int cur, int num, void *arg)
 {
 	pmenuhnd_t *hnd;
-	pmenu_t *p;
 	int i;
 
 	if (!ent->client)
@@ -80,6 +79,8 @@ PMenu_Open(edict_t *ent, pmenu_t *entries, int cur, int num, void *arg)
 
 	if ((cur < 0) || !entries[cur].SelectFunc)
 	{
+		pmenu_t *p;
+
 		for (i = 0, p = entries; i < num; i++, p++)
 		{
 			if (p->SelectFunc)
@@ -169,7 +170,7 @@ PMenu_Do_Update(edict_t *ent)
 	int i;
 	pmenu_t *p;
 	pmenuhnd_t *hnd;
-	char *t;
+	const char *t;
 	qboolean alt = false;
 
 	if (!ent->client->menu)
@@ -250,8 +251,6 @@ PMenu_Update(edict_t *ent)
 		/* been a second or more since last update, update now */
 		PMenu_Do_Update(ent);
 		gi.unicast(ent, true);
-		ent->client->menutime = level.time;
-		ent->client->menudirty = false;
 	}
 
 	ent->client->menutime = level.time + 0.2;

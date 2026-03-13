@@ -1280,7 +1280,7 @@ RE_RenderFrame
 ================
 */
 static void
-RE_RenderFrame(refdef_t *fd)
+RE_RenderFrame(const refdef_t *fd)
 {
 	r_newrefdef = *fd;
 	entity_t	ent;

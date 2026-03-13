@@ -1350,10 +1350,7 @@ gunner_sidestep(edict_t *self)
 		}
 	}
 
-	if (self->monsterinfo.currentmove != &gunner_move_run)
-	{
-		self->monsterinfo.currentmove = &gunner_move_run;
-	}
+	self->monsterinfo.currentmove = &gunner_move_run;
 }
 
 static void

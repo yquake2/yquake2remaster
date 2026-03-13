@@ -877,7 +877,7 @@ r_newrefdef must be set before the first call
 ================
 */
 static void
-RE_RenderView(refdef_t *fd)
+RE_RenderView(const refdef_t *fd)
 {
 	if (r_norefresh->value)
 	{
@@ -1085,7 +1085,7 @@ R_SetLightLevel(entity_t *currententity)
 }
 
 static void
-RE_RenderFrame(refdef_t *fd)
+RE_RenderFrame(const refdef_t *fd)
 {
 	if (!vk_frameStarted)
 	{

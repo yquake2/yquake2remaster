@@ -699,7 +699,7 @@ G_SetStats(edict_t *ent)
 }
 
 void
-G_CheckChaseStats(edict_t *ent)
+G_CheckChaseStats(const edict_t *ent)
 {
 	int i;
 

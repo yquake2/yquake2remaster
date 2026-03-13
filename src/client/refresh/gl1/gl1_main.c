@@ -1232,7 +1232,7 @@ R_SetLightLevel(const entity_t *currententity)
 }
 
 static void
-RI_RenderFrame(refdef_t *fd)
+RI_RenderFrame(const refdef_t *fd)
 {
 	R_ApplyGLBuffer();	// menu rendering when needed
 	R_RenderView(fd);

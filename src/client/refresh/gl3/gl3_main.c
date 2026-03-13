@@ -1420,7 +1420,7 @@ extern int c_visible_lightmaps, c_visible_textures;
  * r_newrefdef must be set before the first call
  */
 static void
-GL3_RenderView(refdef_t *fd)
+GL3_RenderView(const refdef_t *fd)
 {
 #if 0 // TODO: keep stereo stuff?
 	if ((gl_state.stereo_mode != STEREO_MODE_NONE) && gl_state.camera_separation) {
@@ -1667,7 +1667,7 @@ GL3_SetLightLevel(entity_t *currententity)
 }
 
 static void
-GL3_RenderFrame(refdef_t *fd)
+GL3_RenderFrame(const refdef_t *fd)
 {
 	GL3_RenderView(fd);
 	GL3_SetLightLevel(NULL);
