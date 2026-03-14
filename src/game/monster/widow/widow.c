@@ -1513,9 +1513,6 @@ WidowRespondPowerup(edict_t *self, const edict_t *other)
 void
 WidowPowerups(edict_t *self)
 {
-	int player;
-	edict_t *ent;
-
 	if (!self)
 	{
 		return;
@@ -1527,9 +1524,13 @@ WidowPowerups(edict_t *self)
 	}
 	else
 	{
+		size_t player;
+
 		/* in coop, check for pents, then quads, then doubles */
 		for (player = 1; player <= game.maxclients; player++)
 		{
+			const edict_t *ent;
+
 			ent = &g_edicts[player];
 
 			if (!ent->inuse)
@@ -1551,6 +1552,8 @@ WidowPowerups(edict_t *self)
 
 		for (player = 1; player <= game.maxclients; player++)
 		{
+			const edict_t *ent;
+
 			ent = &g_edicts[player];
 
 			if (!ent->inuse)
@@ -1572,6 +1575,8 @@ WidowPowerups(edict_t *self)
 
 		for (player = 1; player <= game.maxclients; player++)
 		{
+			const edict_t *ent;
+
 			ent = &g_edicts[player];
 
 			if (!ent->inuse)
@@ -1596,10 +1601,8 @@ WidowPowerups(edict_t *self)
 qboolean
 Widow_CheckAttack(edict_t *self)
 {
-	vec3_t spot1, spot2;
 	vec3_t temp;
 	float chance = 0;
-	trace_t tr;
 	int enemy_range;
 	float enemy_yaw;
 	float real_enemy_range;
@@ -1647,6 +1650,9 @@ Widow_CheckAttack(edict_t *self)
 
 	if (self->enemy->health > 0)
 	{
+		vec3_t spot1, spot2;
+		trace_t tr;
+
 		/* see if any entities are in the way of the shot */
 		VectorCopy(self->s.origin, spot1);
 		spot1[2] += self->viewheight;

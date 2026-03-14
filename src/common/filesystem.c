@@ -2387,7 +2387,6 @@ char**
 FS_ListMods(int *nummods)
 {
 	int nmods = 0, numdirchildren, numpacksinchilddir;
-	size_t searchpathlength;
 	char findnamepattern[MAX_OSPATH], modname[MAX_QPATH], searchpath[MAX_OSPATH];
 	char **dirchildren, **packsinchilddir, **modnames;
 
@@ -2403,6 +2402,8 @@ FS_ListMods(int *nummods)
 	// iterate over all Raw paths
 	for (fsRawPath_t *search = fs_rawPath; search; search = search->next)
 	{
+		size_t searchpathlength;
+
 		searchpathlength = strlen(search->path);
 		if (!searchpathlength)
 		{

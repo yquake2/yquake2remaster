@@ -1910,7 +1910,6 @@ fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 static void
 flare_sparks(edict_t *self)
 {
-	vec3_t dir;
 	vec3_t forward, right, up;
 
 	/* Spawn some sparks.  This isn't net-friendly at all, but will
@@ -1922,6 +1921,8 @@ flare_sparks(edict_t *self)
 	 * we are travelling. */
 	if (VectorLength(self->velocity) > 0.0)
 	{
+		vec3_t dir;
+
 		vectoangles(self->velocity, dir);
 		AngleVectors(dir, forward, right, up);
 

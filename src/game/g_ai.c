@@ -1433,12 +1433,9 @@ ai_run(edict_t *self, float dist)
 	float d1, d2;
 	trace_t tr;
 	vec3_t v_forward, v_right;
-	float left, center, right;
 	vec3_t left_target, right_target;
 	qboolean retval;
 	qboolean alreadyMoved = false;
-	qboolean gotcha = false;
-	const edict_t *realEnemy;
 
 	if (!self)
 	{
@@ -1465,6 +1462,9 @@ ai_run(edict_t *self, float dist)
 	/* if we're currently looking for a hint path */
 	if (self->monsterinfo.aiflags & AI_HINT_PATH)
 	{
+		const edict_t *realEnemy = NULL;
+		qboolean gotcha = false;
+
 		M_MoveToGoal(self, dist);
 
 		if (!self->inuse)
@@ -1750,6 +1750,8 @@ ai_run(edict_t *self, float dist)
 
 		if (tr.fraction < 1)
 		{
+			float left, center, right;
+
 			VectorSubtract(self->goalentity->s.origin, self->s.origin, v);
 			d1 = VectorLength(v);
 			center = tr.fraction;

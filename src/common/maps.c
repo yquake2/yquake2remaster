@@ -2394,7 +2394,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 	{
 		bspx_header_t *bspx_header;
 		bspx_lump_t *lump;
-		int numlumps, i;
+		int numbspxlumps, i;
 
 		ofs = ((ofs + 3) & ~3);
 		bspx_header = (bspx_header_t *)(outbuf + ofs);
@@ -2403,8 +2403,8 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		memcpy(bspx_header, inbuf + xofs, (filesize - xofs));
 
 		/* fix positions */
-		numlumps = LittleLong(bspx_header->numlumps);
-		if ((numlumps * sizeof(*lump)) >= (filesize - xofs))
+		numbspxlumps = LittleLong(bspx_header->numlumps);
+		if ((numbspxlumps * sizeof(*lump)) >= (filesize - xofs))
 		{
 			Com_Error(ERR_DROP, "%s: Map %s has incorrect bspx lumps",
 				__func__, name);
@@ -2412,7 +2412,7 @@ Mod_Load2QBSP(const char *name, byte *inbuf, size_t filesize, size_t *out_len,
 		}
 
 		lump = (bspx_lump_t*)(bspx_header + 1);
-		for (i = 0; i < numlumps; i++, lump++)
+		for (i = 0; i < numbspxlumps; i++, lump++)
 		{
 			size_t fileofs;
 

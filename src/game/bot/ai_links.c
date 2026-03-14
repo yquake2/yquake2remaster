@@ -475,7 +475,6 @@ droptofloor:
 static int
 AI_RunGravityBox(int n1, int n2)
 {
-	int			move;
 	int			movemask = 0;
 	float		movescale = 8;
 	trace_t		trace;
@@ -485,12 +484,14 @@ AI_RunGravityBox(int n1, int n2)
 	//qboolean	crouched = false;
 	int			eternalcount = 0;
 
-	if (n1 == n2 )
+	if (n1 == n2)
+	{
 		return LINK_INVALID;
+	}
 
 	//set up box
-	VectorSet( boxmins, -15, -15, -24 );
-	VectorSet( boxmaxs, 15, 15, 32 );
+	VectorSet(boxmins, -15, -15, -24);
+	VectorSet(boxmaxs, 15, 15, 32);
 
 	//try some shortcuts before
 
@@ -498,7 +499,10 @@ AI_RunGravityBox(int n1, int n2)
 	if (gi.pointcontents(nodes[n1].origin) & MASK_WATER &&
 		gi.pointcontents(nodes[n2].origin) & MASK_WATER &&
 		AI_VisibleOrigins(nodes[n1].origin, nodes[n2].origin))
+	{
 		return LINK_WATER;
+	}
+
 	//waterjump link
 	if (gi.pointcontents(nodes[n1].origin) & MASK_WATER &&
 		!(gi.pointcontents(nodes[n2].origin) & MASK_WATER) &&
@@ -519,7 +523,9 @@ AI_RunGravityBox(int n1, int n2)
 		boxmaxs[2] = 14;
 		trace = gi.trace( o1, boxmins, boxmaxs, o1, LINKS_PASSENT, MASK_NODESOLID );
 		if (trace.startsolid)
+		{
 			return LINK_INVALID;
+		}
 
 		//crouched = true;
 		movemask |= LINK_CROUCH;
@@ -528,7 +534,9 @@ AI_RunGravityBox(int n1, int n2)
 	//start moving the box to o2
 	while (eternalcount < 20000000)
 	{
-		move = AI_GravityBoxStep( o1, movescale, nodes[n2].origin, v1, boxmins, boxmaxs);
+		int move;
+
+		move = AI_GravityBoxStep(o1, movescale, nodes[n2].origin, v1, boxmins, boxmaxs);
 		if (move & LINK_INVALID && !(movemask & LINK_CROUCH)/*!crouched*/)
 		{
 			//retry crouched
@@ -618,7 +626,6 @@ AI_GravityBoxToLink(int n1, int n2)
 static int
 AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 {
-	int			move;
 	float		movescale = 8;
 	trace_t		trace;
 	vec3_t		boxmins, boxmaxs;
@@ -639,11 +646,15 @@ AI_FindFallOrigin(int n1, int n2, vec3_t fallorigin)
 	VectorCopy( nodes[n1].origin, o1 );
 	trace = gi.trace( o1, boxmins, boxmaxs, o1, LINKS_PASSENT, MASK_NODESOLID );
 	if (trace.startsolid)
+	{
 		return LINK_INVALID;
+	}
 
 	//moving the box to o2 until falls. Keep last origin before falling
 	while (1)
 	{
+		int move;
+
 		move = AI_GravityBoxStep( o1, movescale, nodes[n2].origin, v1, boxmins, boxmaxs);
 
 		if (move & LINK_INVALID)

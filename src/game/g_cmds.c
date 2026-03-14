@@ -1548,7 +1548,6 @@ static void
 Cmd_PlayerList_f(edict_t *ent)
 {
 	int i;
-	char st[80];
 	char text[1400];
 	edict_t *e2;
 
@@ -1563,13 +1562,14 @@ Cmd_PlayerList_f(edict_t *ent)
 	for (i = 0, e2 = g_edicts + 1; i < maxclients->value; i++, e2++)
 	{
 		size_t text_len;
+		char st_text[80];
 
 		if (!e2->inuse)
 		{
 			continue;
 		}
 
-		Com_sprintf(st, sizeof(st), "%02d:%02d %4d %3d %s%s\n",
+		Com_sprintf(st_text, sizeof(st_text), "%02d:%02d %4d %3d %s%s\n",
 				(level.framenum - e2->client->resp.enterframe) / 600,
 				((level.framenum - e2->client->resp.enterframe) % 600) / 10,
 				e2->client->ping,
@@ -1579,14 +1579,14 @@ Cmd_PlayerList_f(edict_t *ent)
 
 		text_len = strlen(text);
 
-		if ((text_len + strlen(st)) > (sizeof(text) - 50))
+		if ((text_len + strlen(st_text)) > (sizeof(text) - 50))
 		{
 			snprintf(text + text_len, sizeof(text) - text_len, "And more...\n");
 			gi.cprintf(ent, PRINT_HIGH, "%s", text);
 			return;
 		}
 
-		Q_strlcat(text, st, sizeof(text));
+		Q_strlcat(text, st_text, sizeof(text));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);

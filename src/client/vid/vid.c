@@ -391,7 +391,7 @@ VID_ShutdownRenderer(void)
 static qboolean
 VID_LoadRenderer(void)
 {
-	refimport_t	ri;
+	refimport_t	rimport;
 	GetRefAPI_t	GetRefAPI;
 
 	char reflib_name[64] = {0};
@@ -430,34 +430,34 @@ VID_LoadRenderer(void)
 
 	// Fill in the struct exported to the renderer.
 	// FIXME: Do we really need all these?
-	ri.Cmd_AddCommand = Cmd_AddCommand;
-	ri.Cmd_Argc = Cmd_Argc;
-	ri.Cmd_Argv = Cmd_Argv;
-	ri.Cmd_ExecuteText = Cbuf_ExecuteText;
-	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
-	ri.Com_VPrintf = Com_VPrintf;
-	ri.Cvar_Get = Cvar_Get;
-	ri.Cvar_Set = Cvar_Set;
-	ri.Cvar_SetValue = Cvar_SetValue;
-	ri.FS_FreeFile = FS_FreeFile;
-	ri.FS_Gamedir = FS_Gamedir;
-	ri.FS_LoadFile = FS_LoadFile;
-	ri.FS_AllocFile = Z_Malloc;
-	ri.Mod_LoadFile = Mod_LoadFile;
-	ri.Mod_FreeFile = Mod_FreeFile;
-	ri.GLimp_InitGraphics = GLimp_InitGraphics;
-	ri.GLimp_GetDesktopMode = GLimp_GetDesktopMode;
-	ri.Sys_Error = Com_Error;
-	ri.Vid_GetModeInfo = VID_GetModeInfo;
-	ri.Vid_MenuInit = VID_MenuInit;
-	ri.Vid_WriteScreenshot = VID_WriteScreenshot;
-	ri.VID_ImageDecode = SCR_LoadImageWithPalette;
-	ri.VID_GetPalette = VID_GetPalette;
-	ri.VID_GetPalette24to8 = VID_GetPalette24to8;
-	ri.Vid_RequestRestart = VID_RequestRestart;
+	rimport.Cmd_AddCommand = Cmd_AddCommand;
+	rimport.Cmd_Argc = Cmd_Argc;
+	rimport.Cmd_Argv = Cmd_Argv;
+	rimport.Cmd_ExecuteText = Cbuf_ExecuteText;
+	rimport.Cmd_RemoveCommand = Cmd_RemoveCommand;
+	rimport.Com_VPrintf = Com_VPrintf;
+	rimport.Cvar_Get = Cvar_Get;
+	rimport.Cvar_Set = Cvar_Set;
+	rimport.Cvar_SetValue = Cvar_SetValue;
+	rimport.FS_FreeFile = FS_FreeFile;
+	rimport.FS_Gamedir = FS_Gamedir;
+	rimport.FS_LoadFile = FS_LoadFile;
+	rimport.FS_AllocFile = Z_Malloc;
+	rimport.Mod_LoadFile = Mod_LoadFile;
+	rimport.Mod_FreeFile = Mod_FreeFile;
+	rimport.GLimp_InitGraphics = GLimp_InitGraphics;
+	rimport.GLimp_GetDesktopMode = GLimp_GetDesktopMode;
+	rimport.Sys_Error = Com_Error;
+	rimport.Vid_GetModeInfo = VID_GetModeInfo;
+	rimport.Vid_MenuInit = VID_MenuInit;
+	rimport.Vid_WriteScreenshot = VID_WriteScreenshot;
+	rimport.VID_ImageDecode = SCR_LoadImageWithPalette;
+	rimport.VID_GetPalette = VID_GetPalette;
+	rimport.VID_GetPalette24to8 = VID_GetPalette24to8;
+	rimport.Vid_RequestRestart = VID_RequestRestart;
 
 	// Exchange our export struct with the renderers import struct.
-	re = GetRefAPI(ri);
+	re = GetRefAPI(rimport);
 
 	// Declare the refresher as active.
 	ref_active = true;

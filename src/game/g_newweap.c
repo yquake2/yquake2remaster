@@ -379,7 +379,6 @@ prox_land(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 	vec3_t normal;
 	vec3_t forward, right, up;
 	int movetype = MOVETYPE_NONE;
-	int stick_ok = 0;
 	vec3_t land_point;
 
 	if (!ent || !other)
@@ -423,7 +422,7 @@ prox_land(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 		/* Here we need to check to see if we can stop on this entity. */
 		vec3_t out;
 		float backoff, change;
-		int i;
+		int i, stick_ok;
 
 		if ((other->movetype == MOVETYPE_PUSH) && (normal[2] > 0.7))
 		{
@@ -1761,7 +1760,6 @@ void
 tracker_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	float damagetime;
-	vec3_t normal;
 
 	if (!self || !other)
 	{
@@ -1786,6 +1784,8 @@ tracker_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		if ((other->svflags & SVF_MONSTER) || other->client)

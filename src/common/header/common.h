@@ -758,7 +758,7 @@ typedef enum
 } fsSearchType_t;
 
 void FS_DPrintf(const char *format, ...);
-int FS_FOpenFile(const char *name, fileHandle_t *f, qboolean gamedir_only);
+int FS_FOpenFile(const char *rawname, fileHandle_t *f, qboolean gamedir_only);
 void FS_FCloseFile(fileHandle_t f);
 int FS_Read(void *buffer, int size, fileHandle_t f);
 int FS_FRead(void *buffer, int size, int count, fileHandle_t f);
@@ -779,7 +779,7 @@ void FS_InitFilesystem(void);
 void FS_ShutdownFilesystem(void);
 void FS_BuildGameSpecificSearchPath(const char *dir);
 const char *FS_Gamedir(void);
-const char *FS_NextPath(const char *prevpath);
+const char *FS_NextPath(const char *prevPath);
 int FS_LoadFile(const char *path, void **buffer);
 qboolean FS_FileInGamedir(const char *file);
 qboolean FS_AddPAKFromGamedir(const char *pak);

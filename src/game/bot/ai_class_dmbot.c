@@ -518,7 +518,7 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	vec3_t	v;
 	int		i;
 	float	best_weight = 0.0;
-	gitem_t	*best_weapon = NULL;
+	const gitem_t	*best_weapon = NULL;
 	int		weapon_range = 0;
 
 	// if no enemy, then what are we doing here?

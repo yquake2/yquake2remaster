@@ -452,7 +452,6 @@ Qcommon_Frame(int usec)
 	// Statistics.
 	int time_before = 0;
 	int time_between = 0;
-	int time_after;
 
 	// Target packetframerate.
 	float pfps;
@@ -542,7 +541,6 @@ Qcommon_Frame(int usec)
 	{
 		usec *= timescale->value;
 	}
-
 
 	if (showtrace->value)
 	{
@@ -715,6 +713,7 @@ Qcommon_Frame(int usec)
 	if (host_speeds->value)
 	{
 		int all, sv, gm, cl, rf;
+		int time_after;
 
 		time_after = Sys_Milliseconds();
 		all = time_after - time_before;

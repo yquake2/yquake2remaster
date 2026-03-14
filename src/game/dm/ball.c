@@ -158,7 +158,7 @@ void
 DBall_SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 {
 	edict_t *bestspot;
-	float bestdistance, bestplayerdistance;
+	float bestdistance;
 	edict_t *spot;
 	const char *spottype;
 	char skin[512];
@@ -189,6 +189,8 @@ DBall_SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 
 	while ((spot = G_Find(spot, FOFS(classname), spottype)) != NULL)
 	{
+		float bestplayerdistance;
+
 		bestplayerdistance = PlayersRangeFromSpot(spot);
 
 		if (bestplayerdistance > bestdistance)
@@ -489,8 +491,6 @@ void
 DBall_BallTouch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	vec3_t dir;
-	float dot;
-	float speed;
 
 	if (!ent || !other)
 	{
@@ -507,6 +507,8 @@ DBall_BallTouch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 	{
 		if (ent->velocity[0] || ent->velocity[1] || ent->velocity[2])
 		{
+			float speed, dot;
+
 			speed = VectorLength(ent->velocity);
 
 			VectorSubtract(ent->s.origin, other->s.origin, dir);
@@ -603,7 +605,6 @@ void
 DBall_SpeedTouch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
 {
-	float dot;
 	vec3_t vel;
 
 	if (!self || !other)
@@ -628,6 +629,8 @@ DBall_SpeedTouch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 
 	if (self->spawnflags & DBALL_SPEED_ONEWAY)
 	{
+		float dot;
+
 		VectorCopy(other->velocity, vel);
 		VectorNormalize(vel);
 		dot = DotProduct(vel, self->movedir);

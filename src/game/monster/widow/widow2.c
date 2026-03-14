@@ -74,7 +74,7 @@ void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 void gib_touch(edict_t *self, edict_t *other, cplane_t *plane,
 		csurface_t *surf);
 void ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, qboolean large, int hitsound, qboolean fade);
+		vec3_t startpos, qboolean sized, int hitsound, qboolean fade);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, int hitsound, qboolean fade);
 static void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage, gibtype_t type,
@@ -131,8 +131,7 @@ widow2_search(edict_t *self)
 void
 Widow2Beam(edict_t *self)
 {
-	vec3_t forward, right, target;
-	vec3_t start, targ_angles, vec;
+	vec3_t forward, right, target, start;
 	int flashnum;
 
 	if (!self)
@@ -162,6 +161,8 @@ Widow2Beam(edict_t *self)
 	}
 	else if ((self->s.frame >= FRAME_spawn04) && (self->s.frame <= FRAME_spawn14))
 	{
+		vec3_t vec, targ_angles;
+
 		/* sweep */
 		flashnum = MZ2_WIDOW2_BEAM_SWEEP_1 + self->s.frame - FRAME_spawn04;
 		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum],
@@ -1232,9 +1233,6 @@ void
 widow2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
 		int damage, vec3_t point /* unused */)
 {
-	int n;
-	int clipped;
-
 	if (!self)
 	{
 		return;
@@ -1243,6 +1241,8 @@ widow2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* 
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
+		int clipped, n;
+
 		clipped = Q_min(damage, 100);
 
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
@@ -1303,11 +1303,8 @@ Widow2_CheckAttack(edict_t *self)
 	vec3_t spot1, spot2;
 	vec3_t temp;
 	float chance = 0;
-	trace_t tr;
 	int enemy_range;
 	float enemy_yaw;
-	float real_enemy_range;
-	vec3_t f, r, u;
 
 	if (!self)
 	{
@@ -1331,6 +1328,8 @@ Widow2_CheckAttack(edict_t *self)
 
 	if (self->enemy->health > 0)
 	{
+		trace_t tr;
+
 		/* see if any entities are in the way of the shot */
 		VectorCopy(self->s.origin, spot1);
 		spot1[2] += self->viewheight;
@@ -1367,10 +1366,14 @@ Widow2_CheckAttack(edict_t *self)
 	/* melee attack */
 	if (self->timestamp < level.time)
 	{
+		float real_enemy_range;
+
 		real_enemy_range = realrange(self, self->enemy);
 
 		if (real_enemy_range < 300)
 		{
+			vec3_t f, r, u;
+
 			AngleVectors(self->s.angles, f, r, u);
 			G_ProjectSource2(self->s.origin, offsets[0], f, r, u, spot1);
 			VectorCopy(self->enemy->s.origin, spot2);

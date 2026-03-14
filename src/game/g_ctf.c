@@ -308,7 +308,6 @@ loc_buildboxpoints(vec3_t p[8], vec3_t org, vec3_t mins, vec3_t maxs)
 static qboolean
 loc_CanSee(edict_t *targ, edict_t *inflictor)
 {
-	trace_t trace;
 	vec3_t targpoints[8];
 	int i;
 	vec3_t viewpoint;
@@ -326,6 +325,8 @@ loc_CanSee(edict_t *targ, edict_t *inflictor)
 
 	for (i = 0; i < 8; i++)
 	{
+		trace_t trace;
+
 		trace = gi.trace(viewpoint, vec3_origin, vec3_origin,
 				targpoints[i], inflictor, MASK_SOLID);
 
@@ -4318,7 +4319,6 @@ CTFCheckRules(void)
 {
 	int t;
 	int i, j;
-	char text[64];
 	const edict_t *ent;
 
 	if ((ctfgame.election != ELECT_NONE) && (ctfgame.electtime <= level.time))
@@ -4329,6 +4329,8 @@ CTFCheckRules(void)
 
 	if (ctfgame.match != MATCH_NONE)
 	{
+		char text[64];
+
 		t = ctfgame.matchtime - level.time;
 
 		/* no team warnings in match mode */
@@ -4454,8 +4456,6 @@ CTFCheckRules(void)
 	}
 	else
 	{
-		int team1 = 0, team2 = 0;
-
 		if (level.time == ctfgame.lasttime)
 		{
 			return false;
@@ -4466,6 +4466,8 @@ CTFCheckRules(void)
 		/* this is only done in non-match (public) mode */
 		if (warn_unbalanced->value)
 		{
+			int team1 = 0, team2 = 0;
+
 			/* count up the team totals */
 			for (i = 1; i <= maxclients->value; i++)
 			{
@@ -4974,8 +4976,6 @@ CTFOpenAdminMenu(edict_t *ent)
 void
 CTFAdmin(edict_t *ent)
 {
-	char text[1024];
-
 	if (!allow_admin->value)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "Administration is disabled\n");
@@ -4994,6 +4994,8 @@ CTFAdmin(edict_t *ent)
 
 	if (!ent->client->resp.admin)
 	{
+		char text[1024];
+
 		sprintf(text, "%s has requested admin rights.",
 				ent->client->pers.netname);
 		CTFBeginElection(ent, ELECT_ADMIN, text);
@@ -5017,7 +5019,6 @@ CTFStats(edict_t *ent)
 	ghost_t *g;
 	char st[80];
 	char text[1024];
-	const edict_t *e2;
 
 	*text = 0;
 
@@ -5025,6 +5026,8 @@ CTFStats(edict_t *ent)
 	{
 		for (i = 1; i <= maxclients->value; i++)
 		{
+			const edict_t *e2;
+
 			e2 = g_edicts + i;
 
 			if (!e2->inuse)
@@ -5106,13 +5109,14 @@ CTFPlayerList(edict_t *ent)
 	int i;
 	char st[80];
 	char text[1400];
-	edict_t *e2;
 
 	/* number, name, connect time, ping, score, admin */
 	*text = 0;
 
 	for (i = 1; i <= maxclients->value; i++)
 	{
+		edict_t *e2;
+
 		e2 = g_edicts + i;
 
 		if (!e2->inuse)
