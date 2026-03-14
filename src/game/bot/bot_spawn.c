@@ -252,7 +252,7 @@ BOT_JoinCTFTeam(edict_t *ent, const char *team_name)
 // put the bot into the game.
 //==========================================
 static void
-BOT_DMClass_JoinGame(edict_t *ent, char *team_name)
+BOT_DMClass_JoinGame(edict_t *ent, const char *team_name)
 {
 	if (!BOT_JoinCTFTeam(ent, team_name))
 	{
@@ -315,7 +315,8 @@ BOT_JoinGame(edict_t *ent)
 ///////////////////////////////////////////////////////////////////////
 // Spawn the bot
 ///////////////////////////////////////////////////////////////////////
-void BOT_SpawnBot (char *team, char *name, char *skin, char *userinfo)
+void
+BOT_SpawnBot (char *team, const char *name, const char *skin, char *userinfo)
 {
 	edict_t *bot;
 

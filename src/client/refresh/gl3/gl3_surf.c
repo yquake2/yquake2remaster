@@ -398,7 +398,7 @@ GL3_DrawAlphaSurfaces(void)
 }
 
 static void
-DrawTextureChains(entity_t *currententity)
+DrawTextureChains(const entity_t *currententity)
 {
 	int i;
 	msurface_t *s;
@@ -475,7 +475,7 @@ RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf)
 }
 
 static void
-DrawInlineBModel(entity_t *currententity, gl3model_t *currentmodel)
+DrawInlineBModel(const entity_t *currententity, gl3model_t *currentmodel)
 {
 	int i;
 	cplane_t *pplane;

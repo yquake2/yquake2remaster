@@ -834,7 +834,7 @@ CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 }
 
 void
-CTFCheckHurtCarrier(edict_t *targ, edict_t *attacker)
+CTFCheckHurtCarrier(const edict_t *targ, edict_t *attacker)
 {
 	const gitem_t *flag_item, *flag1_item, *flag2_item;
 
@@ -2331,7 +2331,7 @@ CTFHasTech(const edict_t *who)
 }
 
 gitem_t *
-CTFWhat_Tech(edict_t *ent)
+CTFWhat_Tech(const edict_t *ent)
 {
 	gitem_t *tech;
 	int i;
@@ -2601,7 +2601,7 @@ CTFApplyResistance(edict_t *ent, int dmg)
 }
 
 int
-CTFApplyStrength(edict_t *ent, int dmg)
+CTFApplyStrength(const edict_t *ent, int dmg)
 {
 	const gitem_t *tech;
 
@@ -2655,7 +2655,7 @@ CTFApplyStrengthSound(edict_t *ent)
 }
 
 qboolean
-CTFApplyHaste(edict_t *ent)
+CTFApplyHaste(const edict_t *ent)
 {
 	const gitem_t *tech;
 
@@ -2761,7 +2761,7 @@ CTFApplyRegeneration(edict_t *ent)
 }
 
 qboolean
-CTFHasRegeneration(edict_t *ent)
+CTFHasRegeneration(const edict_t *ent)
 {
 	const gitem_t *tech = NULL;
 
@@ -3033,7 +3033,7 @@ CTFSay_Team_Armor(edict_t *who, char *buf, size_t bufsize)
 }
 
 static void
-CTFSay_Team_Health(edict_t *who, char *buf)
+CTFSay_Team_Health(const edict_t *who, char *buf)
 {
 	if (who->health <= 0)
 	{
@@ -3046,7 +3046,7 @@ CTFSay_Team_Health(edict_t *who, char *buf)
 }
 
 static void
-CTFSay_Team_Tech(edict_t *who, char *buf)
+CTFSay_Team_Tech(const edict_t *who, char *buf)
 {
 	const gitem_t *tech;
 	int i;
@@ -3070,7 +3070,7 @@ CTFSay_Team_Tech(edict_t *who, char *buf)
 }
 
 static void
-CTFSay_Team_Weapon(edict_t *who, char *buf)
+CTFSay_Team_Weapon(const edict_t *who, char *buf)
 {
 	if (who->client->pers.weapon)
 	{
@@ -3352,7 +3352,7 @@ SetLevelName(pmenu_t *p)
 /* ELECTIONS */
 
 static qboolean
-CTFBeginElection(edict_t *ent, elect_t type, char *msg)
+CTFBeginElection(edict_t *ent, elect_t type, const char *msg)
 {
 	int i;
 	int count;
@@ -4074,7 +4074,7 @@ CTFRequestMatch(edict_t *ent, pmenuhnd_t *p)
 }
 
 static int
-CTFUpdateJoinMenu(edict_t *ent)
+CTFUpdateJoinMenu(const edict_t *ent)
 {
 	static char team1players[32];
 	static char team2players[32];

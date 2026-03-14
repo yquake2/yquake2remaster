@@ -1626,7 +1626,7 @@ GL3_GetSpecialBufferModeForStereoMode(enum stereo_modes stereo_mode) {
 #endif // 0
 
 static void
-GL3_SetLightLevel(entity_t *currententity)
+GL3_SetLightLevel(const entity_t *currententity)
 {
 	vec3_t shadelight = {0};
 

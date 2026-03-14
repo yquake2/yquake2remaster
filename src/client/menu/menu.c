@@ -423,7 +423,7 @@ M_DrawCharacter(int cx, int cy, int num)
 }
 
 static void
-M_Print(int x, int y, char *str)
+M_Print(int x, int y, const char *str)
 {
 	int cx, cy;
 	float scale = SCR_GetMenuScale();

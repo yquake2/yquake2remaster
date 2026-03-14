@@ -269,7 +269,7 @@ Mod_LoadModel_MDA_Parse_Profile(const char *mod_name, char **curr_buff, const ch
 }
 
 static void
-Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, char *curr_end,
+Mod_LoadModel_MDA_Parse(const char *mod_name, char *curr_buff, const char *curr_end,
 	mda_model_t *mda)
 {
 	while (curr_buff)

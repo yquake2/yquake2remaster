@@ -669,7 +669,7 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 }
 
 qboolean
-CheckTeamDamage(edict_t *targ, edict_t *attacker)
+CheckTeamDamage(const edict_t *targ, const edict_t *attacker)
 {
 	if (ctf->value && targ->client && attacker->client)
 	{
@@ -1029,7 +1029,7 @@ T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 
 void
 T_RadiusDamage(edict_t *inflictor, edict_t *attacker, float damage,
-		edict_t *ignore, float radius, int mod)
+		const edict_t *ignore, float radius, int mod)
 {
 	float points;
 	edict_t *ent = NULL;

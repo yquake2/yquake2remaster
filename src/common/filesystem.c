@@ -1047,7 +1047,7 @@ FS_FreeFile(void *buffer)
 }
 
 static fsRawPath_t *
-FS_FreeRawPaths(fsRawPath_t *start, fsRawPath_t *end)
+FS_FreeRawPaths(fsRawPath_t *start, const fsRawPath_t *end)
 {
 	fsRawPath_t *cur = start;
 	fsRawPath_t *next;
@@ -1063,7 +1063,7 @@ FS_FreeRawPaths(fsRawPath_t *start, fsRawPath_t *end)
 }
 
 static fsSearchPath_t *
-FS_FreeSearchPaths(fsSearchPath_t *start, fsSearchPath_t *end)
+FS_FreeSearchPaths(fsSearchPath_t *start, const fsSearchPath_t *end)
 {
 	fsSearchPath_t *cur = start;
 	fsSearchPath_t *next;

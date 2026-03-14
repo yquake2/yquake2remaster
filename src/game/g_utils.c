@@ -678,7 +678,7 @@ vectoangles2(vec3_t value1, vec3_t angles)
 }
 
 char *
-G_CopyString(char *in)
+G_CopyString(const char *in)
 {
 	char *out;
 

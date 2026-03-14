@@ -1197,7 +1197,7 @@ widow2_pain(edict_t *self, edict_t *other /* unused */, float kick, int damage)
 	}
 }
 
-void
+static void
 KillChildren(edict_t *self)
 {
 	edict_t *ent;

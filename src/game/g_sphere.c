@@ -226,9 +226,9 @@ sphere_fire(edict_t *self, edict_t *enemy)
 	self->nextthink = self->wait;
 }
 
-void
-sphere_touch(edict_t *self, edict_t *other, cplane_t *plane,
-		csurface_t *surf, int mod)
+static void
+sphere_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf, int mod)
 {
 	vec3_t normal;
 

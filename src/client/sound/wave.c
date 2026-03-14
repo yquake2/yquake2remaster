@@ -90,7 +90,7 @@ FindNextChunk(const char *name)
 }
 
 static void
-FindChunk(char *name)
+FindChunk(const char *name)
 {
 	last_chunk = iff_data;
 	FindNextChunk(name);

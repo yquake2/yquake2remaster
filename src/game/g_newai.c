@@ -215,12 +215,6 @@ blocked_checkjump(edict_t *self, float dist, float maxDown, float maxUp)
 	return false;
 }
 
-qboolean
-blocked_checknewenemy(edict_t *self)
-{
-	return false;
-}
-
 void
 hintpath_go(edict_t *self, edict_t *point)
 {
@@ -1026,7 +1020,7 @@ CheckForBadArea(edict_t *ent)
 }
 
 qboolean
-MarkTeslaArea(edict_t *self, edict_t *tesla)
+MarkTeslaArea(const edict_t *self, edict_t *tesla)
 {
 	vec3_t mins, maxs;
 	const edict_t *e;
@@ -1415,7 +1409,7 @@ monster_duck_up(edict_t *self)
 }
 
 qboolean
-has_valid_enemy(edict_t *self)
+has_valid_enemy(const edict_t *self)
 {
 	if (!self)
 	{
@@ -1487,7 +1481,7 @@ TargetTesla(edict_t *self, edict_t *tesla)
 }
 
 edict_t *
-PickCoopTarget(edict_t *self)
+PickCoopTarget(const edict_t *self)
 {
 	if (!self)
 	{
@@ -1590,7 +1584,7 @@ monster_jump_start(edict_t *self)
 }
 
 qboolean
-monster_jump_finished(edict_t *self)
+monster_jump_finished(const edict_t *self)
 {
 	if (!self)
 	{

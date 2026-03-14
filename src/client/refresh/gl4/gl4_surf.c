@@ -396,7 +396,7 @@ GL4_DrawAlphaSurfaces(void)
 }
 
 static void
-DrawTextureChains(entity_t *currententity)
+DrawTextureChains(const entity_t *currententity)
 {
 	int i;
 	msurface_t *s;
@@ -433,7 +433,7 @@ DrawTextureChains(entity_t *currententity)
 }
 
 static void
-RenderLightmappedPoly(entity_t *currententity, const msurface_t *surf)
+RenderLightmappedPoly(const entity_t *currententity, const msurface_t *surf)
 {
 	int map;
 	const gl4image_t *image = R_TextureAnimation(currententity, surf->texinfo);
@@ -473,7 +473,7 @@ RenderLightmappedPoly(entity_t *currententity, const msurface_t *surf)
 }
 
 static void
-DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
+DrawInlineBModel(const entity_t *currententity, gl4model_t *currentmodel)
 {
 	int i;
 	msurface_t *psurf;

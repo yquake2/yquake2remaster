@@ -1451,8 +1451,8 @@ WidowPowerArmor(edict_t *self)
 	}
 }
 
-void
-WidowRespondPowerup(edict_t *self, edict_t *other)
+static void
+WidowRespondPowerup(edict_t *self, const edict_t *other)
 {
 	if (!self || !other)
 	{

@@ -28,8 +28,6 @@
 #include "header/local.h"
 #include "monster/misc/player.h"
 
-gitem_t *CTFWhat_Tech(edict_t *ent);
-
 static char *
 ClientTeam(const edict_t *ent, char* value, size_t val_len)
 {
@@ -1691,7 +1689,7 @@ Cmd_SpawnEntity_f(edict_t *ent)
 }
 
 static void
-Cmd_SpawnOnStartByClass(char *classname, const vec3_t origin)
+Cmd_SpawnOnStartByClass(const char *classname, const vec3_t origin)
 {
 	edict_t *opponent = G_Spawn();
 

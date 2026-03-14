@@ -1478,7 +1478,7 @@ SP_target_earthquake(edict_t *self)
  * ReRelease: Creates a camera path as seen in the N64 version.
  */
 static void
-camera_lookat_pathtarget(edict_t* self, vec3_t origin, vec3_t* dest)
+camera_lookat_pathtarget(const edict_t* self, vec3_t origin, vec3_t* dest)
 {
 	if (self->pathtarget)
 	{

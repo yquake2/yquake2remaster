@@ -256,7 +256,7 @@ DBall_PostInitSetup(void)
 }
 
 int
-DBall_ChangeDamage(edict_t *targ, edict_t *attacker, int damage, int mod)
+DBall_ChangeDamage(const edict_t *targ, const edict_t *attacker, int damage, int mod)
 {
 	if (!targ || !attacker)
 	{
@@ -279,7 +279,7 @@ DBall_ChangeDamage(edict_t *targ, edict_t *attacker, int damage, int mod)
 }
 
 int
-DBall_ChangeKnockback(edict_t *targ, edict_t *attacker, int knockback, int mod)
+DBall_ChangeKnockback(const edict_t *targ, const edict_t *attacker, int knockback, int mod)
 {
 	if (!targ || !attacker)
 	{
@@ -452,8 +452,8 @@ DBall_GoalTouch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	G_UseTargets(self, other);
 }
 
-edict_t *
-PickBallStart(edict_t *ent)
+static edict_t *
+PickBallStart(const edict_t *ent)
 {
 	int which, current;
 	edict_t *e;

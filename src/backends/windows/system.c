@@ -404,7 +404,7 @@ Sys_UnloadGame(void)
 void *
 Sys_GetGameAPI(void *parms)
 {
-	void *(*GetGameAPI)(void *);
+	void *(*GetGameAPI)(const void *);
 	char name[MAX_OSPATH];
 	WCHAR wname[MAX_OSPATH];
 	const char *path = NULL;

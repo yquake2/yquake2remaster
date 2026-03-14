@@ -91,7 +91,7 @@ Tag_PlayerDisconnect(edict_t *self)
 }
 
 void
-Tag_Score(edict_t *attacker, edict_t *victim, int scoreChange)
+Tag_Score(edict_t *attacker, const edict_t *victim, int scoreChange)
 {
 	gitem_t *quad;
 	int mod;
@@ -219,7 +219,7 @@ Tag_MakeTouchable(edict_t *ent)
 }
 
 void
-Tag_DropToken(edict_t *ent, gitem_t *item)
+Tag_DropToken(edict_t *ent, const gitem_t *item)
 {
 	trace_t trace;
 	vec3_t forward, right;
@@ -282,7 +282,7 @@ Tag_PlayerEffects(edict_t *ent)
 }
 
 void
-Tag_DogTag(edict_t *ent, edict_t *killer /* unused */, char **pic)
+Tag_DogTag(const edict_t *ent, edict_t *killer /* unused */, char **pic)
 {
 	if (!ent || !pic)
 	{
@@ -296,7 +296,7 @@ Tag_DogTag(edict_t *ent, edict_t *killer /* unused */, char **pic)
 }
 
 int
-Tag_ChangeDamage(edict_t *targ, edict_t *attacker, int damage, int mod)
+Tag_ChangeDamage(const edict_t *targ, const edict_t *attacker, int damage, int mod)
 {
 	if (!targ || !attacker)
 	{

@@ -33,7 +33,7 @@ void monster_start_go(edict_t *self);
 /* Monster weapons */
 
 static void
-monster_muzzleflash2(edict_t *self, vec3_t start, int flashtype)
+monster_muzzleflash2(const edict_t *self, vec3_t start, int flashtype)
 {
 	gi.WriteByte(svc_muzzleflash2);
 	gi.WriteShort(self - g_edicts);

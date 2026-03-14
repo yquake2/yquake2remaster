@@ -1876,7 +1876,7 @@ DetermineBBox(const char *classname, vec3_t mins, vec3_t maxs)
 
 edict_t *
 CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
-		vec3_t maxs, char *classname)
+		vec3_t maxs, const char *classname)
 {
 	if (!classname)
 	{
