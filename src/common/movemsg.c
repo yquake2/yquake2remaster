@@ -810,7 +810,7 @@ void
 MSG_WriteDir(sizebuf_t *sb, const vec3_t dir)
 {
 	int i, best;
-	float d, bestd;
+	float bestd;
 
 	if (!dir)
 	{
@@ -823,6 +823,8 @@ MSG_WriteDir(sizebuf_t *sb, const vec3_t dir)
 
 	for (i = 0; i < NUMVERTEXNORMALS; i++)
 	{
+		float d;
+
 		d = DotProduct(dir, bytedirs[i]);
 
 		if (d > bestd)
@@ -1248,12 +1250,14 @@ char *
 MSG_ReadString(sizebuf_t *msg_read)
 {
 	static char string[2048];
-	int l, c;
+	int l;
 
 	l = 0;
 
 	do
 	{
+		int c;
+
 		c = MSG_ReadByte(msg_read);
 
 		if ((c == -1) || (c == 0))
@@ -1275,12 +1279,14 @@ char *
 MSG_ReadStringLine(sizebuf_t *msg_read)
 {
 	static char string[2048];
-	int l, c;
+	int l;
 
 	l = 0;
 
 	do
 	{
+		int c;
+
 		c = MSG_ReadByte(msg_read);
 
 		if ((c == -1) || (c == 0) || (c == '\n'))

@@ -477,10 +477,8 @@ RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf)
 static void
 DrawInlineBModel(const entity_t *currententity, gl3model_t *currentmodel)
 {
-	int i;
-	cplane_t *pplane;
-	float dot;
 	msurface_t *psurf;
+	int i;
 
 	/* calculate dynamic lighting for bmodel */
 	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
@@ -500,6 +498,9 @@ DrawInlineBModel(const entity_t *currententity, gl3model_t *currentmodel)
 	/* draw texture */
 	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
+		cplane_t *pplane;
+		float dot;
+
 		/* find which side of the node we are on */
 		pplane = psurf->plane;
 

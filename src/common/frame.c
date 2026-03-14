@@ -221,7 +221,8 @@ Qcommon_Mainloop(void)
 	}
 }
 
-void Qcommon_ExecConfigs(qboolean gameStartUp)
+void
+Qcommon_ExecConfigs(qboolean gameStartUp)
 {
 	Cbuf_AddText("exec default.cfg\n");
 	Cbuf_AddText("exec yq2.cfg\n");

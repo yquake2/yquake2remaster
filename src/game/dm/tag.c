@@ -93,7 +93,6 @@ Tag_PlayerDisconnect(edict_t *self)
 void
 Tag_Score(edict_t *attacker, const edict_t *victim, int scoreChange)
 {
-	gitem_t *quad;
 	int mod;
 
 	if (!attacker || !victim)
@@ -113,6 +112,8 @@ Tag_Score(edict_t *attacker, const edict_t *victim, int scoreChange)
 
 			if (tag_count == 5)
 			{
+				const gitem_t *quad;
+
 				quad = FindItem("Quad Damage");
 				attacker->client->pers.inventory[ITEM_INDEX(quad)]++;
 				quad->use(attacker, quad);

@@ -245,7 +245,6 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 		if (jointInfos[i].flags & 32) /* Qz */
 		{
 			animatedOrient[2] = animFrameData[jointInfos[i].startIndex + j];
-			j++;
 		}
 
 		/* Compute orient quaternion's w value */

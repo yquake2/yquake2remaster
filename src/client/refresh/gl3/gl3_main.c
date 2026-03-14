@@ -657,7 +657,6 @@ GL3_DrawBeam(entity_t *e)
 	vec3_t oldorigin, origin;
 
 	mvtx_t verts[NUM_BEAM_SEGS*4];
-	unsigned int pointb;
 
 	oldorigin[0] = e->oldorigin[0];
 	oldorigin[1] = e->oldorigin[1];
@@ -705,6 +704,8 @@ GL3_DrawBeam(entity_t *e)
 
 	for ( i = 0; i < NUM_BEAM_SEGS; i++ )
 	{
+		unsigned int pointb;
+
 		VectorCopy(start_points[i], verts[4*i+0].pos);
 		VectorCopy(end_points[i], verts[4*i+1].pos);
 

@@ -1354,9 +1354,8 @@ SDL_SDL3Callback(void *userdata, SDL_AudioStream *stream, int additional_amount,
 qboolean
 SDL_BackendInit(void)
 {
-	char reqdriver[128];
 	SDL_AudioSpec spec;
-	int samples, tmp, val;
+	int samples, tmp;
 
 	/* This should never happen,
 	   but this is Quake 2 ... */
@@ -1372,6 +1371,8 @@ SDL_BackendInit(void)
 
 	if (strcmp(s_sdldriver->string, "auto") != 0)
 	{
+		char reqdriver[128];
+
 		snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
 		if (putenv(reqdriver))
 		{
@@ -1394,8 +1395,9 @@ SDL_BackendInit(void)
 			return false;
 		}
 	}
+
 	const char* drivername = SDL_GetCurrentAudioDriver();
-	if(drivername == NULL)
+	if (drivername == NULL)
 	{
 		drivername = "(UNKNOWN)";
 	}
@@ -1467,7 +1469,10 @@ SDL_BackendInit(void)
 	tmp = (samples * spec.channels) * 10;
 
 	if (tmp & (tmp - 1))
-	{	/* make it a power of two */
+	{
+		int val;
+
+		/* make it a power of two */
 		val = 1;
 		while (val < tmp)
 			val <<= 1;
@@ -1522,9 +1527,8 @@ SDL_BackendShutdown(void)
 qboolean
 SDL_BackendInit(void)
 {
-	char reqdriver[128];
 	SDL_AudioSpec spec;
-	int tmp, val;
+	int tmp;
 
 	/* This should never happen,
 	   but this is Quake 2 ... */
@@ -1540,6 +1544,8 @@ SDL_BackendInit(void)
 
 	if (strcmp(s_sdldriver->string, "auto") != 0)
 	{
+		char reqdriver[128];
+
 		snprintf(reqdriver, sizeof(reqdriver), "%s=%s", "SDL_AUDIODRIVER", s_sdldriver->string);
 		if (putenv(reqdriver))
 		{
@@ -1631,7 +1637,10 @@ SDL_BackendInit(void)
 	tmp = (spec.samples * spec.channels) * 10;
 
 	if (tmp & (tmp - 1))
-	{	/* make it a power of two */
+	{
+		int val;
+
+		/* make it a power of two */
 		val = 1;
 		while (val < tmp)
 			val <<= 1;

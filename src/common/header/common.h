@@ -873,7 +873,7 @@ extern int time_after_ref;
 #include "zone.h"
 
 void Qcommon_Init(int argc, char **argv);
-void Qcommon_ExecConfigs(qboolean addEarlyCmds);
+void Qcommon_ExecConfigs(qboolean gameStartUp);
 const char* Qcommon_GetInitialGame(void);
 void Qcommon_Shutdown(void);
 

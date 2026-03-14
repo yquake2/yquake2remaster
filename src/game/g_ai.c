@@ -1431,8 +1431,6 @@ ai_run(edict_t *self, float dist)
 	qboolean new;
 	edict_t *marker;
 	float d1, d2;
-	trace_t tr;
-	vec3_t v_forward, v_right;
 	vec3_t left_target, right_target;
 	qboolean retval;
 	qboolean alreadyMoved = false;
@@ -1744,6 +1742,8 @@ ai_run(edict_t *self, float dist)
 
 	if (new)
 	{
+		trace_t tr;
+
 		tr = gi.trace(self->s.origin, self->mins, self->maxs,
 				self->monsterinfo.last_sighting, self,
 				MASK_PLAYERSOLID);
@@ -1751,6 +1751,7 @@ ai_run(edict_t *self, float dist)
 		if (tr.fraction < 1)
 		{
 			float left, center, right;
+			vec3_t v_forward, v_right;
 
 			VectorSubtract(self->goalentity->s.origin, self->s.origin, v);
 			d1 = VectorLength(v);
