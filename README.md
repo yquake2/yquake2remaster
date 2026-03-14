@@ -335,6 +335,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Q2Test: use dynamic frames for blaster animation,
 * [x] Anachronox: `rowdys` map models disappear on dance space,
 * [x] ReRelease: fix invisiable entities in `basicsjam1_ziutek`,
 * [x] ReRelease: incorrect light apply to models (wall looks fine),
