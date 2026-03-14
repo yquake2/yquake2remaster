@@ -1115,6 +1115,7 @@ qboolean Pickup_Weapon(edict_t *ent, edict_t *other);
 void Use_Weapon(edict_t *ent, const gitem_t *item);
 void Use_Weapon2(edict_t *ent, const gitem_t *item);
 void Drop_Weapon(edict_t *ent, const gitem_t *item);
+void Weapon_DynamicWeapon(edict_t *ent);
 void Weapon_Blaster(edict_t *ent);
 void Weapon_Shotgun(edict_t *ent);
 void Weapon_SuperShotgun(edict_t *ent);

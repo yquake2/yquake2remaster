@@ -1790,6 +1790,62 @@ Weapon_Blaster(edict_t *ent)
 }
 
 void
+Weapon_DynamicWeapon(edict_t *ent)
+{
+	/*
+	 * #0: 'active' 0:5
+	 * #1: 'pow' 5:4
+	 * #2: 'idle' 9:24
+	 * #3: 'idle' 33:20
+	 * #4: 'putway' 53:3
+	 */
+	int pause_frames[] = {19, 0};
+	int fire_frames[] = {5, 0};
+	int last_active = 4, last_pow = 8, last_idle = 52, last_putway = 55;
+	int modelindex, num, i;
+	const dmdxframegroup_t * frames;
+
+	if (!ent)
+	{
+		return;
+	}
+
+	modelindex = FirstPersonWeaponModel(ent->client->pers.weapon);
+	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
+
+	for (i = 0; i < num; i++)
+	{
+		if (!strcmp(frames[i].name, "active") ||
+			!strcmp(frames[i].name, "pullout") || /* DoD */
+			!strcmp(frames[i].name, "raise")) /* Infinity */
+		{
+			last_active = frames[i].ofs + frames[i].num - 1;
+		}
+		else if (!strcmp(frames[i].name, "pow") ||
+				 !strcmp(frames[i].name, "shoot") || /* Infinity */
+				 !strcmp(frames[i].name, "attack") || /* DoD */
+				 !strcmp(frames[i].name, "fire")) /* Infinity */
+		{
+			last_pow = frames[i].ofs + frames[i].num - 1;
+			fire_frames[0] = frames[i].ofs;
+		}
+		else if (!strcmp(frames[i].name, "idle"))
+		{
+			last_idle = frames[i].ofs + frames[i].num - 1;
+			pause_frames[0] = frames[i].ofs;
+		}
+		else if (!strcmp(frames[i].name, "putway") ||
+				 !strcmp(frames[i].name, "lower")) /* Infinity */
+		{
+			last_putway = frames[i].ofs + frames[i].num - 1;
+		}
+	}
+
+	Weapon_Generic(ent, last_active, last_pow, last_idle, last_putway,
+			pause_frames, fire_frames, Weapon_Blaster_Fire);
+}
+
+void
 Weapon_HyperBlaster_Fire(edict_t *ent)
 {
 	if (!ent)

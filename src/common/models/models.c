@@ -656,6 +656,13 @@ static const namesconvert_t flex_names[] = {
 	{NULL, NULL}
 };
 
+static const namesconvert_t quake2_names[] = {
+	/* infinity */
+	{"powa", "pow"},
+	{"powb", "pow"},
+	{NULL, NULL}
+};
+
 static const namesconvert_t dkm_names[] = {
 	{"atak", "attack"},
 	{"die", "death"},
@@ -1262,6 +1269,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	// Update animation groups by frames
 	//
 	Mod_LoadAnimGroupList(pheader, true);
+	Mod_LoadModel_AnimGroupNamesFix(pheader, quake2_names);
 
 	//
 	// load the glcmds

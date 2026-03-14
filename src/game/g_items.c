@@ -4608,7 +4608,7 @@ InitItems(void)
 						itemlist[num_items].pickup = Pickup_Weapon;
 						itemlist[num_items].use = Use_Weapon;
 						itemlist[num_items].drop = Drop_Weapon;
-						itemlist[num_items].weaponthink = Weapon_Blaster;
+						itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
 						itemlist[num_items].world_model_flags = EF_ROTATE;
 						itemlist[num_items].flags = IT_WEAPON;
 					}
