@@ -147,7 +147,7 @@ R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
 		// workaround for lack of VLAs (=> our workaround uses alloca() which is bad in loops)
 #ifdef _MSC_VER
 		int maxNumVerts = 0;
-		for (mpoly_t* tmp = p; tmp; tmp = tmp->chain)
+		for (const mpoly_t* tmp = p; tmp; tmp = tmp->chain)
 		{
 			if ( tmp->numverts > maxNumVerts )
 				maxNumVerts = tmp->numverts;
@@ -546,7 +546,7 @@ R_RenderLightmappedPoly(msurface_t *surf)
 
 /* Add "adding" area to "obj" */
 static void
-R_JoinAreas(lmrect_t *adding, lmrect_t *obj)
+R_JoinAreas(const lmrect_t *adding, lmrect_t *obj)
 {
 	if (adding->top < obj->top)
 	{

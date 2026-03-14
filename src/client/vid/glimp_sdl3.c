@@ -749,7 +749,7 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 		}
 		else
 		{
-			cvar_t *r_mode = Cvar_Get("r_mode", "4", 0);
+			const cvar_t *r_mode = Cvar_Get("r_mode", "4", 0);
 
 			if (r_mode->value == -2 )
 			{

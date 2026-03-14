@@ -285,10 +285,10 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 }
 
 static void
-RenderBrushPoly(entity_t *currententity, msurface_t *fa)
+RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 {
 	int map;
-	gl3image_t *image;
+	const gl3image_t *image;
 
 	c_brush_polys++;
 
@@ -435,10 +435,10 @@ DrawTextureChains(entity_t *currententity)
 }
 
 static void
-RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
+RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf)
 {
 	int map;
-	gl3image_t *image = R_TextureAnimation(currententity, surf->texinfo);
+	const gl3image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 
 	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
 	lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);

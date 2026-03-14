@@ -245,7 +245,7 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
  * Returns has_alpha
  */
 static qboolean
-GL3_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
+GL3_Upload8(const byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 {
 	size_t i, s = width * height;
 	unsigned *trans = malloc(s * sizeof(unsigned));

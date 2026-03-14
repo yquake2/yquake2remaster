@@ -430,7 +430,7 @@ CheckArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 	gclient_t *client;
 	int save;
 	int index;
-	gitem_t *armor;
+	const gitem_t *armor;
 
 	if (!ent)
 	{

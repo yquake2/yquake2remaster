@@ -1056,7 +1056,7 @@ static void
 DrawKeyBindingFunc(void *self)
 {
 	int keys[2];
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	float scale = SCR_GetMenuScale();
 
 	M_FindKeysForCommand(bindnames[a->generic.localdata[0]][0], keys, KEYS_KEYBOARD_MOUSE);
@@ -1092,7 +1092,7 @@ DrawKeyBindingFunc(void *self)
 static void
 KeyBindingFunc(void *self)
 {
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	int keys[2];
 
 	M_FindKeysForCommand(bindnames[a->generic.localdata[0]][0], keys, KEYS_KEYBOARD_MOUSE);
@@ -1208,7 +1208,7 @@ static void
 MultiplayerDrawKeyBindingFunc(void *self)
 {
 	int keys[2];
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	float scale = SCR_GetMenuScale();
 
 	M_FindKeysForCommand(multiplayer_key_bindnames[a->generic.localdata[0]][0], keys, KEYS_ALL);
@@ -1244,7 +1244,7 @@ MultiplayerDrawKeyBindingFunc(void *self)
 static void
 MultiplayerKeyBindingFunc(void *self)
 {
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	int keys[2];
 
 	M_FindKeysForCommand(multiplayer_key_bindnames[a->generic.localdata[0]][0], keys, KEYS_ALL);
@@ -1405,7 +1405,7 @@ static void
 DrawControllerButtonBindingFunc(void *self)
 {
 	int keys[2];
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	float scale = SCR_GetMenuScale();
 
 	M_FindKeysForCommand(controller_bindnames[a->generic.localdata[0]][0], keys, KEYS_CONTROLLER);
@@ -1441,7 +1441,7 @@ DrawControllerButtonBindingFunc(void *self)
 static void
 ControllerButtonBindingFunc(void *self)
 {
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	int keys[2];
 
 	M_FindKeysForCommand(controller_bindnames[a->generic.localdata[0]][0], keys, KEYS_CONTROLLER);
@@ -1578,7 +1578,7 @@ static void
 DrawControllerAltButtonBindingFunc(void *self)
 {
 	int keys[2];
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	float scale = SCR_GetMenuScale();
 
 	M_FindKeysForCommand(controller_alt_bindnames[a->generic.localdata[0]][0], keys, KEYS_CONTROLLER_ALT);
@@ -1614,7 +1614,7 @@ DrawControllerAltButtonBindingFunc(void *self)
 static void
 ControllerAltButtonBindingFunc(void *self)
 {
-	menuaction_s *a = (menuaction_s *)self;
+	const menuaction_s *a = (menuaction_s *)self;
 	int keys[2];
 
 	M_FindKeysForCommand(controller_alt_bindnames[a->generic.localdata[0]][0], keys, KEYS_CONTROLLER_ALT);
@@ -6668,7 +6668,7 @@ PlayerConfig_MenuInit(void)
 {
 	extern cvar_t *name;
 	const extern cvar_t *skin;
-	cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
+	const cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	static const char *handedness[] = { "right", "left", "center", NULL};
 	char mdlname[MAX_QPATH];
 	char imgname[MAX_QPATH];

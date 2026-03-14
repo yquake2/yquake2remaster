@@ -353,8 +353,8 @@ CheckNeedPass(void)
 void
 CheckDMRules(void)
 {
+	const gclient_t *cl;
 	int i;
-	gclient_t *cl;
 
 	if (level.intermissiontime)
 	{

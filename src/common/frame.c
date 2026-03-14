@@ -377,7 +377,7 @@ Qcommon_Init(int argc, char **argv)
 	modder = Cvar_Get("modder", "0", 0);
 	timescale = Cvar_Get("timescale", "1", 0);
 
-	char *s;
+	const char *s;
 	s = va("%s %s %s %s", YQ2VERSION, YQ2ARCH, BUILD_DATE, YQ2OSTYPE);
 	Cvar_Get("version", s, CVAR_SERVERINFO | CVAR_NOSET);
 

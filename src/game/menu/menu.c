@@ -169,7 +169,7 @@ PMenu_Do_Update(edict_t *ent)
 	char string[1400];
 	int i;
 	pmenu_t *p;
-	pmenuhnd_t *hnd;
+	const pmenuhnd_t *hnd;
 	const char *t;
 	qboolean alt = false;
 

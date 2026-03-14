@@ -728,10 +728,10 @@ GL3_DrawSpriteModel(entity_t *e, const gl3model_t *currentmodel)
 {
 	float alpha = 1.0F;
 	mvtx_t verts[4];
-	dsprframe_t *frame;
+	const dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
-	gl3image_t *skin = NULL;
+	const gl3image_t *skin = NULL;
 	vec3_t scale;
 
 	VectorCopy(e->scale, scale);
@@ -1090,7 +1090,7 @@ GL3_DrawEntitiesOnList(void)
 static void
 SetupFrame(void)
 {
-	mleaf_t *leaf;
+	const mleaf_t *leaf;
 
 	gl3_framecount++;
 

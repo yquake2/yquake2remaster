@@ -239,7 +239,7 @@ GL4_Draw_FindPic(const char *name)
 void
 GL4_Draw_GetPicSize(int *w, int *h, const char *pic)
 {
-	gl4image_t *gl;
+	const gl4image_t *gl;
 
 	gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 
@@ -256,7 +256,7 @@ GL4_Draw_GetPicSize(int *w, int *h, const char *pic)
 void
 GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 {
-	gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 
 	if (!gl)
 	{
@@ -273,7 +273,7 @@ GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 void
 GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext)
 {
-	gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!gl)
 	{
 		if (alttext && alttext[0])
@@ -297,7 +297,7 @@ void
 GL4_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t color,
 	const char *alttext)
 {
-	gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!gl)
 	{
 		if (alttext && alttext[0])

@@ -613,7 +613,8 @@ static qboolean
 SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
 {
 	int i, e;
-	edict_t *check, *block;
+	const edict_t *block;
+	edict_t *check;
 	pushed_t *p;
 	vec3_t org, org2, move2, forward, right, up;
 	vec3_t realmins, realmaxs;
@@ -1159,7 +1160,7 @@ SV_Physics_Step(edict_t *ent)
 	float *vel;
 	float speed, newspeed, control;
 	float friction;
-	edict_t *groundentity;
+	const edict_t *groundentity;
 	int mask;
 	vec3_t oldorig;
 	trace_t tr;

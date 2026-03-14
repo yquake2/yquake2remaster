@@ -46,7 +46,7 @@ UpdateChaseCam(edict_t *ent)
 	if (!ent->client->chase_target->inuse ||
 		ent->client->chase_target->client->resp.spectator)
 	{
-		edict_t *old = ent->client->chase_target;
+		const edict_t *old = ent->client->chase_target;
 		ChaseNext(ent);
 
 		if (ent->client->chase_target == old)

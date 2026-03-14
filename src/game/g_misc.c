@@ -1123,7 +1123,7 @@ setup_shadow_lights(void)
 
 		if (self->itemtarget)
 		{
-			edict_t *target = G_Find(NULL, FOFS(targetname), self->itemtarget);
+			const edict_t *target = G_Find(NULL, FOFS(targetname), self->itemtarget);
 			if (target)
 			{
 				shadowlightinfo[i].shadowlight.lightstyle = target->style;

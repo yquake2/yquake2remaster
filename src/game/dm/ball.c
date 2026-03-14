@@ -78,8 +78,8 @@ void
 DBall_ClientBegin(edict_t *ent)
 {
 	int team1, team2, unassigned;
-	edict_t *other;
-	char *p;
+	const edict_t *other;
+	const char *p;
 	static char value[512];
 	int j;
 
@@ -160,7 +160,7 @@ DBall_SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
 	edict_t *bestspot;
 	float bestdistance, bestplayerdistance;
 	edict_t *spot;
-	char *spottype;
+	const char *spottype;
 	char skin[512];
 
 	if (!ent)
@@ -354,7 +354,7 @@ DBall_GoalTouch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	int scorechange;
 	int j;
 	char value[512];
-	char *p;
+	const char *p;
 	edict_t *ent;
 
 	if (!self || !other)

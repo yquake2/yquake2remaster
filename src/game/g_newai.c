@@ -661,7 +661,8 @@ void
 hint_path_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
 {
-	edict_t *e, *goal;
+	const edict_t *goal;
+	edict_t *e;
 	edict_t *next = NULL;
 	qboolean goalFound = false;
 
@@ -1028,9 +1029,8 @@ qboolean
 MarkTeslaArea(edict_t *self, edict_t *tesla)
 {
 	vec3_t mins, maxs;
-	edict_t *e;
-	edict_t *tail;
-	edict_t *area;
+	const edict_t *e;
+	edict_t *tail, *area;
 
 	if (!tesla || !self)
 	{
@@ -1548,7 +1548,7 @@ PickCoopTarget(edict_t *self)
 int
 CountPlayers(void)
 {
-	edict_t *ent;
+	const edict_t *ent;
 	int count = 0;
 	int player;
 

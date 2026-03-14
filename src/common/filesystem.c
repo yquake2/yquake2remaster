@@ -252,7 +252,7 @@ void
 FS_CreatePath(const char *path)
 {
 	char *cur; /* Current '/'. */
-	char *old; /* Old '/'. */
+	const char *old; /* Old '/'. */
 	char dir_path[MAX_OSPATH];
 
 	FS_DPrintf("%s(%s)\n", __func__, path);
@@ -265,7 +265,7 @@ FS_CreatePath(const char *path)
 
 	Q_strlcpy(dir_path, path, sizeof(dir_path));
 
-	cur = old = dir_path;
+	old = cur = dir_path;
 
 	while (cur != NULL)
 	{
@@ -378,7 +378,7 @@ FS_FCloseFile(fileHandle_t f)
 static int
 FS_SortPackCompare(const void *p1, const void *p2)
 {
-	fsPackFile_t *file1, *file2;
+	const fsPackFile_t *file1, *file2;
 
 	file1 = (fsPackFile_t*)p1;
 	file2 = (fsPackFile_t*)p2;
@@ -1889,7 +1889,7 @@ FS_LoadPK3(const char *packPath)
 const char *
 FS_NextPath(const char *prevPath)
 {
-	char *prev;
+	const char *prev;
 	fsSearchPath_t *search;
 
 	if (prevPath == NULL)
@@ -2026,7 +2026,7 @@ FS_ListFiles(const char *findname, int *numfiles,
 		unsigned musthave, unsigned canthave)
 {
 	char **list; /* List of files. */
-	char *s; /* Next file in list. */
+	const char *s; /* Next file in list. */
 	int nfiles; /* Number of files in list. */
 
 	/* Initialize variables. */
@@ -2722,7 +2722,7 @@ FS_AddKPFpack(void)
 
 static void
 FS_AddDirToSearchPath(char *dir, qboolean create) {
-	char *file;
+	const char *file;
 	char **list;
 	char path[MAX_OSPATH];
 	char *tmp;
@@ -3116,7 +3116,7 @@ static void FS_AddDirToRawPath (const char *rawdir, qboolean create, qboolean re
 	}
 
 	// Bail out if the dir was already added.
-	for (fsRawPath_t *search = fs_rawPath; search; search = search->next)
+	for (const fsRawPath_t *search = fs_rawPath; search; search = search->next)
 	{
 		if (strcmp(search->path, dir) == 0)
 		{

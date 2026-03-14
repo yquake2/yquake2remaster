@@ -54,7 +54,6 @@ void WidowPowerups(edict_t *self);
 
 void widow2_run(edict_t *self);
 void widow2_stand(edict_t *self);
-void widow2_dead(edict_t *self);
 void widow2_attack(edict_t *self);
 void widow2_attack_beam(edict_t *self);
 void widow2_reattack_beam(edict_t *self);
@@ -93,7 +92,7 @@ void ThrowArm2(edict_t *self);
 void ClipGibVelocity(edict_t *ent);
 
 /* these offsets used by the tongue */
-static vec3_t offsets[] = {
+static const vec3_t offsets[] = {
 	{17.48, 0.10, 68.92},
 	{17.47, 0.29, 68.91},
 	{17.45, 0.53, 68.87},
@@ -1196,11 +1195,6 @@ widow2_pain(edict_t *self, edict_t *other /* unused */, float kick, int damage)
 			self->monsterinfo.currentmove = &widow2_move_pain;
 		}
 	}
-}
-
-void
-widow2_dead(edict_t *self)
-{
 }
 
 void

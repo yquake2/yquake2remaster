@@ -1446,7 +1446,6 @@
 {"weldstate", (byte *)weldstate},
 {"widow2_attack", (byte *)widow2_attack},
 {"widow2_attack_beam", (byte *)widow2_attack_beam},
-{"widow2_dead", (byte *)widow2_dead},
 {"widow2_die", (byte *)widow2_die},
 {"widow2_disrupt_reattack", (byte *)widow2_disrupt_reattack},
 {"widow2_finaldeath", (byte *)widow2_finaldeath},

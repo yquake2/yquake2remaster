@@ -1086,7 +1086,7 @@ void
 Cmd_ExecuteString(char *text)
 {
 	cmd_function_t *cmd;
-	cmdalias_t *a;
+	const cmdalias_t *a;
 
 	Cmd_TokenizeString(text, true);
 

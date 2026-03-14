@@ -2541,7 +2541,6 @@ PutClientInServer(edict_t *ent)
 
 	/* clear entity state values */
 	ent->s.effects = 0;
-	ent->s.skinnum = ent - g_edicts - 1;
 	ent->s.modelindex = CUSTOM_PLAYER_MODEL; /* will use the skin specified model */
 	ent->s.modelindex2 = CUSTOM_PLAYER_MODEL; /* custom gun model */
 

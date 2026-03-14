@@ -1438,7 +1438,7 @@ ai_run(edict_t *self, float dist)
 	qboolean retval;
 	qboolean alreadyMoved = false;
 	qboolean gotcha = false;
-	edict_t *realEnemy;
+	const edict_t *realEnemy;
 
 	if (!self)
 	{

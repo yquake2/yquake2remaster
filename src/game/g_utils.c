@@ -68,7 +68,7 @@ G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t forward
 edict_t *
 G_Find(edict_t *from, int fieldofs, const char *match)
 {
-	char *s;
+	const char *s;
 
 	if (!match)
 	{

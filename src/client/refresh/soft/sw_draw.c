@@ -641,7 +641,7 @@ RE_Draw_PicScaledCol(int x, int y, const char *name, float scale, const vec3_t c
 	for (v = 0; v < h; v++, dest += vid_buffer_width)
 	{
 		int sv = v * pic_height / h;
-		byte *source = pic_pixels + sv * pic_width;
+		const byte *source = pic_pixels + sv * pic_width;
 		int f = 0;
 		int fstep = (pic_width << SHIFT16XYZ) / w;
 

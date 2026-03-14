@@ -156,9 +156,8 @@ CRC_Block(const byte *start, int count)
 byte
 COM_BlockSequenceCRCByte(const byte *base, int length, int sequence)
 {
-	int n;
-	int x;
-	byte *p;
+	int n, x;
+	const byte *p;
 	byte chkb[60 + 4];
 	unsigned short crc;
 	byte r;

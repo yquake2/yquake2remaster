@@ -1449,7 +1449,6 @@ extern void weapon_trap_fire ( edict_t * ent , qboolean held ) ;
 extern void weldstate ( edict_t * self ) ;
 extern void widow2_attack ( edict_t * self ) ;
 extern void widow2_attack_beam ( edict_t * self ) ;
-extern void widow2_dead ( edict_t * self ) ;
 extern void widow2_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void widow2_disrupt_reattack ( edict_t * self ) ;
 extern void widow2_finaldeath ( edict_t * self ) ;
