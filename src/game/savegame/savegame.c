@@ -565,6 +565,7 @@ WriteField1(FILE *f, const field_t *field, byte *base)
 
 				if (!func)
 				{
+					fclose(f);
 					gi.error("%s: function not in list, can't save game",
 						__func__);
 					return;
@@ -589,6 +590,7 @@ WriteField1(FILE *f, const field_t *field, byte *base)
 
 				if (!mmove)
 				{
+					fclose(f);
 					gi.error("%s: mmove not in list, can't save game",
 						__func__);
 					return;
@@ -600,6 +602,7 @@ WriteField1(FILE *f, const field_t *field, byte *base)
 			*(int *)p = len;
 			break;
 		default:
+			fclose(f);
 			gi.error("%s: unknown field type", __func__);
 	}
 }
@@ -639,6 +642,7 @@ WriteField2(FILE *f, const field_t *field, byte *base)
 
 				if (!func)
 				{
+					fclose(f);
 					gi.error("%s: function not in list, can't save game",
 						__func__);
 					return;
@@ -658,6 +662,7 @@ WriteField2(FILE *f, const field_t *field, byte *base)
 				mmove = GetMmoveByAddress (*(mmove_t **)p);
 				if (!mmove)
 				{
+					fclose(f);
 					gi.error("%s: mmove not in list, can't save game",
 						__func__);
 					return;
@@ -722,6 +727,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 				s = gi.TagMalloc(len + 1, TAG_LEVEL);
 				if (!s)
 				{
+					fclose(f);
 					gi.error("%s: can't allocate string field", __func__);
 					return;
 				}
@@ -783,6 +789,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 			{
 				if (len > sizeof(funcStr))
 				{
+					fclose(f);
 					gi.error("%s: function name is longer than buffer (%i chars)",
 							__func__, (int)sizeof(funcStr));
 					return;
@@ -794,6 +801,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 
 				if ( !(*(const byte **)p = FindFunctionByName (funcStr)) )
 				{
+					fclose(f);
 					gi.error("%s: function %s not found in table, can't load game",
 						__func__, funcStr);
 				}
@@ -811,6 +819,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 			{
 				if (len > sizeof(funcStr))
 				{
+					fclose(f);
 					gi.error("%s: mmove name is longer than buffer (%i chars)",
 							__func__, (int)sizeof(funcStr));
 					return;
@@ -822,6 +831,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 
 				if (!(*(const mmove_t **)p = FindMmoveByName(funcStr)))
 				{
+					fclose(f);
 					gi.error("%s: mmove %s not found in table, can't load game",
 						__func__, funcStr);
 				}
@@ -829,6 +839,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 			break;
 
 		default:
+			fclose(f);
 			gi.error("%s: unknown field type", __func__);
 	}
 }
