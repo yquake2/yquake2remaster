@@ -687,6 +687,68 @@ WriteField2(FILE *f, const field_t *field, byte *base)
  * data is done in the functions
  * below
  */
+/* int because that is how it's stored in the file */
+static void
+ReadStringToBuf(FILE *f, int len, char *out, size_t out_sz)
+{
+	*out = 0;
+
+	if (!len)
+	{
+		return;
+	}
+
+	if (len < 0)
+	{
+		fclose(f);
+		gi.error("%s: string length < 0", __func__);
+		return;
+	}
+
+	if (len >= (int)out_sz)
+	{
+		fclose(f);
+		gi.error("%s: string is too long for buffer: %i > %i ",
+				__func__, len, (int)out_sz);
+		return;
+	}
+
+	sg_fread(out, len, f);
+	out[len] = 0;
+}
+
+/* int because that is how it's stored in the file */
+static char *
+ReadString(FILE *f, int len, int tag)
+{
+	char *s;
+
+	if (!len)
+	{
+		return NULL;
+	}
+
+	if (len < 0)
+	{
+		fclose(f);
+		gi.error("%s: string length < 0", __func__);
+		return NULL;
+	}
+
+	s = gi.TagMalloc(len + 1, tag);
+	if (!s)
+	{
+		fclose(f);
+		gi.error("%s: can't allocate memory for string", __func__);
+		return NULL;
+	}
+
+	sg_fread(s, len, f);
+	s[len] = 0;
+
+	return s;
+}
+
 static void
 ReadField(FILE *f, const field_t *field, byte *base)
 {
@@ -715,29 +777,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 		case F_LSTRING:
 		case F_LRAWSTRING:
 			len = *(int *)p;
-
-			if (!len)
-			{
-				*(char **)p = NULL;
-			}
-			else
-			{
-				char *s;
-
-				s = gi.TagMalloc(len + 1, TAG_LEVEL);
-				if (!s)
-				{
-					fclose(f);
-					gi.error("%s: can't allocate string field", __func__);
-					return;
-				}
-
-				sg_fread(s, len, f);
-
-				s[len] = 0;
-				*(char **)p = s;
-			}
-
+			*(char **)p = ReadString(f, len, TAG_LEVEL);
 			break;
 		case F_EDICT:
 			index = *(int *)p;
@@ -787,16 +827,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 			}
 			else
 			{
-				if (len >= sizeof(funcStr))
-				{
-					fclose(f);
-					gi.error("%s: function name is longer than buffer (%i chars)",
-							__func__, (int)sizeof(funcStr));
-					return;
-				}
-
-				sg_fread(funcStr, len, f);
-				funcStr[len] = 0;
+				ReadStringToBuf(f, len, funcStr, sizeof(funcStr));
 
 				if ( !(*(const byte **)p = FindFunctionByName (funcStr)) )
 				{
@@ -816,16 +847,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 			}
 			else
 			{
-				if (len >= sizeof(funcStr))
-				{
-					fclose(f);
-					gi.error("%s: mmove name is longer than buffer (%i chars)",
-							__func__, (int)sizeof(funcStr));
-					return;
-				}
-
-				sg_fread(funcStr, len, f);
-				funcStr[len] = 0;
+				ReadStringToBuf(f, len, funcStr, sizeof(funcStr));
 
 				if (!(*(const mmove_t **)p = FindMmoveByName(funcStr)))
 				{
