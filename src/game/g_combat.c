@@ -491,8 +491,6 @@ CheckArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
 void
 M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 {
-	qboolean new_tesla;
-
 	if (!targ || !attacker || !inflictor)
 	{
 		return;
@@ -514,6 +512,8 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 	   a "new" tesla */
 	if (!strcmp(inflictor->classname, "tesla"))
 	{
+		qboolean new_tesla;
+
 		new_tesla = MarkTeslaArea(targ, inflictor);
 
 		if (new_tesla || !targ->enemy)
@@ -545,11 +545,11 @@ M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 	   damage */
 	if (targ->enemy && targ->monsterinfo.aiflags & AI_TARGET_ANGER)
 	{
-		float percentHealth;
-
 		/* make sure whatever we were pissed at is still around. */
 		if (targ->enemy->inuse)
 		{
+			float percentHealth;
+
 			percentHealth = (float)(targ->health) / (float)(targ->max_health);
 
 			if (percentHealth > 0.33)

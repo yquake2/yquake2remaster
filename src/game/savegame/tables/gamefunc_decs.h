@@ -1182,7 +1182,7 @@ extern void soldier_duck ( edict_t * self , float eta ) ;
 extern void soldier_duck_down ( edict_t * self ) ;
 extern void soldier_duck_hold ( edict_t * self ) ;
 extern void soldier_duck_up ( edict_t * self ) ;
-extern void soldier_fire ( edict_t * self , int flash_number ) ;
+extern void soldier_fire ( edict_t * self , int in_flash_number ) ;
 extern void soldier_fire1 ( edict_t * self ) ;
 extern void soldier_fire2 ( edict_t * self ) ;
 extern void soldier_fire3 ( edict_t * self ) ;

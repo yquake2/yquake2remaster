@@ -1796,7 +1796,7 @@ void Tag_PostInitSetup(void);
 void Tag_Score(edict_t *attacker, const edict_t *victim, int scoreChange);
 void Tag_PlayerEffects(edict_t *ent);
 void Tag_DogTag(const edict_t *ent, edict_t *killer, char **pic);
-void Tag_PlayerDisconnect(edict_t *ent);
+void Tag_PlayerDisconnect(edict_t *self);
 int Tag_ChangeDamage(const edict_t *targ, const edict_t *attacker, int damage, int mod);
 
 void DBall_GameInit(void);

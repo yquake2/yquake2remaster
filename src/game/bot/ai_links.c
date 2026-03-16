@@ -789,20 +789,6 @@ AI_LadderLink_FindLowerNode(int node)
 static int
 AI_IsLadderLink(int n1, int n2)
 {
-	float xzdist;
-	vec3_t eorg;
-
-	VectorSubtract(nodes[n2].origin, nodes[n1].origin, eorg);
-
-	eorg[2] = 0; //ignore height
-
-	xzdist = VectorLength(eorg);
-
-	if (xzdist < 0)
-	{
-		xzdist = -xzdist;
-	}
-
 	//if both are ladder nodes
 	if (nodes[n1].flags & NODEFLAGS_LADDER && nodes[n2].flags & NODEFLAGS_LADDER)
 	{
@@ -965,7 +951,6 @@ AI_IsJumpLink(int n1, int n2)
 	if (link & LINK_CLIMB && link & LINK_FALL)
 	{
 		vec3_t fo1, fo2;
-		int		link;
 		float	dist;
 		float	heightdiff;
 

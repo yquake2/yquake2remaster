@@ -234,7 +234,7 @@ WidowTorso(edict_t *self)
 void
 WidowBlaster(edict_t *self)
 {
-	vec3_t forward, right, target, vec, targ_angles;
+	vec3_t forward, right, target;
 	vec3_t start;
 	int flashnum;
 	int effect;
@@ -264,6 +264,8 @@ WidowBlaster(edict_t *self)
 
 	if ((self->s.frame >= FRAME_spawn05) && (self->s.frame <= FRAME_spawn13))
 	{
+		vec3_t vec, targ_angles;
+
 		/* sweep */
 		flashnum = MZ2_WIDOW_BLASTER_SWEEP1 + self->s.frame - FRAME_spawn05;
 		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum], forward,

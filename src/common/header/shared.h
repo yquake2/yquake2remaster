@@ -300,7 +300,7 @@ void R_ConcatTransforms(const float in1[3][4], const float in2[3][4], float out[
 
 void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up);
 void AngleVectors2(const vec3_t value1, vec3_t angles);
-int BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *plane);
+int BoxOnPlaneSide(const vec3_t emins, const vec3_t emaxs, const struct cplane_s *p);
 float anglemod(float a);
 float Q_fabs(float f);
 float LerpAngle(float a2, float a1, float frac);
@@ -351,7 +351,7 @@ void Com_PageInMemory(const byte *buffer, int size);
 int Q_stricmp(const char *s1, const char *s2);
 int Q_strcasecmp(const char *s1, const char *s2);
 int Q_strncasecmp(const char *s1, const char *s2, int n);
-char *Q_strcasestr(const char *s1, const char *s2);
+char *Q_strcasestr(const char *haystack, const char *needle);
 
 /* portable string lowercase */
 char *Q_strlwr(char *s);

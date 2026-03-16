@@ -159,10 +159,7 @@ Tag_PickupToken(edict_t *ent, edict_t *other)
 	}
 
 	/* sanity checking is good. */
-	if (tag_token != ent)
-	{
-		tag_token = ent;
-	}
+	tag_token = ent;
 
 	other->client->pers.inventory[ITEM_INDEX(ent->item)]++;
 

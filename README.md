@@ -204,6 +204,7 @@ Note:
 
 * 8.61RR14+:
 
+[![Check dynamic animation for weapons](https://img.youtube.com/vi/R8crz-ISkeA/hqdefault.jpg)](https://www.youtube.com/watch?v=R8crz-ISkeA)
 [![Check infinity mod](https://img.youtube.com/vi/JYw_FEjaPJ4/hqdefault.jpg)](https://www.youtube.com/watch?v=JYw_FEjaPJ4)
 
 * 8.61RR13+:

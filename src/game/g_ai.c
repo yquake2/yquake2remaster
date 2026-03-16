@@ -117,9 +117,6 @@ ai_move(edict_t *self, float dist)
 void
 ai_stand(edict_t *self, float dist)
 {
-	vec3_t v;
-	qboolean retval;
-
 	if (!self)
 	{
 		return;
@@ -134,6 +131,9 @@ ai_stand(edict_t *self, float dist)
 	{
 		if (self->enemy)
 		{
+			qboolean retval;
+			vec3_t v;
+
 			VectorSubtract(self->enemy->s.origin, self->s.origin, v);
 			self->ideal_yaw = vectoyaw(v);
 
@@ -246,9 +246,6 @@ ai_walk(edict_t *self, float dist)
 void
 ai_charge(edict_t *self, float dist)
 {
-	vec3_t v;
-	float ofs;
-
 	if (!self)
 	{
 		return;
@@ -266,6 +263,8 @@ ai_charge(edict_t *self, float dist)
 
 	if (!(self->monsterinfo.aiflags & AI_MANUAL_STEERING))
 	{
+		vec3_t v;
+
 		VectorSubtract(self->enemy->s.origin, self->s.origin, v);
 		self->ideal_yaw = vectoyaw(v);
 	}
@@ -283,6 +282,8 @@ ai_charge(edict_t *self, float dist)
 		/* circle strafe support */
 		if (self->monsterinfo.attack_state == AS_SLIDING)
 		{
+			float ofs;
+
 			/* if we're fighting a tesla, NEVER circle strafe */
 			if ((self->enemy) && (self->enemy->classname) &&
 				(!strcmp(self->enemy->classname, "tesla")))
@@ -617,7 +618,6 @@ FindTarget(edict_t *self)
 {
 	edict_t *client;
 	qboolean heardit;
-	int r;
 
 	if (!self)
 	{
@@ -728,6 +728,8 @@ FindTarget(edict_t *self)
 
 	if (!heardit)
 	{
+		int r;
+
 		r = ai_range(self, client);
 
 		if (r == RANGE_FAR)
@@ -882,9 +884,7 @@ FacingIdeal(const edict_t *self)
 qboolean
 M_CheckAttack(edict_t *self)
 {
-	vec3_t spot1, spot2;
 	float chance;
-	trace_t tr;
 
 	if (!self || !self->enemy || !self->enemy->inuse)
 	{
@@ -893,6 +893,9 @@ M_CheckAttack(edict_t *self)
 
 	if (self->enemy->health > 0)
 	{
+		vec3_t spot1, spot2;
+		trace_t tr;
+
 		if (self->enemy->client)
 		{
 			if (self->enemy->client->invisible_framenum > level.framenum)
@@ -1257,7 +1260,6 @@ hesDeadJim(const edict_t *self)
 qboolean
 ai_checkattack(edict_t *self)
 {
-	vec3_t temp;
 	qboolean retval;
 
 	if (!self)
@@ -1378,6 +1380,8 @@ ai_checkattack(edict_t *self)
 
 	if (self->enemy)
 	{
+		vec3_t temp;
+
 		enemy_infront = infront(self, self->enemy);
 		enemy_range = ai_range(self, self->enemy);
 		VectorSubtract(self->enemy->s.origin, self->s.origin, temp);
@@ -1430,7 +1434,7 @@ ai_run(edict_t *self, float dist)
 	edict_t *save;
 	qboolean new;
 	edict_t *marker;
-	float d1, d2;
+	float d1;
 	vec3_t left_target, right_target;
 	qboolean retval;
 	qboolean alreadyMoved = false;
@@ -1750,7 +1754,7 @@ ai_run(edict_t *self, float dist)
 
 		if (tr.fraction < 1)
 		{
-			float left, center, right;
+			float left, center, right, d2;
 			vec3_t v_forward, v_right;
 
 			VectorSubtract(self->goalentity->s.origin, self->s.origin, v);

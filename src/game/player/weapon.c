@@ -1845,7 +1845,7 @@ Weapon_Blaster(edict_t *ent)
 					fire_frames, Weapon_Blaster_Fire);
 		}
 	}
-	else if (frames && num)
+	else
 	{
 		Weapon_PredictFramesGeneric(ent, frames, num, Weapon_Blaster_Fire);
 	}

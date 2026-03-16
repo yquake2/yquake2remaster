@@ -368,7 +368,7 @@ AI_PathMap(edict_t *ent)
 			ent->was_falling = true;
 			return;
 		}
-		else if (ent->is_swim)
+		else
 		{
 			ent->was_falling = false;
 		}
