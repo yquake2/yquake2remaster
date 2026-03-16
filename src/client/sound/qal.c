@@ -44,6 +44,7 @@ static ALCcontext *context;
 static ALCdevice *device;
 static cvar_t *al_device;
 static cvar_t *al_driver;
+static cvar_t *al_hrtf;
 static qboolean hasAlcExtDisconnect;
 static void *handle;
 
@@ -599,6 +600,30 @@ QAL_Init()
 	if (qalcIsExtensionPresent(device, "ALC_EXT_disconnect") != AL_FALSE)
 	{
 		hasAlcExtDisconnect = true;
+	}
+
+	al_hrtf = Cvar_Get("al_hrtf", "0", CVAR_ARCHIVE);
+
+	if (qalcIsExtensionPresent(device, "ALC_SOFT_HRTF") != AL_FALSE)
+	{
+		if (al_hrtf->value)
+		{
+			LPALCRESETDEVICESOFT qalcResetDeviceSOFT =
+				(LPALCRESETDEVICESOFT)qalcGetProcAddress(device, "alcResetDeviceSOFT");
+			if (qalcResetDeviceSOFT)
+			{
+				ALCint attrs[] = { ALC_HRTF_SOFT, ALC_TRUE, 0 };
+				if (qalcResetDeviceSOFT(device, attrs))
+				{
+					ALCint hrtf_enabled;
+					qalcGetIntegerv(device, ALC_HRTF_SOFT, 1, &hrtf_enabled);
+					Com_Printf("OpenAL HRTF: %s\n",
+							hrtf_enabled ? "enabled" : "not available");
+				}
+			} else {
+				Com_Printf("OpenAL HRTF unsupported\n");
+			}
+		}
 	}
 
 

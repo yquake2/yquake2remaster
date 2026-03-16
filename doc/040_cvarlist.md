@@ -351,6 +351,10 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
    wrong one. The given value is the name of the library, for example
    `libopenal.so.1`.
 
+* **al_hrtf**: Enable OpenAL HRTF (Head-Related Transfer Function) for
+  accurate 3D positional audio over headphones. Set to `1` to enable,
+  requires `snd_restart`. Only supported with OpenAL Soft 1.17+.
+
 * **ogg_enable**: Enable Ogg/Vorbis music playback.
 
 * **ogg_ignoretrack0**: Normally Quake II disables the background music
