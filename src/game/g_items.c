@@ -308,7 +308,7 @@ Drop_General(edict_t *ent, const gitem_t *item)
 
 	Drop_Item(ent, item);
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 }
 
 /* ====================================================================== */
@@ -692,7 +692,7 @@ Use_IR(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (ent->client->ir_framenum > level.framenum)
 	{
@@ -710,7 +710,7 @@ void
 Use_Double(edict_t *ent, const gitem_t *item)
 {
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (ent->client->double_framenum > level.framenum)
 	{
@@ -757,7 +757,7 @@ Use_Nuke(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	AngleVectors(ent->client->v_angle, forward, right, NULL);
 
@@ -795,7 +795,7 @@ Use_Doppleganger(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	SpawnGrow_Spawn(spawnPt, 0);
 	fire_doppleganger(ent, spawnPt, forward);
@@ -884,7 +884,7 @@ Use_Defender(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	Defender_Launch(ent);
 }
@@ -904,7 +904,7 @@ Use_Hunter(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	Hunter_Launch(ent);
 }
@@ -924,7 +924,7 @@ Use_Vengeance(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	Vengeance_Launch(ent);
 }
@@ -942,7 +942,7 @@ Use_Quad(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (quad_drop_timeout_hack)
 	{
@@ -980,7 +980,7 @@ Use_QuadFire(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (quad_fire_drop_timeout_hack)
 	{
@@ -1015,7 +1015,7 @@ Use_Breather(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (ent->client->breather_framenum > level.framenum)
 	{
@@ -1038,7 +1038,7 @@ Use_Envirosuit(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (ent->client->enviro_framenum > level.framenum)
 	{
@@ -1061,7 +1061,7 @@ Use_Invulnerability(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 
 	if (ent->client->invincible_framenum > level.framenum)
 	{
@@ -1109,7 +1109,7 @@ Use_Silencer(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 	ent->client->silencer_shots += 30;
 }
 
@@ -1326,7 +1326,7 @@ Drop_Ammo(edict_t *ent, const gitem_t *item)
 	}
 
 	ent->client->pers.inventory[index] -= dropped->count;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 }
 
 /* ====================================================================== */

@@ -262,7 +262,7 @@ Tag_DropToken(edict_t *ent, const gitem_t *item)
 	gi.linkentity(tag_token);
 
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
-	ValidateSelectedItem(ent);
+	ValidateSelectedItem(ent->client);
 }
 
 void

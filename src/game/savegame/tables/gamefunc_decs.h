@@ -291,7 +291,7 @@ extern void Use_Target_Tent ( edict_t * ent , edict_t * other , edict_t * activa
 extern void Use_Vengeance ( edict_t * ent , const gitem_t * item ) ;
 extern void Use_Weapon ( edict_t * ent , const gitem_t * item ) ;
 extern void Use_Weapon2 ( edict_t * ent , const gitem_t * item ) ;
-extern void ValidateSelectedItem ( edict_t * ent ) ;
+extern void ValidateSelectedItem ( gclient_t * cl ) ;
 extern void Vengeance_Launch ( edict_t * self ) ;
 extern void Weapon_BFG ( edict_t * ent ) ;
 extern void Weapon_Blaster ( edict_t * ent ) ;
