@@ -860,6 +860,7 @@ void Think_Weapon(edict_t *ent);
 int ArmorIndex(const edict_t *ent);
 int PowerArmorType(const edict_t *ent);
 gitem_t *GetItemByIndex(int index);
+int GetWeaponAmmoIndex(const gitem_t *weap);
 qboolean Add_Ammo(edict_t *ent, const gitem_t *item, int count);
 void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane,
 		csurface_t *surf);

@@ -56,6 +56,22 @@ GetItemByIndex(int index)
 	return &itemlist[index];
 }
 
+int
+GetWeaponAmmoIndex(const gitem_t *weap)
+{
+	if (weap && weap->ammo)
+	{
+		const gitem_t *ammo = FindItem(weap->ammo);
+
+		if (ammo)
+		{
+			return ITEM_INDEX(ammo);
+		}
+	}
+
+	return 0;
+}
+
 static gitem_t *
 FindItemInList(const char *classname, gitem_t *list, size_t count)
 {
