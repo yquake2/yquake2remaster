@@ -187,7 +187,6 @@ static int
 ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 {
 	float backoff;
-	float change;
 	int i, blocked;
 
 	blocked = 0;
@@ -206,6 +205,8 @@ ClipVelocity(vec3_t in, vec3_t normal, vec3_t out, float overbounce)
 
 	for (i = 0; i < 3; i++)
 	{
+		float change;
+
 		change = normal[i] * backoff;
 		out[i] = in[i] - change;
 
@@ -954,7 +955,6 @@ SV_Physics_Toss(edict_t *ent)
 {
 	trace_t trace;
 	vec3_t move;
-	float backoff;
 	edict_t *slave;
 	qboolean wasinwater;
 	qboolean isinwater;
@@ -1027,6 +1027,8 @@ SV_Physics_Toss(edict_t *ent)
 
 	if (trace.fraction < 1)
 	{
+		float backoff;
+
 		if (ent->movetype == MOVETYPE_WALLBOUNCE)
 		{
 			backoff = 2.0;
@@ -1157,13 +1159,10 @@ SV_Physics_Step(edict_t *ent)
 {
 	qboolean wasonground;
 	qboolean hitsound = false;
-	float *vel;
 	float speed, newspeed, control;
 	float friction;
 	const edict_t *groundentity;
-	int mask;
 	vec3_t oldorig;
-	trace_t tr;
 
 	if (!ent)
 	{
@@ -1251,12 +1250,16 @@ SV_Physics_Step(edict_t *ent)
 
 	if (ent->velocity[2] || ent->velocity[1] || ent->velocity[0])
 	{
+		int mask;
+
 		/* apply friction: let dead monsters who
 		   aren't completely onground slide */
 		if ((wasonground) || (ent->flags & (FL_SWIM | FL_FLY)))
 		{
 			if (!((ent->health <= 0.0) && !M_CheckBottom(ent)))
 			{
+				float *vel;
+
 				vel = ent->velocity;
 				speed = sqrt(vel[0] * vel[0] + vel[1] * vel[1]);
 
@@ -1299,6 +1302,8 @@ SV_Physics_Step(edict_t *ent)
 		   move. */
 		if (!VectorCompare(ent->s.origin, oldorig))
 		{
+			trace_t tr;
+
 			tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin, ent, mask);
 
 			if (tr.startsolid)
@@ -1431,7 +1436,6 @@ G_RunBmodelAnimation(edict_t *ent)
 void
 G_RunEntity(edict_t *ent)
 {
-	trace_t trace;
 	vec3_t previous_origin;
 	qboolean saved_origin;
 
@@ -1500,6 +1504,8 @@ G_RunEntity(edict_t *ent)
 	/* also check inuse since entities are very often freed while thinking */
 	if (saved_origin && ent->inuse && !VectorCompare(ent->s.origin, previous_origin))
 	{
+		trace_t trace;
+
 		trace = gi.trace(ent->s.origin, ent->mins, ent->maxs,
 				previous_origin, ent, MASK_MONSTERSOLID);
 

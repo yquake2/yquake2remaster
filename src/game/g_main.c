@@ -196,12 +196,13 @@ static void
 ClientEndServerFrames(void)
 {
 	int i;
-	edict_t *ent;
 
 	/* calc the player views now that all
 	   pushing and damage has been added */
 	for (i = 0; i < maxclients->value; i++)
 	{
+		edict_t *ent;
+
 		ent = g_edicts + 1 + i;
 
 		if (!ent->inuse || !ent->client)
@@ -239,7 +240,6 @@ CreateTargetChangeLevel(char *map)
 void
 EndDMLevel(void)
 {
-	edict_t *ent;
 	char *s, *t, *f;
 	static const char *seps = " ,\n\r";
 
@@ -307,6 +307,8 @@ EndDMLevel(void)
 	}
 	else    /* search for a changelevel */
 	{
+		edict_t *ent;
+
 		ent = G_Find(NULL, FOFS(classname), "target_changelevel");
 
 		if (!ent)
@@ -325,12 +327,12 @@ EndDMLevel(void)
 static void
 CheckNeedPass(void)
 {
-	int need;
-
 	/* if password or spectator_password has
 	   changed, update needpass as needed */
 	if (password->modified || spectator_password->modified)
 	{
+		int need;
+
 		password->modified = spectator_password->modified = false;
 
 		need = 0;
@@ -353,9 +355,6 @@ CheckNeedPass(void)
 void
 CheckDMRules(void)
 {
-	const gclient_t *cl;
-	int i;
-
 	if (level.intermissiontime)
 	{
 		return;
@@ -397,8 +396,12 @@ CheckDMRules(void)
 
 	if (fraglimit->value)
 	{
+		int i;
+
 		for (i = 0; i < maxclients->value; i++)
 		{
+			const gclient_t *cl;
+
 			cl = game.clients + i;
 
 			if (!g_edicts[i + 1].inuse)

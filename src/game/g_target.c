@@ -656,7 +656,6 @@ use_target_spawner(edict_t *self, edict_t *other /* unused */, edict_t *activato
 void
 SP_target_spawner(edict_t *self)
 {
-	vec3_t	forward;
 	vec3_t	fact2spawnpoint1 = {-1504, 512, 72};
 
 	if (!self)
@@ -672,6 +671,8 @@ SP_target_spawner(edict_t *self)
 	if (!Q_stricmp(level.mapname, "fact2")
 		&& VectorCompare(self->s.origin, fact2spawnpoint1) )
 	{
+		vec3_t	forward;
+
 		VectorSet(forward, 0, 0, 1);
 		VectorMA (self->s.origin, -8, forward, self->s.origin);
 	}
@@ -829,7 +830,6 @@ target_laser_think(edict_t *self)
 	vec3_t end;
 	trace_t tr;
 	vec3_t point;
-	vec3_t last_movedir;
 	int count;
 
 	if (!self)
@@ -848,6 +848,8 @@ target_laser_think(edict_t *self)
 
 	if (self->enemy)
 	{
+		vec3_t last_movedir;
+
 		VectorCopy(self->movedir, last_movedir);
 		VectorMA(self->enemy->absmin, 0.5, self->enemy->size, point);
 		VectorSubtract(point, self->s.origin, self->movedir);

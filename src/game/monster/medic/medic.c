@@ -1899,12 +1899,13 @@ medic_checkattack(edict_t *self)
 static void
 MedicCommanderCache(void)
 {
-	edict_t *newEnt;
 	int i;
 
 	/* better way to do this?  this is quick and dirty */
 	for (i = 0; i < 7; i++)
 	{
+		edict_t *newEnt;
+
 		newEnt = G_Spawn();
 
 		VectorCopy(vec3_origin, newEnt->s.origin);

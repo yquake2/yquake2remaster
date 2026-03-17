@@ -109,7 +109,6 @@ sphere_chase(edict_t *self, int stupidChase)
 {
 	vec3_t dest;
 	vec3_t dir;
-	float dist;
 
 	if (!self)
 	{
@@ -160,6 +159,8 @@ sphere_chase(edict_t *self, int stupidChase)
 	}
 	else
 	{
+		float dist;
+
 		VectorSubtract(self->monsterinfo.saved_goal, self->s.origin, dir);
 		dist = VectorNormalize(dir);
 
@@ -230,8 +231,6 @@ static void
 sphere_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 		const csurface_t *surf, int mod)
 {
-	vec3_t normal;
-
 	if (!self || !other)
 	{
 		return;
@@ -270,6 +269,8 @@ sphere_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
@@ -406,8 +407,6 @@ void
 hunter_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	edict_t *owner;
-	float dist;
-	vec3_t dir;
 
 	if (!self || !other)
 	{
@@ -456,6 +455,9 @@ hunter_pain(edict_t *self, edict_t *other, float kick, int damage)
 	if (!((int)dmflags->value & DF_FORCE_RESPAWN) &&
 		(huntercam && (huntercam->value)))
 	{
+		vec3_t dir;
+		float dist;
+
 		VectorSubtract(other->s.origin, self->s.origin, dir);
 		dist = VectorLength(dir);
 
@@ -608,7 +610,7 @@ void
 hunter_think(edict_t *self)
 {
 	edict_t *owner;
-	vec3_t dir, ang;
+	vec3_t ang;
 
 	if (!self)
 	{
@@ -636,6 +638,8 @@ hunter_think(edict_t *self)
 	}
 	else if (self->enemy) /* fired by doppleganger */
 	{
+		vec3_t dir;
+
 		VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
 		vectoangles2(dir, ang);
 		self->ideal_yaw = ang[YAW];

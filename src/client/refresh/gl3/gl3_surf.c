@@ -538,7 +538,6 @@ void
 GL3_DrawBrushModel(entity_t *e, gl3model_t *currentmodel)
 {
 	vec3_t mins, maxs;
-	int i;
 	qboolean rotated;
 
 	if (currentmodel->nummodelsurfaces == 0)
@@ -550,6 +549,8 @@ GL3_DrawBrushModel(entity_t *e, gl3model_t *currentmodel)
 
 	if (e->angles[0] || e->angles[1] || e->angles[2])
 	{
+		int i;
+
 		rotated = true;
 
 		for (i = 0; i < 3; i++)
@@ -588,8 +589,6 @@ GL3_DrawBrushModel(entity_t *e, gl3model_t *currentmodel)
 		modelorg[1] = -DotProduct(temp, right);
 		modelorg[2] = DotProduct(temp, up);
 	}
-
-
 
 	//glPushMatrix();
 	hmm_mat4 oldMat = gl3state.uni3DData.transModelMat4;

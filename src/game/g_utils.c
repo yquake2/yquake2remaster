@@ -821,7 +821,7 @@ void
 G_TouchTriggers(edict_t *ent)
 {
 	int i, num;
-	edict_t *touch[MAX_EDICTS], *hit;
+	edict_t *touch[MAX_EDICTS];
 
 	if (!ent)
 	{
@@ -841,6 +841,8 @@ G_TouchTriggers(edict_t *ent)
 	   list removed before we get to it (killtriggered) */
 	for (i = 0; i < num; i++)
 	{
+		edict_t *hit;
+
 		hit = touch[i];
 
 		if (!hit->inuse)
@@ -867,7 +869,7 @@ void
 G_TouchSolids(edict_t *ent)
 {
 	int i, num;
-	edict_t *touch[MAX_EDICTS], *hit;
+	edict_t *touch[MAX_EDICTS];
 
 	if (!ent)
 	{
@@ -881,6 +883,8 @@ G_TouchSolids(edict_t *ent)
 	   list removed before we get to it (killtriggered) */
 	for (i = 0; i < num; i++)
 	{
+		edict_t *hit;
+
 		hit = touch[i];
 
 		if (!hit->inuse)
@@ -916,8 +920,6 @@ G_TouchSolids(edict_t *ent)
 qboolean
 KillBox(edict_t *ent)
 {
-	trace_t tr;
-
 	if (!ent)
 	{
 		return false;
@@ -925,6 +927,8 @@ KillBox(edict_t *ent)
 
 	while (1)
 	{
+		trace_t tr;
+
 		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, ent->s.origin,
 				NULL, MASK_PLAYERSOLID);
 

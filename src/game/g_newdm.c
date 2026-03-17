@@ -21,13 +21,13 @@ dm_game_rt DMGame;
 void
 InitGameRules(void)
 {
-	int gameNum;
-
 	/* clear out the game rule structure before we start */
 	memset(&DMGame, 0, sizeof(dm_game_rt));
 
 	if (gamerules && gamerules->value)
 	{
+		int gameNum;
+
 		gameNum = gamerules->value;
 
 		switch (gameNum)
@@ -289,12 +289,13 @@ PrecacheForRandomRespawn(void)
 {
 	gitem_t *it;
 	int i;
-	int itflags;
 
 	it = itemlist;
 
 	for (i = 0; i < game.num_items; i++, it++)
 	{
+		int itflags;
+
 		itflags = it->flags;
 
 		if (!itflags || (itflags & IT_NOT_GIVEABLE))
@@ -310,10 +311,6 @@ void
 doppleganger_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker,
 		int damage, vec3_t point)
 {
-	edict_t *sphere;
-	float dist;
-	vec3_t dir;
-
 	if (!self || !attacker)
 	{
 		return;
@@ -321,16 +318,23 @@ doppleganger_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attack
 
 	if ((self->enemy) && (self->enemy != self->teammaster))
 	{
+		vec3_t dir;
+		float dist;
+
 		VectorSubtract(self->enemy->s.origin, self->s.origin, dir);
 		dist = VectorLength(dir);
 
 		if (dist > 768)
 		{
+			edict_t *sphere;
+
 			sphere = Sphere_Spawn(self, SPHERE_HUNTER | SPHERE_DOPPLEGANGER);
 			sphere->pain(sphere, attacker, 0, 0);
 		}
 		else
 		{
+			edict_t *sphere;
+
 			sphere = Sphere_Spawn(self, SPHERE_VENGEANCE | SPHERE_DOPPLEGANGER);
 			sphere->pain(sphere, attacker, 0, 0);
 		}
@@ -375,12 +379,13 @@ void
 body_think(edict_t *self)
 {
 	int firstframe = FRAME_stand01, lastframe = FRAME_stand40;
-	float r;
 
 	if (fabsf(self->ideal_yaw - anglemod(self->s.angles[YAW])) < 2)
 	{
 		if (self->timestamp < level.time)
 		{
+			float r;
+
 			r = random();
 
 			if (r < 0.10)

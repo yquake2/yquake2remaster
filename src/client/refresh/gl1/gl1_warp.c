@@ -71,7 +71,6 @@ R_EmitWaterPolys(msurface_t *fa)
 
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
-		float s, t, os, ot;
 		mpoly_t *p;
 		mvtx_t *v;
 		int i, nv;
@@ -82,6 +81,8 @@ R_EmitWaterPolys(msurface_t *fa)
 
 		for ( i = 0, v = p->verts; i < p->numverts; i++, v++)
 		{
+			float s, t, os, ot;
+
 			os = v->texCoord[0];
 			ot = v->texCoord[1];
 

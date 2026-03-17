@@ -26,9 +26,7 @@ qboolean
 blocked_checkplat(edict_t *self, float dist)
 {
 	int playerPosition;
-	trace_t trace;
-	vec3_t pt1, pt2;
-	vec3_t forward;
+	vec3_t pt1;
 	edict_t *plat;
 
 	if (!self)
@@ -75,6 +73,9 @@ blocked_checkplat(edict_t *self, float dist)
 	/* if we're not, check to see if we'll step onto one with this move */
 	if (!plat)
 	{
+		vec3_t forward, pt2;
+		trace_t trace;
+
 		AngleVectors(self->s.angles, forward, NULL, NULL);
 		VectorMA(self->s.origin, dist, forward, pt1);
 		VectorCopy(pt1, pt2);
@@ -655,10 +656,8 @@ void
 hint_path_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		csurface_t *surf /* unused */)
 {
-	const edict_t *goal;
 	edict_t *e;
 	edict_t *next = NULL;
-	qboolean goalFound = false;
 
 	if (!self || !other)
 	{
@@ -668,6 +667,8 @@ hint_path_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 	/* make sure we're the target of it's obsession */
 	if (other->movetarget == self)
 	{
+		const edict_t *goal;
+
 		goal = other->monsterinfo.goal_hint;
 
 		/* if the monster is where he wants to be */
@@ -678,6 +679,8 @@ hint_path_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 		}
 		else
 		{
+			qboolean goalFound = false;
+
 			/* if we aren't, figure out which way we want to go */
 			e = hint_path_start[self->hint_chain_id];
 
@@ -986,7 +989,7 @@ edict_t *
 CheckForBadArea(edict_t *ent)
 {
 	int i, num;
-	edict_t *touch[MAX_EDICTS], *hit;
+	edict_t *touch[MAX_EDICTS];
 	vec3_t mins, maxs;
 
 	if (!ent)
@@ -1003,6 +1006,8 @@ CheckForBadArea(edict_t *ent)
 	   list removed before we get to it (killtriggered) */
 	for (i = 0; i < num; i++)
 	{
+		edict_t *hit;
+
 		hit = touch[i];
 
 		if (!hit->inuse)
@@ -1542,7 +1547,6 @@ PickCoopTarget(const edict_t *self)
 int
 CountPlayers(void)
 {
-	const edict_t *ent;
 	int count = 0;
 	int player;
 
@@ -1554,6 +1558,8 @@ CountPlayers(void)
 
 	for (player = 1; player <= game.maxclients; player++)
 	{
+		const edict_t *ent;
+
 		ent = &g_edicts[player];
 
 		if (!ent->inuse)

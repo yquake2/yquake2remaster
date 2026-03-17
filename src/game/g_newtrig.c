@@ -50,7 +50,6 @@ trigger_teleport_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused 
 		csurface_t *surf /* unused */)
 {
 	edict_t *dest;
-	int i;
 
 	if (!self || !other)
 	{
@@ -92,6 +91,8 @@ trigger_teleport_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused 
 
 	if (other->client)
 	{
+		int i;
+
 		other->client->ps.pmove.pm_time = 160 >> 3; /* hold time */
 		other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
 
