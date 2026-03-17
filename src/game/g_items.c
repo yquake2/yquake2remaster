@@ -48,7 +48,7 @@ static int quad_fire_drop_timeout_hack;
 gitem_t *
 GetItemByIndex(int index)
 {
-	if ((index <= 0) || (index >= game.num_items))
+	if ((index <= 0) || (index >= itemlist_len))
 	{
 		return NULL;
 	}
@@ -57,7 +57,7 @@ GetItemByIndex(int index)
 }
 
 static gitem_t *
-FindItemInList(const char *classname, gitem_t *list, int count)
+FindItemInList(const char *classname, gitem_t *list, size_t count)
 {
 	int i;
 	gitem_t *it;
@@ -88,7 +88,7 @@ FindItemInList(const char *classname, gitem_t *list, int count)
 gitem_t *
 FindItemByClassname(const char *classname)
 {
-	return FindItemInList(classname, itemlist, game.num_items);
+	return FindItemInList(classname, itemlist, itemlist_len);
 }
 
 gitem_t *
@@ -104,7 +104,7 @@ FindItem(const char *pickup_name)
 
 	it = itemlist;
 
-	for (i = 0; i < game.num_items; i++, it++)
+	for (i = 0; i < itemlist_len; i++, it++)
 	{
 		if (!it->pickup_name)
 		{
@@ -4405,6 +4405,8 @@ static const gitem_t gameitemlist[] = {
 
 gitem_t itemlist[MAX_ITEMS];
 
+size_t itemlist_len = ARRLEN(gameitemlist) - 1;
+
 /*
  * QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
  */
@@ -4647,7 +4649,7 @@ InitItems(void)
 		free(dyn_items);
 	}
 
-	game.num_items = num_items;
+	itemlist_len = num_items;
 }
 
 qboolean
@@ -4670,7 +4672,7 @@ SetItemNames(void)
 {
 	int i;
 
-	for (i = 0; i < game.num_items; i++)
+	for (i = 0; i < itemlist_len; i++)
 	{
 		gitem_t *it;
 
@@ -4737,7 +4739,7 @@ SP_xatrix_item(edict_t *self)
 		spawnClass = "weapon_plasmabeam";
 	}
 
-	item = FindItemInList(spawnClass, itemlist, game.num_items);
+	item = FindItemInList(spawnClass, itemlist, itemlist_len);
 	if (item)
 	{
 		/* found it */

@@ -152,7 +152,7 @@ FindSubstituteItem(edict_t *ent)
 	/* first pass, count the matching items */
 	it = itemlist;
 
-	for (i = 0; i < game.num_items; i++, it++)
+	for (i = 0; i < itemlist_len; i++, it++)
 	{
 		itflags = it->flags;
 
@@ -207,7 +207,7 @@ FindSubstituteItem(edict_t *ent)
 	/* second pass, pick one. */
 	it = itemlist;
 
-	for (i = 0; i < game.num_items; i++, it++)
+	for (i = 0; i < itemlist_len; i++, it++)
 	{
 		itflags = it->flags;
 
@@ -292,7 +292,7 @@ PrecacheForRandomRespawn(void)
 
 	it = itemlist;
 
-	for (i = 0; i < game.num_items; i++, it++)
+	for (i = 0; i < itemlist_len; i++, it++)
 	{
 		int itflags;
 
