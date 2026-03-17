@@ -1153,10 +1153,7 @@ chick_sidestep(edict_t *self)
 		}
 	}
 
-	if (self->monsterinfo.currentmove != &chick_move_run)
-	{
-		self->monsterinfo.currentmove = &chick_move_run;
-	}
+	self->monsterinfo.currentmove = &chick_move_run;
 }
 
 /*

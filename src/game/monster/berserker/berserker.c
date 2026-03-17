@@ -789,10 +789,7 @@ berserk_sidestep(edict_t *self)
 		return;
 	}
 
-	if (self->monsterinfo.currentmove != &berserk_move_run1)
-	{
-		self->monsterinfo.currentmove = &berserk_move_run1;
-	}
+	self->monsterinfo.currentmove = &berserk_move_run1;
 }
 
 static void

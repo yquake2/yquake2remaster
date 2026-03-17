@@ -350,15 +350,15 @@ void Com_PageInMemory(const byte *buffer, int size);
 /* portable case insensitive compare */
 int Q_stricmp(const char *s1, const char *s2);
 int Q_strcasecmp(const char *s1, const char *s2);
-int Q_strncasecmp(const char *s1, const char *s2, int n);
+int Q_strncasecmp(const char *s1, const char *s2, size_t n);
 char *Q_strcasestr(const char *haystack, const char *needle);
 
 /* portable string lowercase */
 char *Q_strlwr(char *s);
 
 /* portable safe string copy/concatenate */
-int Q_strlcpy(char *dst, const char *src, int size);
-int Q_strlcat(char *dst, const char *src, int size);
+int Q_strlcpy(char *dst, const char *src, size_t size);
+int Q_strlcat(char *dst, const char *src, size_t size);
 
 /* Copies only ASCII chars > 31 && < 127 from s to d, up to n - 1
  * Returns space needed to fully copy s to d (minus null char)

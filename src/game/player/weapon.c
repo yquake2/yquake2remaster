@@ -706,6 +706,11 @@ Think_Weapon(edict_t *ent)
 
 		ent->client->pers.weapon->weaponthink(ent);
 	}
+	else
+	{
+		gi.dprintf("No weapon think %s\n",
+			ent->client->pers.weapon ? ent->client->pers.weapon->classname : "<unknown>");
+	}
 }
 
 /*

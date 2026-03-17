@@ -1141,7 +1141,7 @@ Q_stricmp(const char *s1, const char *s2)
 }
 
 int
-Q_strncasecmp(const char *s1, const char *s2, int n)
+Q_strncasecmp(const char *s1, const char *s2, size_t n)
 {
 	int c1;
 
@@ -1244,7 +1244,7 @@ Q_strlwr ( char *s )
 }
 
 int
-Q_strlcpy(char *dst, const char *src, int size)
+Q_strlcpy(char *dst, const char *src, size_t size)
 {
 	const char *s = src;
 
@@ -1305,7 +1305,7 @@ Q_strlcpy_ascii(char *d, const char *s, size_t n)
 }
 
 int
-Q_strlcat(char *dst, const char *src, int size)
+Q_strlcat(char *dst, const char *src, size_t size)
 {
 	char *d = dst;
 

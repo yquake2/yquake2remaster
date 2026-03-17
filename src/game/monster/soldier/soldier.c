@@ -1910,17 +1910,11 @@ soldier_sidestep(edict_t *self)
 
 	if (self->s.skinnum <= 3)
 	{
-		if (self->monsterinfo.currentmove != &soldier_move_attack6)
-		{
-			self->monsterinfo.currentmove = &soldier_move_attack6;
-		}
+		self->monsterinfo.currentmove = &soldier_move_attack6;
 	}
 	else
 	{
-		if (self->monsterinfo.currentmove != &soldier_move_start_run)
-		{
-			self->monsterinfo.currentmove = &soldier_move_start_run;
-		}
+		self->monsterinfo.currentmove = &soldier_move_start_run;
 	}
 }
 

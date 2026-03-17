@@ -138,7 +138,7 @@ SV_CopySaveGame(char *src, char *dst)
 
 	while (found)
 	{
-		int l;
+		size_t l;
 
 		Q_strlcpy(name + len, found + len, Q_max(sizeof(name) - len, 0));
 

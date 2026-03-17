@@ -461,7 +461,7 @@ void
 TurretFire(edict_t *self)
 {
 	vec3_t forward, dir;
-	float time, dist, chance;
+	float chance;
 	int rocketSpeed = 0;
 
 	if (!self)
@@ -520,6 +520,7 @@ TurretFire(edict_t *self)
 	{
 		vec3_t start, end;
 		trace_t trace;
+		float dist;
 
 		VectorCopy(self->s.origin, start);
 		VectorCopy(self->enemy->s.origin, end);
@@ -547,6 +548,8 @@ TurretFire(edict_t *self)
 
 			if (chance < 0.8)
 			{
+				float time;
+
 				/* lead the target.... */
 				time = dist / 1000;
 				VectorMA(end, time, self->enemy->velocity, end);

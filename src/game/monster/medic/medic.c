@@ -1984,10 +1984,7 @@ medic_sidestep(edict_t *self)
 		}
 	}
 
-	if (self->monsterinfo.currentmove != &medic_move_run)
-	{
-		self->monsterinfo.currentmove = &medic_move_run;
-	}
+	self->monsterinfo.currentmove = &medic_move_run;
 }
 
 qboolean
