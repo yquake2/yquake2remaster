@@ -23,7 +23,7 @@ layout(set = 0, binding = 0) uniform sampler2D sTexture;
 
 layout(location = 0) out vec4 fragmentColor;
 
-#define PI 3.1415
+#define PI 3.14159265358979323846
 
 void main()
 {

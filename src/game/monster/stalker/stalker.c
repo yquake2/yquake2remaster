@@ -52,9 +52,8 @@ void stalker_false_death_start(edict_t *self);
 
 #define STALKER_ON_CEILING(ent) (ent->gravityVector[2] > 0 ? 1 : 0)
 
-#define PI 3.14159
-#define RAD2DEG(x) (x * (float)180.0 / (float)PI)
-#define DEG2RAD(x) (x * (float)PI / (float)180.0)
+#define RAD2DEG(x) (x * 180.0 / M_PI)
+#define DEG2RAD(x) (x * M_PI / 180.0)
 #define FAUX_GRAVITY 800.0
 
 extern qboolean SV_PointCloseEnough(edict_t *ent, vec3_t goal, float dist);
@@ -865,7 +864,7 @@ calcJumpAngle(vec3_t start, vec3_t end, float velocity, vec3_t angles)
 			angles[2] = 1.0;
 		}
 
-		angles[1] = (float)PI - angles[0];
+		angles[1] = M_PI - angles[0];
 
 		if (isnan(angles[1]))
 		{
@@ -892,7 +891,7 @@ calcJumpAngle(vec3_t start, vec3_t end, float velocity, vec3_t angles)
 			angles[2] = 1.0;
 		}
 
-		angles[1] = (float)PI - angles[0];
+		angles[1] = M_PI - angles[0];
 
 		if (isnan(angles[1]))
 		{

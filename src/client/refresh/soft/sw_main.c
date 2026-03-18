@@ -321,15 +321,18 @@ R_InitTurb
 ================
 */
 static void
-R_InitTurb (int width)
+R_InitTurb(int width)
 {
 	int		i;
 
 	memset(blanktable, 0, (width+CYCLE) * sizeof(int));
 	for (i = 0; i < (width+CYCLE); i++)
 	{
-		sintable[i] = AMP + sin(i*3.14159*2/CYCLE)*AMP;
-		intsintable[i] = AMP2 + sin(i*3.14159*2/CYCLE)*AMP2; // AMP2, not 20
+		float i_sin;
+
+		i_sin = sin(i * M_PI * 2.0 / CYCLE);
+		sintable[i] = AMP + i_sin * AMP;
+		intsintable[i] = AMP2 + i_sin * AMP2; // AMP2, not 20
 	}
 }
 
