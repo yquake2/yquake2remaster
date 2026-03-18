@@ -974,11 +974,11 @@ Cmd_WeapPrev_f(edict_t *ent)
 	selected_weapon = ITEM_INDEX(it);
 
 	/* scan for the next valid one */
-	for (i = 1; i <= MAX_ITEMS; i++)
+	for (i = 1; i <= itemlist_len; i++)
 	{
 		int index;
 
-		index = (selected_weapon + MAX_ITEMS - i) % MAX_ITEMS;
+		index = (selected_weapon + itemlist_len - i) % itemlist_len;
 
 		if (!cl->pers.inventory[index])
 		{
@@ -1038,11 +1038,11 @@ Cmd_WeapNext_f(edict_t *ent)
 	selected_weapon = ITEM_INDEX(it);
 
 	/* scan for the next valid one */
-	for (i = 1; i <= MAX_ITEMS; i++)
+	for (i = 1; i <= itemlist_len; i++)
 	{
 		int index;
 
-		index = (selected_weapon + i) % MAX_ITEMS;
+		index = (selected_weapon + i) % itemlist_len;
 
 		if (!cl->pers.inventory[index])
 		{
