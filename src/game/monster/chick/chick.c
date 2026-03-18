@@ -518,8 +518,6 @@ chick_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
 		vec3_t point /*unused */)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -528,6 +526,8 @@ chick_die(edict_t *self, edict_t *inflictor /* unused */,
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
 				1, ATTN_NORM, 0);
 
@@ -683,9 +683,7 @@ ChickRocket(edict_t *self)
 	vec3_t start;
 	vec3_t dir;
 	vec3_t vec;
-	trace_t trace; /* check target */
 	int rocketSpeed;
-	float dist;
 	vec3_t target;
 	qboolean blindfire = false;
 
@@ -746,7 +744,7 @@ ChickRocket(edict_t *self)
 	/* lead target (not when blindfiring) */
 	if ((!blindfire) && ((random() < (0.2 + ((3 - skill->value) * 0.15)))))
 	{
-		float time;
+		float time, dist;
 
 		dist = VectorLength(dir);
 		time = dist / rocketSpeed;
@@ -766,6 +764,8 @@ ChickRocket(edict_t *self)
 	}
 	else
 	{
+		trace_t trace; /* check target */
+
 		trace = gi.trace(start, vec3_origin, vec3_origin, vec, self, MASK_SHOT);
 
 		if (((trace.ent != self->enemy) && (trace.ent != world)) ||
@@ -1018,8 +1018,6 @@ chick_melee(edict_t *self)
 void
 chick_attack(edict_t *self)
 {
-	float r, chance;
-
 	if (!self)
 	{
 		return;
@@ -1029,6 +1027,8 @@ chick_attack(edict_t *self)
 
 	if (self->monsterinfo.attack_state == AS_BLIND)
 	{
+		float r, chance;
+
 		/* setup shot probabilities */
 		if (self->monsterinfo.blind_fire_delay < 1.0)
 		{

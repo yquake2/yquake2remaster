@@ -251,7 +251,7 @@ Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 }
 
 static void
-SpawnDamage(int type, vec3_t origin, vec3_t normal)
+SpawnDamage(int type, const vec3_t origin, const vec3_t normal)
 {
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(type);
@@ -281,7 +281,7 @@ SpawnDamage(int type, vec3_t origin, vec3_t normal)
  *      DAMAGE_NO_PROTECTION	kills godmode, armor, everything
  */
 static int
-CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
+CheckPowerArmor(edict_t *ent, const vec3_t point, const vec3_t normal,
 		int damage, int dflags)
 {
 	gclient_t *client;
@@ -424,7 +424,7 @@ CheckPowerArmor(edict_t *ent, vec3_t point, vec3_t normal,
 }
 
 static int
-CheckArmor(edict_t *ent, vec3_t point, vec3_t normal, int damage,
+CheckArmor(edict_t *ent, vec3_t point, const vec3_t normal, int damage,
 		int te_sparks, int dflags)
 {
 	gclient_t *client;
@@ -703,7 +703,7 @@ apply_knockback(edict_t *targ, vec3_t dir, float knockback, float scale)
 
 void
 T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
-		vec3_t point, vec3_t normal, int damage, int knockback, int dflags,
+		vec3_t point, const vec3_t normal, int damage, int knockback, int dflags,
 		int mod)
 {
 	gclient_t *client;

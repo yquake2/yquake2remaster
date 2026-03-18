@@ -900,7 +900,7 @@ qboolean OnSameTeam(const edict_t *ent1, const edict_t *ent2);
 qboolean CanDamage(edict_t *targ, edict_t *inflictor);
 qboolean CheckTeamDamage(const edict_t *targ, const edict_t *attacker);
 void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker,
-		vec3_t dir, vec3_t point, vec3_t normal, int damage,
+		vec3_t dir, vec3_t point, const vec3_t normal, int damage,
 		int knockback, int dflags, int mod);
 void T_RadiusDamage(edict_t *inflictor, edict_t *attacker,
 		float damage, const edict_t *ignore, float radius,

@@ -440,7 +440,6 @@ void
 CarrierSpawn(edict_t *self)
 {
 	vec3_t f, r, offset, startpoint, spawnpoint;
-	edict_t *ent;
 	int mytime;
 
 	if (!self)
@@ -458,6 +457,8 @@ CarrierSpawn(edict_t *self)
 
 	if (FindSpawnPoint(startpoint, flyer_mins, flyer_maxs, spawnpoint, 32))
 	{
+		edict_t *ent;
+
 		/* the second flier should be a kamikaze flyer */
 		if (mytime != 2)
 		{
@@ -1008,8 +1009,6 @@ CarrierMachineGunHold(edict_t *self)
 void
 carrier_attack(edict_t *self)
 {
-	vec3_t vec;
-	float range, luck;
 	qboolean enemy_inback, enemy_infront, enemy_below;
 
 	if (!self)
@@ -1072,6 +1071,9 @@ carrier_attack(edict_t *self)
 
 	if (enemy_infront)
 	{
+		float range;
+		vec3_t vec;
+
 		VectorSubtract(self->enemy->s.origin, self->s.origin, vec);
 		range = VectorLength(vec);
 
@@ -1090,6 +1092,8 @@ carrier_attack(edict_t *self)
 		}
 		else if (range < 600)
 		{
+			float luck;
+
 			luck = random();
 
 			if (self->monsterinfo.monster_slots > 2)
@@ -1138,6 +1142,8 @@ carrier_attack(edict_t *self)
 		}
 		else /* won't use grenades at this range */
 		{
+			float luck;
+
 			luck = random();
 
 			if (self->monsterinfo.monster_slots > 2)
@@ -1348,10 +1354,8 @@ carrier_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 qboolean
 Carrier_CheckAttack(edict_t *self)
 {
-	vec3_t spot1, spot2;
 	vec3_t temp;
 	float chance = 0;
-	trace_t tr;
 	qboolean enemy_infront, enemy_inback, enemy_below;
 	int enemy_range;
 	float enemy_yaw;
@@ -1363,6 +1367,9 @@ Carrier_CheckAttack(edict_t *self)
 
 	if (self->enemy->health > 0)
 	{
+		vec3_t spot1, spot2;
+		trace_t tr;
+
 		/* see if any entities are in the way of the shot */
 		VectorCopy(self->s.origin, spot1);
 		spot1[2] += self->viewheight;

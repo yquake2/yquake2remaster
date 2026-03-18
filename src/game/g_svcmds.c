@@ -85,7 +85,7 @@ static qboolean
 StringToFilter(char *s, ipfilter_t *f)
 {
 	char num[128];
-	int i, j;
+	int i;
 	YQ2_ALIGNAS_TYPE(unsigned) byte b[4];
 	YQ2_ALIGNAS_TYPE(unsigned) byte m[4];
 
@@ -102,6 +102,8 @@ StringToFilter(char *s, ipfilter_t *f)
 
 	for (i = 0; i < 4; i++)
 	{
+		int j;
+
 		if ((*s < '0') || (*s > '9'))
 		{
 			gi.cprintf(NULL, PRINT_HIGH, "Bad filter address: %s\n", s);

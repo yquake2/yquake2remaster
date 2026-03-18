@@ -701,23 +701,17 @@ void
 soldier_fire(edict_t *self, int in_flash_number)
 {
 	vec3_t start;
-	vec3_t forward, right, up;
+	vec3_t forward, right;
 	vec3_t aim;
-	vec3_t dir;
 	vec3_t end;
-	float r, u;
 	int flash_index;
 	int flash_number;
+	vec3_t aim_good = {0};
 
 	if (!self)
 	{
 		return;
 	}
-
-	vec3_t aim_norm;
-	float angle;
-	trace_t tr;
-	vec3_t aim_good;
 
 	if ((!self->enemy) || (!self->enemy->inuse))
 	{
@@ -757,6 +751,9 @@ soldier_fire(edict_t *self, int in_flash_number)
 	}
 	else
 	{
+		vec3_t dir, up;
+		float r, u;
+
 		VectorCopy(self->enemy->s.origin, end);
 		end[2] += self->enemy->viewheight;
 		VectorSubtract(end, start, aim);
@@ -764,6 +761,9 @@ soldier_fire(edict_t *self, int in_flash_number)
 
 		if (in_flash_number < 0)
 		{
+			vec3_t aim_norm;
+			float angle;
+
 			VectorCopy(aim, aim_norm);
 			VectorNormalize(aim_norm);
 			angle = DotProduct(aim_norm, forward);
@@ -798,6 +798,8 @@ soldier_fire(edict_t *self, int in_flash_number)
 
 	if (!((flash_number == 5) || (flash_number == 6))) /* he's dead */
 	{
+		trace_t tr;
+
 		tr = gi.trace(start, NULL, NULL, aim_good, self, MASK_SHOT);
 
 		if ((tr.ent != self->enemy) && (tr.ent != world))
@@ -1232,7 +1234,7 @@ static const mmove_t soldier_move_attack6_static =
 void
 soldier_attack(edict_t *self)
 {
-	float r, chance;
+	float r;
 
 	if (!self)
 	{
@@ -1244,6 +1246,8 @@ soldier_attack(edict_t *self)
 	/* blindfire! */
 	if (self->monsterinfo.attack_state == AS_BLIND)
 	{
+		float chance;
+
 		/* setup shot probabilities */
 		if (self->monsterinfo.blind_fire_delay < 1.0)
 		{
@@ -2403,11 +2407,9 @@ void
 soldierh_fire(edict_t *self, int flash_number)
 {
 	vec3_t start;
-	vec3_t forward, right, up;
+	vec3_t forward, right;
 	vec3_t aim;
-	vec3_t dir;
 	vec3_t end;
-	float r, u;
 	int flash_index;
 
 	if (!self)
@@ -2438,6 +2440,9 @@ soldierh_fire(edict_t *self, int flash_number)
 	}
 	else
 	{
+		vec3_t dir, up;
+		float r, u;
+
 		VectorCopy(self->enemy->s.origin, end);
 		end[2] += self->enemy->viewheight;
 		VectorSubtract(end, start, aim);

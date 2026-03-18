@@ -418,7 +418,7 @@ RealBoundingBox(edict_t *ent, vec3_t mins, vec3_t maxs)
 {
 	vec3_t forward, left, up, f1, l1, u1;
 	vec3_t p[8];
-	int i, j, k, j2, k4;
+	int i, j, k, j2;
 
 	if (!ent)
 	{
@@ -427,6 +427,8 @@ RealBoundingBox(edict_t *ent, vec3_t mins, vec3_t maxs)
 
 	for (k = 0; k < 2; k++)
 	{
+		int k4;
+
 		k4 = k * 4;
 
 		if (k)

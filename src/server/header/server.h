@@ -245,7 +245,7 @@ void SV_FlushRedirect(int sv_redirected, char *outputbuf);
 void SV_SendClientMessages(void);
 void SV_SendPrepClientMessages(void);
 
-void SV_Multicast(vec3_t origin, multicast_t to);
+void SV_Multicast(const vec3_t origin, multicast_t to);
 void SV_StartSound(vec3_t origin, const edict_t *entity, int channel,
 		int soundindex, float volume, float attenuation,
 		float timeofs);

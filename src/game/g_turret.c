@@ -634,7 +634,6 @@ turret_brain_think(edict_t *self)
 	vec3_t dir;
 	vec3_t endpos;
 	float reaction_time;
-	trace_t trace;
 
 	if (!self)
 	{
@@ -675,6 +674,8 @@ turret_brain_think(edict_t *self)
 	}
 	else
 	{
+		trace_t trace;
+
 		VectorAdd(self->enemy->absmax, self->enemy->absmin, endpos);
 		VectorScale(endpos, 0.5, endpos);
 

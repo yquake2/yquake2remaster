@@ -38,9 +38,7 @@ void
 check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed)
 {
 	vec3_t end;
-	vec3_t v;
 	trace_t tr;
-	float eta;
 
 	if (!self)
 	{
@@ -62,6 +60,9 @@ check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed)
 	if ((tr.ent) && (tr.ent->svflags & SVF_MONSTER) && (tr.ent->health > 0) &&
 		(tr.ent->monsterinfo.dodge) && infront(tr.ent, self))
 	{
+		float eta;
+		vec3_t v;
+
 		VectorSubtract(tr.endpos, start, v);
 		eta = (VectorLength(v) - tr.ent->maxs[0]) / speed;
 		tr.ent->monsterinfo.dodge(tr.ent, self, eta, &tr);
@@ -179,10 +180,7 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 {
 	trace_t tr;
 	vec3_t dir;
-	vec3_t forward, right, up;
 	vec3_t end;
-	float r;
-	float u;
 	vec3_t water_start;
 	qboolean water = false;
 	int content_mask = MASK_SHOT | MASK_WATER;
@@ -196,6 +194,9 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 
 	if (!(tr.fraction < 1.0))
 	{
+		vec3_t forward, right, up;
+		float u, r;
+
 		vectoangles(aimdir, dir);
 		AngleVectors(dir, forward, right, up);
 
@@ -217,13 +218,13 @@ fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 		/* see if we hit water */
 		if (tr.contents & MASK_WATER)
 		{
-			int color;
-
 			water = true;
 			VectorCopy(tr.endpos, water_start);
 
 			if (!VectorCompare(start, tr.endpos))
 			{
+				int color;
+
 				if (tr.contents & CONTENTS_WATER)
 				{
 					if (strcmp(tr.surface->name, "*brwater") == 0)
@@ -380,7 +381,6 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void
 blaster_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	int mod;
 	vec3_t normal;
 
 	if (!self || !other) /* plane and surf can be NULL */
@@ -409,6 +409,8 @@ blaster_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (other->takedamage)
 	{
+		int mod;
+
 		if (self->spawnflags & 1)
 		{
 			mod = MOD_HYPERBLASTER;
@@ -801,8 +803,6 @@ void
 rocket_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	vec3_t origin;
-	vec3_t normal;
-	int n;
 
 	if (!ent || !other) /* plane and surf can be NULL */
 	{
@@ -831,6 +831,8 @@ rocket_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin,
@@ -844,6 +846,8 @@ rocket_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 			if ((surf) && !(surf->flags &
 				  (SURF_WARP | SURF_TRANSPARENT | SURF_FLOWING)))
 			{
+				int n;
+
 				n = randk() % 5;
 
 				while (n--)
@@ -999,11 +1003,6 @@ fire_rail(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick)
 void
 bfg_explode(edict_t *self)
 {
-	edict_t *ent;
-	float points;
-	vec3_t v;
-	float dist;
-
 	if (!self)
 	{
 		return;
@@ -1011,11 +1010,16 @@ bfg_explode(edict_t *self)
 
 	if (self->s.frame == 0)
 	{
+		edict_t *ent;
+
 		/* the BFG effect */
 		ent = NULL;
 
 		while ((ent = findradius(ent, self->s.origin, self->dmg_radius)) != NULL)
 		{
+			float points, dist;
+			vec3_t v;
+
 			if (!ent->takedamage)
 			{
 				continue;
@@ -1068,8 +1072,6 @@ bfg_explode(edict_t *self)
 void
 bfg_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	vec3_t normal;
-
 	if (!self || !other) /* plane and surf can be NULL */
 	{
 		G_FreeEdict(self);
@@ -1095,6 +1097,8 @@ bfg_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 	/* core explosion - prevents firing it into the wall/floor */
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
@@ -1315,8 +1319,6 @@ ionripper_sparks(edict_t *self)
 void
 ionripper_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	vec3_t normal;
-
 	if (!self || !other)
 	{
 		return;
@@ -1340,6 +1342,8 @@ ionripper_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
@@ -1511,7 +1515,6 @@ void
 plasma_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
 	vec3_t origin;
-	vec3_t normal;
 
 	if (!ent || !other)
 	{
@@ -1539,6 +1542,8 @@ plasma_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin,
@@ -1614,9 +1619,8 @@ Trap_Think(edict_t *ent)
 	edict_t *target = NULL;
 	edict_t *best = NULL;
 	vec3_t vec;
-	int len, i;
+	int len;
 	int oldlen = 8000;
-	vec3_t forward, right, up;
 
 	if (!ent)
 	{
@@ -1641,6 +1645,8 @@ Trap_Think(edict_t *ent)
 	{
 		if (ent->s.frame == 5)
 		{
+			int i;
+
 			if (ent->wait == 64)
 			{
 				gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/trapdown.wav"),
@@ -1652,6 +1658,8 @@ Trap_Think(edict_t *ent)
 
 			for (i = 0; i < 3; i++)
 			{
+				vec3_t forward, right, up;
+
 				best = G_Spawn();
 
 				if (strcmp(ent->enemy->classname, "monster_gekk") == 0)
@@ -1787,8 +1795,6 @@ Trap_Think(edict_t *ent)
 	/* pull the enemy in */
 	if (best)
 	{
-		vec3_t forward;
-
 		if (best->groundentity)
 		{
 			best->s.origin[2] += 1;
@@ -1805,6 +1811,8 @@ Trap_Think(edict_t *ent)
 		}
 		else
 		{
+			vec3_t forward;
+
 			best->ideal_yaw = vectoyaw(vec);
 			M_ChangeYaw(best);
 			AngleVectors(best->s.angles, forward, NULL, NULL);
@@ -1910,8 +1918,6 @@ fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 static void
 flare_sparks(edict_t *self)
 {
-	vec3_t forward, right, up;
-
 	/* Spawn some sparks.  This isn't net-friendly at all, but will
 	 * be fine for single player. */
 	gi.WriteByte(svc_temp_entity);
@@ -1921,7 +1927,7 @@ flare_sparks(edict_t *self)
 	 * we are travelling. */
 	if (VectorLength(self->velocity) > 0.0)
 	{
-		vec3_t dir;
+		vec3_t forward, right, up, dir;
 
 		vectoangles(self->velocity, dir);
 		AngleVectors(dir, forward, right, up);

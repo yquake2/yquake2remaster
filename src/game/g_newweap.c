@@ -46,7 +46,6 @@ extern void Grenade_Explode(edict_t *ent);
 void
 flechette_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	vec3_t dir;
 	vec3_t normal;
 
 	if (!self || !other)
@@ -80,6 +79,8 @@ flechette_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf
 	}
 	else
 	{
+		vec3_t dir;
+
 		VectorScale(normal, 256, dir);
 
 		gi.WriteByte(svc_temp_entity);
@@ -421,7 +422,7 @@ prox_land(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 	{
 		/* Here we need to check to see if we can stop on this entity. */
 		vec3_t out;
-		float backoff, change;
+		float backoff;
 		int i, stick_ok;
 
 		if ((other->movetype == MOVETYPE_PUSH) && (normal[2] > 0.7))
@@ -437,6 +438,8 @@ prox_land(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 		for (i = 0; i < 3; i++)
 		{
+			float change;
+
 			change = normal[i] * backoff;
 			out[i] = ent->velocity[i] - change;
 
@@ -1504,8 +1507,6 @@ fire_heatbeam(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
 void
 blaster2_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	int mod;
-	int damagestat;
 	vec3_t normal;
 
 	if (!self || !other)
@@ -1533,10 +1534,14 @@ blaster2_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (other->takedamage)
 	{
+		int mod;
+
 		mod = MOD_BLASTER2;
 
 		if (self->owner)
 		{
+			int damagestat;
+
 			/* the only time players will be firing blaster2
 			   bolts will be from the defender sphere. */
 			if (self->owner->client)
@@ -1648,9 +1653,6 @@ fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 void
 tracker_pain_daemon_think(edict_t *self)
 {
-	static vec3_t pain_normal = {0, 0, 1};
-	int hurt;
-
 	if (!self)
 	{
 		return;
@@ -1674,6 +1676,8 @@ tracker_pain_daemon_think(edict_t *self)
 	{
 		if (self->enemy->health > 0)
 		{
+			static const vec3_t pain_normal = {0, 0, 1};
+
 			T_Damage(self->enemy, self, self->owner, vec3_origin, self->enemy->s.origin,
 					pain_normal, self->dmg, 0, TRACKER_DAMAGE_FLAGS, MOD_TRACKER);
 
@@ -1683,6 +1687,8 @@ tracker_pain_daemon_think(edict_t *self)
 				/* if we killed a monster, gib them. */
 				if (self->enemy->health < 1)
 				{
+					int hurt;
+
 					if (self->enemy->gib_health)
 					{
 						hurt = -self->enemy->gib_health;
@@ -1759,8 +1765,6 @@ tracker_explode(edict_t *self)
 void
 tracker_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	float damagetime;
-
 	if (!self || !other)
 	{
 		return;
@@ -1792,6 +1796,8 @@ tracker_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 		{
 			if (other->health > 0) /* knockback only for living creatures */
 			{
+				float damagetime;
+
 				T_Damage(other, self, self->owner, self->velocity, self->s.origin,
 						normal, 0, (self->dmg * 3), TRACKER_IMPACT_FLAGS,
 						MOD_TRACKER);

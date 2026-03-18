@@ -771,10 +771,8 @@ jorg_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* un
 qboolean
 Jorg_CheckAttack(edict_t *self)
 {
-	vec3_t spot1, spot2;
 	vec3_t temp;
 	float chance;
-	trace_t tr;
 	int enemy_range;
 	float enemy_yaw;
 
@@ -785,6 +783,9 @@ Jorg_CheckAttack(edict_t *self)
 
 	if (self->enemy->health > 0)
 	{
+		vec3_t spot1, spot2;
+		trace_t tr;
+
 		/* see if any entities are in the way of the shot */
 		VectorCopy(self->s.origin, spot1);
 		spot1[2] += self->viewheight;

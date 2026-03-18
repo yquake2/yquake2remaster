@@ -691,7 +691,7 @@ const byte *CM_ClusterPVS(int cluster, size_t *size);
 const byte *CM_ClusterPHS(int cluster, size_t *size);
 byte *CM_ClusterPTS(size_t *size);
 
-int CM_PointLeafnum(vec3_t p);
+int CM_PointLeafnum(const vec3_t p);
 
 /* call with topnode set to the headnode, returns with topnode */
 /* set to the first node that splits the box */

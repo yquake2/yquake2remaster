@@ -876,8 +876,6 @@ mmove_t brain_move_attack4 = {
 void
 brain_attack(edict_t *self)
 {
-	int r;
-
 	if (!self)
 	{
 		return;
@@ -885,6 +883,8 @@ brain_attack(edict_t *self)
 
 	if (random() < 0.8)
 	{
+		int r;
+
 		r = ai_range(self, self->enemy);
 
 		if (r == RANGE_NEAR)
@@ -1019,8 +1019,6 @@ void
 brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
 		int damage, vec3_t point /* unused */)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -1032,6 +1030,8 @@ brain_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"),
 				1, ATTN_NORM, 0);
 

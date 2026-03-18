@@ -108,20 +108,12 @@ shalrath_pod_home(edict_t *self)
 {
 	static qboolean think = false;
 	vec3_t			end;
-	vec3_t			dir;
 
 	// decino: Only home every 0.2 frames
 	if (think)
 	{
-		if (self->enemy && self->enemy->health < 1 && self->owner->health > 0)
-		{
-			// decino: Not a big fan of this, just wait until it hits something
-			/*if (!self->owner->enemy || (self->owner->enemy == self->owner))
-			{
-				G_FreeEdict(self);
-				return;
-			}*/
-		}
+		vec3_t dir;
+
 		if (self->owner->enemy)
 		{
 			self->enemy = self->owner->enemy;

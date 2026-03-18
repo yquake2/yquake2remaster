@@ -574,26 +574,27 @@ for JUMP only:
 void
 target_actor_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	vec3_t	v;
-
-	if (other->movetarget != self)
+	if (other->movetarget != self || other->enemy)
+	{
 		return;
-
-	if (other->enemy)
-		return;
+	}
 
 	other->goalentity = other->movetarget = NULL;
 
 	if (self->message)
 	{
-		int		n;
-		edict_t	*ent;
+		int n;
 
 		for (n = 1; n <= game.maxclients; n++)
 		{
+			edict_t *ent;
+
 			ent = &g_edicts[n];
 			if (!ent->inuse)
+			{
 				continue;
+			}
+
 			gi.cprintf (ent, PRINT_CHAT, "%s: %s\n", actor_names[(other - g_edicts)%MAX_ACTOR_NAMES], self->message);
 		}
 	}
@@ -656,8 +657,10 @@ target_actor_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *s
 	}
 	else if (other->movetarget == other->goalentity)
 	{
+		vec3_t v;
+
 		VectorSubtract (other->movetarget->s.origin, other->s.origin, v);
-		other->ideal_yaw = vectoyaw (v);
+		other->ideal_yaw = vectoyaw(v);
 	}
 }
 
