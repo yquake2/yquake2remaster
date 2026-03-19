@@ -358,11 +358,6 @@ typedef struct
 	/* cross level triggers */
 	int serverflags;
 
-	/* unused for savegame security and stability reasons
-	   use itemlist_len instead
-	*/
-	int num_items;
-
 	qboolean autosaved;
 } game_locals_t;
 

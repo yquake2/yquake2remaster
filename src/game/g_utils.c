@@ -574,7 +574,6 @@ vectoyaw2(vec3_t vec)
 void
 vectoangles(vec3_t value1, vec3_t angles)
 {
-	float forward;
 	float yaw, pitch;
 
 	if ((value1[1] == 0) && (value1[0] == 0))
@@ -592,6 +591,8 @@ vectoangles(vec3_t value1, vec3_t angles)
 	}
 	else
 	{
+		float forward;
+
 		if (value1[0])
 		{
 			yaw = (int)(atan2(value1[1], value1[0]) * 180 / M_PI);
@@ -627,7 +628,6 @@ vectoangles(vec3_t value1, vec3_t angles)
 void
 vectoangles2(vec3_t value1, vec3_t angles)
 {
-	float forward;
 	float yaw, pitch;
 
 	if ((value1[1] == 0) && (value1[0] == 0))
@@ -645,6 +645,8 @@ vectoangles2(vec3_t value1, vec3_t angles)
 	}
 	else
 	{
+		float forward;
+
 		if (value1[0])
 		{
 			yaw = (atan2(value1[1], value1[0]) * 180 / M_PI);

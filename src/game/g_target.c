@@ -94,8 +94,6 @@ SP_target_temp_entity(edict_t *ent)
 void
 Use_Target_Speaker(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused */)
 {
-	int chan;
-
 	if (!ent)
 	{
 		return;
@@ -115,6 +113,8 @@ Use_Target_Speaker(edict_t *ent, edict_t *other /* unused */, edict_t *activator
 	}
 	else
 	{
+		int chan;
+
 		/* normal sound */
 		if (ent->spawnflags & 4)
 		{

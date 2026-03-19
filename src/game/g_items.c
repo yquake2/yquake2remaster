@@ -1446,9 +1446,6 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 {
 	const gitem_armor_t *oldinfo, *newinfo;
 	int old_armor_index;
-	int newcount;
-	float salvage;
-	int salvagecount;
 
 	if (!ent || !other)
 	{
@@ -1495,6 +1492,9 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 
 		if (newinfo->normal_protection > oldinfo->normal_protection)
 		{
+			int salvagecount, newcount;
+			float salvage;
+
 			/* calc new armor values */
 			salvage = oldinfo->normal_protection / newinfo->normal_protection;
 			salvagecount = salvage *
@@ -1514,6 +1514,9 @@ Pickup_Armor(edict_t *ent, edict_t *other)
 		}
 		else
 		{
+			int salvagecount, newcount;
+			float salvage;
+
 			/* calc new armor values */
 			salvage = newinfo->normal_protection / oldinfo->normal_protection;
 			salvagecount = salvage * newinfo->base_count;

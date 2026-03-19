@@ -235,7 +235,6 @@ SV_FlyMove(edict_t *ent, float time, int mask)
 	edict_t *hit;
 	int bumpcount, numbumps;
 	vec3_t dir;
-	float d;
 	int numplanes;
 	vec3_t planes[MAX_CLIP_PLANES];
 	vec3_t primal_velocity, original_velocity, new_velocity;
@@ -359,6 +358,8 @@ SV_FlyMove(edict_t *ent, float time, int mask)
 		}
 		else
 		{
+			float d;
+
 			/* go along the crease */
 			if (numplanes != 2)
 			{
@@ -418,7 +419,7 @@ RealBoundingBox(edict_t *ent, vec3_t mins, vec3_t maxs)
 {
 	vec3_t forward, left, up, f1, l1, u1;
 	vec3_t p[8];
-	int i, j, k, j2;
+	int i, j, k;
 
 	if (!ent)
 	{
@@ -446,6 +447,8 @@ RealBoundingBox(edict_t *ent, vec3_t mins, vec3_t maxs)
 
 		for (j = 0; j < 2; j++)
 		{
+			int j2;
+
 			j2 = j * 2;
 
 			if (j)

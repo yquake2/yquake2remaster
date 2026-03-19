@@ -1086,9 +1086,6 @@ SanitizeGameStruct(void)
 	game.helpmessage1[sizeof(game.helpmessage1) - 1] = 0;
 	game.helpmessage2[sizeof(game.helpmessage2) - 1] = 0;
 	game.spawnpoint[sizeof(game.spawnpoint) - 1] = 0;
-
-	/* no longer using this field for security and stability reasons */
-	game.num_items = 0;
 }
 
 void

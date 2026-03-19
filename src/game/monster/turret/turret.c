@@ -687,8 +687,6 @@ mmove_t turret_move_fire_blind = {
 void
 turret_attack(edict_t *self)
 {
-	float r, chance;
-
 	if (!self)
 	{
 		return;
@@ -705,6 +703,8 @@ turret_attack(edict_t *self)
 	}
 	else
 	{
+		float r, chance;
+
 		/* setup shot probabilities */
 		if (self->monsterinfo.blind_fire_delay < 1.0)
 		{

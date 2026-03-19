@@ -364,7 +364,7 @@ void
 WidowSpawn(edict_t *self)
 {
 	vec3_t f, r, u, offset, startpoint, spawnpoint;
-	edict_t *ent, *designated_enemy;
+	edict_t *designated_enemy;
 	int i;
 
 	if (!self)
@@ -383,6 +383,8 @@ WidowSpawn(edict_t *self)
 		if (FindSpawnPoint(startpoint, stalker_mins, stalker_maxs, spawnpoint,
 					64))
 		{
+			edict_t *ent;
+
 			ent = CreateGroundMonster(spawnpoint, self->s.angles, stalker_mins, stalker_maxs,
 					"monster_stalker", 256);
 

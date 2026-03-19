@@ -530,8 +530,6 @@ gunner_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage /* unused */,
 		vec3_t point)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -542,6 +540,8 @@ gunner_die(edict_t *self, edict_t *inflictor /* unused */,
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
@@ -972,8 +972,6 @@ static const mmove_t gunner_move_endfire_chain_static =
 void
 gunner_blind_check(edict_t *self)
 {
-	vec3_t aim;
-
 	if (!self)
 	{
 		return;
@@ -981,6 +979,8 @@ gunner_blind_check(edict_t *self)
 
 	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
 	{
+		vec3_t aim;
+
 		VectorSubtract(self->monsterinfo.blind_fire_target, self->s.origin,
 				aim);
 		self->ideal_yaw = vectoyaw(aim);
@@ -1022,8 +1022,6 @@ static const mmove_t gunner_move_attack_grenade_static =
 void
 gunner_attack(edict_t *self)
 {
-	float chance, r;
-
 	if (!self)
 	{
 		return;
@@ -1033,6 +1031,8 @@ gunner_attack(edict_t *self)
 
 	if (self->monsterinfo.attack_state == AS_BLIND)
 	{
+		float chance, r;
+
 		/* setup shot probabilities */
 		if (self->monsterinfo.blind_fire_delay < 1.0)
 		{

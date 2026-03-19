@@ -237,8 +237,6 @@ gekk_sight(edict_t *self, edict_t *other /* unused */)
 void
 gekk_search(edict_t *self)
 {
-	float r;
-
 	if (!self)
 	{
 		return;
@@ -246,6 +244,8 @@ gekk_search(edict_t *self)
 
 	if (self->spawnflags & SPAWNFLAG_CHANT)
 	{
+		float r;
+
 		r = random();
 
 		if (r < 0.33)
@@ -781,8 +781,6 @@ gekk_check_refire(edict_t *self)
 void
 loogie_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 {
-	vec3_t normal;
-
 	if (!self || !other)
 	{
 		return;
@@ -806,6 +804,8 @@ loogie_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		get_normal_vector(plane, normal);
 
 		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
@@ -1105,8 +1105,6 @@ mmove_t gekk_move_attack = {
 void
 gekk_melee(edict_t *self)
 {
-	float r;
-
 	if (!self)
 	{
 		return;
@@ -1118,6 +1116,8 @@ gekk_melee(edict_t *self)
 	}
 	else
 	{
+		float r;
+
 		r = random();
 
 		if (r > 0.66)
@@ -1382,8 +1382,6 @@ void
 gekk_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage /* unused */)
 {
-	float r;
-
 	if (!self)
 	{
 		return;
@@ -1424,6 +1422,8 @@ gekk_pain(edict_t *self, edict_t *other /* unused */,
 	}
 	else
 	{
+		float r;
+
 		r = random();
 
 		if (r > 0.5)
@@ -1638,8 +1638,6 @@ void
 gekk_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
 		int damage, vec3_t point /* unused */)
 {
-	float r;
-
 	if (!self)
 	{
 		return;
@@ -1679,6 +1677,8 @@ gekk_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* un
 	}
 	else
 	{
+		float r;
+
 		r = random();
 
 		if (r > 0.66)

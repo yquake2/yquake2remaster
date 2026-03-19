@@ -112,10 +112,10 @@ shalrath_pod_home(edict_t *self)
 	// decino: Only home every 0.2 frames
 	if (think)
 	{
-		vec3_t dir;
-
 		if (self->owner->enemy)
 		{
+			vec3_t dir;
+
 			self->enemy = self->owner->enemy;
 			VectorCopy(self->enemy->s.origin, end);
 			end[2] += self->enemy->viewheight;
