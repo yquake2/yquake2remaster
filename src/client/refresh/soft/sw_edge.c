@@ -528,19 +528,20 @@ R_GenerateSpans
 static void
 R_GenerateSpans (void)
 {
-	edge_t			*edge;
-	surf_t			*surf;
+	edge_t *edge;
 
 	// clear active surfaces to just the background surface
 	surfaces[1].next = surfaces[1].prev = &surfaces[1];
 	surfaces[1].last_u = edge_head_u_shift20;
 
-	// generate spans
-	for (edge=edge_head.next ; edge != &edge_tail; edge=edge->next)
+	/* generate spans */
+	for (edge = edge_head.next; edge != &edge_tail; edge=edge->next)
 	{
 		if (edge->surfs[0])
 		{
-			// it has a left surface, so a surface is going away for this span
+			surf_t *surf;
+
+			/* it has a left surface, so a surface is going away for this span */
 			surf = &surfaces[edge->surfs[0]];
 
 			R_TrailingEdge (surf, edge);

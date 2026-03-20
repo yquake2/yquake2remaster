@@ -544,7 +544,7 @@ SV_HullForEntity(edict_t *ent)
 	/* decide which clipping hull to use, based on the size */
 	if (ent->solid == SOLID_BSP)
 	{
-		cmodel_t *model;
+		const cmodel_t *model;
 
 		/* explicit hulls in the BSP model */
 		model = sv.models[ent->s.modelindex];

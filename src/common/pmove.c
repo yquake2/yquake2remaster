@@ -120,7 +120,6 @@ PM_StepSlideMove_(void)
 		vec3_t end, dir;
 		trace_t trace;
 		int i, j;
-		float d;
 
 		for (i = 0; i < 3; i++)
 		{
@@ -196,6 +195,8 @@ PM_StepSlideMove_(void)
 		}
 		else
 		{
+			float d;
+
 			/* go along the crease */
 			if (numplanes != 2)
 			{

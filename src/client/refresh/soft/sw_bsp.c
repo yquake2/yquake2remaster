@@ -151,7 +151,6 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 	int		i, side, lastside;
 	cplane_t	*splitplane, tplane;
 	mvertex_t	*pvert, *plastvert, *ptvert;
-	mnode_t		*pn;
 	mvertex_t	*prevclipvert = NULL;
 
 	psideedges[0] = psideedges[1] = NULL;
@@ -272,6 +271,8 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 	{
 		if (psideedges[i])
 		{
+			mnode_t *pn;
+
 			// draw if we've reached a non-solid leaf, done if all that's left is a
 			// solid leaf, and continue down the tree if it's not a leaf
 			pn = pnode->children[i];

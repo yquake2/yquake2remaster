@@ -250,7 +250,6 @@ CalcBoneQuaternion(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim,
 static void
 CalcBonePosition(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim, float *pos)
 {
-	hlmdl_animvalue_t *panimvalue;
 	int j;
 
 	for (j = 0; j < 3; j++)
@@ -259,8 +258,11 @@ CalcBonePosition(int frame, float s, hlmdl_bone_t *pbone, hlmdl_anim_t *panim, f
 
 		if (panim && (*panim)[j] != 0)
 		{
+			hlmdl_animvalue_t *panimvalue;
+
 			panimvalue = (hlmdl_animvalue_t *)((byte*)panim + (*panim)[j]);
 			int k = frame;
+
 			if (panimvalue->num.total < panimvalue->num.valid)
 			{
 				k = 0;

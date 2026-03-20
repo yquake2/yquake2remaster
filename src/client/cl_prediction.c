@@ -32,7 +32,6 @@ CL_CheckPredictionError(void)
 {
 	int frame;
 	int delta[3];
-	int i;
 	int len;
 
 	if (!cl_predict->value ||
@@ -60,6 +59,8 @@ CL_CheckPredictionError(void)
 	}
 	else
 	{
+		size_t i;
+
 		if (cl_showmiss->value && (delta[0] || delta[1] || delta[2]))
 		{
 			Com_Printf("prediction miss on %i: %i\n", cl.frame.serverframe,

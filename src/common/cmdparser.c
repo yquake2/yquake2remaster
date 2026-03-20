@@ -301,7 +301,7 @@ Cbuf_AddLateCommands(void)
 {
 	int i, j;
 	size_t s;
-	char *text, c;
+	char *text;
 	int argc;
 	qboolean has_args = false;
 
@@ -337,6 +337,8 @@ Cbuf_AddLateCommands(void)
 	{
 		if (text[i] == '+')
 		{
+			char c;
+
 			i++;
 
 			for (j = i; (text[j] != '+') && !(text[j] == '-' && text[j-1] == ' ') && (text[j] != 0); j++)
@@ -789,11 +791,11 @@ Cmd_Exists(const char *cmd_name)
 const char *
 Cmd_CompleteCommand(const char *partial)
 {
-	cmd_function_t *cmd;
+	const cmd_function_t *cmd;
 	size_t len;
 	int i;
-	cmdalias_t *a;
-	cvar_t *cvar;
+	const cmdalias_t *a;
+	const cvar_t *cvar;
 	const char **pmatch;
 
 	len = strlen(partial);

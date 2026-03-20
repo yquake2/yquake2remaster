@@ -205,7 +205,6 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 {
 	const dq1sprite_t pinsprite;
 	const byte *curr_pos;
-	byte *pic;
 	int i;
 
 	if (modfilelen < sizeof(pinsprite))
@@ -237,6 +236,7 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 	{
 		int skin_type;
 		size_t size;
+		byte *pic;
 
 		/* skip type / int */
 		/* 0 = simple, !0 = group */

@@ -939,8 +939,6 @@ extern void makron_run ( edict_t * self ) ;
 extern void makron_stand ( edict_t * self ) ;
 extern void makron_step_left ( edict_t * self ) ;
 extern void makron_step_right ( edict_t * self ) ;
-extern void makron_taunt ( edict_t * self ) ;
-extern void makron_torso ( edict_t * ent ) ;
 extern void makron_torso_die ( edict_t * self , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void makron_torso_think ( edict_t * self ) ;
 extern void makron_walk ( edict_t * self ) ;

@@ -629,10 +629,6 @@ R_PolysetDrawSpans8_66(const entity_t *currententity, const spanpackage_t *pspan
 void
 R_PolysetDrawSpansConstant8_66(const entity_t *currententity, const spanpackage_t *pspanpackage)
 {
-	pixel_t		*lpdest;
-	zvalue_t	lzi;
-	const zvalue_t *lpz;
-
 	do
 	{
 		int lcount;
@@ -651,6 +647,9 @@ R_PolysetDrawSpansConstant8_66(const entity_t *currententity, const spanpackage_
 
 		if (lcount > 0)
 		{
+			const zvalue_t *lpz;
+			pixel_t		*lpdest;
+			zvalue_t	lzi;
 			int	pos_shift = (pspanpackage->v * vid_buffer_width) + pspanpackage->u;
 			qboolean	zdamaged = false;
 

@@ -51,7 +51,7 @@ static int sound_taunt2;
 static int sound_taunt3;
 static int sound_hit;
 
-void
+static void
 makron_taunt(edict_t *self)
 {
 	float r;
@@ -892,7 +892,7 @@ makron_torso_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attack
 	G_FreeEdict(self);
 }
 
-void
+static void
 makron_torso(edict_t *self)
 {
 	edict_t *torso;

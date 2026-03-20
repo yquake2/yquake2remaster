@@ -364,9 +364,6 @@ RE_Draw_StretchRaw
 void
 RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
-
-	int i, j;
-	unsigned *dest;
 	byte *source;
 	byte *image_scaled = NULL;
 	unsigned *raw_image32;
@@ -388,6 +385,9 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 	}
 	else
 	{
+		unsigned *dest;
+		size_t i;
+
 		if (r_retexturing->value)
 		{
 			// triple scaling
@@ -429,7 +429,10 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 		dest = raw_image32;
 		for (i = 0; i < rows; ++i)
 		{
-			int rowOffset = i * cols;
+			size_t j, rowOffset;
+
+			rowOffset = i * cols;
+
 			for (j = 0; j < cols; ++j)
 			{
 				byte palIdx = source[rowOffset + j];

@@ -189,7 +189,6 @@ TurbulentPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv
 	int spanstep_shift, spanstep_value;
 	const pixel_t *r_turb_pbase;
 	const int *r_turb_turb;
-	float spancountminus1;
 
 	spanstep_shift = D_DrawSpanGetStep(d_zistepu, d_zistepv);
 	spanstep_value = (1 << spanstep_shift);
@@ -280,6 +279,8 @@ TurbulentPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv
 			}
 			else
 			{
+				float spancountminus1;
+
 				// calculate s/z, t/z, zi->fixed s and t at last pixel in span (so
 				// can't step off polygon), clamp, calculate s and t steps across
 				// span by division, biasing steps low so we don't run off the
@@ -594,7 +595,6 @@ D_DrawSpansPow2(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d
 	int 	spancount;
 	pixel_t	*pbase;
 	int	snext, tnext;
-	float	spancountminus1;
 	float	sdivzpow2stepu, tdivzpow2stepu, zipow2stepu;
 	int	texture_filtering;
 	int	spanstep_shift, spanstep_value;
@@ -685,6 +685,8 @@ D_DrawSpansPow2(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d
 			}
 			else
 			{
+				float spancountminus1;
+
 				// calculate s/z, t/z, zi->fixed s and t at last pixel in span (so
 				// can't step off polygon), clamp, calculate s and t steps across
 				// span by division, biasing steps low so we don't run off the

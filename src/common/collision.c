@@ -1413,7 +1413,6 @@ CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 	cplane_t *map_planes, const byte *cmod_base, const lump_t *l)
 {
 	dqnode_t *in;
-	int child;
 	cnode_t *out;
 	int i, j, count;
 
@@ -1444,6 +1443,8 @@ CMod_LoadNodes(const char *name, cnode_t **map_nodes, int *numnodes,
 
 		for (j = 0; j < 2; j++)
 		{
+			int child;
+
 			child = in->children[j];
 			out->children[j] = child;
 		}

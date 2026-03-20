@@ -1889,8 +1889,8 @@ FS_LoadPK3(const char *packPath)
 const char *
 FS_NextPath(const char *prevPath)
 {
+	const fsSearchPath_t *search;
 	const char *prev;
-	fsSearchPath_t *search;
 
 	if (prevPath == NULL)
 	{
@@ -2502,7 +2502,6 @@ FS_Dir_f(void)
 	char **dirnames; /* File list. */
 	char findname[1024]; /* File search path and pattern. */
 	const char *path = NULL; /* Search path. */
-	char *lastsep;
 	char wildcard[1024] = "*.*"; /* File pattern. */
 	int i; /* Loop counter. */
 	int ndirs; /* Number of files in list. */
@@ -2524,6 +2523,8 @@ FS_Dir_f(void)
 		{
 			for (i = 0; i < ndirs - 1; i++)
 			{
+				const char *lastsep;
+
 				lastsep = strrchr(dirnames[i], '/');
 				if (lastsep)
 				{
@@ -3074,13 +3075,16 @@ FS_BuildGameSpecificSearchPath(const char *dir)
 
 // returns the filename used to open f, but (if opened from pack) in correct case
 // returns NULL if f is no valid handle
-const char* FS_GetFilenameForHandle(fileHandle_t f)
+const char*
+FS_GetFilenameForHandle(fileHandle_t f)
 {
-	fsHandle_t* fsh = FS_GetFileByHandle(f);
+	const fsHandle_t* fsh = FS_GetFileByHandle(f);
+
 	if (fsh)
 	{
 		return fsh->name;
 	}
+
 	return NULL;
 }
 

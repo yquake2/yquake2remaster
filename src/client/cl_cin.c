@@ -216,7 +216,7 @@ Huff1TableInit(void)
 {
 	int prev;
 	int j;
-	int *node, *nodebase;
+	int *nodebase;
 	byte counts[256];
 
 	cin.hnodes1 = Z_Malloc(256 * 256 * 2 * 4);
@@ -243,6 +243,8 @@ Huff1TableInit(void)
 
 		while (numhnodes != 511)
 		{
+			int *node;
+
 			node = nodebase + (numhnodes - 256) * 2;
 
 			/* pick two lowest counts */

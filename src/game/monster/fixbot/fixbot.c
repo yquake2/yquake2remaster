@@ -297,12 +297,11 @@ change_to_roam(edict_t *self)
 void
 roam_goal(edict_t *self)
 {
-	trace_t tr;
 	vec3_t forward;
 	vec3_t end;
 	edict_t *ent;
 	vec3_t dang;
-	int len, oldlen, i;
+	int oldlen, i;
 	vec3_t vec;
 	vec3_t whichvec;
 
@@ -317,6 +316,9 @@ roam_goal(edict_t *self)
 
 	for (i = 0; i < 12; i++)
 	{
+		trace_t tr;
+		int len;
+
 		VectorCopy(self->s.angles, dang);
 
 		if (i < 6)
@@ -468,10 +470,7 @@ blastoff(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 {
 	trace_t tr;
 	vec3_t dir;
-	vec3_t forward, right, up;
 	vec3_t end;
-	float r;
-	float u;
 	vec3_t water_start;
 	qboolean water = false;
 	int content_mask = MASK_SHOT | MASK_WATER;
@@ -488,6 +487,9 @@ blastoff(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 	if (!(tr.fraction < 1.0))
 	{
+		vec3_t forward, right, up;
+		float r, u;
+
 		vectoangles(aimdir, dir);
 		AngleVectors(dir, forward, right, up);
 
@@ -509,13 +511,13 @@ blastoff(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		/* see if we hit water */
 		if (tr.contents & MASK_WATER)
 		{
-			int color;
-
 			water = true;
 			VectorCopy(tr.endpos, water_start);
 
 			if (!VectorCompare(start, tr.endpos))
 			{
+				int color;
+
 				if (tr.contents & CONTENTS_WATER)
 				{
 					if (strcmp(tr.surface->name, "*brwater") == 0)
@@ -886,8 +888,6 @@ mmove_t fixbot_move_roamgoal = {
 void
 ai_facing(edict_t *self, float dist)
 {
-	vec3_t v;
-
 	if (!self)
 	{
 		return;
@@ -899,6 +899,8 @@ ai_facing(edict_t *self, float dist)
 	}
 	else
 	{
+		vec3_t v;
+
 		VectorSubtract(self->goalentity->s.origin, self->s.origin, v);
 		self->ideal_yaw = vectoyaw(v);
 		M_ChangeYaw(self);
@@ -1392,7 +1394,6 @@ fixbot_fire_welder(edict_t *self)
 	vec3_t start;
 	vec3_t forward, right, up;
 	vec3_t vec;
-	float r;
 
 	if (!self)
 	{
@@ -1421,6 +1422,8 @@ fixbot_fire_welder(edict_t *self)
 
 	if (random() > 0.8)
 	{
+		float r;
+
 		r = random();
 
 		if (r < 0.33)
@@ -1500,9 +1503,6 @@ fixbot_run(edict_t *self)
 void
 fixbot_walk(edict_t *self)
 {
-	vec3_t vec;
-	int len;
-
 	if (!self)
 	{
 		return;
@@ -1510,6 +1510,9 @@ fixbot_walk(edict_t *self)
 
 	if (strcmp(self->goalentity->classname, "object_repair") == 0)
 	{
+		vec3_t vec;
+		int len;
+
 		VectorSubtract(self->s.origin, self->goalentity->s.origin, vec);
 		len = VectorLength(vec);
 
@@ -1537,9 +1540,6 @@ fixbot_start_attack(edict_t *self)
 void
 fixbot_attack(edict_t *self)
 {
-	vec3_t vec;
-	int len;
-
 	if (!self)
 	{
 		return;
@@ -1547,6 +1547,9 @@ fixbot_attack(edict_t *self)
 
 	if (self->monsterinfo.aiflags & AI_MEDIC)
 	{
+		vec3_t vec;
+		int len;
+
 		if (!visible(self, self->goalentity))
 		{
 			return;

@@ -123,9 +123,6 @@ cleanupHeal(edict_t *self, qboolean change_frame)
 void
 abortHeal(edict_t *self, qboolean change_frame, qboolean gib, qboolean mark)
 {
-	int hurt;
-	static vec3_t pain_normal = {0, 0, 1};
-
 	if (!self)
 	{
 		return;
@@ -151,6 +148,9 @@ abortHeal(edict_t *self, qboolean change_frame, qboolean gib, qboolean mark)
 
 	if ((gib) && (self->enemy) && (self->enemy->inuse))
 	{
+		static const vec3_t pain_normal = {0, 0, 1};
+		int hurt;
+
 		if (self->enemy->gib_health)
 		{
 			hurt = -self->enemy->gib_health;
@@ -852,8 +852,6 @@ medic_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
 		vec3_t point /* unused */)
 {
-	int n;
-
 	if (!self)
 	{
 		return;
@@ -868,6 +866,8 @@ medic_die(edict_t *self, edict_t *inflictor /* unused */,
 	/* check for gib */
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 
 		for (n = 0; n < 2; n++)
@@ -1543,10 +1543,8 @@ medic_spawngrows(edict_t *self)
 	vec3_t f, r, offset, startpoint, spawnpoint;
 	int summonStr;
 	int count;
-	int inc;
 	int num_summoned; /* should be 1, 3, or 5 */
 	int num_success = 0;
-	float current_yaw;
 
 	if (!self)
 	{
@@ -1556,6 +1554,8 @@ medic_spawngrows(edict_t *self)
 	/* if we've been directed to turn around */
 	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
 	{
+		float current_yaw;
+
 		current_yaw = anglemod(self->s.angles[YAW]);
 
 		if (fabs(current_yaw - self->ideal_yaw) > 0.1)
@@ -1583,6 +1583,8 @@ medic_spawngrows(edict_t *self)
 
 	for (count = 0; count < num_summoned; count++)
 	{
+		int inc;
+
 		inc = count + (count % 2); /* 0, 2, 2, 4, 4 */
 		VectorCopy(reinforcement_position[count], offset);
 
@@ -1623,7 +1625,6 @@ medic_finish_spawn(edict_t *self)
 	vec3_t f, r, offset, startpoint, spawnpoint;
 	int summonStr;
 	int count;
-	int inc;
 	int num_summoned; /* should be 1, 3, or 5 */
 	edict_t *designated_enemy;
 
@@ -1652,6 +1653,8 @@ medic_finish_spawn(edict_t *self)
 
 	for (count = 0; count < num_summoned; count++)
 	{
+		int inc;
+
 		inc = count + (count % 2); /* 0, 2, 2, 4, 4 */
 		VectorCopy(reinforcement_position[count], offset);
 

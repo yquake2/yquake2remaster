@@ -1086,8 +1086,6 @@ T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
 	vec3_t dir;
 	float len;
 	float killzone, killzone2;
-	trace_t tr;
-	float dist;
 
 	killzone = radius;
 	killzone2 = radius * 2.0;
@@ -1167,6 +1165,8 @@ T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
 		if ((ent->client) &&
 			(ent->client->nuke_framenum != level.framenum + 20) && (ent->inuse))
 		{
+			trace_t tr;
+
 			tr = gi.trace(inflictor->s.origin, NULL, NULL, ent->s.origin,
 					inflictor, MASK_SOLID);
 
@@ -1176,6 +1176,8 @@ T_RadiusNukeDamage(edict_t *inflictor, edict_t *attacker, float damage,
 			}
 			else
 			{
+				float dist;
+
 				dist = realrange(ent, inflictor);
 
 				if (dist < 2048)

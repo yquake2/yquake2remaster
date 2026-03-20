@@ -78,7 +78,6 @@ void
 GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 {
 	int smax, tmax;
-	int r, g, b, a, max;
 	int i, j, size, map, nummaps;
 	byte *lightmap;
 
@@ -149,6 +148,8 @@ GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride)
 		{
 			for (j = 0; j < smax; j++)
 			{
+				int r, g, b, a, max;
+
 				r = lightmap[idxInLightmap * 3 + 0];
 				g = lightmap[idxInLightmap * 3 + 1];
 				b = lightmap[idxInLightmap * 3 + 2];

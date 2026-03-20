@@ -919,8 +919,6 @@
 {"makron_stand", (byte *)makron_stand},
 {"makron_step_left", (byte *)makron_step_left},
 {"makron_step_right", (byte *)makron_step_right},
-{"makron_taunt", (byte *)makron_taunt},
-{"makron_torso", (byte *)makron_torso},
 {"makron_torso_die", (byte *)makron_torso_die},
 {"makron_torso_think", (byte *)makron_torso_think},
 {"makron_walk", (byte *)makron_walk},

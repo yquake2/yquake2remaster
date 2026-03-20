@@ -2053,21 +2053,26 @@ CL_TrapParticles(entity_t *ent)
 	}
 
 	{
-		int i, j, k;
-		cparticle_t *p;
-		float vel;
-		vec3_t dir;
 		vec3_t org;
+		int i;
 
 		ent->origin[2] += 14;
 		VectorCopy(ent->origin, org);
 
 		for (i = -2; i <= 2; i += 4)
 		{
+			int j;
+
 			for (j = -2; j <= 2; j += 4)
 			{
+				int k;
+
 				for (k = -2; k <= 4; k += 4)
 				{
+					cparticle_t *p;
+					vec3_t dir;
+					float vel;
+
 					if (!free_particles)
 					{
 						return;
@@ -2148,20 +2153,25 @@ CL_BFGExplosionParticles(vec3_t org)
 void
 CL_TeleportParticles(vec3_t org)
 {
-	int i, j, k;
-	cparticle_t *p;
-	float vel;
-	vec3_t dir;
 	float time;
+	int i;
 
 	time = (float)cl.time;
 
 	for (i = -16; i <= 16; i += 4)
 	{
+		int j;
+
 		for (j = -16; j <= 16; j += 4)
 		{
+			int k;
+
 			for (k = -16; k <= 32; k += 4)
 			{
+				cparticle_t *p;
+				vec3_t dir;
+				float vel;
+
 				if (!free_particles)
 				{
 					return;
@@ -2655,13 +2665,11 @@ CL_Heatbeam(vec3_t start, vec3_t forward)
 	cparticle_t *p;
 	vec3_t right, up;
 	float i;
-	float c, s;
 	vec3_t dir;
 	float ltime;
 	float step = 32.0, rstep;
 	float start_pt;
 	float rot;
-	float variance;
 	float time;
 	vec3_t end;
 
@@ -2696,6 +2704,9 @@ CL_Heatbeam(vec3_t start, vec3_t forward)
 
 		for (rot = 0; rot < M_PI * 2; rot += rstep)
 		{
+			float variance;
+			float c, s;
+
 			if (!free_particles)
 			{
 				return;

@@ -94,7 +94,6 @@ SV_StatusString(void)
 	static char status[MAX_MSGLEN - 16];
 	int i;
 	int statusLength;
-	int playerLength;
 
 	strcpy(status, Cvar_Serverinfo());
 	Q_strlcat(status, "\n", sizeof(status));
@@ -108,6 +107,8 @@ SV_StatusString(void)
 
 		if ((cl->state == cs_connected) || (cl->state == cs_spawned))
 		{
+			int playerLength;
+
 			Com_sprintf(player, sizeof(player), "%i %i \"%s\"\n",
 					CL_EDICT(cl)->client->ps.stats[STAT_FRAGS], cl->ping, cl->name);
 			playerLength = (int)strlen(player);

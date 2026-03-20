@@ -634,7 +634,6 @@ SV_ExecuteClientMessage(client_t *cl)
 
 	usercmd_t nullcmd;
 	usercmd_t oldest, oldcmd, newcmd;
-	int net_drop;
 	int stringCmdCount;
 	int checksum, calculatedChecksum;
 	int checksumIndex;
@@ -731,6 +730,8 @@ SV_ExecuteClientMessage(client_t *cl)
 
 				if (!sv_paused->value)
 				{
+					int net_drop;
+
 					net_drop = cl->netchan.dropped;
 
 					if (net_drop < 20)
