@@ -138,7 +138,7 @@
  * to each of the functions
  * prototyped above.
  */
-static functionList_t functionList[] = {
+static const functionList_t functionList[] = {
 	#include "tables/gamefunc_list.h"
 };
 
@@ -155,7 +155,7 @@ static functionList_t functionList[] = {
  * functions prototyped
  * above.
  */
-static mmoveList_t mmoveList[] = {
+static const mmoveList_t mmoveList[] = {
 	#include "tables/gamemmove_list.h"
 };
 
@@ -387,13 +387,13 @@ InitGame(void)
 static const functionList_t *
 GetFunctionByAddress(const byte *adr)
 {
-	int i;
+	const functionList_t *fnl;
 
-	for (i = 0; functionList[i].funcStr; i++)
+	for (fnl = functionList; fnl < ARREND(functionList); fnl++)
 	{
-		if (functionList[i].funcPtr == adr)
+		if (fnl->funcPtr == adr)
 		{
-			return &functionList[i];
+			return fnl;
 		}
 	}
 
@@ -410,13 +410,13 @@ GetFunctionByAddress(const byte *adr)
 static const byte *
 FindFunctionByName(const char *name)
 {
-	int i;
+	const functionList_t *fnl;
 
-	for (i = 0; functionList[i].funcStr; i++)
+	for (fnl = functionList; fnl < ARREND(functionList); fnl++)
 	{
-		if (!strcmp(name, functionList[i].funcStr))
+		if (!strcmp(name, fnl->funcStr))
 		{
-			return functionList[i].funcPtr;
+			return fnl->funcPtr;
 		}
 	}
 
@@ -431,13 +431,13 @@ FindFunctionByName(const char *name)
 static const mmoveList_t *
 GetMmoveByAddress(const mmove_t *adr)
 {
-	int i;
+	const mmoveList_t *mml;
 
-	for (i = 0; mmoveList[i].mmoveStr; i++)
+	for (mml = mmoveList; mml < ARREND(mmoveList); mml++)
 	{
-		if (mmoveList[i].mmovePtr == adr)
+		if (mml->mmovePtr == adr)
 		{
-			return &mmoveList[i];
+			return mml;
 		}
 	}
 
@@ -452,13 +452,13 @@ GetMmoveByAddress(const mmove_t *adr)
 static const mmove_t *
 FindMmoveByName(const char *name)
 {
-	int i;
+	const mmoveList_t *mml;
 
-	for (i = 0; mmoveList[i].mmoveStr; i++)
+	for (mml = mmoveList; mml < ARREND(mmoveList); mml++)
 	{
-		if (!strcmp(name, mmoveList[i].mmoveStr))
+		if (!strcmp(name, mml->mmoveStr))
 		{
-			return mmoveList[i].mmovePtr;
+			return mml->mmovePtr;
 		}
 	}
 
@@ -466,6 +466,51 @@ FindMmoveByName(const char *name)
 }
 
 /* ========================================================= */
+
+static int
+GetFuncLength(const byte *fn)
+{
+	const functionList_t *func;
+
+	if (!fn)
+	{
+		return 0;
+	}
+
+	func = GetFunctionByAddress(fn);
+
+	if (!func)
+	{
+		gi.dprintf("%s: function at address %p not found\n",
+			__func__, fn);
+
+		return 0;
+	}
+
+	return strlen(func->funcStr) + 1;
+}
+
+static int
+GetMmoveLength(const mmove_t *mm)
+{
+	const mmoveList_t *mmove;
+
+	if (!mm)
+	{
+		return 0;
+	}
+
+	mmove = GetMmoveByAddress(mm);
+
+	if (!mmove)
+	{
+		gi.dprintf("%s: mmove at address %p not found\n",
+			__func__, mm);
+		return 0;
+	}
+
+	return strlen(mmove->mmoveStr) + 1;
+}
 
 /*
  * The following two functions are
@@ -552,58 +597,52 @@ WriteField1(FILE *f, const field_t *field, byte *base)
 			*(int *)p = index;
 			break;
 		case F_FUNCTION:
-
-			if (*(byte **)p == NULL)
-			{
-				len = 0;
-			}
-			else
-			{
-				const functionList_t *func;
-
-				func = GetFunctionByAddress (*(byte **)p);
-
-				if (!func)
-				{
-					fclose(f);
-					gi.error("%s: function not in list, can't save game",
-						__func__);
-					return;
-				}
-
-				len = strlen(func->funcStr) + 1;
-			}
-
-			*(int *)p = len;
+			*(int *)p = GetFuncLength(*(byte **)p);
 			break;
 		case F_MMOVE:
-
-			if (*(byte **)p == NULL)
-			{
-				len = 0;
-			}
-			else
-			{
-				const mmoveList_t *mmove;
-
-				mmove = GetMmoveByAddress (*(mmove_t **)p);
-
-				if (!mmove)
-				{
-					fclose(f);
-					gi.error("%s: mmove not in list, can't save game",
-						__func__);
-					return;
-				}
-
-				len = strlen(mmove->mmoveStr) + 1;
-			}
-
-			*(int *)p = len;
+			*(int *)p = GetMmoveLength(*(mmove_t **)p);
 			break;
 		default:
 			fclose(f);
 			gi.error("%s: unknown field type", __func__);
+	}
+}
+
+static void
+WriteFunction(FILE *f, const byte *fn)
+{
+	const functionList_t *func;
+
+	if (!fn)
+	{
+		return;
+	}
+
+	func = GetFunctionByAddress(fn);
+
+	if (func)
+	{
+		size_t len = strlen(func->funcStr) + 1;
+		sg_fwrite(func->funcStr, len, f);
+	}
+}
+
+static void
+WriteMmove(FILE *f, const mmove_t *mm)
+{
+	const mmoveList_t *mmove;
+
+	if (!mm)
+	{
+		return;
+	}
+
+	mmove = GetMmoveByAddress(mm);
+
+	if (mmove)
+	{
+		size_t len = strlen(mmove->mmoveStr) + 1;
+		sg_fwrite(mmove->mmoveStr, len, f);
 	}
 }
 
@@ -634,44 +673,10 @@ WriteField2(FILE *f, const field_t *field, byte *base)
 			break;
 		case F_FUNCTION:
 
-			if (*(byte **)p)
-			{
-				const functionList_t *func;
-
-				func = GetFunctionByAddress (*(byte **)p);
-
-				if (!func)
-				{
-					fclose(f);
-					gi.error("%s: function not in list, can't save game",
-						__func__);
-					return;
-				}
-
-				len = strlen(func->funcStr)+1;
-				sg_fwrite(func->funcStr, len, f);
-			}
-
+			WriteFunction(f, *(byte **)p);
 			break;
 		case F_MMOVE:
-
-			if (*(byte **)p)
-			{
-				const mmoveList_t *mmove;
-
-				mmove = GetMmoveByAddress (*(mmove_t **)p);
-				if (!mmove)
-				{
-					fclose(f);
-					gi.error("%s: mmove not in list, can't save game",
-						__func__);
-					return;
-				}
-
-				len = strlen(mmove->mmoveStr)+1;
-				sg_fwrite(mmove->mmoveStr, len, f);
-			}
-
+			WriteMmove(f, *(mmove_t **)p);
 			break;
 		default:
 			break;
@@ -742,6 +747,52 @@ ReadString(FILE *f, int len, int tag)
 	return s;
 }
 
+static const byte *
+ReadFunction(FILE *f, int len)
+{
+	char funcStr[128];
+	const byte *fn;
+
+	if (!len)
+	{
+		return NULL;
+	}
+
+	ReadStringToBuf(f, len, funcStr, sizeof(funcStr));
+
+	fn = FindFunctionByName(funcStr);
+	if (!fn)
+	{
+		gi.dprintf("%s: function %s not found\n",
+			__func__, funcStr);
+	}
+
+	return fn;
+}
+
+static const mmove_t *
+ReadMmove(FILE *f, int len)
+{
+	char mmoveStr[128];
+	const mmove_t *mm;
+
+	if (!len)
+	{
+		return NULL;
+	}
+
+	ReadStringToBuf(f, len, mmoveStr, sizeof(mmoveStr));
+
+	mm = FindMmoveByName(mmoveStr);
+	if (!mm)
+	{
+		gi.dprintf("%s: mmove %s not found\n",
+			__func__, mmoveStr);
+	}
+
+	return mm;
+}
+
 /*
  * This function does the dirty
  * work to read the data from a
@@ -755,7 +806,6 @@ ReadField(FILE *f, const field_t *field, byte *base)
 	void *p;
 	int len;
 	int index;
-	char funcStr[128];
 
 	if (field->flags & FFL_SPAWNTEMP)
 	{
@@ -810,45 +860,11 @@ ReadField(FILE *f, const field_t *field, byte *base)
 			*(gitem_t **)p = GetItemByIndex(index);
 			break;
 		case F_FUNCTION:
-			len = *(int *)p;
-
-			if (!len)
-			{
-				*(byte **)p = NULL;
-			}
-			else
-			{
-				ReadStringToBuf(f, len, funcStr, sizeof(funcStr));
-
-				if ( !(*(const byte **)p = FindFunctionByName (funcStr)) )
-				{
-					fclose(f);
-					gi.error("%s: function %s not found in table, can't load game",
-						__func__, funcStr);
-				}
-
-			}
+			*(const byte **)p = ReadFunction(f, *(int *)p);
 			break;
 		case F_MMOVE:
-			len = *(int *)p;
-
-			if (!len)
-			{
-				*(byte **)p = NULL;
-			}
-			else
-			{
-				ReadStringToBuf(f, len, funcStr, sizeof(funcStr));
-
-				if (!(*(const mmove_t **)p = FindMmoveByName(funcStr)))
-				{
-					fclose(f);
-					gi.error("%s: mmove %s not found in table, can't load game",
-						__func__, funcStr);
-				}
-			}
+			*(const mmove_t **)p = ReadMmove(f, *(int *)p);
 			break;
-
 		default:
 			fclose(f);
 			gi.error("%s: unknown field type", __func__);

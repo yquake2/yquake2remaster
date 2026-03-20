@@ -1496,4 +1496,3 @@
 {"zombie_search", (byte *)zombie_search},
 {"zombie_sight", (byte *)zombie_sight},
 {"zombie_touch", (byte *)zombie_touch},
-{0, 0}

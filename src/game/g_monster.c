@@ -1125,6 +1125,11 @@ M_MoveFrame(edict_t *self)
 
 	self->nextthink = level.time + FRAMETIME;
 
+	if (!move)
+	{
+		return;
+	}
+
 	if ((self->monsterinfo.nextframe) &&
 		(self->monsterinfo.nextframe >= firstframe) &&
 		(self->monsterinfo.nextframe <= lastframe))

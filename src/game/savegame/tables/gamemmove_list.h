@@ -590,4 +590,3 @@
 {"zombie_move_pain3", &zombie_move_pain3},
 {"zombie_move_pain4", &zombie_move_pain4},
 {"zombie_move_run", &zombie_move_run},
-{0, 0}
