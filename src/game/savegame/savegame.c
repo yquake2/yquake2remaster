@@ -187,7 +187,7 @@ static field_t clientfields[] = {
 static void
 sg_fread(void *dest, size_t n, FILE *f)
 {
-	if (!fread(dest, n, 1, f))
+	if (fread(dest, n, 1, f) != 1)
 	{
 		fclose(f);
 		gi.error("Error reading " YQ2_COM_PRIdS " bytes from save file", n);
@@ -197,7 +197,7 @@ sg_fread(void *dest, size_t n, FILE *f)
 static void
 sg_fwrite(const void *src, size_t n, FILE *f)
 {
-	if (!fwrite(src, n, 1, f))
+	if (fwrite(src, n, 1, f) != 1)
 	{
 		fclose(f);
 		gi.error("Error writing " YQ2_COM_PRIdS " bytes to save file", n);
