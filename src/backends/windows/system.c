@@ -528,7 +528,7 @@ Sys_GetHomeDir(void)
 	}
 
 	/* Replace backslashes by slashes */
-	cur = old = profile;
+	old = cur = profile;
 
 	if (strstr(cur, "\\") != NULL)
 	{
