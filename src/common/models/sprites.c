@@ -42,10 +42,10 @@ Mod_LoadSprite_BK(const char *mod_name, const void *buffer, int modfilelen)
 	void *extradata;
 	int i, size;
 
-	if (modfilelen < sizeof(sprin))
+	if (modfilelen < (int)sizeof(*sprin))
 	{
 		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
-				__func__, mod_name, modfilelen, sizeof(sprin));
+				__func__, mod_name, modfilelen, sizeof(*sprin));
 		return NULL;
 	}
 
