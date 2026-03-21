@@ -236,7 +236,6 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 	{
 		int skin_type;
 		size_t size;
-		byte *pic;
 
 		/* skip type / int */
 		/* 0 = simple, !0 = group */
@@ -255,6 +254,8 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 
 		if (i == texture_index)
 		{
+			byte *pic;
+
 			curr_pos += sizeof(int) * 5;
 
 			pic = malloc(size);

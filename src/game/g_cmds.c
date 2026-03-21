@@ -728,7 +728,7 @@ static void
 Cmd_Drop_f(edict_t *ent)
 {
 	int index;
-	gitem_t *it;
+	const gitem_t *it;
 	char *s;
 
 	if (!ent)

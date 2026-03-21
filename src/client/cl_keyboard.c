@@ -818,7 +818,7 @@ Key_Message(int key)
  * the K_* names are matched up.
  */
 static int
-Key_StringToKeynum(char *str)
+Key_StringToKeynum(const char *str)
 {
 	static const int num_gamepad_btns = ARRLEN(gamepadbtns);
 	keyname_t *kn;

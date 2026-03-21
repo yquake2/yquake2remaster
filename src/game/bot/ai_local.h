@@ -145,12 +145,11 @@ int AI_LinkCloseNodes_JumpPass(int start);
 //bot_status.c
 //----------------------------------------------------------
 qboolean AI_CanPick_Ammo(edict_t *ent, const gitem_t *item);
-qboolean AI_CanUseArmor(gitem_t *item, edict_t *other);
+qboolean AI_CanUseArmor(const gitem_t *item, edict_t *other);
 
 //bot_classes
 //----------------------------------------------------------
 void BOT_DMclass_InitPersistant(edict_t *self);
-qboolean BOT_ChangeWeapon(edict_t *ent, gitem_t *item);
 
 //ai_weapons.c
 //----------------------------------------------------------

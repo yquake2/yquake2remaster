@@ -475,7 +475,6 @@ CTFAssignSkin(edict_t *ent, char *s)
 void
 CTFAssignTeam(gclient_t *who)
 {
-	const edict_t *player;
 	int i;
 	int team1count = 0, team2count = 0;
 
@@ -489,6 +488,8 @@ CTFAssignTeam(gclient_t *who)
 
 	for (i = 1; i <= maxclients->value; i++)
 	{
+		const edict_t *player;
+
 		player = &g_edicts[i];
 
 		if (!player->inuse || (player->client == who))
@@ -534,7 +535,7 @@ SelectCTFSpawnPoint(edict_t *ent)
 	edict_t *spot, *spot1, *spot2;
 	int count = 0;
 	int selection;
-	float range, range1, range2;
+	float range1, range2;
 	const char *cname;
 
 	if (ent->client->resp.ctf_state)
@@ -569,6 +570,8 @@ SelectCTFSpawnPoint(edict_t *ent)
 
 	while ((spot = G_Find(spot, FOFS(classname), cname)) != NULL)
 	{
+		float range;
+
 		count++;
 		range = PlayersRangeFromSpot(spot);
 
@@ -629,7 +632,6 @@ CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 {
 	const gitem_t *flag_item, *enemy_flag_item, *flag1_item, *flag2_item;
 	int i;
-	edict_t *ent;
 	int otherteam;
 	edict_t *flag, *carrier;
 	const char *c;
@@ -697,6 +699,8 @@ CTFFragBonuses(edict_t *targ, edict_t *inflictor, edict_t *attacker)
 		   other team */
 		for (i = 1; i <= maxclients->value; i++)
 		{
+			edict_t *ent;
+
 			ent = g_edicts + i;
 
 			if (ent->inuse && (ent->client->resp.ctf_team == otherteam))
@@ -916,7 +920,6 @@ qboolean
 CTFPickup_Flag(edict_t *ent, edict_t *other)
 {
 	const gitem_t *flag_item, *enemy_flag_item, *flag1_item, *flag2_item;
-	edict_t *player;
 	int ctf_team;
 
 	flag1_item = FindItemByClassname("item_flag_team1");
@@ -994,6 +997,8 @@ CTFPickup_Flag(edict_t *ent, edict_t *other)
 				/* Ok, let's do the player loop, hand out the bonuses */
 				for (i = 1; i <= maxclients->value; i++)
 				{
+					edict_t *player;
+
 					player = &g_edicts[i];
 
 					if (!player->inuse)
@@ -1784,7 +1789,6 @@ void
 CTFGrapplePull(edict_t *self)
 {
 	vec3_t hookdir, v;
-	float vlen;
 
 	if ((strcmp(self->owner->client->pers.weapon->classname,
 				 "weapon_grapple") == 0) &&
@@ -1849,6 +1853,7 @@ CTFGrapplePull(edict_t *self)
 		   move stuff: a point and a velocity. The client should add
 		   that velociy in the direction of the point */
 		vec3_t forward, up;
+		float vlen;
 
 		AngleVectors(self->owner->client->v_angle, forward, NULL, up);
 		VectorCopy(self->owner->s.origin, v);
@@ -2331,16 +2336,17 @@ CTFHasTech(const edict_t *who)
 	}
 }
 
-gitem_t *
+const gitem_t *
 CTFWhat_Tech(const edict_t *ent)
 {
-	gitem_t *tech;
-	int i;
+	size_t i;
 
 	i = 0;
 
 	while (tnames[i])
 	{
+		const gitem_t *tech;
+
 		if (((tech = FindItemByClassname(tnames[i])) != NULL) &&
 			ent->client->pers.inventory[ITEM_INDEX(tech)])
 		{
@@ -2698,9 +2704,7 @@ void
 CTFApplyRegeneration(edict_t *ent)
 {
 	const gitem_t *tech;
-	qboolean noise = false;
 	gclient_t *client;
-	int index;
 	float volume = 1.0;
 
 	client = ent->client;
@@ -2719,8 +2723,12 @@ CTFApplyRegeneration(edict_t *ent)
 
 	if (tech && client->pers.inventory[ITEM_INDEX(tech)])
 	{
+		qboolean noise = false;
+
 		if (client->ctf_regentime < level.time)
 		{
+			int index;
+
 			client->ctf_regentime = level.time;
 
 			if (ent->health < 150)
@@ -2987,8 +2995,7 @@ CTFSay_Team_Location(edict_t *who, char *buf, size_t bufsize)
 static void
 CTFSay_Team_Armor(edict_t *who, char *buf, size_t bufsize)
 {
-	const gitem_t *item;
-	int index, cells;
+	int index;
 	int power_armor_type;
 
 	*buf = 0;
@@ -2997,6 +3004,8 @@ CTFSay_Team_Armor(edict_t *who, char *buf, size_t bufsize)
 
 	if (power_armor_type)
 	{
+		int cells;
+
 		cells = who->client->pers.inventory[ITEM_INDEX(FindItem("cells"))];
 
 		if (cells)
@@ -3012,6 +3021,8 @@ CTFSay_Team_Armor(edict_t *who, char *buf, size_t bufsize)
 
 	if (index)
 	{
+		const gitem_t *item;
+
 		item = GetItemByIndex(index);
 
 		if (item)
@@ -3049,14 +3060,15 @@ CTFSay_Team_Health(const edict_t *who, char *buf)
 static void
 CTFSay_Team_Tech(const edict_t *who, char *buf)
 {
-	const gitem_t *tech;
-	int i;
+	size_t i;
 
 	/* see if the player has a tech powerup */
 	i = 0;
 
 	while (tnames[i])
 	{
+		const gitem_t *tech;
+
 		if (((tech = FindItemByClassname(tnames[i])) != NULL) &&
 			who->client->pers.inventory[ITEM_INDEX(tech)])
 		{
@@ -3151,7 +3163,6 @@ CTFSay_Team(edict_t *who, char *msg)
 	char buf[256];
 	int i;
 	char *p;
-	edict_t *cl_ent;
 
 	if (CheckFlood(who))
 	{
@@ -3254,6 +3265,8 @@ CTFSay_Team(edict_t *who, char *msg)
 
 	for (i = 0; i < maxclients->value; i++)
 	{
+		edict_t *cl_ent;
+
 		cl_ent = g_edicts + 1 + i;
 
 		if (!cl_ent->inuse)
@@ -3355,9 +3368,7 @@ SetLevelName(pmenu_t *p)
 static qboolean
 CTFBeginElection(edict_t *ent, elect_t type, const char *msg)
 {
-	int i;
-	int count;
-	edict_t *e;
+	size_t i, count;
 
 	if (electpercentage->value == 0)
 	{
@@ -3377,6 +3388,8 @@ CTFBeginElection(edict_t *ent, elect_t type, const char *msg)
 
 	for (i = 1; i <= maxclients->value; i++)
 	{
+		edict_t *e;
+
 		e = g_edicts + i;
 		e->client->resp.voted = false;
 
@@ -3728,8 +3741,7 @@ CTFVoteNo(edict_t *ent)
 void
 CTFReady(edict_t *ent)
 {
-	int i, j;
-	const edict_t *e;
+	size_t i, j;
 	int t1, t2;
 
 	if (ent->client->resp.ctf_team == CTF_NOTEAM)
@@ -3757,6 +3769,8 @@ CTFReady(edict_t *ent)
 
 	for (j = 0, i = 1; i <= maxclients->value; i++)
 	{
+		const edict_t *e;
+
 		e = g_edicts + i;
 
 		if (!e->inuse)
@@ -4317,10 +4331,6 @@ CTFInMatch(void)
 qboolean
 CTFCheckRules(void)
 {
-	int t;
-	int i, j;
-	const edict_t *ent;
-
 	if ((ctfgame.election != ELECT_NONE) && (ctfgame.electtime <= level.time))
 	{
 		gi.bprintf(PRINT_CHAT, "Election timed out and has been cancelled.\n");
@@ -4329,6 +4339,9 @@ CTFCheckRules(void)
 
 	if (ctfgame.match != MATCH_NONE)
 	{
+		size_t i;
+		int t, j;
+
 		char text[64];
 
 		t = ctfgame.matchtime - level.time;
@@ -4392,6 +4405,8 @@ CTFCheckRules(void)
 
 				for (j = 0, i = 1; i <= maxclients->value; i++)
 				{
+					const edict_t *ent;
+
 					ent = g_edicts + i;
 
 					if (!ent->inuse)
@@ -4467,10 +4482,13 @@ CTFCheckRules(void)
 		if (warn_unbalanced->value)
 		{
 			int team1 = 0, team2 = 0;
+			size_t i;
 
 			/* count up the team totals */
 			for (i = 1; i <= maxclients->value; i++)
 			{
+				const edict_t *ent;
+
 				ent = g_edicts + i;
 
 				if (!ent->inuse)

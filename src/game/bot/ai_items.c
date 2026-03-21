@@ -96,7 +96,7 @@ extern gitem_armor_t bodyarmor_info;
 // Check if we can use the armor
 //==========================================
 qboolean
-AI_CanUseArmor(gitem_t *item, edict_t *other)
+AI_CanUseArmor(const gitem_t *item, edict_t *other)
 {
 	const gitem_armor_t *oldinfo, *newinfo;
 	int old_armor_index;

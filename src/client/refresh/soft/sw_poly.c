@@ -597,7 +597,6 @@ static void
 R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_zistepu, float d_zistepv)
 {
 	int	snext, tnext;
-	float	sdivz, tdivz, zi, z, du, dv, spancountminus1;
 	float	sdivzspanletstepu, tdivzspanletstepu, zispanletstepu;
 	int	*r_turb_turb;
 
@@ -631,6 +630,8 @@ R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_
 
 		if (count > 0)
 		{
+			float sdivz, tdivz, zi, z, du, dv;
+
 			// transparent spans damage z buffer
 			VID_DamageZBuffer(pspan->u, pspan->v);
 			VID_DamageZBuffer(pspan->u + count, pspan->v);
@@ -705,6 +706,8 @@ R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_
 				}
 				else
 				{
+					float spancountminus1;
+
 					// calculate s/z, t/z, zi->fixed s and t at last pixel in span (so
 					// can't step off polygon), clamp, calculate s and t steps across
 					// span by division, biasing steps low so we don't run off the
@@ -769,9 +772,9 @@ static void
 R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 {
 	const emitpoint_t *pvert, *pnext;
-	float du, dv, vtop, u_step;
 	int i, lmaxindex;
 	espan_t *pspan;
+	float vtop;
 
 	pspan = s_polygon_spans;
 	i = s_minindex;
@@ -796,6 +799,7 @@ R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 		if (vtop < vbottom)
 		{
 			int v, u, istep, itop, ibottom;
+			float du, dv, u_step;
 
 			du = pnext->u - pvert->u;
 			dv = pnext->v - pvert->v;
@@ -837,7 +841,7 @@ R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 static void
 R_PolygonScanRightEdge(espan_t *s_polygon_spans)
 {
-	float du, dv, vtop, u_step, uvert, unext, vvert;
+	float vtop, vvert;
 	const emitpoint_t *pnext;
 	emitpoint_t *pvert;
 	espan_t *pspan;
@@ -871,6 +875,7 @@ R_PolygonScanRightEdge(espan_t *s_polygon_spans)
 
 		if (vtop < vbottom)
 		{
+			float du, dv, u_step, uvert, unext;
 			int v, u, istep, itop, ibottom;
 
 			uvert = pvert->u;

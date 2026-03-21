@@ -893,21 +893,20 @@ ReadMD5Model(const char *buffer, size_t size)
 
 			if (mdl->num_framenames > 0)
 			{
-				size_t size;
+				size_t framenames_size;
 
-				size = mdl->num_framenames * 16;
-				mdl->framenames = malloc(size);
+				framenames_size = mdl->num_framenames * 16;
+				mdl->framenames = malloc(framenames_size);
 				if (!mdl->framenames)
 				{
-					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 					FreeModelMd5(mdl);
 					free(safe_buffer);
 					Com_Error(ERR_FATAL, "%s: can't allocate " YQ2_COM_PRIdS " bytes\n",
-						__func__, size);
+						__func__, framenames_size);
 					return NULL;
 				}
 
-				memset(mdl->framenames, 0, mdl->num_framenames * 16);
+				memset(mdl->framenames, 0, framenames_size);
 			}
 		}
 		else if (!strcmp(token, "numJoints"))

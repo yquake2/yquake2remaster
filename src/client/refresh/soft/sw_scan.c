@@ -344,7 +344,6 @@ NonTurbulentPow2 (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zis
 	int spanstep_shift, spanstep_value;
 	const pixel_t *r_turb_pbase;
 	const int *r_turb_turb;
-	float spancountminus1;
 
 	spanstep_shift = D_DrawSpanGetStep(d_zistepu, d_zistepv);
 	spanstep_value = (1 << spanstep_shift);
@@ -435,6 +434,8 @@ NonTurbulentPow2 (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zis
 			}
 			else
 			{
+				float spancountminus1;
+
 				// calculate s/z, t/z, zi->fixed s and t at last pixel in span (so
 				// can't step off polygon), clamp, calculate s and t steps across
 				// span by division, biasing steps low so we don't run off the

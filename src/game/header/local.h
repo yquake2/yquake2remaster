@@ -875,7 +875,7 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir);
 void G_InitEdict(edict_t *e);
 edict_t *G_SpawnOptional(void);
 edict_t *G_Spawn(void);
-void G_FreeEdict(edict_t *e);
+void G_FreeEdict(edict_t *ed);
 
 void G_TouchTriggers(edict_t *ent);
 void G_TouchSolids(edict_t *ent);
@@ -887,12 +887,12 @@ char *vtos(vec3_t v);
 void get_normal_vector(const cplane_t *p, vec3_t normal);
 
 float vectoyaw(vec3_t vec);
-void vectoangles(vec3_t vec, vec3_t angles);
+void vectoangles(vec3_t value, vec3_t angles);
 
 void G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t forward,
 		const vec3_t right, const vec3_t up, vec3_t result);
 float vectoyaw2(vec3_t vec);
-void vectoangles2(vec3_t vec, vec3_t angles);
+void vectoangles2(vec3_t value, vec3_t angles);
 edict_t *findradius2(edict_t *from, vec3_t org, float rad);
 
 /* g_combat.c */
@@ -1972,7 +1972,7 @@ void CTFGrapplePull(edict_t *self);
 void CTFResetGrapple(edict_t *self);
 
 /* TECH */
-gitem_t *CTFWhat_Tech(const edict_t *ent);
+const gitem_t *CTFWhat_Tech(const edict_t *ent);
 qboolean CTFPickup_Tech(edict_t *ent, edict_t *other);
 void CTFDrop_Tech(edict_t *ent, const gitem_t *item);
 void CTFDeadDropTech(edict_t *ent);

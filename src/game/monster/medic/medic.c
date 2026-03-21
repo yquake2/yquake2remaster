@@ -97,7 +97,7 @@ vec3_t reinforcement_position[] = {
 	{0, -80, 0}
 };
 
-void
+static void
 cleanupHeal(edict_t *self, qboolean change_frame)
 {
 	if (!self)

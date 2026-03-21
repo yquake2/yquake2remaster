@@ -1491,7 +1491,7 @@ Info_ValueForKey(const char *s, const char *key)
 
 	const char *vstart;
 	char *v;
-	size_t klen, vlen;
+	size_t klen;
 
 	valueindex ^= 1;
 	v = value[valueindex];
@@ -1522,6 +1522,8 @@ Info_ValueForKey(const char *s, const char *key)
 		if (!strncmp(kstart, key, klen) &&
 			kstart[klen] == '\\')
 		{
+			size_t vlen;
+
 			vlen = s - vstart;
 
 			if (vlen > 0)
