@@ -755,7 +755,8 @@ static void
 LMP_Decode(const char *name, const byte *raw, int len, byte **pic,
 	int *width, int *height)
 {
-	unsigned lmp_width = 0, lmp_height = 0, lmp_size = 0;
+	unsigned lmp_width = 0, lmp_height = 0;
+	size_t lmp_size = 0;
 	if (len < (sizeof(int) * 3))
 	{
 		/* looks too small */

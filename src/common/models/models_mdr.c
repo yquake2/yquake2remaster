@@ -348,12 +348,22 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 				VectorClear(tempNormal);
 
 				w = inVert->weights;
+
 				for ( k = 0; k < LittleLong(inVert->num_weights); k++, w++)
 				{
 					const mdr_bone_t *bone;
 					float bone_weight;
 					vec3_t innorm, inoffset;
 					int n;
+
+					if (LittleLong(w->bone_index) < 0 || LittleLong(w->bone_index) >= pinmodel.num_bones)
+					{
+						Com_Printf("%s: has invalid bone index", __func__);
+						free(vertx);
+						free(frames);
+						return NULL;
+					}
+
 
 					bone = outframe->bones + LittleLong(w->bone_index);
 
