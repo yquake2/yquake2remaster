@@ -79,8 +79,20 @@ Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 	*numvisibility = l->filelen;
 
 	out = Hunk_Alloc((l->filelen + 63) & ~63);
+
 	*vis = out;
 	memcpy(out, mod_base + l->fileofs, l->filelen);
+
+	/* ensure numclusters and its bitofs pairs fit within the lump */
+	if ((int)(sizeof(int) + LittleLong(out->numclusters) * sizeof(int) * 2) > l->filelen)
+	{
+		Com_DPrintf("%s: Map %s has invalid clusters number\n",
+			__func__, name);
+		*vis = NULL;
+		*numvisibility = 0;
+		Hunk_Free(out);
+		return;
+	}
 
 	out->numclusters = LittleLong(out->numclusters);
 

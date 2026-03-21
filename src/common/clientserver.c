@@ -98,7 +98,7 @@ Com_VPrintf(int print_level, const char *fmt, va_list argptr)
 				*rd_buffer = 0;
 			}
 
-			strcat(rd_buffer, msg);
+			Q_strlcat(rd_buffer, msg, rd_buffersize);
 			return;
 		}
 
