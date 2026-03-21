@@ -1,3 +1,12 @@
+Quake II 8.61RR15:
+- Fixes from yquake2,
+- cppcheck: fix const warnings and scope,
+- Q2Test: use dynamic frames for blaster animation,
+- Anachronox: `rowdys` map models disappear on dance space,
+- ReRelease: fix invisiable entities in `basicsjam1_ziutek`,
+- ReRelease: incorrect light apply to models (wall looks fine),
+- ReRelease: implement `info_landmark`.
+
 Quake II 8.61RR14:
 - Fixes from yquake2,
 - Use model stand min/max to player view height in pmove,
