@@ -1339,7 +1339,7 @@ MegaHealth_think(edict_t *self)
 		return;
 	}
 
-	if ((self->owner->health > self->owner->max_health)
+	if (self->owner && (self->owner->health > self->owner->max_health)
 		&& !CTFHasRegeneration(self->owner))
 	{
 		self->nextthink = level.time + 1;

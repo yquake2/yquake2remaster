@@ -121,10 +121,10 @@ Mod_LoadBKImage(const char *mod_name, int texture_index, byte *buffer, int modfi
 	int i, size;
 	byte *pic;
 
-	if (modfilelen < sizeof(sprin))
+	if (modfilelen < (int)sizeof(*sprin))
 	{
 		Com_Printf("%s: %s has incorrect header size (%i should be " YQ2_COM_PRIdS ")\n",
-				__func__, mod_name, modfilelen, sizeof(sprin));
+				__func__, mod_name, modfilelen, sizeof(*sprin));
 		return NULL;
 	}
 

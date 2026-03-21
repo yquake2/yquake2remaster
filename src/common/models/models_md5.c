@@ -1208,12 +1208,12 @@ ReadMD5Model(const char *buffer, size_t size)
 				}
 				else if (!strcmp(token, "weight"))
 				{
-					int index;
+					int index, joint;
 
 					token = COM_Parse(&curr_buff);
 					index = (int)strtol(token, (char **)NULL, 10);
 
-					if (index >= mesh->num_weights)
+					if (index < 0 || index >= mesh->num_weights)
 					{
 						Com_Printf("%s: incorrect weight index\n",
 							__func__);
@@ -1224,7 +1224,19 @@ ReadMD5Model(const char *buffer, size_t size)
 					}
 
 					token = COM_Parse(&curr_buff);
-					mesh->weights[index].joint = (int)strtol(token, (char **)NULL, 10);
+					joint = (int)strtol(token, (char **)NULL, 10);
+
+					if (joint < 0 || joint >= mdl->num_joints)
+					{
+						Com_Printf("%s: incorrect weight joint\n",
+							__func__);
+						FreeModelMd5(mdl);
+						free(safe_buffer);
+
+						return NULL;
+					}
+
+					mesh->weights[index].joint = joint;
 
 					token = COM_Parse(&curr_buff);
 					mesh->weights[index].bias = (float)strtod(token, (char **)NULL);
