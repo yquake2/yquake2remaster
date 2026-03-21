@@ -815,7 +815,7 @@ typedef struct
 	short save_ver;
 } field_t;
 
-extern field_t fields[];
+const field_t *FindSpawnfield(const char *key);
 
 extern gitem_t itemlist[];
 extern size_t itemlist_len;

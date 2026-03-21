@@ -45,4 +45,3 @@
 {"pers.wanted_heightfog_end_color", CLOFS(pers.wanted_heightfog.end), F_VECTOR},
 {"pers.wanted_heightfog_end_dist", CLOFS(pers.wanted_heightfog.end[3]), F_FLOAT},
 {"pers.fog_transition_time", CLOFS(pers.fog_transition_time), F_FLOAT},
-{NULL, 0, F_INT, 0}

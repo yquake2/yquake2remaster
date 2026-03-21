@@ -34,4 +34,3 @@
 {"sound2_entity", LLOFS(sound2_entity), F_EDICT},
 {"sound_entity", LLOFS(sound_entity), F_EDICT},
 {"shadow_light_count", LLOFS(shadow_light_count), F_INT},
-{NULL, 0, F_INT}

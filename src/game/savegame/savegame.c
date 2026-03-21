@@ -160,25 +160,23 @@ static const mmoveList_t mmoveList[] = {
 };
 
 /*
- * Fields to be saved (used in g_spawn.c)
+ * Entity fields to be saved
  */
-field_t fields[] = {
-	#include "tables/fields.h"
+static const field_t entfields[] = {
+	#include "tables/entfields.h"
 };
 
 /*
- * Level fields to
- * be saved
+ * Level fields to be saved
  */
-static field_t levelfields[] = {
+static const field_t levelfields[] = {
 	#include "tables/levelfields.h"
 };
 
 /*
- * Client fields to
- * be saved
+ * Client fields to be saved
  */
-static field_t clientfields[] = {
+static const field_t clientfields[] = {
 	#include "tables/clientfields.h"
 };
 
@@ -202,6 +200,22 @@ sg_fwrite(const void *src, size_t n, FILE *f)
 		fclose(f);
 		gi.error("Error writing " YQ2_COM_PRIdS " bytes to save file", n);
 	}
+}
+
+const field_t *
+FindSpawnfield(const char *key)
+{
+	const field_t *f;
+
+	for (f = entfields; f < ARREND(entfields); f++)
+	{
+		if (!(f->flags & FFL_NOSPAWN) && !Q_strcasecmp(f->name, key))
+		{
+			return f;
+		}
+	}
+
+	return NULL;
 }
 
 static void
@@ -880,14 +894,14 @@ ReadField(FILE *f, const field_t *field, byte *base)
 static void
 WriteClient(FILE *f, gclient_t *client)
 {
-	field_t *field;
+	const field_t *field;
 	gclient_t temp;
 
 	/* all of the ints, floats, and vectors stay as they are */
 	temp = *client;
 
 	/* change the pointers to indexes */
-	for (field = clientfields; field->name; field++)
+	for (field = clientfields; field < ARREND(clientfields); field++)
 	{
 		WriteField1(f, field, (byte *)&temp);
 	}
@@ -896,7 +910,7 @@ WriteClient(FILE *f, gclient_t *client)
 	sg_fwrite(&temp, sizeof(temp), f);
 
 	/* now write any allocated data following the edict */
-	for (field = clientfields; field->name; field++)
+	for (field = clientfields; field < ARREND(clientfields); field++)
 	{
 		WriteField2(f, field, (byte *)client);
 	}
@@ -926,11 +940,11 @@ SanitizeClientStruct(gclient_t *cl)
 static void
 ReadClient(FILE *f, gclient_t *client, short save_ver)
 {
-	field_t *field;
+	const field_t *field;
 
 	sg_fread(client, sizeof(*client), f);
 
-	for (field = clientfields; field->name; field++)
+	for (field = clientfields; field < ARREND(clientfields); field++)
 	{
 		if (field->save_ver <= save_ver)
 		{
@@ -1164,14 +1178,14 @@ ReadGame(const char *filename)
 static void
 WriteEdict(FILE *f, edict_t *ent)
 {
-	field_t *field;
+	const field_t *field;
 	edict_t temp;
 
 	/* all of the ints, floats, and vectors stay as they are */
 	temp = *ent;
 
 	/* change the pointers to lengths or indexes */
-	for (field = fields; field->name; field++)
+	for (field = entfields; field < ARREND(entfields); field++)
 	{
 		WriteField1(f, field, (byte *)&temp);
 	}
@@ -1180,7 +1194,7 @@ WriteEdict(FILE *f, edict_t *ent)
 	sg_fwrite(&temp, sizeof(temp), f);
 
 	/* now write any allocated data following the edict */
-	for (field = fields; field->name; field++)
+	for (field = entfields; field < ARREND(entfields); field++)
 	{
 		WriteField2(f, field, (byte *)ent);
 	}
@@ -1194,14 +1208,14 @@ WriteEdict(FILE *f, edict_t *ent)
 static void
 WriteLevelLocals(FILE *f)
 {
-	field_t *field;
+	const field_t *field;
 	level_locals_t temp;
 
 	/* all of the ints, floats, and vectors stay as they are */
 	temp = level;
 
 	/* change the pointers to lengths or indexes */
-	for (field = levelfields; field->name; field++)
+	for (field = levelfields; field < ARREND(levelfields); field++)
 	{
 		WriteField1(f, field, (byte *)&temp);
 	}
@@ -1210,7 +1224,7 @@ WriteLevelLocals(FILE *f)
 	sg_fwrite(&temp, sizeof(temp), f);
 
 	/* now write any allocated data following the edict */
-	for (field = levelfields; field->name; field++)
+	for (field = levelfields; field < ARREND(levelfields); field++)
 	{
 		WriteField2(f, field, (byte *)&level);
 	}
@@ -1274,11 +1288,11 @@ WriteLevel(const char *filename)
 static void
 ReadEdict(FILE *f, edict_t *ent)
 {
-	field_t *field;
+	const field_t *field;
 
 	sg_fread(ent, sizeof(*ent), f);
 
-	for (field = fields; field->name; field++)
+	for (field = entfields; field < ARREND(entfields); field++)
 	{
 		ReadField(f, field, (byte *)ent);
 	}
@@ -1306,11 +1320,11 @@ SanitizeLevelStruct(void)
 static void
 ReadLevelLocals(FILE *f)
 {
-	field_t *field;
+	const field_t *field;
 
 	sg_fread(&level, sizeof(level), f);
 
-	for (field = levelfields; field->name; field++)
+	for (field = levelfields; field < ARREND(levelfields); field++)
 	{
 		ReadField(f, field, (byte *)&level);
 	}
