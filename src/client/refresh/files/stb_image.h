@@ -835,6 +835,8 @@ static void stbi__refill_buffer(stbi__context *s);
 static void stbi__start_mem(stbi__context *s, stbi_uc const *buffer, int len)
 {
    s->io.read = NULL;
+   s->io.skip = NULL;
+   s->io.eof = NULL;
    s->read_from_callbacks = 0;
    s->callback_already_read = 0;
    s->img_buffer = s->img_buffer_original = (stbi_uc *) buffer;
@@ -1044,7 +1046,7 @@ static int stbi__mad3sizes_valid(int a, int b, int c, int add)
 }
 
 // returns 1 if "a*b*c*d + add" has no negative terms/factors and doesn't overflow
-#if !defined(STBI_NO_LINEAR) || !defined(STBI_NO_HDR) || !defined(STBI_NO_PNM)
+#if !defined(STBI_NO_LINEAR) || !defined(STBI_NO_HDR) || !defined(STBI_NO_PNM) || !defined(STBI_NO_PNG) || !defined(STBI_NO_PSD)
 static int stbi__mad4sizes_valid(int a, int b, int c, int d, int add)
 {
    return stbi__mul2sizes_valid(a, b) && stbi__mul2sizes_valid(a*b, c) &&
@@ -1067,7 +1069,7 @@ static void *stbi__malloc_mad3(int a, int b, int c, int add)
    return stbi__malloc(a*b*c + add);
 }
 
-#if !defined(STBI_NO_LINEAR) || !defined(STBI_NO_HDR) || !defined(STBI_NO_PNM)
+#if !defined(STBI_NO_LINEAR) || !defined(STBI_NO_HDR) || !defined(STBI_NO_PNM) || !defined(STBI_NO_PNG) || !defined(STBI_NO_PSD)
 static void *stbi__malloc_mad4(int a, int b, int c, int d, int add)
 {
    if (!stbi__mad4sizes_valid(a, b, c, d, add)) return NULL;
@@ -1849,7 +1851,7 @@ static stbi__uint16 *stbi__convert_format16(stbi__uint16 *data, int img_n, int r
    if (req_comp == img_n) return data;
    STBI_ASSERT(req_comp >= 1 && req_comp <= 4);
 
-   good = (stbi__uint16 *) stbi__malloc(req_comp * x * y * 2);
+   good = (stbi__uint16 *) stbi__malloc_mad4(req_comp, x, y, 2, 0);
    if (good == NULL) {
       STBI_FREE(data);
       return (stbi__uint16 *) stbi__errpuc("outofmem", "Out of memory");
@@ -5109,9 +5111,9 @@ static void stbi__de_iphone(stbi__png *z)
 
 static int stbi__parse_png_file(stbi__png *z, int scan, int req_comp)
 {
-   stbi_uc palette[1024], pal_img_n=0;
+   stbi_uc palette[1024]={0}, pal_img_n=0;
    stbi_uc has_trans=0, tc[3]={0};
-   stbi__uint16 tc16[3];
+   stbi__uint16 tc16[3]={0};
    stbi__uint32 ioff=0, idata_limit=0, i, pal_len=0;
    int first=1,k,interlace=0, color=0, is_iphone=0;
    stbi__context *s = z->s;
@@ -6436,7 +6438,7 @@ static stbi_uc *stbi__pic_load_core(stbi__context *s,int width,int height,int *c
    do {
       stbi__pic_packet *packet;
 
-      if (num_packets == ARRLEN(packets))
+      if (num_packets==sizeof(packets)/sizeof(packets[0]))
          return stbi__errpuc("bad format","too many packets");
 
       packet = &packets[num_packets++];
@@ -7037,15 +7039,19 @@ static void *stbi__load_gif_main(stbi__context *s, int **delays, int *x, int *y,
                   return stbi__load_gif_main_outofmem(&g, out, delays);
                if (!stbi__mul2sizes_valid(layers, stride))
                   return stbi__load_gif_main_outofmem(&g, out, delays);
-               out = (stbi_uc*) STBI_REALLOC_SIZED( out, out_size, layers * stride );
-               if (!out)
+               void *tmp = (stbi_uc*) STBI_REALLOC_SIZED( out, out_size, layers * stride );
+               if (!tmp)
                   return stbi__load_gif_main_outofmem(&g, out, delays);
-               out_size = layers * stride;
+               else {
+                   out = (stbi_uc*) tmp;
+                   out_size = layers * stride;
+               }
 
                if (delays) {
-                  *delays = (int*) STBI_REALLOC_SIZED( *delays, delays_size, sizeof(int) * layers );
-                  if (!*delays)
+                  int *new_delays = (int*) STBI_REALLOC_SIZED( *delays, delays_size, sizeof(int) * layers );
+                  if (!new_delays)
                      return stbi__load_gif_main_outofmem(&g, out, delays);
+                  *delays = new_delays;
                   delays_size = layers * sizeof(int);
                }
             } else {
@@ -7499,7 +7505,7 @@ static int stbi__pic_info(stbi__context *s, int *x, int *y, int *comp)
    do {
       stbi__pic_packet *packet;
 
-      if (num_packets == ARRLEN(packets))
+      if (num_packets==sizeof(packets)/sizeof(packets[0]))
          return 0;
 
       packet = &packets[num_packets++];
