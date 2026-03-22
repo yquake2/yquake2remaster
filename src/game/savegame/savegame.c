@@ -554,6 +554,7 @@ WriteField1(FILE *f, const field_t *field, byte *base)
 		case F_VECTOR:
 		case F_IGNORE:
 		case F_RGBA:
+		case F_SCALE:
 			break;
 
 		case F_LSTRING:
@@ -837,6 +838,7 @@ ReadField(FILE *f, const field_t *field, byte *base)
 		case F_VECTOR:
 		case F_IGNORE:
 		case F_RGBA:
+		case F_SCALE:
 			break;
 
 		case F_LSTRING:

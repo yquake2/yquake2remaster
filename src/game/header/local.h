@@ -375,7 +375,7 @@ typedef struct
 
 	/* intermission state */
 	float intermissiontime;             /* time the intermission was started */
-	char *changemap;
+	const char *changemap;
 	int exitintermission;
 	vec3_t intermission_origin;
 	vec3_t intermission_angle;
@@ -804,6 +804,7 @@ typedef enum
 	F_IGNORE,
 	F_RGBA,
 	F_LRAWSTRING,       /* raw string on disk, pointer in memory, TAG_LEVEL */
+	F_SCALE,
 } fieldtype_t;
 
 typedef struct
@@ -1612,7 +1613,7 @@ struct edict_s
 
 	float angle;					/* set in qe3, -1 = up, -2 = down */
 	char *target;
-	char *targetname;
+	const char *targetname;
 	char *killtarget;
 	char *team;
 	char *pathtarget;
@@ -1663,7 +1664,7 @@ struct edict_s
 	float show_hostile;
 	float powerarmor_time;
 
-	char *map;                  /* target_changelevel */
+	const char *map;                  /* target_changelevel */
 
 	int viewheight;             /* height above origin where eyesight is determined */
 	int takedamage;

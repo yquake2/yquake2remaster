@@ -136,7 +136,7 @@ CanDamage(edict_t *targ, edict_t *inflictor)
 	return false;
 }
 
-void
+static void
 Killed(edict_t *targ, edict_t *inflictor, edict_t *attacker,
 		int damage, vec3_t point)
 {

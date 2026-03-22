@@ -110,7 +110,6 @@
 {"Item_TriggeredSpawn", (byte *)Item_TriggeredSpawn},
 {"Jorg_CheckAttack", (byte *)Jorg_CheckAttack},
 {"KillBox", (byte *)KillBox},
-{"Killed", (byte *)Killed},
 {"LookAtKiller", (byte *)LookAtKiller},
 {"M_CatagorizePosition", (byte *)M_CatagorizePosition},
 {"M_ChangeYaw", (byte *)M_ChangeYaw},

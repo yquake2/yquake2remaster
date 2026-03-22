@@ -771,6 +771,24 @@ ED_ParseColorField(const char *value)
 	return atoi(value);
 }
 
+static void
+ED_ParseScaleField(vec_t *vec, const char *value, const char* name, const edict_t *ent)
+{
+	int count;
+
+	count = sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]);
+	if (count == 1)
+	{
+		vec[2] = vec[1] = vec[0];
+	}
+	else if(count != 3)
+	{
+		memset(vec, 0, sizeof(vec3_t));
+		gi.dprintf("%s: entity %d: incomplete '%s' field value '%s'\n",
+			__func__, ent->s.number, name, value);
+	}
+}
+
 /*
  * Takes a key/value pair and sets
  * the binary values in an edict
@@ -816,8 +834,8 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 			if (sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]) != 3)
 			{
 				memset(vec, 0, sizeof(vec3_t));
-				gi.dprintf("%s: entity %d: incomplete '%s' field\n",
-					__func__, ent->s.number, f->name);
+				gi.dprintf("%s: entity %d: incomplete '%s' field value '%s'\n",
+					__func__, ent->s.number, f->name, value);
 			}
 			break;
 		case F_INT:
@@ -834,6 +852,9 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 			break;
 		case F_RGBA:
 			*(unsigned *)b = ED_ParseColorField(value);
+			break;
+		case F_SCALE:
+			ED_ParseScaleField(b, value, f->name, ent);
 			break;
 		case F_IGNORE:
 			break;

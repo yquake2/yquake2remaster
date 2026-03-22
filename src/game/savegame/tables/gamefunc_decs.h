@@ -179,7 +179,6 @@ extern void Hunter_Launch ( edict_t * self ) ;
 extern void InfantryMachineGun ( edict_t * self ) ;
 extern void InventoryMessage ( edict_t * ent ) ;
 extern void Item_TriggeredSpawn ( edict_t * self , edict_t * other , edict_t * activator ) ;
-extern void Killed ( edict_t * targ , edict_t * inflictor , edict_t * attacker , int damage , vec3_t point ) ;
 extern void LookAtKiller ( edict_t * self , edict_t * inflictor , edict_t * attacker ) ;
 extern void M_CatagorizePosition ( edict_t * ent ) ;
 extern void M_ChangeYaw ( edict_t * ent ) ;
