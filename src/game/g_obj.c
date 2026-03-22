@@ -38,7 +38,8 @@
 #define OBJ_STOPMOVE   8
 
 void
-destructible_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+destructible_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
+	const vec3_t point)
 {
 	vec3_t org;
 

@@ -379,7 +379,7 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
  * Used by the blaster and hyper blaster.
  */
 void
-blaster_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+blaster_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t normal;
 
@@ -637,7 +637,7 @@ Grenade_Explode(edict_t *ent)
 }
 
 void
-Grenade_Touch(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_t *surf)
+Grenade_Touch(edict_t *ent, edict_t *other, const cplane_t *plane /* unused */, const csurface_t *surf)
 {
 	if (!ent || !other) /* plane is unused, surf can be NULL */
 	{
@@ -800,7 +800,7 @@ fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 }
 
 void
-rocket_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+rocket_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t origin;
 
@@ -1070,7 +1070,7 @@ bfg_explode(edict_t *self)
 }
 
 void
-bfg_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+bfg_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (!self || !other) /* plane and surf can be NULL */
 	{
@@ -1317,7 +1317,7 @@ ionripper_sparks(edict_t *self)
 }
 
 void
-ionripper_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+ionripper_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (!self || !other)
 	{
@@ -1512,7 +1512,7 @@ fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 }
 
 void
-plasma_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+plasma_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t origin;
 
@@ -1980,7 +1980,7 @@ flare_think(edict_t *self)
 }
 
 void
-flare_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+flare_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	/* Flares don't weigh that much, so let's have them stop
 	 * the instant they whack into anything. */

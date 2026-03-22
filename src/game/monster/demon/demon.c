@@ -83,7 +83,7 @@ check_demon_jump(edict_t *self)
 };
 
 void
-demon_jump_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+demon_jump_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (self->health < 1)
 		return;
@@ -285,7 +285,7 @@ mmove_t demon_move_die =
 };
 
 void
-demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+demon_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

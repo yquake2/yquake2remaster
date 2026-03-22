@@ -1435,14 +1435,14 @@ monster_dynamic_dead(edict_t *self)
 
 void
 monster_dynamic_die_noanim(edict_t *self, edict_t *inflictor, edict_t *attacker,
-	int damage, vec3_t point)
+	int damage, const vec3_t point)
 {
 	monster_dynamic_dead(self);
 }
 
 void
 monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-	int damage, vec3_t point)
+	int damage, const vec3_t point)
 {
 	if (!self)
 	{

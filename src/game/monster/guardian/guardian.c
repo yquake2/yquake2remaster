@@ -630,7 +630,7 @@ mmove_t guardian_move_death =
 
 void
 guardian_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage, vec3_t point /* unused */)
+		int damage, const vec3_t point /* unused */)
 {
 	if (!self)
 	{

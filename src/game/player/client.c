@@ -943,7 +943,7 @@ LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker)
 
 void
 player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point /* unused */)
+		int damage, const vec3_t point /* unused */)
 {
 	int n;
 
@@ -1900,7 +1900,7 @@ InitBodyQue(void)
 void
 body_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self)
 	{

@@ -572,7 +572,7 @@ vectoyaw2(vec3_t vec)
 }
 
 void
-vectoangles(vec3_t value, vec3_t angles)
+vectoangles(const vec3_t value, vec3_t angles)
 {
 	float yaw, pitch;
 

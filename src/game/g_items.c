@@ -1663,7 +1663,8 @@ Drop_PowerArmor(edict_t *ent, const gitem_t *item)
 /* ====================================================================== */
 
 void
-Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_t *surf /* unused */)
+Touch_Item(edict_t *ent, edict_t *other, const cplane_t *plane /* unused */,
+	const csurface_t *surf /* unused */)
 {
 	qboolean taken;
 
@@ -1807,7 +1808,7 @@ Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane /* unused */, csurface_
 /* ====================================================================== */
 
 void
-drop_temp_touch(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+drop_temp_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (!ent || !other)
 	{

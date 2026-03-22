@@ -62,7 +62,7 @@ dog_run(edict_t *self)
 }
 
 void
-dog_leap_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+dog_leap_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (self->health < 1)
 	{
@@ -308,7 +308,7 @@ mmove_t dog_move_die2 =
 };
 
 void
-dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+dog_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

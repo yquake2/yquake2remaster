@@ -46,8 +46,8 @@ SP_info_teleport_destination(edict_t *self)
  *  start_on: when trigger has targetname, start active, deactivate when used.
  */
 void
-trigger_teleport_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+trigger_teleport_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	edict_t *dest;
 
@@ -187,8 +187,8 @@ SP_trigger_teleport(edict_t *self)
  */
 
 void
-trigger_disguise_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+trigger_disguise_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{

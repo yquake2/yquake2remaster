@@ -858,8 +858,8 @@ int PowerArmorType(const edict_t *ent);
 gitem_t *GetItemByIndex(int index);
 int GetWeaponAmmoIndex(const gitem_t *weap);
 qboolean Add_Ammo(edict_t *ent, const gitem_t *item, int count);
-void Touch_Item(edict_t *ent, edict_t *other, cplane_t *plane,
-		csurface_t *surf);
+void Touch_Item(edict_t *ent, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf);
 void Use_Quad(edict_t *ent, const gitem_t *item);
 void Use_QuadFire(edict_t *ent, const gitem_t *item);
 
@@ -888,7 +888,7 @@ char *vtos(vec3_t v);
 void get_normal_vector(const cplane_t *p, vec3_t normal);
 
 float vectoyaw(vec3_t vec);
-void vectoangles(vec3_t value, vec3_t angles);
+void vectoangles(const vec3_t value, vec3_t angles);
 
 void G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t forward,
 		const vec3_t right, const vec3_t up, vec3_t result);
@@ -968,9 +968,9 @@ void monster_dynamic_damage(edict_t *self);
 void monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
 	trace_t *tr /* unused */);
 void monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-	int damage, vec3_t point);
+	int damage, const vec3_t point);
 void monster_dynamic_die_noanim(edict_t *self, edict_t *inflictor, edict_t *attacker,
-	int damage, vec3_t point);
+	int damage, const vec3_t point);
 void monster_dynamic_dead(edict_t *self);
 void monster_dynamic_attack(edict_t *self);
 void monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
@@ -1008,10 +1008,10 @@ void ThrowGib(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void BecomeExplosion1(edict_t *self);
 void ThrowHeadACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
 void ThrowGibACID(edict_t *self, const char *gibname, int damage, gibtype_t type);
-void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point);
+void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point);
 void SP_misc_teleporter_dest(edict_t *ent);
-void barrel_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-	csurface_t *surf /*unused */);
+void barrel_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+	const csurface_t *surf /*unused */);
 
 /* g_ai.c */
 void AI_SetSightClient(void);
@@ -1085,7 +1085,7 @@ void ClientBeginServerFrame(edict_t *ent);
 /* g_player.c */
 void player_pain(edict_t *self, edict_t *other, float kick, int damage);
 void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
+		int damage, const vec3_t point);
 
 /* g_svcmds.c */
 void ServerCommand(void);
@@ -1265,7 +1265,7 @@ qboolean CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
 		float height, float gravity);
 void SpawnGrow_Spawn(vec3_t startpos, int size);
 void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
-void ThrowSmallStuff(edict_t *self, vec3_t point);
+void ThrowSmallStuff(edict_t *self, const vec3_t point);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, int hitsound, qboolean fade);
 void spawngrow_think(edict_t *self);
@@ -1642,12 +1642,12 @@ struct edict_s
 	void (*prethink)(edict_t *ent);
 	void (*think)(edict_t *self);
 	void (*blocked)(edict_t *self, edict_t *other);         /* move to moveinfo? */
-	void (*touch)(edict_t *self, edict_t *other, cplane_t *plane,
-			csurface_t *surf);
+	void (*touch)(edict_t *self, edict_t *other, const cplane_t *plane,
+			const csurface_t *surf);
 	void (*use)(edict_t *self, edict_t *other, edict_t *activator);
 	void (*pain)(edict_t *self, edict_t *other, float kick, int damage);
 	void (*die)(edict_t *self, edict_t *inflictor, edict_t *attacker,
-			int damage, vec3_t point);
+			int damage, const vec3_t point);
 
 	float touch_debounce_time;		/* now also used by fixbots for timeouts when getting stuck */
 	float pain_debounce_time;

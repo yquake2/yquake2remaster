@@ -421,7 +421,7 @@ mmove_t arachnid_move_death =
 void
 arachnid_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self)
 	{

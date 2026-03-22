@@ -35,7 +35,7 @@ void hover_attack(edict_t *self);
 void hover_reattack(edict_t *self);
 void hover_fire_blaster(edict_t *self);
 void hover_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
+		int damage, const vec3_t point);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -856,7 +856,7 @@ hover_dead(edict_t *self)
 void
 hover_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self)
 	{

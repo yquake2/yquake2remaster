@@ -115,7 +115,7 @@ hknight_reset_magic(edict_t *self)
 }
 
 void
-magic_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+magic_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other == self->owner)
 	{
@@ -448,7 +448,7 @@ mmove_t hknight_move_die2 =
 };
 
 void
-hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+hknight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

@@ -318,8 +318,8 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 }
 
 void
-dynamicspawn_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+dynamicspawn_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{

@@ -457,7 +457,7 @@ mmove_t gladb_move_death = {
 void
 gladb_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage /*unused */,
-		vec3_t point)
+		const vec3_t point)
 {
 	if (!self)
 	{

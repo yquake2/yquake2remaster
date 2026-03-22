@@ -82,13 +82,13 @@ zombie_sight(edict_t *self, edict_t *other /* unused */)
 }
 
 void
-zombie_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+zombie_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	G_FreeEdict(self);
 }
 
 void
-zombie_gib_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+zombie_gib_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other == self->owner)
 	{
@@ -616,7 +616,7 @@ zombie_pain(edict_t *self, edict_t *other, float kick, int damage)
 
 // Death
 void
-zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+zombie_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	int n;
 

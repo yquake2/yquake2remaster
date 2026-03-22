@@ -1162,7 +1162,7 @@ static const mmove_t tank_move_death_static =
 void
 tank_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self)
 	{

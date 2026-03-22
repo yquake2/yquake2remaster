@@ -87,7 +87,7 @@ shalrath_roar(edict_t *self)
 }
 
 void
-shalrath_pod_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+shalrath_pod_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other == self->owner)
 		return;
@@ -287,7 +287,7 @@ mmove_t shalrath_move_death =
 };
 
 void
-shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+shalrath_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

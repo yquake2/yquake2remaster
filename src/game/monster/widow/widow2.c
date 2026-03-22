@@ -58,7 +58,7 @@ void widow2_attack(edict_t *self);
 void widow2_attack_beam(edict_t *self);
 void widow2_reattack_beam(edict_t *self);
 void widow2_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
+		int damage, const vec3_t point);
 void widow_start_spawn(edict_t *self);
 void widow_done_spawn(edict_t *self);
 void widow2_spawn_check(edict_t *self);
@@ -70,9 +70,9 @@ void widow2_finaldeath(edict_t *self);
 
 void WidowExplode(edict_t *self);
 void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
-void gib_touch(edict_t *self, edict_t *other, cplane_t *plane,
-		csurface_t *surf);
+		int damage, const vec3_t point);
+void gib_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf);
 void ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
 		vec3_t startpos, qboolean sized, int hitsound, qboolean fade);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
@@ -1231,7 +1231,7 @@ KillChildren(edict_t *self)
 
 void
 widow2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage, vec3_t point /* unused */)
+		int damage, const vec3_t point /* unused */)
 {
 	if (!self)
 	{
@@ -1543,8 +1543,8 @@ WidowVelocityForDamage(int damage, vec3_t v)
 }
 
 void
-widow_gib_touch(edict_t *self, edict_t *other /* unused */, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+widow_gib_touch(edict_t *self, edict_t *other /* unused */, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!self)
 	{
@@ -1728,7 +1728,7 @@ ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
 }
 
 void
-ThrowSmallStuff(edict_t *self, vec3_t point)
+ThrowSmallStuff(edict_t *self, const vec3_t point)
 {
 	int n;
 
@@ -1750,7 +1750,7 @@ ThrowSmallStuff(edict_t *self, vec3_t point)
 }
 
 static void
-ThrowMoreStuff(edict_t *self, vec3_t point)
+ThrowMoreStuff(edict_t *self, const vec3_t point)
 {
 	int n;
 

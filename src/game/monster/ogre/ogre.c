@@ -419,7 +419,7 @@ mmove_t ogre_move_death2 =
 
 // Death
 void
-ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+ogre_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

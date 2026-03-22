@@ -1083,7 +1083,7 @@ CTFPickup_Flag(edict_t *ent, edict_t *other)
 
 static void
 CTFDropFlagTouch(edict_t *ent, edict_t *other,
-		cplane_t *plane, csurface_t *surf)
+		const cplane_t *plane, const csurface_t *surf)
 {
 	/* owner (who dropped us) can't touch for two secs */
 	if ((other == ent->owner) &&
@@ -1682,7 +1682,7 @@ CTFResetGrapple(edict_t *self)
 }
 
 static void
-CTFGrappleTouch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+CTFGrappleTouch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	float volume = 1.0;
 

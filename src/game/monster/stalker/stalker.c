@@ -1385,7 +1385,7 @@ mmove_t stalker_move_death = {
 
 void
 stalker_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage, vec3_t point /* unused */)
+		int damage, const vec3_t point /* unused */)
 {
 	if (!self)
 	{

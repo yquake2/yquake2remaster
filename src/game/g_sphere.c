@@ -23,8 +23,8 @@ void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker);
 void defender_think(edict_t *self);
 void hunter_think(edict_t *self);
 void vengeance_think(edict_t *self);
-void vengeance_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf);
-void hunter_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf);
+void vengeance_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
+void hunter_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
 
 void
 sphere_think_explode(edict_t *self)
@@ -45,7 +45,7 @@ sphere_think_explode(edict_t *self)
 
 void
 sphere_explode(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage /* unused */, vec3_t point /* unused */)
+		int damage /* unused */, const vec3_t point /* unused */)
 {
 	if (!self)
 	{
@@ -57,7 +57,7 @@ sphere_explode(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker
 
 void
 sphere_if_idle_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage /* unused */, vec3_t point /* unused */)
+		int damage /* unused */, const vec3_t point /* unused */)
 {
 	if (!self)
 	{
@@ -285,8 +285,8 @@ sphere_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 }
 
 void
-vengeance_touch(edict_t *self, edict_t *other, cplane_t *plane,
-		csurface_t *surf)
+vengeance_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf)
 {
 	if (!self || !other)
 	{
@@ -304,7 +304,7 @@ vengeance_touch(edict_t *self, edict_t *other, cplane_t *plane,
 }
 
 void
-hunter_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+hunter_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	edict_t *owner;
 

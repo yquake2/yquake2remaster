@@ -80,7 +80,7 @@ void widow_attack(edict_t *self);
 void widow_attack_blaster(edict_t *self);
 void widow_reattack_blaster(edict_t *self);
 void widow_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
+		int damage, const vec3_t point);
 
 void widow_start_spawn(edict_t *self);
 void widow_done_spawn(edict_t *self);
@@ -1376,7 +1376,7 @@ widow_dead(edict_t *self)
 
 void
 widow_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage /* unused */, vec3_t point /* unused */)
+		int damage /* unused */, const vec3_t point /* unused */)
 {
 	if (!self)
 	{

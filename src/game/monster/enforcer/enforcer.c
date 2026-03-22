@@ -60,7 +60,7 @@ enforcer_run(edict_t *self)
 }
 
 void
-enfbolt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+enfbolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other == self->owner)
 	{
@@ -443,7 +443,7 @@ mmove_t enforcer_move_death2 =
 
 // Death
 void
-enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+enforcer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

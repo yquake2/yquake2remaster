@@ -309,7 +309,7 @@ PrecacheForRandomRespawn(void)
 
 void
 doppleganger_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker,
-		int damage, vec3_t point)
+		int damage, const vec3_t point)
 {
 	if (!self || !attacker)
 	{

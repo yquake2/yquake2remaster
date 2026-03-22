@@ -260,7 +260,7 @@ mmove_t knight_move_die2 =
 };
 
 void
-knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+knight_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	if (self->health <= self->gib_health)
 	{

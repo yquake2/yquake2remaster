@@ -758,8 +758,8 @@ wait_and_change(edict_t* ent, void (*afterwaitfunc)(edict_t *))
 }
 
 void
-Touch_Plat_Center(edict_t *ent, edict_t *other, cplane_t *plane /* unsed */,
-		csurface_t *surf /* unused */)
+Touch_Plat_Center(edict_t *ent, edict_t *other, const cplane_t *plane /* unsed */,
+		const csurface_t *surf /* unused */)
 {
 	if (!ent || !other)
 	{
@@ -1257,7 +1257,7 @@ plat2_operate(edict_t *ent, const edict_t *other)
 
 void
 Touch_Plat_Center2(edict_t *ent, edict_t *other,
-		cplane_t *plane /* unused */, csurface_t *surf /* unused */)
+		const cplane_t *plane /* unused */, const csurface_t *surf /* unused */)
 {
 	if (!ent || !other)
 	{
@@ -1612,8 +1612,8 @@ rotating_blocked(edict_t *self, edict_t *other)
 }
 
 void
-rotating_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+rotating_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -1905,8 +1905,8 @@ button_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 }
 
 void
-button_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+button_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -1930,7 +1930,7 @@ button_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
 void
 button_killed(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker, int damage /* unused */,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self || !attacker)
 	{
@@ -2400,8 +2400,8 @@ door_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 }
 
 void
-Touch_DoorTrigger(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+Touch_DoorTrigger(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!self || !other)
 	{
@@ -2607,7 +2607,7 @@ door_blocked(edict_t *self, edict_t *other)
 void
 door_killed(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker, int damage /* unused */,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	edict_t *ent;
 
@@ -2626,8 +2626,8 @@ door_killed(edict_t *self, edict_t *inflictor /* unused */,
 }
 
 void
-door_touch(edict_t *self, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+door_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	int sound_index;
 
@@ -3975,7 +3975,7 @@ door_secret_blocked(edict_t *self, edict_t *other)
 void
 door_secret_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker, int damage /* unused */,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self || !attacker)
 	{
@@ -4148,7 +4148,7 @@ rotating_light_alarm(edict_t *self)
 void
 rotating_light_killed(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage /* unused */,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self)
 	{

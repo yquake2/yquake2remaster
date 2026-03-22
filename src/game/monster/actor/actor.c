@@ -392,7 +392,7 @@ mmove_t actor_move_death2 = {
 };
 
 void
-actor_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, vec3_t point)
+actor_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point)
 {
 	int		n;
 
@@ -572,7 +572,7 @@ for JUMP only:
 */
 
 void
-target_actor_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+target_actor_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other->movetarget != self || other->enemy)
 	{

@@ -40,11 +40,11 @@
 #define TRACKER_DAMAGE_TIME 0.5
 
 extern void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
-extern void hurt_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf);
+extern void hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
 extern void Grenade_Explode(edict_t *ent);
 
 void
-flechette_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+flechette_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t normal;
 
@@ -194,7 +194,7 @@ Prox_Explode(edict_t *ent)
 
 void
 prox_die(edict_t *self, edict_t *inflictor, edict_t *attacker /* unused */,
-		int damage, vec3_t point)
+		int damage, const vec3_t point)
 {
 	if (!self || !inflictor)
 	{
@@ -215,8 +215,8 @@ prox_die(edict_t *self, edict_t *inflictor, edict_t *attacker /* unused */,
 }
 
 void
-Prox_Field_Touch(edict_t *ent, edict_t *other, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+Prox_Field_Touch(edict_t *ent, edict_t *other, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	edict_t *prox;
 
@@ -373,7 +373,7 @@ prox_open(edict_t *ent)
 }
 
 void
-prox_land(edict_t *ent, edict_t *other, cplane_t *plane, csurface_t *surf)
+prox_land(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	edict_t *field;
 	vec3_t dir;
@@ -755,7 +755,7 @@ Nuke_Explode(edict_t *ent)
 
 void
 nuke_die(edict_t *self, edict_t *inflictor /* unused */,
-		edict_t *attacker, int damage, vec3_t point)
+		edict_t *attacker, int damage, const vec3_t point)
 {
 	if (!self)
 	{
@@ -866,8 +866,8 @@ Nuke_Think(edict_t *ent)
 }
 
 void
-nuke_bounce(edict_t *ent, edict_t *other /* unused */, cplane_t *plane /* unused */,
-		csurface_t *surf /* unused */)
+nuke_bounce(edict_t *ent, edict_t *other /* unused */, const cplane_t *plane /* unused */,
+		const csurface_t *surf /* unused */)
 {
 	if (!ent)
 	{
@@ -993,7 +993,7 @@ tesla_remove(edict_t *self)
 
 void
 tesla_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage /* unused */, vec3_t point /* unused */)
+		int damage /* unused */, const vec3_t point /* unused */)
 {
 	if (!self)
 	{
@@ -1017,7 +1017,7 @@ tesla_blow(edict_t *self)
 }
 
 void
-tesla_zap(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+tesla_zap(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 }
 
@@ -1256,7 +1256,7 @@ tesla_think(edict_t *ent)
 }
 
 void
-tesla_lava(edict_t *ent, edict_t *other /* unused */, cplane_t *plane, csurface_t *surf /* unused */)
+tesla_lava(edict_t *ent, edict_t *other /* unused */, const cplane_t *plane, const csurface_t *surf /* unused */)
 {
 	vec3_t land_point;
 	vec3_t normal;
@@ -1505,7 +1505,7 @@ fire_heatbeam(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
  * Fires a single green blaster bolt.  Used by monsters, generally.
  */
 void
-blaster2_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+blaster2_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t normal;
 
@@ -1763,7 +1763,7 @@ tracker_explode(edict_t *self)
 }
 
 void
-tracker_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+tracker_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (!self || !other)
 	{

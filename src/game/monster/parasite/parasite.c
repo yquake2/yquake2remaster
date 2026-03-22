@@ -957,7 +957,7 @@ static const mmove_t parasite_move_death_static =
 void
 parasite_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	if (!self)
 	{

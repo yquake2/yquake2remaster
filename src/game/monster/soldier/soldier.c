@@ -1825,7 +1825,7 @@ static const mmove_t soldier_move_death6_static =
 void
 soldier_die(edict_t *self, edict_t *inflictor /* unused */,
 		edict_t *attacker /* unused */, int damage,
-		vec3_t point /* unused */)
+		const vec3_t point /* unused */)
 {
 	int n;
 
@@ -3190,7 +3190,7 @@ static const mmove_t soldierh_move_death4_static =
 
 void
 soldierh_die(edict_t *self, edict_t *inflictor /* unused */,
-		edict_t *attacker /* unused */, int damage, vec3_t point)
+		edict_t *attacker /* unused */, int damage, const vec3_t point)
 {
 	int n;
 

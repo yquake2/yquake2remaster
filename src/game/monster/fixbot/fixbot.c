@@ -32,7 +32,7 @@ void fixbot_attack(edict_t *self);
 void fixbot_fire_blaster(edict_t *self);
 void fixbot_fire_welder(edict_t *self);
 void fixbot_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, vec3_t point);
+		int damage, const vec3_t point);
 
 void M_MoveToGoal(edict_t *ent, float dist);
 
@@ -1619,7 +1619,7 @@ fixbot_dead(edict_t *self)
 
 void
 fixbot_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* unused */,
-		int damage /* unused */, vec3_t point /* unused */)
+		int damage /* unused */, const vec3_t point /* unused */)
 {
 	if (!self)
 	{

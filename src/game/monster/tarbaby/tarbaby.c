@@ -110,7 +110,7 @@ tarbaby_sight(edict_t *self, edict_t *other /* unused */)
 }
 
 void
-tarbaby_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+tarbaby_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other->takedamage)
 	{
@@ -229,7 +229,7 @@ tarbaby_explode(edict_t *self)
 // Death
 void
 tarbaby_die(edict_t *self, edict_t *inflictor /* unused */,
-	edict_t *attacker /* unused */, int damage, vec3_t point /* unused */)
+	edict_t *attacker /* unused */, int damage, const vec3_t point /* unused */)
 {
 	if (self->deadflag == DEAD_DEAD)
 		return;
