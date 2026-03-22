@@ -1865,11 +1865,34 @@ monster_death_use(edict_t *self)
 
 /* ================================================================== */
 
+static float
+monster_get_scale(edict_t *self)
+{
+	float scale;
+	int i;
+
+	scale = 0.0;
+
+	for (i = 0; i < 3; i++)
+	{
+		if (!self->rrs.scale[i])
+		{
+			/* fix empty scale */
+			self->rrs.scale[i] = 1.0f;
+		}
+
+		scale += self->rrs.scale[i];
+	}
+
+	scale /= 3.0;
+
+	return scale;
+}
+
 static qboolean
 monster_start(edict_t *self)
 {
 	float scale;
-	int i;
 
 	if (!self)
 	{
@@ -1933,20 +1956,7 @@ monster_start(edict_t *self)
 		VectorSet(self->rrs.scale, scale, scale, scale);
 	}
 
-	scale = 0;
-
-	for (i = 0; i < 3; i++)
-	{
-		if (!self->rrs.scale[i])
-		{
-			/* fix empty scale */
-			self->rrs.scale[i] = 1.0f;
-		}
-
-		scale += self->rrs.scale[i];
-	}
-
-	scale /= 3;
+	scale = monster_get_scale(self);
 
 	/* non default scale */
 	if (scale != 1.0)

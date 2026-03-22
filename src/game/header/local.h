@@ -1075,7 +1075,7 @@ edict_t *PlayerTrail_LastSpot(void);
 
 /* g_client.c */
 void respawn(edict_t *self);
-void BeginIntermission(edict_t *targ);
+void BeginIntermission(const edict_t *targ);
 void PutClientInServer(edict_t *ent);
 void InitClientPersistant(edict_t *ent);
 void InitClientResp(gclient_t *client);
@@ -1260,14 +1260,14 @@ edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t entMins,
 		vec3_t entMaxs, const char *classname, int height);
 qboolean FindSpawnPoint(vec3_t startpoint, vec3_t mins, vec3_t maxs,
 		vec3_t spawnpoint, float maxMoveUp);
-qboolean CheckSpawnPoint(vec3_t origin, vec3_t mins, vec3_t maxs);
-qboolean CheckGroundSpawnPoint(vec3_t origin, vec3_t entMins, vec3_t entMaxs,
+qboolean CheckSpawnPoint(const vec3_t origin, const vec3_t mins, const vec3_t maxs);
+qboolean CheckGroundSpawnPoint(const vec3_t origin, const vec3_t entMins, const vec3_t entMaxs,
 		float height, float gravity);
-void SpawnGrow_Spawn(vec3_t startpos, int size);
-void Widowlegs_Spawn(vec3_t startpos, vec3_t angles);
+void SpawnGrow_Spawn(const vec3_t startpos, int size);
+void Widowlegs_Spawn(const vec3_t startpos, vec3_t angles);
 void ThrowSmallStuff(edict_t *self, const vec3_t point);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, int hitsound, qboolean fade);
+		const vec3_t startpos, int hitsound, qboolean fade);
 void spawngrow_think(edict_t *self);
 
 /* p_client.c */

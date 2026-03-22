@@ -415,11 +415,22 @@ void
 CL_SetSky(void)
 {
 	float rotate = 0;
-	int autorotate = 1;
-	vec3_t axis;
+	int count, autorotate = 1;
+	vec3_t axis = {0};
 
-	sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
-	sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
+	count = sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
+	if (count == 0)
+	{
+		Com_DPrintf("%s: Unexpected rotate %s\n", __func__, cl.configstrings[CS_SKYROTATE]);
+	}
+
+	count = sscanf(cl.configstrings[CS_SKYAXIS], "%f %f %f", &axis[0], &axis[1], &axis[2]);
+	if (count != 3)
+	{
+		Com_DPrintf("%s: Unexpected axis %s\n", __func__, cl.configstrings[CS_SKYAXIS]);
+		VectorClear(axis);
+	}
+
 	R_SetSky(cl.configstrings[CS_SKY], rotate, autorotate, axis);
 }
 

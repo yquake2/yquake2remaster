@@ -1400,7 +1400,7 @@ func_object_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 	}
 
 	/* only squash thing we fall on top of */
-	if (plane && plane->normal[2] < 1.0)
+	if (plane->normal[2] < 1.0)
 	{
 		return;
 	}

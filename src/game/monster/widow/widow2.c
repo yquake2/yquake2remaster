@@ -74,11 +74,11 @@ void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 void gib_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 		const csurface_t *surf);
 void ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, qboolean sized, int hitsound, qboolean fade);
+		const vec3_t startpos, qboolean sized, int hitsound, qboolean fade);
 void ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, int hitsound, qboolean fade);
+		const vec3_t startpos, int hitsound, qboolean fade);
 static void ThrowWidowGibLoc(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, qboolean fade);
+		const vec3_t startpos, qboolean fade);
 void WidowExplosion1(edict_t *self);
 void WidowExplosion2(edict_t *self);
 void WidowExplosion3(edict_t *self);
@@ -1576,7 +1576,7 @@ ThrowWidowGib(edict_t *self, char *gibname, int damage, gibtype_t type)
 
 static void
 ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
-		gibtype_t type, vec3_t startpos, qboolean fade)
+		gibtype_t type, const vec3_t startpos, qboolean fade)
 {
 	if (!self || !gibname)
 	{
@@ -1588,7 +1588,7 @@ ThrowWidowGibLoc(edict_t *self, char *gibname, int damage,
 
 void
 ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, int hitsound, qboolean fade)
+		const vec3_t startpos, int hitsound, qboolean fade)
 {
 	if (!self || !gibname)
 	{
@@ -1601,7 +1601,7 @@ ThrowWidowGibSized(edict_t *self, char *gibname, int damage, gibtype_t type,
 
 void
 ThrowWidowGibReal(edict_t *self, char *gibname, int damage, gibtype_t type,
-		vec3_t startpos, qboolean sized, int hitsound, qboolean fade)
+		const vec3_t startpos, qboolean sized, int hitsound, qboolean fade)
 {
 	edict_t *gib;
 	vec3_t vd;

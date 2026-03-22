@@ -116,7 +116,7 @@ extern void AngleMove_Final ( edict_t * ent ) ;
 extern void AttackFinished ( edict_t * self , float time ) ;
 extern void BecomeExplosion1 ( edict_t * self ) ;
 extern void BecomeExplosion2 ( edict_t * self ) ;
-extern void BeginIntermission ( edict_t * targ ) ;
+extern void BeginIntermission ( const edict_t * targ ) ;
 extern void Blaster_Fire ( edict_t * ent , vec3_t g_offset , int damage , qboolean hyper , int effect ) ;
 extern void Boss2MachineGun ( edict_t * self ) ;
 extern void Boss2Rocket ( edict_t * self ) ;
@@ -249,7 +249,7 @@ extern void ThrowGibACID ( edict_t * self , const char * gibname , int damage , 
 extern void ThrowHead ( edict_t * self , const char * gibname , int damage , gibtype_t type ) ;
 extern void ThrowHeadACID ( edict_t * self , const char * gibname , int damage , gibtype_t type ) ;
 extern void ThrowWidowGib ( edict_t * self , char * gibname , int damage , gibtype_t type ) ;
-extern void ThrowWidowGibReal ( edict_t * self , char * gibname , int damage , gibtype_t type , vec3_t startpos , qboolean sized , int hitsound , qboolean fade ) ;
+extern void ThrowWidowGibReal ( edict_t * self , char * gibname , int damage , gibtype_t type , const vec3_t startpos , qboolean sized , int hitsound , qboolean fade ) ;
 extern void TossClientWeapon ( edict_t * self ) ;
 extern void Touch_DoorTrigger ( edict_t * self , edict_t * other , const cplane_t * plane , const csurface_t * surf ) ;
 extern void Touch_Item ( edict_t * ent , edict_t * other , const cplane_t * plane , const csurface_t * surf ) ;

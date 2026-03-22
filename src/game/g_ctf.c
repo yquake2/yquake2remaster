@@ -1393,9 +1393,33 @@ CTFSetIDView(edict_t *ent)
 }
 
 void
-SetCTFStats(edict_t *ent)
+SetCTFTechIcon(edict_t *ent)
 {
 	int i;
+
+	/* tech icon */
+	i = 0;
+	ent->client->ps.stats[STAT_CTF_TECH] = 0;
+
+	while (tnames[i])
+	{
+		const gitem_t *tech;
+
+		if (((tech = FindItemByClassname(tnames[i])) != NULL) &&
+			ent->client->pers.inventory[ITEM_INDEX(tech)])
+		{
+			ent->client->ps.stats[STAT_CTF_TECH] = FirstPersonWeaponIcon(tech);
+			break;
+		}
+
+		i++;
+	}
+
+}
+
+void
+SetCTFStats(edict_t *ent)
+{
 	int p1, p2;
 	const edict_t *e;
 	const gitem_t *flag1_item, *flag2_item;
@@ -1467,23 +1491,7 @@ SetCTFStats(edict_t *ent)
 		}
 	}
 
-	/* tech icon */
-	i = 0;
-	ent->client->ps.stats[STAT_CTF_TECH] = 0;
-
-	while (tnames[i])
-	{
-		const gitem_t *tech;
-
-		if (((tech = FindItemByClassname(tnames[i])) != NULL) &&
-			ent->client->pers.inventory[ITEM_INDEX(tech)])
-		{
-			ent->client->ps.stats[STAT_CTF_TECH] = FirstPersonWeaponIcon(tech);
-			break;
-		}
-
-		i++;
-	}
+	SetCTFTechIcon(ent);
 
 	/* figure out what icon to display for team logos
 	   three states:
@@ -4840,7 +4848,6 @@ CTFAdmin_UpdateSettings(edict_t *ent, pmenuhnd_t *setmenu)
 	sprintf(text, "Match Lock:      %s", settings->matchlock ? "Yes" : "No");
 	PMenu_UpdateEntry(setmenu->entries + i, text,
 			PMENU_ALIGN_LEFT, CTFAdmin_ChangeMatchLock);
-	i++;
 
 	PMenu_Update(ent);
 }
