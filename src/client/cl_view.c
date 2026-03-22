@@ -419,7 +419,7 @@ CL_SetSky(void)
 	vec3_t axis = {0};
 
 	count = sscanf(cl.configstrings[CS_SKYROTATE], "%f %d", &rotate, &autorotate);
-	if (count == 0)
+	if (count <= 0)
 	{
 		Com_DPrintf("%s: Unexpected rotate %s\n", __func__, cl.configstrings[CS_SKYROTATE]);
 	}
