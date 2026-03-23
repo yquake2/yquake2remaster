@@ -95,7 +95,7 @@ SV_StatusString(void)
 	int i;
 	int statusLength;
 
-	strcpy(status, Cvar_Serverinfo());
+	Q_strlcpy(status, Cvar_Serverinfo(), sizeof(status));
 	Q_strlcat(status, "\n", sizeof(status));
 	statusLength = (int)strlen(status);
 

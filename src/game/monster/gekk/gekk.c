@@ -781,7 +781,7 @@ gekk_check_refire(edict_t *self)
 void
 loogie_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
-	if (!self || !other)
+	if (!self || !self->owner || !other)
 	{
 		return;
 	}

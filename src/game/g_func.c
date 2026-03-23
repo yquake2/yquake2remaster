@@ -2403,7 +2403,7 @@ void
 Touch_DoorTrigger(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 		const csurface_t *surf /* unused */)
 {
-	if (!self || !other)
+	if (!self || !self->owner || !other)
 	{
 		return;
 	}
