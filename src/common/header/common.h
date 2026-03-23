@@ -122,35 +122,35 @@ void MSG_WriteCoord(sizebuf_t *sb, float f, int protocol);
 void MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol);
 void MSG_WriteAngle(sizebuf_t *sb, float f);
 void MSG_WriteAngle16(sizebuf_t *sb, float f);
-void MSG_WriteConfigString(sizebuf_t *sb, short index, const char *s);
-void MSG_WriteDeltaUsercmd(sizebuf_t *sb, const struct usercmd_s *from,
+void MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s);
+void MSG_WriteDeltaUsercmd(sizebuf_t *buf, const struct usercmd_s *from,
 		const struct usercmd_s *cmd);
 void MSG_WriteDeltaEntity(const struct entity_xstate_s *from,
 		const struct entity_xstate_s *to, sizebuf_t *msg,
 		qboolean force, qboolean newentity, int protocol);
-void MSG_WriteDir(sizebuf_t *sb, const vec3_t vector);
+void MSG_WriteDir(sizebuf_t *sb, const vec3_t dir);
 
-void MSG_BeginReading(sizebuf_t *sb);
+void MSG_BeginReading(sizebuf_t *msg);
 
-int MSG_ReadChar(sizebuf_t *sb);
-int MSG_ReadByte(sizebuf_t *sb);
-int MSG_ReadShort(sizebuf_t *sb);
-int MSG_ReadLong(sizebuf_t *sb);
-float MSG_ReadFloat(sizebuf_t *sb);
-char *MSG_ReadString(sizebuf_t *sb);
-char *MSG_ReadStringLine(sizebuf_t *sb);
+int MSG_ReadChar(sizebuf_t *msg_read);
+int MSG_ReadByte(sizebuf_t *msg_read);
+int MSG_ReadShort(sizebuf_t *msg_read);
+int MSG_ReadLong(sizebuf_t *msg_read);
+float MSG_ReadFloat(sizebuf_t *msg_read);
+char *MSG_ReadString(sizebuf_t *msg_read);
+char *MSG_ReadStringLine(sizebuf_t *msg_read);
 
-float MSG_ReadCoord(sizebuf_t *sb, int protocol);
-void MSG_ReadPos(sizebuf_t *sb, vec3_t pos, int protocol);
-float MSG_ReadAngle(sizebuf_t *sb);
-float MSG_ReadAngle16(sizebuf_t *sb);
-void MSG_ReadDeltaUsercmd(sizebuf_t *sb,
+float MSG_ReadCoord(sizebuf_t *msg_read, int protocol);
+void MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol);
+float MSG_ReadAngle(sizebuf_t *msg_read);
+float MSG_ReadAngle16(sizebuf_t *msg_read);
+void MSG_ReadDeltaUsercmd(sizebuf_t *msg_read,
 		const struct usercmd_s *from,
-		struct usercmd_s *cmd);
+		struct usercmd_s *move);
 
-void MSG_ReadDir(sizebuf_t *sb, vec3_t vector);
+void MSG_ReadDir(sizebuf_t *sb, vec3_t dir);
 
-void MSG_ReadData(sizebuf_t *sb, void *buffer, int size);
+void MSG_ReadData(sizebuf_t *msg_read, void *data, int len);
 
 /* ================================================================== */
 

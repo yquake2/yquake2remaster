@@ -1039,7 +1039,7 @@ void fire_bullet(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int kick, int hspread, int vspread, int mod);
 void fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int kick, int hspread, int vspread, int count, int mod);
-void fire_blaster(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+void fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int effect, qboolean hyper);
 void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean monster);
@@ -1050,13 +1050,13 @@ void fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
 void fire_rail(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick);
 void fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, float damage_radius);
-void fire_ionripper(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+void fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int effect);
 void fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 		float damage_radius, int radius_damage);
 void fire_heatbeam(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
 		int damage, int kick, qboolean monster);
-void fire_blueblaster(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+void fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int effect);
 void fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 		float damage_radius, int radius_damage);
@@ -1181,7 +1181,7 @@ void ReinitGameEntities(int ent_cnt);
 
 void fire_flechette(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int kick);
-void fire_prox(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+void fire_prox(edict_t *self, vec3_t start, vec3_t aimdir, int damage_multiplier,
 		int speed);
 void fire_nuke(edict_t *self, vec3_t start, vec3_t aimdir, int speed);
 void fire_flame(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
@@ -1194,9 +1194,9 @@ void fire_incendiary_grenade(edict_t *self, vec3_t start, vec3_t aimdir,
 		int damage, int speed, float timer, float damage_radius);
 void fire_player_melee(edict_t *self, vec3_t start, vec3_t aim, int reach,
 		int damage, int kick, int quiet, int mod);
-void fire_tesla(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+void fire_tesla(edict_t *self, vec3_t start, vec3_t aimdir, int damage_multiplier,
 		int speed);
-void fire_blaster2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+void fire_blaster2(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, int effect, qboolean hyper);
 void fire_tracker(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int speed, edict_t *enemy);
@@ -2018,8 +2018,8 @@ void ChasecamTrack(edict_t *ent);
 
 void CTFObserver(edict_t *ent);
 
-void SP_trigger_teleport(edict_t *ent);
-void SP_info_teleport_destination(edict_t *ent);
+void SP_trigger_teleport(edict_t *self);
+void SP_info_teleport_destination(edict_t *self);
 
 void CTFSetPowerUpEffect(edict_t *ent, int def);
 

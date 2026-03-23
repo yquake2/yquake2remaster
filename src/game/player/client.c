@@ -421,7 +421,7 @@ ClientObituary(edict_t *self, const edict_t *inflictor /* unused */,
 		return;
 	}
 
-	if (coop->value && attacker && attacker->client)
+	if (coop->value && attacker->client)
 	{
 		meansOfDeath |= MOD_FRIENDLY_FIRE;
 	}
@@ -2650,7 +2650,6 @@ PutClientInServer(edict_t *ent)
 
 	gi.linkentity(ent);
 
-	ent->client->chasetoggle = 0;
 	/* If chasetoggle set then turn on (delayed start of 5 frames - 0.5s) */
 	if (ent->client->pers.chasetoggle && !ent->client->chasetoggle)
 	{

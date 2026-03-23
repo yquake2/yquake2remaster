@@ -2631,7 +2631,6 @@ IN_Controller_Init(qboolean notify_user)
 		}
 
 		SDL_JoystickClose(joystick);
-		joystick = NULL;
 
 		if (is_controller && !controller)
 		{

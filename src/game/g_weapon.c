@@ -1980,11 +1980,11 @@ flare_think(edict_t *self)
 }
 
 void
-flare_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+flare_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	/* Flares don't weigh that much, so let's have them stop
 	 * the instant they whack into anything. */
-	VectorClear(ent->velocity);
+	VectorClear(self->velocity);
 }
 
 void

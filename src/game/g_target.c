@@ -2000,7 +2000,7 @@ SP_target_music(edict_t* self)
  * Auto save on command.
  */
 void
-use_target_autosave(edict_t *ent, edict_t *other, edict_t *activator)
+use_target_autosave(edict_t *self, edict_t *other, edict_t *activator)
 {
 	float save_time = gi.cvar("g_athena_auto_save_min_time", "60", CVAR_NOSET)->value;
 

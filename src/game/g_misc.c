@@ -3580,10 +3580,10 @@ SP_misc_nuke_core(edict_t *ent)
 #define SPAWNFLAG_FLARE_LOCK_ANGLE 8
 
 void
-misc_flare_use(edict_t *ent, edict_t *other, edict_t *activator)
+misc_flare_use(edict_t *self, edict_t *other, edict_t *activator)
 {
-	ent->svflags ^= SVF_NOCLIENT;
-	gi.linkentity(ent);
+	self->svflags ^= SVF_NOCLIENT;
+	gi.linkentity(self);
 }
 
 void

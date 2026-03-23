@@ -4576,11 +4576,12 @@ static void
 CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 {
 	admin_settings_t *settings = p->arg;
-	char st[80];
 	int i;
 
 	if (settings->matchlen != matchtime->value)
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s changed the match length to %d minutes.\n",
 				ent->client->pers.netname, settings->matchlen);
 
@@ -4591,12 +4592,14 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 				 60) + settings->matchlen * 60;
 		}
 
-		sprintf(st, "%d", settings->matchlen);
-		gi.cvar_set("matchtime", st);
+		snprintf(string, sizeof(string), "%d", settings->matchlen);
+		gi.cvar_set("matchtime", string);
 	}
 
 	if (settings->matchsetuplen != matchsetuptime->value)
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s changed the match setup time to %d minutes.\n",
 				ent->client->pers.netname, settings->matchsetuplen);
 
@@ -4608,12 +4611,14 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 				 60) + settings->matchsetuplen * 60;
 		}
 
-		sprintf(st, "%d", settings->matchsetuplen);
-		gi.cvar_set("matchsetuptime", st);
+		snprintf(string, sizeof(string), "%d", settings->matchsetuplen);
+		gi.cvar_set("matchsetuptime", string);
 	}
 
 	if (settings->matchstartlen != matchstarttime->value)
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s changed the match start time to %d seconds.\n",
 				ent->client->pers.netname, settings->matchstartlen);
 
@@ -4625,12 +4630,14 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 				 matchstarttime->value) + settings->matchstartlen;
 		}
 
-		sprintf(st, "%d", settings->matchstartlen);
-		gi.cvar_set("matchstarttime", st);
+		snprintf(string, sizeof(string), "%d", settings->matchstartlen);
+		gi.cvar_set("matchstarttime", string);
 	}
 
 	if (settings->weaponsstay != !!((int)dmflags->value & DF_WEAPONS_STAY))
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s turned %s weapons stay.\n",
 				ent->client->pers.netname, settings->weaponsstay ? "on" : "off");
 		i = (int)dmflags->value;
@@ -4644,12 +4651,14 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 			i &= ~DF_WEAPONS_STAY;
 		}
 
-		sprintf(st, "%d", i);
-		gi.cvar_set("dmflags", st);
+		snprintf(string, sizeof(string), "%d", i);
+		gi.cvar_set("dmflags", string);
 	}
 
 	if (settings->instantitems != !!((int)dmflags->value & DF_INSTANT_ITEMS))
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s turned %s instant items.\n",
 				ent->client->pers.netname, settings->instantitems ? "on" : "off");
 		i = (int)dmflags->value;
@@ -4663,12 +4672,14 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 			i &= ~DF_INSTANT_ITEMS;
 		}
 
-		sprintf(st, "%d", i);
-		gi.cvar_set("dmflags", st);
+		snprintf(string, sizeof(string), "%d", i);
+		gi.cvar_set("dmflags", string);
 	}
 
 	if (settings->quaddrop != !!((int)dmflags->value & DF_QUAD_DROP))
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s turned %s quad drop.\n",
 				ent->client->pers.netname, settings->quaddrop ? "on" : "off");
 		i = (int)dmflags->value;
@@ -4682,24 +4693,28 @@ CTFAdmin_SettingsApply(edict_t *ent, pmenuhnd_t *p)
 			i &= ~DF_QUAD_DROP;
 		}
 
-		sprintf(st, "%d", i);
-		gi.cvar_set("dmflags", st);
+		snprintf(string, sizeof(string), "%d", i);
+		gi.cvar_set("dmflags", string);
 	}
 
 	if (settings->instantweap != !!((int)instantweap->value))
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s turned %s instant weapons.\n",
 				ent->client->pers.netname, settings->instantweap ? "on" : "off");
-		sprintf(st, "%d", (int)settings->instantweap);
-		gi.cvar_set("instantweap", st);
+		snprintf(string, sizeof(string), "%d", (int)settings->instantweap);
+		gi.cvar_set("instantweap", string);
 	}
 
 	if (settings->matchlock != !!((int)matchlock->value))
 	{
+		char string[20];
+
 		gi.bprintf(PRINT_HIGH, "%s turned %s match lock.\n",
 				ent->client->pers.netname, settings->matchlock ? "on" : "off");
-		sprintf(st, "%d", (int)settings->matchlock);
-		gi.cvar_set("matchlock", st);
+		snprintf(string, sizeof(string), "%d", (int)settings->matchlock);
+		gi.cvar_set("matchlock", string);
 	}
 
 	PMenu_Close(ent);
@@ -5042,7 +5057,6 @@ CTFStats(edict_t *ent)
 {
 	int i, e;
 	ghost_t *g;
-	char st[80];
 	char text[1024];
 
 	*text = 0;
@@ -5063,11 +5077,13 @@ CTFStats(edict_t *ent)
 			if (!e2->client->resp.ready &&
 				(e2->client->resp.ctf_team != CTF_NOTEAM))
 			{
-				sprintf(st, "%s is not ready.\n", e2->client->pers.netname);
+				char string[80];
 
-				if (strlen(text) + strlen(st) < sizeof(text) - 50)
+				snprintf(string, sizeof(string), "%s is not ready.\n", e2->client->pers.netname);
+
+				if (strlen(text) + strlen(string) < sizeof(text) - 50)
 				{
-					Q_strlcat(text, st, sizeof(text));
+					Q_strlcat(text, string, sizeof(text));
 				}
 			}
 		}
@@ -5097,6 +5113,8 @@ CTFStats(edict_t *ent)
 
 	for (i = 0, g = ctfgame.ghosts; i < MAX_CLIENTS; i++, g++)
 	{
+		char string[80];
+
 		if (!*g->netname)
 		{
 			continue;
@@ -5111,18 +5129,18 @@ CTFStats(edict_t *ent)
 			e = g->kills * 100 / (g->kills + g->deaths);
 		}
 
-		sprintf(st, "%3d|%-16.16s|%5d|%5d|%5d|%5d|%5d|%4d%%|\n",
+		snprintf(string, sizeof(string), "%3d|%-16.16s|%5d|%5d|%5d|%5d|%5d|%4d%%|\n",
 				g->number, g->netname, g->score, g->kills,
 				g->deaths, g->basedef, g->carrierdef, e);
 
-		if (strlen(text) + strlen(st) > sizeof(text) - 50)
+		if (strlen(text) + strlen(string) > sizeof(text) - 50)
 		{
 			sprintf(text + strlen(text), "And more...\n");
 			gi.cprintf(ent, PRINT_HIGH, "%s", text);
 			return;
 		}
 
-		Q_strlcat(text, st, sizeof(text));
+		Q_strlcat(text, string, sizeof(text));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
@@ -5132,7 +5150,6 @@ void
 CTFPlayerList(edict_t *ent)
 {
 	int i;
-	char st[80];
 	char text[1400];
 
 	/* number, name, connect time, ping, score, admin */
@@ -5140,6 +5157,7 @@ CTFPlayerList(edict_t *ent)
 
 	for (i = 1; i <= maxclients->value; i++)
 	{
+		char string[80];
 		edict_t *e2;
 
 		e2 = g_edicts + i;
@@ -5149,7 +5167,7 @@ CTFPlayerList(edict_t *ent)
 			continue;
 		}
 
-		Com_sprintf( st, sizeof(st),
+		Com_sprintf(string, sizeof(string),
 				"%3d %-16.16s %02d:%02d %4d %3d%s%s\n",
 				i, e2->client->pers.netname,
 				(level.framenum - e2->client->resp.enterframe) / 600,
@@ -5159,14 +5177,14 @@ CTFPlayerList(edict_t *ent)
 				 MATCH_PREGAME) ?  (e2->client->resp.ready ? " (ready)" : " (notready)") : "",
 				e2->client->resp.admin ? " (admin)" : "");
 
-		if (strlen(text) + strlen(st) > sizeof(text) - 50)
+		if (strlen(text) + strlen(string) > sizeof(text) - 50)
 		{
 			sprintf(text + strlen(text), "And more...\n");
 			gi.cprintf(ent, PRINT_HIGH, "%s", text);
 			return;
 		}
 
-		Q_strlcat(text, st, sizeof(text));
+		Q_strlcat(text, string, sizeof(text));
 	}
 
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
