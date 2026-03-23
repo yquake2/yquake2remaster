@@ -1319,7 +1319,7 @@ ionripper_sparks(edict_t *self)
 void
 ionripper_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
-	if (!self || !other)
+	if (!self || !self->owner || !other)
 	{
 		return;
 	}
@@ -1516,7 +1516,7 @@ plasma_touch(edict_t *ent, edict_t *other, const cplane_t *plane, const csurface
 {
 	vec3_t origin;
 
-	if (!ent || !other)
+	if (!ent || !ent->owner || !other)
 	{
 		return;
 	}

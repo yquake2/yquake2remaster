@@ -102,6 +102,11 @@ BSPX_LightGridValue(const bspxlightgrid_t *grid, const lightstyle_t *lightstyles
 			tile[1]+!!(i&2),
 			tile[2]+!!(i&4), res_diffuse);
 
+	if (s == 0)
+	{
+		return;
+	}
+
 	VectorScale(res_diffuse, 1.0/s, res_diffuse);	//average the successful ones
 }
 

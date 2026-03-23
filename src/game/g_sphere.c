@@ -515,7 +515,7 @@ defender_pain(edict_t *self, edict_t *other, float kick, int damage)
 void
 vengeance_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
-	if (!self || !other)
+	if (!self || !self->owner || !other)
 	{
 		return;
 	}
