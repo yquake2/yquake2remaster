@@ -605,6 +605,8 @@ extern void fire_blueblaster ( edict_t * self , vec3_t start , vec3_t dir , int 
 extern void fire_bullet ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int kick , int hspread , int vspread , int mod ) ;
 extern void fire_doppleganger ( edict_t * ent , vec3_t start , vec3_t aimdir ) ;
 extern void fire_flechette ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , int kick ) ;
+extern void fire_fly_touch ( edict_t *self , edict_t *other /* unused */, const cplane_t *plane, const csurface_t *surf /* unused */);
+extern void fire_fly_think ( edict_t * self ) ;
 extern void fire_grenade ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int speed , float timer , float damage_radius , qboolean monster ) ;
 extern void fire_grenade2 ( edict_t * self , vec3_t start , vec3_t aimdir , int damage , int speed , float timer , float damage_radius , qboolean held ) ;
 extern void fire_heat ( edict_t * self , vec3_t start , vec3_t dir , int damage , int speed , float damage_radius , int radius_damage ) ;
@@ -973,6 +975,7 @@ extern void misc_easterchick2_think ( edict_t * self ) ;
 extern void misc_easterchick_think ( edict_t * self ) ;
 extern void misc_eastertank_think ( edict_t * self ) ;
 extern void misc_flare_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void misc_hologram_think ( edict_t * ent ) ;
 extern void misc_nuke_core_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void misc_player_mannequin_think ( edict_t * self ) ;
 extern void misc_player_mannequin_use ( edict_t * self , edict_t * other , edict_t * activator ) ;

@@ -3648,6 +3648,101 @@ SP_misc_flare(edict_t* ent)
 }
 
 void
+misc_hologram_think(edict_t *ent)
+{
+	ent->s.angles[1] += 100 * FRAMETIME;
+	ent->nextthink = level.time + FRAMETIME;
+	ent->rrs.alpha = 0.2f + 0.4f * random(); /* 0.2..0.6 */
+}
+
+/*
+ * QUAKED misc_hologram (1.0 1.0 0.0) (-16 -16 0) (16 16 32)
+ *
+ * Ship hologram seen in the N64 version.
+ */
+void
+SP_misc_hologram(edict_t *ent)
+{
+	ent->solid = SOLID_NOT;
+	ent->rrs.effects = EF_HOLOGRAM;
+	ent->think = misc_hologram_think;
+	ent->nextthink = level.time + FRAMETIME;
+	ent->rrs.alpha = 0.2f + 0.4f * random(); /* 0.2..0.6 */
+	VectorSet(ent->rrs.scale, 0.75f, 0.75f, 0.75f);
+	gi.linkentity(ent);
+}
+
+/*
+ * QUAKED misc_lavaball (0 .5 .8) (-8 -8 -8) (8 8 8) NO_EXPLODE
+ *
+ * Lava Balls. Shamelessly copied from Quake 1, like N64 guys
+ * probably did too.
+ */
+#define SPAWNFLAG_LAVABALL_NO_EXPLODE 1
+
+void
+fire_fly_touch(edict_t *self, edict_t *other /* unused */, const cplane_t *plane,
+		const csurface_t *surf /* unused */)
+{
+	if (self->spawnflags & SPAWNFLAG_LAVABALL_NO_EXPLODE)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (other->takedamage)
+	{
+		T_Damage(other, self, self, vec3_origin, self->s.origin, vec3_origin,
+			20, 0, DAMAGE_NO, MOD_EXPLOSIVE);
+	}
+
+	if (gi.pointcontents(self->s.origin) & CONTENTS_LAVA)
+	{
+		G_FreeEdict(self);
+	}
+	else
+	{
+		BecomeExplosion1(self);
+	}
+}
+
+void
+fire_fly_think(edict_t *self)
+{
+	edict_t *fireball = G_Spawn();
+	fireball->s.effects = EF_ROCKET | EF_GIB; /* ReRelease EF_FIREBALL */
+	fireball->s.renderfx = RF_MINLIGHT;
+	fireball->solid = SOLID_BBOX;
+	fireball->movetype = MOVETYPE_TOSS;
+	fireball->clipmask = MASK_SHOT;
+	fireball->velocity[0] = crandom() * 50;
+	fireball->velocity[1] = crandom() * 50;
+	VectorSet(fireball->avelocity, crandom() * 360, crandom() * 360, crandom() * 360);
+	fireball->velocity[2] = (self->speed * 1.75f) + (random() * 200);
+	fireball->classname = "fireball";
+	gi.setmodel(fireball, "models/objects/gibs/sm_meat/tris.md2");
+	VectorCopy(self->s.origin, fireball->s.origin);
+	fireball->nextthink = level.time + 5;
+	fireball->think = G_FreeEdict;
+	fireball->touch = fire_fly_touch;
+	fireball->spawnflags = self->spawnflags;
+	gi.linkentity(fireball);
+	self->nextthink = level.time + 5.0 * random(); /* 5 seconds */
+}
+
+void
+SP_misc_lavaball(edict_t *self)
+{
+	self->classname = "fireball";
+	self->nextthink = level.time + 5.0 * random(); /* 5 seconds */
+	self->think = fire_fly_think;
+	if (!self->speed)
+	{
+		self->speed = 185;
+	}
+}
+
+void
 SP_info_landmark(edict_t* self)
 {
 	VectorCopy(self->s.origin, self->absmin);
