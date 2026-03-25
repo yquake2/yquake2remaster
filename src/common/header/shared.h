@@ -1409,6 +1409,7 @@ typedef struct entity_xstate_s
 	vec3_t scale; /* model scale */
 	unsigned int rr_effects;
 	unsigned int rr_mesh;
+	float rr_alpha; /* model alpha */
 } entity_xstate_t;
 
 typedef struct
