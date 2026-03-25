@@ -432,6 +432,12 @@ CL_AddPacketEntities(const frame_t *frame)
 			ent.alpha = 0.30f;
 		}
 
+		if (rr_effects & EF_HOLOGRAM)
+		{
+			ent.flags |= RF_TRANSLUCENT;
+			ent.alpha = s1->rr_alpha;
+		}
+
 		if (effects & EF_PLASMA)
 		{
 			ent.flags |= RF_TRANSLUCENT;
@@ -590,6 +596,11 @@ CL_AddPacketEntities(const frame_t *frame)
 			ent.flags |= (RF_TRANSLUCENT | RF_SHELL_GREEN);
 			ent.alpha = 0.30f;
 			V_AddEntity(&ent);
+		}
+
+		if (rr_effects & EF_HOLOGRAM)
+		{
+			CL_HologramParticles(ent.origin);
 		}
 
 		/* add automatic particle trails */
