@@ -276,6 +276,8 @@ DynamicSpawnUpdate(edict_t *self, dynamicentity_t *data)
 		VectorCopy(data->scale, self->rrs.scale);
 	}
 
+	self->rrs.alpha = 1.0;
+
 	self->monsterinfo.scale = (
 		data->scale[0] +
 		data->scale[1] +

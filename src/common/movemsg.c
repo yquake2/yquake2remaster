@@ -265,7 +265,8 @@ DeltaEntityBits(const entity_xstate_t *from,
 	if ((protocol == PROTOCOL_VERSION) &&
 		((to->scale[0] != from->scale[0]) ||
 		 (to->scale[1] != from->scale[1]) ||
-		 (to->scale[2] != from->scale[2])))
+		 (to->scale[2] != from->scale[2]) ||
+		 (to->rr_alpha != from->rr_alpha)))
 	{
 		bits |= (U_SKIN8 | U_SKIN16);
 	}
@@ -494,6 +495,8 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 		{
 			/* 3 float for scale */
 			sz += 12;
+			/* alpha */
+			sz += 4;
 		}
 	}
 	else if (bits & U_SKIN8)
@@ -1010,6 +1013,8 @@ MSG_WriteDeltaEntity(const entity_xstate_t *from,
 			{
 				MSG_WriteFloat(msg, to->scale[i]);
 			}
+
+			MSG_WriteFloat(msg, to->rr_alpha);
 		}
 	}
 

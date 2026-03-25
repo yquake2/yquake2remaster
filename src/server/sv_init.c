@@ -155,6 +155,12 @@ SV_ImageIndex(const char *name)
 void
 SV_GetEntityState(const edict_t *svent, entity_xstate_t *state)
 {
+#ifdef DEBUG
+	if (sizeof(entity_xstate_t) != sizeof(entity_state_t) + sizeof(entity_rrstate_t))
+	{
+		Sys_Error("%s: incorrect entity struct sizes\n", __func__);
+	}
+#endif
 	memcpy(state, &svent->s, sizeof(entity_state_t));
 	memcpy((byte *)state + sizeof(entity_state_t),
 		&svent->rrs, sizeof(entity_rrstate_t));
