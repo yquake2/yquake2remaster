@@ -4618,7 +4618,7 @@ InitItems(void)
 
 			for (i = 0; i < dyn_count; i ++)
 			{
-				const gitem_t *it;
+				gitem_t *it;
 
 				it = FindItemInList(dyn_items[i].classname, itemlist, num_items);
 				if (!it)
@@ -4661,6 +4661,13 @@ InitItems(void)
 					{
 						gi.dprintf("No space for additional items\n");
 						break;
+					}
+				}
+				else
+				{
+					if (!it->world_model)
+					{
+						it->world_model = dyn_items[i].world_model;
 					}
 				}
 			}
