@@ -37,8 +37,12 @@ GCC, Clang:
 */
 static inline uint32_t count_bits_set(uint32_t v)
 {
-#ifdef __builtin_popcount
+#if defined(__GNUC__)
 	return __builtin_popcount(v);
+/*
+#elif defined(_MSC_VER) // TODO: should we ?
+	return __popcnt(v);
+*/
 #else
 	uint32_t c = v - ((v >> 1) & 0x55555555);
 	c = ((c >> 2) & 0x33333333) + (c & 0x33333333);

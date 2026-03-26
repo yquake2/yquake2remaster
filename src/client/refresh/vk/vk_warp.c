@@ -179,6 +179,7 @@ R_DrawSkyBox(void)
 	VkDeviceSize dstOffset;
 	mvtx_t skyVerts[4] = {0};
 	float model[16] = {0};
+	float gamma;
 	uint32_t uboOffset;
 	uint8_t *uboData;
 	VkBuffer *buffer;
@@ -217,11 +218,15 @@ R_DrawSkyBox(void)
 	Mesh_VertsRealloc(6);
 	R_GenFanIndexes(vertIdxData, 0, 4);
 	buffer = UpdateIndexBuffer(vertIdxData, 6 * sizeof(uint16_t), &dstOffset);
+	gamma = 2.1F - vid_gamma->value;
+
+	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
+			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
+
 
 	for (i = 0; i < 6; i++)
 	{
 		uint8_t *vertData;
-		float gamma;
 
 		if (skyrotate)
 		{
@@ -255,11 +260,6 @@ R_DrawSkyBox(void)
 			sky_images[skytexorder[i]]->vk_texture.descriptorSet,
 			uboDescriptorSet
 		};
-
-		gamma = 2.1F - vid_gamma->value;
-
-		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
-			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
 
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			vk_drawSkyboxPipeline.layout, 0, 2, descriptorSets, 1, &uboOffset);
