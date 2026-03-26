@@ -2001,7 +2001,6 @@ CL_HologramParticles(const vec3_t org)
 	for (i = 0; i < NUMVERTEXNORMALS; i++)
 	{
 		cparticle_t *p;
-		vec3_t dir;
 
 		if (!free_particles)
 		{

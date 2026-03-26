@@ -482,7 +482,7 @@ extern void GL3_SurfInit(void);
 extern void GL3_SurfShutdown(void);
 extern void GL3_DrawTriangleOutlines(void);
 extern void GL3_DrawAlphaSurfaces(void);
-extern void GL3_DrawBrushModel(entity_t *currententity, gl3model_t *currentmodel);
+extern void GL3_DrawBrushModel(entity_t *e, gl3model_t *currentmodel);
 extern void GL3_DrawWorld(void);
 extern void GL3_MarkLeaves(void);
 

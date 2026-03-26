@@ -762,19 +762,20 @@ Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPi
 	}
 	else
 	{
+		int filelen;
 		byte *raw;
 
 		/* load the file */
-		len = FS_LoadFile(mainname, (void **)&raw);
+		filelen = FS_LoadFile(mainname, (void **)&raw);
 
-		if (!raw || len <= 0)
+		if (!raw || filelen <= 0)
 		{
 			/* no such file */
 			return NULL;
 		}
 
 		pic = Mod_LoadEmbdedImage(mainname, strtol(texture_index, (char **)NULL, 10),
-			raw, len, width, height, bitsPerPixel);
+			raw, filelen, width, height, bitsPerPixel);
 
 		FS_FreeFile(raw);
 	}

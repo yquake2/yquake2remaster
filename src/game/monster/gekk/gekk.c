@@ -52,19 +52,19 @@ mmove_t gekk_move_swim_loop;
 mmove_t gekk_move_spit;
 mmove_t gekk_move_run_start;
 mmove_t gekk_move_run;
-qboolean gekk_check_jump(edict_t *self);
+static qboolean gekk_check_jump(edict_t *self);
 
-void gekk_swim(edict_t *self);
-void gekk_jump_takeoff(edict_t *self);
-void gekk_jump_takeoff2(edict_t *self);
-void gekk_check_landing(edict_t *self);
-void gekk_stop_skid(edict_t *self);
-void water_to_land(edict_t *self);
-void land_to_water(edict_t *self);
-void gekk_check_underwater(edict_t *self);
-void gekk_bite(edict_t *self);
-void gekk_hit_left(edict_t *self);
-void gekk_hit_right(edict_t *self);
+static void gekk_swim(edict_t *self);
+static void gekk_jump_takeoff(edict_t *self);
+static void gekk_jump_takeoff2(edict_t *self);
+static void gekk_check_landing(edict_t *self);
+static void gekk_stop_skid(edict_t *self);
+static void water_to_land(edict_t *self);
+static void land_to_water(edict_t *self);
+static void gekk_check_underwater(edict_t *self);
+static void gekk_bite(edict_t *self);
+static void gekk_hit_left(edict_t *self);
+static void gekk_hit_right(edict_t *self);
 void gekk_run_start(edict_t *self);
 void gekk_walk(edict_t *self);
 
@@ -89,7 +89,7 @@ gekk_check_melee(edict_t *self)
 	return false;
 }
 
-qboolean
+static qboolean
 gekk_check_jump(edict_t *self)
 {
 	vec3_t v;
@@ -131,7 +131,7 @@ gekk_check_jump(edict_t *self)
 	return true;
 }
 
-qboolean
+static qboolean
 gekk_check_jump_close(edict_t *self)
 {
 	vec3_t v;
@@ -413,7 +413,7 @@ mmove_t gekk_move_standunderwater = {
 	NULL
 };
 
-void
+static void
 gekk_swim_loop(edict_t *self)
 {
 	if (!self)
@@ -485,7 +485,7 @@ mmove_t gekk_move_swim_start = {
 	gekk_swim_loop
 };
 
-void
+static void
 gekk_swim(edict_t *self)
 {
 	if (!self)
@@ -705,7 +705,7 @@ mmove_t gekk_move_run_start = {
 	gekk_run
 };
 
-void
+static void
 gekk_hit_left(edict_t *self)
 {
 	vec3_t aim;
@@ -727,7 +727,7 @@ gekk_hit_left(edict_t *self)
 	}
 }
 
-void
+static void
 gekk_hit_right(edict_t *self)
 {
 	vec3_t aim;
@@ -749,7 +749,7 @@ gekk_hit_right(edict_t *self)
 	}
 }
 
-void
+static void
 gekk_check_refire(edict_t *self)
 {
 	if (!self)
@@ -975,7 +975,7 @@ mmove_t gekk_move_attack2 = {
 	gekk_run_start
 };
 
-void
+static void
 gekk_check_underwater(edict_t *self)
 {
 	if (!self)
@@ -1049,7 +1049,7 @@ mmove_t gekk_move_leapatk2 = {
 	gekk_run_start
 };
 
-void
+static void
 gekk_bite(edict_t *self)
 {
 	vec3_t aim;
@@ -1063,7 +1063,7 @@ gekk_bite(edict_t *self)
 	fire_hit(self, aim, 5, 0);
 }
 
-void
+static void
 gekk_preattack(edict_t *self)
 {
 	/* Unused but PITA to remove */
@@ -1179,7 +1179,7 @@ gekk_jump_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unsued *
 	self->touch = NULL;
 }
 
-void
+static void
 gekk_jump_takeoff(edict_t *self)
 {
 	vec3_t forward;
@@ -1211,7 +1211,7 @@ gekk_jump_takeoff(edict_t *self)
 	self->touch = gekk_jump_touch;
 }
 
-void
+static void
 gekk_jump_takeoff2(edict_t *self)
 {
 	vec3_t forward;
@@ -1242,7 +1242,7 @@ gekk_jump_takeoff2(edict_t *self)
 	self->touch = gekk_jump_touch;
 }
 
-void
+static void
 gekk_stop_skid(edict_t *self)
 {
 	if (!self)
@@ -1256,7 +1256,7 @@ gekk_stop_skid(edict_t *self)
 	}
 }
 
-void
+static void
 gekk_check_landing(edict_t *self)
 {
 	if (!self)
@@ -1993,7 +1993,7 @@ SP_monster_gekk(edict_t *self)
 	walkmonster_start(self);
 }
 
-void
+static void
 water_to_land(edict_t *self)
 {
 	if (!self)
@@ -2011,7 +2011,7 @@ water_to_land(edict_t *self)
 	VectorSet(self->maxs, 24, 24, 24);
 }
 
-void
+static void
 land_to_water(edict_t *self)
 {
 	if (!self)

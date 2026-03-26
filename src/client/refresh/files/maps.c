@@ -162,7 +162,7 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 
 			if (leafnum >= 0)
 			{
-				if (leafnum  < 0 || leafnum >= *numnodes)
+				if (leafnum >= *numnodes)
 				{
 					Com_Error(ERR_DROP, "%s: Incorrect %d nodenum as leaf.",
 							__func__, leafnum);
@@ -173,8 +173,8 @@ Mod_LoadQNodes(const char *name, cplane_t *planes, int numplanes, mleaf_t *leafs
 			}
 			else
 			{
-				leafnum = -1 - leafnum;
-				if (leafnum  < 0 || leafnum >= numleafs)
+				leafnum = -1 - leafnum; /* leafnum is always possitive */
+				if (leafnum >= numleafs)
 				{
 					Com_Error(ERR_DROP, "%s: Incorrect %d leafnum.",
 							__func__, leafnum);

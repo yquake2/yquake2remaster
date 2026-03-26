@@ -198,7 +198,7 @@ extern byte minlight[256];
 
 qboolean R_Bind(int texnum);
 
-void R_TexEnv(GLenum value);
+void R_TexEnv(GLenum mode);
 void R_SelectTexture(GLenum);
 void R_MBind(GLenum target, int texnum);
 void R_EnableMultitexture(qboolean enable);

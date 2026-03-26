@@ -32,7 +32,7 @@ extern void SP_monster_makron(edict_t *self);
 void BossExplode(edict_t *self);
 void MakronToss(edict_t *self);
 void MakronPrecache(void);
-void jorg_dead(edict_t *self);
+static void jorg_dead(edict_t *self);
 void jorgBFG(edict_t *self);
 void jorgMachineGun(edict_t *self);
 void jorg_firebullet(edict_t *self);
@@ -745,7 +745,7 @@ jorg_attack(edict_t *self)
 	}
 }
 
-void
+static void
 jorg_dead(edict_t *self /* unused */)
 {
 	/* unused, but removal is PITA */
