@@ -1647,7 +1647,7 @@ CL_ParseStartSoundPacket(void)
 		{
 			Com_Printf("%s: incorrect channel %d\n",
 					__func__, channel);
-		return;
+			return;
 		}
 
 		channel &= 7;
