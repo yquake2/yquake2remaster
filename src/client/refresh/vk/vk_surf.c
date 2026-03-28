@@ -516,6 +516,10 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(lmapPolyUbo), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, &lmapPolyUbo, sizeof(lmapPolyUbo));
 
+	QVk_BindPipeline(&vk_drawPolyLmapPipeline);
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vk_drawPolyLmapPipeline.layout, 1, 1, &uboDescriptorSet, 1, &uboOffset);
+
 	/* draw texture */
 	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
@@ -717,6 +721,10 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	VkDescriptorSet uboDescriptorSet;
 	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(lmapPolyUbo), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, &lmapPolyUbo, sizeof(lmapPolyUbo));
+
+	QVk_BindPipeline(&vk_drawPolyLmapPipeline);
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vk_drawPolyLmapPipeline.layout, 1, 1, &uboDescriptorSet, 1, &uboOffset);
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
