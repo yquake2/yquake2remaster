@@ -26,6 +26,7 @@
  */
 
 #include <assert.h>
+#include <limits.h>
 
 #include "header/local.h"
 
@@ -286,11 +287,229 @@ R_DrawAlphaSurfaces(void)
 }
 
 /*
-================
-DrawTextureChains
+   ================
+   DrawLightmappedChains
 
-Draw world surfaces (mostly solid with alpha == 1.f)
-================
+   Render lightmapped world surfaces batched by texture and lightmap.
+   Called after BSP traversal chains surfaces to image->texturechain.
+   ================
+*/
+static void
+DrawLightmappedChains(const entity_t *currententity)
+{
+	int i;
+	msurface_t *s;
+	image_t *image;
+
+	struct {
+		float model[16];
+		float viewLightmaps;
+	} lmapPolyUbo;
+
+	lmapPolyUbo.viewLightmaps = r_lightmap->value ? 1.f : 0.f;
+	Mat_Identity(lmapPolyUbo.model);
+
+	uint32_t uboOffset;
+	VkDescriptorSet uboDescriptorSet;
+	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(lmapPolyUbo),
+			&uboOffset, &uboDescriptorSet);
+	memcpy(uboData, &lmapPolyUbo, sizeof(lmapPolyUbo));
+
+	QVk_BindPipeline(&vk_drawPolyLmapPipeline);
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			vk_drawPolyLmapPipeline.layout, 1, 1, &uboDescriptorSet, 1, &uboOffset);
+
+	c_visible_textures = 0;
+
+	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
+	{
+		if (!image->registration_sequence || !image->texturechain)
+		{
+			continue;
+		}
+
+		c_visible_textures++;
+
+		VkDescriptorSet lastLmDs = VK_NULL_HANDLE;
+		int pos_vect = 0, index_pos = 0;
+		unsigned int lastLmtex = UINT_MAX;
+
+		for (s = image->texturechain; s; s = s->texturechain)
+		{
+			int map, nv;
+			qboolean is_dynamic = false;
+			unsigned lmtex;
+			float sscroll, tscroll;
+			const mpoly_t *p;
+
+			if (s->flags & SURF_DRAWTURB)
+			{
+				continue;
+			}
+
+			nv = s->polys->numverts;
+			lmtex = s->lightmaptexturenum;
+
+			/* check for dynamic lightmap */
+			for (map = 0; map < MAXLIGHTMAPS && s->styles[map] != 255; map++)
+			{
+				if (r_newrefdef.lightstyles[s->styles[map]].white !=
+						s->cached_light[map])
+				{
+					goto dynamic;
+				}
+			}
+
+			if (s->dlightframe == r_framecount)
+			{
+dynamic:
+				if (r_dynamic->value)
+				{
+					if (!(s->texinfo->flags &
+								(SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
+					{
+						is_dynamic = true;
+					}
+				}
+			}
+
+			if (is_dynamic)
+			{
+				int smax, tmax, size;
+				byte *temp;
+
+				smax = (s->extents[0] >> s->lmshift) + 1;
+				tmax = (s->extents[1] >> s->lmshift) + 1;
+
+				size = smax * tmax * LIGHTMAP_BYTES;
+				temp = R_GetTemporaryLMBuffer(size);
+
+				R_BuildLightMap(s, temp, smax * 4,
+						&r_newrefdef, r_modulate->value, r_framecount,
+						NULL, NULL);
+
+				if ((s->styles[map] >= 32 || s->styles[map] == 0) &&
+						(s->dlightframe != r_framecount))
+				{
+					R_SetCacheState(s, &r_newrefdef);
+					lmtex = s->lightmaptexturenum;
+				}
+				else
+				{
+					lmtex = s->lightmaptexturenum + DYNLIGHTMAP_OFFSET;
+				}
+
+				QVk_UpdateTextureData(
+						&vk_state.lightmap_textures[lmtex],
+						(byte*)temp, s->light_s, s->light_t,
+						smax, tmax);
+			}
+
+			/* lightmap changed — flush current batch and rebind */
+			if (lmtex != lastLmtex)
+			{
+				/* flush previous batch if any */
+				if (pos_vect > 0)
+				{
+					VkDeviceSize vboOffset, dstOffset;
+					VkBuffer vbo, *buffer;
+					uint8_t *vertData;
+
+					vertData = QVk_GetVertexBuffer(
+							sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
+					memcpy(vertData, verts_buffer,
+							sizeof(mvtx_t) * pos_vect);
+
+					buffer = UpdateIndexBuffer(vertIdxData,
+							index_pos * sizeof(uint16_t), &dstOffset);
+
+					vkCmdBindVertexBuffers(vk_activeCmdbuffer,
+							0, 1, &vbo, &vboOffset);
+					vkCmdBindIndexBuffer(vk_activeCmdbuffer,
+							*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+					vkCmdDrawIndexed(vk_activeCmdbuffer,
+							index_pos, 1, 0, 0, 0);
+
+					pos_vect = 0;
+					index_pos = 0;
+				}
+
+				lastLmtex = lmtex;
+				lastLmDs = vk_state.lightmap_textures[lmtex].descriptorSet;
+
+				VkDescriptorSet descriptorSets[] = {
+					image->vk_texture.descriptorSet,
+					uboDescriptorSet,
+					lastLmDs
+				};
+
+				vkCmdBindDescriptorSets(vk_activeCmdbuffer,
+						VK_PIPELINE_BIND_POINT_GRAPHICS,
+						vk_drawPolyLmapPipeline.layout,
+						0, 3, descriptorSets, 1, &uboOffset);
+			}
+
+			/* accumulate geometry into batch */
+			R_FlowingScroll(&r_newrefdef, s->texinfo->flags,
+					&sscroll, &tscroll);
+
+			for (p = s->polys; p; p = p->chain)
+			{
+				if (Mesh_VertsRealloc(pos_vect + nv))
+				{
+					Com_Error(ERR_FATAL, "%s: can't allocate memory",
+							__func__);
+					return;
+				}
+
+				memcpy(verts_buffer + pos_vect, p->verts,
+						sizeof(mvtx_t) * nv);
+				for (int j = 0; j < nv; j++)
+				{
+					verts_buffer[pos_vect + j].texCoord[0] += sscroll;
+					verts_buffer[pos_vect + j].texCoord[1] += tscroll;
+				}
+
+				R_GenFanIndexes(vertIdxData + index_pos,
+						pos_vect, nv - 2 + pos_vect);
+				pos_vect += nv;
+				index_pos += (nv - 2) * 3;
+			}
+
+			c_brush_polys++;
+		}
+
+		/* flush final batch for this texture */
+		if (pos_vect > 0)
+		{
+			VkDeviceSize vboOffset, dstOffset;
+			VkBuffer vbo, *buffer;
+			uint8_t *vertData;
+
+			vertData = QVk_GetVertexBuffer(
+					sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
+			memcpy(vertData, verts_buffer,
+					sizeof(mvtx_t) * pos_vect);
+
+			buffer = UpdateIndexBuffer(vertIdxData,
+					index_pos * sizeof(uint16_t), &dstOffset);
+
+			vkCmdBindVertexBuffers(vk_activeCmdbuffer,
+					0, 1, &vbo, &vboOffset);
+			vkCmdBindIndexBuffer(vk_activeCmdbuffer,
+					*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+			vkCmdDrawIndexed(vk_activeCmdbuffer,
+					index_pos, 1, 0, 0, 0);
+		}
+	}
+}
+
+/*
+   ================
+   DrawTextureChains
+
+   Draw world surfaces (mostly solid with alpha == 1.f)
+   ================
 */
 static void
 DrawTextureChains(const entity_t *currententity)
@@ -298,31 +517,6 @@ DrawTextureChains(const entity_t *currententity)
 	int		i;
 	msurface_t	*s;
 	image_t		*image;
-
-	c_visible_textures = 0;
-
-	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
-	{
-		if (!image->registration_sequence)
-		{
-			continue;
-		}
-
-		if (!image->texturechain)
-		{
-			continue;
-		}
-
-		c_visible_textures++;
-
-		for (s = image->texturechain; s; s = s->texturechain)
-		{
-			if (!(s->flags & SURF_DRAWTURB))
-			{
-				R_RenderBrushPoly(s, NULL, 1.f, currententity);
-			}
-		}
-	}
 
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
@@ -352,8 +546,8 @@ DrawTextureChains(const entity_t *currententity)
 
 static void
 Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
-	const entity_t *currententity, VkDescriptorSet *uboDescriptorSet,
-	uint32_t *uboOffset)
+		const entity_t *currententity, VkDescriptorSet *uboDescriptorSet,
+		uint32_t *uboOffset)
 {
 	int		i, nv = surf->polys->numverts;
 	int		map;
@@ -709,23 +903,6 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		return;
 	}
 
-	struct {
-		float model[16];
-		float viewLightmaps;
-	} lmapPolyUbo;
-
-	lmapPolyUbo.viewLightmaps = r_lightmap->value ? 1.f : 0.f;
-	Mat_Identity(lmapPolyUbo.model);
-
-	uint32_t uboOffset;
-	VkDescriptorSet uboDescriptorSet;
-	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(lmapPolyUbo), &uboOffset, &uboDescriptorSet);
-	memcpy(uboData, &lmapPolyUbo, sizeof(lmapPolyUbo));
-
-	QVk_BindPipeline(&vk_drawPolyLmapPipeline);
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawPolyLmapPipeline.layout, 1, 1, &uboDescriptorSet, 1, &uboOffset);
-
 	/* draw stuff */
 	for (c = node->numsurfaces,
 		 surf = r_worldmodel->surfaces + node->firstsurface;
@@ -759,20 +936,11 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		}
 		else
 		{
-			if (!(surf->flags & SURF_DRAWTURB) && !r_showtris->value)
-			{
-				Vk_RenderLightmappedPoly(surf, 1.f, currententity,
-					&uboDescriptorSet, &uboOffset);
-			}
-			else
-			{
-				// the polygon is visible, so add it to the texture
-				// sorted chain
-				// FIXME: this is a hack for animation
-				image = R_TextureAnimation(currententity, surf->texinfo);
-				surf->texturechain = image->texturechain;
-				image->texturechain = surf;
-			}
+			// the polygon is visible, so add it to the texture
+			// sorted chain
+			image = R_TextureAnimation(currententity, surf->texinfo);
+			surf->texturechain = image->texturechain;
+			image->texturechain = surf;
 		}
 	}
 
@@ -810,6 +978,7 @@ R_DrawWorld(void)
 	** theoretically nothing should happen in the next two functions
 	** if multitexture is enabled - in practice, this code renders non-transparent liquids!
 	*/
+	DrawLightmappedChains(&ent);
 	DrawTextureChains(&ent);
 	R_DrawSkyBox();
 	R_DrawTriangleOutlines();
