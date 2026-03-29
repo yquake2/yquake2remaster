@@ -26,7 +26,6 @@
  */
 
 #include <assert.h>
-#include <limits.h>
 
 #include "header/local.h"
 
@@ -332,7 +331,7 @@ DrawLightmappedChains(const entity_t *currententity)
 
 		VkDescriptorSet lastLmDs = VK_NULL_HANDLE;
 		int pos_vect = 0, index_pos = 0;
-		unsigned int lastLmtex = UINT_MAX;
+		unsigned int lastLmtex = ~0u;
 
 		for (s = image->texturechain; s; s = s->texturechain)
 		{
@@ -343,6 +342,11 @@ DrawLightmappedChains(const entity_t *currententity)
 			const mpoly_t *p;
 
 			if (s->flags & SURF_DRAWTURB)
+			{
+				continue;
+			}
+
+			if (!s->polys)
 			{
 				continue;
 			}
