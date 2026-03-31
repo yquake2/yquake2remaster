@@ -322,21 +322,21 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 	if (!paliashdr)
 	{
 		Com_Printf("%s %s: Model is not fully loaded\n",
-				__func__, currentmodel->name);
+				__func__, currentmodel->s.name);
 		return true;
 	}
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, currentmodel->name, e->frame);
+				__func__, currentmodel->s.name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, currentmodel->name, e->oldframe);
+				__func__, currentmodel->s.name, e->oldframe);
 		e->oldframe = 0;
 	}
 
@@ -453,7 +453,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		(currententity->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, currentmodel->name, currententity->frame);
+				__func__, currentmodel->s.name, currententity->frame);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}
@@ -462,7 +462,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		(currententity->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, currentmodel->name, currententity->oldframe);
+				__func__, currentmodel->s.name, currententity->oldframe);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}

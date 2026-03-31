@@ -481,7 +481,7 @@ DrawInlineBModel(const entity_t *currententity, gl4model_t *currentmodel)
 	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
 			r_dlightframecount, currentmodel->surfaces);
 
-	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
+	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -493,7 +493,7 @@ DrawInlineBModel(const entity_t *currententity, gl4model_t *currentmodel)
 	}
 
 	/* draw texture */
-	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
+	for (i = 0; i < currentmodel->s.nummodelsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		float dot;
@@ -537,7 +537,7 @@ GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel)
 	vec3_t mins, maxs;
 	qboolean rotated;
 
-	if (currentmodel->nummodelsurfaces == 0)
+	if (currentmodel->s.nummodelsurfaces == 0)
 	{
 		return;
 	}
@@ -552,15 +552,15 @@ GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel)
 
 		for (i = 0; i < 3; i++)
 		{
-			mins[i] = e->origin[i] - currentmodel->radius;
-			maxs[i] = e->origin[i] + currentmodel->radius;
+			mins[i] = e->origin[i] - currentmodel->s.radius;
+			maxs[i] = e->origin[i] + currentmodel->s.radius;
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd(e->origin, currentmodel->mins, mins);
-		VectorAdd(e->origin, currentmodel->maxs, maxs);
+		VectorAdd(e->origin, currentmodel->s.mins, mins);
+		VectorAdd(e->origin, currentmodel->s.maxs, maxs);
 	}
 
 	if (r_cull->value && R_CullBox(mins, maxs, frustum))

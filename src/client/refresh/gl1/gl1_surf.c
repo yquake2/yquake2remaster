@@ -833,7 +833,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 			r_dlightframecount, currentmodel->surfaces);
 	}
 
-	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
+	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -843,7 +843,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 	}
 
 	/* draw texture */
-	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
+	for (i = 0; i < currentmodel->s.nummodelsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		float dot;
@@ -903,7 +903,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 	vec3_t mins, maxs;
 	qboolean rotated;
 
-	if (currentmodel->nummodelsurfaces == 0)
+	if (currentmodel->s.nummodelsurfaces == 0)
 	{
 		return;
 	}
@@ -918,15 +918,15 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 
 		for (i = 0; i < 3; i++)
 		{
-			mins[i] = currententity->origin[i] - currentmodel->radius;
-			maxs[i] = currententity->origin[i] + currentmodel->radius;
+			mins[i] = currententity->origin[i] - currentmodel->s.radius;
+			maxs[i] = currententity->origin[i] + currentmodel->s.radius;
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd(currententity->origin, currentmodel->mins, mins);
-		VectorAdd(currententity->origin, currentmodel->maxs, maxs);
+		VectorAdd(currententity->origin, currentmodel->s.mins, mins);
+		VectorAdd(currententity->origin, currentmodel->s.maxs, maxs);
 	}
 
 	if (r_cull->value && R_CullBox(mins, maxs, frustum))
@@ -1155,7 +1155,7 @@ R_GetBrushesLighting(void)
 
 		const model_t *currentmodel = currententity->model;
 
-		if (!currentmodel || currentmodel->type != mod_brush || currentmodel->nummodelsurfaces == 0)
+		if (!currentmodel || currentmodel->s.type != mod_brush || currentmodel->s.nummodelsurfaces == 0)
 		{
 			continue;
 		}
@@ -1165,14 +1165,14 @@ R_GetBrushesLighting(void)
 		{
 			for (k = 0; k < 3; k++)
 			{
-				mins[k] = currententity->origin[k] - currentmodel->radius;
-				maxs[k] = currententity->origin[k] + currentmodel->radius;
+				mins[k] = currententity->origin[k] - currentmodel->s.radius;
+				maxs[k] = currententity->origin[k] + currentmodel->s.radius;
 			}
 		}
 		else
 		{
-			VectorAdd(currententity->origin, currentmodel->mins, mins);
-			VectorAdd(currententity->origin, currentmodel->maxs, maxs);
+			VectorAdd(currententity->origin, currentmodel->s.mins, mins);
+			VectorAdd(currententity->origin, currentmodel->s.maxs, maxs);
 		}
 
 		if (r_cull->value && R_CullBox(mins, maxs, frustum))
@@ -1184,9 +1184,9 @@ R_GetBrushesLighting(void)
 		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
 			r_dlightframecount, currentmodel->surfaces);
 
-		surf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
+		surf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
 
-		for (k = 0; k < currentmodel->nummodelsurfaces; k++, surf++)
+		for (k = 0; k < currentmodel->s.nummodelsurfaces; k++, surf++)
 		{
 			if (surf->texinfo->flags & (SURF_TRANSPARENT | SURF_WARP)
 				|| surf->flags & SURF_DRAWTURB || surf->lmchain_frame == r_framecount)

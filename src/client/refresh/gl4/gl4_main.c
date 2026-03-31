@@ -958,7 +958,7 @@ GL4_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 				case mod_alias:
 					GL4_DrawAliasModel(currententity);
@@ -971,7 +971,7 @@ GL4_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->type);
+						__func__, currentmodel->s.type);
 					break;
 			}
 		}
@@ -1010,7 +1010,7 @@ GL4_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 				case mod_alias:
 					GL4_DrawAliasModel(currententity);
@@ -1023,7 +1023,7 @@ GL4_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->type);
+						__func__, currentmodel->s.type);
 					break;
 			}
 		}
@@ -1180,7 +1180,7 @@ GL4_SetPerspective(GLdouble fovy)
 {
 	// gluPerspective() / R_MYgluPerspective() style parameters
 	const GLdouble zNear = Q_max(gl_znear->value, 0.1f);
-	const GLdouble zFar = (r_farsee->value) ? (gl4_worldmodel->radius * 2) : 4096.0f;
+	const GLdouble zFar = (r_farsee->value) ? (gl4_worldmodel->s.radius * 2) : 4096.0f;
 	const GLdouble aspect = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	// calculation of left, right, bottom, top is from R_MYgluPerspective() of old gl backend

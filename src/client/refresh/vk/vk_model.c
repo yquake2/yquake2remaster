@@ -130,7 +130,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 	if (l->filelen % sizeof(*in))
 	{
 		Com_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
+				__func__, loadmodel->s.name);
 		return;
 	}
 
@@ -153,20 +153,20 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 			memmove(out, loadmodel->submodels, sizeof(*out));
 		}
 
-		Com_sprintf (out->name, sizeof(out->name), "*%d", i);
+		Com_sprintf (out->s.name, sizeof(out->s.name), "*%d", i);
 
 		for (j = 0; j < 3; j++)
 		{
 			/* spread the mins / maxs by a pixel */
-			out->mins[j] = in->mins[j] - 1;
-			out->maxs[j] = in->maxs[j] + 1;
+			out->s.mins[j] = in->mins[j] - 1;
+			out->s.maxs[j] = in->maxs[j] + 1;
 			out->origin[j] = in->origin[j];
 		}
 
-		out->radius = Mod_RadiusFromBounds(out->mins, out->maxs);
+		out->s.radius = Mod_RadiusFromBounds(out->s.mins, out->s.maxs);
 		out->firstnode = in->headnode;
-		out->firstmodelsurface = in->firstface;
-		out->nummodelsurfaces = in->numfaces;
+		out->s.firstmodelsurface = in->firstface;
+		out->s.nummodelsurfaces = in->numfaces;
 		/* visleafs */
 		out->numleafs = 0;
 		/* check limits */
@@ -193,7 +193,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	if (l->filelen % sizeof(*in))
 	{
 		Com_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
+				__func__, loadmodel->s.name);
 		return;
 	}
 
@@ -208,7 +208,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		(lminfosize / sizeof(dlminfo_t) != loadmodel->numsurfaces))
 	{
 		Com_Printf("%s: [%s] decoupled_lm size " YQ2_COM_PRIdS " does not match surface count %d\n",
-			__func__, loadmodel->name, lminfosize / sizeof(dlminfo_t), loadmodel->numsurfaces);
+			__func__, loadmodel->s.name, lminfosize / sizeof(dlminfo_t), loadmodel->numsurfaces);
 		lminfos = NULL;
 	}
 
@@ -332,22 +332,22 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 
 	mod->extradata = Hunk_Begin(hunkSize);
-	mod->type = mod_brush;
+	mod->s.type = mod_brush;
 
 	Mod_LoadBSPXSections(bspx_header, mod_base, &mod->s);
 
 	/* load into heap */
-	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
+	Mod_LoadVertexes(mod->s.name, &mod->vertexes, &mod->numvertexes, mod_base,
 		&header->lumps[LUMP_VERTEXES]);
-	Mod_LoadQBSPEdges(mod->name, &mod->edges, &mod->numedges,
+	Mod_LoadQBSPEdges(mod->s.name, &mod->edges, &mod->numedges,
 		mod_base, &header->lumps[LUMP_EDGES]);
-	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
+	Mod_LoadSurfedges(mod->s.name, &mod->surfedges, &mod->numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES]);
 	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
 		&header->lumps[LUMP_LIGHTING]);
-	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
+	Mod_LoadPlanes(mod->s.name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES]);
-	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
+	Mod_LoadTexinfo(mod->s.name, &mod->texinfo, &mod->numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)Vk_FindImage,
 		r_notexture);
 
@@ -355,23 +355,23 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 	LM_EndBuildingLightmaps();
 
-	Mod_LoadQBSPMarksurfaces(mod->name, &mod->marksurfaces, &mod->nummarksurfaces,
+	Mod_LoadQBSPMarksurfaces(mod->s.name, &mod->marksurfaces, &mod->nummarksurfaces,
 		mod->surfaces, mod->numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES]);
-	Mod_LoadVisibility(mod->name, &mod->vis, &mod->numvisibility, mod_base,
+	Mod_LoadVisibility(mod->s.name, &mod->vis, &mod->numvisibility, mod_base,
 		&header->lumps[LUMP_VISIBILITY]);
-	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
+	Mod_LoadQBSPLeafs(mod->s.name, &mod->leafs, &mod->numleafs,
 		mod->marksurfaces, mod->nummarksurfaces, &mod->numclusters,
 		mod_base, &header->lumps[LUMP_LEAFS]);
-	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
-		mod->numleafs, &mod->nodes, &mod->numnodes, mod->mins, mod->maxs,
+	Mod_LoadQBSPNodes(mod->s.name, mod->planes, mod->numplanes, mod->leafs,
+		mod->numleafs, &mod->nodes, &mod->numnodes, mod->s.mins, mod->s.maxs,
 		mod_base, &header->lumps[LUMP_NODES], header->ident);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
-	mod->numframes = 2; /* regular and alternate animation */
+	mod->s.numframes = 2; /* regular and alternate animation */
 
 	if (mod->vis && mod->numclusters != mod->vis->numclusters)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
-			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
+			__func__, mod->s.name, mod->numclusters, mod->vis->numclusters);
 			return;
 	}
 
@@ -431,12 +431,12 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	/* search the currently loaded models */
 	for (i = 0, mod = models_known; i < mod_numknown; i++, mod++)
 	{
-		if (!mod->name[0])
+		if (!mod->s.name[0])
 		{
 			continue;
 		}
 
-		if (!strcmp(mod->name, name))
+		if (!strcmp(mod->s.name, name))
 		{
 			return mod;
 		}
@@ -445,7 +445,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	/* find a free model slot spot */
 	for (i = 0, mod = models_known; i < mod_numknown; i++, mod++)
 	{
-		if (!mod->name[0])
+		if (!mod->s.name[0])
 		{
 			break; /* free spot */
 		}
@@ -463,7 +463,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		mod_numknown++;
 	}
 
-	Q_strlcpy(mod->name, name, sizeof(mod->name));
+	Q_strlcpy(mod->s.name, name, sizeof(mod->s.name));
 
 	/* Anachronox has tags in model path*/
 	Q_strlcpy(filename, name, sizeof(filename));
@@ -483,16 +483,16 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		if (crash)
 		{
 			Com_Error(ERR_DROP, "%s: %s not found",
-					__func__, mod->name);
+					__func__, mod->s.name);
 			return NULL;
 		}
 
 		if (r_validation->value > 0)
 		{
-			Com_Printf("%s: Can't load %s\n", __func__, mod->name);
+			Com_Printf("%s: Can't load %s\n", __func__, mod->s.name);
 		}
 
-		memset(mod->name, 0, sizeof(mod->name));
+		memset(mod->s.name, 0, sizeof(mod->s.name));
 		return NULL;
 	}
 
@@ -500,7 +500,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	mod_loaded ++;
 	if (r_validation->value > 0)
 	{
-		Com_Printf("%s: Load %s[%d]\n", __func__, mod->name, mod_loaded);
+		Com_Printf("%s: Load %s[%d]\n", __func__, mod->s.name, mod_loaded);
 	}
 
 	/* fill it in */
@@ -512,14 +512,14 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			/* fall through */
 		case IDSPRITEHEADER:
 			{
-				mod->extradata = Mod_LoadModel(mod->name, buf, modfilelen,
-					mod->mins, mod->maxs,
+				mod->extradata = Mod_LoadModel(mod->s.name, buf, modfilelen,
+					mod->s.mins, mod->s.maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
-					(findimage_t)Vk_FindImage, &(mod->type));
+					(findimage_t)Vk_FindImage, &(mod->s.type));
 				if (!mod->extradata)
 				{
 					Com_Error(ERR_DROP, "%s: Failed to load %s",
-						__func__, mod->name);
+						__func__, mod->s.name);
 					return NULL;
 				}
 			};
@@ -532,11 +532,11 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 
 		default:
 			Com_Error(ERR_DROP, "%s: unknown fileid for %s",
-					__func__, mod->name);
+					__func__, mod->s.name);
 			return NULL;
 	}
 
-	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
+	mod->s.radius = Mod_RadiusFromBounds(mod->s.mins, mod->s.maxs);
 	if (mod->extradata)
 	{
 		mod->extradatasize = Hunk_End();
@@ -563,12 +563,12 @@ Mod_Free(model_t *mod)
 
 	if (r_validation->value > 0)
 	{
-		Com_Printf("%s: Unload %s[%d]\n", __func__, mod->name, mod_loaded);
+		Com_Printf("%s: Unload %s[%d]\n", __func__, mod->s.name, mod_loaded);
 	}
 
 	Hunk_Free(mod->extradata);
 
-	if (mod->type == mod_alias || mod->type == mod_sprite)
+	if (mod->s.type == mod_alias || mod->s.type == mod_sprite)
 	{
 		/* skins are allocated separately */
 		free(mod->skins);
@@ -632,7 +632,7 @@ RE_BeginRegistration(const char *model)
 	   world map */
 	flushmap = ri.Cvar_Get("flushmap", "0", 0);
 
-	if (strcmp(models_known[0].name, fullname) || flushmap->value)
+	if (strcmp(models_known[0].s.name, fullname) || flushmap->value)
 	{
 		Mod_Free(&models_known[0]);
 	}
@@ -651,10 +651,10 @@ RE_RegisterModel(const char *name)
 
 	if (mod)
 	{
-		mod->registration_sequence = registration_sequence;
+		mod->s.registration_sequence = registration_sequence;
 
 		/* register any images used by the models */
-		if (mod->type == mod_brush)
+		if (mod->s.type == mod_brush)
 		{
 			int i;
 
@@ -667,8 +667,8 @@ RE_RegisterModel(const char *name)
 		else
 		{
 			/* numframes is unused for SP2 but lets set it also  */
-			mod->numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
-				(findimage_t)Vk_FindImage, mod->extradata, mod->type);
+			mod->s.numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
+				(findimage_t)Vk_FindImage, mod->extradata, mod->s.type);
 		}
 	}
 
@@ -685,9 +685,9 @@ Mod_HasFreeSpace(void)
 
 	for (i=0, mod=models_known ; i<mod_numknown ; i++, mod++)
 	{
-		if (!mod->name[0])
+		if (!mod->s.name[0])
 			continue;
-		if (mod->registration_sequence == registration_sequence)
+		if (mod->s.registration_sequence == registration_sequence)
 		{
 			used ++;
 		}
@@ -717,16 +717,16 @@ Mod_Modellist_f(void)
 	{
 		char *in_use = "";
 
-		if (mod->registration_sequence == registration_sequence)
+		if (mod->s.registration_sequence == registration_sequence)
 		{
 			in_use = "*";
 			used ++;
 		}
 
-		if (!mod->name[0])
+		if (!mod->s.name[0])
 			continue;
 		Com_Printf("%8i : %s %s r: %.2f #%d\n",
-			 mod->extradatasize, mod->name, in_use, mod->radius, mod->numsubmodels);
+			 mod->extradatasize, mod->s.name, in_use, mod->s.radius, mod->numsubmodels);
 		total += mod->extradatasize;
 	}
 	Com_Printf("Total resident: %i in %d models\n", total, mod_loaded);
@@ -749,15 +749,15 @@ RE_EndRegistration(void)
 
 	for (i = 0, mod = models_known; i < mod_numknown; i++, mod++)
 	{
-		if (!mod->name[0])
+		if (!mod->s.name[0])
 		{
 			continue;
 		}
 
-		if (mod->registration_sequence != registration_sequence)
+		if (mod->s.registration_sequence != registration_sequence)
 		{
 			/* don't need this model */
-			ri.Mod_FreeFile(mod->name);
+			ri.Mod_FreeFile(mod->s.name);
 			Mod_Free(mod);
 		}
 	}

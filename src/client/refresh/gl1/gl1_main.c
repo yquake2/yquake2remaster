@@ -334,7 +334,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 				case mod_alias:
 					R_DrawAliasModel(currententity, currentmodel);
@@ -347,7 +347,7 @@ R_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->type);
+						__func__, currentmodel->s.type);
 					break;
 			}
 		}
@@ -386,7 +386,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 				case mod_alias:
 					R_DrawAliasModel(currententity, currentmodel);
@@ -399,7 +399,7 @@ R_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->type);
+						__func__, currentmodel->s.type);
 					return;
 			}
 		}
@@ -727,7 +727,7 @@ R_SetPerspective(GLdouble fovy)
 {
 	// gluPerspective style parameters
 	const GLdouble zNear = Q_max(gl_znear->value, 0.1f);
-	const GLdouble zFar = (r_farsee->value) ? (r_worldmodel->radius * 2) : 4096.0f;
+	const GLdouble zFar = (r_farsee->value) ? (r_worldmodel->s.radius * 2) : 4096.0f;
 	const GLdouble aspectratio = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	GLdouble xmin, xmax, ymin, ymax;

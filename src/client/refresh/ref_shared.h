@@ -317,6 +317,23 @@ typedef struct
 
 typedef struct
 {
+	char name[MAX_QPATH];
+
+	int registration_sequence;
+
+	modtype_t type;
+	int numframes;
+
+	int flags;
+
+	/* volume occupied by the model graphics */
+	vec3_t mins, maxs;
+	float radius;
+
+	/* brush model */
+	int firstmodelsurface, nummodelsurfaces;
+	int lightmap; /* only for submodels */
+
 	/* octree  */
 	bspxlightgrid_t *grid;
 } smodel_t;

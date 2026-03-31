@@ -591,7 +591,7 @@ R_AliasSetupSkin(const entity_t *currententity, const model_t *currentmodel)
 			(skinnum >= currentmodel->numskins))
 		{
 			Com_Printf("%s %s: no such skin # %d\n",
-				__func__, currentmodel->name, skinnum);
+				__func__, currentmodel->s.name, skinnum);
 			skinnum = 0;
 		}
 
@@ -695,13 +695,13 @@ R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, d
 	if ( ( thisframe >= pmdl->num_frames ) || ( thisframe < 0 ) )
 	{
 		Com_Printf("%s %s: no such thisframe %d\n",
-			__func__, currentmodel->name, thisframe);
+			__func__, currentmodel->s.name, thisframe);
 		thisframe = 0;
 	}
 	if ( ( lastframe >= pmdl->num_frames ) || ( lastframe < 0 ) )
 	{
 		Com_Printf("%s %s: no such lastframe %d\n",
-			__func__, currentmodel->name, lastframe);
+			__func__, currentmodel->s.name, lastframe);
 		lastframe = 0;
 	}
 
@@ -829,7 +829,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	if (!R_AliasSetupSkin(currententity, currentmodel))
 	{
 		Com_Printf("%s %s: NULL skin found\n",
-			__func__, currentmodel->name);
+			__func__, currentmodel->s.name);
 		aliasxscale = oldAliasxscale;
 		aliasyscale = oldAliasyscale;
 		return;

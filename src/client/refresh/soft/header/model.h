@@ -50,59 +50,36 @@ BRUSH MODELS
 
 typedef struct model_s
 {
-	char		name[MAX_QPATH];
+	/* shared model definition */
+	smodel_t s;
 
-	int		registration_sequence;
+	int numsubmodels;
+	struct model_s *submodels;
 
-	modtype_t	type;
-	int		numframes;
+	int numplanes;
+	cplane_t *planes;
 
-	int		flags;
+	int numleafs; /* number of visible leafs, not counting 0 */
+	mleaf_t *leafs;
 
-	//
-	// volume occupied by the model graphics
-	//
-	vec3_t		mins, maxs;
-	float		radius;
+	int numvertexes;
+	mvertex_t *vertexes;
 
-	//
-	// solid volume for clipping (sent from server)
-	//
-	qboolean	clipbox;
-	vec3_t		clipmins, clipmaxs;
+	int numedges;
+	medge_t *edges;
 
-	//
-	// brush model
-	//
-	int		firstmodelsurface, nummodelsurfaces;
+	int numnodes;
+	int firstnode;
+	mnode_t *nodes;
 
-	int		numsubmodels;
-	struct model_s	*submodels;
+	int numtexinfo;
+	mtexinfo_t *texinfo;
 
-	int		numplanes;
-	cplane_t	*planes;
+	int numsurfaces;
+	msurface_t *surfaces;
 
-	int		numleafs;	// number of visible leafs, not counting 0
-	mleaf_t		*leafs;
-
-	int		numvertexes;
-	mvertex_t	*vertexes;
-
-	int		numedges;
-	medge_t		*edges;
-
-	int		numnodes;
-	int		firstnode;
-	mnode_t		*nodes;
-
-	int		numtexinfo;
-	mtexinfo_t	*texinfo;
-
-	int		numsurfaces;
-	msurface_t	*surfaces;
-
-	int		numsurfedges;
-	int		*surfedges;
+	int numsurfedges;
+	int *surfedges;
 
 	unsigned int nummarksurfaces;
 	msurface_t **marksurfaces;
@@ -114,29 +91,26 @@ typedef struct model_s
 	byte *lightdata;
 	int numlightdata;
 
-	// for alias models and sprites
+	/* for alias models and skins */
 	struct image_s **skins;
 	int numskins;
 
-	void		*extradata;
-	int		extradatasize;
+	int extradatasize;
+	void *extradata;
 
 	// submodules
 	vec3_t		origin;	// for sounds or lights
-
-	/* shared model definition */
-	smodel_t s;
 } model_t;
 
 //============================================================================
 
-void	Mod_Init(void);
+void Mod_Init(void);
 
 const byte *Mod_ClusterPVS(int cluster, const model_t *model);
 
 void Mod_Modellist_f(void);
 void Mod_FreeAll(void);
 
-extern	int	registration_sequence;
+extern int registration_sequence;
 
 #endif	// __MODEL__

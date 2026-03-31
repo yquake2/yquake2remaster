@@ -686,7 +686,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 			r_dlightframecount, currentmodel->surfaces);
 	}
 
-	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
+	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -719,7 +719,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 		vk_drawPolyLmapPipeline.layout, 1, 1, &uboDescriptorSet, 1, &uboOffset);
 
 	/* draw texture */
-	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
+	for (i = 0; i < currentmodel->s.nummodelsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		float dot;
@@ -759,7 +759,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 	qboolean rotated;
 	float model[16];
 
-	if (currentmodel->nummodelsurfaces == 0)
+	if (currentmodel->s.nummodelsurfaces == 0)
 	{
 		return;
 	}
@@ -772,15 +772,15 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 
 		for (i = 0; i < 3; i++)
 		{
-			mins[i] = currententity->origin[i] - currentmodel->radius;
-			maxs[i] = currententity->origin[i] + currentmodel->radius;
+			mins[i] = currententity->origin[i] - currentmodel->s.radius;
+			maxs[i] = currententity->origin[i] + currentmodel->s.radius;
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd(currententity->origin, currentmodel->mins, mins);
-		VectorAdd(currententity->origin, currentmodel->maxs, maxs);
+		VectorAdd(currententity->origin, currentmodel->s.mins, mins);
+		VectorAdd(currententity->origin, currentmodel->s.maxs, maxs);
 	}
 
 	if (r_cull->value && R_CullBox(mins, maxs, frustum))

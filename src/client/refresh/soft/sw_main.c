@@ -797,7 +797,7 @@ R_DrawEntitiesOnList (void)
 			VectorCopy (currententity->origin, r_entorigin);
 			VectorSubtract (r_origin, r_entorigin, modelorg);
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 			case mod_sprite:
 				R_DrawSprite(currententity, currentmodel);
@@ -812,7 +812,7 @@ R_DrawEntitiesOnList (void)
 
 			default:
 				Com_Printf("%s: Bad modeltype %d\n",
-					__func__, currentmodel->type);
+					__func__, currentmodel->s.type);
 				return;
 			}
 		}
@@ -851,7 +851,7 @@ R_DrawEntitiesOnList (void)
 			VectorCopy (currententity->origin, r_entorigin);
 			VectorSubtract (r_origin, r_entorigin, modelorg);
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 			case mod_sprite:
 				R_DrawSprite(currententity, currentmodel);
@@ -866,7 +866,7 @@ R_DrawEntitiesOnList (void)
 
 			default:
 				Com_Printf("%s: Bad modeltype %d\n",
-					__func__, currentmodel->type);
+					__func__, currentmodel->s.type);
 				return;
 			}
 		}
@@ -1055,13 +1055,13 @@ R_DrawBEntitiesOnList (void)
 			continue;
 		if (!currentmodel)
 			continue;
-		if (currentmodel->nummodelsurfaces == 0)
+		if (currentmodel->s.nummodelsurfaces == 0)
 			continue;	// clip brush only
-		if (currentmodel->type != mod_brush)
+		if (currentmodel->s.type != mod_brush)
 			continue;
 		// see if the bounding box lets us trivially reject, also sets
 		// trivial accept status
-		RotatedBBox (currentmodel->mins, currentmodel->maxs,
+		RotatedBBox (currentmodel->s.mins, currentmodel->s.maxs,
 			currententity->angles, mins, maxs);
 		VectorAdd (mins, currententity->origin, minmaxs);
 		VectorAdd (maxs, currententity->origin, (minmaxs+3));

@@ -319,8 +319,8 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 	medge_t		*pedges;
 
 	// FIXME: use bounding-box-based frustum clipping info?
-	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
-	numsurfaces = currentmodel->nummodelsurfaces;
+	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	numsurfaces = currentmodel->s.nummodelsurfaces;
 	pedges = currentmodel->edges;
 
 	for (i = 0; i < numsurfaces; i++, psurf++)
@@ -408,8 +408,8 @@ R_DrawSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, int
 	int numsurfaces;
 
 	// FIXME: use bounding-box-based frustum clipping info?
-	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
-	numsurfaces = currentmodel->nummodelsurfaces;
+	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	numsurfaces = currentmodel->s.nummodelsurfaces;
 
 	for (i=0 ; i<numsurfaces ; i++, psurf++)
 	{

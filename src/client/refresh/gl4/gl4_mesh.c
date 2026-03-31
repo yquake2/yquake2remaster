@@ -453,14 +453,14 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, model->name, e->frame);
+				__func__, model->s.name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, model->name, e->oldframe);
+				__func__, model->s.name, e->oldframe);
 		e->oldframe = 0;
 	}
 
@@ -617,7 +617,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 		(currententity->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, model->name, currententity->frame);
+				__func__, model->s.name, currententity->frame);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}
@@ -626,7 +626,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 		(currententity->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, model->name, currententity->oldframe);
+				__func__, model->s.name, currententity->oldframe);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}

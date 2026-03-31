@@ -306,7 +306,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 				case mod_alias:
 					R_DrawAliasModel(currententity, currentmodel);
@@ -319,7 +319,7 @@ R_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->type);
+						__func__, currentmodel->s.type);
 					break;
 			}
 		}
@@ -357,7 +357,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->type)
+			switch (currentmodel->s.type)
 			{
 				case mod_alias:
 					R_DrawAliasModel(currententity, currentmodel);
@@ -370,7 +370,7 @@ R_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->type);
+						__func__, currentmodel->s.type);
 					return;
 			}
 		}
@@ -802,7 +802,7 @@ R_SetupVulkan (void)
 	float	r_proj_fovx;
 	float	r_proj_fovy;
 	int		x, x2, y2, y, w, h;
-	float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->radius * 2);
+	float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->s.radius * 2);
 	const float zNear = Q_max(vk_znear->value, 0.1f);
 
 	/* Render old elements before change viewport */

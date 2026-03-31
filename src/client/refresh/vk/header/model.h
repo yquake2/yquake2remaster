@@ -51,26 +51,8 @@ BRUSH MODELS
 
 typedef struct model_s
 {
-	char name[MAX_QPATH];
-
-	int registration_sequence;
-
-	modtype_t type;
-	int numframes;
-
-	int flags;
-
-	/* volume occupied by the model graphics */
-	vec3_t mins, maxs;
-	float radius;
-
-	/* solid volume for clipping */
-	qboolean clipbox;
-	vec3_t clipmins, clipmaxs;
-
-	/* brush model */
-	int firstmodelsurface, nummodelsurfaces;
-	int lightmap; /* only for submodels */
+	/* shared model definition */
+	smodel_t s;
 
 	int numsubmodels;
 	struct model_s *submodels;
@@ -119,9 +101,6 @@ typedef struct model_s
 
 	// submodules
 	vec3_t		origin;	// for sounds or lights
-
-	/* shared model definition */
-	smodel_t s;
 } model_t;
 
 void Mod_Init(void);

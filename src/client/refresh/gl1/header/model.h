@@ -31,26 +31,8 @@
 
 typedef struct model_s
 {
-	char name[MAX_QPATH];
-
-	int registration_sequence;
-
-	modtype_t type;
-	int numframes;
-
-	int flags;
-
-	/* volume occupied by the model graphics */
-	vec3_t mins, maxs;
-	float radius;
-
-	/* solid volume for clipping */
-	qboolean clipbox;
-	vec3_t clipmins, clipmaxs;
-
-	/* brush model */
-	int firstmodelsurface, nummodelsurfaces;
-	int lightmap; /* only for submodels */
+	/* shared model definition */
+	smodel_t s;
 
 	int numsubmodels;
 	struct model_s *submodels;
@@ -99,9 +81,6 @@ typedef struct model_s
 
 	// submodules
 	vec3_t		origin;	// for sounds or lights
-
-	/* shared model definition */
-	smodel_t s;
 } model_t;
 
 void Mod_Init(void);
@@ -109,12 +88,6 @@ void Mod_ClearAll(void);
 const byte *Mod_ClusterPVS(int cluster, const model_t *model);
 
 void Mod_Modellist_f(void);
-
-void *Hunk_Begin(int maxsize);
-void *Hunk_Alloc(int size);
-int Hunk_End(void);
-void Hunk_Free(void *base);
-
 void Mod_FreeAll(void);
 
 #endif
