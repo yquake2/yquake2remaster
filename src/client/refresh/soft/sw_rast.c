@@ -107,14 +107,14 @@ R_InitSkyBox(model_t *loadmodel)
 {
 	int		i;
 
-	r_skyfaces = loadmodel->surfaces + loadmodel->numsurfaces;
-	loadmodel->numsurfaces += 6;
-	r_skyverts = loadmodel->vertexes + loadmodel->numvertexes;
-	loadmodel->numvertexes += 8;
-	r_skyedges = loadmodel->edges + loadmodel->numedges;
-	loadmodel->numedges += 12;
-	r_skysurfedges = loadmodel->surfedges + loadmodel->numsurfedges;
-	loadmodel->numsurfedges += 24;
+	r_skyfaces = loadmodel->s.surfaces + loadmodel->s.numsurfaces;
+	loadmodel->s.numsurfaces += 6;
+	r_skyverts = loadmodel->s.vertexes + loadmodel->s.numvertexes;
+	loadmodel->s.numvertexes += 8;
+	r_skyedges = loadmodel->s.edges + loadmodel->s.numedges;
+	loadmodel->s.numedges += 12;
+	r_skysurfedges = loadmodel->s.surfedges + loadmodel->s.numsurfedges;
+	loadmodel->s.numsurfedges += 24;
 
 	memset (r_skyfaces, 0, 6 * sizeof(*r_skyfaces));
 	for (i = 0; i < 6; i++)
@@ -128,7 +128,7 @@ R_InitSkyBox(model_t *loadmodel)
 		r_skyfaces[i].plane = &r_skyplanes[i];
 		r_skyfaces[i].numedges = 4;
 		r_skyfaces[i].flags = box_faces[i] | SURF_DRAWSKY;
-		r_skyfaces[i].firstedge = loadmodel->numsurfedges-24+i*4;
+		r_skyfaces[i].firstedge = loadmodel->s.numsurfedges-24+i*4;
 		r_skyfaces[i].texinfo = &r_skytexinfo[i];
 		r_skyfaces[i].texturemins[0] = -128;
 		r_skyfaces[i].texturemins[1] = -128;
@@ -138,14 +138,14 @@ R_InitSkyBox(model_t *loadmodel)
 
 	for (i=0 ; i<24 ; i++)
 		if (box_surfedges[i] > 0)
-			r_skysurfedges[i] = loadmodel->numedges-13 + box_surfedges[i];
+			r_skysurfedges[i] = loadmodel->s.numedges-13 + box_surfedges[i];
 		else
-			r_skysurfedges[i] = - (loadmodel->numedges-13 + -box_surfedges[i]);
+			r_skysurfedges[i] = - (loadmodel->s.numedges-13 + -box_surfedges[i]);
 
 	for (i=0 ; i<12 ; i++)
 	{
-		r_skyedges[i].v[0] = loadmodel->numvertexes-9+box_edges[i*2+0];
-		r_skyedges[i].v[1] = loadmodel->numvertexes-9+box_edges[i*2+1];
+		r_skyedges[i].v[0] = loadmodel->s.numvertexes-9+box_edges[i*2+0];
+		r_skyedges[i].v[1] = loadmodel->s.numvertexes-9+box_edges[i*2+1];
 		r_skyedges[i].cachededgeoffset = 0;
 	}
 }
@@ -583,14 +583,14 @@ R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *
 	r_nearzi = 0;
 	r_nearzionly = false;
 	makeleftedge = makerightedge = false;
-	pedges = currentmodel->edges;
+	pedges = currentmodel->s.edges;
 	r_lastvertvalid = false;
 
 	for (i=0 ; i<fa->numedges ; i++)
 	{
 		int lindex;
 
-		lindex = currentmodel->surfedges[fa->firstedge + i];
+		lindex = currentmodel->s.surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
 		{

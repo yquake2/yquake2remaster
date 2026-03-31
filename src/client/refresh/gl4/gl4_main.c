@@ -697,7 +697,7 @@ GL4_DrawSpriteModel(entity_t *e, const gl4model_t *currentmodel)
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
-	psprite = (dsprite_t *)currentmodel->extradata;
+	psprite = (dsprite_t *)currentmodel->s.extradata;
 
 	e->frame %= psprite->numframes;
 	frame = &psprite->frames[e->frame];
@@ -800,14 +800,14 @@ GL4_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT || !gl4_worldmodel || !gl4_worldmodel->lightdata)
+	if (currententity->flags & RF_FULLBRIGHT || !gl4_worldmodel || !gl4_worldmodel->s.lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
 		R_LightPoint(&gl4_worldmodel->s, currententity,
-			gl4_worldmodel->surfaces, gl4_worldmodel->nodes, currententity->origin,
+			gl4_worldmodel->s.surfaces, gl4_worldmodel->s.nodes, currententity->origin,
 			shadelight, lightspot);
 	}
 
@@ -1057,7 +1057,7 @@ SetupFrame(void)
 
 		gl4_oldviewcluster = gl4_viewcluster;
 		gl4_oldviewcluster2 = gl4_viewcluster2;
-		leaf = Mod_PointInLeaf(gl4_origin, gl4_worldmodel->nodes);
+		leaf = Mod_PointInLeaf(gl4_origin, gl4_worldmodel->s.nodes);
 		gl4_viewcluster = gl4_viewcluster2 = leaf->cluster;
 
 		/* check above and below so crossing solid water doesn't draw wrong */
@@ -1068,7 +1068,7 @@ SetupFrame(void)
 
 			VectorCopy(gl4_origin, temp);
 			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->nodes);
+			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->s.nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != gl4_viewcluster2))
@@ -1083,7 +1083,7 @@ SetupFrame(void)
 
 			VectorCopy(gl4_origin, temp);
 			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->nodes);
+			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->s.nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != gl4_viewcluster2))
@@ -1581,7 +1581,7 @@ GL4_SetLightLevel(const entity_t *currententity)
 
 	/* save off light value for server to look at */
 	R_LightPoint(&gl4_worldmodel->s, currententity,
-		gl4_worldmodel->surfaces, gl4_worldmodel->nodes, r_newrefdef.vieworg,
+		gl4_worldmodel->s.surfaces, gl4_worldmodel->s.nodes, r_newrefdef.vieworg,
 		shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

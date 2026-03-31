@@ -448,7 +448,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 
 	gl4model_t* model = e->model;
 
-	paliashdr = (dmdx_t *)model->extradata;
+	paliashdr = (dmdx_t *)model->s.extradata;
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
@@ -500,7 +500,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 	}
 
 	gl4model_t* model = currententity->model;
-	paliashdr = (dmdx_t *)model->extradata;
+	paliashdr = (dmdx_t *)model->s.extradata;
 
 	for (i = 0; i < 3; i++)
 	{
@@ -513,8 +513,8 @@ GL4_DrawAliasModel(entity_t *currententity)
 
 	if (gl4_worldmodel)
 	{
-		R_ApplyModelLight(&gl4_worldmodel->s, currententity, gl4_worldmodel->surfaces,
-			gl4_worldmodel->nodes, shadelight, lightspot, gl4_worldmodel->lightdata);
+		R_ApplyModelLight(&gl4_worldmodel->s, currententity, gl4_worldmodel->s.surfaces,
+			gl4_worldmodel->s.nodes, shadelight, lightspot, gl4_worldmodel->s.lightdata);
 	}
 	else
 	{

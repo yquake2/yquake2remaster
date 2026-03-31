@@ -111,6 +111,6 @@ RI_PushDlights(void)
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = r_framecount + 1;
 
-	R_PushDlights(&r_newrefdef, r_worldmodel->nodes,
-			r_dlightframecount, r_worldmodel->surfaces);
+	R_PushDlights(&r_newrefdef, r_worldmodel->s.nodes,
+			r_dlightframecount, r_worldmodel->s.surfaces);
 }

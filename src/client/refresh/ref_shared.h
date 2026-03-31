@@ -232,7 +232,7 @@ typedef struct msurface_s
 	cplane_t	*plane;
 	int	flags;
 
-	int	firstedge;                 /* look up in model->surfedges[], negative numbers */
+	int	firstedge;                 /* look up in model->s.surfedges[], negative numbers */
 	int	numedges;                  /* are backwards edges */
 
 	short	texturemins[2];
@@ -333,6 +333,47 @@ typedef struct
 	/* brush model */
 	int firstmodelsurface, nummodelsurfaces;
 	int lightmap; /* only for submodels */
+
+	int numplanes;
+	cplane_t *planes;
+
+	int numleafs; /* number of visible leafs, not counting 0 */
+	mleaf_t *leafs;
+
+	int numvertexes;
+	mvertex_t *vertexes;
+
+	int numedges;
+	medge_t *edges;
+
+	int numnodes;
+	int firstnode;
+	mnode_t *nodes;
+
+	int numtexinfo;
+	mtexinfo_t *texinfo;
+
+	int numsurfaces;
+	msurface_t *surfaces;
+
+	int numsurfedges;
+	int *surfedges;
+
+	unsigned int nummarksurfaces;
+	msurface_t **marksurfaces;
+
+	int numvisibility;
+	int numclusters;
+	dvis_t *vis;
+
+	byte *lightdata;
+	int numlightdata;
+
+	int extradatasize;
+	void *extradata;
+
+	/* submodules */
+	vec3_t origin;	/* for sounds or lights */
 
 	/* octree  */
 	bspxlightgrid_t *grid;

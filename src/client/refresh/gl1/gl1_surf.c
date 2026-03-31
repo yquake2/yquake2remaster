@@ -202,7 +202,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	msurface_t *surf;
 
 	/* don't bother if we're set to fullbright or multitexture is enabled */
-	if (gl_config.multitexture || r_fullbright->value || !r_worldmodel->lightdata)
+	if (gl_config.multitexture || r_fullbright->value || !r_worldmodel->s.lightdata)
 	{
 		return;
 	}
@@ -829,11 +829,11 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 	/* calculate dynamic lighting for bmodel */
 	if (!gl_config.multitexture && !r_flashblend->value)
 	{
-		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
-			r_dlightframecount, currentmodel->surfaces);
+		R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
+			r_dlightframecount, currentmodel->s.surfaces);
 	}
 
-	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -1068,7 +1068,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	R_RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->s.numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -1076,7 +1076,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = r_worldmodel->surfaces + node->firstsurface;
+		 surf = r_worldmodel->s.surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != r_framecount)
@@ -1181,10 +1181,10 @@ R_GetBrushesLighting(void)
 		}
 
 		// from R_DrawInlineBModel()
-		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
-			r_dlightframecount, currentmodel->surfaces);
+		R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
+			r_dlightframecount, currentmodel->s.surfaces);
 
-		surf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+		surf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
 
 		for (k = 0; k < currentmodel->s.nummodelsurfaces; k++, surf++)
 		{
@@ -1236,7 +1236,7 @@ R_DrawWorld(void)
 	memset(gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 
 	RE_ClearSkyBox();
-	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
+	R_RecursiveWorldNode(&ent, r_worldmodel->s.nodes);
 	R_GetBrushesLighting();
 	R_RegenAllLightmaps();
 	R_DrawTextureChains();
@@ -1277,17 +1277,17 @@ R_MarkLeaves(void)
 	r_oldviewcluster = r_viewcluster;
 	r_oldviewcluster2 = r_viewcluster2;
 
-	if (r_novis->value || (r_viewcluster == -1) || !r_worldmodel->vis)
+	if (r_novis->value || (r_viewcluster == -1) || !r_worldmodel->s.vis)
 	{
 		/* mark everything */
-		for (i = 0; i < r_worldmodel->numleafs; i++)
+		for (i = 0; i < r_worldmodel->s.numleafs; i++)
 		{
-			r_worldmodel->leafs[i].visframe = r_visframecount;
+			r_worldmodel->s.leafs[i].visframe = r_visframecount;
 		}
 
-		for (i = 0; i < r_worldmodel->numnodes; i++)
+		for (i = 0; i < r_worldmodel->s.numnodes; i++)
 		{
-			r_worldmodel->nodes[i].visframe = r_visframecount;
+			r_worldmodel->s.nodes[i].visframe = r_visframecount;
 		}
 
 		return;
@@ -1300,10 +1300,10 @@ R_MarkLeaves(void)
 	{
 		int c;
 
-		fatvis = malloc(((r_worldmodel->numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
+		fatvis = malloc(((r_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (r_worldmodel->s.numleafs + 7) / 8);
 		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
-		c = (r_worldmodel->numleafs + 31) / 32;
+		c = (r_worldmodel->s.numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
 		{
@@ -1313,8 +1313,8 @@ R_MarkLeaves(void)
 		vis = fatvis;
 	}
 
-	for (i = 0, leaf = r_worldmodel->leafs;
-		 i < r_worldmodel->numleafs;
+	for (i = 0, leaf = r_worldmodel->s.leafs;
+		 i < r_worldmodel->s.numleafs;
 		 i++, leaf++)
 	{
 		int cluster;

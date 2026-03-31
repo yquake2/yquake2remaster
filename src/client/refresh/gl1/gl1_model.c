@@ -72,29 +72,29 @@ Mod_ClusterPVS(int cluster, const model_t *model)
 		return mod_novis;
 	}
 
-	if (!model->vis)
+	if (!model->s.vis)
 	{
 		Mod_DecompressVis(NULL, mod_novis, NULL,
-			(model->numclusters + 7) >> 3);
+			(model->s.numclusters + 7) >> 3);
 		return mod_novis;
 	}
 
 	if (cluster == -1)
 	{
-		memset(mod_novis, 0, (model->numclusters + 7) >> 3);
+		memset(mod_novis, 0, (model->s.numclusters + 7) >> 3);
 		return mod_novis;
 	}
 
-	if (cluster < 0 || cluster >= model->numvisibility)
+	if (cluster < 0 || cluster >= model->s.numvisibility)
 	{
 		Com_Error(ERR_DROP, "%s: bad cluster", __func__);
 		return mod_novis;
 	}
 
-	Mod_DecompressVis((byte *)model->vis +
-			model->vis->bitofs[cluster][DVIS_PVS], mod_novis,
-			(byte *)model->vis + model->numvisibility,
-			(model->numclusters + 7) >> 3);
+	Mod_DecompressVis((byte *)model->s.vis +
+			model->s.vis->bitofs[cluster][DVIS_PVS], mod_novis,
+			(byte *)model->s.vis + model->s.numvisibility,
+			(model->s.numclusters + 7) >> 3);
 	return mod_novis;
 }
 
@@ -125,8 +125,8 @@ Mod_Modellist_f(void)
 		}
 
 		Com_Printf("%8i : %s %s r: %.2f #%d\n",
-			 mod->extradatasize, mod->s.name, in_use, mod->s.radius, mod->numsubmodels);
-		total += mod->extradatasize;
+			 mod->s.extradatasize, mod->s.name, in_use, mod->s.radius, mod->numsubmodels);
+		total += mod->s.extradatasize;
 	}
 
 	Com_Printf("Total resident: %i\n", total);
@@ -185,17 +185,17 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 			/* spread the mins / maxs by a pixel */
 			out->s.mins[j] = in->mins[j] - 1;
 			out->s.maxs[j] = in->maxs[j] + 1;
-			out->origin[j] = in->origin[j];
+			out->s.origin[j] = in->origin[j];
 		}
 
 		out->s.radius = Mod_RadiusFromBounds(out->s.mins, out->s.maxs);
-		out->firstnode = in->headnode;
+		out->s.firstnode = in->headnode;
 		out->s.firstmodelsurface = in->firstface;
 		out->s.nummodelsurfaces = in->numfaces;
 		/* visleafs */
-		out->numleafs = 0;
+		out->s.numleafs = 0;
 		/* check limits */
-		if (out->firstnode >= loadmodel->numnodes)
+		if (out->s.firstnode >= loadmodel->s.numnodes)
 		{
 			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
 					__func__, i);
@@ -225,15 +225,15 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	count = l->filelen / sizeof(*in);
 	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));
 
-	loadmodel->surfaces = out;
-	loadmodel->numsurfaces = count;
+	loadmodel->s.surfaces = out;
+	loadmodel->s.numsurfaces = count;
 
 	lminfos = Mod_LoadBSPXFindLump(bspx_header, "DECOUPLED_LM", &lminfosize, mod_base);
 	if ((lminfos != NULL) &&
-		(lminfosize / sizeof(dlminfo_t) != loadmodel->numsurfaces))
+		(lminfosize / sizeof(dlminfo_t) != loadmodel->s.numsurfaces))
 	{
 		Com_Printf("%s: [%s] decoupled_lm size " YQ2_COM_PRIdS " does not match surface count %d\n",
-			__func__, loadmodel->s.name, lminfosize / sizeof(dlminfo_t), loadmodel->numsurfaces);
+			__func__, loadmodel->s.name, lminfosize / sizeof(dlminfo_t), loadmodel->s.numsurfaces);
 		lminfos = NULL;
 	}
 
@@ -263,24 +263,24 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->flags |= SURF_PLANEBACK;
 		}
 
-		if (planenum >= loadmodel->numplanes)
+		if (planenum >= loadmodel->s.numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect %d planenum.",
 					__func__, planenum);
 			return;
 		}
-		out->plane = loadmodel->planes + planenum;
+		out->plane = loadmodel->s.planes + planenum;
 
 		ti = in->texinfo;
 
-		if ((ti < 0) || (ti >= loadmodel->numtexinfo))
+		if ((ti < 0) || (ti >= loadmodel->s.numtexinfo))
 		{
 			Com_Error(ERR_DROP, "%s: bad texinfo number",
 					__func__);
 			return;
 		}
 
-		out->texinfo = loadmodel->texinfo + ti;
+		out->texinfo = loadmodel->s.texinfo + ti;
 
 		lightofs = Mod_LoadBSPXDecoupledLM(lminfos, surfnum, out);
 		if (lightofs < 0) {
@@ -289,13 +289,13 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->lmvlen[0] = 1.0f;
 			out->lmvlen[1] = 1.0f;
 
-			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->numsurfedges,
-				loadmodel->vertexes, loadmodel->edges, out);
+			Mod_CalcSurfaceExtents(loadmodel->s.surfedges, loadmodel->s.numsurfedges,
+				loadmodel->s.vertexes, loadmodel->s.edges, out);
 
 			lightofs = in->lightofs;
 		}
 
-		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->s.lightdata, loadmodel->s.numlightdata,
 			out, in->styles, lightofs);
 
 		/* set the drawing flags */
@@ -309,8 +309,8 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 				out->texturemins[i] = -8192;
 			}
 
-			R_SubdivideSurface(loadmodel->surfedges, loadmodel->vertexes,
-				loadmodel->edges, out); /* cut up polygon for warps */
+			R_SubdivideSurface(loadmodel->s.surfedges, loadmodel->s.vertexes,
+				loadmodel->s.edges, out); /* cut up polygon for warps */
 		}
 
 		if (r_fixsurfsky->value)
@@ -357,23 +357,23 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		hunkSize += lightgridsize * 4;
 	}
 
-	mod->extradata = Hunk_Begin(hunkSize);
+	mod->s.extradata = Hunk_Begin(hunkSize);
 	mod->s.type = mod_brush;
 
 	Mod_LoadBSPXSections(bspx_header, mod_base, &mod->s);
 
 	/* load into heap */
-	Mod_LoadVertexes(mod->s.name, &mod->vertexes, &mod->numvertexes, mod_base,
+	Mod_LoadVertexes(mod->s.name, &mod->s.vertexes, &mod->s.numvertexes, mod_base,
 		&header->lumps[LUMP_VERTEXES]);
-	Mod_LoadQBSPEdges(mod->s.name, &mod->edges, &mod->numedges,
+	Mod_LoadQBSPEdges(mod->s.name, &mod->s.edges, &mod->s.numedges,
 		mod_base, &header->lumps[LUMP_EDGES]);
-	Mod_LoadSurfedges(mod->s.name, &mod->surfedges, &mod->numsurfedges,
+	Mod_LoadSurfedges(mod->s.name, &mod->s.surfedges, &mod->s.numsurfedges,
 		mod_base, &header->lumps[LUMP_SURFEDGES]);
-	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
+	Mod_LoadLighting(&mod->s.lightdata, &mod->s.numlightdata, mod_base,
 		&header->lumps[LUMP_LIGHTING]);
-	Mod_LoadPlanes(mod->s.name, &mod->planes, &mod->numplanes,
+	Mod_LoadPlanes(mod->s.name, &mod->s.planes, &mod->s.numplanes,
 		mod_base, &header->lumps[LUMP_PLANES]);
-	Mod_LoadTexinfo(mod->s.name, &mod->texinfo, &mod->numtexinfo,
+	Mod_LoadTexinfo(mod->s.name, &mod->s.texinfo, &mod->s.numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)R_FindImage,
 		r_notexture);
 
@@ -381,32 +381,32 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 	LM_EndBuildingLightmaps();
 
-	Mod_LoadQBSPMarksurfaces(mod->s.name, &mod->marksurfaces, &mod->nummarksurfaces,
-		mod->surfaces, mod->numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES]);
-	Mod_LoadVisibility(mod->s.name, &mod->vis, &mod->numvisibility, mod_base,
+	Mod_LoadQBSPMarksurfaces(mod->s.name, &mod->s.marksurfaces, &mod->s.nummarksurfaces,
+		mod->s.surfaces, mod->s.numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES]);
+	Mod_LoadVisibility(mod->s.name, &mod->s.vis, &mod->s.numvisibility, mod_base,
 		&header->lumps[LUMP_VISIBILITY]);
-	Mod_LoadQBSPLeafs(mod->s.name, &mod->leafs, &mod->numleafs,
-		mod->marksurfaces, mod->nummarksurfaces, &mod->numclusters,
+	Mod_LoadQBSPLeafs(mod->s.name, &mod->s.leafs, &mod->s.numleafs,
+		mod->s.marksurfaces, mod->s.nummarksurfaces, &mod->s.numclusters,
 		mod_base, &header->lumps[LUMP_LEAFS]);
-	Mod_LoadQBSPNodes(mod->s.name, mod->planes, mod->numplanes, mod->leafs,
-		mod->numleafs, &mod->nodes, &mod->numnodes, mod->s.mins, mod->s.maxs,
+	Mod_LoadQBSPNodes(mod->s.name, mod->s.planes, mod->s.numplanes, mod->s.leafs,
+		mod->s.numleafs, &mod->s.nodes, &mod->s.numnodes, mod->s.mins, mod->s.maxs,
 		mod_base, &header->lumps[LUMP_NODES], header->ident);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->s.numframes = 2; /* regular and alternate animation */
 
-	if (mod->vis && mod->numclusters != mod->vis->numclusters)
+	if (mod->s.vis && mod->s.numclusters != mod->s.vis->numclusters)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
-			__func__, mod->s.name, mod->numclusters, mod->vis->numclusters);
+			__func__, mod->s.name, mod->s.numclusters, mod->s.vis->numclusters);
 		return;
 	}
 
-	if ((mod->numleafs > mod_novis_len) || !mod_novis)
+	if ((mod->s.numleafs > mod_novis_len) || !mod_novis)
 	{
 		byte *tmp;
 
 		/* reallocate buffers for PVS/PHS buffers*/
-		mod_novis_len = (mod->numleafs + 63) & ~63;
+		mod_novis_len = (mod->s.numleafs + 63) & ~63;
 		tmp = realloc(mod_novis, mod_novis_len / 8);
 		YQ2_COM_CHECK_OOM(tmp, "realloc()", mod_novis_len / 8)
 		if (!tmp)
@@ -528,11 +528,11 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			/* fall through */
 		case IDSPRITEHEADER:
 			{
-				mod->extradata = Mod_LoadModel(mod->s.name, buf, modfilelen,
+				mod->s.extradata = Mod_LoadModel(mod->s.name, buf, modfilelen,
 					mod->s.mins, mod->s.maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
 					(findimage_t)R_FindImage, &(mod->s.type));
-				if (!mod->extradata)
+				if (!mod->s.extradata)
 				{
 					Com_Error(ERR_DROP, "%s: Failed to load %s",
 						__func__, mod->s.name);
@@ -553,13 +553,13 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	}
 
 	mod->s.radius = Mod_RadiusFromBounds(mod->s.mins, mod->s.maxs);
-	if (mod->extradata)
+	if (mod->s.extradata)
 	{
-		mod->extradatasize = Hunk_End();
+		mod->s.extradatasize = Hunk_End();
 	}
 	else
 	{
-		mod->extradatasize = 0;
+		mod->s.extradatasize = 0;
 	}
 
 	ri.FS_FreeFile(buf);
@@ -570,7 +570,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 static void
 Mod_Free(model_t *mod)
 {
-	if (!mod->extradata)
+	if (!mod->s.extradata)
 	{
 		/* looks as empty model */
 		memset (mod, 0, sizeof(*mod));
@@ -582,7 +582,7 @@ Mod_Free(model_t *mod)
 		Com_Printf("%s: Unload %s\n", __func__, mod->s.name);
 	}
 
-	Hunk_Free(mod->extradata);
+	Hunk_Free(mod->s.extradata);
 
 	if (mod->s.type == mod_alias || mod->s.type == mod_sprite)
 	{
@@ -600,7 +600,7 @@ Mod_FreeAll(void)
 
 	for (i = 0; i < mod_numknown; i++)
 	{
-		if (mod_known[i].extradatasize)
+		if (mod_known[i].s.extradatasize)
 		{
 			Mod_Free(&mod_known[i]);
 		}
@@ -660,9 +660,9 @@ RI_RegisterModel(const char *name)
 		{
 			int i;
 
-			for (i = 0; i < mod->numtexinfo; i++)
+			for (i = 0; i < mod->s.numtexinfo; i++)
 			{
-				mod->texinfo[i].image->registration_sequence =
+				mod->s.texinfo[i].image->registration_sequence =
 					registration_sequence;
 			}
 		}
@@ -670,7 +670,7 @@ RI_RegisterModel(const char *name)
 		{
 			/* numframes is unused for SP2 but lets set it also  */
 			mod->s.numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
-				(findimage_t)R_FindImage, mod->extradata, mod->s.type);
+				(findimage_t)R_FindImage, mod->s.extradata, mod->s.type);
 		}
 	}
 

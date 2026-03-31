@@ -739,7 +739,7 @@ GL3_DrawSpriteModel(entity_t *e, const gl3model_t *currentmodel)
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
-	psprite = (dsprite_t *)currentmodel->extradata;
+	psprite = (dsprite_t *)currentmodel->s.extradata;
 
 	e->frame %= psprite->numframes;
 	frame = &psprite->frames[e->frame];
@@ -842,14 +842,14 @@ GL3_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT || !gl3_worldmodel || !gl3_worldmodel->lightdata)
+	if (currententity->flags & RF_FULLBRIGHT || !gl3_worldmodel || !gl3_worldmodel->s.lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
 		R_LightPoint(&gl3_worldmodel->s, currententity,
-			gl3_worldmodel->surfaces, gl3_worldmodel->nodes, currententity->origin,
+			gl3_worldmodel->s.surfaces, gl3_worldmodel->s.nodes, currententity->origin,
 			shadelight, lightspot);
 	}
 
@@ -1111,7 +1111,7 @@ SetupFrame(void)
 
 		gl3_oldviewcluster = gl3_viewcluster;
 		gl3_oldviewcluster2 = gl3_viewcluster2;
-		leaf = Mod_PointInLeaf(gl3_origin, gl3_worldmodel->nodes);
+		leaf = Mod_PointInLeaf(gl3_origin, gl3_worldmodel->s.nodes);
 		gl3_viewcluster = gl3_viewcluster2 = leaf->cluster;
 
 		/* check above and below so crossing solid water doesn't draw wrong */
@@ -1122,7 +1122,7 @@ SetupFrame(void)
 
 			VectorCopy(gl3_origin, temp);
 			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, gl3_worldmodel->nodes);
+			leaf = Mod_PointInLeaf(temp, gl3_worldmodel->s.nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != gl3_viewcluster2))
@@ -1137,7 +1137,7 @@ SetupFrame(void)
 
 			VectorCopy(gl3_origin, temp);
 			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, gl3_worldmodel->nodes);
+			leaf = Mod_PointInLeaf(temp, gl3_worldmodel->s.nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != gl3_viewcluster2))
@@ -1638,7 +1638,7 @@ GL3_SetLightLevel(const entity_t *currententity)
 
 	/* save off light value for server to look at */
 	R_LightPoint(&gl3_worldmodel->s, currententity,
-		gl3_worldmodel->surfaces, gl3_worldmodel->nodes, r_newrefdef.vieworg,
+		gl3_worldmodel->s.surfaces, gl3_worldmodel->s.nodes, r_newrefdef.vieworg,
 		shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

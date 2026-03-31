@@ -481,10 +481,10 @@ DrawInlineBModel(const entity_t *currententity, gl3model_t *currentmodel)
 	int i;
 
 	/* calculate dynamic lighting for bmodel */
-	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
-			r_dlightframecount, currentmodel->surfaces);
+	R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
+			r_dlightframecount, currentmodel->s.surfaces);
 
-	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -696,7 +696,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->s.numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -704,7 +704,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = gl3_worldmodel->surfaces + node->firstsurface;
+		 surf = gl3_worldmodel->s.surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != gl3_framecount)
@@ -783,7 +783,7 @@ GL3_DrawWorld(void)
 	gl3state.currenttexture = -1;
 
 	RE_ClearSkyBox();
-	RecursiveWorldNode(&ent, gl3_worldmodel->nodes);
+	RecursiveWorldNode(&ent, gl3_worldmodel->s.nodes);
 	DrawTextureChains(&ent);
 	GL3_DrawSkyBox();
 	DrawTriangleOutlines();
@@ -821,17 +821,17 @@ GL3_MarkLeaves(void)
 	gl3_oldviewcluster = gl3_viewcluster;
 	gl3_oldviewcluster2 = gl3_viewcluster2;
 
-	if (r_novis->value || (gl3_viewcluster == -1) || !gl3_worldmodel->vis)
+	if (r_novis->value || (gl3_viewcluster == -1) || !gl3_worldmodel->s.vis)
 	{
 		/* mark everything */
-		for (i = 0; i < gl3_worldmodel->numleafs; i++)
+		for (i = 0; i < gl3_worldmodel->s.numleafs; i++)
 		{
-			gl3_worldmodel->leafs[i].visframe = gl3_visframecount;
+			gl3_worldmodel->s.leafs[i].visframe = gl3_visframecount;
 		}
 
-		for (i = 0; i < gl3_worldmodel->numnodes; i++)
+		for (i = 0; i < gl3_worldmodel->s.numnodes; i++)
 		{
-			gl3_worldmodel->nodes[i].visframe = gl3_visframecount;
+			gl3_worldmodel->s.nodes[i].visframe = gl3_visframecount;
 		}
 
 		return;
@@ -844,10 +844,10 @@ GL3_MarkLeaves(void)
 	{
 		int c;
 
-		fatvis = malloc(((gl3_worldmodel->numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (gl3_worldmodel->numleafs + 7) / 8);
+		fatvis = malloc(((gl3_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (gl3_worldmodel->s.numleafs + 7) / 8);
 		vis = GL3_Mod_ClusterPVS(gl3_viewcluster2, gl3_worldmodel);
-		c = (gl3_worldmodel->numleafs + 31) / 32;
+		c = (gl3_worldmodel->s.numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
 		{
@@ -857,8 +857,8 @@ GL3_MarkLeaves(void)
 		vis = fatvis;
 	}
 
-	for (i = 0, leaf = gl3_worldmodel->leafs;
-		 i < gl3_worldmodel->numleafs;
+	for (i = 0, leaf = gl3_worldmodel->s.leafs;
+		 i < gl3_worldmodel->s.numleafs;
 		 i++, leaf++)
 	{
 		int cluster;

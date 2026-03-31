@@ -478,10 +478,10 @@ DrawInlineBModel(const entity_t *currententity, gl4model_t *currentmodel)
 	int i;
 	msurface_t *psurf;
 
-	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
-			r_dlightframecount, currentmodel->surfaces);
+	R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
+			r_dlightframecount, currentmodel->s.surfaces);
 
-	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -693,7 +693,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > gl4_worldmodel->numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > gl4_worldmodel->s.numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -701,7 +701,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = gl4_worldmodel->surfaces + node->firstsurface;
+		 surf = gl4_worldmodel->s.surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != gl4_framecount)
@@ -780,7 +780,7 @@ GL4_DrawWorld(void)
 	gl4state.currenttexture = -1;
 
 	RE_ClearSkyBox();
-	RecursiveWorldNode(&ent, gl4_worldmodel->nodes);
+	RecursiveWorldNode(&ent, gl4_worldmodel->s.nodes);
 	DrawTextureChains(&ent);
 	GL4_DrawSkyBox();
 	DrawTriangleOutlines();
@@ -818,17 +818,17 @@ GL4_MarkLeaves(void)
 	gl4_oldviewcluster = gl4_viewcluster;
 	gl4_oldviewcluster2 = gl4_viewcluster2;
 
-	if (r_novis->value || (gl4_viewcluster == -1) || !gl4_worldmodel->vis)
+	if (r_novis->value || (gl4_viewcluster == -1) || !gl4_worldmodel->s.vis)
 	{
 		/* mark everything */
-		for (i = 0; i < gl4_worldmodel->numleafs; i++)
+		for (i = 0; i < gl4_worldmodel->s.numleafs; i++)
 		{
-			gl4_worldmodel->leafs[i].visframe = gl4_visframecount;
+			gl4_worldmodel->s.leafs[i].visframe = gl4_visframecount;
 		}
 
-		for (i = 0; i < gl4_worldmodel->numnodes; i++)
+		for (i = 0; i < gl4_worldmodel->s.numnodes; i++)
 		{
-			gl4_worldmodel->nodes[i].visframe = gl4_visframecount;
+			gl4_worldmodel->s.nodes[i].visframe = gl4_visframecount;
 		}
 
 		return;
@@ -841,10 +841,10 @@ GL4_MarkLeaves(void)
 	{
 		int c;
 
-		fatvis = malloc(((gl4_worldmodel->numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (gl4_worldmodel->numleafs + 7) / 8);
+		fatvis = malloc(((gl4_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (gl4_worldmodel->s.numleafs + 7) / 8);
 		vis = GL4_Mod_ClusterPVS(gl4_viewcluster2, gl4_worldmodel);
-		c = (gl4_worldmodel->numleafs + 31) / 32;
+		c = (gl4_worldmodel->s.numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
 		{
@@ -854,8 +854,8 @@ GL4_MarkLeaves(void)
 		vis = fatvis;
 	}
 
-	for (i = 0, leaf = gl4_worldmodel->leafs;
-		 i < gl4_worldmodel->numleafs;
+	for (i = 0, leaf = gl4_worldmodel->s.leafs;
+		 i < gl4_worldmodel->s.numleafs;
 		 i++, leaf++)
 	{
 		int cluster;

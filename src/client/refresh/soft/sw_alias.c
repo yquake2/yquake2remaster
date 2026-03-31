@@ -629,8 +629,8 @@ R_AliasSetupLighting(const entity_t *currententity)
 
 	if (r_worldmodel)
 	{
-		R_ApplyModelLight(&r_worldmodel->s, currententity, r_worldmodel->surfaces,
-			r_worldmodel->nodes, shadelight, lightspot, r_worldmodel->lightdata);
+		R_ApplyModelLight(&r_worldmodel->s, currententity, r_worldmodel->s.surfaces,
+			r_worldmodel->s.nodes, shadelight, lightspot, r_worldmodel->s.lightdata);
 	}
 	else
 	{
@@ -769,7 +769,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 
-	s_pmdl = (dmdx_t *)currentmodel->extradata;
+	s_pmdl = (dmdx_t *)currentmodel->s.extradata;
 
 	if ( r_lerpmodels->value == 0 )
 	{

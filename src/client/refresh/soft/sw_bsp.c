@@ -319,9 +319,9 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 	medge_t		*pedges;
 
 	// FIXME: use bounding-box-based frustum clipping info?
-	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
 	numsurfaces = currentmodel->s.nummodelsurfaces;
-	pedges = currentmodel->edges;
+	pedges = currentmodel->s.edges;
 
 	for (i = 0; i < numsurfaces; i++, psurf++)
 	{
@@ -356,7 +356,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 		{
 			int	lindex;
 
-			lindex = currentmodel->surfedges[psurf->firstedge+j];
+			lindex = currentmodel->s.surfedges[psurf->firstedge+j];
 
 			if (lindex > 0)
 			{
@@ -408,7 +408,7 @@ R_DrawSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, int
 	int numsurfaces;
 
 	// FIXME: use bounding-box-based frustum clipping info?
-	psurf = &currentmodel->surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
 	numsurfaces = currentmodel->s.nummodelsurfaces;
 
 	for (i=0 ; i<numsurfaces ; i++, psurf++)
@@ -561,7 +561,7 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 		// recurse down the children, front side first
 		R_RecursiveWorldNode (currententity, currentmodel, node->children[side], clipflags, insubmodel);
 
-		if ((node->numsurfaces + node->firstsurface) > currentmodel->numsurfaces)
+		if ((node->numsurfaces + node->firstsurface) > currentmodel->s.numsurfaces)
 		{
 			Com_Printf("Broken node firstsurface\n");
 			return;
@@ -574,7 +574,7 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 		{
 			msurface_t *surf;
 
-			surf = currentmodel->surfaces + node->firstsurface;
+			surf = currentmodel->s.surfaces + node->firstsurface;
 
 			if (dot < -BACKFACE_EPSILON)
 			{
@@ -631,7 +631,7 @@ R_RenderWorld (entity_t *currententity)
 	currententity->frame = (int)(r_newrefdef.time*2);
 
 	VectorCopy (r_origin, modelorg);
-	r_pcurrentvertbase = currentmodel->vertexes;
+	r_pcurrentvertbase = currentmodel->s.vertexes;
 
-	R_RecursiveWorldNode (currententity, currentmodel, currentmodel->nodes, ALIAS_XY_CLIP_MASK, false);
+	R_RecursiveWorldNode (currententity, currentmodel, currentmodel->s.nodes, ALIAS_XY_CLIP_MASK, false);
 }

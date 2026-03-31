@@ -37,50 +37,9 @@ typedef struct model_s
 	int numsubmodels;
 	struct model_s *submodels;
 
-	int numplanes;
-	cplane_t *planes;
-
-	int numleafs; /* number of visible leafs, not counting 0 */
-	mleaf_t *leafs;
-
-	int numvertexes;
-	mvertex_t *vertexes;
-
-	int numedges;
-	medge_t *edges;
-
-	int numnodes;
-	int firstnode;
-	mnode_t *nodes;
-
-	int numtexinfo;
-	mtexinfo_t *texinfo;
-
-	int numsurfaces;
-	msurface_t *surfaces;
-
-	int numsurfedges;
-	int *surfedges;
-
-	unsigned int nummarksurfaces;
-	msurface_t **marksurfaces;
-
-	int numvisibility;
-	int numclusters;
-	dvis_t *vis;
-
-	byte *lightdata;
-	int numlightdata;
-
 	/* for alias models and skins */
 	struct image_s **skins;
 	int numskins;
-
-	int extradatasize;
-	void *extradata;
-
-	// submodules
-	vec3_t		origin;	// for sounds or lights
 } model_t;
 
 void Mod_Init(void);

@@ -136,7 +136,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	R_EnableMultitexture(false);
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
-	psprite = (dsprite_t *)currentmodel->extradata;
+	psprite = (dsprite_t *)currentmodel->s.extradata;
 
 	currententity->frame %= psprite->numframes;
 	frame = &psprite->frames[currententity->frame];
@@ -243,14 +243,14 @@ R_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
+	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->s.lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
 		R_LightPoint(&r_worldmodel->s, currententity,
-			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
+			r_worldmodel->s.surfaces, r_worldmodel->s.nodes, currententity->origin,
 			shadelight, lightspot);
 	}
 
@@ -662,7 +662,7 @@ R_SetupFrame(void)
 
 		r_oldviewcluster = r_viewcluster;
 		r_oldviewcluster2 = r_viewcluster2;
-		leaf = Mod_PointInLeaf(r_origin, r_worldmodel->nodes);
+		leaf = Mod_PointInLeaf(r_origin, r_worldmodel->s.nodes);
 		r_viewcluster = r_viewcluster2 = leaf->cluster;
 
 		/* check above and below so crossing solid water doesn't draw wrong */
@@ -673,7 +673,7 @@ R_SetupFrame(void)
 
 			VectorCopy(r_origin, temp);
 			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
+			leaf = Mod_PointInLeaf(temp, r_worldmodel->s.nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != r_viewcluster2))
@@ -688,7 +688,7 @@ R_SetupFrame(void)
 
 			VectorCopy(r_origin, temp);
 			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
+			leaf = Mod_PointInLeaf(temp, r_worldmodel->s.nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != r_viewcluster2))
@@ -1202,7 +1202,7 @@ R_SetLightLevel(const entity_t *currententity)
 
 	/* save off light value for server to look at */
 	R_LightPoint(&r_worldmodel->s, currententity,
-		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
+		r_worldmodel->s.surfaces, r_worldmodel->s.nodes, r_newrefdef.vieworg,
 		shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

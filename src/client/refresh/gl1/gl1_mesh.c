@@ -318,7 +318,7 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 {
 	dmdx_t *paliashdr;
 
-	paliashdr = (dmdx_t *)currentmodel->extradata;
+	paliashdr = (dmdx_t *)currentmodel->s.extradata;
 	if (!paliashdr)
 	{
 		Com_Printf("%s %s: Model is not fully loaded\n",
@@ -371,7 +371,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-	paliashdr = (dmdx_t *)currentmodel->extradata;
+	paliashdr = (dmdx_t *)currentmodel->s.extradata;
 
 	for (i = 0; i < 3; i++)
 	{
@@ -384,8 +384,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (r_worldmodel)
 	{
-		R_ApplyModelLight(&r_worldmodel->s, currententity, r_worldmodel->surfaces,
-			r_worldmodel->nodes, shadelight, lightspot, r_worldmodel->lightdata);
+		R_ApplyModelLight(&r_worldmodel->s, currententity, r_worldmodel->s.surfaces,
+			r_worldmodel->s.nodes, shadelight, lightspot, r_worldmodel->s.lightdata);
 	}
 	else
 	{
