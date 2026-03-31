@@ -249,7 +249,7 @@ R_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(r_worldmodel->grid, currententity,
+		R_LightPoint(&r_worldmodel->s, currententity,
 			r_worldmodel->surfaces, r_worldmodel->nodes, currententity->origin,
 			shadelight, lightspot);
 	}
@@ -1201,7 +1201,7 @@ R_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(r_worldmodel->grid, currententity,
+	R_LightPoint(&r_worldmodel->s, currententity,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, lightspot);
 

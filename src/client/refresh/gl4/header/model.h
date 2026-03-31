@@ -111,8 +111,8 @@ typedef struct model_s
 	// submodules
 	vec3_t		origin;	// for sounds or lights
 
-	/* octree  */
-	bspxlightgrid_t *grid;
+	/* shared model definition */
+	smodel_t s;
 } gl4model_t;
 
 #endif /* SRC_CLIENT_REFRESH_GL4_HEADER_MODEL_H_ */

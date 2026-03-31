@@ -315,6 +315,12 @@ typedef struct
 	bspxlgleaf_t *leafs;
 } bspxlightgrid_t;
 
+typedef struct
+{
+	/* octree  */
+	bspxlightgrid_t *grid;
+} smodel_t;
+
 /* screen size info */
 extern refdef_t r_newrefdef;
 extern viddef_t vid;
@@ -391,11 +397,12 @@ extern void R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to);
 extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 
 /* Lights logic */
-extern bspxlightgrid_t *Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base);
-extern void R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
+extern void Mod_LoadBSPXSections(const bspx_header_t *bspx_header, const byte *mod_base,
+	smodel_t *model);
+extern void R_LightPoint(const smodel_t *model, const entity_t *currententity,
 	const msurface_t *surfaces, const mnode_t *nodes, const vec3_t p, vec3_t color,
 	vec3_t lightspot);
-extern void R_ApplyModelLight(const bspxlightgrid_t *grid, const entity_t *currententity,
+extern void R_ApplyModelLight(const smodel_t *model, const entity_t *currententity,
 	const msurface_t *surfaces, const mnode_t *nodes, vec3_t shadelight,
 	vec3_t lightspot, const byte *lightdata);
 extern void R_SetCacheState(msurface_t *surf, const refdef_t *refdef);

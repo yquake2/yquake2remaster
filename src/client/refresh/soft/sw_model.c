@@ -367,14 +367,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod->extradata = Hunk_Begin(hunkSize);
 	mod->type = mod_brush;
 
-	if (bspx_header)
-	{
-		mod->grid = Mod_LoadBSPXLightGrid(bspx_header, mod_base);
-	}
-	else
-	{
-		mod->grid = NULL;
-	}
+	Mod_LoadBSPXSections(bspx_header, mod_base, &mod->s);
 
 	/* load into heap */
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,

@@ -857,7 +857,7 @@ Mod_LoadBSPXReadFloat(struct rctx_s *ctx)
 	return u.f;
 }
 
-bspxlightgrid_t*
+static bspxlightgrid_t *
 Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 {
 	vec3_t step, mins;
@@ -1009,6 +1009,20 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	}
 
 	return grid;
+}
+
+void
+Mod_LoadBSPXSections(const bspx_header_t *bspx_header, const byte *mod_base,
+	smodel_t *mod)
+{
+	if (bspx_header)
+	{
+		mod->grid = Mod_LoadBSPXLightGrid(bspx_header, mod_base);
+	}
+	else
+	{
+		mod->grid = NULL;
+	}
 }
 
 static int

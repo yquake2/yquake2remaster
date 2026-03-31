@@ -806,7 +806,7 @@ GL4_DrawNullModel(entity_t *currententity)
 	}
 	else
 	{
-		R_LightPoint(gl4_worldmodel->grid, currententity,
+		R_LightPoint(&gl4_worldmodel->s, currententity,
 			gl4_worldmodel->surfaces, gl4_worldmodel->nodes, currententity->origin,
 			shadelight, lightspot);
 	}
@@ -1580,7 +1580,7 @@ GL4_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(gl4_worldmodel->grid, currententity,
+	R_LightPoint(&gl4_worldmodel->s, currententity,
 		gl4_worldmodel->surfaces, gl4_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, lightspot);
 

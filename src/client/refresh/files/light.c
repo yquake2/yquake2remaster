@@ -231,7 +231,7 @@ R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
 }
 
 void
-R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
+R_LightPoint(const smodel_t *model, const entity_t *currententity,
 	const msurface_t *surfaces, const mnode_t *nodes,
 	const vec3_t p, vec3_t color, vec3_t lightspot)
 {
@@ -248,9 +248,9 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 
 	modulate = r_modulate->value;
 
-	if (grid)
+	if (model && model->grid)
 	{
-		BSPX_LightGridValue(grid, r_newrefdef.lightstyles,
+		BSPX_LightGridValue(model->grid, r_newrefdef.lightstyles,
 			currententity->origin, color);
 	}
 	else
@@ -297,7 +297,7 @@ R_LightPoint(const bspxlightgrid_t *grid, const entity_t *currententity,
 }
 
 void
-R_ApplyModelLight(const bspxlightgrid_t *grid, const entity_t *currententity,
+R_ApplyModelLight(const smodel_t *model, const entity_t *currententity,
 	const msurface_t *surfaces, const mnode_t *nodes, vec3_t shadelight,
 	vec3_t lightspot, const byte *lightdata)
 {
@@ -353,7 +353,7 @@ R_ApplyModelLight(const bspxlightgrid_t *grid, const entity_t *currententity,
 		}
 		else
 		{
-			R_LightPoint(grid, currententity, surfaces, nodes, currententity->origin,
+			R_LightPoint(model, currententity, surfaces, nodes, currententity->origin,
 				shadelight, lightspot);
 		}
 

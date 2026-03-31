@@ -1232,7 +1232,7 @@ R_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at (BIG HACK!) */
-	R_LightPoint(r_worldmodel->grid, currententity,
+	R_LightPoint(&r_worldmodel->s, currententity,
 		r_worldmodel->surfaces, r_worldmodel->nodes, r_newrefdef.vieworg,
 		shadelight, lightspot);
 
