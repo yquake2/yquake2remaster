@@ -427,6 +427,10 @@ extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,
 extern const bspx_header_t *Mod_LoadBSPX(int filesize, const byte *mod_base);
 extern int Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out);
 extern int Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header);
+extern void Mod_VisInit(void);
+extern const byte *Mod_ClusterPVS(int cluster, const smodel_t *model);
+extern void Mod_VisRealloc(const smodel_t *model);
+extern void Mod_VisFree(void);
 
 /* Surface logic */
 extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframecount,

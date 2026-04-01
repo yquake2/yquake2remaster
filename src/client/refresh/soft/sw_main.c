@@ -718,7 +718,7 @@ R_MarkLeaves (void)
 		return;
 	}
 
-	vis = Mod_ClusterPVS (r_viewcluster, r_worldmodel);
+	vis = Mod_ClusterPVS(r_viewcluster, &r_worldmodel->s);
 
 	for (i=0,leaf=r_worldmodel->s.leafs ; i<r_worldmodel->s.numleafs ; i++, leaf++)
 	{

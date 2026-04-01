@@ -65,8 +65,6 @@ typedef struct model_s
 
 void Mod_Init(void);
 
-const byte *Mod_ClusterPVS(int cluster, const model_t *model);
-
 void Mod_Modellist_f(void);
 void Mod_FreeAll(void);
 

@@ -29,6 +29,16 @@
 
 #include "../ref_shared.h"
 
+static byte *mod_novis = NULL;
+static size_t mod_novis_len = 0;
+
+void
+Mod_VisInit(void)
+{
+	mod_novis = NULL;
+	mod_novis_len = 0;
+}
+
 static void
 Mod_LoadLimits(const char *mod_name, void *extradata, modtype_t type)
 {
@@ -238,4 +248,75 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 
 	/* Unknow format, no images associated with it */
 	return 0;
+}
+
+const byte *
+Mod_ClusterPVS(int cluster, const smodel_t *model)
+{
+	if (!mod_novis)
+	{
+		Com_Error(ERR_DROP, "%s: incrorrect init of PVS/PHS", __func__);
+		return mod_novis;
+	}
+
+	if (!model->vis)
+	{
+		Mod_DecompressVis(NULL, mod_novis, NULL,
+			(model->numclusters + 7) >> 3);
+		return mod_novis;
+	}
+
+	if (cluster == -1)
+	{
+		memset(mod_novis, 0, (model->numclusters + 7) >> 3);
+		return mod_novis;
+	}
+
+	if (cluster < 0 || cluster >= model->numvisibility)
+	{
+		Com_Error(ERR_DROP, "%s: bad cluster", __func__);
+		return mod_novis;
+	}
+
+	Mod_DecompressVis((byte *)model->vis +
+			model->vis->bitofs[cluster][DVIS_PVS], mod_novis,
+			(byte *)model->vis + model->numvisibility,
+			(model->numclusters + 7) >> 3);
+	return mod_novis;
+}
+
+void
+Mod_VisRealloc(const smodel_t *mod)
+{
+	if ((mod->numleafs > mod_novis_len) || !mod_novis)
+	{
+		byte *tmp;
+
+		/* reallocate buffers for PVS/PHS buffers*/
+		mod_novis_len = (mod->numleafs + 63) & ~63;
+		tmp = realloc(mod_novis, mod_novis_len / 8);
+		YQ2_COM_CHECK_OOM(tmp, "realloc()", mod_novis_len / 8)
+		if (!tmp)
+		{
+			mod_novis_len = 0;
+			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+			return;
+		}
+
+		mod_novis = tmp;
+		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
+			mod_novis_len);
+	}
+}
+
+void
+Mod_VisFree(void)
+{
+	/* Free PVS buffer */
+	if (mod_novis)
+	{
+		free(mod_novis);
+		mod_novis = NULL;
+	}
+	mod_novis_len = 0;
 }

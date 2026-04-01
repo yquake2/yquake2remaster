@@ -396,7 +396,6 @@ extern void GL4_BeginRegistration(const char *model);
 extern struct model_s * GL4_RegisterModel(const char *name);
 extern void GL4_EndRegistration(void);
 extern void GL4_Mod_Modellist_f(void);
-extern const byte* GL4_Mod_ClusterPVS(int cluster, const gl4model_t *model);
 
 // gl4_draw.c
 extern void GL4_Draw_InitLocal(void);

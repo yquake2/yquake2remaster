@@ -834,7 +834,7 @@ GL4_MarkLeaves(void)
 		return;
 	}
 
-	vis = GL4_Mod_ClusterPVS(gl4_viewcluster, gl4_worldmodel);
+	vis = Mod_ClusterPVS(gl4_viewcluster, &gl4_worldmodel->s);
 
 	/* may have to combine two clusters because of solid water boundaries */
 	if (gl4_viewcluster2 != gl4_viewcluster)
@@ -843,7 +843,7 @@ GL4_MarkLeaves(void)
 
 		fatvis = malloc(((gl4_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
 		memcpy(fatvis, vis, (gl4_worldmodel->s.numleafs + 7) / 8);
-		vis = GL4_Mod_ClusterPVS(gl4_viewcluster2, gl4_worldmodel);
+		vis = Mod_ClusterPVS(gl4_viewcluster2, &gl4_worldmodel->s);
 		c = (gl4_worldmodel->s.numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)

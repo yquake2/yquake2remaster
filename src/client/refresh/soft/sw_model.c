@@ -30,9 +30,6 @@
 #include <limits.h>
 #include "header/local.h"
 
-static byte *mod_novis = NULL;
-static size_t mod_novis_len = 0;
-
 static model_t mod_known[MAX_MOD_KNOWN];
 static int mod_numknown = 0;
 static int mod_max = 0;
@@ -65,41 +62,6 @@ Mod_HasFreeSpace(void)
 
 	// should same size of free slots as currently used
 	return (mod_numknown + mod_max) < MAX_MOD_KNOWN;
-}
-
-const byte *
-Mod_ClusterPVS(int cluster, const model_t *model)
-{
-	if (!mod_novis)
-	{
-		Com_Error(ERR_DROP, "%s: incrorrect init of PVS/PHS", __func__);
-		return mod_novis;
-	}
-
-	if (!model->s.vis)
-	{
-		Mod_DecompressVis(NULL, mod_novis, NULL,
-			(model->s.numclusters + 7) >> 3);
-		return mod_novis;
-	}
-
-	if (cluster == -1)
-	{
-		memset(mod_novis, 0, (model->s.numclusters + 7) >> 3);
-		return mod_novis;
-	}
-
-	if (cluster < 0 || cluster >= model->s.numvisibility)
-	{
-		Com_Error(ERR_DROP, "%s: bad cluster", __func__);
-		return mod_novis;
-	}
-
-	Mod_DecompressVis((byte *)model->s.vis +
-			model->s.vis->bitofs[cluster][DVIS_PVS], mod_novis,
-			(byte *)model->s.vis + model->s.numvisibility,
-			(model->s.numclusters + 7) >> 3);
-	return mod_novis;
 }
 
 void
@@ -143,8 +105,7 @@ void
 Mod_Init(void)
 {
 	mod_max = 0;
-	mod_novis = NULL;
-	mod_novis_len = 0;
+	Mod_VisInit();
 }
 
 static void
@@ -406,25 +367,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		return;
 	}
 
-	if ((mod->s.numleafs > mod_novis_len) || !mod_novis)
-	{
-		byte *tmp;
-
-		/* reallocate buffers for PVS/PHS buffers*/
-		mod_novis_len = (mod->s.numleafs + 63) & ~63;
-		tmp = realloc(mod_novis, mod_novis_len / 8);
-		YQ2_COM_CHECK_OOM(tmp, "realloc()", mod_novis_len / 8)
-		if (!tmp)
-		{
-			mod_novis_len = 0;
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return;
-		}
-
-		mod_novis = tmp;
-		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
-			mod_novis_len);
-	}
+	Mod_VisRealloc(&mod->s);
 
 	R_InitSkyBox(mod);
 }
@@ -613,13 +556,7 @@ Mod_FreeAll(void)
 		}
 	}
 
-	/* Free PVS buffer */
-	if (mod_novis)
-	{
-		free(mod_novis);
-		mod_novis = NULL;
-	}
-	mod_novis_len = 0;
+	Mod_VisFree();
 }
 
 /*

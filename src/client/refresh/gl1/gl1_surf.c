@@ -1293,7 +1293,7 @@ R_MarkLeaves(void)
 		return;
 	}
 
-	vis = Mod_ClusterPVS(r_viewcluster, r_worldmodel);
+	vis = Mod_ClusterPVS(r_viewcluster, &r_worldmodel->s);
 
 	/* may have to combine two clusters because of solid water boundaries */
 	if (r_viewcluster2 != r_viewcluster)
@@ -1302,7 +1302,7 @@ R_MarkLeaves(void)
 
 		fatvis = malloc(((r_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
 		memcpy(fatvis, vis, (r_worldmodel->s.numleafs + 7) / 8);
-		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
+		vis = Mod_ClusterPVS(r_viewcluster2, &r_worldmodel->s);
 		c = (r_worldmodel->s.numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
