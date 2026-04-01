@@ -513,12 +513,12 @@ GL4_DrawAliasModel(entity_t *currententity)
 
 	if (gl4_worldmodel)
 	{
-		R_ApplyModelLight(&gl4_worldmodel->s, currententity, gl4_worldmodel->s.surfaces,
-			gl4_worldmodel->s.nodes, shadelight, lightspot, gl4_worldmodel->s.lightdata);
+		R_ApplyModelLight(&gl4_worldmodel->s, currententity, shadelight,
+			lightspot, gl4_worldmodel->s.lightdata);
 	}
 	else
 	{
-		R_ApplyModelLight(NULL, currententity, NULL, NULL, shadelight,
+		R_ApplyModelLight(NULL, currententity, shadelight,
 			lightspot, NULL);
 	}
 

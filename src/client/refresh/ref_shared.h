@@ -462,11 +462,9 @@ extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 extern void Mod_LoadBSPXSections(const bspx_header_t *bspx_header, const byte *mod_base,
 	smodel_t *model);
 extern void R_LightPoint(const smodel_t *model, const entity_t *currententity,
-	const msurface_t *surfaces, const mnode_t *nodes, const vec3_t p, vec3_t color,
-	vec3_t lightspot);
+	const vec3_t p, vec3_t color, vec3_t lightspot);
 extern void R_ApplyModelLight(const smodel_t *model, const entity_t *currententity,
-	const msurface_t *surfaces, const mnode_t *nodes, vec3_t shadelight,
-	vec3_t lightspot, const byte *lightdata);
+	vec3_t shadelight, vec3_t lightspot, const byte *lightdata);
 extern void R_SetCacheState(msurface_t *surf, const refdef_t *refdef);
 extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride,
 	const refdef_t *r_newrefdef, float modulate, int r_framecount,

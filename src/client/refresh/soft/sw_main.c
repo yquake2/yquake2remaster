@@ -1233,8 +1233,7 @@ R_SetLightLevel(const entity_t *currententity)
 
 	/* save off light value for server to look at (BIG HACK!) */
 	R_LightPoint(&r_worldmodel->s, currententity,
-		r_worldmodel->s.surfaces, r_worldmodel->s.nodes, r_newrefdef.vieworg,
-		shadelight, lightspot);
+		r_newrefdef.vieworg, shadelight, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by before color light apply */

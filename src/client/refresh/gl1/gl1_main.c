@@ -250,8 +250,7 @@ R_DrawNullModel(entity_t *currententity)
 	else
 	{
 		R_LightPoint(&r_worldmodel->s, currententity,
-			r_worldmodel->s.surfaces, r_worldmodel->s.nodes, currententity->origin,
-			shadelight, lightspot);
+			currententity->origin, shadelight, lightspot);
 	}
 
 	R_EnableMultitexture(false);
@@ -1202,8 +1201,7 @@ R_SetLightLevel(const entity_t *currententity)
 
 	/* save off light value for server to look at */
 	R_LightPoint(&r_worldmodel->s, currententity,
-		r_worldmodel->s.surfaces, r_worldmodel->s.nodes, r_newrefdef.vieworg,
-		shadelight, lightspot);
+		r_newrefdef.vieworg, shadelight, lightspot);
 
 	/* pick the greatest component, which should be the
 	 * same as the mono value returned by software */
