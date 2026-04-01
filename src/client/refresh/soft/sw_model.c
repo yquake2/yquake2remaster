@@ -326,21 +326,9 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	}
 
 	mod->s.extradata = Hunk_Begin(hunkSize);
-	mod->s.type = mod_brush;
-
-	Mod_LoadBSPXSections(bspx_header, mod_base, &mod->s);
 
 	/* load into heap */
-	Mod_LoadVertexes(mod->s.name, &mod->s.vertexes, &mod->s.numvertexes, mod_base,
-		&header->lumps[LUMP_VERTEXES]);
-	Mod_LoadQBSPEdges(mod->s.name, &mod->s.edges, &mod->s.numedges,
-		mod_base, &header->lumps[LUMP_EDGES]);
-	Mod_LoadSurfedges(mod->s.name, &mod->s.surfedges, &mod->s.numsurfedges,
-		mod_base, &header->lumps[LUMP_SURFEDGES]);
-	Mod_LoadLighting(&mod->s.lightdata, &mod->s.numlightdata, mod_base,
-		&header->lumps[LUMP_LIGHTING]);
-	Mod_LoadPlanes(mod->s.name, &mod->s.planes, &mod->s.numplanes,
-		mod_base, &header->lumps[LUMP_PLANES]);
+	Mod_LoadSurfaceSections(bspx_header, mod_base, &mod->s);
 	Mod_LoadTexinfo(mod->s.name, &mod->s.texinfo, &mod->s.numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)R_FindImage,
 		r_notexture_mip);

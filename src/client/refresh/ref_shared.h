@@ -459,7 +459,7 @@ extern void R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to);
 extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 
 /* Lights logic */
-extern void Mod_LoadBSPXSections(const bspx_header_t *bspx_header, const byte *mod_base,
+extern void Mod_LoadSurfaceSections(const bspx_header_t *bspx_header, const byte *mod_base,
 	smodel_t *model);
 extern void R_LightPoint(const smodel_t *model, const entity_t *currententity,
 	const vec3_t p, vec3_t color, vec3_t lightspot);

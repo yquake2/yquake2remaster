@@ -1012,9 +1012,11 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 }
 
 void
-Mod_LoadBSPXSections(const bspx_header_t *bspx_header, const byte *mod_base,
+Mod_LoadSurfaceSections(const bspx_header_t *bspx_header, const byte *mod_base,
 	smodel_t *mod)
 {
+	const dheader_t *header;
+
 	if (bspx_header)
 	{
 		mod->grid = Mod_LoadBSPXLightGrid(bspx_header, mod_base);
@@ -1023,6 +1025,20 @@ Mod_LoadBSPXSections(const bspx_header_t *bspx_header, const byte *mod_base,
 	{
 		mod->grid = NULL;
 	}
+
+	header = (dheader_t *)mod_base;
+	mod->type = mod_brush;
+
+	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
+		&header->lumps[LUMP_VERTEXES]);
+	Mod_LoadQBSPEdges(mod->name, &mod->edges, &mod->numedges,
+		mod_base, &header->lumps[LUMP_EDGES]);
+	Mod_LoadSurfedges(mod->name, &mod->surfedges, &mod->numsurfedges,
+		mod_base, &header->lumps[LUMP_SURFEDGES]);
+	Mod_LoadLighting(&mod->lightdata, &mod->numlightdata, mod_base,
+		&header->lumps[LUMP_LIGHTING]);
+	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
+		mod_base, &header->lumps[LUMP_PLANES]);
 }
 
 static int
