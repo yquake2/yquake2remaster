@@ -203,7 +203,6 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 static void
 Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
-	int lightgridsize = 0, hunkSize;
 	const bspx_header_t *bspx_header;
 	dheader_t *header;
 	byte *mod_base;
@@ -217,25 +216,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod_base = (byte *)buffer;
 	header = (dheader_t *)mod_base;
 
-	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, mod_base);
-
-	// calculate the needed hunksize from the lumps
-	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header);
-
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
-		sizeof(dmodel_t), sizeof(model_t), 0);
-
-	/* Get size of octree on disk, need to recheck real size */
-	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
-	{
-		hunkSize += lightgridsize * 4;
-	}
-
-	mod->extradata = Hunk_Begin(hunkSize);
-
 	/* load into heap */
-	Mod_LoadSectionsBeforeFaces(bspx_header, mod_base, mod,
+	bspx_header = Mod_LoadSectionsBeforeFaces(mod_base, modfilelen, mod,
 		(findimage_t)Vk_FindImage, r_notexture);
 
 	LM_BeginBuildingLightmaps(mod);

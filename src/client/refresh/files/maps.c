@@ -1011,11 +1011,32 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 	return grid;
 }
 
-void
-Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_base,
+const bspx_header_t *
+Mod_LoadSectionsBeforeFaces(const byte *mod_base, size_t modfilelen,
 	model_t *mod, findimage_t find_image, struct image_s *notexture)
 {
+	int lightgridsize = 0, hunkSize;
+	const bspx_header_t *bspx_header;
 	const dheader_t *header;
+
+	header = (dheader_t *)mod_base;
+
+	/* check for BSPX extensions */
+	bspx_header = Mod_LoadBSPX(modfilelen, mod_base);
+
+	// calculate the needed hunksize from the lumps
+	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header);
+
+	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
+		sizeof(dmodel_t), sizeof(model_t), 0);
+
+	/* Get size of octree on disk, need to recheck real size */
+	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
+	{
+		hunkSize += lightgridsize * 4;
+	}
+
+	mod->extradata = Hunk_Begin(hunkSize);
 
 	if (bspx_header)
 	{
@@ -1026,7 +1047,6 @@ Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_ba
 		mod->grid = NULL;
 	}
 
-	header = (dheader_t *)mod_base;
 	mod->type = mod_brush;
 
 	Mod_LoadVertexes(mod->name, &mod->vertexes, &mod->numvertexes, mod_base,
@@ -1041,6 +1061,8 @@ Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_ba
 		mod_base, &header->lumps[LUMP_PLANES]);
 	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
 		mod_base, &header->lumps[LUMP_TEXINFO], find_image, notexture);
+
+	return bspx_header;
 }
 
 static void

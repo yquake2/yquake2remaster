@@ -106,67 +106,6 @@ GL4_Mod_Init(void)
 }
 
 static void
-Mod_LoadSubmodels(model_t *loadmodel, byte *mod_base, const lump_t *l)
-{
-	dmodel_t *in;
-	model_t *out;
-	int i, j, count;
-
-	in = (void *)(mod_base + l->fileofs);
-
-	if (l->filelen % sizeof(*in))
-	{
-		Com_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->name);
-		return;
-	}
-
-	count = l->filelen / sizeof(*in);
-	out = Hunk_Alloc(count * sizeof(*out));
-
-	loadmodel->submodels = out;
-	loadmodel->numsubmodels = count;
-
-	for (i = 0; i < count; i++, in++, out++)
-	{
-		if (i == 0)
-		{
-			/* copy parent as template for first model */
-			memcpy(out, loadmodel, sizeof(*out));
-		}
-		else
-		{
-			/* copy first as template for model */
-			memmove(out, loadmodel->submodels, sizeof(*out));
-		}
-
-		Com_sprintf (out->name, sizeof(out->name), "*%d", i);
-
-		for (j = 0; j < 3; j++)
-		{
-			/* spread the mins / maxs by a pixel */
-			out->mins[j] = in->mins[j] - 1;
-			out->maxs[j] = in->maxs[j] + 1;
-			out->origin[j] = in->origin[j];
-		}
-
-		out->radius = Mod_RadiusFromBounds(out->mins, out->maxs);
-		out->firstnode = in->headnode;
-		out->firstmodelsurface = in->firstface;
-		out->nummodelsurfaces = in->numfaces;
-		/* visleafs */
-		out->numleafs = 0;
-		/* check limits */
-		if (out->firstnode >= loadmodel->numnodes)
-		{
-			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
-					__func__, i);
-			return;
-		}
-	}
-}
-
-static void
 Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
@@ -291,7 +230,6 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 static void
 Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
-	int lightgridsize = 0, hunkSize;
 	const bspx_header_t *bspx_header;
 	dheader_t *header;
 	byte *mod_base;
@@ -305,25 +243,8 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod_base = (byte *)buffer;
 	header = (dheader_t *)mod_base;
 
-	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, mod_base);
-
-	// calculate the needed hunksize from the lumps
-	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header);
-
-	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
-		sizeof(dmodel_t), sizeof(model_t), 0);
-
-	/* Get size of octree on disk, need to recheck real size */
-	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
-	{
-		hunkSize += lightgridsize * 4;
-	}
-
-	mod->extradata = Hunk_Begin(hunkSize);
-
 	/* load into heap */
-	Mod_LoadSectionsBeforeFaces(bspx_header, mod_base, mod,
+	bspx_header = Mod_LoadSectionsBeforeFaces(mod_base, modfilelen, mod,
 		(findimage_t)GL4_FindImage, gl4_notexture);
 
 	LM_BeginBuildingLightmaps(mod);

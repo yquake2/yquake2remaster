@@ -336,6 +336,10 @@ Checked with:
 
 ### Fixed:
 
+* [x] ReRelease: implement `misc_lavaball`,
+* [x] CppCheck: fix const warnings and scope,
+* [x] renders: share model_t type.
+
 ### Not a goal:
 
 * [ ] Multiplayer protocol support with KEX engine,
