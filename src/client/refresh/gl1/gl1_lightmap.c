@@ -196,7 +196,7 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 	vec3_t normal;
 
 	/* reconstruct the polygon */
-	pedges = currentmodel->s.edges;
+	pedges = currentmodel->edges;
 	lnumverts = fa->numedges;
 
 	VectorClear(total);
@@ -229,17 +229,17 @@ LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 
 		vert = &poly->verts[i];
 
-		lindex = currentmodel->s.surfedges[fa->firstedge + i];
+		lindex = currentmodel->surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
 		{
 			r_pedge = &pedges[lindex];
-			vec = currentmodel->s.vertexes[r_pedge->v[0]].position;
+			vec = currentmodel->vertexes[r_pedge->v[0]].position;
 		}
 		else
 		{
 			r_pedge = &pedges[-lindex];
-			vec = currentmodel->s.vertexes[r_pedge->v[1]].position;
+			vec = currentmodel->vertexes[r_pedge->v[1]].position;
 		}
 
 		s = DotProduct(vec, fa->texinfo->vecs[0]) + fa->texinfo->vecs[0][3];

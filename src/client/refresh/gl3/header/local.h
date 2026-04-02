@@ -307,9 +307,6 @@ typedef struct image_s
 
 } gl3image_t;
 
-// include this down here so it can use gl3image_t
-#include "model.h"
-
 typedef struct
 {
 	int current_lightmap_texture; // index into gl3state.lightmap_textureIDs[]
@@ -322,6 +319,13 @@ typedef struct
 	   main memory so texsubimage can update properly */
 	byte lightmap_buffers[MAX_LIGHTMAPS_PER_SURFACE][4 * BLOCK_WIDTH * BLOCK_HEIGHT];
 } gl3lightmapstate_t;
+
+// used for vertex array elements when drawing models
+typedef struct gl3_alias_vtx_s {
+	GLfloat pos[3];
+	GLfloat texCoord[2];
+	GLfloat color[4];
+} gl3_alias_vtx_t;
 
 extern model_t *gl3_worldmodel;
 

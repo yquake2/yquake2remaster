@@ -448,19 +448,19 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 
 	model_t* model = e->model;
 
-	paliashdr = (dmdx_t *)model->s.extradata;
+	paliashdr = (dmdx_t *)model->extradata;
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, model->s.name, e->frame);
+				__func__, model->name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, model->s.name, e->oldframe);
+				__func__, model->name, e->oldframe);
 		e->oldframe = 0;
 	}
 
@@ -500,7 +500,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 	}
 
 	model_t* model = currententity->model;
-	paliashdr = (dmdx_t *)model->s.extradata;
+	paliashdr = (dmdx_t *)model->extradata;
 
 	for (i = 0; i < 3; i++)
 	{
@@ -513,8 +513,8 @@ GL4_DrawAliasModel(entity_t *currententity)
 
 	if (gl4_worldmodel)
 	{
-		R_ApplyModelLight(&gl4_worldmodel->s, currententity, shadelight,
-			lightspot, gl4_worldmodel->s.lightdata);
+		R_ApplyModelLight(gl4_worldmodel, currententity, shadelight,
+			lightspot, gl4_worldmodel->lightdata);
 	}
 	else
 	{
@@ -617,7 +617,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 		(currententity->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, model->s.name, currententity->frame);
+				__func__, model->name, currententity->frame);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}
@@ -626,7 +626,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 		(currententity->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, model->s.name, currententity->oldframe);
+				__func__, model->name, currententity->oldframe);
 		currententity->frame = 0;
 		currententity->oldframe = 0;
 	}

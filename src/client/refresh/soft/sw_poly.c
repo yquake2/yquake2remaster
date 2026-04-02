@@ -1053,7 +1053,7 @@ R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentm
 	r_polydesc.nump = 0;
 
 	/* reconstruct the polygon */
-	pedges = currentmodel->s.edges;
+	pedges = currentmodel->edges;
 	lnumverts = fa->numedges;
 
 	pverts = r_clip_verts[0];
@@ -1062,17 +1062,17 @@ R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentm
 	{
 		int lindex;
 
-		lindex = currentmodel->s.surfedges[fa->firstedge + i];
+		lindex = currentmodel->surfedges[fa->firstedge + i];
 
 		if (lindex > 0)
 		{
 			r_pedge = &pedges[lindex];
-			vec = currentmodel->s.vertexes[r_pedge->v[0]].position;
+			vec = currentmodel->vertexes[r_pedge->v[0]].position;
 		}
 		else
 		{
 			r_pedge = &pedges[-lindex];
-			vec = currentmodel->s.vertexes[r_pedge->v[1]].position;
+			vec = currentmodel->vertexes[r_pedge->v[1]].position;
 		}
 
 		VectorCopy (vec, pverts[i] );

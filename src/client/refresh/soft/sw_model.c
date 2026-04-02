@@ -47,9 +47,9 @@ Mod_HasFreeSpace(void)
 
 	for (i=0, mod=mod_known ; i < mod_numknown ; i++, mod++)
 	{
-		if (!mod->s.name[0])
+		if (!mod->name[0])
 			continue;
-		if (mod->s.registration_sequence == registration_sequence)
+		if (mod->registration_sequence == registration_sequence)
 		{
 			used ++;
 		}
@@ -79,20 +79,20 @@ Mod_Modellist_f(void)
 	{
 		char *in_use = "";
 
-		if (mod->s.registration_sequence == registration_sequence)
+		if (mod->registration_sequence == registration_sequence)
 		{
 			in_use = "*";
 			used ++;
 		}
 
-		if (!mod->s.name[0])
+		if (!mod->name[0])
 		{
 			continue;
 		}
 
 		Com_Printf("%8i : %s %s r: %.2f #%d\n",
-			 mod->s.extradatasize, mod->s.name, in_use, mod->s.radius, mod->numsubmodels);
-		total += mod->s.extradatasize;
+			 mod->extradatasize, mod->name, in_use, mod->radius, mod->numsubmodels);
+		total += mod->extradatasize;
 	}
 
 	Com_Printf("Total resident: %i\n", total);
@@ -120,7 +120,7 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 	if (l->filelen % sizeof(*in))
 	{
 		Com_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->s.name);
+				__func__, loadmodel->name);
 		return;
 	}
 
@@ -143,24 +143,24 @@ Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
 			memmove(out, loadmodel->submodels, sizeof(*out));
 		}
 
-		Com_sprintf (out->s.name, sizeof(out->s.name), "*%d", i);
+		Com_sprintf (out->name, sizeof(out->name), "*%d", i);
 
 		for (j = 0; j < 3; j++)
 		{
 			/* spread the mins / maxs by a pixel */
-			out->s.mins[j] = in->mins[j] - 1;
-			out->s.maxs[j] = in->maxs[j] + 1;
-			out->s.origin[j] = in->origin[j];
+			out->mins[j] = in->mins[j] - 1;
+			out->maxs[j] = in->maxs[j] + 1;
+			out->origin[j] = in->origin[j];
 		}
 
-		out->s.radius = Mod_RadiusFromBounds(out->s.mins, out->s.maxs);
-		out->s.firstnode = in->headnode;
-		out->s.firstmodelsurface = in->firstface;
-		out->s.nummodelsurfaces = in->numfaces;
+		out->radius = Mod_RadiusFromBounds(out->mins, out->maxs);
+		out->firstnode = in->headnode;
+		out->firstmodelsurface = in->firstface;
+		out->nummodelsurfaces = in->numfaces;
 		/* visleafs */
-		out->s.numleafs = 0;
+		out->numleafs = 0;
 		/* check limits */
-		if (out->s.firstnode >= loadmodel->s.numnodes)
+		if (out->firstnode >= loadmodel->numnodes)
 		{
 			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
 					__func__, i);
@@ -182,15 +182,15 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	if (l->filelen % sizeof(*in))
 	{
 		Com_Error(ERR_DROP, "%s: funny lump size in %s",
-				__func__, loadmodel->s.name);
+				__func__, loadmodel->name);
 		return;
 	}
 
 	count = l->filelen / sizeof(*in);
 	out = Hunk_Alloc((count + EXTRA_LUMP_FACES) * sizeof(*out));
 
-	loadmodel->s.surfaces = out;
-	loadmodel->s.numsurfaces = count;
+	loadmodel->surfaces = out;
+	loadmodel->numsurfaces = count;
 
 	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
 	{
@@ -206,6 +206,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 					__func__, out->numedges);
 			return;
 		}
+
 		out->flags = 0;
 		out->polys = NULL;
 
@@ -217,24 +218,25 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->flags |= SURF_PLANEBACK;
 		}
 
-		if (planenum >= loadmodel->s.numplanes)
+		if (planenum >= loadmodel->numplanes)
 		{
 			Com_Error(ERR_DROP, "%s: Incorrect %d planenum.",
 					__func__, planenum);
 			return;
 		}
-		out->plane = loadmodel->s.planes + planenum;
+
+		out->plane = loadmodel->planes + planenum;
 
 		ti = in->texinfo;
 
-		if ((ti < 0) || (ti >= loadmodel->s.numtexinfo))
+		if ((ti < 0) || (ti >= loadmodel->numtexinfo))
 		{
 			Com_Error(ERR_DROP, "%s: bad texinfo number",
 					__func__);
 			return;
 		}
 
-		out->texinfo = loadmodel->s.texinfo + ti;
+		out->texinfo = loadmodel->texinfo + ti;
 
 		lightofs = -1;
 		if (lightofs < 0) {
@@ -243,13 +245,13 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 			out->lmvlen[0] = 1.0f;
 			out->lmvlen[1] = 1.0f;
 
-			Mod_CalcSurfaceExtents(loadmodel->s.surfedges, loadmodel->s.numsurfedges,
-				loadmodel->s.vertexes, loadmodel->s.edges, out);
+			Mod_CalcSurfaceExtents(loadmodel->surfedges, loadmodel->numsurfedges,
+				loadmodel->vertexes, loadmodel->edges, out);
 
 			lightofs = in->lightofs;
 		}
 
-		Mod_LoadSetSurfaceLighting(loadmodel->s.lightdata, loadmodel->s.numlightdata,
+		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, lightofs);
 
 		if (!out->texinfo->image)
@@ -325,26 +327,26 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 		hunkSize += lightgridsize * 4;
 	}
 
-	mod->s.extradata = Hunk_Begin(hunkSize);
+	mod->extradata = Hunk_Begin(hunkSize);
 
 	/* load into heap */
-	Mod_LoadSectionsBeforeFaces(bspx_header, mod_base, &mod->s,
+	Mod_LoadSectionsBeforeFaces(bspx_header, mod_base, mod,
 		(findimage_t)R_FindImage, r_notexture_mip);
 
 	Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 
-	Mod_LoadSectionsAfterFaces(mod_base, &mod->s);
+	Mod_LoadSectionsAfterFaces(mod_base, mod);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
-	mod->s.numframes = 2; /* regular and alternate animation */
+	mod->numframes = 2; /* regular and alternate animation */
 
-	if (mod->s.vis && mod->s.numclusters != mod->s.vis->numclusters)
+	if (mod->vis && mod->numclusters != mod->vis->numclusters)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
-			__func__, mod->s.name, mod->s.numclusters, mod->s.vis->numclusters);
+			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
 		return;
 	}
 
-	Mod_VisRealloc(&mod->s);
+	Mod_VisRealloc(mod);
 
 	R_InitSkyBox(mod);
 }
@@ -384,12 +386,12 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	/* search the currently loaded models */
 	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
 	{
-		if (!mod->s.name[0])
+		if (!mod->name[0])
 		{
 			continue;
 		}
 
-		if (!strcmp(mod->s.name, name))
+		if (!strcmp(mod->name, name))
 		{
 			return mod;
 		}
@@ -398,7 +400,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	/* find a free model slot spot */
 	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
 	{
-		if (!mod->s.name[0])
+		if (!mod->name[0])
 		{
 			break; /* free spot */
 		}
@@ -415,7 +417,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		mod_numknown++;
 	}
 
-	Q_strlcpy(mod->s.name, name, sizeof(mod->s.name));
+	Q_strlcpy(mod->name, name, sizeof(mod->name));
 
 	/* Anachronox has tags in model path*/
 	Q_strlcpy(filename, name, sizeof(filename));
@@ -435,16 +437,16 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 		if (crash)
 		{
 			Com_Error(ERR_DROP, "%s: %s not found",
-					__func__, mod->s.name);
+					__func__, mod->name);
 			return NULL;
 		}
 
 		if (r_validation->value > 0)
 		{
-			Com_Printf("%s: Can't load %s\n", __func__, mod->s.name);
+			Com_Printf("%s: Can't load %s\n", __func__, mod->name);
 		}
 
-		memset(mod->s.name, 0, sizeof(mod->s.name));
+		memset(mod->name, 0, sizeof(mod->name));
 		return NULL;
 	}
 
@@ -455,14 +457,14 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 			/* fall through */
 		case IDSPRITEHEADER:
 			{
-				mod->s.extradata = Mod_LoadModel(mod->s.name, buf, modfilelen,
-					mod->s.mins, mod->s.maxs,
+				mod->extradata = Mod_LoadModel(mod->name, buf, modfilelen,
+					mod->mins, mod->maxs,
 					(struct image_s ***)&mod->skins, &mod->numskins,
-					(findimage_t)R_FindImage, &(mod->s.type));
-				if (!mod->s.extradata)
+					(findimage_t)R_FindImage, &(mod->type));
+				if (!mod->extradata)
 				{
 					Com_Error(ERR_DROP, "%s: Failed to load %s",
-						__func__, mod->s.name);
+						__func__, mod->name);
 					return NULL;
 				}
 			};
@@ -475,18 +477,18 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 
 		default:
 			Com_Error(ERR_DROP, "%s: unknown fileid for %s",
-					__func__, mod->s.name);
+					__func__, mod->name);
 			return NULL;
 	}
 
-	mod->s.radius = Mod_RadiusFromBounds(mod->s.mins, mod->s.maxs);
-	if (mod->s.extradata)
+	mod->radius = Mod_RadiusFromBounds(mod->mins, mod->maxs);
+	if (mod->extradata)
 	{
-		mod->s.extradatasize = Hunk_End();
+		mod->extradatasize = Hunk_End();
 	}
 	else
 	{
-		mod->s.extradatasize = 0;
+		mod->extradatasize = 0;
 	}
 
 	ri.FS_FreeFile(buf);
@@ -497,7 +499,7 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 static void
 Mod_Free(model_t *mod)
 {
-	if (!mod->s.extradata)
+	if (!mod->extradata)
 	{
 		/* looks as empty model */
 		memset (mod, 0, sizeof(*mod));
@@ -506,12 +508,12 @@ Mod_Free(model_t *mod)
 
 	if (r_validation->value > 0)
 	{
-		Com_Printf("%s: Unload %s\n", __func__, mod->s.name);
+		Com_Printf("%s: Unload %s\n", __func__, mod->name);
 	}
 
-	Hunk_Free(mod->s.extradata);
+	Hunk_Free(mod->extradata);
 
-	if (mod->s.type == mod_alias || mod->s.type == mod_sprite)
+	if (mod->type == mod_alias || mod->type == mod_sprite)
 	{
 		/* skins are allocated separately */
 		free(mod->skins);
@@ -527,7 +529,7 @@ Mod_FreeAll(void)
 
 	for (i = 0; i < mod_numknown; i++)
 	{
-		if (mod_known[i].s.extradatasize)
+		if (mod_known[i].extradatasize)
 		{
 			Mod_Free(&mod_known[i]);
 		}
@@ -556,7 +558,7 @@ RE_BeginRegistration(const char *model)
 	   world map */
 	flushmap = ri.Cvar_Get("flushmap", "0", 0);
 
-	if (strcmp(mod_known[0].s.name, fullname) || flushmap->value)
+	if (strcmp(mod_known[0].name, fullname) || flushmap->value)
 	{
 		Mod_Free(&mod_known[0]);
 	}
@@ -575,24 +577,24 @@ RE_RegisterModel(const char *name)
 
 	if (mod)
 	{
-		mod->s.registration_sequence = registration_sequence;
+		mod->registration_sequence = registration_sequence;
 
 		/* register any images used by the models */
-		if (mod->s.type == mod_brush)
+		if (mod->type == mod_brush)
 		{
 			int i;
 
-			for (i = 0; i < mod->s.numtexinfo; i++)
+			for (i = 0; i < mod->numtexinfo; i++)
 			{
-				mod->s.texinfo[i].image->registration_sequence =
+				mod->texinfo[i].image->registration_sequence =
 					registration_sequence;
 			}
 		}
 		else
 		{
 			/* numframes is unused for SP2 but lets set it also  */
-			mod->s.numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
-				(findimage_t)R_FindImage, mod->s.extradata, mod->s.type);
+			mod->numframes = Mod_ReLoadSkins(name, (struct image_s **)mod->skins,
+				(findimage_t)R_FindImage, mod->extradata, mod->type);
 		}
 	}
 
@@ -613,15 +615,15 @@ RE_EndRegistration(void)
 
 	for (i = 0, mod = mod_known; i < mod_numknown; i++, mod++)
 	{
-		if (!mod->s.name[0])
+		if (!mod->name[0])
 		{
 			continue;
 		}
 
-		if (mod->s.registration_sequence != registration_sequence)
+		if (mod->registration_sequence != registration_sequence)
 		{
 			/* don't need this model */
-			ri.Mod_FreeFile(mod->s.name);
+			ri.Mod_FreeFile(mod->name);
 			Mod_Free(mod);
 		}
 	}

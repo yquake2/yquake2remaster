@@ -481,10 +481,10 @@ DrawInlineBModel(const entity_t *currententity, model_t *currentmodel)
 	int i;
 
 	/* calculate dynamic lighting for bmodel */
-	R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
-			r_dlightframecount, currentmodel->s.surfaces);
+	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 
-	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -496,7 +496,7 @@ DrawInlineBModel(const entity_t *currententity, model_t *currentmodel)
 	}
 
 	/* draw texture */
-	for (i = 0; i < currentmodel->s.nummodelsurfaces; i++, psurf++)
+	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		float dot;
@@ -540,7 +540,7 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 	vec3_t mins, maxs;
 	qboolean rotated;
 
-	if (currentmodel->s.nummodelsurfaces == 0)
+	if (currentmodel->nummodelsurfaces == 0)
 	{
 		return;
 	}
@@ -555,15 +555,15 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 
 		for (i = 0; i < 3; i++)
 		{
-			mins[i] = e->origin[i] - currentmodel->s.radius;
-			maxs[i] = e->origin[i] + currentmodel->s.radius;
+			mins[i] = e->origin[i] - currentmodel->radius;
+			maxs[i] = e->origin[i] + currentmodel->radius;
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd(e->origin, currentmodel->s.mins, mins);
-		VectorAdd(e->origin, currentmodel->s.maxs, maxs);
+		VectorAdd(e->origin, currentmodel->mins, mins);
+		VectorAdd(e->origin, currentmodel->maxs, maxs);
 	}
 
 	if (r_cull->value && R_CullBox(mins, maxs, frustum))
@@ -696,7 +696,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->s.numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -704,7 +704,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = gl3_worldmodel->s.surfaces + node->firstsurface;
+		 surf = gl3_worldmodel->surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != gl3_framecount)
@@ -783,7 +783,7 @@ GL3_DrawWorld(void)
 	gl3state.currenttexture = -1;
 
 	RE_ClearSkyBox();
-	RecursiveWorldNode(&ent, gl3_worldmodel->s.nodes);
+	RecursiveWorldNode(&ent, gl3_worldmodel->nodes);
 	DrawTextureChains(&ent);
 	GL3_DrawSkyBox();
 	DrawTriangleOutlines();
@@ -821,33 +821,33 @@ GL3_MarkLeaves(void)
 	gl3_oldviewcluster = gl3_viewcluster;
 	gl3_oldviewcluster2 = gl3_viewcluster2;
 
-	if (r_novis->value || (gl3_viewcluster == -1) || !gl3_worldmodel->s.vis)
+	if (r_novis->value || (gl3_viewcluster == -1) || !gl3_worldmodel->vis)
 	{
 		/* mark everything */
-		for (i = 0; i < gl3_worldmodel->s.numleafs; i++)
+		for (i = 0; i < gl3_worldmodel->numleafs; i++)
 		{
-			gl3_worldmodel->s.leafs[i].visframe = gl3_visframecount;
+			gl3_worldmodel->leafs[i].visframe = gl3_visframecount;
 		}
 
-		for (i = 0; i < gl3_worldmodel->s.numnodes; i++)
+		for (i = 0; i < gl3_worldmodel->numnodes; i++)
 		{
-			gl3_worldmodel->s.nodes[i].visframe = gl3_visframecount;
+			gl3_worldmodel->nodes[i].visframe = gl3_visframecount;
 		}
 
 		return;
 	}
 
-	vis = Mod_ClusterPVS(gl3_viewcluster, &gl3_worldmodel->s);
+	vis = Mod_ClusterPVS(gl3_viewcluster, gl3_worldmodel);
 
 	/* may have to combine two clusters because of solid water boundaries */
 	if (gl3_viewcluster2 != gl3_viewcluster)
 	{
 		int c;
 
-		fatvis = malloc(((gl3_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (gl3_worldmodel->s.numleafs + 7) / 8);
-		vis = Mod_ClusterPVS(gl3_viewcluster2, &gl3_worldmodel->s);
-		c = (gl3_worldmodel->s.numleafs + 31) / 32;
+		fatvis = malloc(((gl3_worldmodel->numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (gl3_worldmodel->numleafs + 7) / 8);
+		vis = Mod_ClusterPVS(gl3_viewcluster2, gl3_worldmodel);
+		c = (gl3_worldmodel->numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
 		{
@@ -857,8 +857,8 @@ GL3_MarkLeaves(void)
 		vis = fatvis;
 	}
 
-	for (i = 0, leaf = gl3_worldmodel->s.leafs;
-		 i < gl3_worldmodel->s.numleafs;
+	for (i = 0, leaf = gl3_worldmodel->leafs;
+		 i < gl3_worldmodel->numleafs;
 		 i++, leaf++)
 	{
 		int cluster;

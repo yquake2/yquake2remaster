@@ -487,25 +487,25 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 {
 	dmdx_t *paliashdr;
 
-	paliashdr = (dmdx_t *)currentmodel->s.extradata;
+	paliashdr = (dmdx_t *)currentmodel->extradata;
 	if (!paliashdr)
 	{
 		Com_Printf("%s %s: Model is not fully loaded\n",
-				__func__, currentmodel->s.name);
+				__func__, currentmodel->name);
 		return true;
 	}
 
 	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
 	{
 		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, currentmodel->s.name, e->frame);
+				__func__, currentmodel->name, e->frame);
 		e->frame = 0;
 	}
 
 	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
 	{
 		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, currentmodel->s.name, e->oldframe);
+				__func__, currentmodel->name, e->oldframe);
 		e->oldframe = 0;
 	}
 
@@ -553,12 +553,12 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-	paliashdr = (dmdx_t *)currentmodel->s.extradata;
+	paliashdr = (dmdx_t *)currentmodel->extradata;
 
 	if (r_worldmodel)
 	{
-		R_ApplyModelLight(&r_worldmodel->s, currententity, shadelight,
-			lightspot, r_worldmodel->s.lightdata);
+		R_ApplyModelLight(r_worldmodel, currententity, shadelight,
+			lightspot, r_worldmodel->lightdata);
 	}
 	else
 	{
@@ -590,7 +590,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		// hack the depth range to prevent view model from poking into walls
 		float r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
 		float r_proj_fovy = r_newrefdef.fov_y;
-		float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->s.radius * 2);
+		float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->radius * 2);
 		const float zNear = Q_max(vk_znear->value, 0.1f);
 
 		// use different range for player setup screen so it doesn't collide with the viewmodel
@@ -676,7 +676,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			|| (currententity->frame < 0) )
 		{
 			Com_Printf("%s %s: no such frame %d\n",
-				__func__, currentmodel->s.name, currententity->frame);
+				__func__, currentmodel->name, currententity->frame);
 			currententity->frame = 0;
 			currententity->oldframe = 0;
 		}
@@ -685,7 +685,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			|| (currententity->oldframe < 0))
 		{
 			Com_Printf("%s %s: no such oldframe %d\n",
-				__func__, currentmodel->s.name, currententity->oldframe);
+				__func__, currentmodel->name, currententity->oldframe);
 			currententity->frame = 0;
 			currententity->oldframe = 0;
 		}

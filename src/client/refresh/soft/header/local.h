@@ -117,8 +117,6 @@ typedef struct
 
 extern oldrefdef_t	r_refdef;
 
-#include "model.h"
-
 /*
 ====================================================
 
@@ -582,5 +580,14 @@ IMPORTED FUNCTIONS
 ====================================================================
 */
 extern refimport_t	ri;
+
+//============================================================================
+
+void Mod_Init(void);
+
+void Mod_Modellist_f(void);
+void Mod_FreeAll(void);
+
+extern int registration_sequence;
 
 #endif

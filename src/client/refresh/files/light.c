@@ -231,7 +231,7 @@ R_RecursiveLightPoint(const msurface_t *surfaces, const mnode_t *node,
 }
 
 void
-R_LightPoint(const smodel_t *model, const entity_t *currententity,
+R_LightPoint(const model_t *model, const entity_t *currententity,
 	const vec3_t p, vec3_t color, vec3_t lightspot)
 {
 	vec3_t dist, pointcolor = {0, 0, 0};
@@ -296,7 +296,7 @@ R_LightPoint(const smodel_t *model, const entity_t *currententity,
 }
 
 void
-R_ApplyModelLight(const smodel_t *model, const entity_t *currententity,
+R_ApplyModelLight(const model_t *model, const entity_t *currententity,
 	vec3_t shadelight, vec3_t lightspot, const byte *lightdata)
 {
 	int i;

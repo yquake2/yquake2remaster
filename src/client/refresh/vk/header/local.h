@@ -74,10 +74,6 @@ typedef struct image_s
 	qvktexture_t vk_texture;            /* Vulkan texture handle */
 } image_t;
 
-//===================================================================
-
-#include "model.h"
-
 //====================================================
 
 extern	image_t		vktextures[MAX_TEXTURES];
@@ -312,6 +308,18 @@ extern uint16_t	*vertIdxData;
 void	Mesh_Init (void);
 void	Mesh_Free (void);
 int Mesh_VertsRealloc(int count);
+
+void Mod_Init(void);
+
+void Mod_Modellist_f(void);
+
+void *Hunk_Begin(int maxsize);
+void *Hunk_Alloc(int size);
+int Hunk_End(void);
+void Hunk_Free(void *base);
+
+void Mod_FreeAll(void);
+void	Mod_FreeModelsKnown (void);
 
 // All renders should export such function
 Q2_DLL_EXPORTED refexport_t GetRefAPI(refimport_t imp);

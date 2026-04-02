@@ -42,7 +42,7 @@ R_DrawSprite(entity_t *currententity, const model_t *currentmodel)
 
 	VectorCopy(currententity->scale, scale);
 
-	psprite = (dsprite_t *)currentmodel->s.extradata;
+	psprite = (dsprite_t *)currentmodel->extradata;
 
 	currententity->frame %= psprite->numframes;
 	frame = &psprite->frames[currententity->frame];

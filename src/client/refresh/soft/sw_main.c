@@ -708,19 +708,19 @@ R_MarkLeaves (void)
 	r_visframecount++;
 	r_oldviewcluster = r_viewcluster;
 
-	if (r_novis->value || r_viewcluster == -1 || !r_worldmodel->s.vis)
+	if (r_novis->value || r_viewcluster == -1 || !r_worldmodel->vis)
 	{
 		// mark everything
-		for (i=0 ; i<r_worldmodel->s.numleafs ; i++)
-			r_worldmodel->s.leafs[i].visframe = r_visframecount;
-		for (i=0 ; i<r_worldmodel->s.numnodes ; i++)
-			r_worldmodel->s.nodes[i].visframe = r_visframecount;
+		for (i=0 ; i<r_worldmodel->numleafs ; i++)
+			r_worldmodel->leafs[i].visframe = r_visframecount;
+		for (i=0 ; i<r_worldmodel->numnodes ; i++)
+			r_worldmodel->nodes[i].visframe = r_visframecount;
 		return;
 	}
 
-	vis = Mod_ClusterPVS(r_viewcluster, &r_worldmodel->s);
+	vis = Mod_ClusterPVS(r_viewcluster, r_worldmodel);
 
-	for (i=0,leaf=r_worldmodel->s.leafs ; i<r_worldmodel->s.numleafs ; i++, leaf++)
+	for (i=0,leaf=r_worldmodel->leafs ; i<r_worldmodel->numleafs ; i++, leaf++)
 	{
 		int cluster;
 
@@ -797,7 +797,7 @@ R_DrawEntitiesOnList (void)
 			VectorCopy (currententity->origin, r_entorigin);
 			VectorSubtract (r_origin, r_entorigin, modelorg);
 
-			switch (currentmodel->s.type)
+			switch (currentmodel->type)
 			{
 			case mod_sprite:
 				R_DrawSprite(currententity, currentmodel);
@@ -812,7 +812,7 @@ R_DrawEntitiesOnList (void)
 
 			default:
 				Com_Printf("%s: Bad modeltype %d\n",
-					__func__, currentmodel->s.type);
+					__func__, currentmodel->type);
 				return;
 			}
 		}
@@ -851,7 +851,7 @@ R_DrawEntitiesOnList (void)
 			VectorCopy (currententity->origin, r_entorigin);
 			VectorSubtract (r_origin, r_entorigin, modelorg);
 
-			switch (currentmodel->s.type)
+			switch (currentmodel->type)
 			{
 			case mod_sprite:
 				R_DrawSprite(currententity, currentmodel);
@@ -866,7 +866,7 @@ R_DrawEntitiesOnList (void)
 
 			default:
 				Com_Printf("%s: Bad modeltype %d\n",
-					__func__, currentmodel->s.type);
+					__func__, currentmodel->type);
 				return;
 			}
 		}
@@ -934,7 +934,7 @@ R_FindTopnode (vec3_t mins, vec3_t maxs)
 {
 	mnode_t *node;
 
-	node = r_worldmodel->s.nodes;
+	node = r_worldmodel->nodes;
 
 	while (1)
 	{
@@ -1055,13 +1055,13 @@ R_DrawBEntitiesOnList (void)
 			continue;
 		if (!currentmodel)
 			continue;
-		if (currentmodel->s.nummodelsurfaces == 0)
+		if (currentmodel->nummodelsurfaces == 0)
 			continue;	// clip brush only
-		if (currentmodel->s.type != mod_brush)
+		if (currentmodel->type != mod_brush)
 			continue;
 		// see if the bounding box lets us trivially reject, also sets
 		// trivial accept status
-		RotatedBBox (currentmodel->s.mins, currentmodel->s.maxs,
+		RotatedBBox (currentmodel->mins, currentmodel->maxs,
 			currententity->angles, mins, maxs);
 		VectorAdd (mins, currententity->origin, minmaxs);
 		VectorAdd (maxs, currententity->origin, (minmaxs+3));
@@ -1077,7 +1077,7 @@ R_DrawBEntitiesOnList (void)
 		VectorCopy (currententity->origin, r_entorigin);
 		VectorSubtract (r_origin, r_entorigin, modelorg);
 
-		r_pcurrentvertbase = currentmodel->s.vertexes;
+		r_pcurrentvertbase = currentmodel->vertexes;
 
 		// FIXME: stop transforming twice
 		R_RotateBmodel(currententity);
@@ -1232,7 +1232,7 @@ R_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at (BIG HACK!) */
-	R_LightPoint(&r_worldmodel->s, currententity,
+	R_LightPoint(r_worldmodel, currententity,
 		r_newrefdef.vieworg, shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

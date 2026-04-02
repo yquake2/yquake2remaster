@@ -46,8 +46,8 @@ RI_PushDlights(const model_t *model)
 		return;
 	}
 
-	R_PushDlights(&r_newrefdef, model->s.nodes + model->s.firstnode,
-		r_framecount, model->s.surfaces);
+	R_PushDlights(&r_newrefdef, model->nodes + model->firstnode,
+		r_framecount, model->surfaces);
 }
 
 /*
@@ -75,7 +75,7 @@ RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
 		return;
 	}
 
-	if (r_fullbright->value || !r_worldmodel->s.lightdata ||
+	if (r_fullbright->value || !r_worldmodel->lightdata ||
 		(surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 	{
 		/* clear to no light */

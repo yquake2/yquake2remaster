@@ -478,10 +478,10 @@ DrawInlineBModel(const entity_t *currententity, model_t *currentmodel)
 	int i;
 	msurface_t *psurf;
 
-	R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
-			r_dlightframecount, currentmodel->s.surfaces);
+	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 
-	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -493,7 +493,7 @@ DrawInlineBModel(const entity_t *currententity, model_t *currentmodel)
 	}
 
 	/* draw texture */
-	for (i = 0; i < currentmodel->s.nummodelsurfaces; i++, psurf++)
+	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		float dot;
@@ -537,7 +537,7 @@ GL4_DrawBrushModel(entity_t *e, model_t *currentmodel)
 	vec3_t mins, maxs;
 	qboolean rotated;
 
-	if (currentmodel->s.nummodelsurfaces == 0)
+	if (currentmodel->nummodelsurfaces == 0)
 	{
 		return;
 	}
@@ -552,15 +552,15 @@ GL4_DrawBrushModel(entity_t *e, model_t *currentmodel)
 
 		for (i = 0; i < 3; i++)
 		{
-			mins[i] = e->origin[i] - currentmodel->s.radius;
-			maxs[i] = e->origin[i] + currentmodel->s.radius;
+			mins[i] = e->origin[i] - currentmodel->radius;
+			maxs[i] = e->origin[i] + currentmodel->radius;
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd(e->origin, currentmodel->s.mins, mins);
-		VectorAdd(e->origin, currentmodel->s.maxs, maxs);
+		VectorAdd(e->origin, currentmodel->mins, mins);
+		VectorAdd(e->origin, currentmodel->maxs, maxs);
 	}
 
 	if (r_cull->value && R_CullBox(mins, maxs, frustum))
@@ -693,7 +693,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > gl4_worldmodel->s.numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > gl4_worldmodel->numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -701,7 +701,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = gl4_worldmodel->s.surfaces + node->firstsurface;
+		 surf = gl4_worldmodel->surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != gl4_framecount)
@@ -780,7 +780,7 @@ GL4_DrawWorld(void)
 	gl4state.currenttexture = -1;
 
 	RE_ClearSkyBox();
-	RecursiveWorldNode(&ent, gl4_worldmodel->s.nodes);
+	RecursiveWorldNode(&ent, gl4_worldmodel->nodes);
 	DrawTextureChains(&ent);
 	GL4_DrawSkyBox();
 	DrawTriangleOutlines();
@@ -818,33 +818,33 @@ GL4_MarkLeaves(void)
 	gl4_oldviewcluster = gl4_viewcluster;
 	gl4_oldviewcluster2 = gl4_viewcluster2;
 
-	if (r_novis->value || (gl4_viewcluster == -1) || !gl4_worldmodel->s.vis)
+	if (r_novis->value || (gl4_viewcluster == -1) || !gl4_worldmodel->vis)
 	{
 		/* mark everything */
-		for (i = 0; i < gl4_worldmodel->s.numleafs; i++)
+		for (i = 0; i < gl4_worldmodel->numleafs; i++)
 		{
-			gl4_worldmodel->s.leafs[i].visframe = gl4_visframecount;
+			gl4_worldmodel->leafs[i].visframe = gl4_visframecount;
 		}
 
-		for (i = 0; i < gl4_worldmodel->s.numnodes; i++)
+		for (i = 0; i < gl4_worldmodel->numnodes; i++)
 		{
-			gl4_worldmodel->s.nodes[i].visframe = gl4_visframecount;
+			gl4_worldmodel->nodes[i].visframe = gl4_visframecount;
 		}
 
 		return;
 	}
 
-	vis = Mod_ClusterPVS(gl4_viewcluster, &gl4_worldmodel->s);
+	vis = Mod_ClusterPVS(gl4_viewcluster, gl4_worldmodel);
 
 	/* may have to combine two clusters because of solid water boundaries */
 	if (gl4_viewcluster2 != gl4_viewcluster)
 	{
 		int c;
 
-		fatvis = malloc(((gl4_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (gl4_worldmodel->s.numleafs + 7) / 8);
-		vis = Mod_ClusterPVS(gl4_viewcluster2, &gl4_worldmodel->s);
-		c = (gl4_worldmodel->s.numleafs + 31) / 32;
+		fatvis = malloc(((gl4_worldmodel->numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (gl4_worldmodel->numleafs + 7) / 8);
+		vis = Mod_ClusterPVS(gl4_viewcluster2, gl4_worldmodel);
+		c = (gl4_worldmodel->numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
 		{
@@ -854,8 +854,8 @@ GL4_MarkLeaves(void)
 		vis = fatvis;
 	}
 
-	for (i = 0, leaf = gl4_worldmodel->s.leafs;
-		 i < gl4_worldmodel->s.numleafs;
+	for (i = 0, leaf = gl4_worldmodel->leafs;
+		 i < gl4_worldmodel->numleafs;
 		 i++, leaf++)
 	{
 		int cluster;

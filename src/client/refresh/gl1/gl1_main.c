@@ -136,7 +136,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 	R_EnableMultitexture(false);
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
-	psprite = (dsprite_t *)currentmodel->s.extradata;
+	psprite = (dsprite_t *)currentmodel->extradata;
 
 	currententity->frame %= psprite->numframes;
 	frame = &psprite->frames[currententity->frame];
@@ -243,13 +243,13 @@ R_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->s.lightdata)
+	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		R_LightPoint(&r_worldmodel->s, currententity,
+		R_LightPoint(r_worldmodel, currententity,
 			currententity->origin, shadelight, lightspot);
 	}
 
@@ -333,7 +333,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->s.type)
+			switch (currentmodel->type)
 			{
 				case mod_alias:
 					R_DrawAliasModel(currententity, currentmodel);
@@ -346,7 +346,7 @@ R_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->s.type);
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -385,7 +385,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->s.type)
+			switch (currentmodel->type)
 			{
 				case mod_alias:
 					R_DrawAliasModel(currententity, currentmodel);
@@ -398,7 +398,7 @@ R_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->s.type);
+						__func__, currentmodel->type);
 					return;
 			}
 		}
@@ -661,7 +661,7 @@ R_SetupFrame(void)
 
 		r_oldviewcluster = r_viewcluster;
 		r_oldviewcluster2 = r_viewcluster2;
-		leaf = Mod_PointInLeaf(r_origin, r_worldmodel->s.nodes);
+		leaf = Mod_PointInLeaf(r_origin, r_worldmodel->nodes);
 		r_viewcluster = r_viewcluster2 = leaf->cluster;
 
 		/* check above and below so crossing solid water doesn't draw wrong */
@@ -672,7 +672,7 @@ R_SetupFrame(void)
 
 			VectorCopy(r_origin, temp);
 			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, r_worldmodel->s.nodes);
+			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != r_viewcluster2))
@@ -687,7 +687,7 @@ R_SetupFrame(void)
 
 			VectorCopy(r_origin, temp);
 			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, r_worldmodel->s.nodes);
+			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != r_viewcluster2))
@@ -726,7 +726,7 @@ R_SetPerspective(GLdouble fovy)
 {
 	// gluPerspective style parameters
 	const GLdouble zNear = Q_max(gl_znear->value, 0.1f);
-	const GLdouble zFar = (r_farsee->value) ? (r_worldmodel->s.radius * 2) : 4096.0f;
+	const GLdouble zFar = (r_farsee->value) ? (r_worldmodel->radius * 2) : 4096.0f;
 	const GLdouble aspectratio = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	GLdouble xmin, xmax, ymin, ymax;
@@ -1200,7 +1200,7 @@ R_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(&r_worldmodel->s, currententity,
+	R_LightPoint(r_worldmodel, currententity,
 		r_newrefdef.vieworg, shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

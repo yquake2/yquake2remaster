@@ -251,7 +251,7 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 }
 
 const byte *
-Mod_ClusterPVS(int cluster, const smodel_t *model)
+Mod_ClusterPVS(int cluster, const model_t *model)
 {
 	if (!mod_novis)
 	{
@@ -286,7 +286,7 @@ Mod_ClusterPVS(int cluster, const smodel_t *model)
 }
 
 void
-Mod_VisRealloc(const smodel_t *mod)
+Mod_VisRealloc(const model_t *mod)
 {
 	if ((mod->numleafs > mod_novis_len) || !mod_novis)
 	{

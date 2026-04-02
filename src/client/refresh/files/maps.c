@@ -1013,7 +1013,7 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 
 void
 Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_base,
-	smodel_t *mod, findimage_t find_image, struct image_s *notexture)
+	model_t *mod, findimage_t find_image, struct image_s *notexture)
 {
 	const dheader_t *header;
 
@@ -1044,7 +1044,7 @@ Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_ba
 }
 
 void
-Mod_LoadSectionsAfterFaces(const byte *mod_base, smodel_t *mod)
+Mod_LoadSectionsAfterFaces(const byte *mod_base, model_t *mod)
 {
 	const dheader_t *header;
 

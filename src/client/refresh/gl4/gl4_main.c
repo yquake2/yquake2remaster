@@ -697,7 +697,7 @@ GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
-	psprite = (dsprite_t *)currentmodel->s.extradata;
+	psprite = (dsprite_t *)currentmodel->extradata;
 
 	e->frame %= psprite->numframes;
 	frame = &psprite->frames[e->frame];
@@ -800,13 +800,13 @@ GL4_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT || !gl4_worldmodel || !gl4_worldmodel->s.lightdata)
+	if (currententity->flags & RF_FULLBRIGHT || !gl4_worldmodel || !gl4_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		R_LightPoint(&gl4_worldmodel->s, currententity,
+		R_LightPoint(gl4_worldmodel, currententity,
 			currententity->origin, shadelight, lightspot);
 	}
 
@@ -957,7 +957,7 @@ GL4_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->s.type)
+			switch (currentmodel->type)
 			{
 				case mod_alias:
 					GL4_DrawAliasModel(currententity);
@@ -970,7 +970,7 @@ GL4_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->s.type);
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -1009,7 +1009,7 @@ GL4_DrawEntitiesOnList(void)
 				continue;
 			}
 
-			switch (currentmodel->s.type)
+			switch (currentmodel->type)
 			{
 				case mod_alias:
 					GL4_DrawAliasModel(currententity);
@@ -1022,7 +1022,7 @@ GL4_DrawEntitiesOnList(void)
 					break;
 				default:
 					Com_Printf("%s: Bad modeltype %d\n",
-						__func__, currentmodel->s.type);
+						__func__, currentmodel->type);
 					break;
 			}
 		}
@@ -1056,7 +1056,7 @@ SetupFrame(void)
 
 		gl4_oldviewcluster = gl4_viewcluster;
 		gl4_oldviewcluster2 = gl4_viewcluster2;
-		leaf = Mod_PointInLeaf(gl4_origin, gl4_worldmodel->s.nodes);
+		leaf = Mod_PointInLeaf(gl4_origin, gl4_worldmodel->nodes);
 		gl4_viewcluster = gl4_viewcluster2 = leaf->cluster;
 
 		/* check above and below so crossing solid water doesn't draw wrong */
@@ -1067,7 +1067,7 @@ SetupFrame(void)
 
 			VectorCopy(gl4_origin, temp);
 			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->s.nodes);
+			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != gl4_viewcluster2))
@@ -1082,7 +1082,7 @@ SetupFrame(void)
 
 			VectorCopy(gl4_origin, temp);
 			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->s.nodes);
+			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->nodes);
 
 			if (!(leaf->contents & CONTENTS_SOLID) &&
 				(leaf->cluster != gl4_viewcluster2))
@@ -1179,7 +1179,7 @@ GL4_SetPerspective(GLdouble fovy)
 {
 	// gluPerspective() / R_MYgluPerspective() style parameters
 	const GLdouble zNear = Q_max(gl_znear->value, 0.1f);
-	const GLdouble zFar = (r_farsee->value) ? (gl4_worldmodel->s.radius * 2) : 4096.0f;
+	const GLdouble zFar = (r_farsee->value) ? (gl4_worldmodel->radius * 2) : 4096.0f;
 	const GLdouble aspect = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	// calculation of left, right, bottom, top is from R_MYgluPerspective() of old gl backend
@@ -1579,7 +1579,7 @@ GL4_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(&gl4_worldmodel->s, currententity,
+	R_LightPoint(gl4_worldmodel, currententity,
 		r_newrefdef.vieworg, shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

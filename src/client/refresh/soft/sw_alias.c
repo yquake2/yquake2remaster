@@ -591,7 +591,7 @@ R_AliasSetupSkin(const entity_t *currententity, const model_t *currentmodel)
 			(skinnum >= currentmodel->numskins))
 		{
 			Com_Printf("%s %s: no such skin # %d\n",
-				__func__, currentmodel->s.name, skinnum);
+				__func__, currentmodel->name, skinnum);
 			skinnum = 0;
 		}
 
@@ -629,8 +629,8 @@ R_AliasSetupLighting(const entity_t *currententity)
 
 	if (r_worldmodel)
 	{
-		R_ApplyModelLight(&r_worldmodel->s, currententity, shadelight,
-			lightspot, r_worldmodel->s.lightdata);
+		R_ApplyModelLight(r_worldmodel, currententity, shadelight,
+			lightspot, r_worldmodel->lightdata);
 	}
 	else
 	{
@@ -695,13 +695,13 @@ R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, d
 	if ( ( thisframe >= pmdl->num_frames ) || ( thisframe < 0 ) )
 	{
 		Com_Printf("%s %s: no such thisframe %d\n",
-			__func__, currentmodel->s.name, thisframe);
+			__func__, currentmodel->name, thisframe);
 		thisframe = 0;
 	}
 	if ( ( lastframe >= pmdl->num_frames ) || ( lastframe < 0 ) )
 	{
 		Com_Printf("%s %s: no such lastframe %d\n",
-			__func__, currentmodel->s.name, lastframe);
+			__func__, currentmodel->name, lastframe);
 		lastframe = 0;
 	}
 
@@ -769,7 +769,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
 
-	s_pmdl = (dmdx_t *)currentmodel->s.extradata;
+	s_pmdl = (dmdx_t *)currentmodel->extradata;
 
 	if ( r_lerpmodels->value == 0 )
 	{
@@ -829,7 +829,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	if (!R_AliasSetupSkin(currententity, currentmodel))
 	{
 		Com_Printf("%s %s: NULL skin found\n",
-			__func__, currentmodel->s.name);
+			__func__, currentmodel->name);
 		aliasxscale = oldAliasxscale;
 		aliasyscale = oldAliasyscale;
 		return;

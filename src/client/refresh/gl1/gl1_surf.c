@@ -202,7 +202,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	msurface_t *surf;
 
 	/* don't bother if we're set to fullbright or multitexture is enabled */
-	if (gl_config.multitexture || r_fullbright->value || !r_worldmodel->s.lightdata)
+	if (gl_config.multitexture || r_fullbright->value || !r_worldmodel->lightdata)
 	{
 		return;
 	}
@@ -829,11 +829,11 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 	/* calculate dynamic lighting for bmodel */
 	if (!gl_config.multitexture && !r_flashblend->value)
 	{
-		R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
-			r_dlightframecount, currentmodel->s.surfaces);
+		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 	}
 
-	psurf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
+	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{
@@ -843,7 +843,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 	}
 
 	/* draw texture */
-	for (i = 0; i < currentmodel->s.nummodelsurfaces; i++, psurf++)
+	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
 		cplane_t *pplane;
 		float dot;
@@ -903,7 +903,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 	vec3_t mins, maxs;
 	qboolean rotated;
 
-	if (currentmodel->s.nummodelsurfaces == 0)
+	if (currentmodel->nummodelsurfaces == 0)
 	{
 		return;
 	}
@@ -918,15 +918,15 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 
 		for (i = 0; i < 3; i++)
 		{
-			mins[i] = currententity->origin[i] - currentmodel->s.radius;
-			maxs[i] = currententity->origin[i] + currentmodel->s.radius;
+			mins[i] = currententity->origin[i] - currentmodel->radius;
+			maxs[i] = currententity->origin[i] + currentmodel->radius;
 		}
 	}
 	else
 	{
 		rotated = false;
-		VectorAdd(currententity->origin, currentmodel->s.mins, mins);
-		VectorAdd(currententity->origin, currentmodel->s.maxs, maxs);
+		VectorAdd(currententity->origin, currentmodel->mins, mins);
+		VectorAdd(currententity->origin, currentmodel->maxs, maxs);
 	}
 
 	if (r_cull->value && R_CullBox(mins, maxs, frustum))
@@ -1068,7 +1068,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* recurse down the children, front side first */
 	R_RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->s.numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -1076,7 +1076,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = r_worldmodel->s.surfaces + node->firstsurface;
+		 surf = r_worldmodel->surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != r_framecount)
@@ -1155,7 +1155,7 @@ R_GetBrushesLighting(void)
 
 		const model_t *currentmodel = currententity->model;
 
-		if (!currentmodel || currentmodel->s.type != mod_brush || currentmodel->s.nummodelsurfaces == 0)
+		if (!currentmodel || currentmodel->type != mod_brush || currentmodel->nummodelsurfaces == 0)
 		{
 			continue;
 		}
@@ -1165,14 +1165,14 @@ R_GetBrushesLighting(void)
 		{
 			for (k = 0; k < 3; k++)
 			{
-				mins[k] = currententity->origin[k] - currentmodel->s.radius;
-				maxs[k] = currententity->origin[k] + currentmodel->s.radius;
+				mins[k] = currententity->origin[k] - currentmodel->radius;
+				maxs[k] = currententity->origin[k] + currentmodel->radius;
 			}
 		}
 		else
 		{
-			VectorAdd(currententity->origin, currentmodel->s.mins, mins);
-			VectorAdd(currententity->origin, currentmodel->s.maxs, maxs);
+			VectorAdd(currententity->origin, currentmodel->mins, mins);
+			VectorAdd(currententity->origin, currentmodel->maxs, maxs);
 		}
 
 		if (r_cull->value && R_CullBox(mins, maxs, frustum))
@@ -1181,12 +1181,12 @@ R_GetBrushesLighting(void)
 		}
 
 		// from R_DrawInlineBModel()
-		R_PushDlights(&r_newrefdef, currentmodel->s.nodes + currentmodel->s.firstnode,
-			r_dlightframecount, currentmodel->s.surfaces);
+		R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
+			r_dlightframecount, currentmodel->surfaces);
 
-		surf = &currentmodel->s.surfaces[currentmodel->s.firstmodelsurface];
+		surf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 
-		for (k = 0; k < currentmodel->s.nummodelsurfaces; k++, surf++)
+		for (k = 0; k < currentmodel->nummodelsurfaces; k++, surf++)
 		{
 			if (surf->texinfo->flags & (SURF_TRANSPARENT | SURF_WARP)
 				|| surf->flags & SURF_DRAWTURB || surf->lmchain_frame == r_framecount)
@@ -1236,7 +1236,7 @@ R_DrawWorld(void)
 	memset(gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 
 	RE_ClearSkyBox();
-	R_RecursiveWorldNode(&ent, r_worldmodel->s.nodes);
+	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 	R_GetBrushesLighting();
 	R_RegenAllLightmaps();
 	R_DrawTextureChains();
@@ -1277,33 +1277,33 @@ R_MarkLeaves(void)
 	r_oldviewcluster = r_viewcluster;
 	r_oldviewcluster2 = r_viewcluster2;
 
-	if (r_novis->value || (r_viewcluster == -1) || !r_worldmodel->s.vis)
+	if (r_novis->value || (r_viewcluster == -1) || !r_worldmodel->vis)
 	{
 		/* mark everything */
-		for (i = 0; i < r_worldmodel->s.numleafs; i++)
+		for (i = 0; i < r_worldmodel->numleafs; i++)
 		{
-			r_worldmodel->s.leafs[i].visframe = r_visframecount;
+			r_worldmodel->leafs[i].visframe = r_visframecount;
 		}
 
-		for (i = 0; i < r_worldmodel->s.numnodes; i++)
+		for (i = 0; i < r_worldmodel->numnodes; i++)
 		{
-			r_worldmodel->s.nodes[i].visframe = r_visframecount;
+			r_worldmodel->nodes[i].visframe = r_visframecount;
 		}
 
 		return;
 	}
 
-	vis = Mod_ClusterPVS(r_viewcluster, &r_worldmodel->s);
+	vis = Mod_ClusterPVS(r_viewcluster, r_worldmodel);
 
 	/* may have to combine two clusters because of solid water boundaries */
 	if (r_viewcluster2 != r_viewcluster)
 	{
 		int c;
 
-		fatvis = malloc(((r_worldmodel->s.numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (r_worldmodel->s.numleafs + 7) / 8);
-		vis = Mod_ClusterPVS(r_viewcluster2, &r_worldmodel->s);
-		c = (r_worldmodel->s.numleafs + 31) / 32;
+		fatvis = malloc(((r_worldmodel->numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
+		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
+		c = (r_worldmodel->numleafs + 31) / 32;
 
 		for (i = 0; i < c; i++)
 		{
@@ -1313,8 +1313,8 @@ R_MarkLeaves(void)
 		vis = fatvis;
 	}
 
-	for (i = 0, leaf = r_worldmodel->s.leafs;
-		 i < r_worldmodel->s.numleafs;
+	for (i = 0, leaf = r_worldmodel->leafs;
+		 i < r_worldmodel->numleafs;
 		 i++, leaf++)
 	{
 		int cluster;
