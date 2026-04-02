@@ -51,6 +51,6 @@ typedef struct model_s
 	/* for alias models and skins */
 	struct image_s **skins;
 	int numskins;
-} gl3model_t;
+} model_t;
 
 #endif /* SRC_CLIENT_REFRESH_GL3_HEADER_MODEL_H_ */

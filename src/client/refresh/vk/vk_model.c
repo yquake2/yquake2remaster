@@ -187,6 +187,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 					__func__, out->numedges);
 			return;
 		}
+
 		out->flags = 0;
 		out->polys = NULL;
 
@@ -278,7 +279,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	header = (dheader_t *)mod_base;
 
 	/* check for BSPX extensions */
-	bspx_header = Mod_LoadBSPX(modfilelen, (byte*)mod_base);
+	bspx_header = Mod_LoadBSPX(modfilelen, mod_base);
 
 	// calculate the needed hunksize from the lumps
 	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header);
@@ -310,7 +311,7 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
 			__func__, mod->s.name, mod->s.numclusters, mod->s.vis->numclusters);
-			return;
+		return;
 	}
 
 	Mod_VisRealloc(&mod->s);

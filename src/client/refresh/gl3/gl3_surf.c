@@ -475,7 +475,7 @@ RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf)
 }
 
 static void
-DrawInlineBModel(const entity_t *currententity, gl3model_t *currentmodel)
+DrawInlineBModel(const entity_t *currententity, model_t *currentmodel)
 {
 	msurface_t *psurf;
 	int i;
@@ -535,7 +535,7 @@ DrawInlineBModel(const entity_t *currententity, gl3model_t *currentmodel)
 }
 
 void
-GL3_DrawBrushModel(entity_t *e, gl3model_t *currentmodel)
+GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 {
 	vec3_t mins, maxs;
 	qboolean rotated;

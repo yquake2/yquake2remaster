@@ -446,7 +446,7 @@ CullAliasModel(vec3_t bbox[8], entity_t *e)
 {
 	dmdx_t *paliashdr;
 
-	gl3model_t* model = e->model;
+	model_t* model = e->model;
 
 	paliashdr = (dmdx_t *)model->s.extradata;
 
@@ -499,7 +499,7 @@ GL3_DrawAliasModel(entity_t *currententity)
 		}
 	}
 
-	gl3model_t* model = currententity->model;
+	model_t* model = currententity->model;
 	paliashdr = (dmdx_t *)model->s.extradata;
 
 	for (i = 0; i < 3; i++)

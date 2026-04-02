@@ -118,7 +118,7 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 }
 
 void
-LM_BuildPolygonFromSurface(gl4model_t *currentmodel, msurface_t *fa)
+LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
 {
 	medge_t *pedges, *r_pedge;
 	int i, lnumverts;
@@ -245,7 +245,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 }
 
 void
-LM_CreateLightmapsPoligon(gl4model_t *currentmodel, msurface_t *fa)
+LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa)
 {
 	/* create lightmaps and polygons */
 	if (!(fa->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
@@ -260,7 +260,7 @@ LM_CreateLightmapsPoligon(gl4model_t *currentmodel, msurface_t *fa)
 }
 
 void
-LM_BeginBuildingLightmaps(gl4model_t *m)
+LM_BeginBuildingLightmaps(model_t *m)
 {
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
 	int i;

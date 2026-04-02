@@ -315,7 +315,7 @@ typedef struct
 	byte lightmap_buffers[MAX_LIGHTMAPS_PER_SURFACE][4 * BLOCK_WIDTH * BLOCK_HEIGHT];
 } gl4lightmapstate_t;
 
-extern gl4model_t *gl4_worldmodel;
+extern model_t *gl4_worldmodel;
 
 extern float gl4depthmin, gl4depthmax;
 
@@ -452,8 +452,8 @@ extern void GL4_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride);
 extern void LM_InitBlock(void);
 extern void LM_UploadBlock(void);
 extern qboolean LM_AllocBlock(int w, int h, int *x, int *y);
-extern void LM_CreateLightmapsPoligon(gl4model_t *currentmodel, msurface_t *fa);
-extern void LM_BeginBuildingLightmaps(gl4model_t *m);
+extern void LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa);
+extern void LM_BeginBuildingLightmaps(model_t *m);
 extern void LM_EndBuildingLightmaps(void);
 
 // gl4_warp.c
@@ -470,7 +470,7 @@ extern void GL4_SurfInit(void);
 extern void GL4_SurfShutdown(void);
 extern void GL4_DrawTriangleOutlines(void);
 extern void GL4_DrawAlphaSurfaces(void);
-extern void GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel);
+extern void GL4_DrawBrushModel(entity_t *e, model_t *currentmodel);
 extern void GL4_DrawWorld(void);
 extern void GL4_MarkLeaves(void);
 

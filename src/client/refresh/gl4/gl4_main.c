@@ -43,7 +43,7 @@ gl4state_t gl4state;
 
 unsigned gl4_rawpalette[256];
 
-gl4model_t *gl4_worldmodel;
+model_t *gl4_worldmodel;
 
 float gl4depthmin=0.0f, gl4depthmax=1.0f;
 
@@ -683,7 +683,7 @@ GL4_DrawBeam(entity_t *e)
 }
 
 static void
-GL4_DrawSpriteModel(entity_t *e, const gl4model_t *currentmodel)
+GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
 	mvtx_t verts[4];
@@ -949,7 +949,7 @@ GL4_DrawEntitiesOnList(void)
 		}
 		else
 		{
-			gl4model_t *currentmodel = currententity->model;
+			model_t *currentmodel = currententity->model;
 
 			if (!currentmodel)
 			{
@@ -1001,7 +1001,7 @@ GL4_DrawEntitiesOnList(void)
 		}
 		else
 		{
-			gl4model_t *currentmodel = currententity->model;
+			model_t *currentmodel = currententity->model;
 
 			if (!currentmodel)
 			{

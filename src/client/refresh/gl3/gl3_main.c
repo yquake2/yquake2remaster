@@ -47,7 +47,7 @@ gl3state_t gl3state;
 
 unsigned gl3_rawpalette[256];
 
-gl3model_t *gl3_worldmodel;
+model_t *gl3_worldmodel;
 
 float gl3depthmin=0.0f, gl3depthmax=1.0f;
 
@@ -725,7 +725,7 @@ GL3_DrawBeam(entity_t *e)
 }
 
 static void
-GL3_DrawSpriteModel(entity_t *e, const gl3model_t *currentmodel)
+GL3_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
 	mvtx_t verts[4];
@@ -1003,7 +1003,7 @@ GL3_DrawEntitiesOnList(void)
 		}
 		else
 		{
-			gl3model_t *currentmodel = currententity->model;
+			model_t *currentmodel = currententity->model;
 
 			if (!currentmodel)
 			{
@@ -1055,7 +1055,7 @@ GL3_DrawEntitiesOnList(void)
 		}
 		else
 		{
-			gl3model_t *currentmodel = currententity->model;
+			model_t *currentmodel = currententity->model;
 
 			if (!currentmodel)
 			{

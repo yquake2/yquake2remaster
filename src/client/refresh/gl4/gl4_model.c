@@ -27,7 +27,7 @@
 
 #include "header/local.h"
 
-static gl4model_t mod_known[MAX_MOD_KNOWN];
+static model_t mod_known[MAX_MOD_KNOWN];
 static int mod_numknown = 0;
 static int mod_max = 0;
 int registration_sequence;
@@ -38,7 +38,7 @@ static qboolean
 Mod_HasFreeSpace(void)
 {
 	int		i, used;
-	gl4model_t	*mod;
+	model_t	*mod;
 
 	used = 0;
 
@@ -65,7 +65,7 @@ void
 GL4_Mod_Modellist_f(void)
 {
 	int i, total, used;
-	gl4model_t *mod;
+	model_t *mod;
 	qboolean freeup;
 
 	total = 0;
@@ -106,10 +106,10 @@ GL4_Mod_Init(void)
 }
 
 static void
-Mod_LoadSubmodels(gl4model_t *loadmodel, byte *mod_base, const lump_t *l)
+Mod_LoadSubmodels(model_t *loadmodel, byte *mod_base, const lump_t *l)
 {
 	dmodel_t *in;
-	gl4model_t *out;
+	model_t *out;
 	int i, j, count;
 
 	in = (void *)(mod_base + l->fileofs);
@@ -167,7 +167,7 @@ Mod_LoadSubmodels(gl4model_t *loadmodel, byte *mod_base, const lump_t *l)
 }
 
 static void
-Mod_LoadQFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
+Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 	const bspx_header_t *bspx_header)
 {
 	int i, count, surfnum, lminfosize;
@@ -287,7 +287,7 @@ Mod_LoadQFaces(gl4model_t *loadmodel, const byte *mod_base, const lump_t *l,
 }
 
 static void
-Mod_LoadBrushModel(gl4model_t *mod, const void *buffer, int modfilelen)
+Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 {
 	int lightgridsize = 0, hunkSize;
 	const bspx_header_t *bspx_header;
@@ -310,7 +310,7 @@ Mod_LoadBrushModel(gl4model_t *mod, const void *buffer, int modfilelen)
 	hunkSize = Mod_CalcNonModelLumpHunkSize(mod_base, header);
 
 	hunkSize += Mod_CalcLumpHunkSize(&header->lumps[LUMP_MODELS],
-		sizeof(dmodel_t), sizeof(gl4model_t), 0);
+		sizeof(dmodel_t), sizeof(model_t), 0);
 
 	/* Get size of octree on disk, need to recheck real size */
 	if (Mod_LoadBSPXFindLump(bspx_header, "LIGHTGRID_OCTREE", &lightgridsize, mod_base))
@@ -345,12 +345,12 @@ Mod_LoadBrushModel(gl4model_t *mod, const void *buffer, int modfilelen)
 /*
  * Loads in a model for the given name
  */
-static gl4model_t *
-Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
+static model_t *
+Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 {
 	char filename[256] = {0}, *tag;
 	int i, modfilelen;
-	gl4model_t *mod;
+	model_t *mod;
 	void *buf;
 
 	if (!name[0])
@@ -488,7 +488,7 @@ Mod_ForName(const char *name, gl4model_t *parent_model, qboolean crash)
 }
 
 static void
-Mod_Free(gl4model_t *mod)
+Mod_Free(model_t *mod)
 {
 	if (!mod->s.extradata)
 	{
@@ -563,7 +563,7 @@ GL4_BeginRegistration(const char *model)
 struct model_s *
 GL4_RegisterModel(const char *name)
 {
-	gl4model_t *mod;
+	model_t *mod;
 
 	mod = Mod_ForName(name, gl4_worldmodel, false);
 
@@ -597,7 +597,7 @@ void
 GL4_EndRegistration(void)
 {
 	int i;
-	gl4model_t *mod;
+	model_t *mod;
 
 	if (Mod_HasFreeSpace() && GL4_ImageHasFreeSpace())
 	{
