@@ -1043,6 +1043,67 @@ Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_ba
 		mod_base, &header->lumps[LUMP_TEXINFO], find_image, notexture);
 }
 
+static void
+Mod_LoadSubmodels(model_t *loadmodel, const byte *mod_base, const lump_t *l)
+{
+	dmodel_t *in;
+	model_t *out;
+	int i, j, count;
+
+	in = (void *)(mod_base + l->fileofs);
+
+	if (l->filelen % sizeof(*in))
+	{
+		Com_Error(ERR_DROP, "%s: funny lump size in %s",
+				__func__, loadmodel->name);
+		return;
+	}
+
+	count = l->filelen / sizeof(*in);
+	out = Hunk_Alloc(count * sizeof(*out));
+
+	loadmodel->submodels = out;
+	loadmodel->numsubmodels = count;
+
+	for (i = 0; i < count; i++, in++, out++)
+	{
+		if (i == 0)
+		{
+			/* copy parent as template for first model */
+			memcpy(out, loadmodel, sizeof(*out));
+		}
+		else
+		{
+			/* copy first as template for model */
+			memmove(out, loadmodel->submodels, sizeof(*out));
+		}
+
+		Com_sprintf (out->name, sizeof(out->name), "*%d", i);
+
+		for (j = 0; j < 3; j++)
+		{
+			/* spread the mins / maxs by a pixel */
+			out->mins[j] = in->mins[j] - 1;
+			out->maxs[j] = in->maxs[j] + 1;
+			out->origin[j] = in->origin[j];
+		}
+
+		out->radius = Mod_RadiusFromBounds(out->mins, out->maxs);
+		out->firstnode = in->headnode;
+		out->firstmodelsurface = in->firstface;
+		out->nummodelsurfaces = in->numfaces;
+		/* visleafs */
+		out->numleafs = 0;
+		/* check limits */
+		if (out->firstnode >= loadmodel->numnodes)
+		{
+			Com_Error(ERR_DROP, "%s: Inline model %i has bad firstnode",
+					__func__, i);
+			return;
+		}
+	}
+}
+
 void
 Mod_LoadSectionsAfterFaces(const byte *mod_base, model_t *mod)
 {
@@ -1060,6 +1121,17 @@ Mod_LoadSectionsAfterFaces(const byte *mod_base, model_t *mod)
 	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
 		mod->numleafs, &mod->nodes, &mod->numnodes, mod->mins, mod->maxs,
 		mod_base, &header->lumps[LUMP_NODES], header->ident);
+	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
+	mod->numframes = 2; /* regular and alternate animation */
+
+	if (mod->vis && mod->numclusters != mod->vis->numclusters)
+	{
+		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
+			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
+		return;
+	}
+
+	Mod_VisRealloc(mod);
 }
 
 static int

@@ -331,17 +331,6 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	LM_EndBuildingLightmaps();
 
 	Mod_LoadSectionsAfterFaces(mod_base, mod);
-	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
-	mod->numframes = 2; /* regular and alternate animation */
-
-	if (mod->vis && mod->numclusters != mod->vis->numclusters)
-	{
-		Com_Error(ERR_DROP, "%s: Map %s has incorrect number of clusters %d != %d",
-			__func__, mod->name, mod->numclusters, mod->vis->numclusters);
-		return;
-	}
-
-	Mod_VisRealloc(mod);
 }
 
 /*
