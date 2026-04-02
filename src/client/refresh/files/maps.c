@@ -225,7 +225,7 @@ Mod_LoadVertexes
 extra for skybox
 =================
 */
-void
+static void
 Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 	const byte *mod_base, const lump_t *l)
 {
@@ -268,7 +268,7 @@ Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
 Mod_LoadLighting
 =================
 */
-void
+static void
 Mod_LoadLighting(byte **lightdata, int *size, const byte *mod_base, const lump_t *l)
 {
 	if (!l->filelen)
@@ -382,7 +382,7 @@ Mod_CalcSurfaceExtents(const int *surfedges, int numsurfedges, mvertex_t *vertex
 	}
 }
 
-void
+static void
 Mod_LoadTexinfoQ2(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
 	struct image_s *notexture)
@@ -457,7 +457,7 @@ Mod_LoadTexinfo
 extra for skybox in soft render
 =================
 */
-void
+static void
 Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
 	const byte *mod_base, const lump_t *l, findimage_t find_image,
 	struct image_s *notexture)
@@ -490,7 +490,7 @@ Mod_LoadQEdges
 extra is used for skybox, which adds 6 surfaces
 =================
 */
-void
+static void
 Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
 	const byte *mod_base, const lump_t *l)
 {
@@ -524,7 +524,7 @@ Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
 Mod_LoadSurfedges
 =================
 */
-void
+static void
 Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
 	const byte *mod_base, const lump_t *l)
 {
@@ -724,7 +724,7 @@ Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurface_t *out)
 	return LittleLong(lminfo->lightofs);
 }
 
-void
+static void
 Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces, unsigned int *nummarksurfaces,
 	msurface_t *surfaces, int numsurfaces, const byte *mod_base, const lump_t *l)
 {
@@ -1012,8 +1012,8 @@ Mod_LoadBSPXLightGrid(const bspx_header_t *bspx_header, const byte *mod_base)
 }
 
 void
-Mod_LoadSurfaceSections(const bspx_header_t *bspx_header, const byte *mod_base,
-	smodel_t *mod)
+Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_base,
+	smodel_t *mod, findimage_t find_image, struct image_s *notexture)
 {
 	const dheader_t *header;
 
@@ -1039,6 +1039,27 @@ Mod_LoadSurfaceSections(const bspx_header_t *bspx_header, const byte *mod_base,
 		&header->lumps[LUMP_LIGHTING]);
 	Mod_LoadPlanes(mod->name, &mod->planes, &mod->numplanes,
 		mod_base, &header->lumps[LUMP_PLANES]);
+	Mod_LoadTexinfo(mod->name, &mod->texinfo, &mod->numtexinfo,
+		mod_base, &header->lumps[LUMP_TEXINFO], find_image, notexture);
+}
+
+void
+Mod_LoadSectionsAfterFaces(const byte *mod_base, smodel_t *mod)
+{
+	const dheader_t *header;
+
+	header = (dheader_t *)mod_base;
+
+	Mod_LoadQBSPMarksurfaces(mod->name, &mod->marksurfaces, &mod->nummarksurfaces,
+		mod->surfaces, mod->numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES]);
+	Mod_LoadVisibility(mod->name, &mod->vis, &mod->numvisibility, mod_base,
+		&header->lumps[LUMP_VISIBILITY]);
+	Mod_LoadQBSPLeafs(mod->name, &mod->leafs, &mod->numleafs,
+		mod->marksurfaces, mod->nummarksurfaces, &mod->numclusters,
+		mod_base, &header->lumps[LUMP_LEAFS]);
+	Mod_LoadQBSPNodes(mod->name, mod->planes, mod->numplanes, mod->leafs,
+		mod->numleafs, &mod->nodes, &mod->numnodes, mod->mins, mod->maxs,
+		mod_base, &header->lumps[LUMP_NODES], header->ident);
 }
 
 static int

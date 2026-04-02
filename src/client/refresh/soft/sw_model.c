@@ -328,23 +328,12 @@ Mod_LoadBrushModel(model_t *mod, const void *buffer, int modfilelen)
 	mod->s.extradata = Hunk_Begin(hunkSize);
 
 	/* load into heap */
-	Mod_LoadSurfaceSections(bspx_header, mod_base, &mod->s);
-	Mod_LoadTexinfo(mod->s.name, &mod->s.texinfo, &mod->s.numtexinfo,
-		mod_base, &header->lumps[LUMP_TEXINFO], (findimage_t)R_FindImage,
-		r_notexture_mip);
+	Mod_LoadSectionsBeforeFaces(bspx_header, mod_base, &mod->s,
+		(findimage_t)R_FindImage, r_notexture_mip);
 
 	Mod_LoadQFaces(mod, mod_base, &header->lumps[LUMP_FACES], bspx_header);
 
-	Mod_LoadQBSPMarksurfaces(mod->s.name, &mod->s.marksurfaces, &mod->s.nummarksurfaces,
-		mod->s.surfaces, mod->s.numsurfaces, mod_base, &header->lumps[LUMP_LEAFFACES]);
-	Mod_LoadVisibility(mod->s.name, &mod->s.vis, &mod->s.numvisibility, mod_base,
-		&header->lumps[LUMP_VISIBILITY]);
-	Mod_LoadQBSPLeafs(mod->s.name, &mod->s.leafs, &mod->s.numleafs,
-		mod->s.marksurfaces, mod->s.nummarksurfaces, &mod->s.numclusters,
-		mod_base, &header->lumps[LUMP_LEAFS]);
-	Mod_LoadQBSPNodes(mod->s.name, mod->s.planes, mod->s.numplanes, mod->s.leafs,
-		mod->s.numleafs, &mod->s.nodes, &mod->s.numnodes,  mod->s.mins, mod->s.maxs,
-		mod_base, &header->lumps[LUMP_NODES], header->ident);
+	Mod_LoadSectionsAfterFaces(mod_base, &mod->s);
 	Mod_LoadSubmodels(mod, mod_base, &header->lumps[LUMP_MODELS]);
 	mod->s.numframes = 2; /* regular and alternate animation */
 

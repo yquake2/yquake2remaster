@@ -398,29 +398,16 @@ extern struct image_s *R_LoadConsoleChars(findimage_t find_image);
 extern unsigned R_NextUTF8Code(const char **curr);
 extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, loadimage_t load_image);
-extern void Mod_LoadQBSPMarksurfaces(const char *name, msurface_t ***marksurfaces,
-	unsigned int *nummarksurfaces, msurface_t *surfaces, int numsurfaces,
-	const byte *mod_base, const lump_t *l);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,
 	mleaf_t *leafs, int numleafs, mnode_t **nodes, int *numnodes, vec3_t mins, vec3_t maxs,
 	const byte *mod_base, const lump_t *l, int ident);
 extern void Mod_LoadQBSPLeafs(const char *name, mleaf_t **leafs, int *numleafs,
 	msurface_t **marksurfaces, unsigned int nummarksurfaces,
 	int *numclusters, const byte *mod_base, const lump_t *l);
-extern void Mod_LoadQBSPEdges(const char *name, medge_t **edges, int *numedges,
-	const byte *mod_base, const lump_t *l);
-extern void Mod_LoadVertexes(const char *name, mvertex_t **vertexes, int *numvertexes,
-	const byte *mod_base, const lump_t *l);
-extern void Mod_LoadLighting(byte **lightdata, int *size, const byte *mod_base, const lump_t *l);
 extern void Mod_LoadSetSurfaceLighting(byte *lightdata, int size, msurface_t *out,
 	const byte *styles, int lightofs);
 extern void Mod_CalcSurfaceExtents(const int *surfedges, int numsurfedges, mvertex_t *vertexes,
 	medge_t *edges, msurface_t *s);
-extern void Mod_LoadTexinfo(const char *name, mtexinfo_t **texinfo, int *numtexinfo,
-	const byte *mod_base, const lump_t *l, findimage_t find_image,
-	struct image_s *notexture);
-extern void Mod_LoadSurfedges(const char *name, int **surfedges, int *numsurfedges,
-	const byte *mod_base, const lump_t *l);
 extern mleaf_t *Mod_PointInLeaf(const vec3_t p, mnode_t *node);
 extern const void *Mod_LoadBSPXFindLump(const bspx_header_t *bspx_header,
 	const char *lumpname, int *plumpsize, const byte *mod_base);
@@ -459,8 +446,9 @@ extern void R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to);
 extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 
 /* Lights logic */
-extern void Mod_LoadSurfaceSections(const bspx_header_t *bspx_header, const byte *mod_base,
-	smodel_t *model);
+extern void Mod_LoadSectionsBeforeFaces(const bspx_header_t *bspx_header, const byte *mod_base,
+	smodel_t *model, findimage_t find_image, struct image_s *notexture);
+extern void Mod_LoadSectionsAfterFaces(const byte *mod_base, smodel_t *mod);
 extern void R_LightPoint(const smodel_t *model, const entity_t *currententity,
 	const vec3_t p, vec3_t color, vec3_t lightspot);
 extern void R_ApplyModelLight(const smodel_t *model, const entity_t *currententity,
