@@ -3672,6 +3672,128 @@ SP_misc_hologram(edict_t *ent)
 	gi.linkentity(ent);
 }
 
+void
+misc_rain_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf)
+{
+	G_FreeEdict(self);
+}
+
+/*
+ * Spawns a single raindrop entity with randomized position and downward velocity.
+ */
+static void
+ThrowRainDropGib(edict_t *self)
+{
+	edict_t *ent;
+	vec3_t point;
+
+	VectorCopy(self->s.origin, point);
+
+	/* If inside solid, remove source */
+	if (gi.pointcontents(point) & MASK_SOLID)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	ent = G_Spawn();
+	ent->owner = self;
+	ent->movetype = MOVETYPE_BOUNCE;
+	ent->solid = SOLID_NOT;
+	ent->touch = misc_rain_touch;
+
+	VectorCopy(self->s.origin, ent->s.origin);
+	VectorClear(ent->mins);
+	VectorClear(ent->maxs);
+	VectorClear(ent->velocity);
+
+	/* Randomize X/Y slightly */
+	ent->s.origin[0] -= rand() % 256 - 128;
+	ent->s.origin[1] -= rand() % 256 - 128;
+	ent->s.origin[2] -= 2.0f;
+
+	/* Give downward velocity */
+	ent->velocity[2] -= (168 - (rand() % 64));
+
+	ent->s.modelindex = gi.modelindex("models/objects/rain/tris.md2");
+
+	ent->think = G_FreeEdict;
+	ent->classname = "rain";
+	ent->nextthink = level.time + 2.0f;
+
+	gi.linkentity(ent);
+}
+
+/*
+ * Periodic update for rain source: plays ambient sound and spawns raindrops.
+ */
+void
+misc_rain_think(edict_t *self)
+{
+	/* Occasionally play ambient rain sound */
+	if ((rand() & 1) == 0)
+	{
+		char name[MAX_OSPATH];
+		int soundindex;
+		vec3_t origin;
+
+		/* Pick one of several ambient rain sounds */
+		snprintf(name, sizeof(name), "world/amb%i.wav", (rand() % 4) + 1);
+		soundindex = gi.soundindex(name);
+
+		VectorCopy(self->s.origin, origin);
+		gi.positioned_sound(origin, self, CHAN_AUTO, soundindex, 1.0, ATTN_NORM, 0);
+	}
+
+	/* Spawn a raindrop gib */
+	ThrowRainDropGib(self);
+
+	self->think = misc_rain_think;
+	self->nextthink = level.time + 0.1f;
+}
+
+/*
+ * QUAKED misc_rain (0 .5 .8) (-8 -8 -8) (8 8 8)
+ *
+ * Infinity: misc_rain entities.
+ */
+void
+SP_misc_rain(edict_t *self)
+{
+	vec3_t point;
+
+	/* Disable in deathmatch/coop */
+	if (deathmatch->value || coop->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	/* Check if origin is inside solid contents */
+	VectorCopy(self->s.origin, point);
+	if (gi.pointcontents(point) & MASK_SOLID)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+	self->touch = NULL;
+
+	/* Rain does not have volume */
+	VectorClear(self->mins);
+	VectorClear(self->maxs);
+
+	self->s.modelindex = 0;
+
+	self->think = misc_rain_think;
+	self->nextthink = level.time + 0.1f;
+
+	gi.linkentity(self);
+}
+
 /*
  * QUAKED misc_lavaball (0 .5 .8) (-8 -8 -8) (8 8 8) NO_EXPLODE
  *

@@ -113,6 +113,7 @@
 {"misc_nuke", SP_misc_nuke},
 {"misc_nuke_core", SP_misc_nuke_core},
 {"misc_player_mannequin", SP_misc_player_mannequin},
+{"misc_rain", SP_misc_rain},
 {"misc_satellite_dish", SP_misc_satellite_dish},
 {"misc_strogg_ship", SP_misc_strogg_ship},
 {"misc_teleporter", SP_misc_teleporter},

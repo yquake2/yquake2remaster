@@ -336,6 +336,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Infinity: `misc_rain`,
 * [x] ReRelease: implement `misc_lavaball`,
 * [x] CppCheck: fix const warnings and scope,
 * [x] renders: share model_t type.

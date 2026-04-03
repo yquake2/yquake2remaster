@@ -947,6 +947,8 @@
 {"misc_nuke_core_use", (byte *)misc_nuke_core_use},
 {"misc_player_mannequin_think", (byte *)misc_player_mannequin_think},
 {"misc_player_mannequin_use", (byte *)misc_player_mannequin_use},
+{"misc_rain_think", (byte *)misc_rain_think},
+{"misc_rain_touch", (byte *)misc_rain_touch},
 {"misc_satellite_dish_think", (byte *)misc_satellite_dish_think},
 {"misc_satellite_dish_use", (byte *)misc_satellite_dish_use},
 {"misc_strogg_ship_use", (byte *)misc_strogg_ship_use},
