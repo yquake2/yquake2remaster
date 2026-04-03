@@ -236,8 +236,8 @@ R_DrawSkyBox(void)
 void
 RI_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 {
-	char	skyname[MAX_QPATH];
-	int		i;
+	char skyname[MAX_QPATH];
+	unsigned i;
 
 	Q_strlcpy(skyname, name, sizeof(skyname));
 	skyrotate = rotate;

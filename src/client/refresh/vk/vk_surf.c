@@ -940,8 +940,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		}
 		else
 		{
-			// the polygon is visible, so add it to the texture
-			// sorted chain
+			/* the polygon is visible, so add it to the texture sorted chain */
 			image = R_TextureAnimation(currententity, surf->texinfo);
 			surf->texturechain = image->texturechain;
 			image->texturechain = surf;

@@ -228,7 +228,6 @@ R_DrawAliasShadowCommand(const entity_t *currententity, int *order, const int *o
 {
 	while (1)
 	{
-		vec3_t point;
 		int count;
 
 		/* get the vertex count and primitive type */
@@ -251,6 +250,8 @@ R_DrawAliasShadowCommand(const entity_t *currententity, int *order, const int *o
 
 		do
 		{
+			vec3_t point;
+
 			/* normals and vertexes come from the frame list */
 			memcpy(point, s_lerped[order[2]], sizeof(point));
 
@@ -371,8 +372,6 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		}
 	}
 
-	paliashdr = (dmdx_t *)currentmodel->extradata;
-
 	for (i = 0; i < 3; i++)
 	{
 		/* fix scale */
@@ -381,6 +380,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 			currententity->scale[i] = 1.0f;
 		}
 	}
+
+	paliashdr = (dmdx_t *)currentmodel->extradata;
 
 	if (r_worldmodel)
 	{
@@ -404,8 +405,8 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	}
 
 	/* ir goggles color override */
-	if (r_newrefdef.rdflags & RDF_IRGOGGLES && currententity->flags &
-		RF_IR_VISIBLE)
+	if ((r_newrefdef.rdflags & RDF_IRGOGGLES) &&
+		(currententity->flags & RF_IR_VISIBLE))
 	{
 		shadelight[0] = 1.0;
 		shadelight[1] = 0.0;

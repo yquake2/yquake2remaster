@@ -1153,7 +1153,7 @@ Vkimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen)
 	/* We trying to get resolution from desktop */
 	if (mode == -2)
 	{
-		if(!ri.GLimp_GetDesktopMode(pwidth, pheight))
+		if (!ri.GLimp_GetDesktopMode(pwidth, pheight))
 		{
 			Com_Printf(" can't detect mode\n" );
 			return rserr_invalid_mode;
