@@ -97,7 +97,7 @@ R_AliasCheckFrameBBox( daliasxframe_t *frame, float worldxf[3][4] )
 	/*
 	** get the exact frame bounding box
 	*/
-	for (i=0 ; i<3 ; i++)
+	for (i = 0; i < 3 ; i++)
 	{
 		mins[i] = frame->translate[i];
 		maxs[i] = mins[i] + frame->scale[i] * 0xFFFF;

@@ -314,37 +314,6 @@ R_DrawAliasShadow(entity_t *currententity, dmdx_t *paliashdr, int posenum,
 	}
 }
 
-static qboolean
-R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
-{
-	dmdx_t *paliashdr;
-
-	paliashdr = (dmdx_t *)currentmodel->extradata;
-	if (!paliashdr)
-	{
-		Com_Printf("%s %s: Model is not fully loaded\n",
-				__func__, currentmodel->name);
-		return true;
-	}
-
-	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
-	{
-		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, currentmodel->name, e->frame);
-		e->frame = 0;
-	}
-
-	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
-	{
-		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, currentmodel->name, e->oldframe);
-		e->oldframe = 0;
-	}
-
-	return R_CullAliasMeshModel(paliashdr, frustum, e->frame, e->oldframe,
-		e->angles, e->origin, bbox);
-}
-
 void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
@@ -358,7 +327,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
-		if (R_CullAliasModel(currentmodel, bbox, currententity))
+		if (R_CullAliasModel(currentmodel, frustum, bbox, currententity))
 		{
 			return;
 		}

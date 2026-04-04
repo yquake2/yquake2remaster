@@ -795,7 +795,7 @@ R_SetupVulkan
 =============
 */
 static void
-R_SetupVulkan (void)
+R_SetupVulkan(void)
 {
 	float	r_proj_aspect;
 	float	r_proj_fovx;

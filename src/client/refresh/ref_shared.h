@@ -439,8 +439,8 @@ extern void R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_
 	msurface_t *fa);
 
 /* Mesh logic */
-extern qboolean R_CullAliasMeshModel(dmdx_t *paliashdr, cplane_t *frustum,
-	int frame, int oldframe, vec3_t e_angles, vec3_t e_origin, vec3_t bbox[8]);
+extern qboolean R_CullAliasModel(const model_t *currentmodel, cplane_t *frustum,
+		vec3_t bbox[8], entity_t *e);
 extern void R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
 		float *lerp, const float move[3],

@@ -441,33 +441,6 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 	}
 }
 
-static qboolean
-CullAliasModel(vec3_t bbox[8], entity_t *e)
-{
-	dmdx_t *paliashdr;
-
-	model_t* model = e->model;
-
-	paliashdr = (dmdx_t *)model->extradata;
-
-	if ((e->frame >= paliashdr->num_frames) || (e->frame < 0))
-	{
-		Com_DPrintf("%s %s: no such frame %d\n",
-				__func__, model->name, e->frame);
-		e->frame = 0;
-	}
-
-	if ((e->oldframe >= paliashdr->num_frames) || (e->oldframe < 0))
-	{
-		Com_DPrintf("%s %s: no such oldframe %d\n",
-				__func__, model->name, e->oldframe);
-		e->oldframe = 0;
-	}
-
-	return R_CullAliasMeshModel(paliashdr, frustum, e->frame, e->oldframe,
-		e->angles, e->origin, bbox);
-}
-
 void
 GL3_DrawAliasModel(entity_t *currententity)
 {
@@ -477,6 +450,7 @@ GL3_DrawAliasModel(entity_t *currententity)
 	vec3_t shadelight;
 	vec3_t shadevector;
 	const gl3image_t *skin = NULL;
+	model_t *currentmodel = currententity->model;
 	hmm_mat4 origProjViewMat = {0}; // use for left-handed rendering
 	// used to restore ModelView matrix after changing it for this entities position/rotation
 	hmm_mat4 origModelMat = {0};
@@ -485,7 +459,7 @@ GL3_DrawAliasModel(entity_t *currententity)
 	{
 		vec3_t bbox[8];
 
-		if (CullAliasModel(bbox, currententity))
+		if (R_CullAliasModel(currentmodel, frustum, bbox, currententity))
 		{
 			return;
 		}
