@@ -60,7 +60,6 @@ R_AliasCheckBBox
 
 #define BBOX_TRIVIAL_ACCEPT 0
 #define BBOX_MUST_CLIP_XY   1
-#define BBOX_MUST_CLIP_Z    2
 #define BBOX_TRIVIAL_REJECT 8
 
 /*
@@ -768,6 +767,16 @@ void
 R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 {
 	int i;
+
+	if (!(currententity->flags & RF_WEAPONMODEL))
+	{
+		vec3_t bbox[8];
+
+		if (R_CullAliasModel(currentmodel, frustum, bbox, currententity))
+		{
+			return;
+		}
+	}
 
 	s_pmdl = (dmdx_t *)currentmodel->extradata;
 
