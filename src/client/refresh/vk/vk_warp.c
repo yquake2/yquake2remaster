@@ -177,12 +177,16 @@ void
 R_DrawSkyBox(void)
 {
 	VkDeviceSize dstOffset;
-	mvtx_t skyVerts[4] = {0};
+	mvtx_t skyVerts[24] = {0};
+	unsigned visibleFaces[6];
+	unsigned numVisible = 0;
 	float model[16] = {0};
 	float gamma;
 	uint32_t uboOffset;
-	uint8_t *uboData;
+	uint8_t *uboData, *vertData;
 	VkBuffer *buffer;
+	VkBuffer vbo;
+	VkDeviceSize vboOffset;
 	qboolean farsee;
 	unsigned i;
 
@@ -229,8 +233,6 @@ R_DrawSkyBox(void)
 
 	for (i = 0; i < 6; i++)
 	{
-		uint8_t *vertData;
-
 		if (skyrotate)
 		{
 			skymins[0][i] = -1;
@@ -239,35 +241,45 @@ R_DrawSkyBox(void)
 			skymaxs[1][i] = 1;
 		}
 
-		if ((skymins[0][i] >= skymaxs[0][i]) ||
-		    (skymins[1][i] >= skymaxs[1][i]))
+		if (skymins[0][i] >= skymaxs[0][i] ||
+		    skymins[1][i] >= skymaxs[1][i])
 		{
 			continue;
 		}
 
-		R_MakeSkyVec(skymins[0][i], skymins[1][i], i, &skyVerts[0],
-			farsee, sky_min, sky_max);
-		R_MakeSkyVec(skymins[0][i], skymaxs[1][i], i, &skyVerts[1],
-			farsee, sky_min, sky_max);
-		R_MakeSkyVec(skymaxs[0][i], skymaxs[1][i], i, &skyVerts[2],
-			farsee, sky_min, sky_max);
-		R_MakeSkyVec(skymaxs[0][i], skymins[1][i], i, &skyVerts[3],
-			farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymins[0][i], skymins[1][i], i,
+			&skyVerts[numVisible * 4], farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymins[0][i], skymaxs[1][i], i,
+			&skyVerts[numVisible * 4 + 1], farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[0][i], skymaxs[1][i], i,
+			&skyVerts[numVisible * 4 + 2], farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[0][i], skymins[1][i], i,
+			&skyVerts[numVisible * 4 + 3], farsee, sky_min, sky_max);
 
-		VkBuffer vbo;
-		VkDeviceSize vboOffset;
-		vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * 4, &vbo, &vboOffset);
-		memcpy(vertData, skyVerts, sizeof(mvtx_t) * 4);
+		visibleFaces[numVisible++] = i;
+	}
 
+	if (numVisible == 0)
+	{
+		return;
+	}
+
+	vertData = QVk_GetVertexBuffer(
+		sizeof(mvtx_t)* 4 * numVisible, &vbo, &vboOffset);
+	memcpy(vertData, skyVerts, sizeof(mvtx_t) * 4 * numVisible);
+	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+
+	for (i = 0; i < numVisible; i++)
+	{
 		VkDescriptorSet descriptorSets[] = {
-			sky_images[skytexorder[i]]->vk_texture.descriptorSet
+			sky_images[skytexorder[visibleFaces[i]]]->vk_texture.descriptorSet
 		};
 
-		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vkCmdBindDescriptorSets(vk_activeCmdbuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
 			vk_drawSkyboxPipeline.layout, 0, 1, descriptorSets, 0, NULL);
-		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-
-		vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
+		vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0,
+			(int32_t)(i * 4), 0);
 	}
 }
 
