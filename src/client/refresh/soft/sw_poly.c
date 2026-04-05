@@ -1039,8 +1039,10 @@ R_ClipAndDrawPoly(float alpha, int isturbulent, qboolean textured)
 }
 
 /*
-** R_BuildPolygonFromSurface
-*/
+ * R_BuildPolygonFromSurface
+ *
+ * FIX: reuse R_BuildLMPolygonFromSurface
+ */
 static void
 R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentmodel, msurface_t *fa)
 {

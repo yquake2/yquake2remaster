@@ -146,7 +146,7 @@ Cvar_CopyString(char *old_str, const char *new_value)
 		old_str = Z_Realloc(old_str, nl);
 	}
 
-	strcpy(old_str, new_value);
+	Q_strlcpy(old_str, new_value, nl);
 
 	return old_str;
 }

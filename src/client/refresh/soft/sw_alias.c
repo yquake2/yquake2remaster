@@ -45,9 +45,9 @@ static vec3_t		r_shadelight;
 static daliasxframe_t	*r_thisframe, *r_lastframe;
 static dmdx_t	*s_pmdl;
 
-static float	aliastransform[3][4];
-static float	aliasworldtransform[3][4];
-static float	aliasoldworldtransform[3][4];
+static vec4_t aliastransform[3];
+static vec4_t aliasworldtransform[3];
+static vec4_t aliasoldworldtransform[3];
 
 static float	s_ziscale;
 static vec3_t	s_alias_forward, s_alias_right, s_alias_up;
@@ -68,7 +68,7 @@ R_AliasTransformVector
 ================
 */
 static void
-R_AliasTransformVector(const vec3_t in, vec3_t out, const float xf[3][4] )
+R_AliasTransformVector(const vec3_t in, vec3_t out, const vec4_t xf[3])
 {
 	out[0] = DotProduct(in, xf[0]) + xf[0][3];
 	out[1] = DotProduct(in, xf[1]) + xf[1][3];

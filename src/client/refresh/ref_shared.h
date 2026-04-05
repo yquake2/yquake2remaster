@@ -437,6 +437,8 @@ extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
 	float fov_x, float fov_y, cplane_t *frustum);
 extern void R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *fa);
+extern void R_BuildLMPolygonFromSurface(model_t *currentmodel, msurface_t *fa,
+	size_t block_width, size_t block_height, size_t image_width, size_t image_height);
 
 /* Mesh logic */
 extern qboolean R_CullAliasModel(const model_t *currentmodel, cplane_t *frustum,

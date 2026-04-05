@@ -117,101 +117,6 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 }
 
 static void
-LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa)
-{
-	medge_t *pedges, *r_pedge;
-	int i, lnumverts;
-	const float *vec;
-	mpoly_t *poly;
-	vec3_t total;
-	vec3_t normal;
-
-	/* reconstruct the polygon */
-	pedges = currentmodel->edges;
-	lnumverts = fa->numedges;
-
-	VectorClear(total);
-
-	/* draw texture */
-	poly = Hunk_Alloc(sizeof(mpoly_t) +
-		   (lnumverts - 4) * sizeof(mvtx_t));
-	poly->next = fa->polys;
-	poly->flags = fa->flags;
-	fa->polys = poly;
-	poly->numverts = lnumverts;
-
-	VectorCopy(fa->plane->normal, normal);
-
-	if(fa->flags & SURF_PLANEBACK)
-	{
-		// if for some reason the normal sticks to the back of the plane, invert it
-		// so it's usable for the shader
-		for (i=0; i<3; ++i)
-		{
-			normal[i] = -normal[i];
-		}
-	}
-
-	for (i = 0; i < lnumverts; i++)
-	{
-		mvtx_t* vert;
-		float s, t;
-		int lindex;
-
-		vert = &poly->verts[i];
-
-		lindex = currentmodel->surfedges[fa->firstedge + i];
-
-		if (lindex > 0)
-		{
-			r_pedge = &pedges[lindex];
-			vec = currentmodel->vertexes[r_pedge->v[0]].position;
-		}
-		else
-		{
-			r_pedge = &pedges[-lindex];
-			vec = currentmodel->vertexes[r_pedge->v[1]].position;
-		}
-
-		s = DotProduct(vec, fa->texinfo->vecs[0]) + fa->texinfo->vecs[0][3];
-		s /= fa->texinfo->image->width;
-
-		t = DotProduct(vec, fa->texinfo->vecs[1]) + fa->texinfo->vecs[1][3];
-		t /= fa->texinfo->image->height;
-
-		if (fa->texinfo->flags & SURF_N64_UV)
-		{
-			s *= 0.5;
-			t *= 0.5;
-		}
-
-		VectorAdd(total, vec, total);
-		VectorCopy(vec, vert->pos);
-		vert->texCoord[0] = s;
-		vert->texCoord[1] = t;
-
-		/* lightmap texture coordinates */
-		s = DotProduct(vec, fa->lmvecs[0]) + fa->lmvecs[0][3];
-		s -= fa->texturemins[0];
-		s += fa->light_s * (1 << fa->lmshift);
-		s += (1 << fa->lmshift) * 0.5;
-		s /= BLOCK_WIDTH * (1 << fa->lmshift);
-
-		t = DotProduct(vec, fa->lmvecs[1]) + fa->lmvecs[1][3];
-		t -= fa->texturemins[1];
-		t += fa->light_t * (1 << fa->lmshift);
-		t += (1 << fa->lmshift) * 0.5;
-		t /= BLOCK_HEIGHT * (1 << fa->lmshift);
-
-		vert->lmTexCoord[0] = s;
-		vert->lmTexCoord[1] = t;
-
-		VectorCopy(normal, vert->normal);
-		vert->lightFlags = 0;
-	}
-}
-
-static void
 LM_CreateSurfaceLightmap(msurface_t *surf)
 {
 	int smax, tmax;
@@ -260,7 +165,8 @@ LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa)
 
 	if (!(fa->texinfo->flags & SURF_WARP))
 	{
-		LM_BuildPolygonFromSurface(currentmodel, fa);
+		R_BuildLMPolygonFromSurface(currentmodel, fa, BLOCK_WIDTH, BLOCK_HEIGHT,
+			fa->texinfo->image->width, fa->texinfo->image->height);
 	}
 }
 
