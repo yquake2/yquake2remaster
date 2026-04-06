@@ -104,7 +104,7 @@ EmitWaterPolys(const msurface_t *fa, image_t *texture, const float *modelMatrix,
 		texture->vk_texture.descriptorSet,
 		uboDescriptorSet
 	};
-	int pos_vect = 0, index_pos = 0;
+	int pos_vect = 0, index_pos = 0, total_verts = 0;
 
 	float gamma = 2.1F - vid_gamma->value;
 
@@ -129,31 +129,30 @@ EmitWaterPolys(const msurface_t *fa, image_t *texture, const float *modelMatrix,
 	}
 
 	for (bp = fa->polys; bp; bp = bp->next)
+		total_verts += bp->numverts;
+
+	if (Mesh_VertsRealloc(total_verts))
 	{
-		const mpoly_t *p;
-
-		p = bp;
-
-		if (Mesh_VertsRealloc(pos_vect + p->numverts))
-		{
-			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-			return;
-		}
-
-		memcpy(verts_buffer + pos_vect, p->verts, sizeof(mvtx_t) * p->numverts);
-		for (i = 0; i < p->numverts; i++)
-		{
-			verts_buffer[i + pos_vect].texCoord[0] /= 64.f;
-			verts_buffer[i + pos_vect].texCoord[1] /= 64.f;
-		}
-		R_GenFanIndexes(vertIdxData + index_pos,
-			pos_vect, p->numverts - 2 + pos_vect);
-		pos_vect += p->numverts;
-		index_pos += (p->numverts - 2) * 3;
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+		return;
 	}
 
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
-	memcpy(vertData, verts_buffer, sizeof(mvtx_t) * pos_vect);
+	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * total_verts, &vbo, &vboOffset);
+	mvtx_t *verts = (mvtx_t *)vertData;
+
+	for (bp = fa->polys; bp; bp = bp->next)
+	{
+		memcpy(verts + pos_vect, bp->verts, sizeof(mvtx_t) * bp->numverts);
+		for (i = 0; i < bp->numverts; i++)
+		{
+			verts[i + pos_vect].texCoord[0] /= 64.f;
+			verts[i + pos_vect].texCoord[1] /= 64.f;
+		}
+		R_GenFanIndexes(vertIdxData + index_pos,
+			pos_vect, bp->numverts - 2 + pos_vect);
+		pos_vect += bp->numverts;
+		index_pos += (bp->numverts - 2) * 3;
+	}
 
 	buffer = UpdateIndexBuffer(vertIdxData, index_pos * sizeof(uint16_t), &dstOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);

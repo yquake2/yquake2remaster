@@ -39,6 +39,8 @@ vklightmapstate_t vk_lms;
 static void
 DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 {
+	VkBuffer vbo;
+	VkDeviceSize vboOffset;
 	float sscroll, tscroll;
 	const mpoly_t *p;
 	int i;
@@ -47,28 +49,22 @@ DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 
 	R_FlowingScroll(&r_newrefdef, fa->texinfo->flags, &sscroll, &tscroll);
 
-	if (Mesh_VertsRealloc(p->numverts))
-	{
-		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-		return;
-	}
-
-	memcpy(verts_buffer, p->verts, sizeof(mvtx_t) * p->numverts);
+	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
+	memcpy(vertData, p->verts, sizeof(mvtx_t) * p->numverts);
+	mvtx_t *verts = (mvtx_t *)vertData;
 	for (i = 0; i < p->numverts; i++)
 	{
-		verts_buffer[i].texCoord[0] += sscroll;
-		verts_buffer[i].texCoord[1] += tscroll;
+		verts[i].texCoord[0] += sscroll;
+		verts[i].texCoord[1] += tscroll;
 	}
 
 	QVk_BindPipeline(&vk_drawPolyPipeline);
 
-	VkDeviceSize vboOffset, dstOffset;
-	VkBuffer vbo, *buffer;
+	VkDeviceSize dstOffset;
+	VkBuffer *buffer;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
 	uint8_t *uboData  = QVk_GetUniformBuffer(sizeof(float) * 4, &uboOffset, &uboDescriptorSet);
-	memcpy(vertData, verts_buffer, sizeof(mvtx_t) * p->numverts);
 	memcpy(uboData,  color, sizeof(float) * 4);
 
 	VkDescriptorSet descriptorSets[] = {
@@ -579,12 +575,6 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		}
 	}
 
-	if (Mesh_VertsRealloc(nv))
-	{
-		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
-		return;
-	}
-
 	if (is_dynamic)
 	{
 		int smax, tmax, size;
@@ -619,13 +609,18 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	VkBuffer vbo, *buffer;
 	uint8_t *vertData;
 	float sscroll, tscroll;
-	int pos_vect = 0, index_pos = 0;
+	int pos_vect = 0, index_pos = 0, total_verts = 0;
 
 	c_brush_polys++;
 
 	//==========
 	//PGM
 	R_FlowingScroll(&r_newrefdef, surf->texinfo->flags, &sscroll, &tscroll);
+
+	for (p = surf->polys; p; p = p->chain)
+		total_verts += nv;
+	vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * total_verts, &vbo, &vboOffset);
+	mvtx_t *verts = (mvtx_t *)vertData;
 
 	for (p = surf->polys; p; p = p->chain)
 	{
@@ -635,11 +630,11 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 			return;
 		}
 
-		memcpy(verts_buffer + pos_vect, p->verts, sizeof(mvtx_t) * nv);
+		memcpy(verts + pos_vect, p->verts, sizeof(mvtx_t) * nv);
 		for (i = 0; i < nv; i++)
 		{
-			verts_buffer[pos_vect + i].texCoord[0] += sscroll;
-			verts_buffer[pos_vect + i].texCoord[1] += tscroll;
+			verts[pos_vect + i].texCoord[0] += sscroll;
+			verts[pos_vect + i].texCoord[1] += tscroll;
 		}
 
 		R_GenFanIndexes(vertIdxData + index_pos,
@@ -658,9 +653,6 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 		vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, uboOffset);
-
-	vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
-	memcpy(vertData, verts_buffer, sizeof(mvtx_t) * pos_vect);
 
 	buffer = UpdateIndexBuffer(vertIdxData, index_pos * sizeof(uint16_t), &dstOffset);
 
