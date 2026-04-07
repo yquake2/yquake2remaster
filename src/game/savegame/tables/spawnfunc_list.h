@@ -119,6 +119,7 @@
 {"misc_teleporter", SP_misc_teleporter},
 {"misc_teleporter_dest", SP_misc_teleporter_dest},
 {"misc_transport", SP_misc_transport},
+{"misc_text_caption", SP_misc_text_caption},
 {"misc_update_spawner", SP_misc_update_spawner},
 {"misc_viper", SP_misc_viper},
 {"misc_viper_bomb", SP_misc_viper_bomb},

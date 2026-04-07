@@ -3673,6 +3673,72 @@ SP_misc_hologram(edict_t *ent)
 }
 
 void
+misc_text_caption_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	char filepath[MAX_QPATH];
+	void *raw = NULL;
+	int len;
+
+	if (!self || !self->message || !activator || !activator->client)
+	{
+		return;
+	}
+
+	if (!strncmp(self->message, "infinity/", 9) ||
+		!strncmp(self->message, "infinity\\", 9))
+	{
+		/* infinity demo has infinity prefix */
+		Q_strlcpy(filepath, self->message + 9, sizeof(filepath));
+	}
+	else
+	{
+		Q_strlcpy(filepath, self->message, sizeof(filepath));
+	}
+
+	Q_replacebackslash(filepath);
+
+	len = gi.LoadFile(filepath, &raw);
+	if (len > 0 && raw)
+	{
+		char *buf;
+
+		buf = malloc(len + 1);
+		if (buf)
+		{
+			memcpy(buf, raw, len);
+			buf[len] = 0;
+			gi.centerprintf(activator, "%s", buf);
+			free(buf);
+		}
+
+		gi.FreeFile(raw);
+		return;
+	}
+}
+
+/*
+ * QUAKED misc_text_caption (0.5 0.5 0.5) (0 0 0) (0 0 0)
+ *
+ * Infinity: show text from file.
+ */
+void
+SP_misc_text_caption(edict_t *self)
+{
+	if (deathmatch->value || !self || !self->message)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->s.modelindex = 0;
+	self->solid = 0;
+	VectorClear(self->mins);
+	VectorClear(self->maxs);
+	self->use = misc_text_caption_use;
+	gi.linkentity(self);
+}
+
+void
 misc_rain_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 		const csurface_t *surf)
 {
