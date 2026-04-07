@@ -59,14 +59,11 @@ vec3_t vpn;
 vec3_t vright;
 vec3_t gl3_origin;
 
-int gl3_visframecount; /* bumped when going to a new PVS */
 int gl3_framecount; /* used for dlight push checking */
 
 int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
-
-int gl3_viewcluster, gl3_viewcluster2, gl3_oldviewcluster, gl3_oldviewcluster2;
 
 const hmm_mat4 gl3_identityMat4 = {{
 		{1, 0, 0, 0},
@@ -1090,8 +1087,6 @@ GL3_DrawEntitiesOnList(void)
 static void
 SetupFrame(void)
 {
-	const mleaf_t *leaf;
-
 	gl3_framecount++;
 
 	/* build the transformation matrix for the given view angles */
@@ -1099,52 +1094,7 @@ SetupFrame(void)
 
 	AngleVectors(r_newrefdef.viewangles, vpn, vright, vup);
 
-	/* current viewcluster */
-	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		if (!gl3_worldmodel)
-		{
-			Com_Error(ERR_DROP, "%s: bad world model", __func__);
-			return;
-		}
-
-		gl3_oldviewcluster = gl3_viewcluster;
-		gl3_oldviewcluster2 = gl3_viewcluster2;
-		leaf = Mod_PointInLeaf(gl3_origin, gl3_worldmodel->nodes);
-		gl3_viewcluster = gl3_viewcluster2 = leaf->cluster;
-
-		/* check above and below so crossing solid water doesn't draw wrong */
-		if (!leaf->contents)
-		{
-			/* look down a bit */
-			vec3_t temp;
-
-			VectorCopy(gl3_origin, temp);
-			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, gl3_worldmodel->nodes);
-
-			if (!(leaf->contents & CONTENTS_SOLID) &&
-				(leaf->cluster != gl3_viewcluster2))
-			{
-				gl3_viewcluster2 = leaf->cluster;
-			}
-		}
-		else
-		{
-			/* look up a bit */
-			vec3_t temp;
-
-			VectorCopy(gl3_origin, temp);
-			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, gl3_worldmodel->nodes);
-
-			if (!(leaf->contents & CONTENTS_SOLID) &&
-				(leaf->cluster != gl3_viewcluster2))
-			{
-				gl3_viewcluster2 = leaf->cluster;
-			}
-		}
-	}
+	R_SetClusters(gl3_worldmodel, gl3_origin);
 
 	R_CombineBlendWithFog(v_blend, false);
 
@@ -1565,7 +1515,7 @@ GL3_RenderView(const refdef_t *fd)
 
 	SetupGL();
 
-	GL3_MarkLeaves(); /* done here so we know if we're in water */
+	R_MarkLeaves(gl3_worldmodel); /* done here so we know if we're in water */
 
 	GL3_DrawWorld();
 

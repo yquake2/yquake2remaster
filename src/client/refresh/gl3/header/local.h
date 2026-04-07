@@ -277,10 +277,7 @@ typedef struct
 extern gl3config_t gl3config;
 extern gl3state_t gl3state;
 
-extern int gl3_visframecount; /* bumped when going to a new PVS */
 extern int gl3_framecount; /* used for dlight push checking */
-
-extern int gl3_viewcluster, gl3_viewcluster2, gl3_oldviewcluster, gl3_oldviewcluster2;
 
 extern int c_brush_polys, c_alias_polys;
 

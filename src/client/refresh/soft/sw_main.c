@@ -119,12 +119,10 @@ cplane_t	screenedge[4];
 // refresh flags
 //
 int		r_framecount = 1;	// so frame counts initialized to 0 don't match
-int		r_visframecount;
 int		r_polycount;
 int		r_drawnpolycount;
 
 int		*pfrustum_indexes[4];
-int			r_viewcluster, r_oldviewcluster;
 
 image_t  	*r_notexture_mip;
 
@@ -677,67 +675,6 @@ R_ReallocateMapBuffers (void)
 		max_span_p = edge_basespans + r_numallocatededgebasespans;
 
 		Com_DPrintf("Allocated %d edgespans.\n", r_numallocatededgebasespans);
-	}
-}
-
-
-/*
-===============
-R_MarkLeaves
-
-Mark the leaves and nodes that are in the PVS for the current
-cluster
-===============
-*/
-static void
-R_MarkLeaves (void)
-{
-	const byte	*vis;
-	mnode_t	*node;
-	int		i;
-	mleaf_t	*leaf;
-
-	if (r_oldviewcluster == r_viewcluster && !r_novis->value && r_viewcluster != -1)
-		return;
-
-	// development aid to let you run around and see exactly where
-	// the pvs ends
-	if (r_lockpvs->value)
-		return;
-
-	r_visframecount++;
-	r_oldviewcluster = r_viewcluster;
-
-	if (r_novis->value || r_viewcluster == -1 || !r_worldmodel->vis)
-	{
-		// mark everything
-		for (i=0 ; i<r_worldmodel->numleafs ; i++)
-			r_worldmodel->leafs[i].visframe = r_visframecount;
-		for (i=0 ; i<r_worldmodel->numnodes ; i++)
-			r_worldmodel->nodes[i].visframe = r_visframecount;
-		return;
-	}
-
-	vis = Mod_ClusterPVS(r_viewcluster, r_worldmodel);
-
-	for (i=0,leaf=r_worldmodel->leafs ; i<r_worldmodel->numleafs ; i++, leaf++)
-	{
-		int cluster;
-
-		cluster = leaf->cluster;
-		if (cluster == -1)
-			continue;
-		if (vis[cluster>>3] & (1<<(cluster&7)))
-		{
-			node = (mnode_t *)leaf;
-			do
-			{
-				if (node->visframe == r_visframecount)
-					break;
-				node->visframe = r_visframecount;
-				node = node->parent;
-			} while (node);
-		}
 	}
 }
 
@@ -1325,7 +1262,7 @@ RE_RenderFrame(const refdef_t *fd)
 
 	// Using the current view cluster (r_viewcluster), retrieve and decompress
 	// the PVS (Potentially Visible Set)
-	R_MarkLeaves();	// done here so we know if we're in water
+	R_MarkLeaves(r_worldmodel);	// done here so we know if we're in water
 
 	// For each dlight_t* passed via r_newrefdef.dlights, mark polygons affected by a light.
 	RI_PushDlights(r_worldmodel);

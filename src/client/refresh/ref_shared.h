@@ -390,6 +390,10 @@ typedef struct model_s
 extern refdef_t r_newrefdef;
 extern viddef_t vid;
 
+/* vis cluster/frame */
+extern int r_viewcluster, r_oldviewcluster;
+extern int r_visframecount;
+
 /* Shared models func */
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
 extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,
@@ -427,6 +431,8 @@ extern void Mod_VisRealloc(const model_t *model);
 extern void Mod_VisFree(void);
 
 /* Surface logic */
+extern void R_MarkLeaves(const model_t *r_worldmodel);
+extern void R_SetClusters(const model_t *r_worldmodel, const vec3_t r_origin);
 extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframecount,
 	msurface_t *surfaces);
 extern struct image_s *R_TextureAnimation(const entity_t *currententity,

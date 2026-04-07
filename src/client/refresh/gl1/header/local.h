@@ -138,7 +138,6 @@ extern int numgltextures;
 
 extern image_t *r_notexture;
 extern image_t *r_particletexture;
-extern int r_visframecount;
 extern int r_framecount;
 extern cplane_t frustum[4];
 extern int c_brush_polys, c_alias_polys;
@@ -149,9 +148,6 @@ extern vec3_t vup;
 extern vec3_t vpn;
 extern vec3_t vright;
 extern vec3_t r_origin;
-
-/* screen size info */
-extern int r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 
 extern qboolean IsHighDPIaware;
 
@@ -217,7 +213,6 @@ void R_DrawAlphaSurfaces(void);
 void R_InitParticleTexture(void);
 void Draw_InitLocal(void);
 void R_RotateForEntity(entity_t *e);
-void R_MarkLeaves(void);
 
 extern int r_dlightframecount;
 void R_EmitWaterPolys(msurface_t *fa);

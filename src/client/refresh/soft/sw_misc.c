@@ -330,34 +330,22 @@ R_SetupFrame (void)
 
 	r_framecount++;
 
+	/* build the transformation matrix for the given view angles */
+	VectorCopy(r_refdef.vieworg, modelorg);
+	VectorCopy(r_refdef.vieworg, r_origin);
 
-	// build the transformation matrix for the given view angles
-	VectorCopy (r_refdef.vieworg, modelorg);
-	VectorCopy (r_refdef.vieworg, r_origin);
+	AngleVectors(r_refdef.viewangles, vpn, vright, vup);
 
-	AngleVectors (r_refdef.viewangles, vpn, vright, vup);
-
-	// current viewleaf
-	if ( !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
-	{
-		const mleaf_t *r_viewleaf;
-
-		if (!r_worldmodel)
-		{
-			Com_Error(ERR_DROP, "%s: bad world model", __func__);
-			return;
-		}
-
-		// Determine what is the current view cluster (walking the BSP tree)
-		// and store it in r_viewcluster
-		r_viewleaf = Mod_PointInLeaf (r_origin, r_worldmodel->nodes);
-		r_viewcluster = r_viewleaf->cluster;
-	}
+	R_SetClusters(r_worldmodel, r_origin);
 
 	if (sw_waterwarp->value && (r_newrefdef.rdflags & RDF_UNDERWATER) )
+	{
 		r_dowarp = true;
+	}
 	else
+	{
 		r_dowarp = false;
+	}
 
 	if (r_dowarp)
 	{

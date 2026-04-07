@@ -416,8 +416,6 @@ extern vec3_t  r_origin;
 extern vec3_t	modelorg;
 extern vec3_t	r_entorigin;
 
-extern  int	r_visframecount;
-
 extern msurface_t	*r_alpha_surfaces;
 
 //=============================================================================
@@ -505,7 +503,6 @@ extern float	r_time1;
 extern float	da_time1, da_time2;
 extern float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 extern float	se_time1, se_time2, de_time1, de_time2;
-extern int r_viewcluster, r_oldviewcluster;
 
 extern int r_clipflags;
 

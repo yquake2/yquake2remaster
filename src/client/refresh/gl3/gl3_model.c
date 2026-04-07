@@ -451,7 +451,7 @@ GL3_BeginRegistration(const char *model)
 	const cvar_t *flushmap;
 
 	registration_sequence++;
-	gl3_oldviewcluster = -1; /* force markleafs */
+	r_oldviewcluster = -1; /* force markleafs */
 
 	gl3state.currentlightmap = -1;
 
@@ -469,7 +469,7 @@ GL3_BeginRegistration(const char *model)
 
 	gl3_worldmodel = Mod_ForName(fullname, NULL, true);
 
-	gl3_viewcluster = -1;
+	r_viewcluster = -1;
 }
 
 struct model_s *

@@ -623,7 +623,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		return; /* solid */
 	}
 
-	if (node->visframe != gl4_visframecount)
+	if (node->visframe != r_visframecount)
 	{
 		return;
 	}
@@ -784,110 +784,4 @@ GL4_DrawWorld(void)
 	DrawTextureChains(&ent);
 	GL4_DrawSkyBox();
 	DrawTriangleOutlines();
-}
-
-/*
- * Mark the leaves and nodes that are
- * in the PVS for the current cluster
- */
-void
-GL4_MarkLeaves(void)
-{
-	const byte *vis;
-	byte *fatvis = NULL;
-	mnode_t *node;
-	int i;
-	mleaf_t *leaf;
-
-	if ((gl4_oldviewcluster == gl4_viewcluster) &&
-		(gl4_oldviewcluster2 == gl4_viewcluster2) &&
-		!r_novis->value &&
-		(gl4_viewcluster != -1))
-	{
-		return;
-	}
-
-	/* development aid to let you run around
-	   and see exactly where the pvs ends */
-	if (r_lockpvs->value)
-	{
-		return;
-	}
-
-	gl4_visframecount++;
-	gl4_oldviewcluster = gl4_viewcluster;
-	gl4_oldviewcluster2 = gl4_viewcluster2;
-
-	if (r_novis->value || (gl4_viewcluster == -1) || !gl4_worldmodel->vis)
-	{
-		/* mark everything */
-		for (i = 0; i < gl4_worldmodel->numleafs; i++)
-		{
-			gl4_worldmodel->leafs[i].visframe = gl4_visframecount;
-		}
-
-		for (i = 0; i < gl4_worldmodel->numnodes; i++)
-		{
-			gl4_worldmodel->nodes[i].visframe = gl4_visframecount;
-		}
-
-		return;
-	}
-
-	vis = Mod_ClusterPVS(gl4_viewcluster, gl4_worldmodel);
-
-	/* may have to combine two clusters because of solid water boundaries */
-	if (gl4_viewcluster2 != gl4_viewcluster)
-	{
-		int c;
-
-		fatvis = malloc(((gl4_worldmodel->numleafs + 31) / 32) * sizeof(int));
-		memcpy(fatvis, vis, (gl4_worldmodel->numleafs + 7) / 8);
-		vis = Mod_ClusterPVS(gl4_viewcluster2, gl4_worldmodel);
-		c = (gl4_worldmodel->numleafs + 31) / 32;
-
-		for (i = 0; i < c; i++)
-		{
-			((int *)fatvis)[i] |= ((int *)vis)[i];
-		}
-
-		vis = fatvis;
-	}
-
-	for (i = 0, leaf = gl4_worldmodel->leafs;
-		 i < gl4_worldmodel->numleafs;
-		 i++, leaf++)
-	{
-		int cluster;
-
-		cluster = leaf->cluster;
-
-		if (cluster == -1)
-		{
-			continue;
-		}
-
-		if (vis[cluster >> 3] & (1 << (cluster & 7)))
-		{
-			node = (mnode_t *)leaf;
-
-			do
-			{
-				if (node->visframe == gl4_visframecount)
-				{
-					break;
-				}
-
-				node->visframe = gl4_visframecount;
-				node = node->parent;
-			}
-			while (node);
-		}
-	}
-
-	/* clean combined buffer */
-	if (fatvis)
-	{
-		free(fatvis);
-	}
 }

@@ -26,6 +26,10 @@
 
 #include "../ref_shared.h"
 
+int r_viewcluster, r_oldviewcluster;
+static int r_viewcluster2, r_oldviewcluster2;
+int r_visframecount; /* bumped when going to a new PVS */
+
 #define SUBDIVIDE_SIZE 64.0f
 #define MAX_SUBDIVIDE_VERTS 60
 
@@ -347,4 +351,163 @@ R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	}
 
 	R_SubdividePolygon(numverts, verts[0], fa);
+}
+
+/*
+ * Mark the leaves and nodes that are
+ * in the PVS for the current cluster
+ */
+void
+R_MarkLeaves(const model_t *r_worldmodel)
+{
+	const byte *vis;
+	byte *fatvis = NULL;
+	mnode_t *node;
+	int i;
+	mleaf_t *leaf;
+
+	if ((r_oldviewcluster == r_viewcluster) &&
+		(r_oldviewcluster2 == r_viewcluster2) &&
+		!r_novis->value &&
+		(r_viewcluster != -1))
+	{
+		return;
+	}
+
+	/* development aid to let you run around
+	   and see exactly where the pvs ends */
+	if (r_lockpvs->value)
+	{
+		return;
+	}
+
+	r_visframecount++;
+	r_oldviewcluster = r_viewcluster;
+	r_oldviewcluster2 = r_viewcluster2;
+
+	if (r_novis->value || (r_viewcluster == -1) || !r_worldmodel->vis)
+	{
+		/* mark everything */
+		for (i = 0; i < r_worldmodel->numleafs; i++)
+		{
+			r_worldmodel->leafs[i].visframe = r_visframecount;
+		}
+
+		for (i = 0; i < r_worldmodel->numnodes; i++)
+		{
+			r_worldmodel->nodes[i].visframe = r_visframecount;
+		}
+
+		return;
+	}
+
+	vis = Mod_ClusterPVS(r_viewcluster, r_worldmodel);
+
+	/* may have to combine two clusters because of solid water boundaries */
+	if (r_viewcluster2 != r_viewcluster)
+	{
+		int c;
+
+		fatvis = malloc(((r_worldmodel->numleafs + 31) / 32) * sizeof(int));
+		memcpy(fatvis, vis, (r_worldmodel->numleafs + 7) / 8);
+		vis = Mod_ClusterPVS(r_viewcluster2, r_worldmodel);
+		c = (r_worldmodel->numleafs + 31) / 32;
+
+		for (i = 0; i < c; i++)
+		{
+			((int *)fatvis)[i] |= ((int *)vis)[i];
+		}
+
+		vis = fatvis;
+	}
+
+	for (i = 0, leaf = r_worldmodel->leafs;
+		 i < r_worldmodel->numleafs;
+		 i++, leaf++)
+	{
+		int cluster;
+
+		cluster = leaf->cluster;
+
+		if (cluster == -1)
+		{
+			continue;
+		}
+
+		if (vis[cluster >> 3] & (1 << (cluster & 7)))
+		{
+			node = (mnode_t *)leaf;
+
+			do
+			{
+				if (node->visframe == r_visframecount)
+				{
+					break;
+				}
+
+				node->visframe = r_visframecount;
+				node = node->parent;
+			}
+			while (node);
+		}
+	}
+
+	/* clean combined buffer */
+	if (fatvis)
+	{
+		free(fatvis);
+	}
+}
+
+void
+R_SetClusters(const model_t *r_worldmodel, const vec3_t r_origin)
+{
+	/* current viewcluster */
+	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	{
+		const mleaf_t *leaf;
+
+		if (!r_worldmodel)
+		{
+			Com_Error(ERR_DROP, "%s: bad world model", __func__);
+			return;
+		}
+
+		r_oldviewcluster = r_viewcluster;
+		r_oldviewcluster2 = r_viewcluster2;
+		leaf = Mod_PointInLeaf(r_origin, r_worldmodel->nodes);
+		r_viewcluster = r_viewcluster2 = leaf->cluster;
+
+		/* check above and below so crossing solid water doesn't draw wrong */
+		if (!leaf->contents)
+		{
+			/* look down a bit */
+			vec3_t temp;
+
+			VectorCopy(r_origin, temp);
+			temp[2] -= 16;
+			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
+
+			if (!(leaf->contents & CONTENTS_SOLID) &&
+				(leaf->cluster != r_viewcluster2))
+			{
+				r_viewcluster2 = leaf->cluster;
+			}
+		}
+		else
+		{
+			/* look up a bit */
+			vec3_t temp;
+
+			VectorCopy(r_origin, temp);
+			temp[2] += 16;
+			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
+
+			if (!(leaf->contents & CONTENTS_SOLID) &&
+				(leaf->cluster != r_viewcluster2))
+			{
+				r_viewcluster2 = leaf->cluster;
+			}
+		}
+	}
 }

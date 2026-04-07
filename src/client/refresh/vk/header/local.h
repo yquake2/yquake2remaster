@@ -82,7 +82,6 @@ extern	int			numvktextures;
 extern	image_t		*r_notexture;
 extern	image_t		*r_particletexture;
 extern	image_t		*r_squaretexture;
-extern	int			r_visframecount;
 extern	int			r_framecount;
 extern	cplane_t	frustum[4];
 extern	int			c_brush_polys, c_alias_polys;
@@ -98,8 +97,6 @@ extern	vec3_t	r_origin;
 //
 // screen size info
 //
-extern	int		r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
-
 extern	cvar_t	*vk_znear;
 extern	cvar_t	*vk_overbrightbits;
 extern	cvar_t	*vk_picmip;
@@ -157,7 +154,6 @@ void RE_InitParticleTexture(void);
 void Draw_InitLocal(void);
 void Draw_FreeLocal(void);
 void R_RotateForEntity(entity_t *e, float *mvMatrix);
-void R_MarkLeaves(void);
 
 void EmitWaterPolys(const msurface_t *fa, image_t *texture,
 				   const float *modelMatrix, const float *color,

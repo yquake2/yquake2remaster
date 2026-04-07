@@ -40,7 +40,6 @@ image_t *r_particletexture; /* little dot for particles */
 
 cplane_t frustum[4];
 
-int r_visframecount; /* bumped when going to a new PVS */
 int r_framecount; /* used for dlight push checking */
 
 int c_brush_polys, c_alias_polys;
@@ -59,7 +58,6 @@ float r_world_matrix[16];
 float r_base_world_matrix[16];
 
 /* screen size info */
-int r_viewcluster, r_viewcluster2, r_oldviewcluster, r_oldviewcluster2;
 unsigned r_rawpalette[256];
 
 cvar_t *gl1_overbrightbits;
@@ -640,7 +638,6 @@ R_ResetClearColor(void)
 static void
 R_SetupFrame(void)
 {
-	const mleaf_t *leaf;
 	int i;
 
 	r_framecount++;
@@ -650,52 +647,7 @@ R_SetupFrame(void)
 
 	AngleVectors(r_newrefdef.viewangles, vpn, vright, vup);
 
-	/* current viewcluster */
-	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		if (!r_worldmodel)
-		{
-			Com_Error(ERR_DROP, "%s: bad world model", __func__);
-			return;
-		}
-
-		r_oldviewcluster = r_viewcluster;
-		r_oldviewcluster2 = r_viewcluster2;
-		leaf = Mod_PointInLeaf(r_origin, r_worldmodel->nodes);
-		r_viewcluster = r_viewcluster2 = leaf->cluster;
-
-		/* check above and below so crossing solid water doesn't draw wrong */
-		if (!leaf->contents)
-		{
-			/* look down a bit */
-			vec3_t temp;
-
-			VectorCopy(r_origin, temp);
-			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
-
-			if (!(leaf->contents & CONTENTS_SOLID) &&
-				(leaf->cluster != r_viewcluster2))
-			{
-				r_viewcluster2 = leaf->cluster;
-			}
-		}
-		else
-		{
-			/* look up a bit */
-			vec3_t temp;
-
-			VectorCopy(r_origin, temp);
-			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, r_worldmodel->nodes);
-
-			if (!(leaf->contents & CONTENTS_SOLID) &&
-				(leaf->cluster != r_viewcluster2))
-			{
-				r_viewcluster2 = leaf->cluster;
-			}
-		}
-	}
+	R_SetClusters(r_worldmodel, r_origin);
 
 	R_CombineBlendWithFog(v_blend, true);
 
@@ -1135,7 +1087,7 @@ R_RenderView(const refdef_t *fd)
 
 	R_SetupGL();
 
-	R_MarkLeaves(); /* done here so we know if we're in water */
+	R_MarkLeaves(r_worldmodel); /* done here so we know if we're in water */
 
 	R_DrawWorld();
 

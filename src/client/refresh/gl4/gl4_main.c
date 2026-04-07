@@ -55,14 +55,11 @@ vec3_t vpn;
 vec3_t vright;
 vec3_t gl4_origin;
 
-int gl4_visframecount; /* bumped when going to a new PVS */
 int gl4_framecount; /* used for dlight push checking */
 
 int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
-
-int gl4_viewcluster, gl4_viewcluster2, gl4_oldviewcluster, gl4_oldviewcluster2;
 
 const hmm_mat4 gl4_identityMat4 = {{
 		{1, 0, 0, 0},
@@ -1036,8 +1033,6 @@ GL4_DrawEntitiesOnList(void)
 static void
 SetupFrame(void)
 {
-	const mleaf_t *leaf;
-
 	gl4_framecount++;
 
 	/* build the transformation matrix for the given view angles */
@@ -1045,52 +1040,7 @@ SetupFrame(void)
 
 	AngleVectors(r_newrefdef.viewangles, vpn, vright, vup);
 
-	/* current viewcluster */
-	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
-	{
-		if (!gl4_worldmodel)
-		{
-			Com_Error(ERR_DROP, "%s: bad world model", __func__);
-			return;
-		}
-
-		gl4_oldviewcluster = gl4_viewcluster;
-		gl4_oldviewcluster2 = gl4_viewcluster2;
-		leaf = Mod_PointInLeaf(gl4_origin, gl4_worldmodel->nodes);
-		gl4_viewcluster = gl4_viewcluster2 = leaf->cluster;
-
-		/* check above and below so crossing solid water doesn't draw wrong */
-		if (!leaf->contents)
-		{
-			/* look down a bit */
-			vec3_t temp;
-
-			VectorCopy(gl4_origin, temp);
-			temp[2] -= 16;
-			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->nodes);
-
-			if (!(leaf->contents & CONTENTS_SOLID) &&
-				(leaf->cluster != gl4_viewcluster2))
-			{
-				gl4_viewcluster2 = leaf->cluster;
-			}
-		}
-		else
-		{
-			/* look up a bit */
-			vec3_t temp;
-
-			VectorCopy(gl4_origin, temp);
-			temp[2] += 16;
-			leaf = Mod_PointInLeaf(temp, gl4_worldmodel->nodes);
-
-			if (!(leaf->contents & CONTENTS_SOLID) &&
-				(leaf->cluster != gl4_viewcluster2))
-			{
-				gl4_viewcluster2 = leaf->cluster;
-			}
-		}
-	}
+	R_SetClusters(gl4_worldmodel, gl4_origin);
 
 	R_CombineBlendWithFog(v_blend, false);
 
@@ -1511,7 +1461,7 @@ GL4_RenderView(const refdef_t *fd)
 
 	SetupGL();
 
-	GL4_MarkLeaves(); /* done here so we know if we're in water */
+	R_MarkLeaves(gl4_worldmodel); /* done here so we know if we're in water */
 
 	GL4_DrawWorld();
 

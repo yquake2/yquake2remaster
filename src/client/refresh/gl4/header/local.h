@@ -267,10 +267,7 @@ typedef struct
 extern gl4config_t gl4config;
 extern gl4state_t gl4state;
 
-extern int gl4_visframecount; /* bumped when going to a new PVS */
 extern int gl4_framecount; /* used for dlight push checking */
-
-extern int gl4_viewcluster, gl4_viewcluster2, gl4_oldviewcluster, gl4_oldviewcluster2;
 
 extern int c_brush_polys, c_alias_polys;
 
@@ -476,7 +473,6 @@ extern void GL4_DrawTriangleOutlines(void);
 extern void GL4_DrawAlphaSurfaces(void);
 extern void GL4_DrawBrushModel(entity_t *e, model_t *currentmodel);
 extern void GL4_DrawWorld(void);
-extern void GL4_MarkLeaves(void);
 
 // gl4_mesh.c
 extern void GL4_DrawAliasModel(entity_t *currententity);
