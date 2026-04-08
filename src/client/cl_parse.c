@@ -1411,6 +1411,14 @@ CL_LoadShadowLight(int idx, const char *s)
 	p = buf;
 	shadow = cl.shadowdefs + idx;
 	shadow->number = atoi(COM_Parse(&p));
+
+	if (shadow->number < 0 || shadow->number > MAX_EDICTS)
+	{
+		Com_DPrintf("%s: wrong shadow %d number %d\n",
+			__func__, idx, shadow->number);
+		return;
+	}
+
 	is_cone = !!atoi(COM_Parse(&p));
 	shadow->light.radius = atof(COM_Parse(&p));
 	shadow->light.resolution = atoi(COM_Parse(&p));
