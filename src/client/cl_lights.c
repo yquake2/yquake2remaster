@@ -88,6 +88,12 @@ CL_SetLightstyle(int i)
 	s = cl.configstrings[i + CS_LIGHTS];
 
 	j = (int)strlen(s);
+
+	if (j >= MAX_QPATH)
+	{
+		j = MAX_QPATH - 1;
+	}
+
 	cl_lightstyle[i].length = j;
 
 	for (k = 0; k < j; k++)
