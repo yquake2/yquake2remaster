@@ -132,7 +132,7 @@ typedef struct
 	void (*centerprintf)(const edict_t *ent, const char *fmt, ...);
 	void (*sound)(const edict_t *ent, int channel, int soundindex, float volume,
 			float attenuation, float timeofs);
-	void (*positioned_sound)(vec3_t origin, const edict_t *ent, int channel,
+	void (*positioned_sound)(const vec3_t origin, const edict_t *ent, int channel,
 			int soundinedex, float volume, float attenuation, float timeofs);
 
 	/* config strings hold all the index strings, the lightstyles,

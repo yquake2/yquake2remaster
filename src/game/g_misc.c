@@ -3802,14 +3802,12 @@ misc_rain_think(edict_t *self)
 	{
 		char name[MAX_OSPATH];
 		int soundindex;
-		vec3_t origin;
 
 		/* Pick one of several ambient rain sounds */
 		snprintf(name, sizeof(name), "world/amb%i.wav", (rand() % 4) + 1);
 		soundindex = gi.soundindex(name);
 
-		VectorCopy(self->s.origin, origin);
-		gi.positioned_sound(origin, self, CHAN_AUTO, soundindex, 1.0, ATTN_NORM, 0);
+		gi.positioned_sound(self->s.origin, self, CHAN_AUTO, soundindex, 1.0, ATTN_NORM, 0);
 	}
 
 	/* Spawn a raindrop gib */
