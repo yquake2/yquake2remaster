@@ -1113,10 +1113,8 @@ UpdateIndexBuffer(const uint16_t *data, VkDeviceSize bufferSize, VkDeviceSize *d
 {
 	uint16_t *iboData = NULL;
 
-	VK_VERIFY(buffer_invalidate(&vk_dynIndexBuffers[vk_activeDynBufferIdx].resource));
 	iboData = (uint16_t *)QVk_GetIndexBuffer(bufferSize, dstOffset, vk_activeDynBufferIdx);
 	memcpy(iboData, data, bufferSize);
-	VK_VERIFY(buffer_flush(&vk_dynIndexBuffers[vk_activeDynBufferIdx].resource));
 
 	return &vk_dynIndexBuffers[vk_activeDynBufferIdx].resource.buffer;
 }
