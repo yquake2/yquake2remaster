@@ -112,7 +112,7 @@ G_Find(edict_t *from, int fieldofs, const char *match)
  * within a spherical area
  */
 edict_t *
-findradius(edict_t *from, vec3_t org, float rad)
+findradius(edict_t *from, const vec3_t org, float rad)
 {
 	vec3_t eorg;
 	int j;
@@ -159,7 +159,7 @@ findradius(edict_t *from, vec3_t org, float rad)
  * Returns entities that have origins within a spherical area
  */
 edict_t *
-findradius2(edict_t *from, vec3_t org, float rad)
+findradius2(edict_t *from, const vec3_t org, float rad)
 {
 	/* rad must be positive */
 	vec3_t eorg;

@@ -3673,6 +3673,65 @@ SP_misc_hologram(edict_t *ent)
 }
 
 void
+misc_lightning_think(edict_t *self)
+{
+	/* Randomly decide whether to play thunder sound or just reschedule */
+	if (frandk() < 0.38f)
+	{
+		/* Schedule another quick think without sound */
+		self->nextthink = level.time + frandk();
+	}
+	else
+	{
+		float attenuation = 0.0f;
+		float volume = 1.0f;
+		char *soundname;
+		int soundindex;
+
+		/* Play thunder sound effect */
+		if (frandk() >= 0.5f)
+		{
+			soundname = "world/amb2.wav";
+		}
+		else
+		{
+			soundname = "world/amb1.wav";
+		}
+
+		soundindex = gi.soundindex(soundname);
+		gi.positioned_sound(self->s.origin, self, CHAN_AUTO, soundindex, 1.0, ATTN_NORM, 0);
+		gi.sound(self, CHAN_AUTO, soundindex, volume, attenuation, 0);
+
+		/* Schedule next thunder event */
+		self->nextthink = level.time + 38.0f + frandk() * 28.0f;
+	}
+}
+
+/*
+ * QUAKED misc_lightning (.5 .5 .5) (0 0 0) (0 0 0)
+ *
+ * Infinity: Lightning sound spawner.
+ */
+void
+SP_misc_lightning(edict_t *self)
+{
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+	self->touch = NULL;
+
+	VectorClear(self->mins);
+	VectorClear(self->maxs);
+
+	self->s.modelindex = 0;
+	self->classname = "misc_lightning";
+
+	self->think = misc_lightning_think;
+	self->nextthink = level.time + 8.0f + frandk() * 8.0f;
+
+	gi.linkentity(self);
+}
+
+void
 misc_text_caption_use(edict_t *self, edict_t *other, edict_t *activator)
 {
 	char filepath[MAX_QPATH];
@@ -3731,9 +3790,7 @@ SP_misc_text_caption(edict_t *self)
 	}
 
 	self->s.modelindex = 0;
-	self->solid = 0;
-	VectorClear(self->mins);
-	VectorClear(self->maxs);
+	self->solid = SOLID_NOT;
 	self->use = misc_text_caption_use;
 	gi.linkentity(self);
 }
@@ -3818,7 +3875,7 @@ misc_rain_think(edict_t *self)
 }
 
 /*
- * QUAKED misc_rain (0 .5 .8) (-8 -8 -8) (8 8 8)
+ * QUAKED misc_rain (.5 .5 .5) (0 0 0) (0 0 0)
  *
  * Infinity: misc_rain entities.
  */
@@ -3845,10 +3902,6 @@ SP_misc_rain(edict_t *self)
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_NOT;
 	self->touch = NULL;
-
-	/* Rain does not have volume */
-	VectorClear(self->mins);
-	VectorClear(self->maxs);
 
 	self->s.modelindex = 0;
 

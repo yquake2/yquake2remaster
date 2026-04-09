@@ -109,6 +109,7 @@
 {"misc_hologram", SP_misc_hologram},
 {"misc_insane", SP_misc_insane},
 {"misc_lavaball", SP_misc_lavaball},
+{"misc_lightning", SP_misc_lightning},
 {"misc_model", SP_misc_model},
 {"misc_nuke", SP_misc_nuke},
 {"misc_nuke_core", SP_misc_nuke_core},

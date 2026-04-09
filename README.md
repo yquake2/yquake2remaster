@@ -336,6 +336,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Infinity: `misc_lightning`,
 * [x] Infinity: `misc_text_caption`,
 * [x] Infinity: `misc_rain`,
 * [x] ReRelease: implement `misc_lavaball`,
