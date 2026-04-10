@@ -176,7 +176,6 @@ void
 R_DrawSkyBox(void)
 {
 	VkDeviceSize dstOffset;
-	mvtx_t skyVerts[24] = {0};
 	unsigned visibleFaces[6];
 	unsigned numVisible = 0;
 	float model[16] = {0};
@@ -246,15 +245,6 @@ R_DrawSkyBox(void)
 			continue;
 		}
 
-		R_MakeSkyVec(skymins[0][i], skymins[1][i], i,
-			&skyVerts[numVisible * 4], farsee, sky_min, sky_max);
-		R_MakeSkyVec(skymins[0][i], skymaxs[1][i], i,
-			&skyVerts[numVisible * 4 + 1], farsee, sky_min, sky_max);
-		R_MakeSkyVec(skymaxs[0][i], skymaxs[1][i], i,
-			&skyVerts[numVisible * 4 + 2], farsee, sky_min, sky_max);
-		R_MakeSkyVec(skymaxs[0][i], skymins[1][i], i,
-			&skyVerts[numVisible * 4 + 3], farsee, sky_min, sky_max);
-
 		visibleFaces[numVisible++] = i;
 	}
 
@@ -265,7 +255,22 @@ R_DrawSkyBox(void)
 
 	vertData = QVk_GetVertexBuffer(
 		sizeof(mvtx_t)* 4 * numVisible, &vbo, &vboOffset);
-	memcpy(vertData, skyVerts, sizeof(mvtx_t) * 4 * numVisible);
+
+	for (i = 0; i < numVisible; i++)
+	{
+		mvtx_t *skyVerts = &((mvtx_t *)vertData)[i * 4];
+		const unsigned face = visibleFaces[i];
+
+		R_MakeSkyVec(skymins[0][face], skymins[1][face], face,
+				&skyVerts[0], farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymins[0][face], skymaxs[1][face], face,
+				&skyVerts[1], farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[0][face], skymaxs[1][face], face,
+				&skyVerts[2], farsee, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[0][face], skymins[1][face], face,
+				&skyVerts[3], farsee, sky_min, sky_max);
+	}
+
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
 	for (i = 0; i < numVisible; i++)
