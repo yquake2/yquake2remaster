@@ -30,23 +30,25 @@
 
 typedef struct BufferResource_s {
 	VkBuffer buffer;
-	// shared memory used for buffer
+	/* shared memory used for buffer */
 	VkDeviceMemory memory;
-	// image size
+	/* image size */
 	VkDeviceSize size;
-	// posision in shared memory
+	/* posision in shared memory */
 	VkDeviceSize offset;
-	// is mapped?
+	/* is mapped? */
 	VkBool32 is_mapped;
+	/* flags */
+	VkMemoryPropertyFlags flags;
 } BufferResource_t;
 
 typedef struct ImageResource_s {
 	VkImage image;
-	// shared memory used for image
+	/* shared memory used for image */
 	VkDeviceMemory memory;
-	// image size
+	/* image size */
 	VkDeviceSize size;
-	// posision in shared memory
+	/* posision in shared memory */
 	VkDeviceSize offset;
 } ImageResource_t;
 
