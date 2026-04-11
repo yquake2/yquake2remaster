@@ -30,68 +30,21 @@
 int r_dlightframecount;
 vec3_t lightspot;
 
-static void
-R_RenderDlight(dlight_t *light)
-{
-	VkDeviceSize vboOffset, dstOffset;
-	VkDescriptorSet uboDescriptorSet;
-	uint8_t *vertData, *uboData;
-	VkBuffer vbo, *buffer;
-	uint32_t uboOffset;
-	float rad;
-	int i, j;
-
-	rad = light->intensity * 0.35;
-
-	struct {
-		vec3_t verts;
-		float color[3];
-	} lightVerts[18];
-
-	for (i = 0; i < 3; i++)
-	{
-		lightVerts[0].verts[i] = light->origin[i] - vpn[i] * rad;
-	}
-
-	lightVerts[0].color[0] = light->color[0] * 0.2;
-	lightVerts[0].color[1] = light->color[1] * 0.2;
-	lightVerts[0].color[2] = light->color[2] * 0.2;
-
-	for (i = 16; i >= 0; i--)
-	{
-		float	a;
-
-		a = i / 16.0 * M_PI * 2;
-		for (j = 0; j < 3; j++)
-		{
-			lightVerts[i+1].verts[j] = light->origin[j] + vright[j] * cos(a)*rad
-				+ vup[j] * sin(a)*rad;
-			lightVerts[i+1].color[j] = 0.f;
-		}
-	}
-
-	QVk_BindPipeline(&vk_drawDLightPipeline);
-
-	vertData = QVk_GetVertexBuffer(sizeof(lightVerts), &vbo, &vboOffset);
-	uboData = QVk_GetUniformBuffer(sizeof(r_viewproj_matrix), &uboOffset, &uboDescriptorSet);
-	memcpy(vertData, lightVerts, sizeof(lightVerts));
-	memcpy(uboData,  r_viewproj_matrix, sizeof(r_viewproj_matrix));
-
-	Mesh_VertsRealloc(64);
-	R_GenFanIndexes(vertIdxData, 0, 48);
-	buffer = UpdateIndexBuffer(vertIdxData, 48 * sizeof(uint16_t), &dstOffset);
-
-	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawDLightPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
-	vkCmdDrawIndexed(vk_activeCmdbuffer, 48, 1, 0, 0, 0);
-}
-
 void
 R_RenderDlights(void)
 {
-	int i;
-	dlight_t *l;
+	typedef struct {
+		vec3_t verts;
+		float color[3];
+	} lightVert_t;
+
+	VkBuffer vbo, *ibuffer;
+	VkDeviceSize vboOffset, dstOffset;
+	VkDescriptorSet uboDescriptorSet;
+	lightVert_t *vertData;
+	uint8_t *uboData;
+	uint32_t uboOffset;
+	int k;
 
 	if (!r_flashblend->value)
 	{
@@ -101,11 +54,61 @@ R_RenderDlights(void)
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = r_framecount + 1;
 
-	l = r_newrefdef.dlights;
-
-	for (i = 0; i < r_newrefdef.num_dlights; i++, l++)
+	if (!r_newrefdef.num_dlights)
 	{
-		R_RenderDlight(l);
+		return;
+	}
+
+	QVk_BindPipeline(&vk_drawDLightPipeline);
+
+	vertData = (lightVert_t *)QVk_GetVertexBuffer(
+		sizeof(lightVert_t) * 18 * r_newrefdef.num_dlights, &vbo, &vboOffset);
+	uboData = QVk_GetUniformBuffer(sizeof(r_viewproj_matrix),
+		&uboOffset, &uboDescriptorSet);
+	memcpy(uboData, r_viewproj_matrix, sizeof(r_viewproj_matrix));
+
+	for (k = 0; k < r_newrefdef.num_dlights; k++)
+	{
+		const dlight_t *light = &r_newrefdef.dlights[k];
+		lightVert_t *lv = vertData + k * 18;
+		float rad = light->intensity * 0.35;
+		int i, j;
+
+		for (i = 0; i < 3; i++)
+		{
+			lv[0].verts[i] = light->origin[i] - vpn[i] * rad;
+		}
+
+		lv[0].color[0] = light->color[0] * 0.2;
+		lv[0].color[1] = light->color[1] * 0.2;
+		lv[0].color[2] = light->color[2] * 0.2;
+
+		for (i = 16; i >= 0; i--)
+		{
+			float a = i / 16.0 * M_PI * 2;
+
+			for (j = 0; j < 3; j++)
+			{
+				lv[i + 1].verts[j] = light->origin[j]
+					+ vright[j] * cos(a) * rad
+					+ vup[j] * sin(a) * rad;
+				lv[i + 1].color[j] = 0.f;
+			}
+		}
+	}
+
+	Mesh_VertsRealloc(64);
+	R_GenFanIndexes(vertIdxData, 0, 48);
+	ibuffer = UpdateIndexBuffer(vertIdxData, 48 * sizeof(uint16_t), &dstOffset);
+
+	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vk_drawDLightPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *ibuffer, dstOffset, VK_INDEX_TYPE_UINT16);
+
+	for (k = 0; k < r_newrefdef.num_dlights; k++)
+	{
+		vkCmdDrawIndexed(vk_activeCmdbuffer, 48, 1, 0, k * 18, 0);
 	}
 }
 
