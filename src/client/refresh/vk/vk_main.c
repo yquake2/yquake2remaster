@@ -526,7 +526,14 @@ R_DrawParticles(void)
 		particleUbo.att_b = vk_particle_att_b->value;
 		particleUbo.att_c = vk_particle_att_c->value;
 
-		static ppoint visibleParticles[MAX_PARTICLES];
+		QVk_BindPipeline(&vk_drawPointParticlesPipeline);
+
+		VkBuffer vbo;
+		VkDeviceSize vboOffset;
+		uint32_t uboOffset;
+		VkDescriptorSet uboDescriptorSet;
+		ppoint *vertData = (ppoint *)QVk_GetVertexBuffer(sizeof(ppoint) * r_newrefdef.num_particles, &vbo, &vboOffset);
+		uint8_t *uboData  = QVk_GetUniformBuffer(sizeof(particleUbo), &uboOffset, &uboDescriptorSet);
 
 		for (i = 0, p = r_newrefdef.particles; i < r_newrefdef.num_particles; i++, p++)
 		{
@@ -536,24 +543,15 @@ R_DrawParticles(void)
 			float g = color[1] / 255.f;
 			float b = color[2] / 255.f;
 
-			visibleParticles[i].x = p->origin[0];
-			visibleParticles[i].y = p->origin[1];
-			visibleParticles[i].z = p->origin[2];
-			visibleParticles[i].r = r;
-			visibleParticles[i].g = g;
-			visibleParticles[i].b = b;
-			visibleParticles[i].a = p->alpha;
+			vertData[i].x = p->origin[0];
+			vertData[i].y = p->origin[1];
+			vertData[i].z = p->origin[2];
+			vertData[i].r = r;
+			vertData[i].g = g;
+			vertData[i].b = b;
+			vertData[i].a = p->alpha;
 		}
 
-		QVk_BindPipeline(&vk_drawPointParticlesPipeline);
-
-		VkBuffer vbo;
-		VkDeviceSize vboOffset;
-		uint32_t uboOffset;
-		VkDescriptorSet uboDescriptorSet;
-		uint8_t *vertData = QVk_GetVertexBuffer(sizeof(ppoint) * r_newrefdef.num_particles, &vbo, &vboOffset);
-		uint8_t *uboData  = QVk_GetUniformBuffer(sizeof(particleUbo), &uboOffset, &uboDescriptorSet);
-		memcpy(vertData, &visibleParticles, sizeof(ppoint) * r_newrefdef.num_particles);
 		memcpy(uboData,  &particleUbo, sizeof(particleUbo));
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPointParticlesPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
@@ -1391,39 +1389,36 @@ R_DrawBeam(entity_t *currententity )
 
 	float color[4] = { r, g, b, currententity->alpha };
 
-	struct {
-		float v[3];
-	} beamvertex[NUM_BEAM_SEGS*4];
-
-	for (i = 0; i < NUM_BEAM_SEGS; i++)
-	{
-		int idx = i * 4;
-		beamvertex[idx].v[0] = start_points[i][0];
-		beamvertex[idx].v[1] = start_points[i][1];
-		beamvertex[idx].v[2] = start_points[i][2];
-
-		beamvertex[idx + 1].v[0] = end_points[i][0];
-		beamvertex[idx + 1].v[1] = end_points[i][1];
-		beamvertex[idx + 1].v[2] = end_points[i][2];
-
-		beamvertex[idx + 2].v[0] = start_points[(i + 1) % NUM_BEAM_SEGS][0];
-		beamvertex[idx + 2].v[1] = start_points[(i + 1) % NUM_BEAM_SEGS][1];
-		beamvertex[idx + 2].v[2] = start_points[(i + 1) % NUM_BEAM_SEGS][2];
-
-		beamvertex[idx + 3].v[0] = end_points[(i + 1) % NUM_BEAM_SEGS][0];
-		beamvertex[idx + 3].v[1] = end_points[(i + 1) % NUM_BEAM_SEGS][1];
-		beamvertex[idx + 3].v[2] = end_points[(i + 1) % NUM_BEAM_SEGS][2];
-	}
-
 	QVk_BindPipeline(&vk_drawBeamPipeline);
-
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
 	uint32_t uboOffset;
 	VkDescriptorSet uboDescriptorSet;
-	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(beamvertex), &vbo, &vboOffset);
+	float (*beamvertex)[3] = (float (*)[3])QVk_GetVertexBuffer(
+			sizeof(float[3]) * NUM_BEAM_SEGS * 4, &vbo, &vboOffset);
 	uint8_t *uboData  = QVk_GetUniformBuffer(sizeof(color), &uboOffset, &uboDescriptorSet);
-	memcpy(vertData, beamvertex, sizeof(beamvertex));
+
+
+	for (i = 0; i < NUM_BEAM_SEGS; i++)
+	{
+		int idx = i * 4;
+		beamvertex[idx][0] = start_points[i][0];
+		beamvertex[idx][1] = start_points[i][1];
+		beamvertex[idx][2] = start_points[i][2];
+
+		beamvertex[idx + 1][0] = end_points[i][0];
+		beamvertex[idx + 1][1] = end_points[i][1];
+		beamvertex[idx + 1][2] = end_points[i][2];
+
+		beamvertex[idx + 2][0] = start_points[(i + 1) % NUM_BEAM_SEGS][0];
+		beamvertex[idx + 2][1] = start_points[(i + 1) % NUM_BEAM_SEGS][1];
+		beamvertex[idx + 2][2] = start_points[(i + 1) % NUM_BEAM_SEGS][2];
+
+		beamvertex[idx + 3][0] = end_points[(i + 1) % NUM_BEAM_SEGS][0];
+		beamvertex[idx + 3][1] = end_points[(i + 1) % NUM_BEAM_SEGS][1];
+		beamvertex[idx + 3][2] = end_points[(i + 1) % NUM_BEAM_SEGS][2];
+	}
+
 	memcpy(uboData,  color, sizeof(color));
 
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawBeamPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
