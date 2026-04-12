@@ -954,6 +954,8 @@
 {"misc_satellite_dish_think", (byte *)misc_satellite_dish_think},
 {"misc_satellite_dish_use", (byte *)misc_satellite_dish_use},
 {"misc_strogg_ship_use", (byte *)misc_strogg_ship_use},
+{"misc_drip_think", (byte *)misc_drip_think},
+{"misc_drip_touch", (byte *)misc_drip_touch},
 {"misc_update_spawner_touch", (byte *)misc_update_spawner_touch},
 {"misc_viper_bomb_prethink", (byte *)misc_viper_bomb_prethink},
 {"misc_viper_bomb_touch", (byte *)misc_viper_bomb_touch},

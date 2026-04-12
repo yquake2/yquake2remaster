@@ -3822,14 +3822,11 @@ ThrowRainDropGib(edict_t *self)
 
 	ent = G_Spawn();
 	ent->owner = self;
-	ent->movetype = MOVETYPE_BOUNCE;
+	ent->movetype = MOVETYPE_TOSS;
 	ent->solid = SOLID_NOT;
 	ent->touch = misc_rain_touch;
 
 	VectorCopy(self->s.origin, ent->s.origin);
-	VectorClear(ent->mins);
-	VectorClear(ent->maxs);
-	VectorClear(ent->velocity);
 
 	/* Randomize X/Y slightly */
 	ent->s.origin[0] -= rand() % 256 - 128;
@@ -3882,8 +3879,6 @@ misc_rain_think(edict_t *self)
 void
 SP_misc_rain(edict_t *self)
 {
-	vec3_t point;
-
 	/* Disable in deathmatch/coop */
 	if (deathmatch->value || coop->value)
 	{
@@ -3892,8 +3887,7 @@ SP_misc_rain(edict_t *self)
 	}
 
 	/* Check if origin is inside solid contents */
-	VectorCopy(self->s.origin, point);
-	if (gi.pointcontents(point) & MASK_SOLID)
+	if (gi.pointcontents(self->s.origin) & MASK_SOLID)
 	{
 		G_FreeEdict(self);
 		return;
@@ -3907,6 +3901,98 @@ SP_misc_rain(edict_t *self)
 
 	self->think = misc_rain_think;
 	self->nextthink = level.time + 0.1f;
+
+	gi.linkentity(self);
+}
+
+/* Drip sound effect thinker */
+void
+misc_drip_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+		const csurface_t *surf)
+{
+	if (!self->s.skinnum)
+	{
+		float timeofs;
+
+		timeofs = frandk();
+
+		if (frandk() < 0.28f)
+		{
+			gi.sound(self, CHAN_AUTO, gi.soundindex("world/h2odrip.wav"), 1, ATTN_NORM, timeofs);
+		}
+		else
+		{
+			gi.sound(self, CHAN_AUTO, gi.soundindex("world/h2odpsph.wav"), 1, ATTN_NORM, timeofs);
+		}
+	}
+
+	G_FreeEdict(self);
+}
+
+/* Spawn a drip effect entity */
+static void
+misc_drip_effect(edict_t *self)
+{
+	edict_t *ent;
+
+	if (gi.pointcontents(self->s.origin) & MASK_WATER)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	ent = G_Spawn();
+	ent->owner = self;
+	ent->movetype = MOVETYPE_TOSS;
+	ent->solid = SOLID_NOT;
+	ent->touch = misc_drip_touch;
+
+	VectorCopy(self->s.origin, ent->s.origin);
+
+	/* Randomize position slightly */
+	ent->s.origin[0] -= rand() % 16 - 8;
+	ent->s.origin[1] -= rand() % 16 - 8;
+
+	ent->s.modelindex = gi.modelindex("models/objects/drip/tris.md2");
+
+	self->s.skinnum = rand() % 3;
+
+	ent->s.origin[2] -= 5.0f;
+	ent->think = G_FreeEdict;
+	ent->classname = "drip";
+	ent->nextthink = level.time + 2.0f;
+
+	gi.linkentity(ent);
+}
+
+/* Thinker for drip source */
+void
+misc_drip_think(edict_t *self)
+{
+	if (gi.pointcontents(self->s.origin) & MASK_WATER)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	misc_drip_effect(self);
+	self->nextthink = level.time + 1.0f + (frandk() * 2.0f);
+}
+
+/*
+ * QUAKED misc_drip (.5 .5 .5) (0 0 0) (0 0 0)
+ *
+ * Infinity: misc_drip entities.
+ */
+void
+SP_misc_drip(edict_t *self)
+{
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+	self->touch = NULL;
+
+	self->think = misc_drip_think;
+	self->nextthink = level.time + 1.0f + (frandk() * 2.0f);
 
 	gi.linkentity(self);
 }

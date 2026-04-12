@@ -969,6 +969,8 @@ extern void misc_text_caption_use ( edict_t * self , edict_t * other , edict_t *
 extern void misc_satellite_dish_think ( edict_t * self ) ;
 extern void misc_satellite_dish_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void misc_strogg_ship_use ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void misc_drip_think ( edict_t * self ) ;
+extern void misc_drip_touch ( edict_t * self , edict_t * other , const cplane_t * plane , const csurface_t * surf ) ;
 extern void misc_update_spawner_touch(edict_t *self, edict_t *other, const cplane_t *plane , const csurface_t *surf ) ;
 extern void misc_viper_bomb_prethink ( edict_t * self ) ;
 extern void misc_viper_bomb_touch ( edict_t * self , edict_t * other , const cplane_t * plane , const csurface_t * surf ) ;

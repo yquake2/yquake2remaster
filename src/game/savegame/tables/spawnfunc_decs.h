@@ -104,6 +104,7 @@ void SP_misc_nuke ( edict_t * ent ) ;
 void SP_misc_nuke_core ( edict_t * ent ) ;
 void SP_misc_player_mannequin ( edict_t * ent ) ;
 void SP_misc_rain ( edict_t * self ) ;
+void SP_misc_drip ( edict_t * self ) ;
 void SP_misc_satellite_dish ( edict_t * ent ) ;
 void SP_misc_strogg_ship ( edict_t * ent ) ;
 void SP_misc_text_caption ( edict_t * self ) ;

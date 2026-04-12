@@ -339,6 +339,7 @@ Checked with:
 * [x] Infinity: `misc_lightning`,
 * [x] Infinity: `misc_text_caption`,
 * [x] Infinity: `misc_rain`,
+* [x] Infinity: `misc_drip`,
 * [x] ReRelease: implement `misc_lavaball`,
 * [x] CppCheck: fix const warnings and scope,
 * [x] renders: share model_t type.
