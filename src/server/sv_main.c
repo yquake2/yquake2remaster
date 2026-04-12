@@ -383,7 +383,7 @@ SV_Optimizations(void)
 	cv = (svs.gamemode == GAMEMODE_SP) ?
 		sv_optimize_sp_loadtime : sv_optimize_mp_loadtime;
 
-	return cv ? cv->value : 0;
+	return cv ? ((int)cv->value & OPTIMIZE_MASK_ALL) : 0;
 }
 
 void
@@ -606,8 +606,8 @@ SV_Init(void)
 	SV_SendInitBuffers();
 	SV_InitOperatorCommands();
 
-	sv_optimize_sp_loadtime = Cvar_Get("sv_optimize_sp_loadtime", "15", 0);
-	sv_optimize_mp_loadtime = Cvar_Get("sv_optimize_mp_loadtime", "0", 0);
+	sv_optimize_sp_loadtime = Cvar_Get("sv_optimize_sp_loadtime", "31", 0);
+	sv_optimize_mp_loadtime = Cvar_Get("sv_optimize_mp_loadtime", "7", 0);
 
 	rcon_password = Cvar_Get("rcon_password", "", 0);
 	Cvar_Get("skill", "1", 0);

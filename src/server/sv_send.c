@@ -294,9 +294,10 @@ void
 SV_StartSound(const vec3_t origin, const edict_t *entity, int channel, int soundindex,
 		float volume, float attenuation, float timeofs)
 {
-	int sendchan, flags, ent, protocol;
-	qboolean use_phs;
+	int flags, ent, protocol;
 	vec3_t origin_v;
+	qboolean use_phs;
+	multicast_t to;
 
 	protocol = sv_client ? sv_client->protocol : PROTOCOL_VERSION;
 
@@ -324,18 +325,6 @@ SV_StartSound(const vec3_t origin, const edict_t *entity, int channel, int sound
 	{
 		return;
 	}
-
-	if (channel & 8) /* no PHS flag */
-	{
-		use_phs = false;
-		channel &= 7;
-	}
-	else
-	{
-		use_phs = true;
-	}
-
-	sendchan = (ent << 3) | (channel & 7);
 
 	flags = 0;
 
@@ -416,6 +405,7 @@ SV_StartSound(const vec3_t origin, const edict_t *entity, int channel, int sound
 
 	if (flags & SND_ENT)
 	{
+		int sendchan = (ent << 3) | (channel & 7);
 		MSG_WriteShort(&sv.multicast, sendchan);
 	}
 
@@ -423,6 +413,8 @@ SV_StartSound(const vec3_t origin, const edict_t *entity, int channel, int sound
 	{
 		MSG_WritePos(&sv.multicast, origin, protocol);
 	}
+
+	use_phs = (channel & CHAN_NO_PHS_ADD) ? false : true;
 
 	/* if the sound doesn't attenuate,send it to everyone
 	   (global radio chatter, voiceovers, etc) */
@@ -433,26 +425,14 @@ SV_StartSound(const vec3_t origin, const edict_t *entity, int channel, int sound
 
 	if (channel & CHAN_RELIABLE)
 	{
-		if (use_phs)
-		{
-			SV_Multicast(origin, MULTICAST_PHS_R);
-		}
-		else
-		{
-			SV_Multicast(origin, MULTICAST_ALL_R);
-		}
+		to = use_phs ? MULTICAST_PHS_R : MULTICAST_ALL_R;
 	}
 	else
 	{
-		if (use_phs)
-		{
-			SV_Multicast(origin, MULTICAST_PHS);
-		}
-		else
-		{
-			SV_Multicast(origin, MULTICAST_ALL);
-		}
+		to = use_phs ? MULTICAST_PHS : MULTICAST_ALL;
 	}
+
+	SV_Multicast(origin, to);
 }
 
 static int msgbuff_size = 0;
