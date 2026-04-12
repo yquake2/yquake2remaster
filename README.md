@@ -340,6 +340,9 @@ Checked with:
 * [x] Infinity: `misc_text_caption`,
 * [x] Infinity: `misc_rain`,
 * [x] Infinity: `misc_drip`,
+* [x] Infinity: `misc_desk`,
+* [x] Infinity: `misc_chair`,
+* [x] Infinity: `misc_crate`,
 * [x] ReRelease: implement `misc_lavaball`,
 * [x] CppCheck: fix const warnings and scope,
 * [x] renders: share model_t type.
