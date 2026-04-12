@@ -42,13 +42,13 @@ typedef struct areanode_s
 	link_t solid_edicts;
 } areanode_t;
 
-areanode_t sv_areanodes[AREA_NODES];
-int sv_numareanodes;
+static areanode_t sv_areanodes[AREA_NODES];
+static int sv_numareanodes;
 
-float *area_mins, *area_maxs;
-edict_t **area_list;
-int area_count, area_maxcount;
-int area_type;
+static const float *area_mins, *area_maxs;
+static edict_t **area_list;
+static int area_count, area_maxcount;
+static int area_type;
 
 static int SV_HullForEntity(edict_t *ent);
 
@@ -470,7 +470,7 @@ SV_AreaEdicts_r(areanode_t *node)
 }
 
 int
-SV_AreaEdicts(vec3_t mins, vec3_t maxs, edict_t **list,
+SV_AreaEdicts(const vec3_t mins, const vec3_t maxs, edict_t **list,
 		int maxcount, int areatype)
 {
 	area_mins = mins;
@@ -492,7 +492,7 @@ SV_AreaEdicts(vec3_t mins, vec3_t maxs, edict_t **list,
 }
 
 int
-SV_PointContents(vec3_t p)
+SV_PointContents(const vec3_t p)
 {
 	edict_t *touch[MAX_EDICTS];
 	int i, num, contents;

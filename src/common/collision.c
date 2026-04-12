@@ -613,7 +613,7 @@ CM_BoxLeafnums(vec3_t mins, vec3_t maxs, int *list, int listsize, int *topnode)
 }
 
 int
-CM_PointContents(vec3_t p, int headnode)
+CM_PointContents(const vec3_t p, int headnode)
 {
 	int l;
 
@@ -632,7 +632,7 @@ CM_PointContents(vec3_t p, int headnode)
  * rotating entities
  */
 int
-CM_TransformedPointContents(vec3_t p, int headnode,
+CM_TransformedPointContents(const vec3_t p, int headnode,
 		vec3_t origin, vec3_t angles)
 {
 	vec3_t p_l;

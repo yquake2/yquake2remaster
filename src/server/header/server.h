@@ -295,10 +295,10 @@ void SV_LinkEdict(edict_t *ent);
    or solid. Automatically unlinks if needed. sets ent->v.absmin and
    ent->v.absmax sets ent->leafnums[] for pvs determination even if
    the entity is not solid */
-int SV_AreaEdicts(vec3_t mins, vec3_t maxs, edict_t **list,
+int SV_AreaEdicts(const vec3_t mins, const vec3_t maxs, edict_t **list,
 		int maxcount, int areatype);
 
-int SV_PointContents(vec3_t p);
+int SV_PointContents(const vec3_t p);
 
 trace_t SV_Trace(const vec3_t start, const vec3_t mins, const vec3_t maxs,
 		const vec3_t end, const edict_t *passedict, int contentmask);

@@ -677,8 +677,8 @@ const char *CM_EntityString(int *size);
 int CM_HeadnodeForBox(vec3_t mins, vec3_t maxs);
 
 /* returns an ORed contents mask */
-int CM_PointContents(vec3_t p, int headnode);
-int CM_TransformedPointContents(vec3_t p, int headnode,
+int CM_PointContents(const vec3_t p, int headnode);
+int CM_TransformedPointContents(const vec3_t p, int headnode,
 		vec3_t origin, vec3_t angles);
 
 trace_t CM_BoxTrace(const vec3_t start, const vec3_t end, const vec3_t mins,
