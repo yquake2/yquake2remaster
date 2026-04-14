@@ -1171,6 +1171,7 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 	memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
 
 	Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
+	level.is_n64 = !strncmp(level.mapname, "q64/", 4);
 	Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
 	/* set client fields on player ents */

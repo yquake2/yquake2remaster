@@ -373,7 +373,7 @@ SV_RunGameFrame(void)
 int
 SV_Optimizations(void)
 {
-	cvar_t *cv;
+	const cvar_t *cv;
 
 	if (svs.gamemode <= 0 || svs.gamemode > 3)
 	{

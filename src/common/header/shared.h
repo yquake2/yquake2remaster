@@ -773,6 +773,7 @@ typedef struct
  * ReRelease flags, values are different to quake 2 RR code */
 #define EF_HOLOGRAM 0x00000001           /* N64 hologram */
 #define EF_FLASHLIGHT 0x00000002         /* project flashlight, only for players */
+#define EF_TELEPORTER2 0x00000004        /* [Paril-KEX] n64 teleporter */
 
 /* entity_state_t->renderfx flags */
 #define RF_MINLIGHT 1               /* allways have some light (viewmodel) */

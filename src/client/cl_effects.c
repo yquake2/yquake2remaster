@@ -923,26 +923,42 @@ CL_AddMuzzleFlash2(void)
 	}
 }
 
+static cparticle_t *
+CL_AllocParticle(void)
+{
+	cparticle_t *p;
+
+	if (!free_particles)
+	{
+		return NULL;
+	}
+
+	p = free_particles;
+	free_particles = p->next;
+	p->next = active_particles;
+	active_particles = p;
+
+	return p;
+}
+
 void
 CL_TeleporterParticles(const entity_xstate_t *ent)
 {
-	int i, j;
-	cparticle_t *p;
+	int i;
 	float time;
 
 	time = (float)cl.time;
 
 	for (i = 0; i < 8; i++)
 	{
-		if (!free_particles)
+		cparticle_t *p;
+		int j;
+
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = 0xff53ffff;
@@ -961,6 +977,55 @@ CL_TeleporterParticles(const entity_xstate_t *ent)
 		p->alpha = 1.0;
 
 		p->alphavel = -0.5;
+	}
+}
+
+/* Marsaglia 1972 rejection method */
+static void RandomDir(vec3_t dir)
+{
+	float x, y, s, a;
+
+	do
+	{
+		x = crandk();
+		y = crandk();
+		s = x * x + y * y;
+	} while (s > 1);
+
+	a = 2 * sqrtf(1 - s);
+	dir[0] = x * a;
+	dir[1] = y * a;
+	dir[2] = -1 + 2 * s;
+}
+
+void
+CL_TeleporterParticles2(const entity_xstate_t *ent)
+{
+	int i;
+
+	for (i = 0; i < 8; i++)
+	{
+		cparticle_t *p;
+		vec3_t      dir;
+
+		p = CL_AllocParticle();
+		if (!p)
+		{
+			return;
+		}
+
+		p->time = cl.time;
+		p->color = 0xff5b5b5b;
+
+		RandomDir(dir);
+		VectorMA(ent->origin, 30.0f, dir, p->org);
+		p->org[2] += 20.0f;
+		VectorScale(dir, -25.0f, p->vel);
+
+		VectorClear(p->accel);
+		p->alpha = 1.0f;
+
+		p->alphavel = -0.8f;
 	}
 }
 
@@ -1004,15 +1069,11 @@ CL_LogoutEffect(const vec3_t org, int type)
 
 	for (i = 0; i < 500; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 
@@ -1062,15 +1123,11 @@ CL_ItemRespawnParticles(const vec3_t org)
 
 	for (i = 0; i < 64; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(0xff2fa75f, 0xffffffff,
@@ -1103,15 +1160,11 @@ CL_ExplosionParticles(const vec3_t org)
 
 	for (i = 0; i < 256; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(0xff07abff, 0xff002bab,
@@ -1149,7 +1202,6 @@ void
 CL_BigTeleportParticles(const vec3_t org)
 {
 	int i;
-	cparticle_t *p;
 	float time;
 
 	time = (float)cl.time;
@@ -1157,16 +1209,13 @@ CL_BigTeleportParticles(const vec3_t org)
 	for (i = 0; i < 4096; i++)
 	{
 		float angle, dist;
+		cparticle_t *p;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = default_colortable[randk() & 3];
@@ -1209,15 +1258,11 @@ CL_BlasterParticles(const vec3_t org, const vec3_t dir)
 	{
 		float d;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(0xff07abff, 0xff002bab,
@@ -1262,15 +1307,11 @@ CL_BlasterTrail(const vec3_t start, const vec3_t end)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -1314,15 +1355,11 @@ CL_QuadTrail(const vec3_t start, const vec3_t end)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -1366,15 +1403,11 @@ CL_FlagTrail(const vec3_t start, const vec3_t end, int color)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -1613,15 +1646,11 @@ CL_RailTrail(const vec3_t start, const vec3_t end)
 		vec3_t dir;
 		int j;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		VectorClear(p->accel);
@@ -1658,15 +1687,11 @@ CL_RailTrail(const vec3_t start, const vec3_t end)
 
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		VectorClear(p->accel);
@@ -1712,15 +1737,11 @@ CL_IonripperTrail(const vec3_t start, const vec3_t end)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -1775,15 +1796,11 @@ CL_BubbleTrail(const vec3_t start, const vec3_t end)
 
 	for (i = 0; i < len; i += 32)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		VectorClear(p->accel);
 		p->time = time;
@@ -1850,15 +1867,11 @@ CL_FlyParticles(const vec3_t origin, int count)
 		forward[1] = cp * sy;
 		forward[2] = -sp;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 
@@ -1958,15 +1971,11 @@ CL_BfgParticles(entity_t *ent)
 		forward[1] = cp * sy;
 		forward[2] = -sp;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 
@@ -1987,7 +1996,7 @@ CL_BfgParticles(entity_t *ent)
 }
 
 void
-CL_HologramParticles(const vec3_t org)
+CL_HologramParticles(const vec3_t org, float radius)
 {
 	vec3_t axis[3], dir;
 	float ltime;
@@ -2002,15 +2011,11 @@ CL_HologramParticles(const vec3_t org)
 	{
 		cparticle_t *p;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = cl.time;
 		p->color = 0xff00ff00; /* classic 0xd0 palette index */
@@ -2019,7 +2024,7 @@ CL_HologramParticles(const vec3_t org)
 		dir[1] = DotProduct(bytedirs[i], axis[1]);
 		dir[2] = DotProduct(bytedirs[i], axis[2]);
 
-		VectorMA(org, 100.0f, dir, p->org);
+		VectorMA(org, radius, dir, p->org);
 
 		VectorClear(p->vel);
 		VectorClear(p->accel);
@@ -2060,15 +2065,11 @@ CL_TrapParticles(entity_t *ent)
 
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -2159,15 +2160,11 @@ CL_BFGExplosionParticles(const vec3_t org)
 		cparticle_t *p;
 		int j;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(0xff00ff00, 0xffffffff,
@@ -2392,15 +2389,11 @@ CL_FlameEffects(const vec3_t origin)
 		cparticle_t *p;
 		int j;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		VectorClear(p->accel);
 		p->time = cl.time;
@@ -2428,15 +2421,11 @@ CL_FlameEffects(const vec3_t origin)
 		cparticle_t *p;
 		int j;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = cl.time;
@@ -2507,15 +2496,11 @@ CL_DebugTrail(const vec3_t start, const vec3_t end)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = (float)cl.time;
 		VectorClear(p->accel);
@@ -2551,15 +2536,11 @@ CL_SmokeTrail(const vec3_t start, const vec3_t end, unsigned int basecolor, unsi
 	{
 		len -= spacing;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -2662,15 +2643,11 @@ CL_BubbleTrail2(vec3_t start, vec3_t end, int dist)
 
 	for (i = 0; i < len; i += dist)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		VectorClear(p->accel);
 		p->time = time;
@@ -2808,15 +2785,11 @@ CL_ParticleSteamEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned 
 		float d;
 		int j;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(basecolor, finalcolor,
@@ -2857,15 +2830,11 @@ CL_ParticleSteamEffect2(cl_sustain_t *self)
 		float d;
 		int j;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = cl.time;
 		p->color = CL_CombineColors(self->basecolor, self->finalcolor,
@@ -2922,15 +2891,11 @@ CL_TrackerTrail(const vec3_t start, const vec3_t end, unsigned int color)
 
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -2965,15 +2930,11 @@ CL_Tracker_Shell(const vec3_t origin)
 
 	for (i = 0; i < 300; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -3002,15 +2963,11 @@ CL_MonsterPlasma_Shell(vec3_t origin)
 
 	for (i = 0; i < 40; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -3041,15 +2998,11 @@ CL_Widowbeamout(cl_sustain_t *self)
 
 	for (i = 0; i < 300; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -3080,15 +3033,11 @@ CL_Nukeblast(cl_sustain_t *self)
 
 	for (i = 0; i < 700; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -3117,15 +3066,11 @@ CL_WidowSplash(const vec3_t org)
 
 	for (i = 0; i < 256; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = default_colortable[randk() & 3];
@@ -3155,15 +3100,11 @@ CL_Tracker_Explode(const vec3_t origin)
 
 	for (i = 0; i < 300; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -3206,15 +3147,11 @@ CL_TagTrail(const vec3_t start, const vec3_t end, int color)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;
@@ -3246,15 +3183,11 @@ CL_ColorExplosionParticles(const vec3_t org, unsigned int basecolor, unsigned in
 
 	for (i = 0; i < 128; i++)
 	{
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(basecolor, finalcolor,
@@ -3294,15 +3227,11 @@ CL_ParticleSmokeEffect(const vec3_t org, vec3_t dir, unsigned int basecolor, uns
 	{
 		float d;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		p->color = CL_CombineColors(basecolor, finalcolor,
@@ -3345,15 +3274,11 @@ CL_BlasterParticles2(const vec3_t org, const vec3_t dir, unsigned int basecolor,
 	{
 		float d;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 
 		p->time = time;
 		d = (float)(randk() & 15);
@@ -3401,15 +3326,11 @@ CL_BlasterTrail2(const vec3_t start, const vec3_t end)
 	{
 		len -= dec;
 
-		if (!free_particles)
+		p = CL_AllocParticle();
+		if (!p)
 		{
 			return;
 		}
-
-		p = free_particles;
-		free_particles = p->next;
-		p->next = active_particles;
-		active_particles = p;
 		VectorClear(p->accel);
 
 		p->time = time;

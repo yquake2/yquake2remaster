@@ -1316,7 +1316,15 @@ SV_Physics_Step(edict_t *ent)
 
 		gi.linkentity(ent);
 		ent->gravity = 1.0;
-		G_TouchTriggers(ent);
+
+		/*
+		 * [Paril-KEX] this is something N64 does to avoid doors opening
+		 * at the start of a level, which triggers some monsters to spawn.
+		 */
+		if (!level.is_n64 || level.time > FRAMETIME)
+		{
+			G_TouchTriggers(ent);
+		}
 
 		if (!ent->inuse)
 		{

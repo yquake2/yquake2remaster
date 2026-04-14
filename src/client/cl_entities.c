@@ -26,6 +26,7 @@
 
 #include <math.h>
 #include "header/client.h"
+#include "../common/header/cmodel.h"
 
 static void
 CL_AddPacketEntities(const frame_t *frame)
@@ -600,7 +601,17 @@ CL_AddPacketEntities(const frame_t *frame)
 
 		if (rr_effects & EF_HOLOGRAM)
 		{
-			CL_HologramParticles(ent.origin);
+			const char *modelname;
+			float radius = 10.0f;
+			vec3_t mins, maxs;
+
+			modelname = cl.configstrings[CS_MODELS + s1->modelindex];
+			if (Mod_GetModelInfo(modelname, NULL, mins, maxs))
+			{
+				radius = Mod_RadiusFromBounds(mins, maxs);
+			}
+
+			CL_HologramParticles(ent.origin, radius);
 		}
 
 		/* add automatic particle trails */

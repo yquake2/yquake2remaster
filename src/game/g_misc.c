@@ -3332,6 +3332,9 @@ SP_func_clock(edict_t *self)
 
 /* ================================================================================= */
 
+#define SPAWNFLAG_TELEPORTER_NO_SOUND 1
+#define SPAWNFLAG_TELEPORTER_NO_TELEPORT_EFFECT 2
+
 void
 teleporter_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 		const csurface_t *surf /* unused */)
@@ -3372,8 +3375,16 @@ teleporter_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused 
 	other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
 
 	/* draw the teleport splash at source and on the player */
-	self->owner->s.event = EV_PLAYER_TELEPORT;
-	other->s.event = EV_PLAYER_TELEPORT;
+	if (!(self->spawnflags & SPAWNFLAG_TELEPORTER_NO_TELEPORT_EFFECT))
+	{
+		self->owner->s.event = EV_PLAYER_TELEPORT;
+		other->s.event = EV_PLAYER_TELEPORT;
+	}
+	else
+	{
+		self->owner->s.event = EV_OTHER_TELEPORT;
+		other->s.event = EV_OTHER_TELEPORT;
+	}
 
 	/* set angles */
 	for (i = 0; i < 3; i++)
@@ -3392,6 +3403,8 @@ teleporter_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused 
 	gi.linkentity(other);
 }
 
+#define SPAWNFLAG_TEMEPORTER_N64_EFFECT 4
+
 /*
  * QUAKED misc_teleporter (1 0 0) (-32 -32 -24) (32 32 -16)
  *
@@ -3407,22 +3420,35 @@ SP_misc_teleporter(edict_t *ent)
 
 	edict_t *trig;
 
+	gi.setmodel(ent, "models/objects/dmspot/tris.md2");
+	ent->s.skinnum = 1;
+	if (level.is_n64 || ent->spawnflags & SPAWNFLAG_TEMEPORTER_N64_EFFECT)
+	{
+		ent->rrs.effects = EF_TELEPORTER2;
+	}
+	else
+	{
+		ent->s.effects = EF_TELEPORTER;
+	}
+
+	if (!(ent->spawnflags & SPAWNFLAG_TELEPORTER_NO_SOUND))
+	{
+		ent->s.sound = gi.soundindex("world/amb10.wav");
+	}
+
+	ent->solid = SOLID_BBOX;
+
+	VectorSet(ent->mins, -32, -32, -24);
+	VectorSet(ent->maxs, 32, 32, -16);
+	gi.linkentity(ent);
+
+	/* N64 has some of these for visual effects */
 	if (!ent->target)
 	{
 		gi.dprintf("teleporter without a target.\n");
 		G_FreeEdict(ent);
 		return;
 	}
-
-	gi.setmodel(ent, "models/objects/dmspot/tris.md2");
-	ent->s.skinnum = 1;
-	ent->s.effects = EF_TELEPORTER;
-	ent->s.sound = gi.soundindex("world/amb10.wav");
-	ent->solid = SOLID_BBOX;
-
-	VectorSet(ent->mins, -32, -32, -24);
-	VectorSet(ent->maxs, 32, 32, -16);
-	gi.linkentity(ent);
 
 	trig = G_Spawn();
 	trig->touch = teleporter_touch;
@@ -3443,7 +3469,8 @@ SP_misc_teleporter(edict_t *ent)
 void
 SP_misc_teleporter_dest(edict_t *ent)
 {
-	if (!ent)
+	/* Paril-KEX N64 doesn't display these */
+	if (!ent || level.is_n64)
 	{
 		return;
 	}
@@ -3829,12 +3856,12 @@ ThrowRainDropGib(edict_t *self)
 	VectorCopy(self->s.origin, ent->s.origin);
 
 	/* Randomize X/Y slightly */
-	ent->s.origin[0] -= rand() % 256 - 128;
-	ent->s.origin[1] -= rand() % 256 - 128;
+	ent->s.origin[0] -= frandk() * 256 - 128;
+	ent->s.origin[1] -= frandk() * 256 - 128;
 	ent->s.origin[2] -= 2.0f;
 
 	/* Give downward velocity */
-	ent->velocity[2] -= (168 - (rand() % 64));
+	ent->velocity[2] -= frandk() * 64 + 128;
 
 	ent->s.modelindex = gi.modelindex("models/objects/rain/tris.md2");
 
@@ -3950,8 +3977,8 @@ misc_drip_effect(edict_t *self)
 	VectorCopy(self->s.origin, ent->s.origin);
 
 	/* Randomize position slightly */
-	ent->s.origin[0] -= rand() % 16 - 8;
-	ent->s.origin[1] -= rand() % 16 - 8;
+	ent->s.origin[0] -= frandk() * 16 - 8;
+	ent->s.origin[1] -= frandk() * 16 - 8;
 
 	ent->s.modelindex = gi.modelindex("models/objects/drip/tris.md2");
 

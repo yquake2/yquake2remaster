@@ -393,7 +393,8 @@ typedef struct cl_sustain
 
 void CL_ParticleSteamEffect2(cl_sustain_t *self);
 
-void CL_TeleporterParticles (const entity_xstate_t *ent);
+void CL_TeleporterParticles(const entity_xstate_t *ent);
+void CL_TeleporterParticles2(const entity_xstate_t *ent);
 void CL_ParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count);
 void CL_ParticleEffect2(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
@@ -566,7 +567,7 @@ void CL_RocketTrail(const vec3_t start, const vec3_t end, centity_t *old);
 void CL_DiminishingTrail(const vec3_t start, const vec3_t end, centity_t *old, int flags);
 void CL_FlyEffect(centity_t *ent, const vec3_t origin);
 void CL_BfgParticles(entity_t *ent);
-void CL_HologramParticles(const vec3_t org);
+void CL_HologramParticles(const vec3_t org, float radius);
 void CL_AddParticles(void);
 void CL_EntityEvent(entity_xstate_t *ent);
 void CL_TrapParticles(entity_t *ent);

@@ -411,6 +411,8 @@ typedef struct
 
 	char *start_items;             /* level start items */
 	float next_auto_save;          /* target_autosave */
+
+	qboolean is_n64;
 } level_locals_t;
 
 /* shadow light data structures */

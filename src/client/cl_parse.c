@@ -884,6 +884,11 @@ CL_FireEntityEvents(const frame_t *frame)
 		{
 			CL_TeleporterParticles(s1);
 		}
+
+		if (s1->rr_effects & EF_TELEPORTER2)
+		{
+			CL_TeleporterParticles2(s1);
+		}
 	}
 }
 

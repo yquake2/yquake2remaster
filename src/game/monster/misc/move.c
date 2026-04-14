@@ -566,7 +566,13 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 	if (relink)
 	{
 		gi.linkentity(ent);
-		G_TouchTriggers(ent);
+
+		/* [Paril-KEX] this is something N64 does to avoid doors opening
+		 * at the start of a level, which triggers some monsters to spawn. */
+		if (!level.is_n64 || level.time > FRAMETIME)
+		{
+			G_TouchTriggers(ent);
+		}
 	}
 
 	return true;

@@ -67,6 +67,11 @@ SP_target_temp_entity(edict_t *ent)
 		return;
 	}
 
+	if (level.is_n64 && ent->style == 27)
+	{
+		ent->style = TE_TELEPORT_EFFECT;
+	}
+
 	ent->use = Use_Target_Tent;
 }
 
@@ -607,6 +612,12 @@ SP_target_splash(edict_t *self)
 		self->count = 32;
 	}
 
+	/* N64 "sparks" are blue, not yellow. */
+	if (level.is_n64 && self->sounds == 1)
+	{
+		self->sounds = 7;
+	}
+
 	self->svflags = SVF_NOCLIENT;
 }
 
@@ -815,6 +826,20 @@ SP_target_crosslevel_target(edict_t *self)
 
 /* ========================================================== */
 
+#define SPAWNFLAG_LASER_BLUE 0x0008
+#define SPAWNFLAG_LASER_FAT 0x0040
+#define SPAWNFLAG_LASER_GREEN 0x0004
+#define SPAWNFLAG_LASER_LIGHTNING 0x10000
+#define SPAWNFLAG_LASER_ON  0x0001
+#define SPAWNFLAG_LASER_ON 0x0001
+#define SPAWNFLAG_LASER_ORANGE 0x0020
+#define SPAWNFLAG_LASER_RED 0x0002
+#define SPAWNFLAG_LASER_STOPWINDOW 0x0080
+#define SPAWNFLAG_LASER_YELLOW 0x0010
+#define SPAWNFLAG_LASER_ZAP 0x80000000
+#define SPAWNFLAG_LASER_ZAP 0x80000000
+#define SPAWNFLAG_TRAIN_START_ON 1
+
 /*
  * QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON RED GREEN BLUE YELLOW ORANGE FAT WINDOWSTOP
  * When triggered, fires a laser.  You can either set a target
@@ -837,7 +862,7 @@ target_laser_think(edict_t *self)
 		return;
 	}
 
-	if (self->spawnflags & 0x80000000)
+	if (self->spawnflags & SPAWNFLAG_LASER_ZAP)
 	{
 		count = 8;
 	}
@@ -902,9 +927,9 @@ target_laser_think(edict_t *self)
 		if (!(tr.ent->svflags & SVF_MONSTER) && (!tr.ent->client) &&
 			!(tr.ent->svflags & SVF_DAMAGEABLE))
 		{
-			if (self->spawnflags & 0x80000000)
+			if (self->spawnflags & SPAWNFLAG_LASER_ZAP)
 			{
-				self->spawnflags &= ~0x80000000;
+				self->spawnflags &= ~SPAWNFLAG_LASER_ZAP;
 				gi.WriteByte(svc_temp_entity);
 				gi.WriteByte(TE_LASER_SPARKS);
 				gi.WriteByte(count);
@@ -939,7 +964,7 @@ target_laser_on(edict_t *self)
 		self->activator = self;
 	}
 
-	self->spawnflags |= 0x80000001;
+	self->spawnflags |= SPAWNFLAG_LASER_ZAP | SPAWNFLAG_LASER_ON;
 	self->svflags &= ~SVF_NOCLIENT;
 	target_laser_think(self);
 }
@@ -952,7 +977,7 @@ target_laser_off(edict_t *self)
 		return;
 	}
 
-	self->spawnflags &= ~1;
+	self->spawnflags &= ~SPAWNFLAG_LASER_ON;
 	self->svflags |= SVF_NOCLIENT;
 	self->nextthink = 0;
 }
@@ -967,7 +992,7 @@ target_laser_use(edict_t *self, edict_t *other /* unused */, edict_t *activator)
 
 	self->activator = activator;
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_LASER_ON)
 	{
 		target_laser_off(self);
 	}
@@ -992,8 +1017,30 @@ target_laser_start(edict_t *self)
 	self->s.renderfx |= RF_BEAM | RF_TRANSLUCENT;
 	self->s.modelindex = 1; /* must be non-zero */
 
+	/* [Sam-KEX] On Q2N64, spawnflag of 128 turns it into a lightning bolt */
+	if (level.is_n64)
+	{
+		/* Paril: fix for N64 */
+		if (self->spawnflags & SPAWNFLAG_LASER_STOPWINDOW)
+		{
+			self->spawnflags &= ~SPAWNFLAG_LASER_STOPWINDOW;
+			self->spawnflags |= SPAWNFLAG_LASER_LIGHTNING;
+		}
+	}
+
+	if (self->spawnflags & SPAWNFLAG_LASER_LIGHTNING)
+	{
+		self->s.renderfx |= RF_BEAM | RF_GLOW; /* tell renderer it is lightning */
+
+		if (!self->s.skinnum)
+		{
+			self->s.skinnum = 0xf3f3f1f1; /* default lightning color */
+		}
+	}
+
 	/* set the beam diameter */
-	if (self->spawnflags & 64)
+	/* [Paril-KEX] lab has this set prob before lightning was implemented */
+	if (!level.is_n64 && (self->spawnflags & SPAWNFLAG_LASER_FAT))
 	{
 		self->s.frame = 16;
 	}
@@ -1003,25 +1050,28 @@ target_laser_start(edict_t *self)
 	}
 
 	/* set the color */
-	if (self->spawnflags & 2)
+	if (!self->s.skinnum)
 	{
-		self->s.skinnum = 0xf2f2f0f0;
-	}
-	else if (self->spawnflags & 4)
-	{
-		self->s.skinnum = 0xd0d1d2d3;
-	}
-	else if (self->spawnflags & 8)
-	{
-		self->s.skinnum = 0xf3f3f1f1;
-	}
-	else if (self->spawnflags & 16)
-	{
-		self->s.skinnum = 0xdcdddedf;
-	}
-	else if (self->spawnflags & 32)
-	{
-		self->s.skinnum = 0xe0e1e2e3;
+		if (self->spawnflags & SPAWNFLAG_LASER_RED)
+		{
+			self->s.skinnum = 0xf2f2f0f0;
+		}
+		else if (self->spawnflags & SPAWNFLAG_LASER_GREEN)
+		{
+			self->s.skinnum = 0xd0d1d2d3;
+		}
+		else if (self->spawnflags & SPAWNFLAG_LASER_BLUE)
+		{
+			self->s.skinnum = 0xf3f3f1f1;
+		}
+		else if (self->spawnflags & SPAWNFLAG_LASER_YELLOW)
+		{
+			self->s.skinnum = 0xdcdddedf;
+		}
+		else if (self->spawnflags & SPAWNFLAG_LASER_ORANGE)
+		{
+			self->s.skinnum = 0xe0e1e2e3;
+		}
 	}
 
 	if (!self->enemy)
@@ -1036,8 +1086,20 @@ target_laser_start(edict_t *self)
 						self->classname, vtos(self->s.origin),
 						self->target);
 			}
+			else
+			{
+				self->enemy = ent;
 
-			self->enemy = ent;
+				/* N64 fix
+				 * FIXME: which map was this for again? oops
+				 */
+				if (level.is_n64 &&
+				    !strcmp(self->enemy->classname, "func_train") &&
+				    !(self->enemy->spawnflags & SPAWNFLAG_TRAIN_START_ON))
+				{
+					self->enemy->use(self->enemy, self, self);
+				}
+			}
 		}
 		else
 		{
@@ -1057,7 +1119,7 @@ target_laser_start(edict_t *self)
 	VectorSet(self->maxs, 8, 8, 8);
 	gi.linkentity(self);
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & SPAWNFLAG_LASER_ON)
 	{
 		target_laser_on(self);
 	}
@@ -1440,6 +1502,9 @@ target_earthquake_use(edict_t *self, edict_t *other /* unused */, edict_t *activ
 	self->last_move_time = 0;
 }
 
+#define SPAWNFLAGS_EARTHQUAKE_SILENT  1
+#define SPAWNFLAGS_EARTHQUAKE_TOGGLE 2
+
 void
 SP_target_earthquake(edict_t *self)
 {
@@ -1452,6 +1517,12 @@ SP_target_earthquake(edict_t *self)
 	{
 		gi.dprintf("untargeted %s at %s\n", self->classname,
 				vtos(self->s.origin));
+	}
+
+	if (level.is_n64)
+	{
+		self->spawnflags |= SPAWNFLAGS_EARTHQUAKE_TOGGLE;
+		self->speed = 5;
 	}
 
 	if (!self->count)
@@ -1468,7 +1539,7 @@ SP_target_earthquake(edict_t *self)
 	self->think = target_earthquake_think;
 	self->use = target_earthquake_use;
 
-	if (!(self->spawnflags & 1))
+	if (!(self->spawnflags & SPAWNFLAGS_EARTHQUAKE_SILENT))
 	{
 		self->noise_index = gi.soundindex("world/quake.wav");
 	}
@@ -1961,6 +2032,11 @@ SP_target_light(edict_t *self)
 	else
 	{
 		self->speed = 0.1f / self->speed;
+	}
+
+	if (level.is_n64)
+	{
+		self->style += 10;
 	}
 
 	self->use = target_light_use;

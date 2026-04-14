@@ -450,7 +450,7 @@ GL3_DrawAliasModel(entity_t *currententity)
 	vec3_t shadelight;
 	vec3_t shadevector;
 	const gl3image_t *skin = NULL;
-	model_t *currentmodel = currententity->model;
+	const model_t *currentmodel = currententity->model;
 	hmm_mat4 origProjViewMat = {0}; // use for left-handed rendering
 	// used to restore ModelView matrix after changing it for this entities position/rotation
 	hmm_mat4 origModelMat = {0};
