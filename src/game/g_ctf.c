@@ -2462,8 +2462,8 @@ CTFDeadDropTech(edict_t *ent)
 			dropped = Drop_Item(ent, tech);
 
 			/* hack the velocity to make it bounce random */
-			dropped->velocity[0] = (rand() % 600) - 300;
-			dropped->velocity[1] = (rand() % 600) - 300;
+			dropped->velocity[0] = (frandk() * 600) - 300;
+			dropped->velocity[1] = (frandk() * 600) - 300;
 			dropped->nextthink = level.time + CTF_TECH_TIMEOUT;
 			dropped->think = TechThink;
 			dropped->owner = NULL;
@@ -2496,9 +2496,9 @@ SpawnTech(const gitem_t *item, edict_t *spot)
 	ent->touch = Touch_Item;
 	ent->owner = ent;
 
-	angles[0] = 0;
-	angles[1] = rand() % 360;
-	angles[2] = 0;
+	angles[PITCH] = 0;
+	angles[YAW] = frandk() * 360;
+	angles[ROLL] = 0;
 
 	AngleVectors(angles, forward, right, NULL);
 	VectorCopy(spot->s.origin, ent->s.origin);

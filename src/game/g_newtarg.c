@@ -358,9 +358,9 @@ blacklight_think(edict_t *self)
 		return;
 	}
 
-	self->s.angles[PITCH] = rand() % 360;
-	self->s.angles[YAW] = rand() % 360;
-	self->s.angles[ROLL] = rand() % 360;
+	self->s.angles[PITCH] = frandk() * 360;
+	self->s.angles[YAW] = frandk() * 360;
+	self->s.angles[ROLL] = frandk() * 360;
 	self->nextthink = level.time + 0.1;
 }
 
@@ -403,9 +403,9 @@ orb_think(edict_t *self)
 		return;
 	}
 
-	self->s.angles[PITCH] = rand() % 360;
-	self->s.angles[YAW] = rand() % 360;
-	self->s.angles[ROLL] = rand() % 360;
+	self->s.angles[PITCH] = frandk() * 360;
+	self->s.angles[YAW] = frandk() * 360;
+	self->s.angles[ROLL] = frandk() * 360;
 	self->nextthink = level.time + 0.1;
 }
 

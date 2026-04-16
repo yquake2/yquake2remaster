@@ -249,7 +249,7 @@ guardian_fire_blaster(edict_t *self)
 {
 	vec3_t forward, right, target;
 	vec3_t start;
-	int id = MZ2_TANK_BLASTER_1;
+	int id = MZ2_GUARDIAN_BLASTER;
 
 	AngleVectors(self->s.angles, forward, right, NULL);
 	G_ProjectSource(self->s.origin, monster_flash_offset[id], forward, right, start);
@@ -257,7 +257,7 @@ guardian_fire_blaster(edict_t *self)
 	target[2] += self->enemy->viewheight;
 	for (int i = 0; i < 3; i++)
 	{
-		target[i] += (randk() % 10) - 5.f;
+		target[i] += (frandk() * 10) - 5.f;
 	}
 
 	/* calc direction to where we targeted */
