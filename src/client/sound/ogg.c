@@ -32,6 +32,7 @@
 #endif
 
 #include <errno.h>
+#include <limits.h>
 
 #include "../header/client.h"
 #include "header/local.h"
@@ -912,8 +913,9 @@ OGG_LoadAsWav(const char *filename, wavinfo_t *info, void **buffer)
 
 	/* load vorbis file from memory */
 	ogg2wav_file = stb_vorbis_open_memory(temp_buffer, size, &res, NULL);
-	if (!res && ogg2wav_file->channels > 0)
+	if (ogg2wav_file && !res && ogg2wav_file->channels > 0)
 	{
+		unsigned int samples = 0;
 		int read_samples = 0;
 
 		/* fill in wav structure */
@@ -922,7 +924,16 @@ OGG_LoadAsWav(const char *filename, wavinfo_t *info, void **buffer)
 		info->channels = ogg2wav_file->channels;
 		info->loopstart = -1;
 		/* return length * channels */
-		info->samples = stb_vorbis_stream_length_in_samples(ogg2wav_file) * info->channels;
+		samples = stb_vorbis_stream_length_in_samples(ogg2wav_file);
+
+		if (samples > INT_MAX / info->channels)
+		{
+			stb_vorbis_close(ogg2wav_file);
+			FS_FreeFile(temp_buffer);
+			return;
+		}
+
+		info->samples = (int)(samples * info->channels);
 		info->dataofs = 0;
 
 		/* alloc memory for uncompressed wav */
