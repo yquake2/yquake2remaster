@@ -38,7 +38,11 @@ GetLittleShort(void)
 {
 	short val = 0;
 
+	if (iff_end - data_p < 2)
+		return -1;
+
 	val = *data_p;
+
 	val = val + (*(data_p + 1) << 8);
 	data_p += 2;
 	return val;
@@ -48,6 +52,9 @@ static int
 GetLittleLong(void)
 {
 	int val = 0;
+
+	if (iff_end - data_p < 4)
+		return -1;
 
 	val = *data_p;
 	val = val + (*(data_p + 1) << 8);
@@ -63,7 +70,6 @@ FindNextChunk(const char *name)
 	while (1)
 	{
 		data_p = last_chunk;
-		data_p += 4;
 
 		if (data_p >= iff_end)
 		{
@@ -71,6 +77,7 @@ FindNextChunk(const char *name)
 			return;
 		}
 
+		data_p += 4;
 		iff_chunk_len = GetLittleLong();
 
 		if (iff_chunk_len < 0)
