@@ -336,13 +336,14 @@ Checked with:
 
 ### Fixed:
 
-* [x] Infinity: `misc_lightning`,
-* [x] Infinity: `misc_text_caption`,
-* [x] Infinity: `misc_rain`,
-* [x] Infinity: `misc_drip`,
-* [x] Infinity: `misc_desk`,
-* [x] Infinity: `misc_chair`,
-* [x] Infinity: `misc_crate`,
+* [x] Infinity: implement `misc_hologram`,
+* [x] Infinity: implement `misc_lightning`,
+* [x] Infinity: implement `misc_text_caption`,
+* [x] Infinity: implement `misc_rain`,
+* [x] Infinity: implement `misc_drip`,
+* [x] Infinity: implement `misc_desk`,
+* [x] Infinity: implement `misc_chair`,
+* [x] Infinity: implement `misc_crate`,
 * [x] ReRelease: implement `misc_lavaball`,
 * [x] CppCheck: fix const warnings and scope,
 * [x] renders: share model_t type.

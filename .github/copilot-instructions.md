@@ -4,6 +4,16 @@ These instructions are intended to guide GitHub Copilot (and similar
 assistant models) when generating or modifying code in this repository.
 They are derived from the human contributor guidance found in `doc/`.
 
+If you use any AI tool during development, please include a `Co-authored-by`
+line in your commit message, just as you would when crediting human collaborators.
+All code must be reviewed and validated by you, and you bear full responsibility
+for its correctness and quality.
+
+Example:
+```
+Co-authored-by: Copilot <https://copilot.microsoft.com>
+```
+
 ## Principles
 
 - **Scope:** Only propose changes that are appropriate for Yamagi Quake II.
