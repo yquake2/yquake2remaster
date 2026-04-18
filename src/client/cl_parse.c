@@ -246,21 +246,37 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		if (bits & U_MODEL)
 		{
 			to->modelindex = MSG_ReadShort(&net_message);
+			if (to->modelindex < 0 || to->modelindex >= MAX_MODELS)
+			{
+				Com_Error(ERR_DROP, "%s: bad modelindex %d", __func__, to->modelindex);
+			}
 		}
 
 		if (bits & U_MODEL2)
 		{
 			to->modelindex2 = MSG_ReadShort(&net_message);
+			if (to->modelindex2 < 0 || to->modelindex2 >= MAX_MODELS)
+			{
+				Com_Error(ERR_DROP, "%s: bad modelindex2 %d", __func__, to->modelindex2);
+			}
 		}
 
 		if (bits & U_MODEL3)
 		{
 			to->modelindex3 = MSG_ReadShort(&net_message);
+			if (to->modelindex3 < 0 || to->modelindex3 >= MAX_MODELS)
+			{
+				Com_Error(ERR_DROP, "%s: bad modelindex3 %d", __func__, to->modelindex3);
+			}
 		}
 
 		if (bits & U_MODEL4)
 		{
 			to->modelindex4 = MSG_ReadShort(&net_message);
+			if (to->modelindex4 < 0 || to->modelindex4 >= MAX_MODELS)
+			{
+				Com_Error(ERR_DROP, "%s: bad modelindex4 %d", __func__, to->modelindex4);
+			}
 		}
 	}
 
@@ -780,6 +796,10 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 		else
 		{
 			state->gunindex = MSG_ReadShort(&net_message);
+			if (state->gunindex < 0 || state->gunindex >= MAX_MODELS)
+			{
+				Com_Error(ERR_DROP, "%s: bad gunindex %d", __func__, state->gunindex);
+			}
 		}
 	}
 
