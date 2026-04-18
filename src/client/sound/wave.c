@@ -80,7 +80,7 @@ FindNextChunk(const char *name)
 		data_p += 4;
 		iff_chunk_len = GetLittleLong();
 
-		if (iff_chunk_len < 0 || iff_chunk_len > iff_end - data_p - 1)
+		if (iff_chunk_len < 0 || iff_chunk_len > iff_end - data_p)
 		{
 			data_p = NULL;
 			return;
