@@ -380,6 +380,10 @@ Checked with:
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Dynamic count of entities on client,
 * [ ] Support obj waveform model format for debug other formats.
+* [ ] unknown item: "Impulse Claw" v_pulse weapon_hyperblaster
+* [ ] unknown item: "Mini Gun" g_mini weapon_chaingun
+* [ ] unknown item: "Missile Launcher" g_miss weapon_rocketlauncher
+* [ ] unknown item: "Tornado Gun" g_bfg "weapon_bfg"
 
 ### Fixed:
 
