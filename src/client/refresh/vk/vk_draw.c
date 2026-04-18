@@ -22,6 +22,7 @@
 
 #include "header/local.h"
 #include "../files/stb_truetype.h"
+#include <limits.h>
 
 static int vk_rawTexture_height = 0;
 static int vk_rawTexture_width = 0;
@@ -375,6 +376,11 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 
 	if (bits == 32)
 	{
+		if (rows == 0 || cols > INT_MAX / rows / sizeof(unsigned))
+		{
+			return;
+		}
+
 		raw_image32 = malloc(cols * rows * sizeof(unsigned));
 		if (!raw_image32)
 		{
@@ -393,7 +399,16 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 			// triple scaling
 			if (cols < (vid.width / 3) || rows < (vid.height / 3))
 			{
+				if (rows == 0 || cols > INT_MAX / rows / 9)
+				{
+					return;
+				}
+
 				image_scaled = malloc(cols * rows * 9);
+				if (!image_scaled)
+				{
+					return;
+				}
 
 				scale3x(data, image_scaled, cols, rows);
 
@@ -403,7 +418,16 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 			else
 			// double scaling
 			{
+				if (rows == 0 || cols > INT_MAX / rows / 4)
+				{
+					return;
+				}
+
 				image_scaled = malloc(cols * rows * 4);
+				if (!image_scaled)
+				{
+					return;
+				}
 
 				scale2x(data, image_scaled, cols, rows);
 

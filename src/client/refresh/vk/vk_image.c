@@ -21,6 +21,7 @@
  */
 
 #include "header/local.h"
+#include <limits.h>
 
 image_t		vktextures[MAX_TEXTURES];
 int		numvktextures = 0;
@@ -94,9 +95,9 @@ static void transitionImageLayout(const VkCommandBuffer *cmdBuffer, const VkQueu
 	// transiton that may occur when updating existing image
 	else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
 	{
-		imgBarrier.srcAccessMask = 0;
+		imgBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
 		imgBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-		srcStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		srcStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		dstStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 	}
 	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
@@ -240,6 +241,13 @@ static void
 createTextureImage(qvktexture_t *dstTex, const unsigned char *data, uint32_t width, uint32_t height)
 {
 	int unifiedTransferAndGfx = vk_device.transferQueue == vk_device.gfxQueue ? 1 : 0;
+
+	if (width == 0 || height == 0 || width > UINT32_MAX / height / 4)
+	{
+		Sys_Error("%s: Invalid dimensions: %u/%u.\n", __func__, width, height);
+		return;
+	}
+
 	// assuming 32bit images
 	uint32_t imageSize = width * height * 4;
 
@@ -947,6 +955,12 @@ Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
 	}
 	else
 	{
+		if (scaled_width == 0 || scaled_height == 0 || scaled_width > INT_MAX / scaled_height / 4)
+		{
+			Com_Error(ERR_DROP, "%s: invalid dimensions", __func__);
+			return 0;
+		}
+
 		*texBuffer = malloc(scaled_width * scaled_height * 4);
 		if (!*texBuffer)
 		{
@@ -995,6 +1009,12 @@ Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 	unsigned	*trans;
 	int			i, s;
 	int 		miplevel;
+
+	if (height == 0 || width > INT_MAX / sizeof(*trans) / height)
+	{
+		Com_Error(ERR_DROP, "%s: invalid dimensions", __func__);
+		return 0;
+	}
 
 	s = width * height;
 
@@ -1180,6 +1200,12 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			// scale 3 times if lerp image
 			if (!nolerp && (vid.height >= 240 * 3))
 				scale = 3;
+
+			if (height == 0 || scale == 0 || width > INT_MAX / height / scale / scale)
+			{
+				Com_Error(ERR_DROP, "%s: invalid dimensions", __func__);
+				return NULL;
+			}
 
 			image_converted = malloc(width * height * scale * scale);
 			if (!image_converted)
