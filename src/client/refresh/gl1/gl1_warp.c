@@ -44,17 +44,6 @@ float r_turbsin[] = {
 #include "../constants/warpsin.h"
 };
 
-static const int st_to_vec[6][3] = {
-	{3, -1, 2},
-	{-3, 1, 2},
-
-	{1, 3, 2},
-	{-1, -3, 2},
-
-	{-2, -1, 3}, /* 0 degrees yaw, look straight up */
-	{2, -1, -3} /* look straight down */
-};
-
 static float skymins[2][6], skymaxs[2][6];
 static float sky_min, sky_max;
 
@@ -107,67 +96,7 @@ RE_ClearSkyBox(void)
 	R_ClearSkyBox(skymins, skymaxs);
 }
 
-static void
-RE_MakeSkyVec(float s, float t, int axis, unsigned int *index_tex, unsigned int *index_vtx)
-{
-	vec3_t v, b;
-	float dist;
-	int j;
 
-	/* Sky should be before any far objects */
-	dist = R_GetFarValue(r_worldmodel) / 2.0;
-
-	b[0] = s * dist;
-	b[1] = t * dist;
-	b[2] = dist;
-
-	for (j = 0; j < 3; j++)
-	{
-		int k;
-
-		k = st_to_vec[axis][j];
-
-		if (k < 0)
-		{
-			v[j] = -b[-k - 1];
-		}
-		else
-		{
-			v[j] = b[k - 1];
-		}
-	}
-
-	/* avoid bilerp seam */
-	s = (s + 1) * 0.5;
-	t = (t + 1) * 0.5;
-
-	if (s < sky_min)
-	{
-		s = sky_min;
-	}
-	else if (s > sky_max)
-	{
-		s = sky_max;
-	}
-
-	if (t < sky_min)
-	{
-		t = sky_min;
-	}
-	else if (t > sky_max)
-	{
-		t = sky_max;
-	}
-
-	t = 1.0 - t;
-
-	tex_sky[(*index_tex)++] = s;
-	tex_sky[(*index_tex)++] = t;
-
-	vtx_sky[(*index_vtx)++] = v[ 0 ];
-	vtx_sky[(*index_vtx)++] = v[ 1 ];
-	vtx_sky[(*index_vtx)++] = v[ 2 ];
-}
 
 void
 R_DrawSkyBox(void)
@@ -198,7 +127,8 @@ R_DrawSkyBox(void)
 
 	for (i = 0; i < 6; i++)
 	{
-		unsigned int index_vtx = 0, index_tex = 0;
+		mvtx_t skyVertices[4];
+		size_t j;
 
 		if (skyrotate)
 		{
@@ -219,10 +149,24 @@ R_DrawSkyBox(void)
 		glEnableClientState( GL_VERTEX_ARRAY );
 		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
 
-		RE_MakeSkyVec(skymins[ 0 ][ i ], skymins[ 1 ] [ i ], i, &index_tex, &index_vtx);
-		RE_MakeSkyVec(skymins[ 0 ][ i ], skymaxs[ 1 ] [ i ], i, &index_tex, &index_vtx);
-		RE_MakeSkyVec(skymaxs[ 0 ][ i ], skymaxs[ 1 ] [ i ], i, &index_tex, &index_vtx);
-		RE_MakeSkyVec(skymaxs[ 0 ][ i ], skymins[ 1 ] [ i ], i, &index_tex, &index_vtx);
+		R_MakeSkyVec(skymins[ 0 ][ i ], skymins[ 1 ] [ i ], i, &skyVertices[0],
+			r_worldmodel, sky_min, sky_max);
+		R_MakeSkyVec(skymins[ 0 ][ i ], skymaxs[ 1 ] [ i ], i, &skyVertices[1],
+			r_worldmodel, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[ 0 ][ i ], skymaxs[ 1 ] [ i ], i, &skyVertices[2],
+			r_worldmodel, sky_min, sky_max);
+		R_MakeSkyVec(skymaxs[ 0 ][ i ], skymins[ 1 ] [ i ], i, &skyVertices[3],
+			r_worldmodel, sky_min, sky_max);
+
+		/* Copy vertex and texture coordinates to global arrays for rendering */
+		for (j = 0; j < 4; j++)
+		{
+			vtx_sky[j * 3 + 0] = skyVertices[j].pos[0];
+			vtx_sky[j * 3 + 1] = skyVertices[j].pos[1];
+			vtx_sky[j * 3 + 2] = skyVertices[j].pos[2];
+			tex_sky[j * 2 + 0] = skyVertices[j].texCoord[0];
+			tex_sky[j * 2 + 1] = skyVertices[j].texCoord[1];
+		}
 
 		glVertexPointer( 3, GL_FLOAT, 0, vtx_sky );
 		glTexCoordPointer( 2, GL_FLOAT, 0, tex_sky );
