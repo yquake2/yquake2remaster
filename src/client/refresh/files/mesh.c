@@ -287,12 +287,9 @@ R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to)
 	/* fill the index buffer so that we can emulate triangle fans via triangle lists */
 	for (i = from; i < to; i++)
 	{
-		*data = from;
-		data ++;
-		*data = i + 1;
-		data++;
-		*data = i + 2;
-		data ++;
+		*data++ = from;
+		*data++ = i + 1;
+		*data++ = i + 2;
 	}
 }
 

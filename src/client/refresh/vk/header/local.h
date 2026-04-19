@@ -303,6 +303,7 @@ extern uint16_t	*vertIdxData;
 void	Mesh_Init (void);
 void	Mesh_Free (void);
 int Mesh_VertsRealloc(int count);
+int Mesh_IndexesRealloc(int count);
 
 void Mod_Init(void);
 

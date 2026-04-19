@@ -44,6 +44,7 @@ static	vec3_t	*shadowverts = NULL;
 uint16_t	*vertIdxData = NULL;
 
 static	int	verts_count = 0;
+static	int	index_count = 0;
 
 // correction matrix with "hacked depth" for models with RF_DEPTHHACK flag set
 static float r_vulkan_correction_dh[16] = {
@@ -52,6 +53,30 @@ static float r_vulkan_correction_dh[16] = {
 	0.f,  0.f, .3f, 0.f,
 	0.f,  0.f, .3f, 1.f
 };
+
+int
+Mesh_IndexesRealloc(int count)
+{
+	void *ptr;
+
+	if (index_count > count)
+	{
+		return 0;
+	}
+
+	index_count = ROUNDUP(count * 2, 256);
+
+	ptr = realloc(vertIdxData, index_count * sizeof(uint16_t));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()",
+					index_count * sizeof(uint16_t))
+	if (!ptr)
+	{
+		return -1;
+	}
+	vertIdxData = ptr;
+
+	return 0;
+}
 
 int
 Mesh_VertsRealloc(int count)
@@ -92,15 +117,6 @@ Mesh_VertsRealloc(int count)
 	}
 	vertList = ptr;
 
-	ptr = realloc(vertIdxData, verts_count * sizeof(uint16_t));
-	YQ2_COM_CHECK_OOM(ptr, "realloc()",
-					verts_count * sizeof(uint16_t))
-	if (!ptr)
-	{
-		return -1;
-	}
-	vertIdxData = ptr;
-
 	return 0;
 }
 
@@ -117,8 +133,14 @@ Mesh_Init(void)
 	vertList = NULL;
 
 	verts_count = 0;
+	index_count = 0;
 
 	if (Mesh_VertsRealloc(MAX_VERTS))
+	{
+		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+	}
+
+	if (Mesh_IndexesRealloc(MAX_VERTS * 3))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 	}
@@ -138,6 +160,7 @@ Mesh_Free(void)
 			__func__, verts_count);
 	}
 	verts_count = 0;
+	index_count = 0;
 
 	if (shadowverts)
 	{
@@ -279,6 +302,12 @@ Vk_DrawAliasFrameLerpCommands(int *order, const int *order_end, float alpha,
 			while (--count);
 		}
 
+		if (Mesh_IndexesRealloc(*index_pos + (vertexCount - 2) * 3))
+		{
+			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
+			return;
+		}
+
 		if (pipelineIdx == TRIANGLE_STRIP)
 		{
 			R_GenStripIndexes(vertIdxData + *index_pos,
@@ -418,7 +447,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 		descriptorSets, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
-	*buffer = UpdateIndexBuffer(vertIdxData, verts_count * sizeof(uint16_t), dstOffset);
+	*buffer = UpdateIndexBuffer(vertIdxData, *index_pos * sizeof(uint16_t), dstOffset);
 
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, **buffer, *dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, *index_pos, 1, 0, 0, 0);
