@@ -3658,8 +3658,8 @@ SP_misc_flare(edict_t* ent)
 	VectorSet(ent->mins, -32, -32, -32);
 	VectorSet(ent->maxs, 32, 32, 32);
 
-	ent->s.modelindex2 = st.fade_start_dist;
-	ent->s.modelindex3 = st.fade_end_dist;
+	ent->s.modelindex2 = Q_max(st.fade_start_dist, 0);
+	ent->s.modelindex3 = Q_max(st.fade_end_dist, 0);
 	ent->s.skinnum = st.rgba;
 	if (!ent->s.skinnum)
 	{

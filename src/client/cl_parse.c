@@ -246,37 +246,58 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 		if (bits & U_MODEL)
 		{
 			to->modelindex = MSG_ReadShort(&net_message);
-			if (to->modelindex < 0 || to->modelindex >= MAX_MODELS)
-			{
-				Com_Error(ERR_DROP, "%s: bad modelindex %d", __func__, to->modelindex);
-			}
 		}
 
 		if (bits & U_MODEL2)
 		{
 			to->modelindex2 = MSG_ReadShort(&net_message);
-			if (to->modelindex2 < 0 || to->modelindex2 >= MAX_MODELS)
-			{
-				Com_Error(ERR_DROP, "%s: bad modelindex2 %d", __func__, to->modelindex2);
-			}
 		}
 
 		if (bits & U_MODEL3)
 		{
 			to->modelindex3 = MSG_ReadShort(&net_message);
-			if (to->modelindex3 < 0 || to->modelindex3 >= MAX_MODELS)
-			{
-				Com_Error(ERR_DROP, "%s: bad modelindex3 %d", __func__, to->modelindex3);
-			}
 		}
 
 		if (bits & U_MODEL4)
 		{
 			to->modelindex4 = MSG_ReadShort(&net_message);
-			if (to->modelindex4 < 0 || to->modelindex4 >= MAX_MODELS)
-			{
-				Com_Error(ERR_DROP, "%s: bad modelindex4 %d", __func__, to->modelindex4);
-			}
+		}
+	}
+
+	/* Validate message end error in receive models indexes */
+	if (bits & U_MODEL)
+	{
+		if (to->modelindex < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end, bad modelindex",
+				__func__);
+		}
+	}
+
+	if (bits & U_MODEL2)
+	{
+		if (to->modelindex2 < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end, bad modelindex2",
+				__func__);
+		}
+	}
+
+	if (bits & U_MODEL3)
+	{
+		if (to->modelindex3 < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end, bad modelindex3",
+				__func__);
+		}
+	}
+
+	if (bits & U_MODEL4)
+	{
+		if (to->modelindex4 < 0)
+		{
+			Com_Error(ERR_DROP, "%s: unexpected message end, bad modelindex4",
+				__func__);
 		}
 	}
 
@@ -420,6 +441,39 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 	if (bits & U_SOLID)
 	{
 		to->solid = MSG_ReadShort(&net_message);
+	}
+
+	/* Revalidate model indexes limits */
+	if (bits & U_MODEL)
+	{
+		if (to->modelindex >= MAX_MODELS)
+		{
+			Com_Error(ERR_DROP, "%s: bad modelindex %d", __func__, to->modelindex);
+		}
+	}
+
+	if ((bits & U_MODEL2) && !(to->renderfx & RF_FLARE))
+	{
+		if (to->modelindex2 >= MAX_MODELS)
+		{
+			Com_Error(ERR_DROP, "%s: bad modelindex2 %d", __func__, to->modelindex2);
+		}
+	}
+
+	if ((bits & U_MODEL3) && !(to->renderfx & RF_FLARE))
+	{
+		if (to->modelindex3 >= MAX_MODELS)
+		{
+			Com_Error(ERR_DROP, "%s: bad modelindex3 %d", __func__, to->modelindex3);
+		}
+	}
+
+	if (bits & U_MODEL4)
+	{
+		if (to->modelindex4 >= MAX_MODELS)
+		{
+			Com_Error(ERR_DROP, "%s: bad modelindex4 %d", __func__, to->modelindex4);
+		}
 	}
 }
 
