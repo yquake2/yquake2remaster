@@ -202,6 +202,10 @@ Note:
 
 ### Games check videos:
 
+* 8.61RR15+:
+
+[![Check hologram implementation](https://img.youtube.com/vi/jTaCyx3KCr0/hqdefault.jpg)](https://www.youtube.com/watch?v=jTaCyx3KCr0)
+
 * 8.61RR14+:
 
 [![Check dynamic animation for weapons](https://img.youtube.com/vi/R8crz-ISkeA/hqdefault.jpg)](https://www.youtube.com/watch?v=R8crz-ISkeA)
@@ -306,6 +310,8 @@ Checked with:
 * [ ] gl3, gl4: add fog distance effect,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
+* [ ] Rerelease: fix vulkan render on open door in mguhub,
+* [ ] gl1: reuse R_MakeSkyVec,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible,
 * [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
@@ -336,6 +342,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] client: share r_farsee,
 * [x] Infinity: implement `misc_hologram`,
 * [x] Infinity: implement `misc_lightning`,
 * [x] Infinity: implement `misc_text_caption`,
