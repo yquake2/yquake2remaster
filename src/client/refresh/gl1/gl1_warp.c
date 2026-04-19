@@ -111,9 +111,11 @@ static void
 RE_MakeSkyVec(float s, float t, int axis, unsigned int *index_tex, unsigned int *index_vtx)
 {
 	vec3_t v, b;
+	float dist;
 	int j;
 
-	float dist = (r_farsee->value == 0) ? 2300.0f : 4096.0f;
+	/* Sky should be before any far objects */
+	dist = R_GetFarValue(r_worldmodel) / 2.0;
 
 	b[0] = s * dist;
 	b[1] = t * dist;

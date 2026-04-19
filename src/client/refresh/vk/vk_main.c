@@ -73,7 +73,6 @@ static float r_vulkan_correction[16] = { 1.f,  0.f, 0.f, 0.f,
 // screen size info
 //
 
-cvar_t	*vk_znear;
 cvar_t	*vk_overbrightbits;
 cvar_t	*vk_picmip;
 cvar_t	*vk_finish;
@@ -750,8 +749,8 @@ R_SetupVulkan(void)
 	float	r_proj_fovx;
 	float	r_proj_fovy;
 	int		x, x2, y2, y, w, h;
-	float dist = (r_farsee->value == 0) ? 4096.0f : (r_worldmodel->radius * 2);
-	const float zNear = Q_max(vk_znear->value, 0.1f);
+	float dist = R_GetFarValue(r_worldmodel);
+	const float zNear = R_GetNearValue();
 
 	/* Render old elements before change viewport */
 	QVk_Draw2DCallsRender();
@@ -1052,7 +1051,6 @@ R_Register(void)
 	R_InitTemporaryLMBuffer();
 	R_InitCvar();
 
-	vk_znear = ri.Cvar_Get("vk_znear", "4", CVAR_ARCHIVE);
 	vk_overbrightbits = ri.Cvar_Get("vk_overbrightbits", "1.0", CVAR_ARCHIVE);
 	vk_picmip = ri.Cvar_Get("vk_picmip", "0", 0);
 	vk_finish = ri.Cvar_Get("vk_finish", "0", CVAR_ARCHIVE);

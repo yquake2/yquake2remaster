@@ -137,9 +137,6 @@ void
 GL3_DrawSkyBox(void)
 {
 	int i;
-	qboolean farsee;
-
-	farsee = (r_farsee->value == 0);
 
 	if (skyrotate)
 	{   /* check for no sky at all */
@@ -201,13 +198,13 @@ GL3_DrawSkyBox(void)
 		GL3_Bind(sky_images[skytexorder[i]]->texnum);
 
 		R_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[0],
-			farsee, sky_min, sky_max);
+			gl3_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[1],
-			farsee, sky_min, sky_max);
+			gl3_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[2],
-			farsee, sky_min, sky_max);
+			gl3_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[3],
-			farsee, sky_min, sky_max);
+			gl3_worldmodel, sky_min, sky_max);
 
 		GL3_BufferAndDraw3D(skyVertices, 4, GL_TRIANGLE_FAN);
 	}

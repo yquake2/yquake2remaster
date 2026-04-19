@@ -67,6 +67,7 @@ cvar_t *r_vsync;
 cvar_t *vid_fullscreen;
 cvar_t *vid_gamma;
 cvar_t *viewsize;
+static cvar_t *r_znear;
 
 #define MAXPRINTMSG 4096
 
@@ -285,11 +286,32 @@ R_InitCvar(void)
 	vid_fullscreen = ri.Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
 	vid_gamma = ri.Cvar_Get("vid_gamma", "1.0", CVAR_ARCHIVE);
 	viewsize = ri.Cvar_Get("viewsize", "100", CVAR_ARCHIVE);
+	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_ARCHIVE);
 
 	/* clamp r_msaa_samples to accepted range so that video menu doesn't crash on us */
 	if (r_msaa_samples->value < 0)
 	{
 		ri.Cvar_Set("r_msaa_samples", "0");
 	}
+}
 
+float
+R_GetFarValue(const model_t *r_worldmodel)
+{
+	float dist;
+
+	dist = r_worldmodel->radius;
+
+	if (r_farsee->value)
+	{
+		dist *= 2.0;
+	}
+
+	return Q_max(4096.0f, dist);
+}
+
+float
+R_GetNearValue(void)
+{
+	return Q_max(r_znear->value, 0.1f);
 }

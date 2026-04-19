@@ -322,13 +322,15 @@ R_ClearSkyBox(float skymins[2][6], float skymaxs[2][6])
 }
 
 void
-R_MakeSkyVec(float s, float t, int axis, mvtx_t* vert, qboolean farsee,
+R_MakeSkyVec(float s, float t, int axis, mvtx_t* vert, const model_t *r_worldmodel,
 	float sky_min, float sky_max)
 {
 	vec3_t v, b;
+	float dist;
 	int j;
 
-	float dist = (farsee) ? 2300.0f : 4096.0f;
+	/* Sky should be before any far objects */
+	dist = R_GetFarValue(r_worldmodel) / 2.0;
 
 	b[0] = s * dist;
 	b[1] = t * dist;

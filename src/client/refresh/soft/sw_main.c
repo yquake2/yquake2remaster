@@ -496,11 +496,15 @@ R_ReallocateMapBuffers (void)
 		}
 
 		if ((r_farsee->value > 0) && (r_cnumsurfs < NUMSTACKSURFACES))
+		{
 			r_cnumsurfs = NUMSTACKSURFACES * 2;
+		}
 		else if (r_cnumsurfs < NUMSTACKSURFACES)
+		{
 			r_cnumsurfs = NUMSTACKSURFACES;
+		}
 
-		// edge_t->surf limited size to short
+		/* edge_t->surf limited size to short */
 		if (r_cnumsurfs > SURFINDEX_MAX)
 		{
 			r_cnumsurfs = SURFINDEX_MAX;

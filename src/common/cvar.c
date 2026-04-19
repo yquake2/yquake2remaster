@@ -58,6 +58,7 @@ static const replacement_t replacements[] = {
 	{"gl1_dynamic", "r_dynamic"},
 	{"vk_dynamic", "r_dynamic"},
 	{"gl_farsee", "r_farsee"},
+	{"gl_znear", "r_znear"},
 	{"gl_flashblend", "r_flashblend"},
 	{"gl1_flashblend", "r_flashblend"},
 	{"vk_flashblend", "r_flashblend"},

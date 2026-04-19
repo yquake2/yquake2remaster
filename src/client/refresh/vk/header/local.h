@@ -97,7 +97,6 @@ extern	vec3_t	r_origin;
 //
 // screen size info
 //
-extern	cvar_t	*vk_znear;
 extern	cvar_t	*vk_overbrightbits;
 extern	cvar_t	*vk_picmip;
 extern	cvar_t	*vk_finish;

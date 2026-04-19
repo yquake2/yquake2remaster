@@ -98,7 +98,6 @@ cvar_t *gl1_stereo_separation;
 cvar_t *gl1_stereo_anaglyph_colors;
 cvar_t *gl1_stereo_convergence;
 
-static cvar_t *gl_znear;
 static cvar_t *gl1_waterwarp;
 
 refimport_t ri;
@@ -677,8 +676,8 @@ void
 R_SetPerspective(GLdouble fovy)
 {
 	// gluPerspective style parameters
-	const GLdouble zNear = Q_max(gl_znear->value, 0.1f);
-	const GLdouble zFar = (r_farsee->value) ? (r_worldmodel->radius * 2) : 4096.0f;
+	const GLdouble zNear = R_GetNearValue();
+	const GLdouble zFar = R_GetFarValue(r_worldmodel);
 	const GLdouble aspectratio = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	GLdouble xmin, xmax, ymin, ymax;
@@ -1222,7 +1221,6 @@ R_Register(void)
 	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", 0);
-	gl_znear = ri.Cvar_Get("gl_znear", "4", CVAR_ARCHIVE);
 	gl1_minlight = ri.Cvar_Get("gl1_minlight", "0", CVAR_ARCHIVE);
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
