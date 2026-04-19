@@ -611,6 +611,8 @@ CL_AddPacketEntities(const frame_t *frame)
 				radius = Mod_RadiusFromBounds(mins, maxs);
 			}
 
+			radius *= (s1->scale[0] + s1->scale[1] + s1->scale[2]) / 3.0;
+
 			CL_HologramParticles(ent.origin, radius);
 		}
 
