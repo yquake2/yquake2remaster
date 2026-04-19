@@ -97,8 +97,8 @@ R_RenderDlights(void)
 		}
 	}
 
-	Mesh_VertsRealloc(64);
-	R_GenFanIndexes(vertIdxData, 0, 48);
+	Mesh_IndexesRealloc(48);
+	R_GenFanIndexes(vertIdxData, 0, 16);
 	ibuffer = UpdateIndexBuffer(vertIdxData, 48 * sizeof(uint16_t), &dstOffset);
 
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);

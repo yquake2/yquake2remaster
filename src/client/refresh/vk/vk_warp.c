@@ -128,10 +128,14 @@ EmitWaterPolys(const msurface_t *fa, image_t *texture, const float *modelMatrix,
 			descriptorSets, 1, &uboOffset);
 	}
 
+	int total_indices = 0;
 	for (bp = fa->polys; bp; bp = bp->next)
+	{
 		total_verts += bp->numverts;
+		total_indices += (bp->numverts - 2) * 3;
+	}
 
-	if (Mesh_VertsRealloc(total_verts))
+	if (Mesh_IndexesRealloc(total_indices))
 	{
 		Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 		return;
@@ -217,8 +221,8 @@ R_DrawSkyBox(void)
 	uboData = QVk_GetUniformBuffer(sizeof(model), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, model, sizeof(model));
 
-	Mesh_VertsRealloc(6);
-	R_GenFanIndexes(vertIdxData, 0, 4);
+	Mesh_IndexesRealloc(6);
+	R_GenFanIndexes(vertIdxData, 0, 2);
 	buffer = UpdateIndexBuffer(vertIdxData, 6 * sizeof(uint16_t), &dstOffset);
 	gamma = 2.1F - vid_gamma->value;
 

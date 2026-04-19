@@ -77,7 +77,7 @@ DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadPipeline[vk_state.current_renderpass].layout,
 		VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(gamma), &gamma);
 
-	Mesh_VertsRealloc((p->numverts - 2) * 3);
+	Mesh_IndexesRealloc((p->numverts - 2) * 3);
 	R_GenFanIndexes(vertIdxData, 0, p->numverts - 2);
 	buffer = UpdateIndexBuffer(vertIdxData, (p->numverts - 2) * 3 * sizeof(uint16_t), &dstOffset);
 
@@ -462,6 +462,13 @@ dynamic:
 					return;
 				}
 
+				if (Mesh_IndexesRealloc(index_pos + (nv - 2) * 3))
+				{
+					Com_Error(ERR_FATAL, "%s: can't allocate memory",
+							__func__);
+					return;
+				}
+
 				memcpy(verts_buffer + pos_vect, p->verts,
 						sizeof(mvtx_t) * nv);
 				for (int j = 0; j < nv; j++)
@@ -624,7 +631,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 
 	for (p = surf->polys; p; p = p->chain)
 	{
-		if (Mesh_VertsRealloc(pos_vect + nv))
+		if (Mesh_IndexesRealloc(index_pos + (nv - 2) * 3))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
 			return;
