@@ -1038,7 +1038,7 @@ SetupFrame(void)
 
 	R_SetClusters(gl4_worldmodel, gl4_origin);
 
-	R_CombineBlendWithFog(v_blend, false);
+	R_CombineBlendWithFog(v_blend, true);
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;
@@ -1290,6 +1290,32 @@ SetupGL(void)
 	gl4state.uni3DData.transModelMat4 = gl4_identityMat4;
 
 	gl4state.uni3DData.time = r_newrefdef.time;
+
+	/* Set up fog parameters from server data */
+	gl4state.uni3DData.fogColor = HMM_Vec4(
+		r_newrefdef.fog.red / 255.0f,
+		r_newrefdef.fog.green / 255.0f,
+		r_newrefdef.fog.blue / 255.0f,
+		r_newrefdef.fog.density / 64.0f
+	);
+
+	/* Height fog parameters */
+	gl4state.uni3DData.heightfog_start = HMM_Vec4(
+		r_newrefdef.fog.hf_start_r / 255.0f,
+		r_newrefdef.fog.hf_start_g / 255.0f,
+		r_newrefdef.fog.hf_start_b / 255.0f,
+		(float)r_newrefdef.fog.hf_start_dist
+	);
+
+	gl4state.uni3DData.heightfog_end = HMM_Vec4(
+		r_newrefdef.fog.hf_end_r / 255.0f,
+		r_newrefdef.fog.hf_end_g / 255.0f,
+		r_newrefdef.fog.hf_end_b / 255.0f,
+		(float)r_newrefdef.fog.hf_end_dist
+	);
+
+	gl4state.uni3DData.heightfog_density = r_newrefdef.fog.hf_density;
+	gl4state.uni3DData.heightfog_falloff = r_newrefdef.fog.hf_falloff;
 
 	GL4_UpdateUBO3D();
 
