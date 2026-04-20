@@ -346,12 +346,12 @@ Mod_CalcSurfaceExtents(const int *surfedges, int numsurfedges, mvertex_t *vertex
 
 		for (j = 0; j < 2; j++)
 		{
-			float val;
+			long double val;
 
-			val = (double)v->position[0] * tex->vecs[j][0] +
-				  (double)v->position[1] * tex->vecs[j][1] +
-				  (double)v->position[2] * tex->vecs[j][2] +
-				  (double)tex->vecs[j][3];
+			val = (long double)v->position[0] * tex->vecs[j][0] +
+				  (long double)v->position[1] * tex->vecs[j][1] +
+				  (long double)v->position[2] * tex->vecs[j][2] +
+				  (long double)tex->vecs[j][3];
 
 			if (val < mins[j])
 			{
