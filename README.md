@@ -307,7 +307,7 @@ Checked with:
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
-* [ ] gl3, gl4: add fog distance effect,
+* [ ] gl4: add fog distance effect,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [ ] Rerelease: fix vulkan render on open door in mguhub,
@@ -342,6 +342,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] gl3: add fog distance effect,
 * [x] client: share r_farsee,
 * [x] Infinity: implement `misc_hologram`,
 * [x] Infinity: implement `misc_lightning`,

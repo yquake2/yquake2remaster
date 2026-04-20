@@ -158,6 +158,11 @@ typedef struct
 	hmm_mat4 transProjViewMat4; // gl3state.projMat3D * gl3state.viewMat3D - so we don't have to do this in the shader
 	hmm_mat4 transModelMat4;
 
+	/* Fog parameters for exponential and height-based fog */
+	hmm_vec4 fogColor; // RGB color + density in .w (for exponential: density/64)
+	hmm_vec4 heightfog_start; // RGB color + distance in .w
+	hmm_vec4 heightfog_end; // RGB color + distance in .w
+
 	GLfloat sscroll; // for SURF_FLOWING
 	GLfloat tscroll; // for SURF_FLOWING
 	GLfloat time; // for warping surfaces like water & possibly other things
@@ -166,7 +171,13 @@ typedef struct
 	GLfloat particleFadeFactor; // gl3_particle_fade_factor, higher => less fading out towards edges
 
 	GLfloat lightScaleForTurb; // surfaces with SURF_DRAWTURB (water, lava) don't have lightmaps, use this instead
-	GLfloat _padding; // again, some padding to ensure this has right size, round up to 16 bytes?
+
+	GLfloat heightfog_density;
+	GLfloat heightfog_falloff;
+	// again, some padding to ensure this has right std140 size, round up to 16 bytes?
+	GLfloat _padding1;
+	GLfloat _padding2;
+	GLfloat _padding3;
 } gl3Uni3D_t;
 
 extern const hmm_mat4 gl3_identityMat4;
