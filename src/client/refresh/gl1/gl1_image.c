@@ -420,7 +420,7 @@ R_ImageList_f(void)
 
 	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 	{
-		char *in_use = "";
+		const char *in_use = "", *scrap = "";
 
 		if (image->texnum <= 0)
 		{
@@ -431,6 +431,11 @@ R_ImageList_f(void)
 		{
 			in_use = "*";
 			used++;
+		}
+
+		if (image->scrap)
+		{
+			scrap = "scrap";
 		}
 
 		texels += image->upload_width * image->upload_height;
@@ -454,10 +459,10 @@ R_ImageList_f(void)
 				break;
 		}
 
-		Com_Printf(" %3i %3i %s: %s (%dx%d) %s\n",
+		Com_Printf(" %3i %3i %s: %s (%dx%d) %s %s\n",
 				image->upload_width, image->upload_height,
 				palstrings[image->paletted], image->name,
-				image->width, image->height, in_use);
+				image->width, image->height, in_use, scrap);
 	}
 
 	Com_Printf("Total texel count (not counting mipmaps): %i\n",
@@ -1066,29 +1071,13 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		(image->width < 128) && (image->height < 128))
 	{
 		int x, y;
-		int i, k;
 		int texnum;
 
-		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y);
+		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y, pic);
 
 		if (texnum == -1)
 		{
 			goto nonscrap;
-		}
-
-		scrap_dirty = true;
-
-		/* copy the texels into the scrap block */
-		k = 0;
-
-		for (i = 0; i < image->height; i++)
-		{
-			int j;
-
-			for (j = 0; j < image->width; j++, k++)
-			{
-				scrap_texels[texnum][(y + i) * SCRAP_WIDTH + x + j] = pic[k];
-			}
 		}
 
 		image->texnum = TEXNUM_SCRAPS + texnum;
@@ -1098,6 +1087,8 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		image->sh = (float)(x + image->width) / SCRAP_WIDTH;
 		image->tl = (float)y / SCRAP_HEIGHT;
 		image->th = (float)(y + image->height) / SCRAP_HEIGHT;
+		image->upload_width = image->width;
+		image->upload_height = image->height;
 	}
 	else
 	{

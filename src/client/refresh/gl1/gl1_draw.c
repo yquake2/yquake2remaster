@@ -192,10 +192,7 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 		return;
 	}
 
-	if (scrap_dirty)
-	{
-		Scrap_Upload();
-	}
+	Scrap_Upload();
 
 	R_UpdateGLBuffer(buf_2d, gl->texnum, 0, 0, 1);
 
@@ -223,10 +220,7 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 		return;
 	}
 
-	if (scrap_dirty)
-	{
-		Scrap_Upload();
-	}
+	Scrap_Upload();
 
 	if (gl->texnum == TEXNUM_SCRAPS)
 	{
@@ -284,10 +278,7 @@ RDraw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t col
 		return;
 	}
 
-	if (scrap_dirty)
-	{
-		Scrap_Upload();
-	}
+	Scrap_Upload();
 
 	R_ApplyGLBuffer();
 

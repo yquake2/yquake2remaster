@@ -240,12 +240,10 @@ void R_TextureSolidMode(const char *string);
 
 /* scrap */
 void Scrap_Upload(void);
-int Scrap_AllocBlock(int w, int h, int *x, int *y);
+int Scrap_AllocBlock(int w, int h, int *x, int *y, byte *pic);
 void Scrap_Init(void);
 
 qboolean R_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky);
-extern qboolean scrap_dirty;
-extern byte scrap_texels[MAX_SCRAPS][SCRAP_WIDTH * SCRAP_HEIGHT];
 
 // GL buffer operations
 
