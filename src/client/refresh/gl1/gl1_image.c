@@ -1068,12 +1068,12 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 	/* load little pics into the scrap */
 	if (!nolerp && (image->type == it_pic) && (bits == 8) &&
-		(image->width < 128) && (image->height < 128))
+		(width < 128) && (height < 128))
 	{
 		int x, y;
 		int texnum;
 
-		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y, pic);
+		texnum = Scrap_AllocBlock(width, height, &x, &y, pic);
 
 		if (texnum == -1)
 		{
@@ -1084,11 +1084,11 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		image->scrap = true;
 		image->has_alpha = true;
 		image->sl = (float)x / SCRAP_WIDTH;
-		image->sh = (float)(x + image->width) / SCRAP_WIDTH;
+		image->sh = (float)(x + width) / SCRAP_WIDTH;
 		image->tl = (float)y / SCRAP_HEIGHT;
-		image->th = (float)(y + image->height) / SCRAP_HEIGHT;
-		image->upload_width = image->width;
-		image->upload_height = image->height;
+		image->th = (float)(y + height) / SCRAP_HEIGHT;
+		image->upload_width = width;
+		image->upload_height = height;
 	}
 	else
 	{
@@ -1141,21 +1141,6 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		image->upload_height = upload_height;
 		image->paletted = uploaded_paletted;
 
-		if (realwidth && realheight)
-		{
-			if ((realwidth <= image->width) && (realheight <= image->height))
-			{
-				image->width = realwidth;
-				image->height = realheight;
-			}
-			else
-			{
-				Com_DPrintf(
-						"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
-						name, image->width, image->height, realwidth, realheight);
-			}
-		}
-
 		image->sl = 0;
 		image->sh = 1;
 		image->tl = 0;
@@ -1165,6 +1150,21 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+	}
+
+	if (realwidth && realheight)
+	{
+		if ((realwidth <= image->width) && (realheight <= image->height))
+		{
+			image->width = realwidth;
+			image->height = realheight;
+		}
+		else
+		{
+			Com_DPrintf(
+					"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
+					name, image->width, image->height, realwidth, realheight);
 		}
 	}
 
