@@ -27,69 +27,41 @@
 
 #include "header/local.h"
 
-static int scrap_allocated[MAX_SCRAPS][SCRAP_WIDTH];
+#define STB_RECT_PACK_IMPLEMENTATION
+#include "../files/stb_rect_pack.h"
+
+static stbrp_context scrap_packer[MAX_SCRAPS];
+static stbrp_node scrap_nodes[MAX_SCRAPS][SCRAP_WIDTH * 2];
+
 byte scrap_texels[MAX_SCRAPS][SCRAP_WIDTH * SCRAP_HEIGHT];
 qboolean scrap_dirty;
-
-qboolean R_Upload8(byte *data,
-		int width,
-		int height,
-		qboolean mipmap,
-		qboolean is_sky);
 
 /* returns a texture number and the position inside it */
 int
 Scrap_AllocBlock(int w, int h, int *x, int *y)
 {
 	int texnum;
-	w += 2;	// add an empty border to all sides
+
+	/* add an empty border to all sides */
+	w += 2;
 	h += 2;
 
 	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
-		int best, i;
+		stbrp_rect rect;
+		rect.w = w;
+		rect.h = h;
+		rect.x = 0;
+		rect.y = 0;
+		rect.was_packed = 0;
 
-		best = SCRAP_HEIGHT;
-
-		for (i = 0; i < SCRAP_WIDTH - w; i++)
+		if (stbrp_pack_rects(&scrap_packer[texnum], &rect, 1))
 		{
-			int best2, j;
-
-			best2 = 0;
-
-			for (j = 0; j < w; j++)
-			{
-				if (scrap_allocated[texnum][i + j] >= best)
-				{
-					break;
-				}
-
-				if (scrap_allocated[texnum][i + j] > best2)
-				{
-					best2 = scrap_allocated[texnum][i + j];
-				}
-			}
-
-			if (j == w)
-			{   /* this is a valid spot */
-				*x = i;
-				*y = best = best2;
-			}
+			*x = rect.x + 1; /* skip border */
+			*y = rect.y + 1;
+			scrap_dirty = true;
+			return texnum;
 		}
-
-		if (best + h > SCRAP_HEIGHT)
-		{
-			continue;
-		}
-
-		for (i = 0; i < w; i++)
-		{
-			scrap_allocated[texnum][*x + i] = best + h;
-		}
-		(*x)++;	// jump the border
-		(*y)++;
-
-		return texnum;
 	}
 
 	return -1;
@@ -106,7 +78,15 @@ Scrap_Upload(void)
 void
 Scrap_Init(void)
 {
-	memset (scrap_allocated, 0, sizeof(scrap_allocated));	// empty
-	memset (scrap_texels, 255, sizeof(scrap_texels));	// transparent
+	size_t i;
+
+	for (i = 0; i < MAX_SCRAPS; i ++)
+	{
+		stbrp_init_target(&scrap_packer[i], SCRAP_WIDTH, SCRAP_HEIGHT,
+			scrap_nodes[i], SCRAP_WIDTH * 2);
+	}
+
+	/* transparent */
+	memset(scrap_texels, 255, sizeof(scrap_texels));
 }
 

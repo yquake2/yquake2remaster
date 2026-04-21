@@ -34,9 +34,7 @@ static image_t *draw_font = NULL;
 static image_t *draw_font_alt = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
 
-extern qboolean scrap_dirty;
 static qboolean draw_chars_has_alt;
-void Scrap_Upload(void);
 
 extern unsigned r_rawpalette[256];
 

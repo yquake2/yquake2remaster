@@ -29,8 +29,6 @@
 image_t gltextures[MAX_TEXTURES];
 int numgltextures;
 static int image_max = 0;
-extern qboolean scrap_dirty;
-extern byte scrap_texels[MAX_SCRAPS][SCRAP_WIDTH * SCRAP_HEIGHT];
 
 static byte intensitytable[256];
 byte gammatable[256];
@@ -1065,7 +1063,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 	/* load little pics into the scrap */
 	if (!nolerp && (image->type == it_pic) && (bits == 8) &&
-		(image->width < 64) && (image->height < 64))
+		(image->width < 128) && (image->height < 128))
 	{
 		int x, y;
 		int i, k;
