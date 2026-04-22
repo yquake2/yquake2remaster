@@ -33,12 +33,12 @@
 static stbrp_context scrap_packer[MAX_SCRAPS];
 static stbrp_node scrap_nodes[MAX_SCRAPS][SCRAP_WIDTH * 2];
 
-static byte scrap_texels[MAX_SCRAPS][SCRAP_WIDTH * SCRAP_HEIGHT];
+static unsigned scrap_texels[MAX_SCRAPS][SCRAP_WIDTH * SCRAP_HEIGHT];
 static qboolean scrap_dirty;
 
 /* returns a texture number and the position inside it */
 int
-Scrap_AllocBlock(int w, int h, int *x, int *y, byte *pic)
+Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic)
 {
 	int texnum;
 
@@ -68,7 +68,8 @@ Scrap_AllocBlock(int w, int h, int *x, int *y, byte *pic)
 
 			for (i = 0; i < h - 2; i++)
 			{
-				memcpy(&scrap_texels[texnum][(*y + i) * SCRAP_WIDTH + *x], pic + k, w - 2);
+				memcpy(&scrap_texels[texnum][(*y + i) * SCRAP_WIDTH + *x],
+					pic + k, (w - 2) * sizeof(unsigned));
 				k += w - 2;
 			}
 
@@ -88,7 +89,7 @@ Scrap_Upload(void)
 	}
 
 	R_Bind(TEXNUM_SCRAPS);
-	R_Upload8(scrap_texels[0], SCRAP_WIDTH, SCRAP_HEIGHT, false, false);
+	R_Upload32(scrap_texels[0], SCRAP_WIDTH, SCRAP_HEIGHT, false);
 	scrap_dirty = false;
 }
 
