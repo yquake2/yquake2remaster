@@ -310,8 +310,6 @@ Checked with:
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
 * [ ] soft, vulkan: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
-* [ ] Rerelease: fix vulkan render on open door in mguhub,
-* [ ] gl1: reuse R_MakeSkyVec,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible,
 * [ ] ReRelease: implement demo protocol based on https://github.com/res2k/q2proto
@@ -332,7 +330,6 @@ Checked with:
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
-* [ ] Anachronox: rowdys save entity disappear in a8080c05,
 * [ ] Anachronox: CTC entity format,
 * [ ] Anachronox: support material load textures/textureinfo.dat,
 * [ ] Daikatana: Fix protopod animation,
@@ -342,6 +339,9 @@ Checked with:
 
 ### Fixed:
 
+* [x] Rerelease: fix vulkan render on open door in mguhub,
+* [x] gl1: reuse R_MakeSkyVec,
+* [x] Anachronox: rowdys save entity disappear in a8080c05,
 * [x] gl4: add fog distance effect,
 * [x] gl3: add fog distance effect,
 * [x] client: share r_farsee,
