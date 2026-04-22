@@ -34,7 +34,6 @@ static float gl3_font_size = 8.0;
 static int gl3_font_height = 128;
 gl3image_t *draw_chars = NULL;
 static gl3image_t *draw_font = NULL;
-static gl3image_t *draw_font_alt = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
 static qboolean draw_chars_has_alt;
 
@@ -42,14 +41,14 @@ static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured ren
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
-	struct image_s **draw_font, struct image_s **draw_font_alt,
+	struct image_s **draw_font,
 	loadimage_t R_LoadPic);
 
 void
 GL3_Draw_InitLocal(void)
 {
 	R_LoadTTFFont(r_ttffont->string, vid.height, &gl3_font_size, &gl3_font_height,
-		&draw_fontcodes, &draw_font, &draw_font_alt, (loadimage_t)GL3_LoadPic);
+		&draw_fontcodes, &draw_font, (loadimage_t)GL3_LoadPic);
 
 	draw_chars = R_LoadConsoleChars((findimage_t)GL3_FindImage);
 	/* Heretic 2 uses more than 128 symbols in image */
@@ -144,6 +143,7 @@ GL3_Draw_CharScaled(int x, int y, int num, float scale)
 {
 	int row, col;
 	float frow, fcol, size, scaledSize;
+
 	num &= 255;
 
 	if ((num & 127) == 32)
@@ -163,7 +163,7 @@ GL3_Draw_CharScaled(int x, int y, int num, float scale)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	scaledSize = 8*scale;
+	scaledSize = 8 * scale;
 
 	// TODO: batchen?
 
@@ -179,7 +179,7 @@ GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 	{
 		unsigned value = R_NextUTF8Code(&message);
 
-		if (draw_fontcodes && draw_font && draw_font_alt)
+		if (draw_fontcodes && draw_font)
 		{
 			float font_scale;
 
@@ -193,6 +193,12 @@ GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 				stbtt_GetBakedQuad(draw_fontcodes, gl3_font_height, gl3_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
+				if (alt)
+				{
+					q.t0 += 0.5;
+					q.t1 += 0.5;
+				}
+
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
 				{
@@ -200,7 +206,7 @@ GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 				}
 
 				GL3_UseProgram(gl3state.si2D.shaderProgram);
-				GL3_Bind(alt ? draw_font_alt->texnum : draw_font->texnum);
+				GL3_Bind(draw_font->texnum);
 				drawTexturedRectangle(
 					(float)(x + (xdiff + q.x0 / font_scale) * scale),
 					(float)(y + q.y0 * scale / font_scale + 8 * scale),
@@ -476,7 +482,7 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	{
 		size_t i;
 
-		if (cols*rows > 320*240)
+		if (cols * rows > 320 * 240)
 		{
 			/* in case there is a bigger video after all,
 			 * malloc enough space to hold the frame */

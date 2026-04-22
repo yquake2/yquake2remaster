@@ -31,7 +31,6 @@ static float gl_font_size = 8.0;
 static int gl_font_height = 128;
 image_t *draw_chars = NULL;
 static image_t *draw_font = NULL;
-static image_t *draw_font_alt = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
 
 static qboolean draw_chars_has_alt;
@@ -40,14 +39,14 @@ extern unsigned r_rawpalette[256];
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
-	struct image_s **draw_font, struct image_s **draw_font_alt,
+	struct image_s **draw_font,
 	loadimage_t R_LoadPic);
 
 void
 Draw_InitLocal(void)
 {
 	R_LoadTTFFont(r_ttffont->string, vid.height, &gl_font_size, &gl_font_height,
-		&draw_fontcodes, &draw_font, &draw_font_alt, R_LoadPic);
+		&draw_fontcodes, &draw_font, R_LoadPic);
 
 	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
 	/* Heretic 2 uses more than 128 symbols in image */
@@ -105,7 +104,7 @@ RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 	{
 		unsigned value = R_NextUTF8Code(&message);
 
-		if (draw_fontcodes && draw_font && draw_font_alt)
+		if (draw_fontcodes && draw_font)
 		{
 			float font_scale;
 
@@ -119,13 +118,19 @@ RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 				stbtt_GetBakedQuad(draw_fontcodes, gl_font_height, gl_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
+				if (alt)
+				{
+					q.t0 += 0.5;
+					q.t1 += 0.5;
+				}
+
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
 				{
 					xdiff = 0;
 				}
 
-				R_UpdateGLBuffer(buf_2d, alt ? draw_font_alt->texnum : draw_font->texnum, 0, 0, 1);
+				R_UpdateGLBuffer(buf_2d, draw_font->texnum, 0, 0, 1);
 
 				R_Buffer2DQuad(
 					(float)(x + (xdiff + q.x0 / font_scale) * scale),

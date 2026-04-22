@@ -912,12 +912,12 @@ R_LoadConsoleChars(findimage_t find_image)
 void
 R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
-	struct image_s **draw_font, struct image_s **draw_font_alt,
-	loadimage_t R_LoadPic)
+	struct image_s **draw_font, loadimage_t R_LoadPic)
 {
-	int size, i, power_two = 1, texture_size, symbols;
+	size_t i, power_two = 1, texture_size, mask_idx;
 	byte *data, *font_mask, *font_data;
 	char font_name[MAX_QPATH] = {0};
+	int symbols, size;
 
 	snprintf(font_name, sizeof(font_name), "fonts/%s.ttf", ttffont);
 
@@ -962,7 +962,7 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 		0 /* file offset */,
 		*r_font_size * 1.5 /* symbol size ~ as console font */,
 		font_mask,
-		*r_font_height, *r_font_height,
+		*r_font_height, *r_font_height / 2, /* keep half the texture for alt */
 		32 /* Start font code */, MAX_FONTCODE,
 		*draw_fontcodes);
 	if (symbols < 0)
@@ -976,7 +976,8 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 			__func__, symbols, *r_font_height);
 	}
 
-	for (i = 0; i < texture_size; i++)
+	/* half for main font */
+	for (i = 0; i < texture_size / 2; i++)
 	{
 		font_data[i * 4 + 0] = font_mask[i];
 		font_data[i * 4 + 1] = font_mask[i];
@@ -984,19 +985,18 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
 	}
 
-	*draw_font = R_LoadPic("***ttf***", font_data,
-		*r_font_height, *r_font_height, *r_font_height, *r_font_height,
-		texture_size, it_pic, 32);
-
-	for (i = 0; i < texture_size; i++)
+	/* other half for alt (green) */
+	mask_idx = 0;
+	for (i = texture_size / 2; i < texture_size; i++)
 	{
 		font_data[i * 4 + 0] = 0x0;
-		font_data[i * 4 + 1] = font_mask[i];
+		font_data[i * 4 + 1] = font_mask[mask_idx];
 		font_data[i * 4 + 2] = 0x0;
-		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
+		font_data[i * 4 + 3] = font_mask[mask_idx] > 16 ? 255 : 0;
+		mask_idx ++;
 	}
 
-	*draw_font_alt = R_LoadPic("***ttf_alt***", font_data,
+	*draw_font = R_LoadPic("***ttf***", font_data,
 		*r_font_height, *r_font_height, *r_font_height, *r_font_height,
 		texture_size, it_pic, 32);
 

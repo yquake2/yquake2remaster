@@ -26,38 +26,25 @@ static float sw_font_size = 8.0;
 static int sw_font_height = 128;
 static image_t *draw_chars; // 8*8 graphic characters
 static image_t* draw_font = NULL;
-static image_t* draw_font_alt = NULL;
 static stbtt_bakedchar* draw_fontcodes = NULL;
 static qboolean draw_chars_has_alt;
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
-	struct image_s **draw_font, struct image_s **draw_font_alt,
+	struct image_s **draw_font,
 	loadimage_t R_LoadPic);
 
-//=============================================================================
-
-/*
-================
-RE_Draw_FindPic
-================
-*/
 image_t *
 RE_Draw_FindPic (const char *name)
 {
 	return R_FindPic(name, (findimage_t)R_FindImage);
 }
 
-/*
-===============
-Draw_InitLocal
-===============
-*/
 void
 Draw_InitLocal(void)
 {
 	R_LoadTTFFont(r_ttffont->string, vid.height, &sw_font_size, &sw_font_height,
-		&draw_fontcodes, &draw_font, &draw_font_alt, (loadimage_t)R_LoadPic);
+		&draw_fontcodes, &draw_font, (loadimage_t)R_LoadPic);
 
 	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
 	/* Heretic 2 uses more than 128 symbols in image */
@@ -65,14 +52,10 @@ Draw_InitLocal(void)
 }
 
 /*
-================
-Draw_Char
-
-Draws one 8*8 graphics character
-It can be clipped to the top of the screen to allow the console to be
-smoothly scrolled off.
-================
-*/
+ * Draws one 8*8 graphics character
+ * It can be clipped to the top of the screen to allow the console to be
+ * smoothly scrolled off.
+ */
 void
 RE_Draw_CharScaled(int x, int y, int c, float scale)
 {
@@ -89,14 +72,14 @@ RE_Draw_CharScaled(int x, int y, int c, float scale)
 
 	c &= 255;
 
-	if ((c&127) == 32)
+	if ((c & 127) == 32)
 	{
 		return;
 	}
 
 	if (y <= -8)
 	{
-		return;	// totally off screen
+		return; /* totally off screen */
 	}
 
 	if ( ( y + 8 ) > vid_buffer_height )	// status text was missing in sw...
@@ -104,8 +87,8 @@ RE_Draw_CharScaled(int x, int y, int c, float scale)
 		return;
 	}
 
-	row = c>>4;
-	col = c&15;
+	row = c >> 4;
+	col = c & 15;
 
 	width = draw_chars->asset_width * iscale;
 	height = draw_chars->asset_height * iscale;
@@ -270,11 +253,6 @@ RE_Draw_GetPicSize(int *w, int *h, const char *name)
 	*h = image->asset_height;
 }
 
-/*
-=============
-RE_Draw_StretchPicImplementation
-=============
-*/
 static void
 RE_Draw_StretchPicImplementation(int x, int y, int w, int h, const image_t *pic)
 {
@@ -416,11 +394,6 @@ RE_Draw_StretchPicImplementation(int x, int y, int w, int h, const image_t *pic)
 	}
 }
 
-/*
-=============
-RE_Draw_StretchPic
-=============
-*/
 void
 RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 {
@@ -436,11 +409,6 @@ RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 	RE_Draw_StretchPicImplementation (x, y, w, h, pic);
 }
 
-/*
-=============
-RE_Draw_StretchRaw
-=============
-*/
 void
 RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
 {
@@ -502,7 +470,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 	{
 		unsigned value = R_NextUTF8Code(&message);
 
-		if (draw_fontcodes && draw_font && draw_font_alt)
+		if (draw_fontcodes && draw_font)
 		{
 			float font_scale;
 
@@ -516,6 +484,12 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 				stbtt_GetBakedQuad(draw_fontcodes, sw_font_height, sw_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
+				if (alt)
+				{
+					q.t0 += 0.5;
+					q.t1 += 0.5;
+				}
+
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
 				{
@@ -528,7 +502,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 					(q.x1 - q.x0) * scale / font_scale,
 					(q.y1 - q.y0) * scale / font_scale,
 					q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
-					alt ? draw_font_alt : draw_font);
+					draw_font);
 				x += Q_max(8, xf / font_scale) * scale;
 			}
 			else
@@ -552,11 +526,6 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 	}
 }
 
-/*
-=============
-Draw_Pic
-=============
-*/
 void
 RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext)
 {
@@ -792,14 +761,7 @@ RE_Draw_Fill(int x, int y, int w, int h, int c)
 		memset(dest, c, w);
 	}
 }
-//=============================================================================
 
-/*
-================
-RE_Draw_FadeScreen
-
-================
-*/
 void
 RE_Draw_FadeScreen(void)
 {

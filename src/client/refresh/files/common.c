@@ -298,9 +298,12 @@ R_InitCvar(void)
 float
 R_GetFarValue(const model_t *r_worldmodel)
 {
-	float dist;
+	float dist = 4096.0f;
 
-	dist = r_worldmodel->radius;
+	if (r_worldmodel)
+	{
+		dist = r_worldmodel->radius;
+	}
 
 	if (r_farsee->value)
 	{
