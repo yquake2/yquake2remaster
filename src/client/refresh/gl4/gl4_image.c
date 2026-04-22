@@ -244,58 +244,19 @@ GL4_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 /*
  * Returns has_alpha
  */
-qboolean
-GL4_Upload8(const byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
+static qboolean
+GL4_Upload8(const byte *data, int width, int height, qboolean mipmap)
 {
-	size_t i, s = width * height;
-	unsigned *trans = malloc(s * sizeof(unsigned));
+	unsigned *trans = NULL;
+	qboolean ret;
 
-	YQ2_COM_CHECK_OOM(trans, "malloc()",
-		s * sizeof(unsigned))
+	trans = R_Convert8to32(data, width, height, d_8to24table);
 	if (!trans)
 	{
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 		return false;
 	}
 
-	for (i = 0; i < s; i++)
-	{
-		int p = data[i];
-		trans[i] = d_8to24table[p];
-
-		/* transparent, so scan around for
-		   another color to avoid alpha fringes */
-		if (p == 255)
-		{
-			if ((i > width) && (data[i - width] != 255))
-			{
-				p = data[i - width];
-			}
-			else if ((i < s - width) && (data[i + width] != 255))
-			{
-				p = data[i + width];
-			}
-			else if ((i > 0) && (data[i - 1] != 255))
-			{
-				p = data[i - 1];
-			}
-			else if ((i < s - 1) && (data[i + 1] != 255))
-			{
-				p = data[i + 1];
-			}
-			else
-			{
-				p = 0;
-			}
-
-			/* copy rgb components */
-			((byte *)&trans[i])[0] = ((byte *)&d_8to24table[p])[0];
-			((byte *)&trans[i])[1] = ((byte *)&d_8to24table[p])[1];
-			((byte *)&trans[i])[2] = ((byte *)&d_8to24table[p])[2];
-		}
-	}
-
-	qboolean ret = GL4_Upload32(trans, width, height, mipmap);
+	ret = GL4_Upload32(trans, width, height, mipmap);
 	free(trans);
 	return ret;
 }
@@ -404,15 +365,13 @@ GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
 			}
 
 			image->has_alpha = GL4_Upload8(image_converted, width * scale, height * scale,
-						(image->type != it_pic && image->type != it_sky),
-						image->type == it_sky);
+						(image->type != it_pic && image->type != it_sky));
 			free(image_converted);
 		}
 		else
 		{
 			image->has_alpha = GL4_Upload8(pic, width, height,
-						(image->type != it_pic && image->type != it_sky),
-						image->type == it_sky);
+						(image->type != it_pic && image->type != it_sky));
 		}
 	}
 	else

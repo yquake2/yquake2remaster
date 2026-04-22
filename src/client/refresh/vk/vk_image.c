@@ -902,78 +902,19 @@ static uint32_t
 Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 	byte **texBuffer, int *upload_width, int *upload_height)
 {
-	unsigned	*trans;
-	int			i, s;
-	int 		miplevel;
+	unsigned *trans = NULL;
+	int miplevel;
 
-	if (height == 0 || width > INT_MAX / sizeof(*trans) / height)
-	{
-		Com_Error(ERR_DROP, "%s: invalid dimensions", __func__);
-		return 0;
-	}
-
-	s = width * height;
-
-	trans = malloc(s * sizeof(*trans));
+	trans = R_Convert8to32(data, width, height, d_8to24table);
 	if (!trans)
 	{
-		Com_Error(ERR_DROP, "%s: too large", __func__);
-		return 0;
-	}
-
-	for (i = 0; i < s; i++)
-	{
-		int p;
-
-		p = data[i];
-		trans[i] = d_8to24table[p];
-	}
-
-	if (type != it_sky && type != it_wall)
-	{
-		for (i = 0; i < s; i++)
-		{
-			int p;
-
-			p = data[i];
-
-			if (p == 255)
-			{	// transparent, so scan around for another color
-				// to avoid alpha fringes
-				// FIXME: do a full flood fill so mips work...
-				if (i > width && data[i - width] != 255)
-				{
-					p = data[i - width];
-				}
-				else if (i < s - width && data[i + width] != 255)
-				{
-					p = data[i + width];
-				}
-				else if (i > 0 && data[i - 1] != 255)
-				{
-					p = data[i - 1];
-				}
-				else if (i < s - 1 && data[i + 1] != 255)
-				{
-					p = data[i + 1];
-				}
-				else
-				{
-					p = 0;
-				}
-
-				/* copy rgb components */
-				((byte *)&trans[i])[0] = ((byte *)&d_8to24table[p])[0];
-				((byte *)&trans[i])[1] = ((byte *)&d_8to24table[p])[1];
-				((byte *)&trans[i])[2] = ((byte *)&d_8to24table[p])[2];
-			}
-		}
+		return false;
 	}
 
 	// optimize 8bit images only when we forced such logic
 	if (r_scale8bittextures->value)
 	{
-		SmoothColorImage(trans, s, width);
+		SmoothColorImage(trans, height * width, width);
 	}
 
 	miplevel = Vk_Upload32Native((byte *)trans, width, height, type, texBuffer,

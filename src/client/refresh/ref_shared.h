@@ -408,6 +408,7 @@ extern struct image_s *R_FindPic(const char *name, findimage_t find_image);
 extern struct image_s *R_LoadConsoleChars(findimage_t find_image);
 extern unsigned R_NextUTF8Code(const char **curr);
 extern void R_FloodFillSkin(byte *skin, int skinwidth, int skinheight, const unsigned *table_8to24);
+unsigned *R_Convert8to32(const byte *data, int width, int height, const unsigned *table_8to24);
 extern struct image_s *R_LoadImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, loadimage_t load_image);
 extern void Mod_LoadQBSPNodes(const char *name, cplane_t *planes, int numplanes,

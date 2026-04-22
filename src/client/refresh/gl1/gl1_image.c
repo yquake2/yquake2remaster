@@ -796,63 +796,6 @@ R_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 	return res;
 }
 
-static unsigned*
-R_Convert8to32(byte *data, int width, int height)
-{
-	unsigned *trans;
-	size_t i, s;
-
-	s = width * height;
-
-	trans = malloc(s * sizeof(unsigned));
-	YQ2_COM_CHECK_OOM(trans, "malloc()",
-		s * sizeof(unsigned))
-	if (!trans)
-	{
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-		return NULL;
-	}
-
-	for (i = 0; i < s; i++)
-	{
-		byte p = data[i];
-		trans[i] = d_8to24table[p];
-
-		/* transparent, so scan around for
-		   another color to avoid alpha fringes */
-		if (p == 255)
-		{
-			if ((i > width) && (data[i - width] != 255))
-			{
-				p = data[i - width];
-			}
-			else if ((i < s - width) && (data[i + width] != 255))
-			{
-				p = data[i + width];
-			}
-			else if ((i > 0) && (data[i - 1] != 255))
-			{
-				p = data[i - 1];
-			}
-			else if ((i < s - 1) && (data[i + 1] != 255))
-			{
-				p = data[i + 1];
-			}
-			else
-			{
-				p = 0;
-			}
-
-			/* copy rgb components */
-			((byte *)&trans[i])[0] = ((byte *)&d_8to24table[p])[0];
-			((byte *)&trans[i])[1] = ((byte *)&d_8to24table[p])[1];
-			((byte *)&trans[i])[2] = ((byte *)&d_8to24table[p])[2];
-		}
-	}
-
-	return trans;
-}
-
 /*
  * Returns has_alpha
  */
@@ -875,7 +818,7 @@ R_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 		unsigned *trans = NULL;
 		qboolean ret;
 
-		trans = R_Convert8to32(data, width, height);
+		trans = R_Convert8to32(data, width, height, d_8to24table);
 		if (!trans)
 		{
 			return false;
@@ -1009,7 +952,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		{
 			unsigned *trans;
 
-			trans = R_Convert8to32(pic, width, height);
+			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
 				texnum = Scrap_AllocBlock(width, height, &x, &y, trans);
