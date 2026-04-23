@@ -118,6 +118,10 @@ getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferredIdx,
 				continue;
 			}
 
+			int gfxFamily = -1;
+			int presentFamily = -1;
+			int transferFamily = -1;
+
 			queueFamilies = (VkQueueFamilyProperties *)malloc(
 				queueFamilyCount * sizeof(VkQueueFamilyProperties));
 			YQ2_COM_CHECK_OOM(queueFamilies, "malloc()",
@@ -138,32 +142,35 @@ getBestPhysicalDevice(const VkPhysicalDevice *devices, int preferredIdx,
 				VK_VERIFY(vkGetPhysicalDeviceSurfaceSupportKHR(devices[i], j, vk_surface, &presentSupported));
 
 				// good optimization would be to find a queue where presentIdx == gfxQueueIdx for less overhead
-				if (vk_device.presentFamilyIndex < 0 && queueFamilies[j].queueCount > 0 && presentSupported)
+				if (presentFamily < 0 && queueFamilies[j].queueCount > 0 && presentSupported)
 				{
-					vk_device.presentFamilyIndex = j;
+					presentFamily = j;
 				}
 
-				if (vk_device.gfxFamilyIndex < 0 && queueFamilies[j].queueCount > 0 && (queueFamilies[j].queueFlags & VK_QUEUE_GRAPHICS_BIT))
+				if (gfxFamily < 0 && queueFamilies[j].queueCount > 0 && (queueFamilies[j].queueFlags & VK_QUEUE_GRAPHICS_BIT))
 				{
-					vk_device.gfxFamilyIndex = j;
+					gfxFamily = j;
 				}
 
-				if (vk_device.transferFamilyIndex < 0 && queueFamilies[j].queueCount > 0 && !(queueFamilies[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamilies[j].queueFlags & VK_QUEUE_TRANSFER_BIT))
+				if (transferFamily < 0 && queueFamilies[j].queueCount > 0 && !(queueFamilies[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamilies[j].queueFlags & VK_QUEUE_TRANSFER_BIT))
 				{
-					vk_device.transferFamilyIndex = j;
+					transferFamily = j;
 				}
 			}
 
 			free(queueFamilies);
 
 			// accept only device that has support for presentation and drawing
-			if (vk_device.presentFamilyIndex >= 0 && vk_device.gfxFamilyIndex >= 0)
+			if (presentFamily >= 0 && gfxFamily >= 0)
 			{
-				if (vk_device.transferFamilyIndex < 0)
+				if (transferFamily < 0)
 				{
-					vk_device.transferFamilyIndex = vk_device.gfxFamilyIndex;
+					transferFamily = gfxFamily;
 				}
 
+				vk_device.presentFamilyIndex = presentFamily;
+				vk_device.gfxFamilyIndex = gfxFamily;
+				vk_device.transferFamilyIndex = transferFamily;
 				vk_device.physical = devices[i];
 				vk_device.properties = deviceProperties;
 				vk_device.features = deviceFeatures;
