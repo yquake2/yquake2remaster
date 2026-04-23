@@ -33,6 +33,7 @@
 
 #include "../../ref_shared.h"
 #include "qgl.h"
+#include "../../files/lightmap.h"
 
 #ifdef YQ2_GL1_GLES
 #define REF_VERSION "Yamagi Quake II OpenGL ES1 Refresher"
@@ -45,14 +46,11 @@
 #endif
 #endif
 
-#define MAX_LIGHTMAPS 256
 #define MAX_LIGHTMAP_COPIES 3	// Meant for tile / deferred rendering platforms
 #define MAX_SCRAPS 1
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS (TEXNUM_LIGHTMAPS + MAX_LIGHTMAPS * MAX_LIGHTMAP_COPIES)
 #define TEXNUM_IMAGES (TEXNUM_SCRAPS + MAX_SCRAPS)
-#define BLOCK_WIDTH 1024
-#define BLOCK_HEIGHT 1024
 #define SCRAP_WIDTH (BLOCK_WIDTH * 2)
 #define SCRAP_HEIGHT (BLOCK_HEIGHT * 2)
 #define MAX_TEXTURE_UNITS 2
@@ -375,19 +373,6 @@ typedef struct
 
 	qboolean stencil;
 } glstate_t;
-
-typedef struct
-{
-	int current_lightmap_texture;
-
-	msurface_t *lightmap_surfaces[MAX_LIGHTMAPS];
-
-	int allocated[BLOCK_WIDTH];
-
-	/* the lightmap texture data needs to be kept in
-	   main memory so texsubimage can update properly */
-	byte *lightmap_buffer[MAX_LIGHTMAPS];
-} gllightmapstate_t;
 
 void LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa);
 void LM_EndBuildingLightmaps(void);

@@ -38,13 +38,10 @@ int c_visible_textures;
 static vec3_t modelorg; /* relative to viewpoint */
 msurface_t *r_alpha_surfaces;
 
-gllightmapstate_t gl_lms;
 extern int cur_lm_copy;
 byte minlight[256];
 
-void LM_InitBlock(void);
 void LM_UploadBlock(qboolean dynamic);
-qboolean LM_AllocBlock(int w, int h, int *x, int *y);
 
 static void
 R_DrawGLPoly(msurface_t *fa)
@@ -86,7 +83,7 @@ R_DrawTriangleOutlines(void)
 	{
 		msurface_t *surf;
 
-		for (surf = gl_lms.lightmap_surfaces[i];
+		for (surf = r_lms.lightmap_surfaces[i];
 			 surf != 0;
 			 surf = surf->lightmapchain)
 		{
@@ -234,7 +231,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	/* render static lightmaps first */
 	for (i = 1; i < MAX_LIGHTMAPS; i++)
 	{
-		if (gl_lms.lightmap_surfaces[i])
+		if (r_lms.lightmap_surfaces[i])
 		{
 			if (currentmodel == r_worldmodel)
 			{
@@ -243,7 +240,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 
 			R_Bind(gl_state.lightmap_textures + i);
 
-			for (surf = gl_lms.lightmap_surfaces[i];
+			for (surf = r_lms.lightmap_surfaces[i];
 				 surf != 0;
 				 surf = surf->lightmapchain)
 			{
@@ -267,7 +264,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 	{
 		msurface_t *newdrawsurf;
 
-		LM_InitBlock();
+		LM_InitBlock(gl_config.multitexture);
 
 		R_Bind(gl_state.lightmap_textures + 0);
 
@@ -276,9 +273,9 @@ R_BlendLightmaps(const model_t *currentmodel)
 			c_visible_lightmaps++;
 		}
 
-		newdrawsurf = gl_lms.lightmap_surfaces[0];
+		newdrawsurf = r_lms.lightmap_surfaces[0];
 
-		for (surf = gl_lms.lightmap_surfaces[0];
+		for (surf = r_lms.lightmap_surfaces[0];
 			 surf != 0;
 			 surf = surf->lightmapchain)
 		{
@@ -290,7 +287,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 
 			if (LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
 			{
-				base = gl_lms.lightmap_buffer[0];
+				base = r_lms.lightmap_buffer[0];
 				base += (surf->dlight_t * BLOCK_WIDTH +
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
@@ -328,7 +325,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 				newdrawsurf = drawsurf;
 
 				/* clear the block */
-				LM_InitBlock();
+				LM_InitBlock(gl_config.multitexture);
 
 				/* try uploading the block now */
 				if (!LM_AllocBlock(smax, tmax, &surf->dlight_s, &surf->dlight_t))
@@ -339,7 +336,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 					return;
 				}
 
-				base = gl_lms.lightmap_buffer[0];
+				base = r_lms.lightmap_buffer[0];
 				base += (surf->dlight_t * BLOCK_WIDTH +
 						surf->dlight_s) * LIGHTMAP_BYTES;
 
@@ -451,19 +448,19 @@ R_RenderBrushPoly(msurface_t *fa)
 			glTexSubImage2D(GL_TEXTURE_2D, 0, fa->light_s, fa->light_t,
 					smax, tmax, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE, temp);
 
-			fa->lightmapchain = gl_lms.lightmap_surfaces[fa->lightmaptexturenum];
-			gl_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
+			fa->lightmapchain = r_lms.lightmap_surfaces[fa->lightmaptexturenum];
+			r_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
 		}
 		else
 		{
-			fa->lightmapchain = gl_lms.lightmap_surfaces[0];
-			gl_lms.lightmap_surfaces[0] = fa;
+			fa->lightmapchain = r_lms.lightmap_surfaces[0];
+			r_lms.lightmap_surfaces[0] = fa;
 		}
 	}
 	else
 	{
-		fa->lightmapchain = gl_lms.lightmap_surfaces[fa->lightmaptexturenum];
-		gl_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
+		fa->lightmapchain = r_lms.lightmap_surfaces[fa->lightmaptexturenum];
+		r_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
 	}
 }
 
@@ -600,7 +597,7 @@ R_RegenAllLightmaps()
 		byte *base;
 		qboolean affected_lightmap;
 
-		if (!gl_lms.lightmap_surfaces[i] || !gl_lms.lightmap_buffer[i])
+		if (!r_lms.lightmap_surfaces[i] || !r_lms.lightmap_buffer[i])
 		{
 			continue;
 		}
@@ -610,7 +607,7 @@ R_RegenAllLightmaps()
 		best.left = BLOCK_WIDTH;
 		best.bottom = best.right = 0;
 
-		for (surf = gl_lms.lightmap_surfaces[i];
+		for (surf = r_lms.lightmap_surfaces[i];
 			 surf != 0;
 			 surf = surf->lightmapchain)
 		{
@@ -644,7 +641,7 @@ dynamic_surf:
 			current.top = surf->light_t;
 			current.bottom = surf->light_t + (surf->extents[1] >> surf->lmshift) + 1;	// + tmax
 
-			base = gl_lms.lightmap_buffer[i];
+			base = r_lms.lightmap_buffer[i];
 			base += (current.top * BLOCK_WIDTH + current.left) * LIGHTMAP_BYTES;
 
 			R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
@@ -708,7 +705,7 @@ dynamic_surf:
 #endif
 
 		// upload changes
-		base = gl_lms.lightmap_buffer[i];
+		base = r_lms.lightmap_buffer[i];
 
 #ifdef YQ2_GL1_GLES
 		base += (best.top * BLOCK_WIDTH) * LIGHTMAP_BYTES;
@@ -940,7 +937,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 	}
 
 	glColor4f(1, 1, 1, 1);
-	memset(gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
+	memset(r_lms.lightmap_surfaces, 0, sizeof(r_lms.lightmap_surfaces));
 
 	VectorSubtract(r_newrefdef.vieworg, currententity->origin, modelorg);
 
@@ -1115,8 +1112,8 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 			if (gl_config.multitexture && !(surf->texinfo->flags & SURF_WARP))	// needed for R_RegenAllLightmaps()
 			{
-				surf->lightmapchain = gl_lms.lightmap_surfaces[surf->lightmaptexturenum];
-				gl_lms.lightmap_surfaces[surf->lightmaptexturenum] = surf;
+				surf->lightmapchain = r_lms.lightmap_surfaces[surf->lightmaptexturenum];
+				r_lms.lightmap_surfaces[surf->lightmaptexturenum] = surf;
 			}
 		}
 	}
@@ -1202,8 +1199,8 @@ R_GetBrushesLighting(void)
 				(!(surf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 			{
 				surf->lmchain_frame = r_framecount;	// don't add this twice to the chain
-				surf->lightmapchain = gl_lms.lightmap_surfaces[surf->lightmaptexturenum];
-				gl_lms.lightmap_surfaces[surf->lightmaptexturenum] = surf;
+				surf->lightmapchain = r_lms.lightmap_surfaces[surf->lightmaptexturenum];
+				r_lms.lightmap_surfaces[surf->lightmaptexturenum] = surf;
 			}
 		}
 	}
@@ -1233,7 +1230,7 @@ R_DrawWorld(void)
 	gl_state.currenttextures[0] = gl_state.currenttextures[1] = -1;
 
 	glColor4f(1, 1, 1, 1);
-	memset(gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
+	memset(r_lms.lightmap_surfaces, 0, sizeof(r_lms.lightmap_surfaces));
 
 	RE_ClearSkyBox();
 	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);

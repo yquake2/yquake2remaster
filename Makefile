@@ -1325,6 +1325,7 @@ endif
 
 REFGL1_OBJS_ := \
 	src/client/refresh/gl1/qgl.o \
+	src/client/refresh/gl1/gl1_buffer.o \
 	src/client/refresh/gl1/gl1_draw.o \
 	src/client/refresh/gl1/gl1_image.o \
 	src/client/refresh/gl1/gl1_light.o \
@@ -1339,10 +1340,10 @@ REFGL1_OBJS_ := \
 	src/client/refresh/gl1/gl1_sdl.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \
-	src/client/refresh/gl1/gl1_buffer.o \
 	src/client/refresh/files/common.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/maps.o \
+	src/client/refresh/files/lightmap.o \
 	src/client/refresh/files/models.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \

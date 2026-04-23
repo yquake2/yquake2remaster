@@ -26,61 +26,13 @@
 
 #include "header/local.h"
 
-extern gllightmapstate_t gl_lms;
-
-void
-LM_FreeLightmapBuffers(void)
-{
-	for (int i=0; i<MAX_LIGHTMAPS; i++)
-	{
-		if (gl_lms.lightmap_buffer[i])
-		{
-			free(gl_lms.lightmap_buffer[i]);
-		}
-		gl_lms.lightmap_buffer[i] = NULL;
-	}
-}
-
-static void
-LM_AllocLightmapBuffer(int buffer, qboolean clean)
-{
-	static const unsigned int lightmap_size =
-		BLOCK_WIDTH * BLOCK_HEIGHT * LIGHTMAP_BYTES;
-
-	if (!gl_lms.lightmap_buffer[buffer])
-	{
-		gl_lms.lightmap_buffer[buffer] = malloc (lightmap_size);
-	}
-
-	if (!gl_lms.lightmap_buffer[buffer])
-	{
-		Com_Error(ERR_FATAL, "%s: Could not allocate lightmap buffer %d\n",
-			__func__, buffer);
-		return;
-	}
-
-	if (clean)
-	{
-		memset (gl_lms.lightmap_buffer[buffer], 0, lightmap_size);
-	}
-}
-
-void
-LM_InitBlock(void)
-{
-	memset(gl_lms.allocated, 0, sizeof(gl_lms.allocated));
-
-	if (gl_config.multitexture)
-	{
-		LM_AllocLightmapBuffer(gl_lms.current_lightmap_texture, false);
-	}
-}
-
 void
 LM_UploadBlock(qboolean dynamic)
 {
-	const int texture = (dynamic)? 0 : gl_lms.current_lightmap_texture;
-	const int buffer = (gl_config.multitexture)? gl_lms.current_lightmap_texture : 0;
+	const int buffer = (gl_config.multitexture)? r_lms.current_lightmap_texture : 0;
+	int texture;
+
+	texture = (dynamic)? 0 : r_lms.current_lightmap_texture;
 
 	R_Bind(gl_state.lightmap_textures + texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -92,22 +44,22 @@ LM_UploadBlock(qboolean dynamic)
 
 		for (i = 0; i < BLOCK_WIDTH; i++)
 		{
-			if (gl_lms.allocated[i] > height)
+			if (r_lms.allocated[i] > height)
 			{
-				height = gl_lms.allocated[i];
+				height = r_lms.allocated[i];
 			}
 		}
 
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, BLOCK_WIDTH,
 				height, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
-				gl_lms.lightmap_buffer[buffer]);
+				r_lms.lightmap_buffer[buffer]);
 	}
 	else
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LIGHTMAP_FORMAT,
 				BLOCK_WIDTH, BLOCK_HEIGHT,
 				0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
-				gl_lms.lightmap_buffer[buffer]);
+				r_lms.lightmap_buffer[buffer]);
 
 		if (gl_config.lightmapcopies && buffer != 0)
 		{
@@ -122,67 +74,17 @@ LM_UploadBlock(qboolean dynamic)
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_LIGHTMAP_FORMAT,
 					BLOCK_WIDTH, BLOCK_HEIGHT,
 					0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
-					gl_lms.lightmap_buffer[buffer]);
+					r_lms.lightmap_buffer[buffer]);
 			}
 		}
 
-		if (++gl_lms.current_lightmap_texture == MAX_LIGHTMAPS)
+		if (++r_lms.current_lightmap_texture == MAX_LIGHTMAPS)
 		{
 			Com_Error(ERR_DROP,
 					"%s: MAX_LIGHTMAPS exceeded\n", __func__);
 			return;
 		}
 	}
-}
-
-/*
- * returns a texture number and the position inside it
- */
-qboolean
-LM_AllocBlock(int w, int h, int *x, int *y)
-{
-	int i, best;
-
-	best = BLOCK_HEIGHT;
-
-	for (i = 0; i < BLOCK_WIDTH - w; i++)
-	{
-		int		j, best2;
-
-		best2 = 0;
-
-		for (j = 0; j < w; j++)
-		{
-			if (gl_lms.allocated[i + j] >= best)
-			{
-				break;
-			}
-
-			if (gl_lms.allocated[i + j] > best2)
-			{
-				best2 = gl_lms.allocated[i + j];
-			}
-		}
-
-		if (j == w)
-		{
-			/* this is a valid spot */
-			*x = i;
-			*y = best = best2;
-		}
-	}
-
-	if (best + h > BLOCK_HEIGHT)
-	{
-		return false;
-	}
-
-	for (i = 0; i < w; i++)
-	{
-		gl_lms.allocated[*x + i] = best + h;
-	}
-
-	return true;
 }
 
 static void
@@ -202,7 +104,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 	if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 	{
 		LM_UploadBlock(false);
-		LM_InitBlock();
+		LM_InitBlock(gl_config.multitexture);
 
 		if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
@@ -213,10 +115,10 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 		}
 	}
 
-	surf->lightmaptexturenum = gl_lms.current_lightmap_texture;
+	surf->lightmaptexturenum = r_lms.current_lightmap_texture;
 	buffer = (gl_config.multitexture)? surf->lightmaptexturenum : 0;
 
-	base = gl_lms.lightmap_buffer[buffer];
+	base = r_lms.lightmap_buffer[buffer];
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
 	R_SetCacheState(surf, &r_newrefdef);
@@ -247,7 +149,7 @@ LM_BeginBuildingLightmaps(model_t *m)
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
 	int i;
 
-	memset(gl_lms.allocated, 0, sizeof(gl_lms.allocated));
+	memset(r_lms.allocated, 0, sizeof(r_lms.allocated));
 	LM_FreeLightmapBuffers();
 
 	r_framecount = 1; /* no dlightcache */
@@ -270,11 +172,11 @@ LM_BeginBuildingLightmaps(model_t *m)
 		gl_state.lightmap_textures = TEXNUM_LIGHTMAPS;
 	}
 
-	gl_lms.current_lightmap_texture = 1;
+	r_lms.current_lightmap_texture = 1;
 
 	if (gl_config.multitexture)
 	{
-		LM_AllocLightmapBuffer(gl_lms.current_lightmap_texture, false);
+		LM_AllocLightmapBuffer(r_lms.current_lightmap_texture, false);
 		return;
 	}
 
@@ -288,7 +190,7 @@ LM_BeginBuildingLightmaps(model_t *m)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LIGHTMAP_FORMAT,
 			BLOCK_WIDTH, BLOCK_HEIGHT,
 			0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
-			gl_lms.lightmap_buffer[0]);
+			r_lms.lightmap_buffer[0]);
 }
 
 void
