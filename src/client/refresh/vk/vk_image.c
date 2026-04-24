@@ -571,7 +571,7 @@ QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *e
 		.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 		.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-		.image = vk_swapchain.images[vk_activeBufferIdx],
+		.image = vk_swapchain.images[vk_imageIndex],
 		.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
 		.subresourceRange.baseMipLevel = 0,
 		.subresourceRange.baseArrayLayer = 0,
@@ -594,8 +594,7 @@ QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *e
 	};
 
 	// copy the swapchain image
-	vkCmdCopyImageToBuffer(cmdBuffer, vk_swapchain.images[vk_activeBufferIdx], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buff.buffer, 1, &region);
-	VK_VERIFY(vkDeviceWaitIdle(vk_device.logical));
+	vkCmdCopyImageToBuffer(cmdBuffer, vk_swapchain.images[vk_imageIndex], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buff.buffer, 1, &region);
 	QVk_SubmitCommand(&cmdBuffer, &vk_device.gfxQueue);
 
 	// store image in destination buffer

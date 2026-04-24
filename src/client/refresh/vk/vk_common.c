@@ -121,7 +121,7 @@ VkCommandBuffer vk_activeCmdbuffer = VK_NULL_HANDLE;
 // index of active command buffer
 int vk_activeBufferIdx = 0;
 // index of currently acquired image
-static uint32_t vk_imageIndex = 0;
+uint32_t vk_imageIndex = 0;
 // index of currently used image semaphore
 uint32_t vk_imageSemaphoreIdx = 0;
 // index of currently used staging buffer

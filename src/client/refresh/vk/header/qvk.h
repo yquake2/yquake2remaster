@@ -272,6 +272,8 @@ extern qboolean vk_frameStarted;
 extern qboolean vk_recreateSwapchainNeeded;
 // is QVk initialized?
 extern qboolean vk_initialized;
+// index of the currently acquired swapchain image.
+extern uint32_t vk_imageIndex;
 
 // function pointers
 extern PFN_vkCreateDebugUtilsMessengerEXT qvkCreateDebugUtilsMessengerEXT;
