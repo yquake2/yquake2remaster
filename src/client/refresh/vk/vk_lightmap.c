@@ -27,27 +27,22 @@
 
 #include "header/local.h"
 
-void
-LM_InitBlock(void)
-{
-	memset(vk_lms.allocated, 0, sizeof(vk_lms.allocated));
-}
-
 static void
 LM_UploadBlock(void)
 {
+	const int buffer = 0;
 	int texture;
 
-	texture = vk_lms.current_lightmap_texture;
+	texture = r_lms.current_lightmap_texture;
 
 	if (vk_state.lightmap_textures[texture].resource.image != VK_NULL_HANDLE)
 	{
-		QVk_UpdateTextureData(&vk_state.lightmap_textures[texture], vk_lms.lightmap_buffer, 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
+		QVk_UpdateTextureData(&vk_state.lightmap_textures[texture], r_lms.lightmap_buffer[buffer], 0, 0, BLOCK_WIDTH, BLOCK_HEIGHT);
 	}
 	else
 	{
 		QVVKTEXTURE_CLEAR(vk_state.lightmap_textures[texture]);
-		QVk_CreateTexture(&vk_state.lightmap_textures[texture], vk_lms.lightmap_buffer,
+		QVk_CreateTexture(&vk_state.lightmap_textures[texture], r_lms.lightmap_buffer[buffer],
 			BLOCK_WIDTH, BLOCK_HEIGHT, vk_current_lmap_sampler, false);
 		QVk_DebugSetObjectName((uint64_t)vk_state.lightmap_textures[texture].resource.image,
 			VK_OBJECT_TYPE_IMAGE, va("Image: dynamic lightmap #%d", texture));
@@ -59,67 +54,17 @@ LM_UploadBlock(void)
 			VK_OBJECT_TYPE_DEVICE_MEMORY, va("Memory: dynamic lightmap #%d", texture));
 	}
 
-	if (++vk_lms.current_lightmap_texture == MAX_LIGHTMAPS)
+	if (++r_lms.current_lightmap_texture == MAX_LIGHTMAPS)
 	{
 		Com_Error(ERR_DROP,
 				"%s() - MAX_LIGHTMAPS exceeded\n", __func__);
 	}
 }
 
-/*
- * returns a texture number and the position inside it
- */
-qboolean
-LM_AllocBlock(int w, int h, int *x, int *y)
-{
-	int i, best;
-
-	best = BLOCK_HEIGHT;
-
-	for (i = 0; i < BLOCK_WIDTH - w; i++)
-	{
-		int		j, best2;
-
-		best2 = 0;
-
-		for (j = 0; j < w; j++)
-		{
-			if (vk_lms.allocated[i + j] >= best)
-			{
-				break;
-			}
-
-			if (vk_lms.allocated[i + j] > best2)
-			{
-				best2 = vk_lms.allocated[i + j];
-			}
-		}
-
-		if (j == w)
-		{
-			/* this is a valid spot */
-			*x = i;
-			*y = best = best2;
-		}
-	}
-
-	if (best + h > BLOCK_HEIGHT)
-	{
-		return false;
-	}
-
-	for (i = 0; i < w; i++)
-	{
-		vk_lms.allocated[*x + i] = best + h;
-	}
-
-	return true;
-}
-
 static void
 LM_CreateSurfaceLightmap(msurface_t *surf)
 {
-	int smax, tmax;
+	int smax, tmax, buffer = 0;
 	byte *base;
 
 	if (surf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
@@ -133,7 +78,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 	if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 	{
 		LM_UploadBlock();
-		LM_InitBlock();
+		LM_InitBlock(false);
 
 		if (!LM_AllocBlock(smax, tmax, &surf->light_s, &surf->light_t))
 		{
@@ -144,9 +89,9 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 		}
 	}
 
-	surf->lightmaptexturenum = vk_lms.current_lightmap_texture;
+	surf->lightmaptexturenum = r_lms.current_lightmap_texture;
 
-	base = vk_lms.lightmap_buffer;
+	base = r_lms.lightmap_buffer[buffer];
 	base += (surf->light_t * BLOCK_WIDTH + surf->light_s) * LIGHTMAP_BYTES;
 
 	R_SetCacheState(surf, &r_newrefdef);
@@ -176,7 +121,8 @@ LM_BeginBuildingLightmaps(model_t *m)
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
 	int i;
 
-	memset(vk_lms.allocated, 0, sizeof(vk_lms.allocated));
+	LM_InitBlock(false);
+	LM_FreeLightmapBuffers();
 
 	r_framecount = 1; /* no dlightcache */
 
@@ -193,7 +139,8 @@ LM_BeginBuildingLightmaps(model_t *m)
 
 	r_newrefdef.lightstyles = lightstyles;
 
-	vk_lms.current_lightmap_texture = 0;
+	r_lms.current_lightmap_texture = 0;
+	LM_AllocLightmapBuffer(0, true);
 
 	/*
 	** initialize the dynamic lightmap textures

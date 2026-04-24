@@ -1227,6 +1227,7 @@ RE_Shutdown(void)
 
 	QVk_WaitAndShutdownAll();
 
+	LM_FreeLightmapBuffers();
 	R_FreeTemporaryLMBuffer();
 }
 

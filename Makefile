@@ -1518,6 +1518,7 @@ REFVK_OBJS_ := \
 	src/client/refresh/files/common.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \
+	src/client/refresh/files/lightmap.o \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \

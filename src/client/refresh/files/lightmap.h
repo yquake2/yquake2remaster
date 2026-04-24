@@ -43,7 +43,8 @@ typedef struct
 	int allocated[BLOCK_WIDTH];
 
 	/* the lightmap texture data needs to be kept in
-	   main memory so texsubimage can update properly */
+	   main memory so texsubimage can update properly,
+	   used only first except OpenGL 1 Multitexture mode */
 	byte *lightmap_buffer[MAX_LIGHTMAPS];
 } r_lightmapstate_t;
 
@@ -53,5 +54,6 @@ void LM_InitBlock(qboolean multitexture);
 void LM_FreeLightmapBuffers(void);
 void LM_AllocLightmapBuffer(int buffer, qboolean clean);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
+size_t LM_GetMaxHeight(void);
 
 #endif

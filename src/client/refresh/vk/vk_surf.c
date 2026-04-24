@@ -34,8 +34,6 @@ int c_visible_textures;
 static vec3_t modelorg; /* relative to viewpoint */
 msurface_t *r_alpha_surfaces;
 
-vklightmapstate_t vk_lms;
-
 static void
 DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 {
@@ -118,7 +116,7 @@ R_DrawTriangleOutlines(void)
 	{
 		msurface_t *surf;
 
-		for (surf = vk_lms.lightmap_surfaces[i]; surf != 0; surf = surf->lightmapchain)
+		for (surf = r_lms.lightmap_surfaces[i]; surf != 0; surf = surf->lightmapchain)
 		{
 			p = surf->polys;
 			for (; p; p = p->chain)
@@ -223,19 +221,19 @@ R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 			QVk_UpdateTextureData(&vk_state.lightmap_textures[fa->lightmaptexturenum],
 				(byte*)temp, fa->light_s, fa->light_t, smax, tmax);
 
-			fa->lightmapchain = vk_lms.lightmap_surfaces[fa->lightmaptexturenum];
-			vk_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
+			fa->lightmapchain = r_lms.lightmap_surfaces[fa->lightmaptexturenum];
+			r_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
 		}
 		else
 		{
-			fa->lightmapchain = vk_lms.lightmap_surfaces[0];
-			vk_lms.lightmap_surfaces[0] = fa;
+			fa->lightmapchain = r_lms.lightmap_surfaces[0];
+			r_lms.lightmap_surfaces[0] = fa;
 		}
 	}
 	else
 	{
-		fa->lightmapchain = vk_lms.lightmap_surfaces[fa->lightmaptexturenum];
-		vk_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
+		fa->lightmapchain = r_lms.lightmap_surfaces[fa->lightmaptexturenum];
+		r_lms.lightmap_surfaces[fa->lightmaptexturenum] = fa;
 	}
 }
 
@@ -787,7 +785,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 		return;
 	}
 
-	memset(vk_lms.lightmap_surfaces, 0, sizeof(vk_lms.lightmap_surfaces));
+	memset(r_lms.lightmap_surfaces, 0, sizeof(r_lms.lightmap_surfaces));
 
 	VectorSubtract(r_newrefdef.vieworg, currententity->origin, modelorg);
 
@@ -971,7 +969,7 @@ R_DrawWorld(void)
 	memset(&ent, 0, sizeof(ent));
 	ent.frame = (int)(r_newrefdef.time * 2);
 
-	memset(vk_lms.lightmap_surfaces, 0, sizeof(vk_lms.lightmap_surfaces));
+	memset(r_lms.lightmap_surfaces, 0, sizeof(r_lms.lightmap_surfaces));
 
 	RE_ClearSkyBox();
 	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);

@@ -40,15 +40,9 @@ LM_UploadBlock(qboolean dynamic)
 
 	if (dynamic)
 	{
-		int i, height = 0;
+		size_t height;
 
-		for (i = 0; i < BLOCK_WIDTH; i++)
-		{
-			if (r_lms.allocated[i] > height)
-			{
-				height = r_lms.allocated[i];
-			}
-		}
+		height = LM_GetMaxHeight();
 
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, BLOCK_WIDTH,
 				height, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
@@ -149,7 +143,7 @@ LM_BeginBuildingLightmaps(model_t *m)
 	static lightstyle_t lightstyles[MAX_LIGHTSTYLES];
 	int i;
 
-	memset(r_lms.allocated, 0, sizeof(r_lms.allocated));
+	LM_InitBlock(false);
 	LM_FreeLightmapBuffers();
 
 	r_framecount = 1; /* no dlightcache */

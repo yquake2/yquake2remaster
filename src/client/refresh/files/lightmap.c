@@ -26,7 +26,7 @@
 
 #include "lightmap.h"
 
-r_lightmapstate_t r_lms;
+r_lightmapstate_t r_lms = {0};
 
 void
 LM_FreeLightmapBuffers(void)
@@ -77,6 +77,22 @@ LM_InitBlock(qboolean multitexture)
 	{
 		LM_AllocLightmapBuffer(r_lms.current_lightmap_texture, false);
 	}
+}
+
+size_t
+LM_GetMaxHeight(void)
+{
+	size_t i, height = 0;
+
+	for (i = 0; i < BLOCK_WIDTH; i++)
+	{
+		if (r_lms.allocated[i] > height)
+		{
+			height = r_lms.allocated[i];
+		}
+	}
+
+	return height;
 }
 
 /*
