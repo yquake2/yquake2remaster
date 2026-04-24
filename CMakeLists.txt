@@ -705,6 +705,7 @@ set(GL1-Source
 	${REF_SRC_DIR}/gl1/gl1_buffer.c
 	${REF_SRC_DIR}/files/common.c
 	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/lightmap.c
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
@@ -724,6 +725,7 @@ set(GL1-Header
 	${REF_SRC_DIR}/ref_shared.h
 	${REF_SRC_DIR}/constants/anormtab.h
 	${REF_SRC_DIR}/constants/warpsin.h
+	${REF_SRC_DIR}/files/lightmap.h
 	${REF_SRC_DIR}/files/stb_image.h
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/gl1/header/local.h
@@ -901,6 +903,7 @@ set(VK-Source
 	${REF_SRC_DIR}/vk/volk/volk.c
 	${REF_SRC_DIR}/files/common.c
 	${REF_SRC_DIR}/files/light.c
+	${REF_SRC_DIR}/files/lightmap.c
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
@@ -916,6 +919,7 @@ set(VK-Source
 
 set(VK-Header
 	${REF_SRC_DIR}/ref_shared.h
+	${REF_SRC_DIR}/files/lightmap.h
 	${REF_SRC_DIR}/files/stb_image.h
 	${REF_SRC_DIR}/files/stb_image_resize.h
 	${REF_SRC_DIR}/vk/header/local.h
