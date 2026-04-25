@@ -25,6 +25,7 @@
  */
 
 #include "header/local.h"
+#include <limits.h>
 
 image_t gltextures[MAX_TEXTURES];
 int numgltextures;
@@ -837,20 +838,22 @@ image_t *
 R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		int height, int realheight, size_t data_size, imagetype_t type, int bits)
 {
+	const char* nolerplist = r_nolerp_list->string;
+	const char* lerplist = r_lerp_list->string;
+	qboolean nolerp = false;
 	image_t *image;
 
-	qboolean nolerp = false;
 	if (r_2D_unfiltered->value && type == it_pic)
 	{
 		/*
 		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
 		 * *unless* the texture is on the r_lerp_list
 		 */
-		nolerp = (r_lerp_list->string == NULL) || (strstr(r_lerp_list->string, name) == NULL);
+		nolerp = (lerplist == NULL) || Utils_FilenameFiltered(name, lerplist, ' ');
 	}
-	else if (r_nolerp_list != NULL && r_nolerp_list->string != NULL)
+	else if (nolerplist != NULL)
 	{
-		nolerp = strstr(r_nolerp_list->string, name) != NULL;
+		nolerp = Utils_FilenameFiltered(name, nolerplist, ' ');
 	}
 
 	{
@@ -941,8 +944,8 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	/* load little pics into the scrap */
 	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
-		int x, y;
 		int texnum = -1;
+		int x, y;
 
 		if (bits == 32)
 		{
@@ -993,6 +996,12 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 				// scale 3 times if lerp image
 				if (!nolerp && (vid.height >= 240 * 3))
 					scale = 3;
+
+				if (height == 0 || scale == 0 || width > INT_MAX / height / scale / scale)
+				{
+					Com_Error(ERR_DROP, "%s: invalid dimensions", __func__);
+					return NULL;
+				}
 
 				image_converted = malloc(width * height * scale * scale);
 				if (!image_converted)
@@ -1106,13 +1115,13 @@ R_FindImage(const char *originname, imagetype_t type)
 		}
 	}
 
-	//
-	// load the pic from disk
-	//
+	/*
+	 * load the pic from disk
+	 */
 	image = (image_t *)R_LoadImage(name, namewe, ext, type,
 		(loadimage_t)R_LoadPic);
 
-	if (!image && r_validation->value)
+	if (!image && r_validation->value > 0)
 	{
 		Com_Printf("%s: can't load %s\n", __func__, name);
 	}

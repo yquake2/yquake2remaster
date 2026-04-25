@@ -18,25 +18,30 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
+ * =======================================================================
+ *
+ * Texture handling
+ *
+ * =======================================================================
  */
 
 #include "header/local.h"
 #include <limits.h>
 
-image_t		vktextures[MAX_TEXTURES];
-int		numvktextures = 0;
-static int		img_loaded = 0;
-static int		image_max = 0;
+image_t vktextures[MAX_TEXTURES];
+int numvktextures = 0;
+static int img_loaded = 0;
+static int image_max = 0;
 
 // texture for storing raw image data (cinematics, endscreens, etc.)
 qvktexture_t vk_rawTexture = QVVKTEXTURE_INIT;
 
-static byte			 intensitytable[256];
+static byte intensitytable[256];
 static unsigned char overbrightable[256];
 
-static cvar_t	*intensity;
+static cvar_t *intensity;
 
-unsigned	d_8to24table[256];
+unsigned d_8to24table[256];
 
 // default global texture and lightmap samplers
 qvksampler_t vk_current_sampler = S_MIPMAP_LINEAR;
@@ -459,7 +464,8 @@ QVk_CreateTexture(qvktexture_t *texture, const unsigned char *data, uint32_t wid
 	QVk_UpdateTextureSampler(texture, samplerType, clampToEdge);
 }
 
-void QVk_UpdateTextureData(qvktexture_t *texture, const unsigned char *data, uint32_t offset_x, uint32_t offset_y, uint32_t width, uint32_t height)
+void
+QVk_UpdateTextureData(qvktexture_t *texture, const unsigned char *data, uint32_t offset_x, uint32_t offset_y, uint32_t width, uint32_t height)
 {
 	int unifiedTransferAndGfx = vk_device.transferQueue == vk_device.gfxQueue ? 1 : 0;
 	// assuming 32bit images
@@ -605,11 +611,6 @@ QVk_ReadPixels(uint8_t *dstBuffer, const VkOffset2D *offset, const VkExtent2D *e
 	buffer_destroy(&buff);
 }
 
-/*
-===============
-Vk_ImageList_f
-===============
-*/
 void
 Vk_ImageList_f(void)
 {
@@ -626,7 +627,9 @@ Vk_ImageList_f(void)
 		const char *in_use = "", *scrap = "";
 
 		if (image->vk_texture.resource.image == VK_NULL_HANDLE)
+		{
 			continue;
+		}
 
 		if (image->registration_sequence == registration_sequence)
 		{
@@ -687,13 +690,8 @@ static vkmode_t modes[] = {
 	{"VK_MIPMAP_LINEAR", S_MIPMAP_LINEAR }
 };
 
-#define NUM_VK_MODES (sizeof(modes) / sizeof (vkmode_t))
+#define NUM_VK_MODES ARRLEN(modes)
 
-/*
- ===============
- Vk_TextureMode
- ===============
- */
 void
 Vk_TextureMode(const char *string)
 {
@@ -773,11 +771,6 @@ Vk_TextureMode(const char *string)
 	}
 }
 
-/*
- ===============
- Vk_LmapTextureMode
- ===============
- */
 void
 Vk_LmapTextureMode(const char *string)
 {
@@ -960,28 +953,26 @@ Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 
 
 /*
-================
-Vk_LoadPic
-
-This is also used as an entry point for the generated r_notexture
-================
-*/
+ * This is also used as an entry point for the generated r_notexture
+ */
 image_t *
 Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	   int height, int realheight, size_t data_size, imagetype_t type,
 	   int bits)
 {
-	image_t		*image;
-	byte		*texBuffer = NULL;
-	int		upload_width, upload_height;
+	byte *texBuffer = NULL;
+	int upload_width, upload_height;
 	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean nolerp = false;
+	image_t *image;
 
 	if (r_2D_unfiltered->value && type == it_pic)
 	{
-		// if r_2D_unfiltered is true(ish), nolerp should usually be true,
-		// *unless* the texture is on the r_lerp_list
+		/*
+		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
+		 * *unless* the texture is on the r_lerp_list
+		 */
 		nolerp = (lerplist == NULL) || Utils_FilenameFiltered(name, lerplist, ' ');
 	}
 	else if (nolerplist != NULL)
@@ -990,8 +981,9 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	}
 
 	{
-		int		i;
-		// find a free image_t
+		int i;
+
+		/* find a free image_t */
 		for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 		{
 			if (image->vk_texture.resource.image == VK_NULL_HANDLE && !image->scrap)
@@ -1028,6 +1020,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 	strcpy(image->name, name);
 	image->registration_sequence = registration_sequence;
+
 	// zero-clear Vulkan texture handle
 	QVVKTEXTURE_CLEAR(image->vk_texture);
 	image->type = type;
@@ -1060,7 +1053,8 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	/* load little pics into the scrap */
 	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
-		int x, y, texnum;
+		int texnum = -1;
+		int x, y;
 
 		if (bits == 32)
 		{
@@ -1088,26 +1082,24 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		image->scrap = true;
 		image->sl = (x + 0.01) / (float)SCRAP_WIDTH;
-		image->sh = (x + image->width - 0.01) / (float)SCRAP_WIDTH;
+		image->sh = (x + width - 0.01) / (float)SCRAP_WIDTH;
 		image->tl = (y + 0.01) / (float)SCRAP_WIDTH;
-		image->th = (y + image->height - 0.01) / (float)SCRAP_WIDTH;
-		image->upload_width = SCRAP_WIDTH;
-		image->upload_height = SCRAP_HEIGHT;
+		image->th = (y + height - 0.01) / (float)SCRAP_WIDTH;
 
-		image->upload_width = upload_width;		// after power of 2 and scales
-		image->upload_height = upload_height;
+		image->upload_width = width;
+		image->upload_height = height;
 
 		if (vk_scrapTextures[texnum].resource.image != VK_NULL_HANDLE)
 		{
 			QVk_UpdateTextureData(&vk_scrapTextures[texnum], (unsigned char*)texBuffer,
-				0, 0, image->upload_width, image->upload_height);
+				0, 0, upload_width, upload_height);
 		}
 		else
 		{
 			QVVKTEXTURE_CLEAR(vk_scrapTextures[texnum]);
 			// don't use linear filtering for scrap 0 - this fixes display issues for the dot crosshair and makes it look consistent across different values of hudscale cvar
 			QVk_CreateTexture(&vk_scrapTextures[texnum], (unsigned char*)texBuffer,
-				image->upload_width, image->upload_height,
+				upload_width, upload_height,
 				nolerp ? S_NEAREST : vk_current_sampler, false);
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.image, VK_OBJECT_TYPE_IMAGE, va("Image: %s", name));
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].imageView, VK_OBJECT_TYPE_IMAGE_VIEW, va("Image View: %s", name));
@@ -1194,23 +1186,21 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			free(texBuffer);
 		}
 	}
+
 	return image;
 }
 
 /*
-===============
-Vk_FindImage
-
-Finds or loads the given image or NULL
-===============
-*/
-image_t	*
+ * Finds or loads the given image or null
+ */
+image_t *
 Vk_FindImage(const char *originname, imagetype_t type)
 {
 	char namewe[256], name[256] = {0};
 	const char* ext;
 	image_t *image;
-	int i, len;
+	size_t len;
+	int i;
 
 	if (!originname)
 	{
@@ -1241,7 +1231,7 @@ Vk_FindImage(const char *originname, imagetype_t type)
 	namewe[len] = 0;
 
 	/* look for it */
-	for (i=0, image = vktextures; i < numvktextures; i++, image++)
+	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		if (!strcmp(name, image->name))
 		{
@@ -1264,15 +1254,10 @@ Vk_FindImage(const char *originname, imagetype_t type)
 	return image;
 }
 
-/*
-===============
-RE_RegisterSkin
-===============
-*/
 struct image_s *
-RE_RegisterSkin (const char *name)
+RE_RegisterSkin(const char *name)
 {
-	return Vk_FindImage (name, it_skin);
+	return Vk_FindImage(name, it_skin);
 }
 
 qboolean
@@ -1303,14 +1288,12 @@ Vk_ImageHasFreeSpace(void)
 }
 
 /*
-================
-Vk_FreeUnusedImages
-
-Any image that was not touched on this registration sequence
-will be freed.
-================
-*/
-void Vk_FreeUnusedImages (void)
+ * Any image that was not touched on
+ * this registration sequence
+ * will be freed.
+ */
+void
+Vk_FreeUnusedImages(void)
 {
 	int		i;
 	image_t	*image;
@@ -1332,15 +1315,17 @@ void Vk_FreeUnusedImages (void)
 	{
 		if (image->registration_sequence == registration_sequence)
 		{
-			continue;		// used this sequence
+			continue; /* used this sequence */
 		}
+
 		if (!image->registration_sequence)
 		{
-			continue;		// free image_t slot
+			continue; /* free image_t slot */
 		}
+
 		if (image->type == it_pic)
 		{
-			continue;		// don't free pics
+			continue; /* don't free pics */
 		}
 
 		if (r_validation->value > 0)
@@ -1364,29 +1349,26 @@ void Vk_FreeUnusedImages (void)
 	vulkan_memory_free_unused();
 }
 
-/*
-===============
-Vk_InitImages
-===============
-*/
 void
 Vk_InitImages(void)
 {
-	int	i;
-	float	overbright;
+	int i;
+	float overbright;
 
 	Scrap_Init();
 
 	numvktextures = 0;
 	img_loaded = 0;
-	image_max = 0;
 	registration_sequence = 1;
+	image_max = 0;
 
-	// init intensity conversions
+	/* init intensity conversions */
 	intensity = ri.Cvar_Get("vk_intensity", "2", 0);
 
 	if (intensity->value <= 1)
+	{
 		ri.Cvar_Set("vk_intensity", "1");
+	}
 
 	vk_state.inverse_intensity = 1 / intensity->value;
 
@@ -1424,20 +1406,18 @@ Vk_InitImages(void)
 	}
 }
 
-/*
-===============
-Vk_ShutdownImages
-===============
-*/
-void	Vk_ShutdownImages (void)
+void
+Vk_ShutdownImages(void)
 {
-	int		i;
-	image_t	*image;
+	int i;
+	image_t *image;
 
 	for (i = 0, image = vktextures; i<numvktextures; i++, image++)
 	{
 		if (!image->registration_sequence)
-			continue;		// free image_t slot
+		{
+			continue; /* free image_t slot */
+		}
 
 		if (r_validation->value > 0)
 		{
