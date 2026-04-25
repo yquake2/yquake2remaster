@@ -40,12 +40,8 @@ LM_UploadBlock(qboolean dynamic)
 
 	if (dynamic)
 	{
-		size_t height;
-
-		height = LM_GetMaxHeight();
-
 		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, BLOCK_WIDTH,
-				height, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
+				r_lms.height, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
 				r_lms.lightmap_buffer[buffer]);
 	}
 	else

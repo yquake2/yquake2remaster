@@ -105,6 +105,6 @@ Scrap_Init(void)
 	}
 
 	/* transparent */
-	memset(scrap_texels, 255, sizeof(scrap_texels));
+	memset(scrap_texels, 0, sizeof(scrap_texels));
 }
 

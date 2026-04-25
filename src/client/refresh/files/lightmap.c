@@ -72,27 +72,12 @@ void
 LM_InitBlock(qboolean multitexture)
 {
 	memset(r_lms.allocated, 0, sizeof(r_lms.allocated));
+	r_lms.height = 0;
 
 	if (multitexture)
 	{
 		LM_AllocLightmapBuffer(r_lms.current_lightmap_texture, false);
 	}
-}
-
-size_t
-LM_GetMaxHeight(void)
-{
-	size_t i, height = 0;
-
-	for (i = 0; i < BLOCK_WIDTH; i++)
-	{
-		if (r_lms.allocated[i] > height)
-		{
-			height = r_lms.allocated[i];
-		}
-	}
-
-	return height;
 }
 
 /*
@@ -140,6 +125,11 @@ LM_AllocBlock(int w, int h, int *x, int *y)
 	for (i = 0; i < w; i++)
 	{
 		r_lms.allocated[*x + i] = best + h;
+	}
+
+	if (r_lms.height < best + h)
+	{
+		r_lms.height = best + h;
 	}
 
 	return true;

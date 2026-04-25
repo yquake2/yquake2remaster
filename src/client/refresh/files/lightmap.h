@@ -35,6 +35,7 @@
 typedef struct
 {
 	int current_lightmap_texture;
+	unsigned height;
 
 	msurface_t *lightmap_surfaces[MAX_LIGHTMAPS];
 
@@ -52,6 +53,5 @@ void LM_InitBlock(qboolean multitexture);
 void LM_FreeLightmapBuffers(void);
 void LM_AllocLightmapBuffer(int buffer, qboolean clean);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
-size_t LM_GetMaxHeight(void);
 
 #endif

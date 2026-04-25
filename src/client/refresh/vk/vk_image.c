@@ -1053,6 +1053,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	/* load little pics into the scrap */
 	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
+		unsigned *scrap_texels;
 		int texnum = -1;
 		int x, y;
 
@@ -1077,8 +1078,12 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			goto nonscrap;
 		}
 
-		Vk_Upload32Native((byte *)Scrap_Upload(texnum), SCRAP_WIDTH, SCRAP_HEIGHT,
-			image->type, &texBuffer, &upload_width, &upload_height);
+		scrap_texels = Scrap_Upload(texnum);
+		if (!scrap_texels)
+		{
+			/* Strange, must be changed */
+			goto nonscrap;
+		}
 
 		image->scrap = true;
 		image->sl = (x + 0.01) / (float)SCRAP_WIDTH;
@@ -1088,6 +1093,9 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		image->upload_width = width;
 		image->upload_height = height;
+
+		Vk_Upload32Native((byte *)scrap_texels, SCRAP_WIDTH, SCRAP_HEIGHT,
+			image->type, &texBuffer, &upload_width, &upload_height);
 
 		if (vk_scrapTextures[texnum].resource.image != VK_NULL_HANDLE)
 		{
