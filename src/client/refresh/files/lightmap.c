@@ -64,7 +64,7 @@ LM_AllocLightmapBuffer(int buffer, qboolean clean)
 
 	if (clean)
 	{
-		memset (r_lms.lightmap_buffer[buffer], 0, lightmap_size);
+		memset(r_lms.lightmap_buffer[buffer], 0, lightmap_size);
 	}
 }
 
