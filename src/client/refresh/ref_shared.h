@@ -394,6 +394,31 @@ extern viddef_t vid;
 extern int r_viewcluster, r_oldviewcluster;
 extern int r_visframecount;
 
+/* lightmap */
+#define BLOCK_WIDTH 1024
+#define BLOCK_HEIGHT 1024
+
+/* scrap */
+/*
+=============================================================================
+
+  scrap allocation
+
+  Allocate all the little status bar objects into a single texture
+  to crutch up inefficient hardware / drivers
+
+=============================================================================
+*/
+#define SCRAP_WIDTH (BLOCK_WIDTH * 2)
+#define SCRAP_HEIGHT (BLOCK_HEIGHT * 2)
+/* define 3 scrap textures: scrap 0 for crosshair images, scrap 1 and 2
+ * for everything else */
+#define MAX_SCRAPS 3
+
+unsigned *Scrap_Upload(int texnum);
+int Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic, int scrap_offset);
+void Scrap_Init(void);
+
 /* Shared models func */
 typedef struct image_s* (*findimage_t)(const char *name, imagetype_t type);
 extern void *Mod_LoadModel(const char *mod_name, const void *buffer, int modfilelen,

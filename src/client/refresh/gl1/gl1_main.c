@@ -1684,7 +1684,6 @@ RI_Init(void)
 	R_SetDefaultState();
 
 	R_VertBufferInit();
-	Scrap_Init();
 	R_InitImages();
 	Mod_Init();
 	R_InitParticleTexture();

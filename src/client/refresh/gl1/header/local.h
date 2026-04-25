@@ -47,12 +47,9 @@
 #endif
 
 #define MAX_LIGHTMAP_COPIES 3	// Meant for tile / deferred rendering platforms
-#define MAX_SCRAPS 1
 #define TEXNUM_LIGHTMAPS 1024
 #define TEXNUM_SCRAPS (TEXNUM_LIGHTMAPS + MAX_LIGHTMAPS * MAX_LIGHTMAP_COPIES)
 #define TEXNUM_IMAGES (TEXNUM_SCRAPS + MAX_SCRAPS)
-#define SCRAP_WIDTH (BLOCK_WIDTH * 2)
-#define SCRAP_HEIGHT (BLOCK_HEIGHT * 2)
 #define MAX_TEXTURE_UNITS 2
 #define GL_LIGHTMAP_FORMAT GL_RGBA
 
@@ -235,11 +232,6 @@ qboolean R_ImageHasFreeSpace(void);
 
 void R_TextureAlphaMode(const char *string);
 void R_TextureSolidMode(const char *string);
-
-/* scrap */
-const unsigned *Scrap_Upload(int texnum);
-int Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic);
-void Scrap_Init(void);
 
 qboolean R_Upload32(unsigned *data, int width, int height, qboolean mipmap);
 

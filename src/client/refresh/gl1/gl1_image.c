@@ -939,14 +939,14 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	}
 
 	/* load little pics into the scrap */
-	if (!nolerp && (image->type == it_pic) && (width < 128) && (height < 128))
+	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
 		int x, y;
 		int texnum = -1;
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : 1);
 		}
 		else
 		{
@@ -955,7 +955,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : 1);
 				free(trans);
 			}
 		}
@@ -1203,6 +1203,8 @@ R_InitImages(void)
 	float	g = 1;
 #endif
 	g = Q_max(g, 0.1f);
+
+	Scrap_Init();
 
 	registration_sequence = 1;
 	image_max = 0;

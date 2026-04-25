@@ -671,68 +671,8 @@ Vk_ImageList_f(void)
 		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }
 
-/*
-=============================================================================
-
-  scrap allocation
-
-  Allocate all the little status bar obejcts into a single texture
-  to crutch up inefficient hardware / drivers
-
-=============================================================================
-*/
-
-// define 3 scrap textures: scrap 0 for crosshair images, scrap 1 and 2 for everything else
-#define	MAX_SCRAPS		3
-
-int			scrap_allocated[MAX_SCRAPS][BLOCK_WIDTH];
-byte		scrap_texels[MAX_SCRAPS][BLOCK_WIDTH*BLOCK_HEIGHT];
-// textures for storing scrap image data (tiny image atlas)
+/* textures for storing scrap image data (tiny image atlas) */
 static qvktexture_t vk_scrapTextures[MAX_SCRAPS] = { QVVKTEXTURE_INIT };
-
-// returns a texture number and the position inside it
-int Scrap_AllocBlock (int w, int h, int *x, int *y, int scrap_offset)
-{
-	int		i, j;
-	int		best, best2;
-	int		texnum;
-
-	for (texnum = scrap_offset; texnum < MAX_SCRAPS ; texnum++)
-	{
-		best = BLOCK_HEIGHT;
-
-		for (i = 0 ; i < BLOCK_WIDTH - w ; i++)
-		{
-			best2 = 0;
-
-			for (j = 0 ; j < w; j++)
-			{
-				if (scrap_allocated[texnum][i+j] >= best)
-					break;
-				if (scrap_allocated[texnum][i+j] > best2)
-					best2 = scrap_allocated[texnum][i+j];
-			}
-			if (j == w)
-			{	// this is a valid spot
-				*x = i;
-				*y = best = best2;
-			}
-		}
-
-		if (best + h > BLOCK_HEIGHT)
-			continue;
-
-		for (i = 0 ; i < w ; i++)
-		{
-			scrap_allocated[texnum][*x + i] = best + h;
-		}
-
-		return texnum;
-	}
-
-	return -1;
-//	Sys_Error ("Scrap_AllocBlock: full");
-}
 
 typedef struct
 {
@@ -1117,37 +1057,42 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	upload_width = realwidth;
 	upload_height = realheight;
 
-	// load little pics into the scrap
-	if (image->type == it_pic && bits == 8
-		&& image->width < 64 && image->height < 64)
+	/* load little pics into the scrap */
+	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
-		int		x, y;
-		int		i, j, k;
-		int		texnum;
+		int x, y, texnum;
 
-		// store crosshair images exclusively in scrap 0
-		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y, nolerp ? 0: 1);
+		if (bits == 32)
+		{
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : 1);
+		}
+		else
+		{
+			unsigned *trans;
+
+			trans = R_Convert8to32(pic, width, height, d_8to24table);
+			if (trans)
+			{
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : 1);
+				free(trans);
+			}
+		}
+
 		if (texnum == -1)
 		{
 			goto nonscrap;
 		}
 
-		// copy the texels into the scrap block
-		k = 0;
-		for (i = 0; i<image->height; i++)
-			for (j = 0; j<image->width; j++, k++)
-				scrap_texels[texnum][(y + i)*BLOCK_WIDTH + x + j] = pic[k];
-		image->scrap = true;
-		image->sl = (x + 0.01) / (float)BLOCK_WIDTH;
-		image->sh = (x + image->width - 0.01) / (float)BLOCK_WIDTH;
-		image->tl = (y + 0.01) / (float)BLOCK_WIDTH;
-		image->th = (y + image->height - 0.01) / (float)BLOCK_WIDTH;
-		image->upload_width = BLOCK_WIDTH;
-		image->upload_height = BLOCK_HEIGHT;
-
-		// update scrap data
-		Vk_Upload8(scrap_texels[texnum], BLOCK_WIDTH, BLOCK_HEIGHT,
+		Vk_Upload32Native((byte *)Scrap_Upload(texnum), SCRAP_WIDTH, SCRAP_HEIGHT,
 			image->type, &texBuffer, &upload_width, &upload_height);
+
+		image->scrap = true;
+		image->sl = (x + 0.01) / (float)SCRAP_WIDTH;
+		image->sh = (x + image->width - 0.01) / (float)SCRAP_WIDTH;
+		image->tl = (y + 0.01) / (float)SCRAP_WIDTH;
+		image->th = (y + image->height - 0.01) / (float)SCRAP_WIDTH;
+		image->upload_width = SCRAP_WIDTH;
+		image->upload_height = SCRAP_HEIGHT;
 
 		image->upload_width = upload_width;		// after power of 2 and scales
 		image->upload_height = upload_height;
@@ -1296,7 +1241,7 @@ Vk_FindImage(const char *originname, imagetype_t type)
 	namewe[len] = 0;
 
 	/* look for it */
-	for (i=0, image=vktextures ; i<numvktextures ; i++,image++)
+	for (i=0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		if (!strcmp(name, image->name))
 		{
@@ -1424,10 +1369,13 @@ void Vk_FreeUnusedImages (void)
 Vk_InitImages
 ===============
 */
-void	Vk_InitImages (void)
+void
+Vk_InitImages(void)
 {
 	int	i;
 	float	overbright;
+
+	Scrap_Init();
 
 	numvktextures = 0;
 	img_loaded = 0;

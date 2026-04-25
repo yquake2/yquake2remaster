@@ -1334,10 +1334,10 @@ REFGL1_OBJS_ := \
 	src/client/refresh/gl1/gl1_mesh.o \
 	src/client/refresh/gl1/gl1_misc.o \
 	src/client/refresh/gl1/gl1_model.o \
-	src/client/refresh/gl1/gl1_scrap.o \
 	src/client/refresh/gl1/gl1_surf.o \
 	src/client/refresh/gl1/gl1_warp.o \
 	src/client/refresh/gl1/gl1_sdl.o \
+	src/client/refresh/files/scrap.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \
 	src/client/refresh/files/common.o \
@@ -1515,6 +1515,7 @@ REFVK_OBJS_ := \
 	src/client/refresh/vk/vk_warp.o \
 	src/client/refresh/vk/vk_util.o \
 	src/client/refresh/vk/volk/volk.o \
+	src/client/refresh/files/scrap.o \
 	src/client/refresh/files/common.o \
 	src/client/refresh/files/mesh.o \
 	src/client/refresh/files/light.o \

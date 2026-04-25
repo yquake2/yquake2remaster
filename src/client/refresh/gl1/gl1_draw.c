@@ -188,33 +188,26 @@ static void
 Scrap_Update(void)
 {
 	int texnum;
-	unsigned *tmp = NULL;
 
 	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
-		const unsigned *scrap_texels;
+		unsigned *scrap_texels;
 
 		scrap_texels = Scrap_Upload(texnum);
 		if (scrap_texels)
 		{
-			if (!tmp)
-			{
-				tmp = malloc(SCRAP_WIDTH * SCRAP_HEIGHT * 4);
-			}
-
-			if (!tmp)
-			{
-				continue;
-			}
-
 			R_Bind(TEXNUM_SCRAPS + texnum);
 
-			memcpy(tmp, scrap_texels, SCRAP_WIDTH * SCRAP_HEIGHT * 4);
-			R_Upload32(tmp, SCRAP_WIDTH, SCRAP_HEIGHT, false);
+			if (!texnum)
+			{
+				/* nolerp textures*/
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			}
+
+			R_Upload32(scrap_texels, SCRAP_WIDTH, SCRAP_HEIGHT, false);
 		}
 	}
-
-	free(tmp);
 }
 
 void

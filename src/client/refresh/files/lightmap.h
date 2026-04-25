@@ -31,8 +31,6 @@
 
 /* Shared lightmaps logic */
 #define MAX_LIGHTMAPS 256
-#define BLOCK_WIDTH 1024
-#define BLOCK_HEIGHT 1024
 
 typedef struct
 {

@@ -698,11 +698,11 @@ set(GL1-Source
 	${REF_SRC_DIR}/gl1/gl1_mesh.c
 	${REF_SRC_DIR}/gl1/gl1_misc.c
 	${REF_SRC_DIR}/gl1/gl1_model.c
-	${REF_SRC_DIR}/gl1/gl1_scrap.c
 	${REF_SRC_DIR}/gl1/gl1_surf.c
 	${REF_SRC_DIR}/gl1/gl1_warp.c
 	${REF_SRC_DIR}/gl1/gl1_sdl.c
 	${REF_SRC_DIR}/gl1/gl1_buffer.c
+	${REF_SRC_DIR}/files/scrap.c
 	${REF_SRC_DIR}/files/common.c
 	${REF_SRC_DIR}/files/light.c
 	${REF_SRC_DIR}/files/lightmap.c
@@ -907,6 +907,7 @@ set(VK-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
+	${REF_SRC_DIR}/files/scrap.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c

@@ -1174,7 +1174,8 @@ R_SetMode(void)
 RE_Init
 ===============
 */
-static qboolean RE_Init( void )
+static qboolean 
+RE_Init(void)
 {
 	Com_Printf("Refresh: " REF_VERSION "\n");
 	Com_Printf("Platform: " YQ2OSTYPE "\n");

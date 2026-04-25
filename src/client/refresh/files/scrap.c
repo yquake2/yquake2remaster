@@ -25,7 +25,7 @@
  * =======================================================================
  */
 
-#include "header/local.h"
+#include "../ref_shared.h"
 
 #define STB_RECT_PACK_IMPLEMENTATION
 #include "../files/stb_rect_pack.h"
@@ -38,7 +38,7 @@ static qboolean scrap_dirty[MAX_SCRAPS];
 
 /* returns a texture number and the position inside it */
 int
-Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic)
+Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic, int scrap_offset)
 {
 	int texnum;
 
@@ -46,7 +46,7 @@ Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic)
 	w += 2;
 	h += 2;
 
-	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	for (texnum = scrap_offset; texnum < MAX_SCRAPS; texnum++)
 	{
 		stbrp_rect rect;
 		rect.w = w;
@@ -80,7 +80,7 @@ Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic)
 	return -1;
 }
 
-const unsigned *
+unsigned *
 Scrap_Upload(int texnum)
 {
 	if (texnum < 0 || texnum >= MAX_SCRAPS || !scrap_dirty[texnum])
