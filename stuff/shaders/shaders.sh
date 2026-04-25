@@ -23,3 +23,4 @@ glslangValidator --variable-name postprocess_vert_spv -V postprocess.vert -o ../
 glslangValidator --variable-name postprocess_frag_spv -V postprocess.frag -o ../../src/client/refresh/vk/spirv/postprocess_frag.c
 glslangValidator --variable-name world_warp_vert_spv -V world_warp.vert -o ../../src/client/refresh/vk/spirv/world_warp_vert.c
 glslangValidator --variable-name world_warp_frag_spv -V world_warp.frag -o ../../src/client/refresh/vk/spirv/world_warp_frag.c
+glslangValidator --variable-name basic_tinted_vert_spv -V basic_tinted.vert -o ../../src/client/refresh/vk/spirv/basic_tinted_vert.c

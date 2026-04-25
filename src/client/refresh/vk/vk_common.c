@@ -136,6 +136,8 @@ qboolean vk_initialized = false;
 // render pipelines
 qvkpipeline_t vk_drawTexQuadPipeline[RP_COUNT]    = {
 	QVKPIPELINE_INIT, QVKPIPELINE_INIT, QVKPIPELINE_INIT };
+qvkpipeline_t vk_drawTexQuadTintedPipeline[RP_COUNT] = {
+	QVKPIPELINE_INIT, QVKPIPELINE_INIT, QVKPIPELINE_INIT };
 qvkpipeline_t vk_drawColorQuadPipeline[RP_COUNT]  = {
 	QVKPIPELINE_INIT, QVKPIPELINE_INIT, QVKPIPELINE_INIT };
 qvkpipeline_t vk_drawModelPipelineFan[RP_COUNT]   = {
@@ -1326,6 +1328,20 @@ CreatePipelines(void)
 		QVk_DebugSetObjectName((uint64_t)vk_drawTexQuadPipeline[i].pl, VK_OBJECT_TYPE_PIPELINE,
 			va("Pipeline: textured quad (%s)", renderpassObjectNames[i]));
 	}
+	VK_LOAD_VERTFRAG_SHADERS(shaders, basic_tinted, basic);
+	for (int i = 0; i < RP_COUNT; ++i)
+	{
+		vk_drawTexQuadTintedPipeline[i].depthTestEnable = VK_FALSE;
+		vk_drawTexQuadTintedPipeline[i].blendOpts.blendEnable = VK_TRUE;
+		QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoRG_RG,
+			&vk_drawTexQuadTintedPipeline[i], &vk_renderpasses[i], shaders, 2);
+		QVk_DebugSetObjectName((uint64_t)vk_drawTexQuadTintedPipeline[i].layout,
+			VK_OBJECT_TYPE_PIPELINE_LAYOUT,
+			va("Pipeline Layout: textured quad tinted (%s)", renderpassObjectNames[i]));
+		QVk_DebugSetObjectName((uint64_t)vk_drawTexQuadTintedPipeline[i].pl,
+			VK_OBJECT_TYPE_PIPELINE,
+			va("Pipeline: textured quad tinted (%s)", renderpassObjectNames[i]));
+	}
 
 	// draw particles pipeline (using a texture)
 	VK_LOAD_VERTFRAG_SHADERS(shaders, particle, basic);
@@ -1542,6 +1558,7 @@ QVk_Shutdown(void)
 		{
 			QVk_DestroyPipeline(&vk_drawColorQuadPipeline[i]);
 			QVk_DestroyPipeline(&vk_drawModelPipelineFan[i]);
+			QVk_DestroyPipeline(&vk_drawTexQuadTintedPipeline[i]);
 			QVk_DestroyPipeline(&vk_drawTexQuadPipeline[i]);
 		}
 		QVk_DestroyPipeline(&vk_drawNullModelPipeline);
@@ -2934,6 +2951,69 @@ QVk_DrawTexRect(float x, float y, float w, float h,
 	last[13] = y * 2 - 1;
 	last[14] = u + us;
 	last[15] = v;
+}
+
+void
+QVk_DrawTexRectTinted(float x, float y, float w, float h,
+	float u, float v, float us, float vs,
+	float r, float g, float b, float a,
+	const qvktexture_t *texture)
+{
+	VkDescriptorSet uboDescriptorSet;
+	VkDeviceSize vboOffset, vertSize;
+	uint8_t *vertData, *uboData;
+	VkDescriptorSet descriptorSets[2];
+	VkBuffer vbo;
+	uint32_t uboOffset;
+	float gamma = 2.1f - vid_gamma->value;
+	float dummy[PUSH_CONSTANT_VERTEX_SIZE] = {0};
+
+	/* offset, scale, uvOffset, uvScale, tintColor */
+	float imgTransform[12] = {
+		0, 0, 1.0f, 1.0f,
+		0, 0, 1.0f, 1.0f,
+		r, g, b, a
+	};
+
+	/* one quad: 4 verts * (vec2 pos, vec2 uv) */
+	float verts[16] = {
+		x * 2 - 1,       y * 2 - 1,       u,      v,
+		(x + w) * 2 - 1, (y + h) * 2 - 1, u + us, v + vs,
+		x * 2 - 1,       (y + h) * 2 - 1, u,      v + vs,
+		(x + w) * 2 - 1, y * 2 - 1,       u + us, v
+	};
+
+	/* flush any pending batched 2D calls first */
+	if (draw2dcolor_num)
+		QVk_Draw2DCallsRender();
+
+	uboData = QVk_GetUniformBuffer(sizeof(imgTransform),
+		&uboOffset, &uboDescriptorSet);
+	memcpy(uboData, imgTransform, sizeof(imgTransform));
+
+	vertSize = sizeof(verts);
+	vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
+	memcpy(vertData, verts, vertSize);
+
+	QVk_BindPipeline(&vk_drawTexQuadTintedPipeline[vk_state.current_renderpass]);
+
+	descriptorSets[0] = texture->descriptorSet;
+	descriptorSets[1] = uboDescriptorSet;
+
+	vkCmdPushConstants(vk_activeCmdbuffer, vk_worldWarpPipeline.layout,
+		VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(dummy), dummy);
+	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadTintedPipeline[vk_state.current_renderpass].layout,
+		VK_SHADER_STAGE_FRAGMENT_BIT,
+		PUSH_CONSTANT_VERTEX_SIZE * sizeof(float),
+		sizeof(gamma), &gamma);
+
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+		vk_drawTexQuadTintedPipeline[vk_state.current_renderpass].layout,
+		0, 2, descriptorSets, 1, &uboOffset);
+	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, vk_rectIbo.resource.buffer,
+		vk_rectIboffet, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
 }
 
 void
