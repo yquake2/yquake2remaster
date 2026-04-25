@@ -146,6 +146,7 @@ VkResult QVk_CreateSwapchain()
 	VkSurfaceFormatKHR *surfaceFormats = NULL;
 	VkPresentModeKHR *presentModes = NULL;
 	uint32_t formatCount, presentModesCount;
+	VkResult res;
 	VkImage *tmp;
 
 	VK_VERIFY(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(vk_device.physical, vk_surface, &surfaceCaps));
@@ -155,13 +156,39 @@ VkResult QVk_CreateSwapchain()
 	if (formatCount > 0)
 	{
 		surfaceFormats = (VkSurfaceFormatKHR *)malloc(formatCount * sizeof(VkSurfaceFormatKHR));
-		VK_VERIFY(vkGetPhysicalDeviceSurfaceFormatsKHR(vk_device.physical, vk_surface, &formatCount, surfaceFormats));
+
+		if (!surfaceFormats)
+		{
+			return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+		}
+
+		res = vkGetPhysicalDeviceSurfaceFormatsKHR(vk_device.physical, vk_surface, &formatCount, surfaceFormats);
+
+		if (res != VK_SUCCESS)
+		{
+			free(surfaceFormats);
+			return res;
+		}
 	}
 
 	if (presentModesCount > 0)
 	{
 		presentModes = (VkPresentModeKHR *)malloc(presentModesCount * sizeof(VkPresentModeKHR));
-		VK_VERIFY(vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device.physical, vk_surface, &presentModesCount, presentModes));
+
+		if (!presentModes)
+		{
+			free(surfaceFormats);
+			return VK_ERROR_OUT_OF_DEVICE_MEMORY;
+		}
+
+		res = vkGetPhysicalDeviceSurfacePresentModesKHR(vk_device.physical, vk_surface, &presentModesCount, presentModes);
+
+		if (res != VK_SUCCESS)
+		{
+			free(surfaceFormats);
+			free(presentModes);
+			return res;
+		}
 
 		Com_Printf("Supported present modes: ");
 		for (int i = 0; i < presentModesCount; i++)
@@ -240,7 +267,7 @@ VkResult QVk_CreateSwapchain()
 	Com_Printf("...trying swapchain extent: %dx%d\n", vk_swapchain.extent.width, vk_swapchain.extent.height);
 	Com_Printf("...trying swapchain image format: %d\n", vk_swapchain.format);
 
-	VkResult res = vkCreateSwapchainKHR(vk_device.logical, &scCreateInfo, NULL, &vk_swapchain.sc);
+	res = vkCreateSwapchainKHR(vk_device.logical, &scCreateInfo, NULL, &vk_swapchain.sc);
 	if (res != VK_SUCCESS)
 	{
 		return res;

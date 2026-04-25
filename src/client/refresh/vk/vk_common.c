@@ -1129,10 +1129,14 @@ CreateStagingBuffer(VkDeviceSize size, qvkstagingbuffer_t *dstBuffer, int i)
 		.flags = 0
 	};
 
-	VK_VERIFY(QVk_CreateStagingBuffer(size,
+	if (QVk_CreateStagingBuffer(size,
 		dstBuffer,
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-		VK_MEMORY_PROPERTY_HOST_CACHED_BIT));
+		VK_MEMORY_PROPERTY_HOST_CACHED_BIT) != VK_SUCCESS)
+	{
+		return;
+	}
+
 	dstBuffer->pMappedData = buffer_map(&dstBuffer->resource);
 	dstBuffer->submitted = false;
 
@@ -2246,7 +2250,7 @@ QVk_BeginFrame(const VkViewport* viewport, const VkRect2D* scissor)
 	VK_VERIFY(buffer_invalidate(&vk_dynVertexBuffers[vk_activeDynBufferIdx].resource));
 	VK_VERIFY(buffer_invalidate(&vk_dynIndexBuffers[vk_activeDynBufferIdx].resource));
 
-	VK_VERIFY(vkWaitForFences(vk_device.logical, 1, &vk_fences[vk_activeBufferIdx], VK_TRUE, UINT32_MAX));
+	VK_VERIFY(vkWaitForFences(vk_device.logical, 1, &vk_fences[vk_activeBufferIdx], VK_TRUE, UINT64_MAX));
 	VK_VERIFY(vkResetFences(vk_device.logical, 1, &vk_fences[vk_activeBufferIdx]));
 
 	// setup command buffers and render pass for drawing
