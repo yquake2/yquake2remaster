@@ -200,8 +200,8 @@ RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 
 	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
 					(float)w / vid.width, (float)h / vid.height,
-					vk->sl, vk->tl, 
-					vk->sh - vk->sl, vk->th - vk->tl, 
+					vk->sl, vk->tl,
+					vk->sh - vk->sl, vk->th - vk->tl,
 					&vk->vk_texture);
 }
 
@@ -252,7 +252,8 @@ RE_Draw_PicScaledCol(int x, int y, const char *name, float factor, const vec3_t 
 	QVk_DrawTexRectTinted((float)x / vid.width, (float)y / vid.height,
 		(float)(vk->width * factor) / vid.width,
 		(float)(vk->height * factor) / vid.height,
-		0, 0, 1, 1,
+		vk->sl, vk->tl,
+		vk->sh - vk->sl, vk->th - vk->tl,
 		color[0], color[1], color[2], 1.0f,
 		&vk->vk_texture);
 }

@@ -697,15 +697,15 @@ int Scrap_AllocBlock (int w, int h, int *x, int *y, int scrap_offset)
 	int		best, best2;
 	int		texnum;
 
-	for (texnum=scrap_offset ; texnum<MAX_SCRAPS ; texnum++)
+	for (texnum = scrap_offset; texnum < MAX_SCRAPS ; texnum++)
 	{
 		best = BLOCK_HEIGHT;
 
-		for (i=0 ; i<BLOCK_WIDTH-w ; i++)
+		for (i = 0 ; i < BLOCK_WIDTH - w ; i++)
 		{
 			best2 = 0;
 
-			for (j=0 ; j<w ; j++)
+			for (j = 0 ; j < w; j++)
 			{
 				if (scrap_allocated[texnum][i+j] >= best)
 					break;
@@ -722,8 +722,10 @@ int Scrap_AllocBlock (int w, int h, int *x, int *y, int scrap_offset)
 		if (best + h > BLOCK_HEIGHT)
 			continue;
 
-		for (i=0 ; i<w ; i++)
+		for (i = 0 ; i < w ; i++)
+		{
 			scrap_allocated[texnum][*x + i] = best + h;
+		}
 
 		return texnum;
 	}
@@ -810,7 +812,7 @@ Vk_TextureMode(const char *string)
 		}
 	}
 
-	// use S_NEAREST for scrap 0 (crosshair images)
+	/* use S_NEAREST for scrap 0 (nolerp images) */
 	if (vk_scrapTextures[0].resource.image != VK_NULL_HANDLE)
 	{
 		QVk_UpdateTextureSampler(&vk_scrapTextures[0], S_NEAREST, false);
@@ -922,9 +924,14 @@ Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
 	}
 
 	if (scaled_width < 1)
+	{
 		scaled_width = 1;
+	}
+
 	if (scaled_height < 1)
+	{
 		scaled_height = 1;
+	}
 
 	if (scaled_width == width && scaled_height == height)
 	{
@@ -1117,12 +1124,13 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		int		x, y;
 		int		i, j, k;
 		int		texnum;
-		qboolean	is_crosshair = !Q_stricmp(image->name, "pics/ch1.pcx") || !Q_stricmp(image->name, "pics/ch2.pcx") || !Q_stricmp(image->name, "pics/ch3.pcx");
 
 		// store crosshair images exclusively in scrap 0
-		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y, is_crosshair ? 0 : 1);
+		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y, nolerp ? 0: 1);
 		if (texnum == -1)
+		{
 			goto nonscrap;
+		}
 
 		// copy the texels into the scrap block
 		k = 0;
@@ -1155,7 +1163,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			// don't use linear filtering for scrap 0 - this fixes display issues for the dot crosshair and makes it look consistent across different values of hudscale cvar
 			QVk_CreateTexture(&vk_scrapTextures[texnum], (unsigned char*)texBuffer,
 				image->upload_width, image->upload_height,
-				nolerp ? S_NEAREST : vk_current_sampler, (type == it_sky));
+				nolerp ? S_NEAREST : vk_current_sampler, false);
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.image, VK_OBJECT_TYPE_IMAGE, va("Image: %s", name));
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].imageView, VK_OBJECT_TYPE_IMAGE_VIEW, va("Image View: %s", name));
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].descriptorSet, VK_OBJECT_TYPE_DESCRIPTOR_SET, va("Descriptor Set: %s", name));
