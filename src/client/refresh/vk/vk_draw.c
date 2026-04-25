@@ -200,7 +200,9 @@ RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 
 	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
 					(float)w / vid.width, (float)h / vid.height,
-					0, 0, 1, 1, &vk->vk_texture);
+					vk->sl, vk->tl, 
+					vk->sh - vk->sl, vk->th - vk->tl, 
+					&vk->vk_texture);
 }
 
 void
