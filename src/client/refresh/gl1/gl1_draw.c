@@ -184,6 +184,39 @@ RDraw_GetPicSize(int *w, int *h, const char *pic)
 	*h = gl->height;
 }
 
+static void
+Scrap_Update(void)
+{
+	int texnum;
+	unsigned *tmp = NULL;
+
+	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	{
+		const unsigned *scrap_texels;
+
+		scrap_texels = Scrap_Upload(texnum);
+		if (scrap_texels)
+		{
+			if (!tmp)
+			{
+				tmp = malloc(SCRAP_WIDTH * SCRAP_HEIGHT * 4);
+			}
+
+			if (!tmp)
+			{
+				continue;
+			}
+
+			R_Bind(TEXNUM_SCRAPS + texnum);
+
+			memcpy(tmp, scrap_texels, SCRAP_WIDTH * SCRAP_HEIGHT * 4);
+			R_Upload32(tmp, SCRAP_WIDTH, SCRAP_HEIGHT, false);
+		}
+	}
+
+	free(tmp);
+}
+
 void
 RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 {
@@ -196,8 +229,6 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}
-
-	Scrap_Upload();
 
 	R_UpdateGLBuffer(buf_2d, gl->texnum, 0, 0, 1);
 
@@ -225,11 +256,11 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 		return;
 	}
 
-	Scrap_Upload();
+	Scrap_Update();
 
-	if (gl->texnum == TEXNUM_SCRAPS)
+	if (gl->texnum >= TEXNUM_SCRAPS && gl->texnum < TEXNUM_IMAGES)
 	{
-		R_UpdateGLBuffer(buf_2d, TEXNUM_SCRAPS, 0, 0, 1);
+		R_UpdateGLBuffer(buf_2d, gl->texnum, 0, 0, 1);
 		R_Buffer2DQuad(x, y, x + gl->width * factor, y + gl->height * factor,
 			gl->sl, gl->tl, gl->sh, gl->th);
 		return;
@@ -283,7 +314,7 @@ RDraw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t col
 		return;
 	}
 
-	Scrap_Upload();
+	Scrap_Update();
 
 	R_ApplyGLBuffer();
 

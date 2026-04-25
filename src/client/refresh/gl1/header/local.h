@@ -237,7 +237,7 @@ void R_TextureAlphaMode(const char *string);
 void R_TextureSolidMode(const char *string);
 
 /* scrap */
-void Scrap_Upload(void);
+const unsigned *Scrap_Upload(int texnum);
 int Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic);
 void Scrap_Init(void);
 
