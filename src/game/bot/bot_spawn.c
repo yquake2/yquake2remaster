@@ -145,7 +145,7 @@ BOT_SetName(edict_t *bot, const char *name, const char *skin, char *team)
 		int rnd;
 
 		/* randomly choose skin */
-		rnd = rand() % (sizeof(bot_skin_table) / sizeof(*bot_skin_table));
+		rnd = randk() % (sizeof(bot_skin_table) / sizeof(*bot_skin_table));
 		Q_strlcpy(bot_skin, bot_skin_table[rnd], sizeof(bot_skin));
 	}
 	else

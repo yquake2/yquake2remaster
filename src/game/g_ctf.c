@@ -601,7 +601,7 @@ SelectCTFSpawnPoint(edict_t *ent)
 		count -= 2;
 	}
 
-	selection = rand() % count;
+	selection = randk() % count;
 
 	spot = NULL;
 
@@ -2400,7 +2400,7 @@ static edict_t *
 FindTechSpawn(void)
 {
 	edict_t *spot = NULL;
-	int i = rand() % 16;
+	int i = randk() % 16;
 
 	while (i--)
 	{
@@ -3316,7 +3316,7 @@ SP_misc_ctf_banner(edict_t *ent)
 		ent->s.skinnum = 1;
 	}
 
-	ent->s.frame = rand() % 16;
+	ent->s.frame = randk() % 16;
 	gi.linkentity(ent);
 
 	ent->think = misc_ctf_banner_think;
@@ -3340,7 +3340,7 @@ SP_misc_ctf_small_banner(edict_t *ent)
 		ent->s.skinnum = 1;
 	}
 
-	ent->s.frame = rand() % 16;
+	ent->s.frame = randk() % 16;
 	gi.linkentity(ent);
 
 	ent->think = misc_ctf_banner_think;
@@ -3509,7 +3509,7 @@ CTFAssignGhost(edict_t *ent)
 
 	for ( ; ; )
 	{
-		ctfgame.ghosts[ghost].code = 10000 + (rand() % 90000);
+		ctfgame.ghosts[ghost].code = 10000 + (randk() % 90000);
 
 		for (i = 0; i < MAX_CLIENTS; i++)
 		{
@@ -3576,7 +3576,7 @@ CTFStartMatch(void)
 			ent->svflags = SVF_NOCLIENT;
 			ent->flags &= ~FL_GODMODE;
 
-			ent->client->respawn_time = level.time + 1.0 + ((rand() % 30) / 10.0);
+			ent->client->respawn_time = level.time + 1.0 + ((randk() % 30) / 10.0);
 			ent->client->ps.pmove.pm_type = PM_DEAD;
 			ent->client->anim_priority = ANIM_DEATH;
 			P_SetAnimGroup(ent, "death", FRAME_death301, FRAME_death308, 3);

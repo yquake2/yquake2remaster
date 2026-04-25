@@ -2473,7 +2473,7 @@ soldierh_fire(edict_t *self, int flash_number)
 	{
 		if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
 		{
-			self->monsterinfo.pausetime = level.time + (3 + rand() % 8) * FRAMETIME;
+			self->monsterinfo.pausetime = level.time + (3 + randk() % 8) * FRAMETIME;
 		}
 
 		soldierh_laserbeam(self, flash_index);
@@ -3246,7 +3246,7 @@ soldierh_die(edict_t *self, edict_t *inflictor /* unused */,
 		return;
 	}
 
-	n = (self->s.skinnum < 4) ? (rand() % 5) : (1 + (rand() % 4));
+	n = (self->s.skinnum < 4) ? (randk() % 5) : (1 + (randk() % 4));
 
 	if (n == 0)
 	{

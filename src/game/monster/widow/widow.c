@@ -1054,11 +1054,11 @@ widow_attack_kick(edict_t *self)
 
 	if (self->enemy->groundentity)
 	{
-		fire_hit(self, aim, (50 + (rand() % 6)), 500);
+		fire_hit(self, aim, (50 + (randk() % 6)), 500);
 	}
 	else  /* not as much kick if they're in the air .. makes it harder to land on her head */
 	{
-		fire_hit(self, aim, (50 + (rand() % 6)), 250);
+		fire_hit(self, aim, (50 + (randk() % 6)), 250);
 	}
 }
 

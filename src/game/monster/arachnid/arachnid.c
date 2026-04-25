@@ -193,7 +193,7 @@ arachnid_pain(edict_t *self, edict_t *other /* other */,
 		return; /* no pain anims in nightmare */
 	}
 
-	if ((rand() % 2) > 0)
+	if ((randk() % 2) > 0)
 	{
 		self->monsterinfo.currentmove = &arachnid_move_pain1;
 	}

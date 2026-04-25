@@ -754,7 +754,7 @@ stalker_swing_attack(edict_t *self)
 
 	VectorSet(aim, MELEE_DISTANCE, 0, 0);
 
-	if (fire_hit(self, aim, (5 + (rand() % 5)), 50))
+	if (fire_hit(self, aim, (5 + (randk() % 5)), 50))
 	{
 		if (self->s.frame < FRAME_attack08)
 		{

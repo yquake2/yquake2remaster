@@ -98,7 +98,7 @@ actor_stand(edict_t *self)
 	// randomize on startup
 	if (level.time < 1.0)
 	{
-		self->s.frame = self->monsterinfo.currentmove->firstframe + (rand() % (self->monsterinfo.currentmove->lastframe - self->monsterinfo.currentmove->firstframe + 1));
+		self->s.frame = self->monsterinfo.currentmove->firstframe + (randk() % (self->monsterinfo.currentmove->lastframe - self->monsterinfo.currentmove->firstframe + 1));
 	}
 }
 
@@ -298,11 +298,11 @@ actor_pain(edict_t *self, edict_t *other, float kick, int damage)
 		else
 			self->monsterinfo.currentmove = &actor_move_taunt;
 		name = actor_names[(self - g_edicts)%MAX_ACTOR_NAMES];
-		gi.cprintf (other, PRINT_CHAT, "%s: %s!\n", name, messages[rand()%3]);
+		gi.cprintf (other, PRINT_CHAT, "%s: %s!\n", name, messages[randk() % 3]);
 		return;
 	}
 
-	n = rand() % 3;
+	n = randk() % 3;
 	if (n == 0)
 		self->monsterinfo.currentmove = &actor_move_pain1;
 	else if (n == 1)
@@ -423,7 +423,7 @@ actor_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, cons
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 
-	n = rand() % 2;
+	n = randk() % 2;
 	if (n == 0)
 	{
 		self->monsterinfo.currentmove = &actor_move_death1;
