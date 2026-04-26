@@ -3989,7 +3989,7 @@ void
 misc_rain_think(edict_t *self)
 {
 	/* Occasionally play ambient rain sound */
-	if ((rand() & 1) == 0)
+	if ((randk() & 1) == 0)
 	{
 		char name[MAX_OSPATH];
 		int soundindex;

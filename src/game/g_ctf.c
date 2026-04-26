@@ -515,7 +515,7 @@ CTFAssignTeam(gclient_t *who)
 	{
 		who->resp.ctf_team = CTF_TEAM2;
 	}
-	else if (rand() & 1)
+	else if (randk() & 1)
 	{
 		who->resp.ctf_team = CTF_TEAM1;
 	}
@@ -1159,7 +1159,7 @@ CTFDeadDropFlag(edict_t *self)
 void
 CTFDrop_Flag(edict_t *ent, const gitem_t *item)
 {
-	if (rand() & 1)
+	if (randk() & 1)
 	{
 		gi.cprintf(ent, PRINT_HIGH, "Only lusers drop flags.\n");
 	}
@@ -4231,7 +4231,7 @@ CTFUpdateJoinMenu(const edict_t *ent)
 		return CTF_TEAM2;
 	}
 
-	return (rand() & 1) ? CTF_TEAM1 : CTF_TEAM2;
+	return (randk() & 1) ? CTF_TEAM1 : CTF_TEAM2;
 }
 
 void

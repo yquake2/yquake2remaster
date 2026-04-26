@@ -2914,14 +2914,14 @@ Weapon_ChainFist(edict_t *ent)
 	}
 
 	/* holds for idle sequence */
-	else if ((ent->client->ps.gunframe == 42) && (rand() & 7))
+	else if ((ent->client->ps.gunframe == 42) && (randk() & 7))
 	{
 		if ((ent->client->pers.hand != CENTER_HANDED) && (random() < 0.4))
 		{
 			chainfist_smoke(ent);
 		}
 	}
-	else if ((ent->client->ps.gunframe == 51) && (rand() & 7))
+	else if ((ent->client->ps.gunframe == 51) && (randk() & 7))
 	{
 		if ((ent->client->pers.hand != CENTER_HANDED) && (random() < 0.4))
 		{
@@ -3574,7 +3574,7 @@ Weapon_Trap(edict_t *ent)
 			(ent->client->ps.gunframe == 39) ||
 			(ent->client->ps.gunframe == 48))
 		{
-			if (rand() & 15)
+			if (randk() & 15)
 			{
 				return;
 			}

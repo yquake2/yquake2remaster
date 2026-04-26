@@ -466,7 +466,7 @@ actor_attack(edict_t *self)
 	int		n;
 
 	self->monsterinfo.currentmove = &actor_move_attack;
-	n = (rand() & 15) + 3 + 7;
+	n = (randk() & 15) + 3 + 7;
 	self->monsterinfo.pausetime = level.time + n * FRAMETIME;
 }
 

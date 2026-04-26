@@ -54,12 +54,6 @@ extern mmove_t fixbot_move_turn;
 
 extern void roam_goal(edict_t *self);
 
-float
-crand(void)
-{
-	return (rand() & 32767) * (2.0 / 32767) - 1;
-}
-
 static edict_t *
 fixbot_FindDeadMonster(edict_t *self)
 {
@@ -1417,7 +1411,7 @@ fixbot_fire_welder(edict_t *self)
 	gi.WriteByte(10);
 	gi.WritePosition(start);
 	gi.WriteDir(vec3_origin);
-	gi.WriteByte(0xe0 + (rand() & 7));
+	gi.WriteByte(0xe0 + (randk() & 7));
 	gi.multicast(self->s.origin, MULTICAST_PVS);
 
 	if (random() > 0.8)

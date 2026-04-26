@@ -601,7 +601,7 @@ infantry_fire_prep(edict_t *self)
 		return;
 	}
 
-	n = (rand() & 15) + 3 + 1;
+	n = (randk() & 15) + 3 + 1;
 	self->monsterinfo.pausetime = level.time + n * FRAMETIME;
 }
 

@@ -759,7 +759,7 @@ fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	grenade->s.effects |= EF_GRENADE;
 	VectorClear(grenade->mins);
 	VectorClear(grenade->maxs);
-	if (rand() & 1)
+	if (randk() & 1)
 	{
 		grenade->s.modelindex = gi.modelindex("models/objects/grenade2/tris.md2");
 	}
@@ -1310,7 +1310,7 @@ ionripper_sparks(edict_t *self)
 	gi.WriteByte(0);
 	gi.WritePosition(self->s.origin);
 	gi.WriteDir(vec3_origin);
-	gi.WriteByte(0xe4 + (rand() & 3));
+	gi.WriteByte(0xe4 + (randk() & 3));
 	gi.multicast(self->s.origin, MULTICAST_PVS);
 
 	G_FreeEdict(self);

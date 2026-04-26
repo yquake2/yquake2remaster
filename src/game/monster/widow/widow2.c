@@ -1381,7 +1381,7 @@ Widow2_CheckAttack(edict_t *self)
 			if (widow2_tongue_attack_ok(spot1, spot2, 256))
 			{
 				/* be nice in easy mode */
-				if ((skill->value == SKILL_EASY) && (rand() & 3))
+				if ((skill->value == SKILL_EASY) && (randk() & 3))
 				{
 					return false;
 				}
@@ -1797,11 +1797,11 @@ WidowExplode(edict_t *self)
 
 	self->think = WidowExplode;
 	VectorCopy(self->s.origin, org);
-	org[2] += 24 + (rand() & 15);
+	org[2] += 24 + (randk() & 15);
 
 	if (self->count < 8)
 	{
-		org[2] += 24 + (rand() & 31);
+		org[2] += 24 + (randk() & 31);
 	}
 
 	switch (self->count)

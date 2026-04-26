@@ -2381,7 +2381,7 @@ CL_FlameEffects(const vec3_t origin)
 {
 	int n, count;
 
-	count = rand() & 0xF;
+	count = randk() & 0xF;
 
 	/* Particles going down */
 	for(n = 0; n < count; n++)
@@ -2413,7 +2413,7 @@ CL_FlameEffects(const vec3_t origin)
 		p->accel[2] = -PARTICLE_GRAVITY;
 	}
 
-	count = rand() & 0x7;
+	count = randk() & 0x7;
 
 	/* Particles go up */
 	for (n = 0; n < count; n++)
