@@ -86,50 +86,14 @@ LM_InitBlock(qboolean multitexture)
 qboolean
 LM_AllocBlock(int w, int h, int *x, int *y)
 {
-	int i, best;
-
-	best = BLOCK_HEIGHT;
-
-	for (i = 0; i < BLOCK_WIDTH - w; i++)
-	{
-		int j, best2;
-
-		best2 = 0;
-
-		for (j = 0; j < w; j++)
-		{
-			if (r_lms.allocated[i + j] >= best)
-			{
-				break;
-			}
-
-			if (r_lms.allocated[i + j] > best2)
-			{
-				best2 = r_lms.allocated[i + j];
-			}
-		}
-
-		if (j == w)
-		{
-			/* this is a valid spot */
-			*x = i;
-			*y = best = best2;
-		}
-	}
-
-	if (best + h > BLOCK_HEIGHT)
+	if (!CommonAllocBlock(r_lms.allocated, BLOCK_WIDTH, BLOCK_HEIGHT, w, h, x, y))
 	{
 		return false;
 	}
 
-	for (i = 0; i < w; i++)
+	if (r_lms.height < *y + h)
 	{
-		r_lms.allocated[*x + i] = best + h;
-	}
-
-	if (r_lms.height < best + h)
-	{
-		r_lms.height = best + h;
+		r_lms.height = *y + h;
 	}
 
 	return true;

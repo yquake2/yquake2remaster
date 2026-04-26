@@ -31,9 +31,56 @@ static int scrap_allocated[MAX_SCRAPS][SCRAP_WIDTH];
 static unsigned scrap_texels[MAX_SCRAPS][SCRAP_WIDTH * SCRAP_HEIGHT];
 static qboolean scrap_dirty[MAX_SCRAPS];
 
+qboolean
+CommonAllocBlock(int *allocated, size_t alloc_width, size_t alloc_height,
+	unsigned w, unsigned h, int *x, int *y)
+{
+	size_t i, best;
+
+	best = alloc_height;
+
+	for (i = 0; i < alloc_width - w; i++)
+	{
+		size_t best2, j;
+
+		best2 = 0;
+
+		for (j = 0; j < w; j++)
+		{
+			if (allocated[i + j] >= best)
+			{
+				break;
+			}
+
+			if (allocated[i + j] > best2)
+			{
+				best2 = allocated[i + j];
+			}
+		}
+
+		if (j == w)
+		{   /* this is a valid spot */
+			*x = i;
+			*y = best = best2;
+		}
+	}
+
+	if (best + h > alloc_height)
+	{
+		return false;
+	}
+
+	for (i = 0; i < w; i++)
+	{
+		allocated[*x + i] = best + h;
+	}
+
+	return true;
+}
+
 /* returns a texture number and the position inside it */
 int
-Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic, int scrap_offset)
+Scrap_AllocBlock(unsigned w, unsigned h, int *x, int *y, unsigned *pic, int scrap_offset)
 {
 	int texnum;
 	w += 2;	// add an empty border to all sides
@@ -41,62 +88,28 @@ Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic, int scrap_offset)
 
 	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
-		size_t k, i, best;
-
-		best = SCRAP_HEIGHT;
-
-		for (i = 0; i < SCRAP_WIDTH - w; i++)
+		if (CommonAllocBlock(scrap_allocated[texnum], SCRAP_WIDTH, SCRAP_HEIGHT,
+			w, h, x, y))
 		{
-			size_t best2, j;
+			size_t k, i;
 
-			best2 = 0;
+			(*x)++;	// jump the border
+			(*y)++;
 
-			for (j = 0; j < w; j++)
+			scrap_dirty[texnum] = true;
+
+			/* copy the texels into the scrap block */
+			k = 0;
+
+			for (i = 0; i < h - 2; i++)
 			{
-				if (scrap_allocated[texnum][i + j] >= best)
-				{
-					break;
-				}
-
-				if (scrap_allocated[texnum][i + j] > best2)
-				{
-					best2 = scrap_allocated[texnum][i + j];
-				}
+				memcpy(&scrap_texels[texnum][(*y + i) * SCRAP_WIDTH + *x],
+					pic + k, (w - 2) * sizeof(unsigned));
+				k += w - 2;
 			}
 
-			if (j == w)
-			{   /* this is a valid spot */
-				*x = i;
-				*y = best = best2;
-			}
+			return texnum;
 		}
-
-		if (best + h > SCRAP_HEIGHT)
-		{
-			continue;
-		}
-
-		for (i = 0; i < w; i++)
-		{
-			scrap_allocated[texnum][*x + i] = best + h;
-		}
-
-		(*x)++;	// jump the border
-		(*y)++;
-
-		scrap_dirty[texnum] = true;
-
-		/* copy the texels into the scrap block */
-		k = 0;
-
-		for (i = 0; i < h - 2; i++)
-		{
-			memcpy(&scrap_texels[texnum][(*y + i) * SCRAP_WIDTH + *x],
-				pic + k, (w - 2) * sizeof(unsigned));
-			k += w - 2;
-		}
-
-		return texnum;
 	}
 
 	return -1;

@@ -758,6 +758,7 @@ set(GL3-Source
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
 	${REF_SRC_DIR}/files/stb.c
+	${REF_SRC_DIR}/files/scrap.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c
 	${REF_SRC_DIR}/files/warp.c
@@ -810,6 +811,7 @@ set(GL4-Source
 	${REF_SRC_DIR}/files/maps.c
 	${REF_SRC_DIR}/files/mesh.c
 	${REF_SRC_DIR}/files/models.c
+	${REF_SRC_DIR}/files/scrap.c
 	${REF_SRC_DIR}/files/stb.c
 	${REF_SRC_DIR}/files/surf.c
 	${REF_SRC_DIR}/files/wal.c

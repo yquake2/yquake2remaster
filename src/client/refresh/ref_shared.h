@@ -415,8 +415,10 @@ extern int r_visframecount;
  * for everything else */
 #define MAX_SCRAPS 3
 
+qboolean CommonAllocBlock(int *allocated, size_t alloc_width, size_t alloc_height,
+	unsigned w, unsigned h, int *x, int *y);
 unsigned *Scrap_Upload(int texnum);
-int Scrap_AllocBlock(int w, int h, int *x, int *y, unsigned *pic, int scrap_offset);
+int Scrap_AllocBlock(unsigned w, unsigned h, int *x, int *y, unsigned *pic, int scrap_offset);
 void Scrap_Init(void);
 
 /* Shared models func */

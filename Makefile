@@ -1386,6 +1386,7 @@ REFGL3_OBJS_ := \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \
+	src/client/refresh/files/scrap.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \
@@ -1430,6 +1431,7 @@ REFGL4_OBJS_ := \
 	src/client/refresh/files/surf.o \
 	src/client/refresh/files/maps.o \
 	src/client/refresh/files/models.o \
+	src/client/refresh/files/scrap.o \
 	src/client/refresh/files/stb.o \
 	src/client/refresh/files/wal.o \
 	src/client/refresh/files/warp.o \

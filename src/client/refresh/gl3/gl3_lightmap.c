@@ -73,48 +73,7 @@ LM_UploadBlock(void)
 qboolean
 LM_AllocBlock(int w, int h, int *x, int *y)
 {
-	int i, best;
-
-	best = BLOCK_HEIGHT;
-
-	for (i = 0; i < BLOCK_WIDTH - w; i++)
-	{
-		int		j, best2;
-
-		best2 = 0;
-
-		for (j = 0; j < w; j++)
-		{
-			if (gl3_lms.allocated[i + j] >= best)
-			{
-				break;
-			}
-
-			if (gl3_lms.allocated[i + j] > best2)
-			{
-				best2 = gl3_lms.allocated[i + j];
-			}
-		}
-
-		if (j == w)
-		{
-			/* this is a valid spot */
-			*x = i;
-			*y = best = best2;
-		}
-	}
-
-	if (best + h > BLOCK_HEIGHT)
-	{
-		return false;
-	}
-
-	for (i = 0; i < w; i++)
-	{
-		gl3_lms.allocated[*x + i] = best + h;
-	}
-
-	return true;
+	return CommonAllocBlock(gl3_lms.allocated, BLOCK_WIDTH, BLOCK_HEIGHT, w, h, x, y);
 }
 
 static void
