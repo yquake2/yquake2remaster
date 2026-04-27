@@ -27,6 +27,8 @@
 
 #include "header/local.h"
 
+extern uint32_t vk_fogOffset;
+
 #define	REF_VERSION	"Yamagi Quake II Vulkan Refresher (based on vkQuake2 v1.4.3)"
 
 // world rendered and ready to render 2d elements
@@ -612,7 +614,33 @@ R_SetupFrame(void)
 
 	R_SetClusters(r_worldmodel, r_origin);
 
-	R_CombineBlendWithFog(v_blend, false);
+	R_CombineBlendWithFog(v_blend, true);
+
+	/* Set up fog parameters from server data */
+	uint32_t fogOffset;
+	uint8_t *fogData = QVk_GetUniformBuffer(sizeof(float) * 10, &fogOffset, NULL);
+	if (fogData)
+	{
+		float *fogParams = (float *)fogData;
+
+		/* Fog color (RGB) + density in alpha */
+		fogParams[0] = r_newrefdef.fog.red / 255.0f;
+		fogParams[1] = r_newrefdef.fog.green / 255.0f;
+		fogParams[2] = r_newrefdef.fog.blue / 255.0f;
+		fogParams[3] = r_newrefdef.fog.density / 64.0f;
+
+		/* Height fog start parameters (RGB) + start distance */
+		fogParams[4] = r_newrefdef.fog.hf_start_r / 255.0f;
+		fogParams[5] = r_newrefdef.fog.hf_start_g / 255.0f;
+		fogParams[6] = r_newrefdef.fog.hf_start_b / 255.0f;
+		fogParams[7] = (float)r_newrefdef.fog.hf_start_dist;
+
+		/* Height fog end (RGB) + end distance */
+		fogParams[8] = r_newrefdef.fog.hf_end_r / 255.0f;
+		fogParams[9] = r_newrefdef.fog.hf_end_g / 255.0f;
+
+		vk_fogOffset = fogOffset;
+	}
 
 	c_brush_polys = 0;
 	c_alias_polys = 0;

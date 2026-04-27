@@ -236,9 +236,11 @@ static qvkbuffer_t vk_dynVertexBuffers[NUM_DYNBUFFERS];
 static qvkbuffer_t vk_dynIndexBuffers[NUM_DYNBUFFERS];
 static qvkbuffer_t vk_dynUniformBuffers[NUM_DYNBUFFERS];
 static VkDescriptorSet vk_uboDescriptorSets[NUM_DYNBUFFERS];
+static VkDescriptorSet vk_fogDescriptorSets[NUM_DYNBUFFERS];
 static qvkstagingbuffer_t vk_stagingBuffers[NUM_DYNBUFFERS];
 static int vk_activeDynBufferIdx = 0;
 static int vk_activeSwapBufferIdx = 0;
+uint32_t vk_fogOffset = 0;
 
 // swap buffers used if primary dynamic buffers get full
 #define NUM_SWAPBUFFER_SLOTS 4
@@ -262,6 +264,7 @@ static VkDescriptorSet *vk_swapDescriptorSets[NUM_SWAPBUFFER_SLOTS];
 static VkDescriptorSetLayout vk_uboDescSetLayout;
 VkDescriptorSetLayout vk_samplerDescSetLayout;
 static VkDescriptorSetLayout vk_samplerLightmapDescSetLayout;
+static VkDescriptorSetLayout vk_fogDescSetLayout;
 
 static const char *renderpassObjectNames[] = {
 	"RP_WORLD",
@@ -883,9 +886,15 @@ CreateDescriptorSetLayouts(void)
 	// secondary sampler: lightmaps
 	VK_VERIFY(vkCreateDescriptorSetLayout(vk_device.logical, &layoutInfo, NULL, &vk_samplerLightmapDescSetLayout));
 
+	// fog parameters layout
+	layoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+	layoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	VK_VERIFY(vkCreateDescriptorSetLayout(vk_device.logical, &layoutInfo, NULL, &vk_fogDescSetLayout));
+
 	QVk_DebugSetObjectName((uint64_t)vk_uboDescSetLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, "Descriptor Set Layout: UBO");
 	QVk_DebugSetObjectName((uint64_t)vk_samplerDescSetLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, "Descriptor Set Layout: Sampler");
 	QVk_DebugSetObjectName((uint64_t)vk_samplerLightmapDescSetLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, "Descriptor Set Layout: Sampler + Lightmap");
+	QVk_DebugSetObjectName((uint64_t)vk_fogDescSetLayout, VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT, "Descriptor Set Layout: Fog");
 }
 
 /* internal helper */
@@ -1047,6 +1056,42 @@ CreateUboDescriptorSet(VkDescriptorSet *descSet, VkBuffer buffer)
 
 /* internal helper */
 static void
+CreateFogDescriptorSet(VkDescriptorSet *descSet, VkBuffer buffer)
+{
+	VkDescriptorSetAllocateInfo dsAllocInfo = {
+		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		.pNext = NULL,
+		.descriptorPool = vk_descriptorPool,
+		.descriptorSetCount = 1,
+		.pSetLayouts = &vk_fogDescSetLayout
+	};
+
+	VK_VERIFY(vkAllocateDescriptorSets(vk_device.logical, &dsAllocInfo, descSet));
+
+	VkDescriptorBufferInfo bufferInfo = {
+		.buffer = buffer,
+		.offset = 0,
+		.range = UNIFORM_ALLOC_SIZE
+	};
+
+	VkWriteDescriptorSet descriptorWrite = {
+		.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+		.pNext = NULL,
+		.dstSet = *descSet,
+		.dstBinding = 0,
+		.dstArrayElement = 0,
+		.descriptorCount = 1,
+		.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
+		.pImageInfo = NULL,
+		.pBufferInfo = &bufferInfo,
+		.pTexelBufferView = NULL,
+	};
+
+	vkUpdateDescriptorSets(vk_device.logical, 1, &descriptorWrite, 0, NULL);
+}
+
+/* internal helper */
+static void
 CreateDynamicBuffers(void)
 {
 	for (int i = 0; i < NUM_DYNBUFFERS; ++i)
@@ -1064,6 +1109,8 @@ CreateDynamicBuffers(void)
 		vk_dynUniformBuffers[i].pMappedData = buffer_map(&vk_dynUniformBuffers[i].resource);
 		// create descriptor set for the uniform buffer
 		CreateUboDescriptorSet(&vk_uboDescriptorSets[i], vk_dynUniformBuffers[i].resource.buffer);
+		// create descriptor set for fog parameters
+		CreateFogDescriptorSet(&vk_fogDescriptorSets[i], vk_dynUniformBuffers[i].resource.buffer);
 
 		QVk_DebugSetObjectName((uint64_t)vk_uboDescriptorSets[i],
 			VK_OBJECT_TYPE_DESCRIPTOR_SET, va("Dynamic UBO Descriptor Set #%d", i));
@@ -1319,6 +1366,17 @@ CreatePipelines(void)
 		vk_uboDescSetLayout,
 		vk_samplerLightmapDescSetLayout
 	};
+	const VkDescriptorSetLayout samplerUboFogDsLayouts[] = {
+		vk_samplerDescSetLayout,
+		vk_uboDescSetLayout,
+		vk_fogDescSetLayout
+	};
+	const VkDescriptorSetLayout samplerUboLmapFogDsLayouts[] = {
+		vk_samplerDescSetLayout,
+		vk_uboDescSetLayout,
+		vk_samplerLightmapDescSetLayout,
+		vk_fogDescSetLayout
+	};
 
 	// shader array (vertex and fragment, no compute... yet)
 	qvkshader_t shaders[SHADER_INDEX_SIZE] = {0};
@@ -1328,7 +1386,7 @@ CreatePipelines(void)
 	for (int i = 0; i < RP_COUNT; ++i)
 	{
 		vk_drawTexQuadPipeline[i].depthTestEnable = VK_FALSE;
-		QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoRG_RG, &vk_drawTexQuadPipeline[i], &vk_renderpasses[i], shaders, 2);
+		QVk_CreatePipeline(samplerUboFogDsLayouts, 3, &vertInfoRG_RG, &vk_drawTexQuadPipeline[i], &vk_renderpasses[i], shaders, 2);
 		QVk_DebugSetObjectName((uint64_t)vk_drawTexQuadPipeline[i].layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT,
 			va("Pipeline Layout: textured quad (%s)", renderpassObjectNames[i]));
 		QVk_DebugSetObjectName((uint64_t)vk_drawTexQuadPipeline[i].pl, VK_OBJECT_TYPE_PIPELINE,
@@ -1339,7 +1397,7 @@ CreatePipelines(void)
 	{
 		vk_drawTexQuadTintedPipeline[i].depthTestEnable = VK_FALSE;
 		vk_drawTexQuadTintedPipeline[i].blendOpts.blendEnable = VK_TRUE;
-		QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoRG_RG,
+		QVk_CreatePipeline(samplerUboDsLayouts, 3, &vertInfoRG_RG,
 			&vk_drawTexQuadTintedPipeline[i], &vk_renderpasses[i], shaders, 2);
 		QVk_DebugSetObjectName((uint64_t)vk_drawTexQuadTintedPipeline[i].layout,
 			VK_OBJECT_TYPE_PIPELINE_LAYOUT,
@@ -1392,7 +1450,7 @@ CreatePipelines(void)
 	for (int i = 0; i < RP_COUNT; ++i)
 	{
 		vk_drawModelPipelineFan[i].topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-		QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoRGB_RGBA_RG, &vk_drawModelPipelineFan[i], &vk_renderpasses[i], shaders, 2);
+		QVk_CreatePipeline(samplerUboFogDsLayouts, 3, &vertInfoRGB_RGBA_RG, &vk_drawModelPipelineFan[i], &vk_renderpasses[i], shaders, 2);
 		QVk_DebugSetObjectName((uint64_t)vk_drawModelPipelineFan[i].layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT,
 			va("Pipeline Layout: draw model: fan (%s)", renderpassObjectNames[i]));
 		QVk_DebugSetObjectName((uint64_t)vk_drawModelPipelineFan[i].pl, VK_OBJECT_TYPE_PIPELINE,
@@ -1436,14 +1494,14 @@ CreatePipelines(void)
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon, basic);
 	vk_drawPolyPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	vk_drawPolyPipeline.blendOpts.blendEnable = VK_TRUE;
-	QVk_CreatePipeline(samplerUboDsLayouts, 2, &vertInfoMEM_VERTEX_T, &vk_drawPolyPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
+	QVk_CreatePipeline(samplerUboFogDsLayouts, 3, &vertInfoMEM_VERTEX_T, &vk_drawPolyPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: polygon");
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: polygon");
 
 	// draw lightmapped polygon
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon_lmap, polygon_lmap);
 	vk_drawPolyLmapPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-	QVk_CreatePipeline(samplerUboLmapDsLayouts, 3, &vertInfoMEM_VERTEX_T,
+	QVk_CreatePipeline(samplerUboLmapFogDsLayouts, 4, &vertInfoMEM_VERTEX_T,
 		&vk_drawPolyLmapPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyLmapPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: lightmapped polygon");
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyLmapPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: lightmapped polygon");
@@ -1452,7 +1510,7 @@ CreatePipelines(void)
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon_warp, basic);
 	vk_drawPolyWarpPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	vk_drawPolyWarpPipeline.blendOpts.blendEnable = VK_TRUE;
-	QVk_CreatePipeline(samplerUboLmapDsLayouts, 2, &vertInfoMEM_VERTEX_T,
+	QVk_CreatePipeline(samplerUboFogDsLayouts, 3, &vertInfoMEM_VERTEX_T,
 		&vk_drawPolyWarpPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyWarpPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: warped polygon (liquids)");
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyWarpPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: warped polygon (liquids)");
@@ -2687,6 +2745,12 @@ QVk_GetUniformBuffer(VkDeviceSize size, uint32_t *dstOffset, VkDescriptorSet *ds
 		vk_config.uniform_buffer_max_usage = vk_config.uniform_buffer_usage;
 
 	return (uint8_t *)vk_dynUniformBuffers[vk_activeDynBufferIdx].pMappedData + (*dstOffset);
+}
+
+VkDescriptorSet
+QVk_GetFogDescriptorSet(void)
+{
+	return vk_fogDescriptorSets[vk_activeDynBufferIdx];
 }
 
 uint8_t *

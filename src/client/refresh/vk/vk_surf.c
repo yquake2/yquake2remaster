@@ -29,6 +29,8 @@
 
 #include "header/local.h"
 
+extern uint32_t vk_fogOffset;
+
 int c_visible_lightmaps;
 int c_visible_textures;
 static vec3_t modelorg; /* relative to viewpoint */
@@ -67,7 +69,8 @@ DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 
 	VkDescriptorSet descriptorSets[] = {
 		texture->vk_texture.descriptorSet,
-		uboDescriptorSet
+		uboDescriptorSet,
+		QVk_GetFogDescriptorSet()
 	};
 
 	float gamma = 2.1F - vid_gamma->value;
@@ -80,7 +83,7 @@ DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 	buffer = UpdateIndexBuffer(vertIdxData, (p->numverts - 2) * 3 * sizeof(uint16_t), &dstOffset);
 
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawPolyPipeline.layout, 0, 2, descriptorSets, 1, &uboOffset);
+		vk_drawPolyPipeline.layout, 0, 3, descriptorSets, 2, (uint32_t[]){uboOffset, vk_fogOffset});
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
@@ -653,11 +656,12 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	VkDescriptorSet descriptorSets[] = {
 		image->vk_texture.descriptorSet,
 		*uboDescriptorSet,
-		vk_state.lightmap_textures[lmtex].descriptorSet
+		vk_state.lightmap_textures[lmtex].descriptorSet,
+		QVk_GetFogDescriptorSet()
 	};
 
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, uboOffset);
+		vk_drawPolyLmapPipeline.layout, 0, 4, descriptorSets, 2, (uint32_t[]){*uboOffset, vk_fogOffset});
 
 	buffer = UpdateIndexBuffer(vertIdxData, index_pos * sizeof(uint16_t), &dstOffset);
 
