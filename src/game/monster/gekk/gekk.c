@@ -207,7 +207,7 @@ gekk_step(edict_t *self)
 		return;
 	}
 
-	n = (rand() + 1) % 3;
+	n = (randk() + 1) % 3;
 
 	if (n == 0)
 	{

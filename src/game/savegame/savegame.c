@@ -1004,6 +1004,24 @@ WriteGameLocals(FILE *f, qboolean autosave)
 	sg_fwrite(&temp, sizeof(temp), f);
 }
 
+static void
+WriteItemsNames(FILE *f)
+{
+	size_t i;
+
+	for (i = 0; i < itemlist_len; i++)
+	{
+		if (itemlist[i].classname)
+		{
+			char temp[MAX_QPATH + 1] = {0};
+
+			Q_strlcpy(temp, itemlist[i].classname, sizeof(temp));
+
+			sg_fwrite(&temp, sizeof(temp) - 1 /* MAX_QPATH */, f);
+		}
+	}
+}
+
 void
 WriteGame(const char *filename, qboolean autosave)
 {
@@ -1030,6 +1048,9 @@ WriteGame(const char *filename, qboolean autosave)
 	{
 		WriteClient(f, &game.clients[i]);
 	}
+
+	/* Save items names */
+	WriteItemsNames(f);
 
 	fclose(f);
 }
@@ -1144,6 +1165,35 @@ SanitizeGameStruct(void)
 	game.spawnpoint[sizeof(game.spawnpoint) - 1] = 0;
 }
 
+static void
+ReadItemsNames(FILE *f)
+{
+	size_t i;
+
+	for (i = 0; i < itemlist_len; i++)
+	{
+		if (feof(f))
+		{
+			/* no more names in save file */
+			return;
+		}
+
+		if (itemlist[i].classname)
+		{
+			char temp[MAX_QPATH + 1];
+
+			sg_fread(&temp, sizeof(temp) - 1 /* MAX_QPATH */, f);
+			temp[sizeof(temp) - 1] = 0;
+
+			if (strncmp(temp, itemlist[i].classname, sizeof(temp) - 1))
+			{
+				gi.error("%s: mismatch items class %d %s != %s\n",
+					__func__, i, itemlist[i].classname, temp);
+			}
+		}
+	}
+}
+
 void
 ReadGame(const char *filename)
 {
@@ -1189,6 +1239,9 @@ ReadGame(const char *filename)
 	{
 		ReadClient(f, &game.clients[i], save_ver);
 	}
+
+	/* Read and recheck items class names */
+	ReadItemsNames(f);
 
 	fclose(f);
 }
