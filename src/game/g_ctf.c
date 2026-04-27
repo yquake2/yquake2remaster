@@ -2273,6 +2273,7 @@ CTFScoreboardMessage(edict_t *ent, edict_t *killer)
 		{
 			cl_ent = g_edicts + 1 + i;
 			cl = &game.clients[i];
+			*entry = 0;
 
 			if (!cl_ent->inuse ||
 				(cl_ent->solid != SOLID_NOT) ||
