@@ -3728,3 +3728,256 @@ Weapon_FlareGun(edict_t *ent)
 	Weapon_Generic(ent, 8, 13, 49, 53, pause_frames,
 		fire_frames, weapon_flaregun_fire);
 }
+
+#if 0
+/*
+================
+bball_think
+Handles the bolt’s ongoing visual effects and lifetime.
+================
+*/
+void bball_think(edict_t *self)
+{
+    if (level.time <= self->saved_frame && !self->groundentity)
+    {
+        vec3_t forward, start;
+
+        // derive direction from movedir
+        vectoangles(self->movedir, start);
+        AngleVectors(start, forward, NULL, NULL);
+
+        // effect trail behind projectile
+        VectorMA(self->s.origin, -10.0f, forward, start);
+        gi.WriteByte(svc_temp_entity);
+        gi.WriteByte(TE_LIGHTNING);
+        gi.WriteByte(8);
+        gi.WritePosition(start);
+        gi.WriteDir(self->movedir);
+        gi.WriteByte(0x777bcfb0);
+        gi.multicast(self->s.origin, MULTICAST_PVS);
+
+        // repeat trail at different offsets
+        VectorMA(self->s.origin, -35.0f, forward, start);
+        gi.WriteByte(svc_temp_entity);
+        gi.WriteByte(TE_LIGHTNING);
+        gi.WriteByte(8);
+        gi.WritePosition(start);
+        gi.WriteDir(self->movedir);
+        gi.WriteByte(0x777bcfb0);
+        gi.multicast(self->s.origin, MULTICAST_PVS);
+
+        VectorMA(self->s.origin, -60.0f, forward, start);
+        gi.WriteByte(svc_temp_entity);
+        gi.WriteByte(TE_LIGHTNING);
+        gi.WriteByte(8);
+        gi.WritePosition(start);
+        gi.WriteDir(self->movedir);
+        gi.WriteByte(0x777bcfb0);
+        gi.multicast(self->s.origin, MULTICAST_PVS);
+
+        self->think = bball_think;
+        self->nextthink = level.time + 0.1f;
+    }
+    else
+    {
+        G_FreeEdict(self);
+    }
+}
+
+/*
+================
+bball_touch
+Handles collision of the bolt with world or entities.
+================
+*/
+void bball_touch(edict_t *self, edict_t *other, cplane_t *plane, csurface_t *surf)
+{
+    edict_t *owner = self->owner;
+
+    if (other == owner)
+        return;
+
+    // kill if hit sky
+    if (surf && (surf->flags & SURF_SKY))
+    {
+        G_FreeEdict(self);
+        return;
+    }
+
+    // noise for AI
+    if (owner->client)
+        PlayerNoise(owner, self->s.origin, PNOISE_IMPACT);
+
+    // change model to discharge effect
+    self->s.modelindex = gi.modelindex("models/objects/disch2/tris.md2");
+    self->think = disch2_think;
+    self->nextthink = level.time + 0.1f;
+
+    gi.WriteByte(svc_temp_entity);
+    gi.WriteByte(TE_EXPLOSION);
+    gi.WritePosition(self->s.origin);
+    gi.WriteDir(self->movedir);
+    gi.WriteByte(0x777bcfb0);
+    gi.multicast(self->s.origin, MULTICAST_PVS);
+
+    gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/lashit.wav"), 1.0, ATTN_NORM, 0);
+
+    self->movetype = MOVETYPE_NONE;
+    self->solid = SOLID_NOT;
+    self->touch = NULL;
+    VectorClear(self->velocity);
+
+    // apply radius damage
+    T_RadiusDamage(self, owner, self->dmg, owner, self->dmg * 3, MOD_UNKNOWN);
+}
+
+/*
+================
+Throw_Bolt
+Spawns and launches the bolt projectile.
+================
+*/
+void Throw_Bolt(edict_t *owner, vec3_t start, vec3_t dir, edict_t *target,
+                int speed, float damage, int kick, float radius)
+{
+    edict_t *bolt;
+
+    VectorNormalize(dir);
+
+    bolt = G_Spawn();
+    bolt->owner = owner;
+
+    VectorCopy(start, bolt->s.origin);
+    VectorCopy(start, bolt->s.old_origin);
+    vectoangles(dir, bolt->s.angles);
+
+    VectorScale(dir, speed, bolt->velocity);
+    VectorCopy(dir, bolt->movedir);
+
+    bolt->movetype = MOVETYPE_FLYMISSILE;
+    bolt->clipmask = MASK_SHOT;
+    bolt->solid = SOLID_BBOX;
+
+    bolt->avelocity[0] = rand() % 360;
+    bolt->avelocity[1] = rand() % 360;
+    bolt->avelocity[2] = rand() % 360;
+
+    bolt->s.effects |= EF_ROCKET;
+    VectorClear(bolt->mins);
+    VectorClear(bolt->maxs);
+
+    bolt->s.modelindex = gi.modelindex("models/objects/bball/tris.md2");
+    bolt->s.sound = gi.soundindex("misc/lasfly.wav");
+
+    bolt->touch = bball_touch;
+    bolt->think = bball_think;
+    bolt->nextthink = level.time + 0.1f;
+    bolt->saved_frame = level.time + 5; // lifespan
+    bolt->dmg = damage;
+    bolt->classname = "bolt";
+
+    gi.linkentity(bolt);
+
+    check_dodge(target, start, dir, radius);
+
+    if (damage < 1.0f)
+    {
+        VectorMA(bolt->s.origin, -10.0f, dir, bolt->s.origin);
+        bball_touch(bolt, NULL, NULL, NULL);
+    }
+}
+
+/*
+================
+Pistol_Fire
+Fires the pistol bolt.
+================
+*/
+void Pistol_Fire(edict_t *self)
+{
+    vec3_t start, forward, right;
+    vec3_t offset = {0, 0, self->viewheight - 5};
+
+    AngleVectors(self->client->v_angle, forward, right, NULL);
+    P_ProjectSource(self->client, self->s.origin, offset, forward, right, start);
+
+    VectorScale(forward, -2.0f, self->client->kick_origin);
+    self->client->v_dmg_pitch = -1.0f;
+
+    Throw_Bolt(self, start, forward, NULL, 1000, 20, 0, 16.0f);
+
+    gi.WriteByte(svc_muzzleflash);
+    gi.WriteShort(self - g_edicts);
+    gi.WriteByte(MZ_MACHINEGUN);
+    gi.multicast(self->s.origin, MULTICAST_PVS);
+
+    PlayerNoise(self, start, PNOISE_WEAPON);
+    self->client->ps.gunframe++;
+}
+
+/*
+================
+Weapon_Pistol
+Registers pistol weapon behavior.
+================
+*/
+void Weapon_Pistol(edict_t *self)
+{
+    static int pause_frames[] = {13, 40, 0};
+    static int fire_frames[] = {5, 0};
+
+    if (self->client)
+        Weapon_Generic(self, 4, 8, 52, 55, pause_frames, fire_frames, Pistol_Fire);
+}
+//
+// Temp entity service IDs
+//
+#define SVC_TEMP_ENTITY     3
+#define SVC_MUZZLEFLASH     1
+
+//
+// Temp entity types
+//
+#define TE_LIGHTNING        15
+#define TE_EXPLOSION        28
+
+//
+// Muzzleflash types
+//
+#define MZ_MACHINEGUN       0   // example, matches Quake II table
+
+//
+// Effects
+//
+#define EF_ROCKET           0x400000
+
+//
+// Damage mods
+//
+#define MOD_BOLT            50  // custom mod for bolt weapon
+
+// bball_think
+gi.WriteByte(SVC_TEMP_ENTITY);
+gi.WriteByte(TE_LIGHTNING);
+gi.WriteByte(8);
+gi.WritePosition(start);
+gi.WriteDir(self->movedir);
+gi.WriteByte(MOD_BOLT);
+gi.multicast(self->s.origin, MULTICAST_PVS);
+
+// bball_touch
+gi.WriteByte(SVC_TEMP_ENTITY);
+gi.WriteByte(TE_EXPLOSION);
+gi.WritePosition(self->s.origin);
+gi.WriteDir(self->movedir);
+gi.WriteByte(MOD_BOLT);
+gi.multicast(self->s.origin, MULTICAST_PVS);
+
+gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/lashit.wav"), 1.0, ATTN_NORM, 0);
+
+// Pistol_Fire
+gi.WriteByte(SVC_MUZZLEFLASH);
+gi.WriteShort(self - g_edicts);
+gi.WriteByte(MZ_MACHINEGUN);
+gi.multicast(self->s.origin, MULTICAST_PVS);
+#endif
