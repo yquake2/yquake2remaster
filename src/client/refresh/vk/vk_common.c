@@ -148,6 +148,7 @@ qvkpipeline_t vk_drawNullModelPipeline = QVKPIPELINE_INIT;
 qvkpipeline_t vk_drawParticlesPipeline = QVKPIPELINE_INIT;
 qvkpipeline_t vk_drawPointParticlesPipeline = QVKPIPELINE_INIT;
 qvkpipeline_t vk_drawSpritePipeline = QVKPIPELINE_INIT;
+qvkpipeline_t vk_drawSpriteFlaresPipeline = QVKPIPELINE_INIT;
 qvkpipeline_t vk_drawPolyPipeline = QVKPIPELINE_INIT;
 qvkpipeline_t vk_drawPolyLmapPipeline = QVKPIPELINE_INIT;
 qvkpipeline_t vk_drawPolyWarpPipeline = QVKPIPELINE_INIT;
@@ -1418,6 +1419,17 @@ CreatePipelines(void)
 	QVk_CreatePipeline(&vk_samplerDescSetLayout, 1, &vertInfoRGB_RG, &vk_drawSpritePipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawSpritePipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: sprite");
 	QVk_DebugSetObjectName((uint64_t)vk_drawSpritePipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: sprite");
+
+	// draw sprite flares pipeline (additive blend)
+	VK_LOAD_VERTFRAG_SHADERS(shaders, sprite, basic);
+	vk_drawSpriteFlaresPipeline.blendOpts.blendEnable = VK_TRUE;
+	vk_drawSpriteFlaresPipeline.blendOpts.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	vk_drawSpriteFlaresPipeline.blendOpts.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+	vk_drawSpriteFlaresPipeline.blendOpts.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	vk_drawSpriteFlaresPipeline.blendOpts.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	QVk_CreatePipeline(&vk_samplerDescSetLayout, 1, &vertInfoRGB_RG, &vk_drawSpriteFlaresPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
+	QVk_DebugSetObjectName((uint64_t)vk_drawSpriteFlaresPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: sprite flares");
+	QVk_DebugSetObjectName((uint64_t)vk_drawSpriteFlaresPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: sprite flares");
 
 	// draw polygon pipeline
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon, basic);

@@ -157,9 +157,28 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 						  spriteQuad[2][0], spriteQuad[2][1], spriteQuad[2][2], 1.f, 0.f,
 						  spriteQuad[3][0], spriteQuad[3][1], spriteQuad[3][2], 1.f, 1.f };
 
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawSpritePipeline.layout,
-		VK_SHADER_STAGE_VERTEX_BIT, sizeof(r_viewproj_matrix), sizeof(float), &alpha);
-	QVk_BindPipeline(&vk_drawSpritePipeline);
+	/* Handle RF_FLARE: additive blend with entity color */
+	if (currententity->flags & RF_FLARE)
+	{
+		YQ2_ALIGNAS_TYPE(unsigned) byte color[4];
+		float spriteColor[4];
+
+		*(unsigned *)color = currententity->color;
+		spriteColor[0] = color[0] / 255.0f;
+		spriteColor[1] = color[1] / 255.0f;
+		spriteColor[2] = color[2] / 255.0f;
+		spriteColor[3] = alpha;
+
+		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawSpriteFlaresPipeline.layout,
+			VK_SHADER_STAGE_VERTEX_BIT, sizeof(r_viewproj_matrix), sizeof(float) * 4, spriteColor);
+		QVk_BindPipeline(&vk_drawSpriteFlaresPipeline);
+	}
+	else
+	{
+		vkCmdPushConstants(vk_activeCmdbuffer, vk_drawSpritePipeline.layout,
+			VK_SHADER_STAGE_VERTEX_BIT, sizeof(r_viewproj_matrix), sizeof(float), &alpha);
+		QVk_BindPipeline(&vk_drawSpritePipeline);
+	}
 
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
@@ -1174,7 +1193,7 @@ R_SetMode(void)
 RE_Init
 ===============
 */
-static qboolean 
+static qboolean
 RE_Init(void)
 {
 	Com_Printf("Refresh: " REF_VERSION "\n");

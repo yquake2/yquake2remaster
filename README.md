@@ -308,7 +308,7 @@ Checked with:
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
-* [ ] soft, vulkan: implement color multiplication and alpha combine or make black
+* [ ] soft: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [ ] ReRelease: single player support,
 * [ ] ReRelease: support effects and additional flags when possible,
@@ -339,7 +339,9 @@ Checked with:
 
 ### Fixed:
 
-* [x] Rerelease: fix vulkan render on open door in mguhub,
+* [x] vulkan: implement color multiplication and alpha combine or make black
+      parts transparent for `misc_flare`,
+* [x] ReRelease: fix vulkan render on open door in mguhub,
 * [x] gl1: reuse R_MakeSkyVec,
 * [x] Anachronox: rowdys save entity disappear in a8080c05,
 * [x] gl4: add fog distance effect,
