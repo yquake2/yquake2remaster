@@ -275,6 +275,7 @@ typedef enum
 {
 	CALL_COLOR,
 	CALL_TEX,
+	CALL_TINT,
 } calltype_t;
 
 static int draw2dcolor_num = 0;
@@ -2829,7 +2830,7 @@ QVk_Draw2DCallsRender(void)
 			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
 	}
-	else if (draw2dcolor_calltype == CALL_TEX)
+	else if (draw2dcolor_calltype == CALL_TEX || draw2dcolor_calltype == CALL_TINT)
 	{
 		VkDescriptorSet uboDescriptorSet;
 		VkDeviceSize vboOffset, vertSize;
@@ -2838,16 +2839,34 @@ QVk_Draw2DCallsRender(void)
 		uint32_t uboOffset;
 		float gamma = 2.1F - vid_gamma->value;
 		float dummy[PUSH_CONSTANT_VERTEX_SIZE] = {0};
+		qvkpipeline_t *pipeline;
 
-		float imgTransform[] = {
-			0, 0, 1.0, 1.0,
-			0, 0, 1.0, 1.0
-		};
+		if (draw2dcolor_calltype == CALL_TEX)
+		{
+			float imgTransform[] = {
+				0, 0, 1.0, 1.0,
+				0, 0, 1.0, 1.0
+			};
 
-		uboData = QVk_GetUniformBuffer(sizeof(imgTransform), &uboOffset, &uboDescriptorSet);
-		memcpy(uboData, imgTransform, sizeof(imgTransform));
+			uboData = QVk_GetUniformBuffer(sizeof(imgTransform), &uboOffset, &uboDescriptorSet);
+			memcpy(uboData, imgTransform, sizeof(imgTransform));
+			pipeline = &vk_drawTexQuadPipeline[vk_state.current_renderpass];
+		}
+		else
+		{
+			float imgTransform[] = {
+				0, 0, 1.0, 1.0,
+				0, 0, 1.0, 1.0,
+				draw2dcolor_r, draw2dcolor_g, draw2dcolor_b, draw2dcolor_a
+			};
 
-		QVk_BindPipeline(&vk_drawTexQuadPipeline[vk_state.current_renderpass]);
+			uboData = QVk_GetUniformBuffer(sizeof(imgTransform), &uboOffset, &uboDescriptorSet);
+			memcpy(uboData, imgTransform, sizeof(imgTransform));
+
+			pipeline = &vk_drawTexQuadTintedPipeline[vk_state.current_renderpass];
+		}
+
+		QVk_BindPipeline(pipeline);
 		VkDescriptorSet descriptorSets[] = {
 			draw2dcolor_texture->descriptorSet,
 			uboDescriptorSet
@@ -2922,30 +2941,11 @@ QVk_DrawColorRect(float x, float y, float w, float h, float r, float g, float b,
 	}
 }
 
-
-void
-QVk_DrawTexRect(float x, float y, float w, float h,
-	float u, float v, float us, float vs, const qvktexture_t *texture)
+static void
+QVk_StoreTextCoords(float x, float y, float w, float h,
+	float u, float v, float us, float vs)
 {
 	float *last;
-
-	if (draw2dcolor_num && (
-		(draw2dcolor_calltype != CALL_TEX) ||
-		(draw2dcolor_num >= MAXDRAWCALLS) ||
-		(draw2dcolor_rpType != vk_state.current_renderpass) ||
-		(draw2dcolor_texture != texture)
-	))
-	{
-		QVk_Draw2DCallsRender();
-	}
-
-	if (!draw2dcolor_num)
-	{
-		/* different call draws */
-		draw2dcolor_texture = texture;
-		draw2dcolor_rpType = vk_state.current_renderpass;
-		draw2dcolor_calltype = CALL_TEX;
-	}
 
 	/* save new row */
 	last = draw2dcolor_calls + draw2dcolor_num * 16;
@@ -2970,66 +2970,61 @@ QVk_DrawTexRect(float x, float y, float w, float h,
 }
 
 void
+QVk_DrawTexRect(float x, float y, float w, float h,
+	float u, float v, float us, float vs, const qvktexture_t *texture)
+{
+	if (draw2dcolor_num && (
+		(draw2dcolor_calltype != CALL_TEX) ||
+		(draw2dcolor_num >= MAXDRAWCALLS) ||
+		(draw2dcolor_rpType != vk_state.current_renderpass) ||
+		(draw2dcolor_texture != texture)
+	))
+	{
+		QVk_Draw2DCallsRender();
+	}
+
+	if (!draw2dcolor_num)
+	{
+		/* different call draws */
+		draw2dcolor_texture = texture;
+		draw2dcolor_rpType = vk_state.current_renderpass;
+		draw2dcolor_calltype = CALL_TEX;
+	}
+
+	QVk_StoreTextCoords(x, y, w, h, u, v, us, vs);
+}
+
+void
 QVk_DrawTexRectTinted(float x, float y, float w, float h,
 	float u, float v, float us, float vs,
 	float r, float g, float b, float a,
 	const qvktexture_t *texture)
 {
-	VkDescriptorSet uboDescriptorSet;
-	VkDeviceSize vboOffset, vertSize;
-	uint8_t *vertData, *uboData;
-	VkDescriptorSet descriptorSets[2];
-	VkBuffer vbo;
-	uint32_t uboOffset;
-	float gamma = 2.1f - vid_gamma->value;
-	float dummy[PUSH_CONSTANT_VERTEX_SIZE] = {0};
-
-	/* offset, scale, uvOffset, uvScale, tintColor */
-	float imgTransform[12] = {
-		0, 0, 1.0f, 1.0f,
-		0, 0, 1.0f, 1.0f,
-		r, g, b, a
-	};
-
-	/* one quad: 4 verts * (vec2 pos, vec2 uv) */
-	float verts[16] = {
-		x * 2 - 1,       y * 2 - 1,       u,      v,
-		(x + w) * 2 - 1, (y + h) * 2 - 1, u + us, v + vs,
-		x * 2 - 1,       (y + h) * 2 - 1, u,      v + vs,
-		(x + w) * 2 - 1, y * 2 - 1,       u + us, v
-	};
-
-	/* flush any pending batched 2D calls first */
-	if (draw2dcolor_num)
+	if (draw2dcolor_num && (
+		(draw2dcolor_calltype != CALL_TINT) ||
+		(draw2dcolor_num >= MAXDRAWCALLS) ||
+		(draw2dcolor_rpType != vk_state.current_renderpass) ||
+		(draw2dcolor_texture != texture) ||
+		(draw2dcolor_r != r) || (draw2dcolor_g != g) ||
+		(draw2dcolor_b != b) || (draw2dcolor_a != a)
+	))
+	{
 		QVk_Draw2DCallsRender();
+	}
 
-	uboData = QVk_GetUniformBuffer(sizeof(imgTransform),
-		&uboOffset, &uboDescriptorSet);
-	memcpy(uboData, imgTransform, sizeof(imgTransform));
+	if (!draw2dcolor_num)
+	{
+		/* different call draws */
+		draw2dcolor_texture = texture;
+		draw2dcolor_r = r;
+		draw2dcolor_g = g;
+		draw2dcolor_b = b;
+		draw2dcolor_a = a;
+		draw2dcolor_rpType = vk_state.current_renderpass;
+		draw2dcolor_calltype = CALL_TINT;
+	}
 
-	vertSize = sizeof(verts);
-	vertData = QVk_GetVertexBuffer(vertSize, &vbo, &vboOffset);
-	memcpy(vertData, verts, vertSize);
-
-	QVk_BindPipeline(&vk_drawTexQuadTintedPipeline[vk_state.current_renderpass]);
-
-	descriptorSets[0] = texture->descriptorSet;
-	descriptorSets[1] = uboDescriptorSet;
-
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_worldWarpPipeline.layout,
-		VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(dummy), dummy);
-	vkCmdPushConstants(vk_activeCmdbuffer, vk_drawTexQuadTintedPipeline[vk_state.current_renderpass].layout,
-		VK_SHADER_STAGE_FRAGMENT_BIT,
-		PUSH_CONSTANT_VERTEX_SIZE * sizeof(float),
-		sizeof(gamma), &gamma);
-
-	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawTexQuadTintedPipeline[vk_state.current_renderpass].layout,
-		0, 2, descriptorSets, 1, &uboOffset);
-	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-	vkCmdBindIndexBuffer(vk_activeCmdbuffer, vk_rectIbo.resource.buffer,
-		vk_rectIboffet, VK_INDEX_TYPE_UINT16);
-	vkCmdDrawIndexed(vk_activeCmdbuffer, 6, 1, 0, 0, 0);
+	QVk_StoreTextCoords(x, y, w, h, u, v, us, vs);
 }
 
 void
