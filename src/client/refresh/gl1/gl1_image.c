@@ -262,7 +262,7 @@ R_TextureMode(const char *string)
 
 	if (i == NUM_GL_MODES)
 	{
-		Com_Printf("bad filter name\n");
+		Com_Printf("bad filter name '%s' (probably from gl_texturemode)\n", string);
 		return;
 	}
 
@@ -385,8 +385,8 @@ void
 R_ImageList_f(void)
 {
 	int i, used, texels;
+	qboolean freeup;
 	image_t *image;
-	qboolean	freeup;
 	const char *palstrings[2] = {
 		"RGB",
 		"PAL"
@@ -794,6 +794,7 @@ R_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
 				Q_max(r_anisotropic->value, 1.f));
 	}
+
 	return res;
 }
 

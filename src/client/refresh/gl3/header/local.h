@@ -307,7 +307,7 @@ typedef struct image_s
 	struct msurface_s *texturechain;    /* for sort-by-texture world drawing */
 	GLuint texnum;                      /* gl texture binding */
 	float sl, tl, sh, th;               /* 0,0 - 1,1 unless part of the scrap */
-	// qboolean scrap; // currently unused
+	qboolean scrap;
 	qboolean has_alpha;
 	qboolean is_lava; // DG: added for lava brightness hack
 

@@ -54,6 +54,7 @@ GL3_TextureMode(char *string)
 {
 	const int num_modes = ARRLEN(modes);
 	int i;
+	gl3image_t *glt;
 
 	for (i = 0; i < num_modes; i++)
 	{
@@ -84,8 +85,6 @@ GL3_TextureMode(char *string)
 	{
 		ri.Cvar_SetValue("r_anisotropic", 0.0);
 	}
-
-	gl3image_t *glt;
 
 	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
@@ -184,6 +183,107 @@ GL3_BindLightmap(int lightmapnum)
 	}
 }
 
+static qboolean
+IsNPOT(int v)
+{
+	unsigned int uv = v;
+	// just try all the power of two values between 1 and 1 << 15 (32k)
+	for (unsigned int i = 0; i < 16; ++i)
+	{
+		unsigned int pot = (1u << i);
+		if (uv & pot)
+		{
+			return uv != pot;
+		}
+	}
+
+	return true;
+}
+
+void
+GL3_ImageList_f(void)
+{
+	int i, used, texels;
+	qboolean freeup;
+	gl3image_t *image;
+	const char *formatstrings[2] = {
+		"RGB ",
+		"RGBA"
+	};
+
+	const char* potstrings[2] = {
+		" POT", "NPOT"
+	};
+
+	Com_Printf("------------------\n");
+	texels = 0;
+	used = 0;
+
+	for (i = 0, image = gl3textures; i < numgl3textures; i++, image++)
+	{
+		qboolean isNPOT = false;
+		int w, h;
+		const char *in_use = "", *scrap = "";
+
+		if (image->texnum == 0)
+		{
+			continue;
+		}
+
+		if (image->registration_sequence == registration_sequence)
+		{
+			in_use = "*";
+			used++;
+		}
+
+		if (image->scrap)
+		{
+			scrap = "scrap";
+		}
+
+		w = image->width;
+		h = image->height;
+
+		isNPOT = IsNPOT(w) || IsNPOT(h);
+
+		texels += w*h;
+
+		char imageType = '?';
+		switch (image->type)
+		{
+			case it_skin:
+				imageType = 'M';
+				break;
+			case it_sprite:
+				imageType = 'S';
+				break;
+			case it_wall:
+				imageType = 'W';
+				break;
+			case it_pic:
+				imageType = 'P';
+				break;
+			case it_sky:
+				imageType = 'Y';
+				break;
+			default:
+				imageType = '?';
+				break;
+		}
+		char isLava = image->is_lava ? 'L' : ' ';
+
+		Com_Printf("%c%c %3i %3i %s %s: %s %s %s\n", imageType, isLava, w, h,
+			formatstrings[image->has_alpha], potstrings[isNPOT], image->name,
+			in_use, scrap);
+	}
+
+	Com_Printf("Total texel count (not counting mipmaps): %i\n",
+			texels);
+	freeup = GL3_ImageHasFreeSpace();
+	Com_Printf("Used %d of %d / %d images%s.\n",
+		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
+}
+
 /*
  * Returns has_alpha
  */
@@ -240,7 +340,6 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 	return res;
 }
 
-
 /*
  * Returns has_alpha
  */
@@ -269,21 +368,26 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
             int height, int realheight, size_t data_size,
             imagetype_t type, int bits)
 {
+	const char* nolerplist = r_nolerp_list->string;
+	const char* lerplist = r_lerp_list->string;
+	qboolean nolerp = false;
 	gl3image_t *image = NULL;
 	GLuint texNum=0;
 	int i;
 
-	qboolean nolerp = false;
 	if (r_2D_unfiltered->value && type == it_pic)
 	{
-		// if r_2D_unfiltered is true(ish), nolerp should usually be true,
-		// *unless* the texture is on the r_lerp_list
-		nolerp = (r_lerp_list->string == NULL) || (strstr(r_lerp_list->string, name) == NULL);
+		/*
+		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
+		 * *unless* the texture is on the r_lerp_list
+		 */
+		nolerp = (lerplist == NULL) || Utils_FilenameFiltered(name, lerplist, ' ');
 	}
-	else if (r_nolerp_list != NULL && r_nolerp_list->string != NULL)
+	else if (nolerplist != NULL)
 	{
-		nolerp = strstr(r_nolerp_list->string, name) != NULL;
+		nolerp = Utils_FilenameFiltered(name, nolerplist, ' ');
 	}
+
 	/* find a free gl3image_t */
 	for (i = 0, image = gl3textures; i < numgl3textures; i++, image++)
 	{
@@ -364,81 +468,8 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
 		}
 	}
 
-	image->is_lava = (strstr(name, "lava") != NULL);
-
-	// image->scrap = false; // TODO: reintroduce scrap? would allow optimizations in 2D rendering..
-
-	glGenTextures(1, &texNum);
-
-	image->texnum = texNum;
-
-	GL3_SelectTMU(GL_TEXTURE0);
-	GL3_Bind(texNum);
-
-	if (bits == 8)
-	{
-		// resize 8bit images only when we forced such logic
-		if (r_scale8bittextures->value)
-		{
-			byte *image_converted;
-			int scale = 2;
-
-			// scale 3 times if lerp image
-			if (!nolerp && (vid.height >= 240 * 3))
-				scale = 3;
-
-			image_converted = malloc(width * height * scale * scale);
-			if (!image_converted)
-				return NULL;
-
-			if (scale == 3) {
-				scale3x(pic, image_converted, width, height);
-			} else {
-				scale2x(pic, image_converted, width, height);
-			}
-
-			image->has_alpha = GL3_Upload8(image_converted, width * scale, height * scale,
-						(image->type != it_pic && image->type != it_sky));
-			free(image_converted);
-		}
-		else
-		{
-			image->has_alpha = GL3_Upload8(pic, width, height,
-						(image->type != it_pic && image->type != it_sky));
-		}
-	}
-	else
-	{
-		image->has_alpha = GL3_Upload32((unsigned *)pic, width, height,
-					(image->type != it_pic && image->type != it_sky));
-	}
-
-	if (realwidth && realheight)
-	{
-		if ((realwidth <= image->width) && (realheight <= image->height))
-		{
-			image->width = realwidth;
-			image->height = realheight;
-		}
-		else
-		{
-			Com_DPrintf(
-					"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
-					name, image->width, image->height, realwidth, realheight);
-		}
-	}
-
-	image->sl = 0;
-	image->sh = 1;
-	image->tl = 0;
-	image->th = 1;
-
-	if (nolerp)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-#if 0 // TODO: the scrap could allow batch rendering 2D stuff? not sure it's worth the hassle..
+// TODO: the scrap could allow batch rendering 2D stuff? not sure it's worth the hassle..
+#if 0
 	/* load little pics into the scrap */
 	if (!nolerp && (image->type == it_pic) && (bits == 8) &&
 		(image->width < 64) && (image->height < 64))
@@ -476,27 +507,57 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
 		image->th = (y + image->height - 0.01) / (float)BLOCK_WIDTH;
 	}
 	else
+#endif
 	{
-	nonscrap:
+		// nonscrap:
+		image->is_lava = (strstr(name, "lava") != NULL);
+
 		image->scrap = false;
-		image->texnum = TEXNUM_IMAGES + (image - gltextures);
-		R_Bind(image->texnum);
+
+		glGenTextures(1, &texNum);
+
+		image->texnum = texNum;
+
+		GL3_SelectTMU(GL_TEXTURE0);
+		GL3_Bind(texNum);
 
 		if (bits == 8)
 		{
-			image->has_alpha = R_Upload8(pic, width, height,
-						(image->type != it_pic && image->type != it_sky),
-						image->type == it_sky);
+			// resize 8bit images only when we forced such logic
+			if (r_scale8bittextures->value)
+			{
+				byte *image_converted;
+				int scale = 2;
+
+				// scale 3 times if lerp image
+				if (!nolerp && (vid.height >= 240 * 3))
+					scale = 3;
+
+				image_converted = malloc(width * height * scale * scale);
+				if (!image_converted)
+					return NULL;
+
+				if (scale == 3) {
+					scale3x(pic, image_converted, width, height);
+				} else {
+					scale2x(pic, image_converted, width, height);
+				}
+
+				image->has_alpha = GL3_Upload8(image_converted, width * scale, height * scale,
+							(image->type != it_pic && image->type != it_sky));
+				free(image_converted);
+			}
+			else
+			{
+				image->has_alpha = GL3_Upload8(pic, width, height,
+							(image->type != it_pic && image->type != it_sky));
+			}
 		}
 		else
 		{
-			image->has_alpha = R_Upload32((unsigned *)pic, width, height,
+			image->has_alpha = GL3_Upload32((unsigned *)pic, width, height,
 						(image->type != it_pic && image->type != it_sky));
 		}
-
-		image->upload_width = upload_width; /* after power of 2 and scales */
-		image->upload_height = upload_height;
-		image->paletted = uploaded_paletted;
 
 		if (realwidth && realheight)
 		{
@@ -524,7 +585,7 @@ GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		}
 	}
-#endif // 0
+
 	return image;
 }
 
@@ -535,8 +596,8 @@ gl3image_t *
 GL3_FindImage(const char *originname, imagetype_t type)
 {
 	char namewe[256], name[256] = {0};
-	gl3image_t *image;
 	const char* ext;
+	gl3image_t *image;
 	size_t len;
 	int i;
 
@@ -578,9 +639,9 @@ GL3_FindImage(const char *originname, imagetype_t type)
 		}
 	}
 
-	//
-	// load the pic from disk
-	//
+	/*
+	 * load the pic from disk
+	 */
 	image = (gl3image_t *)R_LoadImage(name, namewe, ext, type,
 		(loadimage_t)GL3_LoadPic);
 
@@ -606,8 +667,8 @@ GL3_RegisterSkin(const char *name)
 void
 GL3_FreeUnusedImages(void)
 {
-	int i;
 	gl3image_t *image;
+	int i;
 
 	/* never free r_notexture or particle texture */
 	gl3_notexture->registration_sequence = registration_sequence;
@@ -680,96 +741,4 @@ GL3_ShutdownImages(void)
 		glDeleteTextures(1, &image->texnum);
 		memset(image, 0, sizeof(*image));
 	}
-}
-
-static qboolean IsNPOT(int v)
-{
-	unsigned int uv = v;
-	// just try all the power of two values between 1 and 1 << 15 (32k)
-	for (unsigned int i=0; i<16; ++i)
-	{
-		unsigned int pot = (1u << i);
-		if (uv & pot)
-		{
-			return uv != pot;
-		}
-	}
-
-	return true;
-}
-
-void
-GL3_ImageList_f(void)
-{
-	int i, used, texels;
-	qboolean	freeup;
-	gl3image_t *image;
-	const char *formatstrings[2] = {
-		"RGB ",
-		"RGBA"
-	};
-
-	const char* potstrings[2] = {
-		" POT", "NPOT"
-	};
-
-	Com_Printf("------------------\n");
-	texels = 0;
-	used = 0;
-
-	for (i = 0, image = gl3textures; i < numgl3textures; i++, image++)
-	{
-		int w, h;
-		char *in_use = "";
-		qboolean isNPOT = false;
-		if (image->texnum == 0)
-		{
-			continue;
-		}
-
-		if (image->registration_sequence == registration_sequence)
-		{
-			in_use = "*";
-			used++;
-		}
-
-		w = image->width;
-		h = image->height;
-
-		isNPOT = IsNPOT(w) || IsNPOT(h);
-
-		texels += w*h;
-
-		char imageType = '?';
-		switch (image->type)
-		{
-			case it_skin:
-				imageType = 'M';
-				break;
-			case it_sprite:
-				imageType = 'S';
-				break;
-			case it_wall:
-				imageType = 'W';
-				break;
-			case it_pic:
-				imageType = 'P';
-				break;
-			case it_sky:
-				imageType = 'Y';
-				break;
-			default:
-				imageType = '?';
-				break;
-		}
-		char isLava = image->is_lava ? 'L' : ' ';
-
-		Com_Printf("%c%c %3i %3i %s %s: %s %s\n", imageType, isLava, w, h,
-		         formatstrings[image->has_alpha], potstrings[isNPOT], image->name, in_use);
-	}
-
-	Com_Printf("Total texel count (not counting mipmaps): %i\n", texels);
-	freeup = GL3_ImageHasFreeSpace();
-	Com_Printf("Used %d of %d / %d images%s.\n",
-		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
 }

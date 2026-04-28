@@ -616,7 +616,7 @@ Vk_ImageList_f(void)
 {
 	int i, used, texels;
 	image_t *image;
-	qboolean	freeup;
+	qboolean freeup;
 
 	Com_Printf("------------------\n");
 	texels = 0;
@@ -668,7 +668,8 @@ Vk_ImageList_f(void)
 			image->width, image->height, in_use, scrap);
 	}
 
-	Com_Printf("Total texel count (not counting mipmaps): %i in %d images\n", texels, img_loaded);
+	Com_Printf("Total texel count (not counting mipmaps): %i in %d images\n",
+			texels, img_loaded);
 	freeup = Vk_ImageHasFreeSpace();
 	Com_Printf("Used %d of %d / %d images%s.\n",
 		used, image_max, MAX_TEXTURES, freeup ? ", has free space" : "");
@@ -1303,8 +1304,8 @@ Vk_ImageHasFreeSpace(void)
 void
 Vk_FreeUnusedImages(void)
 {
-	int		i;
-	image_t	*image;
+	image_t *image;
+	int i;
 
 	if (Vk_ImageHasFreeSpace())
 	{
@@ -1458,4 +1459,3 @@ Vk_ShutdownImages(void)
 		QVk_ReleaseTexture(&vk_state.lightmap_textures[i], true);
 	}
 }
-

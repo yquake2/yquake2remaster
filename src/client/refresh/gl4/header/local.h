@@ -282,8 +282,6 @@ extern int c_brush_polys, c_alias_polys;
 
 extern qboolean IsHighDPIaware;
 
-extern vec3_t lightspot;
-
 /* NOTE: struct image_s* is what re.RegisterSkin() etc return so no gl4image_s!
  *       (I think the client only passes the pointer around and doesn't know the
  *        definition of this struct, so this being different from struct image_s
@@ -299,7 +297,7 @@ typedef struct image_s
 	struct msurface_s *texturechain;    /* for sort-by-texture world drawing */
 	GLuint texnum;                      /* gl texture binding */
 	float sl, tl, sh, th;               /* 0,0 - 1,1 unless part of the scrap */
-	// qboolean scrap; // currently unused
+	qboolean scrap;
 	qboolean has_alpha;
 	qboolean is_lava; // DG: added for lava brightness hack
 
@@ -332,6 +330,8 @@ extern float gl4depthmin, gl4depthmax;
 extern cplane_t frustum[4];
 
 extern vec3_t gl4_origin;
+
+extern vec3_t lightspot;
 
 extern gl4image_t *gl4_notexture; /* use for bad textures */
 extern gl4image_t *gl4_particletexture; /* little dot for particles */
@@ -441,7 +441,7 @@ GL4_SelectTMU(GLenum tmu)
 extern void GL4_TextureMode(char *string);
 extern void GL4_Bind(GLuint texnum);
 extern void GL4_BindLightmap(int lightmapnum);
-extern gl4image_t *GL4_LoadPic(char *name, byte *pic, int width, int realwidth,
+extern gl4image_t *GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
                                int height, int realheight, size_t data_size,
                                imagetype_t type, int bits);
 extern gl4image_t *GL4_FindImage(const char *name, imagetype_t type);

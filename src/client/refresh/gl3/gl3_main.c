@@ -507,6 +507,8 @@ GL3_Init(void)
 
 	registration_sequence = 1; // from R_InitImages() (everything else from there shouldn't be needed anymore)
 
+	Scrap_Init();
+
 	R_VertBufferInit();
 
 	GL3_Mod_Init();
