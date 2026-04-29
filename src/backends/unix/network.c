@@ -182,6 +182,10 @@ SockadrToNetadr(struct sockaddr_storage *s, netadr_t *a)
 			a->scope_id = s6->sin6_scope_id;
 		}
 	}
+	else
+	{
+		memset(a, 0, sizeof(*a));
+	}
 }
 
 void
@@ -547,6 +551,7 @@ NET_GetPacket(netsrc_t sock, netadr_t *net_from, sizebuf_t *net_message)
 		}
 
 		fromlen = sizeof(from);
+		memset(&from, 0, fromlen);
 		ret = recvfrom(net_socket, net_message->data, net_message->maxsize,
 				0, (struct sockaddr *)&from, &fromlen);
 
