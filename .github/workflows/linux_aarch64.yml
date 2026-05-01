@@ -69,6 +69,9 @@ jobs:
         if-no-files-found: error
     - name: Run Cppcheck
       run: |
+        sudo systemctl enable --now snapd.socket
+        # Wait for the seed to finish to avoid "unable to contact snap store"
+        until sudo snap wait system seed.loaded; do sleep 1; done
         sudo snap install cppcheck --edge
         /snap/bin/cppcheck -j 4 --enable=all --output-format=sarif \
           --output-file=cppcheck_results.sarif --inconclusive --library=posix \
