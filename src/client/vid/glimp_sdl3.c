@@ -184,23 +184,34 @@ CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 			   switch to it in exclusive fullscreen mode. */
 			SDL_DisplayMode closestMode;
 
-			if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, vid_rate->value, false, &closestMode) != true)
+			if (vid_rate->value > 0)
 			{
-				Com_Printf("SDL was unable to find a mode close to %ix%i@%f\n", w, h, vid_rate->value);
-
-				if (vid_rate->value != 0)
+				if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, vid_rate->value, true, &closestMode) != true)
 				{
+					Com_Printf("SDL was unable to find a mode close to %ix%i@%f\n", w, h, vid_rate->value);
 					Com_Printf("Retrying with desktop refresh rate\n");
 
-					if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, vid_rate->value, false, &closestMode) == true)
+					/* This is likely pointless. SDL3 walks the complete mode list
+					   when trying to find a matching mode. If it didn't find a
+					   refresh rate above something is very wrong it won't find
+					   one here either. */
+					if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, 0, true, &closestMode) == true)
 					{
-						Cvar_SetValue("vid_rate", 0);
+						Cvar_SetValue("vid_rate", -1);
 					}
 					else
 					{
 						Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
 						return false;
 					}
+				}
+			}
+			else
+			{
+				if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, 0, true, &closestMode) != true)
+				{
+					Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
+					return false;
 				}
 			}
 
