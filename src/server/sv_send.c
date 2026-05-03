@@ -148,7 +148,9 @@ SV_WereConnected(int cluster, int area2, const vec3_t origin,
 	    (mask[cluster >> 3] & (1 << (cluster & 7))))
 	{
 		if (CM_AreasConnected(area1, area2))
+		{
 			return true;
+		}
 	}
 
 	/* underwater retry stays dynamic */
@@ -166,7 +168,9 @@ SV_WereConnected(int cluster, int area2, const vec3_t origin,
 		    (mask[cluster2 >> 3] & (1 << (cluster2 & 7))))
 		{
 			if (CM_AreasConnected(area1, CM_LeafArea(leafnum2)))
+			{
 				return true;
+			}
 		}
 	}
 

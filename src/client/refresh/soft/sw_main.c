@@ -1410,7 +1410,7 @@ RE_BeginFrame(float camera_separation)
 		// we need redraw everything
 		VID_WholeDamageBuffer();
 		// and backbuffer should be zeroed
-		memset(swap_buffers + ((swap_current + 1)&1), 0,
+		memset(swap_buffers + ((swap_current + 1) & 1), 0,
 			vid_buffer_height * vid_buffer_width * sizeof(pixel_t));
 
 		vid_gamma->modified = false;

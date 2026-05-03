@@ -1443,9 +1443,20 @@ monster_dynamic_attack(edict_t *self)
 void
 monster_dynamic_dead(edict_t *self)
 {
+	size_t i;
+
 	if (!self)
 	{
 		return;
+	}
+
+	for (i = 0; i < 3; i++)
+	{
+		if (self->rrs.scale[i])
+		{
+			self->mins[i] *= self->rrs.scale[i];
+			self->maxs[i] *= self->rrs.scale[i];
+		}
 	}
 
 	self->movetype = MOVETYPE_TOSS;

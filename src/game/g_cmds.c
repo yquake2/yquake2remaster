@@ -1664,27 +1664,29 @@ Cmd_SpawnEntity_f(edict_t *ent)
 		return;
 	}
 
-	if (gi.argc() < 5 || gi.argc() > 9)
+	if (gi.argc() < 5 || gi.argc() > 10)
 	{
 		gi.cprintf(ent, PRINT_HIGH,
-			"Usage: spawnentity classname x y z <angle_x angle_y angle_z> <flags>\n");
+			"Usage: spawnentity classname x y z <angle_x angle_y angle_z> <flags> <scale>\n");
 		return;
 	}
 
 	ent = G_Spawn();
 
-	// set position
+	/* set position */
 	ent->s.origin[0] = (float)strtod(gi.argv(2), (char **)NULL);
 	ent->s.origin[1] = (float)strtod(gi.argv(3), (char **)NULL);
 	ent->s.origin[2] = (float)strtod(gi.argv(4), (char **)NULL);
-	// angles
+
+	/* angles */
 	if (gi.argc() >= 8)
 	{
 		ent->s.angles[PITCH] = (float)strtod(gi.argv(5), (char **)NULL);
 		ent->s.angles[YAW] = (float)strtod(gi.argv(6), (char **)NULL);
 		ent->s.angles[ROLL] = (float)strtod(gi.argv(7), (char **)NULL);
 	}
-	// flags
+
+	/* flags */
 	if (gi.argc() >= 9)
 	{
 		ent->spawnflags = (int)strtol(gi.argv(8), (char **)NULL, 10);
@@ -1692,11 +1694,24 @@ Cmd_SpawnEntity_f(edict_t *ent)
 
 	ent->classname = G_CopyString(gi.argv(1));
 
+	/* scale */
+	if (gi.argc() >= 10)
+	{
+		float scale;
+
+		scale = (float)strtod(gi.argv(9), (char **)NULL);
+
+		if (scale > 0)
+		{
+			VectorSet(st.scale, scale, scale, scale);
+		}
+	}
+
 	ED_CallSpawn(ent);
 }
 
 static void
-Cmd_SpawnOnStartByClass(const char *classname, const vec3_t origin)
+Cmd_SpawnOnStartByClass(const char *classname, const vec3_t origin, float scale)
 {
 	edict_t *opponent = G_Spawn();
 
@@ -1706,6 +1721,11 @@ Cmd_SpawnOnStartByClass(const char *classname, const vec3_t origin)
 	opponent->s.origin[2] = origin[2];
 	// and class
 	opponent->classname = G_CopyString(classname);
+
+	if (scale > 0)
+	{
+		VectorSet(st.scale, scale, scale, scale);
+	}
 
 	ED_CallSpawn(opponent);
 
@@ -1717,6 +1737,7 @@ static void
 Cmd_SpawnOnStart_f(edict_t *ent)
 {
 	edict_t *cur = NULL;
+	float scale = 1.0;
 
 	if (!ent)
 	{
@@ -1730,28 +1751,33 @@ Cmd_SpawnOnStart_f(edict_t *ent)
 		return;
 	}
 
-	if (gi.argc() != 2)
+	if (gi.argc() < 2 || gi.argc() > 3)
 	{
-		gi.cprintf(ent, PRINT_HIGH, "Usage: spawnonstart classname\n");
+		gi.cprintf(ent, PRINT_HIGH, "Usage: spawnonstart classname <scale>\n");
 		return;
+	}
+
+	if (gi.argc() > 2)
+	{
+		scale = (float)strtod(gi.argv(2), (char **)NULL);
 	}
 
 	while ((cur = G_Find(cur, FOFS(classname),
 		"info_player_deathmatch")) != NULL)
 	{
-		Cmd_SpawnOnStartByClass(gi.argv(1), cur->s.origin);
+		Cmd_SpawnOnStartByClass(gi.argv(1), cur->s.origin, scale);
 	}
 
 	while ((cur = G_Find(cur, FOFS(classname),
 		"info_player_coop")) != NULL)
 	{
-		Cmd_SpawnOnStartByClass(gi.argv(1), cur->s.origin);
+		Cmd_SpawnOnStartByClass(gi.argv(1), cur->s.origin, scale);
 	}
 
 	while ((cur = G_Find(cur, FOFS(classname),
 		"info_player_start")) != NULL)
 	{
-		Cmd_SpawnOnStartByClass(gi.argv(1), cur->s.origin);
+		Cmd_SpawnOnStartByClass(gi.argv(1), cur->s.origin, scale);
 	}
 }
 
