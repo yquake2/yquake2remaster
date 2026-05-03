@@ -616,7 +616,7 @@ hover_fire_blaster(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_HOVER_BLASTER_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_HOVER_BLASTER_1],
 			forward, right, start);
 
 	VectorCopy(self->enemy->s.origin, end);

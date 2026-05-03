@@ -268,7 +268,7 @@ WidowBlaster(edict_t *self)
 
 		/* sweep */
 		flashnum = MZ2_WIDOW_BLASTER_SWEEP1 + self->s.frame - FRAME_spawn05;
-		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum], forward,
+		M_ProjectFlashSource(self, monster_flash_offset[flashnum], forward,
 				right, start);
 		VectorSubtract(self->enemy->s.origin, start, target);
 		vectoangles2(target, targ_angles);
@@ -306,7 +306,7 @@ WidowBlaster(edict_t *self)
 			flashnum = MZ2_WIDOW_BLASTER_100 + self->s.frame - FRAME_fired03;
 		}
 
-		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum],
+		M_ProjectFlashSource(self, monster_flash_offset[flashnum],
 				forward, right, start);
 
 		PredictAim(self->enemy, start, 1000, true, ((random() * 0.1) - 0.05), forward, NULL);
@@ -349,7 +349,7 @@ WidowBlaster(edict_t *self)
 	else if ((self->s.frame >= FRAME_run01) && (self->s.frame <= FRAME_run08))
 	{
 		flashnum = MZ2_WIDOW_RUN_1 + self->s.frame - FRAME_run01;
-		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum],
+		M_ProjectFlashSource(self, monster_flash_offset[flashnum],
 				forward, right, start);
 
 		VectorSubtract(self->enemy->s.origin, start, target);
@@ -705,7 +705,7 @@ WidowRail(edict_t *self)
 		flash = MZ2_WIDOW_RAIL_RIGHT;
 	}
 
-	G_ProjectSource(self->s.origin, monster_flash_offset[flash], forward,
+	M_ProjectFlashSource(self, monster_flash_offset[flash], forward,
 			right, start);
 
 	/* calc direction to where we targeted */

@@ -540,7 +540,7 @@ makronBFG(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_MAKRON_BFG],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_MAKRON_BFG],
 			forward, right, start);
 
 	VectorCopy(self->enemy->s.origin, vec);
@@ -659,7 +659,7 @@ MakronRailgun(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_MAKRON_RAILGUN_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_MAKRON_RAILGUN_1],
 			forward, right, start);
 
 	/* calc direction to where we targted */
@@ -686,7 +686,7 @@ MakronHyperblaster(edict_t *self)
 	flash_number = MZ2_MAKRON_BLASTER_1 + (self->s.frame - FRAME_attak405);
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
+	M_ProjectFlashSource(self, monster_flash_offset[flash_number],
 			forward, right, start);
 
 	if (self->enemy)

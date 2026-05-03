@@ -730,7 +730,7 @@ GunnerFire(edict_t *self)
 	flash_number = MZ2_GUNNER_MACHINEGUN_1 + (self->s.frame - gunner_move_fire_chain.firstframe);
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
+	M_ProjectFlashSource(self, monster_flash_offset[flash_number],
 			forward, right, start);
 
 	/* project enemy back a bit and target there */
@@ -782,7 +782,7 @@ gunner_grenade_check(edict_t *self)
 	/* check to see that we can trace to the player
 	   before we start tossing grenades around. */
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_GUNNER_GRENADE_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_GUNNER_GRENADE_1],
 			forward, right, start);
 
 	/* check for blindfire flag */
@@ -879,7 +879,7 @@ GunnerGrenade(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, up);
-	G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
+	M_ProjectFlashSource(self, monster_flash_offset[flash_number],
 			forward, right, start);
 
 	if (self->enemy)

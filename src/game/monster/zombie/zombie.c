@@ -164,7 +164,7 @@ zombie_fire_gib_step(edict_t *self)
 	vec3_t offset = {16, 0, 8};
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, offset, forward, right, start);
+	M_ProjectFlashSource(self, offset, forward, right, start);
 	VectorCopy(forward, aim);
 
 	fire_zombie_gib(self, start, aim, 10, 600);

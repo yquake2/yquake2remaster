@@ -151,7 +151,7 @@ Widow2Beam(edict_t *self)
 		/* regular beam attack */
 		Widow2SaveBeamTarget(self);
 		flashnum = MZ2_WIDOW2_BEAMER_1 + self->s.frame - FRAME_fireb05;
-		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum], forward,
+		M_ProjectFlashSource(self, monster_flash_offset[flashnum], forward,
 				right, start);
 		VectorCopy(self->pos2, target);
 		target[2] += self->enemy->viewheight - 10;
@@ -165,7 +165,7 @@ Widow2Beam(edict_t *self)
 
 		/* sweep */
 		flashnum = MZ2_WIDOW2_BEAM_SWEEP_1 + self->s.frame - FRAME_spawn04;
-		G_ProjectSource(self->s.origin, monster_flash_offset[flashnum],
+		M_ProjectFlashSource(self, monster_flash_offset[flashnum],
 				forward, right, start);
 		VectorSubtract(self->enemy->s.origin, start, target);
 		vectoangles2(target, targ_angles);
@@ -181,7 +181,7 @@ Widow2Beam(edict_t *self)
 	else
 	{
 		Widow2SaveBeamTarget(self);
-		G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_WIDOW2_BEAMER_1],
+		M_ProjectFlashSource(self, monster_flash_offset[MZ2_WIDOW2_BEAMER_1],
 				forward, right, start);
 
 		VectorCopy(self->pos2, target);
@@ -416,7 +416,7 @@ WidowDisrupt(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_WIDOW_DISRUPTOR],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_WIDOW_DISRUPTOR],
 			forward, right, start);
 
 	VectorSubtract(self->pos1, self->enemy->s.origin, dir);

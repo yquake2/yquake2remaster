@@ -707,7 +707,7 @@ ChickRocket(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CHICK_ROCKET_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CHICK_ROCKET_1],
 			forward, right, start);
 
 	rocketSpeed = 500 + (100 * skill->value); /* rock & roll.... :) */

@@ -1387,7 +1387,7 @@ fixbot_fire_welder(edict_t *self)
 {
 	vec3_t start;
 	vec3_t forward, right, up;
-	vec3_t vec;
+	vec3_t offset;
 
 	if (!self)
 	{
@@ -1399,12 +1399,10 @@ fixbot_fire_welder(edict_t *self)
 		return;
 	}
 
-	vec[0] = 24.0;
-	vec[1] = -0.8;
-	vec[2] = -10.0;
+	VectorSet(offset, 24.0, -0.8, -10.0);
 
 	AngleVectors(self->s.angles, forward, right, up);
-	G_ProjectSource(self->s.origin, vec, forward, right, start);
+	M_ProjectFlashSource(self, offset, forward, right, start);
 
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_WELDING_SPARKS);
@@ -1454,7 +1452,7 @@ fixbot_fire_blaster(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, up);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_fixbot_BLASTER_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_fixbot_BLASTER_1],
 			forward, right, start);
 
 	VectorCopy(self->enemy->s.origin, end);

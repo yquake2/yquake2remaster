@@ -651,7 +651,7 @@ jorgBFG(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_JORG_BFG_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_JORG_BFG_1],
 			forward, right, start);
 
 	VectorCopy(self->enemy->s.origin, vec);
@@ -674,7 +674,7 @@ jorg_firebullet_right(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_JORG_MACHINEGUN_R1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_JORG_MACHINEGUN_R1],
 			forward, right, start);
 
 	VectorMA(self->enemy->s.origin, -0.2, self->enemy->velocity, target);
@@ -699,7 +699,7 @@ jorg_firebullet_left(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_JORG_MACHINEGUN_L1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_JORG_MACHINEGUN_L1],
 			forward, right, start);
 
 	VectorMA(self->enemy->s.origin, -0.2, self->enemy->velocity, target);

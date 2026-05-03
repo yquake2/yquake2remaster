@@ -372,6 +372,27 @@ monster_fire_bfg(edict_t *self, vec3_t start, vec3_t aimdir,
 	monster_muzzleflash2(self, start, flashtype);
 }
 
+/* Scale fire source to right place by scale */
+void
+M_ProjectFlashSource(const edict_t *self, const vec3_t offset, const vec3_t forward,
+	const vec3_t right, vec3_t result)
+{
+	vec3_t scaled_offset;
+	size_t i;
+
+	VectorCopy(offset, scaled_offset);
+
+	for (i = 0; i < 3; i++)
+	{
+		if (self->rrs.scale[i] > 0)
+		{
+			scaled_offset[i] *= self->rrs.scale[i];
+		}
+	}
+
+	return G_ProjectSource(self->s.origin, scaled_offset, forward, right, result);
+}
+
 /* ================================================================== */
 
 /* Monster utility functions */

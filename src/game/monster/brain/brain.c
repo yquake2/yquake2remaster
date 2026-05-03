@@ -658,7 +658,7 @@ brain_tounge_attack(edict_t *self)
 
 	AngleVectors(self->s.angles, f, r, NULL);
 	VectorSet(offset, 24, 0, 16);
-	G_ProjectSource(self->s.origin, offset, f, r, start);
+	M_ProjectFlashSource(self, offset, f, r, start);
 
 	VectorCopy(self->enemy->s.origin, end);
 

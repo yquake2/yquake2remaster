@@ -170,7 +170,7 @@ FireOgreGrenade(edict_t *self)
 	vec3_t offset = {0, 0, 16};
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, offset, forward, right, start);
+	M_ProjectFlashSource(self, offset, forward, right, start);
 	VectorCopy(forward, aim);
 
 	monster_fire_grenade(self, start, aim, 40, 600, MZ2_GUNNER_GRENADE_1);

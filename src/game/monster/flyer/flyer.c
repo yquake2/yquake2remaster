@@ -602,7 +602,7 @@ flyer_fire(edict_t *self, int flash_number)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[flash_number],
+	M_ProjectFlashSource(self, monster_flash_offset[flash_number],
 			forward, right, start);
 
 	VectorCopy(self->enemy->s.origin, end);

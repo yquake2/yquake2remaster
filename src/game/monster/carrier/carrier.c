@@ -213,7 +213,7 @@ CarrierGrenade(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, up);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_GRENADE],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_GRENADE],
 			forward, right, start);
 
 	VectorSubtract(self->enemy->s.origin, start, aim);
@@ -250,25 +250,25 @@ CarrierPredictiveRocket(edict_t *self)
 	AngleVectors(self->s.angles, forward, right, NULL);
 
 	/* 1 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_1],
 			forward, right, start);
 	PredictAim(self->enemy, start, CARRIER_ROCKET_SPEED, false, -0.3, dir, NULL);
 	monster_fire_rocket(self, start, dir, 50, CARRIER_ROCKET_SPEED, MZ2_CARRIER_ROCKET_1);
 
 	/* 2 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_2],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_2],
 			forward, right, start);
 	PredictAim(self->enemy, start, CARRIER_ROCKET_SPEED, false, -0.15, dir, NULL);
 	monster_fire_rocket(self, start, dir, 50, CARRIER_ROCKET_SPEED, MZ2_CARRIER_ROCKET_2);
 
 	/* 3 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_3], forward,
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_3], forward,
 			right, start);
 	PredictAim(self->enemy, start, CARRIER_ROCKET_SPEED, false, 0, dir, NULL);
 	monster_fire_rocket(self, start, dir, 50, CARRIER_ROCKET_SPEED, MZ2_CARRIER_ROCKET_3);
 
 	/* 4 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_4], forward,
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_4], forward,
 			right, start);
 	PredictAim(self->enemy, start, CARRIER_ROCKET_SPEED, false, 0.15, dir, NULL);
 	monster_fire_rocket(self, start, dir, 50, CARRIER_ROCKET_SPEED, MZ2_CARRIER_ROCKET_4);
@@ -303,7 +303,7 @@ CarrierRocket(edict_t *self)
 	AngleVectors(self->s.angles, forward, right, NULL);
 
 	/* 1 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_1],
 			forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	vec[2] -= 15;
@@ -314,7 +314,7 @@ CarrierRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_CARRIER_ROCKET_1);
 
 	/* 2 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_2],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_2],
 			forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	VectorSubtract(vec, start, dir);
@@ -324,7 +324,7 @@ CarrierRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_CARRIER_ROCKET_2);
 
 	/* 3 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_3],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_3],
 			forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	VectorSubtract(vec, start, dir);
@@ -334,7 +334,7 @@ CarrierRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_CARRIER_ROCKET_3);
 
 	/* 4 */
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_ROCKET_4],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_ROCKET_4],
 			forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	vec[2] -= 15;
@@ -368,7 +368,7 @@ carrier_firebullet_right(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[flashnum], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[flashnum], forward, right, start);
 
 	VectorMA(self->enemy->s.origin, 0.2, self->enemy->velocity, target);
 	target[2] += self->enemy->viewheight;
@@ -402,7 +402,7 @@ carrier_firebullet_left(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[flashnum],
+	M_ProjectFlashSource(self, monster_flash_offset[flashnum],
 			forward, right, start);
 
 	VectorMA(self->enemy->s.origin, -0.2, self->enemy->velocity, target);
@@ -450,7 +450,7 @@ CarrierSpawn(edict_t *self)
 	VectorSet(offset, 105, 0, -58);
 	AngleVectors(self->s.angles, f, r, NULL);
 
-	G_ProjectSource(self->s.origin, offset, f, r, startpoint);
+	M_ProjectFlashSource(self, offset, f, r, startpoint);
 
 	/* the +0.1 is because level.time is sometimes a little low */
 	mytime = (int)((level.time + 0.1 - self->timestamp) / 0.5);
@@ -582,7 +582,7 @@ carrier_ready_spawn(edict_t *self)
 
 	VectorSet(offset, 105, 0, -58);
 	AngleVectors(self->s.angles, f, r, NULL);
-	G_ProjectSource(self->s.origin, offset, f, r, startpoint);
+	M_ProjectFlashSource(self, offset, f, r, startpoint);
 
 	if (FindSpawnPoint(startpoint, flyer_mins, flyer_maxs, spawnpoint, 32))
 	{
@@ -822,7 +822,7 @@ CarrierRail(edict_t *self)
 
 	CarrierCoopCheck(self);
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_CARRIER_RAILGUN],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_CARRIER_RAILGUN],
 			forward, right, start);
 
 	/* calc direction to where we targeted */

@@ -252,7 +252,7 @@ guardian_fire_blaster(edict_t *self)
 	int id = MZ2_GUARDIAN_BLASTER;
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[id], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[id], forward, right, start);
 	VectorCopy(self->enemy->s.origin, target);
 	target[2] += self->enemy->viewheight;
 	for (int i = 0; i < 3; i++)

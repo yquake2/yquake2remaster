@@ -77,7 +77,7 @@ Boss2PredictiveRocket(edict_t *self)
 	AngleVectors(self->s.angles, forward, right, NULL);
 
 //1
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
 	VectorSubtract(self->enemy->s.origin, start, dir);
 	dist = VectorLength(dir);
 	time = dist / BOSS2_ROCKET_SPEED;
@@ -88,7 +88,7 @@ Boss2PredictiveRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_1);
 
 //2
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
 	VectorSubtract(self->enemy->s.origin, start, dir);
 	dist = VectorLength(dir);
 	time = dist / BOSS2_ROCKET_SPEED;
@@ -99,7 +99,7 @@ Boss2PredictiveRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_2);
 
 //3
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
 	VectorSubtract(self->enemy->s.origin, start, dir);
 	dist = VectorLength(dir);
 	time = dist / BOSS2_ROCKET_SPEED;
@@ -110,7 +110,7 @@ Boss2PredictiveRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_3);
 
 //4
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
 	VectorSubtract(self->enemy->s.origin, start, dir);
 	dist = VectorLength(dir);
 	time = dist / BOSS2_ROCKET_SPEED;
@@ -143,7 +143,7 @@ Boss2Rocket(edict_t *self)
 	AngleVectors(self->s.angles, forward, right, NULL);
 
 //1
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	vec[2] -= 15;
 	VectorSubtract(vec, start, dir);
@@ -153,7 +153,7 @@ Boss2Rocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_1);
 
 //2
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	VectorSubtract(vec, start, dir);
 	VectorNormalize(dir);
@@ -162,7 +162,7 @@ Boss2Rocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_2);
 
 //3
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	VectorSubtract(vec, start, dir);
 	VectorNormalize(dir);
@@ -171,7 +171,7 @@ Boss2Rocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_3);
 
 //4
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
 	VectorCopy(self->enemy->s.origin, vec);
 	vec[2] -= 15;
 	VectorSubtract(vec, start, dir);
@@ -193,7 +193,7 @@ boss2_firebullet_right(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_MACHINEGUN_R1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_MACHINEGUN_R1],
 			forward, right, start);
 
 	VectorMA(self->enemy->s.origin, -0.2, self->enemy->velocity, target);
@@ -218,7 +218,7 @@ boss2_firebullet_left(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_BOSS2_MACHINEGUN_L1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_MACHINEGUN_L1],
 			forward, right, start);
 
 	VectorMA(self->enemy->s.origin, -0.2, self->enemy->velocity, target);

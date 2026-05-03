@@ -255,7 +255,7 @@ gladbGun(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, NULL);
-	G_ProjectSource(self->s.origin, monster_flash_offset[MZ2_GLADIATOR_RAILGUN_1],
+	M_ProjectFlashSource(self, monster_flash_offset[MZ2_GLADIATOR_RAILGUN_1],
 			forward, right, start);
 
 	/* calc direction to where we targted */

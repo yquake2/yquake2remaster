@@ -881,7 +881,7 @@ gekk_loogie(edict_t *self)
 	}
 
 	AngleVectors(self->s.angles, forward, right, up);
-	G_ProjectSource(self->s.origin, gekkoffset, forward, right, start);
+	M_ProjectFlashSource(self, gekkoffset, forward, right, start);
 
 	VectorMA(start, 2, up, start);
 
