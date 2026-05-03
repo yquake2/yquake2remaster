@@ -151,6 +151,13 @@ typedef struct client_s
 
 	netchan_t netchan;
 	int protocol;
+
+	/* per-frame caches for SV_Multicast fanout */
+	vec3_t cached_origin;
+	int cached_leafnum;
+	int cached_area;
+	int cached_cluster;
+	int cached_framenum;
 } client_t;
 
 typedef struct

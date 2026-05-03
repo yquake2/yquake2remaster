@@ -141,53 +141,55 @@ SV_BroadcastCommand(const char *fmt, ...)
  * MULTICAST_PHS	send to clients potentially hearable from org
  */
 static qboolean
-SV_WereConnected(const vec3_t origin, const byte *mask, int area1, size_t mask_size)
+SV_WereConnected(int cluster, int area2, const vec3_t origin,
+		 const byte *mask, int area1, size_t mask_size)
 {
-	vec3_t origin2;
-	int leafnum;
-	int cluster;
-
-	VectorCopy(origin, origin2);
-
-	leafnum = CM_PointLeafnum(origin2);
-	cluster = CM_LeafCluster(leafnum);
-
-	// cluster can be -1 if we're in the void (or sometimes just at a wall)
-	// and using a negative index into mask[] would be invalid
 	if (cluster >= 0 && ((cluster >> 3) < mask_size) &&
-		(mask[cluster >> 3] & (1 << (cluster & 7))))
+	    (mask[cluster >> 3] & (1 << (cluster & 7))))
 	{
-		if (CM_AreasConnected(area1, CM_LeafArea(leafnum)))
-		{
+		if (CM_AreasConnected(area1, area2))
 			return true;
-		}
 	}
 
-	// if the client is currently in water, do a second check
-	if (CM_PointContents(origin2, 0) & MASK_WATER)
+	/* underwater retry stays dynamic */
+	if (CM_PointContents(origin, 0) & MASK_WATER)
 	{
-		// if the client is half-submerged in opaque water so its origin
-		// is below the water, but the head/camera is still above the water
-		// and thus should be able to see/hear explosions or similar
-		// that are above the water.
-		// so try again at a slightly higher position
-		// FIXME: OTOH, we have a similar problem if we're over water and shoot under water (near water level) => can't see explosion
+		vec3_t origin2;
+		int leafnum2, cluster2;
 
+		VectorCopy(origin, origin2);
 		origin2[2] += 32.0f;
+		leafnum2 = CM_PointLeafnum(origin2);
+		cluster2 = CM_LeafCluster(leafnum2);
 
-		leafnum = CM_PointLeafnum(origin2);
-		cluster = CM_LeafCluster(leafnum);
-
-		if (cluster >= 0 && (mask[cluster >> 3] & (1 << (cluster & 7))))
+		if (cluster2 >= 0 && ((cluster2 >> 3) < mask_size) &&
+		    (mask[cluster2 >> 3] & (1 << (cluster2 & 7))))
 		{
-			if (CM_AreasConnected(area1, CM_LeafArea(leafnum)))
-			{
+			if (CM_AreasConnected(area1, CM_LeafArea(leafnum2)))
 				return true;
-			}
 		}
 	}
 
 	return false;
+}
+
+static void
+SV_GetClientLeafCache(client_t *client, int *area, int *cluster)
+{
+	edict_t *e = CL_EDICT(client);
+
+	if (client->cached_framenum != sv.framenum ||
+	    !VectorCompare(client->cached_origin, e->s.origin))
+	{
+		VectorCopy(e->s.origin, client->cached_origin);
+		client->cached_leafnum = CM_PointLeafnum(e->s.origin);
+		client->cached_area = CM_LeafArea(client->cached_leafnum);
+		client->cached_cluster = CM_LeafCluster(client->cached_leafnum);
+		client->cached_framenum = sv.framenum;
+	}
+
+	*area = client->cached_area;
+	*cluster = client->cached_cluster;
 }
 
 void
@@ -258,7 +260,10 @@ SV_Multicast(const vec3_t origin, multicast_t to)
 
 		if (mask)
 		{
-			if (!SV_WereConnected(CL_EDICT(client)->s.origin, mask, area1, mask_size))
+			int area2, cluster2;
+			SV_GetClientLeafCache(client, &area2, &cluster2);
+
+			if (!SV_WereConnected(cluster2, area2, CL_EDICT(client)->s.origin, mask, area1, mask_size))
 			{
 				continue;
 			}
