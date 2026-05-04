@@ -457,6 +457,7 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	   (blaster/hyperblaster shots), the player won't be solid clipped against
 	   the object.  Right now trying to run into a firing hyperblaster
 	   is very jerky since you are predicted 'against' the shots. */
+	VectorCopy(self->rrs.scale, bolt->rrs.scale);
 	VectorCopy(start, bolt->s.origin);
 	VectorCopy(start, bolt->s.old_origin);
 	vectoangles(dir, bolt->s.angles);
@@ -513,6 +514,7 @@ fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	VectorNormalize(dir);
 
 	bolt = G_Spawn();
+	VectorCopy(self->rrs.scale, bolt->rrs.scale);
 	VectorCopy(start, bolt->s.origin);
 	VectorCopy(start, bolt->s.old_origin);
 	vectoangles(dir, bolt->s.angles);
@@ -701,6 +703,7 @@ fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed,
 	AngleVectors(dir, forward, right, up);
 
 	grenade = G_Spawn();
+	VectorCopy(self->rrs.scale, grenade->rrs.scale);
 	VectorCopy(start, grenade->s.origin);
 	VectorScale(aimdir, speed, grenade->velocity);
 	VectorMA(grenade->velocity, 200 + crandom() * 10.0, up, grenade->velocity);
@@ -748,6 +751,7 @@ fire_grenade2(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	AngleVectors(dir, forward, right, up);
 
 	grenade = G_Spawn();
+	VectorCopy(self->rrs.scale, grenade->rrs.scale);
 	VectorCopy(start, grenade->s.origin);
 	VectorScale(aimdir, speed, grenade->velocity);
 	VectorMA(grenade->velocity, 200 + crandom() * 10.0, up, grenade->velocity);
@@ -891,6 +895,7 @@ fire_rocket(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	}
 
 	rocket = G_Spawn();
+	VectorCopy(self->rrs.scale, rocket->rrs.scale);
 	VectorCopy(start, rocket->s.origin);
 	VectorCopy(dir, rocket->movedir);
 	vectoangles(dir, rocket->s.angles);
@@ -1264,6 +1269,7 @@ fire_bfg(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	}
 
 	bfg = G_Spawn();
+	VectorCopy(self->rrs.scale, bfg->rrs.scale);
 	VectorCopy(start, bfg->s.origin);
 	VectorCopy(dir, bfg->movedir);
 	vectoangles(dir, bfg->s.angles);
@@ -1368,6 +1374,7 @@ fire_ionripper(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	VectorNormalize(dir);
 
 	ion = G_Spawn();
+	VectorCopy(self->rrs.scale, ion->rrs.scale);
 	VectorCopy(start, ion->s.origin);
 	VectorCopy(start, ion->s.old_origin);
 	vectoangles(dir, ion->s.angles);
@@ -1481,6 +1488,7 @@ fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 	}
 
 	heat = G_Spawn();
+	VectorCopy(self->rrs.scale, heat->rrs.scale);
 	VectorCopy(start, heat->s.origin);
 	VectorCopy(dir, heat->movedir);
 	vectoangles(dir, heat->s.angles);
@@ -1582,6 +1590,7 @@ fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	}
 
 	plasma = G_Spawn();
+	VectorCopy(self->rrs.scale, plasma->rrs.scale);
 	VectorCopy(start, plasma->s.origin);
 	VectorCopy(dir, plasma->movedir);
 	vectoangles(dir, plasma->s.angles);
@@ -1871,6 +1880,7 @@ fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	AngleVectors(dir, forward, right, up);
 
 	trap = G_Spawn();
+	VectorCopy(self->rrs.scale, trap->rrs.scale);
 	VectorCopy(start, trap->s.origin);
 	VectorScale(aimdir, speed, trap->velocity);
 	VectorMA(trap->velocity, 200 + crandom() * 10.0, up, trap->velocity);
@@ -1881,6 +1891,7 @@ fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	trap->solid = SOLID_BBOX;
 	VectorSet(trap->mins, -4, -4, 0);
 	VectorSet(trap->maxs, 4, 4, 8);
+	monster_sync_scale_mins_maxs(trap);
 	trap->s.modelindex = gi.modelindex("models/weapons/z_trap/tris.md2");
 	trap->owner = self;
 	trap->nextthink = level.time + 1.0;
@@ -1999,6 +2010,7 @@ fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	AngleVectors(dir, forward, right, up);
 
 	flare = G_Spawn();
+	VectorCopy(self->rrs.scale, flare->rrs.scale);
 	VectorCopy(start, flare->s.origin);
 	VectorScale(aimdir, speed, flare->velocity);
 	VectorSet(flare->avelocity, 300, 300, 300);
@@ -2008,6 +2020,7 @@ fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 	VectorSet(flare->mins, -size, -size, -size);
 	VectorSet(flare->maxs, size, size, size);
+	monster_sync_scale_mins_maxs(flare);
 
 	flare->s.modelindex = gi.modelindex("models/objects/grenade/tris.md2");
 	flare->owner = self;
