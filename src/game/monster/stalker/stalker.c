@@ -1359,6 +1359,7 @@ stalker_dead(edict_t *self)
 
 	VectorSet(self->mins, -28, -28, -18);
 	VectorSet(self->maxs, 28, 28, -4);
+	monster_sync_scale_mins_maxs(self);
 	monster_dynamic_dead(self);
 }
 

@@ -767,6 +767,7 @@ supertank_dead(edict_t *self)
 
 	VectorSet(self->mins, -60, -60, 0);
 	VectorSet(self->maxs, 60, 60, 72);
+	monster_sync_scale_mins_maxs(self);
 	monster_dynamic_dead(self);
 }
 

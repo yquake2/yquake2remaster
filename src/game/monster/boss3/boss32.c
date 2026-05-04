@@ -944,6 +944,7 @@ makron_dead(edict_t *self)
 
 	VectorSet(self->mins, -48, -48, 0);
 	VectorSet(self->maxs, 48, 48, 24);
+	monster_sync_scale_mins_maxs(self);
 	monster_dynamic_dead(self);
 }
 

@@ -1441,7 +1441,7 @@ monster_dynamic_attack(edict_t *self)
 }
 
 void
-monster_dynamic_dead(edict_t *self)
+monster_sync_scale_mins_maxs(edict_t *self)
 {
 	size_t i;
 
@@ -1452,11 +1452,20 @@ monster_dynamic_dead(edict_t *self)
 
 	for (i = 0; i < 3; i++)
 	{
-		if (self->rrs.scale[i])
+		if (self->rrs.scale[i] > 0 && self->rrs.scale[i] != 1.0)
 		{
 			self->mins[i] *= self->rrs.scale[i];
 			self->maxs[i] *= self->rrs.scale[i];
 		}
+	}
+}
+
+void
+monster_dynamic_dead(edict_t *self)
+{
+	if (!self)
+	{
+		return;
 	}
 
 	self->movetype = MOVETYPE_TOSS;
@@ -1993,16 +2002,10 @@ monster_start(edict_t *self)
 	/* non default scale */
 	if (scale != 1.0)
 	{
-		int i;
-
 		self->monsterinfo.scale *= scale;
 		self->mass *= scale;
 
-		for (i = 0; i < 3; i++)
-		{
-			self->mins[i] *= self->rrs.scale[i];
-			self->maxs[i] *= self->rrs.scale[i];
-		}
+		monster_sync_scale_mins_maxs(self);
 	}
 
 	VectorCopy(self->s.origin, self->s.old_origin);

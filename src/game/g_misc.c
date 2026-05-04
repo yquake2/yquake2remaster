@@ -4391,8 +4391,6 @@ SetupMannequinModel(edict_t * self, int modelType, const char *weapon, const cha
 void
 SP_misc_player_mannequin(edict_t * self)
 {
-	int i;
-
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_BBOX;
 	if (!st.effects)
@@ -4427,11 +4425,7 @@ SP_misc_player_mannequin(edict_t * self)
 			st.radius, st.radius, st.radius);
 	}
 
-	for (i = 0;i < 3; i++)
-	{
-		self->mins[i] *= self->rrs.scale[i];
-		self->maxs[i] *= self->rrs.scale[i];
-	}
+	monster_sync_scale_mins_maxs(self);
 
 	self->think = misc_player_mannequin_think;
 	self->nextthink = level.time + FRAMETIME;
