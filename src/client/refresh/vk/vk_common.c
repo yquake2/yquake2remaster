@@ -1584,6 +1584,7 @@ QVk_Shutdown(void)
 		QVk_DestroyPipeline(&vk_drawParticlesPipeline);
 		QVk_DestroyPipeline(&vk_drawPointParticlesPipeline);
 		QVk_DestroyPipeline(&vk_drawSpritePipeline);
+		QVk_DestroyPipeline(&vk_drawSpriteFlaresPipeline);
 		QVk_DestroyPipeline(&vk_drawPolyPipeline);
 		QVk_DestroyPipeline(&vk_drawPolyLmapPipeline);
 		QVk_DestroyPipeline(&vk_drawPolyWarpPipeline);
