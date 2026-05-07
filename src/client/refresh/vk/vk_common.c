@@ -114,8 +114,8 @@ static VkCommandBuffer *vk_commandbuffers = NULL;
 static VkFence vk_fences[NUM_CMDBUFFERS];
 // semaphore: signal when next image is available for rendering
 static VkSemaphore vk_imageAvailableSemaphores[NUM_IMG_SEMAPHORES];
-// semaphore: signal when rendering to current command buffer is complete
-static VkSemaphore vk_renderFinishedSemaphores[NUM_CMDBUFFERS];
+// semaphore: signal when rendering to current swapchain image is complete
+static VkSemaphore vk_renderFinishedSemaphores[NUM_IMG_SEMAPHORES];
 // tracker variables
 VkCommandBuffer vk_activeCmdbuffer = VK_NULL_HANDLE;
 // index of active command buffer
@@ -1673,9 +1673,12 @@ QVk_Shutdown(void)
 				vkDestroySemaphore(vk_device.logical, vk_imageAvailableSemaphores[i], NULL);
 			}
 
-			for (i = 0; i < NUM_CMDBUFFERS; ++i)
+			for (i = 0; i < NUM_IMG_SEMAPHORES; ++i)
 			{
 				vkDestroySemaphore(vk_device.logical, vk_renderFinishedSemaphores[i], NULL);
+			}
+			for (i = 0; i < NUM_CMDBUFFERS; ++i)
+			{
 				vkDestroyFence(vk_device.logical, vk_fences[i], NULL);
 			}
 		}
@@ -2076,10 +2079,14 @@ QVk_Init(void)
 	{
 		vk_commandPool[i] = VK_NULL_HANDLE;
 		VK_VERIFY(vkCreateFence(vk_device.logical, &fCreateInfo, NULL, &vk_fences[i]));
-		VK_VERIFY(vkCreateSemaphore(vk_device.logical, &sCreateInfo, NULL, &vk_renderFinishedSemaphores[i]));
 
 		QVk_DebugSetObjectName((uint64_t)vk_fences[i],
 			VK_OBJECT_TYPE_FENCE, va("Fence #%d", i));
+	}
+	for (i = 0; i < NUM_IMG_SEMAPHORES; ++i)
+	{
+		VK_VERIFY(vkCreateSemaphore(vk_device.logical, &sCreateInfo, NULL, &vk_renderFinishedSemaphores[i]));
+
 		QVk_DebugSetObjectName((uint64_t)vk_renderFinishedSemaphores[i],
 			VK_OBJECT_TYPE_SEMAPHORE, va("Semaphore: render finished #%d", i));
 	}
@@ -2323,7 +2330,7 @@ QVk_EndFrame(qboolean force)
 		.waitSemaphoreCount = 1,
 		.pWaitSemaphores = &vk_imageAvailableSemaphores[vk_imageSemaphoreIdx],
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = &vk_renderFinishedSemaphores[vk_activeBufferIdx],
+		.pSignalSemaphores = &vk_renderFinishedSemaphores[vk_imageIndex],
 		.pWaitDstStageMask = &waitStages,
 		.commandBufferCount = 1,
 		.pCommandBuffers = &vk_commandbuffers[vk_activeBufferIdx]
@@ -2335,7 +2342,7 @@ QVk_EndFrame(qboolean force)
 	VkPresentInfoKHR presentInfo = {
 		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &vk_renderFinishedSemaphores[vk_activeBufferIdx],
+		.pWaitSemaphores = &vk_renderFinishedSemaphores[vk_imageIndex],
 		.swapchainCount = 1,
 		.pSwapchains = &vk_swapchain.sc,
 		.pImageIndices = &vk_imageIndex,
