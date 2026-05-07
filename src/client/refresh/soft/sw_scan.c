@@ -195,7 +195,7 @@ TurbulentPow2(espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zistepv
 
 	r_turb_turb = sintable + ((int)(r_newrefdef.time*SPEED)&(CYCLE-1));
 
-	r_turb_pbase = (unsigned char *)cacheblock;
+	r_turb_pbase = (byte *)cacheblock;
 
 	sdivzpow2stepu = d_sdivzstepu * spanstep_value;
 	tdivzpow2stepu = d_tdivzstepu * spanstep_value;
@@ -350,7 +350,7 @@ NonTurbulentPow2 (espan_t *pspan, float d_ziorigin, float d_zistepu, float d_zis
 
 	r_turb_turb = blanktable;
 
-	r_turb_pbase = (unsigned char *)cacheblock;
+	r_turb_pbase = (byte *)cacheblock;
 
 	sdivzpow2stepu = d_sdivzstepu * spanstep_value;
 	tdivzpow2stepu = d_tdivzstepu * spanstep_value;
@@ -603,7 +603,7 @@ D_DrawSpansPow2(const espan_t *pspan, float d_ziorigin, float d_zistepu, float d
 	spanstep_shift = D_DrawSpanGetStep(d_zistepu, d_zistepv);
 	spanstep_value = (1 << spanstep_shift);
 
-	pbase = (unsigned char *)cacheblock;
+	pbase = (byte *)cacheblock;
 
 	texture_filtering = (int)sw_texture_filtering->value;
 	sdivzpow2stepu = d_sdivzstepu * spanstep_value;

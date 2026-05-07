@@ -125,7 +125,7 @@ R_FindFreeImage(const char *name)
 }
 
 static void
-R_ImageShrink(const unsigned char* src, unsigned char *dst, int width, int realwidth, int height, int realheight)
+R_ImageShrink(const byte* src, byte *dst, int width, int realwidth, int height, int realheight)
 {
 	int x, y;
 	float xstep, ystep;
@@ -238,7 +238,7 @@ R_ConvertRGBColor(unsigned color)
 }
 
 void
-R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size,
+R_Convert32To8bit(const byte* pic_in, pixel_t* pic_out, size_t size,
 	qboolean transparent)
 {
 	size_t i;

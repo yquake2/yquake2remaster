@@ -583,12 +583,12 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	}
 	else
 	{
-		unsigned char image8[256 * 256];
+		byte image8[256 * 256];
 		int trows = 256;
 
 		for (i = 0; i < trows; i++)
 		{
-			unsigned char *dest;
+			byte *dest;
 			const byte *source;
 
 			row = (int)(i * hscale);

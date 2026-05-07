@@ -67,8 +67,8 @@ typedef struct swstate_s
 {
 	int prev_mode; /* last valid SW mode */
 
-	unsigned char gammatable[256];
-	unsigned char currentpalette[1024];
+	byte gammatable[256];
+	byte currentpalette[1024];
 } swstate_t;
 
 static swstate_t sw_state;
@@ -1099,7 +1099,7 @@ R_EdgeDrawing (entity_t *currententity)
 
 //=======================================================================
 
-static void	R_GammaCorrectAndSetPalette(const unsigned char *palette);
+static void	R_GammaCorrectAndSetPalette(const byte *palette);
 
 /*
 =============
@@ -1157,7 +1157,7 @@ R_CalcPalette (void)
 		out[3] = 255;
 	}
 
-	R_GammaCorrectAndSetPalette( ( const unsigned char * ) palette[0] );
+	R_GammaCorrectAndSetPalette( ( const byte * ) palette[0] );
 }
 
 //=======================================================================
@@ -1484,7 +1484,7 @@ RE_SetMode(void)
 ** R_GammaCorrectAndSetPalette
 */
 static void
-R_GammaCorrectAndSetPalette( const unsigned char *palette )
+R_GammaCorrectAndSetPalette( const byte *palette )
 {
 	int i;
 
@@ -1509,7 +1509,7 @@ R_GammaCorrectAndSetPalette( const unsigned char *palette )
 ** RE_SetPalette
 */
 static void
-RE_SetPalette(const unsigned char *palette)
+RE_SetPalette(const byte *palette)
 {
 	// clear screen to black to avoid any palette flash
 	RE_CleanFrame();
@@ -2527,7 +2527,7 @@ R_ScreenShot_f(void)
 {
 	int x, y;
 	byte *buffer = malloc(vid_buffer_width * vid_buffer_height * 3);
-	const unsigned char *palette = sw_state.currentpalette;
+	const byte *palette = sw_state.currentpalette;
 
 	if (!buffer)
 	{

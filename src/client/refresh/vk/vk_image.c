@@ -37,7 +37,7 @@ static int image_max = 0;
 qvktexture_t vk_rawTexture = QVVKTEXTURE_INIT;
 
 static byte intensitytable[256];
-static unsigned char overbrightable[256];
+static byte overbrightable[256];
 
 static cvar_t *intensity;
 
@@ -243,7 +243,7 @@ static void generateMipmaps(const VkCommandBuffer *cmdBuffer, const qvktexture_t
 
 /* internal helper */
 static void
-createTextureImage(qvktexture_t *dstTex, const unsigned char *data, uint32_t width, uint32_t height)
+createTextureImage(qvktexture_t *dstTex, const byte *data, uint32_t width, uint32_t height)
 {
 	int unifiedTransferAndGfx = vk_device.transferQueue == vk_device.gfxQueue ? 1 : 0;
 
@@ -444,7 +444,7 @@ QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colorBuff
 }
 
 void
-QVk_CreateTexture(qvktexture_t *texture, const unsigned char *data, uint32_t width, uint32_t height, qvksampler_t samplerType, qboolean clampToEdge)
+QVk_CreateTexture(qvktexture_t *texture, const byte *data, uint32_t width, uint32_t height, qvksampler_t samplerType, qboolean clampToEdge)
 {
 	createTextureImage(texture, data, width, height);
 	VK_VERIFY(QVk_CreateImageView(&texture->resource.image, VK_IMAGE_ASPECT_COLOR_BIT, &texture->imageView, texture->format, texture->mipLevels));
@@ -465,7 +465,7 @@ QVk_CreateTexture(qvktexture_t *texture, const unsigned char *data, uint32_t wid
 }
 
 void
-QVk_UpdateTextureData(qvktexture_t *texture, const unsigned char *data, uint32_t offset_x, uint32_t offset_y, uint32_t width, uint32_t height)
+QVk_UpdateTextureData(qvktexture_t *texture, const byte *data, uint32_t offset_x, uint32_t offset_y, uint32_t width, uint32_t height)
 {
 	int unifiedTransferAndGfx = vk_device.transferQueue == vk_device.gfxQueue ? 1 : 0;
 	// assuming 32bit images
@@ -1100,14 +1100,14 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (vk_scrapTextures[texnum].resource.image != VK_NULL_HANDLE)
 		{
-			QVk_UpdateTextureData(&vk_scrapTextures[texnum], (unsigned char*)texBuffer,
+			QVk_UpdateTextureData(&vk_scrapTextures[texnum], (byte*)texBuffer,
 				0, 0, upload_width, upload_height);
 		}
 		else
 		{
 			QVVKTEXTURE_CLEAR(vk_scrapTextures[texnum]);
 			// don't use linear filtering for scrap 0 - this fixes display issues for the dot crosshair and makes it look consistent across different values of hudscale cvar
-			QVk_CreateTexture(&vk_scrapTextures[texnum], (unsigned char*)texBuffer,
+			QVk_CreateTexture(&vk_scrapTextures[texnum], (byte*)texBuffer,
 				upload_width, upload_height,
 				nolerp ? S_NEAREST : vk_current_sampler, false);
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.image, VK_OBJECT_TYPE_IMAGE, va("Image: %s", name));
@@ -1178,7 +1178,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		assert(texBuffer != NULL);
 
-		QVk_CreateTexture(&image->vk_texture, (unsigned char*)texBuffer,
+		QVk_CreateTexture(&image->vk_texture, (byte*)texBuffer,
 			image->upload_width, image->upload_height,
 			nolerp ? S_NEAREST : vk_current_sampler, (type == it_sky));
 		QVk_DebugSetObjectName((uint64_t)image->vk_texture.resource.image,

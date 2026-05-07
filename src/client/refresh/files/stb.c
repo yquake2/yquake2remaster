@@ -582,7 +582,7 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 				for(i = 0; i < size; i++)
 				{
-					unsigned char value = pic[i];
+					byte value = pic[i];
 					image_buffer[i * 4 + 0] = palette[value * 3 + 0];
 					image_buffer[i * 4 + 1] = palette[value * 3 + 1];
 					image_buffer[i * 4 + 2] = palette[value * 3 + 2];

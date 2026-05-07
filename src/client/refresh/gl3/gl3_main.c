@@ -1828,7 +1828,7 @@ GL3_BeginFrame(float camera_separation)
 }
 
 static void
-GL3_SetPalette(const unsigned char *palette)
+GL3_SetPalette(const byte *palette)
 {
 	int i;
 	byte *rp = (byte *)gl3_rawpalette;

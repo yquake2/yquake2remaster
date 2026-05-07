@@ -69,7 +69,7 @@ typedef struct image_s
 
 //===================================================================
 
-typedef unsigned char pixel_t;
+typedef byte pixel_t;
 typedef int	shift20_t;
 typedef int	zvalue_t;
 typedef unsigned int	light_t;
@@ -555,7 +555,7 @@ byte	*Get_BestImageSize(const image_t *image, int *req_width, int *req_height);
 void	R_FreeUnusedImages(void);
 qboolean	R_ImageHasFreeSpace(void);
 pixel_t	R_ApplyLight(pixel_t pix, const light3_t light);
-void	R_Convert32To8bit(const unsigned char* pic_in, pixel_t* pic_out, size_t size, qboolean transparent);
+void	R_Convert32To8bit(const byte* pic_in, pixel_t* pic_out, size_t size, qboolean transparent);
 int	R_ConvertRGBColor(unsigned color);
 
 void R_InitSkyBox(model_t *loadmodel);

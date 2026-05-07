@@ -241,7 +241,7 @@ typedef struct
 
 	int prev_mode;
 
-	unsigned char *d_16to8table;
+	byte *d_16to8table;
 
 	qvktexture_t lightmap_textures[MAX_LIGHTMAPS*2];
 

@@ -514,7 +514,7 @@ R_DrawParticles(void)
 	if (vk_custom_particles->value == 1)
 	{
 		int i;
-		unsigned char color[4];
+		byte color[4];
 		const particle_t *p;
 
 		if (!r_newrefdef.num_particles)
@@ -1330,7 +1330,7 @@ RE_EndFrame(void)
 unsigned r_rawpalette[256];
 
 static void
-RE_SetPalette(const unsigned char *palette)
+RE_SetPalette(const byte *palette)
 {
 	int i;
 

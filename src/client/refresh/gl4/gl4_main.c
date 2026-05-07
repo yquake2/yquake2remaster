@@ -1764,7 +1764,7 @@ GL4_BeginFrame(float camera_separation)
 }
 
 static void
-GL4_SetPalette(const unsigned char *palette)
+GL4_SetPalette(const byte *palette)
 {
 	int i;
 	byte *rp = (byte *)gl4_rawpalette;

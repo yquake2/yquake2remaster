@@ -25,11 +25,11 @@
 
 static int		sourcetstep;
 static void		*prowdestbase;
-static unsigned char	*pbasesource;
+static byte	*pbasesource;
 static int		r_stepback;
 static int		r_lightwidth;
 static int		r_numvblocks;
-static unsigned char	*r_source, *r_sourcemax;
+static byte	*r_source, *r_sourcemax;
 static light_t		*r_lightptr;
 
 void RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
@@ -184,12 +184,12 @@ R_DrawSurface
 static void
 R_DrawSurface (drawsurf_t *drawsurf, light_t *blocklights, const light_t *blocklight_max)
 {
-	unsigned char	*basetptr;
+	byte	*basetptr;
 	int		smax, tmax, twidth;
 	int		u;
 	int		soffset, basetoffset, texwidth;
 	int		blocksize;
-	unsigned char	*pcolumndest;
+	byte	*pcolumndest;
 	image_t		*mt;
 	int		blockdivshift;
 	int		r_numhblocks;

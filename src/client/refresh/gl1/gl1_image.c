@@ -39,7 +39,7 @@ static cvar_t *intensity;
 unsigned d_8to24table[256];
 
 extern cvar_t *gl1_minlight;
-extern unsigned char minlight[256];
+extern byte minlight[256];
 
 qboolean R_Upload8(byte *data, int width, int height,
 		qboolean mipmap, qboolean is_sky);
@@ -130,7 +130,7 @@ R_SetTexturePalette(const unsigned palette[256])
 {
 	if (gl_config.palettedtexture)
 	{
-		unsigned char temptable[768];
+		byte temptable[768];
 		int i;
 
 		for (i = 0; i < 256; i++)
@@ -522,7 +522,7 @@ R_MipMap(byte *in, int width, int height)
  * Returns has_alpha
  */
 static void
-R_BuildPalettedTexture(unsigned char *paletted_texture, unsigned char *scaled,
+R_BuildPalettedTexture(byte *paletted_texture, byte *scaled,
 		int scaled_width, int scaled_height)
 {
 	int i;
@@ -584,7 +584,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 {
 	int samples;
 	unsigned scaled[256 * 256];
-	unsigned char paletted_texture[256 * 256];
+	byte paletted_texture[256 * 256];
 	int scaled_width, scaled_height;
 	int i, c;
 	byte *scan;
@@ -668,7 +668,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 				(samples == Q2_GL_SOLID_FORMAT))
 			{
 				uploaded_paletted = true;
-				R_BuildPalettedTexture(paletted_texture, (unsigned char *)data,
+				R_BuildPalettedTexture(paletted_texture, (byte *)data,
 						scaled_width, scaled_height);
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
 						scaled_width, scaled_height, 0, GL_COLOR_INDEX,
@@ -698,7 +698,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 		(samples == Q2_GL_SOLID_FORMAT))
 	{
 		uploaded_paletted = true;
-		R_BuildPalettedTexture(paletted_texture, (unsigned char *)scaled,
+		R_BuildPalettedTexture(paletted_texture, (byte *)scaled,
 				scaled_width, scaled_height);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_COLOR_INDEX8_EXT,
 				scaled_width, scaled_height, 0, GL_COLOR_INDEX,
@@ -739,7 +739,7 @@ R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
 				(samples == Q2_GL_SOLID_FORMAT))
 			{
 				uploaded_paletted = true;
-				R_BuildPalettedTexture(paletted_texture, (unsigned char *)scaled,
+				R_BuildPalettedTexture(paletted_texture, (byte *)scaled,
 						scaled_width, scaled_height);
 				glTexImage2D(GL_TEXTURE_2D, miplevel, GL_COLOR_INDEX8_EXT,
 						scaled_width, scaled_height, 0, GL_COLOR_INDEX,

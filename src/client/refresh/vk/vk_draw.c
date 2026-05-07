@@ -482,7 +482,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 
 	if (vk_rawTexture.resource.image != VK_NULL_HANDLE)
 	{
-		QVk_UpdateTextureData(&vk_rawTexture, (unsigned char*)raw_image32, 0, 0, cols, rows);
+		QVk_UpdateTextureData(&vk_rawTexture, (byte*)raw_image32, 0, 0, cols, rows);
 	}
 	else
 	{
@@ -490,7 +490,7 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 		vk_rawTexture_height = rows;
 
 		QVVKTEXTURE_CLEAR(vk_rawTexture);
-		QVk_CreateTexture(&vk_rawTexture, (unsigned char*)raw_image32, cols, rows,
+		QVk_CreateTexture(&vk_rawTexture, (byte*)raw_image32, cols, rows,
 			(r_videos_unfiltered->value == 0) ? vk_current_sampler : S_NEAREST,
 			false);
 		QVk_DebugSetObjectName((uint64_t)vk_rawTexture.resource.image,
