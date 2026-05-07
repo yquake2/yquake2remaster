@@ -450,6 +450,10 @@ SV_BeginDownload_f(void)
 	if (Cmd_Argc() > 2)
 	{
 		offset = (int)strtol(Cmd_Argv(2), (char **)NULL, 10); /* downloaded offset */
+		if (offset < 0)
+		{
+			offset = 0;
+		}
 	}
 
 	/* hacked by zoid to allow more conrol over download
@@ -704,6 +708,14 @@ SV_ExecuteClientMessage(client_t *cl)
 				checksumIndex = net_message.readcount;
 				checksum = MSG_ReadByte(&net_message);
 				lastframe = MSG_ReadLong(&net_message);
+
+				/* impossible ack — would underflow into a stale delta slot */
+				if (lastframe > (int)sv.framenum)
+				{
+					Com_Printf("SV_ReadClientMessage: lastframe out of range\n");
+					SV_DropClient(cl);
+					return;
+				}
 
 				if (lastframe != cl->lastframe)
 				{
