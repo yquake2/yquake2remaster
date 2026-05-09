@@ -256,7 +256,7 @@ SV_Configstrings_f(void)
 	if ((Cmd_Argc() <= 1) ||
 		((int)strtol(Cmd_Argv(1), (char **)NULL, 10) != svs.spawncount))
 	{
-		Com_Printf("SV_Configstrings_f from different level\n");
+		Com_Printf("%s from different level\n", __func__);
 		SV_New_f();
 		return;
 	}
@@ -360,7 +360,7 @@ SV_Baselines_f(void)
 	if ((Cmd_Argc() <= 1) ||
 		((int)strtol(Cmd_Argv(1), (char **)NULL, 10) != svs.spawncount))
 	{
-		Com_Printf("SV_Baselines_f from different level\n");
+		Com_Printf("%s from different level\n", __func__);
 		SV_New_f();
 		return;
 	}
@@ -376,7 +376,7 @@ SV_Begin_f(void)
 	/* handle the case of a level changing while a client was connecting */
 	if ((int)strtol(Cmd_Argv(1), (char **)NULL, 10) != svs.spawncount)
 	{
-		Com_Printf("SV_Begin_f from different level\n");
+		Com_Printf("%s from different level\n", __func__);
 		SV_New_f();
 		return;
 	}
@@ -670,7 +670,7 @@ SV_ExecuteClientMessage(client_t *cl)
 
 		if (net_message.readcount > net_message.cursize)
 		{
-			Com_Printf("SV_ReadClientMessage: badread\n");
+			Com_Printf("%s: badread\n", __func__);
 			SV_DropClient(cl);
 			return;
 		}
@@ -685,7 +685,7 @@ SV_ExecuteClientMessage(client_t *cl)
 		switch (c)
 		{
 			default:
-				Com_Printf("SV_ReadClientMessage: unknown command char\n");
+				Com_Printf("%s: unknown command char\n", __func__);
 				SV_DropClient(cl);
 				return;
 
@@ -710,9 +710,10 @@ SV_ExecuteClientMessage(client_t *cl)
 				lastframe = MSG_ReadLong(&net_message);
 
 				/* impossible ack — would underflow into a stale delta slot */
-				if (lastframe > (int)sv.framenum)
+				if (sv.framenum && (lastframe > (int)sv.framenum))
 				{
-					Com_Printf("SV_ReadClientMessage: lastframe out of range\n");
+					Com_Printf("%s: lastframe out of range %d > %d\n",
+						__func__, lastframe, sv.framenum);
 					SV_DropClient(cl);
 					return;
 				}
