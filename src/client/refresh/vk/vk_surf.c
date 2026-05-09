@@ -89,20 +89,20 @@ DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 static void
 R_DrawTriangleOutlines(void)
 {
-	int			i, j, k;
-	mpoly_t	*p;
+	VkDeviceSize vboOffset;
+	VkBuffer vbo;
+	mpoly_t *p;
+	size_t i;
 
 	if (!r_showtris->value)
 	{
 		return;
 	}
 
-	VkBuffer vbo;
-	VkDeviceSize vboOffset;
-	float color[3] = { 1.f, 1.f, 1.f };
+	vec3_t color = { 1.f, 1.f, 1.f };
 	struct {
 		vec3_t v;
-		float color[3];
+		vec3_t color;
 	} triVert[4];
 
 	QVk_BindPipeline(&vk_showTrisPipeline);
@@ -121,6 +121,8 @@ R_DrawTriangleOutlines(void)
 			p = surf->polys;
 			for (; p; p = p->chain)
 			{
+				size_t j, k;
+
 				for (j = 2, k = 0; j < p->numverts; j++, k++)
 				{
 					VectorCopy(p->verts[0].pos, triVert[0].v);
@@ -150,10 +152,11 @@ static void
 R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 	const entity_t *currententity)
 {
-	int			maps;
-	image_t		*image;
+	vec4_t color = { 1.f, 1.f, 1.f, alpha };
 	qboolean is_dynamic = false;
-	float		color[4] = { 1.f, 1.f, 1.f, alpha };
+	image_t *image;
+	size_t maps;
+
 	c_brush_polys++;
 
 	image = R_TextureAnimation(currententity, fa->texinfo);
@@ -251,7 +254,7 @@ R_DrawAlphaSurfaces(void)
 	// the textures are prescaled up for a better lighting range,
 	// so scale it back down
 	intens = vk_state.inverse_intensity;
-	float color[4] = { intens, intens, intens, 1.f };
+	vec4_t color = { intens, intens, intens, 1.f };
 
 	for (s = r_alpha_surfaces; s; s = s->texturechain)
 	{

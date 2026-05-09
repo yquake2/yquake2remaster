@@ -58,7 +58,7 @@
 
 #include "../../files/HandmadeMath.h"
 
-#if 0 // only use this for development ..
+#if DEBUG // only use this for development ..
 #define STUB_ONCE(msg) do { \
 		static int show=1; \
 		if(show) { \

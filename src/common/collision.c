@@ -133,8 +133,9 @@ static byte *phsrow = NULL;
 static byte *ptsrow = NULL;
 static size_t pxsrow_len = 0;
 // -2: nothing is cached
-static int cached_pvs_cluster = -2;
-static int cached_phs_cluster = -2;
+#define CLUSTER_NOT_CACHED -2
+static int cached_pvs_cluster = CLUSTER_NOT_CACHED;
+static int cached_phs_cluster = CLUSTER_NOT_CACHED;
 static cbrush_t *box_brush;
 static cleaf_t *box_leaf;
 static cplane_t *box_planes = NULL;
@@ -1837,8 +1838,8 @@ CM_ModFreeAll(void)
 	}
 
 	pxsrow_len = 0;
-	cached_pvs_cluster = -2;
-	cached_phs_cluster = -2;
+	cached_pvs_cluster = CLUSTER_NOT_CACHED;
+	cached_phs_cluster = CLUSTER_NOT_CACHED;
 
 	Com_Printf("Server models free up\n");
 }
@@ -1987,8 +1988,8 @@ CM_LoadCachedMap(const char *name, model_t *mod)
 
 		ptsrow = tmp;
 
-		cached_pvs_cluster = -2;
-		cached_phs_cluster = -2;
+		cached_pvs_cluster = CLUSTER_NOT_CACHED;
+		cached_phs_cluster = CLUSTER_NOT_CACHED;
 
 		Com_Printf("Allocated " YQ2_COM_PRIdS " bit leafs of PVS/PHS buffer\n",
 			pxsrow_len);

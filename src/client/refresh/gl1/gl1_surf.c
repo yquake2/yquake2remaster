@@ -67,8 +67,8 @@ R_DrawGLPoly(msurface_t *fa)
 static void
 R_DrawTriangleOutlines(void)
 {
-	int i, j;
 	mpoly_t *p;
+	size_t i;
 
 	if (!r_showtris->value)
 	{
@@ -91,6 +91,8 @@ R_DrawTriangleOutlines(void)
 
 			for ( ; p; p = p->chain)
 			{
+				size_t j;
+
 				for (j = 2; j < p->numverts; j++)
 				{
 					GLfloat vtx[12];
