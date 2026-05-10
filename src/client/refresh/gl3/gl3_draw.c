@@ -365,6 +365,12 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		return;
 	}
 
+	if (image->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL3_Scrap_Upload();
+	}
+
 	GL3_UseProgram(gl3state.si2D.shaderProgram);
 	GL3_Bind(image->texnum);
 
@@ -445,12 +451,12 @@ GL3_Draw_Fill(int x, int y, int w, int h, int c)
 void
 GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 {
+	size_t i = 0;
+
 	if (gl_polyblend->value == 0)
 	{
 		return;
 	}
-
-	int i=0;
 
 	GLfloat vBuf[8] = {
 	//  X,   Y
@@ -462,7 +468,10 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 
 	glEnable(GL_BLEND);
 
-	for (i=0; i<4; ++i)  gl3state.uniCommonData.color.Elements[i] = color[i];
+	for (i = 0; i < 4; ++i)
+	{
+		gl3state.uniCommonData.color.Elements[i] = color[i];
+	}
 
 	GL3_UpdateUBOCommon();
 

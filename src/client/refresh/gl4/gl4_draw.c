@@ -270,6 +270,12 @@ GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 		return;
 	}
 
+	if (gl->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL4_Scrap_Upload();
+	}
+
 	GL4_UseProgram(gl4state.si2D.shaderProgram);
 	GL4_Bind(gl->texnum);
 
@@ -295,10 +301,17 @@ GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		return;
 	}
 
+	if (gl->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL4_Scrap_Upload();
+	}
+
 	GL4_UseProgram(gl4state.si2D.shaderProgram);
 	GL4_Bind(gl->texnum);
 
-	drawTexturedRectangle(x, y, gl->width*factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
+	drawTexturedRectangle(x, y, gl->width * factor, gl->height * factor,
+		gl->sl, gl->tl, gl->sh, gl->th);
 }
 
 void
@@ -317,6 +330,12 @@ GL4_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 
 		Com_Printf("Can't find pic: %s\n", pic);
 		return;
+	}
+
+	if (gl->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL4_Scrap_Upload();
 	}
 
 	gl4state.uniCommonData.color = HMM_Vec4(color[0], color[1], color[2], 1.0f);
@@ -346,10 +365,17 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		return;
 	}
 
+	if (image->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL4_Scrap_Upload();
+	}
+
 	GL4_UseProgram(gl4state.si2D.shaderProgram);
 	GL4_Bind(image->texnum);
 
-	drawTexturedRectangle(x, y, w, h, x/64.0f, y/64.0f, (x+w)/64.0f, (y+h)/64.0f);
+	drawTexturedRectangle(x, y, w, h,
+		x / 64.0f, y / 64.0f, (x + w) / 64.0f, (y + h) / 64.0f);
 }
 
 void
@@ -425,12 +451,12 @@ GL4_Draw_Fill(int x, int y, int w, int h, int c)
 void
 GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
 {
+	size_t i = 0;
+
 	if (gl_polyblend->value == 0)
 	{
 		return;
 	}
-
-	int i=0;
 
 	GLfloat vBuf[8] = {
 	//  X,   Y
@@ -442,7 +468,10 @@ GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
 
 	glEnable(GL_BLEND);
 
-	for (i=0; i<4; ++i)  gl4state.uniCommonData.color.Elements[i] = color[i];
+	for (i = 0; i < 4; ++i)
+	{
+		gl4state.uniCommonData.color.Elements[i] = color[i];
+	}
 
 	GL4_UpdateUBOCommon();
 

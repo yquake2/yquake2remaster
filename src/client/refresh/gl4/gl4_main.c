@@ -1593,6 +1593,7 @@ GL4_RenderFrame(const refdef_t *fd)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // now render to default framebuffer
 		gl4state.ppFBObound = false;
 	}
+
 	GL4_SetGL2D();
 
 	int x = (vid.width - r_newrefdef.width)/2;

@@ -280,7 +280,7 @@ typedef struct image_s
 	char name[MAX_QPATH];               /* game path, including extension */
 	imagetype_t type;
 	int width, height;                  /* source image */
-	//int upload_width, upload_height;    /* after power of two and picmip */
+	int upload_width, upload_height;    /* after power of two and picmip */
 	int registration_sequence;          /* 0 = free */
 	struct msurface_s *texturechain;    /* for sort-by-texture world drawing */
 	GLuint texnum;                      /* gl texture binding */
@@ -426,7 +426,8 @@ GL4_SelectTMU(GLenum tmu)
 	}
 }
 
-extern void GL4_TextureMode(char *string);
+extern void GL4_TextureMode(const char *string);
+extern void GL4_Scrap_Upload(void);
 extern void GL4_Bind(GLuint texnum);
 extern void GL4_BindLightmap(int lightmapnum);
 extern gl4image_t *GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,

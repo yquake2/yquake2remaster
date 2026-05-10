@@ -219,7 +219,8 @@ GL3_Bind(GLuint texnum)
 void
 GL3_BindLightmap(int lightmapnum)
 {
-	int i=0;
+	size_t i;
+
 	if (lightmapnum < 0 || lightmapnum >= MAX_LIGHTMAPS)
 	{
 		Com_Printf("WARNING: Invalid lightmapnum %i used!\n", lightmapnum);

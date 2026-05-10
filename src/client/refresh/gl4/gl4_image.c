@@ -26,6 +26,7 @@
  */
 
 #include "header/local.h"
+#include <limits.h>
 
 typedef struct
 {
@@ -49,8 +50,65 @@ gl4image_t gl4textures[MAX_TEXTURES];
 int numgl4textures = 0;
 static int image_max = 0;
 
+/* Scrap texture atlasing for small images (pics, UI elements, etc.) */
+static GLuint gl4_scrap_textures[MAX_SCRAPS] = {0};
+
 void
-GL4_TextureMode(char *string)
+GL4_Scrap_Upload(void)
+{
+	size_t i;
+
+	for (i = 0; i < MAX_SCRAPS; i++)
+	{
+		unsigned *scrap_data;
+
+		scrap_data = Scrap_Upload(i);
+		if (!scrap_data)
+		{
+			/* No data for this scrap or already uploaded */
+			continue;
+		}
+
+		GL4_SelectTMU(GL_TEXTURE0);
+
+		if (!gl4_scrap_textures[i])
+		{
+			/* Create new scrap texture */
+			glGenTextures(1, &gl4_scrap_textures[i]);
+			glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[i]);
+
+			/* Use nearest filtering for scrap 0 (nolerp crosshairs etc),
+			   linear for others */
+			if (i == 0)
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			}
+			else
+			{
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
+			}
+
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+			/* Upload scrap texture data */
+			glTexImage2D(GL_TEXTURE_2D, 0, gl4_tex_alpha_format, SCRAP_WIDTH,
+					SCRAP_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, scrap_data);
+		}
+		else
+		{
+			/* Update existing scrap texture with new data */
+			glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[i]);
+			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, SCRAP_WIDTH, SCRAP_HEIGHT,
+					GL_RGBA, GL_UNSIGNED_BYTE, scrap_data);
+		}
+	}
+}
+
+void
+GL4_TextureMode(const char *string)
 {
 	const int num_modes = ARRLEN(modes);
 	int i;
@@ -161,7 +219,8 @@ GL4_Bind(GLuint texnum)
 void
 GL4_BindLightmap(int lightmapnum)
 {
-	int i=0;
+	size_t i;
+
 	if (lightmapnum < 0 || lightmapnum >= MAX_LIGHTMAPS)
 	{
 		Com_Printf("WARNING: Invalid lightmapnum %i used!\n", lightmapnum);
@@ -174,11 +233,11 @@ GL4_BindLightmap(int lightmapnum)
 	}
 
 	gl4state.currentlightmap = lightmapnum;
-	for (i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
+	for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; ++i)
 	{
 		// this assumes that GL_TEXTURE<i+1> = GL_TEXTURE<i> + 1
 		// at least for GL_TEXTURE0 .. GL_TEXTURE31 that's true
-		GL4_SelectTMU(GL_TEXTURE1+i);
+		GL4_SelectTMU(GL_TEXTURE1 + i);
 		glBindTexture(GL_TEXTURE_2D, gl4state.lightmap_textureIDs[lightmapnum][i]);
 	}
 }
@@ -225,7 +284,7 @@ GL4_ImageList_f(void)
 		int w, h;
 		const char *in_use = "", *scrap = "";
 
-		if (image->texnum == 0)
+		if (image->texnum <= 0)
 		{
 			continue;
 		}
@@ -241,12 +300,12 @@ GL4_ImageList_f(void)
 			scrap = "scrap";
 		}
 
-		w = image->width;
-		h = image->height;
+		w = image->upload_width;
+		h = image->upload_height;
 
 		isNPOT = IsNPOT(w) || IsNPOT(h);
 
-		texels += w*h;
+		texels += w * h;
 
 		char imageType = '?';
 		switch (image->type)
@@ -272,9 +331,10 @@ GL4_ImageList_f(void)
 		}
 		char isLava = image->is_lava ? 'L' : ' ';
 
-		Com_Printf("%c%c %3i %3i %s %s: %s %s %s\n", imageType, isLava, w, h,
+		Com_Printf("%c%c %3i %3i %s %s: %s (%dx%d) %s %s\n",
+			imageType, isLava, w, h,
 			formatstrings[image->has_alpha], potstrings[isNPOT], image->name,
-			in_use, scrap);
+			image->width, image->height, in_use, scrap);
 	}
 
 	Com_Printf("Total texel count (not counting mipmaps): %i\n",
@@ -334,7 +394,8 @@ GL4_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 
 	if (mipmap && gl4config.anisotropic && r_anisotropic->value)
 	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, Q_max(r_anisotropic->value, 1.f));
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY,
+				Q_max(r_anisotropic->value, 1.f));
 	}
 
 	return res;
@@ -468,58 +529,65 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		}
 	}
 
-// TODO: the scrap could allow batch rendering 2D stuff? not sure it's worth the hassle..
-#if 0
-	/* load little pics into the scrap */
-	if (!nolerp && (image->type == it_pic) && (bits == 8) &&
-		(image->width < 64) && (image->height < 64))
+	/* Load little pics into the scrap texture atlas */
+	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
+		int texnum = -1;
 		int x, y;
-		int i, j, k;
-		int texnum;
 
-		texnum = Scrap_AllocBlock(image->width, image->height, &x, &y);
+		if (bits == 32)
+		{
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : 1);
+		}
+		else
+		{
+			unsigned *trans;
+
+			trans = R_Convert8to32(pic, width, height, d_8to24table);
+			if (trans)
+			{
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : 1);
+				free(trans);
+			}
+		}
 
 		if (texnum == -1)
 		{
 			goto nonscrap;
 		}
 
-		scrap_dirty = true;
-
-		/* copy the texels into the scrap block */
-		k = 0;
-
-		for (i = 0; i < image->height; i++)
+		/* Scrap_AllocBlock() has already marked the scrap as dirty internally,
+		   so GL4_Scrap_Upload() will upload it on the next call. */
+		if (!gl4_scrap_textures[texnum])
 		{
-			for (j = 0; j < image->width; j++, k++)
-			{
-				scrap_texels[texnum][(y + i) * BLOCK_WIDTH + x + j] = pic[k];
-			}
+			GL4_Scrap_Upload();
 		}
 
-		image->texnum = TEXNUM_SCRAPS + texnum;
+		/* uploaded at least once */
+		if (!gl4_scrap_textures[texnum])
+		{
+			goto nonscrap;
+		}
+
+		image->texnum = gl4_scrap_textures[texnum];
 		image->scrap = true;
 		image->has_alpha = true;
-		image->sl = (x + 0.01) / (float)BLOCK_WIDTH;
-		image->sh = (x + image->width - 0.01) / (float)BLOCK_WIDTH;
-		image->tl = (y + 0.01) / (float)BLOCK_WIDTH;
-		image->th = (y + image->height - 0.01) / (float)BLOCK_WIDTH;
+		image->sl = (float)x / SCRAP_WIDTH;
+		image->sh = (float)(x + width) / SCRAP_WIDTH;
+		image->tl = (float)y / SCRAP_HEIGHT;
+		image->th = (float)(y + height) / SCRAP_HEIGHT;
+		image->upload_width = width;
+		image->upload_height = height;
 	}
 	else
-#endif
 	{
-		// nonscrap:
-		image->is_lava = (strstr(name, "lava") != NULL);
-
+	nonscrap:
 		image->scrap = false;
-
+		image->is_lava = (strstr(name, "lava") != NULL);
 		glGenTextures(1, &texNum);
-
 		image->texnum = texNum;
-
 		GL4_SelectTMU(GL_TEXTURE0);
-		GL4_Bind(texNum);
+		GL4_Bind(image->texnum);
 
 		if (bits == 8)
 		{
@@ -532,6 +600,12 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 				// scale 3 times if lerp image
 				if (!nolerp && (vid.height >= 240 * 3))
 					scale = 3;
+
+				if (height == 0 || scale == 0 || width > INT_MAX / height / scale / scale)
+				{
+					Com_Error(ERR_DROP, "%s: invalid dimensions", __func__);
+					return NULL;
+				}
 
 				image_converted = malloc(width * height * scale * scale);
 				if (!image_converted)
@@ -559,22 +633,9 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 						(image->type != it_pic && image->type != it_sky));
 		}
 
-		if (realwidth && realheight)
-		{
-			if ((realwidth <= image->width) && (realheight <= image->height))
-			{
-				image->width = realwidth;
-				image->height = realheight;
-			}
-			else
-			{
-				Com_DPrintf(
-						"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
-						name, image->width, image->height, realwidth, realheight);
-			}
-		}
+		image->upload_width = width; /* after power of 2 and scales */
+		image->upload_height = height;
 
-		image->scrap = false;
 		image->sl = 0;
 		image->sh = 1;
 		image->tl = 0;
@@ -584,6 +645,21 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+	}
+
+	if (realwidth && realheight)
+	{
+		if ((realwidth <= image->width) && (realheight <= image->height))
+		{
+			image->width = realwidth;
+			image->height = realheight;
+		}
+		else
+		{
+			Com_DPrintf(
+					"Warning, image '%s' has hi-res replacement smaller than the original! (%d x %d) < (%d x %d)\n",
+					name, image->width, image->height, realwidth, realheight);
 		}
 	}
 
@@ -728,8 +804,8 @@ GL4_ImageHasFreeSpace(void)
 void
 GL4_ShutdownImages(void)
 {
-	int i;
 	gl4image_t *image;
+	size_t i;
 
 	for (i = 0, image = gl4textures; i < numgl4textures; i++, image++)
 	{
@@ -739,7 +815,20 @@ GL4_ShutdownImages(void)
 		}
 
 		/* free it */
-		glDeleteTextures(1, &image->texnum);
+		if (!image->scrap)
+		{
+			glDeleteTextures(1, &image->texnum);
+		}
+
 		memset(image, 0, sizeof(*image));
+	}
+
+	for (i = 0; i < MAX_SCRAPS; i++)
+	{
+		if (gl4_scrap_textures[i])
+		{
+			glDeleteTextures(1, &gl4_scrap_textures[i]);
+			gl4_scrap_textures[i] = 0;
+		}
 	}
 }
