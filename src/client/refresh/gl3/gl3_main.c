@@ -1650,6 +1650,7 @@ GL3_RenderFrame(const refdef_t *fd)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0); // now render to default framebuffer
 		gl3state.ppFBObound = false;
 	}
+
 	GL3_SetGL2D();
 
 	int x = (vid.width - r_newrefdef.width)/2;

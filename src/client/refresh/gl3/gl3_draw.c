@@ -169,7 +169,7 @@ GL3_Draw_CharScaled(int x, int y, int num, float scale)
 
 	GL3_UseProgram(gl3state.si2D.shaderProgram);
 	GL3_Bind(draw_chars->texnum);
-	drawTexturedRectangle(x, y, scaledSize, scaledSize, fcol, frow, fcol+size, frow+size);
+	drawTexturedRectangle(x, y, scaledSize, scaledSize, fcol, frow, fcol + size, frow + size);
 }
 
 void
@@ -270,6 +270,12 @@ GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 		return;
 	}
 
+	if (gl->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL3_Scrap_Upload();
+	}
+
 	GL3_UseProgram(gl3state.si2D.shaderProgram);
 	GL3_Bind(gl->texnum);
 
@@ -295,10 +301,17 @@ GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		return;
 	}
 
+	if (gl->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL3_Scrap_Upload();
+	}
+
 	GL3_UseProgram(gl3state.si2D.shaderProgram);
 	GL3_Bind(gl->texnum);
 
-	drawTexturedRectangle(x, y, gl->width*factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
+	drawTexturedRectangle(x, y, gl->width * factor, gl->height * factor,
+		gl->sl, gl->tl, gl->sh, gl->th);
 }
 
 void
@@ -317,6 +330,12 @@ GL3_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 
 		Com_Printf("Can't find pic: %s\n", pic);
 		return;
+	}
+
+	if (gl->scrap)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL3_Scrap_Upload();
 	}
 
 	gl3state.uniCommonData.color = HMM_Vec4(color[0], color[1], color[2], 1.0f);
@@ -349,7 +368,8 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 	GL3_UseProgram(gl3state.si2D.shaderProgram);
 	GL3_Bind(image->texnum);
 
-	drawTexturedRectangle(x, y, w, h, x/64.0f, y/64.0f, (x+w)/64.0f, (y+h)/64.0f);
+	drawTexturedRectangle(x, y, w, h,
+		x / 64.0f, y / 64.0f, (x + w) / 64.0f, (y + h) / 64.0f);
 }
 
 void

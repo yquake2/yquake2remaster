@@ -290,7 +290,7 @@ typedef struct image_s
 	char name[MAX_QPATH];               /* game path, including extension */
 	imagetype_t type;
 	int width, height;                  /* source image */
-	//int upload_width, upload_height;    /* after power of two and picmip */
+	int upload_width, upload_height;    /* after power of two and picmip */
 	int registration_sequence;          /* 0 = free */
 	struct msurface_s *texturechain;    /* for sort-by-texture world drawing */
 	GLuint texnum;                      /* gl texture binding */
@@ -437,10 +437,11 @@ GL3_SelectTMU(GLenum tmu)
 	}
 }
 
-extern void GL3_TextureMode(char *string);
+extern void GL3_TextureMode(const char *string);
+extern void GL3_Scrap_Upload(void);
 extern void GL3_Bind(GLuint texnum);
 extern void GL3_BindLightmap(int lightmapnum);
-extern gl3image_t *GL3_LoadPic(char *name, byte *pic, int width, int realwidth,
+extern gl3image_t *GL3_LoadPic(const char *name, byte *pic, int width, int realwidth,
                                int height, int realheight, size_t data_size,
                                imagetype_t type, int bits);
 extern gl3image_t *GL3_FindImage(const char *name, imagetype_t type);
