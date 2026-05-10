@@ -1458,7 +1458,7 @@ RI_Init(void)
 
 	sscanf(gl_config.version_string, "%d.%d", &gl_config.major_version, &gl_config.minor_version);
 
-	if (refresher == rf_opengl14 && gl_config.major_version == 1)
+	if ((refresher == rf_opengl14) && (gl_config.major_version == 1))
 	{
 		if (gl_config.minor_version < 4)
 		{

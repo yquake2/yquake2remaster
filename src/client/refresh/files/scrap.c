@@ -80,7 +80,8 @@ CommonAllocBlock(int *allocated, size_t alloc_width, size_t alloc_height,
 
 /* returns a texture number and the position inside it */
 int
-Scrap_AllocBlock(unsigned w, unsigned h, int *x, int *y, unsigned *pic, int scrap_offset)
+Scrap_AllocBlock(unsigned w, unsigned h, int *x, int *y, const unsigned *pic,
+	int scrap_offset)
 {
 	int texnum;
 	w += 2;	// add an empty border to all sides

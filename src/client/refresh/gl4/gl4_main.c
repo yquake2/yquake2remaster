@@ -341,7 +341,7 @@ GL4_SetMode(void)
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
 				r_msaa_samples->modified = false;
 
-				if ((err = SetMode_impl(&vid.width, &vid.height, r_mode->value, 0)) == rserr_ok)
+				if (SetMode_impl(&vid.width, &vid.height, r_mode->value, 0) == rserr_ok)
 				{
 					return true;
 				}
@@ -358,7 +358,7 @@ GL4_SetMode(void)
 		}
 
 		/* try setting it back to something safe */
-		if ((err = SetMode_impl(&vid.width, &vid.height, gl4state.prev_mode, 0)) != rserr_ok)
+		if (SetMode_impl(&vid.width, &vid.height, gl4state.prev_mode, 0) != rserr_ok)
 		{
 			Com_Printf("ref_gl4::GL4_SetMode() - could not revert to safe mode\n");
 			return false;

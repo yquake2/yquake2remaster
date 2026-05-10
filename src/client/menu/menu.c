@@ -6317,7 +6317,7 @@ HasSkinsInDir(const char *dirname, int *num)
 		if (!list)
 		{
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return false;
+			return NULL;
 		}
 
 		if (list_png && num_png)
