@@ -185,6 +185,7 @@ image_t *Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		    int height, int realheight, size_t data_size, imagetype_t type,
 		    int bits);
 image_t	*Vk_FindImage (const char *name, imagetype_t type);
+void	Vk_Scrap_Upload(void);
 void	Vk_TextureMode(const char *string);
 void	Vk_LmapTextureMode(const char *string);
 void	Vk_ImageList_f (void);

@@ -266,7 +266,7 @@ GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 
 	if (!gl)
 	{
-		Com_Printf("Can't find pic: %s\n", pic);
+		Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
 		return;
 	}
 
@@ -361,7 +361,7 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 	const gl3image_t *image = R_FindPic(pic, (findimage_t)GL3_FindImage);
 	if (!image)
 	{
-		Com_Printf("Can't find pic: %s\n", pic);
+		Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
 		return;
 	}
 
@@ -410,7 +410,7 @@ GL3_Draw_Fill(int x, int y, int w, int h, int c)
 		unsigned c;
 		byte v[4];
 	} color;
-	int i;
+	size_t i;
 
 	if ((unsigned)c > 255)
 	{
@@ -428,10 +428,11 @@ GL3_Draw_Fill(int x, int y, int w, int h, int c)
 		x+w, y
 	};
 
-	for (i=0; i<3; ++i)
+	for (i = 0; i < 3; ++i)
 	{
 		gl3state.uniCommonData.color.Elements[i] = color.v[i] * (1.0f/255.0f);
 	}
+
 	gl3state.uniCommonData.color.A = 1.0f;
 
 	GL3_UpdateUBOCommon();

@@ -960,6 +960,55 @@ Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
 	return miplevel;
 }
 
+void
+Vk_Scrap_Upload(void)
+{
+	size_t texnum;
+
+	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	{
+		int upload_width, upload_height;
+		unsigned *scrap_texels;
+		byte *texBuffer = NULL;
+
+		scrap_texels = Scrap_Upload(texnum);
+		if (!scrap_texels)
+		{
+			/* scrap no chaned yet */
+			continue;
+		}
+
+		Vk_Upload32Native((byte *)scrap_texels, SCRAP_WIDTH, SCRAP_HEIGHT,
+			it_pic, &texBuffer, &upload_width, &upload_height);
+
+		if (vk_scrapTextures[texnum].resource.image != VK_NULL_HANDLE)
+		{
+			QVk_UpdateTextureData(&vk_scrapTextures[texnum], (byte*)texBuffer,
+				0, 0, upload_width, upload_height);
+		}
+		else
+		{
+			QVVKTEXTURE_CLEAR(vk_scrapTextures[texnum]);
+			// don't use linear filtering for scrap 0 - this fixes display issues for the dot crosshair and makes it look consistent across different values of hudscale cvar
+			QVk_CreateTexture(&vk_scrapTextures[texnum], (byte*)texBuffer,
+				upload_width, upload_height,
+				(texnum == 0) ? S_NEAREST : vk_current_sampler, false);
+			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.image,
+				VK_OBJECT_TYPE_IMAGE, va("Image: scrap #" YQ2_COM_PRIdS, texnum));
+			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].imageView,
+				VK_OBJECT_TYPE_IMAGE_VIEW, va("Image View: scrap #" YQ2_COM_PRIdS, texnum));
+			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].descriptorSet,
+				VK_OBJECT_TYPE_DESCRIPTOR_SET, va("Descriptor Set: scrap #" YQ2_COM_PRIdS, texnum));
+			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.memory,
+				VK_OBJECT_TYPE_DEVICE_MEMORY, va("Memory: scrap #" YQ2_COM_PRIdS, texnum));
+		}
+
+		if (texBuffer != (byte *)scrap_texels)
+		{
+			free(texBuffer);
+		}
+	}
+}
 
 /*
  * This is also used as an entry point for the generated r_notexture
@@ -969,7 +1018,6 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	   int height, int realheight, size_t data_size, imagetype_t type,
 	   int bits)
 {
-	byte *texBuffer = NULL;
 	int upload_width, upload_height;
 	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
@@ -1062,7 +1110,6 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	/* load little pics into the scrap */
 	if ((image->type == it_pic) && (width < 128) && (height < 128))
 	{
-		unsigned *scrap_texels;
 		int texnum = -1;
 		int x, y;
 
@@ -1087,10 +1134,13 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			goto nonscrap;
 		}
 
-		scrap_texels = Scrap_Upload(texnum);
-		if (!scrap_texels)
+		if (!vk_scrapTextures[texnum].resource.image)
 		{
-			/* Strange, must be changed */
+			Vk_Scrap_Upload();
+		}
+
+		if (!vk_scrapTextures[texnum].resource.image)
+		{
 			goto nonscrap;
 		}
 
@@ -1103,32 +1153,13 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		image->upload_width = width;
 		image->upload_height = height;
 
-		Vk_Upload32Native((byte *)scrap_texels, SCRAP_WIDTH, SCRAP_HEIGHT,
-			image->type, &texBuffer, &upload_width, &upload_height);
-
-		if (vk_scrapTextures[texnum].resource.image != VK_NULL_HANDLE)
-		{
-			QVk_UpdateTextureData(&vk_scrapTextures[texnum], (byte*)texBuffer,
-				0, 0, upload_width, upload_height);
-		}
-		else
-		{
-			QVVKTEXTURE_CLEAR(vk_scrapTextures[texnum]);
-			// don't use linear filtering for scrap 0 - this fixes display issues for the dot crosshair and makes it look consistent across different values of hudscale cvar
-			QVk_CreateTexture(&vk_scrapTextures[texnum], (byte*)texBuffer,
-				upload_width, upload_height,
-				nolerp ? S_NEAREST : vk_current_sampler, false);
-			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.image, VK_OBJECT_TYPE_IMAGE, va("Image: %s", name));
-			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].imageView, VK_OBJECT_TYPE_IMAGE_VIEW, va("Image View: %s", name));
-			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].descriptorSet, VK_OBJECT_TYPE_DESCRIPTOR_SET, va("Descriptor Set: %s", name));
-			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.memory, VK_OBJECT_TYPE_DEVICE_MEMORY, "Memory: scrap texture");
-		}
-
 		image->vk_texture = vk_scrapTextures[texnum];
 	}
 	else
 	{
 	nonscrap:
+		byte *texBuffer = NULL;
+
 		image->scrap = false;
 
 		if (bits == 8)
