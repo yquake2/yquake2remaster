@@ -191,7 +191,6 @@ GL3_DrawGLFlowingPoly(const msurface_t *fa)
 		GL3_UpdateUBO3D();
 	}
 
-
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
 
@@ -201,59 +200,65 @@ GL3_DrawGLFlowingPoly(const msurface_t *fa)
 static void
 DrawTriangleOutlines(void)
 {
-	STUB_ONCE("TODO: Implement for r_showtris support!");
-#if 0
-	int i, j;
-	mpoly_t *p;
+	const msurface_t *surf;
+	size_t i;
 
 	if (!r_showtris->value)
 	{
 		return;
 	}
 
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
-	glColor4f(1, 1, 1, 1);
+	GL3_UseProgram(gl3state.si3DcolorOnly.shaderProgram);
 
-	for (i = 0; i < MAX_LIGHTMAPS; i++)
+	gl3state.uniCommonData.color = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	GL3_UpdateUBOCommon();
+
+	for (i = 0, surf = gl3_worldmodel->surfaces; i < gl3_worldmodel->numsurfaces; i++, surf++)
 	{
-		msurface_t *surf;
+		const mpoly_t *p;
 
-		for (surf = gl3_lms.lightmap_surfaces[i];
-				surf != 0;
-				surf = surf->lightmapchain)
+		if (surf->visframe != gl3_framecount)
 		{
-			p = surf->polys;
+			continue;
+		}
 
-			for ( ; p; p = p->chain)
+		for (p = surf->polys; p != NULL; p = p->chain)
+		{
+			size_t j;
+
+			for (j = 2; j < p->numverts; j++)
 			{
-				for (j = 2; j < p->numverts; j++)
+				mvtx_t vtx[4];
+				size_t k;
+
+				for (k = 0; k < 3; k++)
 				{
-					GLfloat vtx[12];
-					unsigned int k;
-
-					for (k=0; k<3; k++)
-					{
-						vtx[0+k] = p->verts [ 0 ][ k ];
-						vtx[3+k] = p->verts [ j - 1 ][ k ];
-						vtx[6+k] = p->verts [ j ][ k ];
-						vtx[9+k] = p->verts [ 0 ][ k ];
-					}
-
-					glEnableClientState( GL_VERTEX_ARRAY );
-
-					glVertexPointer( 3, GL_FLOAT, 0, vtx );
-					glDrawArrays( GL_LINE_STRIP, 0, 4 );
-
-					glDisableClientState( GL_VERTEX_ARRAY );
+					vtx[0].pos[k] = p->verts[0].pos[k];
+					vtx[1].pos[k] = p->verts[j - 1].pos[k];
+					vtx[2].pos[k] = p->verts[j].pos[k];
+					vtx[3].pos[k] = p->verts[0].pos[k];
 				}
+
+				// set other fields to 0
+				for (k = 0; k < 4; k++)
+				{
+					vtx[k].texCoord[0] = 0;
+					vtx[k].texCoord[1] = 0;
+					vtx[k].lmTexCoord[0] = 0;
+					vtx[k].lmTexCoord[1] = 0;
+					vtx[k].normal[0] = 0;
+					vtx[k].normal[1] = 0;
+					vtx[k].normal[2] = 0;
+					vtx[k].lightFlags = 0;
+				}
+
+				GL3_BufferAndDraw3D(vtx, 4, GL_LINE_STRIP);
 			}
 		}
 	}
 
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-#endif // 0
 }
 
 static void
@@ -478,7 +483,7 @@ static void
 DrawInlineBModel(const entity_t *currententity, model_t *currentmodel)
 {
 	msurface_t *psurf;
-	int i;
+	size_t i;
 
 	/* calculate dynamic lighting for bmodel */
 	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
