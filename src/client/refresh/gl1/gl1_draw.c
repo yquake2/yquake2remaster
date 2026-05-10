@@ -249,7 +249,10 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 		return;
 	}
 
-	Scrap_Update();
+	if (gl->scrap)
+	{
+		Scrap_Update();
+	}
 
 	if (gl->texnum >= TEXNUM_SCRAPS && gl->texnum < TEXNUM_IMAGES)
 	{
@@ -257,6 +260,11 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 		R_Buffer2DQuad(x, y, x + gl->width * factor, y + gl->height * factor,
 			gl->sl, gl->tl, gl->sh, gl->th);
 		return;
+	}
+
+	if (gl->scrap)
+	{
+		Scrap_Update();
 	}
 
 	R_Bind(gl->texnum);
@@ -307,7 +315,10 @@ RDraw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t col
 		return;
 	}
 
-	Scrap_Update();
+	if (gl->scrap)
+	{
+		Scrap_Update();
+	}
 
 	R_ApplyGLBuffer();
 

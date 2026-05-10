@@ -615,8 +615,8 @@ void
 Vk_ImageList_f(void)
 {
 	int i, used, texels;
-	image_t *image;
 	qboolean freeup;
+	image_t *image;
 
 	Com_Printf("------------------\n");
 	texels = 0;
@@ -624,6 +624,7 @@ Vk_ImageList_f(void)
 
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
+		int w, h;
 		const char *in_use = "", *scrap = "";
 
 		if (image->vk_texture.resource.image == VK_NULL_HANDLE)
@@ -642,29 +643,36 @@ Vk_ImageList_f(void)
 			scrap = "scrap";
 		}
 
-		texels += image->upload_width * image->upload_height;
+		w = image->upload_width;
+		h = image->upload_height;
 
+		texels += w * h;
+
+		char imageType = '?';
 		switch (image->type)
 		{
 			case it_skin:
-				Com_Printf("M");
+				imageType = 'M';
 				break;
 			case it_sprite:
-				Com_Printf("S");
+				imageType = 'S';
 				break;
 			case it_wall:
-				Com_Printf("W");
+				imageType = 'W';
 				break;
 			case it_pic:
-				Com_Printf("P");
+				imageType = 'P';
+				break;
+			case it_sky:
+				imageType = 'Y';
 				break;
 			default:
-				Com_Printf(" ");
+				imageType = '?';
 				break;
 		}
 
-		Com_Printf(" %4i %4i RGB: %s (%dx%d) %s %s\n",
-			image->upload_width, image->upload_height, image->name,
+		Com_Printf("%c %4i %4i RGB: %s (%dx%d) %s %s\n",
+			imageType, image->upload_width, image->upload_height, image->name,
 			image->width, image->height, in_use, scrap);
 	}
 

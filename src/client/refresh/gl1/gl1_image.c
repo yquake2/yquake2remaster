@@ -398,6 +398,7 @@ R_ImageList_f(void)
 
 	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 	{
+		int w, h;
 		const char *in_use = "", *scrap = "";
 
 		if (image->texnum <= 0)
@@ -416,29 +417,36 @@ R_ImageList_f(void)
 			scrap = "scrap";
 		}
 
-		texels += image->upload_width * image->upload_height;
+		w = image->upload_width;
+		h = image->upload_height;
 
+		texels += w * h;
+
+		char imageType = '?';
 		switch (image->type)
 		{
 			case it_skin:
-				Com_Printf("M");
+				imageType = 'M';
 				break;
 			case it_sprite:
-				Com_Printf("S");
+				imageType = 'S';
 				break;
 			case it_wall:
-				Com_Printf("W");
+				imageType = 'W';
 				break;
 			case it_pic:
-				Com_Printf("P");
+				imageType = 'P';
+				break;
+			case it_sky:
+				imageType = 'Y';
 				break;
 			default:
-				Com_Printf(" ");
+				imageType = '?';
 				break;
 		}
 
-		Com_Printf(" %3i %3i %s: %s (%dx%d) %s %s\n",
-				image->upload_width, image->upload_height,
+		Com_Printf("%c %3i %3i %s: %s (%dx%d) %s %s\n",
+				imageType, image->upload_width, image->upload_height,
 				palstrings[image->paletted], image->name,
 				image->width, image->height, in_use, scrap);
 	}
@@ -1144,8 +1152,8 @@ RI_RegisterSkin(const char *name)
 void
 R_FreeUnusedImages(void)
 {
-	int i;
 	image_t *image;
+	size_t i;
 
 	/* never free r_notexture or particle texture */
 	r_notexture->registration_sequence = registration_sequence;
@@ -1304,4 +1312,3 @@ R_ShutdownImages(void)
 		memset(image, 0, sizeof(*image));
 	}
 }
-
