@@ -951,7 +951,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	}
 
 	/* load little pics into the scrap */
-	if ((image->type == it_pic) && (width < 128) && (height < 128))
+	if ((image->type == it_pic) && (width <= 256) && (height <= 256))
 	{
 		int texnum = -1;
 		int x, y;

@@ -167,9 +167,18 @@ GL4_Draw_CharScaled(int x, int y, int num, float scale)
 
 	// TODO: batchen?
 
+	if (draw_chars->scrap)
+	{
+		GL4_Scrap_Upload();
+	}
+
 	GL4_UseProgram(gl4state.si2D.shaderProgram);
 	GL4_Bind(draw_chars->texnum);
-	drawTexturedRectangle(x, y, scaledSize, scaledSize, fcol, frow, fcol+size, frow+size);
+	drawTexturedRectangle(x, y, scaledSize, scaledSize,
+		draw_chars->sl + fcol * (draw_chars->sh - draw_chars->sl),
+		draw_chars->tl + frow * (draw_chars->th - draw_chars->tl),
+		draw_chars->sl + (fcol + size) * (draw_chars->sh - draw_chars->sl),
+		draw_chars->tl + (frow + size) * (draw_chars->th - draw_chars->tl));
 }
 
 void

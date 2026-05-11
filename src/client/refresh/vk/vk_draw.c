@@ -92,9 +92,18 @@ RE_Draw_CharScaled(int x, int y, int num, float scale)
 
 	scaledSize = 8 * scale;
 
+	if (draw_chars->scrap)
+	{
+		Vk_Scrap_Upload();
+	}
+
 	QVk_DrawTexRect((float)x / vid.width, (float)y / vid.height,
 					scaledSize / vid.width, scaledSize / vid.height,
-					fcol, frow, size, size, &draw_chars->vk_texture);
+					draw_chars->sl + fcol * (draw_chars->sh - draw_chars->sl),
+					draw_chars->tl + frow * (draw_chars->th - draw_chars->tl),
+					size * (draw_chars->sh - draw_chars->sl),
+					size * (draw_chars->th - draw_chars->tl),
+					&draw_chars->vk_texture);
 }
 
 void
