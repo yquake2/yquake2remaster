@@ -413,6 +413,7 @@ typedef struct
 	float next_auto_save;          /* target_autosave */
 
 	qboolean is_n64;
+	qboolean story_active;
 } level_locals_t;
 
 /* shadow light data structures */

@@ -377,6 +377,7 @@
 {"target_splash", SP_target_splash},
 {"target_steam", SP_target_steam},
 {"target_string", SP_target_string},
+{"target_story", SP_target_story},
 {"target_temp_entity", SP_target_temp_entity},
 {"trigger_always", SP_trigger_always},
 {"trigger_counter", SP_trigger_counter},

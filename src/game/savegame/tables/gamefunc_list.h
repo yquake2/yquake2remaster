@@ -1363,6 +1363,7 @@
 {"use_target_spawner", (byte *)use_target_spawner},
 {"use_target_splash", (byte *)use_target_splash},
 {"use_target_steam", (byte *)use_target_steam},
+{"use_target_story", (byte *)use_target_story},
 {"vengeance_pain", (byte *)vengeance_pain},
 {"vengeance_think", (byte *)vengeance_think},
 {"vengeance_touch", (byte *)vengeance_touch},

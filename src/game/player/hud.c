@@ -419,7 +419,8 @@ HelpComputerMessage(edict_t *ent)
 			"xv 0 yv 54 cstring2 \"%s\" " /* help 1 */
 			"xv 0 yv 110 cstring2 \"%s\" " /* help 2 */
 			"xv 50 yv 164 string2 \" %-9s %-8s %-9s\" "
-			"xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" ",
+			"xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" "
+			"%s", /* story */
 			sk,
 			level.level_name,
 			gi.LocalizationMessage(game.helpmessage1, NULL),
@@ -429,7 +430,8 @@ HelpComputerMessage(edict_t *ent)
 			gi.LocalizationUIMessage("$g_pc_secrets", "secrets"),
 			level.killed_monsters, level.total_monsters,
 			level.found_goals, level.total_goals,
-			level.found_secrets, level.total_secrets);
+			level.found_secrets, level.total_secrets,
+			level.story_active ? " story ": "");
 
 	gi.WriteByte(svc_layout);
 	gi.WriteString(string);
@@ -645,25 +647,34 @@ G_SetStats(edict_t *ent)
 		if ((ent->client->pers.health <= 0) || level.intermissiontime ||
 			ent->client->showscores)
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
+			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 		}
 
 		if (ent->client->showinventory && (ent->client->pers.health > 0))
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
+			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
 		}
 	}
 	else
 	{
 		if (ent->client->showscores || ent->client->showhelp)
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= 1;
+			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 		}
 
 		if (ent->client->showinventory && (ent->client->pers.health > 0))
 		{
-			ent->client->ps.stats[STAT_LAYOUTS] |= 2;
+			ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
 		}
+	}
+
+	if (level.story_active)
+	{
+		ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_CROSSHAIR;
+	}
+	else
+	{
+		ent->client->ps.stats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
 	}
 
 	/* frags */
@@ -755,12 +766,12 @@ G_SetSpectatorStats(edict_t *ent)
 
 	if ((cl->pers.health <= 0) || level.intermissiontime || cl->showscores)
 	{
-		cl->ps.stats[STAT_LAYOUTS] |= 1;
+		cl->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT;
 	}
 
 	if (cl->showinventory && (cl->pers.health > 0))
 	{
-		cl->ps.stats[STAT_LAYOUTS] |= 2;
+		cl->ps.stats[STAT_LAYOUTS] |= LAYOUTS_INVENTORY;
 	}
 
 	if (cl->chase_target && cl->chase_target->inuse)

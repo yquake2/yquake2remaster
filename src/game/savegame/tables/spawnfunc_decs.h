@@ -284,6 +284,7 @@ void SP_target_speaker ( edict_t * ent ) ;
 void SP_target_splash( edict_t * self ) ;
 void SP_target_steam( edict_t * self ) ;
 void SP_target_string( edict_t * self ) ;
+void SP_target_story( edict_t * self ) ;
 void SP_target_temp_entity ( edict_t * ent ) ;
 void SP_trigger_always ( edict_t * ent ) ;
 void SP_trigger_counter( edict_t * self ) ;

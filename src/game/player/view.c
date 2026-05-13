@@ -1691,7 +1691,7 @@ ClientEndServerFrame(edict_t *ent)
 
 		memcpy(e->client->ps.stats, ent->client->ps.stats,
 				sizeof(ent->client->ps.stats));
-		e->client->ps.stats[STAT_LAYOUTS] = 1;
+		e->client->ps.stats[STAT_LAYOUTS] = LAYOUTS_LAYOUT;
 		break;
 	}
 

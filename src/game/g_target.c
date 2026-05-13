@@ -2201,3 +2201,30 @@ SP_target_sky(edict_t* self)
 		self->style = st.skyautorotate;
 	}
 }
+
+void
+use_target_story(edict_t *self, edict_t *other, edict_t *activator)
+{
+	if (self->message && *self->message)
+	{
+		level.story_active = true;
+	}
+	else
+	{
+		level.story_active = false;
+	}
+
+	gi.configstring(CS_STORY, self->message ? self->message : "");
+}
+
+void
+SP_target_story(edict_t *self)
+{
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->use = use_target_story;
+}

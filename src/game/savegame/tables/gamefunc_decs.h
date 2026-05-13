@@ -1364,6 +1364,7 @@ extern void use_target_soundfx ( edict_t *self, edict_t *other, edict_t *activat
 extern void use_target_spawner ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_splash ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void use_target_steam ( edict_t * self , edict_t * other , edict_t * activator ) ;
+extern void use_target_story ( edict_t * self , edict_t * other , edict_t * activator ) ;
 extern void vengeance_pain ( edict_t * self , edict_t * other , float kick , int damage ) ;
 extern void vengeance_think ( edict_t * self ) ;
 extern void vengeance_touch ( edict_t * self , edict_t * other , const cplane_t * plane , const csurface_t * surf ) ;

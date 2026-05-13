@@ -1265,6 +1265,16 @@ typedef enum
 
 #define MAX_STATS 32
 
+typedef enum
+{
+	LAYOUTS_LAYOUT = 0x01,          /* svc_layout is active; escape remapped to putaway */
+	LAYOUTS_INVENTORY = 0x02,       /* inventory is active; escape remapped to putaway */
+	LAYOUTS_HIDE_HUD = 0x04,        /* hide entire hud, for cameras, etc */
+	LAYOUTS_INTERMISSION = 0x08,    /* intermission is being drawn; collapse splitscreen into 1 view */
+	LAYOUTS_HELP = 0x10,            /* help is active; escape remapped to putaway */
+	LAYOUTS_HIDE_CROSSHAIR = 0x20,  /* hide crosshair only */
+} layout_flags_t;
+
 /* dmflags->value flags */
 #define DF_NO_HEALTH 0x00000001         /* 1 */
 #define DF_NO_ITEMS 0x00000002          /* 2 */
@@ -1316,9 +1326,10 @@ typedef enum
 #define CS_AIRACCEL 29              /* air acceleration control */
 #define CS_MAXCLIENTS 30
 #define CS_MAPCHECKSUM 31           /* for catching cheater maps */
-#define CS_SKIP 32                  /* Skip config string */
+#define CS_STORY 32                 /* maps story */
+#define CS_SKIP 33                  /* Skip config string */
 
-#define CS_MODELS 33
+#define CS_MODELS 34
 #define CS_SOUNDS (CS_MODELS + MAX_MODELS)
 #define CS_IMAGES (CS_SOUNDS + MAX_SOUNDS)
 #define CS_LIGHTS (CS_IMAGES + MAX_IMAGES)

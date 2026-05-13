@@ -1438,6 +1438,19 @@ SCR_ExecuteLayoutString(char *s)
 			continue;
 		}
 
+		if (!strcmp(token, "story"))
+		{
+			char message[241]; /* utf string could by 4 bytes per char */
+			int l, x;
+
+			token = cl.configstrings[CS_STORY];
+			l = SCR_CopyUtf8(SV_LocalizationMessage(token, NULL), message, 60);
+			x = ((viddef.width / scale) - (l * CHAR_SIZE)) / 2;
+
+			Draw_StringScaled(x * scale, viddef.width / 2, scale, false, message);
+			continue;
+		}
+
 		if (!strcmp(token, "if"))
 		{
 			int index, value;
@@ -1488,8 +1501,6 @@ SCR_DrawStats(void)
 {
 	SCR_ExecuteLayoutString(cl.configstrings[CS_STATUSBAR]);
 }
-
-#define STAT_LAYOUTS 13
 
 static void
 SCR_DrawLayout(void)
@@ -1767,12 +1778,12 @@ SCR_UpdateScreen(void)
 			SCR_DrawStats();
 			SCR_DrawSpeed();
 
-			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 1)
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & LAYOUTS_LAYOUT)
 			{
 				SCR_DrawLayout();
 			}
 
-			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & 2)
+			if (cl.frame.playerstate.stats[STAT_LAYOUTS] & LAYOUTS_INVENTORY)
 			{
 				CL_DrawInventory();
 			}
