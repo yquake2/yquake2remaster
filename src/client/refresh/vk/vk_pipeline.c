@@ -114,7 +114,7 @@ void QVk_CreatePipeline(const VkDescriptorSetLayout *descriptorLayout,
 		.polygonMode = VK_POLYGON_MODE_FILL,
 		.cullMode = pipeline->cullMode,
 		.frontFace = VK_FRONT_FACE_CLOCKWISE,
-		.depthBiasEnable = VK_FALSE,
+		.depthBiasEnable = pipeline->depthBiasEnable,
 		.depthBiasConstantFactor = 0.f,
 		.depthBiasClamp = 0.f,
 		.depthBiasSlopeFactor = 0.f,
@@ -162,12 +162,12 @@ void QVk_CreatePipeline(const VkDescriptorSetLayout *descriptorLayout,
 		.blendConstants[3] = 0.f
 	};
 
-	VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR };
+	VkDynamicState dynamicStates[] = { VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR, VK_DYNAMIC_STATE_DEPTH_BIAS };
 	VkPipelineDynamicStateCreateInfo dsCreateInfo = {
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
 		.pNext = NULL,
 		.flags = 0,
-		.dynamicStateCount = 2,
+		.dynamicStateCount = 3,
 		.pDynamicStates = dynamicStates
 	};
 
