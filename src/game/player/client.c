@@ -1782,9 +1782,12 @@ SP_GetSpawnPoint(void)
  * Chooses a player start, deathmatch start, coop start, etc
  */
 void
-SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
+SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles)
 {
 	edict_t *spot = NULL;
+
+	VectorClear(origin);
+	VectorClear(angles);
 
 	if (!ent)
 	{

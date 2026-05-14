@@ -42,7 +42,7 @@ cvar_t *goallimit;
 
 extern void EndDMLevel(void);
 extern void ClientUserinfoChanged(edict_t *ent, char *userinfo);
-extern void SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles);
+extern void SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles);
 extern float PlayersRangeFromSpot(edict_t *spot);
 
 void DBall_BallDie(edict_t *self, edict_t *inflictor, edict_t *attacker,
@@ -155,13 +155,16 @@ DBall_ClientBegin(edict_t *ent)
 }
 
 void
-DBall_SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles)
+DBall_SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles)
 {
 	edict_t *bestspot;
 	float bestdistance;
 	edict_t *spot;
 	const char *spottype;
 	char skin[512];
+
+	VectorClear(origin);
+	VectorClear(angles);
 
 	if (!ent)
 	{

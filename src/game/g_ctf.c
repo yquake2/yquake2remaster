@@ -530,7 +530,7 @@ CTFAssignTeam(gclient_t *who)
  * two points closest to other players
  */
 edict_t *
-SelectCTFSpawnPoint(edict_t *ent)
+SelectCTFSpawnPoint(const edict_t *ent)
 {
 	edict_t *spot, *spot1, *spot2;
 	int count = 0;

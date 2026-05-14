@@ -1785,7 +1785,7 @@ typedef struct dm_game_rs
 	void (*GameInit)(void);
 	void (*PostInitSetup)(void);
 	void (*ClientBegin)(edict_t *ent);
-	void (*SelectSpawnPoint)(edict_t *ent, vec3_t origin, vec3_t angles);
+	void (*SelectSpawnPoint)(const edict_t *ent, vec3_t origin, vec3_t angles);
 	void (*PlayerDeath)(edict_t *targ, edict_t *inflictor, edict_t *attacker);
 	void (*Score)(edict_t *attacker, const edict_t *victim, int scoreChange);
 	void (*PlayerEffects)(edict_t *ent);
@@ -1808,7 +1808,7 @@ int Tag_ChangeDamage(const edict_t *targ, const edict_t *attacker, int damage, i
 
 void DBall_GameInit(void);
 void DBall_ClientBegin(edict_t *ent);
-void DBall_SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles);
+void DBall_SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles);
 int DBall_ChangeKnockback(const edict_t *targ, const edict_t *attacker, int knockback, int mod);
 int DBall_ChangeDamage(const edict_t *targ, const edict_t *attacker, int damage, int mod);
 void DBall_PostInitSetup(void);
@@ -1956,7 +1956,7 @@ char *CTFTeamName(int team);
 char *CTFOtherTeamName(int team);
 void CTFAssignSkin(edict_t *ent, char *s);
 void CTFAssignTeam(gclient_t *who);
-edict_t *SelectCTFSpawnPoint(edict_t *ent);
+edict_t *SelectCTFSpawnPoint(const edict_t *ent);
 qboolean CTFPickup_Flag(edict_t *ent, edict_t *other);
 void CTFDrop_Flag(edict_t *ent, const gitem_t *item);
 void CTFEffects(edict_t *player);
@@ -2046,7 +2046,7 @@ qboolean Pickup_Sphere(edict_t * ent, edict_t * other);
 
 void CopyToBodyQue(edict_t *ent);
 void Use_Plat(edict_t *ent, edict_t *other, edict_t *activator);
-void SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles);
+void SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles);
 
 /* platforms states */
 #define STATE_TOP 0

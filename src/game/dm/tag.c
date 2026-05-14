@@ -28,7 +28,6 @@
 #include "../header/local.h"
 
 extern edict_t *SelectFarthestDeathmatchSpawnPoint(void);
-extern void SelectSpawnPoint(edict_t *ent, vec3_t origin, vec3_t angles);
 void SP_dm_tag_token(edict_t *self);
 
 edict_t *tag_token;
