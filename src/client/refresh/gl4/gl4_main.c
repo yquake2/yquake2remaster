@@ -81,7 +81,6 @@ cvar_t *gl4_intensity_2D;
 cvar_t *gl4_overbrightbits;
 cvar_t *gl_nobind;
 cvar_t *gl_finish;
-cvar_t *gl_zfix;
 cvar_t *gl4_debugcontext;
 cvar_t *gl4_usebigvbo;
 cvar_t *gl4_usefbo;
@@ -179,7 +178,6 @@ GL4_Register(void)
 
 	gl4_overbrightbits = ri.Cvar_Get("gl4_overbrightbits", "1.3", CVAR_ARCHIVE);
 
-	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 
 	gl4_usefbo = ri.Cvar_Get("gl4_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
@@ -198,7 +196,6 @@ GL4_Register(void)
 	//gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl_showbbox = Cvar_Get("gl_showbbox", "0", 0);
 	//gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0); NOTE: dump this.
-	//gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	//gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 
 	//gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
@@ -1638,7 +1635,7 @@ GL4_Clear(void)
 
 	glDepthRange(gl4depthmin, gl4depthmax);
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		if (gl4depthmax > gl4depthmin)
 		{

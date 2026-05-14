@@ -713,7 +713,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 	VkDescriptorSet uboDescriptorSet;
 	uint8_t *uboData = QVk_GetUniformBuffer(sizeof(lmapPolyUbo), &uboOffset, &uboDescriptorSet);
 	memcpy(uboData, &lmapPolyUbo, sizeof(lmapPolyUbo));
-	if (vk_zfix->value)
+	if (r_zfix->value)
 		vkCmdSetDepthBias(vk_activeCmdbuffer, 1.0f, 0.0f, 0.05f);
 	QVk_BindPipeline(&vk_drawPolyLmapPipeline);
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -751,7 +751,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 			}
 		}
 	}
-	if (vk_zfix->value)
+	if (r_zfix->value)
 		vkCmdSetDepthBias(vk_activeCmdbuffer, 0.0f, 0.0f, 0.0f);
 }
 

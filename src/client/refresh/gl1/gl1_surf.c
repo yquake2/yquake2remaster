@@ -933,7 +933,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 		return;
 	}
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		glEnable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -975,7 +975,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 
 	glPopMatrix();
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		glDisable(GL_POLYGON_OFFSET_FILL);
 	}

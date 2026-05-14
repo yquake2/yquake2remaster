@@ -166,7 +166,6 @@ extern cvar_t *gl1_picmip;
 extern cvar_t *gl_showbbox;
 extern cvar_t *gl_finish;
 extern cvar_t *gl1_ztrick;
-extern cvar_t *gl_zfix;
 extern cvar_t *gl1_polyblend;
 extern cvar_t *gl_drawbuffer;
 extern cvar_t *gl_texturemode;

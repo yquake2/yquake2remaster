@@ -1445,9 +1445,9 @@ SCR_ExecuteLayoutString(char *s)
 
 			token = cl.configstrings[CS_STORY];
 			l = SCR_CopyUtf8(SV_LocalizationMessage(token, NULL), message, 60);
-			x = ((viddef.width / scale) - (l * CHAR_SIZE)) / 2;
+			x = (viddef.width - (l * CHAR_SIZE * scale)) / 2;
 
-			Draw_StringScaled(x * scale, viddef.width / 2, scale, false, message);
+			Draw_StringScaled(x, viddef.width / 2, scale, false, message);
 			continue;
 		}
 

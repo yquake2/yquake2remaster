@@ -575,7 +575,7 @@ GL4_DrawBrushModel(entity_t *e, model_t *currentmodel)
 		return;
 	}
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		glEnable(GL_POLYGON_OFFSET_FILL);
 	}
@@ -609,7 +609,7 @@ GL4_DrawBrushModel(entity_t *e, model_t *currentmodel)
 	gl4state.uni3DData.transModelMat4 = oldMat;
 	GL4_UpdateUBO3D();
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		glDisable(GL_POLYGON_OFFSET_FILL);
 	}

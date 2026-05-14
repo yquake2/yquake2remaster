@@ -67,6 +67,7 @@ cvar_t *r_vsync;
 cvar_t *vid_fullscreen;
 cvar_t *vid_gamma;
 cvar_t *viewsize;
+cvar_t *r_zfix;
 static cvar_t *r_znear;
 
 #define MAXPRINTMSG 4096
@@ -287,6 +288,7 @@ R_InitCvar(void)
 	vid_gamma = ri.Cvar_Get("vid_gamma", "1.0", CVAR_ARCHIVE);
 	viewsize = ri.Cvar_Get("viewsize", "100", CVAR_ARCHIVE);
 	r_znear = ri.Cvar_Get("r_znear", "4", CVAR_ARCHIVE);
+	r_zfix = ri.Cvar_Get("r_zfix", "0", 0);
 
 	/* clamp r_msaa_samples to accepted range so that video menu doesn't crash on us */
 	if (r_msaa_samples->value < 0)

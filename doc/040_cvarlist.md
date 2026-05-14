@@ -575,12 +575,12 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **r_ttffont**: Use `ttf` font for game messages.
 
-## Graphics (GL renderers only)
-
-* **gl_zfix**: Sometimes two or even more surfaces overlap and flicker.
+* **r_zfix**: Sometimes two or even more surfaces overlap and flicker.
   If this cvar is set to `1` the renderer inserts a small gap between
   the overlapping surfaces to mitigate the flickering. This may make
   things better or worse, depending on the map.
+
+## Graphics (GL renderers only)
 
 * **gl_polyblend**: Toggles the palette blending effect, a.k.a. the
   "flash" you see when getting injured or picking up an item. In GL1 is

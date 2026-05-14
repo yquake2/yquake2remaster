@@ -557,6 +557,7 @@ extern cvar_t *r_shadows;
 extern cvar_t *r_showtris;
 extern cvar_t *r_speeds;
 extern cvar_t *r_ttffont;
+extern cvar_t *r_zfix;
 extern cvar_t *r_validation;
 extern cvar_t *r_videos_unfiltered;
 extern cvar_t *r_vsync;

@@ -98,7 +98,9 @@ static const replacement_t replacements[] = {
 	{"gl_cull", "r_cull"},
 	{"intensity", "gl1_intensity"},
 	{"gl_showtris", "r_showtris"},
-	{"vk_showtris", "r_showtris"}
+	{"vk_showtris", "r_showtris"},
+	{"gl_zfix", "r_zfix"},
+	{"vk_zfix", "r_zfix"},
 };
 
 /* An ugly hack to rewrite changed CVARs */

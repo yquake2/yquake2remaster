@@ -85,7 +85,6 @@ cvar_t *gl1_round_down;
 cvar_t *gl1_picmip;
 cvar_t *gl_showbbox;
 cvar_t *gl1_ztrick;
-cvar_t *gl_zfix;
 cvar_t *gl_finish;
 cvar_t *gl_polyblend;
 cvar_t *gl1_saturatelighting;
@@ -866,7 +865,7 @@ R_Clear(void)
 	glDepthFunc(depthFunc);
 	glDepthRange(gldepthmin, gldepthmax);
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		if (gldepthmax > gldepthmin)
 		{
@@ -1215,7 +1214,6 @@ R_Register(void)
 	gl1_picmip = ri.Cvar_Get("gl1_picmip", "0", 0);
 	gl_showbbox = ri.Cvar_Get("gl_showbbox", "0", 0);
 	gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0);
-	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", 0);
 	gl1_minlight = ri.Cvar_Get("gl1_minlight", "0", CVAR_ARCHIVE);

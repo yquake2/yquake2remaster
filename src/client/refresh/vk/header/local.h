@@ -113,7 +113,6 @@ extern  cvar_t  *vk_molten_fastmath;
 extern  cvar_t  *vk_molten_metalbuffers;
 #endif
 extern	cvar_t	*vk_pixel_size;
-extern  cvar_t  *vk_zfix;
 
 extern	int		c_visible_lightmaps;
 extern	int		c_visible_textures;

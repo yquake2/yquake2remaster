@@ -85,7 +85,6 @@ cvar_t *gl3_intensity_2D;
 cvar_t *gl3_overbrightbits;
 cvar_t *gl_nobind;
 cvar_t *gl_finish;
-cvar_t *gl_zfix;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usebigvbo;
 cvar_t *gl3_usefbo;
@@ -178,8 +177,6 @@ GL3_Register(void)
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl3_intensity = ri.Cvar_Get("gl3_intensity", "1.5", CVAR_ARCHIVE);
 	gl3_intensity_2D = ri.Cvar_Get("gl3_intensity_2D", "1.5", CVAR_ARCHIVE);
-	gl3_overbrightbits = ri.Cvar_Get("gl3_overbrightbits", "1.3", CVAR_ARCHIVE);
-	gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
@@ -198,7 +195,6 @@ GL3_Register(void)
 	//gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl_showbbox = Cvar_Get("gl_showbbox", "0", 0);
 	//gl1_ztrick = ri.Cvar_Get("gl1_ztrick", "0", 0); NOTE: dump this.
-	//gl_zfix = ri.Cvar_Get("gl_zfix", "0", 0);
 	//gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 
 	//gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
@@ -1695,7 +1691,7 @@ GL3_Clear(void)
 
 	glDepthRange(gl3depthmin, gl3depthmax);
 
-	if (gl_zfix->value)
+	if (r_zfix->value)
 	{
 		if (gl3depthmax > gl3depthmin)
 		{

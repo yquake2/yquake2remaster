@@ -504,7 +504,6 @@ extern void GL3_UpdateUBOLights(void);
 
 extern cvar_t *gl_version_override;
 extern cvar_t *gl_nobind;
-extern cvar_t *gl_zfix;
 extern cvar_t *gl3_intensity;
 extern cvar_t *gl3_intensity_2D;
 extern cvar_t *gl_texturemode;
