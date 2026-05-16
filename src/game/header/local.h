@@ -1095,7 +1095,7 @@ void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 
 /* g_svcmds.c */
 void ServerCommand(void);
-qboolean SV_FilterPacket(char *from);
+qboolean SV_FilterPacket(const char *from);
 
 /* p_view.c */
 void G_SetClientFrame(edict_t *ent, float speed);
