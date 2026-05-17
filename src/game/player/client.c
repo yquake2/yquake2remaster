@@ -2899,7 +2899,7 @@ ClientUserinfoChanged(edict_t *ent, char *userinfo)
 qboolean
 ClientConnect(edict_t *ent, char *userinfo)
 {
-	char *value;
+	const char *value;
 
 	if (!ent || !userinfo)
 	{

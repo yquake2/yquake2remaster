@@ -113,7 +113,6 @@ void BOT_RemoveBot(const char *name);
 void BOT_Respawn(edict_t *self);
 
 /* ai_tools.c */
-void AIDebug_ToogleBotDebug(void);
 void AITools_Frame(void);
 void AITools_DropNodes(edict_t *ent);
 

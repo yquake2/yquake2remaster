@@ -85,18 +85,6 @@ PlayerTrail_Add(vec3_t spot)
 	trail_head = NEXT(trail_head);
 }
 
-void
-PlayerTrail_New(vec3_t spot)
-{
-	if (!trail_active)
-	{
-		return;
-	}
-
-	PlayerTrail_Init();
-	PlayerTrail_Add(spot);
-}
-
 edict_t *
 PlayerTrail_PickFirst(const edict_t *self)
 {

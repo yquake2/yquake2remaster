@@ -1074,7 +1074,6 @@ void fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 /* g_ptrail.c */
 void PlayerTrail_Init(void);
 void PlayerTrail_Add(vec3_t spot);
-void PlayerTrail_New(vec3_t spot);
 edict_t *PlayerTrail_PickFirst(const edict_t *self);
 edict_t *PlayerTrail_PickNext(const edict_t *self);
 edict_t *PlayerTrail_LastSpot(void);
