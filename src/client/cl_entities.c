@@ -677,6 +677,7 @@ CL_AddPacketEntities(const frame_t *frame)
 			else if (effects & EF_BFG)
 			{
 				static const int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
+				static int bfg_lightramp_max = (int)ARRLEN(bfg_lightramp);
 				int i;
 
 				if (effects & EF_ANIM_ALLFAST)
@@ -686,7 +687,14 @@ CL_AddPacketEntities(const frame_t *frame)
 				}
 				else
 				{
-					i = bfg_lightramp[s1->frame];
+					if (s1->frame >= 0 && s1->frame < bfg_lightramp_max)
+					{
+						i = bfg_lightramp[s1->frame];
+					}
+					else
+					{
+						i = bfg_lightramp[0];
+					}
 				}
 
 				V_AddLight(ent.origin, i, 0, 1, 0);
