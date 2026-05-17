@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 'master'
-      - 'fixes'
 concurrency:
   # Cancel concurrent workflows for the same PR or commit hash.
   group: ${{github.workflow}}-${{github.event_name == 'pull_request' && github.head_ref || github.sha}}
@@ -31,7 +30,6 @@ jobs:
       with:
         submodules: 'true'
     - name: Download coverity
-      id: download_coverity
       run: |
         if [ -z "${{ secrets.COVERITY_SCAN_TOKEN }}" ]; then
           echo "COVERITY_SCAN_TOKEN is not set. Skipping workflow."
@@ -47,14 +45,12 @@ jobs:
               mv -v cov-analysis-linux-arm64-* cov-analysis-linux-arm64
           fi
         fi
-
     - name: Build
       if: env.skip != 'true'
       run: |
         rm -rf cov-int
         make clean
         cov-analysis-linux-arm64/bin/cov-build --dir cov-int make WITH_SDL3=no -j 4
-
     - name: Upload result
       if: env.skip != 'true'
       run: |
