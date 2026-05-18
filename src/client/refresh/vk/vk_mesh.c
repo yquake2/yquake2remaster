@@ -27,6 +27,8 @@
 
 #include "header/local.h"
 
+extern uint32_t vk_fogOffset;
+
 enum {
 	TRIANGLE_STRIP = 0,
 	TRIANGLE_FAN = 1
@@ -403,7 +405,8 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	VkDescriptorSet descriptorSets[] = {
 		skin->vk_texture.descriptorSet,
-		uboDescriptorSet
+		uboDescriptorSet,
+		QVk_GetFogDescriptorSet()
 	};
 
 	// player configuration screen model is using the UI renderpass
@@ -443,8 +446,8 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	QVk_BindPipeline(&pipelines[translucentIdx][leftHandOffset]);
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		pipelines[translucentIdx][leftHandOffset].layout, 0, 2,
-		descriptorSets, 1, &uboOffset);
+		pipelines[translucentIdx][leftHandOffset].layout, 0, 3,
+		descriptorSets, 2, (uint32_t[]){uboOffset, vk_fogOffset});
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 
 	*buffer = UpdateIndexBuffer(vertIdxData, *index_pos * sizeof(uint16_t), dstOffset);

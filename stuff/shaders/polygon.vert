@@ -20,6 +20,7 @@ layout(set = 1, binding = 0) uniform UniformBufferObject
 layout(location = 0) out vec2 texCoord;
 layout(location = 1) out vec4 color;
 layout(location = 2) out float aTreshold;
+layout(location = 3) out float depth;
 
 out gl_PerVertex {
     vec4 gl_Position;
@@ -30,4 +31,7 @@ void main() {
     texCoord = inTexCoord;
     color = ubo.color;
     aTreshold = 0.0;
+
+    // Calculate depth for fog
+    depth = length(inVertex);
 }
