@@ -47,10 +47,10 @@ typedef struct
 
 typedef struct
 {
-    char ver[32];
-    char game[32];
-    char os[32];
-    char arch[32];
+	char ver[32];
+	char game[32];
+	char os[32];
+	char arch[32];
 } savegameHeader_t;
 
 #endif /* SAVEGAME_LOCAL_H */

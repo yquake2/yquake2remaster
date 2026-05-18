@@ -2202,6 +2202,72 @@ SP_target_sky(edict_t* self)
 	}
 }
 
+/*
+ * QUAKED target_crossunit_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger*
+ *
+ * Once this trigger is touched/used, any trigger_crossunit_target with the same
+ * trigger number is automatically used when a level is started within the same
+ * unit.  It is OK to check multiple triggers.  Message, delay, target, and
+ * killtarget also work.
+ */
+void
+trigger_crossunit_trigger_use(edict_t *self, edict_t *other, edict_t *activator)
+{
+	game.cross_unit_flags |= self->spawnflags;
+	G_FreeEdict(self);
+}
+
+void
+SP_target_crossunit_trigger(edict_t *self)
+{
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	self->svflags = SVF_NOCLIENT;
+	self->use = trigger_crossunit_trigger_use;
+}
+
+/*
+ * QUAKED target_crossunit_target (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger*
+ *
+ * Triggered by a trigger_crossunit elsewhere within a unit. If multiple triggers
+ * are checked, all must be true.  Delay, target and killtarget also work.
+ * "delay" delay before using targets if the trigger has been activated (default 1)
+ */
+void
+target_crossunit_target_think(edict_t *self)
+{
+	if (self->spawnflags == (
+		game.cross_unit_flags & SFL_CROSS_TRIGGER_MASK & self->spawnflags))
+	{
+		G_UseTargets(self, self);
+		G_FreeEdict(self);
+	}
+}
+
+void
+SP_target_crossunit_target(edict_t *self)
+{
+	if (deathmatch->value)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (!self->delay)
+	{
+		self->delay = 1;
+	}
+
+	self->svflags = SVF_NOCLIENT;
+
+	self->think = target_crossunit_target_think;
+	self->nextthink = level.time + self->delay;
+}
+
 void
 use_target_story(edict_t *self, edict_t *other, edict_t *activator)
 {

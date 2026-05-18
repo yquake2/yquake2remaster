@@ -357,6 +357,7 @@ typedef struct
 
 	/* cross level triggers */
 	int serverflags;
+	int cross_unit_flags;
 
 	qboolean autosaved;
 } game_locals_t;

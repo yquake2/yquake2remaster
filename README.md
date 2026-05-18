@@ -357,6 +357,8 @@ Checked with:
 * [x] Infinity: implement `misc_crate`,
 * [x] ReRelease: implement `misc_lavaball`,
 * [x] ReRelease: implement `target_story`,
+* [x] ReRelease: implement `target_crossunit_target`,
+* [x] ReRelease: implement `target_crossunit_trigger`,
 * [x] CppCheck: fix const warnings and scope,
 * [x] renders: share model_t type.
 
