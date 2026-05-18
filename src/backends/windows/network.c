@@ -862,6 +862,7 @@ NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 		if (ioctlsocket(newsocket, FIONBIO, &t) == -1)
 		{
 			Com_Printf("%s: ioctl FIONBIO: %s\n", __func__, strerror(errno));
+			closesocket(newsocket);
 			continue;
 		}
 
@@ -870,6 +871,7 @@ NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 		{
 			printf("%s: setsockopt(SO_REUSEADDR) failed: %u\n",
 					__func__, WSAGetLastError());
+			closesocket(newsocket);
 			continue;
 		}
 
@@ -881,6 +883,8 @@ NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 			{
 				Com_Printf("ERROR: %s: setsockopt SO_BROADCAST:%s\n",
 						__func__, strerror(errno));
+				closesocket(newsocket);
+				freeaddrinfo(res);
 				return 0;
 			}
 		}
