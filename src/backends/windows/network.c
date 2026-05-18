@@ -1240,28 +1240,20 @@ NET_Sleep(int msec)
 	}
 
 	FD_ZERO(&fdset);
-	i = 0;
 
 	if (ip6_sockets[NS_SERVER])
 	{
 		FD_SET(ip6_sockets[NS_SERVER], &fdset); /* network socket */
-		i = ip6_sockets[NS_SERVER];
 	}
 
 	if (ip_sockets[NS_SERVER])
 	{
 		FD_SET(ip_sockets[NS_SERVER], &fdset); /* network socket */
-		i = ip_sockets[NS_SERVER];
 	}
 
 	if (ipx_sockets[NS_SERVER])
 	{
 		FD_SET(ipx_sockets[NS_SERVER], &fdset); /* network socket */
-
-		if (ipx_sockets[NS_SERVER] > i)
-		{
-			i = ipx_sockets[NS_SERVER];
-		}
 	}
 
 	timeout.tv_sec = msec / 1000;
