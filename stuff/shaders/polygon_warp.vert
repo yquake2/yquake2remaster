@@ -24,16 +24,21 @@ layout(set = 1, binding = 0) uniform UniformBufferObject
 layout(location = 0) out vec2 texCoord;
 layout(location = 1) out vec4 color;
 layout(location = 2) out float aTreshold;
+layout(location = 3) out float depth;
 
 out gl_PerVertex {
     vec4 gl_Position;
 };
 
 void main() {
-    gl_Position = pc.vpMatrix * ubo.model * vec4(inVertex, 1.0);
+    vec4 worldPos = ubo.model * vec4(inVertex, 1.0);
+    gl_Position = pc.vpMatrix * worldPos;
     texCoord = inTexCoord + vec2(sin(2.0 * ubo.time + inTexCoord.y * 3.28), sin(2.0 * ubo.time + inTexCoord.x * 3.28)) * 0.05;
     texCoord.x += ubo.sscroll;
     texCoord.y += ubo.tscroll;
     color = ubo.color;
     aTreshold = 0.0;
+
+    // Calculate depth for fog
+    depth = length(worldPos.xyz);
 }

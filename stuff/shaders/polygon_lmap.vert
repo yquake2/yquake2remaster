@@ -21,14 +21,19 @@ layout(set = 1, binding = 0) uniform UniformBufferObject
 layout(location = 0) out vec2 texCoord;
 layout(location = 1) out vec2 texCoordLmap;
 layout(location = 2) out float viewLightmaps;
+layout(location = 3) out float depth;
 
 out gl_PerVertex {
     vec4 gl_Position;
 };
 
 void main() {
-    gl_Position = pc.vpMatrix * ubo.model * vec4(inVertex, 1.0);
+    vec4 worldPos = ubo.model * vec4(inVertex, 1.0);
+    gl_Position = pc.vpMatrix * worldPos;
     texCoord = inTexCoord;
     texCoordLmap = inTexCoordLmap;
     viewLightmaps = ubo.viewLightmaps;
+
+    // Calculate depth for fog
+    depth = length(worldPos.xyz);
 }
