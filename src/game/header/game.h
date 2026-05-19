@@ -164,7 +164,7 @@ typedef struct
 	   if it is not passed to linkentity. If the size, position, or
 	   solidity changes, it must be relinked. */
 	void (*linkentity)(edict_t *ent);
-	void (*unlinkentity)(edict_t *ent);         /* call before removing an interactive edict */
+	void (*unlinkentity)(edict_t *ent); /* call before removing an interactive edict */
 	int (*BoxEdicts)(const vec3_t mins, const vec3_t maxs, edict_t **list, int maxcount,
 			int areatype);
 	void (*Pmove)(pmove_t *pmove);				/* player movement code common with client prediction */

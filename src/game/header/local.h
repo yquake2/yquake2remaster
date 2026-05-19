@@ -375,7 +375,7 @@ typedef struct
 	char forcemap[MAX_QPATH];           /* go here */
 
 	/* intermission state */
-	float intermissiontime;             /* time the intermission was started */
+	float intermissiontime; /* time the intermission was started */
 	const char *changemap;
 	int exitintermission;
 	vec3_t intermission_origin;
@@ -1647,7 +1647,7 @@ struct edict_s
 	float nextthink;
 	void (*prethink)(edict_t *ent);
 	void (*think)(edict_t *self);
-	void (*blocked)(edict_t *self, edict_t *other);         /* move to moveinfo? */
+	void (*blocked)(edict_t *self, edict_t *other);
 	void (*touch)(edict_t *self, edict_t *other, const cplane_t *plane,
 			const csurface_t *surf);
 	void (*use)(edict_t *self, edict_t *other, edict_t *activator);
