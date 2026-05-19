@@ -104,7 +104,7 @@ R_DrawParticle(particle_t *pparticle, int level)
 	*/
 	count = pix;
 
-	if (pz[(vid_buffer_width * (count >> 2)) + (count >> 2)] > izi)
+	if (pz[(vid_buffer_width * (count >> 1)) + (count >> 1)] > izi)
 	{
 		// looks like under some object
 		return;
