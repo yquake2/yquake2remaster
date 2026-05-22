@@ -559,7 +559,6 @@ WriteField1(FILE *f, const field_t *field, byte *base)
 
 		case F_LSTRING:
 		case F_LRAWSTRING:
-		case F_GSTRING:
 
 			if (*(char **)p)
 			{
