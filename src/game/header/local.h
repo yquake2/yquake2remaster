@@ -796,17 +796,16 @@ typedef enum
 {
 	F_INT,
 	F_FLOAT,
-	F_LSTRING,          /* string on disk, pointer in memory, TAG_LEVEL */
+	F_LSTRING, /* string on disk, pointer in memory, TAG_LEVEL */
 	F_VECTOR,
 	F_ANGLEHACK,
-	F_EDICT,            /* index on disk, pointer in memory */
-	F_ITEM,             /* index on disk, pointer in memory */
-	F_CLIENT,           /* index on disk, pointer in memory */
+	F_EDICT, /* index on disk, pointer in memory */
+	F_ITEM, /* index on disk, pointer in memory */
 	F_FUNCTION,
 	F_MMOVE,
 	F_IGNORE,
 	F_RGBA,
-	F_LRAWSTRING,       /* raw string on disk, pointer in memory, TAG_LEVEL */
+	F_LRAWSTRING, /* raw string on disk, pointer in memory, TAG_LEVEL */
 	F_SCALE,
 } fieldtype_t;
 
