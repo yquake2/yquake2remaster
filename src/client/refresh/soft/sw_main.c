@@ -1254,6 +1254,17 @@ VectorCompareRound(const vec3_t v1, const vec3_t v2)
 }
 
 static void
+RE_SortEntities(refdef_t *fd)
+{
+/*
+ * 	qsort(pak->files, pak->numFiles, sizeof(fsPackFile_t), FS_SortPackCompare);
+
+	fd->vieworg
+	fd->num_entities
+*/
+}
+
+static void
 RE_RenderFrame(const refdef_t *fd)
 {
 	r_newrefdef = *fd;
@@ -1264,6 +1275,8 @@ RE_RenderFrame(const refdef_t *fd)
 		Com_Error(ERR_FATAL, "%s: NULL worldmodel", __func__);
 		return;
 	}
+
+	RE_SortEntities(&r_newrefdef);
 
 	// Need to rerender whole frame
 	VID_WholeDamageBuffer();
