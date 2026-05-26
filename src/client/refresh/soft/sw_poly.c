@@ -1101,7 +1101,7 @@ R_BuildPolygonFromSurface(const entity_t *currententity, const model_t *currentm
 			vec = currentmodel->vertexes[r_pedge->v[1]].position;
 		}
 
-		VectorCopy (vec, pverts[i] );
+		VectorCopy(vec, pverts[i] );
 	}
 
 	VectorCopy( fa->texinfo->vecs[0], r_polydesc.vright );

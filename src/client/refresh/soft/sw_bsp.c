@@ -52,7 +52,7 @@ R_EntityRotate (vec3_t vec)
 {
 	vec3_t	tvec;
 
-	VectorCopy (vec, tvec);
+	VectorCopy(vec, tvec);
 	vec[0] = DotProduct (entity_rotation[0], tvec);
 	vec[1] = DotProduct (entity_rotation[1], tvec);
 	vec[2] = DotProduct (entity_rotation[2], tvec);
@@ -622,15 +622,15 @@ R_RenderWorld (entity_t *currententity)
 {
 	const model_t *currentmodel = r_worldmodel;
 
-	if (!r_drawworld->value)
+	if ((!r_drawworld->value) || (r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	{
 		return;
-	if ( r_newrefdef.rdflags & RDF_NOWORLDMODEL )
-		return;
+	}
 
 	// auto cycle the world frame for texture animation
-	currententity->frame = (int)(r_newrefdef.time*2);
+	currententity->frame = (int)(r_newrefdef.time * 2);
 
-	VectorCopy (r_origin, modelorg);
+	VectorCopy(r_origin, modelorg);
 	r_pcurrentvertbase = currentmodel->vertexes;
 
 	R_RecursiveWorldNode (currententity, currentmodel, currentmodel->nodes, ALIAS_XY_CLIP_MASK, false);

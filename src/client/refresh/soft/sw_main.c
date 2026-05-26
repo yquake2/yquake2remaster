@@ -338,7 +338,7 @@ void R_ImageList_f(void);
 static void R_ScreenShot_f(void);
 
 static void
-R_RegisterVariables (void)
+R_RegisterVariables(void)
 {
 	R_InitCvar();
 
@@ -378,7 +378,7 @@ R_RegisterVariables (void)
 }
 
 static void
-R_UnRegister (void)
+R_UnRegister(void)
 {
 	ri.Cmd_RemoveCommand( "screenshot" );
 	ri.Cmd_RemoveCommand( "modellist" );
@@ -441,7 +441,7 @@ RE_Shutdown
 ===============
 */
 static void
-RE_Shutdown (void)
+RE_Shutdown(void)
 {
 	// free z buffer
 	if (d_pzbuffer)
@@ -480,7 +480,7 @@ R_ReallocateMapBuffers
 ===============
 */
 static void
-R_ReallocateMapBuffers (void)
+R_ReallocateMapBuffers(void)
 {
 	if (!r_cnumsurfs || r_outofsurfaces)
 	{
@@ -698,7 +698,7 @@ R_DrawEntitiesOnList
 =============
 */
 static void
-R_DrawEntitiesOnList (void)
+R_DrawEntitiesOnList(void)
 {
 	qboolean translucent_entities = false;
 	int i;
@@ -735,7 +735,7 @@ R_DrawEntitiesOnList (void)
 				R_DrawNullModel();
 				continue;
 			}
-			VectorCopy (currententity->origin, r_entorigin);
+			VectorCopy(currententity->origin, r_entorigin);
 			VectorSubtract (r_origin, r_entorigin, modelorg);
 
 			switch (currentmodel->type)
@@ -789,7 +789,7 @@ R_DrawEntitiesOnList (void)
 				R_DrawNullModel();
 				continue;
 			}
-			VectorCopy (currententity->origin, r_entorigin);
+			VectorCopy(currententity->origin, r_entorigin);
 			VectorSubtract (r_origin, r_entorigin, modelorg);
 
 			switch (currentmodel->type)
@@ -924,8 +924,8 @@ RotatedBBox (const vec3_t mins, const vec3_t maxs, vec3_t angles, vec3_t tmins, 
 
 	if (!angles[0] && !angles[1] && !angles[2])
 	{
-		VectorCopy (mins, tmins);
-		VectorCopy (maxs, tmaxs);
+		VectorCopy(mins, tmins);
+		VectorCopy(maxs, tmaxs);
 		return;
 	}
 
@@ -975,7 +975,7 @@ R_DrawBEntitiesOnList
 =============
 */
 static void
-R_DrawBEntitiesOnList (void)
+R_DrawBEntitiesOnList(void)
 {
 	int		i, clipflags;
 	vec3_t		oldorigin;
@@ -986,7 +986,7 @@ R_DrawBEntitiesOnList (void)
 	if (!r_drawentities->value)
 		return;
 
-	VectorCopy (modelorg, oldorigin);
+	VectorCopy(modelorg, oldorigin);
 
 	for (i = 0; i < r_newrefdef.num_entities; i++)
 	{
@@ -1015,7 +1015,7 @@ R_DrawBEntitiesOnList (void)
 		if (!topnode)
 			continue;	// no part in a visible leaf
 
-		VectorCopy (currententity->origin, r_entorigin);
+		VectorCopy(currententity->origin, r_entorigin);
 		VectorSubtract (r_origin, r_entorigin, modelorg);
 
 		r_pcurrentvertbase = currentmodel->vertexes;
@@ -1042,10 +1042,10 @@ R_DrawBEntitiesOnList (void)
 
 		// put back world rotation and frustum clipping
 		// FIXME: R_RotateBmodel should just work off base_vxx
-		VectorCopy (base_vpn, vpn);
-		VectorCopy (base_vup, vup);
-		VectorCopy (base_vright, vright);
-		VectorCopy (oldorigin, modelorg);
+		VectorCopy(base_vpn, vpn);
+		VectorCopy(base_vup, vup);
+		VectorCopy(base_vright, vright);
+		VectorCopy(oldorigin, modelorg);
 		R_TransformFrustum ();
 	}
 }
@@ -1108,7 +1108,7 @@ R_CalcPalette
 =============
 */
 static void
-R_CalcPalette (void)
+R_CalcPalette(void)
 {
 	static qboolean modified;
 	byte	palette[256][4] = {0}, *in, *out;
@@ -1237,8 +1237,8 @@ RE_RenderFrame(const refdef_t *fd)
 	// Need to rerender whole frame
 	VID_WholeDamageBuffer();
 
-	VectorCopy (fd->vieworg, r_refdef.vieworg);
-	VectorCopy (fd->viewangles, r_refdef.viewangles);
+	VectorCopy(fd->vieworg, r_refdef.vieworg);
+	VectorCopy(fd->viewangles, r_refdef.viewangles);
 
 	// compare current position with old
 	if (vid_buffer_width <= 640 ||
@@ -1253,8 +1253,8 @@ RE_RenderFrame(const refdef_t *fd)
 	}
 
 	// save position for next check
-	VectorCopy (fd->vieworg, lastvieworg);
-	VectorCopy (fd->viewangles, lastviewangles);
+	VectorCopy(fd->vieworg, lastvieworg);
+	VectorCopy(fd->viewangles, lastviewangles);
 
 	if (r_speeds->value || sw_dspeeds->value)
 		r_time1 = SDL_GetTicks();
@@ -1541,7 +1541,7 @@ Draw_BuildGammaTable
 ================
 */
 static void
-Draw_BuildGammaTable (void)
+Draw_BuildGammaTable(void)
 {
 	int i;
 	float	g;

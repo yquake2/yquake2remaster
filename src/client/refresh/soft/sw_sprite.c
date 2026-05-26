@@ -63,9 +63,9 @@ R_DrawSprite(entity_t *currententity, const model_t *currentmodel)
 	r_polydesc.dist         = 0;
 
 	// generate the sprite's axes, completely parallel to the viewplane.
-	VectorCopy (vup, r_polydesc.vup);
-	VectorCopy (vright, r_polydesc.vright);
-	VectorCopy (vpn, r_polydesc.vpn);
+	VectorCopy(vup, r_polydesc.vup);
+	VectorCopy(vright, r_polydesc.vright);
+	VectorCopy(vpn, r_polydesc.vpn);
 
 	// build the sprite poster in worldspace
 	VectorScale (r_polydesc.vright,

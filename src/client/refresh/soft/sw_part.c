@@ -232,7 +232,7 @@ R_DrawParticle(particle_t *pparticle, int level)
 ** and goes.
 */
 void
-R_DrawParticles (void)
+R_DrawParticles(void)
 {
 	particle_t *p;
 	int         i;

@@ -33,7 +33,7 @@ R_ImageList_f
 ===============
 */
 void
-R_ImageList_f (void)
+R_ImageList_f(void)
 {
 	int		i, used, texels;
 	image_t	*image;
@@ -628,7 +628,7 @@ will be freed.
 ================
 */
 void
-R_FreeUnusedImages (void)
+R_FreeUnusedImages(void)
 {
 	int		i;
 	image_t	*image;
@@ -735,7 +735,7 @@ R_InitTextures
 ==================
 */
 static void
-R_InitTextures (void)
+R_InitTextures(void)
 {
 	R_InitNoTexture();
 	/* empty white texture for r_lightmap = 1*/
@@ -748,7 +748,7 @@ R_InitImages
 ===============
 */
 void
-R_InitImages (void)
+R_InitImages(void)
 {
 	registration_sequence = 1;
 	image_max = 0;
@@ -765,7 +765,7 @@ R_ShutdownImages
 ===============
 */
 void
-R_ShutdownImages (void)
+R_ShutdownImages(void)
 {
 	int	i;
 	image_t	*image;

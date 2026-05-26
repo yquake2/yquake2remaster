@@ -265,7 +265,7 @@ R_InitCaches
 ================
 */
 void
-R_InitCaches (void)
+R_InitCaches(void)
 {
 	int		size;
 	// calculate size to allocate
@@ -316,7 +316,7 @@ D_FlushCaches
 ==================
 */
 void
-D_FlushCaches (void)
+D_FlushCaches(void)
 {
 	surfcache_t     *c;
 

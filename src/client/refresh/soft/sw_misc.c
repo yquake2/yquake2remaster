@@ -46,7 +46,7 @@ D_ViewChanged
 ================
 */
 static void
-D_ViewChanged (void)
+D_ViewChanged(void)
 {
 	scale_for_mip = sqrt(xscale*xscale + yscale*yscale);
 
@@ -84,7 +84,7 @@ R_PrintTimes
 =============
 */
 void
-R_PrintTimes (void)
+R_PrintTimes(void)
 {
 	int		r_time2;
 	int		ms;
@@ -105,7 +105,7 @@ R_PrintDSpeeds
 =============
 */
 void
-R_PrintDSpeeds (void)
+R_PrintDSpeeds(void)
 {
 	int	ms, dp_time, r_time2, rw_time, db_time, se_time, de_time, da_time;
 
@@ -130,7 +130,7 @@ R_PrintAliasStats
 =============
 */
 void
-R_PrintAliasStats (void)
+R_PrintAliasStats(void)
 {
 	Com_Printf("%3i polygon model drawn\n", r_amodels_drawn);
 }
@@ -143,7 +143,7 @@ R_TransformFrustum
 ===================
 */
 void
-R_TransformFrustum (void)
+R_TransformFrustum(void)
 {
 	int		i;
 	vec3_t	v, v2;
@@ -158,7 +158,7 @@ R_TransformFrustum (void)
 		v2[1] = v[1]*vright[1] + v[2]*vup[1] + v[0]*vpn[1];
 		v2[2] = v[1]*vright[2] + v[2]*vup[2] + v[0]*vpn[2];
 
-		VectorCopy (v2, view_clipplanes[i].normal);
+		VectorCopy(v2, view_clipplanes[i].normal);
 
 		view_clipplanes[i].dist = DotProduct (modelorg, v2);
 	}
@@ -184,7 +184,7 @@ R_SetUpFrustumIndexes
 ===============
 */
 static void
-R_SetUpFrustumIndexes (void)
+R_SetUpFrustumIndexes(void)
 {
 	int		i, j, *pindex;
 
@@ -317,7 +317,7 @@ R_SetupFrame
 ===============
 */
 void
-R_SetupFrame (void)
+R_SetupFrame(void)
 {
 	int			i;
 	vrect_t		vrect;
@@ -374,9 +374,9 @@ R_SetupFrame (void)
 	R_SetUpFrustumIndexes ();
 
 	// save base values
-	VectorCopy (vpn, base_vpn);
-	VectorCopy (vright, base_vright);
-	VectorCopy (vup, base_vup);
+	VectorCopy(vpn, base_vpn);
+	VectorCopy(vright, base_vright);
+	VectorCopy(vup, base_vup);
 
 	// clear frame counts
 	c_faceclip = 0;

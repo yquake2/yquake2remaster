@@ -122,8 +122,8 @@ R_InitSkyBox(model_t *loadmodel)
 		r_skyplanes[i].normal[skybox_planes[i*2]] = 1;
 		r_skyplanes[i].dist = skybox_planes[i*2+1];
 
-		VectorCopy (box_vecs[i][0], r_skytexinfo[i].vecs[0]);
-		VectorCopy (box_vecs[i][1], r_skytexinfo[i].vecs[1]);
+		VectorCopy(box_vecs[i][0], r_skytexinfo[i].vecs[0]);
+		VectorCopy(box_vecs[i][1], r_skytexinfo[i].vecs[1]);
 
 		r_skyfaces[i].plane = &r_skyplanes[i];
 		r_skyfaces[i].numedges = 4;

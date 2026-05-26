@@ -354,10 +354,10 @@ R_AliasSetUpTransform(const entity_t *currententity)
 	// R_ConcatTransforms (t2matrix, tmatrix, rotationmatrix);
 
 	// TODO: should be global, set when vright, etc., set
-	VectorCopy (vright, viewmatrix[0]);
-	VectorCopy (vup, viewmatrix[1]);
+	VectorCopy(vright, viewmatrix[0]);
+	VectorCopy(vup, viewmatrix[1]);
 	VectorInverse (viewmatrix[1]);
-	VectorCopy (vpn, viewmatrix[2]);
+	VectorCopy(vpn, viewmatrix[2]);
 
 	if ( currententity->flags & RF_WEAPONMODEL )
 	{

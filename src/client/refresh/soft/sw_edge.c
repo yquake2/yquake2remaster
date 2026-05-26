@@ -57,8 +57,8 @@ static int	miplevel;
 
 float	scale_for_mip;
 
-static void R_GenerateSpans (void);
-static void R_GenerateSpansBackward (void);
+static void R_GenerateSpans(void);
+static void R_GenerateSpansBackward(void);
 
 static void R_TrailingEdge (surf_t *surf, const edge_t *edge);
 
@@ -76,7 +76,7 @@ R_BeginEdgeFrame
 ==============
 */
 void
-R_BeginEdgeFrame (void)
+R_BeginEdgeFrame(void)
 {
 	surfaces[1].spans = NULL;	// no background spans yet
 	surfaces[1].flags = SURF_DRAWBACKGROUND;
@@ -230,7 +230,7 @@ R_CleanupSpan
 ==============
 */
 static void
-R_CleanupSpan (void)
+R_CleanupSpan(void)
 {
 	surf_t		*surf;
 
@@ -526,7 +526,7 @@ R_GenerateSpans
 ==============
 */
 static void
-R_GenerateSpans (void)
+R_GenerateSpans(void)
 {
 	edge_t *edge;
 
@@ -562,7 +562,7 @@ R_GenerateSpansBackward
 ==============
 */
 static void
-R_GenerateSpansBackward (void)
+R_GenerateSpansBackward(void)
 {
 	edge_t			*edge;
 
@@ -897,11 +897,11 @@ D_TurbulentSurf(surf_t *s)
 		// FIXME: we don't want to do this every time!
 		// TODO: speed up
 		//
-		VectorCopy (world_transformed_modelorg,
+		VectorCopy(world_transformed_modelorg,
 					transformed_modelorg);
-		VectorCopy (base_vpn, vpn);
-		VectorCopy (base_vup, vup);
-		VectorCopy (base_vright, vright);
+		VectorCopy(base_vpn, vpn);
+		VectorCopy(base_vup, vup);
+		VectorCopy(base_vright, vright);
 		R_TransformFrustum ();
 	}
 }
@@ -986,11 +986,11 @@ D_SolidSurf (entity_t *currententity, surf_t *s)
 		// FIXME: we don't want to do this every time!
 		// TODO: speed up
 		//
-		VectorCopy (world_transformed_modelorg,
+		VectorCopy(world_transformed_modelorg,
 					transformed_modelorg);
-		VectorCopy (base_vpn, vpn);
-		VectorCopy (base_vup, vup);
-		VectorCopy (base_vright, vright);
+		VectorCopy(base_vpn, vpn);
+		VectorCopy(base_vup, vup);
+		VectorCopy(base_vright, vright);
 		R_TransformFrustum ();
 	}
 }
@@ -1035,7 +1035,7 @@ D_DrawSurfaces(entity_t *currententity, const surf_t *surface)
 {
 	VectorSubtract (r_origin, vec3_origin, modelorg);
 	TransformVector (modelorg, transformed_modelorg);
-	VectorCopy (transformed_modelorg, world_transformed_modelorg);
+	VectorCopy(transformed_modelorg, world_transformed_modelorg);
 
 	if (!sw_drawflat->value)
 	{

@@ -38,7 +38,7 @@ the sine warp, to keep the edges from wrapping
 =============
 */
 void
-D_WarpScreen (void)
+D_WarpScreen(void)
 {
 	const int *turb;
 	int w, h, u,v;
