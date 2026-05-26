@@ -28,6 +28,13 @@
 #include "header/client.h"
 #include "../common/header/cmodel.h"
 
+/* skip lerping the first server frames after client receives it
+ * avoids lerping toggled lasers
+ * and fixes lerp-spamming with xatrix monster lasers
+ * they spawn short-lived lasers repeatedly
+ */
+#define LASERLERP_NSKIPS 2
+
 static void
 CL_AddPacketEntities(const frame_t *frame)
 {
@@ -133,7 +140,8 @@ CL_AddPacketEntities(const frame_t *frame)
 		ent.oldframe = cent->prev.frame;
 		ent.backlerp = 1.0f - cl.lerpfrac;
 
-		if (renderfx & RF_BEAM)
+		if ((renderfx & RF_BEAM) &&
+			(cl.frame.serverframe - cent->serverframe_created) >= LASERLERP_NSKIPS)
 		{
 			int i;
 
@@ -145,7 +153,7 @@ CL_AddPacketEntities(const frame_t *frame)
 						(cent->current.old_origin[i] - cent->prev.old_origin[i]));
 			}
 		}
-		else if (renderfx & RF_FRAMELERP)
+		else if (renderfx & (RF_BEAM | RF_FRAMELERP))
 		{
 			/* step origin discretely, because the
 			   frames do the animation properly */

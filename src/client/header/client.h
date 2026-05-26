@@ -81,6 +81,7 @@ typedef struct
 	entity_xstate_t	current;
 	entity_xstate_t	prev; /* will always be valid, but might just be a copy of current */
 
+	int			serverframe_created; /* set any time the client ent is initialized */
 	int			serverframe; /* if not current, this ent isn't in the frame */
 
 	int			trailcount;	 /* for diminishing grenade trails */
