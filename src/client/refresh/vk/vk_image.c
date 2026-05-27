@@ -384,11 +384,25 @@ VkResult QVk_CreateImage(uint32_t width, uint32_t height, VkFormat format, VkIma
 void
 QVk_CreateDepthBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *depthBuffer)
 {
+	VkResult res;
 	depthBuffer->format = QVk_FindDepthFormat();
 	depthBuffer->sampleCount = sampleCount;
 
-	VK_VERIFY(QVk_CreateImage(vk_swapchain.extent.width, vk_swapchain.extent.height, depthBuffer->format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depthBuffer));
-	VK_VERIFY(QVk_CreateImageView(&depthBuffer->resource.image, getDepthStencilAspect(depthBuffer->format), &depthBuffer->imageView, depthBuffer->format, depthBuffer->mipLevels));
+	res = QVk_CreateImage(vk_swapchain.extent.width, vk_swapchain.extent.height, depthBuffer->format, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, depthBuffer);
+	if (res != VK_SUCCESS)
+	{
+		Com_Printf("%s:%d: VkResult verification: %s\n",
+			__func__, __LINE__, QVk_GetError(res));
+		return;
+	}
+	
+	res = QVk_CreateImageView(&depthBuffer->resource.image, getDepthStencilAspect(depthBuffer->format), &depthBuffer->imageView, depthBuffer->format, depthBuffer->mipLevels);
+	if (res != VK_SUCCESS)
+	{
+		Com_Printf("%s:%d: VkResult verification: %s\n",
+			__func__, __LINE__, QVk_GetError(res));
+		image_destroy(&depthBuffer->resource);
+	}
 }
 
 static void
@@ -427,11 +441,26 @@ ChangeColorBufferLayout(VkImage image, VkImageLayout fromLayout, VkImageLayout t
 void
 QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colorBuffer, int extraFlags)
 {
+	VkResult res;
 	colorBuffer->format = vk_swapchain.format;
 	colorBuffer->sampleCount = sampleCount;
 
-	VK_VERIFY(QVk_CreateImage(vk_swapchain.extent.width, vk_swapchain.extent.height, colorBuffer->format, VK_IMAGE_TILING_OPTIMAL, extraFlags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, colorBuffer));
-	VK_VERIFY(QVk_CreateImageView(&colorBuffer->resource.image, VK_IMAGE_ASPECT_COLOR_BIT, &colorBuffer->imageView, colorBuffer->format, colorBuffer->mipLevels));
+	res = QVk_CreateImage(vk_swapchain.extent.width, vk_swapchain.extent.height, colorBuffer->format, VK_IMAGE_TILING_OPTIMAL, extraFlags | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, colorBuffer);
+	if (res != VK_SUCCESS)
+	{
+		Com_Printf("%s:%d: VkResult verification: %s\n",
+			__func__, __LINE__, QVk_GetError(res));
+		return;
+	}
+	
+	res = QVk_CreateImageView(&colorBuffer->resource.image, VK_IMAGE_ASPECT_COLOR_BIT, &colorBuffer->imageView, colorBuffer->format, colorBuffer->mipLevels);
+	if (res != VK_SUCCESS)
+	{
+		Com_Printf("%s:%d: VkResult verification: %s\n",
+			__func__, __LINE__, QVk_GetError(res));
+		image_destroy(&colorBuffer->resource);
+		return;
+	}
 
 	// The single-sample color attachment ends every frame as
 	// SHADER_READ_ONLY_OPTIMAL as used in the post-processing stage, so its

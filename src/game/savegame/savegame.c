@@ -1261,6 +1261,7 @@ ReadItemsNames(FILE *f)
 
 			if (strncmp(temp, itemlist[i].classname, sizeof(temp) - 1))
 			{
+				fclose(f);
 				gi.error("%s: mismatch items class %d %s != %s\n",
 					__func__, i, itemlist[i].classname, temp);
 			}

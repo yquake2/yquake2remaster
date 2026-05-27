@@ -949,6 +949,11 @@ SCR_PlayCinematic(char *arg)
 			!plm_probe(cin.plm_video, len) ||
 			!cin.plm_video->demux)
 		{
+			if (cin.plm_video)
+			{
+				plm_destroy(cin.plm_video);
+				cin.plm_video = NULL;
+			}
 			FS_FreeFile(cin.raw_video);
 			cin.raw_video = NULL;
 			cl.cinematictime = 0; /* done */
