@@ -120,7 +120,7 @@ void MSG_WriteFloat(sizebuf_t *sb, float f);
 void MSG_WriteString(sizebuf_t *sb, const char *s);
 void MSG_WriteCoord(sizebuf_t *sb, float f, int protocol);
 void MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol);
-void MSG_WriteAngle(sizebuf_t *sb, float f);
+void MSG_WriteAngle(sizebuf_t *sb, float f, int protocol);
 void MSG_WriteAngle16(sizebuf_t *sb, float f);
 void MSG_WriteConfigString(sizebuf_t *buf, short index, const char *s);
 void MSG_WriteDeltaUsercmd(sizebuf_t *buf, const struct usercmd_s *from,
@@ -142,7 +142,7 @@ char *MSG_ReadStringLine(sizebuf_t *msg_read);
 
 float MSG_ReadCoord(sizebuf_t *msg_read, int protocol);
 void MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol);
-float MSG_ReadAngle(sizebuf_t *msg_read);
+float MSG_ReadAngle(sizebuf_t *msg_read, int protocol);
 float MSG_ReadAngle16(sizebuf_t *msg_read);
 void MSG_ReadDeltaUsercmd(sizebuf_t *msg_read,
 		const struct usercmd_s *from,
