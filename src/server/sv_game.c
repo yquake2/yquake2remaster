@@ -384,7 +384,7 @@ PF_WriteDir(const vec3_t dir)
 static void
 PF_WriteAngle(float f)
 {
-	MSG_WriteAngle(&sv.multicast, f);
+	MSG_WriteAngle(&sv.multicast, f, SV_GetRecomendedProtocol());
 }
 
 /*

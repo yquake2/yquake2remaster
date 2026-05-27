@@ -406,17 +406,17 @@ CL_ParseDelta(const entity_xstate_t *from, entity_xstate_t *to, int number, int 
 
 	if (bits & U_ANGLE1)
 	{
-		to->angles[0] = MSG_ReadAngle(&net_message);
+		to->angles[0] = MSG_ReadAngle(&net_message, cls.serverProtocol);
 	}
 
 	if (bits & U_ANGLE2)
 	{
-		to->angles[1] = MSG_ReadAngle(&net_message);
+		to->angles[1] = MSG_ReadAngle(&net_message, cls.serverProtocol);
 	}
 
 	if (bits & U_ANGLE3)
 	{
-		to->angles[2] = MSG_ReadAngle(&net_message);
+		to->angles[2] = MSG_ReadAngle(&net_message, cls.serverProtocol);
 	}
 
 	if (bits & U_OLDORIGIN)
