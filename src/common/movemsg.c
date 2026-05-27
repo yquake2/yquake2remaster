@@ -701,11 +701,11 @@ MSG_WriteAngle(sizebuf_t *sb, float f, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol))
 	{
-		MSG_WriteAngle16(sb, f);
+		MSG_WriteByte(sb, (int)(f * 256 / 360) & 255);
 	}
 	else
 	{
-		MSG_WriteByte(sb, (int)(f * 256 / 360) & 255);
+		MSG_WriteAngle16(sb, f);
 	}
 }
 
@@ -1342,11 +1342,11 @@ MSG_ReadAngle(sizebuf_t *msg_read, int protocol)
 {
 	if (IS_QII97_PROTOCOL(protocol))
 	{
-		return MSG_ReadAngle16(msg_read);
+		return MSG_ReadChar(msg_read) * 1.40625f;
 	}
 	else
 	{
-		return MSG_ReadChar(msg_read) * 1.40625f;
+		return MSG_ReadAngle16(msg_read);
 	}
 }
 
