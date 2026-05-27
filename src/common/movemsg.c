@@ -575,7 +575,7 @@ MSG_DeltaEntity_Size(const entity_xstate_t *from, const entity_xstate_t *to,
 
 	if (bits & U_ANGLE2)
 	{
-		sz++;
+		sz+=2;
 	}
 
 	if (bits & U_ANGLE3)
@@ -699,7 +699,7 @@ MSG_WritePos(sizebuf_t *sb, const vec3_t pos, int protocol)
 void
 MSG_WriteAngle(sizebuf_t *sb, float f)
 {
-	MSG_WriteByte(sb, (int)(f * 256 / 360) & 255);
+	MSG_WriteShort(sb, (int)(f * 65536.0 / 360.0) & 0xFFFF);
 }
 
 void
@@ -1333,7 +1333,7 @@ MSG_ReadPos(sizebuf_t *msg_read, vec3_t pos, int protocol)
 float
 MSG_ReadAngle(sizebuf_t *msg_read)
 {
-	return MSG_ReadChar(msg_read) * 1.40625f;
+	return MSG_ReadShort(msg_read) * 360.0 / 65536.0;
 }
 
 float
