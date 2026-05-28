@@ -831,7 +831,7 @@ Key_StringToKeynum(const char *str)
 
 	if (!str[1])
 	{
-		return str[0];
+		return (unsigned char)str[0];
 	}
 
 	for (kn = keynames; kn->name; kn++)

@@ -1858,7 +1858,7 @@ FS_LoadPK3(const char *packPath)
 	/* Parse the directory. */
 	status = unzGoToFirstFile(handle);
 
-	while (status == UNZ_OK)
+	while (status == UNZ_OK && i < numFiles)
 	{
 		char fileName[MAX_FILENAME] = {0}; /* File name. */
 

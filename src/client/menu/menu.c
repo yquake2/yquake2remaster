@@ -3986,6 +3986,7 @@ Create_Savestrings(void)
 		{
 			FS_Read(m_savestrings[i], sizeof(m_savestrings[i]), f);
 			FS_FCloseFile(f);
+			m_savestrings[i][sizeof(m_savestrings[i]) - 1] = 0;
 			m_savevalid[i] = true;
 		}
 	}
