@@ -361,7 +361,7 @@ Checked with:
 * [x] ReRelease: implement `target_crossunit_trigger`,
 * [x] CppCheck: fix const warnings and scope,
 * [x] renders: share model_t type.
-* [x] ReRelease: Fix jerky rotation animation for func_rotating entities in Call of the Machine #140
+* [x] ReRelease: Fix jerky rotation animation for func_rotating entities in Call of the Machine
 
 ### Not a goal:
 

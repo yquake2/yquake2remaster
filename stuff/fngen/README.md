@@ -27,7 +27,7 @@ of how the script identifies points of interest in code.
 
 These scripts use the following programs / commands:
 * dirname
-* awk
+* gawk
 * grep
 
 Windows users may need to download and install

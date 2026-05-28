@@ -187,6 +187,10 @@ static const fplist_entry_t fpentries_ent[] =
 	{FOFS(monsterinfo.attack), &fnlist_mi_attack},
 	{FOFS(monsterinfo.checkattack), &fnlist_mi_checkattack},
 	{FOFS(monsterinfo.dodge), &fnlist_mi_dodge},
+	{FOFS(monsterinfo.blocked), &fnlist_mi_blocked},
+	{FOFS(monsterinfo.duck), &fnlist_mi_duck},
+	{FOFS(monsterinfo.unduck), &fnlist_mi_unduck},
+	{FOFS(monsterinfo.sidestep), &fnlist_mi_sidestep},
 	{FOFS(moveinfo.endfunc), &fnlist_mv_end}
 };
 static const fptrList_t fplist_ent =

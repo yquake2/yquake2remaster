@@ -1081,7 +1081,7 @@ CTFPickup_Flag(edict_t *ent, edict_t *other)
 	return true;
 }
 
-static void
+void
 CTFDropFlagTouch(edict_t *ent, edict_t *other,
 		const cplane_t *plane, const csurface_t *surf)
 {
@@ -1095,7 +1095,7 @@ CTFDropFlagTouch(edict_t *ent, edict_t *other,
 	Touch_Item(ent, other, plane, surf);
 }
 
-static void
+void
 CTFDropFlagThink(edict_t *ent)
 {
 	/* auto return the flag
@@ -1169,7 +1169,7 @@ CTFDrop_Flag(edict_t *ent, const gitem_t *item)
 	}
 }
 
-static void
+void
 CTFFlagThink(edict_t *ent)
 {
 	if (ent->solid != SOLID_NOT)
@@ -1689,7 +1689,7 @@ CTFResetGrapple(edict_t *self)
 	}
 }
 
-static void
+void
 CTFGrappleTouch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	float volume = 1.0;
@@ -2416,7 +2416,7 @@ FindTechSpawn(void)
 	return spot;
 }
 
-static void
+void
 TechThink(edict_t *tech)
 {
 	edict_t *spot;
@@ -2513,7 +2513,7 @@ SpawnTech(const gitem_t *item, edict_t *spot)
 	gi.linkentity(ent);
 }
 
-static void
+void
 SpawnTechs(edict_t *ent)
 {
 	int i;
@@ -3298,7 +3298,7 @@ CTFSay_Team(edict_t *who, char *msg)
  * The origin is the bottom of the banner.
  * The banner is 248 tall.
  */
-static void
+void
 misc_ctf_banner_think(edict_t *ent)
 {
 	ent->s.frame = (ent->s.frame + 1) % 16;

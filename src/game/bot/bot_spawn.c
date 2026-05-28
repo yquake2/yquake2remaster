@@ -294,19 +294,19 @@ BOT_StartAsSpectator(edict_t *ent)
 // BOT_JoinGame
 // 3 for teams and such
 //==========================================
-static void
+void
 BOT_JoinBlue(edict_t *ent)
 {
 	BOT_DMClass_JoinGame(ent, "blue");
 }
 
-static void
+void
 BOT_JoinRed(edict_t *ent)
 {
 	BOT_DMClass_JoinGame(ent, "red");
 }
 
-static void
+void
 BOT_JoinGame(edict_t *ent)
 {
 	BOT_DMClass_JoinGame(ent, NULL);
