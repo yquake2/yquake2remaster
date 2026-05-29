@@ -1875,7 +1875,17 @@ SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles)
 	}
 
 	VectorCopy(spot->s.origin, origin);
-	origin[2] += 9;
+	/* Call Of The Machine map hack */
+	if (Q_stricmp(level.mapname, "mgu1m1") &&
+		Q_stricmp(level.mapname, "mgu2m1") &&
+		Q_stricmp(level.mapname, "mgu3m1") &&
+		Q_stricmp(level.mapname, "mgu4m1") &&
+		Q_stricmp(level.mapname, "mgu5m1") &&
+		Q_stricmp(level.mapname, "mgu6m1")
+		)
+	{
+		origin[2] += 9;
+	}
 	VectorCopy(spot->s.angles, angles);
 }
 
