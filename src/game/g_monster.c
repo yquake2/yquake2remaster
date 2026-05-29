@@ -1113,7 +1113,7 @@ M_MoveFrame(edict_t *self)
 		return;
 	}
 
-	if ((self->spawnflags & 0x00010000) && self->die)
+	if ((self->spawnflags & SPAWNFLAG_MONSTER_DEAD) && self->die)
     {
         self->health = 1;
         self->die(self, self, self, 999, vec3_origin);

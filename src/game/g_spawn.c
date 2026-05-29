@@ -1244,10 +1244,9 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
 		}
 		/* Call Of The Machine map hack */
-		if (strstr(level.mapname, "mgu"))
+		if (!strncmp(level.mapname, "mgu", 3))
 		{	
-			/* SF_COOP_ONLY only coop flag */
-			if (!coop->value && ent->spawnflags == 0x00004000)
+			if (!coop->value && ent->spawnflags & SPAWNFLAG_ONLY_COOP)
 			{
 				G_FreeEdict(ent);
 				inhibit++;
