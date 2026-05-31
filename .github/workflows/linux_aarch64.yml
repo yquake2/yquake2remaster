@@ -42,12 +42,17 @@ jobs:
         # Public runners come with 4 CPUs.
         make WITH_SDL3=no -j4
         make WITH_SDL3=no -j4 ref_gles1
+        # Debug version
+        make WITH_SDL3=no DEBUG=1 -j4
+        make WITH_SDL3=no DEBUG=1 -j4 ref_gles1
     - name: Create testbuild package
       run: |
         # Create release directory tree
         mkdir -p publish/quake2-linux_aarch64-${{github.sha}}/misc/docs
+        mkdir -p publish/quake2-linux_aarch64-${{github.sha}}/debug
         # Copy release assets
         cp -r release/* publish/quake2-linux_aarch64-${{github.sha}}/
+        cp -r debug/* publish/quake2-linux_aarch64-${{github.sha}}/debug/
         # Copy misc assets
         cp -r stuff/yq2.cfg publish/quake2-linux_aarch64-${{github.sha}}/misc/yq2.cfg
         cp -r stuff/models publish/quake2-linux_aarch64-${{github.sha}}/misc
