@@ -820,6 +820,7 @@ static const functionList_t fnlist_mi_dodge =
 static const fnlist_entry_t fnentries_mi_idle[] =
 {
 	{"brain_idle", (byte *)brain_idle},
+	{"flipper_idle", (byte *)flipper_idle},
 	{"floater_idle", (byte *)floater_idle},
 	{"flyer_idle", (byte *)flyer_idle},
 	{"gekk_idle", (byte *)gekk_idle},

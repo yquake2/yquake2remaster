@@ -707,6 +707,7 @@ extern void soldierh_dodge (edict_t *, edict_t *, float, trace_t *trace);
 extern void stalker_dodge (edict_t *, edict_t *, float, trace_t *trace);
 // monsterinfo.idle
 extern void brain_idle (edict_t *);
+extern void flipper_idle (edict_t *);
 extern void floater_idle (edict_t *);
 extern void flyer_idle (edict_t *);
 extern void gekk_idle (edict_t *);
