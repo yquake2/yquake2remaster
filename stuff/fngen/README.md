@@ -12,8 +12,8 @@ First generate the data:
 
 ```
 # cd to stuff/fngen
-./fngenprotos.sh ../../src/game > proto.txt
-./fngentables.sh ../../src/game > tables.txt
+./fngenprotos.sh ../../src/game > ../../src/game/savegame/tables/gamefunc_decs.h
+./fngentables.sh ../../src/game > ../../src/game/savegame/tables/gamefunc_list.h
 ```
 
 Then copy the contents of the files to the respective header
