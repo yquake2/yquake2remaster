@@ -298,7 +298,7 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 						neworg[2] -= 8;
 					}
 
-					if (!((ent->flags & FL_SWIM) && (ent->waterlevel < 2)))
+					if (!((ent->flags & FL_SWIM) && (ent->waterlevel < WATER_WAIST)))
 					{
 						if (dz < (minheight - 10))
 						{
@@ -389,7 +389,7 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 			/* swim monsters don't exit water voluntarily */
 			if (ent->flags & FL_SWIM)
 			{
-				if (ent->waterlevel < 2)
+				if (ent->waterlevel < WATER_WAIST)
 				{
 					test[0] = trace.endpos[0];
 					test[1] = trace.endpos[1];
@@ -466,7 +466,7 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 	}
 
 	/* don't go in to water */
-	if (ent->waterlevel == 0)
+	if (ent->waterlevel == WATER_NONE)
 	{
 		test[0] = trace.endpos[0];
 		test[1] = trace.endpos[1];

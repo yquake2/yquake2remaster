@@ -2494,7 +2494,7 @@ PutClientInServer(edict_t *ent)
 	ent->model = "players/male/tris.md2";
 	ent->pain = player_pain;
 	ent->die = player_die;
-	ent->waterlevel = 0;
+	ent->waterlevel = WATER_NONE;
 	ent->watertype = 0;
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
@@ -3242,7 +3242,7 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		client->resp.cmd_angles[2] = SHORT2ANGLE(ucmd->angles[2]);
 
 		if (ent->groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) &&
-			(pm.waterlevel == 0))
+			(pm.waterlevel == WATER_NONE))
 		{
 			gi.sound(ent, CHAN_VOICE, gi.soundindex(
 							"*jump1.wav"), 1, ATTN_NORM, 0);

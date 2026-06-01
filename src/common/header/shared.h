@@ -703,6 +703,12 @@ typedef struct usercmd_s
 	byte lightlevel;        /* light level the player is standing on */
 } usercmd_t;
 
+/* waterlevel values */
+#define WATER_NONE 0
+#define WATER_FEET 1
+#define WATER_WAIST 2
+#define WATER_UNDER 3
+
 #define MAXTOUCH 32
 typedef struct
 {

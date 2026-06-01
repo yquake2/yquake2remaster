@@ -373,7 +373,7 @@ AI_CategorizePosition(edict_t *ent)
 		ent->mins, ent->maxs, ent);
 
 	M_CatagorizePosition(ent);
-	if (ent->waterlevel > 2 || (ent->waterlevel && !stepping))
+	if (ent->waterlevel > WATER_WAIST || (ent->waterlevel && !stepping))
 	{
 		ent->is_swim = true;
 		ent->is_step = false;
