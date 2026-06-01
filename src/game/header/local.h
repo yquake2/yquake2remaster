@@ -441,6 +441,9 @@ typedef struct
 void setup_shadow_lights(void);
 void G_LoadShadowLights(void);
 
+/* pausetime */
+#define HOLD_FOREVER 100000000
+
 /* spawn_temp_t is only used to hold entity field values that
    can be set from the editor, but aren't actualy present/
    in edict_t during gameplay */

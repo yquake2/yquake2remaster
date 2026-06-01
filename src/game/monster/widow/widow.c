@@ -1328,7 +1328,7 @@ widow_pain(edict_t *self, edict_t *other /* unused */, float kick, int damage)
 		return;
 	}
 
-	if (self->monsterinfo.pausetime == 100000000)
+	if (self->monsterinfo.pausetime == HOLD_FOREVER)
 	{
 		self->monsterinfo.pausetime = 0;
 	}

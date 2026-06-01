@@ -2163,7 +2163,7 @@ monster_start_go(edict_t *self)
 			gi.dprintf("%s can't find target %s at %s\n", self->classname,
 					self->target, vtos(self->s.origin));
 			self->target = NULL;
-			self->monsterinfo.pausetime = 100000000;
+			self->monsterinfo.pausetime = HOLD_FOREVER;
 			if (!spawn_dead)
 			{
 				self->monsterinfo.stand(self);
@@ -2185,7 +2185,7 @@ monster_start_go(edict_t *self)
 		else
 		{
 			self->goalentity = self->movetarget = NULL;
-			self->monsterinfo.pausetime = 100000000;
+			self->monsterinfo.pausetime = HOLD_FOREVER;
 			if (!spawn_dead)
 			{
 				self->monsterinfo.stand(self);
@@ -2194,7 +2194,7 @@ monster_start_go(edict_t *self)
 	}
 	else
 	{
-		self->monsterinfo.pausetime = 100000000;
+		self->monsterinfo.pausetime = HOLD_FOREVER;
 		if (!spawn_dead)
 		{
 			self->monsterinfo.stand(self);

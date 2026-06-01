@@ -481,7 +481,7 @@ actor_use(edict_t *self, edict_t *other, edict_t *activator)
 	{
 		gi.dprintf ("%s has bad target %s at %s\n", self->classname, self->target, vtos(self->s.origin));
 		self->target = NULL;
-		self->monsterinfo.pausetime = 100000000;
+		self->monsterinfo.pausetime = HOLD_FOREVER;
 		self->monsterinfo.stand (self);
 		return;
 	}
