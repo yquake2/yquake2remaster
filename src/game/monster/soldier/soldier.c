@@ -733,6 +733,11 @@ soldier_fire(edict_t *self, int in_flash_number)
 
 	if ((flash_number == 5) || (flash_number == 6)) /* he's dead */
 	{
+		if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
+		{
+			return;
+		}
+
 		VectorCopy(forward, aim);
 	}
 	else
@@ -2424,6 +2429,11 @@ soldierh_fire(edict_t *self, int flash_number)
 
 	if ((flash_number == 5) || (flash_number == 6))
 	{
+		if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
+		{
+			return;
+		}
+
 		VectorCopy(forward, aim);
 	}
 	else

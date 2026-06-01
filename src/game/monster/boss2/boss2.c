@@ -720,6 +720,14 @@ boss2_dead(edict_t *self)
 		return;
 	}
 
+	/* no blowy on deady */
+	if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
+	{
+		self->deadflag = DEAD_NO;
+		self->takedamage = DAMAGE_YES;
+		return;
+	}
+
 	VectorSet(self->mins, -56, -56, 0);
 	VectorSet(self->maxs, 56, 56, 80);
 	monster_sync_scale_mins_maxs(self);
@@ -735,11 +743,30 @@ boss2_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* u
 		return;
 	}
 
-	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NONE, 0);
-	self->deadflag = DEAD_DEAD;
-	self->takedamage = DAMAGE_NO;
-	self->count = 0;
-	self->monsterinfo.currentmove = &boss2_move_death;
+	if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
+	{
+		/* check for gib */
+		if ((self->deadflag == DEAD_DEAD) || (self->health <= self->gib_health))
+		{
+			ThrowGib(self, NULL, damage, self->gib);
+			ThrowHead(self, NULL, damage, self->gib);
+			self->deadflag = DEAD_DEAD;
+			return;
+		}
+
+		if (self->deadflag == DEAD_DEAD)
+		{
+			return;
+		}
+	}
+	else
+	{
+		gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NONE, 0);
+		self->deadflag = DEAD_DEAD;
+		self->takedamage = DAMAGE_NO;
+		self->count = 0;
+		self->monsterinfo.currentmove = &boss2_move_death;
+	}
 }
 
 qboolean

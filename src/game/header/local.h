@@ -545,6 +545,7 @@ typedef struct
 	unsigned int aiflags;           /* unsigned, since we're close to the max */
 	int nextframe;
 	float scale;
+	int dead_frame;
 
 	void (*stand)(edict_t *self);
 	void (*idle)(edict_t *self);
@@ -932,6 +933,20 @@ void cleanupHealTarget(edict_t *ent);
 #define DEFAULT_SSHOTGUN_COUNT 20
 
 /* g_monster.c */
+#define SPAWNFLAG_MONSTER_AMBUSH 0x00000001
+#define SPAWNFLAG_MONSTER_TRIGGER_SPAWN 0x00000002
+#define SPAWNFLAG_MONSTER_FUBAR 0x00000004
+#define SPAWNFLAG_MONSTER_DEAD 0x00010000
+#define SPAWNFLAG_MONSTER_SUPER_STEP 0x00020000
+#define SPAWNFLAG_MONSTER_NO_DROP 0x00040000
+#define SPAWNFLAG_MONSTER_SCENIC 0x00080000
+
+#define SPAWNFLAG_FIXBOT_FIXIT 4
+#define SPAWNFLAG_FIXBOT_TAKEOFF 8
+#define SPAWNFLAG_FIXBOT_LANDING 16
+#define SPAWNFLAG_FIXBOT_WORKING 32
+
+
 void monster_fire_bullet(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		int kick, int hspread, int vspread, int flashtype);
 void monster_fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir,
