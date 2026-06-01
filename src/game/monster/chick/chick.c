@@ -468,6 +468,18 @@ chick_dead(edict_t *self)
 	monster_dynamic_dead(self);
 }
 
+static void
+chick_fall_down(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	/* CHAN_VOICE so gibbing the body cancels this sound */
+	gi.sound(self, CHAN_VOICE, sound_fall_down, 1, ATTN_NORM, 0);
+}
+
 static mframe_t chick_frames_death2[] = {
 	{ai_move, -6, NULL},
 	{ai_move, 0, NULL},
@@ -490,7 +502,7 @@ static mframe_t chick_frames_death2[] = {
 	{ai_move, -5, NULL},
 	{ai_move, 4, NULL},
 	{ai_move, 15, NULL},
-	{ai_move, 14, NULL},
+	{ai_move, 14, chick_fall_down},
 	{ai_move, 1, NULL}
 };
 
