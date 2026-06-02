@@ -1713,7 +1713,7 @@ Trap_Think(edict_t *ent)
 
 				if (best->watertype & MASK_WATER)
 				{
-					best->waterlevel = 1;
+					best->waterlevel = WATER_FEET;
 				}
 
 				best->nextthink = level.time + 0.1;

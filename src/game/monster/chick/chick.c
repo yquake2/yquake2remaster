@@ -252,6 +252,17 @@ mmove_t chick_move_run =
 	NULL
 };
 
+void
+chick_search(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
+}
+
 static mframe_t chick_frames_walk[] = {
 	{ai_walk, 6, NULL},
 	{ai_walk, 8, chick_footstep},
@@ -457,6 +468,18 @@ chick_dead(edict_t *self)
 	monster_dynamic_dead(self);
 }
 
+static void
+chick_fall_down(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	/* CHAN_VOICE so gibbing the body cancels this sound */
+	gi.sound(self, CHAN_VOICE, sound_fall_down, 1, ATTN_NORM, 0);
+}
+
 static mframe_t chick_frames_death2[] = {
 	{ai_move, -6, NULL},
 	{ai_move, 0, NULL},
@@ -479,7 +502,7 @@ static mframe_t chick_frames_death2[] = {
 	{ai_move, -5, NULL},
 	{ai_move, 4, NULL},
 	{ai_move, 15, NULL},
-	{ai_move, 14, NULL},
+	{ai_move, 14, chick_fall_down},
 	{ai_move, 1, NULL}
 };
 
@@ -1218,6 +1241,7 @@ SP_monster_chick(edict_t *self)
 	self->monsterinfo.attack = chick_attack;
 	self->monsterinfo.melee = chick_melee;
 	self->monsterinfo.sight = chick_sight;
+	self->monsterinfo.search = chick_search;
 	self->monsterinfo.blocked = chick_blocked;
 
 	gi.linkentity(self);

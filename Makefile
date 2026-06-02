@@ -2148,6 +2148,7 @@ CTF_OBJS_ = \
 	src/player/view.o \
 	src/player/weapon.o \
 	src/savegame/savegame.o \
+	src/shared/rand.o \
 	src/shared/shared.o
 
 # ----------

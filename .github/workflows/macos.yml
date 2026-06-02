@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - 'master'
-    tags:
-      - "*"
   pull_request:
     types:
       - edited
@@ -20,7 +18,7 @@ jobs:
     runs-on: macos-latest
     permissions:
       actions: read
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -88,18 +86,3 @@ jobs:
         name: quake2-macos-${{github.sha}}
         path: publish/
         if-no-files-found: error
-    - name: Create tag package
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      run: |
-        # create archive
-        mkdir yquake2remaster-${{matrix.env}}-${{github.ref_name}}
-        mv publish/quake2-macos-${{github.sha}}/yquake2.dmg yquake2remaster-${{matrix.env}}-${{github.ref_name}}.dmg
-        cp -rv publish/quake2-macos-${{github.sha}}/* yquake2remaster-${{matrix.env}}-${{github.ref_name}}
-        zip -9r yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip yquake2remaster-${{matrix.env}}-${{github.ref_name}}
-    - name: Upload Release Asset
-      uses: softprops/action-gh-release@v3
-      if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      with:
-        files: |
-          yquake2remaster-${{matrix.env}}-${{github.ref_name}}.zip
-          yquake2remaster-${{matrix.env}}-${{github.ref_name}}.dmg

@@ -765,19 +765,52 @@ supertank_dead(edict_t *self)
 		return;
 	}
 
+	/* no blowy on deady */
+	if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
+	{
+		self->deadflag = DEAD_NO;
+		self->takedamage = DAMAGE_YES;
+		return;
+	}
+
 	VectorSet(self->mins, -60, -60, 0);
 	VectorSet(self->maxs, 60, 60, 72);
 	monster_sync_scale_mins_maxs(self);
 	monster_dynamic_dead(self);
 }
 
+static void
+supertank_gib(edict_t *self)
+{
+	size_t n;
+
+	for (n = 0; n < 4; n++)
+	{
+		ThrowGib(self, NULL, 500, GIB_ORGANIC);
+	}
+
+	for (n = 0; n < 8; n++)
+	{
+		ThrowGib(self, NULL, 500, GIB_METALLIC);
+	}
+
+	ThrowGib(self, "models/objects/gibs/chest/tris.md2",
+		500, GIB_ORGANIC);
+	ThrowHead(self, NULL, 500, GIB_METALLIC);
+}
+
 void
 BossExplode(edict_t *self)
 {
 	vec3_t org;
-	int n;
 
 	if (!self)
+	{
+		return;
+	}
+
+	/* no blowy on deady */
+	if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
 	{
 		return;
 	}
@@ -822,20 +855,7 @@ BossExplode(edict_t *self)
 			break;
 		case 8:
 			self->s.sound = 0;
-
-			for (n = 0; n < 4; n++)
-			{
-				ThrowGib(self, NULL, 500, GIB_ORGANIC);
-			}
-
-			for (n = 0; n < 8; n++)
-			{
-				ThrowGib(self, NULL, 500, GIB_METALLIC);
-			}
-
-			ThrowGib(self, "models/objects/gibs/chest/tris.md2",
-				500, GIB_ORGANIC);
-			ThrowHead(self, NULL, 500, GIB_METALLIC);
+			supertank_gib(self);
 			self->deadflag = DEAD_DEAD;
 			return;
 	}
@@ -858,11 +878,29 @@ supertank_die(edict_t *self, edict_t *inflictor /* unused */,
 		return;
 	}
 
-	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
-	self->deadflag = DEAD_DEAD;
-	self->takedamage = DAMAGE_NO;
-	self->count = 0;
-	self->monsterinfo.currentmove = &supertank_move_death;
+	if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
+	{
+		/* check for gib */
+		if ((self->deadflag == DEAD_DEAD) || (self->health <= self->gib_health))
+		{
+			supertank_gib(self);
+			self->deadflag = DEAD_DEAD;
+			return;
+		}
+
+		if (self->deadflag == DEAD_DEAD)
+		{
+			return;
+		}
+	}
+	else
+	{
+		gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
+		self->deadflag = DEAD_DEAD;
+		self->takedamage = DAMAGE_NO;
+		self->count = 0;
+		self->monsterinfo.currentmove = &supertank_move_death;
+	}
 }
 
 qboolean

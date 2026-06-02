@@ -495,7 +495,7 @@ PM_AddCurrents(vec3_t wishvel)
 
 		s = pm_waterspeed;
 
-		if ((pm->waterlevel == 1) && (pm->groundentity))
+		if ((pm->waterlevel == WATER_FEET) && (pm->groundentity))
 		{
 			s /= 2;
 		}
@@ -766,7 +766,7 @@ PM_CatagorizePosition(void)
 	}
 
 	/* get waterlevel, accounting for ducking */
-	pm->waterlevel = 0;
+	pm->waterlevel = WATER_NONE;
 	pm->watertype = 0;
 
 	sample2 = pm->viewheight - pm->mins[2];
@@ -778,19 +778,19 @@ PM_CatagorizePosition(void)
 	if (cont & MASK_WATER)
 	{
 		pm->watertype = cont;
-		pm->waterlevel = 1;
+		pm->waterlevel = WATER_FEET;
 		point[2] = pml.origin[2] + pm->mins[2] + sample1;
 		cont = pm->pointcontents(point);
 
 		if (cont & MASK_WATER)
 		{
-			pm->waterlevel = 2;
+			pm->waterlevel = WATER_WAIST;
 			point[2] = pml.origin[2] + pm->mins[2] + sample2;
 			cont = pm->pointcontents(point);
 
 			if (cont & MASK_WATER)
 			{
-				pm->waterlevel = 3;
+				pm->waterlevel = WATER_UNDER;
 			}
 		}
 	}
@@ -823,7 +823,7 @@ PM_CheckJump(void)
 		return;
 	}
 
-	if (pm->waterlevel >= 2)
+	if (pm->waterlevel >= WATER_WAIST)
 	{
 		/* swimming, not jumping */
 		pm->groundentity = NULL;
@@ -895,7 +895,7 @@ PM_CheckSpecialMovement(void)
 	}
 
 	/* check for water jump */
-	if (pm->waterlevel != 2)
+	if (pm->waterlevel != WATER_WAIST)
 	{
 		return;
 	}
@@ -1319,14 +1319,14 @@ PM_CalculateWaterLevelForDemo(void)
 	point[1] = pml.origin[1];
 	point[2] = pml.origin[2] + pm->viewheight;
 
-	pm->waterlevel = 0;
+	pm->waterlevel = WATER_NONE;
 	pm->watertype = 0;
 
 	cont = pm->pointcontents(point);
 
 	if ((cont & MASK_WATER) != 0)
 	{
-		pm->waterlevel = 3;
+		pm->waterlevel = WATER_UNDER;
 		pm->watertype = cont;
 	}
 }
@@ -1336,7 +1336,7 @@ PM_UpdateUnderwaterSfx()
 {
 	static int underwater;
 
-	if ((pm->waterlevel == 3) && !underwater)
+	if ((pm->waterlevel == WATER_UNDER) && !underwater)
 	{
 		underwater = 1;
 		snd_is_underwater = 1;
@@ -1346,7 +1346,7 @@ PM_UpdateUnderwaterSfx()
 #endif
 	}
 
-	if ((pm->waterlevel < 3) && underwater)
+	if ((pm->waterlevel < WATER_UNDER) && underwater)
 	{
 		underwater = 0;
 		snd_is_underwater = 0;
@@ -1370,7 +1370,7 @@ Pmove_(void)
 	pm->viewheight = 0;
 	pm->groundentity = 0;
 	pm->watertype = 0;
-	pm->waterlevel = 0;
+	pm->waterlevel = WATER_NONE;
 
 	/* convert origin and velocity to float values */
 	pml.origin[0] = pml.current_origin[0] * 0.125f;
@@ -1481,7 +1481,7 @@ Pmove_(void)
 
 		PM_Friction();
 
-		if (pm->waterlevel >= 2)
+		if (pm->waterlevel >= WATER_WAIST)
 		{
 			PM_WaterMove();
 		}

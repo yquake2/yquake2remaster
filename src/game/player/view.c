@@ -857,17 +857,17 @@ P_FallingDamage(edict_t *ent)
 	}
 
 	/* never take falling damage if completely underwater */
-	if (ent->waterlevel == 3)
+	if (ent->waterlevel == WATER_UNDER)
 	{
 		return;
 	}
 
-	if (ent->waterlevel == 2)
+	if (ent->waterlevel == WATER_WAIST)
 	{
 		delta *= 0.25;
 	}
 
-	if (ent->waterlevel == 1)
+	if (ent->waterlevel == WATER_FEET)
 	{
 		delta *= 0.5;
 	}
@@ -989,14 +989,14 @@ P_WorldEffects(void)
 	}
 
 	/* check for head just going under water */
-	if ((old_waterlevel != 3) && (waterlevel == 3))
+	if ((old_waterlevel != WATER_UNDER) && (waterlevel == WATER_UNDER))
 	{
 		gi.sound(current_player, CHAN_BODY, gi.soundindex(
 						"player/watr_un.wav"), 1, ATTN_NORM, 0);
 	}
 
 	/* check for head just coming out of water */
-	if ((old_waterlevel == 3) && (waterlevel != 3))
+	if ((old_waterlevel == WATER_UNDER) && (waterlevel != WATER_UNDER))
 	{
 		if (current_player->air_finished < level.time)
 		{
@@ -1014,7 +1014,7 @@ P_WorldEffects(void)
 	}
 
 	/* check for drowning */
-	if (waterlevel == 3)
+	if (waterlevel == WATER_UNDER)
 	{
 		/* breather or envirosuit give air */
 		if (breather || envirosuit)
@@ -1520,7 +1520,7 @@ newanim:
 			firstframe = FRAME_run1;
 			lastframe = FRAME_run6;
 
-			if (ent->waterlevel >= 2)
+			if (ent->waterlevel >= WATER_WAIST)
 			{
 				animname = "swim";
 			}

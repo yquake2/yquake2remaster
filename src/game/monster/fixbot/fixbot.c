@@ -262,24 +262,24 @@ change_to_roam(edict_t *self)
 
 	self->monsterinfo.currentmove = &fixbot_move_roamgoal;
 
-	if (self->spawnflags & 16)
+	if (self->spawnflags & SPAWNFLAG_FIXBOT_LANDING)
 	{
 		landing_goal(self);
 		self->monsterinfo.currentmove = &fixbot_move_landing;
-		self->spawnflags = 32;
+		self->spawnflags = SPAWNFLAG_FIXBOT_WORKING;
 	}
 
-	if (self->spawnflags & 8)
+	if (self->spawnflags & SPAWNFLAG_FIXBOT_TAKEOFF)
 	{
 		takeoff_goal(self);
 		self->monsterinfo.currentmove = &fixbot_move_takeoff;
-		self->spawnflags = 32;
+		self->spawnflags = SPAWNFLAG_FIXBOT_WORKING;
 	}
 
-	if (self->spawnflags & 4)
+	if (self->spawnflags & SPAWNFLAG_FIXBOT_FIXIT)
 	{
 		self->monsterinfo.currentmove = &fixbot_move_roamgoal;
-		self->spawnflags = 32;
+		self->spawnflags = SPAWNFLAG_FIXBOT_WORKING;
 	}
 
 	if (!self->spawnflags)

@@ -493,10 +493,21 @@ M_CheckGround(edict_t *ent)
 			ent, MASK_MONSTERSOLID);
 
 	/* check steepness */
-	if ((trace.plane.normal[2] < 0.7) && !trace.startsolid)
+	if (ent->gravityVector[2] < 0) /* normal gravity */
 	{
-		ent->groundentity = NULL;
-		return;
+		if ((trace.plane.normal[2] < 0.7) && !trace.startsolid)
+		{
+			ent->groundentity = NULL;
+			return;
+		}
+	}
+	else /* inverted gravity */
+	{
+		if ((trace.plane.normal[2] > -0.7) && !trace.startsolid)
+		{
+			ent->groundentity = NULL;
+			return;
+		}
 	}
 
 	if (!trace.startsolid && !trace.allsolid)
@@ -527,13 +538,13 @@ M_CatagorizePosition(edict_t *ent)
 
 	if (!(cont & MASK_WATER))
 	{
-		ent->waterlevel = 0;
+		ent->waterlevel = WATER_NONE;
 		ent->watertype = 0;
 		return;
 	}
 
 	ent->watertype = cont;
-	ent->waterlevel = 1;
+	ent->waterlevel = WATER_FEET;
 	point[2] += 26;
 	cont = gi.pointcontents(point);
 
@@ -542,13 +553,13 @@ M_CatagorizePosition(edict_t *ent)
 		return;
 	}
 
-	ent->waterlevel = 2;
+	ent->waterlevel = WATER_WAIST;
 	point[2] += 22;
 	cont = gi.pointcontents(point);
 
 	if (cont & MASK_WATER)
 	{
-		ent->waterlevel = 3;
+		ent->waterlevel = WATER_UNDER;
 	}
 }
 
@@ -564,7 +575,7 @@ M_WorldEffects(edict_t *ent)
 	{
 		if (!(ent->flags & FL_SWIM))
 		{
-			if (ent->waterlevel < 3)
+			if (ent->waterlevel < WATER_UNDER)
 			{
 				ent->air_finished = level.time + 12;
 			}
@@ -590,7 +601,7 @@ M_WorldEffects(edict_t *ent)
 		}
 		else
 		{
-			if (ent->waterlevel > 0)
+			if (ent->waterlevel > WATER_NONE)
 			{
 				ent->air_finished = level.time + 9;
 			}
@@ -616,7 +627,7 @@ M_WorldEffects(edict_t *ent)
 		}
 	}
 
-	if (ent->waterlevel == 0)
+	if (ent->waterlevel == WATER_NONE)
 	{
 		if (ent->flags & FL_INWATER)
 		{
@@ -1814,15 +1825,14 @@ monster_triggered_spawn(edict_t *self)
 
 	if (strcmp(self->classname, "monster_fixbot") == 0)
 	{
-		if (self->spawnflags & 16 || self->spawnflags & 8 || self->spawnflags &
-			4)
+		if (self->spawnflags & (SPAWNFLAG_FIXBOT_LANDING | SPAWNFLAG_FIXBOT_TAKEOFF | SPAWNFLAG_FIXBOT_FIXIT))
 		{
 			self->enemy = NULL;
 			return;
 		}
 	}
 
-	if (self->enemy && !(self->spawnflags & 1) &&
+	if (self->enemy && !(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH) &&
 		!(self->enemy->flags & FL_NOTARGET))
 	{
 		if (!(self->enemy->flags & FL_DISGUISED))
@@ -1859,6 +1869,26 @@ monster_triggered_spawn_use(edict_t *self, edict_t *other /* unused */, edict_t 
 	}
 
 	self->use = monster_use;
+
+	if (self->spawnflags & SPAWNFLAG_MONSTER_SCENIC)
+	{
+		int i;
+
+		M_droptofloor(self);
+
+		self->nextthink = 0;
+		self->think(self);
+
+		if (self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH)
+		{
+			monster_use(self, other, activator);
+		}
+
+		for (i = 0; i < 30; i++)
+		{
+			self->think(self);
+		}
+	}
 }
 
 void
@@ -1952,23 +1982,24 @@ monster_start(edict_t *self)
 		return false;
 	}
 
-	if ((self->spawnflags & 4) && !(self->monsterinfo.aiflags & AI_GOOD_GUY))
+	if ((self->spawnflags & SPAWNFLAG_MONSTER_FUBAR) && !(self->monsterinfo.aiflags & AI_GOOD_GUY))
 	{
-		self->spawnflags &= ~4;
-		self->spawnflags |= 1;
+		self->spawnflags &= ~SPAWNFLAG_MONSTER_FUBAR;
+		self->spawnflags |= SPAWNFLAG_MONSTER_AMBUSH;
 	}
 
-	if ((self->spawnflags & 2) && !self->targetname)
+	if ((self->spawnflags & SPAWNFLAG_MONSTER_TRIGGER_SPAWN) && !self->targetname)
 	{
 		if (g_fix_triggered->value)
 		{
-			self->spawnflags &= ~2;
+			self->spawnflags &= ~SPAWNFLAG_MONSTER_TRIGGER_SPAWN;
 		}
 
 		gi.dprintf ("triggered %s at %s has no targetname\n", self->classname, vtos (self->s.origin));
 	}
 
 	if ((!(self->monsterinfo.aiflags & AI_GOOD_GUY)) &&
+		!(self->spawnflags & SPAWNFLAG_MONSTER_DEAD) &&
 		(!(self->monsterinfo.aiflags & AI_DO_NOT_COUNT)))
 	{
 		level.total_monsters++;
@@ -2057,6 +2088,8 @@ monster_start(edict_t *self)
 void
 monster_start_go(edict_t *self)
 {
+	qboolean spawn_dead;
+
 	if (!self)
 	{
 		return;
@@ -2124,6 +2157,9 @@ monster_start_go(edict_t *self)
 		}
 	}
 
+	/* allow spawning dead */
+	spawn_dead = self->spawnflags & SPAWNFLAG_MONSTER_DEAD;
+
 	if (self->target)
 	{
 		self->goalentity = self->movetarget = G_PickTarget(self->target);
@@ -2133,8 +2169,11 @@ monster_start_go(edict_t *self)
 			gi.dprintf("%s can't find target %s at %s\n", self->classname,
 					self->target, vtos(self->s.origin));
 			self->target = NULL;
-			self->monsterinfo.pausetime = 100000000;
-			self->monsterinfo.stand(self);
+			self->monsterinfo.pausetime = HOLD_FOREVER;
+			if (!spawn_dead)
+			{
+				self->monsterinfo.stand(self);
+			}
 		}
 		else if (strcmp(self->movetarget->classname, "path_corner") == 0)
 		{
@@ -2142,24 +2181,97 @@ monster_start_go(edict_t *self)
 
 			VectorSubtract(self->goalentity->s.origin, self->s.origin, v);
 			self->ideal_yaw = self->s.angles[YAW] = vectoyaw(v);
-			self->monsterinfo.walk(self);
+			if (!spawn_dead)
+			{
+				self->monsterinfo.walk(self);
+			}
+
 			self->target = NULL;
 		}
 		else
 		{
 			self->goalentity = self->movetarget = NULL;
-			self->monsterinfo.pausetime = 100000000;
-			self->monsterinfo.stand(self);
+			self->monsterinfo.pausetime = HOLD_FOREVER;
+			if (!spawn_dead)
+			{
+				self->monsterinfo.stand(self);
+			}
 		}
 	}
 	else
 	{
-		self->monsterinfo.pausetime = 100000000;
-		self->monsterinfo.stand(self);
+		self->monsterinfo.pausetime = HOLD_FOREVER;
+		if (!spawn_dead)
+		{
+			self->monsterinfo.stand(self);
+		}
 	}
 
-	self->think = monster_think;
-	self->nextthink = level.time + FRAMETIME;
+	if (spawn_dead)
+	{
+		mmove_t *move;
+		size_t i;
+		vec3_t f;
+
+		/* to spawn dead, we'll mimick them dying naturally */
+		self->health = 0;
+
+		VectorCopy(self->s.origin, f);
+
+		if (self->die)
+		{
+			self->die(self, self, self, 0, vec3_origin);
+		}
+
+		if (!self->inuse)
+		{
+			return;
+		}
+
+		move = self->monsterinfo.currentmove;
+
+		for (i = move->firstframe; i < move->lastframe; i++)
+		{
+			self->s.frame = i;
+
+			if (move->frame[i - move->firstframe].thinkfunc)
+			{
+				move->frame[i - move->firstframe].thinkfunc(self);
+			}
+
+			if (!self->inuse)
+			{
+				return;
+			}
+		}
+
+		if (move->endfunc)
+		{
+			move->endfunc(self);
+		}
+
+		if (!self->inuse)
+		{
+			return;
+		}
+
+		if (self->monsterinfo.dead_frame)
+		{
+			self->s.frame = self->monsterinfo.dead_frame;
+		}
+		else
+		{
+			self->s.frame = move->lastframe;
+		}
+
+		VectorCopy(f, self->s.origin);
+		gi.linkentity(self);
+	}
+	else
+	{
+		self->think = monster_think;
+		self->nextthink = level.time + FRAMETIME;
+	}
 }
 
 void
@@ -2194,7 +2306,7 @@ walkmonster_start_go(edict_t *self)
 		self->viewheight = 25;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_MONSTER_TRIGGER_SPAWN)
 	{
 		monster_triggered_start(self);
 	}
@@ -2239,7 +2351,7 @@ flymonster_start_go(edict_t *self)
 		self->viewheight = 25;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_MONSTER_TRIGGER_SPAWN)
 	{
 		monster_triggered_start(self);
 	}
@@ -2280,7 +2392,7 @@ swimmonster_start_go(edict_t *self)
 		self->viewheight = 10;
 	}
 
-	if (self->spawnflags & 2)
+	if (self->spawnflags & SPAWNFLAG_MONSTER_TRIGGER_SPAWN)
 	{
 		monster_triggered_start(self);
 	}

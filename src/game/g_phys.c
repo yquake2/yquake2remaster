@@ -1072,11 +1072,11 @@ SV_Physics_Toss(edict_t *ent)
 
 	if (isinwater)
 	{
-		ent->waterlevel = 1;
+		ent->waterlevel = WATER_FEET;
 	}
 	else
 	{
-		ent->waterlevel = 0;
+		ent->waterlevel = WATER_NONE;
 	}
 
 	/* Don't do the sounds for the camera */
@@ -1202,14 +1202,14 @@ SV_Physics_Step(edict_t *ent)
 	{
 		if (!(ent->flags & FL_FLY))
 		{
-			if (!((ent->flags & FL_SWIM) && (ent->waterlevel > 2)))
+			if (!((ent->flags & FL_SWIM) && (ent->waterlevel > WATER_WAIST)))
 			{
 				if (ent->velocity[2] < sv_gravity->value * -0.1)
 				{
 					hitsound = true;
 				}
 
-				if (ent->waterlevel == 0)
+				if (ent->waterlevel == WATER_NONE)
 				{
 					SV_AddGravity(ent);
 				}
@@ -1642,11 +1642,11 @@ SV_Physics_NewToss(edict_t *ent)
 
 	if (isinwater)
 	{
-		ent->waterlevel = 1;
+		ent->waterlevel = WATER_FEET;
 	}
 	else
 	{
-		ent->waterlevel = 0;
+		ent->waterlevel = WATER_NONE;
 	}
 
 	if (!wasinwater && isinwater)

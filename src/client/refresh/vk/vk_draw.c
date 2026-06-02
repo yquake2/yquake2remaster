@@ -474,6 +474,10 @@ RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *d
 			cols * rows * sizeof(unsigned))
 		if (!raw_image32)
 		{
+			if (image_scaled != data)
+			{
+				free(image_scaled);
+			}
 			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 			return;
 		}
