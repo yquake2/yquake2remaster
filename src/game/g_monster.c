@@ -1124,12 +1124,6 @@ M_MoveFrame(edict_t *self)
 		return;
 	}
 
-	if ((self->spawnflags & SPAWNFLAG_MONSTER_DEAD) && self->die)
-    {
-        self->health = 1;
-        self->die(self, self, self, 999, vec3_origin);
-    }
-
 	move = self->monsterinfo.currentmove;
 	if (move)
 	{
