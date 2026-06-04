@@ -1702,10 +1702,6 @@ QVk_Shutdown(void)
 			for (i = 0; i < NUM_IMG_SEMAPHORES; ++i)
 			{
 				vkDestroySemaphore(vk_device.logical, vk_imageAvailableSemaphores[i], NULL);
-			}
-
-			for (i = 0; i < NUM_IMG_SEMAPHORES; ++i)
-			{
 				vkDestroySemaphore(vk_device.logical, vk_renderFinishedSemaphores[i], NULL);
 			}
 
@@ -2510,10 +2506,12 @@ QVk_RecreateSwapchain()
 		return false;
 	}
 
-	VK_VERIFY(result = QVk_CreateSwapchain());
+	result = QVk_CreateSwapchain();
 
 	if (result != VK_SUCCESS)
 	{
+		Com_Printf("%s:%d: VkResult verification failed: %s\n",
+			 __func__, __LINE__, QVk_GetError(result));
 		return false;
 	}
 
@@ -2524,17 +2522,21 @@ QVk_RecreateSwapchain()
 	DestroyDrawBuffers();
 	CreateDrawBuffers();
 
-	VK_VERIFY(result = CreateImageViews());
+	result = CreateImageViews();
 
 	if (result != VK_SUCCESS)
 	{
+		Com_Printf("%s:%d: VkResult verification failed: %s\n",
+			 __func__, __LINE__, QVk_GetError(result));
 		return false;
 	}
 
-	VK_VERIFY(result = CreateFramebuffers());
+	result = CreateFramebuffers();
 
 	if (result != VK_SUCCESS)
 	{
+		Com_Printf("%s:%d: VkResult verification failed: %s\n",
+			 __func__, __LINE__, QVk_GetError(result));
 		return false;
 	}
 
