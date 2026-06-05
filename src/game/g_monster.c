@@ -2219,6 +2219,7 @@ monster_start_go(edict_t *self)
 
 	if (spawn_dead)
 	{
+		int lastframe;
 		mmove_t *move;
 		size_t i;
 		vec3_t f;
@@ -2239,25 +2240,54 @@ monster_start_go(edict_t *self)
 		}
 
 		move = self->monsterinfo.currentmove;
-
-		for (i = move->firstframe; i < move->lastframe; i++)
+		if (move)
 		{
-			self->s.frame = i;
+			int firstframe;
 
-			if (move->frame[i - move->firstframe].thinkfunc)
+			firstframe = move->firstframe;
+			lastframe = move->lastframe;
+
+			if (lastframe < firstframe)
 			{
-				move->frame[i - move->firstframe].thinkfunc(self);
+				firstframe = move->lastframe;
+				lastframe = move->firstframe;
 			}
 
-			if (!self->inuse)
+			/* static move */
+			for (i = firstframe; i < lastframe; i++)
 			{
-				return;
+				self->s.frame = i;
+
+				if (move->frame[i - firstframe].thinkfunc)
+				{
+					move->frame[i - firstframe].thinkfunc(self);
+				}
+
+				if (!self->inuse)
+				{
+					return;
+				}
+			}
+
+			if (move->endfunc)
+			{
+				move->endfunc(self);
 			}
 		}
-
-		if (move->endfunc)
+		else if (self->monsterinfo.action)
 		{
-			move->endfunc(self);
+			int firstframe;
+
+			firstframe = self->monsterinfo.firstframe;
+
+			if (self->monsterinfo.numframes > 0)
+			{
+				lastframe = firstframe + self->monsterinfo.numframes - 1;
+			}
+			else
+			{
+				lastframe = firstframe - self->monsterinfo.numframes - 1;
+			}
 		}
 
 		if (!self->inuse)
@@ -2271,7 +2301,7 @@ monster_start_go(edict_t *self)
 		}
 		else
 		{
-			self->s.frame = move->lastframe;
+			self->s.frame = lastframe;
 		}
 
 		VectorCopy(f, self->s.origin);
