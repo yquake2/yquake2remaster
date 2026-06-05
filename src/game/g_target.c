@@ -1458,8 +1458,8 @@ target_earthquake_think(edict_t *self)
 		}
 	}
 
-	// Call of the Machine: earthquake speed 1600 causes damage issues, disable for droppod_quake
-	float eq_speed = (!Q_stricmp(self->targetname, "droppod_quake")) ? 0 : self->speed;
+	/* Call of the Machine: earthquake speed 1600 causes damage issues, disable for droppod_quake */
+	float eq_speed = (self->targetname!=NULL && !Q_stricmp(self->targetname, "droppod_quake")) ? 0 : self->speed;
 	for (i = 1, e = g_edicts + i; i < globals.num_edicts; i++, e++)
 	{
 		if (!e->inuse)
