@@ -1184,6 +1184,22 @@ M_MoveFrame(edict_t *self)
 				/* regrab move, endfunc is very likely to change it */
 				move = self->monsterinfo.currentmove;
 
+				/* we need to recompute as endfunc may have swapped to a move with a different frame range */
+				if (move)
+				{
+					firstframe = move->firstframe;
+					lastframe = move->lastframe;
+
+					reverse = false;
+
+					if (lastframe < firstframe)
+					{
+						reverse = true;
+						firstframe = move->lastframe;
+						lastframe = move->firstframe;
+					}
+				}
+
 				/* check for death */
 				if (self->svflags & SVF_DEADMONSTER)
 				{
