@@ -212,10 +212,10 @@ typedef enum
 	RP_COUNT = 3
 } qvkrenderpasstype_t;
 
-// Vulkan constants: command and dynamic buffer count
+/* command and dynamic buffer count */
 #define NUM_CMDBUFFERS 2
 #define NUM_DYNBUFFERS 2
-// Vulkan constants: number of image semaphores (introduced with VulkanSDK 1.3.275)
+/* number of image semaphores */
 #define NUM_IMG_SEMAPHORES (NUM_CMDBUFFERS * 2)
 #define PUSH_CONSTANT_VERTEX_SIZE 17
 #define PUSH_CONSTANT_FRAGMENT_SIZE 11

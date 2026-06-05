@@ -59,7 +59,7 @@
 #define VK_VERIFY(x) { \
 	VkResult res = (x); \
 	if(res != VK_SUCCESS) { \
-		Com_Printf("%s:%d: VkResult verification failed: %s\n", \
+		Sys_Error("%s:%d: VkResult verification failed: %s\n", \
 			 __func__, __LINE__, QVk_GetError(res)); \
 	} \
 }
@@ -74,7 +74,7 @@ typedef struct image_s
 	struct msurface_s *texturechain;    /* for sort-by-texture world drawing */
 	qvktexture_t vk_texture;            /* Vulkan texture handle */
 	float sl, tl, sh, th;               /* 0,0 - 1,1 unless part of the scrap */
-	qboolean	scrap;
+	qboolean scrap;
 } image_t;
 
 //====================================================
@@ -164,20 +164,20 @@ void RE_AddSkySurface(msurface_t *fa);
 void RE_ClearSkyBox(void);
 void R_DrawSkyBox(void);
 
-struct image_s	*RE_Draw_FindPic (const char *name);
+struct image_s	*RE_Draw_FindPic(const char *name);
 
-void	RE_Draw_GetPicSize (int *w, int *h, const char *name);
-void	RE_Draw_PicScaled (int x, int y, const char *name, float scale, const char *alttext);
-void	RE_Draw_PicScaledCol(int x, int y, const char *name, float factor, const vec3_t color, const char *alttext);
-void	RE_Draw_StretchPic (int x, int y, int w, int h, const char *name);
-void	RE_Draw_CharScaled (int x, int y, int num, float scale);
-void	RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
-void	RE_Draw_TileClear (int x, int y, int w, int h, const char *name);
-void	RE_Draw_Fill (int x, int y, int w, int h, int c);
-void	RE_Draw_FadeScreen (void);
-void	RE_Draw_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
+void RE_Draw_GetPicSize(int *w, int *h, const char *name);
+void RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext);
+void RE_Draw_PicScaledCol(int x, int y, const char *name, float factor, const vec3_t color, const char *alttext);
+void RE_Draw_StretchPic(int x, int y, int w, int h, const char *name);
+void RE_Draw_CharScaled(int x, int y, int num, float scale);
+void RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message);
+void RE_Draw_TileClear(int x, int y, int w, int h, const char *name);
+void RE_Draw_Fill(int x, int y, int w, int h, int c);
+void RE_Draw_FadeScreen(void);
+void RE_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 
-qboolean	RE_EndWorldRenderpass( void );
+qboolean RE_EndWorldRenderpass( void );
 
 struct image_s *RE_RegisterSkin (const char *name);
 
@@ -185,25 +185,25 @@ image_t *Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		    int height, int realheight, size_t data_size, imagetype_t type,
 		    int bits);
 image_t	*Vk_FindImage (const char *name, imagetype_t type);
-void	Vk_Scrap_Upload(void);
-void	Vk_TextureMode(const char *string);
-void	Vk_LmapTextureMode(const char *string);
-void	Vk_ImageList_f (void);
+void Vk_Scrap_Upload(void);
+void Vk_TextureMode(const char *string);
+void Vk_LmapTextureMode(const char *string);
+void Vk_ImageList_f (void);
 
 void LM_CreateLightmapsPoligon(model_t *currentmodel, msurface_t *fa);
 void LM_EndBuildingLightmaps(void);
 void LM_BeginBuildingLightmaps(model_t *m);
 
-void	Vk_InitImages (void);
-void	Vk_ShutdownImages (void);
-void	Vk_FreeUnusedImages (void);
+void Vk_InitImages (void);
+void Vk_ShutdownImages (void);
+void Vk_FreeUnusedImages (void);
 qboolean Vk_ImageHasFreeSpace(void);
 
-void	RE_BeginRegistration (const char *model);
-struct model_s	*RE_RegisterModel (const char *name);
-struct image_s	*RE_RegisterSkin (const char *name);
-void	RE_SetSky (const char *name, float rotate, int autorotate, const vec3_t axis);
-void	RE_EndRegistration (void);
+void RE_BeginRegistration(const char *model);
+struct model_s *RE_RegisterModel(const char *name);
+struct image_s *RE_RegisterSkin(const char *name);
+void RE_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
+void RE_EndRegistration (void);
 
 void Mat_Identity(float *matrix);
 void Mat_Mul(float *m1, float *m2, float *res);
@@ -222,15 +222,15 @@ typedef struct
 	const char *supported_present_modes[256];
 	const char *extensions[256];
 	const char *layers[256];
-	uint32_t    vertex_buffer_usage;
-	uint32_t    vertex_buffer_max_usage;
-	uint32_t    vertex_buffer_size;
-	uint32_t    index_buffer_usage;
-	uint32_t    index_buffer_max_usage;
-	uint32_t    index_buffer_size;
-	uint32_t    uniform_buffer_usage;
-	uint32_t    uniform_buffer_max_usage;
-	uint32_t    uniform_buffer_size;
+	uint32_t vertex_buffer_usage;
+	uint32_t vertex_buffer_max_usage;
+	uint32_t vertex_buffer_size;
+	uint32_t index_buffer_usage;
+	uint32_t index_buffer_max_usage;
+	uint32_t index_buffer_size;
+	uint32_t uniform_buffer_usage;
+	uint32_t uniform_buffer_max_usage;
+	uint32_t uniform_buffer_size;
 } vkconfig_t;
 
 #define DYNLIGHTMAP_OFFSET MAX_LIGHTMAPS
@@ -283,24 +283,14 @@ qboolean Vkimp_CreateSurface(SDL_Window *window);
 extern mvtx_t	*verts_buffer;
 extern uint16_t	*vertIdxData;
 
-void	Mesh_Init (void);
-void	Mesh_Free (void);
+void Mesh_Init (void);
+void Mesh_Free (void);
 int Mesh_VertsRealloc(int count);
 int Mesh_IndexesRealloc(int count);
-
 void Mod_Init(void);
-
 void Mod_Modellist_f(void);
 
-void *Hunk_Begin(int maxsize);
-void *Hunk_Alloc(int size);
-int Hunk_End(void);
-void Hunk_Free(void *base);
-
 void Mod_FreeAll(void);
-void	Mod_FreeModelsKnown (void);
-
-// All renders should export such function
-Q2_DLL_EXPORTED refexport_t GetRefAPI(refimport_t imp);
+void Mod_FreeModelsKnown (void);
 
 #endif
