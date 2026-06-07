@@ -522,9 +522,9 @@ dynamic:
 static void
 DrawTextureChains(const entity_t *currententity)
 {
-	int		i;
-	msurface_t	*s;
-	image_t		*image;
+	int i;
+	msurface_t *s;
+	image_t *image;
 
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{

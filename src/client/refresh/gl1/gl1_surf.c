@@ -382,7 +382,7 @@ static void
 R_RenderBrushPoly(msurface_t *fa)
 {
 	qboolean is_dynamic = false;
-	int maps;
+	size_t maps;
 
 	c_brush_polys++;
 

@@ -144,6 +144,7 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 					__func__, planenum);
 			return;
 		}
+
 		out->plane = loadmodel->planes + planenum;
 
 		ti = in->texinfo;
@@ -333,8 +334,6 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	{
 		Com_Printf("%s: Load %s[%d]\n", __func__, mod->name, mod_loaded);
 	}
-
-	/* fill it in */
 
 	/* call the apropriate loader */
 	switch (LittleLong(*(unsigned *)buf))

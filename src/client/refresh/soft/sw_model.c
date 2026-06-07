@@ -193,18 +193,6 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 		Mod_LoadSetSurfaceLighting(loadmodel->lightdata, loadmodel->numlightdata,
 			out, in->styles, lightofs);
 
-		if (!out->texinfo->image)
-			continue;
-
-		if (r_fixsurfsky->value)
-		{
-			if (out->texinfo->flags & SURF_SKY)
-			{
-				out->flags |= SURF_DRAWSKY;
-				continue;
-			}
-		}
-
 		/* set the drawing flags */
 		if (out->texinfo->flags & SURF_WARP)
 		{
@@ -215,7 +203,17 @@ Mod_LoadQFaces(model_t *loadmodel, const byte *mod_base, const lump_t *l,
 				out->extents[i] = 16384;
 				out->texturemins[i] = -8192;
 			}
-			continue;
+
+			R_SubdivideSurface(loadmodel->surfedges, loadmodel->vertexes,
+				loadmodel->edges, out); /* cut up polygon for warps */
+		}
+
+		if (r_fixsurfsky->value)
+		{
+			if (out->texinfo->flags & SURF_SKY)
+			{
+				out->flags |= SURF_DRAWSKY;
+			}
 		}
 
 		//==============

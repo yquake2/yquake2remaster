@@ -312,7 +312,8 @@ Mod_ForName(const char *name, model_t *parent_model, qboolean crash)
 	{
 		if (mod_numknown == MAX_MOD_KNOWN)
 		{
-			Com_Error(ERR_DROP, "%s: mod_numknown == MAX_MOD_KNOWN", __func__);
+			Com_Error(ERR_DROP, "%s: mod_numknown == MAX_MOD_KNOWN",
+				__func__);
 			return NULL;
 		}
 
