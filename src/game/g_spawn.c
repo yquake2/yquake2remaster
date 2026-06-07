@@ -1243,7 +1243,16 @@ SpawnEntities(const char *mapname, char *entities, const char *spawnpoint)
 		{
 			ent->spawnflags |= SPAWNFLAG_NOT_COOP;
 		}
-
+		/* Call Of The Machine map hack */
+		if (!strncmp(level.mapname, "mgu", 3))
+		{	
+			if (!coop->value && (ent->spawnflags & SPAWNFLAG_ONLY_COOP))
+			{
+				G_FreeEdict(ent);
+				inhibit++;
+				continue;
+			}
+		}
 		/* remove things (except the world) from
 		   different skill levels or deathmatch */
 		if (ent != g_edicts)
