@@ -1901,7 +1901,7 @@ monster_triggered_spawn_use(edict_t *self, edict_t *other /* unused */, edict_t 
 	}
 }
 
-void
+static void
 monster_triggered_start(edict_t *self)
 {
 	if (!self)
@@ -2219,9 +2219,8 @@ monster_start_go(edict_t *self)
 
 	if (spawn_dead)
 	{
-		int lastframe;
+		int lastframe = 0;
 		mmove_t *move;
-		size_t i;
 		vec3_t f;
 
 		/* to spawn dead, we'll mimick them dying naturally */
@@ -2242,7 +2241,7 @@ monster_start_go(edict_t *self)
 		move = self->monsterinfo.currentmove;
 		if (move)
 		{
-			int firstframe;
+			int firstframe, i;
 
 			firstframe = move->firstframe;
 			lastframe = move->lastframe;
@@ -2513,7 +2512,7 @@ stationarymonster_triggered_spawn_use(edict_t *self, edict_t *other /* unused */
 	self->use = monster_use;
 }
 
-void
+static void
 stationarymonster_triggered_start(edict_t *self)
 {
 	if (!self)

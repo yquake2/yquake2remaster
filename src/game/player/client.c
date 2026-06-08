@@ -787,7 +787,7 @@ ClientObituary(edict_t *self, const edict_t *inflictor /* unused */,
 	}
 }
 
-void
+static void
 TossClientWeapon(edict_t *self)
 {
 	const gitem_t *item;
@@ -2023,7 +2023,7 @@ respawn(edict_t *self)
  * note that resp.spectator should be the
  * opposite of pers.spectator here
  */
-void
+static void
 spectator_respawn(edict_t *ent)
 {
 	if (!ent)
@@ -2685,7 +2685,7 @@ PutClientInServer(edict_t *ent)
  * deathmatch mode, so clear everything out before
  * starting them.
  */
-void
+static void
 ClientBeginDeathmatch(edict_t *ent)
 {
 	if (!ent)

@@ -433,10 +433,6 @@ CTFOtherTeam(int team)
 
 /*--------------------------------------------------------------------------*/
 
-edict_t *SelectRandomDeathmatchSpawnPoint(void);
-edict_t *SelectFarthestDeathmatchSpawnPoint(void);
-float PlayersRangeFromSpot(edict_t *spot);
-
 void
 CTFAssignSkin(edict_t *ent, char *s)
 {

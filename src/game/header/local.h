@@ -1295,6 +1295,15 @@ void spawngrow_think(edict_t *self);
 /* p_client.c */
 void RemoveAttackingPainDaemons(edict_t *self);
 void ForceFogTransition(edict_t *ent, qboolean instant);
+void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker);
+edict_t *SelectRandomDeathmatchSpawnPoint(void);
+edict_t *SelectFarthestDeathmatchSpawnPoint(void);
+float PlayersRangeFromSpot(edict_t *spot);
+
+/* widow.c */
+void WidowPowerups(edict_t *self);
+void WidowCalcSlots(edict_t *self);
+void widow_start_spawn(edict_t *self);
 
 /* ============================================================================ */
 
@@ -2078,6 +2087,7 @@ void SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles);
 #if DEBUG
 #include "../savegame/savegame.h"
 #include "../savegame/tables/gamefunc_decs.h"
+#include "../savegame/tables/spawnfunc_decs.h"
 #endif
 
 #endif /* GAME_LOCAL_H */

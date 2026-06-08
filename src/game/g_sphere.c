@@ -18,13 +18,7 @@
 #define VENGEANCE_LIFESPAN 30
 #define MINIMUM_FLY_TIME 15
 
-void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker);
-
-void defender_think(edict_t *self);
-void hunter_think(edict_t *self);
-void vengeance_think(edict_t *self);
 void vengeance_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
-void hunter_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
 
 void
 sphere_think_explode(edict_t *self)

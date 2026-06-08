@@ -1142,7 +1142,7 @@ P_WorldEffects(void)
 	}
 }
 
-void
+static void
 G_SetClientEffects(edict_t *ent)
 {
 	int remaining;
@@ -1262,7 +1262,7 @@ G_SetClientEffects(edict_t *ent)
 	}
 }
 
-void
+static void
 G_SetClientEvent(edict_t *ent)
 {
 	if (!ent)
@@ -1309,7 +1309,7 @@ G_SetClientEvent(edict_t *ent)
 	}
 }
 
-void
+static void
 G_SetClientSound(edict_t *ent)
 {
 	const char *weap;

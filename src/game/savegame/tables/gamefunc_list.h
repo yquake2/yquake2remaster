@@ -1000,6 +1000,7 @@ static const fnlist_entry_t fnentries_mv_end[] =
 	{"plat_hit_bottom", (byte *)plat_hit_bottom},
 	{"plat_hit_top", (byte *)plat_hit_top},
 	{"train_wait", (byte *)train_wait},
+	{"wizard_finish_attack", (byte *)wizard_finish_attack},
 };
 static const functionList_t fnlist_mv_end =
 {

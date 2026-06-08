@@ -47,6 +47,7 @@ mmove_t wizard_move_finish =
 	monster_dynamic_run
 };
 
+/* ->moveinfo.endfunc = wizard_finish_attack; */
 void
 wizard_finish_attack(edict_t *self)
 {

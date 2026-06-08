@@ -27,12 +27,11 @@
 
 #include "../header/local.h"
 
-extern edict_t *SelectFarthestDeathmatchSpawnPoint(void);
 void SP_dm_tag_token(edict_t *self);
 
-edict_t *tag_token;
-edict_t *tag_owner;
-int tag_count;
+static edict_t *tag_token;
+static edict_t *tag_owner;
+static int tag_count;
 
 void
 Tag_PlayerDeath(edict_t *targ, edict_t *inflictor /* unused */, edict_t *attacker /* unused */)
