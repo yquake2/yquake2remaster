@@ -1039,7 +1039,7 @@ PM_FlyMove(qboolean doclip)
 static void
 PM_CheckDuck(void)
 {
-	vec3_t mins = {-16, -16, -24}, maxs = {16, 16, 32};
+	static const vec3_t mins = {-16, -16, -24}, maxs = {16, 16, 32};
 	int i;
 
 	for (i = 0; i < 3; i++)

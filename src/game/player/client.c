@@ -1778,6 +1778,16 @@ SP_GetSpawnPoint(void)
 	return spot;
 }
 
+static void
+TryLandmarkSpawn(const edict_t* ent, vec3_t origin, vec3_t angles)
+{
+	static const vec3_t mins = {-16, -16, -24};
+	static const vec3_t maxs = {16, 16, 32};
+
+	/* originaly was origin[2] += 9 */
+	SearchGoodPosition(mins, maxs, NULL, origin);
+}
+
 /*
  * Chooses a player start, deathmatch start, coop start, etc
  */
@@ -1875,8 +1885,10 @@ SelectSpawnPoint(const edict_t *ent, vec3_t origin, vec3_t angles)
 	}
 
 	VectorCopy(spot->s.origin, origin);
-	origin[2] += 9;
 	VectorCopy(spot->s.angles, angles);
+
+	/* check landmark */
+	TryLandmarkSpawn(ent, origin, angles);
 }
 
 /* ====================================================================== */
@@ -2386,8 +2398,8 @@ ForceFogTransition(edict_t *ent, qboolean instant)
 void
 PutClientInServer(edict_t *ent)
 {
-	vec3_t mins = {-16, -16, -24};
-	vec3_t maxs = {16, 16, 32};
+	static const vec3_t mins = {-16, -16, -24};
+	static const vec3_t maxs = {16, 16, 32};
 	int index;
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;

@@ -1937,8 +1937,12 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 
 /* ====================================================================== */
 
+/*
+ * Passedict and edicts owned by passedict are explicitly not checked.
+ */
 void
-FixEntityPosition(edict_t *ent)
+SearchGoodPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *passedict,
+	vec3_t ent_origin)
 {
 	int i;
 
@@ -1952,9 +1956,9 @@ FixEntityPosition(edict_t *ent)
 			trace_t tr_pos;
 			int k;
 
-			VectorCopy(ent->s.origin, pos);
+			VectorCopy(ent_origin, pos);
 
-			VectorSubtract(ent->maxs, ent->mins, diff);
+			VectorSubtract(ent_maxs, ent_mins, diff);
 
 			/* move by up */
 			for (k = 0; k < i + 1; k++)
@@ -1962,13 +1966,13 @@ FixEntityPosition(edict_t *ent)
 				int v;
 
 				v = (j + k) % 3;
-				pos[v] = ent->s.origin[v] + diff[v];
+				pos[v] = ent_origin[v] + diff[v];
 			}
 
-			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
+			tr_pos = gi.trace(pos, ent_mins, ent_maxs, ent_origin, passedict, MASK_SOLID);
 			if (!tr_pos.startsolid)
 			{
-				VectorCopy(tr_pos.endpos, ent->s.origin);
+				VectorCopy(tr_pos.endpos, ent_origin);
 				return;
 			}
 
@@ -1978,17 +1982,23 @@ FixEntityPosition(edict_t *ent)
 				int v;
 
 				v = (j + k) % 3;
-				pos[v] = ent->s.origin[v] - diff[v];
+				pos[v] = ent_origin[v] - diff[v];
 			}
 
-			tr_pos = gi.trace(pos, ent->mins, ent->maxs, ent->s.origin, ent, MASK_SOLID);
+			tr_pos = gi.trace(pos, ent_mins, ent_maxs, ent_origin, passedict, MASK_SOLID);
 			if (!tr_pos.startsolid)
 			{
-				VectorCopy(tr_pos.endpos, ent->s.origin);
+				VectorCopy(tr_pos.endpos, ent_origin);
 				return;
 			}
 		}
 	}
+}
+
+void
+FixEntityPosition(edict_t *ent)
+{
+	SearchGoodPosition(ent->mins, ent->maxs, ent, ent->s.origin);
 }
 
 void
