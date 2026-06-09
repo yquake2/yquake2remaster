@@ -156,63 +156,6 @@ findradius(edict_t *from, const vec3_t org, float rad)
 }
 
 /*
- * Returns entities that have origins within a spherical area
- */
-edict_t *
-findradius2(edict_t *from, const vec3_t org, float rad)
-{
-	/* rad must be positive */
-	vec3_t eorg;
-	int j;
-
-	if (!from)
-	{
-		from = g_edicts;
-	}
-	else
-	{
-		from++;
-	}
-
-	for ( ; from < &g_edicts[globals.num_edicts]; from++)
-	{
-		if (!from->inuse)
-		{
-			continue;
-		}
-
-		if (from->solid == SOLID_NOT)
-		{
-			continue;
-		}
-
-		if (!from->takedamage)
-		{
-			continue;
-		}
-
-		if (!(from->svflags & SVF_DAMAGEABLE))
-		{
-			continue;
-		}
-
-		for (j = 0; j < 3; j++)
-		{
-			eorg[j] = org[j] - (from->s.origin[j] + (from->mins[j] + from->maxs[j]) * 0.5);
-		}
-
-		if (VectorLength(eorg) > rad)
-		{
-			continue;
-		}
-
-		return from;
-	}
-
-	return NULL;
-}
-
-/*
  * Searches all active entities for
  * the next one that holds the matching
  * string at fieldofs (use the FOFS() macro)

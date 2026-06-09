@@ -1554,7 +1554,7 @@ monster_dynamic_melee(edict_t *self)
 
 void
 monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
-	trace_t *tr /* unused */)
+	trace_t *trace /* unused */)
 {
 	if (!self || !attacker)
 	{

@@ -676,7 +676,7 @@ static const mmove_t gunner_move_duck_static =
 
 void
 gunner_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
-	trace_t *tr /* unused */)
+	trace_t *trace /* unused */)
 {
 	if (!self || !attacker)
 	{

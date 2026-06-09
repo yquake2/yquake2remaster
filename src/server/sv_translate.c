@@ -127,7 +127,7 @@ LocalizationConvertWIN1252ToUTF8(char *in_buf)
 	char *out, *buffer;
 	const byte *in;
 
-	buffer = out = malloc(strlen(in_buf) * 4 + 1);
+	buffer = out = calloc(strlen(in_buf) * 4 + 1, sizeof(char));
 	if (!out)
 	{
 		Com_DPrintf("Can't alloc translated text\n");

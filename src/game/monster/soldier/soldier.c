@@ -1393,7 +1393,7 @@ soldier_blocked(edict_t *self, float dist)
 
 void
 soldier_dodge(edict_t *self, edict_t *attacker, float eta,
-	trace_t *tr /* unused */)
+	trace_t *trace /* unused */)
 {
 	float r;
 
@@ -3037,7 +3037,7 @@ static const mmove_t soldierh_move_duck_static =
 
 void
 soldierh_dodge(edict_t *self, edict_t *attacker, float eta,
-	trace_t *tr /* unused */)
+	trace_t *trace /* unused */)
 {
 	float r;
 

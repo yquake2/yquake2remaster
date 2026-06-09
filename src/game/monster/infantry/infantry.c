@@ -830,7 +830,7 @@ static const mmove_t infantry_move_duck_static =
 
 void
 infantry_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
-	trace_t *tr /* unused */)
+	trace_t *trace /* unused */)
 {
 	if (!self || !attacker)
 	{

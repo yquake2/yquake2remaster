@@ -1388,7 +1388,7 @@ WriteLevel(const char *filename)
 	/* write out all the entities */
 	for (i = 0; i < globals.num_edicts; i++)
 	{
-		edict_t *ent;
+		const edict_t *ent;
 
 		ent = &g_edicts[i];
 

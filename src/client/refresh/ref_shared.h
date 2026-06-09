@@ -457,7 +457,7 @@ extern int Mod_LoadBSPXDecoupledLM(const dlminfo_t* lminfos, int surfnum, msurfa
 extern int Mod_CalcNonModelLumpHunkSize(const byte *mod_base, const dheader_t *header);
 extern void Mod_VisInit(void);
 extern const byte *Mod_ClusterPVS(int cluster, const model_t *model);
-extern void Mod_VisRealloc(const model_t *model);
+extern void Mod_VisRealloc(const model_t *mod);
 extern void Mod_VisFree(void);
 
 /* Surface logic */
@@ -492,7 +492,7 @@ extern void R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to);
 
 /* Lights logic */
 extern const bspx_header_t *Mod_LoadSectionsBeforeFaces(const byte *mod_base,
-	size_t modfilelen, model_t *model, findimage_t find_image, struct image_s *notexture);
+	size_t modfilelen, model_t *mod, findimage_t find_image, struct image_s *notexture);
 extern void Mod_LoadSectionsAfterFaces(const byte *mod_base, model_t *mod);
 extern void R_LightPoint(const model_t *model, const entity_t *currententity,
 	const vec3_t p, vec3_t color, vec3_t lightspot);

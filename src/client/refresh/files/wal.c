@@ -27,13 +27,13 @@
 #include "../ref_shared.h"
 
 void
-GetWalInfo(const char *origname, int *width, int *height)
+GetWalInfo(const char *name, int *width, int *height)
 {
 	byte *data;
 	int size;
 	char filename[256];
 
-	FixFileExt(origname, "wal", filename, sizeof(filename));
+	FixFileExt(name, "wal", filename, sizeof(filename));
 
 	size = ri.FS_LoadFile(filename, (void **)&data);
 
@@ -70,13 +70,13 @@ GetWalInfo(const char *origname, int *width, int *height)
 }
 
 void
-GetM8Info(const char *origname, int *width, int *height)
+GetM8Info(const char *name, int *width, int *height)
 {
 	m8tex_t *mt;
 	int size;
 	char filename[256];
 
-	FixFileExt(origname, "m8", filename, sizeof(filename));
+	FixFileExt(name, "m8", filename, sizeof(filename));
 
 	size = ri.FS_LoadFile(filename, (void **)&mt);
 
@@ -100,13 +100,13 @@ GetM8Info(const char *origname, int *width, int *height)
 }
 
 void
-GetM32Info(const char *origname, int *width, int *height)
+GetM32Info(const char *name, int *width, int *height)
 {
 	m32tex_t *mt;
 	int size;
 	char filename[256];
 
-	FixFileExt(origname, "m32", filename, sizeof(filename));
+	FixFileExt(name, "m32", filename, sizeof(filename));
 
 	size = ri.FS_LoadFile(filename, (void **)&mt);
 
@@ -130,13 +130,13 @@ GetM32Info(const char *origname, int *width, int *height)
 }
 
 void
-GetSWLInfo(const char *origname, int *width, int *height)
+GetSWLInfo(const char *name, int *width, int *height)
 {
 	sinmiptex_t *mt;
 	int size;
 	char filename[256];
 
-	FixFileExt(origname, "swl", filename, sizeof(filename));
+	FixFileExt(name, "swl", filename, sizeof(filename));
 
 	size = ri.FS_LoadFile(filename, (void **)&mt);
 

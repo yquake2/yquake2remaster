@@ -902,7 +902,6 @@ void G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t fo
 		const vec3_t right, const vec3_t up, vec3_t result);
 float vectoyaw2(vec3_t vec);
 void vectoangles2(vec3_t value, vec3_t angles);
-edict_t *findradius2(edict_t *from, const vec3_t org, float rad);
 
 /* g_combat.c */
 qboolean OnSameTeam(const edict_t *ent1, const edict_t *ent2);
@@ -988,7 +987,7 @@ void monster_dynamic_setinfo(edict_t *self);
 void monster_dynamic_melee(edict_t *self);
 void monster_dynamic_damage(edict_t *self);
 void monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
-	trace_t *tr /* unused */);
+	trace_t *trace /* unused */);
 void monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	int damage, const vec3_t point);
 void monster_dynamic_die_noanim(edict_t *self, edict_t *inflictor, edict_t *attacker,
