@@ -29,13 +29,10 @@
 #include "hover.h"
 
 void hover_run(edict_t *self);
-void hover_stand(edict_t *self);
 void hover_dead(edict_t *self);
 void hover_attack(edict_t *self);
-void hover_reattack(edict_t *self);
-void hover_fire_blaster(edict_t *self);
-void hover_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, const vec3_t point);
+static void hover_reattack(edict_t *self);
+static void hover_fire_blaster(edict_t *self);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -552,7 +549,7 @@ mmove_t hover_move_end_attack2 = {
 	hover_run
 };
 
-void
+static void
 hover_reattack(edict_t *self)
 {
 	if (!self)
@@ -587,7 +584,7 @@ hover_reattack(edict_t *self)
 	self->monsterinfo.currentmove = &hover_move_end_attack;
 }
 
-void
+static void
 hover_fire_blaster(edict_t *self)
 {
 	vec3_t start;

@@ -98,7 +98,7 @@ void SP_misc_gib_head ( edict_t * ent ) ;
 void SP_misc_gib_leg ( edict_t * ent ) ;
 void SP_misc_hologram ( edict_t * ent ) ;
 void SP_misc_insane( edict_t * self ) ;
-void SP_misc_lavaball ( edict_t * ent ) ;
+void SP_misc_lavaball ( edict_t * self ) ;
 void SP_misc_lightning ( edict_t * self ) ;
 void SP_misc_model ( edict_t * ent ) ;
 void SP_misc_nuke ( edict_t * ent ) ;
