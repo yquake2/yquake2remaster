@@ -1477,7 +1477,7 @@ soldier_fire7(edict_t *self)
 	soldier_fire(self, 6);
 }
 
-void
+static void
 soldier_dead(edict_t *self)
 {
 	if (!self)
@@ -1491,7 +1491,7 @@ soldier_dead(edict_t *self)
 	monster_dynamic_dead(self);
 }
 
-void
+static void
 soldier_dead2(edict_t *self)
 {
 	vec3_t tempmins, tempmaxs, temporg;

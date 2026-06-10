@@ -120,7 +120,7 @@ qboolean AI_FollowPath(edict_t *self);
 qboolean AI_DropNodeOriginToFloor( vec3_t origin, edict_t *passent );
 void AI_InitNavigationData(void);
 int AI_FlagsForNode( vec3_t origin, edict_t *passent );
-float AI_Distance( vec3_t o1, vec3_t o2 );
+float AI_Distance(const vec3_t o1, const vec3_t o2);
 
 // ai_tools.c
 //----------------------------------------------------------

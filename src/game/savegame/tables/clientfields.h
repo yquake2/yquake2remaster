@@ -28,6 +28,7 @@
 
 {"newweapon", CLOFS(newweapon), F_ITEM},
 {"owned_sphere", CLOFS(owned_sphere), F_EDICT},
+{"landmark_name", CLOFS(landmark_name), F_LRAWSTRING},
 {"pers.lastweapon", CLOFS(pers.lastweapon), F_ITEM},
 {"pers.weapon", CLOFS(pers.weapon), F_ITEM},
 {"resp.coop_respawn.lastweapon", CLOFS(resp.coop_respawn.lastweapon), F_ITEM, 0, 3},

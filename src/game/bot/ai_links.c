@@ -88,11 +88,12 @@ qboolean AI_VisibleOrigins (vec3_t spot1, vec3_t spot2)
 //==========================================
 // AI_FindDistance
 //==========================================
-float AI_Distance( vec3_t o1, vec3_t o2 )
+float
+AI_Distance(const vec3_t o1, const vec3_t o2)
 {
-	vec3_t	distVec;
+	vec3_t distVec;
 
-	VectorSubtract( o2, o1, distVec );
+	VectorSubtract(o2, o1, distVec);
 	return VectorLength(distVec);
 }
 

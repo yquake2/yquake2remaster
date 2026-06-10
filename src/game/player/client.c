@@ -1784,6 +1784,19 @@ TryLandmarkSpawn(const edict_t* ent, vec3_t origin, vec3_t angles)
 	static const vec3_t mins = PLAYER_MINS;
 	static const vec3_t maxs = PLAYER_MAXS;
 
+	if (ent->client->landmark_name && ent->client->landmark_name[0])
+	{
+		const edict_t* landmark = G_PickTarget(ent->client->landmark_name);
+
+		if (landmark)
+		{
+			gi.dprintf("%s: TODO %s landmark at %s, going back?\n",
+					__func__,
+					ent->client->landmark_name,
+					vtos(landmark->s.origin));
+		}
+	}
+
 	/* originaly was origin[2] += 9 */
 	FixEntityPosition(mins, maxs, NULL, origin);
 }

@@ -526,6 +526,23 @@ use_target_changelevel(edict_t *self, edict_t *other, edict_t *activator)
 		game.serverflags &= ~(SFL_CROSS_TRIGGER_MASK);
 	}
 
+	/* if map has a landmark, store position instead of using spawn next map */
+	if (activator && activator->client && !deathmatch->value)
+	{
+		activator->client->landmark_name = NULL;
+		self->target_ent = NULL;
+
+		if (self->target && self->target[0])
+		{
+			self->target_ent = G_PickTarget(self->target);
+
+			if (self->target_ent && activator && activator->client)
+			{
+				activator->client->landmark_name = G_CopyString(self->target_ent->targetname);
+			}
+		}
+	}
+
 	BeginIntermission(self);
 }
 
