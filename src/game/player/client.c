@@ -1781,8 +1781,8 @@ SP_GetSpawnPoint(void)
 static void
 TryLandmarkSpawn(const edict_t* ent, vec3_t origin, vec3_t angles)
 {
-	static const vec3_t mins = {-16, -16, -24};
-	static const vec3_t maxs = {16, 16, 32};
+	static const vec3_t mins = PLAYER_MINS;
+	static const vec3_t maxs = PLAYER_MAXS;
 
 	/* originaly was origin[2] += 9 */
 	FixEntityPosition(mins, maxs, NULL, origin);
@@ -2398,8 +2398,8 @@ ForceFogTransition(edict_t *ent, qboolean instant)
 void
 PutClientInServer(edict_t *ent)
 {
-	static const vec3_t mins = {-16, -16, -24};
-	static const vec3_t maxs = {16, 16, 32};
+	static const vec3_t mins = PLAYER_MINS;
+	static const vec3_t maxs = PLAYER_MAXS;
 	int index;
 	vec3_t spawn_origin, spawn_angles;
 	gclient_t *client;
