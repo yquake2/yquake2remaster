@@ -27,6 +27,10 @@
 
 #include "header/local.h"
 
+gl4ShaderInfo_t gl4_bloomBright;
+gl4ShaderInfo_t gl4_bloomBlur;
+gl4ShaderInfo_t gl4_bloomComposite;
+
 // TODO: remove eprintf() usage
 #define eprintf(...)  R_Printf(PRINT_ALL, __VA_ARGS__)
 
@@ -303,7 +307,8 @@ static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 
 		void main()
 		{
-			vec2 uv = passTexCoord;
+			// fix for inverted water rendering (bloom)
+			vec2 uv = vec2(passTexCoord.x, 1.0 - passTexCoord.y);
 
 			// warping based on ref_vk
 			float sx = 1.0 - abs(0.5 - uv.x) * 2.0;
@@ -1046,6 +1051,127 @@ static const char* fragmentSrcParticlesSquare = MULTILINE_STRING(
 		}
 );
 
+static const char* vertexBloomSrcFullScreen = MULTILINE_STRING(
+
+		in vec2 position; // GL4_ATTRIB_POSITION
+		in vec2 texCoord; // GL4_ATTRIB_TEXCOORD
+
+		layout (std140) uniform uni2D
+		{
+			mat4 trans;
+		};
+
+		out vec2 passTexCoord;
+
+		void main()
+		{
+			gl_Position = trans * vec4(position, 0.0, 1.0);
+			passTexCoord = texCoord;
+		}
+);
+
+static const char* fragmentBloomBright = MULTILINE_STRING(
+
+		in vec2 passTexCoord;
+
+		layout (std140) uniform uniCommon
+		{
+			float gamma;
+			float intensity;
+			float intensity2D;
+			vec4  color;
+		};
+
+		uniform sampler2D tex;
+		uniform float threshold;
+
+		out vec4 outColor;
+
+		void main()
+		{
+			vec3 c = texture(tex, passTexCoord).rgb;
+			float lum = max(max(c.r, c.g), c.b);
+
+			if(lum > threshold)
+			{
+				outColor = vec4(c, 1.0);
+			}
+			else
+			{
+				outColor = vec4(0.0, 0.0, 0.0, 1.0);
+			}
+		}
+);
+
+static const char* fragmentBloomBlur = MULTILINE_STRING(
+
+		in vec2 passTexCoord;
+
+		layout (std140) uniform uniCommon
+		{
+			float gamma;
+			float intensity;
+			float intensity2D;
+			vec4  color;
+		};
+
+		uniform sampler2D tex;
+		uniform vec2 dir;
+
+		out vec4 outColor;
+
+		void main()
+		{
+			vec3 sum = vec3(0.0);
+
+			float w0 = 0.204164;
+			float w1 = 0.304005;
+			float w2 = 0.093913;
+			float w3 = 0.010381;
+			float w4 = 0.000489;
+
+			sum += texture(tex, passTexCoord               ).rgb * w0;
+			sum += texture(tex, passTexCoord + dir * 1.0   ).rgb * w1;
+			sum += texture(tex, passTexCoord - dir * 1.0   ).rgb * w1;
+			sum += texture(tex, passTexCoord + dir * 2.0   ).rgb * w2;
+			sum += texture(tex, passTexCoord - dir * 2.0   ).rgb * w2;
+			sum += texture(tex, passTexCoord + dir * 3.0   ).rgb * w3;
+			sum += texture(tex, passTexCoord - dir * 3.0   ).rgb * w3;
+			sum += texture(tex, passTexCoord + dir * 4.0   ).rgb * w4;
+			sum += texture(tex, passTexCoord - dir * 4.0   ).rgb * w4;
+
+			outColor = vec4(sum, 1.0);
+		}
+);
+
+static const char* fragmentBloomComposite = MULTILINE_STRING(
+
+		in vec2 passTexCoord;
+
+		layout (std140) uniform uniCommon
+		{
+			float gamma;
+			float intensity;
+			float intensity2D;
+			vec4  color;
+		};
+
+		uniform sampler2D sceneTex;
+		uniform sampler2D bloomTex;
+
+		out vec4 outColor;
+
+		void main()
+		{
+			vec3 scene = texture(sceneTex, passTexCoord).rgb;
+			vec3 bloom = texture(bloomTex, passTexCoord).rgb;
+
+			float bloomStrength = 1.5 * intensity;
+
+			vec3 res = scene + bloom * bloomStrength;
+			outColor = vec4(res, 1.0);
+		}
+);
 
 #undef MULTILINE_STRING
 
@@ -1157,6 +1283,73 @@ err_cleanup:
 	glDeleteProgram(prog);
 
 	return false;
+}
+
+qboolean
+GL4_InitBloomShaders(void)
+{
+	memset(&gl4_bloomBright,     0, sizeof(gl4_bloomBright));
+	memset(&gl4_bloomBlur,       0, sizeof(gl4_bloomBlur));
+	memset(&gl4_bloomComposite,  0, sizeof(gl4_bloomComposite));
+
+	/* bright */
+	if(!initShader2D(&gl4_bloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: bright shader failed\n");
+		return false;
+	}
+
+	/* blur */
+	if(!initShader2D(&gl4_bloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: blur shader failed\n");
+		if(gl4_bloomBright.shaderProgram)
+		{
+			glDeleteProgram(gl4_bloomBright.shaderProgram);
+			gl4_bloomBright.shaderProgram = 0;
+		}
+		return false;
+	}
+
+	/* composite */
+	if(!initShader2D(&gl4_bloomComposite, vertexBloomSrcFullScreen, fragmentBloomComposite))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: composite shader failed\n");
+
+		if(gl4_bloomBright.shaderProgram)
+		{
+			glDeleteProgram(gl4_bloomBright.shaderProgram);
+			gl4_bloomBright.shaderProgram = 0;
+		}
+		if(gl4_bloomBlur.shaderProgram)
+		{
+			glDeleteProgram(gl4_bloomBlur.shaderProgram);
+			gl4_bloomBlur.shaderProgram = 0;
+		}
+		return false;
+	}
+
+	return true;
+}
+
+/* shutdown bloom shader */
+void GL4_ShutdownBloomShaders(void)
+{
+	if (gl4_bloomBright.shaderProgram)
+	{
+		glDeleteProgram(gl4_bloomBright.shaderProgram);
+		gl4_bloomBright.shaderProgram = 0;
+	}
+	if (gl4_bloomBlur.shaderProgram)
+	{
+		glDeleteProgram(gl4_bloomBlur.shaderProgram);
+		gl4_bloomBlur.shaderProgram = 0;
+	}
+	if (gl4_bloomComposite.shaderProgram)
+	{
+		glDeleteProgram(gl4_bloomComposite.shaderProgram);
+		gl4_bloomComposite.shaderProgram = 0;
+	}
 }
 
 static qboolean

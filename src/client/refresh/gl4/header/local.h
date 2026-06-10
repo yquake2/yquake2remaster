@@ -502,4 +502,16 @@ extern cvar_t *gl4_colorlight;
 extern cvar_t *gl_polyblend;
 extern cvar_t *gl4_debugcontext;
 
+/* bloom */
+extern gl4ShaderInfo_t gl4_bloomBright;
+extern gl4ShaderInfo_t gl4_bloomBlur;
+extern gl4ShaderInfo_t gl4_bloomComposite;
+
+extern cvar_t *r_bloom;
+
+GLuint GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH);
+qboolean GL4_InitBloomShaders(void);
+void GL4_BloomShutdown(void);
+void GL4_ShutdownBloomShaders(void);
+
 #endif /* SRC_CLIENT_REFRESH_GL4_HEADER_LOCAL_H_ */
