@@ -48,12 +48,11 @@ mmove_t tank_move_attack_post_rocket = {0};
 mmove_t tank_move_attack_chain = {0};
 mmove_t tank_move_death = {0};
 
-void tank_refire_rocket(edict_t *self);
-void tank_doattack_rocket(edict_t *self);
-void tank_reattack_blaster(edict_t *self);
+static void tank_refire_rocket(edict_t *self);
+static void tank_doattack_rocket(edict_t *self);
+static void tank_reattack_blaster(edict_t *self);
 void tank_walk(edict_t *self);
 void tank_run(edict_t *self);
-void Use_Boss3(edict_t * ent, edict_t * other, edict_t * activator);
 
 static int sound_thud;
 static int sound_pain;
@@ -75,7 +74,7 @@ tank_sight(edict_t *self, edict_t *other /* unused */)
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 tank_footstep(edict_t *self)
 {
 	if (!self)
@@ -86,7 +85,7 @@ tank_footstep(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_step, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 tank_thud(edict_t *self)
 {
 	if (!self)
@@ -97,7 +96,7 @@ tank_thud(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_thud, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 tank_windup(edict_t *self)
 {
 	if (!self)
@@ -462,7 +461,7 @@ tank_pain(edict_t *self, edict_t *other /* other */,
 	}
 }
 
-void
+static void
 TankBlaster(edict_t *self)
 {
 	vec3_t forward, right;
@@ -500,7 +499,7 @@ TankBlaster(edict_t *self)
 	monster_fire_blaster(self, start, dir, 30, 800, flash_number, EF_BLASTER);
 }
 
-void
+static void
 TankStrike(edict_t *self)
 {
 	if (!self)
@@ -511,7 +510,7 @@ TankStrike(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_strike, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 TankRocket(edict_t *self)
 {
 	vec3_t forward, right;
@@ -623,7 +622,7 @@ TankRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, rocketSpeed, flash_number);
 }
 
-void
+static void
 TankMachineGun(edict_t *self)
 {
 	vec3_t dir;
@@ -735,7 +734,7 @@ static const mmove_t tank_move_attack_post_blast_static =
 	tank_run
 };
 
-void
+static void
 tank_reattack_blaster(edict_t *self)
 {
 	if (!self)
@@ -761,7 +760,7 @@ tank_reattack_blaster(edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_attack_post_blast;
 }
 
-void
+static void
 tank_poststrike(edict_t *self)
 {
 	if (!self)
@@ -952,7 +951,7 @@ static const mmove_t tank_move_attack_chain_static =
 	tank_run
 };
 
-void
+static void
 tank_refire_rocket(edict_t *self)
 {
 	if (!self)
@@ -987,7 +986,7 @@ tank_refire_rocket(edict_t *self)
 	self->monsterinfo.currentmove = &tank_move_attack_post_rocket;
 }
 
-void
+static void
 tank_doattack_rocket(edict_t *self)
 {
 	if (!self)
@@ -1103,7 +1102,7 @@ tank_attack(edict_t *self)
 	}
 }
 
-void
+static void
 tank_dead(edict_t *self)
 {
 	if (!self)

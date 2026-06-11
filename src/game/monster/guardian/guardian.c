@@ -28,8 +28,6 @@
 #include "../../header/local.h"
 #include "guardian.h"
 
-void BossExplode(edict_t *self);
-
 static int sound_charge;
 static int sound_spin_loop;
 

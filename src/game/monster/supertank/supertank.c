@@ -38,13 +38,12 @@ static int sound_search2;
 
 static int tread_sound;
 
-void BossExplode(edict_t *self);
-void supertank_dead(edict_t *self);
-void supertankRocket(edict_t *self);
-void supertankMachineGun(edict_t *self);
-void supertank_reattack1(edict_t *self);
+static void supertank_dead(edict_t *self);
+static void supertankRocket(edict_t *self);
+static void supertankMachineGun(edict_t *self);
+static void supertank_reattack1(edict_t *self);
 
-void
+static void
 TreadSound(edict_t *self)
 {
 	if (!self)
@@ -212,17 +211,6 @@ mmove_t supertank_move_forward =
 	supertank_frames_forward,
 	NULL
 };
-
-void
-supertank_forward(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &supertank_move_forward;
-}
 
 void
 supertank_walk(edict_t *self)
@@ -555,7 +543,7 @@ mmove_t supertank_move_end_attack1 =
 	supertank_run
 };
 
-void
+static void
 supertank_reattack1(edict_t *self)
 {
 	if (!self)
@@ -642,7 +630,7 @@ supertank_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 supertankRocket(edict_t *self)
 {
 	vec3_t forward, right;
@@ -681,7 +669,7 @@ supertankRocket(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, flash_number);
 }
 
-void
+static void
 supertankMachineGun(edict_t *self)
 {
 	vec3_t dir;

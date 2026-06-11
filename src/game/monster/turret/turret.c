@@ -49,8 +49,6 @@ void turret_ready_gun(edict_t *self);
 void turret_run(edict_t *self);
 void turret_attack(edict_t *self);
 
-extern void Move_Calc(edict_t *ent, vec3_t dest, void (*func)(edict_t *));
-
 mmove_t turret_move_fire;
 mmove_t turret_move_fire_blind;
 

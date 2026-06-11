@@ -36,8 +36,6 @@
 #define WIDOW_RAIL_DAMAGE 50
 #define VARIANCE 15.0
 
-void BossExplode(edict_t *self);
-
 static int sound_pain1;
 static int sound_pain2;
 static int sound_pain3;

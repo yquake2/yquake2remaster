@@ -1131,6 +1131,9 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer);
 void HelpComputerMessage(edict_t *ent);
 void InventoryMessage(edict_t *ent);
 
+/* g_func.c */
+void Move_Calc(edict_t *ent, vec3_t dest, void (*func)(edict_t *));
+
 /* g_pweapon.c */
 void PlayerNoise(edict_t *who, vec3_t where, int type);
 void P_ProjectSource(const edict_t *ent, const vec3_t distance,
@@ -1308,6 +1311,15 @@ float PlayersRangeFromSpot(edict_t *spot);
 void WidowPowerups(edict_t *self);
 void WidowCalcSlots(edict_t *self);
 void widow_start_spawn(edict_t *self);
+
+/* boss3 */
+void Use_Boss3(edict_t * ent, edict_t * other, edict_t * activator);
+
+/* boss5 */
+void BossExplode2(edict_t *self);
+
+/* supertank.c */
+void BossExplode(edict_t *self);
 
 /* ============================================================================ */
 

@@ -19,7 +19,6 @@
 #define NUM_FLYERS_SPAWNED 6            /* max # of flyers he can spawn */
 #define RAIL_FIRE_TIME 3
 
-void BossExplode(edict_t *self);
 void Grenade_Explode(edict_t *ent);
 
 void carrier_run(edict_t *self);

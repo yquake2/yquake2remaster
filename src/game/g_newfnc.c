@@ -20,7 +20,6 @@ void fd_secret_move4(edict_t *self);
 void fd_secret_move5(edict_t *self);
 void fd_secret_move6(edict_t *self);
 void fd_secret_done(edict_t *self);
-void Move_Calc(edict_t *ent, vec3_t dest, void (*func)(edict_t *));
 
 /*
  * =============================================================================

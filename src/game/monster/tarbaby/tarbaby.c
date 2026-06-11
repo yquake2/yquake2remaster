@@ -26,7 +26,7 @@ static int sound_hit;
 static int sound_land;
 static int sound_sight;
 
-void tarbaby_rejump(edict_t *self);
+static void tarbaby_rejump(edict_t *self);
 
 static void
 tarbaby_unbounce(edict_t *self)
@@ -168,7 +168,7 @@ mmove_t tarbaby_move_fly =
 	tarbaby_rejump
 };
 
-void
+static void
 tarbaby_fly(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_fly;
@@ -193,7 +193,7 @@ mmove_t tarbaby_move_jump =
 	tarbaby_fly
 };
 
-void
+static void
 tarbaby_rejump(edict_t *self)
 {
 	self->monsterinfo.currentmove = &tarbaby_move_jump;

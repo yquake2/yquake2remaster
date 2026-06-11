@@ -30,7 +30,6 @@
 
 #define BOSS2_ROCKET_SPEED	750
 
-void BossExplode(edict_t *self);
 void boss2_run(edict_t *self);
 void boss2_stand(edict_t *self);
 void boss2_dead(edict_t *self);
