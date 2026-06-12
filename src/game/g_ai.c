@@ -1098,7 +1098,7 @@ M_CheckAttack(edict_t *self)
  * Turn and close until within an
  * angle to launch a melee attack
  */
-void
+static void
 ai_run_melee(edict_t *self)
 {
 	if (!self)
@@ -1127,7 +1127,7 @@ ai_run_melee(edict_t *self)
  * Turn in place until within an
  * angle to launch a missile attack
  */
-void
+static void
 ai_run_missile(edict_t *self)
 {
 	if (!self)
@@ -1160,7 +1160,7 @@ ai_run_missile(edict_t *self)
  * Strafe sideways, but stay at
  * aproximately the same range
  */
-void
+static void
 ai_run_slide(edict_t *self, float distance)
 {
 	float ofs;

@@ -202,7 +202,7 @@ knight_pain(edict_t *self, edict_t *other /* unused */,
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 knight_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);

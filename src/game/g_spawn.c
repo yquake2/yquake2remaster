@@ -1960,7 +1960,7 @@ CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t entMins,
 }
 
 qboolean
-FindSpawnPoint(vec3_t startpoint, vec3_t mins, vec3_t maxs,
+FindSpawnPoint(vec3_t startpoint, const vec3_t mins, const vec3_t maxs,
 		vec3_t spawnpoint, float maxMoveUp)
 {
 	trace_t tr;

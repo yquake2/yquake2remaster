@@ -698,7 +698,7 @@ SV_StepDirection(edict_t *ent, float yaw, float dist)
 	return false;
 }
 
-void
+static void
 SV_FixCheckBottom(edict_t *ent)
 {
 	if (!ent)

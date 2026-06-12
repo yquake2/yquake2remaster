@@ -54,7 +54,7 @@ guardian_stand(edict_t *self)
 
 static int sound_step = 0;
 
-void
+static void
 guardian_footstep(edict_t *self)
 {
 	gi.sound(self, CHAN_BODY, sound_step, 1.f, ATTN_NORM, 0.0f);
@@ -225,7 +225,7 @@ mmove_t guardian_atk1_out =
 	guardian_run
 };
 
-void
+static void
 guardian_atk1_finish(edict_t *self)
 {
 	if (!self)
@@ -236,13 +236,13 @@ guardian_atk1_finish(edict_t *self)
 	self->monsterinfo.currentmove = &guardian_atk1_out;
 }
 
-void
+static void
 guardian_atk1_charge(edict_t *self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_charge, 1.f, ATTN_NORM, 0.f);
 }
 
-void
+static void
 guardian_fire_blaster(edict_t *self)
 {
 	vec3_t forward, right, target;
@@ -269,7 +269,7 @@ guardian_fire_blaster(edict_t *self)
 		self->monsterinfo.nextframe = FRAME_atk1_spin5;
 }
 
-void
+static void
 guardian_hyper_sound(edict_t *self)
 {
 	if (!self)
@@ -306,7 +306,7 @@ mmove_t guardian_move_atk1_spin =
 	guardian_atk1_finish
 };
 
-void
+static void
 guardian_atk1(edict_t *self)
 {
 	if (!self)
@@ -350,7 +350,7 @@ mmove_t guardian_move_atk2_out =
 	guardian_run
 };
 
-void
+static void
 guardian_atk2_out(edict_t *self)
 {
 	if (!self)
@@ -368,7 +368,7 @@ static vec3_t laser_positions[] = {
 	{112.0f, -62.f, 60.f}
 };
 
-void
+static void
 guardian_laser_fire(edict_t *self)
 {
 	vec3_t forward, right, up;
@@ -430,7 +430,7 @@ mmove_t guardian_move_atk2_fire =
 	guardian_atk2_out
 };
 
-void
+static void
 guardian_atk2(edict_t *self)
 {
 	if (!self)
@@ -464,7 +464,7 @@ mmove_t guardian_move_atk2_in =
 	guardian_atk2
 };
 
-void
+static void
 guardian_kick(edict_t *self)
 {
 	vec3_t aim = {MELEE_DISTANCE, 0, -80};
@@ -526,7 +526,7 @@ guardian_attack(edict_t *self)
 // death
 //
 
-void
+static void
 guardian_explode(edict_t *self)
 {
 	vec3_t start, pos;
@@ -558,7 +558,7 @@ static const char *gibs[] = {
 	"models/monsters/guardian/gib7.md2"
 };
 
-void
+static void
 guardian_dead(edict_t *self)
 {
 	int i, n;

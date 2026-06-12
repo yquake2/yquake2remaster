@@ -488,7 +488,7 @@ CheckArmor(edict_t *ent, vec3_t point, const vec3_t normal, int damage,
 	return save;
 }
 
-void
+static void
 M_ReactToDamage(edict_t *targ, edict_t *attacker, edict_t *inflictor)
 {
 	if (!targ || !attacker || !inflictor)

@@ -44,7 +44,7 @@ Tag_PlayerDeath(edict_t *targ, edict_t *inflictor /* unused */, edict_t *attacke
 	}
 }
 
-void
+static void
 Tag_KillItBonus(edict_t *self)
 {
 	edict_t *armor;

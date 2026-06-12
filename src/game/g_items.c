@@ -272,7 +272,7 @@ Pickup_Powerup(edict_t *ent, edict_t *other)
 	return true;
 }
 
-qboolean
+static qboolean
 Pickup_General(edict_t *ent, edict_t *other)
 {
 	if (!ent || !other)
@@ -298,7 +298,7 @@ Pickup_General(edict_t *ent, edict_t *other)
 	return true;
 }
 
-void
+static void
 Drop_General(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -683,7 +683,7 @@ Pickup_Nuke(edict_t *ent, edict_t *other)
 	return true;
 }
 
-void
+static void
 Use_IR(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -706,7 +706,7 @@ Use_IR(edict_t *ent, const gitem_t *item)
 	gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ir_start.wav"), 1, ATTN_NORM, 0);
 }
 
-void
+static void
 Use_Double(edict_t *ent, const gitem_t *item)
 {
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
@@ -724,7 +724,7 @@ Use_Double(edict_t *ent, const gitem_t *item)
 	gi.sound(ent, CHAN_ITEM, gi.soundindex("misc/ddamage1.wav"), 1, ATTN_NORM, 0);
 }
 
-void
+static void
 Use_Compass(edict_t *ent, const gitem_t *item)
 {
 	int ang;
@@ -745,7 +745,7 @@ Use_Compass(edict_t *ent, const gitem_t *item)
 			ent->s.origin[0], ent->s.origin[1], ent->s.origin[2], ang);
 }
 
-void
+static void
 Use_Nuke(edict_t *ent, const gitem_t *item)
 {
 	vec3_t forward, right, start;
@@ -766,7 +766,7 @@ Use_Nuke(edict_t *ent, const gitem_t *item)
 	fire_nuke(ent, start, forward, speed);
 }
 
-void
+static void
 Use_Doppleganger(edict_t *ent, const gitem_t *item)
 {
 	vec3_t forward, right;
@@ -869,7 +869,7 @@ Pickup_Sphere(edict_t *ent, edict_t *other)
 	return true;
 }
 
-void
+static void
 Use_Defender(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
@@ -889,7 +889,7 @@ Use_Defender(edict_t *ent, const gitem_t *item)
 	Defender_Launch(ent);
 }
 
-void
+static void
 Use_Hunter(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
@@ -909,7 +909,7 @@ Use_Hunter(edict_t *ent, const gitem_t *item)
 	Hunter_Launch(ent);
 }
 
-void
+static void
 Use_Vengeance(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
@@ -1006,7 +1006,7 @@ Use_QuadFire(edict_t *ent, const gitem_t *item)
 
 /* ====================================================================== */
 
-void
+static void
 Use_Breather(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
@@ -1029,7 +1029,7 @@ Use_Breather(edict_t *ent, const gitem_t *item)
 
 /* ====================================================================== */
 
-void
+static void
 Use_Envirosuit(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item || !ent->client)
@@ -1052,7 +1052,7 @@ Use_Envirosuit(edict_t *ent, const gitem_t *item)
 
 /* ====================================================================== */
 
-void
+static void
 Use_Invulnerability(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -1076,7 +1076,7 @@ Use_Invulnerability(edict_t *ent, const gitem_t *item)
 					"items/protect.wav"), 1, ATTN_NORM, 0);
 }
 
-void
+static void
 Use_Invisibility(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -1100,7 +1100,7 @@ Use_Invisibility(edict_t *ent, const gitem_t *item)
 
 /* ====================================================================== */
 
-void
+static void
 Use_Silencer(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -1292,7 +1292,7 @@ Pickup_Ammo(edict_t *ent, edict_t *other)
 	return true;
 }
 
-void
+static void
 Drop_Ammo(edict_t *ent, const gitem_t *item)
 {
 	edict_t *dropped;
@@ -1580,7 +1580,7 @@ PowerArmorType(const edict_t *ent)
 	return POWER_ARMOR_NONE;
 }
 
-void
+static void
 Use_PowerArmor(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -1643,7 +1643,7 @@ Pickup_PowerArmor(edict_t *ent, edict_t *other)
 	return true;
 }
 
-void
+static void
 Drop_PowerArmor(edict_t *ent, const gitem_t *item)
 {
 	if (!ent || !item)
@@ -2235,7 +2235,7 @@ Item_TriggeredSpawn(edict_t *self, edict_t *other /* unused */, edict_t *activat
 /*
  * Set up an item to spawn in later.
  */
-void
+static void
 SetTriggeredSpawn(edict_t *ent)
 {
 	if (!ent)
@@ -2462,7 +2462,7 @@ P_ToggleFlashlight(edict_t *ent, qboolean state)
 		1.f, ATTN_STATIC, 0);
 }
 
-void
+static void
 Use_Flashlight(edict_t *ent, const gitem_t *item)
 {
 	P_ToggleFlashlight(ent, !(ent->flags & FL_FLASHLIGHT));

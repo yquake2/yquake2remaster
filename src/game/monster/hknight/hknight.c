@@ -390,7 +390,7 @@ hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 hknight_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);

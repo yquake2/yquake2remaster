@@ -116,7 +116,7 @@ turret_blocked(edict_t *self, edict_t *other)
  * "maxyaw"	max acceptable yaw angle   : default 360
  */
 
-void
+static void
 turret_breach_fire(edict_t *self)
 {
 	vec3_t f, r, u;

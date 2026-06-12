@@ -356,7 +356,7 @@ ogre_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 ogre_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);

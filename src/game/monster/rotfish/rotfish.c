@@ -105,7 +105,7 @@ rotfish_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 rotfish_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);

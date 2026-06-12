@@ -1091,6 +1091,11 @@ void fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
 void fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius);
+void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
+void Grenade_Explode(edict_t *ent);
+
+/* g_trigger.c */
+void hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
 
 /* g_ptrail.c */
 void PlayerTrail_Init(void);
@@ -1287,7 +1292,7 @@ edict_t *CreateFlyMonster(vec3_t origin, vec3_t angles, vec3_t mins,
 		vec3_t maxs, const char *classname);
 edict_t *CreateGroundMonster(vec3_t origin, vec3_t angles, vec3_t entMins,
 		vec3_t entMaxs, const char *classname, int height);
-qboolean FindSpawnPoint(vec3_t startpoint, vec3_t mins, vec3_t maxs,
+qboolean FindSpawnPoint(vec3_t startpoint, const vec3_t mins, const vec3_t maxs,
 		vec3_t spawnpoint, float maxMoveUp);
 qboolean CheckSpawnPoint(const vec3_t origin, const vec3_t mins, const vec3_t maxs);
 qboolean CheckGroundSpawnPoint(const vec3_t origin, const vec3_t entMins, const vec3_t entMaxs,
@@ -1311,6 +1316,10 @@ float PlayersRangeFromSpot(edict_t *spot);
 void WidowPowerups(edict_t *self);
 void WidowCalcSlots(edict_t *self);
 void widow_start_spawn(edict_t *self);
+
+/* boss31 */
+void MakronToss(edict_t *self);
+void MakronPrecache(void);
 
 /* boss3 */
 void Use_Boss3(edict_t * ent, edict_t * other, edict_t * activator);

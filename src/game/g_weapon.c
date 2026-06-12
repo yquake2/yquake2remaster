@@ -174,7 +174,7 @@ fire_hit(edict_t *self, vec3_t aim, int damage, int kick)
  * This is an internal support routine
  * used for bullet/pellet based weapons.
  */
-void
+static void
 fire_lead(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick,
 		int te_impact, int hspread, int vspread, int mod)
 {

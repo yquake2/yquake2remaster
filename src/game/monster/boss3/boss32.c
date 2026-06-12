@@ -28,13 +28,12 @@
 #include "../../header/local.h"
 #include "boss32.h"
 
-void MakronRailgun(edict_t *self);
-void MakronSaveloc(edict_t *self);
-void MakronHyperblaster(edict_t *self);
-void makron_step_left(edict_t *self);
-void makron_step_right(edict_t *self);
-void makronBFG(edict_t *self);
-void makron_dead(edict_t *self);
+static void MakronRailgun(edict_t *self);
+static void MakronSaveloc(edict_t *self);
+static void MakronHyperblaster(edict_t *self);
+static void makron_step_left(edict_t *self);
+static void makron_step_right(edict_t *self);
+static void makron_dead(edict_t *self);
 
 static int sound_pain4;
 static int sound_pain5;
@@ -181,7 +180,7 @@ mmove_t makron_move_run =
 	NULL
 };
 
-void
+static void
 makron_hit(edict_t *self)
 {
 	if (!self)
@@ -192,7 +191,7 @@ makron_hit(edict_t *self)
 	gi.sound(self, CHAN_AUTO, sound_hit, 1, ATTN_NONE, 0);
 }
 
-void
+static void
 makron_popup(edict_t *self)
 {
 	if (!self)
@@ -203,7 +202,7 @@ makron_popup(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_popup, 1, ATTN_NONE, 0);
 }
 
-void
+static void
 makron_step_left(edict_t *self)
 {
 	if (!self)
@@ -214,7 +213,7 @@ makron_step_left(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_step_left, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 makron_step_right(edict_t *self)
 {
 	if (!self)
@@ -225,7 +224,7 @@ makron_step_right(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_step_right, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 makron_brainsplorch(edict_t *self)
 {
 	if (!self)
@@ -236,7 +235,7 @@ makron_brainsplorch(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_brainsplorch, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 makron_prerailgun(edict_t *self)
 {
 	if (!self)
@@ -526,7 +525,7 @@ mmove_t makron_move_sight =
 	makron_run
 };
 
-void
+static void
 makronBFG(edict_t *self)
 {
 	vec3_t forward, right;
@@ -634,7 +633,7 @@ mmove_t makron_move_attack5 =
 	makron_run
 };
 
-void
+static void
 MakronSaveloc(edict_t *self)
 {
 	if (!self)
@@ -646,7 +645,7 @@ MakronSaveloc(edict_t *self)
 	self->pos1[2] += self->enemy->viewheight;
 }
 
-void
+static void
 MakronRailgun(edict_t *self)
 {
 	vec3_t start;
@@ -669,7 +668,7 @@ MakronRailgun(edict_t *self)
 	monster_fire_railgun(self, start, dir, 50, 100, MZ2_MAKRON_RAILGUN_1);
 }
 
-void
+static void
 MakronHyperblaster(edict_t *self)
 {
 	vec3_t dir;
@@ -934,7 +933,7 @@ makron_torso(edict_t *self)
 }
 
 /* death */
-void
+static void
 makron_dead(edict_t *self)
 {
 	if (!self)

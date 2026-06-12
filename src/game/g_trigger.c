@@ -39,8 +39,6 @@
 static int windsound;
 
 void trigger_push_active(edict_t *self);
-void hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
-		const csurface_t *surf /* unused */);
 
 static void
 InitTrigger(edict_t *self)
@@ -83,7 +81,7 @@ multi_wait(edict_t *ent)
  * through a delay so wait for the
  * delay time before firing
  */
-void
+static void
 multi_trigger(edict_t *ent)
 {
 	if (!ent)
@@ -657,7 +655,7 @@ trigger_push_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unuse
  *
  * "speed"		defaults to 1000
  */
-void
+static void
 trigger_effect(edict_t *self)
 {
 	vec3_t origin;

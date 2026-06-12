@@ -285,7 +285,6 @@ extern mmove_t gunner_move_pain1;
 extern mmove_t gunner_move_pain2;
 extern mmove_t gunner_move_pain3;
 extern mmove_t gunner_move_run;
-extern mmove_t gunner_move_runandshoot;
 extern mmove_t gunner_move_stand;
 extern mmove_t gunner_move_walk;
 extern mmove_t hknight_move_attack;

@@ -1388,7 +1388,7 @@ CTFSetIDView(edict_t *ent)
 	}
 }
 
-void
+static void
 SetCTFTechIcon(edict_t *ent)
 {
 	int i;

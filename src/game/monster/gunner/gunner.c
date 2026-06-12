@@ -43,7 +43,6 @@ mmove_t gunner_move_fidget = {0};
 mmove_t gunner_move_stand = {0};
 mmove_t gunner_move_walk = {0};
 mmove_t gunner_move_run = {0};
-mmove_t gunner_move_runandshoot = {0};
 mmove_t gunner_move_pain3 = {0};
 mmove_t gunner_move_pain2 = {0};
 mmove_t gunner_move_pain1 = {0};
@@ -56,13 +55,12 @@ mmove_t gunner_move_attack_grenade = {0};
 mmove_t gunner_move_jump = {0};
 mmove_t gunner_move_jump2 = {0};
 
-void GunnerGrenade(edict_t *self);
-void GunnerFire(edict_t *self);
-void gunner_fire_chain(edict_t *self);
-void gunner_refire_chain(edict_t *self);
+static void GunnerGrenade(edict_t *self);
+static void gunner_fire_chain(edict_t *self);
+static void gunner_refire_chain(edict_t *self);
 void gunner_stand(edict_t *self);
 
-void
+static void
 gunner_footstep(edict_t *self)
 {
 	if (!g_monsterfootsteps->value)
@@ -85,8 +83,7 @@ gunner_footstep(edict_t *self)
 	}
 }
 
-
-void
+static void
 gunner_idlesound(edict_t *self)
 {
 	if (!self)
@@ -183,7 +180,7 @@ static const mmove_t gunner_move_fidget_static =
 	gunner_stand
 };
 
-void
+static void
 gunner_fidget(edict_t *self)
 {
 	if (!self)
@@ -335,34 +332,6 @@ gunner_run(edict_t *self)
 	}
 }
 
-static mframe_t gunner_frames_runandshoot[] = {
-	{ai_run, 32, NULL},
-	{ai_run, 15, gunner_footstep},
-	{ai_run, 10, NULL},
-	{ai_run, 18, NULL},
-	{ai_run, 8, gunner_footstep},
-	{ai_run, 20, NULL}
-};
-
-static const mmove_t gunner_move_runandshoot_static =
-{
-	FRAME_runs01,
-	FRAME_runs06,
-	gunner_frames_runandshoot,
-	NULL
-};
-
-void
-gunner_runandshoot(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &gunner_move_runandshoot;
-}
-
 static mframe_t gunner_frames_pain3[] = {
 	{ai_move, -3, NULL},
 	{ai_move, 1, NULL},
@@ -490,7 +459,7 @@ gunner_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 gunner_dead(edict_t *self)
 {
 	if (!self)
@@ -573,7 +542,7 @@ gunner_die(edict_t *self, edict_t *inflictor /* unused */,
 	self->monsterinfo.currentmove = &gunner_move_death;
 }
 
-void
+static void
 gunner_duck_down(edict_t *self)
 {
 	if (!self)
@@ -608,7 +577,7 @@ gunner_duck_down(edict_t *self)
 	gi.linkentity(self);
 }
 
-void
+static void
 gunner_duck_hold(edict_t *self)
 {
 	if (!self)
@@ -626,7 +595,7 @@ gunner_duck_hold(edict_t *self)
 	}
 }
 
-void
+static void
 gunner_duck_up(edict_t *self)
 {
 	if (!self)
@@ -698,7 +667,7 @@ gunner_dodge(edict_t *self, edict_t *attacker, float eta /* unused */,
 }
 
 /* gunner dodge moved below so I know about attack sequences */
-void
+static void
 gunner_opengun(edict_t *self)
 {
 	if (!self)
@@ -709,7 +678,7 @@ gunner_opengun(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_open, 1, ATTN_IDLE, 0);
 }
 
-void
+static void
 GunnerFire(edict_t *self)
 {
 	vec3_t start;
@@ -746,7 +715,7 @@ GunnerFire(edict_t *self)
 			flash_number);
 }
 
-qboolean
+static qboolean
 gunner_grenade_check(edict_t *self)
 {
 	vec3_t start;
@@ -814,7 +783,7 @@ gunner_grenade_check(edict_t *self)
 	return false;
 }
 
-void
+static void
 GunnerGrenade(edict_t *self)
 {
 	vec3_t start;
@@ -970,24 +939,6 @@ static const mmove_t gunner_move_endfire_chain_static =
 	gunner_run
 };
 
-void
-gunner_blind_check(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
-	{
-		vec3_t aim;
-
-		VectorSubtract(self->monsterinfo.blind_fire_target, self->s.origin,
-				aim);
-		self->ideal_yaw = vectoyaw(aim);
-	}
-}
-
 static mframe_t gunner_frames_attack_grenade[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -1098,7 +1049,7 @@ gunner_attack(edict_t *self)
 	}
 }
 
-void
+static void
 gunner_fire_chain(edict_t *self)
 {
 	if (!self)
@@ -1109,7 +1060,7 @@ gunner_fire_chain(edict_t *self)
 	self->monsterinfo.currentmove = &gunner_move_fire_chain;
 }
 
-void
+static void
 gunner_refire_chain(edict_t *self)
 {
 	if (!self)
@@ -1132,7 +1083,7 @@ gunner_refire_chain(edict_t *self)
 	self->monsterinfo.currentmove = &gunner_move_endfire_chain;
 }
 
-void
+static void
 gunner_jump_now(edict_t *self)
 {
 	vec3_t forward, up;
@@ -1149,7 +1100,7 @@ gunner_jump_now(edict_t *self)
 	VectorMA(self->velocity, 300, up, self->velocity);
 }
 
-void
+static void
 gunner_jump2_now(edict_t *self)
 {
 	vec3_t forward, up;
@@ -1166,7 +1117,7 @@ gunner_jump2_now(edict_t *self)
 	VectorMA(self->velocity, 400, up, self->velocity);
 }
 
-void
+static void
 gunner_jump_wait_land(edict_t *self)
 {
 	if (!self)
@@ -1231,7 +1182,7 @@ static const mmove_t gunner_move_jump2_static =
 	gunner_run
 };
 
-void
+static void
 gunner_jump(edict_t *self)
 {
 	if (!self)
@@ -1361,7 +1312,6 @@ monster_gunner_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &gunner_move_stand, &gunner_move_stand_static, "stand", 0);
 	M_SetAnimGroupMMoveOffset(self, &gunner_move_walk, &gunner_move_walk_static, "walk", 0, 6);
 	M_SetAnimGroupMMove(self, &gunner_move_run, &gunner_move_run_static, "run", 0);
-	M_SetAnimGroupMMove(self, &gunner_move_runandshoot, &gunner_move_runandshoot_static, "runs", 0);
 	M_SetAnimGroupMMove(self, &gunner_move_pain3, &gunner_move_pain3_static, "pain", 2);
 	M_SetAnimGroupMMove(self, &gunner_move_pain2, &gunner_move_pain2_static, "pain", 1);
 	M_SetAnimGroupMMove(self, &gunner_move_pain1, &gunner_move_pain1_static, "pain", 0);

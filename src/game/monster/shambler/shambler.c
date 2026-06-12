@@ -64,7 +64,7 @@ static vec3_t lightning_right_hand[] = {
 	{ 27, -11, 83 }
 };
 
-void
+static void
 shambler_lightning_update(edict_t *self)
 {
 	edict_t *lightning;
@@ -86,7 +86,7 @@ shambler_lightning_update(edict_t *self)
 	gi.linkentity(lightning);
 }
 
-void
+static void
 shambler_windup(edict_t* self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_windup, 1, ATTN_NORM, 0);
@@ -100,7 +100,7 @@ shambler_idle(edict_t* self)
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-void
+static void
 shambler_maybe_idle(edict_t* self)
 {
 	if (random() > 0.8)
@@ -398,13 +398,13 @@ shambler_attack(edict_t* self)
 // melee
 //
 
-void
+static void
 shambler_melee1(edict_t* self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_melee1, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 shambler_melee2(edict_t* self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_melee2, 1, ATTN_NORM, 0);
@@ -583,7 +583,7 @@ shambler_melee(edict_t* self)
 // death
 //
 
-void
+static void
 shambler_dead(edict_t* self)
 {
 	if (!self)
