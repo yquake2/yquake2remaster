@@ -1042,7 +1042,7 @@ M_SetAnimGroupFrame(edict_t *self, const char *name, qboolean fixpos)
 	}
 }
 
-void
+static void
 M_SetAnimGroupMMoveInt(edict_t *self, mmove_t *mmove, const char *name, int select)
 {
 	int ofs_frames, num_frames, base_numframe;

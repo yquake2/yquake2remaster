@@ -36,12 +36,10 @@ static int sound_pain1;
 static int sound_pain2;
 static int sound_sight;
 
-void floater_dead(edict_t *self);
-void floater_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, const vec3_t point);
+static void floater_dead(edict_t *self);
 void floater_run(edict_t *self);
-void floater_wham(edict_t *self);
-void floater_zap(edict_t *self);
+static void floater_wham(edict_t *self);
+static void floater_zap(edict_t *self);
 
 void
 floater_sight(edict_t *self, edict_t *other /* unused */)
@@ -65,7 +63,7 @@ floater_idle(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-void
+static void
 floater_fire_blaster(edict_t *self)
 {
 	vec3_t start;
@@ -656,7 +654,7 @@ floater_walk(edict_t *self)
 	self->monsterinfo.currentmove = &floater_move_walk;
 }
 
-void
+static void
 floater_wham(edict_t *self)
 {
 	static vec3_t aim = {MELEE_DISTANCE, 0, 0};
@@ -670,7 +668,7 @@ floater_wham(edict_t *self)
 	fire_hit(self, aim, 5 + randk() % 6, -50);
 }
 
-void
+static void
 floater_zap(edict_t *self)
 {
 	vec3_t forward, right;
@@ -808,7 +806,7 @@ floater_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 floater_dead(edict_t *self)
 {
 	if (!self)

@@ -28,8 +28,6 @@
 #include "../../header/local.h"
 #include "flyer.h"
 
-static int nextmove; /* Used for start/stop frames */
-
 static int sound_sight;
 static int sound_idle;
 static int sound_pain1;
@@ -52,20 +50,13 @@ mmove_t flyer_move_pain3 = {0};
 mmove_t flyer_move_rollleft = {0};
 mmove_t flyer_move_rollright = {0};
 mmove_t flyer_move_run = {0};
-mmove_t flyer_move_start = {0};
 mmove_t flyer_move_start_melee = {0};
-mmove_t flyer_move_stop = {0};
 mmove_t flyer_move_walk = {0};
 
-void flyer_check_melee(edict_t *self);
-void flyer_loop_melee(edict_t *self);
-void flyer_melee(edict_t *self);
-void flyer_setstart(edict_t *self);
-void flyer_stand(edict_t *self);
-void flyer_nextmove(edict_t *self);
-
-void flyer_kamikaze(edict_t *self);
-void flyer_kamikaze_check(edict_t *self);
+static void flyer_check_melee(edict_t *self);
+static void flyer_loop_melee(edict_t *self);
+static void flyer_kamikaze(edict_t *self);
+static void flyer_kamikaze_check(edict_t *self);
 void flyer_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 		int damage, const vec3_t point);
 
@@ -91,7 +82,7 @@ flyer_idle(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-void
+static void
 flyer_pop_blades(edict_t *self)
 {
 	if (!self)
@@ -301,7 +292,7 @@ flyer_stand(edict_t *self)
 	}
 }
 
-void
+static void
 flyer_kamikaze_explode(edict_t *self)
 {
 	vec3_t dir;
@@ -327,7 +318,7 @@ flyer_kamikaze_explode(edict_t *self)
 	flyer_die(self, NULL, NULL, 0, dir);
 }
 
-void
+static void
 flyer_kamikaze(edict_t *self)
 {
 	if (!self)
@@ -338,7 +329,7 @@ flyer_kamikaze(edict_t *self)
 	self->monsterinfo.currentmove = &flyer_move_kamikaze;
 }
 
-void
+static void
 flyer_kamikaze_check(edict_t *self)
 {
 	float dist;
@@ -368,64 +359,6 @@ flyer_kamikaze_check(edict_t *self)
 	{
 		flyer_kamikaze_explode(self);
 	}
-}
-
-static mframe_t flyer_frames_start[] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, flyer_nextmove}
-};
-
-static const mmove_t flyer_move_start_static =
-{
-	FRAME_start01,
-	FRAME_start06,
-	flyer_frames_start,
-	NULL
-};
-
-static mframe_t flyer_frames_stop[] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, flyer_nextmove}
-};
-
-static const mmove_t flyer_move_stop_static =
-{
-	FRAME_stop01,
-	FRAME_stop07,
-	flyer_frames_stop,
-	NULL
-};
-
-void
-flyer_stop(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &flyer_move_stop;
-}
-
-void
-flyer_start(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &flyer_move_start;
 }
 
 static mframe_t flyer_frames_rollright[] = {
@@ -571,7 +504,7 @@ static const mmove_t flyer_move_bankleft_static =
 	NULL
 };
 
-void
+static void
 flyer_fire(edict_t *self, int flash_number)
 {
 	vec3_t start;
@@ -612,7 +545,7 @@ flyer_fire(edict_t *self, int flash_number)
 	monster_fire_blaster(self, start, dir, 1, 1000, flash_number, effect);
 }
 
-void
+static void
 flyer_fireleft(edict_t *self)
 {
 	if (!self)
@@ -623,7 +556,7 @@ flyer_fireleft(edict_t *self)
 	flyer_fire(self, MZ2_FLYER_BLASTER_1);
 }
 
-void
+static void
 flyer_fireright(edict_t *self)
 {
 	if (!self)
@@ -693,7 +626,7 @@ static const mmove_t flyer_move_attack3_static =
 	flyer_run
 };
 
-void
+static void
 flyer_slash_left(edict_t *self)
 {
 	vec3_t aim;
@@ -708,7 +641,7 @@ flyer_slash_left(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_slash, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 flyer_slash_right(edict_t *self)
 {
 	vec3_t aim;
@@ -831,40 +764,6 @@ flyer_attack(edict_t *self)
 }
 
 void
-flyer_setstart(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	nextmove = ACTION_run;
-	self->monsterinfo.currentmove = &flyer_move_start;
-}
-
-void
-flyer_nextmove(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (nextmove == ACTION_attack1)
-	{
-		self->monsterinfo.currentmove = &flyer_move_start_melee;
-	}
-	else if (nextmove == ACTION_attack2)
-	{
-		self->monsterinfo.currentmove = &flyer_move_attack2;
-	}
-	else if (nextmove == ACTION_run)
-	{
-		self->monsterinfo.currentmove = &flyer_move_run;
-	}
-}
-
-void
 flyer_melee(edict_t *self)
 {
 	if (!self)
@@ -975,7 +874,7 @@ flyer_die(edict_t *self, edict_t *inflictor /* unused */,
 }
 
 /* kamikaze code .. blow up if blocked */
-int
+static int
 flyer_blocked(edict_t *self, float dist)
 {
 	if (!self)
@@ -1034,9 +933,7 @@ monster_flyer_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &flyer_move_rollleft, &flyer_move_rollleft_static, "rollf", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_rollright, &flyer_move_rollright_static, "rollr", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_run, &flyer_move_run_static, "stand", 0);
-	M_SetAnimGroupMMove(self, &flyer_move_start, &flyer_move_start_static, "start", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_start_melee, &flyer_move_start_melee_static, "attak", 0);
-	M_SetAnimGroupMMove(self, &flyer_move_stop, &flyer_move_stop_static, "stop", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_walk, &flyer_move_walk_static, "stand", 0);
 }
 

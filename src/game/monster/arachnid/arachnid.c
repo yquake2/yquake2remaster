@@ -45,7 +45,7 @@ arachnid_sight(edict_t *self, edict_t *other /* unused */)
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 arachnid_footstep(edict_t *self)
 {
 	if (!self)
@@ -203,7 +203,7 @@ arachnid_pain(edict_t *self, edict_t *other /* other */,
 	}
 }
 
-void
+static void
 arachnid_charge_rail(edict_t *self)
 {
 	if (!self->enemy || !self->enemy->inuse)
@@ -217,7 +217,7 @@ arachnid_charge_rail(edict_t *self)
 	self->pos1[2] += self->enemy->viewheight;
 }
 
-void
+static void
 arachnid_rail(edict_t *self)
 {
 	vec3_t start, dir, forward, right;
@@ -303,12 +303,14 @@ mmove_t arachnid_attack_up1 =
 
 static int sound_melee, sound_melee_hit;
 
-void arachnid_melee_charge(edict_t *self)
+static void
+arachnid_melee_charge(edict_t *self)
 {
 	gi.sound(self, CHAN_WEAPON, sound_melee, 1.f, ATTN_NORM, 0.f);
 }
 
-void arachnid_melee_hit(edict_t *self)
+static void
+arachnid_melee_hit(edict_t *self)
 {
 	static vec3_t aim = {MELEE_DISTANCE, 0, 0};
 
@@ -373,7 +375,7 @@ arachnid_attack(edict_t *self)
 // death
 //
 
-void
+static void
 arachnid_dead(edict_t *self)
 {
 	if (!self)

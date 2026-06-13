@@ -253,7 +253,7 @@ demon_pain(edict_t *self, edict_t *other, float kick, int damage)
 	monster_dynamic_pain(self, other, kick, damage);
 }
 
-void
+static void
 demon_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);

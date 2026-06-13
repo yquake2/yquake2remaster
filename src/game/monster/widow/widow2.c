@@ -49,8 +49,6 @@ static float sweep_angles[] = {
 
 extern vec3_t stalker_mins, stalker_maxs;
 
-void ClipGibVelocity(edict_t *ent);
-
 void widow2_run(edict_t *self);
 void widow2_stand(edict_t *self);
 void widow2_attack(edict_t *self);

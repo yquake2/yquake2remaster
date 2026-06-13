@@ -229,7 +229,7 @@ army_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 army_dead(edict_t *self)
 {
 	VectorSet(self->mins, -16, -16, -24);

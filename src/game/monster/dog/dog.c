@@ -253,7 +253,7 @@ dog_pain(edict_t *self, edict_t *other /* unused */,
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 dog_dead(edict_t *self)
 {
 	VectorSet(self->mins, -32, -32, -24);

@@ -31,8 +31,6 @@
 int debristhisframe;
 int gibsthisframe;
 
-extern void M_WorldEffects(edict_t *ent);
-
 /*
  * QUAKED func_group (0 0 0) ?
  * Used to group brushes together just for editor convenience.
@@ -640,7 +638,7 @@ BecomeExplosion1(edict_t *self)
 	G_FreeEdict(self);
 }
 
-void
+static void
 BecomeExplosion2(edict_t *self)
 {
 	if (!self)
@@ -4304,7 +4302,7 @@ misc_player_mannequin_think(edict_t * self)
 	self->nextthink = level.time + FRAMETIME;
 }
 
-void
+static void
 SetupMannequinModel(edict_t * self, int modelType, const char *weapon, const char *skin)
 {
 	const char *model_name = NULL;

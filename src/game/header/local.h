@@ -632,6 +632,7 @@ extern int snd_fry;
 
 extern int debristhisframe;
 extern int gibsthisframe;
+void M_WorldEffects(edict_t *ent);
 
 /* means of death */
 #define MOD_UNKNOWN 0
@@ -1039,6 +1040,7 @@ void barrel_delay (edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
 void SP_misc_teleporter_dest(edict_t *ent);
 void barrel_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused */,
 	const csurface_t *surf /*unused */);
+void ClipGibVelocity(edict_t *ent);
 
 /* g_ai.c */
 void AI_SetSightClient(void);

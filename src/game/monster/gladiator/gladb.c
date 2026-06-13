@@ -72,7 +72,7 @@ gladb_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 gladb_cleaver_swing(edict_t *self)
 {
 	if (!self)
@@ -182,7 +182,7 @@ gladb_run(edict_t *self)
 	}
 }
 
-void
+static void
 GladbMelee(edict_t *self)
 {
 	vec3_t aim;
@@ -242,7 +242,7 @@ gladb_melee(edict_t *self)
 	self->monsterinfo.currentmove = &gladb_move_attack_melee;
 }
 
-void
+static void
 gladbGun(edict_t *self)
 {
 	vec3_t start;
@@ -265,7 +265,7 @@ gladbGun(edict_t *self)
 	fire_plasma(self, start, dir, 100, 725, 60, 60);
 }
 
-void
+static void
 gladbGun_check(edict_t *self)
 {
 	if (!self)
@@ -409,7 +409,7 @@ gladb_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 gladb_dead(edict_t *self)
 {
 	if (!self)

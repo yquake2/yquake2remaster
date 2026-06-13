@@ -68,7 +68,7 @@ static void gekk_hit_right(edict_t *self);
 void gekk_run_start(edict_t *self);
 void gekk_walk(edict_t *self);
 
-qboolean
+static qboolean
 gekk_check_melee(edict_t *self)
 {
 	if (!self)
@@ -197,7 +197,7 @@ gekk_checkattack(edict_t *self)
 	return false;
 }
 
-void
+static void
 gekk_step(edict_t *self)
 {
 	int n;
@@ -287,18 +287,7 @@ gekk_search(edict_t *self)
 	}
 }
 
-void
-gekk_swing(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	gi.sound(self, CHAN_VOICE, sound_swing, 1, ATTN_NORM, 0);
-}
-
-void
+static void
 gekk_face(edict_t *self)
 {
 	if (!self)
@@ -309,7 +298,7 @@ gekk_face(edict_t *self)
 	self->monsterinfo.currentmove = &gekk_move_run;
 }
 
-void
+static void
 ai_stand2(edict_t *self, float dist)
 {
 	if (!self)
@@ -522,7 +511,7 @@ gekk_stand(edict_t *self)
 	}
 }
 
-void
+static void
 gekk_idle_loop(edict_t *self)
 {
 	if (!self)
@@ -651,7 +640,7 @@ gekk_run_start(edict_t *self)
 	}
 }
 
-void
+static void
 gekk_run(edict_t *self)
 {
 	if (!self)
@@ -816,7 +805,7 @@ loogie_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurfac
 	G_FreeEdict(self);
 }
 
-void
+static void
 fire_loogie(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t *loogie;
@@ -1437,7 +1426,7 @@ gekk_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 gekk_dead(edict_t *self)
 {
 	if (!self)
@@ -1459,7 +1448,7 @@ gekk_dead(edict_t *self)
 	}
 }
 
-void
+static void
 gekk_gibfest(edict_t *self)
 {
 	int damage = 20;
@@ -1484,7 +1473,7 @@ gekk_gibfest(edict_t *self)
 	self->deadflag = DEAD_DEAD;
 }
 
-void
+static void
 isgibfest(edict_t *self)
 {
 	if (!self)
@@ -1694,58 +1683,6 @@ gekk_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /* un
 		{
 			self->monsterinfo.currentmove = &gekk_move_death4;
 		}
-	}
-}
-
-void
-gekk_duck_down(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (self->monsterinfo.aiflags & AI_DUCKED)
-	{
-		return;
-	}
-
-	self->monsterinfo.aiflags |= AI_DUCKED;
-	self->maxs[2] -= 32;
-	self->takedamage = DAMAGE_YES;
-	self->monsterinfo.pausetime = level.time + 1;
-	gi.linkentity(self);
-}
-
-void
-gekk_duck_up(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.aiflags &= ~AI_DUCKED;
-	self->maxs[2] += 32;
-	self->takedamage = DAMAGE_AIM;
-	gi.linkentity(self);
-}
-
-void
-gekk_duck_hold(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	if (level.time >= self->monsterinfo.pausetime)
-	{
-		self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
-	}
-	else
-	{
-		self->monsterinfo.aiflags |= AI_HOLD_FRAME;
 	}
 }
 

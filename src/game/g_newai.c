@@ -216,7 +216,7 @@ blocked_checkjump(edict_t *self, float dist, float maxDown, float maxUp)
 	return false;
 }
 
-void
+static void
 hintpath_go(edict_t *self, edict_t *point)
 {
 	vec3_t dir;

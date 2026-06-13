@@ -28,17 +28,14 @@
 #include "../../header/local.h"
 #include "boss31.h"
 
-extern void SP_monster_makron(edict_t *self);
 static void jorg_dead(edict_t *self);
-void jorgBFG(edict_t *self);
-void jorgMachineGun(edict_t *self);
-void jorg_firebullet(edict_t *self);
-void jorg_reattack1(edict_t *self);
-void jorg_attack1(edict_t *self);
-void jorg_idle(edict_t *self);
-void jorg_step_left(edict_t *self);
-void jorg_step_right(edict_t *self);
-void jorg_death_hit(edict_t *self);
+static void jorgBFG(edict_t *self);
+static void jorg_firebullet(edict_t *self);
+static void jorg_reattack1(edict_t *self);
+static void jorg_attack1(edict_t *self);
+static void jorg_idle(edict_t *self);
+static void jorg_step_left(edict_t *self);
+static void jorg_step_right(edict_t *self);
 
 static int sound_pain1;
 static int sound_pain2;
@@ -144,7 +141,7 @@ mmove_t jorg_move_stand =
 	NULL
 };
 
-void
+static void
 jorg_idle(edict_t *self)
 {
 	if (!self)
@@ -155,7 +152,7 @@ jorg_idle(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 jorg_death_hit(edict_t *self)
 {
 	if (!self)
@@ -166,7 +163,7 @@ jorg_death_hit(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_death_hit, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 jorg_step_left(edict_t *self)
 {
 	if (!self)
@@ -177,7 +174,7 @@ jorg_step_left(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_step_left, 1, ATTN_NORM, 0);
 }
 
-void
+static void
 jorg_step_right(edict_t *self)
 {
 	if (!self)
@@ -386,7 +383,7 @@ static mframe_t jorg_frames_death1[] = {
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}, /* 10 */
+	{ai_move, 0, jorg_death_hit}, /* 10 */
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL},
@@ -512,7 +509,7 @@ mmove_t jorg_move_end_attack1 =
 	jorg_run
 };
 
-void
+static void
 jorg_reattack1(edict_t *self)
 {
 	if (!self)
@@ -539,7 +536,7 @@ jorg_reattack1(edict_t *self)
 	}
 }
 
-void
+static void
 jorg_attack1(edict_t *self)
 {
 	if (!self)
@@ -634,7 +631,7 @@ jorg_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 jorgBFG(edict_t *self)
 {
 	vec3_t forward, right;
@@ -659,7 +656,7 @@ jorgBFG(edict_t *self)
 	monster_fire_bfg(self, start, dir, 50, 300, 100, 200, MZ2_JORG_BFG_1);
 }
 
-void
+static void
 jorg_firebullet_right(edict_t *self)
 {
 	vec3_t forward, right, target;
@@ -684,7 +681,7 @@ jorg_firebullet_right(edict_t *self)
 			MZ2_JORG_MACHINEGUN_R1);
 }
 
-void
+static void
 jorg_firebullet_left(edict_t *self)
 {
 	vec3_t forward, right, target;
@@ -709,7 +706,7 @@ jorg_firebullet_left(edict_t *self)
 			MZ2_JORG_MACHINEGUN_L1);
 }
 
-void
+static void
 jorg_firebullet(edict_t *self)
 {
 	if (!self)

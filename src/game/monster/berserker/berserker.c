@@ -53,9 +53,9 @@ mmove_t berserk_move_stand = {0};
 mmove_t berserk_move_stand_fidget = {0};
 mmove_t berserk_move_walk = {0};
 
-void berserk_fidget(edict_t *self);
+static void berserk_fidget(edict_t *self);
 
-void
+static void
 berserk_footstep(edict_t *self)
 {
 	if (!g_monsterfootsteps->value)
@@ -77,7 +77,6 @@ berserk_footstep(edict_t *self)
 		gi.sound(self, CHAN_BODY, sound_step2, 1, ATTN_NORM, 0);
 	}
 }
-
 
 void
 berserk_sight(edict_t *self, edict_t *other /* unused */)
@@ -159,7 +158,7 @@ static const mmove_t berserk_move_stand_fidget_static =
 	berserk_stand
 };
 
-void
+static void
 berserk_fidget(edict_t *self)
 {
 	if (!self)
@@ -257,7 +256,7 @@ berserk_run(edict_t *self)
 	}
 }
 
-void
+static void
 berserk_attack_spike(edict_t *self)
 {
 	static vec3_t aim = {MELEE_DISTANCE, 0, -24};
@@ -270,7 +269,7 @@ berserk_attack_spike(edict_t *self)
 	fire_hit(self, aim, (15 + (randk() % 6)), 400); /* Faster attack -- upwards and backwards */
 }
 
-void
+static void
 berserk_swing(edict_t *self)
 {
 	if (!self)
@@ -300,7 +299,7 @@ static const mmove_t berserk_move_attack_spike_static =
 	berserk_run
 };
 
-void
+static void
 berserk_attack_club(edict_t *self)
 {
 	vec3_t aim;
@@ -337,7 +336,7 @@ static const mmove_t berserk_move_attack_club_static =
 	berserk_run
 };
 
-void
+static void
 berserk_strike(edict_t *self)
 {
 	vec3_t aim;
@@ -535,7 +534,7 @@ berserk_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 berserk_dead(edict_t *self)
 {
 	if (!self)

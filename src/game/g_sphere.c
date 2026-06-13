@@ -18,8 +18,6 @@
 #define VENGEANCE_LIFESPAN 30
 #define MINIMUM_FLY_TIME 15
 
-void vengeance_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
-
 void
 sphere_think_explode(edict_t *self)
 {
@@ -64,7 +62,7 @@ sphere_if_idle_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *atta
 	}
 }
 
-void
+static void
 sphere_fly(edict_t *self)
 {
 	vec3_t dest;
@@ -98,7 +96,7 @@ sphere_fly(edict_t *self)
 	VectorScale(dir, 5, self->velocity);
 }
 
-void
+static void
 sphere_chase(edict_t *self, int stupidChase)
 {
 	vec3_t dest;
@@ -189,36 +187,6 @@ sphere_chase(edict_t *self, int stupidChase)
 			VectorClear(self->velocity);
 		}
 	}
-}
-
-void
-sphere_fire(edict_t *self, edict_t *enemy)
-{
-	vec3_t dest;
-	vec3_t dir;
-
-	if (!self)
-	{
-		return;
-	}
-
-	if ((level.time >= self->wait) || !enemy)
-	{
-		sphere_think_explode(self);
-		return;
-	}
-
-	VectorCopy(enemy->s.origin, dest);
-	self->s.effects |= EF_ROCKET;
-
-	VectorSubtract(dest, self->s.origin, dir);
-	VectorNormalize(dir);
-	vectoangles2(dir, self->s.angles);
-	VectorScale(dir, 1000, self->velocity);
-
-	self->touch = vengeance_touch;
-	self->think = sphere_think_explode;
-	self->nextthink = self->wait;
 }
 
 static void
@@ -336,7 +304,7 @@ hunter_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurfac
 	}
 }
 
-void
+static void
 defender_shoot(edict_t *self, edict_t *enemy)
 {
 	vec3_t dir;
@@ -377,7 +345,7 @@ defender_shoot(edict_t *self, edict_t *enemy)
 	self->monsterinfo.attack_finished = level.time + 0.4;
 }
 
-void
+static void
 body_gib(edict_t *self)
 {
 	int n;
@@ -794,7 +762,7 @@ Sphere_Spawn(edict_t *owner, int spawnflags)
 	return sphere;
 }
 
-void
+static void
 Own_Sphere(edict_t *self, edict_t *sphere)
 {
 	if (!sphere || !self)

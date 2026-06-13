@@ -26,19 +26,10 @@ static int sound_weld2;
 static int sound_weld3;
 
 void fixbot_run(edict_t *self);
-void fixbot_stand(edict_t *self);
-void fixbot_dead(edict_t *self);
+static void fixbot_dead(edict_t *self);
 void fixbot_attack(edict_t *self);
-void fixbot_fire_blaster(edict_t *self);
-void fixbot_fire_welder(edict_t *self);
-void fixbot_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
-		int damage, const vec3_t point);
-
-void M_MoveToGoal(edict_t *ent, float dist);
-
-void use_scanner(edict_t *self);
-void change_to_roam(edict_t *self);
-void fly_vertical(edict_t *self);
+static void fixbot_fire_blaster(edict_t *self);
+static void fixbot_fire_welder(edict_t *self);
 
 extern mmove_t fixbot_move_forward;
 extern mmove_t fixbot_move_stand;
@@ -119,7 +110,7 @@ fixbot_FindDeadMonster(edict_t *self)
 	return best;
 }
 
-int
+static int
 fixbot_search(edict_t *self)
 {
 	edict_t *ent;
@@ -182,7 +173,7 @@ make_bot_goal(edict_t *self)
 	return ent;
 }
 
-void
+static void
 landing_goal(edict_t *self)
 {
 	trace_t tr;
@@ -214,7 +205,7 @@ landing_goal(edict_t *self)
 	self->monsterinfo.currentmove = &fixbot_move_landing;
 }
 
-void
+static void
 takeoff_goal(edict_t *self)
 {
 	trace_t tr;
@@ -247,7 +238,7 @@ takeoff_goal(edict_t *self)
 	self->monsterinfo.currentmove = &fixbot_move_takeoff;
 }
 
-void
+static void
 change_to_roam(edict_t *self)
 {
 	if (!self)
@@ -348,7 +339,7 @@ roam_goal(edict_t *self)
 	self->monsterinfo.currentmove = &fixbot_move_turn;
 }
 
-void
+static void
 use_scanner(edict_t *self)
 {
 	edict_t *ent = NULL;
@@ -458,7 +449,7 @@ use_scanner(edict_t *self)
  *  decend translated along the z the current
  *  frames are at 10fps
  */
-void
+static void
 blastoff(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int kick, int te_impact, int hspread, int vspread)
 {
@@ -622,7 +613,7 @@ blastoff(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	}
 }
 
-void
+static void
 fly_vertical(edict_t *self)
 {
 	int i;
@@ -663,7 +654,7 @@ fly_vertical(edict_t *self)
 	}
 }
 
-void
+static void
 fly_vertical2(edict_t *self)
 {
 	vec3_t v;
@@ -879,7 +870,7 @@ mmove_t fixbot_move_roamgoal = {
 	NULL
 };
 
-void
+static void
 ai_facing(edict_t *self, float dist)
 {
 	if (!self)
@@ -911,17 +902,6 @@ mmove_t fixbot_move_turn = {
 	fixbot_frames_turn,
 	NULL
 };
-
-void
-go_roam(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &fixbot_move_stand;
-}
 
 /* takeoff */
 static mframe_t fixbot_frames_takeoff[] = {
@@ -1020,7 +1000,7 @@ mmove_t fixbot_move_land = {
 	NULL
 };
 
-void
+static void
 ai_movetogoal(edict_t *self, float dist)
 {
 	if (!self)
@@ -1086,17 +1066,6 @@ mmove_t fixbot_move_backward = {
 	NULL
 };
 
-static mframe_t fixbot_frames_start_attack[] = {
-	{ai_charge, 0, NULL}
-};
-
-mmove_t fixbot_move_start_attack = {
-	FRAME_freeze_01,
-	FRAME_freeze_01,
-	fixbot_frames_start_attack,
-	fixbot_attack
-};
-
 static mframe_t fixbot_frames_attack1[] = {
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL},
@@ -1113,7 +1082,7 @@ mmove_t fixbot_move_attack1 = {
 	NULL
 };
 
-int
+static int
 check_telefrag(edict_t *self)
 {
 	vec3_t end, up;
@@ -1144,7 +1113,7 @@ check_telefrag(edict_t *self)
 	return 1;
 }
 
-void
+static void
 fixbot_fire_laser(edict_t *self)
 {
 	vec3_t forward, right, up;
@@ -1277,7 +1246,7 @@ mmove_t fixbot_move_attack2 = {
 	fixbot_run
 };
 
-void
+static void
 weldstate(edict_t *self)
 {
 	if (!self)
@@ -1308,7 +1277,7 @@ weldstate(edict_t *self)
 	}
 }
 
-void
+static void
 ai_move2(edict_t *self, float dist)
 {
 	vec3_t v;
@@ -1382,7 +1351,7 @@ mmove_t fixbot_move_weld_end = {
 	NULL
 };
 
-void
+static void
 fixbot_fire_welder(edict_t *self)
 {
 	vec3_t start;
@@ -1433,7 +1402,7 @@ fixbot_fire_welder(edict_t *self)
 	}
 }
 
-void
+static void
 fixbot_fire_blaster(edict_t *self)
 {
 	vec3_t start;
@@ -1519,17 +1488,6 @@ fixbot_walk(edict_t *self)
 }
 
 void
-fixbot_start_attack(edict_t *self)
-{
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = &fixbot_move_start_attack;
-}
-
-void
 fixbot_attack(edict_t *self)
 {
 	if (!self)
@@ -1596,7 +1554,7 @@ fixbot_pain(edict_t *self, edict_t *other /* unused */,
 	}
 }
 
-void
+static void
 fixbot_dead(edict_t *self)
 {
 	if (!self)
