@@ -229,7 +229,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 				outframe->radius = LittleFloat(inframe->radius);
 			}
 
-			float_count = pinmodel.num_bones * sizeof(mdr_bone_t);
+			float_count = pinmodel.num_bones * (sizeof(mdr_bone_t) / sizeof(float));
 			infloat = (float *)&inframe->bones;
 			outfloat = (float *)&outframe->bones;
 			for (j = 0; j < float_count; j ++)
