@@ -529,7 +529,7 @@ use_target_changelevel(edict_t *self, edict_t *other, edict_t *activator)
 	/* if map has a landmark, store position instead of using spawn next map */
 	if (activator && activator->client && !deathmatch->value)
 	{
-		activator->client->landmark_name = NULL;
+		activator->client->landmark_name[0] = 0;
 		self->target_ent = NULL;
 
 		if (self->target && self->target[0])
@@ -538,7 +538,7 @@ use_target_changelevel(edict_t *self, edict_t *other, edict_t *activator)
 
 			if (self->target_ent && activator && activator->client)
 			{
-				activator->client->landmark_name = G_CopyString(self->target_ent->targetname);
+				Q_strlcpy(activator->client->landmark_name, self->target_ent->targetname, sizeof(activator->client->landmark_name));
 			}
 		}
 	}

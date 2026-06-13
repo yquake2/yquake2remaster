@@ -1024,6 +1024,7 @@ SanitizeClientStruct(gclient_t *cl)
 	p->netname[sizeof(p->netname) - 1] = 0;
 
 	ValidateSelectedItem(cl);
+	cl->landmark_name[sizeof(cl->landmark_name) - 1] = 0;
 	cl->ammo_index = GetWeaponAmmoIndex(cl->pers.weapon);
 	cl->flood_whenhead = 0;
 }

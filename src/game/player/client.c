@@ -1784,7 +1784,7 @@ TryLandmarkSpawn(const edict_t* ent, vec3_t origin, vec3_t angles)
 	static const vec3_t mins = PLAYER_MINS;
 	static const vec3_t maxs = PLAYER_MAXS;
 
-	if (ent->client->landmark_name && ent->client->landmark_name[0])
+	if (ent->client->landmark_name[0])
 	{
 		const edict_t* landmark = G_PickTarget(ent->client->landmark_name);
 

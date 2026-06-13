@@ -1563,7 +1563,7 @@ struct gclient_s
 	height_fog_t heightfog;
 
 	/* ReRelease landmark */
-	const char* landmark_name;
+	char landmark_name[MAX_QPATH];
 };
 
 typedef struct {
