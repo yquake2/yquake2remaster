@@ -4348,7 +4348,7 @@ SetupMannequinModel(edict_t * self, int modelType, const char *weapon, const cha
 		char line[MAX_QPATH] = {0};
 
 		snprintf(line, sizeof(line), "players/%s/tris.md2", model_name);
-		self->model = ED_NewString(line, true);
+		self->model = ED_NewString(line, true, TAG_LEVEL);
 
 		if (weapon)
 		{

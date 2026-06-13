@@ -1863,7 +1863,7 @@ MedicCommanderCache(void)
 
 		VectorCopy(vec3_origin, newEnt->s.origin);
 		VectorCopy(vec3_origin, newEnt->s.angles);
-		newEnt->classname = ED_NewString(reinforcements[i], true);
+		newEnt->classname = ED_NewString(reinforcements[i], true, TAG_LEVEL);
 
 		newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 

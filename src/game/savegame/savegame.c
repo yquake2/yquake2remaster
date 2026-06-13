@@ -665,6 +665,7 @@ WriteField1(FILE *f, const field_t *field, void *base, const fptrList_t *fpl)
 
 		case F_LSTRING:
 		case F_LRAWSTRING:
+		case F_GRAWSTRING:
 
 			if (*(char **)p)
 			{
@@ -764,6 +765,7 @@ WriteField2(FILE *f, const field_t *field, const void *base, const fptrList_t *f
 	{
 		case F_LSTRING:
 		case F_LRAWSTRING:
+		case F_GRAWSTRING:
 
 			if (*(const char **)p)
 			{
@@ -945,6 +947,10 @@ ReadField(FILE *f, const field_t *field, void *base, const fptrList_t *fpl)
 		case F_LRAWSTRING:
 			len = *(int *)p;
 			*(char **)p = ReadString(f, len, TAG_LEVEL);
+			break;
+		case F_GRAWSTRING:
+			len = *(int *)p;
+			*(char **)p = ReadString(f, len, TAG_GAME);
 			break;
 		case F_EDICT:
 			index = *(int *)p;

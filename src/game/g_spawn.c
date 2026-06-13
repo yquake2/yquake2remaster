@@ -673,7 +673,7 @@ ED_CallSpawn(edict_t *ent)
 }
 
 char *
-ED_NewString(const char *string, qboolean raw)
+ED_NewString(const char *string, qboolean raw, unsigned short tag)
 {
 	char *newb;
 	size_t l;
@@ -685,7 +685,7 @@ ED_NewString(const char *string, qboolean raw)
 
 	l = strlen(string) + 1;
 
-	newb = gi.TagMalloc(l, TAG_LEVEL);
+	newb = gi.TagMalloc(l, tag);
 
 	if (!raw)
 	{
@@ -826,11 +826,14 @@ ED_ParseField(const char *key, const char *value, edict_t *ent)
 
 	switch (f->type)
 	{
+		case F_GRAWSTRING:
+			*(char **)b = ED_NewString(value, true, TAG_GAME);
+			break;
 		case F_LRAWSTRING:
-			*(char **)b = ED_NewString(value, true);
+			*(char **)b = ED_NewString(value, true, TAG_LEVEL);
 			break;
 		case F_LSTRING:
-			*(char **)b = ED_NewString(value, false);
+			*(char **)b = ED_NewString(value, false, TAG_LEVEL);
 			break;
 		case F_VECTOR:
 			vec = b;
@@ -1854,7 +1857,7 @@ CreateMonster(vec3_t origin, vec3_t angles, const char *classname)
 
 	VectorCopy(origin, newEnt->s.origin);
 	VectorCopy(angles, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname, true);
+	newEnt->classname = ED_NewString(classname, true, TAG_LEVEL);
 	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
 	VectorSet(newEnt->gravityVector, 0, 0, -1);
@@ -1878,7 +1881,7 @@ DetermineBBox(const char *classname, vec3_t mins, vec3_t maxs)
 
 	VectorCopy(vec3_origin, newEnt->s.origin);
 	VectorCopy(vec3_origin, newEnt->s.angles);
-	newEnt->classname = ED_NewString(classname, true);
+	newEnt->classname = ED_NewString(classname, true, TAG_LEVEL);
 	newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
 	ED_CallSpawn(newEnt);

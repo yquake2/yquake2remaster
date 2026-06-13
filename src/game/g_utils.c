@@ -624,7 +624,7 @@ vectoangles2(vec3_t value, vec3_t angles)
 }
 
 char *
-G_CopyString(const char *in)
+G_CopyString(const char *in, unsigned short tag)
 {
 	char *out;
 
@@ -633,7 +633,7 @@ G_CopyString(const char *in)
 		return NULL;
 	}
 
-	out = gi.TagMalloc(strlen(in) + 1, TAG_LEVEL);
+	out = gi.TagMalloc(strlen(in) + 1, tag);
 	strcpy(out, in);
 	return out;
 }

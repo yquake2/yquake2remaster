@@ -538,7 +538,7 @@ use_target_changelevel(edict_t *self, edict_t *other, edict_t *activator)
 
 			if (self->target_ent && activator && activator->client)
 			{
-				activator->client->landmark_name = G_CopyString(self->target_ent->targetname);
+				activator->client->landmark_name = G_CopyString(self->target_ent->targetname, TAG_GAME);
 			}
 		}
 	}

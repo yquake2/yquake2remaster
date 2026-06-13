@@ -814,6 +814,7 @@ typedef enum
 	F_IGNORE,
 	F_RGBA,
 	F_LRAWSTRING, /* raw string on disk, pointer in memory, TAG_LEVEL */
+	F_GRAWSTRING, /* raw string on disk, pointer in memory, TAG_GAME */
 	F_SCALE,
 } fieldtype_t;
 
@@ -893,7 +894,7 @@ void G_FreeEdict(edict_t *ed);
 void G_TouchTriggers(edict_t *ent);
 void G_TouchSolids(edict_t *ent);
 
-char *G_CopyString(const char *in);
+char *G_CopyString(const char *in, unsigned short tag);
 
 const float *tv(float x, float y, float z);
 const char *vtos(const vec3_t v);
@@ -1284,7 +1285,7 @@ void fire_doppleganger(edict_t *ent, vec3_t start, vec3_t aimdir);
 gitem_t *GetDynamicItems(int *count);
 void ED_CallSpawn(edict_t *ent);
 void DynamicResetSpawnModels(edict_t *self);
-char *ED_NewString(const char *string, qboolean raw);
+char *ED_NewString(const char *string, qboolean raw, unsigned short tag);
 void SpawnInit(void);
 void SpawnFree(void);
 void P_ToggleFlashlight(edict_t *ent, qboolean state);

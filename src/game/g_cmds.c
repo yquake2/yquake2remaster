@@ -1692,7 +1692,7 @@ Cmd_SpawnEntity_f(edict_t *ent)
 		ent->spawnflags = (int)strtol(gi.argv(8), (char **)NULL, 10);
 	}
 
-	ent->classname = G_CopyString(gi.argv(1));
+	ent->classname = G_CopyString(gi.argv(1), TAG_LEVEL);
 
 	/* scale */
 	if (gi.argc() >= 10)
@@ -1720,7 +1720,7 @@ Cmd_SpawnOnStartByClass(const char *classname, const vec3_t origin, float scale)
 	opponent->s.origin[1] = origin[1];
 	opponent->s.origin[2] = origin[2];
 	// and class
-	opponent->classname = G_CopyString(classname);
+	opponent->classname = G_CopyString(classname, TAG_LEVEL);
 
 	if (scale > 0)
 	{
