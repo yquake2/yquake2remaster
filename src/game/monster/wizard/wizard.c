@@ -39,8 +39,7 @@ static mframe_t wizard_frames_finish [] =
 };
 
 /* decino: Quake plays this animation backwards, so we'll have to do some hacking */
-mmove_t wizard_move_finish =
-{
+mmove_t wizard_move_finish = {
 	FRAME_magatt5,
 	FRAME_magatt1,
 	wizard_frames_finish,
@@ -169,8 +168,8 @@ static mframe_t wizard_frames_attack [] =
 	{ai_charge, 0, wizard_spit},
 	{ai_charge, 0, NULL}
 };
-mmove_t wizard_move_attack =
-{
+
+mmove_t wizard_move_attack = {
 	FRAME_magatt1,
 	FRAME_magatt6,
 	wizard_frames_attack,
@@ -226,8 +225,8 @@ static mframe_t wizard_frames_death [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t wizard_move_death =
-{
+
+mmove_t wizard_move_death = {
 	FRAME_death1,
 	FRAME_death8,
 	wizard_frames_death,

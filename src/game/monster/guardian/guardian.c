@@ -82,8 +82,7 @@ static mframe_t guardian_frames_walk[] = {
 	{ai_walk, 8, NULL}
 };
 
-mmove_t guardian_move_walk =
-{
+mmove_t guardian_move_walk = {
 	FRAME_walk1,
 	FRAME_walk19,
 	guardian_frames_walk,
@@ -127,8 +126,7 @@ static mframe_t guardian_frames_run[] = {
 	{ai_run, 8, NULL}
 };
 
-mmove_t guardian_move_run =
-{
+mmove_t guardian_move_run = {
 	FRAME_walk1,
 	FRAME_walk19,
 	guardian_frames_run,
@@ -217,8 +215,7 @@ static mframe_t guardian_frames_atk1_out[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t guardian_atk1_out =
-{
+mmove_t guardian_atk1_out = {
 	FRAME_atk1_out1,
 	FRAME_atk1_out3,
 	guardian_frames_atk1_out,
@@ -298,8 +295,7 @@ static mframe_t guardian_frames_atk1_spin[] = {
 	{ai_charge, 0}
 };
 
-mmove_t guardian_move_atk1_spin =
-{
+mmove_t guardian_move_atk1_spin = {
 	FRAME_atk1_spin1,
 	FRAME_atk1_spin15,
 	guardian_frames_atk1_spin,
@@ -324,8 +320,7 @@ static mframe_t guardian_frames_atk1_in[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t guardian_move_atk1_in =
-{
+mmove_t guardian_move_atk1_in = {
 	FRAME_atk1_in1,
 	FRAME_atk1_in3,
 	guardian_frames_atk1_in,
@@ -342,8 +337,7 @@ static mframe_t guardian_frames_atk2_out[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t guardian_move_atk2_out =
-{
+mmove_t guardian_move_atk2_out = {
 	FRAME_atk2_out1,
 	FRAME_atk2_out7,
 	guardian_frames_atk2_out,
@@ -422,8 +416,7 @@ static mframe_t guardian_frames_atk2_fire[] = {
 	{ai_charge, 0, guardian_laser_fire}
 };
 
-mmove_t guardian_move_atk2_fire =
-{
+mmove_t guardian_move_atk2_fire = {
 	FRAME_atk2_fire1,
 	FRAME_atk2_fire4,
 	guardian_frames_atk2_fire,
@@ -456,8 +449,7 @@ static mframe_t guardian_frames_atk2_in[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t guardian_move_atk2_in =
-{
+mmove_t guardian_move_atk2_in = {
 	FRAME_atk2_in1,
 	FRAME_atk2_in12,
 	guardian_frames_atk2_in,
@@ -488,8 +480,7 @@ static mframe_t guardian_frames_kick[] =
 	{ai_charge, 0, NULL}
 };
 
-mmove_t guardian_move_kick =
-{
+mmove_t guardian_move_kick = {
 	FRAME_kick_in1,
 	FRAME_kick_in13,
 	guardian_frames_kick,
@@ -618,8 +609,7 @@ static mframe_t guardian_frames_death1[FRAME_death26 - FRAME_death1 + 1] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t guardian_move_death =
-{
+mmove_t guardian_move_death = {
 	FRAME_death1,
 	FRAME_death26,
 	guardian_frames_death1,

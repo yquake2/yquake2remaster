@@ -79,8 +79,8 @@ static mframe_t rotfish_frames_melee [] =
 	{ai_run, 10, NULL},
 	{ai_run, 10, NULL}
 };
-mmove_t rotfish_move_melee =
-{
+
+mmove_t rotfish_move_melee = {
 	FRAME_attack1,
 	FRAME_attack18,
 	rotfish_frames_melee,
@@ -143,8 +143,8 @@ static mframe_t rotfish_frames_death [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t rotfish_move_death =
-{
+
+mmove_t rotfish_move_death = {
 	FRAME_death1,
 	FRAME_death21,
 	rotfish_frames_death,

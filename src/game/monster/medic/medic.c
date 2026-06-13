@@ -497,8 +497,7 @@ static mframe_t medic_frames_stand[] = {
 	{ai_stand, 0, NULL},
 };
 
-mmove_t medic_move_stand =
-{
+mmove_t medic_move_stand = {
 	FRAME_wait1,
 	FRAME_wait90,
 	medic_frames_stand,
@@ -531,8 +530,7 @@ static mframe_t medic_frames_walk[] = {
 	{ai_walk, 9.3, NULL}
 };
 
-mmove_t medic_move_walk =
-{
+mmove_t medic_move_walk = {
 	FRAME_walk1,
 	FRAME_walk12,
 	medic_frames_walk,
@@ -559,8 +557,7 @@ static mframe_t medic_frames_run[] = {
 	{ai_run, 35.6, NULL}
 };
 
-mmove_t medic_move_run =
-{
+mmove_t medic_move_run = {
 	FRAME_run1,
 	FRAME_run6,
 	medic_frames_run,
@@ -616,8 +613,7 @@ static mframe_t medic_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t medic_move_pain1 =
-{
+mmove_t medic_move_pain1 = {
 	FRAME_paina1,
 	FRAME_paina8,
 	medic_frames_pain1,
@@ -642,8 +638,7 @@ static mframe_t medic_frames_pain2[] = {
 	{ai_move, 0, medic_footstep}
 };
 
-mmove_t medic_move_pain2 =
-{
+mmove_t medic_move_pain2 = {
 	FRAME_painb1,
 	FRAME_painb15,
 	medic_frames_pain2,
@@ -813,8 +808,7 @@ static mframe_t medic_frames_death[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t medic_move_death =
-{
+mmove_t medic_move_death = {
 	FRAME_death1,
 	FRAME_death30,
 	medic_frames_death,
@@ -938,8 +932,7 @@ static mframe_t medic_frames_duck[] = {
 	{ai_move, -1, NULL}
 };
 
-mmove_t medic_move_duck =
-{
+mmove_t medic_move_duck = {
 	FRAME_duck1,
 	FRAME_duck16,
 	medic_frames_duck,
@@ -988,8 +981,7 @@ static mframe_t medic_frames_attackHyperBlaster[] = {
 	{ai_charge, 0, medic_fire_blaster}
 };
 
-mmove_t medic_move_attackHyperBlaster =
-{
+mmove_t medic_move_attackHyperBlaster = {
 	FRAME_attack15,
 	FRAME_attack30,
 	medic_frames_attackHyperBlaster,
@@ -1030,8 +1022,7 @@ static mframe_t medic_frames_attackBlaster[] = {
 	{ai_charge, 0, medic_continue}
 };
 
-mmove_t medic_move_attackBlaster =
-{
+mmove_t medic_move_attackBlaster = {
 	FRAME_attack1,
 	FRAME_attack14,
 	medic_frames_attackBlaster,
@@ -1349,8 +1340,7 @@ static mframe_t medic_frames_attackCable[] = {
 	{ai_move, 1.3, NULL}                      /* 60 */
 };
 
-mmove_t medic_move_attackCable =
-{
+mmove_t medic_move_attackCable = {
 	FRAME_attack33,
 	FRAME_attack60,
 	medic_frames_attackCable,

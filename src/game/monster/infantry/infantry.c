@@ -158,8 +158,7 @@ static mframe_t infantry_frames_fidget[] = {
 	{ai_stand, -2, NULL}
 };
 
-static const mmove_t infantry_move_fidget_static =
-{
+static const mmove_t infantry_move_fidget_static = {
 	FRAME_stand01,
 	FRAME_stand49,
 	infantry_frames_fidget,
@@ -204,8 +203,7 @@ static mframe_t infantry_frames_walk[] = {
 	{ai_walk, 5, NULL}
 };
 
-static const mmove_t infantry_move_walk_static =
-{
+static const mmove_t infantry_move_walk_static = {
 	FRAME_walk03,
 	FRAME_walk14,
 	infantry_frames_walk,
@@ -234,8 +232,7 @@ static mframe_t infantry_frames_run[] = {
 	{ai_run, 6, NULL}
 };
 
-static const mmove_t infantry_move_run_static =
-{
+static const mmove_t infantry_move_run_static = {
 	FRAME_run01,
 	FRAME_run08,
 	infantry_frames_run,
@@ -275,8 +272,7 @@ static mframe_t infantry_frames_pain1[] = {
 	{ai_move, 2, infantry_footstep}
 };
 
-static const mmove_t infantry_move_pain1_static =
-{
+static const mmove_t infantry_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain110,
 	infantry_frames_pain1,
@@ -296,8 +292,7 @@ static mframe_t infantry_frames_pain2[] = {
 	{ai_move, 2, infantry_footstep}
 };
 
-static const mmove_t infantry_move_pain2_static =
-{
+static const mmove_t infantry_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain210,
 	infantry_frames_pain2,
@@ -473,8 +468,7 @@ static mframe_t infantry_frames_death1[] = {
 	{ai_move, -3, NULL}
 };
 
-static const mmove_t infantry_move_death1_static =
-{
+static const mmove_t infantry_move_death1_static = {
 	FRAME_death101,
 	FRAME_death120,
 	infantry_frames_death1,
@@ -510,8 +504,7 @@ static mframe_t infantry_frames_death2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t infantry_move_death2_static =
-{
+static const mmove_t infantry_move_death2_static = {
 	FRAME_death201,
 	FRAME_death225,
 	infantry_frames_death2,
@@ -530,8 +523,7 @@ static mframe_t infantry_frames_death3[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t infantry_move_death3_static =
-{
+static const mmove_t infantry_move_death3_static = {
 	FRAME_death301,
 	FRAME_death309,
 	infantry_frames_death3,
@@ -818,8 +810,7 @@ static mframe_t infantry_frames_duck[] = {
 	{ai_move, 0, infantry_footstep}
 };
 
-static const mmove_t infantry_move_duck_static =
-{
+static const mmove_t infantry_move_duck_static = {
 	FRAME_duck01,
 	FRAME_duck05,
 	infantry_frames_duck,
@@ -916,8 +907,7 @@ static mframe_t infantry_frames_attack1[] = {
 	{ai_charge, 4, NULL}                    /* 115 */
 };
 
-static const mmove_t infantry_move_attack1_static =
-{
+static const mmove_t infantry_move_attack1_static = {
 	FRAME_attak101,
 	FRAME_attak115,
 	infantry_frames_attack1,
@@ -964,8 +954,7 @@ static mframe_t infantry_frames_attack2[] = {
 	{ai_charge, 3, NULL},
 };
 
-static const mmove_t infantry_move_attack2_static =
-{
+static const mmove_t infantry_move_attack2_static = {
 	FRAME_attak201,
 	FRAME_attak208,
 	infantry_frames_attack2,

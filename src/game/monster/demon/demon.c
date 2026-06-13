@@ -40,8 +40,8 @@ static mframe_t demon_frames_run [] =
 	{ai_run, 15, NULL},
 	{ai_run, 36, NULL}
 };
-mmove_t demon_move_run =
-{
+
+mmove_t demon_move_run = {
 	FRAME_run1,
 	FRAME_run6,
 	demon_frames_run,
@@ -149,8 +149,8 @@ static mframe_t demon_frames_jump [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t demon_move_jump =
-{
+
+mmove_t demon_move_jump = {
 	FRAME_leap1,
 	FRAME_leap12,
 	demon_frames_jump,
@@ -207,8 +207,8 @@ static mframe_t demon_frames_melee [] =
 	{ai_charge, 4, NULL},
 	{ai_charge, 4, NULL}
 };
-mmove_t demon_move_melee =
-{
+
+mmove_t demon_move_melee = {
 	FRAME_attacka1,
 	FRAME_attacka15,
 	demon_frames_melee,
@@ -276,8 +276,8 @@ static mframe_t demon_frames_die [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t demon_move_die =
-{
+
+mmove_t demon_move_die = {
 	FRAME_death1,
 	FRAME_death9,
 	demon_frames_die,

@@ -45,8 +45,7 @@ static mframe_t enforcer_frames_run [] =
 	{ai_run, 7, NULL},
 	{ai_run, 11, NULL}
 };
-mmove_t enforcer_move_run =
-{
+mmove_t enforcer_move_run = {
 	FRAME_run1,
 	FRAME_run8,
 	enforcer_frames_run,
@@ -168,8 +167,7 @@ static mframe_t enforcer_frames_attack2 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t enforcer_move_attack2 =
-{
+mmove_t enforcer_move_attack2 = {
 	FRAME_attack5,
 	FRAME_attack10,
 	enforcer_frames_attack2,
@@ -196,8 +194,7 @@ static mframe_t enforcer_frames_attack1 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t enforcer_move_attack1 =
-{
+mmove_t enforcer_move_attack1 = {
 	FRAME_attack1,
 	FRAME_attack8,
 	enforcer_frames_attack1,
@@ -246,8 +243,7 @@ static mframe_t enforcer_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain1 =
-{
+mmove_t enforcer_move_pain1 = {
 	FRAME_paina1,
 	FRAME_paina4,
 	enforcer_frames_pain1,
@@ -264,8 +260,7 @@ static mframe_t enforcer_frames_pain2 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain2 =
-{
+mmove_t enforcer_move_pain2 = {
 	FRAME_painb1,
 	FRAME_painb5,
 	enforcer_frames_pain2,
@@ -285,8 +280,7 @@ static mframe_t enforcer_frames_pain3 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain3 =
-{
+mmove_t enforcer_move_pain3 = {
 	FRAME_painc1,
 	FRAME_painc8,
 	enforcer_frames_pain3,
@@ -320,8 +314,7 @@ static mframe_t enforcer_frames_pain4 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_pain4 =
-{
+mmove_t enforcer_move_pain4 = {
 	FRAME_paind1,
 	FRAME_paind19,
 	enforcer_frames_pain4,
@@ -409,8 +402,7 @@ static mframe_t enforcer_frames_death1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_death1 =
-{
+mmove_t enforcer_move_death1 = {
 	FRAME_death1,
 	FRAME_death14,
 	enforcer_frames_death1,
@@ -434,8 +426,7 @@ static mframe_t enforcer_frames_death2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t enforcer_move_death2 =
-{
+mmove_t enforcer_move_death2 = {
 	FRAME_fdeath1,
 	FRAME_fdeath11,
 	enforcer_frames_death2,

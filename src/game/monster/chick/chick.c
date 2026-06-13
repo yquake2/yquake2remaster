@@ -51,10 +51,8 @@ static int sound_pain2;
 static int sound_pain3;
 static int sound_sight;
 static int sound_search;
-
-static int  sound_step;
-static int  sound_step2;
-
+static int sound_step;
+static int sound_step2;
 
 static void
 chick_footstep(edict_t *self)
@@ -130,8 +128,7 @@ static mframe_t chick_frames_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t chick_move_fidget =
-{
+mmove_t chick_move_fidget = {
 	FRAME_stand201,
 	FRAME_stand230,
 	chick_frames_fidget,
@@ -190,8 +187,7 @@ static mframe_t chick_frames_stand[] = {
 	{ai_stand, 0, chick_fidget},
 };
 
-mmove_t chick_move_stand =
-{
+mmove_t chick_move_stand = {
 	FRAME_stand101,
 	FRAME_stand130,
 	chick_frames_stand,
@@ -222,8 +218,7 @@ static mframe_t chick_frames_start_run[] = {
 	{ai_run, 3, NULL}
 };
 
-mmove_t chick_move_start_run =
-{
+mmove_t chick_move_start_run = {
 	FRAME_walk01,
 	FRAME_walk10,
 	chick_frames_start_run,
@@ -243,8 +238,7 @@ static mframe_t chick_frames_run[] = {
 	{ai_run, 7, NULL}
 };
 
-mmove_t chick_move_run =
-{
+mmove_t chick_move_run = {
 	FRAME_walk11,
 	FRAME_walk20,
 	chick_frames_run,
@@ -275,8 +269,7 @@ static mframe_t chick_frames_walk[] = {
 	{ai_walk, 7, NULL}
 };
 
-mmove_t chick_move_walk =
-{
+mmove_t chick_move_walk = {
 	FRAME_walk11,
 	FRAME_walk20,
 	chick_frames_walk,
@@ -329,8 +322,7 @@ static mframe_t chick_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t chick_move_pain1 =
-{
+mmove_t chick_move_pain1 = {
 	FRAME_pain101,
 	FRAME_pain105,
 	chick_frames_pain1,
@@ -345,8 +337,7 @@ static mframe_t chick_frames_pain2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t chick_move_pain2 =
-{
+mmove_t chick_move_pain2 = {
 	FRAME_pain201,
 	FRAME_pain205,
 	chick_frames_pain2,
@@ -377,8 +368,7 @@ static mframe_t chick_frames_pain3[] = {
 	{ai_move, 2, NULL}
 };
 
-mmove_t chick_move_pain3 =
-{
+mmove_t chick_move_pain3 = {
 	FRAME_pain301,
 	FRAME_pain321,
 	chick_frames_pain3,
@@ -505,8 +495,7 @@ static mframe_t chick_frames_death2[] = {
 	{ai_move, 1, NULL}
 };
 
-mmove_t chick_move_death2 =
-{
+mmove_t chick_move_death2 = {
 	FRAME_death201,
 	FRAME_death223,
 	chick_frames_death2,
@@ -528,8 +517,7 @@ static mframe_t chick_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t chick_move_death1 =
-{
+mmove_t chick_move_death1 = {
 	FRAME_death101,
 	FRAME_death112,
 	chick_frames_death1,
@@ -653,8 +641,7 @@ static mframe_t chick_frames_duck[] = {
 	{ai_move, 1, NULL}
 };
 
-mmove_t chick_move_duck =
-{
+mmove_t chick_move_duck = {
 	FRAME_duck01,
 	FRAME_duck07,
 	chick_frames_duck,
@@ -846,8 +833,7 @@ static mframe_t chick_frames_start_attack1[] = {
 	{ai_charge, 0, chick_attack1}
 };
 
-mmove_t chick_move_start_attack1 =
-{
+mmove_t chick_move_start_attack1 = {
 	FRAME_attak101,
 	FRAME_attak113,
 	chick_frames_start_attack1,
@@ -871,8 +857,7 @@ static mframe_t chick_frames_attack1[] = {
 	{ai_charge, 3, chick_rerocket}
 };
 
-mmove_t chick_move_attack1 =
-{
+mmove_t chick_move_attack1 = {
 	FRAME_attak114,
 	FRAME_attak127,
 	chick_frames_attack1,
@@ -887,8 +872,7 @@ static mframe_t chick_frames_end_attack1[] = {
 	{ai_charge, -2, chick_footstep}
 };
 
-mmove_t chick_move_end_attack1 =
-{
+mmove_t chick_move_end_attack1 = {
 	FRAME_attak128,
 	FRAME_attak132,
 	chick_frames_end_attack1,
@@ -951,8 +935,7 @@ static mframe_t chick_frames_slash[] = {
 	{ai_charge, -2, chick_reslash}
 };
 
-mmove_t chick_move_slash =
-{
+mmove_t chick_move_slash = {
 	FRAME_attak204,
 	FRAME_attak212,
 	chick_frames_slash,
@@ -966,8 +949,7 @@ static mframe_t chick_frames_end_slash[] = {
 	{ai_charge, 0, chick_footstep}
 };
 
-mmove_t chick_move_end_slash =
-{
+mmove_t chick_move_end_slash = {
 	FRAME_attak213,
 	FRAME_attak216,
 	chick_frames_end_slash,
@@ -1019,8 +1001,7 @@ static mframe_t chick_frames_start_slash[] = {
 	{ai_charge, 3, chick_footstep}
 };
 
-mmove_t chick_move_start_slash =
-{
+mmove_t chick_move_start_slash = {
 	FRAME_attak201,
 	FRAME_attak203,
 	chick_frames_start_slash,

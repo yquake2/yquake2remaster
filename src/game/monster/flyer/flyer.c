@@ -141,8 +141,7 @@ static mframe_t flyer_frames_walk[] = {
 	{ai_walk, 5, NULL}
 };
 
-static const mmove_t flyer_move_walk_static =
-{
+static const mmove_t flyer_move_walk_static = {
 	FRAME_stand01,
 	FRAME_stand45,
 	flyer_frames_walk,
@@ -197,8 +196,7 @@ static mframe_t flyer_frames_run[] = {
 	{ai_run, 10, NULL}
 };
 
-static const mmove_t flyer_move_run_static =
-{
+static const mmove_t flyer_move_run_static = {
 	FRAME_stand01,
 	FRAME_stand45,
 	flyer_frames_run,
@@ -213,8 +211,7 @@ static mframe_t flyer_frames_kamizake[] = {
 	{ai_charge, 40, flyer_kamikaze_check}
 };
 
-static const mmove_t flyer_move_kamikaze_static =
-{
+static const mmove_t flyer_move_kamikaze_static = {
 	FRAME_rollr02,
 	FRAME_rollr06,
 	flyer_frames_kamizake,
@@ -373,8 +370,7 @@ static mframe_t flyer_frames_rollright[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_rollright_static =
-{
+static const mmove_t flyer_move_rollright_static = {
 	FRAME_rollr01,
 	FRAME_rollr09,
 	flyer_frames_rollright,
@@ -393,8 +389,7 @@ static mframe_t flyer_frames_rollleft[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_rollleft_static =
-{
+static const mmove_t flyer_move_rollleft_static = {
 	FRAME_rollf01,
 	FRAME_rollf09,
 	flyer_frames_rollleft,
@@ -408,8 +403,7 @@ static mframe_t flyer_frames_pain3[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_pain3_static =
-{
+static const mmove_t flyer_move_pain3_static = {
 	FRAME_pain301,
 	FRAME_pain304,
 	flyer_frames_pain3,
@@ -423,8 +417,7 @@ static mframe_t flyer_frames_pain2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_pain2_static =
-{
+static const mmove_t flyer_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain204,
 	flyer_frames_pain2,
@@ -443,8 +436,7 @@ static mframe_t flyer_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_pain1_static =
-{
+static const mmove_t flyer_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain109,
 	flyer_frames_pain1,
@@ -460,8 +452,7 @@ static mframe_t flyer_frames_defense[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_defense_static =
-{
+static const mmove_t flyer_move_defense_static = {
 	FRAME_defens01,
 	FRAME_defens06,
 	flyer_frames_defense,
@@ -478,8 +469,7 @@ static mframe_t flyer_frames_bankright[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_bankright_static =
-{
+static const mmove_t flyer_move_bankright_static = {
 	FRAME_bankr01,
 	FRAME_bankr07,
 	flyer_frames_bankright,
@@ -496,8 +486,7 @@ static mframe_t flyer_frames_bankleft[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t flyer_move_bankleft_static =
-{
+static const mmove_t flyer_move_bankleft_static = {
 	FRAME_bankl01,
 	FRAME_bankl07,
 	flyer_frames_bankleft,
@@ -588,8 +577,7 @@ static mframe_t flyer_frames_attack2[] =
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t flyer_move_attack2_static =
-{
+static const mmove_t flyer_move_attack2_static = {
 	FRAME_attak201,
 	FRAME_attak217,
 	flyer_frames_attack2,
@@ -618,8 +606,7 @@ static mframe_t flyer_frames_attack3[] =
 	{ai_charge, 10, NULL}
 };
 
-static const mmove_t flyer_move_attack3_static =
-{
+static const mmove_t flyer_move_attack3_static = {
 	FRAME_attak201,
 	FRAME_attak217,
 	flyer_frames_attack3,
@@ -665,8 +652,7 @@ static mframe_t flyer_frames_start_melee[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t flyer_move_start_melee_static =
-{
+static const mmove_t flyer_move_start_melee_static = {
 	FRAME_attak101,
 	FRAME_attak106,
 	flyer_frames_start_melee,
@@ -679,8 +665,7 @@ static mframe_t flyer_frames_end_melee[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t flyer_move_end_melee_static =
-{
+static const mmove_t flyer_move_end_melee_static = {
 	FRAME_attak119,
 	FRAME_attak121,
 	flyer_frames_end_melee,
@@ -702,8 +687,7 @@ static mframe_t flyer_frames_loop_melee[] = {
 	{ai_charge, 0, NULL}                    /* Loop Ends */
 };
 
-static const mmove_t flyer_move_loop_melee_static =
-{
+static const mmove_t flyer_move_loop_melee_static = {
 	FRAME_attak107,
 	FRAME_attak118,
 	flyer_frames_loop_melee,

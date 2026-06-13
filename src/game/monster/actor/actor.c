@@ -146,7 +146,13 @@ static mframe_t actor_frames_run [] =
 	{ai_run, -2, NULL},
 	{ai_run, -1, NULL}
 };
-mmove_t actor_move_run = {FRAME_run02, FRAME_run07, actor_frames_run, NULL};
+
+mmove_t actor_move_run = {
+	FRAME_run02,
+	FRAME_run07,
+	actor_frames_run,
+	NULL
+};
 
 void
 actor_run(edict_t *self)

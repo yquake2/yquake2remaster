@@ -29,13 +29,11 @@ static int sound_fire;
 static int sound_sight;
 
 // Stand
-static mframe_t shalrath_frames_stand [] =
-{
+static mframe_t shalrath_frames_stand [] = {
 	{ai_stand, 0, NULL},
 };
 
-mmove_t shalrath_move_stand =
-{
+mmove_t shalrath_move_stand = {
 	FRAME_attack1,
 	FRAME_attack1,
 	shalrath_frames_stand,
@@ -66,8 +64,8 @@ static mframe_t shalrath_frames_run [] =
 	{ai_run, 4, NULL},
 	{ai_run, 5, NULL}
 };
-mmove_t shalrath_move_run =
-{
+
+mmove_t shalrath_move_run = {
 	FRAME_walk1,
 	FRAME_walk12,
 	shalrath_frames_run,
@@ -211,8 +209,8 @@ static mframe_t shalrath_frames_attack [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t shalrath_move_attack =
-{
+
+mmove_t shalrath_move_attack = {
 	FRAME_attack1,
 	FRAME_attack11,
 	shalrath_frames_attack,
@@ -235,8 +233,8 @@ static mframe_t shalrath_frames_pain [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t shalrath_move_pain =
-{
+
+mmove_t shalrath_move_pain = {
 	FRAME_pain1,
 	FRAME_pain5,
 	shalrath_frames_pain,
@@ -279,8 +277,8 @@ static mframe_t shalrath_frames_death [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t shalrath_move_death =
-{
+
+mmove_t shalrath_move_death = {
 	FRAME_death1,
 	FRAME_death7,
 	shalrath_frames_death,

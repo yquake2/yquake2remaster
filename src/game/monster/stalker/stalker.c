@@ -53,8 +53,6 @@ static void stalker_false_death_start(edict_t *self);
 #define DEG2RAD(x) (x * M_PI / 180.0)
 #define FAUX_GRAVITY 800.0
 
-extern qboolean SV_PointCloseEnough(edict_t *ent, vec3_t goal, float dist);
-
 static qboolean
 stalker_ok_to_transition(edict_t *self)
 {

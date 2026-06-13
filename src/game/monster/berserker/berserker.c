@@ -108,8 +108,7 @@ static mframe_t berserk_frames_stand[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t berserk_move_stand_static =
-{
+static const mmove_t berserk_move_stand_static = {
 	FRAME_stand1,
 	FRAME_stand5,
 	berserk_frames_stand,
@@ -150,8 +149,7 @@ static mframe_t berserk_frames_stand_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t berserk_move_stand_fidget_static =
-{
+static const mmove_t berserk_move_stand_fidget_static = {
 	FRAME_standb1,
 	FRAME_standb20,
 	berserk_frames_stand_fidget,
@@ -200,8 +198,7 @@ static mframe_t berserk_frames_walk[] = {
 	{ai_walk, 4.8, NULL}
 };
 
-static const mmove_t berserk_move_walk_static =
-{
+static const mmove_t berserk_move_walk_static = {
 	FRAME_walkc1,
 	FRAME_walkc11,
 	berserk_frames_walk,
@@ -228,8 +225,7 @@ static mframe_t berserk_frames_run1[] = {
 	{ai_run, 19, NULL}
 };
 
-static const mmove_t berserk_move_run1_static =
-{
+static const mmove_t berserk_move_run1_static = {
 	FRAME_run1,
 	FRAME_run6,
 	berserk_frames_run1,
@@ -291,8 +287,7 @@ static mframe_t berserk_frames_attack_spike[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t berserk_move_attack_spike_static =
-{
+static const mmove_t berserk_move_attack_spike_static = {
 	FRAME_att_c1,
 	FRAME_att_c8,
 	berserk_frames_attack_spike,
@@ -328,8 +323,7 @@ static mframe_t berserk_frames_attack_club[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t berserk_move_attack_club_static =
-{
+static const mmove_t berserk_move_attack_club_static = {
 	FRAME_att_c9,
 	FRAME_att_c20,
 	berserk_frames_attack_club,
@@ -367,8 +361,7 @@ static mframe_t berserk_frames_attack_strike[] = {
 	{ai_move, 13.6, berserk_footstep}
 };
 
-static const mmove_t berserk_move_attack_strike_static =
-{
+static const mmove_t berserk_move_attack_strike_static = {
 	FRAME_att_c21,
 	FRAME_att_c34,
 	berserk_frames_attack_strike,
@@ -411,8 +404,7 @@ static mframe_t berserk_frames_attack_running_club[] = {
 	{ai_charge, 19, NULL}
 };
 
-static const mmove_t berserk_move_attack_running_club_static =
-{
+static const mmove_t berserk_move_attack_running_club_static = {
 	FRAME_r_att1,
 	FRAME_r_att18,
 	berserk_frames_attack_running_club,
@@ -456,8 +448,7 @@ static mframe_t berserk_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t berserk_move_pain1_static =
-{
+static const mmove_t berserk_move_pain1_static = {
 	FRAME_painc1,
 	FRAME_painc4,
 	berserk_frames_pain1,
@@ -487,8 +478,7 @@ static mframe_t berserk_frames_pain2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t berserk_move_pain2_static =
-{
+static const mmove_t berserk_move_pain2_static = {
 	FRAME_painb1,
 	FRAME_painb20,
 	berserk_frames_pain2,
@@ -563,8 +553,7 @@ static mframe_t berserk_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t berserk_move_death1_static =
-{
+static const mmove_t berserk_move_death1_static = {
 	FRAME_death1,
 	FRAME_death13,
 	berserk_frames_death1,
@@ -582,8 +571,7 @@ static mframe_t berserk_frames_death2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t berserk_move_death2_static =
-{
+static const mmove_t berserk_move_death2_static = {
 	FRAME_deathc1,
 	FRAME_deathc8,
 	berserk_frames_death2,
@@ -709,8 +697,7 @@ static mframe_t berserk_frames_jump[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t berserk_move_jump_static =
-{
+static const mmove_t berserk_move_jump_static = {
 	FRAME_jump1,
 	FRAME_jump9,
 	berserk_frames_jump,
@@ -729,8 +716,7 @@ static mframe_t berserk_frames_jump2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t berserk_move_jump2_static =
-{
+static const mmove_t berserk_move_jump2_static = {
 	FRAME_jump1,
 	FRAME_jump9,
 	berserk_frames_jump2,

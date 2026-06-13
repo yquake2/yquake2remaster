@@ -146,8 +146,7 @@ static mframe_t brain_frames_idle[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t brain_move_idle =
-{
+mmove_t brain_move_idle = {
 	FRAME_stand31,
 	FRAME_stand60,
 	brain_frames_idle,
@@ -194,8 +193,7 @@ static mframe_t brain_frames_walk1[] = {
 	{ai_walk, 2, NULL}
 };
 
-mmove_t brain_move_walk1 =
-{
+mmove_t brain_move_walk1 = {
 	FRAME_walk101,
 	FRAME_walk111,
 	brain_frames_walk1,
@@ -225,8 +223,7 @@ static mframe_t brain_frames_defense[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t brain_move_defense =
-{
+mmove_t brain_move_defense = {
 	FRAME_defens01,
 	FRAME_defens08,
 	brain_frames_defense,
@@ -242,8 +239,7 @@ static mframe_t brain_frames_pain3[] = {
 	{ai_move, -4, NULL}
 };
 
-mmove_t brain_move_pain3 =
-{
+mmove_t brain_move_pain3 = {
 	FRAME_pain301,
 	FRAME_pain306,
 	brain_frames_pain3,
@@ -261,8 +257,7 @@ static mframe_t brain_frames_pain2[] = {
 	{ai_move, -2, NULL}
 };
 
-mmove_t brain_move_pain2 =
-{
+mmove_t brain_move_pain2 = {
 	FRAME_pain201,
 	FRAME_pain208,
 	brain_frames_pain2,
@@ -293,8 +288,7 @@ static mframe_t brain_frames_pain1[] = {
 	{ai_move, -1, NULL}
 };
 
-mmove_t brain_move_pain1 =
-{
+mmove_t brain_move_pain1 = {
 	FRAME_pain101,
 	FRAME_pain121,
 	brain_frames_pain1,
@@ -365,8 +359,7 @@ static mframe_t brain_frames_duck[] = {
 	{ai_move, -6, brain_footstep}
 };
 
-mmove_t brain_move_duck =
-{
+mmove_t brain_move_duck = {
 	FRAME_duck01,
 	FRAME_duck08,
 	brain_frames_duck,
@@ -405,8 +398,7 @@ static mframe_t brain_frames_death2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t brain_move_death2 =
-{
+mmove_t brain_move_death2 = {
 	FRAME_death201,
 	FRAME_death205,
 	brain_frames_death2,
@@ -434,8 +426,7 @@ static mframe_t brain_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t brain_move_death1 =
-{
+mmove_t brain_move_death1 = {
 	FRAME_death101,
 	FRAME_death118,
 	brain_frames_death1,
@@ -523,8 +514,7 @@ static mframe_t brain_frames_attack1[] = {
 	{ai_charge, -11, brain_footstep}
 };
 
-mmove_t brain_move_attack1 =
-{
+mmove_t brain_move_attack1 = {
 	FRAME_attak101,
 	FRAME_attak118,
 	brain_frames_attack1,
@@ -601,8 +591,7 @@ static mframe_t brain_frames_attack2[] = {
 	{ai_charge, -6, NULL}
 };
 
-mmove_t brain_move_attack2 =
-{
+mmove_t brain_move_attack2 = {
 	FRAME_attak201,
 	FRAME_attak217,
 	brain_frames_attack2,
@@ -933,8 +922,7 @@ static mframe_t brain_frames_run[] = {
 	{ai_run, 2, NULL}
 };
 
-mmove_t brain_move_run =
-{
+mmove_t brain_move_run = {
 	FRAME_walk101,
 	FRAME_walk111,
 	brain_frames_run,

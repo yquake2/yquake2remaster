@@ -147,8 +147,7 @@ static mframe_t parasite_frames_start_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t parasite_move_start_fidget_static =
-{
+static const mmove_t parasite_move_start_fidget_static = {
 	FRAME_stand18,
 	FRAME_stand21,
 	parasite_frames_start_fidget,
@@ -164,8 +163,7 @@ static mframe_t parasite_frames_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t parasite_move_fidget_static =
-{
+static const mmove_t parasite_move_fidget_static = {
 	FRAME_stand22,
 	FRAME_stand27,
 	parasite_frames_fidget,
@@ -183,8 +181,7 @@ static mframe_t parasite_frames_end_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t parasite_move_end_fidget_static  =
-{
+static const mmove_t parasite_move_end_fidget_static  = {
 	FRAME_stand28,
 	FRAME_stand35,
 	parasite_frames_end_fidget,
@@ -251,8 +248,7 @@ static mframe_t parasite_frames_stand[] = {
 	{ai_stand, 0, parasite_tap}
 };
 
-static const mmove_t parasite_move_stand_static =
-{
+static const mmove_t parasite_move_stand_static = {
 	FRAME_stand01,
 	FRAME_stand17,
 	parasite_frames_stand,
@@ -280,8 +276,7 @@ static mframe_t parasite_frames_run[] = {
 	{ai_run, 25, NULL}
 };
 
-static const mmove_t parasite_move_run_static =
-{
+static const mmove_t parasite_move_run_static = {
 	FRAME_run03,
 	FRAME_run09,
 	parasite_frames_run,
@@ -293,8 +288,7 @@ static mframe_t parasite_frames_start_run[] = {
 	{ai_run, 30, NULL},
 };
 
-static const mmove_t parasite_move_start_run_static =
-{
+static const mmove_t parasite_move_start_run_static = {
 	FRAME_run01,
 	FRAME_run02,
 	parasite_frames_start_run,
@@ -310,8 +304,7 @@ static mframe_t parasite_frames_stop_run[] = {
 	{ai_run, 0, NULL}
 };
 
-static const mmove_t parasite_move_stop_run_static =
-{
+static const mmove_t parasite_move_stop_run_static = {
 	FRAME_run10,
 	FRAME_run15,
 	parasite_frames_stop_run,
@@ -364,8 +357,7 @@ static mframe_t parasite_frames_walk[] = {
 	{ai_walk, 25, NULL}
 };
 
-static const mmove_t parasite_move_walk_static =
-{
+static const mmove_t parasite_move_walk_static = {
 	FRAME_run03,
 	FRAME_run09,
 	parasite_frames_walk,
@@ -377,8 +369,7 @@ static mframe_t parasite_frames_start_walk[] = {
 	{ai_walk, 30, parasite_walk}
 };
 
-static const mmove_t parasite_move_start_walk_static =
-{
+static const mmove_t parasite_move_start_walk_static = {
 	FRAME_run01,
 	FRAME_run02,
 	parasite_frames_start_walk,
@@ -394,8 +385,7 @@ static mframe_t parasite_frames_stop_walk[] = {
 	{ai_walk, 0, NULL}
 };
 
-static const mmove_t parasite_move_stop_walk_static =
-{
+static const mmove_t parasite_move_stop_walk_static = {
 	FRAME_run10,
 	FRAME_run15,
 	parasite_frames_stop_walk,
@@ -438,8 +428,7 @@ static mframe_t parasite_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t parasite_move_pain1_static =
-{
+static const mmove_t parasite_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain111,
 	parasite_frames_pain1,
@@ -615,8 +604,7 @@ static mframe_t parasite_frames_drain[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t parasite_move_drain_static =
-{
+static const mmove_t parasite_move_drain_static = {
 	FRAME_drain01,
 	FRAME_drain18,
 	parasite_frames_drain,
@@ -658,8 +646,7 @@ static mframe_t parasite_frames_break[] = {
 	{ai_charge, 1, NULL}
 };
 
-static const mmove_t parasite_move_break_static =
-{
+static const mmove_t parasite_move_break_static = {
 	FRAME_break01,
 	FRAME_break32,
 	parasite_frames_break,
@@ -745,8 +732,7 @@ static mframe_t parasite_frames_jump_up[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t parasite_move_jump_up_static =
-{
+static const mmove_t parasite_move_jump_up_static = {
 	FRAME_jump01,
 	FRAME_jump08,
 	parasite_frames_jump_up,
@@ -764,8 +750,7 @@ static mframe_t parasite_frames_jump_down[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t parasite_move_jump_down_static =
-{
+static const mmove_t parasite_move_jump_down_static = {
 	FRAME_jump01,
 	FRAME_jump08,
 	parasite_frames_jump_down,
@@ -935,8 +920,7 @@ static mframe_t parasite_frames_death[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t parasite_move_death_static =
-{
+static const mmove_t parasite_move_death_static = {
 	FRAME_death101,
 	FRAME_death107,
 	parasite_frames_death,

@@ -10,8 +10,9 @@ for the `mmove_t` list used by savegames.
 
 ```
 # cd to stuff/mmgen
-./mmproto.sh ../../src/game > prototypes.txt
-./mmtable.sh ../../src/game > table.txt
+
+./mmproto.sh ../../src/game > ../../src/game/savegame/tables/gamemmove_decs.h
+./mmtable.sh ../../src/game > ../../src/game/savegame/tables/gamemmove_list.h
 ```
 
 Then copy the content of the output files to the

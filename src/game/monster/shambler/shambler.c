@@ -131,8 +131,7 @@ shambler_stand(edict_t* self)
 
 void shambler_walk(edict_t* self);
 
-static mframe_t shambler_frames_walk[] =
-{
+static mframe_t shambler_frames_walk[] = {
 	{ai_walk, 10, NULL}, /* FIXME: add footsteps? */
 	{ai_walk, 9, NULL},
 	{ai_walk, 9, NULL},
@@ -147,8 +146,7 @@ static mframe_t shambler_frames_walk[] =
 	{ai_walk, 5, NULL},
 };
 
-mmove_t shambler_move_walk =
-{
+mmove_t shambler_move_walk = {
 	FRAME_walk01,
 	FRAME_walk12,
 	shambler_frames_walk,
@@ -182,8 +180,7 @@ static mframe_t shambler_frames_run[] =
 	{ai_run, 20, shambler_maybe_idle},
 };
 
-mmove_t shambler_move_run =
-{
+mmove_t shambler_move_run = {
 	FRAME_run01,
 	FRAME_run06,
 	shambler_frames_run,
@@ -231,8 +228,7 @@ static mframe_t shambler_frames_pain[] = {
 	{ai_move, 0, NULL},
 };
 
-mmove_t shambler_move_pain =
-{
+mmove_t shambler_move_pain = {
 	FRAME_pain01,
 	FRAME_pain06,
 	shambler_frames_pain,
@@ -375,8 +371,7 @@ static mframe_t shambler_frames_magic[] = {
 	{ai_move, 0, NULL},
 };
 
-mmove_t shambler_attack_magic =
-{
+mmove_t shambler_attack_magic = {
 	FRAME_magic01,
 	FRAME_magic12,
 	shambler_frames_magic,
@@ -466,8 +461,7 @@ static mframe_t shambler_frames_smash[] = {
 	{ai_charge, 4},
 };
 
-mmove_t shambler_attack_smash =
-{
+mmove_t shambler_attack_smash = {
 	FRAME_smash01,
 	FRAME_smash12,
 	shambler_frames_smash,
@@ -486,8 +480,7 @@ static mframe_t shambler_frames_swingl[] = {
 	{ai_charge, 8, sham_swingl9_step},
 };
 
-mmove_t shambler_attack_swingl =
-{
+mmove_t shambler_attack_swingl = {
 	FRAME_swingl01,
 	FRAME_swingl09,
 	shambler_frames_swingl,
@@ -506,8 +499,7 @@ static mframe_t shambler_frames_swingr[] = {
 	{ai_charge, 8, sham_swingr9_step},
 };
 
-mmove_t shambler_attack_swingr =
-{
+mmove_t shambler_attack_swingr = {
 	FRAME_swingr01,
 	FRAME_swingr09,
 	shambler_frames_swingr,
@@ -619,8 +611,7 @@ static mframe_t shambler_frames_death[] = {
 	{ai_move, 0, NULL}, /* FIXME: thud? */
 };
 
-mmove_t shambler_move_death =
-{
+mmove_t shambler_move_death = {
 	FRAME_death01,
 	FRAME_death11,
 	shambler_frames_death,

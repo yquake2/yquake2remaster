@@ -151,8 +151,7 @@ static mframe_t tank_frames_stand[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t tank_move_stand_static =
-{
+static const mmove_t tank_move_stand_static = {
 	FRAME_stand01,
 	FRAME_stand30,
 	tank_frames_stand,
@@ -177,8 +176,7 @@ static mframe_t tank_frames_start_walk[] = {
 	{ai_walk, 11, tank_footstep}
 };
 
-static const mmove_t tank_move_start_walk_static =
-{
+static const mmove_t tank_move_start_walk_static = {
 	FRAME_walk01,
 	FRAME_walk04,
 	tank_frames_start_walk,
@@ -204,8 +202,7 @@ static mframe_t tank_frames_walk[] = {
 	{ai_walk, 6, tank_footstep}
 };
 
-static const mmove_t tank_move_walk_static =
-{
+static const mmove_t tank_move_walk_static = {
 	FRAME_walk05,
 	FRAME_walk20,
 	tank_frames_walk,
@@ -220,8 +217,7 @@ static mframe_t tank_frames_stop_walk[] = {
 	{ai_walk, 4, tank_footstep}
 };
 
-static const mmove_t tank_move_stop_walk_static =
-{
+static const mmove_t tank_move_stop_walk_static = {
 	FRAME_walk21,
 	FRAME_walk25,
 	tank_frames_stop_walk,
@@ -246,8 +242,7 @@ static mframe_t tank_frames_start_run[] = {
 	{ai_run, 11, tank_footstep}
 };
 
-static const mmove_t tank_move_start_run_static =
-{
+static const mmove_t tank_move_start_run_static = {
 	FRAME_walk01,
 	FRAME_walk04,
 	tank_frames_start_run,
@@ -273,8 +268,7 @@ static mframe_t tank_frames_run[] = {
 	{ai_run, 6, tank_footstep}
 };
 
-static const mmove_t tank_move_run_static =
-{
+static const mmove_t tank_move_run_static = {
 	FRAME_walk05,
 	FRAME_walk20,
 	tank_frames_run,
@@ -289,8 +283,7 @@ static mframe_t tank_frames_stop_run[] = {
 	{ai_run, 4, tank_footstep}
 };
 
-static const mmove_t tank_move_stop_run_static =
-{
+static const mmove_t tank_move_stop_run_static = {
 	FRAME_walk21,
 	FRAME_walk25,
 	tank_frames_stop_run,
@@ -338,8 +331,7 @@ static mframe_t tank_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t tank_move_pain1_static =
-{
+static const mmove_t tank_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain104,
 	tank_frames_pain1,
@@ -354,8 +346,7 @@ static mframe_t tank_frames_pain2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t tank_move_pain2_static =
-{
+static const mmove_t tank_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain205,
 	tank_frames_pain2,
@@ -381,8 +372,7 @@ static mframe_t tank_frames_pain3[] = {
 	{ai_move, 0, tank_footstep}
 };
 
-static const mmove_t tank_move_pain3_static =
-{
+static const mmove_t tank_move_pain3_static = {
 	FRAME_pain301,
 	FRAME_pain316,
 	tank_frames_pain3,
@@ -692,8 +682,7 @@ static mframe_t tank_frames_attack_blast[] = {
 	{ai_charge, 0, TankBlaster} /* 16 */
 };
 
-static const mmove_t tank_move_attack_blast_static =
-{
+static const mmove_t tank_move_attack_blast_static = {
 	FRAME_attak101,
 	FRAME_attak116,
 	tank_frames_attack_blast,
@@ -709,8 +698,7 @@ static mframe_t tank_frames_reattack_blast[] = {
 	{ai_charge, 0, TankBlaster} /* 16 */
 };
 
-static const mmove_t tank_move_reattack_blast_static =
-{
+static const mmove_t tank_move_reattack_blast_static = {
 	FRAME_attak111,
 	FRAME_attak116,
 	tank_frames_reattack_blast,
@@ -726,8 +714,7 @@ static mframe_t tank_frames_attack_post_blast[] = {
 	{ai_move, -2, tank_footstep} /* 22 */
 };
 
-static const mmove_t tank_move_attack_post_blast_static =
-{
+static const mmove_t tank_move_attack_post_blast_static = {
 	FRAME_attak117,
 	FRAME_attak122,
 	tank_frames_attack_post_blast,
@@ -813,8 +800,7 @@ static mframe_t tank_frames_attack_strike[] = {
 	{ai_move, -2, tank_footstep}
 };
 
-static const mmove_t tank_move_attack_strike_static =
-{
+static const mmove_t tank_move_attack_strike_static = {
 	FRAME_attak201,
 	FRAME_attak238,
 	tank_frames_attack_strike,
@@ -847,8 +833,7 @@ static mframe_t tank_frames_attack_pre_rocket[] = {
 	{ai_charge, -3, NULL}
 };
 
-static const mmove_t tank_move_attack_pre_rocket_static =
-{
+static const mmove_t tank_move_attack_pre_rocket_static = {
 	FRAME_attak301,
 	FRAME_attak321,
 	tank_frames_attack_pre_rocket,
@@ -867,8 +852,7 @@ static mframe_t tank_frames_attack_fire_rocket[] = {
 	{ai_charge, -1, TankRocket} /* 30 Loop End */
 };
 
-static const mmove_t tank_move_attack_fire_rocket_static =
-{
+static const mmove_t tank_move_attack_fire_rocket_static = {
 	FRAME_attak322,
 	FRAME_attak330,
 	tank_frames_attack_fire_rocket,
@@ -903,8 +887,7 @@ static mframe_t tank_frames_attack_post_rocket[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t tank_move_attack_post_rocket_static =
-{
+static const mmove_t tank_move_attack_post_rocket_static = {
 	FRAME_attak331,
 	FRAME_attak353,
 	tank_frames_attack_post_rocket,
@@ -943,8 +926,7 @@ static mframe_t tank_frames_attack_chain[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t tank_move_attack_chain_static =
-{
+static const mmove_t tank_move_attack_chain_static = {
 	FRAME_attak401,
 	FRAME_attak429,
 	tank_frames_attack_chain,
@@ -1151,8 +1133,7 @@ static mframe_t tank_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t tank_move_death_static =
-{
+static const mmove_t tank_move_death_static = {
 	FRAME_death101,
 	FRAME_death132,
 	tank_frames_death1,

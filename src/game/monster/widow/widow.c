@@ -61,13 +61,13 @@ static float sweep_angles[] = {
 vec3_t stalker_mins = {-28, -28, -18};
 vec3_t stalker_maxs = {28, 28, 18};
 
-mmove_t widow_move_attack_post_blaster;
-mmove_t widow_move_attack_post_blaster_r;
-mmove_t widow_move_attack_post_blaster_l;
-mmove_t widow_move_attack_blaster;
-mmove_t widow_move_attack_rail;
-mmove_t widow_move_attack_rail_l;
-mmove_t widow_move_attack_rail_r;
+extern mmove_t widow_move_attack_post_blaster;
+extern mmove_t widow_move_attack_post_blaster_r;
+extern mmove_t widow_move_attack_post_blaster_l;
+extern mmove_t widow_move_attack_blaster;
+extern mmove_t widow_move_attack_rail;
+extern mmove_t widow_move_attack_rail_l;
+extern mmove_t widow_move_attack_rail_r;
 
 unsigned int widow_damage_multiplier;
 

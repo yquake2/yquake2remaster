@@ -120,8 +120,7 @@ static mframe_t gladiator_frames_stand[] = {
 	{ai_stand, 0, NULL}
 };
 
-mmove_t gladiator_move_stand =
-{
+mmove_t gladiator_move_stand = {
 	FRAME_stand1,
 	FRAME_stand7,
 	gladiator_frames_stand,
@@ -158,8 +157,7 @@ static mframe_t gladiator_frames_walk[] = {
 	{ai_walk, 8, NULL}
 };
 
-mmove_t gladiator_move_walk =
-{
+mmove_t gladiator_move_walk = {
 	FRAME_walk1,
 	FRAME_walk16,
 	gladiator_frames_walk,
@@ -186,8 +184,7 @@ static mframe_t gladiator_frames_run[] = {
 	{ai_run, 13, gladiator_footstep}
 };
 
-mmove_t gladiator_move_run =
-{
+mmove_t gladiator_move_run = {
 	FRAME_run1,
 	FRAME_run6,
 	gladiator_frames_run,
@@ -254,8 +251,7 @@ static mframe_t gladiator_frames_attack_melee[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t gladiator_move_attack_melee =
-{
+mmove_t gladiator_move_attack_melee = {
 	FRAME_melee1,
 	FRAME_melee17,
 	gladiator_frames_attack_melee,
@@ -308,8 +304,7 @@ static mframe_t gladiator_frames_attack_gun[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t gladiator_move_attack_gun =
-{
+mmove_t gladiator_move_attack_gun = {
 	FRAME_attack1,
 	FRAME_attack9,
 	gladiator_frames_attack_gun,
@@ -358,8 +353,7 @@ static mframe_t gladiator_frames_pain[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t gladiator_move_pain =
-{
+mmove_t gladiator_move_pain = {
 	FRAME_pain1,
 	FRAME_pain6,
 	gladiator_frames_pain,
@@ -376,8 +370,7 @@ static mframe_t gladiator_frames_pain_air[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t gladiator_move_pain_air =
-{
+mmove_t gladiator_move_pain_air = {
 	FRAME_painup1,
 	FRAME_painup7,
 	gladiator_frames_pain_air,
@@ -474,8 +467,7 @@ static mframe_t gladiator_frames_death[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t gladiator_move_death =
-{
+mmove_t gladiator_move_death = {
 	FRAME_death1,
 	FRAME_death22,
 	gladiator_frames_death,

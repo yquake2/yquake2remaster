@@ -151,8 +151,7 @@ static mframe_t insane_frames_stand_normal[] = {
 	{ai_stand, 0, insane_checkdown}
 };
 
-mmove_t insane_move_stand_normal =
-{
+mmove_t insane_move_stand_normal = {
 	FRAME_stand60,
 	FRAME_stand65,
 	insane_frames_stand_normal,
@@ -192,8 +191,7 @@ static mframe_t insane_frames_stand_insane[] = {
 	{ai_stand, 0, insane_checkdown}
 };
 
-mmove_t insane_move_stand_insane =
-{
+mmove_t insane_move_stand_insane = {
 	FRAME_stand65,
 	FRAME_stand94,
 	insane_frames_stand_insane,
@@ -246,8 +244,7 @@ static mframe_t insane_frames_uptodown[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_uptodown =
-{
+mmove_t insane_move_uptodown = {
 	FRAME_stand1,
 	FRAME_stand40,
 	insane_frames_uptodown,
@@ -276,8 +273,7 @@ static mframe_t insane_frames_downtoup[] = {
 	{ai_move, 0, NULL}  /* 59 */
 };
 
-mmove_t insane_move_downtoup =
-{
+mmove_t insane_move_downtoup = {
 	FRAME_stand41,
 	FRAME_stand59,
 	insane_frames_downtoup,
@@ -292,8 +288,7 @@ static mframe_t insane_frames_jumpdown[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_jumpdown =
-{
+mmove_t insane_move_jumpdown = {
 	FRAME_stand96,
 	FRAME_stand100,
 	insane_frames_jumpdown,
@@ -364,8 +359,7 @@ static mframe_t insane_frames_down[] = {
 	{ai_move, 0, insane_checkup} /* 160 */
 };
 
-mmove_t insane_move_down =
-{
+mmove_t insane_move_down = {
 	FRAME_stand100,
 	FRAME_stand160,
 	insane_frames_down,
@@ -388,16 +382,14 @@ static mframe_t insane_frames_walk_normal[] = {
 	{ai_walk, 0, insane_footstep}
 };
 
-mmove_t insane_move_walk_normal =
-{
+mmove_t insane_move_walk_normal = {
 	FRAME_walk27,
 	FRAME_walk39,
 	insane_frames_walk_normal,
 	insane_walk
 };
 
-mmove_t insane_move_run_normal =
-{
+mmove_t insane_move_run_normal = {
 	FRAME_walk27,
 	FRAME_walk39,
 	insane_frames_walk_normal,
@@ -433,16 +425,14 @@ static mframe_t insane_frames_walk_insane[] = {
 	{ai_walk, 0, NULL} /* 26 */
 };
 
-mmove_t insane_move_walk_insane =
-{
+mmove_t insane_move_walk_insane = {
 	FRAME_walk1,
 	FRAME_walk26,
 	insane_frames_walk_insane,
 	insane_walk
 };
 
-mmove_t insane_move_run_insane =
-{
+mmove_t insane_move_run_insane = {
 	FRAME_walk1,
 	FRAME_walk26,
 	insane_frames_walk_insane,
@@ -463,8 +453,7 @@ static mframe_t insane_frames_stand_pain[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_stand_pain =
-{
+mmove_t insane_move_stand_pain = {
 	FRAME_st_pain2,
 	FRAME_st_pain12,
 	insane_frames_stand_pain,
@@ -491,8 +480,7 @@ static mframe_t insane_frames_stand_death[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_stand_death =
-{
+mmove_t insane_move_stand_death = {
 	FRAME_st_death2,
 	FRAME_st_death18,
 	insane_frames_stand_death,
@@ -511,16 +499,14 @@ static mframe_t insane_frames_crawl[] = {
 	{ai_walk, 2.4, NULL}
 };
 
-mmove_t insane_move_crawl =
-{
+mmove_t insane_move_crawl = {
 	FRAME_crawl1,
 	FRAME_crawl9,
 	insane_frames_crawl,
 	NULL
 };
 
-mmove_t insane_move_runcrawl =
-{
+mmove_t insane_move_runcrawl = {
 	FRAME_crawl1,
 	FRAME_crawl9,
 	insane_frames_crawl,
@@ -539,8 +525,7 @@ static mframe_t insane_frames_crawl_pain[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_crawl_pain =
-{
+mmove_t insane_move_crawl_pain = {
 	FRAME_cr_pain2,
 	FRAME_cr_pain10,
 	insane_frames_crawl_pain,
@@ -557,8 +542,7 @@ static mframe_t insane_frames_crawl_death[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_crawl_death =
-{
+mmove_t insane_move_crawl_death = {
 	FRAME_cr_death10,
 	FRAME_cr_death16,
 	insane_frames_crawl_death,
@@ -583,8 +567,7 @@ static mframe_t insane_frames_cross[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_cross =
-{
+mmove_t insane_move_cross = {
 	FRAME_cross1,
 	FRAME_cross15,
 	insane_frames_cross,
@@ -609,8 +592,7 @@ static mframe_t insane_frames_struggle_cross[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t insane_move_struggle_cross =
-{
+mmove_t insane_move_struggle_cross = {
 	FRAME_cross16,
 	FRAME_cross30,
 	insane_frames_struggle_cross,

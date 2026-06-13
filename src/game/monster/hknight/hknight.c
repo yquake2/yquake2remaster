@@ -54,8 +54,7 @@ static mframe_t hknight_frames_charge [] =
 	{ai_charge, 25,	NULL},
 	{ai_charge, 21,	NULL},
 };
-mmove_t hknight_move_charge =
-{
+mmove_t hknight_move_charge = {
 	FRAME_char_a1,
 	FRAME_char_a16,
 	hknight_frames_charge,
@@ -89,8 +88,7 @@ static mframe_t hknight_frames_run [] =
 	{ai_run, 21, NULL},
 	{ai_run, 13, NULL}
 };
-mmove_t hknight_move_run =
-{
+mmove_t hknight_move_run = {
 	FRAME_run1,
 	FRAME_run8,
 	hknight_frames_run,
@@ -223,8 +221,7 @@ static mframe_t hknight_frames_attack [] =
 	{ai_charge, 0, fire_magic_step},
 	{ai_charge, 0, fire_magic_step}
 };
-mmove_t hknight_move_attack =
-{
+mmove_t hknight_move_attack = {
 	FRAME_magicc1,
 	FRAME_magicc11,
 	hknight_frames_attack,
@@ -258,8 +255,7 @@ static mframe_t hknight_frames_slice [] =
 	{ai_charge, 0, monster_dynamic_damage},
 	{ai_charge, 3, NULL}
 };
-mmove_t hknight_move_slice =
-{
+mmove_t hknight_move_slice = {
 	FRAME_slice1,
 	FRAME_slice10,
 	hknight_frames_slice,
@@ -283,8 +279,7 @@ static mframe_t hknight_frames_smash [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, NULL}
 };
-mmove_t hknight_move_smash =
-{
+mmove_t hknight_move_smash = {
 	FRAME_smash1,
 	FRAME_smash11,
 	hknight_frames_smash,
@@ -323,8 +318,7 @@ static mframe_t hknight_frames_watk [] =
 	{ai_charge, 3, NULL},
 
 };
-mmove_t hknight_move_watk =
-{
+mmove_t hknight_move_watk = {
 	FRAME_w_attack1,
 	FRAME_w_attack22,
 	hknight_frames_watk,
@@ -359,8 +353,7 @@ static mframe_t hknight_frames_pain [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t hknight_move_pain =
-{
+mmove_t hknight_move_pain = {
 	FRAME_pain1,
 	FRAME_pain5,
 	hknight_frames_pain,
@@ -416,8 +409,7 @@ static mframe_t hknight_frames_die1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t hknight_move_die1 =
-{
+mmove_t hknight_move_die1 = {
 	FRAME_death1,
 	FRAME_death12,
 	hknight_frames_die1,
@@ -439,8 +431,7 @@ static mframe_t hknight_frames_die2 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t hknight_move_die2 =
-{
+mmove_t hknight_move_die2 = {
 	FRAME_deathb1,
 	FRAME_deathb9,
 	hknight_frames_die2,

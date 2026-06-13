@@ -172,8 +172,7 @@ static mframe_t gunner_frames_fidget[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t gunner_move_fidget_static =
-{
+static const mmove_t gunner_move_fidget_static = {
 	FRAME_stand31,
 	FRAME_stand70,
 	gunner_frames_fidget,
@@ -239,8 +238,7 @@ static mframe_t gunner_frames_stand[] = {
 	{ai_stand, 0, gunner_fidget}
 };
 
-static const mmove_t gunner_move_stand_static =
-{
+static const mmove_t gunner_move_stand_static = {
 	FRAME_stand01,
 	FRAME_stand30,
 	gunner_frames_stand,
@@ -274,8 +272,7 @@ static mframe_t gunner_frames_walk[] = {
 	{ai_walk, 4, gunner_footstep}
 };
 
-static const mmove_t gunner_move_walk_static =
-{
+static const mmove_t gunner_move_walk_static = {
 	FRAME_walk07,
 	FRAME_walk19,
 	gunner_frames_walk,
@@ -304,8 +301,7 @@ static mframe_t gunner_frames_run[] = {
 	{ai_run, 6, NULL}
 };
 
-static const mmove_t gunner_move_run_static =
-{
+static const mmove_t gunner_move_run_static = {
 	FRAME_run01,
 	FRAME_run08,
 	gunner_frames_run,
@@ -340,8 +336,7 @@ static mframe_t gunner_frames_pain3[] = {
 	{ai_move, 1, NULL}
 };
 
-static const mmove_t gunner_move_pain3_static =
-{
+static const mmove_t gunner_move_pain3_static = {
 	FRAME_pain301,
 	FRAME_pain305,
 	gunner_frames_pain3,
@@ -359,8 +354,7 @@ static mframe_t gunner_frames_pain2[] = {
 	{ai_move, -7, gunner_footstep}
 };
 
-static const mmove_t gunner_move_pain2_static =
-{
+static const mmove_t gunner_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain208,
 	gunner_frames_pain2,
@@ -388,8 +382,7 @@ static mframe_t gunner_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t gunner_move_pain1_static =
-{
+static const mmove_t gunner_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain118,
 	gunner_frames_pain1,
@@ -487,8 +480,7 @@ static mframe_t gunner_frames_death[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t gunner_move_death_static =
-{
+static const mmove_t gunner_move_death_static = {
 	FRAME_death01,
 	FRAME_death11,
 	gunner_frames_death,
@@ -635,8 +627,7 @@ static mframe_t gunner_frames_duck[] = {
 	{ai_move, -1, NULL}
 };
 
-static const mmove_t gunner_move_duck_static =
-{
+static const mmove_t gunner_move_duck_static = {
 	FRAME_duck01,
 	FRAME_duck08,
 	gunner_frames_duck,
@@ -894,8 +885,7 @@ static mframe_t gunner_frames_attack_chain[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t gunner_move_attack_chain_static =
-{
+static const mmove_t gunner_move_attack_chain_static = {
 	FRAME_attak209,
 	FRAME_attak215,
 	gunner_frames_attack_chain,
@@ -913,8 +903,7 @@ static mframe_t gunner_frames_fire_chain[] = {
 	{ai_charge, 0, GunnerFire}
 };
 
-static const mmove_t gunner_move_fire_chain_static =
-{
+static const mmove_t gunner_move_fire_chain_static = {
 	FRAME_attak216,
 	FRAME_attak223,
 	gunner_frames_fire_chain,
@@ -931,8 +920,7 @@ static mframe_t gunner_frames_endfire_chain[] = {
 	{ai_charge, 0, gunner_footstep}
 };
 
-static const mmove_t gunner_move_endfire_chain_static =
-{
+static const mmove_t gunner_move_endfire_chain_static = {
 	FRAME_attak224,
 	FRAME_attak230,
 	gunner_frames_endfire_chain,
@@ -963,8 +951,7 @@ static mframe_t gunner_frames_attack_grenade[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t gunner_move_attack_grenade_static =
-{
+static const mmove_t gunner_move_attack_grenade_static = {
 	FRAME_attak101,
 	FRAME_attak121,
 	gunner_frames_attack_grenade,
@@ -1153,8 +1140,7 @@ static mframe_t gunner_frames_jump[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t gunner_move_jump_static =
-{
+static const mmove_t gunner_move_jump_static = {
 	FRAME_jump01,
 	FRAME_jump10,
 	gunner_frames_jump,
@@ -1174,8 +1160,7 @@ static mframe_t gunner_frames_jump2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t gunner_move_jump2_static =
-{
+static const mmove_t gunner_move_jump2_static = {
 	FRAME_jump01,
 	FRAME_jump10,
 	gunner_frames_jump2,

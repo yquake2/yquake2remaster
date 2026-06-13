@@ -41,8 +41,8 @@ static mframe_t army_frames_run [] =
 	{ai_run, 10, NULL},
 	{ai_run, 8, NULL}
 };
-mmove_t army_move_run =
-{
+
+mmove_t army_move_run = {
 	FRAME_run1,
 	FRAME_run8,
 	army_frames_run,
@@ -87,8 +87,8 @@ static mframe_t army_frames_attack [] =
 
 	{ai_charge, 0, NULL}
 };
-mmove_t army_move_attack =
-{
+
+mmove_t army_move_attack = {
 	FRAME_shoot1,
 	FRAME_shoot9,
 	army_frames_attack,
@@ -131,8 +131,8 @@ static mframe_t army_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_pain1 =
-{
+
+mmove_t army_move_pain1 = {
 	FRAME_pain1,
 	FRAME_pain6,
 	army_frames_pain1,
@@ -160,8 +160,8 @@ static mframe_t army_frames_pain2 [] =
 	{ai_move, 2, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_pain2 =
-{
+
+mmove_t army_move_pain2 = {
 	FRAME_painb1,
 	FRAME_painb14,
 	army_frames_pain2,
@@ -188,8 +188,8 @@ static mframe_t army_frames_pain3 [] =
 
 	{ai_move, 2, NULL}
 };
-mmove_t army_move_pain3 =
-{
+
+mmove_t army_move_pain3 = {
 	FRAME_painc1,
 	FRAME_painc13,
 	army_frames_pain3,
@@ -253,8 +253,8 @@ static mframe_t army_frames_death1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_death1 =
-{
+
+mmove_t army_move_death1 = {
 	FRAME_death1,
 	FRAME_death10,
 	army_frames_death1,
@@ -278,8 +278,8 @@ static mframe_t army_frames_death2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t army_move_death2 =
-{
+
+mmove_t army_move_death2 = {
 	FRAME_deathc1,
 	FRAME_deathc11,
 	army_frames_death2,

@@ -39,8 +39,8 @@ static mframe_t tarbaby_frames_stand [] =
 {
 	{ai_stand, 0, tarbaby_unbounce}
 };
-mmove_t tarbaby_move_stand =
-{
+
+mmove_t tarbaby_move_stand = {
 	FRAME_walk1,
 	FRAME_walk1,
 	tarbaby_frames_stand,
@@ -88,8 +88,8 @@ static mframe_t tarbaby_frames_run [] =
 
 	{ai_run, 2, NULL}
 };
-mmove_t tarbaby_move_run =
-{
+
+mmove_t tarbaby_move_run = {
 	FRAME_run1,
 	FRAME_run25,
 	tarbaby_frames_run,
@@ -160,8 +160,8 @@ static mframe_t tarbaby_frames_fly [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t tarbaby_move_fly =
-{
+
+mmove_t tarbaby_move_fly = {
 	FRAME_fly1,
 	FRAME_fly4,
 	tarbaby_frames_fly,
@@ -185,8 +185,8 @@ static mframe_t tarbaby_frames_jump [] =
 	{ai_charge, 0, tarbaby_jump_step},
 	{ai_charge, 0, NULL}
 };
-mmove_t tarbaby_move_jump =
-{
+
+mmove_t tarbaby_move_jump = {
 	FRAME_jump1,
 	FRAME_jump6,
 	tarbaby_frames_jump,

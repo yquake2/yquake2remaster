@@ -133,8 +133,7 @@ static mframe_t jorg_frames_stand[] = {
 	{ai_stand, -14, jorg_step_right} /* 51 */
 };
 
-mmove_t jorg_move_stand =
-{
+mmove_t jorg_move_stand = {
 	FRAME_stand01,
 	FRAME_stand51,
 	jorg_frames_stand,
@@ -213,8 +212,7 @@ static mframe_t jorg_frames_run[] = {
 	{ai_run, 9, NULL}
 };
 
-mmove_t jorg_move_run =
-{
+mmove_t jorg_move_run = {
 	FRAME_walk06,
 	FRAME_walk19,
 	jorg_frames_run,
@@ -230,8 +228,7 @@ static mframe_t jorg_frames_start_walk[] = {
 	{ai_walk, 15, NULL}
 };
 
-mmove_t jorg_move_start_walk =
-{
+mmove_t jorg_move_start_walk = {
 	FRAME_walk01,
 	FRAME_walk05,
 	jorg_frames_start_walk,
@@ -255,8 +252,7 @@ static mframe_t jorg_frames_walk[] = {
 	{ai_walk, 9, NULL}
 };
 
-mmove_t jorg_move_walk =
-{
+mmove_t jorg_move_walk = {
 	FRAME_walk06,
 	FRAME_walk19,
 	jorg_frames_walk,
@@ -272,8 +268,7 @@ static mframe_t jorg_frames_end_walk[] = {
 	{ai_walk, -8, NULL}
 };
 
-mmove_t jorg_move_end_walk =
-{
+mmove_t jorg_move_end_walk = {
 	FRAME_walk20,
 	FRAME_walk25,
 	jorg_frames_end_walk,
@@ -337,8 +332,7 @@ static mframe_t jorg_frames_pain3[] = {
 	{ai_move, 0, jorg_step_right}
 };
 
-mmove_t jorg_move_pain3 =
-{
+mmove_t jorg_move_pain3 = {
 	FRAME_pain301,
 	FRAME_pain325,
 	jorg_frames_pain3,
@@ -351,8 +345,7 @@ static mframe_t jorg_frames_pain2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t jorg_move_pain2 =
-{
+mmove_t jorg_move_pain2 = {
 	FRAME_pain201,
 	FRAME_pain203,
 	jorg_frames_pain2,
@@ -365,8 +358,7 @@ static mframe_t jorg_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t jorg_move_pain1 =
-{
+mmove_t jorg_move_pain1 = {
 	FRAME_pain101,
 	FRAME_pain103,
 	jorg_frames_pain1,
@@ -426,8 +418,7 @@ static mframe_t jorg_frames_death1[] = {
 	{ai_move, 0, BossExplode} /* 50 */
 };
 
-mmove_t jorg_move_death =
-{
+mmove_t jorg_move_death = {
 	FRAME_death01,
 	FRAME_death50,
 	jorg_frames_death1,
@@ -450,8 +441,7 @@ static mframe_t jorg_frames_attack2[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t jorg_move_attack2 =
-{
+mmove_t jorg_move_attack2 = {
 	FRAME_attak201,
 	FRAME_attak213,
 	jorg_frames_attack2,
@@ -469,8 +459,7 @@ static mframe_t jorg_frames_start_attack1[] = {
 	{ai_charge, 0, NULL}
 };
 
-mmove_t jorg_move_start_attack1 =
-{
+mmove_t jorg_move_start_attack1 = {
 	FRAME_attak101,
 	FRAME_attak108,
 	jorg_frames_start_attack1,
@@ -486,8 +475,7 @@ static mframe_t jorg_frames_attack1[] = {
 	{ai_charge, 0, jorg_firebullet}
 };
 
-mmove_t jorg_move_attack1 =
-{
+mmove_t jorg_move_attack1 = {
 	FRAME_attak109,
 	FRAME_attak114,
 	jorg_frames_attack1,
@@ -501,8 +489,7 @@ static mframe_t jorg_frames_end_attack1[] = {
 	{ai_move, 0, NULL}
 };
 
-mmove_t jorg_move_end_attack1 =
-{
+mmove_t jorg_move_end_attack1 = {
 	FRAME_attak115,
 	FRAME_attak118,
 	jorg_frames_end_attack1,

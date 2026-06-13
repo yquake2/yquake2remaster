@@ -60,8 +60,7 @@ static mframe_t zombie_frames_run[] =
 	{ai_run, 8, NULL}
 };
 
-mmove_t zombie_move_run =
-{
+mmove_t zombie_move_run = {
 	FRAME_run1,
 	FRAME_run18,
 	zombie_frames_run,
@@ -190,8 +189,8 @@ static mframe_t zombie_frames_attack1 [] =
 
 	{ai_charge, 0, zombie_fire_gib_step}
 };
-mmove_t zombie_move_attack1 =
-{
+
+mmove_t zombie_move_attack1 = {
 	FRAME_atta1,
 	FRAME_atta13,
 	zombie_frames_attack1,
@@ -219,8 +218,8 @@ static mframe_t zombie_frames_attack2 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, zombie_fire_gib_step}
 };
-mmove_t zombie_move_attack2 =
-{
+
+mmove_t zombie_move_attack2 = {
 	FRAME_attb1,
 	FRAME_attb14,
 	zombie_frames_attack2,
@@ -245,8 +244,8 @@ static mframe_t zombie_frames_attack3 [] =
 	{ai_charge, 0, NULL},
 	{ai_charge, 0, zombie_fire_gib_step},
 };
-mmove_t zombie_move_attack3 =
-{
+
+mmove_t zombie_move_attack3 = {
 	FRAME_attc1,
 	FRAME_attc12,
 	zombie_frames_attack3,
@@ -299,8 +298,8 @@ static mframe_t zombie_frames_get_up [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_get_up =
-{
+
+mmove_t zombie_move_get_up = {
 	FRAME_paine12,
 	FRAME_paine30,
 	zombie_frames_get_up,
@@ -353,8 +352,7 @@ static mframe_t zombie_frames_get_up_attempt [] =
 	{ai_move, 0, zombie_get_up_attempt}
 };
 
-mmove_t zombie_move_get_up_attempt =
-{
+mmove_t zombie_move_get_up_attempt = {
 	FRAME_paine12,
 	FRAME_paine12,
 	zombie_frames_get_up_attempt,
@@ -407,8 +405,8 @@ static mframe_t zombie_frames_pain1 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain1 =
-{
+
+mmove_t zombie_move_pain1 = {
 	FRAME_paina1,
 	FRAME_paina12,
 	zombie_frames_pain1,
@@ -453,8 +451,8 @@ static mframe_t zombie_frames_pain2 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain2 =
-{
+
+mmove_t zombie_move_pain2 = {
 	FRAME_painb1,
 	FRAME_painb28,
 	zombie_frames_pain2,
@@ -487,8 +485,8 @@ static mframe_t zombie_frames_pain3 [] =
 	{ai_move, 0, NULL},
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain3 =
-{
+
+mmove_t zombie_move_pain3 = {
 	FRAME_painc1,
 	FRAME_painc18,
 	zombie_frames_pain3,
@@ -515,8 +513,8 @@ static mframe_t zombie_frames_pain4 [] =
 
 	{ai_move, 0, NULL}
 };
-mmove_t zombie_move_pain4 =
-{
+
+mmove_t zombie_move_pain4 = {
 	FRAME_paind1,
 	FRAME_paind13,
 	zombie_frames_pain4,
@@ -540,8 +538,8 @@ static mframe_t zombie_frames_fall_start [] =
 	{ai_move, 0, zombie_hit_floor},
 	{ai_move, 0, zombie_down}
 };
-mmove_t zombie_move_fall_start =
-{
+
+mmove_t zombie_move_fall_start = {
 	FRAME_paine1,
 	FRAME_paine11,
 	zombie_frames_fall_start,

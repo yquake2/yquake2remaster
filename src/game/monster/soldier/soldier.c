@@ -223,8 +223,7 @@ static mframe_t soldier_frames_stand1[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t soldier_move_stand1_static =
-{
+static const mmove_t soldier_move_stand1_static = {
 	FRAME_stand101,
 	FRAME_stand130,
 	soldier_frames_stand1,
@@ -276,8 +275,7 @@ static mframe_t soldier_frames_stand3[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t soldier_move_stand3_static =
-{
+static const mmove_t soldier_move_stand3_static = {
 	FRAME_stand301,
 	FRAME_stand339,
 	soldier_frames_stand3,
@@ -353,8 +351,7 @@ static mframe_t soldier_frames_walk1[] = {
 	{ai_walk, 0, NULL}
 };
 
-static const mmove_t soldier_move_walk1_static =
-{
+static const mmove_t soldier_move_walk1_static = {
 	FRAME_walk101,
 	FRAME_walk133,
 	soldier_frames_walk1,
@@ -374,8 +371,7 @@ static mframe_t soldier_frames_walk2[] = {
 	{ai_walk, 7, NULL}
 };
 
-static const mmove_t soldier_move_walk2_static =
-{
+static const mmove_t soldier_move_walk2_static = {
 	FRAME_walk209,
 	FRAME_walk218,
 	soldier_frames_walk2,
@@ -405,8 +401,7 @@ static mframe_t soldier_frames_start_run[] = {
 	{ai_run, 5, NULL}
 };
 
-static const mmove_t soldier_move_start_run_static =
-{
+static const mmove_t soldier_move_start_run_static = {
 	FRAME_run01,
 	FRAME_run02,
 	soldier_frames_start_run,
@@ -422,8 +417,7 @@ static mframe_t soldier_frames_run[] = {
 	{ai_run, 15, NULL}
 };
 
-static const mmove_t soldier_move_run_static =
-{
+static const mmove_t soldier_move_run_static = {
 	FRAME_run03,
 	FRAME_run08,
 	soldier_frames_run,
@@ -466,8 +460,7 @@ static mframe_t soldier_frames_pain1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_pain1_static =
-{
+static const mmove_t soldier_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain105,
 	soldier_frames_pain1,
@@ -484,8 +477,7 @@ static mframe_t soldier_frames_pain2[] = {
 	{ai_move, 2, NULL}
 };
 
-static const mmove_t soldier_move_pain2_static =
-{
+static const mmove_t soldier_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain207,
 	soldier_frames_pain2,
@@ -513,8 +505,7 @@ static mframe_t soldier_frames_pain3[] = {
 	{ai_move, 2, soldier_footstep}
 };
 
-static const mmove_t soldier_move_pain3_static =
-{
+static const mmove_t soldier_move_pain3_static = {
 	FRAME_pain301,
 	FRAME_pain318,
 	soldier_frames_pain3,
@@ -541,8 +532,7 @@ static mframe_t soldier_frames_pain4[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_pain4_static =
-{
+static const mmove_t soldier_move_pain4_static = {
 	FRAME_pain401,
 	FRAME_pain417,
 	soldier_frames_pain4,
@@ -929,8 +919,7 @@ static mframe_t soldier_frames_attack1[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldier_move_attack1_static =
-{
+static const mmove_t soldier_move_attack1_static = {
 	FRAME_attak101,
 	FRAME_attak112,
 	soldier_frames_attack1,
@@ -1034,8 +1023,7 @@ static mframe_t soldier_frames_attack2[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldier_move_attack2_static =
-{
+static const mmove_t soldier_move_attack2_static = {
 	FRAME_attak201,
 	FRAME_attak218,
 	soldier_frames_attack2,
@@ -1115,8 +1103,7 @@ static mframe_t soldier_frames_attack3[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldier_move_attack3_static =
-{
+static const mmove_t soldier_move_attack3_static = {
 	FRAME_attak301,
 	FRAME_attak309,
 	soldier_frames_attack3,
@@ -1144,8 +1131,7 @@ static mframe_t soldier_frames_attack4[] = {
 	{ai_charge, 0, soldier_footstep}
 };
 
-static const mmove_t soldier_move_attack4_static =
-{
+static const mmove_t soldier_move_attack4_static = {
 	FRAME_attak401,
 	FRAME_attak406,
 	soldier_frames_attack4,
@@ -1214,8 +1200,7 @@ static mframe_t soldier_frames_attack6[] = {
 	{ai_run, 17, soldier_attack6_refire}
 };
 
-static const mmove_t soldier_move_attack6_static =
-{
+static const mmove_t soldier_move_attack6_static = {
 	FRAME_runs01,
 	FRAME_runs14,
 	soldier_frames_attack6,
@@ -1360,8 +1345,7 @@ static mframe_t soldier_frames_duck[] = {
 	{ai_move, 5, NULL}
 };
 
-static const mmove_t soldier_move_duck_static =
-{
+static const mmove_t soldier_move_duck_static = {
 	FRAME_duck01,
 	FRAME_duck05,
 	soldier_frames_duck,
@@ -1571,8 +1555,7 @@ static mframe_t soldier_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_death1_static =
-{
+static const mmove_t soldier_move_death1_static = {
 	FRAME_death101,
 	FRAME_death136,
 	soldier_frames_death1,
@@ -1620,8 +1603,7 @@ static mframe_t soldier_frames_death2[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_death2_static =
-{
+static const mmove_t soldier_move_death2_static = {
 	FRAME_death201,
 	FRAME_death235,
 	soldier_frames_death2,
@@ -1680,8 +1662,7 @@ static mframe_t soldier_frames_death3[] = {
 	{ai_move, 0, NULL},
 };
 
-static const mmove_t soldier_move_death3_static =
-{
+static const mmove_t soldier_move_death3_static = {
 	FRAME_death301,
 	FRAME_death345,
 	soldier_frames_death3,
@@ -1749,8 +1730,7 @@ static mframe_t soldier_frames_death4[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_death4_static =
-{
+static const mmove_t soldier_move_death4_static = {
 	FRAME_death401,
 	FRAME_death453,
 	soldier_frames_death4,
@@ -1786,8 +1766,7 @@ static mframe_t soldier_frames_death5[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_death5_static =
-{
+static const mmove_t soldier_move_death5_static = {
 	FRAME_death501,
 	FRAME_death524,
 	soldier_frames_death5,
@@ -1807,8 +1786,7 @@ static mframe_t soldier_frames_death6[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_death6_static =
-{
+static const mmove_t soldier_move_death6_static = {
 	FRAME_death601,
 	FRAME_death610,
 	soldier_frames_death6,
@@ -1984,8 +1962,7 @@ static mframe_t soldier_frames_blind[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldier_move_blind_static =
-{
+static const mmove_t soldier_move_blind_static = {
 	FRAME_stand101,
 	FRAME_stand130,
 	soldier_frames_blind,
@@ -2003,8 +1980,7 @@ soldier_blind(edict_t *self)
 	self->monsterinfo.currentmove = &soldier_move_blind;
 }
 
-static const mmove_t soldierh_move_stand1_static =
-{
+static const mmove_t soldierh_move_stand1_static = {
 	FRAME_stand101,
 	FRAME_stand130,
 	soldier_frames_stand1,
@@ -2056,8 +2032,7 @@ static mframe_t soldierh_frames_stand3[] = {
 	{ai_stand, 0, NULL}
 };
 
-static const mmove_t soldierh_move_stand3_static =
-{
+static const mmove_t soldierh_move_stand3_static = {
 	FRAME_stand301,
 	FRAME_stand339,
 	soldierh_frames_stand3,
@@ -2118,8 +2093,7 @@ static mframe_t soldierh_frames_walk1[] = {
 	{ai_walk, 0, NULL}
 };
 
-static const mmove_t soldierh_move_walk1_static =
-{
+static const mmove_t soldierh_move_walk1_static = {
 	FRAME_walk101,
 	FRAME_walk133,
 	soldierh_frames_walk1,
@@ -2139,8 +2113,7 @@ static mframe_t soldierh_frames_walk2[] = {
 	{ai_walk, 7, NULL}
 };
 
-static const mmove_t soldierh_move_walk2_static =
-{
+static const mmove_t soldierh_move_walk2_static = {
 	FRAME_walk209,
 	FRAME_walk218,
 	soldierh_frames_walk2,
@@ -2165,8 +2138,7 @@ soldierh_walk(edict_t *self)
 	}
 }
 
-static const mmove_t soldierh_move_start_run_static =
-{
+static const mmove_t soldierh_move_start_run_static = {
 	FRAME_run01,
 	FRAME_run02,
 	soldier_frames_start_run,
@@ -2215,16 +2187,14 @@ soldierh_run(edict_t *self)
 	}
 }
 
-static const mmove_t soldierh_move_pain1_static =
-{
+static const mmove_t soldierh_move_pain1_static = {
 	FRAME_pain101,
 	FRAME_pain105,
 	soldier_frames_pain1,
 	soldierh_run
 };
 
-static const mmove_t soldierh_move_pain2_static =
-{
+static const mmove_t soldierh_move_pain2_static = {
 	FRAME_pain201,
 	FRAME_pain207,
 	soldier_frames_pain2,
@@ -2252,16 +2222,14 @@ static mframe_t soldierh_frames_pain3[] = {
 	{ai_move, 2, NULL}
 };
 
-static const mmove_t soldierh_move_pain3_static =
-{
+static const mmove_t soldierh_move_pain3_static = {
 	FRAME_pain301,
 	FRAME_pain318,
 	soldierh_frames_pain3,
 	soldierh_run
 };
 
-static const mmove_t soldierh_move_pain4_static =
-{
+static const mmove_t soldierh_move_pain4_static = {
 	FRAME_pain401,
 	FRAME_pain417,
 	soldier_frames_pain4,
@@ -2630,8 +2598,7 @@ static mframe_t soldierh_frames_attack1[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldierh_move_attack1_static =
-{
+static const mmove_t soldierh_move_attack1_static = {
 	FRAME_attak101,
 	FRAME_attak112,
 	soldierh_frames_attack1,
@@ -2767,8 +2734,7 @@ static mframe_t soldierh_frames_attack2[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldierh_move_attack2_static =
-{
+static const mmove_t soldierh_move_attack2_static = {
 	FRAME_attak201,
 	FRAME_attak218,
 	soldierh_frames_attack2,
@@ -2847,8 +2813,7 @@ static mframe_t soldierh_frames_attack3[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldierh_move_attack3_static =
-{
+static const mmove_t soldierh_move_attack3_static = {
 	FRAME_attak301,
 	FRAME_attak309,
 	soldierh_frames_attack3,
@@ -2875,8 +2840,7 @@ static mframe_t soldierh_frames_attack4[] = {
 	{ai_charge, 0, NULL}
 };
 
-static const mmove_t soldierh_move_attack4_static =
-{
+static const mmove_t soldierh_move_attack4_static = {
 	FRAME_attak401,
 	FRAME_attak406,
 	soldierh_frames_attack4,
@@ -2935,8 +2899,7 @@ static mframe_t soldierh_frames_attack6[] = {
 	{ai_charge, 17, soldierh_attack6_refire}
 };
 
-static const mmove_t soldierh_move_attack6_static =
-{
+static const mmove_t soldierh_move_attack6_static = {
 	FRAME_runs01,
 	FRAME_runs14,
 	soldierh_frames_attack6,
@@ -3027,8 +2990,7 @@ static mframe_t soldierh_frames_duck[] = {
 	{ai_move, 5, NULL}
 };
 
-static const mmove_t soldierh_move_duck_static =
-{
+static const mmove_t soldierh_move_duck_static = {
 	FRAME_duck01,
 	FRAME_duck05,
 	soldierh_frames_duck,
@@ -3170,16 +3132,14 @@ static mframe_t soldierh_frames_death1[] = {
 	{ai_move, 0, NULL}
 };
 
-static const mmove_t soldierh_move_death1_static =
-{
+static const mmove_t soldierh_move_death1_static = {
 	FRAME_death101,
 	FRAME_death136,
 	soldierh_frames_death1,
 	soldier_dead
 };
 
-static const mmove_t soldierh_move_death4_static =
-{
+static const mmove_t soldierh_move_death4_static = {
 	FRAME_death401,
 	FRAME_death453,
 	soldier_frames_death4,
