@@ -1031,7 +1031,7 @@ target_laser_start(edict_t *self)
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_NOT;
 	self->s.renderfx |= RF_BEAM | RF_TRANSLUCENT;
-	self->s.modelindex = 1; /* must be non-zero */
+	self->s.modelindex = MODELINDEX_WORLD; /* must be non-zero */
 
 	/* [Sam-KEX] On Q2N64, spawnflag of 128 turns it into a lightning bolt */
 	if (level.is_n64)
@@ -1449,6 +1449,11 @@ SP_target_lightramp(edict_t *self)
  * "speed"		severity of the quake (default:200)
  * "count"		duration of the quake (default:5)
  */
+
+#define SPAWNFLAGS_EARTHQUAKE_SILENT  1
+#define SPAWNFLAGS_EARTHQUAKE_TOGGLE 2
+#define SPAWNFLAGS_EARTHQUAKE_ONE_SHOT 8
+
 void
 target_earthquake_think(edict_t *self)
 {
@@ -1460,7 +1465,7 @@ target_earthquake_think(edict_t *self)
 		return;
 	}
 
-	if (!(self->spawnflags & 1))
+	if (!(self->spawnflags & SPAWNFLAGS_EARTHQUAKE_SILENT))
 	{
 		if (self->last_move_time < level.time)
 		{
@@ -1498,6 +1503,11 @@ target_earthquake_think(edict_t *self)
 		e->velocity[2] = self->speed * (100.0 / e->mass);
 	}
 
+	if (self->spawnflags & SPAWNFLAGS_EARTHQUAKE_ONE_SHOT)
+	{
+		return;
+	}
+
 	if (level.time < self->timestamp)
 	{
 		self->nextthink = level.time + FRAMETIME;
@@ -1517,9 +1527,6 @@ target_earthquake_use(edict_t *self, edict_t *other /* unused */, edict_t *activ
 	self->activator = activator;
 	self->last_move_time = 0;
 }
-
-#define SPAWNFLAGS_EARTHQUAKE_SILENT  1
-#define SPAWNFLAGS_EARTHQUAKE_TOGGLE 2
 
 void
 SP_target_earthquake(edict_t *self)
