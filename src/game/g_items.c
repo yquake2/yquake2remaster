@@ -1978,6 +1978,7 @@ GetBetterPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 				if (best_dist > diff_pos_len)
 				{
 					VectorCopy(tr_pos.endpos, best_pos);
+					best_pos[(j % 3)] += 0.125f;
 					best_dist = diff_pos_len;
 				}
 			}
@@ -2002,6 +2003,7 @@ GetBetterPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 				if (best_dist > diff_pos_len)
 				{
 					VectorCopy(tr_pos.endpos, best_pos);
+					best_pos[(j % 3)] -= 0.125f;
 					best_dist = diff_pos_len;
 				}
 			}
