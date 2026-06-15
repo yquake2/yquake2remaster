@@ -1851,20 +1851,69 @@ Weapon_Blaster(edict_t *ent)
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
-	const dmdxframegroup_t *frames;
-	int modelindex, num;
-
-	if (!ent)
+	if (!ent || !ent->client->pers.weapon || !ent->client->pers.weapon->classname)
 	{
 		return;
 	}
 
-	modelindex = FirstPersonWeaponModel(ent->client->pers.weapon);
-	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
-
-	if (frames && num)
+	if (!strcmp(ent->client->pers.weapon->classname, "weapon_pistol"))
 	{
-		Weapon_PredictFramesGeneric(ent, frames, num, Weapon_Blaster_Fire);
+		static const int pause_frames[] = {13, 40, 0};
+		static const int fire_frames[] = {5, 0};
+
+		Weapon_Generic(ent, 4, 8, 52, 55, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_goop"))
+	{
+		static const int pause_frames[] = {14, 0};
+		static const int fire_frames[] = {6, 0};
+
+		Weapon_Generic(ent, 4, 11, 51, 55, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_rifle"))
+	{
+		static const int pause_frames[] = {0};
+		static const int fire_frames[] = {7, 8, 9, 10, 11, 12, 13, 0};
+
+		Weapon_Generic(ent, 6, 20, 60, 67, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_6bshot"))
+	{
+		static const int pause_frames[] = {0};
+		static const int fire_frames[] = {6, 9, 12, 15, 18, 21, 0};
+
+		Weapon_Generic(ent, 4, 46, 84, 88, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_blaze"))
+	{
+		static const int pause_frames[] = {0};
+		static const int fire_frames[] = {
+			8, 9, 10, 11, 12, 13, 14, 15,
+			16, 17, 18, 19, 20, 21, 22, 23,
+			24, 25, 26, 27, 28, 29, 30, 31,
+			32, 33, 34, 35, 36, 37, 38, 39,
+			40, 41, 42, 43, 0
+		};
+
+		Weapon_Generic(ent, 7, 48, 79, 84, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else
+	{
+		const dmdxframegroup_t *frames;
+		int modelindex, num;
+
+		modelindex = FirstPersonWeaponModel(ent->client->pers.weapon);
+		frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);
+
+		if (frames && num)
+		{
+			Weapon_PredictFramesGeneric(ent, frames, num, Weapon_Blaster_Fire);
+		}
 	}
 }
 

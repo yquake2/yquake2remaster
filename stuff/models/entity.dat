@@ -1053,7 +1053,6 @@ trigger_cam||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none
 trigger_GSM||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|GSM Trigger|0.5|0.5|0.5|0|0|0|0|0|0|0|none|0
 weapon_3gun|models/weapons/g_3gun.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Triple Flintlock|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 weapon_bow|models/weapons/g_bow.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Bow|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
-weapon_rifle|models/weapons/g_rifle.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blunderbuss|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 weapon_sword|models/weapons/g_sword.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ancestral Sword|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 weapon_xbow|models/weapons/g_xbow.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 
