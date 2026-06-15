@@ -999,7 +999,7 @@ M_FixStuckMonster(edict_t *self)
 		return;
 	}
 
-	FixEntityPosition(self->mins, self->maxs, self, self->s.origin);
+	FixEntityPosition(self->mins, self->maxs, self, self->s.origin, MASK_SOLID);
 
 	tr = gi.trace(self->s.origin, self->mins, self->maxs, self->s.origin, self, MASK_SOLID);
 

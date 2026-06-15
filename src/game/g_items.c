@@ -1942,7 +1942,7 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
  */
 void
 FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *passedict,
-	vec3_t ent_origin)
+	vec3_t ent_origin, int contentmask)
 {
 	int i;
 
@@ -1969,7 +1969,7 @@ FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 				pos[v] = ent_origin[v] + diff[v];
 			}
 
-			tr_pos = gi.trace(pos, ent_mins, ent_maxs, ent_origin, passedict, MASK_SOLID);
+			tr_pos = gi.trace(pos, ent_mins, ent_maxs, ent_origin, passedict, contentmask);
 			if (!tr_pos.startsolid)
 			{
 				VectorCopy(tr_pos.endpos, ent_origin);
@@ -1985,7 +1985,7 @@ FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 				pos[v] = ent_origin[v] - diff[v];
 			}
 
-			tr_pos = gi.trace(pos, ent_mins, ent_maxs, ent_origin, passedict, MASK_SOLID);
+			tr_pos = gi.trace(pos, ent_mins, ent_maxs, ent_origin, passedict, contentmask);
 			if (!tr_pos.startsolid)
 			{
 				VectorCopy(tr_pos.endpos, ent_origin);
@@ -2050,7 +2050,7 @@ droptofloor(edict_t *ent)
 
 	if (tr.startsolid)
 	{
-		FixEntityPosition(ent->mins, ent->maxs, ent, ent->s.origin);
+		FixEntityPosition(ent->mins, ent->maxs, ent, ent->s.origin, MASK_SOLID);
 
 		tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
 	}

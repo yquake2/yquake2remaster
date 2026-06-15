@@ -1798,7 +1798,7 @@ TryLandmarkSpawn(const edict_t* ent, vec3_t origin, vec3_t angles)
 	}
 
 	/* originaly was origin[2] += 9 */
-	FixEntityPosition(mins, maxs, NULL, origin);
+	FixEntityPosition(mins, maxs, NULL, origin, MASK_PLAYERSOLID);
 }
 
 /*
