@@ -93,7 +93,7 @@ SV_CheckVelocity(edict_t *ent)
 		return;
 	}
 
-	if (VectorLength(ent->velocity) > sv_maxvelocity->value)
+	if (VectorLengthSquared(ent->velocity) > sv_maxvelocity->value * sv_maxvelocity->value)
 	{
 		VectorNormalize(ent->velocity);
 		VectorScale(ent->velocity, sv_maxvelocity->value, ent->velocity);
