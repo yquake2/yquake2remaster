@@ -2015,16 +2015,27 @@ void
 FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *passedict,
 	vec3_t ent_origin, int contentmask)
 {
-	vec3_t best_pos, diff;
-	float best_dist;
+	vec3_t best_pos, diff, half_diff;
+	float best_dist, half_dist;
 
 	VectorCopy(ent_origin, best_pos);
 	VectorSubtract(ent_maxs, ent_mins, diff);
 
-	best_dist = VectorLengthSquared(diff) * 2;
+	best_dist = VectorLengthSquared(diff);
 
-	best_dist = GetBetterPosition(ent_mins, ent_maxs, passedict, ent_origin,
-		diff, best_pos, best_dist, contentmask);
+	/* get half diff / entity size */
+	VectorScale(diff, 0.5, half_diff);
+
+	/* search nearest position in half of entity box */
+	half_dist = GetBetterPosition(ent_mins, ent_maxs, passedict, ent_origin,
+		half_diff, best_pos, best_dist * 4, contentmask);
+
+	if (half_dist > best_dist)
+	{
+		/* no space near to entity, search little more */
+		GetBetterPosition(ent_mins, ent_maxs, passedict, ent_origin,
+			diff, best_pos, half_dist, contentmask);
+	}
 
 	/* should be either better position or original value */
 	VectorCopy(best_pos, ent_origin);
