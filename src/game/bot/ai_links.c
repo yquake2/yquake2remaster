@@ -130,7 +130,7 @@ int AI_findNodeInRadius (int from, vec3_t org, float rad, qboolean ignoreHeight)
 			eorg[2] = 0;
 		}
 
-		if (VectorLength(eorg) > rad)
+		if (VectorLengthSquared(eorg) > rad * rad)
 		{
 			continue;
 		}
