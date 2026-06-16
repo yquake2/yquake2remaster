@@ -1940,28 +1940,21 @@ Use_Item(edict_t *ent, edict_t *other /* unused */, edict_t *activator /* unused
 /*
  * Passedict and edicts owned by passedict are explicitly not checked.
  */
-void
-FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *passedict,
-	vec3_t ent_origin, int contentmask)
+static float
+GetBetterPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *passedict,
+	const vec3_t ent_origin, const vec3_t diff, vec3_t best_pos, float best_dist,int contentmask)
 {
-	vec3_t best_pos, diff;
-	float best_dist;
-	int i;
-
-	VectorCopy(ent_origin, best_pos);
-	VectorSubtract(ent_maxs, ent_mins, diff);
-
-	best_dist = VectorLength(diff) * 2;
+	byte i;
 
 	for (i = 0; i < 3; i++)
 	{
-		int j;
+		byte j;
 
 		for (j = 0; j < 3; j++)
 		{
 			trace_t tr_pos;
 			vec3_t pos;
-			int k;
+			byte k;
 
 			VectorCopy(ent_origin, pos);
 
@@ -1981,7 +1974,7 @@ FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 				vec_t diff_pos_len;
 
 				VectorSubtract(tr_pos.endpos, ent_origin, diff_pos);
-				diff_pos_len = VectorLength(diff_pos);
+				diff_pos_len = VectorLengthSquared(diff_pos);
 				if (best_dist > diff_pos_len)
 				{
 					VectorCopy(tr_pos.endpos, best_pos);
@@ -2005,7 +1998,7 @@ FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 				vec_t diff_pos_len;
 
 				VectorSubtract(tr_pos.endpos, ent_origin, diff_pos);
-				diff_pos_len = VectorLength(diff_pos);
+				diff_pos_len = VectorLengthSquared(diff_pos);
 				if (best_dist > diff_pos_len)
 				{
 					VectorCopy(tr_pos.endpos, best_pos);
@@ -2014,6 +2007,24 @@ FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *p
 			}
 		}
 	}
+
+	return best_dist;
+}
+
+void
+FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict_t *passedict,
+	vec3_t ent_origin, int contentmask)
+{
+	vec3_t best_pos, diff;
+	float best_dist;
+
+	VectorCopy(ent_origin, best_pos);
+	VectorSubtract(ent_maxs, ent_mins, diff);
+
+	best_dist = VectorLengthSquared(diff) * 2;
+
+	best_dist = GetBetterPosition(ent_mins, ent_maxs, passedict, ent_origin,
+		diff, best_pos, best_dist, contentmask);
 
 	/* should be either better position or original value */
 	VectorCopy(best_pos, ent_origin);
