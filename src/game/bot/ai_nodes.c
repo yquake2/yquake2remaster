@@ -689,6 +689,14 @@ qboolean AI_LoadPLKFile( char *mapname )
 		return false;
 	}
 
+	if (nav.num_nodes < 0 || nav.num_nodes > MAX_NODES)
+	{
+		Com_Printf("%s: broken navigation %d nodes\n", __func__, nav.num_nodes);
+		nav.num_nodes = 0;
+		fclose(pIn);
+		return false;
+	}
+
 	if (fread(nodes, sizeof(nav_node_t), nav.num_nodes, pIn) != nav.num_nodes)
 	{
 		Com_Printf("%s: broken navigation %s file nodes\n", __func__, filename);

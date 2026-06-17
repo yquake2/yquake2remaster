@@ -182,7 +182,7 @@ AI_AddLink( int n1, int n2, int linkType)
 		return false;
 
 	//add the link
-	if (pLinks[n1].numLinks > NODES_MAX_PLINKS)
+	if (pLinks[n1].numLinks >= NODES_MAX_PLINKS)
 	{
 //		Com_Printf("MaxPlinks Reached! node:%i numPlinks:%i\n", n1, pLinks[n1].numLinks);
 		return false;
