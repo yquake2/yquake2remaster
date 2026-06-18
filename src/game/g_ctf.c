@@ -398,6 +398,8 @@ CTFTeamName(int team)
 			return "RED";
 		case CTF_TEAM2:
 			return "BLUE";
+		case CTF_NOTEAM:
+			return "SPECTATOR";
 	}
 
 	return "UNKNOWN";

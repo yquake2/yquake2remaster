@@ -4727,7 +4727,6 @@ GetMapsList(int *num)
 		if (numtmpmaps == 0)
 		{
 			Com_Printf("no maps in maps.lst\n");
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 			return NULL;
 		}
 
@@ -5001,6 +5000,7 @@ StartServer_MenuInit(void)
 		s_capturelimit_field.visible_length = 3;
 		Q_strlcpy(s_capturelimit_field.buffer, Cvar_VariableString("capturelimit"),
 			sizeof(s_capturelimit_field.buffer));
+		s_rules_box.curvalue = 3;
 	}
 	else
 	{

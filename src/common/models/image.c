@@ -24,6 +24,7 @@
  * =======================================================================
  */
 #include "../header/common.h"
+#include "models.h"
 
 #define PCX_IDENT ((0x05 << 8) + 0x0a)
 
@@ -904,6 +905,18 @@ Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
 	}
 }
 
+typedef struct
+{
+	char *old;
+	char *new;
+} img_replacement_t;
+
+/* Replacement of ReRelease images */
+static const img_replacement_t img_replacements[] = {
+	{"pics/ctfsb1.pcx", "pics/tag4.pcx"},
+	{"pics/ctfsb2.pcx", "pics/tag5.pcx"}
+};
+
 /*
  * Load only static images without animation support
  */
@@ -918,6 +931,22 @@ Mod_LoadImageWithPalette(const char *filename, byte **pic, byte **palette,
 
 	/* load the file */
 	len = FS_LoadFile(filename, (void **)&raw);
+	if (!raw || len <= 0)
+	{
+		size_t i;
+
+		/* Replace to other one if load failed */
+		for (i = 0; i < ARRLEN(img_replacements); i++)
+		{
+			if (!strcmp(filename, img_replacements[i].old))
+			{
+				Com_DPrintf("%s: tring to replace %s to %s.\n",
+					__func__, filename, img_replacements[i].new);
+				len = FS_LoadFile(img_replacements[i].new, (void **)&raw);
+				break;
+			}
+		}
+	}
 
 	if (!raw || len <= 0)
 	{

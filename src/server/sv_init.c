@@ -464,6 +464,16 @@ SV_ChooseGamemode(void)
 		choice = "coop";
 		gamemode = GAMEMODE_COOP;
 	}
+	else if (Cvar_VariableValue("ctf"))
+	{
+		if (Cvar_VariableValue("singleplayer"))
+		{
+			SV_ClearGamemodeCvar("singleplayer", msg, 0);
+		}
+
+		choice = "ctf";
+		gamemode = GAMEMODE_DM;
+	}
 	else
 	{
 		if (dedicated->value && !Cvar_VariableValue("singleplayer"))
