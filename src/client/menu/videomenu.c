@@ -42,6 +42,7 @@ static cvar_t *gl_anisotropic;
 static cvar_t *gl_msaa_samples;
 static cvar_t *gl3_colorlight;
 static cvar_t *gl4_colorlight;
+static cvar_t *gl4_bloom;
 static cvar_t *vk_dynamic;
 
 static menuframework_s s_opengl_menu = {0};
@@ -62,6 +63,7 @@ static menuslider_s s_vk_overbrightbits_slider = {0};
 static menuslider_s s_gl1_minlight_slider = {0};
 static menulist_s s_gl3_colorlight_list = {0};
 static menulist_s s_gl4_colorlight_list = {0};
+static menulist_s s_gl4_bloom_list = {0};
 static menulist_s s_vk_dynamic_list = {0};
 static menulist_s s_fs_box = {0};
 static menulist_s s_vsync_list = {0};
@@ -401,6 +403,16 @@ ApplyChanges(void *unused)
 		Cvar_SetValue("gl3_colorlight", s_gl3_colorlight_list.curvalue);
 	}
 
+	if (gl4_colorlight && gl4_colorlight->value != s_gl4_colorlight_list.curvalue)
+	{
+		Cvar_SetValue("gl4_colorlight", s_gl4_colorlight_list.curvalue);
+	}
+
+	if (gl4_bloom && gl4_bloom->value != s_gl4_bloom_list.curvalue)
+	{
+		Cvar_SetValue("r_bloom", s_gl4_bloom_list.curvalue);
+	}
+
 	/* anisotropic filtering */
 	if (s_af_list.curvalue == 0)
 	{
@@ -699,6 +711,14 @@ VID_MenuInit(void)
 			s_gl4_colorlight_list.generic.y = (y += 10);
 			s_gl4_colorlight_list.itemnames = yesno_names;
 			s_gl4_colorlight_list.curvalue = (gl4_colorlight->value != 0);
+
+			gl4_bloom = Cvar_Get("r_bloom", "1", CVAR_ARCHIVE);
+			s_gl4_bloom_list.generic.type = MTYPE_SPINCONTROL;
+			s_gl4_bloom_list.generic.name = "bloom";
+			s_gl4_bloom_list.generic.x = 0;
+			s_gl4_bloom_list.generic.y = (y += 10);
+			s_gl4_bloom_list.itemnames = yesno_names;
+			s_gl4_bloom_list.curvalue = (gl4_bloom->value != 0);
 			break;
 
 		case ref_vk:
@@ -921,6 +941,7 @@ VID_MenuInit(void)
 			Menu_AddItem(&s_opengl_menu, (void *)&s_gl4_intensity_slider);
 			Menu_AddItem(&s_opengl_menu, (void *)&s_gl4_overbrightbits_slider);
 			Menu_AddItem(&s_opengl_menu, (void *)&s_gl4_colorlight_list);
+			Menu_AddItem(&s_opengl_menu, (void *)&s_gl4_bloom_list);
 			break;
 		case ref_vk:
 			Menu_AddItem(&s_opengl_menu, (void *)&s_vk_intensity_slider);
