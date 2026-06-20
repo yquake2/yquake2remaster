@@ -56,6 +56,12 @@ PF_Unicast(const edict_t *ent, qboolean reliable)
 
 	client = svs.clients + (p - 1);
 
+	if (client->state <= cs_zombie)
+	{
+		SZ_Clear(&sv.multicast);
+		return;
+	}
+
 	if (reliable)
 	{
 		SZ_Write(&client->netchan.message, sv.multicast.data,
