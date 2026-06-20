@@ -278,7 +278,7 @@ Checked with:
 
 ### Goals, fully finished goals could be checked in [here](CHANGELOG):
 
-* [ ] soft: fix crash with md5 models in player model select and ASAN=1
+* [ ] soft: fix crash with md5 models in player model select and ASAN=1,
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,
 * [ ] soft: rework 32bit color cinema workarrounds,
@@ -291,12 +291,10 @@ Checked with:
 * [ ] soft: add fog distance effect (optional),
 * [ ] reuse memory from models cache in renders model list,
 * [ ] reuse memory from models cache for bsp,
-* [ ] game: cleanup function declarations in game save code,
 * [ ] game: fix broken base3 with sorted fields names,
 * [ ] game: code has not reset ctf flag on load saves,
 * [ ] game: code has reset thirdperson flag on load new level,
 * [ ] game: check RealBoundingBox with frame box,
-* [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
 * [ ] ReRelease: incorrect dead animation for Arachnid,
 * [ ] ReRelease: broken fire effect for Guardian.
 * [ ] ReRelease: water in basicsjam1_ziutek,
@@ -308,6 +306,7 @@ Checked with:
 * [ ] ReRelease: basicsjam1_detrohogga: fix droptofloor startsolid,
 * [ ] gl1, gl3, gl4, vk, soft: implement direction of `CS_SHADOWLIGHTS`,
 * [ ] gl3, gl4: implement color multiplication and alpha gradient for `misc_flare`,
+* [ ] gl3, gl4, vk: fix and port `r_bloom`,
 * [ ] soft: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [ ] ReRelease: single player support,
@@ -318,8 +317,7 @@ Checked with:
 
 ### Other games support goals:
 
-* [ ] Jabot: fix crash in SZ_GetSpace,
-* [ ] Jabot: dynamic allocations,
+* [ ] jabot: make count of nodes/edicts dynamic allocations,
 * [ ] Heretic 2: add swim player animation support,
 * [ ] Heretic 2: add utf8 colors and fonts support in console,
 * [ ] Heretic 2: correct obj placeholders,
@@ -339,6 +337,9 @@ Checked with:
 
 ### Fixed:
 
+* [x] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
+* [x] game: cleanup function declarations in game save code,
+* [x] Jabot: fix crash in SZ_GetSpace,
 * [x] vulkan: implement color multiplication and alpha combine or make black
       parts transparent for `misc_flare`,
 * [x] ReRelease: fix vulkan render on open door in mguhub,
