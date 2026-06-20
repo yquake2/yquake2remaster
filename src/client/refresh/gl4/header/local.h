@@ -466,8 +466,6 @@ extern void GL4_AddSkySurface(msurface_t *fa);
 // gl4_surf.c
 extern void GL4_SurfInit(void);
 extern void GL4_SurfShutdown(void);
-extern void GL4_DrawGLPoly(msurface_t *fa);
-extern void GL4_DrawGLFlowingPoly(msurface_t *fa);
 extern void GL4_DrawTriangleOutlines(void);
 extern void GL4_DrawAlphaSurfaces(void);
 extern void GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel);

@@ -759,13 +759,6 @@ R_AliasSetUpLerpData(entity_t *currententity, dmdx_t *pmdl, float backlerp)
 
 finalvert_t *finalverts = NULL, *finalverts_max = NULL;
 
-extern void (*d_pdrawspans)(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpans8_Opaque(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpans8_33(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpans8_66(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpansConstant8_33(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpansConstant8_66(const entity_t *currententity, spanpackage_t *pspanpackage);
-
 /*
 ================
 R_DrawAliasModel

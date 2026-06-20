@@ -471,9 +471,12 @@ typedef struct {
 
 extern spanpackage_t	*triangle_spans, *triangles_max;
 
-void R_PolysetDrawSpans8_33(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpans8_66(const entity_t *currententity, spanpackage_t *pspanpackage);
-void R_PolysetDrawSpans8_Opaque(const entity_t *currententity, spanpackage_t *pspanpackage);
+void R_PolysetDrawSpans8_33(const entity_t *currententity, const spanpackage_t *pspanpackage);
+void R_PolysetDrawSpans8_66(const entity_t *currententity, const spanpackage_t *pspanpackage);
+void R_PolysetDrawSpans8_Opaque(const entity_t *currententity, const spanpackage_t *pspanpackage);
+extern void (*d_pdrawspans)(const entity_t *currententity, const spanpackage_t *pspanpackage);
+void R_PolysetDrawSpansConstant8_33(const entity_t *currententity, const spanpackage_t *pspanpackage);
+void R_PolysetDrawSpansConstant8_66(const entity_t *currententity, const spanpackage_t *pspanpackage);
 
 extern byte	**warp_rowptr;
 extern int	*warp_column;

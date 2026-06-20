@@ -834,12 +834,6 @@ floater_die(edict_t *self, edict_t *inflictor /* unused */, edict_t *attacker /*
 	BecomeExplosion1(self);
 }
 
-qboolean
-floater_blocked(edict_t *self, float dist)
-{
-	return false;
-}
-
 /*
  * QUAKED monster_floater (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight
  */

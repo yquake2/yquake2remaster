@@ -275,7 +275,7 @@ key_power_core|models/items/n64/power_core/tris.md2|1.0|1.0|1.0|general|-16.0|-1
 key_yellow_key|models/items/n64/yellow_key/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Yellow Key|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 misc_fireball||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0|0|0|0|0|0|none|0
 misc_flare||1.0|1.0|1.0|general|-32|-32|-32|32|32|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Light Flare|1.0|1.0|0.0|0|0|0|0|0|0|0|none|0
-misc_hologram||1.0|1.0|1.0|general|-16|-16|0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Ship Hologram|1.0|1.0|0.0|0|0|0|0|0|0|0|none|0
+misc_hologram|models/ships/strogg1/tris.md2|1.0|1.0|1.0|general|-16|-16|0|16|16|32|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Ship Hologram|1.0|1.0|0.0|0|0|0|0|0|0|0|none|0
 misc_lavaball||1.0|1.0|1.0|general|0|0|0|0|0|0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|(N64) Lavaball|.5|.5|.5|0|0|0|0|0|0|0|none|0
 misc_model||1.0|1.0|1.0|general|-8|-8|-8|8|8|8|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 misc_player_mannequin|models/monsters/insane/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-24.0|16.0|16.0|32.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Player Mannequin|1.0|0.5|1.0|0|0|0|0|0|0|0|none|0
@@ -1034,6 +1034,24 @@ weapon_bow|models/weapons/g_bow.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|1
 weapon_rifle|models/weapons/g_rifle.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Blunderbuss|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 weapon_sword|models/weapons/g_sword.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ancestral Sword|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
 weapon_xbow|models/weapons/g_xbow.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Crossbow|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0
+
+// Infinity: The Kai'Ren Threat
+ammo_energy|models/items/ammo/energy/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ammo energy|.5|.5|.5|0|0|0|0|0|0|0|none|0
+ammo_goop|models/objects/goop/tris.md2|1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Ammo goop|.5|.5|.5|0|0|0|0|0|0|0|none|0
+item_pistol|models/weapons/g_pistol/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Item pistol|.5|.5|.5|0|0|0|0|0|0|0|none|0
+item_radar|models/items/radar/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Item Radar|.5|.5|.5|0|0|0|0|0|0|0|none|0
+misc_chair|models/objects/chair/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Chair|.5|.5|.5|100|100|0|0|0|0|0|none|0
+misc_crate|models/objects/crates/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|0.0|16.0|16.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Crate|.5|.5|.5|100|200|0|0|0|0|0|none|0
+misc_desk|models/objects/desk/tris.md2|1.0|1.0|1.0|general|-32.0|-32.0|0.0|32.0|32.0|40.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc desk|.5|.5|.5|10|400|0|0|0|0|0|none|0
+misc_drip|models/objects/drip/tris.md2|1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Drip|.5|.5|.5|0|0|0|0|0|0|0|none|0
+misc_lightning||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Lightning|.5|.5|.5|0|0|0|0|0|0|0|none|0
+misc_rain|models/objects/rain/tris.md2|1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Rain|.5|.5|.5|0|0|0|0|0|0|0|none|0
+misc_text_caption||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Misc Text Caption|.5|.5|.5|0|0|0|0|0|0|0|none|0
+monster_alienship1|models/monsters/aliens1/tris.md2|1.0|1.0|1.0|general|-34.0|-25.0|-13.0|45.0|43.0|41.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Alienship|.5|.5|.5|35|50|0|0|0|0|0|none|0
+monster_grunt1v1|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v1|.5|.5|.5|80|100|0|0|0|0|0|none|0
+monster_grunt1v2|models/monsters/grunt/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-25.0|16.0|16.0|30.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt1v2|.5|.5|.5|80|120|0|0|0|0|0|none|0
+monster_grunt2|models/monsters/grunt2/tris.md2|1.0|1.0|1.0|general|-10.0|-23.0|-25.0|12.0|22.0|52.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Grunt2|.5|.5|.5|180|100|0|0|0|0|0|none|0
+monster_screamer|models/monsters/screamer/tris.md2|1.0|1.0|1.0|general|-20.0|-20.0|-25.0|20.0|20.0|38.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Monster Screamer|.5|.5|.5|180|200|0|0|0|0|0|none|0
 
 // Quake
 air_bubbles|progs/s_bubble.spr|1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Air bubbles|0.0|0.59|0.86|0|0|0|0|0|0|0|none|0

@@ -627,7 +627,6 @@
 {"flipper_start_run", (byte *)flipper_start_run},
 {"flipper_walk", (byte *)flipper_walk},
 {"floater_attack", (byte *)floater_attack},
-{"floater_blocked", (byte *)floater_blocked},
 {"floater_dead", (byte *)floater_dead},
 {"floater_die", (byte *)floater_die},
 {"floater_fire_blaster", (byte *)floater_fire_blaster},

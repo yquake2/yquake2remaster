@@ -391,12 +391,11 @@ NET_StringToSockaddr(const char *s, struct sockaddr_storage *sadr)
 	struct addrinfo hints;
 	struct addrinfo *resultp;
 
-	memset(sadr, 0, sizeof(*sadr));
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_socktype = SOCK_DGRAM;
 	hints.ai_family = PF_UNSPEC;
 
-	strcpy(copy, s);
+	Q_strlcpy(copy, s, sizeof(copy));
 	addrs = space = copy;
 
 	if (*addrs == '[')
@@ -841,6 +840,8 @@ NET_IPSocket(char *net_interface, int port, netsrc_t type, int family)
 
 	if ((Error = getaddrinfo(Host, Service, &hints, &res)))
 	{
+		Com_Printf("%s ERROR: getaddrinfo: %s\n",
+				__func__, gai_strerror(Error));
 		return 0;
 	}
 

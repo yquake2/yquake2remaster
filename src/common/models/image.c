@@ -221,8 +221,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 		(pcx_width <= 0) ||
 		(pcx_height <= 0) ||
 		(bytes_per_line <= 0) ||
-		(pcx->color_planes <= 0) ||
-		(pcx->bits_per_pixel <= 0))
+		(pcx->color_planes == 0) ||
+		(pcx->bits_per_pixel == 0))
 	{
 		Com_Printf("%s: Bad pcx file %s: version: %d:%d, encoding: %d\n",
 			__func__, name, pcx->manufacturer, pcx->version, pcx->encoding);
@@ -833,7 +833,7 @@ Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
 		PCX_Decode(filename, raw, len, pic, palette, width, height, bitsPerPixel);
 
 		if(*pic && width && height
-			&& *width == 319 && *height == 239 && *bitsPerPixel == 8
+			&& *width == 320 && *height == 240 && *bitsPerPixel == 8
 			&& Q_strcasecmp(filename, "pics/quit.pcx") == 0
 			&& Com_BlockChecksum(raw, len) == 3329419434u)
 		{

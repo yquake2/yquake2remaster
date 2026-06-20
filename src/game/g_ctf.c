@@ -2809,7 +2809,7 @@ struct
 };
 
 static void
-CTFSay_Team_Location(edict_t *who, char *buf)
+CTFSay_Team_Location(edict_t *who, char *buf, size_t bufsize)
 {
 	edict_t *what = NULL;
 	edict_t *hot = NULL;
@@ -2878,7 +2878,7 @@ CTFSay_Team_Location(edict_t *who, char *buf)
 
 	if (!hot)
 	{
-		strcpy(buf, "nowhere");
+		Q_strlcpy(buf, "nowhere", bufsize);
 		return;
 	}
 
@@ -2921,14 +2921,14 @@ CTFSay_Team_Location(edict_t *who, char *buf)
 
 	if ((item = FindItemByClassname(hot->classname)) == NULL)
 	{
-		strcpy(buf, "nowhere");
+		Q_strlcpy(buf, "nowhere", bufsize);
 		return;
 	}
 
 	/* in water? */
 	if (who->waterlevel)
 	{
-		strcpy(buf, "in the water ");
+		Q_strlcpy(buf, "in the water ", bufsize);
 	}
 	else
 	{
@@ -2942,36 +2942,36 @@ CTFSay_Team_Location(edict_t *who, char *buf)
 	{
 		if (v[2] > 0)
 		{
-			strcat(buf, "above ");
+			Q_strlcat(buf, "above ", bufsize);
 		}
 		else
 		{
-			strcat(buf, "below ");
+			Q_strlcat(buf, "below ", bufsize);
 		}
 	}
 	else
 	{
-		strcat(buf, "near ");
+		Q_strlcat(buf, "near ", bufsize);
 	}
 
 	if (nearteam == CTF_TEAM1)
 	{
-		strcat(buf, "the red ");
+		Q_strlcat(buf, "the red ", bufsize);
 	}
 	else if (nearteam == CTF_TEAM2)
 	{
-		strcat(buf, "the blue ");
+		Q_strlcat(buf, "the blue ", bufsize);
 	}
 	else
 	{
-		strcat(buf, "the ");
+		Q_strlcat(buf, "the ", bufsize);
 	}
 
-	strcat(buf, item->pickup_name);
+	Q_strlcat(buf, item->pickup_name, bufsize);
 }
 
 static void
-CTFSay_Team_Armor(edict_t *who, char *buf)
+CTFSay_Team_Armor(edict_t *who, char *buf, size_t bufsize)
 {
 	gitem_t *item;
 	int index, cells;
@@ -2987,7 +2987,8 @@ CTFSay_Team_Armor(edict_t *who, char *buf)
 
 		if (cells)
 		{
-			sprintf(buf + strlen(buf), "%s with %i cells ",
+			snprintf(buf + strlen(buf), bufsize - strlen(buf),
+					"%s with %i cells ",
 					(power_armor_type == POWER_ARMOR_SCREEN) ?
 					"Power Screen" : "Power Shield", cells);
 		}
@@ -3003,17 +3004,18 @@ CTFSay_Team_Armor(edict_t *who, char *buf)
 		{
 			if (*buf)
 			{
-				strcat(buf, "and ");
+				Q_strlcat(buf, "and ", bufsize);
 			}
 
-			sprintf(buf + strlen(buf), "%i units of %s",
+			snprintf(buf + strlen(buf), bufsize - strlen(buf),
+					"%i units of %s",
 					who->client->pers.inventory[index], item->pickup_name);
 		}
 	}
 
 	if (!*buf)
 	{
-		strcpy(buf, "no armor");
+		Q_strlcpy(buf, "no armor", bufsize);
 	}
 }
 
@@ -3068,7 +3070,7 @@ CTFSay_Team_Weapon(edict_t *who, char *buf)
 }
 
 static void
-CTFSay_Team_Sight(edict_t *who, char *buf)
+CTFSay_Team_Sight(edict_t *who, char *buf, size_t bufsize)
 {
 	int i;
 	edict_t *targ;
@@ -3105,7 +3107,7 @@ CTFSay_Team_Sight(edict_t *who, char *buf)
 			n++;
 		}
 
-		strcpy(s2, targ->client->pers.netname);
+		Q_strlcpy(s2, targ->client->pers.netname, sizeof(s2));
 	}
 
 	if (*s2)
@@ -3120,11 +3122,11 @@ CTFSay_Team_Sight(edict_t *who, char *buf)
 			Q_strlcat(s, s2, sizeof(s));
 		}
 
-		strcpy(buf, s);
+		Q_strlcpy(buf, s, bufsize);
 	}
 	else
 	{
-		strcpy(buf, "no one");
+		Q_strlcpy(buf, "no one", bufsize);
 	}
 }
 
@@ -3158,7 +3160,7 @@ CTFSay_Team(edict_t *who, char *msg)
 			{
 				case 'l':
 				case 'L':
-					CTFSay_Team_Location(who, buf);
+					CTFSay_Team_Location(who, buf, sizeof(buf));
 
 					if (strlen(buf) + (p - outmsg) < sizeof(outmsg) - 2)
 					{
@@ -3169,7 +3171,7 @@ CTFSay_Team(edict_t *who, char *msg)
 					break;
 				case 'a':
 				case 'A':
-					CTFSay_Team_Armor(who, buf);
+					CTFSay_Team_Armor(who, buf, sizeof(buf));
 
 					if (strlen(buf) + (p - outmsg) < sizeof(outmsg) - 2)
 					{
@@ -3214,7 +3216,7 @@ CTFSay_Team(edict_t *who, char *msg)
 
 				case 'n':
 				case 'N':
-					CTFSay_Team_Sight(who, buf);
+					CTFSay_Team_Sight(who, buf, sizeof(buf));
 
 					if (strlen(buf) + (p - outmsg) < sizeof(outmsg) - 2)
 					{

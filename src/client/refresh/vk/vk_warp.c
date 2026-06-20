@@ -46,11 +46,10 @@ static float sky_min, sky_max;
  * Does a water warp on the pre-fragmented mpoly_t chain
  */
 void
-EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
+EmitWaterPolys(const msurface_t *fa, image_t *texture, const float *modelMatrix,
 			  const float *color, qboolean solid_surface)
 {
-	const mpoly_t *p;
-	mpoly_t *bp;
+	const mpoly_t *bp;
 	int i;
 
 	struct {
@@ -131,6 +130,8 @@ EmitWaterPolys(msurface_t *fa, image_t *texture, const float *modelMatrix,
 
 	for (bp = fa->polys; bp; bp = bp->next)
 	{
+		const mpoly_t *p;
+
 		p = bp;
 
 		if (Mesh_VertsRealloc(pos_vect + p->numverts))

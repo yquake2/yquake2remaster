@@ -162,10 +162,10 @@ SetAllLightFlags(msurface_t *surf)
 	}
 }
 
-void
-GL4_DrawGLPoly(msurface_t *fa)
+static void
+GL4_DrawGLPoly(const msurface_t *fa)
 {
-	mpoly_t *p = fa->polys;
+	const mpoly_t *p = fa->polys;
 
 	GL4_BindVAO(gl4state.vao3D);
 	GL4_BindVBO(gl4state.vbo3D);
@@ -173,10 +173,10 @@ GL4_DrawGLPoly(msurface_t *fa)
 	GL4_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN);
 }
 
-void
-GL4_DrawGLFlowingPoly(msurface_t *fa)
+static void
+GL4_DrawGLFlowingPoly(const msurface_t *fa)
 {
-	mpoly_t *p;
+	const mpoly_t *p;
 	float sscroll, tscroll;
 
 	p = fa->polys;
@@ -283,10 +283,10 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl4ShaderInfo
 }
 
 static void
-RenderBrushPoly(entity_t *currententity, msurface_t *fa)
+RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 {
 	int map;
-	gl4image_t *image;
+	const gl4image_t *image;
 
 	c_brush_polys++;
 
@@ -433,10 +433,10 @@ DrawTextureChains(entity_t *currententity)
 }
 
 static void
-RenderLightmappedPoly(entity_t *currententity, msurface_t *surf)
+RenderLightmappedPoly(entity_t *currententity, const msurface_t *surf)
 {
 	int map;
-	gl4image_t *image = R_TextureAnimation(currententity, surf->texinfo);
+	const gl4image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 
 	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
 	lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -476,8 +476,6 @@ static void
 DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
 {
 	int i;
-	cplane_t *pplane;
-	float dot;
 	msurface_t *psurf;
 
 	R_PushDlights(&r_newrefdef, currentmodel->nodes + currentmodel->firstnode,
@@ -497,6 +495,9 @@ DrawInlineBModel(entity_t *currententity, gl4model_t *currentmodel)
 	/* draw texture */
 	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
+		cplane_t *pplane;
+		float dot;
+
 		/* find which side of the node we are on */
 		pplane = psurf->plane;
 
@@ -534,7 +535,6 @@ void
 GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel)
 {
 	vec3_t mins, maxs;
-	int i;
 	qboolean rotated;
 
 	if (currentmodel->nummodelsurfaces == 0)
@@ -546,6 +546,8 @@ GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel)
 
 	if (e->angles[0] || e->angles[1] || e->angles[2])
 	{
+		int i;
+
 		rotated = true;
 
 		for (i = 0; i < 3; i++)
@@ -584,8 +586,6 @@ GL4_DrawBrushModel(entity_t *e, gl4model_t *currentmodel)
 		modelorg[1] = -DotProduct(temp, right);
 		modelorg[2] = DotProduct(temp, up);
 	}
-
-
 
 	//glPushMatrix();
 	hmm_mat4 oldMat = gl4state.uni3DData.transModelMat4;

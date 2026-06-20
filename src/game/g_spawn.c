@@ -1611,12 +1611,12 @@ static char *heretic2_statusbar =
  * QUAKED worldspawn (0 0 0) ?
  *
  * Only used for the world.
- * "sky"	environment map name
- * "skyaxis"	vector axis for rotating sky
- * "skyrotate"	speed of rotation in degrees/second
- * "sounds"	music cd track number
- * "gravity"	800 is default gravity
- * "message"	text to print at user logon
+ *  "sky"       environment map name
+ *  "skyaxis"	vector axis for rotating sky
+ *  "skyrotate"	speed of rotation in degrees/second
+ *  "sounds"	music cd track number
+ *  "gravity"	800 is default gravity
+ *  "message"	text to print at user logon
  */
 void
 SP_worldspawn(edict_t *ent)

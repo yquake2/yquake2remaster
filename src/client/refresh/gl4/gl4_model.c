@@ -145,7 +145,7 @@ GL4_Mod_Init(void)
 }
 
 static void
-Mod_LoadSubmodels(gl4model_t *loadmodel, byte *mod_base, lump_t *l)
+Mod_LoadSubmodels(gl4model_t *loadmodel, byte *mod_base, const lump_t *l)
 {
 	dmodel_t *in;
 	gl4model_t *out;

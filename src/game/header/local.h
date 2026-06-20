@@ -46,7 +46,7 @@
 #define svc_layout 4
 #define svc_inventory 5
 #define svc_stufftext 11
-#define svc_fog 21
+#define svc_fog 27
 
 /* ================================================================== */
 

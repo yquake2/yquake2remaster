@@ -87,26 +87,10 @@ static int m_menudepth;
 static qboolean
 M_IsGame(const char *gamename)
 {
-	const cvar_t *game, *gametype;
-	const char* current_game;
+	const cvar_t *game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
 
-	game = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
-	gametype = Cvar_Get("gametype", "", CVAR_LATCH | CVAR_SERVERINFO);
-
-	current_game = gametype->string;
-
-	/* copy game to gametype */
-	if (strcmp(game->string, gametype->string) && (
-			!strcmp(game->string, "ctf") ||
-			!strcmp(game->string, "rogue")
-	))
-	{
-		Cvar_Set("gametype", game->string);
-		current_game = game->string;
-	}
-
-	if (strcmp(current_game, gamename) == 0
-		|| (strcmp(gamename, BASEDIRNAME) == 0 && strcmp(current_game, "") == 0))
+	if (strcmp(game->string, gamename) == 0
+		|| (strcmp(gamename, BASEDIRNAME) == 0 && strcmp(game->string, "") == 0))
 	{
 		return true;
 	}
@@ -350,7 +334,7 @@ Key_GetMenuKey(int key)
 static const char *
 Default_MenuKey(menuframework_s *m, int key)
 {
-	const char *sound = NULL;
+	const char *sound_name = NULL;
 	int menu_key = Key_GetMenuKey(key);
 
 	if (m)
@@ -384,7 +368,7 @@ Default_MenuKey(menuframework_s *m, int key)
 
 			m->cursor--;
 			Menu_AdjustCursor(m, -1);
-			sound = menu_move_sound;
+			sound_name = menu_move_sound;
 		}
 		break;
 
@@ -395,7 +379,7 @@ Default_MenuKey(menuframework_s *m, int key)
 
 			m->cursor++;
 			Menu_AdjustCursor(m, 1);
-			sound = menu_move_sound;
+			sound_name = menu_move_sound;
 		}
 		break;
 
@@ -403,7 +387,7 @@ Default_MenuKey(menuframework_s *m, int key)
 		if (m)
 		{
 			Menu_SlideItem(m, -1);
-			sound = menu_move_sound;
+			sound_name = menu_move_sound;
 		}
 		break;
 
@@ -411,7 +395,7 @@ Default_MenuKey(menuframework_s *m, int key)
 		if (m)
 		{
 			Menu_SlideItem(m, 1);
-			sound = menu_move_sound;
+			sound_name = menu_move_sound;
 		}
 		break;
 
@@ -420,11 +404,11 @@ Default_MenuKey(menuframework_s *m, int key)
 		{
 			Menu_SelectItem(m);
 		}
-		sound = menu_move_sound;
+		sound_name = menu_move_sound;
 		break;
 	}
 
-	return sound;
+	return sound_name;
 }
 
 /*
@@ -973,7 +957,7 @@ static menuframework_s s_joy_menu = {0};
 static menuaction_s s_keys_actions[ARRLEN(bindnames)] = {0};
 
 static void
-M_UnbindCommand(char *command, int scope)
+M_UnbindCommand(const char *command, int scope)
 {
 	int j;
 	int begin = 0, end = K_LAST;
@@ -1008,7 +992,7 @@ M_UnbindCommand(char *command, int scope)
 }
 
 static void
-M_FindKeysForCommand(char *command, int *twokeys, int scope)
+M_FindKeysForCommand(const char *command, int *twokeys, int scope)
 {
 	int count;
 	int j;
@@ -3480,13 +3464,6 @@ ModsApplyActionFunc(void *unused)
 		// called via command buffer so that any running server has time to shutdown
 		Cbuf_AddText(va("game %s\n", modnames[s_mods_list.curvalue]));
 
-		/* replace game type only if game changed to ctf/rogue */
-		if (!strcmp("ctf", modnames[s_mods_list.curvalue]) ||
-			!strcmp("rogue", modnames[s_mods_list.curvalue]))
-		{
-			Cbuf_AddText(va("gametype %s\n", modnames[s_mods_list.curvalue]));
-		}
-
 		// start the demo cycle in the new game directory
 		menu_startdemoloop = true;
 
@@ -4317,7 +4294,7 @@ static char local_server_names[MAX_LOCAL_SERVERS][80];
 static char local_server_netadr_strings[MAX_LOCAL_SERVERS][80];
 
 void
-M_AddToServerList(netadr_t adr, char *info)
+M_AddToServerList(netadr_t adr, const char *info)
 {
 	const char *s;
 	int i;
@@ -4774,12 +4751,13 @@ GetMapsInFolderList(int *nummaps)
 
 	for (i = 0; i < num - 1; i++)
 	{
-		char scratch[200], shortname[MAX_QPATH];
 		int len;
 
 		len = strlen(list[i]);
 		if (len > 9 && len < MAX_QPATH)
 		{
+			char scratch[200], shortname[MAX_QPATH];
+
 			/* maps/ + .bsp */
 			Q_strlcpy(shortname, list[i] + 5, sizeof(shortname));
 			shortname[len - 9]  = 0;
@@ -4857,7 +4835,7 @@ GetCombinedMapsList(int *nummaps)
 	for (currpos = 0; currpos < nummaps_folder; currpos ++)
 	{
 		qboolean found;
-		char *foldername;
+		const char *foldername;
 		size_t i;
 
 		foldername = strchr(mapnames_folder[currpos], '\n');
@@ -4871,7 +4849,7 @@ GetCombinedMapsList(int *nummaps)
 		found = false;
 		for (i = 0; i < *nummaps; i++)
 		{
-			char *currname;
+			const char *currname;
 
 			currname = strchr(mapnames[i], '\n');
 			if (!currname)
@@ -5778,8 +5756,6 @@ M_Menu_DownloadOptions_f(void)
 /*
  * ADDRESS BOOK MENU
  */
-
-#define NUM_ADDRESSBOOK_ENTRIES 9
 
 static menuframework_s s_addressbook_menu = {0};
 static menufield_s s_addressbook_fields[NUM_ADDRESSBOOK_ENTRIES] = {0};

@@ -69,7 +69,7 @@ Mod_LoadAnimGroupList(dmdx_t *pheader, qboolean sequence)
 
 	for (i = 0; i < pheader->num_frames; i++)
 	{
-		daliasxframe_t *poutframe;
+		const daliasxframe_t *poutframe;
 
 		poutframe = (daliasxframe_t *) ((byte *)pheader
 			+ pheader->ofs_frames + i * pheader->framesize);

@@ -37,10 +37,10 @@ msurface_t *r_alpha_surfaces;
 vklightmapstate_t vk_lms;
 
 static void
-DrawVkPoly(msurface_t *fa, image_t *texture, const float *color)
+DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
 {
 	float sscroll, tscroll;
-	mpoly_t *p;
+	const mpoly_t *p;
 	int i;
 
 	p = fa->polys;
@@ -295,7 +295,7 @@ Draw world surfaces (mostly solid with alpha == 1.f)
 ================
 */
 static void
-DrawTextureChains(entity_t *currententity)
+DrawTextureChains(const entity_t *currententity)
 {
 	int		i;
 	msurface_t	*s;
@@ -362,7 +362,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 	qboolean is_dynamic = false;
 	unsigned lmtex = surf->lightmaptexturenum;
-	mpoly_t *p;
+	const mpoly_t *p;
 
 	for (map = 0; map < MAXLIGHTMAPS && surf->styles[map] != 255; map++)
 	{
@@ -477,7 +477,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 }
 
 static void
-R_DrawInlineBModel(entity_t *currententity, const model_t *currentmodel, float *modelMatrix)
+R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
+	const float *modelMatrix)
 {
 	int i;
 	msurface_t *psurf;

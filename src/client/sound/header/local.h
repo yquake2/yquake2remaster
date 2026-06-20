@@ -259,7 +259,7 @@ void SDL_ClearBuffer(void);
  * Caches an sample for use
  * the SDL backend
  */
-qboolean SDL_Cache(sfx_t *sfx, wavinfo_t *info, byte *data, short volume,
+qboolean SDL_Cache(sfx_t *sfx, const wavinfo_t *info, byte *data, short volume,
 				 int begin_length, int  end_length,
 				 int attack_length, int fade_length);
 
@@ -291,8 +291,8 @@ void SDL_Spatialize(channel_t *ch);
 
 #if USE_OPENAL
 
- /* Only begin attenuating sound volumes
-    when outside the FULLVOLUME range */
+/* Only begin attenuating sound volumes
+ * when outside the FULLVOLUME range */
 #define     SOUND_FULLVOLUME 1.0
 #define     SOUND_LOOPATTENUATE 0.003
 

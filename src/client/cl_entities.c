@@ -31,11 +31,12 @@ static void
 CL_AddPacketEntities(const frame_t *frame)
 {
 	float autorotate, autobob;
+	const cvar_t *game;
 	int autoanim;
 	int pnum;
 
 	/* To distinguish baseq2, xatrix and rogue. */
-	const cvar_t *gametype = Cvar_Get("gametype",  "", CVAR_LATCH | CVAR_SERVERINFO);
+	game = Cvar_Get("game",  "", CVAR_LATCH | CVAR_SERVERINFO);
 
 	/* bonus items rotate at a fixed rate */
 	autorotate = anglemod(cl.time * 0.1f);
@@ -51,7 +52,6 @@ CL_AddPacketEntities(const frame_t *frame)
 		entity_t ent = {0};
 		clientinfo_t *ci;
 		centity_t *cent;
-		int i;
 
 		s1 = &cl_parse_entities[(frame->parse_entities +
 				pnum) & (MAX_PARSE_ENTITIES - 1)];
@@ -132,7 +132,19 @@ CL_AddPacketEntities(const frame_t *frame)
 		ent.oldframe = cent->prev.frame;
 		ent.backlerp = 1.0f - cl.lerpfrac;
 
-		if (renderfx & (RF_FRAMELERP | RF_BEAM))
+		if (renderfx & RF_BEAM)
+		{
+			int i;
+
+			for (i = 0; i < 3; i++)
+			{
+				ent.origin[i] = cent->prev.origin[i] + (cl.lerpfrac *
+						(cent->current.origin[i] - cent->prev.origin[i]));
+				ent.oldorigin[i] = cent->prev.old_origin[i] + (cl.lerpfrac *
+						(cent->current.old_origin[i] - cent->prev.old_origin[i]));
+			}
+		}
+		else if (renderfx & RF_FRAMELERP)
 		{
 			/* step origin discretely, because the
 			   frames do the animation properly */
@@ -141,6 +153,8 @@ CL_AddPacketEntities(const frame_t *frame)
 		}
 		else
 		{
+			int i;
+
 			/* interpolate origin */
 			for (i = 0; i < 3; i++)
 			{
@@ -328,11 +342,13 @@ CL_AddPacketEntities(const frame_t *frame)
 		}
 		else
 		{
-			/* interpolate angles */
-			float a1, a2;
+			int i;
 
+			/* interpolate angles */
 			for (i = 0; i < 3; i++)
 			{
+				float a1, a2;
+
 				a1 = cent->current.angles[i];
 				a2 = cent->prev.angles[i];
 				ent.angles[i] = LerpAngle(a2, a1, cl.lerpfrac);
@@ -449,7 +465,7 @@ CL_AddPacketEntities(const frame_t *frame)
 			   something special */
 			if (renderfx & RF_SHELL_HALF_DAM)
 			{
-				if (strcmp(gametype->string, "rogue") == 0)
+				if (strcmp(game->string, "rogue") == 0)
 				{
 					/* ditch the half damage shell if any of red, blue, or double are on */
 					if (renderfx & (RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_DOUBLE))
@@ -461,7 +477,7 @@ CL_AddPacketEntities(const frame_t *frame)
 
 			if (renderfx & RF_SHELL_DOUBLE)
 			{
-				if (strcmp(gametype->string, "rogue") == 0)
+				if (strcmp(game->string, "rogue") == 0)
 				{
 					/* lose the yellow shell if we have a red, blue, or green shell */
 					if (renderfx & (RF_SHELL_RED | RF_SHELL_BLUE | RF_SHELL_GREEN))
@@ -509,6 +525,8 @@ CL_AddPacketEntities(const frame_t *frame)
 		{
 			if (s1->modelindex2 == CUSTOM_PLAYER_MODEL)
 			{
+				int i;
+
 				/* custom weapon */
 				ci = &cl.clientinfo[s1->skinnum & 0xff];
 				i = (s1->skinnum >> 8); /* 0 is default weapon model */
@@ -635,6 +653,7 @@ CL_AddPacketEntities(const frame_t *frame)
 			else if (effects & EF_BFG)
 			{
 				static const int bfg_lightramp[6] = {300, 400, 600, 300, 150, 75};
+				int i;
 
 				if (effects & EF_ANIM_ALLFAST)
 				{
@@ -650,6 +669,8 @@ CL_AddPacketEntities(const frame_t *frame)
 			}
 			else if (effects & EF_TRAP)
 			{
+				int i;
+
 				ent.origin[2] += 32;
 				CL_TrapParticles(&ent);
 				i = (randk() % 100) + 100;
@@ -813,7 +834,7 @@ void
 CL_CalcViewValues(void)
 {
 	int i;
-	float lerp, backlerp, ifov;
+	float lerp, ifov;
 	frame_t *oldframe, *frame;
 	player_state_t *ps, *ops;
 
@@ -851,6 +872,7 @@ CL_CalcViewValues(void)
 	{
 		/* use predicted values */
 		unsigned delta;
+		float backlerp;
 
 		backlerp = 1.0f - lerp;
 

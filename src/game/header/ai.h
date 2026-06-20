@@ -105,11 +105,11 @@ void G_SpawnAI( edict_t *ent );
 
 /* ai_items.c */
 void AI_EnemyAdded(edict_t *ent);
-void AI_EnemyRemoved(edict_t *ent);
+void AI_EnemyRemoved(const edict_t *ent);
 
 /* bot_spawn.c */
 void BOT_SpawnBot(char *team, char *name, char *skin, char *userinfo);
-void BOT_RemoveBot(char *name);
+void BOT_RemoveBot(const char *name);
 void BOT_Respawn(edict_t *self);
 
 /* ai_tools.c */

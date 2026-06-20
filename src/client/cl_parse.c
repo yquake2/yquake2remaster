@@ -53,7 +53,20 @@ static const char *svc_strings[] = {
 	"svc_packetentities",
 	"svc_deltapacketentities",
 	"svc_frame",
+
+	"svc_splitclient",
+	"svc_configblast",
+	"svc_spawnbaselineblast",
+	"svc_level_restart",
+	"svc_damage",
+	"svc_locprint",
 	"svc_fog",
+	"svc_waitingforplayers",
+	"svc_bot_chat",
+	"svc_poi",
+	"svc_help_path",
+	"svc_muzzleflash3",
+	"svc_achievement",
 };
 
 void
@@ -466,12 +479,11 @@ CL_DeltaEntity(frame_t *frame, int newnum, const entity_xstate_t *old, int bits)
  * data stream.
  */
 static void
-CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
+CL_ParsePacketEntities(const frame_t *oldframe, frame_t *newframe)
 {
-	unsigned int newnum;
 	unsigned bits;
 	centity_t *ent;
-	entity_xstate_t *oldstate = NULL;
+	const entity_xstate_t *oldstate = NULL;
 	int oldindex, oldnum;
 
 	newframe->parse_entities = cl.parse_entities;
@@ -502,6 +514,8 @@ CL_ParsePacketEntities(frame_t *oldframe, frame_t *newframe)
 
 	while (1)
 	{
+		unsigned int newnum;
+
 		newnum = CL_ParseEntityBits(&bits);
 
 		if (newnum > MAX_CL_ENTNUM)
@@ -847,7 +861,7 @@ CL_ParsePlayerstate(frame_t *oldframe, frame_t *newframe, int protocol)
 }
 
 static void
-CL_FireEntityEvents(frame_t *frame)
+CL_FireEntityEvents(const frame_t *frame)
 {
 	int pnum;
 
@@ -1136,7 +1150,6 @@ CL_ParseServerData(void)
 		(!*str && (fs_gamedirvar->string && !*fs_gamedirvar->string)))
 	{
 		Cvar_Set("game", str);
-		Cvar_Set("gametype", str);
 	}
 
 	/* parse player entity number */
@@ -1178,10 +1191,8 @@ CL_ParseBaseline(void)
 void
 CL_LoadClientinfo(clientinfo_t *ci, char *s)
 {
-	int i;
 	char *t;
 	char model_name[MAX_QPATH];
-	char skin_name[MAX_QPATH];
 	char model_filename[MAX_QPATH];
 	char skin_filename[MAX_QPATH];
 	char weapon_filename[MAX_QPATH];
@@ -1213,6 +1224,9 @@ CL_LoadClientinfo(clientinfo_t *ci, char *s)
 	}
 	else
 	{
+		char skin_name[MAX_QPATH];
+		int i;
+
 		/* isolate the model name */
 		Q_strlcpy(model_name, s, sizeof(model_name));
 		t = strstr(model_name, "/");
@@ -1667,7 +1681,6 @@ CL_ParseStartSoundPacket(void)
 void
 CL_ParseServerMessage(void)
 {
-	int cmd;
 	char *s;
 	int i;
 
@@ -1685,6 +1698,8 @@ CL_ParseServerMessage(void)
 	/* parse the message */
 	while (1)
 	{
+		int cmd;
+
 		if (net_message.readcount > net_message.cursize)
 		{
 			Com_Error(ERR_DROP, "%s: Bad server message", __func__);
@@ -1705,8 +1720,8 @@ CL_ParseServerMessage(void)
 		switch (cmd)
 		{
 			default:
-				Com_Error(ERR_DROP, "%s: Illegible server message (%d %d)\n",
-					__func__, cls.serverProtocol, cmd);
+				Com_Error(ERR_DROP, "%s: Illegible server message 0x%02x\n",
+					__func__, cmd);
 				return;
 
 			case svc_nop:

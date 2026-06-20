@@ -72,7 +72,7 @@ V_ClearScene(void)
 }
 
 void
-V_AddEntity(entity_t *ent)
+V_AddEntity(const entity_t *ent)
 {
 	if (r_numentities >= MAX_ENTITIES)
 	{
@@ -235,14 +235,16 @@ V_AddLightStyle(int style, float r, float g, float b)
 static void
 V_TestParticles(void)
 {
-	particle_t *p;
-	int i, j;
-	float d, r, u;
+	int i;
 
 	r_numparticles = MAX_PARTICLES;
 
 	for (i = 0; i < r_numparticles; i++)
 	{
+		float d, r, u;
+		particle_t *p;
+		int j;
+
 		d = i * 0.25f;
 		r = 4 * ((i & 7) - 3.5f);
 		u = 4 * (((i >> 3) & 7) - 3.5f);
@@ -266,15 +268,17 @@ V_TestParticles(void)
 static void
 V_TestEntities(void)
 {
-	int i, j;
-	float f, r;
-	entity_t *ent;
+	int i;
 
 	r_numentities = 32;
 	memset(r_entities, 0, sizeof(r_entities));
 
 	for (i = 0; i < r_numentities; i++)
 	{
+		entity_t *ent;
+		float f, r;
+		int j;
+
 		ent = &r_entities[i];
 
 		r = 64.0f * ((float)(i % 4) - 1.5f);
@@ -630,15 +634,15 @@ entitycmpfnc(const entity_t *a, const entity_t *b)
 static void
 V_Render3dCrosshair(void)
 {
-	trace_t crosshair_trace;
-	vec3_t end;
-
 	crosshair_3d = Cvar_Get("crosshair_3d", "0", CVAR_ARCHIVE);
 	crosshair_3d_glow = Cvar_Get("crosshair_3d_glow", "0", CVAR_ARCHIVE);
 
+	if(crosshair_3d->value || crosshair_3d_glow->value)
+	{
+		trace_t crosshair_trace;
+		vec3_t end;
 
-	if(crosshair_3d->value || crosshair_3d_glow->value){
-		VectorMA(cl.refdef.vieworg, 8192, cl.v_forward,end);
+		VectorMA(cl.refdef.vieworg, 8192, cl.v_forward, end);
 		crosshair_trace = CL_PMTrace(cl.refdef.vieworg, vec3_origin, vec3_origin, end);
 
 		if(crosshair_3d_glow->value){

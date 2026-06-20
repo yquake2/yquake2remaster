@@ -58,7 +58,7 @@ GetLittleLong(void)
 }
 
 static void
-FindNextChunk(char *name)
+FindNextChunk(const char *name)
 {
 	while (1)
 	{

@@ -39,6 +39,9 @@
 #define	PARTICLE_GRAVITY 40
 #define INSTANT_PARTICLE -10000.0
 
+// Number of entries in server addressbook.
+#define NUM_ADDRESSBOOK_ENTRIES 9
+
 #include <math.h>
 #include <string.h>
 #include <stdarg.h>
@@ -433,10 +436,10 @@ void CL_FlameEffects(vec3_t origin);
 void CL_GenericParticleEffect(vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count, int numcolors, int dirspread, float alphavel);	// unused
 void CL_BubbleTrail2(vec3_t start, vec3_t end, int dist);
-void CL_Heatbeam(vec3_t start, vec3_t end);
+void CL_Heatbeam(vec3_t start, vec3_t forward);
 void CL_ParticleSteamEffect (vec3_t org, vec3_t dir, unsigned int basecolor, unsigned int finalcolor,
 	int count, int magnitude);
-void CL_TrackerTrail(vec3_t start, vec3_t end, unsigned int particleColor);
+void CL_TrackerTrail(vec3_t start, vec3_t end, unsigned int color);
 void CL_Tracker_Explode(vec3_t origin);	// unused
 void CL_TagTrail(vec3_t start, vec3_t end, int color);
 void CL_ColorFlash(vec3_t pos, int ent, float intensity, float r, float g, float b);
@@ -537,7 +540,7 @@ extern	struct model_s	*gun_model;
 
 void V_Init(void);
 void V_RenderView(float stereo_separation);
-void V_AddEntity(entity_t *ent);
+void V_AddEntity(const entity_t *ent);
 void V_AddParticle(vec3_t org, unsigned int color, float alpha);
 void V_AddLight(vec3_t org, float intensity, float r, float g, float b);
 void V_AddLightStyle(int style, float r, float g, float b);
@@ -567,7 +570,7 @@ void M_Keydown(int key);
 void M_Draw(void);
 void M_Menu_Main_f(void);
 void M_ForceMenuOff(void);
-void M_AddToServerList(netadr_t adr, char *info);
+void M_AddToServerList(netadr_t adr, const char *info);
 
 void CL_ParseInventory(void);
 void CL_DrawInventory(void);

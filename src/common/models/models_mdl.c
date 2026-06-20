@@ -365,8 +365,8 @@ Mod_LoadModel_MDL(const char *mod_name, const void *buffer, int modfilelen)
 
 			for (k = 0; k < frames_skip; k ++)
 			{
+				const dtrivertx_t *pinvertx;
 				dxtrivertx_t* poutvertx;
-				dtrivertx_t *pinvertx;
 				daliasframe_t *frame;
 				int j;
 

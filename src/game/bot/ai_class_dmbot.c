@@ -42,7 +42,6 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 {
 	int next_node_flags = 0;
 	int	current_link_type = 0;
-	int i;
 
 	if (self->ai->next_node < 0)
 	{
@@ -72,6 +71,8 @@ BOT_DMclass_Move(edict_t *self, usercmd_t *ucmd)
 	}
 	else if (next_node_flags & NODEFLAGS_PLATFORM)
 	{
+		int i;
+
 		// is lift down?
 		for (i = 0; i < nav.num_ents; i++)
 		{
@@ -472,27 +473,34 @@ BOT_DMclass_FindEnemy(edict_t *self)
 static qboolean
 BOT_DMClass_ChangeWeapon(edict_t *ent, gitem_t *item)
 {
-	int			ammo_index;
-	gitem_t		*ammo_item;
-
 	// see if we're already using it
 	if (!item || item == ent->client->pers.weapon)
+	{
 		return true;
+	}
 
 	// Has not picked up weapon yet
 	if (!ent->client->pers.inventory[ITEM_INDEX(item)])
+	{
 		return false;
+	}
 
 	// Do we have ammo for it?
 	if (item->ammo)
 	{
+		const gitem_t *ammo_item;
+		int ammo_index;
+
 		ammo_item = FindItem(item->ammo);
 		ammo_index = ITEM_INDEX(ammo_item);
-		if ( !ent->client->pers.inventory[ammo_index] && !g_select_empty->value )
+		if (!ent->client->pers.inventory[ammo_index] &&
+			!g_select_empty->value)
+		{
 			return false;
+		}
 	}
 
-	// Change to this weapon
+	/* Change to this weapon */
 	ent->client->newweapon = item;
 	ent->ai->changeweapon_timeout = level.time + 6.0;
 
@@ -525,18 +533,23 @@ BOT_DMclass_ChooseWeapon(edict_t *self)
 	dist = VectorLength(v);
 
 	if (dist < 150)
+	{
 		weapon_range = AIWEAP_MELEE_RANGE;
-
+	}
 	else if (dist < 500)	//Medium range limit is Grenade Laucher range
+	{
 		weapon_range = AIWEAP_SHORT_RANGE;
-
+	}
 	else if (dist < 900)
+	{
 		weapon_range = AIWEAP_MEDIUM_RANGE;
-
+	}
 	else
+	{
 		weapon_range = AIWEAP_LONG_RANGE;
+	}
 
-	for(i=0; i<WEAP_TOTAL; i++)
+	for (i = 0; i < WEAP_TOTAL; i++)
 	{
 		if (!AIWeapons[i].weaponItem)
 			continue;
@@ -705,7 +718,7 @@ BOT_DMclass_WeightPlayers(edict_t *self)
 // find needed flag
 //==========================================
 static gitem_t *
-BOT_DMclass_WantedFlag (edict_t *self)
+BOT_DMclass_WantedFlag(const edict_t *self)
 {
 	qboolean hasflag;
 
@@ -768,9 +781,9 @@ BOT_DMclass_WantedFlag (edict_t *self)
 static void
 BOT_DMclass_WeightInventory(edict_t *self)
 {
-	float		LowNeedFactor = 0.5;
-	gclient_t	*client;
-	int			i;
+	float LowNeedFactor = 0.5;
+	const gclient_t *client;
+	int i;
 
 	client = self->client;
 
@@ -840,9 +853,13 @@ BOT_DMclass_WeightInventory(edict_t *self)
 	//-----------------------------------------------------
 
 	//weight weapon down if bot already has it
-	for (i=0; i<WEAP_TOTAL; i++) {
-		if ( AIWeapons[i].weaponItem && client->pers.inventory[ITEM_INDEX(AIWeapons[i].weaponItem)])
+	for (i = 0; i < WEAP_TOTAL; i++)
+	{
+		if (AIWeapons[i].weaponItem &&
+			client->pers.inventory[ITEM_INDEX(AIWeapons[i].weaponItem)])
+		{
 			self->ai->status.inventoryWeights[ITEM_INDEX(AIWeapons[i].weaponItem)] *= LowNeedFactor;
+		}
 	}
 
 	//ARMOR
@@ -877,15 +894,20 @@ BOT_DMclass_WeightInventory(edict_t *self)
 	//-----------------------------------------------------
 	if (ctf->value)
 	{
-		gitem_t		*wantedFlag;
+		const gitem_t *wantedFlag;
 
 		wantedFlag = BOT_DMclass_WantedFlag( self ); //Returns the flag gitem_t
 
 		//flags have weights defined inside persistant inventory. Remove weight from the unwanted one/s.
 		if (blueflag && blueflag != wantedFlag)
+		{
 			self->ai->status.inventoryWeights[ITEM_INDEX(blueflag)] = 0.0;
+		}
+
 		if (redflag && redflag != wantedFlag)
+		{
 			self->ai->status.inventoryWeights[ITEM_INDEX(redflag)] = 0.0;
+		}
 	}
 }
 

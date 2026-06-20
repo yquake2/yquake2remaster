@@ -297,6 +297,5 @@ R_GenStripIndexes(unsigned short *data, unsigned from, unsigned to)
 		*data =  i - 1;
 		data ++;
 		*data =  i;
-		data ++;
 	}
 }

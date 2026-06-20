@@ -33,7 +33,7 @@
 void
 GL4_EmitWaterPolys(msurface_t *fa)
 {
-	mpoly_t *bp;
+	const mpoly_t *bp;
 
 	float sscroll, tscroll = 0.0f;
 

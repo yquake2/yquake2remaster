@@ -49,7 +49,7 @@ Mod_LoadPicReplaceTile(byte *pic, int line, const char* name,
 		{
 			if ((bitsPerPixel == 8) && palette)
 			{
-				byte *src;
+				const byte *src;
 				int y;
 
 				src = sub_pic;
@@ -114,7 +114,7 @@ Mod_LoadPicReplaceTile(byte *pic, int line, const char* name,
 
 static byte *
 Mod_LoadBKImage(const char *mod_name, int texture_index, byte *buffer, int modfilelen,
-	int *width, int *height)
+	int *pwidth, int *pheight)
 {
 	const dbksprite_t *sprin;
 	dbksprite_t header;
@@ -159,8 +159,8 @@ Mod_LoadBKImage(const char *mod_name, int texture_index, byte *buffer, int modfi
 	Com_DPrintf("%s: %s has %dx%d size\n",
 			__func__, mod_name, header.width, header.height);
 
-	*width = header.width;
-	*height = header.height;
+	*pwidth = header.width;
+	*pheight = header.height;
 	pic = malloc(header.width * header.height * 4);
 	YQ2_COM_CHECK_OOM(pic, "malloc()", header.width * header.height * 4)
 	if (!pic)
@@ -205,8 +205,8 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 {
 	const dq1sprite_t pinsprite;
 	const byte *curr_pos;
-	int i, size;
 	byte *pic;
+	int i;
 
 	if (modfilelen < sizeof(pinsprite))
 	{
@@ -236,6 +236,7 @@ Mod_LoadSPRImage(const char *mod_name, int texture_index, byte *buffer, int modf
 	for (i = 0; i < pinsprite.nframes; i++)
 	{
 		int skin_type;
+		size_t size;
 
 		/* skip type / int */
 		/* 0 = simple, !0 = group */
@@ -357,8 +358,9 @@ Mod_LoadBSPImage(const char *mod_name, int texture_index, byte *raw, int len,
 
 	if (ident == BSPHL1VERSION)
 	{
-		byte *src, *dst, *palette;
+		const byte *src, *palette;
 		size_t i, palette_offset;
+		byte *dst;
 
 		/*
 		 * Half-Life 1 stored custom palette information for each mip texture,

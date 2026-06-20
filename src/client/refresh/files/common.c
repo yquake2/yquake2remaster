@@ -106,11 +106,11 @@ Com_Printf(const char *msg, ...)
 }
 
 void
-Com_DPrintf(const char *msg, ...)
+Com_DPrintf(const char *fmt, ...)
 {
 	va_list argptr;
-	va_start(argptr, msg);
-	ri.Com_VPrintf(PRINT_DEVELOPER, msg, argptr);
+	va_start(argptr, fmt);
+	ri.Com_VPrintf(PRINT_DEVELOPER, fmt, argptr);
 	va_end(argptr);
 }
 

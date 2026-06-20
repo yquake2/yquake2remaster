@@ -221,7 +221,7 @@ RE_Draw_PicScaled
 void
 RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *alttext)
 {
-	image_t *vk;
+	const image_t *vk;
 
 	vk = R_FindPic(name, (findimage_t)Vk_FindImage);
 	if (!vk)

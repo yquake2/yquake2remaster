@@ -245,7 +245,7 @@ Field_ResetCursor(menuframework_s *m)
 }
 
 qboolean
-Field_Key(menufield_s *f, int key)
+Field_Key(menufield_s *field, int key)
 {
 	char txt[256];
 
@@ -253,24 +253,24 @@ Field_Key(menufield_s *f, int key)
 	{
 		if (key == 'l')
 		{
-			*f->buffer = '\0';
-			f->cursor = 0;
+			*field->buffer = '\0';
+			field->cursor = 0;
 
 			return true;
 		}
 
 		if (key == 'c' || key == 'x')
 		{
-			if (*f->buffer != '\0')
+			if (*field->buffer != '\0')
 			{
-				if (IN_SetClipboardText(f->buffer))
+				if (IN_SetClipboardText(field->buffer))
 				{
 					Com_Printf("Copying menu field to clipboard failed.\n");
 				}
 				else if (key == 'x')
 				{
-					*f->buffer = '\0';
-					f->cursor = 0;
+					*field->buffer = '\0';
+					field->cursor = 0;
 				}
 			}
 
@@ -283,12 +283,12 @@ Field_Key(menufield_s *f, int key)
 
 			if (*txt != '\0')
 			{
-				if ((f->generic.flags & QMF_NUMBERSONLY) && !Q_strisnum(txt))
+				if ((field->generic.flags & QMF_NUMBERSONLY) && !Q_strisnum(txt))
 				{
 					return false;
 				}
 
-				f->cursor += Q_strins(f->buffer, txt, f->cursor, f->length);
+				field->cursor += Q_strins(field->buffer, txt, field->cursor, field->length);
 			}
 		}
 
@@ -299,44 +299,44 @@ Field_Key(menufield_s *f, int key)
 	{
 		case K_KP_LEFTARROW:
 		case K_LEFTARROW:
-			if (f->cursor > 0)
+			if (field->cursor > 0)
 			{
-				f->cursor--;
+				field->cursor--;
 			}
 			break;
 
 		case K_KP_RIGHTARROW:
 		case K_RIGHTARROW:
-			if (f->buffer[f->cursor] != '\0')
+			if (field->buffer[field->cursor] != '\0')
 			{
-				f->cursor++;
+				field->cursor++;
 			}
 			break;
 
 		case K_BACKSPACE:
-			if (f->cursor > 0)
+			if (field->cursor > 0)
 			{
-				Q_strdel(f->buffer, f->cursor - 1, 1);
-				f->cursor--;
+				Q_strdel(field->buffer, field->cursor - 1, 1);
+				field->cursor--;
 			}
 			break;
 
 		case K_END:
-			if (f->buffer[f->cursor] == '\0')
+			if (field->buffer[field->cursor] == '\0')
 			{
-				f->cursor = 0;
+				field->cursor = 0;
 			}
 			else
 			{
-				f->cursor = strlen(f->buffer);
+				field->cursor = strlen(field->buffer);
 			}
 			break;
 
 		case K_KP_DEL:
 		case K_DEL:
-			if (f->buffer[f->cursor] != '\0')
+			if (field->buffer[field->cursor] != '\0')
 			{
-				Q_strdel(f->buffer, f->cursor, 1);
+				Q_strdel(field->buffer, field->cursor, 1);
 			}
 			break;
 
@@ -352,7 +352,7 @@ Field_Key(menufield_s *f, int key)
 				return false;
 			}
 
-			if (!isdigit(key) && (f->generic.flags & QMF_NUMBERSONLY))
+			if (!isdigit(key) && (field->generic.flags & QMF_NUMBERSONLY))
 			{
 				return false;
 			}
@@ -360,7 +360,7 @@ Field_Key(menufield_s *f, int key)
 			*txt = key;
 			*(txt + 1) = '\0';
 
-			f->cursor += Q_strins(f->buffer, txt, f->cursor, f->length);
+			field->cursor += Q_strins(field->buffer, txt, field->cursor, field->length);
 	}
 
 	return true;
@@ -383,14 +383,14 @@ Menu_AddItem(menuframework_s *menu, void *item)
  * slot.
  */
 void
-Menu_AdjustCursor(menuframework_s *m, int dir)
+Menu_AdjustCursor(menuframework_s *menu, int dir)
 {
-	menucommon_s *citem = NULL;
+	const menucommon_s *citem = NULL;
 
 	/* see if it's in a valid spot */
-	if ((m->cursor >= 0) && (m->cursor < m->nitems))
+	if ((menu->cursor >= 0) && (menu->cursor < menu->nitems))
 	{
-		if ((citem = Menu_ItemAtCursor(m)) != 0)
+		if ((citem = Menu_ItemAtCursor(menu)) != 0)
 		{
 			if (citem->type != MTYPE_SEPARATOR &&
 				(citem->flags & QMF_INACTIVE) != QMF_INACTIVE)
@@ -402,31 +402,31 @@ Menu_AdjustCursor(menuframework_s *m, int dir)
 
 	/* it's not in a valid spot, so crawl in the direction
 	   indicated until we find a valid spot */
-    int cursor = m->nitems;
+    int cursor = menu->nitems;
 
     while (cursor-- > 0)
     {
-		citem = Menu_ItemAtCursor(m);
+		citem = Menu_ItemAtCursor(menu);
 
 		if (citem)
 		{
 			if (citem->type != MTYPE_SEPARATOR &&
-			(citem->flags & QMF_INACTIVE) != QMF_INACTIVE)
+				(citem->flags & QMF_INACTIVE) != QMF_INACTIVE)
 			{
 				break;
 			}
 		}
 
-		m->cursor += dir;
+		menu->cursor += dir;
 
-		if (m->cursor >= m->nitems)
+		if (menu->cursor >= menu->nitems)
 		{
-			m->cursor = 0;
+			menu->cursor = 0;
 		}
 
-		if (m->cursor < 0)
+		if (menu->cursor < 0)
 		{
-			m->cursor = m->nitems - 1;
+			menu->cursor = menu->nitems - 1;
 		}
 	}
 }
@@ -617,9 +617,9 @@ Menu_SelectItem(menuframework_s *s)
 }
 
 void
-Menu_SetStatusBar(menuframework_s *m, const char *string)
+Menu_SetStatusBar(menuframework_s *menu, const char *string)
 {
-	m->statusbar = string;
+	menu->statusbar = string;
 }
 
 void

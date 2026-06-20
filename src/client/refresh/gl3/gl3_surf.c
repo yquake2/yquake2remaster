@@ -163,10 +163,10 @@ SetAllLightFlags(msurface_t *surf)
 	}
 }
 
-void
-GL3_DrawGLPoly(msurface_t *fa)
+static void
+GL3_DrawGLPoly(const msurface_t *fa)
 {
-	mpoly_t *p = fa->polys;
+	const mpoly_t *p = fa->polys;
 
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
@@ -174,10 +174,10 @@ GL3_DrawGLPoly(msurface_t *fa)
 	GL3_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN);
 }
 
-void
-GL3_DrawGLFlowingPoly(msurface_t *fa)
+static void
+GL3_DrawGLFlowingPoly(const msurface_t *fa)
 {
-	mpoly_t *p;
+	const mpoly_t *p;
 	float sscroll, tscroll;
 
 	p = fa->polys;

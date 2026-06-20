@@ -144,7 +144,7 @@ OGG_InitTrackList(void)
 
 	const char* potMusicDirs[3] = {0};
 	char gameMusicDir[MAX_QPATH] = {0}; // e.g. "xatrix/music"
-	cvar_t* gameCvar = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
+	const cvar_t* gameCvar = Cvar_Get("game", "", CVAR_LATCH | CVAR_SERVERINFO);
 
 	if (gameCvar->string[0] == '\0' || strcmp(BASEDIRNAME, gameCvar->string) == 0)
 	{
@@ -528,7 +528,7 @@ OGG_PlayTrack(const char *track, qboolean cdtrack, qboolean immediate)
 	case 1:			// play once
 	{
 		return;
-	} break;
+	};
 	case 2:			// sequential
 	{
 		newtrack = (curtrack + 1) % (ogg_maxfileindex + 1) != 0 ? (curtrack + 1) : 2;

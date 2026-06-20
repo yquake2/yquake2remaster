@@ -375,7 +375,8 @@ CL_Packet_f(void)
 {
 	char send[2048];
 	size_t i, l;
-	char *in, *out;
+	const char *in;
+	char *out;
 	netadr_t adr;
 
 	if (Cmd_Argc() != 3)
@@ -506,9 +507,8 @@ CL_PingServers_f(void)
 	int i;
 	netadr_t adr;
 	char name[32];
-	const char *adrstring;
-	cvar_t *noudp;
-	cvar_t *noipx;
+	const cvar_t *noudp;
+	const cvar_t *noipx;
 
 	memset(&adr, 0, sizeof(adr));
 	NET_Config(true);  /* allow remote but do we even need lokal pings? */
@@ -540,8 +540,10 @@ CL_PingServers_f(void)
 	}
 
 	/* send a packet to each address book entry */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < NUM_ADDRESSBOOK_ENTRIES; i++)
 	{
+		const char *adrstring;
+
 		Com_sprintf(name, sizeof(name), "adr%i", i);
 		adrstring = Cvar_VariableString(name);
 
@@ -603,7 +605,7 @@ CL_ConnectionlessPacket(void)
 
 		for(int i = 1; i < Cmd_Argc(); i++)
 		{
-			char *p = Cmd_Argv(i);
+			const char *p = Cmd_Argv(i);
 
 			if(!strncmp(p, "dlserver=", 9))
 			{

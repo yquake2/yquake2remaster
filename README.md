@@ -31,7 +31,15 @@ Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 * Saves format is unstable and could change between alpha releases.
 * MacOS build is only build tested and run is not checked.
 
-Models support:
+### Building from Source
+
+If you downloaded the Source Code (ZIP) directly from GitHub, please note that GitHub does
+not include submodules in these archives. To build the project successfully, you have two options:
+
+ * Follow the step-by-step instructions for a [lightweight setup](doc/020_installation.md#minimal-test-run-on-debian)
+ * Use CMake without submodules.
+
+### Models support:
 
 | Format | Original Game   | Frame vertex | Meshes   | Comments                                |
 | ------ | --------------- | ------------ | -------- | --------------------------------------- |
@@ -53,7 +61,7 @@ Models support:
 
 All models support only single texture for all meshes and frames limit based on game protocol.
 
-Texture support:
+### Texture support:
 
 | Format | Original Game  | Comments |
 | ------ | -------------- | -------- |
@@ -68,7 +76,7 @@ Texture support:
 | jpg    | retexturing    | 24 bit   |
 | bmp    | Daikatana      | 24 bit   |
 
-Sprites support:
+### Sprites support:
 
 | Format | Original Game  | Comments                                       |
 | ------ | -------------- | ---------------------------------------------- |
@@ -79,7 +87,7 @@ Sprites support:
 | png    |                | Convert to sp2                                 |
 | tga    | ReRelease      | Convert to sp2                                 |
 
-Maps support:
+### Maps support:
 
 | Format | Version | Game                                       |
 | ------ | ------- | ------------------------------------------ |
@@ -92,7 +100,7 @@ Maps support:
 | QBSP   | 38      | Quake 2 ReRelease                          |
 | BSPX   | 38      | Quake 2 ReRelease (Extension to IBSP)      |
 
-Sound support:
+### Sound support:
 
 | Format | Music | Effects |
 | ------ | ----- | ------- |
@@ -100,7 +108,7 @@ Sound support:
 | ogg    | Yes   | Yes     |
 | mp3    | No    | Yes     |
 
-Package file support:
+### Package file support:
 
 | Format | Description                        |
 | ------ | ---------------------------------- |
@@ -120,7 +128,7 @@ Note:
 * If you like support some other maps type, create pull request for Mod_Load2QBSP
    function and provide a link to demo maps.
 
-Dynamic frame names:
+### Dynamic frame names:
 
 | group   | monster | player | description   |
 | ------- | ------- | ------ | ------------- |
@@ -152,7 +160,7 @@ Dynamic frame names:
 | wave    |    N    |    Y   |               |
 | walk    |    Y    |        |               |
 
-Games:
+### Games:
 
 * Quake 2 ReRelease:
   * SDK: <https://github.com/id-Software/quake2-rerelease-dll>
@@ -182,6 +190,8 @@ Games:
 * Dawn of Darkness:
   * Docs: <https://www.moddb.com/mods/dawn-of-darkness1/downloads/dod-mood-scripts-gsm-tutorials-fgd-and-def-file>
   * Demo: [Episode 1](https://www.moddb.com/mods/dawn-of-darkness1/downloads/dawn-of-darkness-episode-1)
+* Infinity: The Kai'Ren Threat
+  * Demo: [Demo maps](https://www.moddb.com/mods/infinity-the-kairen-threat/downloads/infinity-demo)
 * JaBot:
   * SDK: <https://www.moddb.com/mods/jabotq2/downloads/jabot-q2-v09x-win32-and-linux>
 * Additional maps used for check maps support:
@@ -190,13 +200,17 @@ Games:
   * ReRelease Basic Jam: <https://www.moddb.com/games/quake-2/addons/quake-2-re-release-back-to-baseq2ics-jam-1>
   * ReRelease PSX Jam: <https://www.moddb.com/mods/psx-jam-1/downloads/quake-2-re-release-psx-jam-1>
 
-Games check videos:
+### Games check videos:
+
+* 8.61RR14+:
+
+[![Check infinity mod](https://img.youtube.com/vi/JYw_FEjaPJ4/hqdefault.jpg)](https://www.youtube.com/watch?v=JYw_FEjaPJ4)
 
 * 8.61RR13+:
 
-[![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0A)
-[![Check demo maps](https://img.youtube.com/vi/VkhrEOtKeZE/hqdefault.jpg)](https://www.youtube.com/watch?v=VkhrEOtKeZEA)
-[![Check demo maps](https://img.youtube.com/vi/SHZAEkgUJLg/hqdefault.jpg)](https://www.youtube.com/watch?v=SHZAEkgUJLgA)
+[![Check dynamic player swim](https://img.youtube.com/vi/8N_TJPsgvC0/hqdefault.jpg)](https://www.youtube.com/watch?v=8N_TJPsgvC0)
+[![Check demo maps](https://img.youtube.com/vi/VkhrEOtKeZE/hqdefault.jpg)](https://www.youtube.com/watch?v=VkhrEOtKeZE)
+[![Check demo maps](https://img.youtube.com/vi/SHZAEkgUJLg/hqdefault.jpg)](https://www.youtube.com/watch?v=SHZAEkgUJLg)
 
 Checked with:
  * [Q2Test](https://archive.org/details/QuakeII_1020)
@@ -205,13 +219,13 @@ Checked with:
 
 * 8.61RR13:
 
-[![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQA)
+[![Check dynamic frames](https://img.youtube.com/vi/dXJ5vOsYdvQ/hqdefault.jpg)](https://www.youtube.com/watch?v=dXJ5vOsYdvQ)
 
 * 8.52RR13+:
 
-[![Check dynamic frames split](https://img.youtube.com/vi/_CPmh5_TLbk/hqdefault.jpg)](https://www.youtube.com/watch?v=_CPmh5_TLbkA)
-[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3k/hqdefault.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3kA)
-[![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/hqdefault.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uGA)
+[![Check dynamic frames split](https://img.youtube.com/vi/_CPmh5_TLbk/hqdefault.jpg)](https://www.youtube.com/watch?v=_CPmh5_TLbk)
+[![Check dynamic frames groups](https://img.youtube.com/vi/qDSaRBsnh3k/hqdefault.jpg)](https://www.youtube.com/watch?v=qDSaRBsnh3k)
+[![Check menu translation and fog](https://img.youtube.com/vi/HHj6m0z0uGA/hqdefault.jpg)](https://www.youtube.com/watch?v=HHj6m0z0uG)
 
 * 8.52RR12+:
 
@@ -257,7 +271,7 @@ Checked with:
 [![8.31RR7](https://img.youtube.com/vi/VAFs1HtQU_0/hqdefault.jpg)](https://www.youtube.com/watch?v=VAFs1HtQU_0)
 
 
-Goals, fully finished goals could be checked in [here](CHANGELOG):
+### Goals, fully finished goals could be checked in [here](CHANGELOG):
 
 * [ ] min/max based on current model in trace,
 * [ ] opengl2,
@@ -287,7 +301,6 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
 * [ ] game: code has reset thirdperson flag on load new level,
 * [ ] game: check RealBoundingBox with frame box,
 * [ ] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
-* [ ] ReRelease: incorrect light apply to models (wall looks fine),
 * [ ] ReRelease: incorrect dead animation for Arachnid,
 * [ ] ReRelease: broken fire effect for Guardian.
 * [ ] ReRelease: water in basicsjam1_ziutek,
@@ -308,7 +321,7 @@ Goals, fully finished goals could be checked in [here](CHANGELOG):
       and https://github.com/Paril/quake2-rerelease-dll,
 * [ ] ReRelease: modified game code support with removed KEX only related code.
 
-Other games support goals:
+### Other games support goals:
 
 * [ ] Jabot: fix crash in SZ_GetSpace,
 * [ ] Jabot: dynamic allocations,
@@ -330,19 +343,21 @@ Other games support goals:
 * [ ] DoD: fix statusbar `roarke`,
 * [ ] Support obj waveform model format for debug other formats.
 
-Fixed:
+### Fixed:
 
-* [x] Anachronox: rowdys map models disappear on dance space,
-* [x] ReRelease: fix invisiable entities in basicsjam1_ziutek,
+* [x] Anachronox: `rowdys` map models disappear on dance space,
+* [x] ReRelease: fix invisiable entities in `basicsjam1_ziutek`,
+* [x] ReRelease: incorrect light apply to models (wall looks fine),
+* [x] ReRelease: implement `info_landmark`.
 
-Not a goal:
+### Not a goal:
 
 * [ ] Multiplayer protocol support with KEX engine,
 * [ ] Support KEX engine features (inventory, compass and so on),
 * [ ] [KEX game library support](https://github.com/id-Software/quake2-rerelease-dll).
 
 
-# Additional requirements:
+### Additional requirements:
 
 * ReRelease localization requires `Q2Game.kpf` file in root directory of game. If you
   like to support your language put it to localization/loc_<your language>.txt
@@ -352,7 +367,7 @@ Not a goal:
 * Heretic 2 localization requires `levelmsg.txt` in game directory.
 * Hexen 2 localization requires `Strings.txt` in game directory.
 
-Additional models:
+### Additional models:
 
 | Spawn classname  | Description                    |
 | ---------------- | ------------------------------ |

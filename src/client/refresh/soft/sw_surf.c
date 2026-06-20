@@ -58,7 +58,7 @@ R_GreyscaledLight(const light3_t light)
 }
 
 static void
-R_DrawSurfaceBlock_Light (pixel_t *prowdest, pixel_t *psource, size_t size,
+R_DrawSurfaceBlock_Light (pixel_t *prowdest, const pixel_t *psource, size_t size,
 						int level, light3_t lightleft, light3_t lightright)
 {
 	int light_masked_right, light_masked_left;
