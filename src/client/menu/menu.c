@@ -80,8 +80,8 @@ typedef struct
 	const char *(*key)(int k);
 } menulayer_t;
 
-static menulayer_t m_layers[MAX_MENU_DEPTH] = {0};
-static menulayer_t m_active = {0};		/* active menu layer */
+static menulayer_t m_layers[MAX_MENU_DEPTH];
+static menulayer_t m_active;		/* active menu layer */
 static int m_menudepth;
 
 static qboolean
@@ -593,14 +593,14 @@ M_Popup(void)
  * MAIN MENU
  */
 
-static menuframework_s s_main = {0};
-static menubitmap_s s_plaque = {0};
-static menubitmap_s s_logo = {0};
-static menubitmap_s s_game = {0};
-static menubitmap_s s_multiplayer = {0};
-static menubitmap_s s_options = {0};
-static menubitmap_s s_video = {0};
-static menubitmap_s s_quit = {0};
+static menuframework_s s_main;
+static menubitmap_s s_plaque;
+static menubitmap_s s_logo;
+static menubitmap_s s_game;
+static menubitmap_s s_multiplayer;
+static menubitmap_s s_options;
+static menubitmap_s s_video;
+static menubitmap_s s_quit;
 
 static void
 GameFunc(void *unused)
@@ -816,11 +816,11 @@ M_Menu_Main_f(void)
  * MULTIPLAYER MENU
  */
 
-static menuframework_s s_multiplayer_menu = {0};
-static menuaction_s s_join_network_server_action = {0};
-static menuaction_s s_start_network_server_action = {0};
-static menuaction_s s_player_setup_action = {0};
-static menuaction_s s_customize_options_action = {0};
+static menuframework_s s_multiplayer_menu;
+static menuaction_s s_join_network_server_action;
+static menuaction_s s_start_network_server_action;
+static menuaction_s s_player_setup_action;
+static menuaction_s s_customize_options_action;
 
 static void
 Multiplayer_MenuDraw(void)
@@ -952,9 +952,9 @@ char *bindnames[][2] =
 int keys_cursor;
 static int menukeyitem_bind;
 
-static menuframework_s s_keys_menu = {0};
-static menuframework_s s_joy_menu = {0};
-static menuaction_s s_keys_actions[ARRLEN(bindnames)] = {0};
+static menuframework_s s_keys_menu;
+static menuframework_s s_joy_menu;
+static menuaction_s s_keys_actions[ARRLEN(bindnames)];
 
 static void
 M_UnbindCommand(const char *command, int scope)
@@ -1201,8 +1201,8 @@ char *multiplayer_key_bindnames[][2] =
 	{"wave 4", "wave 4"},
 };
 
-static menuframework_s s_multiplayer_keys_menu = {0};
-static menuaction_s s_multiplayer_keys_actions[ARRLEN(multiplayer_key_bindnames)] = {0};
+static menuframework_s s_multiplayer_keys_menu;
+static menuaction_s s_multiplayer_keys_actions[ARRLEN(multiplayer_key_bindnames)];
 
 static void
 MultiplayerDrawKeyBindingFunc(void *self)
@@ -1398,8 +1398,8 @@ char *controller_bindnames[][2] =
 	{"+joyaltselector", "alt buttons modifier"}
 };
 
-static menuframework_s s_controller_buttons_menu = {0};
-static menuaction_s s_controller_buttons_actions[ARRLEN(controller_bindnames)] = {0};
+static menuframework_s s_controller_buttons_menu;
+static menuaction_s s_controller_buttons_actions[ARRLEN(controller_bindnames)];
 
 static void
 DrawControllerButtonBindingFunc(void *self)
@@ -1571,8 +1571,8 @@ char *controller_alt_bindnames[][2] =
 	{"cmd help", "help computer"}
 };
 
-static menuframework_s s_controller_alt_buttons_menu = {0};
-static menuaction_s s_controller_alt_buttons_actions[ARRLEN(controller_alt_bindnames)] = {0};
+static menuframework_s s_controller_alt_buttons_menu;
+static menuaction_s s_controller_alt_buttons_actions[ARRLEN(controller_alt_bindnames)];
 
 static void
 DrawControllerAltButtonBindingFunc(void *self)
@@ -1713,13 +1713,13 @@ M_Menu_ControllerAltButtons_f(void)
  * STICKS CONFIGURATION MENU
  */
 
-static menuframework_s s_sticks_config_menu = {0};
+static menuframework_s s_sticks_config_menu;
 
-static menulist_s s_stk_layout_box = {0};
-static menuseparator_s s_stk_title_text[3] = {0};
-static menuslider_s s_stk_expo_slider[2] = {0};
-static menuslider_s s_stk_deadzone_slider[4] = {0};
-static menuslider_s s_stk_threshold_slider = {0};
+static menulist_s s_stk_layout_box;
+static menuseparator_s s_stk_title_text[3];
+static menuslider_s s_stk_expo_slider[2];
+static menuslider_s s_stk_deadzone_slider[4];
+static menuslider_s s_stk_threshold_slider;
 
 extern qboolean show_gyro;
 
@@ -1881,21 +1881,21 @@ M_Menu_Stick_f(void)
  * GYRO OPTIONS MENU
  */
 
-static menuframework_s s_gyro_menu = {0};
+static menuframework_s s_gyro_menu;
 
-static menulist_s s_gyro_mode_box = {0};
-static menulist_s s_gyro_space_box = {0};
-static menulist_s s_gyro_local_roll_box = {0};
-static menuslider_s s_gyro_yawsensitivity_slider = {0};
-static menuslider_s s_gyro_pitchsensitivity_slider = {0};
-static menuslider_s s_gyro_tightening_slider = {0};
-static menuslider_s s_gyro_smoothing_slider = {0};
-static menulist_s s_gyro_acceleration_box = {0};
-static menuslider_s s_gyro_accel_mult_slider = {0};
-static menuslider_s s_gyro_accel_lower_thresh_slider = {0};
-static menuslider_s s_gyro_accel_upper_thresh_slider = {0};
-static menuseparator_s s_calibrating_text[2] = {0};
-static menuaction_s s_calibrate_gyro = {0};
+static menulist_s s_gyro_mode_box;
+static menulist_s s_gyro_space_box;
+static menulist_s s_gyro_local_roll_box;
+static menuslider_s s_gyro_yawsensitivity_slider;
+static menuslider_s s_gyro_pitchsensitivity_slider;
+static menuslider_s s_gyro_tightening_slider;
+static menuslider_s s_gyro_smoothing_slider;
+static menulist_s s_gyro_acceleration_box;
+static menuslider_s s_gyro_accel_mult_slider;
+static menuslider_s s_gyro_accel_lower_thresh_slider;
+static menuslider_s s_gyro_accel_upper_thresh_slider;
+static menuseparator_s s_calibrating_text[2];
+static menuaction_s s_calibrate_gyro;
 
 extern void StartCalibration(void);
 extern qboolean IsCalibrationZero(void);
@@ -2200,20 +2200,20 @@ M_Menu_Gyro_f(void)
 /*
  * JOY MENU
  */
-static menuslider_s s_joy_preset_slider = {0};
-static menulist_s s_joy_preset_box = {0};
-static menulist_s s_joy_advanced_box = {0};
-static menulist_s s_joy_invertpitch_box = {0};
-static menuslider_s s_joy_yawspeed_slider = {0};
-static menuslider_s s_joy_pitchspeed_slider = {0};
-static menuslider_s s_joy_extra_yawspeed_slider = {0};
-static menuslider_s s_joy_extra_pitchspeed_slider = {0};
-static menuslider_s s_joy_ramp_time_slider = {0};
-static menuslider_s s_joy_haptic_slider = {0};
-static menuaction_s s_joy_stickcfg_action = {0};
-static menuaction_s s_joy_gyro_action = {0};
-static menuaction_s s_joy_customize_buttons_action = {0};
-static menuaction_s s_joy_customize_alt_buttons_action = {0};
+static menuslider_s s_joy_preset_slider;
+static menulist_s s_joy_preset_box;
+static menulist_s s_joy_advanced_box;
+static menulist_s s_joy_invertpitch_box;
+static menuslider_s s_joy_yawspeed_slider;
+static menuslider_s s_joy_pitchspeed_slider;
+static menuslider_s s_joy_extra_yawspeed_slider;
+static menuslider_s s_joy_extra_pitchspeed_slider;
+static menuslider_s s_joy_ramp_time_slider;
+static menuslider_s s_joy_haptic_slider;
+static menuaction_s s_joy_stickcfg_action;
+static menuaction_s s_joy_gyro_action;
+static menuaction_s s_joy_customize_buttons_action;
+static menuaction_s s_joy_customize_alt_buttons_action;
 
 static void
 RefreshJoyMenuFunc(void *unused)
@@ -2470,23 +2470,23 @@ M_Menu_Joy_f(void)
  * CONTROLS MENU
  */
 
-static menuframework_s s_options_menu = {0};
-static menuaction_s s_options_defaults_action = {0};
-static menuaction_s s_options_customize_options_action = {0};
-static menuaction_s s_options_customize_joy_action = {0};
-static menuslider_s s_options_sensitivity_slider = {0};
-static menulist_s s_options_freelook_box = {0};
-static menulist_s s_options_alwaysrun_box = {0};
-static menulist_s s_options_invertmouse_box = {0};
-static menulist_s s_options_lookstrafe_box = {0};
-static menulist_s s_options_crosshair_box = {0};
-static menulist_s s_options_crosshair_color_box = {0};
-static menuslider_s s_options_sfxvolume_slider = {0};
-static menulist_s s_options_oggshuffle_box = {0};
-static menuslider_s s_options_oggvolume_slider = {0};
-static menulist_s s_options_oggenable_box = {0};
-static menulist_s s_options_quality_list = {0};
-static menulist_s s_options_console_action = {0};
+static menuframework_s s_options_menu;
+static menuaction_s s_options_defaults_action;
+static menuaction_s s_options_customize_options_action;
+static menuaction_s s_options_customize_joy_action;
+static menuslider_s s_options_sensitivity_slider;
+static menulist_s s_options_freelook_box;
+static menulist_s s_options_alwaysrun_box;
+static menulist_s s_options_invertmouse_box;
+static menulist_s s_options_lookstrafe_box;
+static menulist_s s_options_crosshair_box;
+static menulist_s s_options_crosshair_color_box;
+static menuslider_s s_options_sfxvolume_slider;
+static menulist_s s_options_oggshuffle_box;
+static menuslider_s s_options_oggvolume_slider;
+static menulist_s s_options_oggenable_box;
+static menulist_s s_options_quality_list;
+static menulist_s s_options_console_action;
 
 static void
 CrosshairFunc(void *unused)
@@ -2675,8 +2675,8 @@ UpdateSoundBackendFunc(void *unused)
 	Cvar_Set("s_openal", (s_options_quality_list.curvalue == 0)? "1":"0" );
 
 	m_popup_string = "Restarting the sound system. This\n"
-			         "could take up to a minute, so\n"
-			         "please be patient.";
+					 "could take up to a minute, so\n"
+					 "please be patient.";
 	m_popup_endtime = cls.realtime + 2000;
 	M_Popup();
 
@@ -3335,7 +3335,7 @@ M_Credits_Draw(void)
 			int x;
 
 			x = (viddef.width / scale- (int)strlen(credits[i]) * 8 - stringoffset *
-				8) / 2 + (j + stringoffset) * 8;
+				 8) / 2 + (j + stringoffset) * 8;
 
 			if (bold)
 			{
@@ -3441,9 +3441,9 @@ M_Menu_Credits_f(void)
  * MODS MENU
  */
 
-static menuframework_s s_mods_menu = {0};
-static menulist_s s_mods_list = {0};
-static menuaction_s s_mods_apply_action = {0};
+static menuframework_s s_mods_menu;
+static menulist_s s_mods_list;
+static menuaction_s s_mods_apply_action;
 static char mods_statusbar[64] = {0};
 
 static char **modnames = NULL;
@@ -3649,16 +3649,16 @@ M_Menu_Mods_f(void)
 
 static int m_game_cursor;
 
-static menuframework_s s_game_menu = {0};
-static menuaction_s s_easy_game_action = {0};
-static menuaction_s s_medium_game_action = {0};
-static menuaction_s s_hard_game_action = {0};
-static menuaction_s s_hardp_game_action = {0};
-static menuaction_s s_load_game_action = {0};
-static menuaction_s s_save_game_action = {0};
-static menuaction_s s_credits_action = {0};
-static menuaction_s s_mods_action = {0};
-static menuseparator_s s_blankline = {0};
+static menuframework_s s_game_menu;
+static menuaction_s s_easy_game_action;
+static menuaction_s s_medium_game_action;
+static menuaction_s s_hard_game_action;
+static menuaction_s s_hardp_game_action;
+static menuaction_s s_load_game_action;
+static menuaction_s s_save_game_action;
+static menuaction_s s_credits_action;
+static menuaction_s s_mods_action;
+static menuseparator_s s_blankline;
 
 static void
 StartGame(void)
@@ -3866,11 +3866,11 @@ static qboolean m_savevalid[MAX_SAVESLOTS];
 static int m_loadsave_page;
 static char m_loadsave_statusbar[32] = {0};
 
-static menuframework_s s_loadgame_menu = {0};
-static menuaction_s s_loadgame_actions[MAX_SAVESLOTS + 1] = {0}; // One for quick
+static menuframework_s s_loadgame_menu;
+static menuaction_s s_loadgame_actions[MAX_SAVESLOTS + 1]; // One for quick
 
-static menuframework_s s_savegame_menu = {0};
-static menuaction_s s_savegame_actions[MAX_SAVESLOTS + 1] = {0}; // One for quick
+static menuframework_s s_savegame_menu;
+static menuaction_s s_savegame_actions[MAX_SAVESLOTS + 1]; // One for quick
 
 /* DELETE SAVEGAME */
 
@@ -4187,8 +4187,8 @@ SaveGameCallback(void *self)
 	if (a->generic.localdata[0] == -1)
 	{
 		m_popup_string = "This slot is reserved for\n"
-			             "quicksaving, so please select\n"
-			             "another one.";
+						 "quicksaving, so please select\n"
+						 "another one.";
 		m_popup_endtime = cls.realtime + 2000;
 		M_Popup();
 		return;
@@ -4196,8 +4196,8 @@ SaveGameCallback(void *self)
 	else if (a->generic.localdata[0] == 0)
 	{
 		m_popup_string = "This slot is reserved for\n"
-			             "autosaving, so please select\n"
-			             "another one.";
+						 "autosaving, so please select\n"
+						 "another one.";
 		m_popup_endtime = cls.realtime + 2000;
 		M_Popup();
 		return;
@@ -4339,11 +4339,11 @@ M_Menu_SaveGame_f(void)
 
 #define MAX_LOCAL_SERVERS 8
 
-static menuframework_s s_joinserver_menu = {0};
-static menuseparator_s s_joinserver_server_title = {0};
-static menuaction_s s_joinserver_search_action = {0};
-static menuaction_s s_joinserver_address_book_action = {0};
-static menuaction_s s_joinserver_server_actions[MAX_LOCAL_SERVERS] = {0};
+static menuframework_s s_joinserver_menu;
+static menuseparator_s s_joinserver_server_title;
+static menuaction_s s_joinserver_search_action;
+static menuaction_s s_joinserver_address_book_action;
+static menuaction_s s_joinserver_server_actions[MAX_LOCAL_SERVERS];
 
 int m_num_servers;
 #define NO_SERVER_STRING "<no server>"
@@ -4410,7 +4410,7 @@ JoinServerFunc(void *self)
 	}
 
 	Com_sprintf(buffer, sizeof(buffer), "connect %s\n",
-			    NET_AdrToString(local_server_netadr[index]));
+				NET_AdrToString(local_server_netadr[index]));
 	Cbuf_AddText(buffer);
 	M_ForceMenuOff();
 }
@@ -4435,8 +4435,8 @@ SearchLocalGames(void)
 	}
 
 	m_popup_string = "Searching for local servers. This\n"
-			         "could take up to a minute, so\n"
-			         "please be patient.";
+					 "could take up to a minute, so\n"
+					 "please be patient.";
 	m_popup_endtime = cls.realtime + 2000;
 	M_Popup();
 
@@ -4542,19 +4542,19 @@ M_Menu_JoinServer_f(void)
  * START SERVER MENU
  */
 
-static menuframework_s s_startserver_menu = {0};
+static menuframework_s s_startserver_menu;
 static char **mapnames = NULL;
 static int nummaps;
 
-static menuaction_s s_startserver_start_action = {0};
-static menuaction_s s_startserver_dmoptions_action = {0};
-static menufield_s s_timelimit_field = {0};
-static menufield_s s_fraglimit_field = {0};
-static menufield_s s_capturelimit_field = {0};
-static menufield_s s_maxclients_field = {0};
-static menufield_s s_hostname_field = {0};
-static menulist_s s_startmap_list = {0};
-static menulist_s s_rules_box = {0};
+static menuaction_s s_startserver_start_action;
+static menuaction_s s_startserver_dmoptions_action;
+static menufield_s s_timelimit_field;
+static menufield_s s_fraglimit_field;
+static menufield_s s_capturelimit_field;
+static menufield_s s_maxclients_field;
+static menufield_s s_hostname_field;
+static menulist_s s_startmap_list;
+static menulist_s s_rules_box;
 
 static void
 DMOptionsFunc(void *self)
@@ -5158,27 +5158,27 @@ M_Menu_StartServer_f(void)
 
 static char dmoptions_statusbar[128] = {0};
 
-static menuframework_s s_dmoptions_menu = {0};
+static menuframework_s s_dmoptions_menu;
 
-static menulist_s s_friendlyfire_box = {0};
-static menulist_s s_falls_box = {0};
-static menulist_s s_weapons_stay_box = {0};
-static menulist_s s_instant_powerups_box = {0};
-static menulist_s s_powerups_box = {0};
-static menulist_s s_health_box = {0};
-static menulist_s s_spawn_farthest_box = {0};
-static menulist_s s_teamplay_box = {0};
-static menulist_s s_samelevel_box = {0};
-static menulist_s s_force_respawn_box = {0};
-static menulist_s s_armor_box = {0};
-static menulist_s s_allow_exit_box = {0};
-static menulist_s s_infinite_ammo_box = {0};
-static menulist_s s_fixed_fov_box = {0};
-static menulist_s s_quad_drop_box = {0};
-static menulist_s s_no_mines_box = {0};
-static menulist_s s_no_nukes_box = {0};
-static menulist_s s_stack_double_box = {0};
-static menulist_s s_no_spheres_box = {0};
+static menulist_s s_friendlyfire_box;
+static menulist_s s_falls_box;
+static menulist_s s_weapons_stay_box;
+static menulist_s s_instant_powerups_box;
+static menulist_s s_powerups_box;
+static menulist_s s_health_box;
+static menulist_s s_spawn_farthest_box;
+static menulist_s s_teamplay_box;
+static menulist_s s_samelevel_box;
+static menulist_s s_force_respawn_box;
+static menulist_s s_armor_box;
+static menulist_s s_allow_exit_box;
+static menulist_s s_infinite_ammo_box;
+static menulist_s s_fixed_fov_box;
+static menulist_s s_quad_drop_box;
+static menulist_s s_no_mines_box;
+static menulist_s s_no_nukes_box;
+static menulist_s s_stack_double_box;
+static menulist_s s_no_spheres_box;
 
 static void
 DMFlagCallback(void *self)
@@ -5337,15 +5337,15 @@ DMFlagCallback(void *self)
 	{
 		if (f == &s_no_mines_box)
 		{
-			bit = DF_NO_MINES;          /* Equivalent to DF_CTF_FORCEJOIN in CTF */
+			bit = DF_NO_MINES;			/* Equivalent to DF_CTF_FORCEJOIN in CTF */
 		}
 		else if (f == &s_no_nukes_box)
 		{
-			bit = DF_NO_NUKES;          /* Equivalent to DF_CTF_NO_TECH   in CTF */
+			bit = DF_NO_NUKES;			/* Equivalent to DF_CTF_NO_TECH   in CTF */
 		}
 		else if (f == &s_stack_double_box)
 		{
-			bit = DF_NO_STACK_DOUBLE;   /* Equivalent to DF_ARMOR_PROTECT in CTF */
+			bit = DF_NO_STACK_DOUBLE;	/* Equivalent to DF_ARMOR_PROTECT in CTF */
 		}
 	}
 
@@ -5366,7 +5366,7 @@ setvalue:
 	Cvar_SetValue("dmflags", (float)flags);
 
 	Com_sprintf(dmoptions_statusbar, sizeof(dmoptions_statusbar),
-			    "dmflags = %d", flags);
+				"dmflags = %d", flags);
 }
 
 static void
@@ -5650,19 +5650,19 @@ M_Menu_DMOptions_f(void)
  * DOWNLOADOPTIONS BOOK MENU
  */
 
-static menuframework_s s_downloadoptions_menu = {0};
+static menuframework_s s_downloadoptions_menu;
 
-static menuseparator_s s_download_title = {0};
-static menulist_s s_allow_download_box = {0};
+static menuseparator_s s_download_title;
+static menulist_s s_allow_download_box;
 
 #ifdef USE_CURL
-static menulist_s s_allow_download_http_box = {0};
+static menulist_s s_allow_download_http_box;
 #endif
 
-static menulist_s s_allow_download_maps_box = {0};
-static menulist_s s_allow_download_models_box = {0};
-static menulist_s s_allow_download_players_box = {0};
-static menulist_s s_allow_download_sounds_box = {0};
+static menulist_s s_allow_download_maps_box;
+static menulist_s s_allow_download_models_box;
+static menulist_s s_allow_download_players_box;
+static menulist_s s_allow_download_sounds_box;
 
 static void
 DownloadCallback(void *self)
@@ -5819,8 +5819,8 @@ M_Menu_DownloadOptions_f(void)
  * ADDRESS BOOK MENU
  */
 
-static menuframework_s s_addressbook_menu = {0};
-static menufield_s s_addressbook_fields[NUM_ADDRESSBOOK_ENTRIES] = {0};
+static menuframework_s s_addressbook_menu;
+static menufield_s s_addressbook_fields[NUM_ADDRESSBOOK_ENTRIES];
 
 static void
 AddressBook_MenuInit(void)
@@ -5900,18 +5900,18 @@ M_Menu_AddressBook_f(void)
  * PLAYER CONFIG MENU
  */
 
-static menuframework_s s_player_config_menu = {0};
-static menufield_s s_player_name_field = {0};
-static menubitmap_s s_player_icon_bitmap = {0};
-static menulist_s s_player_model_box = {0};
-static menulist_s s_player_skin_box = {0};
-static menulist_s s_player_handedness_box = {0};
-static menulist_s s_player_rate_box = {0};
-static menuseparator_s s_player_skin_title = {0};
-static menuseparator_s s_player_model_title = {0};
-static menuseparator_s s_player_hand_title = {0};
-static menuseparator_s s_player_rate_title = {0};
-static menuaction_s s_player_download_action = {0};
+static menuframework_s s_player_config_menu;
+static menufield_s s_player_name_field;
+static menubitmap_s s_player_icon_bitmap;
+static menulist_s s_player_model_box;
+static menulist_s s_player_skin_box;
+static menulist_s s_player_handedness_box;
+static menulist_s s_player_rate_box;
+static menuseparator_s s_player_skin_title;
+static menuseparator_s s_player_model_title;
+static menuseparator_s s_player_hand_title;
+static menuseparator_s s_player_rate_title;
+static menuaction_s s_player_download_action;
 
 #define MAX_PLAYERMODELS 1024
 
