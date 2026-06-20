@@ -1411,6 +1411,9 @@ WriteLevel(const char *filename)
 	sg_fwrite(&i, sizeof(i), f);
 
 	fclose(f);
+
+	/* Store AI navigation data */
+	AITools_SaveNodes();
 }
 
 /* ========================================================== */

@@ -61,18 +61,20 @@ void AI_Init(void)
 // AI_NewMap
 // Inits Map local parameters
 //==========================================
-void AI_NewMap(void)
+void
+AI_NewMap(void)
 {
-	//Load nodes
+	/* Load nodes */
 	AI_InitNavigationData();
-	AI_InitAIWeapons ();
+	AI_InitAIWeapons();
 }
 
 //==========================================
 // G_FreeAI
 // removes the AI handle from memory
 //==========================================
-void G_FreeAI( edict_t *ent )
+void
+G_FreeAI(edict_t *ent)
 {
 	if (!ent->ai)
 	{

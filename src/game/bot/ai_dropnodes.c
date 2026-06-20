@@ -469,10 +469,7 @@ AITools_DropNodes(edict_t *ent)
 static void
 AITools_EraseNodes(void)
 {
-	//Init nodes arrays
-	nav.num_nodes = 0;
-	memset(nodes, 0, sizeof(nav_node_t) * MAX_NODES);
-	memset(pLinks, 0, sizeof(nav_plink_t) * MAX_NODES);
+	AI_CleanNodesAndLinks();
 
 	nav.num_ents = 0;
 	memset(nav.ents, 0, sizeof(nav_ents_t) * MAX_EDICTS);
@@ -483,12 +480,15 @@ AITools_EraseNodes(void)
 	nav.loaded = false;
 }
 
-void AITools_InitEditnodes( void )
+void
+AITools_InitEditnodes(void)
 {
-	if (nav.loaded) {
+	if (nav.loaded)
+	{
 		AITools_EraseNodes();
 		AI_LoadPLKFile(level.mapname);
-		//delete everything but nodes
+
+		/* delete everything but nodes */
 		memset(pLinks, 0, sizeof(nav_plink_t) * MAX_NODES);
 
 		nav.num_ents = 0;
@@ -497,9 +497,9 @@ void AITools_InitEditnodes( void )
 		nav.num_items = 0;
 		memset(nav.items, 0, sizeof(nav_item_t) * MAX_EDICTS);
 		nav.loaded = false;
-	}
 
-	Com_Printf("EDITNODES: on\n");
+		Com_Printf("Navigation nodes have reloaded\n");
+	}
 }
 
 void
@@ -510,7 +510,7 @@ AITools_InitMakenodes(void)
 		AITools_EraseNodes();
 	}
 
-	Com_Printf("EDITNODES: on\n");
+	Com_Printf("Old navigation nodes have removed\n");
 }
 
 //-------------------------------------------------------------
@@ -567,7 +567,8 @@ AI_SavePLKFile(const char *mapname)
 //==================
 // AITools_SaveNodes
 //==================
-void AITools_SaveNodes( void )
+void
+AITools_SaveNodes(void)
 {
 	int newlinks;
 	int	jumplinks;
@@ -595,7 +596,7 @@ void AITools_SaveNodes( void )
 		Com_Printf ("Nodes files saved\n");
 	}
 
-	//restart navigation
+	/* restart navigation */
 	AITools_EraseNodes();
 	AI_InitNavigationData();
 }

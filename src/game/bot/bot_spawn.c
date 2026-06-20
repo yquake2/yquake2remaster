@@ -322,8 +322,8 @@ BOT_SpawnBot (char *team, const char *name, const char *skin, char *userinfo)
 
 	if (!nav.loaded)
 	{
-		Com_Printf("Can't spawn bots without a valid navigation file\n");
-		return;
+		AITools_SaveNodes();
+		Com_Printf("Used minimal navigation file, run 'sv savenodes' for update\n");
 	}
 
 	bot = BOT_FindFreeClient();
