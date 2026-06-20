@@ -174,14 +174,14 @@ AI_FollowPath(edict_t *self)
 		}
 	}
 
-	// Are we there yet?
-	VectorSubtract( self->s.origin, nodes[self->ai->next_node].origin, v );
-	dist = VectorLength(v);
-
 	if (self->ai->current_node == -1 || self->ai->next_node == -1)
 	{
 		return false;
 	}
+
+	/* Are we there yet? */
+	VectorSubtract( self->s.origin, nodes[self->ai->next_node].origin, v );
+	dist = VectorLength(v);
 
 	/* special lower plat reached check */
 	if (dist < 64 &&

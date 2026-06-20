@@ -650,7 +650,7 @@ AI_CreateNodesForEntities(void)
 qboolean AI_LoadPLKFile( char *mapname )
 {
 	char filename[MAX_OSPATH];
-	int version;
+	int version, i, j;
 	FILE *pIn;
 
 	nav.num_nodes = 0;
@@ -711,6 +711,28 @@ qboolean AI_LoadPLKFile( char *mapname )
 		nav.num_nodes = 0;
 		fclose(pIn);
 		return false;
+	}
+
+	for (i = 0; i < nav.num_nodes; i++)
+	{
+		if (pLinks[i].numLinks < 0 || pLinks[i].numLinks > NODES_MAX_PLINKS)
+		{
+			Com_Printf("%s: broken navigation %s file links count\n", __func__, filename);
+			nav.num_nodes = 0;
+			fclose(pIn);
+			return false;
+		}
+
+		for (j = 0; j < pLinks[i].numLinks; j++)
+		{
+			if (pLinks[i].nodes[j] < 0 || pLinks[i].nodes[j] >= nav.num_nodes)
+			{
+				Com_Printf("%s: broken navigation %s file link target\n", __func__, filename);
+				nav.num_nodes = 0;
+				fclose(pIn);
+				return false;
+			}
+		}
 	}
 
 	fclose(pIn);
