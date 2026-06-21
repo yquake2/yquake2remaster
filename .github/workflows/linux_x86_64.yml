@@ -33,7 +33,7 @@ jobs:
         apt install -y libgl1-mesa-dev libsdl3-dev libopenal-dev libcurl4-openssl-dev \
             libavformat-dev libswscale-dev libvulkan-dev build-essential git
     - name: Check out repository code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         submodules: 'true'
     - name: Build
