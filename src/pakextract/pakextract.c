@@ -223,6 +223,11 @@ read_header(FILE *fd)
 	{
 		pak_mode = PAK_MODE_SIN;
 	}
+	else if (strncmp(header.signature, "SRPK", 4) == 0)
+	{
+		fprintf(stderr, "Unsupported 'SiN Reloaded' assets.\n");
+		return 0;
+	}
 	else if (strncmp(header.signature, "PACK", 4) != 0)
 	{
 		fprintf(stderr, "Not a pak file\n");

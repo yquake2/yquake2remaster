@@ -1495,6 +1495,14 @@ FS_LoadSIN(const char *packPath)
 		return NULL;
 	}
 
+	if (LittleLong(header.ident) == SINRHEADER)
+	{
+		fclose(handle);
+		Com_Printf("Skipped packfile '%s' as 'SiN Reloaded' assets.\n",
+			packPath);
+		return NULL;
+	}
+
 	if (LittleLong(header.ident) != SINHEADER)
 	{
 		fclose(handle);

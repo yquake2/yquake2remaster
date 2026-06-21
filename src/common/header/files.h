@@ -69,6 +69,8 @@ typedef struct
 /* The .sin files are just a linear collapse of a directory tree */
 
 #define SINHEADER (('K' << 24) + ('A' << 16) + ('P' << 8) + 'S')
+/* Unsupported SiN Reloaded Assets format */
+#define SINRHEADER (('K' << 24) + ('P' << 16) + ('R' << 8) + 'S')
 
 typedef struct
 {
