@@ -3164,31 +3164,57 @@ QVk_GetError(VkResult errorCode)
 		#endif /* defined(VK_VERSION_1_3) */
 		#if defined(VK_VERSION_1_4)
 		ERRSTR(ERROR_NOT_PERMITTED);
+		#endif /* defined(VK_VERSION_1_4) */
+		#if defined(VK_KHR_surface)
 		ERRSTR(ERROR_SURFACE_LOST_KHR);
 		ERRSTR(ERROR_NATIVE_WINDOW_IN_USE_KHR);
+		#endif /* defined(VK_KHR_surface) */
+		#if defined(VK_KHR_swapchain)
 		ERRSTR(SUBOPTIMAL_KHR);
 		ERRSTR(ERROR_OUT_OF_DATE_KHR);
+		#endif /* defined(VK_KHR_swapchain) */
+		#if defined(VK_KHR_display_swapchain)
 		ERRSTR(ERROR_INCOMPATIBLE_DISPLAY_KHR);
+		#endif /* defined(VK_KHR_display_swapchain) */
+		#if defined(VK_NV_glsl_shader)
 		ERRSTR(ERROR_INVALID_SHADER_NV);
+		#endif /* defined(VK_NV_glsl_shader) */
+		#if defined(VK_KHR_video_queue)
 		ERRSTR(ERROR_IMAGE_USAGE_NOT_SUPPORTED_KHR);
 		ERRSTR(ERROR_VIDEO_PICTURE_LAYOUT_NOT_SUPPORTED_KHR);
 		ERRSTR(ERROR_VIDEO_PROFILE_OPERATION_NOT_SUPPORTED_KHR);
 		ERRSTR(ERROR_VIDEO_PROFILE_FORMAT_NOT_SUPPORTED_KHR);
 		ERRSTR(ERROR_VIDEO_PROFILE_CODEC_NOT_SUPPORTED_KHR);
 		ERRSTR(ERROR_VIDEO_STD_VERSION_NOT_SUPPORTED_KHR);
+		#endif /* defined(VK_KHR_video_queue) */
+		#if defined(VK_EXT_image_drm_format_modifier)
 		ERRSTR(ERROR_INVALID_DRM_FORMAT_MODIFIER_PLANE_LAYOUT_EXT);
+		#endif /* defined(VK_EXT_image_drm_format_modifier) */
+		#if defined(VK_EXT_present_timing)
 		ERRSTR(ERROR_PRESENT_TIMING_QUEUE_FULL_EXT);
+		#endif /* defined(VK_EXT_present_timing) */
+		#if defined(VK_EXT_full_screen_exclusive)
 		ERRSTR(ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT);
+		#endif /* defined(VK_EXT_full_screen_exclusive) */
+		#if defined(VK_KHR_deferred_host_operations)
 		ERRSTR(THREAD_IDLE_KHR);
 		ERRSTR(THREAD_DONE_KHR);
 		ERRSTR(OPERATION_DEFERRED_KHR);
 		ERRSTR(OPERATION_NOT_DEFERRED_KHR);
+		#endif /* defined(VK_KHR_deferred_host_operations) */
+		#if defined(VK_KHR_video_encode_queue)
 		ERRSTR(ERROR_INVALID_VIDEO_STD_PARAMETERS_KHR);
+		#endif /* defined(VK_KHR_video_encode_queue) */
+		#if defined(VK_EXT_image_compression_control)
 		ERRSTR(ERROR_COMPRESSION_EXHAUSTED_EXT);
-		ERRSTR(INCOMPATIBLE_SHADER_BINARY_EXT);
+		#endif /* defined(VK_EXT_image_compression_control) */
+		#if defined(VK_EXT_shader_object)
+		ERRSTR(ERROR_INCOMPATIBLE_SHADER_BINARY_EXT);
+		#endif /* defined(VK_EXT_shader_object) */
+		#if defined(VK_KHR_pipeline_binary)
 		ERRSTR(PIPELINE_BINARY_MISSING_KHR);
 		ERRSTR(ERROR_NOT_ENOUGH_SPACE_KHR);
-		#endif /* defined(VK_VERSION_1_4) */
+		#endif /* defined(VK_KHR_pipeline_binary) */
 		default: return va("<unknown> %8x", errorCode);
 	}
 #undef ERRSTR
