@@ -189,7 +189,7 @@ ai_stand(edict_t *self, float dist)
 		return;
 	}
 
-	if (!(self->spawnflags & 1) && (self->monsterinfo.idle) &&
+	if (!(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH) && (self->monsterinfo.idle) &&
 		(level.time > self->monsterinfo.idle_time))
 	{
 		if (self->monsterinfo.idle_time)

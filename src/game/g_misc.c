@@ -704,7 +704,7 @@ path_corner_touch(edict_t *self, edict_t *other, const cplane_t *plane /* unused
 		next = NULL;
 	}
 
-	if ((next) && (next->spawnflags & 1))
+	if ((next) && (next->spawnflags & SPAWNFLAG_MONSTER_AMBUSH))
 	{
 		VectorCopy(next->s.origin, v);
 		v[2] += next->mins[2];

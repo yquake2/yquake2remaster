@@ -2158,7 +2158,7 @@ monster_start_go(edict_t *self)
 		{
 			if (strcmp(target->classname, "point_combat") != 0)
 			{
-				gi.dprintf( "%s at (%i %i %i) has a bad combattarget %s : %s at (%i %i %i)\n",
+				gi.dprintf("%s at (%i %i %i) has a bad combattarget %s : %s at (%i %i %i)\n",
 						self->classname, (int)self->s.origin[0], (int)self->s.origin[1],
 						(int)self->s.origin[2], self->combattarget, target->classname,
 						(int)target->s.origin[0], (int)target->s.origin[1],
@@ -2321,7 +2321,7 @@ walkmonster_start_go(edict_t *self)
 		return;
 	}
 
-	if (!(self->spawnflags & 2) && (level.time < 1))
+	if (!(self->spawnflags & SPAWNFLAG_MONSTER_TRIGGER_SPAWN) && (level.time < 1))
 	{
 		M_droptofloor(self);
 
