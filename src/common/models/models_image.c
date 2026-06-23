@@ -101,11 +101,13 @@ Mod_LoadPicReplaceTile(byte *pic, int line, const char* name,
 		if (sub_pic)
 		{
 			free(sub_pic);
+			sub_pic = NULL;
 		}
 
 		if (palette)
 		{
 			free(palette);
+			palette = NULL;
 		}
 	}
 

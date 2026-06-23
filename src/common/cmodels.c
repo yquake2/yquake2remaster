@@ -90,7 +90,6 @@ Mod_LoadVisibility(const char *name, dvis_t **vis, int *numvisibility,
 			__func__, name);
 		*vis = NULL;
 		*numvisibility = 0;
-		Hunk_Free(out);
 		return;
 	}
 

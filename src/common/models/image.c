@@ -318,6 +318,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 			{
 				Com_Printf("%s: Can't allocate for %s\n", __func__, name);
 				free(out);
+				*pic = NULL;
+				*palette = NULL;
 				return;
 			}
 
@@ -368,6 +370,8 @@ PCX_Decode(const char *name, const byte *raw, int len, byte **pic, byte **palett
 			{
 				Com_Printf("%s: Can't allocate for %s\n", __func__, name);
 				free(out);
+				*pic = NULL;
+				*palette = NULL;
 				return;
 			}
 
