@@ -4710,6 +4710,94 @@ CleanCachedMapsList(void)
 }
 
 static char**
+GetMapsDBList(int *num)
+{
+	char *buffer;
+	int length;
+
+	if ((length = FS_LoadFile("mapdb.json", (void **)&buffer)) != -1)
+	{
+		char **mapnamestmp = NULL;
+		int numtmpmaps = 0;
+
+		char *s = buffer;
+		char shortname[MAX_TOKEN_CHARS];
+		char longname[MAX_TOKEN_CHARS];
+		char scratch[200];
+
+		/* We’ll scan through the JSON with COM_Parse, looking for "bsp" and "title" keys */
+		while (1)
+		{
+			const char *token = COM_Parse(&s);
+			if (!token || !*token)
+			{
+				break;
+			}
+
+			if (!strcmp(token, "bsp"))
+			{
+				/* skip ':' */
+				token = COM_Parse(&s);
+				/* next token is the bsp string */
+				token = COM_Parse(&s);
+				if (token && *token)
+				{
+					Q_strlcpy(shortname, token, sizeof(shortname));
+					for (size_t j = 0; j < strlen(shortname); j++)
+					{
+						shortname[j] = toupper((unsigned char)shortname[j]);
+					}
+				}
+			}
+			else if (!strcmp(token, "title"))
+			{
+				/* skip ':' */
+				token = COM_Parse(&s);
+				/* next token is the title string */
+				token = COM_Parse(&s);
+				if (token && *token)
+				{
+					Q_strlcpy(longname, token, sizeof(longname));
+
+					/* now we have both bsp and title, build entry */
+					Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
+
+					/* grow array */
+					char **newlist = realloc(mapnamestmp, sizeof(char *) * (numtmpmaps + 2));
+					if (!newlist)
+					{
+						free(mapnamestmp);
+						FS_FreeFile(buffer);
+						YQ2_COM_CHECK_OOM(newlist, "realloc(mapnamestmp)", sizeof(char *) * (numtmpmaps + 2))
+						return NULL;
+					}
+
+					mapnamestmp = newlist;
+
+					mapnamestmp[numtmpmaps] = strdup(scratch);
+					YQ2_COM_CHECK_OOM(mapnamestmp[numtmpmaps], "strdup(scratch)", strlen(scratch)+1)
+					if (!mapnamestmp[numtmpmaps])
+					{
+						free(mapnamestmp);
+						FS_FreeFile(buffer);
+						return NULL;
+					}
+
+					numtmpmaps++;
+					mapnamestmp[numtmpmaps] = NULL;
+				}
+			}
+		}
+
+		FS_FreeFile(buffer);
+		*num = numtmpmaps;
+		return mapnamestmp;
+	}
+
+	return NULL;
+}
+
+static char**
 GetMapsList(int *num)
 {
 	int length;
@@ -4860,72 +4948,31 @@ GetMapsInFolderList(int *numtmpmaps)
 	return mapnamestmp;
 }
 
-static char**
-GetCombinedMapsList(int *nummaps)
+static void
+AddMapsToList(char **mapnames_source, int nummaps_source, char **mapname_target, int *nummaps_taget)
 {
-	char **mapnamestmp_list = NULL, **mapnamestmp_folder = NULL, **mapnamestmp = NULL;
-	int nummaps_list = 0, nummaps_folder = 0;
-	size_t nummapslen, currpos;
+	size_t currpos;
 
-	mapnamestmp_folder = GetMapsInFolderList(&nummaps_folder);
-	if (!mapnamestmp_folder)
-	{
-		/* no maps at all? */
-		return NULL;
-	}
-
-	mapnamestmp_list = GetMapsList(&nummaps_list);
-	if (!mapnamestmp_list)
-	{
-		/* no maps in list? */
-		*nummaps = nummaps_folder;
-		return mapnamestmp_folder;
-	}
-
-	/* we have maps in file and in folder */
-	nummapslen = sizeof(char *) * (nummaps_list + nummaps_folder + 1);
-	mapnamestmp = malloc(nummapslen);
-	YQ2_COM_CHECK_OOM(mapnamestmp, "malloc(sizeof(char *) * (num))", nummapslen)
-	if (!mapnamestmp)
-	{
-		size_t i;
-
-		for (i = 0; i < nummaps_list; i++)
-		{
-			free(mapnamestmp_list[i]);
-		}
-
-		free(mapnamestmp_list);
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-		*nummaps = nummaps_folder;
-		return mapnamestmp_folder;
-	}
-
-	memset(mapnamestmp, 0, nummapslen);
-	memcpy(mapnamestmp, mapnamestmp_list, sizeof(char *) * nummaps_list);
-	*nummaps = nummaps_list;
-	free(mapnamestmp_list);
-
-	for (currpos = 0; currpos < nummaps_folder; currpos ++)
+	for (currpos = 0; currpos < nummaps_source; currpos ++)
 	{
 		qboolean found;
 		const char *foldername;
 		size_t i;
 
-		foldername = strchr(mapnamestmp_folder[currpos], '\n');
+		foldername = strchr(mapnames_source[currpos], '\n');
 		if (!foldername)
 		{
-			free(mapnamestmp_folder[currpos]);
+			free(mapnames_source[currpos]);
 			continue;
 		}
 		foldername++;
 
 		found = false;
-		for (i = 0; i < *nummaps; i++)
+		for (i = 0; i < *nummaps_taget; i++)
 		{
 			const char *currname;
 
-			currname = strchr(mapnamestmp[i], '\n');
+			currname = strchr(mapname_target[i], '\n');
 			if (!currname)
 			{
 				continue;
@@ -4941,18 +4988,88 @@ GetCombinedMapsList(int *nummaps)
 
 		if (!found)
 		{
-			mapnamestmp[*nummaps] = mapnamestmp_folder[currpos];
-			(*nummaps) ++;
+			mapname_target[*nummaps_taget] = mapnames_source[currpos];
+			(*nummaps_taget) ++;
 		}
 		else
 		{
-			free(mapnamestmp_folder[currpos]);
+			free(mapnames_source[currpos]);
 		}
 	}
+}
+
+static char**
+GetCombinedMapsList(int *nummaps)
+{
+	char **mapnamestmp_list = NULL, **mapnamestmp_folder = NULL, **mapnamestmp = NULL, **mapdbnamestmp_list = NULL;
+	int nummaps_list = 0, nummaps_folder = 0, nummapsdb_list = 0;
+	size_t nummapslen;
+
+	mapnamestmp_folder = GetMapsInFolderList(&nummaps_folder);
+	if (!mapnamestmp_folder)
+	{
+		/* no maps at all? */
+		return NULL;
+	}
+
+	mapnamestmp_list = GetMapsList(&nummaps_list);
+	mapdbnamestmp_list = GetMapsDBList(&nummapsdb_list);
+	if (!mapnamestmp_list && !mapdbnamestmp_list)
+	{
+		/* no maps in list? */
+		*nummaps = nummaps_folder;
+		return mapnamestmp_folder;
+	}
+
+	/* we have maps in file and in folder */
+	nummapslen = sizeof(char *) * (nummaps_list + nummaps_folder + nummapsdb_list + 1);
+	mapnamestmp = malloc(nummapslen);
+	if (!mapnamestmp)
+	{
+		if (mapnamestmp_list && nummaps_list)
+		{
+			size_t i;
+
+			for (i = 0; i < nummaps_list; i++)
+			{
+				free(mapnamestmp_list[i]);
+			}
+
+			free(mapnamestmp_list);
+		}
+
+		if (mapdbnamestmp_list && nummapsdb_list)
+		{
+			size_t i;
+
+			for (i = 0; i < nummapsdb_list; i++)
+			{
+				free(mapdbnamestmp_list[i]);
+			}
+
+			free(mapdbnamestmp_list);
+		}
+
+		YQ2_COM_CHECK_OOM(mapnamestmp, "malloc(sizeof(char *) * (num))", nummapslen)
+
+		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+		*nummaps = nummaps_folder;
+		return mapnamestmp_folder;
+	}
+
+	memset(mapnamestmp, 0, nummapslen);
+	*nummaps = 0;
+
+	AddMapsToList(mapnamestmp_list, nummaps_list, mapnamestmp, nummaps);
+	AddMapsToList(mapdbnamestmp_list, nummapsdb_list, mapnamestmp, nummaps);
+	AddMapsToList(mapnamestmp_folder, nummaps_folder, mapnamestmp, nummaps);
 
 	mapnamestmp[*nummaps] = NULL;
 
+	free(mapnamestmp_list);
 	free(mapnamestmp_folder);
+	free(mapdbnamestmp_list);
+
 	return mapnamestmp;
 }
 
