@@ -725,7 +725,7 @@ SV_BuildClientFrame(client_t *client)
 
 					VectorSubtract(org, ent->s.origin, delta);
 
-					if (DotProduct(delta, delta) > 400.0f * 400.0f)
+					if (VectorLengthSquared(delta) > 400.0f * 400.0f)
 					{
 						continue;
 					}
