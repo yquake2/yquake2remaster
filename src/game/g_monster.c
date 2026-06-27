@@ -821,28 +821,35 @@ M_GetModelIndex(edict_t *self)
 
 	if (modelindex == CUSTOM_PLAYER_MODEL)
 	{
-		char skinname[MAX_QPATH], modelname[MAX_QPATH];
-		char *s;
-
-		/* get selected player model from skin */
-		Q_strlcpy(skinname, Info_ValueForKey(
-			self->client->pers.userinfo, "skin"), sizeof(skinname));
-
-		s = skinname;
-
-		while(*s)
+		if (self->client)
 		{
-			if (*s == '/')
-			{
-				*s = 0;
-				break;
-			}
-			s++;
-		}
+			char skinname[MAX_QPATH], modelname[MAX_QPATH];
+			char *s;
 
-		Com_sprintf(modelname, sizeof(modelname), "players/%s/tris.md2",
-			skinname);
-		modelindex = gi.modelindex(modelname);
+			/* get selected player model from skin */
+			Q_strlcpy(skinname, Info_ValueForKey(
+				self->client->pers.userinfo, "skin"), sizeof(skinname));
+
+			s = skinname;
+
+			while(*s)
+			{
+				if (*s == '/')
+				{
+					*s = 0;
+					break;
+				}
+				s++;
+			}
+
+			Com_sprintf(modelname, sizeof(modelname), "players/%s/tris.md2",
+				skinname);
+			modelindex = gi.modelindex(modelname);
+		}
+		else
+		{
+			modelindex = gi.modelindex("players/male/tris.md2");
+		}
 	}
 
 	return modelindex;
