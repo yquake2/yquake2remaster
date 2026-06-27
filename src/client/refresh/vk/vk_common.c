@@ -992,6 +992,7 @@ CreateDescriptorPool(void)
 		// sampler
 		{
 			.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			/* + 3 == vk_colorbuffer, vk_colorbufferWarp, vk_rawTexture */
 			.descriptorCount = MAX_TEXTURES + MAX_LIGHTMAPS * 2 + MAX_SCRAPS + 3
 		}
 	};
@@ -1000,7 +1001,11 @@ CreateDescriptorPool(void)
 		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		.pNext = NULL,
 		.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-		.maxSets = poolSizes[1].descriptorCount + 16 + 8,
+		.maxSets = (
+			poolSizes[0].descriptorCount +
+			poolSizes[1].descriptorCount +
+			8 /* margin */
+		),
 		.poolSizeCount = sizeof(poolSizes) / sizeof(poolSizes[0]),
 		.pPoolSizes = poolSizes,
 	};
