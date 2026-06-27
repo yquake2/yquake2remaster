@@ -480,17 +480,23 @@ Spawn_CheckCoop_MapHacks(edict_t *ent)
 
 	if (!Q_stricmp(level.mapname, "xsewer1"))
 	{
-		if (ent->classname && !Q_stricmp(ent->classname, "trigger_relay") && ent->target && !Q_stricmp(ent->target, "t3") && ent->targetname && !Q_stricmp(ent->targetname, "t2"))
+		if (ent->classname && !Q_stricmp(ent->classname, "trigger_relay") &&
+			ent->target && !Q_stricmp(ent->target, "t3") &&
+			ent->targetname && !Q_stricmp(ent->targetname, "t2"))
 		{
 			return true;
 		}
-		if (ent->classname && !Q_stricmp(ent->classname, "func_button") && ent->target && !Q_stricmp(ent->target, "t16") && ent->model && !Q_stricmp(ent->model, "*71"))
+
+		if (ent->classname && !Q_stricmp(ent->classname, "func_button") &&
+			ent->target && !Q_stricmp(ent->target, "t16") &&
+			ent->model && !Q_stricmp(ent->model, "*71"))
 		{
 			ent->message = "Overflow valve maintenance\nhatch A opened.";
 			return false;
 		}
 
-		if (ent->classname && !Q_stricmp(ent->classname, "trigger_once") && ent->model && !Q_stricmp(ent->model, "*3"))
+		if (ent->classname && !Q_stricmp(ent->classname, "trigger_once") &&
+			ent->model && !Q_stricmp(ent->model, "*3"))
 		{
 			ent->message = "Overflow valve maintenance\nhatch B opened.";
 			return false;
@@ -1156,7 +1162,8 @@ G_InhibitEntity(edict_t *ent)
 		{
 			if (((skill->value == SKILL_EASY) && (ent->spawnflags & SPAWNFLAG_NOT_EASY)) ||
 				((skill->value == SKILL_MEDIUM) && (ent->spawnflags & SPAWNFLAG_NOT_MEDIUM)) ||
-				(((skill->value == SKILL_HARD) || (skill->value == SKILL_HARDPLUS)) && (ent->spawnflags & SPAWNFLAG_NOT_HARD)))
+				(((skill->value == SKILL_HARD) || (skill->value == SKILL_HARDPLUS)) &&
+				  (ent->spawnflags & SPAWNFLAG_NOT_HARD)))
 			{
 				return true;
 			}

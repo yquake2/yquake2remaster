@@ -546,6 +546,22 @@ SCR_LoadAVcodec(const char *arg, const char *dot)
 
 		Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg, dot);
 		cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
+
+		if (!cin.av_video)
+		{
+			char arg_lower[256];
+			size_t j;
+
+			Q_strlcpy(arg_lower, arg, sizeof(arg_lower));
+			for (j = 0; j < strlen(arg_lower); j++)
+			{
+				arg_lower[j] = tolower((unsigned char)arg_lower[j]);
+			}
+
+			Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg_lower, dot);
+			cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
+		}
+
 		if (cin.av_video)
 		{
 			break;
@@ -806,11 +822,11 @@ SCR_PlayCinematic(char *arg)
 	dot = strstr(arg, ".");
 
 	/* static pcx image */
-	if (dot && (!strcmp(dot, ".pcx") ||
-				!strcmp(dot, ".lmp") ||
-				!strcmp(dot, ".tga") ||
-				!strcmp(dot, ".jpg") ||
-				!strcmp(dot, ".png")))
+	if (dot && (!Q_stricmp(dot, ".pcx") ||
+				!Q_stricmp(dot, ".lmp") ||
+				!Q_stricmp(dot, ".tga") ||
+				!Q_stricmp(dot, ".jpg") ||
+				!Q_stricmp(dot, ".png")))
 	{
 		const cvar_t *r_retexturing;
 		char namewe[256];
@@ -881,12 +897,12 @@ SCR_PlayCinematic(char *arg)
 	}
 
 #ifdef AVMEDIADECODE
-	if (dot && (!strcmp(dot, ".cin") ||
-				!strcmp(dot, ".ogv") ||
-				!strcmp(dot, ".avi") ||
-				!strcmp(dot, ".mpg") ||
-				!strcmp(dot, ".smk") ||
-				!strcmp(dot, ".roq")))
+	if (dot && (!Q_stricmp(dot, ".cin") ||
+				!Q_stricmp(dot, ".ogv") ||
+				!Q_stricmp(dot, ".avi") ||
+				!Q_stricmp(dot, ".mpg") ||
+				!Q_stricmp(dot, ".smk") ||
+				!Q_stricmp(dot, ".roq")))
 	{
 		char namewe[256];
 
@@ -931,13 +947,29 @@ SCR_PlayCinematic(char *arg)
 #else
 
 	/* buildin decoders */
-	if (dot && !strcmp(dot, ".mpg"))
+	if (dot && !Q_stricmp(dot, ".mpg"))
 	{
 		int len;
 
 		Com_sprintf(name, sizeof(name), "video/%s", arg);
 
 		len = FS_LoadFile(name, &cin.raw_video);
+
+		if (!cin.raw_video || len <= 0)
+		{
+			char arg_lower[256];
+			size_t j;
+
+			Q_strlcpy(arg_lower, arg, sizeof(arg_lower));
+			for (j = 0; j < strlen(arg_lower); j++)
+			{
+				arg_lower[j] = tolower((unsigned char)arg_lower[j]);
+			}
+
+			Com_sprintf(name, sizeof(name), "video/%s", arg_lower);
+			len = FS_LoadFile(name, &cin.raw_video);
+		}
+
 		if (!cin.raw_video || len <= 0)
 		{
 			cl.cinematictime = 0; /* done */
@@ -1003,7 +1035,20 @@ SCR_PlayCinematic(char *arg)
 #endif
 
 	Com_sprintf(name, sizeof(name), "video/%s", arg);
-	FS_FOpenFile(name, &cl.cinematic_file, false);
+	if (FS_FOpenFile(name, &cl.cinematic_file, false) < 0)
+	{
+		char arg_lower[256];
+		size_t j;
+
+		Q_strlcpy(arg_lower, arg, sizeof(arg_lower));
+		for (j = 0; j < strlen(arg_lower); j++)
+		{
+			arg_lower[j] = tolower((unsigned char)arg_lower[j]);
+		}
+
+		Com_sprintf(name, sizeof(name), "video/%s", arg_lower);
+		FS_FOpenFile(name, &cl.cinematic_file, false);
+	}
 
 	if (!cl.cinematic_file)
 	{

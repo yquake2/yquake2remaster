@@ -672,12 +672,12 @@ SV_Map(qboolean attractloop, const char *levelstring, qboolean loadgame, qboolea
 
 	ext = (l <= 4) ? NULL : level + l - 4;
 
-	if (ext && (!strcmp(ext, ".cin") ||
-				!strcmp(ext, ".ogv") ||
-				!strcmp(ext, ".avi") ||
-				!strcmp(ext, ".roq") ||
-				!strcmp(ext, ".mpg") ||
-				!strcmp(ext, ".smk")))
+	if (ext && (!Q_stricmp(ext, ".cin") ||
+				!Q_stricmp(ext, ".ogv") ||
+				!Q_stricmp(ext, ".avi") ||
+				!Q_stricmp(ext, ".roq") ||
+				!Q_stricmp(ext, ".mpg") ||
+				!Q_stricmp(ext, ".smk")))
 	{
 #ifndef DEDICATED_ONLY
 		SCR_BeginLoadingPlaque(); /* for local system */
