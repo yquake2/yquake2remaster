@@ -3311,7 +3311,7 @@ M_Credits_Draw(void)
 		y += 10, i++
 		)
 	{
-		int j, stringoffset = 0;
+		int x, stringoffset = 0;
 		int bold = false;
 
 		if (y <= -8)
@@ -3330,23 +3330,10 @@ M_Credits_Draw(void)
 			stringoffset = 0;
 		}
 
-		for (j = 0; credits[i][j + stringoffset]; j++)
-		{
-			int x;
+		x = (viddef.width / scale - (int)strlen(credits[i]) * 8 - stringoffset *
+			 8) / 2 + stringoffset * 8;
 
-			x = (viddef.width / scale - (int)strlen(credits[i]) * 8 - stringoffset *
-				 8) / 2 + (j + stringoffset) * 8;
-
-			if (bold)
-			{
-				Draw_CharScaled(x * scale, y * scale, credits[i][j + stringoffset] + 128, scale);
-			}
-
-			else
-			{
-				Draw_CharScaled(x * scale, y * scale, credits[i][j + stringoffset], scale);
-			}
-		}
+		Draw_StringScaled(x * scale, y * scale, scale, bold, credits[i] + stringoffset);
 	}
 
 	if (y < 0)

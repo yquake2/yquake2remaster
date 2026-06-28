@@ -50,7 +50,9 @@ Draw_InitLocal(void)
 
 	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
 	/* Heretic 2 uses more than 128 symbols in image */
-	draw_chars_has_alt = !(draw_chars && !strcmp(draw_chars->name, "pics/misc/conchars.m32"));
+	draw_chars_has_alt = (draw_chars && (
+		strcmp(draw_chars->name, "pics/misc/conchars.m8") &&
+		strcmp(draw_chars->name, "pics/misc/conchars.m32")));
 }
 
 void

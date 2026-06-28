@@ -48,7 +48,9 @@ Draw_InitLocal(void)
 
 	draw_chars = R_LoadConsoleChars((findimage_t)R_FindImage);
 	/* Heretic 2 uses more than 128 symbols in image */
-	draw_chars_has_alt = !(draw_chars && !strcmp(draw_chars->name, "pics/misc/conchars.m32"));
+	draw_chars_has_alt = (draw_chars && (
+		strcmp(draw_chars->name, "pics/misc/conchars.m8") &&
+		strcmp(draw_chars->name, "pics/misc/conchars.m32")));
 }
 
 /*
@@ -153,7 +155,7 @@ sw, th: width/height in UV (e.g. s1-s0, t1-t0)
 src: source image (font atlas)
 ================
 */
-void
+static void
 RE_Draw_TexRect(int x, int y, int w, int h, float s0, float t0, float sw, float th,
 	const image_t* src)
 {

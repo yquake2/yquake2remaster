@@ -56,7 +56,9 @@ GL4_Draw_InitLocal(void)
 
 	draw_chars = R_LoadConsoleChars((findimage_t)GL4_FindImage);
 	/* Heretic 2 uses more than 128 symbols in image */
-	draw_chars_has_alt = !(draw_chars && !strcmp(draw_chars->name, "pics/misc/conchars.m32"));
+	draw_chars_has_alt = (draw_chars && (
+		strcmp(draw_chars->name, "pics/misc/conchars.m8") &&
+		strcmp(draw_chars->name, "pics/misc/conchars.m32")));
 
 	// set up attribute layout for 2D textured rendering
 	glGenVertexArrays(1, &vao2D);
