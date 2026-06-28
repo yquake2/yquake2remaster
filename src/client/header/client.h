@@ -529,6 +529,10 @@ typedef enum
 char *Key_KeynumToString(int keynum);
 char *Key_KeynumToString_Joy(int key);
 
+void IN_GetClipboardText(char *out, size_t n);
+int IN_SetClipboardText(const char *s);
+void CalibrationFinishedCallback(void);
+
 int CL_MaxClients(void);
 void CL_WriteDemoMessage(void);
 void CL_Stop_f(void);

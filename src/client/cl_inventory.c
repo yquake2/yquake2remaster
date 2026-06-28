@@ -37,26 +37,6 @@ CL_ParseInventory(void)
 	}
 }
 
-static void
-Inv_DrawStringScaled(int x, int y, const char *string, float factor)
-{
-	while (*string)
-	{
-		Draw_CharScaled(x, y, *string, factor);
-		x += factor*8;
-		string++;
-	}
-}
-
-static void
-SetStringHighBit(char *s)
-{
-	while (*s)
-	{
-		*s++ |= 128;
-	}
-}
-
 #define DISPLAY_ITEMS 17
 
 const char *
@@ -132,8 +112,8 @@ CL_DrawInventory(void)
 	y += scale * 24;
 	x += scale * 24;
 
-	Inv_DrawStringScaled(x, y, "hotkey ### item", scale);
-	Inv_DrawStringScaled(x, y + scale * 8, "------ --- ----", scale);
+	Draw_StringScaled(x, y, scale, false, "hotkey ### item");
+	Draw_StringScaled(x, y + scale * 8, scale, false, "------ --- ----");
 
 	y += scale*16;
 
@@ -152,11 +132,7 @@ CL_DrawInventory(void)
 		Com_sprintf(string, sizeof(string), "%6.6s %3i %s", bind,
 				cl.inventory[item], cl.configstrings[CS_ITEMS + item]);
 
-		if (item != selected)
-		{
-			SetStringHighBit(string);
-		}
-		else
+		if (item == selected)
 		{
 			/* draw a blinky cursor by the selected item */
 			if ((int)(cls.realtime * 10) & 1)
@@ -165,7 +141,7 @@ CL_DrawInventory(void)
 			}
 		}
 
-		Inv_DrawStringScaled(x, y, string, scale);
+		Draw_StringScaled(x, y, scale, item != selected, string);
 
 		y += scale * 8;
 	}

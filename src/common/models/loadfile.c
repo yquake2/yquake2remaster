@@ -552,7 +552,7 @@ static const replacement_t replacements[] = {
 	{"models/objects/gibs/head2/tris", "models/objects/gibs/head/tris"},
 };
 
-const model_t *
+static const model_t *
 Mod_LoadAndStoreModel(const char *name)
 {
 	char namewe[256];

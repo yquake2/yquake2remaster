@@ -129,18 +129,6 @@ static cvar_t *haptic_feedback_filter;
 
 // ----
 
-typedef struct haptic_effects_cache {
-	int effect_volume;
-	int effect_duration;
-	int effect_delay;
-	int effect_attack;
-	int effect_fade;
-	int effect_id;
-	int effect_x;
-	int effect_y;
-	int effect_z;
-} haptic_effects_cache_t;
-
 qboolean show_gamepad = false, show_haptic = false, show_gyro = false;
 
 static SDL_Haptic *joystick_haptic = NULL;
@@ -170,7 +158,6 @@ static cvar_t *joy_ramp_time;
 static cvar_t *joy_outer_threshold;
 static cvar_t *joy_forwardsensitivity;
 static cvar_t *joy_sidesensitivity;
-void IN_ApplyJoyPreset(void);
 
 // Joystick's analog sticks configuration
 static sticklayout_t joy_active_layout;
@@ -275,8 +262,6 @@ static unsigned short int front_sample = 0;
 
 // Threshold at which a trigger press is registered, in SDL units
 static int trig_thresh;
-
-extern void CalibrationFinishedCallback(void);
 
 /* ------------------------------------------------------------------ */
 

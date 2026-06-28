@@ -67,4 +67,18 @@ void IN_GetClipboardText(char *out, size_t n);
 /* Copy text to clipboard */
 int IN_SetClipboardText(const char *s);
 
+void IN_ApplyJoyPreset(void);
+
+typedef struct haptic_effects_cache {
+	int effect_volume;
+	int effect_duration;
+	int effect_delay;
+	int effect_attack;
+	int effect_fade;
+	int effect_id;
+	int effect_x;
+	int effect_y;
+	int effect_z;
+} haptic_effects_cache_t;
+
 #endif

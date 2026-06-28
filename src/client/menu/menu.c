@@ -3334,7 +3334,7 @@ M_Credits_Draw(void)
 		{
 			int x;
 
-			x = (viddef.width / scale- (int)strlen(credits[i]) * 8 - stringoffset *
+			x = (viddef.width / scale - (int)strlen(credits[i]) * 8 - stringoffset *
 				 8) / 2 + (j + stringoffset) * 8;
 
 			if (bold)

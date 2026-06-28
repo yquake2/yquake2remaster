@@ -29,9 +29,6 @@
 #include "../header/client.h"
 #include "header/qmenu.h"
 
-void IN_GetClipboardText(char *out, size_t n);
-int IN_SetClipboardText(const char *s);
-
 static void Action_Draw(menuaction_s *a);
 static void Menu_DrawStatusBar(const char *string);
 static void MenuList_Draw(menulist_s *l);
