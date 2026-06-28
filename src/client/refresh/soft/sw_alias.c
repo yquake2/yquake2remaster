@@ -114,7 +114,7 @@ R_AliasTransformFinalVerts(int numpoints, finalvert_t *fv, dxtrivertx_t *newv, f
 
 		for (n = 0; n < 3; n++)
 		{
-			plightnormal[n] = newv->normal[n] / 127.f;
+			plightnormal[n] = r_byteNormalScale[(unsigned char)newv->normal[n]];
 		}
 
 		fv->xyz[0] = DotProduct(lerp, aliastransform[0]) + aliastransform[0][3];

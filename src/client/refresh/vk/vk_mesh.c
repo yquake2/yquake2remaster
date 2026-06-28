@@ -274,7 +274,7 @@ Vk_DrawAliasFrameLerpCommands(int *order, const int *order_end, float alpha,
 				/* unpack normal */
 				for(i = 0; i < 3; i++)
 				{
-					normal[i] = verts[index_xyz].normal[i] / 127.f;
+					normal[i] = r_byteNormalScale[(unsigned char)verts[index_xyz].normal[i]];
 				}
 
 				/* normals and vertexes come from the frame list */

@@ -28,6 +28,7 @@
 
 static vec4_t *lerpbuff = NULL;
 static int lerpbuffnum = 0;
+float r_byteNormalScale[256];
 
 vec4_t *
 R_VertBufferRealloc(int num)
@@ -55,6 +56,13 @@ R_VertBufferRealloc(int num)
 void
 R_VertBufferInit(void)
 {
+	int i;
+
+	for (i = 0; i < 256; i++)
+	{
+		r_byteNormalScale[i] = (float)((signed char)i) / 127.f;
+	}
+
 	lerpbuff = NULL;
 	lerpbuffnum = 0;
 	R_VertBufferRealloc(MAX_VERTS);
@@ -89,7 +97,7 @@ R_LerpVerts(qboolean powerUpEffect, int nverts,
 			{
 				float normal;
 
-				normal = v->normal[n] / 127.f;
+				normal = r_byteNormalScale[(unsigned char)v->normal[n]];
 
 				lerp[n] = scale[n] * (move[n] + ov->v[n] * backv[n] + v->v[n] * frontv[n]) +
 						  normal * POWERSUIT_SCALE;

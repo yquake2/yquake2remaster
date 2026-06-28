@@ -140,7 +140,7 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 				/* unpack normal */
 				for (n = 0; n < 3; n++)
 				{
-					normal[n] = verts[index_xyz].normal[n] / 127.f;
+					normal[n] = r_byteNormalScale[(unsigned char)verts[index_xyz].normal[n]];
 				}
 
 				/* normals and vertexes come from the frame list */

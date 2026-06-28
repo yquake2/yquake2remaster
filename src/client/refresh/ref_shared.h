@@ -485,6 +485,7 @@ extern void R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const float frontv[3], const float backv[3], const float *scale);
 extern void R_ConvertNormalMDL(byte in_normal, signed char *normal);
 extern vec4_t *R_VertBufferRealloc(int num);
+extern float r_byteNormalScale[256];
 extern void R_VertBufferInit(void);
 extern void R_VertBufferFree(void);
 extern void R_GenFanIndexes(unsigned short *data, unsigned from, unsigned to);

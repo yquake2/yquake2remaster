@@ -104,7 +104,7 @@ R_DrawAliasDrawCommands(const entity_t *currententity, int *order, const int *or
 				/* unpack normal */
 				for (i = 0; i < 3; i++)
 				{
-					normal[i] = verts[index_xyz].normal[i] / 127.f;
+					normal[i] = r_byteNormalScale[(unsigned char)verts[index_xyz].normal[i]];
 				}
 
 				/* normals and vertexes come from the frame list */
