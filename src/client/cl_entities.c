@@ -39,12 +39,15 @@ static void
 CL_AddPacketEntities(const frame_t *frame)
 {
 	float autorotate, autobob;
-	const cvar_t *game;
+	static const cvar_t *game = NULL;
 	int autoanim;
 	int pnum;
 
-	/* To distinguish baseq2, xatrix and rogue. */
-	game = Cvar_Get("game",  "", CVAR_LATCH | CVAR_SERVERINFO);
+	if (game == NULL)
+	{
+		/* To distinguish baseq2, xatrix and rogue. */
+		game = Cvar_Get("game",  "", CVAR_LATCH | CVAR_SERVERINFO);
+	}
 
 	/* bonus items rotate at a fixed rate */
 	autorotate = anglemod(cl.time * 0.1f);
