@@ -566,7 +566,7 @@ extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_gamma;
 extern cvar_t *viewsize;
 
-refexport_t GetRefAPI(refimport_t imp);
+Q2_DLL_EXPORTED refexport_t GetRefAPI(refimport_t imp);
 extern void R_CombineBlendWithFog(float *v_blend, qboolean native_fog);
 extern void R_InitCvar(void);
 
