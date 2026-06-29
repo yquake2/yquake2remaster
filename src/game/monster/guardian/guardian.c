@@ -660,7 +660,7 @@ SP_monster_guardian(edict_t *self)
 	sound_spin_loop = gi.soundindex("weapons/hyprbl1a.wav");
 	sound_laser = gi.soundindex("weapons/laser2.wav");
 
-	for(i = 0; i < sizeof(gibs) / sizeof(*gibs); i++)
+	for(i = 0; i < ARRLEN(gibs); i++)
 	{
 		gi.modelindex(gibs[i]);
 	}

@@ -549,7 +549,7 @@ GL4_Init(void)
 	return true;
 }
 
-void
+static void
 GL4_Shutdown(void)
 {
 	ri.Cmd_RemoveCommand("modellist");
@@ -1813,7 +1813,7 @@ GL4_Clear(void)
 	}
 }
 
-void
+static void
 GL4_BeginFrame(float camera_separation)
 {
 #if 0 // TODO: stereo stuff

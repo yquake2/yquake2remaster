@@ -41,8 +41,6 @@ msurface_t *r_alpha_surfaces;
 extern int cur_lm_copy;
 byte minlight[256];
 
-void LM_UploadBlock(qboolean dynamic);
-
 static void
 R_DrawGLPoly(msurface_t *fa)
 {

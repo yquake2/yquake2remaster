@@ -36,8 +36,6 @@ int cur_lm_copy;	// which lightmap copy to use (when lightmapcopies=on)
 
 static GLushort vtx_ptr, idx_ptr;	// pointers for array positions in gl_buf
 
-extern void R_SetPerspective(GLdouble fovy);
-
 void
 R_ResetGLBuffer(void)
 {

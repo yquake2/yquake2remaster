@@ -1737,7 +1737,7 @@ object_spawn(edict_t *self)
 	}
 
 	/* need to use static strings */
-	for (i = 0; i < sizeof(object_actions) / sizeof(*object_actions); i ++)
+	for (i = 0; i < ARRLEN(object_actions); i ++)
 	{
 		if (!strcmp(frames[0].name, object_actions[i]))
 		{

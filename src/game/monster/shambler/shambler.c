@@ -70,7 +70,7 @@ shambler_lightning_update(edict_t *self)
 	edict_t *lightning;
 	vec3_t f, r;
 
-	if (self->s.frame >= FRAME_magic01 + sizeof(lightning_left_hand) / sizeof(*lightning_left_hand))
+	if (self->s.frame >= FRAME_magic01 + ARRLEN(lightning_left_hand))
 	{
 		return;
 	}

@@ -185,7 +185,11 @@ extern byte gammatable[256];
 extern byte minlight[256];
 
 qboolean R_Bind(int texnum);
-
+void R_Strings(void);
+void LM_UploadBlock(qboolean dynamic);
+void R_SetDefaultState(void);
+void R_ResetGLBuffer(void);
+void R_SetPerspective(GLdouble fovy);
 void R_TexEnv(GLenum mode);
 void R_SelectTexture(GLenum);
 void R_MBind(GLenum target, int texnum);

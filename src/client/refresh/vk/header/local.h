@@ -138,8 +138,6 @@ extern	int		r_dlightframecount;
 extern	qvksampler_t vk_current_sampler;
 extern	qvksampler_t vk_current_lmap_sampler;
 
-void	 RE_Shutdown( void );
-
 void Vk_ScreenShot_f (void);
 void Vk_Strings_f(void);
 void Vk_Mem_f(void);

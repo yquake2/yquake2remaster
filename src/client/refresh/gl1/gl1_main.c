@@ -46,8 +46,6 @@ int c_brush_polys, c_alias_polys;
 
 float v_blend[4]; /* final blending color */
 
-void R_Strings(void);
-
 /* view origin */
 vec3_t vup;
 vec3_t vpn;
@@ -100,9 +98,6 @@ cvar_t *gl1_stereo_convergence;
 static cvar_t *gl1_waterwarp;
 
 refimport_t ri;
-
-extern void R_SetDefaultState(void);
-extern void R_ResetGLBuffer(void);
 
 void
 R_RotateForEntity(entity_t *e)
@@ -702,7 +697,7 @@ R_SetPerspective(GLdouble fovy)
 	glFrustum(xmin, xmax, ymin, ymax, zNear, zFar);
 }
 
-void
+static void
 R_SetupGL(void)
 {
 	int x, x2, y2, y, w, h;
@@ -878,13 +873,13 @@ R_Clear(void)
 	}
 }
 
-void
+static void
 R_Flash(void)
 {
 	R_PolyBlend();
 }
 
-void
+static void
 R_SetGL2D(void)
 {
 	int x, w, y, h;
@@ -1119,8 +1114,9 @@ R_RenderView(const refdef_t *fd)
 	}
 }
 
-enum opengl_special_buffer_modes
-GL_GetSpecialBufferModeForStereoMode(enum stereo_modes stereo_mode) {
+static enum opengl_special_buffer_modes
+GL_GetSpecialBufferModeForStereoMode(enum stereo_modes stereo_mode)
+{
 	switch (stereo_mode) {
 		case STEREO_MODE_NONE:
 		case STEREO_SPLIT_HORIZONTAL:
@@ -1192,7 +1188,7 @@ RI_RenderFrame(const refdef_t *fd)
 #define GLES1_ENABLED_ONLY	"0"
 #endif
 
-void
+static void
 R_Register(void)
 {
 	/* Init default value */
@@ -1387,7 +1383,7 @@ typedef enum
 	rf_opengles10
 } refresher_t;
 
-qboolean
+static qboolean
 RI_Init(void)
 {
 	int j;
@@ -1691,7 +1687,7 @@ RI_Init(void)
 	return true;
 }
 
-void
+static void
 RI_Shutdown(void)
 {
 	ri.Cmd_RemoveCommand("modellist");

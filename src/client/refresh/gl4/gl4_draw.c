@@ -39,9 +39,11 @@ static stbtt_bakedchar *draw_fontcodes = NULL;
 static qboolean draw_chars_has_alt;
 
 static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
-static GLuint bloomTex[2] = {0,0};
-static GLuint bloomFBO[2] = {0,0};
 static qboolean bloomInitialized = false;
+
+#define BLOOM_TEXTURES 2
+static GLuint bloomTex[BLOOM_TEXTURES] = {0, 0};
+static GLuint bloomFBO[BLOOM_TEXTURES] = {0, 0};
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
@@ -646,21 +648,21 @@ static void GL4_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
 /* Shutdown bloom resources */
 void GL4_BloomShutdown(void)
 {
-	if (bloomFBO[0])
+	size_t i;
+
+	for (i = 0; i < BLOOM_TEXTURES; i++)
 	{
-		glDeleteFramebuffers(1, &bloomFBO[0]); bloomFBO[0] = 0;
-	}
-	if (bloomFBO[1])
-	{
-		glDeleteFramebuffers(1, &bloomFBO[1]); bloomFBO[1] = 0;
-	}
-	if (bloomTex[0])
-	{
-		glDeleteTextures(1, &bloomTex[0]); bloomTex[0] = 0;
-	}
-	if (bloomTex[1])
-	{
-		glDeleteTextures(1, &bloomTex[1]); bloomTex[1] = 0;
+		if (bloomFBO[i])
+		{
+			glDeleteFramebuffers(1, &bloomFBO[i]);
+			bloomFBO[i] = 0;
+		}
+
+		if (bloomTex[i])
+		{
+			glDeleteTextures(1, &bloomTex[i]);
+			bloomTex[i] = 0;
+		}
 	}
 
 	bloomInitialized = false;

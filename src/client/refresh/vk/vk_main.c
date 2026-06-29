@@ -830,9 +830,10 @@ R_SetupVulkan(void)
 		VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(r_viewproj_matrix), r_viewproj_matrix);
 }
 
-static void R_Flash( void )
+static void
+R_Flash(void)
 {
-	R_PolyBlend ();
+	R_PolyBlend();
 }
 
 /*
@@ -1236,7 +1237,7 @@ RE_ShutdownContext(void)
 	QVk_WaitAndShutdownAll();
 }
 
-void
+static void
 RE_Shutdown(void)
 {
 	ri.Cmd_RemoveCommand("modellist");

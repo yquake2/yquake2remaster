@@ -195,7 +195,7 @@ PFN_vkDestroyDebugReportCallbackEXT qvkDestroyDebugReportCallbackEXT;
 	.flags = 0, \
 	.vertexBindingDescriptionCount = 1, \
 	.pVertexBindingDescriptions = &b, \
-	.vertexAttributeDescriptionCount = sizeof(a) / sizeof(a[0]), \
+	.vertexAttributeDescriptionCount = ARRLEN(a), \
 	.pVertexAttributeDescriptions = a \
 }
 
@@ -1006,7 +1006,7 @@ CreateDescriptorPool(void)
 			poolSizes[1].descriptorCount +
 			8 /* margin */
 		),
-		.poolSizeCount = sizeof(poolSizes) / sizeof(poolSizes[0]),
+		.poolSizeCount = ARRLEN(poolSizes),
 		.pPoolSizes = poolSizes,
 	};
 
@@ -1964,7 +1964,7 @@ QVk_Init(void)
 	VkValidationFeaturesEXT validationFeatures = {
 		.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT,
 		.pNext = NULL,
-		.enabledValidationFeatureCount = sizeof(validationFeaturesEnable) / sizeof(validationFeaturesEnable[0]),
+		.enabledValidationFeatureCount = ARRLEN(validationFeaturesEnable),
 		.pEnabledValidationFeatures = validationFeaturesEnable,
 		.disabledValidationFeatureCount = 0,
 		.pDisabledValidationFeatures = NULL
@@ -1985,7 +1985,7 @@ QVk_Init(void)
 
 	if (r_validation->value > 0)
 	{
-		createInfo.enabledLayerCount = sizeof(validationLayers) / sizeof(validationLayers[0]);
+		createInfo.enabledLayerCount = ARRLEN(validationLayers);
 		createInfo.ppEnabledLayerNames = validationLayers;
 		for (i = 0; i < createInfo.enabledLayerCount; i++)
 		{

@@ -524,8 +524,6 @@ GL3_DrawAliasModel(entity_t *currententity)
 
 	if (currententity->flags & RF_WEAPONMODEL)
 	{
-		extern hmm_mat4 GL3_SetPerspective(GLdouble fovy);
-
 		origProjViewMat = gl3state.uni3DData.transProjViewMat4;
 
 		// render weapon with a different FOV (r_gunfov) so it's not distorted at high view FOV

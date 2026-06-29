@@ -378,8 +378,8 @@ GL3_BindEBO(GLuint ebo)
 }
 
 extern void GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode);
-
 extern void GL3_RotateForEntity(entity_t *e);
+extern hmm_mat4 GL3_SetPerspective(GLdouble fovy);
 
 // gl3_sdl.c
 extern int GL3_InitContext(void* win);
