@@ -1603,7 +1603,7 @@ GL4_RenderView(const refdef_t *fd)
 	/* apply bloom */
 	GL4_SetGL2D();
 
-	if (r_bloom && r_bloom->value != 0.0f && gl4_bloomBright.shaderProgram && gl4_bloomBlur.shaderProgram && gl4_bloomComposite.shaderProgram)
+	if (r_bloom && r_bloom->value)
 	{
 		GLuint compositeTex = GL4_ApplyBloom(sceneColorTex, vid.width, vid.height);
 

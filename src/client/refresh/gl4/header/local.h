@@ -238,6 +238,11 @@ typedef struct
 	// NOTE: make sure siParticle is always the last shaderInfo (or adapt GL4_ShutdownShaders())
 	gl4ShaderInfo_t siParticle; // for particles. surprising, right?
 
+	/* bloom */
+	gl4ShaderInfo_t gl4_bloomBright;
+	gl4ShaderInfo_t gl4_bloomBlur;
+	gl4ShaderInfo_t gl4_bloomComposite;
+
 	GLuint vao3D, vbo3D; // for brushes etc, using 10 floats and one uint as vertex input (x,y,z, s,t, lms,lmt, normX,normY,normZ ; lightFlags)
 
 	// the next two are for gl4config.useBigVBO == true
@@ -501,11 +506,6 @@ extern cvar_t *gl4_particle_square;
 extern cvar_t *gl4_colorlight;
 extern cvar_t *gl_polyblend;
 extern cvar_t *gl4_debugcontext;
-
-/* bloom */
-extern gl4ShaderInfo_t gl4_bloomBright;
-extern gl4ShaderInfo_t gl4_bloomBlur;
-extern gl4ShaderInfo_t gl4_bloomComposite;
 
 extern cvar_t *r_bloom;
 

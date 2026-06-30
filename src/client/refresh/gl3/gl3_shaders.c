@@ -1071,7 +1071,8 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 	if (shaderInfo->shaderProgram != 0)
 	{
-		Com_Printf("WARNING: calling initShader2D for gl3ShaderInfo_t that already has a shaderProgram!\n");
+		Com_Printf("WARNING: calling %s for gl4ShaderInfo_t that already has a shaderProgram!\n",
+			__func__);
 		glDeleteProgram(shaderInfo->shaderProgram);
 	}
 
@@ -1304,7 +1305,10 @@ err_cleanup:
 	glDeleteShader(shaders3D[0]);
 	glDeleteShader(shaders3D[1]);
 
-	if (prog != 0)  glDeleteProgram(prog);
+	if (prog != 0)
+	{
+		glDeleteProgram(prog);
+	}
 
 	return false;
 }
@@ -1354,7 +1358,8 @@ static void initUBOs(void)
 	gl3state.currentUBO = gl3state.uniLightsUBO;
 }
 
-static qboolean createShaders(void)
+static qboolean
+createShaders(void)
 {
 	if (!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D))
 	{
@@ -1379,6 +1384,7 @@ static qboolean createShaders(void)
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object!\n");
 		return false;
 	}
+
 	if (!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object under water!\n");
@@ -1393,58 +1399,61 @@ static qboolean createShaders(void)
 		Com_Printf("WARNING: Failed to create shader program for textured 3D rendering with lightmap!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3Dtrans, vertexSrc3D, fragmentSrc3D))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering translucent 3D things!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3DcolorOnly, vertexSrc3D, fragmentSrc3Dcolor))
 	{
 		Com_Printf("WARNING: Failed to create shader program for flat-colored 3D rendering!\n");
 		return false;
 	}
-	/*
-	if (!initShader3D(&gl3state.si3Dlm, vertexSrc3Dlm, fragmentSrc3D))
-	{
-		Com_Printf("WARNING: Failed to create shader program for blending 3D lightmaps rendering!\n");
-		return false;
-	}
-	*/
+
 	if (!initShader3D(&gl3state.si3Dturb, vertexSrc3Dwater, fragmentSrc3Dwater))
 	{
 		Com_Printf("WARNING: Failed to create shader program for water rendering!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3DlmFlow, vertexSrc3DlmFlow, lightmappedFrag))
 	{
 		Com_Printf("WARNING: Failed to create shader program for scrolling textured 3D rendering with lightmap!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3DtransFlow, vertexSrc3Dflow, fragmentSrc3D))
 	{
 		Com_Printf("WARNING: Failed to create shader program for scrolling textured translucent 3D rendering!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3Dsky, vertexSrc3D, fragmentSrc3Dsky))
 	{
 		Com_Printf("WARNING: Failed to create shader program for sky rendering!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3Dsprite, vertexSrc3D, fragmentSrc3Dsprite))
 	{
 		Com_Printf("WARNING: Failed to create shader program for sprite rendering!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3DspriteAlpha, vertexSrc3D, fragmentSrc3DspriteAlpha))
 	{
 		Com_Printf("WARNING: Failed to create shader program for alpha-tested sprite rendering!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3Dalias, vertexSrcAlias, fragmentSrcAlias))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering textured models!\n");
 		return false;
 	}
+
 	if (!initShader3D(&gl3state.si3DaliasColor, vertexSrcAlias, fragmentSrcAliasColor))
 	{
 		Com_Printf("WARNING: Failed to create shader program for rendering flat-colored models!\n");
