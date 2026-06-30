@@ -241,7 +241,6 @@ typedef struct
 	/* bloom */
 	gl4ShaderInfo_t gl4_bloomBright;
 	gl4ShaderInfo_t gl4_bloomBlur;
-	gl4ShaderInfo_t gl4_bloomComposite;
 
 	GLuint vao3D, vbo3D; // for brushes etc, using 10 floats and one uint as vertex input (x,y,z, s,t, lms,lmt, normX,normY,normZ ; lightFlags)
 

@@ -1140,35 +1140,6 @@ static const char* fragmentBloomBlur = MULTILINE_STRING(
 		}
 );
 
-static const char* fragmentBloomComposite = MULTILINE_STRING(
-
-		in vec2 passTexCoord;
-
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D;
-			vec4  color;
-		};
-
-		uniform sampler2D sceneTex;
-		uniform sampler2D bloomTex;
-
-		out vec4 outColor;
-
-		void main()
-		{
-			vec3 scene = texture(sceneTex, passTexCoord).rgb;
-			vec3 bloom = texture(bloomTex, passTexCoord).rgb;
-
-			float bloomStrength = 1.5 * intensity;
-
-			vec3 res = scene + bloom * bloomStrength;
-			outColor = vec4(res, 1.0);
-		}
-);
-
 #undef MULTILINE_STRING
 
 enum {
@@ -1300,16 +1271,6 @@ GL4_InitBloomShaders(void)
 		return false;
 	}
 
-	/* composite */
-	if(!initShader2D(&gl4state.gl4_bloomComposite, vertexBloomSrcFullScreen, fragmentBloomComposite))
-	{
-		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: composite shader failed\n");
-
-		glDeleteProgram(gl4state.gl4_bloomBright.shaderProgram);
-		glDeleteProgram(gl4state.gl4_bloomBlur.shaderProgram);
-		return false;
-	}
-
 	return true;
 }
 
@@ -1318,7 +1279,6 @@ void GL4_ShutdownBloomShaders(void)
 {
 	glDeleteProgram(gl4state.gl4_bloomBright.shaderProgram);
 	glDeleteProgram(gl4state.gl4_bloomBlur.shaderProgram);
-	glDeleteProgram(gl4state.gl4_bloomComposite.shaderProgram);
 }
 
 static qboolean
