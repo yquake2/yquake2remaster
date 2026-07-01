@@ -220,6 +220,9 @@ typedef struct
 	gl4ShaderInfo_t si2Dcolor; // shader for rendering 2D with flat colors
 	gl4ShaderInfo_t si2DpostProcess; // shader to render postprocess FBO, when *not* underwater
 	gl4ShaderInfo_t si2DpostProcessWater; // shader to apply water-warp postprocess effect
+	/* bloom */
+	gl4ShaderInfo_t si2DbloomBright;
+	gl4ShaderInfo_t si2DbloomBlur;
 
 	gl4ShaderInfo_t si3Dlm;        // a regular opaque face (e.g. from brush) with lightmap
 	// TODO: lm-only variants for r_lightmap 1
@@ -237,10 +240,6 @@ typedef struct
 
 	// NOTE: make sure siParticle is always the last shaderInfo (or adapt GL4_ShutdownShaders())
 	gl4ShaderInfo_t siParticle; // for particles. surprising, right?
-
-	/* bloom */
-	gl4ShaderInfo_t gl4_bloomBright;
-	gl4ShaderInfo_t gl4_bloomBlur;
 
 	GLuint vao3D, vbo3D; // for brushes etc, using 10 floats and one uint as vertex input (x,y,z, s,t, lms,lmt, normX,normY,normZ ; lightFlags)
 
@@ -509,8 +508,6 @@ extern cvar_t *gl4_debugcontext;
 extern cvar_t *r_bloom;
 
 GLuint GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH);
-qboolean GL4_InitBloomShaders(void);
 void GL4_BloomShutdown(void);
-void GL4_ShutdownBloomShaders(void);
 
 #endif /* SRC_CLIENT_REFRESH_GL4_HEADER_LOCAL_H_ */

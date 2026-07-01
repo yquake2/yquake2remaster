@@ -516,16 +516,6 @@ GL4_Init(void)
 		return false;
 	}
 
-	if (GL4_InitBloomShaders())
-	{
-		R_Printf(PRINT_ALL, "Loading bloom shaders succeeded.\n");
-	}
-	else
-	{
-		R_Printf(PRINT_ALL, "Loading bloom shaders failed.\n");
-		return false;
-	}
-
 	registration_sequence = 1; // from R_InitImages() (everything else from there shouldn't be needed anymore)
 
 	Scrap_Init();
@@ -569,7 +559,6 @@ GL4_Shutdown(void)
 		GL4_Draw_ShutdownLocal();
 		GL4_ShutdownShaders();
 		GL4_BloomShutdown();
-		GL4_ShutdownBloomShaders();
 
 		// free the postprocessing FBO and its renderbuffer and texture
 		if (gl4state.ppFBrbo != 0)

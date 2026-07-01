@@ -783,11 +783,11 @@ GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 	glViewport(0, 0, bw, bh);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	GL4_UseProgram(gl4state.gl4_bloomBright.shaderProgram);
+	GL4_UseProgram(gl4state.si2DbloomBright.shaderProgram);
 
 	GL4_SelectTMU(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, sceneTex);
-	locTex = glGetUniformLocation(gl4state.gl4_bloomBright.shaderProgram, "tex");
+	locTex = glGetUniformLocation(gl4state.si2DbloomBright.shaderProgram, "tex");
 
 	if (locTex != -1)
 	{
@@ -796,7 +796,7 @@ GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 
 	/* playable default value */
 	float threshold = 0.75f;
-	GLint locThreshold = glGetUniformLocation(gl4state.gl4_bloomBright.shaderProgram, "threshold");
+	GLint locThreshold = glGetUniformLocation(gl4state.si2DbloomBright.shaderProgram, "threshold");
 	if (locThreshold != -1)
 	{
 		glUniform1f(locThreshold, threshold);
@@ -806,14 +806,14 @@ GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	/* blur pass */
-	locTex = glGetUniformLocation(gl4state.gl4_bloomBlur.shaderProgram, "tex");
-	locDir = glGetUniformLocation(gl4state.gl4_bloomBlur.shaderProgram, "dir");
+	locTex = glGetUniformLocation(gl4state.si2DbloomBlur.shaderProgram, "tex");
+	locDir = glGetUniformLocation(gl4state.si2DbloomBlur.shaderProgram, "dir");
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fboPing);
 	glViewport(0, 0, bw, bh);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	GL4_UseProgram(gl4state.gl4_bloomBlur.shaderProgram);
+	GL4_UseProgram(gl4state.si2DbloomBlur.shaderProgram);
 	GL4_SelectTMU(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texBright);
 
@@ -835,7 +835,7 @@ GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 	glViewport(0, 0, bw, bh);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	GL4_UseProgram(gl4state.gl4_bloomBlur.shaderProgram);
+	GL4_UseProgram(gl4state.si2DbloomBlur.shaderProgram);
 	GL4_SelectTMU(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texPing);
 

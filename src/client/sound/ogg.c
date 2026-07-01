@@ -280,8 +280,8 @@ OGG_InitTrackList(void)
 /*
  * Play a portion of the currently opened file.
  */
-void
-static OGG_Read(void)
+static void
+OGG_Read(void)
 {
 	short samples[4096];
 	float volume = (ogg_mutemusic == true) ? 0.0f : ogg_volume->value;

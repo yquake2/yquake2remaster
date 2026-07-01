@@ -1253,34 +1253,6 @@ err_cleanup:
 	return false;
 }
 
-qboolean
-GL4_InitBloomShaders(void)
-{
-	/* bright */
-	if(!initShader2D(&gl4state.gl4_bloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
-	{
-		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: bright shader failed\n");
-		return false;
-	}
-
-	/* blur */
-	if(!initShader2D(&gl4state.gl4_bloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
-	{
-		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: blur shader failed\n");
-		glDeleteProgram(gl4state.gl4_bloomBright.shaderProgram);
-		return false;
-	}
-
-	return true;
-}
-
-/* shutdown bloom shader */
-void GL4_ShutdownBloomShaders(void)
-{
-	glDeleteProgram(gl4state.gl4_bloomBright.shaderProgram);
-	glDeleteProgram(gl4state.gl4_bloomBlur.shaderProgram);
-}
-
 static qboolean
 initShader3D(gl4ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc)
 {
@@ -1498,9 +1470,25 @@ createShaders(void)
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object!\n");
 		return false;
 	}
+
 	if (!initShader2D(&gl4state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object under water!\n");
+		return false;
+	}
+
+	/* bright */
+	if(!initShader2D(&gl4state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: bright shader failed\n");
+		return false;
+	}
+
+	/* blur */
+	if(!initShader2D(&gl4state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: blur shader failed\n");
+		glDeleteProgram(gl4state.si2DbloomBright.shaderProgram);
 		return false;
 	}
 
@@ -1602,7 +1590,11 @@ static void deleteShaders(void)
 	const gl4ShaderInfo_t siZero = {0};
 	for (gl4ShaderInfo_t* si = &gl4state.si2D; si <= &gl4state.siParticle; ++si)
 	{
-		if (si->shaderProgram != 0)  glDeleteProgram(si->shaderProgram);
+		if (si->shaderProgram != 0)
+		{
+			glDeleteProgram(si->shaderProgram);
+		}
+
 		*si = siZero;
 	}
 }
