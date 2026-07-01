@@ -135,6 +135,8 @@ typedef struct
 	int autoframe;
 	float oal_vol;
 	int srcnum;
+	int last_aux_slot;
+	int last_direct_filter;
 #endif
 } channel_t;
 

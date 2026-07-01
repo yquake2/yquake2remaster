@@ -537,11 +537,23 @@ AL_ApplyReverb(void)
 		{ 0, 0, 1000000 }, /* up */
 		{ 0, 0, -1000000 }, /* down */
 	};
+	static vec3_t last_origin;
+	static qboolean have_last = false;
 	float average = 0;
 	int i;
 
 	if (ReverbEffect[QAL_REVERB_EFFECT] == 0)
 		return;
+
+	if (have_last)
+	{
+		vec3_t moved;
+		VectorSubtract(listener_origin, last_origin, moved);
+		if (VectorLength(moved) < 48)
+			return;
+	}
+	VectorCopy(listener_origin, last_origin);
+	have_last = true;
 
 	for (i=0; i < 6; i++)
 	{
@@ -658,7 +670,11 @@ AL_Spatialize(channel_t *ch)
 					AL_LOWPASS_MAX_GAINHF);
 				qalFilterf(occlusionFilter, AL_LOWPASS_GAINHF, gain_hf);
 
-				qalSourcei(ch->srcnum, AL_DIRECT_FILTER, occlusionFilter);
+				if (ch->last_direct_filter != (int)occlusionFilter)
+				{
+					qalSourcei(ch->srcnum, AL_DIRECT_FILTER, occlusionFilter);
+					ch->last_direct_filter = occlusionFilter;
+				}
 
 				source_occluded = true;
 			}
@@ -667,23 +683,31 @@ AL_Spatialize(channel_t *ch)
 		if (!source_occluded)
 		{
 			/* Remove filter */
-			if (!snd_is_underwater)
+			if (!snd_is_underwater && ch->last_direct_filter != 0)
+			{
 				qalSourcei(ch->srcnum, AL_DIRECT_FILTER, 0) ;
+				ch->last_direct_filter = 0;
+			}
 
 			if(s_reverb_preset->value != -1) /* Non Disabled reverb */
 			{
-				/* Apply reverb effect */
-				qalSource3i(ch->srcnum, AL_AUXILIARY_SEND_FILTER,
-					ReverbEffectSlot[QAL_REVERB_EFFECT], 0, AL_FILTER_NULL);
 				reverb_enabled = true;
+				if (ch->last_aux_slot != ReverbEffectSlot[QAL_REVERB_EFFECT])
+				{
+					/* Apply reverb effect */
+					qalSource3i(ch->srcnum, AL_AUXILIARY_SEND_FILTER,
+							ReverbEffectSlot[QAL_REVERB_EFFECT], 0, AL_FILTER_NULL);
+					ch->last_aux_slot = ReverbEffectSlot[QAL_REVERB_EFFECT];
+				}
 			}
 		}
 
-		if (!reverb_enabled)
+		if (!reverb_enabled && ch->last_aux_slot != 0)
 		{
 			/* Disable filtering */
 			qalSource3i(ch->srcnum, AL_AUXILIARY_SEND_FILTER,
 				0, 0, AL_FILTER_NULL);
+			ch->last_aux_slot = 0;
 		}
 
 		return;
@@ -716,6 +740,8 @@ AL_PlayChannel(channel_t *ch)
 
 	sc = ch->sfx->cache;
 	ch->srcnum = s_srcnums[ch - channels];
+	ch->last_aux_slot = -1;
+	ch->last_direct_filter = -1;
 
 	qalGetError();
 	qalSourcef(ch->srcnum, AL_REFERENCE_DISTANCE, SOUND_FULLVOLUME);
@@ -1085,6 +1111,7 @@ AL_UpdateUnderwater()
 
 	for (i = 0; i < s_numchannels; ++i) {
 		qalSourcei(s_srcnums[i], AL_DIRECT_FILTER, filter);
+		channels[i].last_direct_filter = filter;
 	}
 }
 
@@ -1211,6 +1238,7 @@ AL_Underwater()
 	for (i = 0; i < s_numchannels; i++)
 	{
 		qalSourcei(s_srcnums[i], AL_DIRECT_FILTER, underwaterFilter);
+		channels[i].last_direct_filter = underwaterFilter;
 	}
 
 	AL_SetReverb(22);
@@ -1238,6 +1266,7 @@ AL_Overwater()
 	for (i = 0; i < s_numchannels; i++)
 	{
 		qalSourcei(s_srcnums[i], AL_DIRECT_FILTER, AL_FILTER_NULL);
+		channels[i].last_direct_filter = 0;
 	}
 
 	AL_SetReverb(s_reverb_preset->value);
