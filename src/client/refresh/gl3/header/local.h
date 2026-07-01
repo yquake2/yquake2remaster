@@ -231,6 +231,10 @@ typedef struct
 	gl3ShaderInfo_t si2DpostProcess; // shader to render postprocess FBO, when *not* underwater
 	gl3ShaderInfo_t si2DpostProcessWater; // shader to apply water-warp postprocess effect
 
+	/* bloom */
+	gl3ShaderInfo_t si2DbloomBright;
+	gl3ShaderInfo_t si2DbloomBlur;
+
 	gl3ShaderInfo_t si3Dlm;        // a regular opaque face (e.g. from brush) with lightmap
 	// TODO: lm-only variants for r_lightmap 1
 	gl3ShaderInfo_t si3Dtrans;     // transparent is always w/o lightmap
@@ -513,5 +517,10 @@ extern cvar_t *gl3_particle_square;
 extern cvar_t *gl3_colorlight;
 extern cvar_t *gl_polyblend;
 extern cvar_t *gl3_debugcontext;
+
+extern cvar_t *r_bloom;
+
+GLuint GL3_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH);
+void GL3_BloomShutdown(void);
 
 #endif /* SRC_CLIENT_REFRESH_GL3_HEADER_LOCAL_H_ */

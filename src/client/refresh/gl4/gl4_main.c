@@ -178,21 +178,13 @@ GL4_Register(void)
 	//  1: reduce calls to glBufferData() with one big VBO (see GL4_BufferAndDraw3D())
 	// -1: auto (let yq2 choose to enable/disable this based on detected driver)
 	gl4_usebigvbo = ri.Cvar_Get("gl4_usebigvbo", "-1", CVAR_ARCHIVE);
-
-	/* bloom control */
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
-
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
-
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
-
 	gl4_intensity = ri.Cvar_Get("gl4_intensity", "1.5", CVAR_ARCHIVE);
 	gl4_intensity_2D = ri.Cvar_Get("gl4_intensity_2D", "1.5", CVAR_ARCHIVE);
-
-	gl4_overbrightbits = ri.Cvar_Get("gl4_overbrightbits", "1.3", CVAR_ARCHIVE);
-
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
-
+	gl4_overbrightbits = ri.Cvar_Get("gl4_overbrightbits", "1.3", CVAR_ARCHIVE);
 	gl4_usefbo = ri.Cvar_Get("gl4_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
 #if 0 // TODO!
@@ -214,7 +206,6 @@ GL4_Register(void)
 	//gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl1_texturealphamode = ri.Cvar_Get("gl1_texturealphamode", "default", CVAR_ARCHIVE);
 	gl1_texturesolidmode = ri.Cvar_Get("gl1_texturesolidmode", "default", CVAR_ARCHIVE);
-
 	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", "1", CVAR_ARCHIVE);
 
 	//gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
@@ -394,7 +385,8 @@ GL4_Init(void)
 		// if this ever happens, things would explode because we feed vertex arrays and UBO data
 		// using floats to OpenGL, which expects GLfloat (can't easily change, those floats are from HMM etc)
 		// (but to be honest I very much doubt this will ever happen.)
-		Com_Printf("ref_gl4: sizeof(float) != sizeof(GLfloat) - we're in real trouble here.\n");
+		Com_Printf("%s: sizeof(float) != sizeof(GLfloat) - we're in real trouble here.\n",
+			__func__);
 		return false;
 	}
 

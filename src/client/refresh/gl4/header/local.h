@@ -220,6 +220,7 @@ typedef struct
 	gl4ShaderInfo_t si2Dcolor; // shader for rendering 2D with flat colors
 	gl4ShaderInfo_t si2DpostProcess; // shader to render postprocess FBO, when *not* underwater
 	gl4ShaderInfo_t si2DpostProcessWater; // shader to apply water-warp postprocess effect
+
 	/* bloom */
 	gl4ShaderInfo_t si2DbloomBright;
 	gl4ShaderInfo_t si2DbloomBlur;

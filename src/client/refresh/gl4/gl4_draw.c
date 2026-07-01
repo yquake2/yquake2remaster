@@ -643,7 +643,8 @@ GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 }
 
 /* draw a fullscreen quad using the existing vao2D/vbo2D */
-static void GL4_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
+static void
+GL4_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
 {
 	GL4_BindVAO(vao2D);
 	GL4_BindVBO(vbo2D);
@@ -653,7 +654,8 @@ static void GL4_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
 }
 
 /* Shutdown bloom resources */
-void GL4_BloomShutdown(void)
+void
+GL4_BloomShutdown(void)
 {
 	size_t i;
 
@@ -691,8 +693,8 @@ GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 		return 0;
 	}
 
-	int w = (sceneW > 0) ? sceneW : 1;
-	int h = (sceneH > 0) ? sceneH : 1;
+	int w = Q_max(sceneW, 1);
+	int h = Q_max(sceneH, 1);
 
 	int downscale = 2;
 	int bw = (w / downscale) > 0 ? (w / downscale) : 1;

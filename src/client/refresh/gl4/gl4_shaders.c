@@ -1488,7 +1488,6 @@ createShaders(void)
 	if(!initShader2D(&gl4state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
 	{
 		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: blur shader failed\n");
-		glDeleteProgram(gl4state.si2DbloomBright.shaderProgram);
 		return false;
 	}
 

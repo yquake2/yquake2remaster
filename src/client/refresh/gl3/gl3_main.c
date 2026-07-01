@@ -65,12 +65,21 @@ int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
 
+static qboolean bloomInit = false;
+static GLuint sceneFBO = 0, sceneColorTex = 0, sceneDepthRBO = 0;
+static GLuint fullscreenVAO = 0, fullscreenVBO = 0;
+
 const hmm_mat4 gl3_identityMat4 = {{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
 		{0, 0, 1, 0},
 		{0, 0, 0, 1},
 }};
+
+GLenum drawBuf = GL_COLOR_ATTACHMENT0;
+
+/* bloom control */
+cvar_t *r_bloom;
 
 cvar_t *gl_version_override;
 cvar_t *gl_texturemode;
@@ -173,14 +182,13 @@ GL3_Register(void)
 	//  1: reduce calls to glBufferData() with one big VBO (see GL3_BufferAndDraw3D())
 	// -1: auto (let yq2 choose to enable/disable this based on detected driver)
 	gl3_usebigvbo = ri.Cvar_Get("gl3_usebigvbo", "-1", CVAR_ARCHIVE);
+	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
 	gl3_intensity = ri.Cvar_Get("gl3_intensity", "1.5", CVAR_ARCHIVE);
 	gl3_intensity_2D = ri.Cvar_Get("gl3_intensity_2D", "1.5", CVAR_ARCHIVE);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
-
 	gl3_overbrightbits = ri.Cvar_Get("gl3_overbrightbits", "1.3", CVAR_ARCHIVE);
-
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
 #if 0 // TODO!
@@ -381,7 +389,8 @@ GL3_Init(void)
 		// if this ever happens, things would explode because we feed vertex arrays and UBO data
 		// using floats to OpenGL, which expects GLfloat (can't easily change, those floats are from HMM etc)
 		// (but to be honest I very much doubt this will ever happen.)
-		Com_Printf("ref_gl3: sizeof(float) != sizeof(GLfloat) - we're in real trouble here.\n");
+		Com_Printf("%s: sizeof(float) != sizeof(GLfloat) - we're in real trouble here.\n",
+			__func__);
 		return false;
 	}
 
@@ -1530,6 +1539,80 @@ GL3_RenderView(const refdef_t *fd)
 		glFinish();
 	}
 
+	if (!bloomInit)
+	{
+		int w = vid.width;
+		int h = vid.height;
+
+		/* color texture + depth renderbuffer */
+		glGenFramebuffers(1, &sceneFBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
+
+		glGenTextures(1, &sceneColorTex);
+		glBindTexture(GL_TEXTURE_2D, sceneColorTex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneColorTex, 0);
+
+		glGenRenderbuffers(1, &sceneDepthRBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, sceneDepthRBO);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, sceneDepthRBO);
+
+		/* ensure drawbuffers are set */
+		{
+			glDrawBuffers(1, &drawBuf);
+		}
+
+		/* check completeness */
+		{
+			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if (status != GL_FRAMEBUFFER_COMPLETE)
+			{
+				R_Printf(PRINT_ALL, "GL3_RenderView: sceneFBO incomplete: 0x%X\n", status);
+			}
+		}
+
+		if (fullscreenVAO == 0)
+		{
+			const GLfloat quadVerts[] = {
+				/* X, Y, S, T */
+				0.0f, (GLfloat)h, 0.0f, 1.0f,
+				0.0f, 0.0f,       0.0f, 0.0f,
+				(GLfloat)w, (GLfloat)h, 1.0f, 1.0f,
+				(GLfloat)w, 0.0f,        1.0f, 0.0f
+			};
+
+			glGenVertexArrays(1, &fullscreenVAO);
+			glBindVertexArray(fullscreenVAO);
+
+			glGenBuffers(1, &fullscreenVBO);
+			glBindBuffer(GL_ARRAY_BUFFER, fullscreenVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
+
+			glEnableVertexAttribArray(GL3_ATTRIB_POSITION);
+			glVertexAttribPointer(GL3_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE,
+								  4 * sizeof(GLfloat), (const void*)0);
+
+			glEnableVertexAttribArray(GL3_ATTRIB_TEXCOORD);
+			glVertexAttribPointer(GL3_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE,
+								  4 * sizeof(GLfloat), (const void*)(2 * sizeof(GLfloat)));
+
+			glBindVertexArray(0);
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		bloomInit = true;
+	}
+
+	/* render scene */
+	glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
+	glViewport(0, 0, vid.width, vid.height);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, gl3_origin,
@@ -1543,9 +1626,6 @@ GL3_RenderView(const refdef_t *fd)
 
 	GL3_DrawEntitiesOnList();
 
-	// kick the silly r_flashblend poly lights
-	// GL3_RenderDlights();
-
 	GL3_DrawParticles();
 
 	GL3_DrawAlphaSurfaces();
@@ -1557,6 +1637,65 @@ GL3_RenderView(const refdef_t *fd)
 		Com_Printf("%4i wpoly %4i epoly %i tex %i lmaps\n",
 				c_brush_polys, c_alias_polys, c_visible_textures,
 				c_visible_lightmaps);
+	}
+
+	/* apply bloom */
+	GL3_SetGL2D();
+
+	if (r_bloom && r_bloom->value)
+	{
+		GLuint compositeTex = GL3_ApplyBloom(sceneColorTex, vid.width, vid.height);
+
+		if (compositeTex != 0)
+		{
+			/* draw to framebuffer */
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glViewport(0, 0, vid.width, vid.height);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			/* draw fullscreen quad */
+			glDisable(GL_DEPTH_TEST);
+			GL3_UseProgram(gl3state.si2DpostProcess.shaderProgram);
+			GL3_Bind(compositeTex);
+
+			if (gl3state.si2DpostProcess.uniLmScalesOrTime != -1)
+				glUniform1f(gl3state.si2DpostProcess.uniLmScalesOrTime, r_newrefdef.time);
+
+			if (gl3state.si2DpostProcess.uniVblend != -1)
+			{
+				float zeroBlend[4] = {0,0,0,0};
+				glUniform4fv(gl3state.si2DpostProcess.uniVblend, 1, zeroBlend);
+			}
+
+			glBindVertexArray(fullscreenVAO);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			glBindVertexArray(0);
+
+			/* cleanup */
+			GL3_Bind(0);
+			glEnable(GL_DEPTH_TEST);
+			glDeleteTextures(1, &compositeTex);
+		}
+		else
+		{
+			/* blit to default framebuffer */
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFBO);
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glBlitFramebuffer(0, 0, vid.width, vid.height,
+							  0, 0, vid.width, vid.height,
+							  GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+		}
+	}
+	else
+	{
+		/* bloom disabled */
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFBO);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(0, 0, vid.width, vid.height,
+						  0, 0, vid.width, vid.height,
+						  GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	}
 
 #if 0 // TODO: stereo stuff
@@ -1782,7 +1921,6 @@ GL3_BeginFrame(float camera_separation)
 	if (gl_drawbuffer->modified)
 	{
 		gl_drawbuffer->modified = false;
-
 
 #ifdef YQ2_GL3_GLES
 		// OpenGL ES3 only supports GL_NONE, GL_BACK and GL_COLOR_ATTACHMENT*

@@ -33,11 +33,17 @@ unsigned d_8to24table[256];
 static float gl3_font_size = 8.0;
 static int gl3_font_height = 128;
 gl3image_t *draw_chars = NULL;
+GLint oldViewPort[4];
 static gl3image_t *draw_font = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
 static qboolean draw_chars_has_alt;
 
 static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
+static qboolean bloomInitialized = false;
+
+#define BLOOM_TEXTURES 2
+static GLuint bloomTex[BLOOM_TEXTURES] = {0, 0};
+static GLuint bloomFBO[BLOOM_TEXTURES] = {0, 0};
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
@@ -392,22 +398,84 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 void
 GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4])
 {
+	GLuint finalTex = fboTexture;
+	qboolean bloomActive = false;
+
+	/* check for r_bloom */
+	if (r_bloom && r_bloom->value)
+	{
+		GLuint bloom = GL3_ApplyBloom(fboTexture, w, h);
+		if (bloom != 0)
+		{
+			finalTex = bloom;
+			bloomActive = true;
+		}
+	}
+
 	qboolean underwater = (r_newrefdef.rdflags & RDF_UNDERWATER) != 0;
 	gl3ShaderInfo_t* shader = underwater ? &gl3state.si2DpostProcessWater
 	                                     : &gl3state.si2DpostProcess;
 	GL3_UseProgram(shader->shaderProgram);
 	GL3_Bind(fboTexture);
 
+	/* select shader and bind scene texture */
+	GL3_UseProgram(shader->shaderProgram);
+	GL3_Bind(finalTex);
+
+	/* set shader uniforms if present */
 	if (underwater && shader->uniLmScalesOrTime != -1)
 	{
 		glUniform1f(shader->uniLmScalesOrTime, r_newrefdef.time);
 	}
+
 	if (shader->uniVblend != -1)
 	{
 		glUniform4fv(shader->uniVblend, 1, v_blend);
 	}
 
-	drawTexturedRectangle(x, y, w, h, 0, 1, 1, 0);
+	if (!r_bloom || !r_bloom->value)
+	{
+		drawTexturedRectangle(x, y, w, h, 0, 1, 1, 0);
+		return;
+	}
+
+	/*
+	 * Build a small fullscreen quad vertex array and upload it into the
+	 * shared VBO. We use the same VBO/VAO used by other 2D draw helpers
+	 * (vao2D / vbo2D). The VAO already has pointers configured
+	 * in GL3_Draw_InitLocal(), so we only need to upload the vertex data.
+	 *
+	 * Vertex layout (matches VAO setup): X, Y, S, T
+	 */
+	GLfloat fsQuad[16];
+
+	if (bloomActive && underwater)
+	{
+		/* invert T coordinates to compensate for FBO orientation underwater */
+		fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 0.0f;
+		fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 1.0f;
+		fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 0.0f;
+		fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 1.0f;
+	}
+	else
+	{
+		fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 1.0f;
+		fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 0.0f;
+		fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 1.0f;
+		fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 0.0f;
+	}
+
+	GL3_BindVAO(vao2D);
+	GL3_BindVBO(vbo2D);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(fsQuad), fsQuad, GL_STREAM_DRAW);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	GL3_BindVAO(0);
+	if (finalTex != fboTexture)
+	{
+		glDeleteTextures(1, &finalTex);
+	}
 }
 
 /*
@@ -479,6 +547,10 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 	};
 
 	glEnable(GL_BLEND);
+
+	/* this blends the screen flash while bloom is enabled
+	 * TODO: disable broke fixing window on disable bloom */
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (i = 0; i < 4; ++i)
 	{
@@ -570,4 +642,292 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	glDeleteTextures(1, &glTex);
 
 	GL3_Bind(0);
+}
+
+/* draw a fullscreen quad using the existing vao2D/vbo2D */
+static void
+GL3_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
+{
+	GL3_BindVAO(vao2D);
+	GL3_BindVBO(vbo2D);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 16, fsQuad, GL_STREAM_DRAW);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	GL3_BindVAO(0);
+}
+
+/* Shutdown bloom resources */
+void
+GL3_BloomShutdown(void)
+{
+	size_t i;
+
+	for (i = 0; i < BLOOM_TEXTURES; i++)
+	{
+		if (bloomFBO[i])
+		{
+			glDeleteFramebuffers(1, &bloomFBO[i]);
+			bloomFBO[i] = 0;
+		}
+
+		if (bloomTex[i])
+		{
+			glDeleteTextures(1, &bloomTex[i]);
+			bloomTex[i] = 0;
+		}
+	}
+
+	bloomInitialized = false;
+}
+
+/*
+ * Apply a simple bloom effect
+ *
+ * Returns: GLuint of the composite bloom texture.
+ * Caller must delete the returned texture when done.
+ */
+GLuint
+GL3_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
+{
+	GLint locTex, locDir;
+
+	if (!r_bloom || !r_bloom->value)
+	{
+		return 0;
+	}
+
+	int w = Q_max(sceneW, 1);
+	int h = Q_max(sceneH, 1);
+
+	int downscale = 2;
+	int bw = (w / downscale) > 0 ? (w / downscale) : 1;
+	int bh = (h / downscale) > 0 ? (h / downscale) : 1;
+
+	/* create FBOs + textures */
+	GLuint fboBright = 0, fboPing = 0, fboComp = 0;
+	GLuint texBright = 0, texPing = 0, texComp = 0;
+
+	glGenFramebuffers(1, &fboBright);
+	glGenFramebuffers(1, &fboPing);
+	glGenFramebuffers(1, &fboComp);
+
+	glGenTextures(1, &texBright);
+	glGenTextures(1, &texPing);
+	glGenTextures(1, &texComp);
+
+	GLenum internalFmt = gl3_tex_solid_format;
+	GLenum fmt = GL_RGBA;
+	GLenum type = GL_UNSIGNED_BYTE;
+
+	/* texBright */
+	GL3_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texBright);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFmt, bw, bh, 0, fmt, type, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	/* texPing */
+	glBindTexture(GL_TEXTURE_2D, texPing);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFmt, bw, bh, 0, fmt, type, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	/* texComp */
+	glBindTexture(GL_TEXTURE_2D, texComp);
+	glTexImage2D(GL_TEXTURE_2D, 0, internalFmt, w, h, 0, fmt, type, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	/* attach textures to FBOs */
+	glBindFramebuffer(GL_FRAMEBUFFER, fboBright);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texBright, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fboPing);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texPing, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fboComp);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texComp, 0);
+
+	/* check completeness */
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fboBright);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboPing);
+	glBindFramebuffer(GL_FRAMEBUFFER, fboComp);
+
+	if (status != GL_FRAMEBUFFER_COMPLETE)
+	{
+		goto fail;
+	}
+
+	/* save old viewport */
+	glGetIntegerv(GL_VIEWPORT, oldViewPort);
+
+	/* fullscreen quads for downsampled and full sizes (X,Y,S,T) */
+	GLfloat fsQuadDown[16] = {
+		-1.0f,  1.0f, 0.0f, 1.0f,
+		-1.0f, -1.0f, 0.0f, 0.0f,
+		1.0f,  1.0f, 1.0f, 1.0f,
+		1.0f, -1.0f, 1.0f, 0.0f
+	};
+	GLfloat fsQuadFull[16] = {
+		0.0f, (GLfloat)h, 0.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 0.0f,
+		(GLfloat)w, (GLfloat)h, 1.0f, 1.0f,
+		(GLfloat)w, 0.0f, 1.0f, 0.0f
+	};
+
+	/* Bright pass */
+	glBindFramebuffer(GL_FRAMEBUFFER, fboBright);
+	glViewport(0, 0, bw, bh);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	GL3_UseProgram(gl3state.si2DbloomBright.shaderProgram);
+
+	GL3_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, sceneTex);
+	locTex = glGetUniformLocation(gl3state.si2DbloomBright.shaderProgram, "tex");
+
+	if (locTex != -1)
+	{
+		glUniform1i(locTex, 0);
+	}
+
+	/* playable default value */
+	float threshold = 0.75f;
+	GLint locThreshold = glGetUniformLocation(gl3state.si2DbloomBright.shaderProgram, "threshold");
+	if (locThreshold != -1)
+	{
+		glUniform1f(locThreshold, threshold);
+	}
+
+	GL3_DrawFullscreenQuadFromArray(fsQuadDown);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	/* blur pass */
+	locTex = glGetUniformLocation(gl3state.si2DbloomBlur.shaderProgram, "tex");
+	locDir = glGetUniformLocation(gl3state.si2DbloomBlur.shaderProgram, "dir");
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fboPing);
+	glViewport(0, 0, bw, bh);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	GL3_UseProgram(gl3state.si2DbloomBlur.shaderProgram);
+	GL3_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texBright);
+
+	if (locTex != -1)
+	{
+		glUniform1i(locTex, 0);
+	}
+
+	if (locDir != -1)
+	{
+		glUniform2f(locDir, 1.0f / (float)bw, 0.0f);
+	}
+
+	GL3_DrawFullscreenQuadFromArray(fsQuadDown);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	/* vertical blur */
+	glBindFramebuffer(GL_FRAMEBUFFER, fboBright);
+	glViewport(0, 0, bw, bh);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	GL3_UseProgram(gl3state.si2DbloomBlur.shaderProgram);
+	GL3_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texPing);
+
+	if (locTex != -1)
+	{
+		glUniform1i(locTex, 0);
+	}
+
+	if (locDir != -1)
+	{
+		glUniform2f(locDir, 0.0f, 1.0f / (float)bh);
+	}
+
+	GL3_DrawFullscreenQuadFromArray(fsQuadDown);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	/* composite pass*/
+	glBindFramebuffer(GL_FRAMEBUFFER, fboComp);
+	glViewport(0, 0, w, h);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	/* render base scene */
+	glDisable(GL_BLEND);
+	GL3_UseProgram(gl3state.si2D.shaderProgram);
+	GL3_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, sceneTex);
+	GL3_DrawFullscreenQuadFromArray(fsQuadFull);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
+
+	GL3_UpdateUBOCommon();
+
+	GL3_UseProgram(gl3state.si2Dtinted.shaderProgram);
+	GL3_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texBright);
+	GL3_DrawFullscreenQuadFromArray(fsQuadFull);
+
+	/* restore engine blending */
+	glDisable(GL_BLEND);
+	gl3state.uniCommonData.color = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	GL3_UpdateUBOCommon();
+
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(oldViewPort[0], oldViewPort[1], oldViewPort[2], oldViewPort[3]);
+
+	/* cleanup */
+	glDeleteFramebuffers(1, &fboBright);
+	glDeleteFramebuffers(1, &fboPing);
+	glDeleteFramebuffers(1, &fboComp);
+
+	glDeleteTextures(1, &texPing);
+	glDeleteTextures(1, &texBright);
+
+	return texComp;
+
+fail:
+	if (fboBright)
+	{
+		glDeleteFramebuffers(1, &fboBright);
+	}
+
+	if (fboPing)
+	{
+		glDeleteFramebuffers(1, &fboPing);
+	}
+
+	if (fboComp)
+	{
+		glDeleteFramebuffers(1, &fboComp);
+	}
+
+	if (texBright)
+	{
+		glDeleteTextures(1, &texBright);
+	}
+
+	if (texPing)
+	{
+		glDeleteTextures(1, &texPing);
+	}
+
+	if (texComp)
+	{
+		glDeleteTextures(1, &texComp);
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return 0;
 }

@@ -310,7 +310,8 @@ static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 
 		void main()
 		{
-			vec2 uv = passTexCoord;
+			// fix for inverted water rendering (bloom)
+			vec2 uv = vec2(passTexCoord.x, 1.0 - passTexCoord.y);
 
 			// warping based on ref_vk
 			float sx = 1.0 - abs(0.5 - uv.x) * 2.0;
@@ -1053,6 +1054,98 @@ static const char* fragmentSrcParticlesSquare = MULTILINE_STRING(
 		}
 );
 
+static const char* vertexBloomSrcFullScreen = MULTILINE_STRING(
+
+		in vec2 position; // GL4_ATTRIB_POSITION
+		in vec2 texCoord; // GL4_ATTRIB_TEXCOORD
+
+		layout (std140) uniform uni2D
+		{
+			mat4 trans;
+		};
+
+		out vec2 passTexCoord;
+
+		void main()
+		{
+			gl_Position = trans * vec4(position, 0.0, 1.0);
+			passTexCoord = texCoord;
+		}
+);
+
+static const char* fragmentBloomBright = MULTILINE_STRING(
+
+		in vec2 passTexCoord;
+
+		layout (std140) uniform uniCommon
+		{
+			float gamma;
+			float intensity;
+			float intensity2D;
+			vec4  color;
+		};
+
+		uniform sampler2D tex;
+		uniform float threshold;
+
+		out vec4 outColor;
+
+		void main()
+		{
+			vec3 c = texture(tex, passTexCoord).rgb;
+			float lum = max(max(c.r, c.g), c.b);
+
+			if(lum > threshold)
+			{
+				outColor = vec4(c, 1.0);
+			}
+			else
+			{
+				outColor = vec4(0.0, 0.0, 0.0, 1.0);
+			}
+		}
+);
+
+static const char* fragmentBloomBlur = MULTILINE_STRING(
+
+		in vec2 passTexCoord;
+
+		layout (std140) uniform uniCommon
+		{
+			float gamma;
+			float intensity;
+			float intensity2D;
+			vec4  color;
+		};
+
+		uniform sampler2D tex;
+		uniform vec2 dir;
+
+		out vec4 outColor;
+
+		void main()
+		{
+			vec3 sum = vec3(0.0);
+
+			float w0 = 0.204164;
+			float w1 = 0.304005;
+			float w2 = 0.093913;
+			float w3 = 0.010381;
+			float w4 = 0.000489;
+
+			sum += texture(tex, passTexCoord               ).rgb * w0;
+			sum += texture(tex, passTexCoord + dir * 1.0   ).rgb * w1;
+			sum += texture(tex, passTexCoord - dir * 1.0   ).rgb * w1;
+			sum += texture(tex, passTexCoord + dir * 2.0   ).rgb * w2;
+			sum += texture(tex, passTexCoord - dir * 2.0   ).rgb * w2;
+			sum += texture(tex, passTexCoord + dir * 3.0   ).rgb * w3;
+			sum += texture(tex, passTexCoord - dir * 3.0   ).rgb * w3;
+			sum += texture(tex, passTexCoord + dir * 4.0   ).rgb * w4;
+			sum += texture(tex, passTexCoord - dir * 4.0   ).rgb * w4;
+
+			outColor = vec4(sum, 1.0);
+		}
+);
 
 #undef MULTILINE_STRING
 
@@ -1391,6 +1484,20 @@ createShaders(void)
 		return false;
 	}
 
+	/* bright */
+	if(!initShader2D(&gl3state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: bright shader failed\n");
+		return false;
+	}
+
+	/* blur */
+	if(!initShader2D(&gl3state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
+	{
+		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: blur shader failed\n");
+		return false;
+	}
+
 	const char* lightmappedFrag = (gl3_colorlight->value == 0.0f)
 	                               ? fragmentSrc3DlmNoColor : fragmentSrc3Dlm;
 
@@ -1489,7 +1596,11 @@ static void deleteShaders(void)
 	const gl3ShaderInfo_t siZero = {0};
 	for (gl3ShaderInfo_t* si = &gl3state.si2D; si <= &gl3state.siParticle; ++si)
 	{
-		if (si->shaderProgram != 0)  glDeleteProgram(si->shaderProgram);
+		if (si->shaderProgram != 0)
+		{
+			glDeleteProgram(si->shaderProgram);
+		}
+
 		*si = siZero;
 	}
 }
