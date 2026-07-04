@@ -670,11 +670,8 @@ AL_Spatialize(channel_t *ch)
 					AL_LOWPASS_MAX_GAINHF);
 				qalFilterf(occlusionFilter, AL_LOWPASS_GAINHF, gain_hf);
 
-				if (ch->last_direct_filter != (int)occlusionFilter)
-				{
-					qalSourcei(ch->srcnum, AL_DIRECT_FILTER, occlusionFilter);
-					ch->last_direct_filter = occlusionFilter;
-				}
+				qalSourcei(ch->srcnum, AL_DIRECT_FILTER, occlusionFilter);
+				ch->last_direct_filter = occlusionFilter;
 
 				source_occluded = true;
 			}
