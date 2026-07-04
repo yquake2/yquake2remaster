@@ -186,25 +186,25 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 	{
 		Com_Printf("%s: %s has incorrect bones count %d\n",
 				__func__, mod_name, pinmodel.num_bones);
-                return NULL;
-        }
+			return NULL;
+	}
 
-        int unframesize = sizeof(mdr_frame_t) + sizeof(mdr_bone_t) * (pinmodel.num_bones - 1);
+	int unframesize = sizeof(mdr_frame_t) + sizeof(mdr_bone_t) * (pinmodel.num_bones - 1);
 
-        /* keep the output buffer and the `i * unframesize` index math
-           (used in both frame branches) within int range */
-        if ((size_t)pinmodel.num_frames * unframesize > INT_MAX)
-        {
-                Com_Printf("%s: %s has too large frame data\n", __func__, mod_name);
-                return NULL;
-        }
+	/* keep the output buffer and the `i * unframesize` index math
+	   (used in both frame branches) within int range */
+	if ((size_t)pinmodel.num_frames * unframesize > INT_MAX)
+	{
+			Com_Printf("%s: %s has too large frame data\n", __func__, mod_name);
+			return NULL;
+	}
 
-        char *frames = malloc((size_t)unframesize * pinmodel.num_frames);
-        if (!frames)
-        {
-                YQ2_COM_CHECK_OOM(frames, "malloc()", (size_t)unframesize * pinmodel.num_frames)
-                return NULL;
-        }
+	char *frames = malloc((size_t)unframesize * pinmodel.num_frames);
+	if (!frames)
+	{
+			YQ2_COM_CHECK_OOM(frames, "malloc()", (size_t)unframesize * pinmodel.num_frames)
+			return NULL;
+	}
 
 	if (pinmodel.ofs_frames < 0)
 	{
