@@ -715,6 +715,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_imgbit = 32;
 	dmdxheader.num_frames = total_frames;
 	dmdxheader.num_animgroup = pinmodel.num_seq;
+	dmdxheader.num_bones = pinmodel.num_bones;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 

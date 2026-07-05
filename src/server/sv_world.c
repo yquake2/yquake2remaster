@@ -551,6 +551,12 @@ SV_HullForEntity(edict_t *ent)
 		model = ((mi >= 0) && (mi < MAX_MODELS)) ?
 			sv.models[mi] : NULL;
 
+		if (!model)
+		{
+			Com_DPrintf("%s: MOVETYPE_PUSH with a non bsp model: %d",
+				__func__, mi);
+		}
+
 		return model ? model->headnode : 0;
 	}
 

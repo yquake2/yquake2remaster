@@ -1545,6 +1545,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.framesize = framesize;
 	dmdxheader.skinheight = 256;
 	dmdxheader.skinwidth = 256;
+
 	dmdxheader.num_skins = md5file->num_skins;
 	dmdxheader.num_glcmds = num_glcmds;
 	dmdxheader.num_frames = md5file->num_frames;
@@ -1552,8 +1553,8 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_meshes = md5file->num_meshes;
 	dmdxheader.num_st = md5file->num_tris * 3;
 	dmdxheader.num_tris = md5file->num_tris;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = md5file->num_frames;
+	dmdxheader.num_bones = md5file->num_joints;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 

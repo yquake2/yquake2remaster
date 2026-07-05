@@ -361,6 +361,7 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 		return NULL;
 	}
 
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
 	dmdxheader.skinwidth = 256;
 	dmdxheader.skinheight = 256;
 
@@ -375,7 +376,6 @@ Mod_LoadModel_SDEF_Text(const char *mod_name, char *curr_buff)
 	dmdxheader.num_frames = framescount;
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = animation_num;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);

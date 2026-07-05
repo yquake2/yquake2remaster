@@ -644,6 +644,7 @@ typedef struct
 	int num_meshes;
 	int num_imgbit; /* image format of embeded images */
 	int num_animgroup;
+	int num_bones;
 
 	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
 	int ofs_st;     /* byte offset from start for stverts */

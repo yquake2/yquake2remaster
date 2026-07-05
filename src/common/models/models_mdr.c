@@ -351,6 +351,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_st = num_xyz;
 	dmdxheader.num_tris = num_tris;
 	dmdxheader.num_animgroup = pinmodel.num_frames;
+	dmdxheader.num_bones = pinmodel.num_bones;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 

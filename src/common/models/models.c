@@ -838,7 +838,6 @@ Mod_LoadModel_MD3(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_meshes = pinmodel.num_meshes;
 	dmdxheader.num_st = num_tris * 3;
 	dmdxheader.num_tris = num_tris;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = pinmodel.num_frames;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
@@ -1079,7 +1078,6 @@ Mod_LoadModel_MD2A(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = pinmodel.num_tris;
 	dmdxheader.num_glcmds = pinmodel.num_glcmds;
 	dmdxheader.num_frames = pinmodel.num_frames;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = pinmodel.num_frames;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
@@ -1201,7 +1199,6 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = pinmodel.num_tris;
 	dmdxheader.num_glcmds = pinmodel.num_glcmds;
 	dmdxheader.num_frames = pinmodel.num_frames;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = pinmodel.num_frames;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
@@ -1364,7 +1361,6 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 			dmdxheader.num_glcmds = LittleLong(header->num_glcmds);
 			dmdxheader.num_frames = LittleLong(header->num_frames);
 			dmdxheader.num_meshes = LittleLong(header->num_mesh_nodes);
-			dmdxheader.num_imgbit = 0;
 			dmdxheader.num_animgroup = dmdxheader.num_frames;
 
 			if (dmdxheader.num_xyz <= 0)
@@ -1645,10 +1641,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	/* copy back all values */
-	memset(&dmdxheader, 0, sizeof(dmdxheader));
-	dmdxheader.skinwidth = 256;
-	dmdxheader.skinheight = 256;
 	if (header.version != DKM2_VERSION)
 	{
 		/* has same frame structure */
@@ -1671,6 +1663,10 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 		}
 	}
 
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = 256;
+	dmdxheader.skinheight = 256;
 	dmdxheader.framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
 	dmdxheader.framesize += header.num_xyz * sizeof(dxtrivertx_t);
 
@@ -1682,7 +1678,6 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_frames = header.num_frames;
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = header.num_animgroup;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
@@ -1747,10 +1742,6 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	/* copy back all values */
-	memset(&dmdxheader, 0, sizeof(dmdxheader));
-	dmdxheader.skinwidth = header.skinwidth;
-	dmdxheader.skinheight = header.skinwidth;
 	/* has same frame structure */
 	if (header.framesize < (
 		sizeof(daliasframe_t) + (header.num_xyz - 1) * sizeof(dtrivertx_t)))
@@ -1760,6 +1751,10 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
+	/* copy back all values */
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = header.skinwidth;
+	dmdxheader.skinheight = header.skinwidth;
 	dmdxheader.framesize = sizeof(daliasxframe_t) - sizeof(dxtrivertx_t);
 	dmdxheader.framesize += header.num_xyz * sizeof(dxtrivertx_t);
 
@@ -1771,7 +1766,6 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_frames = header.num_frames;
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
 	dmdxheader.num_glcmds = (10 * dmdxheader.num_tris) + 1 * dmdxheader.num_meshes;
-	dmdxheader.num_imgbit = 0;
 	dmdxheader.num_animgroup = header.num_frames;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
