@@ -428,7 +428,7 @@ void R_RenderFace(entity_t *currententity, const model_t *currentmodel, msurface
 void R_RenderBmodelFace(entity_t *currententity, bedge_t *pedges, msurface_t *psurf, int r_currentbkey);
 void R_TransformFrustum(void);
 
-void R_DrawSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, int clipflags, mnode_t *topnode);
+void R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode);
 void R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, mnode_t *topnode);
 
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);

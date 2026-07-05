@@ -401,17 +401,17 @@ All in one leaf
 ================
 */
 void
-R_DrawSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, int clipflags, mnode_t *topnode)
+R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode)
 {
-	int			i;
-	msurface_t	*psurf;
-	int numsurfaces;
+	const model_t *currentmodel = currententity->model;
+	size_t numsurfaces, i;
+	msurface_t *psurf;
 
 	// FIXME: use bounding-box-based frustum clipping info?
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
 	numsurfaces = currentmodel->nummodelsurfaces;
 
-	for (i=0 ; i<numsurfaces ; i++, psurf++)
+	for (i = 0; i < numsurfaces; i++, psurf++)
 	{
 		vec_t dot;
 

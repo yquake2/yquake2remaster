@@ -1044,10 +1044,10 @@ R_DrawBEntitiesOnList(void)
 
 		// see if the bounding box lets us trivially reject, also sets
 		// trivial accept status
-		RotatedBBox (currentmodel->mins, currentmodel->maxs,
+		RotatedBBox(currentmodel->mins, currentmodel->maxs,
 			currententity->angles, mins, maxs);
-		VectorAdd (mins, currententity->origin, minmaxs);
-		VectorAdd (maxs, currententity->origin, (minmaxs+3));
+		VectorAdd(mins, currententity->origin, minmaxs);
+		VectorAdd(maxs, currententity->origin, (minmaxs+3));
 
 		clipflags = R_BmodelCheckBBox (minmaxs);
 		if (clipflags == BMODEL_FULLY_CLIPPED)
@@ -1083,7 +1083,7 @@ R_DrawBEntitiesOnList(void)
 			// falls entirely in one leaf, so we just put all the
 			// edges in the edge list and let 1/z sorting handle
 			// drawing order
-			R_DrawSubmodelPolygons(currententity, currentmodel, clipflags, topnode);
+			R_DrawSubmodelPolygons(currententity, clipflags, topnode);
 		}
 
 		// put back world rotation and frustum clipping
