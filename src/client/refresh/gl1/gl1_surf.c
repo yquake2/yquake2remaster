@@ -1007,7 +1007,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
-		msurface_t	**mark;
+		msurface_t **mark;
 
 		pleaf = (mleaf_t *)node;
 

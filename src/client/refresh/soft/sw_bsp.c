@@ -442,13 +442,16 @@ static void
 R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	qboolean insubmodel)
 {
-	int c;
 	vec3_t acceptpt, rejectpt;
+	cplane_t *plane;
 	mleaf_t *pleaf;
+	float dot;
+	int side;
+	int c;
 
 	if (node->contents == CONTENTS_SOLID)
 	{
-		return;		// solid
+		return; /* solid */
 	}
 
 	if (node->visframe != r_visframecount)
@@ -508,12 +511,14 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 		}
 	}
 
-	// if a leaf node, draw stuff
+	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
 		msurface_t **mark;
+
 		pleaf = (mleaf_t *)node;
 
+		/* check for door connected areas */
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
 		{
 			return;	// not visible
@@ -528,24 +533,21 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 			{
 				(*mark)->visframe = r_framecount;
 				mark++;
-			} while (--c);
+			}
+			while (--c);
 		}
 
 		pleaf->key = r_currentkey;
 		r_currentkey++;	// all bmodels in a leaf share the same key
+		return;
 	}
-	else
+
+	/* node is just a decision point, so go down the apropriate
+	   sides find which side of the node we are on */
+	plane = node->plane;
+
+	switch (plane->type)
 	{
-		float dot;
-		int side;
-		cplane_t *plane;
-
-		// node is just a decision point, so go down the apropriate sides
-		// find which side of the node we are on
-		plane = node->plane;
-
-		switch (plane->type)
-		{
 		case PLANE_X:
 			dot = modelorg[0] - plane->dist;
 			break;
@@ -558,69 +560,68 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 		default:
 			dot = DotProduct(modelorg, plane->normal) - plane->dist;
 			break;
-		}
-
-		if (dot >= 0)
-		{
-			side = 0;
-		}
-		else
-		{
-			side = 1;
-		}
-
-		// recurse down the children, front side first
-		R_RecursiveWorldNode(currententity, node->children[side], clipflags, insubmodel);
-
-		if ((node->numsurfaces + node->firstsurface) > currententity->model->numsurfaces)
-		{
-			Com_Printf("Broken node firstsurface\n");
-			return;
-		}
-
-		// draw stuff
-		c = node->numsurfaces;
-
-		if (c)
-		{
-			msurface_t *surf;
-
-			surf = currententity->model->surfaces + node->firstsurface;
-
-			if (dot < -BACKFACE_EPSILON)
-			{
-				do
-				{
-					if ((surf->flags & SURF_PLANEBACK) &&
-						(surf->visframe == r_framecount))
-					{
-						R_RenderFace(currententity, surf, clipflags, insubmodel);
-					}
-
-					surf++;
-				} while (--c);
-			}
-			else if (dot > BACKFACE_EPSILON)
-			{
-				do
-				{
-					if (!(surf->flags & SURF_PLANEBACK) &&
-						(surf->visframe == r_framecount))
-					{
-						R_RenderFace(currententity, surf, clipflags, insubmodel);
-					}
-
-					surf++;
-				} while (--c);
-			}
-
-			// all surfaces on the same node share the same sequence number
-			r_currentkey++;
-		}
-
-		// recurse down the back side
-		R_RecursiveWorldNode(currententity, node->children[!side], clipflags, insubmodel);
 	}
+
+	if (dot >= 0)
+	{
+		side = 0;
+	}
+	else
+	{
+		side = 1;
+	}
+
+	/* recurse down the children, front side first */
+	R_RecursiveWorldNode(currententity, node->children[side], clipflags, insubmodel);
+
+	if ((node->numsurfaces + node->firstsurface) > currententity->model->numsurfaces)
+	{
+		Com_Printf("Broken node firstsurface\n");
+		return;
+	}
+
+	/* draw stuff */
+	c = node->numsurfaces;
+
+	if (c)
+	{
+		msurface_t *surf;
+
+		surf = currententity->model->surfaces + node->firstsurface;
+
+		if (dot < -BACKFACE_EPSILON)
+		{
+			do
+			{
+				if ((surf->flags & SURF_PLANEBACK) &&
+					(surf->visframe == r_framecount))
+				{
+					R_RenderFace(currententity, surf, clipflags, insubmodel);
+				}
+
+				surf++;
+			} while (--c);
+		}
+		else if (dot > BACKFACE_EPSILON)
+		{
+			do
+			{
+				if (!(surf->flags & SURF_PLANEBACK) &&
+					(surf->visframe == r_framecount))
+				{
+					R_RenderFace(currententity, surf, clipflags, insubmodel);
+				}
+
+				surf++;
+			} while (--c);
+		}
+
+		// all surfaces on the same node share the same sequence number
+		r_currentkey++;
+	}
+
+	/* recurse down the back side */
+	R_RecursiveWorldNode(currententity, node->children[!side], clipflags, insubmodel);
 }
 
 /*
