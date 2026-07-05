@@ -38,14 +38,14 @@
 static void
 CL_AddPacketEntities(const frame_t *frame)
 {
-	float autorotate, autobob;
 	static const cvar_t *game = NULL;
+	float autorotate, autobob;
 	int autoanim;
 	int pnum;
 
+	/* To distinguish baseq2, xatrix and rogue. */
 	if (game == NULL)
 	{
-		/* To distinguish baseq2, xatrix and rogue. */
 		game = Cvar_Get("game",  "", CVAR_LATCH | CVAR_SERVERINFO);
 	}
 
