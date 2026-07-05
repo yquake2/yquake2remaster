@@ -74,7 +74,7 @@ typedef struct swstate_s
 static swstate_t sw_state;
 
 void	*colormap;
-float	r_time1;
+size_t r_time1;
 int	r_numallocatededges;
 int	r_numallocatedverts;
 int	r_numallocatedtriangles;
@@ -1309,7 +1309,7 @@ RE_RenderFrame(const refdef_t *fd)
 		r_time1 = SDL_GetTicks();
 	}
 
-	R_SetupFrame ();
+	R_SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, r_origin, r_newrefdef.fov_x, r_newrefdef.fov_y,
 		frustum);
@@ -1372,7 +1372,7 @@ RE_RenderFrame(const refdef_t *fd)
 
 	if (r_dowarp)
 	{
-		D_WarpScreen ();
+		D_WarpScreen();
 	}
 
 	if (sw_dspeeds->value)

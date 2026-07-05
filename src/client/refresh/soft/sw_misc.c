@@ -86,8 +86,8 @@ R_PrintTimes
 void
 R_PrintTimes(void)
 {
-	int		r_time2;
-	int		ms;
+	size_t r_time2;
+	int ms;
 
 	r_time2 = SDL_GetTicks();
 

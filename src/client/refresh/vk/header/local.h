@@ -120,10 +120,9 @@ extern	int		c_visible_textures;
 extern	float	r_viewproj_matrix[16];
 
 //====================================================================
-
-extern	model_t	*r_worldmodel;
-
-extern	unsigned	d_8to24table[256];
+extern model_t *r_worldmodel;
+extern unsigned d_8to24table[256];
+extern int registration_sequence;
 
 extern	unsigned	r_rawpalette[256];
 extern	qvktexture_t	vk_rawTexture;
@@ -133,7 +132,6 @@ extern	float	r_projection_matrix[16];
 extern	float	r_viewproj_matrix[16];
 extern	vec3_t	lightspot;
 
-extern	int		registration_sequence;
 extern	int		r_dlightframecount;
 extern	qvksampler_t vk_current_sampler;
 extern	qvksampler_t vk_current_lmap_sampler;

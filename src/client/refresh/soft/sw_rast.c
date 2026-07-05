@@ -514,7 +514,7 @@ R_RenderFace
 ================
 */
 void
-R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *fa,
+R_RenderFace(entity_t *currententity, const model_t *currentmodel, msurface_t *fa,
 	int clipflags, qboolean insubmodel)
 {
 	int		i;
@@ -586,7 +586,7 @@ R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *
 	pedges = currentmodel->edges;
 	r_lastvertvalid = false;
 
-	for (i=0 ; i<fa->numedges ; i++)
+	for (i = 0; i < fa->numedges; i++)
 	{
 		int lindex;
 
@@ -625,7 +625,7 @@ R_RenderFace (entity_t *currententity, const model_t *currentmodel, msurface_t *
 			// assume it's cacheable
 			cacheoffset = (byte *)edge_p - (byte *)r_edges;
 			r_leftclipped = r_rightclipped = false;
-			R_ClipEdge (&r_pcurrentvertbase[r_pedge->v[0]],
+			R_ClipEdge(&r_pcurrentvertbase[r_pedge->v[0]],
 						&r_pcurrentvertbase[r_pedge->v[1]],
 						pclip, r_pedge,
 						&r_leftclipped, &r_rightclipped,

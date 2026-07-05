@@ -25,6 +25,12 @@
  * =======================================================================
  */
 
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
+
 #include "header/local.h"
 
 #define	REF_VERSION	"Yamagi Quake II Vulkan Refresher (based on vkQuake2 v1.4.3)"
@@ -35,7 +41,8 @@ static qboolean RE_IsHighDPIaware = false;
 
 refimport_t	ri;
 
-model_t		*r_worldmodel;
+static size_t r_time1;
+model_t *r_worldmodel;
 
 vkconfig_t vk_config;
 vkstate_t  vk_state;
@@ -614,8 +621,12 @@ R_SetupFrame(void)
 
 	R_CombineBlendWithFog(v_blend, false);
 
-	c_brush_polys = 0;
-	c_alias_polys = 0;
+	if (r_speeds->value)
+	{
+		c_brush_polys = 0;
+		c_alias_polys = 0;
+		r_time1 = SDL_GetTicks();
+	}
 
 	/* clear out the portion of the screen that the NOWORLDMODEL defines
 	   unlike OpenGL, draw a rectangle in proper location - it's easier to do in Vulkan */
@@ -910,11 +921,16 @@ RE_RenderView(const refdef_t *fd)
 
 	if (r_speeds->value)
 	{
-		Com_Printf("%4i wpoly %4i epoly %i tex %i lmaps\n",
-			c_brush_polys,
-			c_alias_polys,
-			c_visible_textures,
-			c_visible_lightmaps);
+		size_t r_time2;
+		int ms;
+
+		r_time2 = SDL_GetTicks();
+
+		ms = r_time2 - r_time1;
+
+		Com_Printf("%5i ms %4i wpoly %4i epoly %i tex %i lmaps\n",
+				ms, c_brush_polys, c_alias_polys, c_visible_textures,
+				c_visible_lightmaps);
 	}
 }
 

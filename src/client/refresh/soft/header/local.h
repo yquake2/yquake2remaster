@@ -495,23 +495,22 @@ extern mvertex_t	*r_pcurrentvertbase;
 void R_DrawTriangle(const entity_t *currententity, const finalvert_t *a, const finalvert_t *b, const finalvert_t *c);
 void R_AliasClipTriangle(const entity_t *currententity, const finalvert_t *index0, const finalvert_t *index1, const finalvert_t *index2);
 
-
-extern float	r_time1;
-extern float	da_time1, da_time2;
-extern float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
-extern float	se_time1, se_time2, de_time1, de_time2;
+extern size_t r_time1;
+extern float da_time1, da_time2;
+extern float dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
+extern float se_time1, se_time2, de_time1, de_time2;
 
 extern int r_clipflags;
 
-extern image_t		*r_notexture_mip;
-extern model_t		*r_worldmodel;
-extern vec3_t		lightspot;
+extern image_t *r_notexture_mip;
+extern model_t *r_worldmodel;
+extern vec3_t lightspot;
 
 void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
-void R_PrintAliasStats (void);
-void R_PrintTimes (void);
-void R_PrintDSpeeds (void);
-void R_SetupFrame (void);
+void R_PrintAliasStats(void);
+void R_PrintTimes(void);
+void R_PrintDSpeeds(void);
+void R_SetupFrame(void);
 
 extern  surfcache_t	*sc_base;
 
