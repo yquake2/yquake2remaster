@@ -439,8 +439,8 @@ R_RecursiveWorldNode
 ================
 */
 static void
-R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode_t *node,
-	int clipflags, qboolean insubmodel)
+R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
+	qboolean insubmodel)
 {
 	int c;
 	vec3_t acceptpt, rejectpt;
@@ -570,9 +570,9 @@ R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode
 		}
 
 		// recurse down the children, front side first
-		R_RecursiveWorldNode(currententity, currentmodel, node->children[side], clipflags, insubmodel);
+		R_RecursiveWorldNode(currententity, node->children[side], clipflags, insubmodel);
 
-		if ((node->numsurfaces + node->firstsurface) > currentmodel->numsurfaces)
+		if ((node->numsurfaces + node->firstsurface) > currententity->model->numsurfaces)
 		{
 			Com_Printf("Broken node firstsurface\n");
 			return;
@@ -585,7 +585,7 @@ R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode
 		{
 			msurface_t *surf;
 
-			surf = currentmodel->surfaces + node->firstsurface;
+			surf = currententity->model->surfaces + node->firstsurface;
 
 			if (dot < -BACKFACE_EPSILON)
 			{
@@ -594,7 +594,7 @@ R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode
 					if ((surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-						R_RenderFace(currententity, currentmodel, surf, clipflags, insubmodel);
+						R_RenderFace(currententity, currententity->model, surf, clipflags, insubmodel);
 					}
 
 					surf++;
@@ -607,7 +607,7 @@ R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode
 					if (!(surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-						R_RenderFace(currententity, currentmodel, surf, clipflags, insubmodel);
+						R_RenderFace(currententity, currententity->model, surf, clipflags, insubmodel);
 					}
 
 					surf++;
@@ -619,7 +619,7 @@ R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode
 		}
 
 		// recurse down the back side
-		R_RecursiveWorldNode(currententity, currentmodel, node->children[!side], clipflags, insubmodel);
+		R_RecursiveWorldNode(currententity, node->children[!side], clipflags, insubmodel);
 	}
 }
 
@@ -629,20 +629,22 @@ R_DrawWorld
 ================
 */
 void
-R_DrawWorld(entity_t *currententity)
+R_DrawWorld(void)
 {
-	const model_t *currentmodel = r_worldmodel;
+	entity_t ent;
 
 	if ((!r_drawworld->value) || (r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		return;
 	}
 
-	// auto cycle the world frame for texture animation
-	currententity->frame = (int)(r_newrefdef.time * 2);
+	/* auto cycle the world frame for texture animation */
+	memset(&ent, 0, sizeof(ent));
+	ent.frame = (int)(r_newrefdef.time * 2);
+	ent.model = r_worldmodel;
 
 	VectorCopy(r_origin, modelorg);
-	r_pcurrentvertbase = currentmodel->vertexes;
+	r_pcurrentvertbase = r_worldmodel->vertexes;
 
-	R_RecursiveWorldNode(currententity, currentmodel, currentmodel->nodes, ALIAS_XY_CLIP_MASK, false);
+	R_RecursiveWorldNode(&ent, r_worldmodel->nodes, ALIAS_XY_CLIP_MASK, false);
 }

@@ -1124,7 +1124,7 @@ R_EdgeDrawing(entity_t *currententity)
 
 	// Build the Global Edget Table
 	// Also populate the surface stack and count # surfaces to render (surf_max is the max)
-	R_DrawWorld(currententity);
+	R_DrawWorld();
 
 	if (sw_dspeeds->value)
 	{
