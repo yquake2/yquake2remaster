@@ -156,7 +156,7 @@ R_EmitSkyBox
 ================
 */
 static void
-R_EmitSkyBox(entity_t *currententity, const model_t *currentmodel, qboolean insubmodel)
+R_EmitSkyBox(entity_t *currententity, qboolean insubmodel)
 {
 	int		i, j;
 	int		oldkey;
@@ -192,8 +192,9 @@ R_EmitSkyBox(entity_t *currententity, const model_t *currentmodel, qboolean insu
 	r_currentkey = 0x7ffffff0;
  	for (i=0 ; i<6 ; i++)
 	{
-		R_RenderFace(currententity, currentmodel, r_skyfaces + i, ALIAS_XY_CLIP_MASK, insubmodel);
+		R_RenderFace(currententity, r_skyfaces + i, ALIAS_XY_CLIP_MASK, insubmodel);
 	}
+
 	r_currentkey = oldkey;	// bsp sorting order
 }
 
@@ -514,8 +515,7 @@ R_RenderFace
 ================
 */
 void
-R_RenderFace(entity_t *currententity, const model_t *currentmodel, msurface_t *fa,
-	int clipflags, qboolean insubmodel)
+R_RenderFace(entity_t *currententity, msurface_t *fa, int clipflags, qboolean insubmodel)
 {
 	int		i;
 	unsigned	mask;
@@ -527,6 +527,7 @@ R_RenderFace(entity_t *currententity, const model_t *currentmodel, msurface_t *f
 	qboolean	r_leftclipped, r_rightclipped;
 	qboolean	makeleftedge, makerightedge;
 	qboolean	r_nearzionly;
+	const model_t *currentmodel = currententity->model;
 
 	// translucent surfaces are not drawn by the edge renderer
 	if (fa->texinfo->flags & SURF_TRANSPARENT)
@@ -544,9 +545,9 @@ R_RenderFace(entity_t *currententity, const model_t *currentmodel, msurface_t *f
 
 	// sky surfaces encountered in the world will cause the
 	// environment box surfaces to be emited
-	if ( fa->texinfo->flags & SURF_SKY )
+	if (fa->texinfo->flags & SURF_SKY)
 	{
-		R_EmitSkyBox (currententity, currentmodel, insubmodel);
+		R_EmitSkyBox(currententity, insubmodel);
 		return;
 	}
 

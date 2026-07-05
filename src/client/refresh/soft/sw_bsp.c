@@ -428,7 +428,7 @@ R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode)
 			r_currentkey = ((mleaf_t *)topnode)->key;
 
 			// FIXME: use bounding-box-based frustum clipping info?
-			R_RenderFace(currententity, currentmodel, psurf, clipflags, true);
+			R_RenderFace(currententity, psurf, clipflags, true);
 		}
 	}
 }
@@ -594,7 +594,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 					if ((surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-						R_RenderFace(currententity, currententity->model, surf, clipflags, insubmodel);
+						R_RenderFace(currententity, surf, clipflags, insubmodel);
 					}
 
 					surf++;
@@ -607,7 +607,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 					if (!(surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-						R_RenderFace(currententity, currententity->model, surf, clipflags, insubmodel);
+						R_RenderFace(currententity, surf, clipflags, insubmodel);
 					}
 
 					surf++;
