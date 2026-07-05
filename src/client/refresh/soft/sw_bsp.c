@@ -53,9 +53,9 @@ R_EntityRotate (vec3_t vec)
 	vec3_t	tvec;
 
 	VectorCopy(vec, tvec);
-	vec[0] = DotProduct (entity_rotation[0], tvec);
-	vec[1] = DotProduct (entity_rotation[1], tvec);
-	vec[2] = DotProduct (entity_rotation[2], tvec);
+	vec[0] = DotProduct(entity_rotation[0], tvec);
+	vec[1] = DotProduct(entity_rotation[1], tvec);
+	vec[2] = DotProduct(entity_rotation[2], tvec);
 }
 
 /*
@@ -160,9 +160,9 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 	splitplane = pnode->plane;
 	tplane.dist = splitplane->dist -
 			DotProduct(r_entorigin, splitplane->normal);
-	tplane.normal[0] = DotProduct (entity_rotation[0], splitplane->normal);
-	tplane.normal[1] = DotProduct (entity_rotation[1], splitplane->normal);
-	tplane.normal[2] = DotProduct (entity_rotation[2], splitplane->normal);
+	tplane.normal[0] = DotProduct(entity_rotation[0], splitplane->normal);
+	tplane.normal[1] = DotProduct(entity_rotation[1], splitplane->normal);
+	tplane.normal[2] = DotProduct(entity_rotation[2], splitplane->normal);
 
 	// clip edges to BSP plane
 	for (; pedges; pedges = pnextedge)
@@ -175,14 +175,14 @@ R_RecursiveClipBPoly(entity_t *currententity, bedge_t *pedges, mnode_t *pnode, m
 		// set the status for the last point as the previous point
 		// FIXME: cache this stuff somehow?
 		plastvert = pedges->v[0];
-		lastdist = DotProduct (plastvert->position, tplane.normal) - tplane.dist;
+		lastdist = DotProduct(plastvert->position, tplane.normal) - tplane.dist;
 		if (lastdist >= 0)
 			lastside = 0;
 		else
 			lastside = 1;
 
 		pvert = pedges->v[1];
-		dist = DotProduct (pvert->position, tplane.normal) - tplane.dist;
+		dist = DotProduct(pvert->position, tplane.normal) - tplane.dist;
 		if (dist >= 0)
 			side = 0;
 		else
@@ -333,7 +333,7 @@ R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *curre
 		// find which side of the node we are on
 		pplane = psurf->plane;
 
-		dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
+		dot = DotProduct(modelorg, pplane->normal) - pplane->dist;
 
 		// draw the polygon
 		if (( !(psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
@@ -419,7 +419,7 @@ R_DrawSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, int
 		// find which side of the node we are on
 		pplane = psurf->plane;
 
-		dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
+		dot = DotProduct(modelorg, pplane->normal) - pplane->dist;
 
 		// draw the polygon
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
@@ -439,7 +439,7 @@ R_RecursiveWorldNode
 ================
 */
 static void
-R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnode_t *node,
+R_RecursiveWorldNode(entity_t *currententity, const model_t *currentmodel, mnode_t *node,
 	int clipflags, qboolean insubmodel)
 {
 	int c;
@@ -467,7 +467,8 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 	if (clipflags)
 	{
 		int i;
-		for (i=0 ; i<4 ; i++)
+
+		for (i = 0; i < 4 ; i++)
 		{
 			const int *pindex;
 			float d;
@@ -480,26 +481,30 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 			// generate accept and reject points
 			// FIXME: do with fast look-ups or integer tests based on the sign bit
 			// of the floating point values
-
 			pindex = pfrustum_indexes[i];
 
 			rejectpt[0] = node->minmaxs[pindex[0]];
 			rejectpt[1] = node->minmaxs[pindex[1]];
 			rejectpt[2] = node->minmaxs[pindex[2]];
 
-			d = DotProduct (rejectpt, view_clipplanes[i].normal);
+			d = DotProduct(rejectpt, view_clipplanes[i].normal);
 			d -= view_clipplanes[i].dist;
 			if (d <= 0)
+			{
 				return;
+			}
+
 			acceptpt[0] = node->minmaxs[pindex[3+0]];
 			acceptpt[1] = node->minmaxs[pindex[3+1]];
 			acceptpt[2] = node->minmaxs[pindex[3+2]];
 
-			d = DotProduct (acceptpt, view_clipplanes[i].normal);
+			d = DotProduct(acceptpt, view_clipplanes[i].normal);
 			d -= view_clipplanes[i].dist;
 
 			if (d >= 0)
+			{
 				clipflags &= ~(1<<i);	// node is entirely on screen
+			}
 		}
 	}
 
@@ -510,7 +515,9 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 		pleaf = (mleaf_t *)node;
 
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
+		{
 			return;	// not visible
+		}
 
 		mark = pleaf->firstmarksurface;
 		c = pleaf->nummarksurfaces;
@@ -549,17 +556,21 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 			dot = modelorg[2] - plane->dist;
 			break;
 		default:
-			dot = DotProduct (modelorg, plane->normal) - plane->dist;
+			dot = DotProduct(modelorg, plane->normal) - plane->dist;
 			break;
 		}
 
 		if (dot >= 0)
+		{
 			side = 0;
+		}
 		else
+		{
 			side = 1;
+		}
 
 		// recurse down the children, front side first
-		R_RecursiveWorldNode (currententity, currentmodel, node->children[side], clipflags, insubmodel);
+		R_RecursiveWorldNode(currententity, currentmodel, node->children[side], clipflags, insubmodel);
 
 		if ((node->numsurfaces + node->firstsurface) > currentmodel->numsurfaces)
 		{
@@ -583,7 +594,7 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 					if ((surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-						R_RenderFace (currententity, currentmodel, surf, clipflags, insubmodel);
+						R_RenderFace(currententity, currentmodel, surf, clipflags, insubmodel);
 					}
 
 					surf++;
@@ -596,7 +607,7 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 					if (!(surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-						R_RenderFace (currententity, currentmodel, surf, clipflags, insubmodel);
+						R_RenderFace(currententity, currentmodel, surf, clipflags, insubmodel);
 					}
 
 					surf++;
@@ -608,17 +619,17 @@ R_RecursiveWorldNode (entity_t *currententity, const model_t *currentmodel, mnod
 		}
 
 		// recurse down the back side
-		R_RecursiveWorldNode (currententity, currentmodel, node->children[!side], clipflags, insubmodel);
+		R_RecursiveWorldNode(currententity, currentmodel, node->children[!side], clipflags, insubmodel);
 	}
 }
 
 /*
 ================
-R_RenderWorld
+R_DrawWorld
 ================
 */
 void
-R_RenderWorld (entity_t *currententity)
+R_DrawWorld(entity_t *currententity)
 {
 	const model_t *currentmodel = r_worldmodel;
 
@@ -633,5 +644,5 @@ R_RenderWorld (entity_t *currententity)
 	VectorCopy(r_origin, modelorg);
 	r_pcurrentvertbase = currentmodel->vertexes;
 
-	R_RecursiveWorldNode (currententity, currentmodel, currentmodel->nodes, ALIAS_XY_CLIP_MASK, false);
+	R_RecursiveWorldNode(currententity, currentmodel, currentmodel->nodes, ALIAS_XY_CLIP_MASK, false);
 }

@@ -847,7 +847,7 @@ R_BmodelCheckBBox(const float *minmaxs)
 		rejectpt[1] = minmaxs[pindex[1]];
 		rejectpt[2] = minmaxs[pindex[2]];
 
-		d = DotProduct (rejectpt, view_clipplanes[i].normal);
+		d = DotProduct(rejectpt, view_clipplanes[i].normal);
 		d -= view_clipplanes[i].dist;
 
 		if (d <= 0)
@@ -859,7 +859,7 @@ R_BmodelCheckBBox(const float *minmaxs)
 		acceptpt[1] = minmaxs[pindex[3+1]];
 		acceptpt[2] = minmaxs[pindex[3+2]];
 
-		d = DotProduct (acceptpt, view_clipplanes[i].normal);
+		d = DotProduct(acceptpt, view_clipplanes[i].normal);
 		d -= view_clipplanes[i].dist;
 
 		if (d <= 0)
@@ -1124,7 +1124,7 @@ R_EdgeDrawing(entity_t *currententity)
 
 	// Build the Global Edget Table
 	// Also populate the surface stack and count # surfaces to render (surf_max is the max)
-	R_RenderWorld(currententity);
+	R_DrawWorld(currententity);
 
 	if (sw_dspeeds->value)
 	{

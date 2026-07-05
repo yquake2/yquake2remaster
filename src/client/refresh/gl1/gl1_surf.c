@@ -1013,7 +1013,9 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 		/* check for door connected areas */
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
+		{
 			return;	// not visible
+		}
 
 		mark = pleaf->firstmarksurface;
 		c = pleaf->nummarksurfaces;
