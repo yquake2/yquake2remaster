@@ -1586,10 +1586,28 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 					}
 				}
 			}
+			else if (Q_strncasecmp(blockname, "skeleton", sizeof(blockname)) == 0)
+			{
+				int skeleton_type, skeleton_joints_num, *skeleton_data;
+
+				if (version != 1)
+				{
+					Com_Printf("%s: Invalid %s version %d\n",
+						__func__, blockname, version);
+					return NULL;
+				}
+
+				skeleton_data = (int *)((char*)pheader + sizeof(*pheader));
+				skeleton_type = LittleLong(*skeleton_data);
+				skeleton_data++;
+				skeleton_joints_num = LittleLong(*skeleton_data);
+				Com_DPrintf("%s: %s in %s has 0x%02x type and %d bones\n",
+					__func__, mod_name, blockname, skeleton_type, skeleton_joints_num);
+				pheader->num_bones = skeleton_joints_num;
+			}
 			else if (Q_strncasecmp(blockname, "normals", sizeof(blockname)) == 0 ||
 					 Q_strncasecmp(blockname, "short frames", sizeof(blockname)) == 0 ||
 					 Q_strncasecmp(blockname, "comp data", sizeof(blockname)) == 0 ||
-					 Q_strncasecmp(blockname, "skeleton", sizeof(blockname)) == 0 ||
 					 Q_strncasecmp(blockname, "references", sizeof(blockname)) == 0)
 			{
 				/* skipped block */
