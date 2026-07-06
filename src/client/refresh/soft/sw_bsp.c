@@ -610,11 +610,6 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	R_RecursiveWorldNode(currententity, node->children[!side], clipflags, insubmodel);
 }
 
-/*
-================
-R_DrawWorld
-================
-*/
 void
 R_DrawWorld(void)
 {

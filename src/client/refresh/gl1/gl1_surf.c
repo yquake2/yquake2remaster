@@ -980,6 +980,42 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 }
 
 static void
+R_RenderFace(entity_t *currententity, msurface_t *surf)
+{
+	if (surf->texinfo->flags & SURF_SKY)
+	{
+		/* just adds to visible sky bounds */
+		RE_AddSkySurface(surf);
+	}
+	else if (surf->texinfo->flags & SURF_TRANSPARENT)
+	{
+		/* add to the translucent chain */
+		surf->texturechain = r_alpha_surfaces;
+		r_alpha_surfaces = surf;
+		r_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
+	}
+	else if (surf->texinfo->flags & SURF_NODRAW)
+	{
+		/* Surface should be skipped */
+	}
+	else
+	{
+		image_t *image;
+
+		/* the polygon is visible, so add it to the texture sorted chain */
+		image = R_TextureAnimation(currententity, surf->texinfo);
+		surf->texturechain = image->texturechain;
+		image->texturechain = surf;
+
+		if (gl_config.multitexture && !(surf->texinfo->flags & SURF_WARP))	// needed for R_RegenAllLightmaps()
+		{
+			surf->lightmapchain = r_lms.lightmap_surfaces[surf->lightmaptexturenum];
+			r_lms.lightmap_surfaces[surf->lightmaptexturenum] = surf;
+		}
+	}
+}
+
+static void
 R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
 	int c, side, sidebit;
@@ -987,7 +1023,6 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	msurface_t *surf;
 	mleaf_t *pleaf;
 	float dot;
-	image_t *image;
 
 	if (node->contents == CONTENTS_SOLID)
 	{
@@ -1088,36 +1123,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			continue; /* wrong side */
 		}
 
-		if (surf->texinfo->flags & SURF_SKY)
-		{
-			/* just adds to visible sky bounds */
-			RE_AddSkySurface(surf);
-		}
-		else if (surf->texinfo->flags & SURF_TRANSPARENT)
-		{
-			/* add to the translucent chain */
-			surf->texturechain = r_alpha_surfaces;
-			r_alpha_surfaces = surf;
-			r_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
-		}
-		else if (surf->texinfo->flags & SURF_NODRAW)
-		{
-			/* Surface should be skipped */
-			continue;
-		}
-		else
-		{
-			/* the polygon is visible, so add it to the texture sorted chain */
-			image = R_TextureAnimation(currententity, surf->texinfo);
-			surf->texturechain = image->texturechain;
-			image->texturechain = surf;
-
-			if (gl_config.multitexture && !(surf->texinfo->flags & SURF_WARP))	// needed for R_RegenAllLightmaps()
-			{
-				surf->lightmapchain = r_lms.lightmap_surfaces[surf->lightmaptexturenum];
-				r_lms.lightmap_surfaces[surf->lightmaptexturenum] = surf;
-			}
-		}
+		R_RenderFace(currententity, surf);
 	}
 
 	/* recurse down the back side */
