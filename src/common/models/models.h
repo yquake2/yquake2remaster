@@ -63,6 +63,7 @@ void Mod_LoadCmdGenerate(dmdx_t *pheader);
 void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal);
 void Mod_LoadAnimGroupList(dmdx_t *pheader, qboolean sequence);
 void Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names);
+void Mod_LoadBonesFromMDR(dmdx_t *pheader, const mdr_header_t *mdr_header, const byte *buffer);
 dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
 void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
 byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,

@@ -191,13 +191,44 @@ Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
 	dmdxheader->ofs_st = dmdxheader->ofs_skins + dmdxheader->num_skins * MAX_SKINNAME;
 	dmdxheader->ofs_tris = dmdxheader->ofs_st + dmdxheader->num_st * sizeof(dstvert_t);
 	dmdxheader->ofs_frames = dmdxheader->ofs_tris + dmdxheader->num_tris * sizeof(dtriangle_t);
-	dmdxheader->ofs_glcmds = dmdxheader->ofs_frames + dmdxheader->num_frames * dmdxheader->framesize;
+
+	if (dmdxheader->num_bones > 0)
+	{
+		dmdxheader->ofs_bones = dmdxheader->ofs_frames +
+			dmdxheader->num_frames * dmdxheader->framesize;
+		dmdxheader->ofs_glcmds = dmdxheader->ofs_bones +
+			dmdxheader->num_frames * dmdxheader->num_bones * sizeof(dmdx_bone_t);
+	}
+	else
+	{
+		dmdxheader->ofs_bones = 0;
+		dmdxheader->ofs_glcmds = dmdxheader->ofs_frames +
+			dmdxheader->num_frames * dmdxheader->framesize;
+	}
+
 	dmdxheader->ofs_imgbit = dmdxheader->ofs_glcmds + dmdxheader->num_glcmds * sizeof(int);
 	dmdxheader->ofs_animgroup = dmdxheader->ofs_imgbit + (
 		dmdxheader->skinwidth * dmdxheader->skinheight *
 		dmdxheader->num_skins * dmdxheader->num_imgbit / 8
 	);
-	dmdxheader->ofs_end = dmdxheader->ofs_animgroup + dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
+
+	/* Allocate weight and vertex reference data if present */
+	if (dmdxheader->num_vertweights > 0)
+	{
+		dmdxheader->ofs_vertweights = dmdxheader->ofs_animgroup +
+			dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
+		dmdxheader->ofs_vertrefs = dmdxheader->ofs_vertweights +
+			dmdxheader->num_vertweights * sizeof(dmdx_vertweight_t);
+		dmdxheader->ofs_end = dmdxheader->ofs_vertrefs +
+			dmdxheader->num_xyz * sizeof(dmdx_vertref_t);
+	}
+	else
+	{
+		dmdxheader->ofs_vertweights = 0;
+		dmdxheader->ofs_vertrefs = 0;
+		dmdxheader->ofs_end = dmdxheader->ofs_animgroup +
+			dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
+	}
 
 	*extradata = Hunk_Begin(dmdxheader->ofs_end);
 	pheader = Hunk_Alloc(dmdxheader->ofs_end);

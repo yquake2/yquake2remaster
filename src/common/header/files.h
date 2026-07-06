@@ -627,6 +627,28 @@ typedef struct
 	unsigned int num_tris;
 } dmdxmesh_t;
 
+/* Skeletal bone structure for DMDX format */
+typedef struct
+{
+	float matrix[3][4];  /* Transformation matrix */
+	char name[32];       /* Bone name */
+	int parent;          /* Parent bone index (-1 = root) */
+} dmdx_bone_t;
+
+/* Per-vertex bone weight for skeletal animation */
+typedef struct
+{
+	int bone_index;   /* Index into bone array */
+	float weight;     /* Blend weight for this bone [0.0, 1.0] */
+} dmdx_vertweight_t;
+
+/* Per-vertex bone influence list reference */
+typedef struct
+{
+	int weight_index; /* Starting index into weight array for this vertex */
+	int num_weights;  /* Number of weights influencing this vertex */
+} dmdx_vertref_t;
+
 typedef struct
 {
 	int ident;
@@ -645,6 +667,7 @@ typedef struct
 	int num_imgbit; /* image format of embeded images */
 	int num_animgroup;
 	int num_bones;
+	int num_vertweights; /* total number of vertex weight entries (0 if no weights) */
 
 	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
 	int ofs_st;     /* byte offset from start for stverts */
@@ -654,6 +677,9 @@ typedef struct
 	int ofs_meshes;
 	int ofs_imgbit; /* offest of embeded image */
 	int ofs_animgroup; /* offset to animation frames group */
+	int ofs_bones;  /* offset to bone data array */
+	int ofs_vertweights; /* offset to per-vertex weight array */
+	int ofs_vertrefs; /* offset to per-vertex weight references (dmdx_vertref_t) */
 	int ofs_end;    /* end of file */
 } dmdx_t;
 

@@ -80,6 +80,10 @@
 #define MC_POS_V33 ((((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*8))/8))
 #define MC_SHIFT_V33 ((((MC_BITS_X+MC_BITS_Y+MC_BITS_Z+MC_BITS_VECT*8)%8)))
 
+/* Forward declarations */
+static void Mod_LoadVertexWeightsFromMDR(dmdx_t *pheader, const mdr_header_t *mdr_header,
+	const mdr_lod_t *inlod, int num_xyz);
+
 static void
 MC_UnCompress(float mat[3][4],const unsigned char * comp)
 {
@@ -338,6 +342,25 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 
 	framesize = sizeof(daliasxframe_t) + sizeof(dxtrivertx_t) * num_xyz;
 
+	/* Count vertex bone weights for allocation */
+	int num_vertweights = 0;
+	meshofs = inlod->ofs_surfaces;
+	for (i = 0; i < inlod->num_surfaces; i++)
+	{
+		const mdr_surface_t *insurf = (const mdr_surface_t *)((const char *)inlod + meshofs);
+		const mdr_vertex_t *inVert = (const mdr_vertex_t *)((const char *)insurf + insurf->ofs_verts);
+		int k;
+
+		for (k = 0; k < LittleLong(insurf->num_verts); k++)
+		{
+			num_vertweights += LittleLong(inVert->num_weights);
+			inVert = (const mdr_vertex_t *)((const char *)inVert +
+				sizeof(mdr_vertex_t) + sizeof(mdr_weight_t) * (inVert->num_weights - 1));
+		}
+
+		meshofs += LittleLong(insurf->ofs_end);
+	}
+
 	/* copy back all values */
 	memset(&dmdxheader, 0, sizeof(dmdxheader));
 	dmdxheader.framesize = framesize;
@@ -352,6 +375,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = num_tris;
 	dmdxheader.num_animgroup = pinmodel.num_frames;
 	dmdxheader.num_bones = pinmodel.num_bones;
+	dmdxheader.num_vertweights = num_vertweights;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -545,5 +569,183 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 
 	Mod_LoadFixImages(mod_name, pheader, false);
 
+	/* Load bone data for all frames */
+	Mod_LoadBonesFromMDR(pheader, &pinmodel, buffer);
+
+	/* Load per-vertex bone weights and references */
+	if (pheader->num_bones > 0 && pheader->num_vertweights > 0)
+	{
+		Mod_LoadVertexWeightsFromMDR(pheader, &pinmodel, inlod, pheader->num_xyz);
+	}
+
 	return extradata;
 }
+
+/*
+=================
+Mod_LoadBonesFromMDR
+
+Load bone data from MDR format and populate DMDX bone structure.
+Stores bones for all frames as: num_frames * num_bones * sizeof(dmdx_bone_t)
+=================
+*/
+void
+Mod_LoadBonesFromMDR(dmdx_t *pheader, const mdr_header_t *mdr_header,
+	const byte *buffer)
+{
+	const mdr_frame_t *mdr_frames;
+	dmdx_bone_t *dmdx_bones;
+	int frame_idx, bone_idx;
+	int unframesize;
+
+	if (!pheader || !mdr_header || !buffer || mdr_header->num_bones <= 0)
+	{
+		return;
+	}
+
+	if (pheader->ofs_bones == 0)
+	{
+		return; /* No bone space allocated */
+	}
+
+	/* Locate MDR frame data */
+	mdr_frames = (const mdr_frame_t *)((const byte *)mdr_header +
+		mdr_header->ofs_frames);
+
+	/* Calculate MDR frame size */
+	unframesize = sizeof(mdr_frame_t) + sizeof(mdr_bone_t) * (mdr_header->num_bones - 1);
+
+	/* Locate DMDX bone data */
+	dmdx_bones = (dmdx_bone_t *)((byte *)pheader + pheader->ofs_bones);
+
+	/* Load bones from all frames */
+	for (frame_idx = 0; frame_idx < mdr_header->num_frames; ++frame_idx)
+	{
+		const mdr_frame_t *mdr_frame = (const mdr_frame_t *)((const byte *)mdr_frames +
+			frame_idx * unframesize);
+
+		for (bone_idx = 0; bone_idx < mdr_header->num_bones; ++bone_idx)
+		{
+			const mdr_bone_t *mdr_bone = &mdr_frame->bones[bone_idx];
+			dmdx_bone_t *dmdx_bone = &dmdx_bones[frame_idx * mdr_header->num_bones + bone_idx];
+
+			/* Copy transformation matrix */
+			memcpy(dmdx_bone->matrix, mdr_bone->matrix, sizeof(mdr_bone->matrix));
+
+			/* Set bone name (index-based name) */
+			snprintf(dmdx_bone->name, sizeof(dmdx_bone->name), "bone_%d", bone_idx);
+
+			/* MDR doesn't store parent info, set to -1 (root) */
+			dmdx_bone->parent = -1;
+		}
+	}
+}
+
+/*
+=================
+Mod_LoadVertexWeightsFromMDR
+
+Extract per-vertex bone weight and reference data from MDR.
+Stores: weights array + per-vertex reference array
+=================
+*/
+static void
+Mod_LoadVertexWeightsFromMDR(dmdx_t *pheader, const mdr_header_t *mdr_header,
+	const mdr_lod_t *inlod, int num_xyz)
+{
+	int weight_count = 0;
+	int meshofs, vert_id;
+	int i, j;
+	dmdx_vertweight_t *dmdx_weights;
+	dmdx_vertref_t *dmdx_vertrefs;
+
+	if (!pheader || !mdr_header || !inlod || num_xyz <= 0)
+	{
+		return;
+	}
+
+	/* First pass: count total weights across all vertices */
+	meshofs = inlod->ofs_surfaces;
+	vert_id = 0;
+
+	for (i = 0; i < inlod->num_surfaces; i++)
+	{
+		const mdr_surface_t *insurf = (const mdr_surface_t *)((const char *)inlod + meshofs);
+		const mdr_vertex_t *inVert = (const mdr_vertex_t *)((const char *)insurf + insurf->ofs_verts);
+
+		for (j = 0; j < LittleLong(insurf->num_verts); j++)
+		{
+			weight_count += LittleLong(inVert->num_weights);
+			inVert = (const mdr_vertex_t *)((const char *)inVert +
+				sizeof(mdr_vertex_t) + sizeof(mdr_weight_t) * (inVert->num_weights - 1));
+		}
+
+		meshofs += LittleLong(insurf->ofs_end);
+	}
+
+	if (weight_count == 0)
+	{
+		pheader->num_vertweights = 0;
+		pheader->ofs_vertweights = 0;
+		pheader->ofs_vertrefs = 0;
+		return;
+	}
+
+	pheader->num_vertweights = weight_count;
+
+	/* Allocate weight and reference arrays if not already done */
+	if (pheader->ofs_vertweights == 0)
+	{
+		return; /* Weights not allocated */
+	}
+
+	dmdx_weights = (dmdx_vertweight_t *)((byte *)pheader + pheader->ofs_vertweights);
+	dmdx_vertrefs = (dmdx_vertref_t *)((byte *)pheader + pheader->ofs_vertrefs);
+
+	/* Second pass: populate weights and references */
+	weight_count = 0;
+	meshofs = inlod->ofs_surfaces;
+	vert_id = 0;
+
+	for (i = 0; i < inlod->num_surfaces; i++)
+	{
+		const mdr_surface_t *insurf = (const mdr_surface_t *)((const char *)inlod + meshofs);
+		const mdr_vertex_t *inVert = (const mdr_vertex_t *)((const char *)insurf + insurf->ofs_verts);
+
+		for (j = 0; j < LittleLong(insurf->num_verts); j++)
+		{
+			int num_weights = LittleLong(inVert->num_weights);
+			const mdr_weight_t *w = inVert->weights;
+			int k;
+
+			/* Store reference: start index and count for this vertex */
+			if (vert_id < num_xyz)
+			{
+				dmdx_vertrefs[vert_id].weight_index = weight_count;
+				dmdx_vertrefs[vert_id].num_weights = num_weights;
+			}
+
+			/* Copy weights */
+			for (k = 0; k < num_weights; k++, w++)
+			{
+				if (weight_count < pheader->num_vertweights)
+				{
+					int bone_idx = LittleLong(w->bone_index);
+					if (bone_idx >= 0 && bone_idx < pheader->num_bones)
+					{
+						dmdx_weights[weight_count].bone_index = bone_idx;
+						dmdx_weights[weight_count].weight = LittleFloat(w->bone_weight);
+						weight_count++;
+					}
+				}
+			}
+
+			vert_id++;
+			inVert = (const mdr_vertex_t *)((const char *)inVert +
+				sizeof(mdr_vertex_t) + sizeof(mdr_weight_t) * (inVert->num_weights - 1));
+		}
+
+		meshofs += LittleLong(insurf->ofs_end);
+	}
+}
+
