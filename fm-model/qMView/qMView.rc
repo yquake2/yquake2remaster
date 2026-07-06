@@ -1,0 +1,990 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\\qMView.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_SKIN                ICON    DISCARDABLE     "res\\qMView.ico"
+IDR_QMVIEWTYPE          ICON    DISCARDABLE     "res\\qMViewDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_QMVIEWTYPE          BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+IDB_SPLASH              BITMAP  DISCARDABLE     "splash.BMP"
+IDB_LOGO                BITMAP  DISCARDABLE     "logo.BMP"
+IDB_RAVEN               BITMAP  DISCARDABLE     "res\\raven.bmp"
+IDR_VIEWPOSBAR          BITMAP  DISCARDABLE     "res\\toolbar1.bmp"
+IDR_ANIMBAR             BITMAP  DISCARDABLE     "res\\bmp00001.bmp"
+IDB_BITMAP1             BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+IDB_BITMAP2             BITMAP  DISCARDABLE     "res\\bitmap2.bmp"
+IDB_BITMAP3             BITMAP  DISCARDABLE     "res\\bitmap3.bmp"
+IDB_BITMAP4             BITMAP  DISCARDABLE     "res\\bitmap4.bmp"
+IDR_ANIMBAR1            BITMAP  DISCARDABLE     "res\\animbar1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_QMVIEWTYPE TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_FILE_OPEN
+    SEPARATOR
+    BUTTON      ID_SKIN_IMPORT
+    SEPARATOR
+    BUTTON      ID_MODE_CAMERA
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+IDR_VIEWPOSBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_GOTOPOS_BACK
+    BUTTON      ID_GOTOPOS_FRONT
+    BUTTON      ID_GOTOPOS_RIGHT
+    BUTTON      ID_GOTOPOS_LEFT
+    BUTTON      ID_GOTOPOS_TOP
+    BUTTON      ID_GOTOPOS_BOTTOM
+    SEPARATOR
+    BUTTON      ID_LOCK_ROT_X
+    BUTTON      ID_LOCK_ROT_Y
+    BUTTON      ID_LOCK_ROT_Z
+    SEPARATOR
+    BUTTON      ID_LOCK_TRAN_X
+    BUTTON      ID_LOCK_TRAN_Y
+    BUTTON      ID_LOCK_TRAN_Z
+END
+
+IDR_ANIMBAR TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_ANIMATE_STEP_BACK
+    BUTTON      ID_ANIMATE_STOP
+    BUTTON      ID_ANIMATE_PLAY
+    BUTTON      ID_ANIMATE_STEP_FORE
+    SEPARATOR
+    BUTTON      ID_ANIMATE_TYPE_BACK
+    BUTTON      ID_ANIMATE_TYPE_PINGPONG
+    BUTTON      ID_ANIMATE_TYPE_FRONT
+    SEPARATOR
+    BUTTON      ID_RENDER_WIREFRAME
+    BUTTON      ID_RENDER_FLAT
+    SEPARATOR
+    BUTTON      ID_RENDER_TEXTURE
+    SEPARATOR
+    BUTTON      ID_RENDER_TRANS
+    SEPARATOR
+    BUTTON      ID_ANIM_INTERTOGGLE
+    SEPARATOR
+    BUTTON      ID_TICKER_OPTIONS
+    SEPARATOR
+    BUTTON      ID_WINDOW_FRAME
+    BUTTON      ID_WINDOW_SKIN
+    SEPARATOR
+    BUTTON      ID_SKIN_SHOWOVERLAY
+END
+
+IDR_ANIMBAR1 TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_ANIMATE_STEP_BACK
+    BUTTON      ID_ANIMATE_STOP
+    BUTTON      ID_ANIMATE_PLAY
+    BUTTON      ID_ANIMATE_STEP_FORE
+    SEPARATOR
+    BUTTON      ID_ANIMATE_TYPE_BACK
+    BUTTON      ID_ANIMATE_TYPE_PINGPONG
+    BUTTON      ID_ANIMATE_TYPE_FRONT
+    SEPARATOR
+    BUTTON      ID_RENDER_WIREFRAME
+    BUTTON      ID_RENDER_FLAT
+    SEPARATOR
+    BUTTON      ID_RENDER_TEXTURE
+    SEPARATOR
+    BUTTON      ID_RENDER_TRANS
+    SEPARATOR
+    BUTTON      ID_ANIM_INTERTOGGLE
+    SEPARATOR
+    BUTTON      ID_TICKER_OPTIONS
+    SEPARATOR
+    BUTTON      ID_WINDOW_FRAME
+    BUTTON      ID_WINDOW_SKIN
+    SEPARATOR
+    BUTTON      ID_SKIN_SHOWOVERLAY
+    SEPARATOR
+    BUTTON      ID_SKELETON_SNAP
+    BUTTON      ID_JOINT_MANUAL_ANGLES
+    BUTTON      ID_JOINT_CONSTRAINTS
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_QMVIEWTYPE MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "Import S&kin",                ID_SKIN_IMPORT
+        MENUITEM "Ex&port Skin",                ID_SKIN_EXPORT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "I&mport Frame",               ID_FRAME_IMPORT, GRAYED
+        MENUITEM "Export &Frame",               ID_FRAME_EXPORT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Preferences",                ID_PREF
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Render"
+    BEGIN
+        MENUITEM "Wireframe",                   ID_RENDER_WIREFRAME
+        MENUITEM "Flat",                        ID_RENDER_FLAT
+        MENUITEM "Gouraud",                     ID_RENDER_GOURAUD
+        MENUITEM SEPARATOR
+        MENUITEM "Textures",                    ID_RENDER_TEXTURE
+        MENUITEM "Transparency",                ID_RENDER_TRANS
+    END
+    POPUP "&Animation"
+    BEGIN
+        MENUITEM "&Play",                       ID_ANIMATE_PLAY, CHECKED
+        MENUITEM "&Stop",                       ID_ANIMATE_STOP
+        MENUITEM "Step &>>",                    ID_ANIMATE_STEP_FORE
+        MENUITEM "&<< Step",                    ID_ANIMATE_STEP_BACK
+        MENUITEM SEPARATOR
+        POPUP "Play &Mode"
+        BEGIN
+            MENUITEM "&Forward",                    ID_ANIMATE_TYPE_FRONT
+            MENUITEM "&Backward",                   ID_ANIMATE_TYPE_BACK
+            MENUITEM "Pin&g Pong",                  ID_ANIMATE_TYPE_PINGPONG
+        END
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbar"
+        BEGIN
+            MENUITEM "Animation",                   ID_VIEW_ANIMBAR
+            MENUITEM "Position",                    ID_VIEW_POS
+            MENUITEM "General",                     ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "Frame / Skin Manager",        CG_ID_VIEW_FRAMETREEDLG
+        MENUITEM "Node / Joint Manager",        CG_IDD_TREEMANAGER
+        MENUITEM SEPARATOR
+        POPUP "Lock &Rotation"
+        BEGIN
+            MENUITEM "&X",                          ID_LOCK_ROT_X
+            MENUITEM "&Y",                          ID_LOCK_ROT_Y
+            MENUITEM "&Z",                          ID_LOCK_ROT_Z
+        END
+        POPUP "Lock Trans&lation"
+        BEGIN
+            MENUITEM "&X",                          ID_LOCK_TRAN_X
+            MENUITEM "&Y",                          ID_LOCK_TRAN_Y
+            MENUITEM "&Z",                          ID_LOCK_TRAN_Z
+        END
+        POPUP "&All"
+        BEGIN
+            MENUITEM "&Lock",                       ID_ALL_LOCK
+            MENUITEM "&Unlock",                     ID_ALL_UNLOCK
+        END
+        MENUITEM SEPARATOR
+        POPUP "&Go To View"
+        BEGIN
+            MENUITEM "&Top",                        ID_GOTOPOS_TOP
+            MENUITEM "&Bottom",                     ID_GOTOPOS_BOTTOM
+            MENUITEM "&Left",                       ID_GOTOPOS_LEFT
+            MENUITEM "&Right",                      ID_GOTOPOS_RIGHT
+            MENUITEM "&Front",                      ID_GOTOPOS_FRONT
+            MENUITEM "Bac&k",                       ID_GOTOPOS_BACK
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Properties...",               ID_VIEW_PROPS
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About qMView...",            ID_APP_ABOUT
+    END
+END
+
+CG_IDR_POPUP_NODE_TREE_CTRL MENU DISCARDABLE 
+BEGIN
+    POPUP "_POPUP_"
+    BEGIN
+        MENUITEM "Visible",                     ID_NODE_TOGGLE_VIS
+        MENUITEM SEPARATOR
+        MENUITEM "Properties",                  ID_NODE_PROP, GRAYED
+        MENUITEM SEPARATOR
+    END
+END
+
+IDR_SKIN_POPUP_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "_POPUP_"
+    BEGIN
+        MENUITEM "&Replace Skin...",            ID_REPLACE_SKIN
+        MENUITEM SEPARATOR
+    END
+END
+
+IDR_QMVIEWTYPE1 MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Close",                      ID_FILE_CLOSE
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Import Palette",             ID_PALETTE_IMPORT
+        MENUITEM "&Export Palette",             ID_PALETTE_EXPORT
+        MENUITEM SEPARATOR
+        MENUITEM "Import S&kin",                ID_SKIN_IMPORT
+        MENUITEM "Ex&port Skin",                ID_SKIN_EXPORT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "I&mport Frame",               ID_FRAME_IMPORT, GRAYED
+        MENUITEM "Export &Frame",               ID_FRAME_EXPORT, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "&Preferences",                ID_PREF
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Render"
+    BEGIN
+        MENUITEM "Wireframe",                   ID_RENDER_WIREFRAME
+        MENUITEM "Flat",                        ID_RENDER_FLAT
+        MENUITEM "Gouraud",                     ID_RENDER_GOURAUD
+        MENUITEM SEPARATOR
+        MENUITEM "Textures",                    ID_RENDER_TEXTURE
+        MENUITEM "Transparency",                ID_RENDER_TRANS
+    END
+    POPUP "&Animation"
+    BEGIN
+        MENUITEM "&Play",                       ID_ANIMATE_PLAY, CHECKED
+        MENUITEM "&Stop",                       ID_ANIMATE_STOP
+        MENUITEM "Step &>>",                    ID_ANIMATE_STEP_FORE
+        MENUITEM "&<< Step",                    ID_ANIMATE_STEP_BACK
+        MENUITEM SEPARATOR
+        POPUP "Play &Mode"
+        BEGIN
+            MENUITEM "&Forward",                    ID_ANIMATE_TYPE_FRONT
+            MENUITEM "&Backward",                   ID_ANIMATE_TYPE_BACK
+            MENUITEM "Pin&g Pong",                  ID_ANIMATE_TYPE_PINGPONG
+        END
+    END
+    POPUP "Skeleton"
+    BEGIN
+        MENUITEM "Snap to Original",            ID_SKELETON_SNAP
+        MENUITEM "Joint Angles",                ID_JOINT_MANUAL_ANGLES
+        MENUITEM "Joint Constraints",           ID_JOINT_CONSTRAINTS, GRAYED
+    END
+    POPUP "&View"
+    BEGIN
+        POPUP "&Toolbar"
+        BEGIN
+            MENUITEM "Animation",                   ID_VIEW_ANIMBAR
+            MENUITEM "Position",                    ID_VIEW_POS
+            MENUITEM "General",                     ID_VIEW_TOOLBAR
+        END
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "Frame / Skin Manager",        CG_ID_VIEW_FRAMETREEDLG
+        MENUITEM "Node / Joint Manager",        CG_IDD_TREEMANAGER
+        MENUITEM SEPARATOR
+        POPUP "Lock &Rotation"
+        BEGIN
+            MENUITEM "&X",                          ID_LOCK_ROT_X
+            MENUITEM "&Y",                          ID_LOCK_ROT_Y
+            MENUITEM "&Z",                          ID_LOCK_ROT_Z
+        END
+        POPUP "Lock Trans&lation"
+        BEGIN
+            MENUITEM "&X",                          ID_LOCK_TRAN_X
+            MENUITEM "&Y",                          ID_LOCK_TRAN_Y
+            MENUITEM "&Z",                          ID_LOCK_TRAN_Z
+        END
+        POPUP "&All"
+        BEGIN
+            MENUITEM "&Lock",                       ID_ALL_LOCK
+            MENUITEM "&Unlock",                     ID_ALL_UNLOCK
+        END
+        MENUITEM SEPARATOR
+        POPUP "&Go To View"
+        BEGIN
+            MENUITEM "&Top",                        ID_GOTOPOS_TOP
+            MENUITEM "&Bottom",                     ID_GOTOPOS_BOTTOM
+            MENUITEM "&Left",                       ID_GOTOPOS_LEFT
+            MENUITEM "&Right",                      ID_GOTOPOS_RIGHT
+            MENUITEM "&Front",                      ID_GOTOPOS_FRONT
+            MENUITEM "Bac&k",                       ID_GOTOPOS_BACK
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Properties...",               ID_VIEW_PROPS
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About qMView...",            ID_APP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_QMVIEWTYPE ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "I",            ID_SKIN_IMPORT,         VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_PALETTE_IMPORT,      VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_NODE_TOGGLE_VIS,     VIRTKEY, CONTROL, NOINVERT
+    VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
+    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
+    VK_F10,         ID_GOTOPOS_BOTTOM,      VIRTKEY, NOINVERT
+    VK_F11,         ID_WINDOW_FRAME,        VIRTKEY, NOINVERT
+    VK_F12,         ID_WINDOW_SKIN,         VIRTKEY, NOINVERT
+    VK_F12,         ID_SKIN_SHOWOVERLAY,    VIRTKEY, CONTROL, NOINVERT
+    VK_F2,          ID_MODE_CAMERA,         VIRTKEY, NOINVERT
+    VK_F3,          ID_MODE_SKELETAL,       VIRTKEY, NOINVERT
+    VK_F4,          ID_SKELETON_SNAP,       VIRTKEY, NOINVERT
+    VK_F5,          ID_GOTOPOS_FRONT,       VIRTKEY, NOINVERT
+    VK_F6,          ID_GOTOPOS_BACK,        VIRTKEY, NOINVERT
+    VK_F7,          ID_GOTOPOS_LEFT,        VIRTKEY, NOINVERT
+    VK_F8,          ID_GOTOPOS_RIGHT,       VIRTKEY, NOINVERT
+    VK_F9,          ID_GOTOPOS_TOP,         VIRTKEY, NOINVERT
+    VK_LEFT,        ID_ANIMATE_STEP_BACK,   VIRTKEY, NOINVERT
+    VK_RETURN,      ID_VIEW_PROPS,          VIRTKEY, ALT, NOINVERT
+    VK_RIGHT,       ID_ANIMATE_STEP_FORE,   VIRTKEY, NOINVERT
+    VK_SPACE,       ID_ANIMATE_PLAY,        VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 326, 246
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About qMView"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "qMView Version 2.0ß",IDC_STATIC,128,177,68,8,
+                    SS_NOPREFIX
+    DEFPUSHBUTTON   "This button is far too large for just ""OK""",IDOK,7,
+                    228,312,14,WS_GROUP
+    CONTROL         131,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,7,7,313,
+                    151
+    GROUPBOX        "Special Thanks",IDC_STATIC,247,163,64,57,BS_CENTER
+    LTEXT           "Trey Harisson",IDC_STATIC,257,176,44,8
+    LTEXT           "Stan Trujillo",IDC_STATIC,260,194,38,8
+    LTEXT           "Louis Solomon",IDC_STATIC,257,203,47,8
+    LTEXT           "Chris Carollo",IDC_STATIC,260,185,40,8
+    LTEXT           "by Josh Weier",IDC_STATIC,139,187,46,8
+    LTEXT           "jweier@mail.ravensoft.com",IDC_STATIC,120,200,85,8
+    GROUPBOX        "Created For",IDC_STATIC,14,163,64,57,BS_CENTER
+    CONTROL         132,IDC_STATIC,"Static",SS_BITMAP | SS_SUNKEN,30,176,30,
+                    35
+    GROUPBOX        "",IDC_STATIC,84,163,157,57
+END
+
+CG_IDD_TREEMANAGER DIALOGEX 0, 0, 99, 276
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Tree1",IDC_SKINTREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
+                    WS_BORDER | WS_TABSTOP,7,7,85,53,WS_EX_NOPARENTNOTIFY | 
+                    WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE
+    CONTROL         "Tree2",IDC_FRAMETREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | 
+                    TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,63,85,206,
+                    WS_EX_NOPARENTNOTIFY | WS_EX_TRANSPARENT | 
+                    WS_EX_CLIENTEDGE
+END
+
+CG_IDD_FRAMEMANAGER2 DIALOGEX 0, 0, 99, 274
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    CONTROL         "Tree1",IDC_NODETREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
+                    WS_BORDER | WS_TABSTOP,7,7,85,123,WS_EX_NOPARENTNOTIFY | 
+                    WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE
+    CONTROL         "Tree2",IDC_JOINTTREE,"SysTreeView32",TVS_HASBUTTONS | 
+                    TVS_HASLINES | TVS_LINESATROOT | TVS_DISABLEDRAGDROP | 
+                    TVS_SHOWSELALWAYS | WS_BORDER | WS_TABSTOP,7,133,85,134,
+                    WS_EX_NOPARENTNOTIFY | WS_EX_TRANSPARENT | 
+                    WS_EX_CLIENTEDGE
+END
+
+IDD_NODE_PROP DIALOG DISCARDABLE  0, 0, 186, 71
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Node Properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,9,48,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,68,48,50,14
+    PUSHBUTTON      "Apply",IDAPPLY,127,48,50,14
+    LTEXT           "Triangles:",IDC_STATIC,55,22,32,8
+    EDITTEXT        IDC_EDIT1,90,20,40,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER
+END
+
+IDD_TICKER DIALOG DISCARDABLE  0, 0, 186, 79
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "Ticker Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "Use Ticker",IDC_TICKTOG,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,67,12,51,10
+    EDITTEXT        IDC_EDIT1,72,30,66,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,140,30,10,
+                    14
+    DEFPUSHBUTTON   "OK",IDOK,35,58,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,101,58,50,14
+    LTEXT           "Time Delay",IDC_STATIC,33,33,36,8
+END
+
+IDD_JOINT_ANGLES DIALOG DISCARDABLE  0, 0, 160, 53
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Manual Joint Angles"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_XVAL,15,9,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_YVAL,58,9,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ZVAL,101,9,40,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Apply",IDC_APPLY,7,32,150,14
+END
+
+IDD_JOINT_LOCK_ANGLES DIALOG DISCARDABLE  0, 0, 164, 88
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION
+CAPTION "Joint Constraints"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_XVAL,18,16,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_YVAL,61,16,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ZVAL,104,16,40,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Apply",IDC_APPLY,7,67,150,14
+    EDITTEXT        IDC_XVAL2,18,44,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_YVAL2,61,44,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ZVAL2,104,44,40,14,ES_AUTOHSCROLL
+    LTEXT           "Maximum",IDC_STATIC,18,7,30,8
+    LTEXT           "Minimum",IDC_STATIC,18,35,28,8
+END
+
+IDD_PP_GENERAL DIALOG DISCARDABLE  0, 0, 235, 156
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Frames:",IDC_STATIC,6,21,26,8
+    LTEXT           "gl Commands:",IDC_STATIC,6,35,45,8
+    LTEXT           "Skins:",IDC_STATIC,6,49,20,8
+    LTEXT           "Tris:",IDC_STATIC,6,91,14,8
+    LTEXT           "Groups:",IDC_STATIC,6,7,26,8
+    LTEXT           "Skinwidth:",IDC_STATIC,6,63,34,8
+    LTEXT           "Skinheight:",IDC_STATIC,6,77,36,8
+    LTEXT           "",IDC_PPGEN_FRAMES,91,21,45,8
+    LTEXT           "",IDC_PPGEN_GLCOMMANDS,91,35,45,8
+    LTEXT           "",IDC_PPGEN_SKINS,91,49,45,8
+    LTEXT           "",IDC_PPGEN_TRIS,91,91,45,8
+    LTEXT           "",IDC_PPGEN_GROUPS,91,7,45,8
+    LTEXT           "",IDC_PPGEN_SKINWIDTH,91,63,45,8
+    LTEXT           "",IDC_PPGEN_SKINHEIGHT,91,77,45,8
+    LTEXT           "STVerts:",IDC_STATIC,6,105,28,8
+    LTEXT           "",IDC_PPGEN_STVERTS,91,105,45,8
+    LTEXT           "Verts:",IDC_STATIC,6,119,19,8
+    LTEXT           "",IDC_PPGEN_VERTS,91,119,45,8
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "Written by Josh Weier\0"
+            VALUE "CompanyName", "Raven Software\0"
+            VALUE "FileDescription", "qMView Model Visualization Utility\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "QMVIEW\0"
+            VALUE "LegalCopyright", "Copyright © 1998, Raven Software\0"
+            VALUE "OriginalFilename", "QMVIEW.EXE\0"
+            VALUE "ProductName", "qMView\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 319
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 242
+    END
+
+    CG_IDD_TREEMANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 92
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 269
+    END
+
+    CG_IDD_FRAMEMANAGER2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 92
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 267
+    END
+
+    IDD_NODE_PROP, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 64
+    END
+
+    IDD_TICKER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 72
+    END
+
+    IDD_JOINT_ANGLES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 153
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 46
+    END
+
+    IDD_JOINT_LOCK_ANGLES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 157
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 81
+    END
+
+    IDD_PP_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 149
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_HAND_OPEN           CURSOR  DISCARDABLE     "res\\cursor1.cur"
+IDC_HAND_CLOSED         CURSOR  DISCARDABLE     "res\\cursor2.cur"
+IDC_HAND_ROTATE         CURSOR  DISCARDABLE     "res\\cur00001.cur"
+IDC_MAGNIFIER           CURSOR  DISCARDABLE     "res\\cur00002.cur"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_SKIN                "Skin"
+    IDR_QMVIEWTYPE          "QMView\nQMView\nQMView\nFlex Models (*.fm)\n.fm\nFlexModels\nQMView Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "qMView"
+    AFX_IDS_IDLEMESSAGE     "qMView Ready"
+    AFX_IDS_HELPMODEMESSAGE "Select an object on which to get Help"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing model\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP_INDEX           "Opens Help\nHelp Topics"
+    ID_HELP_FINDER          "List Help topics\nHelp Topics"
+    ID_HELP_USING           "Display instructions about how to use help\nHelp"
+    ID_CONTEXT_HELP         "Display help for clicked on buttons, menus and windows\nHelp"
+    ID_HELP                 "Display help for current task or command\nHelp"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Open this document"
+    ID_FILE_MRU_FILE2       "Open this document"
+    ID_FILE_MRU_FILE3       "Open this document"
+    ID_FILE_MRU_FILE4       "Open this document"
+    ID_FILE_MRU_FILE5       "Open this document"
+    ID_FILE_MRU_FILE6       "Open this document"
+    ID_FILE_MRU_FILE7       "Open this document"
+    ID_FILE_MRU_FILE8       "Open this document"
+    ID_FILE_MRU_FILE9       "Open this document"
+    ID_FILE_MRU_FILE10      "Open this document"
+    ID_FILE_MRU_FILE11      "Open this document"
+    ID_FILE_MRU_FILE12      "Open this document"
+    ID_FILE_MRU_FILE13      "Open this document"
+    ID_FILE_MRU_FILE14      "Open this document"
+    ID_FILE_MRU_FILE15      "Open this document"
+    ID_FILE_MRU_FILE16      "Open this document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Change the window size"
+    AFX_IDS_SCMOVE          "Change the window position"
+    AFX_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    AFX_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    AFX_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    AFX_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    AFX_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restore the window to normal size"
+    AFX_IDS_SCTASKLIST      "Activate Task List"
+    AFX_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_PALETTE_IMPORT       "Import a palette from a file\nImport Palette"
+    ID_PALETTE_EXPORT       "Export the palette to a file\nExport Palette"
+    ID_SKIN_IMPORT          "Import skin from file\nImport Skin"
+    ID_SKIN_EXPORT          "Export skin to file\nExport Skin"
+    ID_FRAME_IMPORT         "Import frame from file\nImport Frame"
+    ID_FRAME_EXPORT         "Export frame to file\nExport Frame"
+    ID_ANIMATE_PLAY         "Play animation\nPlay"
+    ID_ANIMATE_STOP         "Stops animation\nStop"
+    ID_ANIMATE_STEP_FORE    "Steps forward one frame in animation\nStep Forward"
+    ID_BUTTON32781          "Step back one frame in animation\nStep Back"
+    ID_ANIMATE_TYPE_FRONT   "Sets animation playback to forward\nPlay Forward"
+    ID_ANIMATE_TYPE_BACK    "Set animation playback to backwards\nReverse Play"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_ANIMATE_TYPE_PINGPONG "Sets animation playback to ping-pong\nPing-Pong"
+    ID_ANIMATE_STEP_BACK    "Step backwards one frame in animation\nStep Backward"
+    ID_LOCK_ROT_X           "Lock rotation on the X axis\nLock X Rotation"
+    ID_LOCK_ROT_Y           "Lock rotation on the Y axis\nLock Y Rotation"
+    ID_LOCK_ROT_Z           "Lock rotation on the Z axis\nLock Z Rotation"
+    ID_LOCK_TRAN_X          "Lock translation on the X axis\nLock X Translation"
+    ID_LOCK_TRAN_Y          "Lock translation on the Y axis\nLock Y Translation"
+    ID_LOCK_TRAN_Z          "Lock translation on the Z axis\nLock Z Translation"
+    ID_LOCK_SCALE_X         "Lock scaling on the X axis\nLock X Scale"
+    ID_LOCK_SCALE_Y         "Lock scaling on the Y axis\nLock Y Scale"
+    ID_LOCK_SCALE_Z         "Lock scaling on the Z axis\nLock Z Scale"
+    ID_ALL_UNLOCK           "Unlock all axis\nUnlock All"
+    ID_ALL_LOCK             "Lock all axis\nLock All"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_RENDER_WIREFRAME     "Display model as a wireframe\nWireframe"
+    ID_RENDER_FLAT          "Render model with flat shading\nFlat"
+    ID_RENDER_GOURAUD       "Render model with Gouraud shading\nGouraud"
+    ID_RENDER_TEXTURE       "Toggle texture display on/off\nTextures"
+    ID_RENDER_TRANS         "Toggle texture transparency on/off\nTransparency"
+    ID_GOTOPOS_TOP          "View model from top\nTop"
+    ID_GOTOPOS_BOTTOM       "View model from bottom\nBottom"
+    ID_GOTOPOS_LEFT         "View model from left\nLeft"
+    ID_GOTOPOS_RIGHT        "View model from right\nRight"
+    ID_GOTOPOS_FRONT        "View model from front\nFront"
+    ID_GOTOPOS_BACK         "View model from back\nBack"
+    ID_ANIMATE_INTER        "Interpolation\nToggles frame interpolation on/off"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    CG_ID_VIEW_FRAMETREEDLG "Show or hide Frame / Skin manager\nToggle Frame / Skin Manager"
+    CG_ID_VIEW_FRAMEMANAGER2 
+                            "Show or hide Frame Manager2\nToggle Frame Manager2"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_ANIMATE_GOTOSTART    "Goto Start\nSkip to the first frame of the set"
+    ID_ANIMATE_GOTOEND      "Goto End\nSkip to the last frame of the set"
+    ID_VIEW_ANIMBAR         "Toggle the visibility of the Animation Toolbar\nAnimation Toolbar"
+    ID_VIEW_POS             "Toggle the visibility of the Position Toolbar\nAnimation Toolbar"
+    ID_PREF                 "View/Modify program options"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_FPS        "xxFPS: xx/xxxx"
+    ID_ANIM_INTERTOGGLE     "Turn frame interpolation on/off\nInterpolation Toggle"
+    ID_GOTOPOS_WEAPON       "Simulate in game weapon view"
+    ID_NODE_TOGGLE_VIS      "Toggle the visibility of this node\nToggle Visibilty"
+    ID_TIME_CLAMP           "Clamp the current FPS\nTime Clamp"
+    ID_TICKER_OPTIONS       "Change the delay per frame\nTicker Options"
+    ID_TICK_TOGGLE          "Toggle the ticker delay on or off\nTicker Toggle"
+    ID_SKIN_SHOWOVERLAY     "Shows the model's skin vertices over the skin\nToggle Skin Overlay"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_SKIN          "Switch to skin window\nSkin Window"
+    ID_WINDOW_FRAME         "Switch animation preview window\nAnimation Window"
+    ID_MODE_CAMERA          "Camera Manipulation Mode\nManipulate Camera"
+    ID_MODE_SKELETAL        "Skeleton Manipulation Mode\nManipulate Skeleton"
+    ID_SKELETON_SNAP        "Return joint angles to original position\nReset Joint Angles"
+    ID_JOINT_MANUAL_ANGLES  "Manually set the angles of the selected joint\nManual Joint Angles"
+    ID_JOINT_CONSTRAINTS    "Constrain the current joint's angles\nConstrain Joint"
+    ID_USE_JOINTS           "Use Joints\nTurn joint use on and off"
+    ID_VIEW_PROPS           "View model properties\nModel properties"
+    ID_USE_SKIN             "Open skin to replace model skin\nReplaces model skin"
+    ID_REPLACE_SKIN         "Replaces model skin\nOpen file to replace model skin"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    CG_IDD_TREEMANAGER      "Show or hide Node / Joint manager\nToggle Node / Joint Manager"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDR_QUAKE               "QMView\nQMView\nQMView\nQuake Models (*.md)\n.md\nQuakeModels\nQuake Document"
+    IDR_QUAKE2              "QMView\\nQMView\\nQMView\\nQuake2 Models (*.md2)\\n.md2\\nQuake2Models\\nQuake2 Document"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDC_SKINTREE            "Skins\nSkins for the model"
+    IDC_FRAMETREE           "Animations/Frames\nAnimations/frames for the model"
+    IDC_NODETREE            "Node hierarchy\nNodes for the model"
+    IDC_JOINTTREE           "Joint hierarchy\nJoints in the model"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDR_SKIN_FROM_FILE_START 
+                            "Replaces model skin from file\nReplace skin from file"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDR_SKIN_FROM_FILE_END  "Replaces model skin from file\nReplace skin from file"
+    ID_FILE_EXTENSIONS      "*.pcx;*.m8;*.m32;*.tga"
+    ID_SUPPORTED_FORMATS    "Supported Formats|*.pcx;*.m8;*.m32;*.tga|PCX File (*.pcx)|*.pcx|M8 File (*.m8)|*.m8|M32 File (*.m32)|*.m32|Targa (*.tga)|*.tga||"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\qMView.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
