@@ -48,7 +48,7 @@ R_EntityRotate
 ================
 */
 static void
-R_EntityRotate (vec3_t vec)
+R_EntityRotate(vec3_t vec)
 {
 	vec3_t	tvec;
 
@@ -106,7 +106,7 @@ R_RotateBmodel(const entity_t *currententity)
 	temp2[2][1] = 0;
 	temp2[2][2] = c;
 
-	R_ConcatRotations (temp2, temp1, temp3);
+	R_ConcatRotations(temp2, temp1, temp3);
 
 	// roll
 	angle = currententity->angles[ROLL];
@@ -124,17 +124,17 @@ R_RotateBmodel(const entity_t *currententity)
 	temp1[2][1] = -s;
 	temp1[2][2] = c;
 
-	R_ConcatRotations (temp1, temp3, entity_rotation);
+	R_ConcatRotations(temp1, temp3, entity_rotation);
 
 	//
 	// rotate modelorg and the transformation matrix
 	//
-	R_EntityRotate (modelorg);
-	R_EntityRotate (vpn);
-	R_EntityRotate (vright);
-	R_EntityRotate (vup);
+	R_EntityRotate(modelorg);
+	R_EntityRotate(vpn);
+	R_EntityRotate(vright);
+	R_EntityRotate(vup);
 
-	R_TransformFrustum ();
+	R_TransformFrustum();
 }
 
 /*
@@ -404,24 +404,24 @@ void
 R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode)
 {
 	const model_t *currentmodel = currententity->model;
-	size_t numsurfaces, i;
 	msurface_t *psurf;
+	size_t i;
 
 	// FIXME: use bounding-box-based frustum clipping info?
 	psurf = &currentmodel->surfaces[currentmodel->firstmodelsurface];
-	numsurfaces = currentmodel->nummodelsurfaces;
 
-	for (i = 0; i < numsurfaces; i++, psurf++)
+	/* draw texture */
+	for (i = 0; i < currentmodel->nummodelsurfaces; i++, psurf++)
 	{
-		vec_t dot;
-
 		cplane_t *pplane;
-		// find which side of the node we are on
+		float dot;
+
+		/* find which side of the node we are on */
 		pplane = psurf->plane;
 
 		dot = DotProduct(modelorg, pplane->normal) - pplane->dist;
 
-		// draw the polygon
+		/* draw the polygon */
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
@@ -443,11 +443,11 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	qboolean insubmodel)
 {
 	vec3_t acceptpt, rejectpt;
+	int c, side, sidebit;
+	msurface_t *surf;
 	cplane_t *plane;
 	mleaf_t *pleaf;
 	float dot;
-	int side;
-	int c;
 
 	if (node->contents == CONTENTS_SOLID)
 	{
@@ -565,10 +565,12 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	if (dot >= 0)
 	{
 		side = 0;
+		sidebit = 0;
 	}
 	else
 	{
 		side = 1;
+		sidebit = SURF_PLANEBACK;
 	}
 
 	/* recurse down the children, front side first */
@@ -581,42 +583,26 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	}
 
 	/* draw stuff */
-	c = node->numsurfaces;
-
-	if (c)
+	for (c = node->numsurfaces,
+		 surf = r_worldmodel->surfaces + node->firstsurface;
+		 c; c--, surf++)
 	{
-		msurface_t *surf;
-
-		surf = currententity->model->surfaces + node->firstsurface;
-
-		if (dot < -BACKFACE_EPSILON)
+		if (surf->visframe != r_framecount)
 		{
-			do
-			{
-				if ((surf->flags & SURF_PLANEBACK) &&
-					(surf->visframe == r_framecount))
-				{
-					R_RenderFace(currententity, surf, clipflags, insubmodel);
-				}
-
-				surf++;
-			} while (--c);
-		}
-		else if (dot > BACKFACE_EPSILON)
-		{
-			do
-			{
-				if (!(surf->flags & SURF_PLANEBACK) &&
-					(surf->visframe == r_framecount))
-				{
-					R_RenderFace(currententity, surf, clipflags, insubmodel);
-				}
-
-				surf++;
-			} while (--c);
+			continue;
 		}
 
-		// all surfaces on the same node share the same sequence number
+		if ((surf->flags & SURF_PLANEBACK) != sidebit)
+		{
+			continue; /* wrong side */
+		}
+
+		R_RenderFace(currententity, surf, clipflags, insubmodel);
+	}
+
+	if (node->numsurfaces)
+	{
+		/* all surfaces on the same node share the same sequence number */
 		r_currentkey++;
 	}
 
@@ -639,12 +625,13 @@ R_DrawWorld(void)
 		return;
 	}
 
+	VectorCopy(r_origin, modelorg);
+
 	/* auto cycle the world frame for texture animation */
 	memset(&ent, 0, sizeof(ent));
 	ent.frame = (int)(r_newrefdef.time * 2);
 	ent.model = r_worldmodel;
 
-	VectorCopy(r_origin, modelorg);
 	r_pcurrentvertbase = r_worldmodel->vertexes;
 
 	R_RecursiveWorldNode(&ent, r_worldmodel->nodes, ALIAS_XY_CLIP_MASK, false);

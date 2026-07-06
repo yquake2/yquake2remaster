@@ -370,7 +370,7 @@ R_SetupFrame(void)
 	R_ViewChanged (&vrect);
 
 	// start off with just the four screen edge clip planes
-	R_TransformFrustum ();
+	R_TransformFrustum();
 	R_SetUpFrustumIndexes ();
 
 	// save base values

@@ -42,7 +42,7 @@ extern int cur_lm_copy;
 byte minlight[256];
 
 static void
-R_DrawGLPoly(msurface_t *fa)
+R_DrawPoly(const msurface_t *fa)
 {
 	int i, nv;
 	mvtx_t *v;
@@ -120,7 +120,7 @@ R_DrawTriangleOutlines(void)
 }
 
 static void
-R_DrawGLPolyChain(mpoly_t *p, float soffset, float toffset)
+R_DrawPolyChain(mpoly_t *p, float soffset, float toffset)
 {
 	if ((soffset == 0) && (toffset == 0))
 	{
@@ -253,7 +253,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 						glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, gl1_overbrightbits->value);
 					}
 
-					R_DrawGLPolyChain(surf->polys, 0, 0);
+					R_DrawPolyChain(surf->polys, 0, 0);
 				}
 			}
 		}
@@ -316,7 +316,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 							glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, gl1_overbrightbits->value);
 						}
 
-						R_DrawGLPolyChain(drawsurf->polys,
+						R_DrawPolyChain(drawsurf->polys,
 								(drawsurf->light_s - drawsurf->dlight_s) * (float)(1.0 / BLOCK_WIDTH),
 								(drawsurf->light_t - drawsurf->dlight_t) * (float)(1.0 / BLOCK_HEIGHT));
 					}
@@ -363,7 +363,7 @@ R_BlendLightmaps(const model_t *currentmodel)
 					glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, gl1_overbrightbits->value);
 				}
 
-				R_DrawGLPolyChain(surf->polys,
+				R_DrawPolyChain(surf->polys,
 						(surf->light_s - surf->dlight_s) * (float)(1.0 / BLOCK_WIDTH),
 						(surf->light_t - surf->dlight_t) * (float)(1.0 / BLOCK_HEIGHT));
 			}
@@ -390,7 +390,7 @@ R_RenderBrushPoly(msurface_t *fa)
 		return;
 	}
 
-	R_DrawGLPoly(fa);
+	R_DrawPoly(fa);
 
 	if (gl_config.multitexture)
 	{
@@ -506,7 +506,7 @@ R_DrawAlphaSurfaces(void)
 		}
 		else
 		{
-			R_DrawGLPoly(s);
+			R_DrawPoly(s);
 		}
 	}
 	R_ApplyGLBuffer();	// Flush the last batched array
@@ -820,8 +820,8 @@ R_DrawTextureChains(void)
 static void
 R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel)
 {
-	int i;
 	msurface_t *psurf;
+	size_t i;
 
 	/* calculate dynamic lighting for bmodel */
 	if (!gl_config.multitexture && !r_flashblend->value)
@@ -1213,12 +1213,7 @@ R_DrawWorld(void)
 {
 	entity_t ent;
 
-	if (!r_drawworld->value)
-	{
-		return;
-	}
-
-	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	if ((!r_drawworld->value) || (r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		return;
 	}

@@ -35,7 +35,7 @@ static vec3_t modelorg; /* relative to viewpoint */
 msurface_t *r_alpha_surfaces;
 
 static void
-DrawVkPoly(const msurface_t *fa, image_t *texture, const float *color)
+R_DrawPoly(const msurface_t *fa, image_t *texture, const float *color)
 {
 	VkBuffer vbo;
 	VkDeviceSize vboOffset;
@@ -172,7 +172,7 @@ R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 
 	//======
 	//PGM
-	DrawVkPoly(fa, image, color);
+	R_DrawPoly(fa, image, color);
 	//PGM
 	//======
 
@@ -275,7 +275,7 @@ R_DrawAlphaSurfaces(void)
 		}
 		else
 		{
-			DrawVkPoly(s, s->texinfo->image, color);
+			R_DrawPoly(s, s->texinfo->image, color);
 		}
 	}
 
@@ -675,8 +675,8 @@ static void
 R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 	const float *modelMatrix)
 {
-	int i;
 	msurface_t *psurf;
+	size_t i;
 	float alpha = 1.f;
 
 	/* calculate dynamic lighting for bmodel */
@@ -752,7 +752,9 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 		}
 	}
 	if (r_zfix->value)
+	{
 		vkCmdSetDepthBias(vk_activeCmdbuffer, 0.0f, 0.0f, 0.0f);
+	}
 }
 
 void
@@ -846,13 +848,15 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
-		msurface_t	**mark;
+		msurface_t **mark;
 
 		pleaf = (mleaf_t *)node;
 
 		/* check for door connected areas */
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
+		{
 			return;	// not visible
+		}
 
 		mark = pleaf->firstmarksurface;
 		c = pleaf->nummarksurfaces;
@@ -959,12 +963,7 @@ R_DrawWorld(void)
 {
 	entity_t ent;
 
-	if (!r_drawworld->value)
-	{
-		return;
-	}
-
-	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	if ((!r_drawworld->value) || (r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		return;
 	}
