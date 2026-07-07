@@ -156,29 +156,41 @@ R_EmitSkyBox
 ================
 */
 static void
-R_EmitSkyBox(entity_t *currententity, qboolean insubmodel)
+R_EmitSkyBox(entity_t *currententity)
 {
-	int		i, j;
+	int		i;
 	int		oldkey;
 
-	if (insubmodel)
-		return;	// submodels should never have skies
 	if (r_skyframe == r_framecount)
+	{
 		return;	// already set this frame
+	}
 
 	r_skyframe = r_framecount;
 
 	// set the eight fake vertexes
-	for (i=0 ; i<8 ; i++)
+	for (i = 0; i < 8; i++)
+	{
+		int j;
+
 		for (j=0 ; j<3 ; j++)
-			r_skyverts[i].position[j] = r_origin[j] + box_verts[i][j]*128;
+		{
+			r_skyverts[i].position[j] = r_origin[j] + box_verts[i][j] * 128;
+		}
+	}
 
 	// set the six fake planes
 	for (i=0 ; i<6 ; i++)
+	{
 		if (skybox_planes[i*2+1] > 0)
-			r_skyplanes[i].dist = r_origin[skybox_planes[i*2]]+128;
+		{
+			r_skyplanes[i].dist = r_origin[skybox_planes[i*2]] + 128;
+		}
 		else
-			r_skyplanes[i].dist = r_origin[skybox_planes[i*2]]-128;
+		{
+			r_skyplanes[i].dist = r_origin[skybox_planes[i*2]] - 128;
+		}
+	}
 
 	// fix texture offseets
 	for (i=0 ; i<6 ; i++)
@@ -192,7 +204,7 @@ R_EmitSkyBox(entity_t *currententity, qboolean insubmodel)
 	r_currentkey = 0x7ffffff0;
  	for (i=0 ; i<6 ; i++)
 	{
-		R_RenderFace(currententity, r_skyfaces + i, ALIAS_XY_CLIP_MASK, insubmodel);
+		R_RenderFace(currententity, r_skyfaces + i, ALIAS_XY_CLIP_MASK, false);
 	}
 
 	r_currentkey = oldkey;	// bsp sorting order
@@ -547,7 +559,12 @@ R_RenderFace(entity_t *currententity, msurface_t *fa, int clipflags, qboolean in
 	// environment box surfaces to be emited
 	if (fa->texinfo->flags & SURF_SKY)
 	{
-		R_EmitSkyBox(currententity, insubmodel);
+		if (!insubmodel)
+		{
+			/* submodels should never have skies */
+			R_EmitSkyBox(currententity);
+		}
+
 		return;
 	}
 
