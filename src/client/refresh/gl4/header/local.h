@@ -25,7 +25,6 @@
  * =======================================================================
  */
 
-
 #ifndef SRC_CLIENT_REFRESH_GL4_HEADER_LOCAL_H_
 #define SRC_CLIENT_REFRESH_GL4_HEADER_LOCAL_H_
 
@@ -315,7 +314,7 @@ typedef struct gl4_alias_vtx_s {
 	GLfloat color[4];
 } gl4_alias_vtx_t;
 
-extern model_t *gl4_worldmodel;
+extern model_t *r_worldmodel;
 
 extern float gl4depthmin, gl4depthmax;
 
@@ -465,7 +464,7 @@ extern void GL4_EmitWaterPolys(msurface_t *fa);
 extern void GL4_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis);
 extern void GL4_DrawSkyBox(void);
 extern void RE_ClearSkyBox(void);
-extern void GL4_AddSkySurface(msurface_t *fa);
+extern void RE_AddSkySurface(msurface_t *fa);
 
 
 // gl4_surf.c

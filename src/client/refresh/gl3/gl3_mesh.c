@@ -485,10 +485,10 @@ GL3_DrawAliasModel(entity_t *currententity)
 		}
 	}
 
-	if (gl3_worldmodel)
+	if (r_worldmodel)
 	{
-		R_ApplyModelLight(gl3_worldmodel, currententity, shadelight,
-			lightspot, gl3_worldmodel->lightdata);
+		R_ApplyModelLight(r_worldmodel, currententity, shadelight,
+			lightspot, r_worldmodel->lightdata);
 	}
 	else
 	{

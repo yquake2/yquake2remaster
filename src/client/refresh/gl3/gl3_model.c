@@ -467,7 +467,7 @@ GL3_BeginRegistration(const char *model)
 		Mod_Free(&mod_known[0]);
 	}
 
-	gl3_worldmodel = Mod_ForName(fullname, NULL, true);
+	r_worldmodel = Mod_ForName(fullname, NULL, true);
 
 	r_viewcluster = -1;
 }
@@ -477,7 +477,7 @@ GL3_RegisterModel(const char *name)
 {
 	model_t *mod;
 
-	mod = Mod_ForName(name, gl3_worldmodel, false);
+	mod = Mod_ForName(name, r_worldmodel, false);
 
 	if (mod)
 	{

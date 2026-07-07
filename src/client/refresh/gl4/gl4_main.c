@@ -43,7 +43,7 @@ gl4state_t gl4state;
 
 unsigned gl4_rawpalette[256];
 
-model_t *gl4_worldmodel;
+model_t *r_worldmodel;
 
 float gl4depthmin=0.0f, gl4depthmax=1.0f;
 
@@ -798,13 +798,13 @@ GL4_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
 
-	if (currententity->flags & RF_FULLBRIGHT || !gl4_worldmodel || !gl4_worldmodel->lightdata)
+	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
 		shadelight[0] = shadelight[1] = shadelight[2] = 1.0F;
 	}
 	else
 	{
-		R_LightPoint(gl4_worldmodel, currententity,
+		R_LightPoint(r_worldmodel, currententity,
 			currententity->origin, shadelight, lightspot);
 	}
 
@@ -1041,7 +1041,7 @@ SetupFrame(void)
 
 	AngleVectors(r_newrefdef.viewangles, vpn, vright, vup);
 
-	R_SetClusters(gl4_worldmodel, gl4_origin);
+	R_SetClusters(r_worldmodel, gl4_origin);
 
 	R_CombineBlendWithFog(v_blend, true);
 
@@ -1130,7 +1130,7 @@ GL4_SetPerspective(GLdouble fovy)
 {
 	// gluPerspective() / R_MYgluPerspective() style parameters
 	const GLdouble zNear = R_GetNearValue();
-	const GLdouble zFar = R_GetFarValue(gl4_worldmodel);
+	const GLdouble zFar = R_GetFarValue(r_worldmodel);
 	const GLdouble aspect = (GLdouble)r_newrefdef.width / r_newrefdef.height;
 
 	// calculation of left, right, bottom, top is from R_MYgluPerspective() of old gl backend
@@ -1462,7 +1462,7 @@ GL4_RenderView(const refdef_t *fd)
 
 	r_newrefdef = *fd;
 
-	if (!gl4_worldmodel && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	if (!r_worldmodel && !(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		Com_Error(ERR_DROP, "%s: NULL worldmodel", __func__);
 		return;
@@ -1562,7 +1562,7 @@ GL4_RenderView(const refdef_t *fd)
 
 	SetupGL();
 
-	R_MarkLeaves(gl4_worldmodel); /* done here so we know if we're in water */
+	R_MarkLeaves(r_worldmodel); /* done here so we know if we're in water */
 
 	GL4_DrawWorld();
 
@@ -1689,7 +1689,7 @@ GL4_SetLightLevel(const entity_t *currententity)
 	}
 
 	/* save off light value for server to look at */
-	R_LightPoint(gl4_worldmodel, currententity,
+	R_LightPoint(r_worldmodel, currententity,
 		r_newrefdef.vieworg, shadelight, lightspot);
 
 	/* pick the greatest component, which should be the

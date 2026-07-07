@@ -124,7 +124,7 @@ GL4_SetSky(const char *name, float rotate, int autorotate, const vec3_t axis)
 }
 
 void
-GL4_AddSkySurface(msurface_t *fa)
+RE_AddSkySurface(msurface_t *fa)
 {
 	R_AddSkySurface(fa, skymins, skymaxs, gl4_origin);
 }
@@ -200,13 +200,13 @@ GL4_DrawSkyBox(void)
 		GL4_Bind(sky_images[skytexorder[i]]->texnum);
 
 		R_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[0],
-			gl4_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[1],
-			gl4_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[2],
-			gl4_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[3],
-			gl4_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 
 		GL4_BufferAndDraw3D(skyVertices, 4, GL_TRIANGLE_FAN);
 	}

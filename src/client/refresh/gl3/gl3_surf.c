@@ -37,11 +37,11 @@ static msurface_t *gl3_alpha_surfaces;
 
 gl3lightmapstate_t gl3_lms;
 
-
 extern gl3image_t gl3textures[MAX_TEXTURES];
 extern int numgl3textures;
 
-void GL3_SurfInit(void)
+void
+GL3_SurfInit(void)
 {
 	// init the VAO and VBO for the standard vertexdata: 10 floats and 1 uint
 	// (X, Y, Z), (S, T), (LMS, LMT), (normX, normY, normZ) ; lightFlags - last two groups for lightmap/dynlights
@@ -214,7 +214,7 @@ DrawTriangleOutlines(void)
 	gl3state.uniCommonData.color = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
 	GL3_UpdateUBOCommon();
 
-	for (i = 0, surf = gl3_worldmodel->surfaces; i < gl3_worldmodel->numsurfaces; i++, surf++)
+	for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
 	{
 		const mpoly_t *p;
 
@@ -617,14 +617,55 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 }
 
 static void
-RecursiveWorldNode(entity_t *currententity, mnode_t *node)
+R_RenderFace(entity_t *currententity, msurface_t *surf)
+{
+	if (surf->texinfo->flags & SURF_SKY)
+	{
+		/* just adds to visible sky bounds */
+		RE_AddSkySurface(surf);
+	}
+	else if (surf->texinfo->flags & SURF_TRANSPARENT)
+	{
+		/* add to the translucent chain */
+		surf->texturechain = gl3_alpha_surfaces;
+		gl3_alpha_surfaces = surf;
+		gl3_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
+	}
+	else if (surf->texinfo->flags & SURF_NODRAW)
+	{
+		/* Surface should be skipped */
+	}
+	else
+	{
+		// calling RenderLightmappedPoly() here probably isn't optimal, rendering everything
+		// through texturechains should be faster, because far less glBindTexture() is needed
+		// (and it might allow batching the drawcalls of surfaces with the same texture)
+#if 0
+		if (!(surf->flags & SURF_DRAWTURB))
+		{
+			RenderLightmappedPoly(surf);
+		}
+		else
+#endif // 0
+		{
+			gl3image_t *image;
+
+			/* the polygon is visible, so add it to the texture sorted chain */
+			image = R_TextureAnimation(currententity, surf->texinfo);
+			surf->texturechain = image->texturechain;
+			image->texturechain = surf;
+		}
+	}
+}
+
+static void
+R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
 	int c, side, sidebit;
 	cplane_t *plane;
-	msurface_t *surf, **mark;
+	msurface_t *surf;
 	mleaf_t *pleaf;
 	float dot;
-	gl3image_t *image;
 
 	if (node->contents == CONTENTS_SOLID)
 	{
@@ -644,12 +685,15 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	/* if a leaf node, draw stuff */
 	if (node->contents != CONTENTS_NODE)
 	{
+		msurface_t **mark;
+
 		pleaf = (mleaf_t *)node;
 
 		/* check for door connected areas */
-		// check for door connected areas
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
+		{
 			return;	// not visible
+		}
 
 		mark = pleaf->firstmarksurface;
 		c = pleaf->nummarksurfaces;
@@ -699,9 +743,9 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	}
 
 	/* recurse down the children, front side first */
-	RecursiveWorldNode(currententity, node->children[side]);
+	R_RecursiveWorldNode(currententity, node->children[side]);
 
-	if ((node->numsurfaces + node->firstsurface) > gl3_worldmodel->numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;
@@ -709,7 +753,7 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	/* draw stuff */
 	for (c = node->numsurfaces,
-		 surf = gl3_worldmodel->surfaces + node->firstsurface;
+		 surf = r_worldmodel->surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
 		if (surf->visframe != gl3_framecount)
@@ -722,46 +766,11 @@ RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			continue; /* wrong side */
 		}
 
-		if (surf->texinfo->flags & SURF_SKY)
-		{
-			/* just adds to visible sky bounds */
-			RE_AddSkySurface(surf);
-		}
-		else if (surf->texinfo->flags & SURF_TRANSPARENT)
-		{
-			/* add to the translucent chain */
-			surf->texturechain = gl3_alpha_surfaces;
-			gl3_alpha_surfaces = surf;
-			gl3_alpha_surfaces->texinfo->image = R_TextureAnimation(currententity, surf->texinfo);
-		}
-		else if (surf->texinfo->flags & SURF_NODRAW)
-		{
-			/* Surface should be skipped */
-			continue;
-		}
-		else
-		{
-			// calling RenderLightmappedPoly() here probably isn't optimal, rendering everything
-			// through texturechains should be faster, because far less glBindTexture() is needed
-			// (and it might allow batching the drawcalls of surfaces with the same texture)
-#if 0
-			if (!(surf->flags & SURF_DRAWTURB))
-			{
-				RenderLightmappedPoly(surf);
-			}
-			else
-#endif // 0
-			{
-				/* the polygon is visible, so add it to the texture sorted chain */
-				image = R_TextureAnimation(currententity, surf->texinfo);
-				surf->texturechain = image->texturechain;
-				image->texturechain = surf;
-			}
-		}
+		R_RenderFace(currententity, surf);
 	}
 
 	/* recurse down the back side */
-	RecursiveWorldNode(currententity, node->children[!side]);
+	R_RecursiveWorldNode(currententity, node->children[!side]);
 }
 
 void
@@ -769,12 +778,7 @@ GL3_DrawWorld(void)
 {
 	entity_t ent;
 
-	if (!r_drawworld->value)
-	{
-		return;
-	}
-
-	if (r_newrefdef.rdflags & RDF_NOWORLDMODEL)
+	if ((!r_drawworld->value) || (r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
 		return;
 	}
@@ -784,11 +788,12 @@ GL3_DrawWorld(void)
 	/* auto cycle the world frame for texture animation */
 	memset(&ent, 0, sizeof(ent));
 	ent.frame = (int)(r_newrefdef.time * 2);
+	ent.model = r_worldmodel;
 
 	gl3state.currenttexture = -1;
 
 	RE_ClearSkyBox();
-	RecursiveWorldNode(&ent, gl3_worldmodel->nodes);
+	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 	DrawTextureChains(&ent);
 	GL3_DrawSkyBox();
 	DrawTriangleOutlines();

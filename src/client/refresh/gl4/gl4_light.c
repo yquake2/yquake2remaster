@@ -38,7 +38,7 @@ GL4_PushDlights(void)
 	dlight_t *l;
 	int i;
 
-	if (!gl4_worldmodel)
+	if (!r_worldmodel)
 	{
 		return;
 	}
@@ -46,8 +46,8 @@ GL4_PushDlights(void)
 	/* because the count hasn't advanced yet for this frame */
 	r_dlightframecount = gl4_framecount + 1;
 
-	R_PushDlights(&r_newrefdef, gl4_worldmodel->nodes, r_dlightframecount,
-			gl4_worldmodel->surfaces);
+	R_PushDlights(&r_newrefdef, r_worldmodel->nodes, r_dlightframecount,
+			r_worldmodel->surfaces);
 
 	l = r_newrefdef.dlights;
 

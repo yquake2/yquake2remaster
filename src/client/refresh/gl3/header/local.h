@@ -325,7 +325,7 @@ typedef struct gl3_alias_vtx_s {
 	GLfloat color[4];
 } gl3_alias_vtx_t;
 
-extern model_t *gl3_worldmodel;
+extern model_t *r_worldmodel;
 
 extern float gl3depthmin, gl3depthmax;
 

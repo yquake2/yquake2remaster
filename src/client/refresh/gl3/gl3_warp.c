@@ -198,13 +198,13 @@ GL3_DrawSkyBox(void)
 		GL3_Bind(sky_images[skytexorder[i]]->texnum);
 
 		R_MakeSkyVec( skymins [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[0],
-			gl3_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymins [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[1],
-			gl3_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymaxs [ 1 ] [ i ], i, &skyVertices[2],
-			gl3_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[3],
-			gl3_worldmodel, sky_min, sky_max);
+			r_worldmodel, sky_min, sky_max);
 
 		GL3_BufferAndDraw3D(skyVertices, 4, GL_TRIANGLE_FAN);
 	}
