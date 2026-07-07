@@ -106,8 +106,6 @@ typedef struct
 	float		fvrectbottom; // bottommost edge, for Alias clamping
 	float		horizontalFieldOfView;	// at Z = 1.0, this many X is visible
 						// 2.0 = 90 degrees
-	float		xOrigin; // should probably always be 0.5
-	float		yOrigin; // between be around 0.3 to 0.5
 
 	vec3_t		vieworg;
 	vec3_t		viewangles;
@@ -150,9 +148,6 @@ extern oldrefdef_t	r_refdef;
 #define ALIAS_BOTTOM_CLIP	0x0008
 #define ALIAS_Z_CLIP		0x0010
 #define ALIAS_XY_CLIP_MASK	0x000F
-
-#define XCENTERING	(1.0 / 2.0)
-#define YCENTERING	(1.0 / 2.0)
 
 #define NEAR_CLIP	0.01
 

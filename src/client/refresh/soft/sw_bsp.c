@@ -576,7 +576,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	/* recurse down the children, front side first */
 	R_RecursiveWorldNode(currententity, node->children[side], clipflags, insubmodel);
 
-	if ((node->numsurfaces + node->firstsurface) > currententity->model->numsurfaces)
+	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
 		Com_Printf("Broken node firstsurface\n");
 		return;

@@ -412,9 +412,6 @@ RE_Init(void)
 	view_clipplanes[0].rightedge = view_clipplanes[2].rightedge =
 			view_clipplanes[3].rightedge = false;
 
-	r_refdef.xOrigin = XCENTERING;
-	r_refdef.yOrigin = YCENTERING;
-
 	r_aliasuvscale = 1.0;
 
 	/* set our "safe" mode */
