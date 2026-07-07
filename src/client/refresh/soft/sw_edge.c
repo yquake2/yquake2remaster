@@ -789,8 +789,8 @@ D_CalcGradients (msurface_t *pface, float d_ziorigin, float d_zistepu, float d_z
 
 	mipscale = 1.0 / (float)(1 << miplevel);
 
-	TransformVector (pface->texinfo->vecs[0], p_saxis);
-	TransformVector (pface->texinfo->vecs[1], p_taxis);
+	TransformVector(pface->texinfo->vecs[0], p_saxis);
+	TransformVector(pface->texinfo->vecs[1], p_taxis);
 
 	t = xscaleinv * mipscale;
 	d_sdivzstepu = p_saxis[0] * t;
@@ -808,10 +808,10 @@ D_CalcGradients (msurface_t *pface, float d_ziorigin, float d_zistepu, float d_z
 	VectorScale (transformed_modelorg, mipscale, p_temp1);
 
 	t = SHIFT16XYZ_MULT * mipscale;
-	sadjust = ((int)(DotProduct (p_temp1, p_saxis) * SHIFT16XYZ_MULT + 0.5)) -
+	sadjust = ((int)(DotProduct(p_temp1, p_saxis) * SHIFT16XYZ_MULT + 0.5)) -
 			((pface->texturemins[0] << SHIFT16XYZ) >> miplevel)
 			+ pface->texinfo->vecs[0][3]*t;
-	tadjust = ((int)(DotProduct (p_temp1, p_taxis) * SHIFT16XYZ_MULT + 0.5)) -
+	tadjust = ((int)(DotProduct(p_temp1, p_taxis) * SHIFT16XYZ_MULT + 0.5)) -
 			((pface->texturemins[1] << SHIFT16XYZ) >> miplevel)
 			+ pface->texinfo->vecs[1][3]*t;
 
@@ -870,9 +870,9 @@ D_TurbulentSurf(surf_t *s)
 		// FIXME: we don't want to do all this for every polygon!
 		// TODO: store once at start of frame
 		currententity = s->entity;
-		VectorSubtract (r_origin, currententity->origin,
+		VectorSubtract(r_origin, currententity->origin,
 				local_modelorg);
-		TransformVector (local_modelorg, transformed_modelorg);
+		TransformVector(local_modelorg, transformed_modelorg);
 
 		R_RotateBmodel(currententity);	// FIXME: don't mess with the frustum,
 						// make entity passed in
@@ -1033,8 +1033,8 @@ May be called more than once a frame if the surf list overflows (higher res)
 static void
 D_DrawSurfaces(entity_t *currententity, const surf_t *surface)
 {
-	VectorSubtract (r_origin, vec3_origin, modelorg);
-	TransformVector (modelorg, transformed_modelorg);
+	VectorSubtract(r_origin, vec3_origin, modelorg);
+	TransformVector(modelorg, transformed_modelorg);
 	VectorCopy(transformed_modelorg, world_transformed_modelorg);
 
 	if (!sw_drawflat->value)
@@ -1061,6 +1061,6 @@ D_DrawSurfaces(entity_t *currententity, const surf_t *surface)
 	else
 		D_DrawflatSurfaces (surface);
 
-	VectorSubtract (r_origin, vec3_origin, modelorg);
+	VectorSubtract(r_origin, vec3_origin, modelorg);
 	R_TransformFrustum();
 }

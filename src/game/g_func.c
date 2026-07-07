@@ -1172,10 +1172,9 @@ plat2_go_up(edict_t *ent)
 static void
 plat2_operate(edict_t *ent, const edict_t *other)
 {
+	float pauseTime, platCenter;
+	const edict_t *trigger;
 	int otherState;
-	float pauseTime;
-	float platCenter;
-	edict_t *trigger;
 
 	if (!ent || !other)
 	{

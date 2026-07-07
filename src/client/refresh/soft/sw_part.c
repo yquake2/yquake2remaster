@@ -56,7 +56,7 @@ R_DrawParticle(particle_t *pparticle, int level)
 	/*
 	** transform the particle
 	*/
-	VectorSubtract (pparticle->origin, r_origin, local);
+	VectorSubtract(pparticle->origin, r_origin, local);
 
 	transformed[0] = DotProduct(local, r_pright);
 	transformed[1] = DotProduct(local, r_pup);

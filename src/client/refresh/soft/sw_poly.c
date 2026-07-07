@@ -545,7 +545,7 @@ R_ClipPolyFace(int nump, const clipplane_t *pclipplane)
 	instep = in;
 	for (i=0 ; i<nump ; i++, instep += sizeof (vec5_t) / sizeof (vec_t))
 	{
-		dists[i] = DotProduct (instep, pclipnormal) - clipdist;
+		dists[i] = DotProduct(instep, pclipnormal) - clipdist;
 	}
 
 	/* handle wraparound case */
@@ -1034,8 +1034,8 @@ R_ClipAndDrawPoly(float alpha, int isturbulent, qboolean textured)
 		float scale;
 		emitpoint_t *pout;
 
-		VectorSubtract (pv, r_origin, local);
-		TransformVector (local, transformed);
+		VectorSubtract(pv, r_origin, local);
+		TransformVector(local, transformed);
 
 		if (transformed[2] < NEAR_CLIP)
 			transformed[2] = NEAR_CLIP;
@@ -1163,11 +1163,11 @@ R_PolygonCalculateGradients (float *p_ziorigin, float *p_zistepu, float *p_ziste
 	float	distinv;
 	float	d_ziorigin, d_zistepu, d_zistepv;
 
-	TransformVector (r_polydesc.vpn, p_normal);
-	TransformVector (r_polydesc.vright, p_saxis);
-	TransformVector (r_polydesc.vup, p_taxis);
+	TransformVector(r_polydesc.vpn, p_normal);
+	TransformVector(r_polydesc.vright, p_saxis);
+	TransformVector(r_polydesc.vup, p_taxis);
 
-	distinv = 1.0 / (-(DotProduct (r_polydesc.viewer_position, r_polydesc.vpn)) + r_polydesc.dist );
+	distinv = 1.0 / (-(DotProduct(r_polydesc.viewer_position, r_polydesc.vpn)) + r_polydesc.dist );
 
 	d_sdivzstepu  =  p_saxis[0] * xscaleinv;
 	d_sdivzstepv  = -p_saxis[1] * yscaleinv;

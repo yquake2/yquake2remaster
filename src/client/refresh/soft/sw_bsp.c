@@ -428,16 +428,17 @@ R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode)
 			r_currentkey = ((mleaf_t *)topnode)->key;
 
 			// FIXME: use bounding-box-based frustum clipping info?
-			R_RenderFace(currententity, psurf, clipflags, true);
+			R_RenderFaceEdge(currententity, psurf, clipflags, true);
 		}
 	}
 }
 
-/*
-================
-R_RecursiveWorldNode
-================
-*/
+static void
+R_RenderFace(entity_t *currententity, msurface_t *fa, int clipflags)
+{
+	R_RenderFaceEdge(currententity, fa, clipflags, false);
+}
+
 static void
 R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 {
@@ -463,9 +464,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 		return;
 	}
 
-	// cull the clipping planes if not trivial accept
-	// FIXME: the compiler is doing a lousy job of optimizing here; it could be
-	//  twice as fast in ASM
+	/* cull the clipping planes if not trivial accept */
 	if (clipflags)
 	{
 		int i;
@@ -477,7 +476,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 
 			if (!(clipflags & (1<<i)))
 			{
-				continue;	// don't need to clip against it
+				continue;	/* don't need to clip against it */
 			}
 
 			// generate accept and reject points
@@ -505,7 +504,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 
 			if (d >= 0)
 			{
-				clipflags &= ~(1<<i);	// node is entirely on screen
+				clipflags &= ~(1<<i);	/* node is entirely on screen */
 			}
 		}
 	}
@@ -520,7 +519,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 		/* check for door connected areas */
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
 		{
-			return;	// not visible
+			return;	/* not visible */
 		}
 
 		mark = pleaf->firstmarksurface;
@@ -537,7 +536,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 		}
 
 		pleaf->key = r_currentkey;
-		r_currentkey++;	// all bmodels in a leaf share the same key
+		r_currentkey++;	/* all bmodels in a leaf share the same key */
 		return;
 	}
 
@@ -577,7 +576,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 
 	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
-		Com_Printf("Broken node firstsurface\n");
+		Com_Printf("%s: Broken node firstsurface\n", __func__);
 		return;
 	}
 
@@ -596,7 +595,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 			continue; /* wrong side */
 		}
 
-		R_RenderFace(currententity, surf, clipflags, false);
+		R_RenderFace(currententity, surf, clipflags);
 	}
 
 	if (node->numsurfaces)

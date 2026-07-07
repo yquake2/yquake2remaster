@@ -163,7 +163,7 @@ R_TransformFrustum(void)
 
 		VectorCopy(v2, view_clipplanes[i].normal);
 
-		view_clipplanes[i].dist = DotProduct (modelorg, v2);
+		view_clipplanes[i].dist = DotProduct(modelorg, v2);
 	}
 }
 
@@ -174,7 +174,7 @@ TransformVector
 ================
 */
 void
-TransformVector (const vec3_t in, vec3_t out)
+TransformVector(const vec3_t in, vec3_t out)
 {
 	out[0] = DotProduct(in,vright);
 	out[1] = DotProduct(in,vup);

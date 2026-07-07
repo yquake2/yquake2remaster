@@ -556,7 +556,7 @@ R_AliasSetUpLerpData(entity_t *currententity, dmdx_t *pmdl, float backlerp)
 	/*
 	** translation is the vector from last position to this position
 	*/
-	VectorSubtract (currententity->oldorigin, currententity->origin, translation);
+	VectorSubtract(currententity->oldorigin, currententity->origin, translation);
 
 	/*
 	** move should be the delta back to the previous frame * backlerp

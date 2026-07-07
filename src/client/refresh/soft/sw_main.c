@@ -733,7 +733,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 			VectorCopy(currententity->origin, r_entorigin);
-			VectorSubtract (r_origin, r_entorigin, modelorg);
+			VectorSubtract(r_origin, r_entorigin, modelorg);
 
 			switch (currentmodel->type)
 			{
@@ -787,7 +787,7 @@ R_DrawEntitiesOnList(void)
 				continue;
 			}
 			VectorCopy(currententity->origin, r_entorigin);
-			VectorSubtract (r_origin, r_entorigin, modelorg);
+			VectorSubtract(r_origin, r_entorigin, modelorg);
 
 			switch (currentmodel->type)
 			{
@@ -1059,7 +1059,7 @@ R_DrawBEntitiesOnList(void)
 		}
 
 		VectorCopy(currententity->origin, r_entorigin);
-		VectorSubtract (r_origin, r_entorigin, modelorg);
+		VectorSubtract(r_origin, r_entorigin, modelorg);
 
 		r_pcurrentvertbase = currentmodel->vertexes;
 
