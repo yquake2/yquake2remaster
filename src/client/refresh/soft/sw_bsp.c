@@ -439,8 +439,7 @@ R_RecursiveWorldNode
 ================
 */
 static void
-R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
-	qboolean insubmodel)
+R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 {
 	vec3_t acceptpt, rejectpt;
 	int c, side, sidebit;
@@ -574,7 +573,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	}
 
 	/* recurse down the children, front side first */
-	R_RecursiveWorldNode(currententity, node->children[side], clipflags, insubmodel);
+	R_RecursiveWorldNode(currententity, node->children[side], clipflags);
 
 	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
@@ -597,7 +596,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 			continue; /* wrong side */
 		}
 
-		R_RenderFace(currententity, surf, clipflags, insubmodel);
+		R_RenderFace(currententity, surf, clipflags, false);
 	}
 
 	if (node->numsurfaces)
@@ -607,7 +606,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
 	}
 
 	/* recurse down the back side */
-	R_RecursiveWorldNode(currententity, node->children[!side], clipflags, insubmodel);
+	R_RecursiveWorldNode(currententity, node->children[!side], clipflags);
 }
 
 void
@@ -629,5 +628,5 @@ R_DrawWorld(void)
 
 	r_pcurrentvertbase = r_worldmodel->vertexes;
 
-	R_RecursiveWorldNode(&ent, r_worldmodel->nodes, ALIAS_XY_CLIP_MASK, false);
+	R_RecursiveWorldNode(&ent, r_worldmodel->nodes, ALIAS_XY_CLIP_MASK);
 }
