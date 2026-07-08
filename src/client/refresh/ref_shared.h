@@ -508,8 +508,6 @@ extern void R_FreeTemporaryLMBuffer(void);
 extern byte *R_GetTemporaryLMBuffer(size_t size);
 
 /* Warp Sky logic */
-extern void R_ClipSkyPolygon(int nump, vec3_t vecs, int stage,
-	float skymins[2][6], float skymaxs[2][6]);
 extern void R_AddSkySurface(msurface_t *fa,
 	float skymins[2][6], float skymaxs[2][6], vec3_t r_origin);
 extern void R_ClearSkyBox(float skymins[2][6], float skymaxs[2][6]);

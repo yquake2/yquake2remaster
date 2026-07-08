@@ -25,7 +25,12 @@
  * =======================================================================
  */
 
-#include "../ref_shared.h"
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
+
 #include "header/local.h"
 
 #define HANDMADE_MATH_IMPLEMENTATION
@@ -47,6 +52,7 @@ gl3state_t gl3state;
 
 unsigned gl3_rawpalette[256];
 
+static size_t r_time1;
 model_t *r_worldmodel;
 
 float gl3depthmin=0.0f, gl3depthmax=1.0f;
@@ -1530,6 +1536,7 @@ GL3_RenderView(const refdef_t *fd)
 	{
 		c_brush_polys = 0;
 		c_alias_polys = 0;
+		r_time1 = SDL_GetTicks();
 	}
 
 	GL3_PushDlights();
@@ -1634,8 +1641,15 @@ GL3_RenderView(const refdef_t *fd)
 
 	if (r_speeds->value)
 	{
-		Com_Printf("%4i wpoly %4i epoly %i tex %i lmaps\n",
-				c_brush_polys, c_alias_polys, c_visible_textures,
+		size_t r_time2;
+		int ms;
+
+		r_time2 = SDL_GetTicks();
+
+		ms = r_time2 - r_time1;
+
+		Com_Printf("%5i ms %4i wpoly %4i epoly %i tex %i lmaps\n",
+				ms, c_brush_polys, c_alias_polys, c_visible_textures,
 				c_visible_lightmaps);
 	}
 

@@ -1495,7 +1495,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 					return NULL;
 				}
 
-				Mod_LoadCmdList (mod_name, pheader, (int *)src);
+				Mod_LoadCmdList(mod_name, pheader, (int *)src);
 			}
 			else if (Q_strncasecmp(blockname, "mesh nodes", sizeof(blockname)) == 0)
 			{

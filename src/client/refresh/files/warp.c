@@ -62,7 +62,7 @@ static const int vec_to_st[6][3] = {
 };
 
 static void
-R_DrawSkyPolygon(int nump, vec3_t vecs, float skymins[2][6], float skymaxs[2][6])
+R_DrawSkyPolygon(int nump, vec_t *vecs, float skymins[2][6], float skymaxs[2][6])
 {
 	int i;
 	vec3_t v, av;
@@ -181,8 +181,8 @@ R_DrawSkyPolygon(int nump, vec3_t vecs, float skymins[2][6], float skymaxs[2][6]
 	}
 }
 
-void
-R_ClipSkyPolygon(int nump, vec3_t vecs, int stage, float skymins[2][6], float skymaxs[2][6])
+static void
+R_ClipSkyPolygon(int nump, vec_t *vecs, int stage, float skymins[2][6], float skymaxs[2][6])
 {
 	const float *norm;
 	float *v;
