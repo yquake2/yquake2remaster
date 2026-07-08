@@ -55,7 +55,7 @@ R_DrawPoly(const msurface_t *fa)
 
 	R_SetBufferIndices(GL_TRIANGLE_FAN, nv);
 
-	for ( i = 0; i < nv; i++, v ++)
+	for (i = 0; i < nv; i++, v ++)
 	{
 		GLBUFFER_VERTEX( v->pos[0], v->pos[1], v->pos[2] )
 		GLBUFFER_SINGLETEX( v->texCoord[0] + sscroll, v->texCoord[1] + tscroll )
@@ -1019,8 +1019,8 @@ static void
 R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
 	int c, side, sidebit;
-	cplane_t *plane;
 	msurface_t *surf;
+	cplane_t *plane;
 	mleaf_t *pleaf;
 	float dot;
 
@@ -1049,7 +1049,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		/* check for door connected areas */
 		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
 		{
-			return;	// not visible
+			return;	/* not visible */
 		}
 
 		mark = pleaf->firstmarksurface;
@@ -1065,6 +1065,8 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 			while (--c);
 		}
 
+		pleaf->key = r_currentkey;
+		r_currentkey++;	/* all bmodels in a leaf share the same key */
 		return;
 	}
 
@@ -1104,7 +1106,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 
 	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
-		Com_Printf("Broken node firstsurface\n");
+		Com_Printf("%s: Broken node firstsurface\n", __func__);
 		return;
 	}
 
@@ -1124,6 +1126,12 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		}
 
 		R_RenderFace(currententity, surf);
+	}
+
+	if (node->numsurfaces)
+	{
+		/* all surfaces on the same node share the same sequence number */
+		r_currentkey++;
 	}
 
 	/* recurse down the back side */

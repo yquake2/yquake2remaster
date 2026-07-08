@@ -393,6 +393,7 @@ extern viddef_t vid;
 /* vis cluster/frame */
 extern int r_viewcluster, r_oldviewcluster;
 extern int r_visframecount;
+extern int r_currentkey;
 
 /* lightmap */
 #define BLOCK_WIDTH 1024

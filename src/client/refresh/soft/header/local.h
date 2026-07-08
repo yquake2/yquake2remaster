@@ -438,9 +438,7 @@ extern int	r_polycount;
 extern int	sadjust, tadjust;
 extern int	bbextents, bbextentt;
 
-extern int	r_currentkey;
-
-void R_DrawParticles (void);
+void R_DrawParticles(void);
 
 extern int	r_amodels_drawn;
 extern int	r_numallocatededges;

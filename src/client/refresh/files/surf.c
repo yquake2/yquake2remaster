@@ -29,6 +29,7 @@
 int r_viewcluster, r_oldviewcluster;
 static int r_viewcluster2, r_oldviewcluster2;
 int r_visframecount; /* bumped when going to a new PVS */
+int r_currentkey;
 
 #define SUBDIVIDE_SIZE 64.0f
 #define MAX_SUBDIVIDE_VERTS 60

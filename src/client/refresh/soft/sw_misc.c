@@ -96,8 +96,8 @@ R_PrintTimes(void)
 
 	ms = r_time2 - r_time1;
 
-	Com_Printf("%5i ms %3i/%3i/%3i poly %3i surf\n",
-				ms, c_faceclip, r_polycount, r_drawnpolycount, c_surf);
+	Com_Printf("%5i ms %4i nodes %3i/%3i/%3i poly %3i surf\n",
+			ms, r_currentkey, c_faceclip, r_polycount, r_drawnpolycount, c_surf);
 	c_surf = 0;
 }
 

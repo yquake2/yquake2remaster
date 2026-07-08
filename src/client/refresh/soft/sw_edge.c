@@ -39,12 +39,10 @@ edge_t	**removeedges;
 espan_t	*edge_basespans;
 espan_t	*max_span_p;
 
-static espan_t	*span_p;
+static espan_t *span_p;
 
-int	r_currentkey;
-
-static shift20_t	current_iv;
-static shift20_t	edge_head_u_shift20, edge_tail_u_shift20;
+static shift20_t current_iv;
+static shift20_t edge_head_u_shift20, edge_tail_u_shift20;
 
 static void (*pdrawfunc)(void);
 

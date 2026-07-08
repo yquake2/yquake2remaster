@@ -1482,6 +1482,8 @@ GL4_RenderView(const refdef_t *fd)
 	}
 
 	GL4_PushDlights();
+	/* key for leafs/nodes */
+	r_currentkey = 0;
 
 	if (gl_finish->value)
 	{
@@ -1590,8 +1592,8 @@ GL4_RenderView(const refdef_t *fd)
 
 		ms = r_time2 - r_time1;
 
-		Com_Printf("%5i ms %4i wpoly %4i epoly %i tex %i lmaps\n",
-				ms, c_brush_polys, c_alias_polys, c_visible_textures,
+		Com_Printf("%5i ms %4i nodes %4i wpoly %4i epoly %i tex %i lmaps\n",
+				ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
 				c_visible_lightmaps);
 	}
 
