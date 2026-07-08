@@ -278,8 +278,6 @@ typedef struct
 extern gl3config_t gl3config;
 extern gl3state_t gl3state;
 
-extern int gl3_framecount; /* used for dlight push checking */
-
 extern int c_brush_polys, c_alias_polys;
 
 extern qboolean IsHighDPIaware;

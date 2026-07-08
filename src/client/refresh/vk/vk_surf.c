@@ -218,7 +218,7 @@ R_RenderBrushPoly(msurface_t *fa, const float *modelMatrix, float alpha,
 			temp = R_GetTemporaryLMBuffer(size);
 
 			R_BuildLightMap(fa, temp, smax * 4,
-				&r_newrefdef, r_modulate->value, r_framecount, NULL, NULL);
+				&r_newrefdef, r_modulate->value, NULL, NULL);
 			R_SetCacheState(fa, &r_newrefdef);
 
 			QVk_UpdateTextureData(&vk_state.lightmap_textures[fa->lightmaptexturenum],
@@ -386,8 +386,7 @@ dynamic:
 				temp = R_GetTemporaryLMBuffer(size);
 
 				R_BuildLightMap(s, temp, smax * 4,
-						&r_newrefdef, r_modulate->value, r_framecount,
-						NULL, NULL);
+						&r_newrefdef, r_modulate->value, NULL, NULL);
 
 				if (map < MAXLIGHTMAPS && (s->styles[map] >= 32 || s->styles[map] == 0) &&
 						(s->dlightframe != r_framecount))
@@ -595,7 +594,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		temp = R_GetTemporaryLMBuffer(size);
 
 		R_BuildLightMap(surf, temp, smax * 4,
-			&r_newrefdef, r_modulate->value, r_framecount, NULL, NULL);
+			&r_newrefdef, r_modulate->value, NULL, NULL);
 
 		if (map < MAXLIGHTMAPS && (surf->styles[map] >= 32 || surf->styles[map] == 0) &&
 			(surf->dlightframe != r_framecount))

@@ -132,7 +132,7 @@ LM_BeginBuildingLightmaps(model_t *m)
 
 	memset(gl4_lms.allocated, 0, sizeof(gl4_lms.allocated));
 
-	gl4_framecount = 1; /* no dlightcache */
+	r_framecount = 1; /* no dlightcache */
 
 	/* setup the base lightstyles so the lightmaps
 	   won't have to be regenerated the first time

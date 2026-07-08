@@ -32,9 +32,6 @@ static int		r_numvblocks;
 static byte	*r_source, *r_sourcemax;
 static light_t		*r_lightptr;
 
-void RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
-	float modulate, int r_framecount);
-
 static int	sc_size;
 static surfcache_t	*sc_rover;
 surfcache_t	*sc_base;
@@ -508,7 +505,7 @@ D_CacheSurface(const entity_t *currententity, msurface_t *surface, int miplevel)
 	c_surf++;
 
 	// calculate the lightings
-	RI_BuildLightMap(&r_drawsurf, &r_newrefdef, r_modulate->value, r_framecount);
+	RI_BuildLightMap(&r_drawsurf, &r_newrefdef, r_modulate->value);
 
 	// rasterize the surface into the cache
 	R_DrawSurface(&r_drawsurf, blocklights, blocklight_max);

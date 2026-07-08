@@ -113,7 +113,7 @@ LM_CreateSurfaceLightmap(msurface_t *surf)
 
 	R_SetCacheState(surf, &r_newrefdef);
 	R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES,
-		&r_newrefdef, r_modulate->value, r_framecount, gammatable,
+		&r_newrefdef, r_modulate->value, gammatable,
 		gl_state.minlight_set ? minlight : NULL);
 }
 

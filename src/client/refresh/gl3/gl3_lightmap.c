@@ -132,7 +132,7 @@ LM_BeginBuildingLightmaps(model_t *m)
 
 	memset(gl3_lms.allocated, 0, sizeof(gl3_lms.allocated));
 
-	gl3_framecount = 1; /* no dlightcache */
+	r_framecount = 1; /* no dlightcache */
 
 	/* setup the base lightstyles so the lightmaps
 	   won't have to be regenerated the first time

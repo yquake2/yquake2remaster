@@ -47,8 +47,6 @@ image_t *r_particletexture; /* little dot for particles */
 
 cplane_t frustum[4];
 
-int r_framecount; /* used for dlight push checking */
-
 int c_brush_polys, c_alias_polys;
 
 float v_blend[4]; /* final blending color */

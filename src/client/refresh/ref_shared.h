@@ -394,6 +394,8 @@ extern viddef_t vid;
 extern int r_viewcluster, r_oldviewcluster;
 extern int r_visframecount;
 extern int r_currentkey;
+/* sequence # of current frame since Quake started */
+extern int r_framecount;
 
 /* lightmap */
 #define BLOCK_WIDTH 1024
@@ -502,8 +504,8 @@ extern void R_ApplyModelLight(const model_t *model, const entity_t *currententit
 	vec3_t shadelight, vec3_t lightspot, const byte *lightdata);
 extern void R_SetCacheState(msurface_t *surf, const refdef_t *refdef);
 extern void R_BuildLightMap(const msurface_t *surf, byte *dest, int stride,
-	const refdef_t *r_newrefdef, float modulate, int r_framecount,
-	const byte *gammatable, const byte *minlight);
+	const refdef_t *r_newrefdef, float modulate, const byte *gammatable,
+	const byte *minlight);
 extern void R_InitTemporaryLMBuffer(void);
 extern void R_FreeTemporaryLMBuffer(void);
 extern byte *R_GetTemporaryLMBuffer(size_t size);

@@ -26,6 +26,7 @@
 
 #include "../ref_shared.h"
 
+int r_framecount = 1; /* used for dlight push checking */
 static float *s_blocklights = NULL, *s_blocklights_max = NULL;
 static byte *s_bufferlights = NULL, *s_bufferlights_max = NULL;
 
@@ -744,7 +745,7 @@ R_StoreLightMap(byte *dest, int stride, int smax, int tmax, const byte *gammatab
  */
 void
 R_BuildLightMap(const msurface_t *surf, byte *dest, int stride, const refdef_t *r_newrefdef,
-	float modulate, int r_framecount, const byte *gammatable, const byte *minlight)
+	float modulate, const byte *gammatable, const byte *minlight)
 {
 	int smax, tmax;
 	int size, numlightmaps;

@@ -55,7 +55,7 @@ RI_PushDlights(const model_t *model)
  */
 void
 RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
-	float modulate, int r_framecount)
+	float modulate)
 {
 	int smax, tmax;
 	int size;
@@ -86,7 +86,7 @@ RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef,
 	max_light = blocklights + size * 3;
 
 	R_BuildLightMap(surf, bblocklights, smax * 4,
-		r_newrefdef, modulate, r_framecount, NULL, NULL);
+		r_newrefdef, modulate, NULL, NULL);
 
 	/* bound, invert, and shift */
 	if (sw_colorlight->value == 0)

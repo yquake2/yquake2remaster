@@ -295,8 +295,6 @@ VARS
 
 ====================================================
 */
-extern int	r_framecount; // sequence # of current frame since Quake
-			      //  started
 extern float	r_aliasuvscale; // scale-up factor for screen u and v
 				//  on Alias vertices passed to driver
 extern qboolean	r_dowarp;
@@ -431,6 +429,7 @@ void R_BeginEdgeFrame(void);
 void R_ScanEdges(entity_t *currententity, const surf_t *surface);
 void RI_PushDlights(const model_t *model);
 void R_RotateBmodel(const entity_t *currententity);
+void RI_BuildLightMap(drawsurf_t* drawsurf, const refdef_t *r_newrefdef, float modulate);
 
 extern int	c_faceclip;
 extern int	r_polycount;

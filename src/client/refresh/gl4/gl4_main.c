@@ -61,8 +61,6 @@ vec3_t vpn;
 vec3_t vright;
 vec3_t gl4_origin;
 
-int gl4_framecount; /* used for dlight push checking */
-
 int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
@@ -1040,7 +1038,7 @@ GL4_DrawEntitiesOnList(void)
 static void
 SetupFrame(void)
 {
-	gl4_framecount++;
+	r_framecount++;
 
 	/* build the transformation matrix for the given view angles */
 	VectorCopy(r_newrefdef.vieworg, gl4_origin);

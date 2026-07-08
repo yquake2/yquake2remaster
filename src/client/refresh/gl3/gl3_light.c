@@ -44,7 +44,7 @@ GL3_PushDlights(void)
 	}
 
 	/* because the count hasn't advanced yet for this frame */
-	r_dlightframecount = gl3_framecount + 1;
+	r_dlightframecount = r_framecount + 1;
 
 	R_PushDlights(&r_newrefdef, r_worldmodel->nodes, r_dlightframecount,
 			r_worldmodel->surfaces);

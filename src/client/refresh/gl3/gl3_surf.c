@@ -135,7 +135,7 @@ static void
 SetLightFlags(msurface_t *surf)
 {
 	unsigned int lightFlags = 0;
-	if (surf->dlightframe == gl3_framecount)
+	if (surf->dlightframe == r_framecount)
 	{
 		lightFlags = surf->dlightbits;
 	}
@@ -218,7 +218,7 @@ DrawTriangleOutlines(void)
 	{
 		const mpoly_t *p;
 
-		if (surf->visframe != gl3_framecount)
+		if (surf->visframe != r_framecount)
 		{
 			continue;
 		}
@@ -702,7 +702,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		{
 			do
 			{
-				(*mark)->visframe = gl3_framecount;
+				(*mark)->visframe = r_framecount;
 				mark++;
 			}
 			while (--c);
@@ -758,7 +758,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		 surf = r_worldmodel->surfaces + node->firstsurface;
 		 c; c--, surf++)
 	{
-		if (surf->visframe != gl3_framecount)
+		if (surf->visframe != r_framecount)
 		{
 			continue;
 		}

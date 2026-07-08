@@ -267,8 +267,6 @@ typedef struct
 extern gl4config_t gl4config;
 extern gl4state_t gl4state;
 
-extern int gl4_framecount; /* used for dlight push checking */
-
 extern int c_brush_polys, c_alias_polys;
 
 extern qboolean IsHighDPIaware;
