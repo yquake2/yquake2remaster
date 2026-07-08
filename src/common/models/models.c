@@ -1597,7 +1597,13 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 					return NULL;
 				}
 
-				skeleton_data = (int *)((char*)pheader + sizeof(*pheader));
+				if (size < (int)(2 * sizeof(int))) {
+					Com_Printf("%s: Invalid %s size\n",
+						__func__, blockname);
+					return NULL;
+				}
+
+				skeleton_data = (int *)src;
 				skeleton_type = LittleLong(*skeleton_data);
 				skeleton_data++;
 				skeleton_joints_num = LittleLong(*skeleton_data);
