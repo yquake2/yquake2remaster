@@ -45,8 +45,6 @@ glstate_t gl_state = {0};
 image_t *r_notexture; /* use for bad textures */
 image_t *r_particletexture; /* little dot for particles */
 
-cplane_t frustum[4];
-
 int c_brush_polys, c_alias_polys;
 
 float v_blend[4]; /* final blending color */
@@ -1080,8 +1078,7 @@ R_RenderView(const refdef_t *fd)
 
 	R_SetupFrame();
 
-	R_SetFrustum(vup, vpn, vright, r_origin, r_newrefdef.fov_x, r_newrefdef.fov_y,
-		frustum);
+	R_SetFrustum(vup, vpn, vright, r_origin, r_newrefdef.fov_x, r_newrefdef.fov_y);
 
 	R_SetupGL();
 

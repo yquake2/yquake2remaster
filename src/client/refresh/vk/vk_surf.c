@@ -787,7 +787,7 @@ R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel)
 		VectorAdd(currententity->origin, currentmodel->maxs, maxs);
 	}
 
-	if (r_cull->value && R_CullBox(mins, maxs, frustum))
+	if (r_cull->value && R_CullBox(mins, maxs))
 	{
 		return;
 	}
@@ -867,7 +867,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 		return;
 	}
 
-	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3, frustum))
+	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3))
 	{
 		return;
 	}

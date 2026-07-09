@@ -85,7 +85,6 @@ extern	int			numvktextures;
 extern	image_t		*r_notexture;
 extern	image_t		*r_particletexture;
 extern	image_t		*r_squaretexture;
-extern	cplane_t	frustum[4];
 extern	int			c_brush_polys, c_alias_polys;
 
 //

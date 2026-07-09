@@ -327,8 +327,6 @@ extern model_t *r_worldmodel;
 
 extern float gl3depthmin, gl3depthmax;
 
-extern cplane_t frustum[4];
-
 extern vec3_t gl3_origin;
 
 extern vec3_t lightspot;

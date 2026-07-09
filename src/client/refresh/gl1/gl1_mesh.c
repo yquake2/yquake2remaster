@@ -327,7 +327,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 
 	if (!(currententity->flags & RF_WEAPONMODEL))
 	{
-		if (R_CullAliasModel(currentmodel, frustum, bbox, currententity))
+		if (R_CullAliasModel(currentmodel, bbox, currententity))
 		{
 			return;
 		}

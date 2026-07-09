@@ -471,17 +471,16 @@ extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframec
 extern struct image_s *R_TextureAnimation(const entity_t *currententity,
 	const mtexinfo_t *tex);
 extern qboolean R_AreaVisible(const byte *areabits, const mleaf_t *pleaf);
-extern qboolean R_CullBox(vec3_t mins, vec3_t maxs, const cplane_t *frustum);
+extern qboolean R_CullBox(vec3_t mins, vec3_t maxs);
 extern void R_SetFrustum(vec3_t vup, vec3_t vpn, vec3_t vright, vec3_t r_origin,
-	float fov_x, float fov_y, cplane_t *frustum);
+	float fov_x, float fov_y);
 extern void R_SubdivideSurface(const int *surfedges, mvertex_t *vertexes, medge_t *edges,
 	msurface_t *fa);
 extern void R_BuildLMPolygonFromSurface(model_t *currentmodel, msurface_t *fa,
 	size_t block_width, size_t block_height, size_t image_width, size_t image_height);
 
 /* Mesh logic */
-extern qboolean R_CullAliasModel(const model_t *currentmodel, cplane_t *frustum,
-		vec3_t bbox[8], entity_t *e);
+extern qboolean R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e);
 extern void R_LerpVerts(qboolean powerUpEffect, int nverts,
 		const dxtrivertx_t *v, const dxtrivertx_t *ov,
 		float *lerp, const float move[3],

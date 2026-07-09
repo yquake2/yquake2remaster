@@ -459,7 +459,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags)
 		return;
 	}
 
-	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3, frustum))
+	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3))
 	{
 		return;
 	}

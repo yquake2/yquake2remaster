@@ -1257,15 +1257,6 @@ VectorCompareRound(const vec3_t v1, const vec3_t v2)
 	return 1;
 }
 
-cplane_t frustum[4];
-
-
-/*
-================
-RE_RenderFrame
-
-================
-*/
 static void
 RE_RenderFrame(const refdef_t *fd)
 {
@@ -1307,8 +1298,7 @@ RE_RenderFrame(const refdef_t *fd)
 
 	R_SetupFrame();
 
-	R_SetFrustum(vup, vpn, vright, r_origin, r_newrefdef.fov_x, r_newrefdef.fov_y,
-		frustum);
+	R_SetFrustum(vup, vpn, vright, r_origin, r_newrefdef.fov_x, r_newrefdef.fov_y);
 
 	// Using the current view cluster (r_viewcluster), retrieve and decompress
 	// the PVS (Potentially Visible Set)

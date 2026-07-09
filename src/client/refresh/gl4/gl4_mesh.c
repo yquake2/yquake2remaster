@@ -459,7 +459,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 	{
 		vec3_t bbox[8];
 
-		if (R_CullAliasModel(currentmodel, frustum, bbox, currententity))
+		if (R_CullAliasModel(currentmodel, bbox, currententity))
 		{
 			return;
 		}

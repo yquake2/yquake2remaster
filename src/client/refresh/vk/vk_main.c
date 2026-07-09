@@ -50,7 +50,6 @@ vkstate_t  vk_state;
 image_t		*r_notexture;		// use for bad textures
 image_t		*r_particletexture;	// little dot for particles
 image_t		*r_squaretexture;	// rectangle for particles
-cplane_t	frustum[4];
 int			c_brush_polys, c_alias_polys;
 static float		v_blend[4];	// final blending color
 
@@ -816,8 +815,7 @@ R_SetupVulkan(void)
 	r_proj_aspect = (float)r_newrefdef.width / r_newrefdef.height;
 	Mat_Perspective(r_projection_matrix, r_vulkan_correction, r_proj_fovy, r_proj_aspect, zNear, dist);
 
-	R_SetFrustum(vup, vpn, vright, r_origin, r_proj_fovx, r_proj_fovy,
-		frustum);
+	R_SetFrustum(vup, vpn, vright, r_origin, r_proj_fovx, r_proj_fovy);
 
 	// set up view matrix
 	Mat_Identity(r_view_matrix);

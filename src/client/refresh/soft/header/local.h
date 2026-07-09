@@ -390,7 +390,6 @@ extern cvar_t	*sw_colorlight;
 
 extern clipplane_t	view_clipplanes[4];
 extern int		*pfrustum_indexes[4];
-extern cplane_t	frustum[4];
 
 
 //=============================================================================

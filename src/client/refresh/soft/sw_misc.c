@@ -369,7 +369,7 @@ R_SetupFrame(void)
 
 	// start off with just the four screen edge clip planes
 	R_TransformFrustum();
-	R_SetUpFrustumIndexes ();
+	R_SetUpFrustumIndexes();
 
 	// save base values
 	VectorCopy(vpn, base_vpn);

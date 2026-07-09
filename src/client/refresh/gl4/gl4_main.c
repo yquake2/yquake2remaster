@@ -53,8 +53,6 @@ model_t *r_worldmodel;
 
 float gl4depthmin=0.0f, gl4depthmax=1.0f;
 
-cplane_t frustum[4];
-
 /* view origin */
 vec3_t vup;
 vec3_t vpn;
@@ -1565,7 +1563,7 @@ GL4_RenderView(const refdef_t *fd)
 	SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, gl4_origin,
-		r_newrefdef.fov_x, r_newrefdef.fov_y, frustum);
+		r_newrefdef.fov_x, r_newrefdef.fov_y);
 
 	SetupGL();
 

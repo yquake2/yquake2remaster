@@ -595,7 +595,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	{
 		vec3_t bbox[8];
 
-		if (R_CullAliasModel(currentmodel, frustum, bbox, currententity))
+		if (R_CullAliasModel(currentmodel, bbox, currententity))
 		{
 			return;
 		}
