@@ -1079,6 +1079,8 @@ R_RenderView(const refdef_t *fd)
 	R_SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, r_origin, r_newrefdef.fov_x, r_newrefdef.fov_y);
+	/* compute view-space clip planes and indexes for software-style culling */
+	R_TransformFrustum(r_origin, vright, vup, vpn);
 
 	R_SetupGL();
 

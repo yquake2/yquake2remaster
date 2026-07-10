@@ -434,9 +434,9 @@ R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode)
 }
 
 static void
-R_RenderFace(entity_t *currententity, msurface_t *fa, int clipflags)
+R_RenderFace(entity_t *currententity, msurface_t *surf, int clipflags)
 {
-	R_RenderFaceEdge(currententity, fa, clipflags, false);
+	R_RenderFaceEdge(currententity, surf, clipflags, false);
 }
 
 void
