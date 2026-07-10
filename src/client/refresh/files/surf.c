@@ -33,6 +33,7 @@ int r_currentkey;
 static cplane_t frustum[4];
 clipplane_t view_clipplanes[4];
 int *pfrustum_indexes[4];
+/* screen edges and transformed clip planes (used for software-style clip testing) */
 static int r_frustum_indexes[4 * 6];
 static cplane_t screenedge[4];
 
@@ -728,31 +729,7 @@ SetupScreenEdge(void)
 	}
 }
 
-void
-R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn)
-{
-	vec3_t v, v2;
-	size_t i;
-
-	SetupScreenEdge();
-
-	for (i = 0; i < 4; i++)
-	{
-		v[0] = screenedge[i].normal[2];
-		v[1] = -screenedge[i].normal[0];
-		v[2] = screenedge[i].normal[1];
-
-		v2[0] = v[1] * vright[0] + v[2] * vup[0] + v[0] * vpn[0];
-		v2[1] = v[1] * vright[1] + v[2] * vup[1] + v[0] * vpn[1];
-		v2[2] = v[1] * vright[2] + v[2] * vup[2] + v[0] * vpn[2];
-
-		VectorCopy(v2, view_clipplanes[i].normal);
-
-		view_clipplanes[i].dist = DotProduct(modelorg, v2);
-	}
-}
-
-void
+static void
 R_SetUpFrustumIndexes(void)
 {
 	int i, *pindex;
@@ -781,4 +758,30 @@ R_SetUpFrustumIndexes(void)
 		pfrustum_indexes[i] = pindex;
 		pindex += 6;
 	}
+}
+
+void
+R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn)
+{
+	vec3_t v, v2;
+	size_t i;
+
+	SetupScreenEdge();
+
+	for (i = 0; i < 4; i++)
+	{
+		v[0] = screenedge[i].normal[2];
+		v[1] = -screenedge[i].normal[0];
+		v[2] = screenedge[i].normal[1];
+
+		v2[0] = v[1] * vright[0] + v[2] * vup[0] + v[0] * vpn[0];
+		v2[1] = v[1] * vright[1] + v[2] * vup[1] + v[0] * vpn[1];
+		v2[2] = v[1] * vright[2] + v[2] * vup[2] + v[0] * vpn[2];
+
+		VectorCopy(v2, view_clipplanes[i].normal);
+
+		view_clipplanes[i].dist = DotProduct(modelorg, v2);
+	}
+
+	R_SetUpFrustumIndexes();
 }

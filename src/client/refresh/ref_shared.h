@@ -481,7 +481,6 @@ extern clipplane_t view_clipplanes[4];
 extern int *pfrustum_indexes[4];
 
 extern void R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn);
-extern void R_SetUpFrustumIndexes(void);
 extern void R_MarkLeaves(const model_t *r_worldmodel);
 extern void R_SetClusters(const model_t *r_worldmodel, const vec3_t r_origin);
 extern void R_PushDlights(refdef_t *r_newrefdef, mnode_t *nodes, int lightframecount,
