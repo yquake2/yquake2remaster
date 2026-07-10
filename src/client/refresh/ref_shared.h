@@ -465,6 +465,8 @@ extern void Mod_VisFree(void);
 
 /* Surface logic */
 #define ALIAS_XY_CLIP_MASK	0x000F
+#define XCENTERING (1.0 / 2.0)
+#define YCENTERING (1.0 / 2.0)
 
 typedef struct clipplane_s
 {
@@ -479,6 +481,7 @@ extern clipplane_t view_clipplanes[4];
 extern int *pfrustum_indexes[4];
 extern cplane_t screenedge[4];
 
+extern void SetupScreenEdge(void);
 extern void R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn);
 extern void R_SetUpFrustumIndexes(void);
 extern void R_MarkLeaves(const model_t *r_worldmodel);

@@ -38,9 +38,6 @@ int	d_vrectx, d_vrecty, d_vrectright_particle, d_vrectbottom_particle;
 float	xcenter, ycenter;
 int	d_pix_min, d_pix_max, d_pix_mul;
 
-#define XCENTERING (1.0 / 2.0)
-#define YCENTERING (1.0 / 2.0)
-
 /*
 ================
 D_ViewChanged
@@ -147,49 +144,6 @@ TransformVector(const vec3_t in, vec3_t out)
 	out[0] = DotProduct(in,vright);
 	out[1] = DotProduct(in,vup);
 	out[2] = DotProduct(in,vpn);
-}
-
-static void
-SetupScreenEdge(void)
-{
-	/*
-	 * at Z = 1.0, this many X is visible
-	 * 2.0 = 90 degrees
-	 */
-	float verticalFieldOfView, horizontalFieldOfView;
-	int i;
-
-	horizontalFieldOfView = 2 * tan((float)r_newrefdef.fov_x / 360 * M_PI);
-	verticalFieldOfView = 2 * tan((float)r_newrefdef.fov_y / 360 * M_PI);
-
-	/* left side clip */
-	screenedge[0].normal[0] = -1.0 / (XCENTERING * horizontalFieldOfView);
-	screenedge[0].normal[1] = 0;
-	screenedge[0].normal[2] = 1;
-	screenedge[0].type = PLANE_ANYZ;
-
-	/* right side clip */
-	screenedge[1].normal[0] = 1.0 / ((1.0 - XCENTERING) * horizontalFieldOfView);
-	screenedge[1].normal[1] = 0;
-	screenedge[1].normal[2] = 1;
-	screenedge[1].type = PLANE_ANYZ;
-
-	/* top side clip */
-	screenedge[2].normal[0] = 0;
-	screenedge[2].normal[1] = -1.0 / (YCENTERING * verticalFieldOfView);
-	screenedge[2].normal[2] = 1;
-	screenedge[2].type = PLANE_ANYZ;
-
-	/* bottom side clip */
-	screenedge[3].normal[0] = 0;
-	screenedge[3].normal[1] = 1.0 / ((1.0 - YCENTERING) * verticalFieldOfView);
-	screenedge[3].normal[2] = 1;
-	screenedge[3].type = PLANE_ANYZ;
-
-	for (i = 0; i < 4; i++)
-	{
-		VectorNormalize(screenedge[i].normal);
-	}
 }
 
 /*
