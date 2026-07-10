@@ -849,7 +849,7 @@ R_RenderFace(entity_t *currententity, msurface_t *surf)
 }
 
 static void
-R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
+RI_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 {
 	int c, side, sidebit;
 	msurface_t *surf;
@@ -935,7 +935,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	}
 
 	/* recurse down the children, front side first */
-	R_RecursiveWorldNode(currententity, node->children[side]);
+	RI_RecursiveWorldNode(currententity, node->children[side]);
 
 	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
 	{
@@ -968,7 +968,7 @@ R_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
 	}
 
 	/* recurse down the back side */
-	R_RecursiveWorldNode(currententity, node->children[!side]);
+	RI_RecursiveWorldNode(currententity, node->children[!side]);
 }
 
 void
@@ -991,7 +991,7 @@ R_DrawWorld(void)
 	memset(r_lms.lightmap_surfaces, 0, sizeof(r_lms.lightmap_surfaces));
 
 	RE_ClearSkyBox();
-	R_RecursiveWorldNode(&ent, r_worldmodel->nodes);
+	RI_RecursiveWorldNode(&ent, r_worldmodel->nodes);
 
 	/*
 	** theoretically nothing should happen in the next two functions

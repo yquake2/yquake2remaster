@@ -760,6 +760,10 @@ R_SetUpFrustumIndexes(void)
 	}
 }
 
+/*
+ * Transform screen-edge clip planes into view-space clip planes and
+ * build index tables for fast box tests (ported from the software refresher).
+ */
 void
 R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn)
 {
@@ -784,4 +788,176 @@ R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn)
 	}
 
 	R_SetUpFrustumIndexes();
+}
+
+void
+R_RecursiveWorldNode(entity_t *currententity, mnode_t *node, int clipflags,
+	facerender_t facerender)
+{
+	vec3_t acceptpt, rejectpt;
+	int c, side, sidebit;
+	msurface_t *surf;
+	cplane_t *plane;
+	mleaf_t *pleaf;
+	model_t *model;
+	float dot;
+
+	if (node->contents == CONTENTS_SOLID)
+	{
+		return; /* solid */
+	}
+
+	if (node->visframe != r_visframecount)
+	{
+		return;
+	}
+
+	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3))
+	{
+		return;
+	}
+
+	/* cull the clipping planes if not trivial accept */
+	if (clipflags)
+	{
+		int i;
+
+		for (i = 0; i < 4 ; i++)
+		{
+			const int *pindex;
+			float d;
+
+			if (!(clipflags & (1<<i)))
+			{
+				continue;	/* don't need to clip against it */
+			}
+
+			// generate accept and reject points
+			// FIXME: do with fast look-ups or integer tests based on the sign bit
+			// of the floating point values
+			pindex = pfrustum_indexes[i];
+
+			rejectpt[0] = node->minmaxs[pindex[0]];
+			rejectpt[1] = node->minmaxs[pindex[1]];
+			rejectpt[2] = node->minmaxs[pindex[2]];
+
+			d = DotProduct(rejectpt, view_clipplanes[i].normal);
+			d -= view_clipplanes[i].dist;
+			if (d <= 0)
+			{
+				return;
+			}
+
+			acceptpt[0] = node->minmaxs[pindex[3+0]];
+			acceptpt[1] = node->minmaxs[pindex[3+1]];
+			acceptpt[2] = node->minmaxs[pindex[3+2]];
+
+			d = DotProduct(acceptpt, view_clipplanes[i].normal);
+			d -= view_clipplanes[i].dist;
+
+			if (d >= 0)
+			{
+				clipflags &= ~(1<<i);	/* node is entirely on screen */
+			}
+		}
+	}
+
+	/* if a leaf node, draw stuff */
+	if (node->contents != CONTENTS_NODE)
+	{
+		msurface_t **mark;
+
+		pleaf = (mleaf_t *)node;
+
+		/* check for door connected areas */
+		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
+		{
+			return;	/* not visible */
+		}
+
+		mark = pleaf->firstmarksurface;
+		c = pleaf->nummarksurfaces;
+
+		if (c)
+		{
+			do
+			{
+				(*mark)->visframe = r_framecount;
+				mark++;
+			}
+			while (--c);
+		}
+
+		pleaf->key = r_currentkey;
+		r_currentkey++;	/* all bmodels in a leaf share the same key */
+		return;
+	}
+
+	/* node is just a decision point, so go down the apropriate
+	   sides find which side of the node we are on */
+	plane = node->plane;
+
+	switch (plane->type)
+	{
+		case PLANE_X:
+			dot = currententity->origin[0] - plane->dist;
+			break;
+		case PLANE_Y:
+			dot = currententity->origin[1] - plane->dist;
+			break;
+		case PLANE_Z:
+			dot = currententity->origin[2] - plane->dist;
+			break;
+		default:
+			dot = DotProduct(currententity->origin, plane->normal) - plane->dist;
+			break;
+	}
+
+	if (dot >= 0)
+	{
+		side = 0;
+		sidebit = 0;
+	}
+	else
+	{
+		side = 1;
+		sidebit = SURF_PLANEBACK;
+	}
+
+	/* recurse down the children, front side first */
+	R_RecursiveWorldNode(currententity, node->children[side], clipflags, facerender);
+
+	model = currententity->model;
+	if ((node->numsurfaces + node->firstsurface) > currententity->model->numsurfaces)
+	{
+		Com_Printf("%s: Broken node firstsurface\n", __func__);
+		return;
+	}
+
+	/* draw stuff */
+	for (c = node->numsurfaces,
+		 surf = model->surfaces + node->firstsurface;
+		 c; c--, surf++)
+	{
+		if (surf->visframe != r_framecount)
+		{
+			continue;
+		}
+
+		if ((surf->flags & SURF_PLANEBACK) != sidebit)
+		{
+			continue; /* wrong side */
+		}
+
+		facerender(currententity, surf, clipflags);
+	}
+
+	if (node->numsurfaces)
+	{
+		/* all surfaces on the same node share the same sequence number */
+		r_currentkey++;
+	}
+
+	/* recurse down the back side */
+	R_RecursiveWorldNode(currententity, node->children[!side], clipflags, facerender);
 }
