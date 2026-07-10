@@ -30,7 +30,6 @@
 cvar_t	*sw_mipcap;
 cvar_t	*sw_mipscale;
 
-float		verticalFieldOfView;
 int		d_minmip;
 float		d_scalemip[NUM_MIPS-1];
 
@@ -150,6 +149,49 @@ TransformVector(const vec3_t in, vec3_t out)
 	out[2] = DotProduct(in,vpn);
 }
 
+static void
+SetupScreenEdge(void)
+{
+	/*
+	 * at Z = 1.0, this many X is visible
+	 * 2.0 = 90 degrees
+	 */
+	float verticalFieldOfView, horizontalFieldOfView;
+	int i;
+
+	horizontalFieldOfView = 2 * tan((float)r_newrefdef.fov_x / 360 * M_PI);
+	verticalFieldOfView = 2 * tan((float)r_newrefdef.fov_y / 360 * M_PI);
+
+	/* left side clip */
+	screenedge[0].normal[0] = -1.0 / (XCENTERING * horizontalFieldOfView);
+	screenedge[0].normal[1] = 0;
+	screenedge[0].normal[2] = 1;
+	screenedge[0].type = PLANE_ANYZ;
+
+	/* right side clip */
+	screenedge[1].normal[0] = 1.0 / ((1.0 - XCENTERING) * horizontalFieldOfView);
+	screenedge[1].normal[1] = 0;
+	screenedge[1].normal[2] = 1;
+	screenedge[1].type = PLANE_ANYZ;
+
+	/* top side clip */
+	screenedge[2].normal[0] = 0;
+	screenedge[2].normal[1] = -1.0 / (YCENTERING * verticalFieldOfView);
+	screenedge[2].normal[2] = 1;
+	screenedge[2].type = PLANE_ANYZ;
+
+	/* bottom side clip */
+	screenedge[3].normal[0] = 0;
+	screenedge[3].normal[1] = 1.0 / ((1.0 - YCENTERING) * verticalFieldOfView);
+	screenedge[3].normal[2] = 1;
+	screenedge[3].type = PLANE_ANYZ;
+
+	for (i = 0; i < 4; i++)
+	{
+		VectorNormalize(screenedge[i].normal);
+	}
+}
+
 /*
 ===============
 R_ViewChanged
@@ -161,12 +203,13 @@ Guaranteed to be called before the first refresh
 static void
 R_ViewChanged(const vrect_t *vr)
 {
-	int i;
+	/*
+	 * at Z = 1.0, this many X is visible
+	 * 2.0 = 90 degrees
+	 */
+	float horizontalFieldOfView;
 
 	r_refdef.vrect = *vr;
-
-	r_refdef.horizontalFieldOfView = 2 * tan((float)r_newrefdef.fov_x / 360 * M_PI);
-	verticalFieldOfView = 2 * tan((float)r_newrefdef.fov_y / 360 * M_PI);
 
 	r_refdef.fvrectx = (float)r_refdef.vrect.x;
 	r_refdef.fvrectx_adj = (float)r_refdef.vrect.x - 0.5;
@@ -204,44 +247,19 @@ R_ViewChanged(const vrect_t *vr)
 			r_refdef.vrect.y - 0.5;
 	aliasycenter = ycenter * r_aliasuvscale;
 
-	xscale = r_refdef.vrect.width / r_refdef.horizontalFieldOfView;
+	horizontalFieldOfView = 2 * tan((float)r_newrefdef.fov_x / 360 * M_PI);
+	xscale = r_refdef.vrect.width / horizontalFieldOfView;
 	aliasxscale = xscale * r_aliasuvscale;
 	xscaleinv = 1.0 / xscale;
 
 	yscale = xscale;
 	aliasyscale = yscale * r_aliasuvscale;
 	yscaleinv = 1.0 / yscale;
-	xscaleshrink = (r_refdef.vrect.width - 6) / r_refdef.horizontalFieldOfView;
+	xscaleshrink = (r_refdef.vrect.width - 6) / horizontalFieldOfView;
 	yscaleshrink = xscaleshrink;
 
-	// left side clip
-	screenedge[0].normal[0] = -1.0 / (XCENTERING * r_refdef.horizontalFieldOfView);
-	screenedge[0].normal[1] = 0;
-	screenedge[0].normal[2] = 1;
-	screenedge[0].type = PLANE_ANYZ;
-
-	// right side clip
-	screenedge[1].normal[0] = 1.0 / ((1.0 - XCENTERING) * r_refdef.horizontalFieldOfView);
-	screenedge[1].normal[1] = 0;
-	screenedge[1].normal[2] = 1;
-	screenedge[1].type = PLANE_ANYZ;
-
-	// top side clip
-	screenedge[2].normal[0] = 0;
-	screenedge[2].normal[1] = -1.0 / (YCENTERING * verticalFieldOfView);
-	screenedge[2].normal[2] = 1;
-	screenedge[2].type = PLANE_ANYZ;
-
-	// bottom side clip
-	screenedge[3].normal[0] = 0;
-	screenedge[3].normal[1] = 1.0 / ((1.0 - YCENTERING) * verticalFieldOfView);
-	screenedge[3].normal[2] = 1;
-	screenedge[3].type = PLANE_ANYZ;
-
-	for (i=0 ; i<4 ; i++)
-		VectorNormalize (screenedge[i].normal);
-
-	D_ViewChanged ();
+	SetupScreenEdge();
+	D_ViewChanged();
 }
 
 /*

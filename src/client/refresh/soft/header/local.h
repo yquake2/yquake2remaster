@@ -104,8 +104,6 @@ typedef struct
 	float		fvrectright_adj, fvrectbottom_adj; // right and bottom edges, for clamping
 	float		fvrectright; // rightmost edge, for Alias clamping
 	float		fvrectbottom; // bottommost edge, for Alias clamping
-	float		horizontalFieldOfView;	// at Z = 1.0, this many X is visible
-						// 2.0 = 90 degrees
 
 	vec3_t		vieworg;
 	vec3_t		viewangles;
