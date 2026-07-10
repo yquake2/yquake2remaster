@@ -1307,6 +1307,12 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		char blockname[32];
 		int version, size;
 
+		if (modfilelen < (int)(sizeof(blockname) + sizeof(version) + sizeof(size)))
+		{
+			Com_Printf("%s: Invalid mod file len\n", __func__);
+			return NULL;
+		}
+
 		memcpy(blockname, src, sizeof(blockname));
 
 		src += sizeof(blockname);
@@ -1315,6 +1321,12 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		size = *(int*)src;
 		src += sizeof(size);
 		modfilelen = modfilelen - sizeof(blockname) - sizeof(version) - sizeof(size);
+
+		if (size < 0 || size > modfilelen)
+		{
+			Com_Printf("%s: Invalid chunk size\n", __func__);
+			return NULL;
+		}
 
 		if (Q_strncasecmp(blockname, "header", sizeof(blockname)) == 0)
 		{
