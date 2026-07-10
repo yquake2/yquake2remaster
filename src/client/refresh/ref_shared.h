@@ -479,9 +479,7 @@ typedef struct clipplane_s
 
 extern clipplane_t view_clipplanes[4];
 extern int *pfrustum_indexes[4];
-extern cplane_t screenedge[4];
 
-extern void SetupScreenEdge(void);
 extern void R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn);
 extern void R_SetUpFrustumIndexes(void);
 extern void R_MarkLeaves(const model_t *r_worldmodel);

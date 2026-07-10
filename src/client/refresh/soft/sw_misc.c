@@ -212,7 +212,8 @@ R_ViewChanged(const vrect_t *vr)
 	xscaleshrink = (r_refdef.vrect.width - 6) / horizontalFieldOfView;
 	yscaleshrink = xscaleshrink;
 
-	SetupScreenEdge();
+	R_TransformFrustum(modelorg, vright, vup, vpn);
+
 	D_ViewChanged();
 }
 

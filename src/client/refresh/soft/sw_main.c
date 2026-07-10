@@ -113,8 +113,6 @@ float		xscaleinv, yscaleinv;
 float		xscaleshrink, yscaleshrink;
 float		aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
 
-cplane_t	screenedge[4];
-
 //
 // refresh flags
 //
