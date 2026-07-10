@@ -816,6 +816,8 @@ R_SetupVulkan(void)
 	Mat_Perspective(r_projection_matrix, r_vulkan_correction, r_proj_fovy, r_proj_aspect, zNear, dist);
 
 	R_SetFrustum(vup, vpn, vright, r_origin, r_proj_fovx, r_proj_fovy);
+	/* compute view-space clip planes and indexes for software-style culling */
+	R_TransformFrustum(r_origin, vright, vup, vpn);
 
 	// set up view matrix
 	Mat_Identity(r_view_matrix);
