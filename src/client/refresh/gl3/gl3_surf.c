@@ -617,7 +617,7 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 }
 
 static void
-R_RenderFace(entity_t *currententity, msurface_t *surf)
+R_RenderFace(entity_t *currententity, msurface_t *surf, int clipflags)
 {
 	if (surf->texinfo->flags & SURF_SKY)
 	{
@@ -658,129 +658,6 @@ R_RenderFace(entity_t *currententity, msurface_t *surf)
 	}
 }
 
-static void
-RI_RecursiveWorldNode(entity_t *currententity, mnode_t *node)
-{
-	int c, side, sidebit;
-	msurface_t *surf;
-	cplane_t *plane;
-	mleaf_t *pleaf;
-	float dot;
-
-	if (node->contents == CONTENTS_SOLID)
-	{
-		return; /* solid */
-	}
-
-	if (node->visframe != r_visframecount)
-	{
-		return;
-	}
-
-	if (r_cull->value && R_CullBox(node->minmaxs, node->minmaxs + 3))
-	{
-		return;
-	}
-
-	/* if a leaf node, draw stuff */
-	if (node->contents != CONTENTS_NODE)
-	{
-		msurface_t **mark;
-
-		pleaf = (mleaf_t *)node;
-
-		/* check for door connected areas */
-		if (!R_AreaVisible(r_newrefdef.areabits, pleaf))
-		{
-			return;	/* not visible */
-		}
-
-		mark = pleaf->firstmarksurface;
-		c = pleaf->nummarksurfaces;
-
-		if (c)
-		{
-			do
-			{
-				(*mark)->visframe = r_framecount;
-				mark++;
-			}
-			while (--c);
-		}
-
-		pleaf->key = r_currentkey;
-		r_currentkey++;	/* all bmodels in a leaf share the same key */
-		return;
-	}
-
-	/* node is just a decision point, so go down the apropriate
-	   sides find which side of the node we are on */
-	plane = node->plane;
-
-	switch (plane->type)
-	{
-		case PLANE_X:
-			dot = modelorg[0] - plane->dist;
-			break;
-		case PLANE_Y:
-			dot = modelorg[1] - plane->dist;
-			break;
-		case PLANE_Z:
-			dot = modelorg[2] - plane->dist;
-			break;
-		default:
-			dot = DotProduct(modelorg, plane->normal) - plane->dist;
-			break;
-	}
-
-	if (dot >= 0)
-	{
-		side = 0;
-		sidebit = 0;
-	}
-	else
-	{
-		side = 1;
-		sidebit = SURF_PLANEBACK;
-	}
-
-	/* recurse down the children, front side first */
-	RI_RecursiveWorldNode(currententity, node->children[side]);
-
-	if ((node->numsurfaces + node->firstsurface) > r_worldmodel->numsurfaces)
-	{
-		Com_Printf("%s: Broken node firstsurface\n", __func__);
-		return;
-	}
-
-	/* draw stuff */
-	for (c = node->numsurfaces,
-		 surf = r_worldmodel->surfaces + node->firstsurface;
-		 c; c--, surf++)
-	{
-		if (surf->visframe != r_framecount)
-		{
-			continue;
-		}
-
-		if ((surf->flags & SURF_PLANEBACK) != sidebit)
-		{
-			continue; /* wrong side */
-		}
-
-		R_RenderFace(currententity, surf);
-	}
-
-	if (node->numsurfaces)
-	{
-		/* all surfaces on the same node share the same sequence number */
-		r_currentkey++;
-	}
-
-	/* recurse down the back side */
-	RI_RecursiveWorldNode(currententity, node->children[!side]);
-}
-
 void
 GL3_DrawWorld(void)
 {
@@ -797,11 +674,13 @@ GL3_DrawWorld(void)
 	memset(&ent, 0, sizeof(ent));
 	ent.frame = (int)(r_newrefdef.time * 2);
 	ent.model = r_worldmodel;
+	VectorCopy(r_newrefdef.vieworg, ent.origin);
 
 	gl3state.currenttexture = -1;
 
 	RE_ClearSkyBox();
-	RI_RecursiveWorldNode(&ent, r_worldmodel->nodes);
+	R_RecursiveWorldNode(&ent, r_worldmodel->nodes, ALIAS_XY_CLIP_MASK,
+		R_RenderFace);
 	DrawTextureChains(&ent);
 	GL3_DrawSkyBox();
 	DrawTriangleOutlines();

@@ -1622,6 +1622,8 @@ GL3_RenderView(const refdef_t *fd)
 
 	R_SetFrustum(vup, vpn, vright, gl3_origin,
 		r_newrefdef.fov_x, r_newrefdef.fov_y);
+	/* compute view-space clip planes and indexes for software-style culling */
+	R_TransformFrustum(gl3_origin, vright, vup, vpn);
 
 	SetupGL();
 
