@@ -34,7 +34,6 @@ float		verticalFieldOfView;
 int		d_minmip;
 float		d_scalemip[NUM_MIPS-1];
 
-static int	r_frustum_indexes[4*6];
 static const float	basemip[NUM_MIPS-1] = {1.0, 0.5*0.8, 0.25*0.8};
 int	d_vrectx, d_vrecty, d_vrectright_particle, d_vrectbottom_particle;
 float	xcenter, ycenter;
@@ -138,36 +137,6 @@ R_PrintAliasStats(void)
 	Com_Printf("%3i polygon model drawn\n", r_amodels_drawn);
 }
 
-
-
-/*
-===================
-R_TransformFrustum
-===================
-*/
-void
-R_TransformFrustum(void)
-{
-	int		i;
-	vec3_t	v, v2;
-
-	for (i=0 ; i<4 ; i++)
-	{
-		v[0] = screenedge[i].normal[2];
-		v[1] = -screenedge[i].normal[0];
-		v[2] = screenedge[i].normal[1];
-
-		v2[0] = v[1]*vright[0] + v[2]*vup[0] + v[0]*vpn[0];
-		v2[1] = v[1]*vright[1] + v[2]*vup[1] + v[0]*vpn[1];
-		v2[2] = v[1]*vright[2] + v[2]*vup[2] + v[0]*vpn[2];
-
-		VectorCopy(v2, view_clipplanes[i].normal);
-
-		view_clipplanes[i].dist = DotProduct(modelorg, v2);
-	}
-}
-
-
 /*
 ================
 TransformVector
@@ -179,40 +148,6 @@ TransformVector(const vec3_t in, vec3_t out)
 	out[0] = DotProduct(in,vright);
 	out[1] = DotProduct(in,vup);
 	out[2] = DotProduct(in,vpn);
-}
-
-/*
-===============
-R_SetUpFrustumIndexes
-===============
-*/
-static void
-R_SetUpFrustumIndexes(void)
-{
-	int		i, j, *pindex;
-
-	pindex = r_frustum_indexes;
-
-	for (i=0 ; i<4 ; i++)
-	{
-		for (j=0 ; j<3 ; j++)
-		{
-			if (view_clipplanes[i].normal[j] < 0)
-			{
-				pindex[j] = j;
-				pindex[j+3] = j+3;
-			}
-			else
-			{
-				pindex[j] = j+3;
-				pindex[j+3] = j;
-			}
-		}
-
-		// FIXME: do just once at start
-		pfrustum_indexes[i] = pindex;
-		pindex += 6;
-	}
 }
 
 /*
@@ -230,8 +165,8 @@ R_ViewChanged(const vrect_t *vr)
 
 	r_refdef.vrect = *vr;
 
-	r_refdef.horizontalFieldOfView = 2*tan((float)r_newrefdef.fov_x/360*M_PI);;
-	verticalFieldOfView = 2*tan((float)r_newrefdef.fov_y/360*M_PI);
+	r_refdef.horizontalFieldOfView = 2 * tan((float)r_newrefdef.fov_x / 360 * M_PI);
+	verticalFieldOfView = 2 * tan((float)r_newrefdef.fov_y / 360 * M_PI);
 
 	r_refdef.fvrectx = (float)r_refdef.vrect.x;
 	r_refdef.fvrectx_adj = (float)r_refdef.vrect.x - 0.5;
@@ -368,7 +303,7 @@ R_SetupFrame(void)
 	R_ViewChanged (&vrect);
 
 	// start off with just the four screen edge clip planes
-	R_TransformFrustum();
+	R_TransformFrustum(modelorg, vright, vup, vpn);
 	R_SetUpFrustumIndexes();
 
 	// save base values

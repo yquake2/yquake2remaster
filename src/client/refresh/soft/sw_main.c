@@ -121,9 +121,7 @@ cplane_t	screenedge[4];
 int		r_polycount;
 int		r_drawnpolycount;
 
-int		*pfrustum_indexes[4];
-
-image_t  	*r_notexture_mip;
+image_t	*r_notexture_mip;
 
 float	da_time1, da_time2, dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 float	se_time1, se_time2, de_time1, de_time2;
@@ -1088,7 +1086,7 @@ R_DrawBEntitiesOnList(void)
 		VectorCopy(base_vup, vup);
 		VectorCopy(base_vright, vright);
 		VectorCopy(oldorigin, modelorg);
-		R_TransformFrustum();
+		R_TransformFrustum(modelorg, vright, vup, vpn);
 	}
 }
 

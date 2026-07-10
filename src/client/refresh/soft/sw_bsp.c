@@ -134,7 +134,7 @@ R_RotateBmodel(const entity_t *currententity)
 	R_EntityRotate(vright);
 	R_EntityRotate(vup);
 
-	R_TransformFrustum();
+	R_TransformFrustum(modelorg, vright, vup, vpn);
 }
 
 /*

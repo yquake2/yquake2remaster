@@ -31,6 +31,9 @@ static int r_viewcluster2, r_oldviewcluster2;
 int r_visframecount; /* bumped when going to a new PVS */
 int r_currentkey;
 static cplane_t frustum[4];
+clipplane_t view_clipplanes[4];
+int *pfrustum_indexes[4];
+static int r_frustum_indexes[4 * 6];
 
 #define SUBDIVIDE_SIZE 64.0f
 #define MAX_SUBDIVIDE_VERTS 60
@@ -679,4 +682,57 @@ R_CullAliasModel(const model_t *currentmodel, vec3_t bbox[8], entity_t *e)
 
 	return R_CullAliasMeshModel(paliashdr, e->frame, e->oldframe,
 		e->angles, e->origin, bbox);
+}
+
+void
+R_TransformFrustum(vec3_t modelorg, vec3_t vright, vec3_t vup, vec3_t vpn)
+{
+	vec3_t v, v2;
+	size_t i;
+
+	for (i = 0; i < 4; i++)
+	{
+		v[0] = screenedge[i].normal[2];
+		v[1] = -screenedge[i].normal[0];
+		v[2] = screenedge[i].normal[1];
+
+		v2[0] = v[1] * vright[0] + v[2] * vup[0] + v[0] * vpn[0];
+		v2[1] = v[1] * vright[1] + v[2] * vup[1] + v[0] * vpn[1];
+		v2[2] = v[1] * vright[2] + v[2] * vup[2] + v[0] * vpn[2];
+
+		VectorCopy(v2, view_clipplanes[i].normal);
+
+		view_clipplanes[i].dist = DotProduct(modelorg, v2);
+	}
+}
+
+void
+R_SetUpFrustumIndexes(void)
+{
+	int i, *pindex;
+
+	pindex = r_frustum_indexes;
+
+	for (i = 0; i < 4; i++)
+	{
+		int j;
+
+		for (j = 0; j < 3; j++)
+		{
+			if (view_clipplanes[i].normal[j] < 0)
+			{
+				pindex[j] = j;
+				pindex[j + 3] = j + 3;
+			}
+			else
+			{
+				pindex[j] = j + 3;
+				pindex[j + 3] = j;
+			}
+		}
+
+		/* FIXME: do just once at start */
+		pfrustum_indexes[i] = pindex;
+		pindex += 6;
+	}
 }

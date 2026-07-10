@@ -147,7 +147,6 @@ extern oldrefdef_t	r_refdef;
 #define ALIAS_RIGHT_CLIP	0x0004
 #define ALIAS_BOTTOM_CLIP	0x0008
 #define ALIAS_Z_CLIP		0x0010
-#define ALIAS_XY_CLIP_MASK	0x000F
 
 #define NEAR_CLIP	0.01
 
@@ -217,15 +216,6 @@ typedef struct bedge_s
 	mvertex_t	*v[2];
 	struct bedge_s	*pnext;
 } bedge_t;
-
-typedef struct clipplane_s
-{
-	vec3_t	normal;
-	float	dist;
-	struct clipplane_s *next;
-	byte	leftedge;
-	byte	rightedge;
-} clipplane_t;
 
 typedef struct espan_s
 {
@@ -388,22 +378,15 @@ extern cvar_t	*sw_waterwarp;
 extern cvar_t	*sw_gunzposition;
 extern cvar_t	*sw_colorlight;
 
-extern clipplane_t	view_clipplanes[4];
-extern int		*pfrustum_indexes[4];
-
-
 //=============================================================================
 
 void R_DrawWorld(void);
 
 //=============================================================================
 
-extern cplane_t        screenedge[4];
-
-extern vec3_t  r_origin;
-
-extern vec3_t	modelorg;
-extern vec3_t	r_entorigin;
+extern vec3_t r_origin;
+extern vec3_t modelorg;
+extern vec3_t r_entorigin;
 
 extern msurface_t	*r_alpha_surfaces;
 
@@ -418,7 +401,6 @@ void R_DrawSprite(entity_t *currententity, const model_t *currentmodel);
 void R_ClipAndDrawPoly(float alpha, int isturbulent, qboolean textured);
 void R_RenderFaceEdge(entity_t *currententity, msurface_t *fa, int clipflags, qboolean insubmodel);
 void R_RenderBmodelFace(entity_t *currententity, bedge_t *pedges, msurface_t *psurf, int r_currentbkey);
-void R_TransformFrustum(void);
 
 void R_DrawSubmodelPolygons(entity_t *currententity, int clipflags, mnode_t *topnode);
 void R_DrawSolidClippedSubmodelPolygons(entity_t *currententity, const model_t *currentmodel, mnode_t *topnode);

@@ -33,8 +33,6 @@ static unsigned int	cacheoffset;
 
 int	c_faceclip;	// number of faces clipped
 
-clipplane_t	view_clipplanes[4];
-
 edge_t	*r_edges = NULL, *edge_p = NULL, *edge_max = NULL;
 surf_t	*surfaces = NULL, *surface_p = NULL, *surf_max = NULL;
 

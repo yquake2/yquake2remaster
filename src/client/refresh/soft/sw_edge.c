@@ -900,7 +900,7 @@ D_TurbulentSurf(surf_t *s)
 		VectorCopy(base_vpn, vpn);
 		VectorCopy(base_vup, vup);
 		VectorCopy(base_vright, vright);
-		R_TransformFrustum();
+		R_TransformFrustum(modelorg, vright, vup, vpn);
 	}
 }
 
@@ -989,7 +989,7 @@ D_SolidSurf (entity_t *currententity, surf_t *s)
 		VectorCopy(base_vpn, vpn);
 		VectorCopy(base_vup, vup);
 		VectorCopy(base_vright, vright);
-		R_TransformFrustum();
+		R_TransformFrustum(modelorg, vright, vup, vpn);
 	}
 }
 
@@ -1060,5 +1060,5 @@ D_DrawSurfaces(entity_t *currententity, const surf_t *surface)
 		D_DrawflatSurfaces (surface);
 
 	VectorSubtract(r_origin, vec3_origin, modelorg);
-	R_TransformFrustum();
+	R_TransformFrustum(modelorg, vright, vup, vpn);
 }
