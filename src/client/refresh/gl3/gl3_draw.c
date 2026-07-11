@@ -415,8 +415,6 @@ GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 	qboolean underwater = (r_newrefdef.rdflags & RDF_UNDERWATER) != 0;
 	gl3ShaderInfo_t* shader = underwater ? &gl3state.si2DpostProcessWater
 	                                     : &gl3state.si2DpostProcess;
-	GL3_UseProgram(shader->shaderProgram);
-	GL3_Bind(fboTexture);
 
 	/* select shader and bind scene texture */
 	GL3_UseProgram(shader->shaderProgram);
@@ -548,9 +546,12 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 
 	glEnable(GL_BLEND);
 
-	/* this blends the screen flash while bloom is enabled
-	 * TODO: disable broke fixing window on disable bloom */
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (r_bloom && r_bloom->value)
+	{
+		/* this blends the screen flash while bloom is enabled
+		 * TODO: disable broke fixing window on disable bloom */
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 
 	for (i = 0; i < 4; ++i)
 	{

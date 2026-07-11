@@ -546,9 +546,12 @@ GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
 
 	glEnable(GL_BLEND);
 
-	/* this blends the screen flash while bloom is enabled
-	 * TODO: disable broke fixing window on disable bloom */
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if (r_bloom && r_bloom->value)
+	{
+		/* this blends the screen flash while bloom is enabled
+		 * TODO: disable broke fixing window on disable bloom */
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 
 	for (i = 0; i < 4; ++i)
 	{

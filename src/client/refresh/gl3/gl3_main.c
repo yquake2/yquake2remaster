@@ -1612,11 +1612,14 @@ GL3_RenderView(const refdef_t *fd)
 		bloomInit = true;
 	}
 
-	/* render scene */
-	glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
-	glViewport(0, 0, vid.width, vid.height);
-	glClearColor(0, 0, 0, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if (r_bloom && r_bloom->value)
+	{
+		/* render scene */
+		glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
+		glViewport(0, 0, vid.width, vid.height);
+		glClearColor(0, 0, 0, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 
 	SetupFrame();
 
@@ -1653,12 +1656,14 @@ GL3_RenderView(const refdef_t *fd)
 				c_visible_lightmaps);
 	}
 
-	/* apply bloom */
-	GL3_SetGL2D();
-
 	if (r_bloom && r_bloom->value)
 	{
-		GLuint compositeTex = GL3_ApplyBloom(sceneColorTex, vid.width, vid.height);
+		GLuint compositeTex;
+
+		/* apply bloom */
+		GL3_SetGL2D();
+
+		compositeTex = GL3_ApplyBloom(sceneColorTex, vid.width, vid.height);
 
 		if (compositeTex != 0)
 		{
@@ -1700,16 +1705,6 @@ GL3_RenderView(const refdef_t *fd)
 							  GL_COLOR_BUFFER_BIT, GL_NEAREST);
 			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 		}
-	}
-	else
-	{
-		/* bloom disabled */
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFBO);
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glBlitFramebuffer(0, 0, vid.width, vid.height,
-						  0, 0, vid.width, vid.height,
-						  GL_COLOR_BUFFER_BIT, GL_NEAREST);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 	}
 
 #if 0 // TODO: stereo stuff
