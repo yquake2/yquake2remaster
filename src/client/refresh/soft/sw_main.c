@@ -1271,7 +1271,7 @@ RE_RenderFrame(const refdef_t *fd)
 	VectorCopy(fd->vieworg, r_refdef.vieworg);
 	VectorCopy(fd->viewangles, r_refdef.viewangles);
 
-	// compare current position with old
+	/* compare current position with old */
 	if (vid_buffer_width <= 640 ||
 	    !VectorCompareRound(fd->vieworg, lastvieworg) ||
 	    !VectorCompareRound(fd->viewangles, lastviewangles))

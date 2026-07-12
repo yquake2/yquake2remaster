@@ -113,6 +113,7 @@ enum {
 	PAK_MODE_Q2, // standard Quake/Quake2 pak
 	PAK_MODE_SIN,
 	PAK_MODE_DK,
+	PAK_MODE_SIN_RELODED,
 
 	_NUM_PAK_MODES
 };
@@ -120,21 +121,24 @@ enum {
 static int pak_mode = PAK_MODE_Q2;
 
 static const char* PAK_MODE_NAMES[_NUM_PAK_MODES] = {
-	"Quake(2)",  // PAK_MODE_Q2
-	"Sin",       // PAK_MODE_SIN
-	"Daikatana", // PAK_MODE_DK
+	"Quake(2)",     // PAK_MODE_Q2
+	"Sin",          // PAK_MODE_SIN
+	"Daikatana",    // PAK_MODE_DK
+	"Sin Reloaded", // PAK_MODE_SIN_RELOADED
 };
 
 static const int HDR_LEN[_NUM_PAK_MODES] = {
-	64,  // PAK_MODE_Q2
-	128, // PAK_MODE_SIN
-	72,  // PAK_MODE_DK
+	sizeof(dpackfile_t),   // PAK_MODE_Q2
+	sizeof(dsinfile_t),    // PAK_MODE_SIN
+	sizeof(dpackdkfile_t), // PAK_MODE_DK
+	0,                     // PAK_MODE_SIN_RELOADED
 };
 
 static const int DIR_FILENAME_LEN[_NUM_PAK_MODES] = {
 	56,  // PAK_MODE_Q2
 	120, // PAK_MODE_SIN
 	56,  // PAK_MODE_DK
+	0,   // PAK_MODE_SIN_RELOADED
 };
 
 /* Holds the pak header */
@@ -196,12 +200,18 @@ mktree(const char *s)
  *  *fd -> A file descriptor holding
  *         the pack to be read.
  */
-static int
+static qboolean
 read_header(FILE *fd)
 {
 	if (fread(header.signature, 4, 1, fd) != 1)
 	{
 		perror("Could not read the pak file header");
+		return 0;
+	}
+
+	if (strncmp(header.signature, "SRPK", 4) == 0)
+	{
+		fprintf(stderr, "Unsupported 'SiN Reloaded' assets.\n");
 		return 0;
 	}
 
@@ -223,15 +233,10 @@ read_header(FILE *fd)
 	{
 		pak_mode = PAK_MODE_SIN;
 	}
-	else if (strncmp(header.signature, "SRPK", 4) == 0)
-	{
-		fprintf(stderr, "Unsupported 'SiN Reloaded' assets.\n");
-		return 0;
-	}
 	else if (strncmp(header.signature, "PACK", 4) != 0)
 	{
 		fprintf(stderr, "Not a pak file\n");
-		return 0;
+		return false;
 	}
 
 	int direntry_len = HDR_LEN[pak_mode];
@@ -243,14 +248,18 @@ read_header(FILE *fd)
 		const char* othermode = (pak_mode != PAK_MODE_DK) ? "Daikatana" : "Quake(2)";
 		fprintf(stderr, "Corrupt pak file - maybe it's not %s format but %s format?\n", curmode, othermode);
 		if (pak_mode != PAK_MODE_DK)
+		{
 			fprintf(stderr, "If this is a Daikatana .pak file, try adding '-dk' to command-line!\n");
+		}
 		else
+		{
 			fprintf(stderr, "Are you sure this is a Daikatana .pak file? Try removing '-dk' from command-line!\n");
+		}
 
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 static int
