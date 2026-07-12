@@ -27,6 +27,7 @@
 
 #include <assert.h>
 #include <stddef.h> // ofsetof()
+#include <stdlib.h>
 
 #include "header/local.h"
 
@@ -289,10 +290,253 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 	}
 }
 
+typedef struct
+{
+	qboolean active;
+	int lightmaptexturenum;
+	qboolean flowing;
+	float sscroll;
+	float tscroll;
+	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE];
+	size_t vertex_count;
+	size_t draw_count;
+	size_t vertex_capacity;
+	size_t draw_capacity;
+	mvtx_t *verts;
+	GLint *firsts;
+	GLsizei *counts;
+} gl3_chain_batch_t;
+
+static void
+BuildLMScales(const msurface_t *surf, hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE])
+{
+	int map;
+
+	memset(lmScales, 0, sizeof(hmm_vec4) * MAX_LIGHTMAPS_PER_SURFACE);
+	lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	// Any dynamic lights on this surface?
+	for (map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && surf->styles[map] != 255; map++)
+	{
+		lmScales[map].R = r_newrefdef.lightstyles[surf->styles[map]].rgb[0];
+		lmScales[map].G = r_newrefdef.lightstyles[surf->styles[map]].rgb[1];
+		lmScales[map].B = r_newrefdef.lightstyles[surf->styles[map]].rgb[2];
+		lmScales[map].A = 1.0f;
+	}
+}
+
+static qboolean
+BatchMatchesSurface(const msurface_t *surf, const gl3_chain_batch_t *batch,
+	qboolean flowing, float sscroll, float tscroll,
+	const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE])
+{
+	int i;
+
+	if (!batch->active)
+	{
+		return true;
+	}
+
+	if (batch->lightmaptexturenum != surf->lightmaptexturenum)
+	{
+		return false;
+	}
+
+	if (batch->flowing != flowing)
+	{
+		return false;
+	}
+
+	if (batch->flowing && ((batch->sscroll != sscroll) || (batch->tscroll != tscroll)))
+	{
+		return false;
+	}
+
+	for (i = 0; i < MAX_LIGHTMAPS_PER_SURFACE; i++)
+	{
+		if (batch->lmScales[i].R != lmScales[i].R ||
+			batch->lmScales[i].G != lmScales[i].G ||
+			batch->lmScales[i].B != lmScales[i].B ||
+			batch->lmScales[i].A != lmScales[i].A)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+static void
+DrawBatchRanges(const GLint *firsts, const GLsizei *counts, size_t draw_count)
+{
+#if defined(YQ2_GL3_GLES3)
+	size_t i;
+
+	for (i = 0; i < draw_count; ++i)
+	{
+		glDrawArrays(GL_TRIANGLE_FAN, firsts[i], counts[i]);
+	}
+#else
+	glMultiDrawArrays(GL_TRIANGLE_FAN, firsts, counts, (GLsizei)draw_count);
+#endif
+}
+
+static void
+FlushBatch(const gl3image_t *image, gl3_chain_batch_t *batch)
+{
+	if (!batch->active || batch->vertex_count == 0 || batch->draw_count == 0)
+	{
+		return;
+	}
+
+	GL3_Bind(image->texnum);
+	GL3_BindLightmap(batch->lightmaptexturenum);
+
+	if (batch->flowing)
+	{
+		GL3_UseProgram(gl3state.si3DlmFlow.shaderProgram);
+		UpdateLMscales(batch->lmScales, &gl3state.si3DlmFlow);
+
+		if ((gl3state.uni3DData.sscroll != batch->sscroll) ||
+			(gl3state.uni3DData.tscroll != batch->tscroll))
+		{
+			gl3state.uni3DData.sscroll = batch->sscroll;
+			gl3state.uni3DData.tscroll = batch->tscroll;
+			GL3_UpdateUBO3D();
+		}
+	}
+	else
+	{
+		GL3_UseProgram(gl3state.si3Dlm.shaderProgram);
+		UpdateLMscales(batch->lmScales, &gl3state.si3Dlm);
+	}
+
+	GL3_BindVAO(gl3state.vao3D);
+	GL3_BindVBO(gl3state.vbo3D);
+
+	if (!gl3config.useBigVBO)
+	{
+		glBufferData(GL_ARRAY_BUFFER, sizeof(mvtx_t) * batch->vertex_count, batch->verts, GL_STREAM_DRAW);
+		DrawBatchRanges(batch->firsts, batch->counts, batch->draw_count);
+	}
+	else
+	{
+		int curOffset = gl3state.vbo3DcurOffset;
+		int neededSize = (int)(batch->vertex_count * sizeof(mvtx_t));
+
+#if !defined(YQ2_GL3_GLES3)
+		GLint *drawFirsts = NULL;
+#endif
+
+		if (curOffset + neededSize > gl3state.vbo3Dsize)
+		{
+			glBufferData(GL_ARRAY_BUFFER, gl3state.vbo3Dsize, NULL, GL_STREAM_DRAW);
+			curOffset = 0;
+		}
+
+		GLbitfield accessBits = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
+		void *data = glMapBufferRange(GL_ARRAY_BUFFER, curOffset, neededSize, accessBits);
+		if (!data)
+		{
+			Com_Error(ERR_FATAL, "%s: failed to map VBO for batched draw\n", __func__);
+			return;
+		}
+
+		memcpy(data, batch->verts, neededSize);
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+
+#if defined(YQ2_GL3_GLES3)
+		for (size_t i = 0; i < batch->draw_count; i++)
+		{
+			glDrawArrays(GL_TRIANGLE_FAN, batch->firsts[i] + (curOffset / sizeof(mvtx_t)), batch->counts[i]);
+		}
+#else
+		drawFirsts = malloc(sizeof(GLint) * batch->draw_count);
+		if (!drawFirsts)
+		{
+			Com_Error(ERR_FATAL, "%s: failed to allocate multi-draw offsets\n", __func__);
+			return;
+		}
+
+		for (size_t i = 0; i < batch->draw_count; i++)
+		{
+			drawFirsts[i] = batch->firsts[i] + (curOffset / sizeof(mvtx_t));
+		}
+
+		DrawBatchRanges(drawFirsts, batch->counts, batch->draw_count);
+		free(drawFirsts);
+#endif
+
+		gl3state.vbo3DcurOffset = curOffset + neededSize;
+	}
+
+	batch->active = false;
+	batch->vertex_count = 0;
+	batch->draw_count = 0;
+}
+
+static void
+AppendSurfaceToBatch(const msurface_t *surf, gl3_chain_batch_t *batch)
+{
+	const mpoly_t *p = surf->polys;
+	size_t needed_vertices = batch->vertex_count + p->numverts;
+	size_t needed_draws = batch->draw_count + 1;
+	size_t new_capacity;
+	mvtx_t *new_verts;
+	GLint *new_firsts;
+	GLsizei *new_counts;
+
+	if (batch->vertex_capacity < needed_vertices)
+	{
+		new_capacity = batch->vertex_capacity ? batch->vertex_capacity : p->numverts;
+		while (new_capacity < needed_vertices)
+		{
+			new_capacity *= 2;
+		}
+
+		new_verts = realloc(batch->verts, sizeof(mvtx_t) * new_capacity);
+		if (!new_verts)
+		{
+			Com_Error(ERR_FATAL, "%s: failed to allocate batch vertices\n", __func__);
+			return;
+		}
+
+		batch->verts = new_verts;
+		batch->vertex_capacity = new_capacity;
+	}
+
+	if (batch->draw_capacity < needed_draws)
+	{
+		new_capacity = batch->draw_capacity ? batch->draw_capacity : 4;
+		while (new_capacity < needed_draws)
+		{
+			new_capacity *= 2;
+		}
+
+		new_firsts = realloc(batch->firsts, sizeof(GLint) * new_capacity);
+		new_counts = realloc(batch->counts, sizeof(GLsizei) * new_capacity);
+		if (!new_firsts || !new_counts)
+		{
+			Com_Error(ERR_FATAL, "%s: failed to allocate batch draw ranges\n", __func__);
+			return;
+		}
+
+		batch->firsts = new_firsts;
+		batch->counts = new_counts;
+		batch->draw_capacity = new_capacity;
+	}
+
+	batch->firsts[batch->draw_count] = (GLint)batch->vertex_count;
+	batch->counts[batch->draw_count] = (GLsizei)p->numverts;
+	memcpy(&batch->verts[batch->vertex_count], p->verts, sizeof(mvtx_t) * p->numverts);
+	batch->vertex_count = needed_vertices;
+	batch->draw_count = needed_draws;
+	batch->active = true;
+}
+
 static void
 RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 {
-	int map;
 	const gl3image_t *image;
 
 	c_brush_polys++;
@@ -313,18 +557,9 @@ RenderBrushPoly(const entity_t *currententity, msurface_t *fa)
 	}
 
 	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
-	lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	BuildLMScales(fa, lmScales);
 
 	GL3_BindLightmap(fa->lightmaptexturenum);
-
-	// Any dynamic lights on this surface?
-	for (map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && fa->styles[map] != 255; map++)
-	{
-		lmScales[map].R = r_newrefdef.lightstyles[fa->styles[map]].rgb[0];
-		lmScales[map].G = r_newrefdef.lightstyles[fa->styles[map]].rgb[1];
-		lmScales[map].B = r_newrefdef.lightstyles[fa->styles[map]].rgb[2];
-		lmScales[map].A = 1.0f;
-	}
 
 	if (fa->texinfo->flags & SURF_SCROLL)
 	{
@@ -413,6 +648,9 @@ DrawTextureChains(const entity_t *currententity)
 
 	for (i = 0, image = gl3textures; i < numgl3textures; i++, image++)
 	{
+		gl3_chain_batch_t batch = {0};
+		qboolean batch_ready = false;
+
 		if (!image->registration_sequence)
 		{
 			continue;
@@ -429,14 +667,46 @@ DrawTextureChains(const entity_t *currententity)
 
 		for ( ; s; s = s->texturechain)
 		{
+			float sscroll = 0.0f;
+			float tscroll = 0.0f;
+			qboolean flowing;
+			hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE];
+
+			if (s->flags & SURF_DRAWTURB)
+			{
+				FlushBatch(image, &batch);
+				SetLightFlags(s);
+				RenderBrushPoly(currententity, s);
+				continue;
+			}
+
 			SetLightFlags(s);
-			RenderBrushPoly(currententity, s);
+			flowing = (s->texinfo->flags & SURF_SCROLL) != 0;
+			if (flowing)
+			{
+				R_FlowingScroll(&r_newrefdef, s->texinfo->flags, &sscroll, &tscroll);
+			}
+
+			BuildLMScales(s, lmScales);
+
+			if (!batch_ready || !BatchMatchesSurface(s, &batch, flowing, sscroll, tscroll, lmScales))
+			{
+				FlushBatch(image, &batch);
+				batch.active = true;
+				batch.lightmaptexturenum = s->lightmaptexturenum;
+				batch.flowing = flowing;
+				batch.sscroll = sscroll;
+				batch.tscroll = tscroll;
+				memcpy(batch.lmScales, lmScales, sizeof(batch.lmScales));
+				batch_ready = true;
+			}
+
+			AppendSurfaceToBatch(s, &batch);
 		}
 
+		FlushBatch(image, &batch);
 		image->texturechain = NULL;
 	}
-
-	// TODO: maybe one loop for normal faces and one for SURF_DRAWTURB ???
 }
 
 static void
