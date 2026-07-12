@@ -175,6 +175,26 @@ DrawAliasFrameLerpCommands(dmdx_t *paliashdr, entity_t* entity, vec3_t shadeligh
 	glBufferData(GL_ARRAY_BUFFER, da_count(vtxBuf)*sizeof(gl3_alias_vtx_t), vtxBuf.p, GL_STREAM_DRAW);
 	GL3_BindEBO(gl3state.eboAlias);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, da_count(idxBuf)*sizeof(GLushort), idxBuf.p, GL_STREAM_DRAW);
+
+	if (da_count(vtxBuf) > 0 && da_count(idxBuf) > 0)
+	{
+		GLsizei index_count = (GLsizei)da_count(idxBuf);
+		GLushort max_index = 0;
+		size_t i;
+
+		for (i = 0; i < (size_t)index_count; ++i)
+		{
+			GLushort idx = idxBuf.p[i];
+			if (idx > max_index)
+			{
+				max_index = idx;
+			}
+		}
+
+		Com_Printf("GL3 alias draw: verts=%d idx=%d max_index=%u\n",
+			(int)da_count(vtxBuf), (int)index_count, (unsigned)max_index);
+	}
+
 	glDrawElements(GL_TRIANGLES, da_count(idxBuf), GL_UNSIGNED_SHORT, NULL);
 }
 

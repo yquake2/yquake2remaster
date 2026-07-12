@@ -299,12 +299,11 @@ typedef struct
 	float tscroll;
 	hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE];
 	size_t vertex_count;
-	size_t draw_count;
+	size_t index_count;
 	size_t vertex_capacity;
-	size_t draw_capacity;
+	size_t index_capacity;
 	mvtx_t *verts;
-	GLint *firsts;
-	GLsizei *counts;
+	GLushort *indices;
 } gl3_chain_batch_t;
 
 static void
@@ -367,24 +366,9 @@ BatchMatchesSurface(const msurface_t *surf, const gl3_chain_batch_t *batch,
 }
 
 static void
-DrawBatchRanges(const GLint *firsts, const GLsizei *counts, size_t draw_count)
-{
-#if defined(YQ2_GL3_GLES3)
-	size_t i;
-
-	for (i = 0; i < draw_count; ++i)
-	{
-		glDrawArrays(GL_TRIANGLE_FAN, firsts[i], counts[i]);
-	}
-#else
-	glMultiDrawArrays(GL_TRIANGLE_FAN, firsts, counts, (GLsizei)draw_count);
-#endif
-}
-
-static void
 FlushBatch(const gl3image_t *image, gl3_chain_batch_t *batch)
 {
-	if (!batch->active || batch->vertex_count == 0 || batch->draw_count == 0)
+	if (!batch->active || batch->vertex_count == 0 || batch->index_count == 0)
 	{
 		return;
 	}
@@ -413,66 +397,15 @@ FlushBatch(const gl3image_t *image, gl3_chain_batch_t *batch)
 
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
+	GL3_BindEBO(gl3state.eboAlias);
 
-	if (!gl3config.useBigVBO)
-	{
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mvtx_t) * batch->vertex_count, batch->verts, GL_STREAM_DRAW);
-		DrawBatchRanges(batch->firsts, batch->counts, batch->draw_count);
-	}
-	else
-	{
-		int curOffset = gl3state.vbo3DcurOffset;
-		int neededSize = (int)(batch->vertex_count * sizeof(mvtx_t));
-
-#if !defined(YQ2_GL3_GLES3)
-		GLint *drawFirsts = NULL;
-#endif
-
-		if (curOffset + neededSize > gl3state.vbo3Dsize)
-		{
-			glBufferData(GL_ARRAY_BUFFER, gl3state.vbo3Dsize, NULL, GL_STREAM_DRAW);
-			curOffset = 0;
-		}
-
-		GLbitfield accessBits = GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT;
-		void *data = glMapBufferRange(GL_ARRAY_BUFFER, curOffset, neededSize, accessBits);
-		if (!data)
-		{
-			Com_Error(ERR_FATAL, "%s: failed to map VBO for batched draw\n", __func__);
-			return;
-		}
-
-		memcpy(data, batch->verts, neededSize);
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-
-#if defined(YQ2_GL3_GLES3)
-		for (size_t i = 0; i < batch->draw_count; i++)
-		{
-			glDrawArrays(GL_TRIANGLE_FAN, batch->firsts[i] + (curOffset / sizeof(mvtx_t)), batch->counts[i]);
-		}
-#else
-		drawFirsts = malloc(sizeof(GLint) * batch->draw_count);
-		if (!drawFirsts)
-		{
-			Com_Error(ERR_FATAL, "%s: failed to allocate multi-draw offsets\n", __func__);
-			return;
-		}
-
-		for (size_t i = 0; i < batch->draw_count; i++)
-		{
-			drawFirsts[i] = batch->firsts[i] + (curOffset / sizeof(mvtx_t));
-		}
-
-		DrawBatchRanges(drawFirsts, batch->counts, batch->draw_count);
-		free(drawFirsts);
-#endif
-
-		gl3state.vbo3DcurOffset = curOffset + neededSize;
-	}
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mvtx_t) * batch->vertex_count, batch->verts, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * batch->index_count, batch->indices, GL_STREAM_DRAW);
+	glDrawElements(GL_TRIANGLES, (GLsizei)batch->index_count, GL_UNSIGNED_SHORT, NULL);
 
 	batch->active = false;
 	batch->vertex_count = 0;
-	batch->draw_count = 0;
+	batch->index_count = 0;
 }
 
 static void
@@ -480,11 +413,16 @@ AppendSurfaceToBatch(const msurface_t *surf, gl3_chain_batch_t *batch)
 {
 	const mpoly_t *p = surf->polys;
 	size_t needed_vertices = batch->vertex_count + p->numverts;
-	size_t needed_draws = batch->draw_count + 1;
+	size_t needed_indices = batch->index_count + (size_t)(p->numverts >= 3 ? (p->numverts - 2) * 3 : 0);
 	size_t new_capacity;
 	mvtx_t *new_verts;
-	GLint *new_firsts;
-	GLsizei *new_counts;
+	GLushort *new_indices;
+	unsigned base_vertex;
+
+	if (p->numverts < 3)
+	{
+		return;
+	}
 
 	if (batch->vertex_capacity < needed_vertices)
 	{
@@ -505,32 +443,30 @@ AppendSurfaceToBatch(const msurface_t *surf, gl3_chain_batch_t *batch)
 		batch->vertex_capacity = new_capacity;
 	}
 
-	if (batch->draw_capacity < needed_draws)
+	if (batch->index_capacity < needed_indices)
 	{
-		new_capacity = batch->draw_capacity ? batch->draw_capacity : 4;
-		while (new_capacity < needed_draws)
+		new_capacity = batch->index_capacity ? batch->index_capacity : (size_t)(p->numverts >= 3 ? (p->numverts - 2) * 3 : 0);
+		while (new_capacity < needed_indices)
 		{
 			new_capacity *= 2;
 		}
 
-		new_firsts = realloc(batch->firsts, sizeof(GLint) * new_capacity);
-		new_counts = realloc(batch->counts, sizeof(GLsizei) * new_capacity);
-		if (!new_firsts || !new_counts)
+		new_indices = realloc(batch->indices, sizeof(GLushort) * new_capacity);
+		if (!new_indices)
 		{
-			Com_Error(ERR_FATAL, "%s: failed to allocate batch draw ranges\n", __func__);
+			Com_Error(ERR_FATAL, "%s: failed to allocate batch indices\n", __func__);
 			return;
 		}
 
-		batch->firsts = new_firsts;
-		batch->counts = new_counts;
-		batch->draw_capacity = new_capacity;
+		batch->indices = new_indices;
+		batch->index_capacity = new_capacity;
 	}
 
-	batch->firsts[batch->draw_count] = (GLint)batch->vertex_count;
-	batch->counts[batch->draw_count] = (GLsizei)p->numverts;
+	base_vertex = (unsigned)batch->vertex_count;
 	memcpy(&batch->verts[batch->vertex_count], p->verts, sizeof(mvtx_t) * p->numverts);
+	R_GenFanIndexes(batch->indices + batch->index_count, base_vertex, base_vertex + (unsigned)(p->numverts - 2));
 	batch->vertex_count = needed_vertices;
-	batch->draw_count = needed_draws;
+	batch->index_count = needed_indices;
 	batch->active = true;
 }
 
