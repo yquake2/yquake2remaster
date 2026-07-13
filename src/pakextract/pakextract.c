@@ -405,7 +405,7 @@ read_directory(FILE *fd, int listOnly, int* num_entries)
 			return NULL;
 		}
 
-		strtmp = calloc(header.str_length + 1, 1);
+		strtmp = malloc(header.str_length + 1);
 		if (!strtmp)
 		{
 			free(dir);
@@ -416,9 +416,12 @@ read_directory(FILE *fd, int listOnly, int* num_entries)
 		if (fread(strtmp, header.str_length, 1, fd) != 1)
 		{
 			free(dir);
+			free(strtmp);
 			perror("Failed to read filenames list");
 			return NULL;
 		}
+
+		strtmp[header.str_length] = 0;
 
 		curr_name = strtmp;
 
