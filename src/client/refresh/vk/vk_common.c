@@ -269,7 +269,7 @@ static const char *renderpassObjectNames[] = {
 	"RP_WORLD_WARP"
 };
 
-#define MAXDRAWCALLS 1024
+#define MAXDRAWCALLS 2048
 
 typedef enum
 {

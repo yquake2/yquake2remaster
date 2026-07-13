@@ -1137,7 +1137,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	upload_height = realheight;
 
 	/* load little pics into the scrap */
-	if ((image->type == it_pic) && (width <= 256) && (height <= 256))
+	if ((image->type == it_pic) && (width <= BLOCK_WIDTH) && (height <= BLOCK_HEIGHT))
 	{
 		int texnum = -1;
 		int x, y;

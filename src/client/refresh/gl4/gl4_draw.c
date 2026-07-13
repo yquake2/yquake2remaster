@@ -222,6 +222,16 @@ GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 					xdiff = 0;
 				}
 
+				/* If the font texture is packed inside a scrap atlas,
+				 * map the 0.0-1.0 glyph coordinates into the scrap sub-region. */
+				if (draw_font->scrap)
+				{
+					q.s0 = draw_font->sl + q.s0 * (draw_font->sh - draw_font->sl);
+					q.s1 = draw_font->sl + q.s1 * (draw_font->sh - draw_font->sl);
+					q.t0 = draw_font->tl + q.t0 * (draw_font->th - draw_font->tl);
+					q.t1 = draw_font->tl + q.t1 * (draw_font->th - draw_font->tl);
+				}
+
 				GL4_UseProgram(gl4state.si2D.shaderProgram);
 				GL4_Bind(draw_font->texnum);
 				drawTexturedRectangle(
@@ -279,7 +289,9 @@ GL4_Draw_GetPicSize(int *w, int *h, const char *pic)
 void
 GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 {
-	const gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *gl;
+
+	gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 
 	if (!gl)
 	{
@@ -335,7 +347,9 @@ void
 GL4_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t color,
 	const char *alttext)
 {
-	const gl4image_t *gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *gl;
+
+	gl = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!gl)
 	{
 		if (alttext && alttext[0])
@@ -375,7 +389,9 @@ GL4_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 void
 GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
-	const gl4image_t *image = R_FindPic(pic, (findimage_t)GL4_FindImage);
+	const gl4image_t *image;
+
+	image = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!image)
 	{
 		Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);

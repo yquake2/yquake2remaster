@@ -141,6 +141,16 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 					xdiff = 0;
 				}
 
+				/* If the font texture is packed inside a scrap atlas,
+				 * map the 0.0-1.0 glyph coordinates into the scrap sub-region. */
+				if (draw_font->scrap)
+				{
+					q.s0 = draw_font->sl + q.s0 * (draw_font->sh - draw_font->sl);
+					q.s1 = draw_font->sl + q.s1 * (draw_font->sh - draw_font->sl);
+					q.t0 = draw_font->tl + q.t0 * (draw_font->th - draw_font->tl);
+					q.t1 = draw_font->tl + q.t1 * (draw_font->th - draw_font->tl);
+				}
+
 				QVk_DrawTexRect((float)(x + (xdiff + q.x0 / font_scale) * scale) / vid.width,
 								(float)(y + q.y0 * scale / font_scale + 8 * scale) / vid.height,
 								(q.x1 - q.x0) * scale / font_scale / vid.width,
