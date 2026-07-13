@@ -72,11 +72,25 @@ typedef struct
 /* Unsupported SiN Reloaded Assets format */
 #define SINRHEADER (('K' << 24) + ('P' << 16) + ('R' << 8) + 'S')
 
+typedef struct {
+	int ident;
+	int version;
+	long dirofs;
+	long strofs;
+	int dirlen;
+	int strlen;
+} dsinrheader_t;
+
 typedef struct
 {
 	char name[120];
 	int filepos, filelen;
 } dsinfile_t;
+
+typedef struct
+{
+	long filepos, filelen;
+} dsinrfile_t;
 
 /* The .pak files are just a linear collapse of a directory tree */
 

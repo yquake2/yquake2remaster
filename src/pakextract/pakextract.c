@@ -131,7 +131,7 @@ static const int HDR_LEN[_NUM_PAK_MODES] = {
 	sizeof(dpackfile_t),   // PAK_MODE_Q2
 	sizeof(dsinfile_t),    // PAK_MODE_SIN
 	sizeof(dpackdkfile_t), // PAK_MODE_DK
-	0,                     // PAK_MODE_SIN_RELOADED
+	sizeof(dsinrfile_t),    // PAK_MODE_SIN_RELOADED
 };
 
 static const int DIR_FILENAME_LEN[_NUM_PAK_MODES] = {
@@ -147,6 +147,8 @@ struct
 	char signature[4];
 	int dir_offset;
 	int dir_length;
+	int str_offset;
+	int str_length;
 } header;
 
 
@@ -203,28 +205,51 @@ mktree(const char *s)
 static qboolean
 read_header(FILE *fd)
 {
+	size_t direntry_len;
+
 	if (fread(header.signature, 4, 1, fd) != 1)
 	{
 		perror("Could not read the pak file header");
-		return 0;
+		return false;
 	}
 
 	if (strncmp(header.signature, "SRPK", 4) == 0)
 	{
-		fprintf(stderr, "Unsupported 'SiN Reloaded' assets.\n");
-		return 0;
+		dsinrheader_t sinr_header;
+
+		pak_mode = PAK_MODE_SIN_RELODED;
+
+		/* Navigate to the directory */
+		if (fseek(fd, 0, SEEK_SET))
+		{
+			perror("Failed to seek inside input file");
+			return false;
+		}
+
+		if (fread(&sinr_header, sizeof(sinr_header), 1, fd) != 1)
+		{
+			perror("Could not read the pak file header");
+			return false;
+		}
+
+		header.dir_offset = sinr_header.dirofs;
+		header.dir_length = sinr_header.dirlen;
+		header.str_offset = sinr_header.strofs;
+		header.str_length = sinr_header.strlen;
+
+		return true;
 	}
 
 	if (fread(&header.dir_offset, 4, 1, fd) != 1)
 	{
 		perror("Could not read the pak file header");
-		return 0;
+		return false;
 	}
 
 	if (fread(&header.dir_length, 4, 1, fd) != 1)
 	{
 		perror("Could not read the pak file header");
-		return 0;
+		return false;
 	}
 
 	// TODO: we could convert the ints to platform endianess now
@@ -239,7 +264,7 @@ read_header(FILE *fd)
 		return false;
 	}
 
-	int direntry_len = HDR_LEN[pak_mode];
+	direntry_len = HDR_LEN[pak_mode];
 
 	// Note that this check is not reliable, it could pass and it could still be the wrong kind of pak!
 	if ((header.dir_length % direntry_len) != 0)
@@ -262,12 +287,41 @@ read_header(FILE *fd)
 	return true;
 }
 
-static int
+static qboolean
 read_dir_entry(directory* entry, FILE* fd)
 {
-	if (fread(entry->file_name, DIR_FILENAME_LEN[pak_mode], 1, fd) != 1) return 0;
-	if (fread(&(entry->file_pos), 4, 1, fd) != 1) return 0;
-	if (fread(&(entry->file_length), 4, 1, fd) != 1) return 0;
+	if (pak_mode == PAK_MODE_SIN_RELODED)
+	{
+		dsinrfile_t in_entry = {0};
+
+		if (fread(&in_entry, sizeof(in_entry), 1, fd) != 1)
+		{
+			return false;
+		}
+
+		entry->file_pos = in_entry.filepos;
+		entry->file_length = in_entry.filelen;
+
+		sprintf(entry->file_name, "#%d[%d]",
+			entry->file_pos, entry->file_length);
+
+		return true;
+	}
+
+	if (fread(entry->file_name, DIR_FILENAME_LEN[pak_mode], 1, fd) != 1)
+	{
+		return false;
+	}
+
+	if (fread(&(entry->file_pos), 4, 1, fd) != 1)
+	{
+		return false;
+	}
+
+	if (fread(&(entry->file_length), 4, 1, fd) != 1)
+	{
+		return false;
+	}
 
 	if (pak_mode == PAK_MODE_DK)
 	{
@@ -282,7 +336,7 @@ read_dir_entry(directory* entry, FILE* fd)
 
 	// TODO: we could convert the ints to platform endianess now
 
-	return 1;
+	return true;
 }
 
 /*
@@ -296,10 +350,21 @@ read_dir_entry(directory* entry, FILE* fd)
 static directory *
 read_directory(FILE *fd, int listOnly, int* num_entries)
 {
-	int i;
-	int direntry_len = HDR_LEN[pak_mode];
-	int num_dir_entries = header.dir_length / direntry_len;
-	directory* dir = calloc(num_dir_entries, sizeof(directory));
+	size_t i, direntry_len, num_dir_entries;
+	directory* dir;
+
+	direntry_len = HDR_LEN[pak_mode];
+
+	if (pak_mode == PAK_MODE_SIN_RELODED)
+	{
+		num_dir_entries = header.dir_length;
+	}
+	else
+	{
+		num_dir_entries = header.dir_length / direntry_len;
+	}
+
+	dir = calloc(num_dir_entries, sizeof(directory));
 
 	if (dir == NULL)
 	{
@@ -326,9 +391,60 @@ read_directory(FILE *fd, int listOnly, int* num_entries)
 			free(dir);
 			return NULL;
 		}
+	}
 
-		if (listOnly)
+	if (pak_mode == PAK_MODE_SIN_RELODED)
+	{
+		char *strtmp, *curr_name;
+
+		/* Navigate to the directory */
+		if (fseek(fd, header.str_offset, SEEK_SET))
 		{
+			free(dir);
+			perror("Failed to seek inside input file");
+			return NULL;
+		}
+
+		strtmp = calloc(header.str_length + 1, 1);
+		if (!strtmp)
+		{
+			free(dir);
+			perror("Failed to alloc filenames list");
+			return NULL;
+		}
+
+		if (fread(strtmp, header.str_length, 1, fd) != 1)
+		{
+			free(dir);
+			perror("Failed to read filenames list");
+			return NULL;
+		}
+
+		curr_name = strtmp;
+
+		for (i = 0; i < num_dir_entries; ++i)
+		{
+			directory* cur = &dir[i];
+
+			if (curr_name >= strtmp + header.str_length)
+			{
+				break;
+			}
+
+			Q_strlcpy(cur->file_name, curr_name, sizeof(cur->file_name));
+
+			curr_name += strlen(curr_name) + 1;
+		}
+
+		free(strtmp);
+	}
+
+	if (listOnly)
+	{
+		for (i = 0; i < num_dir_entries; ++i)
+		{
+			directory* cur = &dir[i];
+
 			cur->file_name[sizeof(cur->file_name) - 1] = 0;
 			printf("%s (%d bytes", cur->file_name, cur->file_length);
 
