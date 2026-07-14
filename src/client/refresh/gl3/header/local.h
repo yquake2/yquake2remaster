@@ -92,6 +92,9 @@ static const int gl3_tex_alpha_format = GL_RGBA;
 extern unsigned gl3_rawpalette[256];
 extern unsigned d_8to24table[256];
 
+// for stats
+extern int gl3_num3Ddraws, gl3_num2Ddraws, gl3_numBufferVtxData, gl3_numBufferUniforms;
+
 typedef struct
 {
 	const char *renderer_string;
@@ -386,7 +389,7 @@ extern int GL3_InitContext(void* win);
 extern void GL3_GetDrawableSize(int* width, int* height);
 extern int GL3_PrepareForWindow(void);
 extern qboolean GL3_IsVsyncActive(void);
-extern void GL3_EndFrame(void);
+extern void GL3_SwapWindow(void);
 extern void GL3_SetVsync(void);
 extern void GL3_ShutdownContext(void);
 extern int GL3_GetSDLVersion(void);
@@ -424,6 +427,8 @@ extern void GL3_Draw_FadeScreen(void);
 extern void GL3_Draw_Flash(const float color[4], float x, float y, float w, float h);
 extern void GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 extern void GL3_Draw_FreeLocal(void);
+
+extern void GL3_EndFrame(void);
 
 // gl3_image.c
 
@@ -513,6 +518,7 @@ extern cvar_t *gl3_particle_square;
 extern cvar_t *gl3_colorlight;
 extern cvar_t *gl_polyblend;
 extern cvar_t *gl3_debugcontext;
+extern cvar_t *gl3_show_draw_stats;
 
 extern cvar_t *r_bloom;
 

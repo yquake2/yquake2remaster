@@ -50,6 +50,8 @@ void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	struct image_s **draw_font,
 	loadimage_t R_LoadPic);
 
+int gl3_num3Ddraws = 0, gl3_num2Ddraws = 0, gl3_numBufferVtxData = 0, gl3_numBufferUniforms = 0;
+
 void
 GL3_Draw_InitLocal(void)
 {
@@ -135,8 +137,9 @@ drawTexturedRectangle(float x, float y, float w, float h,
 	//       implicitly bind the vbo, so I need to explicitly bind it before glBufferData()
 	GL3_BindVBO(vbo2D);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
-
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	++gl3_numBufferVtxData;
+	++gl3_num2Ddraws;
 
 	//glMultiDrawArrays(mode, first, count, drawcount) ??
 }
@@ -391,6 +394,11 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const gl3image_t *image;
 
+	if(w <= 0 || h <= 0)
+	{
+		return;
+	}
+
 	image = R_FindPic(pic, (findimage_t)GL3_FindImage);
 	if (!image)
 	{
@@ -537,6 +545,9 @@ GL3_Draw_Fill(int x, int y, int w, int h, int c)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	++gl3_numBufferVtxData;
+	++gl3_num2Ddraws;
 }
 
 // in GL1 this is called R_Flash() (which just calls R_PolyBlend())
@@ -584,6 +595,9 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	++gl3_numBufferVtxData;
+	++gl3_num2Ddraws;
 
 	glDisable(GL_BLEND);
 }
@@ -659,6 +673,40 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	glDeleteTextures(1, &glTex);
 
 	GL3_Bind(0);
+}
+
+/*
+ * Called at the end of the frame, after 2D (UI) rendering is done.
+ * Does some internal housekeeping, then swaps the buffers
+ * and shows the next frame.
+ */
+void GL3_EndFrame(void)
+{
+	if(gl3_show_draw_stats->value)
+	{
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
+		char stbuf[128] = {0};
+		snprintf(stbuf, sizeof(stbuf), "3D drawcalls: %d - 2D drawcalls: %d - buffer vtx data: %d - buffer uniforms: %d",
+		         gl3_num3Ddraws, gl3_num2Ddraws, gl3_numBufferVtxData, gl3_numBufferUniforms);
+
+		GL3_Draw_StringScaled(10, 5, factor, true, stbuf);
+	}
+
+	gl3_num3Ddraws = 0;
+	gl3_num2Ddraws = 0;
+	gl3_numBufferVtxData = 0;
+	gl3_numBufferUniforms = 0;
+
+	if(gl3config.useBigVBO)
+	{
+		// I think this is a good point to orphan the VBO and get a fresh one
+		GL3_BindVAO(gl3state.vao3D);
+		GL3_BindVBO(gl3state.vbo3D);
+		glBufferData(GL_ARRAY_BUFFER, gl3state.vbo3Dsize, NULL, GL_STREAM_DRAW);
+		gl3state.vbo3DcurOffset = 0;
+	}
+
+	GL3_SwapWindow();
 }
 
 /* draw a fullscreen quad using the existing vao2D/vbo2D */
