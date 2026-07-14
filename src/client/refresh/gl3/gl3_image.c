@@ -286,7 +286,8 @@ GL3_ImageList_f(void)
 	{
 		qboolean isNPOT = false;
 		int w, h;
-		const char *in_use = "", *scrap = "";
+		const char *in_use = "";
+		char isScrap = image->scrap ? 'S' : ' ';
 
 		if (image->texnum <= 0)
 		{
@@ -297,11 +298,6 @@ GL3_ImageList_f(void)
 		{
 			in_use = "*";
 			used++;
-		}
-
-		if (image->scrap)
-		{
-			scrap = "scrap";
 		}
 
 		w = image->upload_width;
@@ -335,10 +331,10 @@ GL3_ImageList_f(void)
 		}
 		char isLava = image->is_lava ? 'L' : ' ';
 
-		Com_Printf("%c%c %3i %3i %s %s: %s (%dx%d) %s %s\n",
-			imageType, isLava, w, h,
+		Com_Printf("%c%c%c %3i %3i %s %s: %s (%dx%d) %s\n",
+			isScrap, imageType, isLava, w, h,
 			formatstrings[image->has_alpha], potstrings[isNPOT], image->name,
-			image->width, image->height, in_use, scrap);
+			image->width, image->height, in_use);
 	}
 
 	Com_Printf("Total texel count (not counting mipmaps): %i\n",

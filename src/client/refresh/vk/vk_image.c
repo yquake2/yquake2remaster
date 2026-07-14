@@ -395,7 +395,7 @@ QVk_CreateDepthBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *depthBuff
 			__func__, __LINE__, QVk_GetError(res));
 		return;
 	}
-	
+
 	res = QVk_CreateImageView(&depthBuffer->resource.image, getDepthStencilAspect(depthBuffer->format), &depthBuffer->imageView, depthBuffer->format, depthBuffer->mipLevels);
 	if (res != VK_SUCCESS)
 	{
@@ -452,7 +452,7 @@ QVk_CreateColorBuffer(VkSampleCountFlagBits sampleCount, qvktexture_t *colorBuff
 			__func__, __LINE__, QVk_GetError(res));
 		return;
 	}
-	
+
 	res = QVk_CreateImageView(&colorBuffer->resource.image, VK_IMAGE_ASPECT_COLOR_BIT, &colorBuffer->imageView, colorBuffer->format, colorBuffer->mipLevels);
 	if (res != VK_SUCCESS)
 	{
@@ -654,7 +654,8 @@ Vk_ImageList_f(void)
 	for (i = 0, image = vktextures; i < numvktextures; i++, image++)
 	{
 		int w, h;
-		const char *in_use = "", *scrap = "";
+		const char *in_use = "";
+		char isScrap = image->scrap ? 'S' : ' ';
 
 		if (image->vk_texture.resource.image == VK_NULL_HANDLE)
 		{
@@ -665,11 +666,6 @@ Vk_ImageList_f(void)
 		{
 			in_use = "*";
 			used++;
-		}
-
-		if (image->scrap)
-		{
-			scrap = "scrap";
 		}
 
 		w = image->upload_width;
@@ -700,9 +696,9 @@ Vk_ImageList_f(void)
 				break;
 		}
 
-		Com_Printf("%c %4i %4i RGB: %s (%dx%d) %s %s\n",
-			imageType, image->upload_width, image->upload_height, image->name,
-			image->width, image->height, in_use, scrap);
+		Com_Printf("%c%c %4i %4i RGB: %s (%dx%d) %s\n",
+			isScrap, imageType, image->upload_width, image->upload_height, image->name,
+			image->width, image->height, in_use);
 	}
 
 	Com_Printf("Total texel count (not counting mipmaps): %i in %d images\n",
