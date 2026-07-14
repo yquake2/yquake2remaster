@@ -108,9 +108,48 @@ GL3_Draw_ShutdownLocal(void)
 	free(draw_fontcodes);
 }
 
+
+static void
+drawTexturedRectangle(GLuint texNum, float x, float y, float w, float h,
+                      float sl, float tl, float sh, float th)
+{
+	/*
+	 *  x,y+h      x+w,y+h
+	 * sl,th--------sh,th
+	 *  |             |
+	 *  |             |
+	 *  |             |
+	 * sl,tl--------sh,tl
+	 *  x,y        x+w,y
+	 */
+
+	GLfloat vBuf[16] = {
+	//  X,   Y,   S,  T
+		x,   y+h, sl, th,
+		x,   y,   sl, tl,
+		x+w, y+h, sh, th,
+		x+w, y,   sh, tl
+	};
+
+	// TODO: batch this stuff
+
+	GL3_UseProgram(gl3state.si2D.shaderProgram);
+	GL3_Bind(texNum);
+
+	GL3_BindVAO(vao2D);
+
+	// Note: while vao2D "remembers" its vbo for drawing, binding the vao does *not*
+	//       implicitly bind the vbo, so I need to explicitly bind it before glBufferData()
+	GL3_BindVBO(vbo2D);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	++gl3_numBufferVtxData;
+	++gl3_num2Ddraws;
+}
+
 // bind the texture before calling this
 static void
-drawTexturedRectangle(float x, float y, float w, float h,
+drawTexturedRectangleNow(float x, float y, float w, float h,
                       float sl, float tl, float sh, float th)
 {
 	/*
@@ -176,16 +215,12 @@ GL3_Draw_CharScaled(int x, int y, int num, float scale)
 
 	scaledSize = 8 * scale;
 
-	// TODO: batchen?
-
 	if (draw_chars->scrap)
 	{
 		GL3_Scrap_Upload();
 	}
 
-	GL3_UseProgram(gl3state.si2D.shaderProgram);
-	GL3_Bind(draw_chars->texnum);
-	drawTexturedRectangle(x, y, scaledSize, scaledSize,
+	drawTexturedRectangle(draw_chars->texnum, x, y, scaledSize, scaledSize,
 		draw_chars->sl + fcol * (draw_chars->sh - draw_chars->sl),
 		draw_chars->tl + frow * (draw_chars->th - draw_chars->tl),
 		draw_chars->sl + (fcol + size) * (draw_chars->sh - draw_chars->sl),
@@ -235,9 +270,8 @@ GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 					q.t1 = draw_font->tl + q.t1 * (draw_font->th - draw_font->tl);
 				}
 
-				GL3_UseProgram(gl3state.si2D.shaderProgram);
-				GL3_Bind(draw_font->texnum);
 				drawTexturedRectangle(
+					draw_font->texnum,
 					(float)(x + (xdiff + q.x0 / font_scale) * scale),
 					(float)(y + q.y0 * scale / font_scale + 8 * scale),
 					(q.x1 - q.x0) * scale / font_scale,
@@ -308,10 +342,7 @@ GL3_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 		GL3_Scrap_Upload();
 	}
 
-	GL3_UseProgram(gl3state.si2D.shaderProgram);
-	GL3_Bind(gl->texnum);
-
-	drawTexturedRectangle(x, y, w, h, gl->sl, gl->tl, gl->sh, gl->th);
+	drawTexturedRectangle(gl->texnum, x, y, w, h, gl->sl, gl->tl, gl->sh, gl->th);
 }
 
 void
@@ -339,10 +370,7 @@ GL3_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		GL3_Scrap_Upload();
 	}
 
-	GL3_UseProgram(gl3state.si2D.shaderProgram);
-	GL3_Bind(gl->texnum);
-
-	drawTexturedRectangle(x, y, gl->width * factor, gl->height * factor,
+	drawTexturedRectangle(gl->texnum, x, y, gl->width * factor, gl->height * factor,
 		gl->sl, gl->tl, gl->sh, gl->th);
 }
 
@@ -378,7 +406,9 @@ GL3_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 	GL3_UseProgram(gl3state.si2Dtinted.shaderProgram);
 	GL3_Bind(gl->texnum);
 
-	drawTexturedRectangle(x, y, gl->width*factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
+	// NOTE: this function (and this shader) are only used for the crosshair
+	//       so use the simple immediate (unbatched) draw function
+	drawTexturedRectangleNow(x, y, gl->width*factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
 
 	gl3state.uniCommonData.color = HMM_Vec4(1, 1, 1, 1);
 	GL3_UpdateUBOCommon();
@@ -412,10 +442,7 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		GL3_Scrap_Upload();
 	}
 
-	GL3_UseProgram(gl3state.si2D.shaderProgram);
-	GL3_Bind(image->texnum);
-
-	drawTexturedRectangle(x, y, w, h,
+	drawTexturedRectangle(image->texnum, x, y, w, h,
 		x / 64.0f, y / 64.0f, (x + w) / 64.0f, (y + h) / 64.0f);
 }
 
@@ -457,7 +484,7 @@ GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 
 	if (!r_bloom || !r_bloom->value)
 	{
-		drawTexturedRectangle(x, y, w, h, 0, 1, 1, 0);
+		drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
 		return;
 	}
 
@@ -668,7 +695,8 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
-	drawTexturedRectangle(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
+	// NOTE: this is only used for videos and only called once per frame (or not at all)
+	drawTexturedRectangleNow(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	glDeleteTextures(1, &glTex);
 
@@ -682,6 +710,8 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
  */
 void GL3_EndFrame(void)
 {
+	// TODO: draw last 2D batch
+
 	if(gl3_show_draw_stats->value)
 	{
 		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
