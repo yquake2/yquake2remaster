@@ -409,8 +409,8 @@ int BigLong(int l);
 int LittleLong(int l);
 float BigFloat(float l);
 float LittleFloat(float l);
-long BigLongLong(long l);
-long LittleLongLong(long l);
+int64_t BigLongLong(int64_t l);
+int64_t LittleLongLong(int64_t l);
 
 void Swap_Init(void);
 char *va(const char *format, ...)  PRINTF_ATTR(1, 2);

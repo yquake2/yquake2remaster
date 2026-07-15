@@ -866,8 +866,8 @@ static int (*_BigLong)(int l);
 static int (*_LittleLong)(int l);
 static float (*_BigFloat)(float l);
 static float (*_LittleFloat)(float l);
-static long (*_BigLongLong)(long l);
-static long (*_LittleLongLong)(long l);
+static int64_t (*_BigLongLong)(int64_t l);
+static int64_t (*_LittleLongLong)(int64_t l);
 
 short
 BigShort(short l)
@@ -905,14 +905,14 @@ LittleFloat(float l)
 	return _LittleFloat(l);
 }
 
-long
-BigLongLong(long l)
+int64_t
+BigLongLong(int64_t l)
 {
 	return _BigLongLong(l);
 }
 
-long
-LittleLongLong(long l)
+int64_t
+LittleLongLong(int64_t l)
 {
 	return _LittleLongLong(l);
 }
@@ -953,8 +953,8 @@ LongNoSwap(int l)
 	return l;
 }
 
-static long
-LongLongSwap(long l)
+static int64_t
+LongLongSwap(int64_t l)
 {
 	byte b1, b2, b3, b4, b5, b6, b7, b8;
 
@@ -968,14 +968,14 @@ LongLongSwap(long l)
 	b8 = (l >> 56) & 255;
 
 	return (
-		((long)b1 << 56) + ((long)b2 << 48) +
-		((long)b3 << 40) + ((long)b4 << 32) +
-		((long)b5 << 24) + ((long)b6 << 16) +
-		((long)b7 << 8) + b8);
+		((int64_t)b1 << 56) + ((int64_t)b2 << 48) +
+		((int64_t)b3 << 40) + ((int64_t)b4 << 32) +
+		((int64_t)b5 << 24) + ((int64_t)b6 << 16) +
+		((int64_t)b7 << 8) + b8);
 }
 
-static long
-LongLongNoSwap(long l)
+static int64_t
+LongLongNoSwap(int64_t l)
 {
 	return l;
 }
