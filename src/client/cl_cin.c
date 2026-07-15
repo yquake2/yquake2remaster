@@ -898,6 +898,7 @@ SCR_PlayCinematic(char *arg)
 
 #ifdef AVMEDIADECODE
 	if (dot && (!Q_stricmp(dot, ".cin") ||
+				!Q_stricmp(dot, ".bik") ||
 				!Q_stricmp(dot, ".ogv") ||
 				!Q_stricmp(dot, ".avi") ||
 				!Q_stricmp(dot, ".mpg") ||

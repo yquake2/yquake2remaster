@@ -114,7 +114,7 @@ All models support only single texture for all meshes and frames limit based on 
 | ------ | ---------------------------------- |
 | dat    | Anachronox                         |
 | pak    | Quake, Quake 2, Daikatana, Kingpin |
-| sin    | SiN                                |
+| sin    | SiN, SiN Reloaded Demo             |
 | wad    | Doom, Doom 2                       |
 | pk2    | Quake 2 Mods                       |
 | pk3    | Quake 2 Mods, Quake 3              |
@@ -337,6 +337,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] SiN Reloaded Demo: support pak format,
 * [x] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
 * [x] game: cleanup function declarations in game save code,
 * [x] Jabot: fix crash in SZ_GetSpace,
