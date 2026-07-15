@@ -44,6 +44,10 @@ extern viddef_t viddef;
 #define VID_WIDTH viddef.width
 #define VID_HEIGHT viddef.height
 
+const char *menu_in_sound = "misc/menu1.wav";
+const char *menu_move_sound = "misc/menu2.wav";
+const char *menu_out_sound = "misc/menu3.wav";
+
 static size_t
 StrLenUTF8(const char *src)
 {
@@ -602,10 +606,10 @@ Menu_ItemAtCursor(menuframework_s *m)
 qboolean
 Menu_SelectItem(menuframework_s *s)
 {
-	menucommon_s * item = ( menucommon_s * )Menu_ItemAtCursor(s);
+	menucommon_s *item = (menucommon_s *)Menu_ItemAtCursor(s);
 
-	if (item->callback) {
-
+	if (item->callback)
+	{
 		item->callback(item);
 
 		return true;
@@ -781,15 +785,28 @@ Slider_Draw(menuslider_s *s)
 	}
 }
 
+static int
+NumItemNames(const char **items)
+{
+	const char **i;
+
+	for (i = items; *i; i++)
+	{
+	}
+
+	return i - items;
+}
+
 static qboolean
 SpinControl_DoSlide(menulist_s *s, int dir)
 {
-	if (!s->itemnames)
+	if (!s->itemnames || !s->itemnames[0])
 	{
 		return false;
 	}
 
-	if ((s->curvalue < 0) || (!s->itemnames[s->curvalue]))
+	if ((s->curvalue < 0) ||
+		(s->curvalue >= NumItemNames(s->itemnames)))
 	{
 		s->curvalue = 0;
 	}
@@ -814,6 +831,23 @@ SpinControl_DoSlide(menulist_s *s, int dir)
 	return true;
 }
 
+static const char *
+GetSelectedItem(const menulist_s *s)
+{
+	if (!s->itemnames || !s->itemnames[0])
+	{
+		return "(empty)";
+	}
+
+	if ((s->curvalue < 0) ||
+		(s->curvalue >= NumItemNames(s->itemnames)))
+	{
+		return "(invalid)";
+	}
+
+	return s->itemnames[s->curvalue];
+}
+
 static void
 SpinControl_Draw(menulist_s *s)
 {
@@ -831,16 +865,7 @@ SpinControl_Draw(menulist_s *s)
 			y, SV_LocalizationUIMessage(s->generic.alttext, s->generic.name));
 	}
 
-	if (!s->itemnames)
-	{
-		item = "(empty)";
-	}
-	else
-	{
-		item = ((s->curvalue < 0) || (!s->itemnames[s->curvalue])) ?
-			"(invalid)" : s->itemnames[s->curvalue];
-	}
-
+	item = GetSelectedItem(s);
 	nl = strchr(item, '\n');
 
 	if (!nl)

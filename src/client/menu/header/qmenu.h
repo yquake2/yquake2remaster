@@ -27,6 +27,10 @@
 #ifndef CL_MENU_QMENU_H
 #define CL_MENU_QMENU_H
 
+extern const char *menu_in_sound;
+extern const char *menu_move_sound;
+extern const char *menu_out_sound;
+
 #define RCOLUMN_OFFSET  16
 #define LCOLUMN_OFFSET -16
 
@@ -140,7 +144,6 @@ void IN_ApplyJoyPreset(void);
 qboolean IN_MatchJoyPreset(void);
 float CalcFov(float fov_x, float w, float h);
 
-void M_PopMenu(void);
 void M_ForceMenuOff(void);
 void M_PushMenu(menuframework_s* menu);
 

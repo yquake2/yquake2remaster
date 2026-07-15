@@ -28,6 +28,9 @@
 #include "../header/client.h"
 #include "header/qmenu.h"
 
+extern void M_Banner(const char *name);
+extern const char *Default_MenuKey(menuframework_s *m, int key);
+
 static cvar_t *r_mode;
 static cvar_t *vid_displayindex;
 static cvar_t *r_hudscale;
@@ -985,52 +988,15 @@ VID_MenuInit(void)
 void
 VID_MenuDraw(void)
 {
-	int w, h;
-	float scale = SCR_GetMenuScale();
-
-	/* draw the banner */
-	Draw_GetPicSize(&w, &h, "m_banner_video");
-	Draw_PicScaled(viddef.width / 2 - (w * scale) / 2, viddef.height / 2 - (110 * scale),
-			"m_banner_video", scale);
-
-	/* move cursor to a reasonable starting position */
+	M_Banner("m_banner_video");
 	Menu_AdjustCursor(&s_opengl_menu, 1);
-
-	/* draw the menu */
 	Menu_Draw(&s_opengl_menu);
 }
 
 const char *
 VID_MenuKey(int key)
 {
-	menuframework_s *m = &s_opengl_menu;
-	int menu_key = Key_GetMenuKey(key);
-
-	switch (menu_key)
-	{
-		case K_ESCAPE:
-			M_PopMenu();
-			return NULL;
-		case K_UPARROW:
-			m->cursor--;
-			Menu_AdjustCursor(m, -1);
-			break;
-		case K_DOWNARROW:
-			m->cursor++;
-			Menu_AdjustCursor(m, 1);
-			break;
-		case K_LEFTARROW:
-			Menu_SlideItem(m, -1);
-			break;
-		case K_RIGHTARROW:
-			Menu_SlideItem(m, 1);
-			break;
-		case K_ENTER:
-			Menu_SelectItem(m);
-			break;
-	}
-
-	return "misc/menu1.wav";
+	return Default_MenuKey(&s_opengl_menu, key);
 }
 
 /*
