@@ -885,7 +885,8 @@ static const char* fragmentSrc3DspriteAlpha = MULTILINE_STRING(
 				outColor.rgb = mix(outColor.rgb, fogColor.rgb, fogFactor);
 			}
 
-			outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
+			//outColor.a = texel.a*alpha; // I think alpha shouldn't be modified by gamma and intensity
+			outColor.a = texel.a; // I think in this case alpha from uni3d shouldn't be used
 		}
 );
 
