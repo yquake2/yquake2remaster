@@ -1627,6 +1627,14 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 			__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
+	if ((size_t)numFiles > SIZE_MAX / sizeof(fsPackFile_t))
+	{
+		fclose(handle);
+		Com_Printf("%s: '%s' has too many files (%i)\n",
+			__func__, packPath, numFiles);
+		return NULL;
+	}
+
 	info = malloc(header.dirlen * sizeof(dsinrfile_t));
 	if (!info)
 	{
