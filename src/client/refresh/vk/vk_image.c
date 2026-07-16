@@ -1142,7 +1142,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		{
 			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : 1);
 		}
-		else
+		else if (bits == 8)
 		{
 			unsigned *trans;
 
@@ -1152,6 +1152,11 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : 1);
 				free(trans);
 			}
+		}
+		else
+		{
+			Sys_Error("Error: texture '%s' has %d bits per pixel, only 8 and 32 supported!\n",
+				name, bits);
 		}
 
 		if (texnum == -1)
