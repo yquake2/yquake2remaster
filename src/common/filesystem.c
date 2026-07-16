@@ -1108,7 +1108,7 @@ static fsPack_t *
 FS_LoadWAD(const char *packPath)
 {
 	int i, curr = 0; /* Loop counter. */
-	int numFiles; /* Number of files in WAD. */
+	size_t numFiles; /* Number of files in WAD. */
 	FILE *handle; /* File handle. */
 	fsPackFile_t *files; /* List of files in WAD. */
 	fsPack_t *pack; /* WAD file. */
@@ -1154,7 +1154,7 @@ FS_LoadWAD(const char *packPath)
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
-		Com_Printf("%s: '%s' has %i > %i files\n",
+		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
 				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
@@ -1336,7 +1336,7 @@ FS_LoadWAD(const char *packPath)
 	pack->numFiles = curr;
 	pack->files = files;
 
-	Com_Printf("Added wadfile '%s' (%i / %i files).\n",
+	Com_Printf("Added wadfile '%s' (%i / " YQ2_COM_PRIdS " files).\n",
 		pack->name, curr, numFiles);
 
 	return pack;
@@ -1346,7 +1346,7 @@ static fsPack_t *
 FS_LoadDAT(const char *packPath)
 {
 	int i; /* Loop counter. */
-	int numFiles; /* Number of files in DAT. */
+	size_t numFiles; /* Number of files in DAT. */
 	FILE *handle; /* File handle. */
 	fsPackFile_t *files; /* List of files in DAT. */
 	fsPack_t *pack; /* DAT file. */
@@ -1395,7 +1395,7 @@ FS_LoadDAT(const char *packPath)
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
-		Com_Printf("%s: '%s' has %i > %i files\n",
+		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
 				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
@@ -1474,7 +1474,8 @@ FS_LoadDAT(const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 
-	Com_Printf("Added datfile '%s' (%i files).\n", pack->name, numFiles);
+	Com_Printf("Added datfile '%s' (" YQ2_COM_PRIdS " files).\n",
+		pack->name, numFiles);
 
 	return pack;
 }
@@ -1483,7 +1484,7 @@ static fsPack_t *
 FS_LoadSINSPAK(FILE *handle, const char *packPath)
 {
 	int i; /* Loop counter. */
-	int numFiles; /* Number of files in SIN. */
+	size_t numFiles; /* Number of files in SIN. */
 	fsPackFile_t *files; /* List of files in PAK. */
 	fsPack_t *pack; /* SIN file. */
 	dpackheader_t header; /* SIN file header. */
@@ -1521,7 +1522,7 @@ FS_LoadSINSPAK(FILE *handle, const char *packPath)
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
-		Com_Printf("%s: '%s' has %i > %i files\n",
+		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
 			__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
@@ -1572,7 +1573,8 @@ FS_LoadSINSPAK(FILE *handle, const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 
-	Com_Printf("Added sinfile '%s' (%i files).\n", pack->name, numFiles);
+	Com_Printf("Added sinfile '%s' (" YQ2_COM_PRIdS " files).\n",
+		pack->name, numFiles);
 
 	return pack;
 }
@@ -1581,7 +1583,7 @@ static fsPack_t *
 FS_LoadSINSRPK(FILE *handle, const char *packPath)
 {
 	int i; /* Loop counter. */
-	int numFiles; /* Number of files in SIN. */
+	size_t numFiles; /* Number of files in SIN. */
 	fsPackFile_t *files; /* List of files in PAK. */
 	fsPack_t *pack; /* SIN file. */
 	dsinrheader_t header; /* SIN file header. */
@@ -1623,14 +1625,14 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
-		Com_Printf("%s: '%s' has %i > %i files\n",
+		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
 			__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
-	if ((size_t)numFiles > SIZE_MAX / sizeof(fsPackFile_t))
+	if (numFiles > SIZE_MAX / sizeof(fsPackFile_t))
 	{
 		fclose(handle);
-		Com_Printf("%s: '%s' has too many files (%i)\n",
+		Com_Printf("%s: '%s' has too many files (" YQ2_COM_PRIdS ")\n",
 			__func__, packPath, numFiles);
 		return NULL;
 	}
@@ -1728,7 +1730,8 @@ FS_LoadSINSRPK(FILE *handle, const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 
-	Com_Printf("Added sinfile '%s' (%i files).\n", pack->name, numFiles);
+	Com_Printf("Added sinfile '%s' (" YQ2_COM_PRIdS " files).\n",
+		pack->name, numFiles);
 
 	return pack;
 }
@@ -1781,7 +1784,7 @@ static fsPack_t *
 FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 {
 	int i; /* Loop counter. */
-	int numFiles; /* Number of files in PAK. */
+	size_t numFiles; /* Number of files in PAK. */
 	fsPackFile_t *files; /* List of files in PAK. */
 	fsPack_t *pack; /* PAK file. */
 	dpackfile_t *info = NULL; /* PAK info. */
@@ -1798,7 +1801,7 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
-		Com_Printf("%s: '%s' has %i > %i files\n",
+		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
 				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
@@ -1849,7 +1852,8 @@ FS_LoadPAKQ2(dpackheader_t *header, FILE *handle, const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 
-	Com_Printf("Added packfile '%s' (%i files).\n", pack->name, numFiles);
+	Com_Printf("Added packfile '%s' (" YQ2_COM_PRIdS " files).\n",
+		pack->name, numFiles);
 
 	return pack;
 }
@@ -1858,7 +1862,7 @@ static fsPack_t *
 FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 {
 	int i; /* Loop counter. */
-	int numFiles; /* Number of files in PAK. */
+	size_t numFiles; /* Number of files in PAK. */
 	fsPackFile_t *files; /* List of files in PAK. */
 	fsPack_t *pack; /* PAK file. */
 	dpackdkfile_t *info = NULL; /* PAK info. */
@@ -1875,7 +1879,7 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 
 	if (numFiles > MAX_FILES_IN_PACK)
 	{
-		Com_Printf("%s: '%s' has %i > %i files\n",
+		Com_Printf("%s: '%s' has " YQ2_COM_PRIdS " > %i files\n",
 				__func__, packPath, numFiles, MAX_FILES_IN_PACK);
 	}
 
@@ -1934,7 +1938,8 @@ FS_LoadPAKDK(dpackheader_t *header, FILE *handle, const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 
-	Com_Printf("Added packfile '%s' (%i files).\n", pack->name, numFiles);
+	Com_Printf("Added packfile '%s' (" YQ2_COM_PRIdS " files).\n",
+		pack->name, numFiles);
 
 	return pack;
 }
@@ -2013,7 +2018,7 @@ static fsPack_t *
 FS_LoadPK3(const char *packPath)
 {
 	int i = 0; /* Loop counter. */
-	int numFiles; /* Number of files in PK3. */
+	size_t numFiles; /* Number of files in PK3. */
 	int status; /* Error indicator. */
 	fsPackFile_t *files; /* List of files in PK3. */
 	fsPack_t *pack; /* PK3 file. */
@@ -2039,16 +2044,15 @@ FS_LoadPK3(const char *packPath)
 		return NULL;
 	}
 
-	numFiles = global.number_entry;
-
-	if (numFiles <= 0)
+	if (global.number_entry <= 0)
 	{
 		unzClose(handle);
-		Com_Error(ERR_FATAL, "%s: '%s' has %i files",
-				__func__, packPath, numFiles);
+		Com_Error(ERR_FATAL, "%s: '%s' has " YQ2_COM_PRIdS " files",
+				__func__, packPath, global.number_entry);
 		return NULL;
 	}
 
+	numFiles = global.number_entry;
 	files = Z_Malloc(numFiles * sizeof(fsPackFile_t));
 
 	/* Parse the directory. */
@@ -2074,7 +2078,8 @@ FS_LoadPK3(const char *packPath)
 	pack->numFiles = numFiles;
 	pack->files = files;
 
-	Com_Printf("Added packfile '%s' (%i files).\n", pack->name, numFiles);
+	Com_Printf("Added packfile '%s' (" YQ2_COM_PRIdS " files).\n",
+		pack->name, numFiles);
 
 	return pack;
 }

@@ -43,7 +43,6 @@ extern byte minlight[256];
 
 qboolean R_Upload8(byte *data, int width, int height,
 		qboolean mipmap, qboolean is_sky);
-qboolean R_Upload32(unsigned *data, int width, int height, qboolean mipmap);
 
 #define Q2_GL_SOLID_FORMAT GL_RGB
 #define Q2_GL_ALPHA_FORMAT GL_RGBA
