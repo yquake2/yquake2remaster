@@ -58,6 +58,9 @@
 
 #include "../../files/HandmadeMath.h"
 
+#define DG_DYNARR_ASSERT(cond, msg) \
+	((cond) ? (void)0 : Com_Error(ERR_FATAL, "DG_dynarr.h error: %s\n", msg))
+
 // a wrapper around glVertexAttribPointer() to stay sane
 // (caller doesn't have to cast to GLintptr and then void*)
 static inline void
