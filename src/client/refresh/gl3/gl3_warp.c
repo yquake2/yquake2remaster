@@ -52,7 +52,7 @@ GL3_EmitWaterPolys(msurface_t *fa, gl3drawCmd_t drawCmd)
 	drawCmd.lightScaleForTurb = fa->texinfo->image->is_lava ? 1.0f : 0.5f;
 	drawCmd.flags |= DCFlag_UseLightScaleForTurb;
 
-	drawCmd.shader = &gl3state.si3Dturb;
+	GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3Dturb);
 
 	for (bp = fa->polys; bp != NULL; bp = bp->next)
 	{
@@ -159,7 +159,7 @@ GL3_DrawSkyBox(void)
 	}
 	drawCmd.transModelMat = modMVmat;
 
-	drawCmd.shader = &gl3state.si3Dsky;
+	GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3Dsky);
 
 	// TODO: this could all be done in one drawcall.. but.. whatever, it's <= 6 drawcalls/frame
 	//       also, they use different textures..

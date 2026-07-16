@@ -197,7 +197,7 @@ DrawTriangleOutlines(void)
 	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd(true);
 
 	drawCmd.flags |= (DCFlag_DisableDepthMask | DCFlag_UseColor);
-	drawCmd.shader = &gl3state.si3DcolorOnly;
+	GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3DcolorOnly);
 	drawCmd.color[0] = 1.0;
 	drawCmd.color[1] = 1.0;
 	drawCmd.color[2] = 1.0;
@@ -271,16 +271,15 @@ RenderBrushPoly(const entity_t *currententity, msurface_t *fa, gl3drawCmd_t draw
 	//       and put fa->styles[] into the 3d draw vertex?
 	memcpy(drawCmd.styles, fa->styles, sizeof(fa->styles));
 	drawCmd.flags |= DCFlag_UseLmStyles;
-	static_assert(sizeof(fa->styles) == 4, "asd"); // TODO: remove
 
 	if (fa->texinfo->flags & SURF_SCROLL)
 	{
-		drawCmd.shader = &gl3state.si3DlmFlow;
+		GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3DlmFlow);
 		GL3_DrawGLFlowingPoly(fa, drawCmd);
 	}
 	else
 	{
-		drawCmd.shader = &gl3state.si3Dlm;
+		GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3Dlm);
 		GL3_DrawGLPoly(fa, drawCmd);
 	}
 
@@ -324,12 +323,12 @@ GL3_DrawAlphaSurfaces(void)
 		}
 		else if (s->texinfo->flags & SURF_SCROLL)
 		{
-			drawCmd.shader = &gl3state.si3DtransFlow;
+			GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3DtransFlow);
 			GL3_DrawGLFlowingPoly(s, drawCmd);
 		}
 		else
 		{
-			drawCmd.shader = &gl3state.si3Dtrans;
+			GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3Dtrans);
 			GL3_DrawGLPoly(s, drawCmd);
 		}
 	}
@@ -395,12 +394,12 @@ RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf, gl3drawCm
 
 	if (surf->texinfo->flags & SURF_SCROLL)
 	{
-		drawCmd.shader = &gl3state.si3DlmFlow;
+		GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3DlmFlow);
 		GL3_DrawGLFlowingPoly(surf, drawCmd);
 	}
 	else
 	{
-		drawCmd.shader = &gl3state.si3Dlm;
+		GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3Dlm);
 		GL3_DrawGLPoly(surf, drawCmd);
 	}
 }
