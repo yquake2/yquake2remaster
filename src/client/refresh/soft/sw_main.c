@@ -689,121 +689,128 @@ R_DrawNullModel(void)
 R_DrawEntitiesOnList
 =============
 */
-static void
-R_DrawEntitiesOnList(void)
+static qboolean
+R_DrawEntitiesOnList(qboolean translucent)
 {
-	qboolean translucent_entities = false;
-	int i;
+	qboolean anytranslucent = false;
 
 	if (!r_drawentities->value)
 	{
-		return;
+		return false;
 	}
 
-	// all bmodels have already been drawn by the edge list
-	for (i = 0; i < r_newrefdef.num_entities; i++)
+	if (!translucent)
 	{
-		entity_t *currententity = &r_newrefdef.entities[i];
+		size_t i;
 
-		if (currententity->flags & (RF_TRANSLUCENT | RF_FLARE))
+		/* all bmodels have already been drawn by the edge list */
+		for (i = 0; i < r_newrefdef.num_entities; i++)
 		{
-			translucent_entities = true;
-			continue; /* not solid */
-		}
+			entity_t *currententity = &r_newrefdef.entities[i];
 
-		if ( currententity->flags & RF_BEAM )
-		{
-			modelorg[0] = -r_origin[0];
-			modelorg[1] = -r_origin[1];
-			modelorg[2] = -r_origin[2];
-			VectorCopy(vec3_origin, r_entorigin);
-			R_DrawBeam(currententity);
-		}
-		else
-		{
-			const model_t *currentmodel = currententity->model;
-			if (!currentmodel)
+			if (currententity->flags & (RF_TRANSLUCENT | RF_FLARE))
 			{
-				R_DrawNullModel();
-				continue;
+				anytranslucent = true;
+				continue; /* not solid */
 			}
-			VectorCopy(currententity->origin, r_entorigin);
-			VectorSubtract(r_origin, r_entorigin, modelorg);
 
-			switch (currentmodel->type)
+			if ( currententity->flags & RF_BEAM )
 			{
-			case mod_sprite:
-				R_DrawSprite(currententity, currentmodel);
-				break;
+				modelorg[0] = -r_origin[0];
+				modelorg[1] = -r_origin[1];
+				modelorg[2] = -r_origin[2];
+				VectorCopy(vec3_origin, r_entorigin);
+				R_DrawBeam(currententity);
+			}
+			else
+			{
+				const model_t *currentmodel = currententity->model;
+				if (!currentmodel)
+				{
+					R_DrawNullModel();
+					continue;
+				}
 
-			case mod_alias:
-				R_DrawAliasModel(currententity, currentmodel);
-				break;
+				VectorCopy(currententity->origin, r_entorigin);
+				VectorSubtract(r_origin, r_entorigin, modelorg);
 
-			case mod_brush:
-				break;
+				switch (currentmodel->type)
+				{
+				case mod_sprite:
+					R_DrawSprite(currententity, currentmodel);
+					break;
 
-			default:
-				Com_Printf("%s: Bad modeltype %d\n",
-					__func__, currentmodel->type);
-				return;
+				case mod_alias:
+					R_DrawAliasModel(currententity, currentmodel);
+					break;
+
+				case mod_brush:
+					break;
+
+				default:
+					Com_Printf("%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
+					return false;
+				}
 			}
 		}
 	}
-
-	if (!translucent_entities)
+	else
 	{
-		return;
+		size_t i;
+
+		for (i = 0; i < r_newrefdef.num_entities; i++)
+		{
+			entity_t *currententity = &r_newrefdef.entities[i];
+
+			if (!(currententity->flags & (RF_TRANSLUCENT | RF_FLARE)))
+			{
+				continue; /* solid */
+			}
+
+			if (currententity->flags & RF_BEAM)
+			{
+				modelorg[0] = -r_origin[0];
+				modelorg[1] = -r_origin[1];
+				modelorg[2] = -r_origin[2];
+				VectorCopy(vec3_origin, r_entorigin);
+				R_DrawBeam(currententity);
+			}
+			else
+			{
+				const model_t *currentmodel = currententity->model;
+				if (!currentmodel)
+				{
+					R_DrawNullModel();
+					continue;
+				}
+
+				VectorCopy(currententity->origin, r_entorigin);
+				VectorSubtract(r_origin, r_entorigin, modelorg);
+
+				switch (currentmodel->type)
+				{
+				case mod_sprite:
+					R_DrawSprite(currententity, currentmodel);
+					break;
+
+				case mod_alias:
+					R_DrawAliasModel(currententity, currentmodel);
+					break;
+
+				case mod_brush:
+					break;
+
+				default:
+					Com_Printf("%s: Bad modeltype %d\n",
+						__func__, currentmodel->type);
+					return false;
+				}
+			}
+		}
 	}
 
-	for (i = 0; i < r_newrefdef.num_entities; i++)
-	{
-		entity_t *currententity = &r_newrefdef.entities[i];
-
-		if (!(currententity->flags & (RF_TRANSLUCENT | RF_FLARE)))
-		{
-			continue; /* solid */
-		}
-
-		if (currententity->flags & RF_BEAM)
-		{
-			modelorg[0] = -r_origin[0];
-			modelorg[1] = -r_origin[1];
-			modelorg[2] = -r_origin[2];
-			VectorCopy(vec3_origin, r_entorigin);
-			R_DrawBeam(currententity);
-		}
-		else
-		{
-			const model_t *currentmodel = currententity->model;
-			if (!currentmodel)
-			{
-				R_DrawNullModel();
-				continue;
-			}
-			VectorCopy(currententity->origin, r_entorigin);
-			VectorSubtract(r_origin, r_entorigin, modelorg);
-
-			switch (currentmodel->type)
-			{
-			case mod_sprite:
-				R_DrawSprite(currententity, currentmodel);
-				break;
-
-			case mod_alias:
-				R_DrawAliasModel(currententity, currentmodel);
-				break;
-
-			case mod_brush:
-				break;
-
-			default:
-				Com_Printf("%s: Bad modeltype %d\n",
-					__func__, currentmodel->type);
-				return;
-			}
-		}
-	}
+	return anytranslucent;
 }
 
 /*
@@ -1258,6 +1265,7 @@ RE_RenderFrame(const refdef_t *fd)
 {
 	r_newrefdef = *fd;
 	entity_t	ent;
+	qboolean	anytranslucent = false;
 
 	if (!r_worldmodel && !( r_newrefdef.rdflags & RDF_NOWORLDMODEL ) )
 	{
@@ -1330,7 +1338,7 @@ RE_RenderFrame(const refdef_t *fd)
 	}
 	// Draw enemies, barrel etc...
 	// Use Z-Buffer mostly in read mode only.
-	R_DrawEntitiesOnList();
+	anytranslucent = R_DrawEntitiesOnList(false);
 
 	if (sw_dspeeds->value)
 	{
@@ -1348,6 +1356,11 @@ RE_RenderFrame(const refdef_t *fd)
 
 	// Perform pixel palette blending ia the pics/colormap.pcx lower part lookup table.
 	R_DrawAlphaSurfaces(&ent);
+
+	if (anytranslucent)
+	{
+		R_DrawEntitiesOnList(true);
+	}
 
 	// Save off light value for server to look at (BIG HACK!)
 	R_SetLightLevel(&ent);
