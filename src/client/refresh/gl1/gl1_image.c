@@ -441,7 +441,7 @@ R_ImageList_f(void)
 				break;
 		}
 
-		Com_Printf("%c%c %3i %3i %s: %s (%dx%d) %s %s\n",
+		Com_Printf("%c%c %3i %3i %s: %s (%dx%d) %s\n",
 				isScrap, imageType, image->upload_width, image->upload_height,
 				palstrings[image->paletted], image->name,
 				image->width, image->height, in_use);
