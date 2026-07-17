@@ -75,7 +75,7 @@ Scrap_Update(void)
 		{
 			R_Bind(TEXNUM_SCRAPS + texnum);
 
-			if (!texnum || r_2D_unfiltered->value != 0)
+			if (!texnum)
 			{
 				// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
 				// so the scrap shouldn't be filtered

@@ -285,23 +285,6 @@ R_TextureMode(const char *string)
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
 
-	/* set texturemode of scrap texture */
-	R_Bind(TEXNUM_SCRAPS);
-	if (unfiltered2D)
-	{
-		// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
-		// so the scrap shouldn't be filtered
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	}
-	else // 2D textures should be filtered by default => filter the scrap
-	{
-		// we can't use gl_filter_min which might be GL_*_MIPMAP_*
-		// also, there's no anisotropic filtering for textures w/o mipmaps
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
-	}
-
 	/* change all the existing mipmap texture objects */
 	for (i = 0, glt = gltextures; i < numgltextures; i++, glt++)
 	{
