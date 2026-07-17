@@ -191,11 +191,6 @@ drawTexturedRectangle(GLuint texNum, float x, float y, float w, float h,
 	addIdx[3] = firstIdx+1; // second triangle
 	addIdx[4] = firstIdx+3;
 	addIdx[5] = firstIdx+2;
-
-	// FIXME: right now all this is still a bit buggy, e.g. the player model
-	// in the multiplayer menu is hidden when not enabling the next line..
-	// probably need to call drawLastBatch() before several other kinds of drawcalls
-	//drawLastBatch();
 }
 
 // bind the texture before calling this
@@ -212,6 +207,10 @@ drawTexturedRectangleNow(float x, float y, float w, float h,
 	 * sl,tl--------sh,tl
 	 *  x,y        x+w,y
 	 */
+
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL3_DrawCurrent2Dbatch();
 
 	gl3_drawVert2D vBuf[4] = {
 	//    X,   Y,   S,  T
@@ -599,6 +598,10 @@ GL3_Draw_Fill(int x, int y, int w, int h, int c)
 
 	color.c = d_8to24table[c];
 
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL3_DrawCurrent2Dbatch();
+
 	GLfloat vBuf[8] = {
 	//  X,   Y
 		x,   y+h,
@@ -640,6 +643,10 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 	{
 		return;
 	}
+
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL3_DrawCurrent2Dbatch();
 
 	GLfloat vBuf[8] = {
 	//  X,   Y
