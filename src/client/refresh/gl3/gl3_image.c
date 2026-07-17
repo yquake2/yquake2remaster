@@ -436,7 +436,8 @@ GL3_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	GLuint texNum=0;
 	int i;
 
-	if (r_2D_unfiltered->value && type == it_pic)
+	qboolean default2Dnolerp = r_2D_unfiltered->value != 0.0f;
+	if (default2Dnolerp && type == it_pic)
 	{
 		/*
 		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,

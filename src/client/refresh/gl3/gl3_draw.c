@@ -131,8 +131,11 @@ void
 GL3_DrawCurrent2Dbatch()
 {
 	int numVtx = da_count(vtxBuf);
-	if(numVtx == 0)
+
+	if (numVtx == 0)
+	{
 		return;
+	}
 
 	GL3_UseProgram(gl3state.si2D.shaderProgram);
 	GL3_Bind(lastBatchTexture);
@@ -170,8 +173,10 @@ drawTexturedRectangle(GLuint texNum, float x, float y, float w, float h,
 	 *  x,y        x+w,y
 	 */
 
-	if((lastBatchTexture != 0 && texNum != lastBatchTexture) || da_count(vtxBuf)+4 > UINT16_MAX)
+	if ((lastBatchTexture != 0 && texNum != lastBatchTexture) || da_count(vtxBuf) + 4 > UINT16_MAX)
+	{
 		GL3_DrawCurrent2Dbatch();
+	}
 
 	lastBatchTexture = texNum;
 
@@ -458,7 +463,7 @@ GL3_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 
 	// NOTE: this function (and this shader) are only used for the crosshair
 	//       so use the simple immediate (unbatched) draw function
-	drawTexturedRectangleNow(x, y, gl->width*factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
+	drawTexturedRectangleNow(x, y, gl->width * factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
 
 	gl3state.uniCommonData.color = HMM_Vec4(1, 1, 1, 1);
 	GL3_UpdateUBOCommon();
