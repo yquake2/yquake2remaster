@@ -266,18 +266,6 @@ GL3_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 	}
 }
 
-// DG: copy of DrawStringScaled(), so we can draw some stats right here in the render DLL
-void
-GL3_DrawStringScaled(int x, int y, const char *s, float factor)
-{
-	while (*s)
-	{
-		GL3_Draw_CharScaled(x, y, *s ^ 0x80, factor);
-		x += 8*factor;
-		s++;
-	}
-}
-
 gl3image_t *
 GL3_Draw_FindPic(const char *name)
 {
@@ -696,12 +684,12 @@ void GL3_EndFrame(void)
 {
 	if(gl3_show_draw_stats->value)
 	{
-		float factor = 2.0f; // TODO: like SCR_GetConsoleScale()
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
 		char stbuf[128] = {0};
 		snprintf(stbuf, sizeof(stbuf), "3D drawcalls: %d - 2D drawcalls: %d - buffer vtx data: %d - buffer uniforms: %d",
 		         gl3_num3Ddraws, gl3_num2Ddraws, gl3_numBufferVtxData, gl3_numBufferUniforms);
 
-		GL3_DrawStringScaled(10, 5, stbuf, factor);
+		GL3_Draw_StringScaled(10, 5, factor, true, stbuf);
 	}
 
 	gl3_num3Ddraws = 0;
