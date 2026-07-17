@@ -398,7 +398,8 @@ R_ImageList_f(void)
 	for (i = 0, image = gltextures; i < numgltextures; i++, image++)
 	{
 		int w, h;
-		const char *in_use = "", *scrap = "";
+		const char *in_use = "";
+		char isScrap = image->scrap ? 'S' : ' ';
 
 		if (image->texnum <= 0)
 		{
@@ -411,17 +412,13 @@ R_ImageList_f(void)
 			used++;
 		}
 
-		if (image->scrap)
-		{
-			scrap = "scrap";
-		}
-
 		w = image->upload_width;
 		h = image->upload_height;
 
 		texels += w * h;
 
 		char imageType = '?';
+
 		switch (image->type)
 		{
 			case it_skin:
@@ -444,10 +441,10 @@ R_ImageList_f(void)
 				break;
 		}
 
-		Com_Printf("%c %3i %3i %s: %s (%dx%d) %s %s\n",
-				imageType, image->upload_width, image->upload_height,
+		Com_Printf("%c%c %3i %3i %s: %s (%dx%d) %s %s\n",
+				isScrap, imageType, image->upload_width, image->upload_height,
 				palstrings[image->paletted], image->name,
-				image->width, image->height, in_use, scrap);
+				image->width, image->height, in_use);
 	}
 
 	Com_Printf("Total texel count (not counting mipmaps): %i\n",
