@@ -997,7 +997,7 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 		mask_idx ++;
 	}
 
-	*draw_font = R_LoadPic("***ttf***", font_data,
+	*draw_font = R_LoadPic("pics/conchars.ttf", font_data,
 		*r_font_height, *r_font_height, *r_font_height, *r_font_height,
 		texture_size, it_pic, 32);
 

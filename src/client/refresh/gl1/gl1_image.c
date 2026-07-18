@@ -248,7 +248,7 @@ R_EnableMultitexture(qboolean enable)
 void
 R_TextureMode(const char *string)
 {
-	int i;
+	int i, texnum;
 	image_t *glt;
 
 	for (i = 0; i < NUM_GL_MODES; i++)
@@ -332,6 +332,26 @@ R_TextureMode(const char *string)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			}
+		}
+	}
+
+	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	{
+		R_Bind(TEXNUM_SCRAPS + texnum);
+
+		if (unfiltered2D || (texnum < MAX_SCRAPS_NOLERP))
+		{
+			// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
+			// so the scrap shouldn't be filtered
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+		else // 2D textures should be filtered by default => filter the scrap
+		{
+			// we can't use gl_filter_min which might be GL_*_MIPMAP_*
+			// also, there's no anisotropic filtering for textures w/o mipmaps
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 		}
 	}
 }
@@ -955,7 +975,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : 1);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
 		}
 		else if (bits == 8)
 		{
@@ -964,7 +984,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : 1);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
 				free(trans);
 			}
 		}
@@ -977,6 +997,11 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		if (texnum == -1)
 		{
 			goto nonscrap;
+		}
+
+		if ((nolerp || default2Dnolerp) && texnum >= MAX_SCRAPS_NOLERP)
+		{
+			Com_Printf("%s: Nolerp image stored to lerp\n", name);
 		}
 
 		image->texnum = TEXNUM_SCRAPS + texnum;

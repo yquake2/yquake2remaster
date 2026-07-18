@@ -56,13 +56,16 @@ static GLuint gl4_scrap_textures[MAX_SCRAPS] = {0};
 void
 GL4_Scrap_Upload(void)
 {
-	size_t i;
+	size_t texnum;
+	qboolean default2Dnolerp;
 
-	for (i = 0; i < MAX_SCRAPS; i++)
+	default2Dnolerp = r_2D_unfiltered->value != 0.0f;
+
+	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
 		unsigned *scrap_data;
 
-		scrap_data = Scrap_Upload(i);
+		scrap_data = Scrap_Upload(texnum);
 		if (!scrap_data)
 		{
 			/* No data for this scrap or already uploaded */
@@ -71,15 +74,15 @@ GL4_Scrap_Upload(void)
 
 		GL4_SelectTMU(GL_TEXTURE0);
 
-		if (!gl4_scrap_textures[i])
+		if (!gl4_scrap_textures[texnum])
 		{
 			/* Create new scrap texture */
-			glGenTextures(1, &gl4_scrap_textures[i]);
-			glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[i]);
+			glGenTextures(1, &gl4_scrap_textures[texnum]);
+			glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[texnum]);
 
 			/* Use nearest filtering for scrap 0 (nolerp crosshairs etc),
 			   linear for others */
-			if (i == 0)
+			if (default2Dnolerp || (texnum < MAX_SCRAPS_NOLERP))
 			{
 				// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
 				// so the scrap shouldn't be filtered
@@ -104,7 +107,7 @@ GL4_Scrap_Upload(void)
 		else
 		{
 			/* Update existing scrap texture with new data */
-			glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[i]);
+			glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[texnum]);
 			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, SCRAP_WIDTH, SCRAP_HEIGHT,
 					GL_RGBA, GL_UNSIGNED_BYTE, scrap_data);
 		}
@@ -115,7 +118,7 @@ void
 GL4_TextureMode(const char *string)
 {
 	const int num_modes = ARRLEN(modes);
-	int i;
+	int i, texnum;
 	gl4image_t *glt;
 
 	for (i = 0; i < num_modes; i++)
@@ -196,6 +199,31 @@ GL4_TextureMode(const char *string)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			}
+		}
+	}
+
+	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	{
+		if (!gl4_scrap_textures[texnum])
+		{
+			continue;
+		}
+
+		glBindTexture(GL_TEXTURE_2D, gl4_scrap_textures[texnum]);
+
+		if (unfiltered2D || (texnum < MAX_SCRAPS_NOLERP))
+		{
+			// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
+			// so the scrap shouldn't be filtered
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		}
+		else // 2D textures should be filtered by default => filter the scrap
+		{
+			// we can't use gl_filter_min which might be GL_*_MIPMAP_*
+			// also, there's no anisotropic filtering for textures w/o mipmaps
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 		}
 	}
 }
@@ -538,23 +566,33 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : 1);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
 		}
-		else
+		else if (bits == 8)
 		{
 			unsigned *trans;
 
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : 1);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
 				free(trans);
 			}
+		}
+		else
+		{
+			Sys_Error("Error: texture '%s' has %d bits per pixel, only 8 and 32 supported!\n",
+				name, bits);
 		}
 
 		if (texnum == -1)
 		{
 			goto nonscrap;
+		}
+
+		if ((nolerp || default2Dnolerp) && texnum >= MAX_SCRAPS_NOLERP)
+		{
+			Com_Printf("%s: Nolerp image stored to lerp\n", name);
 		}
 
 		/* Scrap_AllocBlock() has already marked the scrap as dirty internally,

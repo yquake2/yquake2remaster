@@ -784,20 +784,21 @@ Vk_TextureMode(const char *string)
 		}
 	}
 
-	/* use S_NEAREST for scrap 0 (nolerp images) */
-	if (vk_scrapTextures[0].resource.image != VK_NULL_HANDLE)
-	{
-		QVk_UpdateTextureSampler(&vk_scrapTextures[0], S_NEAREST, false);
-	}
-
-	for (j = 1; j < MAX_SCRAPS; j++)
+	for (j = 0; j < MAX_SCRAPS; j++)
 	{
 		if (vk_scrapTextures[j].resource.image != VK_NULL_HANDLE)
 		{
-			QVk_UpdateTextureSampler(&vk_scrapTextures[j], i, false);
+			if (unfiltered2D || (j < MAX_SCRAPS_NOLERP))
+			{
+				/* use S_NEAREST for scrap (nolerp images) */
+				QVk_UpdateTextureSampler(&vk_scrapTextures[j], S_NEAREST, false);
+			}
+			else
+			{
+				QVk_UpdateTextureSampler(&vk_scrapTextures[j], i, false);
+			}
 		}
 	}
-
 
 	if (vk_rawTexture.resource.image != VK_NULL_HANDLE)
 	{
@@ -1013,11 +1014,15 @@ Vk_Scrap_Upload(void)
 		}
 		else
 		{
+			qboolean default2Dnolerp;
+
+			default2Dnolerp = r_2D_unfiltered->value != 0.0f;
+
 			QVVKTEXTURE_CLEAR(vk_scrapTextures[texnum]);
 			// don't use linear filtering for scrap 0 - this fixes display issues for the dot crosshair and makes it look consistent across different values of hudscale cvar
 			QVk_CreateTexture(&vk_scrapTextures[texnum], (byte*)texBuffer,
 				upload_width, upload_height,
-				(texnum == 0) ? S_NEAREST : vk_current_sampler, false);
+				(default2Dnolerp || (texnum < MAX_SCRAPS_NOLERP)) ? S_NEAREST : vk_current_sampler, false);
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].resource.image,
 				VK_OBJECT_TYPE_IMAGE, va("Image: scrap #" YQ2_COM_PRIdS, texnum));
 			QVk_DebugSetObjectName((uint64_t)vk_scrapTextures[texnum].imageView,
@@ -1049,7 +1054,8 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	qboolean nolerp = false;
 	image_t *image;
 
-	if (r_2D_unfiltered->value && type == it_pic)
+	qboolean default2Dnolerp = r_2D_unfiltered->value != 0.0f;
+	if (default2Dnolerp && type == it_pic)
 	{
 		/*
 		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
@@ -1140,7 +1146,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : 1);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
 		}
 		else if (bits == 8)
 		{
@@ -1149,7 +1155,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : 1);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
 				free(trans);
 			}
 		}
@@ -1162,6 +1168,11 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 		if (texnum == -1)
 		{
 			goto nonscrap;
+		}
+
+		if ((nolerp || default2Dnolerp) && texnum >= MAX_SCRAPS_NOLERP)
+		{
+			Com_Printf("%s: Nolerp image stored to lerp\n", name);
 		}
 
 		if (!vk_scrapTextures[texnum].resource.image)
