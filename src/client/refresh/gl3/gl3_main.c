@@ -720,6 +720,14 @@ void GL3_Draw3DBatchesNow()
 				glDisable(GL_BLEND);
 		}
 
+		if((flags & DCFlag_Flare) != (curFlags & DCFlag_Flare))
+		{
+			if(flags & DCFlag_Flare)
+				glBlendFunc(GL_ONE, GL_ONE);
+			else
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
 		if((flags & DCFlag_PolyOffsetFill) != (curFlags & DCFlag_PolyOffsetFill))
 		{
 			if(flags & DCFlag_PolyOffsetFill)
@@ -828,7 +836,7 @@ static qboolean drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 
 	int flags = a->flags; // at this point we know the flags are identical
 
-	if((flags & DCFlag_UseScroll) && a->sscroll != b->sscroll && a->tscroll != b->tscroll)
+	if((flags & DCFlag_UseScroll) && (a->sscroll != b->sscroll || a->tscroll != b->tscroll))
 		return false;
 
 	if((flags & DCFlag_UseLightScaleForTurb) && a->lightScaleForTurb != b->lightScaleForTurb)
@@ -1124,11 +1132,9 @@ GL3_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 
 	drawCmd.texnum = skin->texnum;
 
-	drawCmd.ent_flags = e->flags;
-
 	if (e->flags & RF_FLARE)
 	{
-		drawCmd.flags |= DCFlag_Blend;
+		drawCmd.flags |= DCFlag_Blend | DCFlag_Flare;
 
 		drawCmd.shader = &gl3state.si3Dsprite;
 	}

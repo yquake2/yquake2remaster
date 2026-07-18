@@ -290,8 +290,7 @@ typedef struct gl3drawCmd_s {
 	float		lightScaleForTurb; // for gl3state.uni3DData.lightScaleForTurb
 	float		alpha; // either part of color or for gl3state.uni3DData.alpha
 	byte		color[3]; // for uniCommonData.color; its alpha chan is in .alpha
-	byte		flags;    // gl3drawCmd_Flags
-	int			ent_flags;  // entity flags
+	int			flags;    // gl3drawCmd_Flags
 	byte		styles[MAXLIGHTMAPS]; // indexes into r_newrefdef.lightstyles[]; 255 means "ignore"
 
 	// the following are set in GL3_BufferAndDraw3D()
@@ -309,6 +308,7 @@ enum gl3drawCmd_Flags {
 	DCFlag_UseLmStyles      = 32,
 	DCFlag_UseLightScaleForTurb = 64,
 	DCFlag_IsIdentityMat    = 128, // avoids comparing the matrix in many cases
+	DCFlag_Flare            = 256, // Combine flare effect
 
 	// TODO: DCFlag_SameAsPrevious = 255 for "don't check, just merge into previous command"?
 };
