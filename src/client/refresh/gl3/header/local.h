@@ -280,8 +280,8 @@ typedef struct
 // drawcommands using gl3_3D_vtx_t, for batching
 typedef struct gl3drawCmd_s {
 	GLuint		texnum;
-	byte		lmtexnum;
-	byte		shaderIdx;
+	signed char	lmtexnum;
+	signed char	shaderIdx;
 
 	// index into gl3_main.c transModelMats; 0 always is identity matrix
 	unsigned short transModelMatIdx;
@@ -291,7 +291,7 @@ typedef struct gl3drawCmd_s {
 	float		lightScaleForTurb; // for gl3state.uni3DData.lightScaleForTurb
 	float		alpha; // either part of color or for gl3state.uni3DData.alpha
 	byte		color[3]; // for uniCommonData.color; its alpha chan is in .alpha
-	byte			flags;    // gl3drawCmd_Flags
+	byte		flags;    // gl3drawCmd_Flags
 	byte		styles[MAXLIGHTMAPS]; // indexes into r_newrefdef.lightstyles[]; 255 means "ignore"
 
 	// the following are set in GL3_BufferAndDraw3D()
