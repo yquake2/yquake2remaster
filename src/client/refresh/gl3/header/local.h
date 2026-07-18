@@ -279,18 +279,19 @@ typedef struct
 
 // drawcommands using gl3_3D_vtx_t, for batching
 typedef struct gl3drawCmd_s {
-	hmm_mat4	transModelMat;
-
 	GLuint		texnum;
 	byte		lmtexnum;
 	byte		shaderIdx;
 
-	float		sscroll; // for gl3state.uni3DData.scroll
-	float		tscroll; // for gl3state.uni3DData.scroll
+	// index into gl3_main.c transModelMats; 0 always is identity matrix
+	unsigned short transModelMatIdx;
+
+	float		sscroll; // for gl3state.uni3DData.sscroll
+	float		tscroll; // for gl3state.uni3DData.tscroll
 	float		lightScaleForTurb; // for gl3state.uni3DData.lightScaleForTurb
 	float		alpha; // either part of color or for gl3state.uni3DData.alpha
 	byte		color[3]; // for uniCommonData.color; its alpha chan is in .alpha
-	int			flags;    // gl3drawCmd_Flags
+	byte			flags;    // gl3drawCmd_Flags
 	byte		styles[MAXLIGHTMAPS]; // indexes into r_newrefdef.lightstyles[]; 255 means "ignore"
 
 	// the following are set in GL3_BufferAndDraw3D()
@@ -307,21 +308,16 @@ enum gl3drawCmd_Flags {
 	DCFlag_UseScroll        = 16,
 	DCFlag_UseLmStyles      = 32,
 	DCFlag_UseLightScaleForTurb = 64,
-	DCFlag_IsIdentityMat    = 128, // avoids comparing the matrix in many cases
-	DCFlag_Flare            = 256, // Combine flare effect
+	DCFlag_Flare            = 128, // Combine flare effect
 
 	// TODO: DCFlag_SameAsPrevious = 255 for "don't check, just merge into previous command"?
 };
 
 // create an "empty" gl3drawCmd_t with sane defaults
 static inline gl3drawCmd_t
-GL3_CreateDrawCmd(qboolean identityTrans)
+GL3_CreateDrawCmd(void)
 {
 	gl3drawCmd_t ret = {0};
-	if(identityTrans) {
-		ret.transModelMat = gl3_identityMat4;
-		ret.flags = DCFlag_IsIdentityMat;
-	}
 	ret.alpha = 1.0f;
 	ret.styles[0] = 255;
 	ret.lmtexnum = -1;
@@ -468,8 +464,9 @@ GL3_BindEBO(GLuint ebo)
 
 extern void GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawCmd_t drawCmd);
 extern void GL3_Draw3DBatchesNow(void);
+extern void GL3_SetDrawCmdTransMatrix(gl3drawCmd_t* drawCmd, hmm_mat4 mat);
 extern void GL3_RotateUni3DforEntity(entity_t *e);
-extern void GL3_RotateForEntity(entity_t *e, gl3drawCmd_t* drawCmd, qboolean replaceTransModelMat);
+extern void GL3_RotateForEntity(entity_t *e, gl3drawCmd_t* drawCmd);
 extern hmm_mat4 GL3_SetPerspective(GLdouble fovy);
 
 // gl3_sdl.c

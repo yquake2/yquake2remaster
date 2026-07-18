@@ -143,7 +143,7 @@ GL3_DrawSkyBox(void)
 		}
 	}
 
-	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd(false);
+	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
 
 	// glPushMatrix();
 
@@ -157,7 +157,8 @@ GL3_DrawSkyBox(void)
 		modMVmat = HMM_MultiplyMat4(modMVmat, HMM_Rotate(
 			(skyautorotate ? r_newrefdef.time : 1.f) * skyrotate, rotAxis));
 	}
-	drawCmd.transModelMat = modMVmat;
+
+	GL3_SetDrawCmdTransMatrix(&drawCmd, modMVmat);
 
 	GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3Dsky);
 

@@ -104,10 +104,12 @@ cvar_t *gl3_show_draw_stats;
 DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
 DA_TYPEDEF(GLushort, UShortArray_t);
 DA_TYPEDEF(gl3drawCmd_t, DrawCommandArray_t);
+DA_TYPEDEF(hmm_mat4, Mat4Array_t);
 // dynamic arrays to batch all consecutive 3D draws (with gl3_3D_vtx_t) with same texture to reduce drawcalls
 static Vtx3DArray_t vtxBuf = {0};
 static UShortArray_t idxBuf = {0};
 static DrawCommandArray_t drawCmds = {0};
+static Mat4Array_t transModelMats = {0};
 
 // Yaw-Pitch-Roll
 // equivalent to R_z * R_y * R_x where R_x is the trans matrix for rotating around X axis for aroundXdeg
@@ -157,7 +159,7 @@ GL3_RotateUni3DforEntity(entity_t *e)
 // if replaceTransModelMat is true, the existing value of drawCmd->transModelMat
 // is ignored and it's replaced with the one calculated here (otherwise they're multiplied)
 void
-GL3_RotateForEntity(entity_t *e, gl3drawCmd_t* drawCmd, qboolean replaceTransModelMat)
+GL3_RotateForEntity(entity_t *e, gl3drawCmd_t* drawCmd)
 {
 	// TODO: shortcut for "not rotated at all"?
 
@@ -170,11 +172,7 @@ GL3_RotateForEntity(entity_t *e, gl3drawCmd_t* drawCmd, qboolean replaceTransMod
 		transMat.Elements[3][i] = e->origin[i]; // set translation
 	}
 
-	if (replaceTransModelMat)
-		drawCmd->transModelMat = transMat;
-	else
-		drawCmd->transModelMat = HMM_MultiplyMat4(drawCmd->transModelMat, transMat);
-	drawCmd->flags &= ~DCFlag_IsIdentityMat;
+	GL3_SetDrawCmdTransMatrix(drawCmd, transMat);
 }
 
 
@@ -428,6 +426,9 @@ GL3_Init(void)
 
 	ri.VID_GetPalette(NULL, d_8to24table);
 
+	da_clear(transModelMats);
+	da_add(transModelMats, gl3_identityMat4); // element 0 is always the identity matrix
+
 	GL3_Register();
 
 	/* set our "safe" mode */
@@ -561,6 +562,7 @@ GL3_Shutdown(void)
 	da_free(vtxBuf);
 	da_free(idxBuf);
 	da_free(drawCmds);
+	da_free(transModelMats);
 
 	/* shutdown OS specific OpenGL stuff like contexts, etc.  */
 	GL3_ShutdownContext();
@@ -632,8 +634,8 @@ void GL3_Draw3DBatchesNow()
 
 	// set curState to something that reflects the actual state, as far as possible,
 	// and otherwise makes sure it'll be set in the loop
-	gl3drawCmd_t curState = GL3_CreateDrawCmd(true);
-	curState.flags = ~drawCmds.p[0].flags; // just the opposite flags of the first element
+	gl3drawCmd_t curState = GL3_CreateDrawCmd();
+
 	curState.texnum = gl3state.currenttexture;
 	curState.lmtexnum = gl3state.currentlightmap;
 	curState.alpha = gl3state.uni3DData.alpha;
@@ -641,13 +643,13 @@ void GL3_Draw3DBatchesNow()
 	curState.tscroll = gl3state.uni3DData.tscroll;
 	curState.lightScaleForTurb = gl3state.uni3DData.lightScaleForTurb;
 
-	gl3ShaderInfo_t* shader = NULL;
+	// for the next two the approach is setting a value that
+	// is different from the one in the first drawCmd, to make sure
+	// the corresponding state is set in the first iteration
+	curState.flags = ~drawCmds.p[0].flags; // just the opposite flags of the first element
+	curState.transModelMatIdx = drawCmds.p[0].transModelMatIdx + 1;
 
-	// .. but at least set the identity mat so DCFlag_IsIdentityMat can be set
-	// as a sane default
-	curState.flags |= DCFlag_IsIdentityMat;
-	gl3state.uni3DData.transModelMat4 = gl3_identityMat4;
-	GL3_UpdateUBO3D();
+	gl3ShaderInfo_t* shader = NULL;
 
 	for(int i=0, n=da_count(drawCmds); i < n; ++i)
 	{
@@ -741,20 +743,11 @@ void GL3_Draw3DBatchesNow()
 			updateUni3D = true;
 		}
 
-		if((flags & DCFlag_IsIdentityMat) != (curFlags & DCFlag_IsIdentityMat))
+		if(cmd->transModelMatIdx != curState.transModelMatIdx)
 		{
-			// one is the identity matrix, the other isn't => we need to update
-			gl3state.uni3DData.transModelMat4 = cmd->transModelMat;
+			gl3state.uni3DData.transModelMat4 = da_get(transModelMats, cmd->transModelMatIdx);
 			updateUni3D = true;
 		}
-		else if( !(flags & DCFlag_IsIdentityMat) )
-		{
-			// neither is an identity matrix
-			// TODO: could check if they're identical and only update if not
-			gl3state.uni3DData.transModelMat4 = cmd->transModelMat;
-			updateUni3D = true;
-		}
-		// else both are the identity matrix - nothing to do
 
 		if(updateUni3D)
 			GL3_UpdateUBO3D();
@@ -770,13 +763,15 @@ void GL3_Draw3DBatchesNow()
 	da_clear(idxBuf);
 	da_clear(drawCmds);
 
+	da_setcount(transModelMats, 1); // keep index 0 (identity matrix)
+
 	// restore sane default for other draw operations (models, particles, 2D)
-	int curFlags = curState.flags;
-	if( !(curFlags & DCFlag_IsIdentityMat) )
+	if(curState.transModelMatIdx != 0)
 	{
 		gl3state.uni3DData.transModelMat4 = gl3_identityMat4;
 		GL3_UpdateUBO3D();
 	}
+	int curFlags = curState.flags;
 	if(curFlags & DCFlag_Blend)
 		glDisable(GL_BLEND);
 	if(curFlags & DCFlag_DisableDepthMask)
@@ -789,7 +784,8 @@ void GL3_Draw3DBatchesNow()
 static qboolean drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 {
 	if( a->flags != b->flags || a->shaderIdx != b->shaderIdx
-	   || a->texnum != b->texnum || a->lmtexnum != b->lmtexnum )
+	   || a->texnum != b->texnum || a->lmtexnum != b->lmtexnum
+	   || a->transModelMatIdx != b->transModelMatIdx )
 		return false;
 
 	int flags = a->flags; // at this point we know the flags are identical
@@ -807,22 +803,17 @@ static qboolean drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 		return false;
 
 	if((flags & DCFlag_UseLmStyles) && !lmstylesEqual(a->styles, b->styles))
-	{
 		return false;
-	}
-
-	if( !(flags & DCFlag_IsIdentityMat) )
-	{
-		const float* atm = a->transModelMat.Elements[0];
-		const float* btm = b->transModelMat.Elements[0];
-		for(int i=0; i<16; ++i)
-		{
-			if(atm[i] != btm[i]) // TODO: tolerance?
-				return false;
-		}
-	}
 
 	return true;
+}
+
+void
+GL3_SetDrawCmdTransMatrix(gl3drawCmd_t* drawCmd, hmm_mat4 mat)
+{
+	int idx = da_count(transModelMats);
+	da_add(transModelMats, mat);
+	drawCmd->transModelMatIdx = idx;
 }
 
 // assumes gl3state.v[ab]o3D are bound
@@ -912,7 +903,7 @@ GL3_DrawBeam(entity_t *e)
 	int i;
 	enum { NUM_BEAM_SEGS = 6 };
 
-	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd(true);
+	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
 
 	vec3_t perpvec;
 	vec3_t direction, normalized_direction;
@@ -989,7 +980,7 @@ GL3_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 
 	VectorCopy(e->scale, scale);
 
-	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd(true);
+	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -1067,7 +1058,7 @@ static void
 GL3_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
-	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd(true);
+	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
 
 	if(currententity->flags & RF_TRANSLUCENT)
 		drawCmd.flags |= DCFlag_DisableDepthMask;
@@ -1082,7 +1073,7 @@ GL3_DrawNullModel(entity_t *currententity)
 			currententity->origin, shadelight, lightspot);
 	}
 
-	GL3_RotateForEntity(currententity, &drawCmd, true);
+	GL3_RotateForEntity(currententity, &drawCmd);
 
 	drawCmd.alpha = 1.0f;
 	for(int i=0; i<3; ++i)
