@@ -96,6 +96,8 @@ cvar_t *gl4_debugcontext;
 cvar_t *gl4_usebigvbo;
 cvar_t *gl4_usefbo;
 
+cvar_t *gl4_show_draw_stats;
+
 // Yaw-Pitch-Roll
 // equivalent to R_z * R_y * R_x where R_x is the trans matrix for rotating around X axis for aroundXdeg
 static hmm_mat4 rotAroundAxisZYX(float aroundZdeg, float aroundYdeg, float aroundXdeg)
@@ -188,6 +190,8 @@ GL4_Register(void)
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl4_overbrightbits = ri.Cvar_Get("gl4_overbrightbits", "1.3", CVAR_ARCHIVE);
 	gl4_usefbo = ri.Cvar_Get("gl4_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
+
+	gl4_show_draw_stats = ri.Cvar_Get("gl4_show_draw_stats", "0", CVAR_ARCHIVE);
 
 #if 0 // TODO!
 	//gl_overbrightbits = ri.Cvar_Get("gl_overbrightbits", "0", CVAR_ARCHIVE);
@@ -599,6 +603,8 @@ GL4_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
 		glDrawArrays(drawMode, curOffset / sizeof(mvtx_t), numVerts);
 		gl4state.vbo3DcurOffset = (curOffset + neededSize) % gl4state.vbo3Dsize;
 	}
+	++gl4_num3Ddraws;
+	++gl4_numBufferVtxData;
 }
 
 static void
@@ -909,6 +915,8 @@ GL4_DrawParticles(void)
 		GL4_BindVBO(gl4state.vboParticle);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(part_vtx)*numParticles, buf, GL_STREAM_DRAW);
 		glDrawArrays(GL_POINTS, 0, numParticles);
+		++gl4_num3Ddraws;
+		++gl4_numBufferVtxData;
 
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
@@ -1730,6 +1738,11 @@ GL4_SetLightLevel(const entity_t *currententity)
 static void
 GL4_RenderFrame(const refdef_t *fd)
 {
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order (I think here this is only relevant
+	// for the player model in the multiplayer player setup menu)
+	GL4_DrawCurrent2Dbatch();
+
 	GL4_RenderView(fd);
 	GL4_SetLightLevel(NULL);
 	qboolean usedFBO = gl4state.ppFBObound; // if it was/is used this frame

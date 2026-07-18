@@ -81,11 +81,15 @@ GL4_Scrap_Upload(void)
 			   linear for others */
 			if (i == 0)
 			{
+				// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
+				// so the scrap shouldn't be filtered
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			}
-			else
+			else // 2D textures should be filtered by default => filter the scrap
 			{
+				// we can't use gl_filter_min which might be GL_*_MIPMAP_*
+				// also, there's no anisotropic filtering for textures w/o mipmaps
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			}
@@ -282,7 +286,8 @@ GL4_ImageList_f(void)
 	{
 		qboolean isNPOT = false;
 		int w, h;
-		const char *in_use = "", *scrap = "";
+		const char *in_use = "";
+		char isScrap = image->scrap ? 'S' : ' ';
 
 		if (image->texnum <= 0)
 		{
@@ -293,11 +298,6 @@ GL4_ImageList_f(void)
 		{
 			in_use = "*";
 			used++;
-		}
-
-		if (image->scrap)
-		{
-			scrap = "scrap";
 		}
 
 		w = image->upload_width;
@@ -331,10 +331,10 @@ GL4_ImageList_f(void)
 		}
 		char isLava = image->is_lava ? 'L' : ' ';
 
-		Com_Printf("%c%c %3i %3i %s %s: %s (%dx%d) %s %s\n",
-			imageType, isLava, w, h,
+		Com_Printf("%c%c%c %3i %3i %s %s: %s (%dx%d) %s\n",
+			isScrap, imageType, isLava, w, h,
 			formatstrings[image->has_alpha], potstrings[isNPOT], image->name,
-			image->width, image->height, in_use, scrap);
+			image->width, image->height, in_use);
 	}
 
 	Com_Printf("Total texel count (not counting mipmaps): %i\n",
@@ -436,7 +436,8 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 	GLuint texNum=0;
 	int i;
 
-	if (r_2D_unfiltered->value && type == it_pic)
+	qboolean default2Dnolerp = r_2D_unfiltered->value != 0.0f;
+	if (default2Dnolerp && type == it_pic)
 	{
 		/*
 		 * if r_2D_unfiltered is true(ish), nolerp should usually be true,
@@ -537,7 +538,7 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : 1);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : 1);
 		}
 		else
 		{
@@ -546,7 +547,7 @@ GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : 1);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : 1);
 				free(trans);
 			}
 		}

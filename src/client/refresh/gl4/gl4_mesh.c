@@ -283,6 +283,10 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			alpha, colorOnly, verts, s_lerped, shadevector);
 	}
+
+	++gl4_num3Ddraws;
+	++gl4_numBufferVtxData;
+	// TODO ++gl4_numBufferIdxData ?
 }
 
 static void
@@ -439,6 +443,10 @@ DrawAliasShadow(gl4_shadowinfo_t* shadowInfo)
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
 			shadevector, height, lheight, s_lerped);
 	}
+
+	++gl4_num3Ddraws;
+	++gl4_numBufferVtxData;
+	// TODO ++gl4_numBufferIdxData ?
 }
 
 void

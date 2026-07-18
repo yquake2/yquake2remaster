@@ -1624,7 +1624,7 @@ qboolean GL3_RecreateShaders(void)
 }
 
 static inline void
-updateUBO(GLuint ubo, GLsizeiptr size, void* data)
+updateUBO(GLuint ubo, GLsizeiptr size, const void *data)
 {
 	if (gl3state.currentUBO != ubo)
 	{

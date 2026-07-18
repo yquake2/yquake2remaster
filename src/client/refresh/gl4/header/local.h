@@ -81,6 +81,9 @@ static const int gl4_tex_alpha_format = GL_RGBA;
 extern unsigned gl4_rawpalette[256];
 extern unsigned d_8to24table[256];
 
+// for stats
+extern int gl4_num3Ddraws, gl4_num2Ddraws, gl4_numBufferVtxData, gl4_numBufferUniforms;
+
 typedef struct
 {
 	const char *renderer_string;
@@ -375,7 +378,7 @@ extern int GL4_InitContext(void* win);
 extern void GL4_GetDrawableSize(int* width, int* height);
 extern int GL4_PrepareForWindow(void);
 extern qboolean GL4_IsVsyncActive(void);
-extern void GL4_EndFrame(void);
+extern void GL4_SwapWindow(void);
 extern void GL4_SetVsync(void);
 extern void GL4_ShutdownContext(void);
 extern int GL4_GetSDLVersion(void);
@@ -412,6 +415,9 @@ extern void GL4_Draw_Fill(int x, int y, int w, int h, int c);
 extern void GL4_Draw_FadeScreen(void);
 extern void GL4_Draw_Flash(const float color[4], float x, float y, float w, float h);
 extern void GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
+
+extern void GL4_DrawCurrent2Dbatch();
+extern void GL4_EndFrame(void);
 
 // gl4_image.c
 
@@ -500,6 +506,7 @@ extern cvar_t *gl4_particle_square;
 extern cvar_t *gl4_colorlight;
 extern cvar_t *gl_polyblend;
 extern cvar_t *gl4_debugcontext;
+extern cvar_t *gl4_show_draw_stats;
 
 extern cvar_t *r_bloom;
 

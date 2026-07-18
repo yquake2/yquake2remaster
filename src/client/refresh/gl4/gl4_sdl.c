@@ -99,20 +99,8 @@ DebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei le
 
 // ---------
 
-/*
- * Swaps the buffers and shows the next frame.
- */
-void GL4_EndFrame(void)
+void GL4_SwapWindow(void)
 {
-	if (gl4config.useBigVBO)
-	{
-		// I think this is a good point to orphan the VBO and get a fresh one
-		GL4_BindVAO(gl4state.vao3D);
-		GL4_BindVBO(gl4state.vbo3D);
-		glBufferData(GL_ARRAY_BUFFER, gl4state.vbo3Dsize, NULL, GL_STREAM_DRAW);
-		gl4state.vbo3DcurOffset = 0;
-	}
-
 	SDL_GL_SwapWindow(window);
 }
 
