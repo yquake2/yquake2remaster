@@ -540,42 +540,45 @@ GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 	if (!r_bloom || !r_bloom->value)
 	{
 		drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
-		return;
-	}
-
-	/*
-	 * Build a small fullscreen quad vertex array and upload it into the
-	 * shared VBO. We use the same VBO/VAO used by other 2D draw helpers
-	 * (vao2D / vbo2D). The VAO already has pointers configured
-	 * in GL3_Draw_InitLocal(), so we only need to upload the vertex data.
-	 *
-	 * Vertex layout (matches VAO setup): X, Y, S, T
-	 */
-	GLfloat fsQuad[16];
-
-	if (bloomActive && underwater)
-	{
-		/* invert T coordinates to compensate for FBO orientation underwater */
-		fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 0.0f;
-		fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 1.0f;
-		fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 0.0f;
-		fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 1.0f;
 	}
 	else
 	{
-		fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 1.0f;
-		fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 0.0f;
-		fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 1.0f;
-		fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 0.0f;
+		/*
+		 * Build a small fullscreen quad vertex array and upload it into the
+		 * shared VBO. We use the same VBO/VAO used by other 2D draw helpers
+		 * (vao2D / vbo2D). The VAO already has pointers configured
+		 * in GL3_Draw_InitLocal(), so we only need to upload the vertex data.
+		 *
+		 * Vertex layout (matches VAO setup): X, Y, S, T
+		 */
+		GLfloat fsQuad[16];
+
+		GL3_DrawCurrent2Dbatch();
+
+		if (bloomActive && underwater)
+		{
+			/* invert T coordinates to compensate for FBO orientation underwater */
+			fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 0.0f;
+			fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 1.0f;
+			fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 0.0f;
+			fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 1.0f;
+		}
+		else
+		{
+			fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 1.0f;
+			fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 0.0f;
+			fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 1.0f;
+			fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 0.0f;
+		}
+
+		GL3_BindVAO(vao2D);
+		GL3_BindVBO(vbo2D);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(fsQuad), fsQuad, GL_STREAM_DRAW);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		GL3_BindVAO(0);
 	}
 
-	GL3_BindVAO(vao2D);
-	GL3_BindVBO(vbo2D);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(fsQuad), fsQuad, GL_STREAM_DRAW);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	GL3_BindVAO(0);
 	if (finalTex != fboTexture)
 	{
 		glDeleteTextures(1, &finalTex);
