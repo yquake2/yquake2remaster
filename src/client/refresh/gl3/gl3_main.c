@@ -167,7 +167,7 @@ GL3_RotateForEntity(entity_t *e, gl3drawCmd_t* drawCmd)
 	// rot matrices to be multiplied in order Z, Y, X (yaw, pitch, roll)
 	hmm_mat4 transMat = rotAroundAxisZYX(e->angles[1], -e->angles[0], -e->angles[2]);
 
-	for(int i=0; i<3; ++i)
+	for (int i=0; i<3; ++i)
 	{
 		transMat.Elements[3][i] = e->origin[i]; // set translation
 	}
@@ -577,14 +577,14 @@ colorsEqual(const byte c1[3], const byte c2[3])
 static inline qboolean
 lmstylesEqual(const byte st1[MAXLIGHTMAPS], const byte st2[MAXLIGHTMAPS])
 {
-	for(int i=0; i<MAXLIGHTMAPS; ++i)
+	for (int i=0; i<MAXLIGHTMAPS; ++i)
 	{
 		byte astyle = st1[i];
-		if(astyle != st2[i])
+		if (astyle != st2[i])
 			return false;
 		// 255 indicates that this and the remaining styles can be ignored
 		// (still needed to check first if a and b agree about ignoring it)
-		if(astyle == 255)
+		if (astyle == 255)
 			break;
 	}
 	return true;
@@ -596,13 +596,13 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 	int i;
 	qboolean hasChanged = false;
 
-	for(i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
+	for (i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
 	{
-		if(hasChanged)
+		if (hasChanged)
 		{
 			si->lmScales[i] = lmScales[i];
 		}
-		else if(   si->lmScales[i].R != lmScales[i].R
+		else if (   si->lmScales[i].R != lmScales[i].R
 		        || si->lmScales[i].G != lmScales[i].G
 		        || si->lmScales[i].B != lmScales[i].B
 		        || si->lmScales[i].A != lmScales[i].A )
@@ -612,7 +612,7 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 		}
 	}
 
-	if(hasChanged)
+	if (hasChanged)
 	{
 		glUniform4fv(si->uniLmScalesOrTime, MAX_LIGHTMAPS_PER_SURFACE, si->lmScales[0].Elements);
 	}
@@ -620,7 +620,7 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 
 void GL3_Draw3DBatchesNow()
 {
-	if(da_count(drawCmds) == 0)
+	if (da_count(drawCmds) == 0)
 		return;
 
 	GL3_BindVAO(gl3state.vao3D);
@@ -651,7 +651,7 @@ void GL3_Draw3DBatchesNow()
 
 	gl3ShaderInfo_t* shader = NULL;
 
-	for(int i=0, n=da_count(drawCmds); i < n; ++i)
+	for (int i=0, n=da_count(drawCmds); i < n; ++i)
 	{
 		gl3drawCmd_t* cmd = da_getptr(drawCmds, i);
 
@@ -659,44 +659,44 @@ void GL3_Draw3DBatchesNow()
 		int curFlags = curState.flags;
 		qboolean updateUni3D = false;
 
-		if(cmd->shaderIdx != curState.shaderIdx)
+		if (cmd->shaderIdx != curState.shaderIdx)
 		{
 			shader = GL3_GetDrawCmdShader(cmd);
 			GL3_UseProgram( shader->shaderProgram );
 		}
-		if(cmd->texnum != gl3state.currenttexture)
+		if (cmd->texnum != gl3state.currenttexture)
 			GL3_Bind(cmd->texnum);
-		if(cmd->lmtexnum >= 0)
+		if (cmd->lmtexnum >= 0)
 			GL3_BindLightmap(cmd->lmtexnum);
 
-		if((flags & DCFlag_DisableDepthMask) != (curFlags & DCFlag_DisableDepthMask))
+		if ((flags & DCFlag_DisableDepthMask) != (curFlags & DCFlag_DisableDepthMask))
 			glDepthMask((flags & DCFlag_DisableDepthMask) == 0);
 
-		if((flags & DCFlag_Blend) != (curFlags & DCFlag_Blend))
+		if ((flags & DCFlag_Blend) != (curFlags & DCFlag_Blend))
 		{
-			if(flags & DCFlag_Blend)
+			if (flags & DCFlag_Blend)
 				glEnable(GL_BLEND);
 			else
 				glDisable(GL_BLEND);
 		}
 
-		if((flags & DCFlag_Flare) != (curFlags & DCFlag_Flare))
+		if ((flags & DCFlag_Flare) != (curFlags & DCFlag_Flare))
 		{
-			if(flags & DCFlag_Flare)
+			if (flags & DCFlag_Flare)
 				glBlendFunc(GL_ONE, GL_ONE);
 			else
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		}
 
-		if((flags & DCFlag_PolyOffsetFill) != (curFlags & DCFlag_PolyOffsetFill))
+		if ((flags & DCFlag_PolyOffsetFill) != (curFlags & DCFlag_PolyOffsetFill))
 		{
-			if(flags & DCFlag_PolyOffsetFill)
+			if (flags & DCFlag_PolyOffsetFill)
 				glEnable(GL_POLYGON_OFFSET_FILL);
 			else
 				glDisable(GL_POLYGON_OFFSET_FILL);
 		}
 
-		if((flags & DCFlag_UseScroll) && (
+		if ((flags & DCFlag_UseScroll) && (
 			cmd->sscroll != gl3state.uni3DData.sscroll ||
 			cmd->tscroll != gl3state.uni3DData.tscroll))
 		{
@@ -705,18 +705,18 @@ void GL3_Draw3DBatchesNow()
 			updateUni3D = true;
 		}
 
-		if((flags & DCFlag_UseLightScaleForTurb)
+		if ((flags & DCFlag_UseLightScaleForTurb)
 		   && cmd->lightScaleForTurb != gl3state.uni3DData.lightScaleForTurb)
 		{
 			gl3state.uni3DData.lightScaleForTurb = cmd->lightScaleForTurb;
 			updateUni3D = true;
 		}
 
-		if((flags & DCFlag_UseLmStyles) && !lmstylesEqual(cmd->styles, curState.styles))
+		if ((flags & DCFlag_UseLmStyles) && !lmstylesEqual(cmd->styles, curState.styles))
 		{
 			hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
 			lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-			for(int map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && cmd->styles[map] != 255; map++)
+			for (int map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && cmd->styles[map] != 255; map++)
 			{
 				lmScales[map].R = r_newrefdef.lightstyles[cmd->styles[map]].rgb[0];
 				lmScales[map].G = r_newrefdef.lightstyles[cmd->styles[map]].rgb[1];
@@ -726,9 +726,9 @@ void GL3_Draw3DBatchesNow()
 			UpdateLMscales(lmScales, shader);
 		}
 
-		if(flags & DCFlag_UseColor)
+		if (flags & DCFlag_UseColor)
 		{
-			if(cmd->alpha != curState.alpha || !colorsEqual(cmd->color, curState.color))
+			if (cmd->alpha != curState.alpha || !colorsEqual(cmd->color, curState.color))
 			{
 				gl3state.uniCommonData.color.R = cmd->color[0] * (1.0f/255.0f);
 				gl3state.uniCommonData.color.G = cmd->color[1] * (1.0f/255.0f);
@@ -737,19 +737,19 @@ void GL3_Draw3DBatchesNow()
 				GL3_UpdateUBOCommon();
 			}
 		}
-		else if((flags & DCFlag_Blend) && cmd->alpha != gl3state.uni3DData.alpha)
+		else if ((flags & DCFlag_Blend) && cmd->alpha != gl3state.uni3DData.alpha)
 		{
 			gl3state.uni3DData.alpha = cmd->alpha;
 			updateUni3D = true;
 		}
 
-		if(cmd->transModelMatIdx != curState.transModelMatIdx)
+		if (cmd->transModelMatIdx != curState.transModelMatIdx)
 		{
 			gl3state.uni3DData.transModelMat4 = da_get(transModelMats, cmd->transModelMatIdx);
 			updateUni3D = true;
 		}
 
-		if(updateUni3D)
+		if (updateUni3D)
 			GL3_UpdateUBO3D();
 
 		uintptr_t elemOffset = cmd->idxBufOffset * sizeof(GLushort);
@@ -766,43 +766,43 @@ void GL3_Draw3DBatchesNow()
 	da_setcount(transModelMats, 1); // keep index 0 (identity matrix)
 
 	// restore sane default for other draw operations (models, particles, 2D)
-	if(curState.transModelMatIdx != 0)
+	if (curState.transModelMatIdx != 0)
 	{
 		gl3state.uni3DData.transModelMat4 = gl3_identityMat4;
 		GL3_UpdateUBO3D();
 	}
 	int curFlags = curState.flags;
-	if(curFlags & DCFlag_Blend)
+	if (curFlags & DCFlag_Blend)
 		glDisable(GL_BLEND);
-	if(curFlags & DCFlag_DisableDepthMask)
+	if (curFlags & DCFlag_DisableDepthMask)
 		glDepthMask(GL_TRUE);
 
-	if(curFlags & DCFlag_PolyOffsetFill)
+	if (curFlags & DCFlag_PolyOffsetFill)
 		glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 static qboolean drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 {
-	if( a->flags != b->flags || a->shaderIdx != b->shaderIdx
+	if ( a->flags != b->flags || a->shaderIdx != b->shaderIdx
 	   || a->texnum != b->texnum || a->lmtexnum != b->lmtexnum
 	   || a->transModelMatIdx != b->transModelMatIdx )
 		return false;
 
 	int flags = a->flags; // at this point we know the flags are identical
 
-	if((flags & DCFlag_UseScroll) && (a->sscroll != b->sscroll || a->tscroll != b->tscroll))
+	if ((flags & DCFlag_UseScroll) && (a->sscroll != b->sscroll || a->tscroll != b->tscroll))
 		return false;
 
-	if((flags & DCFlag_UseLightScaleForTurb) && a->lightScaleForTurb != b->lightScaleForTurb)
+	if ((flags & DCFlag_UseLightScaleForTurb) && a->lightScaleForTurb != b->lightScaleForTurb)
 		return false;
 
-	if( (flags & DCFlag_UseColor) && !colorsEqual(a->color, b->color) )
+	if ( (flags & DCFlag_UseColor) && !colorsEqual(a->color, b->color) )
 		return false;
 
-	if(a->alpha != b->alpha)
+	if (a->alpha != b->alpha)
 		return false;
 
-	if((flags & DCFlag_UseLmStyles) && !lmstylesEqual(a->styles, b->styles))
+	if ((flags & DCFlag_UseLmStyles) && !lmstylesEqual(a->styles, b->styles))
 		return false;
 
 	return true;
@@ -831,9 +831,9 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 	assert(drawCmd.shaderIdx != -1);
 
 	// translate triangle fan/strip to just triangle indices
-	if(drawMode == GL_TRIANGLE_FAN)
+	if (drawMode == GL_TRIANGLE_FAN)
 	{
-		for(GLushort i=1; i < numVerts-1; ++i)
+		for (GLushort i=1; i < numVerts-1; ++i)
 		{
 			GLushort* add = da_addn_uninit(idxBuf, 3);
 
@@ -842,10 +842,10 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 			add[2] = nextVtxIdx+i+1;
 		}
 	}
-	else if(drawMode == GL_TRIANGLE_STRIP)
+	else if (drawMode == GL_TRIANGLE_STRIP)
 	{
 		GLushort i;
-		for(i=1; i < numVerts-2; i+=2)
+		for (i=1; i < numVerts-2; i+=2)
 		{
 			// add two triangles at once, because the vertex order is different
 			// for odd vs even triangles
@@ -860,7 +860,7 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 			add[5] = nextVtxIdx + i+1;
 		}
 		// add remaining triangle, if any
-		if(i < numVerts-1)
+		if (i < numVerts-1)
 		{
 			GLushort* add = da_addn_uninit(idxBuf, 3);
 
@@ -869,10 +869,10 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 			add[2] = nextVtxIdx + i+1;
 		}
 	}
-	else if(drawMode == GL_TRIANGLES)
+	else if (drawMode == GL_TRIANGLES)
 	{
 		GLushort* add = da_addn_uninit(idxBuf, numVerts);
-		for(GLushort i=0; i<numVerts; ++i)
+		for (GLushort i=0; i<numVerts; ++i)
 			add[i] = nextVtxIdx + i;
 	}
 	else
@@ -886,7 +886,7 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 	int numAddedIndices = da_count(idxBuf) - drawCmd.idxBufOffset;
 
 	gl3drawCmd_t* lastDrawCmd = da_lastptr(drawCmds);
-	if(lastDrawCmd != NULL && drawStateEqual(lastDrawCmd, &drawCmd))
+	if (lastDrawCmd != NULL && drawStateEqual(lastDrawCmd, &drawCmd))
 	{
 		lastDrawCmd->numElements += numAddedIndices;
 	}
@@ -1060,7 +1060,7 @@ GL3_DrawNullModel(entity_t *currententity)
 	vec3_t shadelight;
 	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
 
-	if(currententity->flags & RF_TRANSLUCENT)
+	if (currententity->flags & RF_TRANSLUCENT)
 		drawCmd.flags |= DCFlag_DisableDepthMask;
 
 	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
@@ -1076,7 +1076,7 @@ GL3_DrawNullModel(entity_t *currententity)
 	GL3_RotateForEntity(currententity, &drawCmd);
 
 	drawCmd.alpha = 1.0f;
-	for(int i=0; i<3; ++i)
+	for (int i=0; i<3; ++i)
 	{
 		int c = shadelight[i] * 255.0f;
 		drawCmd.color[i] = c & 255;

@@ -329,7 +329,7 @@ extern int gl_filter_max;
 static inline void
 GL4_UseProgram(GLuint shaderProgram)
 {
-	if(shaderProgram != gl4state.currentShaderProgram)
+	if (shaderProgram != gl4state.currentShaderProgram)
 	{
 		gl4state.currentShaderProgram = shaderProgram;
 		glUseProgram(shaderProgram);
@@ -339,7 +339,7 @@ GL4_UseProgram(GLuint shaderProgram)
 static inline void
 GL4_BindVAO(GLuint vao)
 {
-	if(vao != gl4state.currentVAO)
+	if (vao != gl4state.currentVAO)
 	{
 		gl4state.currentVAO = vao;
 		glBindVertexArray(vao);
@@ -349,7 +349,7 @@ GL4_BindVAO(GLuint vao)
 static inline void
 GL4_BindVBO(GLuint vbo)
 {
-	if(vbo != gl4state.currentVBO)
+	if (vbo != gl4state.currentVBO)
 	{
 		gl4state.currentVBO = vbo;
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -359,7 +359,7 @@ GL4_BindVBO(GLuint vbo)
 static inline void
 GL4_BindEBO(GLuint ebo)
 {
-	if(ebo != gl4state.currentEBO)
+	if (ebo != gl4state.currentEBO)
 	{
 		gl4state.currentEBO = ebo;
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -418,7 +418,7 @@ extern void GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, 
 static inline void
 GL4_SelectTMU(GLenum tmu)
 {
-	if(gl4state.currenttmu != tmu)
+	if (gl4state.currenttmu != tmu)
 	{
 		glActiveTexture(tmu);
 		gl4state.currenttmu = tmu;

@@ -337,13 +337,13 @@ enum {
 static inline void
 GL3_SetDrawCmdShader(gl3drawCmd_t* drawCmd, const gl3ShaderInfo_t* shader)
 {
-	if(shader == NULL)
+	if (shader == NULL)
 	{
 		drawCmd->shaderIdx = -1;
 		return;
 	}
 	ptrdiff_t offset = shader - &gl3state.si2D;
-	if( offset >= 0 && offset < _gl3_numShaders)
+	if ( offset >= 0 && offset < _gl3_numShaders)
 	{
 		drawCmd->shaderIdx = offset;
 	}
@@ -358,7 +358,7 @@ static inline gl3ShaderInfo_t*
 GL3_GetDrawCmdShader(const gl3drawCmd_t* drawCmd)
 {
 	unsigned shaderIdx = drawCmd->shaderIdx;
-	if(shaderIdx >= _gl3_numShaders) // because it's unsigned this also handles shaderIdx -1
+	if (shaderIdx >= _gl3_numShaders) // because it's unsigned this also handles shaderIdx -1
 		return NULL;
 	return &gl3state.si2D + shaderIdx;
 }
@@ -425,7 +425,7 @@ extern int gl_filter_max;
 static inline void
 GL3_UseProgram(GLuint shaderProgram)
 {
-	if(shaderProgram != gl3state.currentShaderProgram)
+	if (shaderProgram != gl3state.currentShaderProgram)
 	{
 		gl3state.currentShaderProgram = shaderProgram;
 		glUseProgram(shaderProgram);
@@ -435,7 +435,7 @@ GL3_UseProgram(GLuint shaderProgram)
 static inline void
 GL3_BindVAO(GLuint vao)
 {
-	if(vao != gl3state.currentVAO)
+	if (vao != gl3state.currentVAO)
 	{
 		gl3state.currentVAO = vao;
 		glBindVertexArray(vao);
@@ -445,7 +445,7 @@ GL3_BindVAO(GLuint vao)
 static inline void
 GL3_BindVBO(GLuint vbo)
 {
-	if(vbo != gl3state.currentVBO)
+	if (vbo != gl3state.currentVBO)
 	{
 		gl3state.currentVBO = vbo;
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -455,7 +455,7 @@ GL3_BindVBO(GLuint vbo)
 static inline void
 GL3_BindEBO(GLuint ebo)
 {
-	if(ebo != gl3state.currentEBO)
+	if (ebo != gl3state.currentEBO)
 	{
 		gl3state.currentEBO = ebo;
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -521,7 +521,7 @@ extern void GL3_EndFrame(void);
 static inline void
 GL3_SelectTMU(GLenum tmu)
 {
-	if(gl3state.currenttmu != tmu)
+	if (gl3state.currenttmu != tmu)
 	{
 		glActiveTexture(tmu);
 		gl3state.currenttmu = tmu;
