@@ -910,7 +910,7 @@ GL3_DrawBeam(entity_t *e)
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	mvtx_t verts[NUM_BEAM_SEGS*4];
+	mvtx_t verts[NUM_BEAM_SEGS * 4] = {0};
 
 	oldorigin[0] = e->oldorigin[0];
 	oldorigin[1] = e->oldorigin[1];
@@ -971,7 +971,7 @@ static void
 GL3_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	mvtx_t verts[4];
+	mvtx_t verts[4] = {0};
 	const dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;

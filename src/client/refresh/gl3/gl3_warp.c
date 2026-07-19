@@ -165,7 +165,7 @@ GL3_DrawSkyBox(void)
 	// TODO: this could all be done in one drawcall.. but.. whatever, it's <= 6 drawcalls/frame
 	//       also, they use different textures..
 
-	mvtx_t skyVertices[4];
+	mvtx_t skyVertices[4] = {0};
 
 	for (i = 0; i < 6; i++)
 	{
