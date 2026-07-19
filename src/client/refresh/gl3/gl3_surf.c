@@ -183,11 +183,14 @@ GL3_DrawGLFlowingPoly(const msurface_t *fa, gl3drawCmd_t drawCmd)
 	GL3_BufferAndDraw3D(p->verts, p->numverts, GL_TRIANGLE_FAN, drawCmd);
 }
 
+#define LINE_VTX_COUNT (256 * 6)
+
 static void
 DrawTriangleOutlines(void)
 {
+	static mvtx_t vtx[LINE_VTX_COUNT];
 	const msurface_t *surf;
-	size_t i;
+	size_t i, curr_vtx;
 
 	if (!r_showtris->value)
 	{
@@ -204,6 +207,9 @@ DrawTriangleOutlines(void)
 	GL3_BindVAO(gl3state.vao3D);
 	GL3_BindVBO(gl3state.vbo3D);
 
+	curr_vtx = 0;
+
+	memset(vtx, 0, sizeof(vtx));
 	for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
 	{
 		const mpoly_t *p;
@@ -219,35 +225,39 @@ DrawTriangleOutlines(void)
 
 			for (j = 2; j < p->numverts; j++)
 			{
-				mvtx_t vtx[4];
 				size_t k;
+
+				if (curr_vtx > (LINE_VTX_COUNT - 6))
+				{
+					glBufferData(GL_ARRAY_BUFFER, sizeof(vtx), vtx, GL_STREAM_DRAW);
+					glDrawArrays(GL_LINES, 0, curr_vtx);
+					curr_vtx = 0;
+					memset(vtx, 0, sizeof(vtx));
+				}
 
 				for (k = 0; k < 3; k++)
 				{
-					vtx[0].pos[k] = p->verts[0].pos[k];
-					vtx[1].pos[k] = p->verts[j - 1].pos[k];
-					vtx[2].pos[k] = p->verts[j].pos[k];
-					vtx[3].pos[k] = p->verts[0].pos[k];
+					vtx[curr_vtx + 0].pos[k] = p->verts[0].pos[k];
+					vtx[curr_vtx + 1].pos[k] = p->verts[j - 1].pos[k];
+
+					vtx[curr_vtx + 2].pos[k] = p->verts[j - 1].pos[k];
+					vtx[curr_vtx + 3].pos[k] = p->verts[j].pos[k];
+
+					vtx[curr_vtx + 4].pos[k] = p->verts[j].pos[k];
+					vtx[curr_vtx + 5].pos[k] = p->verts[0].pos[k];
 				}
 
-				// set other fields to 0
-				for (k = 0; k < 4; k++)
-				{
-					vtx[k].texCoord[0] = 0;
-					vtx[k].texCoord[1] = 0;
-					vtx[k].lmTexCoord[0] = 0;
-					vtx[k].lmTexCoord[1] = 0;
-					vtx[k].normal[0] = 0;
-					vtx[k].normal[1] = 0;
-					vtx[k].normal[2] = 0;
-					vtx[k].lightFlags = 0;
-				}
-
-				glBufferData(GL_ARRAY_BUFFER, sizeof(vtx), vtx, GL_STREAM_DRAW);
-				glDrawArrays(GL_LINE_STRIP, 0, 4);
+				curr_vtx += 6;
 			}
 		}
 	}
+
+	if (curr_vtx)
+	{
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vtx), vtx, GL_STREAM_DRAW);
+		glDrawArrays(GL_LINES, 0, curr_vtx);
+	}
+
 	glEnable(GL_DEPTH_TEST);
 }
 
@@ -521,8 +531,6 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 		modelorg[2] = DotProduct(temp, up);
 	}
 
-	//glPushMatrix();
-
 	e->angles[0] = -e->angles[0];
 	e->angles[2] = -e->angles[2];
 	GL3_RotateForEntity(e, &drawCmd);
@@ -530,8 +538,6 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 	e->angles[2] = -e->angles[2];
 
 	DrawInlineBModel(e, currentmodel, drawCmd);
-
-	// glPopMatrix();
 }
 
 static void
