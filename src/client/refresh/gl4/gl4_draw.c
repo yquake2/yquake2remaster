@@ -539,7 +539,7 @@ GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 
 	if (!r_bloom || !r_bloom->value)
 	{
-		drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
+		drawTexturedRectangleNow(x, y, w, h, 0, 0, 1, 1);
 		return;
 	}
 

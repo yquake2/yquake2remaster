@@ -504,27 +504,13 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 void
 GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4])
 {
-	GLuint finalTex = fboTexture;
-	qboolean bloomActive = false;
-
-	/* check for r_bloom */
-	if (r_bloom && r_bloom->value)
-	{
-		GLuint bloom = GL3_ApplyBloom(fboTexture, w, h);
-		if (bloom != 0)
-		{
-			finalTex = bloom;
-			bloomActive = true;
-		}
-	}
-
 	qboolean underwater = (r_newrefdef.rdflags & RDF_UNDERWATER) != 0;
 	gl3ShaderInfo_t* shader = underwater ? &gl3state.si2DpostProcessWater
 	                                     : &gl3state.si2DpostProcess;
 
 	/* select shader and bind scene texture */
 	GL3_UseProgram(shader->shaderProgram);
-	GL3_Bind(finalTex);
+	GL3_Bind(fboTexture);
 
 	/* set shader uniforms if present */
 	if (underwater && shader->uniLmScalesOrTime != -1)
@@ -537,52 +523,7 @@ GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 		glUniform4fv(shader->uniVblend, 1, v_blend);
 	}
 
-	if (!r_bloom || !r_bloom->value)
-	{
-		drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
-	}
-	else
-	{
-		/*
-		 * Build a small fullscreen quad vertex array and upload it into the
-		 * shared VBO. We use the same VBO/VAO used by other 2D draw helpers
-		 * (vao2D / vbo2D). The VAO already has pointers configured
-		 * in GL3_Draw_InitLocal(), so we only need to upload the vertex data.
-		 *
-		 * Vertex layout (matches VAO setup): X, Y, S, T
-		 */
-		GLfloat fsQuad[16];
-
-		GL3_DrawCurrent2Dbatch();
-
-		if (bloomActive && underwater)
-		{
-			/* invert T coordinates to compensate for FBO orientation underwater */
-			fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 0.0f;
-			fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 1.0f;
-			fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 0.0f;
-			fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 1.0f;
-		}
-		else
-		{
-			fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 1.0f;
-			fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 0.0f;
-			fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 1.0f;
-			fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 0.0f;
-		}
-
-		GL3_BindVAO(vao2D);
-		GL3_BindVBO(vbo2D);
-
-		glBufferData(GL_ARRAY_BUFFER, sizeof(fsQuad), fsQuad, GL_STREAM_DRAW);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		GL3_BindVAO(0);
-	}
-
-	if (finalTex != fboTexture)
-	{
-		glDeleteTextures(1, &finalTex);
-	}
+	drawTexturedRectangleNow(x, y, w, h, 0, 0, 1, 1);
 }
 
 /*
@@ -665,13 +606,6 @@ GL3_Draw_Flash(const float color[4], float x, float y, float w, float h)
 	};
 
 	glEnable(GL_BLEND);
-
-	if (r_bloom && r_bloom->value)
-	{
-		/* this blends the screen flash while bloom is enabled
-		 * TODO: disable broke fixing window on disable bloom */
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
 
 	for (i = 0; i < 4; ++i)
 	{
@@ -848,11 +782,6 @@ GLuint
 GL3_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 {
 	GLint locTex, locDir;
-
-	if (!r_bloom || !r_bloom->value)
-	{
-		return 0;
-	}
 
 	int w = Q_max(sceneW, 1);
 	int h = Q_max(sceneH, 1);

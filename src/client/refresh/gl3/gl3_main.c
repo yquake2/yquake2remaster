@@ -1839,15 +1839,6 @@ GL3_RenderView(const refdef_t *fd)
 		bloomInit = true;
 	}
 
-	if (r_bloom && r_bloom->value)
-	{
-		/* render scene */
-		glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
-		glViewport(0, 0, vid.width, vid.height);
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
 	SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, gl3_origin,
@@ -1884,57 +1875,6 @@ GL3_RenderView(const refdef_t *fd)
 		Com_Printf("%5i ms %4i nodes %4i wpoly %4i epoly %i tex %i lmaps\n",
 				ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
 				c_visible_lightmaps);
-	}
-
-	if (r_bloom && r_bloom->value)
-	{
-		GLuint compositeTex;
-
-		/* apply bloom */
-		GL3_SetGL2D();
-
-		compositeTex = GL3_ApplyBloom(sceneColorTex, vid.width, vid.height);
-
-		if (compositeTex != 0)
-		{
-			/* draw to framebuffer */
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, vid.width, vid.height);
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			/* draw fullscreen quad */
-			glDisable(GL_DEPTH_TEST);
-			GL3_UseProgram(gl3state.si2DpostProcess.shaderProgram);
-			GL3_Bind(compositeTex);
-
-			if (gl3state.si2DpostProcess.uniLmScalesOrTime != -1)
-				glUniform1f(gl3state.si2DpostProcess.uniLmScalesOrTime, r_newrefdef.time);
-
-			if (gl3state.si2DpostProcess.uniVblend != -1)
-			{
-				float zeroBlend[4] = {0,0,0,0};
-				glUniform4fv(gl3state.si2DpostProcess.uniVblend, 1, zeroBlend);
-			}
-
-			glBindVertexArray(fullscreenVAO);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			glBindVertexArray(0);
-
-			/* cleanup */
-			GL3_Bind(0);
-			glEnable(GL_DEPTH_TEST);
-			glDeleteTextures(1, &compositeTex);
-		}
-		else
-		{
-			/* blit to default framebuffer */
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFBO);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			glBlitFramebuffer(0, 0, vid.width, vid.height,
-							  0, 0, vid.width, vid.height,
-							  GL_COLOR_BUFFER_BIT, GL_NEAREST);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		}
 	}
 
 #if 0 // TODO: stereo stuff
