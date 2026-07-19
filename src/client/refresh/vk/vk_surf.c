@@ -86,13 +86,15 @@ R_DrawPoly(const msurface_t *fa, image_t *texture, const float *color)
 	vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
 }
 
+#define LINE_VTX_COUNT (256 * 6)
+
 static void
 R_DrawTriangleOutlines(void)
 {
 	VkDeviceSize vboOffset;
 	VkBuffer vbo;
-	mpoly_t *p;
-	size_t i;
+	const msurface_t *surf;
+	size_t i, curr_vtx;
 
 	if (!r_showtris->value)
 	{
@@ -100,10 +102,13 @@ R_DrawTriangleOutlines(void)
 	}
 
 	vec3_t color = { 1.f, 1.f, 1.f };
-	struct {
+
+	typedef struct {
 		vec3_t v;
 		vec3_t color;
-	} triVert[4];
+	} triVert_t;
+
+	static triVert_t triVert[LINE_VTX_COUNT];
 
 	QVk_BindPipeline(&vk_showTrisPipeline);
 	uint32_t uboOffset;
@@ -112,39 +117,64 @@ R_DrawTriangleOutlines(void)
 	memcpy(uboData, r_viewproj_matrix, sizeof(r_viewproj_matrix));
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_showTrisPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 
-	for (i = 0; i < MAX_LIGHTMAPS; i++)
+	curr_vtx = 0;
+	for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
 	{
-		msurface_t *surf;
+		const mpoly_t *p;
 
-		for (surf = r_lms.lightmap_surfaces[i]; surf != 0; surf = surf->lightmapchain)
+		if (surf->visframe != r_framecount)
 		{
-			p = surf->polys;
-			for (; p; p = p->chain)
+			continue;
+		}
+
+		p = surf->polys;
+		for (; p; p = p->chain)
+		{
+			size_t j;
+
+			for (j = 2; j < p->numverts; j++)
 			{
-				size_t j, k;
+					if (curr_vtx > (LINE_VTX_COUNT - 6))
+					{
+						uint8_t *vertData;
 
-				for (j = 2, k = 0; j < p->numverts; j++, k++)
-				{
-					VectorCopy(p->verts[0].pos, triVert[0].v);
-					memcpy(triVert[0].color, color, sizeof(color));
+						vertData = QVk_GetVertexBuffer(sizeof(triVert_t) * curr_vtx, &vbo, &vboOffset);
+						memcpy(vertData, triVert, sizeof(triVert_t) * curr_vtx);
 
-					VectorCopy(p->verts[j - 1].pos, triVert[1].v);
-					memcpy(triVert[1].color, color, sizeof(color));
+						vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+						vkCmdDraw(vk_activeCmdbuffer, curr_vtx, 1, 0, 0);
+						curr_vtx = 0;
+					}
 
-					VectorCopy(p->verts[j].pos, triVert[2].v);
-					memcpy(triVert[2].color, color, sizeof(color));
+					VectorCopy(p->verts[0].pos, triVert[curr_vtx + 0].v);
+					memcpy(triVert[curr_vtx + 0].color, color, sizeof(color));
+					VectorCopy(p->verts[j - 1].pos, triVert[curr_vtx + 1].v);
+					memcpy(triVert[curr_vtx + 1].color, color, sizeof(color));
 
-					VectorCopy(p->verts[0].pos, triVert[3].v);
-					memcpy(triVert[3].color, color, sizeof(color));
+					VectorCopy(p->verts[j - 1].pos, triVert[curr_vtx + 2].v);
+					memcpy(triVert[curr_vtx + 2].color, color, sizeof(color));
+					VectorCopy(p->verts[j].pos, triVert[curr_vtx + 3].v);
+					memcpy(triVert[curr_vtx + 3].color, color, sizeof(color));
 
-					uint8_t *vertData = QVk_GetVertexBuffer(sizeof(triVert), &vbo, &vboOffset);
-					memcpy(vertData, triVert, sizeof(triVert));
+					VectorCopy(p->verts[j].pos, triVert[curr_vtx + 4].v);
+					memcpy(triVert[curr_vtx + 4].color, color, sizeof(color));
+					VectorCopy(p->verts[0].pos, triVert[curr_vtx + 5].v);
+					memcpy(triVert[curr_vtx + 5].color, color, sizeof(color));
 
-					vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
-					vkCmdDraw(vk_activeCmdbuffer, 4, 1, 0, 0);
-				}
+					curr_vtx += 6;
 			}
 		}
+	}
+
+	if (curr_vtx > 0)
+	{
+		uint8_t *vertData;
+
+		vertData = QVk_GetVertexBuffer(sizeof(triVert_t) * curr_vtx, &vbo, &vboOffset);
+		memcpy(vertData, triVert, sizeof(triVert_t) * curr_vtx);
+
+		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+		vkCmdDraw(vk_activeCmdbuffer, curr_vtx, 1, 0, 0);
 	}
 }
 
