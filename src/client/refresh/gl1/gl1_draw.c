@@ -297,10 +297,7 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 		return;
 	}
 
-	if (gl->scrap)
-	{
-		Scrap_Update();
-	}
+	R_ApplyGLBuffer();	// respect drawing order
 
 	R_Bind(gl->texnum);
 
