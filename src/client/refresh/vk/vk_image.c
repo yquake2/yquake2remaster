@@ -784,11 +784,11 @@ Vk_TextureMode(const char *string)
 		}
 	}
 
-	for (j = 0; j < MAX_SCRAPS; j++)
+	for (j = MAX_SCRAPS_NOLERP; j < MAX_SCRAPS; j++)
 	{
 		if (vk_scrapTextures[j].resource.image != VK_NULL_HANDLE)
 		{
-			if (unfiltered2D || (j < MAX_SCRAPS_NOLERP))
+			if (unfiltered2D)
 			{
 				/* use S_NEAREST for scrap (nolerp images) */
 				QVk_UpdateTextureSampler(&vk_scrapTextures[j], S_NEAREST, false);
@@ -876,11 +876,11 @@ if vk_picmip is set. Does not use power of 2 scaling.
 ===============
 */
 static uint32_t
-Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
+Vk_Upload32Native(byte *data, size_t width, size_t height, imagetype_t type,
 	byte **texBuffer, int *upload_width, int *upload_height)
 {
-	int	scaled_width = width, scaled_height = height;
-	int	miplevel = 1;
+	size_t scaled_width = width, scaled_height = height;
+	int miplevel = 1;
 
 	*texBuffer = NULL;
 
@@ -928,7 +928,7 @@ Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
 	*upload_width = scaled_width;
 	*upload_height = scaled_height;
 
-	// world textures
+	/* world textures */
 	if (type != it_pic && type != it_sky)
 	{
 		Vk_LightScaleTexture(*texBuffer, scaled_width, scaled_height);
@@ -939,9 +939,15 @@ Vk_Upload32Native(byte *data, int width, int height, imagetype_t type,
 		scaled_width >>= 1;
 		scaled_height >>= 1;
 		if (scaled_width < 1)
+		{
 			scaled_width = 1;
+		}
+
 		if (scaled_height < 1)
+		{
 			scaled_height = 1;
+		}
+
 		miplevel++;
 	}
 
@@ -956,7 +962,7 @@ Returns number of mip levels
 ===============
 */
 static uint32_t
-Vk_Upload8(const byte *data, int width, int height, imagetype_t type,
+Vk_Upload8(const byte *data, size_t width, size_t height, imagetype_t type,
 	byte **texBuffer, int *upload_width, int *upload_height)
 {
 	unsigned *trans = NULL;
@@ -1146,7 +1152,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : MAX_SCRAPS_NOLERP);
 		}
 		else if (bits == 8)
 		{
@@ -1155,7 +1161,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : MAX_SCRAPS_NOLERP);
 				free(trans);
 			}
 		}
@@ -1170,7 +1176,7 @@ Vk_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			goto nonscrap;
 		}
 
-		if ((nolerp || default2Dnolerp) && texnum >= MAX_SCRAPS_NOLERP)
+		if (nolerp && texnum >= MAX_SCRAPS_NOLERP)
 		{
 			Com_Printf("%s: Nolerp image stored to lerp\n", name);
 		}
