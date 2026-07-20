@@ -99,6 +99,10 @@ cvar_t *gl_finish;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usefbo;
 
+#ifdef YQ2_GL3_GLES
+cvar_t *gl_discardfb;
+#endif
+
 cvar_t *gl3_show_draw_stats;
 
 DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
@@ -217,6 +221,11 @@ GL3_Register(void)
 	gl3_intensity_2D = ri.Cvar_Get("gl3_intensity_2D", "1.5", CVAR_ARCHIVE);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl3_overbrightbits = ri.Cvar_Get("gl3_overbrightbits", "1.3", CVAR_ARCHIVE);
+
+#ifdef YQ2_GL3_GLES
+	gl_discardfb = ri.Cvar_Get("gl_discardfb", "1", CVAR_ARCHIVE);
+#endif
+
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
 	gl3_show_draw_stats = ri.Cvar_Get("gl3_show_draw_stats", "0", CVAR_ARCHIVE);
@@ -488,6 +497,21 @@ GL3_Init(void)
 	{
 		Com_Printf(" - OpenGL Debug Output: Not Supported\n");
 	}
+
+#ifdef YQ2_GL3_GLES
+	if(gl3config.discardfb)
+	{
+		Com_Printf(" - OpenGL ES EXT_discard_framebuffer: Supported ");
+		if(gl_discardfb->value == 0.0f)
+			Com_Printf("but disabled with gl_discardfb = 0\n");
+		else
+			Com_Printf("and enabled with gl_discardfb = %d\n", (int)gl_discardfb->value);
+	}
+	else
+	{
+		Com_Printf(" - OpenGL ES EXT_discard_framebuffer: Not Supported\n");
+	}
+#endif
 
 	// generate texture handles for all possible lightmaps
 	glGenTextures(MAX_LIGHTMAPS*MAX_LIGHTMAPS_PER_SURFACE, gl3state.lightmap_textureIDs[0]);
