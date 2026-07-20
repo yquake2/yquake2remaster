@@ -724,6 +724,7 @@ lmstylesEqual(const byte st1[MAXLIGHTMAPS], const byte st2[MAXLIGHTMAPS])
 	return true;
 }
 
+#if 0
 static void
 UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo_t* si)
 {
@@ -751,6 +752,7 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 		glUniform4fv(si->uniLmScalesOrTime, MAX_LIGHTMAPS_PER_SURFACE, si->lmScales[0].Elements);
 	}
 }
+#endif
 
 void GL3_Draw3DBatchesNow()
 {
@@ -833,7 +835,7 @@ void GL3_Draw3DBatchesNow()
 			gl3state.uni3DData.lightScaleForTurb = cmd->lightScaleForTurb;
 			updateUni3D = true;
 		}
-
+#if 0
 		if((flags & DCFlag_UseLmStyles) && !lmstylesEqual(cmd->styles, curState.styles))
 		{
 			hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
@@ -847,6 +849,7 @@ void GL3_Draw3DBatchesNow()
 			}
 			UpdateLMscales(lmScales, shader);
 		}
+#endif
 
 		if(flags & DCFlag_UseColor)
 		{
@@ -923,10 +926,10 @@ static qboolean drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 
 	if(a->alpha != b->alpha)
 		return false;
-
+#if 0
 	if((flags & DCFlag_UseLmStyles) && !lmstylesEqual(a->styles, b->styles))
 		return false;
-
+#endif
 	return true;
 }
 
@@ -1888,6 +1891,7 @@ GL3_RenderView(refdef_t *fd)
 	}
 
 	GL3_PushDlights();
+	GL3_UpdateLightmapStyles();
 
 	if (gl_finish->value)
 	{

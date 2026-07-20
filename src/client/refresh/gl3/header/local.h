@@ -96,7 +96,8 @@ enum {
 	GL3_ATTRIB_LMTEXCOORD = 2, // for lightmap
 	GL3_ATTRIB_COLOR      = 3, // per-vertex color
 	GL3_ATTRIB_NORMAL     = 4, // vertex normal
-	GL3_ATTRIB_LIGHTFLAGS = 5  // uint, each set bit means "dyn light i affects this surface"
+	GL3_ATTRIB_LIGHTFLAGS = 5,  // uint, each set bit means "dyn light i affects this surface"
+	GL3_ATTRIB_LMSTYLEINDICES = 6, // ubyte[4], each in index into gl3UniLightmapStyles_t::lmstyles
 };
 
 // always using RGBA now, GLES3 on RPi4 doesn't work otherwise
@@ -137,7 +138,7 @@ typedef struct
 {
 	GLuint shaderProgram;
 	GLint uniVblend;
-	GLint uniLmScalesOrTime; // for 3D it's lmScales, for 2D underwater PP it's time
+	GLint uniLmScalesOrTime; // for 3D it's lmScales, for 2D underwater PP it's time - TODO: only time
 	hmm_vec4 lmScales[4];
 } gl3ShaderInfo_t;
 
@@ -190,6 +191,16 @@ typedef struct
 	GLuint numDynLights;
 	GLfloat _padding[3];
 } gl3UniLights_t;
+
+typedef struct
+{
+	// lmstyles[0] is always (0,0,0,0)
+	// lmstyles[1] is always (1,1,1,1)
+	// the rest are from r_newrefdef.lightstyles[] (with offset 2)
+	// yes, this means that r_newrefdef.lightstyles[254] is dropped - unlikely to be used anyway..
+	// r_newrefdef.lightstyles[255] was always dropped because 255 was special value for "ignore"
+	hmm_vec4 lmstyles[MAX_LIGHTSTYLES];
+} gl3UniLightmapStyles_t;
 
 enum {
 	// width and height used to be 128, so now we should be able to get the same lightmap data
@@ -266,10 +277,12 @@ typedef struct
 	gl3Uni2D_t uni2DData;
 	gl3Uni3D_t uni3DData;
 	gl3UniLights_t uniLightsData;
+	gl3UniLightmapStyles_t uniLmStylesData;
 	GLuint uniCommonUBO;
 	GLuint uni2DUBO;
 	GLuint uni3DUBO;
 	GLuint uniLightsUBO;
+	GLuint uniLmStylesUBO;
 
 	hmm_mat4 projMat3D;
 	hmm_mat4 viewMat3D;
@@ -290,7 +303,6 @@ typedef struct gl3drawCmd_s {
 	float		alpha; // either part of color or for gl3state.uni3DData.alpha
 	byte		color[3]; // for uniCommonData.color; its alpha chan is in .alpha
 	byte		flags;    // gl3drawCmd_Flags
-	byte		styles[MAXLIGHTMAPS]; // indexes into r_newrefdef.lightstyles[]; 255 means "ignore"
 
 	// the following are set in GL3_BufferAndDraw3D()
 	int			idxBufOffset;
@@ -304,7 +316,7 @@ enum gl3drawCmd_Flags {
 	DCFlag_PolyOffsetFill   =  4, // GL_POLYGON_OFFSET_FILL (glEnable/glDisable) - for gl_zfix
 	DCFlag_UseColor         =  8,
 	DCFlag_UseScroll        = 16,
-	DCFlag_UseLmStyles      = 32,
+	//DCFlag_UseLmStyles      = 32,
 	DCFlag_UseLightScaleForTurb = 64,
 
 	// TODO: DCFlag_SameAsPrevious = 255 for "don't check, just merge into previous command"?
@@ -316,7 +328,6 @@ GL3_CreateDrawCmd(void)
 {
 	gl3drawCmd_t ret = {0};
 	ret.alpha = 1.0f;
-	ret.styles[0] = 255;
 	ret.lmtexnum = -1;
 	ret.shaderIdx = -1;
 	// the other values can remain 0/NULL
@@ -548,6 +559,7 @@ extern int r_dlightframecount;
 extern void GL3_MarkSurfaceLights(dlight_t *light, int bit, mnode_t *node,
 	int r_dlightframecount);
 extern void GL3_PushDlights(void);
+extern void GL3_UpdateLightmapStyles(void);
 extern void GL3_LightPoint(entity_t *currententity, vec3_t p, vec3_t color);
 extern void GL3_BuildLightMap(msurface_t *surf, int offsetInLMbuf, int stride);
 
@@ -598,6 +610,7 @@ extern void GL3_UpdateUBOCommon(void);
 extern void GL3_UpdateUBO2D(void);
 extern void GL3_UpdateUBO3D(void);
 extern void GL3_UpdateUBOLights(void);
+extern void GL3_UpdateUBOLmStyles(void);
 
 // ############ Cvars ###########
 
