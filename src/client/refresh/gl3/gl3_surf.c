@@ -67,6 +67,10 @@ GL3_SurfInit(void)
 	glEnableVertexAttribArray(GL3_ATTRIB_LIGHTFLAGS);
 	qglVertexAttribIPointer(GL3_ATTRIB_LIGHTFLAGS, 1, GL_UNSIGNED_INT, sizeof(mvtx_t), offsetof(mvtx_t, lightFlags));
 
+	glEnableVertexAttribArray(GL3_ATTRIB_LMSTYLEINDICES);
+	// NOTE: in the shader this is an uvec4 (for GLES3 compatibility), so this relies on MAXLIGHTMAPS == 4
+	qglVertexAttribIPointer(GL3_ATTRIB_LMSTYLEINDICES, MAXLIGHTMAPS, GL_UNSIGNED_BYTE, sizeof(mvtx_t), offsetof(mvtx_t, lmStyleIndices));
+
 	glGenBuffers(1, &gl3state.ebo3D);
 
 	// init VAO and VBO for model vertexdata: 9 floats
@@ -262,6 +266,39 @@ DrawTriangleOutlines(void)
 }
 
 static void
+SetLmStyleIndices(msurface_t *surf)
+{
+	// lmstyles[0] is always (0,0,0,0)
+	// lmstyles[1] is always (1,1,1,1)
+	// the rest are from r_newrefdef.lightstyles[] BUT WITH OFFSET 2 !
+	GLubyte styles[MAXLIGHTMAPS] = {0};
+	if(surf->styles[0] == 255)
+	{
+		styles[0] = 1;
+	}
+	else
+	{
+		for (int map = 0; map < MAXLIGHTMAPS && surf->styles[map] != 255; map++)
+		{
+			// NOTE: style index 255 always was used as a special "not set" value
+			//   and I assume/hope that style 254 wasn't really used by anyone either...
+			//   at least on first glance it seems like usually small values < 100 are used
+			// TODO: or can we be sure that cl_lightstyles[0] is always "m" which means (1,1,1,1)?
+			//       in that case we could get away with just adding 1 to surf->styles[map]
+			GLubyte idx = surf->styles[map];
+			styles[map] = idx < 254 ? idx + 2 : 1;
+		}
+	}
+
+	mvtx_t* verts = surf->polys->verts;
+	int numVerts = surf->polys->numverts;
+	for(int i=0; i<numVerts; ++i)
+	{
+		memcpy(verts[i].lmStyleIndices, styles, sizeof(styles));
+	}
+}
+
+static void
 RenderBrushPoly(const entity_t *currententity, msurface_t *fa, gl3drawCmd_t drawCmd)
 {
 	const gl3image_t *image;
@@ -282,8 +319,7 @@ RenderBrushPoly(const entity_t *currententity, msurface_t *fa, gl3drawCmd_t draw
 	// Any dynamic lights on this surface?
 	// TODO: maybe put lightstyles into a uniform (it's just 256 vec4)
 	//       and put fa->styles[] into the 3d draw vertex?
-	memcpy(drawCmd.styles, fa->styles, sizeof(fa->styles));
-	drawCmd.flags |= DCFlag_UseLmStyles;
+	SetLmStyleIndices(fa);
 
 	if (fa->texinfo->flags & SURF_SCROLL)
 	{
@@ -396,9 +432,8 @@ RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf, gl3drawCm
 	assert((surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)) == 0
 			&& "RenderLightMappedPoly mustn't be called with transparent, sky or warping surfaces!");
 
-	// Any dynamic lights on this surface?
-	memcpy(drawCmd.styles, surf->styles, sizeof(surf->styles));
-	drawCmd.flags |= DCFlag_UseLmStyles;
+	// Any dynamic lights on this surface? (ok, not *those* dynamic lights, but switching between lightmaps)
+	SetLmStyleIndices(surf);
 
 	c_brush_polys++;
 

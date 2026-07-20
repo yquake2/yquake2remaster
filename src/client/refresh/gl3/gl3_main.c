@@ -105,7 +105,7 @@ DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
 DA_TYPEDEF(GLushort, UShortArray_t);
 DA_TYPEDEF(gl3drawCmd_t, DrawCommandArray_t);
 DA_TYPEDEF(hmm_mat4, Mat4Array_t);
-// dynamic arrays to batch all consecutive 3D draws (with gl3_3D_vtx_t) with same texture to reduce drawcalls
+// dynamic arrays to batch all consecutive 3D draws (with mvtx_t) with same texture to reduce drawcalls
 static Vtx3DArray_t vtxBuf = {0};
 static UShortArray_t idxBuf = {0};
 static DrawCommandArray_t drawCmds = {0};
@@ -590,6 +590,7 @@ lmstylesEqual(const byte st1[MAXLIGHTMAPS], const byte st2[MAXLIGHTMAPS])
 	return true;
 }
 
+#if 0
 static void
 UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo_t* si)
 {
@@ -617,6 +618,7 @@ UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl3ShaderInfo
 		glUniform4fv(si->uniLmScalesOrTime, MAX_LIGHTMAPS_PER_SURFACE, si->lmScales[0].Elements);
 	}
 }
+#endif
 
 void GL3_Draw3DBatchesNow()
 {
@@ -712,6 +714,7 @@ void GL3_Draw3DBatchesNow()
 			updateUni3D = true;
 		}
 
+#if 0
 		if ((flags & DCFlag_UseLmStyles) && !lmstylesEqual(cmd->styles, curState.styles))
 		{
 			hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
@@ -725,6 +728,7 @@ void GL3_Draw3DBatchesNow()
 			}
 			UpdateLMscales(lmScales, shader);
 		}
+#endif
 
 		if (flags & DCFlag_UseColor)
 		{
@@ -803,9 +807,10 @@ drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 	if (a->alpha != b->alpha)
 		return false;
 
+#if 0
 	if ((flags & DCFlag_UseLmStyles) && !lmstylesEqual(a->styles, b->styles))
 		return false;
-
+#endif
 	return true;
 }
 
@@ -1766,6 +1771,8 @@ GL3_RenderView(const refdef_t *fd)
 	}
 
 	GL3_PushDlights();
+	GL3_UpdateLightmapStyles();
+
 	/* key for leafs/nodes */
 	r_currentkey = 0;
 
