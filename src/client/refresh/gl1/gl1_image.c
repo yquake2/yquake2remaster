@@ -41,9 +41,6 @@ unsigned d_8to24table[256];
 extern cvar_t *gl1_minlight;
 extern byte minlight[256];
 
-qboolean R_Upload8(byte *data, int width, int height,
-		qboolean mipmap, qboolean is_sky);
-
 #define Q2_GL_SOLID_FORMAT GL_RGB
 #define Q2_GL_ALPHA_FORMAT GL_RGBA
 
@@ -335,11 +332,11 @@ R_TextureMode(const char *string)
 		}
 	}
 
-	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	for (texnum = MAX_SCRAPS_NOLERP; texnum < MAX_SCRAPS; texnum++)
 	{
 		R_Bind(TEXNUM_SCRAPS + texnum);
 
-		if (unfiltered2D || (texnum < MAX_SCRAPS_NOLERP))
+		if (unfiltered2D)
 		{
 			// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
 			// so the scrap shouldn't be filtered
@@ -568,7 +565,7 @@ R_BuildPalettedTexture(byte *paletted_texture, byte *scaled,
 }
 
 static qboolean
-R_Upload32Native(unsigned *data, int width, int height, qboolean mipmap)
+R_Upload32Native(unsigned *data, size_t width, size_t height, qboolean mipmap)
 {
 	// This is for GL 2.x so no palettes, no scaling, no messing around with the data here. :)
 	int samples;
@@ -604,7 +601,7 @@ R_Upload32Native(unsigned *data, int width, int height, qboolean mipmap)
 
 
 static qboolean
-R_Upload32Soft(unsigned *data, int width, int height, qboolean mipmap)
+R_Upload32Soft(unsigned *data, size_t width, size_t height, qboolean mipmap)
 {
 	int samples;
 	unsigned scaled[256 * 256];
@@ -783,7 +780,7 @@ done:
 }
 
 qboolean
-R_Upload32(unsigned *data, int width, int height, qboolean mipmap)
+R_Upload32(unsigned *data, size_t width, size_t height, qboolean mipmap)
 {
 	qboolean res;
 
@@ -825,8 +822,8 @@ R_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 /*
  * Returns has_alpha
  */
-qboolean
-R_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
+static qboolean
+R_Upload8(byte *data, size_t width, size_t height, qboolean mipmap, qboolean is_sky)
 {
 	if (gl_config.palettedtexture && is_sky)
 	{
@@ -975,7 +972,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : MAX_SCRAPS_NOLERP);
 		}
 		else if (bits == 8)
 		{
@@ -984,7 +981,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : MAX_SCRAPS_NOLERP);
 				free(trans);
 			}
 		}
@@ -999,7 +996,7 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			goto nonscrap;
 		}
 
-		if ((nolerp || default2Dnolerp) && texnum >= MAX_SCRAPS_NOLERP)
+		if (nolerp && texnum >= MAX_SCRAPS_NOLERP)
 		{
 			Com_Printf("%s: Nolerp image stored to lerp\n", name);
 		}

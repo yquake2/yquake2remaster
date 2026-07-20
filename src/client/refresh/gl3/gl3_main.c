@@ -781,7 +781,8 @@ void GL3_Draw3DBatchesNow()
 		glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
-static qboolean drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
+static qboolean
+drawStateEqual(const gl3drawCmd_t* a, const gl3drawCmd_t* b)
 {
 	if ( a->flags != b->flags || a->shaderIdx != b->shaderIdx
 	   || a->texnum != b->texnum || a->lmtexnum != b->lmtexnum
@@ -822,7 +823,8 @@ GL3_SetDrawCmdTransMatrix(gl3drawCmd_t* drawCmd, hmm_mat4 mat)
 void
 GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawCmd_t drawCmd)
 {
-	if (da_count(vtxBuf)+numVerts > UINT16_MAX) {
+	if (da_count(vtxBuf) + numVerts > UINT16_MAX)
+	{
 		GL3_Draw3DBatchesNow();
 	}
 
@@ -833,7 +835,7 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 	// translate triangle fan/strip to just triangle indices
 	if (drawMode == GL_TRIANGLE_FAN)
 	{
-		for (GLushort i=1; i < numVerts-1; ++i)
+		for (GLushort i = 1; i < numVerts-1; ++i)
 		{
 			GLushort* add = da_addn_uninit(idxBuf, 3);
 
@@ -877,7 +879,8 @@ GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawC
 	}
 	else
 	{
-		Com_Printf("GL3_BufferAndDraw3D(): WARNING: Unsupported drawmode 0x%x\n", drawMode);
+		Com_Printf("%s(): WARNING: Unsupported drawmode 0x%x\n",
+			__func__, drawMode);
 		return;
 	}
 
@@ -910,7 +913,7 @@ GL3_DrawBeam(entity_t *e)
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	mvtx_t verts[NUM_BEAM_SEGS*4];
+	mvtx_t verts[NUM_BEAM_SEGS * 4] = {0};
 
 	oldorigin[0] = e->oldorigin[0];
 	oldorigin[1] = e->oldorigin[1];
@@ -963,7 +966,7 @@ GL3_DrawBeam(entity_t *e)
 		VectorCopy(end_points[pointb], verts[4*i+3].pos);
 	}
 
-	GL3_BufferAndDraw3D(verts, NUM_BEAM_SEGS*4, GL_TRIANGLE_STRIP, drawCmd);
+	GL3_BufferAndDraw3D(verts, NUM_BEAM_SEGS * 4, GL_TRIANGLE_STRIP, drawCmd);
 
 }
 
@@ -971,7 +974,7 @@ static void
 GL3_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	mvtx_t verts[4];
+	mvtx_t verts[4] = {0};
 	const dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;

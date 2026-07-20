@@ -494,7 +494,6 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	GLfloat tex[8];
 	float hscale = 1.0f;
 	int frac, fracstep;
-	int i, j;
 	int row;
 
 	R_Bind(0);
@@ -563,15 +562,17 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		{
 			unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
 			unsigned* img = image32;
+			size_t i;
 
-			if (cols*rows > 320*240)
+			if (cols * rows > 320 * 240)
 			{
+				size_t img_size = (size_t)cols * rows * 4;
+
 				/* in case there is a bigger video after all,
 				 * malloc enough space to hold the frame */
-				img = (unsigned*)malloc(cols * rows * 4);
+				img = (unsigned*)malloc(img_size);
 
-				YQ2_COM_CHECK_OOM(img, "malloc()",
-					cols * rows * 4)
+				YQ2_COM_CHECK_OOM(img, "malloc()", img_size)
 				if (!img)
 				{
 					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
@@ -579,10 +580,11 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 				}
 			}
 
-			for (i=0; i<rows; ++i)
+			for (i = 0; i < rows; ++i)
 			{
-				int rowOffset = i*cols;
-				for (j=0; j<cols; ++j)
+				size_t j, rowOffset = i * cols;
+
+				for (j = 0; j < cols; ++j)
 				{
 					byte palIdx = data[rowOffset+j];
 					img[rowOffset+j] = r_rawpalette[palIdx];
@@ -600,13 +602,15 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		}
 		else
 		{
-			unsigned int image32[320*240];
+			unsigned int image32[320 * 240];
 			int trows = 256;
+			size_t i;
 
 			for (i = 0; i < trows; i++)
 			{
 				const byte *source;
 				unsigned *dest;
+				size_t j;
 
 				row = (int)(i * hscale);
 
@@ -636,11 +640,13 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 	{
 		byte image8[256 * 256];
 		int trows = 256;
+		size_t i;
 
 		for (i = 0; i < trows; i++)
 		{
-			byte *dest;
 			const byte *source;
+			byte *dest;
+			size_t j;
 
 			row = (int)(i * hscale);
 

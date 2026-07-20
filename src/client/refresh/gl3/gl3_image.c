@@ -202,7 +202,7 @@ GL3_TextureMode(const char *string)
 		}
 	}
 
-	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
+	for (texnum = MAX_SCRAPS_NOLERP; texnum < MAX_SCRAPS; texnum++)
 	{
 		if (!gl3_scrap_textures[texnum])
 		{
@@ -211,7 +211,7 @@ GL3_TextureMode(const char *string)
 
 		glBindTexture(GL_TEXTURE_2D, gl3_scrap_textures[texnum]);
 
-		if (unfiltered2D || (texnum < MAX_SCRAPS_NOLERP))
+		if (unfiltered2D)
 		{
 			// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
 			// so the scrap shouldn't be filtered
@@ -433,7 +433,7 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
  * Returns has_alpha
  */
 static qboolean
-GL3_Upload8(const byte *data, int width, int height, qboolean mipmap)
+GL3_Upload8(const byte *data, size_t width, size_t height, qboolean mipmap)
 {
 	unsigned *trans = NULL;
 	qboolean ret;
@@ -566,7 +566,7 @@ GL3_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 		if (bits == 32)
 		{
-			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
+			texnum = Scrap_AllocBlock(width, height, &x, &y, (unsigned*)pic, nolerp ? 0 : MAX_SCRAPS_NOLERP);
 		}
 		else if (bits == 8)
 		{
@@ -575,7 +575,7 @@ GL3_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			trans = R_Convert8to32(pic, width, height, d_8to24table);
 			if (trans)
 			{
-				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, (nolerp || default2Dnolerp) ? 0 : MAX_SCRAPS_NOLERP);
+				texnum = Scrap_AllocBlock(width, height, &x, &y, trans, nolerp ? 0 : MAX_SCRAPS_NOLERP);
 				free(trans);
 			}
 		}
@@ -590,7 +590,7 @@ GL3_LoadPic(const char *name, byte *pic, int width, int realwidth,
 			goto nonscrap;
 		}
 
-		if ((nolerp || default2Dnolerp) && texnum >= MAX_SCRAPS_NOLERP)
+		if (nolerp && texnum >= MAX_SCRAPS_NOLERP)
 		{
 			Com_Printf("%s: Nolerp image stored to lerp\n", name);
 		}

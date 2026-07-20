@@ -234,7 +234,7 @@ qboolean R_ImageHasFreeSpace(void);
 void R_TextureAlphaMode(const char *string);
 void R_TextureSolidMode(const char *string);
 
-qboolean R_Upload32(unsigned *data, int width, int height, qboolean mipmap);
+qboolean R_Upload32(unsigned *data, size_t width, size_t height, qboolean mipmap);
 
 // GL buffer operations
 
