@@ -414,9 +414,9 @@ extern int r_framecount;
 */
 #define SCRAP_WIDTH (BLOCK_WIDTH * 2)
 #define SCRAP_HEIGHT (BLOCK_HEIGHT * 2)
-/* define 3 scrap textures: scrap 0 for crosshair images, scrap 1 and 2
- * for everything else */
-#define MAX_SCRAPS 3
+/* define 4 scrap textures MAX_SCRAPS_NOLERP < MAX_SCRAPS */
+#define MAX_SCRAPS_NOLERP 2
+#define MAX_SCRAPS 4
 
 qboolean CommonAllocBlock(int *allocated, size_t alloc_width, size_t alloc_height,
 	unsigned w, unsigned h, int *x, int *y);

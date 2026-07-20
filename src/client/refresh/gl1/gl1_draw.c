@@ -64,7 +64,10 @@ RDraw_FreeLocal(void)
 static void
 Scrap_Update(void)
 {
+	qboolean default2Dnolerp;
 	int texnum;
+
+	default2Dnolerp = r_2D_unfiltered->value != 0.0f;
 
 	for (texnum = 0; texnum < MAX_SCRAPS; texnum++)
 	{
@@ -75,7 +78,7 @@ Scrap_Update(void)
 		{
 			R_Bind(TEXNUM_SCRAPS + texnum);
 
-			if (!texnum)
+			if (default2Dnolerp || (texnum < MAX_SCRAPS_NOLERP))
 			{
 				// 2D textures shouldn't be filtered by default (r_2D_unfiltered),
 				// so the scrap shouldn't be filtered

@@ -1624,6 +1624,8 @@ updateUBO(GLuint ubo, GLsizeiptr size, const void *data)
 		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
 	}
 
+	++gl4_numBufferUniforms;
+
 	/*
 		atsb: faster in 4.6 and we can use glMapBufferRange to update the entire buffer at once from the beginning.
 		we don't need to use glBindBufferRange and we can leave that alone for now.

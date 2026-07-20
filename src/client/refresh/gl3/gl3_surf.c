@@ -194,14 +194,15 @@ DrawTriangleOutlines(void)
 		return;
 	}
 
-	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
+	GL3_Draw3DBatchesNow();
 
-	drawCmd.flags |= (DCFlag_DisableDepthMask | DCFlag_UseColor);
-	GL3_SetDrawCmdShader(&drawCmd, &gl3state.si3DcolorOnly);
-	drawCmd.color[0] = 1.0;
-	drawCmd.color[1] = 1.0;
-	drawCmd.color[2] = 1.0;
-	drawCmd.alpha = 1.0;
+	glDisable(GL_DEPTH_TEST);
+	glUseProgram(gl3state.si3DcolorOnly.shaderProgram);
+
+	gl3state.uniCommonData.color = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	GL3_UpdateUBOCommon();
+	GL3_BindVAO(gl3state.vao3D);
+	GL3_BindVBO(gl3state.vbo3D);
 
 	for (i = 0, surf = r_worldmodel->surfaces; i < r_worldmodel->numsurfaces; i++, surf++)
 	{
@@ -242,10 +243,12 @@ DrawTriangleOutlines(void)
 					vtx[k].lightFlags = 0;
 				}
 
-				GL3_BufferAndDraw3D(vtx, 4, GL_LINE_STRIP, drawCmd);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(vtx), vtx, GL_STREAM_DRAW);
+				glDrawArrays(GL_LINE_STRIP, 0, 4);
 			}
 		}
 	}
+	glEnable(GL_DEPTH_TEST);
 }
 
 static void
@@ -474,7 +477,6 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
 	if (e->flags & RF_TRANSLUCENT)
 		drawCmd.flags |= DCFlag_DisableDepthMask;
-
 
 	if (e->angles[0] || e->angles[1] || e->angles[2])
 	{

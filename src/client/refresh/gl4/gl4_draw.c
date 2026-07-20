@@ -27,6 +27,7 @@
 
 #include "header/local.h"
 #include "../files/stb_truetype.h"
+#include "../files/DG_dynarr.h"
 
 unsigned d_8to24table[256];
 
@@ -38,7 +39,7 @@ static gl4image_t *draw_font = NULL;
 static stbtt_bakedchar *draw_fontcodes = NULL;
 static qboolean draw_chars_has_alt;
 
-static GLuint vbo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
+static GLuint vbo2D = 0, ebo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
 static qboolean bloomInitialized = false;
 
 #define BLOOM_TEXTURES 2
@@ -49,6 +50,19 @@ void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
 	struct image_s **draw_font,
 	loadimage_t R_LoadPic);
+
+int gl4_num3Ddraws = 0, gl4_num2Ddraws = 0, gl4_numBufferVtxData = 0, gl4_numBufferUniforms = 0;
+
+typedef struct gl4_drawVert2D_s {
+	float x, y, s, t;
+} gl4_drawVert2D;
+
+DA_TYPEDEF(gl4_drawVert2D, Vtx2DArray_t);
+DA_TYPEDEF(GLushort, UShortArray_t);
+// dynamic arrays to batch all consecutive 2D draws with same texture to reduce drawcalls
+static Vtx2DArray_t vtxBuf = {0};
+static UShortArray_t idxBuf = {0};
+static GLuint lastBatchTexture = 0;
 
 void
 GL4_Draw_InitLocal(void)
@@ -68,6 +82,7 @@ GL4_Draw_InitLocal(void)
 
 	glGenBuffers(1, &vbo2D);
 	GL4_BindVBO(vbo2D);
+	glGenBuffers(1, &ebo2D);
 
 	GL4_UseProgram(gl4state.si2D.shaderProgram);
 
@@ -97,18 +112,55 @@ GL4_Draw_InitLocal(void)
 void
 GL4_Draw_ShutdownLocal(void)
 {
+	glDeleteBuffers(1, &ebo2D);
+	ebo2D = 0;
 	glDeleteBuffers(1, &vbo2D);
 	vbo2D = 0;
 	glDeleteVertexArrays(1, &vao2D);
 	vao2D = 0;
 	glDeleteVertexArrays(1, &vao2Dcolor);
 	vao2Dcolor = 0;
+
+	da_free(vtxBuf);
+	da_free(idxBuf);
+
 	free(draw_fontcodes);
 }
 
-// bind the texture before calling this
+void
+GL4_DrawCurrent2Dbatch()
+{
+	int numVtx = da_count(vtxBuf);
+
+	if (numVtx == 0)
+	{
+		return;
+	}
+
+	GL4_UseProgram(gl4state.si2D.shaderProgram);
+	GL4_Bind(lastBatchTexture);
+
+	GL4_BindVAO(vao2D);
+
+	// Note: while vao2D "remembers" its vbo for drawing, binding the vao does *not*
+	//       implicitly bind the vbo, so I need to explicitly bind it before glBufferData()
+	GL4_BindVBO(vbo2D);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(gl4_drawVert2D)*numVtx, vtxBuf.p, GL_STREAM_DRAW);
+
+	GL4_BindEBO(ebo2D);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, da_count(idxBuf)*sizeof(GLushort), idxBuf.p, GL_STREAM_DRAW);
+	glDrawElements(GL_TRIANGLES, da_count(idxBuf), GL_UNSIGNED_SHORT, NULL);
+
+	++gl4_numBufferVtxData;
+	++gl4_num2Ddraws;
+
+	lastBatchTexture = 0;
+	da_clear(vtxBuf);
+	da_clear(idxBuf);
+}
+
 static void
-drawTexturedRectangle(float x, float y, float w, float h,
+drawTexturedRectangle(GLuint texNum, float x, float y, float w, float h,
                       float sl, float tl, float sh, float th)
 {
 	/*
@@ -121,12 +173,56 @@ drawTexturedRectangle(float x, float y, float w, float h,
 	 *  x,y        x+w,y
 	 */
 
-	GLfloat vBuf[16] = {
-	//  X,   Y,   S,  T
-		x,   y+h, sl, th,
-		x,   y,   sl, tl,
-		x+w, y+h, sh, th,
-		x+w, y,   sh, tl
+	if ((lastBatchTexture != 0 && texNum != lastBatchTexture) || da_count(vtxBuf) + 4 > UINT16_MAX)
+	{
+		GL4_DrawCurrent2Dbatch();
+	}
+
+	lastBatchTexture = texNum;
+
+	GLushort firstIdx = da_count(vtxBuf);
+
+	gl4_drawVert2D* addVtx = da_addn_uninit(vtxBuf, 4);
+	//                            X,   Y,   S,  T
+	addVtx[0] = (gl4_drawVert2D){ x,   y+h, sl, th };
+	addVtx[1] = (gl4_drawVert2D){ x,   y,   sl, tl };
+	addVtx[2] = (gl4_drawVert2D){ x+w, y+h, sh, th };
+	addVtx[3] = (gl4_drawVert2D){ x+w, y,   sh, tl };
+
+	GLushort* addIdx = da_addn_uninit(idxBuf, 6);
+	addIdx[0] = firstIdx;  // first triangle of rectangle
+	addIdx[1] = firstIdx+1;
+	addIdx[2] = firstIdx+2;
+	addIdx[3] = firstIdx+1; // second triangle
+	addIdx[4] = firstIdx+3;
+	addIdx[5] = firstIdx+2;
+}
+
+// bind the texture before calling this
+static void
+drawTexturedRectangleNow(float x, float y, float w, float h,
+                      float sl, float tl, float sh, float th)
+{
+	/*
+	 *  x,y+h      x+w,y+h
+	 * sl,th--------sh,th
+	 *  |             |
+	 *  |             |
+	 *  |             |
+	 * sl,tl--------sh,tl
+	 *  x,y        x+w,y
+	 */
+
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL4_DrawCurrent2Dbatch();
+
+	gl4_drawVert2D vBuf[4] = {
+	//    X,   Y,   S,  T
+		{ x,   y+h, sl, th },
+		{ x,   y,   sl, tl },
+		{ x+w, y+h, sh, th },
+		{ x+w, y,   sh, tl }
 	};
 
 	GL4_BindVAO(vao2D);
@@ -135,8 +231,9 @@ drawTexturedRectangle(float x, float y, float w, float h,
 	//       implicitly bind the vbo, so I need to explicitly bind it before glBufferData()
 	GL4_BindVBO(vbo2D);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
-
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	++gl4_numBufferVtxData;
+	++gl4_num2Ddraws;
 
 	//glMultiDrawArrays(mode, first, count, drawcount) ??
 }
@@ -173,16 +270,12 @@ GL4_Draw_CharScaled(int x, int y, int num, float scale)
 
 	scaledSize = 8 * scale;
 
-	// TODO: batchen?
-
 	if (draw_chars->scrap)
 	{
 		GL4_Scrap_Upload();
 	}
 
-	GL4_UseProgram(gl4state.si2D.shaderProgram);
-	GL4_Bind(draw_chars->texnum);
-	drawTexturedRectangle(x, y, scaledSize, scaledSize,
+	drawTexturedRectangle(draw_chars->texnum, x, y, scaledSize, scaledSize,
 		draw_chars->sl + fcol * (draw_chars->sh - draw_chars->sl),
 		draw_chars->tl + frow * (draw_chars->th - draw_chars->tl),
 		draw_chars->sl + (fcol + size) * (draw_chars->sh - draw_chars->sl),
@@ -232,9 +325,8 @@ GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 					q.t1 = draw_font->tl + q.t1 * (draw_font->th - draw_font->tl);
 				}
 
-				GL4_UseProgram(gl4state.si2D.shaderProgram);
-				GL4_Bind(draw_font->texnum);
 				drawTexturedRectangle(
+					draw_font->texnum,
 					(float)(x + (xdiff + q.x0 / font_scale) * scale),
 					(float)(y + q.y0 * scale / font_scale + 8 * scale),
 					(q.x1 - q.x0) * scale / font_scale,
@@ -305,10 +397,7 @@ GL4_Draw_StretchPic(int x, int y, int w, int h, const char *pic)
 		GL4_Scrap_Upload();
 	}
 
-	GL4_UseProgram(gl4state.si2D.shaderProgram);
-	GL4_Bind(gl->texnum);
-
-	drawTexturedRectangle(x, y, w, h, gl->sl, gl->tl, gl->sh, gl->th);
+	drawTexturedRectangle(gl->texnum, x, y, w, h, gl->sl, gl->tl, gl->sh, gl->th);
 }
 
 void
@@ -336,10 +425,7 @@ GL4_Draw_PicScaled(int x, int y, const char *pic, float factor, const char *altt
 		GL4_Scrap_Upload();
 	}
 
-	GL4_UseProgram(gl4state.si2D.shaderProgram);
-	GL4_Bind(gl->texnum);
-
-	drawTexturedRectangle(x, y, gl->width * factor, gl->height * factor,
+	drawTexturedRectangle(gl->texnum, x, y, gl->width * factor, gl->height * factor,
 		gl->sl, gl->tl, gl->sh, gl->th);
 }
 
@@ -375,7 +461,9 @@ GL4_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t 
 	GL4_UseProgram(gl4state.si2Dtinted.shaderProgram);
 	GL4_Bind(gl->texnum);
 
-	drawTexturedRectangle(x, y, gl->width*factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
+	// NOTE: this function (and this shader) are only used for the crosshair
+	//       so use the simple immediate (unbatched) draw function
+	drawTexturedRectangleNow(x, y, gl->width * factor, gl->height*factor, gl->sl, gl->tl, gl->sh, gl->th);
 
 	gl4state.uniCommonData.color = HMM_Vec4(1, 1, 1, 1);
 	GL4_UpdateUBOCommon();
@@ -391,6 +479,11 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const gl4image_t *image;
 
+	if(w <= 0 || h <= 0)
+	{
+		return;
+	}
+
 	image = R_FindPic(pic, (findimage_t)GL4_FindImage);
 	if (!image)
 	{
@@ -404,10 +497,7 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		GL4_Scrap_Upload();
 	}
 
-	GL4_UseProgram(gl4state.si2D.shaderProgram);
-	GL4_Bind(image->texnum);
-
-	drawTexturedRectangle(x, y, w, h,
+	drawTexturedRectangle(image->texnum, x, y, w, h,
 		x / 64.0f, y / 64.0f, (x + w) / 64.0f, (y + h) / 64.0f);
 }
 
@@ -449,7 +539,7 @@ GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 
 	if (!r_bloom || !r_bloom->value)
 	{
-		drawTexturedRectangle(x, y, w, h, 0, 1, 1, 0);
+		drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
 		return;
 	}
 
@@ -513,6 +603,10 @@ GL4_Draw_Fill(int x, int y, int w, int h, int c)
 
 	color.c = d_8to24table[c];
 
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL4_DrawCurrent2Dbatch();
+
 	GLfloat vBuf[8] = {
 	//  X,   Y
 		x,   y+h,
@@ -537,6 +631,9 @@ GL4_Draw_Fill(int x, int y, int w, int h, int c)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	++gl4_numBufferVtxData;
+	++gl4_num2Ddraws;
 }
 
 // in GL1 this is called R_Flash() (which just calls R_PolyBlend())
@@ -551,6 +648,10 @@ GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
 	{
 		return;
 	}
+
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL4_DrawCurrent2Dbatch();
 
 	GLfloat vBuf[8] = {
 	//  X,   Y
@@ -584,6 +685,9 @@ GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	++gl4_numBufferVtxData;
+	++gl4_num2Ddraws;
 
 	glDisable(GL_BLEND);
 }
@@ -654,11 +758,55 @@ GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
-	drawTexturedRectangle(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
+	// NOTE: this is only used for videos and only called once per frame (or not at all)
+	drawTexturedRectangleNow(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
 
 	glDeleteTextures(1, &glTex);
 
 	GL4_Bind(0);
+}
+
+/*
+ * Called at the end of the frame, after 2D (UI) rendering is done.
+ * Does some internal housekeeping, then swaps the buffers
+ * and shows the next frame.
+ */
+void GL4_EndFrame(void)
+{
+	GL4_DrawCurrent2Dbatch();
+
+	// by saving those values into a variable and setting them to 0 afterwards,
+	// gl4_show_draw_stats can include its own drawcalls (from previous frame)
+	int num3D = gl4_num3Ddraws;
+	int num2D = gl4_num2Ddraws;
+	int numBufVtx = gl4_numBufferVtxData;
+	int numBufUni = gl4_numBufferUniforms;
+	gl4_num3Ddraws = 0;
+	gl4_num2Ddraws = 0;
+	gl4_numBufferVtxData = 0;
+	gl4_numBufferUniforms = 0;
+
+	if(gl4_show_draw_stats->value)
+	{
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
+		char stbuf[128] = {0};
+		snprintf(stbuf, sizeof(stbuf), "3D drawcalls: %d - 2D drawcalls: %d - buffer vtx data: %d - buffer uniforms: %d",
+		         num3D, num2D, numBufVtx, numBufUni);
+
+		GL4_Draw_StringScaled(10, 5, factor, true, stbuf);
+		GL4_DrawCurrent2Dbatch();
+	}
+
+	if(gl4config.useBigVBO)
+	{
+		// I think this is a good point to orphan the VBO and get a fresh one
+		GL4_BindVAO(gl4state.vao3D);
+		GL4_BindVBO(gl4state.vbo3D);
+		glBufferData(GL_ARRAY_BUFFER, gl4state.vbo3Dsize, NULL, GL_STREAM_DRAW);
+		gl4state.vbo3DcurOffset = 0;
+	}
+
+	GL4_SwapWindow();
 }
 
 /* draw a fullscreen quad using the existing vao2D/vbo2D */
