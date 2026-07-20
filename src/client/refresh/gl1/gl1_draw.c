@@ -77,6 +77,7 @@ Scrap_Update(void)
 		if (scrap_texels)
 		{
 			R_Bind(TEXNUM_SCRAPS + texnum);
+			R_Upload32(scrap_texels, SCRAP_WIDTH, SCRAP_HEIGHT, false);
 
 			if (default2Dnolerp || (texnum < MAX_SCRAPS_NOLERP))
 			{
@@ -92,8 +93,6 @@ Scrap_Update(void)
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_max);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, gl_filter_max);
 			}
-
-			R_Upload32(scrap_texels, SCRAP_WIDTH, SCRAP_HEIGHT, false);
 		}
 	}
 }
