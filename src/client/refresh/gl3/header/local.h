@@ -280,7 +280,7 @@ typedef struct
 } gl3state_t;
 
 
-// drawcommands using gl3_3D_vtx_t, for batching
+// drawcommands using mvtx_t, for batching
 typedef struct gl3drawCmd_s {
 	GLuint		texnum;
 	signed char	lmtexnum;
@@ -297,7 +297,7 @@ typedef struct gl3drawCmd_s {
 	byte		flags;    // gl3drawCmd_Flags
 	byte		styles[MAXLIGHTMAPS]; // indexes into r_newrefdef.lightstyles[]; 255 means "ignore"
 
-	// the following are set in GL3_BufferAndDraw3D()
+	// the following are set in GL3_Add3DdrawCmdToBatch()
 	int			idxBufOffset;
 	int			numElements; // in index buffer
 } gl3drawCmd_t;
@@ -465,7 +465,7 @@ GL3_BindEBO(GLuint ebo)
 	}
 }
 
-extern void GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawCmd_t drawCmd);
+extern void GL3_Add3DdrawCmdToBatch(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawCmd_t drawCmd);
 extern void GL3_Draw3DBatchesNow(void);
 extern void GL3_SetDrawCmdTransMatrix(gl3drawCmd_t* drawCmd, hmm_mat4 mat);
 extern void GL3_RotateUni3DforEntity(entity_t *e);

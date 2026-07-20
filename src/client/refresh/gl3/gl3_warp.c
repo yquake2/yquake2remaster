@@ -56,7 +56,7 @@ GL3_EmitWaterPolys(msurface_t *fa, gl3drawCmd_t drawCmd)
 
 	for (bp = fa->polys; bp != NULL; bp = bp->next)
 	{
-		GL3_BufferAndDraw3D(bp->verts, bp->numverts, GL_TRIANGLE_FAN, drawCmd);
+		GL3_Add3DdrawCmdToBatch(bp->verts, bp->numverts, GL_TRIANGLE_FAN, drawCmd);
 	}
 }
 
@@ -194,7 +194,7 @@ GL3_DrawSkyBox(void)
 		R_MakeSkyVec( skymaxs [ 0 ] [ i ], skymins [ 1 ] [ i ], i, &skyVertices[3],
 			r_worldmodel, sky_min, sky_max);
 
-		GL3_BufferAndDraw3D(skyVertices, 4, GL_TRIANGLE_FAN, drawCmd);
+		GL3_Add3DdrawCmdToBatch(skyVertices, 4, GL_TRIANGLE_FAN, drawCmd);
 	}
 
 	// glPopMatrix();
