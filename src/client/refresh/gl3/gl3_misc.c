@@ -124,7 +124,7 @@ GL3_InitParticleTexture(void)
 void
 GL3_ScreenShot(void)
 {
-	int w=vid.width, h=vid.height;
+	int w = vid.width, h = vid.height;
 
 #ifdef YQ2_GL3_GLES
 	// My RPi4's GLES3 doesn't like GL_RGB, so use GL_RGBA with GLES
@@ -153,7 +153,8 @@ GL3_ScreenShot(void)
 		YQ2_VLA(byte, rowBuffer, bytesPerRow);
 		byte *curRowL = buffer; // first byte of first row
 		byte *curRowH = buffer + bytesPerRow*(h-1); // first byte of last row
-		while(curRowL < curRowH)
+
+		while (curRowL < curRowH)
 		{
 			memcpy(rowBuffer, curRowL, bytesPerRow);
 			memcpy(curRowL, curRowH, bytesPerRow);

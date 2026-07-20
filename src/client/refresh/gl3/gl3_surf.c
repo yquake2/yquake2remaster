@@ -472,7 +472,7 @@ GL3_DrawBrushModel(entity_t *e, model_t *currentmodel)
 	}
 
 	gl3drawCmd_t drawCmd = GL3_CreateDrawCmd();
-	if(e->flags & RF_TRANSLUCENT)
+	if (e->flags & RF_TRANSLUCENT)
 		drawCmd.flags |= DCFlag_DisableDepthMask;
 
 

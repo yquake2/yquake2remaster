@@ -235,7 +235,7 @@ static const char* fragmentSrc2Dtinted = MULTILINE_STRING(
 		{
 			vec4 texel = texture(tex, passTexCoord);
 
-			if(texel.a <= 0.666)
+			if (texel.a <= 0.666)
 				discard;
 
 			// apply color tint
@@ -1088,7 +1088,7 @@ static const char* fragmentBloomBright = MULTILINE_STRING(
 			vec3 c = texture(tex, passTexCoord).rgb;
 			float lum = max(max(c.r, c.g), c.b);
 
-			if(lum > threshold)
+			if (lum > threshold)
 			{
 				outColor = vec4(c, 1.0);
 			}
@@ -1478,14 +1478,14 @@ createShaders(void)
 	}
 
 	/* bright */
-	if(!initShader2D(&gl4state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
+	if (!initShader2D(&gl4state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
 	{
 		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: bright shader failed\n");
 		return false;
 	}
 
 	/* blur */
-	if(!initShader2D(&gl4state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
+	if (!initShader2D(&gl4state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
 	{
 		R_Printf(PRINT_ALL, "GL4_InitBloomShaders: blur shader failed\n");
 		return false;

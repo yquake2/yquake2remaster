@@ -479,7 +479,7 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const gl3image_t *image;
 
-	if(w <= 0 || h <= 0)
+	if (w <= 0 || h <= 0)
 	{
 		return;
 	}
@@ -786,7 +786,7 @@ void GL3_EndFrame(void)
 	gl3_numBufferVtxData = 0;
 	gl3_numBufferUniforms = 0;
 
-	if(gl3_show_draw_stats->value)
+	if (gl3_show_draw_stats->value)
 	{
 		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
 		char stbuf[128] = {0};

@@ -114,7 +114,7 @@ GL4_InitParticleTexture(void)
 void
 GL4_ScreenShot(void)
 {
-	int w=vid.width, h=vid.height;
+	int w = vid.width, h = vid.height;
 
 	static const int comps = 3;
 	byte *buffer = malloc(w*h*comps);
@@ -136,7 +136,7 @@ GL4_ScreenShot(void)
 		YQ2_VLA(byte, rowBuffer, bytesPerRow);
 		byte *curRowL = buffer; // first byte of first row
 		byte *curRowH = buffer + bytesPerRow*(h-1); // first byte of last row
-		while(curRowL < curRowH)
+		while (curRowL < curRowH)
 		{
 			memcpy(rowBuffer, curRowL, bytesPerRow);
 			memcpy(curRowL, curRowH, bytesPerRow);
