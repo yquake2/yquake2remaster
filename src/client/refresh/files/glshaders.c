@@ -32,16 +32,16 @@ glshader_version(int major_version, int minor_version)
 #ifdef YQ2_GL3_GLES3
 	if (major_version == 2)
 	{
-		return "#version 100\nprecision mediump float;\n";
+		return "#version 100\nprecision highp float;\n";
 	}
 	else if (major_version == 3)
 	{
 		switch(minor_version)
 		{
-			case 0: return "#version 300 es\nprecision mediump float;\n";
-			case 1: return "#version 310 es\nprecision mediump float;\n";
-			case 2: return "#version 320 es\nprecision mediump float;\n";
-			default: return "#version 320 es\nprecision mediump float;\n";
+			case 0: return "#version 300 es\nprecision highp float;\n";
+			case 1: return "#version 310 es\nprecision highp float;\n";
+			case 2: return "#version 320 es\nprecision highp float;\n";
+			default: return "#version 320 es\nprecision highp float;\n";
 		}
 	}
 #else // Desktop GL
@@ -82,5 +82,5 @@ glshader_version(int major_version, int minor_version)
 #endif
 
 	/* some unknown version */
-	return "#version 100\nprecision mediump float;\n";
+	return "#version 100\nprecision highp float;\n";
 }
