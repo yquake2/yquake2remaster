@@ -115,9 +115,6 @@ typedef struct
 	qboolean anisotropic; // is GL_EXT_texture_filter_anisotropic supported?
 	qboolean debug_output; // is GL_ARB_debug_output supported?
 	qboolean stencil; // Do we have a stencil buffer?
-#ifdef YQ2_GL3_GLES
-	qboolean discardfb; // Is GLES GL_EXT_discard_framebuffer supported?
-#endif
 
 	// ----
 

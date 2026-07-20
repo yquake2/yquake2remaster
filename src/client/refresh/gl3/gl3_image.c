@@ -429,6 +429,7 @@ GL3_Upload32(unsigned *data, int width, int height, qboolean mipmap)
 	return res;
 }
 
+
 /*
  * Returns has_alpha
  */

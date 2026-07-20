@@ -412,6 +412,17 @@ GL3_SetMode(void)
 // only needed (and allowed!) if using OpenGL compatibility profile, it's not in 3.2 core
 enum { QGL_POINT_SPRITE = 0x8861 };
 
+static void
+GL3_ResetClearColor(void)
+{
+#ifdef YQ2_GL3_GLES
+	if (gl_discardfb->value && !r_clear->value)
+		glClearColor(0, 0, 0, 0.5);
+	else
+#endif
+		glClearColor(1, 0, 0.5, 0.5);
+}
+
 static qboolean
 GL3_Init(void)
 {
@@ -495,24 +506,10 @@ GL3_Init(void)
 		Com_Printf(" - OpenGL Debug Output: Not Supported\n");
 	}
 
-#ifdef YQ2_GL3_GLES
-	if(gl3config.discardfb)
-	{
-		Com_Printf(" - OpenGL ES EXT_discard_framebuffer: Supported ");
-		if(gl_discardfb->value == 0.0f)
-			Com_Printf("but disabled with gl_discardfb = 0\n");
-		else
-			Com_Printf("and enabled with gl_discardfb = %d\n", (int)gl_discardfb->value);
-	}
-	else
-	{
-		Com_Printf(" - OpenGL ES EXT_discard_framebuffer: Not Supported\n");
-	}
-#endif
-
 	// generate texture handles for all possible lightmaps
 	glGenTextures(MAX_LIGHTMAPS*MAX_LIGHTMAPS_PER_SURFACE, gl3state.lightmap_textureIDs[0]);
 
+	GL3_ResetClearColor();
 	GL3_SetDefaultState();
 
 	if (GL3_InitShaders())
@@ -1374,7 +1371,7 @@ SetupFrame(void)
 				vid.height - r_newrefdef.height - r_newrefdef.y,
 				r_newrefdef.width, r_newrefdef.height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glClearColor(1, 0, 0.5, 0.5);
+		GL3_ResetClearColor();
 		glDisable(GL_SCISSOR_TEST);
 	}
 }
@@ -1953,29 +1950,40 @@ GL3_RenderFrame(const refdef_t *fd)
 static void
 GL3_Clear(void)
 {
-	// Check whether the stencil buffer needs clearing, and do so if need be.
-	GLbitfield stencilFlags = 0;
-#if 0 // TODO: stereo stuff
-	if (gl3state.stereo_mode >= STEREO_MODE_ROW_INTERLEAVED && gl_state.stereo_mode <= STEREO_MODE_PIXEL_INTERLEAVED) {
-		glClearStencil(GL_FALSE);
-		stencilFlags |= GL_STENCIL_BUFFER_BIT;
-	}
-#endif // 0
-
+	// Define which buffers need clearing
+	GLbitfield clearFlags = GL_DEPTH_BUFFER_BIT;
 
 	if (r_clear->value)
 	{
-		glClear(GL_COLOR_BUFFER_BIT | stencilFlags | GL_DEPTH_BUFFER_BIT);
+		clearFlags |= GL_COLOR_BUFFER_BIT;
 	}
-	else
+
+	// Stencilbuffer shadows
+	if (r_shadows->value && gl3config.stencil)
 	{
-		glClear(GL_DEPTH_BUFFER_BIT | stencilFlags);
+		glClearStencil(1);
+		clearFlags |= GL_STENCIL_BUFFER_BIT;
 	}
+
+#if 0 // TODO: stereo stuff
+	if (gl3state.stereo_mode >= STEREO_MODE_ROW_INTERLEAVED && gl_state.stereo_mode <= STEREO_MODE_PIXEL_INTERLEAVED) {
+		glClearStencil(0);
+		clearFlags |= GL_STENCIL_BUFFER_BIT;
+	}
+#endif // 0
+
+#ifdef YQ2_GL3_GLES
+	if (gl_discardfb->value)
+	{
+		clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+	}
+#endif
+
+	glClear(clearFlags);
 
 	gl3depthmin = 0;
 	gl3depthmax = 1;
 	glDepthFunc(GL_LEQUAL);
-
 	glDepthRange(gl3depthmin, gl3depthmax);
 
 	if (r_zfix->value)
@@ -1988,13 +1996,6 @@ GL3_Clear(void)
 		{
 			glPolygonOffset(-0.05, -1);
 		}
-	}
-
-	/* stencilbuffer shadows */
-	if (r_shadows->value && gl3config.stencil)
-	{
-		glClearStencil(GL_TRUE);
-		glClear(GL_STENCIL_BUFFER_BIT);
 	}
 }
 
@@ -2139,7 +2140,7 @@ GL3_SetPalette(const byte *palette)
 
 	glClearColor(0, 0, 0, 0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glClearColor(1, 0, 0.5, 0.5);
+	GL3_ResetClearColor();
 }
 
 /*
