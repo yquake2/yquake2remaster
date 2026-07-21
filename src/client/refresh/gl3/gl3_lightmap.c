@@ -158,25 +158,3 @@ LM_EndBuildingLightmaps(void)
 	LM_UploadBlock();
 }
 
-void
-GL3_UpdateLightmapStyles(void)
-{
-	hmm_vec4* lmstyles = gl3state.uniLmStylesData.lmstyles;
-	lmstyles[0] = HMM_Vec4(0, 0, 0, 0);
-	lmstyles[1] = HMM_Vec4(1, 1, 1, 1);
-	if(r_newrefdef.lightstyles != NULL)
-	{
-		lmstyles += 2; // skip first two entries
-		// yes, this means that the last two lightstyles will be missing, but
-		// at least 255 always was an ignored index, and so far I've only seen values < 100
-		for(int i=0; i<MAX_LIGHTSTYLES-2; ++i)
-		{
-			lmstyles[i].R = r_newrefdef.lightstyles[i].rgb[0];
-			lmstyles[i].G = r_newrefdef.lightstyles[i].rgb[1];
-			lmstyles[i].B = r_newrefdef.lightstyles[i].rgb[2];
-			lmstyles[i].A = 1.0f;
-		}
-	}
-
-	GL3_UpdateUBOLmStyles();
-}

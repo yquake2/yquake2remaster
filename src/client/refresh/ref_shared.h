@@ -199,11 +199,6 @@ typedef struct mvtx_s {
 	float	lmTexCoord[2]; /* lightmap texture coordinate (sometimes unused) */
 	vec3_t	normal;
 	int	lightFlags; /* bit i set means: dynlight i affects surface */
-
-	// lmstyles[0] is always (0,0,0,0)
-	// lmstyles[1] is always (1,1,1,1)
-	// the rest are from r_newrefdef.lightstyles[] (with offset 2)
-	byte lmStyleIndices[MAXLIGHTMAPS];
 } mvtx_t;
 
 typedef struct mpoly_s
