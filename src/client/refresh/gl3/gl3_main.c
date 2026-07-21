@@ -109,7 +109,7 @@ DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
 DA_TYPEDEF(GLushort, UShortArray_t);
 DA_TYPEDEF(gl3drawCmd_t, DrawCommandArray_t);
 DA_TYPEDEF(hmm_mat4, Mat4Array_t);
-// dynamic arrays to batch all consecutive 3D draws (with gl3_3D_vtx_t) with same texture to reduce drawcalls
+// dynamic arrays to batch all consecutive 3D draws (with mvtx_t) with same texture to reduce drawcalls
 static Vtx3DArray_t vtxBuf = {0};
 static UShortArray_t idxBuf = {0};
 static DrawCommandArray_t drawCmds = {0};
@@ -845,8 +845,15 @@ GL3_SetDrawCmdTransMatrix(gl3drawCmd_t* drawCmd, hmm_mat4 mat)
 // buffers and draws mvtx_t vertices
 // drawMode is something like GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN or whatever
 void
-GL3_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawCmd_t drawCmd)
+GL3_Add3DdrawCmdToBatch(const mvtx_t* verts, int numVerts, GLenum drawMode, gl3drawCmd_t drawCmd)
 {
+	if(numVerts > UINT16_MAX)
+	{
+		Com_Printf("WARNING: Discarding a draw command with %d vertices (max %d allowed)!\n",
+			numVerts, UINT16_MAX);
+		return;
+	}
+
 	if (da_count(vtxBuf) + numVerts > UINT16_MAX)
 	{
 		GL3_Draw3DBatchesNow();
@@ -990,8 +997,7 @@ GL3_DrawBeam(entity_t *e)
 		VectorCopy(end_points[pointb], verts[4*i+3].pos);
 	}
 
-	GL3_BufferAndDraw3D(verts, NUM_BEAM_SEGS * 4, GL_TRIANGLE_STRIP, drawCmd);
-
+	GL3_Add3DdrawCmdToBatch(verts, NUM_BEAM_SEGS * 4, GL_TRIANGLE_STRIP, drawCmd);
 }
 
 static void
@@ -1078,7 +1084,7 @@ GL3_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 	VectorMA( e->origin, -frame->origin_y * scale[0], up, verts[3].pos );
 	VectorMA( verts[3].pos, (frame->width - frame->origin_x) * scale[1], right, verts[3].pos );
 
-	GL3_BufferAndDraw3D(verts, 4, GL_TRIANGLE_FAN, drawCmd);
+	GL3_Add3DdrawCmdToBatch(verts, 4, GL_TRIANGLE_FAN, drawCmd);
 }
 
 static void
@@ -1121,14 +1127,14 @@ GL3_DrawNullModel(entity_t *currententity)
 		{{16 * cos( 4 * M_PI / 2 ), 16 * sin( 4 * M_PI / 2 ), 0}, {0,0}, {0,0}}
 	};
 
-	GL3_BufferAndDraw3D(vtxA, 6, GL_TRIANGLE_FAN, drawCmd);
+	GL3_Add3DdrawCmdToBatch(vtxA, 6, GL_TRIANGLE_FAN, drawCmd);
 
 	mvtx_t vtxB[6] = {
 		{{0, 0, 16}, {0,0}, {0,0}},
 		vtxA[5], vtxA[4], vtxA[3], vtxA[2], vtxA[1]
 	};
 
-	GL3_BufferAndDraw3D(vtxB, 6, GL_TRIANGLE_FAN, drawCmd);
+	GL3_Add3DdrawCmdToBatch(vtxB, 6, GL_TRIANGLE_FAN, drawCmd);
 
 }
 
