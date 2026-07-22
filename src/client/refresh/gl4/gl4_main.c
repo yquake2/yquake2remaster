@@ -340,7 +340,7 @@ GL4_SetMode(void)
 	{
 		if (err == rserr_invalid_mode)
 		{
-			Com_Printf("ref_gl4::GL4_SetMode() - invalid mode\n");
+			Com_Printf("%s() - invalid mode\n", __func__);
 
 			if (r_msaa_samples->value != 0.0f)
 			{
@@ -367,7 +367,7 @@ GL4_SetMode(void)
 		/* try setting it back to something safe */
 		if (SetMode_impl(&vid.width, &vid.height, gl4state.prev_mode, 0) != rserr_ok)
 		{
-			Com_Printf("ref_gl4::GL4_SetMode() - could not revert to safe mode\n");
+			Com_Printf("%s() - could not revert to safe mode\n", __func__);
 			return false;
 		}
 	}
@@ -1527,7 +1527,8 @@ GL4_RenderView(const refdef_t *fd)
 			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 			if (status != GL_FRAMEBUFFER_COMPLETE)
 			{
-				R_Printf(PRINT_ALL, "GL4_RenderView: sceneFBO incomplete: 0x%X\n", status);
+				R_Printf(PRINT_ALL, "%s: sceneFBO incomplete: 0x%X\n",
+					__func__, status);
 			}
 		}
 

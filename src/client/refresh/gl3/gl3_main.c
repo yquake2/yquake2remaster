@@ -377,11 +377,12 @@ GL3_SetMode(void)
 	{
 		if (err == rserr_invalid_mode)
 		{
-			Com_Printf("ref_gl3::GL3_SetMode() - invalid mode\n");
+			Com_Printf("%s() - invalid mode\n", __func__);
 
 			if (r_msaa_samples->value != 0.0f)
 			{
-				Com_Printf("r_msaa_samples was %d - will try again with r_msaa_samples = 0\n", (int)r_msaa_samples->value);
+				Com_Printf("r_msaa_samples was %d - will try again with r_msaa_samples = 0\n",
+					(int)r_msaa_samples->value);
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
 				r_msaa_samples->modified = false;
 
@@ -404,7 +405,7 @@ GL3_SetMode(void)
 		/* try setting it back to something safe */
 		if ((err = SetMode_impl(&vid.width, &vid.height, gl3state.prev_mode, 0)) != rserr_ok)
 		{
-			Com_Printf("ref_gl3::GL3_SetMode() - could not revert to safe mode\n");
+			Com_Printf("%s() - could not revert to safe mode\n", __func__);
 			return false;
 		}
 	}
@@ -1837,7 +1838,8 @@ GL3_RenderView(const refdef_t *fd)
 			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 			if (status != GL_FRAMEBUFFER_COMPLETE)
 			{
-				R_Printf(PRINT_ALL, "GL3_RenderView: sceneFBO incomplete: 0x%X\n", status);
+				R_Printf(PRINT_ALL, "%s: sceneFBO incomplete: 0x%X\n",
+					__func__, status);
 			}
 		}
 

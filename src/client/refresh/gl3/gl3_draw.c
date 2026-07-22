@@ -523,7 +523,7 @@ GL3_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const f
 		glUniform4fv(shader->uniVblend, 1, v_blend);
 	}
 
-	drawTexturedRectangleNow(x, y, w, h, 0, 0, 1, 1);
+	drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
 }
 
 /*

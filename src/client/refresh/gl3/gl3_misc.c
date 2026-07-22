@@ -124,7 +124,7 @@ GL3_InitParticleTexture(void)
 void
 GL3_ScreenShot(void)
 {
-	int w = vid.width, h = vid.height;
+	size_t w = vid.width, h = vid.height;
 
 #ifdef YQ2_GL3_GLES
 	// My RPi4's GLES3 doesn't like GL_RGB, so use GL_RGBA with GLES
@@ -138,7 +138,8 @@ GL3_ScreenShot(void)
 
 	if (!buffer)
 	{
-		Com_Printf("GL3_ScreenShot: Couldn't malloc %d bytes\n", w*h*3);
+		Com_Printf("%s: Couldn't malloc " YQ2_COM_PRIdS " bytes\n",
+			__func__, w * h * 3);
 		return;
 	}
 
