@@ -312,6 +312,32 @@ R_DrawAlphaSurfaces(void)
 	r_alpha_surfaces = NULL;
 }
 
+static void
+FlushLmChainBatch(int *pos_vect, int *index_pos)
+{
+	VkDeviceSize vboOffset, dstOffset;
+	VkBuffer vbo, *buffer;
+	uint8_t *vertData;
+	int count = *pos_vect, indexes = *index_pos;
+
+	if (count <= 0)
+	{
+		return;
+	}
+
+	vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * count, &vbo, &vboOffset);
+	memcpy(vertData, verts_buffer, sizeof(mvtx_t) * count);
+
+	buffer = UpdateIndexBuffer(vertIdxData, indexes * sizeof(uint16_t), &dstOffset);
+
+	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
+	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(vk_activeCmdbuffer, indexes, 1, 0, 0, 0);
+
+	*pos_vect = 0;
+	*index_pos = 0;
+}
+
 /*
    ================
    DrawLightmappedChains
@@ -438,31 +464,8 @@ dynamic:
 			/* lightmap changed — flush current batch and rebind */
 			if (lmtex != lastLmtex)
 			{
-				/* flush previous batch if any */
-				if (pos_vect > 0)
-				{
-					VkDeviceSize vboOffset, dstOffset;
-					VkBuffer vbo, *buffer;
-					uint8_t *vertData;
-
-					vertData = QVk_GetVertexBuffer(
-							sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
-					memcpy(vertData, verts_buffer,
-							sizeof(mvtx_t) * pos_vect);
-
-					buffer = UpdateIndexBuffer(vertIdxData,
-							index_pos * sizeof(uint16_t), &dstOffset);
-
-					vkCmdBindVertexBuffers(vk_activeCmdbuffer,
-							0, 1, &vbo, &vboOffset);
-					vkCmdBindIndexBuffer(vk_activeCmdbuffer,
-							*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
-					vkCmdDrawIndexed(vk_activeCmdbuffer,
-							index_pos, 1, 0, 0, 0);
-
-					pos_vect = 0;
-					index_pos = 0;
-				}
+				/* flush previous batch */
+				FlushLmChainBatch(&pos_vect, &index_pos);
 
 				lastLmtex = lmtex;
 				lastLmDs = vk_state.lightmap_textures[lmtex].descriptorSet;
@@ -485,6 +488,11 @@ dynamic:
 
 			for (p = s->polys; p; p = p->chain)
 			{
+				if (pos_vect + nv > UINT16_MAX)
+				{
+					FlushLmChainBatch(&pos_vect, &index_pos);
+				}
+
 				if (Mesh_VertsRealloc(pos_vect + nv))
 				{
 					Com_Error(ERR_FATAL, "%s: can't allocate memory",
@@ -517,27 +525,7 @@ dynamic:
 		}
 
 		/* flush final batch for this texture */
-		if (pos_vect > 0)
-		{
-			VkDeviceSize vboOffset, dstOffset;
-			VkBuffer vbo, *buffer;
-			uint8_t *vertData;
-
-			vertData = QVk_GetVertexBuffer(
-					sizeof(mvtx_t) * pos_vect, &vbo, &vboOffset);
-			memcpy(vertData, verts_buffer,
-					sizeof(mvtx_t) * pos_vect);
-
-			buffer = UpdateIndexBuffer(vertIdxData,
-					index_pos * sizeof(uint16_t), &dstOffset);
-
-			vkCmdBindVertexBuffers(vk_activeCmdbuffer,
-					0, 1, &vbo, &vboOffset);
-			vkCmdBindIndexBuffer(vk_activeCmdbuffer,
-					*buffer, dstOffset, VK_INDEX_TYPE_UINT16);
-			vkCmdDrawIndexed(vk_activeCmdbuffer,
-					index_pos, 1, 0, 0, 0);
-		}
+		FlushLmChainBatch(&pos_vect, &index_pos);
 	}
 }
 
