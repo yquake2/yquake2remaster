@@ -110,8 +110,8 @@ Vk_ScreenShot_f
 void Vk_ScreenShot_f (void)
 {
 	byte		*buffer;
-	int		i;
-	size_t		buffSize = vid.width * vid.height * 4;
+	size_t		i;
+	size_t		buffSize = (size_t)vid.width * vid.height * 4;
 
 	if (!vk_device.screenshotSupported)
 	{
