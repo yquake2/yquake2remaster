@@ -388,7 +388,7 @@ DrawLightmappedChains(const entity_t *currententity)
 
 		for (s = image->texturechain; s; s = s->texturechain)
 		{
-			int map, nv;
+			int map;
 			qboolean is_dynamic = false;
 			unsigned lmtex;
 			float sscroll, tscroll;
@@ -404,7 +404,6 @@ DrawLightmappedChains(const entity_t *currententity)
 				continue;
 			}
 
-			nv = s->polys->numverts;
 			lmtex = s->lightmaptexturenum;
 
 			/* check for dynamic lightmap */
@@ -488,6 +487,8 @@ dynamic:
 
 			for (p = s->polys; p; p = p->chain)
 			{
+				const int nv = p->numverts;
+
 				if (pos_vect + nv > UINT16_MAX)
 				{
 					FlushLmChainBatch(&pos_vect, &index_pos);
@@ -574,7 +575,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		const entity_t *currententity, VkDescriptorSet *uboDescriptorSet,
 		uint32_t *uboOffset)
 {
-	int		i, nv = surf->polys->numverts;
+	int		i;
 	int		map;
 	image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 	qboolean is_dynamic = false;
@@ -643,12 +644,13 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	R_FlowingScroll(&r_newrefdef, surf->texinfo->flags, &sscroll, &tscroll);
 
 	for (p = surf->polys; p; p = p->chain)
-		total_verts += nv;
+		total_verts += p->numverts;
 	vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * total_verts, &vbo, &vboOffset);
 	mvtx_t *verts = (mvtx_t *)vertData;
 
 	for (p = surf->polys; p; p = p->chain)
 	{
+		const int nv = p->numverts;
 		if (Mesh_IndexesRealloc(index_pos + (nv - 2) * 3))
 		{
 			Com_Error(ERR_FATAL, "%s: can't allocate memory", __func__);
