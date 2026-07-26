@@ -84,6 +84,7 @@ R_DrawPoly(const msurface_t *fa, image_t *texture, const float *color)
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, (p->numverts - 2) * 3, 1, 0, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 }
 
 #define LINE_VTX_COUNT (256 * 6)
@@ -144,6 +145,7 @@ R_DrawTriangleOutlines(void)
 						vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 						vkCmdDraw(vk_activeCmdbuffer, curr_vtx, 1, 0, 0);
 						curr_vtx = 0;
+						printf("%d: %s\n", drawCalls++, __func__);
 					}
 
 					VectorCopy(p->verts[0].pos, triVert[curr_vtx + 0].v);
@@ -686,6 +688,7 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, index_pos, 1, 0, 0, 0);
+	printf("%d: %s\n", drawCalls++, __func__);
 	//PGM
 	//==========
 }

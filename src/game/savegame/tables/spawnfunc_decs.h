@@ -312,4 +312,5 @@ void SP_turret_driver( edict_t * self ) ;
 void SP_turret_invisible_brain( edict_t * self ) ;
 void SP_viewthing ( edict_t * ent ) ;
 void SP_worldspawn ( edict_t * ent ) ;
-void SP_xatrix_item( edict_t * self ) ;
+void SP_xatrix_item ( edict_t * self ) ;
+void SP_misc_remote_camera ( edict_t * self ) ;
