@@ -616,7 +616,4 @@ extern cvar_t *gl3_show_draw_stats;
 
 extern cvar_t *r_bloom;
 
-GLuint GL3_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH);
-void GL3_BloomShutdown(void);
-
 #endif /* SRC_CLIENT_REFRESH_GL3_HEADER_LOCAL_H_ */

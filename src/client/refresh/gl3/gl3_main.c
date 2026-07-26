@@ -67,10 +67,6 @@ int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
 
-static qboolean bloomInit = false;
-static GLuint sceneFBO = 0, sceneColorTex = 0, sceneDepthRBO = 0;
-static GLuint fullscreenVAO = 0, fullscreenVBO = 0;
-
 const hmm_mat4 gl3_identityMat4 = {{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
@@ -1524,7 +1520,7 @@ SetupGL(void)
 	// (=> don't use FBO when rendering the playermodel in the player menu)
 	// also, only do this when under water, because this has a noticeable overhead on some systems
 	if (gl3_usefbo->value && gl3state.ppFBO != 0
-		&& (r_newrefdef.rdflags & (RDF_NOWORLDMODEL|RDF_UNDERWATER)) == RDF_UNDERWATER)
+		&& ((r_newrefdef.rdflags & (RDF_NOWORLDMODEL|RDF_UNDERWATER)) == RDF_UNDERWATER || r_bloom->value))
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, gl3state.ppFBO);
 		gl3state.ppFBObound = true;
@@ -1805,75 +1801,6 @@ GL3_RenderView(const refdef_t *fd)
 		glFinish();
 	}
 
-	if (!bloomInit)
-	{
-		int w = vid.width;
-		int h = vid.height;
-
-		/* color texture + depth renderbuffer */
-		glGenFramebuffers(1, &sceneFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
-
-		glGenTextures(1, &sceneColorTex);
-		glBindTexture(GL_TEXTURE_2D, sceneColorTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneColorTex, 0);
-
-		glGenRenderbuffers(1, &sceneDepthRBO);
-		glBindRenderbuffer(GL_RENDERBUFFER, sceneDepthRBO);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, sceneDepthRBO);
-
-		/* ensure drawbuffers are set */
-		{
-			glDrawBuffers(1, &drawBuf);
-		}
-
-		/* check completeness */
-		{
-			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			if (status != GL_FRAMEBUFFER_COMPLETE)
-			{
-				R_Printf(PRINT_ALL, "%s: sceneFBO incomplete: 0x%X\n",
-					__func__, status);
-			}
-		}
-
-		if (fullscreenVAO == 0)
-		{
-			const GLfloat quadVerts[] = {
-				/* X, Y, S, T */
-				0.0f, (GLfloat)h, 0.0f, 1.0f,
-				0.0f, 0.0f,       0.0f, 0.0f,
-				(GLfloat)w, (GLfloat)h, 1.0f, 1.0f,
-				(GLfloat)w, 0.0f,        1.0f, 0.0f
-			};
-
-			glGenVertexArrays(1, &fullscreenVAO);
-			glBindVertexArray(fullscreenVAO);
-
-			glGenBuffers(1, &fullscreenVBO);
-			glBindBuffer(GL_ARRAY_BUFFER, fullscreenVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-
-			glEnableVertexAttribArray(GL3_ATTRIB_POSITION);
-			glVertexAttribPointer(GL3_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE,
-								  4 * sizeof(GLfloat), (const void*)0);
-
-			glEnableVertexAttribArray(GL3_ATTRIB_TEXCOORD);
-			glVertexAttribPointer(GL3_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE,
-								  4 * sizeof(GLfloat), (const void*)(2 * sizeof(GLfloat)));
-
-			glBindVertexArray(0);
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		bloomInit = true;
-	}
-
 	SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, gl3_origin,
@@ -2011,6 +1938,7 @@ GL3_RenderFrame(const refdef_t *fd)
 
 	int x = (vid.width - r_newrefdef.width)/2;
 	int y = (vid.height - r_newrefdef.height)/2;
+
 	if (usedFBO)
 	{
 		// if we're actually drawing the world and using an FBO, render the FBO's texture
@@ -2021,7 +1949,6 @@ GL3_RenderFrame(const refdef_t *fd)
 		GL3_Draw_Flash(v_blend, x, y, r_newrefdef.width, r_newrefdef.height);
 	}
 }
-
 
 static void
 GL3_Clear(void)
