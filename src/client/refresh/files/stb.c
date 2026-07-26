@@ -1047,7 +1047,7 @@ void
 R_FloodFillSkin(byte *skin, int skinwidth, int skinheight, const unsigned *table_8to24)
 {
 	byte fillcolor = *skin; /* assume this is the pixel to fill */
-	floodfill_t fifo[FLOODFILL_FIFO_SIZE];
+	static floodfill_t fifo[FLOODFILL_FIFO_SIZE];
 	int inpt = 0, outpt = 0;
 	int filledcolor = 0;
 	int i;

@@ -557,7 +557,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 		}
 		else if (gl_config.npottextures || rows <= 256)
 		{
-			unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
+			static unsigned image32[320 * 240]; /* was 256 * 256, but we want a bit more space */
 			unsigned* img = image32;
 			size_t i;
 

@@ -604,8 +604,8 @@ static qboolean
 R_Upload32Soft(unsigned *data, size_t width, size_t height, qboolean mipmap)
 {
 	int samples;
-	unsigned scaled[256 * 256];
-	byte paletted_texture[256 * 256];
+	static unsigned scaled[256 * 256];
+	static byte paletted_texture[256 * 256];
 	int scaled_width, scaled_height;
 	int i, c;
 	byte *scan;
