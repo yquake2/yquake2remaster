@@ -560,7 +560,7 @@ GL4_DrawAliasModel(entity_t *currententity)
 	origModelMat = gl4state.uni3DData.transModelMat4;
 
 	currententity->angles[PITCH] = -currententity->angles[PITCH];
-	GL4_RotateForEntity(currententity);
+	GL4_RotateUni3DforEntity(currententity);
 	currententity->angles[PITCH] = -currententity->angles[PITCH];
 
 	/* select skin */
@@ -613,19 +613,18 @@ GL4_DrawAliasModel(entity_t *currententity)
 
 	DrawAliasFrameLerp(paliashdr, currententity, shadelight, shadevector);
 
-	//glPopMatrix();
-	gl4state.uni3DData.transModelMat4 = origModelMat;
-	GL4_UpdateUBO3D();
-
 	if (currententity->flags & RF_WEAPONMODEL)
 	{
 		gl4state.uni3DData.transProjViewMat4 = origProjViewMat;
-		GL4_UpdateUBO3D();
 		if (r_lefthand->value == 1.0F)
 		{
 			glCullFace(GL_FRONT);
 		}
 	}
+
+	//glPopMatrix();
+	gl4state.uni3DData.transModelMat4 = origModelMat;
+	GL4_UpdateUBO3D();
 
 	if (currententity->flags & RF_TRANSLUCENT)
 	{

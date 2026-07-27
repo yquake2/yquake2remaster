@@ -389,7 +389,7 @@ DrawTextureChains(const entity_t *currententity)
 }
 
 static void
-RenderLightmappedPoly(const entity_t *currententity, msurface_t *surf, gl3drawCmd_t drawCmd)
+RenderLightmappedPoly(const entity_t *currententity, const msurface_t *surf, gl3drawCmd_t drawCmd)
 {
 	const gl3image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 

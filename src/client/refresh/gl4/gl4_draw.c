@@ -40,11 +40,6 @@ static stbtt_bakedchar *draw_fontcodes = NULL;
 static qboolean draw_chars_has_alt;
 
 static GLuint vbo2D = 0, ebo2D = 0, vao2D = 0, vao2Dcolor = 0; // vao2D is for textured rendering, vao2Dcolor for color-only
-static qboolean bloomInitialized = false;
-
-#define BLOOM_TEXTURES 2
-static GLuint bloomTex[BLOOM_TEXTURES] = {0, 0};
-static GLuint bloomFBO[BLOOM_TEXTURES] = {0, 0};
 
 void R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
@@ -479,7 +474,7 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const gl4image_t *image;
 
-	if(w <= 0 || h <= 0)
+	if (w <= 0 || h <= 0)
 	{
 		return;
 	}
@@ -501,314 +496,6 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		x / 64.0f, y / 64.0f, (x + w) / 64.0f, (y + h) / 64.0f);
 }
 
-void
-GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4])
-{
-	GLuint finalTex = fboTexture;
-	qboolean bloomActive = false;
-
-	/* check for r_bloom */
-	if (r_bloom && r_bloom->value)
-	{
-		GLuint bloom = GL4_ApplyBloom(fboTexture, w, h);
-		if (bloom != 0)
-		{
-			finalTex = bloom;
-			bloomActive = true;
-		}
-	}
-
-	qboolean underwater = (r_newrefdef.rdflags & RDF_UNDERWATER) != 0;
-	gl4ShaderInfo_t* shader = underwater ? &gl4state.si2DpostProcessWater
-	                                     : &gl4state.si2DpostProcess;
-
-	/* select shader and bind scene texture */
-	GL4_UseProgram(shader->shaderProgram);
-	GL4_Bind(finalTex);
-
-	/* set shader uniforms if present */
-	if (underwater && shader->uniLmScalesOrTime != -1)
-	{
-		glUniform1f(shader->uniLmScalesOrTime, r_newrefdef.time);
-	}
-
-	if (shader->uniVblend != -1)
-	{
-		glUniform4fv(shader->uniVblend, 1, v_blend);
-	}
-
-	if (!r_bloom || !r_bloom->value)
-	{
-		drawTexturedRectangleNow(x, y, w, h, 0, 0, 1, 1);
-		return;
-	}
-
-	/*
-	 * Build a small fullscreen quad vertex array and upload it into the
-	 * shared VBO. We use the same VBO/VAO used by other 2D draw helpers
-	 * (vao2D / vbo2D). The VAO already has pointers configured
-	 * in GL4_Draw_InitLocal(), so we only need to upload the vertex data.
-	 *
-	 * Vertex layout (matches VAO setup): X, Y, S, T
-	 */
-	GLfloat fsQuad[16];
-
-	if (bloomActive && underwater)
-	{
-		/* invert T coordinates to compensate for FBO orientation underwater */
-		fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 0.0f;
-		fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 1.0f;
-		fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 0.0f;
-		fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 1.0f;
-	}
-	else
-	{
-		fsQuad[0]  = (GLfloat)x;       fsQuad[1]  = (GLfloat)(y + h); fsQuad[2]  = 0.0f; fsQuad[3]  = 1.0f;
-		fsQuad[4]  = (GLfloat)x;       fsQuad[5]  = (GLfloat)y;       fsQuad[6]  = 0.0f; fsQuad[7]  = 0.0f;
-		fsQuad[8]  = (GLfloat)(x + w); fsQuad[9]  = (GLfloat)(y + h); fsQuad[10] = 1.0f; fsQuad[11] = 1.0f;
-		fsQuad[12] = (GLfloat)(x + w); fsQuad[13] = (GLfloat)y;       fsQuad[14] = 1.0f; fsQuad[15] = 0.0f;
-	}
-
-	GL4_BindVAO(vao2D);
-	GL4_BindVBO(vbo2D);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(fsQuad), fsQuad, GL_STREAM_DRAW);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	GL4_BindVAO(0);
-	if (finalTex != fboTexture)
-	{
-		glDeleteTextures(1, &finalTex);
-	}
-}
-
-/*
- * Fills a box of pixels with a single color
- */
-void
-GL4_Draw_Fill(int x, int y, int w, int h, int c)
-{
-	union
-	{
-		unsigned c;
-		byte v[4];
-	} color;
-	size_t i;
-
-	if ((unsigned)c > 255)
-	{
-		Com_Error(ERR_FATAL, "%s: bad color", __func__);
-		return;
-	}
-
-	color.c = d_8to24table[c];
-
-	// in case some batched 2D draws are outstanding, draw them now
-	// to preserve draw order
-	GL4_DrawCurrent2Dbatch();
-
-	GLfloat vBuf[8] = {
-	//  X,   Y
-		x,   y+h,
-		x,   y,
-		x+w, y+h,
-		x+w, y
-	};
-
-	for (i = 0; i < 3; ++i)
-	{
-		gl4state.uniCommonData.color.Elements[i] = color.v[i] * (1.0f/255.0f);
-	}
-
-	gl4state.uniCommonData.color.A = 1.0f;
-
-	GL4_UpdateUBOCommon();
-
-	GL4_UseProgram(gl4state.si2Dcolor.shaderProgram);
-	GL4_BindVAO(vao2Dcolor);
-
-	GL4_BindVBO(vbo2D);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
-
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	++gl4_numBufferVtxData;
-	++gl4_num2Ddraws;
-}
-
-// in GL1 this is called R_Flash() (which just calls R_PolyBlend())
-// now implemented in 2D mode and called after SetGL2D() because
-// it's pretty similar to GL4_Draw_FadeScreen()
-void
-GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
-{
-	size_t i = 0;
-
-	if (gl_polyblend->value == 0)
-	{
-		return;
-	}
-
-	// in case some batched 2D draws are outstanding, draw them now
-	// to preserve draw order
-	GL4_DrawCurrent2Dbatch();
-
-	GLfloat vBuf[8] = {
-	//  X,   Y
-		x,   y+h,
-		x,   y,
-		x+w, y+h,
-		x+w, y
-	};
-
-	glEnable(GL_BLEND);
-
-	if (r_bloom && r_bloom->value)
-	{
-		/* this blends the screen flash while bloom is enabled
-		 * TODO: disable broke fixing window on disable bloom */
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	for (i = 0; i < 4; ++i)
-	{
-		gl4state.uniCommonData.color.Elements[i] = color[i];
-	}
-
-	GL4_UpdateUBOCommon();
-
-	GL4_UseProgram(gl4state.si2Dcolor.shaderProgram);
-
-	GL4_BindVAO(vao2Dcolor);
-
-	GL4_BindVBO(vbo2D);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
-
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	++gl4_numBufferVtxData;
-	++gl4_num2Ddraws;
-
-	glDisable(GL_BLEND);
-}
-
-void
-GL4_Draw_FadeScreen(void)
-{
-	float color[4] = {0, 0, 0, 0.6f};
-	GL4_Draw_Flash(color, 0, 0, vid.width, vid.height);
-}
-
-void
-GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
-{
-	GL4_Bind(0);
-
-	static unsigned image32[320 * 240]; /* was 256 * 256, but we want a bit more space */
-
-	unsigned* img = image32;
-
-	if (bits == 32)
-	{
-		img = (unsigned *)data;
-	}
-	else
-	{
-		size_t i;
-
-		if (cols * rows > 320 * 240)
-		{
-			/* in case there is a bigger video after all,
-			 * malloc enough space to hold the frame */
-			img = (unsigned*)malloc(cols*rows*4);
-		}
-
-		for (i = 0; i < rows; ++i)
-		{
-			size_t j, rowOffset;
-
-			rowOffset = i * cols;
-
-			for (j = 0; j < cols; ++j)
-			{
-				byte palIdx = data[rowOffset+j];
-				img[rowOffset+j] = gl4_rawpalette[palIdx];
-			}
-		}
-	}
-
-	GL4_UseProgram(gl4state.si2D.shaderProgram);
-
-	GLuint glTex;
-	glGenTextures(1, &glTex);
-	GL4_SelectTMU(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, glTex);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, gl4_tex_solid_format,
-	             cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
-
-	if (img != image32 && img != (unsigned *)data)
-	{
-		free(img);
-	}
-
-	// Note: gl_filter_min could be GL_*_MIPMAP_* so we can't use it for min filter here (=> no mipmaps)
-	//       but gl_filter_max (either GL_LINEAR or GL_NEAREST) should do the trick.
-	GLint filter = (r_videos_unfiltered->value == 0) ? gl_filter_max : GL_NEAREST;
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
-
-	// NOTE: this is only used for videos and only called once per frame (or not at all)
-	drawTexturedRectangleNow(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
-
-	glDeleteTextures(1, &glTex);
-
-	GL4_Bind(0);
-}
-
-/*
- * Called at the end of the frame, after 2D (UI) rendering is done.
- * Does some internal housekeeping, then swaps the buffers
- * and shows the next frame.
- */
-void GL4_EndFrame(void)
-{
-	GL4_DrawCurrent2Dbatch();
-
-	// by saving those values into a variable and setting them to 0 afterwards,
-	// gl4_show_draw_stats can include its own drawcalls (from previous frame)
-	int num3D = gl4_num3Ddraws;
-	int num2D = gl4_num2Ddraws;
-	int numBufVtx = gl4_numBufferVtxData;
-	int numBufUni = gl4_numBufferUniforms;
-	gl4_num3Ddraws = 0;
-	gl4_num2Ddraws = 0;
-	gl4_numBufferVtxData = 0;
-	gl4_numBufferUniforms = 0;
-
-	if(gl4_show_draw_stats->value)
-	{
-		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
-		char stbuf[128] = {0};
-		snprintf(stbuf, sizeof(stbuf), "3D drawcalls: %d - 2D drawcalls: %d - buffer vtx data: %d - buffer uniforms: %d",
-		         num3D, num2D, numBufVtx, numBufUni);
-
-		GL4_Draw_StringScaled(10, 5, factor, true, stbuf);
-		GL4_DrawCurrent2Dbatch();
-	}
-
-	if(gl4config.useBigVBO)
-	{
-		// I think this is a good point to orphan the VBO and get a fresh one
-		GL4_BindVAO(gl4state.vao3D);
-		GL4_BindVBO(gl4state.vbo3D);
-		glBufferData(GL_ARRAY_BUFFER, gl4state.vbo3Dsize, NULL, GL_STREAM_DRAW);
-		gl4state.vbo3DcurOffset = 0;
-	}
-
-	GL4_SwapWindow();
-}
-
 /* draw a fullscreen quad using the existing vao2D/vbo2D */
 static void
 GL4_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
@@ -820,48 +507,16 @@ GL4_DrawFullscreenQuadFromArray(const GLfloat fsQuad[16])
 	GL4_BindVAO(0);
 }
 
-/* Shutdown bloom resources */
-void
-GL4_BloomShutdown(void)
-{
-	size_t i;
-
-	for (i = 0; i < BLOOM_TEXTURES; i++)
-	{
-		if (bloomFBO[i])
-		{
-			glDeleteFramebuffers(1, &bloomFBO[i]);
-			bloomFBO[i] = 0;
-		}
-
-		if (bloomTex[i])
-		{
-			glDeleteTextures(1, &bloomTex[i]);
-			bloomTex[i] = 0;
-		}
-	}
-
-	bloomInitialized = false;
-}
-
 /*
  * Apply a simple bloom effect
  *
  * Returns: GLuint of the composite bloom texture.
  * Caller must delete the returned texture when done.
  */
-GLuint
-GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
+static GLuint
+GL4_ApplyBloomPass(GLuint sceneTex, int w, int h)
 {
 	GLint locTex, locDir;
-
-	if (!r_bloom || !r_bloom->value)
-	{
-		return 0;
-	}
-
-	int w = Q_max(sceneW, 1);
-	int h = Q_max(sceneH, 1);
 
 	int downscale = 2;
 	int bw = (w / downscale) > 0 ? (w / downscale) : 1;
@@ -941,10 +596,10 @@ GL4_ApplyBloom(GLuint sceneTex, int sceneW, int sceneH)
 		1.0f, -1.0f, 1.0f, 0.0f
 	};
 	GLfloat fsQuadFull[16] = {
-		0.0f, (GLfloat)h, 0.0f, 1.0f,
-		0.0f, 0.0f, 0.0f, 0.0f,
-		(GLfloat)w, (GLfloat)h, 1.0f, 1.0f,
-		(GLfloat)w, 0.0f, 1.0f, 0.0f
+		0.0f, (GLfloat)h, 0.0f, 0.0f,        // Bottom-Left of Screen -> Bottom-Left of Texture
+		0.0f, 0.0f, 0.0f, 1.0f,              // Top-Left of Screen    -> Top-Left of Texture
+		(GLfloat)w, (GLfloat)h, 1.0f, 0.0f,  // Bottom-Right of Screen -> Bottom-Right of Texture
+		(GLfloat)w, 0.0f, 1.0f, 1.0f         // Top-Right of Screen    -> Top-Right of Texture
 	};
 
 	/* Bright pass */
@@ -1095,4 +750,256 @@ fail:
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	return 0;
+}
+
+void
+GL4_DrawFrameBufferObject(int x, int y, int w, int h, GLuint fboTexture, const float v_blend[4])
+{
+	GLuint finalTex = fboTexture;
+
+	if (r_bloom && r_bloom->value)
+	{
+		GLuint bloom = GL4_ApplyBloomPass(fboTexture, w, h);
+		if (bloom != 0)
+		{
+			finalTex = bloom;
+		}
+	}
+
+	qboolean underwater = (r_newrefdef.rdflags & RDF_UNDERWATER) != 0;
+	gl4ShaderInfo_t* shader = underwater ? &gl4state.si2DpostProcessWater
+	                                     : &gl4state.si2DpostProcess;
+
+	/* select shader and bind scene texture */
+	GL4_UseProgram(shader->shaderProgram);
+	GL4_Bind(finalTex);
+
+	/* set shader uniforms if present */
+	if (underwater && shader->uniLmScalesOrTime != -1)
+	{
+		glUniform1f(shader->uniLmScalesOrTime, r_newrefdef.time);
+	}
+
+	if (shader->uniVblend != -1)
+	{
+		glUniform4fv(shader->uniVblend, 1, v_blend);
+	}
+
+	drawTexturedRectangleNow(x, y, w, h, 0, 1, 1, 0);
+
+	if (finalTex != fboTexture)
+	{
+		glDeleteTextures(1, &finalTex);
+	}
+}
+
+/*
+ * Fills a box of pixels with a single color
+ */
+void
+GL4_Draw_Fill(int x, int y, int w, int h, int c)
+{
+	union
+	{
+		unsigned c;
+		byte v[4];
+	} color;
+	size_t i;
+
+	if ((unsigned)c > 255)
+	{
+		Com_Error(ERR_FATAL, "%s: bad color", __func__);
+		return;
+	}
+
+	color.c = d_8to24table[c];
+
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL4_DrawCurrent2Dbatch();
+
+	GLfloat vBuf[8] = {
+	//  X,   Y
+		x,   y+h,
+		x,   y,
+		x+w, y+h,
+		x+w, y
+	};
+
+	for (i = 0; i < 3; ++i)
+	{
+		gl4state.uniCommonData.color.Elements[i] = color.v[i] * (1.0f/255.0f);
+	}
+
+	gl4state.uniCommonData.color.A = 1.0f;
+
+	GL4_UpdateUBOCommon();
+
+	GL4_UseProgram(gl4state.si2Dcolor.shaderProgram);
+	GL4_BindVAO(vao2Dcolor);
+
+	GL4_BindVBO(vbo2D);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	++gl4_numBufferVtxData;
+	++gl4_num2Ddraws;
+}
+
+// in GL1 this is called R_Flash() (which just calls R_PolyBlend())
+// now implemented in 2D mode and called after SetGL2D() because
+// it's pretty similar to GL4_Draw_FadeScreen()
+void
+GL4_Draw_Flash(const float color[4], float x, float y, float w, float h)
+{
+	size_t i = 0;
+
+	if (gl_polyblend->value == 0)
+	{
+		return;
+	}
+
+	// in case some batched 2D draws are outstanding, draw them now
+	// to preserve draw order
+	GL4_DrawCurrent2Dbatch();
+
+	GLfloat vBuf[8] = {
+	//  X,   Y
+		x,   y+h,
+		x,   y,
+		x+w, y+h,
+		x+w, y
+	};
+
+	glEnable(GL_BLEND);
+
+	for (i = 0; i < 4; ++i)
+	{
+		gl4state.uniCommonData.color.Elements[i] = color[i];
+	}
+
+	GL4_UpdateUBOCommon();
+
+	GL4_UseProgram(gl4state.si2Dcolor.shaderProgram);
+
+	GL4_BindVAO(vao2Dcolor);
+
+	GL4_BindVBO(vbo2D);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vBuf), vBuf, GL_STREAM_DRAW);
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+	++gl4_numBufferVtxData;
+	++gl4_num2Ddraws;
+
+	glDisable(GL_BLEND);
+}
+
+void
+GL4_Draw_FadeScreen(void)
+{
+	float color[4] = {0, 0, 0, 0.6f};
+	GL4_Draw_Flash(color, 0, 0, vid.width, vid.height);
+}
+
+void
+GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits)
+{
+	GL4_Bind(0);
+
+	static unsigned image32[320 * 240]; /* was 256 * 256, but we want a bit more space */
+
+	unsigned* img = image32;
+
+	if (bits == 32)
+	{
+		img = (unsigned *)data;
+	}
+	else
+	{
+		size_t i;
+
+		if (cols * rows > 320 * 240)
+		{
+			/* in case there is a bigger video after all,
+			 * malloc enough space to hold the frame */
+			img = (unsigned*)malloc(cols*rows*4);
+		}
+
+		for (i = 0; i < rows; ++i)
+		{
+			size_t j, rowOffset;
+
+			rowOffset = i * cols;
+
+			for (j = 0; j < cols; ++j)
+			{
+				byte palIdx = data[rowOffset+j];
+				img[rowOffset+j] = gl4_rawpalette[palIdx];
+			}
+		}
+	}
+
+	GL4_UseProgram(gl4state.si2D.shaderProgram);
+
+	GLuint glTex;
+	glGenTextures(1, &glTex);
+	GL4_SelectTMU(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, glTex);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, gl4_tex_solid_format,
+	             cols, rows, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+
+	if (img != image32 && img != (unsigned *)data)
+	{
+		free(img);
+	}
+
+	// Note: gl_filter_min could be GL_*_MIPMAP_* so we can't use it for min filter here (=> no mipmaps)
+	//       but gl_filter_max (either GL_LINEAR or GL_NEAREST) should do the trick.
+	GLint filter = (r_videos_unfiltered->value == 0) ? gl_filter_max : GL_NEAREST;
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+	// NOTE: this is only used for videos and only called once per frame (or not at all)
+	drawTexturedRectangleNow(x, y, w, h, 0.0f, 0.0f, 1.0f, 1.0f);
+
+	glDeleteTextures(1, &glTex);
+
+	GL4_Bind(0);
+}
+
+/*
+ * Called at the end of the frame, after 2D (UI) rendering is done.
+ * Does some internal housekeeping, then swaps the buffers
+ * and shows the next frame.
+ */
+void GL4_EndFrame(void)
+{
+	GL4_DrawCurrent2Dbatch();
+
+	// by saving those values into a variable and setting them to 0 afterwards,
+	// gl4_show_draw_stats can include its own drawcalls (from previous frame)
+	int num3D = gl4_num3Ddraws;
+	int num2D = gl4_num2Ddraws;
+	int numBufVtx = gl4_numBufferVtxData;
+	int numBufUni = gl4_numBufferUniforms;
+	gl4_num3Ddraws = 0;
+	gl4_num2Ddraws = 0;
+	gl4_numBufferVtxData = 0;
+	gl4_numBufferUniforms = 0;
+
+	if (gl4_show_draw_stats->value)
+	{
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
+		char stbuf[128] = {0};
+		snprintf(stbuf, sizeof(stbuf), "3D drawcalls: %d - 2D drawcalls: %d - buffer vtx data: %d - buffer uniforms: %d",
+		         num3D, num2D, numBufVtx, numBufUni);
+
+		GL4_Draw_StringScaled(10, 5, factor, true, stbuf);
+		GL4_DrawCurrent2Dbatch();
+	}
+
+	GL4_SwapWindow();
 }

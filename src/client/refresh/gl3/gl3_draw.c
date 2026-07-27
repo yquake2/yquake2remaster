@@ -908,7 +908,7 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 {
 	GL3_Bind(0);
 
-	static unsigned image32[320*240]; /* was 256 * 256, but we want a bit more space */
+	static unsigned image32[320 * 240]; /* was 256 * 256, but we want a bit more space */
 
 	unsigned* img = image32;
 

@@ -63,10 +63,6 @@ int c_brush_polys, c_alias_polys;
 
 static float v_blend[4]; /* final blending color */
 
-static qboolean bloomInit = false;
-static GLuint sceneFBO = 0, sceneColorTex = 0, sceneDepthRBO = 0;
-static GLuint fullscreenVAO = 0, fullscreenVBO = 0;
-
 const hmm_mat4 gl4_identityMat4 = {{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
@@ -93,10 +89,19 @@ cvar_t *gl4_overbrightbits;
 cvar_t *gl_nobind;
 cvar_t *gl_finish;
 cvar_t *gl4_debugcontext;
-cvar_t *gl4_usebigvbo;
 cvar_t *gl4_usefbo;
 
 cvar_t *gl4_show_draw_stats;
+
+DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
+DA_TYPEDEF(GLushort, UShortArray_t);
+DA_TYPEDEF(gl4drawCmd_t, DrawCommandArray_t);
+DA_TYPEDEF(hmm_mat4, Mat4Array_t);
+// dynamic arrays to batch all consecutive 3D draws (with mvtx_t) with same texture to reduce drawcalls
+static Vtx3DArray_t vtxBuf = {0};
+static UShortArray_t idxBuf = {0};
+static DrawCommandArray_t drawCmds = {0};
+static Mat4Array_t transModelMats = {0};
 
 // Yaw-Pitch-Roll
 // equivalent to R_z * R_y * R_x where R_x is the trans matrix for rotating around X axis for aroundXdeg
@@ -127,7 +132,7 @@ static hmm_mat4 rotAroundAxisZYX(float aroundZdeg, float aroundYdeg, float aroun
 }
 
 void
-GL4_RotateForEntity(entity_t *e)
+GL4_RotateUni3DforEntity(entity_t *e)
 {
 	// angles: pitch (around y), yaw (around z), roll (around x)
 	// rot matrices to be multiplied in order Z, Y, X (yaw, pitch, roll)
@@ -141,6 +146,25 @@ GL4_RotateForEntity(entity_t *e)
 	gl4state.uni3DData.transModelMat4 = HMM_MultiplyMat4(gl4state.uni3DData.transModelMat4, transMat);
 
 	GL4_UpdateUBO3D();
+}
+
+// if replaceTransModelMat is true, the existing value of drawCmd->transModelMat
+// is ignored and it's replaced with the one calculated here (otherwise they're multiplied)
+void
+GL4_RotateForEntity(entity_t *e, gl4drawCmd_t* drawCmd)
+{
+	// TODO: shortcut for "not rotated at all"?
+
+	// angles: pitch (around y), yaw (around z), roll (around x)
+	// rot matrices to be multiplied in order Z, Y, X (yaw, pitch, roll)
+	hmm_mat4 transMat = rotAroundAxisZYX(e->angles[1], -e->angles[0], -e->angles[2]);
+
+	for (int i=0; i<3; ++i)
+	{
+		transMat.Elements[3][i] = e->origin[i]; // set translation
+	}
+
+	GL4_SetDrawCmdTransMatrix(drawCmd, transMat);
 }
 
 
@@ -178,10 +202,6 @@ GL4_Register(void)
 	gl4_colorlight = ri.Cvar_Get("gl4_colorlight", "1", CVAR_ARCHIVE);
 	gl_polyblend = ri.Cvar_Get("gl_polyblend", "1", CVAR_ARCHIVE);
 
-	//  0: use lots of calls to glBufferData()
-	//  1: reduce calls to glBufferData() with one big VBO (see GL4_BufferAndDraw3D())
-	// -1: auto (let yq2 choose to enable/disable this based on detected driver)
-	gl4_usebigvbo = ri.Cvar_Get("gl4_usebigvbo", "-1", CVAR_ARCHIVE);
 	r_bloom = ri.Cvar_Get("r_bloom", "0", CVAR_ARCHIVE);
 	gl_nobind = ri.Cvar_Get("gl_nobind", "0", 0);
 	gl_texturemode = ri.Cvar_Get("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST", CVAR_ARCHIVE);
@@ -344,7 +364,8 @@ GL4_SetMode(void)
 
 			if (r_msaa_samples->value != 0.0f)
 			{
-				Com_Printf("r_msaa_samples was %d - will try again with r_msaa_samples = 0\n", (int)r_msaa_samples->value);
+				Com_Printf("r_msaa_samples was %d - will try again with r_msaa_samples = 0\n",
+					(int)r_msaa_samples->value);
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
 				r_msaa_samples->modified = false;
 
@@ -397,6 +418,9 @@ GL4_Init(void)
 	}
 
 	ri.VID_GetPalette(NULL, d_8to24table);
+
+	da_clear(transModelMats);
+	da_add(transModelMats, gl4_identityMat4); // element 0 is always the identity matrix
 
 	GL4_Register();
 
@@ -458,47 +482,6 @@ GL4_Init(void)
 		Com_Printf(" - OpenGL Debug Output: Not Supported\n");
 	}
 
-	gl4config.useBigVBO = false;
-	if (gl4_usebigvbo->value == 1.0f)
-	{
-		Com_Printf("Enabling useBigVBO workaround because gl4_usebigvbo = 1\n");
-		gl4config.useBigVBO = true;
-	}
-	else if (gl4_usebigvbo->value == -1.0f)
-	{
-		// enable for AMDs proprietary Windows and Linux drivers
-#ifdef _WIN32
-		if (gl4config.version_string != NULL && gl4config.vendor_string != NULL
-		   && strstr(gl4config.vendor_string, "ATI Technologies Inc") != NULL)
-		{
-			int a, b, ver;
-			if (sscanf(gl4config.version_string, " %d.%d.%d ", &a, &b, &ver) >= 3 && ver >= 13431)
-			{
-				// turns out the legacy driver is a lot faster *without* the workaround :-/
-				// GL_VERSION for legacy 16.2.1 Beta driver: 3.2.13399 Core Profile Forward-Compatible Context 15.200.1062.1004
-				//            (this is the last version that supports the Radeon HD 6950)
-				// GL_VERSION for (non-legacy) 16.3.1 driver on Radeon R9 200: 4.5.13431 Compatibility Profile Context 16.150.2111.0
-				// GL_VERSION for non-legacy 17.7.2 WHQL driver: 4.5.13491 Compatibility Profile/Debug Context 22.19.662.4
-				// GL_VERSION for 18.10.1 driver: 4.6.13541 Compatibility Profile/Debug Context 25.20.14003.1010
-				// GL_VERSION for (current) 19.3.2 driver: 4.6.13547 Compatibility Profile/Debug Context 25.20.15027.5007
-				// (the 3.2/4.5/4.6 can probably be ignored, might depend on the card and what kind of context was requested
-				//  but AFAIK the number behind that can be used to roughly match the driver version)
-				// => let's try matching for x.y.z with z >= 13431
-				// (no, I don't feel like testing which release since 16.2.1 has introduced the slowdown.)
-				Com_Printf("Detected AMD Windows GPU driver, enabling useBigVBO workaround\n");
-				gl4config.useBigVBO = true;
-			}
-		}
-#elif defined(__linux__)
-		if (gl4config.vendor_string != NULL && strstr(gl4config.vendor_string, "Advanced Micro Devices, Inc.") != NULL)
-		{
-			Com_Printf("Detected proprietary AMD GPU driver, enabling useBigVBO workaround\n");
-			Com_Printf("(consider using the open source RadeonSI drivers, they tend to work better overall)\n");
-			gl4config.useBigVBO = true;
-		}
-#endif
-	}
-
 	// generate texture handles for all possible lightmaps
 	glGenTextures(MAX_LIGHTMAPS*MAX_LIGHTMAPS_PER_SURFACE, gl4state.lightmap_textureIDs[0]);
 
@@ -556,7 +539,6 @@ GL4_Shutdown(void)
 		GL4_SurfShutdown();
 		GL4_Draw_ShutdownLocal();
 		GL4_ShutdownShaders();
-		GL4_BloomShutdown();
 
 		// free the postprocessing FBO and its renderbuffer and texture
 		if (gl4state.ppFBrbo != 0)
@@ -570,57 +552,368 @@ GL4_Shutdown(void)
 		gl4state.ppFBtexWidth = gl4state.ppFBtexHeight = -1;
 	}
 
+	da_free(vtxBuf);
+	da_free(idxBuf);
+	da_free(drawCmds);
+	da_free(transModelMats);
+
 	/* shutdown OS specific OpenGL stuff like contexts, etc.  */
 	GL4_ShutdownContext();
+}
+
+static inline qboolean
+colorsEqual(const byte c1[3], const byte c2[3])
+{
+	return c1[0] == c2[0] && c1[1] == c2[1] && c1[2] == c2[2];
+}
+
+static inline qboolean
+lmstylesEqual(const byte st1[MAXLIGHTMAPS], const byte st2[MAXLIGHTMAPS])
+{
+	for (int i=0; i<MAXLIGHTMAPS; ++i)
+	{
+		byte astyle = st1[i];
+		if (astyle != st2[i])
+			return false;
+		// 255 indicates that this and the remaining styles can be ignored
+		// (still needed to check first if a and b agree about ignoring it)
+		if (astyle == 255)
+			break;
+	}
+	return true;
+}
+
+static void
+UpdateLMscales(const hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE], gl4ShaderInfo_t* si)
+{
+	int i;
+	qboolean hasChanged = false;
+
+	for (i=0; i<MAX_LIGHTMAPS_PER_SURFACE; ++i)
+	{
+		if (hasChanged)
+		{
+			si->lmScales[i] = lmScales[i];
+		}
+		else if (   si->lmScales[i].R != lmScales[i].R
+		        || si->lmScales[i].G != lmScales[i].G
+		        || si->lmScales[i].B != lmScales[i].B
+		        || si->lmScales[i].A != lmScales[i].A )
+		{
+			si->lmScales[i] = lmScales[i];
+			hasChanged = true;
+		}
+	}
+
+	if (hasChanged)
+	{
+		glUniform4fv(si->uniLmScalesOrTime, MAX_LIGHTMAPS_PER_SURFACE, si->lmScales[0].Elements);
+	}
+}
+
+void GL4_Draw3DBatchesNow()
+{
+	if (da_count(drawCmds) == 0)
+		return;
+
+	GL4_BindVAO(gl4state.vao3D);
+	GL4_BindVBO(gl4state.vbo3D);
+	GL4_BindEBO(gl4state.ebo3D);
+
+	glBufferData(GL_ARRAY_BUFFER, da_count(vtxBuf)*sizeof(mvtx_t), vtxBuf.p, GL_STREAM_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, da_count(idxBuf)*sizeof(GLushort), idxBuf.p, GL_STREAM_DRAW);
+
+	++gl4_numBufferVtxData;
+
+	// set curState to something that reflects the actual state, as far as possible,
+	// and otherwise makes sure it'll be set in the loop
+	gl4drawCmd_t curState = GL4_CreateDrawCmd();
+
+	curState.texnum = gl4state.currenttexture;
+	curState.lmtexnum = gl4state.currentlightmap;
+	curState.alpha = gl4state.uni3DData.alpha;
+	curState.sscroll = gl4state.uni3DData.sscroll;
+	curState.tscroll = gl4state.uni3DData.tscroll;
+	curState.lightScaleForTurb = gl4state.uni3DData.lightScaleForTurb;
+
+	// for the next two the approach is setting a value that
+	// is different from the one in the first drawCmd, to make sure
+	// the corresponding state is set in the first iteration
+	curState.flags = ~drawCmds.p[0].flags; // just the opposite flags of the first element
+	curState.transModelMatIdx = drawCmds.p[0].transModelMatIdx + 1;
+
+	gl4ShaderInfo_t* shader = NULL;
+
+	for (int i=0, n=da_count(drawCmds); i < n; ++i)
+	{
+		gl4drawCmd_t* cmd = da_getptr(drawCmds, i);
+
+		int flags = cmd->flags;
+		int curFlags = curState.flags;
+		qboolean updateUni3D = false;
+
+		if (cmd->shaderIdx != curState.shaderIdx)
+		{
+			shader = GL4_GetDrawCmdShader(cmd);
+			GL4_UseProgram( shader->shaderProgram );
+		}
+		if (cmd->texnum != gl4state.currenttexture)
+			GL4_Bind(cmd->texnum);
+		if (cmd->lmtexnum >= 0)
+			GL4_BindLightmap(cmd->lmtexnum);
+
+		if ((flags & DCFlag_DisableDepthMask) != (curFlags & DCFlag_DisableDepthMask))
+			glDepthMask((flags & DCFlag_DisableDepthMask) == 0);
+
+		if ((flags & DCFlag_Blend) != (curFlags & DCFlag_Blend))
+		{
+			if (flags & DCFlag_Blend)
+				glEnable(GL_BLEND);
+			else
+				glDisable(GL_BLEND);
+		}
+
+		if ((flags & DCFlag_Flare) != (curFlags & DCFlag_Flare))
+		{
+			if (flags & DCFlag_Flare)
+				glBlendFunc(GL_ONE, GL_ONE);
+			else
+				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		if ((flags & DCFlag_PolyOffsetFill) != (curFlags & DCFlag_PolyOffsetFill))
+		{
+			if (flags & DCFlag_PolyOffsetFill)
+				glEnable(GL_POLYGON_OFFSET_FILL);
+			else
+				glDisable(GL_POLYGON_OFFSET_FILL);
+		}
+
+		if ((flags & DCFlag_UseScroll) && (
+			cmd->sscroll != gl4state.uni3DData.sscroll ||
+			cmd->tscroll != gl4state.uni3DData.tscroll))
+		{
+			gl4state.uni3DData.sscroll = cmd->sscroll;
+			gl4state.uni3DData.tscroll = cmd->tscroll;
+			updateUni3D = true;
+		}
+
+		if ((flags & DCFlag_UseLightScaleForTurb)
+		   && cmd->lightScaleForTurb != gl4state.uni3DData.lightScaleForTurb)
+		{
+			gl4state.uni3DData.lightScaleForTurb = cmd->lightScaleForTurb;
+			updateUni3D = true;
+		}
+
+		if ((flags & DCFlag_UseLmStyles) && !lmstylesEqual(cmd->styles, curState.styles))
+		{
+			hmm_vec4 lmScales[MAX_LIGHTMAPS_PER_SURFACE] = {0};
+			lmScales[0] = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+			for (int map = 0; map < MAX_LIGHTMAPS_PER_SURFACE && cmd->styles[map] != 255; map++)
+			{
+				lmScales[map].R = r_newrefdef.lightstyles[cmd->styles[map]].rgb[0];
+				lmScales[map].G = r_newrefdef.lightstyles[cmd->styles[map]].rgb[1];
+				lmScales[map].B = r_newrefdef.lightstyles[cmd->styles[map]].rgb[2];
+				lmScales[map].A = 1.0f;
+			}
+			UpdateLMscales(lmScales, shader);
+		}
+
+		if (flags & DCFlag_UseColor)
+		{
+			if (cmd->alpha != curState.alpha || !colorsEqual(cmd->color, curState.color))
+			{
+				gl4state.uniCommonData.color.R = cmd->color[0] * (1.0f/255.0f);
+				gl4state.uniCommonData.color.G = cmd->color[1] * (1.0f/255.0f);
+				gl4state.uniCommonData.color.B = cmd->color[2] * (1.0f/255.0f);
+				gl4state.uniCommonData.color.A = cmd->alpha;
+				GL4_UpdateUBOCommon();
+			}
+		}
+		else if ((flags & DCFlag_Blend) && cmd->alpha != gl4state.uni3DData.alpha)
+		{
+			gl4state.uni3DData.alpha = cmd->alpha;
+			updateUni3D = true;
+		}
+
+		if (cmd->transModelMatIdx != curState.transModelMatIdx)
+		{
+			gl4state.uni3DData.transModelMat4 = da_get(transModelMats, cmd->transModelMatIdx);
+			updateUni3D = true;
+		}
+
+		if (updateUni3D)
+			GL4_UpdateUBO3D();
+
+		uintptr_t elemOffset = cmd->idxBufOffset * sizeof(GLushort);
+		glDrawElements(GL_TRIANGLES, cmd->numElements, GL_UNSIGNED_SHORT, (void*)elemOffset);
+		curState = *cmd;
+
+		++gl4_num3Ddraws;
+	}
+
+	da_clear(vtxBuf);
+	da_clear(idxBuf);
+	da_clear(drawCmds);
+
+	da_setcount(transModelMats, 1); // keep index 0 (identity matrix)
+
+	// restore sane default for other draw operations (models, particles, 2D)
+	if (curState.transModelMatIdx != 0)
+	{
+		gl4state.uni3DData.transModelMat4 = gl4_identityMat4;
+		GL4_UpdateUBO3D();
+	}
+	int curFlags = curState.flags;
+	if (curFlags & DCFlag_Blend)
+		glDisable(GL_BLEND);
+	if (curFlags & DCFlag_DisableDepthMask)
+		glDepthMask(GL_TRUE);
+
+	if (curFlags & DCFlag_PolyOffsetFill)
+		glDisable(GL_POLYGON_OFFSET_FILL);
+}
+
+static qboolean
+drawStateEqual(const gl4drawCmd_t* a, const gl4drawCmd_t* b)
+{
+	if ( a->flags != b->flags || a->shaderIdx != b->shaderIdx
+	   || a->texnum != b->texnum || a->lmtexnum != b->lmtexnum
+	   || a->transModelMatIdx != b->transModelMatIdx )
+		return false;
+
+	int flags = a->flags; // at this point we know the flags are identical
+
+	if ((flags & DCFlag_UseScroll) && (a->sscroll != b->sscroll || a->tscroll != b->tscroll))
+		return false;
+
+	if ((flags & DCFlag_UseLightScaleForTurb) && a->lightScaleForTurb != b->lightScaleForTurb)
+		return false;
+
+	if ( (flags & DCFlag_UseColor) && !colorsEqual(a->color, b->color) )
+		return false;
+
+	if (a->alpha != b->alpha)
+		return false;
+
+	if ((flags & DCFlag_UseLmStyles) && !lmstylesEqual(a->styles, b->styles))
+		return false;
+
+	return true;
+}
+
+void
+GL4_SetDrawCmdTransMatrix(gl4drawCmd_t* drawCmd, hmm_mat4 mat)
+{
+	int idx = da_count(transModelMats);
+	da_add(transModelMats, mat);
+	drawCmd->transModelMatIdx = idx;
 }
 
 // assumes gl4state.v[ab]o3D are bound
 // buffers and draws mvtx_t vertices
 // drawMode is something like GL_TRIANGLE_STRIP or GL_TRIANGLE_FAN or whatever
 void
-GL4_BufferAndDraw3D(const mvtx_t* verts, int numVerts, GLenum drawMode)
+GL4_Add3DdrawCmdToBatch(const mvtx_t* verts, int numVerts, GLenum drawMode, gl4drawCmd_t drawCmd)
 {
-	if (!gl4config.useBigVBO)
+	if(numVerts > UINT16_MAX)
 	{
-		glBufferData( GL_ARRAY_BUFFER, sizeof(mvtx_t)*numVerts, verts, GL_STREAM_DRAW );
-		glDrawArrays( drawMode, 0, numVerts );
+		Com_Printf("WARNING: Discarding a draw command with %d vertices (max %d allowed)!\n",
+			numVerts, UINT16_MAX);
+		return;
 	}
-	else // gl4config.useBigVBO == true
-	{
-		int curOffset = gl4state.vbo3DcurOffset;
-		int neededSize = numVerts * sizeof(mvtx_t);
 
-		if (curOffset + neededSize > gl4state.vbo3Dsize) {
-			curOffset = 0;
+	if (da_count(vtxBuf) + numVerts > UINT16_MAX)
+	{
+		GL4_Draw3DBatchesNow();
+	}
+
+	GLushort nextVtxIdx = da_count(vtxBuf);
+	drawCmd.idxBufOffset = da_count(idxBuf);
+	assert(drawCmd.shaderIdx != -1);
+
+	// translate triangle fan/strip to just triangle indices
+	if (drawMode == GL_TRIANGLE_FAN)
+	{
+		for (GLushort i = 1; i < numVerts-1; ++i)
+		{
+			GLushort* add = da_addn_uninit(idxBuf, 3);
+
+			add[0] = nextVtxIdx;
+			add[1] = nextVtxIdx+i;
+			add[2] = nextVtxIdx+i+1;
 		}
-
-		glBindBuffer(GL_ARRAY_BUFFER, gl4state.vbo3D);
-		void* data = glMapBufferRange(GL_ARRAY_BUFFER, curOffset, gl4state.vbo3Dsize - curOffset, GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_RANGE_BIT | GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
-
-		memcpy((char*)data + curOffset, verts, neededSize);
-
-		glUnmapBuffer(GL_ARRAY_BUFFER);
-		glDrawArrays(drawMode, curOffset / sizeof(mvtx_t), numVerts);
-		gl4state.vbo3DcurOffset = (curOffset + neededSize) % gl4state.vbo3Dsize;
 	}
-	++gl4_num3Ddraws;
-	++gl4_numBufferVtxData;
+	else if (drawMode == GL_TRIANGLE_STRIP)
+	{
+		GLushort i;
+		for (i=1; i < numVerts-2; i+=2)
+		{
+			// add two triangles at once, because the vertex order is different
+			// for odd vs even triangles
+			GLushort* add = da_addn_uninit(idxBuf, 6);
+
+			add[0] = nextVtxIdx + i-1;
+			add[1] = nextVtxIdx + i;
+			add[2] = nextVtxIdx + i+1;
+
+			add[3] = nextVtxIdx + i;
+			add[4] = nextVtxIdx + i+2;
+			add[5] = nextVtxIdx + i+1;
+		}
+		// add remaining triangle, if any
+		if (i < numVerts-1)
+		{
+			GLushort* add = da_addn_uninit(idxBuf, 3);
+
+			add[0] = nextVtxIdx + i-1;
+			add[1] = nextVtxIdx + i;
+			add[2] = nextVtxIdx + i+1;
+		}
+	}
+	else if (drawMode == GL_TRIANGLES)
+	{
+		GLushort* add = da_addn_uninit(idxBuf, numVerts);
+		for (GLushort i=0; i<numVerts; ++i)
+			add[i] = nextVtxIdx + i;
+	}
+	else
+	{
+		Com_Printf("%s(): WARNING: Unsupported drawmode 0x%x\n",
+			__func__, drawMode);
+		return;
+	}
+
+	da_addn(vtxBuf, verts, numVerts);
+
+	int numAddedIndices = da_count(idxBuf) - drawCmd.idxBufOffset;
+
+	gl4drawCmd_t* lastDrawCmd = da_lastptr(drawCmds);
+	if (lastDrawCmd != NULL && drawStateEqual(lastDrawCmd, &drawCmd))
+	{
+		lastDrawCmd->numElements += numAddedIndices;
+	}
+	else
+	{
+		drawCmd.numElements = numAddedIndices;
+		da_add(drawCmds, drawCmd);
+	}
 }
 
 static void
 GL4_DrawBeam(entity_t *e)
 {
 	int i;
-	float r, g, b;
-
 	enum { NUM_BEAM_SEGS = 6 };
+
+	gl4drawCmd_t drawCmd = GL4_CreateDrawCmd();
 
 	vec3_t perpvec;
 	vec3_t direction, normalized_direction;
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	mvtx_t verts[NUM_BEAM_SEGS*4];
+	mvtx_t verts[NUM_BEAM_SEGS * 4] = {0};
 
 	oldorigin[0] = e->oldorigin[0];
 	oldorigin[1] = e->oldorigin[1];
@@ -650,21 +943,15 @@ GL4_DrawBeam(entity_t *e)
 		VectorAdd(start_points[i], direction, end_points[i]);
 	}
 
-	glEnable(GL_BLEND);
-	glDepthMask(GL_FALSE);
+	//glDisable(GL_TEXTURE_2D);
+	drawCmd.flags |= (DCFlag_Blend | DCFlag_DisableDepthMask | DCFlag_UseColor);
 
-	GL4_UseProgram(gl4state.si3DcolorOnly.shaderProgram);
+	GL4_SetDrawCmdShader(&drawCmd, &gl4state.si3DcolorOnly);
 
-	r = (LittleLong(d_8to24table[e->skinnum & 0xFF])) & 0xFF;
-	g = (LittleLong(d_8to24table[e->skinnum & 0xFF]) >> 8) & 0xFF;
-	b = (LittleLong(d_8to24table[e->skinnum & 0xFF]) >> 16) & 0xFF;
-
-	r *= 1 / 255.0F;
-	g *= 1 / 255.0F;
-	b *= 1 / 255.0F;
-
-	gl4state.uniCommonData.color = HMM_Vec4(r, g, b, e->alpha);
-	GL4_UpdateUBOCommon();
+	drawCmd.color[0] = (LittleLong(d_8to24table[e->skinnum & 0xFF])) & 0xFF;
+	drawCmd.color[1] = (LittleLong(d_8to24table[e->skinnum & 0xFF]) >> 8) & 0xFF;
+	drawCmd.color[2] = (LittleLong(d_8to24table[e->skinnum & 0xFF]) >> 16) & 0xFF;
+	drawCmd.alpha = e->alpha;
 
 	for ( i = 0; i < NUM_BEAM_SEGS; i++ )
 	{
@@ -679,20 +966,14 @@ GL4_DrawBeam(entity_t *e)
 		VectorCopy(end_points[pointb], verts[4*i+3].pos);
 	}
 
-	GL4_BindVAO(gl4state.vao3D);
-	GL4_BindVBO(gl4state.vbo3D);
-
-	GL4_BufferAndDraw3D(verts, NUM_BEAM_SEGS*4, GL_TRIANGLE_STRIP);
-
-	glDisable(GL_BLEND);
-	glDepthMask(GL_TRUE);
+	GL4_Add3DdrawCmdToBatch(verts, NUM_BEAM_SEGS * 4, GL_TRIANGLE_STRIP, drawCmd);
 }
 
 static void
 GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 {
 	float alpha = 1.0F;
-	mvtx_t verts[4];
+	mvtx_t verts[4] = {0};
 	const dsprframe_t *frame;
 	float *up, *right;
 	dsprite_t *psprite;
@@ -700,6 +981,8 @@ GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 	vec3_t scale;
 
 	VectorCopy(e->scale, scale);
+
+	gl4drawCmd_t drawCmd = GL4_CreateDrawCmd();
 
 	/* don't even bother culling, because it's just
 	   a single polygon without a surface cache */
@@ -714,14 +997,11 @@ GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 
 	if (e->flags & RF_TRANSLUCENT)
 	{
+		drawCmd.flags |= DCFlag_DisableDepthMask;
 		alpha = e->alpha;
 	}
 
-	if (alpha != gl4state.uni3DData.alpha)
-	{
-		gl4state.uni3DData.alpha = alpha;
-		GL4_UpdateUBO3D();
-	}
+	drawCmd.alpha = alpha;
 
 	skin = currentmodel->skins[e->frame];
 	if (!skin)
@@ -729,27 +1009,26 @@ GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 		skin = gl4_notexture; /* fallback... */
 	}
 
-	GL4_Bind(skin->texnum);
+	drawCmd.texnum = skin->texnum;
 
 	if (e->flags & RF_FLARE)
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
+		drawCmd.flags |= DCFlag_Blend | DCFlag_Flare;
 
-		GL4_UseProgram(gl4state.si3Dsprite.shaderProgram);
+		GL4_SetDrawCmdShader(&drawCmd, &gl4state.si3Dsprite);
 	}
 	else
 	{
 		if (alpha == 1.0)
 		{
 			// use shader with alpha test
-			GL4_UseProgram(gl4state.si3DspriteAlpha.shaderProgram);
+			GL4_SetDrawCmdShader(&drawCmd, &gl4state.si3DspriteAlpha);
 		}
 		else
 		{
-			glEnable(GL_BLEND);
+			drawCmd.flags |= DCFlag_Blend;
 
-			GL4_UseProgram(gl4state.si3Dsprite.shaderProgram);
+			GL4_SetDrawCmdShader(&drawCmd, &gl4state.si3Dsprite);
 		}
 	}
 
@@ -774,37 +1053,17 @@ GL4_DrawSpriteModel(entity_t *e, const model_t *currentmodel)
 	VectorMA( e->origin, -frame->origin_y * scale[0], up, verts[3].pos );
 	VectorMA( verts[3].pos, (frame->width - frame->origin_x) * scale[1], right, verts[3].pos );
 
-	GL4_BindVAO(gl4state.vao3D);
-	GL4_BindVBO(gl4state.vbo3D);
-
-	GL4_BufferAndDraw3D(verts, 4, GL_TRIANGLE_FAN);
-
-	if (e->flags & RF_FLARE)
-	{
-		glDisable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		if (alpha != 1.0F)
-		{
-			gl4state.uni3DData.alpha = 1.0f;
-			GL4_UpdateUBO3D();
-		}
-	}
-	else
-	{
-		if (alpha != 1.0F)
-		{
-			glDisable(GL_BLEND);
-			gl4state.uni3DData.alpha = 1.0f;
-			GL4_UpdateUBO3D();
-		}
-	}
+	GL4_Add3DdrawCmdToBatch(verts, 4, GL_TRIANGLE_FAN, drawCmd);
 }
 
 static void
 GL4_DrawNullModel(entity_t *currententity)
 {
 	vec3_t shadelight;
+	gl4drawCmd_t drawCmd = GL4_CreateDrawCmd();
+
+	if (currententity->flags & RF_TRANSLUCENT)
+		drawCmd.flags |= DCFlag_DisableDepthMask;
 
 	if (currententity->flags & RF_FULLBRIGHT || !r_worldmodel || !r_worldmodel->lightdata)
 	{
@@ -816,16 +1075,17 @@ GL4_DrawNullModel(entity_t *currententity)
 			currententity->origin, shadelight, lightspot);
 	}
 
-	hmm_mat4 origModelMat = gl4state.uni3DData.transModelMat4;
-	GL4_RotateForEntity(currententity);
+	GL4_RotateForEntity(currententity, &drawCmd);
 
-	gl4state.uniCommonData.color = HMM_Vec4( shadelight[0], shadelight[1], shadelight[2], 1 );
-	GL4_UpdateUBOCommon();
+	drawCmd.alpha = 1.0f;
+	for (int i=0; i<3; ++i)
+	{
+		int c = shadelight[i] * 255.0f;
+		drawCmd.color[i] = c & 255;
+	}
+	drawCmd.flags |= DCFlag_UseColor;
 
-	GL4_UseProgram(gl4state.si3DcolorOnly.shaderProgram);
-
-	GL4_BindVAO(gl4state.vao3D);
-	GL4_BindVBO(gl4state.vbo3D);
+	GL4_SetDrawCmdShader(&drawCmd, &gl4state.si3DcolorOnly);
 
 	mvtx_t vtxA[6] = {
 		{{0, 0, -16}, {0,0}, {0,0}},
@@ -836,17 +1096,15 @@ GL4_DrawNullModel(entity_t *currententity)
 		{{16 * cos( 4 * M_PI / 2 ), 16 * sin( 4 * M_PI / 2 ), 0}, {0,0}, {0,0}}
 	};
 
-	GL4_BufferAndDraw3D(vtxA, 6, GL_TRIANGLE_FAN);
+	GL4_Add3DdrawCmdToBatch(vtxA, 6, GL_TRIANGLE_FAN, drawCmd);
 
 	mvtx_t vtxB[6] = {
 		{{0, 0, 16}, {0,0}, {0,0}},
 		vtxA[5], vtxA[4], vtxA[3], vtxA[2], vtxA[1]
 	};
 
-	GL4_BufferAndDraw3D(vtxB, 6, GL_TRIANGLE_FAN);
+	GL4_Add3DdrawCmdToBatch(vtxB, 6, GL_TRIANGLE_FAN, drawCmd);
 
-	gl4state.uni3DData.transModelMat4 = origModelMat;
-	GL4_UpdateUBO3D();
 }
 
 static void
@@ -992,6 +1250,10 @@ GL4_DrawEntitiesOnList(void)
 	/* draw transparent entities
 	   we could sort these if it ever
 	   becomes a problem... */
+
+	// make sure that drawing the solid entities is done first
+	GL4_Draw3DBatchesNow();
+
 	glDepthMask(GL_FALSE);
 
 	for (i = 0; i < r_newrefdef.num_entities; i++)
@@ -1035,6 +1297,11 @@ GL4_DrawEntitiesOnList(void)
 			}
 		}
 	}
+
+	// make sure that drawing the entities is done before drawing the shadows
+	GL4_Draw3DBatchesNow();
+
+	glDepthMask(GL_FALSE);
 
 	GL4_DrawAliasShadows();
 
@@ -1213,7 +1480,7 @@ SetupGL(void)
 	// (=> don't use FBO when rendering the playermodel in the player menu)
 	// also, only do this when under water, because this has a noticeable overhead on some systems
 	if (gl4_usefbo->value && gl4state.ppFBO != 0
-		&& (r_newrefdef.rdflags & (RDF_NOWORLDMODEL|RDF_UNDERWATER)) == RDF_UNDERWATER)
+		&& ((r_newrefdef.rdflags & (RDF_NOWORLDMODEL|RDF_UNDERWATER)) == RDF_UNDERWATER || r_bloom->value))
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, gl4state.ppFBO);
 		gl4state.ppFBObound = true;
@@ -1350,7 +1617,7 @@ SetupGL(void)
 extern int c_visible_lightmaps, c_visible_textures;
 
 /*
- * r_newrefdef must be set before the first call
+ * r_newrefdef must be set before the first call - FIXME: ?! it is set right here
  */
 static void
 GL4_RenderView(const refdef_t *fd)
@@ -1494,84 +1761,6 @@ GL4_RenderView(const refdef_t *fd)
 		glFinish();
 	}
 
-	if (!bloomInit)
-	{
-		int w = vid.width;
-		int h = vid.height;
-
-		/* color texture + depth renderbuffer */
-		glGenFramebuffers(1, &sceneFBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
-
-		glGenTextures(1, &sceneColorTex);
-		glBindTexture(GL_TEXTURE_2D, sceneColorTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, sceneColorTex, 0);
-
-		glGenRenderbuffers(1, &sceneDepthRBO);
-		glBindRenderbuffer(GL_RENDERBUFFER, sceneDepthRBO);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, w, h);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, sceneDepthRBO);
-
-		/* ensure drawbuffers are set */
-		{
-			glDrawBuffers(1, &drawBuf);
-		}
-
-		/* check completeness */
-		{
-			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-			if (status != GL_FRAMEBUFFER_COMPLETE)
-			{
-				R_Printf(PRINT_ALL, "%s: sceneFBO incomplete: 0x%X\n",
-					__func__, status);
-			}
-		}
-
-		if (fullscreenVAO == 0)
-		{
-			const GLfloat quadVerts[] = {
-				/* X, Y, S, T */
-				0.0f, (GLfloat)h, 0.0f, 1.0f,
-				0.0f, 0.0f,       0.0f, 0.0f,
-				(GLfloat)w, (GLfloat)h, 1.0f, 1.0f,
-				(GLfloat)w, 0.0f,        1.0f, 0.0f
-			};
-
-			glGenVertexArrays(1, &fullscreenVAO);
-			glBindVertexArray(fullscreenVAO);
-
-			glGenBuffers(1, &fullscreenVBO);
-			glBindBuffer(GL_ARRAY_BUFFER, fullscreenVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-
-			glEnableVertexAttribArray(GL4_ATTRIB_POSITION);
-			glVertexAttribPointer(GL4_ATTRIB_POSITION, 2, GL_FLOAT, GL_FALSE,
-								  4 * sizeof(GLfloat), (const void*)0);
-
-			glEnableVertexAttribArray(GL4_ATTRIB_TEXCOORD);
-			glVertexAttribPointer(GL4_ATTRIB_TEXCOORD, 2, GL_FLOAT, GL_FALSE,
-								  4 * sizeof(GLfloat), (const void*)(2 * sizeof(GLfloat)));
-
-			glBindVertexArray(0);
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		bloomInit = true;
-	}
-
-	if (r_bloom && r_bloom->value)
-	{
-		/* render scene */
-		glBindFramebuffer(GL_FRAMEBUFFER, sceneFBO);
-		glViewport(0, 0, vid.width, vid.height);
-		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-
 	SetupFrame();
 
 	R_SetFrustum(vup, vpn, vright, gl4_origin,
@@ -1591,6 +1780,9 @@ GL4_RenderView(const refdef_t *fd)
 
 	GL4_DrawAlphaSurfaces();
 
+	// make sure all remaining batched 3D stuff is drawn
+	GL4_Draw3DBatchesNow();
+
 	// Note: R_Flash() is now GL4_Draw_Flash() and called from GL4_RenderFrame()
 
 	if (r_speeds->value)
@@ -1605,57 +1797,6 @@ GL4_RenderView(const refdef_t *fd)
 		Com_Printf("%5i ms %4i nodes %4i wpoly %4i epoly %i tex %i lmaps\n",
 				ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
 				c_visible_lightmaps);
-	}
-
-	if (r_bloom && r_bloom->value)
-	{
-		GLuint compositeTex;
-
-		/* apply bloom */
-		GL4_SetGL2D();
-
-		compositeTex = GL4_ApplyBloom(sceneColorTex, vid.width, vid.height);
-
-		if (compositeTex != 0)
-		{
-			/* draw to framebuffer */
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			glViewport(0, 0, vid.width, vid.height);
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			/* draw fullscreen quad */
-			glDisable(GL_DEPTH_TEST);
-			GL4_UseProgram(gl4state.si2DpostProcess.shaderProgram);
-			GL4_Bind(compositeTex);
-
-			if (gl4state.si2DpostProcess.uniLmScalesOrTime != -1)
-				glUniform1f(gl4state.si2DpostProcess.uniLmScalesOrTime, r_newrefdef.time);
-
-			if (gl4state.si2DpostProcess.uniVblend != -1)
-			{
-				float zeroBlend[4] = {0,0,0,0};
-				glUniform4fv(gl4state.si2DpostProcess.uniVblend, 1, zeroBlend);
-			}
-
-			glBindVertexArray(fullscreenVAO);
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			glBindVertexArray(0);
-
-			/* cleanup */
-			GL4_Bind(0);
-			glEnable(GL_DEPTH_TEST);
-			glDeleteTextures(1, &compositeTex);
-		}
-		else
-		{
-			/* blit to default framebuffer */
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, sceneFBO);
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-			glBlitFramebuffer(0, 0, vid.width, vid.height,
-							  0, 0, vid.width, vid.height,
-							  GL_COLOR_BUFFER_BIT, GL_NEAREST);
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-		}
 	}
 
 #if 0 // TODO: stereo stuff
@@ -1757,6 +1898,7 @@ GL4_RenderFrame(const refdef_t *fd)
 
 	int x = (vid.width - r_newrefdef.width)/2;
 	int y = (vid.height - r_newrefdef.height)/2;
+
 	if (usedFBO)
 	{
 		// if we're actually drawing the world and using an FBO, render the FBO's texture
@@ -1767,7 +1909,6 @@ GL4_RenderFrame(const refdef_t *fd)
 		GL4_Draw_Flash(v_blend, x, y, r_newrefdef.width, r_newrefdef.height);
 	}
 }
-
 
 static void
 GL4_Clear(void)

@@ -382,7 +382,7 @@ GL3_SetMode(void)
 				ri.Cvar_SetValue("r_msaa_samples", 0.0f);
 				r_msaa_samples->modified = false;
 
-				if ((err = SetMode_impl(&vid.width, &vid.height, r_mode->value, 0)) == rserr_ok)
+				if (SetMode_impl(&vid.width, &vid.height, r_mode->value, 0) == rserr_ok)
 				{
 					return true;
 				}
@@ -399,7 +399,7 @@ GL3_SetMode(void)
 		}
 
 		/* try setting it back to something safe */
-		if ((err = SetMode_impl(&vid.width, &vid.height, gl3state.prev_mode, 0)) != rserr_ok)
+		if (SetMode_impl(&vid.width, &vid.height, gl3state.prev_mode, 0) != rserr_ok)
 		{
 			Com_Printf("%s() - could not revert to safe mode\n", __func__);
 			return false;
