@@ -232,10 +232,11 @@ int GL4_PrepareForWindow(void)
 		gl4config.stencil = false;
 	}
 
-	if (gl_version_override->value)
+	if (gl_version_override->value && (gl_version_override->value > 2))
 	{
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, gl_version_override->value);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,
+			gl_version_override->value == 3 ? 1 : 0);
 	}
 	else
 	{
@@ -381,7 +382,8 @@ int GL4_InitContext(void* win)
 	{
 #if !defined(__APPLE__)
 		if ((!gl_version_override->value) ||
-			(GLVersion.major < gl_version_override->value))
+			(GLVersion.major < gl_version_override->value) ||
+			(GLVersion.major < 3))
 		{
 			Com_Printf("%s(): ERROR: glad only got GL version %d.%d!\n",
 				__func__, GLVersion.major, GLVersion.minor);
@@ -416,8 +418,9 @@ int GL4_InitContext(void* win)
 	}
 
 	// Window title - set here so we can display renderer name in it.
-	char title[40] = {0};
-	snprintf(title, sizeof(title), "Yamagi Quake II %s - OpenGL 4.6", YQ2VERSION);
+	char title[64] = {0};
+	snprintf(title, sizeof(title), "Yamagi Quake II %s - OpenGL 4.6 (%d.%d mode)",
+		YQ2VERSION, GLVersion.major, GLVersion.minor);
 	SDL_SetWindowTitle(window, title);
 
 #if SDL_VERSION_ATLEAST(2, 26, 0)
