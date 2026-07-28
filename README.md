@@ -337,34 +337,6 @@ Checked with:
 
 ### Fixed:
 
-* [x] SiN Reloaded Demo: support pak format,
-* [x] ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
-* [x] game: cleanup function declarations in game save code,
-* [x] Jabot: fix crash in SZ_GetSpace,
-* [x] vulkan: implement color multiplication and alpha combine or make black
-      parts transparent for `misc_flare`,
-* [x] ReRelease: fix vulkan render on open door in mguhub,
-* [x] gl1: reuse R_MakeSkyVec,
-* [x] Anachronox: rowdys save entity disappear in a8080c05,
-* [x] gl4: add fog distance effect,
-* [x] gl3: add fog distance effect,
-* [x] client: share r_farsee,
-* [x] Infinity: implement `misc_hologram`,
-* [x] Infinity: implement `misc_lightning`,
-* [x] Infinity: implement `misc_text_caption`,
-* [x] Infinity: implement `misc_rain`,
-* [x] Infinity: implement `misc_drip`,
-* [x] Infinity: implement `misc_desk`,
-* [x] Infinity: implement `misc_chair`,
-* [x] Infinity: implement `misc_crate`,
-* [x] ReRelease: implement `misc_lavaball`,
-* [x] ReRelease: implement `target_story`,
-* [x] ReRelease: implement `target_crossunit_target`,
-* [x] ReRelease: implement `target_crossunit_trigger`,
-* [x] CppCheck: fix const warnings and scope,
-* [x] renders: share model_t type.
-* [x] ReRelease: Fix jerky rotation animation for func_rotating entities in Call of the Machine
-
 ### Not a goal:
 
 * [ ] Multiplayer protocol support with KEX engine,

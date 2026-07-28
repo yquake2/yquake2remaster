@@ -1,3 +1,33 @@
+Quake II 8.71RR15:
+- Fixes from yquake2,
+- SiN Reloaded Demo: support pak format,
+- ReRelease: mguhub map has sometimes broken logic for surface fall in next maps,
+- game: cleanup function declarations in game save code,
+- Jabot: fix crash in SZ_GetSpace,
+- vulkan: implement color multiplication and alpha combine or make black parts
+  transparent for `misc_flare`,
+- ReRelease: fix vulkan render on open door in mguhub,
+- gl1: reuse R_MakeSkyVec,
+- Anachronox: rowdys save entity disappear in a8080c05,
+- gl4: add fog distance effect,
+- gl3: add fog distance effect,
+- client: share r_farsee,
+- Infinity: implement `misc_hologram`,
+- Infinity: implement `misc_lightning`,
+- Infinity: implement `misc_text_caption`,
+- Infinity: implement `misc_rain`,
+- Infinity: implement `misc_drip`,
+- Infinity: implement `misc_desk`,
+- Infinity: implement `misc_chair`,
+- Infinity: implement `misc_crate`,
+- ReRelease: implement `misc_lavaball`,
+- ReRelease: implement `target_story`,
+- ReRelease: implement `target_crossunit_target`,
+- ReRelease: implement `target_crossunit_trigger`,
+- CppCheck: fix const warnings and scope,
+- renders: share model_t type.
+- ReRelease: Fix jerky rotation animation for func_rotating entities in Call of the Machine.
+
 Quake II 8.60 to 8.70:
 - The default SDL version is now 3.0. SDL 2.0 is still supported as an
   optional build flag. There are no plans to remove SDL 2.0 support in
