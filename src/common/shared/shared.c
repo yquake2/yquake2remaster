@@ -764,6 +764,33 @@ COM_StripExtension(const char *in, char *out)
 	*out = 0;
 }
 
+char *
+COM_StripExtension2(char *path)
+{
+	char *s ;
+
+	if (*path == '\0')
+	{
+		return NULL;
+	}
+
+	s = path + (strlen(path) - 1);
+
+	if (*s != '.')
+	{
+		for (; s > path && *s != '/' && *s != '\\'; s--)
+		{
+			if (*s == '.')
+			{
+				*s = '\0';
+				return s + 1;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 const char *
 COM_FileExtension(const char *in)
 {
@@ -1425,17 +1452,30 @@ Q_strisnum(const char *s)
 	return true;
 }
 
-const char *
+char *
 Q_strchrs(const char *s, const char *chrs)
 {
-	for (; *chrs != '\0'; chrs++)
+	for (; *s != '\0'; s++)
 	{
-		const char *hit;
-
-		hit = strchr(s, *chrs);
-		if (hit)
+		if (strchr(chrs, *s))
 		{
-			return hit;
+			return (char *)s;
+		}
+	}
+
+	return NULL;
+}
+
+char *
+Q_strrchrs(const char *s, const char *chrs)
+{
+	const char *curr;
+
+	for (curr = s + (strlen(s) - 1); curr >= s; curr--)
+	{
+		if (strchr(chrs, *curr))
+		{
+			return (char *)curr;
 		}
 	}
 
