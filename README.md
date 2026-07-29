@@ -30,6 +30,7 @@ Have a look at the yquake2 repository for the "normal" Yamagi Quake II:
 * Alpha windows 64 bit [binaries](https://github.com/yquake2/yquake2remaster/releases).
 * Saves format is unstable and could change between alpha releases.
 * MacOS build is only build tested and run is not checked.
+* As benchmark could be used phoronix-test-suite [profile](https://openbenchmarking.org/test/denispauk/yquake2remaster).
 
 ### Building from Source
 
@@ -201,6 +202,10 @@ Note:
   * ReRelease PSX Jam: <https://www.moddb.com/mods/psx-jam-1/downloads/quake-2-re-release-psx-jam-1>
 
 ### Games check videos:
+
+* 8.71RR15+:
+
+[![Check release state](https://img.youtube.com/vi/vFpdbPOcU4A/hqdefault.jpg)](https://www.youtube.com/watch?v=vFpdbPOcU4A)
 
 * 8.61RR15+:
 
