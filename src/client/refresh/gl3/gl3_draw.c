@@ -924,7 +924,7 @@ GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
 		{
 			/* in case there is a bigger video after all,
 			 * malloc enough space to hold the frame */
-			img = (unsigned*)malloc(cols*rows*4);
+			img = (unsigned*)malloc((size_t)cols * rows * sizeof(*img));
 		}
 
 		for (i = 0; i < rows; ++i)

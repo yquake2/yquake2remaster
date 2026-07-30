@@ -1903,7 +1903,7 @@ R_DrawBeam(entity_t *e)
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	GLfloat vtx[3*NUM_BEAM_SEGS*4];
+	GLfloat vtx[3 * NUM_BEAM_SEGS * 4];
 	unsigned int index_vtx = 0;
 
 	oldorigin[0] = e->oldorigin[0];

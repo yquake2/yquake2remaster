@@ -578,7 +578,7 @@ RDraw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *dat
 
 			if (cols * rows > 320 * 240)
 			{
-				size_t img_size = (size_t)cols * rows * 4;
+				size_t img_size = (size_t)cols * rows * sizeof(*img);
 
 				/* in case there is a bigger video after all,
 				 * malloc enough space to hold the frame */

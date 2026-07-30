@@ -1566,13 +1566,13 @@ RE_SetPalette(const byte *palette)
 
 		for ( i = 0; i < 256; i++ )
 		{
-			palette32[i*4+0] = palette[i*3+0];
-			palette32[i*4+1] = palette[i*3+1];
-			palette32[i*4+2] = palette[i*3+2];
-			palette32[i*4+3] = 0xFF;
+			palette32[i * 4 + 0] = palette[i * 3 + 0];
+			palette32[i * 4 + 1] = palette[i * 3 + 1];
+			palette32[i * 4 + 2] = palette[i * 3 + 2];
+			palette32[i * 4 + 3] = 0xFF;
 		}
 
-		R_GammaCorrectAndSetPalette( palette32 );
+		R_GammaCorrectAndSetPalette(palette32);
 	}
 	else
 	{
