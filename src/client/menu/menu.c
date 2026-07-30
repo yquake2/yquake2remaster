@@ -3470,6 +3470,259 @@ M_Menu_Mods_f(void)
 }
 
 /*
+ * LEVEL SELECT MENU
+ */
+
+typedef struct
+{
+	strlist_t names;
+	strlist_t cmds;
+} campaign_t;
+
+#define MAX_CAMPAIGNS 16
+#define MAX_LEVELSTARTS 16
+
+static menuframework_s s_levelsel;
+static menulist_s s_ls_campaign;
+static menuaction_s s_ls_starts[MAX_LEVELSTARTS];
+
+static strlist_t s_campaignnames;
+static campaign_t s_campaigns[MAX_CAMPAIGNS];
+static const char *s_ls_cmd = NULL;
+
+static campaign_t *
+AddCampaign(const char *name)
+{
+	campaign_t *c;
+	int n;
+
+	n = s_campaignnames.num;
+
+	if (n >= MAX_CAMPAIGNS)
+	{
+		return NULL;
+	}
+
+	c = &s_campaigns[n ? n : 0];
+
+	StrList_Init(&c->names, 0);
+	StrList_Init(&c->cmds, 0);
+
+	StrList_Append(&s_campaignnames, name);
+
+	return c;
+}
+
+static void
+LevelSelect_NamesInit(void)
+{
+	campaign_t *camp;
+	char *buffer, *bufpos;
+
+	StrList_Init(&s_campaignnames, 0);
+
+	if (FS_LoadFile("yq2_levelsel.lst", (void **)&buffer) <= 0)
+	{
+		return;
+	}
+
+	camp = NULL;
+	bufpos = buffer;
+
+	while (bufpos)
+	{
+		const char *s;
+
+		s = COM_Parse(&bufpos);
+		if (!s || *s == '\0')
+		{
+			break;
+		}
+
+		if (!strcmp(s, "campaign"))
+		{
+			s = COM_Parse(&bufpos);
+			if (!s || *s == '\0')
+			{
+				break;
+			}
+
+			camp = AddCampaign(s);
+			if (!camp)
+			{
+				break;
+			}
+
+			continue;
+		}
+
+		if (!camp)
+		{
+			camp = AddCampaign("(noname)");
+			if (!camp)
+			{
+				break;
+			}
+		}
+
+		StrList_Append(&camp->names, s);
+
+		s = COM_Parse(&bufpos);
+		if (!s || *s == '\0')
+		{
+			StrList_Append(&camp->cmds, "");
+			break;
+		}
+
+		StrList_Append(&camp->cmds, s);
+	}
+
+	FS_FreeFile(buffer);
+}
+
+static void
+CampaignListFunc(void *self)
+{
+	const menulist_s *s = self;
+	const campaign_t *c;
+	int i;
+
+	c = &s_campaigns[s->curvalue];
+
+	for (i = 0; i < c->names.num && i < c->cmds.num && i < MAX_LEVELSTARTS; i++)
+	{
+		s_ls_starts[i].generic.flags &= ~QMF_HIDDEN;
+		s_ls_starts[i].generic.name = c->names.data[i];
+	}
+
+	for (; i < MAX_LEVELSTARTS; i++)
+	{
+		s_ls_starts[i].generic.flags |= QMF_HIDDEN;
+	}
+}
+
+static void
+LevelSelect_Free(void)
+{
+	int i;
+
+	for (i = 0; i < MAX_CAMPAIGNS; i++)
+	{
+		StrList_Free(&s_campaigns[i].names);
+		StrList_Free(&s_campaigns[i].cmds);
+	}
+
+	StrList_Free(&s_campaignnames);
+
+	for (i = 0; i < MAX_LEVELSTARTS; i++)
+	{
+		s_ls_starts[i].generic.name = NULL;
+	}
+
+	s_ls_campaign.itemnames = NULL;
+
+	s_ls_cmd = NULL;
+}
+
+static const char *
+GetSelectedLevelCmd(void)
+{
+	const campaign_t *c;
+	int i;
+
+	if (!s_campaignnames.num)
+	{
+		return NULL;
+	}
+
+	i = s_ls_campaign.curvalue;
+	if (i < 0 || i >= s_campaignnames.num)
+	{
+		return NULL;
+	}
+
+	c = &s_campaigns[i];
+
+	i = s_levelsel.cursor - (s_levelsel.nitems - MAX_LEVELSTARTS);
+
+	if (i < 0 || i >= c->cmds.num)
+	{
+		return NULL;
+	}
+
+	return c->cmds.data[i];
+}
+
+static void
+LevelSelectFunc(void *unused)
+{
+	s_ls_cmd = GetSelectedLevelCmd();
+	M_PopMenu(false);
+}
+
+static void
+LevelSelect_MenuInit(void)
+{
+	int i;
+
+	if (!s_campaignnames.num)
+	{
+		return;
+	}
+
+	s_levelsel.x = (int)(viddef.width * 0.50f);
+	s_levelsel.y = 0;
+	s_levelsel.nitems = 0;
+
+	if (s_campaignnames.num > 1 ||
+		strcmp(s_campaignnames.data[0], "(noname)"))
+	{
+		menulist_s *l = &s_ls_campaign;
+
+		l->generic.type = MTYPE_SPINCONTROL;
+		l->generic.name = "campaign";
+		l->generic.x = 0;
+		l->generic.y = 0;
+		l->generic.callback = CampaignListFunc;
+		l->itemnames = (const char **)s_campaignnames.data;
+
+		if (l->curvalue < 0 || l->curvalue >= s_campaignnames.num)
+		{
+			l->curvalue = 0;
+		}
+
+		Menu_AddItem(&s_levelsel, l);
+	}
+
+	for (i = 0; i < MAX_LEVELSTARTS; i++)
+	{
+		menuaction_s *a = &s_ls_starts[i];
+
+		a->generic.type = MTYPE_ACTION;
+		a->generic.flags = QMF_LEFT_JUSTIFY;
+		a->generic.x = 0;
+		a->generic.y = 20 + (i * 10);
+		a->generic.callback = LevelSelectFunc;
+
+		Menu_AddItem(&s_levelsel, a);
+	}
+
+	CampaignListFunc(&s_ls_campaign);
+
+	Menu_Center(&s_levelsel);
+}
+
+static void
+Menu_LevelSelect_f(void)
+{
+	LevelSelect_MenuInit();
+	s_levelsel.key = Default_MenuKey;
+	s_levelsel.draw = Default_MenuDraw;
+
+	M_PushMenu(&s_levelsel);
+}
+
+/*
  * GAME MENU
  */
 
@@ -3483,24 +3736,29 @@ static menuaction_s s_hardp_game_action;
 static menuaction_s s_load_game_action;
 static menuaction_s s_save_game_action;
 static menuaction_s s_credits_action;
+static menuaction_s s_levelsel_action;
 static menuaction_s s_mods_action;
 static menuseparator_s s_blankline;
 
 static void
 StartGame(void)
 {
+	const char *cmd;
+
+	cmd = va("loading ; killserver ; wait ; %s\n", s_ls_cmd ? s_ls_cmd : "newgame");
+
 	if (cls.state != ca_disconnected && cls.state != ca_uninitialized)
 	{
 		CL_Disconnect();
 	}
 
 	/* disable updates and start the cinematic going */
-	cl.servercount = -1;
 	M_ForceMenuOff();
+	cl.servercount = -1;
 	Cvar_SetValue("deathmatch", 0);
 	Cvar_SetValue("coop", 0);
 
-	Cbuf_AddText("loading ; killserver ; wait ; newgame\n");
+	Cbuf_AddText(cmd);
 	cls.key_dest = key_game;
 }
 
@@ -3551,6 +3809,12 @@ CreditsFunc(void *unused)
 }
 
 static void
+LevelSelectActionFunc(void *unused)
+{
+	Menu_LevelSelect_f();
+}
+
+static void
 ModsFunc(void *unused)
 {
 	M_Menu_Mods_f();
@@ -3559,66 +3823,76 @@ ModsFunc(void *unused)
 static void
 Game_MenuInit(void)
 {
+	int y;
+
 	Mods_NamesInit();
+	LevelSelect_NamesInit();
 
 	s_game_menu.x = (int)(viddef.width * 0.50f);
 	s_game_menu.nitems = 0;
 	s_game_menu.banner = "m_banner_game";
 
+	y = 0;
 	s_easy_game_action.generic.type = MTYPE_ACTION;
 	s_easy_game_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_easy_game_action.generic.x = 0;
-	s_easy_game_action.generic.y = 0;
+	s_easy_game_action.generic.y = y;
 	s_easy_game_action.generic.name = "easy";
 	s_easy_game_action.generic.alttext = "$m_easy";
 	s_easy_game_action.generic.callback = EasyGameFunc;
 
+	y += 10;
 	s_medium_game_action.generic.type = MTYPE_ACTION;
 	s_medium_game_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_medium_game_action.generic.x = 0;
-	s_medium_game_action.generic.y = 10;
+	s_medium_game_action.generic.y = y;
 	s_medium_game_action.generic.name = "medium";
 	s_medium_game_action.generic.alttext = "$m_medium";
 	s_medium_game_action.generic.callback = MediumGameFunc;
 
+	y += 10;
 	s_hard_game_action.generic.type = MTYPE_ACTION;
 	s_hard_game_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_hard_game_action.generic.x = 0;
-	s_hard_game_action.generic.y = 20;
+	s_hard_game_action.generic.y = y;
 	s_hard_game_action.generic.name = "hard";
 	s_hard_game_action.generic.alttext = "$m_hard";
 	s_hard_game_action.generic.callback = HardGameFunc;
 
+	y += 10;
 	s_hardp_game_action.generic.type = MTYPE_ACTION;
 	s_hardp_game_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_hardp_game_action.generic.x = 0;
-	s_hardp_game_action.generic.y = 30;
+	s_hardp_game_action.generic.y = y;
 	s_hardp_game_action.generic.name = "hard+";
 	s_hardp_game_action.generic.alttext = "$m_nightmare";
 	s_hardp_game_action.generic.callback = HardpGameFunc;
 
 	s_blankline.generic.type = MTYPE_SEPARATOR;
 
+	y += 20;
 	s_load_game_action.generic.type = MTYPE_ACTION;
 	s_load_game_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_load_game_action.generic.x = 0;
-	s_load_game_action.generic.y = 50;
+	s_load_game_action.generic.y = y;
 	s_load_game_action.generic.name = "load game";
 	s_load_game_action.generic.alttext = "$m_load_game";
 	s_load_game_action.generic.callback = LoadGameFunc;
 
+	y += 10;
 	s_save_game_action.generic.type = MTYPE_ACTION;
 	s_save_game_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_save_game_action.generic.x = 0;
-	s_save_game_action.generic.y = 60;
+	s_save_game_action.generic.y = y;
 	s_save_game_action.generic.name = "save game";
 	s_save_game_action.generic.alttext = "$m_save_game";
 	s_save_game_action.generic.callback = SaveGameFunc;
 
+	y += 10;
 	s_credits_action.generic.type = MTYPE_ACTION;
 	s_credits_action.generic.flags = QMF_LEFT_JUSTIFY;
 	s_credits_action.generic.x = 0;
-	s_credits_action.generic.y = 70;
+	s_credits_action.generic.y = y;
 	s_credits_action.generic.name = "credits";
 	s_credits_action.generic.alttext = "$m_credits";
 	s_credits_action.generic.callback = CreditsFunc;
@@ -3632,16 +3906,29 @@ Game_MenuInit(void)
 	Menu_AddItem(&s_game_menu, (void *)&s_save_game_action);
 	Menu_AddItem(&s_game_menu, (void *)&s_credits_action);
 
-	if(modnames.num > 1)
+	if (s_campaignnames.num > 0)
 	{
+		y += 20;
+		s_levelsel_action.generic.type = MTYPE_ACTION;
+		s_levelsel_action.generic.name = "level select";
+		s_levelsel_action.generic.flags = QMF_LEFT_JUSTIFY;
+		s_levelsel_action.generic.x = 0;
+		s_levelsel_action.generic.y = y;
+		s_levelsel_action.generic.callback = LevelSelectActionFunc;
+
+		Menu_AddItem(&s_game_menu, (void *)&s_levelsel_action);
+	}
+
+	if (modnames.num > 1)
+	{
+		y += 20;
 		s_mods_action.generic.type = MTYPE_ACTION;
 		s_mods_action.generic.flags = QMF_LEFT_JUSTIFY;
 		s_mods_action.generic.x = 0;
-		s_mods_action.generic.y = 90;
+		s_mods_action.generic.y = y;
 		s_mods_action.generic.name = "mods";
 		s_mods_action.generic.callback = ModsFunc;
 
-		Menu_AddItem(&s_game_menu, (void *)&s_blankline);
 		Menu_AddItem(&s_game_menu, (void *)&s_mods_action);
 	}
 
@@ -3649,11 +3936,18 @@ Game_MenuInit(void)
 }
 
 static void
+Game_MenuClose(menuframework_s *unused)
+{
+	LevelSelect_Free();
+}
+
+static void
 M_Menu_Game_f(void)
 {
 	Game_MenuInit();
-	s_game_menu.draw = Default_MenuDraw;
-	s_game_menu.key  = Default_MenuKey;
+	s_game_menu.draw  = Default_MenuDraw;
+	s_game_menu.key   = Default_MenuKey;
+	s_game_menu.close = Game_MenuClose;
 
 	M_PushMenu(&s_game_menu);
 	m_game_cursor = 1;

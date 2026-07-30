@@ -433,7 +433,7 @@ Menu_AdjustCursor(menuframework_s *menu, int dir)
 		if ((citem = Menu_ItemAtCursor(menu)) != NULL)
 		{
 			if (citem->type != MTYPE_SEPARATOR &&
-				(citem->flags & QMF_INACTIVE) != QMF_INACTIVE)
+				!(citem->flags & (QMF_INACTIVE | QMF_HIDDEN)))
 			{
 				return;
 			}
@@ -451,7 +451,7 @@ Menu_AdjustCursor(menuframework_s *menu, int dir)
 		if (citem)
 		{
 			if (citem->type != MTYPE_SEPARATOR &&
-				(citem->flags & QMF_INACTIVE) != QMF_INACTIVE)
+				!(citem->flags & (QMF_INACTIVE | QMF_HIDDEN)))
 			{
 				break;
 			}
@@ -493,6 +493,11 @@ Menu_Draw(menuframework_s *menu)
 	/* draw contents */
 	for (i = 0; i < menu->nitems; i++)
 	{
+		if (((menucommon_s *)menu->items[i])->flags & QMF_HIDDEN)
+		{
+			continue;
+		}
+
 		switch (((menucommon_s *)menu->items[i])->type)
 		{
 			case MTYPE_FIELD:
