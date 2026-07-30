@@ -3498,6 +3498,9 @@ M_Menu_Mods_f(void)
  * LEVEL SELECT MENU
  */
 
+/* level select menu sets the game menu status bar */
+static menuframework_s s_game_menu;
+
 typedef struct
 {
 	strlist_t names;
@@ -3506,6 +3509,7 @@ typedef struct
 
 #define MAX_CAMPAIGNS 16
 #define MAX_LEVELSTARTS 16
+#define LS_FILENAME "yq2_levelsel.lst"
 
 static menuframework_s s_levelsel;
 static menulist_s s_ls_campaign;
@@ -3514,6 +3518,7 @@ static menuaction_s s_ls_starts[MAX_LEVELSTARTS];
 static strlist_t s_campaignnames;
 static campaign_t s_campaigns[MAX_CAMPAIGNS];
 static const char *s_ls_cmd = NULL;
+static char s_ls_status[64];
 
 static campaign_t *
 AddCampaign(const char *name)
@@ -3536,29 +3541,6 @@ AddCampaign(const char *name)
 	StrList_Append(&s_campaignnames, name);
 
 	return c;
-}
-
-static void
-LevelSelect_Free(void)
-{
-	int i;
-
-	for (i = 0; i < MAX_CAMPAIGNS; i++)
-	{
-		StrList_Free(&s_campaigns[i].names);
-		StrList_Free(&s_campaigns[i].cmds);
-	}
-
-	StrList_Free(&s_campaignnames);
-
-	for (i = 0; i < MAX_LEVELSTARTS; i++)
-	{
-		s_ls_starts[i].generic.name = NULL;
-	}
-
-	s_ls_campaign.itemnames = NULL;
-
-	s_ls_cmd = NULL;
 }
 
 typedef struct
@@ -3802,6 +3784,31 @@ LevelSelectParseMapDB(char* s, mapdb_episode_t **episodes, int *episodes_num,
 }
 
 static void
+LevelSelect_Free(void)
+{
+	int i;
+
+	for (i = 0; i < MAX_CAMPAIGNS; i++)
+	{
+		StrList_Free(&s_campaigns[i].names);
+		StrList_Free(&s_campaigns[i].cmds);
+	}
+
+	StrList_Free(&s_campaignnames);
+
+	for (i = 0; i < MAX_LEVELSTARTS; i++)
+	{
+		s_ls_starts[i].generic.name = NULL;
+	}
+
+	s_ls_campaign.itemnames = NULL;
+
+	s_ls_cmd = NULL;
+	*s_ls_status = '\0';
+	Menu_SetStatusBar(&s_game_menu, NULL);
+}
+
+static void
 LevelSelect_NamesInit(void)
 {
 	campaign_t *camp;
@@ -3850,7 +3857,7 @@ LevelSelect_NamesInit(void)
 	}
 
 	/* Fallback to yq2_levelsel.lst if mapdb.json didn't work or didn't provide campaigns */
-	if (FS_LoadFile("yq2_levelsel.lst", (void **)&buffer) <= 0)
+	if (FS_LoadFile(LS_FILENAME, (void **)&buffer) <= 0)
 	{
 		return;
 	}
@@ -3930,26 +3937,41 @@ CampaignListFunc(void *self)
 	}
 }
 
-static const char *
-GetSelectedLevelCmd(void)
+static campaign_t *
+GetSelectedCampaign(void)
 {
-	const campaign_t *c;
-	int i;
+	int i = s_ls_campaign.curvalue;
 
-	if (!s_campaignnames.num)
-	{
-		return NULL;
-	}
-
-	i = s_ls_campaign.curvalue;
 	if (i < 0 || i >= s_campaignnames.num)
 	{
 		return NULL;
 	}
 
-	c = &s_campaigns[i];
+	return &s_campaigns[i];
+}
 
-	i = s_levelsel.cursor - (s_levelsel.nitems - MAX_LEVELSTARTS);
+static const char *
+GetSelectedCampaignName(void)
+{
+	int i = s_ls_campaign.curvalue;
+
+	if (i < 0 || i >= s_campaignnames.num)
+	{
+		return NULL;
+	}
+
+	if (!strcmp(s_campaignnames.data[i], "(noname)"))
+	{
+		return NULL;
+	}
+
+	return s_campaignnames.data[i];
+}
+
+static const char *
+GetSelectedLevelCmd(campaign_t *c)
+{
+	int i = s_levelsel.cursor - (s_levelsel.nitems - MAX_LEVELSTARTS);
 
 	if (i < 0 || i >= c->cmds.num)
 	{
@@ -3959,21 +3981,75 @@ GetSelectedLevelCmd(void)
 	return c->cmds.data[i];
 }
 
-static void
-LevelSelectFunc(void *unused)
+static const char *
+GetSelectedLevelName(campaign_t *c)
 {
-	s_ls_cmd = GetSelectedLevelCmd();
-	M_PopMenu(false);
+	int i = s_levelsel.cursor - (s_levelsel.nitems - MAX_LEVELSTARTS);
+
+	if (i < 0 || i >= c->names.num)
+	{
+		return NULL;
+	}
+
+	return c->names.data[i];
 }
 
 static void
+LevelSelect_SetStatusBar(campaign_t *c)
+{
+	const char *cname, *lname;
+
+	lname = GetSelectedLevelName(c);
+
+	if (!lname)
+	{
+		return;
+	}
+
+	cname = GetSelectedCampaignName();
+
+	if (cname)
+	{
+		if (snprintf(s_ls_status, sizeof(s_ls_status), "%s: %s",
+			cname, lname) >= sizeof(s_ls_status))
+		{
+			strcpy(s_ls_status + (sizeof(s_ls_status) - 4), "...");
+		}
+	}
+	else
+	{
+		if (snprintf(s_ls_status, sizeof(s_ls_status), "%s",
+			lname) >= sizeof(s_ls_status))
+		{
+			strcpy(s_ls_status + (sizeof(s_ls_status) - 4), "...");
+		}
+	}
+
+	Menu_SetStatusBar(&s_game_menu, s_ls_status);
+}
+
+static void
+LevelSelectFunc(void *unused)
+{
+	campaign_t *c = GetSelectedCampaign();
+
+	if (c)
+	{
+		s_ls_cmd = GetSelectedLevelCmd(c);
+		LevelSelect_SetStatusBar(c);
+	}
+
+	M_PopMenu(false);
+}
+
+static int
 LevelSelect_MenuInit(void)
 {
 	int i;
 
 	if (!s_campaignnames.num)
 	{
-		return;
+		return 0;
 	}
 
 	s_levelsel.x = (int)(viddef.width * 0.50f);
@@ -4016,16 +4092,31 @@ LevelSelect_MenuInit(void)
 	CampaignListFunc(&s_ls_campaign);
 
 	Menu_Center(&s_levelsel);
+
+	return 1;
 }
 
 static void
 Menu_LevelSelect_f(void)
 {
-	LevelSelect_MenuInit();
-	s_levelsel.key = Default_MenuKey;
-	s_levelsel.draw = Default_MenuDraw;
+	if (M_GetActiveMenu() != &s_game_menu)
+	{
+		M_Menu_Game_f();
+	}
 
-	M_PushMenu(&s_levelsel);
+	if (LevelSelect_MenuInit())
+	{
+		s_levelsel.key = Default_MenuKey;
+		s_levelsel.draw = Default_MenuDraw;
+
+		M_PushMenu(&s_levelsel);
+	}
+	else
+	{
+		Menu_StartPopup(&m_popup,
+			LS_FILENAME "\nnot found or empty",
+			3000);
+	}
 }
 
 /*
@@ -6974,6 +7065,7 @@ M_Init(void)
 
 	Cmd_AddCommand("menu_main", M_Menu_Main_f);
 	Cmd_AddCommand("menu_game", M_Menu_Game_f);
+	Cmd_AddCommand("menu_levelselect", Menu_LevelSelect_f);
 	Cmd_AddCommand("menu_loadgame", M_Menu_LoadGame_f);
 	Cmd_AddCommand("menu_savegame", M_Menu_SaveGame_f);
 	Cmd_AddCommand("menu_joinserver", M_Menu_JoinServer_f);
@@ -7089,6 +7181,7 @@ void
 M_Free(void)
 {
 	Mods_NamesFinish();
+	LevelSelect_Free();
 	CleanCachedMapsList();
 	PlayerModelFree();
 }
