@@ -144,7 +144,7 @@ CreateShaderProgram(int numShaders, const GLuint* shaders)
 		return 0;
 	}
 
-	for (i=0; i<numShaders; ++i)
+	for (i = 0; i < numShaders; ++i)
 	{
 		// after linking, they don't need to be attached anymore.
 		// no idea  why they even are, if they don't have to..
@@ -251,17 +251,6 @@ static const char* fragmentSrc2Dtinted = MULTILINE_STRING(
 static const char* fragmentSrc2Dpostprocess = MULTILINE_STRING(
 		in vec2 passTexCoord;
 
-		// for UBO shared between all shaders (incl. 2D)
-		// TODO: not needed here, remove?
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D; // for HUD, menu etc
-
-			vec4 color;
-		};
-
 		uniform sampler2D tex;
 		uniform vec4 v_blend;
 
@@ -280,17 +269,6 @@ static const char* fragmentSrc2Dpostprocess = MULTILINE_STRING(
 
 static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 		in vec2 passTexCoord;
-
-		// for UBO shared between all shaders (incl. 2D)
-		// atsb: apparently needed despite not being used.
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D; // for HUD, menu etc
-
-			vec4 color;
-		};
 
 		const float PI = 3.14159265358979323846;
 
@@ -1150,7 +1128,8 @@ enum {
 };
 
 static qboolean
-initShader2D(gl4ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc)
+initShader2D(gl4ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc,
+	qboolean uniCommonRequired)
 {
 	GLuint shaders2D[2] = {0};
 	GLuint prog = 0;
@@ -1162,13 +1141,15 @@ initShader2D(gl4ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 		glDeleteProgram(shaderInfo->shaderProgram);
 	}
 
-	//shaderInfo->uniColor = shaderInfo->uniProjMatrix = shaderInfo->uniModelViewMatrix = -1;
 	shaderInfo->shaderProgram = 0;
 	shaderInfo->uniLmScalesOrTime = -1;
 	shaderInfo->uniVblend = -1;
 
 	shaders2D[0] = CompileShader(GL_VERTEX_SHADER, vertSrc, NULL);
-	if (shaders2D[0] == 0)  return false;
+	if (shaders2D[0] == 0)
+	{
+		return false;
+	}
 
 	shaders2D[1] = CompileShader(GL_FRAGMENT_SHADER, fragSrc, NULL);
 	if (shaders2D[1] == 0)
@@ -1192,7 +1173,13 @@ initShader2D(gl4ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	GL4_UseProgram(prog);
 
 	// Bind the buffer object to the uniform blocks
-	GLuint blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
+	// Bind the buffer object to the uniform blocks
+	GLuint blockIndex = GL_INVALID_INDEX;
+	if (uniCommonRequired)
+	{
+		blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
+	}
+
 	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
@@ -1207,12 +1194,13 @@ initShader2D(gl4ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 		glUniformBlockBinding(prog, blockIndex, GL4_BINDINGPOINT_UNICOMMON);
 	}
-	else
+	else if (uniCommonRequired)
 	{
 		Com_Printf("WARNING: Couldn't find uniform block index 'uniCommon'\n");
 		// TODO: clean up?
 		return false;
 	}
+
 	blockIndex = glGetUniformBlockIndex(prog, "uni2D");
 	if (blockIndex != GL_INVALID_INDEX)
 	{
@@ -1447,45 +1435,45 @@ static void initUBOs(void)
 static qboolean
 createShaders(void)
 {
-	if (!initShader2D(&gl4state.si2D, vertexSrc2D, fragmentSrc2D))
+	if (!initShader2D(&gl4state.si2D, vertexSrc2D, fragmentSrc2D, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for textured 2D rendering!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl4state.si2Dtinted, vertexSrc2D, fragmentSrc2Dtinted))
+	if (!initShader2D(&gl4state.si2Dtinted, vertexSrc2D, fragmentSrc2Dtinted, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for tinted 2D rendering!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl4state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor))
+	if (!initShader2D(&gl4state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for color-only 2D rendering!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl4state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess))
+	if (!initShader2D(&gl4state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess, false))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl4state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
+	if (!initShader2D(&gl4state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater, false))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object under water!\n");
 		return false;
 	}
 
 	/* bright */
-	if (!initShader2D(&gl4state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
+	if (!initShader2D(&gl4state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright, true))
 	{
 		R_Printf(PRINT_ALL, "%s: bright shader failed\n", __func__);
 		return false;
 	}
 
 	/* blur */
-	if (!initShader2D(&gl4state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
+	if (!initShader2D(&gl4state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur, true))
 	{
 		R_Printf(PRINT_ALL, "%s: blur shader failed\n", __func__);
 		return false;
@@ -1577,7 +1565,8 @@ createShaders(void)
 	return true;
 }
 
-qboolean GL4_InitShaders(void)
+qboolean
+GL4_InitShaders(void)
 {
 	initUBOs();
 
@@ -1598,7 +1587,8 @@ static void deleteShaders(void)
 	}
 }
 
-void GL4_ShutdownShaders(void)
+void
+GL4_ShutdownShaders(void)
 {
 	deleteShaders();
 
@@ -1608,7 +1598,8 @@ void GL4_ShutdownShaders(void)
 	gl4state.uniCommonUBO = gl4state.uni2DUBO = gl4state.uni3DUBO = gl4state.uniLightsUBO = 0;
 }
 
-qboolean GL4_RecreateShaders(void)
+qboolean
+GL4_RecreateShaders(void)
 {
 	// delete and recreate the existing shaders (but not the UBOs)
 	deleteShaders();
@@ -1644,22 +1635,26 @@ updateUBO(GLuint ubo, GLsizeiptr size, const void *data)
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 }
 
-void GL4_UpdateUBOCommon(void)
+void
+GL4_UpdateUBOCommon(void)
 {
 	updateUBO(gl4state.uniCommonUBO, sizeof(gl4state.uniCommonData), &gl4state.uniCommonData);
 }
 
-void GL4_UpdateUBO2D(void)
+void
+GL4_UpdateUBO2D(void)
 {
 	updateUBO(gl4state.uni2DUBO, sizeof(gl4state.uni2DData), &gl4state.uni2DData);
 }
 
-void GL4_UpdateUBO3D(void)
+void
+GL4_UpdateUBO3D(void)
 {
 	updateUBO(gl4state.uni3DUBO, sizeof(gl4state.uni3DData), &gl4state.uni3DData);
 }
 
-void GL4_UpdateUBOLights(void)
+void
+GL4_UpdateUBOLights(void)
 {
 	updateUBO(gl4state.uniLightsUBO, sizeof(gl4state.uniLightsData), &gl4state.uniLightsData);
 }

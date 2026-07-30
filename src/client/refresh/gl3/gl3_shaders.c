@@ -257,17 +257,6 @@ static const char* fragmentSrc2Dtinted = MULTILINE_STRING(
 static const char* fragmentSrc2Dpostprocess = MULTILINE_STRING(
 		in vec2 passTexCoord;
 
-		// for UBO shared between all shaders (incl. 2D)
-		// TODO: not needed here, remove?
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D; // for HUD, menu etc
-
-			vec4 color;
-		};
-
 		uniform sampler2D tex;
 		uniform vec4 v_blend;
 
@@ -280,24 +269,13 @@ static const char* fragmentSrc2Dpostprocess = MULTILINE_STRING(
 			vec4 res = texture(tex, passTexCoord);
 			// apply the v_blend, usually blended as a colored quad with:
 			// glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			res.rgb = v_blend.a * v_blend.rgb + (1.0 - v_blend.a)*res.rgb;
+			res.rgb = v_blend.a * v_blend.rgb + (1.0 - v_blend.a) * res.rgb;
 			outColor =  res;
 		}
 );
 
 static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 		in vec2 passTexCoord;
-
-		// for UBO shared between all shaders (incl. 2D)
-		// TODO: not needed here, remove?
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D; // for HUD, menu etc
-
-			vec4 color;
-		};
 
 		const float PI = 3.14159265358979323846;
 
@@ -1157,7 +1135,8 @@ enum {
 };
 
 static qboolean
-initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc)
+initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc,
+	qboolean uniCommonRequired)
 {
 	GLuint shaders2D[2] = {0};
 	GLuint prog = 0;
@@ -1169,13 +1148,15 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 		glDeleteProgram(shaderInfo->shaderProgram);
 	}
 
-	//shaderInfo->uniColor = shaderInfo->uniProjMatrix = shaderInfo->uniModelViewMatrix = -1;
 	shaderInfo->shaderProgram = 0;
 	shaderInfo->uniLmScalesOrTime = -1;
 	shaderInfo->uniVblend = -1;
 
 	shaders2D[0] = CompileShader(GL_VERTEX_SHADER, vertSrc, NULL);
-	if (shaders2D[0] == 0)  return false;
+	if (shaders2D[0] == 0)
+	{
+		return false;
+	}
 
 	shaders2D[1] = CompileShader(GL_FRAGMENT_SHADER, fragSrc, NULL);
 	if (shaders2D[1] == 0)
@@ -1199,7 +1180,12 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	GL3_UseProgram(prog);
 
 	// Bind the buffer object to the uniform blocks
-	GLuint blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
+	GLuint blockIndex = GL_INVALID_INDEX;
+	if (uniCommonRequired)
+	{
+		blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
+	}
+
 	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
@@ -1214,12 +1200,13 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 		glUniformBlockBinding(prog, blockIndex, GL3_BINDINGPOINT_UNICOMMON);
 	}
-	else
+	else if (uniCommonRequired)
 	{
 		Com_Printf("WARNING: Couldn't find uniform block index 'uniCommon'\n");
 		// TODO: clean up?
 		return false;
 	}
+
 	blockIndex = glGetUniformBlockIndex(prog, "uni2D");
 	if (blockIndex != GL_INVALID_INDEX)
 	{
@@ -1454,45 +1441,45 @@ static void initUBOs(void)
 static qboolean
 createShaders(void)
 {
-	if (!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D))
+	if (!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for textured 2D rendering!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl3state.si2Dtinted, vertexSrc2D, fragmentSrc2Dtinted))
+	if (!initShader2D(&gl3state.si2Dtinted, vertexSrc2D, fragmentSrc2Dtinted, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for tinted 2D rendering!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl3state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor))
+	if (!initShader2D(&gl3state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for color-only 2D rendering!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl3state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess))
+	if (!initShader2D(&gl3state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess, false))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object!\n");
 		return false;
 	}
 
-	if (!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
+	if (!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater, false))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object under water!\n");
 		return false;
 	}
 
 	/* bright */
-	if (!initShader2D(&gl3state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright))
+	if (!initShader2D(&gl3state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright, true))
 	{
 		R_Printf(PRINT_ALL, "%s: bright shader failed\n", __func__);
 		return false;
 	}
 
 	/* blur */
-	if (!initShader2D(&gl3state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur))
+	if (!initShader2D(&gl3state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur, true))
 	{
 		R_Printf(PRINT_ALL, "%s: blur shader failed\n", __func__);
 		return false;
@@ -1584,7 +1571,8 @@ createShaders(void)
 	return true;
 }
 
-qboolean GL3_InitShaders(void)
+qboolean
+GL3_InitShaders(void)
 {
 	initUBOs();
 
@@ -1605,7 +1593,8 @@ static void deleteShaders(void)
 	}
 }
 
-void GL3_ShutdownShaders(void)
+void
+GL3_ShutdownShaders(void)
 {
 	deleteShaders();
 
@@ -1615,7 +1604,8 @@ void GL3_ShutdownShaders(void)
 	gl3state.uniCommonUBO = gl3state.uni2DUBO = gl3state.uni3DUBO = gl3state.uniLightsUBO = 0;
 }
 
-qboolean GL3_RecreateShaders(void)
+qboolean
+GL3_RecreateShaders(void)
 {
 	// delete and recreate the existing shaders (but not the UBOs)
 	deleteShaders();
@@ -1671,22 +1661,26 @@ updateUBO(GLuint ubo, GLsizeiptr size, const void *data)
 	//   or https://github.com/dolphin-emu/dolphin/blob/master/Source/Core/VideoBackends/OGL/ProgramShaderCache.cpp
 }
 
-void GL3_UpdateUBOCommon(void)
+void
+GL3_UpdateUBOCommon(void)
 {
 	updateUBO(gl3state.uniCommonUBO, sizeof(gl3state.uniCommonData), &gl3state.uniCommonData);
 }
 
-void GL3_UpdateUBO2D(void)
+void
+GL3_UpdateUBO2D(void)
 {
 	updateUBO(gl3state.uni2DUBO, sizeof(gl3state.uni2DData), &gl3state.uni2DData);
 }
 
-void GL3_UpdateUBO3D(void)
+void
+GL3_UpdateUBO3D(void)
 {
 	updateUBO(gl3state.uni3DUBO, sizeof(gl3state.uni3DData), &gl3state.uni3DData);
 }
 
-void GL3_UpdateUBOLights(void)
+void
+GL3_UpdateUBOLights(void)
 {
 	updateUBO(gl3state.uniLightsUBO, sizeof(gl3state.uniLightsData), &gl3state.uniLightsData);
 }
