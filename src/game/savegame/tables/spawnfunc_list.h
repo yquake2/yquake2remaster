@@ -174,6 +174,7 @@
 {"monster_shalrath", SP_monster_shalrath},
 {"monster_shambler", SP_monster_shambler},
 {"monster_soldier", SP_monster_soldier},
+{"monster_soldier_deatom", SP_monster_soldier_ss},
 {"monster_soldier_hypergun", SP_monster_soldier_hypergun},
 {"monster_soldier_lasergun", SP_monster_soldier_lasergun},
 {"monster_soldier_light", SP_monster_soldier_light},

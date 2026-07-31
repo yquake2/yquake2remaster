@@ -3407,6 +3407,7 @@ SP_monster_soldier(edict_t *self)
 
 /*
  * QUAKED monster_soldier_ss (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
+ * QUAKED monster_soldier_deatom (1 .5 0) (-16 -16 -24) (16 16 32) Ambush Trigger_Spawn Sight Blind
  *
  * Blind - monster will just stand there until triggered
  */
