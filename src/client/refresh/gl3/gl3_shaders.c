@@ -1055,14 +1055,6 @@ static const char* fragmentBloomBright = MULTILINE_STRING(
 
 		in vec2 passTexCoord;
 
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D;
-			vec4  color;
-		};
-
 		uniform sampler2D tex;
 		uniform float threshold;
 
@@ -1087,14 +1079,6 @@ static const char* fragmentBloomBright = MULTILINE_STRING(
 static const char* fragmentBloomBlur = MULTILINE_STRING(
 
 		in vec2 passTexCoord;
-
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D;
-			vec4  color;
-		};
 
 		uniform sampler2D tex;
 		uniform vec2 dir;
@@ -1472,14 +1456,14 @@ createShaders(void)
 	}
 
 	/* bright */
-	if (!initShader2D(&gl3state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright, true))
+	if (!initShader2D(&gl3state.si2DbloomBright, vertexBloomSrcFullScreen, fragmentBloomBright, false))
 	{
 		R_Printf(PRINT_ALL, "%s: bright shader failed\n", __func__);
 		return false;
 	}
 
 	/* blur */
-	if (!initShader2D(&gl3state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur, true))
+	if (!initShader2D(&gl3state.si2DbloomBlur, vertexBloomSrcFullScreen, fragmentBloomBlur, false))
 	{
 		R_Printf(PRINT_ALL, "%s: blur shader failed\n", __func__);
 		return false;
