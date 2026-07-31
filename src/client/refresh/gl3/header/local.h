@@ -360,9 +360,8 @@ GL3_SetDrawCmdShader(gl3drawCmd_t* drawCmd, const gl3ShaderInfo_t* shader)
 static inline gl3ShaderInfo_t*
 GL3_GetDrawCmdShader(const gl3drawCmd_t* drawCmd)
 {
-	signed char shaderIdx = drawCmd->shaderIdx;
-
-	if (shaderIdx >= _gl3_numShaders || shaderIdx < 0)
+	unsigned shaderIdx = drawCmd->shaderIdx;
+	if (shaderIdx >= _gl3_numShaders) // because it's unsigned this also handles shaderIdx -1
 	{
 		return NULL;
 	}
