@@ -509,6 +509,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		bodymodels = (hlmdl_bodymodel_t *)((byte *)buffer + bodyparts[i].ofs_model);
 		for (j = 0; j < bodyparts[i].num_models; j++)
 		{
+			const int vert_prefix = num_verts;
 			hlmdl_bodymesh_t *hl_mesh_nodes;
 			const byte *in_boneids;
 			vec3_t *in_verts;
@@ -592,15 +593,15 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 							if (g % 2 == 0)
 							{
-								tri->index_xyz[0] = verts[g];
-								tri->index_xyz[1] = verts[g + 1];
-								tri->index_xyz[2] = verts[g + 2];
+								tri->index_xyz[0] = vert_prefix + verts[g];
+								tri->index_xyz[1] = vert_prefix + verts[g + 1];
+								tri->index_xyz[2] = vert_prefix + verts[g + 2];
 							}
 							else
 							{
-								tri->index_xyz[0] = verts[g + 1];
-								tri->index_xyz[1] = verts[g];
-								tri->index_xyz[2] = verts[g + 2];
+								tri->index_xyz[0] = vert_prefix + verts[g + 1];
+								tri->index_xyz[1] = vert_prefix + verts[g];
+								tri->index_xyz[2] = vert_prefix + verts[g + 2];
 							}
 							tri->index_st[0] = st_prefix + g;
 							tri->index_st[1] = st_prefix + g + 1;
@@ -614,9 +615,9 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 						{
 							dtriangle_t *tri = &tri_tmp[num_tris++];
 
-							tri->index_xyz[0] = verts[0];
-							tri->index_xyz[1] = verts[g];
-							tri->index_xyz[2] = verts[g + 1];
+							tri->index_xyz[0] = vert_prefix + verts[0];
+							tri->index_xyz[1] = vert_prefix + verts[g];
+							tri->index_xyz[2] = vert_prefix + verts[g + 1];
 
 							tri->index_st[0] = st_prefix + 0;
 							tri->index_st[1] = st_prefix + g;
