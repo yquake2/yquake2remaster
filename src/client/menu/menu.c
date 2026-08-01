@@ -2521,7 +2521,6 @@ Options_MenuInit(void)
 		"play once",
 		"sequential",
 		"random",
-		"truly random",
 		NULL
 	};
 
@@ -2603,7 +2602,7 @@ Options_MenuInit(void)
 	s_options_oggshuffle_box.generic.type = MTYPE_SPINCONTROL;
 	s_options_oggshuffle_box.generic.x = 0;
 	s_options_oggshuffle_box.generic.y = (y += 10);
-	s_options_oggshuffle_box.generic.name = "OGG shuffle";
+	s_options_oggshuffle_box.generic.name = "OGG playback mode";
 	s_options_oggshuffle_box.generic.callback = OGGShuffleFunc;
 	s_options_oggshuffle_box.itemnames = ogg_shuffle_items;
 
