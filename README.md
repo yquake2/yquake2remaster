@@ -42,23 +42,23 @@ not include submodules in these archives. To build the project successfully, you
 
 ### Models support:
 
-| Format | Original Game   | Frame vertex | Meshes   | Comments                                |
-| ------ | --------------- | ------------ | -------- | --------------------------------------- |
-| mdl    | Quake / Hexen 2 | 8 bit        | Single   | Unsupported grouped textures            |
-| mdl    | Half-Life       | float        | Multiple | Unsupported animation                   |
-| md2    | Quake 2         | 8 bit        | Single   |                                         |
-| mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine           |
-| md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                     |
-| mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game     |
-| fm     | Heretic 2       | 8 bit        | Multiple | Without skeletal animation              |
-| def    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
-| dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                     |
-| dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                     |
-| md3    | Quake 3         | 16 bit       | Multiple | No tags support                         |
-| mdr    | EliteForce      | float        | Multiple | No tags support. Uses first LOD only    |
-| md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins                  |
-| sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                     |
-| sam    | SiN             | 8 bit        | Multiple | Unchecked with game                     |
+| Format | Original Game   | Frame vertex | Meshes   | Comments                                    |
+| ------ | --------------- | ------------ | -------- | ------------------------------------------- |
+| mdl    | Quake / Hexen 2 | 8 bit        | Single   | Unsupported grouped textures                |
+| mdl    | Half-Life       | float        | Multiple | Unsupported skeletal / multi file animation |
+| md2    | Quake 2         | 8 bit        | Single   |                                             |
+| mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine               |
+| md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                         |
+| mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game         |
+| fm     | Heretic 2       | 8 bit        | Multiple | Without skeletal animation                  |
+| def    | SiN             | Part of sam  | Multiple | Unchecked with game                         |
+| dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                         |
+| dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                         |
+| md3    | Quake 3         | 16 bit       | Multiple | No tags support                             |
+| mdr    | EliteForce      | float        | Multiple | No tags/skeletal support. First LOD only    |
+| md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins, no skeletal         |
+| sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                         |
+| sam    | SiN             | 8 bit        | Multiple | Unchecked with game                         |
 
 All models support only single texture for all meshes and frames limit based on game protocol.
 
@@ -193,6 +193,9 @@ Note:
   * Demo: [Episode 1](https://www.moddb.com/mods/dawn-of-darkness1/downloads/dawn-of-darkness-episode-1)
 * Infinity: The Kai'Ren Threat
   * Demo: [Demo maps](https://www.moddb.com/mods/infinity-the-kairen-threat/downloads/infinity-demo)
+* Oblivion:
+  * SDK: https://github.com/themuffinator/REBLIVION/
+  * Demo: <https://www.celephais.net/oblivion/main.html>
 * JaBot:
   * SDK: <https://www.moddb.com/mods/jabotq2/downloads/jabot-q2-v09x-win32-and-linux>
 * Additional maps used for check maps support:
@@ -200,6 +203,7 @@ Note:
   * ReRelease N64 Jam: <https://www.moddb.com/games/quake-2/addons/quake-2-re-release-n64-sp-map-jam>
   * ReRelease Basic Jam: <https://www.moddb.com/games/quake-2/addons/quake-2-re-release-back-to-baseq2ics-jam-1>
   * ReRelease PSX Jam: <https://www.moddb.com/mods/psx-jam-1/downloads/quake-2-re-release-psx-jam-1>
+  * ReRelease Warehouse Jam: <https://www.moddb.com/mods/quake-2-re-release-warehouse-jam-1>
 
 ### Games check videos:
 
