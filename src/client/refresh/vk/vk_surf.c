@@ -49,11 +49,16 @@ R_DrawPoly(const msurface_t *fa, image_t *texture, const float *color)
 
 	uint8_t *vertData = QVk_GetVertexBuffer(sizeof(mvtx_t) * p->numverts, &vbo, &vboOffset);
 	memcpy(vertData, p->verts, sizeof(mvtx_t) * p->numverts);
-	mvtx_t *verts = (mvtx_t *)vertData;
-	for (i = 0; i < p->numverts; i++)
+
+	if (sscroll || tscroll)
 	{
-		verts[i].texCoord[0] += sscroll;
-		verts[i].texCoord[1] += tscroll;
+		mvtx_t *verts = (mvtx_t *)vertData;
+
+		for (i = 0; i < p->numverts; i++)
+		{
+			verts[i].texCoord[0] += sscroll;
+			verts[i].texCoord[1] += tscroll;
+		}
 	}
 
 	QVk_BindPipeline(&vk_drawPolyPipeline);
@@ -510,10 +515,14 @@ dynamic:
 
 				memcpy(verts_buffer + pos_vect, p->verts,
 						sizeof(mvtx_t) * nv);
-				for (int j = 0; j < nv; j++)
+
+				if (sscroll || tscroll)
 				{
-					verts_buffer[pos_vect + j].texCoord[0] += sscroll;
-					verts_buffer[pos_vect + j].texCoord[1] += tscroll;
+					for (int j = 0; j < nv; j++)
+					{
+						verts_buffer[pos_vect + j].texCoord[0] += sscroll;
+						verts_buffer[pos_vect + j].texCoord[1] += tscroll;
+					}
 				}
 
 				R_GenFanIndexes(vertIdxData + index_pos,
@@ -658,10 +667,14 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		}
 
 		memcpy(verts + pos_vect, p->verts, sizeof(mvtx_t) * nv);
-		for (i = 0; i < nv; i++)
+
+		if (sscroll || tscroll)
 		{
-			verts[pos_vect + i].texCoord[0] += sscroll;
-			verts[pos_vect + i].texCoord[1] += tscroll;
+			for (i = 0; i < nv; i++)
+			{
+				verts[pos_vect + i].texCoord[0] += sscroll;
+				verts[pos_vect + i].texCoord[1] += tscroll;
+			}
 		}
 
 		R_GenFanIndexes(vertIdxData + index_pos,
