@@ -86,12 +86,14 @@ R_RenderDlights(void)
 		for (i = 16; i >= 0; i--)
 		{
 			float a = i / 16.0 * M_PI * 2;
+			float crad = cos(a) * rad;
+			float srad = sin(a) * rad;
 
 			for (j = 0; j < 3; j++)
 			{
 				lv[i + 1].verts[j] = light->origin[j]
-					+ vright[j] * cos(a) * rad
-					+ vup[j] * sin(a) * rad;
+					+ vright[j] * crad
+					+ vup[j] * srad;
 				lv[i + 1].color[j] = 0.f;
 			}
 		}
