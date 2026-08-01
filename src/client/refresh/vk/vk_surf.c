@@ -41,7 +41,6 @@ R_DrawPoly(const msurface_t *fa, image_t *texture, const float *color)
 	VkDeviceSize vboOffset;
 	float sscroll, tscroll;
 	const mpoly_t *p;
-	int i;
 
 	p = fa->polys;
 
@@ -53,6 +52,7 @@ R_DrawPoly(const msurface_t *fa, image_t *texture, const float *color)
 	if (sscroll || tscroll)
 	{
 		mvtx_t *verts = (mvtx_t *)vertData;
+		int i;
 
 		for (i = 0; i < p->numverts; i++)
 		{
@@ -584,7 +584,6 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		const entity_t *currententity, VkDescriptorSet *uboDescriptorSet,
 		uint32_t *uboOffset)
 {
-	int		i;
 	int		map;
 	image_t *image = R_TextureAnimation(currententity, surf->texinfo);
 	qboolean is_dynamic = false;
@@ -670,6 +669,8 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 
 		if (sscroll || tscroll)
 		{
+			int i;
+
 			for (i = 0; i < nv; i++)
 			{
 				verts[pos_vect + i].texCoord[0] += sscroll;

@@ -78,8 +78,9 @@ jobs:
       run: |
         cppcheck -j 4 --enable=all --output-format=sarif \
           --output-file=cppcheck_results.sarif --inconclusive --library=posix \
+          --suppress=missingIncludeSystem \
           -DYQ2OSTYPE=\"Linux\" src
     - name: Upload SARIF to GitHub Code Scanning
-      uses: github/codeql-action/upload-sarif@v4
+      uses: github/codeql-action/upload-sarif@v4.37.3
       with:
         sarif_file: cppcheck_results.sarif
