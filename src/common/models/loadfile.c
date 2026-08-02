@@ -35,7 +35,6 @@ typedef struct
 	int extradatasize;
 	void *extradata;
 	vec3_t mins, maxs;
-	qboolean b_valid;
 } model_t;
 
 static model_t mod_known[MAX_MOD_KNOWN];
@@ -356,7 +355,7 @@ ModelSort(const void *p1, const void *p2)
 	return Q_stricmp(ent1->name, ent2->name);
 }
 
-static model_t *
+static const model_t *
 Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 {
 	model_t *mod;
@@ -391,6 +390,18 @@ Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 	}
 
 	mod->extradatasize = Hunk_End();
+
+	if ((mod->extradatasize > 4) &&
+		(((int *)mod->extradata)[0] == IDALIASHEADER))
+	{
+		const dmdx_t *paliashdr = (dmdx_t *)mod->extradata;
+
+		if (paliashdr->num_frames)
+		{
+			Mod_UpdateMinMaxByFrames(paliashdr, 0, paliashdr->num_frames,
+				mod->mins, mod->maxs);
+		}
+	}
 
 	Q_strlcpy(mod->name, mod_name, sizeof(mod->name));
 
@@ -554,7 +565,7 @@ static const replacement_t replacements[] = {
 	{"models/objects/gibs/head2/tris", "models/objects/gibs/head/tris"},
 };
 
-static model_t *
+static const model_t *
 Mod_LoadAndStoreModel(const char *name)
 {
 	char namewe[256];
@@ -649,7 +660,7 @@ Mod_LoadAndStoreModel(const char *name)
 
 	if (filesize > 0)
 	{
-		model_t *mod;
+		const model_t *mod;
 
 		/* save and convert */
 		mod = Mod_StoreModel(name, filesize, buffer);
@@ -788,7 +799,7 @@ Mod_LoadEmbededLMP(const char *mod_name, int *width, int *height, int *bitsPerPi
 const dmdxframegroup_t *
 Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 {
-	model_t *mod;
+	const model_t *mod;
 
 	mod = Mod_FindModel(name);
 	if (!mod)
@@ -804,14 +815,8 @@ Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 
 		paliashdr = (dmdx_t *)mod->extradata;
 
-		if (mins && maxs && paliashdr->num_frames)
+		if (mins && maxs)
 		{
-			if (!mod->b_valid)
-			{
-				Mod_UpdateMinMaxByFrames(paliashdr, 0, paliashdr->num_frames, mod->mins, mod->maxs);
-				mod->b_valid = true;
-			}
-
 			VectorCopy(mod->maxs, maxs);
 			VectorCopy(mod->mins, mins);
 		}
