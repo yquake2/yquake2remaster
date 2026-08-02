@@ -378,7 +378,6 @@ Checked with:
 * [ ] Oblivion: Add support of `monster_badass`,
 * [ ] Oblivion: Add support of `monster_cyborg`,
 * [ ] Oblivion: Add support of `monster_kigrax`,
-* [ ] Oblivion: Add support of `monster_soldier_deatom`,
 * [ ] Oblivion: Add support of `monster_spider`,
 * [ ] Oblivion: Add support of `target_railgun`,
 * [ ] Oblivion: Add support of `target_rocket`,
@@ -391,6 +390,8 @@ Checked with:
 * [ ] Support obj waveform model format for debug other formats.
 
 ### Fixed:
+
+* [x] Oblivion: Add support of `monster_soldier_deatom`,
 
 ### Not a goal:
 
