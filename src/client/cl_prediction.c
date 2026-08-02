@@ -277,6 +277,7 @@ CL_PredictMovement(void)
 	pm_airaccelerate = atof(cl.configstrings[CS_AIRACCEL]);
 	pm.s = cl.frame.playerstate.pmove;
 
+	/* TODO: mins/maxs should be updated on current frame number */
 	VectorCopy(cl.baseclientinfo.maxs, pm.maxs);
 	VectorCopy(cl.baseclientinfo.mins, pm.mins);
 	VectorCopy(cl.frame.origin, origin);

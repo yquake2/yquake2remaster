@@ -355,6 +355,23 @@ ModelSort(const void *p1, const void *p2)
 	return Q_stricmp(ent1->name, ent2->name);
 }
 
+static void
+Mod_UpdateInternalState(model_t *mod)
+{
+	/* Update internal state by model data */
+	if ((mod->extradatasize > 4) &&
+		((*(unsigned *)mod->extradata) == IDALIASHEADER))
+	{
+		const dmdx_t *paliashdr = (dmdx_t *)mod->extradata;
+
+		if (paliashdr->num_frames)
+		{
+			Mod_UpdateMinMaxByFrames(paliashdr, 0, paliashdr->num_frames,
+				mod->mins, mod->maxs);
+		}
+	}
+}
+
 static const model_t *
 Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 {
@@ -391,17 +408,7 @@ Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 
 	mod->extradatasize = Hunk_End();
 
-	if ((mod->extradatasize > 4) &&
-		(((int *)mod->extradata)[0] == IDALIASHEADER))
-	{
-		const dmdx_t *paliashdr = (dmdx_t *)mod->extradata;
-
-		if (paliashdr->num_frames)
-		{
-			Mod_UpdateMinMaxByFrames(paliashdr, 0, paliashdr->num_frames,
-				mod->mins, mod->maxs);
-		}
-	}
+	Mod_UpdateInternalState(mod);
 
 	Q_strlcpy(mod->name, mod_name, sizeof(mod->name));
 
