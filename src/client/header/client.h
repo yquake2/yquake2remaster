@@ -102,6 +102,8 @@ typedef struct
 
 	struct model_s	*model;
 
+	vec3_t mins, maxs;
+
 	struct model_s	*weaponmodel[MAX_CLIENTWEAPONMODELS];
 } clientinfo_t;
 

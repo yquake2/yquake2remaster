@@ -1431,6 +1431,42 @@ CL_LoadClientinfo(clientinfo_t *ci, char *s)
 		ci->weaponmodel[0] = NULL;
 		return;
 	}
+
+	VectorClear(ci->maxs);
+	VectorClear(ci->mins);
+
+	if (strlen(ci->iconname) > 4)
+	{
+		char suff[MAX_QPATH];
+		char *pos;
+
+		Q_strlcpy(suff, ci->iconname + 1, sizeof(suff));
+		pos = strrchr(suff, '/');
+
+		if (pos)
+		{
+			const dmdxframegroup_t *frames;
+			int num, i;
+
+			memcpy(pos + 1, "tris.md2", sizeof("tris.md2"));
+
+			frames = Mod_GetModelInfo(suff, &num, NULL, NULL);
+
+			if (frames)
+			{
+				for (i = 0; i < num; i++)
+				{
+					if (!strcmp(frames[i].name, "stand") ||
+					    !strcmp(frames[i].name, "idle"))
+					{
+						VectorCopy(frames[i].maxs, ci->maxs);
+						VectorCopy(frames[i].mins, ci->mins);
+						break;
+					}
+				}
+			}
+		}
+	}
 }
 
 /*
