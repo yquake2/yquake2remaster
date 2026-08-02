@@ -34,6 +34,7 @@ typedef struct
 	char name[MAX_QPATH];
 	int extradatasize;
 	void *extradata;
+	vec3_t mins, maxs;
 } model_t;
 
 static model_t mod_known[MAX_MOD_KNOWN];
@@ -389,6 +390,18 @@ Mod_StoreModel(const char *mod_name, int modfilelen, const void *buffer)
 	}
 
 	mod->extradatasize = Hunk_End();
+
+	if ((mod->extradatasize > 4) &&
+		(((int *)mod->extradata)[0] == IDALIASHEADER))
+	{
+		const dmdx_t *paliashdr = (dmdx_t *)mod->extradata;
+
+		if (paliashdr->num_frames)
+		{
+			Mod_UpdateMinMaxByFrames(paliashdr, 0, paliashdr->num_frames,
+				mod->mins, mod->maxs);
+		}
+	}
 
 	Q_strlcpy(mod->name, mod_name, sizeof(mod->name));
 
@@ -802,14 +815,15 @@ Mod_GetModelInfo(const char *name, int *num, float *mins, float *maxs)
 
 		paliashdr = (dmdx_t *)mod->extradata;
 
+		if (mins && maxs)
+		{
+			VectorCopy(mod->maxs, maxs);
+			VectorCopy(mod->mins, mins);
+		}
+
 		if (num)
 		{
 			*num = paliashdr->num_animgroup;
-		}
-
-		if (mins && maxs && paliashdr->num_frames)
-		{
-			Mod_UpdateMinMaxByFrames(paliashdr, 0, paliashdr->num_frames, mins, maxs);
 		}
 
 		return (dmdxframegroup_t *)((char *)paliashdr + paliashdr->ofs_animgroup);
