@@ -197,7 +197,11 @@ Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata)
 		dmdxheader->skinwidth * dmdxheader->skinheight *
 		dmdxheader->num_skins * dmdxheader->num_imgbit / 8
 	);
-	dmdxheader->ofs_end = dmdxheader->ofs_animgroup + dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
+	dmdxheader->ofs_joints = dmdxheader->ofs_animgroup + dmdxheader->num_animgroup * sizeof(dmdxframegroup_t);
+	dmdxheader->ofs_weights = dmdxheader->ofs_joints + dmdxheader->num_joints * sizeof(dmdx_joint_t);
+	dmdxheader->ofs_mesh_verteces = dmdxheader->ofs_weights + dmdxheader->num_weights * sizeof(dmdx_weight_t);
+	dmdxheader->ofs_baseframe_joints = dmdxheader->ofs_mesh_verteces + (dmdxheader->num_weights > 0 ? dmdxheader->num_xyz * sizeof(dmdx_vertex_t) : 0);
+	dmdxheader->ofs_end = dmdxheader->ofs_baseframe_joints + dmdxheader->num_frames * dmdxheader->num_joints * sizeof(dmdx_baseframe_joint_t);
 
 	*extradata = Hunk_Begin(dmdxheader->ofs_end);
 	pheader = Hunk_Alloc(dmdxheader->ofs_end);

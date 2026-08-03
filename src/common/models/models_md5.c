@@ -27,39 +27,11 @@
 
 #include "models.h"
 
-/* Joint */
-typedef struct md5_joint_s
-{
-	char name[64];
-	int parent;
-
-	vec3_t pos;
-	quat_t orient;
-} md5_joint_t;
-
-/* Vertex */
-typedef struct md5_vertex_s
-{
-	vec2_t st;
-
-	int start; /* start weight */
-	int count; /* weight count */
-} md5_vertex_t;
-
 /* Triangle */
 typedef struct md5_triangle_s
 {
 	int index[3];
 } md5_triangle_t;
-
-/* Weight */
-typedef struct md5_weight_s
-{
-	int joint;
-	float bias;
-
-	vec3_t pos;
-} md5_weight_t;
 
 /* Bounding box */
 typedef struct md5_bbox_s
@@ -71,9 +43,9 @@ typedef struct md5_bbox_s
 /* MD5 mesh */
 typedef struct md5_mesh_s
 {
-	md5_vertex_t *vertices;
+	dmdx_vertex_t *vertices;
 	md5_triangle_t *triangles;
-	md5_weight_t *weights;
+	dmdx_weight_t *weights;
 
 	int num_verts;
 	int num_tris;
@@ -85,14 +57,14 @@ typedef struct md5_mesh_s
 typedef struct md5_frame_s
 {
 	md5_bbox_t bbox;
-	md5_joint_t *skelJoints;
+	dmdx_joint_t *skelJoints;
 	dmdx_vert_t *vertexArray;
 } md5_frame_t;
 
 /* MD5 model structure */
 typedef struct md5_model_s
 {
-	md5_joint_t *baseSkel;
+	dmdx_joint_t *baseSkel;
 	md5_mesh_t *meshes;
 	md5_frame_t *skelFrames;
 	vec2_t *st;
@@ -117,13 +89,6 @@ typedef struct md5_joint_info_s
 	int flags;
 	int startIndex;
 } md5_joint_info_t;
-
-/* Base frame joint */
-typedef struct md5_baseframe_joint_s
-{
-	vec3_t pos;
-	quat_t orient;
-} md5_baseframe_joint_t;
 
 /**
  * Basic quaternion operations.
@@ -195,16 +160,16 @@ Quat_rotatePoint(const quat_t q, const vec3_t in, vec3_t out)
  */
 static void
 BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
-	const md5_baseframe_joint_t *baseFrame,
+	const dmdx_baseframe_joint_t *baseFrame,
 	const float *animFrameData,
-	md5_joint_t *skelFrame,
+	dmdx_joint_t *skelFrame,
 	int num_joints)
 {
 	int i;
 
 	for (i = 0; i < num_joints; ++i)
 	{
-		const md5_baseframe_joint_t *baseJoint = &baseFrame[i];
+		const dmdx_baseframe_joint_t *baseJoint = &baseFrame[i];
 		vec3_t animatedPos;
 		quat_t animatedOrient;
 		int j = 0;
@@ -253,7 +218,7 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 		/* NOTE: we assume that this joint's parent has
 		 * already been calculated, i.e. joint's ID should
 		 * never be smaller than its parent ID. */
-		md5_joint_t *thisJoint = &skelFrame[i];
+		dmdx_joint_t *thisJoint = &skelFrame[i];
 
 		int parent = jointInfos[i].parent;
 		thisJoint->parent = parent;
@@ -267,7 +232,7 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 		}
 		else
 		{
-			md5_joint_t *parentJoint = &skelFrame[parent];
+			dmdx_joint_t *parentJoint = &skelFrame[parent];
 			vec3_t rpos; /* Rotated position */
 
 			/* Add positions */
@@ -311,12 +276,12 @@ AllocateFrames(md5_model_t *anim)
 		memset(&(anim->skelFrames[i].bbox), 0, sizeof(md5_bbox_t));
 
 		/* Allocate memory for joints of each frame */
-		anim->skelFrames[i].skelJoints = (md5_joint_t *)
-			malloc(sizeof(md5_joint_t) * anim->num_joints);
+		anim->skelFrames[i].skelJoints = (dmdx_joint_t *)
+			malloc(sizeof(dmdx_joint_t) * anim->num_joints);
 		if (!anim->skelFrames[i].skelJoints)
 		{
 			YQ2_COM_CHECK_OOM(anim->skelFrames[i].skelJoints, "malloc()",
-				sizeof(md5_joint_t) * anim->num_joints)
+				sizeof(dmdx_joint_t) * anim->num_joints)
 			return;
 		}
 
@@ -329,7 +294,7 @@ AllocateFrames(md5_model_t *anim)
 			return;
 		}
 		memcpy(anim->skelFrames[i].skelJoints, anim->baseSkel,
-			sizeof(md5_joint_t) * anim->num_joints);
+			sizeof(dmdx_joint_t) * anim->num_joints);
 	}
 }
 
@@ -403,7 +368,7 @@ ParseFloatBlock(char **curr_buff, int count, float *v)
 static void
 ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 {
-	md5_baseframe_joint_t *baseFrame = NULL;
+	dmdx_baseframe_joint_t *baseFrame = NULL;
 	md5_joint_info_t *jointInfos = NULL;
 	int numAnimatedComponents = 0;
 	char *curr_buff,*safe_buffer;
@@ -508,8 +473,8 @@ ReadMD5Anim(md5_model_t *anim, const char *buffer, size_t size)
 					break;
 				}
 
-				baseFrame = (md5_baseframe_joint_t *)
-					malloc(sizeof(md5_baseframe_joint_t) * anim->num_joints);
+				baseFrame = (dmdx_baseframe_joint_t *)
+					malloc(sizeof(dmdx_baseframe_joint_t) * anim->num_joints);
 				if (!baseFrame)
 				{
 					FreeModelMd5Frames(anim);
@@ -917,8 +882,8 @@ ReadMD5Model(const char *buffer, size_t size)
 			if (mdl->num_joints > 0)
 			{
 				/* Allocate memory for base skeleton joints */
-				mdl->baseSkel = (md5_joint_t *)
-					calloc (mdl->num_joints, sizeof(md5_joint_t));
+				mdl->baseSkel = (dmdx_joint_t *)
+					calloc (mdl->num_joints, sizeof(dmdx_joint_t));
 				if (!mdl->baseSkel)
 				{
 					FreeModelMd5(mdl);
@@ -998,7 +963,7 @@ ReadMD5Model(const char *buffer, size_t size)
 			/* Read each joint */
 			for (i = 0; i < mdl->num_joints; ++i)
 			{
-				md5_joint_t *joint = &mdl->baseSkel[i];
+				dmdx_joint_t *joint = &mdl->baseSkel[i];
 
 				token = COM_Parse(&curr_buff);
 				Q_strlcpy(joint->name, token, sizeof(joint->name));
@@ -1091,10 +1056,10 @@ ReadMD5Model(const char *buffer, size_t size)
 					if (mesh->num_verts > 0)
 					{
 						/* Allocate memory for vertices */
-						mesh->vertices = (md5_vertex_t *)
-							malloc(sizeof(md5_vertex_t) * mesh->num_verts);
+						mesh->vertices = (dmdx_vertex_t *)
+							malloc(sizeof(dmdx_vertex_t) * mesh->num_verts);
 						YQ2_COM_CHECK_OOM(mesh->vertices, "realloc()",
-							sizeof(md5_vertex_t) * mesh->num_verts)
+							sizeof(dmdx_vertex_t) * mesh->num_verts)
 						if (!mesh->vertices)
 						{
 							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
@@ -1135,10 +1100,10 @@ ReadMD5Model(const char *buffer, size_t size)
 					if (mesh->num_weights > 0)
 					{
 						/* Allocate memory for vertex weights */
-						mesh->weights = (md5_weight_t *)
-							malloc(sizeof(md5_weight_t) * mesh->num_weights);
+						mesh->weights = (dmdx_weight_t *)
+							malloc(sizeof(dmdx_weight_t) * mesh->num_weights);
 						YQ2_COM_CHECK_OOM(mesh->weights, "realloc()",
-							sizeof(md5_weight_t) * mesh->num_weights)
+							sizeof(dmdx_weight_t) * mesh->num_weights)
 						if (!mesh->weights)
 						{
 							/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
@@ -1284,7 +1249,7 @@ PrepareMeshIndices(const md5_mesh_t *mesh, vec2_t *st, int vertex_index, int tri
 }
 
 static void
-PrepareMeshVertex(const md5_mesh_t *mesh, const md5_joint_t *skeleton,
+PrepareMeshVertex(const md5_mesh_t *mesh, const dmdx_joint_t *skeleton,
 	md5_frame_t *frame, int vert_index)
 {
 	int i, j;
@@ -1297,9 +1262,9 @@ PrepareMeshVertex(const md5_mesh_t *mesh, const md5_joint_t *skeleton,
 		/* Calculate final vertex to draw with weights */
 		for (j = 0; j < mesh->vertices[i].count; ++j)
 		{
-			const md5_weight_t *weight
+			const dmdx_weight_t *weight
 				= &mesh->weights[mesh->vertices[i].start + j];
-			const md5_joint_t *joint
+			const dmdx_joint_t *joint
 				= &skeleton[weight->joint];
 
 			/* Calculate transformed vertex for this weight */
@@ -1451,7 +1416,7 @@ MD5_ComputeNormals(md5_model_t *md5file)
 void *
 Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 {
-	int framesize, i, num_verts = 0, num_tris = 0, num_glcmds = 0;
+	int framesize, i, num_verts = 0, num_tris = 0, num_glcmds = 0, num_weights = 0;
 	dmdx_t dmdxheader, *pheader;
 	int mesh_size, anim_size;
 	void *extradata = NULL;
@@ -1511,7 +1476,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 		AllocateFrames(md5file);
 
 		memcpy(md5file->skelFrames[0].skelJoints, md5file->baseSkel,
-			sizeof(md5_joint_t) * md5file->num_joints);
+			sizeof(dmdx_joint_t) * md5file->num_joints);
 	}
 
 	for (i = 0; i < md5file->num_meshes; ++i)
@@ -1531,6 +1496,7 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 
 		num_verts += md5file->meshes[i].num_verts;
 		num_tris += md5file->meshes[i].num_tris * 3;
+		num_weights += md5file->meshes[i].num_weights;
 	}
 
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
@@ -1554,7 +1520,8 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_st = md5file->num_tris * 3;
 	dmdxheader.num_tris = md5file->num_tris;
 	dmdxheader.num_animgroup = md5file->num_frames;
-	dmdxheader.num_bones = md5file->num_joints;
+	dmdxheader.num_joints = md5file->num_joints;
+	dmdxheader.num_weights = num_weights;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -1613,6 +1580,52 @@ Mod_LoadModel_MD5(const char *mod_name, const void *buffer, int modfilelen)
 		}
 		num_verts += md5file->meshes[i].num_verts;
 		num_tris += md5file->meshes[i].num_tris;
+	}
+
+	if (pheader->num_weights > 0)
+	{
+		dmdx_joint_t *joints = (dmdx_joint_t *)((byte *)pheader + pheader->ofs_joints);
+		dmdx_weight_t *weights = (dmdx_weight_t *)((byte *)pheader + pheader->ofs_weights);
+		dmdx_vertex_t *mesh_vertices = (dmdx_vertex_t *)((byte *)pheader + pheader->ofs_mesh_verteces);
+		int vert_offset = 0, weight_offset = 0;
+
+		memcpy(joints, md5file->baseSkel, md5file->num_joints * sizeof(*joints));
+
+		for (i = 0; i < md5file->num_meshes; i++)
+		{
+			const md5_mesh_t *mesh = &md5file->meshes[i];
+			int j;
+
+			memcpy(weights + weight_offset, mesh->weights, mesh->num_weights * sizeof(*weights));
+
+			for (j = 0; j < mesh->num_verts; j++)
+			{
+				mesh_vertices[vert_offset + j].start = mesh->vertices[j].start + weight_offset;
+				mesh_vertices[vert_offset + j].count = mesh->vertices[j].count;
+			}
+
+			vert_offset += mesh->num_verts;
+			weight_offset += mesh->num_weights;
+		}
+	}
+
+	if (pheader->num_joints > 0 && pheader->ofs_baseframe_joints != 0)
+	{
+		dmdx_baseframe_joint_t *baseframe_joints = (dmdx_baseframe_joint_t *)((byte *)pheader + pheader->ofs_baseframe_joints);
+
+		for (i = 0; i < md5file->num_frames; i++)
+		{
+			const dmdx_joint_t *joints = md5file->skelFrames[i].skelJoints;
+			int b;
+
+			for (b = 0; b < md5file->num_joints; b++)
+			{
+				dmdx_baseframe_joint_t *pose = &baseframe_joints[i * pheader->num_joints + b];
+
+				VectorCopy(joints[b].pos, pose->pos);
+				memcpy(pose->orient, joints[b].orient, sizeof(pose->orient));
+			}
+		}
 	}
 
 	Mod_LoadAnimGroupList(pheader, true);

@@ -641,6 +641,40 @@ typedef struct
 	unsigned int num_tris;
 } dmdxmesh_t;
 
+/* Joint */
+typedef struct dmdxjoint_s
+{
+	char name[64];
+	int parent; /* -1 for root */
+
+	vec3_t pos;
+	quat_t orient; /* quaternion xyzw */
+} dmdx_joint_t;
+
+/* Base frame joint */
+typedef struct dmdx_baseframe_joint_s
+{
+	vec3_t pos;
+	quat_t orient; /* quaternion xyzw, world-space */
+} dmdx_baseframe_joint_t;
+
+/* Weight */
+typedef struct dmdx_weight_s
+{
+	int joint;
+	float bias;
+	vec3_t pos; /* position in bone-local space */
+} dmdx_weight_t;
+
+/* Vertex */
+typedef struct dmdx_vertex_s
+{
+	vec2_t st;
+
+	int start; /* start weight */
+	int count; /* weight count */
+} dmdx_vertex_t;
+
 typedef struct
 {
 	int ident;
@@ -658,7 +692,8 @@ typedef struct
 	int num_meshes;
 	int num_imgbit; /* image format of embeded images */
 	int num_animgroup;
-	int num_bones;
+	int num_joints;
+	int num_weights;
 
 	int ofs_skins;  /* each skin is a MAX_SKINNAME string */
 	int ofs_st;     /* byte offset from start for stverts */
@@ -668,6 +703,10 @@ typedef struct
 	int ofs_meshes;
 	int ofs_imgbit; /* offest of embeded image */
 	int ofs_animgroup; /* offset to animation frames group */
+	int ofs_joints;
+	int ofs_weights;
+	int ofs_mesh_verteces;
+	int ofs_baseframe_joints; /* dmdx_baseframe_joint_t[num_frames * num_joints], 0 if absent */
 	int ofs_end;    /* end of file */
 } dmdx_t;
 
