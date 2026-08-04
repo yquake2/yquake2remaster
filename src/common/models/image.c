@@ -842,7 +842,7 @@ Mod_RawDecodeImageWithPalette(const char *filename, const byte *raw, int len,
 	{
 		PCX_Decode(filename, raw, len, pic, palette, width, height, bitsPerPixel);
 
-		if(*pic && width && height
+		if (*pic && width && height
 			&& *width == 320 && *height == 240 && *bitsPerPixel == 8
 			&& Q_strcasecmp(filename, "pics/quit.pcx") == 0
 			&& Com_BlockChecksum(raw, len) == 3329419434u)

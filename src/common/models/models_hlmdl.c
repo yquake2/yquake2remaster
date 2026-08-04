@@ -829,16 +829,16 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 		hlmdl_anim_t *panim = NULL;
 		int j;
 
-		if (pseq->seqgroup == 0)
+		/* Some HLMDL assets keep the animation block in the same file even
+		   when seqgroup is not zero. Use it whenever the offset is valid so we
+		   still bake all available frames instead of falling back to the bind
+		   pose for the whole sequence. */
+		if (pseq->animindex > 0 && pseq->animindex < modfilelen)
 		{
 			panim = (hlmdl_anim_t *)((byte*)buffer + pseq->animindex);
 		}
-		else
-		{
-			/* sequence group from other file is unsupported */
-		}
 
-		for(j = 0; j < pseq->num_frames; j ++)
+		for (j = 0; j < pseq->num_frames; j ++)
 		{
 			daliasxframe_t *frame = (daliasxframe_t *)(
 				(byte *)pheader + pheader->ofs_frames + total_frames * pheader->framesize);

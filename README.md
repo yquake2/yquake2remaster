@@ -42,23 +42,23 @@ not include submodules in these archives. To build the project successfully, you
 
 ### Models support:
 
-| Format | Original Game   | Frame vertex | Meshes   | Comments                                    |
-| ------ | --------------- | ------------ | -------- | ------------------------------------------- |
-| mdl    | Quake / Hexen 2 | 8 bit        | Single   | Unsupported grouped textures                |
-| mdl    | Half-Life       | float        | Multiple | Unsupported skeletal / multi file animation |
-| md2    | Quake 2         | 8 bit        | Single   |                                             |
-| mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine               |
-| md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                         |
-| mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game         |
-| fm     | Heretic 2       | 8 bit        | Multiple | Without skeletal animation                  |
-| def    | SiN             | Part of sam  | Multiple | Unchecked with game                         |
-| dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                         |
-| dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                         |
-| md3    | Quake 3         | 16 bit       | Multiple | No tags support                             |
-| mdr    | EliteForce      | float        | Multiple | No tags/skeletal support. First LOD only    |
-| md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins, no skeletal         |
-| sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                         |
-| sam    | SiN             | 8 bit        | Multiple | Unchecked with game                         |
+| Format | Original Game   | Frame vertex | Meshes   | Comments                            |
+| ------ | --------------- | ------------ | -------- | ----------------------------------- |
+| mdl    | Quake / Hexen 2 | 8 bit        | Single   | Unsupported grouped textures        |
+| mdl    | Half-Life       | float        | Multiple | Unsupported multi file animation    |
+| md2    | Quake 2         | 8 bit        | Single   |                                     |
+| mda    | Anachronox      | Part of md2  | Single   | Unsupported skin pass combine       |
+| md2    | Anachronox      | 8/10/16 bit  | Single   | Unchecked with game                 |
+| mdx    | Kingpin         | 8 bit        | Multiple | No sfx support, unchecked with game |
+| fm     | Heretic 2       | 8 bit        | Multiple | Without skeletal animation          |
+| def    | SiN             | Part of sam  | Multiple | Unchecked with game                 |
+| dkm    | Daikatana DKM1  | 8 bit        | Multiple | Unchecked with game                 |
+| dkm    | Daikatana DKM2  | 10 bit       | Multiple | Unchecked with game                 |
+| md3    | Quake 3         | 16 bit       | Multiple | No tags support                     |
+| mdr    | EliteForce      | float        | Multiple | No tags support. First LOD only     |
+| md5    | Doom 3/Quake 4  | float        | Multiple | Requires md2 for skins.             |
+| sbm    | SiN             | Part of sam  | Multiple | Unchecked with game                 |
+| sam    | SiN             | 8 bit        | Multiple | Unchecked with game                 |
 
 All models support only single texture for all meshes and frames limit based on game protocol.
 
