@@ -57,6 +57,7 @@ cvar_t *r_palettedtextures;
 cvar_t *r_polyblend;
 cvar_t *r_retexturing;
 cvar_t *r_scale8bittextures;
+cvar_t *r_skeletalanimation;
 cvar_t *r_shadows;
 cvar_t *r_showtris;
 cvar_t *r_speeds;
@@ -272,6 +273,7 @@ R_InitCvar(void)
 	r_lightmap = ri.Cvar_Get("r_lightmap", "0", 0);
 	r_retexturing = ri.Cvar_Get("r_retexturing", "1", CVAR_ARCHIVE);
 	r_scale8bittextures = ri.Cvar_Get("r_scale8bittextures", "0", CVAR_ARCHIVE);
+	r_skeletalanimation = ri.Cvar_Get("r_skeletalanimation", "1", CVAR_ARCHIVE);
 	r_anisotropic = ri.Cvar_Get("r_anisotropic", "0", CVAR_ARCHIVE);
 	/* don't bilerp characters and crosshairs */
 	r_nolerp_list = ri.Cvar_Get("r_nolerp_list", DEFAULT_NOLERP_LIST, CVAR_ARCHIVE);

@@ -341,14 +341,11 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	uint32_t uboOffset, VkDescriptorSet uboDescriptorSet,
 	int *index_pos, VkBuffer **buffer, VkDeviceSize *dstOffset)
 {
-	daliasxframe_t *frame, *oldframe;
-	const dxtrivertx_t *ov;
-	dxtrivertx_t *verts;
+	daliasxframe_t *frame;
 	int *order;
 	float frontlerp;
 	float alpha;
 	vec3_t move, delta, vectors[3];
-	vec3_t frontv, backv;
 	int i;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
@@ -361,11 +358,6 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
-	verts = frame->verts;
-
-	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-				+ currententity->oldframe * paliashdr->framesize);
-	ov = oldframe->verts;
 
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
@@ -388,18 +380,10 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 	move[1] = -DotProduct(delta, vectors[1]); /* left */
 	move[2] = DotProduct(delta, vectors[2]); /* up */
 
-	VectorAdd(move, oldframe->translate, move);
+	VectorScale(move, backlerp, move);
 
-	for (i = 0; i < 3; i++)
-	{
-		move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
-
-		frontv[i] = frontlerp * frame->scale[i];
-		backv[i] = backlerp * oldframe->scale[i];
-	}
-
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, (float*)s_lerped,
-		move, frontv, backv, currententity->scale);
+	R_LerpVerts(paliashdr, currententity->frame, currententity->oldframe,
+			frontlerp, backlerp, (float*)s_lerped, move, currententity->scale, colorOnly);
 
 	VkDescriptorSet descriptorSets[] = {
 		skin->vk_texture.descriptorSet,
@@ -432,7 +416,7 @@ Vk_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			alpha, verts, s_lerped, shadelight, shadevector,
+			alpha, frame->verts, s_lerped, shadelight, shadevector,
 			currententity->flags & (RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE),
 			&vertIdx, &firstVertex, index_pos);
 	}

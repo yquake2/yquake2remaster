@@ -185,17 +185,13 @@ static void
 DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 	const float *shadevector)
 {
-	daliasxframe_t *frame, *oldframe;
-	const dxtrivertx_t *ov;
-	dxtrivertx_t *verts;
+	daliasxframe_t *frame;
 	int *order;
 	float alpha;
 	vec3_t move, delta, vectors[3];
-	vec3_t frontv, backv;
 	int i;
 	float backlerp = entity->backlerp;
 	float frontlerp = 1.0 - backlerp;
-	float *lerp;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
 	vec4_t *s_lerped;
@@ -207,11 +203,6 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + entity->frame * paliashdr->framesize);
-	verts = frame->verts;
-
-	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-				+ entity->oldframe * paliashdr->framesize);
-	ov = oldframe->verts;
 
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
@@ -247,23 +238,13 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 	move[1] = -DotProduct(delta, vectors[1]); /* left */
 	move[2] = DotProduct(delta, vectors[2]); /* up */
 
-	VectorAdd(move, oldframe->translate, move);
-
-	for (i = 0; i < 3; i++)
-	{
-		move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
-
-		frontv[i] = frontlerp * frame->scale[i];
-		backv[i] = backlerp * oldframe->scale[i];
-	}
-
 	/* buffer for scalled vert from frame */
 	s_lerped = R_VertBufferRealloc(paliashdr->num_xyz);
 
-	lerp = s_lerped[0];
+	VectorScale(move, backlerp, move);
 
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp,
-		move, frontv, backv, entity->scale);
+	R_LerpVerts(paliashdr, entity->frame, entity->oldframe,
+			frontlerp, backlerp, (float*)s_lerped, move, entity->scale, colorOnly);
 
 	YQ2_STATIC_ASSERT(sizeof(gl3_alias_vtx_t) == 9 * sizeof(GLfloat), "invalid gl3_alias_vtx_t size");
 
@@ -281,7 +262,7 @@ DrawAliasFrameLerp(dmdx_t *paliashdr, entity_t* entity, vec3_t shadelight,
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			alpha, colorOnly, verts, s_lerped, shadevector);
+			alpha, colorOnly, frame->verts, s_lerped, shadevector);
 	}
 
 	++gl3_num3Ddraws;
@@ -389,20 +370,9 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 
 	// all in this scope is to set s_lerped
 	{
-		daliasxframe_t *frame, *oldframe;
-		const dxtrivertx_t *ov, *verts;
 		float backlerp = entity->backlerp;
 		float frontlerp = 1.0f - backlerp;
 		vec3_t move, delta, vectors[3];
-		vec3_t frontv, backv;
-
-		frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-								  + entity->frame * paliashdr->framesize);
-		verts = frame->verts;
-
-		oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-					+ entity->oldframe * paliashdr->framesize);
-		ov = oldframe->verts;
 
 		/* move should be the delta back to the previous frame * backlerp */
 		VectorSubtract(entity->oldorigin, entity->origin, delta);
@@ -412,20 +382,12 @@ DrawAliasShadow(gl3_shadowinfo_t* shadowInfo)
 		move[1] = -DotProduct(delta, vectors[1]); /* left */
 		move[2] = DotProduct(delta, vectors[2]); /* up */
 
-		VectorAdd(move, oldframe->translate, move);
-
-		for (i = 0; i < 3; i++)
-		{
-			move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
-
-			frontv[i] = frontlerp * frame->scale[i];
-			backv[i] = backlerp * oldframe->scale[i];
-		}
+		VectorScale(move, backlerp, move);
 
 		// false: don't extrude vertices for powerup - this means the powerup shell
 		//  is not seen in the shadow, only the underlying model..
-		R_LerpVerts(false, paliashdr->num_xyz, verts, ov, s_lerped[0],
-			move, frontv, backv, entity->scale);
+		R_LerpVerts(paliashdr, entity->frame, entity->oldframe,
+				frontlerp, backlerp, (float*)s_lerped, move, entity->scale, false);
 	}
 
 	lheight = entity->origin[2] - shadowInfo->lightspot[2];

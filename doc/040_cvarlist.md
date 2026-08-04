@@ -510,6 +510,9 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 
 * **r_scale8bittextures**: If set to `1`, scale up all 8bit textures.
 
+* **r_skeletalanimation**: If set to `1` (the default), render will try to
+  use skeletal animation instead precalculated vertex values.
+
 * **r_shadows**: Enables rendering of shadows. Quake IIs shadows are
   very simple and are prone to render errors.
 

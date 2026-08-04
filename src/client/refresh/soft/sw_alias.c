@@ -35,7 +35,7 @@ int				r_amodels_drawn;
 affinetridesc_t	r_affinetridesc;
 
 static vec3_t	r_plightvec;
-static vec3_t	r_lerp_frontv, r_lerp_backv, r_lerp_move;
+static vec3_t	r_lerp_move;
 
 static light3_t	r_ambientlight;
 int		r_aliasblendcolor;
@@ -265,6 +265,10 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 	int i, num_mesh_nodes;
 	qboolean colorOnly;
 	vec4_t *s_lerped;
+	float backlerp, frontlerp;
+
+	backlerp = currententity->backlerp;
+	frontlerp = 1.0 - backlerp;
 
 	if ((verts + s_pmdl->num_xyz) >= verts_max)
 	{
@@ -278,8 +282,8 @@ R_AliasPreparePoints(const entity_t *currententity, finalvert_t *verts, const fi
 		(RF_SHELL_RED | RF_SHELL_GREEN | RF_SHELL_BLUE | RF_SHELL_DOUBLE |
 		 RF_SHELL_HALF_DAM));
 
-	R_LerpVerts(colorOnly, s_pmdl->num_xyz, r_thisframe->verts, r_lastframe->verts,
-		s_lerped[0], r_lerp_move, r_lerp_frontv, r_lerp_backv, currententity->scale);
+	R_LerpVerts(s_pmdl, currententity->frame, currententity->oldframe,
+			frontlerp, backlerp, (float*)s_lerped, r_lerp_move, currententity->scale, colorOnly);
 
 	R_AliasTransformFinalVerts(s_pmdl->num_xyz,
 		verts,	/* destination for transformed verts */
@@ -540,13 +544,9 @@ R_AliasSetupFrames(const entity_t *currententity, const model_t *currentmodel, d
 ** Precomputes lerp coefficients used for the whole frame.
 */
 static void
-R_AliasSetUpLerpData(entity_t *currententity, dmdx_t *pmdl, float backlerp)
+R_AliasSetUpLerpData(entity_t *currententity, dmdx_t *pmdl)
 {
-	float	frontlerp;
-	vec3_t	translation, vectors[3];
-	int		i;
-
-	frontlerp = 1.0F - backlerp;
+	vec3_t translation, vectors[3];
 
 	/*
 	** convert entity's angles into discrete vectors for R, U, and F
@@ -565,18 +565,7 @@ R_AliasSetUpLerpData(entity_t *currententity, dmdx_t *pmdl, float backlerp)
 	r_lerp_move[1] = -DotProduct(translation, vectors[1]);	// left
 	r_lerp_move[2] =  DotProduct(translation, vectors[2]);	// up
 
-	VectorAdd( r_lerp_move, r_lastframe->translate, r_lerp_move );
-
-	for (i=0 ; i<3 ; i++)
-	{
-		r_lerp_move[i] = backlerp*r_lerp_move[i] + frontlerp * r_thisframe->translate[i];
-	}
-
-	for (i=0 ; i<3 ; i++)
-	{
-		r_lerp_frontv[i] = frontlerp * r_thisframe->scale[i];
-		r_lerp_backv[i]  = backlerp  * r_lastframe->scale[i];
-	}
+	VectorScale(r_lerp_move, currententity->backlerp, r_lerp_move);
 }
 
 finalvert_t *finalverts = NULL, *finalverts_max = NULL;
@@ -713,7 +702,7 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	/*
 	** compute this_frame and old_frame addresses
 	*/
-	R_AliasSetUpLerpData(currententity, s_pmdl, currententity->backlerp);
+	R_AliasSetUpLerpData(currententity, s_pmdl);
 
 	if (currententity->flags & RF_DEPTHHACK)
 		s_ziscale = (float)0x8000 * (float)SHIFT16XYZ_MULT * 3.0;

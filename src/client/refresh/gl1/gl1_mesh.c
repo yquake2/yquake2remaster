@@ -144,16 +144,12 @@ static void
 R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 	vec4_t *s_lerped, const float *shadelight, const float *shadevector)
 {
-	daliasxframe_t *frame, *oldframe;
-	const dxtrivertx_t *ov;
-	dxtrivertx_t *verts;
+	daliasxframe_t *frame;
 	int *order;
 	float frontlerp;
 	float alpha;
 	vec3_t move, delta, vectors[3];
-	vec3_t frontv, backv;
 	int i;
-	float *lerp;
 	int num_mesh_nodes;
 	dmdxmesh_t *mesh_nodes;
 	qboolean colorOnly = 0 != (currententity->flags &
@@ -162,11 +158,6 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 
 	frame = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
 							  + currententity->frame * paliashdr->framesize);
-	verts = frame->verts;
-
-	oldframe = (daliasxframe_t *)((byte *)paliashdr + paliashdr->ofs_frames
-				+ currententity->oldframe * paliashdr->framesize);
-	ov = oldframe->verts;
 
 	order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
@@ -189,20 +180,10 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 	move[1] = -DotProduct(delta, vectors[1]); /* left */
 	move[2] = DotProduct(delta, vectors[2]); /* up */
 
-	VectorAdd(move, oldframe->translate, move);
+	VectorScale(move, backlerp, move);
 
-	for (i = 0; i < 3; i++)
-	{
-		move[i] = backlerp * move[i] + frontlerp * frame->translate[i];
-
-		frontv[i] = frontlerp * frame->scale[i];
-		backv[i] = backlerp * oldframe->scale[i];
-	}
-
-	lerp = s_lerped[0];
-
-	R_LerpVerts(colorOnly, paliashdr->num_xyz, verts, ov, lerp,
-		move, frontv, backv, currententity->scale);
+	R_LerpVerts(paliashdr, currententity->frame, currententity->oldframe,
+			frontlerp, backlerp, (float*)s_lerped, move, currententity->scale, colorOnly);
 
 	num_mesh_nodes = paliashdr->num_meshes;
 	mesh_nodes = (dmdxmesh_t *)((char*)paliashdr + paliashdr->ofs_meshes);
@@ -218,7 +199,7 @@ R_DrawAliasFrameLerp(entity_t *currententity, dmdx_t *paliashdr, float backlerp,
 			order + mesh_nodes[i].ofs_glcmds,
 			order + Q_min(paliashdr->num_glcmds,
 				mesh_nodes[i].ofs_glcmds + mesh_nodes[i].num_glcmds),
-			alpha, verts, s_lerped, shadelight, shadevector);
+			alpha, frame->verts, s_lerped, shadelight, shadevector);
 	}
 }
 
