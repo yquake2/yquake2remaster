@@ -717,6 +717,7 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_frames = total_frames;
 	dmdxheader.num_animgroup = pinmodel.num_seq;
 	dmdxheader.num_joints = pinmodel.num_bones;
+	dmdxheader.num_weights = (pinmodel.num_bones > 0) ? num_verts : 0;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -753,6 +754,75 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 
 	total_frames = 0;
 	pbones = (hlmdl_bone_t *)((byte*)buffer + pinmodel.ofs_bones);
+
+	/* populate bind-pose skeleton, rigid weights, and mesh verteces */
+	if (pheader->num_weights > 0 && pheader->num_joints > 0
+		&& bonetransform && quaternion && bonepos && out_vert && out_boneids)
+	{
+		dmdx_joint_t *out_bones;
+		dmdx_weight_t *out_weights;
+		dmdx_vertex_t *out_mesh_verteces;
+		int v, b;
+
+		out_bones = (dmdx_joint_t *)((byte *)pheader + pheader->ofs_joints);
+		out_weights = (dmdx_weight_t *)((byte *)pheader + pheader->ofs_weights);
+		out_mesh_verteces = (dmdx_vertex_t *)((byte *)pheader + pheader->ofs_mesh_verteces);
+
+		for (b = 0; b < pinmodel.num_bones; b++)
+		{
+			vec3_t angles;
+			int k;
+
+			Q_strlcpy(out_bones[b].name, pbones[b].name, sizeof(out_bones[b].name));
+			out_bones[b].parent = pbones[b].parent;
+			for (k = 0; k < 3; k++)
+			{
+				out_bones[b].pos[k] = pbones[b].value[k];
+				angles[k] = pbones[b].value[k + 3];
+			}
+			AngleQuaternion(angles, out_bones[b].orient);
+		}
+
+		/* build bind-pose global transforms to convert verteces to bone-local space */
+		memset(bonetransform, 0, sizeof(bonematrix_t) * pinmodel.num_bones);
+		for (b = 0; b < pinmodel.num_bones; b++)
+		{
+			float bonematrix[3][4];
+			int parent;
+
+			CalcBoneQuaternion(0, 0.0f, &pbones[b], NULL, quaternion[b]);
+			CalcBonePosition(0, 0.0f, &pbones[b], NULL, bonepos[b]);
+			QuaternionMatrix(quaternion[b], bonematrix);
+			bonematrix[0][3] = bonepos[b][0];
+			bonematrix[1][3] = bonepos[b][1];
+			bonematrix[2][3] = bonepos[b][2];
+
+			parent = pbones[b].parent;
+			if (parent == -1)
+				memcpy(bonetransform[b], bonematrix, sizeof(bonematrix_t));
+			else
+				R_ConcatTransforms(bonetransform[parent], bonematrix, bonetransform[b]);
+		}
+
+		/* rigid binding: HLMDL bakes as R_f*v+t_f so offset must be the entity-local vertex, not bone-local */
+		for (v = 0; v < num_verts; v++)
+		{
+			int bone = out_boneids[v];
+
+			if (bone < 0 || bone >= pinmodel.num_bones)
+				bone = 0;
+
+			out_weights[v].joint     = bone;
+			out_weights[v].bias   = 1.0f;
+			out_weights[v].pos[0] = out_vert[v].xyz[0];
+			out_weights[v].pos[1] = out_vert[v].xyz[1];
+			out_weights[v].pos[2] = out_vert[v].xyz[2];
+
+			out_mesh_verteces[v].start = v;
+			out_mesh_verteces[v].count = 1;
+		}
+	}
+
 	for (i = 0; i < pinmodel.num_seq; i++)
 	{
 		const hlmdl_sequence_t *pseq = &sequences[i];
@@ -808,6 +878,22 @@ Mod_LoadModel_HLMDL(const char *mod_name, const void *buffer, int modfilelen)
 					else
 					{
 						R_ConcatTransforms(bonetransform[parent], bonematrix, bonetransform[b]);
+					}
+				}
+
+				/* store world-space pose for runtime skinning */
+				if (pheader->ofs_baseframe_joints != 0)
+				{
+					dmdx_baseframe_joint_t *pose_row = (dmdx_baseframe_joint_t *)((byte *)pheader + pheader->ofs_baseframe_joints)
+					                          + total_frames * pheader->num_joints;
+					int bp;
+
+					for (bp = 0; bp < pinmodel.num_bones; bp++)
+					{
+						pose_row[bp].pos[0] = bonetransform[bp][0][3];
+						pose_row[bp].pos[1] = bonetransform[bp][1][3];
+						pose_row[bp].pos[2] = bonetransform[bp][2][3];
+						Mod_Mat3x4ToQuat(bonetransform[bp], pose_row[bp].orient);
 					}
 				}
 
