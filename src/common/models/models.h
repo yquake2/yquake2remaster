@@ -64,6 +64,7 @@ void Mod_LoadFixImages(const char* mod_name, dmdx_t *pheader, qboolean internal)
 void Mod_LoadAnimGroupList(dmdx_t *pheader, qboolean sequence);
 void Mod_LoadModel_AnimGroupNamesFix(dmdx_t *pheader, const namesconvert_t *names);
 dmdx_t *Mod_LoadAllocate(const char *mod_name, dmdx_t *dmdxheader, void **extradata);
+void Mod_Mat3x4ToQuat(const float m[3][4], vec4_t q);
 void *Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen);
 byte *Mod_LoadEmbdedImage(const char *mod_name, int texture_index, byte *raw, int len,
 	int *width, int *height, int *bitsPerPixel);

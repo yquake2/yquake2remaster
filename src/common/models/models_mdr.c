@@ -27,6 +27,7 @@
 
 #include "models.h"
 #include <limits.h>
+#include <math.h>
 
 #define MC_BITS_X (16)
 #define MC_BITS_Y (16)
@@ -146,6 +147,7 @@ void *
 Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 {
 	int framesize, num_xyz = 0, num_tris = 0, num_glcmds = 0, num_skins = 0, meshofs = 0;
+	int num_weights = 0;
 	dmdx_t dmdxheader, *pheader;
 	mdr_header_t pinmodel;
 	dmdxmesh_t *mesh_nodes;
@@ -331,6 +333,42 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 		meshofs += LittleLong(insurf->ofs_end);
 	}
 
+	/* pre-count total weights across all verteces for influence table sizing */
+	meshofs = inlod->ofs_surfaces;
+	for (i = 0; i < inlod->num_surfaces; i++)
+	{
+		const mdr_surface_t *insurf;
+		const mdr_vertex_t *inVert;
+		int j;
+
+		insurf = (const mdr_surface_t *)((const char *)inlod + meshofs);
+		if (insurf->ofs_verts < 0 ||
+			(size_t)((const byte *)insurf - (const byte *)buffer) + insurf->ofs_verts > (size_t)modfilelen)
+		{
+			meshofs += LittleLong(insurf->ofs_end);
+			continue;
+		}
+		inVert = (const mdr_vertex_t *)((const char *)insurf + insurf->ofs_verts);
+		for (j = 0; j < LittleLong(insurf->num_verts); j++)
+		{
+			int nw;
+
+			if ((const byte *)inVert + sizeof(mdr_vertex_t) > (const byte *)buffer + modfilelen)
+			{
+				break;
+			}
+			nw = LittleLong(inVert->num_weights);
+			if (nw < 1)
+			{
+				break;
+			}
+			num_weights += nw;
+			inVert = (const mdr_vertex_t *)((const char *)inVert +
+				sizeof(mdr_vertex_t) + sizeof(mdr_weight_t) * (nw - 1));
+		}
+		meshofs += LittleLong(insurf->ofs_end);
+	}
+
 	num_skins = inlod->num_surfaces;
 
 	/* (count vert + 3 vert * (2 float + 1 int)) + final zero; */
@@ -352,6 +390,7 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 	dmdxheader.num_tris = num_tris;
 	dmdxheader.num_animgroup = pinmodel.num_frames;
 	dmdxheader.num_joints = pinmodel.num_bones;
+	dmdxheader.num_weights = num_weights;
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
 
@@ -535,6 +574,89 @@ Mod_LoadModel_MDR(const char *mod_name, const void *buffer, int modfilelen)
 
 		PrepareFrameVertex(vertx + i * pheader->num_xyz,
 			pheader->num_xyz, frame);
+	}
+
+	/* populate bind-pose skeleton from frame 0 world-space matrices */
+	if (pheader->num_joints > 0 && pheader->num_weights > 0)
+	{
+		dmdx_joint_t *out_joints = (dmdx_joint_t *)((byte *)pheader + pheader->ofs_joints);
+		dmdx_weight_t *out_weights = (dmdx_weight_t *)((byte *)pheader + pheader->ofs_weights);
+		dmdx_vertex_t *out_mesh_verteces = (dmdx_vertex_t *)((byte *)pheader + pheader->ofs_mesh_verteces);
+		const mdr_frame_t *frame0 = (const mdr_frame_t *)frames;
+		int inf_idx = 0, vert_idx = 0, b;
+
+		for (b = 0; b < pinmodel.num_bones; b++)
+		{
+			const mdr_bone_t *bone = &frame0->bones[b];
+
+			out_joints[b].name[0] = '\0';
+			out_joints[b].parent = -1;
+			out_joints[b].pos[0] = bone->matrix[0][3];
+			out_joints[b].pos[1] = bone->matrix[1][3];
+			out_joints[b].pos[2] = bone->matrix[2][3];
+			Mod_Mat3x4ToQuat(bone->matrix, out_joints[b].orient);
+		}
+
+		/* per-frame bone poses from the already byte-swapped frames buffer */
+		if (pheader->ofs_baseframe_joints != 0)
+		{
+			dmdx_baseframe_joint_t *baseframe_joints = (dmdx_baseframe_joint_t *)((byte *)pheader + pheader->ofs_baseframe_joints);
+			int f;
+
+			for (f = 0; f < pinmodel.num_frames; f++)
+			{
+				const mdr_frame_t *mframe = (const mdr_frame_t *)(frames + f * unframesize);
+				int b2;
+
+				for (b2 = 0; b2 < pinmodel.num_bones; b2++)
+				{
+					dmdx_baseframe_joint_t *pose = &baseframe_joints[f * pheader->num_joints + b2];
+
+					pose->pos[0] = mframe->bones[b2].matrix[0][3];
+					pose->pos[1] = mframe->bones[b2].matrix[1][3];
+					pose->pos[2] = mframe->bones[b2].matrix[2][3];
+					Mod_Mat3x4ToQuat(mframe->bones[b2].matrix, pose->orient);
+				}
+			}
+		}
+
+		meshofs = inlod->ofs_surfaces;
+		for (i = 0; i < inlod->num_surfaces; i++)
+		{
+			const mdr_surface_t *insurf = (const mdr_surface_t *)((const char *)inlod + meshofs);
+			const mdr_vertex_t *inVert = (const mdr_vertex_t *)((const char *)insurf + insurf->ofs_verts);
+			int j;
+
+			for (j = 0; j < LittleLong(insurf->num_verts); j++)
+			{
+				const mdr_weight_t *w = inVert->weights;
+				int k, nw = LittleLong(inVert->num_weights);
+
+				out_mesh_verteces[vert_idx].start = inf_idx;
+				out_mesh_verteces[vert_idx].count = nw;
+				vert_idx++;
+
+				for (k = 0; k < nw && inf_idx < pheader->num_weights; k++, w++)
+				{
+					int bone_idx = LittleLong(w->bone_index);
+
+					if (bone_idx < 0 || bone_idx >= pinmodel.num_bones)
+					{
+						bone_idx = 0;
+					}
+					out_weights[inf_idx].joint = bone_idx;
+					out_weights[inf_idx].bias = LittleFloat(w->bone_weight);
+					out_weights[inf_idx].pos[0] = LittleFloat(w->offset[0]);
+					out_weights[inf_idx].pos[1] = LittleFloat(w->offset[1]);
+					out_weights[inf_idx].pos[2] = LittleFloat(w->offset[2]);
+					inf_idx++;
+				}
+
+				inVert = (const mdr_vertex_t *)((const char *)inVert +
+					sizeof(mdr_vertex_t) + sizeof(mdr_weight_t) * (nw - 1));
+			}
+			meshofs += LittleLong(insurf->ofs_end);
+		}
 	}
 
 	free(vertx);
