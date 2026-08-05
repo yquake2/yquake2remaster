@@ -443,6 +443,9 @@ typedef struct
 	int ofs_tagged_triangles;
 } dmdla_t;
 
+/* .WAVEFORM file format */
+#define WAVEFORMHEADER		(('J' << 24) + ('B' << 16) + ('O' << 8) + '#')
+
 /* .FM triangle model file format */
 
 #define RAVENFMHEADER		(('d' << 24) + ('a' << 16) + ('e' << 8) + 'h')

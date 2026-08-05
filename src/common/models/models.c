@@ -1823,6 +1823,228 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 }
 
 /*
+=============
+Mod_LoadModel_Waveform
+=============
+*/
+static void *
+Mod_LoadModel_Waveform(const char *mod_name, const void *buffer, int modfilelen)
+{
+#define MAX_OBJ_VERTS 10000
+#define MAX_OBJ_TEXCOORDS 10000
+#define MAX_OBJ_NORMALS 10000
+#define MAX_OBJ_FACES 10000
+
+	typedef struct {
+		vec3_t v;
+	} obj_vertex_t;
+
+	typedef struct {
+		vec2_t t;
+	} obj_texcoord_t;
+
+	typedef struct {
+		vec3_t n;
+	} obj_normal_t;
+
+	typedef struct {
+		int v, t, n;
+	} obj_facevert_t;
+
+	typedef struct {
+		obj_facevert_t verts[3];
+	} obj_face_t;
+
+	obj_vertex_t vertices[MAX_OBJ_VERTS];
+	obj_texcoord_t texcoords[MAX_OBJ_TEXCOORDS];
+	obj_normal_t normals[MAX_OBJ_NORMALS];
+	obj_face_t faces[MAX_OBJ_FACES];
+
+	int num_vertices = 0;
+	int num_texcoords = 0;
+	int num_normals = 0;
+	int num_faces = 0;
+
+	char *data = (char *)buffer;
+	char *end = data + modfilelen;
+	char line[256];
+	int line_pos = 0;
+
+	while (data < end) {
+		char c = *data++;
+		if (c == '\n' || c == '\r') {
+			if (line_pos > 0) {
+				line[line_pos] = 0;
+				// parse line
+				if (line[0] == 'v' && line[1] == ' ' && line[2] != 't' && line[2] != 'n') {
+					// vertex
+					vec3_t v;
+					if (sscanf(line + 2, "%f %f %f", &v[0], &v[1], &v[2]) == 3) {
+						if (num_vertices < MAX_OBJ_VERTS) {
+							VectorCopy(v, vertices[num_vertices].v);
+							num_vertices++;
+						}
+					}
+				} else if (line[0] == 'v' && line[1] == 't') {
+					// texcoord
+					vec2_t t;
+					if (sscanf(line + 3, "%f %f", &t[0], &t[1]) == 2) {
+						if (num_texcoords < MAX_OBJ_TEXCOORDS) {
+							texcoords[num_texcoords].t[0] = t[0];
+							texcoords[num_texcoords].t[1] = t[1];
+							num_texcoords++;
+						}
+					}
+				} else if (line[0] == 'v' && line[1] == 'n') {
+					// normal
+					vec3_t n;
+					if (sscanf(line + 3, "%f %f %f", &n[0], &n[1], &n[2]) == 3) {
+						if (num_normals < MAX_OBJ_NORMALS) {
+							VectorCopy(n, normals[num_normals].n);
+							num_normals++;
+						}
+					}
+				} else if (line[0] == 'f' && line[1] == ' ') {
+					// face
+					obj_face_t face;
+					int num_verts = 0;
+					char *p = line + 2;
+					while (*p && num_verts < 3) {
+						int v = 0, t = 0, n = 0;
+						if (sscanf(p, "%d/%d/%d", &v, &t, &n) >= 1) {
+							if (v > 0) v--; // 1-based to 0-based
+							if (t > 0) t--;
+							if (n > 0) n--;
+							face.verts[num_verts].v = v;
+							face.verts[num_verts].t = t;
+							face.verts[num_verts].n = n;
+							num_verts++;
+							// skip to next
+							while (*p && *p != ' ') p++;
+							if (*p == ' ') p++;
+						} else {
+							break;
+						}
+					}
+					if (num_verts == 3 && num_faces < MAX_OBJ_FACES) {
+						faces[num_faces] = face;
+						num_faces++;
+					}
+				}
+				line_pos = 0;
+			}
+		} else if (line_pos < sizeof(line) - 1) {
+			line[line_pos++] = c;
+		}
+	}
+
+	if (num_vertices == 0 || num_faces == 0) {
+		Com_Printf("%s: %s has no vertices or faces\n", __func__, mod_name);
+		return NULL;
+	}
+
+	dmdx_t dmdxheader;
+	void *extradata;
+
+	memset(&dmdxheader, 0, sizeof(dmdxheader));
+	dmdxheader.skinwidth = 0;
+	dmdxheader.skinheight = 0;
+	dmdxheader.framesize = sizeof(daliasxframe_t) + (num_vertices - 1) * sizeof(dxtrivertx_t);
+	dmdxheader.num_skins = 0;
+	dmdxheader.num_xyz = num_vertices;
+	dmdxheader.num_st = num_vertices;
+	dmdxheader.num_tris = num_faces;
+	dmdxheader.num_glcmds = 0; // will generate
+	dmdxheader.num_frames = 1;
+	dmdxheader.num_meshes = 1;
+	dmdxheader.num_imgbit = 0;
+	dmdxheader.num_animgroup = 1;
+
+	dmdx_t *pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
+	if (!pheader) {
+		return NULL;
+	}
+
+	// st verts
+	dstvert_t *st = (dstvert_t *)((byte *)pheader + pheader->ofs_st);
+	int i;
+	for (i = 0; i < num_vertices; i++) {
+		if (i < num_texcoords) {
+			st[i].s = (int)(texcoords[i].t[0] * dmdxheader.skinwidth);
+			st[i].t = (int)(texcoords[i].t[1] * dmdxheader.skinheight);
+		} else {
+			st[i].s = st[i].t = 0;
+		}
+	}
+
+	// triangles
+	dtriangle_t *tris = (dtriangle_t *)((byte *)pheader + pheader->ofs_tris);
+	for (i = 0; i < num_faces; i++) {
+		int j;
+		for (j = 0; j < 3; j++) {
+			tris[i].index_xyz[j] = faces[i].verts[j].v;
+			tris[i].index_st[j] = faces[i].verts[j].v; // assume same
+		}
+	}
+
+	// frames
+	vec3_t mins, maxs;
+	VectorSet(mins, 999999, 999999, 999999);
+	VectorSet(maxs, -999999, -999999, -999999);
+	for (i = 0; i < num_vertices; i++) {
+		AddPointToBounds(vertices[i].v, mins, maxs);
+	}
+
+	daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader + pheader->ofs_frames);
+	Q_strlcpy(frame->name, "frame1", sizeof(frame->name));
+	int j;
+	for (j = 0; j < 3; j++) {
+		frame->scale[j] = (maxs[j] - mins[j]) / 65535.0f;
+		if (frame->scale[j] == 0) frame->scale[j] = 1.0f / 65535.0f;
+		frame->translate[j] = mins[j];
+	}
+
+	for (i = 0; i < num_vertices; i++) {
+		dxtrivertx_t *vert = &frame->verts[i];
+		for (j = 0; j < 3; j++) {
+			float f = (vertices[i].v[j] - frame->translate[j]) / frame->scale[j];
+			vert->v[j] = (unsigned short)Q_clamp(f, 0, 65535);
+		}
+		// normals
+		if (i < num_normals) {
+			vec3_t n;
+			VectorCopy(normals[i].n, n);
+			VectorNormalize(n);
+			vert->normal[0] = (signed char)(n[0] * 127);
+			vert->normal[1] = (signed char)(n[1] * 127);
+			vert->normal[2] = (signed char)(n[2] * 127);
+		} else {
+			vert->normal[0] = 0;
+			vert->normal[1] = 0;
+			vert->normal[2] = 127; // up
+		}
+	}
+
+	// meshes
+	dmdxmesh_t *mesh = (dmdxmesh_t *)((byte *)pheader + pheader->ofs_meshes);
+	mesh[0].ofs_tris = 0;
+	mesh[0].num_tris = num_faces;
+	mesh[0].ofs_glcmds = 0;
+	mesh[0].num_glcmds = 0;
+
+	// animation groups
+	Mod_LoadAnimGroupList(pheader, true);
+
+	// generate glcmds
+	Mod_LoadCmdGenerate(pheader);
+
+	// fix images
+	Mod_LoadFixImages(mod_name, pheader, false);
+
+	return extradata;
+}
+
+/*
 =================
 Mod_LoadModelFile
 =================
@@ -1854,6 +2076,10 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 
 		case DKMHEADER:
 			extradata = Mod_LoadModel_DKM(mod_name, buffer, modfilelen);
+			break;
+
+		case WAVEFORMHEADER:
+			extradata = Mod_LoadModel_Waveform(mod_name, buffer, modfilelen);
 			break;
 
 		case RAVENFMHEADER:
