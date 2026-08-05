@@ -197,7 +197,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	const dmdx_vertex_t *mesh_verteces;
 	int num_joints, num_verts, num_weights, i;
 
-	YQ2_VLA(float, bonematrix, pheader->num_joints * 12);
+	YQ2_VLA(dmdx_joint_t, bonematrix, pheader->num_joints);
 
 	poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
 	        + frame * pheader->num_joints;
@@ -212,17 +212,20 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	/* lerp/slerp each bone and build its world-space matrix */
 	for (i = 0; i < num_joints; i++)
 	{
-		vec3_t lpos;
 		vec4_t lorient;
-		float (*m)[4] = (float (*)[4])(bonematrix + i * 12);
+		float m[3][4];
+		vec3_t lpos;
 		int n;
 
 		for (n = 0; n < 3; n++)
 		{
 			lpos[n] = old_poses[i].pos[n] * backlerp + poses[i].pos[n] * frontlerp;
 		}
+
 		BoneSlerp(old_poses[i].orient, poses[i].orient, frontlerp, lorient);
 		BonePoseToMatrix(lpos, lorient, m);
+		memcpy(bonematrix[i].pos, lpos, sizeof(vec3_t));
+		memcpy(bonematrix[i].orient, lorient, sizeof(quat_t));
 	}
 
 	/* skin each vertex */
@@ -239,21 +242,28 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 
 		for (k = 0; k < count; k++)
 		{
-			const dmdx_weight_t *inf = &weights[bind->start + k];
-			if (inf->joint < 0 || inf->joint >= num_joints)
+			const dmdx_weight_t *weight;
+			const dmdx_joint_t *joint;
+			float m[3][4];
+			int n;
+
+			weight = &weights[bind->start + k];
+
+			if (weight->joint < 0 || weight->joint >= num_joints)
 			{
 				break;
 			}
 
-			const vec4_t *m = (const vec4_t*)(bonematrix + inf->joint * 12);
-			int n;
+			joint = bonematrix + weight->joint;
+
+			BonePoseToMatrix(joint->pos, joint->orient, m);
 
 			for (n = 0; n < 3; n++)
 			{
-				result[n] += inf->bias * (
-					m[n][0] * inf->pos[0] +
-					m[n][1] * inf->pos[1] +
-					m[n][2] * inf->pos[2] +
+				result[n] += weight->bias * (
+					m[n][0] * weight->pos[0] +
+					m[n][1] * weight->pos[1] +
+					m[n][2] * weight->pos[2] +
 					m[n][3]);
 			}
 		}

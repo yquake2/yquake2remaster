@@ -236,7 +236,7 @@ BuildFrameSkeleton(const md5_joint_info_t *jointInfos,
 			vec3_t rpos; /* Rotated position */
 
 			/* Add positions */
-			Quat_rotatePoint (parentJoint->orient, animatedPos, rpos);
+			Quat_rotatePoint(parentJoint->orient, animatedPos, rpos);
 			thisJoint->pos[0] = rpos[0] + parentJoint->pos[0];
 			thisJoint->pos[1] = rpos[1] + parentJoint->pos[1];
 			thisJoint->pos[2] = rpos[2] + parentJoint->pos[2];
@@ -1277,9 +1277,7 @@ PrepareMeshVertex(const md5_mesh_t *mesh, const dmdx_joint_t *skeleton,
 			finalVertex[2] += (joint->pos[2] + wv[2]) * weight->bias;
 		}
 
-		frame->vertexArray[i + vert_index].xyz[0] = finalVertex[0];
-		frame->vertexArray[i + vert_index].xyz[1] = finalVertex[1];
-		frame->vertexArray[i + vert_index].xyz[2] = finalVertex[2];
+		VectorCopy(finalVertex, frame->vertexArray[i + vert_index].xyz);
 	}
 }
 
