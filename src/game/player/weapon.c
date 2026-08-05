@@ -1862,6 +1862,7 @@ Weapon_DynamicWeapon(edict_t *ent)
 		return;
 	}
 
+	/* Infinity mod */
 	if (!strcmp(ent->client->pers.weapon->classname, "weapon_pistol"))
 	{
 		static const int pause_frames[] = {13, 40, 0};
@@ -1908,6 +1909,40 @@ Weapon_DynamicWeapon(edict_t *ent)
 		Weapon_Generic(ent, 7, 48, 79, 84, pause_frames,
 				fire_frames, Weapon_Blaster_Fire);
 	}
+	/* Oblivion mod */
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_deatomizer"))
+	{
+		static const int pause_frames[] = {32, 0};
+		static const int fire_frames[] = {12, 0};
+
+		Weapon_Generic(ent, 11, 21, 43, 49, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_hellfury"))
+	{
+		static const int pause_frames[] = {28, 31, 34, 38, 0};
+		static const int fire_frames[] = {15, 16, 17, 18, 0};
+
+		Weapon_Generic(ent, 14, 27, 40, 48, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_plasma_pistol"))
+	{
+		static const int pause_frames[] = {20, 32, 0};
+		static const int fire_frames[] = {7, 0};
+
+		Weapon_Generic(ent, 6, 11, 32, 40, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_plasma_rifle"))
+	{
+		static const int pause_frames[] = {11, 18, 24, 0};
+		static const int fire_frames[] = {9, 0};
+
+		Weapon_Generic(ent, 7, 10, 24, 32, pause_frames,
+				fire_frames, Weapon_Blaster_Fire);
+	}
+	/* Some other mod */
 	else
 	{
 		const dmdxframegroup_t *frames;

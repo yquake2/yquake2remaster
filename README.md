@@ -384,6 +384,7 @@ Checked with:
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
 * [ ] Oblivion: Add support of `weapon_deatomizer`,
 * [ ] Oblivion: Add support of `weapon_hellfury`,
+* [ ] Oblivion: Add support of `weapon_plasma_pistol`,
 * [ ] Oblivion: Add support of `weapon_plasma_rifle`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Dynamic count of entities on client,

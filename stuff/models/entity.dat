@@ -352,10 +352,10 @@ weapon_pistol|models/weapons/g_pistol/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-
 weapon_rifle|models/weapons/g_rifle/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|M26 Annihilator|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 
 // Oblivion
-ammo_detpack|models/items/ammo/detpack/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Detpack ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-ammo_dod|models/weapons/g_dod/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dod ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-ammo_mines|models/items/ammo/mines/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mines gun ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-ammo_rifleplasma|models/items/plasmapack/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rifleplasma ammo|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+ammo_detpack|models/items/ammo/detpack/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Detonation Pack|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+ammo_dod|models/weapons/g_dod/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|DOD|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+ammo_mines|models/items/ammo/mines/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Mines|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+ammo_rifleplasma|models/items/plasmapack/tris.md2|1.0|1.0|1.0|general|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rifle Plasma|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 func_rotate_train||1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Rotate trains are like standard trains but can rotate as well.|0.0|0.5|0.8|0|0|0|0|0|0|0|none|0
 info_teleporter_dest||1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|info teleporter dest|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 misc_camera||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Cutscene camera type thing.|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
@@ -370,9 +370,11 @@ target_railgun||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|
 target_rocket||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Fires a rocket in the set direction|1.0|0.0|0.0|0|0|0|0|0|0|0|none|0
 trigger_misc_camera||1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Variable sized repeatable trigger for activating a misc_camera.|0.5|0.5|0.5|0|0|0|0|0|0|0|none|0
 weapon_deatomizer|models/weapons/g_deatom/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Deatomizer|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-weapon_hellfury|models/weapons/g_hellfury/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|hellfury|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-weapon_plasma_rifle|models/weapons/g_plasma/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|plasma_rifle|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-weapon_rtdu|models/objects/rtdu/rtdu.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|rtdu|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_hellfury|models/weapons/g_hellfury/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|HellFury|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_plasma_pistol|models/weapons/g_blast/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Pistol|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_plasma_rifle|models/weapons/g_plasma/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Rifle|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_rtdu|models/objects/rtdu/rtdu.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|
+RTDU|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 
 // Kingpin
 ai_boundary||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Character will abort pursuing player when touching this brush. Will take cover until the player is out of view, then return to guarding position (if character has been assigned one).|.5|.5|0|0|0|0|0|0|0|0|none|0
