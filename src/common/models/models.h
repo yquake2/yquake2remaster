@@ -24,8 +24,8 @@
  * =======================================================================
  */
 
-#ifndef SRC_CLIENT_REFRESH_FILES_MODELS_H_
-#define SRC_CLIENT_REFRESH_FILES_MODELS_H_
+#ifndef SRC_COMMON_MODELS_MODELS_H_
+#define SRC_COMMON_MODELS_MODELS_H_
 
 #include "../header/common.h"
 #include "../header/cmodel.h"
@@ -94,4 +94,4 @@ void *Mod_LoadSprite_SP2(const char *mod_name, const void *buffer,
 void *Mod_LoadSprite_SPR(const char *mod_name, const void *buffer,
 	int modfilelen);
 
-#endif /* SRC_CLIENT_REFRESH_FILES_MODELS_H_ */
+#endif /* SRC_COMMON_MODELS_MODELS_H_ */

@@ -25,6 +25,7 @@
  */
 
 #include "../ref_shared.h"
+#include "../../../common/models/mesh.h"
 
 static vec4_t *lerpbuff = NULL;
 static int lerpbuffnum = 0;
@@ -165,29 +166,6 @@ BoneSlerp(const vec4_t qa, const vec4_t qb, float t, vec4_t out)
 	}
 }
 
-/* build a 3x4 transform matrix from position and unit quaternion */
-static void
-BonePoseToMatrix(const vec3_t pos, const vec4_t q, float m[3][4])
-{
-	float x2 = q[0] + q[0], y2 = q[1] + q[1], z2 = q[2] + q[2];
-	float xx = q[0] * x2, yy = q[1] * y2, zz = q[2] * z2;
-	float xy = q[0] * y2, xz = q[0] * z2, yz = q[1] * z2;
-	float wx = q[3] * x2, wy = q[3] * y2, wz = q[3] * z2;
-
-	m[0][0] = 1.0f - (yy + zz);
-	m[0][1] = xy - wz;
-	m[0][2] = xz + wy;
-	m[0][3] = pos[0];
-	m[1][0] = xy + wz;
-	m[1][1] = 1.0f - (xx + zz);
-	m[1][2] = yz - wx;
-	m[1][3] = pos[1];
-	m[2][0] = xz - wy;
-	m[2][1] = yz + wx;
-	m[2][2] = 1.0f - (xx + yy);
-	m[2][3] = pos[2];
-}
-
 static void
 R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	float backlerp, float *lerp, const float move[3], const float *scale)
@@ -213,7 +191,6 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	for (i = 0; i < num_joints; i++)
 	{
 		vec4_t lorient;
-		float m[3][4];
 		vec3_t lpos;
 		int n;
 
@@ -223,7 +200,6 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 		}
 
 		BoneSlerp(old_poses[i].orient, poses[i].orient, frontlerp, lorient);
-		BonePoseToMatrix(lpos, lorient, m);
 		memcpy(bonematrix[i].pos, lpos, sizeof(vec3_t));
 		memcpy(bonematrix[i].orient, lorient, sizeof(quat_t));
 	}
@@ -244,8 +220,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 		{
 			const dmdx_weight_t *weight;
 			const dmdx_joint_t *joint;
-			float m[3][4];
-			int n;
+			vec3_t wv;
 
 			weight = &weights[bind->start + k];
 
@@ -256,16 +231,11 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 
 			joint = bonematrix + weight->joint;
 
-			BonePoseToMatrix(joint->pos, joint->orient, m);
-
-			for (n = 0; n < 3; n++)
-			{
-				result[n] += weight->bias * (
-					m[n][0] * weight->pos[0] +
-					m[n][1] * weight->pos[1] +
-					m[n][2] * weight->pos[2] +
-					m[n][3]);
-			}
+			Quat_rotatePoint(joint->orient, weight->pos, wv);
+			/* The sum of all weight->bias should be 1.0 */
+			result[0] += (joint->pos[0] + wv[0]) * weight->bias;
+			result[1] += (joint->pos[1] + wv[1]) * weight->bias;
+			result[2] += (joint->pos[2] + wv[2]) * weight->bias;
 		}
 
 		lerp[0] = scale[0] * (result[0] + move[0]);

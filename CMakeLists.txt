@@ -542,6 +542,7 @@ set(Client-Source
 	${COMMON_SRC_DIR}/models/models_mda.c
 	${COMMON_SRC_DIR}/models/models_mdl.c
 	${COMMON_SRC_DIR}/models/models_mdr.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/models/models_utils.c
 	${COMMON_SRC_DIR}/models/sprites.c
@@ -640,6 +641,7 @@ set(Server-Source
 	${COMMON_SRC_DIR}/models/models_mda.c
 	${COMMON_SRC_DIR}/models/models_mdl.c
 	${COMMON_SRC_DIR}/models/models_mdr.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/models/models_sdef.c
 	${COMMON_SRC_DIR}/models/models_utils.c
 	${COMMON_SRC_DIR}/models/sprites.c
@@ -717,6 +719,7 @@ set(GL1-Source
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -766,6 +769,7 @@ set(GL3-Source
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -820,6 +824,7 @@ set(GL4-Source
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -872,6 +877,7 @@ set(SOFT-Source
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
@@ -918,6 +924,7 @@ set(VK-Source
 	${COMMON_SRC_DIR}/shared/utils.c
 	${COMMON_SRC_DIR}/shared/shared.c
 	${COMMON_SRC_DIR}/cmodels.c
+	${COMMON_SRC_DIR}/models/mesh.c
 	${COMMON_SRC_DIR}/md4.c
 	)
 
