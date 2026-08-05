@@ -511,6 +511,13 @@ FirstPersonWeaponModel(const gitem_t *weapon)
 		return gi.modelindex(view_model);
 	}
 
+	if (!weapon->view_model)
+	{
+		gi.dprintf("%s: No view model for %s\n",
+			__func__, weapon->world_model);
+		return gi.modelindex("models/weapons/v_blast/tris.md2");
+	}
+
 	return gi.modelindex(weapon->view_model);
 }
 

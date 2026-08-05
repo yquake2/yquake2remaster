@@ -189,7 +189,7 @@ typedef unsigned char byte;
 #define MAX_MODELS 512              /* these are sent over the net as bytes */
 #define MAX_SOUNDS 512              /* so they cannot be blindly increased */
 #define MAX_IMAGES 256
-#define MAX_ITEMS 256
+#define MAX_ITEMS 512
 #define MAX_GENERAL (MAX_CLIENTS * 2)       /* general config strings */
 #define MAX_SHADOW_LIGHTS 256
 #define CUSTOM_PLAYER_MODEL (MAX_MODELS - 1)
