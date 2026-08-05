@@ -195,7 +195,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	const dmdx_baseframe_joint_t *poses, *old_poses;
 	const dmdx_weight_t *weights;
 	const dmdx_vertex_t *mesh_verteces;
-	int num_joints, num_verts, i;
+	int num_joints, num_verts, num_weights, i;
 
 	YQ2_VLA(float, bonematrix, pheader->num_joints * 12);
 
@@ -206,6 +206,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	weights = (const dmdx_weight_t *)((const byte *)pheader + pheader->ofs_weights);
 	mesh_verteces = (const dmdx_vertex_t *)((const byte *)pheader + pheader->ofs_mesh_verteces);
 	num_joints = pheader->num_joints;
+	num_weights = pheader->num_weights;
 	num_verts = pheader->num_xyz;
 
 	/* lerp/slerp each bone and build its world-space matrix */
@@ -229,11 +230,21 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	{
 		const dmdx_vertex_t *bind = &mesh_verteces[i];
 		vec3_t result = { 0.0f, 0.0f, 0.0f };
-		int k;
+		int k, count = bind->count;
 
-		for (k = 0; k < bind->count; k++)
+		if (bind->start < 0 || count < 0 || bind->start > num_weights - count)
+		{
+			count = 0;
+		}
+
+		for (k = 0; k < count; k++)
 		{
 			const dmdx_weight_t *inf = &weights[bind->start + k];
+			if (inf->joint < 0 || inf->joint >= num_joints)
+			{
+				break;
+			}
+
 			const vec4_t *m = (const vec4_t*)(bonematrix + inf->joint * 12);
 			int n;
 
