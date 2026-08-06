@@ -28,6 +28,60 @@
  */
 
 #include "models.h"
+#include "mesh.h"
+
+#include <stddef.h>
+
+/* quaternion helpers for rotating vectors */
+static void
+QuatMul(const vec4_t a, const vec4_t b, vec4_t out)
+{
+	/* out = a * b */
+	vec3_t av = { a[0], a[1], a[2] };
+	vec3_t bv = { b[0], b[1], b[2] };
+	float aw = a[3];
+	float bw = b[3];
+	vec3_t crossv;
+
+	CrossProduct(av, bv, crossv);
+
+	out[3] = aw * bw - (av[0]*bv[0] + av[1]*bv[1] + av[2]*bv[2]);
+	out[0] = aw * bv[0] + bw * av[0] + crossv[0];
+	out[1] = aw * bv[1] + bw * av[1] + crossv[1];
+	out[2] = aw * bv[2] + bw * av[2] + crossv[2];
+}
+
+static void
+QuatRotateConj(const vec4_t q, const vec3_t v, vec3_t out)
+{
+	/* rotate vector v by inverse of quaternion q (i.e. q_conj * v * q) */
+	vec4_t vq = { v[0], v[1], v[2], 0.0f };
+	vec4_t qconj = { -q[0], -q[1], -q[2], q[3] };
+	vec4_t tmp, res;
+
+	QuatMul(qconj, vq, tmp);
+	QuatMul(tmp, (vec4_t){ q[0], q[1], q[2], q[3] }, res);
+
+	out[0] = res[0];
+	out[1] = res[1];
+	out[2] = res[2];
+}
+
+static void
+QuatRotate(const vec4_t q, const vec3_t v, vec3_t out)
+{
+	/* rotate vector v by quaternion q: out = q * v * q_conj */
+	vec4_t vq = { v[0], v[1], v[2], 0.0f };
+	vec4_t qconj = { -q[0], -q[1], -q[2], q[3] };
+	vec4_t tmp, res;
+
+	QuatMul(q, vq, tmp);
+	QuatMul(tmp, qconj, res);
+
+	out[0] = res[0];
+	out[1] = res[1];
+	out[2] = res[2];
+}
 
 /*
 =================
@@ -533,7 +587,7 @@ Mod_LoadFrames_DKM2(dmdx_t *pheader, const byte *src, size_t inframesize, vec3_t
 		outverts = poutframe->verts;
 
 		/* dkm vert version 2 has unalligned by int size struct */
-		for(j = 0; j < pheader->num_xyz; j++)
+		for (j = 0; j < pheader->num_xyz; j++)
 		{
 			Mod_LoadFrames_VertDKM2(outverts + j, *((int *)inverts));
 			inverts += sizeof(int);
@@ -571,7 +625,7 @@ Mod_LoadFixNormals(dmdx_t *pheader)
 			+ pheader->ofs_frames + i * outframesize);
 		outverts = poutframe->verts;
 
-		for(t = 0; t < pheader->num_tris; t ++)
+		for (t = 0; t < pheader->num_tris; t ++)
 		{
 			vec3_t v[3], d1, d2, norm;
 			int j;
@@ -615,7 +669,7 @@ Mod_LoadFixNormals(dmdx_t *pheader)
 		}
 
 		/* save normals */
-		for(t = 0; t < pheader->num_xyz; t++)
+		for (t = 0; t < pheader->num_xyz; t++)
 		{
 			int j;
 
@@ -1717,6 +1771,89 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		Com_DPrintf("%s: %s in skeleton has 0x%02x type and %d bones\n",
 			__func__, mod_name, skeleton_type, skeleton_joints_num);
 		dmdxheader.num_joints = skeleton_joints_num;
+
+		typedef struct M_SkeletalCluster_s
+		{
+			int numVerticies;
+			int *verticies;
+		} M_SkeletalCluster_t;
+
+		typedef struct M_SkeletalJoint_s
+		{
+			vec3_t origin;
+			vec3_t direction;
+			vec3_t up;
+		} M_SkeletalJoint_t;
+
+		typedef struct ModelSkeleton_s
+		{
+			M_SkeletalJoint_t rootJoint[8];
+		} ModelSkeleton_t;
+
+		int		i, j, k;
+		int		*basei;
+		int		runningTotalVertices = 0;
+		int		indexBase = 0;
+		float	*basef;
+		M_SkeletalCluster_t *m_skeletalClusters;
+		ModelSkeleton_t* m_skeletons;
+
+		basei = (int *)src;
+
+		skeleton_type = *basei;
+
+		skeleton_joints_num = *(++basei);
+
+		m_skeletalClusters = malloc(sizeof(M_SkeletalCluster_t) * skeleton_joints_num);
+
+		for (i = skeleton_joints_num - 1; i >= 0; --i)
+		{
+			runningTotalVertices += *(++basei);
+			m_skeletalClusters[i].numVerticies = runningTotalVertices;
+			m_skeletalClusters[i].verticies = (int*)malloc(m_skeletalClusters[i].numVerticies * sizeof(int));
+		}
+
+		for (j = skeleton_joints_num - 1; j >= 0; --j)
+		{
+			for (i = indexBase; i < m_skeletalClusters[j].numVerticies; ++i)
+			{
+				++basei;
+
+				for (k = 0; k <= j; ++ k)
+				{
+					m_skeletalClusters[k].verticies[i] = *basei;
+				}
+			}
+
+			indexBase = m_skeletalClusters[j].numVerticies;
+		}
+
+		if (*(++basei))
+		{
+			basef = (float *)++basei;
+
+			m_skeletons = (ModelSkeleton_t*) malloc(dmdxheader.num_frames * sizeof(ModelSkeleton_t));
+
+			for (i = 0; i < dmdxheader.num_frames; ++i)
+			{
+				for (j = 0; j < skeleton_joints_num; ++j)
+				{
+					m_skeletons[i].rootJoint[j].origin[0] = *(basef++);
+					m_skeletons[i].rootJoint[j].origin[1] = *(basef++);
+					m_skeletons[i].rootJoint[j].origin[2] = *(basef++);
+
+					m_skeletons[i].rootJoint[j].direction[0] = *(basef++);
+					m_skeletons[i].rootJoint[j].direction[1] = *(basef++);
+					m_skeletons[i].rootJoint[j].direction[2] = *(basef++);
+
+					m_skeletons[i].rootJoint[j].up[0] = *(basef++);
+					m_skeletons[i].rootJoint[j].up[1] = *(basef++);
+					m_skeletons[i].rootJoint[j].up[2] = *(basef++);
+				}
+			}
+
+			printf("used %d vs %d\n", (char*)basef - src, size);
+		}
 	}
 
 	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
@@ -1741,6 +1878,373 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 	if (src && size)
 	{
 		/* TODO: reload skeleton */
+#if 0
+	/* If we saw a skeleton block, convert and store boneposes in dmdx format
+	   (matches how MD5 loader fills pheader->ofs_baseframe_joints). */
+	if (skeleton_block && pheader && pheader->num_joints > 0 && pheader->num_frames > 0 && pheader->ofs_baseframe_joints)
+	{
+		const byte *p = skeleton_block;
+		const byte *end = skeleton_block + skeleton_block_size;
+		int framesWritten = 0;
+		int f, b, k;
+		int joint_count = 0;
+
+		if (p + 2 * sizeof(int) <= end)
+		{
+			int tmp;
+			int skeleton_type;
+
+			/* first int = skeleton_type, second = joint count */
+			memcpy(&tmp, p, sizeof(tmp));
+			skeleton_type = LittleLong(tmp);
+			p += sizeof(int);
+
+			memcpy(&tmp, p, sizeof(tmp));
+			joint_count = LittleLong(tmp);
+			if (joint_count != pheader->num_joints || joint_count < 0)
+			{
+				printf("%s: Invalid %s joint count %d (header: num_bones=%d, skeleton_type=%d)\n",
+					__func__, "skeleton", joint_count, pheader->num_joints, skeleton_type);
+				goto flex_skel_done;
+			}
+			p += sizeof(int);
+
+			/* First pass: count weights per-vertex */
+			{
+				const byte *cluster_start = p;
+				int *vert_counts = NULL;
+				int total_weights_check = 0;
+				int vi;
+
+				vert_counts = (int *)calloc(pheader->num_xyz, sizeof(int));
+				YQ2_COM_CHECK_OOM(vert_counts, "calloc()", pheader->num_xyz * sizeof(int));
+				if (!vert_counts)
+					goto flex_skel_done;
+
+				printf("%s: Flex skeleton has %d bones, %d vertices\n",
+					__func__, joint_count, pheader->num_xyz);
+				for (b = 0; b < joint_count; b++)
+				{
+					int cluster_verts;
+
+					if (p + sizeof(int) > end)
+					{
+						free(vert_counts);
+						goto flex_skel_done;
+					}
+
+					memcpy(&tmp, p, sizeof(tmp));
+					cluster_verts = LittleLong(tmp);
+					p += sizeof(int);
+
+					if (cluster_verts < 0 || p + ((size_t)cluster_verts * sizeof(int)) > end)
+					{
+						free(vert_counts);
+						goto flex_skel_done;
+					}
+
+					for (vi = 0; vi < cluster_verts; vi++)
+					{
+						int idx;
+						memcpy(&tmp, p, sizeof(tmp));
+						idx = LittleLong(tmp);
+						p += sizeof(int);
+
+						if (idx < 0 || idx >= pheader->num_xyz)
+						{
+							free(vert_counts);
+							goto flex_skel_done;
+						}
+
+						vert_counts[idx]++;
+						total_weights_check++;
+					}
+				}
+
+				/* Verify total weights matches header (if available) */
+				if (pheader->num_weights != total_weights_check)
+				{
+					printf("%s: Flex total weights %d != header.num_weights %d\n",
+						__func__, total_weights_check, pheader->num_weights);
+					/* proceed using counted total */
+				}
+				printf("%s: Flex skeleton has %d bones, %d total weights\n",
+					__func__, joint_count, total_weights_check);
+
+				/* build bindings start offsets, but only if counts match header to avoid overflow */
+				{
+					dmdx_vertex_t *bindings = (dmdx_vertex_t *)((byte *)pheader + pheader->ofs_mesh_verteces);
+
+					if (total_weights_check <= 0 || (pheader->num_weights != 0 && pheader->num_weights != total_weights_check))
+					{
+						/* mismatch or zero: do not write weights to avoid corrupting hunk
+						   print raw cluster header for debugging */
+						Com_Printf("%s: skeleton influence count mismatch or zero: counted=%d header=%d - skipping influence write\n",
+							__func__, total_weights_check, pheader->num_weights);
+
+						/* zero bindings */
+						for (vi = 0; vi < pheader->num_xyz; vi++)
+						{
+							bindings[vi].start = 0;
+							bindings[vi].count = 0;
+						}
+
+						/* dump first 32 ints of cluster_start for inspection */
+						{
+							int dump_n = 32;
+							int di;
+							const int *ints = (const int *)cluster_start;
+							int available = ((end - cluster_start) / sizeof(int));
+							if (dump_n > available) dump_n = available;
+							Com_Printf("%s: skeleton raw ints (first %d):", __func__, dump_n);
+							for (di = 0; di < dump_n; di++)
+							{
+								Com_Printf(" %d", LittleLong(ints[di]));
+							}
+							Com_Printf("\n");
+						}
+					}
+					else
+					{
+						int running = 0;
+						for (vi = 0; vi < pheader->num_xyz; vi++)
+						{
+							bindings[vi].start = running;
+							bindings[vi].count = vert_counts[vi];
+							running += vert_counts[vi];
+						}
+
+						/* second pass: fill weights */
+						{
+							dmdx_weight_t *weights = (dmdx_weight_t *)((byte *)pheader + pheader->ofs_weights);
+							int *written = (int *)calloc(pheader->num_xyz, sizeof(int));
+							const byte *pp = cluster_start;
+
+							if (!written)
+							{
+								free(vert_counts);
+								goto flex_skel_done;
+							}
+
+							for (b = 0; b < joint_count; b++)
+							{
+								int cluster_verts;
+
+								memcpy(&tmp, pp, sizeof(tmp));
+								cluster_verts = LittleLong(tmp);
+								pp += sizeof(int);
+
+								for (vi = 0; vi < cluster_verts; vi++)
+								{
+									int idx, dst;
+									memcpy(&tmp, pp, sizeof(tmp));
+									idx = LittleLong(tmp);
+									pp += sizeof(int);
+
+									dst = bindings[idx].start + written[idx];
+									written[idx]++;
+
+									weights[dst].joint = b;
+									weights[dst].bias = 1.0f;
+									weights[dst].pos[0] = 0.0f;
+									weights[dst].pos[1] = 0.0f;
+									weights[dst].pos[2] = 0.0f;
+								}
+							}
+
+							free(written);
+						}
+					}
+				}
+
+				free(vert_counts);
+
+				/* p already advanced past clusters in the first pass; continue */
+			}
+		}
+
+		if (p + sizeof(int) <= end)
+		{
+			framesWritten = LittleLong(*(const int *)p);
+			p += sizeof(int);
+		}
+
+		if (framesWritten)
+		{
+			/* expected size: pheader->num_frames * joint_count * (origin+dir+up) * sizeof(float)
+			   where each of origin/dir/up is 3 floats => 9 floats per joint per frame */
+			const ptrdiff_t needed = (ptrdiff_t)pheader->num_frames * joint_count * 9 * sizeof(float);
+			ptrdiff_t remaining = end - p;
+			if (remaining < needed)
+			{
+				Com_Printf("%s: skeleton block too small: block_size=%d, offset=%td, remaining=%td, framesWritten=%d, joint_count=%d, pheader->num_frames=%d, pheader->num_joints=%d, expected_bytes=%td\n",
+					__func__, skeleton_block_size, (p - skeleton_block), remaining, framesWritten, joint_count, pheader->num_frames, pheader->num_joints, needed);
+				goto flex_skel_done;
+			}
+
+			printf("%s: skeleton block has %d frames, %d bones, %td bytes of data\n",
+				__func__, framesWritten, joint_count, needed);
+			dmdx_baseframe_joint_t *boneposes = (dmdx_baseframe_joint_t *)((byte *)pheader + pheader->ofs_baseframe_joints);
+
+			for (f = 0; f < pheader->num_frames; f++)
+			{
+				daliasxframe_t *frame = (daliasxframe_t *)((byte *)pheader + pheader->ofs_frames + f * pheader->framesize);
+
+				for (b = 0; b < pheader->num_joints; b++)
+				{
+					vec3_t pos, dir, up;
+					float tmpf;
+
+					/* read origin (3 floats) */
+					for (k = 0; k < 3; k++)
+					{
+						if (p + sizeof(float) > end) goto flex_skel_done;
+						memcpy(&tmpf, p, sizeof(float)); p += sizeof(float);
+						pos[k] = tmpf * frame->scale[k] + frame->translate[k];
+					}
+
+					/* populate bones bind pose from first frame (if bones area exists) */
+					if (pheader->num_joints > 0 && pheader->ofs_joints && pheader->ofs_baseframe_joints)
+					{
+						dmdx_joint_t *bones = (dmdx_joint_t *)((byte *)pheader + pheader->ofs_joints);
+						dmdx_baseframe_joint_t *boneposes = (dmdx_baseframe_joint_t *)((byte *)pheader + pheader->ofs_baseframe_joints);
+						int bi;
+
+						for (bi = 0; bi < pheader->num_joints; bi++)
+						{
+							bones[bi].parent = -1;
+							VectorCopy(boneposes[bi].pos, bones[bi].pos);
+							bones[bi].orient[0] = boneposes[bi].orient[0];
+							bones[bi].orient[1] = boneposes[bi].orient[1];
+							bones[bi].orient[2] = boneposes[bi].orient[2];
+							bones[bi].orient[3] = boneposes[bi].orient[3];
+						}
+					}
+
+					/* compute accurate influence offsets from bind-frame vertex positions */
+					if (pheader->num_weights > 0 && pheader->ofs_weights && pheader->ofs_mesh_verteces)
+					{
+						dmdx_vertex_t *bindings = (dmdx_vertex_t *)((byte *)pheader + pheader->ofs_mesh_verteces);
+						dmdx_joint_t *bones = (dmdx_joint_t *)((byte *)pheader + pheader->ofs_joints);
+						dmdx_weight_t *weights = (dmdx_weight_t *)((byte *)pheader + pheader->ofs_weights);
+						daliasxframe_t *frame0 = (daliasxframe_t *)((byte *)pheader + pheader->ofs_frames);
+						int vi, iw;
+
+						for (vi = 0; vi < pheader->num_xyz; vi++)
+						{
+							vec3_t vworld;
+
+							for (iw = 0; iw < 3; iw++)
+							{
+								vworld[iw] = frame0->verts[vi].v[iw] * frame0->scale[iw] + frame0->translate[iw];
+							}
+
+							for (iw = bindings[vi].start; iw < bindings[vi].start + bindings[vi].count; iw++)
+							{
+								int joint = weights[iw].joint;
+								vec3_t local;
+								vec3_t diff;
+
+								VectorSubtract(vworld, bones[joint].pos, diff);
+								QuatRotateConj(bones[joint].orient, diff, local);
+
+								weights[iw].pos[0] = local[0];
+								weights[iw].pos[1] = local[1];
+								weights[iw].pos[2] = local[2];
+							}
+						}
+
+						/* DEBUG: dump expected vs actual for first few vertices */
+						{
+							int dump_n = Q_min(16, pheader->num_xyz);
+							int vj;
+							printf("%s: Dumping first %d vertices bind/influence info for model %s\n",
+								__func__, dump_n, mod_name);
+
+							for (vj = 0; vj < dump_n; vj++)
+							{
+								vec3_t vworld;
+								int a;
+
+								for (a = 0; a < 3; a++)
+									vworld[a] = frame0->verts[vj].v[a] * frame0->scale[a] + frame0->translate[a];
+
+								Com_Printf("  vert %d: world=(%.3f %.3f %.3f) bind_start=%d bind_count=%d\n",
+									vj, vworld[0], vworld[1], vworld[2], bindings[vj].start, bindings[vj].count);
+
+								for (a = bindings[vj].start; a < bindings[vj].start + bindings[vj].count; a++)
+								{
+									int bone = weights[a].joint;
+									vec3_t recon, offs_world;
+
+									/* reconstruct world pos from bone bind + rotated offset */
+									QuatRotate(bones[bone].orient, weights[a].pos, offs_world);
+									VectorAdd(bones[bone].pos, offs_world, recon);
+
+									printf("    inf %d: bone=%d weight=%.3f offset=(%.3f %.3f %.3f) recon=(%.3f %.3f %.3f) bone_bind=(%.3f %.3f %.3f)\n",
+										a - bindings[vj].start, bone, weights[a].bias,
+										weights[a].pos[0], weights[a].pos[1], weights[a].pos[2],
+										recon[0], recon[1], recon[2], bones[bone].pos[0], bones[bone].pos[1], bones[bone].pos[2]);
+								}
+							}
+						}
+					}
+
+					/* read direction (3 floats) */
+					for (k = 0; k < 3; k++)
+					{
+						if (p + sizeof(float) > end) goto flex_skel_done;
+						memcpy(&tmpf, p, sizeof(float)); p += sizeof(float);
+						dir[k] = tmpf * frame->scale[k] + frame->translate[k];
+					}
+
+					/* read up (3 floats) */
+					for (k = 0; k < 3; k++)
+					{
+						if (p + sizeof(float) > end) goto flex_skel_done;
+						memcpy(&tmpf, p, sizeof(float)); p += sizeof(float);
+						up[k] = tmpf * frame->scale[k] + frame->translate[k];
+					}
+
+					/* build orthonormal basis from dir and up */
+					vec3_t dn, un, right, tmpv;
+					VectorCopy(dir, dn); VectorNormalize(dn);
+					VectorCopy(up, un); VectorNormalize(un);
+					CrossProduct(dn, un, right);
+					if (VectorNormalize(right) == 0.0f)
+					{
+						right[0] = 1.0f; right[1] = 0.0f; right[2] = 0.0f;
+					}
+					CrossProduct(right, dn, tmpv);
+					VectorCopy(tmpv, un);
+					VectorNormalize(un);
+
+					/* create 3x4 matrix with columns (right, up, dir) */
+					float m[3][4];
+					for (k = 0; k < 3; k++)
+					{
+						m[k][0] = right[k];
+						m[k][1] = un[k];
+						m[k][2] = dn[k];
+						m[k][3] = 0.0f;
+					}
+
+					vec4_t quat;
+					Mod_Mat3x4ToQuat(m, quat);
+
+					dmdx_baseframe_joint_t *pose = &boneposes[f * pheader->num_joints + b];
+					VectorCopy(pos, pose->pos);
+					pose->orient[0] = quat[0];
+					pose->orient[1] = quat[1];
+					pose->orient[2] = quat[2];
+					pose->orient[3] = quat[3];
+				}
+			}
+		}
+
+	}
+flex_skel_done:
+#endif
 	}
 
 	/* Skipped blocks:
@@ -1752,6 +2256,59 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 
 	Mod_LoadFixImages(mod_name, pheader, false);
 
+#if 0
+	/* Additional diagnostics: report how many vertices got bindings and any unbound verts */
+	if (pheader && pheader->num_xyz > 0)
+	{
+		dmdx_vertex_t *bindings = (dmdx_vertex_t *)((byte *)pheader + pheader->ofs_mesh_verteces);
+		int vi;
+		int bound_vertices = 0;
+		int total_weights_counted = 0;
+		int unbound_list[32];
+		int unbound_n = 0;
+
+		for (vi = 0; vi < pheader->num_xyz; vi++)
+		{
+			total_weights_counted += bindings[vi].count;
+			if (bindings[vi].count > 0)
+			{
+				bound_vertices++;
+				/* sanity check binding ranges */
+				if (bindings[vi].start < 0 || bindings[vi].start + bindings[vi].count > pheader->num_weights)
+				{
+					Com_Printf("%s: binding out of range for vert %d: start=%d count=%d num_weights=%d\n",
+						__func__, vi, bindings[vi].start, bindings[vi].count, pheader->num_weights);
+				}
+			}
+			else
+			{
+				if (unbound_n < (int)(sizeof(unbound_list)/sizeof(unbound_list[0])))
+					unbound_list[unbound_n] = vi;
+				unbound_n++;
+			}
+		}
+
+		Com_Printf("%s: model %s loaded: bones=%d weights(header)=%d weights(counted)=%d verts=%d bound=%d unbound=%d ofs_weights=%d ofs_mesh_verteces=%d ofs_baseframe_joints=%d\n",
+			__func__, mod_name, pheader->num_joints, pheader->num_weights, total_weights_counted,
+			pheader->num_xyz, bound_vertices, pheader->num_xyz - bound_vertices,
+			pheader->ofs_weights, pheader->ofs_mesh_verteces, pheader->ofs_baseframe_joints);
+
+		if (unbound_n > 0)
+		{
+			int dump_n = Q_min(unbound_n, 20);
+			int j;
+			Com_Printf("%s: unbound vertex indices (first %d):", __func__, dump_n);
+			for (j = 0; j < dump_n; j++)
+			{
+				Com_Printf(" %d", unbound_list[j]);
+			}
+			Com_Printf("\n");
+		}
+	}
+
+	printf("%s: model %s loaded with %d bones and %d weights\n",
+		__func__, mod_name, pheader ? pheader->num_joints : 0, pheader ? pheader->num_weights : 0);
+#endif
 	return extradata;
 }
 
@@ -2022,3 +2579,4 @@ Mod_LoadModelFile(const char *mod_name, const void *buffer, int modfilelen)
 
 	return extradata;
 }
+
