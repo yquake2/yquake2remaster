@@ -515,7 +515,7 @@ FirstPersonWeaponModel(const gitem_t *weapon)
 	{
 		gi.dprintf("%s: No view model for %s\n",
 			__func__, weapon->world_model);
-		return gi.modelindex("models/weapons/v_blast/tris.md2");
+		return gi.modelindex(weapon->world_model);
 	}
 
 	return gi.modelindex(weapon->view_model);

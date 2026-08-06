@@ -371,7 +371,7 @@ target_rocket||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0
 trigger_misc_camera||1.0|1.0|1.0|general|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Variable sized repeatable trigger for activating a misc_camera.|0.5|0.5|0.5|0|0|0|0|0|0|0|none|0
 weapon_deatomizer|models/weapons/g_deatom/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Deatomizer|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_hellfury|models/weapons/g_hellfury/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|HellFury|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-weapon_plasma_pistol|models/weapons/g_blast/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Pistol|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_plasma_pistol|models/weapons/v_pistol/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Pistol|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_plasma_rifle|models/weapons/g_plasma/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Rifle|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_rtdu|models/objects/rtdu/rtdu.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|
 RTDU|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0

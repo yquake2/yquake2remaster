@@ -4675,7 +4675,8 @@ InitItems(void)
 					memcpy(itemlist + num_items, dyn_items + i, sizeof(gitem_t));
 					/* Add callbacks */
 					if (!strncmp(itemlist[num_items].classname, "weapon_", 7) &&
-						!strncmp(itemlist[num_items].world_model, "models/weapons/g_", 17))
+						(!strncmp(itemlist[num_items].world_model, "models/weapons/g_", 17) ||
+						 !strncmp(itemlist[num_items].world_model, "models/weapons/v_", 17)))
 					{
 						itemlist[num_items].pickup = Pickup_Weapon;
 						itemlist[num_items].use = Use_Weapon;
@@ -4683,12 +4684,6 @@ InitItems(void)
 						itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
 						itemlist[num_items].world_model_flags = EF_ROTATE;
 						itemlist[num_items].flags = IT_WEAPON;
-
-						/* Oblivion model hack */
-						if (!strcmp(itemlist[num_items].classname, "weapon_plasma_pistol"))
-						{
-							itemlist[num_items].view_model = "models/weapons/v_pistol/tris.md2";
-						}
 					}
 					else if (!strncmp(itemlist[num_items].classname, "item_", 5))
 					{
