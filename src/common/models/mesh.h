@@ -31,5 +31,6 @@
 
 void Quat_normalize(quat_t q);
 void Quat_rotatePoint(const quat_t q, const vec3_t in, vec3_t out);
+void Quat_toMat3(const quat_t q, float m[9]);
 
 #endif /* SRC_COMMON_MODELS_MESH_H_ */

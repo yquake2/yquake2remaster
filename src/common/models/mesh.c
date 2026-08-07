@@ -31,7 +31,7 @@ void
 Quat_normalize(quat_t q)
 {
 	/* compute magnitude of the quaternion */
-	float mag = sqrt ((q[0] * q[0]) + (q[1] * q[1])
+	float mag = sqrtf ((q[0] * q[0]) + (q[1] * q[1])
 		+ (q[2] * q[2]) + (q[3] * q[3]));
 
 	/* check for bogus length, to protect against divide by zero */
@@ -72,4 +72,26 @@ Quat_rotatePoint(const quat_t q, const vec3_t in, vec3_t out)
 	out[0] = final[0];
 	out[1] = final[1];
 	out[2] = final[2];
+}
+
+/* rotation matrix of a unit quaternion, row major */
+void
+Quat_toMat3(const quat_t q, float m[9])
+{
+	const float x2 = q[0] + q[0], y2 = q[1] + q[1], z2 = q[2] + q[2];
+	const float xx = q[0] * x2, xy = q[0] * y2, xz = q[0] * z2;
+	const float yy = q[1] * y2, yz = q[1] * z2, zz = q[2] * z2;
+	const float wx = q[3] * x2, wy = q[3] * y2, wz = q[3] * z2;
+
+	m[0] = 1.0f - (yy + zz);
+	m[1] = xy - wz;
+	m[2] = xz + wy;
+
+	m[3] = xy + wz;
+	m[4] = 1.0f - (xx + zz);
+	m[5] = yz - wx;
+
+	m[6] = xz - wy;
+	m[7] = yz + wx;
+	m[8] = 1.0f - (xx + yy);
 }

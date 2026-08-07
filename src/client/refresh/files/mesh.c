@@ -121,6 +121,12 @@ R_StaticVerts(qboolean powerUpEffect, int nverts,
 	}
 }
 
+typedef struct
+{
+	float rot[9];
+	vec3_t pos;
+} skeletal_bone_t;
+
 /* quaternion slerp for bone interpolation; assumes unit quaternions */
 static void
 BoneSlerp(const vec4_t qa, const vec4_t qb, float t, vec4_t out)
@@ -175,7 +181,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	const dmdx_vertex_t *mesh_verteces;
 	int num_joints, num_verts, num_weights, i;
 
-	YQ2_VLA(dmdx_joint_t, bonematrix, pheader->num_joints);
+	YQ2_VLA(skeletal_bone_t, bonematrix, pheader->num_joints);
 
 	poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
 	        + frame * pheader->num_joints;
@@ -191,17 +197,17 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	for (i = 0; i < num_joints; i++)
 	{
 		vec4_t lorient;
-		vec3_t lpos;
 		int n;
 
 		for (n = 0; n < 3; n++)
 		{
-			lpos[n] = old_poses[i].pos[n] * backlerp + poses[i].pos[n] * frontlerp;
+			bonematrix[i].pos[n] = old_poses[i].pos[n] * backlerp +
+				poses[i].pos[n] * frontlerp;
 		}
 
 		BoneSlerp(old_poses[i].orient, poses[i].orient, frontlerp, lorient);
-		memcpy(bonematrix[i].pos, lpos, sizeof(vec3_t));
-		memcpy(bonematrix[i].orient, lorient, sizeof(quat_t));
+		Quat_normalize(lorient);
+		Quat_toMat3(lorient, bonematrix[i].rot);
 	}
 
 	/* skin each vertex */
@@ -219,8 +225,8 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 		for (k = 0; k < count; k++)
 		{
 			const dmdx_weight_t *weight;
-			const dmdx_joint_t *joint;
-			vec3_t wv;
+			const skeletal_bone_t *joint;
+			const float *m, *p;
 
 			weight = &weights[bind->start + k];
 
@@ -230,12 +236,13 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 			}
 
 			joint = bonematrix + weight->joint;
+			m = joint->rot;
+			p = weight->pos;
 
-			Quat_rotatePoint(joint->orient, weight->pos, wv);
 			/* The sum of all weight->bias should be 1.0 */
-			result[0] += (joint->pos[0] + wv[0]) * weight->bias;
-			result[1] += (joint->pos[1] + wv[1]) * weight->bias;
-			result[2] += (joint->pos[2] + wv[2]) * weight->bias;
+			result[0] += (joint->pos[0] + m[0] * p[0] + m[1] * p[1] + m[2] * p[2]) * weight->bias;
+			result[1] += (joint->pos[1] + m[3] * p[0] + m[4] * p[1] + m[5] * p[2]) * weight->bias;
+			result[2] += (joint->pos[2] + m[6] * p[0] + m[7] * p[1] + m[8] * p[2]) * weight->bias;
 		}
 
 		lerp[0] = scale[0] * (result[0] + move[0]);
