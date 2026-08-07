@@ -504,7 +504,7 @@ extern void R_LerpVerts(const dmdx_t *pheader, int frame, int oldframe, float fr
 	float backlerp, float *lerp, const float move[3], const float *scale,
 	qboolean colorOnly);
 extern void R_ConvertNormalMDL(byte in_normal, signed char *normal);
-extern vec4_t *R_VertBufferRealloc(int num);
+extern vec4_t *R_VertBufferRealloc(size_t num);
 extern float r_byteNormalScale[256];
 extern void R_VertBufferInit(void);
 extern void R_VertBufferFree(void);

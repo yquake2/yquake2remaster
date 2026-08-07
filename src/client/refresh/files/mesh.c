@@ -27,12 +27,22 @@
 #include "../ref_shared.h"
 #include "../../../common/models/mesh.h"
 
+#define MAX_BONES 64
+
+typedef struct
+{
+	float rot[9];
+	vec3_t pos;
+} skeletal_bone_t;
+
 static vec4_t *lerpbuff = NULL;
-static int lerpbuffnum = 0;
+static size_t lerpbuffnum = 0;
+static skeletal_bone_t *bonesbuff = NULL;
+static size_t bonesbuffnum = 0;
 float r_byteNormalScale[256];
 
 vec4_t *
-R_VertBufferRealloc(int num)
+R_VertBufferRealloc(size_t num)
 {
 	void *ptr;
 
@@ -41,7 +51,7 @@ R_VertBufferRealloc(int num)
 		return lerpbuff;
 	}
 
-	lerpbuffnum = num * 2;
+	lerpbuffnum = ROUNDUP(num * 2, 32);
 	ptr = realloc(lerpbuff, lerpbuffnum * sizeof(vec4_t));
 	YQ2_COM_CHECK_OOM(ptr, "realloc()", lerpbuffnum * sizeof(vec4_t))
 	if (!ptr)
@@ -52,6 +62,29 @@ R_VertBufferRealloc(int num)
 	lerpbuff = ptr;
 
 	return lerpbuff;
+}
+
+static skeletal_bone_t *
+R_BonesBufferRealloc(size_t num)
+{
+	void *ptr;
+
+	if (num < bonesbuffnum)
+	{
+		return bonesbuff;
+	}
+
+	bonesbuffnum = ROUNDUP(num * 2, 32);
+	ptr = realloc(bonesbuff, bonesbuffnum * sizeof(skeletal_bone_t));
+	YQ2_COM_CHECK_OOM(ptr, "realloc()", bonesbuffnum * sizeof(skeletal_bone_t))
+	if (!ptr)
+	{
+		return NULL;
+	}
+
+	bonesbuff = ptr;
+
+	return bonesbuff;
 }
 
 void
@@ -67,6 +100,10 @@ R_VertBufferInit(void)
 	lerpbuff = NULL;
 	lerpbuffnum = 0;
 	R_VertBufferRealloc(MAX_VERTS);
+
+	bonesbuff = NULL;
+	bonesbuffnum = 0;
+	R_BonesBufferRealloc(MAX_BONES);
 }
 
 void
@@ -78,6 +115,13 @@ R_VertBufferFree(void)
 		lerpbuff = NULL;
 	}
 	lerpbuffnum = 0;
+
+	if (bonesbuff)
+	{
+		free(bonesbuff);
+		bonesbuff = NULL;
+	}
+	bonesbuffnum = 0;
 }
 
 static void
@@ -120,12 +164,6 @@ R_StaticVerts(qboolean powerUpEffect, int nverts,
 		}
 	}
 }
-
-typedef struct
-{
-	float rot[9];
-	vec3_t pos;
-} skeletal_bone_t;
 
 /* quaternion slerp for bone interpolation; assumes unit quaternions */
 static void
@@ -177,11 +215,12 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 	float backlerp, float *lerp, const float move[3], const float *scale)
 {
 	const dmdx_baseframe_joint_t *poses, *old_poses;
-	const dmdx_weight_t *weights;
-	const dmdx_vertex_t *mesh_verteces;
 	int num_joints, num_verts, num_weights, i;
+	const dmdx_vertex_t *mesh_verteces;
+	const dmdx_weight_t *weights;
+	skeletal_bone_t *bonematrix;
 
-	YQ2_VLA(skeletal_bone_t, bonematrix, pheader->num_joints);
+	bonematrix = R_BonesBufferRealloc(pheader->num_joints);
 
 	poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
 	        + frame * pheader->num_joints;
@@ -226,7 +265,7 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 		{
 			const dmdx_weight_t *weight;
 			const skeletal_bone_t *joint;
-			const float *m, *p;
+			const float *j_rot, *w_pos;
 
 			weight = &weights[bind->start + k];
 
@@ -236,21 +275,19 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 			}
 
 			joint = bonematrix + weight->joint;
-			m = joint->rot;
-			p = weight->pos;
+			j_rot = joint->rot;
+			w_pos = weight->pos;
 
 			/* The sum of all weight->bias should be 1.0 */
-			result[0] += (joint->pos[0] + m[0] * p[0] + m[1] * p[1] + m[2] * p[2]) * weight->bias;
-			result[1] += (joint->pos[1] + m[3] * p[0] + m[4] * p[1] + m[5] * p[2]) * weight->bias;
-			result[2] += (joint->pos[2] + m[6] * p[0] + m[7] * p[1] + m[8] * p[2]) * weight->bias;
+			result[0] += (joint->pos[0] + j_rot[0] * w_pos[0] + j_rot[1] * w_pos[1] + j_rot[2] * w_pos[2]) * weight->bias;
+			result[1] += (joint->pos[1] + j_rot[3] * w_pos[0] + j_rot[4] * w_pos[1] + j_rot[5] * w_pos[2]) * weight->bias;
+			result[2] += (joint->pos[2] + j_rot[6] * w_pos[0] + j_rot[7] * w_pos[1] + j_rot[8] * w_pos[2]) * weight->bias;
 		}
 
 		lerp[0] = scale[0] * (result[0] + move[0]);
 		lerp[1] = scale[1] * (result[1] + move[1]);
 		lerp[2] = scale[2] * (result[2] + move[2]);
 	}
-
-	YQ2_VLAFREE(bonematrix);
 }
 
 void

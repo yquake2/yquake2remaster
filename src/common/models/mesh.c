@@ -31,7 +31,7 @@ void
 Quat_normalize(quat_t q)
 {
 	/* compute magnitude of the quaternion */
-	float mag = sqrtf ((q[0] * q[0]) + (q[1] * q[1])
+	float mag = sqrtf((q[0] * q[0]) + (q[1] * q[1])
 		+ (q[2] * q[2]) + (q[3] * q[3]));
 
 	/* check for bogus length, to protect against divide by zero */
