@@ -183,6 +183,14 @@ R_SkeletalVerts(const dmdx_t *pheader, int frame, int oldframe, float frontlerp,
 
 	YQ2_VLA(skeletal_bone_t, bonematrix, pheader->num_joints);
 
+#ifdef _MSC_VER
+	/* _malloca() can fail, a VLA can not */
+	if (!bonematrix)
+	{
+		return;
+	}
+#endif
+
 	poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
 	        + frame * pheader->num_joints;
 	old_poses = (const dmdx_baseframe_joint_t *)((const byte *)pheader + pheader->ofs_baseframe_joints)
