@@ -1336,6 +1336,261 @@ Mod_LoadModel_FlexSection(const void *in_buffer, size_t modfilelen, const char *
 	return NULL;
 }
 
+static qboolean
+Mod_LoadModel_FlexSkins(dmdx_t *pheader, const void *buffer, int modfilelen)
+{
+	const char *src = NULL;
+	size_t size;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skin", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid skin version %d\n",
+				__func__, version);
+			return false;
+		}
+
+		if (size != (pheader->num_skins * MAX_SKINNAME))
+		{
+			Com_Printf("%s: Invalid skin size\n",
+				__func__);
+			return false;
+		}
+		memcpy((char*) pheader + pheader->ofs_skins, src, size);
+	}
+
+	return true;
+}
+
+static qboolean
+Mod_LoadModel_FlexSTCoord(dmdx_t *pheader, const void *buffer, int modfilelen)
+{
+	const char *src = NULL;
+	size_t size;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "st coord", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid st coord version %d\n",
+				__func__, version);
+			return false;
+		}
+
+		if (size != (pheader->num_st * sizeof(dstvert_t)))
+		{
+			Com_Printf("%s: Invalid st coord size\n",
+				__func__);
+			return false;
+		}
+
+		Mod_LoadSTvertList(pheader, (dstvert_t *)src);
+	}
+
+	return true;
+}
+
+static qboolean
+Mod_LoadModel_FlexTris(dmdx_t *pheader, const void *buffer, int modfilelen)
+{
+	const char *src = NULL;
+	size_t size;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "tris", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid tris version %d\n",
+				__func__, version);
+			return false;
+		}
+
+		if (size != (pheader->num_tris * sizeof(dtriangle_t)))
+		{
+			Com_Printf("%s: Invalid tris size\n",
+				__func__);
+			return false;
+		}
+
+		Mod_LoadMD2TriangleList(pheader, (dtriangle_t *) src);
+	}
+
+	return true;
+}
+
+static qboolean
+Mod_LoadModel_FlexFrames(size_t inframesize, dmdx_t *pheader, const void *buffer, int modfilelen)
+{
+	const char *src = NULL;
+	size_t size;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "frames", &version, &size);
+	if (src && size)
+	{
+		vec3_t translate = {0, 0, 0};
+
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid frames version %d\n",
+				__func__, version);
+			return false;
+		}
+
+		if (size < (pheader->num_frames *
+			(sizeof(daliasframe_t) + (pheader->num_xyz - 1) * sizeof(dtrivertx_t))))
+		{
+			Com_Printf("%s: Invalid frames size\n",
+				__func__);
+			return false;
+		}
+
+		Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
+		Mod_LoadAnimGroupList(pheader, true);
+		Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
+	}
+
+	return true;
+}
+
+static qboolean
+Mod_LoadModel_FlexGLCmd(const char * mod_name, dmdx_t *pheader, const void *buffer, int modfilelen)
+{
+	const char *src = NULL;
+	size_t size;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "glcmds", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid glcmds version %d\n",
+				__func__, version);
+			return false;
+		}
+
+		if (size != (pheader->num_glcmds * sizeof(int)))
+		{
+			Com_Printf("%s: Invalid glcmds size\n",
+				__func__);
+			return false;
+		}
+
+		Mod_LoadCmdList(mod_name, pheader, (int *)src);
+	}
+
+	return true;
+}
+
+static qboolean
+Mod_LoadModel_FlexMeshNodes(dmdx_t *pheader, const void *buffer, int modfilelen)
+{
+	const char *src = NULL;
+	size_t size;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "mesh nodes", &version, &size);
+	if (src && size)
+	{
+		int num_mesh_nodes;
+
+		num_mesh_nodes = (pheader->ofs_skins - sizeof(*pheader)) / sizeof(dmdxmesh_t);
+
+		if (version != 3)
+		{
+			Com_Printf("%s: Invalid mesh nodes version %d\n",
+				__func__, version);
+			return false;
+		}
+
+		/* 516 mesh node size */
+		if (size != (num_mesh_nodes * 516))
+		{
+			Com_Printf("%s: Invalid mesh nodes size\n",
+				__func__);
+			return false;
+		}
+
+		if (num_mesh_nodes > 0)
+		{
+			dmdxmesh_t *mesh_nodes;
+			const char *in_mesh = src;
+			int i;
+
+			mesh_nodes = (dmdxmesh_t *)((char*)pheader + sizeof(*pheader));
+			for (i = 0; i < num_mesh_nodes; i++)
+			{
+				int j, min = 256 * 8, max = 0;
+
+				for (j = 0; j < 256; j++)
+				{
+					if (in_mesh[j])
+					{
+						if (min > (j * 8))
+						{
+							int k, v;
+
+							v = in_mesh[j] & 0xFF;
+
+							for (k = 0; k < 8; k ++)
+							{
+								if ((v & 1))
+								{
+									min = j * 8 + k;
+									break;
+								}
+								v >>= 1;
+							}
+						}
+						break;
+					}
+				}
+
+				for (j = (min / 8) - 1; j < 256; j++)
+				{
+					if (in_mesh[j])
+					{
+						int v;
+
+						v = in_mesh[j] & 0xFF;
+						max = j * 8;
+
+						while (v)
+						{
+							max ++;
+							v >>= 1;
+						}
+					}
+				}
+
+				/* save mesh triangle */
+				mesh_nodes[i].ofs_tris = min;
+				mesh_nodes[i].num_tris = max - min;
+
+				/* 256 bytes of tri data */
+				/* 256 bytes of vert data */
+				/* 2 bytes of start */
+				/* 2 bytes of number commands */
+				in_mesh += 512;
+				mesh_nodes[i].ofs_glcmds = LittleShort(*(short *)in_mesh);
+				in_mesh += 2;
+				mesh_nodes[i].num_glcmds = LittleShort(*(short *)in_mesh);
+				in_mesh += 2;
+			}
+		}
+	}
+
+	return true;
+}
+
 /*
 =============
 Mod_LoadModel_Flex
@@ -1472,195 +1727,14 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 		return NULL;
 	}
 
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skin", &version, &size);
-	if (src && size)
+	if (!Mod_LoadModel_FlexSkins(pheader, buffer, modfilelen) ||
+		!Mod_LoadModel_FlexSTCoord(pheader, buffer, modfilelen) ||
+		!Mod_LoadModel_FlexTris(pheader, buffer, modfilelen) ||
+		!Mod_LoadModel_FlexFrames(inframesize, pheader, buffer, modfilelen) ||
+		!Mod_LoadModel_FlexGLCmd(mod_name, pheader, buffer, modfilelen) ||
+		!Mod_LoadModel_FlexMeshNodes(pheader, buffer, modfilelen))
 	{
-		if (version != 1)
-		{
-			Com_Printf("%s: Invalid skin version %d\n",
-				__func__, version);
-			return NULL;
-		}
-		if (size != (pheader->num_skins * MAX_SKINNAME))
-		{
-			Com_Printf("%s: Invalid skin size\n",
-				__func__);
-			return NULL;
-		}
-		memcpy((char*) pheader + pheader->ofs_skins, src, size);
-	}
-
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "st coord", &version, &size);
-	if (src && size)
-	{
-		if (version != 1)
-		{
-			Com_Printf("%s: Invalid st coord version %d\n",
-				__func__, version);
-			return NULL;
-		}
-		if (size != (pheader->num_st * sizeof(dstvert_t)))
-		{
-			Com_Printf("%s: Invalid st coord size\n",
-				__func__);
-			return NULL;
-		}
-
-		Mod_LoadSTvertList(pheader, (dstvert_t *)src);
-	}
-
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "tris", &version, &size);
-	if (src && size)
-	{
-		if (version != 1)
-		{
-			Com_Printf("%s: Invalid tris version %d\n",
-				__func__, version);
-			return NULL;
-		}
-		if (size != (pheader->num_tris * sizeof(dtriangle_t)))
-		{
-			Com_Printf("%s: Invalid tris size\n",
-				__func__);
-			return NULL;
-		}
-
-		Mod_LoadMD2TriangleList(pheader, (dtriangle_t *) src);
-	}
-
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "frames", &version, &size);
-	if (src && size)
-	{
-		vec3_t translate = {0, 0, 0};
-
-		if (version != 1)
-		{
-			Com_Printf("%s: Invalid frames version %d\n",
-				__func__, version);
-			return NULL;
-		}
-
-		if (size < (pheader->num_frames *
-			(sizeof(daliasframe_t) + (pheader->num_xyz - 1) * sizeof(dtrivertx_t))))
-		{
-			Com_Printf("%s: Invalid frames size\n",
-				__func__);
-			return NULL;
-		}
-
-		Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
-		Mod_LoadAnimGroupList(pheader, true);
-		Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
-	}
-
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "glcmds", &version, &size);
-	if (src && size)
-	{
-		if (version != 1)
-		{
-			Com_Printf("%s: Invalid glcmds version %d\n",
-				__func__, version);
-			return NULL;
-		}
-		if (size != (pheader->num_glcmds * sizeof(int)))
-		{
-			Com_Printf("%s: Invalid glcmds size\n",
-				__func__);
-			return NULL;
-		}
-
-		Mod_LoadCmdList(mod_name, pheader, (int *)src);
-	}
-
-	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "mesh nodes", &version, &size);
-	if (src && size)
-	{
-		int num_mesh_nodes;
-
-		num_mesh_nodes = (pheader->ofs_skins - sizeof(*pheader)) / sizeof(dmdxmesh_t);
-
-		if (version != 3)
-		{
-			Com_Printf("%s: Invalid mesh nodes version %d\n",
-				__func__, version);
-			return NULL;
-		}
-
-		/* 516 mesh node size */
-		if (size != (num_mesh_nodes * 516))
-		{
-			Com_Printf("%s: Invalid mesh nodes size\n",
-				__func__);
-			return NULL;
-		}
-
-		if (num_mesh_nodes > 0)
-		{
-			dmdxmesh_t *mesh_nodes;
-			const char *in_mesh = src;
-			int i;
-
-			mesh_nodes = (dmdxmesh_t *)((char*)pheader + sizeof(*pheader));
-			for (i = 0; i < num_mesh_nodes; i++)
-			{
-				int j, min = 256 * 8, max = 0;
-
-				for (j = 0; j < 256; j++)
-				{
-					if (in_mesh[j])
-					{
-						if (min > (j * 8))
-						{
-							int k, v;
-
-							v = in_mesh[j] & 0xFF;
-
-							for (k = 0; k < 8; k ++)
-							{
-								if ((v & 1))
-								{
-									min = j * 8 + k;
-									break;
-								}
-								v >>= 1;
-							}
-						}
-						break;
-					}
-				}
-
-				for (j = (min / 8) - 1; j < 256; j++)
-				{
-					if (in_mesh[j])
-					{
-						int v;
-
-						v = in_mesh[j] & 0xFF;
-						max = j * 8;
-
-						while (v)
-						{
-							max ++;
-							v >>= 1;
-						}
-					}
-				}
-
-				/* save mesh triangle */
-				mesh_nodes[i].ofs_tris = min;
-				mesh_nodes[i].num_tris = max - min;
-
-				/* 256 bytes of tri data */
-				/* 256 bytes of vert data */
-				/* 2 bytes of start */
-				/* 2 bytes of number commands */
-				in_mesh += 512;
-				mesh_nodes[i].ofs_glcmds = LittleShort(*(short *)in_mesh);
-				in_mesh += 2;
-				mesh_nodes[i].num_glcmds = LittleShort(*(short *)in_mesh);
-				in_mesh += 2;
-			}
-		}
+		return NULL;
 	}
 
 	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skeleton", &version, &size);
