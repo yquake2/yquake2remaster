@@ -1289,18 +1289,11 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	return extradata;
 }
 
-/*
-=============
-Mod_LoadModel_Flex
-=============
-*/
-static void *
-Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
+static const char *
+Mod_LoadModel_FlexSection(const void *in_buffer, size_t modfilelen, const char *section_name,
+	int *section_version, size_t *section_size)
 {
-	char *src = (char *)buffer;
-	int inframesize = 0;
-	void *extradata = NULL;
-	dmdx_t *pheader = NULL;
+	const char *src = (const char *)in_buffer;
 
 	while (modfilelen > 0)
 	{
@@ -1328,318 +1321,360 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 			return NULL;
 		}
 
-		if (Q_strncasecmp(blockname, "header", sizeof(blockname)) == 0)
+		if (Q_strncasecmp(blockname, section_name, sizeof(blockname)) == 0)
 		{
-			const fmheader_t *header = (fmheader_t *)src;
-			dmdx_t dmdxheader;
-			int framesize;
-
-			if (sizeof(fmheader_t) > size)
-			{
-				Com_Printf("%s: Too short header\n", __func__);
-				return NULL;
-			}
-
-			if (version != 2)
-			{
-				Com_Printf("%s: Invalid %s version %d\n",
-					__func__, blockname, version);
-				return NULL;
-			}
-
-			inframesize = LittleLong(header->framesize);
-			/* has same frame structure */
-			if (inframesize < (
-				sizeof(daliasframe_t) + (LittleLong(header->num_xyz) - 1) * sizeof(dtrivertx_t)))
-			{
-				Com_Printf("%s: model %s has incorrect framesize\n",
-						__func__, mod_name);
-				return NULL;
-			}
-
-			framesize = sizeof(daliasxframe_t) +
-				(LittleLong(header->num_xyz) - 1) * sizeof(dxtrivertx_t);
-
-			/* copy back all values */
-			memset(&dmdxheader, 0, sizeof(dmdxheader));
-			dmdxheader.skinwidth = LittleLong(header->skinwidth);
-			dmdxheader.skinheight = LittleLong(header->skinheight);
-			dmdxheader.framesize = framesize;
-
-			dmdxheader.num_skins = LittleLong(header->num_skins);
-			dmdxheader.num_xyz = LittleLong(header->num_xyz);
-			dmdxheader.num_st = LittleLong(header->num_st);
-			dmdxheader.num_tris = LittleLong(header->num_tris);
-			dmdxheader.num_glcmds = LittleLong(header->num_glcmds);
-			dmdxheader.num_frames = LittleLong(header->num_frames);
-			dmdxheader.num_meshes = LittleLong(header->num_mesh_nodes);
-			dmdxheader.num_animgroup = dmdxheader.num_frames;
-
-			if (dmdxheader.num_xyz <= 0)
-			{
-				Com_Printf("%s: model %s has no vertices\n",
-						__func__, mod_name);
-				return NULL;
-			}
-
-			if (dmdxheader.num_xyz > MAX_VERTS)
-			{
-				Com_Printf("%s: model %s has too many vertices\n",
-						__func__, mod_name);
-			}
-
-			if (dmdxheader.num_st <= 0)
-			{
-				Com_Printf("%s: model %s has no st vertices\n",
-						__func__, mod_name);
-				return NULL;
-			}
-
-			if (dmdxheader.num_tris <= 0)
-			{
-				Com_Printf("%s: model %s has no triangles\n",
-						__func__, mod_name);
-				return NULL;
-			}
-
-			if (dmdxheader.num_frames <= 0)
-			{
-				Com_Printf("%s: model %s has no frames\n",
-						__func__, mod_name);
-				return NULL;
-			}
-
-			pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
+			*section_size = size;
+			*section_version = version;
+			return src;
 		}
-		else
-		{
-			if (!pheader)
-			{
-				Com_Printf("%s: %s has broken header.\n",
-					__func__, mod_name);
-				return NULL;
-			}
-			else if (Q_strncasecmp(blockname, "skin", sizeof(blockname)) == 0)
-			{
-				if (version != 1)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-				if (size != (pheader->num_skins * MAX_SKINNAME))
-				{
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
-				memcpy((char*) pheader + pheader->ofs_skins, src, size);
-			}
-			else if (Q_strncasecmp(blockname, "st coord", sizeof(blockname)) == 0)
-			{
-				if (version != 1)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-				if (size != (pheader->num_st * sizeof(dstvert_t)))
-				{
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
 
-				Mod_LoadSTvertList(pheader, (dstvert_t *)src);
-			}
-			else if (Q_strncasecmp(blockname, "tris", sizeof(blockname)) == 0)
-			{
-				if (version != 1)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-				if (size != (pheader->num_tris * sizeof(dtriangle_t)))
-				{
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
-
-				Mod_LoadMD2TriangleList(pheader, (dtriangle_t *) src);
-			}
-			else if (Q_strncasecmp(blockname, "frames", sizeof(blockname)) == 0)
-			{
-				vec3_t translate = {0, 0, 0};
-
-				if (version != 1)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-
-				if (size < (pheader->num_frames *
-					(sizeof(daliasframe_t) + (pheader->num_xyz - 1) * sizeof(dtrivertx_t))))
-				{
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
-
-				Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
-				Mod_LoadAnimGroupList(pheader, true);
-				Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
-			}
-			else if (Q_strncasecmp(blockname, "glcmds", sizeof(blockname)) == 0)
-			{
-				if (version != 1)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-				if (size != (pheader->num_glcmds * sizeof(int)))
-				{
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
-
-				Mod_LoadCmdList(mod_name, pheader, (int *)src);
-			}
-			else if (Q_strncasecmp(blockname, "mesh nodes", sizeof(blockname)) == 0)
-			{
-				int num_mesh_nodes;
-
-				num_mesh_nodes = (pheader->ofs_skins - sizeof(*pheader)) / sizeof(dmdxmesh_t);
-
-				if (version != 3)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-
-				/* 516 mesh node size */
-				if (size != (num_mesh_nodes * 516))
-				{
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
-
-				if (num_mesh_nodes > 0)
-				{
-					dmdxmesh_t *mesh_nodes;
-					char *in_mesh = src;
-					int i;
-
-					mesh_nodes = (dmdxmesh_t *)((char*)pheader + sizeof(*pheader));
-					for (i = 0; i < num_mesh_nodes; i++)
-					{
-						int j, min = 256 * 8, max = 0;
-
-						for (j = 0; j < 256; j++)
-						{
-							if (in_mesh[j])
-							{
-								if (min > (j * 8))
-								{
-									int k, v;
-
-									v = in_mesh[j] & 0xFF;
-
-									for (k = 0; k < 8; k ++)
-									{
-										if ((v & 1))
-										{
-											min = j * 8 + k;
-											break;
-										}
-										v >>= 1;
-									}
-								}
-								break;
-							}
-						}
-
-						for (j = (min / 8) - 1; j < 256; j++)
-						{
-							if (in_mesh[j])
-							{
-								int v;
-
-								v = in_mesh[j] & 0xFF;
-								max = j * 8;
-
-								while (v)
-								{
-									max ++;
-									v >>= 1;
-								}
-							}
-						}
-
-						/* save mesh triangle */
-						mesh_nodes[i].ofs_tris = min;
-						mesh_nodes[i].num_tris = max - min;
-
-						/* 256 bytes of tri data */
-						/* 256 bytes of vert data */
-						/* 2 bytes of start */
-						/* 2 bytes of number commands */
-						in_mesh += 512;
-						mesh_nodes[i].ofs_glcmds = LittleShort(*(short *)in_mesh);
-						in_mesh += 2;
-						mesh_nodes[i].num_glcmds = LittleShort(*(short *)in_mesh);
-						in_mesh += 2;
-					}
-				}
-			}
-			else if (Q_strncasecmp(blockname, "skeleton", sizeof(blockname)) == 0)
-			{
-				int skeleton_type, skeleton_joints_num, *skeleton_data;
-
-				if (version != 1)
-				{
-					Com_Printf("%s: Invalid %s version %d\n",
-						__func__, blockname, version);
-					return NULL;
-				}
-
-				if (size < (int)(2 * sizeof(int))) {
-					Com_Printf("%s: Invalid %s size\n",
-						__func__, blockname);
-					return NULL;
-				}
-
-				skeleton_data = (int *)src;
-				skeleton_type = LittleLong(*skeleton_data);
-				skeleton_data++;
-				skeleton_joints_num = LittleLong(*skeleton_data);
-				Com_DPrintf("%s: %s in %s has 0x%02x type and %d bones\n",
-					__func__, mod_name, blockname, skeleton_type, skeleton_joints_num);
-				pheader->num_joints = skeleton_joints_num;
-			}
-			else if (Q_strncasecmp(blockname, "normals", sizeof(blockname)) == 0 ||
-					 Q_strncasecmp(blockname, "short frames", sizeof(blockname)) == 0 ||
-					 Q_strncasecmp(blockname, "comp data", sizeof(blockname)) == 0 ||
-					 Q_strncasecmp(blockname, "references", sizeof(blockname)) == 0)
-			{
-				/* skipped block */
-			}
-			else
-			{
-				Com_Printf("%s: %s Unknown block %s\n",
-					__func__, mod_name, blockname);
-				return NULL;
-			}
-		}
 		modfilelen -= size;
 		src += size;
 	}
+
+	*section_size = 0;
+	return NULL;
+}
+
+/*
+=============
+Mod_LoadModel_Flex
+=============
+*/
+static void *
+Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
+{
+	dmdx_t dmdxheader, *pheader = NULL;
+	size_t size, inframesize = 0;
+	void *extradata = NULL;
+	const char *src = NULL;
+	int version;
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "header", &version, &size);
+	if (!src || !size)
+	{
+		Com_Printf("%s: No header found\n", __func__);
+		return NULL;
+	}
+	else
+	{
+		const fmheader_t *header = (fmheader_t *)src;
+		int framesize;
+
+		if (sizeof(fmheader_t) > size)
+		{
+			Com_Printf("%s: Too short header\n", __func__);
+			return NULL;
+		}
+
+		if (version != 2)
+		{
+			Com_Printf("%s: Invalid header version %d\n",
+				__func__, version);
+			return NULL;
+		}
+
+		inframesize = LittleLong(header->framesize);
+		/* has same frame structure */
+		if (inframesize < (
+			sizeof(daliasframe_t) + (LittleLong(header->num_xyz) - 1) * sizeof(dtrivertx_t)))
+		{
+			Com_Printf("%s: model %s has incorrect framesize\n",
+					__func__, mod_name);
+			return NULL;
+		}
+
+		framesize = sizeof(daliasxframe_t) +
+			(LittleLong(header->num_xyz) - 1) * sizeof(dxtrivertx_t);
+
+		/* copy back all values */
+		memset(&dmdxheader, 0, sizeof(dmdxheader));
+		dmdxheader.skinwidth = LittleLong(header->skinwidth);
+		dmdxheader.skinheight = LittleLong(header->skinheight);
+		dmdxheader.framesize = framesize;
+
+		dmdxheader.num_skins = LittleLong(header->num_skins);
+		dmdxheader.num_xyz = LittleLong(header->num_xyz);
+		dmdxheader.num_st = LittleLong(header->num_st);
+		dmdxheader.num_tris = LittleLong(header->num_tris);
+		dmdxheader.num_glcmds = LittleLong(header->num_glcmds);
+		dmdxheader.num_frames = LittleLong(header->num_frames);
+		dmdxheader.num_meshes = LittleLong(header->num_mesh_nodes);
+		dmdxheader.num_animgroup = dmdxheader.num_frames;
+
+		if (dmdxheader.num_xyz <= 0)
+		{
+			Com_Printf("%s: model %s has no vertices\n",
+					__func__, mod_name);
+			return NULL;
+		}
+
+		if (dmdxheader.num_xyz > MAX_VERTS)
+		{
+			Com_Printf("%s: model %s has too many vertices\n",
+					__func__, mod_name);
+		}
+
+		if (dmdxheader.num_st <= 0)
+		{
+			Com_Printf("%s: model %s has no st vertices\n",
+					__func__, mod_name);
+			return NULL;
+		}
+
+		if (dmdxheader.num_tris <= 0)
+		{
+			Com_Printf("%s: model %s has no triangles\n",
+					__func__, mod_name);
+			return NULL;
+		}
+
+		if (dmdxheader.num_frames <= 0)
+		{
+			Com_Printf("%s: model %s has no frames\n",
+					__func__, mod_name);
+			return NULL;
+		}
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skeleton", &version, &size);
+	if (src && size)
+	{
+		int skeleton_type, skeleton_joints_num, *skeleton_data;
+
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid skeleton version %d\n",
+				__func__, version);
+			return NULL;
+		}
+
+		if (size < (int)(2 * sizeof(int))) {
+			Com_Printf("%s: Invalid skeleton size\n",
+				__func__);
+			return NULL;
+		}
+
+		skeleton_data = (int *)src;
+		skeleton_type = LittleLong(*skeleton_data);
+		skeleton_data++;
+		skeleton_joints_num = LittleLong(*skeleton_data);
+		Com_DPrintf("%s: %s in skeleton has 0x%02x type and %d bones\n",
+			__func__, mod_name, skeleton_type, skeleton_joints_num);
+		dmdxheader.num_joints = skeleton_joints_num;
+	}
+
+	pheader = Mod_LoadAllocate(mod_name, &dmdxheader, &extradata);
+	if (!pheader)
+	{
+		Com_Printf("%s: %s has broken header.\n",
+			__func__, mod_name);
+		return NULL;
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skin", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid skin version %d\n",
+				__func__, version);
+			return NULL;
+		}
+		if (size != (pheader->num_skins * MAX_SKINNAME))
+		{
+			Com_Printf("%s: Invalid skin size\n",
+				__func__);
+			return NULL;
+		}
+		memcpy((char*) pheader + pheader->ofs_skins, src, size);
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "st coord", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid st coord version %d\n",
+				__func__, version);
+			return NULL;
+		}
+		if (size != (pheader->num_st * sizeof(dstvert_t)))
+		{
+			Com_Printf("%s: Invalid st coord size\n",
+				__func__);
+			return NULL;
+		}
+
+		Mod_LoadSTvertList(pheader, (dstvert_t *)src);
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "tris", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid tris version %d\n",
+				__func__, version);
+			return NULL;
+		}
+		if (size != (pheader->num_tris * sizeof(dtriangle_t)))
+		{
+			Com_Printf("%s: Invalid tris size\n",
+				__func__);
+			return NULL;
+		}
+
+		Mod_LoadMD2TriangleList(pheader, (dtriangle_t *) src);
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "frames", &version, &size);
+	if (src && size)
+	{
+		vec3_t translate = {0, 0, 0};
+
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid frames version %d\n",
+				__func__, version);
+			return NULL;
+		}
+
+		if (size < (pheader->num_frames *
+			(sizeof(daliasframe_t) + (pheader->num_xyz - 1) * sizeof(dtrivertx_t))))
+		{
+			Com_Printf("%s: Invalid frames size\n",
+				__func__);
+			return NULL;
+		}
+
+		Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
+		Mod_LoadAnimGroupList(pheader, true);
+		Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "glcmds", &version, &size);
+	if (src && size)
+	{
+		if (version != 1)
+		{
+			Com_Printf("%s: Invalid glcmds version %d\n",
+				__func__, version);
+			return NULL;
+		}
+		if (size != (pheader->num_glcmds * sizeof(int)))
+		{
+			Com_Printf("%s: Invalid glcmds size\n",
+				__func__);
+			return NULL;
+		}
+
+		Mod_LoadCmdList(mod_name, pheader, (int *)src);
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "mesh nodes", &version, &size);
+	if (src && size)
+	{
+		int num_mesh_nodes;
+
+		num_mesh_nodes = (pheader->ofs_skins - sizeof(*pheader)) / sizeof(dmdxmesh_t);
+
+		if (version != 3)
+		{
+			Com_Printf("%s: Invalid mesh nodes version %d\n",
+				__func__, version);
+			return NULL;
+		}
+
+		/* 516 mesh node size */
+		if (size != (num_mesh_nodes * 516))
+		{
+			Com_Printf("%s: Invalid mesh nodes size\n",
+				__func__);
+			return NULL;
+		}
+
+		if (num_mesh_nodes > 0)
+		{
+			dmdxmesh_t *mesh_nodes;
+			const char *in_mesh = src;
+			int i;
+
+			mesh_nodes = (dmdxmesh_t *)((char*)pheader + sizeof(*pheader));
+			for (i = 0; i < num_mesh_nodes; i++)
+			{
+				int j, min = 256 * 8, max = 0;
+
+				for (j = 0; j < 256; j++)
+				{
+					if (in_mesh[j])
+					{
+						if (min > (j * 8))
+						{
+							int k, v;
+
+							v = in_mesh[j] & 0xFF;
+
+							for (k = 0; k < 8; k ++)
+							{
+								if ((v & 1))
+								{
+									min = j * 8 + k;
+									break;
+								}
+								v >>= 1;
+							}
+						}
+						break;
+					}
+				}
+
+				for (j = (min / 8) - 1; j < 256; j++)
+				{
+					if (in_mesh[j])
+					{
+						int v;
+
+						v = in_mesh[j] & 0xFF;
+						max = j * 8;
+
+						while (v)
+						{
+							max ++;
+							v >>= 1;
+						}
+					}
+				}
+
+				/* save mesh triangle */
+				mesh_nodes[i].ofs_tris = min;
+				mesh_nodes[i].num_tris = max - min;
+
+				/* 256 bytes of tri data */
+				/* 256 bytes of vert data */
+				/* 2 bytes of start */
+				/* 2 bytes of number commands */
+				in_mesh += 512;
+				mesh_nodes[i].ofs_glcmds = LittleShort(*(short *)in_mesh);
+				in_mesh += 2;
+				mesh_nodes[i].num_glcmds = LittleShort(*(short *)in_mesh);
+				in_mesh += 2;
+			}
+		}
+	}
+
+	src = Mod_LoadModel_FlexSection(buffer, modfilelen, "skeleton", &version, &size);
+	if (src && size)
+	{
+		/* TODO: reload skeleton */
+	}
+
+	/* Skipped blocks:
+	 * "normals",
+	 * "short frames",
+	 * "comp data",
+	 * "references".
+	 */
 
 	Mod_LoadFixImages(mod_name, pheader, false);
 
