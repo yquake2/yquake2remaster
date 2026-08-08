@@ -2326,6 +2326,32 @@ FS_ListFiles(const char *findname, int *numfiles,
 	return list;
 }
 
+strlist_t
+FS_ListFilesx(const char *findname,
+		unsigned musthave, unsigned canthave)
+{
+	strlist_t list;
+	const char *s;
+
+	StrList_Init(&list, 0);
+
+	s = Sys_FindFirst(findname, musthave, canthave);
+
+	while (s)
+	{
+		if (s[strlen(s) - 1] != '.')
+		{
+			StrList_Append(&list, s);
+		}
+
+		s = Sys_FindNext(musthave, canthave);
+	}
+
+	Sys_FindClose();
+
+	return list;
+}
+
 /*
  * Compare file attributes (musthave and canthave) in packed files. If
  * "output" is not NULL, "size" is greater than zero and the file matches the
@@ -2572,6 +2598,70 @@ FS_ListFiles2(const char *findname, int *numfiles,
 	return list;
 }
 
+strlist_t
+FS_ListFilesx2(const char *findname,
+		unsigned musthave, unsigned canthave)
+{
+	strlist_t list;
+	fsSearchPath_t *search;
+
+	StrList_Init(&list, 0);
+
+	for (search = fs_searchPaths; search != NULL; search = search->next)
+	{
+		strlist_t tmplist;
+		char path[MAX_OSPATH];
+		size_t splen;
+		int i;
+
+		if (search->pack)
+		{
+			if (canthave & SFF_INPACK)
+			{
+				continue;
+			}
+
+			for (i = 0; i < search->pack->numFiles; i++)
+			{
+				if (ComparePackFiles(findname, search->pack->files[i].name,
+							musthave, canthave, path, sizeof(path)))
+				{
+					if (!StrList_Contains(&list, path))
+					{
+						StrList_Append(&list, path);
+					}
+				}
+			}
+		}
+
+		if ((musthave & SFF_INPACK) ||
+			(*search->path == '\0'))
+		{
+			continue;
+		}
+
+		/* files from host filesystem */
+		Com_sprintf(path, sizeof(path), "%s/%s", search->path, findname);
+		tmplist = FS_ListFilesx(path, musthave, canthave);
+
+		splen = strlen(search->path);
+
+		for (i = 0; i < tmplist.num; i++)
+		{
+			const char *s = tmplist.data[i] + splen + 1;
+
+			if (!StrList_Contains(&list, s))
+			{
+				StrList_Append(&list, s);
+			}
+		}
+
+		StrList_Free(&tmplist);
+	}
+
+	return list;
+}
+
 /*
  * Free list of files created by FS_ListFiles().
  */
@@ -2731,6 +2821,108 @@ FS_ListMods(int *nummods)
 
 	*nummods = nmods;
 	return modnames;
+}
+
+static qboolean
+HasValidPack(const char *dir)
+{
+	const fsPackTypes_t *pkt;
+
+	// iterate over supported pack types, but ignore ZIP files (they cause false positives)
+	for (pkt = fs_packtypes; pkt < ARREND(fs_packtypes); pkt++)
+	{
+		strlist_t packs;
+		char findnamepattern[MAX_OSPATH];
+		int npacks;
+
+		if (!strcmp("zip", pkt->suffix))
+		{
+			continue;
+		}
+
+		Com_sprintf(findnamepattern, sizeof(findnamepattern), "%s/*.%s",
+			dir, pkt->suffix);
+
+		packs = FS_ListFilesx(findnamepattern, 0, 0);
+		npacks = packs.num;
+		StrList_Free(&packs);
+
+		if (npacks)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+strlist_t
+FS_ListModsx(void)
+{
+	strlist_t list;
+
+	StrList_Init(&list, 0);
+
+	for (fsRawPath_t *search = fs_rawPath; search; search = search->next)
+	{
+		strlist_t dirchildren;
+		const char *path;
+		char searchpath[MAX_OSPATH];
+		size_t splen;
+		int i;
+
+		splen = strlen(search->path);
+		if (!splen)
+		{
+			continue;
+		}
+
+		// make sure this Raw path ends with a '/' otherwise FS_ListFiles will open its parent dir
+		if (search->path[splen - 1] != '/')
+		{
+			Com_sprintf(searchpath, sizeof(searchpath), "%s/*", search->path);
+			path = searchpath;
+		}
+		else
+		{
+			path = search->path;
+		}
+
+		dirchildren = FS_ListFilesx(path, 0, 0);
+
+		// iterate over the children of this Raw path (unless we've already got enough mods)
+		for (i = 0; i < dirchildren.num && list.num < MAX_MODS; i++)
+		{
+			const char *modname;
+
+			if (!HasValidPack(dirchildren.data[i]))
+			{
+				continue;
+			}
+
+			modname = strrchr(dirchildren.data[i], '/');
+			if (!modname)
+			{
+				continue;
+			}
+
+			modname++;
+
+			if (!StrList_Contains(&list, modname))
+			{
+				StrList_Append(&list, modname);
+			}
+		}
+
+		StrList_Free(&dirchildren);
+	}
+
+	if (list.num > 1)
+	{
+		qsort(list.data, list.num, sizeof(char *), Q_sort_modcmp);
+	}
+
+	return list;
 }
 
 /*
