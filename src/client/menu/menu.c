@@ -5720,12 +5720,6 @@ static menuaction_s s_player_download_action;
 
 #define MAX_PLAYERMODELS 1024
 
-typedef struct _strlist
-{
-	char** data;
-	int num;
-} strlist_t;
-
 // player model info
 static strlist_t s_skinnames[MAX_PLAYERMODELS];
 static strlist_t s_modelname;
