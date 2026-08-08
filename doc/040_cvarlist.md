@@ -508,7 +508,10 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
 * **r_retexturing**: If set to `1` (the default) and a retexturing pack
   is installed, the high resolution textures are used.
 
-* **r_scale8bittextures**: If set to `1`, scale up all 8bit textures.
+* **r_scale8bittextures**: If set to `1`, scale up all 8bit textures (fast).
+
+* **r_scale32bittextures**: If set to `1`, scale up 32bit and 8bit with
+  embeded palette textures by Lanczos3 (slow).
 
 * **r_skeletalanimation**: If set to `1` (the default), render will try to
   use skeletal animation instead precalculated vertex values.

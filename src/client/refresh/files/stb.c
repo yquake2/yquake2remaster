@@ -435,6 +435,115 @@ scale3x(const byte *src, byte *dst, int width, int height)
 	}
 }
 
+/* Precomputed weights for 2x scale (Lanczos3)
+ * For 2x scaling, the sub-pixel offsets are always 0.0 and 0.5
+ * We only need weights for these two phases.
+ * static float
+ * Lanczos3(float x)
+ * {
+ *     float pi_x;
+ *
+ *     if (x == 0.0f)
+ *     {
+ *          return 1.0f;
+ *     }
+ *
+ *     if (x <= -3.0f || x >= 3.0f)
+ *     {
+ *           return 0.0f;
+ *     }
+ *
+ *     pi_x = M_PI * x;
+ *
+ *     return (3.0f * sinf(pi_x) * sinf(pi_x / 3.0f)) / (pi_x * pi_x);
+ * }
+ */
+static const float WEIGHTS[2][7] = {
+	/* Offset 0.0 (Centered on pixel) */
+	{ 0.0f, 0.0f, -0.05f, 1.0f, -0.05f, 0.0f, 0.0f },
+	/* Offset 0.5 (Between two pixels) */
+	{ 0.0f, 0.04f, -0.21f, 0.65f, 0.65f, -0.21f, 0.04f }
+};
+
+static void
+scale2x32bit(const byte *src, byte *dst, int width, int height)
+{
+	int new_width, new_height, y;
+
+	new_width = width * 2;
+	new_height = height * 2;
+
+	for (y = 0; y < new_height; y++)
+	{
+		int y_base, y_phase, x;
+
+		/* Calculate kernel phase based on parity */
+		y_phase = y % 2;
+		y_base = (y / 2) - 3;
+
+		for (x = 0; x < new_width; x++)
+		{
+			float rgba[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+			int x_phase, x_base, j;
+			byte *d;
+
+			x_phase = x % 2;
+			x_base = (x / 2) - 3;
+
+			/* Apply 2D convolution using precomputed 1D separable weights */
+			for (j = 0; j < 7; j++)
+			{
+				float wy;
+				int sy, i;
+
+				sy = y_base + j;
+
+				if (sy < 0)
+				{
+					sy = 0;
+				}
+				else if (sy >= height)
+				{
+					sy = height - 1;
+				}
+
+				wy = WEIGHTS[y_phase][j];
+
+				for (i = 0; i < 7; i++)
+				{
+					const byte *p;
+					float w;
+					int sx;
+
+					sx = x_base + i;
+					if (sx < 0)
+					{
+						sx = 0;
+					}
+					else if (sx >= width)
+					{
+						sx = width - 1;
+					}
+
+					w = wy * WEIGHTS[x_phase][i];
+					p = &src[(sy * width + sx) * 4];
+
+					rgba[0] += p[0] * w;
+					rgba[1] += p[1] * w;
+					rgba[2] += p[2] * w;
+					rgba[3] += p[3] * w;
+				}
+			}
+
+			d = &dst[(y * new_width + x) * 4];
+			d[0] = (byte)(rgba[0] > 255 ? 255 : (rgba[0] < 0 ? 0 : rgba[0]));
+			d[1] = (byte)(rgba[1] > 255 ? 255 : (rgba[1] < 0 ? 0 : rgba[1]));
+			d[2] = (byte)(rgba[2] > 255 ? 255 : (rgba[2] < 0 ? 0 : rgba[2]));
+			d[3] = (byte)(rgba[3] > 255 ? 255 : (rgba[3] < 0 ? 0 : rgba[3]));
+		}
+	}
+}
+
 static struct image_s *
 LoadHiColorImage(const char *name, const char* namewe, const char *ext,
 	imagetype_t type, loadimage_t load_image)
@@ -531,11 +640,41 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 		if (bitsPerPixel == 32)
 		{
-			image = load_image(name, pic,
-				width, realwidth,
-				height, realheight,
-				width * height,
-				type, bitsPerPixel);
+			if (r_scale32bittextures->value && type != it_pic)
+			{
+				size_t img_size;
+				byte *pic_scale;
+
+				img_size = width * height * 4 * 4;
+				pic_scale = malloc(img_size);
+				YQ2_COM_CHECK_OOM(pic_scale, "malloc()",
+					img_size)
+				if (!pic_scale)
+				{
+					/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+					return NULL;
+				}
+
+				scale2x32bit(pic, pic_scale, width, height);
+
+				width *= 2;
+				height *= 2;
+
+				image = load_image(name, pic_scale,
+					width, realwidth,
+					height, realheight,
+					width * height,
+					type, bitsPerPixel);
+				free(pic_scale);
+			}
+			else
+			{
+				image = load_image(name, pic,
+					width, realwidth,
+					height, realheight,
+					width * height,
+					type, bitsPerPixel);
+			}
 		}
 		else
 		{
@@ -589,15 +728,45 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 					image_buffer[i * 4 + 3] = value == 255 ? 0 : 255;
 				}
 
-				if (r_scale8bittextures->value)
+				if (r_scale32bittextures->value && type != it_pic)
 				{
-					SmoothColorImage((unsigned*)image_buffer, size, width);
+					size_t img_size;
+					byte *pic_scale;
+
+					img_size = width * height * 4 * 4;
+					pic_scale = malloc(img_size);
+					YQ2_COM_CHECK_OOM(pic_scale, "malloc()",
+						img_size)
+					if (!pic_scale)
+					{
+						/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
+						return NULL;
+					}
+
+					scale2x32bit(image_buffer, pic_scale, width, height);
+					width *= 2;
+					height *= 2;
+
+					image = load_image(name, pic_scale,
+						width, realwidth,
+						height, realheight,
+						width * height,
+						type, 32);
+					free(pic_scale);
+				}
+				else
+				{
+					if (r_scale8bittextures->value)
+					{
+						SmoothColorImage((unsigned*)image_buffer, size, width);
+					}
+
+					image = load_image(name, image_buffer,
+						width, realwidth,
+						height, realheight,
+						size, type, 32);
 				}
 
-				image = load_image(name, image_buffer,
-					width, realwidth,
-					height, realheight,
-					size, type, 32);
 				free (image_buffer);
 			}
 			else

@@ -572,6 +572,7 @@ extern cvar_t *r_palettedtextures;
 extern cvar_t *r_polyblend;
 extern cvar_t *r_retexturing;
 extern cvar_t *r_scale8bittextures;
+extern cvar_t *r_scale32bittextures;
 extern cvar_t *r_skeletalanimation;
 extern cvar_t *r_shadows;
 extern cvar_t *r_showtris;

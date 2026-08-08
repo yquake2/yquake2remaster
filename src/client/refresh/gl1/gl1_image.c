@@ -1028,7 +1028,9 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 				// scale 3 times if lerp image
 				if (!nolerp && (vid.height >= 240 * 3))
+				{
 					scale = 3;
+				}
 
 				if (height == 0 || scale == 0 || width > INT_MAX / height / scale / scale)
 				{
@@ -1038,7 +1040,9 @@ R_LoadPic(const char *name, byte *pic, int width, int realwidth,
 
 				image_converted = malloc(width * height * scale * scale);
 				if (!image_converted)
+				{
 					return NULL;
+				}
 
 				if (scale == 3) {
 					scale3x(pic, image_converted, width, height);

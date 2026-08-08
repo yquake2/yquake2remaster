@@ -392,6 +392,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] renders: add lanczos3 2x scale by `r_scale32bittextures`,
 * [x] Oblivion: Add support of `monster_soldier_deatom`,
 
 ### Not a goal:
