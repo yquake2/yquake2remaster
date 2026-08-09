@@ -374,6 +374,88 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	}
 }
 
+void
+bball_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+{
+	vec3_t normal;
+
+	if (!self || !other)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (other == self->owner)
+	{
+		return;
+	}
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (self->owner && self->owner->client)
+	{
+		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
+	}
+
+	get_normal_vector(plane, normal);
+
+	if (other->takedamage)
+	{
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
+				normal, self->dmg, 1, 0, MOD_UNKNOWN);
+	}
+
+	else
+	{
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_LASER_SPARKS);
+		gi.WriteByte(8);
+		gi.WritePosition(self->s.origin);
+		gi.WriteDir(normal);
+		gi.WriteByte(self->s.skinnum);
+		gi.multicast(self->s.origin, MULTICAST_PVS);
+	}
+
+	G_FreeEdict(self);
+}
+
+void
+fire_bball(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+{
+	edict_t *bolt;
+
+	if (!self)
+	{
+		return;
+	}
+
+	bolt = G_Spawn();
+	VectorCopy(start, bolt->s.origin);
+	VectorCopy(dir, bolt->movedir);
+	vectoangles(dir, bolt->s.angles);
+	VectorScale(dir, (float)speed, bolt->velocity);
+
+	bolt->movetype = MOVETYPE_FLYMISSILE;
+	bolt->clipmask = MASK_SHOT;
+	bolt->solid = SOLID_BBOX;
+
+	bolt->owner = self;
+	bolt->dmg = damage;
+	bolt->classname = "bolt";
+	bolt->s.modelindex = gi.modelindex("models/objects/bball/tris.md2");
+	bolt->s.sound = gi.soundindex("misc/lasfly.wav");
+
+	bolt->touch = bball_touch;
+	bolt->think = G_FreeEdict;
+	bolt->nextthink = level.time + 2;
+
+	gi.linkentity(bolt);
+}
+
 /*
  * Fires a single blaster bolt.
  * Used by the blaster and hyper blaster.

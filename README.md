@@ -364,7 +364,6 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_biggun`,
 * [ ] Infinity: Add support of `weapon_blaze`,
 * [ ] Infinity: Add support of `weapon_goop`,
-* [ ] Infinity: Add support of `weapon_pistol`,
 * [ ] Infinity: Add support of `weapon_rifle`,
 * [ ] Oblivion: Add support of `ammo_detpack`,
 * [ ] Oblivion: Add support of `ammo_dod`,
@@ -392,6 +391,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Infinity: Add support of `weapon_pistol`,
 * [x] renders: add lanczos3 2x scale by `r_scale32bittextures`,
 * [x] Oblivion: Add support of `monster_soldier_deatom`,
 

@@ -1854,6 +1854,45 @@ Weapon_Blaster(edict_t *ent)
 	}
 }
 
+static void
+Weapon_Pistol_Fire(edict_t *ent)
+{
+	vec3_t forward, right;
+	vec3_t start, offset;
+	int damage = 20; // Example damage, adjust as needed
+
+	if (!ent)
+	{
+		return;
+	}
+
+	if (is_quad)
+	{
+		damage *= damage_multiplier;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	P_ProjectSource(ent, offset, forward, right, start);
+
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+
+	fire_bball(ent, start, forward, damage, 1000);
+
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_BLASTER | is_silenced);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	ent->client->ps.gunframe++;
+
+	G_RemoveAmmo(ent);
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -1869,7 +1908,7 @@ Weapon_DynamicWeapon(edict_t *ent)
 		static const int fire_frames[] = {5, 0};
 
 		Weapon_Generic(ent, 4, 8, 52, 55, pause_frames,
-				fire_frames, Weapon_Blaster_Fire);
+				fire_frames, Weapon_Pistol_Fire);
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_goop"))
 	{
