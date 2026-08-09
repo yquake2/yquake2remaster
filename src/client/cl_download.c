@@ -569,7 +569,8 @@ CL_DownloadFilter(const char *filename)
 		return true;
 	}
 
-	for (i = 0; extensions[i]; i ++) {
+	for (i = 0; extensions[i]; i ++) 
+	{
 		if (strstr(filename, extensions[i]))
 		{
 			Com_Printf("Refusing to download a path containing '%s': %s\n", extensions[i], filename);

@@ -3240,166 +3240,186 @@ M_Menu_Credits_f(void)
  * MODS MENU
  */
 
+#define MODS_MAX_DISPNAMELEN 15
+
 static menuframework_s s_mods_menu;
 static menulist_s s_mods_list;
 static menuaction_s s_mods_apply_action;
 static char mods_statusbar[64] = {0};
 
-static char **modnames = NULL;
-static int nummods;
+static strlist_t modnames;
+static strlist_t moddispnames;
 
-void
+static void
 Mods_NamesFinish(void)
 {
-	if (modnames)
-	{
-		int i;
+	StrList_Free(&modnames);
+	StrList_Free(&moddispnames);
 
-		for (i = 0; i < nummods; i ++)
+	s_mods_list.itemnames = NULL;
+}
+
+/* create array of bracketed display names from folder names - TG626 */
+static strlist_t
+Mods_DisplayNamesInit(const strlist_t *mods)
+{
+	strlist_t list;
+	int i;
+
+	StrList_Init(&list, 0);
+
+	for (i = 0; i < mods->num; i++)
+	{
+		const char *m;
+		char dispname[MODS_MAX_DISPNAMELEN + 3];
+		int len;
+
+		strcpy(dispname, "[");
+
+		m = mods->data[i];
+		len = strlen(m);
+
+		if (len <= MODS_MAX_DISPNAMELEN)
 		{
-			free(modnames[i]);
+			int j;
+
+			strcat(dispname, m);
+
+			for (j = 0; j < (MODS_MAX_DISPNAMELEN - len); j++)
+			{
+				strcat(dispname, " ");
+			}
+		}
+		else
+		{
+			strncat(dispname, m, MODS_MAX_DISPNAMELEN - 3);
+			strcat(dispname, "...");
 		}
 
-		free(modnames);
-		modnames = NULL;
+		strcat(dispname, "]");
+
+		StrList_Append(&list, dispname);
 	}
+
+	return list;
 }
 
 static void
 Mods_NamesInit(void)
 {
 	/* initialize list of mods once, reuse it afterwards */
-	if (modnames == NULL)
+	if (!modnames.num)
 	{
-		modnames = FS_ListMods(&nummods);
+		modnames = FS_ListMods();
+		moddispnames = Mods_DisplayNamesInit(&modnames);
+
+		StrList_Compress(&modnames);
+		StrList_Compress(&moddispnames);
 	}
 }
 
 static void
 ModsListFunc(void *unused)
 {
-	if (strcmp(BASEDIRNAME, modnames[s_mods_list.curvalue]) == 0)
+	const char *m, *sb;
+	int i;
+
+	i = s_mods_list.curvalue;
+
+	if ((i < 0) || (i >= modnames.num))
 	{
-		strcpy(mods_statusbar, "Quake II");
+		strcpy(mods_statusbar, "(invalid)");
+		return;
 	}
-	else if (strcmp("ctf", modnames[s_mods_list.curvalue]) == 0)
+
+	m = modnames.data[i];
+
+	if (!strcmp(BASEDIRNAME, m))
 	{
-		strcpy(mods_statusbar, "Quake II Capture The Flag");
+		sb = "Quake II";
 	}
-	else if (strcmp("rogue", modnames[s_mods_list.curvalue]) == 0)
+	else if (!strcmp("ctf", m))
 	{
-		strcpy(mods_statusbar, "Quake II Mission Pack: Ground Zero");
+		sb = "Quake II Capture The Flag";
 	}
-	else if (strcmp("xatrix", modnames[s_mods_list.curvalue]) == 0)
+	else if (!strcmp("rogue", m))
 	{
-		strcpy(mods_statusbar, "Quake II Mission Pack: The Reckoning");
+		sb = "Quake II Mission Pack: Ground Zero";
 	}
-	else if (strcmp("zaero", modnames[s_mods_list.curvalue]) == 0)
+	else if (!strcmp("xatrix", m))
+	{
+		sb = "Quake II Mission Pack: The Reckoning";
+	}
+	else if (strcmp("zaero", modnames.data[s_mods_list.curvalue]) == 0)
 	{
 		strcpy(mods_statusbar, "Unofficial: Team Evolve's Zaero");
 	}
 	else
 	{
-		strcpy(mods_statusbar, "\0");
+		sb = "";
 	}
+
+	strcpy(mods_statusbar, sb);
 }
 
 static void
 ModsApplyActionFunc(void *unused)
 {
-	if (!M_IsGame(modnames[s_mods_list.curvalue]))
+	int i = s_mods_list.curvalue;
+
+	if ((i < 0) || (i >= modnames.num))
 	{
-		/* Unload localization */
-		SV_LocalizationFree();
-		/* Free models cache */
-		Mod_AliasesFreeAll();
-
-		if(Com_ServerState())
-		{
-			// equivalent to "killserver" cmd, but avoids cvar latching below
-			SV_Shutdown("Server is changing games.\n", false);
-			NET_Config(false);
-		}
-
-		// called via command buffer so that any running server has time to shutdown
-		Cbuf_AddText(va("game %s\n", modnames[s_mods_list.curvalue]));
-
-		// start the demo cycle in the new game directory
-		menu_startdemoloop = true;
-
-		M_ForceMenuOff();
+		return;
 	}
+
+	if (M_IsGame(modnames.data[i]))
+	{
+		return;
+	}
+
+	/* Unload localization */
+	SV_LocalizationFree();
+	/* Free models cache */
+	Mod_AliasesFreeAll();
+
+	if (Com_ServerState())
+	{
+		// equivalent to "killserver" cmd, but avoids cvar latching below
+		SV_Shutdown("Server is changing games.\n", false);
+		NET_Config(false);
+	}
+
+	// called via command buffer so that any running server has time to shutdown
+	Cbuf_AddText(va("game %s\n", modnames.data[i]));
+
+	// start the demo cycle in the new game directory
+	menu_startdemoloop = true;
+
+	M_ForceMenuOff();
+}
+
+static int
+Mods_CurrentModIndex(void)
+{
+	int m;
+
+	for (m = 0; m < modnames.num; m++)
+	{
+		if (M_IsGame(modnames.data[m]))
+		{
+			return m;
+		}
+	}
+
+	return 0;
 }
 
 static void
 Mods_MenuInit(void)
 {
-	int currentmod, x = 0, y = 0, i;
-	char modname[MAX_QPATH]; /* TG626 */
-	char **displaynames, **ptr;
-
-	displaynames = ptr = (char **)s_mods_list.itemnames;
-
-	if (ptr)
-	{
-		while (*ptr)
-		{
-			free(*ptr);
-			ptr ++;
-		}
-
-		free(displaynames);
-	}
+	int x = 0, y = 0;
 
 	Mods_NamesInit();
-
-	/* create array of bracketed display names from folder names - TG626 */
-	displaynames = malloc(sizeof(*displaynames) * (nummods + 1));
-	YQ2_COM_CHECK_OOM(displaynames, "malloc()", sizeof(*displaynames) * (nummods + 1))
-	if (!displaynames)
-	{
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-		return;
-	}
-
-	for (i = 0; i < nummods; i++)
-	{
-		strcpy(modname, "[");
-		if (strlen(modnames[i]) < 16)
-		{
-			strcat(modname, modnames[i]);
-			for (int j=0; j < 15 - strlen(modnames[i]); j++)
-			{
-				strcat(modname, " ");
-			}
-		}
-		else
-		{
-			strncat(modname, modnames[i], 12);
-			strcat(modname, "...");
-		}
-		strcat(modname, "]");
-
-		displaynames[i] = strdup(modname);
-		YQ2_COM_CHECK_OOM(displaynames[i], "strdup()", strlen(modname) + 1)
-		if (!displaynames[i])
-		{
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return;
-		}
-	}
-
-	displaynames[nummods] = NULL;
-	/* end TG626 */
-
-	/* pre-select the current mod for display in the list */
-	for (currentmod = 0; currentmod < nummods; currentmod++)
-	{
-		if (M_IsGame(modnames[currentmod]))
-		{
-			break;
-		}
-	}
 
 	s_mods_menu.x = viddef.width * 0.50;
 	s_mods_menu.nitems = 0;
@@ -3409,8 +3429,8 @@ Mods_MenuInit(void)
 	s_mods_list.generic.x = x;
 	s_mods_list.generic.y = y;
 	s_mods_list.generic.callback = ModsListFunc;
-	s_mods_list.itemnames = (const char **)displaynames;
-	s_mods_list.curvalue = currentmod < nummods ? currentmod : 0;
+	s_mods_list.itemnames = (const char **)moddispnames.data;
+	s_mods_list.curvalue = Mods_CurrentModIndex();
 
 	y += 20;
 
@@ -3604,7 +3624,7 @@ Game_MenuInit(void)
 	Menu_AddItem(&s_game_menu, (void *)&s_save_game_action);
 	Menu_AddItem(&s_game_menu, (void *)&s_credits_action);
 
-	if(nummods > 1)
+	if(modnames.num > 1)
 	{
 		s_mods_action.generic.type = MTYPE_ACTION;
 		s_mods_action.generic.flags = QMF_LEFT_JUSTIFY;
@@ -4299,8 +4319,7 @@ M_Menu_JoinServer_f(void)
  */
 
 static menuframework_s s_startserver_menu;
-static char **mapnames = NULL;
-static int nummaps;
+static strlist_t maplist;
 
 static menuaction_s s_startserver_start_action;
 static menuaction_s s_startserver_dmoptions_action;
@@ -4370,7 +4389,12 @@ StartServerActionFunc(void *self)
 	float fraglimit;
 	float maxclients;
 
-	startmap = strchr(mapnames[s_startmap_list.curvalue], '\n');
+	if (s_startmap_list.curvalue >= maplist.num)
+	{
+		return;
+	}
+
+	startmap = strchr(maplist.data[s_startmap_list.curvalue], '\n');
 
 	if (!startmap)
 	{
@@ -4433,31 +4457,21 @@ StartServerActionFunc(void *self)
 void
 CleanCachedMapsList(void)
 {
-	if (mapnames != NULL)
-	{
-		size_t i;
+	StrList_Free(&maplist);
 
-		for (i = 0; i < nummaps; i++)
-		{
-			free(mapnames[i]);
-		}
-
-		free(mapnames);
-		mapnames = NULL;
-	}
+	s_startmap_list.itemnames = NULL;
 }
 
-static char**
-GetMapsDBList(int *num)
+static strlist_t
+GetMapsDBList(void)
 {
+	strlist_t list;
 	char *buffer;
-	int length;
 
-	if ((length = FS_LoadFile("mapdb.json", (void **)&buffer)) != -1)
+	StrList_Init(&list, 0);
+
+	if (FS_LoadFile("mapdb.json", (void **)&buffer) > 0)
 	{
-		char **mapnamestmp = NULL;
-		int numtmpmaps = 0;
-
 		char *s = buffer;
 		char shortname[MAX_TOKEN_CHARS];
 		char longname[MAX_TOKEN_CHARS];
@@ -4498,320 +4512,123 @@ GetMapsDBList(int *num)
 					Q_strlcpy(longname, token, sizeof(longname));
 
 					/* now we have both bsp and title, build entry */
-					Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
-
-					/* grow array */
-					char **newlist = realloc(mapnamestmp, sizeof(char *) * (numtmpmaps + 2));
-					if (!newlist)
+					if (snprintf(scratch, sizeof(scratch),
+						"%.*s\n%s",
+						63, longname, shortname) < sizeof(scratch))
 					{
-						free(mapnamestmp);
-						FS_FreeFile(buffer);
-						YQ2_COM_CHECK_OOM(newlist, "realloc(mapnamestmp)", sizeof(char *) * (numtmpmaps + 2))
-						return NULL;
+						StrList_Append(&list, scratch);
 					}
-
-					mapnamestmp = newlist;
-
-					mapnamestmp[numtmpmaps] = strdup(scratch);
-					YQ2_COM_CHECK_OOM(mapnamestmp[numtmpmaps], "strdup(scratch)", strlen(scratch)+1)
-					if (!mapnamestmp[numtmpmaps])
-					{
-						free(mapnamestmp);
-						FS_FreeFile(buffer);
-						return NULL;
-					}
-
-					numtmpmaps++;
-					mapnamestmp[numtmpmaps] = NULL;
 				}
 			}
 		}
-
-		FS_FreeFile(buffer);
-		*num = numtmpmaps;
-		return mapnamestmp;
 	}
 
-	return NULL;
+	FS_FreeFile(buffer);
+
+	return list;
 }
 
-static char**
-GetMapsList(int *num)
+static strlist_t
+MapsInLst(void)
 {
-	int length;
+	strlist_t list;
 	char *buffer;
 
-	/* load the list of map names */
-	if ((length = FS_LoadFile("maps.lst", (void **)&buffer)) != -1)
+	StrList_Init(&list, 0);
+
+	if (FS_LoadFile("maps.lst", (void **)&buffer) > 0)
 	{
-		char **mapnames = NULL;
-		size_t nummapslen;
-		int i, nummaps = 0;
+		char *bufpos;
 
-		char *s;
+		bufpos = buffer;
 
-		s = buffer;
-		i = 0;
-
-		while (i < length)
+		while (bufpos)
 		{
-			if (s[i] == '\n')
+			char shortname[64];
+			char scratch[128];
+			const char *s;
+
+			s = COM_Parse(&bufpos);
+			if (!s || *s == '\0')
 			{
-				nummaps++;
+				break;
 			}
 
-			i++;
-		}
-
-		if (nummaps == 0)
-		{
-			Com_Printf("no maps in maps.lst\n");
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return NULL;
-		}
-
-		nummapslen = sizeof(char *) * (nummaps + 1);
-		mapnames = malloc(nummapslen);
-
-		YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (nummaps + 1))", nummapslen)
-		if (!mapnames)
-		{
-			/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-			return NULL;
-		}
-
-		memset(mapnames, 0, nummapslen);
-
-		s = buffer;
-
-		for (i = 0; i < nummaps; i++)
-		{
-			char shortname[MAX_TOKEN_CHARS];
-			char longname[MAX_TOKEN_CHARS];
-			char scratch[200];
-			size_t j, l;
-
-			Q_strlcpy(shortname, COM_Parse(&s), sizeof(shortname));
-			l = strlen(shortname);
-
-			for (j = 0; j < l; j++)
-			{
-				shortname[j] = toupper((unsigned char)shortname[j]);
-			}
-
-			Q_strlcpy(longname, COM_Parse(&s), sizeof(longname));
-			Com_sprintf(scratch, sizeof(scratch), "%s\n%s", longname, shortname);
-
-			mapnames[i] = strdup(scratch);
-			YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
-			if (!mapnames[i])
-			{
-				free(mapnames);
-				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-				return NULL;
-			}
-		}
-
-		mapnames[nummaps] = NULL;
-		FS_FreeFile(buffer);
-
-		*num = nummaps;
-		return mapnames;
-	}
-
-	return NULL;
-}
-
-static char**
-GetMapsInFolderList(int *nummaps)
-{
-	/* Generate list by bsp files in maps/ directory */
-	strlist_t list;
-	size_t nummapslen;
-	char **mapnames = NULL;
-	int i;
-
-	list = FS_ListFilesx2("maps/*.bsp", 0, 0);
-	if (!list.num)
-	{
-		Com_Printf("couldn't find maps/*.bsp\n");
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-		return NULL;
-	}
-
-	nummapslen = sizeof(char *) * (list.num + 1);
-	mapnames = malloc(nummapslen);
-	YQ2_COM_CHECK_OOM(mapnames, "malloc(sizeof(char *) * (num))", nummapslen)
-	if (!mapnames)
-	{
-		StrList_Free(&list);
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-		return NULL;
-	}
-
-	memset(mapnames, 0, nummapslen);
-
-	for (i = 0; i < list.num; i++)
-	{
-		size_t len;
-
-		len = strlen(list.data[i]);
-		if (len > 9 && len < MAX_QPATH)
-		{
-			char scratch[200], shortname[MAX_QPATH];
-
-			/* maps/ + .bsp */
-			Q_strlcpy(shortname, list.data[i] + 5, sizeof(shortname));
-			shortname[len - 9]  = 0;
-
-			Com_sprintf(scratch, sizeof(scratch), "%s\n%s", shortname, shortname);
-
-			mapnames[i] = strdup(scratch);
-			YQ2_COM_CHECK_OOM(mapnames[i], "strdup(scratch)", strlen(scratch)+1)
-			if (!mapnames[i])
-			{
-				/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-				return NULL;
-			}
-		}
-	}
-
-	mapnames[list.num] = NULL;
-
-	/* sort maps names alphabetically */
-	qsort(mapnames, list.num, sizeof(char*), Q_sort_stricmp);
-
-	*nummaps = list.num;
-
-	/* free file list */
-	StrList_Free(&list);
-
-	return mapnames;
-}
-
-static void
-AddMapsToList(char **mapnames_source, int nummaps_source, char **mapname_target, int *nummaps_taget)
-{
-	size_t currpos;
-
-	for (currpos = 0; currpos < nummaps_source; currpos ++)
-	{
-		qboolean found;
-		const char *foldername;
-		size_t i;
-
-		foldername = strchr(mapnames_source[currpos], '\n');
-		if (!foldername)
-		{
-			free(mapnames_source[currpos]);
-			continue;
-		}
-		foldername++;
-
-		found = false;
-		for (i = 0; i < *nummaps_taget; i++)
-		{
-			const char *currname;
-
-			currname = strchr(mapname_target[i], '\n');
-			if (!currname)
+			if (Q_strlcpy(shortname, s,
+				sizeof(shortname)) >= sizeof(shortname))
 			{
 				continue;
 			}
-			currname++;
 
-			if (!Q_stricmp(currname, foldername))
+			Q_strupr(shortname);
+
+			s = COM_Parse(&bufpos);
+			if (!s || *s == '\0')
 			{
-				found = true;
 				break;
 			}
-		}
 
-		if (!found)
-		{
-			mapname_target[*nummaps_taget] = mapnames_source[currpos];
-			(*nummaps_taget) ++;
-		}
-		else
-		{
-			free(mapnames_source[currpos]);
+			if (snprintf(scratch, sizeof(scratch),
+				"%.*s\n%s",
+				63, s, shortname) < sizeof(scratch))
+			{
+				StrList_Append(&list, scratch);
+			}
 		}
 	}
+
+	FS_FreeFile(buffer);
+
+	return list;
 }
 
-static char**
-GetCombinedMapsList(int *nummaps)
+static int
+ls_mapeq(const char *list_s, const char *targ_s)
 {
-	char **mapnamestmp_list = NULL, **mapnamestmp_folder = NULL, **mapnamestmp = NULL, **mapdbnamestmp_list = NULL;
-	int nummaps_list = 0, nummaps_folder = 0, nummapsdb_list = 0;
-	size_t nummapslen;
+	const char *slash = strchr(list_s, '\n');
 
-	mapnamestmp_folder = GetMapsInFolderList(&nummaps_folder);
-	if (!mapnamestmp_folder)
-	{
-		/* no maps at all? */
-		return NULL;
-	}
+	return (!slash) ? 0 : Q_stricmp(targ_s, slash + 1);
+}
 
-	mapnamestmp_list = GetMapsList(&nummaps_list);
-	mapdbnamestmp_list = GetMapsDBList(&nummapsdb_list);
-	if (!mapnamestmp_list && !mapdbnamestmp_list)
-	{
-		/* no maps in list? */
-		*nummaps = nummaps_folder;
-		return mapnamestmp_folder;
-	}
+/* Add bsp files in maps/ dir to list */
+static void
+MapsInFolder(strlist_t *maps)
+{
+	strlist_t list;
+	int i;
 
-	/* we have maps in file and in folder */
-	nummapslen = sizeof(char *) * (nummaps_list + nummaps_folder + nummapsdb_list + 1);
-	mapnamestmp = malloc(nummapslen);
-	if (!mapnamestmp)
+	list = FS_ListFiles2("maps/*.bsp", 0, 0);
+
+	for (i = 0; i < list.num; i++)
 	{
-		if (mapnamestmp_list && nummaps_list)
+		char scratch[128];
+		const char *s;
+		size_t len;
+
+		len = strlen(list.data[i]);
+		/* maps/ + .bsp */
+		if (len <= 9 || len > (63+9))
 		{
-			size_t i;
-
-			for (i = 0; i < nummaps_list; i++)
-			{
-				free(mapnamestmp_list[i]);
-			}
-
-			free(mapnamestmp_list);
+			continue;
 		}
 
-		if (mapdbnamestmp_list && nummapsdb_list)
+		list.data[i][len - 4]  = '\0';
+
+		s = list.data[i] + 5;
+
+		if (StrList_Contains2(maps, ls_mapeq, s))
 		{
-			size_t i;
-
-			for (i = 0; i < nummapsdb_list; i++)
-			{
-				free(mapdbnamestmp_list[i]);
-			}
-
-			free(mapdbnamestmp_list);
+			continue;
 		}
 
-		YQ2_COM_CHECK_OOM(mapnamestmp, "malloc(sizeof(char *) * (num))", nummapslen)
-
-		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
-		*nummaps = nummaps_folder;
-		return mapnamestmp_folder;
+		if (snprintf(scratch, sizeof(scratch), "%s\n%s",
+			s, s) < sizeof(scratch))
+		{
+			StrList_Append(maps, scratch);
+		}
 	}
 
-	memset(mapnamestmp, 0, nummapslen);
-	*nummaps = 0;
-
-	AddMapsToList(mapnamestmp_list, nummaps_list, mapnamestmp, nummaps);
-	AddMapsToList(mapdbnamestmp_list, nummapsdb_list, mapnamestmp, nummaps);
-	AddMapsToList(mapnamestmp_folder, nummaps_folder, mapnamestmp, nummaps);
-
-	mapnamestmp[*nummaps] = NULL;
-
-	free(mapnamestmp_list);
-	free(mapnamestmp_folder);
-	free(mapdbnamestmp_list);
-
-	return mapnamestmp;
+	StrList_Free(&list);
 }
 
 static void
@@ -4831,17 +4648,23 @@ StartServer_MenuInit(void)
 	float scale = SCR_GetMenuScale();
 
 	/* initialize list of maps once, reuse it afterwards (=> it isn't freed unless the game dir is changed) */
-	if (mapnames == NULL)
+	if (!maplist.num)
 	{
-		nummaps = 0;
 		s_startmap_list.curvalue = 0;
 
-		mapnames = GetCombinedMapsList(&nummaps);
-
-		if (!mapnames || !nummaps)
+		maplist = GetMapsDBList();
+		if (!maplist.num)
 		{
-			Com_Error(ERR_DROP, "no maps in maps.lst\n");
-			return;
+			maplist = MapsInLst();
+		}
+
+		MapsInFolder(&maplist);
+
+		StrList_Compress(&maplist);
+
+		if (!maplist.num)
+		{
+			Menu_StartPopup(&m_popup, "No maps were found\nin maps.lst or folders", 2000);
 		}
 	}
 
@@ -4855,7 +4678,7 @@ StartServer_MenuInit(void)
 	s_startmap_list.generic.x = 0;
 	s_startmap_list.generic.y = y;
 	s_startmap_list.generic.name = "initial map";
-	s_startmap_list.itemnames = (const char **)mapnames;
+	s_startmap_list.itemnames = (const char **)maplist.data;
 
 	if (M_IsGame("ctf"))
 	{
@@ -5726,10 +5549,45 @@ static menuaction_s s_player_download_action;
 // player model info
 static strlist_t s_skinnames[MAX_PLAYERMODELS];
 static strlist_t s_modelname;
+static char player_icon_path[MAX_QPATH];
 
-static int rate_tbl[] = {2500, 3200, 5000, 10000, 25000, 0};
+static int rate_tbl[] = {2500, 3200, 5000, 10000, 25000};
 static const char *rate_names[] = {"28.8 Modem", "33.6 Modem", "Single ISDN",
 								   "Dual ISDN/Cable", "T1/LAN", "User defined", NULL};
+
+static const cvar_t *model_preview_start = NULL;
+static const cvar_t *model_preview_end = NULL;
+static const cvar_t *cl_mesh_mask = NULL;
+
+static void
+SelectedModelSkin(const char **mdl, const char **img)
+{
+	int mi = s_player_model_box.curvalue;
+	int si = s_player_skin_box.curvalue;
+
+	if (mdl)
+	{
+		*mdl = NULL;
+	}
+
+	if (img)
+	{
+		*img = NULL;
+	}
+
+	if (mi >= 0 && mi < s_modelname.num)
+	{
+		if (mdl)
+		{
+			*mdl = s_modelname.data[mi];
+		}
+
+		if (img && si >= 0 && si < s_skinnames[mi].num)
+		{
+			*img = s_skinnames[mi].data[si];
+		}
+	}
+}
 
 static void
 DownloadOptionsFunc(void *self)
@@ -5744,38 +5602,68 @@ HandednessCallback(void *unused)
 }
 
 static void
-RateCallback(void *unused)
+RateCallback(void *self)
 {
-	if (s_player_rate_box.curvalue != ARRLEN(rate_tbl) - 1)
+	const menulist_s *r = self;
+
+	if (r->curvalue >= 0 && r->curvalue != ARRLEN(rate_tbl))
 	{
-		Cvar_SetValue("rate", (float)rate_tbl[s_player_rate_box.curvalue]);
+		Cvar_SetValue("rate", rate_tbl[r->curvalue]);
 	}
 }
 
 static void
-ModelCallback(void *unused)
+SkinCallback(void *unused)
 {
-	s_player_skin_box.itemnames = (const char **)s_skinnames[s_player_model_box.curvalue].data;
-	s_player_skin_box.curvalue = 0;
+	const char *mdl, *img;
+
+	SelectedModelSkin(&mdl, &img);
+
+	if (!mdl || !img ||
+		snprintf(player_icon_path, sizeof(player_icon_path),
+			"/players/%s/%s_i.pcx", mdl,img) >= sizeof(player_icon_path))
+	{
+		*player_icon_path = '\0';
+	}
+}
+
+static void
+ModelCallback(void *self)
+{
+	const menulist_s *m = self;
+	menulist_s *s = &s_player_skin_box;
+	const char **skinnames;
+
+	skinnames = (const char **)s_skinnames[m->curvalue].data;
+
+	if (s->itemnames != skinnames)
+	{
+		s->itemnames = skinnames;
+		s->curvalue = 0;
+
+		SkinCallback(s);
+	}
 }
 
 // returns true if icon .pcx exists for skin .pcx
 static qboolean
-IconOfSkinExists(const char* skin, strlist_t *files, const char *ext)
+IconOfSkinExists(const char *skin, const strlist_t *files, const char *ext)
 {
-	char scratch[1024], *dot;
+	char scratch[MAX_QPATH];
 	int i;
 
-	Q_strlcpy(scratch, skin, sizeof(scratch));
-	dot = strrchr(scratch, '.');
-	if (!dot)
+	if (Q_strlcpy(scratch, skin, sizeof(scratch)) >= sizeof(scratch))
 	{
 		return false;
 	}
 
-	*dot = 0;
-	Q_strlcat(scratch, "_i.", sizeof(scratch));
-	Q_strlcat(scratch, ext, sizeof(scratch));
+	COM_StripExtension2(scratch);
+
+	if (Q_strlcat(scratch, "_i.", sizeof(scratch)) >= sizeof(scratch) ||
+		Q_strlcat(scratch, ext, sizeof(scratch)) >= sizeof(scratch))
+	{
+		return false;
+	}
 
 	for (i = 0; i < files->num; i++)
 	{
@@ -5832,12 +5720,15 @@ PlayerModelFree()
 
 	s_player_model_box.itemnames = NULL;
 	s_player_skin_box.itemnames = NULL;
+
+	model_preview_start = NULL;
+	model_preview_end = NULL;
+	cl_mesh_mask = NULL;
 }
 
-/* list all player model directories.
- * directory names are stored players/<modelname>.
- * directory number never exceeds MAX_PLAYERMODELS
- */
+// list all player model directories.
+// directory names are stored players/<modelname>.
+// directory number never exceeds MAX_PLAYERMODELS
 static strlist_t
 PlayerDirectoryList(void)
 {
@@ -5848,7 +5739,7 @@ PlayerDirectoryList(void)
 
 	StrList_Init(&list, 0);
 
-	dirs = FS_ListFilesx2(findname, 0, 0);
+	dirs = FS_ListFiles2(findname, 0, 0);
 
 	for (i = 0; i < dirs.num; ++i)
 	{
@@ -5902,7 +5793,7 @@ SkinsInDir(strlist_t *sl, const char *dirname, const char *ext)
 		return;
 	}
 
-	list = FS_ListFilesx2(findname, 0, 0);
+	list = FS_ListFiles2(findname, 0, 0);
 	dirname_size = strlen(dirname) + 1;
 
 	StrList_Expand(sl, sl->num + list.num);
@@ -5943,16 +5834,16 @@ PlayerModelList(const strlist_t *dirs)
 		s = dirs->data[i];
 
 		if (!s || (
-			!FS_FileExists(s, "tris.fm") &&
-			!FS_FileExists(s, "tris.dkm") &&
-			!FS_FileExists(s, "tris.def") &&
-			!FS_FileExists(s, "tris.md2") &&
-			!FS_FileExists(s, "tris.md3") &&
-			!FS_FileExists(s, "tris.mdr") &&
-			!FS_FileExists(s, "tris.md5mesh") &&
-			!FS_FileExists(s, "tris.mdx") &&
-			!FS_FileExists(s, "tris.mdl") &&
-			!FS_FileExists(s, "tris.obj")))
+			!FS_FileExists(va("%s/tris.fm", s)) &&
+			!FS_FileExists(va("%s/tris.dkm", s)) &&
+			!FS_FileExists(va("%s/tris.def", s)) &&
+			!FS_FileExists(va("%s/tris.md2", s)) &&
+			!FS_FileExists(va("%s/tris.md3", s)) &&
+			!FS_FileExists(va("%s/tris.mdr", s)) &&
+			!FS_FileExists(va("%s/tris.md5mesh", s)) &&
+			!FS_FileExists(va("%s/tris.mdx", s)) &&
+			!FS_FileExists(va("%s/tris.mdl", s)) &&
+			!FS_FileExists(va("%s/tris.obj", s))))
 		{
 			continue;
 		}
@@ -6080,6 +5971,24 @@ ListModels_f(void)
 	PlayerModelFree();
 }
 
+static int
+CurrentRateIndex(void)
+{
+	int i, curr_rate;
+
+	curr_rate = Cvar_VariableValue("rate");
+
+	for (i = 0; i < ARRLEN(rate_tbl); i++)
+	{
+		if (rate_tbl[i] == curr_rate)
+		{
+			break;
+		}
+	}
+
+	return i;
+}
+
 static qboolean
 PlayerConfig_MenuInit(void)
 {
@@ -6088,16 +5997,15 @@ PlayerConfig_MenuInit(void)
 	const cvar_t *hand = Cvar_Get( "hand", "0", CVAR_USERINFO | CVAR_ARCHIVE );
 	static const char *handedness[] = { "right", "left", "center", NULL};
 	char mdlname[MAX_QPATH];
-	char imgname[MAX_QPATH];
+	const char *imgname;
 	char *slash;
-	int mdlindex = 0;
-	int imgindex = 0;
-	int i = 0;
+	int mdlindex, imgindex;
 	float scale = SCR_GetMenuScale();
 
-	if (PlayerConfig_ScanDirectories() == false)
+	if (!PlayerConfig_ScanDirectories())
 	{
-		return false;
+		Menu_StartPopup(&m_popup,
+			"No player models\nwere found", 3000);
 	}
 
 	Q_strlcpy(mdlname, skin->string, sizeof(mdlname));
@@ -6105,32 +6013,25 @@ PlayerConfig_MenuInit(void)
 	slash = Q_strchrs(mdlname, "/\\");
 	if (slash)
 	{
-		Q_strlcpy(imgname, slash + 1, sizeof(imgname));
 		*slash = '\0';
+		imgname = slash + 1;
 	}
 	else
 	{
 		strcpy(mdlname, "male");
-		strcpy(imgname, "grunt");
+		imgname = "grunt";
 	}
 
-	for (i = 0; i < s_modelname.num; i++)
+	mdlindex = StrList_Find(&s_modelname, Q_stricmp, mdlname);
+	if (mdlindex >= s_modelname.num)
 	{
-		if (Q_stricmp(s_modelname.data[i], mdlname) == 0)
-		{
-			mdlindex = i;
-			break;
-		}
+		mdlindex = 0;
 	}
 
-	for (i = 0; i < s_skinnames[mdlindex].num; i++)
+	imgindex = StrList_Find(&s_skinnames[mdlindex], Q_stricmp, imgname);
+	if (imgindex >= s_skinnames[mdlindex].num)
 	{
-		const char* names = s_skinnames[mdlindex].data[i];
-		if (Q_stricmp(names, imgname) == 0)
-		{
-			imgindex = i;
-			break;
-		}
+		imgindex = 0;
 	}
 
 	if (hand->value < 0 || hand->value > 2)
@@ -6154,7 +6055,7 @@ PlayerConfig_MenuInit(void)
 	s_player_icon_bitmap.generic.flags = QMF_INACTIVE;
 	s_player_icon_bitmap.generic.x = ((viddef.width / scale - 95) / 2) - 87;
 	s_player_icon_bitmap.generic.y = ((viddef.height / (2 * scale))) - 72;
-	s_player_icon_bitmap.generic.name = NULL;
+	s_player_icon_bitmap.generic.name = player_icon_path;
 	s_player_icon_bitmap.generic.callback = NULL;
 	s_player_icon_bitmap.focuspic = 0;
 
@@ -6182,10 +6083,13 @@ PlayerConfig_MenuInit(void)
 	s_player_skin_box.generic.x = -56 * scale;
 	s_player_skin_box.generic.y = 94;
 	s_player_skin_box.generic.name = NULL;
-	s_player_skin_box.generic.callback = NULL;
+	s_player_skin_box.generic.callback = SkinCallback;
 	s_player_skin_box.generic.cursor_offset = -48;
 	s_player_skin_box.curvalue = imgindex;
 	s_player_skin_box.itemnames = (const char **)s_skinnames[mdlindex].data;
+
+	/* initialize player icon */
+	SkinCallback(&s_player_skin_box);
 
 	s_player_hand_title.generic.type = MTYPE_SEPARATOR;
 	s_player_hand_title.generic.name = "handedness";
@@ -6201,14 +6105,6 @@ PlayerConfig_MenuInit(void)
 	s_player_handedness_box.curvalue = ClampCvar(0, 2, hand->value);
 	s_player_handedness_box.itemnames = handedness;
 
-	for (i = 0; i < ARRLEN(rate_tbl) - 1; i++)
-	{
-		if (Cvar_VariableValue("rate") == rate_tbl[i])
-		{
-			break;
-		}
-	}
-
 	s_player_rate_title.generic.type = MTYPE_SEPARATOR;
 	s_player_rate_title.generic.name = "connect speed";
 	s_player_rate_title.generic.x = 56 * scale;
@@ -6220,7 +6116,7 @@ PlayerConfig_MenuInit(void)
 	s_player_rate_box.generic.name = NULL;
 	s_player_rate_box.generic.cursor_offset = -48;
 	s_player_rate_box.generic.callback = RateCallback;
-	s_player_rate_box.curvalue = i;
+	s_player_rate_box.curvalue = CurrentRateIndex();
 	s_player_rate_box.itemnames = rate_names;
 
 	s_player_download_action.generic.type = MTYPE_ACTION;
@@ -6235,13 +6131,8 @@ PlayerConfig_MenuInit(void)
 	Menu_AddItem(&s_player_config_menu, &s_player_icon_bitmap);
 	Menu_AddItem(&s_player_config_menu, &s_player_model_title);
 	Menu_AddItem(&s_player_config_menu, &s_player_model_box);
-
-	if (s_player_skin_box.itemnames)
-	{
-		Menu_AddItem(&s_player_config_menu, &s_player_skin_title);
-		Menu_AddItem(&s_player_config_menu, &s_player_skin_box);
-	}
-
+	Menu_AddItem(&s_player_config_menu, &s_player_skin_title);
+	Menu_AddItem(&s_player_config_menu, &s_player_skin_box);
 	Menu_AddItem(&s_player_config_menu, &s_player_hand_title);
 	Menu_AddItem(&s_player_config_menu, &s_player_handedness_box);
 	Menu_AddItem(&s_player_config_menu, &s_player_rate_title);
@@ -6257,34 +6148,56 @@ PlayerConfig_MenuInit(void)
 static void
 PlayerConfig_AnimateModel(entity_t *entity, int count, int curTime)
 {
-	const cvar_t *cl_start_frame, *cl_end_frame, *cl_mesh_mask;
-	int startFrame, endFrame;
+	int startFrame, endFrame, mesh_mask;
 
-	cl_start_frame = Cvar_Get("cl_model_preview_start", "84", CVAR_ARCHIVE);
-	cl_end_frame = Cvar_Get("cl_model_preview_end", "94", CVAR_ARCHIVE);
-	cl_mesh_mask = Cvar_Get("cl_model_mesh_hide", "0", CVAR_ARCHIVE);
-	startFrame = cl_start_frame->value;
-	endFrame = cl_end_frame->value;
+	if (!model_preview_start)
+	{
+		model_preview_start = Cvar_Get("cl_model_preview_start", "84", CVAR_ARCHIVE);
+	}
+
+	if (!model_preview_end)
+	{
+		model_preview_end = Cvar_Get("cl_model_preview_end", "94", CVAR_ARCHIVE);
+	}
+
+	if (!cl_mesh_mask)
+	{
+		cl_mesh_mask = Cvar_Get("cl_model_mesh_hide", "0", CVAR_ARCHIVE);
+	}
+
+	startFrame = model_preview_start->value;
+	endFrame = model_preview_end->value;
+	mesh_mask = cl_mesh_mask->value;
 
 	if (startFrame >= 0 && endFrame > startFrame)
 	{
 		int i;
 
-		for (i = 0; i < count; i ++)
+		for (i = 0; i < count; i++)
 		{
 			/* salute male 84..94 frame */
 			entity[i].frame = (curTime / 100) % (endFrame - startFrame) + startFrame;
 			/* hide part of meshes */
-			entity[i].rr_mesh = cl_mesh_mask->value;
+			entity[i].rr_mesh = mesh_mask;
 		}
 	}
 }
 
 static void
-PlayerConfig_MenuDraw(menuframework_s *m)
+PlayerConfig_ModelDraw(void)
 {
 	refdef_t refdef;
 	float scale = SCR_GetMenuScale();
+	entity_t entities[2];
+	char scratch[MAX_QPATH];
+	int i, curTime;
+	const char *mdlname, *imgname;
+
+	SelectedModelSkin(&mdlname, &imgname);
+	if (!mdlname || !imgname)
+	{
+		return;
+	}
 
 	memset(&refdef, 0, sizeof(refdef));
 
@@ -6296,109 +6209,97 @@ PlayerConfig_MenuDraw(menuframework_s *m)
 	refdef.fov_y = CalcFov(refdef.fov_x, (float)refdef.width, (float)refdef.height);
 	refdef.time = cls.realtime * 0.001f;
 
-	// could remove this, there should be a valid set of models
-	if ((s_player_model_box.curvalue >= 0 && s_player_model_box.curvalue < s_modelname.num)
-		&& (s_player_skin_box.curvalue >= 0
-		&& s_player_skin_box.curvalue < s_skinnames[s_player_model_box.curvalue].num))
+	memset(&entities, 0, sizeof(entities));
+
+	Com_sprintf(scratch, sizeof(scratch), "players/%s/tris.md2", mdlname);
+	entities[0].model = R_RegisterModel(scratch);
+
+	Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
+		imgname);
+	entities[0].skin = R_RegisterSkin(scratch);
+
+	curTime = Sys_Milliseconds();
+
+	/* multiplayer weapons loaded */
+	if (num_cl_weaponmodels)
 	{
-		entity_t entities[2];
-		char scratch[MAX_QPATH];
-		char* mdlname = s_modelname.data[s_player_model_box.curvalue];
-		char* imgname = s_skinnames[s_player_model_box.curvalue].data[s_player_skin_box.curvalue];
-		int i, curTime;
+		int weapon_id;
 
-		memset(&entities, 0, sizeof(entities));
+		/* change weapon every 3 rounds */
+		weapon_id = curTime / 9000;
 
-		Com_sprintf(scratch, sizeof(scratch), "players/%s/tris.md2", mdlname);
-		entities[0].model = R_RegisterModel(scratch);
-
-		Com_sprintf(scratch, sizeof(scratch), "players/%s/%s.pcx", mdlname,
-			imgname);
-		entities[0].skin = R_RegisterSkin(scratch);
-
-		curTime = Sys_Milliseconds();
-
-		/* multiplayer weapons loaded */
-		if (num_cl_weaponmodels)
-		{
-			int weapon_id;
-
-			/* change weapon every 3 rounds */
-			weapon_id = curTime / 9000;
-
-			weapon_id = weapon_id % num_cl_weaponmodels;
-			/* show weapon also */
-			Com_sprintf(scratch, sizeof(scratch),
-				"players/%s/%s", mdlname, cl_weaponmodels[weapon_id]);
-			entities[1].model = R_RegisterModel(scratch);
-		}
-
-		/* no such weapon model */
-		if (!entities[1].model)
-		{
-			/* show weapon also */
-			Com_sprintf(scratch, sizeof(scratch),
-				"players/%s/weapon.md2", mdlname);
-			entities[1].model = R_RegisterModel(scratch);
-		}
-
-		curTime = curTime % 3000;
-		for (i = 0; i < 2; i++)
-		{
-			entities[i].flags = RF_FULLBRIGHT;
-			entities[i].origin[0] = 80;
-			entities[i].origin[1] = 0;
-			entities[i].origin[2] = 0;
-			VectorCopy(entities[i].origin, entities[i].oldorigin);
-			entities[i].frame = 0;
-			entities[i].oldframe = 0;
-			entities[i].backlerp = 0.0;
-			// one full turn is 3s = 3000ms => 3000/360 deg per millisecond
-			entities[i].angles[1] = (float)curTime/(3000.0f/360.0f);
-		}
-
-		PlayerConfig_AnimateModel(entities, 2, curTime);
-
-		refdef.areabits = 0;
-		refdef.num_entities = (entities[1].model) ? 2 : 1;
-		refdef.entities = entities;
-		refdef.lightstyles = NULL;
-		refdef.rdflags = RDF_NOWORLDMODEL;
-
-		Com_sprintf(scratch, sizeof(scratch), "/players/%s/%s_i.pcx", mdlname,
-			imgname);
-
-		// icon bitmap to draw
-		s_player_icon_bitmap.generic.name = scratch;
-
-		Menu_Draw(m);
-
-		M_DrawTextBox(((int)(refdef.x) * (320.0F / viddef.width) - 8),
-					  (int)((viddef.height / 2) * (240.0F / viddef.height) - 77),
-					  refdef.width / (8 * scale), refdef.height / (8 * scale));
-		refdef.height += 4 * scale;
-
-		R_RenderFrame(&refdef);
+		weapon_id = weapon_id % num_cl_weaponmodels;
+		/* show weapon also */
+		Com_sprintf(scratch, sizeof(scratch),
+			"players/%s/%s", mdlname, cl_weaponmodels[weapon_id]);
+		entities[1].model = R_RegisterModel(scratch);
 	}
+
+	/* no such weapon model */
+	if (!entities[1].model)
+	{
+		/* show weapon also */
+		Com_sprintf(scratch, sizeof(scratch),
+			"players/%s/weapon.md2", mdlname);
+		entities[1].model = R_RegisterModel(scratch);
+	}
+
+	curTime = curTime % 3000;
+	for (i = 0; i < 2; i++)
+	{
+		entities[i].flags = RF_FULLBRIGHT;
+		entities[i].origin[0] = 80;
+		entities[i].origin[1] = 0;
+		entities[i].origin[2] = 0;
+		VectorCopy(entities[i].origin, entities[i].oldorigin);
+		entities[i].frame = 0;
+		entities[i].oldframe = 0;
+		entities[i].backlerp = 0.0;
+		// one full turn is 3s = 3000ms => 3000/360 deg per millisecond
+		entities[i].angles[1] = (float)curTime/(3000.0f/360.0f);
+	}
+
+	PlayerConfig_AnimateModel(entities, 2, curTime);
+
+	refdef.areabits = 0;
+	refdef.num_entities = (entities[1].model) ? 2 : 1;
+	refdef.entities = entities;
+	refdef.lightstyles = NULL;
+	refdef.rdflags = RDF_NOWORLDMODEL;
+
+	M_DrawTextBox(((int)(refdef.x) * (320.0F / viddef.width) - 8),
+	  (int)((viddef.height / 2) * (240.0F / viddef.height) - 77),
+	  refdef.width / (8 * scale), refdef.height / (8 * scale));
+	refdef.height += 4 * scale;
+
+	R_RenderFrame(&refdef);
+}
+
+static void
+PlayerConfig_MenuDraw(menuframework_s *m)
+{
+	PlayerConfig_ModelDraw();
+	Default_MenuDraw(m);
 }
 
 static void
 PlayerConfig_MenuClose(menuframework_s *m)
 {
-	const char* name = NULL;
-	char skin[MAX_QPATH];
-	char* mdl = NULL;
-	char* img = NULL;
+	const char* name;
+	const char *mdl, *img;
 
 	name = s_player_name_field.buffer;
-	mdl = s_modelname.data[s_player_model_box.curvalue];
-	img = s_skinnames[s_player_model_box.curvalue].data[s_player_skin_box.curvalue];
-
-	Com_sprintf(skin, MAX_QPATH, "%s/%s", mdl, img);
-
-	// set <name> and <model dir>/<skin>
 	Cvar_Set("name", name);
-	Cvar_Set("skin", skin);
+
+	SelectedModelSkin(&mdl, &img);
+	if (mdl && img)
+	{
+		char skin[MAX_QPATH];
+
+		Com_sprintf(skin, sizeof(skin), "%s/%s", mdl, img);
+
+		Cvar_Set("skin", skin);
+	}
 
 	PlayerModelFree();          // free player skins, models and directories
 }
@@ -6592,4 +6493,12 @@ M_Keydown(int key)
 			S_StartLocalSound(s);
 		}
 	}
+}
+
+void
+M_Free(void)
+{
+	Mods_NamesFinish();
+	CleanCachedMapsList();
+	PlayerModelFree();
 }

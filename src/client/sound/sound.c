@@ -798,12 +798,8 @@ S_RegisterSexedSound(const entity_xstate_t *ent, char *base)
 
 	if (!sfx)
 	{
-		int len;
-
 		/* no, so see if it exists */
-		len = FS_LoadFile(&sexedFilename[1], NULL);
-
-		if (len != -1)
+		if (FS_FileExists(&sexedFilename[1]))
 		{
 			/* yes, close the file and register it */
 			sfx = S_RegisterSound(sexedFilename);
