@@ -3350,9 +3350,17 @@ ModsListFunc(void *unused)
 	{
 		sb = "Quake II Mission Pack: The Reckoning";
 	}
-	else if (strcmp("zaero", modnames.data[s_mods_list.curvalue]) == 0)
+	else if (strcmp("zaero", m) == 0)
 	{
-		strcpy(mods_statusbar, "Unofficial: Team Evolve's Zaero");
+		sb = "Unofficial: Team Evolve's Zaero";
+	}
+	else if (strcmp("infinity", m) == 0)
+	{
+		sb = "Unofficial: The Kai'Ren Threat";
+	}
+	else if (strcmp("roarke", m) == 0)
+	{
+		sb = "Unofficial: Dawn of Darkness";
 	}
 	else
 	{
