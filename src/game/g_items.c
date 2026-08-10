@@ -4684,6 +4684,41 @@ InitItems(void)
 						itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
 						itemlist[num_items].world_model_flags = EF_ROTATE;
 						itemlist[num_items].flags = IT_WEAPON;
+
+						/* Infinity */
+						if (!strcmp(itemlist[num_items].classname, "weapon_6bshot"))
+						{
+							itemlist[num_items].ammo = "Shells";
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_biggun"))
+						{
+							itemlist[num_items].ammo = "Energy";
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_blaze"))
+						{
+							itemlist[num_items].ammo = "Cells";
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_goop"))
+						{
+							itemlist[num_items].ammo = "XP1/C9";
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_rifle"))
+						{
+							itemlist[num_items].ammo = "Bullets";
+						}
+						/* Oblivion ammo */
+						else if (!strcmp(itemlist[num_items].classname, "weapon_plasma_rifle"))
+						{
+							itemlist[num_items].ammo = "Rifle Plasma";
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_hellfury"))
+						{
+							itemlist[num_items].ammo = "Rockets";
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_deatomizer"))
+						{
+							itemlist[num_items].ammo = "Cells";
+						}
 					}
 					else if (!strncmp(itemlist[num_items].classname, "item_", 5))
 					{
@@ -4704,6 +4739,21 @@ InitItems(void)
 						itemlist[num_items].use = Use_Weapon;
 						itemlist[num_items].drop = Drop_Ammo;
 						itemlist[num_items].flags = IT_AMMO;
+
+						/* Infinity */
+						if (!strcmp(itemlist[num_items].classname, "ammo_goop"))
+						{
+							itemlist[num_items].tag = AMMO_GRENADES;
+						}
+						else if (!strcmp(itemlist[num_items].classname, "ammo_energy"))
+						{
+							itemlist[num_items].tag = AMMO_SLUGS;
+						}
+						/* Oblivion */
+						else if (!strcmp(itemlist[num_items].classname, "ammo_rifleplasma"))
+						{
+							itemlist[num_items].tag = AMMO_MAGSLUG;
+						}
 					}
 
 					num_items ++;
