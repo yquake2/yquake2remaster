@@ -32,7 +32,7 @@ jobs:
       run: |
         apt update
         apt install -y libgl1-mesa-dev libsdl2-dev libopenal-dev libcurl4-openssl-dev \
-            libavformat-dev libswscale-dev libvulkan-dev build-essential git cppcheck
+            libavformat-dev libswscale-dev libvulkan-dev build-essential git cppcheck ccache
     - name: Check out repository code
       uses: actions/checkout@v7
       with:
@@ -40,11 +40,11 @@ jobs:
     - name: Build
       run: |
         # Public runners come with 4 CPUs.
-        make WITH_SDL3=no -j4
-        make WITH_SDL3=no -j4 ref_gles1
+        CC="ccache gcc " make WITH_SDL3=no -j4
+        CC="ccache gcc " make WITH_SDL3=no -j4 ref_gles1
         # Debug version
-        make WITH_SDL3=no DEBUG=1 -j4
-        make WITH_SDL3=no DEBUG=1 -j4 ref_gles1
+        CC="ccache gcc " make WITH_SDL3=no DEBUG=1 -j4
+        CC="ccache gcc " make WITH_SDL3=no DEBUG=1 -j4 ref_gles1
     - name: Create testbuild package
       run: |
         # Create release directory tree
