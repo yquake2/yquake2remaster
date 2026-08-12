@@ -5864,6 +5864,7 @@ PlayerModelList(const strlist_t *dirs)
 
 		if (!list.num)
 		{
+			StrList_Free(&list);
 			continue;
 		}
 
@@ -5900,6 +5901,14 @@ PlayerModelList(const strlist_t *dirs)
 			COM_StripExtension2(t);
 
 			StrList_Append(sl, t);
+		}
+
+		/* no matching icon */
+		if (!sl->num)
+		{
+			StrList_Free(sl);
+			StrList_Free(&list);
+			continue;
 		}
 
 		if (sl->num > 1)
