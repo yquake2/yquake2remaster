@@ -849,10 +849,10 @@ ReadString(FILE *f, int len, int tag)
 		return NULL;
 	}
 
-	if (len < 0)
+	if (len < 0 || len > MAX_TOKEN_CHARS)
 	{
 		fclose(f);
-		gi.error("%s: string length < 0", __func__);
+		gi.error("%s: bad string length: %i", __func__, len);
 		return NULL;
 	}
 
