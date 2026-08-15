@@ -87,7 +87,6 @@ cvar_t *gl1_particle_square;
 
 cvar_t *gl1_palettedtexture;
 cvar_t *gl1_pointparameters;
-cvar_t *gl1_multitexture;
 cvar_t *gl1_lightmapcopies;
 cvar_t *gl1_discardfb;
 
@@ -142,13 +141,12 @@ cvar_t *gl1_stereo_anaglyph_colors;
 cvar_t *gl1_stereo_convergence;
 
 static cvar_t *gl_znear;
+static cvar_t *gl1_multitexture;
 static cvar_t *gl1_waterwarp;
 
 refimport_t ri;
 
-void LM_FreeLightmapBuffers(void);
-void Scrap_Init(void);
-
+extern void LM_FreeLightmapBuffers(void);
 extern void R_SetDefaultState(void);
 extern void R_ResetGLBuffer(void);
 
@@ -1552,15 +1550,13 @@ RI_Init(void)
 
 	sscanf(gl_config.version_string, "%d.%d", &gl_config.major_version, &gl_config.minor_version);
 
-	if (refresher == rf_opengl14 && gl_config.major_version == 1)
+	if ( refresher == rf_opengl14 &&
+		gl_config.major_version == 1 && gl_config.minor_version < 4 )
 	{
-		if (gl_config.minor_version < 4)
-		{
-			QGL_Shutdown();
-			Com_Printf("Support for OpenGL 1.4 is not available\n");
+		QGL_Shutdown();
+		Com_Printf("Support for OpenGL 1.4 is not available\n");
 
-			return false;
-		}
+		return false;
 	}
 
 	Com_Printf("\n\nProbing for OpenGL extensions:\n");
@@ -1616,8 +1612,8 @@ RI_Init(void)
 	if (strstr(gl_config.extensions_string, "GL_EXT_paletted_texture") &&
 		strstr(gl_config.extensions_string, "GL_EXT_shared_texture_palette"))
 	{
-			qglColorTableEXT = (void (APIENTRY *)(GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid * ))
-					RI_GetProcAddress ("glColorTableEXT");
+		qglColorTableEXT = (void (APIENTRY *)(GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid * ))
+				RI_GetProcAddress ("glColorTableEXT");
 	}
 
 	gl_config.palettedtexture = false;

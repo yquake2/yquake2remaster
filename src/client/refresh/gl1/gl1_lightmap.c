@@ -28,9 +28,6 @@
 
 extern gllightmapstate_t gl_lms;
 
-void R_SetCacheState(msurface_t *surf);
-void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
-
 void
 LM_FreeLightmapBuffers(void)
 {

@@ -85,7 +85,7 @@ int vec_to_st[6][3] = {
 float skymins[2][6], skymaxs[2][6];
 float sky_min, sky_max;
 
-void
+static void
 R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs)
 {
 	int i, j;
@@ -112,7 +112,7 @@ R_BoundPoly(int numverts, float *verts, vec3_t mins, vec3_t maxs)
 	}
 }
 
-void
+static void
 R_SubdividePolygon(int numverts, float *verts)
 {
 	int i, j, k;
@@ -317,7 +317,7 @@ R_EmitWaterPolys(msurface_t *fa)
 	}
 }
 
-void
+static void
 R_DrawSkyPolygon(int nump, vec3_t vecs)
 {
 	int i, j;
@@ -437,7 +437,7 @@ R_DrawSkyPolygon(int nump, vec3_t vecs)
 	}
 }
 
-void
+static void
 R_ClipSkyPolygon(int nump, vec3_t vecs, int stage)
 {
 	float *norm;
@@ -576,7 +576,7 @@ R_ClearSkyBox(void)
 	}
 }
 
-void
+static void
 R_MakeSkyVec(float s, float t, int axis)
 {
 	vec3_t v, b;

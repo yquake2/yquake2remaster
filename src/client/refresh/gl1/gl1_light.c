@@ -32,9 +32,9 @@ cplane_t *lightplane; /* used as shadow plane */
 vec3_t lightspot;
 static float s_blocklights[34 * 34 * 3];
 
-unsigned char minlight[256];
+byte minlight[256];
 
-void
+static void
 R_RenderDlight(dlight_t *light)
 {
 	const float rad = light->intensity * 0.35;
@@ -166,7 +166,7 @@ R_PushDlights(void)
 	}
 }
 
-int
+static int
 R_RecursiveLightPoint(mnode_t *node, vec3_t start, vec3_t end)
 {
 	float front, back, frac;
@@ -338,7 +338,7 @@ R_LightPoint(entity_t *currententity, vec3_t p, vec3_t color)
 	VectorScale(color, r_modulate->value, color);
 }
 
-void
+static void
 R_AddDynamicLights(msurface_t *surf)
 {
 	int lnum;

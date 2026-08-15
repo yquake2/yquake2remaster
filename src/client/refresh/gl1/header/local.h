@@ -187,7 +187,6 @@ extern cvar_t *gl1_overbrightbits;
 
 extern cvar_t *gl1_palettedtexture;
 extern cvar_t *gl1_pointparameters;
-extern cvar_t *gl1_multitexture;
 
 extern cvar_t *gl1_particle_min_size;
 extern cvar_t *gl1_particle_max_size;
@@ -248,17 +247,19 @@ extern int c_visible_textures;
 
 extern float r_world_matrix[16];
 
-extern unsigned char gammatable[256];
+extern byte gammatable[256];
+extern byte minlight[256];
 
 qboolean R_Bind(int texnum);
 
 void R_TexEnv(GLenum value);
-void R_SelectTexture(GLenum);
 void R_MBind(GLenum target, int texnum);
 void R_EnableMultitexture(qboolean enable);
 
 void R_LightPoint(entity_t *currententity, vec3_t p, vec3_t color);
 void R_PushDlights(void);
+void R_SetCacheState(msurface_t *surf);
+void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
 
 extern model_t *r_worldmodel;
 extern unsigned d_8to24table[256];
