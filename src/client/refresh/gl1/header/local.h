@@ -115,15 +115,6 @@ typedef struct image_s
 
 typedef enum
 {
-	rserr_ok,
-
-	rserr_invalid_mode,
-
-	rserr_unknown
-} rserr_t;
-
-typedef enum
-{
 	buf_2d,
 	buf_singletex,
 	buf_mtex,
@@ -145,7 +136,7 @@ typedef struct	//	832k aprox.
 
 	GLushort idx[MAX_INDICES];	// indices for the draw call
 
-	GLuint vt, tx, cl;	// indices for GLfloat arrays above
+	GLuint vt, tx, cl;	// indices for the first 3 arrays above
 
 	int	texture[MAX_TEXTURE_UNITS];
 	int	flags;	// entity flags

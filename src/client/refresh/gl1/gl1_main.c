@@ -1324,6 +1324,18 @@ R_Register(void)
 #undef GLES1_ENABLED_ONLY
 
 /*
+ * Used in the SetMode functions below, no need to have these in local.h
+ */
+typedef enum
+{
+	rserr_ok,
+
+	rserr_invalid_mode,
+
+	rserr_unknown
+} rserr_t;
+
+/*
  * Changes the video mode
  */
 static int
@@ -1356,8 +1368,8 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 		return rserr_invalid_mode;
 	}
 
-	/* This is totaly obscure: For some strange reasons the renderer
-	   maintains two(!) repesentations of the resolution. One comes
+	/* This is totally obscure: For some strange reasons the renderer
+	   maintains two(!) representations of the resolution. One comes
 	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. Several calculations take
 	   both representations into account.

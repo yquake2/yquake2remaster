@@ -130,7 +130,7 @@ GL3_Scrap_AllocBlock(int w, int h, int *x, int *y, const unsigned *pic)
 void
 GL3_TextureMode(char *string)
 {
-	const int num_modes = ARRLEN(modes);
+	static const int num_modes = ARRLEN(modes);
 	int i;
 
 	for (i = 0; i < num_modes; i++)
@@ -177,9 +177,9 @@ GL3_TextureMode(char *string)
 		if (unfiltered2D && glt->type == it_pic)
 		{
 			// exception to that exception: stuff on the r_lerp_list
-			nolerp = (lerplist== NULL) || (strstr(lerplist, glt->name) == NULL);
+			nolerp = (lerplist == NULL) || (strstr(lerplist, glt->name) == NULL);
 		}
-		else if(nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
+		else if (nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
 		{
 			nolerp = true;
 		}
