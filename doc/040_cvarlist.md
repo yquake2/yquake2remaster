@@ -590,9 +590,10 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   also used for looking underwater. Default is `1` (enabled).
 
 * **gl_znear**: Sets the distance to the *near depth clipping plane* of
-  the player view. Reducing it may allow some weapon animations to not
-  get "clipped" by the player view (e.g. railgun firing), at the risk
-  of heavy glitches with some hardware configurations. Default is `4`.
+  the player view. Default is `4`. Reducing it to `3.2` or similar may
+  allow some weapon animations to not get 'clipped' by the player view
+  (e.g. railgun recoil), at the risk of heavy glitches with some
+  hardware / driver configurations.
 
 * **gl_texturemode**: How textures are filtered.
 

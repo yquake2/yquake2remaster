@@ -117,7 +117,7 @@ GL3_Scrap_Upload(void)
 void
 GL3_TextureMode(const char *string)
 {
-	const int num_modes = ARRLEN(modes);
+	static const int num_modes = ARRLEN(modes);
 	int i, texnum;
 	gl3image_t *glt;
 

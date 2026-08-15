@@ -300,8 +300,8 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 		GL3_BindVBO(0);
 	}
 
-	/* This is totaly obscure: For some strange reasons the renderer
-	   maintains two(!) repesentations of the resolution. One comes
+	/* This is totally obscure: For some strange reasons the renderer
+	   maintains two(!) representations of the resolution. One comes
 	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. Several calculations take
 	   both representations into account.
@@ -408,9 +408,6 @@ GL3_SetMode(void)
 
 	return true;
 }
-
-// only needed (and allowed!) if using OpenGL compatibility profile, it's not in 3.2 core
-enum { QGL_POINT_SPRITE = 0x8861 };
 
 static void
 GL3_ResetClearColor(void)
@@ -2072,7 +2069,7 @@ GL3_BeginFrame(float camera_separation)
 #ifdef YQ2_GL3_GLES
 		// OpenGL ES3 only supports GL_NONE, GL_BACK and GL_COLOR_ATTACHMENT*
 		// so this doesn't make sense here, see https://docs.gl/es3/glDrawBuffers
-		Com_Printf("NOTE: gl_drawbuffer not supported by OpenGL ES!\n");
+		Com_Printf("NOTE: gl_drawbuffer not supported by OpenGL ES.\n");
 #else // Desktop GL
 		// TODO: stereo stuff
 		//if ((gl3state.camera_separation == 0) || gl3state.stereo_mode != STEREO_MODE_OPENGL)
