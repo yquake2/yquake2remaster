@@ -96,8 +96,6 @@ RE_ClearSkyBox(void)
 	R_ClearSkyBox(skymins, skymaxs);
 }
 
-
-
 void
 R_DrawSkyBox(void)
 {

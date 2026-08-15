@@ -148,7 +148,6 @@ extern vec3_t lightspot;
 
 extern cvar_t *gl1_overbrightbits;
 extern cvar_t *gl1_pointparameters;
-extern cvar_t *gl1_multitexture;
 extern cvar_t *gl1_particle_min_size;
 extern cvar_t *gl1_particle_max_size;
 extern cvar_t *gl1_particle_size;
@@ -189,7 +188,6 @@ void R_SetDefaultState(void);
 void R_ResetGLBuffer(void);
 void R_SetPerspective(GLdouble fovy);
 void R_TexEnv(GLenum mode);
-void R_SelectTexture(GLenum);
 void R_MBind(GLenum target, int texnum);
 void R_EnableMultitexture(qboolean enable);
 

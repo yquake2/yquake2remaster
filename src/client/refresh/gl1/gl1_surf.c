@@ -39,7 +39,6 @@ static vec3_t modelorg; /* relative to viewpoint */
 msurface_t *r_alpha_surfaces;
 
 extern int cur_lm_copy;
-byte minlight[256];
 
 static void
 R_DrawPoly(const msurface_t *fa)

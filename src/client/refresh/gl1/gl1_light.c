@@ -29,6 +29,8 @@
 int r_dlightframecount;
 vec3_t lightspot;
 
+byte minlight[256];
+
 static void
 R_RenderDlight(dlight_t *light)
 {
