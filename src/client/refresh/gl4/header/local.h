@@ -521,7 +521,7 @@ GL4_SelectTMU(GLenum tmu)
 
 extern void GL4_TextureMode(const char *string);
 extern void GL4_Scrap_Upload(void);
-extern void GL4_Bind(GLuint texnum);
+extern qboolean GL4_Bind(GLuint texnum);
 extern void GL4_BindLightmap(int lightmapnum);
 extern gl4image_t *GL4_LoadPic(const char *name, byte *pic, int width, int realwidth,
                                int height, int realheight, size_t data_size,

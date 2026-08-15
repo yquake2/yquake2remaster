@@ -287,8 +287,8 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 		GL4_BindVBO(0);
 	}
 
-	/* This is totaly obscure: For some strange reasons the renderer
-	   maintains two(!) repesentations of the resolution. One comes
+	/* This is totally obscure: For some strange reasons the renderer
+	   maintains two(!) representations of the resolution. One comes
 	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. Several calculations take
 	   both representations into account.
@@ -396,8 +396,11 @@ GL4_SetMode(void)
 	return true;
 }
 
-// only needed (and allowed!) if using OpenGL compatibility profile, it's not in 3.2 core
-enum { QGL_POINT_SPRITE = 0x8861 };
+static void
+GL4_ResetClearColor(void)
+{
+	glClearColor(1, 0, 0.5, 0.5);
+}
 
 static qboolean
 GL4_Init(void)
@@ -485,6 +488,7 @@ GL4_Init(void)
 	// generate texture handles for all possible lightmaps
 	glGenTextures(MAX_LIGHTMAPS*MAX_LIGHTMAPS_PER_SURFACE, gl4state.lightmap_textureIDs[0]);
 
+	GL4_ResetClearColor();
 	GL4_SetDefaultState();
 
 	if (GL4_InitShaders())

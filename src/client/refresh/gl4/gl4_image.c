@@ -117,7 +117,7 @@ GL4_Scrap_Upload(void)
 void
 GL4_TextureMode(const char *string)
 {
-	const int num_modes = ARRLEN(modes);
+	static const int num_modes = ARRLEN(modes);
 	int i, texnum;
 	gl4image_t *glt;
 
@@ -154,6 +154,7 @@ GL4_TextureMode(const char *string)
 	const char* nolerplist = r_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
+	GL4_SelectTMU(GL_TEXTURE0);
 
 	/* change all the existing texture objects */
 	for (i = 0, glt = gl4textures; i < numgl4textures; i++, glt++)
@@ -170,8 +171,11 @@ GL4_TextureMode(const char *string)
 			nolerp = true;
 		}
 
-		GL4_SelectTMU(GL_TEXTURE0);
-		GL4_Bind(glt->texnum);
+		if ( !GL4_Bind(glt->texnum) )
+		{
+			continue;	// don't bother changing anything if texture was already set
+		}
+
 		if ((glt->type != it_pic) && (glt->type != it_sky)) /* mipmapped texture */
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
@@ -228,7 +232,7 @@ GL4_TextureMode(const char *string)
 	}
 }
 
-void
+qboolean
 GL4_Bind(GLuint texnum)
 {
 	extern gl4image_t *draw_chars;
@@ -240,12 +244,13 @@ GL4_Bind(GLuint texnum)
 
 	if (gl4state.currenttexture == texnum)
 	{
-		return;
+		return false;
 	}
 
 	gl4state.currenttexture = texnum;
 	GL4_SelectTMU(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texnum);
+	return true;
 }
 
 void
