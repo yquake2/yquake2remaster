@@ -118,6 +118,86 @@ ClearDisplayIndices(void)
 	SDL_free(displays);
 }
 
+static int GetFullscreenType(void);
+
+static qboolean
+SetWindowFullscreen(int fullscreen, int w, int h)
+{
+	if (GetFullscreenType() != FULLSCREEN_OFF)
+	{
+		if (!SDL_SetWindowFullscreen(window, false))
+		{
+			Com_Printf("Couldn't leave fullscreen: %s\n", SDL_GetError());
+			return false;
+		}
+
+		if (!SDL_SyncWindow(window))
+		{
+			Com_Printf("Couldn't synchronize leaving fullscreen: %s\n", SDL_GetError());
+			return false;
+		}
+	}
+
+	if (fullscreen == FULLSCREEN_OFF)
+	{
+		return true;
+	}
+
+	if (fullscreen == FULLSCREEN_DESKTOP)
+	{
+		if (!SDL_SetWindowFullscreenMode(window, NULL))
+		{
+			Com_Printf("Couldn't set desktop fullscreen mode: %s\n", SDL_GetError());
+			return false;
+		}
+	}
+	else
+	{
+		SDL_DisplayMode closestMode;
+
+		if (vid_rate->value > 0 &&
+				!SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h,
+						vid_rate->value, true, &closestMode))
+		{
+			Com_Printf("SDL was unable to find a mode close to %ix%i@%f\n", w, h, vid_rate->value);
+			Com_Printf("Retrying with desktop refresh rate\n");
+			Cvar_SetValue("vid_rate", -1);
+		}
+
+		if (vid_rate->value <= 0 &&
+				!SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h,
+						0, true, &closestMode))
+		{
+			Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
+			return false;
+		}
+
+		Com_Printf("User requested %ix%i@%f, setting closest mode %ix%i@%f\n",
+				w, h, vid_rate->value, closestMode.w, closestMode.h,
+				closestMode.refresh_rate);
+
+		if (!SDL_SetWindowFullscreenMode(window, &closestMode))
+		{
+			Com_Printf("Couldn't set closest mode: %s\n", SDL_GetError());
+			return false;
+		}
+	}
+
+	if (!SDL_SetWindowFullscreen(window, true))
+	{
+		Com_Printf("Couldn't enter fullscreen: %s\n", SDL_GetError());
+		return false;
+	}
+
+	if (!SDL_SyncWindow(window))
+	{
+		Com_Printf("Couldn't synchronize entering fullscreen: %s\n", SDL_GetError());
+		return false;
+	}
+
+	return true;
+}
+
 static qboolean
 CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 {
@@ -141,7 +221,8 @@ CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, last_position_y);
 	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, w);
 	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, h);
-	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER, flags);
+	SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER,
+			flags & ~SDL_WINDOW_FULLSCREEN);
 
 	window = SDL_CreateWindowWithProperties(props);
 	SDL_DestroyProperties(props);
@@ -167,82 +248,20 @@ CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 			last_display = GetDisplayIndex(current);
 		}
 
-		/* Set requested fullscreen mode. */
-		if (flags & SDL_WINDOW_FULLSCREEN)
+		/* Set requested fullscreen mode after creating the OpenGL window.
+		 * Cocoa can reject an OpenGL window when the fullscreen flag is
+		 * passed to SDL_CreateWindowWithProperties(). */
+		if (!SetWindowFullscreen(fullscreen, w, h))
 		{
-            /* SDLs behavior changed between SDL 2 and SDL 3: In SDL 2
-			   the fullscreen window could be set with whatever mode
-			   was requested. In SDL 3 the fullscreen window is always
-			   created at desktop resolution. If a fullscreen window
-			   is requested, we can't do anything else and are done here. */
-			if (fullscreen == FULLSCREEN_DESKTOP)
-			{
-				return true;
-			}
-
-			/* Otherwise try to find a mode near the requested one and
-			   switch to it in exclusive fullscreen mode. */
-			SDL_DisplayMode closestMode;
-
-			if (vid_rate->value > 0)
-			{
-				if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, vid_rate->value, true, &closestMode) != true)
-				{
-					Com_Printf("SDL was unable to find a mode close to %ix%i@%f\n", w, h, vid_rate->value);
-					Com_Printf("Retrying with desktop refresh rate\n");
-
-					/* This is likely pointless. SDL3 walks the complete mode list
-					   when trying to find a matching mode. If it didn't find a
-					   refresh rate above something is very wrong it won't find
-					   one here either. */
-					if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, 0, true, &closestMode) == true)
-					{
-						Cvar_SetValue("vid_rate", -1);
-					}
-					else
-					{
-						Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
-						return false;
-					}
-				}
-			}
-			else
-			{
-				if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, 0, true, &closestMode) != true)
-				{
-					Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
-					return false;
-				}
-			}
-
-			Com_Printf("User requested %ix%i@%f, setting closest mode %ix%i@%f\n",
-					w, h, vid_rate->value, closestMode.w, closestMode.h , closestMode.refresh_rate);
-
-
-			/* TODO SDL3: Same code is in InitGraphics(), refactor into
-			 * a function? */
-			if (!SDL_SetWindowFullscreenMode(window, &closestMode))
-			{
-				Com_Printf("Couldn't set closest mode: %s\n", SDL_GetError());
-				return false;
-			}
-
-			if (!SDL_SetWindowFullscreen(window, true))
-			{
-				Com_Printf("Couldn't switch to exclusive fullscreen: %s\n", SDL_GetError());
-				return false;
-			}
-
-			if (!SDL_SyncWindow(window))
-			{
-				Com_Printf("Couldn't synchronize window state: %s\n", SDL_GetError());
-				return false;
-			}
+			SDL_DestroyWindow(window);
+			window = NULL;
+			return false;
 		}
 	}
 	else
 	{
-		Com_Printf("Creating window failed: %s\n", SDL_GetError());
+		Com_Printf("Creating window failed for %ix%i, fullscreen %i, flags 0x%llx: %s\n",
+				w, h, fullscreen, (unsigned long long)flags, SDL_GetError());
 		return false;
 	}
 
@@ -556,67 +575,21 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 	if (initSuccessful && GetWindowSize(&curWidth, &curHeight)
 			&& (curWidth == width) && (curHeight == height))
 	{
-		SDL_DisplayMode closestMode;
+		int currentFullscreen = GetFullscreenType();
 
-
-		/* If we want fullscreen, but aren't */
-		if (GetFullscreenType())
+		if (currentFullscreen != fullscreen)
 		{
-			if (fullscreen == FULLSCREEN_EXCLUSIVE)
+			if (!SetWindowFullscreen(fullscreen, width, height))
 			{
-				if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], width, height, vid_rate->value, false, &closestMode) != true)
-				{
-					Com_Printf("SDL was unable to find a mode close to %ix%i@%f\n", width, height, vid_rate->value);
-
-					if (vid_rate->value != 0)
-					{
-						Com_Printf("Retrying with desktop refresh rate\n");
-
-						if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], width, height, 0, false, &closestMode) == true)
-						{
-							Cvar_SetValue("vid_rate", 0);
-						}
-						else
-						{
-							Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", width, height);
-							return false;
-						}
-					}
-				}
-			}
-			else if (fullscreen == FULLSCREEN_DESKTOP)
-			{
-				/* Fullscreen window */
-				/* closestMode = NULL; */
-			}
-
-			if (!SDL_SetWindowFullscreenMode(window, &closestMode))
-			{
-				Com_Printf("Couldn't set fullscreen modmode: %s\n", SDL_GetError());
+				Com_Printf("SDL fullscreen transition failed: %s\n", SDL_GetError());
 				Cvar_SetValue("vid_fullscreen", 0);
-			}
-			else
-			{
-				if (!SDL_SetWindowFullscreen(window, true))
-				{
-					Com_Printf("Couldn't switch to exclusive fullscreen: %s\n", SDL_GetError());
-					Cvar_SetValue("vid_fullscreen", 0);
-				}
-				else
-				{
-					if (!SDL_SyncWindow(window))
-					{
-						Com_Printf("Couldn't synchronize window state: %s\n", SDL_GetError());
-						Cvar_SetValue("vid_fullscreen", 0);
-					}
-				}
+				return false;
 			}
 
 			Cvar_SetValue("vid_fullscreen", fullscreen);
 		}
 
-		/* Are we now? */
-		if (GetFullscreenType())
+		if (GetFullscreenType() == fullscreen)
 		{
 			return true;
 		}
@@ -675,7 +648,7 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 
 				Com_Printf("SDL SetVideoMode failed: %s\n", SDL_GetError());
 				Com_Printf("Reverting to %s r_mode %i (%ix%i) with %dx MSAA.\n",
-					        (flags & fs_flag) ? "fullscreen" : "windowed",
+				        fullscreen != FULLSCREEN_OFF ? "fullscreen" : "windowed",
 					        (int) Cvar_VariableValue("r_mode"), width, height,
 					        msaa_samples);
 
