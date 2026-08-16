@@ -859,7 +859,7 @@ CL_ParseTEnt(void)
 
 		case TE_BLUEHYPERBLASTER:
 			MSG_ReadPos(&net_message, pos, cls.serverProtocol);
-			MSG_ReadPos(&net_message, dir, cls.serverProtocol);
+			MSG_ReadDir(&net_message, dir);
 			CL_BlasterParticles(pos, dir);
 			break;
 

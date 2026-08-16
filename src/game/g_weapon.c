@@ -2115,3 +2115,203 @@ fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	flare->timestamp = level.time + 15; /* live for 15 seconds */
 	gi.linkentity(flare);
 }
+
+static void
+deatom_think(edict_t *self)
+{
+	vec3_t	target_dir;
+	vec3_t	perp;
+	vec3_t	new_dir;
+	float	dot;
+	float	scale;
+
+	self->s.frame = (self->s.frame + 2) % 15;
+
+	if (!self->target_ent || !self->target_ent->client)
+	{
+		self->target_ent = NULL;
+		self->think = G_FreeEdict;
+		self->nextthink = level.time + 60.0f;
+		return;
+	}
+
+	VectorCopy(self->target_ent->s.origin, target_dir);
+	target_dir[2] += self->target_ent->viewheight;
+	VectorSubtract(target_dir, self->s.origin, target_dir);
+	VectorNormalize(target_dir);
+
+	dot = DotProduct(target_dir, self->movedir);
+	if (dot <= 0.85f)
+	{
+		self->nextthink = level.time + 60.0f;
+		return;
+	}
+
+	VectorMA(target_dir, -dot, self->movedir, perp);
+
+	scale = deathmatch->value ? 0.5f : 0.25f;
+	VectorMA(self->movedir, scale, perp, new_dir);
+	VectorNormalize(new_dir);
+
+	VectorCopy(new_dir, self->movedir);
+	vectoangles(new_dir, self->s.angles);
+	VectorScale(new_dir, self->speed, self->velocity);
+
+	self->nextthink = level.time + 0.1f;
+}
+
+static void
+deatom_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+{
+	vec3_t	normal;
+
+	if (other == self->owner)
+	{
+		return;
+	}
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (self->owner && self->owner->client)
+	{
+		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
+	}
+
+	gi.sound(self, CHAN_VOICE, gi.soundindex("deatom/dimpact.wav"), 1, ATTN_NORM,
+		0);
+
+	if (other->takedamage)
+	{
+		if (plane)
+		{
+			VectorCopy(plane->normal, normal);
+		}
+		else
+		{
+			VectorClear(normal);
+		}
+
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin, normal,
+			self->dmg, 1, DAMAGE_ENERGY, MOD_DISINTEGRATOR);
+	}
+
+	if (other == g_edicts)
+	{
+		vec3_t normal;
+
+		get_normal_vector(plane, normal);
+
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_BLUEHYPERBLASTER);
+		gi.WritePosition(self->s.origin);
+		gi.WriteDir(normal);
+		gi.multicast(self->s.origin, MULTICAST_PVS);
+	}
+
+	G_FreeEdict(self);
+}
+
+void
+fire_deatom(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed)
+{
+	edict_t	*deatom;
+	edict_t	*ent;
+	edict_t	*best_ent;
+	trace_t	tr;
+	vec3_t	dir_to_ent;
+	float	best_dot;
+	float	best_dist;
+	float	dot;
+	float	dist;
+
+	VectorNormalize(aimdir);
+
+	deatom = G_Spawn();
+	deatom->svflags = SVF_DEADMONSTER;
+	VectorCopy(start, deatom->s.origin);
+	VectorCopy(start, deatom->s.old_origin);
+	VectorCopy(aimdir, deatom->movedir);
+	vectoangles(aimdir, deatom->s.angles);
+	VectorScale(aimdir, speed, deatom->velocity);
+	deatom->speed = speed;
+
+	deatom->movetype = MOVETYPE_FLYMISSILE;
+	deatom->solid = SOLID_BBOX;
+	deatom->clipmask = MASK_SHOT;
+
+	VectorClear(deatom->mins);
+	VectorClear(deatom->maxs);
+
+	deatom->s.effects = EF_HALF_DAMAGE | EF_FLAG2;
+	deatom->s.renderfx = RF_SHELL_BLUE | RF_FULLBRIGHT;
+	deatom->s.modelindex = gi.modelindex("models/objects/deatom/tris.md2");
+	deatom->s.sound = gi.soundindex("deatom/dfly.wav");
+	deatom->s.frame = 0;
+	deatom->avelocity[2] = 480.0f;
+
+	deatom->touch = deatom_touch;
+	deatom->owner = self;
+	deatom->dmg = damage;
+	deatom->classname = "deatom_bolt";
+
+	best_ent = NULL;
+	best_dot = 0.85f;
+	best_dist = 9999999.0f;
+
+	ent = NULL;
+	while ((ent = findradius(ent, deatom->s.origin, 1024.0f)) != NULL)
+	{
+		if (ent->takedamage != DAMAGE_YES)
+		{
+			continue;
+		}
+
+		if (!visible(deatom, ent))
+		{
+			continue;
+		}
+
+		VectorSubtract(ent->s.origin, deatom->s.origin, dir_to_ent);
+		dist = VectorNormalize(dir_to_ent);
+		dot = DotProduct(aimdir, dir_to_ent);
+
+		if (best_dot > 0.99f && dot > 0.99f && dist < best_dist)
+		{
+			best_dot = dot;
+			best_dist = dist;
+			best_ent = ent;
+			continue;
+		}
+
+		if (dot > best_dot)
+		{
+			best_dot = dot;
+			best_ent = ent;
+		}
+	}
+
+	deatom->target_ent = best_ent;
+
+	deatom->think = deatom_think;
+	deatom->nextthink = level.time + 0.1f;
+	gi.linkentity(deatom);
+
+	tr = gi.trace(self->s.origin, vec3_origin, vec3_origin, deatom->s.origin,
+		deatom, deatom->clipmask);
+	if (tr.fraction < 1.0f)
+	{
+		VectorMA(deatom->s.origin, -10.0f, aimdir, deatom->s.origin);
+		if (tr.ent == self)
+		{
+			G_FreeEdict(deatom);
+		}
+		else
+		{
+			deatom->touch(deatom, tr.ent, &tr.plane, tr.surface);
+		}
+	}
+}

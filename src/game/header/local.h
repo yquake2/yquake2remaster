@@ -1099,6 +1099,7 @@ void fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
 void fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius);
+void fire_deatom(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed);
 void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 void Grenade_Explode(edict_t *ent);
 

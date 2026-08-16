@@ -381,7 +381,6 @@ Checked with:
 * [ ] Oblivion: Add support of `target_railgun`,
 * [ ] Oblivion: Add support of `target_rocket`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
-* [ ] Oblivion: Add support of `weapon_deatomizer`,
 * [ ] Oblivion: Add support of `weapon_hellfury`,
 * [ ] Oblivion: Add support of `weapon_plasma_pistol`,
 * [ ] Oblivion: Add support of `weapon_plasma_rifle`,
@@ -391,6 +390,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Oblivion: Add support of `weapon_deatomizer`,
 * [x] Infinity: Add support of `weapon_pistol`,
 * [x] renders: add lanczos3 2x scale by `r_scale32bittextures`,
 * [x] Oblivion: Add support of `monster_soldier_deatom`,

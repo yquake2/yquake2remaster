@@ -3754,6 +3754,89 @@ Weapon_FlareGun(edict_t *ent)
 		fire_frames, weapon_flaregun_fire);
 }
 
+static void
+Weapon_Deatomizer_Fire(edict_t *ent)
+{
+	int damage;
+	vec3_t	offset;
+	vec3_t	start;
+	vec3_t	forward;
+	vec3_t	right;
+	float	volume;
+
+	if (deathmatch->value)
+	{
+		damage = (rand() % 30) + 90;
+	}
+	else
+	{
+		damage = (rand() % 80) + 120;
+	}
+
+	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+	{
+		if (!ent->client->ammo_index ||
+			ent->client->pers.inventory[ent->client->ammo_index] < 10)
+		{
+			if (level.time >= ent->pain_debounce_time)
+			{
+				gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1,
+					ATTN_NORM, 0);
+				ent->pain_debounce_time = level.time + 1;
+			}
+			NoAmmoWeaponChange(ent);
+			return;
+		}
+
+		ent->client->pers.inventory[ent->client->ammo_index] -= 10;
+	}
+
+	if (is_quad)
+	{
+		damage *= 4;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 16, 8, ent->viewheight - 8);
+	P_ProjectSource(ent, offset, forward, right, start);
+
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+
+	fire_deatom(ent, start, forward, damage, 1000);
+
+	/* send muzzle flash */
+	gi.WriteByte(svc_muzzleflash);
+
+	if (ent->client->oldplayer)
+	{
+		gi.WriteShort(ent->client->oldplayer - g_edicts);
+	}
+	else
+	{
+		gi.WriteShort(ent - g_edicts);
+	}
+
+	gi.WriteByte(MZ_RAILGUN | is_silenced);
+
+	if (ent->client->oldplayer)
+	{
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
+	}
+	else
+	{
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	}
+
+	volume = is_silenced ? 0.5f : 1.0f;
+	gi.sound(ent, CHAN_VOICE, gi.soundindex("deatom/dfire.wav"), volume,
+		ATTN_NORM, 0);
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	ent->client->ps.gunframe++;
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -3824,7 +3907,7 @@ Weapon_DynamicWeapon(edict_t *ent)
 		static const int fire_frames[] = {12, 0};
 
 		Weapon_Generic(ent, 11, 21, 43, 49, pause_frames,
-				fire_frames, Weapon_Blaster_Fire);
+				fire_frames, Weapon_Deatomizer_Fire);
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_hellfury"))
 	{
