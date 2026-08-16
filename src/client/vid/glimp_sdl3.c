@@ -396,9 +396,9 @@ ShutdownGraphics(void)
 		}
 
 		/* or if current display isn't the desired default */
-		if (last_display != displays[(int)vid_displayindex->value]) {
+		if (last_display != (int)vid_displayindex->value) {
 			last_position_x = last_position_y = SDL_WINDOWPOS_UNDEFINED;
-			last_display = displays[(int)vid_displayindex->value];
+			last_display = (int)vid_displayindex->value;
 		}
 		else {
 			SDL_GetWindowPosition(window, &last_position_x, &last_position_y);
@@ -556,6 +556,12 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 	if (initSuccessful && GetWindowSize(&curWidth, &curHeight)
 			&& (curWidth == width) && (curHeight == height))
 	{
+		SDL_DisplayID current = SDL_GetDisplayForWindow(window);
+		if (current != 0)
+		{
+			last_display = GetDisplayIndex(current);
+		}
+
 		SDL_DisplayMode closestMode;
 
 
