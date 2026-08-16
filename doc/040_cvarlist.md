@@ -563,9 +563,11 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   show. Defaults to `300`.
   Related to this: *cl_maxfps* and *cl_async*.
 
-* **vid_pauseonfocuslost**: When set to `1` the game is paused as soon
-  as it's window looses focus. It will work only in situation were the
-  game can be paused, e.g. not in multiplayer games. Defaults to `0`.
+* **vid_pauseonfocuslost**: When set to `0` (default) the game is paused
+  as soon as its window loses focus. It will only work where the game can
+  be paused, e.g. not in multiplayer. If `1`, the game continues to run
+  in the background. Setting it as `2` is the same as `0`, but the game
+  will unpause right when its window gets back to being on focus.
 
 * **vid_renderer**: Selects the renderer library. Possible options are
   `gl3` (the default) for the OpenGL 3.2 renderer, `gles3` for the
