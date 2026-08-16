@@ -51,7 +51,7 @@ LM_UploadBlock(qboolean dynamic)
 				0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
 				r_lms.lightmap_buffer[buffer]);
 
-		if (gl_config.lightmapcopies && buffer != 0)
+		if (gl_config.tilerendering && buffer != 0)
 		{
 			int i;
 
