@@ -649,10 +649,6 @@ extern cvar_t *r_fixsurfsky;
 extern cvar_t *r_palettedtexture;
 extern cvar_t *r_validation;
 
-#ifdef YQ2_GL3_GLES
-extern cvar_t *gl_discardfb;
-#endif
-
 extern cvar_t *gl3_debugcontext;
 extern cvar_t *gl3_show_draw_stats;
 

@@ -130,10 +130,6 @@ cvar_t *r_palettedtexture;
 cvar_t *r_validation;
 cvar_t *gl3_usefbo;
 
-#ifdef YQ2_GL3_GLES
-cvar_t *gl_discardfb;
-#endif
-
 cvar_t *gl3_show_draw_stats;
 
 static cvar_t *gl_znear;
@@ -297,10 +293,6 @@ GL3_Register(void)
 	r_speeds = ri.Cvar_Get("r_speeds", "0", 0);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl_znear = ri.Cvar_Get("gl_znear", "4", CVAR_ARCHIVE);
-
-#ifdef YQ2_GL3_GLES
-	gl_discardfb = ri.Cvar_Get("gl_discardfb", "1", CVAR_ARCHIVE);
-#endif
 
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
@@ -537,7 +529,7 @@ static void
 GL3_ResetClearColor(void)
 {
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value && !r_clear->value)
+	if (!r_clear->value)
 		glClearColor(0, 0, 0, 0.5);
 	else
 #endif
@@ -2085,10 +2077,7 @@ GL3_Clear(void)
 #endif // 0
 
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value)
-	{
-		clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-	}
+	clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 #endif
 
 	glClear(clearFlags);

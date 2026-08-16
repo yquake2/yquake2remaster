@@ -588,11 +588,8 @@ void GL3_EndFrame(void)
 	}
 
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value)
-	{
-		static const GLenum attachments[] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
-		glInvalidateFramebuffer(GL_FRAMEBUFFER, 3, attachments);
-	}
+	static const GLenum attachments[] = {GL_COLOR_ATTACHMENT0, GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
+	glInvalidateFramebuffer(GL_FRAMEBUFFER, 3, attachments);
 #endif
 
 	GL3_SwapWindow();
