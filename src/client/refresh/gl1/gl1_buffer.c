@@ -32,7 +32,7 @@
 #define GLBUFFER_RESET	vtx_ptr = idx_ptr = 0; gl_buf.vt = gl_buf.tx = gl_buf.cl = 0;
 
 glbuffer_t gl_buf;	// our drawing buffer, used globally
-int cur_lm_copy;	// which lightmap copy to use (when lightmapcopies=on)
+int cur_lm_copy;	// which lightmap copy to use (when tilerendering=on)
 
 static GLushort vtx_ptr, idx_ptr;	// pointers for array positions in gl_buf
 
@@ -184,7 +184,7 @@ R_ApplyGLBuffer(void)
 		{
 			// TMU 1: Lightmap texture
 			int lmtexture = gl_state.lightmap_textures + gl_buf.texture[1];
-			if (gl_config.lightmapcopies)
+			if (gl_config.tilerendering)
 			{
 				// Bind appropiate lightmap copy for this frame
 				lmtexture += MAX_LIGHTMAPS * cur_lm_copy;

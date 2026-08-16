@@ -416,7 +416,7 @@ typedef struct
 	qboolean palettedtexture;
 	qboolean pointparameters;
 	qboolean multitexture;
-	qboolean lightmapcopies;	// many copies of same lightmap, for embedded
+	qboolean tilerendering;	// see "Tile-Based Rendering optimizations" in gl1_main.c
 
 	// ----
 

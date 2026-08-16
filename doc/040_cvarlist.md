@@ -603,16 +603,11 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   FOV when diving underwater. Can be any floating point number, `0`
   disables it (Vanilla Quake II look). Default `1.0`.
 
-* **gl1_lightmapcopies**: When enabled (`1`), keep 3 copies of the same
-  lightmap rotating, shifting to another one when drawing a new frame.
-  Meant for mobile/embedded devices, where changing textures just shown
-  (dynamic lighting) causes slowdown. By default in GL1 is disabled,
-  while in GLES1 is enabled. Needs `gl1_multitexture 1` & `vid_restart`.
-
-* **gl1_discardfb**: If `1`, clear color, depth and stencil buffers at
-  the start of a frame, and discard them at the end if possible. If
-  `2`, do only depth and stencil, no color. Increases performance in
-  mobile / embedded. Default in GL1 is `0`, while in GLES1 is `1`.
+* **gl1_tilerendering**: Available only in GL1, this controls whether
+  the optimizations included in GLES1 for *tile-based* rendering devices
+  (mainly SBCs) are also applied in GL1. These optimizations may backfire
+  on traditional *immediate mode* GPUs (desktop), so by default this is
+  `0`. Enabling this requires `gl1_multitexture 1` & `vid_restart`.
 
 
 ## Graphics (OpenGL 3.2 and OpenGL ES3 only)
