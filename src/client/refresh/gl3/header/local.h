@@ -607,10 +607,6 @@ extern cvar_t *gl3_particle_square;
 extern cvar_t *gl3_colorlight;
 extern cvar_t *gl_polyblend;
 
-#ifdef YQ2_GL3_GLES
-extern cvar_t *gl_discardfb;
-#endif
-
 extern cvar_t *gl3_debugcontext;
 extern cvar_t *gl3_show_draw_stats;
 

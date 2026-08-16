@@ -95,10 +95,6 @@ cvar_t *gl_finish;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usefbo;
 
-#ifdef YQ2_GL3_GLES
-cvar_t *gl_discardfb;
-#endif
-
 cvar_t *gl3_show_draw_stats;
 
 DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
@@ -217,10 +213,6 @@ GL3_Register(void)
 	gl3_intensity_2D = ri.Cvar_Get("gl3_intensity_2D", "1.5", CVAR_ARCHIVE);
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl3_overbrightbits = ri.Cvar_Get("gl3_overbrightbits", "1.3", CVAR_ARCHIVE);
-
-#ifdef YQ2_GL3_GLES
-	gl_discardfb = ri.Cvar_Get("gl_discardfb", "1", CVAR_ARCHIVE);
-#endif
 
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
@@ -413,7 +405,7 @@ static void
 GL3_ResetClearColor(void)
 {
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value && !r_clear->value)
+	if (!r_clear->value)
 		glClearColor(0, 0, 0, 0.5);
 	else
 #endif
@@ -1970,10 +1962,7 @@ GL3_Clear(void)
 #endif // 0
 
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value)
-	{
-		clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-	}
+	clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 #endif
 
 	glClear(clearFlags);
