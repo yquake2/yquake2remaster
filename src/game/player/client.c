@@ -722,6 +722,14 @@ ClientObituary(edict_t *self, const edict_t *inflictor /* unused */,
 					message = "was hunted down by";
 					message2 = "'s doppleganger";
 					break;
+				case MOD_PLASMA_PISTOL:
+					message = "was burned down by";
+					message2 = "'s plasma pistol";
+					break;
+				case MOD_PLASMA_RIFLE:
+					message = "was vaporized by";
+					message2 = "'s plasma rifle";
+					break;
 				default:
 					break;
 			}

@@ -33,7 +33,7 @@ void monster_start_go(edict_t *self);
 /* Monster weapons */
 
 static void
-monster_muzzleflash2(const edict_t *self, vec3_t start, int flashtype)
+monster_muzzleflash2(const edict_t *self, const vec3_t start, int flashtype)
 {
 	gi.WriteByte(svc_muzzleflash2);
 	gi.WriteShort(self - g_edicts);
@@ -80,7 +80,7 @@ monster_fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 }
 
 void
-monster_fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+monster_fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage,
 		int speed, int flashtype, int effect)
 {
 	if (!self)
@@ -94,7 +94,7 @@ monster_fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 }
 
 void
-monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage,
 		int speed, int flashtype, int effect)
 {
 	if (!self)

@@ -697,6 +697,8 @@ void M_WorldEffects(edict_t *ent);
 #define MOD_DOPPLE_EXPLODE 54
 #define MOD_DOPPLE_VENGEANCE 55
 #define MOD_DOPPLE_HUNTER 56
+#define MOD_PLASMA_RIFLE 57
+#define MOD_PLASMA_PISTOL 58
 
 /* Easier handling of AI skill levels */
 #define SKILL_EASY 0
@@ -965,7 +967,7 @@ void monster_fire_bullet(edict_t *self, vec3_t start, vec3_t dir, int damage,
 void monster_fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir,
 		int damage, int kick, int hspread, int vspread, int count,
 		int flashtype);
-void monster_fire_blaster(edict_t *self, vec3_t start, vec3_t dir,
+void monster_fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir,
 		int damage, int speed, int flashtype, int effect);
 void monster_fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir,
 		int damage, int speed, int flashtype);
@@ -983,7 +985,7 @@ void monster_fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage,
 void monster_fire_heatbeam(edict_t *self, vec3_t start, vec3_t dir, vec3_t offset,
 		int damage, int kick, int flashtype);
 void monster_dabeam(edict_t *self);
-void monster_fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+void monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
 		int speed, int flashtype, int effect);
 
 void M_droptofloor(edict_t *ent);
@@ -1074,7 +1076,7 @@ void fire_bullet(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void fire_bball(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed);
 void fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int kick, int hspread, int vspread, int count, int mod);
-void fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+void fire_blaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
 		int speed, int effect, qboolean hyper);
 void fire_grenade(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean monster);
@@ -1091,7 +1093,7 @@ void fire_heat(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 		float damage_radius, int radius_damage);
 void fire_heatbeam(edict_t *self, vec3_t start, vec3_t aimdir, vec3_t offset,
 		int damage, int kick, qboolean monster);
-void fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+void fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
 		int speed, int effect);
 void fire_plasma(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed,
 		float damage_radius, int radius_damage);
@@ -1099,7 +1101,10 @@ void fire_trap(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius, qboolean held);
 void fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 		int speed, float timer, float damage_radius);
-void fire_deatom(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed);
+void fire_deatom(edict_t *self, const vec3_t start, vec3_t aimdir, int damage,
+		int speed);
+void fire_plasma_bolt(edict_t *self, const vec3_t start, const vec3_t dir, int damage,
+		int speed, int plasma_type);
 void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 void Grenade_Explode(edict_t *ent);
 

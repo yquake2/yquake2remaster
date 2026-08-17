@@ -3836,6 +3836,99 @@ Weapon_Deatomizer_Fire(edict_t *ent)
 	ent->client->ps.gunframe++;
 }
 
+static void
+Weapon_Plasma_Fire(edict_t *ent, vec3_t g_offset, int damage,
+		int plasma_mode)
+{
+	vec3_t offset, start, forward, right;
+
+	if (is_quad)
+	{
+		damage *= 4;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+
+	VectorSet(offset, g_offset[0] + 16, g_offset[1] + 8,
+		ent->viewheight - 8 + g_offset[2]);
+	P_ProjectSource(ent, offset, forward, right, start);
+
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+
+	fire_plasma_bolt(ent, start, forward, damage, 2000, plasma_mode);
+
+	if (!ent->client->pers.inventory[ent->client->ammo_index])
+	{
+		if (level.time >= ent->pain_debounce_time)
+		{
+			gi.sound(ent, CHAN_VOICE, gi.soundindex(
+						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1;
+		}
+
+		NoAmmoWeaponChange(ent);
+		return;
+	}
+	else
+	{
+		G_RemoveAmmo(ent);
+	}
+
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_BLASTER2 | is_silenced);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+}
+
+static void
+Weapon_PlasmaPistol_Fire(edict_t *ent)
+{
+	vec3_t offset = {16, 0, 4};
+	float volume;
+	int damage;
+
+	if (deathmatch->value)
+	{
+		damage = 15;
+	}
+	else
+	{
+		damage = 10;
+	}
+
+	Weapon_Plasma_Fire(ent, offset, damage, 0);
+	ent->client->ps.gunframe++;
+
+	volume = is_silenced ? 0.5f : 1.0f;
+	gi.sound(ent, CHAN_VOICE, gi.soundindex("plasma1/fire.wav"), volume, ATTN_NORM, 0);
+}
+
+static void
+Weapon_PlasmaRifle_Fire(edict_t *ent)
+{
+	vec3_t offset = {0};
+	float volume;
+	int damage;
+
+	if (deathmatch->value)
+	{
+		damage = 50;
+	}
+	else
+	{
+		damage = 35;
+	}
+
+	Weapon_Plasma_Fire(ent, offset, damage, 1);
+	ent->client->ps.gunframe++;
+
+	volume = is_silenced ? 0.5f : 1.0f;
+	gi.sound(ent, CHAN_VOICE, gi.soundindex("plasma2/fire.wav"), volume, ATTN_NORM, 0);
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -3922,7 +4015,7 @@ Weapon_DynamicWeapon(edict_t *ent)
 		static const int fire_frames[] = {7, 0};
 
 		Weapon_Generic(ent, 6, 11, 32, 40, pause_frames,
-				fire_frames, Weapon_Blaster_Fire);
+				fire_frames, Weapon_PlasmaPistol_Fire);
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_plasma_rifle"))
 	{
@@ -3930,7 +4023,7 @@ Weapon_DynamicWeapon(edict_t *ent)
 		static const int fire_frames[] = {9, 0};
 
 		Weapon_Generic(ent, 7, 10, 24, 32, pause_frames,
-				fire_frames, Weapon_Blaster_Fire);
+				fire_frames, Weapon_PlasmaRifle_Fire);
 	}
 	/* Some other mod */
 	else

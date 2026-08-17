@@ -4707,9 +4707,15 @@ InitItems(void)
 							itemlist[num_items].ammo = "Bullets";
 						}
 						/* Oblivion ammo */
+						else if (!strcmp(itemlist[num_items].classname, "weapon_plasma_pistol"))
+						{
+							itemlist[num_items].ammo = "Rifle Plasma";
+							itemlist[num_items].quantity = 1;
+						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_plasma_rifle"))
 						{
 							itemlist[num_items].ammo = "Rifle Plasma";
+							itemlist[num_items].quantity = 5;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_hellfury"))
 						{

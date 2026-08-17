@@ -518,9 +518,10 @@ blaster_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurfa
 }
 
 void
-fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+fire_blaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
 		int speed, int effect, qboolean hyper)
 {
+	vec3_t forward;
 	edict_t *bolt;
 	trace_t tr;
 
@@ -529,7 +530,8 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		return;
 	}
 
-	VectorNormalize(dir);
+	VectorCopy(aimdir, forward);
+	VectorNormalize(forward);
 
 	bolt = G_Spawn();
 	bolt->svflags = SVF_DEADMONSTER;
@@ -542,8 +544,8 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 	VectorCopy(self->rrs.scale, bolt->rrs.scale);
 	VectorCopy(start, bolt->s.origin);
 	VectorCopy(start, bolt->s.old_origin);
-	vectoangles(dir, bolt->s.angles);
-	VectorScale(dir, speed, bolt->velocity);
+	vectoangles(forward, bolt->s.angles);
+	VectorScale(forward, speed, bolt->velocity);
 	bolt->movetype = MOVETYPE_FLYMISSILE;
 	bolt->clipmask = MASK_SHOT;
 	bolt->solid = SOLID_BBOX;
@@ -569,22 +571,23 @@ fire_blaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	if (self->client)
 	{
-		check_dodge(self, bolt->s.origin, dir, speed);
+		check_dodge(self, bolt->s.origin, forward, speed);
 	}
 
 	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT);
 
 	if (tr.fraction < 1.0)
 	{
-		VectorMA(bolt->s.origin, -10, dir, bolt->s.origin);
+		VectorMA(bolt->s.origin, -10, forward, bolt->s.origin);
 		bolt->touch(bolt, tr.ent, NULL, NULL);
 	}
 }
 
 void
-fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
+fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
 		int speed, int effect)
 {
+	vec3_t forward;
 	edict_t *bolt;
 	trace_t tr;
 
@@ -593,14 +596,15 @@ fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 		return;
 	}
 
-	VectorNormalize(dir);
+	VectorCopy(aimdir, forward);
+	VectorNormalize(forward);
 
 	bolt = G_Spawn();
 	VectorCopy(self->rrs.scale, bolt->rrs.scale);
 	VectorCopy(start, bolt->s.origin);
 	VectorCopy(start, bolt->s.old_origin);
-	vectoangles(dir, bolt->s.angles);
-	VectorScale(dir, speed, bolt->velocity);
+	vectoangles(forward, bolt->s.angles);
+	VectorScale(forward, speed, bolt->velocity);
 	bolt->movetype = MOVETYPE_FLYMISSILE;
 	bolt->clipmask = MASK_SHOT;
 	bolt->solid = SOLID_BBOX;
@@ -620,14 +624,14 @@ fire_blueblaster(edict_t *self, vec3_t start, vec3_t dir, int damage,
 
 	if (self->client)
 	{
-		check_dodge(self, bolt->s.origin, dir, speed);
+		check_dodge(self, bolt->s.origin, forward, speed);
 	}
 
 	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT);
 
 	if (tr.fraction < 1.0)
 	{
-		VectorMA(bolt->s.origin, -10, dir, bolt->s.origin);
+		VectorMA(bolt->s.origin, -10, forward, bolt->s.origin);
 		bolt->touch(bolt, tr.ent, NULL, NULL);
 	}
 }
@@ -2216,7 +2220,7 @@ deatom_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurfac
 }
 
 void
-fire_deatom(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed)
+fire_deatom(edict_t *self, const vec3_t start, vec3_t aimdir, int damage, int speed)
 {
 	edict_t	*deatom;
 	edict_t	*ent;
@@ -2313,5 +2317,122 @@ fire_deatom(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int speed)
 		{
 			deatom->touch(deatom, tr.ent, &tr.plane, tr.surface);
 		}
+	}
+}
+
+#define SPAWNFLAG_PLASMA_RIFLE 1
+
+static void
+plasma_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+{
+	int rifle_mode;
+	vec3_t normal;
+
+	if (!self || !other)
+	{
+		return;
+	}
+
+	if (other == self->owner)
+	{
+		return;
+	}
+
+	rifle_mode = self->spawnflags & SPAWNFLAG_PLASMA_RIFLE;
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (self->owner && self->owner->client)
+	{
+		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
+	}
+
+	gi.sound(self, CHAN_VOICE,
+		gi.soundindex(rifle_mode ? "plasma2/hit.wav" : "plasma1/hit.wav"),
+		1.0f, ATTN_NORM, 0.0f);
+
+	get_normal_vector(plane, normal);
+
+	if (other->takedamage)
+	{
+		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
+				normal, self->dmg, 1, 0, rifle_mode ? MOD_PLASMA_RIFLE : MOD_PLASMA_PISTOL);
+	}
+	else
+	{
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_BLASTER2);
+		gi.WritePosition(self->s.origin);
+		gi.WriteDir(normal);
+		gi.multicast(self->s.origin, MULTICAST_PVS);
+	}
+
+	G_FreeEdict(self);
+}
+
+void
+fire_plasma_bolt(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
+	int speed, int plasma_type)
+{
+	vec3_t forward;
+	edict_t *bolt;
+	trace_t tr;
+
+	if (!self)
+	{
+		return;
+	}
+
+	VectorCopy(aimdir, forward);
+	VectorNormalize(forward);
+
+	bolt = G_Spawn();
+	VectorCopy(self->rrs.scale, bolt->rrs.scale);
+	VectorCopy(start, bolt->s.origin);
+	VectorCopy(start, bolt->s.old_origin);
+	vectoangles(forward, bolt->s.angles);
+	VectorScale(forward, speed, bolt->velocity);
+	bolt->movetype = MOVETYPE_FLYMISSILE;
+	bolt->solid = SOLID_BBOX;
+	bolt->clipmask = MASK_SHOT;
+
+	bolt->s.effects = EF_TRACKER | EF_COLOR_SHELL | EF_BLASTER;
+	bolt->s.renderfx |= RF_WEAPONMODEL | RF_FULLBRIGHT | RF_DEPTHHACK;
+	VectorClear(bolt->mins);
+	VectorClear(bolt->maxs);
+
+	bolt->s.modelindex = gi.modelindex(plasma_type ?
+		"models/objects/plasma/tris.md2" :
+		"models/objects/pistolplasma/tris.md2");
+	bolt->s.sound = gi.soundindex("misc/lasfly.wav");
+	bolt->owner = self;
+	bolt->touch = plasma_bolt_touch;
+	bolt->nextthink = level.time + 2;
+	bolt->think = G_FreeEdict;
+	bolt->dmg = damage;
+	bolt->classname = "bolt";
+
+	if (plasma_type)
+	{
+		bolt->spawnflags = SPAWNFLAG_PLASMA_RIFLE;
+	}
+
+	gi.linkentity(bolt);
+
+	if (self->client)
+	{
+		check_dodge(self, bolt->s.origin, forward, speed);
+	}
+
+	tr = gi.trace(self->s.origin, NULL, NULL, bolt->s.origin, bolt, MASK_SHOT);
+
+	if (tr.fraction < 1.0)
+	{
+		VectorMA(bolt->s.origin, -10, forward, bolt->s.origin);
+		bolt->touch(bolt, tr.ent, NULL, NULL);
 	}
 }
