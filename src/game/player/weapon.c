@@ -3776,7 +3776,7 @@ Weapon_Deatomizer_Fire(edict_t *ent)
 	if (!((int)dmflags->value & DF_INFINITE_AMMO))
 	{
 		if (!ent->client->ammo_index ||
-			ent->client->pers.inventory[ent->client->ammo_index] < 10)
+			ent->client->pers.inventory[ent->client->ammo_index] < ent->client->pers.weapon->quantity)
 		{
 			if (level.time >= ent->pain_debounce_time)
 			{
@@ -3784,11 +3784,13 @@ Weapon_Deatomizer_Fire(edict_t *ent)
 					ATTN_NORM, 0);
 				ent->pain_debounce_time = level.time + 1;
 			}
+
+			ent->client->ps.gunframe++;
 			NoAmmoWeaponChange(ent);
 			return;
 		}
 
-		ent->client->pers.inventory[ent->client->ammo_index] -= 10;
+		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
 	}
 
 	if (is_quad)

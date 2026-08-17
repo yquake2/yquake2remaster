@@ -4718,6 +4718,7 @@ InitItems(void)
 						else if (!strcmp(itemlist[num_items].classname, "weapon_deatomizer"))
 						{
 							itemlist[num_items].ammo = "Cells";
+							itemlist[num_items].quantity = 10;
 						}
 					}
 					else if (!strncmp(itemlist[num_items].classname, "item_", 5))
