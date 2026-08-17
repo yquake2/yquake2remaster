@@ -3766,31 +3766,28 @@ Weapon_Deatomizer_Fire(edict_t *ent)
 
 	if (deathmatch->value)
 	{
-		damage = (rand() % 30) + 90;
+		damage = (randk() % 30) + 90;
 	}
 	else
 	{
-		damage = (rand() % 80) + 120;
+		damage = (randk() % 80) + 120;
 	}
 
-	if (!((int)dmflags->value & DF_INFINITE_AMMO))
+	if (!ent->client->pers.inventory[ent->client->ammo_index])
 	{
-		if (!ent->client->ammo_index ||
-			ent->client->pers.inventory[ent->client->ammo_index] < ent->client->pers.weapon->quantity)
+		if (level.time >= ent->pain_debounce_time)
 		{
-			if (level.time >= ent->pain_debounce_time)
-			{
-				gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1,
-					ATTN_NORM, 0);
-				ent->pain_debounce_time = level.time + 1;
-			}
-
-			ent->client->ps.gunframe++;
-			NoAmmoWeaponChange(ent);
-			return;
+			gi.sound(ent, CHAN_VOICE, gi.soundindex(
+						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1;
 		}
 
-		ent->client->pers.inventory[ent->client->ammo_index] -= ent->client->pers.weapon->quantity;
+		NoAmmoWeaponChange(ent);
+		return;
+	}
+	else
+	{
+		G_RemoveAmmo(ent);
 	}
 
 	if (is_quad)
