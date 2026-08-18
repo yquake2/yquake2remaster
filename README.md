@@ -343,7 +343,6 @@ Checked with:
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
-* [ ] Half-Life: support mdl,
 * [ ] Anachronox: load atd as sprite,
 * [ ] Anachronox: fix incorrect scale of `ob_stop-flame` and `ob_wommhill01`,
 * [ ] Anachronox: skins load broken with mingw win64 build,
@@ -387,6 +386,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Half-Life: support mdl,
 * [x] Oblivion: Add support of `weapon_hellfury`,
 * [x] Oblivion: Add support of `weapon_plasma_pistol`,
 * [x] Oblivion: Add support of `weapon_plasma_rifle`,

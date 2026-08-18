@@ -680,7 +680,6 @@ void M_WorldEffects(edict_t *ent);
 #define MOD_GEKK 38
 #define MOD_TRAP 39
 #define MOD_GRAPPLE 40
-#define MOD_FRIENDLY_FIRE 0x8000000
 #define MOD_CHAINFIST 41
 #define MOD_DISINTEGRATOR 42
 #define MOD_ETF_RIFLE 43
@@ -699,6 +698,7 @@ void M_WorldEffects(edict_t *ent);
 #define MOD_DOPPLE_HUNTER 56
 #define MOD_PLASMA_RIFLE 57
 #define MOD_PLASMA_PISTOL 58
+#define MOD_FRIENDLY_FIRE 0x8000000
 
 /* Easier handling of AI skill levels */
 #define SKILL_EASY 0
