@@ -1105,6 +1105,8 @@ void fire_deatom(edict_t *self, const vec3_t start, vec3_t aimdir, int damage,
 		int speed);
 void fire_plasma_bolt(edict_t *self, const vec3_t start, const vec3_t dir, int damage,
 		int speed, int plasma_type);
+void fire_hellfury_projectile(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
+		int speed, float damage_radius, int splash_damage);
 void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 void Grenade_Explode(edict_t *ent);
 

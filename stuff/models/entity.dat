@@ -256,7 +256,7 @@ sound_echo||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|
 target_zboss_target||1.0|1.0|1.0|general|||||||shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|||||0|0|0|0|0|0|0|none|0
 trigger_laser||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 weapon_flaregun|models/weapons/g_flare/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-weapon_push||1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
+weapon_push|models/weapons/v_hand/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
 weapon_sniperrifle|models/weapons/g_sniper/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
 weapon_soniccannon|models/weapons/g_sonic/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
 

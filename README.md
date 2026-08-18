@@ -381,13 +381,13 @@ Checked with:
 * [ ] Oblivion: Add support of `target_railgun`,
 * [ ] Oblivion: Add support of `target_rocket`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
-* [ ] Oblivion: Add support of `weapon_hellfury`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Dynamic count of entities on client,
 * [ ] Support obj waveform model format for debug other formats.
 
 ### Fixed:
 
+* [x] Oblivion: Add support of `weapon_hellfury`,
 * [x] Oblivion: Add support of `weapon_plasma_pistol`,
 * [x] Oblivion: Add support of `weapon_plasma_rifle`,
 * [x] Oblivion: Add support of `weapon_deatomizer`,

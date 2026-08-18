@@ -4720,6 +4720,7 @@ InitItems(void)
 						else if (!strcmp(itemlist[num_items].classname, "weapon_hellfury"))
 						{
 							itemlist[num_items].ammo = "Rockets";
+							itemlist[num_items].quantity = 1;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_deatomizer"))
 						{

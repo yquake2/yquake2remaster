@@ -434,6 +434,7 @@ fire_bball(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	}
 
 	bolt = G_Spawn();
+	VectorCopy(self->rrs.scale, bolt->rrs.scale);
 	VectorCopy(start, bolt->s.origin);
 	VectorCopy(dir, bolt->movedir);
 	vectoangles(dir, bolt->s.angles);
@@ -2235,6 +2236,7 @@ fire_deatom(edict_t *self, const vec3_t start, vec3_t aimdir, int damage, int sp
 	VectorNormalize(aimdir);
 
 	deatom = G_Spawn();
+	VectorCopy(self->rrs.scale, deatom->rrs.scale);
 	deatom->svflags = SVF_DEADMONSTER;
 	VectorCopy(start, deatom->s.origin);
 	VectorCopy(start, deatom->s.old_origin);
@@ -2435,4 +2437,76 @@ fire_plasma_bolt(edict_t *self, const vec3_t start, const vec3_t aimdir, int dam
 		VectorMA(bolt->s.origin, -10, forward, bolt->s.origin);
 		bolt->touch(bolt, tr.ent, NULL, NULL);
 	}
+}
+
+static void
+hellfury_think(edict_t *self)
+{
+	vec3_t diff;
+
+	VectorCopy(self->move_origin, self->movedir);
+	VectorScale(self->pos1, frandk(), diff);
+	VectorAdd(self->movedir, diff, self->movedir);
+	VectorScale(self->pos2, frandk(), diff);
+	VectorAdd(self->movedir, diff, self->movedir);
+	VectorScale(self->movedir, self->speed, self->velocity);
+	vectoangles(self->movedir, self->s.angles);
+	self->nextthink = level.time + 0.2;
+
+	if ((level.time - self->timestamp) > 5)
+	{
+		self->think = G_FreeEdict;
+	}
+}
+
+void
+fire_hellfury_projectile(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
+		int speed, float damage_radius, int radius_damage)
+{
+	vec3_t dir, right, up;
+	edict_t *rocket;
+
+	if (!self)
+	{
+		return;
+	}
+
+	VectorCopy(aimdir, dir);
+
+	rocket = G_Spawn();
+	VectorCopy(self->rrs.scale, rocket->rrs.scale);
+	VectorCopy(start, rocket->s.origin);
+	VectorCopy(start, rocket->s.old_origin);
+	VectorCopy(dir, rocket->move_origin);
+	vectoangles(dir, rocket->s.angles);
+	AngleVectors(rocket->s.angles, NULL, right, up);
+	VectorCopy(dir, rocket->movedir);
+	VectorScale(right, 0.1f, rocket->pos1);
+	VectorScale(up, 0.1f, rocket->pos2);
+	rocket->speed = (float) speed;
+	VectorScale(dir, speed, rocket->velocity);
+	rocket->movetype = MOVETYPE_FLYMISSILE;
+	rocket->clipmask = MASK_SHOT;
+	rocket->solid = SOLID_BBOX;
+	rocket->s.effects |= EF_ROCKET;
+	VectorClear(rocket->mins);
+	VectorClear(rocket->maxs);
+	rocket->s.modelindex = gi.modelindex("models/objects/rocket/tris.md2");
+	rocket->owner = self;
+	rocket->touch = rocket_touch;
+	rocket->nextthink = level.time + 0.2;
+	rocket->think = hellfury_think;
+	rocket->timestamp = level.time;
+	rocket->dmg = damage;
+	rocket->radius_dmg = radius_damage;
+	rocket->dmg_radius = damage_radius;
+	rocket->s.sound = gi.soundindex("weapons/rockfly.wav");
+	rocket->classname = "rocket";
+
+	if (self->client)
+	{
+		check_dodge(self, rocket->s.origin, dir, speed);
+	}
+
+	gi.linkentity(rocket);
 }

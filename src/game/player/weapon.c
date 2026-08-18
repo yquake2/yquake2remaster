@@ -3929,6 +3929,75 @@ Weapon_PlasmaRifle_Fire(edict_t *ent)
 	gi.sound(ent, CHAN_VOICE, gi.soundindex("plasma2/fire.wav"), volume, ATTN_NORM, 0);
 }
 
+static void
+Weapon_Hellfury_Fire(edict_t *ent)
+{
+	vec3_t offset, start, forward, right, up;
+	int damage, splash;
+
+	damage = 50 + frandk() * 5.0;
+	splash = 60;
+
+	if (is_quad)
+	{
+		damage *= 4;
+		splash *= 4;
+	}
+
+	AngleVectors(ent->client->v_angle, forward, right, up);
+	VectorCopy(forward, ent->movedir);
+	VectorCopy(right, ent->pos1);
+	VectorCopy(up, ent->pos2);
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+
+	if (ent->client->ps.gunframe == 15)
+	{
+		VectorSet (offset, 8, 12, ent->viewheight - 8);
+	}
+	else if (ent->client->ps.gunframe == 16)
+	{
+		VectorSet (offset, 10, 12, ent->viewheight - 8);
+	}
+	else if (ent->client->ps.gunframe == 17)
+	{
+		VectorSet(offset, 10, 10, ent->viewheight - 8);
+	}
+	else
+	{
+		VectorSet(offset, 8, 10, ent->viewheight - 8);
+	}
+
+	P_ProjectSource(ent, offset, forward, right, start);
+	fire_hellfury_projectile(ent, start, forward, damage, 900, 100.0f,
+		splash);
+
+	gi.WriteByte(svc_muzzleflash);
+	gi.WriteShort(ent - g_edicts);
+	gi.WriteByte(MZ_ROCKET | is_silenced);
+	gi.multicast(ent->s.origin, MULTICAST_PVS);
+
+	ent->client->ps.gunframe++;
+	PlayerNoise(ent, start, PNOISE_WEAPON);
+
+	if (!ent->client->pers.inventory[ent->client->ammo_index])
+	{
+		if (level.time >= ent->pain_debounce_time)
+		{
+			gi.sound(ent, CHAN_VOICE, gi.soundindex(
+						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1;
+		}
+
+		NoAmmoWeaponChange(ent);
+		return;
+	}
+	else
+	{
+		G_RemoveAmmo(ent);
+	}
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -4007,7 +4076,7 @@ Weapon_DynamicWeapon(edict_t *ent)
 		static const int fire_frames[] = {15, 16, 17, 18, 0};
 
 		Weapon_Generic(ent, 14, 27, 40, 48, pause_frames,
-				fire_frames, Weapon_Blaster_Fire);
+				fire_frames, Weapon_Hellfury_Fire);
 	}
 	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_plasma_pistol"))
 	{
