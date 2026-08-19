@@ -94,7 +94,7 @@ monster_fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int da
 }
 
 void
-monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage,
+monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage,
 		int speed, int flashtype, int effect)
 {
 	if (!self)
@@ -102,7 +102,7 @@ monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t dir, in
 		return;
 	}
 
-	fire_blueblaster(self, start, dir, damage, speed, effect);
+	fire_blueblaster(self, start, aimdir, damage, speed, effect);
 
 	monster_muzzleflash2(self, start, MZ_BLUEHYPERBLASTER);
 }

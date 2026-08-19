@@ -2168,8 +2168,6 @@ deatom_think(edict_t *self)
 static void
 deatom_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
-	vec3_t	normal;
-
 	if (other == self->owner)
 	{
 		return;
@@ -2191,6 +2189,8 @@ deatom_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurfac
 
 	if (other->takedamage)
 	{
+		vec3_t normal;
+
 		if (plane)
 		{
 			VectorCopy(plane->normal, normal);
