@@ -1,0 +1,72 @@
+================================================================================
+FUNCTIONAL SPECIFICATION: PULSE PISTOL MECHANIC
+================================================================================
+
+1. OVERVIEW
+   A semi-automatic energy weapon that fires an explosive plasma-like sphere
+   projectile. The projectile emits a blue ambient light, leaves a distinct
+   laser spark trail, and explodes on contact to deal area-of-effect damage.
+
+2. WEAPON PROPERTIES & TIMINGS
+   - Base Damage: 30 units
+   - Splash Radius: 90 units
+   - Projectile Speed: 1000 units/second
+   - Maximum Lifespan: 8.0 seconds
+   - Firing Animation Cycle: Frame-driven (Fires explicitly on Frame 5)
+   - Visual Effects: Dynamic blue lighting (EF_BLUELIGHT)
+
+3. RESOURCE ASSETS (MODELS & SOUNDS)
+
+   A. 3D MODELS (.MD2)
+      - Flight Projectile Model: "models/objects/bball/tris.md2"
+        * The visual mesh representing the moving plasma sphere in mid-air.
+      - Detonation/Explosion Model: "models/objects/disch2/tris.md2"
+        * The mesh that replaces the sphere upon collision to animate the blast.
+
+   B. AUDIO SAMPLES (.WAV)
+      - Ambient Flight Sound: "misc/lasfly.wav"
+        * A looping audio effect attached to the projectile during flight.
+      - Impact/Explosion Sound: "weapons/lashit.wav"
+        * A localized one-shot sound effect played at the point of detonation.
+
+4. LIFE-CYCLE STATES
+
+   A. INITIALIZATION (SPAWNING)
+      - Read player camera orientation vectors (Forward, Right).
+      - Project spawn position from player muzzle using fixed offsets.
+      - Apply minor viewing punch/recoil to the player's screen.
+      - Cast an immediate short ray-trace from shooter origin to spawn point:
+        - If clear: Spawn projectile entity, apply random rotational spin,
+          load the flight model ("models/objects/bball/tris.md2"), bind the
+          looping flight sound ("misc/lasfly.wav"), and begin linear velocity.
+        - If blocked (e.g., face-planting a wall): Instantly trigger impact
+          behavior at the collision point.
+
+   B. FLIGHT (THINK CYCLE)
+      - Updates every 0.1 seconds.
+      - Check Expiry: If the entity is older than 8.0 seconds or gets stuck on
+        the floor without colliding, delete it immediately.
+      - Spark Trails: Every tick, calculate three specific coordinates trailing
+        behind the projectile (-10, -35, and -60 units back along its travel vector)
+        and spawn localized laser spark particles.
+
+   C. IMPACT (TOUCH ROUTINE)
+      - Filter out collisions with the weapon owner (no instant self-harm at muzzle).
+      - Filter out skybox geometry collisions (instantly delete entity with no effect).
+      - Trigger environment reaction sound alerting nearby entities.
+      - Swap the visual mesh: Replace the flying sphere model index with the
+        detonation mesh index ("models/objects/disch2/tris.md2").
+      - Halt all physical movement, velocity, and world collisions.
+      - Calculate impact plane angle and project structural impact spark particles.
+      - Trigger the impact audio effect ("weapons/lashit.wav") over the auto-channel.
+      - Deal 30 raw damage directly to entities inside a 90-unit fallback radius.
+
+   D. DESTRUCTION (EXPLOSION ANIMATION)
+      - Sequentially cycle through three visual mesh frames (0 to 3) of the
+        explosion model ("models/objects/disch2/tris.md2") at a rate of 0.1 seconds
+        per frame.
+      - Once the 3-frame explosion animation ends, completely unregister and
+        free the entity from server memory.
+
+================================================================================
+
