@@ -235,14 +235,14 @@ weapon_plasmabeam|models/weapons/g_beamer/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15
 weapon_proxlauncher|models/weapons/g_plaunch/tris.md2|1.0|1.0|1.0|charfly|-15.0|-15.0|-15.0|15.0|15.0|15.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Prox Launcher|1.0|0.3|0.3|0|0|0|0|0|0|0|none|0
 
 // Quake 2 Zaero
-ammo_a2k|models/weapons/g_a2k/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-ammo_empnuke|models/weapons/g_enuke/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-ammo_flares|models/items/ammo/flares/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-ammo_ired|models/items/ammo/ireds/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-ammo_plasmashield|models/items/plasma/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-item_visor|models/items/visor/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-key_clearancepass|models/items/keys/pass/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|security pass for the security level|0|.5|.8|0|0|0|0|0|0|0|none|0
-key_energy|models/items/keys/energy/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|security pass for the security level|0|.5|.8|0|0|0|0|0|0|0|none|0
+ammo_a2k|models/weapons/g_a2k/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|A2K|.3|.3|1|0|0|0|0|0|0|0|none|0
+ammo_empnuke|models/weapons/g_enuke/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|EMPNuke|.3|.3|1|0|0|0|0|0|0|0|none|0
+ammo_flares|models/items/ammo/flares/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flares|.3|.3|1|0|0|0|0|0|0|0|none|0
+ammo_ired|models/items/ammo/ireds/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|IRED|.3|.3|1|0|0|0|0|0|0|0|none|0
+ammo_plasmashield|models/items/plasma/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Shield|.3|.3|1|0|0|0|0|0|0|0|none|0
+item_visor|models/items/visor/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Visor|.3|.3|1|0|0|0|0|0|0|0|none|0
+key_clearancepass|models/items/keys/pass/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Security pass for the security level|0|.5|.8|0|0|0|0|0|0|0|none|0
+key_energy|models/items/keys/energy/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Security pass for the security level|0|.5|.8|0|0|0|0|0|0|0|none|0
 key_lab|models/items/keys/pass/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|security pass for the laboratory|0|.5|.8|0|0|0|0|0|0|0|none|0
 key_landing_area|models/items/keys/key/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|landing arena key - blue|0|.5|.8|0|0|0|0|0|0|0|none|0
 key_lava|models/items/keys/lava/tris.md2|1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||0|.5|.8|0|0|0|0|0|0|0|none|0
@@ -255,10 +255,10 @@ monster_zboss|models/monsters/bossz/mech/tris.md2|1.0|1.0|1.0|char|-16|-16|-24|1
 sound_echo||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
 target_zboss_target||1.0|1.0|1.0|general|||||||shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|||||0|0|0|0|0|0|0|none|0
 trigger_laser||1.0|1.0|1.0|general|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||1|0|0|0|0|0|0|0|0|0|none|0
-weapon_flaregun|models/weapons/g_flare/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-weapon_push|models/weapons/v_hand/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-weapon_sniperrifle|models/weapons/g_sniper/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
-weapon_soniccannon|models/weapons/g_sonic/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none||.3|.3|1|0|0|0|0|0|0|0|none|0
+weapon_flaregun|models/weapons/g_flare/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Flare Gun|.3|.3|1|0|0|0|0|0|0|0|none|0
+weapon_push|models/weapons/v_hand/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Push|.3|.3|1|0|0|0|0|0|0|0|none|0
+weapon_sniperrifle|models/weapons/g_sniper/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sniper Rifle|.3|.3|1|0|0|0|0|0|0|0|none|0
+weapon_soniccannon|models/weapons/g_sonic/tris.md2|1.0|1.0|1.0|charfly|-16|-16|-16|16|16|16|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Sonic Cannon|.3|.3|1|0|0|0|0|0|0|0|none|0
 
 // Quake 2 ReRelease
 dynamic_light||1.0|1.0|1.0|general|-8.0|-8.0|-8.0|8.0|8.0|8.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Dynamic KEX light|1.0|0.5|0.0|0|0|0|0|0|0|0|none|0

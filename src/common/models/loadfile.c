@@ -566,6 +566,7 @@ static const replacement_t replacements[] = {
 	/* flare -> flareg for classic */
 	{"models/weapons/g_flare/tris", "models/weapons/g_flareg/tris"},
 	{"models/weapons/v_flare/tris", "models/weapons/v_flareg/tris"},
+	{"models/items/ammo/flares/tris", "models/items/ammo/grenades/medium/tris"},
 	/* grenade */
 	{"models/objects/grenade4/tris", "models/objects/grenade/tris"},
 	{"models/objects/grenade3/tris", "models/objects/grenade2/tris"},

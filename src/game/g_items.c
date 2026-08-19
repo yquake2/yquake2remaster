@@ -3164,10 +3164,34 @@ static const gitem_t gameitemlist[] = {
 		"Flare Gun",
 		0,
 		1,
-		"Grenades",
+		"Flares",
 		IT_WEAPON,
 		WEAP_FLAREGUN,
 		"",
+	},
+
+	/*
+	 * QUAKED ammo_flares (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
+	 */
+	{
+		"ammo_flares",
+		Pickup_Ammo,
+		Use_Weapon,
+		Drop_Ammo,
+		NULL,
+		"misc/am_pkup.wav",
+		"models/items/ammo/flares/tris.md2", 0,
+		NULL,
+		"a_grenades",
+		"Flares",
+		0,
+		3,
+		NULL,
+		IT_AMMO,
+		0,
+		NULL,
+		AMMO_GRENADES,
+		"weapons/hgrent1a.wav weapons/hgrena1b.wav weapons/hgrenc1b.wav weapons/hgrenb1a.wav weapons/hgrenb2a.wav "
 	},
 
 	/*
@@ -4763,23 +4787,21 @@ InitItems(void)
 						if (!strcmp(itemlist[num_items].classname, "ammo_goop"))
 						{
 							itemlist[num_items].tag = AMMO_GRENADES;
+							itemlist[num_items].count_width = 3;
 							itemlist[num_items].quantity = 20;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "ammo_energy"))
 						{
 							itemlist[num_items].tag = AMMO_SLUGS;
+							itemlist[num_items].count_width = 3;
 							itemlist[num_items].quantity = 50;
-						}
-						/* Zaero */
-						else if (!strcmp(itemlist[num_items].classname, "ammo_flares"))
-						{
-							itemlist[num_items].tag = AMMO_GRENADES;
-							itemlist[num_items].quantity = 3;
 						}
 						/* Oblivion */
 						else if (!strcmp(itemlist[num_items].classname, "ammo_rifleplasma"))
 						{
 							itemlist[num_items].tag = AMMO_MAGSLUG;
+							itemlist[num_items].count_width = 3;
+							itemlist[num_items].icon = "a_plasma2";
 							itemlist[num_items].quantity = 50;
 						}
 					}
