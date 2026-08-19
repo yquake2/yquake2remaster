@@ -351,8 +351,6 @@ Checked with:
 * [ ] Daikatana: Fix protopod animation,
 * [ ] Daikatana/SiN: Fix transparent textures in maps,
 * [ ] DoD: fix statusbar `roarke`,
-* [ ] Infinity: Add support of `ammo_energy`,
-* [ ] Infinity: Add support of `ammo_goop`,
 * [ ] Infinity: Add support of `item_radar`,
 * [ ] Infinity: Add support of `monster_alienship1`,
 * [ ] Infinity: Add support of `monster_grunt1v1`,
@@ -367,7 +365,6 @@ Checked with:
 * [ ] Oblivion: Add support of `ammo_detpack`,
 * [ ] Oblivion: Add support of `ammo_dod`,
 * [ ] Oblivion: Add support of `ammo_mines`,
-* [ ] Oblivion: Add support of `ammo_rifleplasma`,
 * [ ] Oblivion: Add support of `func_rotate_train`,
 * [ ] Oblivion: Add support of `info_teleporter_dest`,
 * [ ] Oblivion: Add support of `misc_camera`,
@@ -386,6 +383,9 @@ Checked with:
 
 ### Fixed:
 
+* [x] Infinity: Add support of `ammo_goop`,
+* [x] Infinity: Add support of `ammo_energy`,
+* [x] Oblivion: Add support of `ammo_rifleplasma`,
 * [x] Half-Life: support mdl,
 * [x] Oblivion: Add support of `weapon_hellfury`,
 * [x] Oblivion: Add support of `weapon_plasma_pistol`,

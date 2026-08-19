@@ -4706,6 +4706,17 @@ InitItems(void)
 						{
 							itemlist[num_items].ammo = "Bullets";
 						}
+						/* Zaero */
+						else if (!strcmp(itemlist[num_items].classname, "weapon_sniperrifle"))
+						{
+							itemlist[num_items].ammo = "Slugs";
+							itemlist[num_items].quantity = 3;
+						}
+						else if (!strcmp(itemlist[num_items].classname, "weapon_soniccannon"))
+						{
+							itemlist[num_items].ammo = "Cells";
+							itemlist[num_items].quantity = 1;
+						}
 						/* Oblivion ammo */
 						else if (!strcmp(itemlist[num_items].classname, "weapon_plasma_pistol"))
 						{
@@ -4752,15 +4763,24 @@ InitItems(void)
 						if (!strcmp(itemlist[num_items].classname, "ammo_goop"))
 						{
 							itemlist[num_items].tag = AMMO_GRENADES;
+							itemlist[num_items].quantity = 20;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "ammo_energy"))
 						{
 							itemlist[num_items].tag = AMMO_SLUGS;
+							itemlist[num_items].quantity = 50;
+						}
+						/* Zaero */
+						else if (!strcmp(itemlist[num_items].classname, "ammo_flares"))
+						{
+							itemlist[num_items].tag = AMMO_GRENADES;
+							itemlist[num_items].quantity = 3;
 						}
 						/* Oblivion */
 						else if (!strcmp(itemlist[num_items].classname, "ammo_rifleplasma"))
 						{
 							itemlist[num_items].tag = AMMO_MAGSLUG;
+							itemlist[num_items].quantity = 50;
 						}
 					}
 
