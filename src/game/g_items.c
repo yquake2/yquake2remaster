@@ -4713,22 +4713,27 @@ InitItems(void)
 						if (!strcmp(itemlist[num_items].classname, "weapon_6bshot"))
 						{
 							itemlist[num_items].ammo = "Shells";
+							itemlist[num_items].quantity = 1;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_biggun"))
 						{
 							itemlist[num_items].ammo = "Energy";
+							itemlist[num_items].quantity = 1;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_blaze"))
 						{
 							itemlist[num_items].ammo = "Cells";
+							itemlist[num_items].quantity = 1;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_goop"))
 						{
 							itemlist[num_items].ammo = "XP1/C9";
+							itemlist[num_items].quantity = 1;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_rifle"))
 						{
 							itemlist[num_items].ammo = "Bullets";
+							itemlist[num_items].quantity = 1;
 						}
 						/* Zaero */
 						else if (!strcmp(itemlist[num_items].classname, "weapon_sniperrifle"))
@@ -4788,12 +4793,14 @@ InitItems(void)
 						{
 							itemlist[num_items].tag = AMMO_GRENADES;
 							itemlist[num_items].count_width = 3;
+							itemlist[num_items].icon = "a_goop";
 							itemlist[num_items].quantity = 20;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "ammo_energy"))
 						{
 							itemlist[num_items].tag = AMMO_SLUGS;
 							itemlist[num_items].count_width = 3;
+							itemlist[num_items].icon = "a_energy";
 							itemlist[num_items].quantity = 50;
 						}
 						/* Oblivion */
