@@ -3754,6 +3754,36 @@ Weapon_FlareGun(edict_t *ent)
 		fire_frames, weapon_flaregun_fire);
 }
 
+static qboolean
+Weapon_Has_Ammo(edict_t *ent)
+{
+	const gclient_t *client;
+
+	if (!ent || !ent->client)
+	{
+		return false;
+	}
+
+	client = ent->client;
+
+	if (client->pers.inventory[client->ammo_index] < client->pers.weapon->quantity)
+	{
+		if (level.time >= ent->pain_debounce_time)
+		{
+			gi.sound(ent, CHAN_VOICE, gi.soundindex(
+						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
+			ent->pain_debounce_time = level.time + 1;
+		}
+
+		NoAmmoWeaponChange(ent);
+		return false;
+	}
+
+	G_RemoveAmmo(ent);
+
+	return true;
+}
+
 static void
 Weapon_Deatomizer_Fire(edict_t *ent)
 {
@@ -3764,6 +3794,11 @@ Weapon_Deatomizer_Fire(edict_t *ent)
 	vec3_t	right;
 	float	volume;
 
+	if (!Weapon_Has_Ammo(ent))
+	{
+		return;
+	}
+
 	if (deathmatch->value)
 	{
 		damage = (randk() % 30) + 90;
@@ -3771,23 +3806,6 @@ Weapon_Deatomizer_Fire(edict_t *ent)
 	else
 	{
 		damage = (randk() % 80) + 120;
-	}
-
-	if (!ent->client->pers.inventory[ent->client->ammo_index])
-	{
-		if (level.time >= ent->pain_debounce_time)
-		{
-			gi.sound(ent, CHAN_VOICE, gi.soundindex(
-						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
-		}
-
-		NoAmmoWeaponChange(ent);
-		return;
-	}
-	else
-	{
-		G_RemoveAmmo(ent);
 	}
 
 	if (is_quad)
@@ -3842,6 +3860,11 @@ Weapon_Plasma_Fire(edict_t *ent, vec3_t g_offset, int damage,
 {
 	vec3_t offset, start, forward, right;
 
+	if (!Weapon_Has_Ammo(ent))
+	{
+		return;
+	}
+
 	if (is_quad)
 	{
 		damage *= 4;
@@ -3857,23 +3880,6 @@ Weapon_Plasma_Fire(edict_t *ent, vec3_t g_offset, int damage,
 	ent->client->kick_angles[0] = -1;
 
 	fire_plasma_bolt(ent, start, forward, damage, 2000, plasma_mode);
-
-	if (!ent->client->pers.inventory[ent->client->ammo_index])
-	{
-		if (level.time >= ent->pain_debounce_time)
-		{
-			gi.sound(ent, CHAN_VOICE, gi.soundindex(
-						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
-		}
-
-		NoAmmoWeaponChange(ent);
-		return;
-	}
-	else
-	{
-		G_RemoveAmmo(ent);
-	}
 
 	gi.WriteByte(svc_muzzleflash);
 	gi.WriteShort(ent - g_edicts);
@@ -3935,6 +3941,11 @@ Weapon_Hellfury_Fire(edict_t *ent)
 	vec3_t offset, start, forward, right, up;
 	int damage, splash;
 
+	if (!Weapon_Has_Ammo(ent))
+	{
+		return;
+	}
+
 	damage = 50 + frandk() * 5.0;
 	splash = 60;
 
@@ -3979,23 +3990,6 @@ Weapon_Hellfury_Fire(edict_t *ent)
 
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
-
-	if (!ent->client->pers.inventory[ent->client->ammo_index])
-	{
-		if (level.time >= ent->pain_debounce_time)
-		{
-			gi.sound(ent, CHAN_VOICE, gi.soundindex(
-						"weapons/noammo.wav"), 1, ATTN_NORM, 0);
-			ent->pain_debounce_time = level.time + 1;
-		}
-
-		NoAmmoWeaponChange(ent);
-		return;
-	}
-	else
-	{
-		G_RemoveAmmo(ent);
-	}
 }
 
 void
