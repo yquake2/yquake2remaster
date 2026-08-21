@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1997-2001 Id Software, Inc.
- * Copyright (C) 2024      Jaime Moreira
+ * Copyright (C) 2024-2025 Jaime Moreira
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
  * =======================================================================
  *
  * Drawing buffer: sort of a "Q3A shader" handler, allows to join multiple
- * draw calls into one, by grouping those which share the same
+ * draw calls into one, by grouping/batching those which share the same
  * characteristics (mostly the same texture).
  *
  * =======================================================================
@@ -32,7 +32,7 @@
 #define GLBUFFER_RESET	vtx_ptr = idx_ptr = 0; gl_buf.vt = gl_buf.tx = gl_buf.cl = 0;
 
 glbuffer_t gl_buf;	// our drawing buffer, used globally
-int cur_lm_copy;	// which lightmap copy to use (when lightmapcopies=on)
+int cur_lm_copy;	// which lightmap copy to use (when tilerendering=on)
 
 static GLushort vtx_ptr, idx_ptr;	// pointers for array positions in gl_buf
 
@@ -184,7 +184,7 @@ R_ApplyGLBuffer(void)
 		{
 			// TMU 1: Lightmap texture
 			int lmtexture = gl_state.lightmap_textures + gl_buf.texture[1];
-			if (gl_config.lightmapcopies)
+			if (gl_config.tilerendering)
 			{
 				// Bind appropiate lightmap copy for this frame
 				lmtexture += MAX_LIGHTMAPS * cur_lm_copy;

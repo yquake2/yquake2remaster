@@ -130,7 +130,7 @@ GL3_Scrap_AllocBlock(int w, int h, int *x, int *y, const unsigned *pic)
 void
 GL3_TextureMode(char *string)
 {
-	const int num_modes = ARRLEN(modes);
+	static const int num_modes = ARRLEN(modes);
 	int i;
 
 	for (i = 0; i < num_modes; i++)
@@ -168,6 +168,7 @@ GL3_TextureMode(char *string)
 	const char* nolerplist = gl_nolerp_list->string;
 	const char* lerplist = r_lerp_list->string;
 	qboolean unfiltered2D = r_2D_unfiltered->value != 0;
+	GL3_SelectTMU(GL_TEXTURE0);
 
 	/* change all the existing texture objects */
 	for (i = 0, glt = gl3textures; i < numgl3textures; i++, glt++)
@@ -177,15 +178,18 @@ GL3_TextureMode(char *string)
 		if (unfiltered2D && glt->type == it_pic)
 		{
 			// exception to that exception: stuff on the r_lerp_list
-			nolerp = (lerplist== NULL) || (strstr(lerplist, glt->name) == NULL);
+			nolerp = (lerplist == NULL) || (strstr(lerplist, glt->name) == NULL);
 		}
-		else if(nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
+		else if (nolerplist != NULL && strstr(nolerplist, glt->name) != NULL)
 		{
 			nolerp = true;
 		}
 
-		GL3_SelectTMU(GL_TEXTURE0);
-		GL3_Bind(glt->texnum);
+		if ( !GL3_Bind(glt->texnum) )
+		{
+			continue;	// don't bother changing anything if texture was already set
+		}
+
 		if ((glt->type != it_pic) && (glt->type != it_sky)) /* mipmapped texture */
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, gl_filter_min);
@@ -216,7 +220,7 @@ GL3_TextureMode(char *string)
 	}
 }
 
-void
+qboolean
 GL3_Bind(GLuint texnum)
 {
 	extern gl3image_t *draw_chars;
@@ -228,12 +232,13 @@ GL3_Bind(GLuint texnum)
 
 	if (gl3state.currenttexture == texnum)
 	{
-		return;
+		return false;
 	}
 
 	gl3state.currenttexture = texnum;
 	GL3_SelectTMU(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texnum);
+	return true;
 }
 
 void

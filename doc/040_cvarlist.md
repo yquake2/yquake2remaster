@@ -530,9 +530,11 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   show. Defaults to `300`.  
   Related to this: *cl_maxfps* and *cl_async*.
 
-* **vid_pauseonfocuslost**: When set to `1` the game is paused as soon
-  as it's window looses focus. It will work only in situation were the
-  game can be paused, e.g. not in multiplayer games. Defaults to `0`.
+* **vid_pauseonfocuslost**: When set to `0` (default) the game is paused
+  as soon as its window loses focus. It will only work where the game can
+  be paused, e.g. not in multiplayer. If `1`, the game continues to run
+  in the background. Setting it as `2` is the same as `0`, but the game
+  will unpause right when its window gets back to being on focus.
 
 * **vid_renderer**: Selects the renderer library. Possible options are
   `gl3` (the default) for the OpenGL 3.2 renderer, `gles3` for the
@@ -552,9 +554,10 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   also used for looking underwater. Default is `1` (enabled).
 
 * **gl_znear**: Sets the distance to the *near depth clipping plane* of
-  the player view. Reducing it may allow some weapon animations to not
-  get "clipped" by the player view (e.g. railgun firing), at the risk
-  of heavy glitches with some hardware configurations. Default is `4`.
+  the player view. Default is `4`. Reducing it to `3.2` or similar may
+  allow some weapon animations to not get 'clipped' by the player view
+  (e.g. railgun recoil), at the risk of heavy glitches with some
+  hardware / driver configurations.
 
 * **gl_texturemode**: How textures are filtered.
 
@@ -602,16 +605,11 @@ it's `+set busywait 0` (setting the `busywait` cvar) and `-portable`
   FOV when diving underwater. Can be any floating point number, `0`
   disables it (Vanilla Quake II look). Default `1.0`.
 
-* **gl1_lightmapcopies**: When enabled (`1`), keep 3 copies of the same
-  lightmap rotating, shifting to another one when drawing a new frame.
-  Meant for mobile/embedded devices, where changing textures just shown
-  (dynamic lighting) causes slowdown. By default in GL1 is disabled,
-  while in GLES1 is enabled. Needs `gl1_multitexture 1` & `vid_restart`.
-
-* **gl1_discardfb**: If `1`, clear color, depth and stencil buffers at
-  the start of a frame, and discard them at the end if possible. If
-  `2`, do only depth and stencil, no color. Increases performance in
-  mobile / embedded. Default in GL1 is `0`, while in GLES1 is `1`.
+* **gl1_tilerendering**: Available only in GL1, this controls whether
+  the optimizations included in GLES1 for *tile-based* rendering devices
+  (mainly SBCs) are also applied in GL1. These optimizations may backfire
+  on traditional *immediate mode* GPUs (desktop), so by default this is
+  `0`. Enabling this requires `gl1_multitexture 1` & `vid_restart`.
 
 
 ## Graphics (OpenGL 3.2 and OpenGL ES3 only)

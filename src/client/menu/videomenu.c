@@ -296,6 +296,16 @@ CurrentRendererByCvar(void)
 	return ref_custom;
 }
 
+// See filter_names in VID_MenuInit()
+static const char *gl_filter_list[] = {
+	"GL_NEAREST",	// pixelated
+	"GL_LINEAR",	// linear
+	"GL_LINEAR_MIPMAP_NEAREST",	// standard
+	"GL_LINEAR_MIPMAP_LINEAR"	// trilinear
+};
+
+static const int gl_filter_list_len = ARRLEN(gl_filter_list);
+
 static void
 ApplyFilter(void* unused)
 {
@@ -303,17 +313,9 @@ ApplyFilter(void* unused)
 	{
 		case ref_gl3:
 		case ref_gl1:
-			if (s_filter_list.curvalue == 0)
+			if (s_filter_list.curvalue < gl_filter_list_len)
 			{
-				Cvar_Set("gl_texturemode", "GL_NEAREST");
-			}
-			else if (s_filter_list.curvalue == 1)
-			{
-				Cvar_Set("gl_texturemode", "GL_LINEAR_MIPMAP_NEAREST");
-			}
-			else if (s_filter_list.curvalue == 2)
-			{
-				Cvar_Set("gl_texturemode", "GL_LINEAR_MIPMAP_LINEAR");
+				Cvar_Set("gl_texturemode", gl_filter_list[s_filter_list.curvalue]);
 			}
 			break;
 		case ref_soft:
@@ -552,8 +554,10 @@ VID_MenuInit(void)
 		NULL
 	};
 
+	// This must match 'gl_filter_list' values (except "custom")
 	static const char *filter_names[] = {
 		"pixelated",
+		"linear",
 		"standard",
 		"trilinear",
 		"custom",
@@ -877,19 +881,15 @@ VID_MenuInit(void)
 			s_filter_list.itemnames = filter_names;
 
 			filter = Cvar_VariableString("gl_texturemode");
-			mode = 3;
+			mode = gl_filter_list_len;	// "custom" by default
 
-			if (Q_stricmp(filter, "GL_NEAREST") == 0)
+			for (int i = 0; i < gl_filter_list_len; i++)
 			{
-				mode = 0;
-			}
-			else if (Q_stricmp(filter, "GL_LINEAR_MIPMAP_NEAREST") == 0)
-			{
-				mode = 1;
-			}
-			else if (Q_stricmp(filter, "GL_LINEAR_MIPMAP_LINEAR") == 0)
-			{
-				mode = 2;
+				if (Q_stricmp(filter, gl_filter_list[i]) == 0)
+				{
+					mode = i;
+					break;
+				}
 			}
 			break;
 

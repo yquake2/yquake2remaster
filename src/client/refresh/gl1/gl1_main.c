@@ -87,9 +87,6 @@ cvar_t *gl1_particle_square;
 
 cvar_t *gl1_palettedtexture;
 cvar_t *gl1_pointparameters;
-cvar_t *gl1_multitexture;
-cvar_t *gl1_lightmapcopies;
-cvar_t *gl1_discardfb;
 
 cvar_t *gl_drawbuffer;
 cvar_t *gl_lightmap;
@@ -142,13 +139,16 @@ cvar_t *gl1_stereo_anaglyph_colors;
 cvar_t *gl1_stereo_convergence;
 
 static cvar_t *gl_znear;
+static cvar_t *gl1_multitexture;
 static cvar_t *gl1_waterwarp;
+
+#ifndef YQ2_GL1_GLES
+static cvar_t *gl1_tilerendering;	// this is always "forced on" in GLES1
+#endif
 
 refimport_t ri;
 
-void LM_FreeLightmapBuffers(void);
-void Scrap_Init(void);
-
+extern void LM_FreeLightmapBuffers(void);
 extern void R_SetDefaultState(void);
 extern void R_ResetGLBuffer(void);
 
@@ -633,7 +633,7 @@ R_PolyBlend(void)
 static void
 R_ResetClearColor(void)
 {
-	if (gl1_discardfb->value == 1 && !r_clear->value)
+	if (gl_config.tilerendering && !r_clear->value)
 	{
 		glClearColor(0, 0, 0, 0.5);
 	}
@@ -878,19 +878,14 @@ R_Clear(void)
 		gldepthmax = 1;
 	}
 
-	switch ((int)gl1_discardfb->value)
+	if (gl_config.tilerendering)
 	{
-		case 1:
-			if (gl_state.stereo_mode == STEREO_MODE_NONE)
-			{
-				clearFlags |= GL_COLOR_BUFFER_BIT;
-			}
-			/* fall through */
-		case 2:
-			clearFlags |= GL_STENCIL_BUFFER_BIT;
-			/* fall through */
-		default:
-			break;
+		clearFlags |= GL_STENCIL_BUFFER_BIT;
+
+		if (gl_state.stereo_mode == STEREO_MODE_NONE)
+		{
+			clearFlags |= GL_COLOR_BUFFER_BIT;
+		}
 	}
 
 	if (clearFlags)
@@ -1219,9 +1214,9 @@ RI_RenderFrame(refdef_t *fd)
 }
 
 #ifdef YQ2_GL1_GLES
-#define GLES1_ENABLED_ONLY	"1"
+#define ONLY_ENABLED_IN_GL1   "0"
 #else
-#define GLES1_ENABLED_ONLY	"0"
+#define ONLY_ENABLED_IN_GL1   "1"
 #endif
 
 void
@@ -1278,10 +1273,11 @@ R_Register(void)
 	r_lockpvs = ri.Cvar_Get("r_lockpvs", "0", 0);
 
 	gl1_palettedtexture = ri.Cvar_Get("r_palettedtextures", "0", CVAR_ARCHIVE);
-	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", "1", CVAR_ARCHIVE);
+	gl1_pointparameters = ri.Cvar_Get("gl1_pointparameters", ONLY_ENABLED_IN_GL1, CVAR_ARCHIVE);
 	gl1_multitexture = ri.Cvar_Get("gl1_multitexture", "1", CVAR_ARCHIVE);
-	gl1_lightmapcopies = ri.Cvar_Get("gl1_lightmapcopies", GLES1_ENABLED_ONLY, CVAR_ARCHIVE);
-	gl1_discardfb = ri.Cvar_Get("gl1_discardfb", GLES1_ENABLED_ONLY, CVAR_ARCHIVE);
+#ifndef YQ2_GL1_GLES
+	gl1_tilerendering = ri.Cvar_Get("gl1_tilerendering", "0", CVAR_ARCHIVE);
+#endif
 
 	gl_drawbuffer = ri.Cvar_Get("gl_drawbuffer", "GL_BACK", 0);
 	r_vsync = ri.Cvar_Get("r_vsync", "1", CVAR_ARCHIVE);
@@ -1321,7 +1317,19 @@ R_Register(void)
 	ri.Cmd_AddCommand("gl_strings", R_Strings);
 }
 
-#undef GLES1_ENABLED_ONLY
+#undef ONLY_ENABLED_IN_GL1
+
+/*
+ * Used in the SetMode functions below, no need to have these in local.h
+ */
+typedef enum
+{
+	rserr_ok,
+
+	rserr_invalid_mode,
+
+	rserr_unknown
+} rserr_t;
 
 /*
  * Changes the video mode
@@ -1356,8 +1364,8 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 		return rserr_invalid_mode;
 	}
 
-	/* This is totaly obscure: For some strange reasons the renderer
-	   maintains two(!) repesentations of the resolution. One comes
+	/* This is totally obscure: For some strange reasons the renderer
+	   maintains two(!) representations of the resolution. One comes
 	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. Several calculations take
 	   both representations into account.
@@ -1540,15 +1548,13 @@ RI_Init(void)
 
 	sscanf(gl_config.version_string, "%d.%d", &gl_config.major_version, &gl_config.minor_version);
 
-	if (refresher == rf_opengl14 && gl_config.major_version == 1)
+	if ( refresher == rf_opengl14 &&
+		gl_config.major_version == 1 && gl_config.minor_version < 4 )
 	{
-		if (gl_config.minor_version < 4)
-		{
-			QGL_Shutdown();
-			Com_Printf("Support for OpenGL 1.4 is not available\n");
+		QGL_Shutdown();
+		Com_Printf("Support for OpenGL 1.4 is not available\n");
 
-			return false;
-		}
+		return false;
 	}
 
 	Com_Printf("\n\nProbing for OpenGL extensions:\n");
@@ -1604,8 +1610,8 @@ RI_Init(void)
 	if (strstr(gl_config.extensions_string, "GL_EXT_paletted_texture") &&
 		strstr(gl_config.extensions_string, "GL_EXT_shared_texture_palette"))
 	{
-			qglColorTableEXT = (void (APIENTRY *)(GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid * ))
-					RI_GetProcAddress ("glColorTableEXT");
+		qglColorTableEXT = (void (APIENTRY *)(GLenum, GLenum, GLsizei, GLenum, GLenum, const GLvoid * ))
+				RI_GetProcAddress ("glColorTableEXT");
 	}
 
 	gl_config.palettedtexture = false;
@@ -1703,35 +1709,13 @@ RI_Init(void)
 
 	// ----
 
-	/* Lightmap copies: keep multiple copies of "the same" lightmap on video memory.
-	 * All of them are actually different, because they are affected by different dynamic lighting,
-	 * in different frames. This is not meant for Immediate-Mode Rendering systems (desktop),
-	 * but for Tile-Based / Deferred Rendering ones (embedded / mobile), since active manipulation
-	 * of textures already being used in the last few frames can cause slowdown on these systems.
-	 * Needless to say, GPU memory usage is highly increased, so watch out in low memory situations.
-	 */
-
-	Com_Printf(" - Lightmap copies: ");
-	gl_config.lightmapcopies = false;
-	if (gl_config.multitexture && gl1_lightmapcopies->value)
-	{
-		gl_config.lightmapcopies = true;
-		Com_Printf("Okay\n");
-	}
-	else
-	{
-		Com_Printf("Disabled\n");
-	}
-
-	// ----
-
 	/* Discard framebuffer: Enables the use of a "performance hint" to the graphic
 	 * driver in GLES1, to get rid of the contents of the different framebuffers.
 	 * Useful for some GPUs that may attempt to keep them and/or write them back to
 	 * external/uniform memory, actions that are useless for Quake 2 rendering path.
 	 * https://registry.khronos.org/OpenGL/extensions/EXT/EXT_discard_framebuffer.txt
-	 * This extension is used by 'gl1_discardfb', and regardless of its existence,
-	 * that cvar will enable glClear at the start of each frame, helping mobile GPUs.
+	 * Regardless of the existence of this extension, if gl_config.tilerendering is
+	 * true, glClear() will run at the start of each frame, helping mobile GPUs.
 	 */
 
 #ifdef YQ2_GL1_GLES
@@ -1743,22 +1727,51 @@ RI_Init(void)
 				RI_GetProcAddress ("glDiscardFramebufferEXT");
 	}
 
-	if (gl1_discardfb->value)
+	if (qglDiscardFramebufferEXT)	// enough to verify availability
 	{
-		if (qglDiscardFramebufferEXT)	// enough to verify availability
-		{
-			Com_Printf("Okay\n");
-		}
-		else
-		{
-			Com_Printf("Failed\n");
-		}
+		Com_Printf("Okay\n");
 	}
 	else
 	{
-		Com_Printf("Disabled\n");
+		Com_Printf("Failed\n");
 	}
 #endif
+
+	// ----
+
+	/* Tile-Based Rendering optimizations
+	 * ----------------------------------
+	 * Controlled by the `gl1_tilerendering` cvar, this in meant for Tile-Based / Deferred Rendering
+	 * GPUs (embedded / mobile / SoCs), which differ from Immediate-Mode Rendering ones (desktop).
+	 * Imply two alterations in rendering:
+	 *
+	 * 1.- Lightmap copies: keep multiple copies of "the same" lightmap on video memory. All of
+	 * them are actually different, because they are affected by different dynamic lighting, in
+	 * different frames. In TBR, active manipulation of textures already being used in the last
+	 * few frames can cause slowdown, so we avoid using them after being just changed. Note that
+	 * this requires mtex support, so may not work on VERY old GL ES 1.0 devices (1.1 is safe).
+	 * Watch out in low VRAM situations.
+	 *
+	 * 2.- Discard framebuffers / glClear before rendering every frame: explained above in
+	 * "Discard framebuffer".
+	*/
+
+	Com_Printf("Optimizations target: ");
+	gl_config.tilerendering = false;
+
+	if ( gl_config.multitexture
+#ifndef YQ2_GL1_GLES
+		&& gl1_tilerendering->value
+#endif
+	)
+	{
+		gl_config.tilerendering = true;
+		Com_Printf("SBC / embedded (TBR)\n");
+	}
+	else
+	{
+		Com_Printf("Desktop (IMR)\n");
+	}
 
 	// ----
 

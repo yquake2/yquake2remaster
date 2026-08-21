@@ -2546,8 +2546,8 @@ SWimp_SetMode(int *pwidth, int *pheight, int mode, int fullscreen )
 		return rserr_invalid_mode;
 	}
 
-	/* This is totaly obscure: For some strange reasons the renderer
-	   maintains three(!) repesentations of the resolution. One comes
+	/* This is totally obscure: For some strange reasons the renderer
+	   maintains three(!) representations of the resolution. One comes
 	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. The third one is used by
 	   the backbuffer. Some calculations take all three representations

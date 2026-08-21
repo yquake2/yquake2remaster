@@ -28,9 +28,6 @@
 
 extern gllightmapstate_t gl_lms;
 
-void R_SetCacheState(msurface_t *surf);
-void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
-
 void
 LM_FreeLightmapBuffers(void)
 {
@@ -108,7 +105,7 @@ LM_UploadBlock(qboolean dynamic)
 				0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE,
 				gl_lms.lightmap_buffer[buffer]);
 
-		if (gl_config.lightmapcopies && buffer != 0)
+		if (gl_config.tilerendering && buffer != 0)
 		{
 			// Upload to all lightmap copies
 			for (i = 1; i < MAX_LIGHTMAP_COPIES; i++)

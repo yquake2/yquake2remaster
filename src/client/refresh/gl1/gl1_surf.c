@@ -45,9 +45,6 @@ void LM_InitBlock(void);
 void LM_UploadBlock(qboolean dynamic);
 qboolean LM_AllocBlock(int w, int h, int *x, int *y);
 
-void R_SetCacheState(msurface_t *surf);
-void R_BuildLightMap(msurface_t *surf, byte *dest, int stride);
-
 static void
 R_DrawGLPoly(msurface_t *fa)
 {
@@ -598,7 +595,7 @@ R_RegenAllLightmaps()
 		return;
 	}
 
-	if (gl_config.lightmapcopies)
+	if (gl_config.tilerendering)
 	{
 		cur_lm_copy = (cur_lm_copy + 1) % MAX_LIGHTMAP_COPIES;	// select the next lightmap copy
 		lmtex = MAX_LIGHTMAPS * cur_lm_copy;	// ...and its corresponding texture
@@ -665,7 +662,7 @@ dynamic_surf:
 			R_BuildLightMap(surf, base, BLOCK_WIDTH * LIGHTMAP_BYTES);
 
 			surf->dirty_lightmap = (surf->dlightframe == r_framecount);
-			if (!surf->dirty_lightmap || gl_config.lightmapcopies)
+			if (!surf->dirty_lightmap || gl_config.tilerendering)
 			{
 				for (map = 0; map < MAXLIGHTMAPS && surf->styles[map] != 255; map++)
 				{
@@ -679,12 +676,12 @@ dynamic_surf:
 			R_JoinAreas(&current, &best);
 		}
 
-		if (!gl_config.lightmapcopies && !affected_lightmap)
+		if (!gl_config.tilerendering && !affected_lightmap)
 		{
 			continue;
 		}
 
-		if (gl_config.lightmapcopies)
+		if (gl_config.tilerendering)
 		{
 			// Add all the changes that have happened in the last few frames,
 			// at least just for consistency between them.

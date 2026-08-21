@@ -130,10 +130,6 @@ cvar_t *r_palettedtexture;
 cvar_t *r_validation;
 cvar_t *gl3_usefbo;
 
-#ifdef YQ2_GL3_GLES
-cvar_t *gl_discardfb;
-#endif
-
 cvar_t *gl3_show_draw_stats;
 
 static cvar_t *gl_znear;
@@ -298,10 +294,6 @@ GL3_Register(void)
 	gl_finish = ri.Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
 	gl_znear = ri.Cvar_Get("gl_znear", "4", CVAR_ARCHIVE);
 
-#ifdef YQ2_GL3_GLES
-	gl_discardfb = ri.Cvar_Get("gl_discardfb", "1", CVAR_ARCHIVE);
-#endif
-
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
 
 	gl3_show_draw_stats = ri.Cvar_Get("gl3_show_draw_stats", "0", CVAR_ARCHIVE);
@@ -425,8 +417,8 @@ SetMode_impl(int *pwidth, int *pheight, int mode, int fullscreen)
 		GL3_BindVBO(0);
 	}
 
-	/* This is totaly obscure: For some strange reasons the renderer
-	   maintains two(!) repesentations of the resolution. One comes
+	/* This is totally obscure: For some strange reasons the renderer
+	   maintains two(!) representations of the resolution. One comes
 	   from the client and is saved in r_newrefdef. The other one
 	   is determined here and saved in vid. Several calculations take
 	   both representations into account.
@@ -533,14 +525,11 @@ GL3_SetMode(void)
 	return true;
 }
 
-// only needed (and allowed!) if using OpenGL compatibility profile, it's not in 3.2 core
-enum { QGL_POINT_SPRITE = 0x8861 };
-
 static void
 GL3_ResetClearColor(void)
 {
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value && !r_clear->value)
+	if (!r_clear->value)
 		glClearColor(0, 0, 0, 0.5);
 	else
 #endif
@@ -2088,10 +2077,7 @@ GL3_Clear(void)
 #endif // 0
 
 #ifdef YQ2_GL3_GLES
-	if (gl_discardfb->value)
-	{
-		clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
-	}
+	clearFlags |= GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
 #endif
 
 	glClear(clearFlags);
@@ -2187,7 +2173,7 @@ GL3_BeginFrame(float camera_separation)
 #ifdef YQ2_GL3_GLES
 		// OpenGL ES3 only supports GL_NONE, GL_BACK and GL_COLOR_ATTACHMENT*
 		// so this doesn't make sense here, see https://docs.gl/es3/glDrawBuffers
-		Com_Printf("NOTE: gl_drawbuffer not supported by OpenGL ES!\n");
+		Com_Printf("NOTE: gl_drawbuffer not supported by OpenGL ES.\n");
 #else // Desktop GL
 		// TODO: stereo stuff
 		//if ((gl3state.camera_separation == 0) || gl3state.stereo_mode != STEREO_MODE_OPENGL)

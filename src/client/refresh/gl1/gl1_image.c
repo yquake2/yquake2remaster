@@ -39,10 +39,6 @@ static cvar_t *intensity;
 unsigned d_8to24table[256];
 
 extern cvar_t *gl1_minlight;
-extern byte minlight[256];
-
-qboolean R_Upload8(byte *data, int width, int height,
-		qboolean mipmap, qboolean is_sky);
 
 #define Q2_GL_SOLID_FORMAT GL_RGB
 #define Q2_GL_ALPHA_FORMAT GL_RGBA
@@ -67,7 +63,7 @@ typedef struct
 	int minimize, maximize;
 } glmode_t;
 
-glmode_t modes[] = {
+static const glmode_t modes[] = {
 	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},
 	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},
 	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST},
@@ -75,8 +71,6 @@ glmode_t modes[] = {
 	{"GL_NEAREST_MIPMAP_LINEAR", GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST},
 	{"GL_LINEAR_MIPMAP_LINEAR", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR}
 };
-
-#define NUM_GL_MODES ARRLEN(modes)
 
 typedef struct
 {
@@ -86,19 +80,19 @@ typedef struct
 
 #ifdef YQ2_GL1_GLES
 
-gltmode_t gl_alpha_modes[] = {
+static const gltmode_t gl_alpha_modes[] = {
 	{"default", GL_RGBA},
 	{"GL_RGBA", GL_RGBA},
 };
 
-gltmode_t gl_solid_modes[] = {
+static const gltmode_t gl_solid_modes[] = {
 	{"default", GL_RGBA},
 	{"GL_RGBA", GL_RGBA},
 };
 
 #else
 
-gltmode_t gl_alpha_modes[] = {
+static const gltmode_t gl_alpha_modes[] = {
 	{"default", GL_RGBA},
 	{"GL_RGBA", GL_RGBA},
 	{"GL_RGBA8", GL_RGBA8},
@@ -107,7 +101,7 @@ gltmode_t gl_alpha_modes[] = {
 	{"GL_RGBA2", GL_RGBA2},
 };
 
-gltmode_t gl_solid_modes[] = {
+static const gltmode_t gl_solid_modes[] = {
 	{"default", GL_RGB},
 	{"GL_RGB", GL_RGB},
 	{"GL_RGB8", GL_RGB8},
@@ -117,9 +111,6 @@ gltmode_t gl_solid_modes[] = {
 };
 
 #endif
-
-#define NUM_GL_ALPHA_MODES ARRLEN(gl_alpha_modes)
-#define NUM_GL_SOLID_MODES ARRLEN(gl_solid_modes)
 
 static int upload_width, upload_height;
 static qboolean uploaded_paletted;
@@ -144,7 +135,7 @@ R_SetTexturePalette(const unsigned palette[256])
 	}
 }
 
-void
+static void
 R_SelectTexture(GLenum texture)
 {
 	if (!gl_config.multitexture || gl_state.currenttarget == texture)
@@ -162,7 +153,7 @@ R_SelectTexture(GLenum texture)
 void
 R_TexEnv(GLenum mode)
 {
-	static int lastmodes[2] = {-1, -1};
+	static int lastmodes[MAX_TEXTURE_UNITS] = {-1, -1};
 
 	if (mode != lastmodes[gl_state.currenttmu])
 	{
@@ -248,10 +239,11 @@ R_EnableMultitexture(qboolean enable)
 void
 R_TextureMode(const char *string)
 {
+	static const int num_modes = ARRLEN(modes);
 	int i, texnum;
 	image_t *glt;
 
-	for (i = 0; i < NUM_GL_MODES; i++)
+	for (i = 0; i < num_modes; i++)
 	{
 		if (!Q_stricmp(modes[i].name, string))
 		{
@@ -259,7 +251,7 @@ R_TextureMode(const char *string)
 		}
 	}
 
-	if (i == NUM_GL_MODES)
+	if (i == num_modes)
 	{
 		Com_Printf("bad filter name '%s'\n", string);
 		return;
@@ -359,9 +351,10 @@ R_TextureMode(const char *string)
 void
 R_TextureAlphaMode(const char *string)
 {
+	static const int num_alpha_modes = ARRLEN(gl_alpha_modes);
 	int i;
 
-	for (i = 0; i < NUM_GL_ALPHA_MODES; i++)
+	for (i = 0; i < num_alpha_modes; i++)
 	{
 		if (!Q_stricmp(gl_alpha_modes[i].name, string))
 		{
@@ -369,7 +362,7 @@ R_TextureAlphaMode(const char *string)
 		}
 	}
 
-	if (i == NUM_GL_ALPHA_MODES)
+	if (i == num_alpha_modes)
 	{
 		Com_Printf("bad alpha texture mode name\n");
 		return;
@@ -381,9 +374,10 @@ R_TextureAlphaMode(const char *string)
 void
 R_TextureSolidMode(const char *string)
 {
+	static const int num_solid_modes = ARRLEN(gl_solid_modes);
 	int i;
 
-	for (i = 0; i < NUM_GL_SOLID_MODES; i++)
+	for (i = 0; i < num_solid_modes; i++)
 	{
 		if (!Q_stricmp(gl_solid_modes[i].name, string))
 		{
@@ -391,7 +385,7 @@ R_TextureSolidMode(const char *string)
 		}
 	}
 
-	if (i == NUM_GL_SOLID_MODES)
+	if (i == num_solid_modes)
 	{
 		Com_Printf("bad solid texture mode name\n");
 		return;
@@ -825,7 +819,7 @@ R_Upload32(unsigned *data, size_t width, size_t height, qboolean mipmap)
 /*
  * Returns has_alpha
  */
-qboolean
+static qboolean
 R_Upload8(byte *data, int width, int height, qboolean mipmap, qboolean is_sky)
 {
 	if (gl_config.palettedtexture && is_sky)

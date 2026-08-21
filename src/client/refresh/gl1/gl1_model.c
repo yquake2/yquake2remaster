@@ -36,10 +36,10 @@ static int mod_max = 0;
 int registration_sequence;
 
 static void Mod_LoadBrushModel(model_t *mod, void *buffer, int modfilelen);
-void LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa);
-void LM_CreateSurfaceLightmap(msurface_t *surf);
-void LM_EndBuildingLightmaps(void);
-void LM_BeginBuildingLightmaps(model_t *m);
+extern void LM_BuildPolygonFromSurface(model_t *currentmodel, msurface_t *fa);
+extern void LM_CreateSurfaceLightmap(msurface_t *surf);
+extern void LM_EndBuildingLightmaps(void);
+extern void LM_BeginBuildingLightmaps(model_t *m);
 
 //===============================================================================
 

@@ -45,8 +45,6 @@ float shadelight[3];
 float *shadedots = r_avertexnormal_dots[0];
 extern vec3_t lightspot;
 
-extern unsigned char minlight[256];
-
 static void
 R_LerpVerts(entity_t *currententity, int nverts, dtrivertx_t *v, dtrivertx_t *ov,
 		dtrivertx_t *verts, float *lerp, float move[3],
