@@ -569,7 +569,7 @@ CL_DownloadFilter(const char *filename)
 		return true;
 	}
 
-	for (i = 0; extensions[i]; i ++) 
+	for (i = 0; extensions[i]; i++)
 	{
 		if (strstr(filename, extensions[i]))
 		{
@@ -593,7 +593,7 @@ CL_DownloadFilter(const char *filename)
 	}
 	free(nodownload);
 
-	if (FS_LoadFile((char *) filename, NULL) != -1)
+	if (FS_FileExists(filename))
 	{
 		/* it exists, no need to download */
 		return true;
