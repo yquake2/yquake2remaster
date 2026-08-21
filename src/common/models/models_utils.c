@@ -573,8 +573,9 @@ static int *
 Mod_LoadSTLookup(dmdx_t *pheader)
 {
 	const dstvert_t* st;
-	int *st_lookup;
-	int k;
+	int *st_lookup, *st_slot;
+	unsigned int cap;
+	int bits, k;
 
 	st = (dstvert_t*)((byte *)pheader + pheader->ofs_st);
 
@@ -586,22 +587,57 @@ Mod_LoadSTLookup(dmdx_t *pheader)
 		return NULL;
 	}
 
-	for(k = 1; k < pheader->num_st; k++)
+	/* avoid rescanning the prefix for each entry */
+	cap = 2;
+	bits = 1;
+	while (cap < (unsigned int)pheader->num_st * 2)
 	{
-		int j;
+		cap <<= 1;
+		bits++;
+	}
+
+	st_slot = malloc(cap * sizeof(int));
+	YQ2_COM_CHECK_OOM(st_slot, "malloc()", cap * sizeof(int))
+	if (!st_slot)
+	{
+		free(st_lookup);
+		return NULL;
+	}
+
+	memset(st_slot, 0xff, cap * sizeof(int));
+
+	for(k = 0; k < pheader->num_st; k++)
+	{
+		unsigned int key, h;
+
+		key = ((unsigned int)(unsigned short)st[k].s << 16) |
+			(unsigned short)st[k].t;
+		/* Knuth multiplicative hash, prime nearest 2^32 / golden ratio */
+		h = (key * 2654435761u) >> (32 - bits);
 
 		st_lookup[k] = k;
 
-		for(j = 0; j < k; j++)
+		while (st_slot[h] >= 0)
 		{
+			int j = st_slot[h];
+
 			if ((st[j].s == st[k].s) && (st[j].t == st[k].t))
 			{
 				/* same value */
 				st_lookup[k] = j;
 				break;
 			}
+
+			h = (h + 1) & (cap - 1);
+		}
+
+		if (st_lookup[k] == k)
+		{
+			st_slot[h] = k;
 		}
 	}
+
+	free(st_slot);
 	return st_lookup;
 }
 
