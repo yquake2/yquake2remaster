@@ -333,6 +333,17 @@ VID_GetRendererLibPath(const char *renderer, char *path, size_t len)
 qboolean
 VID_HasRenderer(const char *renderer)
 {
+	/* SDL's Cocoa video backend has no OpenGL ES context support. Do not
+	 * advertise renderers that can never initialize on macOS, otherwise the
+	 * renderer fallback enters GLimp_InitGraphics() and resets the user's
+	 * video settings before it can try desktop OpenGL. */
+#ifdef __APPLE__
+	if (Q_stricmp(renderer, "gles1") == 0 || Q_stricmp(renderer, "gles3") == 0)
+	{
+		return false;
+	}
+#endif
+
 	char reflib_path[MAX_OSPATH] = {0};
 	VID_GetRendererLibPath(renderer, reflib_path, sizeof(reflib_path));
 
