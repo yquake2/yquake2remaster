@@ -47,6 +47,13 @@ image_t *r_particletexture; /* little dot for particles */
 
 int c_brush_polys, c_alias_polys;
 
+static int gl1_drawable_width;
+static int gl1_drawable_height;
+static int gl1_viewport_x;
+static int gl1_viewport_y;
+static int gl1_viewport_width;
+static int gl1_viewport_height;
+
 float v_blend[4]; /* final blending color */
 
 /* view origin */
@@ -631,6 +638,47 @@ R_ResetClearColor(void)
 }
 
 static void
+R_UpdateViewport(void)
+{
+	RI_GetDrawableSize(&gl1_drawable_width, &gl1_drawable_height);
+
+	if (gl1_drawable_width <= 0)
+	{
+		gl1_drawable_width = vid.width;
+	}
+	if (gl1_drawable_height <= 0)
+	{
+		gl1_drawable_height = vid.height;
+	}
+
+	gl1_viewport_x = gl1_drawable_width > vid.width ?
+		(gl1_drawable_width - vid.width) / 2 : 0;
+	gl1_viewport_y = gl1_drawable_height > vid.height ?
+		(gl1_drawable_height - vid.height) / 2 : 0;
+	gl1_viewport_width = gl1_drawable_width < vid.width ?
+		gl1_drawable_width : vid.width;
+	gl1_viewport_height = gl1_drawable_height < vid.height ?
+		gl1_drawable_height : vid.height;
+}
+
+static void
+R_ClearViewportBars(void)
+{
+	if (gl1_viewport_x == 0 && gl1_viewport_y == 0
+		&& gl1_viewport_width == gl1_drawable_width
+		&& gl1_viewport_height == gl1_drawable_height)
+	{
+		return;
+	}
+
+	glDisable(GL_SCISSOR_TEST);
+	glViewport(0, 0, gl1_drawable_width, gl1_drawable_height);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	R_ResetClearColor();
+}
+
+static void
 R_SetupFrame(void)
 {
 	int i;
@@ -659,8 +707,8 @@ R_SetupFrame(void)
 	{
 		glEnable(GL_SCISSOR_TEST);
 		glClearColor(0.3, 0.3, 0.3, 1);
-		glScissor(r_newrefdef.x,
-				vid.height - r_newrefdef.height - r_newrefdef.y,
+		glScissor(gl1_viewport_x + r_newrefdef.x,
+				gl1_viewport_y + vid.height - r_newrefdef.height - r_newrefdef.y,
 				r_newrefdef.width, r_newrefdef.height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		R_ResetClearColor();
@@ -731,7 +779,7 @@ R_SetupGL(void)
 		y2 = drawing_left_eye ? (y2 + vid.height) / 2 : (y2 / 2);
 	}
 
-	glViewport(x, y2, w, h);
+	glViewport(gl1_viewport_x + x, gl1_viewport_y + y2, w, h);
 
 	/* set up projection matrix */
 	glMatrixMode(GL_PROJECTION);
@@ -890,9 +938,9 @@ R_SetGL2D(void)
 	qboolean stereo_split_lr = ((gl_state.stereo_mode == STEREO_SPLIT_HORIZONTAL) && gl_state.camera_separation);
 
 	x = 0;
-	w = vid.width;
+	w = gl1_viewport_width;
 	y = 0;
-	h = vid.height;
+	h = gl1_viewport_height;
 
 	if (stereo_split_lr) {
 		w =  w / 2;
@@ -904,7 +952,7 @@ R_SetGL2D(void)
 		y = drawing_left_eye ? h : 0;
 	}
 
-	glViewport(x, y, w, h);
+	glViewport(gl1_viewport_x + x, gl1_viewport_y + y, w, h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glOrtho(0, vid.width, vid.height, 0, -99999, 99999);
@@ -1777,6 +1825,9 @@ RI_BeginFrame(float camera_separation)
 	}
 
 	/* go into 2D mode */
+	R_UpdateViewport();
+	R_ClearViewportBars();
+
 	R_SetGL2D();
 
 	if (gl1_particle_square->modified)

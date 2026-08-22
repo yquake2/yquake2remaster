@@ -482,6 +482,32 @@ int GL3_InitContext(void* win)
 void GL3_GetDrawableSize(int* width, int* height)
 {
 #ifdef USE_SDL3
+	if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)
+	{
+		SDL_DisplayID display = SDL_GetDisplayForWindow(window);
+		const SDL_DisplayMode *mode = display != 0 ? SDL_GetCurrentDisplayMode(display) : NULL;
+		if (mode != NULL)
+		{
+			*width = mode->w;
+			*height = mode->h;
+			return;
+		}
+	}
+#else
+	if (SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN)
+	{
+		int display = SDL_GetWindowDisplayIndex(window);
+		SDL_DisplayMode mode;
+		if (display >= 0 && SDL_GetCurrentDisplayMode(display, &mode) == 0)
+		{
+			*width = mode.w;
+			*height = mode.h;
+			return;
+		}
+	}
+#endif
+
+#ifdef USE_SDL3
 	SDL_GetWindowSizeInPixels(window, width, height);
 #else
 	SDL_GL_GetDrawableSize(window, width, height);

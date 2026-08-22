@@ -22,6 +22,8 @@ Yamagi Quake II ships with 4 renderers:
   uses OpenGL ES 3.0 instead of "desktop" OpenGL, so it also works on
   the Raspberry Pi 4, for example. Reportedly it also has slightly
   better performance on Wayland, at least with the open source AMD drivers.
+  It is not available on macOS, where SDL's Cocoa backend does not provide
+  an OpenGL ES context.
 * The **OpenGL 1.4** renderer: This is a slightly enhanced version of
   the original OpenGL renderer shipped in 1997 with the retail release.
   It's provided for older graphics cards, not able to run the OpenGL 3.2
