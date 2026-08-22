@@ -287,7 +287,7 @@ FS_CreatePath(const char *path)
 		}
 
 		old = cur;
-		cur = strchr(old + 1, '/');
+		cur = strchr(cur + 1, '/');
 	}
 }
 
