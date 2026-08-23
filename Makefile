@@ -113,7 +113,7 @@ OSX_APP:=yes
 CONFIG_FILE:=config.mk
 
 # PKG_CONFIG
-# Specify program that configures SDL.
+# Specify program that configures SDL3.
 # Needs to be overridable for cross-compilation.
 PKG_CONFIG ?= pkgconf
 
@@ -124,12 +124,27 @@ ifeq ($(wildcard $(CONFIG_FILE)), $(CONFIG_FILE))
 include $(CONFIG_FILE)
 endif
 
+# ----------
+
 # Normalize QUIET value to either "x" or ""
 ifdef QUIET
 	override QUIET := "x"
 else
 	override QUIET := ""
 endif
+
+# ----------
+
+# Check if it's pkgconf or pkg-config.
+ifeq (, $(shell which $(PKG_CONFIG)))
+ifneq (, $(shell which pkgconf))
+PKG_CONFIG:=pkgconf
+else
+PKG_CONFIG:=pkg-config
+endif
+endif
+
+# ----------
 
 # Detect the OS, normalize some abiguous YQ2_OSTYPE strings.
 YQ2_OSTYPE ?= $(shell uname -s | sed -e 's/MINGW.*/Windows/' -e 's/Windows.*/Windows/')
