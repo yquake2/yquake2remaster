@@ -131,17 +131,8 @@ else
 	override QUIET := ""
 endif
 
-# Detect the OS
-ifdef SystemRoot
-YQ2_OSTYPE ?= Windows
-else
-YQ2_OSTYPE ?= $(shell uname -s)
-endif
-
-# Special case for MinGW
-ifneq (,$(findstring MINGW,$(YQ2_OSTYPE)))
-YQ2_OSTYPE := Windows
-endif
+# Detect the OS, normalize some abiguous YQ2_OSTYPE strings.
+YQ2_OSTYPE ?= $(shell uname -s | sed -e 's/MINGW.*/Windows/' -e 's/Windows.*/Windows/')
 
 # Detect the architecture
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -152,13 +143,7 @@ else # i686-w64-mingw32
 YQ2_ARCH ?= i386
 endif
 else # windows, but MINGW_CHOST not defined
-ifdef PROCESSOR_ARCHITEW6432
-# 64 bit Windows
-YQ2_ARCH ?= $(PROCESSOR_ARCHITEW6432)
-else
-# 32 bit Windows
-YQ2_ARCH ?= $(PROCESSOR_ARCHITECTURE)
-endif
+YQ2_ARCH ?= $(shell uname -m | sed -e 's/i.86/i386/')
 endif # windows but MINGW_CHOST not defined
 else
 ifneq ($(YQ2_OSTYPE), Darwin)
@@ -491,7 +476,7 @@ with_gles1: all ref_gles1
 config:
 	@echo "Build configuration"
 	@echo "============================"
-	@echo "YQ2_ARCH = $(YQ2_ARCH) COMPILER = $(COMPILER)"
+	@echo "YQ2_ARCH = $(YQ2_ARCH), YQ2_OSTYPE = $(YQ2_OSTYPE), COMPILER = $(COMPILER)"
 	@echo "WITH_CURL = $(WITH_CURL)"
 	@echo "WITH_OPENAL = $(WITH_OPENAL)"
 	@echo "WITH_RPATH = $(WITH_RPATH)"
