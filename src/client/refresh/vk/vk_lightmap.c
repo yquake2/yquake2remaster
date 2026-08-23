@@ -149,11 +149,12 @@ LM_BeginBuildingLightmaps(model_t *m)
 	{
 		for (i = DYNLIGHTMAP_OFFSET; i < MAX_LIGHTMAPS * 2; i++)
 		{
-			const byte *dummy;
+			byte *dummy;
 			int size;
 
 			size = BLOCK_WIDTH * BLOCK_HEIGHT * LIGHTMAP_BYTES;
 			dummy = R_GetTemporaryLMBuffer(size);
+			memset(dummy, 0, size);
 
 			QVVKTEXTURE_CLEAR(vk_state.lightmap_textures[i]);
 			QVk_CreateTexture(&vk_state.lightmap_textures[i], dummy,

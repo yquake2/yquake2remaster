@@ -636,7 +636,6 @@ R_GetTemporaryLMBuffer(size_t size)
 		}
 	}
 
-	memset(s_bufferlights, 0, size);
 	return s_bufferlights;
 }
 
