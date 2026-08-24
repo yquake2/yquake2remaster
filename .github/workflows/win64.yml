@@ -1,5 +1,4 @@
-name: Testbuild for Win64
-run-name: testbuild_win64
+name: Testbuild for x86 and x86_64 Windows with MinGW
 on:
   push:
     branches:
@@ -14,13 +13,23 @@ concurrency:
   group: ${{github.workflow}}-${{github.event_name == 'pull_request' && github.head_ref || github.sha}}
   cancel-in-progress: true
 jobs:
-  build_w64devkit_x86_64:
+  build:
     runs-on: windows-latest
     permissions:
       actions: read
       contents: read
     strategy:
       fail-fast: false
+      # Abuse the build matrix to hack around inconsistent naming.
+      matrix:
+        include:
+          - arch: x86
+            family: i686
+            winapi: win32
+          - arch: x64
+            family: x86_64
+            winapi: win64
+    name: win_buildenv_${{matrix.winapi}}
     steps:
       - name: Check out repository code
         uses: actions/checkout@v7
@@ -28,13 +37,13 @@ jobs:
         shell: bash
         run: |
           ./stuff/winbuild/makebuildenv.sh buildenv
-          echo "${GITHUB_WORKSPACE}/buildenv/w64devkit-x64/bin/" >> ${GITHUB_PATH}
+          echo "${GITHUB_WORKSPACE}/buildenv/w64devkit-${{matrix.arch}}/bin/" >> ${GITHUB_PATH}
       - name: Build
         shell: sh -l {0}
         run: |
           cd ${GITHUB_WORKSPACE}
           export CPATH="${GITHUB_WORKSPACE}/buildenv/dep/curl/include;${GITHUB_WORKSPACE}/buildenv/dep/openal-soft/include"
-          export PKG_CONFIG_PATH="${GITHUB_WORKSPACE}/buildenv/dep/SDL3/x86_64-w64-mingw32/lib/pkgconfig"
+          export PKG_CONFIG_PATH="${GITHUB_WORKSPACE}/buildenv/dep/SDL3/${{matrix.family}}-w64-mingw32/lib/pkgconfig"
           # Public runners come with 4 CPUs.
           make -j4
           make -j4 ref_gles1
@@ -42,34 +51,33 @@ jobs:
         shell: bash
         run: |
           # Create release directory tree
-          mkdir -p publish/quake2-win64-${{github.sha}}/misc/docs
+          mkdir -p publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs
           # Copy release assets
-          cp -r release/* publish/quake2-win64-${{github.sha}}/
+          cp -r release/* publish/quake2-${{matrix.winapi}}-${{github.sha}}/
           # Copy misc assets
-          cp -r stuff/yq2.cfg publish/quake2-win64-${{github.sha}}/misc/yq2.cfg
-          cp -r stuff/mapfixes publish/quake2-win64-${{github.sha}}/misc
-          cp LICENSE publish/quake2-win64-${{github.sha}}/misc/docs/LICENSE.txt
-          cp README.md publish/quake2-win64-${{github.sha}}/misc/docs/README.txt
-          cp doc/010_index.md publish/quake2-win64-${{github.sha}}/misc/docs/010_index.txt
-          cp doc/020_installation.md publish/quake2-win64-${{github.sha}}/misc/docs/020_installation.txt
-          cp doc/030_configuration.md publish/quake2-win64-${{github.sha}}/misc/docs/030_configuration.txt
-          cp doc/040_cvarlist.md publish/quake2-win64-${{github.sha}}/misc/docs/040_cvarlist.txt
-          cp doc/050_commands.md publish/quake2-win64-${{github.sha}}/misc/docs/050_commands.txt
-          cp doc/060_multiplayer.md publish/quake2-win64-${{github.sha}}/misc/docs/060_multiplayer.txt
-          cp doc/070_packaging.md publish/quake2-win64-${{github.sha}}/misc/docs/070_packaging.txt
-          cp doc/080_contributing.md publish/quake2-win64-${{github.sha}}/misc/docs/080_contributing.txt
-          cp doc/090_filelists.md publish/quake2-win64-${{github.sha}}/misc/docs/090_filelists.md
+          cp -r stuff/yq2.cfg publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/yq2.cfg
+          cp -r stuff/mapfixes publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc
+          cp LICENSE publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/LICENSE.txt
+          cp README.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/README.txt
+          cp doc/010_index.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/010_index.txt
+          cp doc/020_installation.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/020_installation.txt
+          cp doc/030_configuration.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/030_configuration.txt
+          cp doc/040_cvarlist.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/040_cvarlist.txt
+          cp doc/050_commands.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/050_commands.txt
+          cp doc/060_multiplayer.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/060_multiplayer.txt
+          cp doc/070_packaging.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/070_packaging.txt
+          cp doc/080_contributing.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/080_contributing.txt
+          cp doc/090_filelists.md publish/quake2-${{matrix.winapi}}-${{github.sha}}/misc/docs/090_filelists.md
           # SDL3
-          cp buildenv/dep/SDL3/x86_64-w64-mingw32/bin/SDL3.dll publish/quake2-win64-${{github.sha}}/
+          cp buildenv/dep/SDL3/${{matrix.family}}-w64-mingw32/bin/SDL3.dll publish/quake2-${{matrix.winapi}}-${{github.sha}}/
           # openal-soft
-          cp buildenv/dep/openal-soft/bin/Win64/soft_oal.dll publish/quake2-win64-${{github.sha}}/openal32.dll
+          cp buildenv/dep/openal-soft/bin/${{matrix.winapi}}/soft_oal.dll publish/quake2-${{matrix.winapi}}-${{github.sha}}/openal32.dll
           # curl (releases use a custom build curl.dll)
-          curl -o curl-mingw-latest.zip -L "https://curl.se/windows/latest.cgi?p=win64-mingw.zip"
-          unzip -o curl-mingw-latest.zip
-          cp curl-*-win64-mingw/bin/libcurl-x64.dll publish/quake2-win64-${{github.sha}}/curl.dll
+          curl -o libcurl-4.dll -L "https://github.com/dhewm/dhewm3-libs/raw/refs/heads/master/${{matrix.family}}-w64-mingw32/bin/libcurl-4.dll"
+          cp libcurl-4.dll publish/quake2-${{matrix.winapi}}-${{github.sha}}/curl.dll
       - name: Upload testbuild package
         uses: actions/upload-artifact@v7
         with:
-          name: quake2-win64-${{github.sha}}
+          name: quake2-${{matrix.winapi}}-${{github.sha}}
           path: publish/
           if-no-files-found: error
