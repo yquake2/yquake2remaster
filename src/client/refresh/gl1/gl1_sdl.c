@@ -48,6 +48,17 @@ RI_EndFrame(void)
 {
 	R_ApplyGLBuffer();	// to draw buffered 2D text
 
+	if (r_speeds->value)
+	{
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
+		const char *msg;
+
+		msg = R_GetSpeedString();
+		RDraw_StringScaled(10, 5, factor, true, msg);
+		Com_DPrintf("%s\n", msg);
+		R_ApplyGLBuffer();
+	}
+
 #ifdef YQ2_GL1_GLES
 	static const GLenum attachments[] = {GL_COLOR_EXT, GL_DEPTH_EXT, GL_STENCIL_EXT};
 

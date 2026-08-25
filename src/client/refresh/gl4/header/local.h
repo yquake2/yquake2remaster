@@ -504,6 +504,7 @@ extern void GL4_Draw_FadeScreen(void);
 extern void GL4_Draw_Flash(const float color[4], float x, float y, float w, float h);
 extern void GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 
+const char *R_GetSpeedString(void);
 extern void GL4_DrawCurrent2Dbatch();
 extern void GL4_EndFrame(void);
 
@@ -594,7 +595,6 @@ extern cvar_t *gl4_particle_square;
 extern cvar_t *gl4_colorlight;
 extern cvar_t *gl_polyblend;
 extern cvar_t *gl4_debugcontext;
-extern cvar_t *gl4_show_draw_stats;
 
 extern cvar_t *r_bloom;
 

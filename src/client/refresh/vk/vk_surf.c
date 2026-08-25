@@ -29,7 +29,6 @@
 
 #include "header/local.h"
 
-int c_visible_lightmaps;
 int c_visible_textures;
 static vec3_t modelorg; /* relative to viewpoint */
 msurface_t *r_alpha_surfaces;

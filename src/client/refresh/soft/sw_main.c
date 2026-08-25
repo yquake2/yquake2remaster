@@ -1384,11 +1384,6 @@ RE_RenderFrame(const refdef_t *fd)
 		R_PrintAliasStats();
 	}
 
-	if (r_speeds->value)
-	{
-		R_PrintTimes();
-	}
-
 	if (sw_dspeeds->value)
 	{
 		R_PrintDSpeeds();
@@ -2330,6 +2325,16 @@ static void
 RE_EndFrame(void)
 {
 	int vmin, vmax;
+
+	if (r_speeds->value)
+	{
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
+		const char *msg;
+
+		msg = R_GetSpeedString();
+		RE_Draw_StringScaled(10, 5, factor, true, msg);
+		Com_DPrintf("%s\n", msg);
+	}
 
 	// fix possible issue with min/max
 	if (vid_minu < 0)

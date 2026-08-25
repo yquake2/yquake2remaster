@@ -516,6 +516,7 @@ extern void GL3_Draw_Flash(const float color[4], float x, float y, float w, floa
 extern void GL3_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *data, int bits);
 extern void GL3_Draw_FreeLocal(void);
 
+const char *R_GetSpeedString(void);
 extern void GL3_DrawCurrent2Dbatch();
 extern void GL3_EndFrame(void);
 
@@ -608,7 +609,6 @@ extern cvar_t *gl3_colorlight;
 extern cvar_t *gl_polyblend;
 
 extern cvar_t *gl3_debugcontext;
-extern cvar_t *gl3_show_draw_stats;
 
 extern cvar_t *r_bloom;
 

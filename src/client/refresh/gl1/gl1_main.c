@@ -917,6 +917,25 @@ R_SetGL2D(void)
 	glColor4f(1, 1, 1, 1);
 }
 
+const char*
+R_GetSpeedString(void)
+{
+	static char stbuf[256] = {0};
+	size_t r_time2;
+	int ms;
+
+	r_time2 = SDL_GetTicks();
+
+	ms = r_time2 - r_time1;
+
+	snprintf(stbuf, sizeof(stbuf),
+		"%5i ms %4i nodes %4i wpoly %4i epoly %4i tex %2i lmaps\n",
+		ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
+		c_visible_lightmaps);
+
+	return stbuf;
+}
+
 /*
  * r_newrefdef must be set before the first call
  */
@@ -1094,20 +1113,6 @@ R_RenderView(const refdef_t *fd)
 	R_DrawAlphaSurfaces();
 
 	R_Flash();
-
-	if (r_speeds->value)
-	{
-		size_t r_time2;
-		int ms;
-
-		r_time2 = SDL_GetTicks();
-
-		ms = r_time2 - r_time1;
-
-		Com_Printf("%5i ms %4i nodes %4i wpoly %4i epoly %i tex %i lmaps\n",
-				ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
-				c_visible_lightmaps);
-	}
 
 	switch (gl_state.stereo_mode) {
 		case STEREO_MODE_NONE:

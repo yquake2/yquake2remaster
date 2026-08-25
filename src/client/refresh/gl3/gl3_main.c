@@ -95,8 +95,6 @@ cvar_t *gl_finish;
 cvar_t *gl3_debugcontext;
 cvar_t *gl3_usefbo;
 
-cvar_t *gl3_show_draw_stats;
-
 DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
 DA_TYPEDEF(GLushort, UShortArray_t);
 DA_TYPEDEF(gl3drawCmd_t, DrawCommandArray_t);
@@ -215,8 +213,6 @@ GL3_Register(void)
 	gl3_overbrightbits = ri.Cvar_Get("gl3_overbrightbits", "1.3", CVAR_ARCHIVE);
 
 	gl3_usefbo = ri.Cvar_Get("gl3_usefbo", "1", CVAR_ARCHIVE); // use framebuffer object for postprocess effects (water)
-
-	gl3_show_draw_stats = ri.Cvar_Get("gl3_show_draw_stats", "0", CVAR_ARCHIVE);
 
 #if 0 // TODO!
 	//gl_overbrightbits = ri.Cvar_Get("gl_overbrightbits", "0", CVAR_ARCHIVE);
@@ -1640,7 +1636,37 @@ SetupGL(void)
 	glEnable(GL_DEPTH_TEST);
 }
 
-extern int c_visible_lightmaps, c_visible_textures;
+extern int c_visible_textures;
+
+const char*
+R_GetSpeedString(void)
+{
+	int ms, num3D, num2D, numBufVtx, numBufUni;
+	static char stbuf[256] = {0};
+	size_t r_time2;
+
+	// by saving those values into a variable and setting them to 0 afterwards,
+	// r_speeds can include its own drawcalls (from previous frame)
+	num3D = gl3_num3Ddraws;
+	num2D = gl3_num2Ddraws;
+	numBufVtx = gl3_numBufferVtxData;
+	numBufUni = gl3_numBufferUniforms;
+	gl3_num3Ddraws = 0;
+	gl3_num2Ddraws = 0;
+	gl3_numBufferVtxData = 0;
+	gl3_numBufferUniforms = 0;
+
+	r_time2 = SDL_GetTicks();
+
+	ms = r_time2 - r_time1;
+
+	snprintf(stbuf, sizeof(stbuf),
+		"%5i ms %4i nodes %4i wpoly %4i epoly %4i tex %2i 3D draw %3i 2D draw %3i vtx %3i uni",
+		ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
+		num3D, num2D, numBufVtx, numBufUni);
+
+	return stbuf;
+}
 
 /*
  * r_newrefdef must be set before the first call - FIXME: ?! it is set right here
@@ -1810,20 +1836,6 @@ GL3_RenderView(const refdef_t *fd)
 	GL3_Draw3DBatchesNow();
 
 	// Note: R_Flash() is now GL3_Draw_Flash() and called from GL3_RenderFrame()
-
-	if (r_speeds->value)
-	{
-		size_t r_time2;
-		int ms;
-
-		r_time2 = SDL_GetTicks();
-
-		ms = r_time2 - r_time1;
-
-		Com_Printf("%5i ms %4i nodes %4i wpoly %4i epoly %i tex %i lmaps\n",
-				ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
-				c_visible_lightmaps);
-	}
 
 #if 0 // TODO: stereo stuff
 	switch (gl_state.stereo_mode) {

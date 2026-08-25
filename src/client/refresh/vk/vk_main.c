@@ -842,6 +842,24 @@ R_Flash(void)
 	R_PolyBlend();
 }
 
+static const char*
+R_GetSpeedString(void)
+{
+	static char stbuf[256] = {0};
+	size_t r_time2;
+	int ms;
+
+	r_time2 = SDL_GetTicks();
+
+	ms = r_time2 - r_time1;
+
+	snprintf(stbuf, sizeof(stbuf),
+		"%5i ms %4i nodes %4i wpoly %4i epoly %i tex",
+		ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures);
+
+	return stbuf;
+}
+
 /*
 ================
 RE_RenderView
@@ -916,20 +934,6 @@ RE_RenderView(const refdef_t *fd)
 	R_DrawAlphaSurfaces();
 
 	R_Flash();
-
-	if (r_speeds->value)
-	{
-		size_t r_time2;
-		int ms;
-
-		r_time2 = SDL_GetTicks();
-
-		ms = r_time2 - r_time1;
-
-		Com_Printf("%5i ms %4i nodes %4i wpoly %4i epoly %i tex %i lmaps\n",
-				ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
-				c_visible_lightmaps);
-	}
 }
 
 qboolean RE_EndWorldRenderpass(void)
@@ -1339,6 +1343,17 @@ RE_EndFrame
 static void
 RE_EndFrame(void)
 {
+	if (r_speeds->value)
+	{
+		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
+		const char *msg;
+
+		msg = R_GetSpeedString();
+		RE_Draw_StringScaled(10, 5, factor, true, msg);
+		Com_DPrintf("%s\n", msg);
+		QVk_Draw2DCallsRender();
+	}
+
 	QVk_EndFrame(false);
 
 	// world has not rendered yet

@@ -112,7 +112,6 @@ extern  cvar_t  *vk_molten_metalbuffers;
 #endif
 extern	cvar_t	*vk_pixel_size;
 
-extern	int		c_visible_lightmaps;
 extern	int		c_visible_textures;
 
 extern	float	r_viewproj_matrix[16];

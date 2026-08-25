@@ -429,6 +429,7 @@ extern void RI_SetSky(const char *name, float rotate, int autorotate, const vec3
 extern void RI_EndRegistration(void);
 extern qboolean RI_IsVSyncActive(void);
 extern void RI_EndFrame(void);
+const char *R_GetSpeedString(void);
 
 void Mod_Init(void);
 void Mod_ClearAll(void);

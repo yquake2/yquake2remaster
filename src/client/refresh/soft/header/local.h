@@ -479,7 +479,7 @@ extern vec3_t lightspot;
 
 void R_AliasProjectAndClipTestFinalVert(finalvert_t *fv);
 void R_PrintAliasStats(void);
-void R_PrintTimes(void);
+const char*R_GetSpeedString(void);
 void R_PrintDSpeeds(void);
 void R_SetupFrame(void);
 

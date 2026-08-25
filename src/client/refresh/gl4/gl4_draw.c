@@ -975,29 +975,19 @@ GL4_Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, const byte *
  * Does some internal housekeeping, then swaps the buffers
  * and shows the next frame.
  */
-void GL4_EndFrame(void)
+void
+GL4_EndFrame(void)
 {
 	GL4_DrawCurrent2Dbatch();
 
-	// by saving those values into a variable and setting them to 0 afterwards,
-	// gl4_show_draw_stats can include its own drawcalls (from previous frame)
-	int num3D = gl4_num3Ddraws;
-	int num2D = gl4_num2Ddraws;
-	int numBufVtx = gl4_numBufferVtxData;
-	int numBufUni = gl4_numBufferUniforms;
-	gl4_num3Ddraws = 0;
-	gl4_num2Ddraws = 0;
-	gl4_numBufferVtxData = 0;
-	gl4_numBufferUniforms = 0;
-
-	if (gl4_show_draw_stats->value)
+	if (r_speeds->value)
 	{
 		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
-		char stbuf[128] = {0};
-		snprintf(stbuf, sizeof(stbuf), "3D drawcalls: %d - 2D drawcalls: %d - buffer vtx data: %d - buffer uniforms: %d",
-		         num3D, num2D, numBufVtx, numBufUni);
+		const char *msg;
 
-		GL4_Draw_StringScaled(10, 5, factor, true, stbuf);
+		msg = R_GetSpeedString();
+		GL4_Draw_StringScaled(10, 5, factor, true, msg);
+		Com_DPrintf("%s\n", msg);
 		GL4_DrawCurrent2Dbatch();
 	}
 
