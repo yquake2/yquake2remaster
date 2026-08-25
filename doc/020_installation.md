@@ -283,13 +283,13 @@ To compile Yamagi Quake II from source the following dependencies
 ### Prerequisites on Windows when using MinGW
 
 To compile Yamagi Quake II under Windows, using a MinGW environment is
-recommended. A preconfigured environment based upon MSYS2 with all necessary
-dependencies and compatibles compilers can be found at:
+recommended. A preconfigured environment based upon w64devkit with all
+necessary dependencies and compatibles compilers can be found at:
 https://deponie.yamagi.org/quake2/windows/buildenv/
 
 The environment can be extracted anywhere. Either the 32 bit version can
-be started through *C:\MSYS2\msys32.exe* or the 64 bit version through
-*C:\MSYS2\msys64.exe*.
+be started through *start_x86.bat* or the 64 bit version through
+*start_x64.bat*.
 
 
 ### Prerequisites on Unixoid Platforms
@@ -337,7 +337,7 @@ is copied to the corresponding directory in the Quake II installation.
 To compile with Visual Studio, CMake is required.  
 We only support VS2015 and newer, though VS2019 version 16.8 or newer is recommended.
 
-Furthermore you'll need **SDL2**, **openal-soft** and **libcurl** to link against.  
+Furthermore you'll need **SDL3**, **openal-soft** and **libcurl** to link against.  
 The easiest way to get those dependencies is using the
 [dhewm3-libs](https://github.com/dhewm/dhewm3-libs/) together with the
 `YQUAKE2LIBS` CMake variable.  
