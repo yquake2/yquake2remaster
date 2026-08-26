@@ -61,6 +61,13 @@ vec3_t gl4_origin;
 
 int c_brush_polys, c_alias_polys;
 
+static int gl4_drawable_width;
+static int gl4_drawable_height;
+static int gl4_viewport_x;
+static int gl4_viewport_y;
+static int gl4_viewport_width;
+static int gl4_viewport_height;
+
 static float v_blend[4]; /* final blending color */
 
 const hmm_mat4 gl4_identityMat4 = {{
@@ -90,6 +97,52 @@ cvar_t *gl_nobind;
 cvar_t *gl_finish;
 cvar_t *gl4_debugcontext;
 cvar_t *gl4_usefbo;
+
+static void GL4_ResetClearColor(void);
+
+static void
+GL4_UpdateViewport(void)
+{
+	gl4_drawable_width = vid.width;
+	gl4_drawable_height = vid.height;
+	GL4_GetDrawableSize(&gl4_drawable_width, &gl4_drawable_height);
+
+	if (gl4_drawable_width <= 0)
+	{
+		gl4_drawable_width = vid.width;
+	}
+
+	if (gl4_drawable_height <= 0)
+	{
+		gl4_drawable_height = vid.height;
+	}
+
+	gl4_viewport_x = gl4_drawable_width > vid.width ?
+		(gl4_drawable_width - vid.width) / 2 : 0;
+	gl4_viewport_y = gl4_drawable_height > vid.height ?
+		(gl4_drawable_height - vid.height) / 2 : 0;
+	gl4_viewport_width = gl4_drawable_width < vid.width ?
+		gl4_drawable_width : vid.width;
+	gl4_viewport_height = gl4_drawable_height < vid.height ?
+		gl4_drawable_height : vid.height;
+}
+
+static void
+GL4_ClearViewportBars(void)
+{
+	if (gl4_viewport_x == 0 && gl4_viewport_y == 0 &&
+		gl4_viewport_width == gl4_drawable_width &&
+		gl4_viewport_height == gl4_drawable_height)
+	{
+		return;
+	}
+
+	glDisable(GL_SCISSOR_TEST);
+	glViewport(0, 0, gl4_drawable_width, gl4_drawable_height);
+	glClearColor(0, 0, 0, 1);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	GL4_ResetClearColor();
+}
 
 DA_TYPEDEF(mvtx_t, Vtx3DArray_t);
 DA_TYPEDEF(GLushort, UShortArray_t);
@@ -1330,8 +1383,8 @@ SetupFrame(void)
 	{
 		glEnable(GL_SCISSOR_TEST);
 		glClearColor(0.3, 0.3, 0.3, 1);
-		glScissor(r_newrefdef.x,
-				vid.height - r_newrefdef.height - r_newrefdef.y,
+		glScissor(gl4_viewport_x + r_newrefdef.x,
+				gl4_viewport_y + vid.height - r_newrefdef.height - r_newrefdef.y,
 				r_newrefdef.width, r_newrefdef.height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(1, 0, 0.5, 0.5);
@@ -1343,9 +1396,9 @@ static void
 GL4_SetGL2D(void)
 {
 	int x = 0;
-	int w = vid.width;
+	int w = gl4_viewport_width;
 	int y = 0;
-	int h = vid.height;
+	int h = gl4_viewport_height;
 
 #if 0 // TODO: stereo
 	/* set 2D virtual screen size */
@@ -1364,7 +1417,7 @@ GL4_SetGL2D(void)
 	}
 #endif // 0
 
-	glViewport(x, y, w, h);
+	glViewport(gl4_viewport_x + x, gl4_viewport_y + y, w, h);
 
 	hmm_mat4 transMatr = HMM_Orthographic(0, vid.width, vid.height, 0, -99999, 99999);
 
@@ -1531,11 +1584,11 @@ SetupGL(void)
 
 		GL4_Clear(); // clear the FBO that's bound now
 
-		glViewport(0, 0, w, h); // this will be moved to the center later, so no x/y offset
+		glViewport(0, 0, w, h); // FBO coordinates have no drawable offset.
 	}
 	else // rendering directly (not to FBO for postprocessing)
 	{
-		glViewport(x, y2, w, h);
+		glViewport(gl4_viewport_x + x, gl4_viewport_y + y2, w, h);
 	}
 
 	/* set up projection matrix (eye coordinates -> clip coordinates) */
@@ -2034,6 +2087,9 @@ GL4_BeginFrame(float camera_separation)
 		GL4_RecreateShaders();
 	}
 
+
+	GL4_UpdateViewport();
+	GL4_ClearViewportBars();
 
 	/* go into 2D mode */
 
