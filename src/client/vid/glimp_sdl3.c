@@ -80,7 +80,7 @@ GetDisplayIndex(SDL_DisplayID displayid)
 		}
 	}
 
-	return 0;
+	return vid_displayindex ? (int)vid_displayindex->value : 0;
 }
 
 /*
@@ -101,6 +101,26 @@ ClampDisplayIndexCvar(void)
 	}
 }
 
+static int
+GetSelectedDisplayIndex(void)
+{
+	return (int)vid_displayindex->value;
+}
+
+static SDL_DisplayID
+GetSelectedDisplayID(void)
+{
+	return displays[GetSelectedDisplayIndex()];
+}
+
+static SDL_DisplayID
+GetWindowDisplayID(void)
+{
+	SDL_DisplayID display = window ? SDL_GetDisplayForWindow(window) : 0;
+
+	return display != 0 ? display : GetSelectedDisplayID();
+}
+
 static void
 ClearDisplayIndices(void)
 {
@@ -116,6 +136,8 @@ ClearDisplayIndices(void)
 	}
 
 	SDL_free(displays);
+	displays = NULL;
+	num_displays = 0;
 }
 
 static int GetFullscreenType(void);
@@ -187,18 +209,10 @@ SyncWindowFullscreen(int fullscreen, SDL_DisplayID display,
 static qboolean
 SetWindowFullscreen(int fullscreen, int w, int h)
 {
-	SDL_DisplayID display = SDL_GetDisplayForWindow(window);
+	SDL_DisplayID display = GetWindowDisplayID();
 	SDL_DisplayMode closestMode;
 	const SDL_DisplayMode *requestedMode = NULL;
-
-	if (display == 0)
-	{
-		display = displays[last_display];
-	}
-	else
-	{
-		last_display = GetDisplayIndex(display);
-	}
+	last_display = GetDisplayIndex(display);
 
 	if (GetFullscreenType() != FULLSCREEN_OFF)
 	{
@@ -278,7 +292,8 @@ CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 {
 	if (SDL_WINDOWPOS_ISUNDEFINED(last_position_x) || SDL_WINDOWPOS_ISUNDEFINED(last_position_y) || last_position_x < 0 ||last_position_y < 24)
 	{
-		last_position_x = last_position_y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(displays[(int)vid_displayindex->value]);
+		last_position_x = last_position_y = SDL_WINDOWPOS_UNDEFINED_DISPLAY(
+			GetSelectedDisplayID());
 	}
 
 	/* Force the window to minimize when focus is lost. This was the
@@ -308,20 +323,7 @@ CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 		SDL_StartTextInput(window);
 
 		/* save current display as default */
-		SDL_DisplayID current = SDL_GetDisplayForWindow(window);
-
-		if (current == 0)
-		{
-			/* There are some obscure setups were SDL is
-			   unable to get the current display,one X11
-			   server with several screen is one of these,
-			   so add a fallback to the first display. */
-			last_display = 0;
-		}
-		else
-		{
-			last_display = GetDisplayIndex(current);
-		}
+		last_display = GetDisplayIndex(GetWindowDisplayID());
 	}
 	else
 	{
@@ -377,28 +379,7 @@ GetWindowSize(int* w, int* h)
 static void
 PrintDisplayModes(void)
 {
-	int curdisplay;
-
-	if (window == NULL)
-	{
-		/* Called without a windows, list modes
-		   from the first display. This is the
-		   primary display and likely the one the
-		   game will run on. */
-		curdisplay = SDL_GetPrimaryDisplay();
-	}
-	else
-	{
-		/* Otherwise use the display were the window
-		   is displayed. There are some obscure
-		   setups were this can fail - one X11 server
-		   with several screen is one of these - so
-		   add a fallback to the first display. */
-		if ((curdisplay = SDL_GetDisplayForWindow(window)) == 0)
-		{
-			curdisplay = SDL_GetPrimaryDisplay();
-		}
-	}
+	SDL_DisplayID curdisplay = GetWindowDisplayID();
 
 	int nummodes = 0;
 	SDL_DisplayMode **modes = SDL_GetFullscreenDisplayModes(curdisplay, &nummodes);
@@ -464,25 +445,12 @@ ShutdownGraphics(void)
 	if (window)
 	{
 		/* save current display as default */
-		SDL_DisplayID current = SDL_GetDisplayForWindow(window);
-
-		if (current == 0)
-		{
-			/* There are some obscure setups were SDL is
-			   unable to get the current display,one X11
-			   server with several screen is one of these,
-			   so add a fallback to the first display. */
-			last_display = 0;
-		}
-		else
-		{
-			last_display = GetDisplayIndex(current);
-		}
+		last_display = GetDisplayIndex(GetWindowDisplayID());
 
 		/* or if current display isn't the desired default */
-		if (last_display != displays[(int)vid_displayindex->value]) {
+		if (last_display != GetSelectedDisplayIndex()) {
 			last_position_x = last_position_y = SDL_WINDOWPOS_UNDEFINED;
-			last_display = displays[(int)vid_displayindex->value];
+			last_display = GetSelectedDisplayIndex();
 		}
 		else {
 			SDL_GetWindowPosition(window, &last_position_x, &last_position_y);
@@ -559,7 +527,7 @@ GLimp_Init(void)
 
 				Com_sprintf(displayindices[ i ], 11, "%d", i);
 
-				Com_Printf(" - %d\n", displays[i]);
+				Com_Printf(" - %u\n", (unsigned)displays[i]);
 			}
 
 			/* The last entry is NULL to indicate the list of strings ends. */
@@ -640,6 +608,8 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 	if (initSuccessful && GetWindowSize(&curWidth, &curHeight)
 			&& (curWidth == width) && (curHeight == height))
 	{
+		last_display = GetDisplayIndex(GetWindowDisplayID());
+
 		int currentFullscreen = GetFullscreenType();
 
 		if (currentFullscreen != fullscreen)
@@ -770,15 +740,7 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 	}
 
 	/* Now that we've got a working window print it's mode. */
-	int curdisplay;
-	if ((curdisplay = SDL_GetDisplayForWindow(window)) == 0)
-	{
-		/* There are some obscure setups were SDL is
-		   unable to get the current display,one X11
-		   server with several screen is one of these,
-		   so add a fallback to the first display. */
-		curdisplay = SDL_GetPrimaryDisplay();
-	}
+	SDL_DisplayID curdisplay = GetWindowDisplayID();
 
 	const SDL_DisplayMode *mode;
 	if ((mode = SDL_GetCurrentDisplayMode(curdisplay)) == NULL)
@@ -889,28 +851,7 @@ GLimp_GetRefreshRate(void)
 	else if (glimp_refreshRate == -1)
 	{
 		const SDL_DisplayMode *mode;
-		int curdisplay;
-
-		if (window == NULL)
-		{
-			/* This is paranoia. This function should only be
-			   called if there is a working window. Otherwise
-			   things will likely break somewhere else in the
-			   client. */
-			curdisplay = SDL_GetPrimaryDisplay();
-		}
-		else
-		{
-			if ((curdisplay = SDL_GetDisplayForWindow(window)) == 0)
-			{
-				/* There are some obscure setups were SDL is
-				   unable to get the current display,one X11
-				   server with several screen is one of these,
-				   so add a fallback to the first display. */
-				curdisplay = SDL_GetPrimaryDisplay();
-			}
-
-		}
+		SDL_DisplayID curdisplay = GetWindowDisplayID();
 
 		if ((mode = SDL_GetCurrentDisplayMode(curdisplay)) == NULL)
 		{
