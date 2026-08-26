@@ -879,34 +879,12 @@ GLimp_GetDesktopMode(int *pwidth, int *pheight)
 		   by passing the mode and not the geometry from
 		   the renderer to GLimp_InitGraphics(), however
 		   that would break the renderer API. */
-		SDL_DisplayID current = SDL_GetPrimaryDisplay();
-
-		if (current == 0)
-		{
-			last_display = 0;
-		}
-		else
-		{
-			last_display = GetDisplayIndex(current);
-		}
+		last_display = GetSelectedDisplayIndex();
 	}
 	else
 	{
 		/* save current display as default */
-		SDL_DisplayID current = SDL_GetDisplayForWindow(window);
-
-		if (current == 0)
-		{
-			/* There are some obscure setups were SDL is
-			   unable to get the current display,one X11
-			   server with several screen is one of these,
-			   so add a fallback to the first display. */
-			last_display = 0;
-		}
-		else
-		{
-			last_display = GetDisplayIndex(current);
-		}
+		last_display = GetDisplayIndex(GetWindowDisplayID());
 
 		SDL_GetWindowPosition(window, &last_position_x, &last_position_y);
 	}

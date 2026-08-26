@@ -793,6 +793,10 @@ GLimp_GetDesktopMode(int *pwidth, int *pheight)
 		last_display = SDL_GetWindowDisplayIndex(window);
 		SDL_GetWindowPosition(window, &last_position_x, &last_position_y);
 	}
+	else
+	{
+		last_display = (int)vid_displayindex->value;
+	}
 
 	if (last_display < 0)
 	{
@@ -801,7 +805,7 @@ GLimp_GetDesktopMode(int *pwidth, int *pheight)
 		last_display = 0;
 	}
 
-	// We can't get desktop where we start, so use first desktop
+	// Use the current or selected display mode.
 	if(SDL_GetCurrentDisplayMode(last_display, &mode) != 0)
 	{
 		// In case of error...
