@@ -210,8 +210,19 @@ CreateSDLWindow(SDL_WindowFlags flags, int fullscreen, int w, int h)
 			{
 				if (SDL_GetClosestFullscreenDisplayMode(displays[last_display], w, h, 0, true, &closestMode) != true)
 				{
-					Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
-					return false;
+					const SDL_DisplayMode *mode;
+
+					if ((mode = SDL_GetDesktopDisplayMode(displays[last_display])) == NULL)
+					{
+						Com_Printf("Couldn't get current display mode: %s\n", SDL_GetError());
+						Com_Printf("SDL was unable to find a mode close to %ix%i@0\n", w, h);
+						return false;
+					}
+					else
+					{
+						Com_Printf("Used desktop as near mode %ix%i@%f\n", mode->w, mode->h, mode->refresh_rate);
+						memcpy(&closestMode, mode, sizeof(closestMode));
+					}
 				}
 			}
 
@@ -758,8 +769,18 @@ GLimp_InitGraphics(int fullscreen, int *pwidth, int *pheight)
 			else
 			{
 				/* Requested aspect ratio is wider than the display */
-				*pwidth = mode->w;
 				*pheight = mode->w * (*pheight) / (float)(*pwidth);
+				*pwidth = mode->w;
+			}
+
+			if (*pwidth > mode->w)
+			{
+				*pwidth = mode->w;
+			}
+
+			if (*pheight > mode->h)
+			{
+				*pheight = mode->h;
 			}
 
 			Com_Printf("Preserved aspect ratio: %ix%i\n", *pwidth, *pheight);
