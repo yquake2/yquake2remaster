@@ -279,6 +279,9 @@ extern qboolean vk_initialized;
 // index of the currently acquired swapchain image.
 extern uint32_t vk_imageIndex;
 
+extern int vk_num3Ddraws;
+extern int vk_num2Ddraws;
+
 // function pointers
 extern PFN_vkCreateDebugUtilsMessengerEXT qvkCreateDebugUtilsMessengerEXT;
 extern PFN_vkDestroyDebugUtilsMessengerEXT qvkDestroyDebugUtilsMessengerEXT;

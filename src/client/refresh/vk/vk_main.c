@@ -207,6 +207,7 @@ R_DrawSpriteModel(entity_t *currententity, const model_t *currentmodel)
 		vk_drawSpritePipeline.layout, 0, 1,
 		&skin->vk_texture.descriptorSet, 0, NULL);
 	vkCmdDraw(vk_activeCmdbuffer, 6, 1, 0, 0);
+	vk_num3Ddraws++;
 }
 
 static void
@@ -284,6 +285,7 @@ R_DrawNullModel(entity_t *currententity)
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdBindIndexBuffer(vk_activeCmdbuffer, *buffer, dstOffset, VK_INDEX_TYPE_UINT16);
 	vkCmdDrawIndexed(vk_activeCmdbuffer, 24, 1, 0, 0, 0);
+	vk_num3Ddraws++;
 }
 
 static void
@@ -507,6 +509,7 @@ Vk_DrawParticles(int num_particles, const particle_t particles[])
 
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdDraw(vk_activeCmdbuffer, (currentvertex - visibleParticles), 1, 0, 0);
+	vk_num3Ddraws++;
 }
 
 static void
@@ -575,6 +578,7 @@ R_DrawParticles(void)
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawPointParticlesPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 		vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 		vkCmdDraw(vk_activeCmdbuffer, r_newrefdef.num_particles, 1, 0, 0);
+		vk_num3Ddraws++;
 	}
 	else
 	{
@@ -846,16 +850,24 @@ static const char*
 R_GetSpeedString(void)
 {
 	static char stbuf[256] = {0};
+	int ms, num3D, num2D;
 	size_t r_time2;
-	int ms;
+
+	// by saving those values into a variable and setting them to 0 afterwards,
+	// r_speeds can include its own drawcalls (from previous frame)
+	num3D = vk_num3Ddraws;
+	num2D = vk_num2Ddraws;
+	vk_num3Ddraws = 0;
+	vk_num2Ddraws = 0;
 
 	r_time2 = SDL_GetTicks();
 
 	ms = r_time2 - r_time1;
 
 	snprintf(stbuf, sizeof(stbuf),
-		"%5i ms %4i nodes %4i wpoly %4i epoly %i tex",
-		ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures);
+		"%5i ms %4i nodes %4i wpoly %4i epoly %4i tex %2i 3D draw %3i 2D draw",
+		ms, r_currentkey, c_brush_polys, c_alias_polys, c_visible_textures,
+		num3D, num2D);
 
 	return stbuf;
 }
@@ -995,6 +1007,7 @@ qboolean RE_EndWorldRenderpass(void)
 	vkCmdSetViewport(vk_activeCmdbuffer, 0u, 1u, &vk_viewport);
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &vk_scissor);
 	vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);
+	vk_num2Ddraws++;
 	vkCmdEndRenderPass(vk_activeCmdbuffer);
 
 	// start drawing UI
@@ -1025,6 +1038,7 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_postprocessPipeline.layout, 0, 1, &vk_colorbufferWarp.descriptorSet, 0, NULL);
 		QVk_BindPipeline(&vk_postprocessPipeline);
 		vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);
+		vk_num2Ddraws++;
 	}
 }
 
@@ -1404,13 +1418,8 @@ R_DrawBeam(entity_t *currententity )
 	vec3_t start_points[NUM_BEAM_SEGS], end_points[NUM_BEAM_SEGS];
 	vec3_t oldorigin, origin;
 
-	oldorigin[0] = currententity->oldorigin[0];
-	oldorigin[1] = currententity->oldorigin[1];
-	oldorigin[2] = currententity->oldorigin[2];
-
-	origin[0] = currententity->origin[0];
-	origin[1] = currententity->origin[1];
-	origin[2] = currententity->origin[2];
+	VectorCopy(currententity->oldorigin, oldorigin);
+	VectorCopy(currententity->origin, origin);
 
 	normalized_direction[0] = direction[0] = oldorigin[0] - origin[0];
 	normalized_direction[1] = direction[1] = oldorigin[1] - origin[1];
@@ -1476,6 +1485,7 @@ R_DrawBeam(entity_t *currententity )
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_drawBeamPipeline.layout, 0, 1, &uboDescriptorSet, 1, &uboOffset);
 	vkCmdBindVertexBuffers(vk_activeCmdbuffer, 0, 1, &vbo, &vboOffset);
 	vkCmdDraw(vk_activeCmdbuffer, NUM_BEAM_SEGS * 4, 1, 0, 0);
+	vk_num3Ddraws++;
 }
 
 //===================================================================

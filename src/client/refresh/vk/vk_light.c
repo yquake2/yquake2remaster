@@ -111,6 +111,7 @@ R_RenderDlights(void)
 	for (k = 0; k < r_newrefdef.num_dlights; k++)
 	{
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 48, 1, 0, k * 18, 0);
+		vk_num3Ddraws++;
 	}
 }
 

@@ -133,6 +133,8 @@ qboolean vk_recreateSwapchainNeeded = false;
 // is QVk initialized?
 qboolean vk_initialized = false;
 
+int vk_num3Ddraws, vk_num2Ddraws;
+
 // render pipelines
 qvkpipeline_t vk_drawTexQuadPipeline[RP_COUNT]    = {
 	QVKPIPELINE_INIT, QVKPIPELINE_INIT, QVKPIPELINE_INIT };
@@ -2920,6 +2922,7 @@ QVk_Draw2DCallsRender(void)
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
 			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+		vk_num2Ddraws++;
 	}
 	else if (draw2dcolor_calltype == CALL_TEX || draw2dcolor_calltype == CALL_TINT)
 	{
@@ -2979,6 +2982,7 @@ QVk_Draw2DCallsRender(void)
 		vkCmdBindIndexBuffer(vk_activeCmdbuffer,
 			vk_rectIbo.resource.buffer, vk_rectIboffet, VK_INDEX_TYPE_UINT16);
 		vkCmdDrawIndexed(vk_activeCmdbuffer, 6 * draw2dcolor_num, 1, 0, 0, 0);
+		vk_num2Ddraws++;
 	}
 
 	draw2dcolor_num = 0;
