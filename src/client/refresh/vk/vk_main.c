@@ -85,6 +85,7 @@ cvar_t  *vk_molten_fastmath;
 cvar_t  *vk_molten_metalbuffers;
 #endif
 cvar_t	*vk_pixel_size;
+cvar_t	*vk_directrender;
 static cvar_t	*vk_particle_size;
 static cvar_t	*vk_particle_att_a;
 static cvar_t	*vk_particle_att_b;
@@ -1049,7 +1050,8 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 
 	// first, blit offscreen color buffer with warped/postprocessed world view
 	// skip this step if we're in player config screen since it uses RP_UI and draws directly to swapchain
-	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
+	// and when the world was drawn into the swapchain image already
+	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL) && !vk_worldDirectRender)
 	{
 		// the shader also reads the screen size and offset, and the warp
 		// pass that used to leave them behind in the push constants does
@@ -1147,6 +1149,7 @@ R_Register(void)
 	vk_particle_max_size = ri.Cvar_Get("vk_particle_max_size", "40", CVAR_ARCHIVE);
 	vk_custom_particles = ri.Cvar_Get("vk_custom_particles", "1", CVAR_ARCHIVE);
 	vk_postprocess = ri.Cvar_Get("vk_postprocess", "1", CVAR_ARCHIVE);
+	vk_directrender = ri.Cvar_Get("vk_directrender", "1", CVAR_ARCHIVE);
 	vk_texturemode = ri.Cvar_Get("vk_texturemode", "VK_MIPMAP_LINEAR", CVAR_ARCHIVE);
 	vk_lmaptexturemode = ri.Cvar_Get("vk_lmaptexturemode", "VK_MIPMAP_LINEAR", CVAR_ARCHIVE);
 	vk_mip_nearfilter = ri.Cvar_Get("vk_mip_nearfilter", "0", CVAR_ARCHIVE);
@@ -1381,6 +1384,12 @@ RE_BeginFrame(float camera_separation)
 		vk_skipWorldWarp = !world_warp_wanted &&
 			vk_pixel_size->value <= 1.0f &&
 			vk_viewport.x == 0.f && vk_viewport.y == 0.f;
+
+		// and with no offscreen work left at all the world can go straight
+		// into the swapchain image, dropping the last full screen copy
+		vk_worldDirectRender = vk_skipWorldWarp &&
+			vk_directrender->value &&
+			!QVk_WorldIsMultisampled();
 
 		QVk_BeginRenderpass(RP_WORLD);
 		vkCmdSetDepthBias(vk_activeCmdbuffer, 0.0f, 0.0f, 0.0f);

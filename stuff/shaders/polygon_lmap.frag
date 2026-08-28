@@ -1,5 +1,14 @@
 #version 450
 
+layout(push_constant) uniform PostPushConstant
+{
+	// applied when the world is drawn straight into the swapchain image,
+	// otherwise the postprocess pass does it
+	layout(offset = 112) float postprocess;
+	layout(offset = 116) float postGamma;
+} pcPost;
+
+
 // keep in sync with MAX_DLIGHTS
 #define MAX_DYN_LIGHTS 32
 
@@ -65,4 +74,8 @@ void main()
     }
 
     fragmentColor = (1.0 - viewLightmaps) * color * light + viewLightmaps * light;
+	if (pcPost.postprocess > 0.0)
+	{
+		fragmentColor.rgb = pow(fragmentColor.rgb * 1.5, vec3(pcPost.postGamma));
+	}
 }

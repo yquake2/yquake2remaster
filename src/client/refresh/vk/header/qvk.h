@@ -218,7 +218,10 @@ typedef enum
 /* number of image semaphores */
 #define NUM_IMG_SEMAPHORES (NUM_CMDBUFFERS * 2)
 #define PUSH_CONSTANT_VERTEX_SIZE 17
-#define PUSH_CONSTANT_FRAGMENT_SIZE 11
+// the last two floats are the world postprocess (see QVk_BindPipeline), they sit
+// past every shader's own fragment constants so a bind can never clobber them
+#define PUSH_CONSTANT_FRAGMENT_SIZE 13
+#define PUSH_CONSTANT_POSTPROCESS_OFFSET ((PUSH_CONSTANT_VERTEX_SIZE + 11) * sizeof(float))
 
 // Vulkan instance
 extern VkInstance vk_instance;
@@ -283,6 +286,10 @@ extern int vk_num3Ddraws;
 extern int vk_num2Ddraws;
 
 extern qboolean vk_skipWorldWarp;
+extern qboolean vk_worldDirectRender;
+
+/* is the world pass multisampled? direct rendering has no resolve target */
+qboolean	QVk_WorldIsMultisampled(void);
 
 // function pointers
 extern PFN_vkCreateDebugUtilsMessengerEXT qvkCreateDebugUtilsMessengerEXT;
