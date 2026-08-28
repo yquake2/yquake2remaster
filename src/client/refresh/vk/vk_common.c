@@ -1311,7 +1311,7 @@ CreatePipelines(void)
 												VK_INPUTATTR_DESC(1, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 3),
 												VK_INPUTATTR_DESC(2, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 5),
 												VK_INPUTATTR_DESC(3, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 8),
-												VK_INPUTATTR_DESC(4, VK_FORMAT_R8G8B8A8_SINT, sizeof(float) * 11));
+												VK_INPUTATTR_DESC(4, VK_FORMAT_R32_SINT, sizeof(float) * 11));
 
 	/* no vertices passed to the pipeline (postprocessing) */
 	VkPipelineVertexInputStateCreateInfo vertInfoNull = VK_NULL_VERTEXINPUT_CINF;
