@@ -117,6 +117,7 @@ R_RenderDlights(void)
 
 uint32_t vk_dlightUboOffset;
 VkDescriptorSet vk_dlightUboDescriptorSet;
+uint32_t vk_dlightCount;
 
 /*
  * Hand this frame's dynamic lights to the lightmapped surface shader. The
@@ -138,6 +139,11 @@ Vk_UpdateDynamicLights(void)
 	const dlight_t *l;
 	int i, num_dlights;
 
+	/* the descriptor exposes UNIFORM_ALLOC_SIZE bytes at the bound offset,
+	   the whole light array has to fit in that window */
+	YQ2_STATIC_ASSERT(sizeof(vkUniDynLight_t) * MAX_DLIGHTS <= UNIFORM_ALLOC_SIZE,
+		"dynamic light block does not fit a uniform buffer allocation");
+
 	udl = (vkUniDynLight_t *)QVk_GetUniformBuffer(
 		sizeof(vkUniDynLight_t) * MAX_DLIGHTS, &vk_dlightUboOffset,
 		&vk_dlightUboDescriptorSet);
@@ -148,6 +154,8 @@ Vk_UpdateDynamicLights(void)
 	{
 		num_dlights = MAX_DLIGHTS;
 	}
+
+	vk_dlightCount = num_dlights;
 
 	for (i = 0, l = r_newrefdef.dlights; i < num_dlights; i++, l++)
 	{

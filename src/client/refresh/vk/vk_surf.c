@@ -415,7 +415,7 @@ DrawLightmappedChains(const entity_t *currententity)
 	} lmapPolyUbo;
 
 	lmapPolyUbo.viewLightmaps = r_lightmap->value ? 1.f : 0.f;
-	lmapPolyUbo.numDynLights = r_dynamic->value ? r_newrefdef.num_dlights : 0;
+	lmapPolyUbo.numDynLights = vk_dlightCount;
 	Mat_Identity(lmapPolyUbo.model);
 
 	uint32_t uboOffset;
@@ -794,7 +794,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 	} lmapPolyUbo;
 
 	lmapPolyUbo.viewLightmaps = r_lightmap->value ? 1.f : 0.f;
-	lmapPolyUbo.numDynLights = r_dynamic->value ? r_newrefdef.num_dlights : 0;
+	lmapPolyUbo.numDynLights = vk_dlightCount;
 
 	if (modelMatrix)
 	{

@@ -143,6 +143,7 @@ void RI_PushDlights(void);
    surface pipeline */
 extern uint32_t vk_dlightUboOffset;
 extern VkDescriptorSet vk_dlightUboDescriptorSet;
+extern uint32_t vk_dlightCount;
 
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
