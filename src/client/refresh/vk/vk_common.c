@@ -1283,11 +1283,11 @@ CreatePipelines(void)
 												VK_INPUTATTR_DESC(2, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 7));
 
 	/* Lightmap shaders input */
-	VK_VERTINFO(MEM_VERTEX_T, sizeof(mvtx_t),	VK_INPUTATTR_DESC(0, VK_FORMAT_R32G32B32_SFLOAT, 0),
-												VK_INPUTATTR_DESC(1, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 3),
-												VK_INPUTATTR_DESC(2, VK_FORMAT_R32G32_SFLOAT, sizeof(float) * 5),
-												VK_INPUTATTR_DESC(3, VK_FORMAT_R32G32B32_SFLOAT, sizeof(float) * 8),
-												VK_INPUTATTR_DESC(4, VK_FORMAT_R32_SINT, sizeof(float) * 11));
+	VK_VERTINFO(MEM_VERTEX_T, sizeof(mvtx_t),	VK_INPUTATTR_DESC(0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(mvtx_t, pos)),
+												VK_INPUTATTR_DESC(1, VK_FORMAT_R32G32_SFLOAT, offsetof(mvtx_t, texCoord)),
+												VK_INPUTATTR_DESC(2, VK_FORMAT_R32G32_SFLOAT, offsetof(mvtx_t, lmTexCoord)),
+												VK_INPUTATTR_DESC(3, VK_FORMAT_R32G32B32_SFLOAT, offsetof(mvtx_t, normal)),
+												VK_INPUTATTR_DESC(4, VK_FORMAT_R32_SINT, offsetof(mvtx_t, lightFlags)));
 
 	/* no vertices passed to the pipeline (postprocessing) */
 	VkPipelineVertexInputStateCreateInfo vertInfoNull = VK_NULL_VERTEXINPUT_CINF;
