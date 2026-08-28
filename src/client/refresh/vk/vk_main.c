@@ -1386,9 +1386,14 @@ RE_BeginFrame(float camera_separation)
 			vk_viewport.x == 0.f && vk_viewport.y == 0.f;
 
 		// and with no offscreen work left at all the world can go straight
-		// into the swapchain image, dropping the last full screen copy
+		// into the swapchain image, dropping the last full screen copy.
+		// A reduced viewsize draws the world into part of the screen and
+		// leaves the rest holding whatever the offscreen buffer still had,
+		// which the swapchain images cannot reproduce, so it keeps the old
+		// path as well.
 		vk_worldDirectRender = vk_skipWorldWarp &&
 			vk_directrender->value &&
+			viewsize->value >= 100.0f &&
 			!QVk_WorldIsMultisampled();
 
 		QVk_BeginRenderpass(RP_WORLD);
