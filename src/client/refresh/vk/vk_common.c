@@ -440,7 +440,7 @@ CreateFramebuffers(void)
 			.pNext = NULL,
 			.flags = 0,
 			.renderPass = vk_renderpasses[RP_UI].rp,
-			.attachmentCount = 3,
+			.attachmentCount = 2,
 			.width = vk_swapchain.extent.width,
 			.height = vk_swapchain.extent.height,
 			.layers = 1
@@ -451,7 +451,7 @@ CreateFramebuffers(void)
 			.pNext = NULL,
 			.flags = 0,
 			.renderPass = vk_renderpasses[RP_WORLD_WARP].rp,
-			.attachmentCount = 2,
+			.attachmentCount = 1,
 			.width = vk_swapchain.extent.width,
 			.height = vk_swapchain.extent.height,
 			.layers = 1
@@ -459,14 +459,14 @@ CreateFramebuffers(void)
 	};
 
 	VkImageView worldAttachments[] = { vk_colorbuffer.imageView, vk_depthbuffer.imageView, vk_msaaColorbuffer.imageView };
-	VkImageView warpAttachments[]  = { vk_colorbuffer.imageView, vk_colorbufferWarp.imageView };
+	VkImageView warpAttachments[]  = { vk_colorbufferWarp.imageView };
 
 	fbCreateInfos[RP_WORLD].pAttachments = worldAttachments;
 	fbCreateInfos[RP_WORLD_WARP].pAttachments = warpAttachments;
 
 	for (i = 0; i < vk_swapchain.imageCount; ++i)
 	{
-		VkImageView uiAttachments[] = { vk_colorbufferWarp.imageView, vk_ui_depthbuffer.imageView, vk_imageviews[i] };
+		VkImageView uiAttachments[] = { vk_ui_depthbuffer.imageView, vk_imageviews[i] };
 		fbCreateInfos[RP_UI].pAttachments = uiAttachments;
 
 		for (int j = 0; j < RP_COUNT; ++j)
@@ -575,18 +575,6 @@ CreateRenderpasses(void)
 	 * world warp setup
 	 */
 	VkAttachmentDescription warpAttachments[] = {
-		// color attachment - input from RP_WORLD renderpass
-		{
-			.flags = 0,
-			.format = vk_swapchain.format,
-			.samples = VK_SAMPLE_COUNT_1_BIT,
-			.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-			.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-			.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-		},
 		// color attachment output - warped/postprocessed image that ends up in RP_UI
 		{
 			.flags = 0,
@@ -603,7 +591,7 @@ CreateRenderpasses(void)
 
 	VkAttachmentReference warpAttachmentRef = {
 		// output color
-		.attachment = 1,
+		.attachment = 0,
 		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 	};
 
@@ -625,18 +613,6 @@ CreateRenderpasses(void)
 	 * UI setup
 	 */
 	VkAttachmentDescription uiAttachments[] = {
-		// color attachment
-		{
-			.flags = 0,
-			.format = vk_swapchain.format,
-			.samples = VK_SAMPLE_COUNT_1_BIT,
-			.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-			.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-			.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			.initialLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-		},
 		// depth attachment - because of player model preview in settings screen
 		{
 			.flags = 0,
@@ -667,12 +643,12 @@ CreateRenderpasses(void)
 	VkAttachmentReference uiAttachmentRefs[] = {
 		// depth
 		{
-			.attachment = 1,
+			.attachment = 0,
 			.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
 		},
 		// swapchain output
 		{
-			.attachment = 2,
+			.attachment = 1,
 			.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 		}
 	};
@@ -733,7 +709,7 @@ CreateRenderpasses(void)
 			.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 			.pNext = NULL,
 			.flags = 0,
-			.attachmentCount = 3,
+			.attachmentCount = 2,
 			.pAttachments = uiAttachments,
 			.subpassCount = 1,
 			.pSubpasses = &uiSubpassDesc,
@@ -745,7 +721,7 @@ CreateRenderpasses(void)
 			.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
 			.pNext = NULL,
 			.flags = 0,
-			.attachmentCount = 2,
+			.attachmentCount = 1,
 			.pAttachments = warpAttachments,
 			.subpassCount = 1,
 			.pSubpasses = &warpSubpassDesc,
@@ -2439,13 +2415,11 @@ QVk_BeginRenderpass(qvkrenderpasstype_t rpType)
 		{.color = {.float32 = { 1.f, .0f, .5f, 1.f } } },
 	};
 
-	const VkClearValue warpClearColors[2] = {
-		clearColors[0],
+	const VkClearValue warpClearColors[1] = {
 		{.color = {.float32 = { 0.f, .0f, .0f, 1.f } } },
 	};
 
-	const VkClearValue uiClearColors[3] = {
-		clearColors[0],
+	const VkClearValue uiClearColors[2] = {
 		clearColors[1],
 		{.color = {.float32 = { 0.f, .0f, .0f, 1.f } } },
 	};
@@ -2468,7 +2442,7 @@ QVk_BeginRenderpass(qvkrenderpasstype_t rpType)
 			.framebuffer = vk_framebuffers[RP_UI][vk_imageIndex],
 			.renderArea.offset = { 0, 0 },
 			.renderArea.extent = vk_swapchain.extent,
-			.clearValueCount = 3,
+			.clearValueCount = 2,
 			.pClearValues = uiClearColors
 		},
 		// RP_WORLD_WARP
@@ -2478,7 +2452,7 @@ QVk_BeginRenderpass(qvkrenderpasstype_t rpType)
 			.framebuffer = vk_framebuffers[RP_WORLD_WARP][vk_imageIndex],
 			.renderArea.offset = { 0, 0 },
 			.renderArea.extent = vk_swapchain.extent,
-			.clearValueCount = 2,
+			.clearValueCount = 1,
 			.pClearValues = warpClearColors
 		}
 	};
