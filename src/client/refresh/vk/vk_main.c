@@ -37,6 +37,9 @@
 
 // world rendered and ready to render 2d elements
 static qboolean world_rendered;
+// RP_WORLD starts before this frame's refdef is known, so whether the warp
+// pass has anything to do is decided from the previous frame
+static qboolean world_warp_wanted;
 static qboolean RE_IsHighDPIaware = false;
 
 refimport_t	ri;
@@ -967,13 +970,6 @@ qboolean RE_EndWorldRenderpass(void)
 
 	world_rendered = true;
 
-	// finish rendering world view to offsceen buffer
-	vkCmdEndRenderPass(vk_activeCmdbuffer);
-
-	// apply postprocessing effects to offscreen buffer:
-	//	* underwater view warp if the player is submerged in liquid
-	//	* restore world view to the full screen size when vk_pixel_size is >1.0
-	QVk_BeginRenderpass(RP_WORLD_WARP);
 	float underwaterTime;
 	if (vk_underwater->value)
 	{
@@ -983,6 +979,29 @@ qboolean RE_EndWorldRenderpass(void)
 	{
 		underwaterTime = 0.f;
 	};
+
+	// let the next frame know whether the warp pass will have work to do
+	world_warp_wanted = (underwaterTime > 0.f);
+
+	// finish rendering world view to offsceen buffer
+	vkCmdEndRenderPass(vk_activeCmdbuffer);
+
+	if (vk_skipWorldWarp)
+	{
+		// nothing to warp and nothing to upscale, the pass would copy
+		// vk_colorbuffer to vk_colorbufferWarp pixel for pixel; the
+		// postprocess step reads vk_colorbuffer directly instead
+
+		// start drawing UI
+		QVk_BeginRenderpass(RP_UI);
+
+		return true;
+	}
+
+	// apply postprocessing effects to offscreen buffer:
+	//	* underwater view warp if the player is submerged in liquid
+	//	* restore world view to the full screen size when vk_pixel_size is >1.0
+	QVk_BeginRenderpass(RP_WORLD_WARP);
 	float pushConsts[] =
 	{
 		underwaterTime,
@@ -1032,7 +1051,9 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 	// skip this step if we're in player config screen since it uses RP_UI and draws directly to swapchain
 	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		// the shader also reads the screen size and offset
+		// the shader also reads the screen size and offset, and the warp
+		// pass that used to leave them behind in the push constants does
+		// not always run
 		float pushConsts[] = {
 			vk_postprocess->value,
 			(2.1 - vid_gamma->value),
@@ -1043,7 +1064,10 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 		};
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_postprocessPipeline.layout,
 			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(pushConsts), pushConsts);
-		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_postprocessPipeline.layout, 0, 1, &vk_colorbufferWarp.descriptorSet, 0, NULL);
+		const VkDescriptorSet *worldView = vk_skipWorldWarp ?
+			&vk_colorbuffer.descriptorSet : &vk_colorbufferWarp.descriptorSet;
+
+		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_postprocessPipeline.layout, 0, 1, worldView, 0, NULL);
 		QVk_BindPipeline(&vk_postprocessPipeline);
 		vkCmdDraw(vk_activeCmdbuffer, 3, 1, 0, 0);
 		vk_num2Ddraws++;
@@ -1352,6 +1376,12 @@ RE_BeginFrame(float camera_separation)
 
 	if (QVk_BeginFrame(&vk_viewport, &vk_scissor) == VK_SUCCESS)
 	{
+		// with nothing to warp and nothing to upscale the warp pass is a
+		// plain full screen copy, so leave it out of the frame entirely
+		vk_skipWorldWarp = !world_warp_wanted &&
+			vk_pixel_size->value <= 1.0f &&
+			vk_viewport.x == 0.f && vk_viewport.y == 0.f;
+
 		QVk_BeginRenderpass(RP_WORLD);
 		vkCmdSetDepthBias(vk_activeCmdbuffer, 0.0f, 0.0f, 0.0f);
 	}

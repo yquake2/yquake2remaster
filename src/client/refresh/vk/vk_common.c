@@ -135,6 +135,10 @@ qboolean vk_initialized = false;
 
 int vk_num3Ddraws, vk_num2Ddraws;
 
+// set when the world warp pass is skipped, so the postprocess step knows to
+// read the world straight out of vk_colorbuffer
+qboolean vk_skipWorldWarp = false;
+
 // render pipelines
 qvkpipeline_t vk_drawTexQuadPipeline[RP_COUNT]    = {
 	QVKPIPELINE_INIT, QVKPIPELINE_INIT, QVKPIPELINE_INIT };

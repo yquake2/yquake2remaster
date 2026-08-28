@@ -282,6 +282,8 @@ extern uint32_t vk_imageIndex;
 extern int vk_num3Ddraws;
 extern int vk_num2Ddraws;
 
+extern qboolean vk_skipWorldWarp;
+
 // function pointers
 extern PFN_vkCreateDebugUtilsMessengerEXT qvkCreateDebugUtilsMessengerEXT;
 extern PFN_vkDestroyDebugUtilsMessengerEXT qvkDestroyDebugUtilsMessengerEXT;
