@@ -319,6 +319,53 @@ R_DrawAlphaSurfaces(void)
 	r_alpha_surfaces = NULL;
 }
 
+/*
+ * Tag the surface vertices with the dynamic lights reaching this surface, the
+ * lightmapped surface shader applies them per fragment.
+ */
+static void
+SetLightFlags(const msurface_t *surf)
+{
+	unsigned int lightFlags = 0;
+	mpoly_t *p;
+
+	if (r_dynamic->value && surf->dlightframe == r_framecount)
+	{
+		lightFlags = surf->dlightbits;
+	}
+
+	for (p = surf->polys; p; p = p->chain)
+	{
+		int i;
+
+		for (i = 0; i < p->numverts; i++)
+		{
+			p->verts[i].lightFlags = lightFlags;
+		}
+	}
+}
+
+/*
+ * Brush model surfaces are marked against the model's own frame counter, so
+ * let the shader consider every light and sort it out by distance.
+ */
+static void
+SetAllLightFlags(const msurface_t *surf)
+{
+	unsigned int lightFlags = r_dynamic->value ? 0xffffffff : 0;
+	mpoly_t *p;
+
+	for (p = surf->polys; p; p = p->chain)
+	{
+		int i;
+
+		for (i = 0; i < p->numverts; i++)
+		{
+			p->verts[i].lightFlags = lightFlags;
+		}
+	}
+}
+
 static void
 FlushLmChainBatch(int *pos_vect, int *index_pos)
 {
@@ -364,9 +411,11 @@ DrawLightmappedChains(const entity_t *currententity)
 	struct {
 		float model[16];
 		float viewLightmaps;
+		uint32_t numDynLights;
 	} lmapPolyUbo;
 
 	lmapPolyUbo.viewLightmaps = r_lightmap->value ? 1.f : 0.f;
+	lmapPolyUbo.numDynLights = r_dynamic->value ? r_newrefdef.num_dlights : 0;
 	Mat_Identity(lmapPolyUbo.model);
 
 	uint32_t uboOffset;
@@ -378,6 +427,9 @@ DrawLightmappedChains(const entity_t *currententity)
 	QVk_BindPipeline(&vk_drawPolyLmapPipeline);
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
 			vk_drawPolyLmapPipeline.layout, 1, 1, &uboDescriptorSet, 1, &uboOffset);
+	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			vk_drawPolyLmapPipeline.layout, 3, 1, &vk_dlightUboDescriptorSet,
+			1, &vk_dlightUboOffset);
 
 	c_visible_textures = 0;
 
@@ -412,34 +464,31 @@ DrawLightmappedChains(const entity_t *currententity)
 				continue;
 			}
 
+			SetLightFlags(s);
+
 			lmtex = s->lightmaptexturenum;
 
-			/* check for dynamic lightmap */
+			/* check for a light style that changed since the lightmap was
+			   built, dynamic lights are applied by the shader */
 			for (map = 0; map < MAXLIGHTMAPS && s->styles[map] != 255; map++)
 			{
 				if (r_newrefdef.lightstyles[s->styles[map]].white !=
 						s->cached_light[map])
 				{
-					goto dynamic;
-				}
-			}
-
-			if (s->dlightframe == r_framecount)
-			{
-dynamic:
-				if (r_dynamic->value)
-				{
-					if (!(s->texinfo->flags &
-								(SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
+					if (r_dynamic->value &&
+						!(s->texinfo->flags &
+							(SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 					{
 						is_dynamic = true;
 					}
+
+					break;
 				}
 			}
 
 			if (is_dynamic)
 			{
-				int smax, tmax, size;
+				int smax, tmax, size, dlightframe;
 				byte *temp;
 
 				smax = (s->extents[0] >> s->lmshift) + 1;
@@ -448,11 +497,15 @@ dynamic:
 				size = smax * tmax * LIGHTMAP_BYTES;
 				temp = R_GetTemporaryLMBuffer(size);
 
+				/* R_BuildLightMap bakes the dynamic lights of a marked
+				   surface in, which the shader already applies */
+				dlightframe = s->dlightframe;
+				s->dlightframe = -1;
 				R_BuildLightMap(s, temp, smax * 4,
 						&r_newrefdef, r_modulate->value, NULL, NULL);
+				s->dlightframe = dlightframe;
 
-				if (map < MAXLIGHTMAPS && (s->styles[map] >= 32 || s->styles[map] == 0) &&
-						(s->dlightframe != r_framecount))
+				if (map < MAXLIGHTMAPS && (s->styles[map] >= 32 || s->styles[map] == 0))
 				{
 					R_SetCacheState(s, &r_newrefdef);
 					lmtex = s->lightmaptexturenum;
@@ -593,28 +646,25 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	unsigned lmtex = surf->lightmaptexturenum;
 	const mpoly_t *p;
 
+	/* check for a light style that changed since the lightmap was built,
+	   dynamic lights are applied by the shader */
 	for (map = 0; map < MAXLIGHTMAPS && surf->styles[map] != 255; map++)
 	{
 		if (r_newrefdef.lightstyles[surf->styles[map]].white != surf->cached_light[map])
-			goto dynamic;
-	}
-
-	/* dynamic this frame or dynamic previously */
-	if (surf->dlightframe == r_framecount)
-	{
-	dynamic:
-		if (r_dynamic->value)
 		{
-			if (!(surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
+			if (r_dynamic->value &&
+				!(surf->texinfo->flags & (SURF_SKY | SURF_TRANSPARENT | SURF_WARP)))
 			{
 				is_dynamic = true;
 			}
+
+			break;
 		}
 	}
 
 	if (is_dynamic)
 	{
-		int smax, tmax, size;
+		int smax, tmax, size, dlightframe;
 		byte *temp;
 
 		smax = (surf->extents[0] >> surf->lmshift) + 1;
@@ -623,11 +673,15 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 		size = smax * tmax * LIGHTMAP_BYTES;
 		temp = R_GetTemporaryLMBuffer(size);
 
+		/* R_BuildLightMap bakes the dynamic lights of a marked surface in,
+		   which the shader already applies */
+		dlightframe = surf->dlightframe;
+		surf->dlightframe = -1;
 		R_BuildLightMap(surf, temp, smax * 4,
 			&r_newrefdef, r_modulate->value, NULL, NULL);
+		surf->dlightframe = dlightframe;
 
-		if (map < MAXLIGHTMAPS && (surf->styles[map] >= 32 || surf->styles[map] == 0) &&
-			(surf->dlightframe != r_framecount))
+		if (map < MAXLIGHTMAPS && (surf->styles[map] >= 32 || surf->styles[map] == 0))
 		{
 			R_SetCacheState(surf, &r_newrefdef);
 
@@ -692,11 +746,14 @@ Vk_RenderLightmappedPoly(msurface_t *surf, float alpha,
 	VkDescriptorSet descriptorSets[] = {
 		image->vk_texture.descriptorSet,
 		*uboDescriptorSet,
-		vk_state.lightmap_textures[lmtex].descriptorSet
+		vk_state.lightmap_textures[lmtex].descriptorSet,
+		vk_dlightUboDescriptorSet
 	};
+	uint32_t dynamicOffsets[] = { *uboOffset, vk_dlightUboOffset };
 
 	vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-		vk_drawPolyLmapPipeline.layout, 0, 3, descriptorSets, 1, uboOffset);
+		vk_drawPolyLmapPipeline.layout, 0, ARRLEN(descriptorSets), descriptorSets,
+		ARRLEN(dynamicOffsets), dynamicOffsets);
 
 	buffer = UpdateIndexBuffer(vertIdxData, index_pos * sizeof(uint16_t), &dstOffset);
 
@@ -733,9 +790,11 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 	struct {
 		float model[16];
 		float viewLightmaps;
+		uint32_t numDynLights;
 	} lmapPolyUbo;
 
 	lmapPolyUbo.viewLightmaps = r_lightmap->value ? 1.f : 0.f;
+	lmapPolyUbo.numDynLights = r_dynamic->value ? r_newrefdef.num_dlights : 0;
 
 	if (modelMatrix)
 	{
@@ -779,6 +838,7 @@ R_DrawInlineBModel(const entity_t *currententity, const model_t *currentmodel,
 			}
 			else if (!(psurf->flags & SURF_DRAWTURB) && !r_showtris->value)
 			{
+				SetAllLightFlags(psurf);
 				Vk_RenderLightmappedPoly(psurf, alpha, currententity,
 					&uboDescriptorSet, &uboOffset);
 			}

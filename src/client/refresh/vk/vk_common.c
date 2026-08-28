@@ -844,7 +844,8 @@ CreateDescriptorSetLayouts(void)
 		.binding = 0,
 		.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC,
 		.descriptorCount = 1,
-		.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
+		// the lightmapped surface fragment shader reads the dynamic lights
+		.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 		.pImmutableSamplers = NULL
 	};
 
@@ -1306,6 +1307,12 @@ CreatePipelines(void)
 		vk_uboDescSetLayout,
 		vk_samplerLightmapDescSetLayout
 	};
+	const VkDescriptorSetLayout samplerUboLmapDlightDsLayouts[] = {
+		vk_samplerDescSetLayout,
+		vk_uboDescSetLayout,
+		vk_samplerLightmapDescSetLayout,
+		vk_uboDescSetLayout
+	};
 
 	// shader array (vertex and fragment, no compute... yet)
 	qvkshader_t shaders[SHADER_INDEX_SIZE] = {0};
@@ -1432,7 +1439,7 @@ CreatePipelines(void)
 	VK_LOAD_VERTFRAG_SHADERS(shaders, polygon_lmap, polygon_lmap);
 	vk_drawPolyLmapPipeline.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	vk_drawPolyLmapPipeline.depthBiasEnable = VK_TRUE;
-	QVk_CreatePipeline(samplerUboLmapDsLayouts, 3, &vertInfoMEM_VERTEX_T,
+	QVk_CreatePipeline(samplerUboLmapDlightDsLayouts, 4, &vertInfoMEM_VERTEX_T,
 		&vk_drawPolyLmapPipeline, &vk_renderpasses[RP_WORLD], shaders, 2);
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyLmapPipeline.layout, VK_OBJECT_TYPE_PIPELINE_LAYOUT, "Pipeline Layout: lightmapped polygon");
 	QVk_DebugSetObjectName((uint64_t)vk_drawPolyLmapPipeline.pl, VK_OBJECT_TYPE_PIPELINE, "Pipeline: lightmapped polygon");

@@ -139,6 +139,11 @@ void Vk_Mem_f(void);
 
 void RI_PushDlights(void);
 
+/* dynamic lights of the current frame, bound as set 3 by the lightmapped
+   surface pipeline */
+extern uint32_t vk_dlightUboOffset;
+extern VkDescriptorSet vk_dlightUboDescriptorSet;
+
 void R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBrushModel(entity_t *currententity, const model_t *currentmodel);
 void R_DrawBeam(entity_t *currententity);

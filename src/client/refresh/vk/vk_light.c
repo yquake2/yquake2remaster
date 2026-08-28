@@ -115,10 +115,62 @@ R_RenderDlights(void)
 	}
 }
 
+uint32_t vk_dlightUboOffset;
+VkDescriptorSet vk_dlightUboDescriptorSet;
+
+/*
+ * Hand this frame's dynamic lights to the lightmapped surface shader. The
+ * buffer is bound on every lightmapped draw, so it has to be filled even when
+ * nothing ends up lit.
+ */
+static void
+Vk_UpdateDynamicLights(void)
+{
+	typedef struct
+	{
+		float origin[3];
+		float padding;
+		float color[3];
+		float intensity;
+	} vkUniDynLight_t;
+
+	vkUniDynLight_t *udl;
+	const dlight_t *l;
+	int i, num_dlights;
+
+	udl = (vkUniDynLight_t *)QVk_GetUniformBuffer(
+		sizeof(vkUniDynLight_t) * MAX_DLIGHTS, &vk_dlightUboOffset,
+		&vk_dlightUboDescriptorSet);
+
+	num_dlights = r_dynamic->value ? r_newrefdef.num_dlights : 0;
+
+	if (num_dlights > MAX_DLIGHTS)
+	{
+		num_dlights = MAX_DLIGHTS;
+	}
+
+	for (i = 0, l = r_newrefdef.dlights; i < num_dlights; i++, l++)
+	{
+		VectorCopy(l->origin, udl[i].origin);
+		VectorCopy(l->color, udl[i].color);
+		udl[i].padding = 0;
+		udl[i].intensity = l->intensity;
+	}
+
+	/* surfaces only ever reference lights below num_dlights, but leave no
+	   stale values behind for the shader to read */
+	if (i < MAX_DLIGHTS)
+	{
+		memset(&udl[i], 0, (MAX_DLIGHTS - i) * sizeof(*udl));
+	}
+}
+
 void
 RI_PushDlights(void)
 {
-	if (r_flashblend->value || !r_worldmodel)
+	Vk_UpdateDynamicLights();
+
+	if (r_flashblend->value || !r_dynamic->value || !r_worldmodel)
 	{
 		return;
 	}
