@@ -1032,7 +1032,15 @@ R_SetVulkan2D(const VkViewport* viewport, const VkRect2D* scissor)
 	// skip this step if we're in player config screen since it uses RP_UI and draws directly to swapchain
 	if (!(r_newrefdef.rdflags & RDF_NOWORLDMODEL))
 	{
-		float pushConsts[] = { vk_postprocess->value, (2.1 - vid_gamma->value)};
+		// the shader also reads the screen size and offset
+		float pushConsts[] = {
+			vk_postprocess->value,
+			(2.1 - vid_gamma->value),
+			vid.width,
+			vid.height,
+			vk_viewport.x,
+			vk_viewport.y,
+		};
 		vkCmdPushConstants(vk_activeCmdbuffer, vk_postprocessPipeline.layout,
 			VK_SHADER_STAGE_FRAGMENT_BIT, PUSH_CONSTANT_VERTEX_SIZE * sizeof(float), sizeof(pushConsts), pushConsts);
 		vkCmdBindDescriptorSets(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vk_postprocessPipeline.layout, 0, 1, &vk_colorbufferWarp.descriptorSet, 0, NULL);
