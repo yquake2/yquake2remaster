@@ -302,8 +302,9 @@ RE_Draw_PicScaledCol(int x, int y, const char *name, float factor, const vec3_t 
 void
 RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
+	float divisor, div_w, div_h;
 	const image_t *image;
-	float divisor;
+	int x2;
 
 	if (!vk_frameStarted)
 	{
@@ -339,11 +340,23 @@ RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &tileScissor);
 
 	divisor = (vk_pixel_size->value < 1.0f ? 1.0f : vk_pixel_size->value);
-	QVk_DrawTexRect((float)x / (vid.width * divisor),	(float)y / (vid.height * divisor),
-					(float)w / (vid.width * divisor),	(float)h / (vid.height * divisor),
-					(float)x / (64.0 * divisor),		(float)y / (64.0 * divisor),
-					(float)w / (64.0 * divisor),		(float)h / (64.0 * divisor),
-					&image->vk_texture);
+	div_w = image->upload_width * divisor;
+	div_h = image->upload_height * divisor;
+	for (x2 = 0; x2 < w; x2 += div_w)
+	{
+		int y2;
+
+		for (y2 = 0; y2 < h; y2 += div_h)
+		{
+			QVk_DrawTexRect((float)(x + x2) / vid.width,
+							(float)(y + y2) / vid.height,
+							(float)div_w / vid.width,
+							(float)div_h / vid.height,
+							image->sl, image->tl,
+							image->sh - image->sl, image->th - image->tl,
+							&image->vk_texture);
+		}
+	}
 
 	/* force draw before change viewport */
 	QVk_Draw2DCallsRender();

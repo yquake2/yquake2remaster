@@ -416,6 +416,7 @@ void
 RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const image_t *image;
+	int x2;
 
 	image = R_FindPic(pic, (findimage_t)R_FindImage);
 
@@ -432,8 +433,20 @@ RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 
 	R_UpdateGLBuffer(buf_2d, image->texnum, 0, 0, 1);
 
-	R_Buffer2DQuad(x, y, x + w, y + h, x / 64.0, y / 64.0,
-		( x + w ) / 64.0, ( y + h ) / 64.0);
+	for (x2 = 0; x2 < w; x2+=image->width)
+	{
+		int y2;
+
+		for (y2 = 0; y2 < h; y2+=image->height)
+		{
+			R_Buffer2DQuad(x + x2, y + y2,
+				x + x2 + image->width,
+				y + y2 + image->height,
+				image->sl, image->tl,
+				image->sh, image->th
+			);
+		}
+	}
 }
 
 /*

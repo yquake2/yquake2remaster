@@ -1467,13 +1467,17 @@ Vk_InitImages(void)
 
 	vk_state.inverse_intensity = 1 / intensity->value;
 
-	for (i = 0; i<256; i++)
+	for (i = 0; i < 256; i++)
 	{
 		int	j;
 
 		j = i * intensity->value;
+
 		if (j > 255)
+		{
 			j = 255;
+		}
+
 		intensitytable[i] = j;
 	}
 
@@ -1482,20 +1486,30 @@ Vk_InitImages(void)
 	overbright = vk_overbrightbits->value;
 
 	if(overbright < 0.5)
+	{
 		overbright = 0.5;
+	}
 
 	if(overbright > 4.0)
+	{
 		overbright = 4.0;
+	}
 
-	for (i=0 ; i<256 ; i++) {
+	for (i = 0; i < 256; i++)
+	{
 		int inf;
 
 		inf = i * overbright;
 
 		if (inf < 0)
+		{
 			inf = 0;
+		}
+
 		if (inf > 255)
+		{
 			inf = 255;
+		}
 
 		overbrightable[i] = inf;
 	}

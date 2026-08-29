@@ -705,11 +705,13 @@ RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 
 	x2 = x + w;
 	pdest = vid_buffer + y * vid_buffer_width;
-	for (i=0 ; i<h ; i++, pdest += vid_buffer_width)
+	for (i = 0; i < h; i++, pdest += vid_buffer_width)
 	{
-		psrc = pic->pixels[0] + pic->width * ((i+y) % pic->height);
-		for (j=x ; j<x2 ; j++)
+		psrc = pic->pixels[0] + pic->width * ((i + y) % pic->height);
+		for (j = x; j < x2; j++)
+		{
 			pdest[j] = psrc[j % pic->width];
+		}
 	}
 }
 

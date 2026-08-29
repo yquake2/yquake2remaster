@@ -473,6 +473,7 @@ void
 GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const gl4image_t *image;
+	int x2;
 
 	if (w <= 0 || h <= 0)
 	{
@@ -492,8 +493,20 @@ GL4_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		GL4_Scrap_Upload();
 	}
 
-	drawTexturedRectangle(image->texnum, x, y, w, h,
-		x / 64.0f, y / 64.0f, (x + w) / 64.0f, (y + h) / 64.0f);
+	for (x2 = 0; x2 < w; x2+=image->width)
+	{
+		int y2;
+
+		for (y2 = 0; y2 < h; y2+=image->height)
+		{
+			drawTexturedRectangle(image->texnum, x + x2, y + y2,
+				image->width,
+				image->height,
+				image->sl, image->tl,
+				image->sh, image->th
+			);
+		}
+	}
 }
 
 /* draw a fullscreen quad using the existing vao2D/vbo2D */
