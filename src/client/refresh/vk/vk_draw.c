@@ -302,9 +302,9 @@ RE_Draw_PicScaledCol(int x, int y, const char *name, float factor, const vec3_t 
 void
 RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 {
-	float divisor, div_w, div_h;
+	float divisor, full_uv_w, full_uv_h;
+	int x2, base_w, base_h;
 	const image_t *image;
-	int x2;
 
 	if (!vk_frameStarted)
 	{
@@ -340,20 +340,38 @@ RE_Draw_TileClear(int x, int y, int w, int h, const char *name)
 	vkCmdSetScissor(vk_activeCmdbuffer, 0u, 1u, &tileScissor);
 
 	divisor = (vk_pixel_size->value < 1.0f ? 1.0f : vk_pixel_size->value);
-	div_w = image->upload_width * divisor;
-	div_h = image->upload_height * divisor;
-	for (x2 = 0; x2 < w; x2 += div_w)
-	{
-		int y2;
 
-		for (y2 = 0; y2 < h; y2 += div_h)
+	base_w = image->upload_width;
+	base_h = image->upload_height;
+
+	full_uv_w = image->sh - image->sl;
+	full_uv_h = image->th - image->tl;
+
+	for (x2 = 0; x2 < w; x2 += base_w)
+	{
+		float tile_uv_w, tile_div_w;
+		int tile_base_w, y2;
+
+		tile_base_w = (x2 + base_w > w) ? (w - x2) : base_w;
+
+		tile_uv_w = full_uv_w * ((float)tile_base_w / base_w);
+		tile_div_w = tile_base_w * divisor;
+
+		for (y2 = 0; y2 < h; y2 += base_h)
 		{
-			QVk_DrawTexRect((float)(x + x2) / vid.width,
-							(float)(y + y2) / vid.height,
-							(float)div_w / vid.width,
-							(float)div_h / vid.height,
+			float tile_uv_h, tile_div_h;
+			int tile_base_h;
+
+			tile_base_h = (y2 + base_h > h) ? (h - y2) : base_h;
+			tile_uv_h = full_uv_h * ((float)tile_base_h / base_h);
+			tile_div_h = tile_base_h * divisor;
+
+			QVk_DrawTexRect((float)(x + x2 * divisor) / vid.width,
+							(float)(y + y2 * divisor) / vid.height,
+							tile_div_w / vid.width,
+							tile_div_h / vid.height,
 							image->sl, image->tl,
-							image->sh - image->sl, image->th - image->tl,
+							tile_uv_w, tile_uv_h,
 							&image->vk_texture);
 		}
 	}

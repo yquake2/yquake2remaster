@@ -433,17 +433,42 @@ RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 
 	R_UpdateGLBuffer(buf_2d, image->texnum, 0, 0, 1);
 
-	for (x2 = 0; x2 < w; x2+=image->width)
+	for (x2 = 0; x2 < w; x2 += image->width)
 	{
-		int y2;
+		int next_x, y2, tile_w;
+		float tile_sh;
 
-		for (y2 = 0; y2 < h; y2+=image->height)
+		next_x = x + x2 + image->width;
+		if (next_x > x + w)
 		{
+			next_x = x + w;
+		}
+
+		tile_w = next_x - (x + x2);
+
+		tile_sh = image->sl +
+			(image->sh - image->sl) * ((float)tile_w / image->width);
+
+		for (y2 = 0; y2 < h; y2 += image->height)
+		{
+			int next_y, tile_h;
+			float tile_th;
+
+			next_y = y + y2 + image->height;
+			if (next_y > y + h)
+			{
+				next_y = y + h;
+			}
+
+			tile_h = next_y - (y + y2);
+			tile_th = image->tl +
+				(image->th - image->tl) * ((float)tile_h / image->height);
+
 			R_Buffer2DQuad(x + x2, y + y2,
-				x + x2 + image->width,
-				y + y2 + image->height,
+				next_x,
+				next_y,
 				image->sl, image->tl,
-				image->sh, image->th
+				tile_sh, tile_th
 			);
 		}
 	}

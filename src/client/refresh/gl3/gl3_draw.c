@@ -493,17 +493,29 @@ GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 		GL3_Scrap_Upload();
 	}
 
-	for (x2 = 0; x2 < w; x2+=image->width)
+	for (x2 = 0; x2 < w; x2 += image->width)
 	{
-		int y2;
+		int tile_w, y2;
+		float tile_sh;
 
-		for (y2 = 0; y2 < h; y2+=image->height)
+		tile_w = (x2 + image->width > w) ? (w - x2) : image->width;
+		tile_sh = image->sl +
+			(image->sh - image->sl) * ((float)tile_w / image->width);
+
+		for (y2 = 0; y2 < h; y2 += image->height)
 		{
+			float tile_th;
+			int tile_h;
+
+			tile_h = (y2 + image->height > h) ? (h - y2) : image->height;
+			tile_th = image->tl +
+				(image->th - image->tl) * ((float)tile_h / image->height);
+
 			drawTexturedRectangle(image->texnum, x + x2, y + y2,
-				image->width,
-				image->height,
+				tile_w,
+				tile_h,
 				image->sl, image->tl,
-				image->sh, image->th
+				tile_sh, tile_th
 			);
 		}
 	}
