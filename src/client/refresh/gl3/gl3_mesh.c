@@ -601,6 +601,15 @@ GL3_DrawAliasModel(entity_t *currententity)
 	if (r_shadows->value && gl3config.stencil && !(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL | RF_NOSHADOW)))
 	{
 		gl3_shadowinfo_t si = {0};
+
+		/* calculate shadow vector based on lightspot, away from light and onto the ground */
+		VectorSubtract(lightspot, currententity->origin, shadevector);
+		shadevector[2] = 0;
+		VectorNormalize(shadevector);
+		VectorNegate(shadevector, shadevector);
+		shadevector[2] = 1;
+		VectorNormalize(shadevector);
+
 		VectorCopy(lightspot, si.lightspot);
 		VectorCopy(shadevector, si.shadevector);
 		si.paliashdr = paliashdr;

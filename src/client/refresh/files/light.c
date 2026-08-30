@@ -248,6 +248,11 @@ R_LightPoint(const model_t *model, const entity_t *currententity,
 
 	modulate = r_modulate->value;
 
+	/* fallback so a failed/skipped floor trace can't leave a stale
+	 * lightspot from a previous entity or frame, which would make
+	 * shadows float at the wrong height */
+	VectorCopy(p, lightspot);
+
 	if (model->grid)
 	{
 		BSPX_LightGridValue(model->grid, r_newrefdef.lightstyles,
@@ -268,6 +273,7 @@ R_LightPoint(const model_t *model, const entity_t *currententity,
 		if (r == -1)
 		{
 			VectorCopy(vec3_origin, color);
+			VectorCopy(p, lightspot);
 		}
 		else
 		{

@@ -707,6 +707,17 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 		VkDeviceSize vboOffset, vaoSize;
 		VkBuffer vbo;
 
+		/* calculate shadow vector based on lightspot */
+		VectorSubtract(lightspot, currententity->origin, shadevector);
+		shadevector[2] = 0;
+		/* Keep shadow on the ground plane */
+		VectorNormalize(shadevector);
+		/* Invert because we want shadow direction away from light */
+		VectorNegate(shadevector, shadevector);
+		shadevector[2] = 1;
+		/* Keep it normalized for the shadow math */
+		VectorNormalize(shadevector);
+
 		order = (int *)((byte *)paliashdr + paliashdr->ofs_glcmds);
 
 		num_mesh_nodes = paliashdr->num_meshes;

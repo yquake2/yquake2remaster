@@ -455,6 +455,17 @@ R_DrawAliasModel(entity_t *currententity, const model_t *currentmodel)
 	if (r_shadows->value &&
 		!(currententity->flags & (RF_TRANSLUCENT | RF_WEAPONMODEL | RF_NOSHADOW)))
 	{
+		/* calculate shadow vector based on lightspot */
+		VectorSubtract(lightspot, currententity->origin, shadevector);
+		shadevector[2] = 0;
+		/* Keep shadow on the ground plane */
+		VectorNormalize(shadevector);
+		/* Invert because we want shadow direction away from light */
+		VectorNegate(shadevector, shadevector);
+		shadevector[2] = 1;
+		/* Keep it normalized for the shadow math */
+		VectorNormalize(shadevector);
+
 		glPushMatrix();
 
 		/* don't rotate shadows on ungodly axes */
