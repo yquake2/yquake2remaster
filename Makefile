@@ -113,7 +113,7 @@ OSX_APP:=yes
 CONFIG_FILE:=config.mk
 
 # PKG_CONFIG
-# Specify program that configures SDL.
+# Specify program that configures SDL3.
 # Needs to be overridable for cross-compilation.
 PKG_CONFIG ?= pkgconf
 
@@ -124,6 +124,8 @@ ifeq ($(wildcard $(CONFIG_FILE)), $(CONFIG_FILE))
 include $(CONFIG_FILE)
 endif
 
+# ----------
+
 # Normalize QUIET value to either "x" or ""
 ifdef QUIET
 	override QUIET := "x"
@@ -131,17 +133,21 @@ else
 	override QUIET := ""
 endif
 
-# Detect the OS
-ifdef SystemRoot
-YQ2_OSTYPE ?= Windows
+# ----------
+
+# Check if it's pkgconf or pkg-config.
+ifeq (, $(shell which $(PKG_CONFIG)))
+ifneq (, $(shell which pkgconf))
+PKG_CONFIG:=pkgconf
 else
-YQ2_OSTYPE ?= $(shell uname -s)
+PKG_CONFIG:=pkg-config
+endif
 endif
 
-# Special case for MinGW
-ifneq (,$(findstring MINGW,$(YQ2_OSTYPE)))
-YQ2_OSTYPE := Windows
-endif
+# ----------
+
+# Detect the OS, normalize some abiguous YQ2_OSTYPE strings.
+YQ2_OSTYPE ?= $(shell uname -s | sed -e 's/MINGW.*/Windows/' -e 's/Windows.*/Windows/')
 
 # Detect the architecture
 ifeq ($(YQ2_OSTYPE), Windows)
@@ -152,13 +158,7 @@ else # i686-w64-mingw32
 YQ2_ARCH ?= i386
 endif
 else # windows, but MINGW_CHOST not defined
-ifdef PROCESSOR_ARCHITEW6432
-# 64 bit Windows
-YQ2_ARCH ?= $(PROCESSOR_ARCHITEW6432)
-else
-# 32 bit Windows
-YQ2_ARCH ?= $(PROCESSOR_ARCHITECTURE)
-endif
+YQ2_ARCH ?= $(shell uname -m | sed -e 's/i.86/i386/')
 endif # windows but MINGW_CHOST not defined
 else
 ifneq ($(YQ2_OSTYPE), Darwin)
@@ -491,7 +491,7 @@ with_gles1: all ref_gles1
 config:
 	@echo "Build configuration"
 	@echo "============================"
-	@echo "YQ2_ARCH = $(YQ2_ARCH) COMPILER = $(COMPILER)"
+	@echo "YQ2_ARCH = $(YQ2_ARCH), YQ2_OSTYPE = $(YQ2_OSTYPE), COMPILER = $(COMPILER)"
 	@echo "WITH_CURL = $(WITH_CURL)"
 	@echo "WITH_OPENAL = $(WITH_OPENAL)"
 	@echo "WITH_RPATH = $(WITH_RPATH)"
@@ -1318,10 +1318,8 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/yquake2.exe : $(CLIENT_OBJS) icon
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(BUILDROOT)/icon/icon.res $(CLIENT_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
-	$(Q)strip $@
 $(BINDIR)/quake2.exe : src/win-wrapper/wrapper.c icon
 	$(Q)$(CC) -Wall -mwindows $(BUILDROOT)/icon/icon.res src/win-wrapper/wrapper.c -o $@
-	$(Q)strip $@
 else
 $(BINDIR)/quake2 : $(CLIENT_OBJS)
 	@echo "===> LD $@"
@@ -1333,7 +1331,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/q2ded.exe : $(SERVER_OBJS) icon
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(BUILDROOT)/icon/icon.res $(SERVER_OBJS) $(LDLIBS) -o $@
-	$(Q)strip $@
 else
 $(BINDIR)/q2ded : $(SERVER_OBJS)
 	@echo "===> LD $@"
@@ -1345,7 +1342,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gl1.dll : $(REFGL1_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGL1_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gl1.dylib : $(REFGL1_OBJS)
 	@echo "===> LD $@"
@@ -1361,7 +1357,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gles1.dll : $(REFGLES1_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGLES1_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gles1.dylib : $(REFGLES1_OBJS)
 	@echo "===> LD $@"
@@ -1377,7 +1372,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gl3.dll : $(REFGL3_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGL3_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gl3.dylib : $(REFGL3_OBJS)
 	@echo "===> LD $@"
@@ -1393,7 +1387,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gles3.dll : $(REFGLES3_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGLES3_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gles3.dylib : $(REFGLES3_OBJS)
 	@echo "===> LD $@"
@@ -1409,7 +1402,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_soft.dll : $(REFSOFT_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFSOFT_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_soft.dylib : $(REFSOFT_OBJS)
 	@echo "===> LD $@"
@@ -1425,7 +1417,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/baseq2/game.dll : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/baseq2/game.dylib : $(GAME_OBJS)
 	@echo "===> LD $@"
