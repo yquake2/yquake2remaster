@@ -3297,10 +3297,12 @@ QVk_BindPipeline(qvkpipeline_t *pipeline)
 		vkCmdBindPipeline(vk_activeCmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->pl);
 		vk_state.current_pipeline = pipeline->pl;
 
-		/* binding a pipeline invalidates the push constants, so the world
-		   shaders get told after every bind whether they have to do the work
-		   the postprocess pass would otherwise do for them */
+		/* the bind is the only place that knows the current renderpass, so
+		   the world shaders get told here whether they have to do the work
+		   the postprocess pass would otherwise do for them, which includes
+		   honouring vk_postprocess the way that pass does */
 		postConstants[0] = (vk_worldDirectRender &&
+			vk_postprocess->value &&
 			vk_state.current_renderpass == RP_WORLD) ? 1.0f : 0.0f;
 		postConstants[1] = 2.1f - vid_gamma->value;
 
