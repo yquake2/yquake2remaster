@@ -1103,6 +1103,41 @@ Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 	}
 }
 
+#define BSP46_PATCH_STEPS 4
+
+static qboolean
+Mod_Load2QBSP_IBSP46_SurfaceIsPatch(const dq3surface_t *surface)
+{
+	return LittleLong(surface->type) == 2;
+}
+
+static size_t
+Mod_Load2QBSP_IBSP46_PatchCellCount(const dq3surface_t *surface)
+{
+	int width, height;
+
+	if (!Mod_Load2QBSP_IBSP46_SurfaceIsPatch(surface))
+	{
+		return 0;
+	}
+
+	width = LittleLong(surface->patch_width);
+	height = LittleLong(surface->patch_height);
+	if ((width < 3) || (height < 3) || !(width & 1) || !(height & 1))
+	{
+		return 0;
+	}
+
+	return ((width - 1) / 2) * ((height - 1) / 2);
+}
+
+static size_t
+Mod_Load2QBSP_IBSP46_SurfaceVertexCount(const dq3surface_t *surface)
+{
+	return Mod_Load2QBSP_IBSP46_PatchCellCount(surface) *
+		(BSP46_PATCH_STEPS + 1) * (BSP46_PATCH_STEPS + 1);
+}
+
 static size_t
 Mod_Load2QBSP_IBSP46_SurfaceTriangleCount(const dq3surface_t *surface)
 {
@@ -1111,7 +1146,8 @@ Mod_Load2QBSP_IBSP46_SurfaceTriangleCount(const dq3surface_t *surface)
 	type = LittleLong(surface->type);
 	if (type == 2)
 	{
-		return 0;
+		return Mod_Load2QBSP_IBSP46_PatchCellCount(surface) *
+			BSP46_PATCH_STEPS * BSP46_PATCH_STEPS * 2;
 	}
 
 	if ((type != 1) && (type != 3))
@@ -1132,6 +1168,29 @@ Mod_Load2QBSP_IBSP46_SurfaceTriangleCount(const dq3surface_t *surface)
 	}
 
 	return 0;
+}
+
+static size_t
+Mod_Load2QBSP_IBSP46_TotalVertexes(const byte *inbuf, const lump_t *lumps)
+{
+	const dq3surface_t *surfaces;
+	size_t i, count, vertexes;
+
+	if (lumps[LUMP_BSP46_SURFACES].filelen % sizeof(dq3surface_t))
+	{
+		return 0;
+	}
+
+	count = lumps[LUMP_BSP46_SURFACES].filelen / sizeof(dq3surface_t);
+	surfaces = (dq3surface_t *)(inbuf + lumps[LUMP_BSP46_SURFACES].fileofs);
+
+	vertexes = 0;
+	for (i = 0; i < count; i++)
+	{
+		vertexes += Mod_Load2QBSP_IBSP46_SurfaceVertexCount(&surfaces[i]);
+	}
+
+	return vertexes;
 }
 
 static size_t
@@ -1862,12 +1921,14 @@ Mod_Load2QBSP_AREAS_AdditionalSize(const lump_t *lumps)
 static size_t
 Mod_Load2QBSP_IBSP46_AdditionalSize(const byte *inbuf, const lump_t *lumps)
 {
-	size_t result_size, face_count, leafface_count;
+	size_t result_size, face_count, leafface_count, vertex_count;
 
 	face_count = Mod_Load2QBSP_IBSP46_TotalFaces(inbuf, lumps);
 	leafface_count = Mod_Load2QBSP_IBSP46_TotalLeafFaces(inbuf, lumps);
+	vertex_count = Mod_Load2QBSP_IBSP46_TotalVertexes(inbuf, lumps);
 
-	result_size = face_count * sizeof(dqface_t);
+	result_size = vertex_count * sizeof(dvertex_t);
+	result_size += face_count * sizeof(dqface_t);
 	result_size += (face_count * 3 + 1) * sizeof(dqedge_t);
 	result_size += face_count * 3 * sizeof(int);
 	result_size += leafface_count * sizeof(int);
@@ -1926,10 +1987,14 @@ static size_t
 Mod_Load2QBSP_IBSP46_SetLumps(size_t ofs, const byte *inbuf,
 	const lump_t *lumps, lump_t *outlumps)
 {
-	size_t face_count, leafface_count;
+	size_t face_count, leafface_count, vertex_count;
 
 	face_count = Mod_Load2QBSP_IBSP46_TotalFaces(inbuf, lumps);
 	leafface_count = Mod_Load2QBSP_IBSP46_TotalLeafFaces(inbuf, lumps);
+	vertex_count = Mod_Load2QBSP_IBSP46_TotalVertexes(inbuf, lumps);
+
+	outlumps[LUMP_VERTEXES].filelen += vertex_count * sizeof(dvertex_t);
+	ofs += vertex_count * sizeof(dvertex_t);
 
 	outlumps[LUMP_FACES].fileofs = ofs;
 	outlumps[LUMP_FACES].filelen = face_count * sizeof(dqface_t);
@@ -2025,16 +2090,53 @@ Mod_Load2QBSP_AREAS_Fix(const char *name, maptype_t maptype, const lump_t *lumps
 }
 
 static void
+Mod_Load2QBSP_IBSP46_EvalPatchPoint(const q3drawvert_t *drawverts,
+	int firstvert, int width, int cell_x, int cell_y, int step_x, int step_y,
+	dvertex_t *out)
+{
+	float bu[3], bv[3], u, v;
+	int i, j, k;
+
+	u = (float)step_x / BSP46_PATCH_STEPS;
+	v = (float)step_y / BSP46_PATCH_STEPS;
+	bu[0] = (1.0f - u) * (1.0f - u);
+	bu[1] = 2.0f * u * (1.0f - u);
+	bu[2] = u * u;
+	bv[0] = (1.0f - v) * (1.0f - v);
+	bv[1] = 2.0f * v * (1.0f - v);
+	bv[2] = v * v;
+
+	VectorClear(out->point);
+	for (i = 0; i < 3; i++)
+	{
+		for (j = 0; j < 3; j++)
+		{
+			const q3drawvert_t *vert;
+			float weight;
+
+			vert = &drawverts[firstvert + (cell_y * 2 + j) * width + cell_x * 2 + i];
+			weight = bu[i] * bv[j];
+			for (k = 0; k < 3; k++)
+			{
+				out->point[k] += LittleFloat(vert->xyz[k]) * weight;
+			}
+		}
+	}
+}
+
+static void
 Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lumps,
 	const dheader_t *outheader, const byte *inbuf, byte *outbuf)
 {
 	const dq3surface_t *surfaces;
+	const q3drawvert_t *drawverts;
 	const dq3leaf_t *leafs;
 	const int *drawindexes, *leafsurfaces;
+	dvertex_t *out_vertexes;
 	dqface_t *out_faces;
 	dqedge_t *out_edges;
 	int *out_surfedges, *out_leaffaces;
-	size_t out_face, out_leafface;
+	size_t out_face, out_leafface, out_vertex;
 	int i, count_surfaces, count_vertexes, count_indexes;
 	int count_leafs, count_leafsurfaces, count_shaders;
 
@@ -2058,10 +2160,12 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 	count_shaders = lumps[LUMP_BSP46_SHADERS].filelen / sizeof(dshader_t);
 
 	surfaces = (dq3surface_t *)(inbuf + lumps[LUMP_BSP46_SURFACES].fileofs);
+	drawverts = (q3drawvert_t *)(inbuf + lumps[LUMP_BSP46_DRAWVERTS].fileofs);
 	drawindexes = (int *)(inbuf + lumps[LUMP_BSP46_DRAWINDEXES].fileofs);
 	leafs = (dq3leaf_t *)(inbuf + lumps[LUMP_BSP46_LEAFS].fileofs);
 	leafsurfaces = (int *)(inbuf + lumps[LUMP_BSP46_LEAFSURFACES].fileofs);
 
+	out_vertexes = (dvertex_t *)(outbuf + outheader->lumps[LUMP_VERTEXES].fileofs);
 	out_faces = (dqface_t *)(outbuf + outheader->lumps[LUMP_FACES].fileofs);
 	out_edges = (dqedge_t *)(outbuf + outheader->lumps[LUMP_EDGES].fileofs);
 	out_surfedges = (int *)(outbuf + outheader->lumps[LUMP_SURFEDGES].fileofs);
@@ -2069,11 +2173,12 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 
 	memset(out_edges, 0, sizeof(*out_edges));
 	out_face = 0;
+	out_vertex = count_vertexes;
 	for (i = 0; i < count_surfaces; i++)
 	{
 		const dq3surface_t *surface;
 		size_t num_tris, tri;
-		int firstvert, numverts, firstindex, numindexes, texinfo;
+		int firstvert, numverts, firstindex, numindexes, texinfo, type;
 
 		surface = &surfaces[i];
 		num_tris = Mod_Load2QBSP_IBSP46_SurfaceTriangleCount(surface);
@@ -2087,6 +2192,7 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 		firstindex = LittleLong(surface->firstindex);
 		numindexes = LittleLong(surface->numindexes);
 		texinfo = LittleLong(surface->texinfo);
+		type = LittleLong(surface->type);
 
 		if ((firstvert < 0) || (numverts < 0) ||
 			((firstvert + numverts) > count_vertexes) ||
@@ -2095,6 +2201,93 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 			Com_Error(ERR_DROP, "%s: Map %s has incorrect BSP46 surface %d",
 				__func__, name, i);
 			return;
+		}
+
+		if (type == 2)
+		{
+			int width, height, cell_x, cell_y, step_x, step_y;
+			size_t base_vertex;
+
+			width = LittleLong(surface->patch_width);
+			height = LittleLong(surface->patch_height);
+			if ((width < 3) || (height < 3) || !(width & 1) || !(height & 1) ||
+				(width * height > numverts))
+			{
+				Com_Error(ERR_DROP, "%s: Map %s has incorrect BSP46 patch surface %d",
+					__func__, name, i);
+				return;
+			}
+
+			for (cell_y = 0; cell_y < (height - 1) / 2; cell_y++)
+			{
+				for (cell_x = 0; cell_x < (width - 1) / 2; cell_x++)
+				{
+					base_vertex = out_vertex;
+					for (step_y = 0; step_y <= BSP46_PATCH_STEPS; step_y++)
+					{
+						for (step_x = 0; step_x <= BSP46_PATCH_STEPS; step_x++, out_vertex++)
+						{
+							Mod_Load2QBSP_IBSP46_EvalPatchPoint(drawverts, firstvert,
+								width, cell_x, cell_y, step_x, step_y,
+								&out_vertexes[out_vertex]);
+						}
+					}
+
+					for (step_y = 0; step_y < BSP46_PATCH_STEPS; step_y++)
+					{
+						for (step_x = 0; step_x < BSP46_PATCH_STEPS; step_x++)
+						{
+							int patch_verts[4];
+							int tri_verts[2][3];
+							int tri_index;
+
+							patch_verts[0] = base_vertex + step_y *
+								(BSP46_PATCH_STEPS + 1) + step_x;
+							patch_verts[1] = patch_verts[0] + 1;
+							patch_verts[2] = patch_verts[0] + BSP46_PATCH_STEPS + 1;
+							patch_verts[3] = patch_verts[2] + 1;
+
+							tri_verts[0][0] = patch_verts[0];
+							tri_verts[0][1] = patch_verts[2];
+							tri_verts[0][2] = patch_verts[1];
+							tri_verts[1][0] = patch_verts[1];
+							tri_verts[1][1] = patch_verts[2];
+							tri_verts[1][2] = patch_verts[3];
+
+							for (tri_index = 0; tri_index < 2; tri_index++, out_face++)
+							{
+								size_t edge_index, surfedge_index;
+
+								edge_index = out_face * 3 + 1;
+								surfedge_index = out_face * 3;
+
+								out_edges[edge_index + 0].v[0] = tri_verts[tri_index][0];
+								out_edges[edge_index + 0].v[1] = tri_verts[tri_index][1];
+								out_edges[edge_index + 1].v[0] = tri_verts[tri_index][1];
+								out_edges[edge_index + 1].v[1] = tri_verts[tri_index][2];
+								out_edges[edge_index + 2].v[0] = tri_verts[tri_index][2];
+								out_edges[edge_index + 2].v[1] = tri_verts[tri_index][0];
+
+								out_surfedges[surfedge_index + 0] = edge_index + 0;
+								out_surfedges[surfedge_index + 1] = edge_index + 1;
+								out_surfedges[surfedge_index + 2] = edge_index + 2;
+
+								out_faces[out_face].planenum = 0;
+								out_faces[out_face].side = 0;
+								out_faces[out_face].firstedge = surfedge_index;
+								out_faces[out_face].numedges = 3;
+								out_faces[out_face].texinfo = texinfo;
+								memset(out_faces[out_face].styles, 255,
+									sizeof(out_faces[out_face].styles));
+								out_faces[out_face].styles[0] = 0;
+								out_faces[out_face].lightofs = -1;
+							}
+						}
+					}
+				}
+			}
+
+			continue;
 		}
 
 		if (numindexes >= 3 &&
