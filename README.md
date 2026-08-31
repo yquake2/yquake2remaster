@@ -287,6 +287,7 @@ Checked with:
 
 ### Goals, fully finished goals could be checked in [here](CHANGELOG):
 
+* [ ] windows build: restore build asset on tag
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1,
 * [ ] soft: q64/outpost scale textures unsupported,
 * [ ] soft: broken wall light and wall glitch,

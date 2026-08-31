@@ -265,7 +265,7 @@ Com_Error(int code, const char *fmt, ...)
 		CL_Drop();
 #endif
 		recursive = false;
-		longjmp(abortframe, -1);
+		YQ2_LONGJMP(abortframe, 1);
 	}
 	else if (code == ERR_DROP)
 	{
@@ -276,7 +276,7 @@ Com_Error(int code, const char *fmt, ...)
 		CL_Drop();
 #endif
 		recursive = false;
-		longjmp(abortframe, -1);
+		YQ2_LONGJMP(abortframe, 1);
 	}
 	else
 	{

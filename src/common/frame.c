@@ -299,7 +299,7 @@ void
 Qcommon_Init(int argc, char **argv)
 {
 	// Jump point used in emergency situations.
-	if (setjmp(abortframe))
+	if (YQ2_SETJMP(abortframe))
 	{
 		Sys_Error("Error during initialization");
 	}
@@ -497,7 +497,7 @@ Qcommon_Frame(int usec)
 	/* In case of ERR_DROP we're jumping here. Don't know
 	   if that's really save but it seems to work. So leave
 	   it alone. */
-	if (setjmp(abortframe))
+	if (YQ2_SETJMP(abortframe))
 	{
 		return;
 	}
@@ -773,7 +773,7 @@ Qcommon_Frame(int usec)
 	/* In case of ERR_DROP we're jumping here. Don't know
 	   if that' really save but it seems to work. So leave
 	   it alone. */
-	if (setjmp(abortframe))
+	if (YQ2_SETJMP(abortframe))
 	{
 		return;
 	}

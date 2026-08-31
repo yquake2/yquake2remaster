@@ -87,6 +87,26 @@
 
 /* ================================================================== */
 
+// Quake II requires setjmp() / longjmp() for it's error handling.
+#ifdef _WIN32
+  #if defined(__GNUC__)
+    // When compiled with mingw / gcc, calling the msvcrt.dll longjmp()
+    // corrupts the the internal state of ntdll.dll. This is long
+    // standing // problem, known since at least 2012. Work around by
+    // using gcc builtins instead.
+    #define YQ2_SETJMP(ENV)  __builtin_setjmp(ENV)
+    #define YQ2_LONGJMP(ENV, RET)  __builtin_longjmp(ENV, RET)
+  #else // not __GNUC__
+    #define YQ2_SETJMP(ENV)  setjmp(ENV)
+    #define YQ2_LONGJMP(ENV, RET)  longjmp(ENV, RET)
+  #endif
+#else // not _WIN32
+  #define YQ2_SETJMP(ENV)  setjmp(ENV)
+  #define YQ2_LONGJMP(ENV, RET)  longjmp(ENV, RET)
+#endif
+
+/* ================================================================== */
+
 typedef struct sizebuf_s
 {
 	qboolean allowoverflow;     /* if false, do a Com_Error */
