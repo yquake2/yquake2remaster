@@ -1104,6 +1104,7 @@ Mod_Load2QBSP_QBSP_LEAFS(byte *outbuf, dheader_t *outheader,
 }
 
 #define BSP46_PATCH_STEPS 4
+#define BSP46_LIGHTMAP_SIZE (128 * 128 * 3)
 
 static qboolean
 Mod_Load2QBSP_IBSP46_SurfaceIsPatch(const dq3surface_t *surface)
@@ -1136,6 +1137,31 @@ Mod_Load2QBSP_IBSP46_SurfaceVertexCount(const dq3surface_t *surface)
 {
 	return Mod_Load2QBSP_IBSP46_PatchCellCount(surface) *
 		(BSP46_PATCH_STEPS + 1) * (BSP46_PATCH_STEPS + 1);
+}
+
+static int
+Mod_Load2QBSP_IBSP46_Lightofs(const dq3surface_t *surface, const lump_t *lumps)
+{
+	int lightmapnum, numlightmaps;
+
+	if (lumps[LUMP_BSP46_LIGHTMAPS].filelen % BSP46_LIGHTMAP_SIZE)
+	{
+		return -1;
+	}
+
+	lightmapnum = LittleLong(surface->lightmapnum);
+	if (lightmapnum < 0)
+	{
+		return -1;
+	}
+
+	numlightmaps = lumps[LUMP_BSP46_LIGHTMAPS].filelen / BSP46_LIGHTMAP_SIZE;
+	if (lightmapnum >= numlightmaps)
+	{
+		return -1;
+	}
+
+	return lightmapnum * BSP46_LIGHTMAP_SIZE;
 }
 
 static size_t
@@ -1927,7 +1953,8 @@ Mod_Load2QBSP_IBSP46_AdditionalSize(const byte *inbuf, const lump_t *lumps)
 	leafface_count = Mod_Load2QBSP_IBSP46_TotalLeafFaces(inbuf, lumps);
 	vertex_count = Mod_Load2QBSP_IBSP46_TotalVertexes(inbuf, lumps);
 
-	result_size = vertex_count * sizeof(dvertex_t);
+	result_size = lumps[LUMP_BSP46_LIGHTMAPS].filelen;
+	result_size += vertex_count * sizeof(dvertex_t);
 	result_size += face_count * sizeof(dqface_t);
 	result_size += (face_count * 3 + 1) * sizeof(dqedge_t);
 	result_size += face_count * 3 * sizeof(int);
@@ -1995,6 +2022,10 @@ Mod_Load2QBSP_IBSP46_SetLumps(size_t ofs, const byte *inbuf,
 
 	outlumps[LUMP_VERTEXES].filelen += vertex_count * sizeof(dvertex_t);
 	ofs += vertex_count * sizeof(dvertex_t);
+
+	outlumps[LUMP_LIGHTING].fileofs = ofs;
+	outlumps[LUMP_LIGHTING].filelen = lumps[LUMP_BSP46_LIGHTMAPS].filelen;
+	ofs += outlumps[LUMP_LIGHTING].filelen;
 
 	outlumps[LUMP_FACES].fileofs = ofs;
 	outlumps[LUMP_FACES].filelen = face_count * sizeof(dqface_t);
@@ -2145,6 +2176,7 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 		(lumps[LUMP_BSP46_DRAWINDEXES].filelen % sizeof(int)) ||
 		(lumps[LUMP_BSP46_LEAFS].filelen % sizeof(dq3leaf_t)) ||
 		(lumps[LUMP_BSP46_LEAFSURFACES].filelen % sizeof(int)) ||
+		(lumps[LUMP_BSP46_LIGHTMAPS].filelen % BSP46_LIGHTMAP_SIZE) ||
 		(lumps[LUMP_BSP46_SHADERS].filelen % sizeof(dshader_t)))
 	{
 		Com_Error(ERR_DROP, "%s: Map %s has incorrect BSP46 lump sizes",
@@ -2170,6 +2202,9 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 	out_edges = (dqedge_t *)(outbuf + outheader->lumps[LUMP_EDGES].fileofs);
 	out_surfedges = (int *)(outbuf + outheader->lumps[LUMP_SURFEDGES].fileofs);
 	out_leaffaces = (int *)(outbuf + outheader->lumps[LUMP_LEAFFACES].fileofs);
+	memcpy(outbuf + outheader->lumps[LUMP_LIGHTING].fileofs,
+		inbuf + lumps[LUMP_BSP46_LIGHTMAPS].fileofs,
+		lumps[LUMP_BSP46_LIGHTMAPS].filelen);
 
 	memset(out_edges, 0, sizeof(*out_edges));
 	out_face = 0;
@@ -2179,6 +2214,7 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 		const dq3surface_t *surface;
 		size_t num_tris, tri;
 		int firstvert, numverts, firstindex, numindexes, texinfo, type;
+		int lightofs;
 
 		surface = &surfaces[i];
 		num_tris = Mod_Load2QBSP_IBSP46_SurfaceTriangleCount(surface);
@@ -2193,6 +2229,7 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 		numindexes = LittleLong(surface->numindexes);
 		texinfo = LittleLong(surface->texinfo);
 		type = LittleLong(surface->type);
+		lightofs = Mod_Load2QBSP_IBSP46_Lightofs(surface, lumps);
 
 		if ((firstvert < 0) || (numverts < 0) ||
 			((firstvert + numverts) > count_vertexes) ||
@@ -2280,7 +2317,7 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 								memset(out_faces[out_face].styles, 255,
 									sizeof(out_faces[out_face].styles));
 								out_faces[out_face].styles[0] = 0;
-								out_faces[out_face].lightofs = -1;
+								out_faces[out_face].lightofs = lightofs;
 							}
 						}
 					}
@@ -2348,7 +2385,7 @@ Mod_Load2QBSP_IBSP46_Fix(const char *name, maptype_t maptype, const lump_t *lump
 			out_faces[out_face].texinfo = texinfo;
 			memset(out_faces[out_face].styles, 255, sizeof(out_faces[out_face].styles));
 			out_faces[out_face].styles[0] = 0;
-			out_faces[out_face].lightofs = -1;
+			out_faces[out_face].lightofs = lightofs;
 		}
 	}
 
