@@ -1318,10 +1318,8 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/yquake2.exe : $(CLIENT_OBJS) icon
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(BUILDROOT)/icon/icon.res $(CLIENT_OBJS) $(LDLIBS) $(SDLLDFLAGS) -o $@
-	$(Q)strip $@
 $(BINDIR)/quake2.exe : src/win-wrapper/wrapper.c icon
 	$(Q)$(CC) -Wall -mwindows $(BUILDROOT)/icon/icon.res src/win-wrapper/wrapper.c -o $@
-	$(Q)strip $@
 else
 $(BINDIR)/quake2 : $(CLIENT_OBJS)
 	@echo "===> LD $@"
@@ -1333,7 +1331,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/q2ded.exe : $(SERVER_OBJS) icon
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(BUILDROOT)/icon/icon.res $(SERVER_OBJS) $(LDLIBS) -o $@
-	$(Q)strip $@
 else
 $(BINDIR)/q2ded : $(SERVER_OBJS)
 	@echo "===> LD $@"
@@ -1345,7 +1342,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gl1.dll : $(REFGL1_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGL1_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gl1.dylib : $(REFGL1_OBJS)
 	@echo "===> LD $@"
@@ -1361,7 +1357,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gles1.dll : $(REFGLES1_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGLES1_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gles1.dylib : $(REFGLES1_OBJS)
 	@echo "===> LD $@"
@@ -1377,7 +1372,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gl3.dll : $(REFGL3_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGL3_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gl3.dylib : $(REFGL3_OBJS)
 	@echo "===> LD $@"
@@ -1393,7 +1387,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_gles3.dll : $(REFGLES3_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFGLES3_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_gles3.dylib : $(REFGLES3_OBJS)
 	@echo "===> LD $@"
@@ -1409,7 +1402,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/ref_soft.dll : $(REFSOFT_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(REFSOFT_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/ref_soft.dylib : $(REFSOFT_OBJS)
 	@echo "===> LD $@"
@@ -1425,7 +1417,6 @@ ifeq ($(YQ2_OSTYPE), Windows)
 $(BINDIR)/baseq2/game.dll : $(GAME_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(GAME_OBJS) $(LDLIBS) -o $@
-	$(Q)strip $@
 else ifeq ($(YQ2_OSTYPE), Darwin)
 $(BINDIR)/baseq2/game.dylib : $(GAME_OBJS)
 	@echo "===> LD $@"
