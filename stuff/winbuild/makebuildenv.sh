@@ -82,6 +82,16 @@ fi
 tar -xf $WRKDIR/download/SDL3.tar.gz -C $WRKDIR/buildenv/dep
 mv $WRKDIR/buildenv/dep/SDL3-$SDL3VER $WRKDIR/buildenv/dep/SDL3
 
+# Vulkan headers.
+curl --follow -o $WRKDIR/download/vulkan_headers.zip https://codeload.github.com/KhronosGroup/Vulkan-Headers/zip/refs/heads/master
+if [ $? -ne 0 ] ; then
+	error "Couldn't download Vulkan headers"
+fi
+cd $WRKDIR/buildenv/dep
+unzip $WRKDIR/download/vulkan_headers.zip
+cd -
+mv $WRKDIR/buildenv/dep/Vulkan-Headers-master $WRKDIR/buildenv/dep/Vulkan-Headers
+
 # --
 
 # Set home dir.
@@ -91,7 +101,7 @@ echo "home = ..\\home" >> $WRKDIR/buildenv/w64devkit-x64/w64devkit.ini
 # Create bashrc.
 cat > $WRKDIR/buildenv/home/.profile << 'EOL'
 export PS1="\w\$ "
-export CPATH="$HOME/../dep/curl/include;$HOME/../dep/openal-soft/include"
+export CPATH="$HOME/../dep/curl/include;$HOME/../dep/openal-soft/include;$HOME/../dep/Vulkan-Headers/include"
 export PKG_CONFIG_PATH="$HOME/../dep/SDL3/$(uname -m)-w64-mingw32/lib/pkgconfig"
 EOL
 
