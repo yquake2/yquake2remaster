@@ -933,6 +933,31 @@ GetTexImage(const char *name, findimage_t find_image)
 	return image;
 }
 
+#define PIC_CACHE_SIZE 128
+#define PIC_CACHE_BITS 7
+
+typedef struct
+{
+	char name[MAX_QPATH];
+	char path[MAX_QPATH];
+} piccache_t;
+
+static piccache_t pic_cache[PIC_CACHE_SIZE];
+
+static unsigned int
+R_PicCacheSlot(const char *name)
+{
+	unsigned int key = 0;
+
+	while (*name)
+	{
+		key = key * 33 + (unsigned char)*name;
+		name++;
+	}
+
+	return (key * 2654435761u) >> (32 - PIC_CACHE_BITS);
+}
+
 struct image_s *
 R_FindPic(const char *name, findimage_t find_image)
 {
@@ -943,6 +968,19 @@ R_FindPic(const char *name, findimage_t find_image)
 		char	pathname[MAX_QPATH];
 		char	namewe[MAX_QPATH];
 		const char* ext;
+		piccache_t *cache;
+
+		cache = pic_cache + R_PicCacheSlot(name);
+
+		if (!strcmp(cache->name, name))
+		{
+			image = find_image(cache->path, it_pic);
+
+			if (image)
+			{
+				return image;
+			}
+		}
 
 		ext = COM_FileExtension(name);
 		if (!ext[0])
@@ -989,6 +1027,16 @@ R_FindPic(const char *name, findimage_t find_image)
 		{
 			Com_sprintf(pathname, sizeof(pathname), "pics/misc/%s.m32", name);
 			image = find_image(pathname, it_pic);
+		}
+
+		if (image)
+		{
+			Q_strlcpy(cache->name, name, sizeof(cache->name));
+			Q_strlcpy(cache->path, pathname, sizeof(cache->path));
+		}
+		else if (!strcmp(cache->name, name))
+		{
+			cache->name[0] = 0;
 		}
 	}
 	else
