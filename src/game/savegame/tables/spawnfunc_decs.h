@@ -144,6 +144,7 @@ void SP_monster_hover( edict_t * self ) ;
 void SP_monster_infantry( edict_t * self ) ;
 void SP_monster_jorg( edict_t * self ) ;
 void SP_monster_kamikaze( edict_t * self ) ;
+void SP_monster_kigrax( edict_t * self ) ;
 void SP_monster_knight( edict_t * self ) ;
 void SP_monster_makron( edict_t * self ) ;
 void SP_monster_medic( edict_t * self ) ;

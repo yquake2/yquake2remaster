@@ -426,6 +426,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/hover/hover.c
 	${GAME_SRC_DIR}/monster/infantry/infantry.c
 	${GAME_SRC_DIR}/monster/insane/insane.c
+	${GAME_SRC_DIR}/monster/kigrax/kigrax.c
 	${GAME_SRC_DIR}/monster/knight/knight.c
 	${GAME_SRC_DIR}/monster/medic/medic.c
 	${GAME_SRC_DIR}/monster/misc/move.c

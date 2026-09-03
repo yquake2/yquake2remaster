@@ -1185,6 +1185,7 @@ GAME_OBJS_ = \
 	src/game/monster/hover/hover.o \
 	src/game/monster/infantry/infantry.o \
 	src/game/monster/insane/insane.o \
+	src/game/monster/kigrax/kigrax.o \
 	src/game/monster/knight/knight.o \
 	src/game/monster/medic/medic.o \
 	src/game/monster/misc/move.o \

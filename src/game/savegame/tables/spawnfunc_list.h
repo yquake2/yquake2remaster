@@ -162,6 +162,7 @@
 {"monster_infantry", SP_monster_infantry},
 {"monster_jorg", SP_monster_jorg},
 {"monster_kamikaze", SP_monster_kamikaze},
+{"monster_kigrax", SP_monster_kigrax},
 {"monster_knight", SP_monster_knight},
 {"monster_makron", SP_monster_makron},
 {"monster_medic", SP_monster_medic},
