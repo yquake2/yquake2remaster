@@ -404,7 +404,10 @@ RE_Draw_StretchPic(int x, int y, int w, int h, const char *name)
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
 	{
-		Com_Printf("Can't find pic: %s\n", name);
+		if (!R_PicIgnored(name))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
+		}
 		return;
 	}
 
@@ -543,7 +546,10 @@ RE_Draw_PicScaled(int x, int y, const char *name, float scale, const char *altte
 			return;
 		}
 
-		Com_Printf("Can't find pic: %s\n", name);
+		if (!R_PicIgnored(name))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
+		}
 		return;
 	}
 
@@ -574,7 +580,10 @@ RE_Draw_PicScaledCol(int x, int y, const char *name, float scale, const vec3_t c
 			return;
 		}
 
-		Com_Printf("Can't find pic: %s\n", name);
+		if (!R_PicIgnored(name))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
+		}
 		return;
 	}
 
@@ -699,7 +708,10 @@ RE_Draw_TileClear (int x, int y, int w, int h, const char *name)
 	pic = R_FindPic (name, (findimage_t)R_FindImage);
 	if (!pic)
 	{
-		Com_Printf("Can't find pic: %s\n", name);
+		if (!R_PicIgnored(name))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, name);
+		}
 		return;
 	}
 

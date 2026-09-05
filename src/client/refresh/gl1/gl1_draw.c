@@ -264,7 +264,10 @@ RDraw_StretchPic(int x, int y, int w, int h, const char *pic)
 
 	if (!gl)
 	{
-		Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		if (!R_PicIgnored(pic))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		}
 		return;
 	}
 
@@ -295,7 +298,10 @@ RDraw_PicScaled(int x, int y, const char *pic, float factor, const char *alttext
 			return;
 		}
 
-		Com_Printf("Can't find pic: %s\n", pic);
+		if (!R_PicIgnored(pic))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		}
 		return;
 	}
 
@@ -363,7 +369,10 @@ RDraw_PicScaledCol(int x, int y, const char *pic, float factor, const vec3_t col
 			return;
 		}
 
-		Com_Printf("Can't find pic: %s\n", pic);
+		if (!R_PicIgnored(pic))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		}
 		return;
 	}
 
@@ -422,7 +431,10 @@ RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 
 	if (!image)
 	{
-		Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		if (!R_PicIgnored(pic))
+		{
+			Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		}
 		return;
 	}
 

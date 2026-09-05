@@ -942,16 +942,22 @@ typedef struct
 	char path[MAX_QPATH];
 } piccache_t;
 
-static piccache_t pic_cache[PIC_CACHE_SIZE];
+typedef struct
+{
+	char name[MAX_QPATH];
+} picignore_t;
 
-static unsigned int
+static piccache_t pic_cache[PIC_CACHE_SIZE];
+static picignore_t pic_ignore[PIC_CACHE_SIZE];
+
+static size_t
 R_PicCacheSlot(const char *name)
 {
-	unsigned int key = 0;
+	size_t key = 0;
 
 	while (*name)
 	{
-		key = key * 33 + (unsigned char)*name;
+		key = key * 33 + (byte)*name;
 		name++;
 	}
 
@@ -962,6 +968,26 @@ void
 R_PicPathCacheClean(void)
 {
 	memset(pic_cache, 0, sizeof(pic_cache));
+	memset(pic_ignore, 0, sizeof(pic_ignore));
+}
+
+qboolean
+R_PicIgnored(const char *name)
+{
+	picignore_t *ignore;
+
+	ignore = pic_ignore + R_PicCacheSlot(name);
+	if (!strcmp(ignore->name, name))
+	{
+		return true;
+	}
+
+	if (!ignore->name[0])
+	{
+		Q_strlcpy(ignore->name, name, sizeof(ignore->name));
+	}
+
+	return false;
 }
 
 struct image_s *
