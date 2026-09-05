@@ -1859,7 +1859,7 @@ Weapon_Pistol_Fire(edict_t *ent)
 {
 	vec3_t forward, right;
 	vec3_t start, offset;
-	int damage = 20; // Example damage, adjust as needed
+	int damage = 30;
 
 	if (!ent)
 	{
@@ -1879,7 +1879,7 @@ Weapon_Pistol_Fire(edict_t *ent)
 	VectorScale(forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_bball(ent, start, forward, damage, 1000);
+	fire_pistol_bolt(ent, start, forward, damage, 1000);
 
 	gi.WriteByte(svc_muzzleflash);
 	gi.WriteShort(ent - g_edicts);
