@@ -262,17 +262,6 @@ static const char* fragmentSrc2Dtinted = MULTILINE_STRING(
 static const char* fragmentSrc2Dpostprocess = MULTILINE_STRING(
 		in vec2 passTexCoord;
 
-		// for UBO shared between all shaders (incl. 2D)
-		// TODO: not needed here, remove?
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D; // for HUD, menu etc
-
-			vec4 color;
-		};
-
 		uniform sampler2D tex;
 		uniform vec4 v_blend;
 
@@ -292,17 +281,6 @@ static const char* fragmentSrc2Dpostprocess = MULTILINE_STRING(
 
 static const char* fragmentSrc2DpostprocessWater = MULTILINE_STRING(
 		in vec2 passTexCoord;
-
-		// for UBO shared between all shaders (incl. 2D)
-		// TODO: not needed here, remove?
-		layout (std140) uniform uniCommon
-		{
-			float gamma;
-			float intensity;
-			float intensity2D; // for HUD, menu etc
-
-			vec4 color;
-		};
 
 		const float PI = 3.14159265358979323846;
 
@@ -935,14 +913,16 @@ enum {
 };
 
 static qboolean
-initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc)
+initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragSrc,
+	qboolean uniCommonRequired)
 {
 	GLuint shaders2D[2] = {0};
 	GLuint prog = 0;
 
 	if(shaderInfo->shaderProgram != 0)
 	{
-		Com_Printf("WARNING: calling initShader2D for gl3ShaderInfo_t that already has a shaderProgram!\n");
+		Com_Printf("WARNING: calling %s for gl3ShaderInfo_t that already has a shaderProgram!\n",
+			__func__);
 		glDeleteProgram(shaderInfo->shaderProgram);
 	}
 
@@ -976,8 +956,13 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 	GL3_UseProgram(prog);
 
 	// Bind the buffer object to the uniform blocks
-	GLuint blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
-	if(blockIndex != GL_INVALID_INDEX)
+	GLuint blockIndex = GL_INVALID_INDEX;
+	if (uniCommonRequired)
+	{
+		blockIndex = glGetUniformBlockIndex(prog, "uniCommon");
+	}
+
+	if (blockIndex != GL_INVALID_INDEX)
 	{
 		GLint blockSize;
 		glGetActiveUniformBlockiv(prog, blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &blockSize);
@@ -991,7 +976,7 @@ initShader2D(gl3ShaderInfo_t* shaderInfo, const char* vertSrc, const char* fragS
 
 		glUniformBlockBinding(prog, blockIndex, GL3_BINDINGPOINT_UNICOMMON);
 	}
-	else
+	else if (uniCommonRequired)
 	{
 		Com_Printf("WARNING: Couldn't find uniform block index 'uniCommon'\n");
 		// TODO: clean up?
@@ -1226,28 +1211,31 @@ static void initUBOs(void)
 
 static qboolean createShaders(void)
 {
-	if(!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D))
+	if (!initShader2D(&gl3state.si2D, vertexSrc2D, fragmentSrc2D, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for textured 2D rendering!\n");
 		return false;
 	}
-	if(!initShader2D(&gl3state.si2Dtinted, vertexSrc2D, fragmentSrc2Dtinted))
+
+	if (!initShader2D(&gl3state.si2Dtinted, vertexSrc2D, fragmentSrc2Dtinted, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for tinted 2D rendering!\n");
 		return false;
 	}
-	if(!initShader2D(&gl3state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor))
+
+	if (!initShader2D(&gl3state.si2Dcolor, vertexSrc2Dcolor, fragmentSrc2Dcolor, true))
 	{
 		Com_Printf("WARNING: Failed to create shader program for color-only 2D rendering!\n");
 		return false;
 	}
 
-	if(!initShader2D(&gl3state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess))
+	if (!initShader2D(&gl3state.si2DpostProcess, vertexSrc2D, fragmentSrc2Dpostprocess, false))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object!\n");
 		return false;
 	}
-	if(!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater))
+
+	if (!initShader2D(&gl3state.si2DpostProcessWater, vertexSrc2D, fragmentSrc2DpostprocessWater, false))
 	{
 		Com_Printf("WARNING: Failed to create shader program to render framebuffer object under water!\n");
 		return false;
