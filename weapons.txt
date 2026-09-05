@@ -58,6 +58,7 @@ FUNCTIONAL SPECIFICATION: PULSE PISTOL MECHANIC
         detonation mesh index ("models/objects/disch2/tris.md2").
       - Halt all physical movement, velocity, and world collisions.
       - Calculate impact plane angle and project structural impact spark particles.
+        (Note: Does not utilize a standard server-side TE_EXPLOSION temporary entity).
       - Trigger the impact audio effect ("weapons/lashit.wav") over the auto-channel.
       - Deal 30 raw damage directly to entities inside a 90-unit fallback radius.
 

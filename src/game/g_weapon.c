@@ -375,7 +375,59 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 }
 
 void
-bball_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+pistol_think(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	if (level.time >= self->timestamp)
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	// Spark trails: 3 specific coordinates trailing behind (-10, -35, -60 units back)
+	{
+		vec3_t back1, back2, back3;
+		vec3_t dir;
+
+		VectorNormalize2(self->velocity, dir);
+		VectorMA(self->s.origin, -10, dir, back1);
+		VectorMA(self->s.origin, -35, dir, back2);
+		VectorMA(self->s.origin, -60, dir, back3);
+
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_LASER_SPARKS);
+		gi.WriteByte(2);
+		gi.WritePosition(back1);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0);
+		gi.multicast(back1, MULTICAST_PVS);
+
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_LASER_SPARKS);
+		gi.WriteByte(2);
+		gi.WritePosition(back2);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0);
+		gi.multicast(back2, MULTICAST_PVS);
+
+		gi.WriteByte(svc_temp_entity);
+		gi.WriteByte(TE_LASER_SPARKS);
+		gi.WriteByte(2);
+		gi.WritePosition(back3);
+		gi.WriteDir(vec3_origin);
+		gi.WriteByte(0);
+		gi.multicast(back3, MULTICAST_PVS);
+	}
+
+	self->nextthink = level.time + 0.1;
+}
+
+void
+pistol_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t normal;
 
@@ -401,30 +453,40 @@ bball_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface
 		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
 	}
 
+	// spark
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_LASER_SPARKS);
+	gi.WriteByte(28);
+	gi.WritePosition(self->s.origin);
+	if (!plane)
+		gi.WriteDir(vec3_origin);
+	else
+		gi.WriteDir(plane->normal);
+	gi.WriteByte(0xb0);
+	gi.multicast(self->s.origin, MULTICAST_PVS);
+
 	get_normal_vector(plane, normal);
 
-	if (other->takedamage)
-	{
-		T_Damage(other, self, self->owner, self->velocity, self->s.origin,
-				normal, self->dmg, 1, 0, MOD_UNKNOWN);
-	}
+	// Impact audio effect
+	gi.sound(self, CHAN_AUTO, gi.soundindex("weapons/lashit.wav"), 1, ATTN_NORM, 0);
 
-	else
-	{
-		gi.WriteByte(svc_temp_entity);
-		gi.WriteByte(TE_LASER_SPARKS);
-		gi.WriteByte(8);
-		gi.WritePosition(self->s.origin);
-		gi.WriteDir(normal);
-		gi.WriteByte(self->s.skinnum);
-		gi.multicast(self->s.origin, MULTICAST_PVS);
-	}
+	// Area of effect damage (90-unit radius, 30 damage)
+	T_RadiusDamage(self, self->owner, self->dmg, other, 90, MOD_UNKNOWN);
 
-	G_FreeEdict(self);
+	// Swap visual mesh to detonation/explosion model and trigger animation / destruction
+	self->s.modelindex = gi.modelindex("models/objects/disch2/tris.md2");
+	self->s.sound = 0;
+	VectorClear(self->velocity);
+	self->movetype = MOVETYPE_NONE;
+	self->solid = SOLID_NOT;
+
+	self->s.frame = 0;
+	self->think = G_FreeEdict;
+	self->nextthink = level.time + 0.3; // 3 frames at 0.1s each
 }
 
 void
-fire_bball(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+fire_pistol(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t *bolt;
 
@@ -444,15 +506,19 @@ fire_bball(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	bolt->clipmask = MASK_SHOT;
 	bolt->solid = SOLID_BBOX;
 
+	VectorSet(bolt->avelocity, (int)(random() * 1200), (int)(random() * 1200), (int)(random() * 1200));
+
 	bolt->owner = self;
 	bolt->dmg = damage;
-	bolt->classname = "bolt";
+	bolt->classname = "weapon_pistol_proj";
 	bolt->s.modelindex = gi.modelindex("models/objects/bball/tris.md2");
 	bolt->s.sound = gi.soundindex("misc/lasfly.wav");
+	bolt->s.effects |= EF_BLUEHYPERBLASTER;
 
-	bolt->touch = bball_touch;
-	bolt->think = G_FreeEdict;
-	bolt->nextthink = level.time + 2;
+	bolt->touch = pistol_touch;
+	bolt->think = pistol_think;
+	bolt->nextthink = level.time + 0.1;
+	bolt->timestamp = level.time + 8.0; // Maximum lifespan: 8.0 seconds
 
 	gi.linkentity(bolt);
 }
