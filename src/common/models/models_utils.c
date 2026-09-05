@@ -608,9 +608,9 @@ Mod_LoadSTLookup(dmdx_t *pheader)
 
 	for(k = 0; k < pheader->num_st; k++)
 	{
-		unsigned int key, h;
+		uint32_t key, h;
 
-		key = ((unsigned int)(unsigned short)st[k].s << 16) |
+		key = ((uint32_t)(unsigned short)st[k].s << 16) |
 			(unsigned short)st[k].t;
 		/* Knuth multiplicative hash, prime nearest 2^32 / golden ratio */
 		h = (key * 2654435761u) >> (32 - bits);
