@@ -499,6 +499,7 @@ GL4_Init(void)
 
 	registration_sequence = 1; // from R_InitImages() (everything else from there shouldn't be needed anymore)
 
+	R_PicPathCacheClean();
 	Scrap_Init();
 
 	R_VertBufferInit();

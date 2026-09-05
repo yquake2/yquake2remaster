@@ -1450,6 +1450,7 @@ Vk_InitImages(void)
 	int i;
 	float overbright;
 
+	R_PicPathCacheClean();
 	Scrap_Init();
 
 	numvktextures = 0;
@@ -1552,7 +1553,9 @@ Vk_ShutdownImages(void)
 	QVk_ReleaseTexture(&vk_rawTexture, true);
 
 	for(i = 0; i < MAX_SCRAPS; i++)
+	{
 		QVk_ReleaseTexture(&vk_scrapTextures[i], true);
+	}
 
 	for(i = 0; i < MAX_LIGHTMAPS * 2; i++)
 	{

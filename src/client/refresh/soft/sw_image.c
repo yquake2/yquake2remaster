@@ -753,6 +753,7 @@ R_InitImages(void)
 	registration_sequence = 1;
 	image_max = 0;
 
+	R_PicPathCacheClean();
 	ri.VID_GetPalette(&vid_colormap, (unsigned *)d_8to24table);
 	ri.VID_GetPalette24to8(d_8to24table, &d_16to8table);
 	vid_alphamap = vid_colormap + 64*256;

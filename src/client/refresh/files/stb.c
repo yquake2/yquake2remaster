@@ -958,6 +958,12 @@ R_PicCacheSlot(const char *name)
 	return (key * 2654435761u) >> (32 - PIC_CACHE_BITS);
 }
 
+void
+R_PicPathCacheClean(void)
+{
+	memset(pic_cache, 0, sizeof(pic_cache));
+}
+
 struct image_s *
 R_FindPic(const char *name, findimage_t find_image)
 {

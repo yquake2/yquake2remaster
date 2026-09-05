@@ -1247,6 +1247,7 @@ R_InitImages(void)
 #endif
 	g = Q_max(g, 0.1f);
 
+	R_PicPathCacheClean();
 	Scrap_Init();
 
 	registration_sequence = 1;
