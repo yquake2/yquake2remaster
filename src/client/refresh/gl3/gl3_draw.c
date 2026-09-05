@@ -355,17 +355,53 @@ GL3_Draw_PicScaledCol(int x, int y, const char *pic, float factor, const float c
 void
 GL3_Draw_TileClear(int x, int y, int w, int h, const char *pic)
 {
-	if(w <= 0 || h <= 0)
-		return;
+	const gl3image_t *image;
+	int x2;
 
-	gl3image_t *image = R_FindPic(pic, (findimage_t)GL3_FindImage);
-	if (!image)
+	if (w <= 0 || h <= 0)
 	{
-		Com_Printf("Can't find pic: %s\n", pic);
 		return;
 	}
 
-	drawTexturedRectangle(image->texnum, x, y, w, h, x/64.0f, y/64.0f, (x+w)/64.0f, (y+h)/64.0f);
+	image = R_FindPic(pic, (findimage_t)GL3_FindImage);
+	if (!image)
+	{
+		Com_Printf("%s(): Can't find pic: %s\n", __func__, pic);
+		return;
+	}
+
+	if (gl3_scrap_dirty)
+	{
+		/* Upload any pending scrap textures before rendering 2D elements */
+		GL3_Scrap_Upload();
+	}
+
+	for (x2 = 0; x2 < w; x2 += image->width)
+	{
+		int tile_w, y2;
+		float tile_sh;
+
+		tile_w = (x2 + image->width > w) ? (w - x2) : image->width;
+		tile_sh = image->sl +
+			(image->sh - image->sl) * ((float)tile_w / image->width);
+
+		for (y2 = 0; y2 < h; y2 += image->height)
+		{
+			float tile_th;
+			int tile_h;
+
+			tile_h = (y2 + image->height > h) ? (h - y2) : image->height;
+			tile_th = image->tl +
+				(image->th - image->tl) * ((float)tile_h / image->height);
+
+			drawTexturedRectangle(image->texnum, x + x2, y + y2,
+				tile_w,
+				tile_h,
+				image->sl, image->tl,
+				tile_sh, tile_th
+			);
+		}
+	}
 }
 
 void
