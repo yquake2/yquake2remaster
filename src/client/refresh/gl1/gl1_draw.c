@@ -308,6 +308,7 @@ void
 RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 {
 	const image_t *image;
+	int x2;
 
 	image = R_FindPic(pic, (findimage_t)R_FindImage);
 
@@ -324,8 +325,45 @@ RDraw_TileClear(int x, int y, int w, int h, const char *pic)
 
 	R_UpdateGLBuffer(buf_2d, image->texnum, 0, 0, 1);
 
-	R_Buffer2DQuad(x, y, x + w, y + h, x / 64.0, y / 64.0,
-		( x + w ) / 64.0, ( y + h ) / 64.0);
+	for (x2 = 0; x2 < w; x2 += image->width)
+	{
+		int next_x, y2, tile_w;
+		float tile_sh;
+
+		next_x = x + x2 + image->width;
+		if (next_x > x + w)
+		{
+			next_x = x + w;
+		}
+
+		tile_w = next_x - (x + x2);
+
+		tile_sh = image->sl +
+			(image->sh - image->sl) * ((float)tile_w / image->width);
+
+		for (y2 = 0; y2 < h; y2 += image->height)
+		{
+			int next_y, tile_h;
+			float tile_th;
+
+			next_y = y + y2 + image->height;
+			if (next_y > y + h)
+			{
+				next_y = y + h;
+			}
+
+			tile_h = next_y - (y + y2);
+			tile_th = image->tl +
+				(image->th - image->tl) * ((float)tile_h / image->height);
+
+			R_Buffer2DQuad(x + x2, y + y2,
+				next_x,
+				next_y,
+				image->sl, image->tl,
+				tile_sh, tile_th
+			);
+		}
+	}
 }
 
 /*
