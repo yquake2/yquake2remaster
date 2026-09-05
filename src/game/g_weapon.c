@@ -374,9 +374,11 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	}
 }
 
-void
-pistol_think(edict_t *self)
+static void
+pistol_bolt_think(edict_t *self)
 {
+	vec3_t back1, back2, back3, dir;
+
 	if (!self)
 	{
 		return;
@@ -388,46 +390,42 @@ pistol_think(edict_t *self)
 		return;
 	}
 
-	// Spark trails: 3 specific coordinates trailing behind (-10, -35, -60 units back)
-	{
-		vec3_t back1, back2, back3;
-		vec3_t dir;
+	/* Spark trails: 3 specific coordinates trailing behind
+	 * (-10, -35, -60 units back) */
+	VectorNormalize2(self->velocity, dir);
+	VectorMA(self->s.origin, -10, dir, back1);
+	VectorMA(self->s.origin, -35, dir, back2);
+	VectorMA(self->s.origin, -60, dir, back3);
 
-		VectorNormalize2(self->velocity, dir);
-		VectorMA(self->s.origin, -10, dir, back1);
-		VectorMA(self->s.origin, -35, dir, back2);
-		VectorMA(self->s.origin, -60, dir, back3);
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_LASER_SPARKS);
+	gi.WriteByte(2);
+	gi.WritePosition(back1);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0);
+	gi.multicast(back1, MULTICAST_PVS);
 
-		gi.WriteByte(svc_temp_entity);
-		gi.WriteByte(TE_LASER_SPARKS);
-		gi.WriteByte(2);
-		gi.WritePosition(back1);
-		gi.WriteDir(vec3_origin);
-		gi.WriteByte(0);
-		gi.multicast(back1, MULTICAST_PVS);
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_LASER_SPARKS);
+	gi.WriteByte(2);
+	gi.WritePosition(back2);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0);
+	gi.multicast(back2, MULTICAST_PVS);
 
-		gi.WriteByte(svc_temp_entity);
-		gi.WriteByte(TE_LASER_SPARKS);
-		gi.WriteByte(2);
-		gi.WritePosition(back2);
-		gi.WriteDir(vec3_origin);
-		gi.WriteByte(0);
-		gi.multicast(back2, MULTICAST_PVS);
-
-		gi.WriteByte(svc_temp_entity);
-		gi.WriteByte(TE_LASER_SPARKS);
-		gi.WriteByte(2);
-		gi.WritePosition(back3);
-		gi.WriteDir(vec3_origin);
-		gi.WriteByte(0);
-		gi.multicast(back3, MULTICAST_PVS);
-	}
+	gi.WriteByte(svc_temp_entity);
+	gi.WriteByte(TE_LASER_SPARKS);
+	gi.WriteByte(2);
+	gi.WritePosition(back3);
+	gi.WriteDir(vec3_origin);
+	gi.WriteByte(0);
+	gi.multicast(back3, MULTICAST_PVS);
 
 	self->nextthink = level.time + 0.1;
 }
 
-void
-pistol_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
+static void
+pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t normal;
 
@@ -453,40 +451,36 @@ pistol_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurfac
 		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
 	}
 
-	// spark
+	/* spark */
+	get_normal_vector(plane, normal);
 	gi.WriteByte(svc_temp_entity);
 	gi.WriteByte(TE_LASER_SPARKS);
 	gi.WriteByte(28);
 	gi.WritePosition(self->s.origin);
-	if (!plane)
-		gi.WriteDir(vec3_origin);
-	else
-		gi.WriteDir(plane->normal);
+	gi.WriteDir(normal);
 	gi.WriteByte(0xb0);
 	gi.multicast(self->s.origin, MULTICAST_PVS);
 
-	get_normal_vector(plane, normal);
-
-	// Impact audio effect
+	/* Impact audio effect */
 	gi.sound(self, CHAN_AUTO, gi.soundindex("weapons/lashit.wav"), 1, ATTN_NORM, 0);
 
-	// Area of effect damage (90-unit radius, 30 damage)
+	/* Area of effect damage (90-unit radius, 30 damage) */
 	T_RadiusDamage(self, self->owner, self->dmg, other, 90, MOD_UNKNOWN);
 
-	// Swap visual mesh to detonation/explosion model and trigger animation / destruction
+	/* Swap visual mesh to detonation/explosion model and trigger
+	 * animation / destruction */
 	self->s.modelindex = gi.modelindex("models/objects/disch2/tris.md2");
-	self->s.sound = 0;
 	VectorClear(self->velocity);
 	self->movetype = MOVETYPE_NONE;
 	self->solid = SOLID_NOT;
 
 	self->s.frame = 0;
 	self->think = G_FreeEdict;
-	self->nextthink = level.time + 0.3; // 3 frames at 0.1s each
+	self->nextthink = level.time + 0.3; /* 3 frames at 0.1s each */
 }
 
 void
-fire_pistol(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
+fire_pistol_bolt(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 {
 	edict_t *bolt;
 
@@ -500,25 +494,26 @@ fire_pistol(edict_t *self, vec3_t start, vec3_t dir, int damage, int speed)
 	VectorCopy(start, bolt->s.origin);
 	VectorCopy(dir, bolt->movedir);
 	vectoangles(dir, bolt->s.angles);
-	VectorScale(dir, (float)speed, bolt->velocity);
+	VectorScale(dir, speed, bolt->velocity);
 
 	bolt->movetype = MOVETYPE_FLYMISSILE;
 	bolt->clipmask = MASK_SHOT;
 	bolt->solid = SOLID_BBOX;
 
-	VectorSet(bolt->avelocity, (int)(random() * 1200), (int)(random() * 1200), (int)(random() * 1200));
+	VectorSet(bolt->avelocity, randk() % 1200, randk() % 1200, randk() % 1200);
 
 	bolt->owner = self;
 	bolt->dmg = damage;
-	bolt->classname = "weapon_pistol_proj";
+	bolt->classname = "obj_bolt";
 	bolt->s.modelindex = gi.modelindex("models/objects/bball/tris.md2");
 	bolt->s.sound = gi.soundindex("misc/lasfly.wav");
 	bolt->s.effects |= EF_BLUEHYPERBLASTER;
 
-	bolt->touch = pistol_touch;
-	bolt->think = pistol_think;
+	bolt->touch = pistol_bolt_touch;
+	bolt->think = pistol_bolt_think;
 	bolt->nextthink = level.time + 0.1;
-	bolt->timestamp = level.time + 8.0; // Maximum lifespan: 8.0 seconds
+	/* Maximum lifespan: 8.0 seconds */
+	bolt->timestamp = level.time + 8.0;
 
 	gi.linkentity(bolt);
 }
