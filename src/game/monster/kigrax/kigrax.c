@@ -38,37 +38,6 @@ static void kigrax_strike1(edict_t *self);
 static void kigrax_strike2(edict_t *self);
 static void kigrax_fire_plasma(edict_t *self);
 
-static mframe_t kigrax_frames_scan[] = {
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL},
-	{ai_stand, 0.0f, NULL}
-};
-
-static mmove_t kigrax_move_scan = {
-	FRAME_standidle1,
-	FRAME_standidle21,
-	kigrax_frames_scan,
-	NULL
-};
-
 static mframe_t kigrax_frames_walk1[] = {
 	{ai_walk, 4.0f, NULL},
 	{ai_walk, 4.0f, NULL},
@@ -182,26 +151,6 @@ static mmove_t kigrax_move_run = {
 	FRAME_run17,
 	kigrax_frames_run,
 	NULL
-};
-
-static mframe_t kigrax_frames_pain[] = {
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL},
-	{ai_move, 0.0f, NULL}
-};
-static mmove_t kigrax_move_pain = {
-	FRAME_pain1,
-	FRAME_pain11,
-	kigrax_frames_pain,
-	kigrax_run
 };
 
 static mframe_t kigrax_frames_death[] = {
@@ -319,7 +268,7 @@ kigrax_stand(edict_t *self)
 
 	if (crandk() <= 0.33)
 	{
-		self->monsterinfo.currentmove = &kigrax_move_scan;
+		monster_dynamic_action(self, "standidle", 0);
 	}
 	else
 	{
@@ -487,8 +436,7 @@ kigrax_fire_plasma(edict_t *self)
 
 	VectorSubtract(target, start, dir);
 
-	fire_plasma_bolt(self, start, dir, 10, 1000,
-		1);
+	fire_plasma_bolt(self, start, dir, 10, 1000, 1);
 
 	gi.WriteByte(svc_muzzleflash2);
 	gi.WriteShort(self - g_edicts);
@@ -517,7 +465,7 @@ kigrax_pain(edict_t *self, edict_t *other, float kick, int damage)
 	}
 
 	gi.sound(self, CHAN_VOICE, sound_pain, 1.0f, ATTN_NORM, 0.0f);
-	self->monsterinfo.currentmove = &kigrax_move_pain;
+	monster_dynamic_action(self, "pain", -1);
 }
 
 static void
@@ -530,10 +478,7 @@ kigrax_dead(edict_t *self)
 
 	VectorSet(self->mins, -16.0f, -16.0f, -16.0f);
 	VectorSet(self->maxs, 16.0f, 16.0f, 0.0f);
-	self->movetype = MOVETYPE_TOSS;
-	self->svflags |= SVF_DEADMONSTER;
-	self->nextthink = 0.0f;
-	gi.linkentity(self);
+	monster_dynamic_dead(self);
 }
 
 static void

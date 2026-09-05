@@ -1397,7 +1397,7 @@ monster_dynamic_setframes(edict_t *self, int select)
 }
 
 void
-monster_dynamic_walk(edict_t *self)
+monster_dynamic_action(edict_t *self, const char *action, int select)
 {
 	if (!self)
 	{
@@ -1405,21 +1405,30 @@ monster_dynamic_walk(edict_t *self)
 	}
 
 	self->monsterinfo.currentmove = NULL;
+	self->monsterinfo.action = action;
+	monster_dynamic_setframes(self, select);
+}
+
+void
+monster_dynamic_walk(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
 
 	if (self->flags & FL_FLY)
 	{
-		self->monsterinfo.action = "fly";
+		monster_dynamic_action(self, "fly", 0);
 	}
 	else if (self->flags & FL_SWIM)
 	{
-		self->monsterinfo.action = "swim";
+		monster_dynamic_action(self, "swim", 0);
 	}
 	else
 	{
-		self->monsterinfo.action = "walk";
+		monster_dynamic_action(self, "walk", 0);
 	}
-
-	monster_dynamic_setframes(self, 0);
 }
 
 void
@@ -1430,48 +1439,30 @@ monster_dynamic_run(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = NULL;
-
 	if (self->flags & FL_FLY)
 	{
-		self->monsterinfo.action = "fly";
+		monster_dynamic_action(self, "fly", 0);
 	}
 	else if (self->flags & FL_SWIM)
 	{
-		self->monsterinfo.action = "swim";
+		monster_dynamic_action(self, "swim", 0);
 	}
 	else
 	{
-		self->monsterinfo.action = "run";
+		monster_dynamic_action(self, "run", 0);
 	}
-
-	monster_dynamic_setframes(self, 0);
 }
 
 void
 monster_dynamic_idle(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = NULL;
-	self->monsterinfo.action = "idle";
-	monster_dynamic_setframes(self, -1);
+	monster_dynamic_action(self, "idle", -1);
 }
 
 void
 monster_dynamic_attack(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = NULL;
-	self->monsterinfo.action = "attack";
-	monster_dynamic_setframes(self, -1);
+	monster_dynamic_action(self, "attack", -1);
 }
 
 void
@@ -1541,22 +1532,13 @@ monster_dynamic_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	self->deadflag = DEAD_DEAD;
 	self->takedamage = DAMAGE_YES;
 
-	self->monsterinfo.currentmove = NULL;
-	self->monsterinfo.action = "death";
-	monster_dynamic_setframes(self, -1);
+	monster_dynamic_action(self, "death", -1);
 }
 
 void
 monster_dynamic_melee(edict_t *self)
 {
-	if (!self)
-	{
-		return;
-	}
-
-	self->monsterinfo.currentmove = NULL;
-	self->monsterinfo.action = "melee";
-	monster_dynamic_setframes(self, 0);
+	monster_dynamic_action(self, "melee", 0);
 }
 
 void
@@ -1579,9 +1561,7 @@ monster_dynamic_dodge(edict_t *self, edict_t *attacker, float eta,
 		FoundTarget(self);
 	}
 
-	self->monsterinfo.currentmove = NULL;
-	self->monsterinfo.action = "dodge";
-	monster_dynamic_setframes(self, 0);
+	monster_dynamic_action(self, "dodge", 0);
 }
 
 void
@@ -1604,10 +1584,7 @@ monster_dynamic_pain(edict_t *self, edict_t *other /* unused */,
 		return; /* no pain anims in nightmare */
 	}
 
-	self->monsterinfo.currentmove = NULL;
-
-	self->monsterinfo.action = "pain";
-	monster_dynamic_setframes(self, -1);
+	monster_dynamic_action(self, "pain", -1);
 }
 
 void
@@ -1618,22 +1595,18 @@ monster_dynamic_stand(edict_t *self)
 		return;
 	}
 
-	self->monsterinfo.currentmove = NULL;
-
 	if (self->flags & FL_FLY)
 	{
-		self->monsterinfo.action = "hover";
+		monster_dynamic_action(self, "hover", 0);
 	}
 	else if (self->flags & FL_SWIM)
 	{
-		self->monsterinfo.action = "swim";
+		monster_dynamic_action(self, "swim", 0);
 	}
 	else
 	{
-		self->monsterinfo.action = "stand";
+		monster_dynamic_action(self, "stand", 0);
 	}
-
-	monster_dynamic_setframes(self, 0);
 }
 
 void

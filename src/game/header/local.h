@@ -989,6 +989,7 @@ void monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t ai
 		int speed, int flashtype, int effect);
 
 void M_droptofloor(edict_t *ent);
+void monster_dynamic_action(edict_t *self, const char *action, int select);
 void monster_dynamic_run(edict_t *self);
 void monster_dynamic_walk(edict_t *self);
 void monster_dynamic_idle(edict_t *self);
