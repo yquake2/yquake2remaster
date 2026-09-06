@@ -521,8 +521,14 @@ SV_movestep(edict_t *ent, vec3_t move, qboolean relink)
 		{
 			if (new_bad->owner && !strcmp(new_bad->owner->classname, "tesla"))
 			{
+				/* A monster that is already angry at a tesla is left alone.
+				   The original guarded that case with a misspelled "telsa",
+				   so the branch never ran and the monster was retargeted at
+				   the blocking tesla instead, which is the behaviour this
+				   condition inherited when the chain was collapsed. */
 				if (!ent->enemy || !ent->enemy->inuse ||
-					!ent->enemy->client || !visible(ent, ent->enemy))
+					(strcmp(ent->enemy->classname, "tesla") &&
+					 (!ent->enemy->client || !visible(ent, ent->enemy))))
 				{
 					TargetTesla(ent, new_bad->owner);
 					ent->monsterinfo.aiflags |= AI_BLOCKED;

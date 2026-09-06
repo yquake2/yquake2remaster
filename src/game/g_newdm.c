@@ -67,6 +67,39 @@ InitGameRules(void)
 	}
 }
 
+/*
+ * These dmflag filters decide which item may be substituted IN, so they test
+ * the candidate item.  The original tested ent->classname, the item being
+ * replaced, which is loop invariant and the inverse of what the comment on the
+ * sphere filter says: a disabled sphere respawned as itself, while every other
+ * item could still be substituted into one.  Both passes share this predicate
+ * so that the counting pass and the picking pass cannot disagree on which
+ * items are eligible.
+ */
+static qboolean
+SubstituteItemAllowed(const gitem_t *it)
+{
+	/* don't respawn spheres if they're dmflag disabled. */
+	if (((int)dmflags->value & DF_NO_SPHERES) && (it->pickup == Pickup_Sphere))
+	{
+		return false;
+	}
+
+	if (((int)dmflags->value & DF_NO_NUKES) &&
+		!strcmp(it->classname, "ammo_nuke"))
+	{
+		return false;
+	}
+
+	if (((int)dmflags->value & DF_NO_MINES) &&
+		(!strcmp(it->classname, "ammo_prox") || !strcmp(it->classname, "ammo_tesla")))
+	{
+		return false;
+	}
+
+	return true;
+}
+
 static const char *
 FindSubstituteItem(edict_t *ent)
 {
@@ -167,25 +200,7 @@ FindSubstituteItem(edict_t *ent)
 			itflags = IT_AMMO;
 		}
 
-		/* don't respawn spheres if they're dmflag disabled. */
-		if ((int)dmflags->value & DF_NO_SPHERES)
-		{
-			if (!strcmp(ent->classname, "item_sphere_vengeance") ||
-				!strcmp(ent->classname, "item_sphere_hunter") ||
-				!strcmp(ent->classname, "item_spehre_defender"))
-			{
-				continue;
-			}
-		}
-
-		if (((int)dmflags->value & DF_NO_NUKES) &&
-			!strcmp(ent->classname, "ammo_nuke"))
-		{
-			continue;
-		}
-
-		if (((int)dmflags->value & DF_NO_MINES) &&
-			(!strcmp(ent->classname, "ammo_prox") || !strcmp(ent->classname, "ammo_tesla")))
+		if (!SubstituteItemAllowed(it))
 		{
 			continue;
 		}
@@ -222,14 +237,7 @@ FindSubstituteItem(edict_t *ent)
 			itflags = IT_AMMO;
 		}
 
-		if (((int)dmflags->value & DF_NO_NUKES) &&
-			!strcmp(ent->classname, "ammo_nuke"))
-		{
-			continue;
-		}
-
-		if (((int)dmflags->value & DF_NO_MINES) &&
-			(!strcmp(ent->classname, "ammo_prox") || !strcmp(ent->classname, "ammo_tesla")))
+		if (!SubstituteItemAllowed(it))
 		{
 			continue;
 		}
