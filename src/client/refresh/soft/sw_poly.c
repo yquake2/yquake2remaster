@@ -723,16 +723,25 @@ R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_
 					if ( !iswater )
 					{
 						if (snext > bbextents)
+						{
 							snext = bbextents;
+						}
 						else if (snext < AFFINE_SPANLET_SIZE)
+						{
 							snext = AFFINE_SPANLET_SIZE;	// prevent round-off error on <0 steps from
 											//  from causing overstepping & running off the
 											//  edge of the texture
+						}
 
 						if (tnext > bbextentt)
+						{
 							tnext = bbextentt;
+						}
 						else if (tnext < AFFINE_SPANLET_SIZE)
-							tnext = AFFINE_SPANLET_SIZE;	// guard against round-off error on <0 steps
+						{
+							/* guard against round-off error on <0 steps */
+							tnext = AFFINE_SPANLET_SIZE;
+						}
 					}
 
 					if (s_spanletvars.spancount > 1)
@@ -742,7 +751,7 @@ R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_
 					}
 				}
 
-				if ( iswater )
+				if (iswater)
 				{
 					s_spanletvars.s = s_spanletvars.s & ((CYCLE<<16)-1);
 					s_spanletvars.t = s_spanletvars.t & ((CYCLE<<16)-1);
@@ -762,36 +771,46 @@ R_PolygonDrawSpans(const espan_t *pspan, int iswater, float d_ziorigin, float d_
 }
 
 /*
-**
-** R_PolygonScanLeftEdge
-**
-** Goes through the polygon and scans the left edge, filling in
-** screen coordinate data for the spans
-*/
+ *
+ * R_PolygonScanLeftEdge
+ *
+ * Goes through the polygon and scans the left edge, filling in
+ * screen coordinate data for the spans
+ */
 static void
 R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 {
 	const emitpoint_t *pvert, *pnext;
+	float vtop, vvert;
 	int i, lmaxindex;
 	espan_t *pspan;
-	float vtop, vvert;
 
 	pspan = s_polygon_spans;
 	i = s_minindex;
+
 	if (i == 0)
+	{
 		i = r_polydesc.nump;
+	}
 
 	lmaxindex = s_maxindex;
 	if (lmaxindex == 0)
+	{
 		lmaxindex = r_polydesc.nump;
+	}
 
 	vvert = r_polydesc.pverts[i].v;
 	if (vvert < r_refdef.fvrecty_adj)
+	{
 		vvert = r_refdef.fvrecty_adj;
-	if (vvert > r_refdef.fvrectbottom_adj)
-		vvert = r_refdef.fvrectbottom_adj;
+	}
 
-	vtop = ceil (vvert);
+	if (vvert > r_refdef.fvrectbottom_adj)
+	{
+		vvert = r_refdef.fvrectbottom_adj;
+	}
+
+	vtop = ceil(vvert);
 
 	do
 	{
@@ -801,28 +820,43 @@ R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 		pnext = pvert - 1;
 		vnext = pnext->v;
 		if (vnext < r_refdef.fvrecty_adj)
+		{
 			vnext = r_refdef.fvrecty_adj;
-		if (vnext > r_refdef.fvrectbottom_adj)
-			vnext = r_refdef.fvrectbottom_adj;
+		}
 
-		vbottom = ceil (vnext);
+		if (vnext > r_refdef.fvrectbottom_adj)
+		{
+			vnext = r_refdef.fvrectbottom_adj;
+		}
+
+		vbottom = ceil(vnext);
 
 		if (vtop < vbottom)
 		{
-			int v, u, istep, itop, ibottom;
 			float du, dv, u_step, uvert, unext;
+			int v, u, istep, itop, ibottom;
 
 			uvert = pvert->u;
 			if (uvert < r_refdef.fvrectx_adj)
+			{
 				uvert = r_refdef.fvrectx_adj;
+			}
+
 			if (uvert > r_refdef.fvrectright_adj)
+			{
 				uvert = r_refdef.fvrectright_adj;
+			}
 
 			unext = pnext->u;
 			if (unext < r_refdef.fvrectx_adj)
+			{
 				unext = r_refdef.fvrectx_adj;
+			}
+
 			if (unext > r_refdef.fvrectright_adj)
+			{
 				unext = r_refdef.fvrectright_adj;
+			}
 
 			du = unext - uvert;
 			dv = vnext - vvert;
@@ -848,9 +882,11 @@ R_PolygonScanLeftEdge (espan_t *s_polygon_spans)
 		vvert = vnext;
 
 		i--;
-		if (i == 0)
-			i = r_polydesc.nump;
 
+		if (i == 0)
+		{
+			i = r_polydesc.nump;
+		}
 	} while (i != lmaxindex);
 
 	pspan->count = INT_MIN;	// mark the end of the span list
@@ -880,7 +916,7 @@ R_PolygonScanRightEdge(espan_t *s_polygon_spans)
 	if (vvert > r_refdef.fvrectbottom_adj)
 		vvert = r_refdef.fvrectbottom_adj;
 
-	vtop = ceil (vvert);
+	vtop = ceil(vvert);
 
 	do
 	{
@@ -895,7 +931,7 @@ R_PolygonScanRightEdge(espan_t *s_polygon_spans)
 		if (vnext > r_refdef.fvrectbottom_adj)
 			vnext = r_refdef.fvrectbottom_adj;
 
-		vbottom = ceil (vnext);
+		vbottom = ceil(vnext);
 
 		if (vtop < vbottom)
 		{
@@ -1233,8 +1269,8 @@ R_DrawPoly(int iswater, espan_t *spans)
 		pverts++;
 	}
 
-	ymin = ceil (ymin);
-	ymax = ceil (ymax);
+	ymin = ceil(ymin);
+	ymax = ceil(ymax);
 
 	if (ymin >= ymax)
 		return; // doesn't cross any scans at all
