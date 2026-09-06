@@ -667,6 +667,13 @@ NoAmmoWeaponChange(edict_t *ent)
 		return;
 	}
 
+	if (ent->client->pers.inventory[ITEM_INDEX(FindItem("mag slug"))] &&
+		ent->client->pers.inventory[ITEM_INDEX(FindItem("phalanx"))])
+	{
+		ent->client->newweapon = FindItem("phalanx");
+		return;
+	}
+
 	ent->client->newweapon = FindItem("blaster");
 }
 
