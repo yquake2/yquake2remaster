@@ -945,6 +945,7 @@ typedef struct
 typedef struct
 {
 	char name[MAX_QPATH];
+	qboolean warned;
 } picignore_t;
 
 static piccache_t pic_cache[PIC_CACHE_SIZE];
@@ -977,15 +978,18 @@ R_PicIgnored(const char *name)
 	picignore_t *ignore;
 
 	ignore = pic_ignore + R_PicCacheSlot(name);
-	if (!strcmp(ignore->name, name))
+	if (strcmp(ignore->name, name))
+	{
+		Q_strlcpy(ignore->name, name, sizeof(ignore->name));
+		ignore->warned = false;
+	}
+
+	if (ignore->warned)
 	{
 		return true;
 	}
 
-	if (!ignore->name[0])
-	{
-		Q_strlcpy(ignore->name, name, sizeof(ignore->name));
-	}
+	ignore->warned = true;
 
 	return false;
 }
@@ -1001,8 +1005,12 @@ R_FindPic(const char *name, findimage_t find_image)
 		char	namewe[MAX_QPATH];
 		const char* ext;
 		piccache_t *cache;
+		picignore_t *ignore;
+		uint32_t slot;
 
-		cache = pic_cache + R_PicCacheSlot(name);
+		slot = R_PicCacheSlot(name);
+		cache = pic_cache + slot;
+		ignore = pic_ignore + slot;
 
 		if (!strcmp(cache->name, name))
 		{
@@ -1012,6 +1020,11 @@ R_FindPic(const char *name, findimage_t find_image)
 			{
 				return image;
 			}
+		}
+
+		if (!strcmp(ignore->name, name))
+		{
+			return NULL;
 		}
 
 		ext = COM_FileExtension(name);
@@ -1066,9 +1079,15 @@ R_FindPic(const char *name, findimage_t find_image)
 			Q_strlcpy(cache->name, name, sizeof(cache->name));
 			Q_strlcpy(cache->path, pathname, sizeof(cache->path));
 		}
-		else if (!strcmp(cache->name, name))
+		else
 		{
-			cache->name[0] = 0;
+			if (!strcmp(cache->name, name))
+			{
+				cache->name[0] = 0;
+			}
+
+			Q_strlcpy(ignore->name, name, sizeof(ignore->name));
+			ignore->warned = false;
 		}
 	}
 	else

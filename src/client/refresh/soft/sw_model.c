@@ -458,6 +458,8 @@ RE_BeginRegistration(const char *model)
 	registration_sequence++;
 	r_oldviewcluster = -1; /* force markleafs */
 
+	R_PicPathCacheClean();
+
 	Com_sprintf(fullname, sizeof(fullname), "maps/%s.bsp", model);
 
 	D_FlushCaches ();
