@@ -209,6 +209,8 @@ Note:
 
 * 8.71RR15+:
 
+[![Check Oblivion/Ininity state](https://img.youtube.com/vi/uixogpssDSI/hqdefault.jpg)](https://www.youtube.com/watch?v=uixogpssDSI)
+[![Check BSP46 state](https://img.youtube.com/vi/dmrfJeqW9HU/hqdefault.jpg)](https://www.youtube.com/watch?v=dmrfJeqW9HU)
 [![Check release state](https://img.youtube.com/vi/vFpdbPOcU4A/hqdefault.jpg)](https://www.youtube.com/watch?v=vFpdbPOcU4A)
 
 * 8.61RR15+:
@@ -359,6 +361,7 @@ Checked with:
 * [ ] Infinity: Add support of `monster_grunt1v2`,
 * [ ] Infinity: Add support of `monster_grunt2`,
 * [ ] Infinity: Add support of `monster_screamer`,
+* [ ] Infinity: Add support of `weapon_pistol`,
 * [ ] Infinity: Add support of `weapon_6bshot`,
 * [ ] Infinity: Add support of `weapon_biggun`,
 * [ ] Infinity: Add support of `weapon_blaze`,
@@ -393,7 +396,6 @@ Checked with:
 * [x] Oblivion: Add support of `weapon_plasma_pistol`,
 * [x] Oblivion: Add support of `weapon_plasma_rifle`,
 * [x] Oblivion: Add support of `weapon_deatomizer`,
-* [x] Infinity: Add support of `weapon_pistol`,
 * [x] renders: add lanczos3 2x scale by `r_scale32bittextures`,
 * [x] Oblivion: Add support of `monster_soldier_deatom`,
 
