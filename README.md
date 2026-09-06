@@ -14,8 +14,7 @@
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_aarch64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/linux_x86_64.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/macos.yml)
-[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win32.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win32.yml)
-[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win64.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win64.yml)
+[![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win_mingw.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win_mingw.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/win_msvc.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/win_msvc.yml)
 [![Build Status](https://github.com/yquake2/yquake2remaster/actions/workflows/codeql.yml/badge.svg)](https://github.com/yquake2/yquake2remaster/actions/workflows/codeql.yml)
 
