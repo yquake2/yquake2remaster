@@ -1216,12 +1216,20 @@ M_MoveFrame(edict_t *self)
 			else if (self->monsterinfo.action &&
 				self->monsterinfo.run &&
 				(!strcmp(self->monsterinfo.action, "attack") ||
+				 !strcmp(self->monsterinfo.action, "activate") ||
 				 !strcmp(self->monsterinfo.action, "pain") ||
 				 !strcmp(self->monsterinfo.action, "dodge") ||
 				 !strcmp(self->monsterinfo.action, "melee")))
 			{
 				/* last frame in pain / attack go to run action */
 				self->monsterinfo.run(self);
+			}
+			else if (self->monsterinfo.action &&
+				self->monsterinfo.idle &&
+				(!strcmp(self->monsterinfo.action, "deactivate")))
+			{
+				/* last frame in deactivate go to idle action */
+				self->monsterinfo.idle(self);
 			}
 			else if (self->monsterinfo.action &&
 				!strcmp(self->monsterinfo.action, "death"))
@@ -1307,11 +1315,14 @@ M_MoveFrame(edict_t *self)
 		}
 		else if (!strcmp(self->monsterinfo.action, "stand") ||
 			!strcmp(self->monsterinfo.action, "hover") ||
+			!strcmp(self->monsterinfo.action, "standidle") ||
 			!strcmp(self->monsterinfo.action, "idle"))
 		{
 			ai_stand(self, 0);
 		}
 		else if (!strcmp(self->monsterinfo.action, "pain") ||
+			!strcmp(self->monsterinfo.action, "activate") ||
+			!strcmp(self->monsterinfo.action, "deactivate") ||
 			!strcmp(self->monsterinfo.action, "death") ||
 			!strcmp(self->monsterinfo.action, "dodge"))
 		{
