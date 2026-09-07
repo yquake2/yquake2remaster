@@ -20,7 +20,7 @@
  *
  * =======================================================================
  *
- * Kigrax hover.
+ * Oblivion Kigrax hover.
  *
  * =======================================================================
  */
@@ -493,7 +493,7 @@ kigrax_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	self->s.effects = 0;
 	self->monsterinfo.power_armor_type = POWER_ARMOR_NONE;
 
-	if (meansOfDeath == MOD_BRAINTENTACLE)
+	if (meansOfDeath == MOD_DISINTEGRATOR)
 	{
 		BecomeExplosion1(self);
 		return;
@@ -537,6 +537,11 @@ kigrax_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	self->monsterinfo.currentmove = &kigrax_move_death;
 }
 
+/*
+ * QUAKED monster_kigrax (1 .5 0) (-20 -20 -32) (20 20 12)
+ *
+ * Oblivion Kigrax
+ */
 void
 SP_monster_kigrax(edict_t *self)
 {
@@ -564,13 +569,8 @@ SP_monster_kigrax(edict_t *self)
 
 	self->s.sound = sound_idle;
 
-	VectorSet(self->mins, -20.0f, -20.0f, -32.0f);
-	VectorSet(self->maxs, 20.0f, 20.0f, 12.0f);
 	self->movetype = MOVETYPE_STEP;
 	self->solid = SOLID_BBOX;
-	self->health = 200;
-	self->gib_health = -100;
-	self->mass = 150;
 	self->yaw_speed = 20;
 	self->viewheight = 90;
 
