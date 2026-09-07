@@ -117,6 +117,7 @@ void SP_misc_viper_bomb( edict_t * self ) ;
 void SP_misc_viper_missile( edict_t * self ) ;
 void SP_monster_arachnid( edict_t * self ) ;
 void SP_monster_army( edict_t * self ) ;
+void SP_monster_badass( edict_t * self ) ;
 void SP_monster_berserk( edict_t * self ) ;
 void SP_monster_boss2( edict_t * self ) ;
 void SP_monster_boss3_stand( edict_t * self ) ;

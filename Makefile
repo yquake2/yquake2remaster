@@ -1160,6 +1160,7 @@ GAME_OBJS_ = \
 	src/game/monster/actor/actor.o \
 	src/game/monster/arachnid/arachnid.o \
 	src/game/monster/army/army.o \
+	src/game/monster/badass/badass.o \
 	src/game/monster/berserker/berserker.o \
 	src/game/monster/boss2/boss2.o \
 	src/game/monster/boss3/boss3.o \

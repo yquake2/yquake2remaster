@@ -401,6 +401,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/actor/actor.c
 	${GAME_SRC_DIR}/monster/arachnid/arachnid.c
 	${GAME_SRC_DIR}/monster/army/army.c
+	${GAME_SRC_DIR}/monster/badass/badass.c
 	${GAME_SRC_DIR}/monster/berserker/berserker.c
 	${GAME_SRC_DIR}/monster/boss2/boss2.c
 	${GAME_SRC_DIR}/monster/boss3/boss31.c

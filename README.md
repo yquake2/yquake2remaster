@@ -374,7 +374,6 @@ Checked with:
 * [ ] Oblivion: Add support of `misc_camera`,
 * [ ] Oblivion: Add support of `misc_camera_target`,
 * [ ] Oblivion: Add support of `misc_screenfader`,
-* [ ] Oblivion: Add support of `monster_badass`,
 * [ ] Oblivion: Add support of `monster_spider`,
 * [ ] Oblivion: Add support of `target_railgun`,
 * [ ] Oblivion: Add support of `target_rocket`,
@@ -385,6 +384,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Oblivion: Add support of `monster_badass`,
 * [x] Oblivion: Add support of `monster_cyborg`,
 * [x] Oblivion: Add support of `monster_kigrax`,
 * [x] Infinity: Add support of `ammo_goop`,

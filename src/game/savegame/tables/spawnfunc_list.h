@@ -132,6 +132,7 @@
 {"monster_arachnid", SP_monster_arachnid},
 {"monster_army", SP_monster_army},
 {"monster_bee", SP_obj_material},
+{"monster_badass", SP_monster_badass},
 {"monster_berserk", SP_monster_berserk},
 {"monster_boss2", SP_monster_boss2},
 {"monster_boss3_stand", SP_monster_boss3_stand},
