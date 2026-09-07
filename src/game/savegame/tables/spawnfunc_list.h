@@ -140,6 +140,7 @@
 {"monster_carrier", SP_monster_carrier},
 {"monster_chick", SP_monster_chick},
 {"monster_chick_heat", SP_monster_chick_heat},
+{"monster_cyborg", SP_monster_cyborg},
 {"monster_commander_body", SP_monster_commander_body},
 {"monster_daedalus", SP_monster_hover},
 {"monster_demon", SP_monster_demon},

@@ -410,6 +410,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/brain/brain.c
 	${GAME_SRC_DIR}/monster/carrier/carrier.c
 	${GAME_SRC_DIR}/monster/chick/chick.c
+	${GAME_SRC_DIR}/monster/cyborg/cyborg.c
 	${GAME_SRC_DIR}/monster/demon/demon.c
 	${GAME_SRC_DIR}/monster/dog/dog.c
 	${GAME_SRC_DIR}/monster/enforcer/enforcer.c

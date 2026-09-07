@@ -125,6 +125,7 @@ void SP_monster_brain( edict_t * self ) ;
 void SP_monster_carrier( edict_t * self ) ;
 void SP_monster_chick( edict_t * self ) ;
 void SP_monster_chick_heat( edict_t * self ) ;
+void SP_monster_cyborg( edict_t * self ) ;
 void SP_monster_commander_body( edict_t * self ) ;
 void SP_monster_demon( edict_t * self ) ;
 void SP_monster_dog( edict_t * self ) ;

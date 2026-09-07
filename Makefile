@@ -1169,6 +1169,7 @@ GAME_OBJS_ = \
 	src/game/monster/brain/brain.o \
 	src/game/monster/carrier/carrier.o \
 	src/game/monster/chick/chick.o \
+	src/game/monster/cyborg/cyborg.o \
 	src/game/monster/demon/demon.o \
 	src/game/monster/dog/dog.o \
 	src/game/monster/enforcer/enforcer.o \
