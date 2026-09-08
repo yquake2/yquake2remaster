@@ -440,6 +440,7 @@ set(Game-Source
 	${GAME_SRC_DIR}/monster/shambler/shambler.c
 	${GAME_SRC_DIR}/monster/soldier/soldier.c
 	${GAME_SRC_DIR}/monster/stalker/stalker.c
+	${GAME_SRC_DIR}/monster/spider/spider.c
 	${GAME_SRC_DIR}/monster/supertank/supertank.c
 	${GAME_SRC_DIR}/monster/tank/tank.c
 	${GAME_SRC_DIR}/monster/tarbaby/tarbaby.c

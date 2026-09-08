@@ -164,6 +164,7 @@ void SP_monster_soldier_light( edict_t * self ) ;
 void SP_monster_soldier_ripper( edict_t * self ) ;
 void SP_monster_soldier_ss( edict_t * self ) ;
 void SP_monster_soldier_x( edict_t * self ) ;
+void SP_monster_spider( edict_t * self ) ;
 void SP_monster_stalker( edict_t * self ) ;
 void SP_monster_supertank( edict_t * self ) ;
 void SP_monster_tank( edict_t * self ) ;

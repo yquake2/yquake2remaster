@@ -183,6 +183,7 @@
 {"monster_soldier_light", SP_monster_soldier_light},
 {"monster_soldier_ripper", SP_monster_soldier_ripper},
 {"monster_soldier_ss", SP_monster_soldier_ss},
+{"monster_spider", SP_monster_spider},
 {"monster_stalker", SP_monster_stalker},
 {"monster_supertank", SP_monster_supertank},
 {"monster_tank", SP_monster_tank},
