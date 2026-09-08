@@ -4838,10 +4838,15 @@ InitItems(void)
 }
 
 qboolean
-ItemHasValidModel(gitem_t *item)
+ItemHasValidModel(const gitem_t *item)
 {
 	const dmdxframegroup_t * frames;
 	int num, modelindex;
+
+	if (!item)
+	{
+		return false;
+	}
 
 	modelindex = gi.modelindex(item->world_model);
 	frames = gi.GetModelInfo(modelindex, &num, NULL, NULL);

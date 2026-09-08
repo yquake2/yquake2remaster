@@ -1255,6 +1255,22 @@ InitClientPersistant(edict_t *ent)
 
 	memset(&client->pers, 0, sizeof(client->pers));
 
+	item = FindItem("Plasma Pistol");
+	if (item && ItemHasValidModel(item))
+	{
+		const gitem_t *ammo;
+
+		/* Oblivion: Provide if available weapon_plasma_pistol */
+		client->pers.inventory[ITEM_INDEX(item)] = 1;
+
+		/* And ammo little bit */
+		ammo = FindItem("Rifle Plasma");
+		if (ammo)
+		{
+			client->pers.inventory[ITEM_INDEX(ammo)] = ammo->quantity;
+		}
+	}
+
 	item = FindItem("Blaster");
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;

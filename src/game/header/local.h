@@ -858,7 +858,7 @@ void FixEntityPosition(const vec3_t ent_mins, const vec3_t ent_maxs, const edict
 	vec3_t ent_origin, int contentmask);
 void PrecacheItem(const gitem_t *it);
 void InitItems(void);
-qboolean ItemHasValidModel(gitem_t *item);
+qboolean ItemHasValidModel(const gitem_t *item);
 void SetItemNames(void);
 gitem_t *FindItem(const char *pickup_name);
 gitem_t *FindItemByClassname(const char *classname);
