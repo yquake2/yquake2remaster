@@ -1,0 +1,1065 @@
+/*
+ * Copyright (C) 1997-2001 Id Software, Inc.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ *
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ * 02111-1307, USA.
+ *
+ * =======================================================================
+ *
+ * Model viewer for md2/flex models
+ *
+ * =======================================================================
+ */
+
+#include "../common/header/common.h"
+#include "../common/header/files.h"
+
+#ifdef USE_SDL3
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
+#endif
+
+#include <stdint.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MD2_IDENT 844121161u
+#define MD2_VERSION 8
+#define FRAME_DURATION_MS 100
+
+typedef struct
+{
+    float x, y, z;
+} Vec3;
+
+typedef struct
+{
+    uint16_t vertex[3], texcoord[3];
+} Triangle;
+
+typedef struct
+{
+    uint16_t s, t;
+} TexCoord;
+
+typedef struct
+{
+    Vec3 origin, direction, up;
+} JointPose;
+
+typedef struct {
+    int joint_count;
+    int parent[8];
+    float angles[8][3];
+} RuntimeSkeleton;
+
+typedef struct {
+    byte *data;
+    size_t data_size;
+    TexCoord *texcoords;
+    Triangle *triangles;
+    Vec3 *vertices;
+    Vec3 *raw_vertices;
+    Vec3 *display_vertices;
+    Vec3 *frame_scales;
+    Vec3 *frame_translates;
+    int **cluster_vertices;
+    int *cluster_vertex_counts;
+    JointPose *joint_poses;
+    RuntimeSkeleton runtime_skeleton;
+    int texcoord_count;
+    int triangle_count;
+    int vertex_count;
+    int frame_count;
+    int skeletal_type;
+    int joint_count;
+    int skeleton_cluster_count;
+    float radius;
+} Model;
+
+static void model_free(Model *model)
+{
+    free(model->data);
+    free(model->texcoords);
+    free(model->triangles);
+    free(model->vertices);
+    free(model->raw_vertices);
+    free(model->display_vertices);
+    free(model->frame_scales);
+    free(model->frame_translates);
+    free(model->joint_poses);
+    if (model->cluster_vertices)
+    {
+        for (int i = 0; i < model->skeleton_cluster_count; ++i)
+        {
+            free(model->cluster_vertices[i]);
+        }
+    }
+    free(model->cluster_vertices);
+    free(model->cluster_vertex_counts);
+    memset(model, 0, sizeof(*model));
+}
+
+static int range_valid(const Model *model, size_t offset, size_t length)
+{
+    return offset <= model->data_size && length <= model->data_size - offset;
+}
+
+static uint16_t read_u16(const byte *data, size_t offset)
+{
+    return (uint16_t)(data[offset] | ((uint16_t)data[offset + 1] << 8));
+}
+
+static int32_t read_i32(const byte *data, size_t offset)
+{
+    uint32_t value = (uint32_t)data[offset] |
+        ((uint32_t)data[offset + 1] << 8) |
+        ((uint32_t)data[offset + 2] << 16) |
+        ((uint32_t)data[offset + 3] << 24);
+    return (int32_t)value;
+}
+
+static float read_float(const byte *data, size_t offset)
+{
+    uint32_t bits = (uint32_t)read_i32(data, offset);
+    float value;
+    memcpy(&value, &bits, sizeof(value));
+    return value;
+}
+
+static int read_file(Model *model, const char *filename, char *error, size_t error_size)
+{
+    FILE *file = fopen(filename, "rb");
+    long size;
+    if (!file)
+    {
+        snprintf(error, error_size, "cannot open model: %s", filename);
+        return 0;
+    }
+    if (fseek(file, 0, SEEK_END) != 0 || (size = ftell(file)) < 0 ||
+        fseek(file, 0, SEEK_SET) != 0)
+    {
+        fclose(file);
+        snprintf(error, error_size, "cannot determine model size");
+        return 0;
+    }
+    model->data_size = (size_t)size;
+    model->data = (byte *)malloc(model->data_size ? model->data_size : 1);
+    if (!model->data || fread(model->data, 1, model->data_size, file) != model->data_size)
+    {
+        fclose(file);
+        snprintf(error, error_size, "cannot read model: %s", filename);
+        return 0;
+    }
+    fclose(file);
+    return 1;
+}
+
+static int allocate_geometry(Model *model, int vertex_count, int texcoord_count,
+    int triangle_count, int frame_count, char *error, size_t error_size)
+{
+    if (vertex_count <= 0 || texcoord_count <= 0 || triangle_count <= 0 || frame_count <= 0)
+    {
+        snprintf(error, error_size, "model contains invalid geometry counts");
+        return 0;
+    }
+    model->vertex_count = vertex_count;
+    model->texcoord_count = texcoord_count;
+    model->triangle_count = triangle_count;
+    model->frame_count = frame_count;
+    model->texcoords = (TexCoord *)calloc((size_t)texcoord_count, sizeof(*model->texcoords));
+    model->triangles = (Triangle *)calloc((size_t)triangle_count, sizeof(*model->triangles));
+    model->vertices = (Vec3 *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->vertices));
+    model->raw_vertices = (Vec3 *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->raw_vertices));
+    model->display_vertices = (Vec3 *)calloc((size_t)vertex_count, sizeof(*model->display_vertices));
+    model->frame_scales = (Vec3 *)calloc((size_t)frame_count, sizeof(*model->frame_scales));
+    model->frame_translates = (Vec3 *)calloc((size_t)frame_count, sizeof(*model->frame_translates));
+    if (!model->texcoords || !model->triangles || !model->vertices || !model->raw_vertices ||
+        !model->display_vertices || !model->frame_scales || !model->frame_translates)
+    {
+        snprintf(error, error_size, "out of memory loading model");
+        return 0;
+    }
+    return 1;
+}
+
+static int load_triangles(Model *model, size_t offset, int count, char *error, size_t error_size)
+{
+    int i, corner;
+    for (i = 0; i < count; ++i)
+    {
+        size_t triangle_offset = offset + (size_t)i * 12;
+        for (corner = 0; corner < 3; ++corner)
+        {
+            model->triangles[i].vertex[corner] = read_u16(model->data, triangle_offset + corner * 2);
+            model->triangles[i].texcoord[corner] = read_u16(model->data, triangle_offset + 6 + corner * 2);
+                if (model->triangles[i].vertex[corner] >= model->vertex_count ||
+                    model->triangles[i].texcoord[corner] >= model->texcoord_count)
+                {
+                snprintf(error, error_size, "triangle references an invalid vertex");
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+static void calculate_bounds(Model *model)
+{
+    size_t count = (size_t)model->vertex_count * (size_t)model->frame_count;
+    size_t i;
+    Vec3 min = model->vertices[0], max = min;
+    for (i = 1; i < count; ++i)
+    {
+        Vec3 vertex = model->vertices[i];
+        if (vertex.x < min.x)
+            min.x = vertex.x;
+        if (vertex.y < min.y)
+            min.y = vertex.y;
+        if (vertex.z < min.z)
+            min.z = vertex.z;
+        if (vertex.x > max.x)
+            max.x = vertex.x;
+        if (vertex.y > max.y)
+            max.y = vertex.y;
+        if (vertex.z > max.z)
+            max.z = vertex.z;
+    }
+    model->radius = max.x - min.x;
+    if (max.y - min.y > model->radius)
+        model->radius = max.y - min.y;
+    if (max.z - min.z > model->radius)
+        model->radius = max.z - min.z;
+    model->radius *= 0.5f;
+}
+
+static void decode_frame(Model *model, size_t offset, int frame, int vertex_count)
+{
+    int vertex;
+    float scale[3] = {read_float(model->data, offset), read_float(model->data, offset + 4),
+        read_float(model->data, offset + 8)};
+    float translate[3] = {read_float(model->data, offset + 12), read_float(model->data, offset + 16),
+        read_float(model->data, offset + 20)};
+    model->frame_scales[frame] = (Vec3){scale[0], scale[1], scale[2]};
+    model->frame_translates[frame] = (Vec3){translate[0], translate[1], translate[2]};
+    for (vertex = 0; vertex < vertex_count; ++vertex)
+    {
+        size_t compressed = offset + 40 + (size_t)vertex * 4;
+        float x = model->data[compressed] * scale[0] + translate[0];
+        float y = model->data[compressed + 1] * scale[1] + translate[1];
+        float z = model->data[compressed + 2] * scale[2] + translate[2];
+        Vec3 *destination = &model->vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex];
+        destination->x = x;
+        destination->y = y;
+        destination->z = z;
+        model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex] = *destination;
+    }
+}
+
+static Vec3 vec_add(Vec3 a, Vec3 b)
+{
+    Vec3 result = {a.x + b.x, a.y + b.y, a.z + b.z};
+    return result;
+}
+
+static float vec_dot(Vec3 a, Vec3 b)
+{
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+static float vec_length(Vec3 value)
+{
+    return sqrtf(vec_dot(value, value));
+}
+
+static Vec3 convert_model_point(Vec3 source)
+{
+    return source;
+}
+
+static Vec3 subtract(Vec3 a, Vec3 b);
+static Vec3 cross(Vec3 a, Vec3 b);
+
+static int skeleton_joint_count(int skeletal_type)
+{
+    static const int counts[] = {3, 1, 2, 2, 3, 3};
+    return skeletal_type >= 0 && skeletal_type < (int)(sizeof(counts) / sizeof(counts[0])) ?
+        counts[skeletal_type] : 0;
+}
+
+static int build_runtime_skeleton(Model *model)
+{
+    const int type = model->skeletal_type;
+    const int joint_count = skeleton_joint_count(type);
+    if (joint_count == 0 || model->skeleton_cluster_count != joint_count)
+        return 0;
+    model->runtime_skeleton.joint_count = joint_count;
+    for (int joint = 0; joint < joint_count; ++joint)
+    {
+        model->runtime_skeleton.parent[joint] = -1;
+        model->runtime_skeleton.angles[joint][0] = 0.0f;
+        model->runtime_skeleton.angles[joint][1] = 0.0f;
+        model->runtime_skeleton.angles[joint][2] = 0.0f;
+    }
+    /* Matches Skeletons.c: lower-back -> upper-back -> head for Raven,
+       Plague Elf, and Corvus; the other definitions are one short chain. */
+    if (type == 0 || type == 4 || type == 5)
+    {
+        model->runtime_skeleton.parent[1] = 0;
+        model->runtime_skeleton.parent[2] = 1;
+    }
+    else if (type == 2 || type == 3)
+    {
+        model->runtime_skeleton.parent[1] = 0;
+    }
+    return 1;
+}
+
+static Vec3 rotate_runtime_point(Vec3 point, Vec3 origin, const float angles[3])
+{
+    const float cx = cosf(angles[0]), sx = sinf(angles[0]);
+    const float cy = cosf(angles[1]), sy = sinf(angles[1]);
+    const float cz = cosf(angles[2]), sz = sinf(angles[2]);
+    Vec3 local = subtract(point, origin);
+    Vec3 rotated;
+    rotated.x = (cy * cz + sx * sy * sz) * local.x + (cz * sx * sy - cy * sz) * local.y + cx * sy * local.z;
+    rotated.y = cx * sz * local.x + cx * cz * local.y - sx * local.z;
+    rotated.z = (cy * sx * sz - cz * sy) * local.x + (cy * cz * sx + sy * sz) * local.y + cx * cy * local.z;
+    return vec_add(origin, rotated);
+}
+
+static void rotate_runtime_cluster(Model *model, int frame, int joint, Vec3 *vertices)
+{
+    const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)joint];
+    for (int child = 0; child < model->runtime_skeleton.joint_count; ++child)
+    {
+        if (model->runtime_skeleton.parent[child] == joint)
+            rotate_runtime_cluster(model, frame, child, vertices);
+    }
+    for (int vertex = 0; vertex < model->cluster_vertex_counts[joint]; ++vertex)
+    {
+        const int index = model->cluster_vertices[joint][vertex];
+        const float *angles = model->runtime_skeleton.angles[joint];
+        if (angles[0] != 0.0f || angles[1] != 0.0f || angles[2] != 0.0f)
+        {
+            vertices[index] = rotate_runtime_point(vertices[index], pose->origin, model->runtime_skeleton.angles[joint]);
+        }
+    }
+}
+
+static int load_flex_skeleton(Model *model, size_t offset, int32_t block_size, char *error, size_t error_size)
+{
+    size_t cursor = offset;
+    int cluster;
+    int raw_counts[8];
+    int running_total = 0;
+    int index_base = 0;
+    static const int num_joints_in_skeleton[] = {3, 1, 2, 2, 3, 3};
+    if (block_size < 12 || !range_valid(model, offset, (size_t)block_size))
+    {
+        snprintf(error, error_size, "flex skeleton block is truncated");
+        return 0;
+    }
+    model->skeletal_type = read_i32(model->data, cursor);
+    if (model->skeletal_type < 0 || model->skeletal_type >=
+        (int)(sizeof(num_joints_in_skeleton) / sizeof(num_joints_in_skeleton[0])))
+    {
+        snprintf(error, error_size, "flex skeleton has an invalid skeletal type");
+        return 0;
+    }
+    model->joint_count = num_joints_in_skeleton[model->skeletal_type];
+    model->skeleton_cluster_count = read_i32(model->data, cursor + 4);
+    cursor += 8;
+    if (model->skeleton_cluster_count != model->joint_count) {
+        snprintf(error, error_size, "flex skeleton has an invalid cluster count");
+        return 0;
+    }
+    model->cluster_vertex_counts = (int *)calloc((size_t)model->skeleton_cluster_count, sizeof(int));
+    model->cluster_vertices = (int **)calloc((size_t)model->skeleton_cluster_count, sizeof(int *));
+    if (!model->cluster_vertex_counts || !model->cluster_vertices) {
+        snprintf(error, error_size, "out of memory loading flex skeleton");
+        return 0;
+    }
+    for (cluster = model->skeleton_cluster_count - 1; cluster >= 0; --cluster)
+    {
+        if (!range_valid(model, cursor, 4))
+        {
+            snprintf(error, error_size, "flex skeleton counts are truncated");
+            return 0;
+        }
+        raw_counts[cluster] = read_i32(model->data, cursor);
+        cursor += 4;
+        if (raw_counts[cluster] < 0 || raw_counts[cluster] > model->vertex_count) {
+            snprintf(error, error_size, "flex skeleton has invalid cluster vertices");
+            return 0;
+        }
+        running_total += raw_counts[cluster];
+        if (running_total > model->vertex_count) {
+            snprintf(error, error_size, "flex skeleton cluster vertices exceed model");
+            return 0;
+        }
+        model->cluster_vertex_counts[cluster] = running_total;
+        model->cluster_vertices[cluster] = (int *)malloc((size_t)running_total * sizeof(int));
+        if (running_total > 0 && !model->cluster_vertices[cluster]) {
+            snprintf(error, error_size, "out of memory loading flex cluster");
+            return 0;
+        }
+    }
+    for (cluster = model->skeleton_cluster_count - 1; cluster >= 0; --cluster)
+    {
+        const int count = model->cluster_vertex_counts[cluster];
+        for (int vertex = index_base; vertex < count; ++vertex)
+        {
+            const int index = read_i32(model->data, cursor);
+            cursor += 4;
+            if (index < 0 || index >= model->vertex_count) {
+                snprintf(error, error_size, "flex skeleton references an invalid vertex");
+                return 0;
+            }
+            for (int parent = 0; parent <= cluster; ++parent)
+                model->cluster_vertices[parent][vertex] = index;
+        }
+        index_base = count;
+    }
+    if (!range_valid(model, cursor, 4))
+    {
+        snprintf(error, error_size, "flex skeleton flag is truncated");
+        return 0;
+    }
+    if (!read_i32(model->data, cursor))
+        return 1;
+    cursor += 4;
+    if (!range_valid(model, cursor, (size_t)model->frame_count * (size_t)model->skeleton_cluster_count * 36)) {
+        snprintf(error, error_size, "flex skeleton poses are truncated");
+        return 0;
+    }
+    model->joint_poses = (JointPose *)calloc((size_t)model->frame_count * (size_t)model->skeleton_cluster_count, sizeof(JointPose));
+    if (!model->joint_poses)
+    {
+        snprintf(error, error_size, "out of memory loading flex poses");
+        return 0;
+    }
+    for (int frame = 0; frame < model->frame_count; ++frame)
+    {
+        for (cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
+        {
+            JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
+            pose->origin = convert_model_point((Vec3){read_float(model->data, cursor), read_float(model->data, cursor + 4), read_float(model->data, cursor + 8)});
+            cursor += 12;
+            pose->direction = convert_model_point((Vec3){read_float(model->data, cursor), read_float(model->data, cursor + 4), read_float(model->data, cursor + 8)});
+            cursor += 12;
+            pose->up = convert_model_point((Vec3){read_float(model->data, cursor), read_float(model->data, cursor + 4), read_float(model->data, cursor + 8)});
+            cursor += 12;
+        }
+    }
+    return 1;
+}
+
+static void apply_flex_skeleton(Model *model)
+{
+    if (!model->joint_poses || !build_runtime_skeleton(model))
+        return;
+    for (int frame = 0; frame < model->frame_count; ++frame)
+    {
+        Vec3 *vertices = model->vertices + (size_t)frame * (size_t)model->vertex_count;
+        const Vec3 *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
+        memcpy(vertices, raw, (size_t)model->vertex_count * sizeof(*vertices));
+        rotate_runtime_cluster(model, frame, 0, vertices);
+    }
+}
+
+static void compare_skeletal_frames(const Model *model)
+{
+    if (!model->joint_poses || model->frame_count < 2)
+        return;
+    printf("skeleton comparison (frame 0 excluded):\n");
+    for (int frame = 1; frame < model->frame_count; ++frame)
+    {
+        const Vec3 *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
+        const Vec3 *skinned = model->vertices + (size_t)frame * (size_t)model->vertex_count;
+        int changed = 0;
+        float max_displacement = 0.0f;
+        double total_displacement = 0.0;
+        for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+        {
+            const Vec3 delta = subtract(skinned[vertex], raw[vertex]);
+            const float displacement = vec_length(delta);
+            if (displacement > 0.0001f)
+                ++changed;
+            if (displacement > max_displacement)
+                max_displacement = displacement;
+            total_displacement += displacement;
+        }
+        if (frame == 1 || frame == model->frame_count - 1)
+        {
+            printf("  frame %d: changed=%d/%d max=%f average=%f\n",
+                frame, changed, model->vertex_count,
+                max_displacement, (float)(total_displacement / model->vertex_count));
+        }
+    }
+}
+
+static Vec3 lerp_vec3(Vec3 current, Vec3 previous, float previous_weight)
+{
+    Vec3 result;
+    result.x = current.x * (1.0f - previous_weight) + previous.x * previous_weight;
+    result.y = current.y * (1.0f - previous_weight) + previous.y * previous_weight;
+    result.z = current.z * (1.0f - previous_weight) + previous.z * previous_weight;
+    return result;
+}
+
+static Vec3 lerp_skeleton_component(const Model *model, Vec3 current, Vec3 previous,
+    int frame, int previous_frame, float previous_weight)
+{
+    const float current_weight = 1.0f - previous_weight;
+    Vec3 result;
+    result.x = current.x * model->frame_scales[frame].x * current_weight +
+        previous.x * model->frame_scales[previous_frame].x * previous_weight +
+        model->frame_translates[frame].x * current_weight +
+        model->frame_translates[previous_frame].x * previous_weight;
+    result.y = current.y * model->frame_scales[frame].y * current_weight +
+        previous.y * model->frame_scales[previous_frame].y * previous_weight +
+        model->frame_translates[frame].y * current_weight +
+        model->frame_translates[previous_frame].y * previous_weight;
+    result.z = current.z * model->frame_scales[frame].z * current_weight +
+        previous.z * model->frame_scales[previous_frame].z * previous_weight +
+        model->frame_translates[frame].z * current_weight +
+        model->frame_translates[previous_frame].z * previous_weight;
+    return result;
+}
+
+static void interpolate_frame(Model *model, int frame, float previous_weight)
+{
+    const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
+    const Vec3 *current = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
+    const Vec3 *previous = model->raw_vertices + (size_t)previous_frame * (size_t)model->vertex_count;
+    const Vec3 scale = lerp_vec3(model->frame_scales[frame], model->frame_scales[previous_frame], previous_weight);
+    const Vec3 translate = lerp_vec3(model->frame_translates[frame], model->frame_translates[previous_frame], previous_weight);
+    for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+    {
+        model->display_vertices[vertex] = lerp_vec3(current[vertex], previous[vertex], previous_weight);
+    }
+    if (model->joint_poses && model->runtime_skeleton.joint_count > 0)
+    {
+        /* Runtime joint angles are defined before frame scale/translation,
+           matching RotateModelSegment followed by CNode::ShowFrame(). */
+        for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+        {
+            model->display_vertices[vertex].x = (model->display_vertices[vertex].x - translate.x) / scale.x;
+            model->display_vertices[vertex].y = (model->display_vertices[vertex].y - translate.y) / scale.y;
+            model->display_vertices[vertex].z = (model->display_vertices[vertex].z - translate.z) / scale.z;
+        }
+        rotate_runtime_cluster(model, frame, 0, model->display_vertices);
+        for (int vertex = 0; vertex < model->vertex_count; ++vertex)
+        {
+            model->display_vertices[vertex].x = model->display_vertices[vertex].x * scale.x + translate.x;
+            model->display_vertices[vertex].y = model->display_vertices[vertex].y * scale.y + translate.y;
+            model->display_vertices[vertex].z = model->display_vertices[vertex].z * scale.z + translate.z;
+        }
+    }
+}
+
+static int load_md2(Model *model, const char *filename, char *error, size_t error_size)
+{
+    int32_t frame_size, vertex_count, texcoord_count, triangle_count, frame_count;
+    int i;
+    if (!read_file(model, filename, error, error_size)) return 0;
+    if (model->data_size < 68 || read_i32(model->data, 0) != (int32_t)MD2_IDENT || read_i32(model->data, 4) != MD2_VERSION) {
+        snprintf(error, error_size, "not a valid MD2 model (expected IDP2 version 8)");
+        return 0;
+    }
+    frame_size = read_i32(model->data, 16);
+    vertex_count = read_i32(model->data, 24);
+    texcoord_count = read_i32(model->data, 28);
+    triangle_count = read_i32(model->data, 32);
+    frame_count = read_i32(model->data, 40);
+    if (frame_size < 40 || !range_valid(model, (size_t)read_i32(model->data, 48), (size_t)texcoord_count * 4) ||
+        !range_valid(model, (size_t)read_i32(model->data, 52), (size_t)triangle_count * 12) ||
+        !range_valid(model, (size_t)read_i32(model->data, 56), (size_t)frame_size * (size_t)frame_count) ||
+        !allocate_geometry(model, vertex_count, texcoord_count, triangle_count, frame_count, error, error_size)) {
+            if (error[0] == '\0')
+                snprintf(error, error_size, "MD2 contains invalid dimensions or offsets");
+        return 0;
+    }
+
+    for (i = 0; i < texcoord_count; ++i)
+    {
+        size_t offset = (size_t)read_i32(model->data, 48) + (size_t)i * 4;
+        model->texcoords[i].s = read_u16(model->data, offset);
+        model->texcoords[i].t = read_u16(model->data, offset + 2);
+    }
+
+    if (!load_triangles(model, (size_t)read_i32(model->data, 52), triangle_count, error, error_size))
+    {
+        return 0;
+    }
+
+    for (i = 0; i < frame_count; ++i)
+    {
+        decode_frame(model, (size_t)read_i32(model->data, 56) + (size_t)i * frame_size, i, vertex_count);
+    }
+
+    calculate_bounds(model);
+    return 1;
+}
+
+static int block_name_equals(const byte *name, const char *expected)
+{
+    return strncmp((const char *)name, expected, 32) == 0;
+}
+
+static int load_flex(Model *model, const char *filename, char *error, size_t error_size)
+{
+    size_t offset = 0, header = 0, st = 0, tris = 0, frames = 0, skeleton = 0;
+    int32_t header_size = 0, st_size = 0, tris_size = 0, frames_size = 0, skeleton_size = 0;
+    int skin_width, skin_height, frame_size, vertex_count, texcoord_count, triangle_count, frame_count, i;
+    if (!read_file(model, filename, error, error_size)) return 0;
+    while (offset < model->data_size)
+    {
+        int32_t version, size;
+        if (!range_valid(model, offset, 40))
+        {
+            snprintf(error, error_size, "flex block header is truncated");
+            return 0;
+        }
+        version = read_i32(model->data, offset + 32);
+        size = read_i32(model->data, offset + 36);
+        if (version < 0 || size < 0 || !range_valid(model, offset + 40, (size_t)size))
+        {
+            snprintf(error, error_size, "flex model contains an invalid block");
+            return 0;
+        }
+        if (block_name_equals(model->data + offset, "header"))
+        {
+            header = offset + 40;
+            header_size = size;
+        }
+        else if (block_name_equals(model->data + offset, "st coord"))
+        {
+            st = offset + 40;
+            st_size = size;
+        }
+        else if (block_name_equals(model->data + offset, "tris"))
+        {
+            tris = offset + 40;
+            tris_size = size;
+        }
+        else if (block_name_equals(model->data + offset, "frames"))
+        {
+            frames = offset + 40;
+            frames_size = size;
+        }
+        else if (block_name_equals(model->data + offset, "skeleton"))
+        {
+            skeleton = offset + 40;
+            skeleton_size = size;
+        }
+        offset += 40 + (size_t)size;
+    }
+    if (!header || header_size != 40 || !st || !tris || !frames)
+    {
+        snprintf(error, error_size, "flex model is missing required blocks");
+        return 0;
+    }
+    skin_width = read_i32(model->data, header);
+    skin_height = read_i32(model->data, header + 4);
+    frame_size = read_i32(model->data, header + 8);
+    vertex_count = read_i32(model->data, header + 16);
+    texcoord_count = read_i32(model->data, header + 20);
+    triangle_count = read_i32(model->data, header + 24);
+    frame_count = read_i32(model->data, header + 32);
+    if (skin_width <= 0 || skin_height <= 0 || frame_size < 40 || frame_size < 40 + vertex_count * 4 ||
+        st_size != texcoord_count * 4 || tris_size != triangle_count * 12 || frames_size != frame_count * frame_size ||
+        !allocate_geometry(model, vertex_count, texcoord_count, triangle_count, frame_count, error, error_size)) {
+        if (error[0] == '\0')
+        {
+            snprintf(error, error_size, "flex header contains invalid dimensions");
+        }
+        return 0;
+    }
+    for (i = 0; i < texcoord_count; ++i)
+    {
+        model->texcoords[i].s = read_u16(model->data, st + i * 4);
+        model->texcoords[i].t = read_u16(model->data, st + i * 4 + 2);
+    }
+    if (!load_triangles(model, tris, triangle_count, error, error_size))
+    {
+        return 0;
+    }
+
+    for (i = 0; i < frame_count; ++i)
+    {
+        decode_frame(model, frames + (size_t)i * frame_size, i, vertex_count);
+    }
+
+    if (skeleton && !load_flex_skeleton(model, skeleton, skeleton_size, error, error_size))
+    {
+        return 0;
+    }
+
+    apply_flex_skeleton(model);
+    compare_skeletal_frames(model);
+    calculate_bounds(model);
+    return 1;
+}
+
+static Vec3 subtract(Vec3 a, Vec3 b)
+{
+    Vec3 result = {a.x - b.x, a.y - b.y, a.z - b.z};
+    return result;
+}
+
+static Vec3 cross(Vec3 a, Vec3 b)
+{
+    Vec3 result = {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
+        a.x * b.y - a.y * b.x};
+    return result;
+}
+
+static void draw_model(const Model *model)
+{
+    int i, corner;
+    const Vec3 *vertices = model->display_vertices;
+    glBegin(GL_TRIANGLES);
+    for (i = 0; i < model->triangle_count; ++i)
+    {
+        const Triangle *triangle = &model->triangles[i];
+        Vec3 edge_a = subtract(vertices[triangle->vertex[1]], vertices[triangle->vertex[0]]);
+        Vec3 edge_b = subtract(vertices[triangle->vertex[2]], vertices[triangle->vertex[0]]);
+        Vec3 normal = cross(edge_a, edge_b);
+        glNormal3f(normal.x, normal.y, normal.z);
+        for (corner = 0; corner < 3; ++corner)
+        {
+            const TexCoord *texcoord = &model->texcoords[triangle->texcoord[corner]];
+            glTexCoord2f((float)texcoord->s, (float)texcoord->t);
+            glVertex3f(vertices[triangle->vertex[corner]].x, vertices[triangle->vertex[corner]].y, vertices[triangle->vertex[corner]].z);
+        }
+    }
+    glEnd();
+}
+
+static void draw_skeleton(const Model *model, int frame, float previous_weight)
+{
+    if (!model->joint_poses)
+        return;
+    glDisable(GL_LIGHTING);
+    glColor3f(1.0f, 0.72f, 0.12f);
+    glLineWidth(2.0f);
+    glBegin(GL_LINES);
+    for (int cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
+    {
+        const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
+        const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
+        const JointPose *previous = &model->joint_poses[(size_t)previous_frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
+        const Vec3 origin = lerp_skeleton_component(model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
+        Vec3 direction = lerp_skeleton_component(model, pose->direction, previous->direction, frame, previous_frame, previous_weight);
+        direction = rotate_runtime_point(direction, origin, model->runtime_skeleton.angles[cluster]);
+        glVertex3f(origin.x, origin.y, origin.z);
+        glVertex3f(direction.x, direction.y, direction.z);
+    }
+    glEnd();
+    glPointSize(5.0f);
+    glBegin(GL_POINTS);
+    for (int cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
+    {
+        const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
+        const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
+        const JointPose *previous = &model->joint_poses[(size_t)previous_frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
+        const Vec3 origin = lerp_skeleton_component(model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
+        glVertex3f(origin.x, origin.y, origin.z);
+    }
+    glEnd();
+    glEnable(GL_LIGHTING);
+}
+
+int main(int argc, char **argv)
+{
+    Model model = {0};
+    char error[256] = {0};
+    int is_flex, current_frame = 0, running = 1;
+    int selected_joint = 0;
+    int paused = 0;
+    int dragging = 0;
+    SDL_Window *window;
+    SDL_GLContext context;
+    uint64_t last_frame_tick;
+    float camera_distance;
+    float model_pitch = 0.0f;
+    float model_yaw = 0.0f;
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s MODEL.md2|MODEL.fm\n", argv[0]);
+        return 2;
+    }
+    is_flex = (strlen(argv[1]) >= 3 && argv[1][strlen(argv[1]) - 3] == '.' &&
+        (argv[1][strlen(argv[1]) - 2] == 'f' || argv[1][strlen(argv[1]) - 2] == 'F') &&
+        (argv[1][strlen(argv[1]) - 1] == 'm' || argv[1][strlen(argv[1]) - 1] == 'M'));
+    if (!(is_flex ? load_flex(&model, argv[1], error, sizeof(error)) :
+        load_md2(&model, argv[1], error, sizeof(error))))
+    {
+        fprintf(stderr, "%s\n", error);
+        model_free(&model);
+        return 1;
+    }
+    if (
+#ifdef USE_SDL3
+        !SDL_Init(SDL_INIT_VIDEO)
+#else
+        SDL_Init(SDL_INIT_VIDEO) != 0
+#endif
+    )
+    {
+        fprintf(stderr, "SDL initialization failed: %s\n", SDL_GetError());
+        model_free(&model);
+        return 1;
+    }
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+#ifdef USE_SDL3
+    window = SDL_CreateWindow("SDL model viewer", 960, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+#else
+    window = SDL_CreateWindow("SDL model viewer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        960, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+#endif
+    context = window ? SDL_GL_CreateContext(window) : NULL;
+    if (!window || !context) {
+        fprintf(stderr, "OpenGL window creation failed: %s\n", SDL_GetError());
+        if (context) {
+#ifdef USE_SDL3
+            SDL_GL_DestroyContext(context);
+#else
+            SDL_GL_DeleteContext(context);
+#endif
+        }
+        if (window)
+            SDL_DestroyWindow(window);
+        SDL_Quit();
+        model_free(&model);
+        return 1;
+    }
+    {
+        const GLfloat light_ambient[] = {0.18f, 0.20f, 0.24f, 1.0f};
+        const GLfloat light_diffuse[] = {0.95f, 0.88f, 0.72f, 1.0f};
+        const GLfloat light_position[] = {-1.0f, -2.0f, 3.0f, 0.0f};
+        const GLfloat material_color[] = {0.58f, 0.70f, 0.86f, 1.0f};
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_NORMALIZE);
+        glEnable(GL_COLOR_MATERIAL);
+        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light_ambient);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+        glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+        glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        glColor4fv(material_color);
+    }
+    camera_distance = (model.radius > 1.0f ? model.radius : 1.0f) * 3.0f;
+    last_frame_tick = SDL_GetTicks();
+    while (running)
+    {
+        SDL_Event event;
+        int width, height;
+        float radius = model.radius > 1.0f ? model.radius : 1.0f;
+        float light_angle;
+        GLfloat moving_light[4];
+        float previous_weight;
+        while (SDL_PollEvent(&event)) {
+            SDL_Keycode key =
+#ifdef USE_SDL3
+                event.key.key;
+#else
+                event.key.keysym.sym;
+#endif
+            if (
+#ifdef USE_SDL3
+                event.type == SDL_EVENT_QUIT || (event.type == SDL_EVENT_KEY_DOWN && key == SDLK_ESCAPE)
+#else
+                event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && key == SDLK_ESCAPE)
+#endif
+            ) {
+                running = 0;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
+#else
+            else if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+#endif
+                dragging = 1;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
+#else
+            else if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+#endif
+                dragging = 0;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_MOUSE_MOTION && dragging) {
+#else
+            else if (event.type == SDL_MOUSEMOTION && dragging) {
+#endif
+                model_yaw += event.motion.xrel * 0.5f;
+                model_pitch += event.motion.yrel * 0.5f;
+                if (model_pitch > 89.0f)
+                    model_pitch = 89.0f;
+                if (model_pitch < -89.0f)
+                    model_pitch = -89.0f;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_KEY_DOWN && key == SDLK_SPACE) {
+#else
+            else if (event.type == SDL_KEYDOWN && key == SDLK_SPACE) {
+#endif
+                paused = !paused;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_KEY_DOWN && key >= SDLK_1 && key <= SDLK_8 && model.runtime_skeleton.joint_count > 0) {
+#else
+            else if (event.type == SDL_KEYDOWN && key >= SDLK_1 && key <= SDLK_8 && model.runtime_skeleton.joint_count > 0) {
+#endif
+                selected_joint = (int)(key - SDLK_1);
+                if (selected_joint >= model.runtime_skeleton.joint_count)
+                    selected_joint = model.runtime_skeleton.joint_count - 1;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_KEY_DOWN && model.runtime_skeleton.joint_count > 0 &&
+                (key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN ||
+                 key == SDLK_Q || key == SDLK_E)) {
+#else
+            else if (event.type == SDL_KEYDOWN && model.runtime_skeleton.joint_count > 0 &&
+                (key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_UP || key == SDLK_DOWN ||
+                 key == SDLK_q || key == SDLK_e)) {
+#endif
+                const float angle_step = 5.0f * M_PI / 180.0f;
+                if (key == SDLK_LEFT)
+                    model.runtime_skeleton.angles[selected_joint][1] -= angle_step;
+                else if (key == SDLK_RIGHT)
+                    model.runtime_skeleton.angles[selected_joint][1] += angle_step;
+                else if (key == SDLK_UP)
+                    model.runtime_skeleton.angles[selected_joint][0] -= angle_step;
+                else if (key == SDLK_DOWN)
+                    model.runtime_skeleton.angles[selected_joint][0] += angle_step;
+#ifdef USE_SDL3
+                else if (key == SDLK_Q)
+                    model.runtime_skeleton.angles[selected_joint][2] -= angle_step;
+                else if (key == SDLK_E)
+                    model.runtime_skeleton.angles[selected_joint][2] += angle_step;
+#else
+                else if (key == SDLK_q)
+                    model.runtime_skeleton.angles[selected_joint][2] -= angle_step;
+                else if (key == SDLK_e)
+                    model.runtime_skeleton.angles[selected_joint][2] += angle_step;
+#endif
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_KEY_DOWN && key == SDLK_PLUS) {
+#else
+            else if (event.type == SDL_KEYDOWN && key == SDLK_PLUS) {
+#endif
+                camera_distance *= 0.85f;
+                if (camera_distance < radius * 1.2f)
+                    camera_distance = radius * 1.2f;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_KEY_DOWN && key == SDLK_MINUS) {
+#else
+            else if (event.type == SDL_KEYDOWN && key == SDLK_MINUS) {
+#endif
+                camera_distance *= 1.15f;
+                if (camera_distance > radius * 20.0f)
+                    camera_distance = radius * 20.0f;
+            }
+#ifdef USE_SDL3
+            else if (event.type == SDL_EVENT_MOUSE_WHEEL && event.wheel.y != 0.0f) {
+#else
+            else if (event.type == SDL_MOUSEWHEEL && event.wheel.y != 0.0f) {
+#endif
+                if (event.wheel.y < 0.0f) {
+                    camera_distance *= 0.85f;
+                    if (camera_distance < radius * 1.2f)
+                        camera_distance = radius * 1.2f;
+                } else {
+                    camera_distance *= 1.15f;
+                    if (camera_distance > radius * 20.0f)
+                        camera_distance = radius * 20.0f;
+                }
+            }
+        }
+        if (!paused) {
+            uint64_t now = SDL_GetTicks();
+            while (now - last_frame_tick >= FRAME_DURATION_MS)
+            {
+                current_frame = (current_frame + 1) % model.frame_count;
+                last_frame_tick += FRAME_DURATION_MS;
+            }
+        }
+        previous_weight = paused ? 0.0f :
+            1.0f - (float)(SDL_GetTicks() - last_frame_tick) / (float)FRAME_DURATION_MS;
+        if (previous_weight < 0.0f)
+            previous_weight = 0.0f;
+        if (previous_weight > 1.0f)
+            previous_weight = 1.0f;
+        interpolate_frame(&model, current_frame, previous_weight);
+    #ifdef USE_SDL3
+        SDL_GetWindowSizeInPixels(window, &width, &height);
+    #else
+        SDL_GetWindowSize(window, &width, &height);
+    #endif
+        glViewport(0, 0, width, height);
+        glClearColor(0.035f, 0.045f, 0.065f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        {
+            float aspect = (float)width / (float)(height > 0 ? height : 1);
+            float near_plane = radius * 0.05f;
+            float half_height = near_plane * tanf(30.0f * M_PI / 180.0f);
+            glFrustum(-half_height * aspect, half_height * aspect, -half_height,
+                half_height, near_plane, radius * 25.0f);
+        }
+        light_angle = (float)SDL_GetTicks() * 0.0015f;
+        moving_light[0] = cosf(light_angle) * radius * 2.5f;
+        moving_light[1] = sinf(light_angle) * radius * 2.5f;
+        moving_light[2] = -radius * 3.0f;
+        moving_light[3] = 1.0f;
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glLightfv(GL_LIGHT0, GL_POSITION, moving_light);
+        glTranslatef(0.0f, 0.0f, -camera_distance);
+        glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+        glRotatef(90.0f, 0.0f, 0.0f, 1.0f);
+        glRotatef(model_pitch, 1.0f, 0.0f, 0.0f);
+        glRotatef(model_yaw, 0.0f, 1.0f, 0.0f);
+        draw_model(&model);
+        draw_skeleton(&model, current_frame, previous_weight);
+        SDL_GL_SwapWindow(window);
+    }
+#ifdef USE_SDL3
+    SDL_GL_DestroyContext(context);
+#else
+    SDL_GL_DeleteContext(context);
+#endif
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+    model_free(&model);
+    return 0;
+}

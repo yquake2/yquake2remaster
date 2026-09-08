@@ -485,12 +485,12 @@ endif
 # ----------
 
 # Phony targets
-.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract
+.PHONY : all client game icon server ref_gl1 ref_gl3 ref_gles1 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract viewer
 
 # ----------
 
 # Builds everything but the GLES1 renderer
-all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract
+all: config client server game ref_gl1 ref_gl3 ref_gles3 ref_soft ref_vk ref_gl4 xatrix rogue ctf pakextract viewer
 
 # ----------
 
@@ -696,7 +696,7 @@ endif
 
 # ----------
 
-# The pakextact
+# The pakextract
 ifeq ($(YQ2_OSTYPE), Windows)
 pakextract:
 	@echo "===> Building pakextract"
@@ -731,6 +731,38 @@ $(BINDIR)/pakextract : CFLAGS += -DDEDICATED_ONLY -Wno-unused-result
 ifeq ($(YQ2_OSTYPE), FreeBSD)
 $(BINDIR)/pakextract : LDLIBS += -lexecinfo
 endif
+
+endif
+
+# ----------
+
+# The model viewer
+ifeq ($(YQ2_OSTYPE), Windows)
+viewer:
+	@echo "===> Building viewer.exe"
+	${Q}mkdir -p $(BINDIR)
+	$(MAKE) $(BINDIR)/viewer.exe
+
+$(BUILDDIR)/viewer/%.o: %.c
+	@if [ -z $(QUIET) ]; then\
+		echo "===> CC $<";\
+	fi
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
+
+else # not Windows
+
+viewer:
+	@echo "===> Building viewer"
+	${Q}mkdir -p $(BINDIR)
+	$(MAKE) $(BINDIR)/viewer
+
+$(BUILDDIR)/viewer/%.o: %.c
+	@if [ -z $(QUIET) ]; then\
+		echo "===> CC $<";\
+	fi
+	${Q}mkdir -p $(@D)
+	${Q}$(CC) -c $(CFLAGS) $(SDLCFLAGS) $(INCLUDE) -o $@ $<
 
 endif
 
@@ -1648,6 +1680,10 @@ PAKEXTRACT_OBJS_ := \
 	src/common/shared/shared.o \
 	src/pakextract/pakextract.o
 
+# Used by the model viewer
+VIEWER_OBJS_ := \
+	src/viewer/main.o
+
 # ----------
 
 # Rewrite paths to our object directory.
@@ -1665,6 +1701,7 @@ REFSOFT_OBJS = $(patsubst %,$(BUILDDIR)/ref_soft/%,$(REFSOFT_OBJS_))
 REFVK_OBJS = $(patsubst %,$(BUILDDIR)/ref_vk/%,$(REFVK_OBJS_))
 SERVER_OBJS = $(patsubst %,$(BUILDDIR)/server/%,$(SERVER_OBJS_))
 PAKEXTRACT_OBJS = $(patsubst %,$(BUILDDIR)/pakextract/%,$(PAKEXTRACT_OBJS_))
+VIEWER_OBJS = $(patsubst %,$(BUILDDIR)/viewer/%,$(VIEWER_OBJS_))
 GAME_OBJS = $(patsubst %,$(BUILDDIR)/baseq2/%,$(GAME_OBJS_))
 
 # ----------
@@ -1681,6 +1718,7 @@ REFSOFT_DEPS= $(REFSOFT_OBJS:.o=.d)
 REFVK_DEPS= $(REFVK_OBJS:.o=.d)
 SERVER_DEPS= $(SERVER_OBJS:.o=.d)
 PAKEXTRACT_DEPS= $(PAKEXTRACT_OBJS:.o=.d)
+VIEWER_DEPS= $(VIEWER_OBJS:.o=.d)
 
 # Suck header dependencies in.
 -include $(CLIENT_DEPS)
@@ -1693,6 +1731,7 @@ PAKEXTRACT_DEPS= $(PAKEXTRACT_OBJS:.o=.d)
 -include $(REFVK_DEPS)
 -include $(SERVER_DEPS)
 -include $(PAKEXTRACT_DEPS)
+-include $(VIEWER_DEPS)
 
 # ----------
 
@@ -1730,6 +1769,21 @@ else
 $(BINDIR)/pakextract : $(PAKEXTRACT_OBJS)
 	@echo "===> LD $@"
 	${Q}$(CC) $(LDFLAGS) $(PAKEXTRACT_OBJS) $(LDLIBS) -o $@
+endif
+
+# viewer
+ifeq ($(YQ2_OSTYPE), Windows)
+$(BINDIR)/viewer.exe : $(VIEWER_OBJS) icon
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(BUILDROOT)/icon/icon.res $(VIEWER_OBJS) $(LDLIBS) $(DLL_SDLLDFLAGS) -lopengl32 -o $@
+else ifeq ($(YQ2_OSTYPE), Darwin)
+$(BINDIR)/viewer : $(VIEWER_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(VIEWER_OBJS) $(LDLIBS) $(SDLLDFLAGS) -framework OpenGL -o $@
+else
+$(BINDIR)/viewer : $(VIEWER_OBJS)
+	@echo "===> LD $@"
+	${Q}$(CC) $(LDFLAGS) $(VIEWER_OBJS) $(LDLIBS) $(SDLLDFLAGS) -lGL -o $@
 endif
 
 # ref_gl1.so
