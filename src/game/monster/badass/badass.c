@@ -268,10 +268,10 @@ badass_attack(edict_t *self)
 static void
 badass_attack_loop(edict_t *self)
 {
-	vec3_t delta;
-
 	if (self->enemy && visible(self, self->enemy) && (self->enemy->health > 0))
 	{
+		vec3_t delta;
+
 		VectorSubtract(self->s.origin, self->enemy->s.origin, delta);
 		if (VectorLength(delta) < 200.0f)
 		{

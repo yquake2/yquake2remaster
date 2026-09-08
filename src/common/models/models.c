@@ -657,6 +657,15 @@ static const namesconvert_t flex_names[] = {
 };
 
 static const namesconvert_t quake2_names[] = {
+	/* oblivion */
+	{"attak",  "attack"},
+	{"attack",  "attack"},
+	{"stand", "stand"},
+	{"melee", "melee"},
+	{"pain", "pain"},
+	{"death", "death"},
+	{"run", "run"},
+	{"walk", "walk"},
 	/* infinity */
 	{"powa", "pow"},
 	{"powb", "pow"},

@@ -505,16 +505,16 @@ static void
 cyborg_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 	const csurface_t *surf)
 {
-	vec3_t dir, point;
-	int damage;
-
 	if (self->health > 0)
 	{
 		if (other->takedamage && VectorLength(self->velocity) > 400.0f)
 		{
+			vec3_t dir, point;
+			int damage;
+
 			VectorNormalize2(self->velocity, dir);
 			VectorMA(self->s.origin, self->maxs[0], dir, point);
-			damage = (int)(crandk() * 10.0f) + 40;
+			damage = (crandk() * 10.0f) + 40;
 			T_Damage(other, self, self, self->velocity, point, dir, damage,
 				damage, 0, MOD_UNKNOWN);
 		}
@@ -723,7 +723,6 @@ static void
 cyborg_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	int damage, const vec3_t point)
 {
-	int n;
 	float r;
 
 	if (meansOfDeath == MOD_DISINTEGRATOR)
@@ -734,6 +733,8 @@ cyborg_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 
 	if (self->health <= self->gib_health)
 	{
+		int n;
+
 		gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1,
 			ATTN_NORM, 0);
 
@@ -756,7 +757,9 @@ cyborg_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	}
 
 	if (self->deadflag == DEAD_DEAD)
+	{
 		return;
+	}
 
 	gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
 	self->deadflag = DEAD_DEAD;
