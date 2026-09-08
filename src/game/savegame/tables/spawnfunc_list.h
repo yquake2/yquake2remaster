@@ -377,6 +377,7 @@
 {"target_music", SP_target_music},
 {"target_orb", SP_target_orb},
 {"target_railgun", SP_target_railgun},
+{"target_rocket", SP_target_rocket},
 {"target_secret", SP_target_secret},
 {"target_sky", SP_target_sky},
 {"target_soundfx", SP_target_soundfx},

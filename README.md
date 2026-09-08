@@ -374,7 +374,6 @@ Checked with:
 * [ ] Oblivion: Add support of `misc_camera`,
 * [ ] Oblivion: Add support of `misc_camera_target`,
 * [ ] Oblivion: Add support of `misc_screenfader`,
-* [ ] Oblivion: Add support of `target_rocket`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Dynamic count of entities on client,
@@ -382,6 +381,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Oblivion: Add support of `target_rocket`,
 * [x] Oblivion: Add support of `target_railgun`,
 * [x] Oblivion: Add support of `monster_spider`,
 * [x] Oblivion: Add support of `monster_badass`,
