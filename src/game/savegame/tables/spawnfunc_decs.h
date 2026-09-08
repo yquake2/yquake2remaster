@@ -282,6 +282,7 @@ void SP_target_lightramp( edict_t * self ) ;
 void SP_target_mal_laser( edict_t * self ) ;
 void SP_target_music( edict_t * self ) ;
 void SP_target_orb ( edict_t * ent ) ;
+void SP_target_railgun ( edict_t * ent ) ;
 void SP_target_secret ( edict_t * ent ) ;
 void SP_target_sky( edict_t * self ) ;
 void SP_target_soundfx( edict_t * self ) ;

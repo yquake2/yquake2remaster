@@ -763,6 +763,48 @@ SP_target_blaster(edict_t *self)
 /* ========================================================== */
 
 /*
+ * QUAKED target_railgun (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS
+ *
+ * Oblivion: Fires a railgun in the set direction when triggered.
+ *
+ * dmg: default is 150
+ */
+
+void
+use_target_railgun(edict_t *self, edict_t *other /* unused */, edict_t *activator /* unused */)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	fire_rail(self, self->s.origin, self->movedir, self->dmg, 0);
+	gi.sound(self, CHAN_VOICE, self->noise_index, 1, ATTN_NORM, 0);
+}
+
+void
+SP_target_railgun(edict_t *self)
+{
+	if (!self)
+	{
+		return;
+	}
+
+	self->use = use_target_railgun;
+	G_SetMovedir(self->s.angles, self->movedir);
+	self->noise_index = gi.soundindex ("weapons/railgf1a.wav");
+
+	if (!self->dmg)
+	{
+		self->dmg = 150;
+	}
+
+	self->svflags = SVF_NOCLIENT;
+}
+
+/* ========================================================== */
+
+/*
  * QUAKED target_crosslevel_trigger (.5 .5 .5) (-8 -8 -8) (8 8 8) trigger1 trigger2 trigger3 trigger4 trigger5 trigger6 trigger7 trigger8
  *
  * Once this trigger is touched/used, any trigger_crosslevel_target
