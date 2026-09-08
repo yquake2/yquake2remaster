@@ -140,6 +140,7 @@
 {"badMedic2", FOFS(monsterinfo.badMedic2), F_EDICT},
 {"last_player_enemy", FOFS(monsterinfo.last_player_enemy), F_EDICT},
 {"commander", FOFS(monsterinfo.commander), F_EDICT},
+{"healer", FOFS(monsterinfo.healer), F_EDICT},
 {"blocked", FOFS(monsterinfo.blocked), F_FUNCTION, FFL_NOSPAWN},
 {"duck", FOFS(monsterinfo.duck), F_FUNCTION, FFL_NOSPAWN},
 {"unduck", FOFS(monsterinfo.unduck), F_FUNCTION, FFL_NOSPAWN},
