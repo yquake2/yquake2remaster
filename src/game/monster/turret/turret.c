@@ -989,7 +989,7 @@ turret_checkattack(edict_t *self)
 {
 	float chance, nexttime;
 
-	if (!self)
+	if (!self || !self->enemy || !self->enemy->inuse)
 	{
 		return false;
 	}

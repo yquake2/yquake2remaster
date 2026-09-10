@@ -586,6 +586,11 @@ spider_checkattack(edict_t *self)
 	float chance;
 	vec3_t temp;
 
+	if (!self || !self->enemy || !self->enemy->inuse)
+	{
+		return false;
+	}
+
 	if (self->enemy->health > 0)
 	{
 		vec3_t spot1, spot2;
