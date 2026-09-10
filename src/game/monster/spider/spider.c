@@ -610,7 +610,10 @@ spider_checkattack(edict_t *self)
 		}
 	}
 
-	infront(self, self->enemy);
+	if (!infront(self, self->enemy))
+	{
+		return false;
+	}
 
 	enemy_range = ai_range(self, self->enemy);
 	VectorSubtract(self->enemy->s.origin, self->s.origin, temp);

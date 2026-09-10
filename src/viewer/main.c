@@ -45,18 +45,13 @@
 
 typedef struct
 {
-	float x, y, z;
-} Vec3;
-
-typedef struct
-{
-	Vec3 origin, direction, up;
+	vec3_t origin, direction, up;
 } JointPose;
 
 typedef struct {
 	int joint_count;
-	int parent[8];
-	float angles[8][3];
+	int *parent;
+	vec3_t *angles;
 } RuntimeSkeleton;
 
 typedef struct {
@@ -64,11 +59,11 @@ typedef struct {
 	size_t data_size;
 	dstvert_t *texcoords;
 	dtriangle_t *triangles;
-	Vec3 *vertices;
-	Vec3 *raw_vertices;
-	Vec3 *display_vertices;
-	Vec3 *frame_scales;
-	Vec3 *frame_translates;
+	vec3_t *vertices;
+	vec3_t *raw_vertices;
+	vec3_t *display_vertices;
+	vec3_t *frame_scales;
+	vec3_t *frame_translates;
 	int **cluster_vertices;
 	int *cluster_vertex_counts;
 	JointPose *joint_poses;
@@ -103,6 +98,8 @@ static void model_free(Model *model)
 	free(model->frame_scales);
 	free(model->frame_translates);
 	free(model->joint_poses);
+	free(model->runtime_skeleton.parent);
+	free(model->runtime_skeleton.angles);
 
 	if (model->cluster_vertices)
 	{
@@ -164,11 +161,11 @@ static int allocate_geometry(Model *model, int vertex_count, int texcoord_count,
 	model->frame_count = frame_count;
 	model->texcoords = (dstvert_t *)calloc((size_t)texcoord_count, sizeof(*model->texcoords));
 	model->triangles = (dtriangle_t *)calloc((size_t)triangle_count, sizeof(*model->triangles));
-	model->vertices = (Vec3 *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->vertices));
-	model->raw_vertices = (Vec3 *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->raw_vertices));
-	model->display_vertices = (Vec3 *)calloc((size_t)vertex_count, sizeof(*model->display_vertices));
-	model->frame_scales = (Vec3 *)calloc((size_t)frame_count, sizeof(*model->frame_scales));
-	model->frame_translates = (Vec3 *)calloc((size_t)frame_count, sizeof(*model->frame_translates));
+	model->vertices = (vec3_t *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->vertices));
+	model->raw_vertices = (vec3_t *)calloc((size_t)vertex_count * (size_t)frame_count, sizeof(*model->raw_vertices));
+	model->display_vertices = (vec3_t *)calloc((size_t)vertex_count, sizeof(*model->display_vertices));
+	model->frame_scales = (vec3_t *)calloc((size_t)frame_count, sizeof(*model->frame_scales));
+	model->frame_translates = (vec3_t *)calloc((size_t)frame_count, sizeof(*model->frame_translates));
 	if (!model->texcoords || !model->triangles || !model->vertices || !model->raw_vertices ||
 		!model->display_vertices || !model->frame_scales || !model->frame_translates)
 	{
@@ -203,28 +200,30 @@ static void calculate_bounds(Model *model)
 {
 	size_t count = (size_t)model->vertex_count * (size_t)model->frame_count;
 	size_t i;
-	Vec3 min = model->vertices[0], max = min;
+	vec3_t min, max;
+	VectorCopy(model->vertices[0], min);
+	VectorCopy(model->vertices[0], max);
 	for (i = 1; i < count; ++i)
 	{
-		Vec3 vertex = model->vertices[i];
-		if (vertex.x < min.x)
-			min.x = vertex.x;
-		if (vertex.y < min.y)
-			min.y = vertex.y;
-		if (vertex.z < min.z)
-			min.z = vertex.z;
-		if (vertex.x > max.x)
-			max.x = vertex.x;
-		if (vertex.y > max.y)
-			max.y = vertex.y;
-		if (vertex.z > max.z)
-			max.z = vertex.z;
+		const vec3_t *vertex = &model->vertices[i];
+		if ((*vertex)[0] < min[0])
+			min[0] = (*vertex)[0];
+		if ((*vertex)[1] < min[1])
+			min[1] = (*vertex)[1];
+		if ((*vertex)[2] < min[2])
+			min[2] = (*vertex)[2];
+		if ((*vertex)[0] > max[0])
+			max[0] = (*vertex)[0];
+		if ((*vertex)[1] > max[1])
+			max[1] = (*vertex)[1];
+		if ((*vertex)[2] > max[2])
+			max[2] = (*vertex)[2];
 	}
-	model->radius = max.x - min.x;
-	if (max.y - min.y > model->radius)
-		model->radius = max.y - min.y;
-	if (max.z - min.z > model->radius)
-		model->radius = max.z - min.z;
+	model->radius = max[0] - min[0];
+	if (max[1] - min[1] > model->radius)
+		model->radius = max[1] - min[1];
+	if (max[2] - min[2] > model->radius)
+		model->radius = max[2] - min[2];
 	model->radius *= 0.5f;
 }
 
@@ -241,54 +240,22 @@ static void decode_frame(Model *model, size_t offset, int frame, int vertex_coun
 		LittleFloat(*((float *)(model->data + offset + 16))),
 		LittleFloat(*((float *)(model->data + offset + 20)))
 	};
-	model->frame_scales[frame] = (Vec3){scale[0], scale[1], scale[2]};
-	model->frame_translates[frame] = (Vec3){translate[0], translate[1], translate[2]};
+	VectorCopy(scale, model->frame_scales[frame]);
+	VectorCopy(translate, model->frame_translates[frame]);
 	for (vertex = 0; vertex < vertex_count; ++vertex)
 	{
 		size_t compressed = offset + 40 + (size_t)vertex * 4;
 		float x = model->data[compressed] * scale[0] + translate[0];
 		float y = model->data[compressed + 1] * scale[1] + translate[1];
 		float z = model->data[compressed + 2] * scale[2] + translate[2];
-		Vec3 *destination = &model->vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex];
-		destination->x = x;
-		destination->y = y;
-		destination->z = z;
-		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex] = *destination;
+		vec3_t *destination = &model->vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex];
+		(*destination)[0] = x;
+		(*destination)[1] = y;
+		(*destination)[2] = z;
+		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex][0] = (*destination)[0];
+		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex][1] = (*destination)[1];
+		model->raw_vertices[(size_t)frame * (size_t)vertex_count + (size_t)vertex][2] = (*destination)[2];
 	}
-}
-
-static Vec3 vec_add(Vec3 a, Vec3 b)
-{
-	Vec3 result = {a.x + b.x, a.y + b.y, a.z + b.z};
-	return result;
-}
-
-static float vec_dot(Vec3 a, Vec3 b)
-{
-	return a.x * b.x + a.y * b.y + a.z * b.z;
-}
-
-static float vec_length(Vec3 value)
-{
-	return sqrtf(vec_dot(value, value));
-}
-
-static Vec3 convert_model_point(Vec3 source)
-{
-	return source;
-}
-
-static Vec3 subtract(Vec3 a, Vec3 b)
-{
-	Vec3 result = {a.x - b.x, a.y - b.y, a.z - b.z};
-	return result;
-}
-
-static Vec3 cross(Vec3 a, Vec3 b)
-{
-	Vec3 result = {a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
-		a.x * b.y - a.y * b.x};
-	return result;
 }
 
 static int skeleton_joint_count(int skeletal_type)
@@ -308,12 +275,23 @@ static int build_runtime_skeleton(Model *model)
 	}
 
 	model->runtime_skeleton.joint_count = joint_count;
+	model->runtime_skeleton.parent = (int *)calloc((size_t)joint_count,
+		sizeof(*model->runtime_skeleton.parent));
+	model->runtime_skeleton.angles = (float (*)[3])calloc((size_t)joint_count,
+		sizeof(*model->runtime_skeleton.angles));
+	if (!model->runtime_skeleton.parent || !model->runtime_skeleton.angles)
+	{
+		free(model->runtime_skeleton.parent);
+		free(model->runtime_skeleton.angles);
+		model->runtime_skeleton.parent = NULL;
+		model->runtime_skeleton.angles = NULL;
+		model->runtime_skeleton.joint_count = 0;
+		return 0;
+	}
 	for (int joint = 0; joint < joint_count; ++joint)
 	{
 		model->runtime_skeleton.parent[joint] = -1;
-		model->runtime_skeleton.angles[joint][0] = 0.0f;
-		model->runtime_skeleton.angles[joint][1] = 0.0f;
-		model->runtime_skeleton.angles[joint][2] = 0.0f;
+		VectorClear(model->runtime_skeleton.angles[joint]);
 	}
 	/* lower-back -> upper-back -> head for Raven,
 	   Plague Elf, and Corvus; the other definitions are one short chain. */
@@ -329,20 +307,20 @@ static int build_runtime_skeleton(Model *model)
 	return 1;
 }
 
-static Vec3 rotate_runtime_point(Vec3 point, Vec3 origin, const float angles[3])
+static void rotate_runtime_point(vec3_t out, const vec3_t point, const vec3_t origin, const float angles[3])
 {
 	const float cx = cosf(angles[0]), sx = sinf(angles[0]);
 	const float cy = cosf(angles[1]), sy = sinf(angles[1]);
 	const float cz = cosf(angles[2]), sz = sinf(angles[2]);
-	Vec3 local = subtract(point, origin);
-	Vec3 rotated;
-	rotated.x = (cy * cz + sx * sy * sz) * local.x + (cz * sx * sy - cy * sz) * local.y + cx * sy * local.z;
-	rotated.y = cx * sz * local.x + cx * cz * local.y - sx * local.z;
-	rotated.z = (cy * sx * sz - cz * sy) * local.x + (cy * cz * sx + sy * sz) * local.y + cx * cy * local.z;
-	return vec_add(origin, rotated);
+	vec3_t local, rotated;
+	VectorSubtract(point, origin, local);
+	rotated[0] = (cy * cz + sx * sy * sz) * local[0] + (cz * sx * sy - cy * sz) * local[1] + cx * sy * local[2];
+	rotated[1] = cx * sz * local[0] + cx * cz * local[1] - sx * local[2];
+	rotated[2] = (cy * sx * sz - cz * sy) * local[0] + (cy * cz * sx + sy * sz) * local[1] + cx * cy * local[2];
+	VectorAdd(origin, rotated, out);
 }
 
-static void rotate_runtime_cluster(Model *model, int frame, int joint, Vec3 *vertices)
+static void rotate_runtime_cluster(Model *model, int frame, int joint, vec3_t *vertices)
 {
 	const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)joint];
 	for (int child = 0; child < model->runtime_skeleton.joint_count; ++child)
@@ -356,7 +334,9 @@ static void rotate_runtime_cluster(Model *model, int frame, int joint, Vec3 *ver
 		const float *angles = model->runtime_skeleton.angles[joint];
 		if (angles[0] != 0.0f || angles[1] != 0.0f || angles[2] != 0.0f)
 		{
-			vertices[index] = rotate_runtime_point(vertices[index], pose->origin, model->runtime_skeleton.angles[joint]);
+			vec3_t rotated;
+			rotate_runtime_point(rotated, vertices[index], pose->origin, model->runtime_skeleton.angles[joint]);
+			VectorCopy(rotated, vertices[index]);
 		}
 	}
 }
@@ -368,19 +348,13 @@ static int load_flex_skeleton(Model *model, size_t offset, int32_t block_size, c
 	int raw_counts[8];
 	int running_total = 0;
 	int index_base = 0;
-	static const int num_joints_in_skeleton[] = {3, 1, 2, 2, 3, 3};
 	if (block_size < 12 || !range_valid(model, offset, (size_t)block_size))
 	{
 		snprintf(error, error_size, "flex skeleton block is truncated");
 		return 0;
 	}
 	model->skeletal_type = LittleLong(*((int *)(model->data + cursor)));
-	if (model->skeletal_type < 0 || model->skeletal_type >= ARRLEN(num_joints_in_skeleton))
-	{
-		snprintf(error, error_size, "flex skeleton has an invalid skeletal type");
-		return 0;
-	}
-	model->joint_count = num_joints_in_skeleton[model->skeletal_type];
+	model->joint_count = skeleton_joint_count(model->skeletal_type);
 	model->skeleton_cluster_count = LittleLong(*((int *)(model->data + cursor + 4)));
 	cursor += 8;
 	if (model->skeleton_cluster_count != model->joint_count) {
@@ -463,23 +437,23 @@ static int load_flex_skeleton(Model *model, size_t offset, int32_t block_size, c
 		for (cluster = 0; cluster < model->skeleton_cluster_count; ++cluster)
 		{
 			JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-			pose->origin = convert_model_point((Vec3){
-				LittleFloat(*((float *)(model->data + cursor))),
-				LittleFloat(*((float *)(model->data + cursor + 4))),
-				LittleFloat(*((float *)(model->data + cursor + 8)))
-			});
+			VectorSet(pose->origin,
+					LittleFloat(*((float *)(model->data + cursor))),
+					LittleFloat(*((float *)(model->data + cursor + 4))),
+					LittleFloat(*((float *)(model->data + cursor + 8)))
+			);
 			cursor += 12;
-			pose->direction = convert_model_point((Vec3){
-				LittleFloat(*((float *)(model->data + cursor))),
-				LittleFloat(*((float *)(model->data + cursor + 4))),
-				LittleFloat(*((float *)(model->data + cursor + 8)))
-			});
+			VectorSet(pose->direction,
+					LittleFloat(*((float *)(model->data + cursor))),
+					LittleFloat(*((float *)(model->data + cursor + 4))),
+					LittleFloat(*((float *)(model->data + cursor + 8)))
+			);
 			cursor += 12;
-			pose->up = convert_model_point((Vec3){
-				LittleFloat(*((float *)(model->data + cursor))),
-				LittleFloat(*((float *)(model->data + cursor + 4))),
-				LittleFloat(*((float *)(model->data + cursor + 8)))
-			});
+			VectorSet(pose->up,
+					LittleFloat(*((float *)(model->data + cursor))),
+					LittleFloat(*((float *)(model->data + cursor + 4))),
+					LittleFloat(*((float *)(model->data + cursor + 8)))
+			);
 			cursor += 12;
 		}
 	}
@@ -492,8 +466,8 @@ static void apply_flex_skeleton(Model *model)
 		return;
 	for (int frame = 0; frame < model->frame_count; ++frame)
 	{
-		Vec3 *vertices = model->vertices + (size_t)frame * (size_t)model->vertex_count;
-		const Vec3 *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
+		vec3_t *vertices = model->vertices + (size_t)frame * (size_t)model->vertex_count;
+		const vec3_t *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
 		memcpy(vertices, raw, (size_t)model->vertex_count * sizeof(*vertices));
 		rotate_runtime_cluster(model, frame, 0, vertices);
 	}
@@ -506,15 +480,16 @@ static void compare_skeletal_frames(const Model *model)
 	printf("skeleton comparison (frame 0 excluded):\n");
 	for (int frame = 1; frame < model->frame_count; ++frame)
 	{
-		const Vec3 *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
-		const Vec3 *skinned = model->vertices + (size_t)frame * (size_t)model->vertex_count;
+		const vec3_t *raw = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
+		const vec3_t *skinned = model->vertices + (size_t)frame * (size_t)model->vertex_count;
 		int changed = 0;
 		float max_displacement = 0.0f;
 		double total_displacement = 0.0;
 		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		{
-			const Vec3 delta = subtract(skinned[vertex], raw[vertex]);
-			const float displacement = vec_length(delta);
+			vec3_t delta;
+			VectorSubtract(skinned[vertex], raw[vertex], delta);
+			const float displacement = VectorLength(delta);
 			if (displacement > 0.0001f)
 				++changed;
 			if (displacement > max_displacement)
@@ -530,45 +505,43 @@ static void compare_skeletal_frames(const Model *model)
 	}
 }
 
-static Vec3 lerp_vec3(Vec3 current, Vec3 previous, float previous_weight)
-{
-	Vec3 result;
-	result.x = current.x * (1.0f - previous_weight) + previous.x * previous_weight;
-	result.y = current.y * (1.0f - previous_weight) + previous.y * previous_weight;
-	result.z = current.z * (1.0f - previous_weight) + previous.z * previous_weight;
-	return result;
-}
-
-static Vec3 lerp_skeleton_component(const Model *model, Vec3 current, Vec3 previous,
-	int frame, int previous_frame, float previous_weight)
+static void lerp_vec3(vec3_t out, const vec3_t current, const vec3_t previous, float previous_weight)
 {
 	const float current_weight = 1.0f - previous_weight;
-	Vec3 result;
-	result.x = current.x * model->frame_scales[frame].x * current_weight +
-		previous.x * model->frame_scales[previous_frame].x * previous_weight +
-		model->frame_translates[frame].x * current_weight +
-		model->frame_translates[previous_frame].x * previous_weight;
-	result.y = current.y * model->frame_scales[frame].y * current_weight +
-		previous.y * model->frame_scales[previous_frame].y * previous_weight +
-		model->frame_translates[frame].y * current_weight +
-		model->frame_translates[previous_frame].y * previous_weight;
-	result.z = current.z * model->frame_scales[frame].z * current_weight +
-		previous.z * model->frame_scales[previous_frame].z * previous_weight +
-		model->frame_translates[frame].z * current_weight +
-		model->frame_translates[previous_frame].z * previous_weight;
-	return result;
+	out[0] = current[0] * current_weight + previous[0] * previous_weight;
+	out[1] = current[1] * current_weight + previous[1] * previous_weight;
+	out[2] = current[2] * current_weight + previous[2] * previous_weight;
+}
+
+static void lerp_skeleton_component(vec3_t out, const Model *model, const vec3_t current,
+	const vec3_t previous, int frame, int previous_frame, float previous_weight)
+{
+	const float current_weight = 1.0f - previous_weight;
+	out[0] = current[0] * model->frame_scales[frame][0] * current_weight +
+		previous[0] * model->frame_scales[previous_frame][0] * previous_weight +
+		model->frame_translates[frame][0] * current_weight +
+		model->frame_translates[previous_frame][0] * previous_weight;
+	out[1] = current[1] * model->frame_scales[frame][1] * current_weight +
+		previous[1] * model->frame_scales[previous_frame][1] * previous_weight +
+		model->frame_translates[frame][1] * current_weight +
+		model->frame_translates[previous_frame][1] * previous_weight;
+	out[2] = current[2] * model->frame_scales[frame][2] * current_weight +
+		previous[2] * model->frame_scales[previous_frame][2] * previous_weight +
+		model->frame_translates[frame][2] * current_weight +
+		model->frame_translates[previous_frame][2] * previous_weight;
 }
 
 static void interpolate_frame(Model *model, int frame, float previous_weight)
 {
 	const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
-	const Vec3 *current = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
-	const Vec3 *previous = model->raw_vertices + (size_t)previous_frame * (size_t)model->vertex_count;
-	const Vec3 scale = lerp_vec3(model->frame_scales[frame], model->frame_scales[previous_frame], previous_weight);
-	const Vec3 translate = lerp_vec3(model->frame_translates[frame], model->frame_translates[previous_frame], previous_weight);
+	const vec3_t *current = model->raw_vertices + (size_t)frame * (size_t)model->vertex_count;
+	const vec3_t *previous = model->raw_vertices + (size_t)previous_frame * (size_t)model->vertex_count;
+	vec3_t scale, translate;
+	lerp_vec3(scale, model->frame_scales[frame], model->frame_scales[previous_frame], previous_weight);
+	lerp_vec3(translate, model->frame_translates[frame], model->frame_translates[previous_frame], previous_weight);
 	for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 	{
-		model->display_vertices[vertex] = lerp_vec3(current[vertex], previous[vertex], previous_weight);
+		lerp_vec3(model->display_vertices[vertex], current[vertex], previous[vertex], previous_weight);
 	}
 	if (model->joint_poses && model->runtime_skeleton.joint_count > 0)
 	{
@@ -576,16 +549,16 @@ static void interpolate_frame(Model *model, int frame, float previous_weight)
 		   matching RotateModelSegment followed by CNode::ShowFrame(). */
 		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		{
-			model->display_vertices[vertex].x = (model->display_vertices[vertex].x - translate.x) / scale.x;
-			model->display_vertices[vertex].y = (model->display_vertices[vertex].y - translate.y) / scale.y;
-			model->display_vertices[vertex].z = (model->display_vertices[vertex].z - translate.z) / scale.z;
+			model->display_vertices[vertex][0] = (model->display_vertices[vertex][0] - translate[0]) / scale[0];
+			model->display_vertices[vertex][1] = (model->display_vertices[vertex][1] - translate[1]) / scale[1];
+			model->display_vertices[vertex][2] = (model->display_vertices[vertex][2] - translate[2]) / scale[2];
 		}
 		rotate_runtime_cluster(model, frame, 0, model->display_vertices);
 		for (int vertex = 0; vertex < model->vertex_count; ++vertex)
 		{
-			model->display_vertices[vertex].x = model->display_vertices[vertex].x * scale.x + translate.x;
-			model->display_vertices[vertex].y = model->display_vertices[vertex].y * scale.y + translate.y;
-			model->display_vertices[vertex].z = model->display_vertices[vertex].z * scale.z + translate.z;
+			model->display_vertices[vertex][0] = model->display_vertices[vertex][0] * scale[0] + translate[0];
+			model->display_vertices[vertex][1] = model->display_vertices[vertex][1] * scale[1] + translate[1];
+			model->display_vertices[vertex][2] = model->display_vertices[vertex][2] * scale[2] + translate[2];
 		}
 	}
 }
@@ -749,23 +722,24 @@ static int load_flex(Model *model, const char *filename, char *error, size_t err
 static void draw_model(const Model *model)
 {
 	int i, corner;
-	const Vec3 *vertices = model->display_vertices;
+	const vec3_t *vertices = model->display_vertices;
 	glBegin(GL_TRIANGLES);
 	for (i = 0; i < model->triangle_count; ++i)
 	{
 		const dtriangle_t *triangle = &model->triangles[i];
-		Vec3 edge_a = subtract(vertices[triangle->index_xyz[1]], vertices[triangle->index_xyz[0]]);
-		Vec3 edge_b = subtract(vertices[triangle->index_xyz[2]], vertices[triangle->index_xyz[0]]);
-		Vec3 normal = cross(edge_a, edge_b);
-		glNormal3f(normal.x, normal.y, normal.z);
+		vec3_t edge_a, edge_b, normal;
+		VectorSubtract(vertices[triangle->index_xyz[1]], vertices[triangle->index_xyz[0]], edge_a);
+		VectorSubtract(vertices[triangle->index_xyz[2]], vertices[triangle->index_xyz[0]], edge_b);
+		CrossProduct(edge_a, edge_b, normal);
+		glNormal3f(normal[0], normal[1], normal[2]);
 		for (corner = 0; corner < 3; ++corner)
 		{
 			const dstvert_t *texcoord = &model->texcoords[triangle->index_st[corner]];
 			glTexCoord2f((float)texcoord->s, (float)texcoord->t);
 			glVertex3f(
-				vertices[triangle->index_xyz[corner]].x,
-				vertices[triangle->index_xyz[corner]].y,
-				vertices[triangle->index_xyz[corner]].z
+				vertices[triangle->index_xyz[corner]][0],
+				vertices[triangle->index_xyz[corner]][1],
+				vertices[triangle->index_xyz[corner]][2]
 			);
 		}
 	}
@@ -785,11 +759,12 @@ static void draw_skeleton(const Model *model, int frame, float previous_weight)
 		const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
 		const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
 		const JointPose *previous = &model->joint_poses[(size_t)previous_frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-		const Vec3 origin = lerp_skeleton_component(model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
-		Vec3 direction = lerp_skeleton_component(model, pose->direction, previous->direction, frame, previous_frame, previous_weight);
-		direction = rotate_runtime_point(direction, origin, model->runtime_skeleton.angles[cluster]);
-		glVertex3f(origin.x, origin.y, origin.z);
-		glVertex3f(direction.x, direction.y, direction.z);
+		vec3_t origin, direction;
+		lerp_skeleton_component(origin, model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
+		lerp_skeleton_component(direction, model, pose->direction, previous->direction, frame, previous_frame, previous_weight);
+		rotate_runtime_point(direction, direction, origin, model->runtime_skeleton.angles[cluster]);
+		glVertex3f(origin[0], origin[1], origin[2]);
+		glVertex3f(direction[0], direction[1], direction[2]);
 	}
 	glEnd();
 	glPointSize(5.0f);
@@ -799,8 +774,9 @@ static void draw_skeleton(const Model *model, int frame, float previous_weight)
 		const int previous_frame = frame > 0 ? frame - 1 : model->frame_count - 1;
 		const JointPose *pose = &model->joint_poses[(size_t)frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
 		const JointPose *previous = &model->joint_poses[(size_t)previous_frame * (size_t)model->skeleton_cluster_count + (size_t)cluster];
-		const Vec3 origin = lerp_skeleton_component(model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
-		glVertex3f(origin.x, origin.y, origin.z);
+		vec3_t origin;
+		lerp_skeleton_component(origin, model, pose->origin, previous->origin, frame, previous_frame, previous_weight);
+		glVertex3f(origin[0], origin[1], origin[2]);
 	}
 	glEnd();
 	glEnable(GL_LIGHTING);
@@ -1038,7 +1014,8 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-		if (!paused) {
+		if (!paused)
+		{
 			uint64_t now = SDL_GetTicks();
 			while (now - last_frame_tick >= FRAME_DURATION_MS)
 			{
