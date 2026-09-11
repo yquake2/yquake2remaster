@@ -73,7 +73,7 @@ option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
 option(VK_RENDERER "Build the Vulkan renderer" ON)
 option(XDG_SUPPORT "Use XDG Directories to store user data" ON)
-option(PAKEXTRACT "Build the pakextract utility" ON)
+option(PAKEXTRACT "Build the pakextract utility" OFF)
 option(VIEWER "Build the model viewer utility" ON)
 
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
