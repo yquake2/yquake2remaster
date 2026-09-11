@@ -73,6 +73,8 @@ option(GLES3_RENDERER "Build the GLES3 renderer" ON)
 option(SOFT_RENDERER "Build the software renderer" ON)
 option(VK_RENDERER "Build the Vulkan renderer" ON)
 option(XDG_SUPPORT "Use XDG Directories to store user data" ON)
+option(PAKEXTRACT "Build the pakextract utility" ON)
+option(VIEWER "Build the model viewer utility" ON)
 
 set(SYSTEMDIR "" CACHE STRING "Override the system default directory")
 
@@ -197,7 +199,7 @@ else()
 	list(APPEND yquake2SDLLinkerFlags ${SDL2_LIBRARY})
 endif()
 
-if(GL1_RENDERER)
+if(GL1_RENDERER OR VIEWER)
 	# We need an OpenGL implementation.
 	set(OpenGL_GL_PREFERENCE GLVND)
 	find_package(OpenGL REQUIRED)
@@ -695,6 +697,29 @@ set(Server-Header
 	${SERVER_SRC_DIR}/header/server.h
 	)
 
+set(Pakextract-Source
+	${COMMON_SRC_DIR}/glob.c
+	${COMMON_SRC_DIR}/shared/shared.c
+	${SOURCE_DIR}/pakextract/pakextract.c
+	)
+
+set(Pakextract-Header
+	${COMMON_SRC_DIR}/header/common.h
+	${COMMON_SRC_DIR}/header/glob.h
+	${COMMON_SRC_DIR}/header/shared.h
+	)
+
+set(Viewer-Source
+	${COMMON_SRC_DIR}/shared/shared.c
+	${SOURCE_DIR}/viewer/main.c
+	)
+
+set(Viewer-Header
+	${COMMON_SRC_DIR}/header/common.h
+	${COMMON_SRC_DIR}/header/files.h
+	${COMMON_SRC_DIR}/header/shared.h
+	)
+
 set(GL1-Source
 	${REF_SRC_DIR}/gl1/qgl.c
 	${REF_SRC_DIR}/gl1/gl1_draw.c
@@ -996,6 +1021,36 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	target_link_libraries(q2ded ${yquake2LinkerFlags} ${yquake2ZLibLinkerFlags} ws2_32 winmm)
 else()
 	target_link_libraries(q2ded ${yquake2LinkerFlags} ${yquake2ServerLinkerFlags} ${yquake2ZLibLinkerFlags})
+endif()
+
+if(PAKEXTRACT)
+
+# Pakextract utility
+add_executable(pakextract ${Pakextract-Source} ${Pakextract-Header})
+set_target_properties(pakextract PROPERTIES
+	COMPILE_DEFINITIONS "DEDICATED_ONLY"
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+	)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+	target_link_libraries(pakextract ${yquake2LinkerFlags} ${yquake2ZLibLinkerFlags} ws2_32 winmm)
+else()
+	target_link_libraries(pakextract ${yquake2LinkerFlags} ${yquake2ServerLinkerFlags} ${yquake2ZLibLinkerFlags})
+endif()
+
+endif()
+
+if(VIEWER)
+
+# Model viewer utility
+add_executable(viewer ${Viewer-Source} ${Viewer-Header})
+set_target_properties(viewer PROPERTIES
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/release
+	)
+target_link_libraries(viewer ${yquake2LinkerFlags} ${yquake2OpenGLLinkerFlags} ${yquake2SDLLinkerFlags})
+if(SDL3_SUPPORT)
+	target_link_libraries(viewer SDL3::SDL3)
+endif()
+
 endif()
 
 # Build the game dynamic library
