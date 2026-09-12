@@ -41,8 +41,6 @@
 {"arachnid_attack_up1", &arachnid_attack_up1},
 {"arachnid_melee", &arachnid_melee},
 {"arachnid_move_death", &arachnid_move_death},
-{"arachnid_move_pain1", &arachnid_move_pain1},
-{"arachnid_move_pain2", &arachnid_move_pain2},
 {"arachnid_move_run", &arachnid_move_run},
 {"arachnid_move_walk", &arachnid_move_walk},
 {"army_move_attack", &army_move_attack},

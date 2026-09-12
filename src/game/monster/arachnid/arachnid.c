@@ -134,39 +134,6 @@ arachnid_run(edict_t *self)
 //
 // pain
 //
-
-static mframe_t arachnid_frames_pain1[] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-mmove_t arachnid_move_pain1 = {
-	FRAME_pain11,
-	FRAME_pain15,
-	arachnid_frames_pain1,
-	arachnid_run
-};
-
-static mframe_t arachnid_frames_pain2[] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-mmove_t arachnid_move_pain2 = {
-	FRAME_pain21,
-	FRAME_pain26,
-	arachnid_frames_pain2,
-	arachnid_run
-};
-
 void
 arachnid_pain(edict_t *self, edict_t *other /* other */,
 		float kick /* other */, int damage)
@@ -191,11 +158,15 @@ arachnid_pain(edict_t *self, edict_t *other /* other */,
 
 	if ((randk() % 2) > 0)
 	{
-		self->monsterinfo.currentmove = &arachnid_move_pain1;
+		self->monsterinfo.firstframe = FRAME_pain11;
+		self->monsterinfo.numframes = FRAME_pain15 - FRAME_pain11 + 1;
+		monster_dynamic_action(self, "pain", 0);
 	}
 	else
 	{
-		self->monsterinfo.currentmove = &arachnid_move_pain2;
+		self->monsterinfo.firstframe = FRAME_pain21;
+		self->monsterinfo.numframes = FRAME_pain26 - FRAME_pain21 + 1;
+		monster_dynamic_action(self, "pain", 1);
 	}
 }
 
