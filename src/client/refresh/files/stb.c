@@ -955,7 +955,7 @@ static piccache_t pic_cache[PIC_CACHE_SIZE];
 static picignore_t pic_ignore[PIC_CACHE_SIZE];
 
 static unsigned
-R_PicCacheSlot(const char *name)
+R_PicCacheSlotHash(const char *name)
 {
 	const unsigned long prime = 16777619u;
 	unsigned long hash = 2166136261u;
@@ -983,7 +983,7 @@ R_PicIgnoredSlot(const char *name)
 	unsigned base_slot, slot;
 	picignore_t *ignore;
 
-	base_slot = R_PicCacheSlot(name);
+	base_slot = R_PicCacheSlotHash(name);
 	slot = base_slot;
 
 	while (1)
@@ -1022,6 +1022,51 @@ R_PicIgnoredSlot(const char *name)
 	return ignore;
 }
 
+static piccache_t *
+R_PicCacheSlot(const char *name)
+{
+	unsigned base_slot, slot;
+	piccache_t *cache;
+
+	base_slot = R_PicCacheSlotHash(name);
+	slot = base_slot;
+
+	while (1)
+	{
+		cache = &pic_cache[slot];
+
+		if (cache->name[0] == '\0')
+		{
+			/* empty slot */
+			Q_strlcpy(cache->name, name, sizeof(cache->name));
+			cache->path[0] = 0;
+			break;
+		}
+
+		if (!strcmp(cache->name, name))
+		{
+			/* existing entry */
+			break;
+		}
+
+		/* Collision! Slot is occupied by a different file.
+		 * Move to the next slot wrapping around the cache size. */
+		slot = (slot + 1) & (PIC_CACHE_SIZE - 1);
+
+		if (slot == base_slot)
+		{
+			/* Table overflow. Fall back to overwriting the original
+			 * base slot to prevent hanging. */
+			cache = &pic_cache[base_slot];
+			Q_strlcpy(cache->name, name, sizeof(cache->name));
+			cache->path[0] = 0;
+			break;
+		}
+	}
+
+	return cache;
+}
+
 qboolean
 R_PicIgnored(const char *name)
 {
@@ -1050,14 +1095,11 @@ R_FindPic(const char *name, findimage_t find_image)
 		const char* ext;
 		piccache_t *cache;
 		picignore_t *ignore;
-		uint32_t slot;
 
 		ignore = R_PicIgnoredSlot(name);
+		cache = R_PicCacheSlot(name);
 
-		slot = R_PicCacheSlot(name);
-		cache = pic_cache + slot;
-
-		if (!strcmp(cache->name, name))
+		if (cache->path[0])
 		{
 			image = find_image(cache->path, it_pic);
 
@@ -1067,7 +1109,7 @@ R_FindPic(const char *name, findimage_t find_image)
 			}
 		}
 
-		if (!strcmp(ignore->name, name) && ignore->warned)
+		if (ignore->warned)
 		{
 			/* has already warned about unexisted file */
 			return NULL;
@@ -1122,15 +1164,14 @@ R_FindPic(const char *name, findimage_t find_image)
 
 		if (image)
 		{
-			Q_strlcpy(cache->name, name, sizeof(cache->name));
 			Q_strlcpy(cache->path, pathname, sizeof(cache->path));
+			/* file found, free found slot */
+			ignore->name[0] = 0;
 		}
 		else
 		{
-			if (!strcmp(cache->name, name))
-			{
-				cache->name[0] = 0;
-			}
+			/* no such file, free found slot */
+			cache->name[0] = 0;
 		}
 	}
 	else
