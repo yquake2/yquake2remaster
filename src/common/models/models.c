@@ -141,8 +141,8 @@ Mod_LoadFrames_MD2(const char *mod_name, dmdx_t *pheader, byte *src,
 			poutframe->translate[j] += translate[j];
 
 			/* check coodinates error as 8 bit,
-			 * originaly was scale / 2 ^ 8,
-			 * that equal to upated scale / (2 ^ 16) * (2 ^ 8) */
+			 * originaly was scale / 2 ** 8,
+			 * that equal to upated scale / (2 ** 16) * (2 ** 8) */
 			if (coord_error < poutframe->scale[j])
 			{
 				coord_error = poutframe->scale[j];

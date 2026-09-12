@@ -631,7 +631,10 @@ LoadImage_Ext(const char *name, const char* namewe, const char *ext, imagetype_t
 
 		if (!pic)
 		{
-			Com_DPrintf("Bad %s file %s\n", ext, filename);
+			if (!R_PicIgnored(filename))
+			{
+				Com_DPrintf("Bad %s file %s\n", ext, filename);
+			}
 			return NULL;
 		}
 
@@ -933,8 +936,8 @@ GetTexImage(const char *name, findimage_t find_image)
 	return image;
 }
 
-#define PIC_CACHE_SIZE 128
-#define PIC_CACHE_BITS 7
+#define PIC_CACHE_BITS 8
+#define PIC_CACHE_SIZE (1 << PIC_CACHE_BITS)
 
 typedef struct
 {
@@ -951,18 +954,20 @@ typedef struct
 static piccache_t pic_cache[PIC_CACHE_SIZE];
 static picignore_t pic_ignore[PIC_CACHE_SIZE];
 
-static uint32_t
+static unsigned
 R_PicCacheSlot(const char *name)
 {
-	uint32_t key = 0;
+	const unsigned long prime = 16777619u;
+	unsigned long hash = 2166136261u;
 
 	while (*name)
 	{
-		key = key * 33 + (byte)*name;
+		hash ^= (byte)*name;
+		hash *= prime;
 		name++;
 	}
 
-	return (key * 2654435761u) >> (32 - PIC_CACHE_BITS);
+	return hash % PIC_CACHE_SIZE;
 }
 
 void
