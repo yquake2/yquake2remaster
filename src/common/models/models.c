@@ -116,9 +116,11 @@ Load the Quake2 md2 default format frames
 =================
 */
 static qboolean
-Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t translate)
+Mod_LoadFrames_MD2(const char *mod_name, dmdx_t *pheader, byte *src,
+	size_t inframesize, vec3_t translate)
 {
 	qboolean normalfix = true;
+	float coord_error = 0;
 	int i;
 
 	for (i = 0; i < pheader->num_frames; i++)
@@ -137,6 +139,14 @@ Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t transl
 			poutframe->scale[j] = LittleFloat(pinframe->scale[j]) / 0xFF;
 			poutframe->translate[j] = LittleFloat(pinframe->translate[j]);
 			poutframe->translate[j] += translate[j];
+
+			/* check coodinates error as 8 bit,
+			 * originaly was scale / 2 ^ 8,
+			 * that equal to upated scale / (2 ^ 16) * (2 ^ 8) */
+			if (coord_error < poutframe->scale[j])
+			{
+				coord_error = poutframe->scale[j];
+			}
 		}
 
 		/* verts are all 8 bit, so no swapping needed */
@@ -155,6 +165,8 @@ Mod_LoadFrames_MD2(dmdx_t *pheader, byte *src, size_t inframesize, vec3_t transl
 		}
 	}
 
+	Com_DPrintf("%s: model %s vert coodinates error %.5f\n",
+		__func__, mod_name, coord_error);
 	return normalfix;
 }
 
@@ -1268,7 +1280,7 @@ Mod_LoadModel_MD2(const char *mod_name, const void *buffer, int modfilelen)
 	//
 	// load the frames
 	//
-	normalfix = Mod_LoadFrames_MD2(pheader, (byte *)buffer + pinmodel.ofs_frames,
+	normalfix = Mod_LoadFrames_MD2(mod_name, pheader, (byte *)buffer + pinmodel.ofs_frames,
 		pinmodel.framesize, translate);
 
 	//
@@ -1435,7 +1447,8 @@ Mod_LoadModel_FlexTris(dmdx_t *pheader, const void *buffer, int modfilelen)
 }
 
 static qboolean
-Mod_LoadModel_FlexFrames(size_t inframesize, dmdx_t *pheader, const void *buffer, int modfilelen)
+Mod_LoadModel_FlexFrames(const char *mod_name, size_t inframesize, dmdx_t *pheader,
+	const void *buffer, int modfilelen)
 {
 	const char *src = NULL;
 	size_t size;
@@ -1461,7 +1474,7 @@ Mod_LoadModel_FlexFrames(size_t inframesize, dmdx_t *pheader, const void *buffer
 			return false;
 		}
 
-		Mod_LoadFrames_MD2(pheader, (byte *)src, inframesize, translate);
+		Mod_LoadFrames_MD2(mod_name, pheader, (byte *)src, inframesize, translate);
 		Mod_LoadAnimGroupList(pheader, true);
 		Mod_LoadModel_AnimGroupNamesFix(pheader, flex_names);
 	}
@@ -1739,7 +1752,7 @@ Mod_LoadModel_Flex(const char *mod_name, const void *buffer, int modfilelen)
 	if (!Mod_LoadModel_FlexSkins(pheader, buffer, modfilelen) ||
 		!Mod_LoadModel_FlexSTCoord(pheader, buffer, modfilelen) ||
 		!Mod_LoadModel_FlexTris(pheader, buffer, modfilelen) ||
-		!Mod_LoadModel_FlexFrames(inframesize, pheader, buffer, modfilelen) ||
+		!Mod_LoadModel_FlexFrames(mod_name, inframesize, pheader, buffer, modfilelen) ||
 		!Mod_LoadModel_FlexGLCmd(mod_name, pheader, buffer, modfilelen) ||
 		!Mod_LoadModel_FlexMeshNodes(pheader, buffer, modfilelen))
 	{
@@ -1842,7 +1855,7 @@ Mod_LoadModel_DKM(const char *mod_name, const void *buffer, int modfilelen)
 		(dstvert_t *)((byte *)buffer + header.ofs_st));
 	if (header.version == DKM1_VERSION)
 	{
-		Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
+		Mod_LoadFrames_MD2(mod_name, pheader, (byte *)buffer + header.ofs_frames,
 			header.framesize, header.translate);
 	}
 	else
@@ -1930,7 +1943,7 @@ Mod_LoadModel_MDX(const char *mod_name, const void *buffer, int modfilelen)
 		(dtriangle_t *)((byte *)buffer + header.ofs_tris),
 		(int*)((byte *)buffer + header.ofs_glcmds),
 		header.num_glcmds);
-	Mod_LoadFrames_MD2(pheader, (byte *)buffer + header.ofs_frames,
+	Mod_LoadFrames_MD2(mod_name, pheader, (byte *)buffer + header.ofs_frames,
 		header.framesize, translate);
 	Mod_LoadAnimGroupList(pheader, true);
 	Mod_LoadModel_AnimGroupNamesFix(pheader, kingpin_names);
