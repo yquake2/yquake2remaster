@@ -61,8 +61,6 @@ extern mmove_t berserk_move_death1;
 extern mmove_t berserk_move_death2;
 extern mmove_t berserk_move_jump2;
 extern mmove_t berserk_move_jump;
-extern mmove_t berserk_move_pain1;
-extern mmove_t berserk_move_pain2;
 extern mmove_t berserk_move_run1;
 extern mmove_t berserk_move_stand;
 extern mmove_t berserk_move_stand_fidget;

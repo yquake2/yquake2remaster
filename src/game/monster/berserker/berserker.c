@@ -46,8 +46,6 @@ mmove_t berserk_move_death1 = {0};
 mmove_t berserk_move_death2 = {0};
 mmove_t berserk_move_jump = {0};
 mmove_t berserk_move_jump2 = {0};
-mmove_t berserk_move_pain1 = {0};
-mmove_t berserk_move_pain2 = {0};
 mmove_t berserk_move_run1 = {0};
 mmove_t berserk_move_stand = {0};
 mmove_t berserk_move_stand_fidget = {0};
@@ -441,50 +439,6 @@ berserk_melee(edict_t *self)
 	}
 }
 
-static mframe_t berserk_frames_pain1[] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-static const mmove_t berserk_move_pain1_static = {
-	FRAME_painc1,
-	FRAME_painc4,
-	berserk_frames_pain1,
-	berserk_run
-};
-
-static mframe_t berserk_frames_pain2[] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-static const mmove_t berserk_move_pain2_static = {
-	FRAME_painb1,
-	FRAME_painb20,
-	berserk_frames_pain2,
-	berserk_run
-};
-
 void
 berserk_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage)
@@ -516,11 +470,15 @@ berserk_pain(edict_t *self, edict_t *other /* unused */,
 
 	if ((damage < 20) || (random() < 0.5))
 	{
-		self->monsterinfo.currentmove = &berserk_move_pain1;
+		self->monsterinfo.firstframe = FRAME_painc1;
+		self->monsterinfo.numframes = FRAME_painc4 - FRAME_painc1 + 1;
+		monster_dynamic_action(self, "pain", 0);
 	}
 	else
 	{
-		self->monsterinfo.currentmove = &berserk_move_pain2;
+		self->monsterinfo.firstframe = FRAME_painb1;
+		self->monsterinfo.numframes = FRAME_painb20 - FRAME_painb1 + 1;
+		monster_dynamic_action(self, "pain", 1);
 	}
 }
 
@@ -785,14 +743,12 @@ monster_berserk_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &berserk_move_attack_spike, &berserk_move_attack_spike_static, "att_c", 0);
 	M_SetAnimGroupMMoveOffset(self, &berserk_move_attack_strike, &berserk_move_attack_strike_static, "att_c", 0, 20);
 	M_SetAnimGroupMMove(self, &berserk_move_death1, &berserk_move_death1_static, "death", 0);
-	M_SetAnimGroupMMove(self, &berserk_move_death2, &berserk_move_death2_static, "deathc", 0);
+	M_SetAnimGroupMMove(self, &berserk_move_death2, &berserk_move_death2_static, "death", 1);
 	M_SetAnimGroupMMove(self, &berserk_move_jump2, &berserk_move_jump2_static, "jump", 0);
 	M_SetAnimGroupMMove(self, &berserk_move_jump, &berserk_move_jump_static, "jump", 0);
-	M_SetAnimGroupMMove(self, &berserk_move_pain1, &berserk_move_pain1_static, "painc", 0);
-	M_SetAnimGroupMMove(self, &berserk_move_pain2, &berserk_move_pain2_static, "painb", 0);
 	M_SetAnimGroupMMove(self, &berserk_move_run1, &berserk_move_run1_static, "run", 0);
 	M_SetAnimGroupMMove(self, &berserk_move_stand, &berserk_move_stand_static, "stand", 0);
-	M_SetAnimGroupMMove(self, &berserk_move_stand_fidget, &berserk_move_stand_fidget_static, "standb", 0);
+	M_SetAnimGroupMMove(self, &berserk_move_stand_fidget, &berserk_move_stand_fidget_static, "stand", 1);
 	M_SetAnimGroupMMove(self, &berserk_move_walk, &berserk_move_walk_static, "walkc", 0);
 }
 

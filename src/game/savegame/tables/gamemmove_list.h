@@ -60,8 +60,6 @@
 {"berserk_move_death2", &berserk_move_death2},
 {"berserk_move_jump", &berserk_move_jump},
 {"berserk_move_jump2", &berserk_move_jump2},
-{"berserk_move_pain1", &berserk_move_pain1},
-{"berserk_move_pain2", &berserk_move_pain2},
 {"berserk_move_run1", &berserk_move_run1},
 {"berserk_move_stand", &berserk_move_stand},
 {"berserk_move_stand_fidget", &berserk_move_stand_fidget},
