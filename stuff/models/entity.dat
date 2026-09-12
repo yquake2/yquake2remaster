@@ -373,8 +373,8 @@ weapon_deatomizer|models/weapons/g_deatom/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16
 weapon_hellfury|models/weapons/g_hellfury/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|HellFury|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_plasma_pistol|models/weapons/v_pistol/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Pistol|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 weapon_plasma_rifle|models/weapons/g_plasma/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Plasma Rifle|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
-weapon_rtdu|models/objects/rtdu/rtdu.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|
-RTDU|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_remote_detonator|models/weapons/v_detonator/tris.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Remote Detonator|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
+weapon_rtdu|models/objects/rtdu/rtdu.md2|1.0|1.0|1.0|charfly|-16.0|-16.0|-16.0|16.0|16.0|16.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|RTDU|0.3|0.3|1.0|0|0|0|0|0|0|0|none|0
 
 // Kingpin
 ai_boundary||1.0|1.0|1.0|general|0.0|0.0|0.0|0.0|0.0|0.0|shadow|0|0.0|0.0|0|0|0|0:0|0|0|none|Character will abort pursuing player when touching this brush. Will take cover until the player is out of view, then return to guarding position (if character has been assigned one).|.5|.5|0|0|0|0|0|0|0|0|none|0

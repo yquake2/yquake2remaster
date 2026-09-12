@@ -288,7 +288,6 @@ Checked with:
 
 ### Goals, fully finished goals could be checked in [here](CHANGELOG):
 
-* [ ] windows build: restore build asset on tag,
 * [ ] ReRelease maps: shows shadow in the middle of model,
 * [ ] soft: fix crash with md5 models in player model select and ASAN=1,
 * [ ] soft: q64/outpost scale textures unsupported,
@@ -297,7 +296,6 @@ Checked with:
 * [ ] soft: support scalled textures for models and walls, and fix
     lighting with remastered maps,
 * [ ] soft: use separete texture hi-color buffer for ui in soft render,
-* [ ] vulkan: group `it_pic` images,
 * [ ] vulkan: rearange surfaces before render,
 * [ ] vulkan: add fog distance effect,
 * [ ] soft: add fog distance effect (optional),
@@ -342,7 +340,6 @@ Checked with:
 * [ ] jabot: make count of nodes/edicts dynamic allocations,
 * [ ] Heretic 2: add swim player animation support,
 * [ ] Heretic 2: add utf8 colors and fonts support in console,
-* [ ] Heretic 2: correct obj placeholders,
 * [ ] Doom: implement map load logic,
 * [ ] Quake 3: finish map load logic,
 * [ ] Quake, Half-Life, Hexen 2: fix brush flags,
@@ -366,7 +363,6 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_blaze`,
 * [ ] Infinity: Add support of `weapon_goop`,
 * [ ] Infinity: Add support of `weapon_rifle`,
-* [ ] Oblivion: Add support of `ammo_detpack`,
 * [ ] Oblivion: Add support of `ammo_dod`,
 * [ ] Oblivion: Add support of `ammo_mines`,
 * [ ] Oblivion: Add support of `func_rotate_train`,
@@ -376,11 +372,17 @@ Checked with:
 * [ ] Oblivion: Add support of `misc_screenfader`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
+* [ ] Oblivion: Add dynamic animation based on `activate` for `badass` and `floater`,
 * [ ] Dynamic count of entities on client,
 * [ ] Support obj waveform model format for debug other formats.
 
 ### Fixed:
 
+* [x] vulkan: group `it_pic` images,
+* [x] Heretic 2: correct obj placeholders,
+* [x] windows build: restore build asset on tag,
+* [x] Oblivion: Add support of `ammo_detpack`,
+* [x] Oblivion: Add support of `weapon_remote_detonator`,
 * [x] Oblivion: Add support of `target_rocket`,
 * [x] Oblivion: Add support of `target_railgun`,
 * [x] Oblivion: Add support of `monster_spider`,

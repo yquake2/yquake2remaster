@@ -4804,6 +4804,14 @@ InitItems(void)
 							itemlist[num_items].quantity = 50;
 						}
 						/* Oblivion */
+						else if (!strcmp(itemlist[num_items].classname, "ammo_detpack"))
+						{
+							itemlist[num_items].tag = AMMO_GRENADES;
+							itemlist[num_items].count_width = 2;
+							itemlist[num_items].icon = "a_detpack";
+							itemlist[num_items].quantity = 1;
+							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
+						}
 						else if (!strcmp(itemlist[num_items].classname, "ammo_rifleplasma"))
 						{
 							itemlist[num_items].tag = AMMO_MAGSLUG;

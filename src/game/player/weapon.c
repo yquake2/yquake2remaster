@@ -1570,11 +1570,11 @@ weapon_grenadelauncher_fire(edict_t *ent)
 
 	if (ent->client->oldplayer)
 	{
-		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
 	}
 	else
 	{
-		gi.multicast (ent->s.origin, MULTICAST_PVS);
+		gi.multicast(ent->s.origin, MULTICAST_PVS);
 	}
 
 	ent->client->ps.gunframe++;
@@ -1786,7 +1786,7 @@ Blaster_Fire(edict_t *ent, vec3_t g_offset, int damage,
 
 	if (ent->client->oldplayer)
 	{
-		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
 	}
 	else
 	{
@@ -2114,7 +2114,7 @@ Machinegun_Fire(edict_t *ent)
 
 	if (ent->client->oldplayer)
 	{
-		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
 	}
 	else
 	{
@@ -2560,7 +2560,7 @@ weapon_supershotgun_fire(edict_t *ent)
 
 	if (ent->client->oldplayer)
 	{
-		gi.multicast (ent->client->oldplayer->s.origin, MULTICAST_PVS);
+		gi.multicast(ent->client->oldplayer->s.origin, MULTICAST_PVS);
 	}
 	else
 	{
@@ -3971,11 +3971,11 @@ Weapon_Hellfury_Fire(edict_t *ent)
 
 	if (ent->client->ps.gunframe == 15)
 	{
-		VectorSet (offset, 8, 12, ent->viewheight - 8);
+		VectorSet(offset, 8, 12, ent->viewheight - 8);
 	}
 	else if (ent->client->ps.gunframe == 16)
 	{
-		VectorSet (offset, 10, 12, ent->viewheight - 8);
+		VectorSet(offset, 10, 12, ent->viewheight - 8);
 	}
 	else if (ent->client->ps.gunframe == 17)
 	{
@@ -3997,6 +3997,77 @@ Weapon_Hellfury_Fire(edict_t *ent)
 
 	ent->client->ps.gunframe++;
 	PlayerNoise(ent, start, PNOISE_WEAPON);
+}
+
+static void
+Weapon_RemoteDetonator_Fire(edict_t *ent)
+{
+	edict_t *check = NULL;
+	const gitem_t *item;
+
+	ent->client->ps.gunframe++;
+
+	while ((check = (G_Find(check, FOFS(classname), "detpack"))))
+	{
+		if (check->owner != ent)
+		{
+			continue;
+		}
+
+		detpack_detonate(check);
+	}
+
+	item = FindItem("Detonation Pack");
+	if (!ent->client->pers.inventory[ITEM_INDEX(item)])
+	{
+		NoAmmoWeaponChange(ent);
+	}
+	else
+	{
+		ent->client->newweapon = item;
+	}
+
+	item = FindItem("Remote Detonator");
+	if (item)
+	{
+		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
+	}
+}
+
+static void
+Weapon_DetonationPack_Fire(edict_t *ent)
+{
+	vec3_t offset, start, forward, right;
+	const gitem_t *item;
+	float damage_radius;
+	int damage;
+
+	if (ent->client->ps.gunframe == 14)
+	{
+		item = FindItem("Remote Detonator");
+		if (item)
+		{
+			ent->client->pers.inventory[ITEM_INDEX(item)] = 1;
+			ent->client->newweapon = item;
+			ChangeWeapon(ent);
+			return;
+		}
+	}
+
+	ent->client->ps.gunframe++;
+
+	damage = is_quad ? 800 : 400;
+	damage_radius = is_quad ? 600.0f : 300.0f;
+
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	VectorSet(offset, 8, -5, ent->viewheight);
+	P_ProjectSource(ent, offset, forward, right, start);
+	VectorScale(forward, -2, ent->client->kick_origin);
+	ent->client->kick_angles[0] = -1;
+	fire_detpack(ent, start, forward, damage, damage_radius, 400.0f, 0.0f);
+
+	item = FindItem("Detonation Pack");
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
 }
 
 void
@@ -4094,6 +4165,22 @@ Weapon_DynamicWeapon(edict_t *ent)
 
 		Weapon_Generic(ent, 7, 10, 24, 32, pause_frames,
 				fire_frames, Weapon_PlasmaRifle_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_remote_detonator"))
+	{
+		static int const pause_frames[] = {18, 23, 28, 0};
+		static int const fire_frames[] = {7, 0};
+
+		Weapon_Generic(ent, 4, 8, 28, 33, pause_frames, fire_frames,
+			Weapon_RemoteDetonator_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_detpack"))
+	{
+		static const int pause_frames[] = {16, 21, 0};
+		static const int fire_frames[] = {10, 14, 0};
+
+		Weapon_Generic(ent, 4, 14, 34, 39, pause_frames, fire_frames,
+			Weapon_DetonationPack_Fire);
 	}
 	/* Some other mod */
 	else

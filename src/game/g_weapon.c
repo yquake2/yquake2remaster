@@ -2571,3 +2571,181 @@ fire_hellfury_projectile(edict_t *self, const vec3_t start, const vec3_t aimdir,
 
 	gi.linkentity(rocket);
 }
+
+/* Oblivion Detpak */
+static void
+detpack_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
+			int damage, const vec3_t point)
+{
+	if (damage < 70)
+	{
+		self->health = 70;
+		return;
+	}
+
+	self->think = detpack_detonate;
+	self->nextthink = level.time + 0.2f;
+}
+
+void
+detpack_detonate(edict_t *self)
+{
+	vec3_t origin;
+
+	self->takedamage = DAMAGE_NO;
+	self->die = NULL;
+
+	if (self->owner && self->owner->client)
+	{
+		PlayerNoise(self->owner, self->s.origin, PNOISE_IMPACT);
+	}
+
+	T_RadiusDamage(self, self->owner ? self->owner : self, self->dmg, NULL,
+		self->dmg_radius, MOD_GRENADE);
+
+	VectorMA(self->s.origin, -0.02f, self->velocity, origin);
+
+	gi.WriteByte(svc_temp_entity);
+	if (self->waterlevel)
+	{
+		if (self->groundentity)
+		{
+			gi.WriteByte(TE_GRENADE_EXPLOSION_WATER);
+		}
+		else
+		{
+			gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
+		}
+	}
+	else
+	{
+		if (self->groundentity)
+		{
+			gi.WriteByte(TE_GRENADE_EXPLOSION);
+		}
+		else
+		{
+			gi.WriteByte(TE_ROCKET_EXPLOSION);
+		}
+	}
+	gi.WritePosition(origin);
+	gi.multicast(self->s.origin, MULTICAST_PHS);
+
+	G_FreeEdict(self);
+}
+
+static void
+detpack_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+	const csurface_t *surf)
+{
+	if (other == self->owner || self->groundentity)
+	{
+		return;
+	}
+
+	if (surf && (surf->flags & SURF_SKY))
+	{
+		G_FreeEdict(self);
+		return;
+	}
+
+	if (other == &g_edicts[0])
+	{
+		self->movetype = MOVETYPE_NONE;
+		VectorClear(self->velocity);
+		VectorClear(self->avelocity);
+		if (plane)
+		{
+			vectoangles(plane->normal, self->s.angles);
+		}
+
+		gi.linkentity(self);
+	}
+}
+
+#define MAX_ACTIVE_DETPACKS 5
+
+static void
+detpack_enforce_limit(edict_t *charge)
+{
+	edict_t *ent = NULL, *oldest;
+	int count;
+
+	if (!charge || !charge->owner)
+	{
+		return;
+	}
+
+	oldest = charge;
+	count = 0;
+
+	while ((ent = (G_Find(ent, FOFS(classname), "detpack"))))
+	{
+		if (ent->owner != charge->owner)
+		{
+			continue;
+		}
+
+		count++;
+
+		if ((ent != charge) &&
+			(oldest == charge || ent->timestamp < oldest->timestamp))
+		{
+			oldest = ent;
+		}
+	}
+
+	if (count > MAX_ACTIVE_DETPACKS && oldest)
+	{
+		detpack_detonate(oldest);
+	}
+}
+
+edict_t *
+fire_detpack(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
+			float damage_radius, float speed, float timer)
+{
+	vec3_t angles, dir, forward, right, up;
+	edict_t	*charge;
+
+	vectoangles(aimdir, angles);
+	AngleVectors(angles, forward, right, up);
+	VectorNegate(aimdir, dir);
+
+	charge = G_Spawn();
+	VectorCopy(self->rrs.scale, charge->rrs.scale);
+	VectorCopy(start, charge->s.origin);
+	VectorCopy(start, charge->s.old_origin);
+	VectorScale(aimdir, speed, charge->velocity);
+	VectorMA(charge->velocity, 20.0f + crandom() * 10.0f, up, charge->velocity);
+	VectorMA(charge->velocity, crandom() * 10.0f, right, charge->velocity);
+	vectoangles(dir, charge->s.angles);
+	charge->s.angles[2] = -40.0f;
+	charge->movetype = MOVETYPE_TOSS;
+	charge->clipmask = MASK_SHOT;
+	charge->solid = SOLID_BBOX;
+	charge->flags |= FL_NO_KNOCKBACK;
+	VectorClear(charge->mins);
+	VectorClear(charge->maxs);
+	charge->avelocity[0] = -180.0f;
+	charge->s.modelindex = gi.modelindex("models/objects/detpack/tris.md2");
+	charge->owner = self;
+	charge->touch = detpack_touch;
+	if (timer > 0.0f)
+	{
+		charge->think = detpack_detonate;
+		charge->nextthink = level.time + timer;
+	}
+
+	charge->dmg = damage;
+	charge->dmg_radius = damage_radius;
+	charge->classname = "detpack";
+	charge->takedamage = DAMAGE_YES;
+	charge->die = detpack_die;
+	charge->timestamp = level.time;
+
+	gi.linkentity(charge);
+	detpack_enforce_limit(charge);
+
+	return charge;
+}
