@@ -238,8 +238,11 @@ Mod_ReLoadSkins(const char *name, struct image_s **skins, findimage_t find_image
 				Q_strlcpy(skin_path, name, sizeof(skin_path));
 				strcpy(strrchr(skin_path, '/') + 1, skin);
 
-				Com_DPrintf("Model %s: No original skin found, %s is used\n",
-					name, skin_path);
+				if (!R_PicIgnored(skin_path))
+				{
+					Com_DPrintf("Model %s: No original skin found, %s is used\n",
+						name, skin_path);
+				}
 				skins[i] = find_image(skin_path, it_skin);
 			}
 		}

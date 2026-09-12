@@ -936,7 +936,7 @@ GetTexImage(const char *name, findimage_t find_image)
 	return image;
 }
 
-#define PIC_CACHE_BITS 8
+#define PIC_CACHE_BITS 10
 #define PIC_CACHE_SIZE (1 << PIC_CACHE_BITS)
 
 typedef struct
@@ -980,13 +980,43 @@ R_PicPathCacheClean(void)
 qboolean
 R_PicIgnored(const char *name)
 {
+	unsigned base_slot, slot;
 	picignore_t *ignore;
 
-	ignore = pic_ignore + R_PicCacheSlot(name);
-	if (strcmp(ignore->name, name))
+	base_slot = R_PicCacheSlot(name);
+	slot = base_slot;
+
+	while (1)
 	{
-		Q_strlcpy(ignore->name, name, sizeof(ignore->name));
-		ignore->warned = false;
+		ignore = &pic_ignore[slot];
+
+		if (ignore->name[0] == '\0')
+		{
+			/* empty slot */
+			Q_strlcpy(ignore->name, name, sizeof(ignore->name));
+			ignore->warned = false;
+			break;
+		}
+
+		if (!strcmp(ignore->name, name))
+		{
+			/* existing entry */
+			break;
+		}
+
+		/* Collision! Slot is occupied by a different file.
+		 * Move to the next slot wrapping around the cache size. */
+		slot = (slot + 1) & (PIC_CACHE_SIZE - 1);
+
+		if (slot == base_slot)
+		{
+			/* Table overflow. Fall back to overwriting the original
+			 * base slot to prevent hanging. */
+			ignore = &pic_ignore[base_slot];
+			Q_strlcpy(ignore->name, name, sizeof(ignore->name));
+			ignore->warned = false;
+			break;
+		}
 	}
 
 	if (ignore->warned)
