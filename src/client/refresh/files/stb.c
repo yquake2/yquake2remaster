@@ -977,8 +977,8 @@ R_PicPathCacheClean(void)
 	memset(pic_ignore, 0, sizeof(pic_ignore));
 }
 
-qboolean
-R_PicIgnored(const char *name)
+static picignore_t *
+R_PicIgnoredSlot(const char *name)
 {
 	unsigned base_slot, slot;
 	picignore_t *ignore;
@@ -1019,6 +1019,15 @@ R_PicIgnored(const char *name)
 		}
 	}
 
+	return ignore;
+}
+
+qboolean
+R_PicIgnored(const char *name)
+{
+	picignore_t *ignore;
+
+	ignore = R_PicIgnoredSlot(name);
 	if (ignore->warned)
 	{
 		return true;
@@ -1043,9 +1052,10 @@ R_FindPic(const char *name, findimage_t find_image)
 		picignore_t *ignore;
 		uint32_t slot;
 
+		ignore = R_PicIgnoredSlot(name);
+
 		slot = R_PicCacheSlot(name);
 		cache = pic_cache + slot;
-		ignore = pic_ignore + slot;
 
 		if (!strcmp(cache->name, name))
 		{
@@ -1057,8 +1067,9 @@ R_FindPic(const char *name, findimage_t find_image)
 			}
 		}
 
-		if (!strcmp(ignore->name, name))
+		if (!strcmp(ignore->name, name) && ignore->warned)
 		{
+			/* has already warned about unexisted file */
 			return NULL;
 		}
 
@@ -1120,9 +1131,6 @@ R_FindPic(const char *name, findimage_t find_image)
 			{
 				cache->name[0] = 0;
 			}
-
-			Q_strlcpy(ignore->name, name, sizeof(ignore->name));
-			ignore->warned = false;
 		}
 	}
 	else
