@@ -185,7 +185,6 @@ extern mmove_t flipper_move_run_start;
 extern mmove_t flipper_move_stand;
 extern mmove_t flipper_move_start_run;
 extern mmove_t flipper_move_walk;
-extern mmove_t floater_move_activate;
 extern mmove_t floater_move_attack1;
 extern mmove_t floater_move_attack1a;
 extern mmove_t floater_move_attack2;

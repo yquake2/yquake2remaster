@@ -184,7 +184,6 @@
 {"flipper_move_stand", &flipper_move_stand},
 {"flipper_move_start_run", &flipper_move_start_run},
 {"flipper_move_walk", &flipper_move_walk},
-{"floater_move_activate", &floater_move_activate},
 {"floater_move_attack1", &floater_move_attack1},
 {"floater_move_attack1a", &floater_move_attack1a},
 {"floater_move_attack2", &floater_move_attack2},
