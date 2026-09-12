@@ -46,7 +46,6 @@
 {"army_move_attack", &army_move_attack},
 {"army_move_death1", &army_move_death1},
 {"army_move_death2", &army_move_death2},
-{"army_move_pain1", &army_move_pain1},
 {"army_move_pain2", &army_move_pain2},
 {"army_move_pain3", &army_move_pain3},
 {"army_move_run", &army_move_run},

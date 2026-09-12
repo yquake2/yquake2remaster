@@ -120,25 +120,6 @@ army_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-// Pain (1)
-static mframe_t army_frames_pain1 [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-mmove_t army_move_pain1 = {
-	FRAME_pain1,
-	FRAME_pain6,
-	army_frames_pain1,
-	army_run
-};
-
 // Pain (2)
 static mframe_t army_frames_pain2 [] =
 {
@@ -212,8 +193,10 @@ army_pain(edict_t *self, edict_t *other /* unused */,
 	if (r < 0.2)
 	{
 		self->pain_debounce_time = level.time + 0.6;
-		self->monsterinfo.currentmove = &army_move_pain1;
 		gi.sound(self, CHAN_VOICE, sound_pain1, 1, ATTN_NORM, 0);
+		self->monsterinfo.firstframe = FRAME_pain1;
+		self->monsterinfo.numframes = FRAME_pain6 - FRAME_pain1 + 1;
+		monster_dynamic_action(self, "pain", 0);
 	}
 	else if (r < 0.6)
 	{
