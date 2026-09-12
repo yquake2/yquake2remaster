@@ -435,7 +435,6 @@ extern mmove_t shambler_attack_smash;
 extern mmove_t shambler_attack_swingl;
 extern mmove_t shambler_attack_swingr;
 extern mmove_t shambler_move_death;
-extern mmove_t shambler_move_pain;
 extern mmove_t shambler_move_run;
 extern mmove_t shambler_move_walk;
 extern mmove_t soldier_move_attack1;

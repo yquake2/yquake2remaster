@@ -434,7 +434,6 @@
 {"shambler_attack_swingl", &shambler_attack_swingl},
 {"shambler_attack_swingr", &shambler_attack_swingr},
 {"shambler_move_death", &shambler_move_death},
-{"shambler_move_pain", &shambler_move_pain},
 {"shambler_move_run", &shambler_move_run},
 {"shambler_move_walk", &shambler_move_walk},
 {"soldier_move_attack1", &soldier_move_attack1},

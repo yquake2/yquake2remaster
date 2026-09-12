@@ -217,24 +217,6 @@ shambler_run(edict_t* self)
 // pain
 //
 
-// FIXME: needs halved explosion damage
-
-static mframe_t shambler_frames_pain[] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-};
-
-mmove_t shambler_move_pain = {
-	FRAME_pain01,
-	FRAME_pain06,
-	shambler_frames_pain,
-	shambler_run
-};
-
 void
 shambler_pain(edict_t *self, edict_t *other /* unused */,
 		float kick /* unused */, int damage /* unused */)
@@ -281,7 +263,9 @@ shambler_pain(edict_t *self, edict_t *other /* unused */,
 	}
 
 	self->pain_debounce_time = level.time + 2;
-	self->monsterinfo.currentmove = &shambler_move_pain;
+	self->monsterinfo.firstframe = FRAME_pain01;
+	self->monsterinfo.numframes = FRAME_pain06 - FRAME_pain01 + 1;
+	monster_dynamic_action(self, "pain", -1);
 }
 
 /*
