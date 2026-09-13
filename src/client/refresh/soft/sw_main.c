@@ -2328,11 +2328,18 @@ RE_EndFrame(void)
 
 	if (r_speeds->value)
 	{
-		float factor = 1.0f; // TODO: like SCR_GetConsoleScale()
 		const char *msg;
+		float factor;
+
+		/* like SCR_GetConsoleScale() */
+		factor = Q_min((float)vid.width / 640, (float)vid.height / 240);
+		if (factor < 1)
+		{
+			factor = 1;
+		}
 
 		msg = R_GetSpeedString();
-		RE_Draw_StringScaled(10, 5, factor, true, msg);
+		RE_Draw_StringScaled(0, 8 * factor, factor, true, msg);
 		Com_DPrintf("%s\n", msg);
 	}
 
