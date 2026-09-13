@@ -1332,10 +1332,10 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	/* half for main font */
 	for (i = 0; i < texture_size / 2; i++)
 	{
-		font_data[i * 4 + 0] = font_mask[i];
-		font_data[i * 4 + 1] = font_mask[i];
-		font_data[i * 4 + 2] = font_mask[i];
-		font_data[i * 4 + 3] = font_mask[i] > 16 ? 255 : 0;
+		font_data[i * 4 + 0] = 0xff;
+		font_data[i * 4 + 1] = 0xff;
+		font_data[i * 4 + 2] = 0xff;
+		font_data[i * 4 + 3] = font_mask[i];
 	}
 
 	/* other half for alt (green) */
@@ -1343,9 +1343,9 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	for (i = texture_size / 2; i < texture_size; i++)
 	{
 		font_data[i * 4 + 0] = 0x0;
-		font_data[i * 4 + 1] = font_mask[mask_idx];
+		font_data[i * 4 + 1] = 0xFF;
 		font_data[i * 4 + 2] = 0x0;
-		font_data[i * 4 + 3] = font_mask[mask_idx] > 16 ? 255 : 0;
+		font_data[i * 4 + 3] = font_mask[mask_idx];
 		mask_idx ++;
 	}
 
