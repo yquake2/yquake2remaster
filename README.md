@@ -373,11 +373,11 @@ Checked with:
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Oblivion: Add dynamic animation based on `activate` for `badass` and `floater`,
-* [ ] Dynamic count of entities on client,
-* [ ] Support obj waveform model format for debug other formats.
+* [ ] Dynamic count of entities on client.
 
 ### Fixed:
 
+* [x] Support obj waveform model format for debug other formats,
 * [x] vulkan: group `it_pic` images,
 * [x] Heretic 2: correct obj placeholders,
 * [x] windows build: restore build asset on tag,

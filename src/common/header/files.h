@@ -710,6 +710,8 @@ typedef struct
 	int ofs_end;    /* end of file */
 } dmdx_t;
 
+/* .OBJ Wavefront model file format */
+#define IDOBJHEADER (('J' << 24) + ('B' << 16) + ('O' << 8) + '#')
 
 /* .ATD sprite file format */
 
