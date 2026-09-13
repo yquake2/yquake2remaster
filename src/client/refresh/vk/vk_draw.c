@@ -129,12 +129,6 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 				stbtt_GetBakedQuad(draw_fontcodes, vk_font_height, vk_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
-				if (alt)
-				{
-					q.t0 += 0.5;
-					q.t1 += 0.5;
-				}
-
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
 				{
@@ -151,12 +145,26 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 					q.t1 = draw_font->tl + q.t1 * (draw_font->th - draw_font->tl);
 				}
 
-				QVk_DrawTexRect((float)(x + (xdiff + q.x0 / font_scale) * scale) / vid.width,
-								(float)(y + q.y0 * scale / font_scale + 8 * scale) / vid.height,
-								(q.x1 - q.x0) * scale / font_scale / vid.width,
-								(q.y1 - q.y0) * scale / font_scale / vid.height,
-								q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
-								&draw_font->vk_texture);
+				if (alt)
+				{
+					/* Alt text (green) */
+					QVk_DrawTexRectTinted((float)(x + (xdiff + q.x0 / font_scale) * scale) / vid.width,
+									(float)(y + q.y0 * scale / font_scale + 8 * scale) / vid.height,
+									(q.x1 - q.x0) * scale / font_scale / vid.width,
+									(q.y1 - q.y0) * scale / font_scale / vid.height,
+									q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
+									0.0f, 1.0f, 0.0f, 1.0f,
+									&draw_font->vk_texture);
+				}
+				else
+				{
+					QVk_DrawTexRect((float)(x + (xdiff + q.x0 / font_scale) * scale) / vid.width,
+									(float)(y + q.y0 * scale / font_scale + 8 * scale) / vid.height,
+									(q.x1 - q.x0) * scale / font_scale / vid.width,
+									(q.y1 - q.y0) * scale / font_scale / vid.height,
+									q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
+									&draw_font->vk_texture);
+				}
 				x += Q_max(8, xf / font_scale) * scale;
 			}
 			else
