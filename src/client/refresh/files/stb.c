@@ -1267,7 +1267,7 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	int *r_font_height, stbtt_bakedchar **draw_fontcodes,
 	struct image_s **draw_font, loadimage_t R_LoadPic)
 {
-	size_t i, power_two = 1, texture_size, mask_idx;
+	size_t i, power_two = 1, texture_size;
 	byte *data, *font_mask, *font_data;
 	char font_name[MAX_QPATH] = {0};
 	int symbols, size;
@@ -1307,15 +1307,19 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 		free(font_data);
 		free(*draw_fontcodes);
 		*draw_fontcodes = NULL;
+		ri.FS_FreeFile((void *)data);
 		/* unaware about YQ2_ATTR_NORETURN_FUNCPTR? */
 		return;
 	}
 
+	/* Bake glyphs into the full texture height.
+	 * Alt-color tinting is now done at render time by the shader / glColor,
+	 * so we no longer need to reserve the bottom half for a green copy. */
 	symbols = stbtt_BakeFontBitmap(data,
 		0 /* file offset */,
 		*r_font_size * 1.5 /* symbol size ~ as console font */,
 		font_mask,
-		*r_font_height, *r_font_height / 2, /* keep half the texture for alt */
+		*r_font_height, *r_font_height, /* full texture height */
 		32 /* Start font code */, MAX_FONTCODE,
 		*draw_fontcodes);
 	if (symbols < 0)
@@ -1329,24 +1333,16 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 			__func__, symbols, *r_font_height);
 	}
 
-	/* half for main font */
-	for (i = 0; i < texture_size / 2; i++)
+	/* Convert grayscale mask to RGBA: pure white with smooth alpha.
+	 * Using the mask value directly as alpha preserves antialiased glyph
+	 * edges.  The rendering code applies a color multiplier (white or green)
+	 * at draw time instead of baking a coloured copy into the texture. */
+	for (i = 0; i < texture_size; i++)
 	{
 		font_data[i * 4 + 0] = 0xff;
 		font_data[i * 4 + 1] = 0xff;
 		font_data[i * 4 + 2] = 0xff;
 		font_data[i * 4 + 3] = font_mask[i];
-	}
-
-	/* other half for alt (green) */
-	mask_idx = 0;
-	for (i = texture_size / 2; i < texture_size; i++)
-	{
-		font_data[i * 4 + 0] = 0x0;
-		font_data[i * 4 + 1] = 0xFF;
-		font_data[i * 4 + 2] = 0x0;
-		font_data[i * 4 + 3] = font_mask[mask_idx];
-		mask_idx ++;
 	}
 
 	*draw_font = R_LoadPic("pics/conchars.ttf", font_data,
@@ -1360,6 +1356,7 @@ R_LoadTTFFont(const char *ttffont, int vid_height, float *r_font_size,
 	Com_Printf("%s(): Loaded font %s %.0fp.\n",
 		__func__, font_name, *r_font_size);
 }
+
 
 /*
 =================

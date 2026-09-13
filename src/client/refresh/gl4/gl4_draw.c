@@ -280,6 +280,15 @@ GL4_Draw_CharScaled(int x, int y, int num, float scale)
 void
 GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 {
+	/* For alt text, switch to the tinted shader with green color before
+	 * iterating characters, and restore white + regular shader when done. */
+	if (alt && draw_fontcodes && draw_font)
+	{
+		GL4_DrawCurrent2Dbatch();
+		gl4state.uniCommonData.color = HMM_Vec4(0.0f, 1.0f, 0.0f, 1.0f);
+		GL4_UpdateUBOCommon();
+	}
+
 	while (*message)
 	{
 		unsigned value = R_NextUTF8Code(&message);
@@ -298,12 +307,6 @@ GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 				stbtt_GetBakedQuad(draw_fontcodes, gl4_font_height, gl4_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
-				if (alt)
-				{
-					q.t0 += 0.5;
-					q.t1 += 0.5;
-				}
-
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
 				{
@@ -320,13 +323,30 @@ GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 					q.t1 = draw_font->tl + q.t1 * (draw_font->th - draw_font->tl);
 				}
 
-				drawTexturedRectangle(
-					draw_font->texnum,
-					(float)(x + (xdiff + q.x0 / font_scale) * scale),
-					(float)(y + q.y0 * scale / font_scale + 8 * scale),
-					(q.x1 - q.x0) * scale / font_scale,
-					(q.y1 - q.y0) * scale / font_scale,
-					q.s0, q.t0, q.s1, q.t1);
+				if (alt)
+				{
+					/* Use the tinted (unbatched) path so the green color UBO takes
+					 * effect.  drawTexturedRectangleNow already flushes any pending
+					 * batch before issuing its own draw call. */
+					GL4_UseProgram(gl4state.si2Dtinted.shaderProgram);
+					GL4_Bind(draw_font->texnum);
+					drawTexturedRectangleNow(
+						(float)(x + (xdiff + q.x0 / font_scale) * scale),
+						(float)(y + q.y0 * scale / font_scale + 8 * scale),
+						(q.x1 - q.x0) * scale / font_scale,
+						(q.y1 - q.y0) * scale / font_scale,
+						q.s0, q.t0, q.s1, q.t1);
+				}
+				else
+				{
+					drawTexturedRectangle(
+						draw_font->texnum,
+						(float)(x + (xdiff + q.x0 / font_scale) * scale),
+						(float)(y + q.y0 * scale / font_scale + 8 * scale),
+						(q.x1 - q.x0) * scale / font_scale,
+						(q.y1 - q.y0) * scale / font_scale,
+						q.s0, q.t0, q.s1, q.t1);
+				}
 				x += Q_max(8, xf / font_scale) * scale;
 			}
 			else
@@ -347,6 +367,14 @@ GL4_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messa
 
 			x += 8 * scale;
 		}
+	}
+
+	/* Restore white color if we set green for alt text */
+	if (alt && draw_fontcodes && draw_font)
+	{
+		GL4_DrawCurrent2Dbatch();
+		gl4state.uniCommonData.color = HMM_Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		GL4_UpdateUBOCommon();
 	}
 }
 
