@@ -532,41 +532,10 @@ SCR_ReadNextAVFrame(void)
 static qboolean
 SCR_LoadAVcodec(const char *arg, const char *dot)
 {
-	const char *path = NULL;
 	char name[MAX_OSPATH];
 
-	while (1)
-	{
-		path = FS_NextPath(path);
-
-		if (!path)
-		{
-			break;
-		}
-
-		Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg, dot);
-		cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
-
-		if (!cin.av_video)
-		{
-			char arg_lower[256];
-			size_t j;
-
-			Q_strlcpy(arg_lower, arg, sizeof(arg_lower));
-			for (j = 0; j < strlen(arg_lower); j++)
-			{
-				arg_lower[j] = tolower((unsigned char)arg_lower[j]);
-			}
-
-			Com_sprintf(name, sizeof(name), "%s/video/%s%s", path, arg_lower, dot);
-			cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
-		}
-
-		if (cin.av_video)
-		{
-			break;
-		}
-	}
+	Com_sprintf(name, sizeof(name), "video/%s%s", arg, dot);
+	cin.av_video = cinavdecode_open(name, viddef.width, viddef.height);
 
 	if (!cin.av_video)
 	{

@@ -377,6 +377,7 @@ Checked with:
 
 ### Fixed:
 
+* [x] Support load `.cin` by ffmpeg from `.pak` file
 * [x] Support obj waveform model format for debug other formats,
 * [x] vulkan: group `it_pic` images,
 * [x] Heretic 2: correct obj placeholders,

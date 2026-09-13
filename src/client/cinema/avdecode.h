@@ -7,9 +7,14 @@
 typedef struct cinavdecode
 {
 	AVFormatContext *demuxer;
+	AVIOContext *avio;
 	AVCodecContext **dec_ctx;
 	AVFrame *dec_frame;
 	AVPacket *packet;
+	fileHandle_t file;
+	int file_size;
+	int file_pos;
+	char file_name[MAX_OSPATH];
 	struct SwsContext *swsctx_image;
 	SwrContext *swr_audio;
 	int eof;
@@ -33,6 +38,97 @@ typedef struct cinavdecode
 	long audio_frame_size;
 	double audio_timestamp;
 } cinavdecode_t;
+
+static int
+cinavdecode_read(void *opaque, uint8_t *buffer, int size)
+{
+	cinavdecode_t *state = opaque;
+	int result;
+
+	if (size <= 0 || state->file == 0)
+	{
+		return 0;
+	}
+
+	if (state->file_pos >= state->file_size)
+	{
+		return AVERROR_EOF;
+	}
+
+	if (size > state->file_size - state->file_pos)
+	{
+		size = state->file_size - state->file_pos;
+	}
+
+	result = FS_Read(buffer, size, state->file);
+	if (result > 0)
+	{
+		state->file_pos += result;
+	}
+
+	return result > 0 ? result : AVERROR_EOF;
+}
+
+static int64_t
+cinavdecode_seek(void *opaque, int64_t offset, int whence)
+{
+	cinavdecode_t *state = opaque;
+	int64_t target;
+
+	if (whence == AVSEEK_SIZE)
+	{
+		return state->file_size;
+	}
+
+	switch (whence & ~AVSEEK_FORCE)
+	{
+		case SEEK_SET:
+			target = offset;
+			break;
+		case SEEK_CUR:
+			target = state->file_pos + offset;
+			break;
+		case SEEK_END:
+			target = state->file_size + offset;
+			break;
+		default:
+			return -1;
+	}
+
+	if (target < 0 || target > state->file_size)
+	{
+		return -1;
+	}
+
+	if (target < state->file_pos)
+	{
+		FS_FCloseFile(state->file);
+		if (FS_FOpenFile(state->file_name, &state->file, false) != state->file_size)
+		{
+			state->file = 0;
+			return -1;
+		}
+		state->file_pos = 0;
+	}
+
+	while (state->file_pos < target)
+	{
+		byte discard[4096];
+		int count = target - state->file_pos;
+
+		if (count > (int)sizeof(discard))
+		{
+			count = sizeof(discard);
+		}
+
+		if (cinavdecode_read(state, discard, count) < count)
+		{
+			return -1;
+		}
+	}
+
+	return state->file_pos;
+}
 
 static void
 cinavdecode_close(cinavdecode_t *state)
@@ -90,6 +186,16 @@ cinavdecode_close(cinavdecode_t *state)
 		}
 
 		avformat_close_input(&state->demuxer);
+	}
+
+	if (state->avio)
+	{
+		avio_context_free(&state->avio);
+	}
+
+	if (state->file)
+	{
+		FS_FCloseFile(state->file);
 	}
 
 	av_free(state);
@@ -272,12 +378,46 @@ static cinavdecode_t *
 cinavdecode_open(const char *name, int max_width, int max_height)
 {
 	cinavdecode_t *state = NULL;
+	unsigned char *avio_buffer;
 	int ret;
 
 	state = av_calloc(1, sizeof(cinavdecode_t));
 	memset(state, 0, sizeof(cinavdecode_t));
 
-	ret = avformat_open_input(&state->demuxer, name, NULL, NULL);
+	state->file_size = FS_FOpenFile(name, &state->file, false);
+	if (state->file_size < 0)
+	{
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	Q_strlcpy(state->file_name, name, sizeof(state->file_name));
+	avio_buffer = av_malloc(4096);
+	if (!avio_buffer)
+	{
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	state->avio = avio_alloc_context(avio_buffer, 4096, 0, state,
+		cinavdecode_read, NULL, cinavdecode_seek);
+	if (!state->avio)
+	{
+		av_free(avio_buffer);
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	state->demuxer = avformat_alloc_context();
+	if (!state->demuxer)
+	{
+		cinavdecode_close(state);
+		return NULL;
+	}
+
+	state->demuxer->pb = state->avio;
+	state->demuxer->flags |= AVFMT_FLAG_CUSTOM_IO;
+	ret = avformat_open_input(&state->demuxer, NULL, NULL, NULL);
 	if (ret < 0)
 	{
 		/* can't open file */
