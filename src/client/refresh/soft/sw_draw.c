@@ -157,7 +157,7 @@ src: source image (font atlas)
 */
 static void
 RE_Draw_TexRect(int x, int y, int w, int h, float s0, float t0, float sw, float th,
-	const image_t* src)
+	const image_t* src, qboolean alt)
 {
 	int pic_height, pic_width, dy;
 	const byte *pic_pixels;
@@ -228,7 +228,27 @@ RE_Draw_TexRect(int x, int y, int w, int h, float s0, float t0, float sw, float 
 			src_pixel = source[src_x];
 			if (src_pixel != TRANSPARENT_COLOR)
 			{
-				dst[dx] = src_pixel;
+				if (alt)
+				{
+					float pr = d_8to24table[src_pixel * 4 + 0];
+					float pg = d_8to24table[src_pixel * 4 + 1];
+					float pb = d_8to24table[src_pixel * 4 + 2];
+					float lum = (0.299f * pr + 0.587f * pg + 0.114f * pb) / 255.0f;
+
+					unsigned int r = 0;
+					unsigned int g = (unsigned int)(255.0f * lum);
+					unsigned int b = 0;
+
+					r = (r >> 3) & 31;
+					g = (g >> 2) & 63;
+					b = (b >> 3) & 31;
+
+					dst[dx] = d_16to8table[r | (g << 5) | (b << 11)];
+				}
+				else
+				{
+					dst[dx] = src_pixel;
+				}
 			}
 		}
 	}
@@ -489,12 +509,6 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 				stbtt_GetBakedQuad(draw_fontcodes, sw_font_height, sw_font_height,
 					value - 32, &xf, &yf, &q, 1);
 
-				if (alt)
-				{
-					q.t0 += 0.5;
-					q.t1 += 0.5;
-				}
-
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
 				{
@@ -507,7 +521,7 @@ RE_Draw_StringScaled(int x, int y, float scale, qboolean alt, const char *messag
 					(q.x1 - q.x0) * scale / font_scale,
 					(q.y1 - q.y0) * scale / font_scale,
 					q.s0, q.t0, q.s1 - q.s0, q.t1 - q.t0,
-					draw_font);
+					draw_font, alt);
 				x += Q_max(8, xf / font_scale) * scale;
 			}
 			else

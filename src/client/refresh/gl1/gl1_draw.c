@@ -161,6 +161,15 @@ RDraw_CharScaled(int x, int y, int num, float scale)
 void
 RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 {
+	/* For alt text, switch to modulate mode with green tint.
+	 * Color is restored to white at the end of the string. */
+	if (alt && draw_fontcodes && draw_font)
+	{
+		R_ApplyGLBuffer();
+		R_TexEnv(GL_MODULATE);
+		glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+
 	while (*message)
 	{
 		unsigned value = R_NextUTF8Code(&message);
@@ -178,12 +187,6 @@ RDraw_StringScaled(int x, int y, float scale, qboolean alt, const char *message)
 
 				stbtt_GetBakedQuad(draw_fontcodes, gl_font_height, gl_font_height,
 					value - 32, &xf, &yf, &q, 1);
-
-				if (alt)
-				{
-					q.t0 += 0.5;
-					q.t1 += 0.5;
-				}
 
 				xdiff = (8 - xf / font_scale) / 2;
 				if (xdiff < 0)
