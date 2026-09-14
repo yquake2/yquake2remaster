@@ -364,7 +364,7 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_goop`,
 * [ ] Infinity: Add support of `weapon_rifle`,
 * [ ] Oblivion: Add support of `ammo_dod`,
-* [ ] Oblivion: Add support of `ammo_mines`,
+* [x] Oblivion: Add support of `ammo_mines`,
 * [ ] Oblivion: Add support of `func_rotate_train`,
 * [ ] Oblivion: Add support of `info_teleporter_dest`,
 * [ ] Oblivion: Add support of `misc_camera`,

@@ -1111,6 +1111,7 @@ void fire_hellfury_projectile(edict_t *self, const vec3_t start, const vec3_t ai
 void detpack_detonate(edict_t *self);
 edict_t *fire_detpack(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 			float damage_radius, float speed, float timer);
+void fire_proximity_mine(edict_t *self, vec3_t start, vec3_t aimdir, int speed);
 void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 void Grenade_Explode(edict_t *ent);
 
