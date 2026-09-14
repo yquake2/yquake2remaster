@@ -43,6 +43,7 @@ extern void commander_body_die (edict_t *, edict_t *, edict_t *, int, const vec3
 extern void debris_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void demon_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void destructible_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
+extern void detpack_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void dog_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void door_killed (edict_t *, edict_t *, edict_t *, int, const vec3_t);
 extern void door_secret_die (edict_t *, edict_t *, edict_t *, int, const vec3_t);
@@ -212,6 +213,7 @@ extern void commander_body_drop (edict_t *);
 extern void commander_body_think (edict_t *);
 extern void dabeam_hit (edict_t *);
 extern void defender_think (edict_t *);
+extern void detpack_detonate (edict_t *);
 extern void door_go_down (edict_t *);
 extern void door_secret_move2 (edict_t *);
 extern void door_secret_move4 (edict_t *);
@@ -334,6 +336,7 @@ extern void blaster_touch (edict_t *, edict_t *, const cplane_t *, const csurfac
 extern void button_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void choose_cdtrack_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void demon_jump_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
+extern void detpack_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void dog_leap_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void door_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
 extern void drop_temp_touch (edict_t *, edict_t *, const cplane_t *, const csurface_t *);
