@@ -2573,7 +2573,7 @@ fire_hellfury_projectile(edict_t *self, const vec3_t start, const vec3_t aimdir,
 }
 
 /* Oblivion Detpak */
-static void
+void
 detpack_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 			int damage, const vec3_t point)
 {
@@ -2634,7 +2634,7 @@ detpack_detonate(edict_t *self)
 	G_FreeEdict(self);
 }
 
-static void
+void
 detpack_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 	const csurface_t *surf)
 {
