@@ -164,7 +164,6 @@
 {"dog_move_die2", &dog_move_die2},
 {"dog_move_leap", &dog_move_leap},
 {"dog_move_melee", &dog_move_melee},
-{"dog_move_pain1", &dog_move_pain1},
 {"dog_move_pain2", &dog_move_pain2},
 {"dog_move_run", &dog_move_run},
 {"enforcer_move_attack1", &enforcer_move_attack1},

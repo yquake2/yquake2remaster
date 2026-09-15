@@ -165,7 +165,6 @@ extern mmove_t dog_move_die1;
 extern mmove_t dog_move_die2;
 extern mmove_t dog_move_leap;
 extern mmove_t dog_move_melee;
-extern mmove_t dog_move_pain1;
 extern mmove_t dog_move_pain2;
 extern mmove_t dog_move_run;
 extern mmove_t enforcer_move_attack1;

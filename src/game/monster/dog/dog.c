@@ -186,24 +186,6 @@ dog_search(edict_t *self)
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-// Pain (1)
-static mframe_t dog_frames_pain1 [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-mmove_t dog_move_pain1 = {
-	FRAME_pain1,
-	FRAME_pain6,
-	dog_frames_pain1,
-	dog_run
-};
-
 // Pain (2)
 static mframe_t dog_frames_pain2 [] =
 {
@@ -242,7 +224,11 @@ dog_pain(edict_t *self, edict_t *other /* unused */,
 	if (skill->value == SKILL_HARDPLUS)
 		return;
 	if (random() > 0.5)
-		self->monsterinfo.currentmove = &dog_move_pain1;
+	{
+		self->monsterinfo.firstframe = FRAME_pain1;
+		self->monsterinfo.numframes = FRAME_pain6 - FRAME_pain1 + 1;
+		monster_dynamic_action(self, "pain", 0);
+	}
 	else
 		self->monsterinfo.currentmove = &dog_move_pain2;
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
