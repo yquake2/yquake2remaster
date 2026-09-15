@@ -1114,6 +1114,20 @@ edict_t *fire_detpack(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 void check_dodge(edict_t *self, vec3_t start, vec3_t dir, int speed);
 void Grenade_Explode(edict_t *ent);
 
+/* g_target.c */
+#define SPAWNFLAG_LASER_BLUE 0x0008
+#define SPAWNFLAG_LASER_FAT 0x0040
+#define SPAWNFLAG_LASER_GREEN 0x0004
+#define SPAWNFLAG_LASER_LIGHTNING 0x10000
+#define SPAWNFLAG_LASER_ON 0x0001
+#define SPAWNFLAG_LASER_ORANGE 0x0020
+#define SPAWNFLAG_LASER_RED 0x0002
+#define SPAWNFLAG_LASER_STOPWINDOW 0x0080
+#define SPAWNFLAG_LASER_YELLOW 0x0010
+#define SPAWNFLAG_LASER_ZAP 0x80000000
+#define SPAWNFLAG_TRAIN_START_ON 1
+void target_laser_start(edict_t *self);
+
 /* g_trigger.c */
 void hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
 

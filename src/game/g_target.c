@@ -945,19 +945,6 @@ SP_target_crosslevel_target(edict_t *self)
 
 /* ========================================================== */
 
-#define SPAWNFLAG_LASER_BLUE 0x0008
-#define SPAWNFLAG_LASER_FAT 0x0040
-#define SPAWNFLAG_LASER_GREEN 0x0004
-#define SPAWNFLAG_LASER_LIGHTNING 0x10000
-#define SPAWNFLAG_LASER_ON 0x0001
-#define SPAWNFLAG_LASER_ORANGE 0x0020
-#define SPAWNFLAG_LASER_RED 0x0002
-#define SPAWNFLAG_LASER_STOPWINDOW 0x0080
-#define SPAWNFLAG_LASER_YELLOW 0x0010
-#define SPAWNFLAG_LASER_ZAP 0x80000000
-#define SPAWNFLAG_LASER_ZAP 0x80000000
-#define SPAWNFLAG_TRAIN_START_ON 1
-
 /*
  * QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON RED GREEN BLUE YELLOW ORANGE FAT WINDOWSTOP
  * When triggered, fires a laser.  You can either set a target

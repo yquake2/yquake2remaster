@@ -4809,8 +4809,20 @@ InitItems(void)
 							itemlist[num_items].tag = AMMO_GRENADES;
 							itemlist[num_items].count_width = 2;
 							itemlist[num_items].icon = "a_detpack";
+							itemlist[num_items].view_model = "models/weapons/v_detpack/tris.md2";
 							itemlist[num_items].quantity = 1;
 							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
+							itemlist[num_items].flags |= IT_WEAPON;
+						}
+						else if (!strcmp(itemlist[num_items].classname, "ammo_mines"))
+						{
+							itemlist[num_items].tag = AMMO_GRENADES;
+							itemlist[num_items].count_width = 3;
+							itemlist[num_items].icon = "a_mines";
+							itemlist[num_items].view_model = "models/weapons/v_mine/tris.md2";
+							itemlist[num_items].quantity = 1;
+							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
+							itemlist[num_items].flags |= IT_WEAPON;
 						}
 						else if (!strcmp(itemlist[num_items].classname, "ammo_rifleplasma"))
 						{
