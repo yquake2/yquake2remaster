@@ -58,7 +58,33 @@ To replace static `mmove_t` frame tables (where `dist == 0` and `thinkfunc == NU
 
 ---
 
-## Model Animation Group Helpers (`M_SetAnimGroupMMove`)
+### AI Movement Functions (`ai_run`, `ai_walk`, `ai_stand`, `ai_move`, `ai_charge`) & Distances (`walk_dist`, `run_dist`)
+
+In traditional static `mmove_t` definitions, each `mframe_t` specifies a think function (typically one of the core AI movement functions) and a movement distance (`dist`). In dynamic actions, since frames are looked up dynamically from model group headers rather than static `mframe_t` arrays, AI movement behavior is governed by the monster's state functions (`monsterinfo.run`, `monsterinfo.walk`, `monsterinfo.stand`, etc.):
+
+1. **`ai_move(edict_t *self, float dist)`**: Moves the entity forward/backward by `dist` at the current facing angle (`self->s.angles[YAW]`).
+2. **`ai_stand(edict_t *self, float dist)`**: Used while standing or idle; applies optional position adjustments (`dist`) and updates enemy targeting/yaw.
+3. **`ai_walk(edict_t *self, float dist)`**: Handles walking movement and obstacle avoidance checks toward goals or waypoints.
+4. **`ai_run(edict_t *self, float dist)`**: Handles running movement towards the current enemy with pathfinding and combat positioning checks.
+5. **`ai_charge(edict_t *self, float dist)`**: Advances towards the enemy during attack states while maintaining attack range and facing.
+
+#### Movement Distances (`walk_dist`, `run_dist`)
+When running or walking via dynamic actions, monsters utilize `monsterinfo.walk_dist` and `monsterinfo.run_dist` (stored in `monsterinfo`) to determine speed/distance per tick, scaled by `monsterinfo.scale`. These replace the per-frame `dist` values found in traditional `mframe_t` tables.
+
+
+When converting static moves where `dist == 0` and `thinkfunc == NULL` to dynamic actions, the movement distance is zero across all frames, making them ideal candidates for dynamic animation lookup because no per-frame distance or custom think callback is required.
+
+### Action to AI Movement Function Mapping
+
+| Action Category | Typical AI Function(s) | Description |
+| --- | --- | --- |
+| **Stand / Idle** | `ai_stand` | Stationary adjustments while scanning or idling. |
+| **Walk / Movement** | `ai_walk` | Patrolling or moving toward destinations at walking speed. |
+| **Run / Chase** | `ai_run` | Chasing and pathfinding towards active enemies. |
+| **Attack / Melee** | `ai_charge` / `ai_move` | Advancing or holding position while executing attacks. |
+| **Pain / Death** | `ai_move` (dist `0`) | Inert reactions where movement is zero (`dist == 0`). |
+
+
 
 For moves that require static `mmove_t` structures (e.g. when movement distances or callbacks are needed) but need to resolve their frame indices dynamically from model groups, Yquake2 provides helper functions in `src/game/g_monster.c`:
 
