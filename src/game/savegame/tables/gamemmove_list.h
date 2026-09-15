@@ -382,7 +382,6 @@
 {"knight_move_die1", &knight_move_die1},
 {"knight_move_die2", &knight_move_die2},
 {"knight_move_melee", &knight_move_melee},
-{"knight_move_pain1", &knight_move_pain1},
 {"knight_move_pain2", &knight_move_pain2},
 {"knight_move_run", &knight_move_run},
 {"makron_move_attack3", &makron_move_attack3},

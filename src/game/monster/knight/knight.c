@@ -142,20 +142,6 @@ knight_melee(edict_t *self)
 	self->monsterinfo.currentmove = &knight_move_melee;
 }
 
-// Pain (1)
-static mframe_t knight_frames_pain1 [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-mmove_t knight_move_pain1 = {
-	FRAME_pain1,
-	FRAME_pain3,
-	knight_frames_pain1,
-	knight_run
-};
-
 // Pain (2)
 static mframe_t knight_frames_pain2 [] =
 {
@@ -190,7 +176,11 @@ knight_pain(edict_t *self, edict_t *other /* unused */,
 	if (level.time < self->pain_debounce_time)
 		return;
 	if (random() < 0.85)
-		self->monsterinfo.currentmove = &knight_move_pain1;
+	{
+		self->monsterinfo.firstframe = FRAME_pain1;
+		self->monsterinfo.numframes = FRAME_pain3 - FRAME_pain1 + 1;
+		monster_dynamic_action(self, "pain", 0);
+	}
 	else
 		self->monsterinfo.currentmove = &knight_move_pain2;
 	self->pain_debounce_time = level.time + 1;

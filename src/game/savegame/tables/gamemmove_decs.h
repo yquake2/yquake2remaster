@@ -383,7 +383,6 @@ extern mmove_t knight_move_attack;
 extern mmove_t knight_move_die1;
 extern mmove_t knight_move_die2;
 extern mmove_t knight_move_melee;
-extern mmove_t knight_move_pain1;
 extern mmove_t knight_move_pain2;
 extern mmove_t knight_move_run;
 extern mmove_t makron_move_attack3;
