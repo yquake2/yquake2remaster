@@ -200,57 +200,6 @@ ogre_attack(edict_t *self)
 	self->monsterinfo.currentmove = &ogre_move_attack;
 }
 
-// Pain (1)
-static mframe_t ogre_frames_pain1 [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL}
-};
-
-mmove_t ogre_move_pain1 = {
-	FRAME_pain1,
-	FRAME_pain5,
-	ogre_frames_pain1,
-	ogre_run
-};
-
-// Pain (2)
-static mframe_t ogre_frames_pain2 [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-mmove_t ogre_move_pain2 = {
-	FRAME_painb1,
-	FRAME_painb3,
-	ogre_frames_pain2,
-	ogre_run
-};
-
-// Pain (3)
-static mframe_t ogre_frames_pain3 [] = {
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL}
-};
-
-mmove_t ogre_move_pain3 = {
-	FRAME_painc1,
-	FRAME_painc6,
-	ogre_frames_pain3,
-	ogre_run
-};
-
 // Pain (4)
 static mframe_t ogre_frames_pain4 [] =
 {
@@ -328,17 +277,23 @@ ogre_pain(edict_t *self, edict_t *other /* unused */,
 
 	if (r < 0.25)
 	{
-		self->monsterinfo.currentmove = &ogre_move_pain1;
+		self->monsterinfo.firstframe = FRAME_pain1;
+		self->monsterinfo.numframes = FRAME_pain5 - FRAME_pain1 + 1;
+		monster_dynamic_action(self, "pain", 0);
 		self->pain_debounce_time = level.time + 1.0;
 	}
 	else if (r < 0.5)
 	{
-		self->monsterinfo.currentmove = &ogre_move_pain2;
+		self->monsterinfo.firstframe = FRAME_painb1;
+		self->monsterinfo.numframes = FRAME_painb3 - FRAME_painb1 + 1;
+		monster_dynamic_action(self, "pain", 1);
 		self->pain_debounce_time = level.time + 1.0;
 	}
 	else if (r < 0.75)
 	{
-		self->monsterinfo.currentmove = &ogre_move_pain3;
+		self->monsterinfo.firstframe = FRAME_painc1;
+		self->monsterinfo.numframes = FRAME_painc6 - FRAME_painc1 + 1;
+		monster_dynamic_action(self, "pain", 2);
 		self->pain_debounce_time = level.time + 1.0;
 	}
 	else if (r < 0.88)
