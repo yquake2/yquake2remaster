@@ -374,7 +374,7 @@ fire_shotgun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	}
 }
 
-static void
+void
 pistol_bolt_think(edict_t *self)
 {
 	vec3_t back1, back2, back3, dir;
@@ -424,7 +424,7 @@ pistol_bolt_think(edict_t *self)
 	self->nextthink = level.time + 0.1;
 }
 
-static void
+void
 pistol_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	vec3_t normal;
@@ -2182,7 +2182,7 @@ fire_flaregun(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 	gi.linkentity(flare);
 }
 
-static void
+void
 deatom_think(edict_t *self)
 {
 	vec3_t	target_dir;
@@ -2226,7 +2226,7 @@ deatom_think(edict_t *self)
 	self->nextthink = level.time + 0.1f;
 }
 
-static void
+void
 deatom_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	if (other == self->owner)
@@ -2385,7 +2385,7 @@ fire_deatom(edict_t *self, const vec3_t start, vec3_t aimdir, int damage, int sp
 
 #define SPAWNFLAG_PLASMA_RIFLE 1
 
-static void
+void
 plasma_bolt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf)
 {
 	int rifle_mode;
@@ -2500,7 +2500,7 @@ fire_plasma_bolt(edict_t *self, const vec3_t start, const vec3_t aimdir, int dam
 	}
 }
 
-static void
+void
 hellfury_think(edict_t *self)
 {
 	vec3_t diff;

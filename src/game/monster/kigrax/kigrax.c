@@ -30,9 +30,9 @@
 
 static vec3_t kigrax_plasma_offset = {16.0f, 0.0f, -16.0f};
 
-static void kigrax_stand(edict_t *self);
-static void kigrax_run(edict_t *self);
-static void kigrax_melee(edict_t *self);
+void kigrax_stand(edict_t *self);
+void kigrax_run(edict_t *self);
+void kigrax_melee(edict_t *self);
 static void kigrax_dead(edict_t *self);
 static void kigrax_strike1(edict_t *self);
 static void kigrax_strike2(edict_t *self);
@@ -62,7 +62,7 @@ static mframe_t kigrax_frames_walk1[] = {
 	{ai_walk, 4.0f, NULL},
 	{ai_walk, 4.0f, NULL}
 };
-static mmove_t kigrax_move_walk1 = {
+mmove_t kigrax_move_walk1 = {
 	FRAME_walk1,
 	FRAME_walk22,
 	kigrax_frames_walk1,
@@ -93,7 +93,7 @@ static mframe_t kigrax_frames_walk2[] = {
 	{ai_walk, 4.0f, NULL},
 	{ai_walk, 4.0f, NULL}
 };
-static mmove_t kigrax_move_walk2 = {
+mmove_t kigrax_move_walk2 = {
 	FRAME_walkidle1,
 	FRAME_walkidle22,
 	kigrax_frames_walk2,
@@ -119,7 +119,7 @@ static mframe_t kigrax_frames_sight[] = {
 	{ai_run, 10.0f, NULL},
 	{ai_run, 10.0f, NULL}
 };
-static mmove_t kigrax_move_sight = {
+mmove_t kigrax_move_sight = {
 	FRAME_sight1,
 	FRAME_sight17,
 	kigrax_frames_sight,
@@ -146,7 +146,7 @@ static mframe_t kigrax_frames_run[] = {
 	{ai_run, 15.0f, NULL}
 };
 
-static mmove_t kigrax_move_run = {
+mmove_t kigrax_move_run = {
 	FRAME_run1,
 	FRAME_run17,
 	kigrax_frames_run,
@@ -174,7 +174,7 @@ static mframe_t kigrax_frames_death[] = {
 	{ai_move, 0.0f, NULL},
 	{ai_move, 0.0f, NULL}
 };
-static mmove_t kigrax_move_death = {
+mmove_t kigrax_move_death = {
 	FRAME_death1,
 	FRAME_death19,
 	kigrax_frames_death,
@@ -198,7 +198,7 @@ static mframe_t kigrax_frames_melee1[] = {
 	{ai_charge, 1.0f, NULL},
 	{ai_charge, 1.0f, NULL}
 };
-static mmove_t kigrax_move_melee1 = {
+mmove_t kigrax_move_melee1 = {
 	FRAME_claw1,
 	FRAME_claw15,
 	kigrax_frames_melee1,
@@ -218,7 +218,7 @@ static mframe_t kigrax_frames_melee2[] = {
 	{ai_charge, 1.0f, NULL},
 	{ai_charge, 1.0f, NULL}
 };
-static mmove_t kigrax_move_melee2 = {
+mmove_t kigrax_move_melee2 = {
 	FRAME_rake1,
 	FRAME_rake11,
 	kigrax_frames_melee2,
@@ -238,7 +238,7 @@ static mframe_t kigrax_frames_attack[] = {
 	{ai_charge, 0.0f, NULL}
 };
 
-static mmove_t kigrax_move_attack = {
+mmove_t kigrax_move_attack = {
 	FRAME_blaster1,
 	FRAME_blaster10,
 	kigrax_frames_attack,
@@ -253,7 +253,7 @@ static int sound_search2;
 static int sound_attack;
 static int sound_idle;
 
-static void
+void
 kigrax_stand(edict_t *self)
 {
 	if (!self)
@@ -276,7 +276,7 @@ kigrax_stand(edict_t *self)
 	}
 }
 
-static void
+void
 kigrax_walk(edict_t *self)
 {
 	if (!self)
@@ -294,7 +294,7 @@ kigrax_walk(edict_t *self)
 	}
 }
 
-static void
+void
 kigrax_run(edict_t *self)
 {
 	if (!self)
@@ -311,7 +311,7 @@ kigrax_run(edict_t *self)
 	self->monsterinfo.currentmove = &kigrax_move_run;
 }
 
-static void
+void
 kigrax_search(edict_t *self)
 {
 	if (!self)
@@ -329,7 +329,7 @@ kigrax_search(edict_t *self)
 	}
 }
 
-static void
+void
 kigrax_sight(edict_t *self, edict_t *other)
 {
 	if (!self)
@@ -341,7 +341,7 @@ kigrax_sight(edict_t *self, edict_t *other)
 	self->monsterinfo.currentmove = &kigrax_move_sight;
 }
 
-static void
+void
 kigrax_attack(edict_t *self)
 {
 	if (!self)
@@ -352,7 +352,7 @@ kigrax_attack(edict_t *self)
 	self->monsterinfo.currentmove = &kigrax_move_attack;
 }
 
-static void
+void
 kigrax_melee(edict_t *self)
 {
 	if (!self)
@@ -444,7 +444,7 @@ kigrax_fire_plasma(edict_t *self)
 	gi.multicast(start, MULTICAST_PVS);
 }
 
-static void
+void
 kigrax_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	if (!self)
@@ -481,7 +481,7 @@ kigrax_dead(edict_t *self)
 	monster_dynamic_dead(self);
 }
 
-static void
+void
 kigrax_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	int damage, const vec3_t point)
 {

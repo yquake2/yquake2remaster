@@ -40,14 +40,14 @@ static int sound_melee1;
 static int sound_melee2;
 static int sound_melee3;
 
-static void spider_idle(edict_t *self);
+void spider_idle(edict_t *self);
 static void spider_melee_swing(edict_t *self);
-static void spider_walk(edict_t *self);
+void spider_walk(edict_t *self);
 static void spider_charge_start(edict_t *self);
 static void spider_charge_end(edict_t *self);
-static void spider_run(edict_t *self);
+void spider_run(edict_t *self);
 static void spider_melee_hit(edict_t *self);
-static void spider_melee(edict_t *self);
+void spider_melee(edict_t *self);
 static void spider_rocket_left(edict_t *self);
 static void spider_rocket_right(edict_t *self);
 static void spider_dead(edict_t *self);
@@ -65,7 +65,7 @@ static mframe_t spider_frames_walk[] = {
 	{ai_walk, 2.0f, NULL}
 };
 
-static mmove_t spider_move_walk = {
+mmove_t spider_move_walk = {
 	FRAME_walkA1,
 	FRAME_walkA10,
 	spider_frames_walk,
@@ -85,7 +85,7 @@ static mframe_t spider_frames_run1[] = {
 	{ai_run, 0.0f, NULL}
 };
 
-static mmove_t spider_move_run1 = {
+mmove_t spider_move_run1 = {
 	FRAME_runA1,
 	FRAME_runA10,
 	spider_frames_run1,
@@ -101,7 +101,7 @@ static mframe_t spider_frames_run2[] = {
 	{ai_run, 16.0f, NULL}
 };
 
-static mmove_t spider_move_run2 = {
+mmove_t spider_move_run2 = {
 	FRAME_runB1,
 	FRAME_runB6,
 	spider_frames_run2,
@@ -116,7 +116,7 @@ static mframe_t spider_frames_attack_left[] = {
 	{ai_charge, 0.0f, NULL}
 };
 
-static mmove_t spider_move_attack_left = {
+mmove_t spider_move_attack_left = {
 	FRAME_attackL1,
 	FRAME_attackL5,
 	spider_frames_attack_left,
@@ -131,7 +131,7 @@ static mframe_t spider_frames_attack_right[] = {
 	{ai_charge, 0.0f, NULL}
 };
 
-static mmove_t spider_move_attack_right = {
+mmove_t spider_move_attack_right = {
 	FRAME_attackR1,
 	FRAME_attackR5,
 	spider_frames_attack_right,
@@ -149,7 +149,7 @@ static mframe_t spider_frames_attack_dual[] = {
 	{ai_charge, 0.0f, NULL}
 };
 
-static mmove_t spider_move_attack_dual = {
+mmove_t spider_move_attack_dual = {
 	FRAME_attackB1,
 	FRAME_attackB8,
 	spider_frames_attack_dual,
@@ -164,7 +164,7 @@ static mframe_t spider_frames_melee_primary[] = {
 	{ai_charge, 0.0f, spider_melee_hit}
 };
 
-static mmove_t spider_move_melee_primary = {
+mmove_t spider_move_melee_primary = {
 	FRAME_meleeA1,
 	FRAME_meleeA5,
 	spider_frames_melee_primary,
@@ -181,7 +181,7 @@ static mframe_t spider_frames_melee_secondary[] = {
 	{ai_charge, 0.0f, spider_melee_hit}
 };
 
-static mmove_t spider_move_melee_secondary = {
+mmove_t spider_move_melee_secondary = {
 	FRAME_meleeB1,
 	FRAME_meleeB7,
 	spider_frames_melee_secondary,
@@ -199,7 +199,7 @@ static mframe_t spider_frames_pain2[] = {
 	{ai_move, 0.0f, NULL}
 };
 
-static mmove_t spider_move_pain2 = {
+mmove_t spider_move_pain2 = {
 	FRAME_painB1,
 	FRAME_painB8,
 	spider_frames_pain2,
@@ -229,7 +229,7 @@ static mframe_t spider_frames_death1[] = {
 	{ai_move, 0.0f, NULL}
 };
 
-static mmove_t spider_move_death1 = {
+mmove_t spider_move_death1 = {
 	FRAME_deathA1,
 	FRAME_deathA20,
 	spider_frames_death1,
@@ -259,26 +259,26 @@ static mframe_t spider_frames_death2[] = {
 	{ai_move, 0.0f, NULL}
 };
 
-static mmove_t spider_move_death2 = {
+mmove_t spider_move_death2 = {
 	FRAME_deathB1,
 	FRAME_deathB20,
 	spider_frames_death2,
 	spider_dead
 };
 
-static void
+void
 spider_idle(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_idle, 1.0f, ATTN_IDLE, 0.0f);
 }
 
-static void
+void
 spider_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1.0f, ATTN_NORM, 0.0f);
 }
 
-static void
+void
 spider_sight(edict_t *self, edict_t *other)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1.0f, ATTN_NORM, 0.0f);
@@ -290,13 +290,13 @@ spider_melee_swing(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_melee1, 1.0f, ATTN_NORM, 0.0f);
 }
 
-static void
+void
 spider_walk(edict_t *self)
 {
 	self->monsterinfo.currentmove = &spider_move_walk;
 }
 
-static void
+void
 spider_charge_think(edict_t *self, edict_t *other, const cplane_t *plane,
 	const csurface_t *surf)
 {
@@ -357,7 +357,7 @@ spider_charge_end(edict_t *self)
 	}
 }
 
-static void
+void
 spider_run(edict_t *self)
 {
 	if (self->monsterinfo.aiflags & AI_STAND_GROUND)
@@ -393,7 +393,7 @@ spider_melee_hit(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_melee3, 1.0f, ATTN_NORM, 0.0f);
 }
 
-static void
+void
 spider_melee(edict_t *self)
 {
 	if (crandk() < 0.5f)
@@ -435,7 +435,7 @@ spider_rocket_right(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_MACHINEGUN_R5);
 }
 
-static void
+void
 spider_attack(edict_t *self)
 {
 	vec3_t delta;
@@ -467,7 +467,7 @@ spider_attack(edict_t *self)
 	self->monsterinfo.currentmove = &spider_move_attack_dual;
 }
 
-static void
+void
 spider_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	int sound_id;
@@ -524,7 +524,7 @@ spider_dead(edict_t *self)
 	monster_dynamic_dead(self);
 }
 
-static void
+void
 spider_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	int damage, const vec3_t point)
 {
@@ -579,7 +579,7 @@ spider_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	self->monsterinfo.currentmove = &spider_move_death2;
 }
 
-static qboolean
+qboolean
 spider_checkattack(edict_t *self)
 {
 	int enemy_range;

@@ -75,14 +75,14 @@ static vec3_t badass_rocket_offsets[2] = {
 	{18.0f, -40.0f, 0.0f}
 };
 
-static void badass_idle(edict_t *self);
-static void badass_run(edict_t *self);
-static void badass_attack(edict_t *self);
+void badass_idle(edict_t *self);
+void badass_run(edict_t *self);
+void badass_attack(edict_t *self);
 static void badass_attack_loop(edict_t *self);
 static void badass_rocket_right(edict_t *self);
 static void badass_rocket_left(edict_t *self);
-static void badass_gib_explosion(edict_t *self);
-static void badass_die_gibs(edict_t *self);
+void badass_gib_explosion(edict_t *self);
+void badass_die_gibs(edict_t *self);
 static void badass_dead(edict_t *self);
 static void badass_step(edict_t *self);
 static void badass_thud(edict_t *self);
@@ -90,7 +90,7 @@ static void badass_thud(edict_t *self);
 static mframe_t badass_frames_idle_closed[] = {
 	{ai_stand, 0.0f, NULL}
 };
-static mmove_t badass_move_idle_closed = {
+mmove_t badass_move_idle_closed = {
 	FRAME_activate1,
 	FRAME_activate1,
 	badass_frames_idle_closed,
@@ -113,7 +113,7 @@ static mframe_t badass_frames_walk[] = {
 	{ai_walk, 7.0f, NULL},
 	{ai_walk, 7.0f, badass_step}
 };
-static mmove_t badass_move_walk = {
+mmove_t badass_move_walk = {
 	FRAME_walk1,
 	FRAME_walk14,
 	badass_frames_walk,
@@ -130,7 +130,7 @@ static mframe_t badass_frames_run[] = {
 	{ai_run, 21.0f, NULL},
 	{ai_run, 24.0f, badass_step}
 };
-static mmove_t badass_move_run = {
+mmove_t badass_move_run = {
 	FRAME_run1,
 	FRAME_run8,
 	badass_frames_run,
@@ -143,7 +143,7 @@ static mframe_t badass_frames_attack[] = {
 	{ai_charge, -5.0f, badass_rocket_left},
 	{ai_charge, 0.0f, NULL}
 };
-static mmove_t badass_move_attack = {
+mmove_t badass_move_attack = {
 	FRAME_attack1,
 	FRAME_attack4,
 	badass_frames_attack,
@@ -162,7 +162,7 @@ static mframe_t badass_frames_pain[] = {
 	{ai_move, -8.0f, NULL},
 	{ai_move, 0.0f, NULL}
 };
-static mmove_t badass_move_pain = {
+mmove_t badass_move_pain = {
 	FRAME_pain1,
 	FRAME_pain10,
 	badass_frames_pain,
@@ -191,14 +191,15 @@ static mframe_t badass_frames_death[] = {
 	{ai_move, 0.0f, NULL},
 	{ai_move, 0.0f, badass_thud}
 };
-static mmove_t badass_move_death = {
+mmove_t badass_move_death = {
 	FRAME_death1,
 	FRAME_death20,
 	badass_frames_death,
 	badass_dead
 };
 
-static void badass_sight(edict_t *self, edict_t *other)
+void
+badass_sight(edict_t *self, edict_t *other)
 {
 	if (self->monsterinfo.currentmove == &badass_move_idle_closed)
 	{
@@ -212,7 +213,7 @@ static void badass_sight(edict_t *self, edict_t *other)
 	gi.sound(self, CHAN_VOICE, sound_sight, 1.0f, ATTN_NORM, 0);
 }
 
-static void
+void
 badass_stand(edict_t *self)
 {
 	if (self->monsterinfo.currentmove != &badass_move_idle_closed)
@@ -221,7 +222,7 @@ badass_stand(edict_t *self)
 	}
 }
 
-static void
+void
 badass_idle(edict_t *self)
 {
 	if (self->monsterinfo.action &&
@@ -234,19 +235,19 @@ badass_idle(edict_t *self)
 	self->monsterinfo.currentmove = &badass_move_idle_closed;
 }
 
-static void
+void
 badass_walk(edict_t *self)
 {
 	self->monsterinfo.currentmove = &badass_move_walk;
 }
 
-static void
+void
 badass_run(edict_t *self)
 {
 	self->monsterinfo.currentmove = &badass_move_run;
 }
 
-static void
+void
 badass_attack(edict_t *self)
 {
 	vec3_t delta;
@@ -329,7 +330,7 @@ badass_rocket_left(edict_t *self)
 	monster_fire_rocket(self, start, dir, 50, 550, MZ2_CARRIER_ROCKET_2);
 }
 
-static void
+void
 badass_gib_think(edict_t *self)
 {
 	self->nextthink = level.time + 0.1f;
@@ -342,7 +343,7 @@ badass_gib_think(edict_t *self)
 	self->count++;
 }
 
-static void
+void
 badass_gib_explosion(edict_t *self)
 {
 	gi.WriteByte(svc_temp_entity);
@@ -359,7 +360,7 @@ badass_gib_explosion(edict_t *self)
 	}
 }
 
-static void
+void
 badass_die_gibs(edict_t *self)
 {
 	vec3_t forward, right, up;
@@ -445,7 +446,7 @@ badass_dead(edict_t *self)
 	gi.linkentity(self);
 }
 
-static void
+void
 badass_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
 	const vec3_t point)
 {
@@ -469,7 +470,7 @@ badass_thud(edict_t *self)
 	gi.sound(self, CHAN_BODY, sound_death, 1.0f, ATTN_NORM, 0);
 }
 
-static void
+void
 badass_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	if (self->health < (self->max_health / 2))

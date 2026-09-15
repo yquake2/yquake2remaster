@@ -42,15 +42,15 @@ static int sound_step2;
 static int sound_step3;
 static int sound_thud;
 
-static void cyborg_stand(edict_t *self);
-static void cyborg_run(edict_t *self);
+void cyborg_stand(edict_t *self);
+void cyborg_run(edict_t *self);
 static void cyborg_footstep(edict_t *self);
 static void cyborg_fire_right(edict_t *self);
 static void cyborg_fire_left(edict_t *self);
 static void cyborg_fire_both(edict_t *self);
 static void cyborg_attack_start(edict_t *self);
 static void cyborg_attack_end(edict_t *self);
-static void cyborg_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+void cyborg_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 	const csurface_t *surf);
 static void cyborg_hit_left(edict_t *self);
 static void cyborg_hit_right(edict_t *self);
@@ -347,38 +347,38 @@ cyborg_footstep(edict_t *self)
 	}
 }
 
-static void
+void
 cyborg_idle(edict_t *self)
 {
 	self->monsterinfo.currentmove = &cyborg_move_idle;
 	gi.sound(self, CHAN_VOICE, sound_idle, 1, ATTN_IDLE, 0);
 }
 
-static void
+void
 cyborg_search(edict_t *self)
 {
 	gi.sound(self, CHAN_VOICE, sound_search, 1, ATTN_NORM, 0);
 }
 
-static void
+void
 cyborg_sight(edict_t *self, edict_t *other)
 {
 	gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
 }
 
-static void
+void
 cyborg_stand(edict_t *self)
 {
 	self->monsterinfo.currentmove = &cyborg_move_stand;
 }
 
-static void
+void
 cyborg_walk(edict_t *self)
 {
 	self->monsterinfo.currentmove = &cyborg_move_walk;
 }
 
-static void
+void
 cyborg_run(edict_t *self)
 {
 	if (self->monsterinfo.currentmove == &cyborg_move_pain2)
@@ -501,7 +501,7 @@ cyborg_attack_end(edict_t *self)
 	}
 }
 
-static void
+void
 cyborg_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 	const csurface_t *surf)
 {
@@ -590,7 +590,7 @@ cyborg_hit_alt(edict_t *self)
 	}
 }
 
-static void
+void
 cyborg_attack(edict_t *self)
 {
 	float r;
@@ -610,7 +610,7 @@ cyborg_attack(edict_t *self)
 	}
 }
 
-static void
+void
 cyborg_melee(edict_t *self)
 {
 	float r;
@@ -666,7 +666,7 @@ cyborg_check_range(edict_t *self)
 	return true;
 }
 
-static qboolean
+qboolean
 cyborg_checkattack(edict_t *self)
 {
 	if (self->enemy && self->enemy->health > 0)
@@ -687,7 +687,7 @@ cyborg_checkattack(edict_t *self)
 	return false;
 }
 
-static void
+void
 cyborg_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
 	if (self->health < (self->max_health / 2))
@@ -719,7 +719,7 @@ cyborg_pain(edict_t *self, edict_t *other, float kick, int damage)
 	}
 }
 
-static void
+void
 cyborg_die(edict_t *self, edict_t *inflictor, edict_t *attacker,
 	int damage, const vec3_t point)
 {
