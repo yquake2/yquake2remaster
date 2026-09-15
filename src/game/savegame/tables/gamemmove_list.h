@@ -304,7 +304,6 @@
 {"hknight_move_charge", &hknight_move_charge},
 {"hknight_move_die1", &hknight_move_die1},
 {"hknight_move_die2", &hknight_move_die2},
-{"hknight_move_pain", &hknight_move_pain},
 {"hknight_move_run", &hknight_move_run},
 {"hknight_move_slice", &hknight_move_slice},
 {"hknight_move_smash", &hknight_move_smash},

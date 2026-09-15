@@ -305,7 +305,6 @@ extern mmove_t hknight_move_attack;
 extern mmove_t hknight_move_charge;
 extern mmove_t hknight_move_die1;
 extern mmove_t hknight_move_die2;
-extern mmove_t hknight_move_pain;
 extern mmove_t hknight_move_run;
 extern mmove_t hknight_move_slice;
 extern mmove_t hknight_move_smash;

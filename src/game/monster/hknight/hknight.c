@@ -343,23 +343,6 @@ hknight_melee(edict_t *self)
 	gi.sound(self, CHAN_WEAPON, sound_melee, 1, ATTN_NORM, 0);
 }
 
-// Pain
-static mframe_t hknight_frames_pain [] =
-{
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-	{ai_move, 0, NULL},
-
-	{ai_move, 0, NULL}
-};
-mmove_t hknight_move_pain = {
-	FRAME_pain1,
-	FRAME_pain5,
-	hknight_frames_pain,
-	hknight_run
-};
-
 void
 hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
 {
@@ -371,14 +354,18 @@ hknight_pain(edict_t *self, edict_t *other, float kick, int damage)
 
 	if (level.time - self->pain_debounce_time > 5)
 	{
-		self->monsterinfo.currentmove = &hknight_move_pain;
+		self->monsterinfo.firstframe = FRAME_pain1;
+		self->monsterinfo.numframes = FRAME_pain5 - FRAME_pain1 + 1;
+		monster_dynamic_action(self, "pain", 0);
 		self->pain_debounce_time = level.time + 1;
 		gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 		return;
 	}
 	if ((random() * 30 > damage) )
 		return;
-	self->monsterinfo.currentmove = &hknight_move_pain;
+	self->monsterinfo.firstframe = FRAME_pain1;
+	self->monsterinfo.numframes = FRAME_pain5 - FRAME_pain1 + 1;
+	monster_dynamic_action(self, "pain", 0);
 	self->pain_debounce_time = level.time + 1;
 	gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
 }
