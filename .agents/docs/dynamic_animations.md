@@ -43,24 +43,9 @@ The following action strings (`self->monsterinfo.action`) are recognized and sup
 
 ---
 
-## Setting Up Dynamic Actions in Monster Code
+## AI Movement Functions (`ai_run`, `ai_walk`, `ai_stand`, `ai_move`, `ai_charge`) & Distances (`walk_dist`, `run_dist`)
 
-To replace static `mmove_t` frame tables (where `dist == 0` and `thinkfunc == NULL`) with dynamic actions:
-1. Remove the static `mframe_t` array and `mmove_t` structure.
-2. Remove the `mmove_t` declaration from `gamemmove_decs.h` and `gamemmove_list.h`.
-3. In the monster function (e.g., pain/attack/etc.), set:
-   ```c
-   self->monsterinfo.firstframe = FRAME_startname;
-   self->monsterinfo.numframes = FRAME_endname - FRAME_startname + 1;
-   monster_dynamic_action(self, "action_name", select_index);
-   ```
-   *(Where `select_index` is `-1` for random selection among duplicate group names, or `>= 0` for an exact group index).*
-
----
-
-### AI Movement Functions (`ai_run`, `ai_walk`, `ai_stand`, `ai_move`, `ai_charge`) & Distances (`walk_dist`, `run_dist`)
-
-In traditional static `mmove_t` definitions, each `mframe_t` specifies a think function (typically one of the core AI movement functions) and a movement distance (`dist`). In dynamic actions, since frames are looked up dynamically from model group headers rather than static `mframe_t` arrays, AI movement behavior is governed by the monster's state functions (`monsterinfo.run`, `monsterinfo.walk`, `monsterinfo.stand`, etc.):
+In traditional static `mmove_t` definitions, each `mframe_t` specifies a think function (typically one of the core AI movement functions) and a movement distance (`dist`). In dynamic actions, since frames are looked up dynamically from model group headers rather than static `mframe_t` arrays, AI movement behavior is governed by the monster's state functions (`monsterinfo.run`, `monsterinfo.walk`, `monsterinfo.stand`, etc.) and AI helper functions:
 
 1. **`ai_move(edict_t *self, float dist)`**: Moves the entity forward/backward by `dist` at the current facing angle (`self->s.angles[YAW]`).
 2. **`ai_stand(edict_t *self, float dist)`**: Used while standing or idle; applies optional position adjustments (`dist`) and updates enemy targeting/yaw.
@@ -70,7 +55,6 @@ In traditional static `mmove_t` definitions, each `mframe_t` specifies a think f
 
 #### Movement Distances (`walk_dist`, `run_dist`)
 When running or walking via dynamic actions, monsters utilize `monsterinfo.walk_dist` and `monsterinfo.run_dist` (stored in `monsterinfo`) to determine speed/distance per tick, scaled by `monsterinfo.scale`. These replace the per-frame `dist` values found in traditional `mframe_t` tables.
-
 
 When converting static moves where `dist == 0` and `thinkfunc == NULL` to dynamic actions, the movement distance is zero across all frames, making them ideal candidates for dynamic animation lookup because no per-frame distance or custom think callback is required.
 
@@ -84,9 +68,45 @@ When converting static moves where `dist == 0` and `thinkfunc == NULL` to dynami
 | **Attack / Melee** | `ai_charge` / `ai_move` | Advancing or holding position while executing attacks. |
 | **Pain / Death** | `ai_move` (dist `0`) | Inert reactions where movement is zero (`dist == 0`). |
 
+---
 
+## Replacing Static Frame Tables with Dynamic Actions
 
-For moves that require static `mmove_t` structures (e.g. when movement distances or callbacks are needed) but need to resolve their frame indices dynamically from model groups, Yquake2 provides helper functions in `src/game/g_monster.c`:
+To replace static `mmove_t` and `mframe_t` tables (especially where `dist == 0` and `thinkfunc` is `NULL`, such as static idle, pain, or attack sequences) with dynamic actions powered by `ai_stand`, `ai_walk`, `ai_run`, `ai_charge`, or `ai_move`:
+
+### 1. Code Cleanup
+1. Remove the static `mframe_t` array definition and the associated `mmove_t` structure.
+2. Remove any references in `gamemmove_decs.h` and `gamemmove_list.h` if applicable.
+
+### 2. Implementing Dynamic Action Calls
+Instead of assigning `self->monsterinfo.currentmove = &monster_move_someaction;`, invoke `monster_dynamic_action()` or configure `monsterinfo` fields directly:
+
+```c
+// Example: Setting a dynamic stand action using ai_stand
+void monster_stand(edict_t *self)
+{
+    self->monsterinfo.currentmove = NULL;
+    self->monsterinfo.ai_stand = ai_stand;
+    self->monsterinfo.action = "stand";
+    self->monsterinfo.firstframe = 0; // Or resolved via model info / frame group
+    self->monsterinfo.numframes = 10;
+}
+
+// Example: Setting a dynamic pain reaction using ai_move with zero distance
+void monster_pain(edict_t *self, edict_t *other, float kick, int damage)
+{
+    // ... pain checks and sound ...
+    self->monsterinfo.currentmove = NULL;
+    self->monsterinfo.ai_move = ai_move;
+    monster_dynamic_action(self, "pain", 0);
+}
+```
+
+---
+
+## Hybrid MMove Group Helpers
+
+For moves that require static `mmove_t` structures (e.g. when custom per-frame movement distances or callbacks are needed) but need to resolve their frame indices dynamically from model groups, Yquake2 provides helper functions in `src/game/g_monster.c`:
 
 ### 1. `void M_SetAnimGroupMMove(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base, const char *name, int select)`
 - **Purpose**: Copies base `mmove` and remaps its `firstframe` and `lastframe` based on model frame group matching `name`.
@@ -98,6 +118,4 @@ For moves that require static `mmove_t` structures (e.g. when movement distances
   - `select`: Group index or variant selector (`0`, `1`, etc.).
 
 ### 2. `void M_SetAnimGroupMMoveOffset(edict_t *self, mmove_t *mmove, const mmove_t *mmove_base, const char *name, int select, int offset)`
-- **Purpose**: Similar to `M_SetAnimGroupMMove`, but applies an frame offset adjustment when animations start offset from group beginnings or have sub-ranges.
-
-
+- **Purpose**: Similar to `M_SetAnimGroupMMove`, but applies a frame offset adjustment when animations start offset from group beginnings or have sub-ranges.
