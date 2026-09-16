@@ -671,6 +671,7 @@ static const namesconvert_t flex_names[] = {
 static const namesconvert_t quake2_names[] = {
 	/* classic base2 */
 	{"actvat",  "activate"},
+	{"runs", "runs"}, /* run and shoot should be left without changes */
 	/* oblivion */
 	{"attak",  "attack"},
 	{"attack",  "attack"},

@@ -1236,14 +1236,14 @@ monster_tank_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &tank_move_pain1, &tank_move_pain1_static, "pain", 0);
 	M_SetAnimGroupMMove(self, &tank_move_pain2, &tank_move_pain2_static, "pain", 1);
 	M_SetAnimGroupMMove(self, &tank_move_pain3, &tank_move_pain3_static, "pain", 2);
-	M_SetAnimGroupMMove(self, &tank_move_attack_blast, &tank_move_attack_blast_static, "attak", 0);
-	M_SetAnimGroupMMoveOffset(self, &tank_move_reattack_blast, &tank_move_reattack_blast_static, "attak", 0, 10);
-	M_SetAnimGroupMMoveOffset(self, &tank_move_attack_post_blast, &tank_move_attack_post_blast_static, "attak", 0, 16);
-	M_SetAnimGroupMMove(self, &tank_move_attack_strike, &tank_move_attack_strike_static, "attak", 1);
-	M_SetAnimGroupMMove(self, &tank_move_attack_pre_rocket, &tank_move_attack_pre_rocket_static, "attak", 2);
-	M_SetAnimGroupMMoveOffset(self, &tank_move_attack_fire_rocket, &tank_move_attack_fire_rocket_static, "attak", 2, 21);
-	M_SetAnimGroupMMoveOffset(self, &tank_move_attack_post_rocket, &tank_move_attack_post_rocket_static, "attak", 2, 30);
-	M_SetAnimGroupMMove(self, &tank_move_attack_chain, &tank_move_attack_chain_static, "attak", 3);
+	M_SetAnimGroupMMove(self, &tank_move_attack_blast, &tank_move_attack_blast_static, "attack", 0);
+	M_SetAnimGroupMMoveOffset(self, &tank_move_reattack_blast, &tank_move_reattack_blast_static, "attack", 0, 10);
+	M_SetAnimGroupMMoveOffset(self, &tank_move_attack_post_blast, &tank_move_attack_post_blast_static, "attack", 0, 16);
+	M_SetAnimGroupMMove(self, &tank_move_attack_strike, &tank_move_attack_strike_static, "attack", 1);
+	M_SetAnimGroupMMove(self, &tank_move_attack_pre_rocket, &tank_move_attack_pre_rocket_static, "attack", 2);
+	M_SetAnimGroupMMoveOffset(self, &tank_move_attack_fire_rocket, &tank_move_attack_fire_rocket_static, "attack", 2, 21);
+	M_SetAnimGroupMMoveOffset(self, &tank_move_attack_post_rocket, &tank_move_attack_post_rocket_static, "attack", 2, 30);
+	M_SetAnimGroupMMove(self, &tank_move_attack_chain, &tank_move_attack_chain_static, "attack", 3);
 	M_SetAnimGroupMMove(self, &tank_move_death, &tank_move_death_static, "death", 0);
 }
 

@@ -1302,10 +1302,10 @@ monster_gunner_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &gunner_move_pain1, &gunner_move_pain1_static, "pain", 0);
 	M_SetAnimGroupMMove(self, &gunner_move_death, &gunner_move_death_static, "death", 0);
 	M_SetAnimGroupMMove(self, &gunner_move_duck, &gunner_move_duck_static, "duck", 0);
-	M_SetAnimGroupMMoveOffset(self, &gunner_move_attack_chain, &gunner_move_attack_chain_static, "attak", 1, 8);
-	M_SetAnimGroupMMoveOffset(self, &gunner_move_fire_chain, &gunner_move_fire_chain_static, "attak", 1, 15);
-	M_SetAnimGroupMMoveOffset(self, &gunner_move_endfire_chain, &gunner_move_endfire_chain_static, "attak", 1, 23);
-	M_SetAnimGroupMMove(self, &gunner_move_attack_grenade, &gunner_move_attack_grenade_static, "attak", 0);
+	M_SetAnimGroupMMoveOffset(self, &gunner_move_attack_chain, &gunner_move_attack_chain_static, "attack", 1, 8);
+	M_SetAnimGroupMMoveOffset(self, &gunner_move_fire_chain, &gunner_move_fire_chain_static, "attack", 1, 15);
+	M_SetAnimGroupMMoveOffset(self, &gunner_move_endfire_chain, &gunner_move_endfire_chain_static, "attack", 1, 23);
+	M_SetAnimGroupMMove(self, &gunner_move_attack_grenade, &gunner_move_attack_grenade_static, "attack", 0);
 	M_SetAnimGroupMMove(self, &gunner_move_jump, &gunner_move_jump_static, "jump", 0);
 	M_SetAnimGroupMMove(self, &gunner_move_jump2, &gunner_move_jump2_static, "jump", 0);
 

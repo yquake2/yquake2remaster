@@ -3258,10 +3258,10 @@ monster_soldier_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &soldier_move_pain3, &soldier_move_pain3_static, "pain", 2);
 	M_SetAnimGroupMMove(self, &soldier_move_pain4, &soldier_move_pain4_static, "pain", 3);
 	M_SetAnimGroupMMove(self, &soldier_move_duck, &soldier_move_duck_static, "duck", 0);
-	M_SetAnimGroupMMove(self, &soldier_move_attack1, &soldier_move_attack1_static, "attak", 0);
-	M_SetAnimGroupMMove(self, &soldier_move_attack2, &soldier_move_attack2_static, "attak", 1);
-	M_SetAnimGroupMMove(self, &soldier_move_attack3, &soldier_move_attack3_static, "attak", 2);
-	M_SetAnimGroupMMove(self, &soldier_move_attack4, &soldier_move_attack4_static, "attak", 3);
+	M_SetAnimGroupMMove(self, &soldier_move_attack1, &soldier_move_attack1_static, "attack", 0);
+	M_SetAnimGroupMMove(self, &soldier_move_attack2, &soldier_move_attack2_static, "attack", 1);
+	M_SetAnimGroupMMove(self, &soldier_move_attack3, &soldier_move_attack3_static, "attack", 2);
+	M_SetAnimGroupMMove(self, &soldier_move_attack4, &soldier_move_attack4_static, "attack", 3);
 
 	/* soldierh */
 	M_SetAnimGroupMMove(self, &soldierh_move_death1, &soldierh_move_death1_static, "death", 0);
@@ -3278,10 +3278,10 @@ monster_soldier_fix(edict_t *self)
 	M_SetAnimGroupMMove(self, &soldierh_move_pain3, &soldierh_move_pain3_static, "pain", 2);
 	M_SetAnimGroupMMove(self, &soldierh_move_pain4, &soldierh_move_pain4_static, "pain", 3);
 	M_SetAnimGroupMMove(self, &soldierh_move_duck, &soldierh_move_duck_static, "duck", 0);
-	M_SetAnimGroupMMove(self, &soldierh_move_attack1, &soldierh_move_attack1_static, "attak", 0);
-	M_SetAnimGroupMMove(self, &soldierh_move_attack2, &soldierh_move_attack2_static, "attak", 1);
-	M_SetAnimGroupMMove(self, &soldierh_move_attack3, &soldierh_move_attack3_static, "attak", 2);
-	M_SetAnimGroupMMove(self, &soldierh_move_attack4, &soldierh_move_attack4_static, "attak", 3);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack1, &soldierh_move_attack1_static, "attack", 0);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack2, &soldierh_move_attack2_static, "attack", 1);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack3, &soldierh_move_attack3_static, "attack", 2);
+	M_SetAnimGroupMMove(self, &soldierh_move_attack4, &soldierh_move_attack4_static, "attack", 3);
 
 	sound_step = gi.soundindex("player/step1.wav");
 	sound_step2 = gi.soundindex("player/step2.wav");

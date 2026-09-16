@@ -979,6 +979,7 @@ M_SetAnimGroupFrameValues(edict_t *self, const char *name,
 		M_SetAnimGroupFrameValuesInt(self, "duck", ofs_frames, num_frames, select);
 	}
 	else if (!strcmp(name, "swim") ||
+			!strcmp(name, "runs") ||
 			!strcmp(name, "jump"))
 	{
 		if (!M_SetAnimGroupFrameValuesInt(self, "run", ofs_frames, num_frames, select))
@@ -1288,6 +1289,7 @@ M_MoveFrame(edict_t *self)
 	else if (self->monsterinfo.action)
 	{
 		if (!strcmp(self->monsterinfo.action, "run") ||
+			!strcmp(self->monsterinfo.action, "runs") ||
 			!strcmp(self->monsterinfo.action, "swim") ||
 			!strcmp(self->monsterinfo.action, "fly"))
 		{

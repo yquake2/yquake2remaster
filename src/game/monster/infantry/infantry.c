@@ -1059,8 +1059,8 @@ monster_infantry_fix(edict_t *self)
 {
 	M_SetAnimGroupMMove(self, &infantry_move_jump, &infantry_move_jump_static, "jump", 0);
 	M_SetAnimGroupMMove(self, &infantry_move_jump2, &infantry_move_jump2_static, "jump", 0);
-	M_SetAnimGroupMMove(self, &infantry_move_attack1, &infantry_move_attack1_static, "attak", 0);
-	M_SetAnimGroupMMove(self, &infantry_move_attack2, &infantry_move_attack2_static, "attak", 1);
+	M_SetAnimGroupMMove(self, &infantry_move_attack1, &infantry_move_attack1_static, "attack", 0);
+	M_SetAnimGroupMMove(self, &infantry_move_attack2, &infantry_move_attack2_static, "attack", 1);
 	M_SetAnimGroupMMove(self, &infantry_move_death1, &infantry_move_death1_static, "death", 0);
 	M_SetAnimGroupMMove(self, &infantry_move_death2, &infantry_move_death2_static, "death", 1);
 	M_SetAnimGroupMMove(self, &infantry_move_death3, &infantry_move_death3_static, "death", 2);

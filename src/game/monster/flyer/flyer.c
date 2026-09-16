@@ -903,21 +903,21 @@ flyer_blocked(edict_t *self, float dist)
 static void
 monster_flyer_fix(edict_t *self)
 {
-	M_SetAnimGroupMMove(self, &flyer_move_attack2, &flyer_move_attack2_static, "attak", 1);
-	M_SetAnimGroupMMove(self, &flyer_move_attack3, &flyer_move_attack3_static, "attak", 1);
+	M_SetAnimGroupMMove(self, &flyer_move_attack2, &flyer_move_attack2_static, "attack", 1);
+	M_SetAnimGroupMMove(self, &flyer_move_attack3, &flyer_move_attack3_static, "attack", 1);
 	M_SetAnimGroupMMove(self, &flyer_move_bankleft, &flyer_move_bankleft_static, "bankl", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_bankright, &flyer_move_bankright_static, "bankr", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_defense, &flyer_move_defense_static, "defens", 0);
-	M_SetAnimGroupMMoveOffset(self, &flyer_move_end_melee, &flyer_move_end_melee_static, "attak", 0, 18);
+	M_SetAnimGroupMMoveOffset(self, &flyer_move_end_melee, &flyer_move_end_melee_static, "attack", 0, 18);
 	M_SetAnimGroupMMoveOffset(self, &flyer_move_kamikaze, &flyer_move_kamikaze_static, "rollr", 0, 1);
-	M_SetAnimGroupMMoveOffset(self, &flyer_move_loop_melee, &flyer_move_loop_melee_static, "attak", 0, 6);
+	M_SetAnimGroupMMoveOffset(self, &flyer_move_loop_melee, &flyer_move_loop_melee_static, "attack", 0, 6);
 	M_SetAnimGroupMMove(self, &flyer_move_pain1, &flyer_move_pain1_static, "pain", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_pain2, &flyer_move_pain2_static, "pain", 1);
 	M_SetAnimGroupMMove(self, &flyer_move_pain3, &flyer_move_pain3_static, "pain", 2);
 	M_SetAnimGroupMMove(self, &flyer_move_rollleft, &flyer_move_rollleft_static, "rollf", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_rollright, &flyer_move_rollright_static, "rollr", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_run, &flyer_move_run_static, "stand", 0);
-	M_SetAnimGroupMMove(self, &flyer_move_start_melee, &flyer_move_start_melee_static, "attak", 0);
+	M_SetAnimGroupMMove(self, &flyer_move_start_melee, &flyer_move_start_melee_static, "attack", 0);
 	M_SetAnimGroupMMove(self, &flyer_move_walk, &flyer_move_walk_static, "stand", 0);
 }
 
