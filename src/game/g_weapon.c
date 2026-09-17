@@ -2749,3 +2749,255 @@ fire_detpack(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 	return charge;
 }
+
+#define MAX_ACTIVE_MINES 5
+
+static void
+proximity_mine_explode(edict_t *self)
+{
+	vec3_t origin;
+
+	VectorClear(self->velocity);
+
+	self->takedamage = DAMAGE_NO;
+	self->die = NULL;
+	T_RadiusDamage(self, self->owner ? self->owner : self, self->dmg, NULL,
+		self->dmg_radius, MOD_GRENADE);
+
+	VectorMA(self->s.origin, -0.02f, self->velocity, origin);
+
+	gi.WriteByte(svc_temp_entity);
+	if (self->waterlevel)
+	{
+		if (self->groundentity)
+		{
+			gi.WriteByte(TE_GRENADE_EXPLOSION_WATER);
+		}
+		else
+		{
+			gi.WriteByte(TE_ROCKET_EXPLOSION_WATER);
+		}
+	}
+	else
+	{
+		if (self->groundentity)
+		{
+			gi.WriteByte(TE_GRENADE_EXPLOSION);
+		}
+		else
+		{
+			gi.WriteByte(TE_ROCKET_EXPLOSION);
+		}
+	}
+	gi.WritePosition(origin);
+	gi.multicast(self->s.origin, MULTICAST_PHS);
+
+	G_FreeEdict(self);
+}
+
+static void
+mine_enforce_limit(edict_t *mine)
+{
+	edict_t *ent = NULL, *oldest;
+	int count;
+
+	if (!mine || !mine->owner)
+	{
+		return;
+	}
+
+	oldest = mine;
+	count = 0;
+
+	while ((ent = (G_Find(ent, FOFS(classname), "mine"))))
+	{
+		if (ent->owner != mine->owner)
+		{
+			continue;
+		}
+
+		count++;
+
+		if ((ent != mine) &&
+			(oldest == mine || ent->timestamp < oldest->timestamp))
+		{
+			oldest = ent;
+		}
+	}
+
+	if (count > MAX_ACTIVE_MINES && oldest)
+	{
+		proximity_mine_explode(oldest);
+	}
+}
+
+static void
+proximity_mine_laser_think(edict_t *self)
+{
+	edict_t *beam, *child, *source;
+	int i;
+
+	if (self->count < 30)
+	{
+		if (!self->count)
+		{
+			self->solid = SOLID_NOT;
+			VectorClear(self->velocity);
+			VectorSet(self->avelocity, 0.0f, 74.0f, 0.0f);
+			gi.linkentity(self);
+
+			source = self;
+			for (i = 0; i < 4; i++)
+			{
+				child = G_Spawn();
+				child->owner = self->owner;
+				child->activator = self->owner;
+				child->spawnflags = SPAWNFLAG_LASER_ON | SPAWNFLAG_LASER_RED | SPAWNFLAG_LASER_STOPWINDOW;
+				VectorCopy(self->rrs.scale, child->rrs.scale);
+				AngleVectors(source->s.angles, NULL, child->movedir, NULL);
+				VectorNormalize(child->movedir);
+				vectoangles(child->movedir, child->s.angles);
+				VectorCopy(self->s.origin, child->s.origin);
+				child->dmg = 40;
+				child->classname = "mine laser";
+				source->chain = child;
+				target_laser_start(child);
+				gi.linkentity(child);
+				source = child;
+			}
+		}
+
+		source = self;
+		for (beam = self->chain; beam; beam = beam->chain)
+		{
+			AngleVectors(source->s.angles, NULL, beam->movedir, NULL);
+			VectorNormalize(beam->movedir);
+			vectoangles(beam->movedir, beam->s.angles);
+			beam->spawnflags |= SPAWNFLAG_LASER_ZAP;
+			source = beam;
+		}
+
+		self->count++;
+		self->nextthink = level.time + 0.1f;
+		return;
+	}
+
+	beam = self->chain;
+	for (i = 0; i < 4 && beam; i++)
+	{
+		child = beam->chain;
+		G_FreeEdict(beam);
+		beam = child;
+	}
+	self->chain = NULL;
+	self->think = proximity_mine_explode;
+	self->nextthink = level.time + 0.1f;
+}
+
+static void
+proximity_mine_laser_start(edict_t *self)
+{
+	self->movetype = MOVETYPE_FLY;
+	VectorClear(self->avelocity);
+	VectorClear(self->s.angles);
+	VectorSet(self->movedir, 0.0f, 0.0f, 1.0f);
+	VectorScale(self->movedir, 30.0f, self->velocity);
+	self->count = 0;
+	self->think = proximity_mine_laser_think;
+	self->nextthink = level.time + 1.0f;
+	self->s.sound = gi.soundindex("weapons/hgrenc1b.wav");
+}
+
+static void
+proximity_mine_think(edict_t *self)
+{
+	edict_t	*ent;
+
+	ent = NULL;
+	while ((ent = findradius(ent, self->s.origin, 100.0f)) != NULL)
+	{
+		self->nextthink = level.time + 0.1f;
+		if (ent->takedamage != DAMAGE_AIM)
+		{
+			continue;
+		}
+
+		self->think = proximity_mine_laser_start;
+		return;
+	}
+
+	self->nextthink = level.time + 0.1f;
+}
+
+static void
+proximity_mine_die(edict_t *self, edict_t *inflictor,
+			       edict_t *attacker, int damage, const vec3_t point)
+{
+	if (self->think == proximity_mine_think)
+	{
+		self->think = proximity_mine_explode;
+		self->nextthink = level.time + 0.2f;
+	}
+}
+
+static void
+proximity_mine_touch(edict_t *self, edict_t *other, const cplane_t *plane,
+				 const csurface_t *surf)
+{
+	gi.sound(self, CHAN_VOICE, gi.soundindex("weapons/hgrenb1a.wav"), 1,
+		ATTN_NORM, 0);
+	self->nextthink = level.time + 0.1f;
+
+	if (other->takedamage == DAMAGE_AIM)
+	{
+		self->think = proximity_mine_explode;
+		VectorClear(self->velocity);
+		VectorClear(self->avelocity);
+	}
+}
+
+void
+fire_proximity_mine(edict_t *self, vec3_t start, vec3_t aimdir, int speed)
+{
+	vec3_t dir, forward, right, up;
+	edict_t *mine;
+
+	vectoangles(aimdir, dir);
+	AngleVectors(dir, forward, right, up);
+
+	mine = G_Spawn();
+	VectorCopy(self->rrs.scale, mine->rrs.scale);
+	VectorCopy(start, mine->s.origin);
+	VectorCopy(start, mine->s.old_origin);
+	vectoangles(aimdir, mine->s.angles);
+	VectorScale(aimdir, speed, mine->velocity);
+	VectorMA(mine->velocity, 200.0f + crandom() * 20.0f, up, mine->velocity);
+	VectorMA(mine->velocity, crandom() * 20.0f, right, mine->velocity);
+	VectorSet(mine->avelocity, 300.0f, 300.0f, 300.0f);
+	mine->movetype = MOVETYPE_TOSS;
+	mine->clipmask = MASK_SHOT;
+	mine->solid = SOLID_BBOX;
+	VectorSet(mine->mins, -2, -2, -2);
+	VectorSet(mine->maxs, 2, 2, 2);
+	mine->s.effects |= EF_GRENADE;
+	mine->s.modelindex = gi.modelindex("models/objects/mine/tris.md2");
+	mine->owner = self;
+	mine->touch = proximity_mine_touch;
+	mine->think = proximity_mine_think;
+	mine->nextthink = level.time + 0.1f;
+	mine->classname = "mine";
+	mine->takedamage = DAMAGE_YES;
+	mine->die = proximity_mine_die;
+	mine->health = 10;
+	mine->max_health = 10;
+	mine->dmg = 150;
+	mine->radius_dmg = 100;
+	mine->dmg_radius = 180.0f;
+	mine->timestamp = level.time;
+
+	gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/hgrent1a.wav"), 1,
+		ATTN_NORM, 0);
+	gi.linkentity(mine);
+
+	mine_enforce_limit(mine);
+}

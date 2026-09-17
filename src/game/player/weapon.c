@@ -4070,6 +4070,148 @@ Weapon_DetonationPack_Fire(edict_t *ent)
 	ent->client->pers.inventory[ITEM_INDEX(item)]--;
 }
 
+static void
+Weapon_ProximityMines_Fire(edict_t *ent)
+{
+	vec3_t offset, start, forward, right;
+	float timer;
+	int speed;
+
+	VectorSet(offset, 8, 8, ent->viewheight - 8);
+	AngleVectors(ent->client->v_angle, forward, right, NULL);
+	P_ProjectSource(ent, offset, forward, right, start);
+
+	timer = ent->client->grenade_time - level.time;
+	speed = GRENADE_MINSPEED + (GRENADE_TIMER - timer) *
+		((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER);
+	fire_proximity_mine(ent, start, forward, speed);
+
+	ent->client->pers.inventory[ent->client->ammo_index]--;
+	ent->client->grenade_time = level.time + 1.0f;
+}
+
+static void
+Weapon_ProximityMines(edict_t *ent)
+{
+	if ((ent->client->newweapon) && (ent->client->weaponstate == WEAPON_READY))
+	{
+		ChangeWeapon(ent);
+		return;
+	}
+
+	if (ent->client->weaponstate == WEAPON_ACTIVATING)
+	{
+		ent->client->weaponstate = WEAPON_READY;
+		ent->client->ps.gunframe = 16;
+		return;
+	}
+
+	if (ent->client->weaponstate == WEAPON_READY)
+	{
+		if ((ent->client->latched_buttons | ent->client->buttons) & BUTTON_ATTACK)
+		{
+			ent->client->latched_buttons &= ~BUTTON_ATTACK;
+			if (ent->client->pers.inventory[ent->client->ammo_index] <= 0)
+			{
+				if (level.time >= ent->pain_debounce_time)
+				{
+					gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/noammo.wav"), 1,
+						ATTN_NORM, 0);
+					ent->pain_debounce_time = level.time + 1.0f;
+				}
+				NoAmmoWeaponChange(ent);
+				return;
+			}
+
+			ent->client->ps.gunframe = 1;
+			ent->client->weaponstate = WEAPON_FIRING;
+			ent->client->grenade_time = 0;
+			return;
+		}
+
+		if ((ent->client->ps.gunframe == 29) ||
+			(ent->client->ps.gunframe == 34) ||
+			(ent->client->ps.gunframe == 39) ||
+			(ent->client->ps.gunframe == 48))
+		{
+			if (randk() & 15)
+				return;
+		}
+
+		if (++ent->client->ps.gunframe > 48)
+		{
+			ent->client->ps.gunframe = 16;
+		}
+
+		return;
+	}
+
+	if (ent->client->weaponstate != WEAPON_FIRING)
+	{
+		return;
+	}
+
+	if (ent->client->ps.gunframe == 5)
+	{
+		gi.sound(ent, CHAN_WEAPON, gi.soundindex("weapons/hgrena1b.wav"), 1,
+			ATTN_NORM, 0);
+	}
+
+	if (ent->client->ps.gunframe == 11)
+	{
+		if (!ent->client->grenade_time)
+		{
+			ent->client->grenade_time = level.time + GRENADE_TIMER + 0.2f;
+			ent->client->weapon_sound = gi.soundindex("weapons/hgrenc1b.wav");
+		}
+
+		if (!ent->client->grenade_blew_up &&
+		    level.time >= ent->client->grenade_time)
+		{
+			ent->client->weapon_sound = 0;
+			Weapon_ProximityMines_Fire(ent);
+			ent->client->grenade_blew_up = true;
+		}
+
+		if (ent->client->buttons & BUTTON_ATTACK)
+		{
+			return;
+		}
+
+		if (ent->client->grenade_blew_up)
+		{
+			if (level.time >= ent->client->grenade_time)
+			{
+				ent->client->ps.gunframe = 15;
+				ent->client->grenade_blew_up = false;
+			}
+			else
+			{
+				return;
+			}
+		}
+	}
+
+	if (ent->client->ps.gunframe == 12)
+	{
+		ent->client->weapon_sound = 0;
+		Weapon_ProximityMines_Fire(ent);
+		ent->client->grenade_time = 0;
+	}
+
+	if ((ent->client->ps.gunframe == 15) &&
+	    (level.time < ent->client->grenade_time))
+	{
+		return;
+	}
+
+	ent->client->ps.gunframe++;
+	if (ent->client->ps.gunframe == 16)
+	{
+		ent->client->weaponstate = WEAPON_READY;
+	}
+}
+
 void
 Weapon_DynamicWeapon(edict_t *ent)
 {
@@ -4181,6 +4323,10 @@ Weapon_DynamicWeapon(edict_t *ent)
 
 		Weapon_Generic(ent, 4, 14, 34, 39, pause_frames, fire_frames,
 			Weapon_DetonationPack_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_mines"))
+	{
+		Weapon_ProximityMines(ent);
 	}
 	/* Some other mod */
 	else

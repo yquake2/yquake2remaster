@@ -67,6 +67,11 @@ GetWeaponAmmoIndex(const gitem_t *weap)
 		{
 			return ITEM_INDEX(ammo);
 		}
+		else
+		{
+			gi.dprintf("%s: Ammo %s for %s is not defined\n",
+				__func__, weap->ammo, weap->classname);
+		}
 	}
 
 	return 0;
@@ -4819,6 +4824,7 @@ InitItems(void)
 							itemlist[num_items].tag = AMMO_GRENADES;
 							itemlist[num_items].count_width = 3;
 							itemlist[num_items].icon = "a_mines";
+							itemlist[num_items].ammo = "Mines";
 							itemlist[num_items].view_model = "models/weapons/v_mine/tris.md2";
 							itemlist[num_items].quantity = 1;
 							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
