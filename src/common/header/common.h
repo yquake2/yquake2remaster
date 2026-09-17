@@ -924,6 +924,7 @@ void SV_LocalizationFree(void);
 /* Convert protocol */
 int P_ConvertConfigStringFrom(int i, int protocol);
 int P_ConvertConfigStringTo(int i, int protocol);
+int P_GetCountOfItems(int protocol);
 
 /* ======================================================================= */
 

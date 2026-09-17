@@ -29,9 +29,11 @@
 void
 CL_ParseInventory(void)
 {
-	int i;
+	int i, max_items;
 
-	for (i = 0; i < MAX_ITEMS; i++)
+	max_items = P_GetCountOfItems(cls.serverProtocol);
+
+	for (i = 0; i < max_items; i++)
 	{
 		cl.inventory[i] = MSG_ReadShort(&net_message);
 	}
@@ -60,7 +62,7 @@ CL_DrawInventory(void)
 {
 	int i, num, selected_num;
 	char string[1024];
-	int x, y;
+	int x, y, max_items;
 	char binding[1024];
 	int selected;
 	int top;
@@ -73,8 +75,9 @@ CL_DrawInventory(void)
 	selected_num = 0;
 
 	float scale = SCR_GetHUDScale();
+	max_items = P_GetCountOfItems(cls.serverProtocol);
 
-	for (i = 0; i < MAX_ITEMS; i++)
+	for (i = 0; i < max_items; i++)
 	{
 		if (i == selected)
 		{

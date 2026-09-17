@@ -270,3 +270,19 @@ P_ConvertConfigStringTo(int i, int protocol)
 
 	return i;
 }
+
+int
+P_GetCountOfItems(int protocol)
+{
+	if (IS_QII97_PROTOCOL(protocol))
+	{
+		return MAX_ITEMS_Q2DEMO;
+	}
+
+	if (protocol == PROTOCOL_RR22_VERSION)
+	{
+		return MAX_ITEMS_RR22DEMO;
+	}
+
+	return MAX_ITEMS;
+}
