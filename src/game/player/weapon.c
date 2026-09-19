@@ -4067,7 +4067,10 @@ Weapon_DetonationPack_Fire(edict_t *ent)
 	fire_detpack(ent, start, forward, damage, damage_radius, 400.0f, 0.0f);
 
 	item = FindItem("Detonation Pack");
-	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	if (item)
+	{
+		ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	}
 }
 
 static void
@@ -4119,6 +4122,7 @@ Weapon_ProximityMines(edict_t *ent)
 						ATTN_NORM, 0);
 					ent->pain_debounce_time = level.time + 1.0f;
 				}
+
 				NoAmmoWeaponChange(ent);
 				return;
 			}
@@ -4135,7 +4139,9 @@ Weapon_ProximityMines(edict_t *ent)
 			(ent->client->ps.gunframe == 48))
 		{
 			if (randk() & 15)
+			{
 				return;
+			}
 		}
 
 		if (++ent->client->ps.gunframe > 48)
