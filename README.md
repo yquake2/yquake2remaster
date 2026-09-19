@@ -250,10 +250,8 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_rifle`,
 * [ ] Oblivion: Add support of `ammo_dod`,
 * [ ] Oblivion: Add support of `func_rotate_train`,
-* [ ] Oblivion: Add support of `info_teleporter_dest`,
 * [ ] Oblivion: Add support of `misc_camera`,
 * [ ] Oblivion: Add support of `misc_camera_target`,
-* [ ] Oblivion: Add support of `misc_screenfader`,
 * [ ] Oblivion: Add support of `trigger_misc_camera`,
 * [ ] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Oblivion: Add dynamic animation based on `activate` for `badass` and `floater`,
@@ -261,6 +259,8 @@ Checked with:
 
 ### Fixed:
 
+* [x] Oblivion: Add support of `info_teleporter_dest`,
+* [x] Oblivion: Add support of `misc_screenfader`,
 * [x] Oblivion: Add support of `ammo_mines`,
 * [x] Support load `.cin` by ffmpeg from `.pak` file
 * [x] Support obj waveform model format for debug other formats,
