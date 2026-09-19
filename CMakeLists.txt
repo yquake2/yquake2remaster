@@ -373,12 +373,26 @@ set(Game-Source
 	${GAME_SRC_DIR}/dm/ball.c
 	${GAME_SRC_DIR}/dm/tag.c
 	${GAME_SRC_DIR}/g_ai.c
+	${GAME_SRC_DIR}/g_camera.c
 	${GAME_SRC_DIR}/g_chase.c
 	${GAME_SRC_DIR}/g_cmds.c
 	${GAME_SRC_DIR}/g_combat.c
 	${GAME_SRC_DIR}/g_ctf.c
 	${GAME_SRC_DIR}/g_func.c
 	${GAME_SRC_DIR}/g_items.c
+	${GAME_SRC_DIR}/g_light.c
+	${GAME_SRC_DIR}/g_main.c
+	${GAME_SRC_DIR}/g_misc.c
+	${GAME_SRC_DIR}/g_monster.c
+	${GAME_SRC_DIR}/g_newai.c
+	${GAME_SRC_DIR}/g_newdm.c
+	${GAME_SRC_DIR}/g_newfnc.c
+	${GAME_SRC_DIR}/g_newtarg.c
+	${GAME_SRC_DIR}/g_newtrig.c
+	${GAME_SRC_DIR}/g_newweap.c
+	${GAME_SRC_DIR}/g_obj.c
+	${GAME_SRC_DIR}/g_phys.c
+	${GAME_SRC_DIR}/g_rtdu.c
 	${GAME_SRC_DIR}/g_light.c
 	${GAME_SRC_DIR}/g_main.c
 	${GAME_SRC_DIR}/g_misc.c

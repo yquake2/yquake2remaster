@@ -28,6 +28,7 @@
 static const fnlist_entry_t fnentries_die[] =
 {
 	{"DBall_BallDie", (byte *)DBall_BallDie},
+	{"RTDU_RemoveTurret", (byte *)RTDU_RemoveTurret},
 	{"actor_die", (byte *)actor_die},
 	{"arachnid_die", (byte *)arachnid_die},
 	{"army_die", (byte *)army_die},
@@ -203,6 +204,8 @@ static const fnlist_entry_t fnentries_think[] =
 	{"CTFDropFlagThink", (byte *)CTFDropFlagThink},
 	{"CTFFlagSetup", (byte *)CTFFlagSetup},
 	{"CTFFlagThink", (byte *)CTFFlagThink},
+	{"Camera_TargetThink", (byte *)Camera_TargetThink},
+	{"Camera_Think", (byte *)Camera_Think},
 	{"ChasecamTrack", (byte *)ChasecamTrack},
 	{"DBall_BallRespawn", (byte *)DBall_BallRespawn},
 	{"DoRespawn", (byte *)DoRespawn},
@@ -219,6 +222,8 @@ static const fnlist_entry_t fnentries_think[] =
 	{"Nuke_Quake", (byte *)Nuke_Quake},
 	{"Nuke_Think", (byte *)Nuke_Think},
 	{"Prox_Explode", (byte *)Prox_Explode},
+	{"RTDU_RemoveTurretThink", (byte *)RTDU_RemoveTurretThink},
+	{"RTDU_TurretThink", (byte *)RTDU_TurretThink},
 	{"RotateTrain_MoveBegin", (byte *)RotateTrain_MoveBegin},
 	{"RotateTrain_MoveDone", (byte *)RotateTrain_MoveDone},
 	{"RotateTrain_MoveFinal", (byte *)RotateTrain_MoveFinal},
@@ -394,6 +399,7 @@ static const fnlist_entry_t fnentries_touch[] =
 	{"Touch_Multi", (byte *)Touch_Multi},
 	{"Touch_Plat_Center", (byte *)Touch_Plat_Center},
 	{"Touch_Plat_Center2", (byte *)Touch_Plat_Center2},
+	{"TriggerCamera_Touch", (byte *)TriggerCamera_Touch},
 	{"badarea_touch", (byte *)badarea_touch},
 	{"barrel_touch", (byte *)barrel_touch},
 	{"bfg_touch", (byte *)bfg_touch},
@@ -472,6 +478,8 @@ static const functionList_t fnlist_touch =
 
 static const fnlist_entry_t fnentries_use[] =
 {
+	{"Camera_TargetUse", (byte *)Camera_TargetUse},
+	{"Camera_Use", (byte *)Camera_Use},
 	{"Door_Activate", (byte *)Door_Activate},
 	{"Item_TriggeredSpawn", (byte *)Item_TriggeredSpawn},
 	{"Use_Areaportal", (byte *)Use_Areaportal},
