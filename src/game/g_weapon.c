@@ -2752,7 +2752,7 @@ fire_detpack(edict_t *self, vec3_t start, vec3_t aimdir, int damage,
 
 #define MAX_ACTIVE_MINES 5
 
-static void
+void
 proximity_mine_explode(edict_t *self)
 {
 	vec3_t origin;
@@ -2831,7 +2831,7 @@ mine_enforce_limit(edict_t *mine)
 	}
 }
 
-static void
+void
 proximity_mine_laser_think(edict_t *self)
 {
 	edict_t *beam, *child, *source;
@@ -2894,7 +2894,7 @@ proximity_mine_laser_think(edict_t *self)
 	self->nextthink = level.time + 0.1f;
 }
 
-static void
+void
 proximity_mine_laser_start(edict_t *self)
 {
 	self->movetype = MOVETYPE_FLY;
@@ -2908,7 +2908,7 @@ proximity_mine_laser_start(edict_t *self)
 	self->s.sound = gi.soundindex("weapons/hgrenc1b.wav");
 }
 
-static void
+void
 proximity_mine_think(edict_t *self)
 {
 	edict_t	*ent;
@@ -2929,7 +2929,7 @@ proximity_mine_think(edict_t *self)
 	self->nextthink = level.time + 0.1f;
 }
 
-static void
+void
 proximity_mine_die(edict_t *self, edict_t *inflictor,
 			       edict_t *attacker, int damage, const vec3_t point)
 {
@@ -2940,7 +2940,7 @@ proximity_mine_die(edict_t *self, edict_t *inflictor,
 	}
 }
 
-static void
+void
 proximity_mine_touch(edict_t *self, edict_t *other, const cplane_t *plane,
 				 const csurface_t *surf)
 {
