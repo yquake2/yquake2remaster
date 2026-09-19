@@ -4745,11 +4745,13 @@ InitItems(void)
 						{
 							itemlist[num_items].ammo = "Slugs";
 							itemlist[num_items].quantity = 3;
+							itemlist[num_items].icon = "w_sniper";
 						}
 						else if (!strcmp(itemlist[num_items].classname, "weapon_soniccannon"))
 						{
 							itemlist[num_items].ammo = "Cells";
 							itemlist[num_items].quantity = 1;
+							itemlist[num_items].icon = "w_sonic";
 						}
 						/* Oblivion ammo */
 						else if (!strcmp(itemlist[num_items].classname, "weapon_plasma_pistol"))
@@ -4836,6 +4838,31 @@ InitItems(void)
 							itemlist[num_items].count_width = 3;
 							itemlist[num_items].icon = "a_plasma2";
 							itemlist[num_items].quantity = 50;
+						}
+						/* Zaero */
+						else if (!strcmp(itemlist[num_items].classname, "ammo_ired"))
+						{
+							itemlist[num_items].count_width = 3;
+							itemlist[num_items].icon = "w_ired";
+							itemlist[num_items].view_model = "models/weapons/v_ired/tris.md2";
+							itemlist[num_items].quantity = 3;
+							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
+							itemlist[num_items].flags |= IT_WEAPON;
+						}
+						else if (!strcmp(itemlist[num_items].classname, "ammo_empnuke"))
+						{
+							itemlist[num_items].count_width = 3;
+							itemlist[num_items].icon = "w_enuke";
+							itemlist[num_items].quantity = 1;
+							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
+						}
+						else if (!strcmp(itemlist[num_items].classname, "ammo_a2k"))
+						{
+							itemlist[num_items].count_width = 1;
+							itemlist[num_items].icon = "w_a2k";
+							itemlist[num_items].quantity = 1;
+							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
+							itemlist[num_items].flags = IT_POWERUP;
 						}
 					}
 

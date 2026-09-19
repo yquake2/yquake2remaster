@@ -4334,6 +4334,39 @@ Weapon_DynamicWeapon(edict_t *ent)
 	{
 		Weapon_ProximityMines(ent);
 	}
+	/* Zaero */
+	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_a2k"))
+	{
+		static const int pause_frames[] = {20, 30, 40, 0};
+		static const int fire_frames[] = {14, 19, 0};
+
+		Weapon_Generic(ent, 9, 19, 49, 55, pause_frames, fire_frames,
+			Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_empnuke"))
+	{
+		static const int pause_frames[] = {25, 34, 43, 0};
+		static const int fire_frames[] = {16, 0};
+
+		Weapon_Generic(ent, 9, 16, 43, 47, pause_frames, fire_frames,
+			Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "ammo_ired"))
+	{
+		static const int pause_frames[] = {24, 33, 43, 0};
+		static const int fire_frames[] = {6, 10, 15, 0};
+
+		Weapon_Generic(ent, 6, 15, 43, 48, pause_frames, fire_frames,
+			Weapon_Blaster_Fire);
+	}
+	else if (!strcmp(ent->client->pers.weapon->classname, "weapon_soniccannon"))
+	{
+		static const int pause_frames[] = {32, 42, 52, 0};
+		static const int fire_frames[] = {12, 13, 14, 15, 16, 17, 0};
+
+		Weapon_Generic(ent, 6, 22, 52, 57, pause_frames, fire_frames,
+			Weapon_Blaster_Fire);
+	}
 	/* Some other mod */
 	else
 	{
