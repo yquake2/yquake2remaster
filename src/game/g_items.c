@@ -3609,6 +3609,31 @@ static const gitem_t gameitemlist[] = {
 	},
 
 	/*
+	 * QUAKED weapon_rtdu (.3 .3 1) (-16 -16 -16) (16 16 16)
+	 */
+	{
+		"weapon_rtdu",
+		Pickup_RTDU,
+		rtdu_use,
+		Drop_RTDU,
+		NULL,
+		"misc/w_pkup.wav",
+		"models/objects/rtdu/rtdu.md2",
+		0,
+		NULL,
+		"w_rtdu",
+		"RTDU",
+		1,
+		1,
+		NULL,
+		IT_POWERUP | IT_STAY_COOP,
+		0,
+		NULL,
+		0,
+		""
+	},
+
+	/*
 	 * QUAKED item_breather (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
 	 */
 	{

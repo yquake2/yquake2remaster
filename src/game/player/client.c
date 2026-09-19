@@ -3154,6 +3154,11 @@ ClientThink(edict_t *ent, usercmd_t *ucmd)
 		return;
 	}
 
+	if (ent->client->remote_view_cmd_hook)
+	{
+		ent->client->remote_view_cmd_hook(ent, ucmd);
+	}
+
 	level.current_entity = ent;
 	client = ent->client;
 
@@ -3473,6 +3478,8 @@ ClientBeginServerFrame(edict_t *ent)
 	{
 		return;
 	}
+
+	Camera_ClientPreFrame(ent);
 
 	if (level.intermissiontime)
 	{

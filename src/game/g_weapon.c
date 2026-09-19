@@ -3374,6 +3374,19 @@ fire_iredlaser(edict_t *self, vec3_t start, vec3_t dir, float timer, float damag
 	return true;
 }
 
+static void
+dod_client_reset(edict_t *self, usercmd_t *ucmd)
+{
+	if (!ucmd)
+	{
+		return;
+	}
+
+	ucmd->forwardmove = 0;
+	ucmd->sidemove = 0;
+	ucmd->upmove = 0;
+}
+
 void
 dod_pulse_think(edict_t *self)
 {
@@ -3390,6 +3403,11 @@ dod_pulse_think(edict_t *self)
 
 	self->think = G_FreeEdict;
 	self->nextthink = level.time + 0.1f;
+
+	if (self->owner && self->owner->client)
+	{
+		self->owner->client->remote_view_cmd_hook = NULL;
+	}
 }
 
 void
@@ -3422,4 +3440,9 @@ fire_dod(edict_t *self, vec3_t start, vec3_t dir)
 
 	gi.sound(self, CHAN_WEAPON, gi.soundindex("dod/dod.wav"), 1, ATTN_NORM, 0);
 	gi.linkentity(dod);
+
+	if (self->client)
+	{
+		self->client->remote_view_cmd_hook = dod_client_reset;
+	}
 }

@@ -1160,6 +1160,7 @@ GAME_OBJS_ = \
 	src/game/bot/astar.o \
 	src/game/bot/bot_spawn.o \
 	src/game/g_ai.o \
+	src/game/g_camera.o \
 	src/game/g_chase.o \
 	src/game/g_cmds.o \
 	src/game/g_ctf.o \
@@ -1178,6 +1179,7 @@ GAME_OBJS_ = \
 	src/game/g_newweap.o \
 	src/game/g_obj.o \
 	src/game/g_phys.o \
+	src/game/g_rtdu.o \
 	src/game/g_spawn.o \
 	src/game/g_sphere.o \
 	src/game/g_svcmds.o \

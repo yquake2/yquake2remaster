@@ -28,7 +28,11 @@
 #ifndef GAME_LOCAL_H
 #define GAME_LOCAL_H
 
+struct edict_s;
+
 #include "../../common/header/shared.h"
+
+typedef void remote_view_cmd_func_t(struct edict_s *ent, usercmd_t *ucmd);
 
 /* define GAME_INCLUDE so that game.h does not define the
    short, server-visible gclient_t and edict_t structures,
@@ -699,6 +703,7 @@ void M_WorldEffects(edict_t *ent);
 #define MOD_DOPPLE_HUNTER 56
 #define MOD_PLASMA_RIFLE 57
 #define MOD_PLASMA_PISTOL 58
+#define MOD_REMOTE_CANNON 59
 #define MOD_FRIENDLY_FIRE 0x8000000
 
 /* Easier handling of AI skill levels */
@@ -1132,7 +1137,20 @@ void Grenade_Explode(edict_t *ent);
 #define SPAWNFLAG_LASER_ZAP 0x80000000
 #define SPAWNFLAG_TRAIN_START_ON 1
 #define SPAWNFLAG_PATH_CORNER_TELEPORT 1
-void target_laser_start(edict_t *self);
+void RemoteView_Begin(edict_t *ent, edict_t *viewent);
+void RemoteView_End(edict_t *ent);
+void RemoteView_AttachController(edict_t *ent, edict_t *viewent,
+	remote_view_cmd_func_t *cmd_hook);
+void RemoteView_DetachController(edict_t *ent, edict_t *viewent);
+void Camera_ClientPreFrame(edict_t *ent);
+void Camera_ClientPostFrame(edict_t *ent);
+void SP_misc_camera(edict_t *self);
+void SP_trigger_misc_camera(edict_t *self);
+void SP_misc_camera_target(edict_t *self);
+
+qboolean Pickup_RTDU(edict_t *ent, edict_t *other);
+void rtdu_use(edict_t *ent, const gitem_t *item);
+void Drop_RTDU(edict_t *ent, const gitem_t *item);
 
 /* g_trigger.c */
 void hurt_touch(edict_t *self, edict_t *other, const cplane_t *plane, const csurface_t *surf);
@@ -1524,6 +1542,7 @@ struct gclient_s
 	float killer_yaw;               /* when dead, look at killer */
 
 	weaponstate_t weaponstate;
+
 	vec3_t kick_angles;				/* weapon kicks */
 	vec3_t kick_origin;
 	float v_dmg_roll, v_dmg_pitch, v_dmg_time;          /* damage kicks */
@@ -1574,6 +1593,23 @@ struct gclient_s
 
 	edict_t *chase_target;          /* player we are chasing */
 	qboolean update_chase;          /* need to update chase info? */
+
+	edict_t *remote_view_aux_entity;
+	qboolean remote_view_aux_flag;
+
+	qboolean remote_view_active;
+	void (*remote_view_cmd_hook)(struct edict_s *ent, usercmd_t *ucmd);
+	edict_t *remote_view_body;
+	union {
+		edict_t *remote_view_entity;
+		struct {
+			edict_t *turret;
+		} rtdu;
+	};
+	int remote_view_state_1;
+	int remote_view_state_2;
+	float remote_view_timer;
+	int remote_view_saved_gunindex;
 
 	void *ctf_grapple;              /* entity of grapple */
 	int ctf_grapplestate;               /* true if pulling */

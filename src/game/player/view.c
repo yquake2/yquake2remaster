@@ -1569,6 +1569,8 @@ ClientEndServerFrame(edict_t *ent)
 		return;
 	}
 
+	Camera_ClientPostFrame(ent);
+
 	current_player = ent;
 	current_client = ent->client;
 

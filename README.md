@@ -248,18 +248,18 @@ Checked with:
 * [ ] Infinity: Add support of `weapon_blaze`,
 * [ ] Infinity: Add support of `weapon_goop`,
 * [ ] Infinity: Add support of `weapon_rifle`,
-* [ ] Oblivion: Add support of `ammo_dod`,
 * [ ] Oblivion: Finish support of `func_rotate_train`, add `speeds` for `path_corner`,
-* [ ] Oblivion: Add support of `misc_camera`,
-* [ ] Oblivion: Add support of `misc_camera_target`,
-* [ ] Oblivion: Add support of `trigger_misc_camera`,
-* [ ] Oblivion: Add support of `weapon_rtdu`,
+* [x] Oblivion: Add support of `misc_camera`,
+* [x] Oblivion: Add support of `misc_camera_target`,
+* [x] Oblivion: Add support of `trigger_misc_camera`,
+* [x] Oblivion: Add support of `weapon_rtdu`,
 * [ ] Oblivion: Add dynamic animation based on `activate` for `badass` and `floater`,
 * [ ] game: share `ired_enforce_limit`, `mine_enforce_limit`, `detpack_enforce_limit`,
 * [ ] Dynamic count of entities on client.
 
 ### Fixed:
 
+* [x] Oblivion: Add support of `ammo_dod`,
 * [x] Oblivion: Add support of `info_teleporter_dest`,
 * [x] Oblivion: Add support of `misc_screenfader`,
 * [x] Oblivion: Add support of `ammo_mines`,
