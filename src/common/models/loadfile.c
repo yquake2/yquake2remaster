@@ -574,6 +574,9 @@ static const replacement_t replacements[] = {
 	{"models/weapons/ammo/g_bolt", "models/e3/wa_bolt"},
 	/* q2demo */
 	{"models/objects/gibs/head2/tris", "models/objects/gibs/head/tris"},
+	/* Oblivion */
+	{"models/weapons/v_mine/tris", "models/weapons/v_handgr/tris"},
+	{"models/objects/mine/tris", "models/items/ammo/grenades/medium/tris"},
 };
 
 static const model_t *

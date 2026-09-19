@@ -4826,7 +4826,7 @@ InitItems(void)
 							itemlist[num_items].icon = "a_mines";
 							itemlist[num_items].ammo = "Mines";
 							itemlist[num_items].view_model = "models/weapons/v_mine/tris.md2";
-							itemlist[num_items].quantity = 1;
+							itemlist[num_items].quantity = 5;
 							itemlist[num_items].weaponthink = Weapon_DynamicWeapon;
 							itemlist[num_items].flags |= IT_WEAPON;
 						}
